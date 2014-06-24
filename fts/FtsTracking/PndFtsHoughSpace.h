@@ -64,6 +64,22 @@ public:
 	);
 	~PndFtsHoughSpace();
 
+	/**@brief Finds all peaks that satisfy the minimum height requirement minHeight.
+
+	 TODO: This information is obsolete and should be adjusted
+		peakTheta = theta for peak
+		peakSecond = Q/pzx for peak (parabola HT)
+		peakSecond = intercept for peak (line HT) (in z-x- or z-y-plane)
+
+	 peakThetaHw = half width of peak in theta
+	 peakSecondHw = half width of peak in second value (see above for what it stands for)
+
+	 actualHeight height of the peak in the histogram (in counts)
+	 *
+	 * @param minHeight
+	 * @param tracklets should be empty at the beginning and will contain all values found for the peaks in the Hough space. They will contain the hitIds of all hits that contribute to the peaks.
+	 * @return kTRUE if at least one peak was found, kFALSE otherwise (Hough Space is empty / has too few hits or tracklets were not empty)
+	 */
 	Bool_t FindAllPeaks(
 			const UInt_t minHeight,
 			std::vector<PndFtsHoughTracklet> &tracklets
@@ -163,7 +179,18 @@ private:
 
 
 
-	// Makes sure there are no holes in the Hough space by filling them with a line
+	/**@brief Makes sure there are no holes in the Hough space by filling them with a line.
+
+	 Fills holes between (lastBinX, lastBinY) and (currentBinX, currentBinY) = (lastBinX+1, currentBinY) with a line.
+
+	 Holes can only appear in the yDirection and cannot appear in theta direction:
+	   We go from one bin to the next.
+	   From lower theta values to the next higher value.
+	 * @param lastBinX
+	 * @param lastBinY
+	 * @param currentBinY
+	 * @return
+	 */
 	inline Bool_t FillHoles(
 			Int_t lastBinX,
 			Int_t lastBinY,

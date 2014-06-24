@@ -11,8 +11,6 @@
 #include <map>
 
 // FTS
-#include "PndGeoFtsPar.h"
-#include "PndFtsMapCreator.h"
 #include "PndFtsHit.h"
 #include "FairHit.h"
 
@@ -274,13 +272,10 @@ Bool_t PndFtsHoughSpace::FillHoles(
 		Int_t currentBinY
 )
 {
-	// Makes sure there are no holes in the Hough space
-	// holes cannot appear in theta, we always go from lower theta to the next higher value
-	// fill holes between (lastBinX, lastBinY) and (currentBinX, currentBinY) = (lastBinX+1, currentBinY) with a line
-	const UInt_t nHolesToFill = abs(currentBinY-lastBinY);
-	for (UInt_t iCorrect = 1; iCorrect < nHolesToFill; ++iCorrect)
+	// determine how many holes we have to fill
+	const Int_t nHolesToFill = abs(currentBinY-lastBinY)-1;
+	for (UInt_t iCorrect = 1; iCorrect <= nHolesToFill; ++iCorrect)
 	{
-
 		const Int_t xCorrect = round(float(iCorrect)/float(nHolesToFill)); // gives 0 or 1
 		Int_t yCorrect;
 		if (currentBinY > lastBinY)
@@ -357,7 +352,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 	for (int iHit = 0; iHit < GetNHits(); iHit++)
 	{
 		firstEntry = kTRUE;
-		const PndFtsHit* myHit = getHit(iHit);
+		const PndFtsHit *const myHit = getHit(iHit);
 
 
 		// get hit position
@@ -398,6 +393,10 @@ void PndFtsHoughSpace::FillHoughSpace()
 			fField->GetFieldValue(po, BB); //return value in KG (G3)
 			By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
 		}
+
+		//------------------
+		// theta scan
+		//------------------
 
 
 		// get indices for first and last bins on x-axis
@@ -530,30 +529,8 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 		std::vector<PndFtsHoughTracklet> &tracklets
 )
 {
-	// finds all peaks that satisfy the minimum height requirement minHeight
-	// returns kTRUE if at least one peak was found, kFALSE otherwise (Hough space name was not set correctly or Hough Space is empty / has too few hits or tracklets were not empty)
-
-
-	// TODO: This information is obsolete and should be adjusted
-	// tracklets should be empty at the beginning and will contain all values found for the peak in the Hough space
-	//	peakTheta = theta for peak
-	//	peakSecond = Q/pzx for peak (parabola HT)
-	//	peakSecond = intercept for peak (line HT) (in z-x- or z-y-plane)
-
-	// peakThetaHw = half width of peak in theta
-	// peakSecondHw = half width of peak in second value (see above for what it stands for)
-
-	// actualHeight height of the peak in the histogram (in counts)
-	// the tracklets will contain the hitIds of all hits that contribute to the peak
-
-
-
-
 	// make sure the output vector is empty
-	if ( 0!=tracklets.size() ){
-		std::cout << "FATAL error in PndFtsHoughSpace tracklet vector is not empty.\n";
-		return kFALSE;
-	}
+	if ( 0!=tracklets.size() ){ throwError("in PndFtsHoughSpace: tracklet vector is not empty."); }
 
 
 	// check if Hough space has at least one entry
@@ -566,21 +543,15 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 
 
-
-
-
 	if ("allPeaks>minHeight" == peakfinderOption)
 	{
 		// peak finder only for 2D histograms implemented
 
-
 		// the following is an adaptation of the TH1::GetMaximumBin() code
-
 
 
 		// move search window over histogram
 		// if a peak is >= minHeight check the neighboring bins and merge peaks
-
 
 		// get values for first and last bins on each axis
 		Int_t xFirstBin  = fXaxis.GetFirst();
