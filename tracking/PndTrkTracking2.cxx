@@ -782,7 +782,6 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	Charge[MAXTRACKSPEREVENT],
 	tdaTrackFoundaTrackMC[MAXTRACKSPEREVENT],
 	resultFitSZagain[MAXTRACKSPEREVENT],
-	statusflag[MAXTRACKSPEREVENT],
 	SttStrawOn[NUMBER_STRAWS];
 
 
@@ -817,7 +816,6 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
 	daTrackFoundaTrackMC(tdaTrackFoundaTrackMC,MAXTRACKSPEREVENT,"daTrackFoundaTrackMC");
 //	resultFitSZagain(tresultFitSZagain,MAXTRACKSPEREVENT,"resultFitSZagain"),
-//	statusflag(tstatusflag,MAXTRACKSPEREVENT,"statusflag"),
 //	SttStrawOn(tSttStrawOn,NUMBER_STRAWS,"SttStrawOn");  //  SttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
 							// i-th Tube ID; SttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
 
@@ -1717,7 +1715,7 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
   {
 	if(!keepit[ncand]) continue;
 
-	if( statusflag[ncand] == -1 ) continue; // this is when the XY circle is contained in the
+	if( fR[ncand] < APOTEMAMAXINNERPARSTRAW ) continue; // this is when the XY circle is contained in the
 						// the Mvd region completely; skip the association of
 						// the Skews.
 
