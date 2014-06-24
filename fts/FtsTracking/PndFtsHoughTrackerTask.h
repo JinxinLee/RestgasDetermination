@@ -3,9 +3,9 @@
 
  @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
 
- @brief Interface between PandaRoot and PndFtsHoughTrackFinder where the PR algorithm is implemented.
+ @brief Interface between PandaRoot (data input and output) and PndFtsHoughTrackFinder (implementation of PR algorithm).
 
- This task provides functionality / data for related FTS PR classes by passing the pointer this as an argument for the object's constructor.
+ This task provides functionality / data for the FTS PR classes by passing a pointer to itself as an argument in the object's constructor.
 
  This class was originally modeled after
  mvd/MvdTracking/PndMvdRiemannTrackFinderTask
@@ -99,7 +99,7 @@ public:
 	 * @return Pointer to hit with index hitId in FTS hit array.
 	 */
 	const PndFtsHit *const GetFtsHit(UInt_t hitId) const {
-		if ( hitId >= fFtsHitArray->GetEntriesFast() ) {
+		if ( hitId >= GetNFtsHits() ) {
 			Warning("GetFtsHit","hitId is too large.");
 			return 0;
 		}

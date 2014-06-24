@@ -317,8 +317,7 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 	if(0<fVerbose) Info("Exec","Exec of PndFtsHoughTrackerTask on event %i", fEventNr);
 
 	// Reset output array
-	if ( ! fTrackCands )
-		Fatal("Exec", "No track cand array");
+	if ( ! fTrackCands ) Fatal("Exec", "No track cand array");
 
 	fTrackCands->Delete();
 	fTracks->Delete();

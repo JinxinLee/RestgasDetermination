@@ -3,7 +3,7 @@
 
  @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
 
- @brief Implementation of the Hough transform based FTS PR.
+ @brief Implementation of the Hough transform based FTS PR. Creates Hough spaces, finds peaks (=tracklets) and combines them to track candidates.
 
  This is a class version of the HoughTest.C macro PR test implementation
  minus all the plotting stuff.
@@ -41,10 +41,6 @@
 #include "Rtypes.h" // for Double_t, Int_t, etc
 #include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
 
-// For error reporting
-#include "TString.h"
-#include <stdexcept>
-
 #include <cmath>
 #include "TMath.h"
 #include <math.h>
@@ -55,7 +51,6 @@
 #include <fstream>
 #include <iostream>
 
-
 #include "PndFtsHit.h"
 #include "PndFtsHoughTrackerTask.h"
 #include "PndFtsHoughSpace.h"
@@ -64,10 +59,9 @@
 #include "PndTrackCand.h"
 #include "PndTrack.h"
 
-
-class FairField;
-
-
+// For error throwing
+#include "TString.h"
+#include <stdexcept>
 
 
 class PndFtsHoughTrackFinder

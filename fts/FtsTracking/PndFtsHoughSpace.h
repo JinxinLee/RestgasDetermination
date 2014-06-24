@@ -3,7 +3,7 @@
 
  @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
 
- @brief Class for Hough space based on TH2S (for the moment).
+ @brief Class for Hough space based on TH2S (for the moment). Fills hits and finds peaks.
 
  The angle (theta in rad) is always on x-coordinate axis, the value on the y-axis depends on the kind of Hough transform:
 	HT type  | yValue
@@ -11,25 +11,23 @@
 	parabola | Q/p_{zx}
 	line     | intercept (Achsenabschnitt) (in z-x- or z-y-plane)
 
+ All FTS hits are scanned within the constructor by filterInputHits().
+ The hits which are relevant for this Hough space are saved in fHitId and can be accessed with getHit(UInt_t index).
 
  Created: 21.02.2014
-*/
+ */
 
 
 #ifndef PndFtsHoughSpace_H
 #define PndFtsHoughSpace_H
 
-class PndFtsHoughTrackerTask;
+#include "PndFtsHoughTrackerTask.h"
 
 #include "TH2.h"
 #include <cmath>
 #include <vector>
 #include "Rtypes.h"                     // for Double_t, Int_t, etc
 #include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
-
-// For error reporting
-#include "TString.h"
-#include <stdexcept>
 
 #include "PndTrackCandHit.h"
 #include "TClonesArray.h"
@@ -39,6 +37,9 @@ class FairField;
 #include "PndFtsHoughTracklet.h"
 #include "PndFtsHoughTrackCand.h"
 
+// For error throwing
+#include "TString.h"
+#include <stdexcept>
 
 
 class PndFtsHoughSpace : public TH2S {
@@ -59,10 +60,6 @@ public:
 			Double_t zRefPos=0.,
 			Double_t interceptZx=0.,
 
-//			Int_t ftsBranchId=0,
-//			TClonesArray *ftsHitArray=0,
-//
-//			FairField *field=0,
 			PndFtsHoughTrackerTask *trackerTask=0
 	);
 	~PndFtsHoughSpace();
@@ -83,9 +80,7 @@ public:
 
 	 y component of B field will be read from field maps if fKeepBConstant is kFALSE
 	 */
-	void MakeHoughSpace(
-			//			UInt_t &nHitsForHoughSpace
-	);
+	void FillHoughSpace();
 
 	// operators
 	// PndFtsHoughSpace are the same if they contain the same hits, that means if the PndTrackCand are the same, therefore no need to implement that operator here
@@ -93,19 +88,13 @@ public:
 	// Accessors -----------------------
 	inline void Print() const;
 
-	void setVerbose(Int_t verbose) {
-		fVerbose = verbose;
-	}
+	void setVerbose(Int_t verbose) { fVerbose = verbose; };
 
-	Double_t getInterceptZx() const {
-		return fInterceptZx;
-	}
+	Double_t getInterceptZx() const { return fInterceptZx; };
 
-	Double_t getZRefPos() const {
-		return fZRefPos;
-	}
+	Double_t getZRefPos() const { return fZRefPos; };
 
-	inline UInt_t GetNHits() const {return fHitId.size();}
+	inline UInt_t GetNHits() const { return fHitId.size(); };
 
 
 private:
@@ -119,16 +108,15 @@ private:
 	Bool_t filterInputHits(); // copies input hits (based on z coordinate and skewed/non-skewed) from fFtsHitArray (all FTS hits) to fHitId (only the hits that qualify for the specific Hough transform)
 	inline void AddHit(UInt_t hitId, Double_t rho);
 	inline void AddHit(FairLink link, Double_t rho);
-	inline const PndFtsHit *getHit(UInt_t index) const; // gets the FTS hit corresponding to index
+	inline const PndFtsHit *const getHit(UInt_t index) const; // gets the FTS hit corresponding to index
 
 
 	// Private Data Members ------------
 	Int_t fVerbose;
 
-	// FTS Hits
+	/// @ brief FTS Hits
 	Int_t   fFtsBranchId;
-	TClonesArray *fFtsHitArray; // all FTS hits
-	std::vector<PndTrackCandHit> fHitId;  // hits relevant for this Hough space
+	std::vector<PndTrackCandHit> fHitId;  ///< @brief hits relevant for this Hough space
 	///< first index is detId, second index is hit Id
 
 
@@ -229,6 +217,7 @@ public:
 };
 
 
+
 // inline functions
 void PndFtsHoughSpace::Print() const {
 	std::cout << "=========== PndFtsHoughSpace::Print() ==========" << '\n';
@@ -238,10 +227,10 @@ void PndFtsHoughSpace::Print() const {
 }
 
 
-const PndFtsHit* PndFtsHoughSpace::getHit(UInt_t index) const {
+const PndFtsHit *const PndFtsHoughSpace::getHit(UInt_t index) const {
 	if (index < GetNHits()){
 		Int_t hitIndex = fHitId.at(index).GetHitId();
-		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(hitIndex);
+		const PndFtsHit *const myHit = (PndFtsHit*) fTrackerTask->GetFtsHit(hitIndex);
 		return myHit;
 	} else {
 		return 0;

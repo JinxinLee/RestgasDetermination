@@ -14,7 +14,7 @@
 #ifndef PNDFTSHOUGHTRACKLET_H
 #define PNDFTSHOUGHTRACKLET_H
 
-class PndFtsHoughTrackerTask;
+#include "PndFtsHoughTrackerTask.h"
 
 // Root Class Headers ----------------
 #include "PndTrackCand.h"

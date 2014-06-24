@@ -1,7 +1,5 @@
 #include "PndFtsHoughSpace.h"
 
-#include "PndFtsHoughTrackerTask.h"
-
 #include <iostream>
 
 #include "TMath.h"
@@ -89,31 +87,26 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 		Double_t zRefPos,
 		Double_t interceptZx,
 
-		//		Int_t ftsBranchId,
-		//		TClonesArray *ftsHitArray,
-		//
-		//		FairField *field,
 		PndFtsHoughTrackerTask *trackerTask
 ) :
 fTrackerTask(trackerTask),
 
-fFtsHitArray(0),
-fFtsBranchId(0),
-fVerbose(0),
-fField(0),
-
 fZRefPos(zRefPos),
 fInterceptZx(interceptZx),
 
-TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup)
+TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+
+// set from tracker task
+fFtsBranchId(0),
+fVerbose(0),
+fField(0)
 
 {
 	if (0==fTrackerTask){
-		std::cout << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
+		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
 	} else {
 		fVerbose = fTrackerTask->GetVerbose();
 		if(3<fVerbose) std::cout << "PndFtsHoughSpace called with tracker ptr " << fTrackerTask << '\n';
-		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
 		fFtsBranchId = fTrackerTask->getFtsBranchId();
 		fField = fTrackerTask->getMagneticFieldPtr();
 
@@ -130,15 +123,18 @@ PndFtsHoughSpace::~PndFtsHoughSpace()
 
 Bool_t PndFtsHoughSpace::setParametersForHsOption()
 {
+	// use option instead of GetName() or fName (even though it is the same)
+	const TString option = GetName();
+
 	fKeepBConstant = kTRUE; // kFALSE only for testing
 
 	// set parameters according to the Hough transform I want to do
-	if ("lineBeforeDipole" == fName)
+	if ("lineBeforeDipole" == option)
 	{
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
 			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of stations before dipole field!\n";
-			std::cout << "Will set interceptZx to 0 for " << fName << '\n';
+			std::cout << "Will set interceptZx to 0 for " << option << '\n';
 			fInterceptZx = 0.;
 		}
 
@@ -149,7 +145,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		fOnlyUseHitsFromZ = 100.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 380.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
 	}
-	else if ("parabola" == fName)
+	else if ("parabola" == option)
 	{
 		fUseNonSkewedStraws = kTRUE;
 		fUseSkewedStraws = kFALSE;
@@ -158,7 +154,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		fOnlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 630.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
 	}
-	else if ("parabolapz" == fName)
+	else if ("parabolapz" == option)
 	{
 		fUseNonSkewedStraws = kTRUE;
 		fUseSkewedStraws = kFALSE;
@@ -166,12 +162,12 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// parabola for stations 3-5
 		fOnlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 630.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
-	} else if ("lineBehindDipole" == fName)
+	} else if ("lineBehindDipole" == option)
 	{
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
 			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of stations after dipole field!\n";
-			std::cout << "Will set interceptZx to 0 for " << fName << '\n';
+			std::cout << "Will set interceptZx to 0 for " << option << '\n';
 			fInterceptZx = 0.;
 		}
 
@@ -181,12 +177,12 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// Line for stations 5+6
 		fOnlyUseHitsFromZ = 550.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 1000.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
-	} else if ("lineZy" == fName)
+	} else if ("lineZy" == option)
 	{
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
 			std::cout << "PndFtsHoughSpace: " << "fInterceptZx was set to " << fInterceptZx << " That is not correct for line HT of all stations in zy plane!\n";
-			std::cout << "Will set interceptZx to 0 for " << fName << '\n';
+			std::cout << "Will set interceptZx to 0 for " << option << '\n';
 			fInterceptZx = 0.;
 		}
 
@@ -199,13 +195,12 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 	}
 	else
 	{
-		std::cout << "Error in PndFtsHoughSpace! option " << fName << " is not implemented!" << '\n';
-		return kFALSE;
+		throwError("in PndFtsHoughSpace! option " + option + " is not implemented!");
 	}
 
 	if (0<fVerbose)
 	{
-		std::cout << "HoughSpace parameters successfully set for option " << fName << '\n';
+		std::cout << "HoughSpace parameters successfully set for option " << option << '\n';
 		if (1<fVerbose)
 		{
 			std::cout << "fUseNonSkewedStraws " << fUseNonSkewedStraws << '\n';
@@ -224,12 +219,12 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 Bool_t PndFtsHoughSpace::filterInputHits()
 {
 	if (1<fVerbose) {
-		std::cout << "All FTS hits in event " << fFtsHitArray->GetEntriesFast() << "\n";
+		std::cout << "All FTS hits in event " << fTrackerTask->GetNFtsHits() << "\n";
 	}
 
-	for (int iHit = 0; iHit < fFtsHitArray->GetEntriesFast(); iHit++)
+	for (int iHit = 0; iHit < fTrackerTask->GetNFtsHits(); iHit++)
 	{
-		PndFtsHit* myHit = (PndFtsHit*) fFtsHitArray->At(iHit);
+		const PndFtsHit *const myHit = fTrackerTask->GetFtsHit(iHit);
 
 		// Skip hits from skewed or non-skewed straws (if I wish not to use them)
 		if (0 != myHit->GetSkewed())
@@ -327,11 +322,11 @@ Bool_t PndFtsHoughSpace::FillHoles(
 
 
 
-void PndFtsHoughSpace::MakeHoughSpace()
+void PndFtsHoughSpace::FillHoughSpace()
 {
 	// make sure we have hits in the Hough space
 	if (0==GetNHits()){
-		Info("MakeHoughSpace","No hits in Hough space.");
+		Info("FillHoughSpace","No hits in Hough space.");
 		return;
 	}
 
@@ -452,8 +447,7 @@ void PndFtsHoughSpace::MakeHoughSpace()
 			}
 			else
 			{
-				std::cerr << "Error in MakeHoughSpace! option " << option << " is not implemented!\n";
-				throwError("in MakeHoughSpace! option " + option + " is not implemented!");
+				throwError("in FillHoughSpace! option " + option + " is not implemented!");
 			}
 
 
@@ -484,7 +478,7 @@ void PndFtsHoughSpace::MakeHoughSpace()
 
 				// TODO Remove the following check for optimization, it should always be true
 				if (currentBinX != iTheta){
-					std::cout << "\n\nError in MakeHoughSpace! Hough point was filled into xBin " << currentBinX << " and not in " << iTheta << "\n";
+					std::cout << "\n\nError in FillHoughSpace! Hough point was filled into xBin " << currentBinX << " and not in " << iTheta << "\n";
 					std::cout << "iThetaFirst = " << iThetaLast << " iThetaLast = " << iThetaLast << "\n";
 					std::cout << "Over- or underflow on y-axis or FATAL error!\n\n\n";
 				}
@@ -719,7 +713,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 				currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currHeight, peakThetaHw, peakSecondHw);
 
 				///////////////////////////////////////////
-				// TODO this is messy, because the code is very similar to MakeHoughSpace. Probably, I should find a way to merge it
+				// TODO this is messy, because the code is very similar to FillHoughSpace. Probably, I should find a way to merge it
 				// add hits which are in the peak to the tracklet
 				// 1 calculate the 2nd value for the next higher/lower theta bin of combined peak theta
 				// 2 If peak 2nd value is within [min hit 2nd value - half width,  max hit 2nd value + half width] add the hit to the tracklet
@@ -832,7 +826,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					}
 					else
 					{
-						std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << '\n';
+						std::cout << "Error in FillHoughSpace! option " << option << " is not implemented!" << '\n';
 						return kFALSE;
 					}
 
@@ -928,7 +922,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 						currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHw, peakSecondHw);
 
 						///////////////////////////////////////////
-						// TODO this is messy, because the code is very similar to MakeHoughSpace. Probably, I should find a way to merge it
+						// TODO this is messy, because the code is very similar to FillHoughSpace. Probably, I should find a way to merge it
 						// add hits which are in the peak to the tracklet
 						// 1 calculate the 2nd value for the next higher/lower theta bin of peak theta
 						// 2 If peak 2nd value is within [min hit 2nd value - half width,  max hit 2nd value + half width] add the hit to the tracklet
@@ -1041,7 +1035,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 							}
 							else
 							{
-								std::cout << "Error in MakeHoughSpace! option " << option << " is not implemented!" << '\n';
+								std::cout << "Error in FillHoughSpace! option " << option << " is not implemented!" << '\n';
 								return kFALSE;
 							}
 
