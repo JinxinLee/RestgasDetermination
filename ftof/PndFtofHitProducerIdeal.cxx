@@ -231,10 +231,19 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
       time = gRandom->Gaus(point->GetTime(), 0.1); //100 ps time resolution
       
       // Create new hit
-      new ((*fHitArray)[iPoint]) PndFtofHit(trackID, detID, 
-					   point->GetDetName(),time, t1, 
-					   position,dpos,iPoint, 
-					   point->GetEnergyLoss());
+      if (FairRootManager::Instance()->RunWithTimeStamps()){
+    	  double timeBasedTime = time + FairRootManager::Instance()->GetEventTime();
+    	  new ((*fHitArray)[iPoint]) PndFtofHit(trackID, detID,
+			   point->GetDetName(),timeBasedTime, t1,
+			   position,dpos,iPoint,
+			   point->GetEnergyLoss());
+
+      } else {
+		  new ((*fHitArray)[iPoint]) PndFtofHit(trackID, detID,
+						   point->GetDetName(),time, t1,
+						   position,dpos,iPoint,
+						   point->GetEnergyLoss());
+      }
       //std::cout << "Hit created for module: " << point->GetDetName() << std::endl;
       
       
