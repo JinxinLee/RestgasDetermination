@@ -44,6 +44,7 @@
 
 
 typedef std::map<Int_t, std::vector<Int_t> >  PdgGroupId;
+typedef std::pair<Int_t,std::vector<Int_t> > PdgGroupIdPair;
 typedef std::map<Int_t,std::vector<Int_t> >::iterator PdgGroupIdIterator;
 
 std::ostream& operator <<(std::ostream& os, const std::vector<Int_t>& v);
@@ -245,14 +246,14 @@ private:
 	std::vector< std::pair<Double_t,Double_t> > fGeomMinMax;
 
 
-	Bool_t fFilterPdg; // is kTRUE if any pdg / group ID filter is set
-	Bool_t fFilterCharge; // is kTRUE if any filter on electrical charge is set (also kTRUE if filter on the total number of particles is set - charge state kAll)
-	Bool_t fFilterMom; // is kTRUE if any momentum filter is set
-	Bool_t fFilterGeom; // is kTRUE if any geometry filter is set
+	Bool_t fFilterPdg; ///< is kTRUE if any pdg / group ID filter is set
+	Bool_t fFilterCharge; ///< is kTRUE if any filter on electrical charge is set (also kTRUE if filter on the total number of particles is set - charge state kAll)
+	Bool_t fFilterMom; ///< is kTRUE if any momentum filter is set
+	Bool_t fFilterGeom; ///< is kTRUE if any geometry filter is set
 
 
-	// constant holding an integer number which is not used as a pdg code
-	// this serves as a place holder when constructing a vector from integers given by the user
+	/// @brief constant holding an integer number which is not used as a pdg code
+	/// this serves as a place holder when constructing a vector from integers given by the user
 	static const Int_t kInvalidPdgCode = 0;
 
 

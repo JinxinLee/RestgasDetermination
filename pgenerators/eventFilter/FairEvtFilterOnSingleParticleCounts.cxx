@@ -9,7 +9,7 @@ std::ostream& operator <<(std::ostream& os, const std::vector<Int_t>& v)
 {
 	os << "(";
 	Int_t lastIdx = v.size()-1;
-	if(v.size() == 0){
+	if(lastIdx < 0){
 		os << ")" ;
 		return os;
 	}
@@ -170,7 +170,6 @@ Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxPdgCodes( Int_t min, Int_t 
 	// for every entry in pdgCodes
 	// -- save a new entry in the map fPdgGroupId if the entry is not already in map
 	// -- add a new groupId to the vector in fPdgGroupId if the entry already exists in the map
-	typedef std::pair<Int_t,std::vector<Int_t> > PdgGroupIdPair;
 
 	for (UInt_t iPdgCodes = 0; iPdgCodes < pdgCodes.size(); ++iPdgCodes){
 		// skip kInvalidPdgCode entries in pdgCodes
