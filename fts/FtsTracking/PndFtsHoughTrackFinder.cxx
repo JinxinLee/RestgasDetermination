@@ -95,7 +95,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 			thetaDegLowLineBeforeDipole / 180. * meinpi, // in rad
 			thetaDegHighLineBeforeDipole / 180. * meinpi, // in rad
 
-			stepsPerThetaDegLineBeforeDipole*16, // TODO: Check values
+			stepsPerThetaDegLineBeforeDipole*320, // TODO: Check values
 			-80., // in cm // TODO: Check values
 			80., // in cm
 

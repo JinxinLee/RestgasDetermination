@@ -215,7 +215,8 @@ private:
 	inline Bool_t FillHoles(
 			Int_t lastBinX,
 			Int_t lastBinY,
-			Int_t currentBinY
+			Int_t currentBinY,
+			IdxPath * ptrThetaYIdxPathVec
 	);
 
 

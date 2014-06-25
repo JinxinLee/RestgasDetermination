@@ -81,6 +81,7 @@ std::ostream& operator <<(std::ostream& os, const IdxPath& outVector){
 
 std::ostream& operator <<(std::ostream& os, const HitIdxPathMap& outMap)
 {
+	os << '\n';
 	if(outMap.begin() == outMap.end()){
 		os << "{ , [] }";
 		return os;
@@ -88,7 +89,7 @@ std::ostream& operator <<(std::ostream& os, const HitIdxPathMap& outMap)
 	for (HitIdxPathMap::const_iterator itMap = outMap.begin(); itMap != outMap.end(); ++itMap){
 		os << "{ "<< itMap->first << ", ";
 		os << itMap->second;
-		os << " }\n";
+		os << " }\n\n";
 	}
 	return os;
 }
@@ -306,7 +307,8 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 Bool_t PndFtsHoughSpace::FillHoles(
 		Int_t lastBinX,
 		Int_t lastBinY,
-		Int_t currentBinY
+		Int_t currentBinY,
+		IdxPath * ptrThetaYIdxPathVec
 )
 {
 	// determine how many holes we have to fill
@@ -325,8 +327,16 @@ Bool_t PndFtsHoughSpace::FillHoles(
 			yCorrect = -iCorrect;
 		}
 
-		Int_t globalBin = GetBin(lastBinX+xCorrect,lastBinY+yCorrect);
+
+		Int_t interpolateBinX = lastBinX+xCorrect;
+		Int_t interpolateBinY = lastBinY+yCorrect;
+
+		Int_t globalBin = GetBin(interpolateBinX,interpolateBinY);
 		AddBinContent(globalBin);
+
+		// save interpolated values into path vector
+		ThetaYIdxPair idxPair(interpolateBinX,interpolateBinY);
+		ptrThetaYIdxPathVec->push_back(idxPair);
 
 		if (8<fVerbose)
 		{
@@ -335,7 +345,7 @@ Bool_t PndFtsHoughSpace::FillHoles(
 			std::cout << "(lastBinX, lastBinY) = (" << lastBinX << ", " << lastBinY << ")" << '\n';
 			std::cout << "(lastBinX+1, currentBinY)     = (" << lastBinX+1 << ", " << currentBinY << ")" << '\n';
 			std::cout << "xCorrect = " << xCorrect << "  yCorrect = " << yCorrect << '\n';
-			std::cout << "(lastbinx+xCorrect, lastbiny+yCorrect) = (" << lastBinX+xCorrect << ", " << lastBinY+yCorrect << ")" << '\n';
+			std::cout << "(interpolateBinX, interpolateBinY) = (" << interpolateBinX << ", " << interpolateBinY << ")" << '\n';
 		}
 	}// for iCorrect
 	return kTRUE;
@@ -436,7 +446,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 		Int_t iThetaLast   = fXaxis.GetLast();
 
 		// save path for each hit
-		IdxPath thetaYIdxPath;
+		IdxPath thetaYIdxPathVec;
 
 		// calculate Hough transform for hit iHit
 		// for each hit a scan in theta is done by going through the x-axis of the Hough space from lower to higher values
@@ -510,7 +520,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 						std::cout << "This is not the first point of the hit in the histogram. I will fix all holes which might be between this entry and the last one in the histogram"<<'\n';
 					}
 
-					FillHoles(lastBinX, lastBinY, currentBinY);
+					FillHoles(lastBinX, lastBinY, currentBinY, &thetaYIdxPathVec);
 
 				} // if not first entry to be written into histogram
 				else
@@ -522,9 +532,9 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 				firstEntry = kFALSE;
 
-				// save calculated value into path vector
+				// save calculated values into path vector
 				ThetaYIdxPair idxPair(currentBinX,currentBinY);
-				thetaYIdxPath.push_back(idxPair);
+				thetaYIdxPathVec.push_back(idxPair);
 
 			} // if NOT filled into over- or underflow
 			else
@@ -541,8 +551,8 @@ void PndFtsHoughSpace::FillHoughSpace()
 		} // for theta
 		//		std::cout << "map before iHit " << iHit << ": " << fHitThetaYIdxPath << '\n';
 		// save the final path for the hit
-		if ( 0 < thetaYIdxPath.size() ){
-			HitIdxPathPair hitPathPair( iHit, thetaYIdxPath );
+		if ( 0 < thetaYIdxPathVec.size() ){
+			HitIdxPathPair hitPathPair( iHit, thetaYIdxPathVec );
 			fHitThetaYIdxPath.insert( hitPathPair );
 		}
 	} // for iHit
