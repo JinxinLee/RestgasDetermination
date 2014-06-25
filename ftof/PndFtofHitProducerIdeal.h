@@ -52,6 +52,8 @@ class PndFtofHitProducerIdeal : public FairTask
   virtual void Exec(Option_t* opt);
   void smear(Double_t& time, Double_t& dt) {};
 
+  void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
+
  private:
   
   TString fBranchName;
@@ -65,6 +67,7 @@ class PndFtofHitProducerIdeal : public FairTask
   
   PndGeoFtofPar* fGeoPar;
   Double_t fdt,fdt2;
+  Bool_t fTimeOrderedDigi;
   
   void Register();
   

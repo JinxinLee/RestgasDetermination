@@ -22,7 +22,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndFtofHitProducerIdeal::PndFtofHitProducerIdeal() :
-  FairTask("Ideal PndFtof Hit Producer") 
+  FairTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE)
 {
 	fBranchName 	= "FtofPoint";
 
@@ -31,7 +31,7 @@ PndFtofHitProducerIdeal::PndFtofHitProducerIdeal() :
 
 // -----   Default constructor   -------------------------------------------
 PndFtofHitProducerIdeal::PndFtofHitProducerIdeal(Double_t dt, Double_t dt2) :
-  FairTask("Ideal PndFtof Hit Producer") 
+  FairTask("Ideal PndFtof Hit Producer"), fTimeOrderedDigi(kFALSE)
 {
 	fBranchName 	= "FtofPoint";
 
@@ -231,7 +231,7 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
       time = gRandom->Gaus(point->GetTime(), 0.1); //100 ps time resolution
       
       // Create new hit
-      if (FairRootManager::Instance()->RunWithTimeStamps()){
+      if (fTimeOrderedDigi){
     	  double timeBasedTime = time + FairRootManager::Instance()->GetEventTime();
     	  new ((*fHitArray)[iPoint]) PndFtofHit(trackID, detID,
 			   point->GetDetName(),timeBasedTime, t1,
