@@ -586,13 +586,17 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 		// require bin height >= minHeight
 		// and that it is between a falling and a rising area
 
+
+		// stores possible peaks for all hits
+		HitIdxPeakVec hitIdxPeaks;
+		// stores possible peaks for one hit
+		PeakVec possiblePeaks;
+
 		// hit loop
 		for (HitIdxPathMap::const_iterator itMap = fHitThetaYIdxPath.begin(); itMap != fHitThetaYIdxPath.end(); ++itMap){
 			Int_t hitIdx = itMap->first;
 			IdxPath path = itMap->second;
-
-			// for storing possible peaks for this hit
-			PeakVec possiblePeaks;
+			possiblePeaks.clear();
 
 			// loop over bins along the path
 			for (UInt_t iBinPair = 0; iBinPair < path.size(); ++iBinPair){
@@ -621,9 +625,12 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					possiblePeaks.push_back(newPeak);
 				} // Bin could belong to a peak
 			}// loop over bins along the path
+			HitIdxPeakVecPair hitPeaksPair( hitIdx, possiblePeaks );
+			hitIdxPeaks.insert( hitPeaksPair );
 		}// hit loop
 
 		// TODO Build up tracklets from peaks
+
 
 
 		return kTRUE;

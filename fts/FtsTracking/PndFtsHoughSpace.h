@@ -55,6 +55,7 @@ typedef std::pair<Int_t, IdxPath > HitIdxPathPair; // helper for inserting one p
 // for peaks
 typedef std::vector< PndFtsHoughSpacePeak > PeakVec; // helper -- vector of peaks
 typedef std::map<Int_t, PeakVec > HitIdxPeakVec; // that is the one I need -- map of hit indices to vector of peaks in which the hit could be in
+typedef std::pair<Int_t, PeakVec > HitIdxPeakVecPair; // helper for inserting one pair of hit index and vector of peaks into map
 
 // cout for the above types
 std::ostream& operator <<(std::ostream& os, const ThetaYIdxPair& outPair);
