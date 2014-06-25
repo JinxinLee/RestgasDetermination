@@ -46,6 +46,7 @@ FtsTracking/PndFtsTrackerIdeal.cxx
 FtsTracking/PndFtsHoughTracklet.cxx
 FtsTracking/PndFtsHoughTrackCand.cxx
 FtsTracking/PndFtsHoughSpace.cxx
+FtsTracking/PndFtsHoughSpacePeak.cxx
 FtsTracking/PndFtsHoughTrackFinder.cxx
 FtsTracking/PndFtsHoughTrackerTask.cxx
 )

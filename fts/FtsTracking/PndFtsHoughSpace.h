@@ -22,6 +22,7 @@
 #define PndFtsHoughSpace_H
 
 #include "PndFtsHoughTrackerTask.h"
+#include "PndFtsHoughSpacePeak.h"
 
 #include "TH2.h"
 #include <cmath>
@@ -49,10 +50,18 @@ typedef std::vector< ThetaYIdxPair > IdxPath; // helper -- path for one hit
 typedef std::map<Int_t, IdxPath > HitIdxPathMap; // that is the one I need -- map of hit indices to path for the corresponding hits
 typedef std::pair<Int_t, IdxPath > HitIdxPathPair; // helper for inserting one pair of hit index and path into map
 
+
+
+// for peaks
+typedef std::vector< PndFtsHoughSpacePeak > PeakVec; // helper -- vector of peaks
+typedef std::map<Int_t, PeakVec > HitIdxPeakVec; // that is the one I need -- map of hit indices to vector of peaks in which the hit could be in
+
 // cout for the above types
 std::ostream& operator <<(std::ostream& os, const ThetaYIdxPair& outPair);
 std::ostream& operator <<(std::ostream& os, const IdxPath& outVector);
 std::ostream& operator <<(std::ostream& os, const HitIdxPathMap& outMap);
+
+
 
 class PndFtsHoughSpace : public TH2S {
 public:
@@ -210,12 +219,13 @@ private:
 	 * @param lastBinX
 	 * @param lastBinY
 	 * @param currentBinY
+	 * @param ptrThetaYIdxPathVec Pointer to the vector which contains the path through the Hough space. If any holes are filled, the interpolated values will be written into this vector.
 	 * @return
 	 */
 	inline Bool_t FillHoles(
-			Int_t lastBinX,
-			Int_t lastBinY,
-			Int_t currentBinY,
+			const Int_t lastBinX,
+			const Int_t lastBinY,
+			const Int_t currentBinY,
 			IdxPath * ptrThetaYIdxPathVec
 	);
 

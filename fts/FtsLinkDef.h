@@ -18,6 +18,7 @@
 #pragma link C++ class PndFtsHoughTracklet+;
 #pragma link C++ class PndFtsHoughTrackCand+;
 #pragma link C++ class PndFtsHoughSpace+;
+#pragma link C++ class PndFtsHoughSpacePeak+;
 #pragma link C++ class PndFtsHoughTrackFinder+;
 #pragma link C++ class PndFtsHoughTrackerTask+;
 #pragma link C++ class PndFtsHitProducerRealFull+;
