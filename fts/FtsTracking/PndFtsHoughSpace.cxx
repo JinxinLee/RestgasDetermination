@@ -57,6 +57,43 @@ ClassImp(PndFtsHoughSpace);
 TString PndFtsHoughSpace::peakfinderOption="allPeaks>minHeight"; // see FindAllPeaks for available options
 
 
+
+
+std::ostream& operator <<(std::ostream& os, const ThetaYIdxPair& outPair){
+	os << "(" << outPair.first << ", " << outPair.second << ")";
+	return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const IdxPath& outVector){
+	os << "[";
+	Int_t lastIdx = outVector.size()-1;
+	if(lastIdx < 0){
+		os << "]" ;
+		return os;
+	}
+
+	for (UInt_t iVec = 0; iVec < lastIdx; ++iVec){
+		os << outVector[iVec] << ", ";
+	}
+	os << outVector[lastIdx] << "]";
+	return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const HitIdxPathMap& outMap)
+{
+	if(outMap.begin() == outMap.end()){
+		os << "{ , [] }";
+		return os;
+	}
+	for (HitIdxPathMap::const_iterator itMap = outMap.begin(); itMap != outMap.end(); ++itMap){
+		os << "{ "<< itMap->first << ", ";
+		os << itMap->second;
+		os << " }\n";
+	}
+	return os;
+}
+
+
 inline void PndFtsHoughSpace::AddHit(UInt_t hitId, Double_t rho)
 {
 	fHitId.push_back(PndTrackCandHit(fFtsBranchId, hitId, rho));
@@ -87,17 +124,17 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-fTrackerTask(trackerTask),
+						fTrackerTask(trackerTask),
 
-fZRefPos(zRefPos),
-fInterceptZx(interceptZx),
+						fZRefPos(zRefPos),
+						fInterceptZx(interceptZx),
 
-TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-// set from tracker task
-fFtsBranchId(0),
-fVerbose(0),
-fField(0)
+						// set from tracker task
+						fFtsBranchId(0),
+						fVerbose(0),
+						fField(0)
 
 {
 	if (0==fTrackerTask){
@@ -274,7 +311,7 @@ Bool_t PndFtsHoughSpace::FillHoles(
 {
 	// determine how many holes we have to fill
 	const Int_t nHolesToFill = abs(currentBinY-lastBinY)-1;
-	for (UInt_t iCorrect = 1; iCorrect <= nHolesToFill; ++iCorrect)
+	for (Int_t iCorrect = 1; iCorrect <= nHolesToFill; ++iCorrect)
 	{
 		const Int_t xCorrect = round(float(iCorrect)/float(nHolesToFill)); // gives 0 or 1
 		Int_t yCorrect;
@@ -293,7 +330,7 @@ Bool_t PndFtsHoughSpace::FillHoles(
 
 		if (8<fVerbose)
 		{
-			std::cout << "I am filling hole number " << iCorrect << '\n';
+			std::cout << "I am filling hole " << iCorrect << " of " << nHolesToFill << '\n';
 			std::cout << "globalbin = " << globalBin << '\n';
 			std::cout << "(lastBinX, lastBinY) = (" << lastBinX << ", " << lastBinY << ")" << '\n';
 			std::cout << "(lastBinX+1, currentBinY)     = (" << lastBinX+1 << ", " << currentBinY << ")" << '\n';
@@ -369,15 +406,10 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 		if (1<fVerbose) {
 			std::cout << "Doing " << option << " Hough transform for hit (hitZLabSys, hitXLabSys) = (" << hitZLabSys << ", " << hitXLabSys << ") cm";
-			if (kTRUE == fKeepBConstant)
-			{
-				std::cout << " ignoring B field maps\n";
-			} else
-			{
-				std::cout << " reading B field maps\n";
-			}
+			if (kTRUE == fKeepBConstant) { std::cout << " ignoring B field maps\n"; } else { std::cout << " reading B field maps\n"; }
 		}
 
+		// B field
 		if (kTRUE == fKeepBConstant)
 		{
 			// do not take B field into account
@@ -394,78 +426,66 @@ void PndFtsHoughSpace::FillHoughSpace()
 			By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
 		}
 
+
 		//------------------
 		// theta scan
 		//------------------
-
 
 		// get indices for first and last bins on x-axis
 		Int_t iThetaFirst  = fXaxis.GetFirst();
 		Int_t iThetaLast   = fXaxis.GetLast();
 
-
+		// save path for each hit
+		IdxPath thetaYIdxPath;
 
 		// calculate Hough transform for hit iHit
-		// for each hit a scan in theta is done
-		// by going through the x-axis of the Hough space
-
+		// for each hit a scan in theta is done by going through the x-axis of the Hough space from lower to higher values
 		for (Int_t iTheta = iThetaFirst; iTheta < iThetaLast; ++iTheta)
 		{
-			// get corresponding theta value
+			// get theta value corresponding to iTheta
 			Double_t thetaRad = fXaxis.GetBinCenter(iTheta); // theta has to be stored in rad
+			if (9<fVerbose)	{ std::cout << " for thetaRad = " << thetaRad << '\n'; }
 
-
+			// calculate yVal depending on which Hough transform we need
 			if ("parabola" == option)
 			{
 				// Use shifted x and shifted z for parabola
 				yVal = equationParabola(thetaRad, hitZShifted, hitXShifted, By);
-
 				if (9<fVerbose)	{ std::cout << "Q/pzx = " << yVal; }
 			}
 			else if ("parabolapz" == option)
 			{
+				// Use shifted x and shifted z for parabola
 				yVal = equationParabolaPz(thetaRad, hitZShifted, hitXShifted, By);
-
 				if (9<fVerbose)	{ std::cout << "pz/Q = " << yVal; }
 			}
 			else if ( ("lineBeforeDipole" == option) || ("lineBehindDipole" == option) )
 			{
 				// Use real x and shifted z for line
-
 				yVal = equationLineZxOrZy(thetaRad, hitZShifted, hitXLabSys);
-
 				if (9<fVerbose) { std::cout << "xLP/PL = " << yVal; }
 			}
 			else if ("lineZy" == option)
 			{
 				// Use real x and shifted z for line
-
 				yVal = equationLineZxOrZy(thetaRad, hitZShifted, hitYLabSys);
-
 				if (9<fVerbose) { std::cout << "yLine = " << yVal; }
 			}
 			else
 			{
+				// should never happen
 				throwError("in FillHoughSpace! option " + option + " is not implemented!");
 			}
 
 
 
 
-			if (9<fVerbose)	{ std::cout << " for (theta, hitXreal) = (" << thetaRad << ", " << hitXLabSys << ")" << '\n'; }
 
-
-
-
-
-
+			// Insert "point" into Hough space and check in which bins we filled
 			globalBin = Fill(thetaRad,yVal);
 			if (5<fVerbose) { std::cout << "Hough point was filled into Hough space. globalbin = " << globalBin << " for option" << option <<'\n'; }
-			// Find binx and biny for histogram from global bin number
+			// Find currentBinX(=iTheta) and currentBinY from globalBin
 			GetBinXYZ(globalBin, currentBinX, currentBinY, currentBinZ);
-
-
-
 
 
 
@@ -477,9 +497,9 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 				// TODO Remove the following check for optimization, it should always be true
 				if (currentBinX != iTheta){
-					std::cout << "\n\nError in FillHoughSpace! Hough point was filled into xBin " << currentBinX << " and not in " << iTheta << "\n";
-					std::cout << "iThetaFirst = " << iThetaLast << " iThetaLast = " << iThetaLast << "\n";
-					std::cout << "Over- or underflow on y-axis or FATAL error!\n\n\n";
+					std::cerr << "\n\nError in FillHoughSpace! Hough point was filled into xBin " << currentBinX << " and not in " << iTheta << "\n";
+					std::cerr << "iThetaFirst = " << iThetaLast << " iThetaLast = " << iThetaLast << "\n";
+					std::cerr << "Over- or underflow on y-axis or FATAL error!\n\n\n";
 				}
 
 				// fill holes if the current Hough point is not the first entry in Hough space for the hit
@@ -502,21 +522,31 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 				firstEntry = kFALSE;
 
+				// save calculated value into path vector
+				ThetaYIdxPair idxPair(currentBinX,currentBinY);
+				thetaYIdxPath.push_back(idxPair);
 
-			}
+			} // if NOT filled into over- or underflow
 			else
 			{
 				if (9<fVerbose)	{ std::cout << "Watch out! Point was written to over- or underflow of histogram. firstEntry is set to kTRUE. "<< option <<'\n'; }
 				firstEntry = kTRUE; // otherwise, algorithm connects first point which does not go into over-/underflow with (0,0)
 			}
 
-			if (9<fVerbose)	{ std::cout << "biny = " << currentBinY << "  lastbiny = " << lastBinY << '\n'; }
+			if (9<fVerbose)	{ std::cout << "currentBinY = " << currentBinY << "  lastBinY = " << lastBinY << '\n'; }
 			lastBinX = currentBinX;
 			lastBinY = currentBinY;
 
 
 		} // for theta
+		//		std::cout << "map before iHit " << iHit << ": " << fHitThetaYIdxPath << '\n';
+		// save the final path for the hit
+		if ( 0 < thetaYIdxPath.size() ){
+			HitIdxPathPair hitPathPair( iHit, thetaYIdxPath );
+			fHitThetaYIdxPath.insert( hitPathPair );
+		}
 	} // for iHit
+	std::cout << "map after all hits: " << fHitThetaYIdxPath << '\n';
 }
 
 

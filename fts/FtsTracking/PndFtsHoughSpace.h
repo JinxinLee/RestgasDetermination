@@ -42,6 +42,18 @@ class FairField;
 #include <stdexcept>
 
 
+
+// for saving the path through the Hough space
+typedef std::pair<Int_t, Int_t> ThetaYIdxPair; // helper -- just a pair of thetaRad index and the yVal index in the Hough space histogram
+typedef std::vector< ThetaYIdxPair > IdxPath; // helper -- path for one hit
+typedef std::map<Int_t, IdxPath > HitIdxPathMap; // that is the one I need -- map of hit indices to path for the corresponding hits
+typedef std::pair<Int_t, IdxPath > HitIdxPathPair; // helper for inserting one pair of hit index and path into map
+
+// cout for the above types
+std::ostream& operator <<(std::ostream& os, const ThetaYIdxPair& outPair);
+std::ostream& operator <<(std::ostream& os, const IdxPath& outVector);
+std::ostream& operator <<(std::ostream& os, const HitIdxPathMap& outMap);
+
 class PndFtsHoughSpace : public TH2S {
 public:
 
@@ -89,12 +101,15 @@ public:
 
 	 If something goes wrong the function throws a runtime_error (probably Hough space name is set incorrectly).
 
-	 !!! WARNING The theta values (in rad) are NOT the same as in the interaction point. They are always calculated relative to a shifted coordinate system and only 2-dimensional !!!
+	 !!! WARNING The theta values (in rad) are NOT the same as in the interaction point.
+	 They are always calculated relative to a shifted coordinate system and only 2-dimensional (either in z-x- or z-y-plane) !!!
 
 	 The angle (theta in rad) to the z-axis in the z-x- or z-y-plane at a z reference position will be scanned
-	 from theta corresponding to lowest bin to theta corresponding to highest bin of x-axis
+	 from theta corresponding to lowest bin to theta corresponding to highest bin of x-axis.
 
-	 y component of B field will be read from field maps if fKeepBConstant is kFALSE
+	 TODO For each hit the "path" through the 2d histogram is saved for peak finding.
+
+	 y component of B field will be read from field maps if fKeepBConstant is kFALSE.
 	 */
 	void FillHoughSpace();
 
@@ -126,6 +141,12 @@ private:
 	inline void AddHit(FairLink link, Double_t rho);
 	inline const PndFtsHit *const getHit(UInt_t index) const; // gets the FTS hit corresponding to index
 
+	/**For each hit index the "path through the Hough space" [order of index pairs in which the (thetaRad, yVal) pairs are filled during the thetaRad scan] is saved
+	 * This is useful for peak finding.
+	 * Map index: hit index, use as argument of getHit.
+	 * The map gives the vector of (index(thetaRad), index(yVal)) pairs which were filled during the theta scan for the hit.
+	 */
+	HitIdxPathMap fHitThetaYIdxPath;
 
 	// Private Data Members ------------
 	Int_t fVerbose;
