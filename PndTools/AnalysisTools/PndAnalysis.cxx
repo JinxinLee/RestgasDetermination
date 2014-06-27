@@ -28,7 +28,7 @@ using std::endl;
 #include "FairTrackParP.h"
 #include "FairTrackParH.h"
 #include "FairGeanePro.h"
-#include "FairRunAna.h"
+//#include "FairRunAna.h"
 #include "FairField.h"
 
 #include "PndTrack.h"
@@ -169,14 +169,45 @@ void PndAnalysis::Rewind()
   fEvtCount=0;
 }
 
-Int_t PndAnalysis::GetEvent ( Int_t n )
+void PndAnalysis::Cleanup()
 {
-  // do a safe cleanup
+    // do a safe cleanup
   fAllCandList.Cleanup();
   fChargedCandList.Cleanup();
   fNeutralCandList.Cleanup();
   fMcCandList.Cleanup();
   RhoFactory::Instance()->Reset();
+
+}
+
+void PndAnalysis::ReadCandidates()
+{
+  ReadRecoCandidates();
+  BuildMcCands();
+  // now fill carged and neutral lists.
+  // MC association to reconstructed particles done at this point and copying is ok
+  for(int ik=0;ik<fAllCandList.GetLength();ik++)
+  {
+    if(fAllCandList[ik]->GetCharge()==0){
+      fNeutralCandList.Add ( fAllCandList[ik] );
+    }else{
+      fChargedCandList.Add ( fAllCandList[ik] );
+    }
+  }
+  return;
+}
+
+void PndAnalysis::GetEventInTask()
+{
+  Cleanup();
+  ReadCandidates();
+  //std::cout<<"Marke A"<<std::endl;
+  return;
+}
+
+Int_t PndAnalysis::GetEvent ( Int_t n )
+{
+  Cleanup();
 
   if ( n>=0 ) {
     fEvtCount=n+1;
@@ -191,21 +222,7 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
   }
   fRootManager->ReadEvent ( fEvtCount-1 );
 
-  ReadRecoCandidates();
-  BuildMcCands();
-
-  // now fill carged and neutral lists.
-  // MC association to reconstructed particles done at this point and copying is ok
-  fChargedCandList.Cleanup();
-  fNeutralCandList.Cleanup();
-  for(int ik=0;ik<fAllCandList.GetLength();ik++)
-  {
-    if(fAllCandList[ik]->GetCharge()==0){
-      fNeutralCandList.Add ( fAllCandList[ik] );
-    }else{
-      fChargedCandList.Add ( fAllCandList[ik] );
-    }
-  }
+  ReadCandidates();
 
   if(fVerbose) Info("PndAnalysis::GetEvent()","Finished loading event fEvtCount=%i.",fEvtCount);
   //std::cout<<"PndAnalysis::fAllCandList:   "<<fAllCandList<<std::endl;

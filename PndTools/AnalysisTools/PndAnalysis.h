@@ -34,6 +34,7 @@ class PndAnalysis
     void Rewind();
     void Reset() { Rewind(); }
     Int_t  GetEvent(Int_t n=-1);
+    void GetEventInTask();
     FairMCEventHeader* GetEventHeader();
     Int_t  GetEntries();
     Bool_t FillList(RhoCandList& l, TString listkey="All", TString pidTcaNames="");
@@ -66,6 +67,9 @@ class PndAnalysis
     void BuildMcCands();
     Bool_t GetMcCandList(RhoCandList& l);
     void ReadRecoCandidates();
+	void Cleanup();
+	void ReadCandidates();
+
     TClonesArray* ReadTCA(TString tcaname);
 
     Bool_t MctMatch(RhoCandidate& c, RhoCandList& mct, Int_t level = 2, bool verbose=false){ return MctMatch(&c,mct,level,verbose); };
