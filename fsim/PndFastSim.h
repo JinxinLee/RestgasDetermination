@@ -36,7 +36,7 @@ class PndFastSim : public FairTask
     //typedef std::map<Int_t, Float_t> mapper;
 
   /** Default constructor **/
-  PndFastSim();
+  PndFastSim(bool persist=true);
 
 
   /** Destructor **/
@@ -132,6 +132,7 @@ class PndFastSim : public FairTask
   bool      fChargeConj;
   int       fNAccept;
   
+  bool 		fPersist;
 
   PndFsmDetFactory *fDetFac;
   std::string fAddedDets;

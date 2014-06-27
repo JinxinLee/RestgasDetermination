@@ -59,7 +59,7 @@ using std::ifstream;
 
 
 // -----   Default constructor   -------------------------------------------
-PndFastSim::PndFastSim() :
+PndFastSim::PndFastSim(bool persist) :
 FairTask("Panda Fast Simulation") {
   //  fCandidates = new TClonesArray("TParticle");
   fRand=PndFsmRandom::Instance();
@@ -90,6 +90,7 @@ FairTask("Panda Fast Simulation") {
   fApplyFilter=false;
   fNAccept = 0;
 
+  fPersist = persist;
 }
 // -------------------------------------------------------------------------
 
@@ -120,22 +121,22 @@ void PndFastSim::Register() {
   //---
 
   fMcCandidates = new TClonesArray("RhoCandidate");
-  FairRootManager::Instance()->Register("PndMcTracks","FastSim", fMcCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndMcTracks","FastSim", fMcCandidates, fPersist);
 
   fPidChargedCand = new TClonesArray("PndPidCandidate");
-  FairRootManager::Instance()->Register("PidChargedCand","FastSim", fPidChargedCand, kTRUE);
+  FairRootManager::Instance()->Register("PidChargedCand","FastSim", fPidChargedCand, fPersist);
 
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
-  FairRootManager::Instance()->Register("PidNeutralCand","FastSim", fPidNeutralCand, kTRUE);
+  FairRootManager::Instance()->Register("PidNeutralCand","FastSim", fPidNeutralCand, fPersist);
 
   fPidChargedProb = new TClonesArray("PndPidProbability");
-  FairRootManager::Instance()->Register("PidChargedProbability","FastSim", fPidChargedProb, kTRUE);
+  FairRootManager::Instance()->Register("PidChargedProbability","FastSim", fPidChargedProb, fPersist);
 
   fPidNeutralProb = new TClonesArray("PndPidProbability");
-  FairRootManager::Instance()->Register("PidNeutralProbability","FastSim", fPidNeutralProb, kTRUE);
+  FairRootManager::Instance()->Register("PidNeutralProbability","FastSim", fPidNeutralProb, fPersist);
 
   fEventInfo = new TClonesArray("PndEventInfo");
-  FairRootManager::Instance()->Register("PndEventSummary","FastSim", fEventInfo, kTRUE);
+  FairRootManager::Instance()->Register("PndEventSummary","FastSim", fEventInfo, fPersist);
 
   for (FsmAbsDetList::iterator iter=fDetList.begin();iter!=fDetList.end(); iter++)
   {
@@ -145,7 +146,7 @@ void PndFastSim::Register() {
     TString arrayname=detname;
     arrayname+="Probability";
     TClonesArray* tmparray = new TClonesArray("PndPidProbability");
-    FairRootManager::Instance()->Register(arrayname.Data(),"FastSim", tmparray, kTRUE);
+    FairRootManager::Instance()->Register(arrayname.Data(),"FastSim", tmparray, fPersist);
     fPidArrayList[detname]=tmparray;
     //std::cout<<"registered pid TCA with name "<<detname.Data()<<std::endl;
   }
@@ -329,7 +330,7 @@ bool PndFastSim::AddDetector(std::string name, std::string params)
   if (!det) return false;
 
   fDetList.push_back(det);
-  std::cout<<" -I- (PndFastSim::AddDetector) - Added detector "<<name<<" with params <"<<params<<">"<<std::endl;
+  if (fVb>0)  std::cout<<" -I- (PndFastSim::AddDetector) - Added detector "<<name<<" with params <"<<params<<">"<<std::endl;
   return true;
 }
 
@@ -338,7 +339,7 @@ bool PndFastSim::AddDetector(PndFsmAbsDet* det)
   if (det) {
     fDetList.push_back(det);
     fAddedDets.append(det->detName()+" ");
-    std::cout<<" -I- (PndFastSim::AddDetector) - Added detector "<<det->detName()<<std::endl;
+    if (fVb>0)  std::cout<<" -I- (PndFastSim::AddDetector) - Added detector "<<det->detName()<<std::endl;
   }
   return det;
 }
@@ -622,6 +623,9 @@ void PndFastSim::Exec(Option_t* opt)
 
   PndStack *fStack=(PndStack*)gMC->GetStack();
   Int_t nTracks=fStack->GetNtrack();
+
+  
+  RhoFactory::Instance()->Reset();
 
 
   // Reset output array
@@ -944,8 +948,6 @@ void PndFastSim::Exec(Option_t* opt)
 
   //  TEventShape shape(l);
   //  eventInfo->SetEventShape(shape);
-
-  RhoFactory::Instance()->Reset();
 
 }
 // -------------------------------------------------------------------------
