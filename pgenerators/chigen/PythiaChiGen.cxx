@@ -120,7 +120,7 @@ void chigen::PythiaChiGen::decay(Event& event) {
         p.daughter2(evtstdhep.getLastDaughter(particleNumber) + 1);
         p.mother1(evtstdhep.getFirstMother(particleNumber) + 1);
         p.mother2(evtstdhep.getLastMother(particleNumber) + 1);
-        if (id == CHI1_PDG_ID || id == CHI2_PDG_ID || id == PSI_PDG_ID)
+        if (chigen::isCharmonia(id))
             p.status(-33);
         else
             p.status(91);

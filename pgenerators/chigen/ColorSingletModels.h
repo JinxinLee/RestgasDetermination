@@ -90,6 +90,29 @@ namespace chigen {
             ClassDef(chi_1, 1);
         };
 
+        class x3872 : public ColorSingletPartonicModel {
+        public:
+
+            x3872() :
+            ColorSingletPartonicModel(
+            X3872_MASS, X3872_PDG_ID, chigen::evtgen::x3872_evt_id,
+            createSpinDensity(1, -1), X3872_MASS, R20_CHI, 2.07e-06) {
+            }
+
+            x3872(double ecm) :
+            ColorSingletPartonicModel(
+            ecm, X3872_PDG_ID, chigen::evtgen::x3872_evt_id,
+            createSpinDensity(1, -1), X3872_MASS, R20_CHI, 2.07e-06) {
+            }
+
+            virtual double dsdt() {
+                return (128 * pow3(alpS) * M_PI * R20) / (9 * sH2 * pow3(mesonMass) * pow4(mesonMass2 - sH)) *
+                        ((sH + 4 * tH) * pow4(mesonMass) - 2 * (sH2 + 3 * tH * sH + 2 * tH2) * mesonMass2 + sH * (sH2 + 2 * tH * sH + 2 * tH2));
+            }
+
+            ClassDef(x3872, 1);
+        };
+
         class chi_1_0 : public ColorSingletPartonicModel {
         public:
 
@@ -112,6 +135,29 @@ namespace chigen {
             ClassDef(chi_1_0, 1);
         };
 
+        class x3872_0 : public ColorSingletPartonicModel {
+        public:
+
+            x3872_0() :
+            ColorSingletPartonicModel(
+            X3872_MASS, X3872_PDG_ID, chigen::evtgen::x3872_evt_id,
+            createSpinDensity(1, 0), X3872_MASS, R20_CHI, 2.07e-06) {
+            }
+
+            x3872_0(double ecm) :
+            ColorSingletPartonicModel(
+            ecm, X3872_PDG_ID, chigen::evtgen::x3872_evt_id,
+            createSpinDensity(1, 0), X3872_MASS, R20_CHI, 2.07e-06) {
+            }
+
+            virtual double dsdt() {
+                return (128 * M_PI * R20 * pow3(alpS) * (tH2 + uH2)) / (9 * pow3(mesonMass) * sH * pow4(-mesonMass2 + sH));
+            }
+
+            ClassDef(x3872_0, 1);
+        };
+
+	
         class chi_1_1 : public ColorSingletPartonicModel {
         public:
 
@@ -134,6 +180,29 @@ namespace chigen {
             ClassDef(chi_1_1, 1);
         };
 
+        class x3872_1 : public ColorSingletPartonicModel {
+        public:
+
+            x3872_1() :
+            ColorSingletPartonicModel(
+            X3872_MASS, X3872_PDG_ID, chigen::evtgen::x3872_evt_id,
+            createSpinDensity(1, 1), X3872_MASS, R20_CHI, 2.07e-06) {
+            }
+
+            x3872_1(double ecm) :
+            ColorSingletPartonicModel(
+            ecm, X3872_PDG_ID, chigen::evtgen::x3872_evt_id,
+            createSpinDensity(1, 1), X3872_MASS, R20_CHI, 2.07e-06) {
+            }
+
+            virtual double dsdt() {
+                return (512 * M_PI * pow3(alpS) * R20 * uH * tH) / (9 * mesonMass * sH2 * pow4(-mesonMass2 + sH));
+            }
+
+            ClassDef(x3872_1, 1);
+        };
+	
+	
         class chi_2 : public ColorSingletPartonicModel {
         public:
 

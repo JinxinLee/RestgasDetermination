@@ -128,7 +128,8 @@ namespace chigen {
         }
 
         std::string chi_c1_str = std::string(CHI1_STRING),
-        chi_c2_str = std::string(CHI2_STRING);
+        chi_c2_str = std::string(CHI2_STRING),
+        x3872_str = std::string(X3872_STRING);
 
         void ensure_evt_gen_is_inialized() {
             if (!evt_gen_is_loaded)
@@ -139,11 +140,11 @@ namespace chigen {
 
             chi_c1_evt_id = EvtPDL::getId(chi_c1_str);
             chi_c2_evt_id = EvtPDL::getId(chi_c2_str);
-
+            x3872_evt_id = EvtPDL::getId(x3872_str);
             evt_gen_ids_are_loaded = true;
         }
 
-        EvtId chi_c1_evt_id, chi_c2_evt_id;
+        EvtId chi_c1_evt_id, chi_c2_evt_id, x3872_evt_id;
 
         void initialize_evtgen() {
             //initializing EvtGen
@@ -184,7 +185,21 @@ namespace chigen {
             pythia->readString("20443:mayDecay = off");
             pythia->readString("445:mayDecay = off");
             pythia->readString("443:mayDecay = off");
-
+            
+            //x3872 is not implemented in PYTHIA
+            pythia->particleData.addParticle(
+                    X3872_PDG_ID, // id
+                    X3872_STRING, // name
+                    3, // spinType
+                    0, // chargeType
+                    0, // colType
+                    X3872_MASS, // m0
+                    0.0001, // mWidth
+                    X3872_MASS-0.0001, // mMin
+                    X3872_MASS+0.0001 // mMax
+                    );
+            pythia->readString("9920443:mayDecay = off");
+           
             pythia->init();
         }
     };
@@ -239,13 +254,21 @@ namespace chigen {
                 return evtgen::chi_c1_evt_id;
             case CHI2_PDG_ID:
                 return evtgen::chi_c2_evt_id;
+            case X3872_PDG_ID:
+                return evtgen::x3872_evt_id;
             default:
                 throw std::runtime_error(std::string("Unknown particle id: ") + toString(pdgId));
         }
     }
 
-    bool isCharmonia(int pdgCode) {
-        return pdgCode == CHI1_PDG_ID || pdgCode == CHI2_PDG_ID;
+    bool isPWaveCharmonia(int pdgCode) {
+        return pdgCode == CHI1_PDG_ID || pdgCode == CHI2_PDG_ID || pdgCode == X3872_PDG_ID;
     };
+    
+    bool isCharmonia(int pdgCode) {
+        return pdgCode == CHI1_PDG_ID || pdgCode == CHI2_PDG_ID 
+                || pdgCode == X3872_PDG_ID || pdgCode == PSI_PDG_ID;
+    };
+    
 }
 

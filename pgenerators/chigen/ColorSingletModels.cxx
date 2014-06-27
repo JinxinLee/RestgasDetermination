@@ -158,3 +158,6 @@ ClassImp(chigen::models::chi_2);
 ClassImp(chigen::models::chi_2_0);
 ClassImp(chigen::models::chi_2_1);
 ClassImp(chigen::models::chi_2_2);
+ClassImp(chigen::models::x3872);
+ClassImp(chigen::models::x3872_0);
+ClassImp(chigen::models::x3872_1);

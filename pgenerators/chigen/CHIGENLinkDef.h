@@ -18,8 +18,11 @@
 #pragma link C++ class chigen::PartonicModel+;
 #pragma link C++ class chigen::models::ColorSingletPartonicModel+;
 #pragma link C++ class chigen::models::chi_1+;
+#pragma link C++ class chigen::models::x3872+;
 #pragma link C++ class chigen::models::chi_1_0+;
+#pragma link C++ class chigen::models::x3872_0+;
 #pragma link C++ class chigen::models::chi_1_1+;
+#pragma link C++ class chigen::models::x3872_1+;
 #pragma link C++ class chigen::models::chi_2+;
 #pragma link C++ class chigen::models::chi_2_0+;
 #pragma link C++ class chigen::models::chi_2_1+;

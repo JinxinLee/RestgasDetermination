@@ -32,6 +32,8 @@
 #define R20_CHI 0.075
 #define CHI1_MASS 3.51
 #define CHI2_MASS 3.556
+#define X3872_MASS 3.872
+
 
 #define GAMMA_PDG_ID 22
 #define E_PDG_ID 11
@@ -40,6 +42,9 @@
 
 #define CHI1_PDG_ID 20443
 #define CHI1_STRING "chi_c1"
+
+#define X3872_PDG_ID 9920443
+#define X3872_STRING "X_1(3872)"
 
 #define CHI2_PDG_ID 445
 #define CHI2_STRING "chi_c2"
@@ -100,11 +105,11 @@ namespace chigen {
         /**
          * String names of charmonia states for EvtGen
          */
-        extern std::string chi_c1_str, chi_c2_str;
+        extern std::string chi_c1_str, chi_c2_str, x3872_str;
         /**
          * EvtGen ids of charmonia particles
          */
-        extern EvtId chi_c1_evt_id, chi_c2_evt_id;
+        extern EvtId chi_c1_evt_id, chi_c2_evt_id, x3872_evt_id;
     }
 
     /**
@@ -114,6 +119,13 @@ namespace chigen {
      */
     extern EvtId pdgId2EvtId(int pdgId);
 
+    /**
+     * Returns true, if specified PDG code corresponds to P-wave charmonia
+     * @param pdgCode PDG code
+     * @return true, if specified PDG code corresponds to P-wave charmonia
+     */
+    extern bool isPWaveCharmonia(int pdgCode);
+   
     /**
      * Returns true, if specified PDG code corresponds to charmonia
      * @param pdgCode PDG code

@@ -4,6 +4,10 @@ Decay chi_c1
 1.000  J/psi  gamma                VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0;
 Enddecay
 
+Decay X_1(3872)
+1.000  J/psi  gamma                VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0;
+Enddecay
+
 Decay chi_c2
 1.000  gamma  J/psi              TVP;
 Enddecay
