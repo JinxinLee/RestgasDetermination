@@ -25,6 +25,7 @@ void PndEmcErrorMatrix::InitFromFile(Int_t geomVersion)
 {
 	TString fFileName;
 	switch (geomVersion){
+		case 1:
 		case 17:
 		case 19:
 			// correspond to geometries "emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root"
