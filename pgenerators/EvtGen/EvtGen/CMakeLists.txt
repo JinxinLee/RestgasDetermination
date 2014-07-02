@@ -51,6 +51,8 @@ set(EVTGEN_SRCS
    ${EVTGEN_PRIVATE_DIR}/EvtChic1toJpsiGam.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtChic2toJpsiGam.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtDecayNew.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtPPPsiPiPi.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtPPPsiPiPi_matr2_f0.cpp
 ## overwrite EvtGen ModelReg by Panda one
    ${EVTGEN_PRIVATE_DIR}/EvtModelReg.cpp
 ##   ${EVTGEN_MODELS_DIR}/EvtModelReg.cpp
