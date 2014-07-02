@@ -55,7 +55,7 @@ void PndLmdDataFacade::addDataDirectory(TString directory) {
 
 void PndLmdDataFacade::addFileList(std::string filelist) {
 	// scan which data reader has to create this object
-	std::ifstream input(filelist);
+	std::ifstream input(filelist.c_str());
 	std::string line;
 
 	while (std::getline(input, line)) {
