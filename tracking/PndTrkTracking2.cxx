@@ -1715,7 +1715,7 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
   {
 	if(!keepit[ncand]) continue;
 
-	if( fR[ncand] < APOTEMAMAXINNERPARSTRAW ) continue; // this is when the XY circle is contained in the
+	if( fR[ncand] < APOTEMAMAXINNERPARSTRAW/2. ) continue; // this is when the XY circle is contained in the
 						// the Mvd region completely; skip the association of
 						// the Skews.
 
