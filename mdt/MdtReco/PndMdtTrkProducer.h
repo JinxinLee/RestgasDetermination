@@ -59,7 +59,7 @@ class PndMdtTrkProducer : public FairTask
   /** Output array of PndMdtTrk **/
   TClonesArray* fTrkArray; 
   
-  PndMdtRecoPar *fRecoPar;
+  //PndMdtRecoPar *fRecoPar;
  
   map<Int_t, vector<Int_t> >mapMdtBarrel;
   map<Int_t, vector<Int_t> >mapMdtEndcap;

@@ -98,7 +98,7 @@ void PndMdtTrkProducer::SetParContainers() {
   if ( ! db ) Fatal("PndMdtTrkProducer:: SetParContainers", "No runtime database");
 
   // Get Mdt Reconstruction parameter container
-  fRecoPar = (PndMdtRecoPar*) db->getContainer("PndMdtRecoPar");
+  //fRecoPar = (PndMdtRecoPar*) db->getContainer("PndMdtRecoPar");
   
 }
 
