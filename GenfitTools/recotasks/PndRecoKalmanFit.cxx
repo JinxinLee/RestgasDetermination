@@ -141,16 +141,6 @@ Bool_t PndRecoKalmanFit::Init()
   
   TClonesArray *sttr;  TClonesArray* sthit; 
 
-  if (fCentralTrackerBranchName == "")
-    {
-      sttr=(TClonesArray*) ioman->GetObject("SttHelixHit");
-      if(sttr!=0)
-	{
-	  fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("STTHelixHit"),new PndSttRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr, tubeArray));
-	  std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "SttHelixHit array  found" << std::endl;
-	}
-    }
-  
   if (fCentralTrackerBranchName == "Mix")
     {
       sthit=(TClonesArray*) ioman->GetObject("STTHitMix");

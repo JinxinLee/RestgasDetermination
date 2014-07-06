@@ -82,19 +82,19 @@ InitStatus PndMCTrackAssociator::Init() {
     }
   if ( ! fSttHitInput ) 
   {
-    cout << "-W- PndMCTrackAssociator::Init: No STTHit array" << endl;
+    if (fVerbose) cout << "-W- PndMCTrackAssociator::Init: No STTHit array" << endl;
   } 
 
   fSttMCArray   = (TClonesArray *)fManager->GetObject("STTPoint");
   if ( ! fSttMCArray ) 
   {
-    cout << "-W- PndMCTrackAssociator::Init: No STTPoint array" << endl;
+    if (fVerbose) cout << "-W- PndMCTrackAssociator::Init: No STTPoint array" << endl;
   }
   
   fMvdMCArray = (TClonesArray*) fManager->GetObject("MVDPoint");
   if ( ! fMvdMCArray )
   {
-    cout << "-W-  PndMCTrackAssociator::Init: No MVDPoint array" << endl;
+    if (fVerbose) cout << "-W-  PndMCTrackAssociator::Init: No MVDPoint array" << endl;
   }
   
   fMvdStripHitArray = (TClonesArray*) fManager->GetObject("MVDHitsStripMix");
@@ -109,7 +109,7 @@ InitStatus PndMCTrackAssociator::Init() {
     }
   if ( !fMvdStripHitArray)
     {
-      cout << "-W- PndMCTrackAssociator::Init: No MVDHitsStrip array" << endl;
+      if (fVerbose) cout << "-W- PndMCTrackAssociator::Init: No MVDHitsStrip array" << endl;
     }
   
   fMvdPixelHitArray = (TClonesArray*) fManager->GetObject("MVDHitsPixelMix"); 
@@ -124,31 +124,31 @@ InitStatus PndMCTrackAssociator::Init() {
     }
   if ( !fMvdPixelHitArray)
   {
-    cout << "-W- PndMCTrackAssociator::Init: " << "No fMvdPixelHitArray" << endl;
+    if (fVerbose) cout << "-W- PndMCTrackAssociator::Init: " << "No fMvdPixelHitArray" << endl;
   }
   
   fGemInput   = (TClonesArray *)fManager->GetObject("GEMHit");
   if ( ! fGemInput ) 
   {
-    cout << "-W- PndMCTrackAssociator::Init: No GEMHit array" << endl;
+    if (fVerbose) cout << "-W- PndMCTrackAssociator::Init: No GEMHit array" << endl;
   }
   
   fGemMCArray = (TClonesArray*) fManager->GetObject("GEMPoint");
   if ( ! fGemMCArray )
   {
-    cout << "-W- PndMCTrackAssociator::Init: No GEMPoint array" << endl;
+    if (fVerbose) cout << "-W- PndMCTrackAssociator::Init: No GEMPoint array" << endl;
   }
   
   fFtsInput   = (TClonesArray *)fManager->GetObject("FTSHit");
   if ( ! fFtsInput ) 
   {
-    cout << "-W- PndMCTrackAssociator::Init: No FTSHit array" << endl;
+    if (fVerbose) cout << "-W- PndMCTrackAssociator::Init: No FTSHit array" << endl;
   }
   
   fFtsMCArray = (TClonesArray*) fManager->GetObject("FTSPoint");
   if ( ! fFtsMCArray )
   {
-    cout << "-W- PndMCTrackAssociator::Init: No FTSPoint array" << endl;
+    if (fVerbose) cout << "-W- PndMCTrackAssociator::Init: No FTSPoint array" << endl;
   }
   
   if (fVerbose)   cout << "-I- PndMCTrackAssociator::Init: Verbose Mode ON" << endl;
