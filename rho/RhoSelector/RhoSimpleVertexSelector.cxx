@@ -14,6 +14,8 @@
 
 #include "RhoSelector/RhoSimpleVertexSelector.h"
 #include "RhoBase/RhoCandidate.h"
+#include "FairRun.h"
+#include "FairRunSim.h"
 #include "FairRunAna.h"
 #include "FairField.h"
 
@@ -51,7 +53,11 @@ Bool_t RhoSimpleVertexSelector::Accept ( RhoCandidate& a, RhoCandidate& b )
   pnt[0]=0.5* ( position1.X() +position2.X() );
   pnt[1]=0.5* ( position1.Y() +position2.Y() );
   pnt[2]=0.5* ( position1.Z() +position2.Z() );
-  FairRunAna::Instance()->GetField()->GetFieldValue ( pnt, Bf ); //[kGs]
+  if(FairRun::Instance()->IsAna()){
+    FairRunAna::Instance()->GetField()->GetFieldValue ( pnt, Bf ); //[kGs]
+  } else{
+    FairRunSim::Instance()->GetField()->GetFieldValue ( pnt, Bf ); //[kGs]
+  }
   Float_t bField = Bf[2]; // Retrieve the B-Field
 
   // Momentum vectors

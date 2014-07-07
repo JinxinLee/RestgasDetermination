@@ -10,6 +10,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "RhoCalculationTools.h"
+#include "FairRun.h"
+#include "FairRunSim.h"
 #include "FairRunAna.h"
 #include "FairField.h"
 
@@ -32,6 +34,12 @@ Double_t RhoCalculationTools::GetBz ( const TVector3& pos )
   pnt[1]=pos.Y();
   pnt[2]=pos.Z();
   // retrieve the field from the framework
-  FairRunAna::Instance()->GetField()->GetFieldValue ( pnt, Bf ); //[kGs]
+  if( FairRun::Instance()->IsAna() )
+  {
+	FairRunAna::Instance()->GetField()->GetFieldValue ( pnt, Bf ); //[kGs]
+  } else {
+	FairRunSim::Instance()->GetField()->GetFieldValue ( pnt, Bf ); //[kGs]
+  }
+
   return Bf[2];
 }

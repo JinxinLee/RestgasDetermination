@@ -3,6 +3,8 @@
 #include "PndTrack.h"
 #include "FairTrackParH.h"
 #include "PndAnaCovTool.h"
+#include "FairRun.h"
+#include "FairRunSim.h"
 #include "FairRunAna.h"
 #include "FairField.h"
 
@@ -100,7 +102,11 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
   pnt[0]=startpos.X();
   pnt[1]=startpos.Y();
   pnt[2]=startpos.Z();
-  FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+  if(FairRun::Instance()->IsAna()){
+    FairRunAna::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+  }else{
+    FairRunSim::Instance()->GetField()->GetFieldValue(pnt, Bf); //[kGs]
+  }
   //Double_t B = sqrt(Bf[0]*Bf[0]+Bf[1]*Bf[1]+Bf[2]*Bf[2]);
   Double_t B = Bf[2];
   Double_t qBc = -0.000299792458*B*Q;
