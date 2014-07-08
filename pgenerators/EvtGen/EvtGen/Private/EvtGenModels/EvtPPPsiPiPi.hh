@@ -35,29 +35,23 @@ class EvtParticle;
 
 class EvtPPPsiPiPi:public  EvtDecayProb {
 public:
-    EvtPPPsiPiPi() { E=4.26;};
-    EvtPPPsiPiPi(double _E) { E=_E;};
+    EvtPPPsiPiPi() { };
     EvtPPPsiPiPi(const EvtPPPsiPiPi& orig);
     virtual ~EvtPPPsiPiPi();
 
   std::string getName();
   EvtDecayBase* clone();
   void init();
-  void initProbMax() {};
+   void initProbMax();
   void decay(EvtParticle *p);
-  int nCall;
 
 private:
     double E,s;
     double diag1, diag2, diag3, diag4;
-//    double diag1, g_pp_Psi2S, g_Psi2S_Psi_f;
-//    double diag2, g_pp_Hc, g_Hc_Psi_f;
-//    double diag3, g_pp_Psi, g_pp_f;
-//    double diag4;
     // momenta
     EvtVector4R p1,p2,p,k1,k2,q;
     
-    EvtDiracParticle proton, antiproton; 
+//     EvtDiracParticle proton, antiproton; 
     
     // scalar products
     double pp1, pp2, q2, k1p1, k1p2, k2p1, k2p2, k1p, k2p,k1k2,k1q,k2q;
