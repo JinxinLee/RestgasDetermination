@@ -1317,7 +1317,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
-  if (helix->GetZ()<180.) return kFALSE; // consider tracks only from last gem plane
+  if (helix->GetZ()<165.) return kFALSE; // consider tracks only from last gem plane
   
   FairGeanePro *fProDsk = new FairGeanePro(); 
   if (!fCorrErrorProp) fProDsk->PropagateOnlyParameters();
