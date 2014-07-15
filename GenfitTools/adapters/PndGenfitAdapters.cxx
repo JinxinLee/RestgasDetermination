@@ -107,7 +107,11 @@ PndTrack* GenfitTrack2PndTrack(const GFTrack* tr){
   PndTrack* retVal =  new PndTrack(first,last,*pndCand);
   retVal->SetChi2(tr->getChiSqu());
   retVal->SetNDF(tr->getNDF());
-  if (tr->getNDF()==0 || exc) {
+  if (tr->getNDF()==0)
+    {
+      retVal->SetFlag(-15);
+    }
+  else if (exc) {
     retVal->SetFlag(-1);
   }
   else {
