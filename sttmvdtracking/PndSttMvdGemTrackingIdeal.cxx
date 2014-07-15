@@ -151,6 +151,7 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
   std::map<Int_t, FairMCPoint*> lastPoint;
   std::map<Int_t, PndTrackCand*> candlist;
   Double_t rho=0., rho2;
+  Int_t multDet[4] = {0., 0., 0., 0.};
   for(Int_t iDet=0;iDet<4;iDet++){
     if (kFALSE == fBranchActive[iDet]) continue; //skip manually switched off detector
     if(fVerbose>4) Info("Exec","Use detector %i",iDet);
@@ -186,7 +187,8 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
       }
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
       rho=myPoint->GetTime();
-      cand->AddHit(fBranchIDs[iDet],ih,rho);
+      if ( (iDet!=0) || (iDet==0 && multDet[iDet]<=25) ) cand->AddHit(fBranchIDs[iDet],ih,rho);
+      multDet[iDet]++;
       if(!firstHit[trackID]){
         firstHit[trackID]=ghit;
         firstPoint[trackID]=myPoint;
