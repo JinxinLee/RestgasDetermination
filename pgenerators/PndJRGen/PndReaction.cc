@@ -884,8 +884,10 @@ void PndReaction::doElastic()
   BeamTarget.Momentum(W);
 
 
-  static const Float_t ecm = W.M() / 2. ; // total cm energy per (anti)proton
-  static const Float_t pcm = sqrt( ecm*ecm - 
+//aida  static const
+   Float_t ecm = W.M() / 2. ; // total cm energy per (anti)proton
+//aida  static const
+ Float_t pcm = sqrt( ecm*ecm - 
 				   pow(((TDatabasePDG::Instance()) -> GetParticle(2212)) -> Mass(),2) );
 
   // find the cm azimuthal angle
