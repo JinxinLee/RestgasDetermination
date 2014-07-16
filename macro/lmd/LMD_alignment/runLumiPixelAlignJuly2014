@@ -24,17 +24,27 @@ fi
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 #path=${VMCWORKDIR}/macro/lmd/testPixelAlignChallenge/mom_${momStr}/
 # # create misalignment consts
-dr=200
-da=3
-path=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_DPM/mom_${momStr}/${dr}mkm_${da}mrad/
+TRANS=(10 50 100 200 300 400 500 600 700 800) #mkm
+#TRANS=(0) #mkm
+TRANSN=${#TRANS[@]}
+ROT=(0 1 3 5) #mrad
+#ROT=(1 3 5) #mrad
+ROTN=${#ROT[@]}
+  for (( jt=0;jt<$TRANSN;jt++)); do
+	for (( jr=0;jr<$ROTN;jr++)); do
+	    cd ${VMCWORKDIR}/macro/lmd/
+	    dr=${TRANS[${jt}]}
+	    da=${ROT[${jr}]}
+
+path=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_10e4/mom_${momStr}/${dr}mkm_${da}mrad/
 mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
 #number of events
-numEvB=1000
-numEvA=1000
+numEvB=10000
+numEvA=10000
 numEv=$numEvB
 doalign=true
 
@@ -71,16 +81,15 @@ cp ${VMCWORKDIR}/geometry/trafo_matrices_lmd.dat ${path}/.
 # cp ${VMCWORKDIR}/macro/lmd/LMD_alignment/lumi.align_pixel_ideal.par ${path}/lumi.misalign_pixel.par
 
 # #simulation with Box generator
-#root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
 
 # #copy MC data for ideal case
 # cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_MC_0.root ${path}/.
 # cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_Params_0.root ${path}/.
 
 ### #simulation with DPM
-#modeDPM=1 #el+inel
-modeDPM=2 #el
-root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
+## #modeDPM=1 #el+inel
+##   root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
 
 #digi
     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
@@ -199,12 +208,11 @@ CombFilt=false
 
 
 # #simulation with Box generator
-#   root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+   root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
 
 # #simulation with DPM
  #modeDPM=1 #el+inel
-modeDPM=2 #el
-root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
+ #   root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
 
 #digi
     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
@@ -274,3 +282,6 @@ root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3
 #rm ${path}/FairRunInfo*
 #rm ${path}/hits_trk_for_alignment*
 #rm ${path}/Lumi_*
+	done
+  done
+  exit

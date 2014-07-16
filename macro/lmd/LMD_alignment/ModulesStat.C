@@ -10,11 +10,15 @@
 #include <TMath.h>
 #include <sstream>
 using namespace std;
-void ModulesStat(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/100data_10consts_SamplesStudyOct2013/BOX/mom_15/")
+void ModulesStat(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPixelAlignSIM/mom_15/")
 {
 
-   const int nDt = 8;
-  double v_tr_sc[nDt]={0,50,100,200,300,400,500,600};//misalign, trans
+  //  const int nDt = 8;
+  // double v_tr_sc[nDt]={0,50,100,200,300,400,500,600};//misalign, trans
+   const int nDt = 1;
+  double v_tr_sc[nDt]={100};//misalign, trans
+
+
   //  const int nMod = 10;
   const int nMod = 1;//TEST
   // const int nDt = 2;

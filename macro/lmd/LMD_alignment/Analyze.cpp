@@ -15,7 +15,7 @@ Program reading data prodused by KNOSSOS and produce the root file with results
 #include "TF1.h"
 #include "TCanvas.h"
 //#include "/home/karavdin/pandaRoot12/mySandbox/myKnossos/constantsLMD.h"
-#include "/panda/karavdina/myKnossos/constantsLMD.h"
+#include "/home/karavdina/soft/develop/myKnossos/constantsLMD.h"
 // needed for corditate from\out lumi frame calculation
 #include"PndLmdDim.h"
 using namespace std;
@@ -199,7 +199,7 @@ int main(int __argc,char *__argv[]) {
  }
  input.close();
 
-
+ cout<<"compute global offset and shearing:"<<endl;
 
  //
  // then we compute global offset and shearing (need to suppress them because 
@@ -210,18 +210,18 @@ int main(int __argc,char *__argv[]) {
  // double zplanes[4]={0,10,20,30};
  double z_moy = 0;
  double sigma_z_moy = 0;
- 
+ // cout<<"nStation = "<<nStation<<endl;
  // z_average  
- for (unsigned int jp=0; jp<nStation; jp=jp++){
+ for (unsigned int jp=0; jp<nStation; jp++){
  // for (unsigned int jp=0; jp<(nSides*nStation*nSensors); jp=jp++){
    z_moy += zplanes[jp];
-   //   cout<<"z_moy["<<jp<<"]="<<z_moy<<endl;
+   // cout<<"z_moy["<<jp<<"]="<<z_moy<<" zplanes["<<jp<<"]="<<zplanes[jp]<<endl;
  }
 
  z_moy /= float(nStation);
  //z_moy /= float(nSides*nStation*nSensors);
  // Error on z_moy
- for (unsigned int jp=0; jp<nStation; jp=jp++) sigma_z_moy += (zplanes[jp]-z_moy)*(zplanes[jp]-z_moy);
+ for (unsigned int jp=0; jp<nStation; jp++) sigma_z_moy += (zplanes[jp]-z_moy)*(zplanes[jp]-z_moy);
  sigma_z_moy /= float(nStation);
  //for (unsigned int jp=0; jp<(nSides*nStation*nSensors); jp=jp++) sigma_z_moy += (zplanes[jp]-z_moy)*(zplanes[jp]-z_moy);
  // sigma_z_moy /= float(nSides*nStation*nSensors);

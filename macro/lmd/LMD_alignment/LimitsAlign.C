@@ -26,6 +26,7 @@ void LimitsAlign(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/10d
 
   const int nDt = 8;
   double v_tr_sc[nDt]={0,50,100,200,300,400,500,600};//misalign, trans
+ 
   const int nDa = 1; //TEST
   double v_rt_sc[nDa]={daGL};//misalign, trans
   const int nSdGL=100;//number of data samples
