@@ -14,7 +14,9 @@
 #include <string.h>
 #define G__ANSIHEADER
 #define G__DICTIONARY
+#define G__PRIVATE_GVALUE
 #include "G__ci.h"
+#include "FastAllocString.h"
 extern "C" {
 extern void G__cpp_setup_tagtablePndJRGenCint();
 extern void G__cpp_setup_inheritancePndJRGenCint();
@@ -27,12 +29,12 @@ extern void G__set_cpp_environmentPndJRGenCint();
 }
 
 
-#include "TROOT.h"
+#include "TObject.h"
 #include "TMemberInspector.h"
 #include "PndReaction.hh"
 #include <algorithm>
-//namespace std { }
-//using namespace std;
+namespace std { }
+using namespace std;
 
 #ifndef G__MEMFUNCBODY
 #endif
@@ -41,14 +43,17 @@ extern G__linked_taginfo G__PndJRGenCintLN_TClass;
 extern G__linked_taginfo G__PndJRGenCintLN_TBuffer;
 extern G__linked_taginfo G__PndJRGenCintLN_TMemberInspector;
 extern G__linked_taginfo G__PndJRGenCintLN_TObject;
-extern G__linked_taginfo G__PndJRGenCintLN_vectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgR;
-extern G__linked_taginfo G__PndJRGenCintLN_reverse_iteratorlEvectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TString;
+extern G__linked_taginfo G__PndJRGenCintLN_vectorlEROOTcLcLTSchemaHelpercOallocatorlEROOTcLcLTSchemaHelpergRsPgR;
+extern G__linked_taginfo G__PndJRGenCintLN_reverse_iteratorlEvectorlEROOTcLcLTSchemaHelpercOallocatorlEROOTcLcLTSchemaHelpergRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TClonesArray;
-extern G__linked_taginfo G__PndJRGenCintLN_multimaplEvoidmUcOshortcOlesslEvoidmUgRcOallocatorlEpairlEvoidmUsPconstcOshortgRsPgRsPgR;
+extern G__linked_taginfo G__PndJRGenCintLN_vectorlETVirtualArraymUcOallocatorlETVirtualArraymUgRsPgR;
+extern G__linked_taginfo G__PndJRGenCintLN_reverse_iteratorlEvectorlETVirtualArraymUcOallocatorlETVirtualArraymUgRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TVectorTlEfloatgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TVectorTlEdoublegR;
 extern G__linked_taginfo G__PndJRGenCintLN_TH1D;
+extern G__linked_taginfo G__PndJRGenCintLN_iteratorlEbidirectional_iterator_tagcOTObjectmUcOlongcOconstsPTObjectmUmUcOconstsPTObjectmUaNgR;
+extern G__linked_taginfo G__PndJRGenCintLN_maplEstringcOTObjArraymUcOlesslEstringgRcOallocatorlEpairlEconstsPstringcOTObjArraymUgRsPgRsPgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TMatrixTBaselEfloatgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TMatrixTBaselEdoublegR;
 extern G__linked_taginfo G__PndJRGenCintLN_TElementActionTlEfloatgR;
@@ -69,8 +74,8 @@ extern G__linked_taginfo G__PndJRGenCintLN_TMatrixTSublEfloatgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TMatrixTSparseRowlEfloatgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TMatrixTSparseDiaglEfloatgR;
 extern G__linked_taginfo G__PndJRGenCintLN_TVector3;
-extern G__linked_taginfo G__PndJRGenCintLN_TDecayChannel;
 extern G__linked_taginfo G__PndJRGenCintLN_TParticle;
+extern G__linked_taginfo G__PndJRGenCintLN_TDecayChannel;
 extern G__linked_taginfo G__PndJRGenCintLN_TGenPhaseSpace;
 extern G__linked_taginfo G__PndJRGenCintLN_PndReaction;
 
