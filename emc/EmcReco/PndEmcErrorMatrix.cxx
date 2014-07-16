@@ -216,8 +216,9 @@ TMatrixD PndEmcErrorMatrix::Get4MomentumErrorMatrix(const PndEmcCluster &cluster
 	
 	double z_cluster = cluster.where().Z();
 	double perp = cluster.where().Perp();
-	double cos_theta = z_cluster;
-	double sin_theta = perp;
+	double mag = cluster.where().Mag();
+	double cos_theta = z_cluster / mag;
+	double sin_theta = perp / mag;
 	double sin_phi = cluster.where().Y() / perp;
 	double cos_phi = cluster.where().X() / perp;
 	double e=cluster.energy();
