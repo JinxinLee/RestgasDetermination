@@ -15,10 +15,10 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
   // double v_Dt[nParDt]={0,50,100,200,300,400,500,600};
   // const int nParDa=5;
   // double v_Da[nParDa]={0,1,3,6,9};
-  const int nParDt=11;
-  double v_Dt[nParDt]={0,10,50,100,200,300,400,500,600,700,800};
- const int nParDa=4;
- double v_Da[nParDa]={0,1,3,5};
+  const int nParDt=7;
+  double v_Dt[nParDt]={0,50,100,200,400,600,800};
+ const int nParDa=3;
+ double v_Da[nParDa]={0,1,3};
   // for(int iDt=0;iDt<nParDt;iDt++){
   //   tr_sc = v_Dt[iDt];
   //   for(int iDa=0;iDa<nParDa;iDa++){
@@ -270,18 +270,18 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
   gr_theta_b[ipart] = new TGraphErrors(nParDt,v_Dt,theta_mean_b[ipart],0,0);
   gr_theta_b[ipart]->SetMarkerStyle(20+ipart); 
   gr_theta_b[ipart]->SetMarkerColor(kGreen-3); 
-  gr_theta_b[ipart]->SetMarkerSize(2.5); 
+  gr_theta_b[ipart]->SetMarkerSize(1.7+ipart*0.3); 
   gr_theta_a[ipart] = new TGraphErrors(nParDt,v_Dt,theta_mean_a[ipart],0,0);
   gr_theta_a[ipart]->SetMarkerStyle(20+ipart); 
   gr_theta_a[ipart]->SetMarkerColor(kOrange+7); 
-  gr_theta_a[ipart]->SetMarkerSize(2.5); 
+  gr_theta_a[ipart]->SetMarkerSize(1.7+ipart*0.3); 
   mgr_theta_b->Add(gr_theta_b[ipart]);
   mgr_theta->Add(gr_theta_a[ipart]);
   if(ipart==0){
   gr_theta_r[ipart] = new TGraphErrors(nParDt,v_Dt,theta_mean_r[ipart],0,0);
   gr_theta_r[ipart]->SetMarkerStyle(20+ipart); 
   gr_theta_r[ipart]->SetMarkerColor(15); 
-  gr_theta_r[ipart]->SetMarkerSize(2.5); 
+  gr_theta_r[ipart]->SetMarkerSize(1.5); 
   mgr_theta_b->Add(gr_theta_r[ipart]);
   mgr_theta->Add(gr_theta_r[ipart]);
   leg->AddEntry(gr_theta_r[ipart],"IDEAL","lep");
@@ -299,8 +299,8 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
  leg->Draw();
  mgr_theta_b->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_theta_b->GetYaxis()->SetTitle("#theta_{mean}, #murad");
- mgr_theta_b->GetHistogram()->SetMaximum(10.);
- mgr_theta_b->GetHistogram()->SetMinimum(-10.);
+ mgr_theta_b->GetHistogram()->SetMaximum(200.);
+ mgr_theta_b->GetHistogram()->SetMinimum(-200.);
  c1.Print(resname_pdf_o); //write canvas and keep the ps file open
  c1.Clear();
  
@@ -321,18 +321,18 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
    gr_theta_b[ipart] = new TGraphErrors(nParDt,v_Dt,theta_rms_b[ipart],0,0);
    gr_theta_b[ipart]->SetMarkerStyle(20+ipart); 
    gr_theta_b[ipart]->SetMarkerColor(kGreen-3); 
-   gr_theta_b[ipart]->SetMarkerSize(2.5); 
+   gr_theta_b[ipart]->SetMarkerSize(1.7+ipart*0.3); 
    gr_theta_a[ipart] = new TGraphErrors(nParDt,v_Dt,theta_rms_a[ipart],0,0);
   gr_theta_a[ipart]->SetMarkerStyle(20+ipart); 
   gr_theta_a[ipart]->SetMarkerColor(kOrange+7); 
-  gr_theta_a[ipart]->SetMarkerSize(2.5); 
+  gr_theta_a[ipart]->SetMarkerSize(1.7+ipart*0.3); 
   mgr_theta_b_rms->Add(gr_theta_b[ipart]);
   mgr_theta_rms->Add(gr_theta_a[ipart]);
   if(ipart==0){
     gr_theta_r[ipart] = new TGraphErrors(nParDt,v_Dt,theta_rms_r[ipart],0,0);
     gr_theta_r[ipart]->SetMarkerStyle(20+ipart); 
     gr_theta_r[ipart]->SetMarkerColor(15); 
-    gr_theta_r[ipart]->SetMarkerSize(2.5);
+    gr_theta_r[ipart]->SetMarkerSize(1.5);
     mgr_theta_b_rms->Add(gr_theta_r[ipart]);
     mgr_theta_rms->Add(gr_theta_r[ipart]);
   }
@@ -342,7 +342,7 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
  leg->Draw();
  mgr_theta_b_rms->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_theta_b_rms->GetYaxis()->SetTitle("#theta_{rms}, #murad");
- mgr_theta_b_rms->GetHistogram()->SetMaximum(300.);
+ mgr_theta_b_rms->GetHistogram()->SetMaximum(1500.);
  mgr_theta_b_rms->GetHistogram()->SetMinimum(90.);
 
  c1.Print(resname_pdf_o); //write canvas and keep the ps file open
@@ -353,7 +353,7 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
  leg->Draw();
  mgr_theta_rms->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_theta_rms->GetYaxis()->SetTitle("#theta_{rms}, #murad");
- mgr_theta_rms->GetHistogram()->SetMaximum(300.);
+ mgr_theta_rms->GetHistogram()->SetMaximum(200.);
  mgr_theta_rms->GetHistogram()->SetMinimum(90.);
 
  c1.Print(resname_pdf_o); //write canvas and keep the ps file open
@@ -363,22 +363,24 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
   TGraphErrors *gr_mis_b[6][nParDa];
   TGraphErrors *gr_mis_a[6][nParDa];
   TMultiGraph *mgr_mis[6];
- for(int ipart=0;ipart<nParDa;ipart++){// loop over rotaion scale
- for(int ialc=0;ialc<6;ialc++){
-   gr_mis_b[ialc][ipart] = new TGraphErrors(nParDt,v_Dt,mis_v_b[ipart][ialc],0,mis_b[ipart][ialc]);
-   gr_mis_b[ialc][ipart]->SetMarkerStyle(20+ipart);
-   gr_mis_b[ialc][ipart]->SetMarkerColor(kGreen-3);
-   gr_mis_b[ialc][ipart]->SetMarkerSize(2.5);
-   gr_mis_a[ialc][ipart] = new TGraphErrors(nParDt,v_Dt,mis_v_a[ipart][ialc],0,mis_a[ipart][ialc]);
-   gr_mis_a[ialc][ipart]->SetMarkerStyle(20+ipart);
-   gr_mis_a[ialc][ipart]->SetMarkerColor(kOrange+7);
-   gr_mis_a[ialc][ipart]->SetMarkerSize(2.5);
-   mgr_mis[ialc] = new TMultiGraph();
-   //  mgr_mis[ialc]->Add(gr_mis_b[ialc][ipart]);
-   mgr_mis[ialc]->Add(gr_mis_a[ialc][ipart]);
-  
- }
- }// END loop over rotaion scale
+  for(int ialc=0;ialc<6;ialc++){
+    mgr_mis[ialc] = new TMultiGraph();
+  }
+  for(int ipart=0;ipart<nParDa;ipart++){// loop over rotaion scale
+    for(int ialc=0;ialc<6;ialc++){
+      gr_mis_b[ialc][ipart] = new TGraphErrors(nParDt,v_Dt,mis_v_b[ipart][ialc],0,mis_b[ipart][ialc]);
+      gr_mis_b[ialc][ipart]->SetMarkerStyle(20+ipart);
+      gr_mis_b[ialc][ipart]->SetMarkerColor(kGreen-3);
+      gr_mis_b[ialc][ipart]->SetMarkerSize(1.7+ipart*0.3);
+      gr_mis_a[ialc][ipart] = new TGraphErrors(nParDt,v_Dt,mis_v_a[ipart][ialc],0,mis_a[ipart][ialc]);
+      gr_mis_a[ialc][ipart]->SetMarkerStyle(20+ipart);
+      gr_mis_a[ialc][ipart]->SetMarkerColor(kOrange+7);
+      gr_mis_a[ialc][ipart]->SetMarkerSize(1.7+ipart*0.3);
+     
+      //  mgr_mis[ialc]->Add(gr_mis_b[ialc][ipart]);
+      mgr_mis[ialc]->Add(gr_mis_a[ialc][ipart]);
+    }
+  }// END loop over rotaion scale
  for(int ialc=0;ialc<6;ialc++){
    if(ialc<2 || ialc==5){
      mgr_mis[ialc]->Draw("AP");
@@ -407,10 +409,10 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
    grstatBef[ipart] = new TGraphErrors(nParDt,v_Dt,TrksBef[ipart],0,0);
    grstatBef[ipart]->SetMarkerStyle(20+ipart);
    grstatBef[ipart]->SetMarkerColor(kGreen-3);
-   grstatBef[ipart]->SetMarkerSize(2.5);
+   grstatBef[ipart]->SetMarkerSize(1.7+ipart*0.3);
    grstatAft[ipart] = new TGraphErrors(nParDt,v_Dt,TrksAft[ipart],0,0);
    grstatAft[ipart]->SetMarkerStyle(20+ipart);
-   grstatAft[ipart]->SetMarkerSize(2.5);
+   grstatAft[ipart]->SetMarkerSize(1.7+ipart*0.3);
    grstatAft[ipart]->SetMarkerColor(kOrange+7);
    mgr_stat->Add(grstatBef[ipart]);
    mgr_stat->Add(grstatAft[ipart]);
@@ -418,9 +420,9 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
  mgr_stat->Draw("AP");
  mgr_stat->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_stat->GetYaxis()->SetTitle("N_{REC}");
- mgr_stat->GetHistogram()->SetMaximum(6000);
- mgr_stat->GetHistogram()->SetMinimum(4000);
-
+ mgr_stat->GetHistogram()->SetMaximum(1e5);
+ mgr_stat->GetHistogram()->SetMinimum(0);
+ leg->Draw();
  c1.Print(resname_pdf_c); //write canvas and close the file
 
 
