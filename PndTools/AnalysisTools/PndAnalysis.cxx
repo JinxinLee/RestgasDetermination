@@ -218,7 +218,7 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
   if ( fEvtCount>fChainEntries ) {
     fEvtCount=fChainEntries;
     if(fVerbose) Info("PndAnalysis::GetEvent()","Maximum number of entried in the file chain reached: %i.",fEvtCount);
-    return fEvtCount;
+    return 0;
   }
   fRootManager->ReadEvent ( fEvtCount-1 );
 
