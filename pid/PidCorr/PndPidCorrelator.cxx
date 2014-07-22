@@ -712,7 +712,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     PndTrack* track = (PndTrack*) fTrack->At(i);
     Int_t ierr = 0;
     FairTrackParP par = track->GetParamLast();
-    if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue; // cut low and high momenta
+    if ((par.GetMomentum().Mag()<0.05) || (par.GetMomentum().Mag()>15.) )continue; // cut low and high momenta
     if ((fFlagCut) && (track->GetFlag()<=0)) continue; // cut flag<=0
     FairTrackParH *helix = new FairTrackParH(&par, ierr);
     
