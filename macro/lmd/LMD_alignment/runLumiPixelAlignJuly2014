@@ -8,24 +8,30 @@ echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
 read mom
 echo "Beam mometum is: $mom!"
 cd ${VMCWORKDIR}/macro/lmd/
-PANDAROOTmy=/home/karavdina/soft/develop/
+PANDAROOTmy=/panda/karavdina/
 pbeam=$mom
-### pick up half solenoid maps for 1.5 GeV/c [tmp, should be removed one day!] ###
-solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
-if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
-    echo "FULL solenoid field maps"
-    ln -sf ${VMCWORKDIR}/input/solenoid_fc/* ${VMCWORKDIR}/input/.
-else
-    echo "HALF solenoid field maps"
-    ln -sf ${VMCWORKDIR}/input/solenoid_hc/* ${VMCWORKDIR}/input/.
-fi
-######################################################
+# ### pick up half solenoid maps for 1.5 GeV/c [tmp, should be removed one day!] ###
+# solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
+# if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
+#     echo "FULL solenoid field maps"
+#     ln -sf ${VMCWORKDIR}/input/solenoid_fc/* ${VMCWORKDIR}/input/.
+# else
+#     echo "HALF solenoid field maps"
+#     ln -sf ${VMCWORKDIR}/input/solenoid_hc/* ${VMCWORKDIR}/input/.
+# fi
+# ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+#number of events
+numEvB=1000
+numEvA=1000
+numEv=${numEvB}
+
 #path=${VMCWORKDIR}/macro/lmd/testPixelAlignChallenge/mom_${momStr}/
 # # create misalignment consts
 #TRANS=(0 50 100 200 400 600 800) #mkm
-TRANS=(800) #mkm
+TRANS=(0 100 200 600) #mkm
+#TRANS=(0 50 100 200 300 400 500 600 800 1000) #mkm
 TRANSN=${#TRANS[@]}
 #ROT=(0 1 3 5) #mrad
 ROT=(0 1) #mrad
@@ -36,16 +42,13 @@ ROTN=${#ROT[@]}
 	    dr=${TRANS[${jt}]}
 	    da=${ROT[${jr}]}
 
-path=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_10e4/mom_${momStr}/${dr}mkm_${da}mrad/
+path=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/mom_${momStr}/${dr}mkm_${da}mrad/
 mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #merge hits on sensors from different sides. true=yes
 mergedHits=true
-#number of events
-numEvB=50000
-numEvA=2000
-numEv=$numEvB
+
 doalign=true
 
 ##Skip kinematic filter (before back-propagation)
@@ -81,7 +84,13 @@ cp ${VMCWORKDIR}/geometry/trafo_matrices_lmd.dat ${path}/.
 # cp ${VMCWORKDIR}/macro/lmd/LMD_alignment/lumi.align_pixel_ideal.par ${path}/lumi.misalign_pixel.par
 
 # #simulation with Box generator
-root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+if [ ! -r  ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/Lumi_MC_0.root ]; then
+    mkdir -p ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/
+    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+	cp ${path}/Lumi_MC_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/.
+	cp ${path}/Lumi_Params_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/.
+fi
+cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/* ${path}/.
 
 # #copy MC data for ideal case
 # cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_MC_0.root ${path}/.
@@ -141,7 +150,7 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 	 fi
 	  mv ${path}/Lumi_QA_0.root  ${path}/Lumi_QA_before.root 
 ### And now give some work to Millipede
-	  cd ${VMCWORKDIR}/build/bin
+	  cd ${VMCWORKDIR}/buildPanda/bin
 	  ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 0 -out ${path}/hits_trk_for_alignment_sector0.txt -outhist ${path}/hitsRes_before_alignment_sector0.root &> ${path}/logCreatAlignSampl0
 	  ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 1 -out ${path}/hits_trk_for_alignment_sector1.txt -outhist ${path}/hitsRes_before_alignment_sector1.root
 	  ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 2 -out ${path}/hits_trk_for_alignment_sector2.txt -outhist ${path}/hitsRes_before_alignment_sector2.root
@@ -181,7 +190,7 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
    rm ${path}/lumi.misalign_pixel_after.par
    head -16 ${path}/lumi.misalign_pixel.par &> ${path}/lumi.misalign_pixel_after.par
 
-     cd ${VMCWORKDIR}/build/bin
+     cd ${VMCWORKDIR}/buildPanda/bin
    ./analyze_alignment -in ${path}/lumi.misalign_pixel.par -out ${path}/LumiAlignConst.txt -new ${path}/lumi.misalign_pixel_after.par -outroot ${path}/KnossosResults.root &> ${path}/logAnaKnossos
    cd ${VMCWORKDIR}/macro/lmd/
 # TODO: apply all cuts (XY and M)
@@ -208,7 +217,8 @@ CombFilt=false
 
 
 # #simulation with Box generator
-   root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+#   root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/* ${path}/.
 
 # #simulation with DPM
  #modeDPM=1 #el+inel
@@ -267,7 +277,7 @@ CombFilt=false
 
 	  mv ${path}/Lumi_QA_0.root  ${path}/Lumi_QA_after.root 
 
-	  cd ${VMCWORKDIR}/build/bin
+	  cd ${VMCWORKDIR}/buildPanda/bin
 	  ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 0 -out ${path}/hits_trk_for_alignment_sector0_after.txt -outhist ${path}/hitsRes_after_alignment_sector0.root
 	  ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 1 -out ${path}/hits_trk_for_alignment_sector1_after.txt -outhist ${path}/hitsRes_after_alignment_sector1.root
 	  ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m 2 -out ${path}/hits_trk_for_alignment_sector2_after.txt -outhist ${path}/hitsRes_after_alignment_sector2.root
