@@ -1,7 +1,7 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int trkNum=1, const int seed=0)
+void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int trkNum=1, const int seed=0, const double dP=0)
 {
 
   // ///PROOF lite
@@ -13,6 +13,7 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   TStopwatch timer;
   timer.Start();
   gDebug=0;
+  mom +=dP;
   cout<<"We start run for beam Mom = "<<mom<<endl;
   //output1
   TString simOutput=storePath+"/Lumi_MC_";
@@ -131,9 +132,10 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   // primGen->SmearAngle(kTRUE);
   // primGen->SmearVertexZ(kTRUE);
   // primGen->SetBeamAngularDivergence(0.0003);// sigmaTheta~0.3 mrad
-  // primGen->SetBeam(0., 0., 2*0.08, 2*0.08); //sigmaX=sigmaY=0.8 mm ["square"shape of beam ]
+  //  primGen->SetBeam(0., 0., 2*0.08, 2*0.08); //sigmaX=sigmaY=0.8 mm ["square"shape of beam ]
   // primGen->SetTarget(0.,0.1); // sigmaZ=1mm, gaus
 
+  //  primGen->SetBeam(0.,0., 2*0.08, 2*0.08); //sigmaX=sigmaY=0.8 mm ["square"shape of beam ]
   // primGen->SetTarget(1050.,0.); //attemp to have different trk topology in lmd
 
   fRun->SetGenerator(primGen);
@@ -142,7 +144,8 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
   //  fBox->SetThetaRange(0.52,0.63); // 9 ... 11 mrad
-  fBox->SetThetaRange(0.12,0.7); // 2... 12 mrad
+    fBox->SetThetaRange(0.12,0.7); // 2... 12 mrad
+  //  fBox->SetThetaRange(0.,1.4); // 0... 24 mrad
   //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
   //fBox->SetThetaRange(0.12,0.65); // 2... 11 mrad
   //  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
