@@ -15,18 +15,20 @@ Program reading data prodused by KNOSSOS and produce the root file with results
 #include "TF1.h"
 #include "TCanvas.h"
 //#include "/home/karavdin/pandaRoot12/mySandbox/myKnossos/constantsLMD.h"
-#include "/home/karavdina/soft/develop/myKnossos/constantsLMD.h"
+#include "/panda/karavdina/myKnossos/constantsLMD.h"
 // needed for corditate from\out lumi frame calculation
 #include"PndLmdDim.h"
 using namespace std;
 
 int main(int __argc,char *__argv[]) {
   std::string inputpar="", outputpar="",outputrootpar="", resnewconst="";
+  std::string statfile="";
   // decode arguments
   if( __argc>1 && ( strcmp( __argv[1], "-help" ) == 0
 		    || strcmp( __argv[1], "--help" ) == 0 ) ){
 
     std::cout << "This is script for reading data produced by KNOSSOS\n"
+	      <<"-stat input [*.txt] file with statistic of tracks used by  KNOSSOS\n"
 	      <<"-in input [*.par] file, used in simulation \n"
 	      <<"-out output [*.txt] file after KNOSSOS \n"
 	      <<"-outroot output [*.root] file after KNOSSOS \n"
@@ -41,6 +43,11 @@ int main(int __argc,char *__argv[]) {
     if (sw=="-in") {
       optind++;
       inputpar = __argv[optind];
+      found=true;
+    }
+    if (sw=="-stat") {
+      optind++;
+      statfile = __argv[optind];
       found=true;
     }
     if (sw=="-out"){
@@ -65,11 +72,40 @@ int main(int __argc,char *__argv[]) {
     }
   while ( (optind < __argc ) && __argv[optind][0]!='-' ) optind++; 
   }
-  cout<<"outputpar = "<<outputpar<<endl;
+  //  cout<<"outputpar = "<<outputpar<<endl;
   const string inputparc = inputpar;
   const string outputparc = outputpar;
   const string outputrootparc = outputrootpar;
   const string resnewconstc = resnewconst;
+  const string statfilec = statfile;
+
+  //read info about tracks statistic --------------------
+  double ntrk_in[10],ntrk_out[10];
+  std::string tmp1;
+  ifstream giveit;
+  giveit.open(statfilec.c_str());
+  int icount=0;
+  int min_trks = 0;
+  int max_trsk=0;
+  while(!giveit.eof() && icount<9) {
+    giveit>>tmp1>>tmp1>>tmp1>>tmp1>>tmp1>>ntrk_in[icount]>>tmp1>>tmp1>>tmp1>>tmp1>>tmp1>>ntrk_out[icount]>>tmp1;
+    //    cout<<"ntrk_in["<<icount<<"] = "<<ntrk_in[icount]<<" ntrk_out = "<<ntrk_out[icount]<<endl;
+    if(icount==0){ 
+      min_trks = ntrk_out[icount];
+      max_trsk = ntrk_in[icount];
+    }
+    if(ntrk_out[icount]<min_trks) min_trks = ntrk_out[icount];
+    if(ntrk_in[icount]>max_trsk) max_trsk = ntrk_in[icount];
+      icount++;
+  }
+
+  TH2F* haStat_in = new TH2F("haStat_in", "Statistic of tracks (1st iter)", 10,0,10,1e2,0.9*min_trks,1.05*max_trsk);
+  TH2F* haStat_out = new TH2F("haStat_out", "Statistic of tracks (last iter)", 10,0,10,1e2,0.9*min_trks,1.05*max_trsk);
+  for(int i=0; i<10;i++){
+    haStat_in->Fill(i,ntrk_in[i]);
+    haStat_out->Fill(i,ntrk_out[i]);
+  }
+  //END  read info about tracks statistic -------------
 //  Initialize
 
 //  gROOT->Reset();
@@ -109,7 +145,7 @@ int main(int __argc,char *__argv[]) {
    output>>dbetaout[ih][ip][im]>>tmp>>dbetaerrout[ih][ip][im]>>dbetapullout[ih][ip][im];
    output>>dgammaout[ih][ip][im]>>tmp>>dgammaerrout[ih][ip][im]>>dgammapullout[ih][ip][im];
    //   output>>tmp;
-   cout<<"dxout["<<ih<<"]["<<ip<<"]["<<im<<"] = "<<dxout[ih][ip][im]<<endl;
+   //  cout<<"dxout["<<ih<<"]["<<ip<<"]["<<im<<"] = "<<dxout[ih][ip][im]<<endl;
    //   im++;
    // im++;
    // if(im==nSectors){
@@ -186,7 +222,7 @@ int main(int __argc,char *__argv[]) {
  // while(!input.eof() && ih<2){
  while(!input.eof() && ih<nSides){
    input>>tmptxt>>dxin[ih][ip][im]>>tmptxt>>dyin[ih][ip][im]>>tmptxt>>dzin[ih][ip][im]>>tmptxt>>dalphain[ih][ip][im]>>tmptxt>>dbetain[ih][ip][im]>>tmptxt>>dgammain[ih][ip][im];
-   cout<<"h,p,m:"<<ih<<","<<ip<<","<<im<<" dx = "<<dxin[ih][ip][im]<<" dy = "<<dyin[ih][ip][im]<<" dz = "<<dzin[ih][ip][im]<<endl;
+   //  cout<<"h,p,m:"<<ih<<","<<ip<<","<<im<<" dx = "<<dxin[ih][ip][im]<<" dy = "<<dyin[ih][ip][im]<<" dz = "<<dzin[ih][ip][im]<<endl;
    im++;
    if(im==nSectors){
      im=0;
@@ -199,7 +235,7 @@ int main(int __argc,char *__argv[]) {
  }
  input.close();
 
- cout<<"compute global offset and shearing:"<<endl;
+ // cout<<"compute global offset and shearing:"<<endl;
 
  //
  // then we compute global offset and shearing (need to suppress them because 
@@ -226,7 +262,7 @@ int main(int __argc,char *__argv[]) {
  //for (unsigned int jp=0; jp<(nSides*nStation*nSensors); jp=jp++) sigma_z_moy += (zplanes[jp]-z_moy)*(zplanes[jp]-z_moy);
  // sigma_z_moy /= float(nSides*nStation*nSensors);
  //sigma_z_moy /= 4.;
- cout<<"z_moy = "<<z_moy<<" sigma_z_moy = "<<sigma_z_moy<<endl;
+ //cout<<"z_moy = "<<z_moy<<" sigma_z_moy = "<<sigma_z_moy<<endl;
  
  // double off_x = 0.;   // Global offsetl
  // double shear_x = 0.; // Global shearing
@@ -321,8 +357,8 @@ int main(int __argc,char *__argv[]) {
    off_a[jm] /= float(nStation);
    off_b[jm] /= float(nStation);
    off_c[jm] /= float(nStation);
-   cout<<jm<<": off_x = "<<off_x[jm]<<" shear_x = "<<shear_x[jm]<<" off_y = "<<off_y[jm]<<" shear_y = "<<shear_y[jm]
-     <<" off_z = "<<off_z[jm]<<"  scale_z = "<<scale_z[jm]<<" off_a = "<<off_a[jm]<<" off_b = "<<off_b[jm]<<" off_c = "<<off_c[jm]<<endl;
+   //  cout<<jm<<": off_x = "<<off_x[jm]<<" shear_x = "<<shear_x[jm]<<" off_y = "<<off_y[jm]<<" shear_y = "<<shear_y[jm]
+   //   <<" off_z = "<<off_z[jm]<<"  scale_z = "<<scale_z[jm]<<" off_a = "<<off_a[jm]<<" off_b = "<<off_b[jm]<<" off_c = "<<off_c[jm]<<endl;
  }
 
    // off_x /= float(nSides*nStation*nSectors);
@@ -393,15 +429,15 @@ int main(int __argc,char *__argv[]) {
 
 
     
-     cout<<"corr: dxin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dxin[jh][jp][jm];
+     cout<<"dxin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dxin[jh][jp][jm];
      cout<<"     dxout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dxout[jh][jp][jm];
      cout<<" dif="<<dxin[jh][jp][jm]+dxout[jh][jp][jm]<<endl;
      //   cout<<" dif="<<-dxin[jh][jp][jm]-dxout[jh][jp][jm]<<endl;
-     cout<<"corr: dyin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyin[jh][jp][jm];
+     cout<<"dyin["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyin[jh][jp][jm];
      cout<<"     dyout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dyout[jh][jp][jm];
      cout<<" dif="<<dyin[jh][jp][jm]+dyout[jh][jp][jm]<<endl;
      //cout<<" dif="<<-dyin[jh][jp][jm]-dyout[jh][jp][jm]<<endl;
-     cout<<"corr: dgammain["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dgammain[jh][jp][jm];
+     cout<<"dgammain["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dgammain[jh][jp][jm];
      cout<<"     dgammaout["<<jh<<"]["<<jp<<"]["<<jm<<"]="<<dgammaout[jh][jp][jm];
      cout<<" dif="<<dgammain[jh][jp][jm]+dgammaout[jh][jp][jm]<<endl;
      //    cout<<" dif="<<-dgammain[jh][jp][jm]-dgammaout[jh][jp][jm]<<endl;
@@ -732,11 +768,28 @@ c3->cd(6);
 ((TH1F*)m_pullHistos->At(5))->Draw();
 
 c3->Update();
- 
+
+TCanvas* c4 = new TCanvas("c4","Stat",200,500,700,800);
+c4->SetFillColor(0);
+c4->SetBorderMode(0); 
+c4->Divide(1,2);     
+ c4->cd(1);
+ haStat_in->SetMarkerStyle(20);
+ haStat_in->SetMarkerSize(2.5);
+ haStat_in->Draw();
+c4->cd(2);
+ haStat_out->SetMarkerStyle(21);
+ haStat_out->SetMarkerSize(2.5);
+ haStat_out->Draw();
+c4->Update();
+
  c0->Write();
  c1->Write();
  c2->Write();
  c3->Write();
+ c4->Write();
+  haStat_in->Write();
+ haStat_out->Write();
  fi->Close();
 
  cout<<"Now we'll write file for LUMI rec"<<endl;

@@ -6,8 +6,8 @@
 
 #include <sstream>
 using namespace std;
-void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPixelAlignSIM_10e4/mom_15/", double tr_sc=0, double rt_sc=0)
-//void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPixelAlignSIM/mom_15/", double tr_sc=0, double rt_sc=0)
+void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_1000000/mom_15//", double tr_sc=0, double rt_sc=0)
+//void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10000/mom_15//", double tr_sc=0, double rt_sc=0)
 {
   const int ntrksSample = 1e4;
   const double i_TrksSimi = 100./ntrksSample; //relative to simulated in %
@@ -15,10 +15,10 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
   // double v_Dt[nParDt]={0,50,100,200,300,400,500,600};
   // const int nParDa=5;
   // double v_Da[nParDa]={0,1,3,6,9};
-  const int nParDt=7;
-  double v_Dt[nParDt]={0,50,100,200,400,600,800};
- const int nParDa=3;
- double v_Da[nParDa]={0,1,3};
+  const int nParDt=10;
+  double v_Dt[nParDt]={0, 50, 100, 200, 300, 400, 500, 600, 800, 1000};
+ const int nParDa=4;
+ double v_Da[nParDa]={0,1,3,5};
   // for(int iDt=0;iDt<nParDt;iDt++){
   //   tr_sc = v_Dt[iDt];
   //   for(int iDa=0;iDa<nParDa;iDa++){
@@ -35,8 +35,10 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
   double TrksBef[nParDa][nParDt];
   double TrksAft[nParDa][nParDt];
   double TrksDiff[nParDa][nParDt];
+  double TrksKnossos[nParDa][nParDt], errTrksKnossos[nParDa][nParDt];
+
   //How to save data
-  TString resname= pathG+"/Results1SampleSummary_BOX_1e4";
+  TString resname= pathG+"/Results1SampleSummary_BOX";
   TString resname_pdf = resname+".pdf";
   TString resname_pdf_o = resname_pdf+"(";
   TString resname_pdf_c = resname_pdf+")";
@@ -53,7 +55,6 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
   TH1D *hthetabefore = new TH1D("hthetabefore","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e2,-1e-3,1e-3);
   TH1D *hthetaafter = new TH1D("hthetaafter","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e2,-1e-3,1e-3);
   TH1D *hthetaref = new TH1D("hthetaref","#theta_{MC}-#theta_{rec};#delta#theta,rad",1e2,-1e-3,1e-3);
-
   for(int ipart=0;ipart<nParDa;ipart++){
     for(int i=0;i<nParDt;i++){
       TrksSim[ipart][i]=ntrksSample ; //ntrksSample events with 1trk/event
@@ -112,6 +113,8 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
 	//   return;
       }
       
+
+
       hbefore = (TH1*)f1->Get("NearIP/hResTheta");
       //hbefore->Print();
       hbefore->SetName("hResThetaBefore");
@@ -211,6 +214,9 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
       std::cout << "!!! Error opening file " <<namemisc<< std::endl;
       // return;
     }
+    TH2F *hStatKnossos = (TH2F*)fmisc->Get("haStat_out");
+    TrksKnossos[ipart][i] = hStatKnossos->ProjectionY()->GetMean();
+    errTrksKnossos[ipart][i] = hStatKnossos->ProjectionY()->GetRMS();
     TH2F *hmis_b_0 = (TH2F*)fmisc->Get("mis_before_0");
     mis_b[ipart][0][i] = 1e4*(hmis_b_0->ProjectionY()->GetRMS());
     TH2F *hmis_b_1 = (TH2F*)fmisc->Get("mis_before_1");
@@ -404,12 +410,20 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
 
 
  TMultiGraph *mgr_stat = new TMultiGraph();
+ TMultiGraph *mgr_stat_kn = new TMultiGraph();
  TGraphErrors *grstatBef[nParDa], *grstatAft[nParDa];
+ TGraphErrors *grstatKnossos[nParDa];
  for(int ipart=0;ipart<nParDa;ipart++){// loop over rotaion scale
    grstatBef[ipart] = new TGraphErrors(nParDt,v_Dt,TrksBef[ipart],0,0);
    grstatBef[ipart]->SetMarkerStyle(20+ipart);
    grstatBef[ipart]->SetMarkerColor(kGreen-3);
    grstatBef[ipart]->SetMarkerSize(1.7+ipart*0.3);
+
+   grstatKnossos[ipart] = new TGraphErrors(nParDt,v_Dt,TrksKnossos[ipart],0,errTrksKnossos[ipart]);
+   grstatKnossos[ipart]->SetMarkerStyle(20+ipart);
+   grstatKnossos[ipart]->SetMarkerColor(kGreen-3);
+   grstatKnossos[ipart]->SetMarkerSize(1.7+ipart*0.3);
+   mgr_stat_kn->Add(grstatKnossos[ipart]);
    grstatAft[ipart] = new TGraphErrors(nParDt,v_Dt,TrksAft[ipart],0,0);
    grstatAft[ipart]->SetMarkerStyle(20+ipart);
    grstatAft[ipart]->SetMarkerSize(1.7+ipart*0.3);
@@ -423,9 +437,14 @@ void SummaryAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPi
  mgr_stat->GetHistogram()->SetMaximum(1e5);
  mgr_stat->GetHistogram()->SetMinimum(0);
  leg->Draw();
+ c1.Print(resname_pdf_o); //write canvas and keep the file open
+ c1.Clear();
+ mgr_stat_kn->Draw("AP");
+ mgr_stat_kn->SetTitle("#trks used in Millepede (per module)");
+ mgr_stat_kn->GetXaxis()->SetTitle("#Delta_{t}, #mum");
+ mgr_stat_kn->GetYaxis()->SetTitle("N_{REC}");
+ // leg->Draw();
  c1.Print(resname_pdf_c); //write canvas and close the file
-
-
  //  
  //  mgr_stat->GetXaxis()->SetTitle("Number of sim. trks");
  //  

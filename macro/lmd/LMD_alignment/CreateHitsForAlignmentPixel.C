@@ -194,9 +194,8 @@ int main(int __argc,char *__argv[]) {
   TChain tTrkCand("cbmsim");
   tTrkCand.Add(trkCand);
   
-  // TString recTrack = storePath+"/Lumi_Track_";
-  //  TString recTrack = storePath+"/Lumi_notFilteredTrack_";
-  TString recTrack = storePath+"/Lumi_TrackNotFiltered_";
+  TString recTrack = storePath+"/Lumi_Track_"; //NOTE: make sure kinematic filter was switched off, but filtering on hit base was done!
+  //TString recTrack = storePath+"/Lumi_TrackNotFiltered_";
   recTrack += startEvent;
   recTrack += ".root";
   TChain tTrkRec("cbmsim");
@@ -334,7 +333,9 @@ int main(int __argc,char *__argv[]) {
     lmddim -> Read_transformation_matrices(mtx_corr.Data(), true);
     // 
     // lmddim -> Read_transformation_matrices("/panda/pandaroot/macro/lmd/matrices_corrected.txt", true);
-
+    int icounter=0;
+    cout<<"In total there are "<<nEvents<<" events"<<endl;
+    int icounterALL=0;
   for (Int_t j=0; j<nEvents; j++){
     // Read REC tree -----------------------------------------------------------------
     tTrkCand.GetEntry(j);
@@ -346,6 +347,7 @@ int main(int __argc,char *__argv[]) {
     ///-----------------------------------------------------------------------------------------
 
     const int nRecTrks = rec_trk->GetEntriesFast();
+    icounterALL +=nRecTrks;
     //    if(nRecTrks>1) continue; //!!! TEST with 1 track/event only !!!
     /// Read info about hits from reconstructed tracks ----------------------------------------------------
     for (Int_t iN=0; iN<nRecTrks; iN++){
@@ -367,8 +369,8 @@ int main(int __argc,char *__argv[]) {
       PndTrackCand *trkcand = (PndTrackCand*)trkcand_array->At(candID);
       const int Ntrkcandhits= trkcand->GetNHits();
       //    cout<<"Ntrkcandhits = "<<Ntrkcandhits<<endl;
-      //  if(Ntrkcandhits<4) continue; //!!! TEST with 4 hits tracks only !!!
-      if(Ntrkcandhits<3) continue; //!!! TEST with > 2 hits tracks only !!!
+      if(Ntrkcandhits<4) continue; //!!! TEST with 4 hits tracks only !!!
+      //    if(Ntrkcandhits<3) continue; //!!! TEST with > 2 hits tracks only !!!
       //      if(Ntrkcandhits<2) continue; //!!! TEST 
       //if(Ntrkcandhits>4) continue; //!!! TEST with single hits  only !!!
       double phiMCgl;
@@ -405,6 +407,7 @@ int main(int __argc,char *__argv[]) {
 
       //(end) check if these hits are sutiable for sector aligment
       if(!flagSector) continue;
+      icounter++;
       if(iN==0) htrks->Fill(nRecTrks);//fill only if trk was accepted 
 	for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){
 	  PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
@@ -418,13 +421,9 @@ int main(int __argc,char *__argv[]) {
 
 	  TVector3 HitPosLoc(lmddim->Transform_global_to_lmd_local(HitPos,false,true));
 	  HitPosLoc = TVector3(lmddim->Transform_lmd_local_to_module_side(HitPosLoc,ihalf,0,imodule,0, false,true));
-	  
 	  // TVector3 HitPosLoc = lmddim->Transform_global_to_sensor(HitPos, ihalf, iplane, imodule, iside, idie, isensor,false,true);
 	  // HitPosLoc = lmddim->Transform_sensor_to_module_side(HitPosLoc,ihalf,0,imodule,0,idie, isensor,false,false);
 	  // cout<<"ihalf, iplane, imodule, iside: "<<ihalf<<","<<iplane<<","<<imodule<<","<<iside<<endl;
-
-
-
 	  TVector3 mcTop,mcTopOUT;
 	  PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fStripClusterArray->At(myHit->GetClusterIndex()));
 	  PndSdsDigiPixel* astripdigi = (PndSdsDigiPixel*)(fStripDigiArray->At(myCluster->GetDigiIndex(0)));
@@ -499,7 +498,7 @@ int main(int __argc,char *__argv[]) {
 	    output<<HitPosLoc.X()<<" "<<sqrt(HitErrLoc(0,0))<<" ";
 	    output<<HitPosLoc.Y()<<" "<<sqrt(HitErrLoc(1,1))<<" ";
 	    //    output<<HitPosLoc.Z()<<" "<<sqrt(HitErrLoc(2,2))<<" ";
-	    output<<HitPosLoc.Z()<<" "<<0<<" "; //isn't used in Knossos
+	    output<<HitPosLoc.Z()<<" "<<sectorPos<<" "; //Z and sectorPos isn't used in Knossos
 	    output<<glModule<<" "<<endtrk<<endl;
 	  }
 	}
@@ -508,7 +507,7 @@ int main(int __argc,char *__argv[]) {
     ///-----------------------------------------------------------------------------------------
   }/// end events
   output.close();
-
+  cout<<"This module has "<<icounter<<" trks from "<<icounterALL<<endl;
   // for (unsigned int histID = 0; histID < 400; ++histID){
   //   ((TH1F*)m_res_x->At(histID))->Write();
   //   ((TH1F*)m_res_y->At(histID))->Write();
