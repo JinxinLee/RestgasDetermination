@@ -6,7 +6,7 @@
 
 #include <sstream>
 using namespace std;
-void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_1000000/mom_15//", double tr_sc=0, double rt_sc=0)
+void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_1000000/mom_15/", double tr_sc=0, double rt_sc=0)
 //void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10000/mom_15//", double tr_sc=0, double rt_sc=0)
 {
   const int ntrksSample = 1e4;
@@ -19,11 +19,13 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
   double v_Dt[nParDt]={0, 50, 100, 200, 300, 400, 500, 600, 800, 1000};
  const int nParDa=4;
  double v_Da[nParDa]={0,1,3,5};
+ // const int nParDa=1;
+ // double v_Da[nParDa]={0};
   // for(int iDt=0;iDt<nParDt;iDt++){
   //   tr_sc = v_Dt[iDt];
   //   for(int iDa=0;iDa<nParDa;iDa++){
   //     rt_sc= v_Da[iDa];
-  //     cout<<"work with dt~"<<tr_sc<<" da~"<<rt_sc<<endl;
+     cout<<"work with dt~"<<tr_sc<<" da~"<<rt_sc<<endl;
   //     //const int nS=10;
       const int nS=1;
       double TrksSim[nParDa][nParDt];
@@ -36,6 +38,7 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
   double TrksAft[nParDa][nParDt];
   double TrksDiff[nParDa][nParDt];
   double TrksKnossos[nParDa][nParDt], errTrksKnossos[nParDa][nParDt];
+  double TrksKnossos0[nParDa][nParDt], errTrksKnossos0[nParDa][nParDt];
 
   //How to save data
   TString resname= pathG+"/Results1SampleSummary_BOX";
@@ -217,6 +220,9 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
     TH2F *hStatKnossos = (TH2F*)fmisc->Get("haStat_out");
     TrksKnossos[ipart][i] = hStatKnossos->ProjectionY()->GetMean();
     errTrksKnossos[ipart][i] = hStatKnossos->ProjectionY()->GetRMS();
+    TH2F *hStatKnossos0 = (TH2F*)fmisc->Get("haStat_in");
+    TrksKnossos0[ipart][i] = hStatKnossos0->ProjectionY()->GetMean();
+    errTrksKnossos0[ipart][i] = hStatKnossos0->ProjectionY()->GetRMS();
     TH2F *hmis_b_0 = (TH2F*)fmisc->Get("mis_before_0");
     mis_b[ipart][0][i] = 1e4*(hmis_b_0->ProjectionY()->GetRMS());
     TH2F *hmis_b_1 = (TH2F*)fmisc->Get("mis_before_1");
@@ -407,7 +413,8 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
  }
 
  //c1.Print(resname_pdf_c); //write canvas and close the file
-
+TLegend *leg2 = new TLegend(0.78,0.58,0.98,0.98);
+ leg2->SetFillColor(0);
 
  TMultiGraph *mgr_stat = new TMultiGraph();
  TMultiGraph *mgr_stat_kn = new TMultiGraph();
@@ -419,10 +426,23 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
    grstatBef[ipart]->SetMarkerColor(kGreen-3);
    grstatBef[ipart]->SetMarkerSize(1.7+ipart*0.3);
 
+  
+   grstatKnossos0[ipart] = new TGraphErrors(nParDt,v_Dt,TrksKnossos0[ipart],0,errTrksKnossos0[ipart]);
+   grstatKnossos0[ipart]->SetMarkerStyle(20+ipart);
+   grstatKnossos0[ipart]->SetMarkerColor(kGreen-3);
+   grstatKnossos0[ipart]->SetMarkerSize(1.7+ipart*0.3);
+   mgr_stat_kn->Add(grstatKnossos0[ipart]);
    grstatKnossos[ipart] = new TGraphErrors(nParDt,v_Dt,TrksKnossos[ipart],0,errTrksKnossos[ipart]);
    grstatKnossos[ipart]->SetMarkerStyle(20+ipart);
-   grstatKnossos[ipart]->SetMarkerColor(kGreen-3);
+   grstatKnossos[ipart]->SetMarkerColor(kOrange+7);
    grstatKnossos[ipart]->SetMarkerSize(1.7+ipart*0.3);
+   TString dRName = "#Delta_{r} = ";
+   dRName +=v_Da[ipart];
+  TString dRName_b = dRName+ " (input)";  
+  TString dRName_a = dRName+ " (last iter)";  
+  leg2->AddEntry(grstatKnossos0[ipart],dRName_b,"lep");
+  leg2->AddEntry(grstatKnossos[ipart],dRName_a,"lep");
+
    mgr_stat_kn->Add(grstatKnossos[ipart]);
    grstatAft[ipart] = new TGraphErrors(nParDt,v_Dt,TrksAft[ipart],0,0);
    grstatAft[ipart]->SetMarkerStyle(20+ipart);
@@ -440,10 +460,10 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
  c1.Print(resname_pdf_o); //write canvas and keep the file open
  c1.Clear();
  mgr_stat_kn->Draw("AP");
- mgr_stat_kn->SetTitle("#trks used in Millepede (per module)");
+ mgr_stat_kn->SetTitle("#trks used in Millepede (av. per sector)");
  mgr_stat_kn->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_stat_kn->GetYaxis()->SetTitle("N_{REC}");
- // leg->Draw();
+ leg2->Draw();
  c1.Print(resname_pdf_c); //write canvas and close the file
  //  
  //  mgr_stat->GetXaxis()->SetTitle("Number of sim. trks");

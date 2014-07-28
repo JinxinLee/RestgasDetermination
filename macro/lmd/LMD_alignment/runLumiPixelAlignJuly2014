@@ -22,17 +22,14 @@ pbeam=$mom
 # ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-#number of events
-numEvB=1000000
-#numEvB=10000
-numEvA=10000
-numEv=${numEvB}
+
 
 #path=${VMCWORKDIR}/macro/lmd/testPixelAlignChallenge/mom_${momStr}/
 # # create misalignment consts
 #TRANS=(0 50 100 200 400 600 800) #mkm
 #TRANS=(1000) #mkm
-TRANS=(0 50 100 200 300 400 500 600 800 1000) #mkm
+#TRANS=(0 50 100 200 300 400 500 600 800 1000) #mkm
+TRANS=(100 200 300 400 500 600 800 1000) #mkm
 TRANSN=${#TRANS[@]}
 ROT=(0 1 3 5) #mrad
 #ROT=(0) #mrad
@@ -42,72 +39,82 @@ ROTN=${#ROT[@]}
 	    cd ${VMCWORKDIR}/macro/lmd/
 	    dr=${TRANS[${jt}]}
 	    da=${ROT[${jr}]}
+	    #number of events
+	    numEvB=1000000
+	    #numEvB=10000
+	    numEvA=10000
+	    numEv=${numEvB}
 
-path=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/mom_${momStr}/${dr}mkm_${da}mrad/
-mkdir -p ${path}
-#number of trks per event
-numTrks=1
-#merge hits on sensors from different sides. true=yes
-mergedHits=true
+	    path=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/mom_${momStr}/${dr}mkm_${da}mrad/
+	    mkdir -p ${path}
+	    #number of trks per event
+	    numTrks=1
+	    #merge hits on sensors from different sides. true=yes
+	    mergedHits=true
+	    
+	    doalign=true
+	    
+	    ##Skip kinematic filter (before back-propagation)
+	    SkipFilt=true
+	    ### if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
+	    ### X-Theta kinematic cut before back-propagation, add constant shift dX[cm] if beam is shifted
+	    XThetaCut=false
+	    dX=0.
+	    ### Y-Phi kinematic cut before back-propagation, add constant shift dY[cm] if beam is shifted
+	    YPhiCut=false
+	    dY=0.
+	    ### BOX cut before back-propagation
+	    BoxCut=false
+	    
+	    ## Clean after back-propagation (M-cut: momentum or MVA cut)
+	    CleanSig=false
+	    
+	    ## Combined filter (X&Y and M-cut)
+	    CombFilt=false
+	    
+	    ## Write all MC info in TrkQA array
+	    WrAllMC=false
+	    ##############
+	    
+	    #
+	    # #generate misalignment consts
+	    if [ ! -r  ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/misalignConsts/${dr}mkm_${da}mrad/lumi.misalign_pixel.par ]; then
+		root -l -b -q LMD_alignment/create_misalignment_lmd_pixel.C\(${dr},${da},"\"${path}/lumi.misalign_pixel.par\""\)
+		mkdir -p ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/misalignConsts/${dr}mkm_${da}mrad/
+		mv ${path}/lumi.misalign_pixel.par ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/misalignConsts/${dr}mkm_${da}mrad/.
+	    fi
+	    cp  ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/misalignConsts/${dr}mkm_${da}mrad/lumi.misalign_pixel.par ${path}/.
+		cp ${VMCWORKDIR}/geometry/trafo_matrices_lmd.dat ${path}/.
+		
+		# #use externally generated geometry
+		#  cp /panda/nov2013pandaroot/macro/lmd/LMD_alignment/challenge/trafo_matrices_lmd.dat ${path}/.
+		# cp /panda/nov2013pandaroot/macro/lmd/LMD_alignment/challenge/Luminosity-Detector.root ${VMCWORKDIR}/input/.
+		# cp ${VMCWORKDIR}/macro/lmd/LMD_alignment/lumi.align_pixel_ideal.par ${path}/lumi.misalign_pixel.par
+		
+		# #simulation with Box generator
+		if [ ! -r  ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_MC_0.root ]; then
+		    mkdir -p ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/
+		    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
+			cp ${path}/Lumi_MC_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/.
+			cp ${path}/Lumi_Params_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/.
+		fi
+		cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/* ${path}/.
 
-doalign=true
-
-##Skip kinematic filter (before back-propagation)
-SkipFilt=true
-### if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
-### X-Theta kinematic cut before back-propagation, add constant shift dX[cm] if beam is shifted
-XThetaCut=false
-dX=0.
-### Y-Phi kinematic cut before back-propagation, add constant shift dY[cm] if beam is shifted
-YPhiCut=false
-dY=0.
-### BOX cut before back-propagation
-BoxCut=false
-
-## Clean after back-propagation (M-cut: momentum or MVA cut)
-CleanSig=false
-
-## Combined filter (X&Y and M-cut)
-CombFilt=false
-
-## Write all MC info in TrkQA array
-WrAllMC=false
-##############
-
-#
-# #generate misalignment consts
-root -l -b -q LMD_alignment/create_misalignment_lmd_pixel.C\(${dr},${da},"\"${path}/lumi.misalign_pixel.par\""\)
-cp ${VMCWORKDIR}/geometry/trafo_matrices_lmd.dat ${path}/.
-
-# #use externally generated geometry
-#  cp /panda/nov2013pandaroot/macro/lmd/LMD_alignment/challenge/trafo_matrices_lmd.dat ${path}/.
-# cp /panda/nov2013pandaroot/macro/lmd/LMD_alignment/challenge/Luminosity-Detector.root ${VMCWORKDIR}/input/.
-# cp ${VMCWORKDIR}/macro/lmd/LMD_alignment/lumi.align_pixel_ideal.par ${path}/lumi.misalign_pixel.par
-
-# #simulation with Box generator
-if [ ! -r  ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/Lumi_MC_0.root ]; then
-    mkdir -p ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/
-    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
-	cp ${path}/Lumi_MC_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/.
-	cp ${path}/Lumi_Params_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/.
-fi
-cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/* ${path}/.
-
-# #copy MC data for ideal case
-# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_MC_0.root ${path}/.
-# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_Params_0.root ${path}/.
-
-### #simulation with DPM
-## #modeDPM=1 #el+inel
-##   root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
-
-#digi
-    root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
-#hit reconstruction with misaligned consts
-    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,$doalign\)
-# ##merge hits
-     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\"",0,$doalign\)
-
+		# #copy MC data for ideal case
+		# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_MC_0.root ${path}/.
+		# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_Params_0.root ${path}/.
+		
+		### #simulation with DPM
+		## #modeDPM=1 #el+inel
+		##   root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
+		
+		#digi
+		root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+		    #hit reconstruction with misaligned consts
+		    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,$doalign\)
+			# ##merge hits
+			root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\"",0,$doalign\)
+			    
 #switch on "missing plane" search algorithm
 	 misspl=true
 #use cuts during trk seacrh with "CA". Should be 'false' if sensors missaligned!
@@ -155,7 +162,7 @@ cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/* ${path}/.
 
 	  cp ${PANDAROOTmy}/myKnossos/constantsLMD.h ${path}/.
 	  rm ${path}/logKnossos*
-	  rm  ${path}/LumiAlignConst.txt
+	  rm ${path}/LumiAlignConst.txt
 	  rm ${path}/ModulesStat.txt
 	  for (( jm=0;jm<10;jm++)); do
 	      cd ${VMCWORKDIR}/buildPanda/bin
@@ -215,7 +222,7 @@ CombFilt=false
 
 # #simulation with Box generator
 #   root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
-cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfiles/* ${path}/.
+cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/* ${path}/.
 
 # #simulation with DPM
  #modeDPM=1 #el+inel
