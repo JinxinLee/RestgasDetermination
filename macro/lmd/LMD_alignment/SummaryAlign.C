@@ -270,7 +270,7 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
  
  // Draw results --------------------------------
  TCanvas c1;
- TLegend *leg = new TLegend(0.78,0.58,0.98,0.98);
+ TLegend *leg = new TLegend(0.78,0.51,0.98,0.98);
  leg->SetFillColor(0);
 
  TMultiGraph *mgr_theta = new TMultiGraph();  
@@ -293,7 +293,7 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
   gr_theta_r[ipart] = new TGraphErrors(nParDt,v_Dt,theta_mean_r[ipart],0,0);
   gr_theta_r[ipart]->SetMarkerStyle(20+ipart); 
   gr_theta_r[ipart]->SetMarkerColor(15); 
-  gr_theta_r[ipart]->SetMarkerSize(1.5); 
+  gr_theta_r[ipart]->SetMarkerSize(3.); 
   mgr_theta_b->Add(gr_theta_r[ipart]);
   mgr_theta->Add(gr_theta_r[ipart]);
   leg->AddEntry(gr_theta_r[ipart],"IDEAL","lep");
@@ -344,7 +344,7 @@ void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10
     gr_theta_r[ipart] = new TGraphErrors(nParDt,v_Dt,theta_rms_r[ipart],0,0);
     gr_theta_r[ipart]->SetMarkerStyle(20+ipart); 
     gr_theta_r[ipart]->SetMarkerColor(15); 
-    gr_theta_r[ipart]->SetMarkerSize(1.5);
+    gr_theta_r[ipart]->SetMarkerSize(3.);
     mgr_theta_b_rms->Add(gr_theta_r[ipart]);
     mgr_theta_rms->Add(gr_theta_r[ipart]);
   }
@@ -420,6 +420,7 @@ TLegend *leg2 = new TLegend(0.78,0.58,0.98,0.98);
  TMultiGraph *mgr_stat_kn = new TMultiGraph();
  TGraphErrors *grstatBef[nParDa], *grstatAft[nParDa];
  TGraphErrors *grstatKnossos[nParDa];
+ TGraphErrors *grstatKnossos0[nParDa];
  for(int ipart=0;ipart<nParDa;ipart++){// loop over rotaion scale
    grstatBef[ipart] = new TGraphErrors(nParDt,v_Dt,TrksBef[ipart],0,0);
    grstatBef[ipart]->SetMarkerStyle(20+ipart);

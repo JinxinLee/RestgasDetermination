@@ -99,8 +99,8 @@ int main(int __argc,char *__argv[]) {
       icount++;
   }
 
-  TH2F* haStat_in = new TH2F("haStat_in", "Statistic of tracks (1st iter)", 10,0,10,1e2,0.9*min_trks,1.05*max_trsk);
-  TH2F* haStat_out = new TH2F("haStat_out", "Statistic of tracks (last iter)", 10,0,10,1e2,0.9*min_trks,1.05*max_trsk);
+  TH2F* haStat_in = new TH2F("haStat_in", "Statistic of tracks (1st iter)", 10,0,10,2e3,0.9*min_trks,1.05*max_trsk);
+  TH2F* haStat_out = new TH2F("haStat_out", "Statistic of tracks (last iter)", 10,0,10,2e3,0.9*min_trks,1.05*max_trsk);
   for(int i=0; i<10;i++){
     haStat_in->Fill(i,ntrk_in[i]);
     haStat_out->Fill(i,ntrk_out[i]);
@@ -500,16 +500,16 @@ TFile* fi = new TFile(outfile,"RECREATE");
     // m_pullHistos->Add(aHisto3);
 
     sprintf(histoName, "mis_before_%d",histID);
-    TH2F* aHisto = new TH2F(histoName, histoName, nSides*nSectors*nStation,0,nSides*nSectors*nStation,1e2, -misal_scales[histID], misal_scales[histID]);
+    TH2F* aHisto = new TH2F(histoName, histoName, nSides*nSectors*nStation,0,nSides*nSectors*nStation,2e3, -misal_scales[histID], misal_scales[histID]);
     m_mis_bef->Add(aHisto);
 
     sprintf(histoName2, "mis_after_%d",histID);
     // TH2F* aHisto2 = new TH2F(histoName2, histoName2, nSides*nSectors*nStation,0,32, 100, -0.05*misal_scales[histID], 0.05*misal_scales[histID]);
-    TH2F* aHisto2 = new TH2F(histoName2, histoName2, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 1e2, -misal_scales[histID], misal_scales[histID]);
+    TH2F* aHisto2 = new TH2F(histoName2, histoName2, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 2e3, -misal_scales[histID], misal_scales[histID]);
     m_mis_aft->Add(aHisto2);
   
     sprintf(histoName4, "mis_diff_%d",histID);
-    TH2F* aHisto4 = new TH2F(histoName4, histoName4, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 1e2, -misal_scales[histID], misal_scales[histID]);
+    TH2F* aHisto4 = new TH2F(histoName4, histoName4, nSides*nSectors*nStation,0,nSides*nSectors*nStation, 2e3, -misal_scales[histID], misal_scales[histID]);
     m_mis_diff->Add(aHisto4);
   
                                                                                 
