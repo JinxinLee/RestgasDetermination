@@ -18,7 +18,7 @@ pbeam=$mom
 # else
 #     echo "HALF solenoid field maps"
 #     ln -sf ${VMCWORKDIR}/input/solenoid_hc/* ${VMCWORKDIR}/input/.
-# fi
+ # fi
 # ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
@@ -28,8 +28,8 @@ momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 # # create misalignment consts
 #TRANS=(0 50 100 200 400 600 800) #mkm
 #TRANS=(1000) #mkm
-#TRANS=(0 50 100 200 300 400 500 600 800 1000) #mkm
-TRANS=(100 200 300 400 500 600 800 1000) #mkm
+TRANS=(0 50 100 200 300 400 500 600 800 1000) #mkm
+#TRANS=(0) #mkm
 TRANSN=${#TRANS[@]}
 ROT=(0 1 3 5) #mrad
 #ROT=(0) #mrad
@@ -40,8 +40,8 @@ ROTN=${#ROT[@]}
 	    dr=${TRANS[${jt}]}
 	    da=${ROT[${jr}]}
 	    #number of events
-	    numEvB=1000000
-	    #numEvB=10000
+	    #numEvB=1000000
+	    numEvB=200000
 	    numEvA=10000
 	    numEv=${numEvB}
 
@@ -98,8 +98,8 @@ ROTN=${#ROT[@]}
 			cp ${path}/Lumi_MC_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/.
 			cp ${path}/Lumi_Params_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/.
 		fi
-		cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/* ${path}/.
-
+		cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_MC_0.root ${path}/.
+		cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_Params_0.root ${path}/.
 		# #copy MC data for ideal case
 		# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_MC_0.root ${path}/.
 		# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_Params_0.root ${path}/.
@@ -222,8 +222,9 @@ CombFilt=false
 
 # #simulation with Box generator
 #   root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
-cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/* ${path}/.
 
+cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_MC_0.root ${path}/.
+cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_Params_0.root ${path}/.
 # #simulation with DPM
  #modeDPM=1 #el+inel
  #   root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
