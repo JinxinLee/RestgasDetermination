@@ -78,9 +78,11 @@ void createRootGeometry_beampipe() {
 	// if you do not want sensors in your beam pipe,
 	// so a simple beam pipe only, set it to false
 	// warning: it does not work with vacuum inserted as an medium
-	bool create_sensors = false;
-	bool create_vacuum = true;
-	bool create_lumi   = false;
+	bool create_sensors = true; // false
+	bool create_vacuum = false; // true
+	bool create_lumi   = false; // false
+	bool create_target = true; // true
+	bool create_pipe   = false; // true;
 	// key z positions are stored in the following vector
 	std::vector< double > sensor_positions;
 
@@ -98,6 +100,7 @@ void createRootGeometry_beampipe() {
 	FairGeoMedium* FairMediumSteel = geoMedia->getMedium("steel");
 	FairGeoMedium* FairMediumTi = geoMedia->getMedium(str_ti.c_str()); //titanium"); not found in media_pnd.geo !
 	FairGeoMedium* FairMediumKapton = geoMedia->getMedium("mylar"); // mylar properties are nearly the same as for the non existing Kapton
+	FairGeoMedium* FairMediumAu = geoMedia->getMedium("gold_target");
 
 	/* additional lines for media_pnd.geo file:
 	// 1.205e-3 g/cm³ eq 1e3 mbar (see air)
@@ -516,6 +519,10 @@ void createRootGeometry_beampipe() {
 
 	TGeoCompositeShape *STcross_vac = new TGeoCompositeShape("Tcross_vac",
 			"Tcross1_vac+Tcross2_vac:tre6");
+
+	TGeoTube* shape_target = new TGeoTube("shape_target", 0., 0., 1.);
+	TGeoVolume* vol_target = new TGeoVolume("shape_target", STcross, gGeoManager->GetMedium("gold_target"));
+	vol_target->SetLineColor(35);
 
 	TGeoVolume *VTcross = new TGeoVolume("Tcross", STcross,
 			gGeoManager->GetMedium(str_ti.c_str()));
@@ -967,28 +974,30 @@ void createRootGeometry_beampipe() {
 	TGeoVolume *beamPipe = new TGeoVolumeAssembly("BeamPipe");
 	//gGeoManager->SetTopVolume(beamPipe);
 	//beamPipe->AddNode(Vgvhesr, 0, tr0); // a
-	beamPipe->AddNode(Vpipeup, 0, trb1); // b
+	if (create_pipe) beamPipe->AddNode(Vpipeup, 0, trb1); // b
 	if (create_vacuum) beamPipe->AddNode(Vpipeup_vac, 0, trb1);
 
-	beamPipe->AddNode(Vktmpump, 0, trc2); // c1
+	if (create_pipe) beamPipe->AddNode(Vktmpump, 0, trc2); // c1
 	if (create_vacuum) beamPipe->AddNode(Vktmpump_vac, 0, trc2);
 
-	beamPipe->AddNode(VTpumps, 0, tr0); // c2
+	if (create_pipe) beamPipe->AddNode(VTpumps, 0, tr0); // c2
 
-	beamPipe->AddNode(VpipeTSup, 0, trd1); // d
+	if (create_pipe) beamPipe->AddNode(VpipeTSup, 0, trd1); // d
 	if (create_vacuum) beamPipe->AddNode(VpipeTSup_vac, 0, trd1);
 
-	beamPipe->AddNode(VTcross, 0, tre9); // e
+	if (create_target) VTcross->AddNode(vol_target, 0, tre9);
+
+	if (create_pipe) beamPipe->AddNode(VTcross, 0, tre9); // e
 	if (create_vacuum) beamPipe->AddNode(VTcross_vac, 0, tre9); // e
 
-	beamPipe->AddNode(VpipeTSdown, 0, trf1); // f
+	if (create_pipe) beamPipe->AddNode(VpipeTSdown, 0, trf1); // f
 	if (create_vacuum) beamPipe->AddNode(VpipeTSdown_vac, 0, trf1);
 
-	beamPipe->AddNode(VcrossTSTMPs, 0, trg7); // g
+	if (create_pipe) beamPipe->AddNode(VcrossTSTMPs, 0, trg7); // g
 	if (create_vacuum) beamPipe->AddNode(VcrossTSTMPs_vac, 0, trg7);
 
 
-	beamPipe->AddNode(VDipolePip, 0, trh4); // h
+	if (create_pipe) beamPipe->AddNode(VDipolePip, 0, trh4); // h
 	if (create_vacuum) beamPipe->AddNode(VDipolePip_vac, 0, trh4);
 
 	//beamPipe->AddNode(VLumMon,        0, tri6);       // i
