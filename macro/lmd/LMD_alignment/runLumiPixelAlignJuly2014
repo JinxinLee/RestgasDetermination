@@ -41,7 +41,7 @@ ROTN=${#ROT[@]}
 	    da=${ROT[${jr}]}
 	    #number of events
 	    #numEvB=1000000
-	    numEvB=200000
+	    numEvB=400000
 	    numEvA=10000
 	    numEv=${numEvB}
 
@@ -168,7 +168,7 @@ ROTN=${#ROT[@]}
 	      cd ${VMCWORKDIR}/buildPanda/bin
 	      ./hits_align_pixel -s 0 -n ${numEv} -path ${path} -m ${jm} -out ${path}/hits_trk_for_alignment_sector${jm}.txt -outhist ${path}/hitsRes_before_alignment_sector${jm}.root 
 	      cd ${PANDAROOTmy}/myKnossos
-	      ./knossos -i ${path}/hits_trk_for_alignment_sector${jm}.txt -o ${path}/LumiAlignConst_sector${jm}.txt -n ${numEv} -r 1 &> ${path}/logKnossos${jm}
+	      /usr/bin/time -v ./knossos -i ${path}/hits_trk_for_alignment_sector${jm}.txt -o ${path}/LumiAlignConst_sector${jm}.txt -n ${numEv} -r 1 &> ${path}/logKnossos${jm}
 	      cat ${path}/LumiAlignConst_sector${jm}.txt >> ${path}/LumiAlignConst.txt
 	      echo "Module #${jm}:" >> ${path}/ModulesStat.txt
 	      grep "Alignment based on" ${path}/logKnossos${jm} >> ${path}/ModulesStat.txt
