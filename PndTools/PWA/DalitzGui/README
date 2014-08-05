@@ -1,0 +1,142 @@
+DalitzGUI README
+-------------------------
+
+###############
+1) Compilation: ROOT has to be installed and setup properly (including ROOTSYS and LD_LIBRARY_PATH). 
+###############
+
+Compile with
+
+> . ./compile.sh
+
+Run with
+
+> ./DalitzGUI
+
+Example configurations can be found in folder 'examples'. If compilation does not work try a newer ROOT version.
+
+
+###############
+2) User interface (going from top left to bottom right)
+###############
+
+Plots:
+    Left    - Depends of the choice of 'Plot' in the user interface; default = Dalitz Plot
+              Choices are:
+              * Dalitz      : The Dalitz plot
+              * Dalitz In   : Dalitz plot with incoherent sum of resonances (demonstrates interference)
+              * Dalitz Diff : Difference between incoherent and coherent sum (demonstrates interference)
+              * Dalitz Ph   : 2 active resonances: relative phase between amplitudes
+    		                  else : Complex phase of total amplitude; 
+              * Proj s1     : Projection to m_23^2
+              * Proj s2     : Projection to m_13^2
+              * Proj s3     : Projection to m_12^2 (random generation from Dalitz plot)
+              * m23 (s1)    : Invariant mass distribution m_23; (random generation from projection s1)    		  
+              * m13 (s2)    : Invariant mass distribution m_13; (random generation from projection s2)    		  
+              * m12 (s3)    : Invariant mass distribution m_12; (random generation from projection s3)    		  
+    		  
+    Right   - The 3 projections of the Dalitz Plot and the incoherent sum of the amplitudes
+
+
+Interface:
+
+	File->Open/Save as   : Load or save a configuration. Example configurations in folder 'examples'
+	File->Save canvas as : Save complete canvas as image (.gif, .png, .jpg) / pdf (.pdf) / root file(.root) / root macro (.C) etc
+	File->Exit           : Quit program
+
+	M               : Total energy sqrt(s) = M of the system; can be adjusted with slider or with text input
+	Autoresize      : When checked all plots are resized automatically when M ist changed
+	m1, m2, m3      : The three final state masses (=particles) of the system
+	bins            : Number of bins; higher = better but slower
+	Color           : color or greyscale palette for 2D plots (for Dalitz Ph a special fixed palette is used)
+	Plot            : Plot to be shown in the big canvas (top left)
+
+
+Configuration of the resonances R23, R13, R12 (two possible per coordinate)
+
+	R23, R13, R12   : Resonance(s)
+	On              : Switch on or off resonance
+	A               : Amplitude of coefficient (from A*exp(i*ph) * [dynamic function] )
+	ph              : Phase of coefficient
+
+
+NOTE: The resonances are not normalized according to their integral (width and angular distribution), just scaled by 1/sqrt(Gamma_0). 
+I.e. usually broad resonances with spin 0 dominate narrow resonances with higher spins. When a resonance is switched 
+on but is not visible, try to reduce the amplitudes (A) for broader resonances.
+
+
+Available resonances:
+- rho(770), omega(782), K*(892), f0(980), phi(1020), f2(1270), f0(1370), K0(1430), 
+  K2(1430), f0(1500), f2(1525), f0(1710), f2(1710), X(3872), Z(3900), Z(4430)
+
+Available final states:
+- gamma, pi, pi0, K, K0, eta, eta', J/psi, chi_c1, hc, psi'
+
+
+###############
+3) Playing around with configurations
+###############
+
+Here are some interesting and didactic things to try to get started with the tool.
+
+a) Shape of accessible phasespace (example_a.cfg)
+-----
+* Switch off all resonances
+* Enter different combinations of M (with slider) and m_i
+
+-> look, how the phasespace changes, from triangular, if all m_i = m_gamma, 
+   to almost circular, if M close to Sum(m_i) 
+
+
+b) Angular distributions of resonances (example_b.cfg)
+-----
+* Set M=4. (large!), m_i = pi
+* Switch all resonances off except one: R23(s1) = K*(892)
+
+-> Take a look to Proj_s2: angular dirstribution of a J=1 resonance
+-> Try the same for J=0 (e.g. f0(1370)) and J=2 (e.g. f2(1270)) resonances
+
+
+c) Interference and projections (example_c1.cfg, example_c2.cfg, example_c3.cfg)
+-----
+* Set M = 2. GeV
+* Resonances in R23: K*(892) and f0(1370), A(K*)=0.07 (almost 0!), ph(K*)=0, A(f0)=1.0, ph(f0)=0.25
+
+-> Look at proj_s1: two clearly visible peaks (example_c1.cfg)
+-> Look at proj_s2: four visible peaks; none of them corresponds to a resonance pole mass (reflections!)
+
+* Set ph(f2) slider to roughly 0.7 
+
+-> K* disappears completely (example_c2.cfg)
+-> even if you switch off the K*, almost no difference is visible
+-> K* only disappears in projection, in Dalitz plot the band is still visible (example_c3.cfg)
+
+* Move ph(f2) slider slowly between 0.0 ... 0.7 
+
+-> See the K* peak in proj_s2 moving. The peak position isn't strictly located at m_0 of the resonance
+
+
+d) Projections / fake peaks (example_d.cfg)
+-----
+* Set M = 2.64, m1 = K0, m2 = m3 = pi
+* Resonance in R23(s1): f_2(1270), A=0.15, ph=0
+* Resonance in R13(s2): f_0(1500), A=0.8, ph=0.5
+* Resonance in R12(s3): f_2(1270), A=0.15, ph=0
+
+-> Look at proj_s2: Five peaks are visible, where only one corresponds to a resonance in s2 (-> f0(1500))
+
+
+e) Try to imitate D -> KS pi pi (example_e.cfg)
+-----
+* Set M = 1.87, m1 = pi, m2 = pi, m3 = K0
+* Resonances in R23(s1): K*(892) (A=0.3/ph=0.35), K0(1430) (0.15/0.95)
+* Resonances in R13(s2): K*(892) (0.03/0.0), K0(1430) (0.07,0.1)
+* Resonances in R12(s3): rho(770) (0.2/0.0), f0(980) (0.2/0.7)
+* Right mouse button in dalitz plot -> SetDrawOption -> Ok to enable scatter plot
+
+-> Scatter plot looks at least similar to the one in http://arxiv.org/abs/hep-ex/0504039v2
+
+
+
+
+
