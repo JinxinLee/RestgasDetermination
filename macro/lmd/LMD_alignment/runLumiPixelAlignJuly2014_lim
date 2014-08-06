@@ -1,0 +1,187 @@
+#!/bin/bash 
+################################################################
+## script for running sim&rec and sim&rec for LMD alignment with current LMD reconstruction
+## 28/11/2013 1st version
+## A.Karavdina
+################################################################
+echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
+read mom
+echo "Beam mometum is: $mom!"
+echo Enter sample number:
+read sampNum
+
+cd ${VMCWORKDIR}/macro/lmd/
+#path there myKnossos is placed
+PANDAROOTmy=/home/karavdina/soft/develop/
+pbeam=$mom
+# ### pick up half solenoid maps for 1.5 GeV/c [tmp, should be removed one day!] ###
+# solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
+# if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
+#     echo "FULL solenoid field maps"
+#     ln -sf ${VMCWORKDIR}/input/solenoid_fc/* ${VMCWORKDIR}/input/.
+# else
+#     echo "HALF solenoid field maps"
+#     ln -sf ${VMCWORKDIR}/input/solenoid_hc/* ${VMCWORKDIR}/input/.
+# fi
+# ######################################################
+
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+
+#path=${VMCWORKDIR}/macro/lmd/testPixelAlignChallenge/mom_${momStr}/
+# # create misalignment consts
+#TRANS=(0 50 100 200 400 600 800) #mkm
+#TRANS=(45) #mkm
+#TRANS=(0 5 10 15 20 25 30 35 40 50 100 150 200 250 300) #mkm
+TRANS=(0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 135 140 145 150 155 160 165 170 175 180 185 190 195 200) #mkm
+TRANSN=${#TRANS[@]}
+ROT=(0 0.5 1 1.5 2 2.5 3 3.5 4 4.5 5) #mrad
+#ROT=(4) #mrad
+ROTN=${#ROT[@]}
+  for (( jt=0;jt<$TRANSN;jt++)); do
+	for (( jr=0;jr<$ROTN;jr++)); do
+	    cd ${VMCWORKDIR}/macro/lmd/
+	    dr=${TRANS[${jt}]}
+	    da=${ROT[${jr}]}
+daStr=`echo $da | sed -e '{ s/\./_/g; }'`
+#number of events
+numEvB=10000
+#numEvB=250000
+numEvA=1000
+numEv=${numEvB}
+
+path=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_LIMITS_${numEvB}/mom_${momStr}/${dr}mkm_${daStr}mrad/
+mkdir -p ${path}
+#number of trks per event
+numTrks=1
+#merge hits on sensors from different sides. true=yes
+mergedHits=true
+
+doalign=true
+
+##Skip kinematic filter (before back-propagation)
+SkipFilt=true
+### if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
+### X-Theta kinematic cut before back-propagation, add constant shift dX[cm] if beam is shifted
+XThetaCut=false
+dX=0.
+### Y-Phi kinematic cut before back-propagation, add constant shift dY[cm] if beam is shifted
+YPhiCut=false
+dY=0.
+### BOX cut before back-propagation
+BoxCut=false
+
+## Clean after back-propagation (M-cut: momentum or MVA cut)
+CleanSig=false
+
+## Combined filter (X&Y and M-cut)
+CombFilt=false
+
+## Write all MC info in TrkQA array
+WrAllMC=false
+##############
+
+# #generate misalignment consts
+	    if [ ! -r  ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_LIMITS_${numEvB}/misalignConsts/${dr}mkm_${daStr}mrad/lumi.misalign_pixel.par ]; then
+		root -l -b -q LMD_alignment/create_misalignment_lmd_pixel.C\(${dr},${da},"\"${path}/lumi.misalign_pixel.par\""\)
+		mkdir -p ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_LIMITS_${numEvB}/misalignConsts/${dr}mkm_${daStr}mrad/
+		mv ${path}/lumi.misalign_pixel.par ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_LIMITS_${numEvB}/misalignConsts/${dr}mkm_${daStr}mrad/.
+	    fi
+	    cp  ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_LIMITS_${numEvB}/misalignConsts/${dr}mkm_${daStr}mrad/lumi.misalign_pixel.par ${path}/.
+		cp ${VMCWORKDIR}/geometry/trafo_matrices_lmd.dat ${path}/.
+		
+
+
+# #use externally generated geometry
+#  cp /panda/nov2013pandaroot/macro/lmd/LMD_alignment/challenge/trafo_matrices_lmd.dat ${path}/.
+# cp /panda/nov2013pandaroot/macro/lmd/LMD_alignment/challenge/Luminosity-Detector.root ${VMCWORKDIR}/input/.
+# cp ${VMCWORKDIR}/macro/lmd/LMD_alignment/lumi.align_pixel_ideal.par ${path}/lumi.misalign_pixel.par
+
+pathMC=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_LIMITS_${numEvB}/MCfilesDPM$sampNum
+# #simulation with Box generator
+if [ ! -r  ${pathMC}/Lumi_MC_0.root ]; then
+    mkdir -p ${pathMC}
+    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${pathMC}\"",0,-2212,${pbeam},${numTrks},$RANDOM\)
+  # #simulation with DPM
+  # #modeDPM=1 #el+inel
+  # modeDPM=2 #el
+  # root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${pathMC}\"",0,$RANDOM,$modeDPM,0.12\)
+
+#	mv ${path}/Lumi_MC_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_LIMITS_${numEvB}/MCfilesDPM$sampNum/.
+#	mv ${path}/Lumi_Params_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_LIMITS_${numEvB}/MCfilesDPM$sampNum/.
+fi
+cp ${pathMC}/* ${path}/.
+
+# #copy MC data for ideal case
+# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_MC_0.root ${path}/.
+# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_Params_0.root ${path}/.
+
+
+#digi
+    root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\""\)
+#hit reconstruction with misaligned consts
+    root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,$doalign\)
+# ##merge hits
+     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\"",0,$doalign\)
+
+#switch on "missing plane" search algorithm
+	 misspl=true
+#use cuts during trk seacrh with "CA". Should be 'false' if sensors missaligned!
+	 trkcut=false
+### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+### NB: CA can use merged or single(not merged) hits, Trk-Following can't
+     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+
+#track fit: 
+### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
+       root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
+
+#track filter (on number of hits and chi2)
+     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut},${dX},${dY}\) 
+#save filtered results as standart Track array
+     mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
+     cp ${path}/Lumi_TrackFiltered_0.root ${path}/Lumi_Track_0.root
+#back-propgation GEANE
+### Possible options: "Geane", "RK"
+     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+
+#clean signal from background (momentum cut or MVA cut)
+	 if [ $CleanSig == "true" ]; then 
+	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
+	 fi
+	 #combined filter (X&Y and M cuts)
+	 if [ $CombFilt == "true" ]; then 
+	     root -l -b -q runLumiPixel5cCombFilt.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
+	 fi
+
+# # Quality assurance task(s)
+	 if [ $CombFilt == "true" ]; then 
+	     root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CombFilt}\)
+	 else
+	     root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CleanSig}\)
+	 fi
+	 if [ $CombFilt == "true" ]; then 
+	     root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CombFilt}\)
+	 else
+	     root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
+	 fi
+	  mv ${path}/Lumi_QA_0.root  ${path}/Lumi_QA_before.root 
+
+
+   cd ${VMCWORKDIR}/macro/lmd/
+   mv ${path}/Lumi_TrksQA_0.root ${path}/Lumi_TrksQA_before.root
+   rm ${path}/Lumi_MC_0.root 
+   rm ${path}/Lumi_Params_0.root
+   rm ${path}/Lumi_digi_0.root
+   rm ${path}/Lumi_reco_0.root
+   rm ${path}/Lumi_recoMerged_0.root
+   rm ${path}/Lumi_TCand_0.root
+   rm ${path}/Lumi_Track_0.root
+   rm ${path}/Lumi_TrackFiltered_0.root
+   rm ${path}/Lumi_TrackNotFiltered_0.root
+   rm ${path}/Lumi_Geane_0.root
+   rm ${path}/Lumi_GeaneFiltered_0.root
+   rm ${path}/Lumi_IGNORE_0.root
+
+	done
+  done
+  exit
