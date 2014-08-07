@@ -560,5 +560,5 @@
   top->Write();
   fi->Close();
   //gGeoManager->Export(outfile);//
-  //top->Draw();//
+  top->Draw();//
 }  
