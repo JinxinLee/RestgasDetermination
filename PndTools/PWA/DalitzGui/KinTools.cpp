@@ -354,19 +354,71 @@ void palette2(Int_t mode = 0)
 
 }
 
-Double_t Z_R(Double_t s, Double_t smin, Double_t smax, Int_t J)
+Double_t Z_Ralt(Double_t s, Double_t smin, Double_t smax, Int_t J, double m_R=0., double m_ab=0., double m_c=0.)
 {
 	Double_t res=1.0;
 	
 	Double_t x = (s-smin)/(smax-smin)*2.-1.0;
 	
+	double relcorr = 1.0, xi2=1.;
+	
+	if (m_R>1e-6)
+	{
+		xi2 = pow((m_R*m_R + m_ab*m_ab - m_c*m_c)/(2*m_ab*m_R),2)-1;
+	}
+	
+	//switch(J)
+	//{
+	//case 1: res = x;
+			//if (m_R>1e-6) relcorr = sqrt(1+xi2);
+			//break;
+	//case 2: res= 1.5*x*x-0.5;
+			//if (m_R>1e-6) relcorr = sqrt(xi2+1.5);
+			//break;
+	//}
+	
+	//return relcorr*fabs(res);  // *** new: return now sqrt(angle) to cope for computation of the intensity = amp*amp
 	
 	switch(J)
 	{
 	case 1: res = 3.*x*x;
+			if (m_R>1e-6) relcorr = sqrt(1.+xi2);
 			break;
 	case 2: res= 5.*(x*x-1./3.)*(x*x-1./3.)*9./4.;
+			if (m_R>1e-6) relcorr = sqrt(xi2+1.5);
 			break;
+	}
+	
+	return relcorr*sqrt(res);  // *** new: return now sqrt(angle) to cope for computation of the intensity = amp*amp
+}
+
+Double_t Z_R(Double_t s, Double_t sab, Double_t sac, Double_t sbc, int i, Double_t mR, Int_t J, double fma, double fmb, double fmc)
+{
+	double res = 1.;
+
+	if (J==0) 
+		return res;	
+
+	double mR2 = 2*mR;
+
+	double mA2=fma*fma, mB2=fmb*fmb, mC2=fmc*fmc;
+	
+	//switch (i)
+	//{
+	//case 1: mA2 = fm2*fm2; mB2 = fm3*fm3; mC2 = fm1*fm1;
+		//break;
+	//case 2: mA2 = fm1*fm1; mB2 = fm3*fm3; mC2 = fm2*fm2;
+		//break;
+	//case 3: mA2 = fm1*fm1, mB2 = fm2*fm2, mC2 = fm3*fm3;
+		//break;
+	//}
+	
+	switch(J)
+	{
+	case 1: res = sac - sbc + (s-mC2)*(mA2-mB2)/mR2; //(mAC*mAC-mBC*mBC+((mD*mD-mC*mC)*(mB*mB-mA*mA)/(mdenom*mdenom)))
+		break;
+	case 2: res = pow(sbc - sac + ((s-mC2)*(mA2-mB2)/mR),2) - 1./3.*(sab-2*s-2*mC2 + pow((s-mC2)/mR,2))*(sab-2*mA2-2*mB2 + pow((mA2-mB2)/mR,2));
+		break;
 	}
 	
 	return res;
@@ -387,20 +439,20 @@ Double_t sumAmps(TComplex &A, CRes **r, Double_t s, Double_t ss, Double_t smin, 
 	Double_t m=sqrt(s);
 	Double_t A_in=0.0;
 
-	Double_t qM = breakup(m,m1,m2);
+	//Double_t qM = breakup(m,m1,m2);
 	
-	for (int i=0; i<2; i++)
-	{
-		if (r[i]->GetState()==kFALSE) continue;
+	//for (int i=0; i<2; i++)
+	//{
+		//if (r[i]->GetState()==kFALSE) continue;
 
-		TComplex Atmp = getAmp(r[i], m, m1, m2, qR, qM);
-		Double_t Z   = Z_R(ss, smin, smax, r[i]->GetJ());
+		//TComplex Atmp = getAmp(r[i], m, m1, m2, qR, qM);
+		//Double_t Z   = Z_R(ss, smin, smax, r[i]->GetJ());
 		
-		Atmp *= Z;
+		//Atmp *= Z;
 		
-		A    += Atmp;  // coherent
-		A_in += Atmp.Rho();
-	}
+		//A    += Atmp;  // coherent
+		//A_in += Atmp.Rho();
+	//}
 	
 	return A_in;
 }

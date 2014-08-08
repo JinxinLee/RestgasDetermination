@@ -32,12 +32,13 @@ private:
    	TGLayoutHints       *fLcan;
    	
    	TH2F                *fHDalitz;    // coherent (correct) Dalitz Plot
+   	TH2F                *fHDalitzSct; // coherent (correct) Dalitz Plot (scatter plot)
    	TH2F                *fHDalitzI;   // incoherent Dalitz Plot
    	TH2F                *fHDalitzD;   // difference coherent-incoherent
    	TH2F                *fHDalitzPh;  // total absoluted phase of resulting amplitude
    	
-   	TH1D                *fHs1Proj, *fHs2Proj,*fHs3Proj;
-   	TH1D                *fHs1M, *fHs2M,*fHs3M;
+   	TH1D                *fHs1Proj, *fHs2Proj,*fHs3Proj;  // 1D projections of squared masses
+   	TH1D                *fHs1M, *fHs2M,*fHs3M;           // 1D projections of inv. masses (generated randomly from projections)
    	
     TGMenuBar           *fMenuBar;
     TGPopupMenu         *fMenuFile;
@@ -45,7 +46,7 @@ private:
   
 	TGHorizontalFrame   *fVframe0, *fVframe1, *fVframe2, *fVframe3;
 	TGLayoutHints       *fBly,*fBfly1,*fBfly2,*fBfly3, *fMenuBarItemLayout, *fMenuBarLayout;
-	TGLabel             *fLab1, *fLab2, *fLab3, *fLab4, *fLab5, *fLab6;
+	TGLabel             *fLab1, *fLab2, *fLab3, *fLab4, *fLab5, *fLab6, *fLab7;
 	TGHSlider     	   	*fHslider1, *fHslider2, *fHslider3;
    	TGTextButton     	*fButResize;
    	TGCheckButton       *fCheckResize,*fCheckColor;
@@ -73,7 +74,7 @@ private:
 	TGHSlider           *fSlRes5A, *fSlRes5ph, *fSlRes5J;
 	TGHSlider           *fSlRes6A, *fSlRes6ph, *fSlRes6J;
 	
-	TGHSlider           *fSlBins;
+	TGHSlider           *fSlOcc;
 	
 	TGComboBox          *fComFin1, *fComFin2, *fComFin3;
 
@@ -99,6 +100,7 @@ private:
 	Int_t				ndbins;
 	
 	TRandom3			fRand;
+	Int_t               fOcc;
 	
 	TString				fActiveRes;
 	

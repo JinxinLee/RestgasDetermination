@@ -131,7 +131,7 @@ const Double_t m_res[MAX_RES] = {m_rho, m_ome, m_Kst, m_f098, m_phi, m_f212, m_f
 const Double_t G_res[MAX_RES] = {G_rho, G_ome, G_Kst, G_f098, G_phi, G_f212, G_f013, G_K014, G_K214, G_f015, G_f215, G_f017, G_f217, G_X387, G_Z390, G_Z443};
 const Int_t    J_res[MAX_RES] = {J_rho, J_ome, J_Kst, J_f098, J_phi, J_f212, J_f013, J_K014, J_K214, J_f015, J_f215, J_f017, J_f217, J_X387, J_Z390, J_Z443};
 
-const Double_t M_max = 5.5;
+const Double_t M_max = 8.0;
 const Double_t M_min = 0.5;
 
 const Int_t ngbins = 140;
@@ -183,7 +183,11 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	
 	fCanvas->GetCanvas()->Divide(2,1);
  	fCanvas->GetCanvas()->GetPad(2)->Divide(2,2);
+ 	fCanvas->GetCanvas()->GetPad(1)->SetRightMargin(0.1);
 	
+	gStyle->SetLabelSize(0.03,"Z");
+	//gStyle->SetTitleOffset(0.12,"X");
+	//gStyle->SetTitleOffset(0.12,"Y");
 
 	// **************** The first row
 	fVframe0 = new TGHorizontalFrame(fMain, 0, 0, 0);
@@ -197,9 +201,10 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	sprintf(tmp,"%5.2f",fM);
 	fTbh1->AddText(0, tmp);
    	fTeh1->Connect("ReturnPressed()", "TDalitzGui", this, "DoText()");
+   	fTeh1->Resize(60);
 	
 	// resize button for kinmatic limits
-	fCheckResize = new TGCheckButton(fVframe0,"AutoResize",HChId1);
+	fCheckResize = new TGCheckButton(fVframe0,"Auto",HChId1);
 	fCheckResize->SetState(kButtonDown);
     fCheckResize->Connect("Clicked()", "TDalitzGui", this, "DoResize()");
 
@@ -208,48 +213,64 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	fHslider1->SetRange(Int_t(M_min*100),Int_t(M_max*100));
 	fHslider1->Connect("PositionChanged(Int_t)", "TDalitzGui", this, "DoSlider(Int_t)");
 	fHslider1->SetPosition((Int_t)(fM*100.));
+	fHslider1->Resize(135,20);
 		
 	// combo box for mass m1
 	fLab2 = new TGLabel(fVframe0, "m1");
 	fComFin1 = new TGComboBox(fVframe0,HComId1);
 	ConfigComboFin(fComFin1);
 	
+	// combo box for mass m2
 	fLab3 = new TGLabel(fVframe0, "m2");
 	fComFin2 = new TGComboBox(fVframe0,HComId2);
 	ConfigComboFin(fComFin2);
 	
+	// combo box for mass m3	
 	fLab4 = new TGLabel(fVframe0, "m3");
 	fComFin3 = new TGComboBox(fVframe0,HComId3);
 	ConfigComboFin(fComFin3);
 	
-	fLab5 = new TGLabel(fVframe0, "bins");
+	// Text input for bins
+	fLab5 = new TGLabel(fVframe0, "Bins");
 	
 	fTeh2 = new TGTextEntry(fVframe0, fTbh2 = new TGTextBuffer(10), HSlBins);
 	sprintf(tmp,"%d",ndbins);
 	fTbh2->AddText(0, tmp);
    	fTeh2->Connect("ReturnPressed()", "TDalitzGui", this, "Rebin()");
-	fTeh2->Resize(50);
+	fTeh2->Resize(40);
    	
+   	// check box for color
 	fCheckColor = new TGCheckButton(fVframe0,"Color",HChId1);
 	fCheckColor->SetState(kButtonUp);
     fCheckColor->Connect("Clicked()", "TDalitzGui", this, "SwitchColor()");
 
+	// combo box for choice of large plot
 	fLab6 = new TGLabel(fVframe0, "Plot");
 	fComPlot = new TGComboBox(fVframe0,HComPlot);
 	fComPlot->AddEntry("Dalitz",0);
+	fComPlot->AddEntry("Dalitz (scat)",10);
 	fComPlot->AddEntry("Dalitz In",1);
 	fComPlot->AddEntry("Dalitz Diff",2);
 	fComPlot->AddEntry("Dalitz Ph",3);
-	fComPlot->AddEntry("Proj s1",4);
-	fComPlot->AddEntry("Proj s2",5);
-	fComPlot->AddEntry("Proj s3",6);
-	fComPlot->AddEntry("m23 (s1)",7);
-	fComPlot->AddEntry("m13 (s2)",8);
-	fComPlot->AddEntry("m12 (s3)",9);
+	fComPlot->AddEntry("Proj s23",4);
+	fComPlot->AddEntry("Proj s31",5);
+	fComPlot->AddEntry("Proj s12",6);
+	fComPlot->AddEntry("Mass m23",7);
+	fComPlot->AddEntry("Mass m31",8);
+	fComPlot->AddEntry("Mass m12",9);
 	fComPlot->Select(0);
 	fComPlot->Connect("Selected(Int_t)","TDalitzGui", this, "DoCombo(Int_t)");
-	fComPlot->Resize(80,20);
+	fComPlot->Resize(100,20);
 	
+	// Label for occupancy slider
+	fLab7 = new TGLabel(fVframe0, "Occ");
+	// slider for choosing occupancy of random generated plots
+	fSlOcc = new TGHSlider(fVframe0,70);
+	fSlOcc->SetRange(10,1000);
+	fSlOcc->Connect("PositionChanged(Int_t)", "TDalitzGui", this, "DoParmSlider(Int_t)");
+	fSlOcc->SetPosition((Int_t)(200.));
+	fSlOcc->Resize(70,20);
+
 	// ****************
 	// the resonance setup GUI
 	
@@ -257,17 +278,17 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	fVframe2 = new TGHorizontalFrame(fMain, 0, 0, 0);
 	fVframe3 = new TGHorizontalFrame(fMain, 0, 0, 0);
 	
-	fLabR1N = new TGLabel(fVframe1,"R23(s1)");
+	fLabR5N = new TGLabel(fVframe3,"R12");
+	fLabR5A = new TGLabel(fVframe3,"A");fLabR5ph = new TGLabel(fVframe3,"ph");
+	fLabR6A = new TGLabel(fVframe3,"A");fLabR6ph = new TGLabel(fVframe3,"ph");
+	
+	fLabR1N = new TGLabel(fVframe1,"R23");
 	fLabR1A = new TGLabel(fVframe1,"A");fLabR1ph = new TGLabel(fVframe1,"ph");
 	fLabR2A = new TGLabel(fVframe1,"A");fLabR2ph = new TGLabel(fVframe1,"ph");
 	
-	fLabR3N = new TGLabel(fVframe2,"R13(s2)");
+	fLabR3N = new TGLabel(fVframe2,"R31");
 	fLabR3A = new TGLabel(fVframe2,"A");fLabR3ph = new TGLabel(fVframe2,"ph");
 	fLabR4A = new TGLabel(fVframe2,"A");fLabR4ph = new TGLabel(fVframe2,"ph");
-	
-	fLabR5N = new TGLabel(fVframe3,"R12(s3)");
-	fLabR5A = new TGLabel(fVframe3,"A");fLabR5ph = new TGLabel(fVframe3,"ph");
-	fLabR6A = new TGLabel(fVframe3,"A");fLabR6ph = new TGLabel(fVframe3,"ph");
 	
 	fComRes1 = new TGComboBox(fVframe1,HComRId1); ConfigComboRes(fComRes1);
 	fComRes2 = new TGComboBox(fVframe1,HComRId2); ConfigComboRes(fComRes2);
@@ -351,6 +372,9 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	fVframe0->AddFrame(fLab6,fBfly2);
 	fVframe0->AddFrame(fComPlot, fBfly2);
 	
+	fVframe0->AddFrame(fLab7, fBfly2);
+	fVframe0->AddFrame(fSlOcc, fBfly2);
+	
 	// *********************
 	fVframe1->AddFrame(fLabR1N, fBfly2);
 	
@@ -419,6 +443,7 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	ReadOutGui();
 	
 	fHDalitz = 0;
+	fHDalitzSct = 0;
 	fHDalitzI = 0;
 	fHDalitzD = 0;
 	fHDalitzPh = 0;
@@ -430,6 +455,8 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	fHs1M = 0;
 	fHs2M = 0;
 	fHs3M = 0; 
+	
+	fOcc = 200;
 
 	fGraphKin = new TGraph(ngbins*2+1);
 	fGraphKin->SetLineColor(2);
@@ -729,17 +756,17 @@ void TDalitzGui::DrawPlot()
 	fHs3Proj->Draw();
 
    	fCanvas->GetCanvas()->GetPad(2)->cd(4);
-	if (fHDalitzI->GetSumOfWeights()>0) fHDalitzI->DrawNormalized("col");else fHDalitzI->Draw("col");
+	fHDalitzI->Draw("colz");
 	fGraphKin->Draw("same L");
 	
    	fCanvas->GetCanvas()->cd(1);
 	switch (fComPlot->GetSelected())
 	{
-	case 1: if (fHDalitzI->GetSumOfWeights()>0) fHDalitzI->DrawNormalized("col"); else fHDalitzI->Draw("col");
+	case 1: fHDalitzI->Draw("colz");
 			fGraphKin->Draw("same L");
 			break;
 			
-	case 2: if (fHDalitzD->GetSumOfWeights()>0) fHDalitzD->DrawNormalized("col"); else fHDalitzD->Draw("col");
+	case 2: fHDalitzD->Draw("colz");
 			fGraphKin->Draw("same L");
 			break;
 			
@@ -765,7 +792,10 @@ void TDalitzGui::DrawPlot()
 	case 9: fHs3M->Draw();
 			break;
 			
-	default: if (fHDalitz->GetSumOfWeights()>0) fHDalitz->DrawNormalized("col");else fHDalitz->Draw("col");
+	case 10: fHDalitzSct->Draw("scat");
+			break;
+			
+	default: fHDalitz->Draw("colz");
 			 fGraphKin->Draw("same L");
 			 break;
 	}
@@ -842,24 +872,38 @@ void TDalitzGui::ConfigPlot()
 {
 	fHDalitz->SetStats(0);
 	fHDalitz->SetTitle("Dalitzplot: "+fn1+" "+fn2+" "+fn3);
-	fHDalitz->GetYaxis()->SetTitleOffset(1.2);
+	fHDalitz->GetXaxis()->SetTitleOffset(1.2);
+	fHDalitz->GetYaxis()->SetTitleOffset(1.3);
 	fHDalitz->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
-	fHDalitz->SetYTitle("m_{13}^{2}("+fn1+fn3+") [GeV^{2}/c^{4}]");
+	fHDalitz->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
+    
+	fHDalitzSct->SetStats(0);
+	fHDalitzSct->SetTitle("Dalitzplot: "+fn1+" "+fn2+" "+fn3);
+	fHDalitzSct->GetXaxis()->SetTitleOffset(1.2);
+	fHDalitzSct->GetYaxis()->SetTitleOffset(1.3);
+	fHDalitzSct->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
+	fHDalitzSct->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
     
     fHDalitzI->SetStats(0);
 	fHDalitzI->SetTitle("Dalitzplot incoherent: "+fn1+" "+fn2+" "+fn3);
+	fHDalitzI->GetXaxis()->SetTitleOffset(1.2);
+	fHDalitzI->GetYaxis()->SetTitleOffset(1.3);
 	fHDalitzI->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
-	fHDalitzI->SetYTitle("m_{13}^{2}("+fn1+fn3+") [GeV^{2}/c^{4}]");
+	fHDalitzI->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
 
     fHDalitzD->SetStats(0);
 	fHDalitzD->SetTitle("Difference coherent-incoherent: "+fn1+" "+fn2+" "+fn3);
+	fHDalitzD->GetXaxis()->SetTitleOffset(1.2);
+	fHDalitzD->GetYaxis()->SetTitleOffset(1.3);
 	fHDalitzD->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
-	fHDalitzD->SetYTitle("m_{13}^{2}("+fn1+fn3+") [GeV^{2}/c^{4}]");
+	fHDalitzD->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
 	
     fHDalitzPh->SetStats(0);
 	fHDalitzPh->SetTitle("Dalitzplot phase: "+fn1+" "+fn2+" "+fn3);
+	fHDalitzPh->GetXaxis()->SetTitleOffset(1.2);
+	fHDalitzPh->GetYaxis()->SetTitleOffset(1.3);
 	fHDalitzPh->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
-	fHDalitzPh->SetYTitle("m_{13}^{2}("+fn1+fn3+") [GeV^{2}/c^{4}]");
+	fHDalitzPh->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
 
 	fHDalitz->SetContour(99);
 	fHDalitzI->SetContour(99);
@@ -874,7 +918,9 @@ void TDalitzGui::CreateDalitz()
  	fHDalitz->Reset();
  	fHDalitz->SetContour(99);
  	fHDalitz->SetStats(0);
- 		
+ 
+ 	fHDalitzSct->Reset();
+		
  	fHDalitzI->Reset();
  	fHDalitzI->SetContour(99);
  	fHDalitzI->SetStats(0);
@@ -954,7 +1000,8 @@ void TDalitzGui::CreateDalitz()
 			Double_t qM12 =  breakup(sqrt(s3),fm1,fm2);
 			
 			if (fRes1[0]->GetState()) {	
-				Atmp = getAmp(fRes1[0], sqrt(s1), fm2, fm3, qR1, qM23) * Z_R(s2, cs2min, cs2max, fRes1[0]->GetJ());
+				//Atmp = getAmp(fRes1[0], sqrt(s1), fm2, fm3, qR1, qM23) * Z_R(s, s1, s2, s3, 1, fRes1[0]->GetM0(), fRes1[0]->GetJ(), fm2, fm3, fm1);
+				Atmp = getAmp(fRes1[0], sqrt(s1), fm2, fm3, qR1, qM23) * Z_Ralt(s2, cs2min, cs2max, fRes1[0]->GetJ(), fRes1[0]->GetM0(), sqrt(s1), fm3);
 				//if (!Atmp.IsNaN(Atmp)) 
 				{
 					Atot1 += Atmp;
@@ -964,18 +1011,19 @@ void TDalitzGui::CreateDalitz()
 			}
 			
 			if (fRes1[1]->GetState()) {	
-				Atmp = getAmp(fRes1[1], sqrt(s1), fm2, fm3, qR1, qM23) * Z_R(s2, cs2min, cs2max, fRes1[1]->GetJ());
+				//Atmp = getAmp(fRes1[1], sqrt(s1), fm2, fm3, qR1, qM23) * Z_R(s, s1, s2, s3, 1, fRes1[1]->GetM0(), fRes1[1]->GetJ(), fm2, fm3, fm1);
+				Atmp = getAmp(fRes1[1], sqrt(s1), fm2, fm3, qR1, qM23) * Z_Ralt(s2, cs2min, cs2max, fRes1[1]->GetJ(), fRes1[1]->GetM0(), sqrt(s1), fm3);
 				//if (!Atmp.IsNaN(Atmp)) 
 				{
 					Atot1 += Atmp;
 					A_in  += Atmp.Rho();
 					if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
 				}	
-				if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
 			}
 			
 			if (fRes2[0]->GetState()) {	
-				Atmp = getAmp(fRes2[0], sqrt(s2), fm1, fm3, qR2, qM13) * Z_R(s1, cs1min, cs1max, fRes2[0]->GetJ());
+				//Atmp = getAmp(fRes2[0], sqrt(s2), fm1, fm3, qR2, qM13) * Z_R(s, s2, s1, s3, 2, fRes2[0]->GetM0(), fRes2[0]->GetJ(), fm1, fm3, fm2);
+				Atmp = getAmp(fRes2[0], sqrt(s2), fm1, fm3, qR2, qM13) * Z_Ralt(s1, cs1min, cs1max, fRes2[0]->GetJ(), fRes2[0]->GetM0(), sqrt(s2), fm1);
 				//if (!Atmp.IsNaN(Atmp)) 
 				{
 					Atot1 += Atmp;
@@ -985,7 +1033,8 @@ void TDalitzGui::CreateDalitz()
 			}
 			
 			if (fRes2[1]->GetState()) {	
-				Atmp = getAmp(fRes2[1], sqrt(s2), fm1, fm3, qR2, qM13) * Z_R(s1, cs1min, cs1max, fRes2[1]->GetJ());
+				//Atmp = getAmp(fRes2[1], sqrt(s2), fm1, fm3, qR2, qM13) * Z_R(s, s2, s1, s3, 2, fRes2[1]->GetM0(), fRes2[1]->GetJ(), fm1, fm3, fm2);
+				Atmp = getAmp(fRes2[1], sqrt(s2), fm1, fm3, qR2, qM13) * Z_Ralt(s1, cs1min, cs1max, fRes2[1]->GetJ(), fRes2[1]->GetM0(), sqrt(s2), fm1);
 				//if (!Atmp.IsNaN(Atmp)) 
 				{
 					Atot1 += Atmp;
@@ -995,7 +1044,8 @@ void TDalitzGui::CreateDalitz()
 			}
 			
 			if (fRes3[0]->GetState()) {	
-				Atmp = getAmp(fRes3[0], sqrt(s3), fm1, fm2, qR3, qM12) * Z_R(s1, cs3min, cs3max, fRes3[0]->GetJ());
+				//Atmp = getAmp(fRes3[0], sqrt(s3), fm1, fm2, qR3, qM12) * Z_R(s, s3, s2, s1, 3, fRes3[0]->GetM0(), fRes3[0]->GetJ(), fm1, fm2, fm3);
+				Atmp = getAmp(fRes3[0], sqrt(s3), fm1, fm2, qR3, qM12) * (Z_Ralt(s1, cs3min, cs3max, fRes3[0]->GetJ(), fRes3[0]->GetM0(), sqrt(s3), fm2)+1e-10);
 				//if (!Atmp.IsNaN(Atmp)) 
 				{
 					Atot1 += Atmp;
@@ -1005,7 +1055,8 @@ void TDalitzGui::CreateDalitz()
 			}
 			
 			if (fRes3[1]->GetState()) {	
-				Atmp = getAmp(fRes3[1], sqrt(s3), fm1, fm2, qR3, qM12) * Z_R(s1, cs3min, cs3max, fRes3[1]->GetJ());
+				//Atmp = getAmp(fRes3[1], sqrt(s3), fm1, fm2, qR3, qM12) * Z_R(s, s3, s2, s1, 3, fRes3[1]->GetM0(), fRes3[1]->GetJ(), fm1, fm2, fm3);
+				Atmp = getAmp(fRes3[1], sqrt(s3), fm1, fm2, qR3, qM12) * (Z_Ralt(s1, cs3min, cs3max, fRes3[1]->GetJ(), fRes3[1]->GetM0(), sqrt(s3), fm2)+1e-10);
 				//if (!Atmp.IsNaN(Atmp)) 
 				{
 					Atot1 += Atmp;
@@ -1025,7 +1076,7 @@ void TDalitzGui::CreateDalitz()
 			fHDalitzI->SetBinContent(i,j,A_in*A_in);
 			fHDalitzD->SetBinContent(i,j,A_in*A_in-In2);
 			if (nRes==2) 
-				fHDalitzPh->SetBinContent(i,j,Adiff);
+				fHDalitzPh->SetBinContent(i,j,fabs(Adiff));
 			else 
 				fHDalitzPh->SetBinContent(i,j,Atot1.Theta());
 
@@ -1039,7 +1090,7 @@ void TDalitzGui::CreateDalitz()
 	if (fHDalitz->GetSumOfWeights()>0)
 	{
 		double rs1,rs2;
-		for (int jj=0;jj<ndbins*200;++jj)
+		for (int jj=0;jj<ndbins*fOcc;++jj)
 		{
 			fHDalitz->GetRandom2(rs1,rs2);
 			double rs3 = sum_kin - rs1 - rs2;
@@ -1050,19 +1101,33 @@ void TDalitzGui::CreateDalitz()
 			fHs2M->Fill(sqrt(rs2));
 			fHs3M->Fill(sqrt(rs3));
 
+			fHDalitzSct->Fill(rs1, rs2);
+
 			//fHs1M->Fill(sqrt(fHs1Proj->GetRandom()));
 			//fHs2M->Fill(sqrt(fHs2Proj->GetRandom()));
 			//fHs3M->Fill(sqrt(fHs3Proj->GetRandom()));
 			
 		}
 
-		fHs1Proj->Scale(1./fHs1Proj->GetSumOfWeights());
-		fHs2Proj->Scale(1./fHs2Proj->GetSumOfWeights());
-		fHs3Proj->Scale(1./fHs3Proj->GetSumOfWeights());		
+		//fHs1Proj->Scale(1./fHs1Proj->GetSumOfWeights());
+		//fHs2Proj->Scale(1./fHs2Proj->GetSumOfWeights());
+		//fHs3Proj->Scale(1./fHs3Proj->GetSumOfWeights());		
 		
-		fHs1M->Scale(1./fHs1M->GetSumOfWeights());
-		fHs2M->Scale(1./fHs2M->GetSumOfWeights());
-		fHs3M->Scale(1./fHs3M->GetSumOfWeights());
+		//fHs1M->Scale(1./fHs1M->GetSumOfWeights());
+		//fHs2M->Scale(1./fHs2M->GetSumOfWeights());
+		//fHs3M->Scale(1./fHs3M->GetSumOfWeights());
+		
+		fHs1Proj->Scale(1./fHs1Proj->GetMaximum());
+		fHs2Proj->Scale(1./fHs2Proj->GetMaximum());
+		fHs3Proj->Scale(1./fHs3Proj->GetMaximum());		
+		
+		fHs1M->Scale(1./fHs1M->GetMaximum());
+		fHs2M->Scale(1./fHs2M->GetMaximum());
+		fHs3M->Scale(1./fHs3M->GetMaximum());
+		
+		fHDalitz->Scale(100./fHDalitz->GetMaximum());
+		fHDalitzI->Scale(100./fHDalitzI->GetMaximum());
+		fHDalitzD->Scale(100./fHDalitzD->GetMaximum());
 	}
 	
 	fHs1Proj->Smooth(1);
@@ -1234,8 +1299,8 @@ void TDalitzGui::DoText()
 	
 	Int_t pos = Int_t(atof(fTbh1->GetString())*100);
 	
-	if (pos<100) pos=100;
-	if (pos>500) pos=500;
+	if (pos<M_min*100) pos=M_min*100;
+	if (pos>M_max*100) pos=M_max*100;
 	
 	switch (id) {
 		case HId1:
@@ -1261,7 +1326,7 @@ void TDalitzGui::DoSlider(Int_t pos)
    	sprintf(buf, "%.2f",fM );
    	fTbh1->Clear();
    	fTbh1->AddText(0, buf);
-   	fTeh1->SetCursorPosition(fTeh1->GetCursorPosition());
+   	fTeh1->SetCursorPosition(4);
    	fTeh1->Deselect();
    
    	gClient->NeedRedraw(fTeh1);
@@ -1280,6 +1345,8 @@ void TDalitzGui::DoSlider(Int_t pos)
 // Read out current settings of the interface
 void TDalitzGui::ReadOutGui()
 {
+	fOcc = fSlOcc->GetPosition();
+		
 	fnR1 = fnR2 = fnR3 = 0;
 	
 	fActiveRes = "";
@@ -1407,6 +1474,7 @@ void TDalitzGui::DoResize()
 	}
 	
 	if (fHDalitz) delete fHDalitz;
+	if (fHDalitzSct) delete fHDalitzSct;
 	if (fHDalitzI) delete fHDalitzI;
 	if (fHDalitzD) delete fHDalitzD;
 	if (fHDalitzPh) delete fHDalitzPh;
@@ -1424,31 +1492,32 @@ void TDalitzGui::DoResize()
 	Double_t s3maxl = simax(3, fM, fm1, fm2, fm3);
 			
 	fHDalitz   = new TH2F("fHDalitz","Dalitz Plot", ndbins, 0, s1maxl*1.05, ndbins, 0, s2maxl*1.05);
+	fHDalitzSct= new TH2F("fHDalitzSct","Dalitz Plot (scat)", ndbins, 0, s1maxl*1.05, ndbins, 0, s2maxl*1.05);
 	fHDalitzI  = new TH2F("fHDalitzI","Dalitz Plot (incoherent)", ndbins, 0, s1maxl*1.05, ndbins, 0, s2maxl*1.05);
 	fHDalitzD  = new TH2F("fHDalitzD","Difference coherent-incoherent", ndbins, 0, s1maxl*1.05, ndbins, 0, s2maxl*1.05);
 	fHDalitzPh = new TH2F("fHDalitzPh","Dalitz Plot (total phase)", ndbins, 0, s1maxl*1.05, ndbins, 0, s2maxl*1.05);
 
-	fHs1Proj = new TH1D("fHs1Proj","Projection m^{2}_{23}=s_{1}",ndbins,0,s1maxl*1.05);
-	fHs2Proj = new TH1D("fHs2Proj","Projection m^{2}_{13}=s_{2}",ndbins,0,s2maxl*1.05);
-	fHs3Proj = new TH1D("fHs3Proj","Projection m^{2}_{12}=s_{3}",ndbins,0,s3maxl*1.05);
+	fHs1Proj = new TH1D("fHs1Proj","Projection m^{2}_{23} ("+fn2+fn3+")",ndbins,0,s1maxl*1.05);
+	fHs2Proj = new TH1D("fHs2Proj","Projection m^{2}_{31} ("+fn3+fn1+")",ndbins,0,s2maxl*1.05);
+	fHs3Proj = new TH1D("fHs3Proj","Projection m^{2}_{12} ("+fn1+fn2+")",ndbins,0,s3maxl*1.05);
 	
 	fHs1Proj->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
 	fHs1Proj->SetStats(0);
 	
-	fHs2Proj->SetXTitle("m_{13}^{2}("+fn1+fn3+") [GeV^{2}/c^{4}]");
+	fHs2Proj->SetXTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
 	fHs2Proj->SetStats(0);
 
 	fHs3Proj->SetXTitle("m_{12}^{2}("+fn1+fn2+") [GeV^{2}/c^{4}]");
 	fHs3Proj->SetStats(0);
 
-	fHs1M   = new TH1D("fHs1M","m_{23} = #sqrt{s_{1}}",ndbins,0,sqrt(s1maxl)*1.05);
-	fHs2M   = new TH1D("fHs2M","m_{13} = #sqrt{s_{2}}",ndbins,0,sqrt(s2maxl)*1.05);
-	fHs3M   = new TH1D("fHs3M","m_{12} = #sqrt{s_{3}}",ndbins,0,sqrt(s3maxl)*1.05);
+	fHs1M   = new TH1D("fHs1M","Mass m_{23} ("+fn2+fn3+")",ndbins,0,sqrt(s1maxl)*1.05);
+	fHs2M   = new TH1D("fHs2M","Mass m_{31} ("+fn3+fn1+")",ndbins,0,sqrt(s2maxl)*1.05);
+	fHs3M   = new TH1D("fHs3M","Mass m_{12} ("+fn1+fn2+")",ndbins,0,sqrt(s3maxl)*1.05);
 	
 	fHs1M->SetXTitle("m_{23}("+fn2+fn3+") [GeV/c^{2}]");
 	fHs1M->SetStats(0);
 	
-	fHs2M->SetXTitle("m_{13}("+fn1+fn3+") [GeV/c^{2}]");
+	fHs2M->SetXTitle("m_{31}("+fn3+fn1+") [GeV/c^{2}]");
 	fHs2M->SetStats(0);
 
 	fHs3M->SetXTitle("m_{12}("+fn1+fn2+") [GeV/c^{2}]");

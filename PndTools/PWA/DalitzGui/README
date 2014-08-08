@@ -23,17 +23,18 @@ Example configurations can be found in folder 'examples'. If compilation does no
 Plots:
     Left    - Depends of the choice of 'Plot' in the user interface; default = Dalitz Plot
               Choices are:
-              * Dalitz      : The Dalitz plot
-              * Dalitz In   : Dalitz plot with incoherent sum of resonances (demonstrates interference)
-              * Dalitz Diff : Difference between incoherent and coherent sum (demonstrates interference)
-              * Dalitz Ph   : 2 active resonances: relative phase between amplitudes
-    		                  else : Complex phase of total amplitude; 
-              * Proj s1     : Projection to m_23^2
-              * Proj s2     : Projection to m_13^2
-              * Proj s3     : Projection to m_12^2 (random generation from Dalitz plot)
-              * m23 (s1)    : Invariant mass distribution m_23; (random generation from projection s1)    		  
-              * m13 (s2)    : Invariant mass distribution m_13; (random generation from projection s2)    		  
-              * m12 (s3)    : Invariant mass distribution m_12; (random generation from projection s3)    		  
+              * Dalitz        : The Dalitz plot
+              * Dalitz (scat) : The Dalitz plot as scatter plot (number of bins has impact on density)
+              * Dalitz In     : Dalitz plot with incoherent sum of resonances (demonstrates interference)
+              * Dalitz Diff   : Difference between incoherent and coherent sum (demonstrates interference)
+              * Dalitz Ph     : exactly 2 active resonances : Relative phase between amplitudes
+    		                                         else : Complex phase of total amplitude; 
+              * Proj s23    : Projection to m_23^2
+              * Proj s31    : Projection to m_31^2
+              * Proj s12    : Projection to m_12^2 (random generation from Dalitz plot)
+              * Mass m23    : Invariant mass distribution m_23; (random generation from projection s1)    		  
+              * Mass m31    : Invariant mass distribution m_31; (random generation from projection s2)    		  
+              * Mass m12    : Invariant mass distribution m_12; (random generation from projection s3)    		  
     		  
     Right   - The 3 projections of the Dalitz Plot and the incoherent sum of the amplitudes
 
@@ -44,20 +45,22 @@ Interface:
 	File->Save canvas as : Save complete canvas as image (.gif, .png, .jpg) / pdf (.pdf) / root file(.root) / root macro (.C) etc
 	File->Exit           : Quit program
 
-	M               : Total energy sqrt(s) = M of the system; can be adjusted with slider or with text input
-	Autoresize      : When checked all plots are resized automatically when M ist changed
-	m1, m2, m3      : The three final state masses (=particles) of the system
-	bins            : Number of bins; higher = better but slower
-	Color           : color or greyscale palette for 2D plots (for Dalitz Ph a special fixed palette is used)
-	Plot            : Plot to be shown in the big canvas (top left)
+	M             : Total energy sqrt(s) = M of the system; can be adjusted with slider or with text input
+	Autoresize    : When checked all plots are resized automatically when M ist changed
+	m1, m2, m3    : The three final state masses (=particles) of the system
+	Bins          : Number of bins; higher = better but slower; max = 500
+	Color         : color or greyscale palette for 2D plots (for Dalitz Ph a special fixed palette is used)
+	Plot          : Plot to be shown in the big canvas (top left)
+	Occ           : Occupancy of random generated plots (Proj s12, Mass mxy, Dalitz (scat))
+                    Default: 200; Range: 10 - 1000; Total number of random events filled in is bins*Occ 
 
 
 Configuration of the resonances R23, R13, R12 (two possible per coordinate)
 
-	R23, R13, R12   : Resonance(s)
-	On              : Switch on or off resonance
-	A               : Amplitude of coefficient (from A*exp(i*ph) * [dynamic function] )
-	ph              : Phase of coefficient
+	R23, R13, R12 : Resonance(s)
+	On            : Switch on or off resonance
+	A             : Amplitude of coefficient (from A*exp(i*ph) * [dynamic function] )
+	ph            : Phase of coefficient
 
 
 NOTE: The resonances are not normalized according to their integral (width and angular distribution), just scaled by 1/sqrt(Gamma_0). 
@@ -118,23 +121,22 @@ c) Interference and projections (example_c1.cfg, example_c2.cfg, example_c3.cfg)
 
 d) Projections / fake peaks (example_d.cfg)
 -----
-* Set M = 2.64, m1 = K0, m2 = m3 = pi
-* Resonance in R23(s1): f_2(1270), A=0.15, ph=0
-* Resonance in R13(s2): f_0(1500), A=0.8, ph=0.5
-* Resonance in R12(s3): f_2(1270), A=0.15, ph=0
+* Set M = 2.66, m1 = m2 = m3 = pi
+* Resonance in R23 : f_2(1270), A=0.15, ph=0.15 ; f_2(1710), A=0.2, ph=0.2
+* Resonance in R31 : f_0(1500), A=0.3, ph=0.6
+* Resonance in R12 : f_2(1525), A=0.1, ph=0.1
 
--> Look at proj_s2: Five peaks are visible, where only one corresponds to a resonance in s2 (-> f0(1500))
+-> Look at Proj s31: Six peaks are visible, where actually only one _dip_ corresponds to a resonance in m31 (-> f0(1500))
 
 
-e) Try to imitate D -> KS pi pi (example_e.cfg)
+e) Try to imitate D0 -> K+ pi- pi0 (example_e.cfg)
 -----
-* Set M = 1.87, m1 = pi, m2 = pi, m3 = K0
-* Resonances in R23(s1): K*(892) (A=0.3/ph=0.35), K0(1430) (0.15/0.95)
-* Resonances in R13(s2): K*(892) (0.03/0.0), K0(1430) (0.07,0.1)
-* Resonances in R12(s3): rho(770) (0.2/0.0), f0(980) (0.2/0.7)
-* Right mouse button in dalitz plot -> SetDrawOption -> Ok to enable scatter plot
+* Set M = 1.85, m1 = pi, m2 = K, m3 = pi0
+* Resonances in R23 : K*(892) (A=0.22/ph=0.4), K0(1430) (0.12/0.2)
+* Resonances in R31 : rho(770) (0.4/0.0)
+* Resonances in R12 : K*(892) (A=0.2/ph=0.9), K0(1430) (0.1/0.4)
 
--> Scatter plot looks at least similar to the one in http://arxiv.org/abs/hep-ex/0504039v2
+-> Plot looks similar to the one in http://arxiv.org/abs/hep-ex/0011065v2
 
 
 
