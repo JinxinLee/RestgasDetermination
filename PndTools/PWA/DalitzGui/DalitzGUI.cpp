@@ -1069,8 +1069,8 @@ void TDalitzGui::CreateDalitz()
 			
 			if (In2!=In2) In2=0.;
 				
-			if (Adiff>3.1416) Adiff-=2*3.1415892;
-			if (Adiff<-3.1416) Adiff+=2*3.1415892;
+			if (Adiff>3.1416) Adiff-=2*3.1415926;
+			if (Adiff<-3.1416) Adiff+=2*3.1415926;
 
 			fHDalitz->SetBinContent(i,j,In2);
 			fHDalitzI->SetBinContent(i,j,A_in*A_in);
