@@ -1,3 +1,13 @@
+// --------------------------------------------------------------------------
+// DalitzGui - ROOT based tool to plot 3body decay's with resonant behaviour
+// --------------------------------------------------------------------------
+// 
+// Check accompanying README file for infos how to use
+//
+// Original author: Klaus Goetzen - GSI Darmstadt
+// Last modified  : 2014/08/08
+// --------------------------------------------------------------------------
+
 #include <TApplication.h>
 #include <TClass.h>
 #include "TGButton.h"
@@ -867,7 +877,7 @@ void TDalitzGui::CreateGraph(TGraph* g, Int_t n, Double_t m, Double_t m1, Double
 }
 
 //___________________________________________________________________
-// configure all histograms
+// configure all 2D histograms
 void TDalitzGui::ConfigPlot()
 {
 	fHDalitz->SetStats(0);
@@ -912,7 +922,7 @@ void TDalitzGui::ConfigPlot()
 }
 
 //___________________________________________________________________
-// Compute all plots 
+// Compute all plots (the main routine)
 void TDalitzGui::CreateDalitz()
 {
  	fHDalitz->Reset();
@@ -1000,69 +1010,45 @@ void TDalitzGui::CreateDalitz()
 			Double_t qM12 =  breakup(sqrt(s3),fm1,fm2);
 			
 			if (fRes1[0]->GetState()) {	
-				//Atmp = getAmp(fRes1[0], sqrt(s1), fm2, fm3, qR1, qM23) * Z_R(s, s1, s2, s3, 1, fRes1[0]->GetM0(), fRes1[0]->GetJ(), fm2, fm3, fm1);
 				Atmp = getAmp(fRes1[0], sqrt(s1), fm2, fm3, qR1, qM23) * Z_Ralt(s2, cs2min, cs2max, fRes1[0]->GetJ(), fRes1[0]->GetM0(), sqrt(s1), fm3);
-				//if (!Atmp.IsNaN(Atmp)) 
-				{
-					Atot1 += Atmp;
-					A_in  += Atmp.Rho();
-					if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
-				}	
+				Atot1 += Atmp;
+				A_in  += Atmp.Rho();
+				if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
 			}
 			
 			if (fRes1[1]->GetState()) {	
-				//Atmp = getAmp(fRes1[1], sqrt(s1), fm2, fm3, qR1, qM23) * Z_R(s, s1, s2, s3, 1, fRes1[1]->GetM0(), fRes1[1]->GetJ(), fm2, fm3, fm1);
 				Atmp = getAmp(fRes1[1], sqrt(s1), fm2, fm3, qR1, qM23) * Z_Ralt(s2, cs2min, cs2max, fRes1[1]->GetJ(), fRes1[1]->GetM0(), sqrt(s1), fm3);
-				//if (!Atmp.IsNaN(Atmp)) 
-				{
-					Atot1 += Atmp;
-					A_in  += Atmp.Rho();
-					if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
-				}	
+				Atot1 += Atmp;
+				A_in  += Atmp.Rho();
+				if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
 			}
 			
 			if (fRes2[0]->GetState()) {	
-				//Atmp = getAmp(fRes2[0], sqrt(s2), fm1, fm3, qR2, qM13) * Z_R(s, s2, s1, s3, 2, fRes2[0]->GetM0(), fRes2[0]->GetJ(), fm1, fm3, fm2);
 				Atmp = getAmp(fRes2[0], sqrt(s2), fm1, fm3, qR2, qM13) * Z_Ralt(s1, cs1min, cs1max, fRes2[0]->GetJ(), fRes2[0]->GetM0(), sqrt(s2), fm1);
-				//if (!Atmp.IsNaN(Atmp)) 
-				{
-					Atot1 += Atmp;
-					A_in  += Atmp.Rho();
-					if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
-				}	
+				Atot1 += Atmp;
+				A_in  += Atmp.Rho();
+				if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
 			}
 			
 			if (fRes2[1]->GetState()) {	
-				//Atmp = getAmp(fRes2[1], sqrt(s2), fm1, fm3, qR2, qM13) * Z_R(s, s2, s1, s3, 2, fRes2[1]->GetM0(), fRes2[1]->GetJ(), fm1, fm3, fm2);
 				Atmp = getAmp(fRes2[1], sqrt(s2), fm1, fm3, qR2, qM13) * Z_Ralt(s1, cs1min, cs1max, fRes2[1]->GetJ(), fRes2[1]->GetM0(), sqrt(s2), fm1);
-				//if (!Atmp.IsNaN(Atmp)) 
-				{
-					Atot1 += Atmp;
-					A_in  += Atmp.Rho();
-					if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
-				}	
+				Atot1 += Atmp;
+				A_in  += Atmp.Rho();
+				if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
 			}
 			
 			if (fRes3[0]->GetState()) {	
-				//Atmp = getAmp(fRes3[0], sqrt(s3), fm1, fm2, qR3, qM12) * Z_R(s, s3, s2, s1, 3, fRes3[0]->GetM0(), fRes3[0]->GetJ(), fm1, fm2, fm3);
 				Atmp = getAmp(fRes3[0], sqrt(s3), fm1, fm2, qR3, qM12) * (Z_Ralt(s1, cs3min, cs3max, fRes3[0]->GetJ(), fRes3[0]->GetM0(), sqrt(s3), fm2)+1e-10);
-				//if (!Atmp.IsNaN(Atmp)) 
-				{
-					Atot1 += Atmp;
-					A_in  += Atmp.Rho();
-					if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
-				}	
+				Atot1 += Atmp;
+				A_in  += Atmp.Rho();
+				if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
 			}
 			
 			if (fRes3[1]->GetState()) {	
-				//Atmp = getAmp(fRes3[1], sqrt(s3), fm1, fm2, qR3, qM12) * Z_R(s, s3, s2, s1, 3, fRes3[1]->GetM0(), fRes3[1]->GetJ(), fm1, fm2, fm3);
 				Atmp = getAmp(fRes3[1], sqrt(s3), fm1, fm2, qR3, qM12) * (Z_Ralt(s1, cs3min, cs3max, fRes3[1]->GetJ(), fRes3[1]->GetM0(), sqrt(s3), fm2)+1e-10);
-				//if (!Atmp.IsNaN(Atmp)) 
-				{
-					Atot1 += Atmp;
-					A_in  += Atmp.Rho();
-					if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
-				}	
+				Atot1 += Atmp;
+				A_in  += Atmp.Rho();
+				if (nRes==2) { if (Adiff==0) Adiff = Atmp.Theta();else Adiff-=Atmp.Theta();}
 			}
 			
 			double In2 = Atot1.Rho2();
@@ -1082,11 +1068,11 @@ void TDalitzGui::CreateDalitz()
 
 			fHs1Proj->Fill(s1, In2);
 			fHs2Proj->Fill(s2, In2);
-			//fHs3Proj->Fill(s3, In2);
 						
 		}
 	}
 	
+	// if Dalitz plot not empty, create all random generated plots from distribution
 	if (fHDalitz->GetSumOfWeights()>0)
 	{
 		double rs1,rs2;
@@ -1103,20 +1089,8 @@ void TDalitzGui::CreateDalitz()
 
 			fHDalitzSct->Fill(rs1, rs2);
 
-			//fHs1M->Fill(sqrt(fHs1Proj->GetRandom()));
-			//fHs2M->Fill(sqrt(fHs2Proj->GetRandom()));
-			//fHs3M->Fill(sqrt(fHs3Proj->GetRandom()));
-			
 		}
 
-		//fHs1Proj->Scale(1./fHs1Proj->GetSumOfWeights());
-		//fHs2Proj->Scale(1./fHs2Proj->GetSumOfWeights());
-		//fHs3Proj->Scale(1./fHs3Proj->GetSumOfWeights());		
-		
-		//fHs1M->Scale(1./fHs1M->GetSumOfWeights());
-		//fHs2M->Scale(1./fHs2M->GetSumOfWeights());
-		//fHs3M->Scale(1./fHs3M->GetSumOfWeights());
-		
 		fHs1Proj->Scale(1./fHs1Proj->GetMaximum());
 		fHs2Proj->Scale(1./fHs2Proj->GetMaximum());
 		fHs3Proj->Scale(1./fHs3Proj->GetMaximum());		
@@ -1125,11 +1099,12 @@ void TDalitzGui::CreateDalitz()
 		fHs2M->Scale(1./fHs2M->GetMaximum());
 		fHs3M->Scale(1./fHs3M->GetMaximum());
 		
-		fHDalitz->Scale(100./fHDalitz->GetMaximum());
-		fHDalitzI->Scale(100./fHDalitzI->GetMaximum());
-		fHDalitzD->Scale(100./fHDalitzD->GetMaximum());
+		fHDalitz->Scale(1./fHDalitz->GetMaximum());
+		fHDalitzI->Scale(1./fHDalitzI->GetMaximum());
+		fHDalitzD->Scale(1./fHDalitzD->GetMaximum());
 	}
 	
+	// some slight smoothing on the 1D plots
 	fHs1Proj->Smooth(1);
 	fHs2Proj->Smooth(1);
 	fHs3Proj->Smooth(1);
@@ -1140,8 +1115,7 @@ void TDalitzGui::CreateDalitz()
 }
 
 //___________________________________________________________________
-// not implemented yet; should return the fraction of a bin corresponding
-// to (s1,s2) covering phase space
+// checks whether bin ix, iy overlaps phasespace 
 int TDalitzGui::IsInPhsp(int ix, int iy)
 {
 	double binwx = fHDalitz->GetXaxis()->GetBinWidth(ix);
@@ -1164,7 +1138,7 @@ int TDalitzGui::IsInPhsp(int ix, int iy)
 
 
 //___________________________________________________________________
-// not implemented yet; should return the fraction of a bin corresponding
+// not comleted yet; should return the fraction of a bin corresponding
 // to (s1,s2) covering phase space
 double TDalitzGui::GetBinFraction(int ix, int iy, double &s1, double &s2)
 {

@@ -1,3 +1,13 @@
+// --------------------------------------------------------------------------
+// DalitzGui - ROOT based tool to plot 3body decay's with resonant behaviour
+// --------------------------------------------------------------------------
+// 
+// Check accompanying README file for infos how to use
+//
+// Original author: Klaus Goetzen - GSI Darmstadt
+// Last modified  : 2014/08/08
+// --------------------------------------------------------------------------
+
 #include "TRandom3.h"
 #include <TQObject.h>
 #include <RQ_OBJECT.h>
