@@ -345,7 +345,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 	int MAXSCITILHITS = In_Put.MAXSCITILHITS;
 	int MAXSCITILHITSINTRACK = In_Put.MAXSCITILHITSINTRACK;
 	int MAXSTTHITS = In_Put.MAXSTTHITS;
-	int MAXSTTHITSINTRACK = In_Put.MAXSTTHITSINTRACK;
+	int MAXSTTHITSINTRACK = In_Put.maxstthitsintrack;
 	int MAXTRACKSPEREVENT = In_Put.MAXTRACKSPEREVENT;
 	int dime = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+
 				MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK;
@@ -386,19 +386,19 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
  Vec<Short_t> ListSciTilHitsinTrack(In_Put.ListSciTilHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSCITILHITSINTRACK,"ListSciTilHitsinTrack") ;
 
 
- Vec<Short_t> ListSttParHitsinTrack(In_Put.ListSttParHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"ListSttParHitsinTrack") ;
+ Vec<Short_t> ListSttParHitsinTrack(In_Put.ListSttParHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"ListSttParHitsinTrack") ;
 
 
- Vec<Short_t> ListSttSkewHitsinTrack(In_Put.ListSttSkewHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"ListSttSkewHitsinTrack") ;
+ Vec<Short_t> ListSttSkewHitsinTrack(In_Put.ListSttSkewHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"ListSttSkewHitsinTrack") ;
 
 
  Vec<Short_t> ListTrackCandHit(In_Put.ListTrackCandHit,
-	In_Put.MAXTRACKSPEREVENT*(In_Put.MAXSTTHITSINTRACK
+	In_Put.MAXTRACKSPEREVENT*(In_Put.maxstthitsintrack
 	+ In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
 	In_Put.MAXSCITILHITSINTRACK), "ListTrackCandHit") ;
 
  Vec<Short_t> ListTrackCandHitType(In_Put.ListTrackCandHitType,
-	In_Put.MAXTRACKSPEREVENT*(In_Put.MAXSTTHITSINTRACK
+	In_Put.MAXTRACKSPEREVENT*(In_Put.maxstthitsintrack
 	+ In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
 	In_Put.MAXSCITILHITSINTRACK), "ListTrackCandHitType") ;
 
@@ -471,10 +471,10 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
  Vec<Double_t> Ox(In_Put.Ox,In_Put.MAXTRACKSPEREVENT,"Ox") ;
  Vec<Double_t> Oy(In_Put.Oy,In_Put.MAXTRACKSPEREVENT,"Oy") ;
 
- Vec<Short_t> ParalCommonList(In_Put.ParalCommonList,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"ParalCommonList") ;
+ Vec<Short_t> ParalCommonList(In_Put.ParalCommonList,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"ParalCommonList") ;
 
 
- Vec<Short_t> ParSpuriList(In_Put.ParSpuriList,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"ParSpuriList") ;
+ Vec<Short_t> ParSpuriList(In_Put.ParSpuriList,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"ParSpuriList") ;
 
 
  Vec<Double_t> posizSciTil(In_Put.posizSciTil,In_Put.MAXSCITILHITS*3,"posizSciTil") ;
@@ -492,7 +492,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 
  Vec<Double_t> SchosenSkew(In_Put.SchosenSkew,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITS,"SchosenSkew") ;
 
- Vec<Short_t> SkewCommonList(In_Put.SkewCommonList,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"SkewCommonList") ;
+ Vec<Short_t> SkewCommonList(In_Put.SkewCommonList,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"SkewCommonList") ;
 
 
 	Double_t VERTICALGAP = In_Put.verticalgap;
@@ -540,7 +540,6 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 		for(j=0;j< nSciTilHitsinTrack.at(i);j++){
 
 		intersect=GeometryCalculator.IntersectionSciTil_Circle(
-			DIMENSIONSCITIL,
 			posizSciTil.at(ListSciTilHitsinTrack.at(i*MAXSCITILHITSINTRACK+j)*3+0),
 			posizSciTil.at(ListSciTilHitsinTrack.at(i*MAXSCITILHITSINTRACK+j)*3+1),
 			Ox.at(i), // center of circle.
@@ -570,21 +569,12 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 
 
 
-// }  // end of  for(  i= 0; i< nTotalCandidates; i++)
-//-----------------
-
-// calcolo di S degli eventuali hits SciTil 'Alone' delle tracce trovate.
-
-// Double_t esseSciTilAlone[MAXTRACKSPEREVENT][MAXSCITILHITS];
-
-// for(  i= 0, k=-1; i< nTotalCandidates; i++){
 	Double_t esseSciTilAlone[ In_Put.nMCSciTilAlone[i] ];
 	if(!keepit.at(i)) continue;
 
 
 	for(j=0;j< In_Put.nMCSciTilAlone[i];j++){
 		intersect=GeometryCalculator.IntersectionSciTil_Circle(
-			DIMENSIONSCITIL,
 			posizSciTil.at(In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+0),
 			posizSciTil.at(In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+1),
 			Ox.at(i), // center of circle.
@@ -620,7 +610,6 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 		} else if( ListTrackCandHitType.at(i*dime+npunti) == 2 ){  // it is a parallel straw hit
 
 
-//inizio cambio_in_perl ;
 			SttInfoXYZParal (
 				&info,
 				ListTrackCandHit.at(i*dime+npunti),
@@ -633,10 +622,10 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 				Posiz1
 				);
 
-//fine cambio_in_perl ;
 
 
 			ultimoangolo[i] = atan2( Posiz1[1]-Oy.at(i),Posiz1[0]-Ox.at(i));
+
 		} else if ( ListTrackCandHitType.at(i*dime+npunti) == 3 ){  // it is a skew straw hit
 
 			ultimoangolo[i] =
@@ -674,7 +663,6 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 	   	MCSkewAloneY.at( MCSkewAloneList.at(i*nSttHit+j) )=puntator->GetY();
 	   }
 
-//  inizio cambio_in_perl ;
 
 		WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 			In_Put,
@@ -705,6 +693,16 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 		k, // questo si usa solo per il nome della Macro.
 		i
 			);
+
+	    WriteMacroSkewAssociatedHitswithMC_Degree(
+		esseSciTil,
+		esseSciTilAlone,
+		In_Put,
+		k, // questo si usa solo per il nome della Macro.
+		i
+			);
+
+
       }  //  end of	if(  nSttSkewHitsinTrack.at(i)+nMvdPixelHitsinTrack.at(i)+
 	//	nMvdStripHitsinTrack.at(i)>0 &&  doMcComparison)
     }            //   end of   for(  i= 0; i< nSttTrackCand; i++)
@@ -1155,7 +1153,7 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneral(
            distance, Rx, Ry, LL,
            Aellipsis1, Bellipsis1,fi1,
            fmin, fmax, offset, step,
-           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+	   zpos, zpos1, zpos2,
            Tiltdirection1[2],
            zl[200],zu[200],
            POINTS1[6];
@@ -1607,7 +1605,7 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneralConformalwithMC(
            distance, Rx, Ry, LL,
            Aellipsis1, Bellipsis1,fi1,
            fmin, fmax, offset, step,
-           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+	   zpos, zpos1, zpos2,
            Tiltdirection1[2],
            zl[200],zu[200],
            POINTS1[6];
@@ -1987,7 +1985,7 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
            distance, Rx, Ry, LL,
            Aellipsis1, Bellipsis1,fi1,
            fmin, fmax, offset, step,
-           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+	   zpos, zpos1, zpos2,
            Tiltdirection1[2],
            zl[200],zu[200],
            POINTS1[6];
@@ -2091,7 +2089,6 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 	PixelU[i] = XMvdPixel->at(i) / gamma;
 	PixelV[i] = YMvdPixel->at(i) / gamma;
 	RadiusP[i] = pseudoRadius/gamma;
-
 	if (PixelU[i]-RadiusP[i] < xmin)   xmin = PixelU[i]-RadiusP[i];
 	if (PixelU[i]+RadiusP[i] > xmax)   xmax = PixelU[i]+RadiusP[i];
 	if (PixelV[i]-RadiusP[i] < ymin)   ymin = PixelV[i]-RadiusP[i];
@@ -2104,7 +2101,7 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 	// here, for the boundary calculation, it is enough to approximate the
 	// rectangular sensor in a circle of radius 0.01 in XY space;
 
-	CC = XMvdStrip->at(i)*XMvdStrip->at(i) + YMvdPixel->at(i)*YMvdStrip->at(i);
+	CC = XMvdStrip->at(i)*XMvdStrip->at(i) + YMvdStrip->at(i)*YMvdStrip->at(i);
 	// assumo un raggio del circolo che ingloba il sensore di 0.01 cm;
 	gamma = CC - pseudoRadius*pseudoRadius;
 	StripU[i] = XMvdStrip->at(i) / gamma;
@@ -2392,7 +2389,6 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 
 //----------start of function PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC
 
-// marker4 per cambioperl
 
 void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 	Double_t *ESSE,   // S of all associated SciTil hits to the present track;
@@ -2407,7 +2403,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
  int MAXMVDPIXELHITSINTRACK = In_Put.MAXMVDPIXELHITSINTRACK;
  int MAXSCITILHITSINTRACK = In_Put.MAXSCITILHITSINTRACK;
  int MAXMVDSTRIPHITSINTRACK = In_Put.MAXMVDSTRIPHITSINTRACK;
- int MAXSTTHITSINTRACK = In_Put.MAXSTTHITSINTRACK;
+ int MAXSTTHITSINTRACK = In_Put.maxstthitsintrack;
 
  Double_t BFIELD = In_Put.bfield;
  Double_t CVEL = In_Put.cvel;
@@ -2482,7 +2478,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
            distance, Rx, Ry, LL,
            Aellipsis1, Bellipsis1,fi1,
            fmin, fmax, offset, step,
-           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+	   zpos, zpos1, zpos2,
 	   dist[2],
            Tiltdirection1[2],
            zl[200],zu[200],
@@ -2503,9 +2499,6 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
       MACRO = fopen(nome2,"w");
       fprintf(MACRO,"{\n");
 
-//KAPPA = 1./166.67 ;  FI0 = 1.5*PI;
-
-      index=0;
 
 //--------------- ricerca del minimo e massimo.
 
@@ -2544,55 +2537,50 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 
 //-------------------------
 
+// Skew hits;
+
+ Double_t
+	auxS[2],		// output;
+	auxSDrift[2],		// output; drift radius projected onto the Helix along the S direction.
+	auxZ[2],		// output, Zcoordinate of the central wire.
+	auxZDrift[2],		// output, drift radius projected onto the Helix along the Z direction.
+	auxZErrorafterTilt[2],	// output, 150 micron projected onto the Helix.
+	res = 0.015;
+ Double_t auxInfo[  In_Put.MAXSTTHITS ][7];
+ for(i=0;i<In_Put.MAXSTTHITS;i++){
+	for(j=0;j<7;j++){
+		auxInfo[i][j] = info[i*7+j];
+	}
+ }
+
+//   skew hits in track;
        for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++) {
-         i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii] ;
+	 i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii];
          if(!In_Put.InclusionListStt[i]) continue;
-         aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
-         vx1 = WDX[i]/aaa;
-         vy1 = WDY[i]/aaa;
-         vz1 = WDZ[i]/aaa;
-         C0x1 = info[i*7+0];
-         C0y1 = info[i*7+1];
-         C0z1 = info[i*7+2];
+	 GeoCalculator.CalculateSandZ2(
+		Oxx,			// input;
+		Oyy,			// input;
+		Rr,			// input;
+		i,	// input, skew straw original hit number;
+		auxInfo,		// input;
+		WDX,			// input;
+		WDY,			// input;
+		WDZ,			// input;
+		auxS,			// output;
+		auxSDrift,		// output; drift radius projected onto the Helix S direction;
+		auxZ,			// output, Zcoordinate of the central wire.
+		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
+		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
+						);
 
-       GeoCalculator.calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i*7+3],
-                              vx1,vy1,vz1,
-                              &STATUS,POINTS1);
-       if(STATUS < 0 ) continue ;
        for( ii=0; ii<2; ii++){
-        j=3*ii;
-        distance = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
-                            );
-        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
+	    if( auxZ[ii] < 999998.){
+        	if(zmin>auxZ[ii]-auxZDrift[ii]) zmin=auxZ[ii]-auxZDrift[ii];
+        	if(zmax<auxZ[ii]+auxZDrift[ii]) zmax=auxZ[ii]+auxZDrift[ii];		
 
-        aaa = sqrt(Rx*Rx+Ry*Ry);
-        SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= Rr;
-        bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
-        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
-
-        LL = fabs(vx1*Rx + vy1*Ry);
-        if( LL < 1.e-10) continue;
-        Aellipsis1 = info[i*7+3]*aaa/LL;
-
-        Bellipsis1 = info[i*7+3]/Rr;
-
-	if( distance >= info[i*7+4] + Aellipsis1) continue;
-
-//--------------------------
-
-        fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
-        if( fi1 < 0.) fi1 += 2.*PI;
-
-        if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
-        if( zmax < POINTS1[j+2] + Aellipsis1 ) zmax = POINTS1[j+2] + Aellipsis1;
-
-        if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
-        if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
+        	if(Smin>auxS[ii]-auxSDrift[ii]) Smin=auxS[ii]-auxSDrift[ii];
+        	if(Smax<auxS[ii]+auxSDrift[ii]) Smax=auxS[ii]+auxSDrift[ii];		
+	    }  // end of   if( auxZ[ii] < 999998.)
 
    }    //  end of    for( ii=0; ii<2; ii++)
 
@@ -2601,67 +2589,36 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 //------ aggiungo in blu eventuali punti della traccia MC che sono non mecciati
 
        for( iii=0; iii< nMCSkewAlone; iii++) {
-         i = MCSkewAloneList[iTrack*In_Put.nSttHit+iii];
-         aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
-         vx1 = WDX[i]/aaa;
-         vy1 = WDY[i]/aaa;
-         vz1 = WDZ[i]/aaa;
-         C0x1 = info[i*7+0];
-         C0y1 = info[i*7+1];
-         C0z1 = info[i*7+2];
-       GeoCalculator.calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i*7+3],
-                              vx1,vy1,vz1,
-                              &STATUS,POINTS1);
 
-       if(STATUS < 0 ) continue ;
+	 GeoCalculator.CalculateSandZ2(
+		Oxx,			// input;
+		Oyy,			// input;
+		Rr,			// input;
+		MCSkewAloneList[iTrack*In_Put.nSttHit+iii],	// input, skew straw original hit number;
+		auxInfo,		// input;
+		WDX,			// input;
+		WDY,			// input;
+		WDZ,			// input;
+		auxS,			// output;
+		auxSDrift,		// output; drift radius projected onto the Helix S direction;
+		auxZ,			// output, Zcoordinate of the central wire.
+		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
+		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
+						);
 
+
+
+	// anche se questo e' un punto MC truth, se ci sono 2 intersezioni possibili per una straw, disegno
+	// entrambe, come per gli hit sperimentali;
        for( ii=0; ii<2; ii++){
-        j=3*ii;
-        dist[ii] = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
-                            );
-	}
-	if(dist[0]>dist[1]) ii=1; else ii=0;
+	    if( auxZ[ii] < 999998.){
+        	if(zmin>auxZ[ii]-auxZDrift[ii]) zmin=auxZ[ii]-auxZDrift[ii];
+        	if(zmax<auxZ[ii]+auxZDrift[ii]) zmax=auxZ[ii]+auxZDrift[ii];		
 
-	  distance = dist[ii];
-
-        j=3*ii;
-        distance = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
-                            );
-
-
-
-        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
-
-        aaa = sqrt(Rx*Rx+Ry*Ry);
-        SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= Rr;
-        bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
-        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
-
-        LL = fabs(vx1*Rx + vy1*Ry);
-        if( LL < 1.e-10) continue;
-        Aellipsis1 = info[i*7+3]*aaa/LL;
-
-        Bellipsis1 = info[i*7+3]/Rr;
-//--------------------------
-        fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
-        if( fi1 < 0.) fi1 += 2.*PI;
-
-        if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
-        if( zmax < POINTS1[j+2] + Aellipsis1 ) zmax = POINTS1[j+2] + Aellipsis1;
-
-        if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
-        if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
-
-
-//   }    //  end of    for( ii=0; ii<2; ii++)
+        	if(Smin>auxS[ii]-auxSDrift[ii]) Smin=auxS[ii]-auxSDrift[ii];
+        	if(Smax<auxS[ii]+auxSDrift[ii]) Smax=auxS[ii]+auxSDrift[ii];		
+	    }  // end of   if( auxZ[ii] < 999998.)
+   }    //  end of    for( ii=0; ii<2; ii++)
 
   }   //   end of  for( iii=0; iii< nMCSkewAlone[imaxima]; iii++)
 
@@ -2766,9 +2723,6 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 
   fprintf(MACRO,"TCanvas* my= new  TCanvas();\nmy->Range(%f,%f,%f,%f);\n",
   	zmin-0.1*deltaz,Rr*(Smin-.1*deltaS),zmax+0.1*deltaz,Rr*(Smax+0.1*deltaS));
-  for( ii=0; ii< index; ii++) {
-       fprintf(MACRO,"E%d->Draw();\n",ii);
-  }
    fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
         zmin-0.01*deltaz,Rr*(Smin+0.05*deltaS),zmax+0.01*deltaz,Rr*(Smin+0.05*deltaS),
 	zmin-0.01*deltaz,zmax+0.01*deltaz);
@@ -2822,95 +2776,52 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 	}
 
 // --------------------------------
-
-
+	// plot degli Skew hits;
 
        for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++) {
          i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii] ;
          if(!In_Put.InclusionListStt[i]) continue;
 
-         aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
-         vx1 = WDX[i]/aaa;
-         vy1 = WDY[i]/aaa;
-         vz1 = WDZ[i]/aaa;
-         C0x1 = info[i*7+0];
-         C0y1 = info[i*7+1];
-         C0z1 = info[i*7+2];
 
-       GeoCalculator.calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i*7+3],
-                              vx1,vy1,vz1,
-                              &STATUS,POINTS1);
-       if(STATUS < 0 ) continue ;
+	 GeoCalculator.CalculateSandZ2(
+		Oxx,			// input;
+		Oyy,			// input;
+		Rr,			// input;
+		i,	// input, skew straw original hit number;
+		auxInfo,		// input;
+		WDX,			// input;
+		WDY,			// input;
+		WDZ,			// input;
+		auxS,			// output;
+		auxSDrift,		// output; drift radius projected onto the Helix S direction;
+		auxZ,			// output, Zcoordinate of the central wire.
+		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
+		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
+						);
+
        for( ii=0; ii<2; ii++){
-        j=3*ii;
-        distance = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
-                            );
-        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
+	    if( auxZ[ii] > 999998.) continue;	// this solution was not physical;
 
-        aaa = sqrt(Rx*Rx+Ry*Ry);
-        SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= Rr;
-        bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
-        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
-        if( bbb > 1.e-10){
-           Tiltdirection1[0] = vz1/bbb;
-           Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
-        } else {
-           Tiltdirection1[0] = 1.;
-           Tiltdirection1[1] = 0.;
-        }
-
-        LL = fabs(vx1*Rx + vy1*Ry);
-        if( LL < 1.e-10) continue;
-        Aellipsis1 = info[i*7+3]*aaa/LL;
-
-        Bellipsis1 = info[i*7+3]/Rr;
-
-        if( distance >= info[i*7+4]  + Aellipsis1) continue;
-
-
-//--------------------------
-
-
-        fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
-        if( fi1 < 0.) fi1 += 2.*PI;
-
-        if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
-        if( zmax < POINTS1[j+2] + Aellipsis1 ) zmax = POINTS1[j+2] + Aellipsis1;
-
-        if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
-        if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
-
-
-        Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
-//        fprintf(MACRO,"TEllipse* Skew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nSkew%d_%d->SetFillStyle(0);\n",
-//                    i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
-
-// ------ se lo hit e' spurio marcalo in rosso
-	bool flaggo=true;
-        for( i1=0; i1<nSkewCommon; i1++){
-          if ( SkewCommonList[iTrack*MAXSTTHITSINTRACK +i1] == i ){
-		flaggo=false;
-		break;
-          }
-        }
-	if(flaggo){
+		// ------ se lo hit e' spurio marcalo in rosso
+		bool flaggo=true;
+        	for( i1=0; i1<nSkewCommon; i1++){
+          		if ( SkewCommonList[iTrack*MAXSTTHITSINTRACK +i1] == i ){
+				flaggo=false;
+				break;
+          		}
+        	}
+		if(flaggo){
  fprintf(MACRO,
  "TEllipse* spurioSkew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nspurioSkew%d_%d->SetFillStyle(0);\n",
-                    i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
+                    i,ii,auxZ[ii],Rr*auxS[ii],auxZDrift[ii],Rr*auxSDrift[ii],0.,i,ii);
 	   fprintf(MACRO,"spurioSkew%d_%d->SetLineColor(2);\n",i,ii);
 	   fprintf(MACRO,"spurioSkew%d_%d->Draw();\n",i,ii);
-	}else {
+		}else {
            fprintf(MACRO,"TEllipse* Skew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nSkew%d_%d->SetFillStyle(0);\n",
-                    i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
+                    i,ii,auxZ[ii],Rr*auxS[ii],auxZDrift[ii],Rr*auxSDrift[ii],0.,i,ii);
 	   fprintf(MACRO,"Skew%d_%d->Draw();\n",i,ii);
-	}
+		}
 
-        index++;
 
    }    //  end of    for( ii=0; ii<2; ii++)
 
@@ -2922,80 +2833,37 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 
        for( iii=0; iii< nMCSkewAlone; iii++) {
          i = MCSkewAloneList[iTrack*In_Put.nSttHit+iii];
-         aaa = sqrt(WDX[i]*WDX[i]+WDY[i]*WDY[i]+ WDZ[i]*WDZ[i]);
-         vx1 = WDX[i]/aaa;
-         vy1 = WDY[i]/aaa;
-         vz1 = WDZ[i]/aaa;
+         if(!In_Put.InclusionListStt[i]) continue;
 
+	 GeoCalculator.CalculateSandZ2(
+		Oxx,			// input;
+		Oyy,			// input;
+		Rr,			// input;
+		i,	// input, skew straw original hit number;
+		auxInfo,		// input;
+		WDX,			// input;
+		WDY,			// input;
+		WDZ,			// input;
+		auxS,			// output;
+		auxSDrift,		// output; drift radius projected onto the Helix S direction;
+		auxZ,			// output, Zcoordinate of the central wire.
+		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
+		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
+						);
 
-         C0x1 = info[i*7+0];
-         C0y1 = info[i*7+1];
-         C0z1 = info[i*7+2];
-       GeoCalculator.calculateintersections(Oxx,Oyy,Rr,C0x1,C0y1,C0z1,info[i*7+3],
-                              vx1,vy1,vz1,
-                              &STATUS,POINTS1);
+	for( ii=0; ii<2; ii++){
+  
+  	    if( auxZ[ii] > 999998.) continue;	// this solution was not physical;
 
-       if(STATUS < 0 ) continue ;
-
-
-       for( ii=0; ii<2; ii++){
-        j=3*ii;
-        dist[ii] = sqrt(
-                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
-                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
-                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
-                            );
-	}
-	if(dist[0]>dist[1]) ii=1; else ii=0;
-
-	  distance = dist[ii];
-
-
-        j=3*ii;
-
-        Rx = POINTS1[j]-Oxx ;   //  x component Radial vector of cylinder of trajectory
-        Ry = POINTS1[1+j]-Oyy ;   //  y direction Radial vector of cylinder of trajectory
-
-        aaa = sqrt(Rx*Rx+Ry*Ry);
-        SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
-        SkewInclWithRespectToS /= Rr;
-        bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
-        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
-        if( bbb > 1.e-10){
-           Tiltdirection1[0] = vz1/bbb;
-           Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
-        } else {
-           Tiltdirection1[0] = 1.;
-           Tiltdirection1[1] = 0.;
-        }
-
-        LL = fabs(vx1*Rx + vy1*Ry);
-        if( LL < 1.e-10) continue;
-        Aellipsis1 = info[i*7+3]*aaa/LL;
-
-        Bellipsis1 = info[i*7+3]/Rr;
-//--------------------------
-        fi1 = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
-        if( fi1 < 0.) fi1 += 2.*PI;
-
-        if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
-        if( zmax < POINTS1[j+2] + Aellipsis1 ) zmax = POINTS1[j+2] + Aellipsis1;
-
-        if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
-        if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
-
-
-        Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
         fprintf(MACRO,"TEllipse* AloneSkew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nAloneSkew%d_%d->SetFillStyle(0);\n",
-//                     i,ii,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,i,ii);
-                     i,ii,POINTS1[j+2],Rr*fi1,Aellipsis1,Rr*Bellipsis1,rotation1,i,ii);
+                    i,ii,auxZ[ii],Rr*auxS[ii],auxZDrift[ii],Rr*auxSDrift[ii],0.,i,ii);
 
 // ------  marca lo hit in blu
         fprintf(MACRO,"AloneSkew%d_%d->SetLineColor(4);\n",i,ii);
         fprintf(MACRO,"AloneSkew%d_%d->Draw();\n",i,ii);
 
-        index++;
 
+	}	// end of for( ii=0; ii<2; ii++)
 
   }   //   end of  for( iii=0; iii< nMCSkewAlone; iii++)
 
@@ -3264,6 +3132,758 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 
 
 
+
+
+//----------start of function PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree
+
+
+void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
+	Double_t *ESSE,   // S of all associated SciTil hits to the present track;
+	Double_t *ESSEalone,   // S of 'Alone'  SciTil hits to the present track;
+	PndTrkPlotMacros2_InputData In_Put,
+	int iNome, // questo e' per il nome delle Macro solamente.
+	int iTrack
+		)
+ {
+
+
+ int MAXMVDPIXELHITSINTRACK = In_Put.MAXMVDPIXELHITSINTRACK;
+ int MAXSCITILHITSINTRACK = In_Put.MAXSCITILHITSINTRACK;
+ int MAXMVDSTRIPHITSINTRACK = In_Put.MAXMVDSTRIPHITSINTRACK;
+ int MAXSTTHITSINTRACK = In_Put.maxstthitsintrack;
+
+ Double_t BFIELD = In_Put.bfield;
+ Double_t CVEL = In_Put.cvel;
+ Short_t charge = In_Put.Charge[iTrack] ;
+ Short_t daTrackFoundaTrackMC = In_Put.daTrackFoundaTrackMC[iTrack] ;
+ Double_t DIMENSIONSCITIL = In_Put.dimensionscitil;
+ Double_t FI0 = In_Put.FI0[iTrack] ;
+ TClonesArray *fMCTrackArray = In_Put.fMCTrackArray;
+
+ Double_t *info = In_Put.info ;
+ int IVOLTE = In_Put.IVOLTE ;
+ Double_t KAPPA = In_Put.KAPPA[iTrack] ;
+
+ Short_t *ListPixelHitsinTrack = In_Put.ListMvdPixelHitsinTrack ;
+ Short_t *ListSciTilHitsinTrack = In_Put.ListSciTilHitsinTrack;
+ Short_t *ListSkewHitsinTrack = In_Put.ListSttSkewHitsinTrack ;
+ Short_t *ListStripHitsinTrack = In_Put.ListMvdStripHitsinTrack ; // output
+ Short_t *MCMvdPixelAloneList = In_Put.MCMvdPixelAloneList ;
+ Short_t *MCMvdStripAloneList = In_Put.MCMvdStripAloneList ;
+ Short_t *MCSkewAloneList = In_Put.MCSkewAloneList ;
+ Short_t *MvdPixelCommonList = In_Put.MvdPixelCommonList;
+ Short_t *MvdPixelSpuriList = In_Put.MvdPixelSpuriList;
+ Short_t *MvdStripCommonList = In_Put.MvdStripCommonList;
+
+ Short_t nMCMvdPixelAlone = In_Put.nMCMvdPixelAlone[iTrack] ;
+ Short_t nMCMvdStripAlone = In_Put.nMCMvdStripAlone[iTrack] ;
+ Short_t nMCSkewAlone = In_Put.nMCSkewAlone[iTrack] ;
+ Short_t nMvdPixelCommon = In_Put.nMvdPixelCommon[iTrack] ;
+ Short_t nMvdPixelSpuriinTrack = In_Put.nMvdPixelSpuriinTrack[iTrack] ;
+ Short_t nMvdStripCommon = In_Put.nMvdStripCommon[iTrack] ;
+ Short_t nMvdStripSpuriinTrack = In_Put.nMvdStripSpuriinTrack[iTrack] ;
+
+ Short_t *nPixelHitsinTrack = In_Put.nMvdPixelHitsinTrack ;
+ Short_t *nSciTilHitsinTrack = In_Put.nSciTilHitsinTrack;
+ Short_t nSkewCommon = In_Put.nSkewCommon[iTrack] ;
+ Short_t *nSkewHitsinTrack = In_Put.nSttSkewHitsinTrack ;
+ Short_t *nStripHitsinTrack = In_Put.nMvdStripHitsinTrack ; // output
+ Double_t Oxx = In_Put.Ox[iTrack] ;
+ Double_t Oyy = In_Put.Oy[iTrack] ;
+
+ Double_t *posizSciTil = In_Put.posizSciTil;
+
+ Double_t Rr = In_Put.R[iTrack] ;
+ Short_t *SkewCommonList = In_Put.SkewCommonList ;
+	Double_t *XMvdPixel = In_Put.XMvdPixel;
+	Double_t *XMvdStrip = In_Put.XMvdStrip;
+	Double_t *YMvdPixel = In_Put.YMvdPixel;
+	Double_t *YMvdStrip = In_Put.YMvdStrip;
+ Double_t *WDX = In_Put.WDX ;
+ Double_t *WDY = In_Put.WDY ;
+ Double_t *WDZ = In_Put.WDZ ;
+	Double_t *ZMvdPixel = In_Put.ZMvdPixel;
+	Double_t *ZMvdStrip = In_Put.ZMvdStrip;
+
+//-----------------------------------------
+
+ TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+
+
+ int icolore;
+
+    Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
+
+    Double_t xmin , xmax, ymin, ymax,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           esse,factor,
+           zmin, zmax, zmin2, zmax2, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+	   zpos, zpos1, zpos2,
+	   dist[2],
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+ const Double_t PI=3.141592654;
+
+ PndTrkCTGeometryCalculations GeoCalculator;
+
+
+
+//-------------------  skew straws hits Macro now
+
+      char  nome2[300],nome[300];
+      FILE *MACRO;
+      sprintf(nome,  "MacroSttMvdSZDegreewithMCEvent%dT%d", IVOLTE,iNome);
+      sprintf(nome2,  "%s.C",nome);
+      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"{\n");
+
+
+//--------------- ricerca del minimo e massimo.
+
+ if( nSciTilHitsinTrack[iTrack]+nSkewHitsinTrack[iTrack]+
+	nPixelHitsinTrack[iTrack]+
+	nStripHitsinTrack[iTrack] == 1) // solo 1 punto da disegnare, in questo caso aggiunge
+ {					// un punto finto in  (0, FI0 ).
+	Smax=Smin= FI0;
+	zmax =zmin =0.;
+ } else {
+      Smin=zmin = 1.e10;
+      Smax=zmax = -zmin;
+ }
+
+
+
+// prima lo (gli) hits SciTil associati alla traccia;
+
+ for(i=0; i<nSciTilHitsinTrack[iTrack];i++){
+		j=ListSciTilHitsinTrack[iTrack*MAXSCITILHITSINTRACK+i];
+		if( ESSE[i]>Smax ) Smax=ESSE[i];
+		if( ESSE[i]<Smin ) Smin=ESSE[i];
+		if( posizSciTil[j*3+2]>zmax ) zmax=posizSciTil[j*3+2];
+		if( posizSciTil[j*3+2]<zmin ) zmin=posizSciTil[j*3+2];
+	}
+
+// poi lo (gli) hits SciTil 'Alone' della traccia;
+
+ for(i=0; i<In_Put.nMCSciTilAlone[iTrack];i++){
+		j=In_Put.MCSciTilAloneList[iTrack*In_Put.nSciTilHits+i];
+		if( ESSEalone[i]>Smax ) Smax=ESSEalone[i];
+		if( ESSEalone[i]<Smin ) Smin=ESSEalone[i];
+		if( posizSciTil[j*3+2]>zmax ) zmax=posizSciTil[j*3+2];
+		if( posizSciTil[j*3+2]<zmin ) zmin=posizSciTil[j*3+2];
+	}
+
+//-------------------------
+
+// Skew hits;
+
+ Double_t
+	auxS[2],		// output;
+	auxSDrift[2],		// output; drift radius projected onto the Helix along the S direction.
+	auxZ[2],		// output, Zcoordinate of the central wire.
+	auxZDrift[2],		// output, drift radius projected onto the Helix along the Z direction.
+	auxZErrorafterTilt[2],	// output, 150 micron projected onto the Helix.
+	res = 0.015;
+ Double_t auxInfo[  In_Put.MAXSTTHITS ][7];
+ for(i=0;i<In_Put.MAXSTTHITS;i++){
+	for(j=0;j<7;j++){
+		auxInfo[i][j] = info[i*7+j];
+	}
+ }
+
+//   skew hits in track;
+       for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++) {
+	 i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii];
+         if(!In_Put.InclusionListStt[i]) continue;
+	 GeoCalculator.CalculateSandZ2(
+		Oxx,			// input;
+		Oyy,			// input;
+		Rr,			// input;
+		i,	// input, skew straw original hit number;
+		auxInfo,		// input;
+		WDX,			// input;
+		WDY,			// input;
+		WDZ,			// input;
+		auxS,			// output;
+		auxSDrift,		// output; drift radius projected onto the Helix S direction;
+		auxZ,			// output, Zcoordinate of the central wire.
+		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
+		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
+						);
+
+       for( ii=0; ii<2; ii++){
+	    if( auxZ[ii] < 999998.){
+        	if(zmin>auxZ[ii]-auxZDrift[ii]) zmin=auxZ[ii]-auxZDrift[ii];
+        	if(zmax<auxZ[ii]+auxZDrift[ii]) zmax=auxZ[ii]+auxZDrift[ii];		
+
+        	if(Smin>auxS[ii]-auxSDrift[ii]) Smin=auxS[ii]-auxSDrift[ii];
+        	if(Smax<auxS[ii]+auxSDrift[ii]) Smax=auxS[ii]+auxSDrift[ii];		
+	    }  // end of   if( auxZ[ii] < 999998.)
+
+   }    //  end of    for( ii=0; ii<2; ii++)
+
+  }   //   end of  for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++)
+
+//------ aggiungo in blu eventuali punti della traccia MC che sono non mecciati
+
+       for( iii=0; iii< nMCSkewAlone; iii++) {
+
+	 GeoCalculator.CalculateSandZ2(
+		Oxx,			// input;
+		Oyy,			// input;
+		Rr,			// input;
+		MCSkewAloneList[iTrack*In_Put.nSttHit+iii],	// input, skew straw original hit number;
+		auxInfo,		// input;
+		WDX,			// input;
+		WDY,			// input;
+		WDZ,			// input;
+		auxS,			// output;
+		auxSDrift,		// output; drift radius projected onto the Helix S direction;
+		auxZ,			// output, Zcoordinate of the central wire.
+		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
+		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
+						);
+
+
+
+	// anche se questo e' un punto MC truth, se ci sono 2 intersezioni possibili per una straw, disegno
+	// entrambe, come per gli hit sperimentali;
+       for( ii=0; ii<2; ii++){
+	    if( auxZ[ii] < 999998.){
+        	if(zmin>auxZ[ii]-auxZDrift[ii]) zmin=auxZ[ii]-auxZDrift[ii];
+        	if(zmax<auxZ[ii]+auxZDrift[ii]) zmax=auxZ[ii]+auxZDrift[ii];		
+
+        	if(Smin>auxS[ii]-auxSDrift[ii]) Smin=auxS[ii]-auxSDrift[ii];
+        	if(Smax<auxS[ii]+auxSDrift[ii]) Smax=auxS[ii]+auxSDrift[ii];		
+	    }  // end of   if( auxZ[ii] < 999998.)
+   }    //  end of    for( ii=0; ii<2; ii++)
+
+  }   //   end of  for( iii=0; iii< nMCSkewAlone[imaxima]; iii++)
+
+//-------------------------------
+//------ fine aggiunta in blu eventuali punti della traccia MC che sono non mecciati
+
+//   ora la parte delle Mvd
+
+//   prima i pixel
+
+  for(i=0; i<nPixelHitsinTrack[iTrack];i++){
+        ii=ListPixelHitsinTrack[iTrack*MAXMVDPIXELHITSINTRACK+i];
+
+	if( zmin > ZMvdPixel[ ii ] )
+	    zmin = ZMvdPixel[ ii ];
+        if( zmax <  ZMvdPixel[ii ] )
+	    zmax = ZMvdPixel[ii ];
+
+	esse = atan2( YMvdPixel[ ii ]-Oyy,
+	              XMvdPixel[ ii ]-Oxx);
+	if(esse<0.) esse +=2.*PI;
+
+
+
+        if( Smin > esse ) Smin = esse;
+        if( Smax < esse ) Smax = esse;
+  }
+
+//   poi le strip
+
+  for(i=0; i<nStripHitsinTrack[iTrack];i++){
+        ii=ListStripHitsinTrack[iTrack*MAXMVDSTRIPHITSINTRACK+i];
+	if( zmin > ZMvdStrip[ ii ] )
+	    zmin = ZMvdStrip[ ii ];
+        if( zmax <  ZMvdStrip[ii ] )
+	    zmax = ZMvdStrip[ii ];
+
+	esse = atan2( YMvdStrip[ ii ]-Oyy,
+	              XMvdStrip[ ii ]-Oxx);
+	if(esse<0.) esse +=2.*PI;
+
+
+
+        if( Smin > esse ) Smin = esse;
+        if( Smax < esse ) Smax = esse;
+  }
+
+
+//   ora i pixel 'Alone'
+  for(i=0; i<nMCMvdPixelAlone;i++){
+
+        ii=MCMvdPixelAloneList[iTrack*In_Put.nMvdPixelHit+i];
+	if( zmin > ZMvdPixel[ ii ] )
+	    zmin = ZMvdPixel[ ii ];
+        if( zmax <  ZMvdPixel[ii ] )
+	    zmax = ZMvdPixel[ii ];
+
+	esse = atan2( YMvdPixel[ ii ]-Oyy,
+	              XMvdPixel[ ii ]-Oxx);
+	if(esse<0.) esse +=2.*PI;
+        if( Smin > esse ) Smin = esse;
+        if( Smax < esse ) Smax = esse;
+  }
+
+
+//   ora le strip 'Alone'
+
+  for(i=0; i<nMCMvdStripAlone;i++){
+        ii=MCMvdStripAloneList[iTrack*In_Put.nMvdStripHit+i];
+	if( zmin > ZMvdStrip[ ii ] )
+	    zmin = ZMvdStrip[ ii ];
+        if( zmax <  ZMvdStrip[ii ] )
+	    zmax = ZMvdStrip[ii ];
+
+	esse = atan2( YMvdStrip[ ii ]-Oyy,
+	              XMvdStrip[ ii ]-Oxx);
+	if(esse<0.) esse +=2.*PI;
+        if( Smin > esse ) Smin = esse;
+        if( Smax < esse ) Smax = esse;
+  }
+
+
+  if( zmax >= zmin  &&  Smax >= Smin ) {
+
+
+
+  aaa = Smax-Smin;
+  Smin -= aaa*0.2;
+  Smax += aaa*0.2;
+
+  aaa = zmax-zmin;
+  zmin -= aaa*0.05;
+  zmax += aaa*0.05;
+
+  if(Smax > 2.*PI) Smax = 2.*PI;
+  if( Smin < 0.) Smin = 0.;
+
+
+   deltaz = zmax-zmin;
+   deltaS = Smax-Smin;
+
+  // al momento del plot, tutte gli angoli sono trasformati da radianti a gradi;
+  double TRA = 180./PI;
+
+  fprintf(MACRO,"TCanvas* my= new  TCanvas();\nmy->Range(%f,%f,%f,%f);\n",
+  	zmin-0.2*deltaz,TRA*(Smin-.1*deltaS),zmax+0.1*deltaz,TRA*(Smax+0.1*deltaS));
+   fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
+        zmin-0.01*deltaz,TRA*(Smin+0.05*deltaS),zmax+0.01*deltaz,TRA*(Smin+0.05*deltaS),
+	zmin-0.01*deltaz,zmax+0.01*deltaz);
+   fprintf(MACRO,"Assex->SetTitle(\"Z (cm)\");\n");
+   fprintf(MACRO,"Assex->Draw();\n");
+   fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
+       zmin+0.05*deltaz,TRA*(Smin-0.01*deltaS),zmin+0.05*deltaz,TRA*(Smax+0.01*deltaS),
+		TRA*(Smin-0.01*deltaS),TRA*(Smax+0.01*deltaS));
+//   fprintf(MACRO,"Assey->SetTitle(\"#phi (radians)\");\n");
+   fprintf(MACRO,"Assey->SetTitle(\"#phi (degrees)\");\n");
+   fprintf(MACRO,"Assey->Draw();\n");
+   fprintf(MACRO,"Assey->SetTitleOffset(1.5);\n");
+
+
+//------------
+//  plot di eventuali hits  SciTil;
+	// prima la lista di SciTil 'common' e spuri :
+	for(i=0;i<nSciTilHitsinTrack[iTrack];i++){
+		j=ListSciTilHitsinTrack[iTrack*MAXSCITILHITSINTRACK+i];
+		// controlla se sono hit 'common' o spuri;
+		icolore=2;  // colore rosso, assegnato agli spuri;
+		for(int h=0;h<In_Put.nSciTilCommon[iTrack];h++){
+			if(j == In_Put.SciTilCommonList[iTrack*MAXSCITILHITSINTRACK+h]){
+				icolore=1; // colore nero, usato per gli hits 'common';
+				break;
+			}
+		}
+
+		disegnaSciTilHit(
+			icolore, // color code; the same as in SetColor of root;
+			DIMENSIONSCITIL,
+			MACRO,
+			posizSciTil[j*3+2],
+			TRA*ESSE[i],
+			j,
+			1  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+				// SciTil draw in UV.
+			);
+	}
+	// poi la lista di SciTil 'alone' :
+	for(i=0;i<In_Put.nMCSciTilAlone[iTrack];i++){
+		j=In_Put.MCSciTilAloneList[iTrack*In_Put.nSciTilHits+i];
+		disegnaSciTilHit(
+			4, // color code; the same as in SetColor of root;
+			DIMENSIONSCITIL,
+			MACRO,
+			posizSciTil[j*3+2],
+			TRA*ESSEalone[i],
+			j,
+			1  // if 0 then SciTil draw in XY; if 1 then SciTil draw in SZ; else
+				// SciTil draw in UV.
+			);
+	}
+
+// --------------------------------
+	// plot degli Skew hits;
+
+       for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++) {
+         i = ListSkewHitsinTrack[iTrack*MAXSTTHITSINTRACK+iii] ;
+         if(!In_Put.InclusionListStt[i]) continue;
+
+
+	 GeoCalculator.CalculateSandZ2(
+		Oxx,			// input;
+		Oyy,			// input;
+		Rr,			// input;
+		i,	// input, skew straw original hit number;
+		auxInfo,		// input;
+		WDX,			// input;
+		WDY,			// input;
+		WDZ,			// input;
+		auxS,			// output;
+		auxSDrift,		// output; drift radius projected onto the Helix S direction;
+		auxZ,			// output, Zcoordinate of the central wire.
+		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
+		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
+						);
+
+       for( ii=0; ii<2; ii++){
+	    if( auxZ[ii] > 999998.) continue;	// this solution was not physical;
+
+		// ------ se lo hit e' spurio marcalo in rosso
+		bool flaggo=true;
+        	for( i1=0; i1<nSkewCommon; i1++){
+          		if ( SkewCommonList[iTrack*MAXSTTHITSINTRACK +i1] == i ){
+				flaggo=false;
+				break;
+          		}
+        	}
+		if(flaggo){
+ fprintf(MACRO,
+ "TEllipse* spurioSkew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nspurioSkew%d_%d->SetFillStyle(0);\n",
+                    i,ii,auxZ[ii],TRA*auxS[ii],auxZDrift[ii],TRA*auxSDrift[ii],0.,i,ii);
+	   fprintf(MACRO,"spurioSkew%d_%d->SetLineColor(2);\n",i,ii);
+	   fprintf(MACRO,"spurioSkew%d_%d->Draw();\n",i,ii);
+		}else {
+           fprintf(MACRO,"TEllipse* Skew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nSkew%d_%d->SetFillStyle(0);\n",
+                    i,ii,auxZ[ii],TRA*auxS[ii],auxZDrift[ii],TRA*auxSDrift[ii],0.,i,ii);
+	   fprintf(MACRO,"Skew%d_%d->Draw();\n",i,ii);
+		}
+
+
+   }    //  end of    for( ii=0; ii<2; ii++)
+
+  }   //   end of  for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++)
+
+
+
+//------ aggiungo in blu eventuali punti della traccia MC che sono non mecciati
+
+       for( iii=0; iii< nMCSkewAlone; iii++) {
+         i = MCSkewAloneList[iTrack*In_Put.nSttHit+iii];
+         if(!In_Put.InclusionListStt[i]) continue;
+
+	 GeoCalculator.CalculateSandZ2(
+		Oxx,			// input;
+		Oyy,			// input;
+		Rr,			// input;
+		i,	// input, skew straw original hit number;
+		auxInfo,		// input;
+		WDX,			// input;
+		WDY,			// input;
+		WDZ,			// input;
+		auxS,			// output;
+		auxSDrift,		// output; drift radius projected onto the Helix S direction;
+		auxZ,			// output, Zcoordinate of the central wire.
+		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
+		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
+						);
+
+	for( ii=0; ii<2; ii++){
+  
+  	    if( auxZ[ii] > 999998.) continue;	// this solution was not physical;
+
+        fprintf(MACRO,"TEllipse* AloneSkew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nAloneSkew%d_%d->SetFillStyle(0);\n",
+                    i,ii,auxZ[ii],TRA*auxS[ii],auxZDrift[ii],TRA*auxSDrift[ii],0.,i,ii);
+
+// ------  marca lo hit in blu
+        fprintf(MACRO,"AloneSkew%d_%d->SetLineColor(4);\n",i,ii);
+        fprintf(MACRO,"AloneSkew%d_%d->Draw();\n",i,ii);
+
+
+	}	// end of for( ii=0; ii<2; ii++)
+
+  }   //   end of  for( iii=0; iii< nMCSkewAlone; iii++)
+
+//-------------------------------
+//------ fine aggiunta in blu eventuali punti della traccia MC che sono non mecciati
+
+//   ora la parte delle Mvd
+
+//   prima i pixel
+
+  for(i=0; i<nPixelHitsinTrack[iTrack];i++){
+        ii=ListPixelHitsinTrack[iTrack*MAXMVDPIXELHITSINTRACK+i];
+	if( zmin > ZMvdPixel[ ii ] )
+	    zmin = ZMvdPixel[ ii ];
+        if( zmax <  ZMvdPixel[ii ] )
+	    zmax = ZMvdPixel[ii ];
+
+	esse = atan2( YMvdPixel[ ii ]-Oyy,
+	              XMvdPixel[ ii ]-Oxx);
+	if(esse<0.) esse +=2.*PI;
+
+
+
+        if( Smin > esse ) Smin = esse;
+        if( Smax < esse ) Smax = esse;
+ 
+
+		bool flaggo=true;
+		for( int k=0; k<nMvdPixelCommon;k++){
+			if( MvdPixelCommonList[iTrack*MAXMVDPIXELHITSINTRACK+k]== ii){
+				fprintf(MACRO,
+		"TMarker* CommonPixel%d = new TMarker(%f,%f,%d);\nCommonPixel%d->SetMarkerColor(1);\n",
+				ii,ZMvdPixel[ii],TRA*esse,26,ii);
+		fprintf(MACRO,"CommonPixel%d->Draw();\n",ii);
+				flaggo=false;
+				break;
+			}
+		}
+		if(flaggo){
+            fprintf(MACRO,"TMarker* SpuriousPixel%d = new TMarker(%f,%f,%d);\nSpuriousPixel%d->SetMarkerColor(2);\n",
+                    ii,ZMvdPixel[ii],TRA*esse,26,ii);
+		fprintf(MACRO,"SpuriousPixel%d->Draw();\n",ii);
+		}
+  }
+//   poi le strip
+
+  for(i=0; i<nStripHitsinTrack[iTrack];i++){
+        ii=ListStripHitsinTrack[iTrack*MAXMVDSTRIPHITSINTRACK+i];
+	if( zmin > ZMvdStrip[ ii ] )
+	    zmin = ZMvdStrip[ ii ];
+        if( zmax <  ZMvdStrip[ii ] )
+	    zmax = ZMvdStrip[ii ];
+
+	esse = atan2( YMvdStrip[ ii ]-Oyy,
+	              XMvdStrip[ ii ]-Oxx);
+	if(esse<0.) esse +=2.*PI;
+
+
+
+        if( Smin > esse ) Smin = esse;
+        if( Smax < esse ) Smax = esse;
+ 
+		bool flaggo=true;
+		for( int k=0; k<nMvdStripCommon;k++){
+			if( MvdStripCommonList[iTrack*MAXMVDSTRIPHITSINTRACK+k]== ii){
+            fprintf(MACRO,"TMarker* CommonStrip%d = new TMarker(%f,%f,%d);\nCommonStrip%d->SetMarkerColor(1);\n",
+                    ii,ZMvdStrip[ii],TRA*esse,25,ii);
+		fprintf(MACRO,"CommonStrip%d->Draw();\n",ii);
+				flaggo=false;
+				break;
+			}
+		}
+		if(flaggo){
+            fprintf(MACRO,"TMarker* SpuriousStrip%d = new TMarker(%f,%f,%d);\nSpuriousStrip%d->SetMarkerColor(2);\n",
+                    ii,ZMvdStrip[ii],TRA*esse,25,ii);
+		fprintf(MACRO,"SpuriousStrip%d->Draw();\n",ii);
+		}
+
+
+  }
+
+
+//   ora i pixel 'Alone'
+  for(i=0; i<nMCMvdPixelAlone;i++){
+
+        ii=MCMvdPixelAloneList[iTrack*In_Put.nMvdPixelHit+i];
+	if( zmin > ZMvdPixel[ ii ] )
+	    zmin = ZMvdPixel[ ii ];
+        if( zmax <  ZMvdPixel[ii ] )
+	    zmax = ZMvdPixel[ii ];
+
+	esse = atan2( YMvdPixel[ ii ]-Oyy,
+	              XMvdPixel[ ii ]-Oxx);
+	if(esse<0.) esse +=2.*PI;
+        if( Smin > esse ) Smin = esse;
+        if( Smax < esse ) Smax = esse;
+           fprintf(MACRO,"TMarker* AlonePixel%d = new TMarker(%f,%f,%d);\nAlonePixel%d->SetMarkerColor(4);\n",
+                    ii,ZMvdPixel[ii],TRA*esse,26,ii);
+		fprintf(MACRO,"AlonePixel%d->Draw();\n",ii);
+  }
+
+
+//   ora le strip 'Alone'
+
+  for(i=0; i<nMCMvdStripAlone;i++){
+        ii=MCMvdStripAloneList[iTrack*In_Put.nMvdStripHit+i];
+	if( zmin > ZMvdStrip[ ii ] )
+	    zmin = ZMvdStrip[ ii ];
+        if( zmax <  ZMvdStrip[ii ] )
+	    zmax = ZMvdStrip[ii ];
+
+	esse = atan2( YMvdStrip[ ii ]-Oyy,
+	              XMvdStrip[ ii ]-Oxx);
+	if(esse<0.) esse +=2.*PI;
+        if( Smin > esse ) Smin = esse;
+        if( Smax < esse ) Smax = esse;
+ 
+            fprintf(MACRO,"TMarker* AloneStrip%d = new TMarker(%f,%f,%d);\nAloneStrip%d->SetMarkerColor(4);\n",
+                    ii,ZMvdStrip[ii],TRA*esse,25,ii);
+		fprintf(MACRO,"AloneStrip%d->Draw();\n",ii);
+
+  }
+
+
+
+
+//  plot della traccia trovata dal finder
+
+
+	zmin2=zmin;
+	zmax2=zmax;
+
+	bool flaggo=true;
+	if( -KAPPA*charge>0.) {	// Pz>0.
+		if( zmax <0.) {
+			cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia"
+			<<" e' inconsistente col proprio Pz, non plottata!\n";
+			flaggo=false;
+		} else {
+			zmin = 0.;
+		}
+	} else {  // Pz<0.
+		if( zmin >0.) {
+			cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia"
+			<<" e' inconsistente col proprio Pz, non plottata!\n";
+			flaggo=false;
+		} else{
+			zmax = 0.;
+		}
+
+	}
+
+ if(flaggo){
+
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
+  }
+  if( fmax>=0.) {
+    Nmax = (int) (0.5*fmax/ PI);
+  }  else  {
+    Nmax = ( (int) (0.5*fmax/ PI) ) -1;
+  }
+  if( fmin>=0.) {
+    Nmin = (int) (0.5*fmin/ PI);
+  } else {
+    Nmin = ((int) (0.5*fmin/ PI) )-1;
+  }
+   if(fabs(KAPPA)<1.e-10) {
+   	cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia Found da PR non plottata"
+	<<" perche' ha fabs(KAPPA)<1.e-10.\n";
+   } else {
+	for(i=Nmin; i<= Nmax;i++){
+		offset = 2.*PI*i;
+		z1 = (i*2.*PI-FI0)/KAPPA;
+		z2 = ((i+1)*2.*PI-FI0)/KAPPA;
+		fprintf(MACRO,
+"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
+			i-Nmin,z1,0.,z2, TRA*2.*PI,i-Nmin,i-Nmin);
+
+	}   //  end of  for(i=Nmin; i<= Nmax;++)
+  } // end of if(fabs(KAPPA)<1.e-10)
+
+ }  // end of if(flaggo)
+
+
+	zmin=zmin2;
+	zmax=zmax2;
+
+
+//----------------- ora la traccia MC corrispondente a questa traccia Stt
+
+// for(imc=0; imc<nMCTracks ; imc++){
+//            if(imc !=    daTrackFoundaTrackMC[ iTrack ]) continue;
+     imc=    daTrackFoundaTrackMC ;
+
+       if( imc>-1 ) {
+	Int_t icode ;
+         Double_t r_r, Dd, Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;
+		PndMCTrack* pMC;
+		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
+	if ( pMC ) {
+         	icode  = pMC->GetPdgCode() ;    //   PDG code of track
+         	o_x = pMC->GetStartVertex().X();    //   X of starting point track
+         	o_y = pMC->GetStartVertex().Y();    //   Y of starting point track
+         	Px = pMC->GetMomentum().X();
+         	Py = pMC->GetMomentum().Y();
+         	aaa = sqrt( Px*Px + Py*Py);
+         	r_r =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+       		if (icode>1000000000) carica = 1.;
+       		else  carica = fParticle->Charge()/3. ;    //   charge of track
+  if (fabs(carica)>=0.1 ){
+           	Cx = o_x + Py*1000./(BFIELD*CVEL*carica);
+           	Cy = o_y - Px*1000./(BFIELD*CVEL*carica);
+		Fifi = atan2(Cy, Cx);       // MC truth Fifi angle of circle of Helix trajectory
+		if(Fifi<0.)  Fifi += 2.*PI;
+		if( fabs( pMC->GetMomentum().Z() )< 1.e-20) Kakka = 99999999.;
+		else  Kakka = -carica*0.001*BFIELD*CVEL/pMC->GetMomentum().Z();
+     KAPPA=Kakka;
+     FI0 = fmod(Fifi+ PI, 2.*PI);
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
+  }
+  if( fmax>=0.) {
+    Nmax = (int) (0.5*fmax/ PI);
+  }  else  {
+    Nmax = ( (int) (0.5*fmax/ PI) ) -1;
+  }
+  if( fmin>=0.) {
+    Nmin = (int) (0.5*fmin/ PI);
+  } else {
+    Nmin = ((int) (0.5*fmin/ PI) )-1;
+  }
+
+  for(i=Nmin; i<= Nmax;i++){
+   offset = 2.*PI*i;
+   z1 = (i*2.*PI-FI0)/KAPPA;
+   z2 = ((i+1)*2.*PI-FI0)/KAPPA;
+   fprintf(MACRO,"TLine* MC%d_%d = new TLine(%f,%f,%f,%f);\nMC%d_%d->SetLineColor(3);\nMC%d_%d->Draw();\n",
+                 imc,i-Nmin,z1,0.,z2, TRA*2.*PI,imc,i-Nmin,imc,i-Nmin);
+  }   //  end of  for(i=Nmin; i<= Nmax;++)
+
+   }  // end of if (fabs(carica)>=0.1 )
+	}  // end of if ( pMC )
+       }  // end of if( imc>-1 )
+
+
+
+  } // end of  if( zmax >= zmin  &&  Smax >= Smin )
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+
+ }
+
+
+
+
+//------------------end of function PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree
+
+
 //--start of function PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC
 
 // marker5 per cambioperl ;
@@ -3300,7 +3920,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
            distance, Rx, Ry, LL,
            Aellipsis1, Bellipsis1,fi1,
            fmin, fmax, offset, step,
-           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+	   zpos, zpos1, zpos2,
            Tiltdirection1[2],
            zl[200],zu[200],
            POINTS1[6];
@@ -3317,7 +3937,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	int MAXSCITILHITS = In_Put.MAXSCITILHITS;
 	int MAXSCITILHITSINTRACK = In_Put.MAXSCITILHITSINTRACK;
 	int MAXSTTHITS = In_Put.MAXSTTHITS;
-	int MAXSTTHITSINTRACK = In_Put.MAXSTTHITSINTRACK;
+	int MAXSTTHITSINTRACK = In_Put.maxstthitsintrack;
 	int MAXTRACKSPEREVENT = In_Put.MAXTRACKSPEREVENT;
 	int dime = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+
 				MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK;
@@ -3357,19 +3977,19 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
  Vec<Short_t> ListSciTilHitsinTrack(In_Put.ListSciTilHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSCITILHITSINTRACK,"ListSciTilHitsinTrack") ;
 
 
- Vec<Short_t> ListSttParHitsinTrack(In_Put.ListSttParHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"ListSttParHitsinTrack") ;
+ Vec<Short_t> ListSttParHitsinTrack(In_Put.ListSttParHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"ListSttParHitsinTrack") ;
 
 
- Vec<Short_t> ListSttSkewHitsinTrack(In_Put.ListSttSkewHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"ListSttSkewHitsinTrack") ;
+ Vec<Short_t> ListSttSkewHitsinTrack(In_Put.ListSttSkewHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"ListSttSkewHitsinTrack") ;
 
 
  Vec<Short_t> ListTrackCandHit(In_Put.ListTrackCandHit,
-	In_Put.MAXTRACKSPEREVENT + In_Put.MAXSTTHITSINTRACK
+	In_Put.MAXTRACKSPEREVENT + In_Put.maxstthitsintrack
 	+ In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
 	In_Put.MAXSCITILHITSINTRACK,"ListTrackCandHit") ;
 
  Vec<Short_t>ListTrackCandHitType(In_Put.ListTrackCandHitType,
-	In_Put.MAXTRACKSPEREVENT + In_Put.MAXSTTHITSINTRACK
+	In_Put.MAXTRACKSPEREVENT + In_Put.maxstthitsintrack
 	+ In_Put.MAXMVDPIXELHITSINTRACK + In_Put.MAXMVDSTRIPHITSINTRACK +
 	In_Put.MAXSCITILHITSINTRACK,"ListTrackCandHitType") ;
 
@@ -3441,10 +4061,10 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
  Vec<Double_t> Ox(In_Put.Ox,In_Put.MAXTRACKSPEREVENT,"Ox") ;
  Vec<Double_t> Oy(In_Put.Oy,In_Put.MAXTRACKSPEREVENT,"Oy") ;
 
- Vec<Short_t> ParalCommonList(In_Put.ParalCommonList,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"ParalCommonList") ;
+ Vec<Short_t> ParalCommonList(In_Put.ParalCommonList,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"ParalCommonList") ;
 
 
- Vec<Short_t> ParSpuriList(In_Put.ParSpuriList,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"ParSpuriList") ;
+ Vec<Short_t> ParSpuriList(In_Put.ParSpuriList,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"ParSpuriList") ;
 
 
   // dimensione originale : [MAXSCITILHITS][3];
@@ -3463,7 +4083,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
  Vec<Double_t> SchosenSkew(In_Put.SchosenSkew,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITS,"SchosenSkew") ;
 
- Vec<Short_t> SkewCommonList(In_Put.SkewCommonList,In_Put.MAXTRACKSPEREVENT*In_Put.MAXSTTHITSINTRACK,"SkewCommonList") ;
+ Vec<Short_t> SkewCommonList(In_Put.SkewCommonList,In_Put.MAXTRACKSPEREVENT*In_Put.maxstthitsintrack,"SkewCommonList") ;
 
 	Double_t VERTICALGAP = In_Put.verticalgap;
  Vec<Double_t> XMvdPixel(In_Put.XMvdPixel,In_Put.MAXMVDPIXELHITS,"XMvdPixel") ;
