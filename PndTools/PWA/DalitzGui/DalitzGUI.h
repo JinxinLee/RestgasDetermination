@@ -18,6 +18,7 @@ class TRootEmbeddedCanvas;
 class TGLayoutHints;
 class TH1D;
 class TGHorizontalFrame;
+class TGVerticalFrame;
 class TGLabel;
 class TGHSlider;
 class TGTextButton;
@@ -32,6 +33,9 @@ class TGWindow;
 class TGMenuBar;
 class TGPopupMenu;
 class TGDockableFrame;
+class TGTransientFrame;
+class TGDoubleHSlider;
+class TGButton;
 
 class TDalitzGui {
 RQ_OBJECT("TDalitzGui")
@@ -54,52 +58,40 @@ private:
     TGPopupMenu         *fMenuFile;
     TGDockableFrame     *fMenuDock;
   
-	TGHorizontalFrame   *fVframe0, *fVframe1, *fVframe2, *fVframe3;
+	TGHorizontalFrame   *fVframe[4];
+	//TGHorizontalFrame   *fVframe0, *fVframe1, *fVframe2, *fVframe3;
 	TGLayoutHints       *fBly,*fBfly1,*fBfly2,*fBfly3, *fMenuBarItemLayout, *fMenuBarLayout;
-	TGLabel             *fLab1, *fLab2, *fLab3, *fLab4, *fLab5, *fLab6, *fLab7;
+	TGLabel				*fLab[7];
+	//TGLabel             *fLab1, *fLab2, *fLab3, *fLab4, *fLab5, *fLab6, *fLab7;
 	TGHSlider     	   	*fHslider1, *fHslider2, *fHslider3;
    	TGTextButton     	*fButResize;
-   	TGCheckButton       *fCheckResize,*fCheckColor;
+   	TGCheckButton       *fCheckResize, *fCheckColor, *fCheckLog;
    	
 	TGTextEntry         *fTeh1;
 	TGTextBuffer        *fTbh1;
 	TGTextEntry         *fTeh2;
 	TGTextBuffer        *fTbh2;
 	
-	TGLabel             *fLabR1N, *fLabR1A, *fLabR1ph, *fLabR2A, *fLabR2ph;
-	TGLabel             *fLabR3N, *fLabR3A, *fLabR3ph, *fLabR4A, *fLabR4ph;
-	TGLabel             *fLabR5N, *fLabR5A, *fLabR5ph, *fLabR6A, *fLabR6ph;
-	TGLabel             *fLabR1J, *fLabR2J, *fLabR3J, *fLabR4J, *fLabR5J, *fLabR6J;
+	TGLabel				*fLabRN[3], *fLabRA[6], *fLabRph[6]; 
 	
-	TGComboBox          *fComRes1, *fComRes2, *fComRes3;
-	TGComboBox          *fComRes4, *fComRes5, *fComRes6;
+	TGComboBox			*fComRes[6];
+	TGCheckButton       *fChRes[6];
 	
-  	TGCheckButton       *fChRes1, *fChRes2, *fChRes3;
-  	TGCheckButton       *fChRes4, *fChRes5, *fChRes6;
-	
-	TGHSlider           *fSlRes1A, *fSlRes1ph, *fSlRes1J;
-	TGHSlider           *fSlRes2A, *fSlRes2ph, *fSlRes2J;
-	TGHSlider           *fSlRes3A, *fSlRes3ph, *fSlRes3J;
-	TGHSlider           *fSlRes4A, *fSlRes4ph, *fSlRes4J;
-	TGHSlider           *fSlRes5A, *fSlRes5ph, *fSlRes5J;
-	TGHSlider           *fSlRes6A, *fSlRes6ph, *fSlRes6J;
-	
+	TGHSlider			*fSlResA[6], *fSlResph[6];
+
 	TGHSlider           *fSlOcc;
 	
-	TGComboBox          *fComFin1, *fComFin2, *fComFin3;
+	TGComboBox			*fComFin[3];
 
 	TGComboBox			*fComPlot;
 
 	TGraph              *fGraphKin;		
 			
-	CRes			   	*fRes1[2];
-	CRes			   	*fRes2[2];
-	CRes			   	*fRes3[2];
+	CRes				*fRes[6];
 	
-	Int_t 				fnR1;
-	Int_t 				fnR2;
-	Int_t 				fnR3;
-	
+	Int_t				fnR[3];
+
+	//
 	Double_t 			fM;
 	Double_t 			fm1;
 	Double_t 			fm2;
@@ -128,16 +120,17 @@ public:
    void DoCheckRes() { DoParmSlider(0); }
    void HandleMenu(Int_t id);
    void Rebin();
+   Int_t IdToSelection(Int_t id, int mode=1);
    
    //other functions
    void CreateGraph(TGraph* g, const Int_t n, const Double_t m, const Double_t m1, const Double_t m2, const Double_t m3);
    void CreateDalitz();
-   double GetBinFraction(int ix, int iy, double &s1, double &s2);
-   int IsInPhsp(int ix, int iy);
    void InitParams();
+   void DrawMainPlot();
    void DrawPlot();
    void ReadOutGui();
    void ComputeCache(Int_t ri=1);
+   void MakeAnimatedGif();
       
    void ConfigPlot();
    void ConfigComboFin(TGComboBox* b);
@@ -154,3 +147,40 @@ public:
    ClassDef(TDalitzGui, 0)
 };
 
+class AniGifDialog {
+
+private:
+	TGTransientFrame     *fMain;
+ 	
+ 	TGHorizontalFrame    *fVframe0, *fVframe1;
+	TGLayoutHints        *fL1, *fL2;
+
+	TGLabel              *fLab[10];
+	
+	TGTextEntry          *fTeh1;
+	TGTextBuffer         *fTbh1;
+	TGTextEntry          *fTeh2;
+	TGTextBuffer         *fTbh2;
+
+	TGComboBox			 *fComPlot, *fComVar;
+
+	TGDoubleHSlider      *fHslider1;
+	
+	TGButton             *fOkButton;
+	TGButton             *fCancelButton;
+
+public:
+	AniGifDialog(const TGWindow *p, const TGWindow *main);
+	virtual ~AniGifDialog();
+
+	// slots
+	void CloseWindow();
+	void DoOK();
+	void DoCombo(Int_t idx);
+	void DoSlider();
+	
+private:
+	double slmin, slmax;
+   	
+   	ClassDef(AniGifDialog, 0)
+};
