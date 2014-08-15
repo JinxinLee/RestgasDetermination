@@ -40,6 +40,8 @@ Plots:
               * Mass m23    : Invariant mass distribution m_23; (random generation from projection s1).	  
               * Mass m31    : Invariant mass distribution m_31; (random generation from projection s2).   		  
               * Mass m12    : Invariant mass distribution m_12; (random generation from projection s3).    		  
+              * Phase s23   : Total/relative phase along coordinate s23 (for broades s31 slice of Dalitz plot). 
+              * Phase s31   : Total/relative phase along coordinate s31 (for broades s23 slice of Dalitz plot). 
     		  
     Right   - The 3 projections of the Dalitz Plot and the incoherent sum of the amplitudes.
 
@@ -48,8 +50,9 @@ Interface:
 
     File->Open/Save as        : Load or save a configuration. Example configurations in folder 'examples'.
     File->Save canvas as      : Save complete canvas as image (.gif, .png, .jpg) / pdf (.pdf) / root file(.root) / root macro (.C) etc.
-    File->Create Animated Gif : Allows to create an animated GIF by looping through one variable (M, A_i, or ph_i).
-                                Configuration: 'Plot' to draw, loop variable 'Var', number of 'steps', 'time' between frames in units of 10ms.
+    File->Create Animated Gif : Allows to create an animated GIF of current plot by looping through one variable (M, A_i, or ph_i).
+                                Configuration: 'Loop over' variable, 'Range' to loop through, number of 'steps', 
+                                'time' between frames in units of 10ms, 'Main plot only' or full canvas.
     File->Exit                : Quit program.
 
     M             : Total energy sqrt(s) = M of the system; can be adjusted with slider or with text input.

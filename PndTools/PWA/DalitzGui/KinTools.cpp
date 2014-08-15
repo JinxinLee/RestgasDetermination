@@ -1,6 +1,14 @@
+// --------------------------------------------------------------------------
+// KinTools.cpp - Helper tools for DalitzGUI
+// --------------------------------------------------------------------------
+// 
+// Original author: Klaus Goetzen - GSI Darmstadt
+// Last modified  : 2014/08/15
+// --------------------------------------------------------------------------
+
+#include <iostream>
 #include "TComplex.h"
 #include "TColor.h"
-#include <iostream>
 #include "TArrayD.h"
 
 using std::cout;
@@ -31,7 +39,6 @@ public:
 	void SetPh(Double_t Ph)   { fPh=Ph; }
 	void SetJ(Int_t J)        { fJ=J; }
   
-//	TComplex GetCoeff() { return TComplex(fAmp*cos(fPh),fAmp*sin(fPh));}
 	TComplex GetCoeff() { return TComplex(fAmp,fPh,true);}
 
 	void	 SetCacheLen(Int_t n);
@@ -120,8 +127,6 @@ void CRes::SetCache(Int_t i, TComplex c)
 	{
 		fCacheRe[i] = c.Re();
 		fCacheIm[i] = c.Im();
-		//fCacheRe.AddAt(c.Re(),i);
-		//fCacheIm.AddAt(c.Im(),i);
 	}
 }
 
@@ -318,7 +323,7 @@ Double_t s1max(Double_t s2, Double_t m0, Double_t m1, Double_t m2, Double_t m3)
 void palette2(Int_t mode = 0)
 {  
 	const int ncol=99;
-	static Int_t col0[99], col1[99], col2[99];
+	static Int_t col0[99], col1[99], col2[99],col3[99];
 	static Bool_t initialized = kFALSE;
 
 	if (!initialized)
@@ -350,16 +355,25 @@ void palette2(Int_t mode = 0)
 			Int_t FI = TColor::CreateGradientColorTable(5,stp3,red3,grn3,blu3,ncol);
 			for (int i=0; i<ncol; i++) col2[i] = FI+i;
 		}
+		{
+			Double_t blu4[6] = {1, 0, 0,   0,    0.06, 0};
+			Double_t red4[6] = {1, 1, 1,   0.5,  0.55, 0};
+			Double_t grn4[6] = {1, 1, 0.5, 0.25, 0.10, 0};
+			Double_t stp4[6] = {0.,0.2,0.4,0.60, 0.75,1.0};
+			
+			Int_t FI = TColor::CreateGradientColorTable(6,stp4,red4,grn4,blu4,ncol);
+			for (int i=0; i<ncol; i++) col3[i] = FI+i;
+		}
 		initialized = kTRUE;
 	}
 
-	if (mode==0) 
-		gStyle->SetPalette(ncol,col0);
-	else if (mode==1)
-		gStyle->SetPalette(ncol,col1);
-	else 
-		gStyle->SetPalette(ncol,col2);
-
+	switch (mode)
+	{
+	case 0: gStyle->SetPalette(ncol,col0); break;
+	case 1: gStyle->SetPalette(ncol,col1); break;
+	case 2: gStyle->SetPalette(ncol,col2); break;
+	case 3: gStyle->SetPalette(56,0); break;
+	}
 }
 
 Double_t Z_Ralt(Double_t s, Double_t smin, Double_t smax, Int_t J, double m_R=0., double m_ab=0., double m_c=0.)
@@ -375,17 +389,6 @@ Double_t Z_Ralt(Double_t s, Double_t smin, Double_t smax, Int_t J, double m_R=0.
 		xi2 = pow((m_R*m_R + m_ab*m_ab - m_c*m_c)/(2*m_ab*m_R),2)-1;
 	}
 	
-	//switch(J)
-	//{
-	//case 1: res = x;
-			//if (m_R>1e-6) relcorr = sqrt(1+xi2);
-			//break;
-	//case 2: res= 1.5*x*x-0.5;
-			//if (m_R>1e-6) relcorr = sqrt(xi2+1.5);
-			//break;
-	//}
-	
-	//return relcorr*fabs(res);  // *** new: return now sqrt(angle) to cope for computation of the intensity = amp*amp
 	
 	switch(J)
 	{
@@ -410,17 +413,7 @@ Double_t Z_R(Double_t s, Double_t sab, Double_t sac, Double_t sbc, int i, Double
 	double mR2 = 2*mR;
 
 	double mA2=fma*fma, mB2=fmb*fmb, mC2=fmc*fmc;
-	
-	//switch (i)
-	//{
-	//case 1: mA2 = fm2*fm2; mB2 = fm3*fm3; mC2 = fm1*fm1;
-		//break;
-	//case 2: mA2 = fm1*fm1; mB2 = fm3*fm3; mC2 = fm2*fm2;
-		//break;
-	//case 3: mA2 = fm1*fm1, mB2 = fm2*fm2, mC2 = fm3*fm3;
-		//break;
-	//}
-	
+		
 	switch(J)
 	{
 	case 1: res = sac - sbc + (s-mC2)*(mA2-mB2)/mR2; //(mAC*mAC-mBC*mBC+((mD*mD-mC*mC)*(mB*mB-mA*mA)/(mdenom*mdenom)))
@@ -489,47 +482,6 @@ TComplex getAmpEvt(CRes *r, double sab, double sac, double sbc, double ma, doubl
 
   TComplex ampl=sqrt(r->GetG0())*r->GetCoeff()*fR*fD/(mR2-mAB2-TComplex(0.0,mR*gammaAB));
 
-  //double gammaAB= gammaR*pow(pAB/pR,power)*(mR/mAB)*fR*fR;
-  //switch (_spin) {
-  //case 0:
-  //  ampl= r->GetCoeff()*fR*fD/(mR2-mAB2-TComplex(0.0,mR*gammaAB));
-  //  break;
-  //case 1:
-  //  ampl=_r->GetCoeff()*(fR*fD*(mAC2-mBC2+((mD2-mC2)*(mB2-mA2)/(mdenom*mdenom)))/
-  //     (mR2-mAB2-TComplex(0.0,mR*gammaAB)));
-  //  break;
-  //case 2:
-  //  ampl=r->GetCoeff()*fR*fD/(mR2-mAB2-TComplex(0.0,mR*gammaAB))*
-  //    (pow((mBC2-mAC2+(mD2-mC2)*(mA2-mB2)/(mdenom*mdenom)),2)-
-  //     (1.0/3.0)*(mAB2-2*mD2-2*mC2+pow((mD2- mC2)/mdenom, 2))*
-  //     (mAB2-2*mA2-2*mB2+pow((mA2-mB2)/mdenom,2))); 
-  //break;
-
-  //}
-
   return ampl;
 
 }
-//Double_t sumAmps(TComplex &A, CRes **r, Double_t s, Double_t ss, Double_t smin, Double_t smax, Double_t m1, Double_t m2, Double_t qR)
-//{
-	//Double_t m=sqrt(s);
-	//Double_t A_in=0.0;
-
-	//Double_t qM = breakup(m,m1,m2);
-	
-	//for (int i=0; i<2; i++)
-	//{
-		//if (r[i]->GetState()==kFALSE) continue;
-
-		//TComplex Atmp = getAmp(r[i], m, m1, m2, qR, qM);
-		//Double_t Z   = Z_R(ss, smin, smax, r[i]->GetJ());
-		
-		//Atmp *= Z;
-		
-		//A    += Atmp;  // coherent
-		//A_in += Atmp.Rho();
-	//}
-	
-	//return A_in;
-//}
-

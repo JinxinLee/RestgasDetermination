@@ -5,7 +5,7 @@
 // Check accompanying README file for infos how to use
 //
 // Original author: Klaus Goetzen - GSI Darmstadt
-// Last modified  : 2014/08/08
+// Last modified  : 2014/08/15
 // --------------------------------------------------------------------------
 
 #include <TApplication.h>
@@ -41,30 +41,30 @@
 #include "DalitzGUI.h"
 #include "KinTools.cpp"
 
-const char *filetypes[] =     { "DalitzGui cfg files",    "*.cfg", "All files",     "*",      0, 0 };
-const char *filetypesgif[] =  { "GIF Images",    "*.gif",     0, 0 };
-const char *filetypesscrn[] = { "All files",     "*",  0, 0 };
+const char *filetypes[] =	 { "DalitzGui cfg files",	"*.cfg", "All files",	 "*",	  0, 0 };
+const char *filetypesgif[] =  { "GIF Images",	"*.gif",	 0, 0 };
+const char *filetypesscrn[] = { "All files",	 "*",  0, 0 };
 
 enum ETestCommandIdentifiers {
-   HCId1,HCId2,  HId1,
-   
-   HSId1,HSId2,HSId3,
-   
-   HComId1,HComId2,HComId3,
-   
-   HComRId1,HComRId2,HComRId3,HComRId4,HComRId5,HComRId6,
-   
-   HSlRAId1,HSlRAId2,HSlRAId3,HSlRAId4,HSlRAId5,HSlRAId6,
-   
-   HSlRpId1,HSlRpId2,HSlRpId3,HSlRpId4,HSlRpId5,HSlRpId6,
-   
-   HSlRjId1,HSlRjId2,HSlRjId3,HSlRjId4,HSlRjId5,HSlRjId6,
-   
-   HChRId1,HChRId2,HChRId3,HChRId4,HChRId5,HChRId6,
-   
-   HChId1, HChId2, HChId3, HSlBins, HComPlot,
-   
-   M_FILE_OPEN, M_FILE_SAVE, M_FILE_SAVE_SCRN, M_FILE_EXIT, M_ANIGIF
+	HCId1,HCId2,  HId1,
+
+	HSId1,HSId2,HSId3,
+
+	HComId1,HComId2,HComId3,
+
+	HComRId1,HComRId2,HComRId3,HComRId4,HComRId5,HComRId6,
+
+	HSlRAId1,HSlRAId2,HSlRAId3,HSlRAId4,HSlRAId5,HSlRAId6,
+
+	HSlRpId1,HSlRpId2,HSlRpId3,HSlRpId4,HSlRpId5,HSlRpId6,
+
+	HSlRjId1,HSlRjId2,HSlRjId3,HSlRjId4,HSlRjId5,HSlRjId6,
+
+	HChRId1,HChRId2,HChRId3,HChRId4,HChRId5,HChRId6,
+
+	HChId1, HChId2, HChId3, HSlBins, HComPlot,
+
+	M_FILE_OPEN, M_FILE_SAVE, M_FILE_SAVE_SCRN, M_FILE_EXIT, M_ANIGIF
 };
 
 const int MAX_FIN = 100; 
@@ -76,43 +76,44 @@ int N_FIN=0, N_RES=0;
 const double plot_margin = 0.05;  // margin of plots as fraction of phsp range
 
 // Parameters for final states and resonances will be read from file 'DalitzGUI.ini'
-Int_t    id_fin[MAX_FIN];
+Int_t	id_fin[MAX_FIN];
 Double_t m_fin[MAX_FIN];
 TString  nam_fin[MAX_FIN], nam_pfin[MAX_FIN];
 
-Int_t	 id_res[MAX_RES], J_res[MAX_RES];
+Int_t	id_res[MAX_RES], J_res[MAX_RES];
 Double_t m_res[MAX_RES], G_res[MAX_RES];
 TString name_res[MAX_RES];
 
 // The available variables for animated GIF creation
 const TString  vars_tex[13] = {"#sqrt{s}", "A_{23,1}","#phi_{23,1}", "A_{23,2}","#phi_{23,2}", "A_{31,1}","#phi_{31,1}", "A_{31,2}","#phi_{31,2}",
 								 "A_{12,1}","#phi_{12,1}", "A_{12,2}","#phi_{12,2}"};
-const TString  vars[13]     = {"M", "A23_1", "ph23_1", "A23_2", "ph23_2", "A31_1", "ph31_1", "A31_2", "ph31_2", "A12_1", "ph12_1", "A12_2", "ph12_2"};
+const TString  vars[13]	 = {"M", "A23_1", "ph23_1", "A23_2", "ph23_2", "A31_1", "ph31_1", "A31_2", "ph31_2", "A12_1", "ph12_1", "A12_2", "ph12_2"};
 
 // some constants
-const Int_t ngbins = 140;		// number of points for phase space surronding graph
-const Int_t lSlider = 140;		// width of amp and phase sliders
-const Int_t lMSlider = 200;		
+const Int_t ngbins = 140;	   // number of points for phase space surronding graph
+const Int_t lSlider = 140;	  // width of amp and phase sliders
+const Int_t lMSlider = 200;	 
 
 // Range of sqrt(s) in GeV
 const Double_t M_min = 0.5;
 const Double_t M_max = 7.5;
 
 // Range for amplitude A and phase Ph
-const Int_t A_min  = 0;		// min slider amplitude value
-const Int_t A_max  = 1500;	// max slider amplitude value
-const Int_t Ph_min = 0;	    // min slider phase value
+const Int_t A_min  = 0;	 // min slider amplitude value
+const Int_t A_max  = 1500;  // max slider amplitude value
+const Int_t Ph_min = 0;	 // min slider phase value
 const Int_t Ph_max = 628;   // max slider phase value
   
-// some globals to exchange values between TDalitzGui and AniGidDialog
-int      gAniGifVar   = 0;
-int      gAniGifPlot  = 0;
+// some globals to exchange values between TDalitzGui and AniGifDialog
+Int_t	gAniGifVar   = 0;
+Int_t	gAniGifPlot  = 0;
 Float_t  gAniGifMin   = 0;
 Float_t  gAniGifMax   = 1;
 Float_t  gAniGifSteps = 20; 
 Float_t  gAniGifTime  = 20;
-bool gAniGifOk = true;
-TString gAniFileName="DalitzGui_ani.gif";
+Int_t	gMainOnly	= 0;
+bool	 gAniGifOk	= true;
+TString  gAniFileName = "DalitzGui_ani.gif";
 
 
 //___________________________________________________________________
@@ -122,40 +123,40 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 {
 	int i,j;
 
-  	fMain = new TGMainFrame(p,w,h); 
-  	fMain->Move(30,20);
-  	fMain->SetWMPosition(30,20); 
+	fMain = new TGMainFrame(p,w,h); 
+	fMain->Move(30,20);
+	fMain->SetWMPosition(30,20); 
 
 	fMain->Connect("CloseWindow()","TApplication",gApplication,"Terminate()");
-    
+	
 	fMain->SetCleanup(kDeepCleanup);
-	InitParams();	
+	InitParams();   
 
 	gStyle->SetFrameBorderMode(0);
 	gStyle->SetFrameFillColor(0);
 
 	// Menu bar
-    fMenuDock = new TGDockableFrame(fMain);
-    fMain->AddFrame(fMenuDock, new TGLayoutHints(kLHintsExpandX, 0, 0, 1, 0));
+	fMenuDock = new TGDockableFrame(fMain);
+	fMain->AddFrame(fMenuDock, new TGLayoutHints(kLHintsExpandX, 0, 0, 1, 0));
 	fMenuFile = new TGPopupMenu(gClient->GetRoot());
 	fMenuFile->AddEntry("&Open ...", M_FILE_OPEN);
 	fMenuFile->AddEntry("&Save as...", M_FILE_SAVE);
 	fMenuFile->AddEntry("Save &canvas as...", M_FILE_SAVE_SCRN);
 	fMenuFile->AddEntry("Create animated &GIF", M_ANIGIF);
 	fMenuFile->AddSeparator();
-    fMenuFile->AddEntry("E&xit", M_FILE_EXIT);
+	fMenuFile->AddEntry("E&xit", M_FILE_EXIT);
 	
 	fMenuFile->Connect("Activated(Int_t)", "TDalitzGui", this, "HandleMenu(Int_t)");
 
 	fMenuBar = new TGMenuBar(fMenuDock, 1, 1, kHorizontalFrame);
-    fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+	fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
 	fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
 	
 	fMenuBarLayout = new TGLayoutHints(kLHintsTop | kLHintsExpandX);
 	fMenuDock->AddFrame(fMenuBar, fMenuBarLayout);
    
 	// Create an embedded canvas and add to the main frame, centered in x and y
-	// and with 30 pixel margins all around
+	// and with 5/1 pixel margins all around
 	fCanvas = new TRootEmbeddedCanvas("Canvas", fMain, 1000, 500);
 	fLcan = new TGLayoutHints(kLHintsCenterX|kLHintsCenterY|kLHintsExpandX|kLHintsExpandY,5,5,1,5);
 
@@ -164,8 +165,8 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	fCanvas->GetCanvas()->SetBorderMode(0);
 	
 	fCanvas->GetCanvas()->Divide(2,1);
- 	fCanvas->GetCanvas()->GetPad(2)->Divide(2,2);
- 	fCanvas->GetCanvas()->GetPad(1)->SetRightMargin(0.105);
+	fCanvas->GetCanvas()->GetPad(2)->Divide(2,2);
+	fCanvas->GetCanvas()->GetPad(1)->SetRightMargin(0.105);
 	
 	gStyle->SetLabelSize(0.03,"Z");
 	//gStyle->SetTitleOffset(0.12,"X");
@@ -182,13 +183,13 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	char tmp[20];
 	sprintf(tmp,"%5.2f",fM);
 	fTbh1->AddText(0, tmp);
-   	fTeh1->Connect("ReturnPressed()", "TDalitzGui", this, "DoText()");
-   	fTeh1->Resize(50);
+	fTeh1->Connect("ReturnPressed()", "TDalitzGui", this, "DoText()");
+	fTeh1->Resize(50);
 	
 	// resize button for kinmatic limits
 	fCheckResize = new TGCheckButton(fVframe[0],"Auto",HChId1);
 	fCheckResize->SetState(kButtonDown);
-    fCheckResize->Connect("Clicked()", "TDalitzGui", this, "DoSlider(Int_t)");
+	fCheckResize->Connect("Clicked()", "TDalitzGui", this, "DoSlider(Int_t)");
 
 	// slider for choosing M
 	fHslider1 = new TGHSlider(fVframe[0],lMSlider);
@@ -203,7 +204,7 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	{
 		fLab[i+1] = new TGLabel(fVframe[0], TString::Format("m%d",i+1));
 		fComFin[i] = new TGComboBox(fVframe[0],HComId1+i);
-		ConfigComboFin(fComFin[i]);		
+		ConfigComboFin(fComFin[i]);	 
 	}
 	
 	// Text input for bins
@@ -212,18 +213,18 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	fTeh2 = new TGTextEntry(fVframe[0], fTbh2 = new TGTextBuffer(10), HSlBins);
 	sprintf(tmp,"%d",ndbins);
 	fTbh2->AddText(0, tmp);
-   	fTeh2->Connect("ReturnPressed()", "TDalitzGui", this, "Rebin()");
+	fTeh2->Connect("ReturnPressed()", "TDalitzGui", this, "Rebin()");
 	fTeh2->Resize(40);
-   	
-   	// check box for color
+	
+	// check box for color
 	fCheckColor = new TGCheckButton(fVframe[0],"Color",HChId1);
 	fCheckColor->SetState(kButtonUp);
-    fCheckColor->Connect("Clicked()", "TDalitzGui", this, "SwitchColor()");
+	fCheckColor->Connect("Clicked()", "TDalitzGui", this, "SwitchColor()");
 
-   	// check box for log scale
+	// check box for log scale
 	fCheckLog = new TGCheckButton(fVframe[0],"Log",HChId3);
 	fCheckLog->SetState(kButtonUp);
-    fCheckLog->Connect("Clicked()", "TDalitzGui", this, "DrawPlot()");
+	fCheckLog->Connect("Clicked()", "TDalitzGui", this, "DrawPlot()");
 
 	// combo box for choice of large plot
 	fLab[5] = new TGLabel(fVframe[0], "Plot");
@@ -239,6 +240,8 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	fComPlot->AddEntry("Mass m23",7);
 	fComPlot->AddEntry("Mass m31",8);
 	fComPlot->AddEntry("Mass m12",9);
+	fComPlot->AddEntry("Phase s23",11);
+	fComPlot->AddEntry("Phase s31",12);
 	fComPlot->Select(0);
 	fComPlot->Connect("Selected(Int_t)","TDalitzGui", this, "DoCombo(Int_t)");
 	fComPlot->Resize(100,20);
@@ -288,35 +291,35 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	
 	//--- layout for the frame: place at bottom, right aligned
 	//fBfly1 = new TGLayoutHints(kLHintsTop | kLHintsCenterX, 5, 5, 5, 5);
-	fBfly1 = new TGLayoutHints(kLHintsTop | kLHintsLeft,    4, 4, 4, 4);
+	fBfly1 = new TGLayoutHints(kLHintsTop | kLHintsLeft,	4, 4, 4, 4);
 	fBfly2 = new TGLayoutHints(kLHintsTop | kLHintsLeft,   3, 3, 4, 4);
 	fBfly3 = new TGLayoutHints(kLHintsTop | kLHintsRight,   5, 5, 5, 5);
 	
-	fVframe[0]->AddFrame(fLab[0], fBfly2);         // Label 'M'
-	fVframe[0]->AddFrame(fTeh1, fBfly2);         // Textinput for M
-	fVframe[0]->AddFrame(fHslider1, fBfly2);     // Slider for M
+	fVframe[0]->AddFrame(fLab[0], fBfly2);		 // Label 'M'
+	fVframe[0]->AddFrame(fTeh1, fBfly2);		 // Textinput for M
+	fVframe[0]->AddFrame(fHslider1, fBfly2);	 // Slider for M
 	
 	fVframe[0]->AddFrame(fCheckResize, fBfly2);  // Checkbox 'Auto'
 	
-	fVframe[0]->AddFrame(fLab[1], fBfly2);         // Label 'm1'
-	fVframe[0]->AddFrame(fComFin[0], fBfly2);      // ComboBox m1
-	fVframe[0]->AddFrame(fLab[2], fBfly2);         // Label 'm2'
-	fVframe[0]->AddFrame(fComFin[1], fBfly2);      // ComboBox m2
-	fVframe[0]->AddFrame(fLab[3], fBfly2);         // Label 'm3'
-	fVframe[0]->AddFrame(fComFin[2], fBfly2);      // ComboBox m3
+	fVframe[0]->AddFrame(fLab[1], fBfly2);		 // Label 'm1'
+	fVframe[0]->AddFrame(fComFin[0], fBfly2);	  // ComboBox m1
+	fVframe[0]->AddFrame(fLab[2], fBfly2);		 // Label 'm2'
+	fVframe[0]->AddFrame(fComFin[1], fBfly2);	  // ComboBox m2
+	fVframe[0]->AddFrame(fLab[3], fBfly2);		 // Label 'm3'
+	fVframe[0]->AddFrame(fComFin[2], fBfly2);	  // ComboBox m3
 	
-	fVframe[0]->AddFrame(fLab[5],fBfly2);          // Label 'Plot'
-	fVframe[0]->AddFrame(fComPlot, fBfly2);      // ComboBox Plot
+	fVframe[0]->AddFrame(fLab[5],fBfly2);		  // Label 'Plot'
+	fVframe[0]->AddFrame(fComPlot, fBfly2);	  // ComboBox Plot
 
-	fVframe[0]->AddFrame(fLab[4], fBfly2);         // Label 'Bins'
-	fVframe[0]->AddFrame(fTeh2, fBfly2);         // Textinput for Bins
+	fVframe[0]->AddFrame(fLab[4], fBfly2);		 // Label 'Bins'
+	fVframe[0]->AddFrame(fTeh2, fBfly2);		 // Textinput for Bins
 	
 	fVframe[0]->AddFrame(fCheckColor, fBfly2);   // Checkbox 'Color'
 
 	fVframe[0]->AddFrame(fCheckLog, fBfly2);   // Checkbox 'Log'
 	
-	fVframe[0]->AddFrame(fLab[6], fBfly2);         // Label 'Occ'
-	fVframe[0]->AddFrame(fSlOcc, fBfly2);        // Slider for Occ
+	fVframe[0]->AddFrame(fLab[6], fBfly2);		 // Label 'Occ'
+	fVframe[0]->AddFrame(fSlOcc, fBfly2);		// Slider for Occ
 	
 	
 	// *** The Resonance Parameters *******************
@@ -363,6 +366,9 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	fHs2M = 0;
 	fHs3M = 0; 
 	
+	fHs1Ph = 0;
+	fHs2Ph = 0;
+
 	fOcc = 200;
 
 	// init gui
@@ -373,7 +379,7 @@ TDalitzGui::TDalitzGui(const TGWindow *p,UInt_t w,UInt_t h)
 	for (i=0;i<3;++i) fComFin[i]->Select(1, false);
 	for (i=0;i<6;++i) fComRes[i]->Select(0,false);
 
-	ReadOutGui();	
+	ReadOutGui();   
 
 	CreateGraph(fGraphKin, ngbins, fM,fm1,fm2,fm3);
 	
@@ -393,62 +399,58 @@ void TDalitzGui::Rebin()
 
 void TDalitzGui::HandleMenu(Int_t id)
 {
-   // Handle menu items.
+	// Handle menu items.
 
-   switch (id) {
+	switch (id) {
 
-      case M_FILE_OPEN:
-         {
-            static TString dir(".");
-            TGFileInfo fi;
-            fi.fFileTypes = filetypes;
-            fi.fIniDir    = StrDup(dir);
-            new TGFileDialog(gClient->GetRoot(), fMain, kFDOpen, &fi);
+	case M_FILE_OPEN:  // open configuration
+		{
+			static TString dir(".");
+			TGFileInfo fi;
+			fi.fFileTypes = filetypes;
+			fi.fIniDir	= StrDup(dir);
+			new TGFileDialog(gClient->GetRoot(), fMain, kFDOpen, &fi);
 			LoadConfiguration(fi.fFilename);
-            dir = fi.fIniDir;
-         }
-         break;
+			dir = fi.fIniDir;
+		}
+		break;
 
-      case M_FILE_SAVE:
-	      {
-            static TString dir(".");
-            TGFileInfo fi;
-            fi.fFileTypes = filetypes;
-            fi.fIniDir    = StrDup(dir);
-            new TGFileDialog(gClient->GetRoot(), fMain, kFDSave, &fi);
+	case M_FILE_SAVE:  // save configuration
+		{
+			static TString dir(".");
+			TGFileInfo fi;
+			fi.fFileTypes = filetypes;
+			fi.fIniDir	= StrDup(dir);
+			new TGFileDialog(gClient->GetRoot(), fMain, kFDSave, &fi);
 			SaveConfiguration(fi.fFilename);
-            dir = fi.fIniDir;
-	      }
-          break;
-          
-      case M_FILE_SAVE_SCRN:
-	      {
-            static TString dir(".");
-            TGFileInfo fi;
-            fi.fFileTypes = filetypesscrn;
-            fi.fIniDir    = StrDup(dir);
-            new TGFileDialog(gClient->GetRoot(), fMain, kFDSave, &fi);
-            //TString fnm(fi.fFilename);
-            //TString ending(fnm(fnm.Length()-3,3));
-			//if (ending!="pdf" && ending!="gif") fnm+=".gif";
-			if (fi.fFilename)
-				fCanvas->GetCanvas()->SaveAs(fi.fFilename);
-            dir = fi.fIniDir;
-	      }
-          break;
-          
-      case M_ANIGIF:
-      	  gAniGifOk=false;
-      	  new AniGifDialog(gClient->GetRoot(), fMain);
-      	  if (gAniGifOk) MakeAnimatedGif();
-          break;
-  
-	  case M_FILE_EXIT:
-		 {
+			dir = fi.fIniDir;
+		}
+		break;
+
+	case M_FILE_SAVE_SCRN:  // save canvas
+		{
+			static TString dir(".");
+			TGFileInfo fi;
+			fi.fFileTypes = filetypesscrn;
+			fi.fIniDir	= StrDup(dir);
+			new TGFileDialog(gClient->GetRoot(), fMain, kFDSave, &fi);
+			if (fi.fFilename) fCanvas->GetCanvas()->SaveAs(fi.fFilename);
+			dir = fi.fIniDir;
+		}
+		break;
+
+	case M_ANIGIF:		// create animated gif
+		gAniGifOk=false;
+		new AniGifDialog(gClient->GetRoot(), fMain);
+		if (gAniGifOk) MakeAnimatedGif();
+		break;
+
+	case M_FILE_EXIT:	 // exit
+		{
 			CloseWindow();   // terminate theApp no need to use SendCloseMessage()
 			break;
-		 }
-   }
+		}
+	}
 }
 //___________________________________________________________________
 
@@ -462,7 +464,7 @@ Int_t TDalitzGui::IdToSelection(Int_t id, int mode ) //  FS: mode=0, RES: mode=1
 	else if (mode==1)
 	{
 		for (int i=0;i<N_RES;++i) if (id_res[i]==id) sel=i;
-	}	
+	}   
 	//cout <<"mode "<<mode<<" id "<<id<<" sel "<<sel<<endl;
 	return sel;
 }
@@ -503,7 +505,7 @@ void TDalitzGui::LoadConfiguration(TString filename)
 	for (i=0;i<6;++i)
 	{
 		file >> dumi;
-		fComRes[i]->Select(dumi);	
+		fComRes[i]->Select(dumi);   
 		file >> dumf;
 		fSlResA[i]->SetPosition(dumf);
 		file >> dumf;
@@ -546,10 +548,12 @@ void TDalitzGui::LoadConfiguration(TString filename)
 	fMain->BlockAllSignals(false);
 	
 	// color
-	if (fComPlot->GetSelected()==3) return;
-	palette2(fCheckColor->GetState());
+	if (fComPlot->GetSelected()==3) 
+		palette2(2);
+	else 
+		palette2(fCheckColor->GetState());
 
-	ReadOutGui();    // read out the interface settings
+	ReadOutGui();	// read out the interface settings
 	DoSlider(0);
 }
 
@@ -561,7 +565,6 @@ void TDalitzGui::SaveConfiguration(TString filename)
 	int i;
 
 	if (filename=="") return;
-	
 	if (!filename.Contains(".")) filename+=".cfg";
 	
 	ofstream file;
@@ -615,7 +618,7 @@ void TDalitzGui::ConfigComboFin(TGComboBox* b)
 		b->AddEntry(nam_fin[i].Data(),id_fin[i]);
 
 	b->Connect("Selected(Int_t)","TDalitzGui", this, "DoCombo(Int_t)");
-    b->Resize(55, 20);
+	b->Resize(55, 20);
 }
 
 //___________________________________________________________________
@@ -625,11 +628,11 @@ void TDalitzGui::ConfigComboRes(TGComboBox* b)
 	for (int i=0;i<N_RES;++i) b->AddEntry(name_res[i],id_res[i]);
 
 	b->Connect("Selected(Int_t)","TDalitzGui", this, "DoCombo(Int_t)");
-    b->Resize(90, 20);
+	b->Resize(90, 20);
 }
 
 //___________________________________________________________________
-// Set slider for amplitude and phase    
+// Set slider for amplitude and phase	
 void TDalitzGui::ConfigSliderRes(TGHSlider *a, TGHSlider *ph)
 {
 	ph->SetRange(Ph_min,Ph_max);
@@ -650,41 +653,49 @@ void TDalitzGui::ConfigSliderRes(TGHSlider *a, TGHSlider *ph)
 //___________________________________________________________________
 // Draw all plots
 void TDalitzGui::DrawPlot()
-{   	
+{	   
 	Bool_t logscale = fCheckLog->GetState();
 	
-   	fCanvas->GetCanvas()->GetPad(2)->cd(1)->SetLogy(logscale);
+	fCanvas->GetCanvas()->GetPad(2)->cd(1)->SetLogy(logscale);
 	fHs1Proj->Draw();
 	
-   	fCanvas->GetCanvas()->GetPad(2)->cd(2)->SetLogy(logscale);
+	fCanvas->GetCanvas()->GetPad(2)->cd(2)->SetLogy(logscale);
 	fHs2Proj->Draw();
 	
-   	fCanvas->GetCanvas()->GetPad(2)->cd(3)->SetLogy(logscale);
+	fCanvas->GetCanvas()->GetPad(2)->cd(3)->SetLogy(logscale);
 	fHs3Proj->Draw();
 
-   	fCanvas->GetCanvas()->GetPad(2)->cd(4)->SetLogz(logscale);
+	fCanvas->GetCanvas()->GetPad(2)->cd(4)->SetLogz(logscale);
 	fHDalitzI->Draw("colz");
 	fGraphKin->Draw("same L");
 
 	DrawMainPlot();
 
 	fCanvas->GetCanvas()->cd(1);	
-   	fCanvas->GetCanvas()->Update();
+	fCanvas->GetCanvas()->Update();
 }
 //___________________________________________________________________
 // Draw all plots
 void TDalitzGui::DrawMainPlot()
-{   	
+{	   
 	Bool_t logscale = fCheckLog->GetState();
 
 	int plotidx = fComPlot->GetSelected();
 	TPad *pad = (TPad*) fCanvas->GetCanvas()->cd(1);
 	pad->SetLogy(0);
 	pad->SetLogz(0);
-   	
-   	if (plotidx<3) pad->SetLogz(logscale);    	
-    if (plotidx>3 && plotidx<10) pad->SetLogy(logscale);    	
-   	    	
+	
+	if (plotidx<3) pad->SetLogz(logscale);	  
+	if (plotidx>3 && plotidx<10) pad->SetLogy(logscale);	
+	
+	if (plotidx>10) pad->SetGridy(1);
+	else pad->SetGridy(0);	
+	
+	fHs1Ph->SetFillColor(4);
+	fHs1Ph->SetFillStyle(3002);			
+	fHs2Ph->SetFillColor(4);
+	fHs2Ph->SetFillStyle(3002);			
+	
 	switch (plotidx)
 	{
 	case 1: fHDalitzI->Draw("colz");
@@ -720,13 +731,19 @@ void TDalitzGui::DrawMainPlot()
 	case 10: fHDalitzSct->Draw("scat");
 			break;
 			
+	case 11: fHs1Ph->Draw("");
+			break;
+			
+	case 12: fHs2Ph->Draw("");
+			break;
+			
 	default: fHDalitz->Draw("colz");
 			 fGraphKin->Draw("same L");
 			 break;
 	}
 
 	fCanvas->GetCanvas()->cd(0);	
-   	fCanvas->GetCanvas()->Update();
+	fCanvas->GetCanvas()->Update();
 
 }
 //___________________________________________________________________
@@ -753,7 +770,7 @@ void TDalitzGui::InitParams()
 	{
 		file.getline(line,499);
 		TString sline(line);
-		if (sline.BeginsWith("#")||sline=="") continue;		
+		if (sline.BeginsWith("#")||sline=="") continue;	 
 		
 		// split the line into tokens
 		TObjArray *tok = sline.Tokenize(" ");
@@ -767,7 +784,7 @@ void TDalitzGui::InitParams()
 			id_fin[N_FIN]   = toks[1].Atoi();
 			nam_fin[N_FIN]  = toks[2]; 
 			nam_pfin[N_FIN] = toks[3]; 
-			m_fin[N_FIN]    = toks[4].Atof();
+			m_fin[N_FIN]	= toks[4].Atof();
 			
 			cout << "[Final State] ID "<<id_fin[N_FIN]<<" : "<<nam_fin[N_FIN]<<" ("<<nam_pfin[N_FIN]<<"), m = "<<m_fin[N_FIN]<<endl;
 			
@@ -785,9 +802,9 @@ void TDalitzGui::InitParams()
 		{
 			id_res[N_RES]   = toks[1].Atoi();
 			name_res[N_RES] = toks[2]; 
-			m_res[N_RES]    = toks[3].Atof(); 
-			G_res[N_RES]    = toks[4].Atof();
-			J_res[N_RES]    = toks[5].Atoi();
+			m_res[N_RES]	= toks[3].Atof(); 
+			G_res[N_RES]	= toks[4].Atof();
+			J_res[N_RES]	= toks[5].Atoi();
 			
 			cout << "[Resonance  ] ID "<<id_res[N_RES]<<" : "<<name_res[N_RES]<<", m0 / G0 / J = "<<m_res[N_RES]<<" / "<<G_res[N_RES]<<" / "<<J_res[N_RES]<<endl;
 
@@ -798,7 +815,7 @@ void TDalitzGui::InitParams()
 			}
 			
 			N_RES++;
-		}	
+		}   
 	}
 	
 	cout <<"Found "<<N_FIN<<" final states and "<<N_RES<<" resonances in total."<<endl;
@@ -869,29 +886,29 @@ void TDalitzGui::ConfigPlot()
 	fHDalitz->GetYaxis()->SetTitleOffset(1.3);
 	fHDalitz->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
 	fHDalitz->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
-    
+	
 	fHDalitzSct->SetStats(0);
 	fHDalitzSct->SetTitle("Dalitzplot: "+fn1+" "+fn2+" "+fn3);
 	fHDalitzSct->GetXaxis()->SetTitleOffset(1.2);
 	fHDalitzSct->GetYaxis()->SetTitleOffset(1.3);
 	fHDalitzSct->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
 	fHDalitzSct->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
-    
-    fHDalitzI->SetStats(0);
+	
+	fHDalitzI->SetStats(0);
 	fHDalitzI->SetTitle("Dalitzplot incoherent: "+fn1+" "+fn2+" "+fn3);
 	fHDalitzI->GetXaxis()->SetTitleOffset(1.2);
 	fHDalitzI->GetYaxis()->SetTitleOffset(1.3);
 	fHDalitzI->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
 	fHDalitzI->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
 
-    fHDalitzD->SetStats(0);
+	fHDalitzD->SetStats(0);
 	fHDalitzD->SetTitle("Difference coherent-incoherent: "+fn1+" "+fn2+" "+fn3);
 	fHDalitzD->GetXaxis()->SetTitleOffset(1.2);
 	fHDalitzD->GetYaxis()->SetTitleOffset(1.3);
 	fHDalitzD->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
 	fHDalitzD->SetYTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
 	
-    fHDalitzPh->SetStats(0);
+	fHDalitzPh->SetStats(0);
 	fHDalitzPh->SetTitle("Dalitzplot phase: "+fn1+" "+fn2+" "+fn3);
 	fHDalitzPh->GetXaxis()->SetTitleOffset(1.2);
 	fHDalitzPh->GetYaxis()->SetTitleOffset(1.3);
@@ -902,31 +919,60 @@ void TDalitzGui::ConfigPlot()
 	fHDalitzI->SetContour(99);
 	fHDalitzD->SetContour(99);
 	fHDalitzPh->SetContour(99);
+
+	fHs1Proj->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
+	fHs1Proj->SetStats(0);
+	
+	fHs2Proj->SetXTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
+	fHs2Proj->SetStats(0);
+
+	fHs3Proj->SetXTitle("m_{12}^{2}("+fn1+fn2+") [GeV^{2}/c^{4}]");
+	fHs3Proj->SetStats(0);
+	
+	fHs1M->SetXTitle("m_{23}("+fn2+fn3+") [GeV/c^{2}]");
+	fHs1M->SetStats(0);
+	
+	fHs2M->SetXTitle("m_{31}("+fn3+fn1+") [GeV/c^{2}]");
+	fHs2M->SetStats(0);
+
+	fHs3M->SetXTitle("m_{12}("+fn1+fn2+") [GeV/c^{2}]");
+	fHs3M->SetStats(0);
+	
+	fHs1Ph->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
+	fHs1Ph->SetStats(0);
+	fHs1Ph->SetFillColor(4);
+	fHs1Ph->SetFillStyle(3002);
+	
+	fHs2Ph->SetXTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
+	fHs2Ph->SetStats(0);
+	fHs2Ph->SetFillColor(4);
+	fHs2Ph->SetFillStyle(3002);
+
 }
 
 //___________________________________________________________________
-// Compute all plots (the main routine)
-void TDalitzGui::CreateDalitz()
+// reset all plots
+void TDalitzGui::ResetPlots()
 {
- 	fHDalitz->Reset();
- 	fHDalitz->SetContour(99);
- 	fHDalitz->SetStats(0);
+	fHDalitz->Reset();
+	fHDalitz->SetContour(99);
+	fHDalitz->SetStats(0);
  
- 	fHDalitzSct->Reset();
+	fHDalitzSct->Reset();
 		
- 	fHDalitzI->Reset();
- 	fHDalitzI->SetContour(99);
- 	fHDalitzI->SetStats(0);
+	fHDalitzI->Reset();
+	fHDalitzI->SetContour(99);
+	fHDalitzI->SetStats(0);
 	
- 	fHDalitzD->Reset();
- 	fHDalitzD->SetContour(99);
- 	fHDalitzD->SetStats(0);
+	fHDalitzD->Reset();
+	fHDalitzD->SetContour(99);
+	fHDalitzD->SetStats(0);
 
- 	fHDalitzPh->Reset();
- 	fHDalitzPh->SetContour(99);
- 	fHDalitzPh->SetStats(0);
- 	fHDalitzPh->SetMaximum(3.1416);
- 	fHDalitzPh->SetMinimum(-3.1416);
+	fHDalitzPh->Reset();
+	fHDalitzPh->SetContour(99);
+	fHDalitzPh->SetStats(0);
+	fHDalitzPh->SetMaximum(3.1416);
+	fHDalitzPh->SetMinimum(-3.1416);
 	
 	fHs1Proj->Reset();
 	fHs2Proj->Reset();
@@ -935,15 +981,40 @@ void TDalitzGui::CreateDalitz()
 	fHs1M->Reset();
 	fHs2M->Reset();
 	fHs3M->Reset();
-	
+
+	fHs1Ph->Reset();
+	fHs1Ph->SetFillColor(4);
+	fHs1Ph->SetFillStyle(3002);
+
+	fHs2Ph->Reset();
+	fHs2Ph->SetFillColor(4);
+	fHs2Ph->SetFillStyle(3002);
+}
+
+//___________________________________________________________________
+// Compute all plots (the main routine)
+void TDalitzGui::CreateDalitz()
+{
+	ResetPlots();
+		
 	Int_t i,j,nx,ny;
 	
 	Double_t s = fM*fM;
 	
 	Int_t nRes = fnR[0] + fnR[1] + fnR[2];
 	
-	if (nRes==2) fHDalitzPh->SetTitle("Relative phase of "+fActiveRes);
-	else fHDalitzPh->SetTitle("Dalitzplot total phase: "+fn1+" "+fn2+" "+fn3);
+	if (nRes==2) 
+	{
+		fHDalitzPh->SetTitle("Relative phase of "+fActiveRes);
+		fHs1Ph->SetTitle("Rel. phase across m^{2}_{23} ("+fn2+fn3+")");
+		fHs2Ph->SetTitle("Rel. phase across m^{2}_{31} ("+fn3+fn1+")");
+	}
+	else 
+	{
+		fHDalitzPh->SetTitle("Dalitzplot total phase: "+fn1+" "+fn2+" "+fn3);
+		fHs1Ph->SetTitle("Phase across m^{2}_{23} ("+fn2+fn3+")");
+		fHs2Ph->SetTitle("Phase across m^{2}_{31} ("+fn3+fn1+")");
+	}
 	
 	Double_t sum_kin = s + fm1*fm1 + fm2*fm2 + fm3*fm3;
 	
@@ -956,7 +1027,11 @@ void TDalitzGui::CreateDalitz()
 	Double_t binwx = fHDalitz->GetXaxis()->GetBinWidth(1); 
 	Double_t binwy = fHDalitz->GetYaxis()->GetBinWidth(1); 
 	Double_t binwz = sqrt(binwx*binwx+binwy*binwy);
-		
+	
+	// variables need to find the widest cross section for the phase plots
+	int besti=1, bestj=1; 
+	double wds1=0, wds2=0;
+	
 	for (i=1;i<nx+1;++i)
 	{
 		double s1 = fHDalitz->GetXaxis()->GetBinCenter(i);
@@ -965,6 +1040,7 @@ void TDalitzGui::CreateDalitz()
 	
 		Double_t cs2min=s2min(s1, fM, fm1, fm2, fm3);
 		Double_t cs2max=s2max(s1, fM, fm1, fm2, fm3);
+		if ((cs2max-cs2min)>wds2) { wds2 = cs2max-cs2min; besti=i;}
 	
 		for (j=1;j<ny+1;++j)
 		{
@@ -974,6 +1050,7 @@ void TDalitzGui::CreateDalitz()
 			
 			Double_t cs1min=s1min(s2, fM, fm1, fm2, fm3);
 			Double_t cs1max=s1max(s2, fM, fm1, fm2, fm3);
+			if ((cs1max-cs1min)>wds1) { wds1 = cs1max-cs1min; bestj=j;}
 												
 			double s3 = sum_kin - s1 - s2;
 
@@ -987,7 +1064,6 @@ void TDalitzGui::CreateDalitz()
 			Double_t qR2 = sqrt(lambda(s,s2,fm2*fm2)/s2)/2.;
 			Double_t qR3 = sqrt(lambda(s,s3,fm3*fm3)/s3)/2.;
 			
-			// alternative summing
 			Double_t qM23 =  breakup(sqrt(s1),fm2,fm3);
 			Double_t qM13 =  breakup(sqrt(s2),fm1,fm3);
 			Double_t qM12 =  breakup(sqrt(s3),fm1,fm2);
@@ -1006,24 +1082,14 @@ void TDalitzGui::CreateDalitz()
 				case 2: p0 = sqrt(s3); p1 = fm1; p2 = fm2; p3 = qR3; p4 = qM12; p5 = s1; p6 = cs3min; p7 = cs3max;
 					break;
 				}
-				//switch (k/2) 
-				//{
-				//case 0: p0 = s1; p1 = s2; p2 = s3; p3 = fm2; p4 = fm3; p5 = fm1; p6 = s2; p7 = cs2min; p8 = cs2max; 
-				//	break;
-				//case 1: p0 = s2; p1 = s1; p2 = s3; p3 = fm1; p4 = fm3; p5 = fm2; p6 = s1; p7 = cs1min; p8 = cs1max; 
-				//	break;
-				//case 2: p0 = s3; p1 = s2; p2 = s3; p3 = fm1; p4 = fm2; p5 = fm1; p6 = s1; p7 = cs3min; p8 = cs3max;
-				//	break;
-				//}
 
 				if (fRes[k]->GetState()) 
-				{	
+				{   
 					if (fRes[k]->IsCacheValid()) 
 						Atmp = fRes[k]->GetCache(cidx);
 					else
 					{
 						Atmp = getAmp(fRes[k], p0, p1, p2, p3, p4) * (Z_Ralt(p5, p6, p7, fRes[k]->GetJ(), fRes[k]->GetM0(), p0, p2) + 1e-10);
-						//Atmp = getAmpEvt(fRes[k], p0, p1, p2, p3, p4, p5) * (Z_Ralt(p6, p7, p8, fRes[k]->GetJ()) + 1e-10);
 						fRes[k]->SetCache(cidx,Atmp);
 					}
 					Atot1 += Atmp;
@@ -1052,6 +1118,11 @@ void TDalitzGui::CreateDalitz()
 						
 		}
 	}
+
+	fHDalitzPh->ProjectionX("fHs1Ph",bestj,bestj,"o");	
+	fHDalitzPh->ProjectionY("fHs2Ph",besti,besti,"o");	
+	fHs1Ph->SetMinimum(-3.25); fHs2Ph->SetMinimum(-3.25); 
+	fHs1Ph->SetMaximum(3.25);  fHs2Ph->SetMaximum(3.25); 
 	
 	for (i=0;i<6;++i) fRes[i]->SetCacheValid(kTRUE);
 
@@ -1086,7 +1157,7 @@ void TDalitzGui::CreateDalitz()
 	}
 	
 	// when not auto resize, these two plots might be empty
-	if (fHs3Proj->GetMaximum()>0) fHs3Proj->Scale(1./fHs3Proj->GetMaximum());		
+	if (fHs3Proj->GetMaximum()>0) fHs3Proj->Scale(1./fHs3Proj->GetMaximum());	   
 	if (fHs3M->GetMaximum()>0) fHs3M->Scale(1./fHs3M->GetMaximum());
 	
 	// some slight smoothing on the 1D plots
@@ -1133,18 +1204,18 @@ void TDalitzGui::DoSlider(Int_t pos)
 	// Invalidate all caches
 	for (int i=0;i<6;++i) fRes[i]->SetCacheValid(kFALSE);
 
-   	char buf[32];
+	char buf[32];
 
 	//fM=(Float_t)pos/100.;
 	fM = (Float_t)fHslider1->GetPosition()/100.;
 	
-   	sprintf(buf, "%.2f",fM );
-   	fTbh1->Clear();
-   	fTbh1->AddText(0, buf);
-   	fTeh1->SetCursorPosition(4);
-   	fTeh1->Deselect();
+	sprintf(buf, "%.2f",fM );
+	fTbh1->Clear();
+	fTbh1->AddText(0, buf);
+	fTeh1->SetCursorPosition(4);
+	fTeh1->Deselect();
    
-   	gClient->NeedRedraw(fTeh1);
+	gClient->NeedRedraw(fTeh1);
 
 	CreateGraph(fGraphKin, ngbins, fM, fm1, fm2, fm3);
 	
@@ -1210,7 +1281,7 @@ void TDalitzGui::DoParmSlider(Int_t pos)
 {
 	TGFrame *frm = (TGFrame *) gTQSender;
 	TGHSlider *sl=0;
-    if (frm->IsA()->InheritsFrom(TGHSlider::Class())) sl = (TGHSlider*) frm;
+	if (frm->IsA()->InheritsFrom(TGHSlider::Class())) sl = (TGHSlider*) frm;
 
 	Int_t id = -1;
 
@@ -1230,9 +1301,9 @@ void TDalitzGui::DoParmSlider(Int_t pos)
 		fRes[residx]->SetCacheValid(kFALSE);
 	}
 
-	ReadOutGui();    // read out the interface settings
+	ReadOutGui();	// read out the interface settings
 	CreateDalitz();  // rebuild plots
-	DrawPlot();      // draw plots 
+	DrawPlot();	  // draw plots 
 }
 //______________________________________________________________________________
 // obsolete routine
@@ -1243,13 +1314,13 @@ void TDalitzGui::ComputeCache(Int_t ri)
 	//switch (ri)
 	//{
 	//case 1: r=fRes1[0];
-	//	break;
+	//  break;
 	//case 2: r=fRes1[1];
-	//	break;
+	//  break;
 	//case 3: r=fRes2[0];
-	//	break;
+	//  break;
 	//case 4: r=fRes2[1];
-	//	break;
+	//  break;
 	//default: r=0;
 	//}
 
@@ -1278,6 +1349,9 @@ void TDalitzGui::DoResize()
 	if (fHs1M)  fHs1M->Reset(); //s1 Mass
 	if (fHs2M)  fHs2M->Reset(); //s2 Mass
 	if (fHs3M)  fHs3M->Reset(); //s3 Mass
+	
+	if (fHs1Ph)  fHs1Ph->Reset(); //s1 phase
+	if (fHs2Ph)  fHs2Ph->Reset(); //s2 phase
 	
 	// set number of bins
 	ndbins = Int_t(atoi(fTbh2->GetString()));
@@ -1321,8 +1395,11 @@ void TDalitzGui::DoResize()
 	if (fHs1M) delete fHs1M; //s1 Mass
 	if (fHs2M) delete fHs2M; //s2 Mass
 	if (fHs3M) delete fHs3M; //s3 Mass
+
+	if (fHs1Ph) delete fHs1Ph; //s1 Projection
+	if (fHs2Ph) delete fHs2Ph; //s2 Projection
 	
-	// Plots have always 0 as lower limit		
+	// Plots have always 0 as lower limit	   
 	//fHDalitz   = new TH2F("fHDalitz","Dalitz Plot", ndbins, 0, s1maxl*1.05, ndbins, 0, s2maxl*1.05);
 	//fHDalitzSct= new TH2F("fHDalitzSct","Dalitz Plot (scat)", ndbins, 0, s1maxl*1.05, ndbins, 0, s2maxl*1.05);
 	//fHDalitzI  = new TH2F("fHDalitzI","Dalitz Plot (incoherent)", ndbins, 0, s1maxl*1.05, ndbins, 0, s2maxl*1.05);
@@ -1334,38 +1411,24 @@ void TDalitzGui::DoResize()
 	//fHs3Proj = new TH1D("fHs3Proj","Projection m^{2}_{12} ("+fn1+fn2+")",ndbins,0,s3maxl*1.05);
 	//fHs1M   = new TH1D("fHs1M","Mass m_{23} ("+fn2+fn3+")",ndbins,0,sqrt(s1maxl)*1.05);
 	//fHs2M   = new TH1D("fHs2M","Mass m_{31} ("+fn3+fn1+")",ndbins,0,sqrt(s2maxl)*1.05);
-	//fHs3M   = new TH1D("fHs3M","Mass m_{12} ("+fn1+fn2+")",ndbins,0,sqrt(s3maxl)*1.05);	
+	//fHs3M   = new TH1D("fHs3M","Mass m_{12} ("+fn1+fn2+")",ndbins,0,sqrt(s3maxl)*1.05);   
 
-	fHDalitz   = new TH2F("fHDalitz","Dalitz Plot",                     ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
-	fHDalitzSct= new TH2F("fHDalitzSct","Dalitz Plot (scat)",           ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
-	fHDalitzI  = new TH2F("fHDalitzI","Dalitz Plot (incoherent)",       ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
+	fHDalitz   = new TH2F("fHDalitz","Dalitz Plot",					 ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
+	fHDalitzSct= new TH2F("fHDalitzSct","Dalitz Plot (scat)",		   ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
+	fHDalitzI  = new TH2F("fHDalitzI","Dalitz Plot (incoherent)",	   ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
 	fHDalitzD  = new TH2F("fHDalitzD","Difference coherent-incoherent", ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
-	fHDalitzPh = new TH2F("fHDalitzPh","Dalitz Plot (total phase)",     ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
+	fHDalitzPh = new TH2F("fHDalitzPh","Dalitz Plot (total phase)",	 ndbins, hs1min, s1maxl + ds1m, ndbins, hs2min, s2maxl + ds2m);
 
 	fHs1Proj = new TH1D("fHs1Proj","Projection m^{2}_{23} ("+fn2+fn3+")", ndbins, hs1min, s1maxl + ds1m);
 	fHs2Proj = new TH1D("fHs2Proj","Projection m^{2}_{31} ("+fn3+fn1+")", ndbins, hs2min, s2maxl + ds2m);
 	fHs3Proj = new TH1D("fHs3Proj","Projection m^{2}_{12} ("+fn1+fn2+")", ndbins, hs3min, s3maxl + ds3m);
-	fHs1M   = new TH1D("fHs1M","Mass m_{23} ("+fn2+fn3+")",               ndbins, sqrt(hs1min), sqrt(s1maxl + ds1m));
-	fHs2M   = new TH1D("fHs2M","Mass m_{31} ("+fn3+fn1+")",               ndbins, sqrt(hs2min), sqrt(s2maxl + ds2m));
-	fHs3M   = new TH1D("fHs3M","Mass m_{12} ("+fn1+fn2+")",               ndbins, sqrt(hs3min), sqrt(s3maxl + ds3m));
 	
-	fHs1Proj->SetXTitle("m_{23}^{2}("+fn2+fn3+") [GeV^{2}/c^{4}]");
-	fHs1Proj->SetStats(0);
+	fHs1M   = new TH1D("fHs1M","Mass m_{23} ("+fn2+fn3+")",			   ndbins, sqrt(hs1min), sqrt(s1maxl + ds1m));
+	fHs2M   = new TH1D("fHs2M","Mass m_{31} ("+fn3+fn1+")",			   ndbins, sqrt(hs2min), sqrt(s2maxl + ds2m));
+	fHs3M   = new TH1D("fHs3M","Mass m_{12} ("+fn1+fn2+")",			   ndbins, sqrt(hs3min), sqrt(s3maxl + ds3m));
 	
-	fHs2Proj->SetXTitle("m_{31}^{2}("+fn3+fn1+") [GeV^{2}/c^{4}]");
-	fHs2Proj->SetStats(0);
-
-	fHs3Proj->SetXTitle("m_{12}^{2}("+fn1+fn2+") [GeV^{2}/c^{4}]");
-	fHs3Proj->SetStats(0);
-	
-	fHs1M->SetXTitle("m_{23}("+fn2+fn3+") [GeV/c^{2}]");
-	fHs1M->SetStats(0);
-	
-	fHs2M->SetXTitle("m_{31}("+fn3+fn1+") [GeV/c^{2}]");
-	fHs2M->SetStats(0);
-
-	fHs3M->SetXTitle("m_{12}("+fn1+fn2+") [GeV/c^{2}]");
-	fHs3M->SetStats(0);
+	fHs1Ph = new TH1D("fHs1Ph","Phase across m^{2}_{23} ("+fn2+fn3+")", ndbins, hs1min, s1maxl + ds1m);
+	fHs2Ph = new TH1D("fHs2Ph","Phase across m^{2}_{31} ("+fn3+fn1+")", ndbins, hs2min, s2maxl + ds2m);
 	
 	ConfigPlot();
 	CreateDalitz();
@@ -1378,9 +1441,9 @@ void TDalitzGui::DoCombo(Int_t id)
 {
 	TGFrame *frm = (TGFrame *) gTQSender;
 	TGComboBox *cb=0;
-    if (frm->IsA()->InheritsFrom(TGComboBox::Class()))
-      cb = (TGComboBox*) frm;
-      
+	if (frm->IsA()->InheritsFrom(TGComboBox::Class()))
+	  cb = (TGComboBox*) frm;
+	  
 	Int_t Wid = cb->WidgetId();
 
 	if (Wid!=HComPlot)  // ComboBox Final State (FS) or Resonance
@@ -1416,8 +1479,10 @@ void TDalitzGui::DoCombo(Int_t id)
 // in case the phase histogram is shown, a special color palette is loaded
 void TDalitzGui::SwitchColor()
 {
-	if (fComPlot->GetSelected()==3) return;
-	palette2(fCheckColor->GetState());
+	if (fComPlot->GetSelected()==3) 
+		palette2(2);
+	else 
+		palette2(fCheckColor->GetState());
 	DrawPlot();
 }
 //______________________________________________________________________________
@@ -1457,7 +1522,7 @@ void DalitzGUI()
 //______________________________________________________________________________
 
 void TDalitzGui::MakeAnimatedGif()
-{	
+{   
 	TString fname=gAniFileName;
 
 	gSystem->Exec("rm "+fname);
@@ -1470,10 +1535,10 @@ void TDalitzGui::MakeAnimatedGif()
 		gAniGifMax*=100.;
 	}
 
-	cout <<"Creating animated GIF for "<<vars[gAniGifVar]<<" ["<<gAniGifMin/100.<<" ... "<<gAniGifMax/100.<<"]";
-	cout <<", "<<gAniGifSteps<<" frames, delta_t = "<<gAniGifTime<<" ms"<<endl;
+	cout <<"Creating animated GIF ("<<gAniFileName.Data()<<") for "<<vars[gAniGifVar]<<" ["<<gAniGifMin/100.<<" ... "<<gAniGifMax/100.<<"]";
+	cout <<", "<<gAniGifSteps<<" frames, delta_t = "<<gAniGifTime*10<<" ms"<<endl;
 	
-	double step = (gAniGifMax - gAniGifMin)/gAniGifSteps;
+	double step = (gAniGifMax - gAniGifMin)/(gAniGifSteps-1);
 	
 	TGHSlider *sl=0;
 	
@@ -1481,10 +1546,10 @@ void TDalitzGui::MakeAnimatedGif()
 	else if (gAniGifVar%2) sl = fSlResA[(gAniGifVar-1)/2];
 	else sl = fSlResph[gAniGifVar/2 - 1];
 	
-	int bufPlot       = fComPlot->GetSelected();
+	int bufPlot	   = fComPlot->GetSelected();
 	Double_t bufSlider = sl->GetPosition();
 	
-	fComPlot->Select(gAniGifPlot);
+	//fComPlot->Select(gAniGifPlot);
 	
 	Float_t var = gAniGifMin;
 	TLatex tex;
@@ -1492,6 +1557,7 @@ void TDalitzGui::MakeAnimatedGif()
 	tex.SetTextSize(0.04);
 	
 	TPad *pad = (TPad*)fCanvas->GetCanvas()->cd(1);
+	pad->SetRightMargin(0.12);
 	
 	cout <<"Progress: "<<flush;
 		
@@ -1499,7 +1565,11 @@ void TDalitzGui::MakeAnimatedGif()
 	while (var<gAniGifMax+0.5*step)
 	{
 		//cout <<var/100. <<" "<<flush;
-		cout <<"#"<<flush;
+		if ((++cnt)%10) 
+			cout <<"."<<flush;
+		else 
+			cout<<cnt<<flush;
+		
 		sl->SetPosition(var);
 		
 		if (gAniGifVar==0) DoSlider(0);
@@ -1514,14 +1584,19 @@ void TDalitzGui::MakeAnimatedGif()
 		tex.DrawLatex(0.72*(xmax-xmin)+xmin,0.93*(ymax-ymin)+ymin,txtvar);
 		
 		fCanvas->GetCanvas()->Update();
-		fCanvas->GetCanvas()->SaveAs(fname);
+		if (gMainOnly)
+	   		fCanvas->GetCanvas()->GetPad(1)->SaveAs(fname);
+		else
+	   		fCanvas->GetCanvas()->SaveAs(fname);
 		
 		var+=step;
 	}
 	
-	cout <<" ... done"<<endl;
+	pad->SetRightMargin(0.105);
 	
-	fComPlot->Select(bufPlot);
+	cout <<"  done"<<endl;
+	
+	//fComPlot->Select(bufPlot);
 	sl->SetPosition(bufSlider);
 	
 	DoSlider(0);
@@ -1551,24 +1626,26 @@ AniGifDialog::AniGifDialog(const TGWindow *p, const TGWindow *main)
 	fVframe1 = new TGHorizontalFrame(fMain, 0, 0, 0);
 	
 	// combo box for choice of large plot
-	fLab[0] = new TGLabel(fVframe0, "Plot");
-	fComPlot = new TGComboBox(fVframe0,0);
-	fComPlot->AddEntry("Dalitz",0);
-	fComPlot->AddEntry("Dalitz (scat)",10);
-	fComPlot->AddEntry("Dalitz In",1);
-	fComPlot->AddEntry("Dalitz Diff",2);
-	fComPlot->AddEntry("Dalitz Ph",3);
-	fComPlot->AddEntry("Proj s23",4);
-	fComPlot->AddEntry("Proj s31",5);
-	fComPlot->AddEntry("Proj s12",6);
-	fComPlot->AddEntry("Mass m23",7);
-	fComPlot->AddEntry("Mass m31",8);
-	fComPlot->AddEntry("Mass m12",9);
-	fComPlot->Select(0);
-	fComPlot->Resize(100,20);
+	//fLab[0] = new TGLabel(fVframe0, "Plot");
+	//fComPlot = new TGComboBox(fVframe0,0);
+	//fComPlot->AddEntry("Dalitz",0);
+	//fComPlot->AddEntry("Dalitz (scat)",10);
+	//fComPlot->AddEntry("Dalitz In",1);
+	//fComPlot->AddEntry("Dalitz Diff",2);
+	//fComPlot->AddEntry("Dalitz Ph",3);
+	//fComPlot->AddEntry("Proj s23",4);
+	//fComPlot->AddEntry("Proj s31",5);
+	//fComPlot->AddEntry("Proj s12",6);
+	//fComPlot->AddEntry("Mass m23",7);
+	//fComPlot->AddEntry("Mass m31",8);
+	//fComPlot->AddEntry("Mass m12",9);
+	//fComPlot->AddEntry("Phase m23",11);
+	//fComPlot->AddEntry("Phase m31",12);
+	//fComPlot->Select(0);
+	//fComPlot->Resize(100,20);
 	
 	// combo box variable
-	fLab[1] = new TGLabel(fVframe0, "Var");
+	fLab[1] = new TGLabel(fVframe0, "Loop over");
 	fComVar = new TGComboBox(fVframe0,1);
 	for (int i=0;i<13;++i)
 		fComVar->AddEntry(vars[i],i);
@@ -1578,35 +1655,38 @@ AniGifDialog::AniGifDialog(const TGWindow *p, const TGWindow *main)
 	
 	
 	// Text input for steps
-	fLab[5] = new TGLabel(fVframe0, "Steps");
-	fTeh1 = new TGTextEntry(fVframe0, fTbh1 = new TGTextBuffer(8), 2);
+	fLab[5] = new TGLabel(fVframe1, "Steps");
+	fTeh1 = new TGTextEntry(fVframe1, fTbh1 = new TGTextBuffer(8), 2);
 	char tmp[20];
 	sprintf(tmp,"20");
 	fTbh1->AddText(0, tmp);
-  	fTeh1->Resize(50);
+	fTeh1->Resize(50);
 	
 	// Text input for time
-	fLab[6] = new TGLabel(fVframe0, "Time");
-	fTeh2 = new TGTextEntry(fVframe0, fTbh2 = new TGTextBuffer(8), 2);
+	fLab[6] = new TGLabel(fVframe1, "Time");
+	fTeh2 = new TGTextEntry(fVframe1, fTbh2 = new TGTextBuffer(8), 2);
 	sprintf(tmp,"20");
 	fTbh2->AddText(0, tmp);
-  	fTeh2->Resize(50);
+	fTeh2->Resize(50);
 	
 	// Label for range
-	fLab[2] = new TGLabel(fVframe1, "Range");
+	fLab[2] = new TGLabel(fVframe0, "Range");
 	
-	fLab[3] = new TGLabel(fVframe1, "1000");
+	fLab[3] = new TGLabel(fVframe0, "1000");
 	fLab[3]->Resize(60,20);
-	fLab[4] = new TGLabel(fVframe1, "1350");
+	fLab[4] = new TGLabel(fVframe0, "1350");
 	fLab[4]->Resize(60,20);
 	
 	// slider for choosing M
-	fHslider1 = new TGDoubleHSlider(fVframe1, 200);
+	fHslider1 = new TGDoubleHSlider(fVframe0, 200);
 	fHslider1->SetRange(0,1);
 	fHslider1->SetPosition(0.0, 1.0);
 	fHslider1->Connect("PositionChanged()","AniGifDialog",this,"DoSlider()");
 	fHslider1->Resize(200,20);
 	fHslider1->SetScale(20);
+	
+	fChMainOnly = new TGCheckButton(fVframe1,"Main plot only");
+	fChMainOnly->SetState(kButtonDown);
 	
 	fOkButton = new TGTextButton(fVframe1, " Save as ", 1);
 	fOkButton->Connect("Clicked()", "AniGifDialog", this, "DoOK()");
@@ -1615,32 +1695,34 @@ AniGifDialog::AniGifDialog(const TGWindow *p, const TGWindow *main)
 	
 	
 	//--- layout for the frame: place at bottom, right aligned
-	fL1 = new TGLayoutHints(kLHintsTop | kLHintsLeft,    4, 4, 4, 4);
-	fL2 = new TGLayoutHints(kLHintsTop | kLHintsLeft,    2, 2, 2, 2);
+	fL1 = new TGLayoutHints(kLHintsTop | kLHintsLeft,	4, 4, 4, 4);
+	fL2 = new TGLayoutHints(kLHintsTop | kLHintsLeft,	2, 2, 2, 2);
 	
-	fVframe0->AddFrame(fLab[0], fL1);
-	fVframe0->AddFrame(fComPlot, fL1);
+	//fVframe0->AddFrame(fLab[0], fL1);
+	//fVframe0->AddFrame(fComPlot, fL1);
 	
 	fVframe0->AddFrame(fLab[1], fL1);
 	fVframe0->AddFrame(fComVar, fL1);
 	
-	fVframe0->AddFrame(fLab[5], fL1);
-	fVframe0->AddFrame(fTeh1, fL1);
+	fVframe1->AddFrame(fLab[5], fL1);
+	fVframe1->AddFrame(fTeh1, fL1);
 	
-	fVframe0->AddFrame(fLab[6], fL1);
-	fVframe0->AddFrame(fTeh2, fL1);
+	fVframe1->AddFrame(fLab[6], fL1);
+	fVframe1->AddFrame(fTeh2, fL1);
 	
 	
-	fVframe1->AddFrame(fLab[2], fL1); 
-	fVframe1->AddFrame(fLab[3], fL1); 
-	fVframe1->AddFrame(fHslider1, fL1);
-	fVframe1->AddFrame(fLab[4], fL1);
+	fVframe0->AddFrame(fLab[2], fL1); 
+	fVframe0->AddFrame(fLab[3], fL1); 
+	fVframe0->AddFrame(fHslider1, fL1);
+	fVframe0->AddFrame(fLab[4], fL1);
 	 
+	fVframe1->AddFrame(fChMainOnly, fL1);
+	
 	fVframe1->AddFrame(fOkButton, fL1);
 	fVframe1->AddFrame(fCancelButton, fL1);
 
-	fMain->AddFrame(fVframe0, fL2);	
-	fMain->AddFrame(fVframe1, fL2);	
+	fMain->AddFrame(fVframe0, fL2); 
+	fMain->AddFrame(fVframe1, fL2); 
 	
 	// set dialog box title
 	fMain->SetWindowName("Create Animated GIF");
@@ -1680,7 +1762,7 @@ AniGifDialog::~AniGifDialog()
 
 void AniGifDialog::CloseWindow()
 {
- 	delete this;
+	delete this;
 }
 
 void AniGifDialog::DoCombo(Int_t idx)
@@ -1724,17 +1806,17 @@ void AniGifDialog::DoSlider()
 
 void AniGifDialog::DoOK()
 {
-   	// Handle ok button.
+	// Handle ok button.
 	static TString dir(".");
 	TGFileInfo fi;
 	fi.fFileTypes = filetypesgif;
-	fi.fIniDir    = StrDup(dir);
+	fi.fIniDir	= StrDup(dir);
 	new TGFileDialog(gClient->GetRoot(), fMain, kFDSave, &fi);
 
 	if (fi.fFilename)
-	{		
+	{	   
 		gAniFileName=fi.fFilename;
-        TString ending(gAniFileName(gAniFileName.Length()-3,3));
+		TString ending(gAniFileName(gAniFileName.Length()-3,3));
 		if (ending!="gif") gAniFileName+=".gif";
 
 		dir = fi.fIniDir;
@@ -1748,11 +1830,12 @@ void AniGifDialog::DoOK()
 		gAniGifOk = true;
 
 		gAniGifVar   = fComVar->GetSelected();
-		gAniGifPlot  = fComPlot->GetSelected();
+		//gAniGifPlot  = fComPlot->GetSelected();
 		gAniGifMin   = cmin;
 		gAniGifMax   = cmax;
 		gAniGifSteps = atof(fTeh1->GetText()); 
 		gAniGifTime  = atof(fTeh2->GetText());
+		gMainOnly	= fChMainOnly->GetState();
 		
 		if (gAniGifSteps<2) gAniGifSteps=2;
 		if (gAniGifSteps>1000) gAniGifSteps=1000;
