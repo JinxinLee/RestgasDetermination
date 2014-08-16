@@ -45,7 +45,7 @@ struct PndTrkPlotMacros2_InputData{
 	int MAXSCITILHITSINTRACK;
 	int MAXSCITILHITS;
 	int MAXSTTHITS;
-	int MAXSTTHITSINTRACK;
+	int maxstthitsintrack;
 	int MAXTRACKSPEREVENT;
 	Short_t *MCMvdPixelAloneList;
 	Short_t *MCMvdStripAloneList;
@@ -367,6 +367,15 @@ void DrawHexagonCircleInMacro(
 	);
 
  void WriteMacroSkewAssociatedHitswithMC(
+	Double_t *ESSE,
+	Double_t *ESSEalone,
+	PndTrkPlotMacros2_InputData In_Put,
+	int iNome, // questo e' per il nome delle Macro solamente.
+	int iTrack
+	);
+
+
+ void WriteMacroSkewAssociatedHitswithMC_Degree(
 	Double_t *ESSE,
 	Double_t *ESSEalone,
 	PndTrkPlotMacros2_InputData In_Put,
