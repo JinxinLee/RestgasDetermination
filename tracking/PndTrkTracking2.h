@@ -2,6 +2,7 @@
 #define PndTrkTracking2_H 1
 #include <vector>
 
+
 // #include "FairRootManager.h"
 #include "FairTask.h"
 #include "PndGeoSttPar.h"
@@ -157,6 +158,21 @@ class PndTrkTracking2 : public FairTask
 
 
   Short_t
+	fnAxialOuterRight,  //  number of axial Stt, outer, on the right (looking into the beam);
+	fnAxialInnerRight,  //  number of axial Stt, inner, on the right (looking into the beam);
+	fnAxialOuterLeft,  //  number of axial Stt, outer, on the left (looking into the beam);
+	fnAxialInnerLeft,  //  number of axial Stt, inner, on the left (looking into the beam);
+
+	fListAxialOuterRight[NUMBER_STRAWS],  //  list of axial Stt, outer, on the right (looking into the beam);
+	fListAxialInnerRight[NUMBER_STRAWS],  //  list of axial Stt, inner, on the lright (looking into the beam);
+	fListAxialOuterLeft[NUMBER_STRAWS],  //  list of axial Stt, outer, on the left (looking into the beam);
+	fListAxialInnerLeft[NUMBER_STRAWS],  //  list of axial Stt, inner, on the left (looking into the beam);
+
+	fnSkewRight,  //  number of skew Stt, on the right (looking into the beam);
+	fnSkewLeft,  //  number of skew Stt, on the right (looking into the beam);
+	fListSkewRight[NUMBER_STRAWS],  //  list of axial Stt, inner, on the lright (looking into the beam);
+	fListSkewLeft[NUMBER_STRAWS],  //  list of axial Stt, outer, on the left (looking into the beam);
+
 	fListHitMvdTrackCand[MAXMVDTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
 	fListHitTypeMvdTrackCand[MAXMVDTRACKSPEREVENT][MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
 	fListMvdDSPixelHitNotTrackCand[MAXMVDPIXELHITS],
@@ -235,7 +251,7 @@ class PndTrkTracking2 : public FairTask
 	frefindexMvdStrip[MAXMVDSTRIPHITS],
 	fradiaConf[NRDIVCONFORMAL],
 	fR_MC[MAXMCTRACKS],
-	SEMILENGTH_STRAIGHT,
+//	SEMILENGTH_STRAIGHT,
 	fsigmaXMvdPixel[MAXMVDPIXELHITS],
 	fsigmaYMvdPixel[MAXMVDPIXELHITS],
 	fsigmaZMvdPixel[MAXMVDPIXELHITS],
@@ -244,11 +260,15 @@ class PndTrkTracking2 : public FairTask
 	fsigmaZMvdStrip[MAXMVDSTRIPHITS],
 	fSinus[LEGIANDRE_NTHETADIV],
 	fS_SciTilHitsinTrack[MAXTRACKSPEREVENT][MAXSCITILHITS],
+	fxTube[NUMBER_STRAWS],
+	fxxyyTube[NUMBER_STRAWS],
+	fyTube[NUMBER_STRAWS],
+	fzTube[NUMBER_STRAWS],
 	fXMvdPixel[MAXMVDPIXELHITS],
 	fXMvdStrip[MAXMVDSTRIPHITS],
 	fYMvdPixel[MAXMVDPIXELHITS],
 	fYMvdStrip[MAXMVDSTRIPHITS],
-	ZCENTER_STRAIGHT,
+//	ZCENTER_STRAIGHT,
 	fZMvdPixel[MAXMVDPIXELHITS],
 	fZMvdStrip[MAXMVDSTRIPHITS];
 
@@ -329,14 +349,14 @@ class PndTrkTracking2 : public FairTask
 	Double_t *S,       //  input,  S coordinate of selected Skew hit
 	Double_t *Z,       //  input,  Z coordinate of selected Skew hit
 	Double_t *ZDrift,  //  input,  drift distance IN Z DIRECTION only, of selected Skew hit
-	Double_t *ZErrorafterTilt,   //  input,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
+	Double_t *ZError,   //  input,  error (in SZ space) IN Z DIRECTION only, of selected Skew hit
 	Double_t KAPPA,    // input, KAPPA result of fit
 	Double_t FI0,    // input, FI0 result of fit
 	Short_t *tempore,  //  output result, associated skew hits
 	Double_t *temporeS,  //  output, associated skew hit  S
 	Double_t *temporeZ,  //  output, associated skew hits Z
 	Double_t *temporeZDrift,  //  output, associated skew hit Z drift
-	Double_t *temporeZErrorafterTilt,  //  output, associated skew hits Z error after tilt
+	Double_t *temporeZError,  //  output, associated skew hits Z error;
 	Short_t  *STATUS   // output
 	);
 
@@ -371,10 +391,32 @@ class PndTrkTracking2 : public FairTask
 	Double_t *Z,       //  output,  Z coordinate of selected Skew hit
 	Double_t *ZDrift,   //  output,  drift distance IN Z DIRECTION only,
 			   // of selected Skew hit
-	Double_t *ZErrorafterTilt   //  output,  Radius taking into account
-				// the tilt, IN Z DIRECTION only, of selected Skew hit.
+	Double_t *ZError   //  output,  error (in SZ space) IN Z DIRECTION only, of selected Skew hit.
 	);
 
+
+
+  Short_t AssociateSkewHitsToXYTrack2(
+	bool *InclusionListSkew,
+	Short_t NSkewhits,
+	Short_t *infoskew,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Double_t info[][7],
+	Double_t *WDX,
+	Double_t *WDY,
+	Double_t *WDZ,
+	Double_t Fi_low_limit,
+	Double_t Fi_up_limit,
+	Short_t  Charge,
+	Short_t SkewList[][2], // output,list of selected skew hits (skew numbering)
+	Double_t *S,       //  output,  S coordinate of selected Skew hit
+	Double_t *Z,       //  output,  Z coordinate of selected Skew hit
+	Double_t *ZDrift,   //  output,  drift distance IN Z DIRECTION only,
+			   // of selected Skew hit
+	Double_t *ZError   //  output,  error (in SZ space) IN Z DIRECTION only, of selected Skew hit.
+	);
 
 
   bool BadTrack_ParStt(
@@ -413,14 +455,17 @@ class PndTrkTracking2 : public FairTask
 	Short_t fListSttParHitsinTrack[][MAXSTTHITSINTRACK] // input/output
 	);
 
-  void EliminateSpuriousSZ(
+ 
+  void EliminateSpuriousSZ_bis(
 	Short_t MaxTurnofTracks,
+	Double_t signPz,
 	Short_t *nMvdPixelHitsAssociatedToSttTrack,
 	Short_t *ListMvdPixelHitsAssociatedToSttTrack,
 	Short_t *nMvdStripHitsAssociatedToSttTrack,
 	Short_t *ListMvdStripHitsAssociatedToSttTrack,
 	Short_t *fnSttSkewHitsinTrack,
 	Short_t *fListSttSkewHitsinTrack,
+	Short_t *fListSttSkewHitsinTrackSolution,
 	Double_t *S,
 	Double_t *ZED,
 	Double_t *DriftRadius,
@@ -439,8 +484,7 @@ class PndTrkTracking2 : public FairTask
 	Double_t Rr
 	);
 
-
-  void ExtractInfoFromMvdTrackCand();
+ void ExtractInfoFromMvdTrackCand();
 
 
 
@@ -513,15 +557,13 @@ class PndTrkTracking2 : public FairTask
 	);
 
 
-
   void LoadSZetc_forSZfit(
 	Short_t ncand,	// input
 	Short_t nhitsinfit,
 	Double_t * TemporaryS,		// input
 	Double_t * TemporaryZ,		// input
 	Double_t * TemporaryZDrift,	// input
-	Double_t * TemporaryZErrorafterTilt,	// input
-	bool YesGLPKfitSZ,		// input
+	Double_t * TemporaryZError,	// input
 
 	Vec <Double_t>& ErrorDriftRadius,	 // output
 	Double_t * ErrorDriftRadiusbis,	 // output
@@ -533,6 +575,25 @@ class PndTrkTracking2 : public FairTask
 	Double_t * ZEDbis		 // output
 	);
 
+
+
+  void LoadSZetc_forSZfit2(
+	Short_t ncand,	// input
+	Short_t nhitsinfit,
+	Double_t * S_Skew,		// input
+	Double_t * TemporaryZ,		// input
+	Double_t * TemporaryZDrift,	// input
+	Double_t * TemporaryZError,	// input
+
+	Vec <Double_t>& ErrorDriftRadius,	 // output
+	Double_t * ErrorDriftRadiusbis,	 // output
+	Vec <Double_t>& DriftRadius,		 // output
+	Double_t * DriftRadiusbis,	 // output
+	Vec <Double_t> & S,			 // output
+	Double_t * Sbis,		 // output
+	Vec <Double_t>& ZED,			 // output
+	Double_t * ZEDbis		 // output
+	);
 
   void MakeInclusionListStt(
 	Int_t nSttHit,
