@@ -58,6 +58,10 @@
 	Double_t* Oxx;
 	Double_t* Oyy;
 	Double_t* Rr;
+	Double_t* xTube;
+	Double_t* yTube;
+	Double_t* zTube;
+	Double_t* xxyyTube;
 
 
 //---
@@ -177,11 +181,23 @@ void AddMvdHitsToSttTracks(
 
 
   bool FindTrackInXYProjection(
-	struct FindTrackInXYProjection2_InputOutputData* InOut
+	struct FindTrackInXYProjection2_InputOutputData* InOut,
+	int istampa,
+	int IVOLTE
 	);
 
 
   void  OrderingUsingConformal(
+	Short_t  Charge,  // input;
+	Double_t info[][7],	// input;
+	Int_t nHits,  // input;
+	Double_t oX,  // input;
+	Double_t oY,  // input;
+	Short_t * ListHits	// input and output (ordered);
+	);
+
+
+  void  OrderingUsingFi(
 	Short_t  Charge,  // input;
 	Double_t info[][7],	// input;
 	Int_t nHits,  // input;
