@@ -1,14 +1,16 @@
 #include "PndTrkCleanup.h"
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkVectors.h"
+#include "PndTrkConstants.h"
+
+
 #include <iostream>
-#include <cmath>
+#include <math.h>
 
 
 // Root includes
 #include "TROOT.h"
 
-#define MAX_NOT_CONNECTED  1
 
 using namespace std;
 
@@ -20,7 +22,7 @@ bool PndTrkCleanup::BadTrack_ParStt(
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
-	Double_t STRAWRADIUS,
+	Double_t strawradius,
 	Short_t Charge,
 	Double_t Xcross[2],  // Xcross[0]=point of entrance;
 				//  Xcross[1]=point of exit.
@@ -45,7 +47,6 @@ bool PndTrkCleanup::BadTrack_ParStt(
 			Yprevious,
 			S,
 			Distance[nHits+1];
-	const Double_t PI = 3.141592654;
 
 	// class with all the geometry calculations :
 	PndTrkCTGeometryCalculations GeometryCalculator;
@@ -110,10 +111,10 @@ if(istampa>1) {cout<<"in BadTrack_ParStt :hit || n. "<<ListHits[ihit]<<", X "<<i
 	// cut on the minimum (conservative) n. hits that must have fired
 
 	int nume;
-	nume = 0.5*length/STRAWRADIUS -islack;
+	nume = 0.5*length/strawradius -islack;
 	if( ninside < nume ){
 		if(istampa>1){
-			int icz = 0.5*length/STRAWRADIUS;
+			int icz = 0.5*length/strawradius;
 			cout<<"in BadTrack_ParStt, n. Hits inside = "<<ninside
 			<<" is < n. hits that should be inside at least = "
 			<<icz<<"-islack ("<<islack<<"), track rejected!\n";
@@ -165,8 +166,216 @@ if(istampa>1)cout<<"in BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< m
 //----------end of function PndTrkCleanup::BadTrack_ParStt
 
 
+//----------begin of function PndTrkCleanup::GoodTrack
+
+bool PndTrkCleanup::GoodTrack(
+		Double_t info[][7],		// input
+		bool farthest_hit_is_boundary,	// input
+		Double_t Ox,			// input; center of the current track;
+		Double_t Oy,			// input; center of the current track;
+		Double_t R,			// input; Radius of the current track;
+		Short_t Charge,			// input; Charge of the current track;
+		Short_t nHits,			// input
+		Short_t* ListHits,		// input
+		Short_t *StrawCode, // first straw boundary code (a straw can belong to 2 boundaries);
+		Short_t *StrawCode2,
+		Short_t *TubeID,		// input
+		Short_t *nParContiguous,	// input
+		Short_t ListParContiguous[][6],	// input
+		Double_t *xTube,		// input
+		Double_t *yTube,		// input
+		Double_t *zTube,		// input
+		Double_t *xxyyTube,		// input
+
+		Short_t & holes			// input and output
+			)
+{
+
+   // Convention for the Sector number used in GoodTrack :
+   // Sector = 1 --> Axial Outer Right
+   // Sector = 2 --> Axial Inner Right
+   // Sector = 3 --> Axial Inner Left
+   // Sector = 4 --> Axial Outer Left
 
 
+   // holes == # of "holes" in the track;
+   // no_holes == flag requiring total continuity of track (no holes) ;
+   //farthest_hit_is_boundary --> if this flag is true the hit of the track furthest from the origin is
+			// at the boundary of the sector;
+
+   // nHits == # hits in this track under scrutiny;	
+   // info == some information on the hits;
+   // ListHits == list hits in this track under scrutiny;	
+   // TubeID == hit number;	
+
+
+   bool		boundary,
+   		yes;
+
+   Short_t
+		i,
+		index,
+		index_last,
+		inner,
+		j,
+		nIntersections,
+		outer,
+		tube_current,
+		tube_next;
+
+
+   Double_t
+		C2,
+		dist,
+		dist2,
+		fi,
+		Start[3],
+		Xend[2],
+		Yend[2];
+
+   PndTrkCTGeometryCalculations GeometryCalculator;
+
+// the first hit is the farthest from (0,0,0);
+// StrawCode convention (in the following left or right is looking to the beam from downstream) :
+//   -1 = not a boundary straw;
+//   10= inner axial boundary left;
+//   20= inner axial boundary right;
+//   12= outer VERTICAL (BUT NOT OUTERMOST) axial boundary left;
+//   22= outer VERTICAL (BUT NOT OUTERMOST)  axial boundary right;
+//   13= outermost axial boundary left;
+//   23= outermost axial boundary right;
+
+// the flags are 2 (StrawCode and StrawCode2) since a straw can belong to 2 boundaries;
+
+
+
+
+   // first check if the first hit is required to be at the boundary; if so verify the condition;
+   // only one hole is allowed;
+   if( farthest_hit_is_boundary ){
+   	index = TubeID[ ListHits[nHits-1] ]; //  number corresponding to the Straw of the last hit in the list;
+	if( StrawCode[ index -1 ] == -1 && StrawCode2[ index -1 ] ==-1   ) {
+	 // not at any boundary; before returning false check if one hole is still allowed and if so
+	 // check if any of the neighbours of the first hit, is at boundary : if so increment the
+	 //  number of holes and go on;
+	 	if( holes >= MAX_NOT_CONNECTED) return false;  // because we know already that holes becomes >= MAX_NOT_CONNECTED+1;
+		yes=false;
+		//  loop over the Straws contiguous to the current under scrutiny;
+		for(i=0;i<nParContiguous[index-1];i++){
+	 		if( StrawCode[ ListParContiguous[index-1][i] -1 ] > -1 ||
+			     StrawCode2[ ListParContiguous[index-1][i] -1 ] > -1)
+			{
+				holes++;
+				yes=true;
+				break;
+			}    
+	 	}  // end of for(i=0;i<nHits-1;i++)
+		if(!yes)  return false;	// none of the neighbouring Straws is at the boundary;
+
+
+	}	// end of  if( StrawCode[ index -1 ] == -1 && StrawCode2[ index -1 ] ==-1   )
+
+   }	// end of  if( farthest_hit_is_boundary )
+
+   //---------------------------------------------------
+   // now check if hits are contiguous going from the outermost to the innermost;
+   for(i=0;i<nHits-1;i++){
+	outer = nHits-i-1;
+	inner = nHits-i-2;
+//   	tube_current = TubeID[ ListHits[outer] ];
+//	tube_next = TubeID[ ListHits[inner] ];
+
+	// distance squared between centers of the two straws;
+	dist2 = (info[ListHits[outer]][0]-info[ListHits[inner]][0])*(info[ListHits[outer]][0]-info[ListHits[inner]][0]);
+	dist2 += (info[ListHits[outer]][1]-info[ListHits[inner]][1])*(info[ListHits[outer]][1]-info[ListHits[inner]][1]);
+	if( dist2 < DIAMETERSTRAWTUBE2 * 1.1) continue; //tubes are contiguous; the factor 1.1 just to be sure
+							// against rounding errors ;
+
+	// ----------------------------------------------------------------------------------------------------------
+	//  case when tube_current and tube_next are not contiguous;
+
+	// case in which there are only 1 entrance point and 1 exit point for the track (the most common one);
+	// in this case all hits of the track are internal in this sector --> calculate the contiguity level
+	// of the two hits under scrutiny;
+
+		// next-to-contiguos hits;		
+		if( dist2 < 16.*STRAWRADIUS*STRAWRADIUS * 1.1) {
+			// increase   holes  by 1 and then check if  holes>MAX_NOT_CONNECTED discard the track;
+			holes++;
+			if(holes > MAX_NOT_CONNECTED) return false;
+			continue;	// case accepted;
+		} else {
+			// distance between tube_current and tube_next >= 2 straws, discard the track;
+			return false;
+		}
+
+
+   }  // end of for(i=0;i<nHits;i++
+
+
+//-----------------------------------------------------------------------------------------------
+
+   // check on the innermost hit (namely : ListHits[0]) ; it must be a boundary hit OR a next-to-boundary hit;
+
+   index_last = TubeID[ListHits[0]] -1  ;
+   // it is at the boundary, therefore track is accepted;
+   if(!(StrawCode[index_last] == -1 && StrawCode2[index_last] == -1)){
+	return true;
+   }
+
+   if(holes == MAX_NOT_CONNECTED){
+	// in this case the track must be rejected because the number of holes is > MAX_NOT_CONNECTED;
+	return false;
+
+   } else {
+	// check if any of the neighbor straws, BELONGING TO THE TRACK AND IN THE RIGHT
+	// ORDER (according to the Charge), is a boundary track;
+
+	boundary = false;
+	Xend[0] = Yend[0] = 0. ;	// the origin;
+	Xend[1] = xTube[index_last];
+	Yend[1] = yTube[index_last];
+	for(j=0;j<nParContiguous[ index_last ];j++){
+		tube_next = ListParContiguous[index_last][j]  ;
+
+		// calculate the distance between the center of the trajectory and the center of the straw;
+		// C2 has been calculated abova --> C2 = Ox*Ox + Oy*Oy ;
+		dist2 = xxyyTube[tube_next-1] -2.*(xTube[tube_next-1]*Ox + yTube[tube_next-1]*Oy) +C2;
+		dist = fabs(sqrt(dist2)-R);
+		if( dist > STRAWRADIUS * 1.5) continue; //tubes doesn't lie on trajectory; the factor 1.5 just to be sure
+
+		// now check that the tube_next lies between (0,0) and the hit = ListHits[0] when running on the
+		// trajectory according to the charge (namely : +ve --> clockwise, -ve --> anticlockwise);
+		// the coordinates of the ends of the arc are given in Xend[2] and Yend[2];
+		// fi is the angle (between 0. and 2 PI ) of the point under srutiny (==tube_next center);
+
+		fi = atan2( yTube[tube_next-1]-Oy, xTube[tube_next-1]-Ox);
+		if(fi<0.) fi += 2.*PI;
+		if(fi<0.) fi = 0.;
+
+		if( GeometryCalculator.IsInsideArc(Ox,Oy,Charge,Xend,Yend,fi)){
+			// check if this is at boundary;
+			if( !(StrawCode[tube_next-1] == -1 && StrawCode2[tube_next-1] == -1) ) {
+				boundary = true;
+				break;
+			}
+		}	// end of  if( GeometryCalculator.IsInsideArc(Ox,Oy,Charge,Xend,Yend,f))
+
+	}	// end of  for(j=0;j<nParContiguous[ index_last ];j++)
+
+	if(boundary){
+		holes++;
+		return true;
+	} else {
+		return false;
+	}
+
+   }	// end of   if(holes == MAX_NOT_CONNECTED)
+
+
+}
+
+//----------end of function PndTrkCleanup::GoodTrack
 
 
 
@@ -334,7 +543,7 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 				// the straw detector;
 	Double_t RStrawDetMin,
 	Double_t Start[3],
-	Double_t STRAWRADIUS
+	Double_t strawradius
 	)
 {
 
@@ -395,7 +604,6 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 			YintersectionList[7]; // take into account and the two possible
 					      // intersections with the external circle.
 
-	const Double_t PI = 3.141592654;
 
 	islack=1;  // uncertainty allowed in the # of straws that should be hit in a given part
 			// of the Stt detector.
@@ -410,7 +618,7 @@ if(istampa>1) {
 	cout<<"SttParalCleanup, evento n. "<<IVOLTE<<", n. || in ingresso "<<
 	nHits<<", prima di essere purgati."<<endl; }
 
-	epsilonTheta = STRAWRADIUS/Rr;  // some extra slac for being conservative.
+	epsilonTheta = strawradius/Rr;  // some extra slac for being conservative.
 	for(i=0, ipurged=0; i< nHits; i++){
 
 		fi = atan2( info[Listofhits[i]][1]-Oyy,info[Listofhits[i]][0]-Oxx);
@@ -559,11 +767,11 @@ if(istampa>1) {
 
 	if( flagInnerSttR == 0 && (XcrossR[0]-XcrossR[1])*(XcrossR[0]-XcrossR[1])+
 			(YcrossR[0]-YcrossR[1])*(YcrossR[0]-YcrossR[1])
-			< 9.*STRAWRADIUS*STRAWRADIUS ) flagInnerSttR=-1;
+			< 9.*strawradius*strawradius ) flagInnerSttR=-1;
 
 	if( flagInnerSttL == 0 && (XcrossL[0]-XcrossL[1])*(XcrossL[0]-XcrossL[1])+
 			(YcrossL[0]-YcrossL[1])*(YcrossL[0]-YcrossL[1])
-			< 9.*STRAWRADIUS*STRAWRADIUS ) flagInnerSttR=-1;
+			< 9.*strawradius*strawradius ) flagInnerSttR=-1;
 
 	// case when track is outside both Inner Stt Parallel sections.
 	if( flagInnerSttL == -1 && flagInnerSttR == -1 ){
@@ -727,7 +935,7 @@ if(istampa>1) {
 			Oxx,
 			Oyy,
 			Rr,
-			STRAWRADIUS,
+			strawradius,
 			Charge,
 			Xcross,  // Xcross[0]=point of entrance; Xcross[1]=point of exit.
 			Ycross,
@@ -735,7 +943,7 @@ if(istampa>1) {
 			ListInnerHits,
 			info,
 			istampa,
-			2.*2*STRAWRADIUS,	//  cut of proximity between hits.
+			2.*2*strawradius,	//  cut of proximity between hits.
 			1,	// maximum allowed # consecutive hits with distance > cut.
 			islack // uncertainty allowed as far as the n. of hits that should be present.
 					)
@@ -813,11 +1021,11 @@ if(istampa>1) {
 
 	if( flagInnerSttR == 0 && (XcrossR[0]-XcrossR[1])*(XcrossR[0]-XcrossR[1])+
 			(YcrossR[0]-YcrossR[1])*(YcrossR[0]-YcrossR[1])
-			< 9.*STRAWRADIUS*STRAWRADIUS ) flagInnerSttR=-1;
+			< 9.*strawradius*strawradius ) flagInnerSttR=-1;
 
 	if( flagInnerSttL == 0 && (XcrossL[0]-XcrossL[1])*(XcrossL[0]-XcrossL[1])+
 			(YcrossL[0]-YcrossL[1])*(YcrossL[0]-YcrossL[1])
-			< 9.*STRAWRADIUS*STRAWRADIUS ) flagInnerSttR=-1;
+			< 9.*strawradius*strawradius ) flagInnerSttR=-1;
 
 
 	// case when track is outside both Outer Stt Parallel sections.
@@ -1028,7 +1236,7 @@ cout<<"SttParalCleanup, OUTER, caso R || L true, IVOLTE = "<<IVOLTE<<"\n\t Xcros
 			Oxx,
 			Oyy,
 			Rr,
-			STRAWRADIUS,
+			strawradius,
 			Charge,
 			Xcross,  // Xcross[0]=point of entrance; Xcross[1]=point of exit.
 			Ycross,
@@ -1036,7 +1244,7 @@ cout<<"SttParalCleanup, OUTER, caso R || L true, IVOLTE = "<<IVOLTE<<"\n\t Xcros
 			ListOuterHits,
 			info,
 			istampa,
-			2.*2.*STRAWRADIUS,	//  cut of proximity between hits.
+			2.*2.*strawradius,	//  cut of proximity between hits.
 			1,	// maximum allowed # consecutive hits with distance > cut.
 			islack // uncertainty allowed as far as the n. of hits that should be present.
 					)
@@ -1082,7 +1290,7 @@ bool PndTrkCleanup::SttSkewCleanup(
 	Double_t RStrawDetMax,
 	Double_t *S,
 	Double_t Start[3],
-	Double_t STRAWRADIUS
+	Double_t strawradius
 	)
 
 {
@@ -1127,7 +1335,6 @@ bool PndTrkCleanup::SttSkewCleanup(
 			XintersectionList[5], // second index =0 --> inner Hexagon, =1 --> outer.
 			YintersectionList[5]; // first index : all the possible intersections
 						  // (up to 12 intersections).
-	const Double_t PI = 3.141592654;
 
 	//  class with all the geometry calculations :
 	PndTrkCTGeometryCalculations GeometryCalculator;
@@ -1143,7 +1350,7 @@ bool PndTrkCleanup::SttSkewCleanup(
 //  elimination of hits outside the physical FI range (FiLimitAdmissible) due to finite length of
 //  Straws.
 
-	epsilonTheta = STRAWRADIUS/Rr;  // some extra slac for being conservative.
+	epsilonTheta = strawradius/Rr;  // some extra slac for being conservative.
 
 if(istampa>1)
 cout<<"\n\nevt "<<IVOLTE<<", FI0 "<<FI0<<", Filimit "
@@ -1263,16 +1470,16 @@ if(istampa>1)cout<<"in SttSkewCleanup : flagLeft (-1,0,1) = "<<flagSttL
 
 	if( flagSttR == 0 && (XcrossR[0]-XcrossR[1])*(XcrossR[0]-XcrossR[1])+
 			(YcrossR[0]-YcrossR[1])*(YcrossR[0]-YcrossR[1])
-			< 16.*STRAWRADIUS*STRAWRADIUS ){
+			< 16.*strawradius*strawradius ){
 		flagSttR=-1;
-if(istampa>1)cout<<"in SttSkewCleanup : distanza entrata-uscita<4*STRAWRADIUS,flagSttR set at -1!\n";
+if(istampa>1)cout<<"in SttSkewCleanup : distanza entrata-uscita<4*strawradius,flagSttR set at -1!\n";
 	}
 
 	if( flagSttL == 0 && (XcrossL[0]-XcrossL[1])*(XcrossL[0]-XcrossL[1])+
 			(YcrossL[0]-YcrossL[1])*(YcrossL[0]-YcrossL[1])
-			< 16.*STRAWRADIUS*STRAWRADIUS ){
+			< 16.*strawradius*strawradius ){
 		flagSttR=-1;
-if(istampa>1)cout<<"in SttSkewCleanup : distanza entrata-uscita<4*STRAWRADIUS,flagSttL set at -1!\n";
+if(istampa>1)cout<<"in SttSkewCleanup : distanza entrata-uscita<4*strawradius,flagSttL set at -1!\n";
 	}
 
 	if (flagSttR != 0 && flagSttL != 0 ) {
@@ -1485,11 +1692,11 @@ if(istampa>=2)cout<<"in SttSkewCleanup, Hit n. "<< ListHits[i]<<" has Distance "
 
 
 	// cut on the minimum (conservative) n. hits that must have fired
-	if( ninside < ((int) 0.5*length/STRAWRADIUS )-islack ){
+	if( ninside < ((int) 0.5*length/strawradius )-islack ){
 		if(istampa>1){
 			cout<<"in SttSkewCleanup, n. Hits inside = "<<ninside
 			<<" is < n. hits that should be inside at least = "
-			<<((int) 0.5*length/STRAWRADIUS)<<"-islack ("<<
+			<<((int) 0.5*length/strawradius)<<"-islack ("<<
 			islack<<"), track rejected!\n";
 			return false;
 		}
@@ -1563,10 +1770,10 @@ bool PndTrkCleanup::TrackCleanup(
 	Double_t Rr,
 	Double_t RStrawDetMax,
 	Double_t RStrawDetMin,
-	Double_t SEMILENGTH_STRAIGHT,
+//	Double_t SEMILENGTH_STRAIGHT,
 	Double_t Start[3],
-	Double_t STRAWRADIUS,
-	Double_t ZCENTER_STRAIGHT
+	Double_t strawradius
+//	Double_t ZCENTER_STRAIGHT
 	)
 {
 // this method does 3 things :
@@ -1650,7 +1857,7 @@ if(istampa>1) cout<<"\tentra in SttParalCleanup\n";
 				RStrawDetMax,
 				RStrawDetMin,
 				Start,
-				STRAWRADIUS
+				strawradius
 				)
 	){
 if(istampa>1) cout<<"uscito da SttParalCleanup : false\n";
@@ -1686,7 +1893,7 @@ if(istampa>1) cout<<"\tentra in SttSkewCleanup\n";
 			RStrawDetMax,
 			auxS,
 			Start,  // starting point of trajectory.
-			STRAWRADIUS
+			strawradius
 			) ) ) {
 
 if(istampa>1) cout<<"uscito da SttSkewCleanup false\n";
@@ -1706,35 +1913,69 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 
 //----------begin of function PndTrkCleanup::XYCleanup
 bool PndTrkCleanup::XYCleanup(
+	// general infos about the axial Straws;
+	int istampa,
 	Double_t info[][7],
 	Short_t (*ListParContiguous)[6],
 	Short_t *nParContiguous,
 	Short_t *StrawCode,
 	Short_t *StrawCode2,
 	Short_t *TubeID,
-
+	Double_t *xTube,
+	Double_t *yTube,
+	Double_t *zTube,
+	Double_t *xxyyTube,
+	// the following are the info of the track under scrutiny;
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Short_t Charge,
 	Short_t *ListHits,
 	Short_t nHits,
-	Double_t R_STT_INNER_PAR_MAX
+	Double_t R_STT_INNER_PAR_MAX,
+	Short_t nScitilHitsInTrack,	// input, # of SciTil hits in the current track;
+	Short_t* ListSciTilHitsinTrack,	// input, list of SciTil hits in the current track;
+	Double_t posizSciTil[][3]	// input, info on all the SciTil position;
 				)
 {
 
-   bool	connected;
+   bool	connected,
+	farthest_hit_is_boundary,
+	good;
 
    Short_t
+	auxListHits[MAXSTTHITSINTRACK],
+	holes,
 	i,
 	j,
-	not_connected,
+	k,
+	nArcs_populated,
+
 	tListInnerHitsLeft[nHits],
 	tListInnerHitsRight[nHits],
 	tListOuterHitsLeft[nHits],
 	tListOuterHitsRight[nHits],
-	tube,
+	tube_adjacent,
+	tube_current,
 	tube_next,
+	tube_near,
+	ListHitsInArc[MAXSTTHITSINTRACK][56],	// ordered list of hits in each Arc (from first to last
+						// according to the charge of the particle;if the maximum
+						//  # of Intersected Sector is 56, than the maximum # of Arcs is 28;
+
+	nHitsInArc[56],	// number of hits in each Arc; the maximum # of Arcs is 56;
 	nInnerHitsLeft,
 	nInnerHitsRight,
 	nOuterHitsLeft,
 	nOuterHitsRight;
+//	OrderedSectorList[56];	// ordered list of Sectors crossed (from first to last); each
+				// Sector number is the Sector where the Arc lies;
+
+   Double_t	dist2,
+   		FiOrderedList[2],
+   		FiStart,
+		Xcross[2],
+		Ycross[2];
 
    Vec <Short_t>
 	ListInnerHitsLeft(tListInnerHitsLeft,nHits,"ListInnerHitsLeft"),
@@ -1742,106 +1983,183 @@ bool PndTrkCleanup::XYCleanup(
 	ListOuterHitsLeft(tListOuterHitsLeft,nHits,"ListOuterHitsLeft"),
 	ListOuterHitsRight(tListOuterHitsRight,nHits,"ListOuterHitsRight");
 
-   //  separate the inner axial Stt hits from outer axial Stt hits,
-   //  right (looking into the beam) from left;
 
-   SeparateInnerOuterRightLeftAxialStt(
-
-	// input
-	info,
-	ListHits,
-	nHits,
-	R_STT_INNER_PAR_MAX,
-
-	// output
-
-	tListInnerHitsLeft,
-	tListInnerHitsRight,
-	tListOuterHitsLeft,
-	tListOuterHitsRight,
-	&nInnerHitsLeft,
-	&nInnerHitsRight,
-	&nOuterHitsLeft,
-	&nOuterHitsRight
-   );
-
- // check continuity between first hit in inner axial hit list and the last inner axial;
- // left and right;
-
-   not_connected = 0;
-
- // Left Inner;
-   for(i=0;i<nInnerHitsLeft-1;i++){
-   	tube = TubeID[ ListInnerHitsLeft[i] ];
-	tube_next = TubeID[ ListInnerHitsLeft[i+1] ];
-	for(j=0;j<nParContiguous[ tube-1 ];j++){
-		if( tube_next == ListParContiguous[ tube-1 ][j] ){
-			connected = true;
-			break;
-		}
-	}
-	if(!connected) {
-		not_connected ++;
-		if( not_connected > MAX_NOT_CONNECTED) return false;
-	} // end of  if(!connected)
-   }  // end of for(i=0;i<nInnerHitsLeft;i++
-
-
- // Left Outer;
-   for(i=0;i<nOuterHitsLeft-1;i++){
-   	tube = TubeID[ ListOuterHitsLeft[i] ];
-	tube_next = TubeID[ ListOuterHitsLeft[i+1] ];
-	for(j=0;j<nParContiguous[ tube-1 ];j++){
-		if( tube_next == ListParContiguous[ tube-1 ][j] ){
-			connected = true;
-			break;
-		}
-	}
-	if(!connected) {
-		not_connected ++;
-		if( not_connected > MAX_NOT_CONNECTED) return false;
-	} // end of  if(!connected)
-   }  // end of for(i=0;i<nOuterHitsLeft;i++
+   //  class with all the geometry calculations:
+   PndTrkCTGeometryCalculations  GeometryCalculator;
 
 
 
+ //------------------------------------------------------------------------------------------------------------
+  // first of all, eliminate spurious with SciTil's since it is faster;
 
- // Right Inner;
-   for(i=0;i<nInnerHitsRight-1;i++){
-   	tube = TubeID[ ListInnerHitsRight[i] ];
-	tube_next = TubeID[ ListInnerHitsRight[i+1] ];
-	for(j=0;j<nParContiguous[ tube-1 ];j++){
-		if( tube_next == ListParContiguous[ tube-1 ][j] ){
-			connected = true;
-			break;
-		}
-	}
-	if(!connected) {
-		not_connected ++;
-		if( not_connected > MAX_NOT_CONNECTED) return false;
-	} // end of  if(!connected)
-   }  // end of for(i=0;i<nInnerHitsRight;i++
+ // now check if there is an intersection with the SciTil;
+
+ // calculate the intersection points in XY of the track trajectory with a circle tangent to the SciTil in
+ // the middle of each SciTil tile; these can be 0 or 2;
+ // if there are no intersections don't do anything; if there are 2 intersections check that there is a SciTil
+ // hit in the proper place;
+ //  FindIntersectionsOuterCircle returns -1 or 0;
+ // if FindIntersectionsOuterCircle returns -1 there are no intersections, if it returns 0 there are 2;
+   if( GeometryCalculator.FindIntersectionsOuterCircle(
+		Ox,
+		Oy,
+		R,
+		RADIUSSCITIL,
+		Xcross,
+		Ycross
+		) >= 0 ){
+
+	// there are 2 intersections;
+	//  choose the first entrance point according to the charge of the particle;
+	// ChooseEntranceExit3 works under the hypothesis that there are at least 2 intersections.
+
+	FiStart = atan2(-Oy,-Ox);
+	if( FiStart < 0.) FiStart  += TWO_PI;
+	if( FiStart < 0.) FiStart = 0.;
+
+	GeometryCalculator.ChooseEntranceExit3(
+		Ox,
+		Oy,
+		Charge,
+		FiStart,
+		2,	// # of Intersections between track and Circle;
+		Xcross,	// input and output; these are the intersections;
+		Ycross,	// input and output; these are the intersections;
+		FiOrderedList	// output  			
+   					);
+
+	// the intersection point must be close enough to at least 1 SciTil hit;
+
+	good = false;
+	for(i=0;i<nScitilHitsInTrack;i++){
+		dist2 = (posizSciTil[ ListSciTilHitsinTrack[i] ][0] - Xcross[0])*
+			(posizSciTil[ ListSciTilHitsinTrack[i] ][0] - Xcross[0])
+						+
+			(posizSciTil[ ListSciTilHitsinTrack[i] ][1] - Ycross[0])*
+			(posizSciTil[ ListSciTilHitsinTrack[i] ][1] - Ycross[0]);
+
+		if(dist2 < 2.25*DIMENSIONSCITIL*DIMENSIONSCITIL) { good = true; break;}// oversizing; in principle
+					// dist2 should be < DIMENSIONSCITIL*DIMENSIONSCITIL/4 ;
+
+  	} // end of for(i=0;i<nScitilHitsInTrack;i++)
+	// failed to find a hit SciTil close to trajectory;
+	if(!good) return false;
+  }	// end of  if( GeometryCalculator.FindIntersectionsOuterCircle(
+
+ // ----------------------------------------------------------------------------- end of check with SciTil's;
 
 
- // Right Outer;
-   for(i=0;i<nOuterHitsRight-1;i++){
-   	tube = TubeID[ ListOuterHitsRight[i] ];
-	tube_next = TubeID[ ListOuterHitsRight[i+1] ];
-	for(j=0;j<nParContiguous[ tube-1 ];j++){
-		if( tube_next == ListParContiguous[ tube - 1 ][j] ){
-			connected = true;
-			break;
-		}
-	}
-	if(!connected) {
-		not_connected ++;
-		if( not_connected > MAX_NOT_CONNECTED) return false;
-	} // end of  if(!connected)
-   }  // end of for(i=0;i<nOuterHitsRight;i++
+
+// now use the STT hits for cleaning;
+
+ // Convention for the Sector number used in GoodTrack :
+ // Sector = 1 --> Axial Outer Right
+ // Sector = 2 --> Axial Inner Right
+ // Sector = 3 --> Axial Inner Left
+ // Sector = 4 --> Axial Outer Left
+
+
+ // --------------------------------------------------------------------------------------------------
+
+ // the intersections of the current track with the boundaries of each Axial Sector (Inner Left, Outer Left,
+ // Inner Right, Outer Right) determine the number of Arcs in which the trajectory is subdivided;
+ // for each Arc the number of ordered (according to the charge of the particle) axial STT hits are
+ // found and listed;
+ // nArcs_populated = # of Arcs (maximum possible  28 in the Left side + 28 in the Right Side of STT axial detector
+ //  --->  56 maximum) populated by axial STT hits;
+ // OrderedSectorList = ordered list, from last to first, of the Sectors corresponding to each Arc ;
+ // nHitsInArc[56] = # of hits of the track belonging to each Arc (in order corresponding to the Sector order);
+ // ListHitsInArc[MAXSTTHITSINTRACK][56] = list of hits in each Arc; this list is ordered clockwise or anticlockwise
+ //						according to the charge;
+
+   GeometryCalculator.ListAxialSectorsCrossedbyTrack_and_Hits(
+					Ox,		// input;
+					Oy,		// input;
+					R,		// input;
+					Charge,		// input;
+					nHits,		// input;
+					ListHits,	// input;
+					info,		// input;
+		nArcs_populated,	// output; # Arcs of trajectory populated by at least 1 axial hit; this is <= 28;
+//		OrderedSectorList,	// output; ordered list of Sectors crossed (from first to last); each
+//					// Sector number correspond to the Sector where the Arc lies;
+		nHitsInArc,	// output; number of hits in each Sector; if the maximun # of Intersected Sector is 56,
+					//  than the maximum # of Arcs is 28;
+
+		ListHitsInArc // output; ordered list of hits in each Arc (from first to last
+					// according to the charge of the particle;if the maximum
+					//  # of Intersected Sector is 56, than the maximum # of Arcs is 28;
+						);
+
+
+//-------------------------------------------------
+if(istampa>0){ cout<<"from XYCleanup,after ListAxialSectorsCrossedbyTrack_and_Hits :"<<endl<<
+	"\tnArcs_populated "<<nArcs_populated<<", ordered list of Sectors crossed :"<<endl;
+	for(int kg=0;kg<nArcs_populated;kg++){cout<<"\tSector  populated with "
+		<<nHitsInArc[kg]<<"  hits; loro lista :"<<endl;
+		for(int nn=0;nn<nHitsInArc[kg];nn++){cout<<"\t\taxial hit n. "<<ListHitsInArc[nn][kg]<<
+		", R**2 "<< info[ListHitsInArc[nn][kg]][0]*info[ListHitsInArc[nn][kg]][0]+
+		   info[ListHitsInArc[nn][kg]][1]*info[ListHitsInArc[nn][kg]][1] << endl;}
+	};
+ };
+//-------------------------------------------------
+
+// ------------------- starts analysis of the track; loop over the number of Arcs in which the track has been
+//   subdivided and allow a maximum total number of holes of 1 per track;
 
 
 
-	return true;
+   // Sector number convention:
+   // 1 --> Right Axial Outer;
+   // 2 --> Right Axial Inner;
+   // 3 --> Left Axial Inner;
+   // 4 --> Left Axial Outer;
+
+
+   // # of "holes" in the track;
+   holes = 0;
+
+//   no_holes = false;
+
+   // if the following flag is true the hit of the track furthest from the origin is at the boundary of
+   // this sector;
+   farthest_hit_is_boundary = false;
+
+   // loop from the last Arc (the farthest according to the charge of the track) to the first one;
+   for(i=nArcs_populated-1;i>=0; i--){
+   	for(j=0;j<nHitsInArc[i];j++){auxListHits[j]=ListHitsInArc[j][i];}
+
+ 	if(  ! GoodTrack(
+			info,				// input
+			farthest_hit_is_boundary,	// input
+			Ox,				// input; center of the current track;
+			Oy,				// input; center of the current track;
+			R,				// input; Radius of the current track;
+			Charge,				// input; charge of the current track;
+			nHitsInArc[i],			// input
+			auxListHits,			// input
+			StrawCode,			// input
+			StrawCode2,			// input
+			TubeID,				// input
+			nParContiguous,			// input
+			ListParContiguous,		// input
+			xTube,				// input
+			yTube,				// input
+			zTube,				// input
+			xxyyTube,			// input
+			holes				// input and output
+		)
+	) { return false;}
+
+	// now the first farthest hit in the next arc must be boundary;
+	farthest_hit_is_boundary=true;
+   }	// end of  for(i=nArcs_populated;i>0; i--)
+
+ // ----------------------------------------------------------------------- 
+
+
+
+
 }
 //----------end of function PndTrkCleanup::XYCleanup
 
