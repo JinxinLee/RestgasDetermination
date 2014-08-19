@@ -2104,7 +2104,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 //	First cleanup based on the absence of Mvd hits
 
-fYesCleanMvd=false;
+//fYesCleanMvd=false;
 
 	if(fYesCleanMvd){
 
