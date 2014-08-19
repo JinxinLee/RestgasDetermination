@@ -529,7 +529,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 		for(j=0;j< nSciTilHitsinTrack.at(i);j++){
 
 		intersect=GeometryCalculator.IntersectionSciTil_Circle(
-			DIMENSIONSCITIL,
+//			DIMENSIONSCITIL,
 			posizSciTil.at(ListSciTilHitsinTrack.at(i*MAXSCITILHITSINTRACK+j)*3+0),
 			posizSciTil.at(ListSciTilHitsinTrack.at(i*MAXSCITILHITSINTRACK+j)*3+1),
 			Ox.at(i), // center of circle.
@@ -573,7 +573,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 
 	for(j=0;j< In_Put.nMCSciTilAlone[i];j++){
 		intersect=GeometryCalculator.IntersectionSciTil_Circle(
-			DIMENSIONSCITIL,
+//			DIMENSIONSCITIL,
 			posizSciTil.at(In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+0),
 			posizSciTil.at(In_Put.MCSciTilAloneList[i*nSciTilHits+j]*3+1),
 			Ox.at(i), // center of circle.
