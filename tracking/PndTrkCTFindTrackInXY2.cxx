@@ -154,11 +154,12 @@ Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
 
 
  igoodScit=0;
+
  for(iScitHit=0; iScitHit<nSciTilHits; iScitHit++){
 	if(!InclusionListSciTil[iScitHit]) continue;
 
 	intersect=GeomCalculator.IntersectionSciTil_Circle(
-	  2.*dimensionscitil,   //  dimensionscitil = true width of SciTil tiles;
+//	  2.*dimensionscitil,   //  dimensionscitil = true width of SciTil tiles;
 	  posizSciTil[iScitHit][0],
 	  posizSciTil[iScitHit][1],
 	  Oxx,
@@ -187,7 +188,7 @@ Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
 		if ( esse[igoodScit]<0.) esse[igoodScit] += 2.*PI;
 		igoodScit++;
 
-	} // end of  if(intersect && distance<olddist)
+	} // end of  if(intersect)
  }  // end of  for(iScitHit=0; iScitHit<nScitHits; iScitHit++)
 
  return igoodScit;
@@ -309,7 +310,9 @@ Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
 //----------begin of function PndTrkCTFindTrackInXY2::FindTrackInXYProjection
 
 bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
-	struct FindTrackInXYProjection2_InputOutputData* InOut
+	struct FindTrackInXYProjection2_InputOutputData* InOut,
+	int istampa,
+	int IVOLTE
 	)
 {
 
@@ -344,7 +347,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
  bool
 	Type;
-int istampa = 0;
+//int istampa = 2;
 
  Short_t
 	auxListHitsinTrack[InOut->maxstthits],
@@ -429,6 +432,7 @@ int istampa = 0;
  PndTrkChi2Fits fitChi2;
 
 
+
  status = fitLegiandre.FitHelixCylinder2(
 		InOut->Cosine,
 		InOut->legiandre_nthetadiv,
@@ -458,40 +462,14 @@ int istampa = 0;
 
  if(status < 0  ) return false;
 
+
 //  this trasformation is valid even if the equation is a straight line from the fit
  Ox= -0.5*(*(InOut->ALFA));
  Oy= -0.5*(*(InOut->BETA));
  R= Ox * Ox + Oy * Oy - (*(InOut->GAMMA));
 
 
-
-//-------------- stampa
-if (istampa>0){
-bool tkeepit[10];
-tkeepit[0] = true;
-Short_t nSttSkewHitsinTrack[10],
-	nSciTilHitsinTrack[10],
-	IVOLTE = 0;
-Short_t ListSttSkewHitsinTrack[100];
-Double_t KAPPA[10] ;
-KAPPA[0] = 0.;
-nSttSkewHitsinTrack[0] = 0;
-nSciTilHitsinTrack[0] = 0;
-
-cout<<"\tstampa in CTFind..2.cxx, dopo FitHelixCylinder  :"<<endl;
-Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
-ListMvdStripHitsinTrack,ListSttParHitsinTrack,
-ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
-&nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
-
-nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
--1, // print all candidates;
-InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
-InOut->Fi_initial_helix_referenceframe,KAPPA);
-}
-//-------------- fine stampa
-
-	// some obvious preliminary cuts
+// some obvious preliminary cuts
  if( R < 0. )  return false;
  R= sqrt( R );
  aaa = sqrt( Ox * Ox + Oy * Oy  );
@@ -504,6 +482,32 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 //   here the factor 0.9 is used in order to be conservative.
  if ( R + aaa < InOut->apotemastrawdetectormin *0.9 ) return false;
 
+//-------------- stampa
+if (istampa>=1){
+bool tkeepit[10];
+tkeepit[0] = true;
+Short_t nSttSkewHitsinTrack[10],
+	nSciTilHitsinTrack[10];
+Short_t ListSttSkewHitsinTrack[100];
+Double_t KAPPA[10] ;
+KAPPA[0] = 0.;
+nSttSkewHitsinTrack[0] = 0;
+nSciTilHitsinTrack[0] = 0;
+nMvdPixelHitsinTrack = 0;
+nMvdStripHitsinTrack = 0;
+
+cout<<"\tstampa in CTFind..2.cxx, dopo FitHelixCylinder  :" <<endl;
+Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
+ListMvdStripHitsinTrack,ListSttParHitsinTrack,
+ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
+&nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
+
+nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
+-1, // print all candidates;
+InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
+InOut->Fi_initial_helix_referenceframe,KAPPA);
+}
+//-------------- fine stampa
 //---------------------  find the angular range for candidate track in the Stt detector (find
 //			 the two possibilities in general);
 
@@ -594,12 +598,11 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>0){
+if (istampa>=1){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
-	nSciTilHitsinTrack[10],
-	IVOLTE = 0;
+	nSciTilHitsinTrack[10];
 Short_t ListSttSkewHitsinTrack[100];
 Double_t KAPPA[10] ;
 KAPPA[0] = 0.;
@@ -624,7 +627,8 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
  Double_t
 	delta = 0.5, //  parameter of proximity for associating Mvd hits to Stt tracks;
-	highqualitycut = 0.2; //  parameter of proximity for associating Mvd hits to Stt tracks
+	highqualitycut = 0.2; //  parameter of proximity for associating Mvd hits to Stt tracks; at the moment it is not used
+				// actually ;
 
  AddMvdHitsToSttTracks(
 	delta,			// input;
@@ -652,12 +656,11 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>0){
+if (istampa>=1){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
-	nSciTilHitsinTrack[10],
-	IVOLTE = 0;
+	nSciTilHitsinTrack[10];
 Short_t ListSttSkewHitsinTrack[100];
 Double_t KAPPA[10] ;
 KAPPA[0] = 0.;
@@ -717,9 +720,15 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 	// I assume the 'drift radius' to be  the max dimension of the Pixel;
 	gamma = r2 - 0.01 * 0.01 ;
-	ErrorDriftRadiusconformal[j]=3. * 0.01 /fabs(gamma); // 3 is an arbitrary loose safety factor;
+//	ErrorDriftRadiusconformal[j]=3. * 0.01 /fabs(gamma); // 3 is an arbitrary loose safety factor;
 							// 0.01 is the dimension of the pixel;
+	ErrorDriftRadiusconformal[j]= 3.*delta /fabs(gamma); // 3 is an arbitrary loose safety factor;
+
+
 	DriftRadiusconformal[j]= -1; // // only to signal later this is a Mvd hit;
+
+
+
    }  // end of for(j=0; j<nMvdPixelHitsinTrack; j++)
 
    // Mvd Strips;
@@ -733,9 +742,12 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	gamma = r2 - 0.01 * 0.01 ;
 	ErrorDriftRadiusconformal[nFitPoints]= 3. * 0.01 /fabs(gamma); // 3 is an arbitrary loose safety factor;
 							// 0.01 is the dimension of the strip;
+//	ErrorDriftRadiusconformal[j]=3.*delta /fabs(gamma); // 3 is an arbitrary loose safety factor;
 	DriftRadiusconformal[nFitPoints]= -1; // // only to signal later this is a Mvd hit;
 
 	nFitPoints++;
+
+
    }
 
    // axial Stt;
@@ -743,11 +755,25 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	if(nFitPoints==InOut->maxhitsinfit) break;
 	Xconformal[nFitPoints] =infoparalConformal[(InOut->ListHitsinTrack)[j]][0];
 	Yconformal[nFitPoints] =infoparalConformal[(InOut->ListHitsinTrack)[j]][1];
-	ErrorDriftRadiusconformal[nFitPoints]=
-		infoparalConformal[(InOut->ListHitsinTrack)[j]][2];
+
+//	ErrorDriftRadiusconformal[nFitPoints]=
+//		infoparalConformal[(InOut->ListHitsinTrack)[j]][2];
+
+	// errors on a Stt hit are assumed to be 0.5 cm in cartesian XY variables;
+	r2 = info [(InOut->ListHitsinTrack)[j] ][0]*info [(InOut->ListHitsinTrack)[j] ][0]+
+		info [(InOut->ListHitsinTrack)[j] ][1]*info [(InOut->ListHitsinTrack)[j] ][1];
+	gamma = r2 - 0.5 * 0.5 ;
+//	ErrorDriftRadiusconformal[nFitPoints]=0.5/( r2 - 0.025); 
+	ErrorDriftRadiusconformal[nFitPoints]=3.* 0.01/fabs(gamma);  // 3 is an arbitrary loose safety factor;
+
 	DriftRadiusconformal[nFitPoints]=
 		infoparalConformal[(InOut->ListHitsinTrack)[j]][2];
+
+
+
 	nFitPoints++;
+
+
    }
 
   // the following fit in XY with the Chi2 methods requires already an existing fit (in order
@@ -780,11 +806,39 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
    if(status> 0 ) {	// in this case the previous fit was successful, so proceed with further (better)
-   			//  association of
-   			// Mvd hits but go directl to the association of the SciTil hits;
+   			//  association of Mvd hits and STT hits;
+   			// otherwise go directly to the association of the SciTil hits;
 	Ox= -0.5*(*(InOut->ALFA));
 	Oy= -0.5*(*(InOut->BETA));
 	R= sqrt( Ox * Ox + Oy * Oy - (*(InOut->GAMMA)) );
+
+
+
+//-------------- stampa
+
+if (istampa>=1){
+bool tkeepit[10];
+tkeepit[0] = true;
+Short_t nSttSkewHitsinTrack[10],
+	nSciTilHitsinTrack[10];
+Short_t ListSttSkewHitsinTrack[100];
+Double_t KAPPA[10] ;
+KAPPA[0] = 0.;
+nSttSkewHitsinTrack[0] = 0;
+nSciTilHitsinTrack[0] = 0;
+
+cout<<"\tstampa in CTFind..2.cxx, dopo fitChi2.FitHelixCylinder(m = "<<m<<", q = "<<q<<", atan(m) = "<<atan(m)<<"):"<<endl;
+Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
+ListMvdStripHitsinTrack,ListSttParHitsinTrack,
+ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
+&nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
+
+nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
+-1, // print all candidates;
+InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
+InOut->Fi_initial_helix_referenceframe,KAPPA);
+}
+//-------------- fine stampa
 
 
 	// find again the angular range for candidate track in the Stt detector (find
@@ -837,6 +891,11 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 			*InOut->Fi_up_limit	// output; inside DecideWhichAngulaRange this is an alias;
 				);
 
+
+
+
+	// ------------------------  now redo the selection of the Mvd hits belonging to this track;
+
    	delta=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
   	 //   highqualitycut=0.3; //  parameter of proximity for associating Mvd hits to Stt tracks
    	highqualitycut=0.5; //  parameter of proximity for associating Mvd hits to Stt tracks
@@ -864,6 +923,35 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 		ListMvdStripHitsinTrack	// output; dimensionality : [MAXMVDSTRIPHITSINTRACK];
 		);
 
+	// ------------------------  now redo the selection of the STT Axial hits belonging to this track;
+
+ 
+	NN =  TrkAssociatedParallelHitsToHelix5(
+		auxListHitsinTrack,              //  this is the output
+		InOut->InclusionListStt,
+		*(InOut->Fi_low_limit),
+		*(InOut->Fi_up_limit),
+		info,
+		InOut->ListSttParHits,
+		InOut->nsttparhit,
+		Ox,
+		Oy,
+		R,
+		InOut->strawradius
+				);
+
+  	if( NN < InOut->minimumhitspertrack ) return false;
+	if( NN>InOut->maxstthitsintrack) {
+		nSttParHitsinTrack = InOut->maxstthitsintrack;
+	} else {
+		nSttParHitsinTrack=NN;
+	}
+
+
+	for(i=0; i< nSttParHitsinTrack;i++){
+		ListSttParHitsinTrack[i]=auxListHitsinTrack[i];
+	}
+
    }  // end of  if(status> 0 )
 
 
@@ -883,6 +971,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 //  SIGN=irrelevant when x0=0;   then :
 //  P1 =  [ x0- abs{(L/2)*y0/RR}; y0-SIGN*abs{(L/2)*x0/RR} ],
 //  P2 =  [ x0+abs{(L/2)*y0/RR}; y0+SIGN*abs{(L/2)*x0/RR} ].
+
 
 
 	*(InOut->nSciTilHitsinTrack)= AssociateSciTilHit(
@@ -908,24 +997,26 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	  // than TWO SciTil hits belonging to a track;
 	  if( *(InOut->nSciTilHitsinTrack) > 2 ) *(InOut->nSciTilHitsinTrack)=2;
 
-	  for(j=0;j<*(InOut->nSciTilHitsinTrack);j++){
-		(InOut->InclusionListSciTil)[(InOut->ListSciTilHitsinTrack)[j]]
-			=false;
-	  }
+//	  for(j=0;j<*(InOut->nSciTilHitsinTrack);j++){
+//		(InOut->InclusionListSciTil)[(InOut->ListSciTilHitsinTrack)[j]]
+//			=false;
+//	  }
+
+
+
 	}
 
 
+  // orderig the hits in this track cand; for a trajectory Radius not too large
+  // better the ordering with conformal.
 
-  // orderig the hits in this track cand
-  // for small radius trajectory better the ordering with conformal.
 
-
- if( R< InOut->rstrawdetectormax/2.){
+ if( R< InOut->rstrawdetectormax){
 
  // the origin of the tack is assumed to be (0,0);
 
 	// ordering the Stt axial using the conformal coordinates;
-	OrderingUsingConformal(
+	OrderingUsingFi(
 		*InOut->Charge,		// input;
 		info,			// input;
 		nSttParHitsinTrack,	// input;
@@ -934,6 +1025,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 		ListSttParHitsinTrack	// input and output;
 				);
+
 
   } else { // otherwise it is better distance from (0,0) method.
 	OrderingUsingR(
@@ -945,12 +1037,11 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
 //-------------- stampa
-if (istampa>0){
+if (istampa>=1){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
-	nSciTilHitsinTrack[10],
-	IVOLTE = 0;
+	nSciTilHitsinTrack[10];
 Short_t ListSttSkewHitsinTrack[100];
 Double_t KAPPA[10] ;
 KAPPA[0] = 0.;
@@ -967,6 +1058,8 @@ nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
 -1, // print all candidates;
 InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
 InOut->Fi_initial_helix_referenceframe,KAPPA);
+
+
 }
 //-------------- fine stampa
 
@@ -974,23 +1067,80 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
  // now do the Cleanup of the track in the XY projection;
 
+/*
  if (
 	Cleanup.XYCleanup(
+		// general infos about the axial Straws;
+		istampa,
 		info,
 		InOut->ListParContiguous,
 		InOut->nParContiguous,
-		InOut->StrawCode,
-		InOut->StrawCode2,
+		InOut->StrawCode, // first straw boundary code (a straw can belong to 2 boundaries);
+		InOut->StrawCode2, // second straw boundary code (a straw can belong to 2 boundaries);
 		InOut->TubeID,
-		ListSttParHitsinTrack,
-		nSttParHitsinTrack,
-		InOut->r_stt_inner_par_max // r_stt_inner_par_max ==> radius of the circumscribed
+		InOut->xTube,
+		InOut->yTube,
+		InOut->zTube,
+		InOut->xxyyTube,
+		// the following are the info of the track under scrutiny;
+		Ox,			// input;
+		Oy,			// input;
+		R,			// input;
+		*InOut->Charge,		// input;
+		ListSttParHitsinTrack,	// input
+		nSttParHitsinTrack,	// input
+		InOut->r_stt_inner_par_max, // r_stt_inner_par_max ==> radius of the circumscribed
 					// circumference to the
 					//; outer hexagon defining THE INNER axial Stt straw region;
-
-
+		*InOut->nSciTilHitsinTrack,	// input, # of SciTil hits in the current track;
+		InOut->ListSciTilHitsinTrack,	// input, list of SciTil hits in the current track;
+		posizSciTil	// input, info on all the SciTil position;
 			)
- ){return true;} else {return false;}
+ ){
+	if(istampa>0){ cout<<"\tthis track candidate passes the stt parallel cleanup; here is the printout :\n";
+			bool tkeepit[10];
+			tkeepit[0] = true;
+			Short_t nSttSkewHitsinTrack[10],
+				nSciTilHitsinTrack[10],
+				IVOLTE = 0;
+			Short_t ListSttSkewHitsinTrack[100];
+			Double_t KAPPA[10] ;
+			KAPPA[0] = 0.;
+			nSttSkewHitsinTrack[0] = 0;
+			nSciTilHitsinTrack[0] = *(InOut->nSciTilHitsinTrack);
+
+			Print2.stampetta2(tkeepit,ListMvdPixelHitsinTrack,
+			ListMvdStripHitsinTrack,ListSttParHitsinTrack,
+			ListSttSkewHitsinTrack,InOut->ListSciTilHitsinTrack,
+			&nMvdPixelHitsinTrack,&nMvdStripHitsinTrack,&nSttParHitsinTrack,
+			nSttSkewHitsinTrack,nSciTilHitsinTrack,1,	// questo e' nTotCand, cioe' 1
+			-1, // print all candidates;
+			InOut->maxmvdpixelhitsintrack,
+			InOut->maxmvdstriphitsintrack,InOut->maxscitilhitsintrack,InOut->maxstthitsintrack,&R,&Ox,&Oy,
+			InOut->Fi_initial_helix_referenceframe,KAPPA);
+			cout<<"---------------------------------------------------------------------\n";
+	}
+
+	return true;
+ } else {
+	if(istampa>0){ cout<<"\tthis track candidate DOES NOT pass the stt parallel cleanup.\n";}
+	return false;
+
+ }
+
+*/
+
+
+ return true;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1117,6 +1267,74 @@ void   PndTrkCTFindTrackInXY2::OrderingUsingConformal(
 
 
 
+
+
+//----------begin of function PndTrkCTFindTrackInXY2::OrderingUsingFi
+
+void   PndTrkCTFindTrackInXY2::OrderingUsingFi(
+	Short_t  Charge,  // input;
+	Double_t info[][7],	// input;
+	Int_t nHits,  // input;
+	Double_t oX,  // input;
+	Double_t oY,  // input;
+	Short_t * ListHits	// input and output (ordered);
+	)
+{
+
+      Short_t	iaux[nHits],
+		j;
+      Double_t	fi[nHits],
+		Fi0;
+
+ PndTrkMergeSort MergeSort;
+
+
+
+//  here there is the ordering of the hits under the assumption that the circumference
+//  in XY goes through  (0,0).
+
+//   ordering of the hits
+
+	Fi0 = atan2( -oY, -oX);  // atan2 defined between -PI and PI.
+
+	// the following statement is necessary since for unknown reason the root interpreter
+	if( Charge <0 ){	// particle rotates counterclockwise (beam direction along Z);
+		for (j = 0; j< nHits; j++){
+			fi[j]= atan2( info[ListHits[j]][1]-oY, info[ListHits[j]][0]-oX);
+			if( fi[j] < Fi0 ) fi[j] += 2.* PI;
+			if( fi[j] < Fi0 ) fi[j] = Fi0;
+		}
+		MergeSort.Merge_Sort2( nHits, fi, ListHits);
+
+
+	} else {	// particle rotates clockwise;
+		for (j = 0; j< nHits; j++){
+			fi[j]= atan2( info[ListHits[j]][1]-oY, info[ListHits[j]][0]-oX);
+			if( fi[j] > Fi0 ) fi[j] -= 2.* PI;
+			if( fi[j] > Fi0 ) fi[j] = Fi0;
+		}
+		MergeSort.Merge_Sort2( nHits, fi, ListHits);
+		// it is necessary now to invert the order;
+		for (j = 0; j< nHits; j++){
+			iaux[j] = ListHits[nHits-j-1];
+		}
+		
+		for (j = 0; j< nHits; j++){
+			ListHits[j]=iaux[j];
+		}
+	}	// end of if( Charge <0 )
+
+
+
+ return; 
+
+
+}
+//----------end of function PndTrkCTFindTrackInXY2::OrderingUsingFi
+
+
+
+
 //----------begin of function PndTrkCTFindTrackInXY2::OrderingUsingR
 
 void  PndTrkCTFindTrackInXY2::OrderingUsingR(
@@ -1126,10 +1344,14 @@ void  PndTrkCTFindTrackInXY2::OrderingUsingR(
 	)
 {
  Short_t	i,
+		iaux,
 		j,
 		ipar,
 		iskew;
- Double_t auxR2[nHits];
+ Double_t	aux,
+		auxR2[nHits],
+		distq1,
+		distq2;
 
  PndTrkMergeSort MergeSort;
 
@@ -1148,6 +1370,54 @@ void  PndTrkCTFindTrackInXY2::OrderingUsingR(
 
 		//  ordering the Stt Hits
  MergeSort.Merge_Sort2( nHits, auxR2, ListHits);
+
+ // take care of the case when 2 hits ave the same distance from (0,0). this case can
+ //  happen (as a difference with the Ordering with the Conformal method) typically
+ // when the last 2 hits lie at the boundary of the outer axial layer OR the first 2 hits lie at the boundary
+ // of the inner axial layer ;
+
+ // case of the two first hits at the same R : decide order based on proximity to the 3 hit;
+ if( fabs( auxR2[0] - auxR2[1]) < 0.1) {
+	distq1 = (info[ListHits[0]][0]-info[ListHits[2]][0])*(info[ListHits[0]][0]-info[ListHits[2]][0])+
+		(info[ListHits[0]][1]-info[ListHits[2]][1])*(info[ListHits[0]][1]-info[ListHits[2]][1]);
+	distq2 = (info[ListHits[1]][0]-info[ListHits[2]][0])*(info[ListHits[1]][0]-info[ListHits[2]][0])+
+		(info[ListHits[1]][1]-info[ListHits[2]][1])*(info[ListHits[1]][1]-info[ListHits[2]][1]);
+
+	if(distq1 < distq2 ){	// exchange place of hits;
+		iaux = ListHits[0];
+		ListHits[0] = ListHits[1];
+		ListHits[1] = iaux;
+		aux = auxR2[0];
+		auxR2[0]=auxR2[1];
+		auxR2[1]=aux;
+	}	// end of if(distq1 < distq2 )
+ }
+
+
+
+ for(i=2; i<nHits; i++){
+	if( auxR2[i] == auxR2[i-1]){
+		// ambiguity case; decide the order based on which of the two hits (hit # i and # i-1 )is closer the
+		// hit # i-2;
+		distq1 = (info[ListHits[i]][0]-info[ListHits[i-2]][0])*(info[ListHits[i]][0]-info[ListHits[i-2]][0])+
+			(info[ListHits[i]][1]-info[ListHits[i-2]][1])*(info[ListHits[i]][1]-info[ListHits[i-2]][1]);
+
+		distq2 = (info[ListHits[i-1]][0]-info[ListHits[i-2]][0])*(info[ListHits[i-1]][0]-info[ListHits[i-2]][0])+
+			(info[ListHits[i-1]][1]-info[ListHits[i-2]][1])*(info[ListHits[i-1]][1]-info[ListHits[i-2]][1]);
+
+		if(distq1<distq2){
+			// exchange the order;
+			iaux = ListHits[i];
+			ListHits[i] = ListHits[i-1];
+			ListHits[i-1] = iaux;
+			aux = auxR2[i];
+			auxR2[i]=auxR2[i-1];
+			auxR2[i-1]=aux;
+		}
+
+	}
+ }	// end of for(i=0; i<nHits; i++)
+
  return;
 }
 
