@@ -2,7 +2,6 @@
 #include "PndSciTPoint.h"
 #include "PndSciTHit.h"
 #include "PndTrkComparisonMCtruth.h"
-// #include "PndTrkCTGeometryCalculations.h"
 #include "PndMCTrack.h"
 #include "PndTrkVectors.h"
 
@@ -54,7 +53,8 @@ using namespace std;
 	Vec <Double_t> *X2,
 	Vec <Double_t> *Y2,
 	Vec <Double_t> *X3,
-	Vec <Double_t> *Y3
+	Vec <Double_t> *Y3,
+	int IVOLTE
 
 						)
 {
@@ -70,7 +70,6 @@ using namespace std;
  bool
 	firstime,
 	flaggo;
-  // non cambiare senno' cambiaperl non funziona !
 	Short_t TMPinclusionMC[tmp_dim2*tmp_dim];
 	Vec <Short_t> inclusionMC(TMPinclusionMC,tmp_dim2*tmp_dim,"inclusionMC");
 
@@ -84,16 +83,13 @@ using namespace std;
 	Vec <Short_t> toMCtrackfrequency(TMPtoMCtrackfrequency,tmp_dim2*MAXSTTHITSINTRACK,"toMCtrackfrequency");
 
 
-  // fine non cambiare senno' cambiaperl non funziona !
 
    Short_t  i, j, jtemp,jexp , nmid;
 
    Short_t  itemp, massimo;
-  // non cambiare senno' cambiaperl non funziona !
 	Short_t TMPtoMCtracklist[tmp_dim2*MAXSTTHITSINTRACK];
 	Vec <Short_t> toMCtracklist(TMPtoMCtracklist,tmp_dim2*MAXSTTHITSINTRACK,"toMCtracklist");
 
-  // fine non cambiare senno' cambiaperl non funziona !
 
    int nindex;
    Int_t enne;
@@ -118,7 +114,6 @@ using namespace std;
 	Double_t TMPtoMCtrackdistance[tmp_dim2*MAXSTTHITSINTRACK];
 	Vec <Double_t> toMCtrackdistance(TMPtoMCtrackdistance,tmp_dim2*MAXSTTHITSINTRACK,"toMCtrackdistance");
 
-  // fine non cambiare senno' cambiaperl non funziona !
 
 
 
@@ -186,13 +181,12 @@ using namespace std;
 
 
 
-
      for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+
 	if(!keepit->at(jexp)) continue;
 
 	firstime=true;
 	ntoMCtrack[jexp]=0;
-
 
 // prima  gli hits paralleli ---------------------
 
@@ -201,6 +195,8 @@ using namespace std;
 		nindex = jexp*MAXSTTHITSINTRACK + i;
 		//  enne = MC track alla quale lo hit e' associato.
 		enne = (Int_t)( info->at( ListSttParHitsinTrack->at(nindex)*7+ 6)+0.01 );
+
+
 		if(enne<0) continue;   //  hit not associated to any MC track; noise hit.
 
 		if(firstime) {
@@ -536,15 +532,15 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Vec<Short_t> ListSciTilHitsinTrack(ioData.ListSciTilHitsinTrack,
 		ioData.MAXTRACKSPEREVENT*ioData.MAXSCITILHITSINTRACK,"ListSciTilHitsinTrack") ;
  Vec<Short_t> ListSttParHitsinTrack(ioData.ListSttParHitsinTrack,
-		ioData.MAXTRACKSPEREVENT*ioData.MAXSTTHITSINTRACK,"ListSttParHitsinTrack") ;
+		ioData.MAXTRACKSPEREVENT*ioData.maxstthitsintrack,"ListSttParHitsinTrack") ;
  Vec<Short_t> ListSttSkewHitsinTrack(ioData.ListSttSkewHitsinTrack,
-		ioData.MAXTRACKSPEREVENT*ioData.MAXSTTHITSINTRACK,"ListSttSkewHitsinTrack") ;
- Vec<Short_t> ListTrackCandHit (ioData.ListTrackCandHit,ioData.MAXTRACKSPEREVENT*(ioData.MAXSTTHITSINTRACK+
+		ioData.MAXTRACKSPEREVENT*ioData.maxstthitsintrack,"ListSttSkewHitsinTrack") ;
+ Vec<Short_t> ListTrackCandHit (ioData.ListTrackCandHit,ioData.MAXTRACKSPEREVENT*(ioData.maxstthitsintrack+
 		ioData.MAXMVDPIXELHITSINTRACK+
 		ioData.MAXMVDSTRIPHITSINTRACK+
 		ioData.MAXSCITILHITSINTRACK),"ListTrackCandHit") ;
  Vec<Short_t> ListTrackCandHitType (ioData.ListTrackCandHitType,
- 		ioData.MAXTRACKSPEREVENT*(ioData.MAXSTTHITSINTRACK+
+ 		ioData.MAXTRACKSPEREVENT*(ioData.maxstthitsintrack+
 		ioData.MAXMVDPIXELHITSINTRACK+
 		ioData.MAXMVDSTRIPHITSINTRACK+
 		ioData.MAXSCITILHITSINTRACK),"ListTrackCandHitType") ;
@@ -554,7 +550,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  int       MAXMVDSTRIPHITSINTRACK = ioData.MAXMVDSTRIPHITSINTRACK;
  int       MAXSCITILHITSINTRACK = ioData.MAXSCITILHITSINTRACK;
  int	   MAXSTTHITS = ioData.MAXSTTHITS;
- int	   MAXSTTHITSINTRACK = ioData.MAXSTTHITSINTRACK;
+ int	   MAXSTTHITSINTRACK = ioData.maxstthitsintrack;
  int	   MAXTRACKSPEREVENT = ioData.MAXTRACKSPEREVENT;
 
  //  protection against dimension 0 cases;
@@ -612,17 +608,17 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Vec<Double_t> Ox(ioData.Ox,ioData.MAXTRACKSPEREVENT,"Ox") ;
  Vec<Double_t> Oy(ioData.Oy,ioData.MAXTRACKSPEREVENT,"Oy") ;
  Vec<Short_t> ParalCommonList(ioData.ParalCommonList,
-		ioData.MAXTRACKSPEREVENT*ioData.MAXSTTHITSINTRACK,"ParalCommonList") ;
+		ioData.MAXTRACKSPEREVENT*ioData.maxstthitsintrack,"ParalCommonList") ;
  Vec<Short_t> ParSpuriList(ioData.ParSpuriList,
-		ioData.MAXTRACKSPEREVENT*ioData.MAXSTTHITSINTRACK,"ParSpuriList") ;
+		ioData.MAXTRACKSPEREVENT*ioData.maxstthitsintrack,"ParSpuriList") ;
  Vec<Double_t> R(ioData.R,ioData.MAXTRACKSPEREVENT,"R") ;
  Vec<Double_t> refindexMvdPixel(ioData.refindexMvdPixel,ioData.MAXMVDPIXELHITS,"refindexMvdPixel") ;
  Vec<Double_t> refindexMvdStrip(ioData.refindexMvdStrip,ioData.MAXMVDSTRIPHITS,"refindexMvdStrip") ;
  Vec<Short_t> resultFitSZagain(ioData.resultFitSZagain,ioData.MAXTRACKSPEREVENT,"resultFitSZagain") ;
  Vec<Short_t> SkewCommonList(ioData.SkewCommonList,
-		ioData.MAXTRACKSPEREVENT*ioData.MAXSTTHITSINTRACK,"SkewCommonList") ;
+		ioData.MAXTRACKSPEREVENT*ioData.maxstthitsintrack,"SkewCommonList") ;
  Vec<Short_t> SkewSpuriList(ioData.SkewSpuriList,
-		ioData.MAXTRACKSPEREVENT*ioData.MAXSTTHITSINTRACK,"SkewSpuriList") ;
+		ioData.MAXTRACKSPEREVENT*ioData.maxstthitsintrack,"SkewSpuriList") ;
  Vec<bool> SttSZfit(ioData.SttSZfit,ioData.MAXTRACKSPEREVENT,"SttSZfit") ;
  Vec<Double_t> XMvdPixel(ioData.XMvdPixel,ioData.MAXMVDPIXELHITS,"XMvdPixel") ;
  Vec<Double_t> XMvdStrip(ioData.XMvdStrip,ioData.MAXMVDSTRIPHITS,"XMvdStrip") ;
@@ -816,8 +812,6 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
 	for(i=0; i<nTotalCandidates;i++){
 		if(!keepit[i]) continue;
-
-
 		nn = nSttParHitsinTrack[i]+nSttSkewHitsinTrack[i]+
 			nMvdPixelHitsinTrack[i]+nMvdStripHitsinTrack[i];
 		// assume that the point on trajectory at Z=0 is
@@ -872,7 +866,6 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 	}	// end of  for(i=0; i<nTotalCandidates;i++)
 
 
- // inizio cambio_in_perl
 	if(nTotalCandidates>0) AssociateFoundTrackstoMCquater(
 		BFIELD,
 		CVEL,
@@ -909,11 +902,11 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		&X2,
 		&Y2,
 		&X3,
-		&Y3
+		&Y3,
+		IVOLTE
 		);
 
 
-// fine cambio_in_perl
  }  // end   if( nMCTracks >0 && nTotalCandidates > 0)
 
 
@@ -926,6 +919,8 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 		} else {
 		  cout<<"  has keepit  false!\n";
 		}
+
+
 	}
 
 
@@ -1068,6 +1063,8 @@ int  nHasMvdHit=0;
 int  nHasSciTilHit=0;
 PndMCTrack* pMCtr;
 
+
+
 for (i=0;i<nMCTracks;i++){
    	pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
    	if ( ! pMCtr ) continue;
@@ -1148,6 +1145,8 @@ for (i=0;i<nMCTracks;i++){
 
 
 //----------- fine conteggio delle tracce MC accettabili
+
+
 
    fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ,",IVOLTE,
 	nMCTracksaccettabili);
