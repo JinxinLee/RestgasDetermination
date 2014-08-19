@@ -1,6 +1,6 @@
 #include "PndTrkCTFindTrackInXY.h"
 #include "PndTrkCTGeometryCalculations.h"
-//   #include "PndTrkGlpkFits.h"
+#include "PndTrkGlpkFits.h"
 #include "PndTrkLegendreFits.h"
 #include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkMergeSort.h"
@@ -71,7 +71,7 @@ Short_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
 	if(!InclusionListSciTil[iScitHit]) continue;
 
 	intersect=GeomCalculator.IntersectionSciTil_Circle(
-	  dimensionscitil,
+//	  dimensionscitil,
 	  posizSciTil[iScitHit][0],
 	  posizSciTil[iScitHit][1],
 	  Oxx,
