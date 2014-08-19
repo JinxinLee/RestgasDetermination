@@ -5,7 +5,6 @@
 #include "TROOT.h"
 
 
-
 class PndTrkCTGeometryCalculations : public TObject
 {
 
@@ -65,7 +64,6 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
-	Double_t STRAWRESOLUTION,
 	Short_t skewnum,
 	Double_t info[][7],
 	Double_t *WDX,
@@ -77,6 +75,23 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t Zerror[2]
 	);
 
+
+
+  void CalculateSandZ2(
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Short_t skewnum,
+	Double_t info[][7],
+	Double_t *WDX,
+	Double_t *WDY,
+	Double_t *WDZ,
+	Double_t S[2],
+	Double_t Sdrift[2],
+	Double_t Z[2],
+	Double_t Zdrift[2],
+	Double_t Zerror[2]
+	);
 
   void ChooseEntranceExitbis(
 	Double_t Oxx,
@@ -99,7 +114,8 @@ class PndTrkCTGeometryCalculations : public TObject
 	Double_t FiStart,
 	Short_t nIntersections,
 	Double_t *XintersectionList,  // input and output;
-	Double_t *YintersectionList  // input and output;
+	Double_t *YintersectionList,  // input and output;
+	Double_t *FiOrderedList	// output;
 	);
 
 
@@ -112,6 +128,21 @@ class PndTrkCTGeometryCalculations : public TObject
 	Int_t *nrounds
 	);
 
+
+
+  Double_t Dist_SZ_bis(
+	Double_t Rr,	// input
+	Double_t KAPPA,	// input
+	Double_t FI0,	// input
+	Double_t ZED,	// input
+	Double_t S,	// input
+	Short_t n_allowed_rounds, // input, number of maximum allowed turns. That means that the number of turns
+				// can go from 0 to  n_allowed_rounds.  It can be negative, in that case
+				// the number of allowed turns go from n_allowed_rounds to 0;
+	Double_t signPz,	// input, it indicates if the tracks goes forward (Pz>0) or backwords (Pz<0);
+	Double_t & chosenS // output, the S position corrisponding to the point minimizing the distance;
+			// this S can be < 0 or > 2PI;
+	);
 
 
   Double_t FindDistance(
@@ -194,9 +225,9 @@ void  FindingParallelTrackAngularRange2(
 	Double_t Start[3],
 	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
 	Double_t ApotemaMax,
-	Short_t &nIntersections,
 	Double_t XintersectionList[16],
-	Double_t YintersectionList[16]
+	Double_t YintersectionList[16],
+	Double_t FiOrderedList[16]
 	);
 
   Short_t FindTrackEntranceExitbiHexagonRight(
@@ -222,9 +253,9 @@ void  FindingParallelTrackAngularRange2(
 	Double_t Start[3],
 	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
 	Double_t ApotemaMax,
-	Short_t &nIntersections,
 	Double_t XintersectionList[16],
-	Double_t YintersectionList[16]
+	Double_t YintersectionList[16],
+	Double_t FiOrderedList[16]
 	);
 
   Short_t FindTrackEntranceExitHexagonCircleLeft(
@@ -250,9 +281,9 @@ void  FindingParallelTrackAngularRange2(
 	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
 	Double_t ApotemaMax,
 	Double_t GAP,
-	Short_t &nIntersections,
 	Double_t XintersectionList[12],
-	Double_t YintersectionList[12]
+	Double_t YintersectionList[12],
+	Double_t FiOrderedList[12]
 	);
 
   Short_t FindTrackEntranceExitHexagonCircleRight(
@@ -277,9 +308,9 @@ void  FindingParallelTrackAngularRange2(
 	Double_t ApotemaMin, // Apotema=distance Hexagon side from (0,0).
 	Double_t ApotemaMax,
 	Double_t GAP,
-	Short_t &nIntersections,
 	Double_t XintersectionList[12],
-	Double_t YintersectionList[12]
+	Double_t YintersectionList[12],
+	Double_t FiOrderedList[12]
 	);
 
   bool IntersectionCircle_Segment(
@@ -301,8 +332,26 @@ void  FindingParallelTrackAngularRange2(
 
 
 
+  bool IntersectionCircle_Segment_forScitil(
+	Double_t a, // coefficients implicit equation.
+	Double_t b, // of segment : a*x + b*y + c =0.
+	Double_t c,
+	Double_t P1x, // point delimiting the segment.
+	Double_t P2x, // point delimiting the segment.
+	Double_t P1y, // point delimiting the segment.
+	Double_t P2y, // point delimiting the segment.
+	Double_t Oxx, // center of circle.
+	Double_t Oyy,
+	Double_t Rr, // Radius of circle.
+	Double_t factor,	// to take into account errors in
+				// the determination of the circumference;
+	Short_t * Nintersections,
+	Double_t XintersectionList[2],
+	Double_t YintersectionList[2],
+	Double_t *distance
+	);
+
   bool IntersectionSciTil_Circle(
-	Double_t DIMENSIONSCITIL,
 	Double_t posizSciTilx,
 	Double_t posizSciTily,
 	Double_t Oxx, // center of circle.
@@ -416,7 +465,22 @@ void  FindingParallelTrackAngularRange2(
 	);
 
 
+  void ListAxialSectorsCrossedbyTrack_and_Hits(
+	Double_t Ox,		// input;
+	Double_t Oy,		// input;
+	Double_t R,		// input;
+	Double_t Charge,	// input;
+	Short_t nHits,		// input;
+	Short_t* ListHits,	// input;
+	Double_t info[][7],	// input;
+	Short_t& nArcs_populated,	// output; # Arcs of trajectory populated by at least 1 axial hit; this is <= 56;
+	Short_t nHitsInArc[56],	// output; number of hits in each Sector; if the maximun # of Intersected Sector is 56,
+				//  than the maximum # of Arcs is 28;
 
+	Short_t (* ListHitsInArc) [56]	// output; ordered list of hits in each Arc (from first to last
+					// according to the charge of the particle;if the maximum
+					//  # of Intersected Sector is 56, than the maximum # of Arcs is 28;
+						);
 
 
   ClassDef(PndTrkCTGeometryCalculations,1);
