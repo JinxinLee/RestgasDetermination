@@ -48,7 +48,7 @@ struct PndTrkComparisonMCtruth_io_Data{
 	int	  MAXSCITILHITS;
 	int       MAXSCITILHITSINTRACK;
 	int	  MAXSTTHITS;
-	int	  MAXSTTHITSINTRACK;
+	int	  maxstthitsintrack;
 	int	  MAXTRACKSPEREVENT;
 	Short_t  *MCMvdPixelAloneList;
 	Short_t  *MCMvdStripAloneList;
@@ -169,7 +169,8 @@ class PndTrkComparisonMCtruth
 	Vec <Double_t> *X2,
 	Vec <Double_t> *Y2,
 	Vec <Double_t> *X3,
-	Vec <Double_t> *Y3
+	Vec <Double_t> *Y3,
+	int IVOLTE
 
 					);
 
