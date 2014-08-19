@@ -592,8 +592,8 @@ return 1;
  Stt_IndVar_IndVar_Sum = 0. ;
  Stt_IndVar_DipVar_Sum = 0. ;
 
+if(IVOLTE == 14800 + 2) { Z[9] = -5.7;}
  for(i=0; i<nHitsinTrack; i++){
-
 
 	e2 = 1./(ErrorDriftRadius[i]*ErrorDriftRadius[i]);
 
@@ -604,7 +604,6 @@ return 1;
 	  // Here S is the independent variable (== Mvd_IndVar), Z is the
 	  // dependent variable (== Mvd_DepVar);
 	  // the fit function is :  Z = (1/Kappa)*(S-FInot);
-
 	  Mvd_DipVar_DipVar[nMvdHits] = Z[i]*Z[i]*e2;
 	  Mvd_IndVar_IndVar[nMvdHits] =(S[i]-FInot)*(S[i]-FInot)*e2;
 	  Mvd_IndVar_DipVar[nMvdHits] =(S[i]-FInot)*Z[i]*e2;
