@@ -37,8 +37,32 @@ bool BadTrack_ParStt(
 	);
 
 
+ bool GoodTrack(
+//		Short_t Sector,			// input, Sector number;
+		Double_t info[][7],		// input
+//		bool no_holes,			// input
+		bool farthest_hit_is_boundary,	// input
+		Double_t Ox,			// input; center of the current track;
+		Double_t Oy,			// input; center of the current track;
+		Double_t R,			// input; Radius of the current track;
+		Short_t Charge,			// input; Charge of the current track;
+		Short_t nHits,			// input
+		Short_t* ListHits,		// input
+		Short_t *StrawCode, // first straw boundary code (a straw can belong to 2 boundaries);
+		Short_t *StrawCode2,
+		Short_t *TubeID,		// input
+		Short_t *nParContiguous,	// input
+		Short_t ListParContiguous[][6],	// input
+		Double_t *xTube,		// input
+		Double_t *yTube,		// input
+		Double_t *zTube,		// input
+		Double_t *xxyyTube,		// input
 
-void SeparateInnerOuterParallel(
+		Short_t & holes			// input and output
+
+		);
+
+ void SeparateInnerOuterParallel(
 
 	// input
 	Short_t nHits,
@@ -154,22 +178,36 @@ bool SttSkewCleanup(
 	Double_t Rr,
 	Double_t RStrawDetMax,
 	Double_t RStrawDetMin,
-	Double_t SEMILENGTH_STRAIGHT,
+//	Double_t SEMILENGTH_STRAIGHT,
 	Double_t Start[3],
-	Double_t STRAWRADIUS,
-	Double_t ZCENTER_STRAIGHT
+	Double_t STRAWRADIUS
+//	Double_t ZCENTER_STRAIGHT
 	);
 
  bool XYCleanup(
+	// general infos about the axial Straws;
+	int istampa,
 	Double_t info[][7],
 	Short_t (*ListParContiguous)[6],
 	Short_t *nParContiguous,
 	Short_t *StrawCode,
 	Short_t *StrawCode2,
 	Short_t *TubeID,
+	Double_t *xTube,
+	Double_t *yTube,
+	Double_t *zTube,
+	Double_t *xxyyTube,
+	// the following are the info of the track under scrutiny;
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Short_t Charge,
 	Short_t *ListHits,
 	Short_t nHits,
-	Double_t RStrawDetInnerParMax
+	Double_t RStrawDetInnerParMax,
+	Short_t nScitilHitsInTrack,	// input, # of SciTil hits in the current track;
+	Short_t* ListSciTilHitsinTrack,	// input, list of SciTil hits in the current track;
+	Double_t posizSciTil[][3]	// input, info on all the SciTil position;
 		);
 
 
