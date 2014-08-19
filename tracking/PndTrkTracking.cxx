@@ -1911,7 +1911,7 @@ if(istampa>=2){
 	for(i=0, iaccept=0;i<fnSciTilHitsinTrack[ncand];i++){
 
 		intersect=GeomCalculator.IntersectionSciTil_Circle(
-			DIMENSIONSCITIL,
+//			DIMENSIONSCITIL,
 			fposizSciTil[fListSciTilHitsinTrack[ncand][i]][0],
 			fposizSciTil[fListSciTilHitsinTrack[ncand][i]][1],
 			fOx[ncand], // center of circle.
@@ -2649,10 +2649,10 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 		fR[ncand],
 		RSTRAWDETECTORMAX,
 		RSTRAWDETECTORMIN,
-		SEMILENGTH_STRAIGHT,
+//		SEMILENGTH_STRAIGHT,
 		Start,
-		STRAWRADIUS,
-		ZCENTER_STRAIGHT
+		STRAWRADIUS
+//		ZCENTER_STRAIGHT
 				) ) {
 			keepit[ncand]=false;
 			continue;
@@ -3226,10 +3226,10 @@ if(istampa>=2){
 		fR[ncand],
 		RSTRAWDETECTORMAX,
 		RSTRAWDETECTORMIN,
-		SEMILENGTH_STRAIGHT,
+//		SEMILENGTH_STRAIGHT,
 		Start,
-		STRAWRADIUS,
-		ZCENTER_STRAIGHT
+		STRAWRADIUS
+//		ZCENTER_STRAIGHT
 				) ) {
 		keepit[ncand]=false;
 	}  // end of if ( !TrackCleanup
@@ -3447,7 +3447,7 @@ if(istampa>1){
 	ioData.MAXSCITILHITS = MAXSCITILHITS ;
 	ioData.MAXSCITILHITSINTRACK = MAXSCITILHITSINTRACK;
 	ioData.MAXSTTHITS = MAXSTTHITS;
-	ioData.MAXSTTHITSINTRACK = MAXSTTHITSINTRACK;
+	ioData.maxstthitsintrack = MAXSTTHITSINTRACK;
 	ioData.MAXTRACKSPEREVENT = MAXTRACKSPEREVENT;
 	ioData.MCMvdPixelAloneList = MCMvdPixelAloneList;
 	ioData.MCMvdStripAloneList = MCMvdStripAloneList;
