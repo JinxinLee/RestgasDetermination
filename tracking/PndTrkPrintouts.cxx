@@ -145,7 +145,7 @@ void PndTrkPrintouts::stampaSttHits2(
              pSttTube->GetPosition().Y() << " " << pSttTube->GetPosition().Z() 
            << "; R = "<<sqrt(pSttTube->GetPosition().X()*pSttTube->GetPosition().X()+
 	   pSttTube->GetPosition().Y()*pSttTube->GetPosition().Y())<<
-	   ", suo drift radius = "<<dradius <<endl;
+	   ", suo drift radius = "<<dradius <<", semilength "<<pSttTube->GetHalfLength()<<endl;
       	cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
       	<< WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl;
       } else{
@@ -155,7 +155,7 @@ void PndTrkPrintouts::stampaSttHits2(
              pSttTube->GetPosition().Y() << " " << pSttTube->GetPosition().Z() 
            << "; R = "<<sqrt(pSttTube->GetPosition().X()*pSttTube->GetPosition().X()+
 	   pSttTube->GetPosition().Y()*pSttTube->GetPosition().Y())<<
-	   ", suo drift radius = "<<dradius <<endl;
+	   ", suo drift radius = "<<dradius <<", semilength "<<pSttTube->GetHalfLength() <<endl;
       cout <<"             wire direction, X, Y, Z (Z direction set always positive)"
       << WDX[i]<<"  "<<WDY[i]<<"  "<<WDZ[i] <<endl
            <<"             this hit belongs to MC track n. "<<puntator->GetTrackID()<<endl;
