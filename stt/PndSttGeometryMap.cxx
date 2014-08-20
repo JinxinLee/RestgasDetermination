@@ -195,6 +195,42 @@ TArrayI PndSttGeometryMap::FindNeighborings(int tubeId) {
         return FindNeighborings(tube);
 }
 
+double PndSttGeometryMap::GetAngleBetweenTubes(int tubeID1, int tubeID2) const {
+
+	PndSttTube *tube1, *tube2;
+	tube1 = (PndSttTube*) fTubeArray->At(tubeID1);
+	tube2 = (PndSttTube*) fTubeArray->At(tubeID2);
+
+	TVector3 pos1, pos2, direction;
+	pos1 = tube1->GetPosition();
+	pos2 = tube2->GetPosition();
+
+	direction = pos2 - pos1;
+
+	double phi = direction.Phi();
+	if (phi < 0)
+		phi = 2 * TMath::Pi() + phi;
+
+	return phi;
+}
+
+bool PndSttGeometryMap::InStraightLine(int tube1, int tube2, int tube3) const {
+
+	double diff = abs(
+			GetAngleBetweenTubes(tube1, tube2)
+					- GetAngleBetweenTubes(tube1, tube3));
+
+	//accept a deviation of 1 percent
+	if ((TMath::Pi() * 0.99) < diff & diff < (TMath::Pi() * 1.01)) {
+		//tube1 is in the middle
+		return true;
+	} else if (diff < 0.01) {
+		//tube1 is at the edge of the line
+		return true;
+	} else
+		return false;
+}
+
 void PndSttGeometryMap::FillStrawNeighborsMap()
 {
 	for (int i = 1; i < fNTubes+1; i++){

@@ -64,6 +64,10 @@ class PndSttGeometryMap : public TObject
 
   Double_t CalculateStrawPoca(PndSttHit* hit1, PndSttHit* hit2, TVector3& poca); //returns smallest distance between two Stt Straws. poca is set to the point between the two straws.
 
+  double GetAngleBetweenTubes(int tubeID1, int tubeID2) const;
+
+  bool InStraightLine(int tube1, int tube2, int tube3) const;
+
   // *********************
 
   void SetVerbose(int ver) { fVerbose = ver; }
@@ -94,7 +98,7 @@ class PndSttGeometryMap : public TObject
  protected:
   
   
-  ClassDef(PndSttGeometryMap,1) 
+  ClassDef(PndSttGeometryMap,2)
     
     };
 
