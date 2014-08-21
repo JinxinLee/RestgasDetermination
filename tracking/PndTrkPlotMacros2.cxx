@@ -2474,7 +2474,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
            zmin, zmax, zmin2, zmax2, Smin, Smax, S1, S2,
            z1, z2, y1, y2,
            vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, angle, minor, major,
+           aaa, bbb, ccc, angle, minor, major,dis,
            distance, Rx, Ry, LL,
            Aellipsis1, Bellipsis1,fi1,
            fmin, fmax, offset, step,
@@ -2607,18 +2607,40 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 						);
 
 
+	// faccio un trattamento speciale poiche' questi sono hit MC truth e quindi UNO dei due deve
+	// essere vero ma puo' darsi che sia a distanza non fisica perche' i parametri dell'elica
+	// (raggio, centro) sono un po' sbagliati (vengono dal Pattern Recognition!!)
 
-	// anche se questo e' un punto MC truth, se ci sono 2 intersezioni possibili per una straw, disegno
-	// entrambe, come per gli hit sperimentali;
-       for( ii=0; ii<2; ii++){
-	    if( auxZ[ii] < 999998.){
-        	if(zmin>auxZ[ii]-auxZDrift[ii]) zmin=auxZ[ii]-auxZDrift[ii];
-        	if(zmax<auxZ[ii]+auxZDrift[ii]) zmax=auxZ[ii]+auxZDrift[ii];		
+	// assume that it is impossible to have both solutions acceptable (i.e. with auxZ[*] <999998.);
+	if(auxZ[0] <999998. ) { ii = 0; dis =auxZ[0]; }
+	else if (auxZ[1] <999998. ) { ii = 1;dis =auxZ[1];}
+	else if (auxZ[0] > 999999.5 && auxZ[1]>999999.5) // questo e' il caso in cui gli auxZ[] NON sono 999999. (che significherebbe
+						// che e' successo che   bbb< 1.e-10 oppure sinTheta < 1.e-10 cioe' QUALCHE CASINO
+						// DI CALCOLO nella CalculateSandZ2) MA BENSI' SONO > 1000000. che e' il caso in cui
+						// le distanze sono unphysical. Tali distanze si ottengono : dis = auxZ[] - 1000000.
+	{
+		//  since these are MC hits, it would be WRONG to check if they are within the length of the wire;
+		//  in fact that length could be calculated wrongly due to the non perfect radius and center
+		//  of the Trajectory Helix found by the Pattern Recognition!
+		//  So, ONE of the two solutions is right no matter what; choose the one closer;
 
-        	if(Smin>auxS[ii]-auxSDrift[ii]) Smin=auxS[ii]-auxSDrift[ii];
-        	if(Smax<auxS[ii]+auxSDrift[ii]) Smax=auxS[ii]+auxSDrift[ii];		
-	    }  // end of   if( auxZ[ii] < 999998.)
-   }    //  end of    for( ii=0; ii<2; ii++)
+		if(auxZ[0]<auxZ[1])  { ii=0 ; dis=auxZ[0]-1000000.;}  else { ii=1; dis = auxZ[1]-1000000.;}
+		
+	} else if (auxZ[0] > 999999.5) {  // caso in cui la soluzione 0 e' unphysical mentre la 1 ha avuto casini di calcolo;
+		ii =0;
+		dis=auxZ[0]-1000000.;
+	} else if (auxZ[1] > 999999.5) {  // caso in cui la soluzione 1 e' unphysical mentre la 0 ha avuto casini di calcolo;
+		ii =0;
+		dis=auxZ[0]-1000000.;
+	} else {  // caso in cui entrambe le soluzioni hanno avuto un casino di calcolo;
+		continue;
+	}
+
+        if(zmin>dis-auxZDrift[ii]) zmin=dis-auxZDrift[ii];
+        if(zmax<dis+auxZDrift[ii]) zmax=dis+auxZDrift[ii];		
+
+
+
 
   }   //   end of  for( iii=0; iii< nMCSkewAlone[imaxima]; iii++)
 
@@ -2851,19 +2873,52 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
 						);
 
-	for( ii=0; ii<2; ii++){
-  
-  	    if( auxZ[ii] > 999998.) continue;	// this solution was not physical;
+
+
+
+	// assume that it is impossible to have both solutions acceptable (i.e. with auxZ[*] <999998.);
+
+
+	// ripeto il trattamento speciale poiche' questi sono hit MC truth e quindi UNO dei due deve
+	// essere vero ma puo' darsi che sia a distanza non fisica perche' i parametri dell'elica
+	// (raggio, centro) sono un po' sbagliati (vengono dal Pattern Recognition!!)
+
+	// assume that it is impossible to have both solutions acceptable (i.e. with auxZ[*] <999998.);
+	if(auxZ[0] <999998. ) { ii = 0; dis =auxZ[0]; }
+	else if (auxZ[1] <999998. ) { ii = 1;dis =auxZ[1];}
+	else if (auxZ[0] > 999999.5 && auxZ[1]>999999.5) // questo e' il caso in cui gli auxZ[] NON sono 999999. (che significherebbe
+						// che e' successo che   bbb< 1.e-10 oppure sinTheta < 1.e-10 cioe' QUALCHE CASINO
+						// DI CALCOLO nella CalculateSandZ2) MA BENSI' SONO > 1000000. che e' il caso in cui
+						// le distanze sono unphysical. Tali distanze si ottengono : dis = auxZ[] - 1000000.
+	{
+		//  since these are MC hits, it would be WRONG to check if they are within the length of the wire;
+		//  in fact that length could be calculated wrongly due to the non perfect radius and center
+		//  of the Trajectory Helix found by the Pattern Recognition!
+		//  So, ONE of the two solutions is right no matter what; choose the one closer;
+
+		if(auxZ[0]<auxZ[1])  { ii=0 ; dis=auxZ[0]-1000000.;}  else { ii=1; dis = auxZ[1]-1000000.;}
+		
+	} else if (auxZ[0] > 999999.5) {  // caso in cui la soluzione 0 e' unphysical mentre la 1 ha avuto casini di calcolo;
+		ii =0;
+		dis=auxZ[0]-1000000.;
+	} else if (auxZ[1] > 999999.5) {  // caso in cui la soluzione 1 e' unphysical mentre la 0 ha avuto casini di calcolo;
+		ii =0;
+		dis=auxZ[0]-1000000.;
+	} else {  // caso in cui entrambe le soluzioni hanno avuto un casino di calcolo;
+		continue;
+	}
+
+
 
         fprintf(MACRO,"TEllipse* AloneSkew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nAloneSkew%d_%d->SetFillStyle(0);\n",
-                    i,ii,auxZ[ii],Rr*auxS[ii],auxZDrift[ii],Rr*auxSDrift[ii],0.,i,ii);
+                    i,ii,dis,Rr*auxS[ii],auxZDrift[ii],Rr*auxSDrift[ii],0.,i,ii);
+//                    i,ii,auxZ[ii],Rr*auxS[ii],auxZDrift[ii],Rr*auxSDrift[ii],0.,i,ii);
 
 // ------  marca lo hit in blu
         fprintf(MACRO,"AloneSkew%d_%d->SetLineColor(4);\n",i,ii);
         fprintf(MACRO,"AloneSkew%d_%d->Draw();\n",i,ii);
 
 
-	}	// end of for( ii=0; ii<2; ii++)
 
   }   //   end of  for( iii=0; iii< nMCSkewAlone; iii++)
 
@@ -3221,7 +3276,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
            zmin, zmax, zmin2, zmax2, Smin, Smax, S1, S2,
            z1, z2, y1, y2,
            vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, angle, minor, major,
+           aaa, bbb, ccc, angle, minor, major,dis,
            distance, Rx, Ry, LL,
            Aellipsis1, Bellipsis1,fi1,
            fmin, fmax, offset, step,
@@ -3329,6 +3384,10 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
         	if(Smax<auxS[ii]+auxSDrift[ii]) Smax=auxS[ii]+auxSDrift[ii];		
 	    }  // end of   if( auxZ[ii] < 999998.)
 
+
+
+
+
    }    //  end of    for( ii=0; ii<2; ii++)
 
   }   //   end of  for( iii=0; iii< nSkewHitsinTrack[iTrack]; iii++)
@@ -3336,7 +3395,6 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 //------ aggiungo in blu eventuali punti della traccia MC che sono non mecciati
 
        for( iii=0; iii< nMCSkewAlone; iii++) {
-
 	 GeoCalculator.CalculateSandZ2(
 		Oxx,			// input;
 		Oyy,			// input;
@@ -3354,18 +3412,40 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 						);
 
 
+	// faccio un trattamento speciale poiche' questi sono hit MC truth e quindi UNO dei due deve
+	// essere vero ma puo' darsi che sia a distanza non fisica perche' i parametri dell'elica
+	// (raggio, centro) sono un po' sbagliati (vengono dal Pattern Recognition!!)
 
-	// anche se questo e' un punto MC truth, se ci sono 2 intersezioni possibili per una straw, disegno
-	// entrambe, come per gli hit sperimentali;
-       for( ii=0; ii<2; ii++){
-	    if( auxZ[ii] < 999998.){
-        	if(zmin>auxZ[ii]-auxZDrift[ii]) zmin=auxZ[ii]-auxZDrift[ii];
-        	if(zmax<auxZ[ii]+auxZDrift[ii]) zmax=auxZ[ii]+auxZDrift[ii];		
+	// assume that it is impossible to have both solutions acceptable (i.e. with auxZ[*] <999998.);
+	if(auxZ[0] <999998. ) { ii = 0; dis =auxZ[0]; }
+	else if (auxZ[1] <999998. ) { ii = 1;dis =auxZ[1];}
+	else if (auxZ[0] > 999999.5 && auxZ[1]>999999.5) // questo e' il caso in cui gli auxZ[] NON sono 999999. (che significherebbe
+						// che e' successo che   bbb< 1.e-10 oppure sinTheta < 1.e-10 cioe' QUALCHE CASINO
+						// DI CALCOLO nella CalculateSandZ2) MA BENSI' SONO > 1000000. che e' il caso in cui
+						// le distanze sono unphysical. Tali distanze si ottengono : dis = auxZ[] - 1000000.
+	{
+		//  since these are MC hits, it would be WRONG to check if they are within the length of the wire;
+		//  in fact that length could be calculated wrongly due to the non perfect radius and center
+		//  of the Trajectory Helix found by the Pattern Recognition!
+		//  So, ONE of the two solutions is right no matter what; choose the one closer;
 
-        	if(Smin>auxS[ii]-auxSDrift[ii]) Smin=auxS[ii]-auxSDrift[ii];
-        	if(Smax<auxS[ii]+auxSDrift[ii]) Smax=auxS[ii]+auxSDrift[ii];		
-	    }  // end of   if( auxZ[ii] < 999998.)
-   }    //  end of    for( ii=0; ii<2; ii++)
+		if(auxZ[0]<auxZ[1])  { ii=0 ; dis=auxZ[0]-1000000.;}  else { ii=1; dis = auxZ[1]-1000000.;}
+		
+	} else if (auxZ[0] > 999999.5) {  // caso in cui la soluzione 0 e' unphysical mentre la 1 ha avuto casini di calcolo;
+		ii =0;
+		dis=auxZ[0]-1000000.;
+	} else if (auxZ[1] > 999999.5) {  // caso in cui la soluzione 1 e' unphysical mentre la 0 ha avuto casini di calcolo;
+		ii =0;
+		dis=auxZ[0]-1000000.;
+	} else {  // caso in cui entrambe le soluzioni hanno avuto un casino di calcolo;
+		continue;
+	}
+
+        if(zmin>dis-auxZDrift[ii]) zmin=dis-auxZDrift[ii];
+        if(zmax<dis+auxZDrift[ii]) zmax=dis+auxZDrift[ii];		
+
+        if(Smin>auxS[ii]-auxSDrift[ii]) Smin=auxS[ii]-auxSDrift[ii];
+        if(Smax<auxS[ii]+auxSDrift[ii]) Smax=auxS[ii]+auxSDrift[ii];		
 
   }   //   end of  for( iii=0; iii< nMCSkewAlone[imaxima]; iii++)
 
@@ -3584,6 +3664,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 
        for( iii=0; iii< nMCSkewAlone; iii++) {
          i = MCSkewAloneList[iTrack*In_Put.nSttHit+iii];
+
          if(!In_Put.InclusionListStt[i]) continue;
 
 	 GeoCalculator.CalculateSandZ2(
@@ -3597,24 +3678,56 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 		WDZ,			// input;
 		auxS,			// output;
 		auxSDrift,		// output; drift radius projected onto the Helix S direction;
-		auxZ,			// output, Zcoordinate of the central wire.
+		auxZ,			// output, Zcoordinate of the central wire of the skew straw projected;
+					// if it is > 1000000. then it means unphysical intersection; in that case
+					// the unphysical distance is found by : dist = auxZ[] - 1000000. ;
 		auxZDrift,		// output, drift radius projected onto the Helix Z direction;
 		auxZErrorafterTilt	// output, 150 micron projected onto the Helix.
 						);
 
-	for( ii=0; ii<2; ii++){
-  
-  	    if( auxZ[ii] > 999998.) continue;	// this solution was not physical;
+
+	// assume that it is impossible to have both solutions acceptable (i.e. with auxZ[*] <999998.);
+
+
+	// ripeto il trattamento speciale poiche' questi sono hit MC truth e quindi UNO dei due deve
+	// essere vero ma puo' darsi che sia a distanza non fisica perche' i parametri dell'elica
+	// (raggio, centro) sono un po' sbagliati (vengono dal Pattern Recognition!!)
+
+	// assume that it is impossible to have both solutions acceptable (i.e. with auxZ[*] <999998.);
+	if(auxZ[0] <999998. ) { ii = 0; dis =auxZ[0]; }
+	else if (auxZ[1] <999998. ) { ii = 1;dis =auxZ[1];}
+	else if (auxZ[0] > 999999.5 && auxZ[1]>999999.5) // questo e' il caso in cui gli auxZ[] NON sono 999999. (che significherebbe
+						// che e' successo che   bbb< 1.e-10 oppure sinTheta < 1.e-10 cioe' QUALCHE CASINO
+						// DI CALCOLO nella CalculateSandZ2) MA BENSI' SONO > 1000000. che e' il caso in cui
+						// le distanze sono unphysical. Tali distanze si ottengono : dis = auxZ[] - 1000000.
+	{
+		//  since these are MC hits, it would be WRONG to check if they are within the length of the wire;
+		//  in fact that length could be calculated wrongly due to the non perfect radius and center
+		//  of the Trajectory Helix found by the Pattern Recognition!
+		//  So, ONE of the two solutions is right no matter what; choose the one closer;
+
+		if(auxZ[0]<auxZ[1])  { ii=0 ; dis=auxZ[0]-1000000.;}  else { ii=1; dis = auxZ[1]-1000000.;}
+		
+	} else if (auxZ[0] > 999999.5) {  // caso in cui la soluzione 0 e' unphysical mentre la 1 ha avuto casini di calcolo;
+		ii =0;
+		dis=auxZ[0]-1000000.;
+	} else if (auxZ[1] > 999999.5) {  // caso in cui la soluzione 1 e' unphysical mentre la 0 ha avuto casini di calcolo;
+		ii =0;
+		dis=auxZ[0]-1000000.;
+	} else {  // caso in cui entrambe le soluzioni hanno avuto un casino di calcolo;
+		continue;
+	}
+
 
         fprintf(MACRO,"TEllipse* AloneSkew%d_%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nAloneSkew%d_%d->SetFillStyle(0);\n",
-                    i,ii,auxZ[ii],TRA*auxS[ii],auxZDrift[ii],TRA*auxSDrift[ii],0.,i,ii);
+                    i,ii,dis,TRA*auxS[ii],auxZDrift[ii],TRA*auxSDrift[ii],0.,i,ii);
+//                    i,ii,auxZ[ii],TRA*auxS[ii],auxZDrift[ii],TRA*auxSDrift[ii],0.,i,ii);
 
 // ------  marca lo hit in blu
         fprintf(MACRO,"AloneSkew%d_%d->SetLineColor(4);\n",i,ii);
         fprintf(MACRO,"AloneSkew%d_%d->Draw();\n",i,ii);
 
 
-	}	// end of for( ii=0; ii<2; ii++)
 
   }   //   end of  for( iii=0; iii< nMCSkewAlone; iii++)
 
@@ -3750,7 +3863,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 	bool flaggo=true;
 	if( -KAPPA*charge>0.) {	// Pz>0.
 		if( zmax <0.) {
-			cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia"
+			cout<<"da WriteMacroSkewAssociatedHitswithMC_Degree, questa traccia"
 			<<" e' inconsistente col proprio Pz, non plottata!\n";
 			flaggo=false;
 		} else {
@@ -3758,7 +3871,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 		}
 	} else {  // Pz<0.
 		if( zmin >0.) {
-			cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia"
+			cout<<"da WriteMacroSkewAssociatedHitswithMC_Degree, questa traccia"
 			<<" e' inconsistente col proprio Pz, non plottata!\n";
 			flaggo=false;
 		} else{
@@ -3787,7 +3900,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
     Nmin = ((int) (0.5*fmin/ PI) )-1;
   }
    if(fabs(KAPPA)<1.e-10) {
-   	cout<<"da WriteMacroSkewAssociatedHitswithMC, questa traccia Found da PR non plottata"
+   	cout<<"da WriteMacroSkewAssociatedHitswithMC_Degree, questa traccia Found da PR non plottata"
 	<<" perche' ha fabs(KAPPA)<1.e-10.\n";
    } else {
 	for(i=Nmin; i<= Nmax;i++){
@@ -4262,7 +4375,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 		}
 
        }
-//------------- hits paralleli MC 'alone'
+//------------- hits skew MC 'alone'
        for( ii=0; ii< nMCSkewAlone.at(iTrack); ii++) {
             i = MCSkewAloneList.at(iTrack*In_Put.nSttHit+ii) ;
            fprintf(MACRO,
