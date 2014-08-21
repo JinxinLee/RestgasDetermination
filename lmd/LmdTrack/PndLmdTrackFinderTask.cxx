@@ -701,7 +701,7 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
   if(fVerbose>2) cout << "# Hits: \t"<< nStripHits <<endl<<endl;
   bool usedFlag[nStripHits]; //for pseudo-vector building
   for(Int_t seti=0; seti<nStripHits; seti++)
-    usedFlag[seti]==false;
+    usedFlag[seti]=false;
 
   if(nStripHits<2){
     if(fVerbose>2) cout << "Evt finsihed: too less hits-----"<<endl<<endl;
