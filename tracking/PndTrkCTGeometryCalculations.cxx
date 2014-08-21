@@ -202,7 +202,6 @@ void PndTrkCTGeometryCalculations::CalculateSandZ(
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
-//	Double_t STRAWRESOLUTION,
 	Short_t skewnum,
 	Double_t info[][7],
 	Double_t *WDX,
@@ -215,13 +214,15 @@ void PndTrkCTGeometryCalculations::CalculateSandZ(
 	)
 {
 
+	// this method is the same as CalculateSandZ2 only it does NOT return the Sdrift[2] array;
+
+
 	Double_t	Sdrift[2];
 
 	CalculateSandZ2(
 		Oxx,	// input;
 		Oyy,	// input;
 		Rr,	// input;
-//		STRAWRESOLUTION,	// input;
 		skewnum,	// input;
 		info,	// input;
 		WDX,	// input;
@@ -248,7 +249,6 @@ void PndTrkCTGeometryCalculations::CalculateSandZ2(
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
-//	Double_t STRAWRESOLUTION,
 	Short_t skewnum,
 	Double_t info[][7],
 	Double_t *WDX,
@@ -306,6 +306,7 @@ void PndTrkCTGeometryCalculations::CalculateSandZ2(
                               vx1,vy1,vz1,
                               &STATUS,POINTS1);
 
+
        if(STATUS < 0 ) return;
 
 
@@ -344,8 +345,11 @@ void PndTrkCTGeometryCalculations::CalculateSandZ2(
         Bellipsis1 = info[i][3]/(Rr*sinDelta);
 	if(Bmax<Bellipsis1) Bellipsis1=Bmax;
 
-	// if the intersection point is unphysical, out of the straw length, quit;
-        if( distance >= info[i][4]  + Aellipsis1) continue;
+	// if the intersection point is unphysical, out of the straw length, quit but set Z[ii] to 1000000.+distance ;
+        if( distance >= info[i][4]  + Aellipsis1) {
+		Z[ii] = 1000000.+distance;
+		continue;
+	}
 
 //--------------------------
         S[ii] = atan2(POINTS1[j+1]-Oyy, POINTS1[j]-Oxx) ;  // atan2 returns radians in (-pi and +pi]
@@ -368,6 +372,8 @@ void PndTrkCTGeometryCalculations::CalculateSandZ2(
 }
 
 //-------------------------  end of function  PndTrkCTGeometryCalculations::CalculateSandZ2
+
+
 
 
 
