@@ -105,8 +105,8 @@ In this directory are several files to run the complete simulation chain + soft-
 
   USAGE: parameters like above
 
-  EXAMPLE 1: ./submit.sh 45 20           # submits 20 DPM jobs (numbers 1-20) at sqrt(s) = 4.5 GeV with 2000 events per job
-  EXAMPLE 2: ./submit.sh 38 10 19 1000   # submits 10 DPM jobs (numbers 10-19) at sqrt(s) = 3.77 GeV with 1000 events
-  EXAMPLE 2: ./submit.sh 55              # submits 1 DPM job (numbers 1-1) at sqrt(s) = 5.5 GeV with 2000 events
+  EXAMPLE 1: ./submit_bg.sh 45 20           # submits 20 DPM jobs (numbers 1-20) at sqrt(s) = 4.5 GeV with 2000 events per job
+  EXAMPLE 2: ./submit_bg.sh 38 10 19 1000   # submits 10 DPM jobs (numbers 10-19) at sqrt(s) = 3.77 GeV with 1000 events
+  EXAMPLE 2: ./submit_bg.sh 55              # submits 1 DPM job (numbers 1-1) at sqrt(s) = 5.5 GeV with 2000 events
 
 
