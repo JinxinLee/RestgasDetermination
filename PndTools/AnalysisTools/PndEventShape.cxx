@@ -2,13 +2,15 @@
 #include "PndEventShape.h"
 
 #include "RhoCandidate.h"
+#include "PndPidCandidate.h"
 #include "RhoCandList.h"
 #include "TMatrixD.h"
 #include "TMatrixDEigen.h"
 
 PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE, double chrgMinP) : 
   fnChrg(0), fnNeut(0), fN(0), fpmaxlab(0.), fpmaxcms(0.),fpminlab(0.), fpmincms(0.), fptmax(0.), fptmin(0.),
-  fprapmax(0.), fptsumlab(0.),fneutetsumlab(0.),fneutesumlab(0.),fchrgptsumlab(0.),fchrgpsumlab(0.),
+  fprapmax(0.), femaxneutlab(0.), femaxneutcms(0.), fpmaxchlab(0.), fpmaxchcms(0.), fdetemcsum(0.), fdetemcmax(0.),
+  fptsumlab(0.),fneutetsumlab(0.),fneutesumlab(0.),fchrgptsumlab(0.),fchrgpsumlab(0.),
   fptsumcms(0.),fneutetsumcms(0.),fneutesumcms(0.),fchrgptsumcms(0.),fchrgpsumcms(0.),
   fsph(-1.), fapl(-1.), fpla(-1.), fcir(-1.), fFWready(false), fthr(-1.)
 {
@@ -23,6 +25,9 @@ PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE
   double pmax=0., ptmax=0., pmaxcms=0.;
   double pmin=1000., ptmin=1000., pmincms=1000.;
   double prapmax=0.;
+  double pmaxch=0., pmaxchcms=0., emaxneut=0., emaxneutcms=0.;
+  double emcmax=0., emcsum=0.;
+  
   
   fLabList.clear();
   fCmsList.clear();
@@ -42,6 +47,8 @@ PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE
 	// check thresholds for neutral and charged particles
 	if ( (chrg==0 && lv.E()<neutMinE) || (chrg!=0 && lv.P()<chrgMinP) ) continue; 
 
+	PndPidCandidate *mic = (PndPidCandidate*)l[i]->GetRecoCandidate();
+	
 	fN++;
 	
 	// cache multiplicities
@@ -65,11 +72,13 @@ PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE
 	{
 	  fneutetsumlab += lv.Pt();  
 	  fneutesumlab	+= lv.E();
+	  if (lv.E()>emaxneut) emaxneut = lv.E();
 	}
 	else
 	{
 	  fchrgptsumlab	+= lv.Pt();
 	  fchrgpsumlab	+= lv.P();
+	  if (lv.P()>pmaxch) pmaxch = lv.P();
 	}
 	
 	// cache maximum momenta in lab
@@ -93,26 +102,41 @@ PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE
 	{
 	  fneutetsumcms += lv.Pt();  
 	  fneutesumcms	+= lv.E();
+	  if (lv.E()>emaxneutcms) emaxneutcms = lv.E();
 	}
 	else
 	{
 	  fchrgptsumcms	+= lv.Pt();
 	  fchrgpsumcms	+= lv.P();
+	  if (lv.P()>pmaxchcms) pmaxchcms = lv.P();
 	}
 	
 	// cache maximum momenta in cms
 	if (lv.P()>pmaxcms) pmaxcms=lv.P();
 	// cache minimum momenta in cms
 	if (lv.P()<pmincms) pmincms=lv.P();
+	
+	// detector specific things
+	if (mic)
+	{
+		emcsum += mic->GetEmcCalEnergy();
+		if (mic->GetEmcCalEnergy()>emcmax) emcmax=mic->GetEmcCalEnergy()>emcmax;
+	}
   }
   
-  fpmaxlab = pmax;
-  fptmax   = ptmax;
-  fpmaxcms = pmaxcms;
-  fpminlab = pmin;
-  fptmin   = ptmin;
-  fpmincms = pmincms;
-  fprapmax = prapmax;
+  fpmaxlab      = pmax;
+  fptmax        = ptmax;
+  fpmaxcms      = pmaxcms;
+  fpminlab      = pmin;
+  fptmin        = ptmin;
+  fpmincms      = pmincms;
+  fprapmax      = prapmax;
+  femaxneutlab  = emaxneut;		
+  femaxneutcms  = emaxneutcms;		
+  fpmaxchlab    = pmaxch;			
+  fpmaxchcms    = pmaxchcms;		
+  fdetemcmax    = emcmax;
+  fdetemcsum    = emcsum;
 }
 
 // ----------------------------

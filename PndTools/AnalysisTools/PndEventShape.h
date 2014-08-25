@@ -19,13 +19,17 @@ public:
 	int NNeutral() const  {return fnNeut;}		// number of neutral candidates
 	
 	// ******* maxima of momenta
-	double PmaxLab() const  {return fpmaxlab;}		// max momentum in lab system
-	double PmaxCms() const {return fpmaxcms;}		// max momentum im cms system
-	double PminLab() const  {return fpminlab;}		// min momentum in lab system
-	double PminCms() const {return fpmincms;}		// min momentum im cms system
-	double Ptmax() const {return fptmax;}			// max pt (same for lab and cms)
-	double Ptmin() const {return fptmin;}			// min pt (same for lab and cms)
-	double PRapmax() const {return fprapmax;}		// max pseudorapidity (lab)
+	double PmaxLab() const  {return fpmaxlab;}		  // max momentum in lab system
+	double PmaxCms() const {return fpmaxcms;}		  // max momentum im cms system
+	double PminLab() const  {return fpminlab;}		  // min momentum in lab system
+	double PminCms() const {return fpmincms;}		  // min momentum im cms system
+	double Ptmax() const {return fptmax;}			  // max pt (same for lab and cms)
+	double Ptmin() const {return fptmin;}			  // min pt (same for lab and cms)
+	double PRapmax() const {return fprapmax;}		  // max pseudorapidity (lab)	
+	double EmaxNeutLab() const {return femaxneutlab;} // max neutral energy (lab)
+	double EmaxNeutCms() const {return femaxneutcms;} // max neutral energy (cms)
+	double PmaxChrgLab() const {return fpmaxchlab;}   // max charged momentum (lab)
+	double PmaxChrgCms() const {return fpmaxchcms;}   // max charged momentum (cms)
 	
 	// ******* sum of energies/momenta (lab system)
 	double PtSumLab() const {return fptsumlab;}				// sum of pt in (lab)
@@ -40,6 +44,10 @@ public:
 	double NeutESumCms()  const {return fneutesumcms;}		// sum of energys of neutrals (cms)
 	double ChrgPtSumCms() const {return fchrgptsumcms;}		// sum of pt of charged (cms)
 	double ChrgPSumCms() const {return fchrgpsumcms;}		// sum of momenta of charged (cms)
+	
+	// ******* detector sepcific quantities
+	double DetEmcSum() const {return fdetemcsum;}			// sum of EMC cluster energies
+	double DetEmcMax() const {return fdetemcmax;}			// maximum of EMC cluster energies
 	
 	// ******* multiplicities with threshold
 	int MultPminLab(double pmin);	// number of particles with p>pmin (lab frame)
@@ -140,6 +148,13 @@ private:
 	double fptmax;				// maximum transvers momentum
 	double fptmin;				// minimum transvers momentum
 	double fprapmax;			// maximum pseudorapidity
+	double femaxneutlab;		// max neutral energy (lab)
+	double femaxneutcms;		// max neutral energy (cms)
+	double fpmaxchlab;			// max charged momentum (lab)
+	double fpmaxchcms;			// max charged momentum (cms)
+
+	double fdetemcsum;			// sum of EMC cluster energies
+	double fdetemcmax;			// maximum of EMC cluster energies
 
 	double fptsumlab;			// sum of pt in (lab)
 	double fneutetsumlab;		// sum of transvers energys of neutrals (lab)
@@ -164,6 +179,7 @@ private:
 	double fthr;				// thrust
 	TVector3 fThrVect;			// direction of thrust
 	TVector3 fBoost;			// boost vector to go to requested frame
+	
 
 };
 
