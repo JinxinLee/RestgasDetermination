@@ -231,6 +231,28 @@ class PndTrkTracking2 : public FairTask
 	fALFA[MAXTRACKSPEREVENT],
 	fBETA[MAXTRACKSPEREVENT],
 	fBFIELD,
+
+	fCandidatePixelDriftRadius[MAXMVDPIXELHITS],
+	fCandidatePixelErrorDriftRadius[MAXMVDPIXELHITS],
+	fCandidatePixelS[MAXMVDPIXELHITS],
+	fCandidatePixelZ[MAXMVDPIXELHITS],
+
+	fCandidateStripDriftRadius[MAXMVDSTRIPHITS],
+	fCandidateStripErrorDriftRadius[MAXMVDSTRIPHITS],
+	fCandidateStripS[MAXMVDSTRIPHITS],
+	fCandidateStripZ[MAXMVDSTRIPHITS],
+
+
+	fCandidateSciTilDriftRadius,
+	fCandidateSciTilErrorDriftRadius,
+	fCandidateSciTilS,
+	fCandidateSciTilZ,
+
+	fCandidateSkewS[2*MAXSTTHITS],	// here 2*MAXSTTHITS because in principle the skew straw may have
+	fCandidateSkewZ[2*MAXSTTHITS],  // 2 intersections wit the helix cylinder;
+	fCandidateSkewZDrift[2*MAXSTTHITS],  //            "
+	fCandidateSkewZError[2*MAXSTTHITS],  //            "
+
 	fCosine[LEGIANDRE_NTHETADIV],
 	fCxMC[MAXMCTRACKS],
 	fCyMC[MAXMCTRACKS],
@@ -251,7 +273,6 @@ class PndTrkTracking2 : public FairTask
 	frefindexMvdStrip[MAXMVDSTRIPHITS],
 	fradiaConf[NRDIVCONFORMAL],
 	fR_MC[MAXMCTRACKS],
-//	SEMILENGTH_STRAIGHT,
 	fsigmaXMvdPixel[MAXMVDPIXELHITS],
 	fsigmaYMvdPixel[MAXMVDPIXELHITS],
 	fsigmaZMvdPixel[MAXMVDPIXELHITS],
@@ -268,7 +289,6 @@ class PndTrkTracking2 : public FairTask
 	fXMvdStrip[MAXMVDSTRIPHITS],
 	fYMvdPixel[MAXMVDPIXELHITS],
 	fYMvdStrip[MAXMVDSTRIPHITS],
-//	ZCENTER_STRAIGHT,
 	fZMvdPixel[MAXMVDPIXELHITS],
 	fZMvdStrip[MAXMVDSTRIPHITS];
 
@@ -457,19 +477,9 @@ class PndTrkTracking2 : public FairTask
 
  
   void EliminateSpuriousSZ_bis(
+  	Short_t ncand,
 	Short_t MaxTurnofTracks,
 	Double_t signPz,
-	Short_t *nMvdPixelHitsAssociatedToSttTrack,
-	Short_t *ListMvdPixelHitsAssociatedToSttTrack,
-	Short_t *nMvdStripHitsAssociatedToSttTrack,
-	Short_t *ListMvdStripHitsAssociatedToSttTrack,
-	Short_t *fnSttSkewHitsinTrack,
-	Short_t *fListSttSkewHitsinTrack,
-	Short_t *fListSttSkewHitsinTrackSolution,
-	Double_t *S,
-	Double_t *ZED,
-	Double_t *DriftRadius,
-	Double_t *ErrorDriftRadius,
 	Double_t *SchosenPixel,
 	Double_t *SchosenStrip,
 	Double_t *SchosenSkew,
@@ -560,10 +570,10 @@ class PndTrkTracking2 : public FairTask
   void LoadSZetc_forSZfit(
 	Short_t ncand,	// input
 	Short_t nhitsinfit,
-	Double_t * TemporaryS,		// input
-	Double_t * TemporaryZ,		// input
-	Double_t * TemporaryZDrift,	// input
-	Double_t * TemporaryZError,	// input
+//	Double_t * TemporaryS,		// input
+//	Double_t * TemporaryZ,		// input
+//	Double_t * TemporaryZDrift,	// input
+//	Double_t * TemporaryZError,	// input
 
 	Vec <Double_t>& ErrorDriftRadius,	 // output
 	Double_t * ErrorDriftRadiusbis,	 // output
@@ -868,6 +878,7 @@ class PndTrkTracking2 : public FairTask
 	);
 
 
+  void StoreSZ_MvdScitil(Short_t ncand);
 
 
   ClassDef(PndTrkTracking2,1);
