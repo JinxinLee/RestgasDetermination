@@ -45,6 +45,17 @@ class PndSoftTriggerTask : public FairTask
 	
 	virtual void Finish();
 	
+	// *** read selection configuration from file
+	void SetConfigurationFile(TString fname) {fCfgFileName = fname;}
+	bool ReadConfiguration();
+	void ApplyFullSelection(bool sel=true) {fApplyFullSelection = sel;}  // switches between mass window only of full selection 
+	void FillVarArray(RhoCandidate *c);                              // fill candidate variable array for selection
+	void FillEventShapeVarArray();                        			 // fill event shape variable array for selection
+	bool AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel=0); // accept candidate for full selection
+	
+	// splits a string into tokens; toks is the return array and has to created by the calling entity
+	int  SplitString(TString s, TString delim, TString *toks); 
+	
 	// *** set max number of sigmas deviation for tag
 	void SetNsigTag(double nsig) {fNsigTag = nsig;}
 	void SetNsigAux(double nsig) {fNsigAux = nsig;}
@@ -207,6 +218,8 @@ class PndSoftTriggerTask : public FairTask
 	void SetQA_Event(bool qa=true) { fQAEvent = qa;}
 	
 	void SetQA_All(bool qa=true);
+	
+	void SetVerbose(bool verb=true) {fVerbose=verb;}
 
  protected:
 	
@@ -223,6 +236,9 @@ class PndSoftTriggerTask : public FairTask
 		
 	// *** Created necessary composites
 	int CreateKs0Cands(RhoTuple *n);
+	
+	// *** General tagging method
+	int TagMode(int mode, RhoCandList &l, RhoParticleSelectorBase *sel, double mean, double sigma, RhoTuple *n, TString prefix="");
 	
 	// *** Tagging methods
 	int Tag_Phi_KK(RhoTuple *n);
@@ -259,12 +275,15 @@ class PndSoftTriggerTask : public FairTask
 	
 	
 	// *** global vars
+	int fVerbose;				// create verbose output
 	int fMode;					// the signal or background mode code, to be set in the constructor
 	int fEvtCount;				// global event counter
 	int fRunNum;				// run number
 	int fSigCount;	            // counter, unused for the time being
-	double fNsigTag;				// max number of sigmas deviation of candidate to be tagged
-	double fNsigAux;				// max number of sigmas deviation for auxilliary particle = pi0, K_S, eta
+	double fNsigTag;			// max number of sigmas deviation of candidate to be tagged
+	double fNsigAux;			// max number of sigmas deviation for auxilliary particle = pi0, K_S, eta
+	TString fCfgFileName;		// file containing 
+	bool fApplyFullSelection;   // if true, selection from config file is applied; else only mass windows are required (preselection)
 	
 	// *** initial pbar p system info
 	TLorentzVector fIniP4;
@@ -485,9 +504,6 @@ class PndSoftTriggerTask : public FairTask
 	double f2gamMean;		// mean value for gam gam signal
 	double f2gamSigma;		// sigma value for for gam gam signal
 
-
-
-	
 	// *** general cuts
 	double fGammaMinE;		// minimum energy for gamma candidates
 	double fPi0MinE;		// minimum energy for pi0 candidates

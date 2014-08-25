@@ -62,9 +62,9 @@ void qa_softtrig(TString outpre="M9999", int mode, double pmom, int from=1, int 
 	// *** HERE OUR TASK GOES!
 	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode);
 	
-	stTask->SetPi0Selection(0.135, 0.01);
-	stTask->SetEtaSelection(0.547, 0.03);
-	stTask->SetKs0Selection(0.493, 0.05);
+	stTask->SetPi0SignalParams(0.135, 0.01);
+	stTask->SetEtaSignalParams(0.547, 0.03);
+	stTask->SetKs0SignalParams(0.493, 0.05);
 
 	stTask->SetGammaMinE(0.15);
 	stTask->SetTrackMinP(0.15);

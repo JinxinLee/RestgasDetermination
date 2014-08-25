@@ -21,7 +21,8 @@ class PndOnlineFilterInfo : public TObject
 	PndOnlineFilterInfo();
 	~PndOnlineFilterInfo();
 
-	int TagTotal();
+	bool Tagged() const {return fTag;}
+	int TagTotal() const { return fNTagTotal; }
 	int	TagPhiKK() const { return fNTagPhiKK; }
 	int TagLamppi() const {return fNTagLamppi; } 
 	int TagJpsi2e() const {return fNTagJpsi2e; }
@@ -48,30 +49,30 @@ class PndOnlineFilterInfo : public TObject
 	int Tag2gam() const {return fNTag2gam; }
 	
 	
-	void SetTagPhiKK(const int tag) { fNTagPhiKK=tag; }
-	void SetTagLamppi(const int tag) { fNTagLamppi=tag; } 
-	void SetTagJpsi2e(const int tag) { fNTagJpsi2e=tag; }
-	void SetTagJpsi2mu(const int tag) { fNTagJpsi2mu=tag; }
-	void SetTagD0Kpi(const int tag) { fNTagD0Kpi=tag; }
-	void SetTagD0Kpipi0(const int tag) { fNTagD0Kpipi0=tag; }
-	void SetTagD0K3pi(const int tag) { fNTagD0K3pi=tag; }
-	void SetTagDpmKpipi(const int tag) { fNTagDpmKpipi=tag; }
-	void SetTagDpmK2pipi0(const int tag) { fNTagDpmK2pipi0=tag; }
-	void SetTagDpmKspipi0(const int tag) { fNTagDpmKspipi0=tag; }
-	void SetTagDpmKs3pi(const int tag) { fNTagDpmKs3pi=tag; }	
-	void SetTagDsKKpi(const int tag) { fNTagDsKKpi=tag; }
-	void SetTagDsKKpip0(const int tag) { fNTagDsKKpip0=tag; }
-	void SetTagLamcpKpi(const int tag) { fNTagLamcpKpi=tag; }
-	void SetTagEtacKKpi0(const int tag) { fNTagEtacKKpi0=tag; }
-	void SetTagEtacKKspi(const int tag) { fNTagEtacKKspi=tag; }
-	void SetTagEtacetapipi(const int tag) { fNTagEtacetapipi=tag; }
-	void SetTagEtacgg(const int tag) { fNTagEtacgg=tag; }
-	void SetTagChic02pi2pi0(const int tag) { fNTagChic02pi2pi0=tag; }
-	void SetTagChic04pi(const int tag) { fNTagChic04pi=tag; }
-	void SetTagChic02pi2K(const int tag) { fNTagChic02pi2K=tag; }
-	void SetTag2e(const int tag) { fNTag2e=tag; }
-	void SetTag2mu(const int tag) { fNTag2mu=tag; }
-	void SetTag2gam(const int tag) { fNTag2gam=tag; }
+	void SetTagPhiKK(const int tag) { SetTagCnt(fNTagPhiKK=tag); }
+	void SetTagLamppi(const int tag) {SetTagCnt( fNTagLamppi=tag); } 
+	void SetTagJpsi2e(const int tag) { SetTagCnt(fNTagJpsi2e=tag); }
+	void SetTagJpsi2mu(const int tag) { SetTagCnt(fNTagJpsi2mu=tag); }
+	void SetTagD0Kpi(const int tag) { SetTagCnt(fNTagD0Kpi=tag); }
+	void SetTagD0Kpipi0(const int tag) { SetTagCnt(fNTagD0Kpipi0=tag); }
+	void SetTagD0K3pi(const int tag) { SetTagCnt(fNTagD0K3pi=tag); }
+	void SetTagDpmKpipi(const int tag) { SetTagCnt(fNTagDpmKpipi=tag); }
+	void SetTagDpmK2pipi0(const int tag) { SetTagCnt(fNTagDpmK2pipi0=tag); }
+	void SetTagDpmKspipi0(const int tag) { SetTagCnt(fNTagDpmKspipi0=tag); }
+	void SetTagDpmKs3pi(const int tag) { SetTagCnt(fNTagDpmKs3pi=tag); }	
+	void SetTagDsKKpi(const int tag) { SetTagCnt(fNTagDsKKpi=tag); }
+	void SetTagDsKKpip0(const int tag) { SetTagCnt(fNTagDsKKpip0=tag); }
+	void SetTagLamcpKpi(const int tag) { SetTagCnt(fNTagLamcpKpi=tag); }
+	void SetTagEtacKKpi0(const int tag) { SetTagCnt(fNTagEtacKKpi0=tag); }
+	void SetTagEtacKKspi(const int tag) { SetTagCnt(fNTagEtacKKspi=tag); }
+	void SetTagEtacetapipi(const int tag) {SetTagCnt( fNTagEtacetapipi=tag); }
+	void SetTagEtacgg(const int tag) {SetTagCnt( fNTagEtacgg=tag); }
+	void SetTagChic02pi2pi0(const int tag) { SetTagCnt(fNTagChic02pi2pi0=tag); }
+	void SetTagChic04pi(const int tag) { SetTagCnt(fNTagChic04pi=tag); }
+	void SetTagChic02pi2K(const int tag) { SetTagCnt(fNTagChic02pi2K=tag); }
+	void SetTag2e(const int tag) { SetTagCnt(fNTag2e=tag); }
+	void SetTag2mu(const int tag) { SetTagCnt(fNTag2mu=tag); }
+	void SetTag2gam(const int tag) { SetTagCnt(fNTag2gam=tag); }
 
 	void Reset();
 	void Print();
