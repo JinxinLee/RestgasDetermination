@@ -48,9 +48,9 @@ class PndSoftTriggerTask : public FairTask
 	// *** read selection configuration from file
 	void SetConfigurationFile(TString fname) {fCfgFileName = fname;}
 	bool ReadConfiguration();
-	void ApplyFullSelection(bool sel=true) {fApplyFullSelection = sel;}  // switches between mass window only of full selection 
-	void FillVarArray(RhoCandidate *c);                              // fill candidate variable array for selection
-	void FillEventShapeVarArray();                        			 // fill event shape variable array for selection
+	void ApplyFullSelection(bool sel=true) {fApplyFullSelection = sel;}  // switches between mass window only of full selection (selection defined in cfg file)
+	void FillVarArray(RhoCandidate *c);                                  // fill candidate variable array for selection
+	void FillEventShapeVarArray();                        			     // fill event shape variable array for selection
 	bool AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel=0); // accept candidate for full selection
 	
 	// splits a string into tokens; toks is the return array and has to created by the calling entity
@@ -231,6 +231,7 @@ class PndSoftTriggerTask : public FairTask
 	// *** some helper functions
 	int SelectTruePid(RhoCandList &l);
 	int SelectPidProb(RhoCandList &l, int pididx, double cut);
+	int MultPidProb(RhoCandList &l, int pididx, double prob);
 	int signalType(RhoCandList &l, int v0pdg, int d1pdg, int d2pdg); 
 	double DbMass(TString name) {if (fPdg->GetParticle(name)) return fPdg->GetParticle(name)->Mass();}
 		
@@ -290,6 +291,7 @@ class PndSoftTriggerTask : public FairTask
 	double fEcm;
 	double fPbarMom;
 	
+
 	// *** flags for enable/disable tagging for individual channels
 	bool fTagPhiKK;
 	bool fTagLamppi;

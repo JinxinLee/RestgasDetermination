@@ -72,9 +72,9 @@ std::map<int, TString> fSTOps;
 
 // *** mapped variable names for selection
 //                      0         1            2            3         4         5       6        7      8       9       10          11         12   13  14     15    16     17      18       19       20
-TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","npart","ptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
-//                      21         22         23          24       25     26       27
-				      "essumpt", "esptmax", "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
+TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","npart","esptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
+//                      21         22           23          24       25     26   
+				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
 
 // array to hold the current variable values; indices are according to the fSTnames array
 // has to be filled for every tag mode
@@ -87,7 +87,7 @@ int fSTModeIndex = 0;
 // -----   Default constructor   -------------------------------------------
 PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum) :
 	FairTask("Panda Softtrigger Task"),
-	fVerbose(false), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0),	fNsigAux(5.0),	
+	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0),	fNsigAux(5.0),	
 	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
 	fTagPhiKK(true), fTagLamppi(true), fTagJpsi2e(true), fTagJpsi2mu(true),
 	fTagD0Kpi(true), fTagD0Kpipi0(true), fTagD0K3pi(true),
@@ -436,16 +436,28 @@ int PndSoftTriggerTask::SelectPidProb(RhoCandList &l, int pididx, double cut)
 {
 	int removed = 0;
 	
-	for (int ii=l.GetLength()-1;ii>=0;--ii)
-	{
-		if (pididx>-1 && pididx<5 && l[ii]->GetPidInfo(pididx)<cut )
-		{
-			l.Remove(l[ii]);
-			removed++;
-		}
-	}
+	if (pididx>=0 && pididx<5)
+		for (int ii=l.GetLength()-1;ii>=0;--ii)
+			if (l[ii]->GetPidInfo(pididx)<cut )
+			{
+				l.Remove(l[ii]);
+				removed++;
+			}
 	
 	return removed;
+}
+// -------------------------------------------------------------------------
+
+// ----- Method to count candidates with certain PID probability
+int PndSoftTriggerTask::MultPidProb(RhoCandList &l, int pididx, double prob)
+{
+	int mult = 0;
+	
+	if (pididx>=0 && pididx<5)
+		for (int ii=0;ii<l.GetLength();++ii)
+			if (l[ii]->GetPidInfo(pididx)>=prob) ++mult;
+				
+	return mult;
 }
 // -------------------------------------------------------------------------
 
@@ -605,6 +617,10 @@ InitStatus PndSoftTriggerTask::Init()
 
 
 // -------------------------------------------------------------------------
+// reads in specific trigger selections for certain modes and energies
+// example selection (from ST report - full sim) can be found in the 2 files
+// $VMCWORKDIR/softrig/selection_10ch_tight.cfg (suppression of 1/1000)
+// $VMCWORKDIR/softrig/selection_10ch_loose.cfg (eff of 95%)
 
 bool PndSoftTriggerTask::ReadConfiguration()
 {
@@ -706,6 +722,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 	}
 	
 	// print for testing purpose
+	if (fVerbose>0)
 	for (std::map<int,STCutSet>::iterator it=fSTSelmap.begin(); it!=fSTSelmap.end(); ++it)
 	{
 		std::cout << it->first << " => ";
@@ -861,6 +878,20 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		ntp->Column("tag",		(Float_t)	tagged,		0.0f);
 		
 		fQA->qaEventShape("es", fEventShape, ntp);
+		
+		// overwrite values from fEventShape (based on AllCands and only one algo)
+		int ne  = MultPidProb(fElectronPlus, 0, 0.25) + MultPidProb(fElectronMinus, 0, 0.25);
+		int nmu = MultPidProb(fMuonPlus,     1, 0.25) + MultPidProb(fMuonMinus,     1, 0.25);
+		int npi = MultPidProb(fPionPlus,     2, 0.25) + MultPidProb(fPionMinus,     2, 0.25);
+		int nk  = MultPidProb(fKaonPlus,     3, 0.25) + MultPidProb(fKaonMinus,     3, 0.25);
+		int np  = MultPidProb(fProtonPlus,   4, 0.25) + MultPidProb(fProtonMinus,   4, 0.25);
+		
+		ntp->Column("eslnpide", (Float_t)  ne,		0.0f );
+		ntp->Column("eslnpidmu",(Float_t)  nmu,		0.0f );
+		ntp->Column("eslnnpidpi",(Float_t) npi,		0.0f );
+		ntp->Column("eslnpidk", (Float_t)  nk,		0.0f );
+		ntp->Column("eslnpidp", (Float_t)  np,		0.0f );
+		
 		
 		ntp->DumpData();
 	}
@@ -1106,20 +1137,29 @@ void PndSoftTriggerTask::FillGlobalLists()
 }
 
 // -------------------------------------------------------------------------
-// Fill the array of event shape variables
+// Fill the array of event shape variables (called once per event)
+// here the connection between the variable indices and the values is made
+
 void PndSoftTriggerTask::FillEventShapeVarArray()
 {
 //                      0         1            2            3         4         5       6        7      8       9       10          11         12   13  14     15    16     17      18       19       20
 //TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","npart","ptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
-//                      21         22         23          24       25    26        27
-//				      "essumpt", "esptmax", "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
+//                      21         22         23          24       25    26     
+//				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
 
 	int i=0;
-	fSTVarArray[ 0] = fEventShape->MultElectronPminLab(0.25);
+	// don't use values from fEventShape (based on AllCands and only one algo)
+	fSTVarArray[ 0] = MultPidProb(fElectronPlus, 0, 0.25) + MultPidProb(fElectronMinus, 0, 0.25);
+	fSTVarArray[ 1] = MultPidProb(fMuonPlus,     1, 0.25) + MultPidProb(fMuonMinus,     1, 0.25);
+	fSTVarArray[ 2] = MultPidProb(fPionPlus,     2, 0.25) + MultPidProb(fPionMinus,     2, 0.25);
+	fSTVarArray[ 3] = MultPidProb(fKaonPlus,     3, 0.25) + MultPidProb(fKaonMinus,     3, 0.25);
+	fSTVarArray[ 4] = MultPidProb(fProtonPlus,   4, 0.25) + MultPidProb(fProtonMinus,   4, 0.25);
+	
+/*	fSTVarArray[ 0] = fEventShape->MultElectronPminLab(0.25);
 	fSTVarArray[ 1] = fEventShape->MultMuonPminLab(0.25);
 	fSTVarArray[ 2] = fEventShape->MultPionPminLab(0.25);
 	fSTVarArray[ 3] = fEventShape->MultKaonPminLab(0.25);
-	fSTVarArray[ 4] = fEventShape->MultProtonPminLab(0.25);
+	fSTVarArray[ 4] = fEventShape->MultProtonPminLab(0.25);*/
 	
 	fSTVarArray[ 5] = fEventShape->Thrust();
 	fSTVarArray[ 6] = fEventShape->Aplanarity();
@@ -1131,19 +1171,20 @@ void PndSoftTriggerTask::FillEventShapeVarArray()
 	fSTVarArray[11] = fEventShape->DetEmcMax();
 	
 	fSTVarArray[21] = fEventShape->PtSumLab();
-	fSTVarArray[22] = fEventShape->Ptmax();
-	fSTVarArray[23] = fEventShape->ChrgPtSumLab();
+	fSTVarArray[22] = fEventShape->ChrgPtSumLab();
 	
 }
 
 // -------------------------------------------------------------------------
+// Fill the array of candidate specific variables (called for every candidate)
+// here the connection between the variable indices and the values is made
 
 void PndSoftTriggerTask::FillVarArray(RhoCandidate *c)
 {
 //                        0         1            2            3         4         5       6        7      8       9       10          11         12   13  14     15    16     17      18       19       20
 //TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","npart","ptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
-//                      21         22         23          24       25    26        27
-//				      "essumpt", "esptmax", "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
+//                      21         22           23          24       25    26       
+//				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
 	TVector3 p4boost = fIniP4.BoostVector();
 
 	TLorentzVector l=c->P4();
@@ -1161,7 +1202,7 @@ void PndSoftTriggerTask::FillVarArray(RhoCandidate *c)
 			ldcm[i].Boost(-p4boost);
 		}
 	
-	PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
+	//PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
 	
 	fSTVarArray[12] = l.P();
 	fSTVarArray[13] = l.Pt();
@@ -1172,10 +1213,10 @@ void PndSoftTriggerTask::FillVarArray(RhoCandidate *c)
 	fSTVarArray[18] = nd>0 ? c->Daughter(0)->GetPidInfo(3) : -999.0;
 	fSTVarArray[19] = nd>1 ? ld[1].Theta() : -999.0;
 	fSTVarArray[20] = (fIniP4-l).M();
-	fSTVarArray[24] = ldcm[0].P();
-	fSTVarArray[25] = ld[1].P();
-	fSTVarArray[26] = lcm.Theta();
-	fSTVarArray[27] = lcm.E();
+	fSTVarArray[23] = ldcm[0].P();
+	fSTVarArray[24] = ld[1].P();
+	fSTVarArray[25] = lcm.Theta();
+	fSTVarArray[26] = lcm.E();
 }
 
 // -------------------------------------------------------------------------
@@ -1184,15 +1225,15 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 {
 	int mcode = fSTencode[fSTModeIndex]*1000+mode;	
 	
-	if (fVerbose) cout <<"AcceptCandidate : mode="<<mode<<" mcode="<<mcode;
+	if (fVerbose>1) cout <<"AcceptCandidate : mode="<<mode<<" mcode="<<mcode;
 
 	// no selection defined for this mode
-	if ( fSTSelmap.find(mcode) == fSTSelmap.end() ) {if (fVerbose) cout <<endl;return false;} 
-	if (fVerbose) cout <<" found cut set";
+	if ( fSTSelmap.find(mcode) == fSTSelmap.end() ) {if (fVerbose>1) cout <<endl;return false;} 
+	if (fVerbose>1) cout <<" found cut set";
 	// not accepted by final (mass) selector
-	if ( sel && !(sel->Accept(c)) ) {if (fVerbose) cout <<endl;return false;}
+	if ( sel && !(sel->Accept(c)) ) {if (fVerbose>1) cout <<endl;return false;}
 	
-	if (fVerbose) cout <<" accepted by precuts"<<endl;
+	if (fVerbose>1) cout <<" accepted by precuts"<<endl;
 	
 	STCutSet cs = fSTSelmap[mcode];
 	FillVarArray(c);
@@ -1201,7 +1242,7 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 	
 	for (int i=0;i<cs.ncut;++i)
 	{
-		if (fVerbose) cout <<"  -> checking var["<<cs.varid[i]<<"] ("<<fSTVarArray[cs.varid[i]]<<") "<<fSTOps[cs.op[i]]<<" "<<cs.cutval[i]<<endl;
+		if (fVerbose>1) cout <<"  -> checking var["<<cs.varid[i]<<"] ("<<fSTVarArray[cs.varid[i]]<<") "<<fSTOps[cs.op[i]]<<" "<<cs.cutval[i]<<endl;
 		switch (cs.op[i]) // which operator is used for this cut?
 		{
 		case 0:	// check var > value
@@ -1218,7 +1259,8 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 			break;
 		}
 	}
-	if (fVerbose)
+	
+	if (fVerbose>1)
 	{
 		if (acc) cout <<" final accept"<<endl;
 		else cout <<endl;
@@ -1296,48 +1338,7 @@ int PndSoftTriggerTask::Tag_Phi_KK(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fPhiPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(0, l[i], fPhiSel);
-		if (acc) nacc++;
-			
-		if (n)
-		{
-			fQA->qaComp("phi", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fPhiMean)/fPhiSigma;
-			Float_t tag  = nsig<fNsigTag;
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("phimean",(Float_t) fPhiMean,		0.0f);
-			n->Column("phisig", (Float_t) fPhiSigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection) 
-	{
-		l.Select(fPhiSel);
-		nacc = l.GetLength();
-	}
-	return nacc;
+	return TagMode(0, l, fPhiSel, fPhiMean, fPhiSigma, n, "phi");
 }
 
 // -------------------------------------------------------------------------
@@ -1360,51 +1361,7 @@ int PndSoftTriggerTask::Tag_Lambda_ppi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fLamPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(400, l[i], fLamSel );
-		if (acc) nacc++;
-			
-		if (n)
-		{
-			// *** store QA info
-			fQA->qaComp("lam", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fLamMean)/fLamSigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("lammean",(Float_t) fLamMean,		0.0f);
-			n->Column("lamsig", (Float_t) fLamSigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fLamSel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(400, l, fLamSel, fLamMean, fLamSigma, n, "lam");
 }
 
 // -------------------------------------------------------------------------
@@ -1424,51 +1381,9 @@ int PndSoftTriggerTask::Tag_Jpsi_2e(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fJpsiPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(200, l[i], fJpsi1Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("jpsi", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fJpsi1Mean)/fJpsi1Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("jpsimean",(Float_t) fJpsi1Mean,   0.0f);
-			n->Column("jpsisig", (Float_t) fJpsi1Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fJpsi1Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(200, l, fJpsi1Sel, fJpsi1Mean, fJpsi1Sigma, n, "jpsi");
 }
+
 // -------------------------------------------------------------------------
 // *** J/psi -> mu+ mu- decays
 
@@ -1486,50 +1401,7 @@ int PndSoftTriggerTask::Tag_Jpsi_2mu(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fJpsiPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(201, l[i], fJpsi2Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("jpsi", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fJpsi2Mean)/fJpsi2Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("jpsimean",(Float_t) fJpsi2Mean,  0.0f);
-			n->Column("jpsisig", (Float_t) fJpsi2Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fJpsi2Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(201, l, fJpsi2Sel, fJpsi2Mean, fJpsi2Sigma, n, "jpsi");
 }
 
 // -------------------------------------------------------------------------
@@ -1552,50 +1424,7 @@ int PndSoftTriggerTask::Tag_D0_Kpi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fD0PreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(100, l[i], fD01Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("d0", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fD01Mean)/fD01Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("d0mean",(Float_t) fD01Mean,0.0f);
-			n->Column("d0sig", (Float_t) fD01Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fD01Sel);
-		nacc = l.GetLength();
-	}
-		
-	return nacc;
+	return TagMode(100, l, fD01Sel, fD01Mean, fD01Sigma, n, "d0");
 }
 
 // -------------------------------------------------------------------------
@@ -1618,50 +1447,7 @@ int PndSoftTriggerTask::Tag_D0_Kpipi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fD0PreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(101, l[i], fD02Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("d0", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fD02Mean)/fD02Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("d0mean",(Float_t) fD02Mean,0.0f);
-			n->Column("d0sig", (Float_t) fD02Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fD02Sel);
-		nacc = l.GetLength();
-	}
-		
-	return nacc;
+	return TagMode(101, l, fD02Sel, fD02Mean, fD02Sigma, n, "d0");
 }
 
 // -------------------------------------------------------------------------
@@ -1684,50 +1470,7 @@ int PndSoftTriggerTask::Tag_D0_K3pi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fD0PreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(102, l[i], fD03Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("d0", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fD03Mean)/fD03Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("d0mean",(Float_t) fD03Mean,0.0f);
-			n->Column("d0sig", (Float_t) fD03Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fD03Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(102, l, fD03Sel, fD03Mean, fD03Sigma, n, "d0");
 }
 
 // -------------------------------------------------------------------------
@@ -1750,50 +1493,7 @@ int PndSoftTriggerTask::Tag_Dpm_Kpipi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDpmPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(120, l[i], fDpm1Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("dpm", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fDpm1Mean)/fDpm1Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("dpmmean",(Float_t) fDpm1Mean,0.0f);
-			n->Column("dpmsig", (Float_t) fDpm1Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fDpm1Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(120, l, fDpm1Sel, fDpm1Mean, fDpm1Sigma, n, "dpm");
 }
 
 // -------------------------------------------------------------------------
@@ -1816,50 +1516,7 @@ int PndSoftTriggerTask::Tag_Dpm_K2pipi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDpmPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(121, l[i], fDpm2Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("dpm", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fDpm2Mean)/fDpm2Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("dpmmean",(Float_t) fDpm2Mean,0.0f);
-			n->Column("dpmsig", (Float_t) fDpm2Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fDpm2Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(121, l, fDpm2Sel, fDpm2Mean, fDpm2Sigma, n, "dpm");
 }
 
 // -------------------------------------------------------------------------
@@ -1882,50 +1539,7 @@ int PndSoftTriggerTask::Tag_Dpm_Kspipi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDpmPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(122, l[i], fDpm3Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("dpm", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fDpm3Mean)/fDpm3Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("dpmmean",(Float_t) fDpm3Mean,0.0f);
-			n->Column("dpmsig", (Float_t) fDpm3Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fDpm3Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(122, l, fDpm3Sel, fDpm3Mean, fDpm3Sigma, n, "dpm");
 }
 
 // -------------------------------------------------------------------------
@@ -1948,50 +1562,7 @@ int PndSoftTriggerTask::Tag_Dpm_Ks3pi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDpmPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(123, l[i], fDpm4Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("dpm", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fDpm4Mean)/fDpm4Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("dpmmean",(Float_t) fDpm4Mean,0.0f);
-			n->Column("dpmsig", (Float_t) fDpm4Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fDpm4Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(123, l, fDpm4Sel, fDpm4Mean, fDpm4Sigma, n, "dpm");
 }
 
 // -------------------------------------------------------------------------
@@ -2014,50 +1585,7 @@ int PndSoftTriggerTask::Tag_Ds_KKpi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDsPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(140, l[i], fDs1Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("ds", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fDs1Mean)/fDs1Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("dsmean",(Float_t) fDs1Mean,0.0f);
-			n->Column("dssig", (Float_t) fDs1Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fDs1Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(140, l, fDs1Sel, fDs1Mean, fDs1Sigma, n, "ds");
 }
 
 // -------------------------------------------------------------------------
@@ -2080,50 +1608,7 @@ int PndSoftTriggerTask::Tag_Ds_KKpipi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fDsPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(141, l[i], fDs2Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("ds", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fDs2Mean)/fDs2Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("dsmean",(Float_t) fDs2Mean,0.0f);
-			n->Column("dssig", (Float_t) fDs2Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fDs2Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(141, l, fDs2Sel, fDs2Mean, fDs2Sigma, n, "ds");
 }
 
 // -------------------------------------------------------------------------
@@ -2146,50 +1631,7 @@ int PndSoftTriggerTask::Tag_Lambdac_pKpi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fLamcPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(420, l[i], fLamcSel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("lamc", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fLamcMean)/fLamcSigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("lamcmean",(Float_t) fLamcMean,0.0f);
-			n->Column("lamcsig", (Float_t) fLamcSigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fLamcSel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(420, l, fLamcSel, fLamcMean, fLamcSigma, n, "lamc");
 }
 
 // -------------------------------------------------------------------------
@@ -2209,50 +1651,7 @@ int PndSoftTriggerTask::Tag_Etac_KKpi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fEtacPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(220, l[i], fEtac1Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("etac", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fEtac1Mean)/fEtac1Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("etacmean",(Float_t) fEtac1Mean,0.0f);
-			n->Column("etacsig", (Float_t) fEtac1Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fEtac1Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(220, l, fEtac1Sel, fEtac1Mean, fEtac1Sigma, n, "etac");
 }
 
 // -------------------------------------------------------------------------
@@ -2273,50 +1672,7 @@ int PndSoftTriggerTask::Tag_Etac_KKspi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fEtacPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(221, l[i], fEtac2Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("etac", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fEtac2Mean)/fEtac2Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("etacmean",(Float_t) fEtac2Mean,	0.0f);
-			n->Column("etacsig", (Float_t) fEtac2Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fEtac2Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(221, l, fEtac2Sel, fEtac2Mean, fEtac2Sigma, n, "etac");
 }
 
 // -------------------------------------------------------------------------
@@ -2336,50 +1692,7 @@ int PndSoftTriggerTask::Tag_Etac_etapipi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fEtacPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(222, l[i], fEtac3Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("etac", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fEtac3Mean)/fEtac3Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("etacmean",(Float_t) fEtac3Mean,	0.0f);
-			n->Column("etacsig", (Float_t) fEtac3Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fEtac3Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(222, l, fEtac3Sel, fEtac3Mean, fEtac3Sigma, n, "etac");
 }
 
 // -------------------------------------------------------------------------
@@ -2399,50 +1712,7 @@ int PndSoftTriggerTask::Tag_Etac_gg(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fEtacPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(223, l[i], fEtac4Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("etac", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fEtac4Mean)/fEtac4Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("etacmean",(Float_t) fEtac4Mean,	0.0f);
-			n->Column("etacsig", (Float_t) fEtac4Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fEtac4Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(223, l, fEtac4Sel, fEtac4Mean, fEtac4Sigma, n, "etac");
 }
 	
 // -------------------------------------------------------------------------
@@ -2462,50 +1732,7 @@ int PndSoftTriggerTask::Tag_Chic0_2pi2pi0(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fChic0PreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(240, l[i], fChic01Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("chic0", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fChic01Mean)/fChic01Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,				0.0f);
-			n->Column("tag", 	(Float_t) tag,				0.0f);
-			n->Column("num", 	  (Float_t) i,				0.0f);
-			n->Column("chic0mean",(Float_t) fChic01Mean,	0.0f);
-			n->Column("chic0sig", (Float_t) fChic01Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fChic01Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(240, l, fChic01Sel, fChic01Mean, fChic01Sigma, n, "chic0");
 }
 
 // -------------------------------------------------------------------------
@@ -2525,50 +1752,7 @@ int PndSoftTriggerTask::Tag_Chic0_4pi(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fChic0PreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(241, l[i], fChic02Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("chic0", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fChic02Mean)/fChic02Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,				0.0f);
-			n->Column("tag", 	(Float_t) tag,				0.0f);
-			n->Column("num", 	  (Float_t) i,				0.0f);
-			n->Column("chic0mean",(Float_t) fChic02Mean,	0.0f);
-			n->Column("chic0sig", (Float_t) fChic02Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fChic02Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(241, l, fChic02Sel, fChic02Mean, fChic02Sigma, n, "chic0");
 }
 
 // -------------------------------------------------------------------------
@@ -2588,50 +1772,7 @@ int PndSoftTriggerTask::Tag_Chic0_2pi2K(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(fChic0PreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(242, l[i], fChic03Sel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("chic0", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-fChic03Mean)/fChic03Sigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	  (Float_t) nsig,			0.0f);
-			n->Column("tag", 	  (Float_t) tag,			0.0f);
-			n->Column("num", 	  (Float_t) i,				0.0f);
-			n->Column("chic0mean",(Float_t) fChic03Mean,	0.0f);
-			n->Column("chic0sig", (Float_t) fChic03Sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(fChic03Sel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(242, l, fChic03Sel, fChic03Mean, fChic03Sigma, n, "chic0");
 }
 
 // -------------------------------------------------------------------------
@@ -2650,50 +1791,7 @@ int PndSoftTriggerTask::Tag_2e(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(f2ePreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(300, l[i], f2eSel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("ee", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-f2eMean)/f2eSigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,		0.0f);
-			n->Column("tag", 	(Float_t) tag,		0.0f);
-			n->Column("num", 	(Float_t) i,		0.0f);
-			n->Column("eemean",	(Float_t) f2eMean,	0.0f);
-			n->Column("eesig", 	(Float_t) f2eSigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(f2eSel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(300, l, f2eSel, f2eMean, f2eSigma, n, "ee");
 }
 
 // -------------------------------------------------------------------------
@@ -2712,50 +1810,7 @@ int PndSoftTriggerTask::Tag_2mu(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(f2muPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(320, l[i], f2muSel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("mumu", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-f2muMean)/f2muSigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 		(Float_t) nsig,			0.0f);
-			n->Column("tag", 		(Float_t) tag,			0.0f);
-			n->Column("num", 		(Float_t) i,			0.0f);
-			n->Column("mumumean",	(Float_t) f2muMean,		0.0f);
-			n->Column("mumusig", 	(Float_t) f2muSigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(f2muSel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(320, l, f2muSel, f2muMean, f2muSigma, n, "mumu");
 }
 
 // -------------------------------------------------------------------------
@@ -2774,50 +1829,7 @@ int PndSoftTriggerTask::Tag_2gam(RhoTuple *n)
 	// *** pre selection for QA
 	l.Select(f2gamPreSel);
 	
-	// *** counter for full selection accepted cands
-	int nacc = 0; 
-	
-	// *** store QA
-	for (int i=0;i<l.GetLength();++i)
-	{
-		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(340, l[i], f2eSel );
-		if (acc) nacc++;
-			
-		if (n) 
-		{
-			// *** store QA info
-			fQA->qaComp("gg", l[i], n);
-			fQA->qaEventShapeShort("es", fEventShape, n);
-			fQA->qaP4("beam", fIniP4, n);
-			
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-f2gamMean)<f2gamSigma;
-			Float_t tag  = (nsig<fNsigTag);
-			
-			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
-			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("ggmean",	(Float_t) f2gamMean,	0.0f);
-			n->Column("ggsig", 	(Float_t) f2gamSigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
-			
-			n->DumpData();
-		}
-	}
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(f2eSel);
-		nacc = l.GetLength();
-	}
-	
-	return nacc;
+	return TagMode(340, l, f2gamSel, f2gamMean, f2gamSigma, n, "gg");
 }
 
 // -------------------------------------------------------------------------
