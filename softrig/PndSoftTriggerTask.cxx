@@ -11,6 +11,7 @@
 
 // Package headers
 #include "PndOnlineFilterInfo.h"
+#include "PndSoftTriggerLine.h"
 
 // C++ headers
 #include <string>
@@ -30,6 +31,7 @@
 #include "TVector3.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TString.h"
 
 // RHO headers
 #include "RhoCandidate.h"
@@ -69,11 +71,15 @@ struct STCutSet
 std::map<TString, int> fSTVarmap;
 std::map<int, STCutSet> fSTSelmap;
 std::map<int, TString> fSTOps;
+std::map<int, PndSoftTriggerLine*> fSTTriggers;
+std::map<int, int> fSTMapListIndex;
+//                            e+  e-  mu+  mu- pi+   pi-  K+    K-    p     pb   gam  pi0  KS   eta
+const int fSTPidIndex[14] = {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22, 111, 310, 221};
 
 // *** mapped variable names for selection
-//                      0         1            2            3         4         5       6        7      8       9       10          11         12   13  14     15    16     17      18       19       20
+//                      0         1            2            3         4         5       6        7      8       9         10           11        12   13  14     15    16     17      18       19       20
 TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","npart","esptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
-//                      21         22           23          24       25     26   
+//                      21         22           23       24       25     26   
 				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
 
 // array to hold the current variable values; indices are according to the fSTnames array
@@ -85,39 +91,17 @@ int fSTencode[]   = {24, 38, 45, 55};
 int fSTModeIndex = 0;
 
 // -----   Default constructor   -------------------------------------------
-PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum) :
+PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TString trigfilename) :
 	FairTask("Panda Softtrigger Task"),
 	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0),	fNsigAux(5.0),	
-	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
-	fTagPhiKK(true), fTagLamppi(true), fTagJpsi2e(true), fTagJpsi2mu(true),
-	fTagD0Kpi(true), fTagD0Kpipi0(true), fTagD0K3pi(true),
-	fTagDpmKpipi(true), fTagDpmK2pipi0(true), fTagDpmKspipi0(true),
-	fTagDpmKs3pi(true),	fTagDsKKpi(true), fTagDsKKpip0(true),
-	fTagLamcpKpi(true), fTagEtacKKpi0(true), fTagEtacKKspi(true),
-	fTagEtacetapipi(true), fTagEtacgg(true), fTagChic02pi2pi0(true), fTagChic04pi(true),fTagChic02pi2K(true),
-	fTag2e(true),fTag2mu(true),fTag2gam(true),
-	fQAPhiKK(false), fQALamppi(false), fQAJpsi2e(false),fQAJpsi2mu(false),
-	fQAD0Kpi(false), fQAD0Kpipi0(false), fQAD0K3pi(false),
-	fQADpmKpipi(false), fQADpmK2pipi0(false), fQADpmKspipi0(false),
-	fQADpmKs3pi(false),	fQADsKKpi(false), fQADsKKpip0(false),
-	fQALamcpKpi(false), fQAEtacKKpi0(false), fQAEtacKKspi(false),
-	fQAEtacetapipi(false), fQAEtacgg(false), fQAChic02pi2pi0(false), fQAChic04pi(false), fQAChic02pi2K(false), 
-	fQA2e(false),fQA2mu(false),fQA2gam(false),
+	fTriggerFileName(trigfilename), fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
 	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false),
 	fGammaMinE(0.03), fTrackMinP(0.15),
 	fEventShape(NULL), 
 	fQA(NULL),
-	fPi0Sel(NULL), fKs0Sel(NULL),
+	fPi0Sel(NULL), fEtaSel(NULL), fKs0Sel(NULL),
 	fMomentumSel(NULL), fEnergySel(NULL),
-	ntp(0),	nks0(0), npi0(0), neta(0),		
-	nphi(0), nlam(0), njpsi1(0), njpsi2(0),	
-	nd01(0), nd02(0), nd03(0),	
-	ndpm1(0), ndpm2(0), ndpm3(0), ndpm4(0),		
-	nds1(0), nds2(0),			
-	nlamc(0),		
-	netac1(0), netac2(0), netac3(0), netac4(0),		
-	nchic01(0),	nchic02(0), nchic03(0),
-	n2e(0), n2mu(0), n2gam(0)
+	ntp(0),	nks0(0), npi0(0), neta(0)	
 {
 	fPdg = TDatabasePDG::Instance();
 	double mp = fPdg->GetParticle("proton")->Mass(); //Proton mass for computation of p4_ini
@@ -142,6 +126,17 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum) :
 	// *** set default signal parameters (mean, sigma)
 	SetSignalParamsDefaults();
 	SetQASelectionDefaults();	
+	
+	// if no trigger definition file is given, use the default one
+	if (fTriggerFileName.Length()==0)
+	{
+		fTriggerFileName = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";
+		cout <<"Reading default trigger lines file."<<fTriggerFileName.Data()<<endl;
+	}	
+	// map pdg codes to RhoCandList index
+	for (int i=0;i<14;++i) fSTMapListIndex[fSTPidIndex[i]] = i;
+	
+	ReadTriggerLines();
 }
 // -------------------------------------------------------------------------
 
@@ -157,20 +152,7 @@ void PndSoftTriggerTask::SetQASelectionDefaults()
 	double Pi0Mass = DbMass("pi0");
 	double EtaMass = DbMass("eta");
 	double Ks0Mass = DbMass("K_S0");
-	
-	double PhiMass = DbMass("phi");
-	
-	double D0Mass  = DbMass("D0");
-	double DpmMass = DbMass("D+");
-	double DsMass  = DbMass("D_s+");
-	
-	double JpsiMass  = DbMass("J/psi");
-	double EtacMass  = DbMass("eta_c");
-	double Chic0Mass = DbMass("chi_0c");
-	
-	double LamMass  = DbMass("Lambda0");
-	double LamcMass = DbMass("Lambda_c+");
-	
+		
 	// default windows are roughly +-15*sigma, and 15*sigma_max, if different channels are reconstructed
 	// should not depend explicitly from set mean and sigma values, therefore fixed values are chosen
 	
@@ -183,70 +165,13 @@ void PndSoftTriggerTask::SetQASelectionDefaults()
 	fKs0QaMin = Ks0Mass - 0.2;		
 	fKs0QaMax = Ks0Mass + 0.2;		
 	
-	// *** resonances
-	fPhiQaMin = PhiMass - 0.1;		
-	fPhiQaMax = PhiMass + 0.1;		
-	
-	// *** open charm
-	fD0QaMin = D0Mass - 0.3;		
-	fD0QaMax = D0Mass + 0.3;		
-	
-	fDpmQaMin = DpmMass - 0.3;		
-	fDpmQaMax = DpmMass + 0.3;		
-	
-	fDsQaMin = DsMass - 0.25;		
-	fDsQaMax = DsMass + 0.25;		
-	
-	// *** baryons
-	fLamcQaMin = LamcMass - 0.2;		
-	fLamcQaMax = LamcMass + 0.2;		
-
-	fLamQaMin = LamMass - 0.15;		
-	fLamQaMax = LamMass + 0.15;		
-	
-	// *** charmonia
-	fEtacQaMin = EtacMass - 0.65;		
-	fEtacQaMax = EtacMass + 0.65;		
-	
-	fJpsiQaMin = JpsiMass - 1.00;		
-	fJpsiQaMax = JpsiMass + 0.75;		
-	
-	fChic0QaMin = Chic0Mass - 0.6;		
-	fChic0QaMax = Chic0Mass + 0.6;		
-	
-	// *** electro-magnetic 
-	f2eQaMin = fEcm - 1.5;		
-	f2eQaMax = fEcm + 1.0;		
-	
-	f2muQaMin = fEcm - 1.5;		
-	f2muQaMax = fEcm + 1.0;		
-	
-	f2gamQaMin = fEcm - 1.0;		
-	f2gamQaMax = fEcm + 1.0;		
 }
 
 // ----Defaul signal parameters --------------------------------------------------------------
 void PndSoftTriggerTask::SetSignalParamsDefaults()
 {
 	// *** fitted peak values from previous studies
-	
-	// In case signals are not gaussian (sometimes double-gauss or with tail), the narrow core distribution
-	// was fitted to extract a guassian sigma. Should be taken as lower estimate
-/*	
-Phi					0,0037
-ee					0,1000
-Lamba					0,0041
-etac					0,0355
-Jpsi e					0,0700
-Jpsi mu					0,0448
-D+					0,0160
-D0					0,0215
-Ds					0,0141
-Lamc					0,0110
-pi0					0,0043
-Ks					0,0077
-*/
-	
+		
 	fPi0Mean = 0.136;		// mean value for pi0 signal
 	fPi0Sigma = 0.0045;		// sigma value for pi0 signal
 	
@@ -256,160 +181,53 @@ Ks					0,0077
 	fKs0Mean = 0.497;		// mean value for Ks signal
 	fKs0Sigma = 0.008;		// sigma value for Ks signal
 	
-	// *** resonances
-	fPhiMean = 1.0195;		// mean value for phi signal
-	fPhiSigma = 0.004;		// sigma value for phi signal
-	
-	// *** open charm
-	fD01Mean = 1.863;		// mean value for D0 signal (K pi)
-	fD01Sigma = 0.022;		// sigma value for D0 signal
-	
-	fD02Mean = 1.866;		// mean value for D0 signal (K pi pi0)
-	fD02Sigma = 0.019;		// sigma value for D0 signal
-	
-	fD03Mean = 1.863;		// mean value for D0 signal (K pi pi pi)
-	fD03Sigma = 0.017;		// sigma value for D0 signal
-	
-	fDpm1Mean = 1.868;		// mean value for D+ signal (K pi pi)
-	fDpm1Sigma = 0.016;		// sigma value for D+ signal
-	
-	fDpm2Mean = 1.870;		// mean value for D+ signal (K pi pi pi0)
-	fDpm2Sigma = 0.019;		// sigma value for D+ signal
-	
-	fDpm3Mean = 1.873;		// mean value for D+ signal (KS pi pi0)
-	fDpm3Sigma = 0.020;		// sigma value for D+ signal
-	
-	fDpm4Mean = 1.867;		// mean value for D+ signal (KS pi pi pi)
-	fDpm4Sigma = 0.017;		// sigma value for D+ signal
-	
-	fDs1Mean = 1.967;		// mean value for Ds signal (K K pi)
-	fDs1Sigma = 0.0145;		// sigma value for Ds signal
-	
-	fDs2Mean = 1.970;		// mean value for Ds signal (K K pi pi0)
-	fDs2Sigma = 0.016;		// sigma value for Ds signal
-	
-	// *** baryons
-	fLamcMean = 2.284;	// mean value for Lambdac signal
-	fLamcSigma = 0.011;		// sigma value for Lambda signal
+}	
 
-	fLamMean = 1.116;		// mean value for Lambda signal
-	fLamSigma = 0.0045;		// sigma value for Lambda signal
-	
-	// *** charmonia
-	fEtac1Mean = 2.981;		// mean value for eta_c signal    (K K pi0)
-	fEtac1Sigma = 0.042;		// sigma value for eta_c signal
-	
-	fEtac2Mean = 2.976;		// mean value for eta_c signal    (KS K pi)    
-	fEtac2Sigma = 0.036;		// sigma value for eta_c signal
-	
-	fEtac3Mean = 2.980;		// mean value for eta_c signal    (eta pi pi)
-	fEtac3Sigma = 0.042;		// sigma value for eta_c signal
-	
-	fEtac4Mean = 2.999;		// mean value for eta_c signal    (g g)
-	fEtac4Sigma = 0.041;		// sigma value for eta_c signal
-	
-	fJpsi1Mean = 3.070;		// mean value for jpsi signal     (e e)
-	fJpsi1Sigma = 0.1;		// sigma value for jpsi signal
-	
-	fJpsi2Mean = 3.094;		// mean value for jpsi signal     (mu mu)
-	fJpsi2Sigma = 0.045;		// sigma value for jpsi signal
-	
-	fChic01Mean = 3.421;		// mean value for chic0 signal    (2pi 2pi0)
-	fChic01Sigma = 0.040;	// sigma value for chic0 signal
-	
-	fChic02Mean = 3.412;		// mean value for chic0 signal    (4pi)
-	fChic02Sigma = 0.037;	// sigma value for chic0 signal
-	
-	fChic03Mean = 3.414;		// mean value for chic0 signal    (2pi 2K)
-	fChic03Sigma = 0.04;	// sigma value for chic0 signal
-	
-	// *** electro-magnetic 
-	f2eMean = fEcm;			// mean value for e+ e- signal
-	f2eSigma = 0.125;		// sigma value for for e+ e- signal
-	
-	f2muMean = fEcm;		// mean value for mu+ mu- signal
-	f2muSigma = 0.9;		// sigma value for for mu+ mu- signal
-	
-	f2gamMean = fEcm;		// mean value for gam gam signal
-	f2gamSigma = 0.65;		// sigma value for for gam gam signal
-	
+// ----Set all PID algos at once --------------------------------------------------------------
+void PndSoftTriggerTask::SetPidAlgoAll(TString algo)
+{
+	SetPidAlgoElectron(algo);
+	SetPidAlgoMuon(algo);
+	SetPidAlgoPion(algo); 
+	SetPidAlgoKaon(algo);
+	SetPidAlgoProton(algo);
 }
+
+
+// ----Method to enable/disable QA for single mode --------------------------------------------------
+void PndSoftTriggerTask::SetQA_Mode(int mode, bool qa)
+{
+	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;
+	
+	fSTTriggers[mode]->SetWriteQA(qa);
+}
+
 
 // ----Method to enable/disable full QA--------------------------------------------------------------
 void PndSoftTriggerTask::SetQA_All(bool qa)
-{
-	SetQA_Phi_KK(qa);
-	SetQA_Lambda_ppi(qa);
-	SetQA_Jpsi_2e(qa);
-	SetQA_Jpsi_2mu(qa);
-	
-	SetQA_D0_Kpi(qa);
-	SetQA_D0_Kpipi0(qa);
-	SetQA_D0_K3pi(qa);
-	
-	SetQA_Dpm_Kpipi(qa);
-	SetQA_Dpm_K2pipi0(qa);
-	SetQA_Dpm_Kspipi0(qa);
-	SetQA_Dpm_Ks3pi(qa);
-	
-	SetQA_Ds_KKpi(qa);
-	SetQA_Ds_KKpipi0(qa);
-	
-	SetQA_Lambdac_pKpi(qa);
-	
-	SetQA_Etac_KKpi0(qa);
-	SetQA_Etac_KKspi(qa);
-	SetQA_Etac_etapipi(qa);
-	SetQA_Etac_gg(qa); 
-	
-	SetQA_Chic0_2pi2pi0(qa); 
-	SetQA_Chic0_4pi(qa); 
-	SetQA_Chic0_2pi2K(qa); 
-
-	SetQA_2e(qa); 
-	SetQA_2mu(qa); 
-	SetQA_2gam(qa); 
-	
+{	
 	SetQA_Pi0(qa);
 	SetQA_Eta(qa);
 	SetQA_Ks0(qa);
 	SetQA_Event(qa);
+	
+	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it) 
+		SetQA_Mode(it->first, qa);
+}
+
+// ----Method to enable/disable tagging for single mode --------------------------------------------------
+void PndSoftTriggerTask::SetTag_Mode(int mode, bool tag)
+{
+	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;
+	
+	fSTTriggers[mode]->SetTagActive(tag);
 }
 
 // ----Method to enable/disable full Tagging--------------------------------------------------------------
 void PndSoftTriggerTask::SetTag_All(bool qa)
-{
-	SetTag_Phi_KK(qa);
-	SetTag_Lambda_ppi(qa);
-	SetTag_Jpsi_2e(qa);
-	SetTag_Jpsi_2mu(qa);
-	
-	SetTag_D0_Kpi(qa);
-	SetTag_D0_Kpipi0(qa);
-	SetTag_D0_K3pi(qa);
-	
-	SetTag_Dpm_Kpipi(qa);
-	SetTag_Dpm_K2pipi0(qa);
-	SetTag_Dpm_Kspipi0(qa);
-	SetTag_Dpm_Ks3pi(qa);
-	
-	SetTag_Ds_KKpi(qa);
-	SetTag_Ds_KKpipi0(qa);
-	
-	SetTag_Lambdac_pKpi(qa);
-	
-	SetTag_Etac_KKpi0(qa);
-	SetTag_Etac_KKspi(qa);
-	SetTag_Etac_etapipi(qa);
-	SetTag_Etac_gg(qa); 
-	
-	SetTag_Chic0_2pi2pi0(qa); 
-	SetTag_Chic0_4pi(qa); 
-	SetTag_Chic0_2pi2K(qa); 
-
-	SetTag_2e(qa); 
-	SetTag_2mu(qa); 
-	SetTag_2gam(qa); 
+{	
+	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+		SetTag_Mode(it->first, qa);
 }
 
 
@@ -486,9 +304,6 @@ InitStatus PndSoftTriggerTask::Init()
 	// *** initialize analysis object
 	fAnalysis = new PndAnalysis();
 	
-	// *** vertexer
-	fVtxPoca = new PndVtxPoca();
-	
 	// *** RhoTuple QA helper
 	fQA = new PndRhoTupleQA(fAnalysis,fPbarMom);
 	
@@ -497,99 +312,19 @@ InitStatus PndSoftTriggerTask::Init()
 	if (fQAKs0) nks0 = new RhoTuple("nks0","K_S -> pi+ pi-");
 	if (fQAPi0) npi0 = new RhoTuple("npi0","pi0 -> g g");
 	if (fQAEta) neta = new RhoTuple("neta","eta -> g g");
-	
-	if (fQAPhiKK) nphi = new RhoTuple("nphi",			"phi -> K+ K-");	
-	if (fQALamppi) nlam = new RhoTuple("nlam",			"Lambda -> p pi");	
-	if (fQAJpsi2e) njpsi1 = new RhoTuple("njpsi1",		"J/psi -> e+ e-");	
-	if (fQAJpsi2mu) njpsi2 = new RhoTuple("njpsi2",		"J/psi -> mu+ mu-");	
-	
-	if (fQAD0Kpi) nd01 = new RhoTuple("nd01",			"D0 -> K- pi+");		
-	if (fQAD0Kpipi0) nd02 = new RhoTuple("nd02",			"D0 -> K- pi+ pi0");		
-	if (fQAD0K3pi) nd03 = new RhoTuple("nd03",			"D0 -> K- pi+ pi- pi-");		
-	
-	if (fQADpmKpipi) ndpm1 = new RhoTuple("ndpm1",		"D+- -> K- pi+ pi+");		
-	if (fQADpmK2pipi0) ndpm2 = new RhoTuple("ndpm2",		"D+- -> K- pi+ pi+ pi0");	
-	if (fQADpmKspipi0) ndpm3 = new RhoTuple("ndpm3",		"D+- -> K_S pi+ pi0");		
-	if (fQADpmKs3pi) ndpm4 = new RhoTuple("ndpm4",		"D+- -> K_S pi+ pi+ pi-");		
-
-	if (fQADsKKpi) nds1 = new RhoTuple("nds1",			"Ds -> K+ K- pi+");			
-	if (fQADsKKpip0) nds2 = new RhoTuple("nds2",			"Ds -> K+ K- pi+ pi0");			
-	
-	if (fQALamcpKpi) nlamc = new RhoTuple("nlamc",		"Lambda_c -> p K- pi+");		
-	
-	if (fQAEtacKKpi0) netac1 = new RhoTuple("netac1",		"eta_c -> K+ K- pi0");		
-	if (fQAEtacKKspi) netac2 = new RhoTuple("netac2",		"eta_c -> K+ K_S pi-");		
-	if (fQAEtacetapipi) netac3 = new RhoTuple("netac3",		"eta_c -> eta pi+ pi-");		
-	if (fQAEtacgg) netac4 = new RhoTuple("netac4",		"eta_c -> g g");		
-
-	if (fQAChic02pi2pi0) nchic01 = new RhoTuple("nchic01",	"chi_c0 -> pi+ pi- pi0 pi0");		
-	if (fQAChic04pi)   nchic02 = new RhoTuple("nchic02",	"chi_c0 -> pi+ pi- pi+ pi-");		
-	if (fQAChic02pi2K) nchic03 = new RhoTuple("nchic03",	"chi_c0 -> pi+ pi- K+ K-");		
-
-	if (fQA2e)   n2e   = new RhoTuple("n2e",	"pbar p -> e+ e-");		
-	if (fQA2mu)  n2mu  = new RhoTuple("n2mu",	"pbar p -> mu+ mu-");		
-	if (fQA2gam) n2gam = new RhoTuple("n2gam", 	"pbar p -> gamma gamma");		
-	
+		
 	// *** create mass pre selectors for QA (formular takes into account RhoSelector definition mean +- win/2
 	fPi0PreSel   = new RhoMassParticleSelector("pi0PreSel",  (fPi0QaMax + fPi0QaMin)/2.0, 	fPi0QaMax - fPi0QaMin );  
 	fEtaPreSel   = new RhoMassParticleSelector("etaPreSel",  (fEtaQaMax + fEtaQaMin)/2.0, 	fEtaQaMax - fEtaQaMin ); 
-	fKs0PreSel   = new RhoMassParticleSelector("Ks0PreSel",  (fKs0QaMax + fKs0QaMin)/2.0, 	fKs0QaMax - fKs0QaMin);  
-	fPhiPreSel   = new RhoMassParticleSelector("PhiPreSel",  (fPhiQaMax + fPhiQaMin)/2.0, 	fPhiQaMax - fPhiQaMin); 
-	fLamPreSel   = new RhoMassParticleSelector("LamPreSel",  (fLamQaMax + fLamQaMin)/2.0, 	fLamQaMax - fLamQaMin);  
-	fJpsiPreSel  = new RhoMassParticleSelector("JpsiPreSel", (fJpsiQaMax + fJpsiQaMin)/2.0, fJpsiQaMax - fJpsiQaMin);  
-	fD0PreSel    = new RhoMassParticleSelector("D0PreSel",   (fD0QaMax + fD0QaMin)/2.0, 	fD0QaMax - fD0QaMin);  
-	fDpmPreSel   = new RhoMassParticleSelector("DpmPreSel",  (fDpmQaMax + fDpmQaMin)/2.0,	fDpmQaMax - fDpmQaMin);  
-	fDsPreSel    = new RhoMassParticleSelector("DsPreSel",   (fDsQaMax + fDsQaMin)/2.0, 	fDsQaMax - fDsQaMin);  
-	fEtacPreSel  = new RhoMassParticleSelector("EtacPreSel", (fEtacQaMax + fEtacQaMin)/2.0, fEtacQaMax - fEtacQaMin);  
-	fChic0PreSel = new RhoMassParticleSelector("Chic0PreSel",(fChic0QaMax + fChic0QaMin)/2.0,fChic0QaMax - fChic0QaMin);  
-	fLamcPreSel  = new RhoMassParticleSelector("LamcPreSel", (fLamcQaMax + fLamcQaMin)/2.0, fLamcQaMax - fLamcQaMin); 
-	f2ePreSel    = new RhoMassParticleSelector("2ePreSel",   (f2eQaMax + f2eQaMin)/2.0, 	f2eQaMax - f2eQaMin);  
-	f2muPreSel   = new RhoMassParticleSelector("2muPreSel",  (f2muQaMax + f2muQaMin)/2.0, 	f2muQaMax - f2muQaMin);  
-	f2gamPreSel  = new RhoMassParticleSelector("2gamPreSel", (f2gamQaMax + f2gamQaMin)/2.0,	f2gamQaMax - f2gamQaMin); 
-	
+	fKs0PreSel   = new RhoMassParticleSelector("Ks0PreSel",  (fKs0QaMax + fKs0QaMin)/2.0, 	fKs0QaMax - fKs0QaMin);  	
 	
 	// *** number of sigmas deviation for tag
-	double tagNumSig   = fNsigTag;
+	//double tagNumSig   = fNsigTag;
 
 	// *** create final selectors for pi0, eta, KS 
-	fPi0Sel     = new RhoMassParticleSelector("pi0Sel",   fPi0Mean, fPi0Sigma*2.0*3.0);
-	fEtaSel     = new RhoMassParticleSelector("etaSel",   fEtaMean, fEtaSigma*2.0*3.0);
-	fKs0Sel     = new RhoMassParticleSelector("Ks0Sel",   fKs0Mean, fKs0Sigma*2.0*3.0);
-
-	
-	// *** create final selectors for different tag modes (factor 2.0 comes from RhoSelector definition mean +- win/2)
-	fPhiSel     = new RhoMassParticleSelector("PhiSel",   fPhiMean, fPhiSigma*2.0*tagNumSig);	
-	fLamSel     = new RhoMassParticleSelector("LamSel",   fLamMean, fLamSigma*2.0*tagNumSig);
-	
-	fJpsi1Sel   = new RhoMassParticleSelector("Jpsi1Sel",   fJpsi1Mean, fJpsi1Sigma*2.0*tagNumSig);
-	fJpsi2Sel   = new RhoMassParticleSelector("Jpsi2Sel",   fJpsi2Mean, fJpsi2Sigma*2.0*tagNumSig);
-	
-	fD01Sel     = new RhoMassParticleSelector("D01Sel",   fD01Mean, fD01Sigma*2.0*tagNumSig);
-	fD02Sel     = new RhoMassParticleSelector("D02Sel",   fD02Mean, fD02Sigma*2.0*tagNumSig);
-	fD03Sel     = new RhoMassParticleSelector("D03Sel",   fD03Mean, fD03Sigma*2.0*tagNumSig);
-	
-	fDpm1Sel    = new RhoMassParticleSelector("Dpm1Sel",   fDpm1Mean, fDpm1Sigma*2.0*tagNumSig);
-	fDpm2Sel    = new RhoMassParticleSelector("Dpm2Sel",   fDpm2Mean, fDpm2Sigma*2.0*tagNumSig);
-	fDpm3Sel    = new RhoMassParticleSelector("Dpm3Sel",   fDpm3Mean, fDpm3Sigma*2.0*tagNumSig);
-	fDpm4Sel    = new RhoMassParticleSelector("Dpm4Sel",   fDpm4Mean, fDpm4Sigma*2.0*tagNumSig);
-	
-	fDs1Sel     = new RhoMassParticleSelector("Ds1Sel",   fDs1Mean, fDs1Sigma*2.0*tagNumSig);
-	fDs2Sel     = new RhoMassParticleSelector("Ds2Sel",   fDs2Mean, fDs2Sigma*2.0*tagNumSig);
-	
-	fEtac1Sel   = new RhoMassParticleSelector("Etac1Sel",   fEtac1Mean, fEtac1Sigma*2.0*tagNumSig);
-	fEtac2Sel   = new RhoMassParticleSelector("Etac2Sel",   fEtac2Mean, fEtac2Sigma*2.0*tagNumSig);
-	fEtac3Sel   = new RhoMassParticleSelector("Etac3Sel",   fEtac3Mean, fEtac3Sigma*2.0*tagNumSig);
-	fEtac4Sel   = new RhoMassParticleSelector("Etac4Sel",   fEtac4Mean, fEtac4Sigma*2.0*tagNumSig);
-
-	fChic01Sel  = new RhoMassParticleSelector("Chic01Sel",   fChic01Mean, fChic01Sigma*2.0*tagNumSig);
-	fChic02Sel  = new RhoMassParticleSelector("Chic02Sel",   fChic02Mean, fChic02Sigma*2.0*tagNumSig);
-	fChic03Sel  = new RhoMassParticleSelector("Chic03Sel",   fChic03Mean, fChic03Sigma*2.0*tagNumSig);
-	
-	fLamcSel    = new RhoMassParticleSelector("LamcSel",   fLamcMean, fLamcSigma*2.0*tagNumSig);
-
-	f2eSel      = new RhoMassParticleSelector("2eSel",   f2eMean, f2eSigma*2.0*tagNumSig);
-	f2muSel     = new RhoMassParticleSelector("2muSel",   f2muMean, f2muSigma*2.0*tagNumSig);
-	f2gamSel    = new RhoMassParticleSelector("2gamSel",   f2gamMean, f2gamSigma*2.0*tagNumSig);
+	fPi0Sel     = new RhoMassParticleSelector("pi0Sel",   fPi0Mean, fPi0Sigma*2.0*fNsigAux);
+	fEtaSel     = new RhoMassParticleSelector("etaSel",   fEtaMean, fEtaSigma*2.0*fNsigAux);
+	fKs0Sel     = new RhoMassParticleSelector("Ks0Sel",   fKs0Mean, fKs0Sigma*2.0*fNsigAux);
 
 	// *** basic selectors for preselection
 	fMomentumSel = new RhoMomentumParticleSelector("PSel",50.+fTrackMinP,100.);
@@ -612,7 +347,93 @@ InitStatus PndSoftTriggerTask::Init()
 		}
 	}
 
+	// *** initialize triggers
+	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+	{
+		PndSoftTriggerLine *tl = it->second;
+		tl->Init();
+		
+		if (fVerbose>0)
+		{
+			cout <<"*** MODE: "<<it->first<<endl;
+			tl->Print();
+			cout <<endl<<endl;
+		}
+	}
+
+	if (fVerbose>0)
+	{
+		// print selection setup
+		cout <<"[PndSoftTriggerTask] Selection setup:"<<endl;
+		for (std::map<int,STCutSet>::iterator it=fSTSelmap.begin(); it!=fSTSelmap.end(); ++it)
+		{
+			std::cout << it->first << " => ";
+			STCutSet cs = it->second;
+			for (int i=0;i<cs.ncut;++i) cout <<"v["<<cs.varid[i]<<"]"<<fSTOps[cs.op[i]]<<cs.cutval[i]<<"  ";
+			cout <<endl;
+		}
+	}
+
+
 	return kSUCCESS;
+}
+
+
+// -------------------------------------------------------------------------
+// reads in trigger line definitions
+// defaults are in $VMCWORKDIR/softrig/triggerlines.cfg
+bool PndSoftTriggerTask::ReadTriggerLines()
+{
+	ifstream file(fTriggerFileName.Data());
+	if (!file.is_open()) 
+	{
+		cout <<"[PndSoftTriggerTask] **** Unable to open trigger file "<<fTriggerFileName.Data()<<endl;
+		fApplyFullSelection=false;
+	}
+	else cout <<"[PndSoftTriggerTask] **** Reading trigger lines from "<<fTriggerFileName.Data()<<endl;
+	
+	char line[500];
+	TString toks[13];
+	
+	// loop through file line by line
+	while (!file.eof())
+	{
+		file.getline(line,499);
+		TString sline(line);
+
+		// empty lines or comments are skipped (a comment has to have a # as _first_ char)
+		if (sline.BeginsWith("#")||sline=="") continue;	 
+	
+		// split the line into tokens, has to be
+		// 0-mode, 1-name, 2-decay pattern, 3-prefix, 4-ntpname, 5-qamin, 6-qamax, 7-mean, 8-sigma, 9-threshold, 10-nsig, 11-fqa, 12-ftag
+		int N = SplitString(sline, ":", toks,13);
+		if (N!=13)  {cout <<"[PndSoftTriggerTask] **** Invalid trigger line: "<<sline.Data()<<endl; continue;}
+		//if (fVerbose>1) for (int i=0;i<N;++i) cout <<toks[i]<<":"; cout <<endl; 
+		
+		int mode = toks[0].Atoi();
+		PndSoftTriggerLine *tl = new PndSoftTriggerLine(mode, toks[1], toks[2], toks[3], toks[4]);
+
+		double mean=0, qamin = toks[5].Atof(), qamax = toks[6].Atof();
+		
+		// check whether mean = Ecm
+		if (toks[7]=="Ecm") 
+			mean = fEcm;
+		else 
+			mean = toks[7].Atof();
+		
+		// check whether qa mass window values are relative to mean 
+		if (toks[5].BeginsWith("-")) qamin = mean + toks[5].Atof(); // sum, since toks[5].Atof()<0 due to '-' sign
+		if (toks[6].BeginsWith("+")) qamax = mean + toks[6].Atof();
+		
+		tl->SetQAMassWindow(qamin, qamax);
+		tl->SetMeanSigma(mean, toks[8].Atof());
+		tl->SetThreshold(toks[9].Atof());
+		tl->SetTagNSig(toks[10].Atof());
+		tl->SetWriteQA(toks[11].Atoi());
+		tl->SetTagActive(toks[12].Atoi());
+		
+		fSTTriggers[mode] = tl;
+	}
 }
 
 
@@ -621,7 +442,6 @@ InitStatus PndSoftTriggerTask::Init()
 // example selection (from ST report - full sim) can be found in the 2 files
 // $VMCWORKDIR/softrig/selection_10ch_tight.cfg (suppression of 1/1000)
 // $VMCWORKDIR/softrig/selection_10ch_loose.cfg (eff of 95%)
-
 bool PndSoftTriggerTask::ReadConfiguration()
 {
 	for (int i=0;i<MAXCUT;++i) fSTVarmap[fSTnames[i]] = i;
@@ -633,7 +453,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 	
 	if (!file.is_open()) 
 	{
-		cout <<"[PndSoftTriggerTask] **** Unable to open "<<fCfgFileName.Data()<<endl;
+		cout <<"[PndSoftTriggerTask] **** Unable to open selection file "<<fCfgFileName.Data()<<endl;
 		fApplyFullSelection=false;
 	}
 	else cout <<"[PndSoftTriggerTask] **** Reading selection from "<<fCfgFileName.Data()<<endl;
@@ -654,14 +474,14 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		
 		// split the line into tokens; token 0 ist the mode code, token 1 is the complete cut string
 		// e.g. '38400 : eslnpidp>0&&abs(pcm-2.105)<0.695&&esthr>0.9&&pt>0.8'
-		int N = SplitString(sline, ":", toks);
+		int N = SplitString(sline, ":", toks,30);
 		if (N>2)  {cout <<"invalid line: "<<sline.Data()<<endl; continue;}
 
 		// extract the mode code by converting to integer
 		int mcode = toks[0].Atoi();
 		
 		// now split the cut string into single cuts
-		N = SplitString(toks[1],"&&",toks);
+		N = SplitString(toks[1],"&&",toks,30);
 		
 		
 		// replace windows cuts 'abs(<name>-x)<y' by 2 single cuts
@@ -695,9 +515,9 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		for (int i=0;i<N;++i)
 		{
 			int op=-1;
-			if (toks[i].Contains(">")) {SplitString(toks[i],">",toks2); op = 0;}
-			else if (toks[i].Contains("=")) {SplitString(toks[i],"=",toks2); op = 1;}
-			else if (toks[i].Contains("<")) {SplitString(toks[i],"<",toks2); op = 2;}
+			if (toks[i].Contains(">")) {SplitString(toks[i],">",toks2,5); op = 0;}
+			else if (toks[i].Contains("=")) {SplitString(toks[i],"=",toks2,5); op = 1;}
+			else if (toks[i].Contains("<")) {SplitString(toks[i],"<",toks2,5); op = 2;}
 			else // fail
 			{
 				i=N+1;
@@ -721,24 +541,21 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		if (ok) fSTSelmap[mcode] = cs;
 	}
 	
-	// print for testing purpose
-	if (fVerbose>0)
-	for (std::map<int,STCutSet>::iterator it=fSTSelmap.begin(); it!=fSTSelmap.end(); ++it)
-	{
-		std::cout << it->first << " => ";
-		STCutSet cs = it->second;
-		for (int i=0;i<cs.ncut;++i) cout <<"v["<<cs.varid[i]<<"]"<<fSTOps[cs.op[i]]<<cs.cutval[i]<<"  ";;
-		cout <<endl;
-	}
 }
 
 // -------------------------------------------------------------------------
 
-int PndSoftTriggerTask::SplitString(TString s, TString delim, TString *toks)
+int PndSoftTriggerTask::SplitString(TString s, TString delim, TString *toks, int maxtoks)
 {
 	TObjArray *tok = s.Tokenize(delim);
 	int N = tok->GetEntries();	
-	for (int i=0;i<N;++i) toks[i] = (((TObjString*)tok->At(i))->String()).Strip(TString::kBoth);
+	for (int i=0;i<N;++i) 
+		if (i<maxtoks) 
+		{
+			toks[i] = ((TObjString*)tok->At(i))->String();
+			toks[i].ReplaceAll("\t","");
+			toks[i] = toks[i].Strip(TString::kBoth);
+		}
 	return N;
 }
 
@@ -761,7 +578,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	if ( fTcaOnlineFilterInfo->GetEntriesFast() != 0 ) fTcaOnlineFilterInfo->Delete();
 	
 	// *** some variables
-	int i=0,j=0, k=0, l=0;
+	int i=0,j=0, k=0;
 	
 	if (!(++fEvtCount%100)) cout << "evt "<<fEvtCount<<endl;
 	
@@ -777,50 +594,30 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	
 	if (fApplyFullSelection) FillEventShapeVarArray();
 	
-	// *** tag all Soft Trigger Channels
-	int tag_phi    = Tag_Phi_KK(nphi);
-	int tag_lam    = Tag_Lambda_ppi(nlam);
+	int tag_glob = 0;
 	
-	int tag_jpsi1  = Tag_Jpsi_2e(njpsi1);
-	int tag_jpsi2  = Tag_Jpsi_2mu(njpsi2);
-	int tag_jpsi   = tag_jpsi1 + tag_jpsi2;
-	
-	int tag_d01    = Tag_D0_Kpi(nd01);
-	int tag_d02    = Tag_D0_Kpipi0(nd02);
-	int tag_d03    = Tag_D0_K3pi(nd03);
-	int tag_d0     = tag_d01 + tag_d02 +tag_d03;
-	
-	int tag_dpm1   = Tag_Dpm_Kpipi(ndpm1);
-	int tag_dpm2   = Tag_Dpm_K2pipi0(ndpm2);
-	int tag_dpm3   = Tag_Dpm_Kspipi0(ndpm3);
-	int tag_dpm4   = Tag_Dpm_Ks3pi(ndpm4);
-	int tag_dpm    = tag_dpm1 + tag_dpm2 + tag_dpm3 + tag_dpm4;
-	
-	int tag_ds1    = Tag_Ds_KKpi(nds1);
-	int tag_ds2    = Tag_Ds_KKpipi0(nds2);
-	int tag_ds     = tag_ds1 + tag_ds2;
-	
-	int tag_lamc   = Tag_Lambdac_pKpi(nlamc);
-	
-	int tag_etac1  = Tag_Etac_KKpi0(netac1);
-	int tag_etac2  = Tag_Etac_KKspi(netac2);
-	int tag_etac3  = Tag_Etac_etapipi(netac3);
-	int tag_etac4  = Tag_Etac_gg(netac4);
-	int tag_etac   = tag_etac1 + tag_etac2 + tag_etac3 + tag_etac4; 
-	
-	int tag_chic01 = Tag_Chic0_2pi2pi0(nchic01);
-	int tag_chic02 = Tag_Chic0_4pi(nchic02);
-	int tag_chic03 = Tag_Chic0_2pi2K(nchic03);
-	int tag_chic0  = tag_chic01 + tag_chic02 + tag_chic03;
-	
-	int tag_2e     = Tag_2e(n2e);
-	int tag_2mu    = Tag_2mu(n2mu);
-	int tag_2gam   = Tag_2gam(n2gam);
-	int tag_em     = tag_2e + tag_2mu + tag_2gam;
-	
-	int tag_glob   = tag_phi + tag_lam + tag_jpsi + tag_d0 + tag_dpm
-				   + tag_ds + tag_lamc + tag_etac + tag_chic0
-				   + tag_em;
+	// *** loop through all channels and tag
+	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+	{
+		int mode = it->first;
+		PndSoftTriggerLine *tl = it->second;
+		
+		if ( !tl->GetTagActive() ) continue;
+		if ( fEcm < tl->GetThreshold() ) continue;
+		
+		RhoCandList l;
+
+		// ** combinatorics
+		DoCombinatorics(l, tl);
+		
+		// ** preselection
+		l.Select(tl->GetQASelector());
+		
+		// ** final tagging
+		int ntag =  TagMode(tl->GetModeCode(), l, tl->GetSelector(), tl->GetMean(), tl->GetSigma(), tl->GetRhoTuple(), tl->GetPrefix());
+		tl->SetNTagged( ntag );
+		tag_glob += ntag;
+	}
 	
 	Float_t tagged = (tag_glob>0);
 	
@@ -834,63 +631,24 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 
 		fQA->qaP4("beam", fIniP4, ntp);
 		
-		ntp->Column("tagphi",	(Float_t)	tag_phi,	0.0f);
-		ntp->Column("taglam",	(Float_t)	tag_lam,	0.0f);
-		ntp->Column("tagjpsi1",	(Float_t)	tag_jpsi1,	0.0f);
-		ntp->Column("tagjpsi2",	(Float_t)	tag_jpsi2,	0.0f);
-		ntp->Column("tagjpsi",	(Float_t)	tag_jpsi,	0.0f);
-		
-		ntp->Column("tagd01",	(Float_t)	tag_d01,	0.0f);
-		ntp->Column("tagd02",	(Float_t)	tag_d02,	0.0f);
-		ntp->Column("tagd03",	(Float_t)	tag_d03,	0.0f);
-		ntp->Column("tagd0",	(Float_t)	tag_d0,		0.0f);
-		
-		ntp->Column("tagdpm1",	(Float_t)	tag_dpm1,	0.0f);
-		ntp->Column("tagdpm2",	(Float_t)	tag_dpm2,	0.0f);
-		ntp->Column("tagdpm3",	(Float_t)	tag_dpm3,	0.0f);
-		ntp->Column("tagdpm4",	(Float_t)	tag_dpm4,	0.0f);
-		ntp->Column("tagdpm",	(Float_t)	tag_dpm,	0.0f);
-		
-		ntp->Column("tagds1",	(Float_t)	tag_ds1,	0.0f);
-		ntp->Column("tagds2",	(Float_t)	tag_ds2,	0.0f);
-		ntp->Column("tagds",	(Float_t)	tag_ds,		0.0f);
-		
-		ntp->Column("taglamc",	(Float_t)	tag_lamc,	0.0f);
-		
-		ntp->Column("tagetac1",	(Float_t)	tag_etac1,	0.0f);
-		ntp->Column("tagetac2",	(Float_t)	tag_etac2,	0.0f);
-		ntp->Column("tagetac3",	(Float_t)	tag_etac3,	0.0f);
-		ntp->Column("tagetac4",	(Float_t)	tag_etac4,	0.0f);
-		ntp->Column("tagetac",	(Float_t)	tag_etac,	0.0f);
-
-		ntp->Column("tagchic01",(Float_t)	tag_chic01,	0.0f);
-		ntp->Column("tagchic02",(Float_t)	tag_chic02,	0.0f);
-		ntp->Column("tagchic03",(Float_t)	tag_chic03,	0.0f);
-		ntp->Column("tagchic0",	(Float_t)	tag_chic0,	0.0f);
-		
-		ntp->Column("tag2e",	(Float_t)	tag_2e,		0.0f);
-		ntp->Column("tag2mu",	(Float_t)	tag_2mu,	0.0f);
-		ntp->Column("tag2gam",	(Float_t)	tag_2gam,	0.0f);
-		
-		ntp->Column("tagem",	(Float_t)	tag_em,		0.0f);
+		// write tags of individual modes
+		for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+		{
+			PndSoftTriggerLine *tl = it->second;
+			if ( tl->GetTagActive() ) ntp->Column("tag"+tl->GetName(), (Float_t) tl->GetNTagged(), 0.0f);
+		}
 
 		ntp->Column("tagall",	(Float_t)	tag_glob,	0.0f);
 		ntp->Column("tag",		(Float_t)	tagged,		0.0f);
 		
 		fQA->qaEventShape("es", fEventShape, ntp);
 		
-		// overwrite values from fEventShape (based on AllCands and only one algo)
-		int ne  = MultPidProb(fElectronPlus, 0, 0.25) + MultPidProb(fElectronMinus, 0, 0.25);
-		int nmu = MultPidProb(fMuonPlus,     1, 0.25) + MultPidProb(fMuonMinus,     1, 0.25);
-		int npi = MultPidProb(fPionPlus,     2, 0.25) + MultPidProb(fPionMinus,     2, 0.25);
-		int nk  = MultPidProb(fKaonPlus,     3, 0.25) + MultPidProb(fKaonMinus,     3, 0.25);
-		int np  = MultPidProb(fProtonPlus,   4, 0.25) + MultPidProb(fProtonMinus,   4, 0.25);
-		
-		ntp->Column("eslnpide", (Float_t)  ne,		0.0f );
-		ntp->Column("eslnpidmu",(Float_t)  nmu,		0.0f );
-		ntp->Column("eslnnpidpi",(Float_t) npi,		0.0f );
-		ntp->Column("eslnpidk", (Float_t)  nk,		0.0f );
-		ntp->Column("eslnpidp", (Float_t)  np,		0.0f );
+		// replace PID mult values from fEventShape by actual counts with individual algorithms
+		ntp->Column("eslnpide", (Float_t)  fPidMult_025[0],		0.0f );
+		ntp->Column("eslnpidmu",(Float_t)  fPidMult_025[1],		0.0f );
+		ntp->Column("eslnpidpi",(Float_t)  fPidMult_025[2],		0.0f );
+		ntp->Column("eslnpidk", (Float_t)  fPidMult_025[3],		0.0f );
+		ntp->Column("eslnpidp", (Float_t)  fPidMult_025[4],		0.0f );
 		
 		
 		ntp->DumpData();
@@ -900,31 +658,31 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	
 	PndOnlineFilterInfo* info=new ( (*fTcaOnlineFilterInfo)[0] ) PndOnlineFilterInfo();
 
-	info->SetTagPhiKK(tag_phi);
-	info->SetTagLamppi(tag_lam);
-	info->SetTagJpsi2e(tag_jpsi1);
-	info->SetTagJpsi2mu(tag_jpsi2);
-	info->SetTagD0Kpi(tag_d01);
-	info->SetTagD0Kpipi0(tag_d02);
-	info->SetTagD0K3pi(tag_d03);
-	info->SetTagDpmKpipi(tag_dpm1);
-	info->SetTagDpmK2pipi0(tag_dpm2);
-	info->SetTagDpmKspipi0(tag_dpm3);
-	info->SetTagDpmKs3pi(tag_dpm4);
-	info->SetTagDsKKpi(tag_ds1);
-	info->SetTagDsKKpip0(tag_ds2);
-	info->SetTagLamcpKpi(tag_lamc);
-	info->SetTagEtacKKpi0(tag_etac1);
-	info->SetTagEtacKKspi(tag_etac2);
-	info->SetTagEtacetapipi(tag_etac3);
-	info->SetTagEtacgg(tag_etac4);
-	info->SetTagChic02pi2pi0(tag_chic01);
-	info->SetTagChic04pi(tag_chic02);
-	info->SetTagChic02pi2K(tag_chic03);
-	info->SetTag2e(tag_2e);
-	info->SetTag2mu(tag_2mu);
-	info->SetTag2gam(tag_2gam);
-
+	info->SetTagPhiKK(        fSTTriggers[  0]->GetNTagged());
+	info->SetTagLamppi(       fSTTriggers[400]->GetNTagged());
+	info->SetTagJpsi2e(       fSTTriggers[200]->GetNTagged());
+	info->SetTagJpsi2mu(      fSTTriggers[201]->GetNTagged());
+	info->SetTagD0Kpi(        fSTTriggers[100]->GetNTagged());
+	info->SetTagD0Kpipi0(     fSTTriggers[101]->GetNTagged());
+	info->SetTagD0K3pi(       fSTTriggers[102]->GetNTagged());
+	info->SetTagDpmKpipi(     fSTTriggers[120]->GetNTagged());
+	info->SetTagDpmK2pipi0(   fSTTriggers[121]->GetNTagged());
+	info->SetTagDpmKspipi0(   fSTTriggers[122]->GetNTagged());
+	info->SetTagDpmKs3pi(     fSTTriggers[123]->GetNTagged());
+	info->SetTagDsKKpi(       fSTTriggers[140]->GetNTagged());
+	info->SetTagDsKKpip0(     fSTTriggers[141]->GetNTagged());
+	info->SetTagLamcpKpi(     fSTTriggers[420]->GetNTagged());
+	info->SetTagEtacKKpi0(    fSTTriggers[220]->GetNTagged());
+	info->SetTagEtacKKspi(    fSTTriggers[221]->GetNTagged());
+	info->SetTagEtacetapipi(  fSTTriggers[222]->GetNTagged());
+	info->SetTagEtacgg(       fSTTriggers[223]->GetNTagged());
+	info->SetTagChic02pi2pi0( fSTTriggers[240]->GetNTagged());
+	info->SetTagChic04pi(     fSTTriggers[241]->GetNTagged());
+	info->SetTagChic02pi2K(   fSTTriggers[242]->GetNTagged());
+	info->SetTag2e(           fSTTriggers[300]->GetNTagged());
+	info->SetTag2mu(          fSTTriggers[320]->GetNTagged());
+	info->SetTag2gam(         fSTTriggers[340]->GetNTagged());
+	
 }
 
 
@@ -935,36 +693,12 @@ void PndSoftTriggerTask::Finish()
 	if (npi0) npi0->GetInternalTree()->Write();			  // pi0 QA
 	if (neta) neta->GetInternalTree()->Write();			  // eta QA
 	
-	if (nphi) nphi->GetInternalTree()->Write();		      // phi -> K+ K-					(49.8 %)
-	if (nlam) nlam->GetInternalTree()->Write();			  // Lambda -> p pi-				(63.9 %)
-
-	if (njpsi1) njpsi1->GetInternalTree()->Write();		  // J/psi -> e+e-		(11.9 %)
-	if (njpsi2) njpsi2->GetInternalTree()->Write();		  // J/psi -> mu+ mu-		(11.9 %)
-	
-	if (nd01) nd01->GetInternalTree()->Write();		      // D0 -> K- pi+					( 3.9 %)
-	if (nd02) nd02->GetInternalTree()->Write();		      // D0 -> K- pi+ pi0				(13.9 %)
-	if (nd03) nd03->GetInternalTree()->Write();		      // D0 -> K- pi+ pi+ pi-			( 8.1 %)
-	if (ndpm1) ndpm1->GetInternalTree()->Write();		  // D+- -> K- pi+ pi+			( 9.4 %)
-	if (ndpm2) ndpm2->GetInternalTree()->Write();		  // D+- -> K- pi+ pi+ pi0		( 6.1 %)
-	if (ndpm3) ndpm3->GetInternalTree()->Write();		  // D+- -> K_S pi+ pi0			( 6.9 %) 
-	if (ndpm4) ndpm4->GetInternalTree()->Write();		  // D+- -> K_S pi+ pi+ pi-		( 3.1 %) 
-	if (nds1) nds1->GetInternalTree()->Write();		      // Ds -> K+ K- pi+				( 5.5 %)
-	if (nds2) nds2->GetInternalTree()->Write();		      // Ds -> K+ K- pi+ pi0			( 5.6 %)
-	
-	if (nlamc) nlamc->GetInternalTree()->Write();		  // Lambda_c -> p K- pi+			( 5.0 %)
-	
-	if (netac1) netac1->GetInternalTree()->Write();		  // eta_c -> K+ K- pi0 			( below) 
-	if (netac2) netac2->GetInternalTree()->Write();		  // eta_c -> K+- K_S pi-+        ( 3.2 %) = 7%/3 (1) + 7%/3*35% (2)
-	if (netac3) netac3->GetInternalTree()->Write();		  // eta_c -> eta (gg) pi+ pi-	( 1.9 %) = 4.9% * 39 %
-	if (netac4) netac4->GetInternalTree()->Write();		  // eta_c -> gg					( 0.0 %) = 6e-5
-
-	if (nchic01) nchic01->GetInternalTree()->Write();	  // chi_c0 -> pi+ pi- pi0 pi0	( 3.4 %)
-	if (nchic02) nchic02->GetInternalTree()->Write();	  // chi_c0 -> pi+ pi- pi+ pi-	( 2.3 %)
-	if (nchic03) nchic03->GetInternalTree()->Write();	  // chi_c0 -> pi+ pi- K+ K-	( 1.8 %)
-	
-	if (n2e) n2e->GetInternalTree()->Write();		      // pbar p -> e+ e-	
-	if (n2mu) n2mu->GetInternalTree()->Write();		      // pbar p -> mu+ mu-	
-	if (n2gam) n2gam->GetInternalTree()->Write();		  // pbar p -> gam gam	
+	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+	{
+		PndSoftTriggerLine *tl = it->second;
+		if (tl->GetRhoTuple())
+			tl->GetRhoTuple()->GetInternalTree()->Write();
+	}
 }
 
 // -------------------------------------------------------------------------
@@ -972,7 +706,8 @@ void PndSoftTriggerTask::Finish()
 int PndSoftTriggerTask::CreateKs0Cands(RhoTuple *n)
 {
 	// *** basic KS0 Reco
-	fKs0Cands.Combine(fPionPlus, fPionMinus);
+	//fKs0Cands.Combine(fPionPlus, fPionMinus);
+	fKs0Cands.Combine(fPidList[4], fPidList[5]);
 	// *** pre select for qa
 	fKs0Cands.Select(fKs0PreSel);
 	fKs0Cands.SetType(310);
@@ -1017,65 +752,37 @@ void PndSoftTriggerTask::FillGlobalLists()
 	fAnalysis->FillList( fMcTruth, 			"McTruth" );
 	fAnalysis->FillList( fAllCands,			"All"  ,    fAlgoElectron);
 	fAnalysis->FillList( fChargedCands,		"Charged" , fAlgoElectron);
-	fAnalysis->FillList( fNeutralCands,		"Neutral" );
-
-/*	cout <<"Pid infos: (";
-	for (i=0;i<fChargedCands.GetLength();++i)
-	{
-		printf("(%.1f/%.1f/%.1f/%.1f/%.1f) ",
-			   fChargedCands[i]->GetPidInfo(0),fChargedCands[i]->GetPidInfo(1),fChargedCands[i]->GetPidInfo(2),fChargedCands[i]->GetPidInfo(3),fChargedCands[i]->GetPidInfo(4));
-	}
-	cout <<endl;*/
-	
+	fAnalysis->FillList( fNeutralCands,		"Neutral" );	
 	
 	// *** fill PID lists
-	fAnalysis->FillList( fElectronPlus, 	"ElectronAllPlus", 	fAlgoElectron );
-	fAnalysis->FillList( fElectronMinus,	"ElectronAllMinus", fAlgoElectron );
-	
-	fAnalysis->FillList( fMuonPlus,			"MuonAllPlus", 		fAlgoMuon );
-	fAnalysis->FillList( fMuonMinus,		"MuonAllMinus", 	fAlgoMuon );
-	
-	fAnalysis->FillList( fPionPlus,			"PionAllPlus", 		fAlgoPion );
-	fAnalysis->FillList( fPionMinus,		"PionAllMinus", 	fAlgoPion );
-	
-	fAnalysis->FillList( fKaonPlus,			"KaonAllPlus", 		fAlgoKaon );
-	fAnalysis->FillList( fKaonMinus,		"KaonAllMinus", 	fAlgoKaon );
-	
-	fAnalysis->FillList( fProtonPlus,		"ProtonAllPlus", 	fAlgoProton );
-	fAnalysis->FillList( fProtonMinus,		"ProtonAllMinus", 	fAlgoProton );
 
+	fAnalysis->FillList( fPidList[0], 	"ElectronAllPlus", 	fAlgoElectron );
+	fAnalysis->FillList( fPidList[1],	"ElectronAllMinus", fAlgoElectron );
+	
+	fAnalysis->FillList( fPidList[2],	"MuonAllPlus", 		fAlgoMuon );
+	fAnalysis->FillList( fPidList[3],	"MuonAllMinus", 	fAlgoMuon );
+	
+	fAnalysis->FillList( fPidList[4],	"PionAllPlus", 		fAlgoPion );
+	fAnalysis->FillList( fPidList[5],	"PionAllMinus", 	fAlgoPion );
+	
+	fAnalysis->FillList( fPidList[6],	"KaonAllPlus", 		fAlgoKaon );
+	fAnalysis->FillList( fPidList[7],	"KaonAllMinus", 	fAlgoKaon );
+	
+	fAnalysis->FillList( fPidList[8],	"ProtonAllPlus", 	fAlgoProton );
+	fAnalysis->FillList( fPidList[9],	"ProtonAllMinus", 	fAlgoProton );
 
-	
-	if (fIniPidCut>0)
-	{
-		SelectPidProb(fElectronPlus, 0, fIniPidCut);	
-		SelectPidProb(fElectronMinus, 0, fIniPidCut);
+	// *** apply minimum PID cut if required
+	if (fIniPidCut>0) for (i=0;i<10;++i) SelectPidProb(fPidList[i],i/2, fIniPidCut);
 		
-		SelectPidProb(fMuonPlus, 1, fIniPidCut);
-		SelectPidProb(fMuonMinus, 1, fIniPidCut);
-		
-		SelectPidProb(fPionPlus, 2, fIniPidCut);
-		SelectPidProb(fPionMinus, 2, fIniPidCut);
-		
-		SelectPidProb(fKaonPlus, 3, fIniPidCut);
-		SelectPidProb(fKaonMinus, 3, fIniPidCut);
-		
-		SelectPidProb(fProtonPlus, 4, fIniPidCut);
-		SelectPidProb(fProtonMinus, 4, fIniPidCut);	
-	}
-	
 	// *** select on lists
 	fGammaCands.Select(fNeutralCands, fEnergySel);
 	
-	if (fTrackMinP>0)
-	{
-		fElectronPlus.Select(fMomentumSel); fElectronMinus.Select(fMomentumSel);
-		fMuonPlus.Select(fMomentumSel);     fMuonMinus.Select(fMomentumSel);
-		fPionPlus.Select(fMomentumSel);     fPionMinus.Select(fMomentumSel);
-		fKaonPlus.Select(fMomentumSel);     fKaonMinus.Select(fMomentumSel);
-		fProtonPlus.Select(fMomentumSel);   fProtonMinus.Select(fMomentumSel);
-	}
-	
+	// *** apply minimum momentum cut if required
+	if (fTrackMinP>0) for (i=0;i<10;++i) fPidList[i].Select(fMomentumSel);
+		
+	// *** count PID multiplicities
+	for (i=0;i<5;++i) fPidMult_025[i] = MultPidProb(fPidList[2*i], i, 0.25) + MultPidProb(fPidList[2*i+1], i, 0.25);
+
 	// *** Ks reco
 	CreateKs0Cands(nks0);
 	
@@ -1134,6 +841,13 @@ void PndSoftTriggerTask::FillGlobalLists()
 	}
 	fEtaCands.Select(fEtaSel);
 	
+	// *** copy all lists to indexed ones for combinatorics
+
+	fPidList[10] = fGammaCands;
+	
+	fPidList[11] = fPi0Cands;
+	fPidList[12] = fKs0Cands;
+	fPidList[13] = fEtaCands;
 }
 
 // -------------------------------------------------------------------------
@@ -1148,19 +862,9 @@ void PndSoftTriggerTask::FillEventShapeVarArray()
 //				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
 
 	int i=0;
-	// don't use values from fEventShape (based on AllCands and only one algo)
-	fSTVarArray[ 0] = MultPidProb(fElectronPlus, 0, 0.25) + MultPidProb(fElectronMinus, 0, 0.25);
-	fSTVarArray[ 1] = MultPidProb(fMuonPlus,     1, 0.25) + MultPidProb(fMuonMinus,     1, 0.25);
-	fSTVarArray[ 2] = MultPidProb(fPionPlus,     2, 0.25) + MultPidProb(fPionMinus,     2, 0.25);
-	fSTVarArray[ 3] = MultPidProb(fKaonPlus,     3, 0.25) + MultPidProb(fKaonMinus,     3, 0.25);
-	fSTVarArray[ 4] = MultPidProb(fProtonPlus,   4, 0.25) + MultPidProb(fProtonMinus,   4, 0.25);
-	
-/*	fSTVarArray[ 0] = fEventShape->MultElectronPminLab(0.25);
-	fSTVarArray[ 1] = fEventShape->MultMuonPminLab(0.25);
-	fSTVarArray[ 2] = fEventShape->MultPionPminLab(0.25);
-	fSTVarArray[ 3] = fEventShape->MultKaonPminLab(0.25);
-	fSTVarArray[ 4] = fEventShape->MultProtonPminLab(0.25);*/
-	
+	// don't use PID mult values from fEventShape (based on AllCands and only one algo)
+	for (i=0;i<5;++i) fSTVarArray[i] = fPidMult_025[i]; 
+		
 	fSTVarArray[ 5] = fEventShape->Thrust();
 	fSTVarArray[ 6] = fEventShape->Aplanarity();
 	fSTVarArray[ 7] = fEventShape->FoxWolfMomR(1);
@@ -1268,6 +972,123 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 	
 	return acc;
 }
+// -------------------------------------------------------------------------
+
+int PndSoftTriggerTask::signalType(RhoCandList &l, int v0pdg, int d1pdg, int d2pdg)
+{
+	int sig=0;
+	
+	for (int i=0;i<l.GetLength();++i)
+	{
+		RhoCandidate *d0 = l[i]->Daughter(0);
+		RhoCandidate *d1 = l[i]->Daughter(1);
+		if (d0==0x0 || d1==0x0) continue;
+		
+		int v0c = l[i]->PdgCode();
+		int d1c = d0->PdgCode();
+		int d2c = d1->PdgCode();
+		
+		if (v0c==v0pdg && ((d1c==d1pdg && d2c==d2pdg) || (d2c==d1pdg && d1c==d2pdg)))
+		{
+			sig = 1;
+			break;
+		}
+	}
+	return sig;
+}
+
+
+// -------------------------------------------------------------------------
+// *** General common tagging methode
+int PndSoftTriggerTask::AntiPdg(int pdg)
+{
+	int antipdg = pdg;
+	TParticlePDG *part = fPdg->GetParticle(pdg)->AntiParticle();
+	if (part) antipdg = part->PdgCode();
+	
+	return antipdg;
+}
+
+
+// -------------------------------------------------------------------------
+// *** General common combinatorics based on PndSoftTriggerLine input
+int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
+{
+	l.Cleanup();
+	
+	int mothpdg = tl->GetMotherPdg();
+	if (mothpdg<0) {cout << "[PndSoftTriggerTask] **** Invalid mother for combinatorics."<<endl; return 0;}
+	
+	RhoCandList l2;			                          // for the cc case	
+	int nd = tl->GetNDaughters(), idx[5], aidx[5];    // cache for mapping: pdgcode -> fPdgList indices
+	
+	if (nd>5) {cout << "[PndSoftTriggerTask] **** Too many daughters ("<<nd<<") for combinatorics."<<endl;return 0;}
+	
+	// fetch pdg code of antiparticle for mother
+	int amothpdg = AntiPdg(mothpdg);
+	
+	// do we need to add charged conjugate combinatorics?
+	bool cc = tl->GetCC();
+	
+	// cache the indices of the fPidList according to the pdg codes
+	for (int i=0; i<nd; ++i)
+	{
+		int dpdg = tl->GetDaughterPdg(i);
+		if ( fSTMapListIndex.find(dpdg) == fSTMapListIndex.end() ) 
+			{cout << "[PndSoftTriggerTask] **** Invalid daughter pdg code: "<<dpdg<<endl; return 0;}
+		idx[i]  = fSTMapListIndex[dpdg];
+		aidx[i] = fSTMapListIndex[AntiPdg(dpdg)]; 
+	}
+	
+	// do the combinatorics for 2 to 5 daughters
+	switch (nd) 
+	{
+	case 2: 
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]]); 
+		l.SetType(mothpdg);
+		if (cc) 
+		{
+			l2.Combine(fPidList[aidx[0]], fPidList[aidx[1]]);
+			l2.SetType(amothpdg);
+			l.Append(l2);
+		}
+		break;
+		
+	case 3: 
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]]); 
+		l.SetType(mothpdg);
+		if (cc) 
+		{
+			l2.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]]);
+			l2.SetType(amothpdg);
+			l.Append(l2);
+		}
+		break;
+	case 4: 
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]]); 
+		l.SetType(mothpdg);
+		if (cc) 
+		{
+			l2.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]]);
+			l2.SetType(amothpdg);
+			l.Append(l2);
+		}
+		break;
+	case 5: 
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]], fPidList[idx[4]]); 
+		l.SetType(mothpdg);
+		if (cc) 
+		{
+			l2.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], fPidList[aidx[4]]);
+			l2.SetType(amothpdg);
+			l.Append(l2);
+		}
+		break;
+	default: return 0;
+	}
+	
+	return l.GetLength();
+}
 
 
 // -------------------------------------------------------------------------
@@ -1288,6 +1109,13 @@ int PndSoftTriggerTask::TagMode(int mode, RhoCandList &l, RhoParticleSelectorBas
 		{
 			fQA->qaComp(prefix, l[i], n);
 			fQA->qaEventShapeShort("es", fEventShape, n);
+			// replace PID mult values from event shape by actual counts with individual algos
+			n->Column("eslnpide", (Float_t)  fPidMult_025[0],		0.0f );
+			n->Column("eslnpidmu",(Float_t)  fPidMult_025[1],		0.0f );
+			n->Column("eslnpidpi",(Float_t)  fPidMult_025[2],		0.0f );
+			n->Column("eslnpidk", (Float_t)  fPidMult_025[3],		0.0f );
+			n->Column("eslnpidp", (Float_t)  fPidMult_025[4],		0.0f );
+			
 			fQA->qaP4("beam", fIniP4, n);
 
 			Float_t nsig = (Float_t) fabs(l[i]->Mass()-mean)/sigma;
@@ -1319,545 +1147,5 @@ int PndSoftTriggerTask::TagMode(int mode, RhoCandList &l, RhoParticleSelectorBas
 	
 	return nacc;
 }
-
-
-// -------------------------------------------------------------------------
-// *** phi -> K+ K- decays
-
-int PndSoftTriggerTask::Tag_Phi_KK(RhoTuple *n)
-{		
-	if (!fTagPhiKK) return 0;
-	if ( fEcm < DbMass("phi") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fKaonPlus, fKaonMinus);
-	l.SetType("phi");
-	
-	// *** pre selection for QA
-	l.Select(fPhiPreSel);
-	
-	return TagMode(0, l, fPhiSel, fPhiMean, fPhiSigma, n, "phi");
-}
-
-// -------------------------------------------------------------------------
-// *** Lambda -> p pi- decays
-
-int PndSoftTriggerTask::Tag_Lambda_ppi(RhoTuple *n)
-{
-	if (!fTagLamppi) return 0;
-	if ( fEcm < (DbMass("Lambda0") + DbMass("proton")) ) return 0;
-	
-	RhoCandList l, l2;
-	
-	// *** combinatorics
-	l.Combine(fProtonPlus, fPionMinus);
-	l.SetType(3122);
-	l2.Combine(fProtonMinus, fPionPlus);
-	l2.SetType(-3122);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fLamPreSel);
-	
-	return TagMode(400, l, fLamSel, fLamMean, fLamSigma, n, "lam");
-}
-
-// -------------------------------------------------------------------------
-// *** J/psi -> e+ e- decays
-
-int PndSoftTriggerTask::Tag_Jpsi_2e(RhoTuple *n)
-{
-	if (!fTagJpsi2e) return 0;
-	if ( fEcm < DbMass("J/psi") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fElectronPlus, fElectronMinus);
-	l.SetType(443);
-	
-	// *** pre selection for QA
-	l.Select(fJpsiPreSel);
-	
-	return TagMode(200, l, fJpsi1Sel, fJpsi1Mean, fJpsi1Sigma, n, "jpsi");
-}
-
-// -------------------------------------------------------------------------
-// *** J/psi -> mu+ mu- decays
-
-int PndSoftTriggerTask::Tag_Jpsi_2mu(RhoTuple *n)
-{
-	if (!fTagJpsi2mu) return 0;
-	if ( fEcm < DbMass("J/psi") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fMuonPlus, fMuonMinus);
-	l.SetType(443);
-	
-	// *** pre selection for QA
-	l.Select(fJpsiPreSel);
-	
-	return TagMode(201, l, fJpsi2Sel, fJpsi2Mean, fJpsi2Sigma, n, "jpsi");
-}
-
-// -------------------------------------------------------------------------
-// *** D0 -> K- pi+ decays
-	
-int PndSoftTriggerTask::Tag_D0_Kpi(RhoTuple *n)
-{
-	if (!fTagD0Kpi) return 0;
-	if ( fEcm < (DbMass("D0") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKaonMinus, fPionPlus);
-	l.SetType(421);
-	l2.Combine(fKaonPlus, fPionMinus);
-	l2.SetType(-421);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fD0PreSel);
-	
-	return TagMode(100, l, fD01Sel, fD01Mean, fD01Sigma, n, "d0");
-}
-
-// -------------------------------------------------------------------------
-// *** D0 -> K- pi+ pi0 decays
-
-int PndSoftTriggerTask::Tag_D0_Kpipi0(RhoTuple *n)
-{
-	if (!fTagD0Kpipi0) return 0;
-	if ( fEcm < (DbMass("D0") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKaonMinus, fPionPlus, fPi0Cands);
-	l.SetType(421);
-	l2.Combine(fKaonPlus, fPionMinus, fPi0Cands);
-	l2.SetType(-421);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fD0PreSel);
-	
-	return TagMode(101, l, fD02Sel, fD02Mean, fD02Sigma, n, "d0");
-}
-
-// -------------------------------------------------------------------------
-// *** D0 -> K- pi+ pi+ pi- decays
-
-int PndSoftTriggerTask::Tag_D0_K3pi(RhoTuple *n)
-{
-	if (!fTagD0K3pi) return 0;
-	if ( fEcm < (DbMass("D0") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKaonMinus, fPionPlus, fPionPlus, fPionMinus);
-	l.SetType(421);
-	l2.Combine(fKaonPlus, fPionMinus, fPionMinus, fPionPlus);
-	l2.SetType(-421);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fD0PreSel);
-	
-	return TagMode(102, l, fD03Sel, fD03Mean, fD03Sigma, n, "d0");
-}
-
-// -------------------------------------------------------------------------
-// *** D+ -> K- pi+ pi+ decays
-	
-int PndSoftTriggerTask::Tag_Dpm_Kpipi(RhoTuple *n)
-{
-	if (!fTagDpmKpipi) return 0;
-	if ( fEcm < (DbMass("D+") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKaonMinus, fPionPlus, fPionPlus);
-	l.SetType(411);
-	l2.Combine(fKaonPlus, fPionMinus, fPionMinus);
-	l2.SetType(-411);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fDpmPreSel);
-	
-	return TagMode(120, l, fDpm1Sel, fDpm1Mean, fDpm1Sigma, n, "dpm");
-}
-
-// -------------------------------------------------------------------------
-// *** D+ -> K- pi+ pi+ pi0 decays
-
-int PndSoftTriggerTask::Tag_Dpm_K2pipi0(RhoTuple *n)
-{
-	if (!fTagDpmK2pipi0) return 0;
-	if ( fEcm < (DbMass("D+") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKaonMinus, fPionPlus, fPionPlus, fPi0Cands);
-	l.SetType(411);
-	l2.Combine(fKaonPlus, fPionMinus, fPionMinus, fPi0Cands);
-	l2.SetType(-411);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fDpmPreSel);
-	
-	return TagMode(121, l, fDpm2Sel, fDpm2Mean, fDpm2Sigma, n, "dpm");
-}
-
-// -------------------------------------------------------------------------
-// *** D+ -> K_S pi+ pi0 decays
-
-int PndSoftTriggerTask::Tag_Dpm_Kspipi0(RhoTuple *n)
-{
-	if (!fTagDpmKspipi0) return 0;
-	if ( fEcm < (DbMass("D+") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKs0Cands, fPionPlus, fPi0Cands);
-	l.SetType(411);
-	l2.Combine(fKs0Cands, fPionMinus, fPi0Cands);
-	l2.SetType(-411);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fDpmPreSel);
-	
-	return TagMode(122, l, fDpm3Sel, fDpm3Mean, fDpm3Sigma, n, "dpm");
-}
-
-// -------------------------------------------------------------------------
-// *** D+ -> K_S pi+ pi+ pi- decays
-
-int PndSoftTriggerTask::Tag_Dpm_Ks3pi(RhoTuple *n)
-{
-	if (!fTagDpmKs3pi) return 0;
-	if ( fEcm < (DbMass("D+") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKs0Cands, fPionPlus, fPionPlus, fPionMinus);
-	l.SetType(411);
-	l2.Combine(fKs0Cands, fPionMinus, fPionMinus, fPionPlus);
-	l2.SetType(-411);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fDpmPreSel);
-	
-	return TagMode(123, l, fDpm4Sel, fDpm4Mean, fDpm4Sigma, n, "dpm");
-}
-
-// -------------------------------------------------------------------------
-// *** Ds -> K+ K- pi+ decays
-	
-int PndSoftTriggerTask::Tag_Ds_KKpi(RhoTuple *n)
-{
-	if (!fTagDsKKpi) return 0;
-	if ( fEcm < (DbMass("D_s+") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKaonPlus, fKaonMinus, fPionPlus);
-	l.SetType(431);
-	l2.Combine(fKaonMinus, fKaonPlus, fPionMinus);
-	l2.SetType(-431);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fDsPreSel);
-	
-	return TagMode(140, l, fDs1Sel, fDs1Mean, fDs1Sigma, n, "ds");
-}
-
-// -------------------------------------------------------------------------
-// *** Ds -> K+ K- pi+ pi0 decays
-
-int PndSoftTriggerTask::Tag_Ds_KKpipi0(RhoTuple *n)
-{
-	if (!fTagDsKKpip0) return 0;
-	if ( fEcm < (DbMass("D_s+") + DbMass("c")) ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fKaonPlus, fKaonMinus, fPionPlus, fPi0Cands);
-	l.SetType(431);
-	l2.Combine(fKaonMinus, fKaonPlus, fPionMinus, fPi0Cands);
-	l2.SetType(-431);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fDsPreSel);
-	
-	return TagMode(141, l, fDs2Sel, fDs2Mean, fDs2Sigma, n, "ds");
-}
-
-// -------------------------------------------------------------------------
-// *** Lambda_c -> p K- pi+ decays
-	
-int PndSoftTriggerTask::Tag_Lambdac_pKpi(RhoTuple *n)
-{
-	if (!fTagLamcpKpi) return 0;
-	if ( fEcm < DbMass("Lambda_c+") ) return 0;
-	
-	RhoCandList l,l2;
-	
-	// *** combinatorics
-	l.Combine(fProtonPlus, fKaonMinus, fPionPlus);
-	l.SetType(4122);
-	l2.Combine(fProtonMinus, fKaonPlus, fPionMinus);
-	l2.SetType(-4122);
-	l.Append(l2);
-	
-	// *** pre selection for QA
-	l.Select(fLamcPreSel);
-	
-	return TagMode(420, l, fLamcSel, fLamcMean, fLamcSigma, n, "lamc");
-}
-
-// -------------------------------------------------------------------------
-// *** eta_c -> K+ K- pi0 decays
-	
-int PndSoftTriggerTask::Tag_Etac_KKpi0(RhoTuple *n)
-{
-	if (!fTagEtacKKpi0) return 0;
-	if ( fEcm < DbMass("eta_c") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fKaonPlus, fKaonMinus, fPi0Cands);
-	l.SetType(441);
-	
-	// *** pre selection for QA
-	l.Select(fEtacPreSel);
-	
-	return TagMode(220, l, fEtac1Sel, fEtac1Mean, fEtac1Sigma, n, "etac");
-}
-
-// -------------------------------------------------------------------------
-// *** eta_c -> K+ KS pi- decays
-
-int PndSoftTriggerTask::Tag_Etac_KKspi(RhoTuple *n)
-{
-	if (!fTagEtacKKspi) return 0;
-	if ( fEcm < DbMass("eta_c") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fKs0Cands, fKaonMinus, fPionPlus);
-	l.CombineAndAppend(fKs0Cands, fKaonPlus, fPionMinus);
-	l.SetType(441);
-	
-	// *** pre selection for QA
-	l.Select(fEtacPreSel);
-	
-	return TagMode(221, l, fEtac2Sel, fEtac2Mean, fEtac2Sigma, n, "etac");
-}
-
-// -------------------------------------------------------------------------
-// *** eta_c -> eta pi+ pi- decays
-
-int PndSoftTriggerTask::Tag_Etac_etapipi(RhoTuple *n)
-{
-	if (!fTagEtacetapipi) return 0;
-	if ( fEcm < DbMass("eta_c") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fEtaCands, fPionPlus, fPionMinus);
-	l.SetType(441);
-	
-	// *** pre selection for QA
-	l.Select(fEtacPreSel);
-	
-	return TagMode(222, l, fEtac3Sel, fEtac3Mean, fEtac3Sigma, n, "etac");
-}
-
-// -------------------------------------------------------------------------
-// *** eta_c -> gg decays
-
-int PndSoftTriggerTask::Tag_Etac_gg(RhoTuple *n)
-{
-	if (!fTagEtacgg) return 0;
-	if ( fEcm < DbMass("eta_c") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fGammaCands, fGammaCands);
-	l.SetType(441);
-	
-	// *** pre selection for QA
-	l.Select(fEtacPreSel);
-	
-	return TagMode(223, l, fEtac4Sel, fEtac4Mean, fEtac4Sigma, n, "etac");
-}
-	
-// -------------------------------------------------------------------------
-// *** chi_c0 -> pi+ pi- pi0 pi0 decays
-
-int PndSoftTriggerTask::Tag_Chic0_2pi2pi0(RhoTuple *n)
-{
-	if (!fTagChic02pi2pi0) return 0;
-	if ( fEcm < DbMass("chi_0c") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fPionPlus, fPionMinus, fPi0Cands, fPi0Cands);
-	l.SetType(10441);
-	
-	// *** pre selection for QA
-	l.Select(fChic0PreSel);
-	
-	return TagMode(240, l, fChic01Sel, fChic01Mean, fChic01Sigma, n, "chic0");
-}
-
-// -------------------------------------------------------------------------
-// *** chi_c0 -> pi+ pi- pi+ pi- decays
-
-int PndSoftTriggerTask::Tag_Chic0_4pi(RhoTuple *n)
-{
-	if (!fTagChic04pi) return 0;
-	if ( fEcm < DbMass("chi_0c") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fPionPlus, fPionMinus, fPionPlus, fPionMinus);
-	l.SetType(10441);
-	
-	// *** pre selection for QA
-	l.Select(fChic0PreSel);
-	
-	return TagMode(241, l, fChic02Sel, fChic02Mean, fChic02Sigma, n, "chic0");
-}
-
-// -------------------------------------------------------------------------
-// *** chi_c0 -> pi+ pi- K+ K- decays
-
-int PndSoftTriggerTask::Tag_Chic0_2pi2K(RhoTuple *n)
-{
-	if (!fTagChic02pi2K) return 0;
-	if ( fEcm < DbMass("chi_0c") ) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fPionPlus, fPionMinus, fKaonPlus, fKaonMinus);
-	l.SetType(10441);
-	
-	// *** pre selection for QA
-	l.Select(fChic0PreSel);
-	
-	return TagMode(242, l, fChic03Sel, fChic03Mean, fChic03Sigma, n, "chic0");
-}
-
-// -------------------------------------------------------------------------
-// *** pbar p -> e+ e- decays
-
-int PndSoftTriggerTask::Tag_2e(RhoTuple *n)
-{
-	if (!fTag2e) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fElectronPlus, fElectronMinus);
-	l.SetType(88880);
-	
-	// *** pre selection for QA
-	l.Select(f2ePreSel);
-	
-	return TagMode(300, l, f2eSel, f2eMean, f2eSigma, n, "ee");
-}
-
-// -------------------------------------------------------------------------
-// *** pbar p -> mu+ mu- decays
-
-int PndSoftTriggerTask::Tag_2mu(RhoTuple *n)
-{
-	if (!fTag2mu) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fMuonPlus, fMuonMinus);
-	l.SetType(88880);
-	
-	// *** pre selection for QA
-	l.Select(f2muPreSel);
-	
-	return TagMode(320, l, f2muSel, f2muMean, f2muSigma, n, "mumu");
-}
-
-// -------------------------------------------------------------------------
-// *** pbar p -> gam gam decays
-
-int PndSoftTriggerTask::Tag_2gam(RhoTuple *n)
-{
-	if (!fTag2e) return 0;
-	
-	RhoCandList l;
-	
-	// *** combinatorics
-	l.Combine(fGammaCands, fGammaCands);
-	l.SetType(88880);
-	
-	// *** pre selection for QA
-	l.Select(f2gamPreSel);
-	
-	return TagMode(340, l, f2gamSel, f2gamMean, f2gamSigma, n, "gg");
-}
-
-// -------------------------------------------------------------------------
-
-
-int PndSoftTriggerTask::signalType(RhoCandList &l, int v0pdg, int d1pdg, int d2pdg)
-{
-	int sig=0;
-	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		RhoCandidate *d0 = l[i]->Daughter(0);
-		RhoCandidate *d1 = l[i]->Daughter(1);
-		if (d0==0x0 || d1==0x0) continue;
-		
-		int v0c = l[i]->PdgCode();
-		int d1c = d0->PdgCode();
-		int d2c = d1->PdgCode();
-		
-		if (v0c==v0pdg && ((d1c==d1pdg && d2c==d2pdg) || (d2c==d1pdg && d1c==d2pdg)))
-		{
-			sig = 1;
-			break;
-		}
-	}
-	return sig;
-}
-
-// -------------------------------------------------------------------------
 
 ClassImp(PndSoftTriggerTask)

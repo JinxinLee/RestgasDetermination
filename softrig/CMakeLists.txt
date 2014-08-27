@@ -32,7 +32,9 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS 
 PndSoftTriggerTask.cxx
+PndSoftTriggerLine.cxx
 PndOnlineFilterInfo.cxx
+PndAnaWithTrigger.cxx
 )
 
 set(LINKDEF  SofTrig_LinkDef.h)

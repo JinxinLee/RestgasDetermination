@@ -5,6 +5,8 @@
 #pragma link off all functions;
 
 #pragma link C++ class PndSoftTriggerTask+;
+#pragma link C++ class PndSoftTriggerLine+;
 #pragma link C++ class PndOnlineFilterInfo+;
+#pragma link C++ class PndAnaWithTrigger+;
 
 #endif
