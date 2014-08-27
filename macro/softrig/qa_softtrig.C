@@ -40,16 +40,7 @@ void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to
 	// turn off FairLogger output
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	
-	
 	// *** initialization
-/*	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-	TString inParFile = TString::Format("%s_%d_par.root",pref.Data(),from);
-	
-	FairParRootFileIo* parIO = new FairParRootFileIo();
-	parIO->open(inParFile);
-	rtdb->setFirstInput(parIO);
-	rtdb->setOutput(parIO);  */
-	
 	fRun->SetOutputFile(OutFile);
  	
 	//---------------------Create and Set the Field(s)---------- 
@@ -58,12 +49,27 @@ void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to
 	
 	RhoCalculationTools::ForceConstantBz(20.0);
   
+	// *** SoftTriggerTask ***
 	
-	// *** HERE OUR TASK GOES!
-	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode, run);
+	// this file contains the trigger line definitions
+	TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/triggerlines.cfg";
+	
+	// this file contains the cut setup for various modes
+	// TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/selection_10ch_tight.cfg"; 
+	TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/selection_10ch_loose.cfg"; 
+	
+	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode, run, triggercfg);
+	stTask->SetConfigurationFile(selectioncfg);
+	
+	//TString algo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"; // FullSim
+	TString algo = "PidChargedProbability";	
+	stTask->SetPidAlgoAll(algo);
 	
 	stTask->SetTag_All(true);		// tag all modes
+	//stTask->SetTag_Mode(120);     // switch single tags on/off; mode number has to match one from config file
+	
 	stTask->SetQA_All(true);		// ntuple output for all modes
+	//stTask->SetQA_Mode(120);      // switch single QA on/off
 	
 	stTask->SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
 	stTask->SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
@@ -74,6 +80,4 @@ void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to
 	// *** and run analysis
 	fRun->Init(); 
 	fRun->Run(0,nEvents);
-	
-	//gObjectTable->Print();
 }
