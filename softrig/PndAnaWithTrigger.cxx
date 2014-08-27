@@ -143,6 +143,7 @@ void PndAnaWithTrigger::Exec(Option_t* opt)
 	// ******* PUT ANALYSIS CODE HERE			
 	// *******
 	
+	// *** fetch trigger info
 	PndOnlineFilterInfo *stInfo = 0;
 	if (fOnlineFilterInfo) stInfo = ( PndOnlineFilterInfo* ) fOnlineFilterInfo->At ( 0 );	
 	
@@ -191,11 +192,13 @@ void PndAnaWithTrigger::Exec(Option_t* opt)
 		ntp1->Column("ncand",   (Float_t) jpsi.GetLength());
 		ntp1->Column("nmct",    (Float_t) njmct);
 		
+		// *** store info from trigger
 		if (stInfo)
 		{
-			ntp1->Column("stall", (Float_t) stInfo->TagTotal());
-			ntp1->Column("stj2mu", (Float_t) stInfo->TagJpsi2mu());
-			ntp1->Column("stj2e", (Float_t) stInfo->TagJpsi2e());
+			ntp1->Column("sttrig",   (Float_t) stInfo->Tagged());      // event triggered
+			ntp1->Column("stntot",   (Float_t) stInfo->TagTotal());    // total number of triggered candidates from all active lines
+			ntp1->Column("stnjpsi1", (Float_t) stInfo->TagJpsi2e());   // number of triggered candidates from J/psi->e+ e- line
+			ntp1->Column("stnjpsi2", (Float_t) stInfo->TagJpsi2mu());  // number of triggered candidates from J/psi->mu+ mu- line
 		}
 	
 		// store info about initial 4-vector
@@ -234,11 +237,13 @@ void PndAnaWithTrigger::Exec(Option_t* opt)
 		ntp2->Column("ncand",   (Float_t) psi2s.GetLength());
 		ntp2->Column("nmct",    (Float_t) npsimct);
 
+		// *** store info from trigger
 		if (stInfo)
 		{
-			ntp2->Column("stall", (Float_t) stInfo->TagTotal());
-			ntp2->Column("stj2mu", (Float_t) stInfo->TagJpsi2mu());
-			ntp2->Column("stj2e", (Float_t) stInfo->TagJpsi2e());
+			ntp2->Column("sttrig",   (Float_t) stInfo->Tagged());      // event triggered
+			ntp2->Column("stntot",   (Float_t) stInfo->TagTotal());    // total number of triggered candidates from all active lines
+			ntp2->Column("stnjpsi1", (Float_t) stInfo->TagJpsi2e());   // number of triggered candidates from J/psi->e+ e- line
+			ntp2->Column("stnjpsi2", (Float_t) stInfo->TagJpsi2mu());  // number of triggered candidates from J/psi->mu+ mu- line
 		}
 		
 		PndKinFitter kinfit(psi2s[j]);

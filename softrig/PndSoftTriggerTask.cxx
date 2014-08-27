@@ -599,22 +599,8 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// *** loop through all channels and tag
 	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 	{
-		int mode = it->first;
-		PndSoftTriggerLine *tl = it->second;
-		
-		if ( !tl->GetTagActive() ) continue;
-		if ( fEcm < tl->GetThreshold() ) continue;
-		
-		RhoCandList l;
-
-		// ** combinatorics
-		DoCombinatorics(l, tl);
-		
-		// ** preselection
-		l.Select(tl->GetQASelector());
-		
-		// ** final tagging
-		int ntag =  TagMode(tl->GetModeCode(), l, tl->GetSelector(), tl->GetMean(), tl->GetSigma(), tl->GetRhoTuple(), tl->GetPrefix());
+		PndSoftTriggerLine *tl = it->second;		
+		int ntag =  TagMode( tl );
 		tl->SetNTagged( ntag );
 		tag_glob += ntag;
 	}
@@ -650,7 +636,6 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		ntp->Column("eslnpidk", (Float_t)  fPidMult_025[3],		0.0f );
 		ntp->Column("eslnpidp", (Float_t)  fPidMult_025[4],		0.0f );
 		
-		
 		ntp->DumpData();
 	}
 	
@@ -659,9 +644,6 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	PndOnlineFilterInfo* info=new ( (*fTcaOnlineFilterInfo)[0] ) PndOnlineFilterInfo();
 
 	info->SetTagPhiKK(        fSTTriggers[  0]->GetNTagged());
-	info->SetTagLamppi(       fSTTriggers[400]->GetNTagged());
-	info->SetTagJpsi2e(       fSTTriggers[200]->GetNTagged());
-	info->SetTagJpsi2mu(      fSTTriggers[201]->GetNTagged());
 	info->SetTagD0Kpi(        fSTTriggers[100]->GetNTagged());
 	info->SetTagD0Kpipi0(     fSTTriggers[101]->GetNTagged());
 	info->SetTagD0K3pi(       fSTTriggers[102]->GetNTagged());
@@ -671,7 +653,8 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	info->SetTagDpmKs3pi(     fSTTriggers[123]->GetNTagged());
 	info->SetTagDsKKpi(       fSTTriggers[140]->GetNTagged());
 	info->SetTagDsKKpip0(     fSTTriggers[141]->GetNTagged());
-	info->SetTagLamcpKpi(     fSTTriggers[420]->GetNTagged());
+	info->SetTagJpsi2e(       fSTTriggers[200]->GetNTagged());
+	info->SetTagJpsi2mu(      fSTTriggers[201]->GetNTagged());
 	info->SetTagEtacKKpi0(    fSTTriggers[220]->GetNTagged());
 	info->SetTagEtacKKspi(    fSTTriggers[221]->GetNTagged());
 	info->SetTagEtacetapipi(  fSTTriggers[222]->GetNTagged());
@@ -682,6 +665,8 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	info->SetTag2e(           fSTTriggers[300]->GetNTagged());
 	info->SetTag2mu(          fSTTriggers[320]->GetNTagged());
 	info->SetTag2gam(         fSTTriggers[340]->GetNTagged());
+	info->SetTagLamppi(       fSTTriggers[400]->GetNTagged());
+	info->SetTagLamcpKpi(     fSTTriggers[420]->GetNTagged());
 	
 }
 
@@ -1093,16 +1078,39 @@ int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 
 // -------------------------------------------------------------------------
 // *** General common tagging methode
-int PndSoftTriggerTask::TagMode(int mode, RhoCandList &l, RhoParticleSelectorBase *sel, double mean, double sigma, RhoTuple *n, TString prefix)
+int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl)
 {
 	// *** counter for full selection accepted cands
 	int nacc = 0; 
 	
+	if ( !tl->GetTagActive() ) return 0;
+	if ( fEcm < tl->GetThreshold() ) return 0;
+	
+	int mode       = tl->GetModeCode();
+	RhoTuple *n    = tl->GetRhoTuple();
+	TString prefix = tl->GetPrefix();
+	double mean    = tl->GetMean();
+	double sigma   = tl->GetSigma();
+	
+	RhoMassParticleSelector *sel = tl->GetSelector();
+	
+	RhoCandList l;
+
+	// ** combinatorics
+	DoCombinatorics(l, tl);
+	
+	// ** preselection
+	l.Select(tl->GetQASelector());
+
 	// *** store QA
 	for (int i=0;i<l.GetLength();++i)
 	{
 		bool acc = false;
-		if (fApplyFullSelection) acc = AcceptCandidate(mode, l[i], sel);
+		if (fApplyFullSelection) 
+			acc = AcceptCandidate(mode, l[i], sel);
+		else 
+			acc = sel->Accept(l[i]);
+			
 		if (acc) nacc++;
 			
 		if (n)
@@ -1119,7 +1127,7 @@ int PndSoftTriggerTask::TagMode(int mode, RhoCandList &l, RhoParticleSelectorBas
 			fQA->qaP4("beam", fIniP4, n);
 
 			Float_t nsig = (Float_t) fabs(l[i]->Mass()-mean)/sigma;
-			Float_t tag  = nsig<fNsigTag;
+			Float_t tag  = nsig < tl->GetTagNSig();
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
@@ -1136,13 +1144,6 @@ int PndSoftTriggerTask::TagMode(int mode, RhoCandList &l, RhoParticleSelectorBas
 			
 			n->DumpData();
 		}
-	}
-	
-	// *** final tag selection
-	if (!fApplyFullSelection)
-	{
-		l.Select(sel);
-		nacc=l.GetLength();
 	}
 	
 	return nacc;

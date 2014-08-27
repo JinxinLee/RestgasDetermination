@@ -48,7 +48,7 @@ class PndSoftTriggerTask : public FairTask
 	
 	// *** read selection configuration from file
 	void SetConfigurationFile(TString fname) {fCfgFileName = fname;}
-	void SetTriggerFile(TString fname) {fTriggerFileName = fname;}
+//	void SetTriggerFile(TString fname) {fTriggerFileName = fname;}
 	void ApplyFullSelection(bool sel=true) {fApplyFullSelection = sel;}  // switches between mass window only of full selection (selection defined in cfg file)
 	
 	// *** set max number of sigmas deviation for tag
@@ -129,7 +129,7 @@ class PndSoftTriggerTask : public FairTask
 	int CreateKs0Cands(RhoTuple *n);
 	
 	// *** General tagging method
-	int TagMode(int mode, RhoCandList &l, RhoParticleSelectorBase *sel, double mean, double sigma, RhoTuple *n, TString prefix="");
+	int TagMode(PndSoftTriggerLine *tl);
 	
     // ----------------------------
 	// *** global vars
