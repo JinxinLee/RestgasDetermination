@@ -2003,10 +2003,8 @@ map<string, TGeoMatrix* >* PndLmdDim::Get_matrices(bool aligned){
 	if (matrices->size() == 0) {
 		cout << " Warning in PndLmdDim::Get_matrices: No transformation matrices loaded! => trying to load default ones. " << endl;
 		Read_transformation_matrices("", aligned);
-		return NULL;
-	} else {
-		return matrices;
 	}
+	return matrices;
 }
 
 TGeoMatrix* PndLmdDim::Get_matrix(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned){
@@ -2188,7 +2186,10 @@ TGeoMatrix* PndLmdDim::Get_matrix_module_side_to_sensor(int ihalf, int iplane, i
 }
 
 TGeoHMatrix PndLmdDim::Get_transformation_global_to_lmd_local(bool aligned){
-	TGeoMatrix* matrix = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
+	if(global_to_lmd_local_matrices.find(aligned) == global_to_lmd_local_matrices.end())
+	  global_to_lmd_local_matrices[aligned] = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
+
+	TGeoMatrix *matrix = global_to_lmd_local_matrices[aligned];
 	if (!matrix) return TGeoHMatrix();
 	return TGeoHMatrix(*matrix);
 }
