@@ -48,12 +48,17 @@ class PndSoftTriggerTask : public FairTask
 	
 	// *** read selection configuration from file
 	void SetConfigurationFile(TString fname) {fCfgFileName = fname;}
-//	void SetTriggerFile(TString fname) {fTriggerFileName = fname;}
-	void ApplyFullSelection(bool sel=true) {fApplyFullSelection = sel;}  // switches between mass window only of full selection (selection defined in cfg file)
+	
+	// switches between mass window only of full selection (selection defined in cfg file)
+	// 0: detailed selection turned off
+	// 1: exclusive mode (modes w/o detailed cut definitions are rejected)
+	// 2: open mode (modes w/o detailed cut definitions just have to fulfill their mass window criterion)
+	void ApplyFullSelection(int selmode=1) {fApplyFullSelection = selmode;}  
 	
 	// *** set max number of sigmas deviation for tag
-	void SetNsigTag(double nsig) {fNsigTag = nsig;}
-	void SetNsigAux(double nsig) {fNsigAux = nsig;}
+	void SetTagNSigMode(int mode, double nsig);
+	void SetTagNSigAll(double nsig);
+	void SetAuxNSig(double nsig) {fNsigAux = nsig;}  // n sigma cut for KS, pi0, eta
 	
 	// *** set selection parameters for QA tuple
 	void SetPi0QASelection(double min, double max) {fPi0QaMin=min; fPi0QaMax=max;}
@@ -84,20 +89,20 @@ class PndSoftTriggerTask : public FairTask
 	void SetPidAlgoProton(TString algo) {fAlgoProton=algo;}
 	
 	// *** Switch Tagging methods
-	void SetTag_All(bool qa=true);
+	void SetTagAll(bool tag=true);
 	// mode code as in triggerlines configuration file
-	void SetTag_Mode(int mode, bool tag=true);
+	void SetTagMode(int mode, bool tag=true);
 	
 	// *** Enable/Disable QA output	
-	void SetQA_Pi0(bool qa=true) { fQAPi0 = qa;}
-	void SetQA_Eta(bool qa=true) { fQAEta = qa;}
-	void SetQA_Ks0(bool qa=true) { fQAKs0 = qa;}
+	void SetQAPi0(bool qa=true) { fQAPi0 = qa;}
+	void SetQAEta(bool qa=true) { fQAEta = qa;}
+	void SetQAKs0(bool qa=true) { fQAKs0 = qa;}
+
+	void SetQAEvent(bool qa=true) { fQAEvent = qa;}
 	
-	void SetQA_Event(bool qa=true) { fQAEvent = qa;}
-	
-	void SetQA_All(bool qa=true);
+	void SetQAAll(bool qa=true);
 	// mode code as in triggerlines configuration file
-	void SetQA_Mode(int mode, bool qa=true);
+	void SetQAMode(int mode, bool qa=true);
 	
 	void SetVerbose(int verb=10) {fVerbose=verb;}
 
@@ -111,8 +116,8 @@ class PndSoftTriggerTask : public FairTask
 	bool ReadTriggerLines();
 	
 	// *** methods for full candidate selection
-	int DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl);
-	int  AntiPdg(int pdg);
+	int DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl);         // do combinatorics for certain trigger line
+	int AntiPdg(int pdg);                                                // gives pdg code of antiparticle if exists
 	void FillVarArray(RhoCandidate *c);                                  // fill candidate variable array for selection
 	void FillEventShapeVarArray();                        			     // fill event shape variable array for selection
 	bool AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel=0); // accept candidate for full selection
@@ -121,8 +126,7 @@ class PndSoftTriggerTask : public FairTask
 	int SelectTruePid(RhoCandList &l);
 	int SelectPidProb(RhoCandList &l, int pididx, double cut);
 	int MultPidProb(RhoCandList &l, int pididx, double prob);
-	int signalType(RhoCandList &l, int v0pdg, int d1pdg, int d2pdg); 
-	double DbMass(TString name) {if (fPdg->GetParticle(name)) return fPdg->GetParticle(name)->Mass();}
+	double DbMass(TString name) {if (fPdg->GetParticle(name)) return fPdg->GetParticle(name)->Mass(); else return 0.;}
 	int  SplitString(TString s, TString delim, TString *toks, int maxtoks); 
 		
 	// *** Created necessary composites
@@ -133,16 +137,19 @@ class PndSoftTriggerTask : public FairTask
 	
     // ----------------------------
 	// *** global vars
-	int fVerbose;				// create verbose output
-	int fMode;					// the signal or background mode code, to be set in the constructor
-	int fEvtCount;				// global event counter
-	int fRunNum;				// run number
-	int fSigCount;	            // counter, unused for the time being
-	double fNsigTag;			// max number of sigmas deviation of candidate to be tagged
-	double fNsigAux;			// max number of sigmas deviation for auxilliary particle = pi0, K_S, eta
-	TString fCfgFileName;		// file containing the detailed selection cuts 
-	TString fTriggerFileName;	// file containing the trigger setup
-	bool fApplyFullSelection;   // if true, selection from config file is applied; else only mass windows are required (preselection)
+	int     fVerbose;			 // create verbose output
+	int     fMode;				 // the signal or background mode code, to be set in the constructor
+	int     fEvtCount;			 // global event counter
+	int     fRunNum;			 // run number
+	int     fSigCount;	         // counter, unused for the time being
+	double  fNsigTag;			 // max number of sigmas deviation of candidate to be tagged
+	double  fNsigAux;			 // max number of sigmas deviation for auxilliary particle = pi0, K_S, eta
+	TString fCfgFileName;		 // file containing the detailed selection cuts 
+	TString fTriggerFileName;	 // file containing the trigger setup
+	
+	int     fApplyFullSelection; // 0: detailed selection turned off
+                                 // 1: exclusive mode (modes w/o detailed cut definitions are rejected)
+	                             // 2: open mode (modes w/o detailed cut definitions just have to fulfill their mass window criterion)
 	
 	// *** initial pbar p system info
 	TLorentzVector fIniP4;

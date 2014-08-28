@@ -73,6 +73,9 @@ std::map<int, STCutSet> fSTSelmap;
 std::map<int, TString> fSTOps;
 std::map<int, PndSoftTriggerLine*> fSTTriggers;
 std::map<int, int> fSTMapListIndex;
+
+typedef std::map<int, PndSoftTriggerLine*>::iterator TrigIt;
+
 //                            e+  e-  mu+  mu- pi+   pi-  K+    K-    p     pb   gam  pi0  KS   eta
 const int fSTPidIndex[14] = {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22, 111, 310, 221};
 
@@ -104,6 +107,17 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TStrin
 	ntp(0),	nks0(0), npi0(0), neta(0)	
 {
 	fPdg = TDatabasePDG::Instance();
+	
+	// *** add several pbar p/n/dd Systems for MC truth match
+	double ppwidth = 0.01;
+	fPdg->AddParticle("pbarpSystem", "pbar p", fEcm, false, ppwidth,0,"",88888);
+	fPdg->AddParticle("pbarpSystem0","pbar p", fEcm, false, ppwidth,0,"",88880);
+	fPdg->AddParticle("pbarpSystem1","pbar p", fEcm, false, ppwidth,0,"",88881);
+	fPdg->AddParticle("pbarpSystem2","pbar p", fEcm, false, ppwidth,0,"",88882);
+	
+	fPdg->AddParticle("pbarnSystem", "pbar n", fEcm, false, ppwidth,0,"",88887);
+	fPdg->AddParticle("pbardSystem", "pbar d", fEcm, false, ppwidth,0,"",88889);
+	
 	double mp = fPdg->GetParticle("proton")->Mass(); //Proton mass for computation of p4_ini
 	
 	// set 4-vector of pbar-p-system
@@ -131,7 +145,7 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TStrin
 	if (fTriggerFileName.Length()==0)
 	{
 		fTriggerFileName = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";
-		cout <<"Reading default trigger lines file."<<fTriggerFileName.Data()<<endl;
+		cout <<"Reading default trigger lines file "<<fTriggerFileName.Data()<<endl;
 	}	
 	// map pdg codes to RhoCandList index
 	for (int i=0;i<14;++i) fSTMapListIndex[fSTPidIndex[i]] = i;
@@ -145,6 +159,91 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TStrin
 PndSoftTriggerTask::~PndSoftTriggerTask() { }
 // -------------------------------------------------------------------------
 
+// -----   Public method Init   --------------------------------------------
+InitStatus PndSoftTriggerTask::Init() 
+{		
+	fRootManager = FairRootManager::Instance();
+	
+	// Register TCA for tagging info
+    fTcaOnlineFilterInfo = new TClonesArray ( "PndOnlineFilterInfo" );
+	if (fRootManager) 
+		fRootManager->Register ( "OnlineFilterInfo","PndOnlineFolder", fTcaOnlineFilterInfo, kTRUE );
+	
+	// *** initialize analysis object
+	fAnalysis = new PndAnalysis();
+	
+	// *** RhoTuple QA helper
+	fQA = new PndRhoTupleQA(fAnalysis,fPbarMom);
+	
+	// *** create ntuple
+	if (fQAEvent) ntp = new RhoTuple("ntpev","Soft Trigger Common");
+	if (fQAKs0)  nks0 = new RhoTuple("nks0","K_S -> pi+ pi-");
+	if (fQAPi0)  npi0 = new RhoTuple("npi0","pi0 -> gamma gamma");
+	if (fQAEta)  neta = new RhoTuple("neta","eta -> gamma gamma");
+		
+	// *** create mass pre selectors for QA (formular takes into account RhoSelector definition mean +- win/2
+	fPi0PreSel   = new RhoMassParticleSelector("pi0PreSel",  (fPi0QaMax + fPi0QaMin)/2.0, 	fPi0QaMax - fPi0QaMin );  
+	fEtaPreSel   = new RhoMassParticleSelector("etaPreSel",  (fEtaQaMax + fEtaQaMin)/2.0, 	fEtaQaMax - fEtaQaMin ); 
+	fKs0PreSel   = new RhoMassParticleSelector("Ks0PreSel",  (fKs0QaMax + fKs0QaMin)/2.0, 	fKs0QaMax - fKs0QaMin);  	
+	
+	// *** number of sigmas deviation for tag
+	//double tagNumSig   = fNsigTag;
+
+	// *** create final selectors for pi0, eta, KS 
+	fPi0Sel     = new RhoMassParticleSelector("pi0Sel",   fPi0Mean, fPi0Sigma*2.0*fNsigAux);
+	fEtaSel     = new RhoMassParticleSelector("etaSel",   fEtaMean, fEtaSigma*2.0*fNsigAux);
+	fKs0Sel     = new RhoMassParticleSelector("Ks0Sel",   fKs0Mean, fKs0Sigma*2.0*fNsigAux);
+
+	// *** basic selectors for preselection
+	fMomentumSel = new RhoMomentumParticleSelector("PSel",50.+fTrackMinP,100.);
+	fEnergySel   = new RhoEnergyParticleSelector("ESel",50.+fGammaMinE,100.);
+		
+	// *** read selection from configuration file
+	if (fCfgFileName!="" && fApplyFullSelection) ReadConfiguration();
+
+	// *** set mode index for current beam momentum
+	fSTModeIndex = 0;
+	double diff = 1000.;
+	
+	for (int i=0;i<4;++i) 
+	{
+		double en = (double)fSTencode[i]/10.;
+		if (fabs(fEcm-en)<diff)
+		{
+			diff=fabs(fEcm-en);
+			fSTModeIndex = i;
+		}
+	}
+
+	// *** initialize triggers
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+	{
+		PndSoftTriggerLine *tl = it->second;
+		tl->Init();
+		
+		if (fVerbose>0)
+		{
+			cout <<"*** MODE: "<<it->first<<endl;
+			tl->Print();
+			cout <<endl<<endl;
+		}
+	}
+
+	if (fVerbose>0)
+	{
+		// print selection setup
+		cout <<"[PndSoftTriggerTask] **** Selection setup:"<<endl;
+		for (std::map<int,STCutSet>::iterator it=fSTSelmap.begin(); it!=fSTSelmap.end(); ++it)
+		{
+			std::cout << it->first << " => ";
+			STCutSet cs = it->second;
+			for (int i=0;i<cs.ncut;++i) cout <<"v["<<cs.varid[i]<<"]"<<fSTOps[cs.op[i]]<<cs.cutval[i]<<"  ";
+			cout <<endl;
+		}
+	}
+
+	return kSUCCESS;
+}
 
 // ----Defaul parameters for QA--------------------------------------------------------------
 void PndSoftTriggerTask::SetQASelectionDefaults()
@@ -195,7 +294,7 @@ void PndSoftTriggerTask::SetPidAlgoAll(TString algo)
 
 
 // ----Method to enable/disable QA for single mode --------------------------------------------------
-void PndSoftTriggerTask::SetQA_Mode(int mode, bool qa)
+void PndSoftTriggerTask::SetQAMode(int mode, bool qa)
 {
 	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;
 	
@@ -204,19 +303,19 @@ void PndSoftTriggerTask::SetQA_Mode(int mode, bool qa)
 
 
 // ----Method to enable/disable full QA--------------------------------------------------------------
-void PndSoftTriggerTask::SetQA_All(bool qa)
+void PndSoftTriggerTask::SetQAAll(bool qa)
 {	
-	SetQA_Pi0(qa);
-	SetQA_Eta(qa);
-	SetQA_Ks0(qa);
-	SetQA_Event(qa);
+	SetQAPi0(qa);
+	SetQAEta(qa);
+	SetQAKs0(qa);
+	SetQAEvent(qa);
 	
-	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it) 
-		SetQA_Mode(it->first, qa);
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it) 
+		SetQAMode(it->first, qa);
 }
 
 // ----Method to enable/disable tagging for single mode --------------------------------------------------
-void PndSoftTriggerTask::SetTag_Mode(int mode, bool tag)
+void PndSoftTriggerTask::SetTagMode(int mode, bool tag)
 {
 	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;
 	
@@ -224,10 +323,27 @@ void PndSoftTriggerTask::SetTag_Mode(int mode, bool tag)
 }
 
 // ----Method to enable/disable full Tagging--------------------------------------------------------------
-void PndSoftTriggerTask::SetTag_All(bool qa)
+void PndSoftTriggerTask::SetTagAll(bool tag)
 {	
-	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
-		SetTag_Mode(it->first, qa);
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+		it->second->SetTagActive(tag);
+}
+
+
+// ----Method to set mass selection n_sigmas for 'mode' --------------------------------------------------
+void PndSoftTriggerTask::SetTagNSigMode(int mode, double nsig)
+{
+	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;
+	
+	fSTTriggers[mode]->SetTagNSig(nsig);
+}
+
+
+// ----Method to set mass selection n_sigmas for all modes -----------------------------------------------
+void PndSoftTriggerTask::SetTagNSigAll(double nsig)
+{
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+		it->second->SetTagNSig(nsig);	
 }
 
 
@@ -279,104 +395,6 @@ int PndSoftTriggerTask::MultPidProb(RhoCandList &l, int pididx, double prob)
 }
 // -------------------------------------------------------------------------
 
-// -----   Public method Init   --------------------------------------------
-InitStatus PndSoftTriggerTask::Init() 
-{		
-	fRootManager = FairRootManager::Instance();
-	
-	// Register TCA for tagging info
-    fTcaOnlineFilterInfo = new TClonesArray ( "PndOnlineFilterInfo" );
-	if (fRootManager)
-	{
-		fRootManager->Register ( "OnlineFilterInfo","PndOnlineFolder", fTcaOnlineFilterInfo, kTRUE );
-	}
-	
-	// *** add several pbar p/n/dd Systems for MC truth match
-	double ppwidth = 0.01;
-	fPdg->AddParticle("pbarpSystem", "pbar p", fEcm, false, ppwidth,0,"",88888);
-	fPdg->AddParticle("pbarpSystem0","pbar p", fEcm, false, ppwidth,0,"",88880);
-	fPdg->AddParticle("pbarpSystem1","pbar p", fEcm, false, ppwidth,0,"",88881);
-	fPdg->AddParticle("pbarpSystem2","pbar p", fEcm, false, ppwidth,0,"",88882);
-	
-	fPdg->AddParticle("pbarnSystem", "pbar n", fEcm, false, ppwidth,0,"",88887);
-	fPdg->AddParticle("pbardSystem", "pbar d", fEcm, false, ppwidth,0,"",88889);
-	
-	// *** initialize analysis object
-	fAnalysis = new PndAnalysis();
-	
-	// *** RhoTuple QA helper
-	fQA = new PndRhoTupleQA(fAnalysis,fPbarMom);
-	
-	// *** create ntuple
-	if (fQAEvent) ntp  = new RhoTuple("ntpev","Soft Trigger Common");
-	if (fQAKs0) nks0 = new RhoTuple("nks0","K_S -> pi+ pi-");
-	if (fQAPi0) npi0 = new RhoTuple("npi0","pi0 -> g g");
-	if (fQAEta) neta = new RhoTuple("neta","eta -> g g");
-		
-	// *** create mass pre selectors for QA (formular takes into account RhoSelector definition mean +- win/2
-	fPi0PreSel   = new RhoMassParticleSelector("pi0PreSel",  (fPi0QaMax + fPi0QaMin)/2.0, 	fPi0QaMax - fPi0QaMin );  
-	fEtaPreSel   = new RhoMassParticleSelector("etaPreSel",  (fEtaQaMax + fEtaQaMin)/2.0, 	fEtaQaMax - fEtaQaMin ); 
-	fKs0PreSel   = new RhoMassParticleSelector("Ks0PreSel",  (fKs0QaMax + fKs0QaMin)/2.0, 	fKs0QaMax - fKs0QaMin);  	
-	
-	// *** number of sigmas deviation for tag
-	//double tagNumSig   = fNsigTag;
-
-	// *** create final selectors for pi0, eta, KS 
-	fPi0Sel     = new RhoMassParticleSelector("pi0Sel",   fPi0Mean, fPi0Sigma*2.0*fNsigAux);
-	fEtaSel     = new RhoMassParticleSelector("etaSel",   fEtaMean, fEtaSigma*2.0*fNsigAux);
-	fKs0Sel     = new RhoMassParticleSelector("Ks0Sel",   fKs0Mean, fKs0Sigma*2.0*fNsigAux);
-
-	// *** basic selectors for preselection
-	fMomentumSel = new RhoMomentumParticleSelector("PSel",50.+fTrackMinP,100.);
-	fEnergySel   = new RhoEnergyParticleSelector("ESel",50.+fGammaMinE,100.);
-		
-	// *** read selection from configuration file
-	if (fCfgFileName!="" && fApplyFullSelection) ReadConfiguration();
-
-	// *** set mode index for current beam momentum
-	fSTModeIndex = 0;
-	double diff = 1000.;
-	
-	for (int i=0;i<4;++i) 
-	{
-		double en = (double)fSTencode[i]/10.;
-		if (fabs(fEcm-en)<diff)
-		{
-			diff=fabs(fEcm-en);
-			fSTModeIndex = i;
-		}
-	}
-
-	// *** initialize triggers
-	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
-	{
-		PndSoftTriggerLine *tl = it->second;
-		tl->Init();
-		
-		if (fVerbose>0)
-		{
-			cout <<"*** MODE: "<<it->first<<endl;
-			tl->Print();
-			cout <<endl<<endl;
-		}
-	}
-
-	if (fVerbose>0)
-	{
-		// print selection setup
-		cout <<"[PndSoftTriggerTask] Selection setup:"<<endl;
-		for (std::map<int,STCutSet>::iterator it=fSTSelmap.begin(); it!=fSTSelmap.end(); ++it)
-		{
-			std::cout << it->first << " => ";
-			STCutSet cs = it->second;
-			for (int i=0;i<cs.ncut;++i) cout <<"v["<<cs.varid[i]<<"]"<<fSTOps[cs.op[i]]<<cs.cutval[i]<<"  ";
-			cout <<endl;
-		}
-	}
-
-
-	return kSUCCESS;
-}
 
 
 // -------------------------------------------------------------------------
@@ -434,6 +452,12 @@ bool PndSoftTriggerTask::ReadTriggerLines()
 		
 		fSTTriggers[mode] = tl;
 	}
+	
+	cout << "[PndSoftTriggerTask] **** Found "<<fSTTriggers.size()<<" trigger definitions: ";
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+		cout << it->second->GetName()<<" ";
+	cout <<endl;
+	
 }
 
 
@@ -595,13 +619,16 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	if (fApplyFullSelection) FillEventShapeVarArray();
 	
 	int tag_glob = 0;
+
+	PndOnlineFilterInfo* info=new ( (*fTcaOnlineFilterInfo)[0] ) PndOnlineFilterInfo();	
 	
 	// *** loop through all channels and tag
-	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 	{
 		PndSoftTriggerLine *tl = it->second;		
 		int ntag =  TagMode( tl );
 		tl->SetNTagged( ntag );
+		info->SetNTag(it->first, ntag);                      
 		tag_glob += ntag;
 	}
 	
@@ -618,7 +645,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		fQA->qaP4("beam", fIniP4, ntp);
 		
 		// write tags of individual modes
-		for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+		for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 		{
 			PndSoftTriggerLine *tl = it->second;
 			if ( tl->GetTagActive() ) ntp->Column("tag"+tl->GetName(), (Float_t) tl->GetNTagged(), 0.0f);
@@ -641,33 +668,6 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	
 	// Create PndOnlineFilterInfo entry in TCA
 	
-	PndOnlineFilterInfo* info=new ( (*fTcaOnlineFilterInfo)[0] ) PndOnlineFilterInfo();
-
-	info->SetTagPhiKK(        fSTTriggers[  0]->GetNTagged());
-	info->SetTagD0Kpi(        fSTTriggers[100]->GetNTagged());
-	info->SetTagD0Kpipi0(     fSTTriggers[101]->GetNTagged());
-	info->SetTagD0K3pi(       fSTTriggers[102]->GetNTagged());
-	info->SetTagDpmKpipi(     fSTTriggers[120]->GetNTagged());
-	info->SetTagDpmK2pipi0(   fSTTriggers[121]->GetNTagged());
-	info->SetTagDpmKspipi0(   fSTTriggers[122]->GetNTagged());
-	info->SetTagDpmKs3pi(     fSTTriggers[123]->GetNTagged());
-	info->SetTagDsKKpi(       fSTTriggers[140]->GetNTagged());
-	info->SetTagDsKKpip0(     fSTTriggers[141]->GetNTagged());
-	info->SetTagJpsi2e(       fSTTriggers[200]->GetNTagged());
-	info->SetTagJpsi2mu(      fSTTriggers[201]->GetNTagged());
-	info->SetTagEtacKKpi0(    fSTTriggers[220]->GetNTagged());
-	info->SetTagEtacKKspi(    fSTTriggers[221]->GetNTagged());
-	info->SetTagEtacetapipi(  fSTTriggers[222]->GetNTagged());
-	info->SetTagEtacgg(       fSTTriggers[223]->GetNTagged());
-	info->SetTagChic02pi2pi0( fSTTriggers[240]->GetNTagged());
-	info->SetTagChic04pi(     fSTTriggers[241]->GetNTagged());
-	info->SetTagChic02pi2K(   fSTTriggers[242]->GetNTagged());
-	info->SetTag2e(           fSTTriggers[300]->GetNTagged());
-	info->SetTag2mu(          fSTTriggers[320]->GetNTagged());
-	info->SetTag2gam(         fSTTriggers[340]->GetNTagged());
-	info->SetTagLamppi(       fSTTriggers[400]->GetNTagged());
-	info->SetTagLamcpKpi(     fSTTriggers[420]->GetNTagged());
-	
 }
 
 
@@ -678,7 +678,7 @@ void PndSoftTriggerTask::Finish()
 	if (npi0) npi0->GetInternalTree()->Write();			  // pi0 QA
 	if (neta) neta->GetInternalTree()->Write();			  // eta QA
 	
-	for (std::map<int, PndSoftTriggerLine*>::iterator it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 	{
 		PndSoftTriggerLine *tl = it->second;
 		if (tl->GetRhoTuple())
@@ -957,30 +957,6 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 	
 	return acc;
 }
-// -------------------------------------------------------------------------
-
-int PndSoftTriggerTask::signalType(RhoCandList &l, int v0pdg, int d1pdg, int d2pdg)
-{
-	int sig=0;
-	
-	for (int i=0;i<l.GetLength();++i)
-	{
-		RhoCandidate *d0 = l[i]->Daughter(0);
-		RhoCandidate *d1 = l[i]->Daughter(1);
-		if (d0==0x0 || d1==0x0) continue;
-		
-		int v0c = l[i]->PdgCode();
-		int d1c = d0->PdgCode();
-		int d2c = d1->PdgCode();
-		
-		if (v0c==v0pdg && ((d1c==d1pdg && d2c==d2pdg) || (d2c==d1pdg && d1c==d2pdg)))
-		{
-			sig = 1;
-			break;
-		}
-	}
-	return sig;
-}
 
 
 // -------------------------------------------------------------------------
@@ -1106,11 +1082,16 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl)
 	for (int i=0;i<l.GetLength();++i)
 	{
 		bool acc = false;
-		if (fApplyFullSelection) 
-			acc = AcceptCandidate(mode, l[i], sel);
-		else 
+		
+		// full selection
+		if (fApplyFullSelection>0) acc = AcceptCandidate(mode, l[i], sel);
+		// simple mass window selection
+		else acc = sel->Accept(l[i]);
+		
+		// for full selection in open mode (=2), trigger w/o detailed cuts are accepted based on mass window only 
+		if ( !acc && fApplyFullSelection==2 && fSTSelmap.find(fSTencode[fSTModeIndex]*1000+mode) == fSTSelmap.end() )
 			acc = sel->Accept(l[i]);
-			
+				
 		if (acc) nacc++;
 			
 		if (n)

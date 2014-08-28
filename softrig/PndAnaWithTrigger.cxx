@@ -195,10 +195,10 @@ void PndAnaWithTrigger::Exec(Option_t* opt)
 		// *** store info from trigger
 		if (stInfo)
 		{
-			ntp1->Column("sttrig",   (Float_t) stInfo->Tagged());      // event triggered
-			ntp1->Column("stntot",   (Float_t) stInfo->TagTotal());    // total number of triggered candidates from all active lines
-			ntp1->Column("stnjpsi1", (Float_t) stInfo->TagJpsi2e());   // number of triggered candidates from J/psi->e+ e- line
-			ntp1->Column("stnjpsi2", (Float_t) stInfo->TagJpsi2mu());  // number of triggered candidates from J/psi->mu+ mu- line
+			ntp1->Column("sttrig",   (Int_t) stInfo->Tagged());       // event triggered
+			ntp1->Column("stntot",   (Int_t) stInfo->GetNTagTotal()); // total number of triggered candidates from all active lines
+			ntp1->Column("stn200",   (Int_t) stInfo->GetNTag(200));   // number of triggered candidates from J/psi->e+ e- line
+			ntp1->Column("stn201",   (Int_t) stInfo->GetNTag(201));   // number of triggered candidates from J/psi->mu+ mu- line
 		}
 	
 		// store info about initial 4-vector
@@ -240,10 +240,10 @@ void PndAnaWithTrigger::Exec(Option_t* opt)
 		// *** store info from trigger
 		if (stInfo)
 		{
-			ntp2->Column("sttrig",   (Float_t) stInfo->Tagged());      // event triggered
-			ntp2->Column("stntot",   (Float_t) stInfo->TagTotal());    // total number of triggered candidates from all active lines
-			ntp2->Column("stnjpsi1", (Float_t) stInfo->TagJpsi2e());   // number of triggered candidates from J/psi->e+ e- line
-			ntp2->Column("stnjpsi2", (Float_t) stInfo->TagJpsi2mu());  // number of triggered candidates from J/psi->mu+ mu- line
+			ntp2->Column("sttrig",   (Int_t) stInfo->Tagged());       // event triggered
+			ntp2->Column("stntot",   (Int_t) stInfo->GetNTagTotal()); // total number of triggered candidates from all active lines
+			ntp2->Column("stn200",   (Int_t) stInfo->GetNTag(200));   // number of triggered candidates from J/psi->e+ e- line
+			ntp2->Column("stn201",   (Int_t) stInfo->GetNTag(201));   // number of triggered candidates from J/psi->mu+ mu- line
 		}
 		
 		PndKinFitter kinfit(psi2s[j]);
