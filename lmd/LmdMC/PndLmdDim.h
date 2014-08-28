@@ -68,6 +68,8 @@ private:
 	vector<string> nav_paths;
 
 	
+	std::map<bool, TGeoMatrix*> global_to_lmd_local_matrices;
+
 public:
 	static PndLmdDim& Get_instance();
 	static PndLmdDim* Instance();
