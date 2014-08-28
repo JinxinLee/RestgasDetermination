@@ -1167,6 +1167,22 @@ for (i=0;i<nMCTracks;i++){
 bool flaggo;
 int ii, ibuone=-1;
 Double_t HoughFiii;
+
+	Double_t	perc_trueSttPar = 0. ,
+			perc_trueSttSkew = 0. ,
+			perc_missSttSkew = 0. ,
+			spurSttSkew = 0. ,
+			perc_trueStt = 0. ,
+			perc_trueMvdPixel = 0. ,
+			perc_trueMvdStrip = 0. ,
+			perc_trueMvd = 0. ,
+			perc_missSttPar = 0. ,
+			perc_missStt = 0. ,
+			perc_missMvdPixel = 0. ,
+			perc_missMvdStrip = 0. ,
+			perc_missMvd = 0. ;
+
+
 for (ii=0; ii<nTotalCandidates  ;ii++){
    if(!keepit[ii]) { if(istampa>1) {cout<<"\tevt. n "<<IVOLTE<<", cand. "<<ii<<" ha keepit false."<<
    	endl;}; continue;}
@@ -1221,6 +1237,42 @@ for (ii=0; ii<nTotalCandidates  ;ii++){
 	}
 	if(flaggo) continue;
 
+
+// calcolo delle % di hit di vario tipo associati a questa traccia;
+
+
+	if(nHitsInMCTrack[ii]>0){
+		perc_trueSttPar = nParalCommon[ii]/((double) nHitsInMCTrack[ii]);
+		perc_missSttPar =(nHitsInMCTrack[ii]-nParalCommon[ii])/((double) nHitsInMCTrack[ii]);
+	}else{ perc_trueSttPar = -0.01 ; perc_missSttPar = -0.01; }
+
+	if(nSkewHitsInMCTrack[ii]>0){
+		perc_trueSttSkew = nSkewCommon[ii]/((double) nSkewHitsInMCTrack[ii]);
+		perc_missSttSkew = (nSkewHitsInMCTrack[ii]-nSkewCommon[ii])/((double) nSkewHitsInMCTrack[ii]);
+	}else{ perc_trueSttSkew = -0.01 ; perc_missSttSkew = -0.01; }
+
+	if( (nHitsInMCTrack[ii]+nSkewHitsInMCTrack[ii]) > 0) {
+		perc_trueStt = (nParalCommon[ii]+nSkewCommon[ii])/((double) nHitsInMCTrack[ii]+nSkewHitsInMCTrack[ii]);
+		perc_missStt = ((double)(nHitsInMCTrack[ii]-nParalCommon[ii])+(nSkewHitsInMCTrack[ii]- nSkewCommon[ii]))
+			/( nHitsInMCTrack[ii]+nSkewHitsInMCTrack[ii] );
+	}else{ perc_trueStt = -0.01 ; perc_missStt = -0.01; }
+
+	if(nMvdPixelCommon[ii]+nMCMvdPixelAlone[ii]>0){
+		perc_trueMvdPixel =  nMvdPixelCommon[ii]/((double) nMvdPixelCommon[ii]+nMCMvdPixelAlone[ii]);
+		perc_missMvdPixel = nMCMvdPixelAlone[ii]/((double) nMvdPixelCommon[ii]+nMCMvdPixelAlone[ii]);
+	}else{ perc_trueMvdPixel = -0.01 ; perc_missMvdPixel = -0.01; }
+
+	if(nMvdStripCommon[ii]+nMCMvdStripAlone[ii]>0){
+		perc_trueMvdStrip =  nMvdStripCommon[ii]/((double) nMvdStripCommon[ii]+nMCMvdStripAlone[ii]);
+		perc_missMvdStrip = nMCMvdStripAlone[ii]/((double) nMvdStripCommon[ii]+nMCMvdStripAlone[ii]);
+	}else{ perc_trueMvdStrip = -0.01 ; perc_missMvdStrip = -0.01; }
+
+	if( nMvdPixelCommon[ii]+nMCMvdPixelAlone[ii]+nMvdStripCommon[ii]+nMCMvdStripAlone[ii]>0){
+		perc_trueMvd = (nMvdStripCommon[ii]+nMvdPixelCommon[ii])/
+			((double) nMvdPixelCommon[ii]+nMCMvdPixelAlone[ii]+nMvdStripCommon[ii]+nMCMvdStripAlone[ii]);
+		perc_missMvd = (nMCMvdPixelAlone[ii]+nMCMvdStripAlone[ii])/
+			((double) nMvdPixelCommon[ii]+nMCMvdPixelAlone[ii]+nMvdStripCommon[ii]+nMCMvdStripAlone[ii]);
+	}else{ perc_trueMvd = -0.01 ; perc_missMvd = -0.01; }
 
 
     fprintf(HANDLE,
@@ -1283,7 +1335,21 @@ ioData.nSciTilCommon[ii]+ioData.nMCSciTilAlone[ii],ioData.nSciTilCommon[ii],ioDa
      fmod(Fifi+ PI, 2.*PI),  //  FI0  da MC truth
      FI0[ ii ]
            );
-     
+   
+    fprintf(HANDLE,
+"       %%truePar %5.1f ;%%missPar %5.1f ;%%trueSkew  %5.1f ;%%missSkew  %5.1f ;%%trueStt %5.1f ;%%missStt %5.1f ;\n",
+ 	perc_trueSttPar*100.,perc_missSttPar*100.,perc_trueSttSkew*100.,
+	perc_missSttSkew*100.,perc_trueStt*100.,perc_missStt*100.
+           );
+
+
+    fprintf(HANDLE,
+"       %%truePix %5.1f ;%%missPix %5.1f ;%%trueStrip %5.1f ;%%missStrip %5.1f ;%%trueMvd %5.1f ;%%missMvd %5.1f ;\n",
+ 	perc_trueMvdPixel*100.,perc_missMvdPixel*100.,perc_trueMvdStrip*100.,
+	perc_missMvdStrip*100.,perc_trueMvd*100.,perc_missMvd*100.
+           );
+
+
 //------------------------
 
 
@@ -1312,7 +1378,6 @@ ioData.nSciTilCommon[ii]+ioData.nMCSciTilAlone[ii],ioData.nSciTilCommon[ii],ioDa
  int NParghost=0, NParhitsghost=0,icc;
  ibuone=-1;
  if( nMCTracksaccettabili>0){
-
     for(icc=0; icc<nTotalCandidates;icc++){
 	if(!keepit[icc]) continue;
 	ibuone++;
@@ -1320,6 +1385,7 @@ ioData.nSciTilCommon[ii]+ioData.nMCSciTilAlone[ii],ioData.nSciTilCommon[ii],ioDa
           NParghost++;
           NParhitsghost += nSttParHitsinTrack[icc]+nSttSkewHitsinTrack[icc];
 
+	  if(NParghost==1) fprintf(HANDLE,"----------------------------------------------------------\n");
           fprintf(HANDLE,"          tracce Trovata n. %d e' Ghost\n",ibuone);
        }
     }
@@ -1328,6 +1394,8 @@ ioData.nSciTilCommon[ii]+ioData.nMCSciTilAlone[ii],ioData.nSciTilCommon[ii],ioDa
             NParghost,
             NParhitsghost
            );
+
+
 
     fprintf(HANDLE,"----------------------------------------------------------\n");
 
