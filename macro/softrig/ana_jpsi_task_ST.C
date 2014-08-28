@@ -39,24 +39,30 @@ void ana_jpsi_task_ST(TString Fname="test", int nevts=0, double pbarmom = 6.2320
 	stTask->SetConfigurationFile(selectioncfg);
 	
 	// set parameters for pi0, KS, eta selection
-	stTask->SetPi0SignalParams(0.135, 0.01);
-	stTask->SetEtaSignalParams(0.547, 0.03);
-	stTask->SetKs0SignalParams(0.493, 0.05);
+	stTask->SetPi0SignalParams(0.136, 0.0045);
+	stTask->SetEtaSignalParams(0.552, 0.009);
+	stTask->SetKs0SignalParams(0.497, 0.008);
 	
 	//TString algo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"; // FullSim
 	TString algo = "PidChargedProbability";	// Fast Sim
 	stTask->SetPidAlgoAll(algo);
 	
-	stTask->ApplyFullSelection();
-	stTask->SetTag_All(true);		// tag all modes
-	//stTask->SetTag_Mode(120);     // example to switch single tags on/off; mode number has to match one from config file
+	// Full selection switch
+	// 0: detailed selection turned off
+	// 1: exclusive mode (modes w/o detailed cut definitions are rejected)
+	// 2: open mode (modes w/o detailed cut definitions just have to fulfill their mass window criterion)
+	stTask->ApplyFullSelection(1);
 	
-	stTask->SetQA_All(true);		// ntuple output for all modes
-	//stTask->SetQA_Mode(120);      // example to switch single QA on/off
+	stTask->SetTagAll(true);         // tag all modes
+	//stTask->SetTagMode(120,true);  // example to switch single tags on/off; mode number has to match one from config file
 	
-	stTask->SetGammaMinE(0.15);		// global energy pre-cut for neutrals 
-	stTask->SetTrackMinP(0.15);		// global momentum pre-cut for charged 	
-	//stTask->SetInitialPidCut(0.1);	// global PID pre-cut for charged 	
+	stTask->SetQAAll(true);          // ntuple output for all modes off
+	stTask->SetQAEvent(true);        // ntuple output for event info
+	stTask->SetQAMode(201,true);     // example to switch single QA on/off
+	
+	stTask->SetGammaMinE(0.15);      // global energy pre-cut for neutrals 
+	stTask->SetTrackMinP(0.15);      // global momentum pre-cut for charged 	
+	stTask->SetInitialPidCut(0.1);   // global PID pre-cut for charged 	
 	
 	fRun->AddTask(stTask);
 
