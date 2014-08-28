@@ -2186,10 +2186,7 @@ TGeoMatrix* PndLmdDim::Get_matrix_module_side_to_sensor(int ihalf, int iplane, i
 }
 
 TGeoHMatrix PndLmdDim::Get_transformation_global_to_lmd_local(bool aligned){
-	if(global_to_lmd_local_matrices.find(aligned) == global_to_lmd_local_matrices.end())
-	  global_to_lmd_local_matrices[aligned] = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
-
-	TGeoMatrix *matrix = global_to_lmd_local_matrices[aligned];
+	TGeoMatrix *matrix = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
 	if (!matrix) return TGeoHMatrix();
 	return TGeoHMatrix(*matrix);
 }
