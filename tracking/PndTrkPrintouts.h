@@ -43,6 +43,30 @@ class PndTrkPrintouts : public TObject
 
 
 
+ void stampaMvdHits2(
+	char *fMvdPixelBranch,
+	char *fMvdStripBranch,
+	Short_t nMvdPixelHit,
+	Short_t nMvdStripHit,
+	Double_t *refindexMvdPixel,
+	Double_t *refindexMvdStrip,
+	Short_t * fMCtrack_of_Pixel,
+	Short_t * fMCtrack_of_Strip,
+	Double_t *sigmaXMvdPixel,
+	Double_t *sigmaXMvdStrip,
+	Double_t *sigmaYMvdPixel,
+	Double_t *sigmaYMvdStrip,
+	Double_t *sigmaZMvdPixel,
+	Double_t *sigmaZMvdStrip,
+	Double_t *XMvdPixel,
+	Double_t *XMvdStrip,
+	Double_t *YMvdPixel,
+	Double_t *YMvdStrip,
+	Double_t *ZMvdPixel,
+	Double_t *ZMvdStrip
+	);
+
+
 
  void stampaSttHits(
 	Short_t iHit,
