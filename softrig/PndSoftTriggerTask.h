@@ -104,6 +104,9 @@ class PndSoftTriggerTask : public FairTask
 	// mode code as in triggerlines configuration file
 	void SetQAMode(int mode, bool qa=true);
 	
+	// passed to PndAnalysis: this also allows mct match, when some soft photons are missing in decay
+	void McMatchAllowPhotos(int maxn=1, double thresh=0.05){fPhotosMax=maxn;fPhotosThresh=thresh;}  
+	
 	void SetVerbose(int verb=10) {fVerbose=verb;}
 
  protected:
@@ -137,15 +140,17 @@ class PndSoftTriggerTask : public FairTask
 	
     // ----------------------------
 	// *** global vars
-	int     fVerbose;			 // create verbose output
-	int     fMode;				 // the signal or background mode code, to be set in the constructor
-	int     fEvtCount;			 // global event counter
-	int     fRunNum;			 // run number
-	int     fSigCount;	         // counter, unused for the time being
-	double  fNsigTag;			 // max number of sigmas deviation of candidate to be tagged
-	double  fNsigAux;			 // max number of sigmas deviation for auxilliary particle = pi0, K_S, eta
-	TString fCfgFileName;		 // file containing the detailed selection cuts 
-	TString fTriggerFileName;	 // file containing the trigger setup
+	int      fVerbose;			 // create verbose output
+	int      fMode;				 // the signal or background mode code, to be set in the constructor
+	int      fEvtCount;			 // global event counter
+	int      fRunNum;			 // run number
+	int      fSigCount;	         // counter, unused for the time being
+	double   fNsigTag;			 // max number of sigmas deviation of candidate to be tagged
+	double   fNsigAux;			 // max number of sigmas deviation for auxilliary particle = pi0, K_S, eta
+	TString  fCfgFileName;		 // file containing the detailed selection cuts 
+	TString  fTriggerFileName;	 // file containing the trigger setup
+	Int_t    fPhotosMax;         // passed over to PndAnalysis for MC match with photos on
+	Double_t fPhotosThresh;      // passed over to PndAnalysis for MC match with photos on
 	
 	int     fApplyFullSelection; // 0: detailed selection turned off
                                  // 1: exclusive mode (modes w/o detailed cut definitions are rejected)
@@ -191,7 +196,7 @@ class PndSoftTriggerTask : public FairTask
 	double fPi0MinE;		// minimum energy for pi0 candidates
 	double fEtaMinE;		// minimum energy for eta candidates
 	double fTrackMinP;		// minimum momentum for charged candidates
-	
+	double fIniPidCut;		// Tightness of initial PID (cut on probability)
 	
 	// *** global mass selectors
 	RhoMassParticleSelector 		*fPi0Sel;		// pi0 selector (g g)
@@ -215,7 +220,6 @@ class PndSoftTriggerTask : public FairTask
 	TString fAlgoKaon;		// Pid algo definition string kaons
 	TString fAlgoProton;	// Pid algo definition string protons
 	
-	double  fIniPidCut;		// Tightness of initial PID (cut on probability)
 	
 	int fPidMult_025[5];	// cache for the PID multiplicities with P>=0.25
 	

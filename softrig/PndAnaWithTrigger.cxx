@@ -84,6 +84,7 @@ InitStatus PndAnaWithTrigger::Init()
 {		
 	// *** initialize PndAnalysis object
 	fAnalysis = new PndAnalysis();
+	fAnalysis->McMatchAllowPhotos();
 	
 	// *** reset the event counter
 	fEvtCount = 0;

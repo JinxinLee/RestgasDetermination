@@ -97,9 +97,10 @@ int fSTModeIndex = 0;
 PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TString trigfilename) :
 	FairTask("Panda Softtrigger Task"),
 	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0),	fNsigAux(5.0),	
-	fTriggerFileName(trigfilename), fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
+	fTriggerFileName(trigfilename), fPhotosMax(0), fPhotosThresh(0.05), 
+	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
 	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false),
-	fGammaMinE(0.03), fTrackMinP(0.15),
+	fGammaMinE(0.03), fPi0MinE(0.0), fEtaMinE(0.0), fTrackMinP(0.15), fIniPidCut(0.0),
 	fEventShape(NULL), 
 	fQA(NULL),
 	fPi0Sel(NULL), fEtaSel(NULL), fKs0Sel(NULL),
@@ -171,6 +172,7 @@ InitStatus PndSoftTriggerTask::Init()
 	
 	// *** initialize analysis object
 	fAnalysis = new PndAnalysis();
+	if (fPhotosMax) fAnalysis->McMatchAllowPhotos(fPhotosMax,fPhotosThresh);
 	
 	// *** RhoTuple QA helper
 	fQA = new PndRhoTupleQA(fAnalysis,fPbarMom);
