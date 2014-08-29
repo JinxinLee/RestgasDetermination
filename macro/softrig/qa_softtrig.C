@@ -61,15 +61,15 @@ void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to
 	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode, run, triggercfg);
 	stTask->SetConfigurationFile(selectioncfg);
 	
-	//TString algo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"; // FullSim
-	TString algo = "PidChargedProbability";	
+	TString algo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"; // FullSim
+	//TString algo = "PidChargedProbability";	
 	stTask->SetPidAlgoAll(algo);
 	
-	stTask->SetTag_All(true);		// tag all modes
-	//stTask->SetTag_Mode(120);     // switch single tags on/off; mode number has to match one from config file
+	stTask->SetTagAll(true);		// tag all modes
+	//stTask->SetTagMode(120);      // switch single tags on/off; mode number has to match one from config file
 	
-	stTask->SetQA_All(true);		// ntuple output for all modes
-	//stTask->SetQA_Mode(120);      // switch single QA on/off
+	stTask->SetQAAll(true);		    // ntuple output for all modes
+	//stTask->SetQAMode(120);       // switch single QA on/off
 	
 	stTask->SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
 	stTask->SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
