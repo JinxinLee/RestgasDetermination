@@ -74,6 +74,85 @@ void PndTrkPrintouts::stampaMvdHits(
 //----------end of function PndTrkPrintouts::stampaMvdHits
 
 
+//----------begin of function PndTrkPrintouts::stampaMvdHits2
+
+void PndTrkPrintouts::stampaMvdHits2(
+	char *fMvdPixelBranch,
+	char *fMvdStripBranch,
+	Short_t nMvdPixelHit,
+	Short_t nMvdStripHit,
+	Double_t *refindexMvdPixel,
+	Double_t *refindexMvdStrip,
+	Short_t * fMCtrack_of_Pixel,
+	Short_t * fMCtrack_of_Strip,
+	Double_t *sigmaXMvdPixel,
+	Double_t *sigmaXMvdStrip,
+	Double_t *sigmaYMvdPixel,
+	Double_t *sigmaYMvdStrip,
+	Double_t *sigmaZMvdPixel,
+	Double_t *sigmaZMvdStrip,
+	Double_t *XMvdPixel,
+	Double_t *XMvdStrip,
+	Double_t *YMvdPixel,
+	Double_t *YMvdStrip,
+	Double_t *ZMvdPixel,
+	Double_t *ZMvdStrip
+	)
+{
+
+
+  cout<<"da PndTrkTraking  :  n. Mvd Pixel Hits = "<<nMvdPixelHit<<endl;
+  cout<<"da PndTrkTracking  :  n. Mvd Strip Hits = "<<nMvdStripHit<<endl;
+  cout<<"da PndTrkTracking  :  info hits di Mvd pixels ------------------\n";
+  for(int i= 0; i< nMvdPixelHit; i++){
+
+      cout<<"      Pixel hit n. "<<i<<" Info : X  = "<<XMvdPixel[i]<<";  Y  = "<<YMvdPixel[i]<<
+            ";  Z  = "<<ZMvdPixel[i]<<", R=sqrt(X**2+Y**2) = "<<
+	    sqrt(XMvdPixel[i]*XMvdPixel[i]+YMvdPixel[i]*YMvdPixel[i])<<endl;
+      cout<<"\t\tPixel Info : sigmaX  = "<<sigmaXMvdPixel[i]<<";  sigmaY  = "<<sigmaYMvdPixel[i]<<
+            ";  sigmaZ  = "<<sigmaZMvdPixel[i]<<endl
+	    <<"\t\tsuo RefIndex = "<<refindexMvdPixel[i]<<
+	    ", suo ...Instance()->GetBranchId(fMvdPixelBranch) = "<<
+	    FairRootManager::Instance()->GetBranchId(fMvdPixelBranch);
+
+	if( refindexMvdPixel[i]<0) {
+	    cout<<", electronic noise hit non associato ad alcuna MC track;"<<endl<<endl;
+	} else {
+	    cout<<", traccia MC a cui e' associato = "
+	    << fMCtrack_of_Pixel[i]<<endl<<endl;
+	}
+  }
+  cout<<"        ------------------\n";
+
+  cout<<"\tInfo hits di Mvd strips; n. strip hits = "<<nMvdStripHit<<" ------------------\n";
+  for(int i= 0; i< nMvdStripHit; i++){
+      cout<<"      Strip hit n. "<<i<<" Info : X  = "<<XMvdStrip[i]<<";  Y  = "<<YMvdStrip[i]<<
+            ";  Z  = "<<ZMvdStrip[i]<<", R=sqrt(X**2+Y**2) = "<<
+	    sqrt(XMvdStrip[i]*XMvdStrip[i]+YMvdStrip[i]*YMvdStrip[i])<<endl;
+      cout<<"\t\tStrip Info : sigmaX  = "<<sigmaXMvdStrip[i]<<";  sigmaY  = "<<sigmaYMvdStrip[i]<<
+            ";  sigmaZ  = "<<sigmaZMvdStrip[i]<<endl
+	    <<"\t\tsuo RefIndex = "<<refindexMvdStrip[i]<<
+	    ", suo ...Instance()->GetBranchId(fMvdStripBranch) = "<<
+	    FairRootManager::Instance()->GetBranchId(fMvdStripBranch);
+
+	if( refindexMvdStrip[i]<0) {
+	    cout<<", electronic noise hit non associato ad alcuna MC track;"<<endl<<endl;
+	} else {
+	    cout<<", traccia MC a cui e' associato = "
+	    << fMCtrack_of_Strip[i]<<endl<<endl;
+	}
+
+  }
+  cout<<"        ------------------\n";
+
+  cout<<"-----------------------------------------------------\n";
+
+
+ }
+
+//----------end of function PndTrkPrintouts::stampaMvdHits2
+
+
 //----------begin of function PndTrkPrintouts::stampaSttHits
 
 void PndTrkPrintouts::stampaSttHits(
