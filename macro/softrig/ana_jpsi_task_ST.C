@@ -64,6 +64,8 @@ void ana_jpsi_task_ST(TString Fname="test", int nevts=0, double pbarmom = 6.2320
 	stTask->SetTrackMinP(0.15);      // global momentum pre-cut for charged 	
 	stTask->SetInitialPidCut(0.1);   // global PID pre-cut for charged 	
 	
+	stTask->McMatchAllowPhotos(1,0.05);  // MC truth match shall partially ignore photos photons (here max 1 with E<50 MeV)
+	
 	fRun->AddTask(stTask);
 
 	// --------------------------------

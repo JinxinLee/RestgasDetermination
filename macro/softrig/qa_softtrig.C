@@ -75,6 +75,8 @@ void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to
 	stTask->SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
 	stTask->SetInitialPidCut(0.1);	// global PID pre-cut for charged 	
 	
+	//stTask->McMatchAllowPhotos(1,0.05);  // MC truth match shall partially ignore photos photons (here max 1 with E<50 MeV)
+
 	fRun->AddTask(stTask);
 	
 	// *** and run analysis
