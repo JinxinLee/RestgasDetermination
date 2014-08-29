@@ -53,6 +53,8 @@ class PndAnalysis
     Bool_t ResetDaughters(RhoCandidate* cand);
     Bool_t McTruthMatch(RhoCandidate* cand, Int_t level = 2, bool verbose=false);
     Int_t McTruthMatch(RhoCandList& list, Int_t level = 2, bool verbose=false);
+	// this also allows match, when some soft photons are missing in decay
+	void McMatchAllowPhotos(int maxn=1, double thresh=0.05){fPhotosMax=maxn;fPhotosThresh=thresh;}  
 
     //FIXME: This is an aweful solution to access the correct
     //track array from a fitter object. [R.K.03'11]
@@ -84,6 +86,8 @@ class PndAnalysis
     Bool_t             fEventRead;
     Bool_t             fBuildMcCands;
     Int_t              fVerbose;
+    Int_t              fPhotosMax;
+    Double_t           fPhotosThresh;
 
     std::map<int,RhoCandidate*> fMcPresenceMap;
 
