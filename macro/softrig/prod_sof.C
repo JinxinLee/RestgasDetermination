@@ -41,7 +41,7 @@ void prod_sof(TString outpre="", double pmom=15.15, int mode=9999, int runid=0)
 	// *** HERE OUR TASK GOES!
 	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode, runid);
 	
-	stTask->SetQA_All(true);
+	stTask->SetQAAll(true);
 	stTask->SetGammaMinE(0.10);
 	stTask->SetTrackMinP(0.10);
 	
