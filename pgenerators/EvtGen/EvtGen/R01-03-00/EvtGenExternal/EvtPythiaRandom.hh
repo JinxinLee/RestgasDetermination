@@ -24,7 +24,12 @@
 
 #include "EvtGenBase/EvtRandom.hh"
 
-#include "pythia8/Basics.h"
+#include "RVersion.h"
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
+  #include "Pythia8/Basics.h"
+#else
+  #include "pythia8/Basics.h"
+#endif
 
 class EvtPythiaRandom : public Pythia8::RndmEngine {
 

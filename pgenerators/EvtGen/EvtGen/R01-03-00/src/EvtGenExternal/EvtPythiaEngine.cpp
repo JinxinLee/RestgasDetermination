@@ -29,7 +29,12 @@
 #include "EvtGenBase/EvtExtGeneratorCommandsTable.hh"
 #include "EvtGenExternal/EvtPythia6CommandConverter.hh"
 
-#include "pythia8/Event.h"
+#include "RVersion.h"
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
+#include "Pythia8/Event.h"
+#else
+  #include "pythia8/Event.h"
+#endif
 
 #include <iostream>
 #include <sstream>

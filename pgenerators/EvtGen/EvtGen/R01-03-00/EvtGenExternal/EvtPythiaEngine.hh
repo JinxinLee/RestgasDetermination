@@ -29,8 +29,15 @@
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGenBase/EvtVector4R.hh"
 
-#include "pythia8/Pythia.h"
-#include "pythia8/ParticleData.h"
+#include "RVersion.h"
+
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
+  #include "Pythia8/Pythia.h"
+  #include "Pythia8/ParticleData.h"
+#else
+  #include "pythia8/Pythia.h"
+  #include "pythia8/ParticleData.h"
+#endif
 
 #include <string>
 #include <vector>
