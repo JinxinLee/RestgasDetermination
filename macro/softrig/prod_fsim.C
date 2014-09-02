@@ -62,7 +62,7 @@ void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 100
 	gRandom->SetSeed();
 
 	//-----User Settings:-------------------------------------------------
-	TString  OutputFile     = Prefix+"_fast.root";
+	TString  OutputFile     = Prefix+"_fsim_tight.root";
 	gDebug             = 0;
 
 	// choose your event generator
@@ -343,7 +343,7 @@ void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 100
 	// ***********************
 	
 	// this file contains the trigger line definitions
-	TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";
+	TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/softrig/triggerlines_10ch.cfg";
 	
 	// this file contains the cut setup for various modes
 	TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_10ch_tight.cfg"; 
@@ -353,6 +353,10 @@ void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 100
 	stTask->SetConfigurationFile(selectioncfg);
 	
 	stTask->ApplyFullSelection();
+	
+	stTask->SetPi0SignalParams(0.134, 0.0035);
+	stTask->SetKs0SignalParams(0.497, 0.0095);
+	stTask->SetEtaSignalParams(0.549, 0.0055);
 	
 	// set PID algos
 	TString algo = "PidChargedProbability";	
