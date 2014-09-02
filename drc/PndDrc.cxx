@@ -998,7 +998,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       Int_t NbouncesX, NbouncesY;
       Double_t angleX, angleY;
       // photon initial direction
-      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(fMom2.Vect(), barId)- fGeoH->MasterToLocalShortId((0.,0.,0.), barId); // vector
+      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(fMom2.Vect(), barId)- fGeoH->MasterToLocalShortId(TVector3(0.,0.,0.), barId); // vector
       NumberOfBounces(fPos2.Vect(), PphoInitBar, barId, &NbouncesX, &NbouncesY, &angleX, &angleY);
       // calculate the bounce probability
       Double_t n_quartz = sqrt(1. + (0.696*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.068,2))) + (0.407*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.116,2))) + 0.897*lam_tr*lam_tr/(lam_tr*lam_tr-pow(9.896,2)));

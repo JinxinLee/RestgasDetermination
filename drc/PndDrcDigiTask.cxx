@@ -191,7 +191,7 @@ void PndDrcDigiTask::ProcessPhotonPoint()
     
       //calculate the number of bounces: 
       // initial direction of the photon in the bar coord system
-      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(fMCtrk->GetMomentum(), BarId)- fGeoH->MasterToLocalShortId((0.,0.,0.),BarId); // vector
+      TVector3 PphoInitBar = fGeoH->MasterToLocalShortId(fMCtrk->GetMomentum(), BarId)- fGeoH->MasterToLocalShortId(TVector3(0.,0.,0.),BarId); // vector
       NumberOfBounces(StartVertex, PphoInitBar, BarId, &NbouncesX, &NbouncesY, &angleX, &angleY);
     }  
       
