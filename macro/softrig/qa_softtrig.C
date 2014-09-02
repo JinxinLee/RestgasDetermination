@@ -52,11 +52,11 @@ void qa_softtrig(TString pref="M9999", int mode, double pmom, int from=1, int to
 	// *** SoftTriggerTask ***
 	
 	// this file contains the trigger line definitions
-	TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/triggerlines.cfg";
+	TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";
 	
 	// this file contains the cut setup for various modes
 	// TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/selection_10ch_tight.cfg"; 
-	TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/selection_10ch_loose.cfg"; 
+	TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_10ch_loose.cfg"; 
 	
 	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(pmom, mode, run, triggercfg);
 	stTask->SetConfigurationFile(selectioncfg);
