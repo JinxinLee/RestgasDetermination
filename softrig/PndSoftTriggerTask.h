@@ -70,7 +70,7 @@ class PndSoftTriggerTask : public FairTask
 	// *** set mean and sigma for tagging algos
 	void SetPi0SignalParams(double mean, double sigma) {fPi0Mean=mean; fPi0Sigma=sigma;}
 	void SetKs0SignalParams(double mean, double sigma) {fKs0Mean=mean; fKs0Sigma=sigma;}
-	void SetEtaSignalParams(double mean, double sigma) {fKs0Mean=mean; fKs0Sigma=sigma;}
+	void SetEtaSignalParams(double mean, double sigma) {fEtaMean=mean; fEtaSigma=sigma;}
 	
 	void SetSignalParamsDefaults();
 	
