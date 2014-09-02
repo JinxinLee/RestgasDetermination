@@ -2,12 +2,15 @@
 #$ -j y
 #$ -V
 
+export NOPERSISTMCSTACK=1 
+
 cd $TMPDIR
 
-. $FAIRLIBDIR/../config.sh
+. $FAIRLIBDIR"/../config.sh"
 
 hera=$VMCWORKDIR"/macro/softrig"
 _target=$hera"/data/"
+
 
 mode=9999
 nEvts=1000
@@ -46,7 +49,7 @@ fi
 outprefix=$TMPDIR"/M"$mode"_"$SGE_TASK_ID
 
 echo $TMPDIR
-root -l -q -b -w $hera"/"prod_fsim.C\(\"$outprefix\",\"$dec\",$mom,$nEvts,\"$res\",$mode,$SGE_TASK_ID\) &> $outprefix"_fsim.log"
+root -l -q -b -w $hera"/"prod_fsim.C\(\"$outprefix\",\"$dec\",$mom,$nEvts,\"$res\",$mode,$SGE_TASK_ID\) &> $outprefix"_fsim_tight.log"
 
 
 # Move the data to the persistent storage
