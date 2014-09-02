@@ -185,23 +185,18 @@ PndEmcClusterMoments::Major1() const
 	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
 	Double_t axis=properties->Major_axis();
 	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
-	TVector3 maj(2,0,0);
 	
 	if ( axis==-999. ) return ( 0. );
 	
-	maj(1)=cos( axis );
-	maj(2)=sin( axis );
+	TVector2 maj(cos( axis ), sin( axis ));
 	
 	std::map<Int_t, Int_t>::const_iterator iter = Members().begin();
 	
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
-		TVector3 coord(2,0,0);
+		TVector2 coord(PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP), digi->GetTheta()-clusT);
 
-		coord(1)=PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP);
-		coord(2)=digi->GetTheta()-clusT;
-
-		moment += fabs( coord.Dot(maj) ) * digi->GetEnergy();
+		moment += fabs( coord*maj ) * digi->GetEnergy();
 		++iter;
 	}
 
@@ -218,23 +213,18 @@ PndEmcClusterMoments::Major2() const
 	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
 	Double_t axis=properties->Major_axis();
 	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
-	TVector3 maj(2,0,0);
 	
 	if ( axis==-999. ) return ( 0. );
 	
-	maj(1)=cos( axis );
-	maj(2)=sin( axis );
+	TVector2 maj(cos( axis ), sin( axis ));
 	
 	std::map<Int_t, Int_t>::const_iterator iter = Members().begin();
 	
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
-		TVector3 coord(2,0,0);
+		TVector2 coord(PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP), digi->GetTheta()-clusT);
 
-		coord(1)=PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP);
-		coord(2)=digi->GetTheta()-clusT;
-
-		moment+=coord.Dot(maj)*coord.Dot(maj)*digi->GetEnergy();
+		moment+=(coord*maj)*(coord*maj)*digi->GetEnergy();
 		++iter;
 	}
 
@@ -250,24 +240,20 @@ PndEmcClusterMoments::Minor1() const
 	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
 	Double_t axis=properties->Major_axis();
 	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
-	TVector3 min(2,0,0);
+	
 	
 	if ( axis==-999. ) return ( 0. );
 	
 	axis+=TMath::Pi()/2.0;
-	min(1)=cos( axis );
-	min(2)=sin( axis );
+	TVector2 min(cos( axis ), sin( axis ));
 	
 	std::map<Int_t, Int_t>::const_iterator iter = Members().begin();
 	
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
-		TVector3 coOrd(2,0,0);
+		TVector2 coOrd(PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP), digi->GetTheta()-clusT);
 
-		coOrd(1)=PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP);
-		coOrd(2)=digi->GetTheta()-clusT;
-
-		moment+=fabs( coOrd.Dot(min) )*digi->GetEnergy();
+		moment+=fabs( coOrd*min )*digi->GetEnergy();
 		++iter;
 	}
 	
@@ -284,24 +270,19 @@ PndEmcClusterMoments::Minor2() const
 	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
 	Double_t axis=properties->Major_axis();
 	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
-	TVector3 min(2,0,0);
-	
+		
 	if ( axis==-999. ) return ( 0. );
 	
 	axis+=TMath::Pi()/2.0;
-	min(1)=cos( axis );
-	min(2)=sin( axis );
+	TVector2 min(cos( axis ), sin( axis));
 	
 	std::map<Int_t, Int_t>::const_iterator iter = Members().begin();
 	
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
-		TVector3 coOrd(2,0,0);
+		TVector2 coOrd(PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP), digi->GetTheta()-clusT);
 	
-		coOrd(1)=PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP);
-		coOrd(2)=digi->GetTheta()-clusT;
-	
-		moment+=coOrd.Dot(min)*coOrd.Dot(min)*digi->GetEnergy();
+		moment+=(coOrd*min)*(coOrd*min)*digi->GetEnergy();
 		iter++;
 	}
 	
@@ -337,7 +318,7 @@ PndEmcClusterMoments::Centre2() const
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
 		TVector3 displacement( digi->where() - clusterCentre );
-		aVector += displacement * displacement * digi->GetEnergy();
+		aVector += TVector3(displacement.X()*displacement.X(), displacement.Y()*displacement.Y(),displacement.Z()*displacement.Z()) * digi->GetEnergy();
 		++iter;
 	}
 	aVector *= 1./MyCluster().energy();
