@@ -1,9 +1,10 @@
 #$ -wd /tmp
 #$ -j y
+#$ -V
 
 cd $TMPDIR
 
-. /path/to/your/config.sh
+. $FAIRLIBDIR/../config.sh
 
 data=$VMCWORKDIR"/macro/softrig"
 
