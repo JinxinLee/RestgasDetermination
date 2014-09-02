@@ -185,7 +185,7 @@ PndEmcClusterMoments::Major1() const
 	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
 	Double_t axis=properties->Major_axis();
 	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
-	TVector3 maj(2);
+	TVector3 maj(2,0,0);
 	
 	if ( axis==-999. ) return ( 0. );
 	
@@ -196,7 +196,7 @@ PndEmcClusterMoments::Major1() const
 	
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
-		TVector3 coord(2);
+		TVector3 coord(2,0,0);
 
 		coord(1)=PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP);
 		coord(2)=digi->GetTheta()-clusT;
@@ -218,7 +218,7 @@ PndEmcClusterMoments::Major2() const
 	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
 	Double_t axis=properties->Major_axis();
 	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
-	TVector3 maj(2);
+	TVector3 maj(2,0,0);
 	
 	if ( axis==-999. ) return ( 0. );
 	
@@ -229,7 +229,7 @@ PndEmcClusterMoments::Major2() const
 	
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
-		TVector3 coord(2);
+		TVector3 coord(2,0,0);
 
 		coord(1)=PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP);
 		coord(2)=digi->GetTheta()-clusT;
@@ -250,7 +250,7 @@ PndEmcClusterMoments::Minor1() const
 	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
 	Double_t axis=properties->Major_axis();
 	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
-	TVector3 min(2);
+	TVector3 min(2,0,0);
 	
 	if ( axis==-999. ) return ( 0. );
 	
@@ -262,7 +262,7 @@ PndEmcClusterMoments::Minor1() const
 	
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
-		TVector3 coOrd(2);
+		TVector3 coOrd(2,0,0);
 
 		coOrd(1)=PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP);
 		coOrd(2)=digi->GetTheta()-clusT;
@@ -284,7 +284,7 @@ PndEmcClusterMoments::Minor2() const
 	PndEmcClusterProperties *properties = new PndEmcClusterProperties(MyCluster(), DigiArray());
 	Double_t axis=properties->Major_axis();
 	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
-	TVector3 min(2);
+	TVector3 min(2,0,0);
 	
 	if ( axis==-999. ) return ( 0. );
 	
@@ -296,7 +296,7 @@ PndEmcClusterMoments::Minor2() const
 	
 	while ( iter != Members().end() ) {
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(iter->second);
-		TVector3 coOrd(2);
+		TVector3 coOrd(2,0,0);
 	
 		coOrd(1)=PndEmcCluster::FindPhiDiff(digi->GetPhi(),clusP);
 		coOrd(2)=digi->GetTheta()-clusT;
