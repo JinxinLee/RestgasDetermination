@@ -44,6 +44,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 PndRestGas.cxx
 PndDpmGenerator.cxx
+PndFtfGenerator.cxx
 PndEvtGenGenerator.cxx
 PndDpmDirect.cxx
 PndBoxGenerator.cxx
@@ -71,5 +72,7 @@ set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
 set(DEPENDENCIES Base DpmEvtGen)
+
+set(DEPENDENCIES Base FtfEvtGen)
 
 GENERATE_LIBRARY()
