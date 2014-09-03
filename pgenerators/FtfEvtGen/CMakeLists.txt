@@ -1,0 +1,54 @@
+# Create a library called "libEvtEvtGen" which includes the source files given in
+# the array .
+# The extension is already found.  Any number of sources could be listed here.
+
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 OLD)
+endif(COMMAND cmake_policy)
+
+
+
+set(INCLUDE_DIRECTORIES
+${ROOT_INCLUDE_DIR} 
+${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
+)
+
+include_directories( ${INCLUDE_DIRECTORIES})
+
+set(LINK_DIRECTORIES
+${ROOT_LIBRARY_DIR}
+${CMAKE_CURRENT_BINARY_DIR}
+)
+ 
+link_directories( ${LINK_DIRECTORIES})
+
+set(FTFEVTGEN_SRCS
+G4DecKineticTracks.c
+Test30HadronProduction.c
+Test30Material.c
+Test30Physics.c
+Test30VSecondaryGenerator.c
+
+)
+
+set(FTFEVTGEN_EXE_SRCS
+main.cc
+)
+
+
+add_library(FtfEvtGen SHARED ${FTFEVTGEN_SRCS})
+#target_link_libraries(FtfEvtGen ${ROOT_LIBRARIES})
+target_link_libraries(FtfEvtGen Core RIO Physics Tree )
+set_target_properties(FtfEvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+
+add_executable(FtfEvtGen_exe ${FTFEVTGEN_EXE_SRCS})
+if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  target_link_libraries(FtfEvtGen_exe ${ROOT_LIBRARIES} EG "FtfEvtGen")
+else (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  target_link_libraries(FtfEvtGen_exe EG FtfEvtGen)
+endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
+set_target_properties(FtfEvtGen_exe PROPERTIES OUTPUT_NAME FTFGen)
+
+################ install ###################
+install(TARGETS FtfEvtGen DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS FtfEvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
