@@ -179,7 +179,10 @@ void PndRhoTupleQA::qaEventShape(TString pre, PndEventShape *evsh, RhoTuple *n)
 	// Sum of neutral energy with min energy cut (lab)
 	n->Column(pre+"sumen05l",(Float_t) evsh->SumNeutEminLab(0.5) ,0.0f );
 	n->Column(pre+"sumen10l",(Float_t) evsh->SumNeutEminLab(1.0) ,0.0f );
-
+	
+	// detector specific variables
+	n->Column(pre+"detemcsum",(Float_t) evsh->DetEmcSum()  ,0.0f );
+	n->Column(pre+"detemcmax",(Float_t) evsh->DetEmcMax()  ,0.0f );	
 }
 // -------------------------------------------------------------------------
 void PndRhoTupleQA::qaEventShapeShort(TString pre, PndEventShape *evsh, RhoTuple *n)
