@@ -619,7 +619,7 @@ void PndRhoTupleQA::qa2Body(TString pre, RhoCandidate *c, RhoTuple *n)
 	// decay angle
 	TLorentzVector d_cms = d0->P4();
 	d_cms.Boost(-(c->P4().BoostVector()));
-	Float_t dec  = d_cms.Vect().Angle(c->P());
+	Float_t dec  = d_cms.Vect().Angle(c->P3());
 	Float_t cdec = cos(dec);
 
 	n->Column(pre+"oang", 	 (Float_t) oang,		0.0f );
@@ -665,7 +665,7 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 		d_cms.Boost(-(c->P4().BoostVector()));
 
 		Float_t ctau = v.Mag()*c->M()/c->P();
-		Float_t dec  = d_cms.Vect().Angle(c->P());
+		Float_t dec  = d_cms.Vect().Angle(c->P3());
 		Float_t cdec = cos(dec);
 
 		n->Column(pre+"vx",  	(Float_t) v.X(),		0.0f );
