@@ -120,7 +120,7 @@ PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE
 	if (mic)
 	{
 		emcsum += mic->GetEmcCalEnergy();
-		if (mic->GetEmcCalEnergy()>emcmax) emcmax=mic->GetEmcCalEnergy()>emcmax;
+		if (mic->GetEmcCalEnergy()>emcmax) emcmax=mic->GetEmcCalEnergy();
 	}
   }
   
