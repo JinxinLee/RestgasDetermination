@@ -592,7 +592,6 @@ return 1;
  Stt_IndVar_IndVar_Sum = 0. ;
  Stt_IndVar_DipVar_Sum = 0. ;
 
-if(IVOLTE == 14800 + 2) { Z[9] = -5.7;}
  for(i=0; i<nHitsinTrack; i++){
 
 	e2 = 1./(ErrorDriftRadius[i]*ErrorDriftRadius[i]);
@@ -618,6 +617,8 @@ if(IVOLTE == 14800 + 2) { Z[9] = -5.7;}
 	  // the fit function is :  Z = (1/Kappa)*(S-FInot);
 
 	  if( nSttHits < NMAX){
+
+
 		Stt_DipVar_DipVar_Sum += Z[i]*Z[i]*e2;
 		Stt_DriftRad_DriftRad_Sum += DriftRadius[i]*DriftRadius[i]*e2;
 		Stt_DriftRad_IndVar[nSttHits] = DriftRadius[i]*(S[i]-FInot)*e2;
@@ -702,16 +703,25 @@ if(IVOLTE == 14800 + 2) { Z[9] = -5.7;}
 	}
  }	// end of for(i=0;i<nCombinations; i++)
 
+
+ // calculate the chi2/degrees of freedom; in case there is only 1 hit than just keep the chi2_best as it is;
+ if(nSttHits+nMvdHits > 1) { chi2_best = chi2_best/( nSttHits+nMvdHits-1); }
+
+
+
+
+ if( nSttHits+nMvdHits >1){
+
  // exclude 1 Mvd hit, add penalty term to chi2; DON'T DO IT in the situation when
  // there is only one hit associated to this track (because when such a hit is a Mvd hit,
  // the program crashes; in fact the track remains without hits and the chi**2 cannot be
  // calculated);
- if(nHitsinTrack > 1) {
 
+// //	Penalty = 9.*Mvd_invError2[j];
+//	Penalty = 36.;
+	Penalty = 0.;
    for( j =0; j<nMvdHits;j++){
 	InclusionMvd[j] = false;
-//	Penalty = 9.*Mvd_invError2[j];
-	Penalty = 36.;
 	// the following is necessary to include again the Mvd hit excluded in the previous loop;
 	if(j>0) InclusionMvd[j-1] = true;
 
@@ -741,16 +751,23 @@ if(IVOLTE == 14800 + 2) { Z[9] = -5.7;}
 		- 2.*M*(Mvd_IndVar_DipVar_Sum + Stt_IndVar_DipVar_Sum)
 		- 2.*Stt_DriftRad_IndVar_Sum[i]*M;
 
+		// comparison now has to be done between chi2/degrees of freedom; in the case
+		// when  nSttHits+nMvdHits = 2, just leave the chi2 as it is;
+
+		if( nSttHits+nMvdHits-2 >0) chi2 = chi2/(nSttHits+nMvdHits-2);
+
 		if(chi2<chi2_best){
 			chi2_best = chi2;
 			*emme = M;
 			status = 1;	// success in fitting;
 		}
 	}	// end of for(i=0;i<nCombinations; i++)
+
    }  //  end of  for( j =0; j<nMvdHits;j++)
 
 
- } // end of if(nHitsinTrack > 1)
+
+ } // end of if(nSttHits+nMvdHits > 1)
 
 
   // at this moment  *emme  corresponds to 1/KAPPA so now it is inverted;
