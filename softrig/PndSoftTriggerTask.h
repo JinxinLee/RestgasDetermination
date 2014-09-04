@@ -136,7 +136,7 @@ class PndSoftTriggerTask : public FairTask
 	int CreateKs0Cands(RhoTuple *n);
 	
 	// *** General tagging method
-	int TagMode(PndSoftTriggerLine *tl);
+	int TagMode(PndSoftTriggerLine *tl, int &npre);
 	
     // ----------------------------
 	// *** global vars

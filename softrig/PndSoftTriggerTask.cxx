@@ -620,7 +620,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	
 	if (fApplyFullSelection) FillEventShapeVarArray();
 	
-	int tag_glob = 0;
+	int tag_glob = 0, tag_pre = 0;
 
 	PndOnlineFilterInfo* info=new ( (*fTcaOnlineFilterInfo)[0] ) PndOnlineFilterInfo();	
 	
@@ -628,13 +628,14 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 	{
 		PndSoftTriggerLine *tl = it->second;		
-		int ntag =  TagMode( tl );
+		int ntag =  TagMode( tl , tag_pre);
 		tl->SetNTagged( ntag );
 		info->SetNTag(it->first, ntag);                      
 		tag_glob += ntag;
 	}
 	
-	Float_t tagged = (tag_glob>0);
+	Float_t tagged  = (tag_glob>0);
+	Float_t taggedm = (tag_pre>0);  // tagged by mass cut only
 	
 	// *** write common information	
 	if (fQAEvent)
@@ -654,7 +655,9 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		}
 
 		ntp->Column("tagall",	(Float_t)	tag_glob,	0.0f);
+		ntp->Column("tagpre",	(Float_t)	tag_pre,	0.0f);
 		ntp->Column("tag",		(Float_t)	tagged,		0.0f);
+		ntp->Column("tagm",		(Float_t)	taggedm,	0.0f);
 		
 		fQA->qaEventShape("es", fEventShape, ntp);
 		
@@ -843,7 +846,7 @@ void PndSoftTriggerTask::FillGlobalLists()
 
 void PndSoftTriggerTask::FillEventShapeVarArray()
 {
-//                      0         1            2            3         4         5       6        7      8       9       10          11         12   13  14     15    16     17      18       19       20
+//                      0         1            2            3           4         5       6        7      8       9       10          11         12   13  14     15    16     17      18       19       20
 //TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","npart","ptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
 //                      21         22         23          24       25    26     
 //				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
@@ -1056,7 +1059,7 @@ int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 
 // -------------------------------------------------------------------------
 // *** General common tagging methode
-int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl)
+int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 {
 	// *** counter for full selection accepted cands
 	int nacc = 0; 
@@ -1111,6 +1114,8 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl)
 
 			Float_t nsig = (Float_t) fabs(l[i]->Mass()-mean)/sigma;
 			Float_t tag  = nsig < tl->GetTagNSig();
+			
+			if (tag>0) npre++;
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
