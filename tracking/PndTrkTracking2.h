@@ -202,6 +202,8 @@ class PndTrkTracking2 : public FairTask
 				MAXSCITILHITSINTRACK],
 	fnHitMvdTrackCand[MAXMVDTRACKSPEREVENT],
 	fnMCTracks,
+	fMCtrack_of_Pixel[MAXMVDPIXELHITS],
+	fMCtrack_of_Strip[MAXMVDSTRIPHITS],
 	fnMvdDSPixelHitNotTrackCand,
 	fnMvdDSStripHitNotTrackCand,
 	fnMvdPixelHit,
@@ -494,6 +496,25 @@ class PndTrkTracking2 : public FairTask
 	Double_t Rr
 	);
 
+
+ 
+  void EliminateSpuriousSZ_ter(
+  	Short_t ncand,
+	Short_t MaxTurnofTracks,
+	Double_t signPz,
+	Double_t *SchosenPixel,
+	Double_t *SchosenStrip,
+	Double_t *SchosenSkew,
+	Double_t *ZchosenPixel,
+	Double_t *ZchosenStrip,
+	Double_t *ZchosenSkew,
+	Double_t *ErrorchosenPixel,
+	Double_t *ErrorchosenStrip,
+	Double_t *ErrorchosenSkew,
+	Double_t KAPPA,
+	Double_t FI0,
+	Double_t Rr
+	);
  void ExtractInfoFromMvdTrackCand();
 
 
