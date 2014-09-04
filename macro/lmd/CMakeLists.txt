@@ -62,10 +62,8 @@ link_directories( ${LINK_DIRECTORIES})
 add_definitions(${CXX11_COMPILER_FLAGS})
 
 ################################## install #####################################
-add_executable(simple_mc_rec_match simpleMCandRECmatch.C)
 add_executable(createRootGeometry_lmd_HV_MAPS create_Lmd_HV_MAPS.C)	
 target_link_libraries(createRootGeometry_lmd_HV_MAPS -lrt ${ROOT_LIBRARIES} LmdTool  GeoBase ParBase Geom Sds Proof  PndData TrkBase VMC EG GeomPainter generalTools FairTools MathMore FairDB Base)
-target_link_libraries(simple_mc_rec_match -lrt ${ROOT_LIBRARIES} LmdTool MathMore)
-
-
-add_subdirectory(LMD_fit)
+#add_executable(simple_mc_rec_match simpleMCandRECmatch.C)
+#target_link_libraries(simple_mc_rec_match -lrt ${ROOT_LIBRARIES} LmdTool MathMore)
+#add_subdirectory(LMD_fit)
