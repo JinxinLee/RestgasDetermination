@@ -1066,8 +1066,8 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	if(
 		IVOLTE == 0
 	) { istampa =1 ; iplotta = true;} else { istampa=0; iplotta = false;}
-
 */
+
 
  if(istampa>0)
 	cout<<endl<<"Entering in PndTrkTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
@@ -2036,7 +2036,9 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	resultFitSZagain[ncand] = 0;	// default value, corresponding to a bad SZ fit result;
 
 
-
+//-------------------------------------------------------- first SZ fit -------------------------------------------------------
+//-------------------------------------------------------- first SZ fit -------------------------------------------------------
+//-------------------------------------------------------- first SZ fit -------------------------------------------------------
 	if(nhitsinfit>0){
 		resultFitSZagain[ncand] = fit.FitSZspace_Chi2_AnnealingtheMvdOnly(
 				nhitsinfit,	// n. hits to be fitted
@@ -2049,6 +2051,9 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 				&emme,
 				IVOLTE*100+ncand // trick to indicate both the evt number and the candidate;
 						);
+//-----------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -2129,11 +2134,26 @@ if(istampa>0) {cout <<"Prima del primo EliminateSpuriousSZ_bis : MaxTurns = "<<M
 		MaxTurns,	// input;
 		signPz,		// input
 		&SchosenPixel[ncand][0], // output; this value from now on can also be > 2PI or < 2PI when the particle makes more than 1 turn;
+					// for now this value is NOT used; the inital value given by AssociateSkewHitsToXYTrack is used instead
+					// by LoadSZetc_forSZfit; this is done by design since when KAPPA is wrong due to spurious hits, especially
+					// after the first fit, Schosen.. can be very wrong;
 		&SchosenStrip[ncand][0], // output; this value from now on can also be > 2PI or < 2PI when the particle makes more than 1 turn;
+					// for now this value is NOT used; the inital value given by AssociateSkewHitsToXYTrack is used instead
+					// by LoadSZetc_forSZfit; this is done by design since when KAPPA is wrong due to spurious hits, especially
+					// after the first fit, Schosen.. can be very wrong;
 		&SchosenSkew[ncand][0],  // output; this value from now on can also be > 2PI or < 2PI when the particle makes more than 1 turn;
+					// for now this value is NOT used; the inital value given by AssociateSkewHitsToXYTrack is used instead
+					// by LoadSZetc_forSZfit; this is done by design since when KAPPA is wrong due to spurious hits, especially
+					// after the first fit, Schosen.. can be very wrong;
 		&ZchosenPixel[ncand][0],
+					// for now this value is NOT used; the inital value given by AssociateSkewHitsToXYTrack is used instead
+					// by LoadSZetc_forSZfit;
 		&ZchosenStrip[ncand][0],
+					// for now this value is NOT used; the inital value given by AssociateSkewHitsToXYTrack is used instead
+					// by LoadSZetc_forSZfit;
 		&ZchosenSkew[ncand][0],
+					// for now this value is NOT used; the inital value given by AssociateSkewHitsToXYTrack is used instead
+					// by LoadSZetc_forSZfit;;
 		ErrorchosenPixel,
 		ErrorchosenStrip,
 		ErrorchosenSkew,
@@ -2206,6 +2226,10 @@ if(istampa>0){
 }
 //----------------
 
+//-------------------------------------------------------- second SZ fit -------------------------------------------------------
+//-------------------------------------------------------- second SZ fit -------------------------------------------------------
+//-------------------------------------------------------- second SZ fit -------------------------------------------------------
+
 		resultFitSZagain[ncand] = fit.FitSZspace_Chi2_AnnealingtheMvdOnly(
 				nhitsinfit,	// n. hits to be fitted
 				tS,
@@ -2218,6 +2242,13 @@ if(istampa>0){
 				IVOLTE*100+ncand // number of the accumulation plot.
 						);
 
+//----------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 		if( resultFitSZagain[ncand]==1){
 			KAPPA[ncand] = emme;
 			GoodSkewFit[ncand] = true;
@@ -2226,6 +2257,10 @@ if(istampa>0){
 			keepit[ncand]=false;
 			GoodSkewFit[ncand] = false;
 		}
+
+	// ricalculate the sign of Pz (since KAPPA may have changed);
+	signPz = -Charge[ncand]*KAPPA[ncand];
+
 
 		//------------------------------------------- end of the refit;
 
@@ -2283,12 +2318,12 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	}
 //---------------------------------------------------------------------------
 
-
 	EliminateSpuriousSZ_ter(
 		ncand,
 		MaxTurns,	// input;
 		signPz,		// input
 		&SchosenPixel[ncand][0], // output; this value from now on can also be > 2PI or < 2PI when the particle makes more than 1 turn;
+					// this time Schosen....  will be used from now (it is supposed to be the best result);
 		&SchosenStrip[ncand][0], // output; this value from now on can also be > 2PI or < 2PI when the particle makes more than 1 turn;
 		&SchosenSkew[ncand][0],  // output; this value from now on can also be > 2PI or < 2PI when the particle makes more than 1 turn;
 		&ZchosenPixel[ncand][0],
@@ -2304,14 +2339,13 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 
-
 //                                   END OF LAST ITERATION
 //---------------------------------------------------------------------------
 
 
 //-------------- stampa
  if(istampa>=1){
-	cout<<"stampa dopo il secondo EliminateSpuriousSZ_bis, SttTrackCand n. "<<ncand<<endl;
+	cout<<"stampa dopo il secondo EliminateSpuriousSZ (e' ter), SttTrackCand n. "<<ncand<<endl;
 	fPrint.stampetta(
 //IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
 IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
@@ -3242,7 +3276,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 //	const Double_t  MvdCut=1.8,
 //	const Double_t  MvdCut=0.8,
 	Double_t  MvdCut=1.5,
-			minimumSttDriftError = 1.;
+	minimumSttDriftError = 1.;
 
 	// for the motivation of this correction see Logbook on page 146; keep in mind that at this point fabs(KAPPA[ncand]) > 1.e-10,
 	// see code above;
@@ -3344,14 +3378,17 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		} else {
 			ZchosenSkew[ fListSttSkewHitsinTrack[ncand][j] ] = Z+Drift;
 			SchosenSkew[ fListSttSkewHitsinTrack[ncand][j] ]=  chosenS;
+
+
 		}
 
 
-		if(istampa>0){
-			cout<<"from EliminateSpuriousSZ_bis, Skew Stt n. "<<fListSttSkewHitsinTrack[ncand][j]<<", suo Zed "<<
-			Z<<", suo S "<<chosenS<<
-			", suo Drift "<<Drift<<", dista+ "<<dista<<", dista- "<<ddd<<endl;
-		}
+			if(istampa>0){
+			 cout<<"from EliminateSpuriousSZ_bis, Skew Stt n. "<<fListSttSkewHitsinTrack[ncand][j]<<", suo Zed "<<
+			 Z<<", suo S "<<    SchosenSkew[ fListSttSkewHitsinTrack[ncand][j] ]       <<
+			 ", suo Drift "<<Drift<<", dista+ "<<dista<<", dista- "<<ddd
+			 	<<", Maxturns "<< MaxTurnofTracks<<", signPz "<<signPz<< endl;
+			}
 
 //		error = Drift;
 		// the following error is 0.5 cm/sin(3 degrees) = 9.55 cm;
@@ -3581,7 +3618,9 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 		Fi= fCandidatePixelS[k];
 		dista = GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z,Fi,MaxTurnofTracks,signPz,chosenS);
 		if(istampa>0){
-			cout<<"from EliminateSpuriousSZ_bis, Pixel n. "<<fListMvdPixelHitsinTrack[ncand][i]<<
+
+
+			cout<<"from EliminateSpuriousSZ_ter, Pixel n. "<<fListMvdPixelHitsinTrack[ncand][i]<<
 			", Z "<<Z<<", R*S "<<Rr*Fi<<   ", dista "<<dista<<", X "<<
 			fXMvdStrip[fListMvdPixelHitsinTrack[ncand][i]]<<", Y "<< fYMvdPixel[fListMvdPixelHitsinTrack[ncand][i]];}
 		if( dista < MvdCut){
@@ -3606,7 +3645,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 		Fi= fCandidateStripS[k];
 		dista = GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z,Fi,MaxTurnofTracks,signPz,chosenS);
 		if(istampa>0){
-			cout<<"from EliminateSpuriousSZ_bis, Strip n. "<<fListMvdStripHitsinTrack[ncand][j]<<
+			cout<<"from EliminateSpuriousSZ_ter, Strip n. "<<fListMvdStripHitsinTrack[ncand][j]<<
 			", Z "<<Z<<", R*S "<<Rr*Fi<<   ", dista "<<dista<<", X "<<
 			fXMvdStrip[fListMvdStripHitsinTrack[ncand][j]]<<", Y "<< fYMvdStrip[fListMvdStripHitsinTrack[ncand][j]];}
 		if( dista < MvdCut){
@@ -3635,7 +3674,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 		dista =GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z+Drift,Fi,MaxTurnofTracks,signPz,chosenS);
 		ddd = GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z-Drift,Fi,MaxTurnofTracks,signPz,chosenS2);
 		if(istampa>0){
-			cout<<"from EliminateSpuriousSZ_bis, Skew Stt n. "<<fListSttSkewHitsinTrack[ncand][j]<<", suo Zed "<<
+			cout<<"from EliminateSpuriousSZ_ter, Skew Stt n. "<<fListSttSkewHitsinTrack[ncand][j]<<", suo Zed "<<
 			Z<<", suo Drift "<<Drift<<", dista+ "<<dista<<", dista- "<<ddd<<endl;
 		}
 
