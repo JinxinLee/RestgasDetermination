@@ -73,6 +73,4 @@ set(LIBRARY_NAME PGen)
 
 set(DEPENDENCIES Base DpmEvtGen)
 
-set(DEPENDENCIES Base FtfEvtGen)
-
 GENERATE_LIBRARY()
