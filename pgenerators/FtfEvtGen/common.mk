@@ -78,7 +78,7 @@ EXTRALIBS	+= $(shell \
 
 EXTRALIBS	+= -L$(LIBDIR) 
 
-LDLIBS		+= $(PANDALIBS) -L$(GEANT4_LIBRARY_DIR) -lG4clhep -lG4global -lG4physicslists $(GLIBS) 
+LDLIBS		+= $(PANDALIBS) -L$(GEANT4_LIBRARY_DIR) -lG4clhep -lG4global -lG4geometry -lG4physicslists $(GLIBS) 
 
 # Static pattern rule for object file dependency on sources:
 $(OBJDIR)/%.o: %.cc
