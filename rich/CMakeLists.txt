@@ -6,6 +6,7 @@ set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 #put here all directories where header files are located
 ${BASE_INCLUDE_DIRECTORIES} 
+${SIMPATH}/include
 ${PANDAROOT_SOURCE_DIR}/pnddata
 ${PANDAROOT_SOURCE_DIR}/pnddata/RichData
 ${PANDAROOT_SOURCE_DIR}/rich
