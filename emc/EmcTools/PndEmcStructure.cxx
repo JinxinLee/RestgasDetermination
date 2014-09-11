@@ -165,7 +165,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan): emcX(), emcY(), emcZ(), f
 			Double_t tl2 = (verts[6*2+0] - verts[5*2+0]) / 2;
 			Double_t alpha2 = TMath::ATan((verts[5*2+0]+verts[6*2+0]-verts[4*2+0]-verts[7*2+0])/(2*2*h2)) * TMath::RadToDeg();
             
-			TGeoTrap crystal_shape(dz, thetac, phic,
+			TGeoTrap *crystal_shape = new TGeoTrap(dz, thetac, phic,
 										  h1, bl1, tl1, alpha1,
 										  h2, bl2, tl2, alpha2);
             
@@ -178,17 +178,17 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan): emcX(), emcY(), emcZ(), f
             //    }
             //}
             
-			xtal = new PndEmcXtal(tci, crystal_shape, pos, geoRot);
+			xtal = new PndEmcXtal(tci, *crystal_shape, pos, geoRot);
 		} else if (shapeType == "TGeoBBox" || shapeType == "TGeoScaledShape") {
 			TGeoBBox const *box = dynamic_cast<TGeoBBox const*>(
 					node->GetVolume()->GetShape());
 			
             // Convert to TGeoTrap.
-			TGeoTrap crystal_shape(box->GetDZ(), 0, 0,
+			TGeoTrap *crystal_shape = new TGeoTrap(box->GetDZ(), 0, 0,
 										  box->GetDY(), box->GetDX(), box->GetDX(), 0,
 										  box->GetDY(), box->GetDX(), box->GetDX(), 0);
             
-			xtal = new PndEmcXtal(tci,crystal_shape,pos,geoRot);
+			xtal = new PndEmcXtal(tci,*crystal_shape,pos,geoRot);
 		} else {
 			cout << "Unknown geometry type " << shapeType << " in module " << module << endl;
 			abort();
