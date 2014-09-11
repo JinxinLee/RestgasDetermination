@@ -40,7 +40,7 @@ std::ostream& operator<< (std::ostream& out, PndEmcWaveformData& wfData) {
 
 PndEmcWaveformData& PndEmcWaveformData::operator+=(const PndEmcWaveformData& toAdd) {
 	fHitMap.insert(toAdd.fHitMap.begin(), toAdd.fHitMap.end());
-	AddLinks(toAdd);
+	AddLinks(toAdd.GetLinks());
 	return *this;
 }
 

@@ -91,7 +91,7 @@ PndEmcMultiWaveform* PndEmcMultiWaveformSimulator::MultiplyWaveform(const PndEmc
 		multiWaveform->SetWaveform(signal, signal.size(), iWf);
 	}
 
-	multiWaveform->SetLinks(*singleWaveform);
+	multiWaveform->SetLinks(singleWaveform->GetLinks());
 	multiWaveform->SetTimeStamp(singleWaveform->GetTimeStamp());
 
 	return multiWaveform;
