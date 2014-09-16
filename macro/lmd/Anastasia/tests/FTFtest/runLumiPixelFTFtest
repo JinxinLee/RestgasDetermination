@@ -1,0 +1,125 @@
+#!/bin/bash 
+################################################################
+## script for running sim&rec for LMD with BOX or DPM generator
+## [with pixels sensors set-up!]
+## 13/11/2012 1st version
+## 06/09/2013 updated version
+## 23/03/2014 more or less final version
+## A.Karavdina
+################################################################
+echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
+read mom
+echo "Beam mometum is: $mom!"
+cd ${VMCWORKDIR}/macro/lmd/
+pbeam=$mom
+# ### pick up half solenoid maps for 1.5 GeV/c [tmp, should be removed one day!] ###
+# solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
+# if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
+#     echo "FULL solenoid field maps"
+#     ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_fc/* ${VMCWORKDIR}/input/.
+# else
+#     echo "HALF solenoid field maps"
+#     ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_hc/* ${VMCWORKDIR}/input/.
+# fi
+# ######################################################
+
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+path=${VMCWORKDIR}/macro/lmd/testFTF/mom_${momStr}/
+
+mkdir -p ${path}
+#number of trks per event
+numTrks=1
+#number of events
+numEv=100000
+#numEv=1000
+##############
+# set flags
+
+##merge hits on sensors from different sides. true=yes
+mergedHits=true
+
+##Skip kinematic filter (before back-propagation)
+SkipFilt=false
+### if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
+### X-Theta kinematic cut before back-propagation, add constant shift dX[cm] if beam is shifted
+XThetaCut=true
+dX=0.
+### Y-Phi kinematic cut before back-propagation, add constant shift dY[cm] if beam is shifted
+YPhiCut=true
+dY=0.
+### BOX cut before back-propagation
+BoxCut=false
+
+## Clean after back-propagation (M-cut: momentum or MVA cut)
+CleanSig=true
+
+## Combined filter (X&Y and M-cut)
+CombFilt=false
+
+
+## Write all MC info in TrkQA array
+WrAllMC=true
+##############
+
+#simulation with FTF generator
+root -l -b -q runLumiPixel0SimFTF.C\(${numEv},0,${pbeam},"\"/panda/pandaroot/pgenerators/FtfEvtGen/FTF.root\"","\"${path}\""\)
+# #simulation with Box generator
+##root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+
+# # #simulation with DPM
+#   #  modeDPM=0 #inel
+# #    modeDPM=1 #el+inel
+# #    modeDPM=2 #el
+# #    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\) >> ${path}/logDPM$mom
+
+# #digi
+     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
+# #hit reconstruction
+     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\) 
+# ##merge hits
+     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+
+#switch on "missing plane" search algorithm
+	 misspl=true
+#use cuts during trk seacrh with "CA". Should be 'false' if sensors missaligned!
+	 trkcut=true
+### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+### NB: CA can use merged or single(not merged) hits, Trk-Following can't
+     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+
+#track fit: 
+### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
+       root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
+#track filter (on number of hits and chi2)
+     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut},${dX},${dY}\) 
+
+#save filtered results as standart Track array
+     mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
+     cp ${path}/Lumi_TrackFiltered_0.root ${path}/Lumi_Track_0.root
+
+#back-propgation GEANE
+### Possible options: "Geane", "RK"
+     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+
+#clean signal from background (momentum cut or MVA cut)
+	 if [ $CleanSig == "true" ]; then 
+	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
+	 fi
+	 #combined filter (X&Y and M cuts)
+	 if [ $CombFilt == "true" ]; then 
+	     root -l -b -q runLumiPixel5cCombFilt.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
+	 fi
+
+# # Quality assurance task(s)
+	 if [ $CombFilt == "true" ]; then 
+	     root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CombFilt}\)
+	 else
+	     root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CleanSig}\)
+	 fi
+	 if [ $CombFilt == "true" ]; then 
+	     root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CombFilt}\)
+	 else
+	     root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
+	 fi
+      root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
+      root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
