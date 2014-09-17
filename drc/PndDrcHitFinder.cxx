@@ -22,7 +22,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitFinder::PndDrcHitFinder() :
-FairTask("SDS Hybrid Hit Producer", 1)
+FairTask("DrcHitFinder", 1)
 {
   
   fPixelHits = 0;
@@ -34,8 +34,8 @@ FairTask("SDS Hybrid Hit Producer", 1)
   fGeo = new PndGeoDrc();
   fDigiArray   = NULL;
   fPdHitArray   = NULL;
- 
   fMCEventHeader = NULL;  
+  fStopFunctor = NULL;
 
   fPixelSize = fGeo->PixelSize();	//pixel size;    
   fNpix = fGeo->Npixels(); //pixel columns
@@ -59,8 +59,8 @@ PndDrcHitFinder::PndDrcHitFinder(Int_t iVerbose) :
 
   fDigiArray   = NULL;
   fPdHitArray   = NULL;
-  
   fMCEventHeader = NULL;  
+  fStopFunctor = NULL;
 
   fPixelSize = fGeo->PixelSize();	//pixel size;  
   fNpix = fGeo->Npixels();              //pixel rows in one FE
@@ -82,8 +82,7 @@ FairTask(name, iVerbose)
 
   fDigiArray   = NULL;
   fPdHitArray   = NULL;
-  
-  fMCEventHeader = NULL;  
+  fMCEventHeader = NULL; 
 
   fPixelSize = fGeo->PixelSize();	//pixel size;  
   fNpix = fGeo->Npixels();              //pixel rows in one FE
@@ -92,37 +91,30 @@ FairTask(name, iVerbose)
   fPixelStep     =  fPixelSize + 0.5*fPixelGap;
 }
 
-// -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
-PndDrcHitFinder::~PndDrcHitFinder()
-{
+PndDrcHitFinder::~PndDrcHitFinder(){
  if (fGeo) delete fGeo;
- 
  if (fGeoH) delete fGeoH;	
 }
 // -------------------------------------------------------------------------
 
 // -----   Initialization  of Parameter Containers -------------------------
-void PndDrcHitFinder::SetParContainers()
-{
-  if ( fGeoH == NULL )
-    fGeoH = PndGeoHandling::Instance();
-
+void PndDrcHitFinder::SetParContainers(){
+  if ( fGeoH == NULL ) fGeoH = PndGeoHandling::Instance();
   fGeoH->SetParContainers(); 
+  fGeoH->SetVerbose(fVerbose);
   if(fVerbose>1) Info("SetParContainers","done.");
   return;
 }
 
-InitStatus PndDrcHitFinder::ReInit()
-{
+InitStatus PndDrcHitFinder::ReInit(){
   SetParContainers();
   return kSUCCESS;
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndDrcHitFinder::Init()
-{  
+InitStatus PndDrcHitFinder::Init(){
   FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman )
@@ -132,8 +124,9 @@ InitStatus PndDrcHitFinder::Init()
     return kFATAL;
   }
   
+  fInBranchName = "DrcSortedDigi";
   // Get input array
-  fDigiArray = (TClonesArray*) ioman->GetObject("DrcDigi");  
+  fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);  
   if ( ! fDigiArray )
   {
     std::cout << "-W- PndDrcHitFinder::Init: "
@@ -145,30 +138,30 @@ InitStatus PndDrcHitFinder::Init()
   fPdHitArray	= new TClonesArray("PndDrcPDHit");    
   ioman->Register("DrcPDHit", "Drc", fPdHitArray, kTRUE);
  
+  fGapFunctor = new TimeGap();
+  fStopFunctor = new StopTime();
   return kSUCCESS;
 }
-// -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndDrcHitFinder::Exec(Option_t* opt)
-{ 
-  if(fVerbose>3) Info("Exec","Start");
-  
+void PndDrcHitFinder::Exec(Option_t* opt){
+  if (FairRunAna::Instance()->IsTimeStamp()){
+    Double_t etime = FairRootManager::Instance()->GetEventTime();
+    fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStopFunctor, etime + 1);
+    // fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, 
+    //  						      fStopFunctor, etime,
+    //  						      fStopFunctor, etime + 100);
+  }
+  if(fVerbose>3) Info("Exec","Start");  
   if (!fPdHitArray) Fatal("Exec", "No PdHitArray");
   fPdHitArray->Clear(); 
-  Int_t nDigis = fDigiArray->GetEntriesFast();
-  
-  if(fVerbose>1) std::cout<<"Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
-  else if(fVerbose==1 && fEventNr%1000==0) std::cout<<"Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
 
-  fGeoH->SetVerbose(fVerbose);  
+  Int_t nDigis = fDigiArray->GetEntriesFast();
+  if(fVerbose>1) std::cout<<"-I- PndDrcHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
+  else if(fVerbose==1 && fEventNr%1000==0) std::cout<<"-I- PndDrcHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
  
-  Int_t detID = 0;
-  Int_t mcpID = 0;
-  Int_t pixelID = 0;
-  TVector3 HitPosGlobal;
-  TVector3 HitPosLocal;
-  TVector3 dPosHit;
+  Int_t detID = 0, mcpID = 0, pixelID = 0;
+  TVector3 HitPosGlobal, HitPosLocal, dPosHit;
   Double_t hitTime = 0.;
     
   for (Int_t iDigi = 0; iDigi < nDigis; iDigi++){
@@ -199,20 +192,17 @@ void PndDrcHitFinder::Exec(Option_t* opt)
   fEventNr++;
   if(fVerbose>3) Info("Exec","Loop MC points");
 }
-//----------------------------------------------------------------------------
+
 
 // -------------------------------------------------------------------------
-
 void PndDrcHitFinder::FinishEvent()
 {
-  // called after all Tasks did their Exex() and the data is copied to the file
   FinishEvents();
 }
-// -------------------------------------------------------------------------
 
+// -------------------------------------------------------------------------
 void PndDrcHitFinder::FinishTask()
 {
-  // called after all Tasks did their Exex() and the data is copied to the file
 }
 
 ClassImp(PndDrcHitFinder);

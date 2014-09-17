@@ -146,7 +146,7 @@ void PndDrcLutFill::ProcessPhotonHit()
   Double_t  lutboxPhi=10.825;
 
   Int_t nofChPho = 0;
-  Double_t id, barPhi;
+  Double_t pathid, barPhi;
   TVector3 dir, dirm, vec, posInBar;
 
   // Loop over PndDrcPDHits
@@ -158,7 +158,6 @@ void PndDrcLutFill::ProcessPhotonHit()
     fDigi = (PndDrcDigi*) fDigiArray->At(digiID);
 
     Int_t pointID= fDigi->GetIndex(0);
-    std::cout<<"pointID "<<pointID <<std::endl;
     
     fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
     fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
@@ -167,7 +166,7 @@ void PndDrcLutFill::ProcessPhotonHit()
     Int_t trackID = fPDPoint->GetTrackID();
     Double_t time = fPDPoint->GetTime();
     Int_t nev=0; 
-    id=0;
+    pathid=0;
     for(int i=0; i<fEVPointArray->GetEntriesFast(); i++){
       fEVPoint = (PndDrcEVPoint*)fEVPointArray->At(i);
       if(trackID == fEVPoint->GetTrackID()){
@@ -177,7 +176,7 @@ void PndDrcLutFill::ProcessPhotonHit()
 	// }
 	nev++;
 	vec = fEVPoint->GetNormal();
-	id += (vec.X()+vec.Y()*10 + vec.Z()*100)*1000*nev;
+	pathid += (vec.X()+vec.Y()*10 + vec.Z()*100)*1000*nev;
       }
     }
     
@@ -192,7 +191,8 @@ void PndDrcLutFill::ProcessPhotonHit()
       std::cout<<"WTQ  fPDHit->GetDetectorID()   "<<sensorId <<std::endl;
       continue;
     }
-
+    
+    
     // //======================
     // posInBar = fMCTrack->GetStartVertex();
     // Double_t phi = posInBar.Phi()/TMath::Pi()*180;
@@ -220,12 +220,11 @@ void PndDrcLutFill::ProcessPhotonHit()
     // 	continue;
     //   }
     //   ((PndDrcLutNode*)(fLut->At(sensorId)))->AddEntry(dir);
-    //   ((PndDrcLutNode*)(fLut->At(sensorId)))->AddPathId(id);
+    //   ((PndDrcLutNode*)(fLut->At(sensorId)))->AddPathId(pathid);
     // }
     // //======================
-
-
-    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(fDigi->GetDetectorId(), dir,id,time,fPDHit->GetPosition());
+    
+    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(fDigi->GetDetectorId(), dir,pathid,time,fPDHit->GetPosition());
   }
 }
 

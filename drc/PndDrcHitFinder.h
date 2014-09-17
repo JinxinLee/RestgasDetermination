@@ -7,7 +7,7 @@
 #define PNDDRCHITFINDER_H
 
 #include "PndDrcDigi.h"
-
+#include "FairTSBufferFunctional.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
 #include "FairMCEventHeader.h"
@@ -71,18 +71,22 @@ protected:
   void Reset();
   void ProduceHits();
 
+  TString fInBranchName;
   Int_t    fPixelFactor;
-  Double_t fPixelSize;	//pixel size;
+  Double_t fPixelSize;	// pixel size;
   Double_t fPixelGap;   // gap betwen neighboring pixels
   Double_t fPixelStep;
   Double_t fMcpActiveArea; // dimension of the active area of one MCP
-  Int_t    fNpix; //pixel rows in one one MCP
+  Int_t    fNpix;       // pixel rows in one one MCP
   Int_t fPixelHits;
-  PndGeoHandling* fGeoH; //!
+  PndGeoHandling* fGeoH;
   PndGeoDrc*  fGeo;
   Int_t fEventNr;
   PndDrcDigi *fDigi;
-  
+
+  BinaryFunctor* fStopFunctor;
+  BinaryFunctor* fGapFunctor;
+
   std::vector<PndDrcPDHit> fPDHitList;
 
   ClassDef(PndDrcHitFinder,1);

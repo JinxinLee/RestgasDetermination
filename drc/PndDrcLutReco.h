@@ -54,6 +54,7 @@ private:
 
   void ProcessPhotonHit();
   Double_t FindPeak();
+  Int_t FindPdg(Double_t mom, Double_t cangle);
   PndGeoDrc* fGeo;
   Int_t fDetectorID;  
   Double_t fBboxNum,fPipehAngle,fDphi,fBarPhi;

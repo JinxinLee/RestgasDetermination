@@ -114,7 +114,6 @@ InitStatus PndDrcLutReco::Init()
   }
   fTree->GetEntry(0);
 
-
   // Create and register output array
   fDrcTrackInfoArray = new TClonesArray("PndDrcTrackInfo");
   ioman->Register("DrcTrackInfo","Drc",fDrcTrackInfoArray, kTRUE);
@@ -125,8 +124,8 @@ InitStatus PndDrcLutReco::Init()
   fBarPhi = 2*atan(((fGeo->BarWidth() + fGeo->barhGap())/2.)/fGeo->radius())*180/TMath::Pi();
   fDphi       = 2.*(180. - 2*fPipehAngle)/(Double_t)fGeo->BBoxNum();
 
-  fHist = new TH1F("chrenkov_angle_hist","chrenkov_angle_hist", 50,0.65,0.86);
-  fFit = new TF1("fgaus","[0]*exp(-0.5*((x-[1])/[2])*(x-[1])/[2])",0.65,0.86);
+  fHist = new TH1F("chrenkov_angle_hist","chrenkov_angle_hist", 100,0.35,0.85);
+  fFit = new TF1("fgaus","[0]*exp(-0.5*((x-[1])/[2])*(x-[1])/[2])",0.35,0.85);
   fSpect = new TSpectrum(10);
  
   cout << "-I- PndDrcLutReco: Intialization successfull" << endl;
@@ -139,30 +138,32 @@ void PndDrcLutReco::Exec(Option_t* option)
 {
   nevents++;
   fDetectorID = 0;
+
+  if ( ! fDrcTrackInfoArray ) Fatal("Exec", "No fDrcTrackInfoArray");
+  fDrcTrackInfoArray->Clear();
+  Int_t nHits = fPDHitArray->GetEntriesFast();
+  if(fVerbose>1) std::cout<<"Event # "<< nevents<<" has "<<nHits<<" hits."<< std::endl;
+  else if(fVerbose==1 && nevents%100==0) std::cout<<"Event # "<< nevents<<" has "<<nHits<<" hits."<< std::endl;
+
+  if(fVerbose<2) gROOT->SetBatch(kTRUE);
   ProcessPhotonHit();
+  if(fVerbose<2) gROOT->SetBatch(kFALSE);
 }
 
 //--------------Process Photon Hits-----------------------------------------
 void PndDrcLutReco::ProcessPhotonHit()
 {
-  if ( ! fDrcTrackInfoArray ) Fatal("Exec", "No fDrcTrackInfoArray");
-  fDrcTrackInfoArray->Clear();
-
-  int nHits = fPDHitArray->GetEntriesFast();
-  if(fVerbose>1) std::cout<<"Event # "<< nevents<<" has "<<nHits<<" hits."<< std::endl;
-  else if(fVerbose==1 && nevents%100==0) std::cout<<"Event # "<< nevents<<" has "<<nHits<<" hits."<< std::endl;
-  if(fVerbose<2) gROOT->SetBatch(kTRUE);
 
   PndDrcTrackInfo trackinfo;
-  TVector3 dird, dir, momInBar,posInBar;
-  Double_t cangle,tangle, boxPhi, evtime, bartime, directz, luttheta, barHitTime, pdHitTime, lutboxPhi=10.825,window1,window2;
+  TVector3 dird, dir, momInBar, posInBar,
+    fnX1 = TVector3 (1,0,0),   
+    fnY1 = TVector3( 0,1,0);
+  
+  Double_t cangle, tangle, boxPhi, evtime, bartime, directz, luttheta, barHitTime, pdHitTime, 
+    lutboxPhi=10.825, window1, window2, angdiv, dtheta, dtphi;
   Int_t pdgcode, lutboxId=3;
-  Bool_t reflected;
+  Bool_t reflected, testTrRes = false;
 
-  TVector3 fnX1 = TVector3 (1,0,0);   
-  TVector3 fnY1 = TVector3( 0,1,0);
-  bool testTrRes = false;
-  Double_t angdiv,dtheta,dtphi;
   if(testTrRes){
     Int_t rndm=0;
     if (gSystem->Getenv("RANDOM")) {
@@ -174,7 +175,7 @@ void PndDrcLutReco::ProcessPhotonHit()
     dtphi = gRandom->Uniform(-angdiv,angdiv);
   }
 
-  // loop over tracks
+  // loop over MC tracks
   for(Int_t itrack=0; itrack<fMCArray->GetEntriesFast(); itrack++){
     fMCTrack = (PndMCTrack*)fMCArray->At(itrack);
     if( fMCTrack->GetMotherID()==-1) {
@@ -190,10 +191,10 @@ void PndDrcLutReco::ProcessPhotonHit()
       window2 = (mcboxId+1)*17+17;
  
       // Loop over PndDrcPDHits
-      for(Int_t k=0; k<nHits; k++) {
+      for(Int_t ihit=0; ihit<fPDHitArray->GetEntriesFast(); ihit++) {
 	PndDrcPhotonInfo photoninfo;
 
-	fPDHit = (PndDrcPDHit*)fPDHitArray->At(k);
+	fPDHit = (PndDrcPDHit*)fPDHitArray->At(ihit);
 	Int_t wsensorId = fPDHit->GetSensorId()/100;
        	if(wsensorId < window1 || wsensorId > window2) {
 	  // std::cout<<"wsensorId  "<<wsensorId << "  "<< window1<<" - "<< window2 <<std::endl;
@@ -264,7 +265,7 @@ void PndDrcLutReco::ProcessPhotonHit()
 	Int_t size = node->Entries();
 	for(int i=0; i<size; i++){
 	  dird = node->GetEntry(i);
-	  //dird.RotateZ(-lutboxPhi/180.*TMath::Pi());
+	  // dird.RotateZ(-lutboxPhi/180.*TMath::Pi());
 
 	  evtime = node->GetTime(i);
 	  for(int u=0; u<4; u++){
@@ -273,7 +274,7 @@ void PndDrcLutReco::ProcessPhotonHit()
 	    if(u == 2) dir.SetXYZ(-dird.X(), dird.Y(), dird.Z());
 	    if(u == 3) dir.SetXYZ(-dird.X(),-dird.Y(), dird.Z());
 	    if(reflected) dir.SetXYZ( dir.X(), dir.Y(),-dir.Z());
-	    //if(reflected) dir.RotateX(-2./180.*TMath::Pi());
+	    // if(reflected) dir.RotateX(-2./180.*TMath::Pi());
 	
 	    double criticalAngle = asin(1.00028/fGeo->nQuartz());
 	    if(dir.Angle(fnX1) < criticalAngle || dir.Angle(fnY1) < criticalAngle) continue;
@@ -294,7 +295,7 @@ void PndDrcLutReco::ProcessPhotonHit()
 	    ambinfo.SetEvTime(evtime);
 	    ambinfo.SetCherencov(tangle);
 	    photoninfo.AddAmbiguity(ambinfo);
-	    fHist->Fill(tangle);
+	    if(tangle > 0.35 && tangle < 0.85) fHist->Fill(tangle);
 	  }
 	}
 
@@ -307,24 +308,37 @@ void PndDrcLutReco::ProcessPhotonHit()
       }
 
       Double_t cherenkovreco = FindPeak();
-      if(fVerbose>0) std::cout<<"pdg = " <<  fMCTrack->GetPdgCode() << "  " <<fMCTrack->GetMotherID() << " reconstructed cherenkov vs. mc " <<cherenkovreco << " " << cangle <<std::endl;
+      Int_t pdgreco = FindPdg(fMCTrack->GetMomentum().Mag(), cherenkovreco);
+
+      if(fVerbose>0) std::cout<<"pdg = " <<  fMCTrack->GetPdgCode() <<"-"<< pdgreco<< " reconstructed cherenkov vs. mc " <<cherenkovreco << " " << cangle <<std::endl;
+      // if(fabs(cherenkovreco-cangle)>0.05 && fHist->GetEntries()>20){
+      // 	if(fVerbose>1){
+      // 	  TCanvas* c = new TCanvas("c","c",0,0,800,1200);
+      // 	  fHist->Draw();
+      // 	  c->Modified();
+      // 	  c->Update();
+      // 	  c->WaitPrimitive();
+      // 	}
+      // }
+      // fHist->Reset();
+
       if(testTrRes) trackinfo.SetMomentum(TVector3(dtheta,dtphi,0)); //track deviation
       trackinfo.SetMcMomentum(fMCTrack->GetMomentum());
       trackinfo.SetMcMomentumInBar(momInBar);
       trackinfo.SetMcPdg(fMCTrack->GetPdgCode());
+      trackinfo.SetPdg(pdgreco);
       trackinfo.SetMcCherenkov(cangle);
       trackinfo.SetCherenkov(cherenkovreco);
       trackinfo.SetMcTimeInBar(barHitTime);
       new ((*fDrcTrackInfoArray)[fDrcTrackInfoArray->GetEntriesFast()]) PndDrcTrackInfo(trackinfo);
     }
   }
-
-  if(fVerbose<2) gROOT->SetBatch(kFALSE);
 }
 
+Int_t g_num =0;
 Double_t PndDrcLutReco::FindPeak(){
   Double_t cherenkovreco = -1;
-  if(fHist->GetEntries()>5 ){
+  if(fHist->GetEntries()>20 ){
     Int_t nfound = fSpect->Search(fHist,1,"",0.6);
     Float_t *xpeaks = fSpect->GetPositionX();
     if(nfound>0) cherenkovreco = xpeaks[0];
@@ -335,11 +349,14 @@ Double_t PndDrcLutReco::FindPeak(){
     if(cherenkovreco<0 || cherenkovreco>1 ) cherenkovreco = 0;
   
     if(fVerbose>1){
-      TCanvas* c = new TCanvas("c","c",0,0,800,1200);
+      TCanvas* c = new TCanvas("c","c",0,0,800,600);
+      fHist->GetXaxis()->SetTitle("#theta_{C}, [rad]");
+      fHist->GetYaxis()->SetTitle("Entries, [#]");
       fHist->Draw();
       c->Modified();
       c->Update();
       c->WaitPrimitive();
+      c->Print(Form("pic/animpid/animpid_%d.png",g_num++));
     }
   }
   fHist->Reset();
@@ -347,12 +364,26 @@ Double_t PndDrcLutReco::FindPeak(){
   return cherenkovreco;
 }
 
+Int_t PndDrcLutReco::FindPdg(Double_t mom, Double_t cangle){
+  Int_t pdg[]={11,13,211,321,2212};
+  Double_t mass[] = {0.000511,0.1056584,0.139570,0.49368,0.9382723};
+  Double_t tdiff, diff=100;
+  Int_t minid=0;
+  for(Int_t i=0; i<5; i++){
+    tdiff = fabs(cangle - acos(sqrt(mom*mom + mass[i]*mass[i])/mom/1.46907)); //1.46907 - fused silica
+    if(tdiff<diff){
+      diff = tdiff;
+      minid = i;
+    }
+  }
+  return pdg[minid]; 
+}
+
 // -----   Finish Task   ---------------------------------------------------
 void PndDrcLutReco::Finish(){
   for(Int_t l=0; l<10; l++){
     fLut[l]->Clear(); 
   }
-  
   cout << "-I- PndDrcLutReco: Finish" << endl; 
 }
 
