@@ -273,18 +273,20 @@ int npart;
 	  labv += G4LorentzVector(0.0,0.0,0.0,electron_mass_c2); 
 	}
 
-        px = mom.x();
-        py = mom.y();
-        pz = mom.z();    pz=pz;
-        pt = std::sqrt(px*px +py*py); pt=pt;
-        e  = fm.e(); // - m;
+        px = mom.x()/GeV;
+        py = mom.y()/GeV;
+        pz = mom.z()/GeV;    
+        pt = std::sqrt(px*px +py*py)/GeV; 
+        e  = fm.e()/GeV; // - m;
         theta = mom.theta();
 if(std::abs(pd->GetBaryonNumber()) < 2)
 { 
      int id = pd->GetPDGEncoding();
+// choice of inelastic    if( (n>2) || ((abs(id)!=2212)&&(n==2)) ) {
      Mom.SetPxPyPzE(px,py,pz,e);
      TParticle  fparticle(id,1,0,0,0,0,Mom,V);
-     new((*fEvt)[cnt++]) TParticle(fparticle);
+     new((*fEvt)[cnt++]) TParticle(fparticle); 
+// }
 }
         theta=theta*180./pi;
         fm.boost(-bst);
