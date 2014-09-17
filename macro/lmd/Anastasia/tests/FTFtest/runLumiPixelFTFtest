@@ -31,7 +31,7 @@ mkdir -p ${path}
 numTrks=1
 #number of events
 numEv=100000
-#numEv=1000
+#numEv=20
 ##############
 # set flags
 
@@ -62,7 +62,7 @@ WrAllMC=true
 ##############
 
 #simulation with FTF generator
-root -l -b -q runLumiPixel0SimFTF.C\(${numEv},0,${pbeam},"\"/panda/pandaroot/pgenerators/FtfEvtGen/FTF.root\"","\"${path}\""\)
+root -l -b -q runLumiPixel0SimFTF.C\(${numEv},0,${pbeam},"\"/panda/pandaroot/pgenerators/FtfEvtGen/FTF_inel.root\"","\"${path}\""\)
 # #simulation with Box generator
 ##root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 

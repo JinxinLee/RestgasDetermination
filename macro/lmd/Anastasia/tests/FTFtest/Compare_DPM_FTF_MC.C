@@ -10,7 +10,7 @@ void Compare_DPM_FTF_MC(){
   Long64_t nentries = 2e7;
 // virtual Long64_t	Project(const char* hname, const char* varexp, const char* selection = "", Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0)
 
-  TString cond = "Particles.Theta()<0.150";
+  TString cond = "Particles.Theta()<0.150 && Npart>0";
   TFile * finDPM = new TFile("DPM_inel_15GeV.root","READ");
   TTree *treeDPM = (TTree *)finDPM->Get("data");
   TH1 *nmultDPM = new TH1I("nmultDPM",";trks/ev",20,0,20);
@@ -22,7 +22,7 @@ void Compare_DPM_FTF_MC(){
   treeDPM->Project("phMCdpm","Particles.Phi()",cond.Data(),"",nentries);
   TH1 *momMCdpm = new TH1D("momMCdpm","; Pz_{MC}, GeV/c",3e3,0,20);
   int ndpm = treeDPM->Project("momMCdpm","Particles.fPz",cond.Data(),"",nentries);// mom in GeV
-  TFile * finFTF = new TFile("FTF_inel_15GeV.root","READ");
+  TFile * finFTF = new TFile("FTF_inel_15GeV_2.root","READ");
   TTree *treeFTF = (TTree *)finFTF->Get("data");
   TH1 *nmultFTF = new TH1I("nmultFTF",";trks/ev",20,0,20);
   treeFTF->Project("nmultFTF","Npart","","",nentries);
@@ -32,7 +32,7 @@ void Compare_DPM_FTF_MC(){
   TH1 *phMCftf = new TH1D("phMCftf",";#phi_{MC}, rad",3e3,0,2*TMath::Pi());
   treeFTF->Project("phMCftf","Particles.Phi()",cond.Data(),"",nentries);
   TH1 *momMCftf = new TH1D("momMCftf","; Pz_{MC}, GeV/c",3e3,0,20);
-  treeFTF->Project("momMCftf","1e-3*(Particles.fPz)",cond.Data(),"",nentries);// mom in MeV source of long time???
+  treeFTF->Project("momMCftf","Particles.fPz",cond.Data(),"",nentries);// mom in MeV source of long time???
  // TFile * finFTF = new TFile("FTF_inel_15GeV.root","READ");
  // TTree *treeFTF = (TTree *)finFTF->Get("data");
   TLegend *leg = new TLegend(0.81,0.85,0.93,0.95);
