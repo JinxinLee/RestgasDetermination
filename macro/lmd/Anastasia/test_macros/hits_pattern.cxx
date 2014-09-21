@@ -154,6 +154,7 @@ int main(int nargs, char** args) {
 	int maxInEl=50;
 	if(Pbeam=="15"){
 	  maxSum=25;
+
 	  maxEl=25;
 	  maxInEl=25;
 	}
