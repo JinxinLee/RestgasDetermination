@@ -17,7 +17,7 @@ momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 #number of trks per event
 numTrks=1
 #number of events
-numEv=1000
+numEv=25000
 
 path=${VMCWORKDIR}/macro/lmd/DPMelinel_${numEv}ev/mom_${momStr}/
 mkdir -p ${path}
@@ -28,13 +28,11 @@ mkdir -p ${path}
 #WrAllMC=true
 ##############
 
-# # #simulation with Box generator
-# # root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # # #simulation with DPM
 #   modeDPM=0 #inel
- #    modeDPM=1 #el+inel
-     modeDPM=2 #el
+    modeDPM=1 #el+inel
+ #    modeDPM=2 #el
      root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\)
 
 # #digi
