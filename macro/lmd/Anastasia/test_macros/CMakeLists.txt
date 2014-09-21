@@ -61,6 +61,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 ################################## install #####################################
 # install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
+add_executable(hits_pattern hits_pattern.cxx)
 # add_executable(bkg_rec_mc_match BkgStudies_MCmatch_withSignal_exe.C)
 # add_executable(rec_mc_match MCandRECTrkmatches_exe.C)
 # add_executable(sum_bkg_rec_mc_match sumBkgStudies_MCmatch_withSignal_exe.C)
@@ -74,6 +75,7 @@ link_directories( ${LINK_DIRECTORIES})
 # (-lSts -lGen -lRich -lTrd -lTof -lMvd -lGlobal -lKF -lDilept
 #-lMuch -lBase -lField -lMCStack -lPassive -lGeoBase
 #-lParBase)
+target_link_libraries(hits_pattern -lrt ${ROOT_LIBRARIES} LmdTool MathMore)
 # target_link_libraries(bkg_rec_mc_match ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase Minuit)
 # ##target_link_libraries(rec_mc_match ${ROOT_LIBRARIES} genfit genfitAdapters trackrep RecoHits Stt Fts Lmd LmdReco LmdTrk Sds SdsReco Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase MathMore Minuit)
 # target_link_libraries(sum_bkg_rec_mc_match ${ROOT_LIBRARIES})

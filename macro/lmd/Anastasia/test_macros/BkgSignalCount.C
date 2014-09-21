@@ -161,7 +161,8 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
       double mommctrk = trkcur->GetMCmom();
       if(trkStat==0){ //GOOD rec.trks
 	hPDGrec->Fill(PDGcode);
-	if(sumPDGev==4424 && PDGcode==-2212){//signal
+	//	if(sumPDGev==4424 && PDGcode==-2212){//signal DPM
+	if(PDGcode==-2212){//signal BOX
 	  hthsigrec->Fill(thtrk);
 	  hphsigrec->Fill(phtrk);
 	  hxsigrec->Fill(xtrk);
@@ -231,8 +232,8 @@ void BkgSignalCount(TString path="/panda/pandaroot/macro/lmd/testPixel/mom_1_5/"
       }
       else{// not GOOD rec.trk
 	if(trkStat<0){//trk was missed
-	  //	  if(PDGcode==-2212){//signal
-	  if(sumPDGev==4424){//signal
+	  if(PDGcode==-2212){//signal BOX
+	  //	  if(sumPDGev==4424){//signal DPM
 	    hthsigmissmc->Fill(thmctrk);
 	    hphsigmissmc->Fill(phmctrk);
 	    hxsigmissmc->Fill(xmctrk);
