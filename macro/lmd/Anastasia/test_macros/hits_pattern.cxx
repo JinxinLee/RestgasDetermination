@@ -149,9 +149,14 @@ int main(int nargs, char** args) {
 
 	TCanvas canvas_map_x_y("canvas_map_x_y", "map x y", 800, 800);
 	canvas_map_x_y.Divide(2,2);
-	int maxSum=200;
-	int maxEl=200;
-	int maxInEl=100;
+	int maxSum=180;
+	int maxEl=180;
+	int maxInEl=50;
+	if(Pbeam=="15"){
+	  maxSum=25;
+	  maxEl=25;
+	  maxInEl=25;
+	}
 	TH2Poly* el_map_x_y_plane[4][2];
 	TH2Poly* inel_map_x_y_plane[4][2];
 	TH2Poly* sum_map_x_y_plane[4][2];
@@ -169,21 +174,21 @@ int main(int nargs, char** args) {
 	    el_map_x_y_plane[ipl][is]->SetXTitle("X [cm]");
 	    el_map_x_y_plane[ipl][is]->SetYTitle("Y [cm]");
 	    el_map_x_y_plane[ipl][is]->SetZTitle("rate [kHz]");
-	    el_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(2,maxEl);
+	    el_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(0,maxEl);
 	    el_map_x_y_plane[ipl][is]->SetContour(100);
 	    inel_map_x_y_plane[ipl][is] = lmddim.Get_histogram_Plane(ipl,is);
 	    inel_map_x_y_plane[ipl][is]->SetTitle(name_inel);
 	    inel_map_x_y_plane[ipl][is]->SetXTitle("X [cm]");
 	    inel_map_x_y_plane[ipl][is]->SetYTitle("Y [cm]");
 	    inel_map_x_y_plane[ipl][is]->SetZTitle("rate [kHz]");
-	    inel_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(2,maxInEl);
+	    inel_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(0,maxInEl);
 	    inel_map_x_y_plane[ipl][is]->SetContour(100);
 	    sum_map_x_y_plane[ipl][is] = lmddim.Get_histogram_Plane(ipl,is);
 	    sum_map_x_y_plane[ipl][is]->SetTitle(name_sum);
 	    sum_map_x_y_plane[ipl][is]->SetXTitle("X [cm]");
 	    sum_map_x_y_plane[ipl][is]->SetYTitle("Y [cm]");
 	    sum_map_x_y_plane[ipl][is]->SetZTitle("rate [kHz]");
-	    sum_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(2,maxSum);
+	    sum_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(0,maxSum);
 	    sum_map_x_y_plane[ipl][is]->SetContour(100);
 	  }
 	}
