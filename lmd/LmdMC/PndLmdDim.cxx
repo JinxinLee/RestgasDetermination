@@ -2549,28 +2549,46 @@ void PndLmdDim::Test_matrices(){
 						}
 }
 
-void PndLmdDim::Draw_Sensors(int iplane, bool aligned, bool lmd_frame){
+void PndLmdDim::Draw_Sensors(int iplane, bool aligned, bool lmd_frame, int glside){
 
-	for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
-	//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
-		for (unsigned int imodule = 0; imodule < nmodules; imodule++)
-			for (unsigned int iside = 0; iside < 2; iside++)
-				for (unsigned int idie = 0; idie < 2; idie++)
-					for (unsigned int isensor = 0; isensor < 3; isensor++)
-	//for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
-	{
-		//cout << " sensID " << sensorID << endl;
-		//int ihalf, _iplane, imodule, iside, idie, isensor;
-		//Get_sensor_by_id(sensorID, ihalf, _iplane, imodule, iside, idie, isensor);
-		//cout /*<< sensorID*/ << " " << ihalf << " " << iplane << " " << imodule << " " << iside << " " << idie << " " << isensor << endl;
-		//if (iplane != _iplane) continue;
-		//cout << " " << ihalf << " " << iplane << endl;
-		if (idie == 1 && isensor == 0) continue;
-		TPolyLine* sensor_shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
-		if (iside == 1) sensor_shape->SetLineColor(17); else sensor_shape->SetLineColor(13);
-		sensor_shape->Draw();
+  for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
+    //for (unsigned int iplane = 0; iplane < n_planes; iplane++)
+    for (unsigned int imodule = 0; imodule < nmodules; imodule++){
+      if(glside>1){//default
+	for (unsigned int iside = 0; iside < 2; iside++){
+	  for (unsigned int idie = 0; idie < 2; idie++){
+	  for (unsigned int isensor = 0; isensor < 3; isensor++)
+	    //for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
+	    {
+	      //cout << " sensID " << sensorID << endl;
+	      //int ihalf, _iplane, imodule, iside, idie, isensor;
+	      //Get_sensor_by_id(sensorID, ihalf, _iplane, imodule, iside, idie, isensor);
+	      //cout /*<< sensorID*/ << " " << ihalf << " " << iplane << " " << imodule << " " << iside << " " << idie << " " << isensor << endl;
+	      //if (iplane != _iplane) continue;
+	      //cout << " " << ihalf << " " << iplane << endl;
+	      if (idie == 1 && isensor == 0) continue;
+	      TPolyLine* sensor_shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
+	      if (iside == 1) sensor_shape->SetLineColor(17); else sensor_shape->SetLineColor(13);
+	      sensor_shape->Draw();
+	    }
+	  }
 	}
+      }//default
+      else{
+	int iside=glside;
+	  for (unsigned int idie = 0; idie < 2; idie++){
+	    for (unsigned int isensor = 0; isensor < 3; isensor++){
+	      if (idie == 1 && isensor == 0) continue;
+	      TPolyLine* sensor_shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
+	      if (iside == 1) sensor_shape->SetLineColor(17); else sensor_shape->SetLineColor(13);
+	      sensor_shape->Draw();
+	    }
+	  }
+      }
+    }
+		  
 }
+
 
 TPolyLine* PndLmdDim::Get_Sensor_Shape(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame){
 	   Double_t x[5] = {-maps_width+2*maps_passive_left,

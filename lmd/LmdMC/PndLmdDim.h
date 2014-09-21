@@ -943,8 +943,7 @@ public:
 	// Draw the Sensors as overlays to an active root pad
 	// Projection in XY is used
 	// lmd_frame == true : The Lumi reference frame is used
-	void Draw_Sensors(int iplane, bool aligned = true, bool lmd_frame = true);
-
+	void Draw_Sensors(int iplane, bool aligned = true, bool lmd_frame = true, int glside = 2); //by default draw both sides
 	// Get one Sensor as a polyline to be drawn to an active root pad
 	// Projection in XY is used
 	// Important -> Do not delete the PolyLine until you are sure that you are

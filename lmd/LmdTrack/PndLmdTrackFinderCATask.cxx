@@ -33,15 +33,15 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask() :
   
   dXY = 0.5;
   rule_max = 1e-6;
-  hdist = new TH1D("hdist","distance from common point",1e4,0,10.);
-  hcosPSI = new TH1D("hcosPSI","",1e4,0,1e-4);
-  //  htthetatphi = new TNtuple("htthetatphi","ntthetatphi","tg_theta:tg_phi");
-  htthetatphiTrk = new TNtuple("htthetatphiTrk","ntthetatphiTrk","tg_theta:tg_phi:nHits");
-  htthetatphiCells = new TNtuple("htthetatphiCells","ntthetatphiCells","tg_theta:tg_phi:x0:y0:z0:x1:y1:z1");
-  //  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
-  /// hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
-  //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
-  //  htime = new TH2D("htime",";time distance;time angle",1e2,0,10,1e2,0,10);
+  // hdist = new TH1D("hdist","distance from common point",1e4,0,10.);
+  // hcosPSI = new TH1D("hcosPSI","",1e4,0,1e-4);
+  // //  htthetatphi = new TNtuple("htthetatphi","ntthetatphi","tg_theta:tg_phi");
+  // htthetatphiTrk = new TNtuple("htthetatphiTrk","ntthetatphiTrk","tg_theta:tg_phi:nHits");
+  // htthetatphiCells = new TNtuple("htthetatphiCells","ntthetatphiCells","tg_theta:tg_phi:x0:y0:z0:x1:y1:z1");
+  // //  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
+  // /// hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
+  // //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
+  // //  htime = new TH2D("htime",";time distance;time angle",1e2,0,10,1e2,0,10);
   nSensPP = 8;
   nP = 4;
   flagStipSens = false;
@@ -65,15 +65,15 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
   fDigiBranchStrip = digiBranch;
   
   dXY = 0.5;
-  hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
-  //  htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
-  htthetatphiTrk = new TNtuple("htthetatphiTrk","ntthetatphiTrk","tg_theta:tg_phi:nHits");
-  htthetatphiCells = new TNtuple("htthetatphiCells","ntthetatphiCells","tg_theta:tg_phi:x0:y0:z0:x1:y1:z1");
-  //  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
-  hcosPSI= new TH1D("hcosPSI","",1e4,0,1e-4);
-  //  hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
-  //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
-  //  htime = new TH2D("htime",";time distance, ns;time angle,ns",5e3,0,5e3,5e3,0,5e3);
+  // hdist = new TH1D("hdist","distance from common point",1e3,0,1.);
+  // //  htthetatphi = new TH2D("htthetatphi",";tg#theta;tg#phi",1e3,0,10,1e3,-10,10);
+  // htthetatphiTrk = new TNtuple("htthetatphiTrk","ntthetatphiTrk","tg_theta:tg_phi:nHits");
+  // htthetatphiCells = new TNtuple("htthetatphiCells","ntthetatphiCells","tg_theta:tg_phi:x0:y0:z0:x1:y1:z1");
+  // //  hthetaphi = new TH2D("hthetaphi",";#theta;#phi",1e3,0,1.,1e3,-3.15,3.15);
+  // hcosPSI= new TH1D("hcosPSI","",1e4,0,1e-4);
+  // //  hcosPSI = new TH1D("hcosPSI","breaking angle",1e3,-1.5,1.5);
+  // //  htheta = new TH2D("htheta",";length;#theta angle",1e3,0,25,1e3,0,3.15);
+  // //  htime = new TH2D("htime",";time distance, ns;time angle,ns",5e3,0,5e3,5e3,0,5e3);
   rule_max = setdmax; 
   nSensPP = innSensPP;
   nP = innP;
@@ -461,14 +461,14 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	if(k<maxK1){
 	  PndSdsHit *hit1=(PndSdsHit*)fStripHitArray->At(hitsd.at(j+1).at(k));
 	  double x1 = hit1->GetX(); double y1 = hit1->GetY(); double z1 = hit1->GetZ();
-	  ////// TEST tgTh vs. tgPhi cells -------------------
-	  if(fVerbose>4){	 
-	    double xvec = x1-x0; 	  double yvec = y1-y0; 	  double zvec = z1-z0;
-	    double tgPhi = yvec/xvec;
-	    double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
-	    htthetatphiCells->Fill(tgTheta,tgPhi,x0,y0,z0,x1,y1,z1);
-	  }
-	  //////-----------------------------------------------------
+	  // ////// TEST tgTh vs. tgPhi cells -------------------
+	  // if(fVerbose>4){	 
+	  //   double xvec = x1-x0; 	  double yvec = y1-y0; 	  double zvec = z1-z0;
+	  //   double tgPhi = yvec/xvec;
+	  //   double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+	  //   //    htthetatphiCells->Fill(tgTheta,tgPhi,x0,y0,z0,x1,y1,z1);
+	  // }
+	  // //////-----------------------------------------------------
 
 
 
@@ -521,12 +521,12 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    if(k<hitsd.at(j+jp).size()){
 	      PndSdsHit *hit2=(PndSdsHit*)fStripHitArray->At(hitsd.at(j+jp).at(k));
 	      double x2 = hit2->GetX(); double y2 = hit2->GetY(); double z2 = hit2->GetZ();
-	      if(fVerbose>4){	 
-		double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
-		double tgPhi = yvec/xvec;
-		double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
-		htthetatphiCells->Fill(tgTheta,tgPhi,x0,y0,z0,x2,y2,z2);
-	      }
+	      // if(fVerbose>4){	 
+	      // 	double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
+	      // 	double tgPhi = yvec/xvec;
+	      // 	double tgTheta = sqrt(xvec*xvec+yvec*yvec)/zvec;
+	      // 	//	htthetatphiCells->Fill(tgTheta,tgPhi,x0,y0,z0,x2,y2,z2);
+	      // }
 	      // bool goodDir = true;
 	      // if(flagTrkCandCuts){
 	      // 	double xvec = x2-x0; 	  double yvec = y2-y0; 	  double zvec = z2-z0;
@@ -643,19 +643,25 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    // // double x0 = cells.at(0).at(ic); double y0 = cells.at(1).at(ic); double z0 = cells.at(2).at(ic);
 	    // // double x1 = cells.at(3).at(jc); double y1 = cells.at(4).at(jc); double z1 = cells.at(5).at(jc);
 	    // // double xt = cells.at(3).at(ic); double yt = cells.at(4).at(ic); double zt = cells.at(5).at(ic);
-	    double Ax = cells3.at(ic) - cells0.at(ic);  
-	    double Ay = cells4.at(ic) - cells1.at(ic); 
-	    double Az = cells5.at(ic) - cells2.at(ic); 
-	    double Bx = cells3.at(jc) - cells3.at(ic);  
-	    double By = cells4.at(jc) - cells4.at(ic); 
-	    double Bz = cells5.at(jc) - cells5.at(ic); 
-	    double AB = Ax*Bx+Ay*By+Az*Bz;
-	    double Amag = sqrt(Ax*Ax+Ay*Ay+Az*Az);
-	    double Bmag = sqrt(Bx*Bx+By*By+Bz*Bz);
-	    double cosPsi = AB/(Amag*Bmag);
-	    //	    double cosPsi = AB/double(Az*Bz);
-	    //  timerA.Stop();
-	    if(fVerbose>1)  hcosPSI->Fill(1-cosPsi);
+      TVector3 A((cells3.at(ic) - cells0.at(ic)),(cells4.at(ic) - cells1.at(ic)),(cells5.at(ic) - cells2.at(ic)));
+      TVector3 B((cells3.at(jc) - cells3.at(ic)),(cells4.at(jc) - cells4.at(ic)),(cells5.at(jc) - cells5.at(ic)));
+      // double Amag = A.Mag();
+      // double Bmag = B.Mag();
+      TVector3 ScalAB = A.Dot(B);
+      double cosPsi = ScalAB.Mag()/(A.Mag()*B.Mag());
+	    // double Ax = cells3.at(ic) - cells0.at(ic);  
+	    // double Ay = cells4.at(ic) - cells1.at(ic); 
+	    // double Az = cells5.at(ic) - cells2.at(ic); 
+	    // double Bx = cells3.at(jc) - cells3.at(ic);  
+	    // double By = cells4.at(jc) - cells4.at(ic); 
+	    // double Bz = cells5.at(jc) - cells5.at(ic); 
+	    // double AB = Ax*Bx+Ay*By+Az*Bz;
+	    // double Amag = sqrt(Ax*Ax+Ay*Ay+Az*Az);
+	    // double Bmag = sqrt(Bx*Bx+By*By+Bz*Bz);
+	    // double cosPsi = AB/(Amag*Bmag);
+	    // //	    double cosPsi = AB/double(Az*Bz);
+	    // //  timerA.Stop();
+      //	    if(fVerbose>1)  hcosPSI->Fill(1-cosPsi);
 
 	    // Double_t rtimeA = 1e9*(timerA.RealTime());
 	    // Double_t ctimeA = 1e9*(timerA.CpuTime());
@@ -731,7 +737,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     }
   }
 
-  // TStopwatch *timer_build_trk_combinations = new TStopwatch();
+  TStopwatch *timer_build_trk_combinations = new TStopwatch();
+  timer_build_trk_combinations->Start();
   // if(fVerbose>0)
   //   timer_build_trk_combinations->Start();
 
@@ -884,9 +891,11 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   //   trk_accept.push_back(true);
   // }
   // //   TEST: no filter end---
+ timer_build_trk_combinations->Stop();
 
   //filter -----------------------------------------------
-  // TStopwatch *timer_filter_trk_combinations = new TStopwatch();
+   TStopwatch *timer_filter_trk_combinations = new TStopwatch();
+   timer_filter_trk_combinations->Start();
   // if(fVerbose>0)
   //   timer_filter_trk_combinations->Start();
 
@@ -918,51 +927,72 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 
       if(cell_parts[itrc]<cell_parts[itrc2]){
   	unsigned int count_re=0;
+  	unsigned int count_hits=0;
   	//reject trk-cand with smaller number of cells and similar cells
   	int curr_arr=trk_arr_size;
   	while(curr_arr>0){
   	  curr_arr--;
-  	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
-  	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2))
+	  int cellnum1=trk_cells.at(curr_arr).at(itrc);
+	  int cellnum2=trk_cells.at(curr_arr).at(itrc2);
+	  //check by cells
+  	  if(cellnum1<0 || cellnum2<0) continue;
+  	  if(cellnum1==cellnum2)
   	    count_re++;
+	  //check by cells ends (hits)
+	  int hit0_0 = cells6.at(cellnum1);
+	  int hit1_0 = cells7.at(cellnum1);
+	  int hit0_1 = cells6.at(cellnum2);
+	  int hit1_1 = cells7.at(cellnum2);
+	  if(hit0_0==hit0_1 || hit1_0==hit1_1 || hit0_0==hit1_1 || hit1_0==hit0_1)
+	    count_hits++;
   	}
-  	if(count_re>0.55*cell_parts[itrc]){
+	if(fVerbose>3)
+   	  cout<<"Cand.No"<<itrc<<": Number of repeating cells = "<<count_re<<" and cells in tot = "<<cell_parts[itrc]
+	      <<" Number of repeating hits = "<<count_hits<<endl;
+	if(count_re>0.55*cell_parts[itrc] || count_hits>2){
+	//	if(count_re>0.55*cell_parts[itrc]){
   	  trk_accept[itrc]=false;
   	  if(fVerbose>4){
   	    // cout<<"Delete: trk-cand#"<<itrc<<" because of trk_cells.at("<<curr_arr<<").at("<<itrc<<"):"
   	    // 	<<trk_cells.at(curr_arr).at(itrc)<<endl;
   	    cout<<"Delete: trk-cand#"<<itrc
-  		<<" because it contains ("<<count_re<<") more then 55% cells from trk-cand#"<<itrc2<<endl;
-  	  }
+	      	<<" because it contains ("<<count_re<<") more then 55% cells from trk-cand#"<<itrc2<<endl;
+	  }
   	}
       }
     }
   }
 
-  for(int itrc=(cell_parts.size()-1);itrc>=0;itrc--){
-      for(int itrc2=itrc-1;itrc2>=0;itrc2--){
-  	//	if(itc==itrc2) continue;
-      if(cell_parts[itrc]==cell_parts[itrc2]){
-  	//reject trk-cand with the same number of cells and similar cells
-  	int count_re=0;
-  	int curr_arr=trk_arr_size;
-  	while(curr_arr>0){
-  	  curr_arr--;
-  	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
-  	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
-  	    count_re++;
-  	  }
-  	}
-  	if(count_re>0.9*cell_parts[itrc]){
-  	  trk_accept[itrc]=false;
-  	  if(fVerbose>4){
-  	    cout<<"Delete: trk-cand#"<<itrc<<" because it contains("
-  		<<count_re<<") more then 90% of cells from trk-cand#"<<itrc2<<endl;
-  	  }
-  	}
-      }
-    }
-  }
+  // for(int itrc=(cell_parts.size()-1);itrc>=0;itrc--){
+  //     for(int itrc2=itrc-1;itrc2>=0;itrc2--){
+  // 	//	if(itc==itrc2) continue;
+  //     if(cell_parts[itrc]==cell_parts[itrc2]){
+  // 	//reject trk-cand with the same number of cells and similar cells
+  // 	int count_re=0;
+  // 	int curr_arr=trk_arr_size;
+  // 	while(curr_arr>0){
+  // 	  curr_arr--;
+  // 	  if(trk_cells.at(curr_arr).at(itrc)<0 || trk_cells.at(curr_arr).at(itrc2)<0) continue;
+  // 	  if(trk_cells.at(curr_arr).at(itrc)==trk_cells.at(curr_arr).at(itrc2)){
+  // 	    count_re++;
+  // 	  }
+  // 	}
+  // 	if(fVerbose>3)
+  // 	  cout<<"Cand.No"<<itrc<<": Number of repeating cells = "<<count_re<<" and cells in tot = "<<cell_parts[itrc]<<endl;
+  // 	if(count_re>0.9*cell_parts[itrc]){
+  // 	  trk_accept[itrc]=false;
+  // 	  if(fVerbose>4){
+  // 	    cout<<"Delete: trk-cand#"<<itrc<<" because it contains("
+  // 		<<count_re<<") more then 90% of cells from trk-cand#"<<itrc2<<endl;
+  // 	  }
+  // 	}
+  //     }
+  //   }
+  // }
+ // timer_filter_trk_combinations->Stop();
+ // Double_t rtime_filter_trk_combinations = timer_filter_trk_combinations->RealTime();
+ // Double_t ctime_filter_trk_combinations = timer_filter_trk_combinations->CpuTime();
+ // cout << "Real time for filtering trk combinations :" << rtime_filter_trk_combinations << " s, CPU time " << ctime_filter_trk_combinations << " s" << endl;
   //filter(end)------------------------------------------------
 
   // if(fVerbose>0){
@@ -976,7 +1006,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   //   //  timer_build_trk_combinations->Stop();
   // Double_t rtime_build_trk_combinations = timer_build_trk_combinations->RealTime();
   // Double_t ctime_build_trk_combinations = timer_build_trk_combinations->CpuTime();
-  // cout << "Real time for build&filter trk combinations :" << rtime_build_trk_combinations << " s, CPU time " << ctime_build_trk_combinations << " s" << endl;
+  // cout << "Real time for build trk combinations :" << rtime_build_trk_combinations << " s, CPU time " << ctime_build_trk_combinations << " s" << endl;
   // }
   // TStopwatch *timer_save_trks = new TStopwatch();
   // if(fVerbose>0)
@@ -1050,7 +1080,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     //   hthetaphi->Fill(dir.Theta(),dir.Phi());
     //   myTCand->CalcTimeStamp();
     const unsigned int numPts = myTCand->GetNHits(); //read how many points in this track
-    if(fVerbose>4) htthetatphiTrk->Fill(dir.Theta(),dir.Phi(),numPts);
+    //    if(fVerbose>4) htthetatphiTrk->Fill(dir.Theta(),dir.Phi(),numPts);
     bool cutTrkCand=false;
     // if(flagTrkCandCuts){
     //   double thCentr = dir.Theta()-0.0402;
@@ -1124,13 +1154,13 @@ Double_t PndLmdTrackFinderCATask::GetTrackDip(PndMCTrack* myTrack)
 void PndLmdTrackFinderCATask::FinishTask(){
   //cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! HO-HO!!!!"<<endl;
   // TFile *fout = new TFile("/panda/pandaroot/macro/lmd/tmpOutnewDesign/CA_MultipleTrksCheck/mom_1_5/1trks/tgthetatgpgi_CAcells_1_5GeV_noSecondaries.root","RECREATE");
-  if(fVerbose>4){
-    //   htthetatphi->Print();
-    TTree *nout1 = htthetatphiTrk->CloneTree();
-    nout1->Write();
-    TTree *nout2 = htthetatphiCells->CloneTree();
-    nout2->Write();
-  }
+  // if(fVerbose>4){
+  //   //   htthetatphi->Print();
+  //   TTree *nout1 = htthetatphiTrk->CloneTree();
+  //   nout1->Write();
+  //   TTree *nout2 = htthetatphiCells->CloneTree();
+  //   nout2->Write();
+  // }
   // fout->Write();
   // fout->Close();
 }

@@ -12,6 +12,7 @@
 #pragma link C++ class PndLmdQATask+;
 #pragma link C++ class PndLmdTrackQ+;
 #pragma link C++ class PndLmdTrkQTask+;
-
+#pragma link C++ class PndLmdDigiQ+;
+#pragma link C++ class PndLmdDigiQTask+;
 #endif
 

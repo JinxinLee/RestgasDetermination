@@ -77,11 +77,11 @@ class PndLmdTrackFinderCATask : public FairTask
      void Register();
      void Reset();
      void ProduceHits();
-     TH1D *hdist;
-     TNtuple *htthetatphiTrk;
-     TNtuple *htthetatphiCells;
-     TH2D *hthetaphi;
-     TH1D *hcosPSI;
+     /* TH1D *hdist; */
+     /* TNtuple *htthetatphiTrk; */
+     /* TNtuple *htthetatphiCells; */
+     /* TH2D *hthetaphi; */
+     /* TH1D *hcosPSI; */
      //     TH1D *hcosPSI;
      //     TH2D *htheta;
      //     TH2D *htime;

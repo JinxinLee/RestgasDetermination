@@ -144,6 +144,8 @@ set(SRCS
 
 LmdQA/PndLmdTrackQ.cxx
 LmdQA/PndLmdTrkQTask.cxx
+LmdQA/PndLmdDigiQ.cxx
+LmdQA/PndLmdDigiQTask.cxx
 LmdQA/PndLmdQATask.cxx
 )
 
