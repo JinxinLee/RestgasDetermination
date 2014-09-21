@@ -81,7 +81,12 @@ int main(int nargs, char** args) {
 			cout << " Error: too many arguments! " << endl;
 	}
 
-
+	TString outname = storePath + "/countRate_x_y_";
+	outname+=Pbeam;
+	outname+="GeV";
+	TString outname_pdf_o = outname + ".pdf(";
+	TString outname_pdf_c = outname + ".pdf)";
+	TString outname_root = outname + ".root";
 
 	TString startEvent = "0";
 	// Input file (MC events)
@@ -246,20 +251,52 @@ int main(int nargs, char** args) {
 	  for(int is=0; is<2; is++){
 	    sum_map_x_y_plane[ipl][is]->Draw("COLZ");
 	    lmddim.Draw_Sensors(ipl,false,true,is);
-	    canvas_map.Print("countRate_x_y.pdf(");
+	    canvas_map.Print(outname_pdf_o.Data());
 	    canvas_map.Clear();
 	    el_map_x_y_plane[ipl][is]->Draw("COLZ");
 	    lmddim.Draw_Sensors(ipl,false,true,is);
-	    canvas_map.Print("countRate_x_y.pdf(");
+	    canvas_map.Print(outname_pdf_o.Data());
 	    canvas_map.Clear();
 	    inel_map_x_y_plane[ipl][is]->Draw("COLZ");
 	    lmddim.Draw_Sensors(ipl,false,true,is);
-	    canvas_map.Print("countRate_x_y.pdf(");
+	    canvas_map.Print(outname_pdf_o.Data());
 	    canvas_map.Clear();
 	  }
 	}
 	canvas_map.Clear();
-	canvas_map.Print("countRate_x_y.pdf)");
+	canvas_map.Print(outname_pdf_c.Data());
+
+	TFile *f = new TFile(outname_root,"RECREATE");
+	for(int ipl=0; ipl<4; ipl++){
+	  for(int is=0; is<2; is++){
+	    TString name_can = "canvas_map_x_y_sum_pl";
+	    name_can +=ipl;
+	    name_can +="_side_";
+	    name_can +=is;
+	    TCanvas canvas_1(name_can, "map x y (sum)", 900, 900);
+	    sum_map_x_y_plane[ipl][is]->Draw("COLZ");
+	    lmddim.Draw_Sensors(ipl,false,true,is);
+	    canvas_1.Write();
+	    name_can = "canvas_map_x_y_el_pl";
+	    name_can +=ipl;
+	    name_can +="_side_";
+	    name_can +=is;
+	    TCanvas canvas_2(name_can, "map x y (el)", 900, 900);
+	    el_map_x_y_plane[ipl][is]->Draw("COLZ");
+	    lmddim.Draw_Sensors(ipl,false,true,is);
+	    canvas_2.Write();
+	    name_can = "canvas_map_x_y_inel_pl";
+	    name_can +=ipl;
+	    name_can +="_side_";
+	    name_can +=is;
+	    TCanvas canvas_3(name_can, "map x y (inel)", 900, 900);
+	    inel_map_x_y_plane[ipl][is]->Draw("COLZ");
+	    lmddim.Draw_Sensors(ipl,false,true,is);
+	    canvas_3.Write();
+	  }
+	}
+	f->Write();
+	f->Close();
 	cout<<"------- SUMMARY -------"<<endl;
 	cout<<"Pbeam = "<<Pbeam<<"GeV tot. cross-section "<<sigTot<<" mb"<<endl;
 	cout<<"Overall count rate: "<<TOT_count*scalefac*1e-3<<" MHz"<<endl;
