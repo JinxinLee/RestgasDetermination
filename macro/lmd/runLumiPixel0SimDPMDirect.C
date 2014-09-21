@@ -118,60 +118,60 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
  //  fRun->AddModule(Rich);
  //  //[END] Other PANDA systems ---
 
- //Other PANDA systems ----
- //-------------------------  STT       -----------------
-  PndStt *Stt= new PndStt("STT", kFALSE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  fRun->AddModule(Stt);
-  //-------------------------  MVD       -----------------
-  PndMvdDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
-  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-  fRun->AddModule(Mvd);
-  //-------------------------  GEM       -----------------
-  PndGemDetector *Gem = new PndGemDetector("GEM", kFALSE);
-  Gem->SetGeometryFileName("gem_3Stations.root");
-  fRun->AddModule(Gem);
-  //-------------------------  EMC       -----------------
-  PndEmc *Emc = new PndEmc("EMC",kFALSE);
-  Emc->SetGeometryVersion(1);
-  Emc->SetStorageOfData(kFALSE);
-  fRun->AddModule(Emc);
-  //-------------------------  SCITIL    -----------------
-  PndSciT *SciT = new PndSciT("SCIT",kFALSE);
-  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
-  fRun->AddModule(SciT);
-  //-------------------------  DRC       -----------------
-  PndDrc *Drc = new PndDrc("DIRC", kFALSE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
-  Drc->SetRunCherenkov(kFALSE);
-  fRun->AddModule(Drc); 
-  //-------------------------  DISC      -----------------
-  PndDsk* Dsk = new PndDsk("DSK", kFALSE);
-  Dsk->SetStoreCerenkovs(kFALSE);
-  Dsk->SetStoreTrackPoints(kFALSE);
-  fRun->AddModule(Dsk);
-  //-------------------------  MDT       -----------------
-  PndMdt *Muo = new PndMdt("MDT",kFALSE);
-  Muo->SetBarrel("fast");
-  Muo->SetEndcap("fast");
-  Muo->SetMuonFilter("fast");
-  Muo->SetForward("fast");
-  Muo->SetMdtMagnet(kTRUE);
-  Muo->SetMdtMFIron(kTRUE);
-  fRun->AddModule(Muo);
-  //-------------------------  FTS       -----------------
-  PndFts *Fts= new PndFts("FTS",kFALSE);
-  Fts->SetGeometryFileName("fts.geo");
-  fRun->AddModule(Fts); 
-  //-------------------------  FTOF      -----------------
-  PndFtof *FTof = new PndFtof("FTOF",kFALSE);
-  FTof->SetGeometryFileName("ftofwall.root");
-  fRun->AddModule(FTof);
-  //-------------------------  RICH       ----------------
-  PndRich *Rich= new PndRich("RICH",kFALSE);
-  Rich->SetGeometryFileName("rich_v2_shift.geo");
-  fRun->AddModule(Rich);
-  //[END] Other PANDA systems ---
+ // //Other PANDA systems ----
+ // //-------------------------  STT       -----------------
+ //  PndStt *Stt= new PndStt("STT", kFALSE);
+ //  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+ //  fRun->AddModule(Stt);
+ //  //-------------------------  MVD       -----------------
+ //  PndMvdDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
+ //  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+ //  fRun->AddModule(Mvd);
+ //  //-------------------------  GEM       -----------------
+ //  PndGemDetector *Gem = new PndGemDetector("GEM", kFALSE);
+ //  Gem->SetGeometryFileName("gem_3Stations.root");
+ //  fRun->AddModule(Gem);
+ //  //-------------------------  EMC       -----------------
+ //  PndEmc *Emc = new PndEmc("EMC",kFALSE);
+ //  Emc->SetGeometryVersion(1);
+ //  Emc->SetStorageOfData(kFALSE);
+ //  fRun->AddModule(Emc);
+ //  //-------------------------  SCITIL    -----------------
+ //  PndSciT *SciT = new PndSciT("SCIT",kFALSE);
+ //  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+ //  fRun->AddModule(SciT);
+ //  //-------------------------  DRC       -----------------
+ //  PndDrc *Drc = new PndDrc("DIRC", kFALSE);
+ //  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+ //  Drc->SetRunCherenkov(kFALSE);
+ //  fRun->AddModule(Drc); 
+ //  //-------------------------  DISC      -----------------
+ //  PndDsk* Dsk = new PndDsk("DSK", kFALSE);
+ //  Dsk->SetStoreCerenkovs(kFALSE);
+ //  Dsk->SetStoreTrackPoints(kFALSE);
+ //  fRun->AddModule(Dsk);
+ //  //-------------------------  MDT       -----------------
+ //  PndMdt *Muo = new PndMdt("MDT",kFALSE);
+ //  Muo->SetBarrel("fast");
+ //  Muo->SetEndcap("fast");
+ //  Muo->SetMuonFilter("fast");
+ //  Muo->SetForward("fast");
+ //  Muo->SetMdtMagnet(kTRUE);
+ //  Muo->SetMdtMFIron(kTRUE);
+ //  fRun->AddModule(Muo);
+ //  //-------------------------  FTS       -----------------
+ //  PndFts *Fts= new PndFts("FTS",kFALSE);
+ //  Fts->SetGeometryFileName("fts.geo");
+ //  fRun->AddModule(Fts); 
+ //  //-------------------------  FTOF      -----------------
+ //  PndFtof *FTof = new PndFtof("FTOF",kFALSE);
+ //  FTof->SetGeometryFileName("ftofwall.root");
+ //  fRun->AddModule(FTof);
+ //  //-------------------------  RICH       ----------------
+ //  PndRich *Rich= new PndRich("RICH",kFALSE);
+ //  Rich->SetGeometryFileName("rich_v2_shift.geo");
+ //  fRun->AddModule(Rich);
+ //  //[END] Other PANDA systems ---
  
 
   //particle generator
@@ -207,7 +207,7 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
   fRun->SetField(fField);
   
   //TEST!!!
-  if(nEvents<100000)
+  if(nEvents<10)
     fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
   else
     fRun->SetStoreTraj(kFALSE);
