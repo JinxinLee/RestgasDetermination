@@ -1794,7 +1794,10 @@ void PndTrkComparisonMCtruth::MvdMatchtoMC(
 
 	for(i=0; i<nMvdPixelHit;i++){
 		if (refindexMvdPixel->at(i)<0.) continue;
-		dist=ERRORSQPIXEL;
+		// multiply by an arbitrary factor of 2. to take into account the possibility
+		// that the Mvd hit is rather far (due to cluster analysis by Tobias & Co.)
+		// than the MC Mvd point;
+		dist=9999999.;
 		for(j=0;j<nMvdMCPoint;j++){
 			// get the MC info.
 			pMvdMCPoint = (PndSdsMCPoint*) fMvdMCPointArray->At(j);
@@ -1824,7 +1827,10 @@ void PndTrkComparisonMCtruth::MvdMatchtoMC(
 
 	for(i=0; i<nMvdStripHit;i++){
 		if (refindexMvdStrip->at(i)<0.) continue;
-		dist=ERRORSQSTRIP;
+		// multiply by an arbitrary factor of 2. to take into account the possibility
+		// that the Mvd hit is rather far (due to cluster analysis by Tobias & Co.)
+		// than the MC Mvd point;
+		dist=9999999.;
 		for(j=0;j<nMvdMCPoint;j++){
 			// get the MC info.
 			pMvdMCPoint = (PndSdsMCPoint*) fMvdMCPointArray->At(j);
@@ -1840,8 +1846,9 @@ void PndTrkComparisonMCtruth::MvdMatchtoMC(
 			distance = (XMvdMCPoint-XMvdStrip->at(i))*(XMvdMCPoint-XMvdStrip->at(i))+
 				(YMvdMCPoint-YMvdStrip->at(i))*(YMvdMCPoint-YMvdStrip->at(i))+
 				(ZMvdMCPoint-ZMvdStrip->at(i))*(ZMvdMCPoint-ZMvdStrip->at(i));
-if(istampa>3) cout<<"distanza**2 di Strip hit n. "<<i
-   <<" da MC Mvd Point n. "<<j<<" = "<<distance<<endl;
+if(istampa>=2) cout<<"distanza**2 di Strip hit n. "<<i
+   <<" da MC Mvd Point n. "<<j<<" = "<<distance<<", distanza precedente "<<dist
+   << ", 2*ERRORSQSTRIP "<<2.*ERRORSQSTRIP<<endl;
 			if( distance<dist){
 				FromStriptoMCTrack->at(i)=MCPointtoMCTrackID;
 				jmcpoint=j;
