@@ -647,8 +647,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       TVector3 B((cells3.at(jc) - cells3.at(ic)),(cells4.at(jc) - cells4.at(ic)),(cells5.at(jc) - cells5.at(ic)));
       // double Amag = A.Mag();
       // double Bmag = B.Mag();
-      TVector3 ScalAB = A.Dot(B);
-      double cosPsi = ScalAB.Mag()/(A.Mag()*B.Mag());
+      double ScalAB = A.Dot(B);
+      double cosPsi = ScalAB/(A.Mag()*B.Mag());
 	    // double Ax = cells3.at(ic) - cells0.at(ic);  
 	    // double Ay = cells4.at(ic) - cells1.at(ic); 
 	    // double Az = cells5.at(ic) - cells2.at(ic); 
