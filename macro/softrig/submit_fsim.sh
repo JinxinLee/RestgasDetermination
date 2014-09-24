@@ -155,7 +155,7 @@ case $energy in
 	qsub -t $sigmin-$sigmax job_sof_fsim.sge 45243 $nevt decfiles/M243_chic02pi.dec $pmom $res
 
 	# h_c modes
-# 	qsub -t $sigmin-$sigmax job_sof_fsim.sge 45260 $nevt decfiles/M260_hc2pi.dec $pmom $res
+ 	qsub -t $sigmin-$sigmax job_sof_fsim.sge 45260 $nevt decfiles/M260_hc2pi.dec $pmom $res
 
 	# electro-magnetic modes
 	qsub -t $sigmin-$sigmax job_sof_fsim.sge 45300 $nevt decfiles/M300_ee.dec $pmom $res
