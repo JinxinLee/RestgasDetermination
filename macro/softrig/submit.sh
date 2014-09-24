@@ -67,26 +67,13 @@ case $energy in
 	qsub -t $sigmin-$sigmax job_sof.sge 38100 $nevt decfiles/M100_D0D0b.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 38101 $nevt decfiles/M101_D0D0b.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 38102 $nevt decfiles/M102_D0D0b.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38103 $nevt decfiles/M103_D0stD0b.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38104 $nevt decfiles/M104_D0stD0b.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38105 $nevt decfiles/M105_D0stD0b.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38106 $nevt decfiles/M106_D0stD0stb.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38107 $nevt decfiles/M107_D0stD0stb.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38108 $nevt decfiles/M108_D0stD0stb.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 38109 $nevt decfiles/M109_D0D0b.dec $pmom $res
 
 	# D+- modes
 	qsub -t $sigmin-$sigmax job_sof.sge 38120 $nevt decfiles/M120_DpDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 38121 $nevt decfiles/M121_DpDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38122 $nevt decfiles/M122_DpDm.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 38122 $nevt decfiles/M122_DpDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 38123 $nevt decfiles/M123_DpDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38124 $nevt decfiles/M124_DpstDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38125 $nevt decfiles/M125_DpstDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38126 $nevt decfiles/M126_DpstDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38127 $nevt decfiles/M127_DpstDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38128 $nevt decfiles/M128_DpstDmst.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38129 $nevt decfiles/M129_DpstDmst.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38130 $nevt decfiles/M130_DpstDmst.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38131 $nevt decfiles/M131_DpstDmst.dec $pmom $res
 
 	# J/psi modes
 	qsub -t $sigmin-$sigmax job_sof.sge 38200 $nevt decfiles/M200_Jpsi2pi.dec $pmom $res
@@ -125,19 +112,22 @@ case $energy in
 	qsub -t $sigmin-$sigmax job_sof.sge 45106 $nevt decfiles/M106_D0stD0stb.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45107 $nevt decfiles/M107_D0stD0stb.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45108 $nevt decfiles/M108_D0stD0stb.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 45109 $nevt decfiles/M109_D0D0b.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 45110 $nevt decfiles/M110_D0stD0b.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 45111 $nevt decfiles/M111_D0stD0stb.dec $pmom $res
 
 	# D+- modes
 	qsub -t $sigmin-$sigmax job_sof.sge 45120 $nevt decfiles/M120_DpDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45121 $nevt decfiles/M121_DpDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 45122 $nevt decfiles/M122_DpDm.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 45122 $nevt decfiles/M122_DpDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45123 $nevt decfiles/M123_DpDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45124 $nevt decfiles/M124_DpstDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45125 $nevt decfiles/M125_DpstDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 45126 $nevt decfiles/M126_DpstDm.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 45126 $nevt decfiles/M126_DpstDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45127 $nevt decfiles/M127_DpstDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45128 $nevt decfiles/M128_DpstDmst.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45129 $nevt decfiles/M129_DpstDmst.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 45130 $nevt decfiles/M130_DpstDmst.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 45130 $nevt decfiles/M130_DpstDmst.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45131 $nevt decfiles/M131_DpstDmst.dec $pmom $res
 
 	# Ds modes
@@ -159,9 +149,13 @@ case $energy in
 	qsub -t $sigmin-$sigmax job_sof.sge 45223 $nevt decfiles/M223_etac2pi.dec $pmom $res
 
 	# chi_c0 modes
-	qsub -t $sigmin-$sigmax job_sof.sge 45240 $nevt decfiles/M240_chic02pi.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 45241 $nevt decfiles/M241_chic02pi.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 45240 $nevt decfiles/M240_chic02pi.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 45241 $nevt decfiles/M241_chic02pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45242 $nevt decfiles/M242_chic02pi.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 45243 $nevt decfiles/M243_chic02pi.dec $pmom $res
+
+	# h_c modes
+	qsub -t $sigmin-$sigmax job_sof.sge 45260 $nevt decfiles/M260_hc2pi.dec $pmom $res
 
 	# electro-magnetic modes
 	qsub -t $sigmin-$sigmax job_sof.sge 45300 $nevt decfiles/M300_ee.dec $pmom $res
@@ -190,19 +184,22 @@ case $energy in
 	qsub -t $sigmin-$sigmax job_sof.sge 55106 $nevt decfiles/M106_D0stD0stb.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55107 $nevt decfiles/M107_D0stD0stb.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55108 $nevt decfiles/M108_D0stD0stb.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 55109 $nevt decfiles/M109_D0D0b.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 55110 $nevt decfiles/M110_D0stD0b.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 55111 $nevt decfiles/M111_D0stD0stb.dec $pmom $res
 
 	# D+- modes
 	qsub -t $sigmin-$sigmax job_sof.sge 55120 $nevt decfiles/M120_DpDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55121 $nevt decfiles/M121_DpDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 55122 $nevt decfiles/M122_DpDm.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 55122 $nevt decfiles/M122_DpDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55123 $nevt decfiles/M123_DpDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55124 $nevt decfiles/M124_DpstDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55125 $nevt decfiles/M125_DpstDm.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 55126 $nevt decfiles/M126_DpstDm.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 55126 $nevt decfiles/M126_DpstDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55127 $nevt decfiles/M127_DpstDm.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55128 $nevt decfiles/M128_DpstDmst.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55129 $nevt decfiles/M129_DpstDmst.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 55130 $nevt decfiles/M130_DpstDmst.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 55130 $nevt decfiles/M130_DpstDmst.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55131 $nevt decfiles/M131_DpstDmst.dec $pmom $res
 
 	# Ds modes
@@ -224,9 +221,13 @@ case $energy in
 	qsub -t $sigmin-$sigmax job_sof.sge 55223 $nevt decfiles/M223_etac2pi.dec $pmom $res
 
 	# chi_c0 modes
-	qsub -t $sigmin-$sigmax job_sof.sge 55240 $nevt decfiles/M240_chic02pi.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 55241 $nevt decfiles/M241_chic02pi.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 55240 $nevt decfiles/M240_chic02pi.dec $pmom $res
+#	qsub -t $sigmin-$sigmax job_sof.sge 55241 $nevt decfiles/M241_chic02pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55242 $nevt decfiles/M242_chic02pi.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 45243 $nevt decfiles/M243_chic02pi.dec $pmom $res
+
+	# h_c modes
+	qsub -t $sigmin-$sigmax job_sof.sge 45260 $nevt decfiles/M260_hc2pi.dec $pmom $res
 
 	# electro-magnetic modes
 	qsub -t $sigmin-$sigmax job_sof.sge 55300 $nevt decfiles/M300_ee.dec $pmom $res
