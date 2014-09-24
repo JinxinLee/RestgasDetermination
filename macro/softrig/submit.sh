@@ -224,10 +224,10 @@ case $energy in
 #	qsub -t $sigmin-$sigmax job_sof.sge 55240 $nevt decfiles/M240_chic02pi.dec $pmom $res
 #	qsub -t $sigmin-$sigmax job_sof.sge 55241 $nevt decfiles/M241_chic02pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55242 $nevt decfiles/M242_chic02pi.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 45243 $nevt decfiles/M243_chic02pi.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 55243 $nevt decfiles/M243_chic02pi.dec $pmom $res
 
 	# h_c modes
-	qsub -t $sigmin-$sigmax job_sof.sge 45260 $nevt decfiles/M260_hc2pi.dec $pmom $res
+	qsub -t $sigmin-$sigmax job_sof.sge 55260 $nevt decfiles/M260_hc2pi.dec $pmom $res
 
 	# electro-magnetic modes
 	qsub -t $sigmin-$sigmax job_sof.sge 55300 $nevt decfiles/M300_ee.dec $pmom $res
