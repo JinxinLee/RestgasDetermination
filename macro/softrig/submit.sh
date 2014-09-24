@@ -82,7 +82,7 @@ case $energy in
 	# eta_c modes
 	qsub -t $sigmin-$sigmax job_sof.sge 38220 $nevt decfiles/M220_etac2pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 38221 $nevt decfiles/M221_etac2pi.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 38222 $nevt decfiles/M222_etac2pi.dec $pmom $res
+# 	qsub -t $sigmin-$sigmax job_sof.sge 38222 $nevt decfiles/M222_etac2pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 38223 $nevt decfiles/M223_etac2pi.dec $pmom $res
 
 	# electro-magnetic modes
@@ -145,7 +145,7 @@ case $energy in
 	# eta_c modes
 	qsub -t $sigmin-$sigmax job_sof.sge 45220 $nevt decfiles/M220_etac2pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45221 $nevt decfiles/M221_etac2pi.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 45222 $nevt decfiles/M222_etac2pi.dec $pmom $res
+# 	qsub -t $sigmin-$sigmax job_sof.sge 45222 $nevt decfiles/M222_etac2pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 45223 $nevt decfiles/M223_etac2pi.dec $pmom $res
 
 	# chi_c0 modes
@@ -217,7 +217,7 @@ case $energy in
 	# eta_c modes
 	qsub -t $sigmin-$sigmax job_sof.sge 55220 $nevt decfiles/M220_etac2pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55221 $nevt decfiles/M221_etac2pi.dec $pmom $res
-	qsub -t $sigmin-$sigmax job_sof.sge 55222 $nevt decfiles/M222_etac2pi.dec $pmom $res
+# 	qsub -t $sigmin-$sigmax job_sof.sge 55222 $nevt decfiles/M222_etac2pi.dec $pmom $res
 	qsub -t $sigmin-$sigmax job_sof.sge 55223 $nevt decfiles/M223_etac2pi.dec $pmom $res
 
 	# chi_c0 modes
