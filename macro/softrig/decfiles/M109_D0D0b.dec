@@ -2,6 +2,7 @@ noPhotos
 
 Alias 	MyD0	D0
 Alias	MyD0b	anti-D0
+Alias   MyKs    K_S0
 
 Decay pbarpSystem
   0.5 	MyD0 anti-D0	PHSP;
@@ -14,11 +15,15 @@ Decay pbarpSystem0
 Enddecay
 
 Decay MyD0
-  1.0 	K- pi+ pi0		D_DALITZ;
+  1.0 	MyKs pi+ pi-	D_DALITZ;
 Enddecay
 
 Decay MyD0b
-  1.0 	K+ pi- pi0		D_DALITZ;
+  1.0 	MyKs pi+ pi- 	D_DALITZ;
+Enddecay
+
+Decay MyKs
+  1.0   pi+ pi-			PHSP;
 Enddecay
 
 End

@@ -27,6 +27,9 @@ CD(E) |  mode
 106   |  D0* D0*bar; one D0 -> K- pi+
 107   |  D0* D0*bar; one D0 -> K- pi+ pi0; pi0 -> gamma gamma
 108   |  D0* D0*bar; one D0 -> K- pi+ pi+ pi-
+109   |  D0 D0bar; one D0 -> K_S pi+ pi-
+110   |  D0 D0*bar; one D0 -> K_S pi+ pi-
+111   |  D0* D0*bar; one D0 -> K_S pi+ pi-
 
 120   |  D+ D-; one D -> K- pi+ pi+
 121   |  D+ D-; one D -> K- pi+ pi+ pi0;  pi0 ->gamma gamma
@@ -59,6 +62,9 @@ CD(E) |  mode
 240   |  chi_c0 pi+ pi-; chi_c0 -> pi+ pi- pi0 pi0; pi0 -> gamma gamma
 241   |  chi_c0 pi+ pi-; chi_c0 -> pi+ pi- pi+ pi-
 242   |  chi_c0 pi+ pi-; chi_c0 -> pi+ pi- K+ K-
+243   |  chi_c0 pi+ pi-; chi_c0 -> K+ pi- K_S pi0 (*)
+
+260   |  h_c pi+ pi-; h_c -> pi+ pi- pi+ pi- pi0
 
 300   |  e+ e-
 320   |  mu+ mu-

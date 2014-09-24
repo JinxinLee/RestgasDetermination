@@ -4,15 +4,20 @@ Alias 	MyD0		D0
 Alias	MyD0b		anti-D0
 Alias   MyD0st   	D*0
 Alias   MyD0stb		anti-D*0
+Alias   MyKs    	K_S0
 
 Decay pbarpSystem
-  0.5  MyD0st  anti-D*0		PHSP;
-  0.5  D*0     MyD0stb		PHSP;
+  0.25  MyD0     anti-D*0		PHSP;
+  0.25  MyD0b    D*0			PHSP;
+  0.25  D0       MyD0stb		PHSP;
+  0.25  anti-D0  MyD0st			PHSP;
 Enddecay
 
 Decay pbarpSystem0
-  0.5  MyD0st  anti-D*0		PHSP;
-  0.5  D*0     MyD0stb		PHSP;
+  0.25  MyD0     anti-D*0		PHSP;
+  0.25  MyD0b    D*0			PHSP;
+  0.25  D0       MyD0stb		PHSP;
+  0.25  anti-D0  MyD0st			PHSP;
 Enddecay
 
 Decay MyD0st
@@ -26,11 +31,15 @@ Decay MyD0stb
 Enddecay
 
 Decay MyD0
-  1.0 	K- pi+ pi+ pi- 		PHSP;
+  1.0 	MyKs pi+ pi-	D_DALITZ;
 Enddecay
 
 Decay MyD0b
-  1.0 	K+ pi- pi- pi+ 		PHSP;
+  1.0 	MyKs pi+ pi- 	D_DALITZ;
+Enddecay
+
+Decay MyKs
+  1.0   pi+ pi-			PHSP;
 Enddecay
 
 End
