@@ -340,7 +340,11 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
       if(fVerbose>0){
 	std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit(LUMI frame): " << std::endl;
 	myHit.Print();
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
+	((FairMultiLinkedData_Interface)(myHit)).Print();
+#else
 	((FairMultiLinkedData)(myHit)).Print();
+#endif
       }
       TClonesArray& clref = *fHitArray;
       Int_t size = clref.GetEntriesFast();

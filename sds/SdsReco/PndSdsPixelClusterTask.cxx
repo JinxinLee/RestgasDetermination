@@ -246,7 +246,11 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 	if(fVerbose>0){
 	  std::cout << " -I-  PndSdsPixelClusterTask::Exec(): Calculated Hit: " << std::endl;
 	  myHit.Print();
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
+	  ((FairMultiLinkedData_Interface)(myHit)).Print();
+#else
 	  ((FairMultiLinkedData)(myHit)).Print();
+#endif
 	}
 	new ((*fHitArray)[i]) PndSdsHit(myHit);
   }

@@ -384,7 +384,11 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
     fDataBuffer->FillNewData(tempPixel, fChargeConverter->ChargeToDigiValue(fPixelList[iPix].GetCharge())*6 + EventTime, point->GetTime()+EventTime);
     if (fVerbose > 0){
 	  std::cout << "PixelDigi: " << (tempPixel) << std::endl;
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
+	  std::cout << "Links in Digi: " << (FairMultiLinkedData_Interface*)(tempPixel) << std::endl;
+#else
 	  std::cout << "Links in Digi: " << (FairMultiLinkedData)(*tempPixel) << std::endl;
+#endif
 	}
     delete tempPixel;
     
