@@ -231,7 +231,8 @@ bool  PndLmdSigCleanTask::CheckMVA(FairTrackParH* fTrk){
   // if(mva_response>-0.0599) res=true; //BDT 
 
   // if(mva_response<-0.0411){//new training for non-point-like beam [28/04/2014]
- if(mva_response<0.0947){//new training for non-point-like beam [28/04/2014]
+  // if(mva_response<0.0947){//new training for non-point-like beam [28/04/2014]
+  if(mva_response<0.5){//new training for non-point-like beam [28/09/2014]
   //   if(mva_response<0){
   // if(mva_response<-0.1452){
   // if(mva_response<-0.156){
