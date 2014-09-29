@@ -477,6 +477,17 @@ class PndTrkTracking2 : public FairTask
 	Short_t fListSttParHitsinTrack[][MAXSTTHITSINTRACK] // input/output
 	);
 
+  Short_t CompareTracks(
+	Short_t first_track,
+	Short_t second_track
+			);
+
+
+  bool EliminateClones(
+	Short_t nTotalCandidates, // input;
+	bool * keepit  // input and output;
+			);
+
  
   void EliminateSpuriousSZ_bis(
   	Short_t ncand,
