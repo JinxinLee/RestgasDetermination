@@ -51,7 +51,7 @@ double df_dt1(double &t, double par[]){
   double A3 = par[2];
   double t1 = par[3];
   double t2 = par[4];
-  double res = A1*(TMath::Exp(t/t1)-A2*TMath::Exp(t/(2*t1)+t/(2*t2)))*(-t/(t1*t1));
+  double res = A1*(-TMath::Exp(t/t1)+A2*TMath::Exp(t/(2*t1)+t/(2*t2)))*(t/(t1*t1));
   return res;
 }
 
@@ -61,7 +61,8 @@ double df_dt2(double &t, double par[]){
   double A3 = par[2];
   double t1 = par[3];
   double t2 = par[4];
-  double res = A1*(-A2*TMath::Exp(t/(2*t1)+t/(2*t2))+A2*A2*TMath::Exp(t/t2))*(-t/(t2*t2))+A3*TMath::Exp(t/t2)*(-t/t2);
+  //double res = A1*(-A2*TMath::Exp(t/(2*t1)+t/(2*t2))+A2*A2*TMath::Exp(t/t2))*(-t/(t2*t2))+A3*TMath::Exp(t/t2)*(-t/t2);
+  double res = A1*A2*(TMath::Exp(t/(2*t1)+t/(2*t2))-(A2+A3)*TMath::Exp(t/t2))*(-t/(t2*t2));
   return res;
 }
 
@@ -78,9 +79,9 @@ double Df(double &t, double par[], double errpar[]){
 
 int main(){
   //only final DPM fit is considered  (p.7)
-  // double mom = 2.33;
-  // double par[5] = {582,0.196,2.72,0.0899,0.322};
-  // double errpar[5] = {17,0.008,0.38,0.006,0.012}; //warning: t1 is fixed param, the largest uncertainty is taken from paper
+  double mom = 2.33;
+  double par[5] = {582,0.196,2.72,0.0899,0.322};
+  double errpar[5] = {17,0.008,0.38,0.006,0.012}; //warning: t1 is fixed param, the largest uncertainty is taken from paper
 
   // double mom = 2.85;
   // double par[5] = {426,0.153,1.78,0.0899,0.394};
@@ -99,9 +100,9 @@ int main(){
   // double errpar[5] = {1.9,0.004,0.12,0.006,0.015}; //warning: t1 is fixed param, the largest uncertainty is taken from paper
 
 
-  double mom = 15.95;
-  double par[5] = {113,0.049,0.69,0.0899,0.049};
-  double errpar[5] = {4.2,0.013,0.32,0.006,0.049}; //warning: t1 is fixed param, the largest uncertainty is taken from paper
+  // double mom = 15.95;
+  // double par[5] = {113,0.049,0.69,0.0899,0.049};
+  // double errpar[5] = {4.2,0.013,0.32,0.006,0.049}; //warning: t1 is fixed param, the largest uncertainty is taken from paper
 
   /// set up LmdFit for calculation t out of theta --------
 
@@ -145,7 +146,7 @@ int main(){
 
   TGraphErrors *gr_cs_th = new TGraphErrors(nst,th_val,cs_val,0,cs_uncert);
   
-  gr_cs_th->SetTitle("P_{beam} = 15.95 GeV/c");
+  gr_cs_th->SetTitle("P_{beam} = 2.33 GeV/c");
   gr_cs_th->GetXaxis()->SetTitle("#theta, mrad");
   gr_cs_th->GetYaxis()->SetTitle("d#sigma/dt, mb/(GeV/c)^{2}");
   gr_cs_th->SetFillColor(4);
@@ -171,7 +172,7 @@ int main(){
  TGraph *gr_cs_relun_th = new TGraph(nst,th_val,rel_err);
  gr_cs_relun_th->SetTitle("");
   gr_cs_relun_th->GetXaxis()->SetTitle("#theta, mrad");
-  gr_cs_relun_th->GetYaxis()->SetTitle("#Delta(d#sigma/dt)/(d#sigma/dt)");
+  gr_cs_relun_th->GetYaxis()->SetTitle("#Delta(d#sigma/dt)/(d#sigma/dt), %");
 
   TGraph *gr_cs_relun_t = new TGraph(nst,t_val,rel_err);
   gr_cs_relun_t->SetTitle("");
@@ -192,7 +193,7 @@ int main(){
   gr_cs_relun_th->Draw("AL");
   c1.cd(6);
   gr_cs_relun_t->Draw("AL");
-  c1.SaveAs("cs_and_uncert_15_95.pdf");
-  c1.SaveAs("cs_and_uncert_15_95.root");
+  c1.SaveAs("cs_and_uncert_2_33.pdf");
+  c1.SaveAs("cs_and_uncert_2_33.root");
   return 0;
 }
