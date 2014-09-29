@@ -1064,12 +1064,12 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
 /*
 	if(
-		IVOLTE == 5
+		IVOLTE == 820
 	) { istampa =1 ; iplotta = true;} else { istampa=0; iplotta = false;}
 
 */
 
- if(istampa>=2)
+ if(istampa>=1)
 	cout<<endl<<"Entering in PndTrkTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
 
 
@@ -1114,7 +1114,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	", setting nMvdMCPoint to "<<MAXMVDMCPOINTS<<endl;
 	nMvdMCPoint=MAXMVDMCPOINTS;
  }
- if(istampa>=2) cout<<"N. MC Points delle Mvd = "<<nMvdMCPoint<<endl;
+ if(istampa>=1) cout<<"N. MC Points delle Mvd = "<<nMvdMCPoint<<endl;
 
 
 
@@ -1550,7 +1550,7 @@ if(istampa>0){
  		);
 
 //------------------------------------- stampe;
-if(istampa>=2){
+if(istampa>=1){
 	cout<<"from PndTrkTracking2, evt "<<IVOLTE<<";  number of clusters found : "<<nFoundClusters<<" and their list :\n";
 	for(int ic=0;ic<nFoundClusters;ic++){
 		cout<<"cluster n. "<<ic<<" is composed by "<<nHitsinCluster[ic]<<" hits;"<<endl;
@@ -1817,7 +1817,7 @@ int iconta=0;
 
 
 //-------------- stampa
- if(istampa>=2){
+ if(istampa>=1){
 cout<<"\tstampa dopo FindTrackInXYProjection di tutte le trackCand rimaste :\n";
 //fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
 fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
@@ -3357,8 +3357,11 @@ bool PndTrkTracking2::EliminateClones(
 		for(j=i+1; j<nTotalCandidates;j++){
 			if( ! keepit[j]  ) continue;
 			nCommon = CompareTracks(i,j);	// calculates the total number of Mvd+Stt common hits;
+if(istampa>0) { cout<<"from Eliminateclones, traccia i = "<<i<<", j = "<<j<<", nTotalHits[i] "<<
+nTotalHits[i]<<", nTotalHits[j] "<<nTotalHits[j]
+	<<", nCommon "<<nCommon<<endl;}
 			// criterion for declaring two tracks clones :
-			if(nCommon > 0.7 * nTotalHits[i]) {
+			if(nCommon > 0.7 * nTotalHits[i] || nCommon > 0.7 * nTotalHits[j]) {
 				// arbitration;
 				if( nTotalHits[i]>=nTotalHits[j] ){
 					keepit[j]=false;
