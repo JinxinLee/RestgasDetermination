@@ -1064,12 +1064,12 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
 /*
 	if(
-		IVOLTE == 0
+		IVOLTE == 5
 	) { istampa =1 ; iplotta = true;} else { istampa=0; iplotta = false;}
+
 */
 
-
- if(istampa>0)
+ if(istampa>=2)
 	cout<<endl<<"Entering in PndTrkTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
 
 
@@ -1121,11 +1121,6 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 // ---------------------------------------------  extract info from HITS Pixel MVD
 
  TVector3 MCposition;
-
-
-
-
-
 
 
 
@@ -1385,7 +1380,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
  memset (nHitsInSciTile,0,sizeof(nHitsInSciTile));
 //---
 
- if(istampa>0) cout<<"from PndTrkTracking2, event "<<IVOLTE<<", "<<fnSciTilHits
+ if(istampa>=1) cout<<"from PndTrkTracking2, event "<<IVOLTE<<", "<<fnSciTilHits
 		<<" SciTil hits present initially."<<endl;
 	for(j=0; j<fnSciTilHits; j++){
 	}
@@ -1555,7 +1550,7 @@ if(istampa>0){
  		);
 
 //------------------------------------- stampe;
-if(istampa>=1){
+if(istampa>=2){
 	cout<<"from PndTrkTracking2, evt "<<IVOLTE<<";  number of clusters found : "<<nFoundClusters<<" and their list :\n";
 	for(int ic=0;ic<nFoundClusters;ic++){
 		cout<<"cluster n. "<<ic<<" is composed by "<<nHitsinCluster[ic]<<" hits;"<<endl;
@@ -1664,11 +1659,11 @@ if(istampa>=1){
 int iconta=0;
 
  nSttTrackCand=0;    // # tracks found
-	if(istampa>=1){  cout<<"event "<<IVOLTE<<endl;}
+	if(istampa>=2){  cout<<"event "<<IVOLTE<<endl;}
 
  for(iCluster=0; iCluster<nFoundClusters ; iCluster++) {
 
-	if(istampa>=1){  cout<<"event "<<IVOLTE<<";  processing cluster n. "<<iCluster<<endl;}
+	if(istampa>=2){  cout<<"event "<<IVOLTE<<";  processing cluster n. "<<iCluster<<endl;}
 
 	// output of the found track candidate; assignment of InOut.Fi_low_limit to a already assigned memory
 	// is necessary ! So it is for InOut.Fi_up_limit;
@@ -1822,7 +1817,7 @@ int iconta=0;
 
 
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 cout<<"\tstampa dopo FindTrackInXYProjection di tutte le trackCand rimaste :\n";
 //fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
 fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
@@ -1929,7 +1924,7 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 
 //-------------------------------------------  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 cout<<"\tstampa dopo AssociateSkewHitsToXYTrack di solo la Traccia n. "<<ncand<<endl;
 //fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
 fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
@@ -1965,7 +1960,7 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 	int dime ;
 	if(nhitsinfit>0) dime = nhitsinfit ; else dime=1;
 
-if(istampa>0) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
+if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 //---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
 //	 Stt Skew hits and SciTil hits (if present).
 
@@ -2007,7 +2002,7 @@ if(istampa>0) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 					);
 
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 	cout<<"\tstampa prima del primo FitSZspace_Chi2_AnnealingtheMvdOnly, della sola traccia "<<ncand<<endl;
 
 cout<<"\tFI0 "<<FI0[ncand]<<", charge "<<Charge[ncand]<<", lista degli S :\n";
@@ -2075,7 +2070,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 	cout<<"stampa dopo il primo FitSZspace_Chi2_AnnealingtheMvdOnly, SttTrackCand n. "<<ncand<<", result (1 va bene) = "
 	<<resultFitSZagain[ncand]<<endl;
 
@@ -2128,7 +2123,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 		MaxTurns=0;
 	    }
 
-if(istampa>0) {cout <<"Prima del primo EliminateSpuriousSZ_bis : MaxTurns = "<<MaxTurns<<endl; }
+if(istampa>=2) {cout <<"Prima del primo EliminateSpuriousSZ_bis : MaxTurns = "<<MaxTurns<<endl; }
 	    EliminateSpuriousSZ_bis(
 	    	ncand,
 		MaxTurns,	// input;
@@ -2165,7 +2160,7 @@ if(istampa>0) {cout <<"Prima del primo EliminateSpuriousSZ_bis : MaxTurns = "<<M
 
 
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 	cout<<"stampa dopo il primo EliminateSpuriousSZ_bis, SttTrackCand n. "<<ncand<<endl;
 	fPrint.stampetta(
 //IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
@@ -2218,7 +2213,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			Charge[ncand]	// this remains unchanged.
 					);
 //--------------
-if(istampa>0){
+if(istampa>=2){
 	cout<<"prima del secondo  FitSZspace_Chi2_AnnealingtheMvdOnly : nhitsinfit "<<nhitsinfit<<endl;
 		for(int gg=0;gg<nhitsinfit;gg++){ cout<<"\tZED "<<ZED[gg]<<", S "<<S[gg]<<", drift "
 		<<DriftRadius[gg]<<", error "<<ErrorDriftRadius[gg]<<endl;
@@ -2265,7 +2260,7 @@ if(istampa>0){
 		//------------------------------------------- end of the refit;
 
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 	cout<<"stampa dopo il secondo FitSZspace_Chi2_AnnealingtheMvdOnly, SttTrackCand n. "<<ncand<<endl;
 	fPrint.stampetta(
 //IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
@@ -2304,7 +2299,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 	cout<<"stampa in Last Iteration, dopo la ricarica di Skew ed Mvd hits; SttTrackCand n. "<<ncand<<endl;
 	fPrint.stampetta(
 //IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
@@ -2318,7 +2313,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	}
 //---------------------------------------------------------------------------
 
-	EliminateSpuriousSZ_ter(
+	EliminateSpuriousSZ_bis(
 		ncand,
 		MaxTurns,	// input;
 		signPz,		// input
@@ -2344,7 +2339,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 	cout<<"stampa dopo il secondo EliminateSpuriousSZ (e' ter), SttTrackCand n. "<<ncand<<endl;
 	fPrint.stampetta(
 //IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
@@ -2367,13 +2362,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 	}  // end of  if(keepit[ncand])
 
-//------------------------
-
-
-
 //--------------------------------------------------------------------------
-
-
 
 
 //	First cleanup based on the absence of Mvd hits
@@ -2462,6 +2451,39 @@ fYesCleanMvd=false;
 
 
 
+//-------------------------------------------------------------
+//-------------- stampa
+ if(istampa>=1){
+	cout<<"stampa prima di EliminateClones di tutte le "<<nTotalCandidates<<" found tracks:"<<endl;
+	fPrint.stampetta(
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,
+-1,
+MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+	}
+
+
+//---------------------------------------------------------------------------
+
+
+
+
+
+
+//------------------------
+
+// here eliminate the clones tracks (most likely produced by initial clusters belonging
+// to the same physical track);
+
+	if(nTotalCandidates>1)   EliminateClones(nTotalCandidates,keepit);
+
+
+//--------------------------------------------------------------------------
+
+
 
 
 
@@ -2510,10 +2532,8 @@ fYesCleanMvd=false;
 		fR[ncand],
 		RSTRAWDETECTORMAX,
 		APOTEMASTRAWDETECTORMIN,
-//		SEMILENGTH_STRAIGHT,
 		Start,
 		STRAWRADIUS
-//		ZCENTER_STRAIGHT
 				) ) {
 			keepit[ncand]=false;
 			continue;
@@ -2534,10 +2554,25 @@ fYesCleanMvd=false;
 
 
 //--------------------------
+int ncand_effettivo =-1;
  if(istampa>=1){
 	for(ncand=0; ncand< nTotalCandidates; ncand++){
-		cout<<"evento n. "<<IVOLTE<<",  prima di LoadPndTrack_TrackCand, candidato n. "
+		cout<<"evento n. "<<IVOLTE<<",  prima di LoadPndTrack_TrackCand, candidato TEORICO n. "
 		<<ncand<<", suo keepit "<<keepit[ncand]<<endl;
+		if(keepit[ncand]) {  ncand_effettivo ++; cout<<"\t candidato EFFETTIVO n. "<<ncand_effettivo<<
+		" ma nella stampa che segue ci sara' scritto :  candidate n. "<<ncand<<   endl;
+			fPrint.stampetta(
+//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,
+ncand,
+MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+}
+
+
 	} // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
 }
 //--------------------------
@@ -3236,6 +3271,115 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 
 
 
+//-------------------------  begin of function  PndTrkTracking2::CompareTracks
+Short_t PndTrkTracking2::CompareTracks(
+		Short_t first_track,
+		Short_t second_track
+					)
+{
+	Short_t	
+		i,
+		j,
+		nCommon = 0;
+
+	// comparison of the Pixel;
+	for(i=0;i<fnMvdPixelHitsinTrack[first_track];i++){
+		for(j=0;j<fnMvdPixelHitsinTrack[second_track];j++){
+			if( fListMvdPixelHitsinTrack[first_track][i] ==
+				fListMvdPixelHitsinTrack[second_track][j] ) {
+				nCommon++;
+			}
+		}
+	}
+
+	// comparison of the Strips;
+	for(i=0;i<fnMvdStripHitsinTrack[first_track];i++){
+		for(j=0;j<fnMvdStripHitsinTrack[second_track];j++){
+			if( fListMvdStripHitsinTrack[first_track][i] ==
+				fListMvdStripHitsinTrack[second_track][j] ) {
+				nCommon++;
+			}
+		}
+	}
+
+
+	// comparison of the Axial Stt;
+	for(i=0;i<fnSttParHitsinTrack[first_track];i++){
+		for(j=0;j<fnSttParHitsinTrack[second_track];j++){
+			if( fListSttParHitsinTrack[first_track][i] ==
+				fListSttParHitsinTrack[second_track][j] ) {
+				nCommon++;
+			}
+		}
+	}
+
+
+	// comparison of the Skew Stt;
+	for(i=0;i<fnSttSkewHitsinTrack[first_track];i++){
+		for(j=0;j<fnSttSkewHitsinTrack[second_track];j++){
+			if( fListSttSkewHitsinTrack[first_track][i] ==
+				fListSttSkewHitsinTrack[second_track][j] ) {
+				nCommon++;
+			}
+		}
+	}
+
+	return nCommon;
+}
+//------------------------- end of function  PndTrkTracking2::CompareTracks
+
+
+
+
+//-------------------------  begin of function  PndTrkTracking2::EliminateClones
+bool PndTrkTracking2::EliminateClones(
+		Short_t nTotalCandidates, // input;
+		bool * keepit  // input and output;
+					)
+{
+
+	Short_t	i,
+		j,
+		nCommon,
+		nTotalHits[nTotalCandidates];
+
+
+	for(i=0;i<nTotalCandidates;i++){
+		if(keepit[i]) nTotalHits[i]=fnMvdPixelHitsinTrack[i]+fnMvdStripHitsinTrack[i]
+			+fnSttParHitsinTrack[i]+ fnSttSkewHitsinTrack[i];
+	}
+
+	// compare the track candidates with each other;
+	// compare the Mvd Pixels and Strips, the Stt Skews and Axials; forget about the SciTil;
+
+	for(i=0;i<nTotalCandidates-1;i++){
+		if( ! keepit[i] ) continue;
+		for(j=i+1; j<nTotalCandidates;j++){
+			if( ! keepit[j]  ) continue;
+			nCommon = CompareTracks(i,j);	// calculates the total number of Mvd+Stt common hits;
+			// criterion for declaring two tracks clones :
+			if(nCommon > 0.7 * nTotalHits[i]) {
+				// arbitration;
+				if( nTotalHits[i]>=nTotalHits[j] ){
+					keepit[j]=false;
+				} else {
+					keepit[i]=false;
+					// in this case quit analysis of the track number i;
+					continue;
+				}
+			}
+		}  // end of  for(j=i+1; j<nTotalCandidates;j++)
+
+
+	}
+
+
+
+}
+
+//------------------------- end of function  PndTrkTracking2::EliminateClones
+
+
 //-------------------------  begin of function  PndTrkTracking2::EliminateSpuriousSZ_bis
 
 void PndTrkTracking2::EliminateSpuriousSZ_bis(
@@ -3316,7 +3460,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		Z = fCandidatePixelZ[k];
 		Fi= fCandidatePixelS[k];
 		dista = GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z,Fi,MaxTurnofTracks,signPz,chosenS);
-		if(istampa>0){
+		if(istampa>=2){
 			cout<<"from EliminateSpuriousSZ_bis, Pixel n. "<<fListMvdPixelHitsinTrack[ncand][i]<<
 			", Z "<<Z<<", S "<<Fi<<", R*S "<<Rr*Fi<<   ", dista "<<dista<<", X "<<
 			fXMvdStrip[fListMvdPixelHitsinTrack[ncand][i]]<<", Y "<< fYMvdPixel[fListMvdPixelHitsinTrack[ncand][i]];}
@@ -3327,9 +3471,9 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 			ErrorchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]=ERRORPIXEL;
 			Pix_distance[auxnMvdPixel] = dista;
 			auxnMvdPixel++;
-			if(istampa>0){ cout<<", chosen."<<endl;}
+			if(istampa>=2){ cout<<", chosen."<<endl;}
 		} else {
-			if(istampa>0){ cout<<", not chosen. "<<endl;}
+			if(istampa>=2){ cout<<", not chosen. "<<endl;}
 		}
 	}	// end of  for(i=0;i<*nPixelHitsinTrack;i++)
 
@@ -3341,7 +3485,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		Z = fCandidateStripZ[k];
 		Fi= fCandidateStripS[k];
 		dista = GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z,Fi,MaxTurnofTracks,signPz,chosenS);
-		if(istampa>0){
+		if(istampa>=2){
 			cout<<"from EliminateSpuriousSZ_bis, Strip n. "<<fListMvdStripHitsinTrack[ncand][j]<<
 			", Z "<<Z<<", S "<<Fi<<", R*S "<<Rr*Fi<<   ", dista "<<dista<<", X "<<
 			fXMvdStrip[fListMvdStripHitsinTrack[ncand][j]]<<", Y "<< fYMvdStrip[fListMvdStripHitsinTrack[ncand][j]];}
@@ -3352,9 +3496,9 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 			ErrorchosenStrip[fListMvdStripHitsinTrack[ncand][j]]=ERRORSTRIP;
 			Strip_distance[auxnMvdStrip] = dista;
 			auxnMvdStrip++;
-			if(istampa>0){ cout<<", chosen. "<<endl;}
+			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
-			if(istampa>0){ cout<<", not chosen. "<<endl;}
+			if(istampa>=2){ cout<<", not chosen. "<<endl;}
 		}
 	}	// end of  for(j=0;j<*nStripHitsinTrack;j++)
 
@@ -3383,7 +3527,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		}
 
 
-			if(istampa>0){
+			if(istampa>=2){
 			 cout<<"from EliminateSpuriousSZ_bis, Skew Stt n. "<<fListSttSkewHitsinTrack[ncand][j]<<", suo Zed "<<
 			 Z<<", suo S "<<    SchosenSkew[ fListSttSkewHitsinTrack[ncand][j] ]       <<
 			 ", suo Drift "<<Drift<<", dista+ "<<dista<<", dista- "<<ddd
@@ -3576,12 +3720,14 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 
 //	const Double_t  MvdCut=1.8,
 //	const Double_t  MvdCut=0.8,
-	Double_t  MvdCut=1.5,
-			minimumSttDriftError = 1.;
+//	const Double_t  MvdCut=1.,
+	Double_t  MvdCut= 1.5,
+	minimumSttDriftError = 1.;
 
 	// for the motivation of this correction see Logbook on page 146; keep in mind that at this point fabs(KAPPA[ncand]) > 1.e-10,
 	// see code above;
 	MvdCut = MvdCut*sqrt(1.+Rr*Rr*KAPPA*KAPPA)/(Rr*fabs(KAPPA));
+if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 	minimumSttDriftError = minimumSttDriftError*sqrt(1.+Rr*Rr*KAPPA*KAPPA)/(Rr*fabs(KAPPA));
 
 	Double_t chosenS,
@@ -3617,7 +3763,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 		Z = fCandidatePixelZ[k];
 		Fi= fCandidatePixelS[k];
 		dista = GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z,Fi,MaxTurnofTracks,signPz,chosenS);
-		if(istampa>0){
+		if(istampa>=2){
 
 
 			cout<<"from EliminateSpuriousSZ_ter, Pixel n. "<<fListMvdPixelHitsinTrack[ncand][i]<<
@@ -3630,9 +3776,9 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 			ErrorchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]=ERRORPIXEL;
 			Pix_distance[auxnMvdPixel] = dista;
 			auxnMvdPixel++;
-			if(istampa>0){ cout<<", chosen. "<<endl;}
+			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
-			if(istampa>0){ cout<<", not chosen. "<<endl;}
+			if(istampa>=2){ cout<<", not chosen. "<<endl;}
 		}
 	}	// end of  for(i=0;i<*nPixelHitsinTrack;i++)
 
@@ -3644,7 +3790,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 		Z = fCandidateStripZ[k];
 		Fi= fCandidateStripS[k];
 		dista = GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z,Fi,MaxTurnofTracks,signPz,chosenS);
-		if(istampa>0){
+		if(istampa>=2){
 			cout<<"from EliminateSpuriousSZ_ter, Strip n. "<<fListMvdStripHitsinTrack[ncand][j]<<
 			", Z "<<Z<<", R*S "<<Rr*Fi<<   ", dista "<<dista<<", X "<<
 			fXMvdStrip[fListMvdStripHitsinTrack[ncand][j]]<<", Y "<< fYMvdStrip[fListMvdStripHitsinTrack[ncand][j]];}
@@ -3655,9 +3801,9 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 			ErrorchosenStrip[fListMvdStripHitsinTrack[ncand][j]]=ERRORSTRIP;
 			Strip_distance[auxnMvdStrip] = dista;
 			auxnMvdStrip++;
-			if(istampa>0){ cout<<", chosen. "<<endl;}
+			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
-			if(istampa>0){ cout<<", not chosen. "<<endl;}
+			if(istampa>=2){ cout<<", not chosen. "<<endl;}
 		}
 	}	// end of  for(j=0;j<*nStripHitsinTrack;j++)
 
@@ -3673,7 +3819,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 
 		dista =GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z+Drift,Fi,MaxTurnofTracks,signPz,chosenS);
 		ddd = GeomC.Dist_SZ_bis(Rr,KAPPA,FI0,Z-Drift,Fi,MaxTurnofTracks,signPz,chosenS2);
-		if(istampa>0){
+		if(istampa>=2){
 			cout<<"from EliminateSpuriousSZ_ter, Skew Stt n. "<<fListSttSkewHitsinTrack[ncand][j]<<", suo Zed "<<
 			Z<<", suo Drift "<<Drift<<", dista+ "<<dista<<", dista- "<<ddd<<endl;
 		}
