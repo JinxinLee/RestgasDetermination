@@ -456,7 +456,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 		InOut->BETA,
 		InOut->GAMMA,
 		InOut->TypeConf,
-		0, // istampa
+		2, // istampa
 		InOut->icounter //  IVOLTE
 			);
 
@@ -483,7 +483,7 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
  if ( R + aaa < InOut->apotemastrawdetectormin *0.9 ) return false;
 
 //-------------- stampa
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -598,7 +598,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -656,7 +656,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -799,7 +799,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	InOut->BETA,	// input and output;
 	InOut->GAMMA,	// input and output;
 	InOut->TypeConf,
-	0, // istampa
+	2, // istampa
 	InOut->icounter //  IVOLTE
 				);
 
@@ -816,7 +816,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -1037,7 +1037,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
 //-------------- stampa
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
