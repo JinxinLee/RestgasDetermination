@@ -4,7 +4,7 @@
 //
 //
 //  created by A. Sanchez
-//
+//  modifyed by Yu.Naryshkin
 ///////////////////////////////////////////////////////////////
 
 #include "PndFtof.h"
@@ -306,7 +306,7 @@ void PndFtof::ConstructASCIIGeometry() {
   const Double_t  kBCentZ    = 0.75;   //half length (cm) //?
 
   const Double_t  kBBeamX    = 2.5;   // half length(cm) //from EMC TDR
-  const Double_t  kBBeamY    = 32.5;  //alf length (cm) //?
+  const Double_t  kBBeamY    = 30.0;  //alf length (cm) //?
   const Double_t  kBBeamZ    = 0.75;   //half length (cm) //?
 
   const Double_t  kBVertX    = 5.0;   //half length (cm) //from EMC TDR
@@ -323,28 +323,28 @@ void PndFtof::ConstructASCIIGeometry() {
   TGeoVolume* VertVol;
   
   
-  Double_t bx[22],by[22],bz[22];
-  Double_t bvx[46],bvy[46],bvz[46];
+  Double_t bx[26],by[26],bz[26];
+  Double_t bvx[50],bvy[50],bvz[50];
   TGeoVolumeAssembly* SubunitVol = new TGeoVolumeAssembly("Ftof_strips");
   
   
-  char name[13];
-  char namB[13];
-  char namV[13];
-  char name1[13];
-  char namB1[13];
+  char name[17];
+  char namB[17];
+  char namV[17];
+  char name1[17];
+  char namB1[17];
   char namV1[20];
-  char name2[13];
-  char namB2[13];
-  char namV2[13];
+  char name2[17];
+  char namB2[17];
+  char namV2[17];
   
   
-  for(int i=0;i<22;i++){
+  for(int i=0;i<26;i++){
   bx[i]=-40+kBCentX*((2*i)+1);
 }
 
-  for(int i=0;i<22;i++){
-    if(i<9||i>12){
+  for(int i=0;i<26;i++){
+    if(i<8||i>17){
       TGeoCombiTrans* trc1;
       
       Double_t offset;
@@ -353,8 +353,8 @@ void PndFtof::ConstructASCIIGeometry() {
       
       CentShape = new TGeoBBox("Centshape",kBCentX,kBCentY,kBCentZ);
       CentVol = new TGeoVolume("Ftof_Central_Strip",CentShape,gGeoManager->GetMedium("polyvinyltoluene"));
-      if(i<9)trc1= new TGeoCombiTrans(bx[i],0,750,new TGeoRotation ()); 
-      else if (i>12)trc1= new TGeoCombiTrans(bx[i-2],0,750,new TGeoRotation ());
+      if(i<8)trc1= new TGeoCombiTrans(bx[i],0,750,new TGeoRotation ()); 
+      else if (i>17)trc1= new TGeoCombiTrans(bx[i-5],0,750,new TGeoRotation ());
       
       trc1->SetName(name);
       trc1->RegisterYourself();
@@ -367,29 +367,57 @@ void PndFtof::ConstructASCIIGeometry() {
       sprintf (namB1,"Ftof_Beam_Strip%02d",i);
       BeamShape = new TGeoBBox("Beamshape",kBBeamX,kBBeamY,kBBeamZ);
       BeamVol = new TGeoVolume("Ftof_Beam_Strip",BeamShape,gGeoManager->GetMedium("polyvinyltoluene"));
-      
-      if(i==9||i==10){
-	
-	
-	(i==9 ? (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
-	TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[9],offset,750,new TGeoRotation ()); 
-	
-	trc1->SetName(namB);
-	trc1->RegisterYourself();
-	SubunitVol->AddNode(BeamVol,i,trc1);
-	AddSensitiveVolume(BeamVol);
-      }
-      if(i==11||i==12){
-	
-	(i==11 ?  (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
-	
-	TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[10],offset,750,new TGeoRotation ()); 
-	
-	trc1->SetName(namB);
-	trc1->RegisterYourself();
-	SubunitVol->AddNode(BeamVol,i,trc1);
-	AddSensitiveVolume(BeamVol);
-      }
+
+  if(i==8||i==9){
+
+    (i==8 ? (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
+    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[8],offset,750,new TGeoRotation ());
+
+    trc1->SetName(namB);
+    trc1->RegisterYourself();
+    SubunitVol->AddNode(BeamVol,i,trc1);
+    AddSensitiveVolume(BeamVol);
+  }
+  if(i==10||i==11){
+
+    (i==10 ?  (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
+    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[9],offset,750,new TGeoRotation ());
+
+    trc1->SetName(namB);
+    trc1->RegisterYourself();
+    SubunitVol->AddNode(BeamVol,i,trc1);
+    AddSensitiveVolume(BeamVol);
+  }
+  if(i==12||i==13){
+
+    (i==12 ?  (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
+    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[10],offset,750,new TGeoRotation ());
+
+    trc1->SetName(namB);
+    trc1->RegisterYourself();
+    SubunitVol->AddNode(BeamVol,i,trc1);
+    AddSensitiveVolume(BeamVol);
+  }
+  if(i==14||i==15){
+
+    (i==14 ?  (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
+    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[11],offset,750,new TGeoRotation ());
+
+    trc1->SetName(namB);
+    trc1->RegisterYourself();
+    SubunitVol->AddNode(BeamVol,i,trc1);
+    AddSensitiveVolume(BeamVol);
+  }
+  if(i==16||i==17){
+
+    (i==16 ?  (offset = -70+kBBeamY) : (offset = 70-kBBeamY));
+    TGeoCombiTrans* trc1= new TGeoCombiTrans(bx[12],offset,750,new TGeoRotation ());
+
+    trc1->SetName(namB);
+    trc1->RegisterYourself();
+    SubunitVol->AddNode(BeamVol,i,trc1);
+    AddSensitiveVolume(BeamVol);
+  }
     }
     
   }
@@ -398,12 +426,12 @@ void PndFtof::ConstructASCIIGeometry() {
     bvx[i]=-280+kBVertX*((2*i)+1);
   }
   
-  for(int i=0;i<22;i++){
+  for(int i=0;i<26;i++){
     
     bvx[i+24]=60+kBVertX*((2*i)+1);
   }
   
-  for(int i=0;i<46;i++){
+  for(int i=0;i<50;i++){
     
     
     sprintf (namV,"VertShape%d",i);
