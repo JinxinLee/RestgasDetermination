@@ -63,8 +63,9 @@ PndTrkTracking2::PndTrkTracking2() : FairTask("Tracking") {
  istampa = 0;
  iplotta = false;
  doMcComparison = false;
- fYesClean = false;
- fYesCleanMvd = true;
+ fYesCleanAll = false;
+ fYesCleanMvd = false;
+ fYesCleanStt = false;
  fYesSciTil = false ;
  fMvdAloneTracking = false;
  fNevents_to_plot = 10;
@@ -82,8 +83,9 @@ PndTrkTracking2::PndTrkTracking2(Int_t verbose) : FairTask("Tracking") {
  istampa = verbose;
  iplotta = false;
  doMcComparison = false;
- fYesClean = false;
- fYesCleanMvd = true;
+ fYesCleanAll = false;
+ fYesCleanMvd = false;
+ fYesCleanStt = false;
  fYesSciTil = false ;
  fMvdAloneTracking = false;
 
@@ -100,8 +102,9 @@ PndTrkTracking2::PndTrkTracking2(int istamp, bool  iplot, bool imc)
  istampa = istamp;
  iplotta = iplot;
  doMcComparison = imc;
- fYesClean = false;
- fYesCleanMvd = true;
+ fYesCleanAll = false;
+ fYesCleanMvd = false;
+ fYesCleanStt = false;
  fYesSciTil = false ;
  fMvdAloneTracking = false;
  Initialization_ClassVariables();
@@ -120,8 +123,9 @@ PndTrkTracking2::PndTrkTracking2(int istamp, bool  iplot, bool imc, bool doSciTi
  istampa = istamp;
  iplotta = iplot;
  doMcComparison = imc;
- fYesClean = false;
- fYesCleanMvd = true;
+ fYesCleanAll = false;
+ fYesCleanMvd = false;
+ fYesCleanStt = false;
  fYesSciTil = doSciTil ;
  fMvdAloneTracking = false;
  Initialization_ClassVariables();
@@ -2367,9 +2371,8 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 //	First cleanup based on the absence of Mvd hits
 
-fYesCleanMvd=false;
 
-	if(fYesCleanMvd){
+	if(fYesCleanMvd ||fYesCleanAll ){
 
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
@@ -2506,7 +2509,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 		auxS[i] = SchosenSkew[ncand][fListSttSkewHitsinTrack[ncand][i]];
 	}
 
-	if(fYesClean){
+	if(fYesCleanStt || fYesCleanAll){
 		if(istampa>1) cout<<"PndTrkTracking2, entra in TrackCleanup "<<
 			"tracce normali, IVOLTE "<<IVOLTE<<" e track cand. "<<ncand<<endl;
 		if ( !Cleaner.TrackCleanup(
@@ -2539,7 +2542,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			continue;
 		} // end if
 
-	}  // end of if(fYesClean)
+	}  // end of if(fYesCleanAll)
 
 	nRemainingCandidates++;
 
