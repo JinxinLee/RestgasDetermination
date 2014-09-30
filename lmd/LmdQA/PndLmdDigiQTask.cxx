@@ -152,6 +152,7 @@ void PndLmdDigiQTask::Exec(Option_t* opt)
       int MCtrk = MCPoint->GetTrackID();
       PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(MCtrk);
       int glPDG = mctrk->GetPdgCode();// barp: -2212
+      digiq->SetMCtrkID(MCtrk);
       digiq->SetPDG(glPDG);
       digiq->SetPlane(iplane);
       digiq->SetModule(imodule);

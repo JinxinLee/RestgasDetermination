@@ -34,6 +34,7 @@ class PndLmdDigiQ : public PndSdsDigiPixel
     void SetModule(int mod){fModule = mod;}
     void SetSide(int side){fSide = side;}
     void SetThMC(double th){fThMC = th;}
+    void SetMCtrkID(int id){fMCtrkID = id;}
     void SetEvT(double t){fEvTime = t;}
     bool GetFlSig(){ return fSigfl;}
     int GetPDG(){ return fPDG;}
@@ -41,6 +42,7 @@ class PndLmdDigiQ : public PndSdsDigiPixel
     int GetModule(){return fModule;}
     int GetSide(){return fSide;}
     double GetThMC(){return fThMC;}
+    int GetMCtrkID(){return fMCtrkID;}
     double GetEvT(){return fEvTime;}
     virtual ~PndLmdDigiQ(){};
     
@@ -56,6 +58,7 @@ class PndLmdDigiQ : public PndSdsDigiPixel
     int fSide; //side of plane
     double fThMC; //theta MC 
     double fEvTime; //event time
+    int fMCtrkID;//MCtrk ID
     ClassDef(PndLmdDigiQ,5);
 };
 
