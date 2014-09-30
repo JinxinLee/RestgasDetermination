@@ -43,7 +43,13 @@ class PndTrkTracking2 : public FairTask
   ~PndTrkTracking2();
 
 
-  void Cleanup( ){fYesClean=true; return;};
+  void Cleanup( ){fYesCleanAll=true; return;};
+  void NOCleanup( ){fYesCleanAll=false; return;};
+
+  void CleanupStt( ){fYesCleanStt=true; return;};
+  void NOCleanupStt( ){fYesCleanStt=false; return;};
+  void CleanupMvd( ){fYesCleanMvd=true; return;};
+  void NOCleanupMvd( ){fYesCleanMvd=false; return;};
 
 
   /** Virtual method Exec **/
@@ -51,9 +57,6 @@ class PndTrkTracking2 : public FairTask
 
   /** Virtual method Init **/
   virtual InitStatus Init();
-
-
-  void NOCleanupMvd( ){fYesCleanMvd=false; return;};
 
 
   void NoMvdAloneTracking( ){ fMvdAloneTracking=false; return;};
@@ -132,8 +135,9 @@ class PndTrkTracking2 : public FairTask
 	fSingleHitListStt[MAXSTTHITS],
 	iplotta,
 	fMvdAloneTracking,
-	fYesClean,
+	fYesCleanAll,
 	fYesCleanMvd,
+	fYesCleanStt,
 	fYesSciTil,
 	fInclusionListStt[MAXSTTHITS],
 	fInclusionListSciTil[MAXSCITILHITS],
