@@ -45,7 +45,8 @@ void runLumiPixel1Digi(const int nEvents=10, const int startEvent=0, TString sto
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetEventMeanTime(50);// TODO: 50 ???
+  fRun->SetEventMeanTime(50);//[ns] 50= interaction rate 20 MHz; 
+  // example: cross-section(DPM el+inlel, 1.5 GeV/c)= 125 mb, L=2*10^32 -> interaction rate 12.5 MHz
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
