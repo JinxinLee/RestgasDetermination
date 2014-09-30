@@ -113,7 +113,8 @@ InitStatus PndLmdDigiQTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndLmdDigiQTask::Exec(Option_t* opt)
  {
-  
+  FairRootManager* ioman = FairRootManager::Instance();
+  double glEvTime= ioman->GetEventTime();
   fDigiQ->Delete();
   const int nMCHits = fMCHits->GetEntriesFast();
   const int nDigis = fDigis->GetEntriesFast();
@@ -155,6 +156,7 @@ void PndLmdDigiQTask::Exec(Option_t* opt)
       digiq->SetPlane(iplane);
       digiq->SetModule(imodule);
       digiq->SetSide(iside);
+      digiq->SetEvT(glEvTime);
       int movID = mctrk->GetMotherID();// primary: <0
       TVector3 MomMC = mctrk->GetMomentum();
       double thMC  = MomMC.Theta();

@@ -17,7 +17,6 @@
 
 #include "TObject.h"
 #include "TString.h"
-#include "PndDetectorList.h" 
 #include <iostream>
 #include <vector>
 
@@ -35,12 +34,14 @@ class PndLmdDigiQ : public PndSdsDigiPixel
     void SetModule(int mod){fModule = mod;}
     void SetSide(int side){fSide = side;}
     void SetThMC(double th){fThMC = th;}
+    void SetEvT(double t){fEvTime = t;}
     bool GetFlSig(){ return fSigfl;}
     int GetPDG(){ return fPDG;}
     int GetPlane(){return fPl;}
     int GetModule(){return fModule;}
     int GetSide(){return fSide;}
     double GetThMC(){return fThMC;}
+    double GetEvT(){return fEvTime;}
     virtual ~PndLmdDigiQ(){};
     
     virtual void Print() {
@@ -48,12 +49,13 @@ class PndLmdDigiQ : public PndSdsDigiPixel
     }
     
    protected: 
-    bool fSigfl;
-    int fPDG;
-    int fPl;
-    int fModule;
-    int fSide;
-    double fThMC;
+    bool fSigfl; //signal?
+    int fPDG; //PDG Code of particle
+    int fPl; //plane number
+    int fModule; //module number
+    int fSide; //side of plane
+    double fThMC; //theta MC 
+    double fEvTime; //event time
     ClassDef(PndLmdDigiQ,5);
 };
 
