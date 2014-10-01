@@ -155,6 +155,7 @@ void PndLmdDigiQTask::Exec(Option_t* opt)
       digiq->SetMCtrkID(MCtrk);
       digiq->SetPDG(glPDG);
       digiq->SetPlane(iplane);
+      digiq->SetHalf(ihalf);
       digiq->SetModule(imodule);
       digiq->SetSide(iside);
       digiq->SetEvT(glEvTime);

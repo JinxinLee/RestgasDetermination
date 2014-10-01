@@ -31,6 +31,7 @@ class PndLmdDigiQ : public PndSdsDigiPixel
     void SetFlBkg(){fSigfl = false;}
     void SetPDG(int pdgcode){fPDG = pdgcode;}
     void SetPlane(int pl){fPl = pl;}
+    void SetHalf(int hf){fHf = hf;}
     void SetModule(int mod){fModule = mod;}
     void SetSide(int side){fSide = side;}
     void SetThMC(double th){fThMC = th;}
@@ -39,6 +40,7 @@ class PndLmdDigiQ : public PndSdsDigiPixel
     bool GetFlSig(){ return fSigfl;}
     int GetPDG(){ return fPDG;}
     int GetPlane(){return fPl;}
+    int GetHalf(){return fHf;}
     int GetModule(){return fModule;}
     int GetSide(){return fSide;}
     double GetThMC(){return fThMC;}
@@ -54,6 +56,7 @@ class PndLmdDigiQ : public PndSdsDigiPixel
     bool fSigfl; //signal?
     int fPDG; //PDG Code of particle
     int fPl; //plane number
+    int fHf;//half number
     int fModule; //module number
     int fSide; //side of plane
     double fThMC; //theta MC 
