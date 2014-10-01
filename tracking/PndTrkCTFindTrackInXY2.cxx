@@ -598,7 +598,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=2){
+if (istampa>=1){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -656,7 +656,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=2){
+if (istampa>=1){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -679,7 +679,6 @@ InOut->maxmvdpixelhitsintrack,InOut->maxmvdstriphitsintrack,InOut->maxscitilhits
 InOut->Fi_initial_helix_referenceframe,KAPPA);
 }
 //-------------- fine stampa
-
 
 
 
@@ -804,7 +803,6 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 				);
 
 
-
    if(status> 0 ) {	// in this case the previous fit was successful, so proceed with further (better)
    			//  association of Mvd hits and STT hits;
    			// otherwise go directly to the association of the SciTil hits;
@@ -816,7 +814,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=2){
+if (istampa>=1){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -926,7 +924,9 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 	// ------------------------  now redo the selection of the STT Axial hits belonging to this track;
 
  
-	NN =  TrkAssociatedParallelHitsToHelix5(
+	// try TrkAssociatedParallelHitsToHelix6 that is the same as TrkAssociatedParallelHitsToHelix5 except that
+	// it takes as input the maximum distance allowed for an associated hit;
+	NN =  TrkAssociatedParallelHitsToHelix6(
 		auxListHitsinTrack,              //  this is the output
 		InOut->InclusionListStt,
 		*(InOut->Fi_low_limit),
@@ -937,7 +937,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 		Ox,
 		Oy,
 		R,
-		InOut->strawradius
+		2.*InOut->strawradius   // this is the maximum allowed distance;
 				);
 
   	if( NN < InOut->minimumhitspertrack ) return false;
@@ -1037,7 +1037,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
 //-------------- stampa
-if (istampa>=2){
+if (istampa>=1){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -1453,6 +1453,7 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix5(
 //           NTIMES=1.5;   //   number of Straw radia allowed in association.
            NTIMES=2.;   //   number of Straw radia allowed in association.
 
+
   nAssociatedHits=0;
 //   find the Hits belonging to this Track.
 
@@ -1483,4 +1484,60 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix5(
 
 //----------end of function PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix5
 
+
+//----------begin of function PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix6
+
+Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix6(
+	Short_t *auxListHitsinTrack,
+	bool *InclusionListStt,
+	Double_t Fi_low,
+	Double_t Fi_up,
+	Double_t info[][7],
+	Short_t *ListSttParHits,
+	Int_t NhitsParallel,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Double_t maximum_distance
+	)
+{
+
+  Short_t i;
+
+  Short_t nAssociatedHits;
+
+  Double_t angle,
+           dx,
+           dy,
+           distance;
+
+  nAssociatedHits=0;
+//   find the Hits belonging to this Track.
+
+
+
+  for(i=0; i<NhitsParallel;i++){
+	if( !InclusionListStt[ ListSttParHits[i] ] ) continue;
+// check if the hit position is near the circle of the Helix found by the fit
+	dx = -Oxx+info[ListSttParHits[i]][0];
+	dy = -Oyy+info[ListSttParHits[i]][1];
+	angle=atan2(dy,dx);
+	if(angle<0.) angle += 2.*PI;
+	if(angle<0.) angle =0.;
+	distance = sqrt(dx*dx+dy*dy);
+
+	if ( fabs(Rr - distance ) > maximum_distance )  continue;
+	if(angle<Fi_low) angle += 2.*PI;
+	if(angle>Fi_up) continue;
+	auxListHitsinTrack[nAssociatedHits]= ListSttParHits[i];
+	nAssociatedHits++; 
+  } // end for(i=0; i<NhitsParallel;i++)
+
+ return nAssociatedHits;
+
+};
+
+
+
+//----------end of function PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix6
 ClassImp(PndTrkCTFindTrackInXY2);
