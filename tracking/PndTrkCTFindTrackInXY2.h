@@ -229,6 +229,21 @@ void AddMvdHitsToSttTracks(
 	Double_t strawradius
 	);
 
+
+
+  Short_t TrkAssociatedParallelHitsToHelix6(
+	Short_t *auxListHitsinTrack,
+	bool *InclusionListStt,
+	Double_t Fi_low,
+	Double_t Fi_up,
+	Double_t info[][7],
+	Short_t *ListSttParHits,
+	Int_t NhitsParallel,
+	Double_t Oxx,
+	Double_t Oyy,
+	Double_t Rr,
+	Double_t maximum_distance
+	);
   ClassDef(PndTrkCTFindTrackInXY2,1);
 
 };
