@@ -488,6 +488,7 @@ class PndTrkTracking2 : public FairTask
 
   bool EliminateClones(
 	Short_t nTotalCandidates, // input;
+	Double_t fraction,// input; raction of common hits to declare the two tracks clones;
 	bool * keepit  // input and output;
 			);
 
