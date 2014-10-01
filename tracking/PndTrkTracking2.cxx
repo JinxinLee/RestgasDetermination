@@ -2477,7 +2477,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 // here eliminate the clones tracks (most likely produced by initial clusters belonging
 // to the same physical track);
 
-	if(nTotalCandidates>1)   EliminateClones(nTotalCandidates,keepit);
+	if(nTotalCandidates>1)   EliminateClones(nTotalCandidates,0.6,keepit);
 
 
 //--------------------------------------------------------------------------
@@ -3333,6 +3333,7 @@ Short_t PndTrkTracking2::CompareTracks(
 //-------------------------  begin of function  PndTrkTracking2::EliminateClones
 bool PndTrkTracking2::EliminateClones(
 		Short_t nTotalCandidates, // input;
+		Double_t fraction,	// input; fraction of common hits to declare the two tracks clones;
 		bool * keepit  // input and output;
 					)
 {
@@ -3360,7 +3361,7 @@ if(istampa>0) { cout<<"from Eliminateclones, traccia i = "<<i<<", j = "<<j<<", n
 nTotalHits[i]<<", nTotalHits[j] "<<nTotalHits[j]
 	<<", nCommon "<<nCommon<<endl;}
 			// criterion for declaring two tracks clones :
-			if(nCommon > 0.7 * nTotalHits[i] || nCommon > 0.7 * nTotalHits[j]) {
+			if(nCommon > fraction * nTotalHits[i] || nCommon > fraction * nTotalHits[j]) {
 				// arbitration;
 				if( nTotalHits[i]>=nTotalHits[j] ){
 					keepit[j]=false;
