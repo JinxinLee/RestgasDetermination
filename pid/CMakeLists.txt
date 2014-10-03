@@ -70,6 +70,10 @@ PidCorr/PndPidFtsInfo.cxx
 PidCorr/PndPidFscInfo.cxx
 PidCorr/PndPidFtofInfo.cxx
 PidCorr/PndPidMdtInfo.cxx
+PidCorr/PndPidDskInfo.cxx
+PidCorr/PndPidDrcInfo.cxx
+PidCorr/PndPidEmcInfo.cxx
+PidCorr/PndPidTofInfo.cxx
 PidCorr/PndPidBremCorrector.cxx
 PndPidContFact.cxx
 

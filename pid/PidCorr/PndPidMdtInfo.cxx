@@ -1,8 +1,137 @@
 #include "PndPidCorrelator.h"
 #include "PndMdtHit.h"
 #include "PndMdtPoint.h"
+#include "PndMdtTrk.h"
 
 #include <cmath>
+
+
+//_________________________________________________________________
+Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
+  //--- 
+  FairTrackParP par = track->GetParamLast();
+  Int_t ierr = 0;
+  FairTrackParH *helix = new FairTrackParH(&par, ierr);
+ 
+  map<Int_t, Int_t>mapMdtTrk;
+  FairGeanePro *fProMdt = new FairGeanePro();
+  if (!fCorrErrorProp) fProMdt->PropagateOnlyParameters();
+
+  if (fMdtMode == 3)
+    { 
+      for (Int_t tt = 0; tt<fMdtTrk->GetEntriesFast(); tt++)
+	{
+	  PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(tt);
+	  mapMdtTrk[mdtTrk->GetHitIndex(0)] = tt;
+	}
+    }
+  PndMdtHit *mdtHit = NULL;
+  Int_t mdtEntries = fMdtHit->GetEntriesFast();
+  Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0, mdtHits = 0;
+  Float_t mdtGLength = -1000;
+  Float_t mdtQuality = 1000000;
+  Float_t mdtIron = 0., mdtMom = 0, mdtTempMom = 0;
+  
+  Float_t chi2 = 0;
+  TVector3 vertex(0., 0., 0.);
+  TVector3 vertexD(0., 0., 0.);
+  TVector3 mdtPos(0., 0., 0.);
+  TVector3 momentum(0., 0., 0.);
+  for (Int_t mm = 0; mm<mdtEntries; mm++)
+    {
+      mdtHit = (PndMdtHit*)fMdtHit->At(mm);
+      if ( fIdeal && ( ((PndMdtPoint*)fMdtPoint->At(mdtHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
+      if (mdtHit->GetLayerID()!=0) continue;
+      if (mdtHit->GetModule()>2) continue;
+      mdtHit->Position(mdtPos);
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{ 
+     
+	  fProMdt->SetPoint(mdtPos);
+	  fProMdt->PropagateToPCA(1, 1);
+	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+	  vertexD.SetXYZ(-10000, -10000, -10000); // reset vertex
+	  FairTrackParH *fRes= new FairTrackParH();
+	  Bool_t rc =  fProMdt->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 
+	  if (!rc) continue;
+	  mdtTempMom = fRes->GetMomentum().Mag(); 
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  vertexD.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
+	  mdtGLength = fProMdt->GetLengthAtPCA();
+	}
+    
+      Float_t dist;
+      if (mdtHit->GetModule()==1) 
+	{
+	  dist = (mdtPos-vertex).Mag2();
+	}
+      else
+	{
+	  dist = (vertex.X()-mdtPos.X())*(vertex.X()-mdtPos.X())+(vertex.Y()-mdtPos.Y())*(vertex.Y()-mdtPos.Y());
+	}
+    
+      if ( mdtQuality > dist)
+	{
+	  mdtIndex = mm;
+	  mdtQuality = dist;
+	  mdtMod = mdtHit->GetModule();
+	  mdtMom = mdtTempMom;
+	  mdtLayer = 1;
+	  if (fMdtMode==3)
+	    {
+	      PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mapMdtTrk[mdtIndex]);
+	      mdtIndex = mapMdtTrk[mm];
+	      mdtLayer = mdtTrk->GetLayerCount();
+	      mdtIron = mdtTrk->GetIronDist();
+	      mdtMod = mdtTrk->GetModule();
+	      mdtHits = 0;
+	      for (Int_t iLayer=0; iLayer<mdtLayer; iLayer++)
+		{
+		  mdtHits = mdtHits + mdtTrk->GetHitMult(iLayer);
+		  //std::cout << iLayer << "\t" << mdtTrk->GetHitMult(iLayer) << "\t" << mdtHits << std::endl;
+		}
+	    }
+	}
+      if (fDebugMode)
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
+			      vertexD.X(), vertexD.Y(), vertexD.Z(), vertex.Phi(), 
+			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(), mdtTempMom,
+			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer, mdtHits};
+	  mdtCorr->Fill(ntuple);
+	}
+    }
+  
+  if ((mdtQuality<fCorrPar->GetMdtCut()) || ( fIdeal && mdtIndex!=-1))
+    {
+      pidCand->SetMuoIndex(mdtIndex);
+      pidCand->SetMuoQuality(mdtQuality);
+      pidCand->SetMuoIron(mdtIron);
+      pidCand->SetMuoMomentumIn(mdtMom);
+      pidCand->SetMuoModule(mdtMod);
+      pidCand->SetMuoNumberOfLayers(mdtLayer); 
+      pidCand->SetMuoHits(mdtHits);
+    }
+  
+  // if (fMdtRefit && (mdtIndex!=-1) && (mdtMom>0.)  )
+  //   {
+  //     PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mdtIndex); 
+  //     PndTrack *mdtTrack = new PndTrack(*track);
+  //     PndTrackCand *oldCand = track->GetTrackCandPtr();
+  //     PndTrackCand *newCand = mdtTrk->AddTrackCand(oldCand);
+  //     mdtTrack->SetTrackCand(*newCand);
+  //     Int_t fCharge= mdtTrack->GetParamFirst().GetQ();
+  //     Int_t PDGCode = fPidHyp*fCharge;
+    
+  //     PndTrack *fitTrack = new PndTrack();
+  //     fitTrack = fFitter->Fit(mdtTrack, PDGCode);
+  //     PndTrack* pndTrack = new PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
+  // 					fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), fitTrack->GetRefIndex(), kLheTrack);
+  //     AddMdtTrack(pndTrack);
+  //   }
+  return kTRUE;
+}
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::MdtMapping() {
