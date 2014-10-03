@@ -1,5 +1,4 @@
 #include "PndTrkCleanup.h"
-#include "PndTrkCTGeometryCalculations.h"
 #include "PndTrkVectors.h"
 #include "PndTrkConstants.h"
 
@@ -521,8 +520,34 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 //----------end of function PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt
 
 
+//----------begin of function PndTrkCleanup::SttMvdCleanup
 
-//----------begin of function PndTrkCleanup::SttParalCleanup
+
+//----------end of function PndTrkCleanup::MvdCleanup
+ bool PndTrkCleanup::MvdCleanup(
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Double_t fi0,
+	Double_t kappa,
+	Double_t charge,
+	Double_t semiverticalgap,
+	PndTrkCTGeometryCalculations* GeomCalculator
+	)
+{
+
+	return GeomCalculator->IsInTargetPipe(
+			Ox,
+			Oy,
+			R,
+			fi0,
+			kappa,
+			charge,
+			semiverticalgap
+					);
+
+}
+//----------begin of function PndTrkCleanup::ParalCleanup
 
  bool PndTrkCleanup::SttParalCleanup(
 	Double_t ApotemaInnerParMax,
