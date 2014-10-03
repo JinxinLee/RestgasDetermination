@@ -622,24 +622,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                                                      );
 
 
-  void   PndSttFitwithKalman(
-                                                     Double_t Ox,
-                                                     Double_t Oy,
-                                                     Double_t Pxini,
-                                                     Double_t Pyini,
-                                                     Double_t Pzini,
-                                                     Double_t Ptras,
-                                                     Double_t info[][7],
-                                                     Short_t nParallelHits,
-                                                     Short_t *ListParallelHits,
-                                                     Short_t nSttSkewhit,
-                                                     Short_t *ListSkewHits,
-                                                     Double_t *S,
-                                                     Short_t *infoparal,
-                                                     Short_t *infoskew
-                                                   );
-
-
       void   PndSttOrderingParallel(
 		Double_t oX,
 		Double_t oY,
