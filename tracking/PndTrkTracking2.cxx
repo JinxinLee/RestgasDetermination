@@ -2365,6 +2365,11 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //--------------------------------------------------------------------------
 
 
+
+
+//----------------------------------------------- start the cleanup section;
+
+
 //	First cleanup based on the absence of Mvd hits
 
 
@@ -2372,6 +2377,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
+/*
 		if( (!GeomCalculator.IsInTargetPipe(
 			fOx[ncand],
 			fOy[ncand],
@@ -2379,12 +2385,30 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			FI0[ncand],
 			KAPPA[ncand],
 			Charge[ncand],
-			VERTICALGAP/2.) )
+			VERTICALGAP/2.
+			) )
 				 &&
 			fnMvdStripHitsinTrack[ncand]+fnMvdPixelHitsinTrack[ncand]==0)
 		{
 			keepit[ncand]=false;
 		}
+*/
+
+
+		if( !Cleaner.MvdCleanup(
+			fOx[ncand],
+			fOy[ncand],
+			fR[ncand],
+			FI0[ncand],
+			KAPPA[ncand],
+			Charge[ncand],
+			VERTICALGAP/2.,
+			&GeomCalculator
+					) )
+		{
+			keepit[ncand]=false;
+		} // end if
+
 	}  // end of  (fYesCleanMvd)
 
   }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
@@ -2399,6 +2423,31 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 //--------
 
+//-------------- stampa
+ if(istampa>=1){
+	cout<<"stampa dopo Mvd cleanup e prima di EliminateClones di tutte le "<<nTotalCandidates<<" found tracks:"<<endl;
+	fPrint.stampetta(
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,
+-1,
+MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+	}
+
+
+//---------------------------------------------------------------------------
+
+//------------------------
+
+// here eliminate the clones tracks (most likely produced by initial clusters belonging
+// to the same physical track);
+
+	if(nTotalCandidates>1)   EliminateClones(nTotalCandidates,0.6,keepit);
+
+
+//--------------------------------------------------------------------------
 
 
 //-------------------------------
@@ -2417,76 +2466,11 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	  else fnSttParHitsinTrack[ncand]=0;
 	}
   }  // end of  for(ncand=0; ncand< nTotalCandidates; ncand++)
-//---------------
-
-//	ordering all the hits belonging to the candidate track, by increasing fR (large
-//	trajectories)  or Conformal variables (better for small trajectories);
-//	from candidate n. 0 to candidate n. nTotalCandidates-1; loading fListTrackCandHit.
-//	the array ordered are :
-//	fListTrackCandHit, fListTrackCandHitType, fListSttParHitsinTrack, fListSttSkewHitsinTrack
-//	and also at the end the SciTil hit (if present) is added.
-
-
-	Ordering_Loading_ListTrackCandHit(
-		keepit,
-		0,	// starting from candidate # 0
-		nTotalCandidates,	// .... up to candidate # nTotalCandidates -1;
-		info,
-		Trajectory_Start,
-		Charge,
-		SchosenSkew
-		);
-
-	// adding at the end the SciTil hits (if present).
-	for(ncand=0; ncand< nTotalCandidates; ncand++){
-		if(!keepit[ncand]) continue;
-		i=fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+
-			fnSttParHitsinTrack[ncand]+fnSttSkewHitsinTrack[ncand];
-		for(j=0;j<fnSciTilHitsinTrack[ncand];j++) {
-			fListTrackCandHit[ncand][i+j]=fListSciTilHitsinTrack[ncand][j];
-			fListTrackCandHitType[ncand][i+j] = 1001;
-		}
-	}  // end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 
 
 //-------------------------------------------------------------
-//-------------- stampa
- if(istampa>=1){
-	cout<<"stampa prima di EliminateClones di tutte le "<<nTotalCandidates<<" found tracks:"<<endl;
-	fPrint.stampetta(
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,
--1,
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-	}
 
-
-//---------------------------------------------------------------------------
-
-
-
-
-
-
-//------------------------
-
-// here eliminate the clones tracks (most likely produced by initial clusters belonging
-// to the same physical track);
-
-	if(nTotalCandidates>1)   EliminateClones(nTotalCandidates,0.6,keepit);
-
-
-//--------------------------------------------------------------------------
-
-
-
-
-
-//------------- cleanup section.
 	Start[0]=0.;
 	Start[1]=0.;
 	Start[2]=0.;
@@ -2544,7 +2528,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
-//------------- end of cleanup section.
+//---------------------------------------------------------- end of the cleanup section;
 
 
 // -------------------------------------------------------------------------------------
@@ -2575,6 +2559,38 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	} // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
 }
 //--------------------------
+
+
+//---------------
+
+//	ordering all the hits belonging to the candidate track, by increasing fR (large
+//	trajectories)  or Conformal variables (better for small trajectories);
+//	from candidate n. 0 to candidate n. nTotalCandidates-1; loading fListTrackCandHit.
+//	the array ordered are :
+//	fListTrackCandHit, fListTrackCandHitType, fListSttParHitsinTrack, fListSttSkewHitsinTrack
+//	and also at the end the SciTil hit (if present) is added.
+
+
+	Ordering_Loading_ListTrackCandHit(
+		keepit,
+		0,	// starting from candidate # 0
+		nTotalCandidates,	// .... up to candidate # nTotalCandidates -1;
+		info,
+		Trajectory_Start,
+		Charge,
+		SchosenSkew
+		);
+
+	// adding at the end the SciTil hits (if present).
+	for(ncand=0; ncand< nTotalCandidates; ncand++){
+		if(!keepit[ncand]) continue;
+		i=fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+
+			fnSttParHitsinTrack[ncand]+fnSttSkewHitsinTrack[ncand];
+		for(j=0;j<fnSciTilHitsinTrack[ncand];j++) {
+			fListTrackCandHit[ncand][i+j]=fListSciTilHitsinTrack[ncand][j];
+			fListTrackCandHitType[ncand][i+j] = 1001;
+		}
+	}  // end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 
 
