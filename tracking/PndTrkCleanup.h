@@ -1,6 +1,8 @@
 #ifndef PndTrkCleanup_H
 #define PndTrkCleanup_H 1
 
+#include "PndTrkCTGeometryCalculations.h"
+
 // Root includes
 #include "TROOT.h"
 
@@ -108,6 +110,16 @@ void SeparateInnerOuterRightLeftAxialStt(
 	Short_t *nOuterHitsRight
 	);
 
+ bool MvdCleanup(
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Double_t fi0,
+	Double_t kappa,
+	Double_t charge,
+	Double_t semiverticalgap,
+	PndTrkCTGeometryCalculations* GeomCalculator	
+		);
 
  bool SttParalCleanup(
 	Double_t ApotemaInnerParMax,
