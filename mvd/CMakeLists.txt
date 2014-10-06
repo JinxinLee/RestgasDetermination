@@ -136,25 +136,9 @@ MvdPid/PndMvdSimplePidAlgo.cxx
 MvdPid/PndMvdAdvancedPidAlgo.cxx
 
 MvdTracking/PndMvdIdealTrackFinderTask.cxx
-#MvdTracking/PndMvdKalmanTask.cxx
-#MvdTracking/PndMvdTrackFinderAnaTask.cxx
-
 MvdTracking/PndMvdRiemannTrackFinderTask.cxx
-#MvdTracking/PndGemRiemannTrackFinderTask.cxx
 MvdTracking/PndMvdSttGemRiemannTrackFinderTask.cxx
-
-#MvdTracking/PndMvdRiemannTrackFinder.cxx
-#MvdTracking/PndMvdGemRiemannTrackFinder.cxx
 MvdTracking/PndMvdRiemannVertexFinderTask.cxx
-
-#MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
-#MvdTracking/PndMvdTPCRiemannTrackFinderTask.cxx
-#MvdTracking/PndMvdTPCRiemannTrackFinderTaskCutPar.cxx
-#MvdTracking/PndMvdTPCRiemannTrackFinderTaskEff.cxx
-
-#MvdTracking/PndTpcClustPlusRTFTask.cxx
-#MvdTracking/PndTpcClustPlusRTFTaskCutPar.cxx
-
 MvdTracking/PndMvdRiemannTrackFinderTaskCutPar.cxx
 MvdTracking/PndMvdRiemannTrackFinderTaskEff.cxx
 
