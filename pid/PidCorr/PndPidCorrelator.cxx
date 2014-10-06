@@ -856,7 +856,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       Float_t quality = -1.;
       if (fEmcMode==2)
 	{ 
-	  if (fClusterList[i]) continue;
+	  //if (fClusterList[i]) continue;
 	  bump = (PndEmcBump*) fEmcCluster->At(i);
 	  clu  = (PndEmcBump*) fEmcCluster->At(i);
           quality = fClusterQ[i];
@@ -864,7 +864,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       else if(fEmcMode == 3)
 	{
 	  bump = (PndEmcBump*) fEmcBump->At(i);
-	  if (fClusterList[bump->GetClusterIndex()]) continue; // skip correlated clusters
+	  //if (fClusterList[bump->GetClusterIndex()]) continue; // skip correlated clusters
 	  clu = (PndEmcCluster*)fEmcCluster->At(bump->GetClusterIndex());
           quality = fClusterQ[bump->GetClusterIndex()];
 	}
@@ -876,6 +876,66 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       TLorentzVector lv(p3,p3.Mag());
       TMatrixD covP4=fEmcErrorMatrix->Get4MomentumErrorMatrix(*clu);
     
+      FairGeanePro *fProEmc = new FairGeanePro(); 
+      if (!fCorrErrorProp) fProEmc->PropagateOnlyParameters();
+      Float_t emcQuality = 1000000;
+      TVector3 vertex(0., 0., 0.); 
+      
+      Int_t nTracks = 0;
+      if (bump->GetModule()<4) // barrel
+	{
+	  nTracks = fTrack->GetEntriesFast(); 
+	}
+      else // forward
+	{
+	  nTracks = fTrack2->GetEntriesFast();
+	}
+      
+      for (Int_t tt = 0; tt < nTracks; tt++)
+	{
+	  PndTrack* track;
+	  if (bump->GetModule()<4) // barrel
+	    {
+	      track = (PndTrack*) fTrack->At(tt);
+	    }
+	  else // forward
+	    {
+	      track = (PndTrack*) fTrack2->At(tt);
+	    }
+	  
+	  Int_t ierr = 0;
+	  FairTrackParP par = track->GetParamLast(); 
+	  FairTrackParH *helix = new FairTrackParH(&par, ierr);
+	  
+	  if (bump->GetModule()<4) // barrel
+	    {
+	      if ((bump->GetModule()==3) && (helix->GetZ()<165.)) continue; // consider tracks only from last gem plane
+	      if ((bump->GetModule()<3) && (helix->GetZ()>150.)) continue; // not consider tracks after emc barrel
+	    }
+	  else // forward
+	    {
+	      if (helix->GetZ() <  fCorrPar->GetZLastPlane()) continue;  // consider tracks only from last gemfts plane
+	    }
+	  
+	  if (fGeanePro)
+	    { // Overwrites vertex if Geane is used
+	      fProEmc->SetPoint(v1);
+	      fProEmc->PropagateToPCA(1, 1);
+	      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+	      FairTrackParH *fRes= new FairTrackParH();
+	      Bool_t rc =  fProEmc->Propagate(helix, fRes, fPidHyp*par.GetQ()); // First propagation at module
+	      if (!rc) continue;
+	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	    }
+	  
+	  Float_t dist = (v1-vertex).Mag2();
+	  if ( emcQuality > dist )
+	    {
+	      emcQuality = dist;
+	    }
+	} // end of track correlation
+      
+      
       PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
       pidCand->SetP4Cov(covP4);
       pidCand->SetEmcRawEnergy(bump->energy());
