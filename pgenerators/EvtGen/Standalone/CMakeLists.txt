@@ -33,7 +33,6 @@ foreach(program ${ALLEvtGen_exe})
 	add_executable(EvtGen_exe_${program} ${program}.cc)
 	set_target_properties(EvtGen_exe_${program} PROPERTIES OUTPUT_NAME ${program})
 	set_target_properties(EvtGen_exe_${program} PROPERTIES LINK_FLAGS "-fPIC")
-#   set_target_properties(EvtGen_exe_${program} PROPERTIES LINKER_LANGUAGE "Fortran")
 	target_link_libraries(EvtGen_exe_${program} ${ROOT_LIBRARIES} ${EVTGENLIBLIST} ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 endforeach(program)
 

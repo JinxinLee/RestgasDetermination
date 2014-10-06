@@ -65,7 +65,6 @@ endif(RULE_CHECKER_FOUND)
 add_library(PhotosFortran SHARED ${PHOTOS_FORTRAN_SRCS})
 target_link_libraries(PhotosFortran ${Fortran_UseLib})
 set_target_properties(PhotosFortran PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-set_target_properties(PhotosFortran PROPERTIES LINKER_LANGUAGE "Fortran")
 set_target_properties(PhotosFortran PROPERTIES LINK_FLAGS "-fPIC")
 
 add_library(PhotosCxxInterface SHARED ${PHOTOS_CXXINT_SRCS})
@@ -99,7 +98,6 @@ set_target_properties(PhotosCxxInterface PROPERTIES LINK_FLAGS "-fPIC")
 #add_executable(single_photos_gun_example ${PHOTOS_EXAMPLE_DIR}/single_photos_gun_example.cxx)
 #set_target_properties(single_photos_gun_example PROPERTIES OUTPUT_NAME single_photos_gun_example)
 #set_target_properties(single_photos_gun_example PROPERTIES LINK_FLAGS "-fPIC")
-#set_target_properties(single_photos_gun_example PROPERTIES LINKER_LANGUAGE "Fortran")
 #target_link_libraries(single_photos_gun_example ${ROOT_LIBRARIES} PhotosFortran PhotosCxxInterface HepMC  pythia8  lhapdfdummy hepmcinterface ${Fortran_UseLib} )
 
 # 
@@ -116,7 +114,6 @@ set_target_properties(PhotosCxxInterface PROPERTIES LINK_FLAGS "-fPIC")
 #add_executable(photosLCG_pythia_example ${PHOTOS_EXAMPLE_DIR}/photosLCG_pythia_example.cxx)
 #set_target_properties(photosLCG_pythia_example PROPERTIES OUTPUT_NAME photosLCG_pythia_example)
 #set_target_properties(photosLCG_pythia_example PROPERTIES LINK_FLAGS "-fPIC")
-#set_target_properties(photosLCG_pythia_example PROPERTIES LINKER_LANGUAGE "Fortran")
 #target_link_libraries(photosLCG_pythia_example ${ROOT_LIBRARIES} PhotosFortran PhotosCxxInterface HepMC  pythia8  lhapdfdummy hepmcinterface ${Fortran_UseLib} )
 
 # 
@@ -131,7 +128,6 @@ set_target_properties(PhotosCxxInterface PROPERTIES LINK_FLAGS "-fPIC")
 #add_executable(photos_standalone_example ${PHOTOS_EXAMPLE_DIR}/photos_standalone_example.cxx)
 #set_target_properties(photos_standalone_example PROPERTIES OUTPUT_NAME photos_standalone_example)
 #set_target_properties(photos_standalone_example PROPERTIES LINK_FLAGS "-fPIC")
-#set_target_properties(photos_standalone_example PROPERTIES LINKER_LANGUAGE "Fortran")
 #target_link_libraries(photos_standalone_example PhotosFortran PhotosCxxInterface HepMC ${Fortran_UseLib} )
 
 # 
@@ -146,7 +142,6 @@ set_target_properties(PhotosCxxInterface PROPERTIES LINK_FLAGS "-fPIC")
 #add_executable(photos_hepevt_example ${PHOTOS_EXAMPLE_DIR}/photos_hepevt_example.cxx)
 #set_target_properties(photos_hepevt_example PROPERTIES OUTPUT_NAME photos_hepevt_example)
 #set_target_properties(photos_hepevt_example PROPERTIES LINK_FLAGS "-fPIC")
-#set_target_properties(photos_hepevt_example PROPERTIES LINKER_LANGUAGE "Fortran")
 #target_link_libraries(photos_hepevt_example PhotosFortran PhotosCxxInterface HepMC ${Fortran_UseLib} )
 
 ################ install ###################

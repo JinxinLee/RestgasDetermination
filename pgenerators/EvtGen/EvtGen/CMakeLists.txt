@@ -360,7 +360,6 @@ add_library(EvtGen SHARED ${EVTGEN_SRCS})
 target_link_libraries(EvtGen ${ROOT_LIBRARIES} ${Fortran_UseLib} ${HEPMCLIBLIST})
 set_target_properties(EvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 set_target_properties(EvtGen PROPERTIES LINK_FLAGS "-fPIC")
-set_target_properties(EvtGen PROPERTIES LINKER_LANGUAGE "Fortran")
 
 if(EVTGEN_EXTERNAL)
    add_library(EvtGenExternal SHARED ${EVTGEN_EXT_SRCS})
@@ -372,21 +371,18 @@ endif(EVTGEN_EXTERNAL)
 add_executable(evtgenlhc_test1 ${EVTGEN_EXAMPLE_DIR}/evtgenlhc_test1.cc)
 set_target_properties(evtgenlhc_test1 PROPERTIES OUTPUT_NAME evtgen_lhc_test1)
 set_target_properties(evtgenlhc_test1 PROPERTIES LINK_FLAGS "-fPIC")
-set_target_properties(evtgenlhc_test1 PROPERTIES LINKER_LANGUAGE "Fortran")
 target_link_libraries(evtgenlhc_test1 ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 
 add_executable(evt_dalitz ${EVTGEN_EXAMPLE_DIR}/evt_dalitz.cc)
 set_target_properties(evt_dalitz PROPERTIES OUTPUT_NAME evtgen_dalitz)
 set_target_properties(evt_dalitz PROPERTIES LINK_FLAGS "-fPIC")
-set_target_properties(evt_dalitz PROPERTIES LINKER_LANGUAGE "Fortran")
 target_link_libraries(evt_dalitz ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 
 add_executable(example1 ${EVTGEN_EXAMPLE_DIR}/example1.cc)
 set_target_properties(example1 PROPERTIES OUTPUT_NAME evtgen_example1)
 set_target_properties(example1 PROPERTIES LINK_FLAGS "-fPIC")
-set_target_properties(example1 PROPERTIES LINKER_LANGUAGE "Fortran")
 target_link_libraries(example1 ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 ################ install ###################
