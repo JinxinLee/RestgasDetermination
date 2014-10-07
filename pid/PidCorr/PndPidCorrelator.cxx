@@ -853,20 +853,20 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
     {
       PndEmcBump* bump;
       PndEmcCluster *clu;
-      Float_t quality = -1.;
+      //Float_t quality = -1.;
       if (fEmcMode==2)
 	{ 
 	  //if (fClusterList[i]) continue;
 	  bump = (PndEmcBump*) fEmcCluster->At(i);
 	  clu  = (PndEmcBump*) fEmcCluster->At(i);
-          quality = fClusterQ[i];
+          //quality = fClusterQ[i];
 	}
       else if(fEmcMode == 3)
 	{
 	  bump = (PndEmcBump*) fEmcBump->At(i);
 	  //if (fClusterList[bump->GetClusterIndex()]) continue; // skip correlated clusters
 	  clu = (PndEmcCluster*)fEmcCluster->At(bump->GetClusterIndex());
-          quality = fClusterQ[bump->GetClusterIndex()];
+          //quality = fClusterQ[bump->GetClusterIndex()];
 	}
     
       TVector3 vtx(0,0,0);
@@ -944,7 +944,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcModule(bump->GetModule());
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
       pidCand->SetEmcNumberOfBumps(clu->NBumps());
-      pidCand->SetEmcQuality(quality);
+      pidCand->SetEmcQuality(emcQuality);
 
       pidCand->SetEmcClusterZ20(bump->Z20());
       pidCand->SetEmcClusterZ53(bump->Z53());
