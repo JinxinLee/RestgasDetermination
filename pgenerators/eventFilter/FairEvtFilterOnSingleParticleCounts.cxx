@@ -155,11 +155,11 @@ Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxPdgCodes( Int_t min, Int_t 
 
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. Check your AndMinMaxPdgCodes calls!\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. Check your AndMinMaxPdgCodes calls!\n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. Check your AndMinMaxPdgCodes calls!\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. Check your AndMinMaxPdgCodes calls!\n\n\n";
 		return kFALSE;
 	}
 
@@ -225,11 +225,11 @@ Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxCharge( Int_t min, Int_t ma
 
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. Check your AndMinMaxCharge calls!\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. That makes no sense. Check your AndMinMaxCharge calls!\n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. Check your AndMinMaxCharge calls!\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. That makes no sense. Check your AndMinMaxCharge calls!\n\n\n";
 		return kFALSE;
 	}
 
@@ -257,11 +257,11 @@ Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxMom( Double_t min, Double_t
 
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. Check your AndMinMaxMom calls.\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. Check your AndMinMaxMom calls.\n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. Check your AndMinMaxMom calls.\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. Check your AndMinMaxMom calls.\n\n\n";
 		return kFALSE;
 	}
 
@@ -289,11 +289,11 @@ Bool_t FairEvtFilterOnSingleParticleCounts::AndMinMaxGeom( Double_t min, Double_
 
 	// check if filter can be applied (make sure that min and max make sense)
 	if ( min < 0 ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. Check your AndMinMaxGeom calls.\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at least a number <= 0 of some particles. Check your AndMinMaxGeom calls.\n\n\n";
 		return kFALSE;
 	}
 	if ( max < min ){
-		std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. Check your AndMinMaxGeom calls.\n\n\n";
+		std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Filter could not be added. You are trying to request that your events should have at most a number of some particles which is less than the minimum number that you request. Check your AndMinMaxGeom calls.\n\n\n";
 		return kFALSE;
 	}
 
@@ -367,7 +367,7 @@ Bool_t FairEvtFilterOnSingleParticleCounts::AcceptMomentum(TParticle* particle)
 			type="Pz";
 			break;
 		default:
-			std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Check your filter calls!\n\n\n";
+			std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Check your filter calls!\n\n\n";
 			return kFALSE;
 			if ( momentum < fMomMinMax[iMom].first){
 				if (fVerbose >9){
@@ -419,7 +419,7 @@ Bool_t FairEvtFilterOnSingleParticleCounts::AcceptGeometry(TParticle* particle)
 			type="VRadius";
 			break;
 		default:
-			std::cout << std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Check your filter calls!\n\n\n";
+			std::cout << "\n\n\n  -WARNING from FairEvtFilterOnSingleParticleCounts: Check your filter calls!\n\n\n";
 			return kFALSE;
 		}
 		if ( geom < fGeomMinMax[iGeom].first){
