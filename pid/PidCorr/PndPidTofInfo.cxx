@@ -62,10 +62,15 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	}
       if (fDebugMode)
 	{
-	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
-			      dist, vertex.DeltaPhi(tofPos), tofLength, tofGLength};
+	  Float_t ntuple[] = {static_cast<Float_t>(vertex.X()), static_cast<Float_t>(vertex.Y()), static_cast<Float_t>(vertex.Z()), static_cast<Float_t>(vertex.Phi()), 
+			      static_cast<Float_t>(helix->GetMomentum().Mag()), static_cast<Float_t>(helix->GetQ()), static_cast<Float_t>(helix->GetMomentum().Theta()), static_cast<Float_t>(helix->GetZ()),
+			      static_cast<Float_t>(tofPos.X()), static_cast<Float_t>(tofPos.Y()), static_cast<Float_t>(tofPos.Z()), static_cast<Float_t>(tofPos.Phi()),
+			      dist, static_cast<Float_t>(vertex.DeltaPhi(tofPos)), tofLength, tofGLength};
+
+	  // Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+	  // 		      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+	  // 		      tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
+	  // 		      dist, vertex.DeltaPhi(tofPos), tofLength, tofGLength};
 	  tofCorr->Fill(ntuple);
 	}
     }

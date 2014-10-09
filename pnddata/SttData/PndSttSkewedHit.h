@@ -58,7 +58,7 @@ class PndSttSkewedHit : public FairHit
   /** Accessors **/
 
   // tube ID // CHECK added
-  void SetTubeIDs(Int_t tubeid1, Int_t tubeid2) { fTubeIDs = std::make_pair<Int_t, Int_t>(tubeid1, tubeid2); }
+  void SetTubeIDs(Int_t tubeid1, Int_t tubeid2) { fTubeIDs = std::make_pair<int, int>((int)tubeid1, (int)tubeid2); }
   std::pair<Int_t,Int_t> GetTubeIDs() const { return fTubeIDs; }
 
 

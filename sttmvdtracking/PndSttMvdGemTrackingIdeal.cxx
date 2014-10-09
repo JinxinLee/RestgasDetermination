@@ -151,7 +151,7 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
   std::map<Int_t, FairMCPoint*> lastPoint;
   std::map<Int_t, PndTrackCand*> candlist;
   Double_t rho=0., rho2;
-  Int_t multDet[4] = {0., 0., 0., 0.};
+  Int_t multDet[4] = {0, 0, 0, 0};
   for(Int_t iDet=0;iDet<4;iDet++){
     if (kFALSE == fBranchActive[iDet]) continue; //skip manually switched off detector
     if(fVerbose>4) Info("Exec","Use detector %i",iDet);

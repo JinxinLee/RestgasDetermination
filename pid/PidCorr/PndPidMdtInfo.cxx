@@ -94,11 +94,16 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
 	}
       if (fDebugMode)
 	{
-	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
-			      vertexD.X(), vertexD.Y(), vertexD.Z(), vertex.Phi(), 
-			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(), mdtTempMom,
-			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer, mdtHits};
+	  Float_t ntuple[] = {static_cast<Float_t>(vertex.X()), static_cast<Float_t>(vertex.Y()), static_cast<Float_t>(vertex.Z()), 
+			      static_cast<Float_t>(vertexD.X()), static_cast<Float_t>(vertexD.Y()), static_cast<Float_t>(vertexD.Z()), static_cast<Float_t>(vertex.Phi()),
+			      static_cast<Float_t>(helix->GetMomentum().Mag()), static_cast<Float_t>(helix->GetQ()), static_cast<Float_t>(helix->GetMomentum().Theta()), static_cast<Float_t>(helix->GetZ()),
+			      static_cast<Float_t>(mdtPos.X()), static_cast<Float_t>(mdtPos.Y()), static_cast<Float_t>(mdtPos.Z()), static_cast<Float_t>(mdtPos.Phi()),mdtTempMom,
+			      dist, static_cast<Float_t>(mdtHit->GetModule()), static_cast<Float_t>(vertex.DeltaPhi(mdtPos)), mdtGLength, static_cast<Float_t>(mdtLayer), static_cast<Float_t>(mdtHits) };
+	  // Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
+	  // 		      vertexD.X(), vertexD.Y(), vertexD.Z(), vertex.Phi(), 
+	  // 		      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+	  // 		      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(), mdtTempMom,
+	  // 		      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer, mdtHits};
 	  mdtCorr->Fill(ntuple);
 	}
     }
@@ -322,12 +327,18 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
       if (fDebugMode)
         {
 	  Int_t mdtLayer = 0, mdtHits = 1; // dummy values to fill the ntuple
-	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
-			      vertexD.X(), vertexD.Y(), vertexD.Z(),
-			      vertex.Phi(), 
-			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(), momentum.Mag(),
-			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer, mdtHits};
+	  Float_t ntuple[] = {static_cast<Float_t>(vertex.X()), static_cast<Float_t>(vertex.Y()), static_cast<Float_t>(vertex.Z()), 
+			      static_cast<Float_t>(vertexD.X()), static_cast<Float_t>(vertexD.Y()), static_cast<Float_t>(vertexD.Z()), 
+			      static_cast<Float_t>(vertex.Phi()),
+			      static_cast<Float_t>(helix->GetMomentum().Mag()), static_cast<Float_t>(helix->GetQ()), static_cast<Float_t>(helix->GetMomentum().Theta()), static_cast<Float_t>(helix->GetZ()),
+			      static_cast<Float_t>(mdtPos.X()), static_cast<Float_t>(mdtPos.Y()), static_cast<Float_t>(mdtPos.Z()), static_cast<Float_t>(mdtPos.Phi()), static_cast<Float_t>(momentum.Mag()),
+			      dist, static_cast<Float_t>(mdtHit->GetModule()), static_cast<Float_t>(vertex.DeltaPhi(mdtPos)), mdtGLength, static_cast<Float_t>(mdtLayer), static_cast<Float_t>(mdtHits) };
+	  // Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
+	  // 		      vertexD.X(), vertexD.Y(), vertexD.Z(),
+	  // 		      vertex.Phi(), 
+	  // 		      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+	  // 		      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(), momentum.Mag(),
+	  // 		      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer, mdtHits};
           mdtCorr->Fill(ntuple);
 	}
     } // end of layer0 loop

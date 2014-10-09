@@ -79,17 +79,17 @@ Bool_t PndSttGeomPoint::Is2D() const
 
 void PndSttGeomPoint::Draw(Double_t size, Int_t color) const
 {
-    Float_t
+    Double_t
 	xstartx[2] = {fX - size, fX + size},
 	ystartx[2] = {fX, fX},
 	zstartx[2] = {fX, fX};
 	
-    Float_t
+    Double_t
 	xstarty[2] = {fY, fY},
 	ystarty[2] = {fY - size, fY + size},
 	zstarty[2] = {fY, fY};
 
-    Float_t
+    Double_t
 	xstartz[2] = {fZ, fZ},
 	ystartz[2] = {fZ, fZ},
         zstartz[2] = {fZ - size, fZ + size};

@@ -107,12 +107,18 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
       
       if (fDebugMode)
         {
-          Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
-			      vertexrec.X(), vertexrec.Y(), vertexrec.Z(), 
-			      momrec.X(), momrec.Y(), momrec.Z(),
-                              helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-                              tofPos.X(), tofPos.Y(), tofPos.Z(),
-                              dist, tofLength, tofGLength,tofTrackLength};
+	  Float_t ntuple[] = {static_cast<Float_t>(vertex.X()), static_cast<Float_t>(vertex.Y()), static_cast<Float_t>(vertex.Z()),
+			      static_cast<Float_t>(vertexrec.X()), static_cast<Float_t>(vertexrec.Y()), static_cast<Float_t>(vertexrec.Z()),
+			      static_cast<Float_t>(momrec.X()), static_cast<Float_t>(momrec.Y()), static_cast<Float_t>(momrec.Z()),
+			      static_cast<Float_t>(helix->GetMomentum().Mag()), static_cast<Float_t>(helix->GetQ()), static_cast<Float_t>(helix->GetMomentum().Theta()), static_cast<Float_t>(helix->GetZ()),
+			      static_cast<Float_t>(tofPos.X()), static_cast<Float_t>(tofPos.Y()), static_cast<Float_t>(tofPos.Z()),
+			      dist, tofLength, tofGLength, tofTrackLength};
+          // Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(),
+	  // 		      vertexrec.X(), vertexrec.Y(), vertexrec.Z(), 
+	  // 		      momrec.X(), momrec.Y(), momrec.Z(),
+          //                     helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+          //                     tofPos.X(), tofPos.Y(), tofPos.Z(),
+          //                     dist, tofLength, tofGLength,tofTrackLength};
           ftofCorr->Fill(ntuple);
         }
     }

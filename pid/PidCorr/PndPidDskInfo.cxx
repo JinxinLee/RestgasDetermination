@@ -49,11 +49,18 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	}
       if (fDebugMode)
 	{
-	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      dskPos.X(), dskPos.Y(), dskPos.Z(), dskPos.Phi(), dist, dskParticle->GetThetaC(), 0., vertex.DeltaPhi(dskPos), dskGLength,
-			      helix->GetX(), helix->GetY(), helix->GetZ(), x_p, pidCand->GetFitStatus()
-};
+	  Float_t ntuple[] = {static_cast<Float_t>(vertex.X()), static_cast<Float_t>(vertex.Y()), static_cast<Float_t>(vertex.Z()), static_cast<Float_t>(vertex.Phi()), 
+			      static_cast<Float_t>(helix->GetMomentum().Mag()), static_cast<Float_t>(helix->GetQ()), static_cast<Float_t>(helix->GetMomentum().Theta()), static_cast<Float_t>(helix->GetZ()),
+			      static_cast<Float_t>(dskPos.X()), static_cast<Float_t>(dskPos.Y()), static_cast<Float_t>(dskPos.Z()), static_cast<Float_t>(dskPos.Phi()),
+			      dist, static_cast<Float_t>(dskParticle->GetThetaC()), 0., static_cast<Float_t>(vertex.DeltaPhi(dskPos)), dskGLength, 
+			      static_cast<Float_t>(helix->GetX()), static_cast<Float_t>(helix->GetY()), static_cast<Float_t>(helix->GetZ()), x_p, static_cast<Float_t>(pidCand->GetFitStatus())
+	  };
+	  // Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+	  // 		      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+	  // 		      dskPos.X(), dskPos.Y(), dskPos.Z(), dskPos.Phi(), 
+	  // 		      dist, dskParticle->GetThetaC(), 0., vertex.DeltaPhi(dskPos), dskGLength,
+	  // 		      helix->GetX(), helix->GetY(), helix->GetZ(), x_p, pidCand->GetFitStatus()
+	  //	  };
 	  dskCorr->Fill(ntuple);
 	}
     }

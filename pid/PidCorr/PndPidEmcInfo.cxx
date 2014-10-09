@@ -93,10 +93,14 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	}
       
       if (fDebugMode){
-	Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-			    helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			    emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
-			    dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
+	  Float_t ntuple[] = {static_cast<Float_t>(vertex.X()), static_cast<Float_t>(vertex.Y()), static_cast<Float_t>(vertex.Z()), static_cast<Float_t>(vertex.Phi()), 
+			      static_cast<Float_t>(helix->GetMomentum().Mag()), static_cast<Float_t>(helix->GetQ()), static_cast<Float_t>(helix->GetMomentum().Theta()), static_cast<Float_t>(helix->GetZ()),
+			      static_cast<Float_t>(emcPos.X()), static_cast<Float_t>(emcPos.Y()), static_cast<Float_t>(emcPos.Z()), static_cast<Float_t>(emcPos.Phi()),
+			      dist, static_cast<Float_t>(vertex.DeltaPhi(emcPos)), static_cast<Float_t>(emcHit->energy()), emcGLength, static_cast<Float_t>(emcModule)};
+	// Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+	// 		    helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+	// 		    emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
+	// 		    dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
 	emcCorr->Fill(ntuple);
       }
     }// End for(ee = 0;)

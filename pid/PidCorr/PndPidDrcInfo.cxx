@@ -52,11 +52,18 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	}
       if (fDebugMode)
 	{
-	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex_z, vertex.Phi(),  
-			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      drcPos.X(), drcPos.Y(), drcPos.Phi(), dist, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos), drcGLength,
-			      pidCand->GetFitStatus()
+	  Float_t ntuple[] = {static_cast<Float_t>(vertex.X()), static_cast<Float_t>(vertex.Y()), static_cast<Float_t>(vertex.Z()), static_cast<Float_t>(vertex.Phi()), 
+			      static_cast<Float_t>(helix->GetMomentum().Mag()), static_cast<Float_t>(helix->GetQ()), static_cast<Float_t>(helix->GetMomentum().Theta()), static_cast<Float_t>(helix->GetZ()),
+			      static_cast<Float_t>(drcPos.X()), static_cast<Float_t>(drcPos.Y()), static_cast<Float_t>(drcPos.Phi()),
+			      dist, static_cast<Float_t>(drcHit->GetThetaC()), 0., static_cast<Float_t>(vertex.DeltaPhi(drcPos)), drcGLength, 
+			      static_cast<Float_t>(pidCand->GetFitStatus())
 	  };
+	  // Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex_z, vertex.Phi(),  
+	  // 		      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+	  // 		      drcPos.X(), drcPos.Y(), drcPos.Phi(), 
+	  // 		      dist, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos), drcGLength,
+	  // 		      pidCand->GetFitStatus()
+	  // };
 	  drcCorr->Fill(ntuple);
 	}
     }
