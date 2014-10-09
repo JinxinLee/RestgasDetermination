@@ -16,8 +16,8 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
   // choose your event generator 
-  Bool_t UseEvtGen	      =kFALSE; 
-  Bool_t UseEvtGenDirect      =kTRUE;     
+  Bool_t UseEvtGen	      =kTRUE; 
+  Bool_t UseEvtGenDirect      =kFALSE;     
   Bool_t UseDpm 	      =kFALSE;
   Bool_t UseBoxGenerator      =kFALSE;
   
@@ -85,7 +85,7 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->AddModule(Mvd);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName("gem_3Stations.root");
+  Gem->SetGeometryFileName("gem_3Stations_Tube.root");
   fRun->AddModule(Gem);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
