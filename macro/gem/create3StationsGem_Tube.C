@@ -9,13 +9,13 @@ void create3StationsGem_Tube()
 //   const Double_t  kDiskInnerRadius[kNofDisks]    = {   5.0,   5.0,   5.0};
 //   const Double_t  kDiskOuterRadius[kNofDisks]    = {  42.0,  66.0,  90.0};
 //   const Double_t  kDiskZPosition  [kNofDisks]    = { 120.0, 150.0, 180.0};
-  const Double_t  kDiskInnerRadius[kNofDisks]    = {  2.5,  2.5,  2.5};
-  const Double_t  kDiskOuterRadius[kNofDisks]    = { 45.0, 56.0, 74.0};
-  const Double_t  kDiskZPosition  [kNofDisks]    = {117.0,153.0,189.0};
-  const Int_t     kDiskNFoils     [kNofDisks]    = {  2  ,  2  ,  4  };
-  const Double_t  kMiddleROBarHfTh[kNofDisks]    = {  4.3,  4.3,  4.3};
 
   const Double_t kHalfStationThickness = 3.00;
+  const Double_t  kDiskInnerRadius[kNofDisks]    = {  4.52,  4.52,  4.52};//Adjusted for XY strips
+  const Double_t  kDiskOuterRadius[kNofDisks]    = { 37.92, 46.4, 64.4};//Adjusted for XY strips
+  const Double_t  kDiskZPosition  [kNofDisks]    = {119.6,143.1,175.6};//CAD V1312
+  const Int_t     kDiskNFoils     [kNofDisks]    = {  2  ,  2  ,  4  };
+  const Double_t  kMiddleROBarHfTh[kNofDisks]    = {  4.3,  4.3,  4.3};
 
   const Int_t    kNofLayers = 39;
   const TString  kLayerName [kNofLayers] = {"WindowF_kapton","WindowF_aluminium",
@@ -55,7 +55,7 @@ void create3StationsGem_Tube()
 					      0.2010,                   // +1=26 space
 					      0.0002,  0.0050,  0.0002, // +3=29 gemfoil
 					      0.2010,                   // +1=30 space
-					      0.0002,  0.0050,  0.0002, // +3=31 gemfoil
+					      0.0002,  0.0050,  0.0002, // +3=33 gemfoil
 					      1.0020,                   // +1=34 active space
 					      0.0001,  0.0007,          // +2=36 cathode
 					      1.0010,                   // +1=37 space
@@ -65,10 +65,11 @@ void create3StationsGem_Tube()
 // type 0: r,phi  strips
 // type 1: tilted strips
 // type 2: x,y    strips
-  const Int_t    kSensorStripType [2]    = {  0   ,         2   };  
+// type 3: r_tree,phi strips
+  const Int_t    kSensorStripType [2]    = {  3   ,         2   };  
   
   const Double_t kSensorStripAngle[2][2] = {  0.  ,  0.  ,  0.  ,  0.  };
-  const Double_t kSensorStripPitch[2][2] = {  0.02,  0.02,  0.02,  0.02};
+  const Double_t kSensorStripPitch[2][2] = {  0.04,  0.04,  0.04,  0.04};
 
   Double_t firstLayerOffset = 0.;
 
@@ -168,11 +169,14 @@ void create3StationsGem_Tube()
 
   pout << "#################################################################" << endl;
   pout << "# Digitization parameters for GEM                                " << endl;
-  pout << "# with 3 Stations at 90, 120, 150 cm from the target             " << endl;
+  pout << "# with 3 Stations at "
+       << kDiskZPosition[0] << ", " 
+       << kDiskZPosition[1] << ", " 
+       << kDiskZPosition[2] << " cm from the target             " << endl;
   pout << "# Format:                                                        " << endl;
   pout << "#Description of parameters:                                      " << endl;
   pout << "#[PndGemDetectors]                                            " << endl;
-  pout << "#parameters:d station_number, rotation_angle, number_of_sensors, \\" << endl;
+  pout << "#parameters:d station_number, ZPos, rotation_angle, number_of_sensors, \\" << endl;
   pout << "#                 sensor_number, sensor_type, pos_x, pos_y, pos_z, rotAngle, inn_rad, out_rad, thick, str_ang_0, str_ang_1, barWidth, pitch_0, pitch_1, \\" << endl;
   pout << "#                 sensor_number, ...." << endl;
   pout << "#             station_number, ..." << endl;
