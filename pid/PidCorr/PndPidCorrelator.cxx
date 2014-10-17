@@ -907,16 +907,17 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 	  FairTrackParP par = track->GetParamLast(); 
 	  FairTrackParH *helix = new FairTrackParH(&par, ierr);
 	  
-	  if (bump->GetModule()<4) // barrel
+	  if (bump->GetModule()<5) // barrel
 	    {
-	      if ((bump->GetModule()==3) && (helix->GetZ()<165.)) continue; // consider tracks only from last gem plane
-	      if ((bump->GetModule()<3) && (helix->GetZ()>150.)) continue; // not consider tracks after emc barrel
+	      if ((bump->GetModule()<3) && (helix->GetZ()>150.)  ) continue; // not consider tracks after emc barrel for BARREL 
+	      if ((bump->GetModule()==3) && (helix->GetZ()<165.) ) continue; // consider tracks only from last gem plane for FWD
+	      if ((bump->GetModule()==4) && (helix->GetZ()>-30.) ) continue; // consider tracks only ending at the back of STT for BKW
 	    }
 	  else // forward
 	    {
-	      if (helix->GetZ() <  fCorrPar->GetZLastPlane()) continue;  // consider tracks only from last gemfts plane
+	      if (helix->GetZ() <  fCorrPar->GetZLastPlane()) continue;  // consider tracks only from last fts plane for FSC
 	    }
-	  
+
 	  if (fGeanePro)
 	    { // Overwrites vertex if Geane is used
 	      fProEmc->SetPoint(v1);
