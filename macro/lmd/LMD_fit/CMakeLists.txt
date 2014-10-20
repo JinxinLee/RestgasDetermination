@@ -1,4 +1,27 @@
 # Create some checker helper apps for lumi fitting
+set(CMAKE_MODULE_PATH "$ENV{VMCWORKDIR}/cmake/modules")
+Set(CheckSrcDir "$ENV{SIMPATH}/share/fairbase/cmake/checks")
+set(CheckSrcDir "$ENV{VMCWORKDIR}/cmake/checks")
+include(CheckCXX11Features)
+IF(HAS_CXX11_SHAREDPOINTER)
+  Add_Definitions(-DHAS_SHAREDPOINTER)
+ENDIF(HAS_CXX11_SHAREDPOINTER)
+
+add_definitions(${CXX11_COMPILER_FLAGS})
+
+MACRO(HEADER_DIRECTORIES return_list dir)
+    FILE(GLOB_RECURSE new_list ${dir}/*.h)
+    SET(dir_list "")
+    FOREACH(file_path ${new_list})
+        GET_FILENAME_COMPONENT(dir_path ${file_path} PATH)
+        SET(dir_list ${dir_list} ${dir_path})
+    ENDFOREACH()
+    LIST(REMOVE_DUPLICATES dir_list)
+    SET(${return_list} ${dir_list})
+ENDMACRO()
+
+HEADER_DIRECTORIES(MODEL_INCLUDE_DIRECTORIES $ENV{VMCWORKDIR}/lmd/LmdFit/ModelFramework)
+HEADER_DIRECTORIES(TEMP_INCLUDE_DIRECTORIES $ENV{VMCWORKDIR}/lmd/LmdFit/LumiImpl)
 
 set(INCLUDE_DIRECTORIES
 ${CMAKE_SOURCE_DIR}/lmd/LmdFit/LumiImpl
@@ -18,8 +41,8 @@ link_directories(${LINK_DIRECTORIES})
 
 ########################### create phiSlicing app ##################################
 
-add_executable(phiSliceData phiSliceData.cxx)
-target_link_libraries(phiSliceData Lmd LmdTool MathMore Eve)
+#add_executable(phiSliceData phiSliceData.cxx)
+#target_link_libraries(phiSliceData Lmd LmdTool MathMore Eve)
 
 ########################### create phiSlicingPlotter app ##################################
 
@@ -116,3 +139,15 @@ target_link_libraries(convolutionThesisPlots $ENV{ROOT_LIBRARIES} Model LmdFit)
 
 add_executable(calculateElasticCrossSection calculateElasticCrossSection.cxx)
 target_link_libraries(calculateElasticCrossSection LmdFit)
+
+########################### create DPM vs E760 app ##################################
+add_executable(dpm_vs_e760 ../Anastasia/tests/ModelUncert/DPM_vs_E760.cxx)
+target_link_libraries(dpm_vs_e760 $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)
+
+########################### create DPM fit params app ##################################
+add_executable(dpm_fit_params ../Anastasia/tests/ModelUncert/DPM_fit.cxx)
+target_link_libraries(dpm_fit_params $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)
+
+########################### create E760 fit params app ##################################
+add_executable(e760_fit_params ../Anastasia/tests/ModelUncert/E760_fit.cxx)
+target_link_libraries(e760_fit_params $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)
