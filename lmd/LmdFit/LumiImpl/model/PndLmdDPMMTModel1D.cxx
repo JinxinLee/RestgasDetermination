@@ -44,6 +44,7 @@ PndLmdDPMMTModel1D::~PndLmdDPMMTModel1D() {
 void PndLmdDPMMTModel1D::updateDomainFromPars(double *par) {
 }
 
+
 void PndLmdDPMMTModel1D::init() {
 	TDatabasePDG *pdg = TDatabasePDG::Instance();
 	M = pdg->GetParticle(-2212)->Mass();
@@ -105,8 +106,7 @@ double PndLmdDPMMTModel1D::getRawInterferencePart(const double *x) const {
 
 	double int_part = alpha * sigma_tot->getValue()
 			* pow(getProtonDipoleFormFactor(t), 2.0) * exp(0.5 * b->getValue() * t)
-			* (rho->getValue() * cos(delta) + sin(delta)) / beta->getValue()
-			/ TMath::Abs(t); //Exact version as dpm states
+	  * (rho->getValue() * cos(delta) + sin(delta)) / (beta->getValue()*TMath::Abs(t)); //Exact version as dpm states
 
 	return int_part;
 }
@@ -127,7 +127,7 @@ double PndLmdDPMMTModel1D::getRawRhoBSigtotHadronicPart(const double *x) const {
 	double t = -TMath::Abs(x[0]);
 
 	double had_part = pow(sigma_tot->getValue(), 2.0)
-			* (1.0 + pow(rho->getValue(), 2.0)) * exp(b->getValue() * t) / 16. / pi;
+	  * (1.0 + pow(rho->getValue(), 2.0)) * exp(b->getValue() * t) / (16. * pi * hbarc2);
 
 	return had_part;
 }
@@ -150,3 +150,14 @@ void PndLmdDPMMTModel1D::updateDomain() {
 	setDomain(0, std::numeric_limits<double>::max());
 }
 
+double PndLmdDPMMTModel1D::getRho() const{
+  return rho->getValue();
+}
+
+double PndLmdDPMMTModel1D::getB() const{
+  return b->getValue();
+}
+
+double PndLmdDPMMTModel1D::getSigmaTotal() const{
+  return sigma_tot->getValue();
+}
