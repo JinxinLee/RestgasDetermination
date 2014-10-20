@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 #include <TROOT.h>
+#include <TH1D.h>
 #include <TLegend.h>
 #include "TVirtualFitter.h"
 using namespace std;
@@ -340,16 +341,18 @@ int main(){
   double Plab_min=1.5;
   double Plab_max=15;
   int Plabstep= 30;
-  TGraph *resUn2mrad = new TGraph(Plabstep);
+  // int Plabstep= 2;
+ TGraphErrors *resUn2mrad = new TGraphErrors(Plabstep);
   resUn2mrad->SetMarkerStyle(20);
   resUn2mrad->SetMarkerColor(32);
-  resUn2mrad->SetMarkerSize(1.5);
-  TGraph *resUn5mrad = new TGraph(Plabstep);
-  resUn5mrad->SetMarkerStyle(21);
-  resUn5mrad->SetMarkerColor(46); resUn5mrad->SetMarkerSize(1.5);
-  TGraph *resUn10mrad = new TGraph(Plabstep);
-  resUn10mrad->SetMarkerStyle(22);
-  resUn10mrad->SetMarkerColor(38);  resUn10mrad->SetMarkerSize(1.5);
+  resUn2mrad->SetMarkerSize(2.0);
+  TGraphErrors  *resUn3mrad = new TGraphErrors(Plabstep);
+  resUn3mrad->SetMarkerStyle(21);
+  resUn3mrad->SetMarkerColor(46); resUn3mrad->SetMarkerSize(1.7);
+  TGraphErrors  *resUn4mrad = new TGraphErrors(Plabstep);
+  resUn4mrad->SetMarkerStyle(22);
+  resUn4mrad->SetMarkerColor(38);  resUn4mrad->SetMarkerSize(1.5);
+
   for(int pstep=0;pstep<=Plabstep;pstep++){
     double plab = Plab_min+pstep*(Plab_max-Plab_min)/Plabstep;
   //get patameters for DPM model from the fit
@@ -387,14 +390,13 @@ int main(){
     cout<<par[jdpm]<<" +- "<<errpar[jdpm]<<endl;
   }
   LumiFit::PndLmdFitModelOptions model_options;
-  model_options.momentum_transfer_active = true; // will calc cross-section as a func from (t)
-  //model_options.momentum_transfer_active = false; // will calc cross-section as a func from (theta), theta in rad
-  model_options.acceptance_correction_active = false;
-  model_options.momentum_transfer_active = false;
-  model_options.resolution_smearing_active = false;
-  PndLmdModelFactory model_factory;
-  shared_ptr<Model1D> model1d = model_factory.generate1DModel(model_options, plab);
-
+  // model_options.momentum_transfer_active = true; // will calc cross-section as a func from (t)
+  // //model_options.momentum_transfer_active = false; // will calc cross-section as a func from (theta), theta in rad
+  // model_options.acceptance_correction_active = false;
+  // model_options.momentum_transfer_active = false;
+  // model_options.resolution_smearing_active = false;
+  // PndLmdModelFactory model_factory;
+  // shared_ptr<Model1D> model1d = model_factory.generate1DModel(model_options, plab);
 
   PndLmdDPMAngModel1D modelDPM("dpm_angular_1d", LumiFit::ALL);
   shared_ptr<Parametrization> para(
@@ -405,13 +407,30 @@ int main(){
   modelDPM.getModelParameterSet().setModelParameterValue("luminosity", 1);
   // modelDPM->init();
   ((Model1D*) &modelDPM)->init();
+double lower_bound = 2.0;
+  double upper_bound = 10.0 ;
+  std::vector<std::pair<double, double> > integral_ranges;
+  integral_ranges.push_back(std::make_pair(lower_bound / 1000.0, upper_bound / 1000.0));
+  double integral_2_10 = modelDPM.Integral(integral_ranges, 0.0001);
+  lower_bound = 3.0;
+  upper_bound = 9.0 ;
+  std::vector<std::pair<double, double> > integral_ranges2;
+  integral_ranges2.push_back(std::make_pair(lower_bound / 1000.0, upper_bound / 1000.0));
+  double integral_3_9 = modelDPM.Integral(integral_ranges2, 0.0001);
+  lower_bound = 4.0;
+  upper_bound = 8.0 ;
+  std::vector<std::pair<double, double> > integral_ranges3;
+  integral_ranges3.push_back(std::make_pair(lower_bound / 1000.0, upper_bound / 1000.0));
+  double integral_4_8 = modelDPM.Integral(integral_ranges3, 0.0001);
+  cout<<" integral (2-10) = "<<integral_2_10<<endl;
+
 // double th_dw = 1.04719994E-03;//rad -> 0.06 DPM
-  double th_dw = 0.002;//
+  double th_dw = 0.0015;//
   //  double th_dw = 0.003;//
  //double th_up = TMath::Pi();
   // double th_up = 0.02;
   double th_up = 0.015;
-   const int nst = 2e3;
+   const int nst = 1e4;
    // const int nst = 2e1;
   double cs_loc = 0;
   double cs_val[nst], cs_uncert[nst];//dpm
@@ -433,19 +452,18 @@ int main(){
     cs_val[i] = modelDPM.getRawFullElastic(&t_cur);
     cs_uncert[i] = Df(t_cur,par,errpar);
     rel_err[i] = 100*(cs_uncert[i]/cs_val[i]);
-   
-    if(fabs(th_val[i]-2.)<1e-3){ 
-      resUn2mrad->SetPoint(pstep, plab, rel_err[i]);
-      //    cout<<th_val[i]<<endl;
-    }
-    if(fabs(th_val[i]-5.)<1e-2){
-      resUn5mrad->SetPoint(pstep, plab, rel_err[i]);
-      //   cout<<th_val[i]<<endl;
-    }
-    if(fabs(th_val[i]-10.)<1e-2){
-      resUn10mrad->SetPoint(pstep, plab, rel_err[i]);
-      //   cout<<th_val[i]<<endl;
-    }
+    // if(fabs(th_val[i]-2.)<1e-3){ 
+    //   resUn2mrad->SetPoint(pstep, plab, rel_err[i]);
+    //   //    cout<<th_val[i]<<endl;
+    // }
+    // if(fabs(th_val[i]-5.)<1e-2){
+    //   resUn5mrad->SetPoint(pstep, plab, rel_err[i]);
+    //   //   cout<<th_val[i]<<endl;
+    // }
+    // if(fabs(th_val[i]-10.)<1e-2){
+    //   resUn10mrad->SetPoint(pstep, plab, rel_err[i]);
+    //   //   cout<<th_val[i]<<endl;
+    // }
     // rel_err[i] = 100*(cs_uncert[i]/cs_val[i]);
     // //TEST: calculate total cross-section
     // vector<pair<double, double> > range;
@@ -456,13 +474,66 @@ int main(){
   }
 
   TGraphErrors *gr_cs_th = new TGraphErrors(nst,th_val,cs_val,0,cs_uncert);
-  // gr_cs_th->SetTitle("P_{beam} = 2.33 GeV/c");
   gr_cs_th->GetXaxis()->SetTitle("#theta, mrad");
   gr_cs_th->GetYaxis()->SetTitle("d#sigma/dt, mb/(GeV/c)^{2}");
   gr_cs_th->SetFillColor(4);
   gr_cs_th->SetFillStyle(3001);
 
+
+
   TGraphErrors *gr_cs_t = new TGraphErrors(nst,t_val,cs_val,0,cs_uncert);
+  
+  int x_2mrad=0;   int x_10mrad=0;
+  int x_3mrad=0;   int x_9mrad=0;
+  int x_4mrad=0;   int x_8mrad=0;
+  PndLmdLumiHelper *lmd_help  = new PndLmdLumiHelper();
+  double t_2mrad = (lmd_help->getMomentumTransferFromTheta(plab, 2e-3));
+  double t_3mrad = (lmd_help->getMomentumTransferFromTheta(plab, 3e-3));
+  double t_4mrad = (lmd_help->getMomentumTransferFromTheta(plab, 4e-3));
+  double t_8mrad = (lmd_help->getMomentumTransferFromTheta(plab, 8e-3));
+  double t_9mrad = (lmd_help->getMomentumTransferFromTheta(plab, 9e-3));
+  double t_10mrad = (lmd_help->getMomentumTransferFromTheta(plab, 1e-2));
+  cout<<" t_2mrad = "<<t_2mrad<<" t_3mrad = "<<t_3mrad<<" t_4mrad = "<<t_4mrad<<endl;
+  cout<<" t_10mrad = "<<t_10mrad<<" t_9mrad = "<<t_9mrad<<" t_8mrad = "<<t_8mrad<<endl;
+  for(int igrp = 0; igrp<gr_cs_t->GetN();igrp++){
+    double x,y;
+    gr_cs_t->GetPoint(igrp,x,y);
+    if(fabs(x-t_2mrad)<0.01*t_2mrad) x_2mrad=igrp;
+    if(fabs(x-t_3mrad)<0.01*t_3mrad) x_3mrad=igrp;
+    if(fabs(x-t_4mrad)<0.01*t_4mrad) x_4mrad=igrp;
+    if(fabs(x-t_10mrad)<0.01*t_10mrad) x_10mrad=igrp;
+    if(fabs(x-t_8mrad)<0.01*t_8mrad) x_8mrad=igrp;
+    if(fabs(x-t_9mrad)<0.01*t_9mrad) x_9mrad=igrp;
+  }
+  double CSint_2_10 = 0;
+  for(int ik=x_2mrad;ik<x_10mrad;ik++){
+    double x1,y1;
+    gr_cs_t->GetPoint(ik,x1,y1);
+    double x2,y2;
+    gr_cs_t->GetPoint(ik+1,x2,y2);
+    CSint_2_10 += y1*(x2-x1);
+  }
+  double CSint_4_8 = 0;
+ for(int ik=x_4mrad;ik<x_8mrad;ik++){
+    double x1,y1;
+    gr_cs_t->GetPoint(ik,x1,y1);
+    double x2,y2;
+    gr_cs_t->GetPoint(ik+1,x2,y2);
+    CSint_4_8 += y1*(x2-x1);
+  }
+ double CSint_3_9 = 0;
+ for(int ik=x_3mrad;ik<x_9mrad;ik++){
+    double x1,y1;
+    gr_cs_t->GetPoint(ik,x1,y1);
+    double x2,y2;
+    gr_cs_t->GetPoint(ik+1,x2,y2);
+    CSint_3_9 += y1*(x2-x1);
+  }
+
+ //  //  cout<<"4="<<x_4mrad<<" 8="<<x_8mrad<<" 2="<<x_2mrad<<" 10="<<x_10mrad
+ cout<<" CSint_2_10 = "<<CSint_2_10<<" CSint_3_9 = "<<CSint_3_9<<" CSint_4_8 = "<<CSint_4_8<<endl;
+  // double norm_2_10 = double(x_10mrad-x_2mrad)/(gr_cs_t->GetN());
+  // cout<<"norm_2_10 = "<<norm_2_10<<endl;
   gr_cs_t->SetTitle("");
   gr_cs_t->GetXaxis()->SetTitle("|t|, (GeV/c)^{2}");
   gr_cs_t->GetYaxis()->SetTitle("d#sigma/dt, mb/(GeV/c)^{2}");
@@ -475,6 +546,45 @@ int main(){
   gr_cs_un_th->GetYaxis()->SetTitle("#Delta(d#sigma/dt), mb/(GeV/c)^{2}");
 
   TGraph *gr_cs_un_t = new TGraph(nst,t_val,cs_uncert);
+  double errCSint_2_10 = 0;
+  for(int ik=x_2mrad;ik<x_10mrad;ik++){
+    double x1,y1;
+    gr_cs_un_t->GetPoint(ik,x1,y1);
+    double x2,y2;
+    gr_cs_un_t->GetPoint(ik+1,x2,y2);
+    errCSint_2_10 += y1*(x2-x1);
+  }
+  double errCSint_4_8 = 0;
+ for(int ik=x_4mrad;ik<x_8mrad;ik++){
+    double x1,y1;
+    gr_cs_un_t->GetPoint(ik,x1,y1);
+    double x2,y2;
+    gr_cs_un_t->GetPoint(ik+1,x2,y2);
+    errCSint_4_8 += y1*(x2-x1);
+  }
+ double errCSint_3_9 = 0;
+ for(int ik=x_3mrad;ik<x_9mrad;ik++){
+    double x1,y1;
+    gr_cs_un_t->GetPoint(ik,x1,y1);
+    double x2,y2;
+    gr_cs_un_t->GetPoint(ik+1,x2,y2);
+    errCSint_3_9 += y1*(x2-x1);
+  }
+
+cout<<" errCSint_2_10 = "<<errCSint_2_10<<" errCSint_3_9 = "<<errCSint_3_9<<" errCSint_4_8 = "<<errCSint_4_8<<endl;
+ double integ_un_2_10 = 100.*errCSint_2_10/CSint_2_10;
+ resUn2mrad->SetPoint(pstep, plab,integ_un_2_10);
+ double errIntegCS=70*fabs(CSint_2_10-integral_2_10)/integral_2_10;
+ resUn2mrad->SetPointError(pstep,0,errIntegCS);
+ double integ_un_3_9 = 100.*errCSint_3_9/CSint_3_9;
+ resUn3mrad->SetPoint(pstep, plab,integ_un_3_9);
+ errIntegCS=70*fabs(CSint_3_9-integral_3_9)/integral_3_9;
+ resUn3mrad->SetPointError(pstep,0,errIntegCS);
+ double integ_un_4_8 = 100.*errCSint_4_8/CSint_4_8;
+ resUn4mrad->SetPoint(pstep, plab,integ_un_4_8);
+ errIntegCS=70*fabs(CSint_4_8-integral_4_8)/integral_4_8;
+ resUn4mrad->SetPointError(pstep,0,errIntegCS);
+
   gr_cs_un_t->SetTitle("");
   gr_cs_un_t->GetXaxis()->SetTitle("|t|, (GeV/c)^{2}");
   gr_cs_un_t->GetYaxis()->SetTitle("#Delta(d#sigma/dt), mb/(GeV/c)^{2}");
@@ -511,25 +621,34 @@ int main(){
   c2.SaveAs(fnamepdf);
   c2.SaveAs(fnameroot);
   // [end] part2: calculate differencial cross-section and its uncertanty ----
+
+ 
+  // TCanvas c4("c4","canvas",800,600);
+  // h_cs_th->Draw();
+  // c4.SaveAs("HIST.pdf");
   }
+
+
   TCanvas c3("c3","canvas",800,600);
   TMultiGraph *mg_res = new TMultiGraph();
   mg_res->Add(resUn2mrad);
-  mg_res->Add(resUn5mrad);
-  mg_res->Add(resUn10mrad);
+  mg_res->Add(resUn3mrad);
+  mg_res->Add(resUn4mrad);
 
-  TLegend *leg = new TLegend(0.17,0.65,0.43,0.85);
+  TLegend *leg = new TLegend(0.17,0.65,0.52,0.85);
   leg->SetFillColor(0);
   leg->SetTextFont(42);
   leg->SetTextSize(0.05);
-  leg->AddEntry(resUn2mrad,"#theta = 2 mrad","p");
-  leg->AddEntry(resUn5mrad,"#theta = 5 mrad","p");
-  leg->AddEntry(resUn10mrad,"#theta = 10 mrad","p");
+  leg->AddEntry(resUn2mrad,"#theta #in [2-10] mrad","ep");
+  leg->AddEntry(resUn3mrad,"#theta #in [3-9] mrad","ep");
+  leg->AddEntry(resUn4mrad,"#theta #in [4-8] mrad","ep");
   mg_res->Draw("AP");
   mg_res->GetXaxis()->SetTitle("P_{lab}, GeV/c");
-  mg_res->GetYaxis()->SetTitle("#Delta(d#sigma/dt)/(d#sigma/dt), %");
+  mg_res->SetMinimum(-1.);
+  //  mg_res->GetYaxis()->SetTitle("#Delta(d#sigma/dt)/(d#sigma/dt), %");
+  mg_res->GetYaxis()->SetTitle("#Delta#sigma/#sigma, %");
   leg->Draw();
-  c3.SaveAs("uncert_vs_Plab.pdf");
-  c3.SaveAs("uncert_vs_Plab.root");
+  c3.SaveAs("uncertDPMInteg_vs_Plab.pdf");
+   c3.SaveAs("uncertDPMInteg_vs_Plab.root");
   return 0;
 }
