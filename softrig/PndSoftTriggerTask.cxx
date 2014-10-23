@@ -56,7 +56,7 @@
 using std::cout;
 using std::endl;
 
-const int MAXCUT=28;
+const int MAXCUT=50;
 
 // *** Holds the cut set for a certain mode
 struct STCutSet
@@ -80,10 +80,22 @@ typedef std::map<int, PndSoftTriggerLine*>::iterator TrigIt;
 const int fSTPidIndex[14] = {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22, 111, 310, 221};
 
 // *** mapped variable names for selection
-//                      0         1            2            3         4         5       6        7      8       9         10           11        12   13  14     15    16     17      18       19       20
-TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","esnpart","esptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
-//                      21         22           23       24       25     26   
-				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
+//                       0            1             2           3           4          5           6          7           8         9         
+TString fSTnames[] = {"eslnpide",  "eslnpidmu", "eslnpidpi", "eslnpidk", "eslnpidp", "esthr",    "esapl",   "esfw1",   "esnpart", "esptmax",
+
+//                       10           11            12          13          14         15          16         17          18        19  
+                      "detemcsum", "detemcmax", "p",         "pt",       "pcm",      "tht",      "d0pt",    "d1pt",    "d0pidk",  "d1tht",
+                      
+//                       20,          21            22          23          24         25          26         27          28        29
+				      "mmiss",     "essumpt",   "essumptcl", "d0pcm",    "d1p",      "thtcm",    "ecm",     "esfw4",   "esfw2",   "esptmin", 
+				       
+//                       30,          31            32          33          34         35          36         37          38        39
+				      "espmin",    "d0pide",    "d1pide",    "d0pidpi",  "d1pidpi",  "essumptc", "esfw5",   "essumpc", "d1pidk",  "oang",
+				       
+//                       40,          41            42          43          44         45          46         47          48        49
+                      "espmax",    "essumenl",  "d2pidk",   "d3pidk",   "essumpcl", "d0pidmu", "d1pidmu", "essumen", "d0tht",     "d0p" };
+
+//                       50,          51            52          53          54         55          56         57          58        59
 
 // array to hold the current variable values; indices are according to the fSTnames array
 // has to be filled for every tag mode
@@ -846,10 +858,20 @@ void PndSoftTriggerTask::FillGlobalLists()
 
 void PndSoftTriggerTask::FillEventShapeVarArray()
 {
-//                      0         1            2            3           4         5       6        7      8       9       10          11         12   13  14     15    16     17      18       19       20
-//TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","npart","ptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
-//                      21         22         23          24       25    26     
-//				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
+//                       0            1             2           3           4          5           6          7           8         9         
+//TString fSTnames[]={"eslnpide",  "eslnpidmu", "eslnpidpi", "eslnpidk", "eslnpidp", "esthr",    "esapl",   "esfw1",   "esnpart", "esptmax",
+
+//                       10           11            12          13          14         15          16         17          18        19  
+//                    "detemcsum", "detemcmax", "p",         "pt",       "pcm",      "tht",      "d0pt",    "d1pt",    "d0pidk",  "d1tht",
+                      
+//                       20,          21            22          23          24         25          26         27          28        29
+//				      "mmiss",     "essumpt",   "essumptcl", "d0pcm",    "d1p",      "thtcm",    "ecm",     "esfw4",   "esfw2",   "esptmin", 
+				       
+//                       30,          31            32          33          34         35          36         37          38        39
+//				      "espmin",    "d0pide",    "d1pide",    "d0pidpi",  "d1pidpi",  "essumptc", "esfw5",   "essumpc", "d1pidk",  "oang",
+				       
+//                       40,          41            42          43          44         45          46         47          48        49
+//                    "espmax",    "essumenl",  "d2pidk",   "d3pidk",   "essumpcl", "d0pidmu", "d1pidmu", "essumen", "d0tht",     "d0p" };
 
 	int i=0;
 	// don't use PID mult values from fEventShape (based on AllCands and only one algo)
@@ -867,6 +889,20 @@ void PndSoftTriggerTask::FillEventShapeVarArray()
 	fSTVarArray[21] = fEventShape->PtSumLab();
 	fSTVarArray[22] = fEventShape->ChrgPtSumLab();
 	
+	fSTVarArray[27] = fEventShape->FoxWolfMomR(4);
+	fSTVarArray[28] = fEventShape->FoxWolfMomR(2);
+	
+	fSTVarArray[29] = fEventShape->Ptmin();	
+	fSTVarArray[30] = fEventShape->PminCms();	
+	fSTVarArray[35] = fEventShape->ChrgPtSumCms();	
+	fSTVarArray[36] = fEventShape->FoxWolfMomR(5);	
+	fSTVarArray[37] = fEventShape->ChrgPSumCms();	
+	
+	fSTVarArray[40] = fEventShape->PmaxCms();	
+	fSTVarArray[41] = fEventShape->NeutESumLab();
+	fSTVarArray[44] = fEventShape->ChrgPSumLab();
+	fSTVarArray[47] = fEventShape->NeutESumCms();
+
 }
 
 // -------------------------------------------------------------------------
@@ -875,10 +911,21 @@ void PndSoftTriggerTask::FillEventShapeVarArray()
 
 void PndSoftTriggerTask::FillVarArray(RhoCandidate *c)
 {
-//                        0         1            2            3         4         5       6        7      8       9       10          11         12   13  14     15    16     17      18       19       20
-//TString fSTnames[] = {"eslnpide","eslnpidmu","eslnpidpi","eslnpidk","eslnpidp","esthr","esapl","esfw1","npart","ptmax","detemcsum","detemcmax","p","pt","pcm","tht","d0pt","d1pt","d0pidk","d1tht","mmiss",
-//                      21         22           23          24       25    26       
-//				      "essumpt",  "essumptcl", "d0pcm", "d1p", "thtcm", "ecm"};
+//                       0            1             2           3           4          5           6          7           8         9         
+//TString fSTnames[] = {"eslnpide",  "eslnpidmu", "eslnpidpi", "eslnpidk", "eslnpidp", "esthr",    "esapl",   "esfw1",   "esnpart", "esptmax",
+
+//                       10           11            12          13          14         15          16         17          18        19  
+//                    "detemcsum", "detemcmax", "p",         "pt",       "pcm",      "tht",      "d0pt",    "d1pt",    "d0pidk",  "d1tht",
+                      
+//                       20,          21            22          23          24         25          26         27          28        29
+//				      "mmiss",     "essumpt",   "essumptcl", "d0pcm",    "d1p",      "thtcm",    "ecm",     "esfw4",   "esfw2",   "esptmin", 
+				       
+//                       30,          31            32          33          34         35          36         37          38        39
+//				      "espmin",    "d0pide",    "d1pide",    "d0pidpi",  "d1pidpi",  "essumptc", "esfw5",   "essumpc", "d1pidk",  "oang",
+				       
+//                       40,          41            42          43          44         45          46         47          48        49
+//                    "espmax",    "essumenl",  "d2pidk",   "d3pidk",   "essumpcl", "d0pidmu", "d1pidmu", "essumen", "d0tht",     "d0p" };
+
 	TVector3 p4boost = fIniP4.BoostVector();
 
 	TLorentzVector l=c->P4();
@@ -911,6 +958,19 @@ void PndSoftTriggerTask::FillVarArray(RhoCandidate *c)
 	fSTVarArray[24] = ld[1].P();
 	fSTVarArray[25] = lcm.Theta();
 	fSTVarArray[26] = lcm.E();
+	
+	fSTVarArray[31] = nd>0 ? c->Daughter(0)->GetPidInfo(0) : -999.0;
+	fSTVarArray[32] = nd>1 ? c->Daughter(1)->GetPidInfo(0) : -999.0;
+	fSTVarArray[33] = nd>0 ? c->Daughter(0)->GetPidInfo(2) : -999.0;
+	fSTVarArray[34] = nd>1 ? c->Daughter(1)->GetPidInfo(2) : -999.0;
+	fSTVarArray[38] = nd>1 ? c->Daughter(1)->GetPidInfo(3) : -999.0;
+	fSTVarArray[39] = nd>1 ? ld[0].Vect().Angle(ld[1].Vect()) : -999.0;
+	fSTVarArray[42] = nd>2 ? c->Daughter(2)->GetPidInfo(3) : -999.0;
+	fSTVarArray[43] = nd>3 ? c->Daughter(3)->GetPidInfo(3) : -999.0;
+	fSTVarArray[45] = nd>0 ? c->Daughter(0)->GetPidInfo(1) : -999.0;
+	fSTVarArray[46] = nd>1 ? c->Daughter(1)->GetPidInfo(1) : -999.0;
+	fSTVarArray[48] = ld[0].Theta();
+	fSTVarArray[49] = ld[0].P();
 }
 
 // -------------------------------------------------------------------------
