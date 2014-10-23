@@ -151,3 +151,7 @@ target_link_libraries(dpm_fit_params $ENV{ROOT_LIBRARIES} MathMore LmdFit Model 
 ########################### create E760 fit params app ##################################
 add_executable(e760_fit_params ../Anastasia/tests/ModelUncert/E760_fit.cxx)
 target_link_libraries(e760_fit_params $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)
+
+########################### create E760 and DPM fit params comparision with exp data app ##################################
+add_executable(data_dpg_e760 ../Anastasia/tests/ModelUncert/E760_fit_DPM_fit_vs_ExpDATA.cxx)
+target_link_libraries(data_dpg_e760 $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)
