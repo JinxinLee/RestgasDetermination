@@ -65,7 +65,36 @@ double Df(double &t, double par[], double errpar[]){
    //     <<" + "<<TMath::Power(df_drho(t,par)*errrho,2)<<endl;
   return res;
 }
-
+double DfsigT(double &t, double par[], double errpar[]){
+  double errSigT = errpar[0];
+  double errb = errpar[1];
+  double errrho = errpar[2];
+  double int_res = TMath::Power(df_dSigT(t,par)*errSigT,2);
+  double res = TMath::Sqrt(int_res);
+   // cout<<"res_Df "<<res<<" = "<<TMath::Power(df_dSigT(t,par)*errSigT,2)<<" + "<<TMath::Power(df_db(t,par)*errb,2)
+   //     <<" + "<<TMath::Power(df_drho(t,par)*errrho,2)<<endl;
+  return res;
+}
+double Dfb(double &t, double par[], double errpar[]){
+  double errSigT = errpar[0];
+  double errb = errpar[1];
+  double errrho = errpar[2];
+  double int_res = TMath::Power(df_db(t,par)*errb,2);
+  double res = TMath::Sqrt(int_res);
+   // cout<<"res_Df "<<res<<" = "<<TMath::Power(df_dSigT(t,par)*errSigT,2)<<" + "<<TMath::Power(df_db(t,par)*errb,2)
+   //     <<" + "<<TMath::Power(df_drho(t,par)*errrho,2)<<endl;
+  return res;
+}
+double Dfrho(double &t, double par[], double errpar[]){
+  double errSigT = errpar[0];
+  double errb = errpar[1];
+  double errrho = errpar[2];
+  double int_res = TMath::Power(df_drho(t,par)*errrho,2);
+  double res = TMath::Sqrt(int_res);
+   // cout<<"res_Df "<<res<<" = "<<TMath::Power(df_dSigT(t,par)*errSigT,2)<<" + "<<TMath::Power(df_db(t,par)*errb,2)
+   //     <<" + "<<TMath::Power(df_drho(t,par)*errrho,2)<<endl;
+  return res;
+}
 int main(){
   gROOT->Macro("$VMCWORKDIR/macro/lmd/Anastasia/test_macros/rootlogon.C");
 
@@ -89,183 +118,183 @@ int main(){
   c1.Divide(3,2);
   // TCanvas c1("c1","canvas",600,800);
   // c1.Divide(1,2);
-  TGraphErrors *grA1 = new TGraphErrors(6,mom,sigT,0,errsigT); 
-  grA1->SetMarkerStyle(21);
-  grA1->SetMarkerSize(0.9); 
-  TF1 *fa1 = new TF1("fa1","[0]+[1]*TMath::Power(x,[2])",mom[0]-0.5,mom[5]+0.5);
-  fa1->SetParNames("par0","par1","par2");
-  fa1->SetParameter(0,34);
-  fa1->SetParameter(1,89.7);
-  fa1->SetParameter(2,-0.7);
-  grA1->Fit(fa1,"R");
+  TGraphErrors *grSIGT = new TGraphErrors(6,mom,sigT,0,errsigT); 
+  grSIGT->SetMarkerStyle(21);
+  grSIGT->SetMarkerSize(0.9); 
+  TF1 *fsigt = new TF1("fsigt","[0]+[1]*TMath::Power(x,[2])",mom[0]-0.5,mom[5]+0.5);
+  fsigt->SetParNames("par0","par1","par2");
+  fsigt->SetParameter(0,34);
+  fsigt->SetParameter(1,89.7);
+  fsigt->SetParameter(2,-0.7);
+  grSIGT->Fit(fsigt,"R");
 
-  TF1 *fa1_dpm = new TF1("fa1_dpm","[0]+[1]*TMath::Power(x,[2])",mom[0]-0.5,mom[5]+0.5);
-  fa1_dpm->SetParNames("par0","par1","par2");
-  fa1_dpm->SetParameter(0,34.48);
-  fa1_dpm->SetParameter(1,89.7);
-  fa1_dpm->SetParameter(2,-0.7);
-  fa1_dpm->SetLineColor(4);
+  TF1 *fsigt_dpm = new TF1("fsigt_dpm","[0]+[1]*TMath::Power(x,[2])",mom[0]-0.5,mom[5]+0.5);
+  fsigt_dpm->SetParNames("par0","par1","par2");
+  fsigt_dpm->SetParameter(0,34.48);
+  fsigt_dpm->SetParameter(1,89.7);
+  fsigt_dpm->SetParameter(2,-0.7);
+  fsigt_dpm->SetLineColor(4);
   //Create a TGraphErrors to hold the confidence intervals
   int np=1e4;
   // int np=1e3;
-  TGraphErrors *grint_a1 = new TGraphErrors(np);
-  TGraphErrors *grdiff_a1 = new TGraphErrors(np);
+  TGraphErrors *grint_sigt = new TGraphErrors(np);
+  TGraphErrors *grdiff_sigt = new TGraphErrors(np);
   // grint->SetTitle("Fitted line with .95 conf. band");
-  grint_a1->SetTitle("");
-  grdiff_a1->SetTitle("");
+  grint_sigt->SetTitle("");
+  grdiff_sigt->SetTitle("");
   for (int i=0; i<np; i++){
     //   double pcur= mom[0]-1.0+((mom[5]+1.0)-(mom[0]-1.0))*i/np;
     double pcur= mom[0]-2.3+((mom[5]+8.9)-(mom[0]-2.3))*i/np;
-    grint_a1->SetPoint(i, pcur, 0);
-    double myfit = fa1->Eval(pcur);
-    double dpmfit = fa1_dpm->Eval(pcur);
+    grint_sigt->SetPoint(i, pcur, 0);
+    double myfit = fsigt->Eval(pcur);
+    double dpmfit = fsigt_dpm->Eval(pcur);
     double difffit = 100.*(dpmfit-myfit)/dpmfit;
-    grdiff_a1->SetPoint(i, pcur, difffit);
+    grdiff_sigt->SetPoint(i, pcur, difffit);
   }
   //Compute the confidence intervals at the x points of the created graph
-  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(grint_a1,0.68);
-  grint_a1->SetLineColor(2);
-  grint_a1->SetLineWidth(3);
-  grint_a1->GetXaxis()->SetTitle("P_{lab}, GeV/c");
-  grint_a1->GetYaxis()->SetTitle("#sigma_{T}");
-  grint_a1->SetFillColor(2);
-  grint_a1->SetFillStyle(3005);
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(grint_sigt,0.68);
+  grint_sigt->SetLineColor(2);
+  grint_sigt->SetLineWidth(3);
+  grint_sigt->GetXaxis()->SetTitle("P_{lab}, GeV/c");
+  grint_sigt->GetYaxis()->SetTitle("#sigma_{T}");
+  grint_sigt->SetFillColor(2);
+  grint_sigt->SetFillStyle(3005);
 
-  //TLegend *leg_a1 = new TLegend(0.62,0.35,0.85,0.55);
-  TLegend *leg_a1 = new TLegend(0.72,0.5,0.68,0.7);
+  //TLegend *leg_sigt = new TLegend(0.62,0.35,0.85,0.55);
+  TLegend *leg_sigt = new TLegend(0.72,0.5,0.68,0.7);
   //  TLegend *leg = new TLegend(0.22,0.15,0.37,0.35);
-  leg_a1->SetFillColor(0);
-  leg_a1->SetTextFont(42);
-  leg_a1->SetTextSize(0.05);
-  leg_a1->AddEntry(grA1,"data","ep");
-  leg_a1->AddEntry(fa1_dpm,"E760 fit","l");
-  leg_a1->AddEntry(fa1,"our fit","l");
+  leg_sigt->SetFillColor(0);
+  leg_sigt->SetTextFont(42);
+  leg_sigt->SetTextSize(0.05);
+  leg_sigt->AddEntry(grSIGT,"data","ep");
+  leg_sigt->AddEntry(fsigt_dpm,"E760 fit","l");
+  leg_sigt->AddEntry(fsigt,"our fit","l");
 
   c1.cd(1);
-  grint_a1->Draw("AP4");
-  grA1->Draw("psame");
-  fa1_dpm->Draw("same");
-  leg_a1->Draw();
+  grint_sigt->Draw("AP4");
+  grSIGT->Draw("psame");
+  fsigt_dpm->Draw("same");
+  leg_sigt->Draw();
   c1.cd(4);
   //c1.cd(2);
-  grdiff_a1->GetXaxis()->SetTitle("P_{lab}, GeV/c");
-  grdiff_a1->GetYaxis()->SetTitle("(E760-fit)/E760, %");
-  grdiff_a1->SetMarkerStyle(20);
-  grdiff_a1->SetMarkerSize(0.5);
-  grdiff_a1->Draw("AP");
+  grdiff_sigt->GetXaxis()->SetTitle("P_{lab}, GeV/c");
+  grdiff_sigt->GetYaxis()->SetTitle("(E760-fit)/E760, %");
+  grdiff_sigt->SetMarkerStyle(20);
+  grdiff_sigt->SetMarkerSize(0.5);
+  grdiff_sigt->Draw("AP");
 
-  //A2
- TGraphErrors *grA2 = new TGraphErrors(6,mom,b,0,errb); 
-  grA2->SetMarkerStyle(21);
-  grA2->SetMarkerSize(0.9); 
-  TF1 *fa2 = new TF1("fa2","[0]+[1]*x",mom[0]-0.5,mom[5]+0.5);
-  fa2->SetParNames("par0","par1");
-  fa2->SetParameter(0,13.64);
-  fa2->SetParameter(1,-0.2);
-  grA2->Fit(fa2,"R");
+  //B
+ TGraphErrors *grB = new TGraphErrors(6,mom,b,0,errb); 
+  grB->SetMarkerStyle(21);
+  grB->SetMarkerSize(0.9); 
+  TF1 *fb = new TF1("fb","[0]+[1]*x",mom[0]-0.5,mom[5]+0.5);
+  fb->SetParNames("par0","par1");
+  fb->SetParameter(0,13.64);
+  fb->SetParameter(1,-0.2);
+  grB->Fit(fb,"R");
 
-  TF1 *fa2_dpm = new TF1("fa2_dpm","[0]+[1]*x",mom[0]-0.5,mom[5]+0.5);
-  fa2_dpm->SetParNames("par0","par1");
-  fa2_dpm->SetParameter(0,13.64);
-  fa2_dpm->SetParameter(1,-0.2);
-  fa2_dpm->SetLineColor(4);
+  TF1 *fb_dpm = new TF1("fb_dpm","[0]+[1]*x",mom[0]-0.5,mom[5]+0.5);
+  fb_dpm->SetParNames("par0","par1");
+  fb_dpm->SetParameter(0,13.64);
+  fb_dpm->SetParameter(1,-0.2);
+  fb_dpm->SetLineColor(4);
   //Create a TGraphErrors to hold the confidence intervals
-  TGraphErrors *grint_a2 = new TGraphErrors(np);
-  TGraphErrors *grdiff_a2 = new TGraphErrors(np);
+  TGraphErrors *grint_b = new TGraphErrors(np);
+  TGraphErrors *grdiff_b = new TGraphErrors(np);
   // grint->SetTitle("Fitted line with .95 conf. band");
-  grint_a2->SetTitle("");
-  grdiff_a2->SetTitle("");
+  grint_b->SetTitle("");
+  grdiff_b->SetTitle("");
   for (int i=0; i<np; i++){
     //    double pcur= mom[0]-1.0+((mom[5]+1.0)-(mom[0]-1.0))*i/np;
     double pcur= mom[0]-2.3+((mom[5]+8.9)-(mom[0]-2.3))*i/np;
-    grint_a2->SetPoint(i, pcur, 0);
-    double myfit = fa2->Eval(pcur);
-    double dpmfit = fa2_dpm->Eval(pcur);
+    grint_b->SetPoint(i, pcur, 0);
+    double myfit = fb->Eval(pcur);
+    double dpmfit = fb_dpm->Eval(pcur);
     double difffit = 100.*(dpmfit-myfit)/dpmfit;
-    grdiff_a2->SetPoint(i, pcur, difffit);
+    grdiff_b->SetPoint(i, pcur, difffit);
   }
   //Compute the confidence intervals at the x points of the created graph
-  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(grint_a2,0.68);
-  grint_a2->SetLineColor(kRed);
-  grint_a2->GetXaxis()->SetTitle("P_{lab}, GeV/c");
-  grint_a2->GetYaxis()->SetTitle("b");
-  grint_a2->SetFillColor(2);
-  grint_a2->SetFillStyle(3005);
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(grint_b,0.68);
+  grint_b->SetLineColor(kRed);
+  grint_b->GetXaxis()->SetTitle("P_{lab}, GeV/c");
+  grint_b->GetYaxis()->SetTitle("b");
+  grint_b->SetFillColor(2);
+  grint_b->SetFillStyle(3005);
 
 
   c1.cd(2);
   // c1.cd(1);
-  grint_a2->Draw("AP4");
-  grA2->Draw("psame");
-  fa2_dpm->Draw("same");
-  leg_a1->Draw();
+  grint_b->Draw("AP4");
+  grB->Draw("psame");
+  fb_dpm->Draw("same");
+  leg_sigt->Draw();
   c1.cd(5);
   //c1.cd(2);
-  grdiff_a2->GetXaxis()->SetTitle("P_{lab}, GeV/c");
-  grdiff_a2->GetYaxis()->SetTitle("(E760-fit)/E760, %");
-  grdiff_a2->SetMarkerStyle(20);
-  grdiff_a2->SetMarkerSize(0.5);
-  grdiff_a2->Draw("AP");
+  grdiff_b->GetXaxis()->SetTitle("P_{lab}, GeV/c");
+  grdiff_b->GetYaxis()->SetTitle("(E760-fit)/E760, %");
+  grdiff_b->SetMarkerStyle(20);
+  grdiff_b->SetMarkerSize(0.5);
+  grdiff_b->Draw("AP");
 
- //t2
- TGraphErrors *grT2 = new TGraphErrors(6,mom,rho,0,errrho); 
-  grT2->SetMarkerStyle(21);
-  grT2->SetMarkerSize(0.9); 
-  TF1 *ft2 = new TF1("ft2","[0]+[1]*x",mom[0]-0.5,mom[5]+0.5);
-  ft2->SetParNames("par0","par1");
-  ft2->SetParameter(0,-0.12);
-  ft2->SetParameter(1,0.03);
-  grT2->Fit(ft2,"R");
+ //rho
+ TGraphErrors *grRHO = new TGraphErrors(6,mom,rho,0,errrho); 
+  grRHO->SetMarkerStyle(21);
+  grRHO->SetMarkerSize(0.9); 
+  TF1 *frho = new TF1("frho","[0]+[1]*x",mom[0]-0.5,mom[5]+0.5);
+  frho->SetParNames("par0","par1");
+  frho->SetParameter(0,-0.12);
+  frho->SetParameter(1,0.03);
+  grRHO->Fit(frho,"R");
 
-  TF1 *ft2_dpm = new TF1("ft2_dpm","[0]+[1]*x",mom[0]-0.5,mom[5]+0.5);
-  ft2_dpm->SetParNames("par0","par1");
-  ft2_dpm->SetParameter(0,-0.12);
-  ft2_dpm->SetParameter(1,0.03);
-  ft2_dpm->SetLineColor(4);
+  TF1 *frho_dpm = new TF1("frho_dpm","[0]+[1]*x",mom[0]-0.5,mom[5]+0.5);
+  frho_dpm->SetParNames("par0","par1");
+  frho_dpm->SetParameter(0,-0.12);
+  frho_dpm->SetParameter(1,0.03);
+  frho_dpm->SetLineColor(4);
   //Create a TGraphErrors to hold the confidence intervals
-  TGraphErrors *grint_t2 = new TGraphErrors(np);
-  TGraphErrors *grdiff_t2 = new TGraphErrors(np);
+  TGraphErrors *grint_rho = new TGraphErrors(np);
+  TGraphErrors *grdiff_rho = new TGraphErrors(np);
   // grint->SetTitle("Fitted line with .95 conf. band");
-  grint_t2->SetTitle("");
-  grdiff_t2->SetTitle("");
+  grint_rho->SetTitle("");
+  grdiff_rho->SetTitle("");
  
   
  for (int i=0; i<np; i++){
    //   double pcur= mom[0]-1.0+((mom[5]+1.0)-(mom[0]-1.0))*i/np;
    double pcur= mom[0]-2.3+((mom[5]+8.9)-(mom[0]-2.3))*i/np;
-    grint_t2->SetPoint(i, pcur, 0);
-    double myfit = ft2->Eval(pcur);
-    double dpmfit = ft2_dpm->Eval(pcur);
+    grint_rho->SetPoint(i, pcur, 0);
+    double myfit = frho->Eval(pcur);
+    double dpmfit = frho_dpm->Eval(pcur);
     double difffit = 100.*(dpmfit-myfit)/dpmfit;
-    grdiff_t2->SetPoint(i, pcur, difffit);
-    // double y = grint_t2->GetErrorY(i);
+    grdiff_rho->SetPoint(i, pcur, difffit);
+    // double y = grint_rho->GetErrorY(i);
     // double un = TMath::Sqrt(TMath::Power(dpmfit-myfit,2)+TMath::Power(y,2));
     // cout<<"OLD: "<<y<<" NEW: "<<un<<endl;
-    // grint_t2->SetPointError(i, 0, un);//!TEST
+    // grint_rho->SetPointError(i, 0, un);//!TEST
   }
 //Compute the confidence intervals at the x points of the created graph
-  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(grint_t2,0.68);
-  grint_t2->SetLineColor(kRed);
-  grint_t2->GetXaxis()->SetTitle("P_{lab}, GeV/c");
-  grint_t2->GetYaxis()->SetTitle("#rho");
-  grint_t2->SetFillColor(2);
-  grint_t2->SetFillStyle(3005);
+  (TVirtualFitter::GetFitter())->GetConfidenceIntervals(grint_rho,0.68);
+  grint_rho->SetLineColor(kRed);
+  grint_rho->GetXaxis()->SetTitle("P_{lab}, GeV/c");
+  grint_rho->GetYaxis()->SetTitle("#rho");
+  grint_rho->SetFillColor(2);
+  grint_rho->SetFillStyle(3005);
 
   c1.cd(3);
   // c1.cd(1);
-  grint_t2->Draw("AP4");
-  grT2->Draw("psame");
-  ft2_dpm->Draw("same");
-  leg_a1->Draw();
+  grint_rho->Draw("AP4");
+  grRHO->Draw("psame");
+  frho_dpm->Draw("same");
+  leg_sigt->Draw();
   c1.cd(6);
   // c1.cd(2);
-  grdiff_t2->GetXaxis()->SetTitle("P_{lab}, GeV/c");
-  grdiff_t2->GetYaxis()->SetTitle("(E760-fit)/E760, %");
-  grdiff_t2->SetMarkerStyle(20);
-  grdiff_t2->SetMarkerSize(0.5);
-  grdiff_t2->SetMinimum(-9e2);
-  grdiff_t2->SetMaximum(9e2);
-  grdiff_t2->Draw("AP");
+  grdiff_rho->GetXaxis()->SetTitle("P_{lab}, GeV/c");
+  grdiff_rho->GetYaxis()->SetTitle("(E760-fit)/E760, %");
+  grdiff_rho->SetMarkerStyle(20);
+  grdiff_rho->SetMarkerSize(0.5);
+  grdiff_rho->SetMinimum(-9e2);
+  grdiff_rho->SetMaximum(9e2);
+  grdiff_rho->Draw("AP");
 
 
   c1.SaveAs("E760_fit.pdf");
@@ -273,13 +302,13 @@ int main(){
 
   //[end] part1: fit energy dependence of E760 parameters ---------------------
 
-  // part2: calculate differencial cross-section and its uncertanty ----------
+  // parrho: calculate differencial cross-section and its uncertanty ----------
   double Plab_min=1.5;
-   double Plab_max=15;
-   int Plabstep= 30;
+  double Plab_max=15;
+  int Plabstep= 30;
   // double Plab_min=1.5;
   // double Plab_max=15;
-  // int Plabstep= 2;
+   //   int Plabstep= 2;
   TGraphErrors *resUn2mrad = new TGraphErrors(Plabstep);
   resUn2mrad->SetMarkerStyle(20);
   resUn2mrad->SetMarkerColor(32);
@@ -296,28 +325,27 @@ int main(){
   // double plab = 10.40;
 //par[3]={sigT,b,rho,dsig/dt}
   double par[4],errpar[4];
-  par[0] = fa1->Eval(plab);
-  par[1] = fa2->Eval(plab);
-  par[2] = ft2->Eval(plab);
-  // grint_a1->Print();
-  for(int i=0;i<grint_a1->GetN();i++){
+  par[0] = fsigt->Eval(plab);
+  par[1] = fb->Eval(plab);
+  par[2] = frho->Eval(plab);
+  // grint_sigt->Print();
+  for(int i=0;i<grint_sigt->GetN();i++){
   //  for(int i=0;i<10;i++){
     double xval,yval;
-    grint_a1->GetPoint(i,xval,yval);
+    grint_sigt->GetPoint(i,xval,yval);
     //  cout<<par[0]<<" "<<yval<<endl;
-    double errpar_0 = grint_a1->GetErrorY(i);
+    double errpar_0 = grint_sigt->GetErrorY(i);
    
     //  if(fabs(xval-plab)<1e-1 && fabs(par[0]-yval)<1e-1){
     //    cout<<par[0]<<" "<<yval<<endl;
     //    cout<<"xval="<<xval<<" fabs(par[0]-yval)="<<fabs(par[0]-yval)<<" 0.2*errpar_0="<<0.2*errpar_0<<endl;
-    if(fabs(xval-plab)<0.1 && fabs(par[0]-yval)<5*errpar_0){
-    //  if(fabs(xval-plab)<1){
-    //  cout<<" errpar_0 = "<<errpar_0<<endl;
-      errpar[0] = grint_a1->GetErrorY(i);
-      errpar[1] = grint_a2->GetErrorY(i);
-      errpar[2] = grint_t2->GetErrorY(i);
+    //  if(fabs(xval-plab)<0.1 && fabs(par[0]-yval)<2*errpar_0){
+    if(fabs(xval-plab)<1e-2){
+      errpar[0] = grint_sigt->GetErrorY(i);
+      errpar[1] = grint_b->GetErrorY(i);
+      errpar[2] = grint_rho->GetErrorY(i);
     }
-    //    grint_a1->Print();
+    //    grint_sigt->Print();
   }
   cout<<"E760-like Params for Plab="<<plab<<endl;
   for(int jdpm=0;jdpm<3;jdpm++){
@@ -325,41 +353,30 @@ int main(){
   }
 
   LumiFit::PndLmdFitModelOptions model_options;
-  // model_options.momentum_transfer_active = true; // will calc cross-section as a func from (t)
-  // //model_options.momentum_transfer_active = false; // will calc cross-section as a func from (theta), theta in rad
-  // model_options.acceptance_correction_active = false;
-  // model_options.momentum_transfer_active = false;
-  // model_options.resolution_smearing_active = false;
   model_options.dpm_elastic_parts = LumiFit::ALL_RHO_B_SIGTOT;
-  //  PndLmdModelFactory model_factory;
-  //  shared_ptr<Model1D> model1d = model_factory.generate1DModel(model_options, plab);
-  // shared_ptr<Model1D> model1d;
-  //  model1d.reset(new PndLmdDPMAngModel1D("dpm_angular_1d",
-  //						model_options.dpm_elastic_parts));
-  PndLmdDPMAngModel1D modelDPM("e760_angular_1d", model_options.dpm_elastic_parts);
-  shared_ptr<Parametrization> para(new PndLmdE760LikeModelParametrization(modelDPM.getModelParameterSet()));
-  //  shared_ptr<Parametrization> para(new PndLmdE760ModelParametrization(modelDPM.getModelParameterSet()));
-  modelDPM.getModelParameterHandler().registerParametrizations(
-  							    modelDPM.getModelParameterSet(), para);
-  modelDPM.getModelParameterSet().setModelParameterValue("p_lab", plab);
-  modelDPM.getModelParameterSet().setModelParameterValue("luminosity", 1);
-  // modelDPM->init();
-  ((Model1D*) &modelDPM)->init();
+  PndLmdDPMAngModel1D modelE760("e760_angular_1d", model_options.dpm_elastic_parts);
+  shared_ptr<Parametrization> para(new PndLmdE760LikeModelParametrization(modelE760.getModelParameterSet()));
+  //  shared_ptr<Parametrization> para(new PndLmdE760ModelParametrization(modelE760.getModelParameterSet()));
+  modelE760.getModelParameterHandler().registerParametrizations(
+  							    modelE760.getModelParameterSet(), para);
+  modelE760.getModelParameterSet().setModelParameterValue("p_lab", plab);
+  modelE760.getModelParameterSet().setModelParameterValue("luminosity", 1);
+  ((Model1D*) &modelE760)->init();
   double lower_bound = 2.0;
   double upper_bound = 10.0 ;
   std::vector<std::pair<double, double> > integral_ranges;
   integral_ranges.push_back(std::make_pair(lower_bound / 1000.0, upper_bound / 1000.0));
-  double integral_2_10 = modelDPM.Integral(integral_ranges, 0.0001);
+  double integral_2_10 = modelE760.Integral(integral_ranges, 0.0001);
   lower_bound = 3.0;
   upper_bound = 9.0 ;
   std::vector<std::pair<double, double> > integral_ranges2;
   integral_ranges2.push_back(std::make_pair(lower_bound / 1000.0, upper_bound / 1000.0));
-  double integral_3_9 = modelDPM.Integral(integral_ranges2, 0.0001);
+  double integral_3_9 = modelE760.Integral(integral_ranges2, 0.0001);
   lower_bound = 4.0;
   upper_bound = 8.0 ;
   std::vector<std::pair<double, double> > integral_ranges3;
   integral_ranges3.push_back(std::make_pair(lower_bound / 1000.0, upper_bound / 1000.0));
-  double integral_4_8 = modelDPM.Integral(integral_ranges3, 0.0001);
+  double integral_4_8 = modelE760.Integral(integral_ranges3, 0.0001);
   cout<<" integral (2-10) = "<<integral_2_10<<endl;
 // double th_dw = 1.04719994E-03;//rad -> 0.06 DPM
   double th_dw = 0.0015;//
@@ -371,7 +388,7 @@ int main(){
   //    const int nst = 2e0;
   double cs_loc = 0;
   double cs_val[nst], cs_uncert[nst];//dpm
-  double csE760_val[nst], csE760_uncert[nst];//dpm
+  double cs_uncertsigT[nst],cs_uncertb[nst],cs_uncertrho[nst];
   double diff_cs_val[nst], diff_cs_uncert[nst];// dpm - e760 
   double rel_err[nst];
   double th_val[nst],  t_val[nst];
@@ -385,12 +402,16 @@ int main(){
     double t_cur = (-1)*(lmd_help->getMomentumTransferFromTheta(plab, th1));
     t_val[i] = (-1)*t_cur;
     th_val[i] = 1e3*th1;
-    //    cs_val[i] = modelDPM.getRawFullElastic(&t_val[i]);
-    //    cs_val[i] = modelDPM.getRawRhoBSigtotFullElastic(&t_cur);
-    cs_val[i] = modelDPM.getRawRhoBSigtotFullElastic(&t_cur);
+    //    cs_val[i] = modelE760.getRawFullElastic(&t_val[i]);
+    //    cs_val[i] = modelE760.getRawRhoBSigtotFullElastic(&t_cur);
+    //  cs_val[i] = modelE760.getRawFullElastic(&t_cur);
+    cs_val[i] = modelE760.getRawRhoBSigtotFullElastic(&t_cur);
     par[3] = cs_val[i];
     //  cout<<"F = "<<par[3]<<" rho = "<<par[2]<<" +/- "<<errpar[2]<<endl;
     cs_uncert[i] = Df(t_cur,par,errpar);
+    cs_uncertsigT[i] = DfsigT(t_cur,par,errpar);
+    cs_uncertb[i] = Dfb(t_cur,par,errpar);
+    cs_uncertrho[i] = Dfrho(t_cur,par,errpar);
     rel_err[i] = 100*(cs_uncert[i]/cs_val[i]);
    
     // if(fabs(th_val[i]-2.)<1e-3){ 
@@ -428,6 +449,8 @@ int main(){
   gr_cs_t->GetYaxis()->SetTitle("d#sigma/dt, mb/(GeV/c)^{2}");
   gr_cs_t->SetFillColor(4);
   gr_cs_t->SetFillStyle(3001);
+
+
 
   int x_2mrad=0;   int x_10mrad=0;
   int x_3mrad=0;   int x_9mrad=0;
@@ -488,7 +511,28 @@ int main(){
   gr_cs_un_t->SetTitle("");
   gr_cs_un_t->GetXaxis()->SetTitle("|t|, (GeV/c)^{2}");
   gr_cs_un_t->GetYaxis()->SetTitle("#Delta(d#sigma/dt), mb/(GeV/c)^{2}");
-double errCSint_2_10 = 0;
+
+  TGraph *gr_cs_unsigT_t = new TGraph(nst,t_val,cs_uncertsigT);
+  gr_cs_unsigT_t->SetLineColor(8);
+  TGraph *gr_cs_unb_t = new TGraph(nst,t_val,cs_uncertb);
+  gr_cs_unb_t->SetLineColor(38);
+  TGraph *gr_cs_unrho_t = new TGraph(nst,t_val,cs_uncertrho);
+  gr_cs_unrho_t->SetLineColor(46);
+  TMultiGraph *mgr_cs_un_t = new TMultiGraph();
+  mgr_cs_un_t->Add(gr_cs_un_t,"L");
+  mgr_cs_un_t->Add(gr_cs_unsigT_t,"L");
+  mgr_cs_un_t->Add(gr_cs_unb_t,"L");
+  mgr_cs_un_t->Add(gr_cs_unrho_t,"L");
+  TLegend *legUn = new TLegend(0.77,0.64,0.99,0.99);
+  legUn->SetFillColor(0);
+  legUn->SetTextFont(42);
+  legUn->SetTextSize(0.05);
+  legUn->AddEntry(gr_cs_un_t,"total uncertainty","l");
+  legUn->AddEntry(gr_cs_unsigT_t,"#sigma_{T} contribution","l");
+  legUn->AddEntry(gr_cs_unb_t,"b contribution","l");
+  legUn->AddEntry(gr_cs_unrho_t,"#rho contribution","l");
+
+  double errCSint_2_10 = 0;
   for(int ik=x_2mrad;ik<x_10mrad;ik++){
     double x1,y1;
     gr_cs_un_t->GetPoint(ik,x1,y1);
@@ -545,7 +589,11 @@ cout<<" errCSint_2_10 = "<<errCSint_2_10<<" errCSint_3_9 = "<<errCSint_3_9<<" er
   c2.cd(3);
   gr_cs_un_th->Draw("AL");
   c2.cd(4);
-  gr_cs_un_t->Draw("AL");
+  // gr_cs_un_t->Draw("AL");
+  mgr_cs_un_t->Draw("A");
+  legUn->Draw();
+  mgr_cs_un_t->GetXaxis()->SetTitle("|t|, (GeV/c)^{2}");
+  mgr_cs_un_t->GetYaxis()->SetTitle("#Delta(d#sigma/dt), mb/(GeV/c)^{2}");
   c2.cd(5);
   gr_cs_relun_th->Draw("AL");
   c2.cd(6);
@@ -556,7 +604,7 @@ cout<<" errCSint_2_10 = "<<errCSint_2_10<<" errCSint_3_9 = "<<errCSint_3_9<<" er
   TString fnameroot = fname + ".root";
   c2.SaveAs(fnamepdf);
   c2.SaveAs(fnameroot);
-  // [end] part2: calculate differencial cross-section and its uncertanty ----
+  // [end] parrho: calculate differencial cross-section and its uncertanty ----
   }
   TCanvas c3("c3","canvas",800,600);
   TMultiGraph *mg_res = new TMultiGraph();

@@ -25,7 +25,8 @@
 #include "TVirtualFitter.h"
 using namespace std;
 //par[5]={A1,A2,A3,t1,t2}
-double df_dA1(double &t, double par[]){
+double df_dA1(double &x, double par[]){
+  double t = -TMath::Abs(x);
   double A1 = par[0];
   double A2 = par[1];
   double A3 = par[2];
@@ -35,7 +36,8 @@ double df_dA1(double &t, double par[]){
   double res = TMath::Power(int_res,2);
   return res;
 }
-double df_dA2(double &t, double par[]){
+double df_dA2(double &x, double par[]){
+  double t = -TMath::Abs(x);
   double A1 = par[0];
   double A2 = par[1];
   double A3 = par[2];
@@ -45,7 +47,8 @@ double df_dA2(double &t, double par[]){
   return res;
 }
 
-double df_dA3(double &t, double par[]){
+double df_dA3(double &x, double par[]){
+  double t = -TMath::Abs(x);
   double A1 = par[0];
   double A2 = par[1];
   double A3 = par[2];
@@ -55,7 +58,8 @@ double df_dA3(double &t, double par[]){
   return res;
 }
 
-double df_dt1(double &t, double par[]){
+double df_dt1(double &x, double par[]){
+  double t = -TMath::Abs(x);
   double A1 = par[0];
   double A2 = par[1];
   double A3 = par[2];
@@ -65,7 +69,8 @@ double df_dt1(double &t, double par[]){
   return res;
 }
 
-double df_dt2(double &t, double par[]){
+double df_dt2(double &x, double par[]){
+  double t = -TMath::Abs(x);
   double A1 = par[0];
   double A2 = par[1];
   double A3 = par[2];
@@ -83,6 +88,60 @@ double Df(double &t, double par[], double errpar[]){
   double errt1 = errpar[3];
   double errt2 = errpar[4];
   double int_res = TMath::Power(df_dA1(t,par)*errA1,2)+TMath::Power(df_dA2(t,par)*errA2,2)+TMath::Power(df_dA3(t,par)*errA3,2)+TMath::Power(df_dt1(t,par)*errt1,2)+TMath::Power(df_dt2(t,par)*errt2,2);
+  double res = TMath::Sqrt(int_res);
+  return res;
+}
+
+double DfA1(double &t, double par[], double errpar[]){
+  double errA1 = errpar[0];
+  double errA2 = errpar[1];
+  double errA3 = errpar[2];
+  double errt1 = errpar[3];
+  double errt2 = errpar[4];
+  double int_res = TMath::Power(df_dA1(t,par)*errA1,2);
+  double res = TMath::Sqrt(int_res);
+  return res;
+}
+
+double DfA2(double &t, double par[], double errpar[]){
+  double errA1 = errpar[0];
+  double errA2 = errpar[1];
+  double errA3 = errpar[2];
+  double errt1 = errpar[3];
+  double errt2 = errpar[4];
+  double int_res = TMath::Power(df_dA2(t,par)*errA2,2);
+  double res = TMath::Sqrt(int_res);
+  return res;
+}
+double DfA3(double &t, double par[], double errpar[]){
+  double errA1 = errpar[0];
+  double errA2 = errpar[1];
+  double errA3 = errpar[2];
+  double errt1 = errpar[3];
+  double errt2 = errpar[4];
+  double int_res = TMath::Power(df_dA3(t,par)*errA3,2);
+  double res = TMath::Sqrt(int_res);
+  return res;
+}
+
+double Dft1(double &t, double par[], double errpar[]){
+  double errA1 = errpar[0];
+  double errA2 = errpar[1];
+  double errA3 = errpar[2];
+  double errt1 = errpar[3];
+  double errt2 = errpar[4];
+  double int_res = TMath::Power(df_dt1(t,par)*errt1,2);
+  double res = TMath::Sqrt(int_res);
+  return res;
+}
+
+double Dft2(double &t, double par[], double errpar[]){
+  double errA1 = errpar[0];
+  double errA2 = errpar[1];
+  double errA3 = errpar[2];
+  double errt1 = errpar[3];
+  double errt2 = errpar[4];
+  double int_res = TMath::Power(df_dt2(t,par)*errt2,2);
   double res = TMath::Sqrt(int_res);
   return res;
 }
@@ -132,7 +191,7 @@ int main(){
   fa1_dpm->SetParameter(2,4.08);
   fa1_dpm->SetLineColor(4);
   //Create a TGraphErrors to hold the confidence intervals
-  int np=1000;
+  int np=1e4;
   TGraphErrors *grint_a1 = new TGraphErrors(np);
   TGraphErrors *grdiff_a1 = new TGraphErrors(np);
   // grint->SetTitle("Fitted line with .95 conf. band");
@@ -341,7 +400,8 @@ int main(){
   double Plab_min=1.5;
   double Plab_max=15;
   int Plabstep= 30;
-  // int Plabstep= 2;
+  // int Plabstep= 100;
+  //int Plabstep= 2;
  TGraphErrors *resUn2mrad = new TGraphErrors(Plabstep);
   resUn2mrad->SetMarkerStyle(20);
   resUn2mrad->SetMarkerColor(32);
@@ -372,10 +432,12 @@ int main(){
     double errpar_0 = grint_a1->GetErrorY(i);
     //  if(fabs(xval-plab)<1e-1 && fabs(par[0]-yval)<1e-1){
     //    cout<<par[0]<<" "<<yval<<endl;
-    if(fabs(xval-plab)<1e-2 && fabs(par[0]-yval)<0.1*errpar_0){
+    //   if(fabs(xval-plab)<1e-2 && fabs(par[0]-yval)<0.1*errpar_0){
+    //    if(fabs(xval-plab)<5e-4 && fabs(par[0]-yval)<errpar_0){
+    if(fabs(xval-plab)<1e-3){
       // cout<<par[0]<<" "<<yval<<endl;
       //      grint_a2->GetPoint(i,xval,yval);
-      // cout<<par[1]<<" "<<yval<<endl;
+      //cout<<par[1]<<" "<<yval<<endl;
       // grint_t2->GetPoint(i,xval,yval);
       //  cout<<par[4]<<" "<<yval<<endl;
       errpar[0] = grint_a1->GetErrorY(i);
@@ -434,7 +496,7 @@ double lower_bound = 2.0;
    // const int nst = 2e1;
   double cs_loc = 0;
   double cs_val[nst], cs_uncert[nst];//dpm
-  double csE760_val[nst], csE760_uncert[nst];//dpm
+  double cs_uncertA1[nst],cs_uncertA2[nst],cs_uncertA3[nst],cs_uncertt1[nst],cs_uncertt2[nst];
   double diff_cs_val[nst], diff_cs_uncert[nst];// dpm - e760 
   double rel_err[nst];
   double th_val[nst],  t_val[nst];
@@ -451,6 +513,12 @@ double lower_bound = 2.0;
     //    cs_val[i] = modelDPM.getRawFullElastic(&t_val[i]);
     cs_val[i] = modelDPM.getRawFullElastic(&t_cur);
     cs_uncert[i] = Df(t_cur,par,errpar);
+    cs_uncertA1[i] = DfA1(t_cur,par,errpar);
+    cs_uncertA2[i] = DfA2(t_cur,par,errpar);
+    cs_uncertA3[i] = DfA3(t_cur,par,errpar);
+    cs_uncertt1[i] = Dft1(t_cur,par,errpar);
+    cs_uncertt2[i] = Dft2(t_cur,par,errpar);
+
     rel_err[i] = 100*(cs_uncert[i]/cs_val[i]);
     // if(fabs(th_val[i]-2.)<1e-3){ 
     //   resUn2mrad->SetPoint(pstep, plab, rel_err[i]);
@@ -545,7 +613,49 @@ double lower_bound = 2.0;
   gr_cs_un_th->GetXaxis()->SetTitle("#theta, mrad");
   gr_cs_un_th->GetYaxis()->SetTitle("#Delta(d#sigma/dt), mb/(GeV/c)^{2}");
 
+  TMultiGraph *mgr_cs_un_t = new TMultiGraph();
   TGraph *gr_cs_un_t = new TGraph(nst,t_val,cs_uncert);
+  TGraph *gr_cs_unA1_t = new TGraph(nst,t_val,cs_uncertA1);
+  gr_cs_unA1_t->SetLineColor(46);
+  gr_cs_unA1_t->SetMarkerColor(46);
+  gr_cs_unA1_t->SetMarkerStyle(20);
+  gr_cs_unA1_t->SetMarkerSize(0.3);
+  TGraph *gr_cs_unA2_t = new TGraph(nst,t_val,cs_uncertA2);
+  gr_cs_unA2_t->SetMarkerColor(7);
+  gr_cs_unA2_t->SetLineColor(7);
+  gr_cs_unA2_t->SetMarkerStyle(20);
+  gr_cs_unA2_t->SetMarkerSize(0.3);
+  TGraph *gr_cs_unA3_t = new TGraph(nst,t_val,cs_uncertA3);
+  gr_cs_unA3_t->SetMarkerColor(8);
+  gr_cs_unA3_t->SetLineColor(8);
+  gr_cs_unA3_t->SetMarkerStyle(20);
+  gr_cs_unA3_t->SetMarkerSize(0.3);
+  TGraph *gr_cs_unt1_t = new TGraph(nst,t_val,cs_uncertt1);
+  gr_cs_unt1_t->SetMarkerColor(12);
+  gr_cs_unt1_t->SetLineColor(12);
+  gr_cs_unt1_t->SetMarkerStyle(20);
+  gr_cs_unt1_t->SetMarkerSize(0.3);
+  TGraph *gr_cs_unt2_t = new TGraph(nst,t_val,cs_uncertt2);
+  gr_cs_unt2_t->SetMarkerColor(28);
+  gr_cs_unt2_t->SetLineColor(28);
+  gr_cs_unt2_t->SetMarkerStyle(20);
+  gr_cs_unt2_t->SetMarkerSize(0.3);
+  TLegend *legUn = new TLegend(0.77,0.64,0.99,0.99);
+  legUn->SetFillColor(0);
+  legUn->SetTextFont(42);
+  legUn->SetTextSize(0.05);
+  legUn->AddEntry(gr_cs_un_t,"total uncertainty","l");
+  legUn->AddEntry(gr_cs_unA1_t,"A1 contribution","l");
+  legUn->AddEntry(gr_cs_unA2_t,"A2 contribution","l");
+  legUn->AddEntry(gr_cs_unA3_t,"A3 contribution","l");
+  legUn->AddEntry(gr_cs_unt1_t,"t1 contribution","l");
+  legUn->AddEntry(gr_cs_unt2_t,"t2 contribution","l");
+  mgr_cs_un_t->Add(gr_cs_un_t,"L");
+  mgr_cs_un_t->Add(gr_cs_unA1_t,"L");
+  mgr_cs_un_t->Add(gr_cs_unA2_t,"L");
+  mgr_cs_un_t->Add(gr_cs_unA3_t,"L");
+  mgr_cs_un_t->Add(gr_cs_unt1_t,"L");
+  mgr_cs_un_t->Add(gr_cs_unt2_t,"L");
   double errCSint_2_10 = 0;
   for(int ik=x_2mrad;ik<x_10mrad;ik++){
     double x1,y1;
@@ -609,7 +719,11 @@ cout<<" errCSint_2_10 = "<<errCSint_2_10<<" errCSint_3_9 = "<<errCSint_3_9<<" er
   c2.cd(3);
   gr_cs_un_th->Draw("AL");
   c2.cd(4);
-  gr_cs_un_t->Draw("AL");
+  mgr_cs_un_t->Draw("A");
+  mgr_cs_un_t->GetXaxis()->SetTitle("|t|, (GeV/c)^{2}");
+  mgr_cs_un_t->GetYaxis()->SetTitle("#Delta(d#sigma/dt), mb/(GeV/c)^{2}");
+  legUn->Draw();
+  // gr_cs_un_t->Draw("AL");
   c2.cd(5);
   gr_cs_relun_th->Draw("AL");
   c2.cd(6);

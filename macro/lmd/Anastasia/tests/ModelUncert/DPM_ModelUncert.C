@@ -145,7 +145,6 @@ int main(){
   }
 
   TGraphErrors *gr_cs_th = new TGraphErrors(nst,th_val,cs_val,0,cs_uncert);
-  
   gr_cs_th->SetTitle("P_{beam} = 2.33 GeV/c");
   gr_cs_th->GetXaxis()->SetTitle("#theta, mrad");
   gr_cs_th->GetYaxis()->SetTitle("d#sigma/dt, mb/(GeV/c)^{2}");
