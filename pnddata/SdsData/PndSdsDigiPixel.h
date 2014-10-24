@@ -52,6 +52,9 @@ class PndSdsDigiPixel : public PndSdsDigi
 	Int_t GetPixelColumn() const { return fCol; }
 	Int_t GetPixelRow()    const { return fRow; }
 
+	void SetPixelColumn(Int_t col){ fCol = col;}
+	void SetPixelRow(Int_t row){ fRow = row;}
+
 	bool operator==(PndSdsDigiPixel& myDigi){
 		if (fSensorID == myDigi.GetSensorID())
 			if (fFE == myDigi.GetFE())
