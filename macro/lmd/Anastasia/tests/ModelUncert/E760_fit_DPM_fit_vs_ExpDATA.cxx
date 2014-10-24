@@ -2,7 +2,7 @@
 #include <model/PndLmdDPMAngModel1D.h>
 #include <model/PndLmdDPMMTModel1D.h>
 #include <model/PndLmdDPMModelParametrization.h>
-#include <model/PndLmdDPMLikeModelParametrization.h>
+//#include <model/PndLmdDPMLikeModelParametrization.h>
 #include <model/PndLmdE760LikeModelParametrization.h>
 #include <model/PndLmdE760ModelParametrization.h>
 //#include <PndLmdLumiFitOptions.h>
