@@ -882,7 +882,8 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       TVector3 vertex(0., 0., 0.); 
       
       Int_t nTracks = 0;
-      if (bump->GetModule()<4) // barrel
+      if (bump->GetModule()>5) continue; // kick non valid emc modules
+      if (bump->GetModule()<5) // barrel
 	{
 	  nTracks = fTrack->GetEntriesFast(); 
 	}
@@ -894,7 +895,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       for (Int_t tt = 0; tt < nTracks; tt++)
 	{
 	  PndTrack* track;
-	  if (bump->GetModule()<4) // barrel
+	  if (bump->GetModule()<5) // barrel
 	    {
 	      track = (PndTrack*) fTrack->At(tt);
 	    }
