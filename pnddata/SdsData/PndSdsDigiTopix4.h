@@ -29,7 +29,8 @@ class PndSdsDigiTopix4 : public PndSdsDigiPixel
       << digi.GetFE() << " Col/Row " << digi.GetPixelColumn() << "/" << digi.GetPixelRow()
       << " charge " << digi.GetCharge() << " e"
       << " timestamp "<< digi.GetTimeStamp()
-      << " leadingEdge " <<
+      << " leadingEdge " << digi.GetLeadingEdge() << " trailingEdge " << digi.GetTrailingEdge()
+      << " frameCount " << digi.GetFrameCount() << std::endl;
 
       out << std::endl;
       
@@ -58,6 +59,9 @@ class PndSdsDigiTopix4 : public PndSdsDigiPixel
 	        if (this != &pix){
 	        	this->PndSdsDigiPixel::operator=(pix);
 	        }
+	        SetLeadingEdge(pix.GetLeadingEdge());
+	        SetTrailingEdge(pix.GetTrailingEdge());
+	        SetFrameCount(pix.GetFrameCount());
 		return *this;
 	}
     
@@ -66,7 +70,7 @@ class PndSdsDigiTopix4 : public PndSdsDigiPixel
 	UInt_t fTrailingEdge;
 	UInt_t fFrameCount;
     
-    ClassDef(PndSdsDigiTopix4,2);
+    ClassDef(PndSdsDigiTopix4,3);
   };
 
 #endif
