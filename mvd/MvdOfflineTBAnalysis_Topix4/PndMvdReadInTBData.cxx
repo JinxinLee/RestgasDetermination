@@ -8,12 +8,13 @@
 #include <MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.h>
 
 #include "mrfdata_8b.h"
+#include "mrftools.h"
 #include "boost/archive/binary_oarchive.hpp"
 #include "boost/archive/binary_iarchive.hpp"
 #include "boost/serialization/binary_object.hpp"
 #include <boost/archive/archive_exception.hpp>
 
-PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0) {
+PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0), fSuperFrameCount(0), fOldFrameCount(0), fFirstHeader(kTRUE) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -37,8 +38,6 @@ void PndMvdReadInTBData::Init(){
 	fChipIdMap[2] = 2;
 	fChipIdMap[3] = 3;
 
-	fClockFrequency = 160.0;
-
 }
 
 Bool_t PndMvdReadInTBData::ReadInData(TClonesArray* sdsDigiContainer){
@@ -51,7 +50,6 @@ Bool_t PndMvdReadInTBData::ReadInData(TClonesArray* sdsDigiContainer){
 	for (int k = 0; k < fFileHandles.size(); k++){
 		std::vector<ULong_t> rawArray;
 		endOfFile |= ReadInRawData(fFileHandles[k], rawArray);
-		std::cout << "PndMvdReadInTBData::ReadInData " << rawArray.size() << std::endl;
 		AnalyzeData(rawArray, fClockFrequency);
 
 	}
@@ -98,7 +96,7 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 				std::cout << std::dec << "dataword No "<< i/5<< "/"<< tempdata->getNumWords()/5 << ": "<<std::hex << dataword << " " << std::dec << frameCount << std::endl;
 		//	}
 		}
-		std::cout << "Finish with message " << std::endl;
+		std::cout << "---- End of message ----" << std::endl << std::endl;
 	} else {
 		endOfFile = kTRUE;
 	}
@@ -107,35 +105,45 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 
 void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clockFrequency)
 {
-	frameHeader recentFrameHeader;
-	frameTrailer recentFrameTrailer;
 	PndSdsDigiTopix4 recentPixel;
-	Bool_t firstHeader = kTRUE;
+
+	std::cout << "PndMvdReadInTBData::AnalyzeData " << rawData.size() << std::endl;
 
 	for (int i = 0; i < rawData.size(); i++){
 		ULong_t header = rawData[i] & 0xC000000000;
 		header = header >> 38;
 		std::cout << "HEADER: " << header << std::endl;
-		if (firstHeader) {
+		if (fFirstHeader) {
 			if (header == 1){
-				firstHeader = kFALSE;
+				fFirstHeader = kFALSE;
 			} else {
 				continue;
 			}
 		}
+
 		switch (header) {
-		case 1 : recentFrameHeader = BitAnalyzeHeader(rawData[i]);
-			std::cout << "FrameHeader: chip " << recentFrameHeader.fChipAddress << " frame " << recentFrameHeader.fFrameCount << std::endl;
+		case 1 : fRecentFrameHeader = BitAnalyzeHeader(rawData[i]);
+			std::cout << "FrameHeader: chip " << fRecentFrameHeader.fChipAddress << " frame " << fRecentFrameHeader.fFrameCount << std::endl;
+			if (fOldFrameCount != fRecentFrameHeader.fFrameCount && fOldFrameCount + 1 != fRecentFrameHeader.fFrameCount){
+				std::cout << "-E- PndMvdReadInTBData::AnalyzeData frameCount not consecutive: "
+						<< fOldFrameCount << " " << fRecentFrameHeader.fFrameCount << std::endl;
+			}
+			if (fOldFrameCount > fRecentFrameHeader.fFrameCount){
+				fSuperFrameCount++;
+				std::cout << "SuperFrameCount increased: " << fSuperFrameCount << " oldFC " << fOldFrameCount << " recent FC " << fRecentFrameHeader.fFrameCount << std::endl;
+			}
+			fOldFrameCount = fRecentFrameHeader.fFrameCount;
 					break;
-		case 2 : recentFrameTrailer = BitAnalyzeTrailer(rawData[i]);
-			std::cout << "FrameTrailer: nEvents " << recentFrameTrailer.fNEvents << " frame CRC: " << recentFrameTrailer.fFrameCRC << std::endl;
+		case 2 : fRecentFrameTrailer = BitAnalyzeTrailer(rawData[i]);
+			std::cout << "FrameTrailer: nEvents " << fRecentFrameTrailer.fNEvents << " frame CRC: " << fRecentFrameTrailer.fFrameCRC << std::endl;
 					break;
-		case 3 : recentPixel = ProcessData(rawData[i], recentFrameHeader, clockFrequency);
+		case 3 : recentPixel = ProcessData(rawData[i], fRecentFrameHeader, clockFrequency);
 			std::cout << "Pixel: " << recentPixel << std::endl;
 			new ((*fOutputArray)[fOutputArray->GetEntriesFast()]) PndSdsDigiTopix4(recentPixel);
 					break;
 		}
 	}
+	std::cout << "End of Analyze Data" << std::endl << std::endl;
 }
 
 frameHeader PndMvdReadInTBData::BitAnalyzeHeader(ULong_t& header)
@@ -171,15 +179,21 @@ frameTrailer PndMvdReadInTBData::BitAnalyzeTrailer(ULong_t& trailer)
 
 pixel PndMvdReadInTBData::BitAnalyzePixelData(ULong_t& data)
 {
+	//le_dataword = ((dataword & 0x0000000000fff000)>>12);¬
+	//te_dataword = (dataword & 0x0000000000000fff);¬
+	//pixeladdress = ((dataword & 0x0000003fff000000)>>24);¬
+
 	pixel tempPixel;
 	ULong_t temp = data;
-	tempPixel.fTrailingEdge = temp & 0XFFF;
+	tempPixel.fTrailingEdge = mrftools::grayToBin(temp & 0X0000000000000FFF);
 
 	temp = temp >> 12;
-	tempPixel.fLeadingEdge = temp & 0XFFF;
+	tempPixel.fLeadingEdge = mrftools::grayToBin(temp & 0X0000000000000FFF);
 
 	temp = temp >> 12;
-	tempPixel.fPixelAddress = temp & 0X3FFF;
+	tempPixel.fPixelAddress = temp & 0X00000000000003FFF;
+
+	std::cout << "BitAnalyzePixelData: " << data << " pixel " << tempPixel.fPixelAddress << " " << tempPixel.fLeadingEdge << " " << tempPixel.fTrailingEdge << std::endl;
 
 	return tempPixel;
 
@@ -187,10 +201,11 @@ pixel PndMvdReadInTBData::BitAnalyzePixelData(ULong_t& data)
 
 PndSdsDigiTopix4 PndMvdReadInTBData::ProcessData(ULong_t& data, frameHeader& header, Double_t& clockFrequency)
 {
+	std::cout  << "PndMvdReadInTBData::ProcessData raw Data: " << data << std::endl;
 	pixel pixelData = BitAnalyzePixelData(data);
 	std::pair<UInt_t, UInt_t> pixelAddress = PixeladdressToMatrixAddress(pixelData.fPixelAddress);
-	Double_t timestamp = (header.fFrameCount * 4096 + pixelData.fLeadingEdge)/clockFrequency;
-
+	Double_t timestamp = (fSuperFrameCount * 256 * 4096 + header.fFrameCount * 4096 + pixelData.fLeadingEdge)/clockFrequency * 1000;
+	std::cout << "RawAddress: " << pixelData.fPixelAddress << " " << pixelAddress.first << "/" << pixelAddress.second << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge  << std::endl;
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel
 	return PndSdsDigiTopix4(indices, 0, 0, header.fChipAddress, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp);
 
@@ -206,9 +221,20 @@ std::pair<UInt_t, UInt_t> PndMvdReadInTBData::PixeladdressToMatrixAddress(UInt_t
 
     UInt_t matrix_column, matrix_row;
 
-    double_column_address= ((pixelglobaladdress & 0x00003f00)>>8);
-    double_column_side= ((pixelglobaladdress & 0x00000080)>>7);
-    pixel_address= (pixelglobaladdress & 0x0000007F);
+    UInt_t temp = pixelglobaladdress;
+
+
+    double_column_address= temp & 0x3f;
+     temp = temp >> 6;
+    double_column_side= temp & 0x1;
+    temp = temp >> 1;
+    pixel_address= temp & 0xef; //todo check if this conversion is correct!
+
+ //   temp = temp >> 6;
+
+
+
+    std::cout << "PixeladdressToMatrix rawData " << pixelglobaladdress << " dc " << double_column_address << " dcs " << double_column_side << " pixel " << pixel_address << std::endl;
 
     UInt_t sel = (double_column_address<<1) | (double_column_side);
 
@@ -323,6 +349,9 @@ std::pair<UInt_t, UInt_t> PndMvdReadInTBData::PixeladdressToMatrixAddress(UInt_t
             matrix_column = (pixel_address-96);
             matrix_row = 11;
         }
+    }
+    if (matrix_column > 3 || matrix_row > 128){
+    	std::cout << "-E- PndMvdReadInTBData::PixeladdressToMatrixAddress WrongPixelAddress: " << pixelglobaladdress  << " -> " << matrix_column << "/" << matrix_row << std::endl;
     }
     return std::pair<UInt_t, UInt_t>(matrix_column, matrix_row);
 }

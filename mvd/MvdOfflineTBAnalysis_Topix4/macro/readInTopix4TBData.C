@@ -1,4 +1,4 @@
-void digi_complete()
+void readInTopix4TBData(TString fileName, Double_t clockFrequency = 50.)
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits 
@@ -43,7 +43,8 @@ void digi_complete()
   rtdb->setSecondInput(parIo1);
   
   PndMvdReadInTBDataTask* readTask = new PndMvdReadInTBDataTask();
-  readTask->AddFile("2014-10-23-08-55-18--100-data--1.txt");
+  readTask->AddFile(fileName);
+  readTask->SetFrequency(clockFrequency);
   fRun->AddTask(readTask);
 
   // -----   Intialise and run   --------------------------------------------

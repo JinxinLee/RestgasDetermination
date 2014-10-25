@@ -22,7 +22,7 @@
 
 
 PndMvdReadInTBDataTask::PndMvdReadInTBDataTask() :
-	FairTask("MVDReadInTBDataTask")
+	FairTask("MVDReadInTBDataTask"), fClockFrequency(50)
 {
 }
 
@@ -54,6 +54,7 @@ InitStatus PndMvdReadInTBDataTask::Init()
     }
 
   fReader.SetFileNames(fFileNames);
+  fReader.SetClockFrequency(fClockFrequency);
 
   fReader.Init();
 

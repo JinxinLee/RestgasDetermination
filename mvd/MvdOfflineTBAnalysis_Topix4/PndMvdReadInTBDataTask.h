@@ -25,6 +25,8 @@ public:
     virtual void Exec(Option_t* opt);
     virtual void FinishEvent();
 
+    void SetFrequency(Double_t val) {fClockFrequency = val;}
+
     virtual void AddFile(TString fileName){
     	fFileNames.push_back(fileName);
     };
@@ -38,6 +40,7 @@ private:
     TClonesArray* fDigiArray;
 
 	Bool_t fInitDone;
+	Double_t fClockFrequency; //in MHz
 
   void Register();
   void Reset();

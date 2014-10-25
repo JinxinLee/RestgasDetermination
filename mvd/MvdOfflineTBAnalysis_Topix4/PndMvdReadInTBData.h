@@ -36,9 +36,9 @@ struct frameTrailer{
 };
 
 struct pixel{
-	pixel():fPixelAddress(-1), fLeadingEdge(0), fTrailingEdge(0){};
+	pixel():fPixelAddress(0), fLeadingEdge(0), fTrailingEdge(0){};
 
-	Int_t fPixelAddress;
+	UInt_t fPixelAddress;
 	UInt_t fLeadingEdge;
 	UInt_t fTrailingEdge;
 };
@@ -63,6 +63,8 @@ public:
 
 	std::pair<UInt_t, UInt_t> PixeladdressToMatrixAddress(UInt_t pixelglobaladdress);
 
+	void SetClockFrequency(Double_t val) {fClockFrequency = val;}
+
 	PndSdsDigiTopix4 ProcessData(ULong_t& data, frameHeader& header, Double_t& clockFrequency);
 private:
 	std::vector<TString> fFileNames;
@@ -70,6 +72,12 @@ private:
 	std::map<Int_t, Int_t> fChipIdMap;
 	Double_t fClockFrequency;
 	TClonesArray* fOutputArray;
+	UInt_t fSuperFrameCount;
+	UInt_t fOldFrameCount;
+
+	frameHeader fRecentFrameHeader;
+	frameTrailer fRecentFrameTrailer;
+	Bool_t fFirstHeader;
 
 	TClonesArray* fDigiArray;
 };
