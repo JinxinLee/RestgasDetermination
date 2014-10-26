@@ -14,7 +14,7 @@
 #include "boost/serialization/binary_object.hpp"
 #include <boost/archive/archive_exception.hpp>
 
-PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0), fSuperFrameCount(0), fOldFrameCount(0), fFirstHeader(kTRUE) {
+PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0), fSuperFrameCount(0), fOldFrameCount(0), fFirstHeader(kTRUE), fVerbose(0) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -63,7 +63,7 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 	Bool_t endOfFile = kFALSE;
 
 	if (fileHandle->good()){
-		std::cout << "PndMvdReadInTBData:ReadInData reading file " << std::endl;
+		if (fVerbose > 1) std::cout << "PndMvdReadInTBData:ReadInData reading file " << std::endl;
 		try{
 			boost::archive::binary_iarchive iar(*fileHandle); 	//this line causes an "Invalid Signature Error" at the end of the file but the file is still good
 			iar >> tempdata;
@@ -79,7 +79,7 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 				return endOfFile;
 			}
 		}
-		std::cout << "PndMvdReadInTBData: NWords: " << tempdata->getNumWords() << std::endl;
+		if (fVerbose > 1) std::cout << "PndMvdReadInTBData: NWords: " << tempdata->getNumWords() << std::endl;
 		for (UInt_t i=0;i < tempdata->getNumWords();i+=5)
 		{
 			dataword=0;
@@ -107,12 +107,12 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clo
 {
 	PndSdsDigiTopix4 recentPixel;
 
-	std::cout << "PndMvdReadInTBData::AnalyzeData " << rawData.size() << std::endl;
+	if (fVerbose > 1) std::cout << "PndMvdReadInTBData::AnalyzeData " << rawData.size() << std::endl;
 
 	for (int i = 0; i < rawData.size(); i++){
 		ULong_t header = rawData[i] & 0xC000000000;
 		header = header >> 38;
-		std::cout << "HEADER: " << header << std::endl;
+		if (fVerbose > 1) std::cout << "HEADER: " << header << std::endl;
 		if (fFirstHeader) {
 			if (header == 1){
 				fFirstHeader = kFALSE;
@@ -123,27 +123,27 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clo
 
 		switch (header) {
 		case 1 : fRecentFrameHeader = BitAnalyzeHeader(rawData[i]);
-			std::cout << "FrameHeader: chip " << fRecentFrameHeader.fChipAddress << " frame " << fRecentFrameHeader.fFrameCount << std::endl;
+			if (fVerbose > 1) std::cout << "FrameHeader: chip " << fRecentFrameHeader.fChipAddress << " frame " << fRecentFrameHeader.fFrameCount << std::endl;
 			if (fOldFrameCount != fRecentFrameHeader.fFrameCount && fOldFrameCount + 1 != fRecentFrameHeader.fFrameCount){
-				std::cout << "-E- PndMvdReadInTBData::AnalyzeData frameCount not consecutive: "
+				if (fVerbose > 1) std::cout << "-E- PndMvdReadInTBData::AnalyzeData frameCount not consecutive: "
 						<< fOldFrameCount << " " << fRecentFrameHeader.fFrameCount << std::endl;
 			}
 			if (fOldFrameCount > fRecentFrameHeader.fFrameCount){
 				fSuperFrameCount++;
-				std::cout << "SuperFrameCount increased: " << fSuperFrameCount << " oldFC " << fOldFrameCount << " recent FC " << fRecentFrameHeader.fFrameCount << std::endl;
+				if (fVerbose > 1) std::cout << "SuperFrameCount increased: " << fSuperFrameCount << " oldFC " << fOldFrameCount << " recent FC " << fRecentFrameHeader.fFrameCount << std::endl;
 			}
 			fOldFrameCount = fRecentFrameHeader.fFrameCount;
 					break;
 		case 2 : fRecentFrameTrailer = BitAnalyzeTrailer(rawData[i]);
-			std::cout << "FrameTrailer: nEvents " << fRecentFrameTrailer.fNEvents << " frame CRC: " << fRecentFrameTrailer.fFrameCRC << std::endl;
+			if (fVerbose > 1) std::cout << "FrameTrailer: nEvents " << fRecentFrameTrailer.fNEvents << " frame CRC: " << fRecentFrameTrailer.fFrameCRC << std::endl;
 					break;
 		case 3 : recentPixel = ProcessData(rawData[i], fRecentFrameHeader, clockFrequency);
-			std::cout << "Pixel: " << recentPixel << std::endl;
+			if (fVerbose > 1) std::cout << "Pixel: " << recentPixel << std::endl;
 			new ((*fOutputArray)[fOutputArray->GetEntriesFast()]) PndSdsDigiTopix4(recentPixel);
 					break;
 		}
 	}
-	std::cout << "End of Analyze Data" << std::endl << std::endl;
+	if (fVerbose > 1) std::cout << "End of Analyze Data" << std::endl << std::endl;
 }
 
 frameHeader PndMvdReadInTBData::BitAnalyzeHeader(ULong_t& header)
@@ -193,7 +193,7 @@ pixel PndMvdReadInTBData::BitAnalyzePixelData(ULong_t& data)
 	temp = temp >> 12;
 	tempPixel.fPixelAddress = temp & 0X00000000000003FFF;
 
-	std::cout << "BitAnalyzePixelData: " << data << " pixel " << tempPixel.fPixelAddress << " " << tempPixel.fLeadingEdge << " " << tempPixel.fTrailingEdge << std::endl;
+	if (fVerbose > 1) std::cout << "BitAnalyzePixelData: " << data << " pixel " << tempPixel.fPixelAddress << " " << tempPixel.fLeadingEdge << " " << tempPixel.fTrailingEdge << std::endl;
 
 	return tempPixel;
 
@@ -201,11 +201,11 @@ pixel PndMvdReadInTBData::BitAnalyzePixelData(ULong_t& data)
 
 PndSdsDigiTopix4 PndMvdReadInTBData::ProcessData(ULong_t& data, frameHeader& header, Double_t& clockFrequency)
 {
-	std::cout  << "PndMvdReadInTBData::ProcessData raw Data: " << data << std::endl;
+	if (fVerbose > 1) std::cout  << "PndMvdReadInTBData::ProcessData raw Data: " << data << std::endl;
 	pixel pixelData = BitAnalyzePixelData(data);
 	std::pair<UInt_t, UInt_t> pixelAddress = PixeladdressToMatrixAddress(pixelData.fPixelAddress);
 	Double_t timestamp = (fSuperFrameCount * 256 * 4096 + header.fFrameCount * 4096 + pixelData.fLeadingEdge)/clockFrequency * 1000;
-	std::cout << "RawAddress: " << pixelData.fPixelAddress << " " << pixelAddress.first << "/" << pixelAddress.second << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge  << std::endl;
+	if (fVerbose > 1) std::cout << "RawAddress: " << pixelData.fPixelAddress << " " << pixelAddress.first << "/" << pixelAddress.second << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge  << std::endl;
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel
 	return PndSdsDigiTopix4(indices, 0, 0, header.fChipAddress, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp);
 
@@ -223,136 +223,140 @@ std::pair<UInt_t, UInt_t> PndMvdReadInTBData::PixeladdressToMatrixAddress(UInt_t
 
     UInt_t temp = pixelglobaladdress;
 
-
-    double_column_address= temp & 0x3f;
-     temp = temp >> 6;
+    pixel_address= temp & 0x7f; //todo check if this conversion is correct!
+    temp = temp >> 7;
     double_column_side= temp & 0x1;
     temp = temp >> 1;
-    pixel_address= temp & 0xef; //todo check if this conversion is correct!
+    double_column_address= temp & 0x3f;
+     temp = temp >> 6;
+
+     if (pixel_address > 127) {
+     	std::cout << "-E- PndMvdReadInTBData::PixeladdressToMatrixAddress PixelAddress > 128 " << pixel_address << std::endl;
+     }
+
+
 
  //   temp = temp >> 6;
 
 
 
-    std::cout << "PixeladdressToMatrix rawData " << pixelglobaladdress << " dc " << double_column_address << " dcs " << double_column_side << " pixel " << pixel_address << std::endl;
+    if (fVerbose > 1) std::cout << "PixeladdressToMatrix rawData " << pixelglobaladdress << " dc " << double_column_address << " dcs " << double_column_side << " pixel " << pixel_address << std::endl;
 
     UInt_t sel = (double_column_address<<1) | (double_column_side);
 
     if(sel == 0)
     {
-        matrix_column = 31-pixel_address;
-        matrix_row = 1;
+        matrix_row = pixel_address;
+        matrix_column = 1;
     }
     else if(sel ==1)
     {
-        matrix_column = 31-pixel_address;
-        matrix_row = 0;
+        matrix_row = pixel_address;
+        matrix_column = 0;
     }
     else if(sel == 6)
     {
-        matrix_column = 31-pixel_address;
-        matrix_row = 19;
+        matrix_row = pixel_address;
+        matrix_column = 19;
     }
     else if(sel == 7)
     {
-        matrix_column = 31-pixel_address;
-        matrix_row = 18;
+        matrix_row = pixel_address;
+        matrix_column = 18;
     }
     else if (sel==2)
     {
         if (pixel_address <32)
         {
-            matrix_column = 31-pixel_address;
-            matrix_row = 9;
+            matrix_row = pixel_address;
+            matrix_column = 3;
         }
         else if (pixel_address < 64)
         {
-            matrix_column = (pixel_address-32);
-            matrix_row = 6;
+            matrix_row = 31 - (pixel_address-32);
+            matrix_column = 4;
         }
-        else if (pixel_address <96)
+        else if (pixel_address < 96)
         {
-            matrix_column = 31-(pixel_address-64);
-            matrix_row = 5;
+            matrix_row = (pixel_address-64);
+            matrix_column = 7;
         }
-        else
+        else if (pixel_address < 128)
         {
-            matrix_column = (pixel_address-96);
-            matrix_row = 2;
+            matrix_row = 31 - (pixel_address-96);
+            matrix_column = 8;
         }
     }
     else if (sel==3)
     {
         if (pixel_address <32)
         {
-            matrix_column = 31-pixel_address;
-            matrix_row = 8;
+            matrix_row = pixel_address;
+            matrix_column = 2;
         }
         else if (pixel_address < 64)
         {
-            matrix_column = (pixel_address-32);
-            matrix_row = 7;
+            matrix_row = 31 - (pixel_address-32);
+            matrix_column = 5;
         }
-        else if (pixel_address <96)
+        else if (pixel_address < 96)
         {
-            matrix_column = 31-(pixel_address-64);
-            matrix_row = 4;
+            matrix_row = (pixel_address-64);
+            matrix_column = 6;
         }
-        else
+        else if (pixel_address < 128)
         {
-            matrix_column = (pixel_address-96);
-            matrix_row = 3;
+            matrix_row = 31 - (pixel_address-96);
+            matrix_column = 9;
         }
     }
     else if (sel==4)
     {
-        if (pixel_address <32)
+        if (pixel_address < 32)
         {
-            matrix_column = 31-pixel_address;
-            matrix_row = 17;
+            matrix_row = pixel_address;
+            matrix_column = 10;
         }
         else if (pixel_address < 64)
         {
-            matrix_column = (pixel_address-32);
-            matrix_row = 14;
+            matrix_row = 31 - (pixel_address-32);
+            matrix_column = 13;
         }
-        else if (pixel_address <96)
+        else if (pixel_address < 96)
         {
-            matrix_column = 31-(pixel_address-64);
-            matrix_row = 13;
+            matrix_row = (pixel_address-64);
+            matrix_column = 14;
         }
-        else
+        else if (pixel_address < 128)
         {
-            matrix_column = (pixel_address-96);
-            matrix_row = 10;
+            matrix_row = 31 - (pixel_address-96);
+            matrix_column = 17;
         }
     }
     else if (sel==5)
     {
-        if (pixel_address <32)
+        if (pixel_address < 32)
         {
-            matrix_column = 31-pixel_address;
-            matrix_row = 16;
+            matrix_row = pixel_address;
+            matrix_column = 11;
         }
         else if (pixel_address < 64)
         {
-            matrix_column = (pixel_address-32);
-            matrix_row = 15;
+            matrix_row = 31 - (pixel_address-32);
+            matrix_column = 12;
         }
-        else if (pixel_address <96)
+        else if (pixel_address < 96)
         {
-            matrix_column = 31-(pixel_address-64);
-            matrix_row = 12;
+            matrix_row = (pixel_address-64);
+            matrix_column = 15;
         }
-        else
+        else if (pixel_address < 128)
         {
-            matrix_column = (pixel_address-96);
-            matrix_row = 11;
+            matrix_row = 31 - (pixel_address-96);
+            matrix_column = 16;
         }
     }
-    if (matrix_column > 3 || matrix_row > 128){
-    	std::cout << "-E- PndMvdReadInTBData::PixeladdressToMatrixAddress WrongPixelAddress: " << pixelglobaladdress  << " -> " << matrix_column << "/" << matrix_row << std::endl;
-    }
+
     return std::pair<UInt_t, UInt_t>(matrix_column, matrix_row);
 }
 

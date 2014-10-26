@@ -78,6 +78,7 @@ private:
 	frameHeader fRecentFrameHeader;
 	frameTrailer fRecentFrameTrailer;
 	Bool_t fFirstHeader;
+	Int_t fVerbose;
 
 	TClonesArray* fDigiArray;
 };
