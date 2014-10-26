@@ -205,7 +205,7 @@ PndSdsDigiTopix4 PndMvdReadInTBData::ProcessData(ULong_t& data, frameHeader& hea
 	if (fVerbose > 1) std::cout  << "PndMvdReadInTBData::ProcessData raw Data: " << data << std::endl;
 	pixel pixelData = BitAnalyzePixelData(data);
 	std::pair<UInt_t, UInt_t> pixelAddress = PixeladdressToMatrixAddress(pixelData.fPixelAddress);
-	std::cout << "PndMvdReadInTBData::ProcessData timestamp: FE " << fFE << " SFC " << fSuperFrameCount << " FC " << header.fFrameCount << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge << std::endl;
+	if (fVerbose > 1) std::cout << "PndMvdReadInTBData::ProcessData timestamp: FE " << fFE << " SFC " << fSuperFrameCount << " FC " << header.fFrameCount << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge << std::endl;
 	Double_t timestamp = (fSuperFrameCount * 256 * 4096 + header.fFrameCount * 4096 + pixelData.fLeadingEdge)/clockFrequency * 1000;
 	if (fVerbose > 1) std::cout << "RawAddress: " << pixelData.fPixelAddress << " " << pixelAddress.first << "/" << pixelAddress.second << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge  << std::endl;
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel

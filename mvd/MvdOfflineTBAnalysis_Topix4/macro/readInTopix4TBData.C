@@ -1,4 +1,4 @@
-void readInTopix4TBData(TString inFileName, TString outFileName = "tbData.root", Double_t clockFrequency = 50.)
+void readInTopix4TBData(TString inFileName, Double_t clockFrequency = 50.)
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits 
@@ -15,10 +15,13 @@ void readInTopix4TBData(TString inFileName, TString outFileName = "tbData.root",
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   
-
+  TString tempOutFile = inFileName;
+  tempOutFile.Append("_");
+  tempOutFile += clockFrequency;
+  tempOutFile.Append("_MHz.root");
 
   // Output file
-  TString outFile = outFileName;
+  TString outFile = tempOutFile;
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -44,8 +47,25 @@ void readInTopix4TBData(TString inFileName, TString outFileName = "tbData.root",
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   
+
   PndMvdReadInTBDataTask* readTask = new PndMvdReadInTBDataTask();
-  readTask->AddFile(inFileName);
+//  readTask->AddFile(inFileName);
+  TString tempFileName = inFileName;
+  tempFileName.Append("--101-data--1.txt");
+  readTask->AddFile(tempFileName);
+
+  tempFileName = inFileName;
+  tempFileName.Append("--102-data--1.txt");
+  readTask->AddFile(tempFileName);
+
+  tempFileName = inFileName;
+  tempFileName.Append("--103-data--1.txt");
+  readTask->AddFile(tempFileName);
+
+  tempFileName = inFileName;
+  tempFileName.Append("--102-data--1.txt");
+  readTask->AddFile(tempFileName);
+
   readTask->SetFrequency(clockFrequency);
   fRun->AddTask(readTask);
 
