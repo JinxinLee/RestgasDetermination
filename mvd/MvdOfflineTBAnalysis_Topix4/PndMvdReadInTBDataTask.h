@@ -35,7 +35,10 @@ private:
 
     std::vector<TString> fFileNames;
     std::vector<std::ifstream*> fFileHandles;
-    PndMvdReadInTBData fReader;
+    std::vector<PndMvdReadInTBData*> fReader;
+    std::vector<Bool_t> fEndOfFile;
+
+    UInt_t fEvent;
 
     TClonesArray* fDigiArray;
 

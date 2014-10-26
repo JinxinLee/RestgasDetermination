@@ -22,12 +22,16 @@
 
 
 PndMvdReadInTBDataTask::PndMvdReadInTBDataTask() :
-	FairTask("MVDReadInTBDataTask"), fClockFrequency(50)
+	FairTask("MVDReadInTBDataTask"), fClockFrequency(50), fEvent(0)
 {
 }
 
 PndMvdReadInTBDataTask::~PndMvdReadInTBDataTask()
 {
+	for (int i = 0; i < fReader.size(); i++){
+		delete(fReader[i]);
+	}
+	fReader.clear();
 }
 
 void PndMvdReadInTBDataTask::SetParContainers()
@@ -53,10 +57,16 @@ InitStatus PndMvdReadInTBDataTask::Init()
       return kFATAL;
     }
 
-  fReader.SetFileNames(fFileNames);
-  fReader.SetClockFrequency(fClockFrequency);
+  for (int i = 0; i < fFileNames.size(); i++) {
+	  fReader.push_back(new PndMvdReadInTBData());
+	  fEndOfFile.push_back(kFALSE);
+	  fReader[i]->SetFileName(fFileNames[i]);
+	  fReader[i]->SetClockFrequency(fClockFrequency);
+	  fReader[i]->SetVerbose(fVerbose);
+	  fReader[i]->SetFE(i+1);
 
-  fReader.Init();
+	  fReader[i]->Init();
+  }
 
   fDigiArray = ioman->Register("ToPix4Hits", "PndSdsDigiTopix4", "MVD", kTRUE);
 
@@ -68,8 +78,20 @@ InitStatus PndMvdReadInTBDataTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 {
-	std::cout << "PndMvdReadInTBDataTask::Exec called!" << std::endl;
-	Bool_t endOfFiles = fReader.ReadInData(fDigiArray);
+	if (fEvent % 10000 == 0) {
+		std::cout << "PndMvdReadInTBDataTask::Exec called - Event " << fEvent << std::endl;
+	}
+	fEvent++;
+
+	for(int i = 0; i < fReader.size(); i++){
+		if (fEndOfFile[i] != kTRUE){
+			fEndOfFile[i] = fReader[i]->ReadInData(fDigiArray);
+		}
+	}
+	Bool_t endOfFiles = kFALSE;
+	for (int j = 0; j < fEndOfFile.size(); j++){
+		endOfFiles |= fEndOfFile[j];
+	}
 	if (endOfFiles == kTRUE){
 		FairRootManager::Instance()->SetFinishRun(kTRUE);
 	}

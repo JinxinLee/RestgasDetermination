@@ -14,25 +14,25 @@
 #include "boost/serialization/binary_object.hpp"
 #include <boost/archive/archive_exception.hpp>
 
-PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0), fSuperFrameCount(0), fOldFrameCount(0), fFirstHeader(kTRUE), fVerbose(0) {
+PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0), fSuperFrameCount(0), fOldFrameCount(0), fFirstHeader(kTRUE), fFE(-1), fVerbose(0) {
 	// TODO Auto-generated constructor stub
 
 }
 
 PndMvdReadInTBData::~PndMvdReadInTBData() {
-	for (int i = 0; i < fFileHandles.size(); i++){
-		  fFileHandles[i]->close();
-		  delete(fFileHandles[i]);
-	}
+//	for (int i = 0; i < fFileHandle.size(); i++){
+		  fFileHandle->close();
+		  delete(fFileHandle);
+//	}
 }
 
 void PndMvdReadInTBData::Init(){
 	std::cout << "PndMvdReadInTBData::Init called" << std::endl;
-	for (int i = 0; i < fFileNames.size(); i++){
-		  std::ifstream* ifs = new std::ifstream(fFileNames[i].Data(), std::ios::binary);
-		  std::cout << "File: " << fFileNames[i] << " is good: " << ifs->good() << std::endl;
-		  fFileHandles.push_back(ifs);
-	}
+//	for (int i = 0; i < fFileName.size(); i++){
+		  std::ifstream* ifs = new std::ifstream(fFileName.Data(), std::ios::binary);
+		  std::cout << "File: " << fFileName << " is good: " << ifs->good() << std::endl;
+		  fFileHandle = ifs;
+//	}
 	fChipIdMap[0] = 0;
 	fChipIdMap[1] = 1;
 	fChipIdMap[2] = 2;
@@ -47,12 +47,13 @@ Bool_t PndMvdReadInTBData::ReadInData(TClonesArray* sdsDigiContainer){
 	Bool_t endOfFile = kFALSE;
 
 	fOutputArray = sdsDigiContainer;
-	for (int k = 0; k < fFileHandles.size(); k++){
+//	for (int k = 0; k < fFileHandle.size(); k++){
 		std::vector<ULong_t> rawArray;
-		endOfFile |= ReadInRawData(fFileHandles[k], rawArray);
+		endOfFile |= ReadInRawData(fFileHandle, rawArray);
+//		SetFE(k);
 		AnalyzeData(rawArray, fClockFrequency);
 
-	}
+//	}
 	return endOfFile;
 }
 
@@ -69,9 +70,9 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 			iar >> tempdata;
 		}
 		catch (boost::archive::archive_exception& exception){
-			std::cout << "PndMvdReadInTBData:Error found in reading file " << " : " << fileHandle->good() << " " << fileHandle->eof()
+			if (fVerbose > 1) std::cout << "PndMvdReadInTBData:Error found in reading file " << " : " << fileHandle->good() << " " << fileHandle->eof()
 					<< " Exception: " << exception.code << std::endl;
-			std::cout << exception.what() << std::endl;
+			if (fVerbose > 1) std::cout << exception.what() << std::endl;
 			if (exception.code == 3){
 				endOfFile = kTRUE;
 				return endOfFile;
@@ -93,10 +94,10 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 			frameCount = frameCount >> 18;
 		//	if(i==0)
 		//	{
-				std::cout << std::dec << "dataword No "<< i/5<< "/"<< tempdata->getNumWords()/5 << ": "<<std::hex << dataword << " " << std::dec << frameCount << std::endl;
+			if (fVerbose > 1) std::cout << std::dec << "dataword No "<< i/5<< "/"<< tempdata->getNumWords()/5 << ": "<<std::hex << dataword << " " << std::dec << frameCount << std::endl;
 		//	}
 		}
-		std::cout << "---- End of message ----" << std::endl << std::endl;
+		if (fVerbose > 1) std::cout << "---- End of message ----" << std::endl << std::endl;
 	} else {
 		endOfFile = kTRUE;
 	}
@@ -204,10 +205,11 @@ PndSdsDigiTopix4 PndMvdReadInTBData::ProcessData(ULong_t& data, frameHeader& hea
 	if (fVerbose > 1) std::cout  << "PndMvdReadInTBData::ProcessData raw Data: " << data << std::endl;
 	pixel pixelData = BitAnalyzePixelData(data);
 	std::pair<UInt_t, UInt_t> pixelAddress = PixeladdressToMatrixAddress(pixelData.fPixelAddress);
+	std::cout << "PndMvdReadInTBData::ProcessData timestamp: FE " << fFE << " SFC " << fSuperFrameCount << " FC " << header.fFrameCount << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge << std::endl;
 	Double_t timestamp = (fSuperFrameCount * 256 * 4096 + header.fFrameCount * 4096 + pixelData.fLeadingEdge)/clockFrequency * 1000;
 	if (fVerbose > 1) std::cout << "RawAddress: " << pixelData.fPixelAddress << " " << pixelAddress.first << "/" << pixelAddress.second << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge  << std::endl;
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel
-	return PndSdsDigiTopix4(indices, 0, 0, header.fChipAddress, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp);
+	return PndSdsDigiTopix4(indices, 0, 0, fFE, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp);
 
 }
 

@@ -47,12 +47,12 @@ class PndMvdReadInTBData {
 public:
 	PndMvdReadInTBData();
 	virtual ~PndMvdReadInTBData();
-	void SetFileNames(std::vector<TString> fileNames){
-		fFileNames = fileNames;
-		std::cout << "PndMvdReadInTBData::SetFileNames " << std::endl;
-		for (int i = 0; i < fFileNames.size(); i++) std::cout << fFileNames[i] << std::endl;
+	void SetFileName(TString fileName){
+		fFileName = fileName;
 	}
+
 	void Init();
+
 	Bool_t ReadInData(TClonesArray* sdsDigiContainer);
 	Bool_t ReadInRawData(std::ifstream* fileHandle, std::vector<ULong_t>& rawData);//<input is fileHandle, output vector of raw data, output is end of file
 	void AnalyzeData(std::vector<ULong_t>& rawData, Double_t clockFrequency);
@@ -64,11 +64,15 @@ public:
 	std::pair<UInt_t, UInt_t> PixeladdressToMatrixAddress(UInt_t pixelglobaladdress);
 
 	void SetClockFrequency(Double_t val) {fClockFrequency = val;}
+	void SetFE(Int_t val){fFE = val;}
 
 	PndSdsDigiTopix4 ProcessData(ULong_t& data, frameHeader& header, Double_t& clockFrequency);
+
+	void SetVerbose(Int_t val){fVerbose = val;}
+
 private:
-	std::vector<TString> fFileNames;
-	std::vector<std::ifstream*> fFileHandles;
+	TString fFileName;
+	std::ifstream* fFileHandle;
 	std::map<Int_t, Int_t> fChipIdMap;
 	Double_t fClockFrequency;
 	TClonesArray* fOutputArray;
@@ -79,6 +83,7 @@ private:
 	frameTrailer fRecentFrameTrailer;
 	Bool_t fFirstHeader;
 	Int_t fVerbose;
+	Int_t fFE;
 
 	TClonesArray* fDigiArray;
 };
