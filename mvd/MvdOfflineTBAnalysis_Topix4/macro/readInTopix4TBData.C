@@ -1,4 +1,4 @@
-void readInTopix4TBData(TString fileName, Double_t clockFrequency = 50.)
+void readInTopix4TBData(TString inFileName, TString outFileName = "tbData.root", Double_t clockFrequency = 50.)
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits 
@@ -15,8 +15,10 @@ void readInTopix4TBData(TString fileName, Double_t clockFrequency = 50.)
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   
+
+
   // Output file
-  TString outFile = "digi_complete.root";
+  TString outFile = outFileName;
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -43,7 +45,7 @@ void readInTopix4TBData(TString fileName, Double_t clockFrequency = 50.)
   rtdb->setSecondInput(parIo1);
   
   PndMvdReadInTBDataTask* readTask = new PndMvdReadInTBDataTask();
-  readTask->AddFile(fileName);
+  readTask->AddFile(inFileName);
   readTask->SetFrequency(clockFrequency);
   fRun->AddTask(readTask);
 
