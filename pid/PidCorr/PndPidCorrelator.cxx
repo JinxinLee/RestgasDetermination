@@ -889,7 +889,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 	}
       else // forward
 	{
-	  nTracks = fTrack2->GetEntriesFast();
+	   if (fTrackBranch2!="") nTracks = fTrack2->GetEntriesFast();
 	}
       
       for (Int_t tt = 0; tt < nTracks; tt++)
