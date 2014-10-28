@@ -13,6 +13,7 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t GetEmc12Thr()      { return fEmc12Thr; };
   Float_t GetEmc12Radius()   { return fEmc12Radius; };
   Float_t GetEmc12Cut()      { return fEmc12Cut; };
+  Float_t GetEmcNeutralQCut(){ return fEmcNeutralQCut; };
   Float_t GetMdtRadius()     { return fMdtRadius; };
   Float_t GetMdtCut()        { return fMdtCut; }; 
   Float_t GetDrcRadius()     { return fDrcRadius; };
@@ -38,7 +39,8 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t fTofCut;         // cut chi2 for TOF 
   Float_t fEmc12Thr;       // EMC12 cluster energy threshold (barrel)
   Float_t fEmc12Radius;    // radius EMC12 detector (barrel)
-  Float_t fEmc12Cut;       // cut chi2 for EMC12
+  Float_t fEmc12Cut;       // cut <chi2 for EMC (charged)
+  Float_t fEmcNeutralQCut; // cut >chi2 for EMC (neutral)
   Float_t fMdtRadius;      // radius MDT detector
   Float_t fMdtCut;         // cut chi2 for MDT 
   Float_t fDrcRadius;      // radius DRC detector
@@ -50,7 +52,7 @@ class PndPidCorrPar : public FairParGenericSet
   Float_t fRichZ;          // Z of RICH
   Float_t fFMdtCut;        // cut chi2 for FWD MDT 
   
-  ClassDef(PndPidCorrPar, 3);
+  ClassDef(PndPidCorrPar, 4);
 };
 
 #endif

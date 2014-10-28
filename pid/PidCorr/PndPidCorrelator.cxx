@@ -937,35 +937,37 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 	    }
 	} // end of track correlation
       
-      
-      PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
-      pidCand->SetP4Cov(covP4);
-      pidCand->SetEmcRawEnergy(bump->energy());
-      pidCand->SetEmcCalEnergy(fEmcCalibrator->Energy(bump));
-      pidCand->SetEmcIndex(i);
-      pidCand->SetEmcModule(bump->GetModule());
-      pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
-      pidCand->SetEmcNumberOfBumps(clu->NBumps());
-      pidCand->SetEmcQuality(emcQuality);
+      if ( emcQuality > fCorrPar->GetEmcNeutralQCut() )
+        { 
+          PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
+          pidCand->SetP4Cov(covP4);
+          pidCand->SetEmcRawEnergy(bump->energy());
+          pidCand->SetEmcCalEnergy(fEmcCalibrator->Energy(bump));
+          pidCand->SetEmcIndex(i);
+          pidCand->SetEmcModule(bump->GetModule());
+          pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
+          pidCand->SetEmcNumberOfBumps(clu->NBumps());
+          pidCand->SetEmcQuality(emcQuality);
 
-      pidCand->SetEmcClusterZ20(bump->Z20());
-      pidCand->SetEmcClusterZ53(bump->Z53());
-      pidCand->SetEmcClusterLat(bump->LatMom()); 
-      if (fEmcDigi)
-	{
-	  PndEmcClusterEnergySums esum(*clu, fEmcDigi);
-	  pidCand->SetEmcClusterE1(esum.E1());
-	  pidCand->SetEmcClusterE9(esum.E9());
-	  pidCand->SetEmcClusterE25(esum.E25());
-	}
-      pidCand->SetLink(FairLink(emcType, i));
+          pidCand->SetEmcClusterZ20(bump->Z20());
+          pidCand->SetEmcClusterZ53(bump->Z53());
+          pidCand->SetEmcClusterLat(bump->LatMom()); 
+          if (fEmcDigi)
+	    {
+	      PndEmcClusterEnergySums esum(*clu, fEmcDigi);
+	      pidCand->SetEmcClusterE1(esum.E1());
+	      pidCand->SetEmcClusterE9(esum.E9());
+	      pidCand->SetEmcClusterE25(esum.E25());
+	    }
+          pidCand->SetLink(FairLink(emcType, i));
     
-      std::vector<Int_t> mclist = clu->GetMcList();
-      if (mclist.size()>0)
-	{
-	  pidCand->SetMcIndex(mclist[0]);
-	}
-      AddNeutralCandidate(pidCand);
+          std::vector<Int_t> mclist = clu->GetMcList();
+          if (mclist.size()>0)
+	    {
+	      pidCand->SetMcIndex(mclist[0]);
+	    }
+          AddNeutralCandidate(pidCand);
+        }
     }
 }
 

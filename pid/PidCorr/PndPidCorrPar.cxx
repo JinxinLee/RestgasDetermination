@@ -28,6 +28,7 @@ void PndPidCorrPar::putParams(FairParamList* list)
 	list->add("Emc12Thr",      fEmc12Thr);
 	list->add("Emc12Radius",   fEmc12Radius);
 	list->add("Emc12Cut",      fEmc12Cut);
+        list->add("EmcNeutralQCut",fEmcNeutralQCut);
 	list->add("MdtRadius",     fMdtRadius);
 	list->add("MdtCut",        fMdtCut);
 	list->add("DrcRadius",     fDrcRadius);
@@ -48,6 +49,7 @@ Bool_t PndPidCorrPar::getParams(FairParamList* list)
 	if (!list->fill("Emc12Thr",      &fEmc12Thr))      return kFALSE;
 	if (!list->fill("Emc12Radius",   &fEmc12Radius))   return kFALSE;
 	if (!list->fill("Emc12Cut",      &fEmc12Cut))      return kFALSE;
+        if (!list->fill("EmcNeutralQCut",&fEmcNeutralQCut))return kFALSE;
 	if (!list->fill("MdtRadius",     &fMdtRadius))     return kFALSE;
 	if (!list->fill("MdtCut",        &fMdtCut))        return kFALSE;
 	if (!list->fill("DrcRadius",     &fDrcRadius))     return kFALSE;

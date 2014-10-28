@@ -373,12 +373,12 @@ DrcCut:Float_t 20.
 #################################################################
 #################################################################
 # Digitization parameters for GEM                                
-# with 3 Stations at 90, 120, 150 cm from the target             
+# with 3 Stations                                                
 # Format:                                                        
 #Description of parameters:                                      
 #[PndGemDetectors]                                            
-#parameters:d station_number, rotation_angle, number_of_sensors, \
-#                 sensor_number, sensor_type, pos_x, pos_y, pos_z, rotAngle, inn_rad, out_rad, thick, str_ang_0, str_ang_1, pitch_0, pitch_1, \
+#parameters:d station_number, ZPos, rotation_angle, number_of_sensors, \
+#                 sensor_number, sensor_type, pos_x, pos_y, pos_z, rotAngle, inn_rad, out_rad, thick, str_ang_0, str_ang_1, barWidth, pitch_0, pitch_1, \
 #                 sensor_number, ....
 #             station_number, ...
 #################################################################
@@ -416,6 +416,7 @@ TofCut:Float_t 25.
 Emc12Thr:Float_t 0.02
 Emc12Radius:Float_t 63.
 Emc12Cut:Float_t 2500.
+EmcNeutralQCut:Float_t 400.
 MdtRadius:Float_t 155.
 MdtCut:Float_t 2500.
 DrcRadius:Float_t 49.

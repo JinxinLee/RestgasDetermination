@@ -9,6 +9,7 @@ TofCut:Float_t 25.
 Emc12Thr:Float_t 0.02
 Emc12Radius:Float_t 63.
 Emc12Cut:Float_t 2500.
+EmcNeutralQCut:Float_t 400.
 MdtRadius:Float_t 155.
 MdtCut:Float_t 2500.
 DrcRadius:Float_t 49.
