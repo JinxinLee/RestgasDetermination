@@ -46,12 +46,13 @@
 #include "PndHypGeoHandling.h"
 
 //#include "PndHypDecayer.h"
-//#include "HypStatDecay.h"
+#include "HypStatDecay.h"
 #include "TArrayI.h"
 #include "TMCProcess.h"
 
 #include "TList.h"
 #include "TFile.h"
+#include "TGenPhaseSpace.h"
 
 #include <string>
 #include <sstream>
@@ -61,7 +62,8 @@ using std::ostringstream;
 class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
-PndHyp::PndHyp() {
+PndHyp::PndHyp():
+fUseFileOption(false),fUseRAZHOption(false),fcount(0) {
   fHypCollection        = new TClonesArray("PndHypPoint");
   fHypSecTarCollection  = new TClonesArray("PndHypPoint");
   //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
@@ -86,7 +88,7 @@ PndHyp::PndHyp() {
 
 // -----   Standard constructor   ------------------------------------------
 PndHyp::PndHyp(const char* name, Bool_t active)
-  : FairDetector(name, active){
+  : FairDetector(name, active),fUseFileOption(false),fUseRAZHOption(false),fcount(0){
     fHypCollection        = new TClonesArray("PndHypPoint");
     fHypSecTarCollection  = new TClonesArray("PndHypPoint");
     //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
@@ -143,8 +145,28 @@ void PndHyp::Initialize() {
   }
   fGeoH = new PndHypGeoHandling(gGeoManager);
 
-  //fread = new PndHypDecayer("hypBupDecay2.root");
-  //fread = new HypStatDecay("statDecay");
+  // --- Opening output file for hypernuclei formation/decay
+
+  // fread = new HypStatDecay("12C");
+
+  if(fUseRAZHOption==true && fUseFileOption==true){
+    //"hypBupVAida05TDecay.root"
+     fFile = new TFile(fFileName,"RECREATE");//gam+nucfrag "hypBupDecay2.root"
+     fEvt = new TClonesArray("THParticle",50);
+     ft     = new TTree("data","hypernuclei");
+
+    activeCnt=0;
+    weight =1.0;
+
+    // define the tree branches
+    ft->Branch("Npart",&activeCnt,"Npart/I");
+    ft->Branch("Weigth",&weight,"Weight/D");
+    ft->Branch("Seed",&seed,"Seed/D");
+    ft->Branch("Particles",&fEvt,32000);
+  }
+
+  //-----------------------------------------------------------//
+
   
   TGeoMedium *Si= gGeoManager->GetMedium("HYPsilicon");//fSiMat.Data());
   if(Si)SiId=  Si->GetId();
@@ -165,8 +187,8 @@ void PndHyp::Initialize() {
 
   }else if(fVers.Contains("List")){
 
-    fStandard=kTRUE;//kFALSE;
-    fCurrent=kFALSE;//kTRUE;
+    fStandard=kFALSE;//sebastian fVolumeID
+    fCurrent=kTRUE;
 
     for(int m=0;m<fListOfMaterials.size();m++){
       gGeoManager->GetMedium(fListOfMaterials[m].Data());
@@ -421,7 +443,10 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 			fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
 			fdist,fPLin,fPLout);
 	   
-	   
+	   // ***** Statistical Decay of a compound hyperfragment********
+	   SetHypStatDecay(fUseRAZHOption,fUseFileOption);
+
+
 	   fTrackStopNxtStep=kTRUE;
 	   
 	   // Increment number of PndMvd points for TParticle
@@ -587,6 +612,84 @@ bool PndHyp::CheckIfSensitive(std::string name)
   }
   return false;
 }
+// -----   Public method FinishRun   -------------------------------------------
+void PndHyp::FinishRun() {
+  if (fUseRAZHOption==true && fUseFileOption==true ){
+    fFile->Write();
+    fFile->Close();
+    delete fEvt;
+    delete fFile;
+
+
+
+    cout<<" -I PndHyp::FinishRun():closing and deleting fFile fEvt "<<endl;
+  }
+
+
+}
+
+// ------   Private method SetHypStatDecay   -----------------------------------
+void PndHyp:: SetHypStatDecay(bool cal,bool active) {
+// ***** Sequential Decay of a compound hyperfragment********
+ 
+ if(cal==true){
+
+
+    if(active==true){
+      fEvt->Clear();
+
+     }
+    Int_t cnt = 0;
+
+    cout<<" increment count "<<fcount<<endl;
+
+    TLorentzVector target4(0.0, 0.0, 0., 5.95137);//He6LL	
+    TLorentzVector target5(0.0, 0.0, 0., 5.7789);//Li6L	
+    
+    TLorentzVector target6(0.,0.,0., 10.60335);//Be11LL	
+    TLorentzVector target7(0.,0.,0., 10.41176);//B11L
+    
+     TLorentzVector W6 = target6;
+     TLorentzVector W7 = target7;
+     
+     Double_t mass4[2] = { 10.41176, 0.139};//B11L
+     Double_t mass5[2] = { 10.25409, 0.139};//C11
+     
+     TGenPhaseSpace ev6;
+     ev6.SetDecay(W6, 2, mass4);//two-body kinematics assumption
+     TGenPhaseSpace ev7;
+     ev7.SetDecay(W7, 2, mass5);
+
+     Double_t weight7 = ev6.Generate();
+     TLorentzVector *pPi6    = ev6.GetDecay(1);
+     Double_t weight8 = ev7.Generate();
+     TLorentzVector *pPi7    = ev7.GetDecay(1);
+	
+    TLorentzVector V;
+    // std::cout<<fPosOut.X()<<" "<<fPosOut.Y()<<" "<<fPosOut.Z()<<std::endl;
+    V.SetX( fPosOut.X()); V.SetY(fPosOut.Y()); V.SetZ(fPosOut.Z());
+ std::cout<<V.X()<<" "<<V.Y()<<" "<<V.Z()<<std::endl;
+      if(active==true){
+        THParticle  fpion_H(-211,1,0,0,0,0,0,0,*pPi6,V);
+
+        new((*fEvt)[cnt++]) THParticle(fpion_H);
+
+	THParticle  fpion_L(-211,1,0,0,0,0,0,0,*pPi7,V);
+
+        new((*fEvt)[cnt++]) THParticle(fpion_L);
+      }
+     
+    if(active==true){
+      activeCnt = cnt;
+      ft->Fill();
+    }
+
+  }
+
+
+
+}
+
 
 // -----   Private method AddHit   --------------------------------------------
 

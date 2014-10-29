@@ -51,7 +51,7 @@ THParticle.cxx
 #PndHypDecayer.cxx 
 #PndHypDecayReader.cxx
 #PndHypAnaIdeal.cxx  
-#HypStatDecay.cxx  
+HypStatDecay.cxx  
 
 #hypData/PndHypCluster.cxx
 #hypData/PndHypDigiPixel.cxx
@@ -77,6 +77,7 @@ hypReco/PndHypStripClusterBuilder.cxx
 hypReco/PndHypStripClusterTask.cxx
 
 #hypFullAna/PndHypFullAna.cxx
+#hypFullAna/PndHypSimpleAna.cxx
 #hypFullAna/PndHypMicroWriter.cxx
 #hypFullAna/PndHypFullIdealAna.cxx
 #hypFullAna/PndHypMicroIdealWriter.cxx

@@ -17,7 +17,7 @@
 
 #include "PndHypGeoHandling.h"
 //#include "PndHypDecayer.h"
-//#include "HypStatDecay.h"
+#include "HypStatDecay.h"
 using namespace std;
 
 
@@ -113,7 +113,7 @@ class PndHyp : public FairDetector
    **/
   virtual void ConstructGeometry();
   void ConstructASCIIGeometry();
-  //virtual void FinishRun();
+  virtual void FinishRun();
 
   PndHypPoint* AddHit(Int_t trackID,Int_t evtID, 
 		      Int_t detID, TString detName,
@@ -219,7 +219,7 @@ class PndHyp : public FairDetector
   Double_t fPLout,fPLin;               //  total momentum
  
   TFile *fFile;
-  //TTree *t;
+  TTree *ft;
   TClonesArray *fEvt;
   Int_t        activeCnt;
   Double_t     weight;
@@ -254,7 +254,7 @@ class PndHyp : public FairDetector
   Bool_t fUseRAZHOption;
   void SetHypStatDecay(bool cal,bool active);
 
-  ClassDef(PndHyp,9)
+  ClassDef(PndHyp,10)
 
 }; 
 
