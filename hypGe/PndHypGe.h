@@ -121,7 +121,7 @@ class PndHypGe : public FairDetector
 		      Double_t tof, Double_t length, Double_t eLoss,
 		      Short_t copy);
 
-  PndHypGePoint* AddsciGeHit(Int_t trackID, Int_t evtID,  Int_t pdgCode,	
+  PndHypGePoint* AddGeAlHit(Int_t trackID, Int_t evtID,  Int_t pdgCode,	
 			     Int_t charge,TVector3 pos, TVector3 mom,
 			     Double_t tof, Double_t length, Double_t eLoss,
 			     Short_t copy);
@@ -163,7 +163,7 @@ class PndHypGe : public FairDetector
   //Int_t volDetector;     //  MC volume ID of MUO
   
   TClonesArray* fHypGeCollection;        // Hit collection
-  TClonesArray* fHypGesciCollection;        // Hit collection
+  TClonesArray* fHypGeAlCollection;        // Hit collection
   //TClonesArray* fHypGecapCollection;        // Hit collection 
   // reset all parameters   
   void ResetParameters();

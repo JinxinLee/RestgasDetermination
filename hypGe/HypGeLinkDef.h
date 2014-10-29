@@ -15,4 +15,20 @@
 #pragma link C++ class  GeCluster+;
 #pragma link C++ class  PndHypGeIdealTrackFinderTask+;
 
+#pragma link C++ class  PndGeoHypGeCrystal+;
+#pragma link C++ class  PndGeoHypGeCluster+;
+#pragma link C++ class  PndGeoHypGeSingleCluster+;
+#pragma link C++ class  PndGeoHypGeTripleCluster+;
+#pragma link C++ class  PndGeoHypGeDoubleCluster+;
+#pragma link C++ class  PndGeoHypGeModifiedCTFrame+;
+#pragma link C++ class  PndGeoHypGeModifiedBeamPipe;
+#pragma link C++ class  PndGeoHypGeBase;
+#pragma link C++ class  PndGeoHypGeTripleClusterCrystalsOnly+;
+#pragma link C++ class  PndGeoHypGeCrystalWithoutCapsule+;
+
+#pragma link C++ class  PndHypGeGammaAna;
+#pragma link C++ class  PndHypGeGammaAnaStorage;
+
+#pragma link C++ class  PndHypGeCOSYBackgroundAna;
+
 #endif

@@ -48,32 +48,38 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndHypGe::PndHypGe() {
+PndHypGe::PndHypGe() 
+{
   fHypGeCollection        = new TClonesArray("PndHypGePoint");
-   fHypGesciCollection        = new TClonesArray("PndHypGePoint");
+  fHypGeAlCollection       = new TClonesArray("PndHypGePoint");
+	 
   fPosIndex   = 0;
   fEventID=-1; fdist=-78.;
 
-  fListOfSensitives.push_back("GeCrystal");//Root_Test.root
-  fListOfSensitives.push_back("laySci");//Root_Test.root
-  fListOfSensitives.push_back("Cap");//Root_Test.root
-
-
+  fListOfSensitives.push_back("Crystal");//Root_Test.root
+  fListOfSensitives.push_back("Capsule");//Root_Test.root
+  //fListOfSensitives.push_back("DeckelVol");//Root_Test.root
+	//fListOfSensitives.push_back("Kappe");//Root_Test.root
+	fListOfSensitives.push_back("Cryostat");
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndHypGe::PndHypGe(const char* name, Bool_t active)
-  : FairDetector(name, active) {
-    fHypGeCollection        = new TClonesArray("PndHypGePoint");
-    fHypGesciCollection        = new TClonesArray("PndHypGePoint");
-    //fHypGecapCollection        = new TClonesArray("PndHypGePoint");
-    fPosIndex   = 0;
-    fEventID=-1;fdist=-78.;
+  : FairDetector(name, active) 
+{
+  fHypGeCollection        = new TClonesArray("PndHypGePoint");
+  fHypGeAlCollection       = new TClonesArray("PndHypGePoint");
+	 
+  fPosIndex   = 0;
+  fEventID=-1;fdist=-78.;
     
-    fListOfSensitives.push_back("GeCrystal");//Root_Test.root
-    fListOfSensitives.push_back("laySci");//Root_Test.root
-    fListOfSensitives.push_back("Cap");//Root_Test.root
+  fListOfSensitives.push_back("Crystal");//Root_Test.root
+  fListOfSensitives.push_back("Capsule");//Root_Test.root
+  //fListOfSensitives.push_back("DeckelVol");//Root_Test.root
+	//fListOfSensitives.push_back("Kappe");//Root_Test.root
+	fListOfSensitives.push_back("Cryostat");
+
 
 }
 // -------------------------------------------------------------------------
@@ -81,16 +87,19 @@ PndHypGe::PndHypGe(const char* name, Bool_t active)
 
 
 // -----   Destructor   ----------------------------------------------------
-PndHypGe::~PndHypGe() {
-  if (fHypGeCollection) {
+PndHypGe::~PndHypGe() 
+{
+  if (fHypGeCollection) 
+  {
     fHypGeCollection->Delete();
     delete fHypGeCollection;
   }
- if (fHypGesciCollection) {
-    fHypGesciCollection->Delete();
-    delete fHypGesciCollection;
+ if (fHypGeAlCollection) 
+ {
+    fHypGeAlCollection->Delete();
+    delete fHypGeAlCollection;
   }
-
+ 
  /*if (fHypGecapCollection) {
     fHypGecapCollection->Delete();
     delete fHypGecapCollection;
@@ -102,7 +111,8 @@ PndHypGe::~PndHypGe() {
 
 
 // -----   Public method Intialize   ---------------------------------------
-void PndHypGe::Initialize() {
+void PndHypGe::Initialize() 
+{
   // Init function
   
   FairDetector::Initialize();
@@ -110,13 +120,12 @@ void PndHypGe::Initialize() {
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   par=(PndGeoHypGePar*)(rtdb->getContainer("PndGeoHypGePar"));
   
-  // TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
-
-
- 
+  // TObjArray *fSensNodes = par->GetGeoSensitiveNodes(); 
 }
+
 // -------------------------------------------------------------------------
-void PndHypGe::BeginEvent(){
+void PndHypGe::BeginEvent()
+{
   // Begin of the event
   
 }
@@ -127,161 +136,167 @@ void PndHypGe::BeginEvent(){
 Bool_t PndHypGe::ProcessHits(FairVolume* vol) 
 {
   Int_t pdgCode ; 
-    Int_t copyNo = -1, id = -1;
+  Int_t copyNo = -1, id = -1;
     //TLorentzVector P;
     
-    fcharge=  gMC->TrackCharge();
-    //TString nam = gMC->CurrentVolName();
+  fcharge=  gMC->TrackCharge();
+  //TString nam = gMC->CurrentVolName();
    
-    TString nam = gMC->CurrentVolName();
-    if ((nam.BeginsWith("GeCrystal"))) 
+  TString nam = gMC->CurrentVolName();
+  if ((nam.BeginsWith("Crystal"))) 
       //cout << "Error <CbmEmc::ProcessHits> : " << nam << " not EMC volume" << endl;
       //else 
-      {
-	if ( gMC->IsTrackEntering() ) 
-	{
-	  
-      
-	    fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); // trk ID
-	    fEventID = gMC->CurrentEvent();
-       
-	    fpdgCode = gMC->TrackPid(); 
-    
-	    fELoss = 0.;//GeV
-	    fLength =  gMC->TrackLength();
-	    fTime =  gMC->TrackTime()* 1.0e09;
-	    gMC->TrackPosition(fPos); // cm
-	    gMC->TrackMomentum(fMom); // GeV
-	    //if (fpdgCode==2112)cout<<" proton "<<fMom.E()<<endl;
+  {
+		if ( gMC->IsTrackEntering() ) 
+		{  
+			fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); // trk ID
+			fEventID = gMC->CurrentEvent();
+			 
+			fpdgCode = gMC->TrackPid(); 
+			
+			fELoss = 0.;//GeV
+			fLength =  gMC->TrackLength();
+			fTime =  gMC->TrackTime()* 1.0e09;
+			gMC->TrackPosition(fPos); // cm
+			gMC->TrackMomentum(fMom); // GeV
+				//if (fpdgCode==2112)cout<<" proton "<<fMom.E()<<endl;
 	    
-	    }
-	//P=gMC->TrackMomentum(fMom);
-      // Sum energy loss for all steps in the active volume
-      fELoss += gMC->Edep();  
+		}
+		//P=gMC->TrackMomentum(fMom);
+    // Sum energy loss for all steps in the active volume
+    fELoss += gMC->Edep();  
       
-      //if(gMC->Edep()>0.5)cout<<"energy loss"<<fELoss<<" TID= "<<fTrackID
-      //<<" pdg "<<fpdgCode<<" "<<fMom.E()<<endl; 
-      //if (fpdgCode==2112)cout<<" proton step "<<gMC->Edep()<<endl;
+    //if(gMC->Edep()>0.5)cout<<"energy loss"<<fELoss<<" TID= "<<fTrackID
+    //<<" pdg "<<fpdgCode<<" "<<fMom.E()<<endl; 
+    //if (fpdgCode==2112)cout<<" proton step "<<gMC->Edep()<<endl;
    
-      // Set additional parameters at exit of active volume. Create CbmDrcPoint.
-      if ( gMC->IsTrackExiting()    ||
-	   gMC->IsTrackStop()       ||
-	   gMC->IsTrackDisappeared()) 
-	{
+    // Set additional parameters at exit of active volume. Create CbmDrcPoint.
+    if ( gMC->IsTrackExiting()    ||
+					gMC->IsTrackStop()       ||
+					gMC->IsTrackDisappeared()) 
+		{
 
-	  //if (fpdgCode==2112)cout<<" neutron out "<<fELoss<<endl;
-	  if ((fELoss == 0.)&&(fpdgCode!=2112 )) {
-	     //ResetParameters();
-	     return kFALSE;
-	   }		
+			//if (fpdgCode==2112)cout<<" neutron out "<<fELoss<<endl;
+			if ((fELoss == 0.)&&(fpdgCode!=2112 )) 
+			{
+	    //ResetParameters();
+				return kFALSE;
+			}		
 	  
-	   //id = gMC->CurrentVolOffID(1,copyNo);
-	   //gMC->TrackPosition(fPos); // cm
-	   //gMC->TrackMomentum(fMom); // GeV
+			//id = gMC->CurrentVolOffID(1,copyNo);
+			//gMC->TrackPosition(fPos); // cm
+			//gMC->TrackMomentum(fMom); // GeV
 
-	   //cout <<"energy loss"<<fMom.Px()<<endl;
-	   sscanf(nam,"GeCrystal%dc", &copyNo);
-	   fnCopy = copyNo; 
-	   TVector3 pos(fPos.X(),   fPos.Y(),   fPos.Z());
-	   //if ( pdgCode )  {
-	  
-	   AddHit(fTrackID, fEventID,fpdgCode,fcharge,
-		  TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
-		  TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
-		  fTime, fLength, fELoss, fnCopy);
-	  //}
+			//cout <<"energy loss"<<fMom.Px()<<endl;
+			// sscanf(nam,"GeCrystal%dc", &copyNo);
+			// fnCopy = copyNo; 
+			fnCopy = vol->getCopyNo();
+			cout << " Vol Name: " << gMC->CurrentVolPath() <<" vol id "<<vol->getMCid()<<" copyNo "<<vol->getCopyNo()<< endl;	
+			//if ( pdgCode )  
+			//{
+			AddHit(fTrackID, fEventID,fpdgCode,fcharge,
+							TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
+							TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
+							fTime, fLength, fELoss, fnCopy);
+			//}
 	
 	   ResetParameters();
-	}
-      }
+		}
+  }
     
-    if ((nam.BeginsWith("laySci"))) 
+  //if (nam.BeginsWith("Kappe")|| nam.BeginsWith("Capsule") || nam.BeginsWith("Deckel"))
+  if (nam.BeginsWith("Cryostat")|| nam.BeginsWith("Capsule") )
        //cout << "Error <CbmEmc::ProcessHits> : " << nam << " not EMC volume" << endl;
        //else 
-      {//  if ( gMC->IsTrackEntering() ) 
-      if ( gMC->IsTrackEntering() ) 
-	{
-      fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); // trk ID
-      fEventID = gMC->CurrentEvent();
-       
-      fpdgCode = gMC->TrackPid(); 
-    
-      fELoss = gMC->Edep();
-      fLength =  gMC->TrackLength();
-      fTime =  gMC->TrackTime()* 1.0e09;
-      gMC->TrackPosition(fPos); // cm
-      gMC->TrackMomentum(fMom); // GeV
-	}
+  {//  if ( gMC->IsTrackEntering() ) 
+		if ( gMC->IsTrackEntering() ) 
+			{
+				fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); // trk ID
+				fEventID = gMC->CurrentEvent();
+					 
+				fpdgCode = gMC->TrackPid(); 
+				
+				fELoss = gMC->Edep();
+				fLength =  gMC->TrackLength();
+				fTime =  gMC->TrackTime()* 1.0e09;
+				gMC->TrackPosition(fPos); // cm
+				gMC->TrackMomentum(fMom); // GeV
+			}
       
 
-      // Sum energy loss for all steps in the active volume
-      fELoss += gMC->Edep();  
-      //cout <<"enrgy loss"<<fELoss<<endl; 
+  // Sum energy loss for all steps in the active volume
+		fELoss += gMC->Edep();  
+    //cout <<"enrgy loss"<<fELoss<<endl; 
      
    
-      // Set additional parameters at exit of active volume. Create CbmDrcPoint.
-        if ( gMC->IsTrackExiting()    ||
+    // Set additional parameters at exit of active volume. Create CbmDrcPoint.
+    if ( gMC->IsTrackExiting()    ||
        	   gMC->IsTrackStop()       ||
        	   gMC->IsTrackDisappeared()) 
-       	{
-	  if ((fELoss == 0.)&&(fpdgCode!=2112 ) ) {
-	    //ResetParameters();
-	    return kFALSE;
-	  }		
-	  
-	  //id = gMC->CurrentVolOffID(1,copyNo);
-	  //gMC->TrackPosition(fPos); // cm
-	  //gMC->TrackMomentum(fMom); // GeV
-
-	  //cout <<"energy loss"<<fMom.Px()<<endl;
-	  sscanf(nam,"laySci%04d", &copyNo);
-	  fnCopy = copyNo; 
-	  TVector3 pos(fPos.X(),   fPos.Y(),   fPos.Z());
-	  //if ( pdgCode )  {
-	  
-	  AddsciGeHit(fTrackID, fEventID,fpdgCode,fcharge,
-		      TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
-		      TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
-		      fTime, fLength, fELoss, fnCopy);
-	  //}
-	
-	  ResetParameters();
-	}
-	//return kTRUE;
-      }
-
-   
-     return kTRUE;
+		{
+			if ((fELoss == 0.)&&(fpdgCode!=2112 ) ) 
+			{
+				//ResetParameters();
+				return kFALSE;
+			}		
   
+			//id = gMC->CurrentVolOffID(1,copyNo);
+			//gMC->TrackPosition(fPos); // cm
+			//gMC->TrackMomentum(fMom); // GeV
+
+			//cout <<"energy loss"<<fMom.Px()<<endl;
+			//sscanf(nam,"laySci%04d", &copyNo);
+			//fnCopy = copyNo; 
+			fnCopy = vol->getCopyNo();
+			cout << " Vol Name: " << gMC->CurrentVolPath() <<" vol id "
+			<<vol->getMCid()<<" copyNo "<<vol->getCopyNo()<< endl;	
+
+			TVector3 pos(fPos.X(),   fPos.Y(),   fPos.Z());
+  //if ( pdgCode )  {
+  
+			AddGeAlHit(fTrackID, fEventID,fpdgCode,fcharge,
+						TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
+						TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
+						fTime, fLength, fELoss, fnCopy);
+  //}
+
+			ResetParameters();
+		}
+  }
+  return kTRUE; 
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method EndOfEvent   -----------------------------------------
-void PndHypGe::EndOfEvent() {
+void PndHypGe::EndOfEvent() 
+{
   if (fVerboseLevel)  Print();
   Reset();
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method Register   -------------------------------------------
-void PndHypGe::Register() {
+void PndHypGe::Register() 
+{
   FairRootManager::Instance()->Register("HypGePoint","HypGe", fHypGeCollection, kTRUE);
-  FairRootManager::Instance()->Register("HypGesciPoint","HypGesci", fHypGesciCollection, kTRUE);
+  FairRootManager::Instance()->Register("HypGeAlPoint","HypGeAl", fHypGeAlCollection, kTRUE);
   
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method GetCollection   --------------------------------------
-TClonesArray* PndHypGe::GetCollection(Int_t iColl) const {
+TClonesArray* PndHypGe::GetCollection(Int_t iColl) const 
+{
    if (iColl == 0) return fHypGeCollection;
-   if (iColl == 1) return fHypGesciCollection;
+   if (iColl == 1) return fHypGeAlCollection;
    
   return NULL;
 }
 // ----------------------------------------------------------------------------
 
 // -----   Public method Print   ----------------------------------------------
-void PndHypGe::Print() const {
+void PndHypGe::Print() const 
+{
     Int_t nHits = fHypGeCollection->GetEntriesFast();
     cout << "-I- PndHypGe: " << nHits << " points registered in this event."
  	<< endl;
@@ -294,9 +309,10 @@ void PndHypGe::Print() const {
 
 
 // -----   Public method Reset   ----------------------------------------------
-void PndHypGe::Reset() {
+void PndHypGe::Reset() 
+{
    fHypGeCollection->Delete();
-   fHypGesciCollection->Delete();
+   fHypGeAlCollection->Delete();
    //fHypGecapCollection->Delete();
   fPosIndex = 0;
 }
@@ -305,7 +321,8 @@ void PndHypGe::Reset() {
 
 // guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
-void PndHypGe::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
+void PndHypGe::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) 
+{
   Int_t nEntries = cl1->GetEntriesFast();
   //cout << "-I- PndHypGe: " << nEntries << " entries to add." << endl;
   TClonesArray& clref = *cl2;
@@ -322,27 +339,26 @@ void PndHypGe::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
 }
 // ----------------------------------------------------------------------------
  // -----   Public method ConstructGeometry   ----------------------------------
-void PndHypGe::ConstructGeometry() {
- 
+void PndHypGe::ConstructGeometry() 
+{
   TString fileName=GetGeometryFileName();
   
-  if(fileName.EndsWith(".root")){
+  if(fileName.EndsWith(".root"))
+  {
     ConstructRootGeometry();
-  }else{
-    
-    ConstructHPGeGeometry();
-    
+  }
+  else
+  {
+    ConstructHPGeGeometry(); 
   }
   
 }
 
-void PndHypGe::ConstructHPGeGeometry() {
-
+void PndHypGe::ConstructHPGeGeometry() 
+{
   cout<<"----- constructing HPGe Geometry default -----"<<endl;
+	Double_t deg = TMath::Pi()/180.;
 
-Double_t deg = TMath::Pi()/180.;
-
-  
   //vacuum = gGeoManager->Medium("vacuum");
   FairGeoLoader*geoLoad = FairGeoLoader::Instance();
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
@@ -586,11 +602,11 @@ PndHypGePoint* PndHypGe::AddHit(Int_t trackID, Int_t evtID, Int_t pdgCode,Int_t 
   return new(clref[size]) PndHypGePoint(trackID, evtID,pdgCode,charge, pos, mom, 
 					time, length, eLoss,copy);
 }
-PndHypGePoint* PndHypGe::AddsciGeHit(Int_t trackID, Int_t evtID, Int_t pdgCode,Int_t charge,
+PndHypGePoint* PndHypGe::AddGeAlHit(Int_t trackID, Int_t evtID, Int_t pdgCode,Int_t charge,
 				     TVector3 pos, TVector3 mom, Double_t time, 
 				     Double_t length, Double_t eLoss, 
 				     Short_t copy) {
-  TClonesArray& clref = *fHypGesciCollection;
+  TClonesArray& clref = *fHypGeAlCollection;
   Int_t size = clref.GetEntriesFast();
   if (fVerboseLevel>1) 
     cout << "-I- PndHypGe: Adding Point at IN (" << pos.X() << ", " << pos.Y() 

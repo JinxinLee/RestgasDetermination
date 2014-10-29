@@ -1,0 +1,113 @@
+#include "TGeoManager.h"
+double Pi = TMath::Pi();
+
+
+
+void hypGeGeoBuilderTriple30cmRadius()
+{
+	
+	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  
+  // Load this libraries
+  gSystem->Load("libGeoBase");
+  gSystem->Load("libParBase");
+  gSystem->Load("libBase");
+  gSystem->Load("libPndData");
+  gSystem->Load("libPassive");
+  gSystem->Load("libHypGe");
+
+	TString outfile= "../../../../geometry/hypGeGeoTripleCluster_V3.root";
+
+  TFile* fi = new TFile(outfile,"RECREATE");
+
+ FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+  geoFace->setMediaFile("../../../../geometry/media_pnd.geo");
+  geoFace->readMedia();
+  //geoFace->print();
+
+  FairGeoMedia *Media =  geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+
+  FairGeoMedium *medGe  = Media->getMedium("germanium");
+  Int_t nmedGe=geobuild->createMedium(medGe);
+    
+
+  FairGeoMedium *medcap  = Media->getMedium("HYPaluminium");
+  Int_t nmedcap=geobuild->createMedium(medcap);
+
+	TGeoMedium *Ge = gGeoManager->GetMedium("germanium");
+  
+  
+  TGeoMedium *Al = gGeoManager->GetMedium("HYPaluminium");
+	
+	
+
+  TGeoManager *geom = (TGeoManager*)gROOT->FindObject("FAIRGeom");
+  TGeoVolume *top = new TGeoVolumeAssembly("hpGe");
+	TGeoVolume *Realtop = new TGeoVolumeAssembly("Realtop");
+	   
+//cout<<" geom "<<geom<<endl;           
+  geom->SetTopVolume(top);
+
+	Int_t CrystalNumber = 1;
+	Double_t GlobalZOffset = -55;
+	Double_t ClusterRadius = 30;
+	
+	PndGeoHypGeModifiedBeamPipe *MBP = new PndGeoHypGeModifiedBeamPipe(Al, geom);
+	//MBP -> PlaceBeamPipe(Realtop);
+
+	PndGeoHypGeModifiedCTFrame *MCTF = new PndGeoHypGeModifiedCTFrame(Al, geom);
+	//MCTF -> PlaceCTFrame(Realtop,new TGeoTranslation(0,0,GlobalZOffset));
+
+
+	
+	
+	PndGeoHypGeTripleCluster *TripleCluster = new PndGeoHypGeTripleCluster(Ge,Al,1);
+
+	for (Int_t iHalves = 0; iHalves < 2; iHalves++)
+	{
+		//iHalves = 0 -> right half, iHalves = 1 -> left half (looking in +z (beam forward) direction
+		//inner ring: counter clockwise starting at 5 o'clock
+			
+		TripleCluster ->PlaceCluster(Realtop,  GlobalZOffset,ClusterRadius, 180*iHalves + 150.62,28.73,-4.95-( 150.62)+180,&CrystalNumber);
+	
+		TripleCluster ->PlaceCluster(Realtop,  GlobalZOffset,ClusterRadius,  180*iHalves + 90,25.34,-90+180,&CrystalNumber);
+
+		TripleCluster ->PlaceCluster(Realtop,  GlobalZOffset,ClusterRadius, 180*iHalves +29.38,28.73,4.95 - (29.38)+180 ,&CrystalNumber);
+	
+
+	//outer ring: counter clockwise starting at 5 o'clock
+		TripleCluster ->PlaceCluster(Realtop,  GlobalZOffset,ClusterRadius, +180*iHalves +157.98,48.5,-157.98,&CrystalNumber);
+
+		TripleCluster ->PlaceCluster(Realtop,  GlobalZOffset,ClusterRadius, +180*iHalves +121.04,44.29,-4.95-121.04+180,&CrystalNumber);	
+
+		TripleCluster ->PlaceCluster(Realtop,  GlobalZOffset,ClusterRadius,+180*iHalves +90,54.51,180-90+180 ,&CrystalNumber);	
+
+		TripleCluster ->PlaceCluster(Realtop,  GlobalZOffset,ClusterRadius, +180*iHalves +180-121.04,44.29,4.95-(180-121.04)+180,&CrystalNumber);	
+
+		TripleCluster ->PlaceCluster(Realtop,  GlobalZOffset,ClusterRadius, +180*iHalves +180-157.98,48.5,180-(180-157)+180,&CrystalNumber);	
+	}
+
+	
+	top->AddNode(Realtop,0);	
+	Realtop->PrintNodes();
+	geom->CloseGeometry();	
+	cout << "# of Nodes: " << Realtop->CountNodes(10,1) << endl;
+	TripleCluster->PrintNodes(0);
+	top->Write();
+	fi->Close();
+	
+	//Realtop->Browse(new TBrowser);
+	//c1 = new TCanvas("c1","hypGe",800,600);Realtop->Draw("");//	Realtop->Raytrace();
+	Realtop->Draw("ogl");
+	
+
+	//c1->x3d();
+	//geom->CheckOverlaps(0.0000000001,option="d"); //1 Overlap von Strahlrohr + Kugel ist normal!!!!!!!!!!!!!!!!!
+	//geom->PrintOverlaps();
+	
+	
+}
+
+

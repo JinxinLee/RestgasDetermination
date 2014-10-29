@@ -1,0 +1,229 @@
+// ******** Implementation of class to build HypGe Double Cluster Geometry *************
+//					by steinen@kph.uni-mainz.de
+#include "PndGeoHypGeDoubleCluster.h"
+#include "PndGeoHypGeCrystal.h"
+#include <iostream>
+
+
+ClassImp(PndGeoHypGeDoubleCluster)
+
+using namespace std;
+//double Pi = TMath::Pi();
+// -----   Default constructor   -------------------------------------------
+PndGeoHypGeDoubleCluster::PndGeoHypGeDoubleCluster()
+{
+  // Constructor
+}
+// -----    constructor to use   -------------------------------------------
+PndGeoHypGeDoubleCluster::PndGeoHypGeDoubleCluster(TGeoMedium *ExtGe, TGeoMedium *ExtAl,Int_t ExtClusterNumber)
+{
+	
+	Ge = ExtGe;
+	Al = ExtAl;
+	ClusterNumber= ExtClusterNumber;
+	StartClusterNumber = ExtClusterNumber;
+	//ClusterAssembly = new TGeoVolumeAssembly("ClusterAssembly");
+	
+
+}
+
+
+
+// ------- destructor --------------
+PndGeoHypGeDoubleCluster::~PndGeoHypGeDoubleCluster()
+{
+ cout << "Destrucor called" << endl;
+};
+
+// --------------- build the crystals ---------------------------
+
+void PndGeoHypGeDoubleCluster::BuildCrystals(Int_t *CrystalNumber)
+{
+	//create 2 crystals. The copy number of a crystal is composed of the number of the cluster and a running number for every placed crystal like e.g.: cluster 4, crystal 7: 407 ; cluster 11, crystal 21: 1121
+	Crystal1Number = *CrystalNumber;
+	*CrystalNumber+=1;
+	Crystal2Number = *CrystalNumber;
+	*CrystalNumber+=1;
+	cout << "Cluster:" << ClusterNumber << "\tCrystal1Number: "<< Crystal1Number<<endl;
+	cout << "Cluster:" << ClusterNumber << "\tCrystal2Number: "<< Crystal2Number<<endl;
+
+	Crystal1 = new PndGeoHypGeCrystal(Ge,Al,100*ClusterNumber+Crystal1Number);
+	Crystal2 = new PndGeoHypGeCrystal(Ge,Al,100*ClusterNumber+Crystal2Number);
+
+
+	//set positions of the 2 crystals
+
+	DoubleYOffset = 3.0693;
+	
+	Crystal1Rotation = new TGeoRotation("Crystal1Rotation", 0,-4,0);			//angles measured in CAD drawing
+		Crystal1Rotation ->RegisterYourself();
+	Crystal2Rotation = new TGeoRotation("Crystal2Rotation", 0,4,0);
+		Crystal2Rotation ->RegisterYourself();
+
+	//maybe some signs needs adaption
+	Crystal1Position = new TGeoCombiTrans(0,-DoubleYOffset,-(0.45+0.2843),Crystal1Rotation);
+		Crystal1Position->RegisterYourself();
+	Crystal2Position = new TGeoCombiTrans(0,+DoubleYOffset,-(0.45+0.2843),Crystal2Rotation);
+		Crystal2Position->RegisterYourself();
+	
+
+	Crystal1->PlaceCrystal(ClusterAssembly,Crystal1Position);
+	Crystal2->PlaceCrystal(ClusterAssembly,Crystal2Position);
+};
+
+// ---------------	build the cryostat --------------------------
+void PndGeoHypGeDoubleCluster::BuildCryostat()
+{
+	// the cryostat is a combination of 18 TArb8 + 1 TGeoXtru. The coordinates are taken from CAD drawings. The lower part is build by CryostatOuter... - CryostatInner ... . The upper part is build of 10 single TArb8. The top is 1 TGeoXtru
+
+	CryostatHeight = 12.95;
+	CryostatFrontThickness = 0.15;
+	CryostatUpperPartHeight = 5;
+	// lets start with the outer part
+	char* InputTitleBuffer;
+	string Filename = getenv("VMCWORKDIR");
+	Filename +="/hypGe/geometry/PndGeoHypGeDoubleClusterParfile.txt"; 
+	ParametersInputFile.open(Filename.data());
+	
+	TrashCommentaryLineInFile();	// title line
+			//Tarb8 needs one array of coordinates: {x1,y1 , x2,y2 , ... , x8,y8}. coordinates are taken from PndGeoHypGeDoubleClusterParfile.txt
+	TrashCommentaryLineInFile(); // upper parts line
+	
+	CryostatOuterArb8XY_1 = new Double_t[16];
+			GetExternalParameters(16,CryostatOuterArb8XY_1);
+	CryostatOuterArb8XY_2 = new Double_t[16];
+		GetExternalParameters(16,CryostatOuterArb8XY_2);
+	CryostatOuterArb8XY_3 = new Double_t[16];
+		GetExternalParameters(16,CryostatOuterArb8XY_3);
+	CryostatOuterArb8XY_4 = new Double_t[16];
+		GetExternalParameters(16,CryostatOuterArb8XY_4);
+
+
+
+	CryostatOuterArb8_1 = new TGeoArb8 ("CryostatDoubleOuterArb8_1",CryostatHeight/2,CryostatOuterArb8XY_1) ;
+	CryostatOuterArb8_2= new TGeoArb8 ("CryostatDoubleOuterArb8_2",CryostatHeight/2,CryostatOuterArb8XY_2) ;
+	CryostatOuterArb8_3= new TGeoArb8 ("CryostatDoubleOuterArb8_3",CryostatHeight/2,CryostatOuterArb8XY_3) ;
+	CryostatOuterArb8_4= new TGeoArb8 ("CryostatDoubleOuterArb8_4",CryostatHeight/2,CryostatOuterArb8XY_4) ;
+
+	
+	// now the inner part
+	TrashCommentaryLineInFile(); // inner parts line
+	CryostatInnerArb8XY_1 = new Double_t[16];
+		GetExternalParameters(16,CryostatInnerArb8XY_1);
+	CryostatInnerArb8XY_2 = new Double_t[16];
+		GetExternalParameters(16,CryostatInnerArb8XY_2);
+	CryostatInnerArb8XY_3 = new Double_t[16];
+		GetExternalParameters(16,CryostatInnerArb8XY_3);
+	CryostatInnerArb8XY_4 = new Double_t[16];
+		GetExternalParameters(16,CryostatInnerArb8XY_4);
+
+			
+	CryostatInnerArb8_1 = new TGeoArb8 ("CryostatDoubleInnerArb8_1",(CryostatHeight-CryostatFrontThickness)/2,CryostatInnerArb8XY_1) ;
+	CryostatInnerArb8_2= new TGeoArb8 ("CryostatDoubleInnerArb8_2",(CryostatHeight-CryostatFrontThickness)/2,CryostatInnerArb8XY_2) ;
+	CryostatInnerArb8_3= new TGeoArb8 ("CryostatDoubleInnerArb8_3",(CryostatHeight-CryostatFrontThickness)/2,CryostatInnerArb8XY_3) ;
+	CryostatInnerArb8_4= new TGeoArb8 ("CryostatDoubleInnerArb8_4",(CryostatHeight-CryostatFrontThickness)/2,CryostatInnerArb8XY_4) ;
+
+
+
+
+		//now the upper part
+	TrashCommentaryLineInFile(); // upper parts line
+	CryostatUpperArb8XY_1 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_1);
+	CryostatUpperArb8XY_2 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_2);
+	CryostatUpperArb8XY_3 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_3);
+	CryostatUpperArb8XY_4 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_4);
+	CryostatUpperArb8XY_5 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_5);
+	CryostatUpperArb8XY_6 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_6);
+	CryostatUpperArb8XY_7 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_7);
+	CryostatUpperArb8XY_8 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_8);
+	CryostatUpperArb8XY_9 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_9);
+	CryostatUpperArb8XY_10 = new Double_t[16];
+		GetExternalParameters(16,CryostatUpperArb8XY_10);
+
+
+
+	CryostatUpperArb8_1 = new TGeoArb8("CryostatDoubleUpperArb8_1",CryostatUpperPartHeight/2, CryostatUpperArb8XY_1);
+	CryostatUpperArb8_2 = new TGeoArb8("CryostatDoubleUpperArb8_2",CryostatUpperPartHeight/2, CryostatUpperArb8XY_2);
+	CryostatUpperArb8_3 = new TGeoArb8("CryostatDoubleUpperArb8_3",CryostatUpperPartHeight/2, CryostatUpperArb8XY_3);
+	CryostatUpperArb8_4 = new TGeoArb8("CryostatDoubleUpperArb8_4",CryostatUpperPartHeight/2, CryostatUpperArb8XY_4);
+	CryostatUpperArb8_5 = new TGeoArb8("CryostatDoubleUpperArb8_5",CryostatUpperPartHeight/2, CryostatUpperArb8XY_5);
+	CryostatUpperArb8_6= new TGeoArb8("CryostatDoubleUpperArb8_6",CryostatUpperPartHeight/2, CryostatUpperArb8XY_6);
+	CryostatUpperArb8_7 = new TGeoArb8("CryostatDoubleUpperArb8_7",CryostatUpperPartHeight/2, CryostatUpperArb8XY_7);
+	CryostatUpperArb8_8 = new TGeoArb8("CryostatDoubleUpperArb8_8",CryostatUpperPartHeight/2, CryostatUpperArb8XY_8);
+	CryostatUpperArb8_9 = new TGeoArb8("CryostatDoubleUpperArb8_9",CryostatUpperPartHeight/2, CryostatUpperArb8XY_9);
+	CryostatUpperArb8_10 = new TGeoArb8("CryostatDoubleUpperArb8_10",CryostatUpperPartHeight/2, CryostatUpperArb8XY_10);
+
+
+	
+	//combine the cryostat
+
+	CryostatInnerZTranslation = new TGeoTranslation("CryostatDoubleInnerZTranslation",0,0,CryostatFrontThickness);
+		CryostatInnerZTranslation->RegisterYourself();
+	CryostatUpperPartsZTranslation = new TGeoTranslation("CryostatDoubleUpperPartsZTranslation",0,0,(CryostatHeight+CryostatUpperPartHeight)/2);
+		CryostatUpperPartsZTranslation->RegisterYourself();
+
+	CryostatShape = new TGeoCompositeShape("CryostatShape",	"(CryostatDoubleOuterArb8_1+CryostatDoubleOuterArb8_2+CryostatDoubleOuterArb8_3+CryostatDoubleOuterArb8_4)-(CryostatDoubleInnerArb8_1:CryostatDoubleInnerZTranslation+CryostatDoubleInnerArb8_2:CryostatDoubleInnerZTranslation+CryostatDoubleInnerArb8_3:CryostatDoubleInnerZTranslation+CryostatDoubleInnerArb8_4:CryostatDoubleInnerZTranslation)+(CryostatDoubleUpperArb8_1:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_2:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_3:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_4:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_5:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_6:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_7:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_8:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_9:CryostatDoubleUpperPartsZTranslation+CryostatDoubleUpperArb8_10:CryostatDoubleUpperPartsZTranslation)"); //(CryostatDoubleOuter) -(CryostatDoubleInner)+(CryostatDoubleUpperParts)
+
+	
+
+	Cryostat = new TGeoVolume("Cryostat",CryostatShape,Al);
+			//bring the Cryostat in the right position
+	CryostatCombiTrans = new TGeoCombiTrans("CryostatCombiTrans",0,0,-CryostatHeight/2,new TGeoRotation("CryostatRotation",0,180,0));
+	CryostatCombiTrans->RegisterYourself();
+
+	//finally: the top of the Cryostat
+			//TGeoXTru needs 2 separate arrays of coordinate values (!= TArb8)
+	TrashCommentaryLineInFile(); // top coordinates line
+	CryostatTopXCoordinates = new Double_t[10];
+		GetExternalParameters(10,CryostatTopXCoordinates);
+	CryostatTopYCoordinates = new Double_t[10];
+		GetExternalParameters(10,CryostatTopYCoordinates);
+
+	CryostatTopThickness = 0.5;
+	
+	CryostatTopShape = new TGeoXtru(2);
+		CryostatTopShape->DefinePolygon(10,CryostatTopXCoordinates,CryostatTopYCoordinates);		
+		CryostatTopShape->DefineSection(0,-(CryostatHeight+CryostatUpperPartHeight+CryostatTopThickness),0,0,1);
+		CryostatTopShape->DefineSection(1,-(CryostatHeight+CryostatUpperPartHeight),0,0,1);
+
+	CryostatTop = new TGeoVolume("CryostatTop",CryostatTopShape,Al);
+	CryostatTopCombiTrans = new TGeoCombiTrans("CryostatCombiTrans",0,0,0,new TGeoRotation("CryostatRotation",0,0,0));
+	CryostatTopCombiTrans->RegisterYourself();
+	ParametersInputFile.close();
+		
+	ClusterAssembly->AddNode(Cryostat,ClusterNumber,CryostatCombiTrans);
+	ClusterAssembly->AddNode(CryostatTop,ClusterNumber,CryostatTopCombiTrans);
+	
+};
+
+// ---------------  Prints the nodes of a cluster -----------------
+void PndGeoHypGeDoubleCluster::PrintNodes(Int_t nLevels )
+{
+	if (nLevels == 0)
+	{
+		cout << "Nothing to Print, use higher number to go deeper in the tree." << endl;
+	}
+	if (nLevels > 0)
+	{
+		cout << "Printing the content of the cluster assembly." << endl;
+		cout <<endl << "Number of Nodes in cluster assembly: " << ClusterAssembly->GetNdaughters() << endl;
+		ClusterAssembly->PrintNodes();		
+	}
+	if (nLevels > 1)
+	{
+		cout << "Printing the content of the crystal assemblies." << endl;
+		cout <<endl << "Number of Nodes in crystal assembly 1: " << Crystal1->GetNdaughters() << endl;
+		Crystal1->PrintNodes();
+		cout <<endl << "Number of Nodes in crystal assembly 2: " << Crystal2->GetNdaughters() << endl;
+		Crystal2->PrintNodes();
+	}
+}

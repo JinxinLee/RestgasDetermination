@@ -30,7 +30,20 @@ PndHypGeHitProducerIdeal.cxx
 PndHypGeContFact.cxx 
 PndHypGeReader.cxx 
 GeCluster.cxx
-PndHypGeIdealTrackFinderTask.cxx 
+PndHypGeIdealTrackFinderTask.cxx
+geometry/PndGeoHypGeCrystal.cxx
+geometry/PndGeoHypGeCluster.cxx
+geometry/PndGeoHypGeSingleCluster.cxx
+geometry/PndGeoHypGeTripleCluster.cxx
+geometry/PndGeoHypGeDoubleCluster.cxx
+geometry/PndGeoHypGeModifiedCTFrame.cxx
+geometry/PndGeoHypGeModifiedBeamPipe.cxx
+geometry/PndGeoHypGeBase.cxx
+geometry/PndGeoHypGeTripleClusterCrystalsOnly.cxx
+geometry/PndGeoHypGeCrystalWithoutCapsule.cxx
+hypGeAna/PndHypGeGammaAna.cxx
+hypGeAna/PndHypGeGammaAnaStorage.cxx
+hypGeAna/PndHypGeCOSYBackgroundAna.cxx
 )
 
 set(LINKDEF  HypGeLinkDef.h)
