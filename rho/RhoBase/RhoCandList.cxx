@@ -260,58 +260,60 @@ RhoCandidate* RhoCandList::operator[] ( Int_t i )
   return Get(i);
 }
 
-void RhoCandList::SetType ( const TParticlePDG* pdt )
+void RhoCandList::SetType ( const TParticlePDG* pdt, int start )
 {
-  for ( Int_t i=0; i<GetNumberOfTracks(); i++ ) {
+  if (start<0) start=0;
+  for ( Int_t i=start; i<GetNumberOfTracks(); i++ ) {
     Get(i)->SetType ( pdt );
   }
 }
 
-void RhoCandList::SetType ( const char* name )
+void RhoCandList::SetType ( const char* name, int start )
 {
-  for ( Int_t i=0; i<GetNumberOfTracks(); i++ ) {
+  if (start<0) start=0;
+  for ( Int_t i=start; i<GetNumberOfTracks(); i++ ) {
     Get(i)->SetType ( name );
   }
 }
 
-void RhoCandList::SetType ( Int_t pdgcode )
+void RhoCandList::SetType ( Int_t pdgcode, int start )
 {
-  for ( Int_t i=0; i<GetNumberOfTracks(); i++ ) {
+  if (start<0) start=0;
+  for ( Int_t i=start; i<GetNumberOfTracks(); i++ ) {
     Get(i)->SetType ( pdgcode );
   }
 }
 
 
-void RhoCandList::Combine ( RhoCandList& l1, RhoCandList& l2,RhoVertexSelectorBase* s )
+void RhoCandList::Combine ( RhoCandList& l1, RhoCandList& l2 )
 {
   Cleanup();
-  CombineAndAppend ( l1, l2, s );
+  CombineAndAppend ( l1, l2 );
 }
 
-void RhoCandList::Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3,RhoVertexSelectorBase* s )
+void RhoCandList::Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3 )
 {
   Cleanup();
-  CombineAndAppend ( l1, l2, l3, s );
+  CombineAndAppend ( l1, l2, l3 );
 }
 
-void RhoCandList::Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4,RhoVertexSelectorBase* s )
+void RhoCandList::Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4 )
 {
   Cleanup();
-  CombineAndAppend ( l1, l2, l3, l4, s );
+  CombineAndAppend ( l1, l2, l3, l4 );
 }
 
-void RhoCandList::Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5,RhoVertexSelectorBase* s )
+void RhoCandList::Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5 )
 {
   Cleanup();
-  CombineAndAppend ( l1, l2, l3, l4, l5, s );
+  CombineAndAppend ( l1, l2, l3, l4, l5 );
 }
 
-void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexSelectorBase* selector )
+void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2 )
 {
   //printf("RhoCandList::CombineAndAppend()\n");
   TLorentzVector vl;
   Double_t charge;
-  Bool_t nearby = kTRUE;
 
   const int len1=l1.GetLength();
   const int len2=l2.GetLength();
@@ -328,8 +330,6 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexS
 
       vl=l1[i1]->P4() +l2[i2]->P4();
       charge=l1[i1]->Charge() +l2[i2]->Charge();
-      if ( selector ) { nearby = selector->Accept ( l1[i1],l2[i2] ); }
-      if ( !nearby ) { continue; }
 
       RhoCandidate c ( vl,charge );
       c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() );
@@ -338,13 +338,6 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexS
       c.SetMarker ( l1[i1]->GetMarker ( 1 ) |l2[i2]->GetMarker ( 1 ),1 );
       c.SetMarker ( l1[i1]->GetMarker ( 2 ) |l2[i2]->GetMarker ( 2 ),2 );
       c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ),3 );
-
-
-      if ( selector!=0 ) {
-        c.SetPosition ( selector->GetVertex() );
-        c.SetVect ( selector->GetMomentum() );
-        c.SetEnergy ( c.E() );
-      }
 
       Put ( &c );
       // after putting (does a copy and drops daughter links)
@@ -356,11 +349,10 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexS
 
 }
 
-void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3,RhoVertexSelectorBase* selector )
+void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3 )
 {
   TLorentzVector vl;
   Double_t charge;
-  Bool_t nearby = kTRUE;
 
   const int len1=l1.GetLength();
   const int len2=l2.GetLength();
@@ -385,8 +377,6 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
 
         vl=l1[i1]->P4() +l2[i2]->P4() +l3[i3]->P4();
         charge=l1[i1]->Charge() +l2[i2]->Charge() +l3[i3]->Charge();
-        if ( selector ) { nearby = selector->Accept ( l1[i1],l2[i2],l3[i3] ); }
-        if ( !nearby ) { continue; }
 
         RhoCandidate c ( vl,charge );
         c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() +l3[i3]->P4Cov() );
@@ -407,11 +397,10 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
   }
 }
 
-void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4,RhoVertexSelectorBase* selector )
+void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4 )
 {
   TLorentzVector vl;
   Double_t charge;
-  Bool_t nearby = kTRUE;
 
   const int len1=l1.GetLength();
   const int len2=l2.GetLength();
@@ -445,8 +434,6 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
 
           vl=l1[i1]->P4() +l2[i2]->P4() +l3[i3]->P4() +l4[i4]->P4();
           charge=l1[i1]->Charge() +l2[i2]->Charge() +l3[i3]->Charge() +l4[i4]->Charge();
-          if ( selector ) { nearby = selector->Accept ( l1[i1],l2[i2],l3[i3],l4[i4] ); }
-          if ( !nearby ) { continue; }
 
           RhoCandidate c ( vl,charge );
           c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() +l3[i3]->P4Cov() +l4[i4]->P4Cov() );
@@ -469,11 +456,10 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
   }
 }
 
-void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5,RhoVertexSelectorBase* selector )
+void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5 )
 {
   TLorentzVector vl;
   Double_t charge;
-  Bool_t nearby = kTRUE;
 
   const int len1=l1.GetLength();
   const int len2=l2.GetLength();
@@ -518,8 +504,6 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
 
             vl=l1[i1]->P4() +l2[i2]->P4() +l3[i3]->P4() +l4[i4]->P4() +l5[i5]->P4();
             charge=l1[i1]->Charge() +l2[i2]->Charge() +l3[i3]->Charge() +l4[i4]->Charge() +l5[i5]->Charge();
-            if ( selector ) { nearby = selector->Accept ( l1[i1],l2[i2],l3[i3],l4[i4],l5[i5] ); }
-            if ( !nearby ) { continue; }
 
             RhoCandidate c ( vl,charge );
             c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() +l3[i3]->P4Cov() +l4[i4]->P4Cov() +l5[i5]->P4Cov() );

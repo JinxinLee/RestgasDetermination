@@ -56,19 +56,57 @@ class RhoCandList : public TNamed
     void Put ( const RhoCandidate*, Int_t i = -1 );
     void InsertAt ( Int_t i, const RhoCandidate* c );
 
-    void Combine ( RhoCandList& l1, RhoCandList& l2,RhoVertexSelectorBase* s=0 );
-    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3,RhoVertexSelectorBase* s=0 );   //added 06/08 K.Goetzen
-    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4,RhoVertexSelectorBase* s=0 );//added 06/08 K.Goetzen
-    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5,RhoVertexSelectorBase* s=0 );//added 06/08 K.Goetzen
+	// without type
+    void Combine ( RhoCandList& l1, RhoCandList& l2 );
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3 );   //added 06/08 K.Goetzen
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4 );//added 06/08 K.Goetzen
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5 );//added 06/08 K.Goetzen
 
-    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2,RhoVertexSelectorBase* s=0 );
-    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3,RhoVertexSelectorBase* s=0 );//added 06/08 K.Goetzen
-    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4,RhoVertexSelectorBase* s=0 );//added 06/08 K.Goetzen
-    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5,RhoVertexSelectorBase* s=0 );//added 06/08 K.Goetzen
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2 );
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3 );//added 06/08 K.Goetzen
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4 );//added 06/08 K.Goetzen
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5 );//added 06/08 K.Goetzen
 
-    void SetType ( const TParticlePDG* pdt );
-    void SetType ( const char* name );
-    void SetType ( Int_t pdgcode );
+	// with type as TParticlePDG
+	void Combine ( RhoCandList& l1, RhoCandList& l2, const TParticlePDG* pdt ) { Combine(l1, l2); SetType(pdt); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, const TParticlePDG* pdt ) { Combine(l1, l2, l3); SetType(pdt); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, const TParticlePDG* pdt ) { Combine(l1, l2, l3, l4); SetType(pdt); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const TParticlePDG* pdt ) { Combine(l1, l2, l3, l4, l5); SetType(pdt); }
+
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2); SetType(pdt, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, const TParticlePDG* pdt ) { int s = GetLength();CombineAndAppend(l1, l2, l3); SetType(pdt, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4); SetType(pdt, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const TParticlePDG* pdt ) 
+		{ int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(pdt, s); }
+
+	// with type as char* (name)
+	void Combine ( RhoCandList& l1, RhoCandList& l2, const char* name ) { Combine(l1, l2); SetType(name); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, const char* name ) { Combine(l1, l2, l3); SetType(name); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, const char* name ) { Combine(l1, l2, l3, l4); SetType(name); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const char* name ) { Combine(l1, l2, l3, l4, l5); SetType(name); }
+
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2); SetType(name, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, const char* name ) { int s = GetLength();CombineAndAppend(l1, l2, l3); SetType(name, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4); SetType(name, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const char* name ) 
+		{ int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(name, s); }
+
+	// with type as int (pdgtype)
+	void Combine ( RhoCandList& l1, RhoCandList& l2, Int_t pdgcode ) { Combine(l1, l2); SetType(pdgcode); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, Int_t pdgcode ) { Combine(l1, l2, l3); SetType(pdgcode); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, Int_t pdgcode ) { Combine(l1, l2, l3, l4); SetType(pdgcode); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, Int_t pdgcode ) { Combine(l1, l2, l3, l4, l5); SetType(pdgcode); }
+
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2); SetType(pdgcode, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, Int_t pdgcode ) { int s = GetLength();CombineAndAppend(l1, l2, l3); SetType(pdgcode, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4); SetType(pdgcode, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, Int_t pdgcode ) 
+		{ int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(pdgcode, s); }
+
+	// set type for complete list or starting from index 'start'
+    void SetType ( const TParticlePDG* pdt, int start=0 );
+    void SetType ( const char* name, int start=0 );
+    void SetType ( Int_t pdgcode, int start=0 );
 
    void Select ( RhoParticleSelectorBase* pidmgr );
     void Select ( RhoCandList& l, RhoParticleSelectorBase* pidmgr );
