@@ -160,6 +160,11 @@ class PndHyp : public FairDetector
     fUseRAZHOption = onf;// **switch On/Off HypStatDecay**
     fUseFileOption = val;
   };
+  
+  void SetHypGamFEm(bool gam )
+  {
+    fUseGamOption = gam;
+  }
 
   void SetTreeFName(const Char_t* Name){ fFileName    = Name; };
 
@@ -252,9 +257,10 @@ class PndHyp : public FairDetector
   Bool_t  fTrackStopNxtStep;
    Bool_t  fUseFileOption;
   Bool_t fUseRAZHOption;
+  Bool_t fUseGamOption;
   void SetHypStatDecay(bool cal,bool active);
 
-  ClassDef(PndHyp,10)
+  ClassDef(PndHyp,11)
 
 }; 
 
