@@ -105,7 +105,12 @@ fi
 
 # let's go
 
-
+if uname -a | grep himster ; 
+then
+	IsHimster=1
+else
+	IsHimster=0
+fi
 
 
 #for Energy in 0.0005 0.001 0.001332 0.002 0.004 0.008
@@ -118,7 +123,7 @@ do
 		echostring="Start PandaRoot HypGe Simulation $JobNr of ${nJobs} with $evtpJob events and name ${fileadd}."
 		rootstring="root -l -q -b ../sim_Gamma.C($evtpJob,$Geometry,$Energy,$GenType,$addSecTar,$nEvts,$JobNr)"
 
-		if uname -a | grep himster ; 
+		if IsHimster ; 
 		then
 				cat >$jobpath/job_${fileadd}.sh <<EOF
 #!/bin/bash
