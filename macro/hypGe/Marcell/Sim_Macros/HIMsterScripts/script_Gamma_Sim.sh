@@ -121,19 +121,19 @@ do
 		if uname -a | grep himster ; 
 		then
 				cat >$jobpath/job_${fileadd}.sh <<EOF
-				#!/bin/bash
-				#
-				#PBS -N Sim_$subdir.${fileadd}
-				#PBS -j oe
-				#PBS -o ${joblogpath}/job_${fileadd}.log
-				#PBS -V
-				#PBS -l nodes=1:ppn=1,walltime=20:00:00
+#!/bin/bash
+#
+#PBS -N Sim_$subdir.${fileadd}
+#PBS -j oe
+#PBS -o ${joblogpath}/job_${fileadd}.log
+#PBS -V
+#PBS -l nodes=1:ppn=1,walltime=20:00:00
 
-				export PATH=\$PBS_O_PATH
-				cd \$PBS_O_WORKDIR
+export PATH=\$PBS_O_PATH
+cd \$PBS_O_WORKDIR
 
-				echo $echostring
-				$rootstring &> $SimLogpath/sim_${fileadd}.log
+echo $echostring
+$rootstring &> $SimLogpath/sim_${fileadd}.log
 EOF
 ### submit job to batch system
 				qsub $jobpath/job_${fileadd}.sh
