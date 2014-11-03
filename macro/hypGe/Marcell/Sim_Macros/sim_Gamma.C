@@ -2,21 +2,25 @@
 // It creates a geant simulation file for hypGe
 // 16.09.13: steinen: added sec target (air version) to use PndVolGenerator without material
 //void sim_Gamma(Int_t nEvents = 1000, Int_t WhichDetector = 36,Double_t Energy = 0.001,Bool_t addSecTar = 1)
-void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Bool_t addSecTar )
+void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Int_t GenType, Bool_t addSecTar, Int_t nAllEvents, Int_t JobNr)
 {
+
 	// Load basic libraries
   // If it does not work,  please check the path of the libs and put it 	by hands
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+	
+	cout << "blabal" << endl;
 	gSystem->Load("libHypGe");
+	gSystem->Load("librazhyp");
 	gSystem->Load("libHyp");  
 	FairRunSim *fRun = new FairRunSim();
 
 	TStopwatch timer;
 	timer.Start();
 	gDebug=0;
-	TDatime now;
-  gRandom->SetSeed(now.Convert());
-  cout << now.Convert() << endl;
+
+  
+
 	//Choose geometry
 	TString outFile="$SIMDATADIR/Gamma/";							// If no SIMDATADIR, same folder as the macro
 	TString GeoFile;
@@ -80,12 +84,14 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Bool_t addS
 	{
 		outFile += "Co60_";
 	}
-	outFile += nEvents;
-	outFile += "Evts";
-	if (addSecTar)
-	{
-		outFile += "withSecTar";
-	}
+	outFile += nAllEvents;
+	outFile += "Evts_Gen";
+	outFile += GenType;
+	outFile +="_ST";
+	outFile += int(addSecTar);
+	outFile += "__";
+	outFile += JobNr;
+	
 	
 	TString SimparamsFile;
 	SimparamsFile=outFile;
@@ -103,7 +109,7 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Bool_t addS
   // Set Material file Name
   //-----------------------
   
-	fRun->SetMaterials("media_pnd.geo");
+	fRun->SetMaterials("media_pnd_hypGe.geo");
   
   // Create and add detectors
   //-------------------------
@@ -116,28 +122,27 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Bool_t addS
 	if (addSecTar)
 	{  
 		//acc sec. target
-		PndHyp *Hyp= new PndHyp("HYP",kFALSE);
+		PndHyp *Hyp= new PndHyp("HYP",kTRUE);
 		Hyp->SetAbsorberVol("Absorber"); // absorber layer
 		Hyp->SetSensorVol("Sensor");   // silicon sensor
-		Hyp->SetGeometryFileName("../macro/hyp/Sebastian/SekTarget_open_varAbs4Si5_3Q_HYPbe_1mm_MVD.root");
-		fRun->AddModule(Hyp); 
-		
-		//add MVD outer barrel
-		FairDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
-		Mvd->SetGeometryFileName("../macro/hyp/Sebastian/Mvd-2.2_Simplified_onlyStrip5_z-verschoben550.root");  
-		fRun->AddModule(Mvd);
+		Hyp->SetGeoVersion("List");
+		Hyp->SetListMat("HYPboron");
+		Hyp->SetListMat("HYPaluminium");
+		Hyp->SetListMat("Al97Mg3");
+		Hyp->SetListMat("titanium");
+		Hyp->SetListMat("HYPcarbon");
+		Hyp->SetListMat("siliconinactive");
+		switch (addSecTar)
+		{
+			case 1: Hyp->SetGeometryFileName("TargetSystem_Ti_TcT150um_filledCorners_addSens.root");break ;
+			case 2: Hyp->SetGeometryFileName("TargetSystem_AbsWindow_filledCorners_addSens.root");break ;
+		}
+		fRun->AddModule(Hyp);
 	}
-	else
-	{
-		PndHyp *Hyp= new PndHyp("HYP",kFALSE);
-		Hyp->SetAbsorberVol("Absorber"); // absorber layer
-		Hyp->SetSensorVol("Sensor");   // silicon sensor
-		Hyp->SetGeometryFileName("../macro/hyp/Sebastian/SekTarget_open_varAbs4Si5_3Q_HYPbe_1mm_MVD_air.root");
-		fRun->AddModule(Hyp); 
-	}
+	
 	PndHypGe *HypGe= new PndHypGe("HYPGE",kTRUE);
 		TString nam = gSystem->Getenv("VMCWORKDIR");
-		HypGe->SetPathGeo(nam.Data());
+		//HypGe->SetPathGeo(nam.Data());
 		HypGe->SetGeometryFileName(GeoFile);
 		fRun->AddModule(HypGe); 
   
@@ -152,8 +157,16 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Bool_t addS
   // 13 = muon; 1 = multipl. // 211 = pi+
   // first number: PDG particle code: 2nd number: particle multiplicity per event
   
-  bool boxgen = false;
-  bool volgen = true;
+  bool boxgen=0;
+  bool partgen=0;
+  
+  switch(GenType)
+  {
+	case 0 : boxgen = true;	break;
+	case 1 : partgen = true;	break;
+  }
+  
+  
   if(boxgen)
 	{	
 		PndBoxGenerator* boxGen = new PndBoxGenerator(22, 1);
@@ -162,6 +175,9 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Bool_t addS
 			boxGen->SetPRange(Energy,Energy); // GeV/c
 		else
 			boxGen->SetPRange(0.001172,0.001172);	//set first line of Co60 in GeV/c
+		boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+		boxGen->SetThetaRange(90., 180.); // Polar angle in lab system range [degree]
+		primGen->AddGenerator(boxGen);
 		if (isCo60)
 		{ 
 			PndBoxGenerator* boxGen2 = new PndBoxGenerator(22, 1); 
@@ -174,22 +190,22 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Bool_t addS
 			primGen->AddGenerator(boxGen2);
 		}
 	}
-	if (volgen)
+
+	if (partgen)
 	{
-		PndVolGenerator* boxGen = new PndVolGenerator(22, 1);
-		TF1 *f1 = new TF1("f1","0.427842106*exp(-x/3.35703)", 4.5, 8.4999);  // Factor makes no difference!
-		//double r = f1->GetRandom();
-		boxGen->SetVolTgFc(2, f1); // 2=Setting quadrant 2 
-		boxGen->SetPRange(Energy,Energy); // GeV/c
+		TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/hypBupV1T_Decay_gam_test.root";
+		PndHypBupGenerator* partGen = new PndHypBupGenerator(inFile.Data());
+	  partGen->GammaEmissPar(kTRUE);
+	  partGen->SetPRange(Energy,Energy);
+	  partGen->SetPhiRange(0,360);
+	  partGen->SetThetaRange(90,180);
+	  primGen->AddGenerator(partGen);
 	}
-	
-  // boxGen->SetPtRange(1.,1.); // GeV/c
   
-	boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-	boxGen->SetThetaRange(90., 180.); // Polar angle in lab system range [degree]
+	
   //boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
 	
-	primGen->AddGenerator(boxGen);
+	
 
   
 	fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
@@ -223,7 +239,7 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Bool_t addS
 
   // Transport nEvents
   // -----------------
-  
+	gRandom->SetSeed();
 	fRun->Run(nEvents);
   
 	timer.Stop();

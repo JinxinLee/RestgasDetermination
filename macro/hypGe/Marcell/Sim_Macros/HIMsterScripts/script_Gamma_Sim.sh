@@ -2,38 +2,53 @@
 
 # reads number of Events, name of run and verbose Level
 DefnEvts=10000000
-DefGeometry=35
+DefnJobs=1
+DefGeometry=36
 #DefEnergy=0.001
-DefaddSecTar=1
+DefGenType=0
+DefaddSecTar=0
+
+
 
 subdir=Gamma
 
-echo "Enter number of Events (Default 10000000)":
+
+
+echo "Enter number of Events (Default $DefnEvts)":
 read nEvts
 if [ -z "$nEvts" ]; then 
 	nEvts=$DefnEvts
 fi
 echo "Number of Events: $nEvts!"
 
-echo "Which geometry (enter number, Default 35 hypGeGeoTripleCluster_Ball40_Offset10_STTFitting.root)":
+echo "Enter number of Jobs (Default $DefnJobs)":
+read nJobs
+if [ -z "$nJobs" ]; then 
+	nJobs=$DefnJobs
+fi
+echo "Number of Jobs: $nJobs!"
+
+evtpJob=$(($nEvts / $nJobs))
+echo "Events per Job: $evtpJob"
+
+echo "Which geometry (enter number, Default $DefGeometry):"
 echo "3 hypGe_GeoMarcell.root"
-echo 31 hypGeGeoTripleCluster_V3.root
-echo 32 hypGeGeoTripleCluster_Straight.root
-echo 33 hypGeGeoTripleCluster_Ball40_Offset10.root
-echo 34 hypGeGeoTripleCluster_Ball40_Offset20.root
-echo 35 hypGeGeoTripleCluster_Ball40_Offset10_STTFitting.root
-echo 36 hypGeGeoTripleCluster_Ball40_Offset20_STTFitting.root
-echo 2 hypGe_GeoMarcell_2er.root
-echo 21 hypGeGeoDoubleCluster_V3.root
+echo "31 hypGeGeoTripleCluster_V3.root"
+echo "32 hypGeGeoTripleCluster_Straight.root"
+echo "33 hypGeGeoTripleCluster_Ball40_Offset10.root"
+echo "34 hypGeGeoTripleCluster_Ball40_Offset20.root"
+echo "35 hypGeGeoTripleCluster_Ball40_Offset10_STTFitting.root"
+echo "36 hypGeGeoTripleCluster_Ball40_Offset20_STTFitting.root"
+echo "2 hypGe_GeoMarcell_2er.root"
+echo "21 hypGeGeoDoubleCluster_V3.root"
 read Geometry
 if [ -z "$Geometry" ]; then 
 	Geometry=$DefGeometry
 fi
 echo "Geometry: $Geometry!"
 
-#step=`expr $nEvts / $nJobs`
 
-#echo "Enter gamma energy in GeV(Default 0.001 GeV)":
+#echo "Enter gamma energy in GeV(Default 0.001 GeV):"
 #read Energy
 #if [ -z "$Energy" ]; then 
 #	Energy=$DefEnergy
@@ -41,12 +56,25 @@ echo "Geometry: $Geometry!"
 #echo "Energy: $Energy!"
 echo "Simulation runs with 0.5,1,1.332,2,4,8 MeV"
 
-echo "Add Secondary Target for gamma absorption (1 or 0; Default: 1)":
+echo "Which generator (enter number, Default $DefGenType):"
+echo "0 boxgen"
+echo "1 hypgen"
+read GenType
+if [ -z "$GenType" ]; then 
+	GenType=$DefGenType
+fi
+echo "Generator: $GenType!"
+
+echo "Add Secondary Target for gamma absorption ( Default: $DefaddSecTar):"
+echo "0 no ST"
+echo "1 TargetSystem_Ti_TcT150um_filledCorners_addSens.root"
+echo "2 TargetSystem_AbsWindow_filledCorners_addSens.root"
 read addSecTar
 if [ -z "$addSecTar" ]; then 
 	addSecTar=$DefaddSecTar
 fi
 echo "Add Secondary Target: $addSecTar!"
+
 # make data directory, if not there. all data file go there, makes them easier to move around
 
 
@@ -77,59 +105,42 @@ fi
 
 # let's go
 
-#last=`expr $nEvts - 1`
-#for start in `seq 0 $step $last` ; do
-#name="run"$start
-#seed=$(expr 1 \+ $seed)
 
-for Energy in 0.0005 0.001 0.001332 0.002 0.004 0.008
+
+
+#for Energy in 0.0005 0.001 0.001332 0.002 0.004 0.008
+for Energy in 0.001
 do
-	if [ $addSecTar -eq 0 ]; then
-		cat >$jobpath/job_${Geometry}_${nEvts}Evts_${Energy}GeV.sh <<EOF
-		#!/bin/bash
-		#
-		#PBS -N Sim_$subdir.${Geometry}_${nEvts}Evts_${Energy}GeV
-		#PBS -j oe
-		#PBS -o ${joblogpath}/job_${Geometry}_${nEvts}Evts_${Energy}GeV.log
-		#PBS -V
-		#PBS -l nodes=1:ppn=1,walltime=20:00:00
+	for ((JobNr=0; JobNr<$nJobs; JobNr++ ))
+	do
 
-		export PATH=\$PBS_O_PATH
-		cd \$PBS_O_WORKDIR
+		fileadd=${Geometry}_${evtpJob}Evts_${Energy}GeV_ST${addSecTar}_Gen${GenType}_${JobNr}
+		echostring="Start PandaRoot HypGe Simulation $JobNr of ${nJobs} with $evtpJob events and name ${fileadd}."
+		rootstring="root -l -q -b ../sim_Gamma.C($evtpJob,$Geometry,$Energy,$GenType,$addSecTar,$nEvts,$JobNr)"
 
-		echo "Start PandaRoot HypGe Simulation $i with $nEvts events, seed  and name ${Geometry}_${nEvts}Evts_${Energy}GeV."
-		root -l -q -b sim_Gamma.C\($nEvts\,$Geometry\,$Energy\,$addSecTar\) &> $SimLogpath/sim_${Geometry}_${nEvts}Evts_${Energy}GeV.log
+		if uname -a | grep himster ; 
+		then
+				cat >$jobpath/job_${fileadd}.sh <<EOF
+				#!/bin/bash
+				#
+				#PBS -N Sim_$subdir.${fileadd}
+				#PBS -j oe
+				#PBS -o ${joblogpath}/job_${fileadd}.log
+				#PBS -V
+				#PBS -l nodes=1:ppn=1,walltime=20:00:00
 
+				export PATH=\$PBS_O_PATH
+				cd \$PBS_O_WORKDIR
 
+				echo $echostring
+				$rootstring &> $SimLogpath/sim_${fileadd}.log
 EOF
-		echo "Just HypGe"
 ### submit job to batch system
-		#qsub $jobpath/job_${Geometry}_${nEvts}Evts_${Energy}GeV.sh
-	root -l -q -b sim_Gamma.C\($nEvts\,$Geometry\,$Energy\,$addSecTar\)
-	else
+				qsub $jobpath/job_${fileadd}.sh
+			else
+				$rootstring 2>&1 | tee $SimLogpath/sim_${fileadd}.log
+			fi
 
-		cat >$jobpath/job_${Geometry}_${nEvts}Evts_${Energy}GeV_SecTar.sh <<EOF
-		#!/bin/bash
-		#
-		#PBS -N Sim_$subdir.${Geometry}_${nEvts}Evts_${Energy}GeV_SecTar
-		#PBS -j oe
-		#PBS -o ${joblogpath}/job_${Geometry}_${nEvts}Evts_${Energy}GeV_SecTar.log
-		#PBS -V
-		#PBS -l nodes=1:ppn=1,walltime=20:00:00
-
-		export PATH=\$PBS_O_PATH
-		cd \$PBS_O_WORKDIR
-
-		echo "Start PandaRoot HypGe Simulation $i with $nEvts events, seed  and name ${Geometry}_${nEvts}Evts_${Energy}GeV. Secondary Target added for absorption of gamma"
-		root -l -q -b sim_Gamma.C\($nEvts\,$Geometry\,$Energy\,$addSecTar\) &> $SimLogpath/sim_${Geometry}_${nEvts}Evts_${Energy}GeV_SecTar.log
-
-
-EOF
-
-		echo "HypGe + passive SecTar"
-### submit job to batch system
-		qsub $jobpath/job_${Geometry}_${nEvts}Evts_${Energy}GeV_SecTar.sh
-
-	fi
+	done
 done
 #done
