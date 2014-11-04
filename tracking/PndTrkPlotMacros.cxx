@@ -211,7 +211,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 			name,Rma,Rma,angle1,angle2);
 	fprintf(MACRO,"%sCircleL->SetFillStyle(0);\n",name);
 	fprintf(MACRO,"%sCircleL->SetLineColor(%d);\n",name,color);
-	fprintf(MACRO,"%sCircleL->Draw(\"only\");\n",name,color);
+	fprintf(MACRO,"%sCircleL->Draw(\"only\");\n",name);
 
 
 	// drawing the right circle.
@@ -221,7 +221,7 @@ void PndTrkPlotMacros::DrawHexagonCircleInMacro(
 			name,Rma,Rma,angle1,angle2);
 	fprintf(MACRO,"%sCircleR->SetFillStyle(0);\n",name);
 	fprintf(MACRO,"%sCircleR->SetLineColor(%d);\n",name,color);
-	fprintf(MACRO,"%sCircleR->Draw(\"only\");\n",name,color);
+	fprintf(MACRO,"%sCircleR->Draw(\"only\");\n",name);
 
 
 }
@@ -1044,7 +1044,7 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
                      i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
 	 }  else  {	//  skew straws.
 	    fprintf(MACRO,"TMarker* SS%d = new TMarker(%f,%f,%d);\nSS%d->SetMarkerColor(1);\nSS%d->Draw();\n",
-		i,info->at(i*7+0),info->at(i*7+1),28,i,i,i);
+		i,info->at(i*7+0),info->at(i*7+1),28,i,i);
 	 }
           }
        }
@@ -1059,7 +1059,7 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
          if( !exclusionStrip[i]) {     // all Pixels
             fprintf(MACRO,
 "TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
-                    i,XMvdStrip->at(i),YMvdStrip->at(i),25,i,i,i);
+                    i,XMvdStrip->at(i),YMvdStrip->at(i),25,i,i);
           }
        }
 
@@ -1067,7 +1067,7 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
          if( InclusionListSciTil->at(i)) {     // all SciTil hit never used.
             fprintf(MACRO,
 "TMarker* SciT%d = new TMarker(%f,%f,%d);\nSciT%d->SetMarkerColor(1);\nSciT%d->Draw();\n",
-                    i,posizSciTil->at(i*3+0),posizSciTil->at(i*3+1),30,i,i,i);
+                    i,posizSciTil->at(i*3+0),posizSciTil->at(i*3+1),30,i,i);
           }
        }
       fprintf(MACRO,"}\n");
@@ -1216,7 +1216,7 @@ fprintf(MACRO,"TEllipse* Paral%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParal%d->
                      i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
           } else {	// skew straws.
 fprintf(MACRO,"TMarker* Skew%d = new TMarker(%f,%f,%d);\nSkew%d->SetMarkerColor(1);\nSkew%d->Draw();\n",
-		i,info->at(i*7+0),info->at(i*7+1),28,i,i,i);
+		i,info->at(i*7+0),info->at(i*7+1),28,i,i);
 	  }
        }
 
@@ -1227,7 +1227,7 @@ fprintf(MACRO,"TMarker* Skew%d = new TMarker(%f,%f,%d);\nSkew%d->SetMarkerColor(
             y2= YMvdStrip->at(ii)+sigmaYMvdStrip->at(ii);
 fprintf(MACRO,
  "TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
-                    ii,XMvdStrip->at(ii),YMvdStrip->at(ii),25,ii,ii,ii);
+                    ii,XMvdStrip->at(ii),YMvdStrip->at(ii),25,ii,ii);
 
 
        }
@@ -1342,7 +1342,7 @@ fprintf(MACRO,"TEllipse* Paral%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nParal%d->
                      i,info->at(i*7+0),info->at(i*7+1),info->at(i*7+3),info->at(i*7+3),i,i);
           } else {	// skew straws.
 fprintf(MACRO,"TMarker* Skew%d = new TMarker(%f,%f,%d);\nSkew%d->SetMarkerColor(1);\nSkew%d->Draw();\n",
-		i,info->at(i*7+0),info->at(i*7+1),28,i,i,i);
+		i,info->at(i*7+0),info->at(i*7+1),28,i,i);
 	  }
        }
 
@@ -1353,7 +1353,7 @@ fprintf(MACRO,"TMarker* Skew%d = new TMarker(%f,%f,%d);\nSkew%d->SetMarkerColor(
             y2= YMvdStrip->at(ii)+sigmaYMvdStrip->at(ii);
 fprintf(MACRO,
  "TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
-                    ii,XMvdStrip->at(ii),YMvdStrip->at(ii),25,ii,ii,ii);
+                    ii,XMvdStrip->at(ii),YMvdStrip->at(ii),25,ii,ii);
 
 
        }
