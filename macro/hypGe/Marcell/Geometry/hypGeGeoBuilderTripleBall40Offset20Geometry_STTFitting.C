@@ -5,17 +5,17 @@ double Pi = TMath::Pi();
 void hypGeGeoBuilderTripleBall40Offset20Geometry_STTFitting()
 {
 	
-	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+	//gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   
   // Load this libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libPassive");
-  gSystem->Load("libHypGe");
+  //gSystem->Load("libGeoBase");
+ // gSystem->Load("libParBase");
+ // gSystem->Load("libBase");
+//  gSystem->Load("libPndData");
+ // gSystem->Load("libPassive");
+ // gSystem->Load("libHypGe");
 
-	TString outfile= "../../../../geometry/hypGeGeoTripleCluster_Ball40_Offset20_STTFitting.root";
+  TString outfile= "../../../../geometry/hypGeGeoTripleCluster_Ball40_Offset20_STTFitting.root";
 
   TFile* fi = new TFile(outfile,"RECREATE");
 

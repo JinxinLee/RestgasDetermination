@@ -123,7 +123,7 @@ do
 		echostring="Start PandaRoot HypGe Simulation $JobNr of ${nJobs} with $evtpJob events and name ${fileadd}."
 		rootstring="root -l -q -b ../sim_Gamma.C($evtpJob,$Geometry,$Energy,$GenType,$addSecTar,$nEvts,$JobNr)"
 
-		if IsHimster ; 
+		if [ $IsHimster -eq 1 ] ; 
 		then
 				cat >$jobpath/job_${fileadd}.sh <<EOF
 #!/bin/bash

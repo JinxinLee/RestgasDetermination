@@ -1,22 +1,23 @@
 // DOESN'T WORK ATM!!!!! paths to input files need to be adapted
 
-eventDisplay(TString InputFileExt = "TripleBall40Offset20STT_1MeV_1000EvtswithSecTar.root", TString InputSubDir = "Gamma")
+eventDisplay(TString InputFileExt = "TripleBall40Offset20STT_4MeV_100Evts_ST1__0.root", TString InputSubDir = "Gamma")
 {
    // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //rootlogon();
   gSystem->Load("libEve");
   gSystem->Load("libEventDisplay");
-  //gSystem->Load("libHypGe");
-  //gSystem->Load("librazhyp");
   gSystem->Load("libHypGe");
+ // gSystem->Load("librazhyp");
+ // gSystem->Load("libHyp");
   //gSystem->Load("libTof"); 
                                      
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   //fRun->SetInputFile("points.x3872.jpsipipi.phsp.root");
  // fRun->SetInputFile("../qa/lhetrack/points_tpccombi.root");
-	TString InputFile = "$SIMDATADIR";
+ TString Path= gSystem->Getenv("SIMDATADIR");
+	TString InputFile = Path;
 	InputFile+= "/";
 	InputFile+= InputSubDir;
 	InputFile+= "/";

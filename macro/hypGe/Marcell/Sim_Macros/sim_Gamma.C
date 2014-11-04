@@ -193,7 +193,9 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Int_t GenTy
 
 	if (partgen)
 	{
-		TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/hypBupV1T_Decay_gam_test.root";
+		//TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/partGenFiles/hypBupV1T_Decay_gam_test.root"; 	//220 events
+		//TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/partGenFiles/testgam_1_6All.root";						// ~1300 events
+		TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/partGenFiles/testgam_1_99All.root";							//22517 events
 		PndHypBupGenerator* partGen = new PndHypBupGenerator(inFile.Data());
 	  partGen->GammaEmissPar(kTRUE);
 	  partGen->SetPRange(Energy,Energy);
