@@ -97,6 +97,7 @@ class PndSoftTriggerTask : public FairTask
 	void SetQAPi0(bool qa=true) { fQAPi0 = qa;}
 	void SetQAEta(bool qa=true) { fQAEta = qa;}
 	void SetQAKs0(bool qa=true) { fQAKs0 = qa;}
+	void SetQAMc(bool qa=true)  { fQAMc  = qa;}
 
 	void SetQAEvent(bool qa=true) { fQAEvent = qa;}
 	
@@ -167,6 +168,7 @@ class PndSoftTriggerTask : public FairTask
 	bool fQAEta;
 	bool fQAKs0;
 	bool fQAEvent;
+	bool fQAMc;
 	
     // ----------------------------
 	// *** parameters for ntuple QA window	
@@ -229,6 +231,7 @@ class PndSoftTriggerTask : public FairTask
 	RhoTuple *nks0;			// Ks0 QA
 	RhoTuple *npi0;			// pi0 QA
 	RhoTuple *neta;			// eta QA
+	RhoTuple *nmc;			// MC QA
 	
 	// *** the PndAnalysis object
 	PndAnalysis *fAnalysis;

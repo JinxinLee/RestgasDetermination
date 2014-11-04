@@ -111,7 +111,7 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TStrin
 	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0),	fNsigAux(5.0),	
 	fTriggerFileName(trigfilename), fPhotosMax(0), fPhotosThresh(0.05), 
 	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
-	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false),
+	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false), fQAMc(false),
 	fGammaMinE(0.03), fPi0MinE(0.0), fEtaMinE(0.0), fTrackMinP(0.15), fIniPidCut(0.0),
 	fEventShape(NULL), 
 	fQA(NULL),
@@ -194,6 +194,7 @@ InitStatus PndSoftTriggerTask::Init()
 	if (fQAKs0)  nks0 = new RhoTuple("nks0","K_S -> pi+ pi-");
 	if (fQAPi0)  npi0 = new RhoTuple("npi0","pi0 -> gamma gamma");
 	if (fQAEta)  neta = new RhoTuple("neta","eta -> gamma gamma");
+	if (fQAMc)   nmc  = new RhoTuple("nmc", "MC info");
 		
 	// *** create mass pre selectors for QA (formular takes into account RhoSelector definition mean +- win/2
 	fPi0PreSel   = new RhoMassParticleSelector("pi0PreSel",  (fPi0QaMax + fPi0QaMin)/2.0, 	fPi0QaMax - fPi0QaMin );  
@@ -323,6 +324,7 @@ void PndSoftTriggerTask::SetQAAll(bool qa)
 	SetQAEta(qa);
 	SetQAKs0(qa);
 	SetQAEvent(qa);
+	SetQAMc(qa);
 	
 	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it) 
 		SetQAMode(it->first, qa);
@@ -683,7 +685,8 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		ntp->DumpData();
 	}
 	
-	// Create PndOnlineFilterInfo entry in TCA
+	// *** write out MC info
+	if (fQAMc) {fQA->qaMcList("",fMcTruth,nmc); nmc->DumpData();}
 	
 }
 
@@ -694,6 +697,7 @@ void PndSoftTriggerTask::Finish()
 	if (nks0) nks0->GetInternalTree()->Write();		      // Ks0 QA
 	if (npi0) npi0->GetInternalTree()->Write();			  // pi0 QA
 	if (neta) neta->GetInternalTree()->Write();			  // eta QA
+	if (nmc)  nmc->GetInternalTree()->Write();			  // MC QA
 	
 	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 	{
@@ -1070,45 +1074,23 @@ int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 	switch (nd) 
 	{
 	case 2: 
-		l.Combine(fPidList[idx[0]], fPidList[idx[1]]); 
-		l.SetType(mothpdg);
-		if (cc) 
-		{
-			l2.Combine(fPidList[aidx[0]], fPidList[aidx[1]]);
-			l2.SetType(amothpdg);
-			l.Append(l2);
-		}
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], mothpdg); 
+		if (cc) l.CombineAndAppend(fPidList[aidx[0]], fPidList[aidx[1]], amothpdg);
 		break;
 		
 	case 3: 
-		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]]); 
-		l.SetType(mothpdg);
-		if (cc) 
-		{
-			l2.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]]);
-			l2.SetType(amothpdg);
-			l.Append(l2);
-		}
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], mothpdg);
+		if (cc) l.CombineAndAppend(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], amothpdg);
 		break;
+		
 	case 4: 
-		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]]); 
-		l.SetType(mothpdg);
-		if (cc) 
-		{
-			l2.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]]);
-			l2.SetType(amothpdg);
-			l.Append(l2);
-		}
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]], mothpdg); 
+		if (cc) l.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], amothpdg); 
 		break;
+
 	case 5: 
-		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]], fPidList[idx[4]]); 
-		l.SetType(mothpdg);
-		if (cc) 
-		{
-			l2.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], fPidList[aidx[4]]);
-			l2.SetType(amothpdg);
-			l.Append(l2);
-		}
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]], fPidList[idx[4]], mothpdg); 
+		if (cc) l.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], fPidList[aidx[4]], amothpdg); 
 		break;
 	default: return 0;
 	}
