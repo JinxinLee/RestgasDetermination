@@ -10,13 +10,13 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant4";
   TString  Workdir        =gSystem->Getenv("VMCWORKDIR");
-  TString  Decfile        =Workdir+"/tutorials/apr13/psi2s_jpsi2pi.dec";
-  TString  Resonance      ="psi(2S)";
+  //TString  Decfile        =Workdir+"/tutorials/apr13/psi2s_jpsi2pi.dec";
+  //TString  Resonance      ="psi(2S)";
   
   TString  OutputFile     = outpre+"_sim.root";
   TString  ParOutputfile  = outpre+"_par.root";
   Double_t BeamMomentum   = 15.0; // beam momentum ONLY for the scaling of the dipole field. For the generator use "mom"
-  TString  MediaFile      ="media_pnd.geo";
+  TString  MediaFile      = "media_pnd.geo";
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
   // choose your event generator 
@@ -89,7 +89,7 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   fRun->AddModule(Mvd);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName("gem_3Stations.root");
+  Gem->SetGeometryFileName("gem_3Stations_Tube.root");
   fRun->AddModule(Gem);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
@@ -150,12 +150,6 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
 	  primGen->AddGenerator(Dpm);
   }
-  if(UseEvtGen){	
-	  TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-	  EvtInput+="/input/psi2s_jpsi2pi_1k.evt";	
-	  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
-	  primGen->AddGenerator(evtGen);
-  }	
   if(UseEvtGenDirect){
       PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), mom);
 	  EvtGen->SetStoreTree(kTRUE);
@@ -163,7 +157,7 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   }	
 	 
  //---------------------Create and Set the Field(s)---------- 
-  PndMultiField *fField= new PndMultiField("FULL");
+  PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
 
  // EMC Hit producer
