@@ -33,6 +33,9 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jps
   if (!UseBoxGenerator) BeamMomentum = mom;
 
   //------------------------------------------------------------------
+  TLorentzVector fIni(0, 0, mom, sqrt(mom*mom+9.3827203e-01*9.3827203e-01)+9.3827203e-01);  
+  TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888); 
+  //------------------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   gRandom->SetSeed(); 
@@ -93,7 +96,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jps
   fRun->AddModule(Mvd);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName("gem_3Stations.root");
+  Gem->SetGeometryFileName("gem_3Stations_Tube.root");
   fRun->AddModule(Gem);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
@@ -153,12 +156,6 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jps
   	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
 	  primGen->AddGenerator(Dpm);
   }
-  if(UseEvtGen){	
-	  TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-	  EvtInput+="/input/psi2s_jpsi2pi_1k.evt";	
-	  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
-	  primGen->AddGenerator(evtGen);
-  }	
   if(UseEvtGenDirect){
       PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), mom);
 	  EvtGen->SetStoreTree(kTRUE);
@@ -166,7 +163,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jps
   }	
 	 
  //---------------------Create and Set the Field(s)---------- 
-  PndMultiField *fField= new PndMultiField("FULL");
+  PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
 
  // EMC Hit producer
