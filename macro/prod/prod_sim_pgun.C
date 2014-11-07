@@ -8,7 +8,7 @@
 prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mom = 10., int mult = 1 )
 {
   //-----User Settings:-----------------------------------------------
-  TString  SimEngine      ="TGeant4";
+  TString  SimEngine      ="TGeant3";
   TString  Workdir        =gSystem->Getenv("VMCWORKDIR");
   //TString  Decfile        =Workdir+"/tutorials/apr13/psi2s_jpsi2pi.dec";
   //TString  Resonance      ="psi(2S)";
