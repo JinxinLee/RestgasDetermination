@@ -10,8 +10,10 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#include "RhoBase/RhoCandidate.h"
 #include "TVector3.h"
+
+class RhoCandidate;
+class RhoCandList;
 
 class PndVtxPoca
 {
@@ -19,6 +21,7 @@ class PndVtxPoca
     PndVtxPoca() ;
     virtual ~PndVtxPoca();
     Double_t GetPocaVtx(TVector3& vertex, RhoCandidate* composite);
+    Double_t GetPocaVtx(TVector3& vertex, RhoCandList  &cands);     // KG 11/2014
   private:
     Double_t GetPoca(TVector3& vertex,RhoCandidate* a, RhoCandidate* b);
 

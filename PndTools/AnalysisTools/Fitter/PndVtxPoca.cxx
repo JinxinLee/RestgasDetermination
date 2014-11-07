@@ -2,6 +2,8 @@
 #include <iostream>
 #include "PndVtxPoca.h"
 #include "PndAnalysisCalcTools.h"
+#include "RhoCandidate.h"
+#include "RhoCandList.h"
 
 using namespace std;
 
@@ -22,12 +24,28 @@ PndVtxPoca::~PndVtxPoca()
 {
 }
 
-
 Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
 {
+	RhoCandList cands;
+	
+	for (int i=0;i<composite->NDaughters();++i) 
+		if (fabs(composite->Daughter(i)->Charge())>1e-6) cands.Put(composite->Daughter(i));
+	
+	if (cands.GetLength()<2) return 999.;
+	
+	return GetPocaVtx(vertex, cands);
+}
+
+Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandList &cands)
+{
   vertex.SetXYZ(0.,0.,0.);
-  if ( composite->NDaughters() <  2 ) { return 0.; }
-  if ( composite->NDaughters() == 2 ) { return GetPoca(vertex,composite->Daughter(0),composite->Daughter(1)); }
+  
+  // count number of charged daughters
+  int nchrg = 0;
+  for (int i=0; i<cands.GetLength();++i) if (fabs(cands[i]->Charge())>0) ++nchrg;
+  
+  if ( nchrg <  2 ) { return 999.; }
+  //if ( composite->NDaughters() == 2 ) { return GetPoca(vertex,composite->Daughter(0),composite->Daughter(1)); }
 
   std::vector<Double_t> distances;
   std::vector<TVector3> results;
@@ -35,10 +53,12 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
   // TODO do this smarter by using already found vertices ?
   TVector3 theVertex(0.,0.,0.);
   Double_t actualDoca=0.;
-  for(Int_t daug1 =0; daug1<composite->NDaughters(); daug1++) {
-    RhoCandidate* a=composite->Daughter(daug1);
-    for(Int_t daug2=daug1+1; daug2<composite->NDaughters(); daug2++) {
-      RhoCandidate* b=composite->Daughter(daug2);
+  for(Int_t daug1 =0; daug1<cands.GetLength(); daug1++) {
+    RhoCandidate* a=cands[daug1];
+	if (fabs(a->Charge())<1e-6) continue;   // skip neutrals
+    for(Int_t daug2=daug1+1; daug2<cands.GetLength(); daug2++) {
+      RhoCandidate* b=cands[daug2];
+	  if (fabs(b->Charge())<1e-6) continue; // skip neutrals
       actualDoca = GetPoca(theVertex,a,b);
       distances.push_back(actualDoca);
       results.push_back(theVertex);
@@ -61,7 +81,7 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
   if (sumdocaweigts == 0) { sumdocaweigts=1; }
   vertex*=1./sumdocaweigts;
   //sumdocaweigts = sqrt(sumdocaweigts);
-  return composite->NDaughters()/sumdocaweigts;
+  return distances.size()/sumdocaweigts;
 }
 
 
