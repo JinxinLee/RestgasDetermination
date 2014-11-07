@@ -314,17 +314,19 @@ int main(){
   resUn2mrad->SetMarkerColor(32);
   resUn2mrad->SetMarkerSize(2.0);
   TGraphErrors *resUn2mradmn = new TGraphErrors(Plabstep);
-  resUn2mradmn->SetMarkerStyle(25);
+  //  resUn2mradmn->SetMarkerStyle(25);
+  resUn2mradmn->SetMarkerStyle(21);
   resUn2mradmn->SetMarkerColor(32);
   resUn2mradmn->SetMarkerSize(2.0);
   TGraphErrors *resUn2mradpl = new TGraphErrors(Plabstep);
-  resUn2mradpl->SetMarkerStyle(26);
+  //  resUn2mradpl->SetMarkerStyle(26);
+  resUn2mradpl->SetMarkerStyle(22);
   resUn2mradpl->SetMarkerColor(32);
   resUn2mradpl->SetMarkerSize(2.0);
 
   for(int pstep=0;pstep<=Plabstep;pstep++){
     double plab = Plab_min+pstep*(Plab_max-Plab_min)/Plabstep;
-    double dP = 1e-1*plab;
+    double dP = 1e-5*plab;
     double plab2 = plab-dP;
     double plab3 = plab+dP;
 
@@ -406,10 +408,10 @@ int main(){
     cs_val[i] = modelE760.getRawRhoBSigtotFullElastic(&t_cur);
     cs_valmn[i] = modelE760mn.getRawRhoBSigtotFullElastic(&t_cur);
     cs_valpl[i] = modelE760pl.getRawRhoBSigtotFullElastic(&t_cur);
-    rel_cs_mn[i] = 100.*fabs(cs_val[i]-cs_valmn[i])/cs_val[i];
-    rel_cs_pl[i] = 100.*fabs(cs_val[i]-cs_valpl[i])/cs_val[i];
-    diff_cs_mn[i] = fabs(cs_val[i]-cs_valmn[i]);
-    diff_cs_pl[i] = fabs(cs_val[i]-cs_valpl[i]);
+    rel_cs_mn[i] = 100.*(cs_val[i]-cs_valmn[i])/cs_val[i];
+    rel_cs_pl[i] = 100.*(cs_val[i]-cs_valpl[i])/cs_val[i];
+    diff_cs_mn[i] = (cs_val[i]-cs_valmn[i]);
+    diff_cs_pl[i] = (cs_val[i]-cs_valpl[i]);
     par[3] = cs_val[i];
     cs_uncert[i] = Df(t_cur,par,errpar);
     rel_err[i] = 100*(cs_uncert[i]/cs_val[i]);
@@ -515,7 +517,7 @@ int main(){
       <<errCSint_2_10_mn<<" errCSint_2_10_pl = "<<errCSint_2_10_pl<<endl;
  double integ_un_2_10 = 100.*errCSint_2_10/CSint_2_10;
  resUn2mrad->SetPoint(pstep, plab,integ_un_2_10);
- double errIntegCS=30*fabs(CSint_2_10-integral_2_10)/integral_2_10;
+ double errIntegCS=0.5*fabs(CSint_2_10-integral_2_10)/integral_2_10;
  resUn2mrad->SetPointError(pstep,0,errIntegCS);
 
  double integ_un_2_10mn = 100.*errCSint_2_10_mn/CSint_2_10;
@@ -576,21 +578,23 @@ int main(){
   }
   TCanvas c3("c3","canvas",800,600);
   TMultiGraph *mg_res = new TMultiGraph();
-  mg_res->Add(resUn2mrad);
+  // mg_res->Add(resUn2mrad);
   mg_res->Add(resUn2mradmn);
   mg_res->Add(resUn2mradpl);
-  TLegend *leg = new TLegend(0.27,0.65,0.65,0.87);
+  //  TLegend *leg = new TLegend(0.27,0.65,0.65,0.87);
+  TLegend *leg = new TLegend(0.8,0.77,0.99,0.99);
   leg->SetFillColor(0);
   leg->SetTextFont(42);
   leg->SetTextSize(0.05);
-  leg->AddEntry(resUn2mrad,"model uncertainty","ep");
+  //  leg->AddEntry(resUn2mrad,"model uncertainty","ep");
   leg->AddEntry(resUn2mradmn,"P_{lab}-#DeltaP","ep");
   leg->AddEntry(resUn2mradpl,"P_{lab}+#DeltaP","ep");
   mg_res->Draw("AP");
-  mg_res->SetMinimum(-1);
+  //  mg_res->SetMinimum(-1);
   mg_res->GetXaxis()->SetTitle("P_{lab}, GeV/c");
   mg_res->GetYaxis()->SetTitle("#Delta#sigma/#sigma, %");
-  mg_res->SetMinimum(-0.3);
+  mg_res->SetMaximum(0.012);
+  mg_res->SetMinimum(-0.012);
   leg->Draw();
   c3.SaveAs("uncertE760Integ_vs_Plab.pdf");
   c3.SaveAs("uncertE760Integ_vs_Plab.root");
