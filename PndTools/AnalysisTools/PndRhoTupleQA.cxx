@@ -218,20 +218,25 @@ void PndRhoTupleQA::qaEventShapeShort(TString pre, PndEventShape *evsh, RhoTuple
 }
 // -------------------------------------------------------------------------
 // *** store QA for PocaVtx
-void PndRhoTupleQA::qaPoca(TString pre, RhoCandidate *c, RhoTuple *n)
+void PndRhoTupleQA::qaPoca(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx)
 {
 	if (n==0) return;
 
 	// *** simple vtx finder
 	TVector3 vtx;
 	double qavtx = fVtxPoca->GetPocaVtx(vtx, c);
+	
+	double dist=999.;
+	if (primVtx!=0) dist = (vtx-*primVtx).Mag();
 
 	// *** store QA info
-	n->Column(pre+"pocvx",  (Float_t) vtx.X(), 0.0f);
-	n->Column(pre+"pocvy",  (Float_t) vtx.Y(), 0.0f);
-	n->Column(pre+"pocvz",  (Float_t) vtx.Z(), 0.0f);
-	n->Column(pre+"pocqa", (Float_t) qavtx,   0.0f);
-
+	n->Column(pre+"pocvx",  (Float_t) vtx.X(),   0.0f);
+	n->Column(pre+"pocvy",  (Float_t) vtx.Y(),   0.0f);
+	n->Column(pre+"pocvz",  (Float_t) vtx.Z(),   0.0f);
+	n->Column(pre+"pocmag", (Float_t) vtx.Mag(), 0.0f);
+	n->Column(pre+"pocqa",  (Float_t) qavtx,     0.0f);
+	n->Column(pre+"pocdist",(Float_t) dist,      0.0f); 
+	n->Column(pre+"pocctau",(Float_t) (dist*c->M()/c->P()), 0.0f); // decay length
 }
 
 // -------------------------------------------------------------------------
@@ -258,7 +263,7 @@ void PndRhoTupleQA::qaPRG(TString pre, RhoCandidate *c, RhoTuple *n)
 // -------------------------------------------------------------------------
 // *** store QA for composite particles
 
-void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
+void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx)
 {
 	if (n==0) return;
 
@@ -281,6 +286,11 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 
 	// how many daughters?
 	int nd = c->NDaughters();
+	
+	// compute inv mass of first n-1 daughers
+	TLorentzVector lsub(0,0,0,0);
+	if (nd>2) 
+		for (int i=0;i<nd-1;++i) lsub += c->Daughter(i)->P4();
 
 	// truth match already done?
 	RhoCandidate *truth = c->GetMcTruth();
@@ -301,7 +311,12 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 	// store cand info in lab and cms
 	qaCand(pre,	c,	n);
 	qaP4Cms(pre, c->P4(), n);
-	n->Column(pre+"mct", (Float_t) mct, 0.0f);
+	n->Column(pre+"mct",  (Float_t) mct, 0.0f);
+	if (nd>2) 
+	{
+		n->Column(pre+"msub", (Float_t) lsub.M(), 0.0f);
+		n->Column(pre+"mdif", (Float_t) (c->M()-lsub.M()), 0.0f);
+	}
 
 	// cand is final state particle
 	if (nd==0)
@@ -337,8 +352,11 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 			qaComp(name, dau, n);
 		}
 		// only charged final state daughters -> Vtx info with PndVtxPoca
-		if (nchrgfs == nd)
-			qaPoca(pre, c, n);
+		if (nchrgfs > 1)
+		{
+			qaPoca(pre, c, n, primVtx);
+			qaVtx(pre, c, n, primVtx);
+		}
 	}
 }
 
@@ -396,10 +414,11 @@ void PndRhoTupleQA::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
 
 	qaCand(pre, c, n);
 
-	n->Column(pre+"vx",  (Float_t) vtx.X(), 0.0f);
-	n->Column(pre+"vy",  (Float_t) vtx.Y(), 0.0f);
-	n->Column(pre+"vz",  (Float_t) vtx.Z(), 0.0f);
-	n->Column(pre+"vqa", (Float_t) qavtx,   0.0f);
+	n->Column(pre+"vx",  (Float_t) vtx.X(),   0.0f);
+	n->Column(pre+"vy",  (Float_t) vtx.Y(),   0.0f);
+	n->Column(pre+"vz",  (Float_t) vtx.Z(),   0.0f);
+	n->Column(pre+"vd",  (Float_t) vtx.Mag(), 0.0f);
+	n->Column(pre+"vqa", (Float_t) qavtx,     0.0f);
 
 	n->Column(pre+"oang",(Float_t) ang,		0.0f);
 
@@ -651,7 +670,7 @@ void PndRhoTupleQA::qaDalitz(TString pre, RhoCandidate *c, RhoTuple *n)
 
 // -------------------------------------------------------------------------
 
-void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
+void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx)
 {
 	if (n==0) return;
 
@@ -667,14 +686,19 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 		Float_t ctau = v.Mag()*c->M()/c->P();
 		Float_t dec  = d_cms.Vect().Angle(c->P3());
 		Float_t cdec = cos(dec);
+		
+		// if primary Vertex available, compute ctau relative to that one
+		Float_t ctaud = -999.;
+		if (primVtx!=0) ctaud = (v-*primVtx).Mag()*c->M()/c->P();
 
 		n->Column(pre+"vx",  	(Float_t) v.X(),		0.0f );
 		n->Column(pre+"vy",  	(Float_t) v.Y(),		0.0f );
 		n->Column(pre+"vz",  	(Float_t) v.Z(),		0.0f );
 		n->Column(pre+"len", 	(Float_t) v.Mag(),		0.0f );
-		n->Column(pre+"ctau",	(Float_t) ctau,		0.0f );
+		n->Column(pre+"ctau",	(Float_t) ctau,			0.0f );
+		n->Column(pre+"ctaud",	(Float_t) ctaud,		0.0f );
 		n->Column(pre+"decang", (Float_t) dec,			0.0f );
-		n->Column(pre+"cdecang",(Float_t) cdec,		0.0f );
+		n->Column(pre+"cdecang",(Float_t) cdec,			0.0f );
 	}
 	else
 	{
@@ -683,6 +707,7 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 		n->Column(pre+"vz",  	(Float_t) -999.0,		0.0f );
 		n->Column(pre+"len", 	(Float_t) -999.0,		0.0f );
 		n->Column(pre+"ctau",  	(Float_t) -999.0,		0.0f );
+		n->Column(pre+"ctaud",	(Float_t) -999.0,		0.0f );
 		n->Column(pre+"decang", (Float_t) -999.0,		0.0f );
 		n->Column(pre+"cdecang",(Float_t) -999.0,		0.0f );
 	}
@@ -879,7 +904,7 @@ void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, RhoTuple *n, int max)
 	if (npart>max) npart=max;
 
 	TVector vpart(npart), vpdg(npart), vmoth(npart),
-	        vp(npart),    vmass(npart),
+	        vp(npart),    vmass(npart), vndau(npart),
 	        vpx(npart),   vpy(npart),  vpz(npart), ve(npart),
 			vtht(npart),  vphi(npart),
 			vx(npart),    vy(npart),   vz(npart);
@@ -891,6 +916,7 @@ void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, RhoTuple *n, int max)
 		vpart(j) = j;
 		vpdg(j)  = l[j]->PdgCode();
 		vmoth(j) = (moth!=0x0) ? moth->GetTrackNumber() : -1;
+		vndau(j) = l[j]->NDaughters();
 
 		vmass(j) = l[j]->Mass();
 		vp(j)    = l[j]->P();
@@ -913,6 +939,7 @@ void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, RhoTuple *n, int max)
 	n->Column(pre+"part",  vpart,  pre+"npart");
 	n->Column(pre+"pdg",   vpdg,   pre+"npart");
 	n->Column(pre+"moth",  vmoth,  pre+"npart");
+	n->Column(pre+"ndau",  vndau,  pre+"npart");
 
 	n->Column(pre+"m",     vmass,  pre+"npart");
 	n->Column(pre+"p",     vp,     pre+"npart");

@@ -25,7 +25,7 @@ public:
     void qaP4Cov(TString pre, RhoCandidate *c, RhoTuple *n, bool skip=false);
 
 	// *** QA for 2-prong
-	void qaComp(TString pre, RhoCandidate *c, RhoTuple *n);
+	void qaComp(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx=0);
 	void qaKs0(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaPi0(TString pre, RhoCandidate *c, RhoTuple *n);
 
@@ -41,8 +41,8 @@ public:
 	void qaESEventVars(TString pre, PndEventShape *evsh, RhoTuple *n);
 
 	// *** QA track, vtx, PID, decay
-	void qaVtx(TString pre, RhoCandidate *c, RhoTuple *n);
-	void qaPoca(TString pre, RhoCandidate *c, RhoTuple *n);
+	void qaVtx(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx=0);
+	void qaPoca(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx=0);
 	void qaPRG(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qa2Body(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaDalitz(TString pre, RhoCandidate *c, RhoTuple *n);
