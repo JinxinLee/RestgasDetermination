@@ -76,8 +76,8 @@ std::map<int, int> fSTMapListIndex;
 
 typedef std::map<int, PndSoftTriggerLine*>::iterator TrigIt;
 
-//                            e+  e-  mu+  mu- pi+   pi-  K+    K-    p     pb   gam  pi0  KS   eta
-const int fSTPidIndex[14] = {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22, 111, 310, 221};
+//                            e+  e-  mu+  mu- pi+   pi-  K+    K-    p     pb   gam  pi0  KS   eta   aux  anti-aux
+int fSTPidIndex[16] =       {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22, 111, 310, 221,   0,   0};
 
 // *** mapped variable names for selection
 //                       0            1             2           3           4          5           6          7           8         9         
@@ -169,7 +169,10 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TStrin
 
 
 // -----   Destructor   ----------------------------------------------------
-PndSoftTriggerTask::~PndSoftTriggerTask() { }
+PndSoftTriggerTask::~PndSoftTriggerTask() 
+{
+	delete fPocaVertexer;
+}
 // -------------------------------------------------------------------------
 
 // -----   Public method Init   --------------------------------------------
@@ -212,6 +215,9 @@ InitStatus PndSoftTriggerTask::Init()
 	// *** basic selectors for preselection
 	fMomentumSel = new RhoMomentumParticleSelector("PSel",50.+fTrackMinP,100.);
 	fEnergySel   = new RhoEnergyParticleSelector("ESel",50.+fGammaMinE,100.);
+	
+	// *** the poca vertexer
+	fPocaVertexer = new PndVtxPoca();
 		
 	// *** read selection from configuration file
 	if (fCfgFileName!="" && fApplyFullSelection) ReadConfiguration();
@@ -628,6 +634,12 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// *** fill all lists necessary for combinatorics
 	FillGlobalLists();
 	
+	// *** go through MC truth list and codify the recoil mode (pi+-, pi0, eta, gamma, K+-)
+	fRecoilMode  = DetermineRecoilMode(fRecoilCnt);
+	
+	// *** estimate primary vertex
+	fPrimVtxQa = fPocaVertexer->GetPocaVtx(fPrimVtx, fChargedCands);
+	
 	// *** setup eventshape object
 	PndEventShape evtShape(fAllCands,fIniP4,fGammaMinE,fTrackMinP);
 	fEventShape = &evtShape;
@@ -660,6 +672,10 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		ntp->Column("ecm",		(Float_t)	fEcm,		0.0f);
 
 		fQA->qaP4("beam", fIniP4, ntp);
+		ntp->Column("primvx",   (Float_t)   fPrimVtx.X(), 0.0f);
+		ntp->Column("primvy",   (Float_t)   fPrimVtx.Y(), 0.0f);
+		ntp->Column("primvz",   (Float_t)   fPrimVtx.Z(), 0.0f);
+		ntp->Column("primvqa",  (Float_t)   fPrimVtxQa  , 0.0f);
 		
 		// write tags of individual modes
 		for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
@@ -705,6 +721,50 @@ void PndSoftTriggerTask::Finish()
 		if (tl->GetRhoTuple())
 			tl->GetRhoTuple()->GetInternalTree()->Write();
 	}
+}
+
+// -------------------------------------------------------------------------
+// determine recoil mode (N_gamma + 10*N_pi0 + 100*N_pi+- + 1000*N_K+- + 10000*N_K0 + 100000*N_eta) 
+int PndSoftTriggerTask::DetermineRecoilMode(int &mode)
+{
+	mode = 0;
+	int code=-1;
+	
+	if ( fMcTruth.GetLength()==0 ) return -1;
+	if ( fMcTruth[0]==0 ) return -1;
+	
+	for (int i=0; i<fMcTruth[0]->NDaughters(); ++i)
+	{
+		int dpdg = abs(fMcTruth[0]->Daughter(i)->PdgCode());
+		
+		switch (dpdg)
+		{
+			case 22:  mode += 1;      break;  // gamma
+			case 111: mode += 10;     break;  // pi0 
+			case 211: mode += 100;    break;  // pi+
+			case 321: mode += 1000;   break;  // K+
+			case 130: mode += 10000;  break;  // K0
+			case 310: mode += 10000;  break;  // K0
+			case 221: mode += 100000; break;  // eta
+		}
+	}
+	
+	switch (mode) 
+	{
+		case       0 : code = 0;  break;  // no recoil
+		case       1 : code = 1;  break;  // gamma
+		case      10 : code = 2;  break;  // pi0
+		case  100000 : code = 3;  break;  // eta
+		case      20 : code = 4;  break;  // pi0 pi0
+		case     200 : code = 5;  break;  // pi+ pi-
+		case    2000 : code = 6;  break;  // K+ K-
+		case   20000 : code = 7;  break;  // K0 K0b
+		case  200000 : code = 8;  break;  // eta eta
+		case     210 : code = 9;  break;  // pi+ pi- pi0
+		default      : code =-1;  break;
+	}
+	
+	return code;
 }
 
 // -------------------------------------------------------------------------
@@ -1029,7 +1089,7 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 
 
 // -------------------------------------------------------------------------
-// *** General common tagging methode
+// *** Determine pdg code of anti particle
 int PndSoftTriggerTask::AntiPdg(int pdg)
 {
 	int antipdg = pdg;
@@ -1039,20 +1099,55 @@ int PndSoftTriggerTask::AntiPdg(int pdg)
 	return antipdg;
 }
 
+// -------------------------------------------------------------------------
+// *** create a list based on indices
+void PndSoftTriggerTask::CombineList(RhoCandList &l, int mothpdg, int amothpdg, std::vector<int> &idx, std::vector<int> &aidx, bool cc)
+{
+	l.Cleanup();
+	
+	int nd = idx.size();
+	
+	switch (nd) 
+	{
+	case 2: 
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], mothpdg); 
+		if (cc) l.CombineAndAppend(fPidList[aidx[0]], fPidList[aidx[1]], amothpdg);
+		break;
+		
+	case 3: 
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], mothpdg);
+		if (cc) l.CombineAndAppend(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], amothpdg);
+		break;
+		
+	case 4: 
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]], mothpdg); 
+		if (cc) l.CombineAndAppend(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], amothpdg); 
+		break;
+
+	case 5: 
+		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]], fPidList[idx[4]], mothpdg); 
+		if (cc) l.CombineAndAppend(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], fPidList[aidx[4]], amothpdg); 
+		break;
+	default: return;
+	}
+	
+}
 
 // -------------------------------------------------------------------------
 // *** General common combinatorics based on PndSoftTriggerLine input
 int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 {
 	l.Cleanup();
+	fPidList[14].Cleanup();
+	fPidList[15].Cleanup();
 	
 	int mothpdg = tl->GetMotherPdg();
 	if (mothpdg<0) {cout << "[PndSoftTriggerTask] **** Invalid mother for combinatorics."<<endl; return 0;}
 	
-	RhoCandList l2;			                          // for the cc case	
-	int nd = tl->GetNDaughters(), idx[5], aidx[5];    // cache for mapping: pdgcode -> fPdgList indices
+	int nd = tl->GetNDaughters();    // cache for mapping: pdgcode -> fPdgList indices
 	
-	if (nd>5) {cout << "[PndSoftTriggerTask] **** Too many daughters ("<<nd<<") for combinatorics."<<endl;return 0;}
+	std::vector<int> idx, aidx, auxidx, auxaidx;
+	
 	
 	// fetch pdg code of antiparticle for mother
 	int amothpdg = AntiPdg(mothpdg);
@@ -1060,18 +1155,109 @@ int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 	// do we need to add charged conjugate combinatorics?
 	bool cc = tl->GetCC();
 	
+	if (fVerbose>1)
+	{
+		for (int i=0; i<nd; ++i) cout <<tl->GetDaughterPdg(i)<<" ";	
+		if (cc) cout <<" +cc";
+		cout <<endl;
+	}
+	
+	// flag whether pdg goes to idx list or auxidx list
+	bool auxmode=false; 
+
+	// idx for the mothers of the aux list
+	int auxmothpdg, auxamothpdg; 
+	
 	// cache the indices of the fPidList according to the pdg codes
 	for (int i=0; i<nd; ++i)
 	{
 		int dpdg = tl->GetDaughterPdg(i);
-		if ( fSTMapListIndex.find(dpdg) == fSTMapListIndex.end() ) 
-			{cout << "[PndSoftTriggerTask] **** Invalid daughter pdg code: "<<dpdg<<endl; return 0;}
-		idx[i]  = fSTMapListIndex[dpdg];
-		aidx[i] = fSTMapListIndex[AntiPdg(dpdg)]; 
+		
+		// skip the codes for '[' and ']'
+		if (dpdg==-99) continue;
+		if (dpdg==-98) {auxmode=false; continue;} // filling auf aux list finished
+
+		// if no list for particle with code 'dpdg'
+		if ( fSTMapListIndex.find(dpdg) == fSTMapListIndex.end() )
+		{
+			// is it start of aux list definition? (e.g. D*0 -> D0 [K- pi+] pi0)
+			if (tl->GetDaughterPdg(i+1) != -99)	
+			{
+				// if not, throw error!
+				cout << "[PndSoftTriggerTask] **** Invalid daughter pdg code: "<<dpdg<<endl; 
+				return 0;
+			}
+			else // start aux mode and decide about cc of aux list
+			{
+				auxmode = true;
+				auxmothpdg  = dpdg;
+				auxamothpdg = AntiPdg(dpdg);
+				idx.push_back(14);
+				if (auxamothpdg==auxmothpdg) aidx.push_back(14);
+				else aidx.push_back(15);
+				continue;
+			}
+		}
+		if (auxmode)
+		{
+			auxidx.push_back(fSTMapListIndex[dpdg]);
+			auxaidx.push_back(fSTMapListIndex[AntiPdg(dpdg)]); 
+		}
+		else
+		{
+			idx.push_back(fSTMapListIndex[dpdg]);
+			aidx.push_back(fSTMapListIndex[AntiPdg(dpdg)]); 
+		}
 	}
 	
-	// do the combinatorics for 2 to 5 daughters
-	switch (nd) 
+	// does one of the lists have too many daughters?
+	if (idx.size()>5)    {cout << "[PndSoftTriggerTask] **** Too many daughters ("<<idx.size()<<") for combinatorics of target resonance."<<endl;return 0;}
+	if (auxidx.size()>5) {cout << "[PndSoftTriggerTask] **** Too many daughters ("<<auxidx.size()<<") for combinatorics of auxiliary resonance."<<endl;return 0;}
+	
+	if (fVerbose>1)
+	{
+		cout <<"("<<mothpdg<<"/"<<amothpdg<<") : ";
+		for (int i=0; i<idx.size(); ++i) cout <<"("<<idx[i]<<"/"<<aidx[i]<<") "; 
+		cout <<endl<<endl;
+		if (auxidx.size()>0)
+		{
+			cout <<"("<<auxmothpdg<<"/"<<auxamothpdg<<") : ";
+			for (int i=0; i<auxidx.size(); ++i) cout <<"("<<auxidx[i]<<"/"<<auxaidx[i]<<") "; cout <<endl;
+		}
+	}
+	
+	// do the combinatorics for aux list and final list
+	if (tl->GetAuxNeeded())
+	{
+		// create different aux lists is pdg!=anti-pdg (e.g. D0 -> K- pi+ and anti-D0 -> K+ pi-)
+		if (auxmothpdg!=auxamothpdg)
+		{
+			CombineList(fPidList[14], auxmothpdg, 0,  auxidx, auxidx, false);
+			CombineList(fPidList[15], auxamothpdg, 0, auxaidx, auxaidx, false);
+		}
+		// create one aux list e.g. for eta_c -> ...
+		else 
+		{
+			// check whether final state is its anti-final state (e.g. pi+ pi- pi0 = pi- pi+ pi0)
+			// or not (e.g. eta_c -> KS K- pi+ != KS K+ pi-)
+			// this can be done by summing all pdg codes for particles with pdg!=anti-pdg
+			// if sum = 0, final state and anti-final state are the same (i.e. FS has for each particle the according anti-particle)
+			int pdgsum = 0;
+			for (int i=0;i<auxidx.size();++i) if (auxidx[i]<10) pdgsum+=fSTPidIndex[auxidx[i]];
+			
+			// if FS = anti-FS, just do combinatorics once (not adding the composites from anti-FS list)
+			if (pdgsum==0) 
+				CombineList(fPidList[14], auxmothpdg, 0,  auxidx, auxidx, false);
+			// if FS != anti-FS, append also comb from anti-FS list (e.g. etac from (KS K- pi+) + (KS K+ pi-))
+			else 
+				CombineList(fPidList[14], auxmothpdg, auxamothpdg,  auxidx, auxaidx, true);	
+		}
+	}
+	
+	// create the final list using (or not using) the aux list
+	CombineList(l, mothpdg, amothpdg, idx, aidx, cc);
+	
+/*	switch (nd) 
 	{
 	case 2: 
 		l.Combine(fPidList[idx[0]], fPidList[idx[1]], mothpdg); 
@@ -1093,7 +1279,7 @@ int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 		if (cc) l.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], fPidList[aidx[4]], amothpdg); 
 		break;
 	default: return 0;
-	}
+	}*/
 	
 	return l.GetLength();
 }
@@ -1143,7 +1329,7 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 			
 		if (n)
 		{
-			fQA->qaComp(prefix, l[i], n);
+			fQA->qaComp(prefix, l[i], n, &fPrimVtx);
 			fQA->qaEventShapeShort("es", fEventShape, n);
 			// replace PID mult values from event shape by actual counts with individual algos
 			n->Column("eslnpide", (Float_t)  fPidMult_025[0],		0.0f );
@@ -1153,6 +1339,10 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 			n->Column("eslnpidp", (Float_t)  fPidMult_025[4],		0.0f );
 			
 			fQA->qaP4("beam", fIniP4, n);
+			n->Column("primvx",   (Float_t)   fPrimVtx.X(), 0.0f);
+			n->Column("primvy",   (Float_t)   fPrimVtx.Y(), 0.0f);
+			n->Column("primvz",   (Float_t)   fPrimVtx.Z(), 0.0f);
+			n->Column("primvqa",  (Float_t)   fPrimVtxQa  , 0.0f);
 
 			Float_t nsig = (Float_t) fabs(l[i]->Mass()-mean)/sigma;
 			Float_t tag  = nsig < tl->GetTagNSig();
@@ -1161,9 +1351,11 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
+			n->Column("ev",  	(Int_t)   fEvtCount,	0);
+			n->Column("run",  	(Int_t)   fRunNum,		0);
+			n->Column("mode",	(Int_t)   fMode,		0);
+			n->Column("recmode",(Int_t)   fRecoilMode,  0);
+			n->Column("reccnt", (Int_t)   fRecoilCnt,   0);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
 			n->Column("tag", 	(Float_t) tag,			0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);

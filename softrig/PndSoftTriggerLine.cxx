@@ -29,7 +29,7 @@ using std::endl;
 // Default constructor
 // -------------------------------------------------------------------------
 PndSoftTriggerLine::PndSoftTriggerLine() : 
-	fMode(-1), fName(""), fDecay(""),	fPrefix(""), fNTupleName(""), fWriteQA(false), fActive(true), fCC(false),			
+	fMode(-1), fName(""), fDecay(""),	fPrefix(""), fNTupleName(""), fWriteQA(false), fActive(true), fCC(false), fAux(false),			
 	fQAMassMin(0.), fQAMassMax(20.), fMean(0.), fSigma(0.01), fThresh(0.), fTagNSig(5.), 
 	fQASelector(0), fSelector(0), fNTuple(0)		
 {
@@ -40,7 +40,7 @@ PndSoftTriggerLine::PndSoftTriggerLine() :
 //  constructor
 // -------------------------------------------------------------------------
 PndSoftTriggerLine::PndSoftTriggerLine(int mode, TString name, TString dec, TString pre, TString ntpname) : 
-	fMode(mode), fName(name), fDecay(dec),	fPrefix(pre), fNTupleName(ntpname), fWriteQA(false), fActive(true), fCC(false),				
+	fMode(mode), fName(name), fDecay(dec),	fPrefix(pre), fNTupleName(ntpname), fWriteQA(false), fActive(true), fCC(false),	fAux(false),			
 	fQAMassMin(0.), fQAMassMax(20.), fMean(0.), fSigma(0.01), fThresh(0.), fTagNSig(5.), 
 	fQASelector(0), fSelector(0), fNTuple(0)		
 {
@@ -75,6 +75,8 @@ void PndSoftTriggerLine::Init()
 
 // -------------------------------------------------------------------------
 // convert the decay pattern string to a list of pdg codes (fPdgList)
+// E.g.: "D0 -> K- pi+" gets converted to 421 -321 211
+// Example with auxiliary resonance: "D*0 -> D0 [K- pi+] pi0" converts to 432 421 -99 -321 211 -98 111
 // -------------------------------------------------------------------------
 bool PndSoftTriggerLine::ParseDecayString()
 {
@@ -91,13 +93,20 @@ bool PndSoftTriggerLine::ParseDecayString()
 		return false;
 	}
 	
+	bool flag=false; // store if end of aux list codes
+	
 	for (int i=0;i<n;++i)
 	{
 		if (toks[i] == "cc") {fCC = true; continue;}                  // switch charged conjugation
 		if (toks[i] == "->") continue;                                // ignore the arrow
-		if (toks[i] == "pbp0") {fPdgList.push_back(88880);continue;}  // treat shortcut for pbarpSystem0
-		if (toks[i] == "pbp")  {fPdgList.push_back(88888);continue;}  // treat shortcut for pbarpSystem
+		if (toks[i] == "pbp0") {fPdgList.push_back(88880); continue;}  // treat shortcut for pbarpSystem0
+		if (toks[i] == "pbp")  {fPdgList.push_back(88888); continue;}  // treat shortcut for pbarpSystem
+		if (toks[i] == "[") {fPdgList.push_back(-99);fAux=true; continue;} // auxiliary resonance list starts
+		if (toks[i] == "]") {fPdgList.push_back(-98); continue;}           // auxiliary resonance list ends
 		
+		if (toks[i].BeginsWith("[")) {toks[i]=toks[i](1,1000); fAux=true; fPdgList.push_back(-99);} // auxiliary resonance list starts
+		if (toks[i].EndsWith("]")) {toks[i]=toks[i](0,toks[i].Length()-1); flag = true;}            // auxiliary resonance list ends
+			
 		TParticlePDG *part = fPdg->GetParticle(toks[i]);
 		if (part) fPdgList.push_back(part->PdgCode());
 		else 
@@ -105,6 +114,7 @@ bool PndSoftTriggerLine::ParseDecayString()
 			cout <<"[PndSoftTriggerLine] **** Unknown particle name '"<<toks[i].Data()<<"'"<<endl;
 			return false;
 		}
+		if (flag) {fPdgList.push_back(-98); flag = false;} // auxiliary resonance list ends
 	}
 }
 
@@ -151,10 +161,15 @@ void PndSoftTriggerLine::Print()
 	cout << "  Decay pattern   : " << fDecay.Data();
 	if ( fPdgList.size()>0 )
 	{
-		cout << " [ " << fPdgList[0]<<" -> ";
-		for (int i=1;i<fPdgList.size();++i) cout <<" "<<fPdgList[i];
+		cout << " ( " << fPdgList[0]<<" -> ";
+		for (int i=1;i<fPdgList.size();++i)
+		{
+			if (fPdgList[i]==-99) cout <<" [";
+			else if (fPdgList[i]==-98) cout <<" ]";
+			else cout <<" "<<fPdgList[i];
+		}
 		if (fCC) cout <<" (+cc)";
-		cout <<" ]"<< endl;
+		cout <<" )"<< endl;
 	}else cout <<endl;
 	cout << "  QA Window       : " << fQAMassMin << " < m < " << fQAMassMax << endl;
 	cout << "  Selector Window : " << "| m - " << fMean << " | < " << fTagNSig << " x " << fSigma << endl;

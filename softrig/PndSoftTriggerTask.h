@@ -4,6 +4,7 @@
 
 #include "FairTask.h"
 #include <map>
+#include <vector>
 #include <string>
 #include "TLorentzVector.h"
 #include "RhoCandList.h"
@@ -121,6 +122,7 @@ class PndSoftTriggerTask : public FairTask
 	
 	// *** methods for full candidate selection
 	int DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl);         // do combinatorics for certain trigger line
+	void CombineList(RhoCandList &l, int mothpdg, int amothpdg, std::vector<int> &idx, std::vector<int> &aidx, bool cc=false);
 	int AntiPdg(int pdg);                                                // gives pdg code of antiparticle if exists
 	void FillVarArray(RhoCandidate *c);                                  // fill candidate variable array for selection
 	void FillEventShapeVarArray();                        			     // fill event shape variable array for selection
@@ -131,7 +133,8 @@ class PndSoftTriggerTask : public FairTask
 	int SelectPidProb(RhoCandList &l, int pididx, double cut);
 	int MultPidProb(RhoCandList &l, int pididx, double prob);
 	double DbMass(TString name) {if (fPdg->GetParticle(name)) return fPdg->GetParticle(name)->Mass(); else return 0.;}
-	int  SplitString(TString s, TString delim, TString *toks, int maxtoks); 
+	int SplitString(TString s, TString delim, TString *toks, int maxtoks); 
+	int DetermineRecoilMode(int &mode);
 		
 	// *** Created necessary composites
 	int CreateKs0Cands(RhoTuple *n);
@@ -143,6 +146,8 @@ class PndSoftTriggerTask : public FairTask
 	// *** global vars
 	int      fVerbose;			 // create verbose output
 	int      fMode;				 // the signal or background mode code, to be set in the constructor
+	int      fRecoilMode;		 // recoil mode code (0 = %, 1=gamma, 2=pi0, 3=eta, 4=2pi0, 5=2eta, 6=pi+pi-, 7=2pipi0, 8=K+K-, 9=K0 K0b)
+	int      fRecoilCnt;		 // recoil counter (1*Ngamma + 10*Npi0 + 100*Npi+ + 1000*NK+ + 10000*NK0 + 100000*Neta)
 	int      fEvtCount;			 // global event counter
 	int      fRunNum;			 // run number
 	int      fSigCount;	         // counter, unused for the time being
@@ -156,12 +161,14 @@ class PndSoftTriggerTask : public FairTask
 	int     fApplyFullSelection; // 0: detailed selection turned off
                                  // 1: exclusive mode (modes w/o detailed cut definitions are rejected)
 	                             // 2: open mode (modes w/o detailed cut definitions just have to fulfill their mass window criterion)
-	
+		
 	// *** initial pbar p system info
 	TLorentzVector fIniP4;
 	double fEcm;
 	double fPbarMom;
-	
+	TVector3 fPrimVtx;   // primary vertex estimate of all charged tracks by PndVtxPoca
+	double   fPrimVtxQa; // and primary vtx quality
+
     // ----------------------------
 	// *** flags for enable/disable QA ntuple output	
 	bool fQAPi0;
@@ -242,6 +249,9 @@ class PndSoftTriggerTask : public FairTask
 	// *** RhoTuple QA helper class
 	PndRhoTupleQA *fQA;
 	
+	// *** Poca vertexer
+	PndVtxPoca *fPocaVertexer;
+	
 	// PDG database object
 	TDatabasePDG  *fPdg;
 	
@@ -257,7 +267,7 @@ class PndSoftTriggerTask : public FairTask
 	RhoCandList fEtaCands;
 	
 	// *** index PID lists with ordering: e+  e-  mu+  mu- pi+   pi-  K+    K-    p     pb   gam  pi0  KS   eta
-	RhoCandList fPidList[14];
+	RhoCandList fPidList[16];
 	
 	
 	// *** Get parameter containers

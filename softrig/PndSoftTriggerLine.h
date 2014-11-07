@@ -57,6 +57,7 @@ public:
 	bool GetWriteQA() {return fWriteQA;}
 	bool GetTagActive() {return fActive;}
 	bool GetCC() {return fCC;}
+	bool GetAuxNeeded() {return fAux;}
 	
 	double GetQAMassMin() {return fQAMassMin;}
 	double GetQAMassMax() {return fQAMassMax;}
@@ -90,6 +91,7 @@ private:
 	bool	fWriteQA;		// flag for output of QA tuple
 	bool    fActive;		// flag whether tagging for this mode is cuurently active
 	bool    fCC;			// flag whether charged conjugation is implied
+	bool    fAux;			// flag whether auxilliary resonance is present (e.g. D*0 -> D0 [K- pi+] pi0, D0 is aux res.)
 	
 	double  fQAMassMin;		// mass window minimum for preselection/QA tuple
 	double  fQAMassMax;		// mass window maximum for preselection/QA tuple
