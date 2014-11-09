@@ -169,6 +169,7 @@
 #include "EvtGenModels/EvtPP_EtacGamma.hh" // [A.L.27.010.2014]
 #include "EvtGenModels/EvtPP_PsiEtaPi0.hh" // [A.L.29.010.2014]
 #include "EvtGenModels/EvtPP_Pi0Gamma.hh" // [A.L.02.011.2014]
+#include "EvtGenModels/EvtPP_Pi0Eta.hh" // [A.L.09.011.2014]
 /// Private Panda Models end
 
 #include "EvtGenModels/EvtModelReg.hh"
@@ -204,6 +205,7 @@ EvtModelReg::EvtModelReg(const std::list<EvtDecayBase*>* extraModels)
     modelist.registerModel(new EvtPP_EtacGamma); //[A.L.27.010.2014]
     modelist.registerModel(new EvtPP_PsiEtaPi0); //[A.L.29.010.2014]
     modelist.registerModel(new EvtPP_Pi0Gamma); //[A.L.02.011.2014]
+    modelist.registerModel(new EvtPP_Pi0Eta); //[A.L.09.011.2014]
     /// private Panda Models end
 
     modelist.registerModel(new EvtBBScalar);
