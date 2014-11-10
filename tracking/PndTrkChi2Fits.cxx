@@ -690,7 +690,8 @@ return 1;
 	+ Stt_DriftRad_DriftRad_Sum;
 
  for(i=0;i<Combinations; i++){
-	M = (A + Stt_DriftRad_IndVar_Sum[i])/(Stt_IndVar_IndVar_Sum + Mvd_IndVar_IndVar_Sum) ;
+	if(Stt_IndVar_IndVar_Sum + Mvd_IndVar_IndVar_Sum != 0) M = (A + Stt_DriftRad_IndVar_Sum[i])/(Stt_IndVar_IndVar_Sum + Mvd_IndVar_IndVar_Sum) ;
+        else M = 0;
 	chi2 =  chi2_fixed +
 		M*M*(Mvd_IndVar_IndVar_Sum + Stt_IndVar_IndVar_Sum)
 		+ 2.*Stt_DriftRad_DipVar_Sum[i]

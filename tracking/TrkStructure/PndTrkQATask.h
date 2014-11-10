@@ -95,6 +95,7 @@ class PndTrkQATask : public FairTask {
   Bool_t IsTubeMultiHit(int tubeID);
   TArrayI GetTubeMultiHits(int tubeID);
   
+  void SetVerbosity(bool verbose) { fVerbose = verbose; }
 
  private:
 

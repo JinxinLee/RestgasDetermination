@@ -77,6 +77,7 @@ TrkData/PndTrkSttHitList.cxx
 TrkData/PndTrkCluster.cxx
 TrkData/PndTrkLegendreCluster.cxx 
 TrkData/PndTrkClusterList.cxx
+TrkData/PndTrkTrackList.cxx      
 TrkData/PndTrkTrack.cxx
 TrkData/PndTrkConformalHit.cxx
 TrkData/PndTrkConformalHitList.cxx

@@ -1342,6 +1342,8 @@ PndTrkCluster PndTrkLegendreTask::CreateSkewHitList(PndTrkTrack *track) {
       // 	display->Modified();
       // 	cin >> goOnChar;   
       //       }
+first.Print();
+second.Print();
       double m1 = (first - second).Y()/(first - second).X();
       double q1 = first.Y() - m1 * first.X();
       

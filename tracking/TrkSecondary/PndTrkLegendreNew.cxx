@@ -200,8 +200,7 @@ void PndTrkLegendreNew::Initialize() {
 }
 
 
-void PndTrkLegendreNew::Exec(Option_t* opt) {
-
+void PndTrkLegendreNew::Exec(Option_t* opt)  {
   // ############## I N I T I A L I Z A T I O N S ##############
   fTrackArray->Delete();
   fTrackCandArray->Delete();
@@ -214,7 +213,6 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     cout << "number of mvdpix hits " << fMvdPixelHitArray->GetEntriesFast() << endl;
     cout << "number of mvdstr hits " << fMvdStripHitArray->GetEntriesFast() << endl;
   }
- 
   // initialize display -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-
   if(fDisplayOn)  {
     Refresh();
@@ -237,7 +235,6 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
   PndTrkClusterList clusterlist = CreateFullClusterization();
   int nofclusters = clusterlist.GetNofClusters(); 
   cout << "CLUSTERLIST " << nofclusters << endl;
-
 
   PndTrkTrackList tracklist;
 
@@ -407,9 +404,8 @@ void PndTrkLegendreNew::Exec(Option_t* opt) {
     cout << "Finish? ";
     cin >> goOnChar;
   }
-    
-  
   Reset();
+
 }
 
 void PndTrkLegendreNew::Reset()
