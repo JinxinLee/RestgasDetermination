@@ -208,7 +208,7 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Binary(const PndSd
 //  return result;
 //}
 
-std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCluster* Cluster, const TH1F* PosVsEta)//, const TH1F* pitch3)
+std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCluster* Cluster, const TH2F* PosVsEta)//, const TH1F* pitch3)
 {
   Int_t nrHits = Cluster->GetClusterSize();
   
@@ -223,11 +223,14 @@ std::pair<Double_t,Double_t> PndSdsChargeWeightingAlgorithms::Eta(const PndSdsCl
   Int_t 	 NmbOfStrips=0;
   
   eta_value = EtaValue(Cluster, stripno, NmbOfStrips);
+
+  Int_t Clustercharge=(Int_t)ceil((DigiCharge(Cluster->GetDigiIndex(0)) + DigiCharge(Cluster->GetDigiIndex(1)))/2500);
+  if(Clustercharge>21)Clustercharge=21;
   
-  result.first=PosVsEta->GetBinContent((Int_t)ceil(eta_value.first * 200.));           //etadist histogram contains 200 bins.
+  result.first=stripno + PosVsEta->GetBinContent((Int_t)ceil(eta_value.first * 500.), Clustercharge);           //etadist histogram contains 200 bins.
   
-  result.second=(PosVsEta->GetBinContent((Int_t)ceil((eta_value.first+eta_value.second) * 200.))
-               - PosVsEta->GetBinContent((Int_t)ceil((eta_value.first-eta_value.second) * 200.)))/2.;
+  result.second=(PosVsEta->GetBinContent((Int_t)ceil((eta_value.first+eta_value.second) * 500.), Clustercharge)
+               - PosVsEta->GetBinContent((Int_t)ceil((eta_value.first-eta_value.second) * 500.), Clustercharge))/2.;
   
   return result;
 }

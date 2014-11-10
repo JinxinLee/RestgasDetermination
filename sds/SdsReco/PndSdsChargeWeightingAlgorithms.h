@@ -67,7 +67,7 @@ public:
 	  	eta(cluster);
   	   @endcode
        */
-	std::pair<Double_t,Double_t> Eta(const PndSdsCluster* Cluster, const TH1F* PosVsEta);
+	std::pair<Double_t,Double_t> Eta(const PndSdsCluster* Cluster, const TH2F* PosVsEta);
 
 	std::pair<Double_t,Double_t> EtaValue(const PndSdsCluster* Cluster, Double_t &stripno, Int_t &NmbOfStrips); // calculates the eta value for the given cluster.
 	         /**
