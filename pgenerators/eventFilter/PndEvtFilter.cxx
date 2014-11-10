@@ -8,7 +8,6 @@
 
 // -----   Default constructor   -------------------------------------------
 PndEvtFilter::PndEvtFilter(): FairEvtFilter(){
-	fdbPdg = TDatabasePDG::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -17,7 +16,6 @@ PndEvtFilter::PndEvtFilter(): FairEvtFilter(){
 // -----   Constructor with name and title   -------------------------------
 PndEvtFilter::PndEvtFilter(const char* name, const char* title)
 : FairEvtFilter(name, title){
-	fdbPdg = TDatabasePDG::Instance();
 }
 // -------------------------------------------------------------------------
 

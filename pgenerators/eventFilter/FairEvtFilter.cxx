@@ -13,6 +13,7 @@ FairEvtFilter::FairEvtFilter()
 {
 	fAcceptedEventNumbers.clear();
 	fParticleList = 0;
+	fdbPdg = TDatabasePDG::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -24,6 +25,7 @@ FairEvtFilter::FairEvtFilter(const char* name, const char* title)
 {
 	fAcceptedEventNumbers.clear();
 	fParticleList = 0;
+	fdbPdg = TDatabasePDG::Instance();
 }
 // -------------------------------------------------------------------------
 
@@ -61,7 +63,6 @@ void FairEvtFilter::PrintAllTParticleInEvent(){
 Bool_t FairEvtFilter::GetCharge ( Int_t inPdgCode, Double_t *pdgCodeCharge )
 {
 	// Try to find the pdg code
-	fdbPdg = TDatabasePDG::Instance();
 	TParticlePDG *ptrToPdg = fdbPdg->GetParticle(inPdgCode);
 	if ( 0 == ptrToPdg) {
 		// ignore particles with unknown charges
