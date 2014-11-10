@@ -10,6 +10,7 @@
 #include "PndVtxPoca.h"
 #include "PndVtxPRG.h"
 #include "TVector.h"
+#include <iostream>
 
 PndRhoTupleQA::PndRhoTupleQA(PndAnalysis *ana, double pbarmom)
 {
@@ -218,16 +219,26 @@ void PndRhoTupleQA::qaEventShapeShort(TString pre, PndEventShape *evsh, RhoTuple
 }
 // -------------------------------------------------------------------------
 // *** store QA for PocaVtx
-void PndRhoTupleQA::qaPoca(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx)
+void PndRhoTupleQA::qaPoca(TString pre, RhoCandidate *c, RhoTuple *n)
 {
 	if (n==0) return;
 
 	// *** simple vtx finder
-	TVector3 vtx;
+	TVector3 vtx, altvtx, primvtx;
 	double qavtx = fVtxPoca->GetPocaVtx(vtx, c);
 	
+	// *** determine poca of rest of tracks
+	RhoCandList l;
+	fAnalysis->FillList(l, "Charged");
+	if (fVtxPoca->GetPocaVtx(primvtx, l)>998.) primvtx.SetXYZ(0.,0.,0.);
+	
+	l.RemoveFamily(c);
+
+	if (l.GetLength()>1) fVtxPoca->GetPocaVtx(altvtx, l);
+	else altvtx = primvtx;
+	
 	double dist=999.;
-	if (primVtx!=0) dist = (vtx-*primVtx).Mag();
+	if (altvtx.Mag()>0.) dist = (vtx-altvtx).Mag();
 
 	// *** store QA info
 	n->Column(pre+"pocvx",  (Float_t) vtx.X(),   0.0f);
@@ -263,7 +274,7 @@ void PndRhoTupleQA::qaPRG(TString pre, RhoCandidate *c, RhoTuple *n)
 // -------------------------------------------------------------------------
 // *** store QA for composite particles
 
-void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx)
+void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 {
 	if (n==0) return;
 
@@ -354,8 +365,8 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* 
 		// only charged final state daughters -> Vtx info with PndVtxPoca
 		if (nchrgfs > 1)
 		{
-			qaPoca(pre, c, n, primVtx);
-			qaVtx(pre, c, n, primVtx);
+			qaPoca(pre, c, n);
+			qaVtx(pre, c, n);
 		}
 	}
 }
@@ -405,20 +416,12 @@ void PndRhoTupleQA::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
 	RhoCandidate *d1 = c->Daughter(1);
 	double ang = d0->P3().Angle(d1->P3());
 
-	TVector3 vtx;
-
 	if (fAnalysis!=0) fAnalysis->McTruthMatch(c);
 	RhoCandidate *truth = c->GetMcTruth();
 
-	double qavtx = fVtxPoca->GetPocaVtx(vtx, c);
-
 	qaCand(pre, c, n);
-
-	n->Column(pre+"vx",  (Float_t) vtx.X(),   0.0f);
-	n->Column(pre+"vy",  (Float_t) vtx.Y(),   0.0f);
-	n->Column(pre+"vz",  (Float_t) vtx.Z(),   0.0f);
-	n->Column(pre+"vd",  (Float_t) vtx.Mag(), 0.0f);
-	n->Column(pre+"vqa", (Float_t) qavtx,     0.0f);
+	qaPoca(pre, c, n);
+	qaVtx(pre, c, n);
 
 	n->Column(pre+"oang",(Float_t) ang,		0.0f);
 
@@ -670,7 +673,7 @@ void PndRhoTupleQA::qaDalitz(TString pre, RhoCandidate *c, RhoTuple *n)
 
 // -------------------------------------------------------------------------
 
-void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* primVtx)
+void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 {
 	if (n==0) return;
 
@@ -689,7 +692,14 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n, TVector3* p
 		
 		// if primary Vertex available, compute ctau relative to that one
 		Float_t ctaud = -999.;
-		if (primVtx!=0) ctaud = (v-*primVtx).Mag()*c->M()/c->P();
+		TVector3 primvtx;
+		
+		// *** determine poca of all charged tracks as primary vertex
+		RhoCandList l;
+		fAnalysis->FillList(l, "Charged");
+		if (fVtxPoca->GetPocaVtx(primvtx, l)>998.) primvtx.SetXYZ(0.,0.,0.);
+		
+		if (primvtx.Mag()>0) ctaud = (v-primvtx).Mag()*c->M()/c->P();
 
 		n->Column(pre+"vx",  	(Float_t) v.X(),		0.0f );
 		n->Column(pre+"vy",  	(Float_t) v.Y(),		0.0f );
@@ -895,7 +905,14 @@ void PndRhoTupleQA::qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n)
 }
 
 // -------------------------------------------------------------------------
+void PndRhoTupleQA::qaMcList(RhoTuple *n, int max)
+{
+	RhoCandList mc;
+	fAnalysis->FillList(mc,"McTruth");
+	qaMcList("",mc,n,max);
+}
 
+// -------------------------------------------------------------------------
 void PndRhoTupleQA::qaMcList(TString pre, RhoCandList &l, RhoTuple *n, int max)
 {
 	if (n==0) return;
