@@ -108,7 +108,7 @@ int fSTModeIndex = 0;
 // -----   Default constructor   -------------------------------------------
 PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TString trigfilename) :
 	FairTask("Panda Softtrigger Task"),
-	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0),	fNsigAux(5.0),	
+	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0),	fNsigAux(3.0),	
 	fTriggerFileName(trigfilename), fPhotosMax(0), fPhotosThresh(0.05), 
 	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
 	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false), fQAMc(false),
@@ -1329,7 +1329,7 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 			
 		if (n)
 		{
-			fQA->qaComp(prefix, l[i], n, &fPrimVtx);
+			fQA->qaComp(prefix, l[i], n);
 			fQA->qaEventShapeShort("es", fEventShape, n);
 			// replace PID mult values from event shape by actual counts with individual algos
 			n->Column("eslnpide", (Float_t)  fPidMult_025[0],		0.0f );
