@@ -234,8 +234,8 @@ InitStatus PndSdsStripClusterTask::Init()
 	fPath += "/macro/params/interstrippos_vs_eta_histos.root";
   
 	etahistofile = new TFile(fPath,"READ");
-	eta_rect = (TH1F*)etahistofile->Get("posvseta rect");
-	eta_trap = (TH1F*)etahistofile->Get("posvseta trap");
+	eta_rect = (TH2F*)etahistofile->Get("posvseta rect");
+	eta_trap = (TH2F*)etahistofile->Get("posvseta trap");
   
   Info("Init","Initialisation successfull");
   return kSUCCESS;
