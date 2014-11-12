@@ -47,6 +47,7 @@ RhoCandidate::RhoCandidate() :
   fMicroCand ( 0 ),
   fTrackNumber ( -1 ),
   fUid ( 0 ),
+  fNDaug ( 0 ),
   //fDaugList ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
@@ -72,6 +73,7 @@ RhoCandidate::RhoCandidate ( const TLorentzVector& v, Double_t charge, RhoVector
   fMicroCand ( 0 ),
   fTrackNumber ( -1 ),
   fUid ( 0 ),
+  fNDaug ( 0 ),
   //fDaugList ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
@@ -100,6 +102,7 @@ RhoCandidate::RhoCandidate ( const TVector3& v, const TParticlePDG* pdt, RhoVect
   fMicroCand ( 0 ),
   fTrackNumber ( -1 ),
   fUid ( 0 ),
+  fNDaug ( 0 ),
  // fDaugList ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
@@ -129,6 +132,7 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
 //   fTruth = o.fTruth;
   fTrackNumber = o.fTrackNumber;
   fUid = o.fUid;
+  fNDaug = o.fNDaug;
   fMicroCand = o.fMicroCand;
 
   fMarker[0] = o.fMarker[0];
@@ -150,8 +154,8 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o.fErrP7[i]; }
   }
 
-  for ( int i=0; i<o.NDaughters(); i++ ) {
-    fDaughters.push_back(o.fDaughters[i]);
+  for ( int i=0; i<o.fNDaug; i++ ) {
+    fDaughters[i] = o.fDaughters[i];
   }
 
   fNCons = 0;
@@ -184,6 +188,7 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n) :
   //      fTruth ( 0 ),
   fMicroCand ( &a ),
   fTrackNumber ( -1 ),
+  fNDaug ( 0 ),
   //fDaugList ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
@@ -229,6 +234,7 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err& vp, B
   //      fTruth ( 0 ),
   fMicroCand ( &a ),
   fTrackNumber ( -1 ),
+  fNDaug ( 0 ),
   //fDaugList ( 0 ),
   fNCons ( 0 ),
   fChi2 ( 0 ),
@@ -291,6 +297,7 @@ RhoCandidate::operator = ( const RhoCandidate& o )
 //    fTruth = o.fTruth;
   fTrackNumber = o.fTrackNumber;
   fUid = o.fUid;
+  fNDaug = o.fNDaug;
   fMicroCand = o.fMicroCand;
 
   fMarker[0] = o.fMarker[0];
@@ -312,9 +319,10 @@ RhoCandidate::operator = ( const RhoCandidate& o )
     for ( i=0; i<MATRIXSIZE; i++ ) { fErrP7[i] = o.fErrP7[i]; }
   }
 
-  for ( int i=0; i<o.NDaughters(); i++ ) {
-    fDaughters.push_back(o.fDaughters[i]);
+  for ( int i=0; i<o.fNDaug; i++ ) {
+    fDaughters[i] = o.fDaughters[i];
   }
+  
   fNCons = 0;
 //  if (o.nCons > 0) {
 //    for (int i=0;i<o.nCons;i++) AddConstraint(*o.fConstraints[i]);
@@ -890,7 +898,7 @@ RhoCandidate::SetDecayVtx ( RhoVector3Err  theVtx )
 Int_t
 RhoCandidate::NDaughters() const
 {
-  return fDaughters.size();
+  return fNDaug;
 }
 
 // void
@@ -928,12 +936,19 @@ RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand , bool verbose)
   if ( NDaughters()==0 ) { SetCharge ( 0 ); }
   SetCharge ( Charge() +cand->Charge() );
 
-//   if (NDaughters()>=5) {
-//    if(verbose) cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than 5 daughters." << endl;
-//     return;
-//   }
+  if (NDaughters()>=MAXDAUG) {
+   if(verbose) 
+   {
+		cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than "<<MAXDAUG<<" daughters." << endl;
+		cout <<PdgCode()<<" -> ";
+		for (int i=0;i<fNDaug;++i) cout <<Daughter(i)->PdgCode()<<" ";
+		cout <<"; want to add "<< d->PdgCode() <<endl;
+   }
+    return;
+  }
 
-  fDaughters.push_back(d);
+  fDaughters[fNDaug++] = d;
+  //fDaughters.push_back(d);
 
   // set the daughter's mother link
   // ******** modified K Goetzen
@@ -961,7 +976,8 @@ RhoCandidate::RemoveDaughter ( RhoCandidate* d )
       break;
     }
   }
-  fDaughters.pop_back(); //remove last element
+  fNDaug--;
+  //fDaughters.pop_back(); //remove last element
   // destroy the daughter
   //delete d;
 
@@ -985,7 +1001,7 @@ RhoCandidate::Mass() const
 RhoCandidate*
 RhoCandidate::Daughter ( Int_t n )
 {
-  if ( n >=0 && n < fDaughters.size() ) {
+  if ( n >=0 && n < fNDaug ) {
     return fDaughters[n];
   } else {
     return 0;
@@ -1289,7 +1305,7 @@ void RhoCandidate::RemoveAssociations()
   //if (fTheMother!=0) DropMotherLink(); fTheMother = 0;
   
   fTheMother=0; //make sure to drop associations only here.
-  fDaughters.clear();
+  fNDaug=0;
 
   // ************************
 
@@ -1351,6 +1367,27 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
   cand->AddDaughterLinkSimple(c1);
   cand->AddDaughterLinkSimple(c2);
   cand->AddDaughterLinkSimple(c3);
+
+  return cand;
+}
+
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4 )
+{
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4(), Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() );
+  RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1]|c3->fMarker[1]|c4->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2]|c3->fMarker[2]|c4->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3]|c3->fMarker[3]|c4->fMarker[3],3 );
+
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() +c4->P4Cov() );
+
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
+  cand->AddDaughterLinkSimple(c3);
+  cand->AddDaughterLinkSimple(c4);
 
   return cand;
 }

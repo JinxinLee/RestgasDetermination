@@ -34,6 +34,7 @@ class RhoError;
 class RhoCandListIterator;
 
 #define MATRIXSIZE 28
+#define MAXDAUG 15
 
 
 //      ---------------------
@@ -76,8 +77,9 @@ class RhoCandidate : public TObject
     UInt_t fUid;  //! unique number
 
     // Daughters
-    std::vector<RhoCandidate*> fDaughters; //! List of Daughters
-
+//    std::vector<RhoCandidate*> fDaughters; //! List of Daughters
+    RhoCandidate* fDaughters[MAXDAUG]; //! List of Daughters
+	Int_t fNDaug;
     // Constraints
 //    TConstraint* fConstraints[5];   //! Array of constraints
     Short_t fNCons;          //! Number of constraints
@@ -374,6 +376,7 @@ class RhoCandidate : public TObject
     //************** added Combine for more candidates K.Goetzen, 05/2008
     RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2 );
     RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4 );
 
     // two Candidates overlap if they are identical
     // (same pointers), equal (same Base),
