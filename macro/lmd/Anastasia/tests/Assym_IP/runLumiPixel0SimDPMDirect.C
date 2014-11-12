@@ -179,7 +179,7 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   double beam_X0=xT0*0.1; //input in mm!
   double beam_Y0=yT0*0.1; 
-  double beam_width_sigma_X=1.8; double beam_width_sigma_Y=1.8;
+  double beam_width_sigma_X=0.1; double beam_width_sigma_Y=0.1;
   primGen->SmearVertexXY(kTRUE);
   double target_Z0=0;
   double target_width_Z=1.5;
