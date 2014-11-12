@@ -24,7 +24,7 @@ pbeam=$mom
 # ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-path=${VMCWORKDIR}/macro/lmd/testFTF/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/testFTFtesttest/mom_${momStr}/
 
 mkdir -p ${path}
 #number of trks per event
@@ -62,7 +62,7 @@ WrAllMC=true
 ##############
 
 #simulation with FTF generator
-root -l -b -q runLumiPixel0SimFTF.C\(${numEv},0,${pbeam},"\"/panda/pandaroot/pgenerators/FtfEvtGen/FTF_inel.root\"","\"${path}\""\)
+root -l -b -q runLumiPixel0SimFTF.C\(${numEv},0,${pbeam},"\"/panda/pandaroot/pgenerators/FtfEvtGen/FTF.root\"","\"${path}\""\)
 # #simulation with Box generator
 ##root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 

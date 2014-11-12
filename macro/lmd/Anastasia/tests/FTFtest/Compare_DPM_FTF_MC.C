@@ -8,14 +8,17 @@ void Compare_DPM_FTF_MC(){
   TString resname_pdf_o = resname_pdf+"(";
   TString resname_pdf_c = resname_pdf+")";
   Long64_t nentries = 2e7;
+  //Long64_t nentries = 2e3;
 // virtual Long64_t	Project(const char* hname, const char* varexp, const char* selection = "", Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0)
-
-  TString cond = "Particles.Theta()<0.150 && Npart>0";
+ double th_lim=150;
+ TString cond = "Particles.Theta()<0.150 && Npart>0";
+  // double th_lim=TMath::Pi();
+  // TString cond = "Particles.Theta()<2*TMath::Pi()";
   TFile * finDPM = new TFile("DPM_inel_15GeV.root","READ");
   TTree *treeDPM = (TTree *)finDPM->Get("data");
   TH1 *nmultDPM = new TH1I("nmultDPM",";trks/ev",20,0,20);
   treeDPM->Project("nmultDPM","Npart","","",nentries);
-  TH1 *thMCdpm = new TH1D("thMCdpm",";#theta_{MC}, mrad",3e3,0,150);
+  TH1 *thMCdpm = new TH1D("thMCdpm",";#theta_{MC}, rad",3e3,0,th_lim);
   int nDPM = treeDPM->Project("thMCdpm","1e3*Particles.Theta()",cond.Data(),"",nentries);
   cout<<"nDPM = "<<nDPM<<endl;
   TH1 *phMCdpm = new TH1D("phMCdpm",";#phi_{MC}, rad",3e3,0,2*TMath::Pi());
@@ -26,7 +29,7 @@ void Compare_DPM_FTF_MC(){
   TTree *treeFTF = (TTree *)finFTF->Get("data");
   TH1 *nmultFTF = new TH1I("nmultFTF",";trks/ev",20,0,20);
   treeFTF->Project("nmultFTF","Npart","","",nentries);
-  TH1 *thMCftf = new TH1D("thMCftf",";#theta_{MC}, mrad",3e3,0,150);
+  TH1 *thMCftf = new TH1D("thMCftf",";#theta_{MC}, rad",3e3,0,th_lim);
   int nFTF = treeFTF->Project("thMCftf","1e3*Particles.Theta()",cond.Data(),"",nentries);
   cout<<"nFTF = "<<nFTF<<endl;
   TH1 *phMCftf = new TH1D("phMCftf",";#phi_{MC}, rad",3e3,0,2*TMath::Pi());
@@ -39,6 +42,7 @@ void Compare_DPM_FTF_MC(){
   leg->SetFillColor(0);
   leg->SetName("leg");
   TCanvas c1;
+  //c1.SetLogy();
   nmultDPM->SetLineColor(1);
   nmultDPM->SetLineWidth(2.5);
   nmultFTF->SetLineColor(2);
@@ -55,6 +59,8 @@ void Compare_DPM_FTF_MC(){
   nmultnue->Add(nmultnorm,-1);
   nmultnue->Divide(nmultnue,nmultnorm,100,1);
   nmultnue->GetYaxis()->SetTitle("(FTF-DPM)/DPM, %");
+  // nmultnue->SetMaximum(50.);
+  // nmultnue->SetMinimum(-50.);
   nmultnue->Draw();
   c1.Print(resname_pdf_o);
   c1.Clear();
@@ -63,10 +69,10 @@ void Compare_DPM_FTF_MC(){
   thMCdpm->SetLineWidth(2.5);
   thMCftf->SetLineColor(2);
   thMCftf->SetLineWidth(2.5);
-  thMCftf->SetMinimum(0);
-  thMCftf->SetMaximum(2e4);
-  thMCftf->Draw();
-  thMCdpm->Draw("same");
+  thMCdpm->SetMinimum(0);
+  //  thMCftf->SetMaximum(2e4);
+  thMCdpm->Draw();
+  thMCftf->Draw("same");
   leg->Draw();
   c1.Print(resname_pdf_o);
   c1.Clear();
@@ -76,6 +82,8 @@ void Compare_DPM_FTF_MC(){
   thMCnue->Divide(thMCnue,thMCnorm,100,1);
   thMCnue->GetYaxis()->SetTitle("(FTF-DPM)/DPM, %");
   thMCnue->Draw();
+  // thMCnue->SetMinimum(-50);
+  // thMCnue->SetMaximum(50);
   c1.Print(resname_pdf_o);
   c1.Clear();
 
@@ -83,9 +91,9 @@ void Compare_DPM_FTF_MC(){
   phMCdpm->SetLineWidth(2.5);
   phMCftf->SetLineColor(2);
   phMCftf->SetLineWidth(2.5);
-  phMCftf->SetMinimum(0);
-  phMCftf->Draw();
-  phMCdpm->Draw("same");
+  phMCdpm->SetMinimum(0);
+  phMCdpm->Draw();
+  phMCftf->Draw("same");
   leg->Draw();
   c1.Print(resname_pdf_o);
   c1.Clear();
@@ -95,6 +103,8 @@ void Compare_DPM_FTF_MC(){
   phMCnue->Divide(phMCnue,phMCnorm,100,1);
   phMCnue->GetYaxis()->SetTitle("(FTF-DPM)/DPM, %");
   phMCnue->Draw();
+  phMCnue->SetMinimum(-10);
+  phMCnue->SetMaximum(10);
   c1.Print(resname_pdf_o);
   c1.Clear();
 
@@ -102,9 +112,9 @@ void Compare_DPM_FTF_MC(){
   momMCdpm->SetLineWidth(2.5);
   momMCftf->SetLineColor(2);
   momMCftf->SetLineWidth(2.5);
-  momMCftf->SetMinimum(0);
-  momMCftf->Draw();
-  momMCdpm->Draw("same");
+  momMCdpm->SetMinimum(0);
+  momMCdpm->Draw();
+  momMCftf->Draw("same");
   leg->Draw();
   c1.Print(resname_pdf_o);
   c1.Clear();
@@ -114,6 +124,8 @@ void Compare_DPM_FTF_MC(){
   momMCnue->Divide(momMCnue,momMCnorm,100,1);
   momMCnue->GetYaxis()->SetTitle("(FTF-DPM)/DPM, %");
   momMCnue->Draw();
+  momMCnue->SetMinimum(-100);
+  momMCnue->SetMaximum(500);
   c1.Print(resname_pdf_c);
   
   TString out = resname+".root";
