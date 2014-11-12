@@ -9,18 +9,19 @@ using namespace std;
 void trickySummaryAlign(TString pathGi="/panda/pandaroot/macro/lmd/testPixelAlignSIM_", double tr_sc=0, double rt_sc=0)
 //void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10000/mom_15//", double tr_sc=0, double rt_sc=0)
 {
-
-  TString pathG1=pathGi+"1000000/mom_15/";
-  //  TString pathG2=pathGi+"400000/mom_15/";
-  TString pathG2=pathGi+"1000000/mom_15/";
+  gStyle->SetLabelSize(0.045,"xyz");
+  gStyle->SetTitleXSize(0.04);
+  gStyle->SetTitleYSize(0.04);
+  gStyle->SetTitleYOffset(1.2);
+  TString pathG1=pathGi+"3000000/mom_15/";
+  TString pathG2=pathGi+"3000000/mom_15/";
   const int colors[4] = {28,kAzure+2,46,8};
   const int colors_a[4] = {kViolet-6,kOrange+7,kGreen+3,kRed+1};
   const int ntrksSample = 1e4;
   const double i_TrksSimi = 100./ntrksSample; //relative to simulated in %
-  const int nParDt=6;
-  double v_Dt[nParDt]={0, 50, 100, 200, 300, 400};
-  
- const int nParDa=4;
+  const int nParDt=10;
+  double v_Dt[nParDt]={0, 50, 100, 200, 300, 400, 500, 600, 800, 1000};
+  const int nParDa=4;
  double v_Da[nParDa]={0,1,3,5};
  const int nS=1;
  double TrksSim[nParDa][nParDt];
@@ -309,9 +310,10 @@ void trickySummaryAlign(TString pathGi="/panda/pandaroot/macro/lmd/testPixelAlig
  mgr_theta_b->SetTitle("Before");
  mgr_theta_b->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_theta_b->GetYaxis()->SetTitle("#theta_{mean}, #murad");
- mgr_theta_b->GetHistogram()->SetMaximum(1.5*max_theta_mean_b);
- mgr_theta_b->GetHistogram()->SetMinimum(0.5*min_theta_mean_b);
- if(min_theta_mean_b<0) mgr_theta_b->GetHistogram()->SetMinimum(1.5*min_theta_mean_b);
+ mgr_theta_b->GetHistogram()->SetMaximum(1.1*max_theta_mean_b);
+ mgr_theta_b->GetHistogram()->SetMinimum(0.9*min_theta_mean_b);
+ if(min_theta_mean_b<0) mgr_theta_b->GetHistogram()->SetMinimum(1.1*min_theta_mean_b);
+ if(max_theta_mean_b<0) mgr_theta_b->GetHistogram()->SetMaximum(0.9*max_theta_mean_b);
  c1.Print(resname_pdf_o); //write canvas and keep the ps file open
  c1.Clear();
  
@@ -321,9 +323,12 @@ void trickySummaryAlign(TString pathGi="/panda/pandaroot/macro/lmd/testPixelAlig
  mgr_theta->SetTitle("After");
  mgr_theta->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_theta->GetYaxis()->SetTitle("#theta_{mean}, #murad");
- mgr_theta->GetHistogram()->SetMaximum(1.5*max_theta_mean_a);
- mgr_theta->GetHistogram()->SetMinimum(0.5*min_theta_mean_a);
- if(min_theta_mean_a<0) mgr_theta->GetHistogram()->SetMinimum(1.5*min_theta_mean_a);
+ cout<<max_theta_mean_a<<" "<<-0.1*fabs(max_theta_mean_a)<<endl;
+ if(max_theta_mean_a>0) mgr_theta->GetHistogram()->SetMaximum(-0.1*fabs(max_theta_mean_a));
+ else  mgr_theta->GetHistogram()->SetMaximum(1.3*max_theta_mean_a);
+ if(min_theta_mean_a<0) mgr_theta->GetHistogram()->SetMinimum(-1.3*fabs(min_theta_mean_a));
+ else mgr_theta->GetHistogram()->SetMinimum(0.7*min_theta_mean_a);
+ c1.Update();
  c1.Print(resname_pdf_o); //write canvas and keep the ps file open
  c1.Clear();
  ///// theta rms
@@ -358,8 +363,8 @@ void trickySummaryAlign(TString pathGi="/panda/pandaroot/macro/lmd/testPixelAlig
  leg_b->Draw();
  mgr_theta_b_rms->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_theta_b_rms->GetYaxis()->SetTitle("#theta_{rms}, #murad");
- mgr_theta_b_rms->GetHistogram()->SetMaximum(1.5*max_theta_rms_b);
- mgr_theta_b_rms->GetHistogram()->SetMinimum(0.5*min_theta_rms_b);
+ mgr_theta_b_rms->GetHistogram()->SetMaximum(1.1*max_theta_rms_b);
+ mgr_theta_b_rms->GetHistogram()->SetMinimum(0.9*min_theta_rms_b);
  mgr_theta_b_rms->SetTitle("Before");
  c1.Print(resname_pdf_o); //write canvas and keep the ps file open
  c1.Clear();
@@ -369,8 +374,8 @@ void trickySummaryAlign(TString pathGi="/panda/pandaroot/macro/lmd/testPixelAlig
  leg_a->Draw();
  mgr_theta_rms->GetXaxis()->SetTitle("#Delta_{t}, #mum");
  mgr_theta_rms->GetYaxis()->SetTitle("#theta_{rms}, #murad");
- mgr_theta_rms->GetHistogram()->SetMaximum(1.5*max_theta_rms_a);
- mgr_theta_rms->GetHistogram()->SetMinimum(0.5*min_theta_rms_a);
+ mgr_theta_rms->GetHistogram()->SetMaximum(1.1*max_theta_rms_a);
+ mgr_theta_rms->GetHistogram()->SetMinimum(0.9*min_theta_rms_a);
  mgr_theta_rms->SetTitle("After");
  c1.Print(resname_pdf_o); //write canvas and keep the ps file open
  c1.Clear();
@@ -445,7 +450,7 @@ void trickySummaryAlign(TString pathGi="/panda/pandaroot/macro/lmd/testPixelAlig
  }
 
  //c1.Print(resname_pdf_c); //write canvas and close the file
-TLegend *leg2 = new TLegend(0.78,0.58,0.98,0.98);
+TLegend *leg2 = new TLegend(0.13,0.13,0.38,0.52);
  leg2->SetFillColor(0);
 
  TMultiGraph *mgr_stat = new TMultiGraph();

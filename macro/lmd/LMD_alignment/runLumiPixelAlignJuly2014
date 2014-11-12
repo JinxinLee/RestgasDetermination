@@ -7,27 +7,14 @@
 echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
 read mom
 echo "Beam mometum is: $mom!"
+echo Enter sample number:
+read sNum
 cd ${VMCWORKDIR}/macro/lmd/
 PANDAROOTmy=/panda/karavdina/
 pbeam=$mom
-# ### pick up half solenoid maps for 1.5 GeV/c [tmp, should be removed one day!] ###
-# solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
-# if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
-#     echo "FULL solenoid field maps"
-#     ln -sf ${VMCWORKDIR}/input/solenoid_fc/* ${VMCWORKDIR}/input/.
-# else
-#     echo "HALF solenoid field maps"
-#     ln -sf ${VMCWORKDIR}/input/solenoid_hc/* ${VMCWORKDIR}/input/.
- # fi
-# ######################################################
-
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-
-
 #path=${VMCWORKDIR}/macro/lmd/testPixelAlignChallenge/mom_${momStr}/
 # # create misalignment consts
-#TRANS=(0 50 100 200 400 600 800) #mkm
-#TRANS=(1000) #mkm
 TRANS=(0 50 100 200 300 400 500 600 800 1000) #mkm
 #TRANS=(0) #mkm
 TRANSN=${#TRANS[@]}
@@ -40,11 +27,14 @@ ROTN=${#ROT[@]}
 	    dr=${TRANS[${jt}]}
 	    da=${ROT[${jr}]}
 	    #number of events
-	    #numEvB=1000000
-	    numEvB=400000
+	    #for alignment
+	    #numEvB=3000000
+	    numEvB=5000000
+	    #for results test
 	    numEvA=10000
+	#    numEvA=1000	   
 	    numEv=${numEvB}
-
+	    pathMC=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX${sNum}/mom_${momStr}
 	    path=${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/mom_${momStr}/${dr}mkm_${da}mrad/
 	    mkdir -p ${path}
 	    #number of trks per event
@@ -92,18 +82,13 @@ ROTN=${#ROT[@]}
 		# cp ${VMCWORKDIR}/macro/lmd/LMD_alignment/lumi.align_pixel_ideal.par ${path}/lumi.misalign_pixel.par
 		
 		# #simulation with Box generator
-		if [ ! -r  ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_MC_0.root ]; then
-		    mkdir -p ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/
-		    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
-			cp ${path}/Lumi_MC_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/.
-			cp ${path}/Lumi_Params_0.root ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/.
+		if [ ! -r ${pathMC}/Lumi_MC_0.root ]; then
+		    mkdir -p ${pathMC}
+		    root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${pathMC}\"",0,-2212,${pbeam},${numTrks},0\)
 		fi
-		cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_MC_0.root ${path}/.
-		cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_Params_0.root ${path}/.
-		# #copy MC data for ideal case
-		# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_MC_0.root ${path}/.
-		# cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM/mom_${momStr}/0mkm_0mrad/Lumi_Params_0.root ${path}/.
-		
+		#copy data from MC data storage 
+		cp ${pathMC}/Lumi_MC_0.root ${path}/.
+		cp ${pathMC}/Lumi_Params_0.root ${path}/.
 		### #simulation with DPM
 		## #modeDPM=1 #el+inel
 		##   root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)
@@ -134,27 +119,27 @@ ROTN=${#ROT[@]}
      cp ${path}/Lumi_TrackFiltered_0.root ${path}/Lumi_Track_0.root
 #back-propgation GEANE
 ### Possible options: "Geane", "RK"
-     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+     root -l -b -q runLumiPixel5BackProp.C\(${numEvA},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
 
 #clean signal from background (momentum cut or MVA cut)
 	 if [ $CleanSig == "true" ]; then 
-	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
+	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEvA},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
 	 fi
 	 #combined filter (X&Y and M cuts)
 	 if [ $CombFilt == "true" ]; then 
-	     root -l -b -q runLumiPixel5cCombFilt.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
+	     root -l -b -q runLumiPixel5cCombFilt.C\(${numEvA},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
 	 fi
 
 # # Quality assurance task(s)
 	 if [ $CombFilt == "true" ]; then 
-	     root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CombFilt}\)
+	     root -l -b -q runLumiPixel7QA.C\(${numEvA},0,"\"${path}\"",0,${pbeam},${CombFilt}\)
 	 else
-	     root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CleanSig}\)
+	     root -l -b -q runLumiPixel7QA.C\(${numEvA},0,"\"${path}\"",0,${pbeam},${CleanSig}\)
 	 fi
 	 if [ $CombFilt == "true" ]; then 
-	     root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CombFilt}\)
+	     root -l -b -q runLumiPixel7TrksQA.C\(${numEvA},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CombFilt}\)
 	 else
-	     root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
+	     root -l -b -q runLumiPixel7TrksQA.C\(${numEvA},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
 	 fi
 	  mv ${path}/Lumi_QA_0.root  ${path}/Lumi_QA_before.root 
 ### And now give some work to Millipede
@@ -222,9 +207,9 @@ CombFilt=false
 
 # #simulation with Box generator
 #   root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\)
-
-cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_MC_0.root ${path}/.
-cp ${VMCWORKDIR}/macro/lmd/testPixelAlignSIM_${numEvB}/MCfilesBOX/mom_${momStr}/Lumi_Params_0.root ${path}/.
+	#copy data from MC data storage 
+		cp ${pathMC}/Lumi_MC_0.root ${path}/.
+		cp ${pathMC}/Lumi_Params_0.root ${path}/.
 # #simulation with DPM
  #modeDPM=1 #el+inel
  #   root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,3562,$modeDPM,0.12\)

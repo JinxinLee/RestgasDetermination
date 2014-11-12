@@ -226,7 +226,6 @@ TH2D *htheta_mean = new TH2D("htheta_mean","#theta_{MEAN}; #Delta_{t}, #mum;#Del
  hX_rms->Write();
  hY_mean->Write();
  hY_rms->Write();
-
  f->Write();
  f->Close();
 }
