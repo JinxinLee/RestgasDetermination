@@ -1,7 +1,7 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumiPixel0SimBoxTarget(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int trkNum=1, const int seed=0)
+void runLumiPixel0SimBoxTarget(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int trkNum=1, const int seed=0, double zT0=0)
 {
 
   // ///PROOF lite
@@ -152,9 +152,11 @@ double beam_X0=0.; double beam_Y0=0.; double beam_width_sigma_X=1.8; double beam
   // double target_Z0=5.;
   // // //END shift 5 cm -------------------------------
   // //  step 5 cm -------------------------------
-  double target_Z0=0.;
+  //  double target_Z0=-10.;
+  double target_Z0=zT0;
+  double target_width_Z=1.5;
   // double target_width_Z=10.;//+/- 5 cm
-  double target_width_Z=100.;//+/- 50 cm
+  //  double target_width_Z=100.;//+/- 50 cm
   // //  END step 5 cm -------------------------------
 
   

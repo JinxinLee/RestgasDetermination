@@ -11,28 +11,28 @@ read mom
 echo "Beam mometum is: $mom!"
 cd ${VMCWORKDIR}/macro/lmd/
 pbeam=$mom
-### pick up half solenoid maps for 1.5 GeV/c [tmp, should be removed one day!] ###
-solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
-if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
-    echo "FULL solenoid field maps"
-    ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_fc/* ${VMCWORKDIR}/input/.
-else
-    echo "HALF solenoid field maps"
-    ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_hc/* ${VMCWORKDIR}/input/.
-fi
-######################################################
+# ### pick up half solenoid maps for 1.5 GeV/c [tmp, should be removed one day!] ###
+# solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
+# if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
+#     echo "FULL solenoid field maps"
+#     ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_fc/* ${VMCWORKDIR}/input/.
+# else
+#     echo "HALF solenoid field maps"
+#     ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_hc/* ${VMCWORKDIR}/input/.
+# fi
+# ######################################################
+for zT in 20 50
+do
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-#path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_ZXplane_Step5cm/mom_${momStr}/
-#path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_Line_Step50cm_XYStep9mm/mom_${momStr}/
-path=${VMCWORKDIR}/macro/lmd/testTraceRestGas/mom_${momStr}/
-#path=${VMCWORKDIR}/macro/lmd/testTargetBeamProfile_Line_Step50cm/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/Anastasia/tests/RestGas/testRestGas_z_${zT}cm/mom_${momStr}/
 
 mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #number of events
-numEv=100000
+numEv=1000000
+#numEv=100
 
 ##############
 # set flags
@@ -61,7 +61,7 @@ SkipRec=false
 ##############
 
 # #simulation with Box generator
-root -l -b -q Anastasia/tests/RestGas/runLumiPixel0SimBoxTarget.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/tests/RestGas/runLumiPixel0SimBoxTarget.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562,${zT}\) 
 
 # # #simulation with DPM
 #   #  modeDPM=0 #inel
@@ -71,11 +71,11 @@ if [ $SkipRec == "false" ]; then
 #   root -l -b -q runLumiPixel0SimDPMDirectNOdipole.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\) 
 #  root -l -b -q runLumiPixel0SimBoxNOdipole.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam}\) 
 # #digi
-     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
+     root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
 # #hit reconstruction
-     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\) 
+     root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\) 
 # ##merge hits
-     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+     root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
 
 #switch on "missing plane" search algorithm
 	 misspl=true
@@ -83,13 +83,13 @@ if [ $SkipRec == "false" ]; then
 	 trkcut=true
 ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
 ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
-     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+     root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
 
 #track fit: 
 ### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
-       root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
+       root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
 #track filter (on number of hits and chi2)
-     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut}\) 
+     root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut}\) 
 
 #save filtered results as standart Track array
      mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
@@ -97,19 +97,19 @@ if [ $SkipRec == "false" ]; then
 
 #back-propgation GEANE
 ### Possible options: "Geane", "RK"
-    # root -l -b -q Anastasia/tests/RestGas/runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
-root -l -b -q Anastasia/tests/RestGas/runLumiPixel5BPtest.C\(${numEv},0,"\"${path}\"",10,"\"Geane\"",${mergedHits},${pbeam}\)
+     root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+ # root -l -b -q Anastasia/tests/RestGas/runLumiPixel5BPtest.C\(${numEv},0,"\"${path}\"",10,"\"Geane\"",${mergedHits},${pbeam}\)
 fi 
 #clean signal from background (momentum cut or MVA cut)
 	 if [ $CleanSig == "true" ]; then 
-	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
+	     root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam}\)
 	 fi
 
 # # Quality assurance task(s)
-      root -l -b -q runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CleanSig}\)
-      root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
-      root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
-      root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
-
+      root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel7QA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${CleanSig}\)
+      root -l -b -q ${VMCWORKDIR}/macro/lmd/runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
+#      root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
+  #    root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
+done
 ## for trace of back propagation (works only if runLumiPixel5BPtest.C was used!)
-root -l -b -q Anastasia/tests/BPmanySteps/MC_REC_MCLMD.C\("\"${path}\""\)
+# root -l -b -q Anastasia/tests/BPmanySteps/MC_REC_MCLMD.C\("\"${path}\""\)
