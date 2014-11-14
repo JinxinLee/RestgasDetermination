@@ -1,5 +1,5 @@
 void DrawAssym(){
-  TFile *finIDEAL = new TFile("testAssym_x_0mm_y_0mm/DPM/mom_1_5/HitsAssym_x_y_1_5GeV.root","READ");
+  TFile *finIDEAL = new TFile("/panda/myResults/AssymIP/DPM/mom_1_5/x_0mm_y_0mm/HitsAssym_x_y_1_5GeV.root","READ");
 
   //X0
   TGraphErrors *modX0_ideal = (TGraphErrors*)finIDEAL->Get("modX0");
@@ -24,13 +24,13 @@ TGraphErrors *modY0_ideal = (TGraphErrors*)finIDEAL->Get("modY0");
   errSLY_ideal = modSLY_ideal->GetEY();
 
   //x = 5, y = 0
-  TFile *fin_xpl5mm_y0mm = new TFile("testAssym_x_5mm_y_0mm/DPM/mom_1_5/HitsAssym_x_y_1_5GeV.root","READ");
+  TFile *fin_xpl5mm_y0mm = new TFile("/panda/myResults/AssymIP/DPM/mom_1_5/x_5mm_y_0mm/HitsAssym_x_y_1_5GeV.root","READ");
   TGraphErrors *modX0_xpl5mm_y0mm = (TGraphErrors*)fin_xpl5mm_y0mm->Get("modX0");
   modX0_xpl5mm_y0mm->SetMarkerColor(4);
   Double_t *X0_xpl5mm_y0mm; Double_t *errX0_xpl5mm_y0mm;
   X0_xpl5mm_y0mm = modX0_xpl5mm_y0mm->GetY();
   errX0_xpl5mm_y0mm = modX0_xpl5mm_y0mm->GetEY();
-  double diffX0_xpl5mm_y0mm[10];   double errdiffX0_xpl5mm_y0mm[10];
+  double diffX0_xpl5mm_y0mm[20];   double errdiffX0_xpl5mm_y0mm[20];
   for(int i=0;i<modX0_ideal->GetN();i++){
     diffX0_xpl5mm_y0mm[i] = X0_xpl5mm_y0mm[i] - X0_ideal[i];
     errdiffX0_xpl5mm_y0mm[i] = 0.5*sqrt(errX0_ideal[i]*errX0_ideal[i]+errX0_xpl5mm_y0mm[i]*errX0_xpl5mm_y0mm[i]);
@@ -44,7 +44,7 @@ TGraphErrors *modY0_ideal = (TGraphErrors*)finIDEAL->Get("modY0");
   Double_t *Y0_xpl5mm_y0mm; Double_t *errY0_xpl5mm_y0mm;
   Y0_xpl5mm_y0mm = modY0_xpl5mm_y0mm->GetY();
   errY0_xpl5mm_y0mm = modY0_xpl5mm_y0mm->GetEY();
-  double diffY0_xpl5mm_y0mm[10];   double errdiffY0_xpl5mm_y0mm[10];
+  double diffY0_xpl5mm_y0mm[20];   double errdiffY0_xpl5mm_y0mm[20];
   for(int i=0;i<modY0_ideal->GetN();i++){
     diffY0_xpl5mm_y0mm[i] = Y0_xpl5mm_y0mm[i] - Y0_ideal[i];
     errdiffY0_xpl5mm_y0mm[i] = 0.5*sqrt(errY0_ideal[i]*errY0_ideal[i]+errY0_xpl5mm_y0mm[i]*errY0_xpl5mm_y0mm[i]);
@@ -59,7 +59,7 @@ TGraphErrors *modY0_ideal = (TGraphErrors*)finIDEAL->Get("modY0");
   SLX_xpl5mm_y0mm = modSLX_xpl5mm_y0mm->GetY();
   errSLX_xpl5mm_y0mm = modSLX_xpl5mm_y0mm->GetEY();
 
-  double diffSLX_xpl5mm_y0mm[10];   double errdiffSLX_xpl5mm_y0mm[10];
+  double diffSLX_xpl5mm_y0mm[20];   double errdiffSLX_xpl5mm_y0mm[20];
   for(int i=0;i<modSLX_ideal->GetN();i++){
     diffSLX_xpl5mm_y0mm[i] = SLX_xpl5mm_y0mm[i] - SLX_ideal[i];
     errdiffSLX_xpl5mm_y0mm[i] = 0.5*sqrt(errSLX_ideal[i]*errSLX_ideal[i]+errSLX_xpl5mm_y0mm[i]*errSLX_xpl5mm_y0mm[i]);
@@ -73,7 +73,7 @@ TGraphErrors *modY0_ideal = (TGraphErrors*)finIDEAL->Get("modY0");
   Double_t *SLY_xpl5mm_y0mm; Double_t *errSLY_xpl5mm_y0mm;
   SLY_xpl5mm_y0mm = modSLY_xpl5mm_y0mm->GetY();
   errSLY_xpl5mm_y0mm = modSLY_xpl5mm_y0mm->GetEY();
-  double diffSLY_xpl5mm_y0mm[10];   double errdiffSLY_xpl5mm_y0mm[10];
+  double diffSLY_xpl5mm_y0mm[20];   double errdiffSLY_xpl5mm_y0mm[20];
   for(int i=0;i<modSLY_ideal->GetN();i++){
     diffSLY_xpl5mm_y0mm[i] = SLY_xpl5mm_y0mm[i] - SLY_ideal[i];
     errdiffSLY_xpl5mm_y0mm[i] = 0.5*sqrt(errSLY_ideal[i]*errSLY_ideal[i]+errSLY_xpl5mm_y0mm[i]*errSLY_xpl5mm_y0mm[i]);
@@ -85,13 +85,13 @@ TGraphErrors *modY0_ideal = (TGraphErrors*)finIDEAL->Get("modY0");
 
 
   //x=5, y=5
-TFile *fin_xpl5mm_y5mm = new TFile("testAssym_x_0mm_y_5mm/DPM/mom_1_5/HitsAssym_x_y_1_5GeV.root","READ");
+TFile *fin_xpl5mm_y5mm = new TFile("/panda/myResults/AssymIP/DPM/mom_1_5/x_0mm_y_5mm/HitsAssym_x_y_1_5GeV.root","READ");
   TGraphErrors *modX0_xpl5mm_y5mm = (TGraphErrors*)fin_xpl5mm_y5mm->Get("modX0");
   modX0_xpl5mm_y5mm->SetMarkerColor(5);
   Double_t *X0_xpl5mm_y5mm; Double_t *errX0_xpl5mm_y5mm;
   X0_xpl5mm_y5mm = modX0_xpl5mm_y5mm->GetY();
   errX0_xpl5mm_y5mm = modX0_xpl5mm_y5mm->GetEY();
-  double diffX0_xpl5mm_y5mm[10];   double errdiffX0_xpl5mm_y5mm[10];
+  double diffX0_xpl5mm_y5mm[20];   double errdiffX0_xpl5mm_y5mm[20];
   for(int i=0;i<modX0_ideal->GetN();i++){
     diffX0_xpl5mm_y5mm[i] = X0_xpl5mm_y5mm[i] - X0_ideal[i];
     errdiffX0_xpl5mm_y5mm[i] = 0.5*sqrt(errX0_ideal[i]*errX0_ideal[i]+errX0_xpl5mm_y5mm[i]*errX0_xpl5mm_y5mm[i]);
@@ -105,7 +105,7 @@ TFile *fin_xpl5mm_y5mm = new TFile("testAssym_x_0mm_y_5mm/DPM/mom_1_5/HitsAssym_
   Double_t *Y0_xpl5mm_y5mm; Double_t *errY0_xpl5mm_y5mm;
   Y0_xpl5mm_y5mm = modY0_xpl5mm_y5mm->GetY();
   errY0_xpl5mm_y5mm = modY0_xpl5mm_y5mm->GetEY();
-  double diffY0_xpl5mm_y5mm[10];   double errdiffY0_xpl5mm_y5mm[10];
+  double diffY0_xpl5mm_y5mm[20];   double errdiffY0_xpl5mm_y5mm[20];
   for(int i=0;i<modY0_ideal->GetN();i++){
     diffY0_xpl5mm_y5mm[i] = Y0_xpl5mm_y5mm[i] - Y0_ideal[i];
     errdiffY0_xpl5mm_y5mm[i] = 0.5*sqrt(errY0_ideal[i]*errY0_ideal[i]+errY0_xpl5mm_y5mm[i]*errY0_xpl5mm_y5mm[i]);
@@ -120,7 +120,7 @@ TFile *fin_xpl5mm_y5mm = new TFile("testAssym_x_0mm_y_5mm/DPM/mom_1_5/HitsAssym_
   SLX_xpl5mm_y5mm = modSLX_xpl5mm_y5mm->GetY();
   errSLX_xpl5mm_y5mm = modSLX_xpl5mm_y5mm->GetEY();
 
-  double diffSLX_xpl5mm_y5mm[10];   double errdiffSLX_xpl5mm_y5mm[10];
+  double diffSLX_xpl5mm_y5mm[20];   double errdiffSLX_xpl5mm_y5mm[20];
   for(int i=0;i<modSLX_ideal->GetN();i++){
     diffSLX_xpl5mm_y5mm[i] = SLX_xpl5mm_y5mm[i] - SLX_ideal[i];
     errdiffSLX_xpl5mm_y5mm[i] = 0.5*sqrt(errSLX_ideal[i]*errSLX_ideal[i]+errSLX_xpl5mm_y5mm[i]*errSLX_xpl5mm_y5mm[i]);
@@ -134,7 +134,7 @@ TFile *fin_xpl5mm_y5mm = new TFile("testAssym_x_0mm_y_5mm/DPM/mom_1_5/HitsAssym_
   Double_t *SLY_xpl5mm_y5mm; Double_t *errSLY_xpl5mm_y5mm;
   SLY_xpl5mm_y5mm = modSLY_xpl5mm_y5mm->GetY();
   errSLY_xpl5mm_y5mm = modSLY_xpl5mm_y5mm->GetEY();
-  double diffSLY_xpl5mm_y5mm[10];   double errdiffSLY_xpl5mm_y5mm[10];
+  double diffSLY_xpl5mm_y5mm[20];   double errdiffSLY_xpl5mm_y5mm[20];
   for(int i=0;i<modSLY_ideal->GetN();i++){
     diffSLY_xpl5mm_y5mm[i] = SLY_xpl5mm_y5mm[i] - SLY_ideal[i];
     errdiffSLY_xpl5mm_y5mm[i] = 0.5*sqrt(errSLY_ideal[i]*errSLY_ideal[i]+errSLY_xpl5mm_y5mm[i]*errSLY_xpl5mm_y5mm[i]);
@@ -145,13 +145,13 @@ TFile *fin_xpl5mm_y5mm = new TFile("testAssym_x_0mm_y_5mm/DPM/mom_1_5/HitsAssym_
   gr_diffSLY_xpl5mm_y5mm->SetMarkerSize(1.5);
 
   //x=0,y=5
-TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_y_1_5GeV.root","READ");
+TFile *fin_x0mm_y5mm = new TFile("/panda/myResults/AssymIP/DPM/mom_1_5/x_5mm_y_5mm/HitsAssym_x_y_1_5GeV.root","READ");
   TGraphErrors *modX0_x0mm_y5mm = (TGraphErrors*)fin_x0mm_y5mm->Get("modX0");
   modX0_x0mm_y5mm->SetMarkerColor(6);
   Double_t *X0_x0mm_y5mm; Double_t *errX0_x0mm_y5mm;
   X0_x0mm_y5mm = modX0_x0mm_y5mm->GetY();
   errX0_x0mm_y5mm = modX0_x0mm_y5mm->GetEY();
-  double diffX0_x0mm_y5mm[10];   double errdiffX0_x0mm_y5mm[10];
+  double diffX0_x0mm_y5mm[20];   double errdiffX0_x0mm_y5mm[20];
   for(int i=0;i<modX0_ideal->GetN();i++){
     diffX0_x0mm_y5mm[i] = X0_x0mm_y5mm[i] - X0_ideal[i];
     errdiffX0_x0mm_y5mm[i] = 0.5*sqrt(errX0_ideal[i]*errX0_ideal[i]+errX0_x0mm_y5mm[i]*errX0_x0mm_y5mm[i]);
@@ -165,7 +165,7 @@ TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_
   Double_t *Y0_x0mm_y5mm; Double_t *errY0_x0mm_y5mm;
   Y0_x0mm_y5mm = modY0_x0mm_y5mm->GetY();
   errY0_x0mm_y5mm = modY0_x0mm_y5mm->GetEY();
-  double diffY0_x0mm_y5mm[10];   double errdiffY0_x0mm_y5mm[10];
+  double diffY0_x0mm_y5mm[20];   double errdiffY0_x0mm_y5mm[20];
   for(int i=0;i<modY0_ideal->GetN();i++){
     diffY0_x0mm_y5mm[i] = Y0_x0mm_y5mm[i] - Y0_ideal[i];
     errdiffY0_x0mm_y5mm[i] = 0.5*sqrt(errY0_ideal[i]*errY0_ideal[i]+errY0_x0mm_y5mm[i]*errY0_x0mm_y5mm[i]);
@@ -180,7 +180,7 @@ TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_
   SLX_x0mm_y5mm = modSLX_x0mm_y5mm->GetY();
   errSLX_x0mm_y5mm = modSLX_x0mm_y5mm->GetEY();
 
-  double diffSLX_x0mm_y5mm[10];   double errdiffSLX_x0mm_y5mm[10];
+  double diffSLX_x0mm_y5mm[20];   double errdiffSLX_x0mm_y5mm[20];
   for(int i=0;i<modSLX_ideal->GetN();i++){
     diffSLX_x0mm_y5mm[i] = SLX_x0mm_y5mm[i] - SLX_ideal[i];
     errdiffSLX_x0mm_y5mm[i] = 0.5*sqrt(errSLX_ideal[i]*errSLX_ideal[i]+errSLX_x0mm_y5mm[i]*errSLX_x0mm_y5mm[i]);
@@ -194,7 +194,7 @@ TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_
   Double_t *SLY_x0mm_y5mm; Double_t *errSLY_x0mm_y5mm;
   SLY_x0mm_y5mm = modSLY_x0mm_y5mm->GetY();
   errSLY_x0mm_y5mm = modSLY_x0mm_y5mm->GetEY();
-  double diffSLY_x0mm_y5mm[10];   double errdiffSLY_x0mm_y5mm[10];
+  double diffSLY_x0mm_y5mm[20];   double errdiffSLY_x0mm_y5mm[20];
   for(int i=0;i<modSLY_ideal->GetN();i++){
     diffSLY_x0mm_y5mm[i] = SLY_x0mm_y5mm[i] - SLY_ideal[i];
     errdiffSLY_x0mm_y5mm[i] = 0.5*sqrt(errSLY_ideal[i]*errSLY_ideal[i]+errSLY_x0mm_y5mm[i]*errSLY_x0mm_y5mm[i]);
@@ -206,13 +206,13 @@ TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_
 
 
   //x=-5,y=0
- TFile *fin_xmn5mm_y0mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym_x_y_1_5GeV.root","READ");
+ TFile *fin_xmn5mm_y0mm = new TFile("/panda/myResults/AssymIP/DPM/mom_1_5/x_-5mm_y_0mm/HitsAssym_x_y_1_5GeV.root","READ");
   TGraphErrors *modX0_xmn5mm_y0mm = (TGraphErrors*)fin_xmn5mm_y0mm->Get("modX0");
   modX0_xmn5mm_y0mm->SetMarkerColor(7);
   Double_t *X0_xmn5mm_y0mm; Double_t *errX0_xmn5mm_y0mm;
   X0_xmn5mm_y0mm = modX0_xmn5mm_y0mm->GetY();
   errX0_xmn5mm_y0mm = modX0_xmn5mm_y0mm->GetEY();
-  double diffX0_xmn5mm_y0mm[10];   double errdiffX0_xmn5mm_y0mm[10];
+  double diffX0_xmn5mm_y0mm[20];   double errdiffX0_xmn5mm_y0mm[20];
   for(int i=0;i<modX0_ideal->GetN();i++){
     diffX0_xmn5mm_y0mm[i] = X0_xmn5mm_y0mm[i] - X0_ideal[i];
     errdiffX0_xmn5mm_y0mm[i] = 0.5*sqrt(errX0_ideal[i]*errX0_ideal[i]+errX0_xmn5mm_y0mm[i]*errX0_xmn5mm_y0mm[i]);
@@ -226,7 +226,7 @@ TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_
   Double_t *Y0_xmn5mm_y0mm; Double_t *errY0_xmn5mm_y0mm;
   Y0_xmn5mm_y0mm = modY0_xmn5mm_y0mm->GetY();
   errY0_xmn5mm_y0mm = modY0_xmn5mm_y0mm->GetEY();
-  double diffY0_xmn5mm_y0mm[10];   double errdiffY0_xmn5mm_y0mm[10];
+  double diffY0_xmn5mm_y0mm[20];   double errdiffY0_xmn5mm_y0mm[20];
   for(int i=0;i<modY0_ideal->GetN();i++){
     diffY0_xmn5mm_y0mm[i] = Y0_xmn5mm_y0mm[i] - Y0_ideal[i];
     errdiffY0_xmn5mm_y0mm[i] = 0.5*sqrt(errY0_ideal[i]*errY0_ideal[i]+errY0_xmn5mm_y0mm[i]*errY0_xmn5mm_y0mm[i]);
@@ -241,7 +241,7 @@ TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_
   SLX_xmn5mm_y0mm = modSLX_xmn5mm_y0mm->GetY();
   errSLX_xmn5mm_y0mm = modSLX_xmn5mm_y0mm->GetEY();
 
-  double diffSLX_xmn5mm_y0mm[10];   double errdiffSLX_xmn5mm_y0mm[10];
+  double diffSLX_xmn5mm_y0mm[20];   double errdiffSLX_xmn5mm_y0mm[20];
   for(int i=0;i<modSLX_ideal->GetN();i++){
     diffSLX_xmn5mm_y0mm[i] = SLX_xmn5mm_y0mm[i] - SLX_ideal[i];
     errdiffSLX_xmn5mm_y0mm[i] = 0.5*sqrt(errSLX_ideal[i]*errSLX_ideal[i]+errSLX_xmn5mm_y0mm[i]*errSLX_xmn5mm_y0mm[i]);
@@ -255,7 +255,7 @@ TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_
   Double_t *SLY_xmn5mm_y0mm; Double_t *errSLY_xmn5mm_y0mm;
   SLY_xmn5mm_y0mm = modSLY_xmn5mm_y0mm->GetY();
   errSLY_xmn5mm_y0mm = modSLY_xmn5mm_y0mm->GetEY();
-  double diffSLY_xmn5mm_y0mm[10];   double errdiffSLY_xmn5mm_y0mm[10];
+  double diffSLY_xmn5mm_y0mm[20];   double errdiffSLY_xmn5mm_y0mm[20];
   for(int i=0;i<modSLY_ideal->GetN();i++){
     diffSLY_xmn5mm_y0mm[i] = SLY_xmn5mm_y0mm[i] - SLY_ideal[i];
     errdiffSLY_xmn5mm_y0mm[i] = 0.5*sqrt(errSLY_ideal[i]*errSLY_ideal[i]+errSLY_xmn5mm_y0mm[i]*errSLY_xmn5mm_y0mm[i]);
@@ -266,13 +266,13 @@ TFile *fin_x0mm_y5mm = new TFile("testAssym_x_5mm_y_5mm/DPM/mom_1_5/HitsAssym_x_
   gr_diffSLY_xmn5mm_y0mm->SetMarkerSize(1.5);
 
   //x=0,y=-5
-TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym_x_y_1_5GeV.root","READ");
+TFile *fin_x0mm_ymn5mm = new TFile("/panda/myResults/AssymIP/DPM/mom_1_5/x_-5mm_y_0mm/HitsAssym_x_y_1_5GeV.root","READ");
   TGraphErrors *modX0_x0mm_ymn5mm = (TGraphErrors*)fin_x0mm_ymn5mm->Get("modX0");
   modX0_x0mm_ymn5mm->SetMarkerColor(8);
   Double_t *X0_x0mm_ymn5mm; Double_t *errX0_x0mm_ymn5mm;
   X0_x0mm_ymn5mm = modX0_x0mm_ymn5mm->GetY();
   errX0_x0mm_ymn5mm = modX0_x0mm_ymn5mm->GetEY();
-  double diffX0_x0mm_ymn5mm[10];   double errdiffX0_x0mm_ymn5mm[10];
+  double diffX0_x0mm_ymn5mm[20];   double errdiffX0_x0mm_ymn5mm[20];
   for(int i=0;i<modX0_ideal->GetN();i++){
     diffX0_x0mm_ymn5mm[i] = X0_x0mm_ymn5mm[i] - X0_ideal[i];
     errdiffX0_x0mm_ymn5mm[i] = 0.5*sqrt(errX0_ideal[i]*errX0_ideal[i]+errX0_x0mm_ymn5mm[i]*errX0_x0mm_ymn5mm[i]);
@@ -286,7 +286,7 @@ TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym
   Double_t *Y0_x0mm_ymn5mm; Double_t *errY0_x0mm_ymn5mm;
   Y0_x0mm_ymn5mm = modY0_x0mm_ymn5mm->GetY();
   errY0_x0mm_ymn5mm = modY0_x0mm_ymn5mm->GetEY();
-  double diffY0_x0mm_ymn5mm[10];   double errdiffY0_x0mm_ymn5mm[10];
+  double diffY0_x0mm_ymn5mm[20];   double errdiffY0_x0mm_ymn5mm[20];
   for(int i=0;i<modY0_ideal->GetN();i++){
     diffY0_x0mm_ymn5mm[i] = Y0_x0mm_ymn5mm[i] - Y0_ideal[i];
     errdiffY0_x0mm_ymn5mm[i] = 0.5*sqrt(errY0_ideal[i]*errY0_ideal[i]+errY0_x0mm_ymn5mm[i]*errY0_x0mm_ymn5mm[i]);
@@ -301,7 +301,7 @@ TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym
   SLX_x0mm_ymn5mm = modSLX_x0mm_ymn5mm->GetY();
   errSLX_x0mm_ymn5mm = modSLX_x0mm_ymn5mm->GetEY();
 
-  double diffSLX_x0mm_ymn5mm[10];   double errdiffSLX_x0mm_ymn5mm[10];
+  double diffSLX_x0mm_ymn5mm[20];   double errdiffSLX_x0mm_ymn5mm[20];
   for(int i=0;i<modSLX_ideal->GetN();i++){
     diffSLX_x0mm_ymn5mm[i] = SLX_x0mm_ymn5mm[i] - SLX_ideal[i];
     errdiffSLX_x0mm_ymn5mm[i] = 0.5*sqrt(errSLX_ideal[i]*errSLX_ideal[i]+errSLX_x0mm_ymn5mm[i]*errSLX_x0mm_ymn5mm[i]);
@@ -315,7 +315,7 @@ TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym
   Double_t *SLY_x0mm_ymn5mm; Double_t *errSLY_x0mm_ymn5mm;
   SLY_x0mm_ymn5mm = modSLY_x0mm_ymn5mm->GetY();
   errSLY_x0mm_ymn5mm = modSLY_x0mm_ymn5mm->GetEY();
-  double diffSLY_x0mm_ymn5mm[10];   double errdiffSLY_x0mm_ymn5mm[10];
+  double diffSLY_x0mm_ymn5mm[20];   double errdiffSLY_x0mm_ymn5mm[20];
   for(int i=0;i<modSLY_ideal->GetN();i++){
     diffSLY_x0mm_ymn5mm[i] = SLY_x0mm_ymn5mm[i] - SLY_ideal[i];
     errdiffSLY_x0mm_ymn5mm[i] = 0.5*sqrt(errSLY_ideal[i]*errSLY_ideal[i]+errSLY_x0mm_ymn5mm[i]*errSLY_x0mm_ymn5mm[i]);
@@ -324,6 +324,66 @@ TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym
   gr_diffSLY_x0mm_ymn5mm->SetMarkerStyle(20);
   gr_diffSLY_x0mm_ymn5mm->SetMarkerColor(8);
   gr_diffSLY_x0mm_ymn5mm->SetMarkerSize(1.5);
+
+  //x=-5,y=-5
+TFile *fin_xmn5mm_ymn5mm = new TFile("/panda/myResults/AssymIP/DPM/mom_1_5/x_-5mm_y_-5mm/HitsAssym_x_y_1_5GeV.root","READ");
+  TGraphErrors *modX0_xmn5mm_ymn5mm = (TGraphErrors*)fin_xmn5mm_ymn5mm->Get("modX0");
+  modX0_xmn5mm_ymn5mm->SetMarkerColor(9);
+  Double_t *X0_xmn5mm_ymn5mm; Double_t *errX0_xmn5mm_ymn5mm;
+  X0_xmn5mm_ymn5mm = modX0_xmn5mm_ymn5mm->GetY();
+  errX0_xmn5mm_ymn5mm = modX0_xmn5mm_ymn5mm->GetEY();
+  double diffX0_xmn5mm_ymn5mm[20];   double errdiffX0_xmn5mm_ymn5mm[20];
+  for(int i=0;i<modX0_ideal->GetN();i++){
+    diffX0_xmn5mm_ymn5mm[i] = X0_xmn5mm_ymn5mm[i] - X0_ideal[i];
+    errdiffX0_xmn5mm_ymn5mm[i] = 0.5*sqrt(errX0_ideal[i]*errX0_ideal[i]+errX0_xmn5mm_ymn5mm[i]*errX0_xmn5mm_ymn5mm[i]);
+  }
+  TGraphErrors *gr_diffX0_xmn5mm_ymn5mm = new TGraphErrors(10,modulesID,diffX0_xmn5mm_ymn5mm,0,errdiffX0_xmn5mm_ymn5mm);
+  gr_diffX0_xmn5mm_ymn5mm->SetMarkerStyle(20);
+  gr_diffX0_xmn5mm_ymn5mm->SetMarkerColor(9);
+  gr_diffX0_xmn5mm_ymn5mm->SetMarkerSize(1.5);
+  TGraphErrors *modY0_xmn5mm_ymn5mm = (TGraphErrors*)fin_xmn5mm_ymn5mm->Get("modY0");
+  modY0_xmn5mm_ymn5mm->SetMarkerColor(9);
+  Double_t *Y0_xmn5mm_ymn5mm; Double_t *errY0_xmn5mm_ymn5mm;
+  Y0_xmn5mm_ymn5mm = modY0_xmn5mm_ymn5mm->GetY();
+  errY0_xmn5mm_ymn5mm = modY0_xmn5mm_ymn5mm->GetEY();
+  double diffY0_xmn5mm_ymn5mm[20];   double errdiffY0_xmn5mm_ymn5mm[20];
+  for(int i=0;i<modY0_ideal->GetN();i++){
+    diffY0_xmn5mm_ymn5mm[i] = Y0_xmn5mm_ymn5mm[i] - Y0_ideal[i];
+    errdiffY0_xmn5mm_ymn5mm[i] = 0.5*sqrt(errY0_ideal[i]*errY0_ideal[i]+errY0_xmn5mm_ymn5mm[i]*errY0_xmn5mm_ymn5mm[i]);
+  }
+  TGraphErrors *gr_diffY0_xmn5mm_ymn5mm = new TGraphErrors(10,modulesID,diffY0_xmn5mm_ymn5mm,0,errdiffY0_xmn5mm_ymn5mm);
+  gr_diffY0_xmn5mm_ymn5mm->SetMarkerStyle(20);
+  gr_diffY0_xmn5mm_ymn5mm->SetMarkerColor(9);
+  gr_diffY0_xmn5mm_ymn5mm->SetMarkerSize(1.5);
+  TGraphErrors *modSLX_xmn5mm_ymn5mm = (TGraphErrors*)fin_xmn5mm_ymn5mm->Get("modSLX");
+  modSLX_xmn5mm_ymn5mm->SetMarkerColor(9);
+  Double_t *SLX_xmn5mm_ymn5mm; Double_t *errSLX_xmn5mm_ymn5mm;
+  SLX_xmn5mm_ymn5mm = modSLX_xmn5mm_ymn5mm->GetY();
+  errSLX_xmn5mm_ymn5mm = modSLX_xmn5mm_ymn5mm->GetEY();
+
+  double diffSLX_xmn5mm_ymn5mm[20];   double errdiffSLX_xmn5mm_ymn5mm[20];
+  for(int i=0;i<modSLX_ideal->GetN();i++){
+    diffSLX_xmn5mm_ymn5mm[i] = SLX_xmn5mm_ymn5mm[i] - SLX_ideal[i];
+    errdiffSLX_xmn5mm_ymn5mm[i] = 0.5*sqrt(errSLX_ideal[i]*errSLX_ideal[i]+errSLX_xmn5mm_ymn5mm[i]*errSLX_xmn5mm_ymn5mm[i]);
+  }
+  TGraphErrors *gr_diffSLX_xmn5mm_ymn5mm = new TGraphErrors(10,modulesID,diffSLX_xmn5mm_ymn5mm,0,errdiffSLX_xmn5mm_ymn5mm);
+  gr_diffSLX_xmn5mm_ymn5mm->SetMarkerStyle(20);
+  gr_diffSLX_xmn5mm_ymn5mm->SetMarkerColor(9);
+  gr_diffSLX_xmn5mm_ymn5mm->SetMarkerSize(1.5);
+  TGraphErrors *modSLY_xmn5mm_ymn5mm = (TGraphErrors*)fin_xmn5mm_ymn5mm->Get("modSLY");
+  modSLY_xmn5mm_ymn5mm->SetMarkerColor(9);
+  Double_t *SLY_xmn5mm_ymn5mm; Double_t *errSLY_xmn5mm_ymn5mm;
+  SLY_xmn5mm_ymn5mm = modSLY_xmn5mm_ymn5mm->GetY();
+  errSLY_xmn5mm_ymn5mm = modSLY_xmn5mm_ymn5mm->GetEY();
+  double diffSLY_xmn5mm_ymn5mm[20];   double errdiffSLY_xmn5mm_ymn5mm[20];
+  for(int i=0;i<modSLY_ideal->GetN();i++){
+    diffSLY_xmn5mm_ymn5mm[i] = SLY_xmn5mm_ymn5mm[i] - SLY_ideal[i];
+    errdiffSLY_xmn5mm_ymn5mm[i] = 0.5*sqrt(errSLY_ideal[i]*errSLY_ideal[i]+errSLY_xmn5mm_ymn5mm[i]*errSLY_xmn5mm_ymn5mm[i]);
+  }
+  TGraphErrors *gr_diffSLY_xmn5mm_ymn5mm = new TGraphErrors(10,modulesID,diffSLY_xmn5mm_ymn5mm,0,errdiffSLY_xmn5mm_ymn5mm);
+  gr_diffSLY_xmn5mm_ymn5mm->SetMarkerStyle(20);
+  gr_diffSLY_xmn5mm_ymn5mm->SetMarkerColor(9);
+  gr_diffSLY_xmn5mm_ymn5mm->SetMarkerSize(1.5);
 
 
   TLegend *leg = new TLegend(0.4,0.6,0.7,0.99);
@@ -341,12 +401,14 @@ TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym
   mgr_X0->Add(modX0_x0mm_y5mm);
   mgr_X0->Add(modX0_xmn5mm_y0mm);
   mgr_X0->Add(modX0_x0mm_ymn5mm);
+  mgr_X0->Add(modX0_xmn5mm_ymn5mm);
   leg->AddEntry(modX0_ideal,"(X_{IP},Y_{IP}) = (0,0) mm","p");	  
   leg->AddEntry(modX0_xpl5mm_y0mm,"(X_{IP},Y_{IP}) = (5,0) mm","p");	  
   leg->AddEntry(modX0_x0mm_y5mm,"(X_{IP},Y_{IP}) = (0,5) mm","p");	  
   leg->AddEntry(modX0_xpl5mm_y5mm,"(X_{IP},Y_{IP}) = (5,5) mm","p");	  
   leg->AddEntry(modX0_xmn5mm_y0mm,"(X_{IP},Y_{IP}) = (-5,0) mm","p");	  
   leg->AddEntry(modX0_x0mm_ymn5mm,"(X_{IP},Y_{IP}) = (0,-5) mm","p");	  
+  leg->AddEntry(modX0_xmn5mm_ymn5mm,"(X_{IP},Y_{IP}) = (-5,-5) mm","p");	  
   mgr_X0->Draw("AP");
   leg->Draw();
   mgr_X0->GetXaxis()->SetTitle("sector");
@@ -358,6 +420,7 @@ TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym
  mgr_diffX0->Add(gr_diffX0_x0mm_y5mm);
  mgr_diffX0->Add(gr_diffX0_xmn5mm_y0mm);
  mgr_diffX0->Add(gr_diffX0_x0mm_ymn5mm);
+ mgr_diffX0->Add(gr_diffX0_xmn5mm_ymn5mm);
  mgr_diffX0->Draw("AP");
  mgr_diffX0->GetXaxis()->SetTitle("sector");
  mgr_diffX0->GetYaxis()->SetTitle("#Delta X0, cm");
@@ -369,6 +432,7 @@ TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym
   mgr_Y0->Add(modY0_x0mm_y5mm);
   mgr_Y0->Add(modY0_xmn5mm_y0mm);
   mgr_Y0->Add(modY0_x0mm_ymn5mm);
+  mgr_Y0->Add(modY0_xmn5mm_ymn5mm);
   mgr_Y0->Draw("AP");
   mgr_Y0->GetXaxis()->SetTitle("sector");
   mgr_Y0->GetYaxis()->SetTitle("Y0, cm");
@@ -379,6 +443,7 @@ TFile *fin_x0mm_ymn5mm = new TFile("testAssym_x_-5mm_y_0mm/DPM/mom_1_5/HitsAssym
  mgr_diffY0->Add(gr_diffY0_x0mm_y5mm);
  mgr_diffY0->Add(gr_diffY0_xmn5mm_y0mm);
  mgr_diffY0->Add(gr_diffY0_x0mm_ymn5mm);
+ mgr_diffY0->Add(gr_diffY0_xmn5mm_ymn5mm);
  mgr_diffY0->Draw("AP");
  mgr_diffY0->GetXaxis()->SetTitle("sector");
  mgr_diffY0->GetYaxis()->SetTitle("#Delta Y0, cm");
@@ -390,6 +455,7 @@ c1->cd(5);
   mgr_SLX->Add(modSLX_x0mm_y5mm);
   mgr_SLX->Add(modSLX_xmn5mm_y0mm);
   mgr_SLX->Add(modSLX_x0mm_ymn5mm);
+  mgr_SLX->Add(modSLX_xmn5mm_ymn5mm);
   mgr_SLX->Draw("AP");
   mgr_SLX->GetXaxis()->SetTitle("sector");
   mgr_SLX->GetYaxis()->SetTitle("slope X");
@@ -400,6 +466,7 @@ c1->cd(5);
  mgr_diffSLX->Add(gr_diffSLX_x0mm_y5mm);
  mgr_diffSLX->Add(gr_diffSLX_xmn5mm_y0mm);
  mgr_diffSLX->Add(gr_diffSLX_x0mm_ymn5mm);
+ mgr_diffSLX->Add(gr_diffSLX_xmn5mm_ymn5mm);
  mgr_diffSLX->Draw("AP");
  mgr_diffSLX->GetXaxis()->SetTitle("sector");
  mgr_diffSLX->GetYaxis()->SetTitle("#Delta slope X, cm");
@@ -411,6 +478,7 @@ c1->cd(5);
   mgr_SLY->Add(modSLY_x0mm_y5mm);
   mgr_SLY->Add(modSLY_xmn5mm_y0mm);
   mgr_SLY->Add(modSLY_x0mm_ymn5mm);
+  mgr_SLY->Add(modSLY_xmn5mm_ymn5mm);
   mgr_SLY->Draw("AP");
   mgr_SLY->GetXaxis()->SetTitle("sector");
   mgr_SLY->GetYaxis()->SetTitle("slope Y");
@@ -421,6 +489,7 @@ c1->cd(5);
  mgr_diffSLY->Add(gr_diffSLY_x0mm_y5mm);
  mgr_diffSLY->Add(gr_diffSLY_xmn5mm_y0mm);
  mgr_diffSLY->Add(gr_diffSLY_x0mm_ymn5mm);
+ mgr_diffSLY->Add(gr_diffSLY_xmn5mm_ymn5mm);
  mgr_diffSLY->Draw("AP");
  mgr_diffSLY->GetXaxis()->SetTitle("sector");
  mgr_diffSLY->GetYaxis()->SetTitle("#Delta slope Y, cm");

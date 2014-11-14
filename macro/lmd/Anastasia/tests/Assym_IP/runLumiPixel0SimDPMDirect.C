@@ -5,7 +5,7 @@
 // # author: A.Karavdina
 //###################################
 void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, const double mom=15, TString storePath="tmpOutputDPM", 
-			       const int verboseLevel=0, const int seed, const int mode = 1, const double th_min = 0.12, double xT0=0, double yT0=0)
+			       const int verboseLevel=0, const int seed, const int mode = 1, const double th_min = 0.12, double xT0=0, double yT0=0, double angX=0,double angY=0)
 {
   // gRandom->SetSeed(seed);
   //  Int_t mode = 1;
@@ -187,6 +187,7 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
   //primGen->SmearGausVertexZ(kTRUE);//gaus
   primGen->SmearVertexZ(kTRUE);//uniform step
   primGen->SetTarget(target_Z0, target_width_Z);
+  primGen->SetBeamAngle(angX*1e-3,angY*1e-3,0,0);//set beam tilt in rad
 
   //DPM
   PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode,seed,th_min);
