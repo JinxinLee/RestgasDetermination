@@ -83,7 +83,7 @@ int main(int nargs, char** args) {
 			cout << " Error: too many arguments! " << endl;
 	}
 
-	TString outname = storePath + "/HitsAssym_x_y_";
+	TString outname = storePath + "/HitsAssymPIXELS_x_y_";
 	outname+=Pbeam;
 	outname+="GeV";
 	TString outname_pdf_o = outname + ".pdf(";
@@ -121,25 +121,6 @@ int main(int nargs, char** args) {
 	TClonesArray* digiq_points = new TClonesArray("PndLmdDigiQ");
 	tDigi.SetBranchAddress("LMDPixelDigisQ", &digiq_points); //Digi hits
 	//--------------------------------------------------------------------------------
-
-	// // Estimate scale factor (for count rate per second) -----------------------------
-	// double sigTot=0;
-	// double lumi=1e32;
-	// if(Pbeam=="1_5"){ //1.5 GeV
-	//    sigTot=124.63; // mb el(theta_min=0.12 grad)+inel
-	// }
-	// else{
-	//   if(Pbeam=="15"){ // 15 GeV
-	//     sigTot=50.056; // mb el(theta_min=0.12 grad)+inel
-	//   }
-	//   else{
-	//     sigTot=100;// some default value
-	//     cout<<"Sorry, I'm silly programm and have no idea about cross-section at Pbeam = "<<Pbeam<<endl;
-	//   }
-	// }
-	// double Nref = sigTot*1e-27*lumi;
-	// //	const double scalefac = (Nref/nEvents)*1e-3;//[in kHz]
-	// //--------------------------------------------------------------------------------
 	const double scalefac = 1;
 	// initialize the lmd dimension class
 	PndLmdDim& lmddim = PndLmdDim::Get_instance();
@@ -156,19 +137,17 @@ int main(int nargs, char** args) {
 	int maxInEl=50;
 	if(Pbeam=="15"){
 	  maxSum=25;
-
 	  maxEl=25;
 	  maxInEl=25;
 	}
-	TH2Poly* el_map_x_y_plane[4][2];
-	TH2Poly* inel_map_x_y_plane[4][2];
+	// TH2Poly* el_map_x_y_plane[4][2];
+	// TH2Poly* inel_map_x_y_plane[4][2];
 	TH2Poly* sum_map_x_y_plane[4][2];
-	TH2Poly* sum_map_x_y_module[40][2];
+	//	TH2Poly* sum_map_x_y_module[40][2];
+	TH2Poly* sum_map_x_y_module; 	TH2Poly* sum_map_x_y_module_0;
 	TGraphErrors *meansXY[4][2];
 	TGraphErrors *meansX_Z[20];
 	TGraphErrors *meansY_Z[20];
-	// TGraphErrors *meansX_Z[10];
-	// TGraphErrors *meansY_Z[10];
 
 
 	//	TLegend *leg = new TLegend(0.65,0.7,0.99,0.99);
@@ -213,60 +192,34 @@ int main(int nargs, char** args) {
 	    meansXY[ipl][is] ->SetMarkerSize(1.5);
 	    meansXY[ipl][is] ->SetMarkerColor(1+ipl);
 	    if(is==0) leg->AddEntry(meansXY[ipl][is],name,"p");	  
-	    TString name_el = name + " (el. signal)";
-	    TString name_inel = name + " (inel. signal)";
 	    TString name_sum = name + " (el.+inel. signal)";
-	    el_map_x_y_plane[ipl][is] = lmddim.Get_histogram_Plane(ipl,is);
-	    el_map_x_y_plane[ipl][is]->SetTitle(name_el);
-	    el_map_x_y_plane[ipl][is]->SetXTitle("X [cm]");
-	    el_map_x_y_plane[ipl][is]->SetYTitle("Y [cm]");
-	    el_map_x_y_plane[ipl][is]->SetZTitle("events");
-	    //	    el_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(0,maxEl);
-	    //   el_map_x_y_plane[ipl][is]->SetContour(100);
-	    inel_map_x_y_plane[ipl][is] = lmddim.Get_histogram_Plane(ipl,is);
-	    inel_map_x_y_plane[ipl][is]->SetTitle(name_inel);
-	    inel_map_x_y_plane[ipl][is]->SetXTitle("X [cm]");
-	    inel_map_x_y_plane[ipl][is]->SetYTitle("Y [cm]");
-	    inel_map_x_y_plane[ipl][is]->SetZTitle("events");
-	    //	    inel_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(0,maxInEl);
-	    //	    inel_map_x_y_plane[ipl][is]->SetContour(100);
 	    sum_map_x_y_plane[ipl][is] = lmddim.Get_histogram_Plane(ipl,is);
 	    sum_map_x_y_plane[ipl][is]->SetTitle(name_sum);
 	    sum_map_x_y_plane[ipl][is]->SetXTitle("X [cm]");
 	    sum_map_x_y_plane[ipl][is]->SetYTitle("Y [cm]");
 	    sum_map_x_y_plane[ipl][is]->SetZTitle("events");
-	    //    sum_map_x_y_plane[ipl][is]->GetZaxis()->SetRangeUser(0,maxSum);
-	    //	    sum_map_x_y_plane[ipl][is]->SetContour(100);
 	    for(int ih=0;ih<2;ih++){
 	    for(int imd=0;imd<5;imd++){
 	      int curmd = 10*ipl+ih*5+imd;
 	      cout<<"curmd ="<<curmd<<endl;
-	      //      sum_map_x_y_module[curmd][is] = lmddim.Get_histogram_Plane(ipl,is,true,true,true);
-	      sum_map_x_y_module[curmd][is] = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,false);
+	      //	      sum_map_x_y_module[curmd][is] = lmddim.Get_histogram_Plane(ipl,is,true,true,true);
+	      //   sum_map_x_y_module = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,true); //pixels
+	      //	      if(curmd==0 && is==0) sum_map_x_y_module_0 = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,true); //pixels
+	      sum_map_x_y_module = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,false);//sensors
+	      if(curmd==0 && is==0) sum_map_x_y_module_0 = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,false); //sensors
 	      TString mdname = "plane ";
 	      mdname +=ipl;
 	      mdname += " module ";
 	      mdname +=curmd;
 	      mdname +=" side ";
 	      mdname +=is;
-	      sum_map_x_y_module[curmd][is]->SetTitle(mdname);
-	      sum_map_x_y_module[curmd][is]->SetXTitle("X [cm]");
-	      sum_map_x_y_module[curmd][is]->SetYTitle("Y [cm]");
-	      sum_map_x_y_module[curmd][is]->SetZTitle("events");
-	      //  sum_map_x_y_module[curmd][is]->GetZaxis()->SetRangeUser(0,maxSum);
-	      //	      sum_map_x_y_module[curmd][is]->SetContour(100);
-	    }
-	    }
-	  }
-	}
-	
-	
-	cout << " reading " << nEvents << " Events " << endl;
-	int TOT_count=0;
-	int el_count=0;
-	int inel_count=0;
-	//	for (Int_t iEvent = 0; iEvent < nEvents; iEvent++) { 
-	for (Int_t iEvent = 0; iEvent<2e6; iEvent++) {
+	      // sum_map_x_y_module->SetTitle(mdname);
+	      // sum_map_x_y_module->SetXTitle("X [cm]");
+	      // sum_map_x_y_module[curmd][is]->SetYTitle("Y [cm]");
+	      // sum_map_x_y_module[curmd][is]->SetZTitle("events");
+	      //read events and get avarage coordinates ---------------------
+	      for (Int_t iEvent = 0; iEvent < nEvents; iEvent++) { 
+	      //	      for (Int_t iEvent = 0; iEvent<2e6; iEvent++) {
 		DrawProgressBar(50, (iEvent+1)/((double)nEvents));
 		tMC.GetEntry(iEvent);
 		tDigi.GetEntry(iEvent);
@@ -274,117 +227,73 @@ int main(int nargs, char** args) {
 		for (Int_t i=0; i<nDigi; i++){
 		  PndLmdDigiQ* DigiPoint = (PndLmdDigiQ*)(digiq_points->At(i)); // read digi hit
 		  bool sigFl = DigiPoint->GetFlSig();
-		  int sensorID = DigiPoint->GetSensorID();
+		  int sensorID = DigiPoint->GetSensorID(); 
 		  int column = DigiPoint->GetPixelColumn();
 		  int row = DigiPoint->GetPixelRow();
 		  int ihalf, iplane, imodule, iside, idie, isensor;
-		  //  cout<<"sensorID = "<<sensorID<<endl;
 		  lmddim.Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
 		  TVector3 hitCoor = lmddim.Decode_hit(sensorID,column,row,true);
 		  TVector3 hitCoorlmd = lmddim.Transform_global_to_lmd_local(hitCoor);
-		  // cout<<hitCoor.X()<<" "<<hitCoor.Y()<<endl;
-		  // Int_t ind = DigiPoint->GetIndex(0);
-		  // PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)true_points->At(ind);
-		  // TVector3 MCcoord = MCPoint->GetPosition();
-		  //TVector3 MClmd = lmddim.Transform_global_to_lmd_local(MCcoord);
-		  //cout<<ihalf<<" "<<iplane<<" "<<imodule<<" "<<iside<<" "<<idie<<" "<<isensor<<endl;
-		  //	  cout<<MCPoint->GetX()<<" "<<MCPoint->GetY()<<endl;
+		  //fill only if this is the module
+		  if(iplane==ipl && iside==is && ihalf==ih && imd==imodule){
 		  sum_map_x_y_plane[iplane][iside]->Fill(hitCoorlmd.X(),hitCoorlmd.Y(),scalefac);
-		  int modid = 5*ihalf+10*iplane+imodule;
-		  sum_map_x_y_module[modid][iside]->Fill(hitCoorlmd.X(),hitCoorlmd.Y(),scalefac);
-		  TOT_count++;
-		  if(sigFl){
-		    el_map_x_y_plane[iplane][iside]->Fill(hitCoorlmd.X(),hitCoorlmd.Y(),scalefac);
-		    el_count++;
+		  //	  int modid = 5*ihalf+10*iplane+imodule;
+		  //	  cout<<"modid "<<modid<<endl;
+		  sum_map_x_y_module->Fill(hitCoorlmd.X(),hitCoorlmd.Y(),scalefac);
+		  if(curmd==0 && is==0) sum_map_x_y_module_0->Fill(hitCoorlmd.X(),hitCoorlmd.Y(),scalefac);
 		  }
-		  else{
-		    inel_map_x_y_plane[iplane][iside]->Fill(hitCoorlmd.X(),hitCoorlmd.Y(),scalefac);
-		    inel_count++;
-		  }
-		 
 		}
+	      }// loop over all events
 
-		if ((iEvent%100000)==0){
-		  canvas_map_x_y.cd(1);
-		  el_map_x_y_plane[0][0]->Draw("COLZ");
-		  lmddim.Draw_Sensors(0,false,true,0);
-		  canvas_map_x_y.cd(2);
-		  inel_map_x_y_plane[0][0]->Draw("COLZ");
-		  lmddim.Draw_Sensors(0,false,true,0);
-		  canvas_map_x_y.cd(3);
-		  el_map_x_y_plane[0][1]->Draw("COLZ");
-		  lmddim.Draw_Sensors(0,false,true,0);
-		  canvas_map_x_y.cd(4);
-		  inel_map_x_y_plane[0][1]->Draw("COLZ");
-		  lmddim.Draw_Sensors(0,false,true,0);
-		  canvas_map_x_y.Update();
-		}
-	}
-
-	TCanvas canvas_map("canvas_map_x_y", "map x y", 900, 900);
-	for(int ipl=0; ipl<4; ipl++){
-	  for(int is=0; is<2; is++){
-	    //	    if(is==0){
-	      sum_map_x_y_plane[ipl][is]->Draw("COLZ");
-	      lmddim.Draw_Sensors(ipl,false,true,is);
-	      canvas_map.Print(outname_pdf_o.Data());
-	      canvas_map.Clear();
-	      el_map_x_y_plane[ipl][is]->Draw("COLZ");
-	      lmddim.Draw_Sensors(ipl,false,true,is);
-	      canvas_map.Print(outname_pdf_o.Data());
-	      canvas_map.Clear();
-	      inel_map_x_y_plane[ipl][is]->Draw("COLZ");
-	      lmddim.Draw_Sensors(ipl,false,true,is);
-	      canvas_map.Print(outname_pdf_o.Data());
-	      canvas_map.Clear();
-	      //	    }
-	    // el_map_x_y_plane[ipl][is]->Draw("COLZ");
-	    // lmddim.Draw_Sensors(ipl,false,true,is);
-	    // canvas_map.Print(outname_pdf_o.Data());
-	    // canvas_map.Clear();
-	    // inel_map_x_y_plane[ipl][is]->Draw("COLZ");
-	    // lmddim.Draw_Sensors(ipl,false,true,is);
-	    // canvas_map.Print(outname_pdf_o.Data());
-	    // canvas_map.Clear();
-	    for(int imd=0;imd<10;imd++){
-	      int curmd = 10*ipl+imd;
-	      // sum_map_x_y_module[curmd][is]->Draw("COLZ");
-	      // sum_map_x_y_module[curmd][is]->GetXaxis()->SetLimits(-11,11);
-	      // sum_map_x_y_module[curmd][is]->GetYaxis()->SetLimits(-11,11);
-	      // //	      lmddim.Draw_Sensors(ipl,false,true,is);
-	      // canvas_map.Print(outname_pdf_o.Data());
-	      // canvas_map.Clear();
-	      double Xmean = sum_map_x_y_module[curmd][is]->GetMean(1);
-	      double Ymean = sum_map_x_y_module[curmd][is]->GetMean(2);
-	      double Xrms = sum_map_x_y_module[curmd][is]->GetMeanError(1);
-	      double Yrms = sum_map_x_y_module[curmd][is]->GetMeanError(2);
-	      // double Xrms = sum_map_x_y_module[curmd][is]->GetRMS(1);
-	      // double Yrms = sum_map_x_y_module[curmd][is]->GetRMS(2);
-	      //	      meansXY[ipl][is]->Fill(Xmean,Ymean);
-	      meansXY[ipl][is]->SetPoint(imd,Xmean,Ymean);
-	      meansXY[ipl][is]->SetPointError(imd,Xrms,Yrms);
+	      double Xmean = sum_map_x_y_module->GetMean(1);
+	      double Ymean = sum_map_x_y_module->GetMean(2);
+	      double Xrms = sum_map_x_y_module->GetMeanError(1);
+	      double Yrms = sum_map_x_y_module->GetMeanError(2);
+	      // double Xrms = sum_map_x_y_module->GetRMS(1);
+	      // double Yrms = sum_map_x_y_module->GetRMS(2);
+	      cout<<"X_mod = "<<Xmean<<" +/- "<<Xrms<<endl;
+	      int imdhf = ih*5+imd;
+	      meansXY[ipl][is]->SetPoint(imdhf,Xmean,Ymean);
+	      meansXY[ipl][is]->SetPointError(imdhf,Xrms,Yrms);
+	      delete sum_map_x_y_module;
 	      double zPl = 0;
 	      if(ipl==1) zPl =20;
 	      if(ipl==2) zPl =30;
 	      if(ipl==3) zPl =40;
-	      int curimd = imd*2+is;
+	      int curimd = imdhf*2+is;
 	      if(is==0) curimd +=1;
 	      else curimd -=1;
-	      //	      int curimd = imd; //TEST
-	      //   cout<<"curimd = "<<curimd<<" imd = "<<imd<<" is = "<<is<<endl;
+
+	      cout<<" fill hists for curimd = "<<curimd<<endl;
 	      meansX_Z[curimd]->SetPoint(ipl,zPl,Xmean);
 	      meansY_Z[curimd]->SetPoint(ipl,zPl,Ymean);
 	      meansX_Z[curimd]->SetPointError(ipl,0,Xrms);
 	      meansY_Z[curimd]->SetPointError(ipl,0,Yrms);
-	    }
+	      //[END] read events and get avarage coordinates ------------
+	    }//module imd
+	    }//half ih
+	  }//side is
+	}//plane ipl
+	
+
+	TCanvas canvas_map("canvas_map_x_y", "map x y", 900, 900);
+	sum_map_x_y_module_0->GetXaxis()->SetLimits(-10,10);
+	sum_map_x_y_module_0->GetYaxis()->SetLimits(-10,10);
+	sum_map_x_y_module_0->Draw("COLZ");
+	canvas_map.Print(outname_pdf_o.Data());
+	canvas_map.Clear();
+	for(int ipl=0; ipl<4; ipl++){
+	  for(int is=0; is<2; is++){
+	    sum_map_x_y_plane[ipl][is]->Draw("COLZ");
+	    lmddim.Draw_Sensors(ipl,false,true,is);
+	    canvas_map.Print(outname_pdf_o.Data());
+	    canvas_map.Clear();
 	  }
 	}
 	for(int ipl=0; ipl<4; ipl++){
-	  //	  for(int is=0; is<2; is++){//only one side!
+	  //	  for(int is=0; is<1; is++){//only one side!
 	  for(int is=0; is<2; is++){
 	    mg_meansXY->Add(meansXY[ipl][is]);
-	    //	    if(ipl==0 && is==0) meansXY[ipl][is]->Draw();
-	    //	    else meansXY[ipl][is]->Draw("same");
 	  }
 	}
 	mg_meansXY->Draw("AP");
@@ -508,18 +417,18 @@ int main(int nargs, char** args) {
 	    name_can +=ipl;
 	    name_can +="_side_";
 	    name_can +=is;
-	    TCanvas canvas_2(name_can, "map x y (el)", 900, 900);
-	    el_map_x_y_plane[ipl][is]->Draw("COLZ");
-	    lmddim.Draw_Sensors(ipl,false,true,is);
-	    canvas_2.Write();
-	    name_can = "canvas_map_x_y_inel_pl";
-	    name_can +=ipl;
-	    name_can +="_side_";
-	    name_can +=is;
-	    TCanvas canvas_3(name_can, "map x y (inel)", 900, 900);
-	    inel_map_x_y_plane[ipl][is]->Draw("COLZ");
-	    lmddim.Draw_Sensors(ipl,false,true,is);
-	    canvas_3.Write();
+	    // TCanvas canvas_2(name_can, "map x y (el)", 900, 900);
+	    // el_map_x_y_plane[ipl][is]->Draw("COLZ");
+	    // lmddim.Draw_Sensors(ipl,false,true,is);
+	    // canvas_2.Write();
+	    // name_can = "canvas_map_x_y_inel_pl";
+	    // name_can +=ipl;
+	    // name_can +="_side_";
+	    // name_can +=is;
+	    // TCanvas canvas_3(name_can, "map x y (inel)", 900, 900);
+	    // inel_map_x_y_plane[ipl][is]->Draw("COLZ");
+	    // lmddim.Draw_Sensors(ipl,false,true,is);
+	    // canvas_3.Write();
 	  }
 	}
 	modX0->SetName("modX0");
@@ -530,16 +439,12 @@ int main(int nargs, char** args) {
 	modY0->Write();
 	modSLX->Write();
 	modSLY->Write();
-	mg_meansX_Z->SetName("meansX_Z");
-	mg_meansY_Z->SetName("meansY_Z");
-	mg_meansX_Z->Write();
-	mg_meansY_Z->Write();
 	f->Write();
 	f->Close();
 	cout<<"------- SUMMARY -------"<<endl;
 	//	cout<<"Pbeam = "<<Pbeam<<"GeV tot. cross-section "<<sigTot<<" mb"<<endl;
 	cout<<"Pbeam = "<<Pbeam<<" GeV"<<endl;
-	cout<<"Overall count rate: "<<TOT_count*scalefac*1e-3<<" MHz"<<endl;
-	cout<<"Elastic count rate: "<<el_count*scalefac*1e-3<<" MHz"<<endl;
-	cout<<"Inelastic count rate: "<<inel_count*scalefac*1e-3<<" MHz"<<endl;
+	// cout<<"Overall count rate: "<<TOT_count*scalefac*1e-3<<" MHz"<<endl;
+	// cout<<"Elastic count rate: "<<el_count*scalefac*1e-3<<" MHz"<<endl;
+	// cout<<"Inelastic count rate: "<<inel_count*scalefac*1e-3<<" MHz"<<endl;
 }
