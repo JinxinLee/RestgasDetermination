@@ -164,10 +164,10 @@ private:
 	//	std::vector<PndTrackCand> fTrackCand; // resulting track candidates, also used for returning PndTracks
 
 
-	static const Double_t meinpi = 3.14159265359;
+	static const Double_t meinpi;
 	///< sets where the apex of the parabola is supposed to be
-	static const Double_t fZLineParabola = 368.; // the value should coincide with the start of the dipole field // 368. was ok
-	static const Double_t fZParabolaLine = 605.; // the value should coincide with the end of the dipole field // TODO determine this value
+	static const Double_t fZLineParabola; // the value should coincide with the start of the dipole field // 368. was ok
+	static const Double_t fZParabolaLine; // the value should coincide with the end of the dipole field // TODO determine this value
 
 
 

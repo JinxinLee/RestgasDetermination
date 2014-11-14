@@ -4,7 +4,9 @@
 
 ClassImp(PndFtsHoughTrackFinder);
 
-
+const Double_t PndFtsHoughTrackFinder::meinpi = 3.14159265359;
+const Double_t PndFtsHoughTrackFinder::fZLineParabola = 368.;
+const Double_t PndFtsHoughTrackFinder::fZParabolaLine = 605.;
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask) :
 			fTrackerTask(trackerTask),

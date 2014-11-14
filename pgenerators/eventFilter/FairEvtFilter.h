@@ -126,7 +126,7 @@ protected:
 	TDatabasePDG* fdbPdg;
 	// constant holding a double number which is not a valid charge
 	// this serves to indicate that the value has not been specified by the user
-	static const Double_t kNoChargeSpecified = -999.9;
+	static const Double_t kNoChargeSpecified;
 
 	TClonesArray* fParticleList; // list of particles in the event which was generated
 	Int_t fVerbose; // level of commenting output for your filter, between 0 and 12

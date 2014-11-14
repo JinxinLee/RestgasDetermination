@@ -5,7 +5,7 @@
 
 #include "FairEvtFilter.h"
 
-
+const Double_t FairEvtFilter::kNoChargeSpecified = -999.9;
 
 // -----   Default constructor   -------------------------------------------
 FairEvtFilter::FairEvtFilter()
