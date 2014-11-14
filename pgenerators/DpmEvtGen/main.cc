@@ -18,7 +18,7 @@
 #include "TParticle.h"
 
 
-extern struct {
+extern "C" struct {
     int n, k[2000];  
     float p[5000];   	
 } lujets_;
