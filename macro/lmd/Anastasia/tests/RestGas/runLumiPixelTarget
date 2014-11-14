@@ -21,7 +21,7 @@ pbeam=$mom
 #     ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_hc/* ${VMCWORKDIR}/input/.
 # fi
 # ######################################################
-for zT in 20 50
+for zT in -10 -20 -50
 do
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
