@@ -35,6 +35,7 @@ set(anatask_SRCS
 #PndMicroWriter.cxx
 PndJpsi2PiAna.cxx
 PndSoftTriggerTask.cxx
+PndTripleAnaTask.cxx
 )
 
 set(anatask_HEADERS
@@ -42,6 +43,7 @@ set(anatask_HEADERS
 #PndMicroWriter.h
 PndJpsi2PiAna.h
 PndSoftTriggerTask.h
+PndTripleAnaTask.h
 )
 
 

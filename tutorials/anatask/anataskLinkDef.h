@@ -8,6 +8,7 @@
 //#pragma link C++ class  PndMicroWriter+;
 #pragma link C++ class  PndJpsi2PiAna+;
 #pragma link C++ class  PndSoftTriggerTask+;
+#pragma link C++ class  PndTripleAnaTask+;
 
 //#pragma link C++ class  vector<double>;
 
