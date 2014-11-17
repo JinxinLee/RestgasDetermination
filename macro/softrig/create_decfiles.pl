@@ -281,7 +281,7 @@ foreach $line (@lines) # loop again thru lines
 						$dec .=  "Enddecay\n\n";
 					}
 				}
-				$dec .=  "Decay KS\n 1.0 pi+ pi- PHSP;\nEnddecay;\n\n";
+				$dec .=  "Decay KS\n 1.0 pi+ pi- PHSP;\nEnddecay\n\n";
 				$dec .=  "End\n\n";
 				$decfile{$code} = $dec;
 
