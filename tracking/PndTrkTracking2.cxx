@@ -57,6 +57,17 @@
 
 using namespace std;
 
+
+
+
+const Double_t
+	PndTrkTracking2::THETAMIN		= 0.,
+	PndTrkTracking2::THETAMAX		= 2.*3.141592654;
+
+
+
+
+
 // -----   Default constructor   -------------------------------------------
 PndTrkTracking2::PndTrkTracking2() : FairTask("Tracking") { 
  fPersistence = kTRUE;
