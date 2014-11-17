@@ -37,6 +37,18 @@
 
 using namespace std;
 
+const UShort_t  PndMixBackgroundEvents::NMAXBCKGRND=1000 ;
+
+
+
+const Double_t
+	PndMixBackgroundEvents::MVDTYPICALTIME=10., // in nsec; time after which the Mvd hit disappears.
+	PndMixBackgroundEvents::RATE=20., //  in MHz, average interaction rate in PANDA.
+	PndMixBackgroundEvents::STRAWRADIUS = 0.5, // in cm.
+	PndMixBackgroundEvents::STTdriftVEL = 0.0025,	//   in cm/nsec
+	PndMixBackgroundEvents::MAXSTTdriftTIME = 200.;	//   in nsec
+
+
 
 // -----   Default constructor   -------------------------------------------
 PndMixBackgroundEvents::PndMixBackgroundEvents() : FairTask("Mixing bkgrnd hits to Stt-Mvd") { 
