@@ -937,13 +937,13 @@ RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand , bool verbose)
   SetCharge ( Charge() +cand->Charge() );
 
   if (NDaughters()>=MAXDAUG) {
-   if(verbose) 
+/*   if(verbose) 
    {
 		cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than "<<MAXDAUG<<" daughters." << endl;
 		cout <<PdgCode()<<" -> ";
 		for (int i=0;i<fNDaug;++i) cout <<Daughter(i)->PdgCode()<<" ";
 		cout <<"; want to add "<< d->PdgCode() <<endl;
-   }
+   }*/
     return;
   }
 
