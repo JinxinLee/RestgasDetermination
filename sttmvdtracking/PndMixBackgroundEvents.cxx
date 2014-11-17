@@ -37,8 +37,6 @@
 
 using namespace std;
 
-const UShort_t  PndMixBackgroundEvents::NMAXBCKGRND=1000 ;
-
 
 
 const Double_t
