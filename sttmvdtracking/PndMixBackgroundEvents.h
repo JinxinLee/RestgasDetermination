@@ -70,13 +70,14 @@ class PndMixBackgroundEvents : public FairTask
 	fMvdBkgFilename[1000];
 
 
-  static const UShort_t   NMAXBCKGRND = 1000;
+//  static const UShort_t   NMAXBCKGRND = 1000;
+  static const UShort_t   NMAXBCKGRND ;
 
-  static const Double_t MVDTYPICALTIME=10., // in nsec; time after which the Mvd hit disappears.
-			RATE=20., //  in MHz, average interaction rate in PANDA.
-			STRAWRADIUS = 0.5, // in cm.
-			STTdriftVEL = 0.0025,	//   in cm/nsec
-			MAXSTTdriftTIME = 200.;	//   in nsec
+  static const Double_t MVDTYPICALTIME, // in nsec; time after which the Mvd hit disappears.
+			RATE, //  in MHz, average interaction rate in PANDA.
+			STRAWRADIUS , // in cm.
+			STTdriftVEL ,	//   in cm/nsec
+			MAXSTTdriftTIME ;	//   in nsec
 
 
   Int_t	nTotalBkgEvents;
