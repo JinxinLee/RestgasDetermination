@@ -192,13 +192,18 @@ InitStatus PndSoftTriggerTask::Init()
 	// *** RhoTuple QA helper
 	fQA = new PndRhoTupleQA(fAnalysis,fPbarMom);
 	
+	// *** Save current gDirectory
+	TDirectory *dir = gDirectory;
+	fRootManager->GetOutFile()->cd();
+	
 	// *** create ntuple
-	if (fQAEvent) ntp = new RhoTuple("ntpev","Soft Trigger Common");
-	if (fQAKs0)  nks0 = new RhoTuple("nks0","K_S -> pi+ pi-");
-	if (fQAPi0)  npi0 = new RhoTuple("npi0","pi0 -> gamma gamma");
-	if (fQAEta)  neta = new RhoTuple("neta","eta -> gamma gamma");
-	if (fQAMc)   nmc  = new RhoTuple("nmc", "MC info");
-		
+	if (fQAEvent) { ntp = new RhoTuple("ntpev","Soft Trigger Common"); ntp->GetInternalTree()->SetDirectory(gDirectory);}
+	if (fQAKs0)   { nks0 = new RhoTuple("nks0","K_S -> pi+ pi-"); nks0->GetInternalTree()->SetDirectory(gDirectory);}
+	if (fQAPi0)   { npi0 = new RhoTuple("npi0","pi0 -> gamma gamma"); npi0->GetInternalTree()->SetDirectory(gDirectory);}
+	if (fQAEta)   { neta = new RhoTuple("neta","eta -> gamma gamma"); neta->GetInternalTree()->SetDirectory(gDirectory);}
+	if (fQAMc)    { nmc  = new RhoTuple("nmc", "MC info"); nmc->GetInternalTree()->SetDirectory(gDirectory);}
+	
+	
 	// *** create mass pre selectors for QA (formular takes into account RhoSelector definition mean +- win/2
 	fPi0PreSel   = new RhoMassParticleSelector("pi0PreSel",  (fPi0QaMax + fPi0QaMin)/2.0, 	fPi0QaMax - fPi0QaMin );  
 	fEtaPreSel   = new RhoMassParticleSelector("etaPreSel",  (fEtaQaMax + fEtaQaMin)/2.0, 	fEtaQaMax - fEtaQaMin ); 
@@ -241,6 +246,7 @@ InitStatus PndSoftTriggerTask::Init()
 	{
 		PndSoftTriggerLine *tl = it->second;
 		tl->Init();
+		if (tl->GetRhoTuple()) tl->GetRhoTuple()->GetInternalTree()->SetDirectory(gDirectory);
 		
 		if (fVerbose>0)
 		{
@@ -249,6 +255,9 @@ InitStatus PndSoftTriggerTask::Init()
 			cout <<endl<<endl;
 		}
 	}
+	
+	// *** Resore original gDirectory
+	dir->cd();
 
 	if (fVerbose>0)
 	{
