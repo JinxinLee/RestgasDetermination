@@ -117,7 +117,7 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TStrin
 	fQA(NULL),
 	fPi0Sel(NULL), fEtaSel(NULL), fKs0Sel(NULL),
 	fMomentumSel(NULL), fEnergySel(NULL),
-	ntp(0),	nks0(0), npi0(0), neta(0)	
+	ntp(0),	nks0(0), npi0(0), neta(0), nmc(0)	
 {
 	fPdg = TDatabasePDG::Instance();
 	
