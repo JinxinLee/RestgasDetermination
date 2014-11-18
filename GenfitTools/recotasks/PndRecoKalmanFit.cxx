@@ -249,7 +249,7 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
   if (fPerpPlane)
     {
       plane_v1 = StartMom.Orthogonal();
-      plane_v2 = StartPos.Cross(plane_v1);
+      plane_v2 = StartMom.Cross(plane_v1);
     }
   else
     {
