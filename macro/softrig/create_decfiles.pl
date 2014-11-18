@@ -209,7 +209,7 @@ foreach $line (@lines) # loop again thru lines
 					$dec .= "Enddecay\n\n";
 					$dec .= "Decay MyP1\n 1.0 MyP2 $5;\nEnddecay\n\n";
 					$dec .= "Decay MyP2\n 1.0 $4;\nEnddecay\n\n";
-					$dec .= "Decay MyAP1\n 1.0 MyP2 ".antistr($5).";\nEnddecay\n\n";
+					$dec .= "Decay MyAP1\n 1.0 MyAP2 ".antistr($5).";\nEnddecay\n\n";
 					$dec .= "Decay MyAP2\n 1.0 ".antistr($4).";\nEnddecay\n\n";
 				}
 				#
