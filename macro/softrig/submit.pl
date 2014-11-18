@@ -128,6 +128,6 @@ foreach my $mode (@modes)
 	{
 		my $pmom = sprintf "%.5f", pbarmom($sqs);
 		print "qsub -t $min-$max job_sof.sge $sqscode$mmode $nevt decfiles/M$mmode.dec ".$pmom." pbarpSystem0\n";
-		`qsub -t $min-$max job_sof.sge $sqscode$mmode $nevt decfiles/M$mmode.dec ".$pmom." pbarpSystem0`;		
+		if ($nevt>0) {`qsub -t $min-$max job_sof.sge $sqscode$mmode $nevt decfiles/M$mmode.dec $pmom pbarpSystem0`;}		
 	}
 }
