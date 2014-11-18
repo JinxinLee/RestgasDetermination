@@ -335,7 +335,7 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
 
     // do the linking
     truthmother = (RhoCandidate*) l[mcMotherID];
-    l[k]->SetMotherLink(truthmother);
+    l[k]->SetMotherLink(truthmother, false);
   }
 
   return kTRUE;

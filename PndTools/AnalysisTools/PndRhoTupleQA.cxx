@@ -298,11 +298,6 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 	// how many daughters?
 	int nd = c->NDaughters();
 	
-	// compute inv mass of first n-1 daughers
-	TLorentzVector lsub(0,0,0,0);
-	if (nd>2) 
-		for (int i=0;i<nd-1;++i) lsub += c->Daughter(i)->P4();
-
 	// truth match already done?
 	RhoCandidate *truth = c->GetMcTruth();
 
@@ -323,11 +318,9 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
 	qaCand(pre,	c,	n);
 	qaP4Cms(pre, c->P4(), n);
 	n->Column(pre+"mct",  (Float_t) mct, 0.0f);
-	if (nd>2) 
-	{
-		n->Column(pre+"msub", (Float_t) lsub.M(), 0.0f);
-		n->Column(pre+"mdif", (Float_t) (c->M()-lsub.M()), 0.0f);
-	}
+	
+	// for mass difference e.g. D* -> D pi decays
+	if (nd>=2) n->Column(pre+"mdif", (Float_t) (c->M() - c->Daughter(0)->M()), 0.0f);
 
 	// cand is final state particle
 	if (nd==0)

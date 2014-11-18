@@ -289,7 +289,7 @@ void PndParticleQATask::Exec(Option_t* opt)
 		ntpn->Column("chrg", (Float_t)  neut[j]->Charge(),  0.0f );
 		
 		qa.qaP4(  "",			neut[j]->P4(),	ntpn);
-		qa.qaEmc( "emc",		neut[j], 		ntpn);
+		qa.qaEmc( "",		neut[j], 		ntpn);
 		qa.qaP4(  "primlv",     chrgP4,  ntpn);
 		
 		float mct = 0.0;
