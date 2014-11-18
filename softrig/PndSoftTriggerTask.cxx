@@ -285,14 +285,14 @@ void PndSoftTriggerTask::SetQASelectionDefaults()
 	// default windows are roughly +-15*sigma, and 15*sigma_max, if different channels are reconstructed
 	// should not depend explicitly from set mean and sigma values, therefore fixed values are chosen
 	
-	fPi0QaMin = Pi0Mass - 0.1;		
-	fPi0QaMax = Pi0Mass + 0.1;		
+	fPi0QaMin = Pi0Mass - 0.06;		
+	fPi0QaMax = Pi0Mass + 0.06;		
 	
-	fEtaQaMin = EtaMass - 0.2;		
-	fEtaQaMax = EtaMass + 0.2;		
+	fEtaQaMin = EtaMass - 0.10;		
+	fEtaQaMax = EtaMass + 0.10;		
 	
-	fKs0QaMin = Ks0Mass - 0.2;		
-	fKs0QaMax = Ks0Mass + 0.2;		
+	fKs0QaMin = Ks0Mass - 0.10;		
+	fKs0QaMax = Ks0Mass + 0.10;		
 	
 }
 
@@ -326,9 +326,15 @@ void PndSoftTriggerTask::SetPidAlgoAll(TString algo)
 // ----Method to enable/disable QA for single mode --------------------------------------------------
 void PndSoftTriggerTask::SetQAMode(int mode, bool qa)
 {
-	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;
+	int divi = 1;
+	if (mode<10) divi=100;
+	else if (mode<100) divi=10;
 	
-	fSTTriggers[mode]->SetWriteQA(qa);
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+		if (it->first/divi == mode) it->second->SetWriteQA(qa);
+		
+//	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;	
+//	fSTTriggers[mode]->SetWriteQA(qa);
 }
 
 
@@ -348,9 +354,15 @@ void PndSoftTriggerTask::SetQAAll(bool qa)
 // ----Method to enable/disable tagging for single mode --------------------------------------------------
 void PndSoftTriggerTask::SetTagMode(int mode, bool tag)
 {
-	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;
+	int divi = 1;
+	if (mode<10) divi=100;
+	else if (mode<100) divi=10;
 	
-	fSTTriggers[mode]->SetTagActive(tag);
+	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
+		if (it->first/divi == mode) it->second->SetTagActive(tag);
+		
+//	if (fSTTriggers.find(mode) == fSTTriggers.end()) return;
+//	fSTTriggers[mode]->SetTagActive(tag);
 }
 
 // ----Method to enable/disable full Tagging--------------------------------------------------------------
@@ -1340,12 +1352,13 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 		{
 			fQA->qaComp(prefix, l[i], n);
 			fQA->qaEventShapeShort("es", fEventShape, n);
+			
 			// replace PID mult values from event shape by actual counts with individual algos
-			n->Column("eslnpide", (Float_t)  fPidMult_025[0],		0.0f );
-			n->Column("eslnpidmu",(Float_t)  fPidMult_025[1],		0.0f );
-			n->Column("eslnpidpi",(Float_t)  fPidMult_025[2],		0.0f );
-			n->Column("eslnpidk", (Float_t)  fPidMult_025[3],		0.0f );
-			n->Column("eslnpidp", (Float_t)  fPidMult_025[4],		0.0f );
+			n->Column("eslnpide", (Int_t)  fPidMult_025[0],	0);
+			n->Column("eslnpidmu",(Int_t)  fPidMult_025[1],	0);
+			n->Column("eslnpidpi",(Int_t)  fPidMult_025[2],	0);
+			n->Column("eslnpidk", (Int_t)  fPidMult_025[3],	0);
+			n->Column("eslnpidp", (Int_t)  fPidMult_025[4],	0);
 			
 			fQA->qaP4("beam", fIniP4, n);
 			n->Column("primvx",   (Float_t)   fPrimVtx.X(), 0.0f);
@@ -1354,24 +1367,24 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 			n->Column("primvqa",  (Float_t)   fPrimVtxQa  , 0.0f);
 
 			Float_t nsig = (Float_t) fabs(l[i]->Mass()-mean)/sigma;
-			Float_t tag  = nsig < tl->GetTagNSig();
+			Int_t   tag  = nsig < tl->GetTagNSig();
 			
 			if (tag>0) npre++;
 			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
 			
 			n->Column("ev",  	(Int_t)   fEvtCount,	0);
+			n->Column("num", 	(Int_t)   i,			0);
 			n->Column("run",  	(Int_t)   fRunNum,		0);
 			n->Column("mode",	(Int_t)   fMode,		0);
 			n->Column("recmode",(Int_t)   fRecoilMode,  0);
 			n->Column("reccnt", (Int_t)   fRecoilCnt,   0);
 			n->Column("mmiss",	(Float_t) mmiss,		0.0f);
-			n->Column("tag", 	(Float_t) tag,			0.0f);
 			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
 			n->Column(prefix+"mean",(Float_t) mean,		0.0f);
 			n->Column(prefix+"sig", (Float_t) sigma,	0.0f);
-			n->Column("acc",    (Float_t) acc,          0.0f);
+			n->Column("tag", 	(Int_t)   tag,			0);
+			n->Column("acc",    (Int_t) acc,            0);
 			
 			n->DumpData();
 		}
