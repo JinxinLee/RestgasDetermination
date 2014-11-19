@@ -663,7 +663,7 @@ bool PndHyp::CheckIfSensitive(std::string name)
 void PndHyp::FinishRun() {
    if (fUseRAZHOption==true && fUseFileOption==true ){
      fFile->Write();
-     //fFile->Close();
+     fFile->Close();
       //delete fEvt;
      
       

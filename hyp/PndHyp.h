@@ -224,9 +224,9 @@ class PndHyp : public FairDetector
   Double_t fPLout,fPLin;               //  total momentum
  
   
-  TClonesArray* fEvt;
-TFile* fFile;
-  TTree* ft;
+  TClonesArray* fEvt; //!
+  TFile* fFile; //!
+  TTree* ft;//!
  
   
   Int_t        activeCnt;
@@ -264,7 +264,7 @@ TFile* fFile;
   Bool_t fUseGamOption;
   void SetHypStatDecay(bool cal,bool active);
 
-  ClassDef(PndHyp,12)
+  ClassDef(PndHyp,13)
 
 }; 
 
