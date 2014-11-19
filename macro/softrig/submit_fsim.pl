@@ -25,6 +25,8 @@ if (!defined $ARGV[0])
     exit(0);
 }
 
+my @skiprecoils = qw( 07 08 09 ); # skips 07:K0 K0bar, 08:eta eta, 09:pi+ pi- pi0
+
 my @modes = qw( 001640000 001640001 001600000 001600001 014640002 014600002 022620000 022620001 028640004 028600004 
                 028640005 029600005 035620002 042640009 042600009 049620004 050620005 055640003 055600003 063620009 
                 076620003 099640006 099600006 100640007 100600007 102500000 102500001 110640008 110600008 116500002 
@@ -132,6 +134,10 @@ if ($pref eq "DPM")
 			
 foreach my $mode (@modes)
 {
+	# is in list of skipped recoils?
+	my $rec = substr $mode, -2;
+	if ($rec ~~ @skiprecoils) {next;}
+
 	my $nrg = sprintf "%d",$mode/1000000;
 	my $mmode = $mode%1000000;
 
