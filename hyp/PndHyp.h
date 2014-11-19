@@ -112,7 +112,7 @@ class PndHyp : public FairDetector
    **
    **/
   virtual void ConstructGeometry();
-  void ConstructASCIIGeometry();
+  //void ConstructASCIIGeometry();
   virtual void FinishRun();
 
   PndHypPoint* AddHit(Int_t trackID,Int_t evtID, 
@@ -219,13 +219,16 @@ class PndHyp : public FairDetector
   TLorentzVector fMomIn;               //  momentum
   TLorentzVector fPosOut;               //  position
   TLorentzVector fMomOut;               //  momentum
- /*  TLorentzVector fPosInLocal;        // entry position in module frame */
-/*   TLorentzVector fPosOutLocal;       //  exit position in module frame */
+  /*  TLorentzVector fPosInLocal;        // entry position in module frame */
+  /*   TLorentzVector fPosOutLocal;       //  exit position in module frame */
   Double_t fPLout,fPLin;               //  total momentum
  
-  TFile *fFile;
-  TTree *ft;
-  TClonesArray *fEvt;
+  
+  TClonesArray* fEvt;
+TFile* fFile;
+  TTree* ft;
+ 
+  
   Int_t        activeCnt;
   Double_t     weight;
   Double_t     seed;
@@ -240,6 +243,7 @@ class PndHyp : public FairDetector
   
   Double_t fcharge;  
   Double_t fmass, fdist;
+
   const Char_t* fFileName;   //! Input file name
 
    PndHypGeoHandling* fGeoH;          //! Gives Access to the Path info of a hit
@@ -260,7 +264,7 @@ class PndHyp : public FairDetector
   Bool_t fUseGamOption;
   void SetHypStatDecay(bool cal,bool active);
 
-  ClassDef(PndHyp,11)
+  ClassDef(PndHyp,12)
 
 }; 
 

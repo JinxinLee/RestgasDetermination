@@ -13,7 +13,7 @@ using namespace std;
 #include "FairRuntimeDb.h"
 #include "FairParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
-#include "PndGeoHypPar.h"
+//#include "PndGeoHypPar.h"
 #include "PndHypDigiPar.h"
 #include "PndHypStripDigiPar.h"
 #include <iostream>
@@ -35,12 +35,13 @@ void PndHypContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the Hyp library.*/
 
-    FairContainer* p= new FairContainer("PndGeoHypPar",
+  /* FairContainer* p= new FairContainer("PndGeoHypPar",
                                           "Hyp Geometry Parameters",
                                           "TestDefaultContext");
     p->addContext("TestNonDefaultContext");
 
     containers->Add(p);
+  */
 
     FairContainer* p2 = new FairContainer("PndHypDigiPar", 
 					"Hyp Pixel Digitization Parameters", 
@@ -63,9 +64,11 @@ FairParSet* PndHypContFact::createContainer(FairContainer* c) {
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
   FairParSet* p=NULL;
-  if (strcmp(name,"PndGeoHypPar")==0) {
+
+  /*  if (strcmp(name,"PndGeoHypPar")==0) {
     p=new PndGeoHypPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
+  */
 
   if (strcmp(name,"PndHypDigiPar")==0) {
 	p=new PndHypDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());

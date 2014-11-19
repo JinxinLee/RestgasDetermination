@@ -46,7 +46,7 @@
 #include "PndHypGeoHandling.h"
 
 //#include "PndHypDecayer.h"
-#include "HypStatDecay.h"
+//#include "HypStatDecay.h"
 #include "TArrayI.h"
 #include "TMCProcess.h"
 
@@ -63,24 +63,40 @@ class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
 PndHyp::PndHyp():
-fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fcount(0) {
+  fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fcount(0){
   fHypCollection        = new TClonesArray("PndHypPoint");
   fHypSecTarCollection  = new TClonesArray("PndHypPoint");
   //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
+
+  // if(fUseRAZHOption==true && fUseFileOption==true){
+    
+  fFile = NULL;//new TFile(fFileName,"RECREATE");//gam+nucfrag "hypBupDecay2.root"
+  fEvt = NULL;//new TClonesArray("THParticle",50);
+  ft     = NULL;//new TTree("data","hypernuclei");
+    
+  //   activeCnt=0;
+  //   weight =1.0;
+    
+  //   // define the tree branches
+  //   ft->Branch("Npart",&activeCnt,"Npart/I");
+  //   ft->Branch("Weigth",&weight,"Weight/D");
+  //   ft->Branch("Seed",&seed,"Seed/D");
+  //   ft->Branch("Particles",&fEvt,32000);
+  // }
+  
   SiId = 0;
   CId = 0;
   CpipeId = 0;
   alId = 0;
   beId = 0;
   fPosIndex   = 0; 
-  // fpreflag = 0;  
-  //fpostflag = 0;
+  
   fEventID=-1; 
   fListMat = kFALSE;
-
-    fListOfSensitives.push_back(fVolNamAb.Data());//"stglAb");
-    fListOfSensitives.push_back(fVolNamSi.Data());//"stglSi");
-    fListOfSensitives.push_back("stglpipe");
+  
+  fListOfSensitives.push_back(fVolNamAb.Data());//"stglAb");
+  fListOfSensitives.push_back(fVolNamSi.Data());//"stglSi");
+  fListOfSensitives.push_back("stglpipe");
   
   
 }
@@ -92,10 +108,28 @@ PndHyp::PndHyp(const char* name, Bool_t active)
     fHypCollection        = new TClonesArray("PndHypPoint");
     fHypSecTarCollection  = new TClonesArray("PndHypPoint");
     //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
+
+    // if(fUseRAZHOption==true && fUseFileOption==true){
+      
+    fFile = NULL;//new TFile(fFileName,"RECREATE");//gam+nucfrag "hypBupDecay2.root"
+    fEvt = NULL;//new TClonesArray("THParticle",50);
+    ft     = NULL;//new TTree("data","hypernuclei");
+      
+    //   activeCnt=0;
+    //   weight =1.0;
+      
+    //   // define the tree branches
+    //   ft->Branch("Npart",&activeCnt,"Npart/I");
+    //   ft->Branch("Weigth",&weight,"Weight/D");
+    //   ft->Branch("Seed",&seed,"Seed/D");
+    //   ft->Branch("Particles",&fEvt,32000);
+    // }
+    
+    
     SiId = 0;
-     CId = 0;
-     alId = 0;
-     beId = 0;
+    CId = 0;
+    alId = 0;
+    beId = 0;
     fPosIndex   = 0;
     fListMat = kFALSE;
     fEventID=-1;
@@ -122,9 +156,20 @@ PndHyp::~PndHyp() {
     delete fHypSecTarCollection;
   }
 
-
  delete fGeoH;
- //delete fread;
+
+ if (fEvt){
+   fEvt->Delete();
+   delete fEvt;}
+ if (fFile){
+   
+   delete fFile;}
+  
+  if (ft){
+   delete ft;}
+  
+  // delete r;
+  //delete fread;
   
 }
 // -------------------------------------------------------------------------
@@ -149,10 +194,10 @@ void PndHyp::Initialize() {
 
   // fread = new HypStatDecay("12C");
 
-  if(fUseRAZHOption==true && fUseFileOption==true){
-    //"hypBupVAida05TDecay.root"
+   if(fUseRAZHOption==true && fUseFileOption==true){
+   
      fFile = new TFile(fFileName,"RECREATE");//gam+nucfrag "hypBupDecay2.root"
-     fEvt = new TClonesArray("THParticle",50);
+    fEvt = new TClonesArray("THParticle",50);
      ft     = new TTree("data","hypernuclei");
 
     activeCnt=0;
@@ -164,6 +209,7 @@ void PndHyp::Initialize() {
     ft->Branch("Seed",&seed,"Seed/D");
     ft->Branch("Particles",&fEvt,32000);
   }
+  
 
   //-----------------------------------------------------------//
 
@@ -187,8 +233,8 @@ void PndHyp::Initialize() {
 
   }else if(fVers.Contains("List")){
 
-    fStandard=kFALSE;//sebastian fVolumeID
-    fCurrent=kTRUE;
+    fStandard=kTRUE;//sebastian fVolumeID
+    fCurrent=kFALSE;
 
     for(int m=0;m<fListOfMaterials.size();m++){
       gGeoManager->GetMedium(fListOfMaterials[m].Data());
@@ -229,7 +275,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
   
 { 
   
-  //fpdgCode = gMC->TrackPid(); 
+ 
   Double_t beta, gamma;	TString nam;
   Int_t nSiL = -1,nAbL = -1;
   ostringstream FullName,matName;
@@ -292,74 +338,74 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	 {
 	   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 	   
-	 
 	   
-	   //fVolumeID = vol->getMCid();//before it was on
+	   
+	   
 	   //*** now the volume is through the layer number characterised.(X-Z,Z-Y)
-	       
-	  if (fCurrent) {
+	   
+	   if (fCurrent) {
 	     if ((nam2.Contains("Sensor"))) {
-	     sscanf(nam2,"Sensor%d", &nSiL);
-	      fVolumeID=nSiL;
-	    }
-	  }else fVolumeID = vol->getCopyNo();
-	  
+	       sscanf(nam2,"Sensor%d", &nSiL);
+	       fVolumeID=nSiL;
+	     }
+	   }else fVolumeID = vol->getCopyNo();
+	   
 	   
 	   //**************///
 	     
-	     //FullName << gGeoManager->GetPath();
+	   //FullName << gGeoManager->GetPath();
+	   
+	   
 	     
-	     
-	     
-	     //cout << "*******  Info from gMC *************" << endl;
-	     Int_t cp=-1;
-	     Int_t fVolid = gMC->CurrentVolID(cp);
-	     
-	     
-	     //cout << " Vol Name: " << gMC->CurrentVolPath() <<" vol id "<<vol->getMCid()<< endl;
-	     
-	     /*  TString nam2 = gMC->CurrentVolName();   
-		 if ((nam2.Contains("Si"))) {
-		 sscanf(nam2,"stglSi%d#01", &nSiL);
-		 cout << "hyp::ProcessHits> : " << nam2 <<" # "
-		 <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
-		 } */
-
-	     FullName <<gMC->CurrentVolPath();
-	     
-	     if(0==fGeoH) {
-	       std::cout<<" -E- No PndHypGeoHandling loaded."<<std::endl;
-	       abort();
-	     }
-	     
-	     
-	     gMC->TrackPosition(fPosOut);
-	     gMC->TrackMomentum(fMomOut);
-	     
-	     if (fELoss == 0. ) return kFALSE;
-	     
-	     radt= fPosOut.Vect();
-	     fdist=radt.Perp();
-	     beta = fMomOut.Beta();
-	     //gamma = fMomOut.Gamma();
-	     fPLin = beta;
-	     //fPLin = fMomIn.P();
-	     fPLout = fMomOut.P();
-	     
-	     AddHit(fTrackID, fEventID,fVolumeID, 
-		    fGeoH->GetID(gMC->CurrentVolPath()),
-		    TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-		    TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-		    TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-		    TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-		    fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
-		    fdist,fPLin,fPLout);
-	     
-	     // Increment number of PndMvd points for TParticle
-	     // PndStack* stack = (PndStack*) gMC->GetStack();
-	     // stack->AddPoint(kHYP);
-	     
-	     ResetParameters();
+	   //cout << "*******  Info from gMC *************" << endl;
+	   Int_t cp=-1;
+	   Int_t fVolid = gMC->CurrentVolID(cp);
+	   
+	   
+	   //cout << " Vol Name: " << gMC->CurrentVolPath() <<" vol id "<<vol->getMCid()<< endl;
+	   
+	   /*  TString nam2 = gMC->CurrentVolName();   
+	       if ((nam2.Contains("Si"))) {
+	       sscanf(nam2,"stglSi%d#01", &nSiL);
+	       cout << "hyp::ProcessHits> : " << nam2 <<" # "
+	       <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
+	       } */
+	   
+	   FullName <<gMC->CurrentVolPath();
+	   
+	   if(0==fGeoH) {
+	     std::cout<<" -E- No PndHypGeoHandling loaded."<<std::endl;
+	     abort();
+	   }
+	   
+	   
+	   gMC->TrackPosition(fPosOut);
+	   gMC->TrackMomentum(fMomOut);
+	   
+	   if (fELoss == 0. ) return kFALSE;
+	   
+	   radt= fPosOut.Vect();
+	   fdist=radt.Perp();
+	   beta = fMomOut.Beta();
+	   //gamma = fMomOut.Gamma();
+	   fPLin = beta;
+	   //fPLin = fMomIn.P();
+	   fPLout = fMomOut.P();
+	   
+	   AddHit(fTrackID, fEventID,fVolumeID, 
+		  fGeoH->GetID(gMC->CurrentVolPath()),
+		  TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+		  TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+		  TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+		  TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+		  fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
+		  fdist,fPLin,fPLout);
+	   
+	   // Increment number of PndMvd points for TParticle
+	   // PndStack* stack = (PndStack*) gMC->GetStack();
+	   // stack->AddPoint(kHYP);
+	   
+	   ResetParameters();
 	 }
        
        //return kTRUE;
@@ -368,8 +414,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
        
      }//volSi
    else if ((fpdgCode==3312)&&(nam2.Contains("Ab")))//||nam2.Contains("Si")))
-     {  // absorver
-       //if ((fpdgCode==3312)&&(medId==CId || medId==SiId))
+     {  //absorber
        
        if ( gMC->IsTrackEntering() ) 
 	 {
@@ -378,13 +423,13 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   fLength = gMC->TrackLength();
 	   fmass   = gMC->TrackMass();   // mass (GeV)
 	   fcharge = gMC->TrackCharge(); // charge?
-	
+	   
 	   
 	   if(fStartEvID>0)
 	     {
 	       fEventID = gMC->CurrentEvent()+fStartEvID;
 	     }else fEventID = gMC->CurrentEvent();
-
+	   
 	   
 	   gMC->TrackPosition(fPosIn);
 	   gMC->TrackMomentum(fMomIn);
@@ -394,7 +439,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
        // Sum energy loss for all steps in the active volume
        
        fELoss += gMC->Edep();
-     // Gamma, Beta, tau(proper time) of ximnus
+       // Gamma, Beta, tau(proper time) of ximnus
        TLorentzVector PL;
        gMC->TrackMomentum(PL);
        beta = PL.Beta();
@@ -404,16 +449,16 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	 {    
 	   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 	   
-	 if (fCurrent) {  
+	   if (fCurrent) {  
+	     
+	     if ((nam2.Contains("Absorber"))) {
+	       sscanf(nam2,"Absorber%d", &nAbL);
+	       cout << "hyp::ProcessHits> : " << nam2 <<" # "
+		    <<nAbL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
+	       fVolumeID = nAbL;
+	     }
+	   }else fVolumeID = vol->getMCid();
 	   
-	   if ((nam2.Contains("Absorber"))) {
-	     sscanf(nam2,"Absorber%d", &nAbL);
-	     cout << "hyp::ProcessHits> : " << nam2 <<" # "
-		  <<nAbL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
-	     fVolumeID = nAbL;
-	   }
-	 }else fVolumeID = vol->getMCid();
-
 	   gMC->TrackPosition(fPosOut);
 	   gMC->TrackMomentum(fMomOut);
 	   
@@ -445,8 +490,8 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   
 	   // ***** Statistical Decay of a compound hyperfragment********
 	   SetHypStatDecay(fUseRAZHOption,fUseFileOption);
-
-
+	   
+	   
 	   fTrackStopNxtStep=kTRUE;
 	   
 	   // Increment number of PndMvd points for TParticle
@@ -545,7 +590,8 @@ void PndHyp::ConstructGeometry() {
 TString fileName=GetGeometryFileName();
   
  if(fileName.EndsWith(".geo")){
-   ConstructASCIIGeometry();
+   std::cout<< "Geometry format not supported " <<std::endl;
+   // ConstructASCIIGeometry();
    
  }else if (fileName.EndsWith(".root")){
    fRootSensVol= kTRUE;
@@ -560,7 +606,7 @@ TString fileName=GetGeometryFileName();
 
 // -------------------------------------------------------------
 
-void PndHyp::ConstructASCIIGeometry() {
+/*void PndHyp::ConstructASCIIGeometry() {
 
  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
   FairGeoInterface* geoFace = geoLoad->getGeoInterface();
@@ -601,6 +647,7 @@ void PndHyp::ConstructASCIIGeometry() {
 
 
 }
+*/
   
 // -------------------------------------------------------------------------
 bool PndHyp::CheckIfSensitive(std::string name)
@@ -614,31 +661,29 @@ bool PndHyp::CheckIfSensitive(std::string name)
 }
 // -----   Public method FinishRun   -------------------------------------------
 void PndHyp::FinishRun() {
-  if (fUseRAZHOption==true && fUseFileOption==true ){
-    fFile->Write();
-    fFile->Close();
-    delete fEvt;
-    delete fFile;
-
-
-
-    cout<<" -I PndHyp::FinishRun():closing and deleting fFile fEvt "<<endl;
-  }
-
-
+   if (fUseRAZHOption==true && fUseFileOption==true ){
+     fFile->Write();
+     //fFile->Close();
+      //delete fEvt;
+     
+      
+      cout<<" -I PndHyp::FinishRun():closing and deleting fFile fEvt "<<endl;
+      }
+      
 }
 
 // ------   Private method SetHypStatDecay   -----------------------------------
+
 void PndHyp:: SetHypStatDecay(bool cal,bool active) {
 // ***** Sequential Decay of a compound hyperfragment********
- 
- if(cal==true){
+
+if(cal==true){
 
 
-    if(active==true){
-      fEvt->Clear();
+if(active==true){
+fEvt->Clear();
 
-     }
+}
     Int_t cnt = 0;
 
     cout<<" increment count "<<fcount<<endl;
@@ -704,6 +749,7 @@ void PndHyp:: SetHypStatDecay(bool cal,bool active) {
 	  THParticle  fpion_L(-211,1,0,0,0,0,0,0,*pPi7,V);
 	  
 	  new((*fEvt)[cnt++]) THParticle(fpion_L);
+	  cout<<cnt<<endl;
 	}
       }
     
@@ -717,7 +763,6 @@ void PndHyp:: SetHypStatDecay(bool cal,bool active) {
  
  
 }
-
 
 // -----   Private method AddHit   --------------------------------------------
 
