@@ -670,18 +670,18 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 {
 	if (n==0) return;
 
-	RhoCandidate *d = c->Daughter(0);
+ 	RhoCandidate *d = c->Daughter(0);
 	TVector3 v = c->DecayVtx();
 	if (d)
 	{
 		if (v.X()==0 && v.Y()==0 && v.Z()==0)
 			v = d->Pos();
-		TLorentzVector d_cms = d->P4();
-		d_cms.Boost(-(c->P4().BoostVector()));
+// 		TLorentzVector d_cms = d->P4();
+// 		d_cms.Boost(-(c->P4().BoostVector()));
 
 		Float_t ctau = v.Mag()*c->M()/c->P();
-		Float_t dec  = d_cms.Vect().Angle(c->P3());
-		Float_t cdec = cos(dec);
+/*		Float_t dec  = d_cms.Vect().Angle(c->P3());
+		Float_t cdec = cos(dec);*/
 		
 		// if primary Vertex available, compute ctau relative to that one
 		Float_t ctaud = -999.;
@@ -700,8 +700,8 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 		n->Column(pre+"len", 	(Float_t) v.Mag(),		0.0f );
 		n->Column(pre+"ctau",	(Float_t) ctau,			0.0f );
 		n->Column(pre+"ctaud",	(Float_t) ctaud,		0.0f );
-		n->Column(pre+"decang", (Float_t) dec,			0.0f );
-		n->Column(pre+"cdecang",(Float_t) cdec,			0.0f );
+/*		n->Column(pre+"decang", (Float_t) dec,			0.0f );
+		n->Column(pre+"cdecang",(Float_t) cdec,			0.0f );*/
 	}
 	else
 	{
@@ -711,8 +711,8 @@ void PndRhoTupleQA::qaVtx(TString pre, RhoCandidate *c, RhoTuple *n)
 		n->Column(pre+"len", 	(Float_t) -999.0,		0.0f );
 		n->Column(pre+"ctau",  	(Float_t) -999.0,		0.0f );
 		n->Column(pre+"ctaud",	(Float_t) -999.0,		0.0f );
-		n->Column(pre+"decang", (Float_t) -999.0,		0.0f );
-		n->Column(pre+"cdecang",(Float_t) -999.0,		0.0f );
+/*		n->Column(pre+"decang", (Float_t) -999.0,		0.0f );
+		n->Column(pre+"cdecang",(Float_t) -999.0,		0.0f );*/
 	}
 }
 
