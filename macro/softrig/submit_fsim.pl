@@ -16,12 +16,12 @@ if (!defined($max) || $max<$min) {$max = $min;}
 if (!defined $ARGV[0]) 
 {
     print "USAGE:\n";
-    print "submit_fsim.pl <sqrt(s)> [n_evt] [min] [max]\n\n";
+    print "submit_fsim.pl <sqrt(s)> [n_evt] [min] [max] [modepref]\n\n";
     print "   <sqrt(s)>  : center of mass energy\n";
 	print "   [n_evt]    : number of events per job (default = 10000) \n";
 	print "   [min]      : minimum job array number (default = 1) \n";
 	print "   [max]      : maximum job array number (default = 1 -> 1 job will be submitted) \n";
-    print "   [modepref] : modes with prefix 'modepref'\n\n"; 
+    print "   [modepref] : modes with prefix 'modepref'; 'DPM' to produce DPM events\n\n"; 
     exit(0);
 }
 
@@ -116,18 +116,31 @@ sub pbarmom
 	
 	return $minp;
 }
-            
+
+# --------------
+# main routine
+# --------------
+
+my $sqscode = sprintf "%3d", $sqs*100;
+my $pmom = sprintf "%.5f", pbarmom($sqs);
+          
+if ($pref eq "DPM")
+{
+	print "qsub -t $min-$max job_sof_fsim.sge $sqscode\900 $nevt DPM $pmom\n";
+	if ($nevt>0) {`qsub -t $min-$max job_sof_fsim.sge $sqscode\900 $nevt DPM $pmom`;}
+}
+			
 foreach my $mode (@modes)
 {
 	my $nrg = sprintf "%d",$mode/1000000;
 	my $mmode = $mode%1000000;
-	my $sqscode = sprintf "%3d", $sqs*100;
+
 	if (defined($pref) && $mmode !~ m/^\Q$pref\E/) {next;}
 
 	if ($sqs*100>=$nrg) 
 	{
-		my $pmom = sprintf "%.5f", pbarmom($sqs);
-		print "qsub -t $min-$max job_sof_fsim.sge $sqscode$mmode $nevt decfiles/M$mmode.dec ".$pmom." pbarpSystem0\n";
+		if ($nevt==0) {print "nevt=0 ? ";}
+		print "qsub -t $min-$max job_sof_fsim.sge $sqscode$mmode $nevt decfiles/M$mmode.dec $pmom pbarpSystem0\n";
 		if ($nevt>0) {`qsub -t $min-$max job_sof_fsim.sge $sqscode$mmode $nevt decfiles/M$mmode.dec $pmom pbarpSystem0`;}
 	}
 }

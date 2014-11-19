@@ -260,7 +260,7 @@ foreach $line (@lines) # loop again thru lines
 							$dec .=  "Enddecay\n\n";
 							$dec .=  "Decay MyP\n 1.0 $3;\n";
 							my $anti = antistr($3);
-							if ($anti ne $3) { $dec .=  " 1.0 ".antistr($3)."\n";}
+							if ($anti ne $3) { $dec .=  " 1.0 ".antistr($3).";\n";}
 							$dec .=  "Enddecay\n\n";
 						}
 					}
