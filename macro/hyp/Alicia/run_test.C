@@ -86,7 +86,7 @@ void run_test(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "box", 
   // ++++++ Xi minus production ++++++
   if(Decfile=="box")fRun->SetOutputFile("sim_box.root");
   if(Decfile=="param")fRun->SetOutputFile("/data/work/kpha4/lorente/sim_panda/Sim_hypFSG41TXm_SebGeo_"+prefix+".root");
-  if(Decfile=="giBUU") fRun->SetOutputFile("/data/work/kpha4/lorente/sim_panda/Sim_hypFSG41TXm_GB.root");
+  if(Decfile=="giBUU") fRun->SetOutputFile("sim_gibuu.root");///data/work/kpha4/lorente/sim_panda/Sim_hypFSG41TXm_GB.root");
   // ----------first step XXb production -----------------------
   
   //fRun->SetOutputFile("Sim_hypFSG41TXXb_Geo2.root");
@@ -323,7 +323,7 @@ void run_test(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "box", 
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   //output->open("simparams.root");
  if(Decfile=="param") output->open("/data/work/kpha4/lorente/sim_panda/Sim_hypFS1TG4Xm_SebGeo3params_"+prefix+".root");
- if(Decfile=="giBUU") output->open("/data/work/kpha4/lorente/sim_panda/Sim_hypFS1TG4Xm_GBparams.root");
+ if(Decfile=="giBUU") output->open("sim_gibuuparams.root");///data/work/kpha4/lorente/sim_panda/Sim_hypFS1TG4Xm_GBparams.root");
  if(Decfile=="box") output->open("sim_boxparams.root");
   //output->open("Bup_hypFS1TG4XXbparams.root");
   if(Decfile=="hypbup")output->open("Bup_hypFS1TG4Xmparams.root");
