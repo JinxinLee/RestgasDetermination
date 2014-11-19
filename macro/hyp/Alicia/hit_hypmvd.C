@@ -5,10 +5,10 @@
   
 // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;//iVerbose = 3
-  TString inFile = "sim_piTr.root";// sim_hypgeantcheck.root";
+  TString inFile = "sim_box.root";///data/work/kpha4/lorente/sim_panda/Sim_hypFSG41TXm_GB.root";//sim_piTr.root";// sim_hypgeantcheck.root";
   Int_t nEvents = 200;//50000;
-  TString parFile="PiTrparams.root";//simparams.root";
-  TString outFile = "hypIdealreco.root";
+  TString parFile="sim_boxparams.root";///data/work/kpha4/lorente/sim_panda/Sim_hypFS1TG4Xm_GBparams.root";//PiTrparams.root";//simparams.root";
+  TString outFile = "output_hitbox.root";///data/work/kpha4/lorente/sim_panda/hypIdealreco.root";
 
  // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
@@ -19,9 +19,10 @@
 
  // ----  Load libraries   -------------------------------------------------
   
- gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
- rootlogon();
-
+ //gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+ //rootlogon();
+gSystem->Load("libtrackrep");
+ gSystem->Load("librazhyp");
  gSystem->Load("libHyp");
 
 // -----   Timer   --------------------------------------------------------
