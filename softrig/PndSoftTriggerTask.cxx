@@ -108,7 +108,7 @@ int fSTModeIndex = 0;
 // -----   Default constructor   -------------------------------------------
 PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TString trigfilename) :
 	FairTask("Panda Softtrigger Task"),
-	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0),	fNsigAux(3.0),	
+	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0), fNsigAux(3.0), fDstMDiffCut(10.),
 	fTriggerFileName(trigfilename), fPhotosMax(0), fPhotosThresh(0.05), 
 	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
 	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false), fQAMc(false),
@@ -806,17 +806,17 @@ int PndSoftTriggerTask::CreateKs0Cands(RhoTuple *n)
 			Float_t nsig = (Float_t) fabs(fKs0Cands[i]->Mass()-fKs0Mean)/fKs0Sigma;
 			Float_t tag  = nsig<fNsigAux;  // instead of fNsigTag, fNsigAux cut is applied for KS
 			
-			n->Column("tag", 	(Float_t) tag,			0.0f);
-			n->Column("nsig", 	(Float_t) nsig,			0.0f);
-			n->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			n->Column("run",  	(Float_t) fRunNum,		0.0f);
-			n->Column("num", 	(Float_t) i,			0.0f);
-			n->Column("mode",	(Float_t) fMode,		0.0f);
-			n->Column("ksmean", (Float_t) fKs0Mean,		0.0f);
-			n->Column("kssig", 	(Float_t) fKs0Sigma,	0.0f);
+			n->Column("tag", 	(Int_t) tag,		0);
+			n->Column("nsig", 	(Float_t) nsig,		0.0f);
+			n->Column("ev",  	(Int_t) fEvtCount,	0);
+			n->Column("run",  	(Int_t) fRunNum,	0);
+			n->Column("num", 	(Int_t) i,			0);
+			n->Column("mode",	(Int_t) fMode,		0);
+			n->Column("xmean", (Float_t) fKs0Mean,		0.0f);
+			n->Column("xsig", 	(Float_t) fKs0Sigma,	0.0f);
 			
 			fQA->qaP4("beam", fIniP4, n);
-			fQA->qaKs0("ks", fKs0Cands[i], n);
+			fQA->qaKs0("x",  fKs0Cands[i], n);
 			
 			n->DumpData();
 		}
@@ -884,17 +884,17 @@ void PndSoftTriggerTask::FillGlobalLists()
 			Float_t nsig = (Float_t) fabs(fPi0Cands[i]->Mass()-fPi0Mean)/fPi0Sigma;
 			Float_t tag  = nsig<fNsigAux;  // instead of fNsigTag, a fNsigAux cut is applied for pi0
 			
-			npi0->Column("tag", 	(Float_t) tag,			0.0f);
-			npi0->Column("nsig", 	(Float_t) nsig,			0.0f);
-			npi0->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			npi0->Column("run",  	(Float_t) fRunNum,		0.0f);
-			npi0->Column("num", 	(Float_t) i,			0.0f);
-			npi0->Column("mode",	(Float_t) fMode,		0.0f);
-			npi0->Column("pi0mean", (Float_t) fPi0Mean,		0.0f);
-			npi0->Column("pi0sig", 	(Float_t) fPi0Sigma,	0.0f);
+			npi0->Column("tag", 	(Int_t) tag,		0);
+			npi0->Column("nsig", 	(Float_t) nsig,		0.0f);
+			npi0->Column("ev",  	(Int_t) fEvtCount,	0);
+			npi0->Column("run",  	(Int_t) fRunNum,	0);
+			npi0->Column("num", 	(Int_t) i,			0);
+			npi0->Column("mode",	(Int_t) fMode,		0);
+			npi0->Column("xmean", (Float_t) fPi0Mean,		0.0f);
+			npi0->Column("xsig", 	(Float_t) fPi0Sigma,	0.0f);
 			
 			fQA->qaP4("beam", fIniP4, npi0);
-			fQA->qaPi0("pi0", fPi0Cands[i], npi0);
+			fQA->qaPi0("x", fPi0Cands[i], npi0);
 			npi0->DumpData();
 		}
 	}
@@ -911,17 +911,17 @@ void PndSoftTriggerTask::FillGlobalLists()
 			Float_t nsig = (Float_t) fabs(fEtaCands[i]->Mass()-fEtaMean)/fEtaSigma;
 			Float_t tag  = nsig<fNsigAux;  // instead of fNsigTag, a fNsigAux cut is applied for eta
 			
-			neta->Column("tag", 	(Float_t) tag,			0.0f);
-			neta->Column("nsig", 	(Float_t) nsig,			0.0f);
-			neta->Column("ev",  	(Float_t) fEvtCount,	0.0f);
-			neta->Column("run",  	(Float_t) fRunNum,		0.0f);
-			neta->Column("num", 	(Float_t) i,			0.0f);
-			neta->Column("mode",	(Float_t) fMode,		0.0f);
-			neta->Column("etamean", (Float_t) fEtaMean,		0.0f);
-			neta->Column("etasig", 	(Float_t) fEtaSigma,	0.0f);
+			neta->Column("tag", 	(Int_t) tag,		0);
+			neta->Column("nsig", 	(Float_t) nsig,		0.0f);
+			neta->Column("ev",  	(Int_t) fEvtCount,	0);
+			neta->Column("run",  	(Int_t) fRunNum,	0);
+			neta->Column("num", 	(Int_t) i,			0);
+			neta->Column("mode",	(Int_t) fMode,		0);
+			neta->Column("xmean", (Float_t) fEtaMean,		0.0f);
+			neta->Column("xsig", 	(Float_t) fEtaSigma,	0.0f);
 			
 			fQA->qaP4("beam", fIniP4, neta);
-			fQA->qaPi0("eta", fEtaCands[i], neta);
+			fQA->qaPi0("x", fEtaCands[i], neta);
 			
 			neta->DumpData();
 		}
@@ -1059,6 +1059,16 @@ void PndSoftTriggerTask::FillVarArray(RhoCandidate *c)
 }
 
 // -------------------------------------------------------------------------
+bool PndSoftTriggerTask::AcceptDstCut(RhoCandidate *c)
+{
+	int pdg = abs(c->PdgCode());
+	
+	if ( (pdg==413 || pdg==423 || pdg==433) && fabs(c->M() - c->Daughter(0)->M() - 0.143) > fDstMDiffCut ) return false;
+	
+	return true;
+}
+
+// -------------------------------------------------------------------------
 
 bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel)
 {
@@ -1069,13 +1079,17 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 	// no selection defined for this mode
 	if ( fSTSelmap.find(mcode) == fSTSelmap.end() ) {if (fVerbose>1) cout <<endl;return false;} 
 	if (fVerbose>1) cout <<" found cut set";
+	
 	// not accepted by final (mass) selector
 	if ( sel && !(sel->Accept(c)) ) {if (fVerbose>1) cout <<endl;return false;}
-	
+		
 	if (fVerbose>1) cout <<" accepted by precuts"<<endl;
 	
 	STCutSet cs = fSTSelmap[mcode];
 	FillVarArray(c);
+	
+	// not accepted by D* mass diff cut
+	if (!AcceptDstCut(c)) return false;
 	
 	bool acc = true;
 	
@@ -1340,15 +1354,15 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 		// full selection
 		if (fApplyFullSelection>0) acc = AcceptCandidate(mode, l[i], sel);
 		// simple mass window selection
-		else acc = sel->Accept(l[i]);
+		else acc = sel->Accept(l[i]) && AcceptDstCut(l[i]);
 		
 		// for full selection in open mode (=2), trigger w/o detailed cuts are accepted based on mass window only 
 		if ( !acc && fApplyFullSelection==2 && fSTSelmap.find(fSTencode[fSTModeIndex]*1000+mode) == fSTSelmap.end() )
-			acc = sel->Accept(l[i]);
+			acc = sel->Accept(l[i]) && AcceptDstCut(l[i]);
 				
 		if (acc) nacc++;
 			
-		if (n)
+		if (n && AcceptDstCut(l[i]))
 		{
 			fQA->qaComp(prefix, l[i], n);
 			fQA->qaEventShapeShort("es", fEventShape, n);

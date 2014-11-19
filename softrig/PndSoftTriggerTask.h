@@ -60,6 +60,7 @@ class PndSoftTriggerTask : public FairTask
 	void SetTagNSigMode(int mode, double nsig);
 	void SetTagNSigAll(double nsig);
 	void SetAuxNSig(double nsig) {fNsigAux = nsig;}  // n sigma cut for KS, pi0, eta
+	void SetDstMDiffCut(double cut) {fDstMDiffCut = cut;} // cut on delta M(D*, D); default = 10. GeV/c^2
 	
 	// *** set selection parameters for QA tuple
 	void SetPi0QASelection(double min, double max) {fPi0QaMin=min; fPi0QaMax=max;}
@@ -76,9 +77,9 @@ class PndSoftTriggerTask : public FairTask
 	void SetSignalParamsDefaults();
 	
 	// *** pre selection of neutral and charged + PID cut
-	void SetGammaMinE(double min) {fGammaMinE=min;}
-	void SetTrackMinP(double min) {fTrackMinP=min;}
-	void SetInitialPidCut(double cut) {fIniPidCut=cut;}
+	void SetGammaMinE(double min) {fGammaMinE = min;}
+	void SetTrackMinP(double min) {fTrackMinP = min;}
+	void SetInitialPidCut(double cut) {fIniPidCut = cut;}
 	
 	// *** modifiers for PID selection string
 	void SetPidAlgoAll(TString algo);
@@ -127,6 +128,7 @@ class PndSoftTriggerTask : public FairTask
 	void FillVarArray(RhoCandidate *c);                                  // fill candidate variable array for selection
 	void FillEventShapeVarArray();                        			     // fill event shape variable array for selection
 	bool AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel=0); // accept candidate for full selection
+	bool AcceptDstCut(RhoCandidate *c);                                  // accept the D* mass diff cut?
 	
 	// *** some helper functions
 	int SelectTruePid(RhoCandList &l);
@@ -153,6 +155,8 @@ class PndSoftTriggerTask : public FairTask
 	int      fSigCount;	         // counter, unused for the time being
 	double   fNsigTag;			 // max number of sigmas deviation of candidate to be tagged
 	double   fNsigAux;			 // max number of sigmas deviation for auxilliary particle = pi0, K_S, eta
+	double   fDstMDiffCut;       // optional upper limit cut for D* -> DX decays on M(D*) - M(D) (explicit PDG codes 413, 423, 433)
+	
 	TString  fCfgFileName;		 // file containing the detailed selection cuts 
 	TString  fTriggerFileName;	 // file containing the trigger setup
 	Int_t    fPhotosMax;         // passed over to PndAnalysis for MC match with photos on
