@@ -41,6 +41,7 @@ private:
     UInt_t fEvent;
 
     TClonesArray* fDigiArray;
+    //   TClonesArray* fFrameHeaderArray;
 
 	Bool_t fInitDone;
 	Double_t fClockFrequency; //in MHz

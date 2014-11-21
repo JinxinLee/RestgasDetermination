@@ -49,6 +49,7 @@ InitStatus PndMvdReadInTBDataTask::ReInit()
 InitStatus PndMvdReadInTBDataTask::Init()
 {
   FairRootManager* ioman = FairRootManager::Instance();
+  std::cout << "PndMvdReadInTBDataTask::Init start of Init" << std::endl;
 
   if ( ! ioman )
     {
@@ -58,17 +59,19 @@ InitStatus PndMvdReadInTBDataTask::Init()
     }
 
   for (int i = 0; i < fFileNames.size(); i++) {
+    std::cout << "PndMvdReadInTBDataTask::Init FileName: " << fFileNames[i] << std::endl;
 	  fReader.push_back(new PndMvdReadInTBData());
 	  fEndOfFile.push_back(kFALSE);
 	  fReader[i]->SetFileName(fFileNames[i]);
 	  fReader[i]->SetClockFrequency(fClockFrequency);
 	  fReader[i]->SetVerbose(fVerbose);
 	  fReader[i]->SetFE(i+1);
-
+	  std::cout << "PndMvdReadInTBDataTask::Init before Reader Init" << std::endl;
 	  fReader[i]->Init();
   }
 
   fDigiArray = ioman->Register("ToPix4Hits", "PndSdsDigiTopix4", "MVD", kTRUE);
+  // fFrameHeaderArray = ioman->Register("ToPix4FrameHeader","frameHeader","MVD", kTRUE);
 
   std::cout << "-I- PndMvdReadInTBDataTask: Initialisation successfull" << std::endl;
   fInitDone = kTRUE;
@@ -79,7 +82,7 @@ InitStatus PndMvdReadInTBDataTask::Init()
 void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 {
 	if (fEvent % 10000 == 0) {
-		std::cout << "PndMvdReadInTBDataTask::Exec called - Event " << fEvent << std::endl;
+	  std::cout << "PndMvdReadInTBDataTask::Exec called - Event " <<std::dec<<  fEvent << std::endl;
 	}
 	fEvent++;
 
@@ -88,11 +91,20 @@ void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 			fEndOfFile[i] = fReader[i]->ReadInData(fDigiArray);
 		}
 	}
-	Bool_t endOfFiles = kFALSE;
+	Bool_t endOfFiles = kTRUE;
 	for (int j = 0; j < fEndOfFile.size(); j++){
-		endOfFiles |= fEndOfFile[j];
+		endOfFiles &= fEndOfFile[j];
 	}
 	if (endOfFiles == kTRUE){
+		std::cout << "Number of non sequential frame counters: " << std::endl;
+		for(int i = 0; i < fReader.size(); i++){
+			UInt_t nonSequential = fReader[i]->GetNonSequenctialFC();
+			std::cout << i << " : " << nonSequential
+					<< " double header " << fReader[i]->GetDoubleHeader()
+					<< " double trailer " << fReader[i]->GetDoubleTrailer() << std::endl;
+			std::cout << i << "SuperFrameCount: " << fReader[i]->GetSuperFrameCount() << std::endl;
+			std::cout << i << "WrongHammingCount: " << fReader[i]->GetWrongHammingCodeCount() << std::endl;
+		}
 		FairRootManager::Instance()->SetFinishRun(kTRUE);
 	}
 
@@ -101,7 +113,7 @@ void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 void PndMvdReadInTBDataTask::FinishEvent()
 {
 	fDigiArray->Delete();
+	//fFrameHeaderArray->Delete();
 }
 
 ClassImp(PndMvdReadInTBDataTask);
-
