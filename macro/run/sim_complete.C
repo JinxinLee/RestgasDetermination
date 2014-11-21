@@ -70,10 +70,10 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
-  FairModule *Magnet= new PndMagnet("MAGNET");
+  //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
-  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
-  fRun->AddModule(Magnet);
+  //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+  //fRun->AddModule(Magnet);
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
@@ -119,6 +119,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   Muo->SetMuonFilter("fast");
   Muo->SetForward("fast");
   Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtCoil(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
   //-------------------------  FTS       -----------------
