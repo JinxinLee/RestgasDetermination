@@ -52,6 +52,7 @@ void readInTopix4TBData(TString inFileName, Double_t clockFrequency = 50.)
 //  readTask->AddFile(inFileName);
   TString tempFileName = inFileName;
   tempFileName.Append("--101-data--1.txt");
+  //cout << "FirstFile: " << tempFileName << std::endl;
   readTask->AddFile(tempFileName);
 
   tempFileName = inFileName;
@@ -63,11 +64,17 @@ void readInTopix4TBData(TString inFileName, Double_t clockFrequency = 50.)
   readTask->AddFile(tempFileName);
 
   tempFileName = inFileName;
-  tempFileName.Append("--102-data--1.txt");
+  tempFileName.Append("--104-data--1.txt");
   readTask->AddFile(tempFileName);
 
   readTask->SetFrequency(clockFrequency);
+
+  readTask->SetVerbose(2);
   fRun->AddTask(readTask);
+
+  PndMvdTopix4RingSorterTask* sorterTask = new PndMvdTopix4RingSorterTask(100000, 1000000, "ToPix4Hits", "ToPix4HitsSorted","Mvd");
+//  fRun->AddTask(sorterTask);
+
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
