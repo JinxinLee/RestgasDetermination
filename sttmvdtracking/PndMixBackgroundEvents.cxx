@@ -41,7 +41,6 @@ using namespace std;
 
 const Double_t
 	PndMixBackgroundEvents::MVDTYPICALTIME=10., // in nsec; time after which the Mvd hit disappears.
-	PndMixBackgroundEvents::RATE=20., //  in MHz, average interaction rate in PANDA.
 	PndMixBackgroundEvents::STRAWRADIUS = 0.5, // in cm.
 	PndMixBackgroundEvents::STTdriftVEL = 0.0025,	//   in cm/nsec
 	PndMixBackgroundEvents::MAXSTTdriftTIME = 200.;	//   in nsec
@@ -50,6 +49,7 @@ const Double_t
 
 // -----   Default constructor   -------------------------------------------
 PndMixBackgroundEvents::PndMixBackgroundEvents() : FairTask("Mixing bkgrnd hits to Stt-Mvd") { 
+  fInteractionRate = 20.;
   fPersistence = kTRUE;
   fVerbose = 0;
 //  IVOLTE=-1;
@@ -58,6 +58,7 @@ PndMixBackgroundEvents::PndMixBackgroundEvents() : FairTask("Mixing bkgrnd hits 
 // -------------------------------------------------------------------------
 
 PndMixBackgroundEvents::PndMixBackgroundEvents(Int_t verbose) : FairTask("STT Stt-Mvd Tracking") { 
+  fInteractionRate = 20.;
   fPersistence = kTRUE;
   fVerbose = verbose;
 //  IVOLTE=-1;
@@ -436,19 +437,19 @@ return;
 
 	// negative times
 	*nBkgEventsToAdd=0;
-	Trange = rran.Exp(1000./RATE) ;//  RATE is in MHz, dtime is in nsec.
+	Trange = rran.Exp(1000./fInteractionRate) ;//  fInteractionRate is in MHz, dtime is in nsec.
 	while ( Trange < MAXSTTdriftTIME){
 		times[(*nBkgEventsToAdd)] = -Trange;
-		Trange += rran.Exp(1000./RATE) ; // RATE is in MHz.
+		Trange += rran.Exp(1000./fInteractionRate) ; // fInteractionRate is in MHz.
 		(*nBkgEventsToAdd)++;
 	}
 
 
 	// positive times
-	Trange = rran.Exp(1000./RATE) ; // RATE is in MHz, dtime is in nsec.
+	Trange = rran.Exp(1000./fInteractionRate) ; // fInteractionRate is in MHz, dtime is in nsec.
 	while ( Trange < MAXSTTdriftTIME){
 		times[(*nBkgEventsToAdd)] = Trange;
-		Trange += rran.Exp(1000./RATE) ; // RATE is in MHz.
+		Trange += rran.Exp(1000./fInteractionRate) ; // fInteractionRate is in MHz.
 		(*nBkgEventsToAdd)++;
 	}
 
