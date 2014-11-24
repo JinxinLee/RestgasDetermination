@@ -35,6 +35,7 @@ class PndMixBackgroundEvents : public FairTask
   /** Destructor **/
   ~PndMixBackgroundEvents();
 
+ Double_t fInteractionRate; //  in MHz, average interaction rate in PANDA.
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -58,6 +59,13 @@ class PndMixBackgroundEvents : public FairTask
 	return;
   };
 
+
+
+  void SetInteractionRate(Double_t rate )
+  {
+	fInteractionRate=rate;
+	return;
+  };
 
 
  private:
