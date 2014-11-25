@@ -111,7 +111,7 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TStrin
 	fVerbose(0), fMode(mode), fEvtCount(0), fRunNum(runnum), fSigCount(0), fNsigTag(8.0), fNsigAux(3.0), fDstMDiffCut(10.),
 	fTriggerFileName(trigfilename), fPhotosMax(0), fPhotosThresh(0.05), 
 	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
-	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false), fQAMc(false),
+	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false), fQAMc(false), fQAMctOnly(false),
 	fGammaMinE(0.03), fPi0MinE(0.0), fEtaMinE(0.0), fTrackMinP(0.15), fIniPidCut(0.0),
 	fEventShape(NULL), 
 	fQA(NULL),
@@ -1361,9 +1361,14 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 			acc = sel->Accept(l[i]) && AcceptDstCut(l[i]);
 				
 		if (acc) nacc++;
-			
+		
+		fAnalysis->McTruthMatch(l[i]);
+		
 		if (n && AcceptDstCut(l[i]))
 		{
+			// in case we only want to store MC truth matched candidates, check!
+			if (fQAMctOnly && (l[i]->GetMcTruth())==0) continue;
+			
 			fQA->qaComp(prefix, l[i], n);
 			fQA->qaEventShapeShort("es", fEventShape, n);
 			

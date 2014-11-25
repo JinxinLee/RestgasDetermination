@@ -100,6 +100,7 @@ class PndSoftTriggerTask : public FairTask
 	void SetQAEta(bool qa=true) { fQAEta = qa;}
 	void SetQAKs0(bool qa=true) { fQAKs0 = qa;}
 	void SetQAMc(bool qa=true)  { fQAMc  = qa;}
+	void SetQAMctOnly(bool qa=true)  { fQAMctOnly  = qa;}
 
 	void SetQAEvent(bool qa=true) { fQAEvent = qa;}
 	
@@ -175,11 +176,12 @@ class PndSoftTriggerTask : public FairTask
 
     // ----------------------------
 	// *** flags for enable/disable QA ntuple output	
-	bool fQAPi0;
-	bool fQAEta;
-	bool fQAKs0;
-	bool fQAEvent;
-	bool fQAMc;
+	bool fQAPi0;         // QA tuple for pi0
+	bool fQAEta;         // QA tuple for eta
+	bool fQAKs0;         // QA tuple for KS
+	bool fQAEvent;       // QA tuple for event (with tag info)
+	bool fQAMc;          // QA tuple for MC lists
+	bool fQAMctOnly;     // store QA info only for MCT
 	
     // ----------------------------
 	// *** parameters for ntuple QA window	
