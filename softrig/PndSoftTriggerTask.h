@@ -236,7 +236,7 @@ class PndSoftTriggerTask : public FairTask
 	TString fAlgoProton;	// Pid algo definition string protons
 	
 	
-	int fPidMult_025[5];	// cache for the PID multiplicities with P>=0.25
+	Int_t fPidMult_025[5];	// cache for the PID multiplicities with P>=0.25
 	
 	
 	// *** declare NTuples

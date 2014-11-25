@@ -713,11 +713,11 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		fQA->qaEventShape("es", fEventShape, ntp);
 		
 		// replace PID mult values from fEventShape by actual counts with individual algorithms
-		ntp->Column("eslnpide", (Float_t)  fPidMult_025[0],		0.0f );
-		ntp->Column("eslnpidmu",(Float_t)  fPidMult_025[1],		0.0f );
-		ntp->Column("eslnpidpi",(Float_t)  fPidMult_025[2],		0.0f );
-		ntp->Column("eslnpidk", (Float_t)  fPidMult_025[3],		0.0f );
-		ntp->Column("eslnpidp", (Float_t)  fPidMult_025[4],		0.0f );
+		ntp->Column("eslnpide", (Int_t)  fPidMult_025[0],		0 );
+		ntp->Column("eslnpidmu",(Int_t)  fPidMult_025[1],		0 );
+		ntp->Column("eslnpidpi",(Int_t)  fPidMult_025[2],		0 );
+		ntp->Column("eslnpidk", (Int_t)  fPidMult_025[3],		0 );
+		ntp->Column("eslnpidp", (Int_t)  fPidMult_025[4],		0 );
 		
 		ntp->DumpData();
 	}
