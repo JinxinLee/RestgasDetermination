@@ -19,15 +19,15 @@ numTrks=1
 #number of events
 numEv=10000000
 
-# for xT in 0 5 -5
-# do
-# for yT in 0 5 -5
-# do
+for xT in 0 5 -5
+do
+for yT in 0 5 -5
+do
 
-for xT in 0
-do
-for yT in 0
-do
+# for xT in 0
+# do
+# for yT in 0
+# do
 
 path=/panda/myResults/AssymIP/DPM/mom_${momStr}/x_${xT}mm_y_${yT}mm/
 mkdir -p ${path}

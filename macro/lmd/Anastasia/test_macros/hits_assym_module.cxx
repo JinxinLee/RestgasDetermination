@@ -32,6 +32,7 @@
 #include <TLegend.h>
 #include "TGraphErrors.h"
 #include "TMultiGraph.h"
+#include "TMath.h"
 using namespace std;
 
 double last_percent(0);
@@ -130,6 +131,11 @@ int main(int nargs, char** args) {
 	lmddim.Read_transformation_matrices(mtx_perfect.Data(), false);
 	lmddim.Read_transformation_matrices(mtx_corr.Data(), true);
 
+	TGraphErrors *modN = new TGraphErrors(20);
+	modN->SetMarkerColor(2);
+	modN->SetMarkerStyle(21);
+	modN->SetMarkerSize(1.0);
+
 	TCanvas canvas_map_x_y("canvas_map_x_y", "map x y", 800, 800);
 	canvas_map_x_y.Divide(2,2);
 	int maxSum=180;
@@ -203,10 +209,10 @@ int main(int nargs, char** args) {
 	      int curmd = 10*ipl+ih*5+imd;
 	      cout<<"curmd ="<<curmd<<endl;
 	      //	      sum_map_x_y_module[curmd][is] = lmddim.Get_histogram_Plane(ipl,is,true,true,true);
-	      //   sum_map_x_y_module = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,true); //pixels
-	      //	      if(curmd==0 && is==0) sum_map_x_y_module_0 = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,true); //pixels
-	      sum_map_x_y_module = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,false);//sensors
-	      if(curmd==0 && is==0) sum_map_x_y_module_0 = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,false); //sensors
+	      sum_map_x_y_module = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,true); //pixels
+	      if(curmd==0 && is==0) sum_map_x_y_module_0 = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,true); //pixels
+	      // sum_map_x_y_module = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,false);//sensors
+	      // if(curmd==0 && is==0) sum_map_x_y_module_0 = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,false); //sensors
 	      TString mdname = "plane ";
 	      mdname +=ipl;
 	      mdname += " module ";
@@ -219,23 +225,24 @@ int main(int nargs, char** args) {
 	      // sum_map_x_y_module[curmd][is]->SetZTitle("events");
 	      //read events and get avarage coordinates ---------------------
 	      for (Int_t iEvent = 0; iEvent < nEvents; iEvent++) { 
-	      //	      for (Int_t iEvent = 0; iEvent<2e6; iEvent++) {
+	      //   for (Int_t iEvent = 0; iEvent<2e4; iEvent++) {
 		DrawProgressBar(50, (iEvent+1)/((double)nEvents));
 		tMC.GetEntry(iEvent);
 		tDigi.GetEntry(iEvent);
 		const int nDigi = digiq_points->GetEntriesFast();
 		for (Int_t i=0; i<nDigi; i++){
 		  PndLmdDigiQ* DigiPoint = (PndLmdDigiQ*)(digiq_points->At(i)); // read digi hit
-		  bool sigFl = DigiPoint->GetFlSig();
+		  //	  bool sigFl = DigiPoint->GetFlSig();
 		  int sensorID = DigiPoint->GetSensorID(); 
-		  int column = DigiPoint->GetPixelColumn();
-		  int row = DigiPoint->GetPixelRow();
 		  int ihalf, iplane, imodule, iside, idie, isensor;
 		  lmddim.Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+		  if(iplane==ipl && iside==is && ihalf==ih && imd==imodule){
+		    int column = DigiPoint->GetPixelColumn();
+		  int row = DigiPoint->GetPixelRow();
 		  TVector3 hitCoor = lmddim.Decode_hit(sensorID,column,row,true);
 		  TVector3 hitCoorlmd = lmddim.Transform_global_to_lmd_local(hitCoor);
 		  //fill only if this is the module
-		  if(iplane==ipl && iside==is && ihalf==ih && imd==imodule){
+
 		  sum_map_x_y_plane[iplane][iside]->Fill(hitCoorlmd.X(),hitCoorlmd.Y(),scalefac);
 		  //	  int modid = 5*ihalf+10*iplane+imodule;
 		  //	  cout<<"modid "<<modid<<endl;
@@ -247,14 +254,18 @@ int main(int nargs, char** args) {
 
 	      double Xmean = sum_map_x_y_module->GetMean(1);
 	      double Ymean = sum_map_x_y_module->GetMean(2);
-	      double Xrms = sum_map_x_y_module->GetMeanError(1);
-	      double Yrms = sum_map_x_y_module->GetMeanError(2);
+	      // double Xrms = sum_map_x_y_module->GetMeanError(1);
+	      // double Yrms = sum_map_x_y_module->GetMeanError(2);
+	      double Xrms = sqrt(TMath::Power(sum_map_x_y_module->GetMeanError(1),2)+5.34e-04);//add pixel size
+	      double Yrms = sqrt(TMath::Power(sum_map_x_y_module->GetMeanError(2),2)+5.34e-04);
 	      // double Xrms = sum_map_x_y_module->GetRMS(1);
 	      // double Yrms = sum_map_x_y_module->GetRMS(2);
 	      cout<<"X_mod = "<<Xmean<<" +/- "<<Xrms<<endl;
 	      int imdhf = ih*5+imd;
 	      meansXY[ipl][is]->SetPoint(imdhf,Xmean,Ymean);
 	      meansXY[ipl][is]->SetPointError(imdhf,Xrms,Yrms);
+	      double Nevmod = sum_map_x_y_module->GetEntries();
+	    
 	      delete sum_map_x_y_module;
 	      double zPl = 0;
 	      if(ipl==1) zPl =20;
@@ -269,6 +280,8 @@ int main(int nargs, char** args) {
 	      meansY_Z[curimd]->SetPoint(ipl,zPl,Ymean);
 	      meansX_Z[curimd]->SetPointError(ipl,0,Xrms);
 	      meansY_Z[curimd]->SetPointError(ipl,0,Yrms);
+	    
+	      modN->SetPoint(curimd,curimd,Nevmod);
 	      //[END] read events and get avarage coordinates ------------
 	    }//module imd
 	    }//half ih
@@ -399,7 +412,7 @@ int main(int nargs, char** args) {
 	modSLY->Draw("AP");
 	canvas_map.Print(outname_pdf_o.Data());
 	canvas_map.Clear();
-
+	modN->Draw("AP");
 	canvas_map.Print(outname_pdf_c.Data());
 
 	TFile *f = new TFile(outname_root,"RECREATE");
@@ -431,10 +444,12 @@ int main(int nargs, char** args) {
 	    // canvas_3.Write();
 	  }
 	}
+	modN->SetName("modN");
 	modX0->SetName("modX0");
 	modY0->SetName("modY0");
 	modSLX->SetName("modSLX");
 	modSLY->SetName("modSLY");
+	modN->Write();
 	modX0->Write();
 	modY0->Write();
 	modSLX->Write();

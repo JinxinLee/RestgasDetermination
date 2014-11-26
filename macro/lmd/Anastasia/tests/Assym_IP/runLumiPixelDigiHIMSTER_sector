@@ -1,0 +1,67 @@
+#!/bin/bash 
+################################################################
+## script for running sim&rec for LMD with BOX or DPM generator
+## [with pixels sensors set-up!]
+## 13/11/2012 1st version
+## 06/09/2013 updated version
+## 23/03/2014 more or less final version
+## A.Karavdina
+################################################################
+echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
+read mom
+echo "Beam mometum is: $mom!"
+cd ${VMCWORKDIR}/macro/lmd/
+pbeam=$mom
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+
+#number of trks per event
+numTrks=1
+#number of events
+numEv=2000000
+
+
+ # for yT in 0 -2 -5 -7 2 5 7
+#     do
+# for angx in 0
+# do
+# for angy in 0
+# do
+# for xT in 0 -2 -5 -7 2 5 7 
+# do
+# for xT in 0
+# do
+#     for yT in 0
+#     do
+# for angy in 0 1 -1 -2 2
+# do
+# for angx in 0 1 -1 -2 2
+# do
+# for xT in -1
+# do
+#     for yT in -1
+#     do
+# 	for angx in 0
+# 	do
+# 	    for angy in 0
+# 	    do
+for xT in -1 -2 -3 -4 -5 -6 -7 1 2 3 4 5 6 7 0
+do
+    for yT in -1 -2 -3 -4 -5 -6 -7 1 2 3 4 5 6 7 0
+    do
+for angx in 0
+do
+for angy in 0
+do
+pathG=/panda/myResults/AssymIP/DPM/mom_${momStr}/
+path=${pathG}/x_${xT}mm_y_${yT}mm_Xtlit_${angx}mrad_Ytlit_${angy}mrad/
+
+${VMCWORKDIR}/buildPanda/bin/./hits_assym $path $momStr
+# ##${VMCWORKDIR}/buildPanda/bin/./hits_assym_module $path $momStr
+root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/tests/Assym_IP/DrawAssymOpp.C\("\"${pathG}\"","\"/HitsAssym_x_y_1_5GeV.root\"",${xT},${yT},${angx},${angy}\)
+# root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/tests/Assym_IP/DrawAssymOnetoOne.C\("\"${pathG}\"","\"/HitsAssym_x_y_1_5GeV.root\"",${xT},${yT},${angx},${angy}\)
+# root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/tests/Assym_IP/FFT_Nev.C\("\"${pathG}\"","\"/HitsAssym_x_y_1_5GeV.root\"",${xT},${yT},${angx},${angy}\)
+done
+#root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/tests/Assym_IP/Plot_FFTresults_tilt.C\("\"${pathG}\"",${xT},${yT},${angx},${angy}\)
+done
+done
+done

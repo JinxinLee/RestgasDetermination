@@ -32,6 +32,7 @@
 #include <TLegend.h>
 #include "TGraphErrors.h"
 #include "TMultiGraph.h"
+#include "TMath.h"
 using namespace std;
 
 double last_percent(0);
@@ -92,11 +93,11 @@ int main(int nargs, char** args) {
 
 	TString startEvent = "0";
 	// Input file (MC events)
-	TString MCFile = storePath + "/Lumi_MC_";
-	MCFile += startEvent;
-	MCFile += ".root";
-	TChain tMC("cbmsim");
-	tMC.Add(MCFile);
+	// TString MCFile = storePath + "/Lumi_MC_";
+	// MCFile += startEvent;
+	// MCFile += ".root";
+	// TChain tMC("cbmsim");
+	// tMC.Add(MCFile);
 	// Input file (sorted digi)
 	TString DigiFile = storePath+"/Lumi_DigisQA_";
 	DigiFile += startEvent;
@@ -105,21 +106,22 @@ int main(int nargs, char** args) {
 	tDigi.Add(DigiFile);
 
 
-	std::cout << "MCFile  : " << MCFile.Data() << std::endl;
+	//	std::cout << "MCFile  : " << MCFile.Data() << std::endl;
 	std::cout << "DigiFile  : " << DigiFile.Data() << std::endl;
 
-	//--- MC info -----------------------------------------------------------------
-	TClonesArray* true_tracks = new TClonesArray("PndMCTrack");
-	tMC.SetBranchAddress("MCTrack", &true_tracks); //True Tracks to compare
+	// //--- MC info -----------------------------------------------------------------
+	// TClonesArray* true_tracks = new TClonesArray("PndMCTrack");
+	// tMC.SetBranchAddress("MCTrack", &true_tracks); //True Tracks to compare
 
-	TClonesArray* true_points = new TClonesArray("PndSdsMCPoint");
-	tMC.SetBranchAddress("LMDPoint", &true_points); //True Points to compare
-	//----------------------------------------------------------------------------------
-	int nEvents = tMC.GetEntries();
+	// TClonesArray* true_points = new TClonesArray("PndSdsMCPoint");
+	// tMC.SetBranchAddress("LMDPoint", &true_points); //True Points to compare
+	// //----------------------------------------------------------------------------------
+	// int nEvents = tMC.GetEntries();
 
 	//--- DigiQ info -----------------------------------------------------------------
 	TClonesArray* digiq_points = new TClonesArray("PndLmdDigiQ");
 	tDigi.SetBranchAddress("LMDPixelDigisQ", &digiq_points); //Digi hits
+	int nEvents = tDigi.GetEntries();
 	//--------------------------------------------------------------------------------
 
 	// // Estimate scale factor (for count rate per second) -----------------------------
@@ -183,14 +185,15 @@ int main(int nargs, char** args) {
 	  meansX_Z[imd] = new TGraphErrors();
 	  meansX_Z[imd]->SetTitle("");
 	  meansX_Z[imd] ->SetMarkerStyle(20+imd);
-	  meansX_Z[imd] ->SetMarkerSize(1.5);
+	  meansX_Z[imd] ->SetMarkerSize(1.0);
 	  meansX_Z[imd] ->SetMarkerColor(1+imd);
 
 	  meansY_Z[imd] = new TGraphErrors();
 	  meansY_Z[imd]->SetTitle("");
 	  meansY_Z[imd] ->SetMarkerStyle(20+imd);
-	  meansY_Z[imd] ->SetMarkerSize(1.5);
+	  meansY_Z[imd] ->SetMarkerSize(1.0);
 	  meansY_Z[imd] ->SetMarkerColor(1+imd);
+
 	}
 	for(int ipl=0; ipl<4; ipl++){
 	  for(int is=0; is<2; is++){
@@ -210,7 +213,7 @@ int main(int nargs, char** args) {
 	    meansXY[ipl][is]->SetTitle("");
 	    //	    meansXY[ipl][is] ->SetTitle(name_xy);
 	    meansXY[ipl][is] ->SetMarkerStyle(21+is);
-	    meansXY[ipl][is] ->SetMarkerSize(1.5);
+	    meansXY[ipl][is] ->SetMarkerSize(1.0);
 	    meansXY[ipl][is] ->SetMarkerColor(1+ipl);
 	    if(is==0) leg->AddEntry(meansXY[ipl][is],name,"p");	  
 	    TString name_el = name + " (el. signal)";
@@ -240,7 +243,7 @@ int main(int nargs, char** args) {
 	    for(int ih=0;ih<2;ih++){
 	    for(int imd=0;imd<5;imd++){
 	      int curmd = 10*ipl+ih*5+imd;
-	      cout<<"curmd ="<<curmd<<endl;
+	      //	      cout<<"curmd ="<<curmd<<endl;
 	      //      sum_map_x_y_module[curmd][is] = lmddim.Get_histogram_Plane(ipl,is,true,true,true);
 	      sum_map_x_y_module[curmd][is] = lmddim.Get_histogram_Moduleside(ih, ipl, imd, is,true,true,false);
 	      TString mdname = "plane ";
@@ -266,15 +269,21 @@ int main(int nargs, char** args) {
 	int el_count=0;
 	int inel_count=0;
 	//	for (Int_t iEvent = 0; iEvent < nEvents; iEvent++) { 
-	for (Int_t iEvent = 0; iEvent<2e6; iEvent++) {
+	double Nsensors[400];//Number of hist on each sensor
+	for(int i=0;i<400;i++){
+	  Nsensors[i] =0;
+	}
+	//	for (Int_t iEvent = 0; iEvent<2e4; iEvent++) {
+       	for (Int_t iEvent = 0; iEvent<nEvents; iEvent++) {
 		DrawProgressBar(50, (iEvent+1)/((double)nEvents));
-		tMC.GetEntry(iEvent);
+		//		tMC.GetEntry(iEvent);
 		tDigi.GetEntry(iEvent);
 		const int nDigi = digiq_points->GetEntriesFast();
 		for (Int_t i=0; i<nDigi; i++){
 		  PndLmdDigiQ* DigiPoint = (PndLmdDigiQ*)(digiq_points->At(i)); // read digi hit
 		  bool sigFl = DigiPoint->GetFlSig();
 		  int sensorID = DigiPoint->GetSensorID();
+		  Nsensors[sensorID] +=1;
 		  int column = DigiPoint->GetPixelColumn();
 		  int row = DigiPoint->GetPixelRow();
 		  int ihalf, iplane, imodule, iside, idie, isensor;
@@ -321,6 +330,21 @@ int main(int nargs, char** args) {
 		}
 	}
 
+	double Nsensors_comb[240];//sensors on one row are combined
+	for(int i=0;i<240;i++){
+	  if(i==0 || i%5==0) 
+	    Nsensors_comb[i] = Nsensors[i];
+	  else
+	    Nsensors_comb[i] = Nsensors[i]+Nsensors[i+2];
+	}
+	TGraphErrors *modN = new TGraphErrors(20*20);
+	//	TGraphErrors *modN = new TGraphErrors(240);
+	modN->SetMarkerColor(2);
+	modN->SetMarkerStyle(21);
+	modN->SetMarkerSize(1.0);
+	// for(int i=0;i<240;i++){
+	//   modN->SetPoint(i,i,Nsensors_comb[i]);
+	// }
 	TCanvas canvas_map("canvas_map_x_y", "map x y", 900, 900);
 	for(int ipl=0; ipl<4; ipl++){
 	  for(int is=0; is<2; is++){
@@ -351,33 +375,43 @@ int main(int nargs, char** args) {
 	      // sum_map_x_y_module[curmd][is]->Draw("COLZ");
 	      // sum_map_x_y_module[curmd][is]->GetXaxis()->SetLimits(-11,11);
 	      // sum_map_x_y_module[curmd][is]->GetYaxis()->SetLimits(-11,11);
-	      // //	      lmddim.Draw_Sensors(ipl,false,true,is);
+	      // ////	      lmddim.Draw_Sensors(ipl,false,true,is);
 	      // canvas_map.Print(outname_pdf_o.Data());
 	      // canvas_map.Clear();
 	      double Xmean = sum_map_x_y_module[curmd][is]->GetMean(1);
 	      double Ymean = sum_map_x_y_module[curmd][is]->GetMean(2);
-	      double Xrms = sum_map_x_y_module[curmd][is]->GetMeanError(1);
-	      double Yrms = sum_map_x_y_module[curmd][is]->GetMeanError(2);
+	      // double Xrms = sum_map_x_y_module[curmd][is]->GetMeanError(1);
+	      // double Yrms = sum_map_x_y_module[curmd][is]->GetMeanError(2);
+	      double Xrms = sqrt(TMath::Power(sum_map_x_y_module[curmd][is]->GetMeanError(1),2)+0.33);//add sensors size
+	      double Yrms = sqrt(TMath::Power(sum_map_x_y_module[curmd][is]->GetMeanError(2),2)+0.33);
+	      //   cout<<"X_mod = "<<Xmean<<" +/- "<<Xrms<<endl;
 	      // double Xrms = sum_map_x_y_module[curmd][is]->GetRMS(1);
 	      // double Yrms = sum_map_x_y_module[curmd][is]->GetRMS(2);
 	      //	      meansXY[ipl][is]->Fill(Xmean,Ymean);
 	      meansXY[ipl][is]->SetPoint(imd,Xmean,Ymean);
 	      meansXY[ipl][is]->SetPointError(imd,Xrms,Yrms);
+	    
 	      double zPl = 0;
 	      if(ipl==1) zPl =20;
 	      if(ipl==2) zPl =30;
 	      if(ipl==3) zPl =40;
 	      int curimd = imd*2+is;
-	      if(is==0) curimd +=1;
-	      else curimd -=1;
+	      //   if(is==1) curimd +=1;
+	      //	      else curimd +=1;
 	      //	      int curimd = imd; //TEST
 	      //   cout<<"curimd = "<<curimd<<" imd = "<<imd<<" is = "<<is<<endl;
 	      meansX_Z[curimd]->SetPoint(ipl,zPl,Xmean);
 	      meansY_Z[curimd]->SetPoint(ipl,zPl,Ymean);
 	      meansX_Z[curimd]->SetPointError(ipl,0,Xrms);
 	      meansY_Z[curimd]->SetPointError(ipl,0,Yrms);
+	      double Nevmod = sum_map_x_y_module[curimd][is]->GetEntries();
+	      modN->SetPoint(curimd,curimd,Nevmod);
+	      modN->SetPointError(curimd,0,sqrt(Nevmod));
 	    }
 	  }
+	}
+	for(int i=20;i<400;i++){
+	  modN->SetPoint(i,i,0);
 	}
 	for(int ipl=0; ipl<4; ipl++){
 	  //	  for(int is=0; is<2; is++){//only one side!
@@ -398,22 +432,24 @@ int main(int nargs, char** args) {
 	canvas_map.Print(outname_pdf_o.Data());
 	canvas_map.Clear();
 
+
+
 	TGraphErrors *modX0 = new TGraphErrors(20);
 	modX0->SetMarkerColor(2);
 	modX0->SetMarkerStyle(21);
-	modX0->SetMarkerSize(1.5);
+	modX0->SetMarkerSize(1.0);
 	TGraphErrors *modY0 = new TGraphErrors(20);
 	modY0->SetMarkerColor(2);
 	modY0->SetMarkerStyle(21);
-	modY0->SetMarkerSize(1.5);
+	modY0->SetMarkerSize(1.0);
 	TGraphErrors *modSLX = new TGraphErrors(20);
 	modSLX->SetMarkerColor(2);
 	modSLX->SetMarkerStyle(21);
-	modSLX->SetMarkerSize(1.5);
+	modSLX->SetMarkerSize(1.0);
 	TGraphErrors *modSLY = new TGraphErrors(20);
 	modSLY->SetMarkerColor(2);
 	modSLY->SetMarkerStyle(21);
-	modSLY->SetMarkerSize(1.5);
+	modSLY->SetMarkerSize(1.0);
 	TF1 *fa = new TF1("fa","([0]*x+[1])",0,40); 
 	TF1 *fa2 = new TF1("fa2","([0]*x+[1])",0,40); 
 	for(int imd=0; imd<20; imd++){
@@ -490,7 +526,7 @@ int main(int nargs, char** args) {
 	modSLY->Draw("AP");
 	canvas_map.Print(outname_pdf_o.Data());
 	canvas_map.Clear();
-
+	modN->Draw("AP");
 	canvas_map.Print(outname_pdf_c.Data());
 
 	TFile *f = new TFile(outname_root,"RECREATE");
@@ -522,10 +558,12 @@ int main(int nargs, char** args) {
 	    canvas_3.Write();
 	  }
 	}
+	modN->SetName("modN");
 	modX0->SetName("modX0");
 	modY0->SetName("modY0");
 	modSLX->SetName("modSLX");
 	modSLY->SetName("modSLY");
+	modN->Write();
 	modX0->Write();
 	modY0->Write();
 	modSLX->Write();
@@ -542,4 +580,8 @@ int main(int nargs, char** args) {
 	cout<<"Overall count rate: "<<TOT_count*scalefac*1e-3<<" MHz"<<endl;
 	cout<<"Elastic count rate: "<<el_count*scalefac*1e-3<<" MHz"<<endl;
 	cout<<"Inelastic count rate: "<<inel_count*scalefac*1e-3<<" MHz"<<endl;
+	// Double_t *Nfilled = new Double_t[400];
+	// Nfilled = modN->GetX();
+	// for(int i=0;i<20*20;i++)
+	//   cout<<" Nfilled["<<i<<"]="<<Nfilled[i]<<endl;
 }
