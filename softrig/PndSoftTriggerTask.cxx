@@ -1059,6 +1059,8 @@ void PndSoftTriggerTask::FillVarArray(RhoCandidate *c)
 }
 
 // -------------------------------------------------------------------------
+// *** In case a particle is a D*0, D*+, D_s*+, apply cut on mass difference 
+// *** for QA NTuple writeout (smaller file size)
 bool PndSoftTriggerTask::AcceptDstCut(RhoCandidate *c)
 {
 	int pdg = abs(c->PdgCode());
@@ -1069,7 +1071,35 @@ bool PndSoftTriggerTask::AcceptDstCut(RhoCandidate *c)
 }
 
 // -------------------------------------------------------------------------
+// *** Get Poca vertex info (for secondary vertex cuts)
+double PndSoftTriggerTask::GetPocaVtx(RhoCandidate* c, double &dist, double &ctau)
+{
+	// *** simple vtx finder
+	TVector3 vtx, altvtx, primvtx;
+	double qavtx = fPocaVertexer->GetPocaVtx(vtx, c);
+	
+	// *** determine poca of rest of tracks
+	RhoCandList l;
+	fAnalysis->FillList(l, "Charged");
+	
+	// remove c's daughters from charged tracks list
+	l.RemoveFamily(c);
 
+	// if at least 2 tracks left, compute the poca vertex of the residual tracks
+	if (l.GetLength()>1) fPocaVertexer->GetPocaVtx(altvtx, l);
+	else altvtx = fPrimVtx; // else use the primary vtx found before
+	
+	dist = 999.;
+	// *** if vertex of either all charged or residual tracks was found, compute distance and ctau
+	if (altvtx.Mag()>0.) dist = (vtx-altvtx).Mag();
+	
+	ctau = dist*c->M()/c->P();
+
+	return qavtx;
+}
+
+// -------------------------------------------------------------------------
+// *** Apply full selection to a candidate
 bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel)
 {
 	int mcode = fSTencode[fSTModeIndex]*1000+mode;	
@@ -1291,31 +1321,7 @@ int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 	
 	// create the final list using (or not using) the aux list
 	CombineList(l, mothpdg, amothpdg, idx, aidx, cc);
-	
-/*	switch (nd) 
-	{
-	case 2: 
-		l.Combine(fPidList[idx[0]], fPidList[idx[1]], mothpdg); 
-		if (cc) l.CombineAndAppend(fPidList[aidx[0]], fPidList[aidx[1]], amothpdg);
-		break;
 		
-	case 3: 
-		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], mothpdg);
-		if (cc) l.CombineAndAppend(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], amothpdg);
-		break;
-		
-	case 4: 
-		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]], mothpdg); 
-		if (cc) l.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], amothpdg); 
-		break;
-
-	case 5: 
-		l.Combine(fPidList[idx[0]], fPidList[idx[1]], fPidList[idx[2]], fPidList[idx[3]], fPidList[idx[4]], mothpdg); 
-		if (cc) l.Combine(fPidList[aidx[0]], fPidList[aidx[1]], fPidList[aidx[2]], fPidList[aidx[3]], fPidList[aidx[4]], amothpdg); 
-		break;
-	default: return 0;
-	}*/
-	
 	return l.GetLength();
 }
 

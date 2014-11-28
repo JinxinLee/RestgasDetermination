@@ -130,6 +130,7 @@ class PndSoftTriggerTask : public FairTask
 	void FillEventShapeVarArray();                        			     // fill event shape variable array for selection
 	bool AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel=0); // accept candidate for full selection
 	bool AcceptDstCut(RhoCandidate *c);                                  // accept the D* mass diff cut?
+	double GetPocaVtx(RhoCandidate* c, double &dist, double &ctau);
 	
 	// *** some helper functions
 	int SelectTruePid(RhoCandList &l);
