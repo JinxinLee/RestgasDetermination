@@ -426,7 +426,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
     else if(fMatBud && (!nam2.Contains("Absorber"))&&(!nam2.Contains("Sensor")))
      {
       
-       std::cout<<nam2.Data()<<std::endl;
+       // std::cout<<nam2.Data()<<std::endl;
 
 	 if ( gMC->IsTrackEntering() ) 
 	   {
