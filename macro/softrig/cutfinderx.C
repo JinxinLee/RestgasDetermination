@@ -43,10 +43,14 @@ bool mycompare(int i, int j)
   return signi[i]>signi[j];
 }
 
+int uid(int ev, int run, int mode)
+{
+	return ev+10000*run+(((mode/100)%10)*20+mode%10)*100000;
+}
+
 
 int countEvents(TTree *t, TEventList &el)
 {
-	t->SetEventList(&el);
 	t->SetBranchStatus("*",0);
 	t->SetBranchStatus("ev",1);
 	t->SetBranchStatus("run",1);
@@ -65,8 +69,8 @@ int countEvents(TTree *t, TEventList &el)
 	for (int i=0;i<el.GetN();++i)
 	{
 		t->GetEntry(el.GetEntry(i));
-		evcnt[ev+10000*run+(((mode/100)%10)*20+mode%10)*100000]+=1;
-		if (rec<10) evcntrec[rec][ev+10000*run+(((mode/100)%10)*20+mode%10)*100000]+=1;
+		evcnt[uid(ev,run,mode)]+=1;
+		if (rec<10) evcntrec[rec][uid(ev,run,mode)]+=1;
 	}
 	t->SetBranchStatus("*",1);
 
@@ -95,14 +99,10 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	else if (leaftype=="Int_t")	 { dtype = 1; t->SetBranchAddress(varname,&vari); }
 	else if (leaftype=="Bool_t") { dtype = 2; t->SetBranchAddress(varname,&varb); }
 	
-	std::map<int, int> sigcnt;
-	std::map<int, int> bgcnt;
-	std::map<int, int> sigcnt2;
+	std::map<int, int> sigcnt, bgcnt, sigcnt2;	
+	std::vector<pair<double, int> > sigvals, bgvals;
 	
-	std::vector<pair<double, int> > sigvals;
-	std::vector<pair<double, int> > bgvals;
-	
-	int Nsigval = els.GetN(), Nbgval = elb.GetN();
+	int Nbgval = elb.GetN();
 	double min = 1e9, max=-1e9;
 	
 	// prepare the pairs of variable value, eventnumber for signal and count signals
@@ -111,7 +111,7 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 		t->GetEntry(els.GetEntry(i));
 		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
 		
-		sigvals.push_back(std::make_pair(var, ev+10000*run+(((mode/100)%10)*20+mode%10)*100000 ));
+		sigvals.push_back(std::make_pair(var, uid(ev,run,mode)  ));
 		if (var>max) max = var;
 		if (var<min) min = var;
 	}
@@ -122,7 +122,7 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 		t->GetEntry(elb.GetEntry(i));
 		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
 		
-		bgvals.push_back(std::make_pair(var, ev+10000*run+(((mode/100)%10)*20+mode%10)*100000 ));
+		bgvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
 		if (var>max) max = var;
 		if (var<min) min = var;
 	}
@@ -152,14 +152,14 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	}
 	
 	if (max>25) max=25;
-	minh[id]=min; maxh[id]=max;
+	minh[id]=min-(max-min)*0.05; 
+	maxh[id]=max+(max-min)*0.05;
 
 	t->SetBranchStatus("*",1);
 		
 	double lefteff  = sigcnt.size()/Nsigev;
 	double righteff = sigcnt2.size()/Nsigev;
 
-	//cout <<varname<<"(B="<<bgcnt.size()<<") l:"<<leftcut<<"("<<sigcnt.size()<<"/"<<lefteff<<")  r:"<<rightcut<<"("<<sigcnt2.size()<<"/"<<righteff<<")"<<endl;
 	cout <<varname<<" "<<flush;
 	
 	bestcut = rightcut;
@@ -201,14 +201,10 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	else if (leaftype=="Int_t")	 { dtype = 1; t->SetBranchAddress(varname,&vari); }
 	else if (leaftype=="Bool_t") { dtype = 2; t->SetBranchAddress(varname,&varb); }
 	
-	std::map<int, int> sigcnt;
-	std::map<int, int> bgcnt;
-	std::map<int, int> bgcnt2;
+	std::map<int, int> sigcnt, bgcnt, bgcnt2;	
+	std::vector<pair<double, int> > sigvals, bgvals;
 	
-	std::vector<pair<double, int> > sigvals;
-	std::vector<pair<double, int> > bgvals;
-	
-	int Nsigval = els.GetN(), Nbgval = elb.GetN();
+	int Nsigval = els.GetN();
 	double min = 1e9, max=-1e9;
 	
 	// prepare the pairs of variable value, eventnumber for signal and count signals
@@ -216,7 +212,7 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	{
 		t->GetEntry(els.GetEntry(i));
 		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
-		sigvals.push_back(std::make_pair(var, ev+10000*run+(((mode/100)%10)*20+mode%10)*100000 ));
+		sigvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
 		if (var>max) max = var;
 		if (var<min) min = var;
 	}
@@ -226,7 +222,7 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	{
 		t->GetEntry(elb.GetEntry(i));
 		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
-		bgvals.push_back(std::make_pair(var, ev+10000*run+(((mode/100)%10)*20+mode%10)*100000 ));
+		bgvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
 		if (var>max) max = var;
 		if (var<min) min = var;
 	}
@@ -253,12 +249,11 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	{
 		if (bgvals[i].first<=leftcut)  bgcnt[bgvals[i].second];
 		if (bgvals[i].first>=rightcut) bgcnt2[bgvals[i].second];
-		if (bgvals[i].first>max) max = bgvals[i].first;
-		if (bgvals[i].first<min) min = bgvals[i].first;
 	}
 	
 	if (max>25) max=25;
-	minh[id]=min; maxh[id]=max;
+	minh[id]=min-(max-min)*0.05; 
+	maxh[id]=max+(max-min)*0.05;
 
 	t->SetBranchStatus("*",1);
 	
@@ -266,8 +261,6 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	double leftsupr = (Nbgev-bgcnt.size())/Nbgev;
 	double rightsupr = (Nbgev-bgcnt2.size())/Nbgev;
 
-	//cout <<varname<<" l:"<<leftcut<<"("<<leftsupr<<")  r:"<<rightcut<<"("<<rightsupr<<")"<<endl;
-	//cout <<varname<<"(S="<<sigcnt.size()<<") l:"<<leftcut<<"("<<bgcnt.size()<<"/"<<leftsupr<<")  r:"<<rightcut<<"("<<bgcnt2.size()<<"/"<<rightsupr<<")"<<endl;
 	cout <<varname<<" "<<flush;
 	
 	if (leftcut!=leftcut || rightcut!=rightcut) return 0;
@@ -312,8 +305,7 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 	TString ntp = fname(regntp);
 	TString smode = ntp(1,ntp.Length());
 	int mode = smode.Atoi();
-	bool dstarmode = false;
-	if ( (mode>=110 && mode<=119) || (mode>=130 && mode<=138) || (mode>=150 && mode<=151)) dstarmode=true;
+	bool dstarmode = (mode>=110 && mode<=119) || (mode>=130 && mode<=138) || (mode>=150 && mode<=151);
 	
 	if (n0s<0) n0s = s.Atoi();
 	int n0b = b.Atoi();
@@ -328,17 +320,10 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 	TFile *f=new TFile(fname,"READ");
 	TTree *t=(TTree*)f->Get(ntp);
 	
-	TEventList els("els");
-	TEventList elsall("elsall");
-	TEventList elb("elb");
-	TEventList elball("elball");
+	TEventList els("els"), elsall("elsall"), elb("elb"), elball("elball");
 	
 	TCanvas *c1=new TCanvas("c1","c1",10,10,1800,550);
 	c1->Divide(7,3);
-	
-	TObjArray* branches = t->GetListOfBranches();
-	
-	//TString bgcut = "!("+sigcut+")";
 	
 	if (precut=="") precut = tagcut;
 	else precut = tagcut+"&&"+precut;
@@ -349,7 +334,6 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 	t->Draw(">>elsall",tagcut+"&&"+sigcut);
 	t->Draw(">>elball",tagcut+"&&"+bgcut);
 
-	TString bstring = precut+" "+sigcut;
 	if (precut!="") 
 	{
 		sigcut+="&&"+precut;
@@ -365,12 +349,13 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 	Nbgev = countEvents(t, elb);
 	Nsigev = countEvents(t, els);
 	
-//	cout <<"SIG: "<<Nsigev<<" ev (mct: "<<Nsigev<<")  "<<els.GetN()<<" cn   BG: "<<Nbgev<<" ev  "<<elb.GetN()<<" cn"<<endl;
 	cout <<"SIG EVT: "<<Nsigev<<" ev  "<<els.GetN()<<" cn   BG: "<<Nbgev<<" ev  "<<elb.GetN()<<" cn"<<endl;
 
 	int cnt=1;
 	
 	for (i=0;i<MAX;++i) { idx[i]=i; signi[i]=0.;}
+
+	TObjArray* branches = t->GetListOfBranches();	
 	
 	for(i=0; i<=branches->GetLast(); ++i)
 	{
@@ -378,7 +363,7 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 		TBranch* branch = (TBranch*)branches->UncheckedAt(i);
 		vars[i]=branch->GetName(); 
 		TString v=vars[i];
-		//t->SetBranchStatus(vars[i],1);
+
 		if ( v=="ev" || v=="mode" || v=="run" || v=="nsig" ) continue;
 		if ( v.Contains("pdg") || v.Contains("beam") || v.Contains("mct") ) continue;
 		if (v.BeginsWith("t") && v!="thr") continue;
@@ -403,9 +388,7 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 			signi[i] = bestSuppressionEvt(t, vars[i], els, elb, cut[i], supr, i);	
 	}
 	cout <<endl;
-	 
-	//t->SetBranchStatus("*",1);
-	
+	 	
 	cout <<"\n\nBEST 20 vars:"<<endl<<endl;
  	
 	std::vector<int> myidx (idx, idx+MAX);	
@@ -458,7 +441,6 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 			
 			lt.DrawLatex(axmin+(axmax-axmin)*0.6,1.01*maxi,TString::Format("%s = %6.4f",target.Data(),signi[i]));
 
-			//c1->Update();
 		}
 		else
 		{
@@ -468,36 +450,19 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 			for (int k=0;k<10;++k) hr.SetBinContent(k+1,(double) evcntrec[k].size()/evmult*norm);
 			
 			hr.DrawCopy();
-/*			t->SetEventList(&els);
-			t->Draw("recmode>>hrec(10,0,10)");
-			TH1F *hrec = (TH1F*)gDirectory->FindObject("hrec");
-			hrec->Scale(norm/evmult);
-			hrec->Draw();
- */		}
-		
+		}		
 	}
-	
-/*	c1->cd(21);
-	t->SetEventList(&els);
-	TH1F h1("h1","mode",200,0,100);
-	t->Project("h1","mode%1000");*/
-	
-	
+		
 	c1->Update();
 	
-	//float nsig = countEvents(t,elsall);
-	//float nbg  = countEvents(t,elb);
 	cout <<"\nCUT     : "<<precut.Data()<<endl;
 	cout <<"SIG EVT: "<<Nsigev<<" ev  "<<els.GetN()<<" cn   BG: "<<Nbgev<<" ev  "<<elb.GetN()<<" cn"<<endl;
-	//cout <<"SIG EVT : "<<Nsigev<<"    "<<"BG EVT : "<<Nbgev<<endl;
+
 	printf("SIG EFF : %6.1f%%    BG EFF : %7.3f%%\n",Nsigev/N0_sig*100.,Nbgev/N0_bg*100.);
 	printf("SIG REL : %6.1f%%    BG REL : %7.3f%%\n\n",Nsigev/nsig*100.,Nbgev/nbg*100.);
 	
 	cout<<"Recoil : "; for (int k=0;k<10;++k) printf("    %02d ",k);cout <<endl;
 	cout<<"Eff    : "; for (int k=0;k<10;++k) printf("%6.1f%%",(double) evcntrec[k].size()/evmult*norm*100.);cout <<endl<<endl;
-	
-//	cout <<"SIG EFF : "<<Nsigev/N0_sig<<"    "<<"BG EFF : "<< Nbgev/N0_bg<<endl;
-//	cout <<"SIG REL : "<<Nsigev/nsig<<"    "<<"BG REL : "<< Nbgev/nbg<<endl;
-	
+
 	t->SetEventList(0);
 }
