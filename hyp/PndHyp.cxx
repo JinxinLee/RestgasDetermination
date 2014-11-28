@@ -63,10 +63,10 @@ class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
 PndHyp::PndHyp():
-  fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fcount(0){
+  fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fMatBud(false),fcount(0){
   fHypCollection        = new TClonesArray("PndHypPoint");
   fHypSecTarCollection  = new TClonesArray("PndHypPoint");
-  //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
+  fHypSTMatBudCollection  = new TClonesArray("PndHypPoint");
 
   // if(fUseRAZHOption==true && fUseFileOption==true){
     
@@ -104,10 +104,10 @@ PndHyp::PndHyp():
 
 // -----   Standard constructor   ------------------------------------------
 PndHyp::PndHyp(const char* name, Bool_t active)
-  : FairDetector(name, active),fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fcount(0){
+  : FairDetector(name, active),fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fMatBud(false),fcount(0){
     fHypCollection        = new TClonesArray("PndHypPoint");
     fHypSecTarCollection  = new TClonesArray("PndHypPoint");
-    //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
+    fHypSTMatBudCollection  = new TClonesArray("PndHypPoint");
 
     // if(fUseRAZHOption==true && fUseFileOption==true){
       
@@ -154,6 +154,11 @@ PndHyp::~PndHyp() {
   if (fHypSecTarCollection) {
     fHypSecTarCollection->Delete();
     delete fHypSecTarCollection;
+  }
+
+ if (fHypSTMatBudCollection) {
+    fHypSTMatBudCollection->Delete();
+    delete fHypSTMatBudCollection;
   }
 
  delete fGeoH;
@@ -413,6 +418,87 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
        
        
      }//volSi
+
+
+
+   // -----
+
+    else if(fMatBud && (!nam2.Contains("Absorber"))&&(!nam2.Contains("Sensor")))
+     {
+      
+       std::cout<<nam2.Data()<<std::endl;
+
+	 if ( gMC->IsTrackEntering() ) 
+	   {
+	       fELoss  = 0.;
+	       fTime   = gMC->TrackTime() * 1.0e09;
+	       fLength = gMC->TrackLength();
+	       fmass   = gMC->TrackMass();   // mass (GeV)
+	       fcharge = gMC->TrackCharge(); // charge?
+	       
+	       if(fStartEvID>0)
+		 {
+		   fEventID = gMC->CurrentEvent()+fStartEvID;
+		 }else fEventID = gMC->CurrentEvent();
+	       
+	       gMC->TrackPosition(fPosIn);
+	       gMC->TrackMomentum(fMomIn);
+	       
+	       
+	     }
+	   
+	   // Sum energy loss for all steps in the active volume
+	   
+	   fELoss += gMC->Edep();
+	   
+	   // Set additional parameters at exit of active volume. 
+	   
+	   
+	   
+	   if ( (gMC->IsTrackExiting()    ||
+		 gMC->IsTrackStop()       ||
+		 gMC->IsTrackDisappeared() )&& gMC->TrackCharge()  ) 
+	     {
+	       fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+	       
+	       ///std::cout<<"  " <<std::endl;
+
+	       fVolumeID = vol->getCopyNo();
+	       
+	       gMC->TrackPosition(fPosOut);
+	       gMC->TrackMomentum(fMomOut);
+	       
+	       if (fELoss == 0. ) return kFALSE;
+	       
+	       radt= fPosOut.Vect();
+	       fdist=radt.Perp();
+	       beta = fMomOut.Beta();
+	       
+	       fPLin = beta;
+	       
+	       fPLout = fMomOut.P();
+	       
+	       AddSTMatBudHit(fTrackID, fEventID,fVolumeID, nam2.Data(),
+			      TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+			      TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+			      TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+			      TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+			      fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
+			      fdist,fPLin,fPLout);
+	       
+	       // Increment number of PndMvd points for TParticle
+	       // PndStack* stack = (PndStack*) gMC->GetStack();
+	       // stack->AddPoint(kHYP);
+	       
+	       ResetParameters();
+	       
+	     }
+	   
+	   
+	 
+       }
+   
+   //--------
    else if ((fpdgCode==3312)&&(nam2.Contains("Ab")))//||nam2.Contains("Si")))
      {  //absorber
        
@@ -499,19 +585,17 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   //stack->AddPoint(kHYP);
 	   
 	   ResetParameters();
-	 }
-       
-       //for the pipe return kTRUE;
-       
-       
-       
+	   
+	 } // 
+
+	   
      }//no volSi
+       
    
    
-  
    return kTRUE;
-  
-  
+   
+   
 } //ProcessHits
 
 // ----------------------------------------------------------------------------
@@ -528,6 +612,8 @@ void PndHyp::Register() {
   FairRootManager::Instance()->Register("HypPoint","Hyp", fHypCollection, kTRUE);
   FairRootManager::Instance()->Register("HypSegTarPoint","HypSecTarg", 
 				       fHypSecTarCollection, kTRUE);
+  FairRootManager::Instance()->Register("HypSTMatBudPoint","HypMatBud", 
+				       fHypSTMatBudCollection, fMatBud);
   
 }
 // ----------------------------------------------------------------------------
@@ -536,7 +622,7 @@ void PndHyp::Register() {
 TClonesArray* PndHyp::GetCollection(Int_t iColl) const {
    if (iColl == 0) return fHypCollection;
    if (iColl == 1) return fHypSecTarCollection;
-   //if (iColl == 2) return fHypSTpipeCollection;
+   if (iColl == 2) return fHypSTMatBudCollection;
 
   return NULL;
 }
@@ -559,7 +645,7 @@ void PndHyp::Print() const {
 void PndHyp::Reset() {
    fHypCollection->Clear();
    fHypSecTarCollection->Clear();
-   // fHypSTpipeCollection->Clear();
+   if(fHypSTMatBudCollection)fHypSTMatBudCollection->Clear();
  
   fPosIndex = 0;
 }
@@ -605,49 +691,6 @@ TString fileName=GetGeometryFileName();
 }
 
 // -------------------------------------------------------------
-
-/*void PndHyp::ConstructASCIIGeometry() {
-
- FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  PndGeoHyp*      hypGeo = new PndGeoHyp();
-  hypGeo->setGeomFile(GetGeometryFileName());
-  geoFace->addGeoModule(hypGeo);
-
-  Bool_t rc = geoFace->readSet(hypGeo);
-  if (rc) hypGeo->create(geoLoad->getGeoBuilder());
-  TList* volList = hypGeo->getListOfVolumes();
-
-  // store geo parameter
-  FairRun *fRun = FairRun::Instance();
-  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
-  PndGeoHypPar* par=(PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
-  TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
-  TObjArray *fPassNodes = par->GetGeoPassiveNodes();
-
-  TListIter iter(volList);
-  FairGeoNode* node   = NULL;
-  FairGeoVolume *aVol=NULL;
-
-  while( (node = (FairGeoNode*)iter.Next()) ) {
-    aVol = dynamic_cast<FairGeoVolume*> ( node );
-
-
-    if ( node->isSensitive()  ) {
-      fSensNodes->AddLast( aVol );
-    }else{
-      fPassNodes->AddLast( aVol );
-    }
-  }
-    par->setChanged();
-    par->setInputVersion(fRun->GetRunId(),1);
-
-  ProcessNodes ( volList );
-
-
-
-}
-*/
   
 // -------------------------------------------------------------------------
 bool PndHyp::CheckIfSensitive(std::string name)
@@ -816,6 +859,26 @@ PndHypPoint* PndHyp::AddSecTarHit(Int_t trackID, Int_t evtID,
 
 // ----
 
+// -----   Private method AddSecTarHit   --------------------------------------------
+
+PndHypPoint* PndHyp::AddSTMatBudHit(Int_t trackID, Int_t evtID,
+				  Int_t detID, TString detName,
+				  TVector3 pos, TVector3 mom,  
+				  TVector3 posout, 
+				  TVector3 momout, 
+				  Double_t time, 
+				  Double_t length, 
+				  Double_t eLoss,
+				  Double_t charge, Double_t mass,
+				  Int_t pdgCode,Double_t dist,
+				  Double_t PLin,Double_t PLout) {
+  TClonesArray& clref = *fHypSTMatBudCollection;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) PndHypPoint(trackID,  evtID,detID, detName, pos, 
+				      mom,  posout, momout,
+				      time, length, eLoss,charge, mass, pdgCode,
+				      dist,PLin,PLout);
+ }
 
 // ----
 

@@ -24,7 +24,7 @@ using namespace std;
 class TClonesArray;
 class PndHypPoint;
 class PndHypSecTarPoint;
-//class PndHypSTpipePoint;
+//class PndHypSTMatBudPoint;
 class FairVolume; 
 
 class PndHyp : public FairDetector 
@@ -151,6 +151,25 @@ class PndHyp : public FairDetector
 			    Double_t PLin,
 			    Double_t PLout);
 
+
+ PndHypPoint* AddSTMatBudHit(Int_t trackID, Int_t evtID,
+			    Int_t detID,TString detName,
+			    TVector3 posin, 
+			    TVector3 momin,
+			    TVector3 posout, 
+			    TVector3 momout,
+			    //TVector3 posInLocal, 
+			    //TVector3 posOutLocal,
+			    Double_t tof, 
+			    Double_t length,
+			    Double_t eLoss,
+			    Double_t charge, 
+			    Double_t mass, 
+			    Int_t pdgCode,
+			    Double_t dist,
+			    Double_t PLin,
+			    Double_t PLout);
+
   
   
   void PreTrack();
@@ -164,6 +183,11 @@ class PndHyp : public FairDetector
   void SetHypGamFEm(bool gam )
   {
     fUseGamOption = gam;
+  }
+
+   void SetMatbud(bool mbud )
+  {
+    fMatBud = mbud;
   }
 
   void SetTreeFName(const Char_t* Name){ fFileName    = Name; };
@@ -253,7 +277,7 @@ class PndHyp : public FairDetector
 
   TClonesArray* fHypCollection;        //! Hit collection
   TClonesArray* fHypSecTarCollection;        // Hit collection(Absorver)
-  //TClonesArray* fHypSTpipeCollection;        // Hit collection(pipehyp)
+  TClonesArray* fHypSTMatBudCollection;        // Hit collection(pipehyp)
   TRandom r; 
 
   // reset all parameters   
@@ -262,9 +286,10 @@ class PndHyp : public FairDetector
    Bool_t  fUseFileOption;
   Bool_t fUseRAZHOption;
   Bool_t fUseGamOption;
+  Bool_t fMatBud;
   void SetHypStatDecay(bool cal,bool active);
 
-  ClassDef(PndHyp,13)
+  ClassDef(PndHyp,15)
 
 }; 
 
