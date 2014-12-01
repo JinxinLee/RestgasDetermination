@@ -34,7 +34,7 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
   else if (fBeamMom< 6.0 && fBeamMom >= 3.0)Suffix=".0406";
   else if (fBeamMom< 10.0 && fBeamMom >= 6.0 )Suffix=".0890" ;
   else if (fBeamMom< 13.0 && fBeamMom >= 10.0)Suffix=".1191";
-  else if (fBeamMom> 13.0) Suffix=".1500";
+  else if (fBeamMom>= 13.0) Suffix=".1500";
   
    
   TString NewName=mapName;
