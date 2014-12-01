@@ -265,10 +265,11 @@ foreach $line (@lines) # loop again thru lines
 						}
 					}
 					#
-					# non resonant modes (ppb -> e+ e- X, etc)
+					# non resonant modes (ppb -> e+ e-, etc); all without recoil!
 					#
-					else
+					else 
 					{
+						if ($rec ne "") {next;}
 						$thres{"$code"} = mass("$3 $rec");
 						$decay{"$code"} = "$3 $rec";
 						$dec .= "# ppb -> ".$decay{$code}."\n# sqrt(s) > ".$thres{$code}."\n\nnoPhotos\n\nAlias KS K_S0\n\n";

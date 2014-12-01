@@ -172,14 +172,14 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	bestcut = rightcut;
 	if (lefteff>righteff) 
 	{
-		if (dtype==0) cuts[id] = TString::Format("%s<%.3f",varname.Data(),leftcut);
+		if (dtype==0) cuts[id] = TString::Format("%s<%.5f",varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 
 		bestcut = leftcut;
 		return lefteff;
 	}
 
-	if (dtype==0) cuts[id] = TString::Format("%s>%.3f",varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format("%s>%.5f",varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
 	return righteff;
@@ -274,14 +274,14 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	bestcut = rightcut;
 	if (leftsupr>rightsupr) 
 	{
-		if (dtype==0) cuts[id] = TString::Format("%s<%.3f",varname.Data(),leftcut);
+		if (dtype==0) cuts[id] = TString::Format("%s<%.5f",varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 		
 		bestcut = leftcut;
 		return leftsupr;
 	}
 	
-	if (dtype==0) cuts[id] = TString::Format("%s>%.3f",varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format("%s>%.5f",varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
 	return rightsupr;
@@ -289,19 +289,22 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 
 // ---------------------------------------------------------------
 
-TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr=0.9)
+TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr, double &bestqa)
 {
 	int i;
 	
 	for (i=0;i<MAX;++i) { idx[i]=i; signi[i]=0.;}
 
 	TObjArray* branches = t->GetListOfBranches();	
+	bestqa = -999.;
 	
-	double bestqa = -999.;
 	TString bestcut="";
 	
+	cout <<"000/000"<<flush;
 	for(i=0; i<=branches->GetLast(); ++i)
 	{
+//		cout <<"#"<<flush;
+		printf("\b\b\b\b\b\b\b%03d/%03d",i,(int)branches->GetEntries());fflush(stdout);
 		TBranch* branch = (TBranch*)branches->UncheckedAt(i);
 		vars[i]=branch->GetName(); 
 		TString v=vars[i];
@@ -323,8 +326,6 @@ TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr=0.9)
 		if ( v=="xd0m" && dstarmode ) ok = false;
 		
 		if (!ok) continue;
-		
-		cout <<"#"<<flush;
 	
 		double qa=0;
 		
@@ -342,7 +343,7 @@ TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr=0.9)
 
 // ---------------------------------------------------------------
 
-void autocutx(TString fname, TString precut="", double supr=0.9, int evmult=10000, double norm=1.0, int n0s=-1)
+void autocutx(TString fname, TString precut="", double supr=0.95, double target=0.0001, double mineff = 0.1, double minreleff = 0.0, int evmult=10000, double norm=1.0, int n0s=-1)
 {
 // 	gStyle->SetTitleX(0.2);
 // 	gStyle->SetTitleY(0.993);
@@ -381,7 +382,8 @@ void autocutx(TString fname, TString precut="", double supr=0.9, int evmult=1000
 	TFile *f=new TFile(fname,"READ");
 	TTree *t=(TTree*)f->Get(ntp);
 	
-	TEventList els("els"), elsall("elsall"), elb("elb"), elball("elball");
+	TEventList elsall("elsall"), elball("elball");
+	TEventList els("els"), elb("elb");
 	
 	if (precut=="") precut = tagcut;
 	else precut = tagcut+"&&"+precut;
@@ -396,11 +398,15 @@ void autocutx(TString fname, TString precut="", double supr=0.9, int evmult=1000
 	
 	double beff=1., seff=1., rseff=1.;
 	
-	double target = 0.0001;
+	double inisupr = supr;
 	
 	TRegexp rnum("[0-9]+\\.[0-9]+$");
 	int cnt=1;
-	while (beff>target && seff>0.1 && rseff>0.5) 
+	
+	bool stop=false;
+	TString oldcut=precut;	
+		
+	while (cnt<20 && !stop && beff>target && seff>=mineff && rseff>=minreleff) 
 	{		
 		c1->cd(cnt++); //gPad->SetLogy();
 		
@@ -408,25 +414,33 @@ void autocutx(TString fname, TString precut="", double supr=0.9, int evmult=1000
 		t->SetLineColor(2);	t->Draw("xm",precut+"&&"+sigcut,"same");
 		t->SetLineColor(4);	t->Draw("xm",precut+"&&"+bgcut,"same");
 		c1->Update();
-		
-		t->SetEventList(0);
-		
+				
 		t->Draw(">>els",sigcut+"&&"+precut);
 		t->Draw(">>elb",bgcut+"&&"+precut);
 
 		Nbgev  = countEvents(t, elb);
 		Nsigev = countEvents(t, els);
-
+		
 	   	beff  = Nbgev/N0_bg;
 	   	seff  = Nsigev/N0_sig;
 		rseff = Nsigev/nsig;
 		
-		printf("S=%5d  B=%5d : ",(int)Nsigev, (int)Nbgev);
+		printf("S=%5d  B=%6d (%.2f): ",(int)Nsigev, (int)Nbgev, supr);
 		
 		// stop if target reached or signal efficiency too small
-		if (beff<=target || seff<=0.1 || rseff<=0.5) continue;
+		if (beff<=target || seff<mineff || rseff<minreleff) continue;
 		
-		TString bestcut = findcut(t, els, elb, supr);
+		double qa=0.;
+		
+		TString bestcut =findcut(t, els, elb, supr, qa);
+		
+		/*
+		while (qa<0.1) 
+		{	
+			supr   *= 0.95; 
+			cout <<" try again with qa="<<supr<<endl;
+			bestcut = findcut(t, els, elb, supr, qa);
+		}*/
 		
 		TString thenum = bestcut(rnum);
 		TString thevar = bestcut(0,bestcut.Index(thenum));
@@ -441,10 +455,13 @@ void autocutx(TString fname, TString precut="", double supr=0.9, int evmult=1000
 			precut += "&&"+bestcut;
 			
 		cout <<"  -> "<<precut<<endl;
+		
+		if (oldcut == precut) {cout <<"STOP"<<endl; stop = true; continue;}
+		oldcut = precut;
 	}
 	
 	cout <<"\n"<<en<<smode<<" : "<<precut.Data()<<endl;
-	cout <<"SIG EVT: "<<Nsigev<<" ev  "<<els.GetN()<<" cn   BG: "<<Nbgev<<" ev  "<<elb.GetN()<<" cn"<<endl;
+	cout <<"SIG EVT: "<<Nsigev<<" ev    BG: "<<Nbgev<<" ev"<<endl;
 
 	printf("SIG EFF : %6.1f%%    BG EFF : %7.3f%%\n",Nsigev/N0_sig*100.,Nbgev/N0_bg*100.);
 	printf("SIG REL : %6.1f%%    BG REL : %7.3f%%\n\n",Nsigev/nsig*100.,Nbgev/nbg*100.);

@@ -1,4 +1,8 @@
 #include <algorithm>
+#include <map>
+#include <utility>
+#include <iostream>
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TLeaf.h"
@@ -8,23 +12,22 @@
 #include "TROOT.h"
 #include "TEventList.h"
 #include "TDirectory.h"
-#include <iostream>
 #include "TLine.h"
 #include "TLatex.h"
 #include "TStyle.h"
 #include "TObjArray.h"
 #include "TPRegexp.h"
 #include "TRegexp.h"
-#include <map>
-#include <utility>
-#include <algorithm>
+#include "TGraph.h"
 
 #define MAX 1000
-#define BINS 500
+#define BINS 100
 #define NCAN 3
 
-std::map<int, int> evcnt;
-std::map<int, int> evcntrec[10];
+typedef std::vector<pair<double, int> > ValueMap;
+typedef std::map<int, int> CountMap;
+
+CountMap evcnt, evcntrec[10];
 std::map<TString, TString> mctvar;
 
 double signi[MAX];
@@ -32,22 +35,29 @@ int idx[MAX];
 TString vars[MAX];
 TString cuts[MAX];
 double cut[MAX];
+TGraph grl[MAX];
+TGraph grr[MAX];
 
 double minh[MAX], maxh[MAX];
 
 double N0_sig, N0_bg;
 double Nsigev, Nbgev;
 
+// ---------------------------------------------------------------
+
 bool mycompare(int i, int j)
 {
   return signi[i]>signi[j];
 }
+
+// ---------------------------------------------------------------
 
 int uid(int ev, int run, int mode)
 {
 	return ev+10000*run+(((mode/100)%10)*20+mode%10)*100000;
 }
 
+// ---------------------------------------------------------------
 
 int countEvents(TTree *t, TEventList &el)
 {
@@ -77,8 +87,22 @@ int countEvents(TTree *t, TEventList &el)
 	return evcnt.size();
 }
 
-double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, double &bestcut, double supr, int id)
-{	
+// ---------------------------------------------------------------
+int gettype(TTree *t, TString varname)
+{
+	TString leaftype = t->GetLeaf(varname)->GetTypeName();
+	
+	if (leaftype=="Float_t")	 return 0; 
+	else if (leaftype=="Int_t")	 return 1;  
+	else if (leaftype=="Bool_t") return 2;
+	
+	return -1;
+}
+
+// ---------------------------------------------------------------
+
+void makeMaps(TTree *t, TString varname, TEventList &els, TEventList &elb, ValueMap &sig, ValueMap &bg, int id)
+{
 	int i;
 	t->SetBranchStatus("*",0);
 	t->SetBranchStatus("ev",1);
@@ -88,30 +112,30 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	
 	Bool_t varb;
 	Float_t varf, var;
-	Int_t ev, run, mode, vari, dtype;
+	Int_t ev, run, mode, vari, dtype=gettype(t, varname);
+	
 	t->SetBranchAddress("ev",&ev);
 	t->SetBranchAddress("run",&run);
 	t->SetBranchAddress("mode",&mode);
+
+	switch (dtype)
+	{
+		case 0: t->SetBranchAddress(varname,&varf); break;
+		case 1: t->SetBranchAddress(varname,&vari); break;
+		case 2: t->SetBranchAddress(varname,&varb); break;
+	}
 	
-	TString leaftype = t->GetLeaf(varname)->GetTypeName();
-	
-	if (leaftype=="Float_t")	 { dtype = 0; t->SetBranchAddress(varname,&varf); }
-	else if (leaftype=="Int_t")	 { dtype = 1; t->SetBranchAddress(varname,&vari); }
-	else if (leaftype=="Bool_t") { dtype = 2; t->SetBranchAddress(varname,&varb); }
-	
-	std::map<int, int> sigcnt, bgcnt, sigcnt2;	
-	std::vector<pair<double, int> > sigvals, bgvals;
-	
-	int Nbgval = elb.GetN();
+	sig.clear();
+	bg.clear();
 	double min = 1e9, max=-1e9;
-	
+
 	// prepare the pairs of variable value, eventnumber for signal and count signals
 	for (i=0;i<els.GetN();++i)
 	{
 		t->GetEntry(els.GetEntry(i));
 		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
 		
-		sigvals.push_back(std::make_pair(var, uid(ev,run,mode)  ));
+		sig.push_back(std::make_pair(var, uid(ev,run,mode)  ));
 		if (var>max) max = var;
 		if (var<min) min = var;
 	}
@@ -122,15 +146,33 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 		t->GetEntry(elb.GetEntry(i));
 		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
 		
-		bgvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
+		bg.push_back(std::make_pair(var, uid(ev,run,mode) ));
 		if (var>max) max = var;
 		if (var<min) min = var;
 	}
 	
+	if (max>25) max=25;
+	minh[id]=min-(max-min)*0.05; 
+	maxh[id]=max+(max-min)*0.05;
+}
+
+// ---------------------------------------------------------------
+
+double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, double &bestcut, double supr, int id)
+{	
+	CountMap bgcnt, sigcnt, sigcnt2;	
+	ValueMap sigvals, bgvals;
+	
+	int Nbgval = elb.GetN();
+	int dtype = gettype(t,varname);
+	
+	makeMaps(t, varname, els, elb, sigvals, bgvals, id);
+	
+	
 	// sort signals by first element = variable value
 	sort(bgvals.begin(), bgvals.end());
 
-	i=0;
+	int i=0;
 	bgcnt.clear();
 	// find cut for current efficiency requirement left cut
 	while ( (bgcnt.size()/(double)Nbgev)<(1-supr) && i<Nbgval ) bgcnt[bgvals[i++].second]+=1;
@@ -151,10 +193,6 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 		if (sigvals[i].first>rightcut) sigcnt2[sigvals[i].second]+=1;
 	}
 	
-	if (max>25) max=25;
-	minh[id]=min-(max-min)*0.05; 
-	maxh[id]=max+(max-min)*0.05;
-
 	t->SetBranchStatus("*",1);
 		
 	double lefteff  = sigcnt.size()/Nsigev;
@@ -178,59 +216,22 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	return righteff;
 }
 
+// ---------------------------------------------------------------
 
 double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, double &bestcut, double eff, int id)
 {	
-	int i;
-	t->SetBranchStatus("*",0);
-	t->SetBranchStatus("ev",1);
-	t->SetBranchStatus("mode",1);
-	t->SetBranchStatus("run",1);
-	t->SetBranchStatus(varname,1);
-	
-	Bool_t varb;
-	Float_t varf, var;
-	Int_t ev, run, mode, vari, dtype=0;
-	t->SetBranchAddress("ev",&ev);
-	t->SetBranchAddress("run",&run);
-	t->SetBranchAddress("mode",&mode);
-	
-	TString leaftype = t->GetLeaf(varname)->GetTypeName();
-	
-	if (leaftype=="Float_t")	 { dtype = 0; t->SetBranchAddress(varname,&varf); }
-	else if (leaftype=="Int_t")	 { dtype = 1; t->SetBranchAddress(varname,&vari); }
-	else if (leaftype=="Bool_t") { dtype = 2; t->SetBranchAddress(varname,&varb); }
-	
-	std::map<int, int> sigcnt, bgcnt, bgcnt2;	
-	std::vector<pair<double, int> > sigvals, bgvals;
+	CountMap bgcnt, bgcnt2, sigcnt;	
+	ValueMap sigvals, bgvals;
 	
 	int Nsigval = els.GetN();
-	double min = 1e9, max=-1e9;
+	int dtype = gettype(t,varname);
 	
-	// prepare the pairs of variable value, eventnumber for signal and count signals
-	for (i=0;i<els.GetN();++i)
-	{
-		t->GetEntry(els.GetEntry(i));
-		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
-		sigvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
-		if (var>max) max = var;
-		if (var<min) min = var;
-	}
-		
-	// prepare the pairs of variable value, eventnumber for background and count background
-	for (i=0;i<elb.GetN();++i)
-	{
-		t->GetEntry(elb.GetEntry(i));
-		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
-		bgvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
-		if (var>max) max = var;
-		if (var<min) min = var;
-	}
+	makeMaps(t, varname, els, elb, sigvals, bgvals, id);
 	
 	// sort signals by first element = variable value
 	sort(sigvals.begin(), sigvals.end());
 
-	i=0;
+	int i=0;
 	sigcnt.clear();
 	// find cut for current efficiency requirement left cut
 	while ( (sigcnt.size()/(double)Nsigev)<eff && i<Nsigval ) sigcnt[sigvals[i++].second]+=1;
@@ -251,10 +252,6 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 		if (bgvals[i].first>=rightcut) bgcnt2[bgvals[i].second];
 	}
 	
-	if (max>25) max=25;
-	minh[id]=min-(max-min)*0.05; 
-	maxh[id]=max+(max-min)*0.05;
-
 	t->SetBranchStatus("*",1);
 	
 	
@@ -280,7 +277,79 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 
 	return rightsupr;
 }
+// ---------------------------------------------------------------
 
+double bestCombiEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, double &bestcut, double eff, int id)
+{	
+	CountMap bgcntl, bgcntr, sigcntl, sigcntr;	
+	ValueMap sigvals, bgvals;
+	
+	int dtype = gettype(t,varname);
+	int Ns = els.GetN(), Nb = elb.GetN();
+	
+	makeMaps(t, varname, els, elb, sigvals, bgvals, id);
+	
+	// sort signals by first element = variable value
+	sort(sigvals.begin(), sigvals.end());
+	sort(bgvals.begin(), bgvals.end());
+
+	double step = (maxh[id]-minh[id])/(double)BINS;
+
+	int isigl=0, ibgl = 0, isigr = sigvals.size()-1, ibgr = bgvals.size()-1;
+
+	double leftcut = 0., rightcut = 0., qal = 1000., qar = 1000.;
+	cout <<varname<<" "<<flush;
+
+	for (int i=0; i<BINS; ++i)
+	{
+		double lcut = (i+1)*step + minh[id];
+		double rcut = maxh[id] - (i+1)*step;
+		
+		while (sigvals[isigl].first<lcut && isigl<Ns) sigcntl[sigvals[isigl++].second]+=1;
+		while (bgvals[ibgl].first<lcut && ibgl<Nb)   bgcntl[bgvals[ibgl++].second]+=1;
+		
+		while (sigvals[isigr].first>rcut && isigr>=0) sigcntr[sigvals[isigr--].second]+=1;
+		while (bgvals[ibgr].first>rcut && ibgr>=0)   bgcntr[bgvals[ibgr--].second]+=1;
+		
+		double effl = (double) sigcntl.size()/Nsigev;
+		double effr = (double) sigcntr.size()/Nsigev;
+		double supl = 1. - (double) bgcntl.size()/Nbgev;
+		double supr = 1. - (double) bgcntr.size()/Nbgev;
+		
+		double distl = sqrt((1.-effl)*(1.-effl) + (1.-supl)*(1.-supl));
+		double distr = sqrt((1.-effr)*(1.-effr) + (1.-supr)*(1.-supr));
+		
+		printf("%8s (%3d) : left(%5.3f / %5.3f : %5.3f) right(%5.3f / %5.3f : %5.3f)\n", varname.Data(), i, effl, supl, distl, effr, supr, distr); 
+		//cout <<i<<" "<<"el:"<<effl<<" eb:"<<effr<<" sl:"<<supl<<" sr:"<<supr<<" dl:"<<distl<<" dr:"<<distr<<endl;
+		
+		grl[id].SetPoint(i, effl, supl); 
+		grr[id].SetPoint(i, effr, supr);
+		
+		if (distl<qal) {qal=distl; leftcut=lcut;}
+		if (distr<qar) {qar=distr; rightcut=rcut;}
+	}
+	
+	t->SetBranchStatus("*",1);
+		
+	if (leftcut!=leftcut || rightcut!=rightcut) return 0;
+	
+	bestcut = rightcut;
+	if (qal<qar) 
+	{
+		if (dtype==0) cuts[id] = TString::Format("%s<%.3f",varname.Data(),leftcut);
+		else cuts[id] = TString::Format("%s<=%.0f",varname.Data(),leftcut);
+		
+		bestcut = leftcut;
+		return qal;
+	}
+	
+	if (dtype==0) cuts[id] = TString::Format("%s>%.3f",varname.Data(),rightcut);
+	else cuts[id] = TString::Format("%s>=%.0f",varname.Data(),rightcut);
+
+	return qar;
+}
+
+// ---------------------------------------------------------------
 
 void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10000, double norm=1.0, int n0s=-1)
 {
@@ -353,7 +422,7 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 
 	int cnt=1;
 	
-	for (i=0;i<MAX;++i) { idx[i]=i; signi[i]=0.;}
+	for (i=0;i<MAX;++i) { idx[i]=i; signi[i]=0.; grl[i].Set(BINS); grr[i].Set(BINS);}
 
 	TObjArray* branches = t->GetListOfBranches();	
 	
@@ -384,8 +453,11 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 	
 		if (supr<0)
 			signi[i] = bestEffEvt(t, vars[i], els, elb, cut[i], -supr, i);
-		else
+		else if (supr>0)
 			signi[i] = bestSuppressionEvt(t, vars[i], els, elb, cut[i], supr, i);	
+		else 
+			signi[i] = bestCombiEvt(t, vars[i], els, elb, cut[i], supr, i);	
+			
 	}
 	cout <<endl;
 	 	
@@ -403,6 +475,7 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 	lt.SetTextSize(0.06);
 	TString target="supr";
 	if (supr<0) target="eff";
+	if (supr==0) target="qa";
 	
 	for (j=0;j<21;++j)
 	{		
@@ -412,8 +485,8 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 		{
 			printf("%2d) %-15s : %4s = %5.3f   cut = %.4f ( %s )\n",j,vars[i].Data(), target.Data(), signi[i], cut[i], cuts[i].Data());
 
-			TH1F h1("h1",vars[i],200,minh[i],maxh[i]);
-			TH1F h2("h2",vars[i],200,minh[i],maxh[i]);
+			TH1F h1("h1",vars[i],BINS,minh[i],maxh[i]);
+			TH1F h2("h2",vars[i],BINS,minh[i],maxh[i]);
 			h2.SetLineColor(2);
 		
 			t->SetEventList(&els);
@@ -452,6 +525,9 @@ void cutfinderx(TString fname, TString precut="", double supr=0.9, int evmult=10
 			hr.DrawCopy();
 		}		
 	}
+	
+	t->Draw(">>els",sigcut+"&&"+cuts[myidx[0]]);
+	
 		
 	c1->Update();
 	

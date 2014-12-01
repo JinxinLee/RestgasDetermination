@@ -114,6 +114,8 @@ Decay 201 J/psi mu+ mu- VLL
 Decay 220 eta_c K+ K- pi0 PHSP
 Decay 221 eta_c KS K- pi+ PHSP
 Decay 222 eta_c gamma gamma PHSP
+Decay 223 eta_c K+ K- pi+ pi- pi0 PHSP
+Decay 224 eta_c KS K- pi+ pi- pi+ PHSP
 
 Decay 240 chi_c0 pi+ pi- K+ K- PHSP
 Decay 241 chi_c0 K+ pi- KS pi0 PHSP
@@ -129,6 +131,15 @@ Decay 422 Lambda_c+ p+ KS pi0 PHSP
 Decay 500 phi K+ K- VSS
 
 Decay 600 NR e+ e-
-Decay 620 NR mu+ mu-
-Decay 640 NR gamma gamma
+Decay 601 NR e+ e- gamma
+Decay 602 NR e+ e- pi0
 
+Decay 620 NR mu+ mu-
+Decay 621 NR mu+ mu- gamma
+Decay 622 NR mu+ mu- pi0
+
+Decay 640 NR gamma gamma
+Decay 641 NR gamma gamma gamma
+Decay 642 NR gamma gamma pi0
+
+Decay 660 NR pi0 gamma
