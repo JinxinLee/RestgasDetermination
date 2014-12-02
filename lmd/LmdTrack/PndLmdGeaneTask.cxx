@@ -241,7 +241,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
  	  break;
       }
 
-      ///and now Propagate to the PCA (a space point) in one step ---------------------------------
+      // ///and now Propagate to the PCA (a space point) in one step ---------------------------------
       int ierr=0;
       FairTrackParH *fStart = new (clref1[size1]) FairTrackParH(fStartPst,ierr);
       TClonesArray& clref = *fTrackParGeane;
@@ -253,14 +253,12 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
       Bool_t isProp = fPro->Propagate(fStart, fRes, PDGCode);
       /////END back propagation  to PCA -----
 
-      // // // // /////back propagation  to line/plane TEST----
+      // // // /////back propagation  to line/plane TEST----
       // Bool_t isProp;
-      // //      FairTrackParP* fResPst  = PropToXZPlane(fStartPst,0,-1,isProp);//back propagation  to plane TEST
+      // FairTrackParP* fResPst  = PropToXZPlane(fStartPst,0,-1,isProp);//back propagation  to plane TEST
+      // FairTrackParH *fRes = new(clref[size]) FairTrackParH(fResPst,ierr);
 
-      // //      FairTrackParH *fRes = new(clref[size]) FairTrackParH(fResPst,ierr);
-
-     
-      // FairTrackParH* fRes  =  PropToLine(fStart,0,-1,isProp);//back propagation  to line TEST
+      //      // FairTrackParH* fRes  =  PropToLine(fStart,0,-1,isProp);//back propagation  to line TEST
 
       // // // // /////END back propagation  to line/plane TEST
       // ///----------------------------------------------------------------------

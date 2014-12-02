@@ -75,6 +75,7 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   fCharge = -1;//barp
   fsigmaMSa = 0;
   fsigmaMSb = 0;
+  ftotRadLen = 0;
   PndGeoHandling::Instance();
   fInstance=this;
   //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:alx3:aly0:aly1:aly2:aly3:npoints") ;
@@ -225,7 +226,10 @@ InitStatus PndLmdLinFitTask::Init()
   fCharge = -1;//barp
 
   fGeoH = PndGeoHandling::Instance();
-  double totRadLen = 0.00306;//rad.length of whole plane
+  //  double totRadLen = 0.00306;//rad.length of whole plane
+  cout<<"RadLeng = "<<ftotRadLen<<endl;
+  double totRadLen = ftotRadLen;
+  if( totRadLen<1e-6)  totRadLen  = 0.00306;//standart rad.length of whole plane
   totRadLen -=2*0.000175;// -flex-cable
   totRadLen -=0.00053;// -sensor
   fsigmaMSb = ScatteredAngle(totRadLen);

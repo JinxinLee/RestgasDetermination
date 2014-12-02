@@ -52,7 +52,8 @@ public:
      */
     static PndLmdLinFitTask* Instance();
 
-
+  void SetRadLen(double x){ftotRadLen = x;} //rad.length X/X0
+ 
 
 protected:
 
@@ -98,6 +99,8 @@ protected:
 
   double GetSigmaMS(int side){ if (side<1) return fsigmaMSa;
     else return fsigmaMSb;}
+
+
   //  double GetSigmaMSmerged(){return fsigmaMSmerged;}
   //  double GetSigmaMScone(){return fsigmaMScone;}
   double fPbeam;
@@ -121,6 +124,7 @@ protected:
   static PndLmdLinFitTask* fInstance;
   TVirtualFitter *fmin;
   PndLmdDim* lmddim;
+ double ftotRadLen;//X/X0
   ClassDef(PndLmdLinFitTask,1);
 
 };
