@@ -230,11 +230,11 @@ InitStatus PndLmdLinFitTask::Init()
   cout<<"RadLeng = "<<ftotRadLen<<endl;
   double totRadLen = ftotRadLen;
   if( totRadLen<1e-6)  totRadLen  = 0.00306;//standart rad.length of whole plane
-  totRadLen -=2*0.000175;// -flex-cable
-  totRadLen -=0.00053;// -sensor
+  // totRadLen -=2*0.000175;// -flex-cable
+  // totRadLen -=0.00053;// -sensor
   fsigmaMSb = ScatteredAngle(totRadLen);
-  double totRadLenCable = 2*0.000175;// 2*flex-cable only
-  totRadLenCable +=0.00053;
+  double totRadLenCable = 0.053;//sensor
+  totRadLenCable +=0.05;//rest
   fsigmaMSa = ScatteredAngle(totRadLenCable);
 
   if(lmddim!=0 ) lmddim->Cleanup();
