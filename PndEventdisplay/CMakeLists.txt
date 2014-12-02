@@ -45,6 +45,7 @@ PndDrcAccuDigiPixelDraw.cxx
 PndSttMCPointDraw.cxx
 PndMvdDigiPixelDraw.cxx
 PndSttIsochroneDraw.cxx
+PndEmcClusterDraw.cxx
 )
 
 set(LINKDEF PndEventDisplayLinkDef.h)
