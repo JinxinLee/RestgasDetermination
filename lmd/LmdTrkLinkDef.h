@@ -20,8 +20,9 @@
 #pragma link C++ class PndLmdGeaneTask+;
 #pragma link C++ class PndLmdSigCleanTask+;
 #pragma link C++ class PndLmdBPtestTask+;
-#pragma link C++ class PndLmdKalmanTask+;
-#pragma link C++ class PndLmdBPRungeKuttaTask+;
+//PndLmdKalmanTask and PndLmdBPRungeKuttaTask have dependences from genfit -> switched off until movement to gentfit2
+//#pragma link C++ class PndLmdKalmanTask+;
+//#pragma link C++ class PndLmdBPRungeKuttaTask+;
 #pragma link C++ class PndLmdTrksFilterTask+;
 
 #endif
