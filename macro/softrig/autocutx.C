@@ -23,34 +23,94 @@
 #define BINS 500
 #define NCAN 3
 
-std::map<int, int> evcnt;
-std::map<int, int> evcntrec[10];
+typedef std::vector<pair<double, int> > ValueMap;
+typedef std::map<int, int> CountMap;
+
+CountMap evcnt, evcntrec[10];
 std::map<TString, TString> mctvar;
 
-double signi[MAX];
-int idx[MAX];
 TString vars[MAX];
 TString cuts[MAX];
 double cut[MAX];
-
-double minh[MAX], maxh[MAX];
 
 double N0_sig, N0_bg;
 double Nsigev, Nbgev;
 bool dstarmode;
 
+Float_t fbranch[MAX];
+Int_t   ibranch[MAX];
+Bool_t  bbranch[MAX];
+Int_t ev, run, mode, rec, nbranch;
+
 // ---------------------------------------------------------------
 
-bool mycompare(int i, int j)
+int gettype(TTree *t, TString varname)
 {
-  return signi[i]>signi[j];
+	TString leaftype = t->GetLeaf(varname)->GetTypeName();
+	
+	if (leaftype=="Float_t")	 return 0; 
+	else if (leaftype=="Int_t")	 return 1;  
+	else if (leaftype=="Bool_t") return 2;
+	
+	return -1;
 }
 
 // ---------------------------------------------------------------
 
-int uid(int ev, int run, int mode)
+int init(TTree *t)
 {
-	return ev+10000*run+(((mode/100)%10)*20+mode%10)*100000;
+	t->SetBranchAddress("ev",&ev);
+	t->SetBranchAddress("run",&run);
+	t->SetBranchAddress("mode",&mode);
+	t->SetBranchAddress("recmode",&rec);
+	
+	TObjArray* branches = t->GetListOfBranches();	
+	
+	nbranch = 0;
+	
+	for(int i=0; i<=branches->GetLast(); ++i)
+	{
+		TBranch* branch = (TBranch*)branches->UncheckedAt(i);
+		TString v=branch->GetName(); 
+
+		if ( v=="ev" || v=="mode" || v=="run" || v=="nsig" ) continue;
+		if ( v.Contains("pdg") || v.Contains("beam") || v.Contains("mct") ) continue;
+		if ( v.BeginsWith("t") && v!="thr") continue;
+		if ( v.EndsWith("vx") || v.EndsWith("vy") || v.EndsWith("vz") || v.EndsWith("pocmag")) continue;
+
+		bool ok=false;
+		
+		if ( v.BeginsWith("es") || v=="mmiss" || v.EndsWith("d0m") ) ok=true;
+		if ( v.EndsWith("p") || v.EndsWith("tht") || v.EndsWith("pcm") || v.EndsWith("thtcm") || v.EndsWith("pt") ) ok=true;
+		if ( ok || v.EndsWith("ang") || v.Contains("poc") ) ok=true;
+		if ( ok || v.Contains("pid") || v.Contains("min") || v.Contains("max") || v.Contains("sum") || v.Contains("fw") ) ok=true;
+		if ( ok || v.EndsWith("sph") || v.EndsWith("apl") || v.EndsWith("pla") || v.EndsWith("thr") || v.EndsWith("cir") ) ok=true;
+		
+		if ( v=="xmdif" && dstarmode ) ok = true;
+		if ( v=="xd0m" && dstarmode ) ok = false;
+		
+		if (!ok) continue;
+		
+		Int_t dtype=gettype(t, v);
+		switch (dtype)
+		{
+			case 0: t->SetBranchAddress(v, &(fbranch[nbranch])); break;
+			case 1: t->SetBranchAddress(v, &(ibranch[nbranch])); break;
+			case 2: t->SetBranchAddress(v, &(bbranch[nbranch])); break;
+		}
+		
+		vars[nbranch] = v;
+		nbranch++;
+	}
+	
+	return nbranch;
+}
+
+// ---------------------------------------------------------------
+
+int uid(int lev, int lrun, int lmode)
+{
+	return lev+10000*lrun+(((lmode/100)%10)*20+lmode%10)*100000;
 }
 
 // ---------------------------------------------------------------
@@ -63,13 +123,7 @@ int countEvents(TTree *t, TEventList &el)
 	t->SetBranchStatus("run",1);
 	t->SetBranchStatus("mode",1);
 	t->SetBranchStatus("recmode",1);
-	
-	Int_t ev, run, mode, rec;
-	t->SetBranchAddress("ev",&ev);
-	t->SetBranchAddress("run",&run);
-	t->SetBranchAddress("mode",&mode);
-	t->SetBranchAddress("recmode",&rec);
-	
+		
 	evcnt.clear();
 	for (int j=0;j<10;++j) evcntrec[j].clear();
 	
@@ -83,11 +137,10 @@ int countEvents(TTree *t, TEventList &el)
 
 	return evcnt.size();
 }
-
 // ---------------------------------------------------------------
 
-double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, double &bestcut, double supr, int id)
-{	
+void makeMaps(TTree *t, TString varname, TEventList &els, TEventList &elb, ValueMap &sig, ValueMap &bg, int id)
+{
 	int i;
 	t->SetBranchStatus("*",0);
 	t->SetBranchStatus("ev",1);
@@ -95,51 +148,48 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	t->SetBranchStatus("run",1);
 	t->SetBranchStatus(varname,1);
 	
-	Bool_t varb;
-	Float_t varf, var;
-	Int_t ev, run, mode, vari, dtype;
-	t->SetBranchAddress("ev",&ev);
-	t->SetBranchAddress("run",&run);
-	t->SetBranchAddress("mode",&mode);
+	Float_t var;
+	Int_t dtype=gettype(t, varname);
 	
-	TString leaftype = t->GetLeaf(varname)->GetTypeName();
-	
-	if (leaftype=="Float_t")	 { dtype = 0; t->SetBranchAddress(varname,&varf); }
-	else if (leaftype=="Int_t")	 { dtype = 1; t->SetBranchAddress(varname,&vari); }
-	else if (leaftype=="Bool_t") { dtype = 2; t->SetBranchAddress(varname,&varb); }
-	
-	std::map<int, int> sigcnt, bgcnt, sigcnt2;	
-	std::vector<pair<double, int> > sigvals, bgvals;
-	
-	int Nbgval = elb.GetN();
-	double min = 1e9, max=-1e9;
-	
+	sig.clear();
+	bg.clear();
+
 	// prepare the pairs of variable value, eventnumber for signal and count signals
 	for (i=0;i<els.GetN();++i)
 	{
 		t->GetEntry(els.GetEntry(i));
-		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
+		switch (dtype) {case 2: var = (Float_t)bbranch[id]; break; case 1: var = (Float_t) ibranch[id]; break; default: var=fbranch[id]; }
 		
-		sigvals.push_back(std::make_pair(var, uid(ev,run,mode)  ));
-		if (var>max) max = var;
-		if (var<min) min = var;
+		sig.push_back(std::make_pair(var, uid(ev,run,mode)  ));
 	}
 		
 	// prepare the pairs of variable value, eventnumber for background and count background
 	for (i=0;i<elb.GetN();++i)
 	{
 		t->GetEntry(elb.GetEntry(i));
-		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
+		switch (dtype) {case 2: var = (Float_t)bbranch[id]; break; case 1: var = (Float_t) ibranch[id]; break; default: var=fbranch[id]; }
 		
-		bgvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
-		if (var>max) max = var;
-		if (var<min) min = var;
+		bg.push_back(std::make_pair(var, uid(ev,run,mode) ));
 	}
+}
+
+// ---------------------------------------------------------------
+
+double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, double &bestcut, double supr, int id)
+{	
+	CountMap bgcnt, sigcnt, sigcnt2;	
+	ValueMap sigvals, bgvals;
+	
+	int Nbgval = elb.GetN();
+	int dtype = gettype(t,varname);
+	
+	makeMaps(t, varname, els, elb, sigvals, bgvals, id);
+	
 	
 	// sort signals by first element = variable value
 	sort(bgvals.begin(), bgvals.end());
 
-	i=0;
+	int i=0;
 	bgcnt.clear();
 	// find cut for current efficiency requirement left cut
 	while ( (bgcnt.size()/(double)Nbgev)<(1-supr) && i<Nbgval ) bgcnt[bgvals[i++].second]+=1;
@@ -154,32 +204,30 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	sigcnt.clear();
 	sigcnt2.clear();
 	
-	for (i=0;i<sigvals.size();++i)
+	for (i=0;i<(int)sigvals.size();++i)
 	{
 		if (sigvals[i].first<leftcut)  sigcnt[sigvals[i].second]+=1;
 		if (sigvals[i].first>rightcut) sigcnt2[sigvals[i].second]+=1;
 	}
 	
-	if (max>25) max=25;
-	minh[id]=min-(max-min)*0.05; 
-	maxh[id]=max+(max-min)*0.05;
-
 	t->SetBranchStatus("*",1);
 		
 	double lefteff  = sigcnt.size()/Nsigev;
 	double righteff = sigcnt2.size()/Nsigev;
 
+	//cout <<varname<<" "<<flush;
+	
 	bestcut = rightcut;
 	if (lefteff>righteff) 
 	{
-		if (dtype==0) cuts[id] = TString::Format("%s<%.5f",varname.Data(),leftcut);
+		if (dtype==0) cuts[id] = TString::Format("%s<%.3f",varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 
 		bestcut = leftcut;
 		return lefteff;
 	}
 
-	if (dtype==0) cuts[id] = TString::Format("%s>%.5f",varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format("%s>%.3f",varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
 	return righteff;
@@ -189,56 +237,18 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 
 double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, double &bestcut, double eff, int id)
 {	
-	int i;
-	t->SetBranchStatus("*",0);
-	t->SetBranchStatus("ev",1);
-	t->SetBranchStatus("mode",1);
-	t->SetBranchStatus("run",1);
-	t->SetBranchStatus(varname,1);
-	
-	Bool_t varb;
-	Float_t varf, var;
-	Int_t ev, run, mode, vari, dtype=0;
-	t->SetBranchAddress("ev",&ev);
-	t->SetBranchAddress("run",&run);
-	t->SetBranchAddress("mode",&mode);
-	
-	TString leaftype = t->GetLeaf(varname)->GetTypeName();
-	
-	if (leaftype=="Float_t")	 { dtype = 0; t->SetBranchAddress(varname,&varf); }
-	else if (leaftype=="Int_t")	 { dtype = 1; t->SetBranchAddress(varname,&vari); }
-	else if (leaftype=="Bool_t") { dtype = 2; t->SetBranchAddress(varname,&varb); }
-	
-	std::map<int, int> sigcnt, bgcnt, bgcnt2;	
-	std::vector<pair<double, int> > sigvals, bgvals;
+	CountMap bgcnt, bgcnt2, sigcnt;	
+	ValueMap sigvals, bgvals;
 	
 	int Nsigval = els.GetN();
-	double min = 1e9, max=-1e9;
+	int dtype = gettype(t,varname);
 	
-	// prepare the pairs of variable value, eventnumber for signal and count signals
-	for (i=0;i<els.GetN();++i)
-	{
-		t->GetEntry(els.GetEntry(i));
-		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
-		sigvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
-		if (var>max) max = var;
-		if (var<min) min = var;
-	}
-		
-	// prepare the pairs of variable value, eventnumber for background and count background
-	for (i=0;i<elb.GetN();++i)
-	{
-		t->GetEntry(elb.GetEntry(i));
-		switch (dtype) {case 2: var = (Float_t)varb; break; case 1: var = (Float_t) vari; break; default: var=varf; }
-		bgvals.push_back(std::make_pair(var, uid(ev,run,mode) ));
-		if (var>max) max = var;
-		if (var<min) min = var;
-	}
+	makeMaps(t, varname, els, elb, sigvals, bgvals, id);
 	
 	// sort signals by first element = variable value
 	sort(sigvals.begin(), sigvals.end());
 
-	i=0;
+	int i=0;
 	sigcnt.clear();
 	// find cut for current efficiency requirement left cut
 	while ( (sigcnt.size()/(double)Nsigev)<eff && i<Nsigval ) sigcnt[sigvals[i++].second]+=1;
@@ -253,35 +263,33 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	bgcnt.clear();
 	bgcnt2.clear();
 	
-	for (i=0;i<bgvals.size();++i)
+	for (i=0;i<(int)bgvals.size();++i)
 	{
 		if (bgvals[i].first<=leftcut)  bgcnt[bgvals[i].second];
 		if (bgvals[i].first>=rightcut) bgcnt2[bgvals[i].second];
 	}
 	
-	if (max>25) max=25;
-	minh[id]=min-(max-min)*0.05; 
-	maxh[id]=max+(max-min)*0.05;
-
 	t->SetBranchStatus("*",1);
 	
 	
 	double leftsupr = (Nbgev-bgcnt.size())/Nbgev;
 	double rightsupr = (Nbgev-bgcnt2.size())/Nbgev;
 
+	//cout <<varname<<" "<<flush;
+	
 	if (leftcut!=leftcut || rightcut!=rightcut) return 0;
 	
 	bestcut = rightcut;
 	if (leftsupr>rightsupr) 
 	{
-		if (dtype==0) cuts[id] = TString::Format("%s<%.5f",varname.Data(),leftcut);
+		if (dtype==0) cuts[id] = TString::Format("%s<%.4f",varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 		
 		bestcut = leftcut;
 		return leftsupr;
 	}
 	
-	if (dtype==0) cuts[id] = TString::Format("%s>%.5f",varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format("%s>%.4f",varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
 	return rightsupr;
@@ -293,40 +301,17 @@ TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr, double 
 {
 	int i;
 	
-	for (i=0;i<MAX;++i) { idx[i]=i; signi[i]=0.;}
-
-	TObjArray* branches = t->GetListOfBranches();	
 	bestqa = -999.;
 	
 	TString bestcut="";
 	
 	cout <<"000/000"<<flush;
-	for(i=0; i<=branches->GetLast(); ++i)
+
+	for(i=0; i<nbranch; ++i)
 	{
-//		cout <<"#"<<flush;
-		printf("\b\b\b\b\b\b\b%03d/%03d",i,(int)branches->GetEntries());fflush(stdout);
-		TBranch* branch = (TBranch*)branches->UncheckedAt(i);
-		vars[i]=branch->GetName(); 
-		TString v=vars[i];
-
-		if ( v=="ev" || v=="mode" || v=="run" || v=="nsig" ) continue;
-		if ( v.Contains("pdg") || v.Contains("beam") || v.Contains("mct") ) continue;
-		if (v.BeginsWith("t") && v!="thr") continue;
-		if (v.EndsWith("vx") || v.EndsWith("vy") || v.EndsWith("vz") || v.EndsWith("pocmag")) continue;
-
-		bool ok=false;
+		printf("\b\b\b\b\b\b\b%03d/%03d",i+1,nbranch);
+		fflush(stdout);
 		
-		if ( v.BeginsWith("es") || v=="mmiss" || v.EndsWith("d0m") ) ok=true;
-		if ( v.EndsWith("p") || v.EndsWith("tht") || v.EndsWith("pcm") || v.EndsWith("thtcm") || v.EndsWith("pt") ) ok=true;
-		if ( ok || v.EndsWith("ang") || v.Contains("poc") ) ok=true;
-		if ( ok || v.Contains("pid") || v.Contains("min") || v.Contains("max") || v.Contains("sum") || v.Contains("fw") ) ok=true;
-		if ( ok || v.EndsWith("sph") || v.EndsWith("apl") || v.EndsWith("pla") || v.EndsWith("thr") || v.EndsWith("cir") ) ok=true;
-		
-		if ( v=="xmdif" && dstarmode ) ok = true;
-		if ( v=="xd0m" && dstarmode ) ok = false;
-		
-		if (!ok) continue;
-	
 		double qa=0;
 		
 		if (supr<0)	qa = bestEffEvt(t, vars[i], els, elb, cut[i], -supr, i);
@@ -352,8 +337,8 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 // 	gStyle->SetTitleBorderSize(0);
 	gStyle->SetOptStat(0);
 	
-	TCanvas *c1=new TCanvas("c1","c1",10,10,1500,600);
-	c1->Divide(5,2);
+	TCanvas *c1=new TCanvas("c1","c1",10,10,1800,550);
+	c1->Divide(7,2);
 	
 	TString tagcut = "tag";
 	
@@ -368,8 +353,8 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 	
 	TString ntp   = fname(regntp);
 	TString smode = ntp(1,ntp.Length());
-	int mode      = smode.Atoi();
-	dstarmode     = (mode>=110 && mode<=119) || (mode>=130 && mode<=138) || (mode>=150 && mode<=151);
+	int dmode     = smode.Atoi()/10;
+	dstarmode     = (dmode==11 || dmode==13 || dmode==15);
 	
 	if (n0s<0) n0s = s.Atoi();
 	int n0b = b.Atoi();
@@ -381,6 +366,8 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 
 	TFile *f=new TFile(fname,"READ");
 	TTree *t=(TTree*)f->Get(ntp);
+	
+	init(t);
 	
 	TEventList elsall("elsall"), elball("elball");
 	TEventList els("els"), elb("elb");
@@ -398,21 +385,18 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 	
 	double beff=1., seff=1., rseff=1.;
 	
-	double inisupr = supr;
-	
 	TRegexp rnum("[0-9]+\\.[0-9]+$");
-	int cnt=1;
+	int cnt=0;
 	
 	bool stop=false;
-	TString oldcut=precut;	
 		
-	while (cnt<20 && !stop && beff>target && seff>=mineff && rseff>=minreleff) 
+	while (cnt<25 && !stop && beff>target && seff>=mineff && rseff>=minreleff) 
 	{		
-		c1->cd(cnt++); //gPad->SetLogy();
-		
+		c1->cd(cnt%7+1); 
 		t->SetLineColor(1);	t->Draw("xm",precut);
 		t->SetLineColor(2);	t->Draw("xm",precut+"&&"+sigcut,"same");
 		t->SetLineColor(4);	t->Draw("xm",precut+"&&"+bgcut,"same");
+		
 		c1->Update();
 				
 		t->Draw(">>els",sigcut+"&&"+precut);
@@ -432,8 +416,8 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 		
 		double qa=0.;
 		
-		TString bestcut =findcut(t, els, elb, supr, qa);
-		
+		TString bestcut = findcut(t, els, elb, supr, qa);
+
 		/*
 		while (qa<0.1) 
 		{	
@@ -443,21 +427,30 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 		}*/
 		
 		TString thenum = bestcut(rnum);
+		double cutval = thenum.Atof();
 		TString thevar = bestcut(0,bestcut.Index(thenum));
+		TString thebarevar = bestcut(0,bestcut.Index(thenum)-1);
 		TRegexp rcut(thevar+"[0-9]+\\.[0-9]+");
 		TString theoldcut = precut(rcut);
 		
-		//cout <<bestcut<<" "<<thenum<<" "<<thevar<<" "<<theoldcut<<endl;
+		c1->cd(cnt%7+8);
+		
+		t->SetLineColor(1);	t->Draw(thebarevar,precut);
+		t->SetLineColor(2);	t->Draw(thebarevar,precut+"&&"+sigcut,"same");
+		t->SetLineColor(4);	t->Draw(thebarevar,precut+"&&"+bgcut,"same");
+		c1->Update();
+		TLine l; l.SetLineColor(6); l.SetLineWidth(2);
+		l.DrawLine(cutval,0,cutval,gPad->GetUymax()*0.9);
+		
+		c1->Update();
 		
 		if (theoldcut!="") 
 			precut.ReplaceAll(theoldcut,bestcut);
 		else
-			precut += "&&"+bestcut;
+			precut += "&&"+bestcut;		
 			
 		cout <<"  -> "<<precut<<endl;
-		
-		if (oldcut == precut) {cout <<"STOP"<<endl; stop = true; continue;}
-		oldcut = precut;
+		cnt++;
 	}
 	
 	cout <<"\n"<<en<<smode<<" : "<<precut.Data()<<endl;
