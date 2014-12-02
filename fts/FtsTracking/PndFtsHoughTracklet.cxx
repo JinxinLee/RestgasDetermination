@@ -39,8 +39,6 @@ PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, PndFtsHoughTracker
 	} else {
 		fVerbose = fTrackerTask->GetVerbose();
 		if(3<fVerbose) std::cout << "PndFtsHoughTracklet called with tracker ptr " << fTrackerTask << '\n';
-//		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
-//		fFtsBranchId = fTrackerTask->getFtsBranchId();
 	}
 }
 

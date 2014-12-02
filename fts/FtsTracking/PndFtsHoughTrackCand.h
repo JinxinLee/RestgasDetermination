@@ -5,9 +5,16 @@
 
  @brief Class for saving a FTS track cand. for Hough transform based FTS PR.
 
- The track cand. consists of several tracklets.
+ The track cand. consists of several tracklets:
+ In zx-plane line + parabola + line
+ In zy-plane line
+
+ This class takes care of geometric calculations for tracklets.
 
  Loosely modeled after PndTools/riemannfit/PndRiemannTrack.h
+
+ TODO
+ Maybe it would be better not to derive from PndTrackCand, but to contain an object of PndTrackCand
 
  Created: 24.01.2014
  */
@@ -37,14 +44,11 @@ class TVector3;
 class TClonesArray;
 
 
-class PndFtsHoughTrackCand : public PndTrackCand {
+class PndFtsHoughTrackCand : public TObject {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTrackCand(
-			//			Int_t ftsBranchId=0,
-			//			TClonesArray *ftsHitArray=0,
-			PndFtsHoughTrackerTask *trackerTask=0);
+	PndFtsHoughTrackCand(PndFtsHoughTrackerTask *trackerTask=0); ///< @brief Set pointer to tracker task (super important as it provides an I/O interface to PandaRoot)
 	~PndFtsHoughTrackCand();
 
 	// operators
@@ -54,23 +58,23 @@ public:
 	void Print();
 	// isComplete() is kTRUE iif data from all Hough transforms have been entered
 	Bool_t isComplete() const { return (fZxLineParabola.isSet() && fZxParabola.isSet() && fZxParabolaLine.isSet() && fZyLine.isSet()); };
-	PndTrackCand getPndTrackCand(); // convert *this to a PndTrack, cannot be const
+	PndTrackCand getPndTrackCand(); // convert *this to a PndTrackCand, cannot be const
 	PndTrack getPndTrack(); // convert *this to a PndTrack, cannot be const // calculates first and last parameter, but uses an empty PndTrackCand which has to be set lateron using SetTrackCandRef
 	FairTrackParP getTrackParPForHit(const UInt_t i); // get the track parameters (needed for conversion to PndTrack) for hit with index i, cannot be const
 	Int_t getCharge() const; // gets charge of track candidate // TODO only charge sign is implemented
-	TVector3 getP(const Double_t zLabSys) const; // gets the momentum calculated at some hit
-	TVector3 getPos(const Double_t zLabSys) const; // gets the position calculated at some hit
+	TVector3 getP(const Double_t zLabSys) const; // gets the momentum calculated at some z coordinate in laboratory system
+	TVector3 getPos(const Double_t zLabSys) const; // gets the position calculated at some z coordinate in laboratory system
 
-	Double_t getZLineParabola() { return fZLineParabola; };
-	Double_t getZParabolaLine() { return fZParabolaLine; };
+	Double_t getZLineParabola() { return fZCoordLineParabola; }; // gets z coordinate in laboratory system where I switch from line before dipole to parabola within dipole (in zx plane)
+	Double_t getZParabolaLine() { return fZCoordParabolaLine; }; // gets z coordinate in laboratory system where I switch from parabola within dipole to line behind dipole (in zx plane)
 
 
 
 	// Modifiers -----------------------
 	// add results from Hough transforms
-	void SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola);
+	void SetZxLineBeforeDipole(const PndFtsHoughTracklet zxLineParabola);
 	void SetZxParabola(const PndFtsHoughTracklet zxParabola);
-	void SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine);
+	void SetZxLineBehindDipole(const PndFtsHoughTracklet zxParabolaLine);
 	void SetZyLine(const PndFtsHoughTracklet zyLine);
 
 
@@ -79,7 +83,7 @@ private:
 	PndFtsHoughTrackerTask *fTrackerTask;
 
 	/** @brief For error reporting */
-	void throwError(const TString s){ throw std::runtime_error(s.Data()); };
+	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
 
 	void addUniqueTrackletHits(const PndFtsHoughTracklet inTracklet);
 
@@ -194,10 +198,6 @@ private:
 	// Private Data Members ------------
 	Int_t fVerbose;
 
-	//	// FTS Hits
-	//	Int_t   fFtsBranchId;
-	//	TClonesArray *fFtsHitArray;
-
 	// zx plane
 	// straight line Hough transform in zx plane (stations before dipole field)
 	PndFtsHoughTracklet fZxLineParabola;
@@ -224,11 +224,14 @@ private:
 	// vs
 	// y intercept
 
+	// internal track candidate for storing of hits belonging to this track candidate
+	PndTrackCand intTrackCand;
+
 
 	// at which z value the transition in the bending zx plane is done from a line (before dipole field) to a parabola (within dipole field)
-	Double_t fZLineParabola;
+	Double_t fZCoordLineParabola;
 	// at which z value the transition in the bending zx plane is done from a parabola (within dipole field) to a line (before dipole field)
-	Double_t fZParabolaLine;
+	Double_t fZCoordParabolaLine;
 
 
 	ClassDef(PndFtsHoughTrackCand,1);

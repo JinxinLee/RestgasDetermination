@@ -16,30 +16,26 @@
 ClassImp(PndFtsHoughTrackCand);
 
 PndFtsHoughTrackCand::PndFtsHoughTrackCand(PndFtsHoughTrackerTask *trackerTask) :
-		fTrackerTask(trackerTask),
+								fTrackerTask(trackerTask),
 
-		//						fFtsHitArray(0),
-		//						fFtsBranchId(0),
-		fVerbose(0),
+								fVerbose(0),
 
-		fZxLineParabola(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
+								fZxLineParabola(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
 
-		fZxParabola(0., trackerTask),
+								fZxParabola(0., trackerTask),
 
-		fZxParabolaLine(0., trackerTask),
+								fZxParabolaLine(0., trackerTask),
 
-		fZyLine(0., trackerTask),
+								fZyLine(0., trackerTask),
 
-		fZLineParabola(0.),
-		fZParabolaLine(0.)
+								fZCoordLineParabola(0.),
+								fZCoordParabolaLine(0.)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackCand FATAL ERROR Tracker task pointer not set.\n";
 	} else {
 		fVerbose = fTrackerTask->GetVerbose();
 		if(3<fVerbose) std::cout << "PndFtsHoughTrackCand called with tracker ptr " << fTrackerTask << '\n';
-		//		fFtsHitArray = fTrackerTask->getFtsHitArrayPtr();
-		//		fFtsBranchId = fTrackerTask->getFtsBranchId();
 	}
 }
 
@@ -49,25 +45,41 @@ PndFtsHoughTrackCand::~PndFtsHoughTrackCand()
 }
 
 
-void PndFtsHoughTrackCand::SetZxFirstLine(const PndFtsHoughTracklet zxLineParabola){
+void PndFtsHoughTrackCand::SetZxLineBeforeDipole(const PndFtsHoughTracklet zxLineParabola){
+	if (fZxLineParabola.isSet()) {
+		std::cerr << "WARNING from PndFtsHoughTrackCand: Line before dipole in zx plane is set more than once! Ignore new values! Potentially FATAL ERROR!\n";
+		return;
+	}
 	fZxLineParabola = zxLineParabola;
-	fZLineParabola = fZxLineParabola.getZRefLabSys();
+	fZCoordLineParabola = fZxLineParabola.getZRefLabSys();
 	addUniqueTrackletHits(fZxLineParabola);
 }
 void PndFtsHoughTrackCand::SetZxParabola(const PndFtsHoughTracklet zxParabola){
+	if (fZxParabola.isSet()) {
+		std::cerr << "WARNING from PndFtsHoughTrackCand: Parabola inside dipole in zx plane is set more than once! Ignore new values! Potentially FATAL ERROR!\n";
+		return;
+	}
 	// warn if line before dipole field and parabola within are not calculated wrt the same z reference value
-	if (zxParabola.getZRefLabSys() != fZLineParabola){
+	if (zxParabola.getZRefLabSys() != fZCoordLineParabola){
 		std::cout << "WARNING from PndFtsHoughTrackCand: First line and parabola were not calculated wrt the same z position! Potentially FATAL ERROR!\n";
 	}
 	fZxParabola = zxParabola;
 	addUniqueTrackletHits(fZxParabola);
 }
-void PndFtsHoughTrackCand::SetZxSecondLine(const PndFtsHoughTracklet zxParabolaLine){
+void PndFtsHoughTrackCand::SetZxLineBehindDipole(const PndFtsHoughTracklet zxParabolaLine){
+	if (fZxParabolaLine.isSet()) {
+		std::cerr << "WARNING from PndFtsHoughTrackCand: Line behind dipole in zx plane is set more than once! Ignore new values! Potentially FATAL ERROR!\n";
+		return;
+	}
 	fZxParabolaLine = zxParabolaLine;
-	fZParabolaLine = fZxParabolaLine.getZRefLabSys();
+	fZCoordParabolaLine = fZxParabolaLine.getZRefLabSys();
 	addUniqueTrackletHits(fZxParabolaLine);
 }
 void PndFtsHoughTrackCand::SetZyLine(const PndFtsHoughTracklet zyLine){
+	if (fZyLine.isSet()) {
+		std::cerr << "WARNING from PndFtsHoughTrackCand: Line in zy plane is set more than once! Ignore new values! Potentially FATAL ERROR!\n";
+		return;
+	}
 	fZyLine=zyLine;
 	addUniqueTrackletHits(fZyLine);
 }
@@ -79,7 +91,7 @@ void PndFtsHoughTrackCand::SetZyLine(const PndFtsHoughTracklet zyLine){
 
 void PndFtsHoughTrackCand::Print() {
 	std::cout << "=========== PndFtsHoughTrackCand::Print() ==========" << std::endl;
-	PndTrackCand::Print();
+	intTrackCand.Print();
 	if (kTRUE==fZxLineParabola.isSet()){
 		std::cout << "zx plane\n\n";
 		std::cout << "1st line: ";
@@ -111,70 +123,69 @@ void PndFtsHoughTrackCand::addUniqueTrackletHits(PndFtsHoughTracklet inTracklet)
 		const Int_t inHitId = inHit.GetHitId();
 		const Int_t inDetId = inHit.GetDetId();
 		// if hit is NOT in track -1 is returned by HitInTrack, otherwise the index (>=0) in the HitId vector is returned
-		if (-1==HitInTrack(inDetId,inHitId)){
+		if (-1==intTrackCand.HitInTrack(inDetId,inHitId)){
 			// add hit to track cand
 			const Double_t inRho = inHit.GetRho();
-			AddHit(inDetId, inHitId, inRho);
+			intTrackCand.AddHit(inDetId, inHitId, inRho);
 		}
 	}
 }
 
 PndTrackCand PndFtsHoughTrackCand::getPndTrackCand() {
-	// TODO: Maybe this is not necessary because PndFtsHoughTrackCand is derived from PndTrackCand
-	PndTrackCand myCand;
-	// copy all the hits from PndFtsHoughTrackCand *this to PndTrackCand myCand
-	for (UInt_t iHit = 0; iHit < GetNHits(); ++iHit)
-	{
-		PndTrackCandHit inHit = GetSortedHit(iHit);
-		const Int_t inHitId = inHit.GetHitId();
-		const Int_t inDetId = inHit.GetDetId();
-		const Double_t inRho = inHit.GetRho();
-		myCand.AddHit(inDetId, inHitId, inRho);
-	}
-	return myCand;
+	return intTrackCand;
+
+	//	// The following is what I used when I derived this class from PndTrackCand. Instead this class now contains a member of PndTrackCand
+	//	// Maybe this is not necessary because PndFtsHoughTrackCand is derived from PndTrackCand
+	//	PndTrackCand myCand;
+	//	// copy all the hits from PndFtsHoughTrackCand *this to PndTrackCand myCand
+	//	for (UInt_t iHit = 0; iHit < intTrackCand.GetNHits(); ++iHit)
+	//	{
+	//		PndTrackCandHit inHit = intTrackCand.GetSortedHit(iHit);
+	//		const Int_t inHitId = inHit.GetHitId();
+	//		const Int_t inDetId = inHit.GetDetId();
+	//		const Double_t inRho = inHit.GetRho();
+	//		myCand.AddHit(inDetId, inHitId, inRho);
+	//	}
+	//	return myCand;
 }
 
 
 
 // for conversion to PndTrack, compare to PndTools/riemannfit/PndRiemannTrack.cxx, line 1104
-/////////////////////////////////////////////////////////////////////////////////////////////
-// getNumHits is called getNHits (because my track cand class is derived from PndTrackCand and that's how it's called there)
+//--------------------------------------------------------------------------------------------
+// getNumHits is called getNHits in PndTrackCand (which I use to store the hits belonging to this track candidate)
 // I don't need the B field to calculate the parameters
 PndTrack PndFtsHoughTrackCand::getPndTrack() {
 	// calculates first and last parameter, but uses an empty PndTrackCand which has to be set lateron using SetTrackCandRef
 	FairTrackParP firstPar, lastPar;
 	PndTrackCand myCand;
-	if (GetNHits() > 0){
+	if (intTrackCand.GetNHits() > 0){
 		firstPar = getTrackParPForHit(0);
-		lastPar = getTrackParPForHit(GetNHits()-1);
+		lastPar = getTrackParPForHit(intTrackCand.GetNHits()-1);
 	}
 	return PndTrack(firstPar, lastPar, myCand);
 }
 
 
 FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
-	// index is the index of the hit in the track candidate, not in the FTS hit array
-	// this method will sort the hitId vector and therefore cannot be used for const track candidates
+	// index is the index of the hit in intTrackCand, not in the FTS hit array
+	// this method will sort the hitId vector of intTrackCand and therefore cannot be used for const track candidates
 
 	// TODO: Check if all arguments are correct
 
 	// Warn if we do not have a complete track candidate
 	if (!isComplete()) Warning("getHit","You try to access hits before we have a complete track candidate.");
 
+	// not necessary, I check later if I get a hit or not
+	//if (index >= intTrackCand.GetNHits()) throwError("index in PndFtsHoughTrackCand::getTrackParPForHit is too large.");
+
 	// Translate index in track candidate to hitId in FTS hit array
-	if (index >= GetNHits()){
-		Warning("getTrackParPForHit","FATAL index is too large.");
-		return FairTrackParP();
-	}
-	UInt_t hitId = GetSortedHit(index).GetHitId();
+	UInt_t hitId = intTrackCand.GetSortedHit(index).GetHitId();
 
-
-	// get position of hit with
+	// get position of hit
 	const PndFtsHit *myHit = fTrackerTask->GetFtsHit(hitId);
-	if (0==myHit){
-		Warning("getTrackParPForHit","Cannot get hit, probably the tracking has not finished or the index is too large.");
-		return FairTrackParP();
-	}
+	if (0 == myHit) throwError("Cannot get hit, probably the tracking has not finished or the index is too large.");
+
 	// Take z of hit and calculate the position and momentum for that z using the results from the Hough transforms and my track model
 	Double_t zLabSys = myHit->GetZ();
 
@@ -183,7 +194,7 @@ FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
 	TVector3 hitPos = getPos(zLabSys);
 
 
-	TVector3 hitPosError = fTrackerTask->GetHitPositionError(hitId);
+	TVector3 hitPosError = fTrackerTask->GetFtsHitPositionError(hitId);
 
 	// momentum comes from the pattern recognition track model
 	TVector3 mom = getP(zLabSys);
@@ -214,10 +225,10 @@ TVector3 PndFtsHoughTrackCand::getP(const Double_t zLabSys) const{
 	std::pair<Double_t, Double_t> pZPXLabSys;
 
 	// track model is assumed to be line+parabola+line in zx and line in zy
-	if ( zLabSys <= fZLineParabola ){
+	if ( zLabSys <= fZCoordLineParabola ){
 		// use 1st line in zx plane
 		pZPXLabSys = getPZPXLabLine(zLabSys, &fZxLineParabola);
-	} else if ( zLabSys < fZParabolaLine ){
+	} else if ( zLabSys < fZCoordParabolaLine ){
 		// use "tangent" to parabola in zx plane
 		pZPXLabSys = getPZPXLabParabola(zLabSys);
 	} else {
@@ -247,11 +258,11 @@ TVector3 PndFtsHoughTrackCand::getPos(const Double_t zLabSys) const{
 	const Double_t yLabSys = getXOrYLabForLine(zLabSys, &fZyLine);
 	Double_t xLabSys;
 
-	if ( zLabSys <= fZLineParabola ){
+	if ( zLabSys <= fZCoordLineParabola ){
 		// use 1st line in zx plane
 		xLabSys = getXOrYLabForLine(zLabSys, &fZxLineParabola);
 
-	} else if ( zLabSys < fZParabolaLine ){
+	} else if ( zLabSys < fZCoordParabolaLine ){
 		// use parabola in zx plane
 		getXLabForParabola(zLabSys);
 	} else {

@@ -35,7 +35,7 @@ class PndFtsHoughTracklet : public PndTrackCand {
 public:
 
 	// Constructors/Destructors ---------
-	PndFtsHoughTracklet(Double_t zRefLabSys=0., PndFtsHoughTrackerTask *trackerTask=0); ///< Set pointer to tracker task (super important as it provides functionality such as the array of all FTS hits and the branchId of FTS, magnetic field, etc.)
+	PndFtsHoughTracklet(Double_t zRefLabSys=0., PndFtsHoughTrackerTask *trackerTask=0); ///< @brief Set pointer to tracker task (super important as it provides an I/O interface to PandaRoot)
 	~PndFtsHoughTracklet();
 
 
@@ -79,7 +79,7 @@ private:
 	PndFtsHoughTrackerTask *fTrackerTask;
 
 	/** @brief For error reporting */
-	void throwError(const TString s){ throw std::runtime_error(s.Data()); };
+	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
 
 	Int_t fVerbose;
 

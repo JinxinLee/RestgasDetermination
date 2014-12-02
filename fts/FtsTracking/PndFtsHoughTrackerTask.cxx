@@ -283,20 +283,19 @@ InitStatus PndFtsHoughTrackerTask::ReInit()
 }
 
 
-const TVector3 PndFtsHoughTrackerTask::GetHitPositionError(UInt_t hitId) const
+const TVector3 PndFtsHoughTrackerTask::GetFtsHitPositionError(UInt_t hitId) const
 {
 	// hitId is index in FTS hit array
 	if (1<fVerbose) {
-		std::cout << "Get FTS hit error for hitId ( " << hitId << " / " << fFtsHitArray->GetEntriesFast() << " )\n";
+		std::cout << "Get FTS hit error for hitId ( " << hitId << " / " << GetNFtsHits() << " )\n";
 	}
 
-	if ( hitId >= fFtsHitArray->GetEntriesFast() )
-	{
-		return TVector3(0.,0.,0.);
+	if ( hitId >= GetNFtsHits() ) {
+		throwError("FTS hit cannot be found!");
 	}
 
 	// TODO: Check if there is a better way to set the errors
-	PndFtsHit* myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
+	const PndFtsHit* const myHit = GetFtsHit(hitId);
 	Int_t tubeID = myHit->GetTubeID();
 	PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
 	const Double_t zError = 2*tube->GetHalfLength();

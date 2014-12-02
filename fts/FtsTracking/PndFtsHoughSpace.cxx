@@ -95,13 +95,13 @@ std::ostream& operator <<(std::ostream& os, const HitIdxPathMap& outMap)
 }
 
 
-inline void PndFtsHoughSpace::AddHit(UInt_t hitId, Double_t rho)
+inline void PndFtsHoughSpace::AddHitToHS(UInt_t hitId, Double_t rho)
 {
 	fHitId.push_back(PndTrackCandHit(fFtsBranchId, hitId, rho));
 }
 
 
-inline void PndFtsHoughSpace::AddHit(FairLink link, Double_t rho)
+inline void PndFtsHoughSpace::AddHitToHS(FairLink link, Double_t rho)
 {
 	fHitId.push_back(PndTrackCandHit(link.GetType(), link.GetIndex(), rho));
 }
@@ -293,7 +293,7 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 
 		// add surviving hits to the hit vector (z coordinate as sorting parameter chosen)
 		if (1<fVerbose) {std::cout << "Ading hit with index " << iHit << " to the Hough space hit vector.\n";}
-		AddHit(iHit,hitZLabSys);
+		AddHitToHS(iHit,hitZLabSys);
 
 	} // for loop over all hits
 	return kTRUE;
@@ -396,7 +396,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 	for (int iHit = 0; iHit < GetNHits(); iHit++)
 	{
 		firstEntry = kTRUE;
-		const PndFtsHit *const myHit = getHit(iHit);
+		const PndFtsHit *const myHit = getHitFromHS(iHit);
 
 
 		// get hit position
@@ -814,7 +814,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 					for (int iHit = 0; iHit < GetNHits(); iHit++)
 					{
-						const PndFtsHit* myHit = getHit(iHit);
+						const PndFtsHit* myHit = getHitFromHS(iHit);
 
 						// get hit position
 						TVector3 hitPos;
@@ -1023,7 +1023,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 							for (int iHit = 0; iHit < GetNHits(); iHit++)
 							{
-								const PndFtsHit* myHit = getHit(iHit);
+								const PndFtsHit* myHit = getHitFromHS(iHit);
 
 								// get hit position
 								TVector3 hitPos;

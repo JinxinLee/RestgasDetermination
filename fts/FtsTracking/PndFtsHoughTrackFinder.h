@@ -67,7 +67,7 @@
 class PndFtsHoughTrackFinder
 {
 public:
-	PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask); ///< @brief Set pointer to tracker task (super important as it provides functionality such as the array of all FTS hits and the branchId of FTS, magnetic field, etc.)
+	PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask); ///< @brief Set pointer to tracker task (super important as it provides an I/O interface to PandaRoot)
 	virtual ~PndFtsHoughTrackFinder(); ///< @brief Destructor
 
 	void FindTracks();	///< @brief Performs the track finding.
@@ -113,7 +113,7 @@ private:
 	PndFtsHoughTrackerTask *fTrackerTask;
 
 	/** @brief For error reporting */
-	void throwError(const TString s){ throw std::runtime_error(s.Data()); };
+	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
 
 	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const{
 		std::cout << tracklets.size() << " peaks found for " << option << '\n';
@@ -130,26 +130,8 @@ private:
 
 
 
-	///< @brief Minimum required height for peaks in Hough spaces.
-	UInt_t    fMinPeakHeightZxLineParabola;					///< zx line before dipole field
-	///< @brief Minimum required height for peaks in Hough spaces.
-	UInt_t    fMinPeakHeightZxParabola;					///< zx parabola within dipole field
-	///< @brief Minimum required height for peaks in Hough spaces.
-	UInt_t    fMinPeakHeightZxParabolaLine;					///< zx line after dipole field
-	///< @brief Minimum required height for peaks in Hough spaces.
-	UInt_t    fMinPeakHeightZyLine;					///< zy line
-
-
 	Int_t fVerbose;
 	Bool_t fSaveDebugInfo;
-
-
-
-	//
-	//	// for B field access
-	//	FairField* fField;
-
-
 
 
 
@@ -169,6 +151,14 @@ private:
 	static const Double_t fZLineParabola; // the value should coincide with the start of the dipole field // 368. was ok
 	static const Double_t fZParabolaLine; // the value should coincide with the end of the dipole field // TODO determine this value
 
+	///< @brief Minimum required height for peaks in Hough spaces.
+	const UInt_t fMinPeakHeightZxLineParabola; ///< zx line before dipole field
+	///< @brief Minimum required height for peaks in Hough spaces.
+	const UInt_t fMinPeakHeightZxParabola; ///< zx parabola within dipole field
+	///< @brief Minimum required height for peaks in Hough spaces.
+	const UInt_t fMinPeakHeightZxParabolaLine; ///< zx line after dipole field
+	///< @brief Minimum required height for peaks in Hough spaces.
+	const UInt_t fMinPeakHeightZyLine; ///< zy line
 
 
 
@@ -188,8 +178,13 @@ private:
 			UInt_t maxAcceptableSharedHits,
 			std::vector<PndFtsHoughTracklet> &tracklets
 	);
-
-
+	// helper functions for tracking algorithm
+	std::vector<PndFtsHoughTracklet> FindLineBehindDipoleZxTracklets();
+	std::vector<PndFtsHoughTracklet> FindLineBeforeDipoleZxTracklets();
+	void FindMatchingParabolaToLineBeforeDipoleZx(
+			const std::vector<PndFtsHoughTracklet>& trackletsLineBeforeDipole,
+			const std::vector<PndFtsHoughTracklet>& trackletsLineBehindDipole
+			);
 
 	ClassDef(PndFtsHoughTrackFinder,1);
 };

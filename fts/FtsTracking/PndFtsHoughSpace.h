@@ -3,9 +3,11 @@
 
  @author Martin J. Galuska <martin [dot] j [dot] galuska (at) physik [dot] uni (minus) giessen [dot] de>
 
- @brief Class for Hough space based on TH2S (for the moment). Fills hits and finds peaks.
+ @brief Class for Hough space based on TH2S (for the moment). Saves the hits which enter this Hough space and finds peaks.
 
- The angle (theta in rad) is always on x-coordinate axis, the value on the y-axis depends on the kind of Hough transform:
+TODO: Separate peak finder from Hough space
+
+ The angle (theta in rad) is always on x-axis, the value on the y-axis depends on the kind of Hough transform:
 	HT type  | yValue
 	--------:|:-------
 	parabola | Q/p_{zx}
@@ -93,8 +95,8 @@ public:
 		peakSecond = Q/pzx for peak (parabola HT)
 		peakSecond = intercept for peak (line HT) (in z-x- or z-y-plane)
 
-	 peakThetaHw = half width of peak in theta
-	 peakSecondHw = half width of peak in second value (see above for what it stands for)
+		peakThetaHw = half width of peak in theta
+	 	 peakSecondHw = half width of peak in second value (see above for what it stands for)
 
 	 actualHeight height of the peak in the histogram (in counts)
 	 *
@@ -143,13 +145,13 @@ private:
 	PndFtsHoughTrackerTask *fTrackerTask;
 
 	/** @brief For error reporting */
-	void throwError(const TString s){ throw std::runtime_error(s.Data()); };
+	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
 
 	Bool_t setParametersForHsOption(); // set parameters according to the kind of Hough transform I want to do
 	Bool_t filterInputHits(); // copies input hits (based on z coordinate and skewed/non-skewed) from fFtsHitArray (all FTS hits) to fHitId (only the hits that qualify for the specific Hough transform)
-	inline void AddHit(UInt_t hitId, Double_t rho);
-	inline void AddHit(FairLink link, Double_t rho);
-	inline const PndFtsHit *const getHit(UInt_t index) const; // gets the FTS hit corresponding to index
+	inline void AddHitToHS(UInt_t hitId, Double_t rho);
+	inline void AddHitToHS(FairLink link, Double_t rho);
+	inline const PndFtsHit *const getHitFromHS(UInt_t index) const; // gets the FTS hit corresponding to index
 
 	/**For each hit index the "path through the Hough space" [order of index pairs in which the (thetaRad, yVal) pairs are filled during the thetaRad scan] is saved
 	 * This is useful for peak finding.
@@ -287,7 +289,7 @@ void PndFtsHoughSpace::Print() const {
 }
 
 
-const PndFtsHit *const PndFtsHoughSpace::getHit(UInt_t index) const {
+const PndFtsHit *const PndFtsHoughSpace::getHitFromHS(UInt_t index) const {
 	if (index < GetNHits()){
 		Int_t hitIndex = fHitId.at(index).GetHitId();
 		const PndFtsHit *const myHit = (PndFtsHit*) fTrackerTask->GetFtsHit(hitIndex);

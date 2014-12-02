@@ -39,7 +39,9 @@ class PndFtsHoughSpace;
 class PndGeoFtsPar;
 class FairField;
 
-
+// For error reporting
+#include "TString.h"
+#include <stdexcept>
 
 
 class PndFtsHoughTrackerTask : public FairTask
@@ -88,7 +90,7 @@ public:
 	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
 
 	//-----------
-	//DATA ACCESS
+	//DATA ACCESS TO FTS
 	//-----------
 	/**@brief Returns the number of FTS hits.
 	 * @return Number of FTS hits.
@@ -111,8 +113,7 @@ public:
 	 * @param[in] hitId Index (in fFtsHitArray) of the hit for which the error should be returned.
 	 * @return Error in cm.
 	 */
-	const TVector3 GetHitPositionError(UInt_t hitId) const;
-	FairField *const getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
+	const TVector3 GetFtsHitPositionError(UInt_t hitId) const;
 	/**@brief Returns detector Id of FTS. Try not to use it.
 	 *
 	 * @see GetFtsHit
@@ -127,6 +128,14 @@ public:
 	 * @return Pointer to the hit array in which hits are saved as PndFtsHit.
 	 */
 	TClonesArray *const getFtsHitArrayPtr() const { return fFtsHitArray; };
+
+
+
+	//-----------
+	//DATA ACCESS TO B FIELD
+	//-----------
+	FairField *const getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
+
 
 	//------
 	//DEBUG
@@ -181,7 +190,7 @@ private:
 	/* @brief Not used.
 	 *
 	 * The idea was to use this in order to write out the Hough spaces to the root file.
-	 * Due to bad performance this is not used. Instead, I write it out as picture directly.
+	 * Due to bad performance this is not used. Instead, I write it out as pictures directly.
 	 */
 	//TClonesArray *fHoughSpaces;
 
@@ -190,7 +199,8 @@ private:
 	//-------
 	Bool_t fSaveDebugInfo; ///< @brief Debug information will be created iif kTRUE.
 	UInt_t fEventNr; ///< @brief Event number for debugging purposes.
-
+	/** @brief For error reporting */
+	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
 
 	// TODO: I don't think I need the copy constructor and the operator=
 	PndFtsHoughTrackerTask(const PndFtsHoughTrackerTask&);
