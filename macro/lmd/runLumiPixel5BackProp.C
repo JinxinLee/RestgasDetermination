@@ -92,10 +92,12 @@ void runLumiPixel5BackProp(const int nEvents = 10, const int startEvent = 0,
 		lmdgeane->SetVerbose(verboseLevel);
 		fRun->AddTask(lmdgeane);
 	} else {
-		if (Method == "RK") {
-			PndLmdBPRungeKuttaTask* lmdbp = new PndLmdBPRungeKuttaTask(fpBeam, IP);
-			lmdbp->SetVerbose(verboseLevel);
-			fRun->AddTask(lmdbp);
+	  if (Method == "RK") {
+		  //PndLmdBPRungeKuttaTask have dependences from genfit -> switched off until movement to gentfit2
+		  cout<<"I'm very sorry, but BPRungeKuttaTask  option for LMD is currently switched off :("<<endl;
+			// PndLmdBPRungeKuttaTask* lmdbp = new PndLmdBPRungeKuttaTask(fpBeam, IP);
+			// lmdbp->SetVerbose(verboseLevel);
+			// fRun->AddTask(lmdbp);
 		} else {
 			cout << "Method " << Method.Data() << " doesn't exist!" << endl;
 			break;

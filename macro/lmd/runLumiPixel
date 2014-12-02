@@ -24,7 +24,7 @@ pbeam=$mom
 # ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-path=${VMCWORKDIR}/macro/lmd/testPixel/mom_${momStr}/CorrMcut/
+path=${VMCWORKDIR}/macro/lmd/testDPM/mom_${momStr}/
 
 mkdir -p ${path}
 #number of trks per event
@@ -65,10 +65,10 @@ WrAllMC=true
 root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
-#   #  modeDPM=0 #inel
+  modeDPM=0 #inel
 # #    modeDPM=1 #el+inel
 # #    modeDPM=2 #el
-# #    root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\) >> ${path}/logDPM$mom
+#  root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\)
 
 # #digi
      root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
@@ -87,7 +87,9 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 
 #track fit: 
 ### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
-       root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits}\)
+### radLen = average effective thickness X/X0[%]
+       radLen=0.346
+       root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits},${radLen}\)
 #track filter (on number of hits and chi2)
      root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut},${dX},${dY}\) 
 

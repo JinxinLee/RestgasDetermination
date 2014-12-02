@@ -40,7 +40,8 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
 // // //-------------------------  CAVE      -----------------
 
   FairModule *Cave= new PndCave("CAVE");
-  Cave->SetGeometryFileName("pndcave.geo");
+  //  Cave->SetGeometryFileName("pndcave.geo");
+  Cave->SetGeometryFileName("pndcaveVAC.geo"); //vac cave is not really necessary 
   //Cave->SetGeometryFileName("../macro/lmd/geo/pndcaveVAC.geo"); //LMD is working in vacuum!
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
