@@ -62,7 +62,7 @@ WrAllMC=true
 ##############
 
 # #simulation with Box generator
-root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+#root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
   modeDPM=0 #inel
@@ -88,7 +88,7 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 #track fit: 
 ### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
 ### radLen = average effective thickness X/X0[%]
-       radLen=0.346
+       radLen=0.32
        root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits},${radLen}\)
 #track filter (on number of hits and chi2)
      root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut},${dX},${dY}\) 
