@@ -10,6 +10,7 @@
 #pragma link C++ class  PndSttMCPointDraw;
 #pragma link C++ class  PndMvdDigiPixelDraw;
 #pragma link C++ class  PndSttIsochroneDraw;
+#pragma link C++ class  PndEmcClusterDraw;
 
 
 #endif

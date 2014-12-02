@@ -25,6 +25,7 @@ ${CMAKE_SOURCE_DIR}/drc
 ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
 ${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/PndEventdisplay
 )
 
