@@ -217,17 +217,23 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 
 	//cout <<varname<<" "<<flush;
 	
+	TString prec="%.4f";
+	
 	bestcut = rightcut;
 	if (lefteff>righteff) 
 	{
-		if (dtype==0) cuts[id] = TString::Format("%s<%.3f",varname.Data(),leftcut);
+		bestcut = leftcut;
+		
+		if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
+		if (dtype==0) cuts[id] = TString::Format(TString("%s<"+prec).Data(),varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 
-		bestcut = leftcut;
 		return lefteff;
 	}
+	
+	if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
 
-	if (dtype==0) cuts[id] = TString::Format("%s>%.3f",varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format(TString("%s>"+prec).Data(),varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
 	return righteff;
@@ -279,17 +285,23 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	
 	if (leftcut!=leftcut || rightcut!=rightcut) return 0;
 	
+	TString prec="%.4f";
+	
 	bestcut = rightcut;
 	if (leftsupr>rightsupr) 
 	{
-		if (dtype==0) cuts[id] = TString::Format("%s<%.4f",varname.Data(),leftcut);
+		bestcut = leftcut;
+		
+		if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
+		if (dtype==0) cuts[id] = TString::Format(TString("%s<"+prec).Data(),varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 		
-		bestcut = leftcut;
 		return leftsupr;
 	}
 	
-	if (dtype==0) cuts[id] = TString::Format("%s>%.4f",varname.Data(),rightcut);
+	if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
+
+	if (dtype==0) cuts[id] = TString::Format(TString("%s>"+prec).Data(),varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
 	return rightsupr;
@@ -305,19 +317,20 @@ TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr, double 
 	
 	TString bestcut="";
 	
-	cout <<"000/000"<<flush;
+	//cout <<"000/000"<<flush;
 
 	for(i=0; i<nbranch; ++i)
 	{
-		printf("\b\b\b\b\b\b\b%03d/%03d",i+1,nbranch);
-		fflush(stdout);
+		if (i%(nbranch/10)==0){ cout <<"#"<<flush;}
+//		printf("\b\b\b\b\b\b\b%03d/%03d",i+1,nbranch);
+//		fflush(stdout);
 		
 		double qa=0;
 		
 		if (supr<0)	qa = bestEffEvt(t, vars[i], els, elb, cut[i], -supr, i);
 		else        qa = bestSuppressionEvt(t, vars[i], els, elb, cut[i], supr, i);	
 		
-		if (qa>bestqa) 
+		if (qa>bestqa && fabs(cut[i])>1e-5 && fabs(cut[i]-1.0)>1e-5) 
 		{
 			bestqa  = qa;
 			bestcut = cuts[i];
@@ -356,6 +369,10 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 	int dmode     = smode.Atoi()/10;
 	dstarmode     = (dmode==11 || dmode==13 || dmode==15);
 	
+	if (dmode>=10 && dmode<20) norm = 0.5;
+	
+	if (dmode/10 == 6) norm = 0.2;
+	
 	if (n0s<0) n0s = s.Atoi();
 	int n0b = b.Atoi();
 	
@@ -385,7 +402,7 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 	
 	double beff=1., seff=1., rseff=1.;
 	
-	TRegexp rnum("[0-9]+\\.[0-9]+$");
+	TRegexp rnum("[\\-]*[0-9]+\\.[0-9]+$");
 	int cnt=0;
 	
 	bool stop=false;
@@ -409,7 +426,7 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 	   	seff  = Nsigev/N0_sig;
 		rseff = Nsigev/nsig;
 		
-		printf("S=%5d  B=%6d (%.2f): ",(int)Nsigev, (int)Nbgev, supr);
+		printf("S=%6d  B=%6d (%.2f): ",(int)Nsigev, (int)Nbgev, supr);
 		
 		// stop if target reached or signal efficiency too small
 		if (beff<=target || seff<mineff || rseff<minreleff) continue;
@@ -429,7 +446,11 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 		TString thenum = bestcut(rnum);
 		double cutval = thenum.Atof();
 		TString thevar = bestcut(0,bestcut.Index(thenum));
-		TString thebarevar = bestcut(0,bestcut.Index(thenum)-1);
+		TString thebarevar = thevar;
+		thebarevar.ReplaceAll(">","");
+		thebarevar.ReplaceAll("<","");
+		thebarevar.ReplaceAll("=","");
+				
 		TRegexp rcut(thevar+"[0-9]+\\.[0-9]+");
 		TString theoldcut = precut(rcut);
 		
@@ -449,11 +470,11 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 		else
 			precut += "&&"+bestcut;		
 			
-		cout <<"  -> "<<precut<<endl;
+		cout <<" : "<<precut<<endl;
 		cnt++;
 	}
 	
-	cout <<"\n"<<en<<smode<<" : "<<precut.Data()<<endl;
+	cout <<"\nCUT : "<<en<<smode<<" : "<<precut.Data()<<endl;
 	cout <<"SIG EVT: "<<Nsigev<<" ev    BG: "<<Nbgev<<" ev"<<endl;
 
 	printf("SIG EFF : %6.1f%%    BG EFF : %7.3f%%\n",Nsigev/N0_sig*100.,Nbgev/N0_bg*100.);

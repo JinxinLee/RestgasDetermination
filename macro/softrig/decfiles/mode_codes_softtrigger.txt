@@ -15,7 +15,7 @@ ABC  | sqrt(s)
 
 Decay files only carry numbers DEFGHI (without energy). The digits DEFG are mode numbers, where the first 3 digits DEF 
 correspond to the trigger line code (see below), and G is the event type (for signal resonances generated with another particle,
-e.g. like D0 with anti-D0 (G=0) and anti-D*0 (G=1).
+e.g. like D0 with anti-D0 (G=0) and anti-D*0 (G=1)).
 
 The last two digits HI correspond to the recoil mode
 
@@ -85,6 +85,8 @@ DEF |  mode
 220 :  eta_c -> K+ K- pi0                    
 221 :  eta_c -> K_S0 K- pi+ cc               
 222 :  eta_c -> gamma gamma                  
+223 :  eta_c -> K+ K- pi+ pi- pi0 
+224 :  eta_c -> K_S0 K- pi+ pi- pi+ cc
 
 240 :  chi_0c -> pi+ pi- K+ K-               
 241 :  chi_0c -> K+ pi- K_S0 pi0 cc          
@@ -106,9 +108,18 @@ DEF |  mode
 # Non-resonant
 
 600 :  e+ e-                         
-620 :  mu+ mu-                       
-640 :  gamma gamma         
+601 :  e+ e- gamma                        
+602 :  e+ e- pi0                   
 
+620 :  mu+ mu-                       
+621 :  mu+ mu- gamma                       
+622 :  mu+ mu- pi0                      
+
+640 :  gamma gamma         
+640 :  gamma gamma gamma         
+640 :  gamma gamma pi0         
+
+660 :  pi0 gamma
 
 900 :  DPM (default bkg mode)          
 

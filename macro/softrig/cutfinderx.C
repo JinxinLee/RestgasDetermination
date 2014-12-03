@@ -305,14 +305,14 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	bestcut = rightcut;
 	if (leftsupr>rightsupr) 
 	{
-		if (dtype==0) cuts[id] = TString::Format("%s<%.3f",varname.Data(),leftcut);
+		if (dtype==0) cuts[id] = TString::Format("%s<%.5f",varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.0f",varname.Data(),leftcut);
 		
 		bestcut = leftcut;
 		return leftsupr;
 	}
 	
-	if (dtype==0) cuts[id] = TString::Format("%s>%.3f",varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format("%s>%.5f",varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.0f",varname.Data(),rightcut);
 
 	return rightsupr;
@@ -376,14 +376,14 @@ double bestCombiEvt(TTree *t, TString varname, TEventList &els, TEventList &elb,
 	bestcut = rightcut;
 	if (qal<qar) 
 	{
-		if (dtype==0) cuts[id] = TString::Format("%s<%.3f",varname.Data(),leftcut);
+		if (dtype==0) cuts[id] = TString::Format("%s<%.5f",varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.0f",varname.Data(),leftcut);
 		
 		bestcut = leftcut;
 		return qal;
 	}
 	
-	if (dtype==0) cuts[id] = TString::Format("%s>%.3f",varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format("%s>%.5f",varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.0f",varname.Data(),rightcut);
 
 	return qar;

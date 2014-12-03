@@ -1,25 +1,76 @@
 macro/softrig
---------------
-
-  ***************************************************************************
-  ****        IMPORTANT -> PLEASE ADAPT THE PATH TO  config.sh  IN       ****
-  ****     job_sof.sge  AND  job_sof_only.sge  BEFORE SUBMITTING JOBS!   ****
-  ***************************************************************************
+----------------------------------------------------------
 
 In this directory are several files to run the complete simulation chain + soft-trigger task and submit jobs to the cluster.
 
+Files in this directory:
+-------------------------
 
 - data/ : empty directory to store simulation data in
 
-- decfiles/M...dec: EvtGen decay files for defined Soft-Trigger modes. Names have structure M<code>_<rough description>.decfiles
+- decfiles/M...dec: EvtGen decay files for defined Soft-Trigger modes. Names have structure M<6 digits mode>.decfiles.
+                    Files must be created with 'create_decfiles.pl decays.txt'
 
-- decfiles/mode_codes_softtrigger.txt: Description of modes
+- decfiles/mode_codes_softtrigger.txt: Description of modes 
+
+- decays.txt: Config file for production of decay files; should be synchronized with softrig/triggerlines(_fsim).cfg!
+
+----------------------------------------------------------
+
+***
+*** ROOT Macros
+***
 
 - prod_sim.C, 
   prod_dig.C, 
   prod_rec.C, 
   prod_pid.C, 
-  prod_sof.C: files to run simulation chain and in addition PndSoftTriggerTask
+  prod_sof.C    : files to run full simulation chain and in addition PndSoftTriggerTask
+ 
+- prod_fsim.C   : run fast simulation together with softtrigger task at once; simulation data is not stored
+
+- qa_softtrig.C : macro to run only PndSoftTriggerTask over multiple input pid.root files
+
+- cutfinderx.C  : helper macro to find good cuts for a signal mode
+
+- autocutx.C    : automatic selection finder for one signal mode; in principle re-iterates cutfinderx.C (-> used by autocut.pl)
+
+
+*** some helper macros
+
+- compress.C   : compressed a root file by switching off branches and applying a pre-cut (-> used by compress.pl)
+
+- merge(mct).C : merges a TTree from up to five sources of ROOT files with using wildcards (-> used by merge.pl) 
+                 mergemct.C requires criterion "xmct==true || mode%1000==900" (basically to keep only mct matched signals)
+
+- getpars.C    : takes root file name as input and determines sigma and mean of the MC truth matched distribution of 'xm' (and 'xmdif' if D* mode)
+                 filename needs to contain nXXX with XXX being the triggerline code.
+
+- sizetree.C   : takes root file name as input and prints a list of the TTrees sorted by memory consumption.
+
+
+***
+*** Scripts
+***
+
+- autocut.pl          : Applies autocutx.C to multiple files in directory
+
+- merge.pl            : automatically merges the relevant files for various modes; uses merge(mct).C
+
+- submit(_fsim).pl    : submits fast or full sim jobs to prometheus cluster
+
+- printvars.pl <file> : prints all variables used in a certain selection file <file> (useful for PndSoftTriggerTask)
+
+- runall_sof.sh       : runs full selection
+
+- 
+
+----------------------------------------------------------
+
+***
+*** Running Simulation and PndSoftTriggerTask
+***
+
 
 #################
 
@@ -35,11 +86,26 @@ In this directory are several files to run the complete simulation chain + soft-
 
   EXAMPLE 1: ./runall_sof.h 38201 1000 decfiles/M201_Jpsi2pi.dec 6.56903 pbarpSystem0
   EXAMPLE 2: ./runall_sof.h 38900 10000 DPM 6.56903 
+  
+#################
+
+- prod_fsim.C: Run fast simulation + softrigger; doesn't persist simulation data, just stores QA from soft trigger task
+
+  USAGE: root -l -b -q prod_fsim.C(<pref>, <decfile>, <mom>, <nevts>, <res>, <mode>, <run>, <sel>
+  
+    <pref>    : Prefix for output file
+    <decfile> : decay file name; keyword 'DPM' instead produces DPM events; in that case <res> is ignored
+    <mom>     : pbar momentum
+    <nevts>   : number of events to run
+    <res>     : initial resonance in decay file (default = pbarpSystem0, shortcut 'pbp0')
+	<mode>    : mode code; should be 9 digit code ABCDEFGHI for signal (see mode_codes_softtrigger.txt), 6 digits for DPM ('ABC900')
+	<run>     : arbitrary run number; important for mergeing multiple outputs to disentangle events
+	<sel>     : selection to be applied for full trigger (in case there are different); default = "loose"
 
 #################
 
-- job_sof.sge: Script like runall_sof.sh, but to be used to submit jobs with qsub; 
-               need to have PandaROOT installation on /hera/... and being logged in to pro.hpc.gsi.de
+- job_sof(_fsim).sge: Script like runall_sof.sh, but to be used to submit jobs with qsub; 
+                      need to have PandaROOT installation on /hera/... and being logged in to pro.hpc.gsi.de
 
   USAGE: qsub -t <min>-<max> job_sof.sge <mode> <nevts> <dec> <mom> <res>
 
@@ -83,6 +149,59 @@ In this directory are several files to run the complete simulation chain + soft-
 
   EXAMPLE: qsub job_sof_only.sge 55900 15.153 1 10
            Submits the example for qa_softtrig.C from above as a job
+
+
+----------------------------------------------------------
+
+***
+*** Submitting jobs and mergeing output
+***
+
+#################
+
+- submit(_fsim).pl: Submit several arrays of signal jobs to prometheus cluster; needs PandaROOT installation on /hera/... and being logged in to pro.hpc.gsi.de
+
+  USAGE: ./submit(_fsim).pl <energy> <nevts> <min> <max> <prefix>
+  
+    <energy> : E_cms (e.g. 4.5) ; produces all modes accessible up to this energy taking into account various recoils
+    <nevts>  : number of events per job (default = 10000); nevts = 0 just list the jobs to be submitted w/o actual submission
+    <min>    : minimum job number
+    <max>    : maximum job number
+    <prefix> : only submit modes staring with <prefix>; e.g. 22 would just submit modes with codes 22xxxxx; 
+	           keyword 'DPM' starts one array of DPM jobs
+
+  EXAMPLE 1: submit.pl 3.8 
+             Submits 1 full sim job at 3.8GeV for each mode accessible up to 3.8GeV (in total 117 jobs x 10000 events)
+  
+  EXAMPLE 2: submit_fsim.pl 4.5 1000 1 10 4
+             Submits 10 fast sim jobs at sqrts = 4.5 GeV for each signal mode staring with 4 (in total 20x10 jobs x 1000 events)
+
+  EXAMPLE 3: submit_fsim.pl 5.5 10000 100 199 DPM
+             Submits 100 fast sim DPM jobs (run numbers 100-199) at 5.5 GeV (in total 100 jobs x 10000 events)
+		   
+
+#################
+
+- merge.pl : automatically merges the relevant files for various modes; uses merge(mct).C; to be execute in the directory containing the sofftrigger data files
+
+  USAGE: ../merge.pl <opt> <epref> <mpref>
+ 
+    <opt>   : option = all (merges all signals), mct (mct requirement), test (only lists merge commands to be executed)
+	<epref> : prefix for energy, e.g. 550 for M550...root files produced at 5.5 GeV
+	<mpref> : prefif for modes
+	
+	
+  EXAMPLE 1: ../merge.pl          (merges everything)
+
+  EXAMPLE 2: ../merge.pl 450 22   (merges modes '22xxxx' @ 4.5 GeV)
+
+----------------------------------------------------------
+
+
+***********************
+*  Deprecated stuff   *
+***********************
+
 
 #################
 
