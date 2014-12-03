@@ -37,6 +37,9 @@ class PndEmcErrorMatrix
 		
 	// 4x4 matrix in (px, py, pz, E)
 	TMatrixD Get4MomentumErrorMatrix(const PndEmcCluster &cluster) const;
+
+	// 7x7 matrix in (x, y, z, px, py, pz, E)
+	TMatrixD GetErrorP7(const PndEmcCluster &cluster) const;
 	 
 	private:
 		PndEmcErrorMatrixParObject *fErrorMatrixParObject;

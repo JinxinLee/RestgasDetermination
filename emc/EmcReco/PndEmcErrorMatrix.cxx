@@ -248,19 +248,68 @@ TMatrixD PndEmcErrorMatrix::Get4MomentumErrorMatrix(const PndEmcCluster &cluster
 	return errorMatrix;
 }
 
+
+TMatrixD PndEmcErrorMatrix::GetErrorP7(const PndEmcCluster &cluster) const {
+	// Conversion from (E, theta, phi, r) to ( x, y, z, px, py, pz, E )
+	
+	double z_cluster = cluster.where().Z();
+	double perp = cluster.where().Perp();
+	double mag = cluster.where().Mag();
+	double cos_theta = z_cluster / mag;
+	double sin_theta = perp / mag;
+	double sin_phi = cluster.where().Y() / perp;
+	double cos_phi = cluster.where().X() / perp;
+	double e=cluster.energy();
+	double p = e;
+
+	// Create a matrix to transform the error matrix
+	TMatrixD toComp( 7, 4 );
+	toComp(0,0) = 0;
+	toComp(0,1) = mag * cos_theta * cos_phi;
+	toComp(0,2) = -mag* sin_theta * sin_phi;
+	toComp(0,3) = sin_theta * cos_phi;
+	toComp(1,0) = 0;
+	toComp(1,1) = mag * cos_theta * sin_phi;
+	toComp(1,2) = mag * sin_theta * cos_phi;
+	toComp(1,3) = sin_theta * sin_phi;
+	toComp(2,0) = 0;
+	toComp(2,1) = -mag * sin_theta;
+	toComp(2,2) = 0;
+	toComp(2,3) = cos_theta;
+	toComp(3,0) = sin_theta * cos_phi;
+	toComp(3,1) = p * cos_theta * cos_phi;
+	toComp(3,2) = -p * sin_theta * sin_phi;
+	toComp(3,3) = 0;
+	toComp(4,0) = sin_theta * sin_phi;
+	toComp(4,1) = p * cos_theta * sin_phi;
+	toComp(4,2) = p * sin_theta * cos_phi;
+	toComp(4,3) = 0;
+	toComp(5,0) = cos_theta;
+	toComp(5,1) = -p * sin_theta;
+	toComp(5,2) = 0;
+	toComp(5,3) = 0;
+	toComp(6,0) = 1;
+	toComp(6,1) = 0;
+	toComp(6,2) = 0;
+	toComp(6,3) = 0;
+
+	TMatrixD errorMatrix=similarityWith(GetErrorMatrix(cluster),toComp);
+	
+	return errorMatrix;
+}
+
 // Function is copied from BbrGeom/BbrError.cc
 // It does the same as m1*mat*m1^T
 // but with assumption that mat, and output matrix are symmetric
 
-TMatrixD similarityWith(const TMatrixD& mat,
-								const TMatrixD& m1)
+TMatrixD similarityWith(const TMatrixD& mat, const TMatrixD& m1)
 {
 	TMatrixD result(m1.GetNrows(),m1.GetNrows());
 	
 	TMatrixD temp = m1*mat;
 	double tmp;
 	
-	for (int r = 0; r < 4; r++) {
+	for (int r = 0; r < m1.GetNrows(); r++) {
 		for (int c = 0; c <= r; c++) {
 			tmp = 0.;
 			for (int k = 0; k < m1.GetNcols(); k++) {
