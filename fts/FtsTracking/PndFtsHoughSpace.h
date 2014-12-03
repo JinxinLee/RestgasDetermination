@@ -181,14 +181,14 @@ private:
 
 	// at which z value the values are calculated
 	Double_t fZRefPos; // is used to redefine an origin for the coordinate system (so that the angle definition gives meaningful theta values)
-	//			Double_t interceptZx, // cannot be constant, because might need to be reset if set incorrectly (has to be 0 for line HT)
+	//			Double_t interceptZx; // cannot be constant, because might need to be reset if set incorrectly (has to be 0 for line HT)
 	// is used to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
 	// (zreal=zOffset, xreal=interceptZx) = (zshifted = 0, xshifted = 0)
 	// zshifted = zreal - zRefPos
 	// xshifted = xreal - interceptZx
 	// zreal = zshifted + zRefPos
 	// xreal = xshifted + interceptZx
-	// For the z-x-plane parabola, a shift in x (hitshiftinx) needs to be set (which should be the result of the straight line hough transform)
+	// For the z-x-plane parabola, a shift in x (hitshiftinx) needs to be set (which should be the result of the straight line hough transform before the dipole field)
 	// For the straight line (stations before dipole field) hitshiftinx HAS TO BE ZERO
 
 	// is used only for parabola in zx plane to shift the true x values of hits so that they hit the point (zOffset|0) in z-x-plane (value is determined by line fit on chambers1+2)
@@ -277,6 +277,9 @@ public:
 	ClassDef(PndFtsHoughSpace,1);
 
 };
+
+
+
 
 
 

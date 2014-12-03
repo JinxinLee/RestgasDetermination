@@ -553,7 +553,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 			fHitThetaYIdxPath.insert( hitPathPair );
 		}
 	} // for iHit
-	std::cout << "map after all hits: " << fHitThetaYIdxPath << '\n';
+	if (1<fVerbose) std::cout << "map after all hits: " << fHitThetaYIdxPath << '\n';
 }
 
 

@@ -100,7 +100,7 @@ private:
 	Double_t fThetaRadVal; // theta angle
 	Double_t fThetaRadHw; // error on angle
 
-	Double_t fSecondVal; // second value is x/y intercept for line in zx / zy plane and Q/pzx for parabola in zx plane
+	Double_t fSecondVal; // second value is x or y intercept for line in zx or zy plane and Q/pZx for parabola in zx plane
 	Double_t fSecondHw; // error on second value
 
 	// at which z value in lab sys the values have to be interpreted

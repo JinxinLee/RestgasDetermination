@@ -108,22 +108,14 @@ public:
 
 
 private:
-	/// @brief Task which handles PandaRoot input/output and provides settings.
+	/// @brief Task which handles PandaRoot input/output and provides settings for FTS PR.
 	/// Has to be set using the constructor.
 	PndFtsHoughTrackerTask *fTrackerTask;
 
 	/** @brief For error reporting */
 	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
 
-	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const{
-		std::cout << tracklets.size() << " peaks found for " << option << '\n';
-		if (10<fVerbose){
-			for (UInt_t i=0; i< tracklets.size(); ++i)
-			{
-				tracklets[i].Print();
-			}
-		}
-	};
+	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const;
 
 	//	Int_t   fFtsBranchId; // needed for saving and accessing hits
 	//	TClonesArray *fFtsHitArray; ///< @brief Input array of all FTS hits.
@@ -150,6 +142,8 @@ private:
 	///< sets where the apex of the parabola is supposed to be
 	static const Double_t fZLineParabola; // the value should coincide with the start of the dipole field // 368. was ok
 	static const Double_t fZParabolaLine; // the value should coincide with the end of the dipole field // TODO determine this value
+
+	static const Double_t fThetaRadLineBehindDipoleMatchesToParabolaIfBelow = 5*180/3.14159265359;
 
 	///< @brief Minimum required height for peaks in Hough spaces.
 	const UInt_t fMinPeakHeightZxLineParabola; ///< zx line before dipole field
@@ -181,12 +175,44 @@ private:
 	// helper functions for tracking algorithm
 	std::vector<PndFtsHoughTracklet> FindLineBehindDipoleZxTracklets();
 	std::vector<PndFtsHoughTracklet> FindLineBeforeDipoleZxTracklets();
-	void FindMatchingParabolaToLineBeforeDipoleZx(
+	void FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(
 			const std::vector<PndFtsHoughTracklet>& trackletsLineBeforeDipole,
 			const std::vector<PndFtsHoughTracklet>& trackletsLineBehindDipole
 			);
+	// kTRUE iif angles of parabola and of line behind dipole match at z coordinate where I switch from parabola to line (in zx plane)
+	inline Bool_t LineBehindDipoleMatchesToLinePlusParabola(
+			const PndFtsHoughTrackCand &lineParabola,
+			const PndFtsHoughTracklet &lineBehindDipole
+			) const;
+
 
 	ClassDef(PndFtsHoughTrackFinder,1);
 };
+
+
+
+
+// inline
+void PndFtsHoughTrackFinder::PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const{
+		std::cout << tracklets.size() << " peaks found for " << option << '\n';
+		if (10<fVerbose){
+			for (UInt_t i=0; i< tracklets.size(); ++i)
+			{
+				tracklets[i].Print();
+			}
+		}
+	};
+
+Bool_t PndFtsHoughTrackFinder::LineBehindDipoleMatchesToLinePlusParabola(
+		const PndFtsHoughTrackCand& lineParabola,
+		const PndFtsHoughTracklet& lineBehindDipole
+		) const {
+
+	// the angles should be compared at the z coordinate where I switch from parabola to line behind dipole
+	Double_t zParabolaLine = lineBehindDipole.getZRefLabSys();
+	return fabs( lineParabola.getThetaZyRad(zParabolaLine) - lineBehindDipole.getThetaRadVal() ) < fThetaRadLineBehindDipoleMatchesToParabolaIfBelow;
+}
+
+
 
 #endif /*PndFtsHoughTrackFinder_H*/
