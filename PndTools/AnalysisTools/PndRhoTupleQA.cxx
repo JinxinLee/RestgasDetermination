@@ -426,13 +426,21 @@ void PndRhoTupleQA::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
 
 	if (truth!=0)
 	{
+		TVector3 vdist = c->Pos() - d0->Pos();
+		Float_t dist = vdist.Mag();
+		Float_t ctau = dist * truth->M() / truth->P();
+		
 		qaCand("t"+pre, truth, n);
 		n->Column(pre+"mct", 1.0f, 0.0f);
+		n->Column("t"+pre+"dist",    (Float_t) dist , 0.0f);
+		n->Column("t"+pre+"ctau", (Float_t) ctau , 0.0f);
 	}
 	else
 	{
 		qaCand("t"+pre, NULL , n, true);
 		n->Column(pre+"mct", 0.0f, 0.0f);
+		n->Column("t"+pre+"dist", (Float_t) -999. , 0.0f);
+		n->Column("t"+pre+"ctau", (Float_t) -999. , 0.0f);
 	}
 }
 
