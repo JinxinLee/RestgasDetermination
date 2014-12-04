@@ -112,11 +112,11 @@ Bool_t PndHypBupGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
  
       phi = gRandom->Uniform(0,360)* TMath::DegToRad();
       p =  gRandom->Uniform(fPMin,fPMax);
-      theta = gRandom->Uniform(fThetaMin,fThetaMax);
+      theta = acos(gRandom->Uniform(cos(fThetaMin* TMath::DegToRad()),cos(fThetaMax* TMath::DegToRad())));
 
-      pz = p*TMath::Cos(theta* TMath::DegToRad());
-      py = p*TMath::Sin(theta* TMath::DegToRad())*TMath::Sin(phi);
-      px = p*TMath::Sin(theta* TMath::DegToRad())*TMath::Cos(phi);
+      pz = p*TMath::Cos(theta);
+      py = p*TMath::Sin(theta)*TMath::Sin(phi);
+      px = p*TMath::Sin(theta)*TMath::Cos(phi);
 
       vx = part->Vx(); 
       vy = part->Vy();
