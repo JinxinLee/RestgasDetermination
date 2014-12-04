@@ -83,10 +83,6 @@ void PndGapEventBuilderTask::Exec(Option_t* opt)
 	for(int i = 0; i < fMainHitArray->GetEntriesFast(); i++)
 	{
 		FairTimeStamp* temp = (FairTimeStamp*)fMainHitArray->At(i);
-		std::cout << i << " :" << temp->GetTimeStamp();
-		if (temp->GetPointerToLinks() > 0) {
-			std::cout << " " << *(temp->GetPointerToLinks())  << std::endl;
-		} else std::cout  << std::endl;
 	}
 	fMainEventHitArray->AbsorbObjects(fMainHitArray);
 
@@ -102,13 +98,8 @@ void PndGapEventBuilderTask::Exec(Option_t* opt)
 		for (int i = 0; i < fAddHitArray.size(); i++){
 			TClonesArray* tempArray = FairRootManager::Instance()->GetData(fAddBranches[i].first, fStartFunctor, startTime, fStopFunctor, stopTime + fAddBranches[i].second);
 			fAddEventHitArray[i]->AbsorbObjects(tempArray);
-			std::cout << std::endl << "PndGapEventBuilderTask: selected Hits: " << fAddBranches[i].first << " for timegap: " << startTime << " _ " << stopTime + fAddBranches[i].second << std::endl;
 			for (int j = 0; j < fAddEventHitArray[i]->GetEntriesFast(); j++){
 				FairTimeStamp* tempdata = (FairTimeStamp*)fAddEventHitArray[i]->At(j);
-				std::cout << j << " : " << tempdata->GetTimeStamp();
-				if (tempdata->GetPointerToLinks() > 0)
-					std::cout << " " << *(tempdata->GetPointerToLinks()) << std::endl;
-				else std::cout << std::endl;
 			}
 		}
 	}
