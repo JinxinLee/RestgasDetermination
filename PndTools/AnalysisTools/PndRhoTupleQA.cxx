@@ -426,7 +426,7 @@ void PndRhoTupleQA::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
 
 	if (truth!=0)
 	{
-		TVector3 vdist = c->Pos() - d0->Pos();
+		TVector3 vdist = truth->Pos() - truth->Daughter(0)->Pos();
 		Float_t dist = vdist.Mag();
 		Float_t ctau = dist * truth->M() / truth->P();
 		
