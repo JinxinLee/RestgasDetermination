@@ -11,7 +11,8 @@
 #include "PndTrkHitList.h"
 #include "FairHit.h"
 
-#include "TObjArray.h"
+// #include "TObjArray.h"
+#include "TClonesArray.h"
 
 #define MAXNOFHITSINCLUSTER 1000  // CHECK consistency
 
@@ -25,13 +26,14 @@ class PndTrkCluster : public TObject
    // copy ctor
   PndTrkCluster(const PndTrkCluster& cluster);
   ~PndTrkCluster();    
-  PndTrkCluster& operator=(const PndTrkCluster &cluster);
+  PndTrkCluster& operator=(const PndTrkCluster& cluster); 
 
 
   Bool_t operator==(const PndTrkCluster cluster) const; // CHECK this needs to be changed
   //  PndTrkCluster(const PndTrkCluster& cluster);
 
   void AddHit(PndTrkHit *hit);
+  void AddHit(PndTrkHit hit);
 
   void DeleteHit(PndTrkHit *hit);
   void DeleteHitAndCompress(PndTrkHit *hit);
@@ -47,7 +49,7 @@ class PndTrkCluster : public TObject
   PndTrkHit *GetPreviousHit(int index);
   PndTrkHit *GetNextHit(int index);
 
-  inline Int_t  GetNofHits() { return hitlist.GetEntriesFast(); }
+  inline Int_t  GetNofHits() { return fHitList.GetEntriesFast(); }
   inline Int_t  GetIRegion() { return fIRegion; }
   
   Double_t  GetMinimumXYDistanceFromHit(PndTrkHit *hit);
@@ -84,17 +86,19 @@ class PndTrkCluster : public TObject
   void Sort();
   void ReverseSort();
 
-  Bool_t IsSorted() { return hitlist.IsSorted(); }
+  Bool_t IsSorted() { return fHitList.IsSorted(); }
 
  void AddCluster(PndTrkCluster *cluster);
  void AddClusterAndSortFrom(PndTrkCluster *cluster, TVector3 frompoint, TString criterion);
  void Replace(PndTrkHit *hit);
+ void Clear(Option_t* = "");
 
  protected:
  TVector3 fFromPoint;
  Int_t fIRegion;
   //  std::vector< PndTrkHit * > hitlist;
- TObjArray hitlist;
+ // TObjArray hitlist;
+ TClonesArray fHitList;
  ClassDef(PndTrkCluster,1);
 };
 

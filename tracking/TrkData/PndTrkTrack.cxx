@@ -14,46 +14,49 @@
 
 using namespace std;
 
-PndTrkTrack::PndTrkTrack() :  fRefHit(NULL), fCluster(NULL), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack() :  fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
 
-PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster) :  fRefHit(NULL), fCluster(cluster), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster) :  fRefHit(NULL), fCluster(*cluster), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
 
-PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(NULL), fCluster(cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(NULL), fCluster(*cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
 
-PndTrkTrack::PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(hit), fCluster(cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(hit), fCluster(*cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
 
-PndTrkTrack::PndTrkTrack(double x, double y, double radius) : fRefHit(NULL), fCluster(NULL), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(double x, double y, double radius) : fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
 
 
-PndTrkTrack::~PndTrkTrack() {}
-
-Bool_t PndTrkTrack::operator==(PndTrkTrack track) const {
-  return fCluster->GetNofHits() == track.GetCluster()->GetNofHits() && fRadius == track.GetRadius() && fCenterX == track.GetCenter().X() && fCenterY == track.GetCenter().Y(); // CHECK
+PndTrkTrack::~PndTrkTrack() {
+  delete fRefHit;
 }
 
-PndTrackCand * PndTrkTrack::ConvertToPndTrackCand() {
-  PndTrackCand *pndtrackcand = new PndTrackCand();
-  for(int ihit = 0; ihit < fCluster->GetNofHits(); ihit++) {
-    PndTrkHit *hit = fCluster->GetHit(ihit);
+Bool_t PndTrkTrack::operator==(PndTrkTrack track)  {
+ int nofhits = GetCluster().GetNofHits();
+  return nofhits == track.GetCluster().GetNofHits() && fRadius == track.GetRadius() && fCenterX == track.GetCenter().X() && fCenterY == track.GetCenter().Y(); // CHECK
+}
+
+PndTrackCand PndTrkTrack::ConvertToPndTrackCand() {
+  PndTrackCand trkcand;
+  for(int ihit = 0; ihit < fCluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = fCluster.GetHit(ihit);
     int detid = hit->GetDetectorID();
     int hitid = hit->GetHitID();
-    pndtrackcand->AddHit(detid, hitid, ihit);
+    trkcand.AddHit(detid, hitid, ihit);
   }
-  return pndtrackcand;
+  return trkcand;
 }
 
-PndTrack * PndTrkTrack::ConvertToPndTrack() {
+PndTrack PndTrkTrack::ConvertToPndTrack() {
 
   ComputeCharge();
   
   // first
   TVector3 pos1, mom1;
-  PndTrkHit *hit1 = fCluster->GetHit(0);
+  PndTrkHit *hit1 = fCluster.GetHit(0);
   mom1 = ComputeMomentumAtPosition(hit1->GetPosition(), pos1);
 
   // last
   TVector3 pos2, mom2;
-  PndTrkHit *hit2 = fCluster->GetHit(fCluster->GetNofHits() - 1);
+  PndTrkHit *hit2 = fCluster.GetHit(fCluster.GetNofHits() - 1);
   mom2 = ComputeMomentumAtPosition(hit2->GetPosition(), pos2);
     
   TVector3 dj(1, 0, 0), dk(0, 0, 1);   // CHECK
@@ -70,10 +73,10 @@ PndTrack * PndTrkTrack::ConvertToPndTrack() {
 			dpos2, dmom2, fCharge,
 			pos2, dj, dk);
 
-  PndTrackCand* pndtrackcand = ConvertToPndTrackCand();
-  PndTrack *pndtrack = new PndTrack(firstpar, lastpar, *pndtrackcand);
-  if(mom1.Z() == -999) pndtrack->SetFlag(-1);
-  return pndtrack;
+  PndTrackCand trkcand = ConvertToPndTrackCand();
+  PndTrack track(firstpar, lastpar, trkcand);
+  if(mom1.Z() == -999) track.SetFlag(-1);
+  return track;
 }
 
 
@@ -82,8 +85,8 @@ PndTrack * PndTrkTrack::ConvertToPndTrack() {
 
 //   TVector3 tmpposition = point;
 //   double tmpdistance = 1000.;
-//   for(int ihit = 0; ihit < fCluster->GetNofHits(); ihit++) {
-//     PndTrkHit *hit = fCluster->GetHit(ihit);
+//   for(int ihit = 0; ihit < fCluster.GetNofHits(); ihit++) {
+//     PndTrkHit *hit = fCluster.GetHit(ihit);
 //     TVector3 position = hit->GetPosition();
 //     double distance = (position - point).Mag();
 //     if(distance < tmpdistance) {
@@ -101,15 +104,15 @@ void PndTrkTrack::ComputeCharge() { // CHECK!!!
    Int_t nleft, nright = 0;
 
    // first
-   PndTrkHit *hit1 = fCluster->GetHit(0);
+   PndTrkHit *hit1 = fCluster.GetHit(0);
    // last
-   PndTrkHit *hit2 = fCluster->GetHit(fCluster->GetNofHits() - 1);
+   PndTrkHit *hit2 = fCluster.GetHit(fCluster->GetNofHits() - 1);
 
    // vector from 1st to last hit
    TVector3 firsttolast = hit2->GetPosition() - hit1->GetPosition();
 
-   for(int ihit = 1; ihit < fCluster->GetNofHits() - 1; ihit++) {
-   PndTrkHit *hit = fCluster->GetHit(ihit);
+   for(int ihit = 1; ihit < fCluster.GetNofHits() - 1; ihit++) {
+   PndTrkHit *hit = fCluster.GetHit(ihit);
 
    // vector from 1st to this hit
    TVector3 position = hit->GetPosition() - hit1->GetPosition();
@@ -130,7 +133,7 @@ void PndTrkTrack::ComputeCharge() { // CHECK!!!
   Int_t nmore = 0, nless = 0;
 
   // first
-  PndTrkHit *hit1 = fCluster->GetHit(0);
+  PndTrkHit *hit1 = (PndTrkHit*) fCluster.GetHit(0);
   PndTrkTools tools;
   TVector3 position1 = tools.ComputePocaToPointOnCircle3(hit1->GetPosition().X(), hit1->GetPosition().Y(), fCenterX, fCenterY, fRadius);
       
@@ -139,8 +142,8 @@ void PndTrkTrack::ComputeCharge() { // CHECK!!!
 
   double tmpphi = 0.;
 
-  for(int ihit = 1; ihit < fCluster->GetNofHits(); ihit++) {
-    PndTrkHit *hit = fCluster->GetHit(ihit);
+  for(int ihit = 1; ihit < fCluster.GetNofHits(); ihit++) {
+    PndTrkHit *hit = fCluster.GetHit(ihit);
     TVector3 position = tools.ComputePocaToPointOnCircle3(hit->GetPosition().X(), hit->GetPosition().Y(), fCenterX, fCenterY, fRadius);
       
     // vector from 1st to this hit
@@ -227,7 +230,7 @@ Double_t PndTrkTrack::ComputePhi(TVector3 hit)
   
   double phi = fromcentertohit.Phi();
   if(fromcentertohit.Y() < 0) phi += (2 * TMath::Pi());
-  cout << "final phi in rad " << phi << endl;
+  // cout << "final phi in rad " << phi << endl;
   return phi * TMath::RadToDeg();
 }
 
@@ -242,7 +245,7 @@ void PndTrkTrack::Draw(Color_t color) {
 
 void PndTrkTrack::LightUp() {
   Draw(kYellow);
-  fCluster->LightUp();
+  fCluster.LightUp();
 }
 
 ClassImp(PndTrkTrack)

@@ -13,18 +13,19 @@
 #include "PndTrkHit.h"
 #include "PndSttTube.h"
 
-#include "TClonesArray.h"
-
 using namespace std;
 
 
-PndTrkNeighboringMap::PndTrkNeighboringMap(TClonesArray *tubearray) : fTubeArray(tubearray) {}
+PndTrkNeighboringMap::PndTrkNeighboringMap(TClonesArray *tubearray) : fTubeArray(tubearray), fIndiv(TClonesArray("PndTrkHit", 10000)), fStandalone(TObjArray()), fOneNeigh(TObjArray()), fTwoNeigh(TObjArray()) {}
 
 PndTrkNeighboringMap::PndTrkNeighboringMap(const PndTrkNeighboringMap &thismap) {
   *this = thismap;
 }
 
-PndTrkNeighboringMap::~PndTrkNeighboringMap() {}
+PndTrkNeighboringMap::~PndTrkNeighboringMap() {
+  //  delete fIndiv;
+   delete fTubeArray;
+}
 
 // CHECK this might still have problems
 PndTrkNeighboringMap& PndTrkNeighboringMap::operator=(const PndTrkNeighboringMap &thismap) {
@@ -55,9 +56,11 @@ void PndTrkNeighboringMap::Clear() {
 
   hit2neigh.Clear();
   hit2indiv.Clear();
-  fStandalone.Clear();
-  fOneNeigh.Clear();
-  fTwoNeigh.Clear();
+  fStandalone.Clear();  // CHECK
+  fOneNeigh.Clear();  // CHECK
+  fTwoNeigh.Clear();  // CHECK
+  fIndiv.Clear() ;    // CHECK
+  //  fTubeArray->Clear(); // CHECK
 
 }
 
@@ -87,7 +90,7 @@ void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits)
   }
 
   // more hits
-  TObjArray *indiv = new TObjArray();
+  //  fIndiv = new TObjArray();
   
   int counter = 0;
   for(int k = 0; k < hits->GetEntriesFast(); k++) {
@@ -95,14 +98,16 @@ void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits)
     PndSttTube *tube2 = (PndSttTube* ) fTubeArray->At(hit2->GetTubeID());
     if(tube->GetLayerID() == tube2->GetLayerID()) continue;
       counter++;
-      indiv->Add(hit2);
-
+      //      fIndiv.Add(hit2);
+      int size = fIndiv.GetEntriesFast();
+      new (fIndiv[size]) PndTrkHit(*hit2);
       //      hit2->DrawTube(kRed); // CHECK
   }
   
 
-  if(counter > 2) indiv->Clear();
-  hit2indiv.Add(hit, indiv);
+  if(counter > 2) fIndiv.Clear();
+  hit2indiv.Add(hit, &fIndiv);
+
   //  cout << "Aset up map " << hit->GetHitID() << " " << indiv->GetEntriesFast() << endl; 
   
 }
@@ -113,22 +118,22 @@ TObjArray PndTrkNeighboringMap::GetSeeds() {
     PndTrkHit *hit = (PndTrkHit*) fOneNeigh.At(ihit);
     int tubeID = hit->GetTubeID();
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-    TObjArray *neighs = GetNeighboringsToHit(hit);
+    TObjArray neighs = GetNeighboringsToHit(hit);
 
     // if it has only one neighboring tube
-    if(neighs->GetEntriesFast() == 1) {
-      PndTrkHit *hit2 = (PndTrkHit*) neighs->At(0);
+    if(neighs.GetEntriesFast() == 1) {
+      PndTrkHit *hit2 = (PndTrkHit*) neighs.At(0);
       int tubeID2 = hit2->GetTubeID();
       PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(tubeID2);
       bool difflayer = false;
       // if the k-neigh is on the same layer...
       if(tube->GetLayerID() == tube2->GetLayerID()) {
-	TObjArray *neighs2 = GetNeighboringsToHit(hit2);
-	if(neighs2->GetEntriesFast() <= 1) continue;
+	TObjArray neighs2 = GetNeighboringsToHit(hit2);
+	if(neighs2.GetEntriesFast() <= 1) continue;
 	// ...and has more than 1 neighboring, then loop over them:
 	// if there is at least one on a different layer, then hit is not a seed
-	for(int jhit = 0; jhit < neighs2->GetEntriesFast(); jhit++) {
-	  PndTrkHit *hit2b = (PndTrkHit*) neighs2->At(jhit);
+	for(int jhit = 0; jhit < neighs2.GetEntriesFast(); jhit++) {
+	  PndTrkHit *hit2b = (PndTrkHit*) neighs2.At(jhit);
 	  if(hit2b == hit) continue;
 	  Int_t tubeID2b = hit2b->GetTubeID();
 	  PndSttTube *tube2b = (PndSttTube*) fTubeArray->At(tubeID2b);
@@ -164,13 +169,13 @@ TObjArray PndTrkNeighboringMap::GetCandseeds() {
     PndTrkHit *hit = (PndTrkHit*) fTwoNeigh.At(ihit);
     int tubeID = hit->GetTubeID();
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-    TObjArray *neighs = GetNeighboringsToHit(hit);
+    TObjArray neighs = GetNeighboringsToHit(hit);
 
     // if it is a candidate seed because it comes from the 1st layer
     if(tube->GetLayerID() == 0) {
       bool difflayer = false;
-      for(int jhit = 0; jhit < neighs->GetEntriesFast(); jhit++) {      
-	PndTrkHit *hit2 = (PndTrkHit*) neighs->At(jhit);
+      for(int jhit = 0; jhit < neighs.GetEntriesFast(); jhit++) {      
+	PndTrkHit *hit2 = (PndTrkHit*) neighs.At(jhit);
 	int tubeID2 = hit2->GetTubeID();
 	PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(tubeID2);
 	if(tube2->GetLayerID() != tube->GetLayerID()) difflayer = true;
@@ -179,9 +184,9 @@ TObjArray PndTrkNeighboringMap::GetCandseeds() {
       candidateseeds.Add(hit);
     }
     else { // because it has 2 neigh, whose one on the same layer
-      for(int jhit = 0; jhit < neighs->GetEntriesFast(); jhit++) {
-	PndTrkHit *hit2 = (PndTrkHit*) neighs->At(jhit);
-	if(GetNeighboringsToHit(hit2)->GetEntriesFast() == 1) standalone = jhit;
+      for(int jhit = 0; jhit < neighs.GetEntriesFast(); jhit++) {
+	PndTrkHit *hit2 = (PndTrkHit*) neighs.At(jhit);
+	if(GetNeighboringsToHit(hit2).GetEntriesFast() == 1) standalone = jhit;
 	int tubeID2 = hit2->GetTubeID();
 	PndSttTube *tube2 = (PndSttTube*) fTubeArray->At(tubeID2);
 	if(tube->GetLayerID() == tube2->GetLayerID()) samelayer = jhit;
@@ -196,9 +201,9 @@ TObjArray PndTrkNeighboringMap::GetIndivisibles() {
   return fTwoNeigh;
 }
    
-TObjArray *PndTrkNeighboringMap::GetIndivisiblesToHit(PndTrkHit *hit) {
+TObjArray PndTrkNeighboringMap::GetIndivisiblesToHit(PndTrkHit *hit) {
   // cout << "indiv hit "  << hit << " " << hit->GetHitID() << endl;
-  return (TObjArray*) hit2indiv.GetValue(hit);
+  return *((TObjArray*) hit2indiv.GetValue(hit));
 }
 
 void PndTrkNeighboringMap::PrintIndivisibleMap() {
@@ -210,8 +215,10 @@ void PndTrkNeighboringMap::PrintIndivisibleMap() {
 }
 
 // Returns 0 if not found.
-TObjArray * PndTrkNeighboringMap::GetNeighboringsToHit(PndTrkHit *hit) {
-  return (TObjArray*) hit2neigh.GetValue(hit);
+TObjArray  PndTrkNeighboringMap::GetNeighboringsToHit(PndTrkHit *hit) {
+  TObjArray *neighs = (TObjArray*) hit2neigh.GetValue(hit);
+  if(neighs == NULL) return 0;
+  return *(neighs);
 }
 
 TMapIter *PndTrkNeighboringMap::GetIterator() {

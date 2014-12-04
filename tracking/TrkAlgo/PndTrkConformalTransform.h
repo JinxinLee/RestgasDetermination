@@ -20,8 +20,8 @@ class PndTrkConformalTransform : public TObject {
   void PerformConformalTransformation(double x, double y, double rd, double &u, double &v, double &rc);
   void PerformRealTransformation(double u, double v, double rc, double &x, double &y, double &rd);
 
-  PndTrkConformalHit *GetConformalSttHit(PndTrkHit *hit);
-  PndTrkConformalHit * GetConformalHit(PndTrkHit *hit);
+  PndTrkConformalHit GetConformalSttHit(PndTrkHit *hit);
+  PndTrkConformalHit GetConformalHit(PndTrkHit *hit);
   double GetXConf(double x, double y, double rd);
   double GetYConf(double x, double y, double rd);
   double GetRConf(double x, double y, double rd);
@@ -31,7 +31,6 @@ class PndTrkConformalTransform : public TObject {
  private:
   TVector2 fTrasl;
   Double_t fAngle;
-
 
   ClassDef(PndTrkConformalTransform, 1)
 };

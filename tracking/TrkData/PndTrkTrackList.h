@@ -11,7 +11,7 @@
 #include "TVector3.h"
 #include "PndTrkTrack.h"
 
-class TObjArray;
+class TClonesArray;
 class PndTrkTrackList : public TObject
 {
 
@@ -26,15 +26,17 @@ class PndTrkTrackList : public TObject
   void AddTrack(PndTrkTrack *track) ;
   void DeleteTrack(Int_t index) ;
   void Reset();
-  inline Int_t  GetNofTracks() { return tracklist.GetEntriesFast(); }
+  void Clear(Option_t* opt = "");
 
-  PndTrkTrack * GetTrack(Int_t index) { return (PndTrkTrack*) tracklist[index]; }
+  inline Int_t  GetNofTracks() { return fTrackList.GetEntriesFast(); }
+
+  PndTrkTrack * GetTrack(Int_t index) { return (PndTrkTrack*) fTrackList.At(index); }
  
-  void ReplaceTrack(Int_t index, PndTrkTrack *track);
+/*   void ReplaceTrack(Int_t index, PndTrkTrack *track); */
    
  protected:
  
-  TObjArray tracklist;
+  TClonesArray fTrackList;
   // std::vector< PndTrkTrack > tracklist;
 
   ClassDef(PndTrkTrackList,1);

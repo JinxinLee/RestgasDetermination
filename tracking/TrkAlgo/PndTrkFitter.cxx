@@ -85,6 +85,45 @@ Bool_t PndTrkFitter::StraightLineFit(Double_t &fitm, Double_t &fitp) {
 
 }
 
+Double_t PndTrkFitter::StraightLineFitWithChi2(Double_t &fitm, Double_t &fitp) {
+int nofPoints = fX.size();
+  if(nofPoints == 0) {
+    if(fVerbose > 1) cout << "PndTrkFitter::StraightLineFit: no points to fit! fill the array with PndTrkFitter::SetPointToFit()" << endl;
+    Reset();
+    return kFALSE; // CHECK
+  }
+  double Syy = 0;
+ for(int ipnt = 0; ipnt < nofPoints; ipnt++)  
+    { 
+      fSx += fX[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      fSy +=  fY[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      
+      fSxy += fX[ipnt] * fY[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      fSxx += fX[ipnt]* fX[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      
+      fS1 += 1./(fSigma[ipnt] * fSigma[ipnt]);
+
+      Syy += fY[ipnt] * fY[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+    }
+  
+  Double_t den = fSxx * fS1 - fSx * fSx;
+  if(den == 0) {
+    if(fVerbose > 1) cout << "PndTrkFitter:StraightLineFit: DEN == 0" << endl; // CHECK
+    Reset();
+    return kFALSE;
+  }
+  
+  fitm = (fSxy * fS1 - fSx * fSy)/den;
+  fitp =  (fSxx * fSy - fSx * fSxy)/den;
+
+  double chi2 = Syy + fitm * fitm * fSxx + fitp * fitp * fS1 + 2 * fitm * fitp * fSx - 2 * fitm * fSxy - 2 * fitp * fSy;
+
+  Reset();
+
+  return chi2;
+
+}
+
 Bool_t PndTrkFitter::ConstrainedStraightLineFit(Double_t x0, Double_t y0, Double_t &fitm, Double_t &fitp) {
  
   // cout << "xoy0 " << x0 << " " << y0 << endl;
@@ -97,6 +136,7 @@ Bool_t PndTrkFitter::ConstrainedStraightLineFit(Double_t x0, Double_t y0, Double
   }
 
   //  cout << "fittinh " << nofPoints << endl;
+
   for(int ipnt = 0; ipnt < nofPoints; ipnt++)  
     { 
       // cout << fX[ipnt] << " " << fY[ipnt] << " " << fSigma[ipnt] << endl;
@@ -120,9 +160,10 @@ Bool_t PndTrkFitter::ConstrainedStraightLineFit(Double_t x0, Double_t y0, Double
   fitm =  (y0 * fSx + x0 * fSy - fSxy - x0 * y0 * fS1)/den;
   
   fitp =  y0 - fitm * x0;
-  Reset();
-  return kTRUE; 
 
+  Reset();
+  return kTRUE;
+  
 }
 
 ClassImp(PndTrkFitter)

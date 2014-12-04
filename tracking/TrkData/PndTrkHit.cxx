@@ -42,13 +42,24 @@ Bool_t PndTrkHit::operator<(const PndTrkHit &hit1) {
 
 
 
-PndTrkHit::PndTrkHit() :  fHitID(-1), fDetectorID(-1), fUsed(0), fUsedAsRefHit(0), fIRegion(-1), fSensorID(-1), fPosition(0., 0., 0.), fIsochrone(0), fSortVariable(-1), fPhi(-1) {}
+PndTrkHit::PndTrkHit() :  fHitID(-1), fDetectorID(-1), fUsed(0), fUsedAsRefHit(0), fIRegion(-1), fSensorID(-1), fPosition(0., 0., 0.), fIsochrone(0), fSortVariable(-1), fPhi(-1),  fSector(-1){}
 
-PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos, Double_t isochrone, Double_t sortvar) : fHitID(hitID), fDetectorID(detID), fUsed(used), fUsedAsRefHit(0), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(isochrone), fSortVariable(sortvar), fPhi(-1) {}
+PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos, Double_t isochrone, Double_t sortvar) : fHitID(hitID), fDetectorID(detID), fUsed(used), fUsedAsRefHit(0), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(isochrone), fSortVariable(sortvar), fPhi(-1), fSector(-1) {}
 
 // PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos) :  fHitID(hitID), fDetID(detID), fUsed(used), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(0) {}
 
-PndTrkHit::PndTrkHit(const PndTrkHit &hit) : fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fUsed(hit.fUsed), fUsedAsRefHit(hit.fUsedAsRefHit), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {}
+PndTrkHit::PndTrkHit(const PndTrkHit &hit) : fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fUsed(hit.fUsed), fUsedAsRefHit(hit.fUsedAsRefHit), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {
+
+  double phi = fPosition.Phi() * TMath::RadToDeg();
+  if(phi < 0 && phi < -30) phi += 360;
+  if(phi > -30 && phi <= 30) fSector = 4;
+  else if(phi > 30 && phi <= 90) fSector = 5; 
+  else if(phi > 90 && phi <= 150) fSector = 0;
+  else if(phi > 150 && phi <= 210) fSector = 1;
+  else if(phi > 210 && phi <= 270) fSector = 2;
+  else if(phi > 270 && phi <= 330) fSector = 3;
+
+}
 
 PndTrkHit::~PndTrkHit() {}
 
@@ -130,6 +141,17 @@ void PndTrkHit::Draw(Color_t color) {
       mrk = new TMarker(fPosition.X(), fPosition.Y(), 6);
       break;
     }
+  case 8: 
+    {
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 29);
+      break;
+    }
+  case 9: 
+    mrk = new TMarker(fPosition.X(), fPosition.Y(), 24);
+    break;
+  case 10:
+    mrk = new TMarker(fPosition.X(), fPosition.Y(), 25);
+    break;
   }
 
   if(mrk) {

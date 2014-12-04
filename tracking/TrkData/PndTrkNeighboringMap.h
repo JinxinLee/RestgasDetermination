@@ -13,6 +13,7 @@
 #include "FairHit.h"
 
 #include "TObjArray.h"
+#include "TClonesArray.h"
 
 class PndTrkNeighboringMap : public TObject
 {
@@ -27,20 +28,20 @@ class PndTrkNeighboringMap : public TObject
   void Clear();
   
   void AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits);
-  TObjArray * GetNeighboringsToHit(PndTrkHit *hit);
+  TObjArray GetNeighboringsToHit(PndTrkHit *hit);
   void SetOwnerValue(Bool_t enable = kTRUE) { hit2neigh.SetOwnerValue(enable); }
   TMapIter *GetIterator();
   TObjArray GetStandalone() { return fStandalone ; } 
   TObjArray GetSeeds(); //  { return fOneNeigh; }
   TObjArray GetCandseeds();
   TObjArray GetIndivisibles();
-  TObjArray *GetIndivisiblesToHit(PndTrkHit *hit);
+  TObjArray GetIndivisiblesToHit(PndTrkHit *hit);
   void PrintIndivisibleMap();
   TObjArray GetHitWithNNeighborings(int nofhits);
 
 
  protected:
-
+  TClonesArray fIndiv; //!
   TMap hit2neigh, hit2indiv;
   TClonesArray *fTubeArray;
   TObjArray fStandalone, fOneNeigh, fTwoNeigh;

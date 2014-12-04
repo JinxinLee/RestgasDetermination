@@ -25,7 +25,8 @@ PndTrkConformalTransform::PndTrkConformalTransform(double x, double y, double de
 
 
 // -----   Destructor   ----------------------------------------------------
-PndTrkConformalTransform::~PndTrkConformalTransform() { }
+PndTrkConformalTransform::~PndTrkConformalTransform() { 
+}
 // -------------------------------------------------------------------------
 
 void PndTrkConformalTransform::SetOrigin(double x, double y, double delta){
@@ -79,22 +80,20 @@ void PndTrkConformalTransform::PerformRealTransformation(double u, double v, dou
 }
 
 
-PndTrkConformalHit *PndTrkConformalTransform::GetConformalSttHit(PndTrkHit *hit) {
+PndTrkConformalHit PndTrkConformalTransform::GetConformalSttHit(PndTrkHit *hit) {
   TVector3 position = hit->GetPosition();
   Double_t rd = hit->GetIsochrone();
   double u, v, rc;
   PerformConformalTransformation(position.X(), position.Y(), rd, u, v, rc);
-  PndTrkConformalHit *chit = new PndTrkConformalHit(hit, u, v, rc);
-  return chit;
+  return PndTrkConformalHit(hit, u, v, rc);
 }
 
-PndTrkConformalHit * PndTrkConformalTransform::GetConformalHit(PndTrkHit *hit) {
+PndTrkConformalHit PndTrkConformalTransform::GetConformalHit(PndTrkHit *hit) {
   TVector3 position = hit->GetPosition();
   Double_t rd = 0.;
   double u, v, rc;
   PerformConformalTransformation(position.X(), position.Y(), rd, u, v, rc);
-  PndTrkConformalHit *chit = new PndTrkConformalHit(hit, u, v);
-  return chit;
+  return PndTrkConformalHit(hit, u, v);
 }
 
 double PndTrkConformalTransform::GetXConf(double x, double y, double rd) {

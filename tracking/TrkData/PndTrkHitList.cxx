@@ -47,6 +47,7 @@ void PndTrkHitList::AddHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion,
   hitlist.push_back(hit);
 }
 
+
 void PndTrkHitList::AddHit(PndTrkHit *hit)
 {
   hitlist.push_back(*hit);

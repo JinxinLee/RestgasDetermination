@@ -28,28 +28,28 @@ class PndTrkTrack : public TObject
   ~PndTrkTrack();    
 
 
-  Bool_t operator==(const PndTrkTrack track) const; // CHECK this needs to be changed
+  Bool_t operator==( PndTrkTrack track) ; // CHECK this needs to be changed
 
   void SetRadius(double radius) { fRadius = radius; }
   void SetCenter(double x, double y) { fCenterX = x; fCenterY = y; }
   void SetCenter(TVector3 center)  { fCenterX = center.X(); fCenterY = center.Y(); }
   void SetTanL(double tanl) { fTanL = tanl; }
   void SetZ0(double z0) { fZ0 = z0;}
-  void SetCluster(PndTrkCluster *cluster) { fCluster = cluster; }
+  void SetCluster(PndTrkCluster *cluster) { fCluster = *cluster; }
   void SetRefHit(PndTrkHit *hit) { fRefHit = hit; }
   Double_t GetRadius() { return fRadius; }
   TVector2 GetCenter() { return TVector2(fCenterX, fCenterY); }
   Double_t GetTanL() { return fTanL; } 
   Double_t GetZ0() { return fZ0; }
 
-  PndTrkCluster *GetCluster() { return fCluster; }
+  PndTrkCluster GetCluster() { return fCluster; }
 
   Double_t ComputePhi(TVector3 hit);
  
   TVector3 ComputeMomentumAtPosition(TVector3 position, TVector3 &newposition);
   void ComputeCharge();
-  PndTrackCand *ConvertToPndTrackCand(); 
-  PndTrack *ConvertToPndTrack();
+  PndTrackCand ConvertToPndTrackCand(); 
+  PndTrack ConvertToPndTrack();
   Int_t GetCharge() { return fCharge; }
 
 
@@ -57,10 +57,10 @@ class PndTrkTrack : public TObject
   void LightUp();
 
  protected:
-  double fRadius, fCenterX, fCenterY, fTanL, fZ0;
-  int fCharge;
-  PndTrkCluster *fCluster;
-  PndTrkHit *fRefHit;
+  double fRadius, fCenterX, fCenterY, fTanL, fZ0; //!
+  int fCharge; //!
+  PndTrkCluster fCluster; //!
+  PndTrkHit *fRefHit; //!
 
   // parameters:
   // pT = p cos(lam)

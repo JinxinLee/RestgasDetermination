@@ -12,18 +12,21 @@
 using namespace std;
 
 
-PndTrkConformalHitList::PndTrkConformalHitList() : fConformal(new PndTrkConformalTransform()), hitlist(TObjArray()) {}
+PndTrkConformalHitList::PndTrkConformalHitList() : fConformal(new PndTrkConformalTransform()), fHitList(TClonesArray("PndTrkConformalHit", 10000)) {}
 
-PndTrkConformalHitList::PndTrkConformalHitList(PndTrkConformalTransform *conformal) : fConformal(conformal), hitlist(TObjArray()) {}
+PndTrkConformalHitList::PndTrkConformalHitList(PndTrkConformalTransform *conformal) : fConformal(conformal), fHitList(TClonesArray("PndTrkConformalHit", 10000)) {}
  
-PndTrkConformalHitList::PndTrkConformalHitList(const PndTrkConformalHitList& hlist) : fConformal(new PndTrkConformalTransform()) {
+PndTrkConformalHitList::PndTrkConformalHitList(const PndTrkConformalHitList& hlist) : fConformal(new PndTrkConformalTransform()), fHitList(TClonesArray("PndTrkConformalHit", 10000)) {
   *this = hlist;
 }
 
-PndTrkConformalHitList::~PndTrkConformalHitList() {}
+PndTrkConformalHitList::~PndTrkConformalHitList() {
+  delete fConformal;
+  fHitList.Delete();
+}
 
 PndTrkConformalHitList& PndTrkConformalHitList::operator=(const PndTrkConformalHitList& hlist) {
-  hitlist = TObjArray(hlist.hitlist);
+  fHitList = TClonesArray(hlist.fHitList);
   fConformal = hlist.fConformal;
   return *this;
 }
@@ -33,15 +36,21 @@ PndTrkConformalHitList& PndTrkConformalHitList::operator=(const PndTrkConformalH
 
 void PndTrkConformalHitList::Reset() {
   fConformal = NULL;
-  hitlist.Clear();
+  fHitList.Clear();
+}
+
+void PndTrkConformalHitList::Clear(Option_t* opt) {
+  fConformal = NULL;
+  fHitList.Clear(opt);
 }
 
 void PndTrkConformalHitList::AddHit(PndTrkConformalHit *chit) {
-  hitlist.Add(chit);
+  int size = fHitList.GetEntriesFast();
+  new(fHitList[size]) PndTrkConformalHit(*chit);
 }
 
 PndTrkConformalHit *PndTrkConformalHitList::GetHit(int index) {
-  return (PndTrkConformalHit*) hitlist[index];
+  return (PndTrkConformalHit*) fHitList.At(index);
 }
 
 
@@ -49,7 +58,7 @@ void PndTrkConformalHitList::Print() {
 
   cout << "###############################" << endl;
   for(int ihit = 0; ihit < GetNofHits(); ihit++) {
-    PndTrkConformalHit* chit = (PndTrkConformalHit*) hitlist[ihit];
+    PndTrkConformalHit* chit = (PndTrkConformalHit*) fHitList.At(ihit);
     chit->Print();
   }
 }
@@ -57,12 +66,12 @@ void PndTrkConformalHitList::Print() {
 
 void PndTrkConformalHitList::Draw(Color_t color) { 
    for(int ihit = 0; ihit < GetNofHits(); ihit++) {
-    PndTrkConformalHit* chit = (PndTrkConformalHit*) hitlist[ihit];
+    PndTrkConformalHit* chit = (PndTrkConformalHit*) fHitList.At(ihit);
     chit->Draw(color);
    }
 }
 
 
 
-ClassImp(PndTrkHit)
+ClassImp(PndTrkConformalHitList)
  

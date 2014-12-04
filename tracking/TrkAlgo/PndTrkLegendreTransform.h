@@ -28,8 +28,10 @@ class PndTrkLegendreTransform : public TObject {
   void ApplyThresholdLegendreHisto(double threshold);
 
   int ExtractLegendreMaximum(double &theta_max, double &r_max);
+  void ExtractLegendreMaxima(int nmaxima, std::vector< double > &theta_max, std::vector< double > &r_max, std::vector< int > &content_max);
   int ExtractZoomMaximum(double &theta_max, double &r_max);
   int ExtractMaximumFromHisto(TH2F *histo, double &theta_max, double &r_max);
+  void ExtractMaximaFromHisto(int nmaxima, TH2F *histo, std::vector< double > &theta_max, std::vector< double > &r_max, std::vector< int > &content_max);
 
   void ExtractLineParameters(double theta, double r, double &slope, double &intercept);
   void ExtractLegendreSingleLineParameters(double &slope, double &intercept);

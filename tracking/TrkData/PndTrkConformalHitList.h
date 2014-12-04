@@ -11,7 +11,7 @@
 #include "PndTrkConformalTransform.h"
 #include "FairHit.h"
 
-#include "TObjArray.h"
+#include "TClonesArray.h"
 
 #include <iostream>
 /* #include <cmath> */
@@ -42,10 +42,11 @@ class PndTrkConformalHitList : public TObject
   PndTrkConformalHit *GetHit(int index);
 
   void Reset();
+  void Clear(Option_t* opt = "");
 
   void SetConformalTransform(PndTrkConformalTransform *conformal) { fConformal = conformal; }
   PndTrkConformalTransform  *GetConformalTransform() { return fConformal; }
-  inline Int_t  GetNofHits() { return hitlist.GetEntriesFast(); }
+  inline Int_t  GetNofHits() { return fHitList.GetEntriesFast(); }
   
   void Print();
   void Draw(Color_t color = kBlack);
@@ -53,7 +54,7 @@ class PndTrkConformalHitList : public TObject
  protected:
 
   /*   std::vector<PndTrkConformalHit *> hitlist; */
-  TObjArray hitlist;
+  TClonesArray fHitList;
   PndTrkConformalTransform *fConformal;
   
   ClassDef(PndTrkConformalHitList,1);

@@ -25,6 +25,8 @@ PndTrkSkewHit::PndTrkSkewHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregio
 PndTrkSkewHit::PndTrkSkewHit(PndTrkHit &hit, Int_t trackID, TVector3 center1, TVector3 intersection1, double phi1, TVector3 center2, TVector3 intersection2, double phi2,  double a, double b, int rightone, double beta): PndTrkHit(hit), fTrackID(trackID), fCenter1(center1), fCenter2(center2), fa(a), fb(b), fIntersection1(intersection1), fIntersection2(intersection2), fPhi1(phi1), fPhi2(phi2), fRightIntersection(rightone), fBeta(beta) {}
 
 
+PndTrkSkewHit::PndTrkSkewHit(PndTrkHit &hit): PndTrkHit(hit), fTrackID(-1), fCenter1(0., 0., 0.), fCenter2(0., 0., 0.), fa(-1), fb(-1), fIntersection1(0., 0., 0.), fIntersection2(0., 0., 0.), fPhi1(0), fPhi2(0), fRightIntersection(-1), fBeta(0) {}
+
 PndTrkSkewHit::~PndTrkSkewHit() {}
 
 void PndTrkSkewHit::Draw(Color_t color) {

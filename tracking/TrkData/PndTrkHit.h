@@ -76,6 +76,12 @@ class PndTrkHit : public FairTimeStamp
   inline Bool_t IsMvdStrip() { return fIRegion == MVDSTRIP; }
   inline Bool_t IsMvd() { return IsMvdStrip() || IsMvdPixel(); }
 
+  // is gem
+  inline Bool_t IsGem() { return fIRegion == GEM; }
+
+  // is scitil
+  inline Bool_t IsSciTil() { return fIRegion == SCIT; }
+
   Double_t GetDistance(PndTrkHit *fromhit);
   Double_t GetDistance(TVector3 frompoint);
   Double_t GetXYDistance(PndTrkHit *fromhit);
@@ -86,6 +92,9 @@ class PndTrkHit : public FairTimeStamp
   void DrawTube(Color_t color);
   void Print();
 
+  int GetSector() { return fSector; }
+
+
   // variables
   Int_t fHitID, fDetectorID, fIRegion, fSensorID; 
   Bool_t fUsed;
@@ -94,7 +103,7 @@ class PndTrkHit : public FairTimeStamp
   Double_t fIsochrone;
   Double_t fSortVariable; // variable for sorting
   Double_t fPhi;
-
+  Double_t fSector;
   ClassDef(PndTrkHit,1);
 };
 

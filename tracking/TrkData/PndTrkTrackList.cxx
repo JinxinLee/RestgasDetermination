@@ -17,39 +17,44 @@
 
 using namespace std;
 
-PndTrkTrackList::PndTrkTrackList() : tracklist(TObjArray()) {}
+PndTrkTrackList::PndTrkTrackList() : fTrackList(TClonesArray("PndTrkTrack", 10000)) {}
 
 PndTrkTrackList::PndTrkTrackList(const PndTrkTrackList& tlist) {
   *this = tlist;
 }
 
 PndTrkTrackList::~PndTrkTrackList() {
-tracklist.Clear();
+  fTrackList.Clear();
 }
   
 PndTrkTrackList& PndTrkTrackList::operator=(const PndTrkTrackList &tlist){ 
-  tracklist = TObjArray(tlist.tracklist);
+  fTrackList = TClonesArray(tlist.fTrackList);
   return *this;
 }
 
 
 void PndTrkTrackList::AddTrack(PndTrkTrack *track) {
-  tracklist.Add(track);
+  int size = fTrackList.GetEntriesFast();
+  new(fTrackList[size]) PndTrkTrack(*track);
 }
 
 void PndTrkTrackList::DeleteTrack(Int_t index) {
-  tracklist.RemoveAt(index);
+  fTrackList.RemoveAt(index);
 }
 
 
-// CHECK test this
-void PndTrkTrackList::ReplaceTrack(Int_t index, PndTrkTrack *track) { 
-  tracklist.RemoveAt(index);
-  tracklist.AddAt(track, index);
-}
+// // CHECK test this
+// void PndTrkTrackList::ReplaceTrack(Int_t index, PndTrkTrack *track) { 
+//   fTrackList.RemoveAt(index);
+//   fTrackList.AddAt(track, index);
+// }
  
 void PndTrkTrackList::Reset() {
-tracklist.Clear();
+  Clear();
+}
+
+void PndTrkTrackList::Clear(Option_t* opt) {
+fTrackList.Clear(opt);
 }
 // merge tracks
 

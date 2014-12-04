@@ -24,6 +24,11 @@
 #define INNER_RIGHT 2
 #define SKEW_RIGHT  4
 #define OUTER_RIGHT 6  
+#define INDIVISIBLE 10
+// SCIT
+#define SCIT       8
+// GEM
+#define GEM        9
 
 // MVD + STT
 #define MVD_INNER_LEFT  13 // mvd + stt inner lf
@@ -46,3 +51,11 @@
 #define OUTER_LEFT_RIGHT 76
 #define INNER_RIGHT_LEFT 23
 #define OUTER_RIGHT_LEFT 67
+
+// SECTORS
+#define STT_0 2000
+#define STT_1 2001
+#define STT_2 2002
+#define STT_3 2003
+#define STT_4 2004
+#define STT_5 2005
