@@ -950,6 +950,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
           pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
           pidCand->SetEmcNumberOfBumps(clu->NBumps());
           pidCand->SetEmcQuality(emcQuality);
+          pidCand->SetLastHit(v1);
 
           pidCand->SetEmcClusterZ20(bump->Z20());
           pidCand->SetEmcClusterZ53(bump->Z53());
