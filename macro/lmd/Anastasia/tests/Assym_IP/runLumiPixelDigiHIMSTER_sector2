@@ -73,7 +73,7 @@ do
 # 	    do
 pathG=/panda/myResults/AssymIP/DPM/mom_${momStr}/
 path=${pathG}/x_${xT}mm_y_${yT}mm_Xtlit_${angx}mrad_Ytlit_${angy}mrad/
-${VMCWORKDIR}/buildPanda/bin/./hits_assym $path $momStr
+#${VMCWORKDIR}/buildPanda/bin/./hits_assym $path $momStr
 # ##${VMCWORKDIR}/buildPanda/bin/./hits_assym_module $path $momStr
 root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/tests/Assym_IP/DrawAssymOpp.C\("\"${pathG}\"","\"/HitsAssym_x_y_1_5GeV.root\"",${xT},${yT},${angx},${angy}\)
 #root -l -b -q ${VMCWORKDIR}/macro/lmd/Anastasia/tests/Assym_IP/DrawAssymOnetoOne.C\("\"${pathG}\"","\"/HitsAssym_x_y_1_5GeV.root\"",${xT},${yT},${angx},${angy}\)

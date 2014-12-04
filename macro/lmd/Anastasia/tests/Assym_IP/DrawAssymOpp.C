@@ -169,6 +169,8 @@ if(y_sh<0)  this_name2 +="mn";
     // N_SHIFT[i] *= 1./N_shifted_norm;
     // N_SHIFT[i+10] *= 1./N_shifted_norm;
     Nass_SHIFT[i] = (N_SHIFT[i]-N_SHIFT[i+10])/(N_SHIFT[i]+N_SHIFT[i+10]);
+    Nass_SHIFT[i] -= Nass_ideal[i];
+    Nass_ideal[i] -= Nass_ideal[i];
     errNass_SHIFT[i] = sqrt(TMath::Power(errN_SHIFT[i]*2*N_SHIFT[i+10],2)+TMath::Power(errN_SHIFT[i+10]*2*N_SHIFT[i],2))/TMath::Power(N_SHIFT[i]+N_SHIFT[i+10],2);
     //    Nass_SHIFT[i] = (N_SHIFT[i]-N_SHIFT[i+10]);
 
