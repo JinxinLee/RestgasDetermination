@@ -875,7 +875,8 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       p3.SetMagThetaPhi(fEmcCalibrator->Energy(bump), v1.Theta(), v1.Phi());
       TLorentzVector lv(p3,p3.Mag());
       TMatrixD covP4=fEmcErrorMatrix->Get4MomentumErrorMatrix(*clu);
-    
+      TMatrixD covP7=fEmcErrorMatrix->GetErrorP7(*clu);
+ 
       FairGeanePro *fProEmc = new FairGeanePro(); 
       if (!fCorrErrorProp) fProEmc->PropagateOnlyParameters();
       Float_t emcQuality = 1000000;
@@ -941,6 +942,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
         { 
           PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
           pidCand->SetP4Cov(covP4);
+          pidCand->SetCov7(covP7);
           pidCand->SetEmcRawEnergy(bump->energy());
           pidCand->SetEmcCalEnergy(fEmcCalibrator->Energy(bump));
           pidCand->SetEmcIndex(i);
