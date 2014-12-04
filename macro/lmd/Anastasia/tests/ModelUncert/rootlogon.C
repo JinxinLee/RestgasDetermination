@@ -12,9 +12,9 @@ rootlogon()
   gStyle->SetTitleSize(0.05,"Z");
   //  gStyle->SetTitleOffset(0.9,"Y");
   // gStyle->SetTitleOffset(0.9,"X");
-  gStyle->SetTitleOffset(1.0,"X");
+  gStyle->SetTitleOffset(0.95,"X");
   gStyle->SetHatchesLineWidth(3);
-  gStyle->SetTitleOffset(1.5,"Y");
+  gStyle->SetTitleOffset(1.2,"Y");
   gStyle->SetPadLeftMargin(0.15);
   //  gStyle->SetPadRightMargin(0.17);
   // gStyle->SetTitleOffset(0.9,"Z");

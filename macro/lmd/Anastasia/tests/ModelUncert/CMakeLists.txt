@@ -87,6 +87,8 @@ ${GLPK_LIB_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 ################################## install #####################################
+add_executable(model_vs_data Anastasia/tests/ModelUncert/models_vs_data.cxx)
+target_link_libraries(model_vs_data $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
 add_executable(calc_cs Anastasia/tests/ModelUncert/CrossSecLim.C)
 target_link_libraries(calc_cs $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas)
 add_executable(calc_cs_un Anastasia/tests/ModelUncert/DPM_ModelUncert.C)
