@@ -71,7 +71,7 @@ int main(){
   TBox *lmd_range_box = new TBox(t_1,-15,t_2,110);
   lmd_range_box->SetFillColor(12);
   lmd_range_box->SetFillStyle(3005);
- 
+  cout<<"t_1 = "<<t_1<<" t_2 = "<<t_2<<endl;
   //cout<<modelDPM.getRho()<<" "<<modelDPM.getB()<<" "<<modelDPM.getSigmaTotal()<<endl;
 
  const int Nstep = 1e4;
@@ -180,7 +180,10 @@ int main(){
   // TF1 *fa1 = new TF1("fa1","[0]+[1]*x",x_dpm,1);
  TF1 *fa1 = new TF1("fa1","[0]",x_dpm,1);
  //gr_dpm->Fit(fa1,"","",x_dpm*0.95,2.6e-1);
- gr_dpm->Fit(fa1,"","",1e-2,1.3e-1);
+ // gr_dpm->Fit(fa1,"","",1e-2,1.3e-1);
+ cout<<"x_dpm*0.95 = "<<x_dpm*0.95<<endl;
+ gr_dpm->Fit(fa1,"","",x_dpm*0.95,t_2);
+
 // gr_dpm->Fit(fa1,"","",8e-2,2e-1);
   double p0_dpm =  fa1->GetParameter(0);
   double errp0_dpm =  fa1->GetParError(0);
@@ -209,14 +212,17 @@ int main(){
   // TF1 *fa2 = new TF1("fa2","[0]+[1]*x",x_dpm,1);
  TF1 *fa2 = new TF1("fa2","[0]",x_dpm,1);
  //gr_e760->Fit(fa2,"","",x_dpm*0.95,2.6e-1);
- gr_e760->Fit(fa2,"","",1e-2,1.3e-1);
+ // gr_e760->Fit(fa2,"","",1e-2,1.3e-1);
  // gr_e760->Fit(fa2,"","",8e-2,2e-1);
+ gr_e760->Fit(fa2,"","",x_dpm*0.95,t_2);
   double p0_e760 =  fa2->GetParameter(0);
   double errp0_e760 =  fa2->GetParError(0);
   cout<<"E760: p0 = "<<p0_e760<<" +/- "<<errp0_e760<<endl;
- cout<<"Pbeam = "<<plab<<" "<<"DPM = "<<fabs(p0_dpm*1e-2*cs_had_rat_DPM)<<" +/- "<<fabs(errp0_dpm*1e-2*cs_had_rat_DPM)
-      <<"; E760 = "<<fabs(p0_e760*1e-2*cs_had_rat_E760)<<" +/- "<<fabs(errp0_e760*1e-2*cs_had_rat_E760)<<" %"<<endl;
- cout<<" LINE: "<<"DPM = "<<fabs(p0_dpm)<<" +/- "<<fabs(errp0_dpm)
+ // cout<<"Pbeam = "<<plab<<" "<<"DPM = "<<fabs(p0_dpm*1e-2*cs_had_rat_DPM)<<" +/- "<<fabs(errp0_dpm*1e-2*cs_had_rat_DPM)
+ //      <<"; E760 = "<<fabs(p0_e760*1e-2*cs_had_rat_E760)<<" +/- "<<fabs(errp0_e760*1e-2*cs_had_rat_E760)<<" %"<<endl;
+ // cout<<" LINE: "<<"DPM = "<<fabs(p0_dpm)<<" +/- "<<fabs(errp0_dpm)
+ //      <<"; E760 = "<<fabs(p0_e760)<<" +/- "<<fabs(errp0_e760)<<" %"<<endl;
+cout<<"Pbeam = "<<plab<<" DPM = "<<fabs(p0_dpm)<<" +/- "<<fabs(errp0_dpm)
       <<"; E760 = "<<fabs(p0_e760)<<" +/- "<<fabs(errp0_e760)<<" %"<<endl;
   c1.cd(4);
 
@@ -240,8 +246,8 @@ int main(){
   mg_err->GetYaxis()->SetTitle("model system.err, %");
   mg_err->GetXaxis()->SetTitle("P_{lab}, GeV/c");
   //[end] part2 draw data --------------------------------------------------
-  c1.SaveAs("syserr_estim_10GeV.pdf");
-  c1.SaveAs("syserr_estim_10GeV.root");
+  c1.SaveAs("direct_syserr_estim_10GeV.pdf");
+  c1.SaveAs("direct_syserr_estim_10GeV.root");
   
   return 0;
 }

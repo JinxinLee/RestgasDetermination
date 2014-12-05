@@ -14,8 +14,10 @@ rootlogon()
   // gStyle->SetTitleOffset(0.9,"X");
   gStyle->SetTitleOffset(0.95,"X");
   gStyle->SetHatchesLineWidth(3);
-  gStyle->SetTitleOffset(1.2,"Y");
-  gStyle->SetPadLeftMargin(0.15);
+  //  gStyle->SetTitleOffset(1.2,"Y");
+  //  gStyle->SetPadLeftMargin(0.15);
+  gStyle->SetTitleOffset(1.0,"Y");
+  gStyle->SetPadLeftMargin(0.1);
   //  gStyle->SetPadRightMargin(0.17);
   // gStyle->SetTitleOffset(0.9,"Z");
   // gStyle->SetPalette(55,0);
