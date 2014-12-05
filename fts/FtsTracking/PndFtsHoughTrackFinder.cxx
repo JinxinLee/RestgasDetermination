@@ -58,7 +58,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBehindDipoleZxT
 					stepsPerThetaDegLineBehindDipole * 20, // TODO: Check values
 					-200., // in cm // TODO: Check values
 					200., // in cm
-					fZParabolaLine, 0., fTrackerTask);
+					fZParabolaLine, 0., 0, fTrackerTask);
 
 	// Do straight line Hough transform on non-skewed hits from stations 1+2
 	try {
@@ -113,7 +113,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBeforeDipoleZxT
 					stepsPerThetaDegLineBeforeDipole * 16, // TODO: Check values
 					-80., // in cm // TODO: Check values
 					80., // in cm
-					fZLineParabola, 0., fTrackerTask);
+					fZLineParabola, 0., 0, fTrackerTask);
 
 	// Do straight line Hough transform on non-skewed hits from stations 1+2
 	try {
@@ -200,7 +200,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				stepsPerThetaDegParabola * 300, // 300 is good as factor
 				-0.015, // a.u.
 				0.015, // a.u.
-				fZLineParabola, peakInterceptLB4D, fTrackerTask);
+				fZLineParabola, peakInterceptLB4D, 0, fTrackerTask);
 
 		// Do parabola Hough transform for current line before dipole (shifts FTS hits by hitshiftinx) for non-skewed hits in stations 3+4+5
 		try {

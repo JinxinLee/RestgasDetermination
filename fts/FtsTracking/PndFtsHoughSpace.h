@@ -84,6 +84,8 @@ public:
 			Double_t zRefPos=0.,
 			Double_t interceptZx=0.,
 
+			PndFtsHoughTrackCand *associatedTrackCand=0,
+
 			PndFtsHoughTrackerTask *trackerTask=0
 	);
 	~PndFtsHoughSpace();
@@ -167,6 +169,8 @@ private:
 	Int_t   fFtsBranchId;
 	std::vector<PndTrackCandHit> fHitId;  ///< @brief hits relevant for this Hough space
 	///< first index is detId, second index is hit Id
+
+	PndFtsHoughTrackCand *fAssociatedTrackCand; ///< @brief For skewed hits a track candidate is needed
 
 
 	// only hits with a z value (in the laboratory system, zreal) between onlyusehitsfromz and onlyusehitsuptoz will be used for building the houghspace
