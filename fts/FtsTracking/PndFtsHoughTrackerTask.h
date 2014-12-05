@@ -33,6 +33,7 @@
 #include "TVector3.h"
 #include "PndFtsHit.h"
 #include "TClonesArray.h"
+#include "PndFtsTube.h"
 
 class PndFtsHoughTrackCand;
 class PndFtsHoughSpace;
@@ -109,6 +110,15 @@ public:
 		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
 		return myHit;
 	};
+	/** @brief Returns pointer to the FTS tube corresponding to input FTS hit.
+		 * @param[in] myHit: FTS hit for which the tube should be returned.
+		 * @return Pointer to tube corresponding to myHit.
+		 */
+	const PndFtsTube *const getFtsTube(const PndFtsHit *const myHit) const {
+		Int_t tubeID = myHit->GetTubeID();
+		const PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
+		return tube;
+	}
 	/** @brief Returns the position error (based on FTS straw geometry) for the hit with index hitId in the FTS hit array.
 	 * @param[in] hitId Index (in fFtsHitArray) of the hit for which the error should be returned.
 	 * @return Error in cm.

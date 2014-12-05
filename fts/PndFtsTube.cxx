@@ -64,22 +64,22 @@ PndFtsTube::~PndFtsTube(){
   fRotationMatrix.Delete();
 }
 
-TVector3 PndFtsTube::GetPosition(){
+TVector3 PndFtsTube::GetPosition() const {
   return fCenPosition; }
 
-TMatrixT<Double_t> PndFtsTube::GetRotationMatrix() {
+TMatrixT<Double_t> PndFtsTube::GetRotationMatrix() const {
   return fRotationMatrix; }
 
-Double_t PndFtsTube::GetRadIn() {
+Double_t PndFtsTube::GetRadIn() const {
   return fRadIn; }
 
-Double_t PndFtsTube::GetRadOut() {
+Double_t PndFtsTube::GetRadOut() const {
   return fRadOut; }
 
-Double_t PndFtsTube::GetHalfLength() {
+Double_t PndFtsTube::GetHalfLength() const {
   return fHalfLength; }
 
-TVector3 PndFtsTube::GetWireDirection(){
+TVector3 PndFtsTube::GetWireDirection() const {
   return TVector3(fRotationMatrix[0][2],
                   fRotationMatrix[1][2],
                   fRotationMatrix[2][2]);}

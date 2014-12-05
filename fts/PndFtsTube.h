@@ -22,14 +22,14 @@ class PndFtsTube : public TObject
              Double_t radin, Double_t radout, Double_t hl);
 
 
-  TVector3 GetPosition();
-  TMatrixT<Double_t> GetRotationMatrix();
-  Double_t GetRadIn();
-  Double_t GetRadOut();
-  Double_t GetHalfLength();
-  TVector3 GetWireDirection();
+  TVector3 GetPosition() const;
+  TMatrixT<Double_t> GetRotationMatrix() const;
+  Double_t GetRadIn() const;
+  Double_t GetRadOut() const;
+  Double_t GetHalfLength() const;
+  TVector3 GetWireDirection() const;
 
-  bool IsSkew() {
+  bool IsSkew() const {
     return (0.!=GetWireDirection().X());
   }
 

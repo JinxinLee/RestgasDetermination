@@ -6,7 +6,7 @@
  @brief Class for saving peaks of a Hough space.
 
  Created: 25.06.2014
-*/
+ */
 
 
 #ifndef PndFtsHoughSpacePeak_H
@@ -31,8 +31,8 @@ class PndFtsHoughSpacePeak {
 public:
 	static const Int_t noVal = -1;
 
-	// Constructors/Destructors ---------
-	PndFtsHoughSpacePeak( Int_t height=noVal, Int_t firstBin=noVal );
+	// Constructors / Destructors ---------
+	PndFtsHoughSpacePeak( Int_t height = noVal, Int_t firstBin = noVal );
 	~PndFtsHoughSpacePeak();
 
 	void resetBins(){
@@ -55,11 +55,11 @@ public:
 
 
 private:
-	std::vector< Int_t > fBinVec; //globalbins belonging to the peak
+	std::vector< Int_t > fBinVec; // globalbins belonging to the peak
 	Int_t fHeight; // height of peak
 	Bool_t fFinished;
 
-	ClassDef(PndFtsHoughSpacePeak,1);
+	ClassDef(PndFtsHoughSpacePeak, 1);
 };
 
 #endif

@@ -148,7 +148,7 @@ private:
 	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
 
 	Bool_t setParametersForHsOption(); // set parameters according to the kind of Hough transform I want to do
-	Bool_t filterInputHits(); // copies input hits (based on z coordinate and skewed/non-skewed) from fFtsHitArray (all FTS hits) to fHitId (only the hits that qualify for the specific Hough transform)
+	void filterInputHits(); // copies input hits (based on z coordinate and skewed/non-skewed) from fFtsHitArray (all FTS hits) to fHitId (only the hits that qualify for the specific Hough transform)
 	inline void AddHitToHS(UInt_t hitId, Double_t rho);
 	inline void AddHitToHS(FairLink link, Double_t rho);
 	inline const PndFtsHit *const getHitFromHS(UInt_t index) const; // gets the FTS hit corresponding to index
@@ -195,6 +195,8 @@ private:
 	Double_t fInterceptZx;
 
 
+
+
 	// for B field access
 	FairField* fField;
 
@@ -232,6 +234,9 @@ private:
 			IdxPath * ptrThetaYIdxPathVec
 	);
 
+
+
+	TVector3 CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit *const myHit);
 
 
 

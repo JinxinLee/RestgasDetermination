@@ -9,23 +9,23 @@ const Double_t PndFtsHoughTrackFinder::fZLineParabola = 368.;
 const Double_t PndFtsHoughTrackFinder::fZParabolaLine = 605.;
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask) :
-																							fTrackerTask(trackerTask),
+																									fTrackerTask(trackerTask),
 
-																							// min peak heights
-																							fMinPeakHeightZxLineParabola(6),
-																							fMinPeakHeightZxParabola(8),
-																							fMinPeakHeightZxParabolaLine(6),
-																							fMinPeakHeightZyLine(4),
+																									// min peak heights
+																									fMinPeakHeightZxLineParabola(6),
+																									fMinPeakHeightZxParabola(8),
+																									fMinPeakHeightZxParabolaLine(6),
+																									fMinPeakHeightZyLine(4),
 
-																							// general
-																							fSaveDebugInfo(kFALSE),
-																							fVerbose(0),
+																									// general
+																									fSaveDebugInfo(kFALSE),
+																									fVerbose(0),
 
-																							// Hough spaces
-																							fHoughSpaceZxLineBeforeDipole(0),
-																							fHoughspaceZxParabola(0),
-																							fHoughSpaceZxLineBehindDipole(0),
-																							fHoughspaceZyLine(0)
+																									// Hough spaces
+																									fHoughSpaceZxLineBeforeDipole(0),
+																									fHoughspaceZxParabola(0),
+																									fHoughSpaceZxLineBehindDipole(0),
+																									fHoughspaceZyLine(0)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Tracker task not set.\n";
@@ -185,13 +185,13 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				* (thetaDegHighParabola - thetaDegLowParabola));
 
 		std::cout << "event: " << fTrackerTask->GetEventNr()
-														<< "\nthetaDegLowParabola=" << thetaDegLowParabola
-														<< " thetaDegHighParabola=" << thetaDegHighParabola
-														<< " thetaBins=" << thetaBins
-														<< "  peakThetaDegLineBeforeDipole="
-														<< peakThetaRadLB4D / meinpi * 180.
-														<< " peakThetaDegHwLineBeforeDipole="
-														<< peakThetaRadHwLB4D / meinpi * 180. << '\n';
+																<< "\nthetaDegLowParabola=" << thetaDegLowParabola
+																<< " thetaDegHighParabola=" << thetaDegHighParabola
+																<< " thetaBins=" << thetaBins
+																<< "  peakThetaDegLineBeforeDipole="
+																<< peakThetaRadLB4D / meinpi * 180.
+																<< " peakThetaDegHwLineBeforeDipole="
+																<< peakThetaRadHwLB4D / meinpi * 180. << '\n';
 
 		delete fHoughspaceZxParabola;
 		fHoughspaceZxParabola = new PndFtsHoughSpace("parabola", thetaBins,
@@ -288,9 +288,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 
 void PndFtsHoughTrackFinder::FindTracks() {
 
-	if (0<fVerbose) {
-		std::cout << "PndFtsHoughTrackFinder::FindTracks()\n";
-	}
+	if (0<fVerbose) std::cout << "PndFtsHoughTrackFinder::FindTracks()\n";
 
 	// reset
 	fHoughTrackCands.clear();
@@ -308,44 +306,42 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 	// zx plane: Straight line Hough transform behind dipole
-	std::vector<PndFtsHoughTracklet> trackletsLineBehindDipole = FindLineBehindDipoleZxTracklets();
+	std::vector<PndFtsHoughTracklet> linesBehindDipole = FindLineBehindDipoleZxTracklets();
 
 
 	// zx plane: Straight line Hough transform before dipole
-	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = FindLineBeforeDipoleZxTracklets();
+	std::vector<PndFtsHoughTracklet> linesBeforeDipole = FindLineBeforeDipoleZxTracklets();
 
 
 	// loop over all line tracklets which were found by line HT before dipole field and find a matching parabola
-	FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(trackletsLineBeforeDipole, trackletsLineBehindDipole);
+	FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(linesBeforeDipole, linesBehindDipole);
+
+
+
+
+	// Check all skewed hits whether they might belong to any of the track candidates
+	// Calculate (x,z) coordinate hypotheses for skewed hits which might belong to track candidates
+	// and run line Hough transform on these hypotheses
 
 
 
 
 
 
-	// TODO: Rewrite the following conversion
-	// Get momenta from arbitrary units to meaningful ones
-	//		pzinvpeak = 1./pzinvpeak*0.00299792458;
+
+
+
+
+
+
+
+
+
+
+
+	// TODO: Convert momenta to physical units
+	//	pzinvpeak = 1./pzinvpeak*0.00299792458;
 	//	pzinvpeakWithBField = pzinvpeak/BMeanForParabola;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//	if (0<fSaveDebugInfo){
-	//		WriteHistograms();
-	//	}
 
 
 	if(0<fVerbose) {

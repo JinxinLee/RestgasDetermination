@@ -125,17 +125,17 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																						fTrackerTask(trackerTask),
+						fTrackerTask(trackerTask),
 
-																						fZRefPos(zRefPos),
-																						fInterceptZx(interceptZx),
+						fZRefPos(zRefPos),
+						fInterceptZx(interceptZx),
 
-																						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-																						// set from tracker task
-																						fFtsBranchId(0),
-																						fVerbose(0),
-																						fField(0)
+						// set from tracker task
+						fFtsBranchId(0),
+						fVerbose(0),
+						fField(0)
 
 {
 	if (0==fTrackerTask){
@@ -252,7 +252,7 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 
 
 
-Bool_t PndFtsHoughSpace::filterInputHits()
+void PndFtsHoughSpace::filterInputHits()
 {
 	if (1<fVerbose) {
 		std::cout << "All FTS hits in event " << fTrackerTask->GetNFtsHits() << "\n";
@@ -284,7 +284,7 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 
 
 
-		// only hits with z component between fOnlyUseHitsFromZ and fOnlyUseHitsUpToZ will be used in the hough transform
+		// only hits with z component between fOnlyUseHitsFromZ and fOnlyUseHitsUpToZ will be used in the Hough transform
 		const Double_t hitZLabSys = myHit->GetZ();
 		if ( (hitZLabSys < fOnlyUseHitsFromZ) || (hitZLabSys > fOnlyUseHitsUpToZ) ){
 			if (1<fVerbose) {std::cout << "Skipping hit with index " << iHit << " , because its z " << hitZLabSys << " is not in [" << fOnlyUseHitsFromZ << ", " << fOnlyUseHitsUpToZ << "]\n";}
@@ -296,7 +296,6 @@ Bool_t PndFtsHoughSpace::filterInputHits()
 		AddHitToHS(iHit,hitZLabSys);
 
 	} // for loop over all hits
-	return kTRUE;
 }
 
 
@@ -401,7 +400,11 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 		// get hit position
 		TVector3 hitPos;
-		myHit->Position(hitPos);
+		if (kFALSE == myHit->GetSkewed()){
+			myHit->Position(hitPos);
+		} else {
+			hitPos = CalculateHitPosFromIntersectionsWithZxTrackModel(myHit);
+		}
 
 		Double_t hitXLabSys = hitPos.X();
 		Double_t hitYLabSys = hitPos.Y();
@@ -1169,4 +1172,12 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			}
 }
 
+TVector3 PndFtsHoughSpace::CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit* const myHit) {
+	const Double_t hitZLabSys = myHit->GetZ();
+	const PndFtsTube *ftsTube = fTrackerTask->getFtsTube(myHit);
+	const TVector3 wireDirection = ftsTube->GetWireDirection();
 
+
+	TVector3 crossingPosition;
+
+}
