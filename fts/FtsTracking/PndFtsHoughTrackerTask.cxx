@@ -283,13 +283,22 @@ InitStatus PndFtsHoughTrackerTask::ReInit()
 }
 
 
-const TMatrixT<Double_t> PndFtsHoughTrackerTask::GetFtsHitCovMatrix(UInt_t hitId) const
+const TVector3 PndFtsHoughTrackerTask::GetFtsHitPosErrors(const PndFtsHit* ftsHit) const
 {
-	// hitId is index in FTS hit array
-	if (1<fVerbose) std::cout << "Get FTS hit error for hitId ( " << hitId << " / " << GetNFtsHits() << " )\n";
+	const PndFtsTube *const tube = GetFtsTube(ftsHit);
 
-	const PndFtsHit* const myHit = GetFtsHit(hitId);
-	const PndFtsTube *const tube = GetFtsTube(myHit);
+	const Double_t sizeSigmaCoeff = 1.5; // TODO Check value
+	const Double_t rhoError = tube->GetRadIn()/sizeSigmaCoeff;
+	const Double_t zError = tube->GetHalfLength()/sizeSigmaCoeff; // TODO might need additional factor
+
+	TVector3 hitPosErrors(rhoError,rhoError,zError);
+
+	return hitPosErrors;
+}
+
+const TMatrixT<Double_t> PndFtsHoughTrackerTask::GetFtsHitCovMatrix(const PndFtsHit* ftsHit) const
+{
+	const PndFtsTube *const tube = GetFtsTube(ftsHit);
 
 	const Double_t sizeSigmaCoeff = 1.5; // TODO Check value
 	const Double_t rhoError = tube->GetRadIn()/sizeSigmaCoeff;

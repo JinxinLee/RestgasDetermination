@@ -108,19 +108,24 @@ public:
 		return myHit;
 	};
 	/** @brief Returns pointer to the FTS tube corresponding to input FTS hit.
-		 * @param[in] myHit: FTS hit for which the tube should be returned.
-		 * @return Pointer to tube corresponding to myHit.
-		 */
+	 * @param[in] myHit: FTS hit for which the tube should be returned.
+	 * @return Pointer to tube corresponding to myHit.
+	 */
 	const PndFtsTube *const GetFtsTube(const PndFtsHit *const myHit) const {
 		Int_t tubeID = myHit->GetTubeID();
 		const PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
 		return tube;
 	}
 	/** @brief Returns the position error (based on FTS straw geometry) for the hit with index hitId in the FTS hit array.
-	 * @param[in] hitId Index (in fFtsHitArray) of the hit for which the error should be returned.
+	 * @param[in] pointer to hit for which the error should be returned.
 	 * @return Error in cm.
 	 */
-	const TMatrixT<Double_t> GetFtsHitCovMatrix(UInt_t hitId) const;
+	const TVector3 GetFtsHitPosErrors(const PndFtsHit* ftsHit) const;
+	/** @brief Returns the position covariance matrix (based on FTS straw geometry) for the hit with index hitId in the FTS hit array.
+	 * @param[in] ftsHit pointer to hit for which the error should be returned.
+	 * @return Error in cm.
+	 */
+	const TMatrixT<Double_t> GetFtsHitCovMatrix(const PndFtsHit* ftsHit) const;
 	/**@brief Returns detector Id of FTS. Try not to use it.
 	 *
 	 * @see GetFtsHit
