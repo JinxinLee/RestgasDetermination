@@ -65,7 +65,7 @@ PndEmcHitProducer::~PndEmcHitProducer() { delete fEmcStr;}
 // -----   Public method Init   --------------------------------------------
 InitStatus PndEmcHitProducer::Init(){
 
-	cout << " INITIALIZATION *********************" << endl;
+	cout << " -I- PndEmcHitProducer INITIALIZATION *********************" << endl;
 
 	//FairDetector::Initialize();
 	//FairRun* sim = FairRun::Instance();
@@ -213,7 +213,7 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 // -----   Public method Exec   --------------------------------------------
 void PndEmcHitProducer::Exec(Option_t* opt)
 {  
-	cout << " POINT EXECUTION *********************" << endl;
+	if (fVerbose>1) cout << " -I- PndEmcHitProducer POINT EXECUTION *********************" << endl;
 	// Reset output array
 	if (! fHitArray ) Fatal("Exec", "No DigiArray");
 
