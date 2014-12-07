@@ -283,7 +283,7 @@ InitStatus PndFtsHoughTrackerTask::ReInit()
 }
 
 
-const TVector3 PndFtsHoughTrackerTask::GetFtsHitPosErrors(const PndFtsHit* ftsHit) const
+const TVector3 PndFtsHoughTrackerTask::GetFtsHitPosErrors(const PndFtsHit *const ftsHit) const
 {
 	const PndFtsTube *const tube = GetFtsTube(ftsHit);
 
@@ -296,7 +296,7 @@ const TVector3 PndFtsHoughTrackerTask::GetFtsHitPosErrors(const PndFtsHit* ftsHi
 	return hitPosErrors;
 }
 
-const TMatrixT<Double_t> PndFtsHoughTrackerTask::GetFtsHitCovMatrix(const PndFtsHit* ftsHit) const
+const TMatrixT<Double_t> PndFtsHoughTrackerTask::GetFtsHitCovMatrix(const PndFtsHit *const ftsHit) const
 {
 	const PndFtsTube *const tube = GetFtsTube(ftsHit);
 

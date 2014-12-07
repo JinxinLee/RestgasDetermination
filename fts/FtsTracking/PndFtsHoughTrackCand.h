@@ -68,6 +68,7 @@ public:
 	inline Int_t getCharge() const; // gets charge of track candidate // TODO only charge sign is implemented
 	TVector3 getP(const Double_t zLabSys) const; // gets the momentum calculated at some z coordinate in laboratory system
 	TVector3 getPos(const Double_t zLabSys) const; // gets the position calculated at some z coordinate in laboratory system
+	Double_t getXLabSys(const Double_t zLabSys) const;
 
 	Double_t getThetaZxRad(const Double_t zLabSys) const; // gets the angle to the z axis in the zx plane calculated at some z coordinate (in laboratory system)
 	// gets the angle to the z axis in the zy plane calculated at some z coordinate (in laboratory system)
@@ -105,8 +106,6 @@ private:
 	inline std::pair<Double_t, Double_t> getPZPXLabLine(const Double_t &zLabSys, const PndFtsHoughTracklet * const lineTracklet) const;
 	inline std::pair<Double_t, Double_t> getPZPXLabParabola(const Double_t &zLabSys) const;
 
-
-	Double_t getXLabSys(const Double_t zLabSys) const;
 	inline Double_t getXOrYLabForLine(const Double_t &zLabSys, const PndFtsHoughTracklet * const lineTracklet) const;
 	Double_t getXLabForParabola(const Double_t &zLabSys) const; // TODO: Check this!
 

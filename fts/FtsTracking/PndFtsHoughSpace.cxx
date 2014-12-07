@@ -1178,16 +1178,20 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 TVector3 PndFtsHoughSpace::CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit* const myHit) {
 	if (0==fAssociatedTrackCand) throwError("No track cand associated with Hough space. Cannot calculate possible hit pos. from track model.");
 
-	const Double_t hitZLabSys = myHit->GetZ();
 	const PndFtsTube *ftsTube = fTrackerTask->GetFtsTube(myHit);
 	const TVector3 wireDirection = ftsTube->GetWireDirection();
+	const TVector3 wireCenter = ftsTube->GetPosition();
 
+	const Double_t hitZLabSys = wireCenter.Z();
 
+	// calculate xTM according to track model at hitZLabSys
+	const Double_t xTM = fAssociatedTrackCand->getXLabSys(hitZLabSys);
+	// calculate param which is needed for xStraw = xTM
+	// xTM = wireCenter.X() + param*wireDirection.X()
+	const Double_t param = ( xTM - wireCenter.X() ) / wireDirection.X();
+	// calculate corresponding yStraw
+	const Double_t yStraw = wireCenter.Y() + param*wireDirection.Y();
 
-	//fAssociatedTrackCand
-	// HIER WEITER
-
-
-	TVector3 crossingPosition(0,0,0);
+	TVector3 crossingPosition(xTM,yStraw,hitZLabSys);
 	return crossingPosition;
 }
