@@ -102,10 +102,7 @@ public:
 	 * @return Pointer to hit with index hitId in FTS hit array.
 	 */
 	const PndFtsHit *const GetFtsHit(UInt_t hitId) const {
-		if ( hitId >= GetNFtsHits() ) {
-			Warning("GetFtsHit","hitId is too large.");
-			return 0;
-		}
+		if ( hitId >= GetNFtsHits() ) throwError("GetFtsHit: hitId is too large.");
 		//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
 		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
 		return myHit;
@@ -114,7 +111,7 @@ public:
 		 * @param[in] myHit: FTS hit for which the tube should be returned.
 		 * @return Pointer to tube corresponding to myHit.
 		 */
-	const PndFtsTube *const getFtsTube(const PndFtsHit *const myHit) const {
+	const PndFtsTube *const GetFtsTube(const PndFtsHit *const myHit) const {
 		Int_t tubeID = myHit->GetTubeID();
 		const PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
 		return tube;
@@ -123,7 +120,7 @@ public:
 	 * @param[in] hitId Index (in fFtsHitArray) of the hit for which the error should be returned.
 	 * @return Error in cm.
 	 */
-	const TVector3 GetFtsHitPositionError(UInt_t hitId) const;
+	const TMatrixT<Double_t> GetFtsHitCovMatrix(UInt_t hitId) const;
 	/**@brief Returns detector Id of FTS. Try not to use it.
 	 *
 	 * @see GetFtsHit

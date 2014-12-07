@@ -242,7 +242,9 @@ FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
 	TVector3 hitPos = getPos(zLabSys);
 
 
-	TVector3 hitPosError = fTrackerTask->GetFtsHitPositionError(hitId);
+	TMatrixT<Double_t> covMatrix = fTrackerTask->GetFtsHitCovMatrix(hitId);
+	// TODO probaly I need a different constructor for FairTrackParP so I can pass my covariance matrix
+	TVector3 hitPosError(covMatrix[0][0],covMatrix[1][1],covMatrix[2][2]);
 
 	// momentum comes from the pattern recognition track model
 	TVector3 mom = getP(zLabSys);

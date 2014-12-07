@@ -283,29 +283,34 @@ InitStatus PndFtsHoughTrackerTask::ReInit()
 }
 
 
-const TVector3 PndFtsHoughTrackerTask::GetFtsHitPositionError(UInt_t hitId) const
+const TMatrixT<Double_t> PndFtsHoughTrackerTask::GetFtsHitCovMatrix(UInt_t hitId) const
 {
 	// hitId is index in FTS hit array
-	if (1<fVerbose) {
-		std::cout << "Get FTS hit error for hitId ( " << hitId << " / " << GetNFtsHits() << " )\n";
-	}
+	if (1<fVerbose) std::cout << "Get FTS hit error for hitId ( " << hitId << " / " << GetNFtsHits() << " )\n";
 
-	if ( hitId >= GetNFtsHits() ) {
-		throwError("FTS hit cannot be found!");
-	}
-
-	// TODO: Check if there is a better way to set the errors
 	const PndFtsHit* const myHit = GetFtsHit(hitId);
-	Int_t tubeID = myHit->GetTubeID();
-	PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
-	const Double_t zError = 2*tube->GetHalfLength();
-	// TODO: Read out radius of FTS tube
-	const Double_t xError = 1.01 + 0.003; // in cm // Straw diameter: 10.1 mm, tube wall 0.03 mm Mylar
-	const Double_t yError = xError;
-	const TVector3 hitPosError(xError,yError,zError);
-	// TODO: Take rotation into account for skewed straws
+	const PndFtsTube *const tube = GetFtsTube(myHit);
 
-	return hitPosError;
+	const Double_t sizeSigmaCoeff = 1.5; // TODO Check value
+	const Double_t rhoError = tube->GetRadIn()/sizeSigmaCoeff;
+	const Double_t zError = tube->GetHalfLength()/sizeSigmaCoeff; // TODO might need additional factor
+	TMatrixT<Double_t> rotationMatrix = tube->GetRotationMatrix();
+
+	TMatrixT<Double_t> unrotatedCovMatrix(3,3);
+	// initialize with 0
+	for (Int_t firstIdx=0; firstIdx < 3; ++firstIdx){
+		for (Int_t secondIdx=0; secondIdx < 3; ++secondIdx){
+			unrotatedCovMatrix[firstIdx][secondIdx] = 0;
+			}
+	}
+	unrotatedCovMatrix[0][0] = pow(rhoError, 2);
+	unrotatedCovMatrix[1][1] = pow(rhoError, 2);
+	unrotatedCovMatrix[2][2] = pow(zError, 2);
+
+	TMatrixT<Double_t> rotatedCovMatrix = rotationMatrix*unrotatedCovMatrix;
+	rotatedCovMatrix *= rotationMatrix.Transpose(rotationMatrix);
+
+	return rotatedCovMatrix;
 }
 
 

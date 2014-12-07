@@ -237,16 +237,6 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 
 
 
-		//----------------------------
-		//At this point I have track candidates from line in zx before dipole matched to parabolas within the dipole: fHoughTrackCands
-		// I also have line in zx after dipole field: trackletsLineBehindDipole
-		// Now match them based on angle theta to z axis at z = fZParabolaLine
-		// MatchLineAfterDipoleZx
-
-		// HIER GEHT ES WEITER!!!
-
-
-
 
 		// construct newHoughTrackCand from line+parabola+line (in zx)
 		if (1 < fVerbose) {

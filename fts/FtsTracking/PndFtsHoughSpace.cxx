@@ -127,19 +127,19 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-						fTrackerTask(trackerTask),
+								fTrackerTask(trackerTask),
 
-						fZRefPos(zRefPos),
-						fInterceptZx(interceptZx),
+								fZRefPos(zRefPos),
+								fInterceptZx(interceptZx),
 
-						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+								TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-						// set from tracker task
-						fFtsBranchId(0),
-						fVerbose(0),
-						fField(0),
+								// set from tracker task
+								fFtsBranchId(0),
+								fVerbose(0),
+								fField(0),
 
-						fAssociatedTrackCand(associatedTrackCand)
+								fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -1176,11 +1176,18 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 }
 
 TVector3 PndFtsHoughSpace::CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit* const myHit) {
+	if (0==fAssociatedTrackCand) throwError("No track cand associated with Hough space. Cannot calculate possible hit pos. from track model.");
+
 	const Double_t hitZLabSys = myHit->GetZ();
-	const PndFtsTube *ftsTube = fTrackerTask->getFtsTube(myHit);
+	const PndFtsTube *ftsTube = fTrackerTask->GetFtsTube(myHit);
 	const TVector3 wireDirection = ftsTube->GetWireDirection();
 
 
-	TVector3 crossingPosition;
 
+	//fAssociatedTrackCand
+	// HIER WEITER
+
+
+	TVector3 crossingPosition(0,0,0);
+	return crossingPosition;
 }
