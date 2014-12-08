@@ -19,6 +19,7 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   Bool_t UseEvtGen	      =kTRUE; 
   Bool_t UseEvtGenDirect      =kFALSE;     
   Bool_t UseDpm 	      =kFALSE;
+  Bool_t UseFtf 	      =kFALSE;
   Bool_t UseBoxGenerator      =kFALSE;
   
   //------------------------------------------------------------------
@@ -144,6 +145,12 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   if(UseDpm){
     PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
     primGen->AddGenerator(Dpm);
+  }
+  if(UseFtf){
+	TString macfile = gSystem->Getenv("VMCWORKDIR");
+	macfile += "/pgenerators/FtfEvtGen/PbarP.mac";
+	PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());
+	primGen->AddGenerator(Ftf);
   }
   if(UseEvtGen){	
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");

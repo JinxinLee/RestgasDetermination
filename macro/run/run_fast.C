@@ -10,9 +10,10 @@ run_fast(Int_t nEvents = 1000 )
   gDebug                  = 0;
   
   // choose your event generator 
-  Bool_t UseEvtGen	      = kTRUE;     
+  Bool_t UseEvtGen	      = kTRUE;
   Bool_t UseDpm 	      = kFALSE;
-  Bool_t UseBoxGenerator  = kFALSE; 
+  Bool_t UseFtf 	      = kFALSE;
+  Bool_t UseBoxGenerator      = kFALSE; 
   
   TString EvtInput = BaseDir + "/input/psi2s_jpsi2pi_1k.evt"; //  Input EvtGen
                      
@@ -21,13 +22,9 @@ run_fast(Int_t nEvents = 1000 )
   Double_t MomMin  = 0.5;  // minimum momentum for box generator
   Double_t MomMax  = 2.0;  // maximum   "       "
   
-  
    // Load basic libraries---------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon(); 
-  // Load the rho and fast sim libraries
-  gSystem->Load("libRho");
-  gSystem->Load("libfsim");
   
   TStopwatch timer;
   timer.Start();
@@ -54,6 +51,12 @@ run_fast(Int_t nEvents = 1000 )
   if(UseDpm){
   	  PndDpmDirect *Dpm= new PndDpmDirect(MomDpm,0);
 	  primGen->AddGenerator(Dpm);
+  }
+  if(UseFtf){
+  	TString macfile = gSystem->Getenv("VMCWORKDIR");
+  	macfile += "/pgenerators/FtfEvtGen/PbarP.mac";
+	PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());
+	primGen->AddGenerator(Ftf);
   }
   if(UseEvtGen){
 	  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());

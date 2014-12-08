@@ -16,6 +16,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   // choose your event generator 
   Bool_t UseEvtGenDirect      =kTRUE;     
   Bool_t UseDpm 	      =kFALSE;
+  Bool_t UseFtf 	      =kFALSE;
   Bool_t UseBoxGenerator      =kFALSE;
 
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
@@ -151,6 +152,12 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   if(UseDpm){
   	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
 	  primGen->AddGenerator(Dpm);
+  }
+  if(UseFtf){
+          TString macfile = gSystem->Getenv("VMCWORKDIR");
+	  macfile += "/pgenerators/FtfEvtGen/PbarP.mac";
+	  PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());
+          primGen->AddGenerator(Ftf);
   }
   if(UseEvtGenDirect){
           TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
