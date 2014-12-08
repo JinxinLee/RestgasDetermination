@@ -74,28 +74,28 @@ public:
 
 
 	// Output
-	Int_t NTracks() const { return fHoughTrackCands.size(); };		///< @brief Returns the number of found tracks
+	Int_t NTracks() const { return fHoughTrackCandsComplete.size(); };		///< @brief Returns the number of found tracks
 	/**@brief Returns the track cand. with index i.
 	 *
 	 * Note: Method calculates first and last parameters of the PndTrack object, but uses an empty PndTrackCand which has to be set lateron using SetTrackCandRef!
 	 * @param i Index of requested track cand.
 	 * @return Track cand. to index i.
 	 */
-	PndTrack GetPndTrack(int i){ return fHoughTrackCands[i].getPndTrack(); };
+	PndTrack GetPndTrack(int i){ return fHoughTrackCandsComplete[i].getPndTrack(); };
 	/**@brief Returns the track cand. with index i.
 	 *
 	 * Note: Use this to add a PndTrackCand to the corresponding PndTrack object with SetTrackCandRef!
 	 * @param i Index of requested track cand.
 	 * @return Track cand. to index i.
 	 */
-	PndTrackCand GetPndTrackCand(int i) { return fHoughTrackCands[i].getPndTrackCand(); };
+	PndTrackCand GetPndTrackCand(int i) { return fHoughTrackCandsComplete[i].getPndTrackCand(); };
 	/**@brief Returns the track cand. with index i.
 	 *
 	 * Note: For debugging only.
 	 * @param i Index of requested track cand.
 	 * @return Track cand. to index i.
 	 */
-	PndFtsHoughTrackCand GetHoughTrack(int i) const { return fHoughTrackCands[i]; };
+	PndFtsHoughTrackCand GetHoughTrack(int i) const { return fHoughTrackCandsComplete[i]; };
 
 
 	// Parameters
@@ -133,8 +133,8 @@ private:
 	PndFtsHoughSpace* fHoughspaceZxParabola;
 	PndFtsHoughSpace* fHoughSpaceZxLineBehindDipole;
 	PndFtsHoughSpace* fHoughspaceZyLine;
-	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsNew;	///< For temporary internal storing of track cands.
-	std::vector<PndFtsHoughTrackCand> fHoughTrackCands;		///< For internal storing of track cands.
+	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsComplete; ///< For internal storing of complete track cands.
+	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsZxPlaneOnly; ///< For internal storing of track cands. (zx plane track model only)
 	//	std::vector<PndTrackCand> fTrackCand; // resulting track candidates, also used for returning PndTracks
 
 

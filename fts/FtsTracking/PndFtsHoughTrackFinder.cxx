@@ -9,23 +9,23 @@ const Double_t PndFtsHoughTrackFinder::fZLineParabola = 368.;
 const Double_t PndFtsHoughTrackFinder::fZParabolaLine = 605.;
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask) :
-																									fTrackerTask(trackerTask),
+																															fTrackerTask(trackerTask),
 
-																									// min peak heights
-																									fMinPeakHeightZxLineParabola(6),
-																									fMinPeakHeightZxParabola(8),
-																									fMinPeakHeightZxParabolaLine(6),
-																									fMinPeakHeightZyLine(4),
+																															// min peak heights
+																															fMinPeakHeightZxLineParabola(6),
+																															fMinPeakHeightZxParabola(8),
+																															fMinPeakHeightZxParabolaLine(6),
+																															fMinPeakHeightZyLine(4),
 
-																									// general
-																									fSaveDebugInfo(kFALSE),
-																									fVerbose(0),
+																															// general
+																															fSaveDebugInfo(kFALSE),
+																															fVerbose(0),
 
-																									// Hough spaces
-																									fHoughSpaceZxLineBeforeDipole(0),
-																									fHoughspaceZxParabola(0),
-																									fHoughSpaceZxLineBehindDipole(0),
-																									fHoughspaceZyLine(0)
+																															// Hough spaces
+																															fHoughSpaceZxLineBeforeDipole(0),
+																															fHoughspaceZxParabola(0),
+																															fHoughSpaceZxLineBehindDipole(0),
+																															fHoughspaceZyLine(0)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Tracker task not set.\n";
@@ -185,13 +185,13 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				* (thetaDegHighParabola - thetaDegLowParabola));
 
 		std::cout << "event: " << fTrackerTask->GetEventNr()
-																<< "\nthetaDegLowParabola=" << thetaDegLowParabola
-																<< " thetaDegHighParabola=" << thetaDegHighParabola
-																<< " thetaBins=" << thetaBins
-																<< "  peakThetaDegLineBeforeDipole="
-																<< peakThetaRadLB4D / meinpi * 180.
-																<< " peakThetaDegHwLineBeforeDipole="
-																<< peakThetaRadHwLB4D / meinpi * 180. << '\n';
+																						<< "\nthetaDegLowParabola=" << thetaDegLowParabola
+																						<< " thetaDegHighParabola=" << thetaDegHighParabola
+																						<< " thetaBins=" << thetaBins
+																						<< "  peakThetaDegLineBeforeDipole="
+																						<< peakThetaRadLB4D / meinpi * 180.
+																						<< " peakThetaDegHwLineBeforeDipole="
+																						<< peakThetaRadHwLB4D / meinpi * 180. << '\n';
 
 		delete fHoughspaceZxParabola;
 		fHoughspaceZxParabola = new PndFtsHoughSpace("parabola", thetaBins,
@@ -260,13 +260,13 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				if (kTRUE == LineBehindDipoleMatchesToLinePlusParabola( lineParabola,  linesBehindDipole[iLBhD]) ){
 					PndFtsHoughTrackCand lineParabolaLine(lineParabola); // make a copy
 					lineParabolaLine.SetZxLineBehindDipole(linesBehindDipole[iLBhD]); // add line behind dipole
-					fHoughTrackCands.push_back(lineParabolaLine); // add as track candidate
+					fHoughTrackCandsZxPlaneOnly.push_back(lineParabolaLine); // add as track candidate
 					foundLineBehindDipole = kTRUE;
 				}
 			}
 
 			// iif no lines behind dipole matched, add track cand without any line behind dipole
-			if (kFALSE == foundLineBehindDipole) fHoughTrackCands.push_back(lineParabola);
+			if (kFALSE == foundLineBehindDipole) fHoughTrackCandsZxPlaneOnly.push_back(lineParabola);
 		}
 	} // loop over all line tracklets which were found by line HT before dipole field
 }
@@ -281,8 +281,8 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	if (0<fVerbose) std::cout << "PndFtsHoughTrackFinder::FindTracks()\n";
 
 	// reset
-	fHoughTrackCands.clear();
-	fHoughTrackCandsNew.clear();
+	fHoughTrackCandsZxPlaneOnly.clear();
+	fHoughTrackCandsComplete.clear();
 
 
 	//--------------------------
@@ -309,12 +309,89 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 
+
+
+	// loop over line+parabola+line track candidates in zx plane, pass track cand. to Hough space (one Hough transform needed for each line+parabola+line track cand.
 	// Check all skewed hits whether they might belong to any of the track candidates
-	// Calculate (x,z) coordinate hypotheses for skewed hits which might belong to track candidates
-	// and run line Hough transform on these hypotheses
+	// Calculate (x,z) coordinate hypotheses for skewed hits which might belong to track candidates and run line Hough transform on these hypotheses
 
 
 
+	//----------------------------------
+	// zy plane: Straight line Hough transform
+	// loop over line+parabola+line from zx plane
+	for (UInt_t iLPL = 0; iLPL < fHoughTrackCandsZxPlaneOnly.size(); ++iLPL) {
+		// determine where to look for line in zy plane
+		static const Int_t stepsPerThetaDegZyLine = 4; // greater number means finer scanning in theta
+		static const Int_t thetaDegLowZyLine = -18; // in degree
+		static const Int_t thetaDegHighZyLine = 18; // in degree
+
+		// create Hough space
+		PndFtsHoughSpace* houghspaceZyLine = new PndFtsHoughSpace("ZyLine",
+				stepsPerThetaDegZyLine
+				* (thetaDegHighZyLine
+						- thetaDegLowZyLine),
+						thetaDegLowZyLine / 180. * meinpi, // in rad
+						thetaDegHighZyLine / 180. * meinpi, // in rad
+						stepsPerThetaDegZyLine * 16, // TODO: Check values
+						-80., // in cm // TODO: Check values
+						80., // in cm
+						fZLineParabola, 0., &(fHoughTrackCandsZxPlaneOnly[iLPL]), fTrackerTask);
+
+
+		// Do line Hough transform for current line+parabola+line for skewed hits in all stations
+		try {
+			houghspaceZyLine->FillHoughSpace();
+			if (0 < fVerbose) {
+				std::cout
+				<< "Hough Space for zy line before dipole was created successfully!"
+				<< '\n' << "We have "
+				<< houghspaceZyLine->GetNHits()
+				<< " hits in the line Hough space.\n";
+			}
+			if (fTrackerTask->GetSaveDebugInfo()) {
+				houghspaceZyLine->GetXaxis()->SetTitle("#theta [rad]");
+				houghspaceZyLine->GetYaxis()->SetTitle("y [cm]");
+				fTrackerTask->WriteHistogram(houghspaceZyLine);
+			}
+		} catch (std::runtime_error& e) {
+			std::cerr
+			<< "Hough Space for zy line before dipole could not be created! \n";
+			std::cerr << "runtime_error: " << e.what() << '\n';
+		}
+		// find peaks for line Hough space and store in vector
+		std::vector<PndFtsHoughTracklet> trackletsZyLine;
+		// Call peak finder and plot the solution if it was found!
+		if (kTRUE
+				== houghspaceZyLine->FindAllPeaks(
+						fMinPeakHeightZyLine, trackletsZyLine)) {
+			if (0 < fVerbose) {
+				PrintFoundTracklets(trackletsZyLine,
+						houghspaceZyLine->GetName());
+				fTrackerTask->WriteHistogram(houghspaceZyLine);
+			}
+		} else {
+			std::cout
+			<< "Error: Peak finder had a problem with Hough space for zy line!!!"
+			<< '\n';
+		}
+
+
+
+		// construct newHoughTrackCand by adding zy line to line+parabola+line (in zx)
+		if (1 < fVerbose) {
+			std::cout
+			<< "Create track candidates by adding line in zy to line+parabola+line in zx "
+			<< iLPL <<"\n"
+			<< "If no zy line can be found, delete track candidate.\n";
+		}
+		// loop over all zy lines which were found for line+parabola+line
+		for (UInt_t iZyLine = 0; iZyLine < trackletsZyLine.size(); ++iZyLine) {
+			PndFtsHoughTrackCand fullTrackCand(fHoughTrackCandsZxPlaneOnly[iLPL]); // make copy
+			fullTrackCand.SetZyLine(trackletsZyLine[iZyLine]); // add zy line
+			fHoughTrackCandsComplete.push_back(fullTrackCand); // add as track candidate
+		}
+	} // loop over all line+parabola+line from zx plane
 
 
 

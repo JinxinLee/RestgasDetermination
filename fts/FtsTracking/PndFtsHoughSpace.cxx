@@ -353,16 +353,6 @@ Bool_t PndFtsHoughSpace::FillHoles(
 	return kTRUE;
 }
 
-
-
-
-
-
-
-
-
-
-
 void PndFtsHoughSpace::FillHoughSpace()
 {
 	// make sure we have hits in the Hough space
@@ -402,13 +392,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 
 		// get hit position
-		TVector3 hitPos;
-		if (kFALSE == myHit->GetSkewed()){
-			myHit->Position(hitPos);
-		} else {
-			hitPos = CalculateHitPosFromIntersectionsWithZxTrackModel(myHit);
-		}
-
+		TVector3 hitPos = GetRawOrCalculatedHitPos(myHit);
 		Double_t hitXLabSys = hitPos.X();
 		Double_t hitYLabSys = hitPos.Y();
 		Double_t hitZLabSys = hitPos.Z();
@@ -573,7 +557,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 )
 {
 	// make sure the output vector is empty
-	if ( 0!=tracklets.size() ){ throwError("in PndFtsHoughSpace: tracklet vector is not empty."); }
+	if ( 0!=tracklets.size() ) throwError("in PndFtsHoughSpace: tracklet vector is not empty.");
 
 
 	// check if Hough space has at least one entry
@@ -823,8 +807,8 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 						const PndFtsHit* myHit = getHitFromHS(iHit);
 
 						// get hit position
-						TVector3 hitPos;
-						myHit->Position(hitPos);
+						const TVector3 hitPos = GetRawOrCalculatedHitPos(myHit);
+
 
 						Double_t hitXLabSys = hitPos.X();
 						Double_t hitYLabSys = hitPos.Y();
@@ -1032,8 +1016,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 								const PndFtsHit* myHit = getHitFromHS(iHit);
 
 								// get hit position
-								TVector3 hitPos;
-								myHit->Position(hitPos);
+								const TVector3 hitPos = GetRawOrCalculatedHitPos(myHit);
 
 								Double_t hitXLabSys = hitPos.X();
 								Double_t hitYLabSys = hitPos.Y();
@@ -1173,25 +1156,4 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 				std::cout << "PeakFinder error: Option " << peakfinderOption << " is not implemented!\n";
 				return kFALSE;
 			}
-}
-
-TVector3 PndFtsHoughSpace::CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit* const myHit) {
-	if (0==fAssociatedTrackCand) throwError("No track cand associated with Hough space. Cannot calculate possible hit pos. from track model.");
-
-	const PndFtsTube *ftsTube = fTrackerTask->GetFtsTube(myHit);
-	const TVector3 wireDirection = ftsTube->GetWireDirection();
-	const TVector3 wireCenter = ftsTube->GetPosition();
-
-	const Double_t hitZLabSys = wireCenter.Z();
-
-	// calculate xTM according to track model at hitZLabSys
-	const Double_t xTM = fAssociatedTrackCand->getXLabSys(hitZLabSys);
-	// calculate param which is needed for xStraw = xTM
-	// xTM = wireCenter.X() + param*wireDirection.X()
-	const Double_t param = ( xTM - wireCenter.X() ) / wireDirection.X();
-	// calculate corresponding yStraw
-	const Double_t yStraw = wireCenter.Y() + param*wireDirection.Y();
-
-	TVector3 crossingPosition(xTM,yStraw,hitZLabSys);
-	return crossingPosition;
 }

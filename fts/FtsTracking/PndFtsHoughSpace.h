@@ -154,6 +154,9 @@ private:
 	inline void AddHitToHS(UInt_t hitId, Double_t rho);
 	inline void AddHitToHS(FairLink link, Double_t rho);
 	inline const PndFtsHit *const getHitFromHS(UInt_t index) const; // gets the FTS hit corresponding to index
+	inline const TVector3 CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit *const myHit) const;
+	inline const TVector3 GetRawOrCalculatedHitPos(const PndFtsHit* const myHit) const;
+
 
 	/**For each hit index the "path through the Hough space" [order of index pairs in which the (thetaRad, yVal) pairs are filled during the thetaRad scan] is saved
 	 * This is useful for peak finding.
@@ -240,10 +243,6 @@ private:
 
 
 
-	TVector3 CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit *const myHit);
-
-
-
 	inline Double_t equationParabola(Double_t thetaRad, Double_t hitZShifted, Double_t hitXShifted, Double_t By)
 	{
 		// for parabola equation
@@ -281,7 +280,6 @@ private:
 		return yVal;
 	}
 
-
 public:
 	ClassDef(PndFtsHoughSpace,1);
 
@@ -309,6 +307,41 @@ const PndFtsHit *const PndFtsHoughSpace::getHitFromHS(UInt_t index) const {
 	} else {
 		return 0;
 	}
+}
+
+
+const TVector3 PndFtsHoughSpace::GetRawOrCalculatedHitPos(
+		const PndFtsHit* const myHit
+	) const {
+	// get hit position
+	TVector3 hitPos;
+	if (kFALSE == myHit->GetSkewed()) {
+		myHit->Position(hitPos);
+	} else {
+		hitPos = CalculateHitPosFromIntersectionsWithZxTrackModel(myHit);
+	}
+	return hitPos;
+}
+
+const TVector3 PndFtsHoughSpace::CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit* const myHit) const {
+	if (0==fAssociatedTrackCand) throwError("No track cand associated with Hough space. Cannot calculate possible hit pos. from track model.");
+
+	const PndFtsTube *ftsTube = fTrackerTask->GetFtsTube(myHit);
+	const TVector3 wireDirection = ftsTube->GetWireDirection();
+	const TVector3 wireCenter = ftsTube->GetPosition();
+
+	const Double_t hitZLabSys = wireCenter.Z();
+
+	// calculate xTM according to track model at hitZLabSys
+	const Double_t xTM = fAssociatedTrackCand->getXLabSys(hitZLabSys);
+	// calculate param which is needed for xStraw = xTM
+	// xTM = wireCenter.X() + param*wireDirection.X()
+	const Double_t param = ( xTM - wireCenter.X() ) / wireDirection.X();
+	// calculate corresponding yStraw
+	const Double_t yStraw = wireCenter.Y() + param*wireDirection.Y();
+
+	TVector3 crossingPosition(xTM,yStraw,hitZLabSys);
+	return crossingPosition;
 }
 
 
