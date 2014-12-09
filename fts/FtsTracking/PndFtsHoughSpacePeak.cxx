@@ -5,12 +5,12 @@
 
 ClassImp(PndFtsHoughSpacePeak);
 
-PndFtsHoughSpacePeak::PndFtsHoughSpacePeak( Int_t height, Int_t firstBin )
+PndFtsHoughSpacePeak::PndFtsHoughSpacePeak( Int_t height, Int_t firstBin, Int_t firstHitIdx )
 :
 		fHeight(height),
 		fFinished(kFALSE)
 {
-  addBin(firstBin);
+  addBin(firstBin, firstHitIdx);
 }
 
 PndFtsHoughSpacePeak::~PndFtsHoughSpacePeak()

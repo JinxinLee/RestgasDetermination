@@ -290,7 +290,7 @@ TVector3 PndFtsHoughTrackCand::getP(const Double_t zLabSys) const{
 	pXLabSys = pZPXLabSys.second;
 	const Double_t pYLabSys = getPYLab();
 	mom.SetXYZ(pXLabSys, pYLabSys, pZLabSys);
-	if (fVerbose > 0) std::cout << "P-Vector for z=" << zLabSys << " : " << mom.X() << " " << mom.Y() << " " << mom.Z() << std::endl;
+	if (fVerbose > 10) std::cout << "P-Vector for z=" << zLabSys << " : " << mom.X() << " " << mom.Y() << " " << mom.Z() << std::endl;
 	return mom;
 }
 
@@ -340,7 +340,7 @@ TVector3 PndFtsHoughTrackCand::getPos(const Double_t zLabSys) const{
 	Double_t xLabSys = getXLabSys(zLabSys);
 
 	position.SetXYZ(xLabSys, yLabSys, zLabSys);
-	if (fVerbose > 0) std::cout << "Pos-Vector for z=" << zLabSys << " : " << position.X() << " " << position.Y() << " " << position.Z() << std::endl;
+	if (fVerbose > 10) std::cout << "Pos-Vector for z=" << zLabSys << " : " << position.X() << " " << position.Y() << " " << position.Z() << std::endl;
 	return position;
 }
 

@@ -90,6 +90,8 @@ public:
 	);
 	~PndFtsHoughSpace();
 
+	TH2S ExportTH2S();
+
 	/**@brief Finds all peaks that satisfy the minimum height requirement minHeight.
 
 	 TODO: This information is obsolete and should be adjusted

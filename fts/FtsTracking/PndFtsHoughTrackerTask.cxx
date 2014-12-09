@@ -246,8 +246,10 @@ void PndFtsHoughTrackerTask::WriteHistogram(const PndFtsHoughSpace *const houghS
 		outName+="-";
 		outName+=index;
 	}
-	outName+=".C";
-	houghSpace->SaveAs(outName, "LEGO2");
+	outName+=".C"; // png does not work in this way
+	//TH2S histo = houghspace.ExportTH2S();
+	houghSpace->SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
+	// sed -i 's/PndFtsHoughSpace/TH2S/g' *.C
 
 
 	//	fOutFile = FairRootManager::Instance()->GetOutFile();
