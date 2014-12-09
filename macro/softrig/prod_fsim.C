@@ -1,15 +1,18 @@
 // *******
-// Macro for running fast simulation
+// Macro for running fast simulation + soft trigger for softtrigger development
 // *******
 
 // The parameters are
 // -------------------
-// Prefix    : Prefix string for the output file
-// Decfile   : 1) name of the EvtGen decay file;  2) 'DPM' for using DpmGen;  3) 'BOX' for using Box Generator
-// Mom       : 1) EvtGen and DpmGen: pbar momentum in GeV/c;  2) BoxGen, Mom > 0: generate 0.1 < p < Mom;  3) BoxGen, Mom < 0: generate only p = -Mom
-// nEvents   : Number of events to be generated
-// Resonance : Initial resonance name for EvtGen
-// Pdgcode   : Only BoxGen: pdgcode of particle to be generated
+// prod_fsim.C+( <pref>, <decfile>, <mom>, [nevt], [res], [mode], [run], [full] )\n\n";
+//    <pref>     : output file names prefix\n";
+//    <decfile>  : decfile; 'DPM' uses DPM generator instead\n";
+//    <mom>      : pbar momentum\n";
+//    [nevt]     : number of events; default = 1000\n";
+//    [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'\n";
+//    [mode]     : mode code; default = 900 (->DPM code)\n";
+//    [run]      : run number; should be set if mergeing output files from same mode; default = -1\n";
+//    [full]     : apply full selection, defined in config file 'softrig/selection_fsim.cfg'; default = 0\n\n";
 
 // DetOpt    : Parameter string to control detector setup for scrutiny process with some predefined options. For other configurations better use simfast.C
 //             Appearance of each parameter is a *positive* switch! Default value "MvdGem EmcBar Drc Dsc FwdSpec" represents complete detector.
@@ -22,9 +25,23 @@
 
 
 
-void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int mode = 900, int run = -1 , TString sel="loose" )
-
+void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int mode = 900, int run = -1, int applyfull=0 )
 {
+	if (Prefix=="" || Decfile=="" || Mom==0.) 
+	{
+		cout << "USAGE:\n";
+		cout << "prod_fsim.C+( <pref>, <decfile>, <mom>, [nevt], [res], [mode], [run], [full] )\n\n";
+		cout << "   <pref>     : output file names prefix\n";
+		cout << "   <decfile>  : decfile; 'DPM' uses DPM generator instead\n";
+		cout << "   <mom>      : pbar momentum\n";
+		cout << "   [nevt]     : number of events; default = 1000\n";
+		cout << "   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'\n";
+		cout << "   [mode]     : mode code; default = 900 (->DPM code)\n";
+		cout << "   [run]      : run number; should be set if mergeing output files from same mode; default = -1\n";
+		cout << "   [full]     : apply full selection, defined in config file 'softrig/selection_fsim.cfg'; default = 0\n\n";
+		return;
+	}
+	
 	// Prevent generator from throwing a lot of warnings
 	TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888);
@@ -33,11 +50,11 @@ void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 100
 	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.1,0, "",-90000);
 	
 	//-----Evaluate Detector Setup ---------------------------------------
-	bool SwMvdGem  = true;
-	bool SwEmcBar  = true;
-	bool SwDrc     = true;
-	bool SwDsc     = true;
-	bool SwFwdSpec = true;
+	bool SwMvdGem  = true;  // Enable MVD and GEM for central tracking in addition to STT
+	bool SwEmcBar  = true;  // Enable EMC barrel for calorimetry (neutral detection and PID component)
+	bool SwDrc     = true;  // Enable Barrel DIRC for PID
+	bool SwDsc     = true;  // Enable Disc DIRC for PID
+	bool SwFwdSpec = true;  // Enable complete Forward Spectrometer (= Fwd Spec. EMC, Fwd Tracking, RICH, Fwd MUO)
 	
 // 	TString DetOpt="MvdGem EmcBar Drc Dsc FwdSpec"
 // 	if (DetOpt.Contains("MvdGem")  || DetOpt.Contains("1") ) SwMvdGem  = true;
@@ -62,7 +79,7 @@ void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 100
 	gRandom->SetSeed();
 
 	//-----User Settings:-------------------------------------------------
-	TString  OutputFile     = Prefix+"_fsim_"+sel+".root";
+	TString  OutputFile     = Prefix+"_fsim.root";
 	gDebug             = 0;
 
 	// choose your event generator
@@ -146,7 +163,7 @@ void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 100
 	primGen->DoTracking(kFALSE);
 
 	//---------------------Create and Set the Field(s)----------
-	PndMultiField *fField= new PndMultiField("FULL");
+	PndMultiField *fField= new PndMultiField("AUTO");
 	fRun->SetField(fField);
 
 	// Setup the Fast Simulation Task
@@ -362,11 +379,9 @@ void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 100
 	cout <<" ****** mode:"<<mode<<"  modeshort:"<<modeshort<<endl;
 	
 	// this file contains the trigger line definitions
-	//TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/softrig/triggerlines_10ch.cfg";
 	TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";
 	
 	// this file contains the cut setup for various modes
-	//TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_10ch_tight.cfg"; 
 	TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_fsim.cfg"; 
 	
 	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, mode, run, triggercfg);
@@ -374,7 +389,7 @@ void prod_fsim(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 100
 	
 	//stTask->McMatchAllowPhotos(10, 1.0); // MC truth match shall partially ignore photos photons (here max 1 with E<50 MeV)
 		
-	//stTask->ApplyFullSelection();  // apply selection defined in 'TString selectioncfg'
+	stTask->ApplyFullSelection(applyfull);  // apply selection defined in 'TString selectioncfg'
 	
 	stTask->SetPi0SignalParams(0.134, 0.0035);  // set parameters for pi0
 	stTask->SetKs0SignalParams(0.497, 0.0055);  // set parameters for KS

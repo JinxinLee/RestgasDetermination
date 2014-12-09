@@ -3,6 +3,65 @@ macro/softrig
 
 In this directory are several files to run the complete simulation chain + soft-trigger task and submit jobs to the cluster.
 
+**************************
+*** Procedure of usage ***
+**************************
+
+1. create EvtGen decay files:
+   
+   > ./create_decfiles.pl decays.txt
+
+2. check prod_fsim.C/prod_sof.C to configure PndSoftTriggerTask
+
+   - Define QA's to write out (default should be fine in the frist place) 
+   - Comment out stTask->ApplyFullSelection(); (we want to find the selection!)
+  
+3. submit jobs to prometheus for various energies
+
+   > ./submit(_fsim).pl <energy>
+
+4. after all jobs complete go to data directory and merge data
+
+   > cd data
+   > ../merge.pl mct
+
+5. after merge completed, compress files (switch off branches and apply precuts) for speedup
+
+   > ../compress.pl M
+
+6. do autocut optimization
+
+   > mkdir shr
+   > mv M*shr.root shr
+   > cd shr
+   > ../../autocut.pl M
+
+7. apply selection to prod_fsim.cfg / prod_sof.cfg and enable full selection
+
+   TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/softrig/data/shr/selection_M.cfg";
+   stTask->ApplyFullSelection()
+
+8. just enable event QA (for speed) and restart all jobs
+
+	if (modeshort==900)	
+	{
+		stTask->SetQAAll(false);
+	}
+	else
+	{
+		stTask->SetQAAll(false);
+		stTask->SetQAMctOnly();
+	}
+	
+	stTask->SetQAEvent(true);		// event info
+	stTask->SetQAMc(false);
+
+9. evaluate output in ntpev
+
+
+----------------------------------------------------------
+----------------------------------------------------------
+
 Files in this directory:
 -------------------------
 
