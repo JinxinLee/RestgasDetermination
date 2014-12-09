@@ -1,0 +1,9 @@
+***************************
+         IMPORTANT
+***************************
+
+Before using the macros/scripts in macros/softrig, the EvtGen decay files 
+have to be created by executing
+
+macro/softrig > ./created_decfiles.pl decays.txt
+
