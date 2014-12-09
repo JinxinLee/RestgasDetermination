@@ -2,7 +2,6 @@
 // -----                PndMvdEventMergerTask source file             -----
 // -------------------------------------------------------------------------
 
-
 #include "TClonesArray.h"
 #include "TArrayD.h"
 
