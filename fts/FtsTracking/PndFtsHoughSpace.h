@@ -5,6 +5,7 @@
 
  @brief Class for Hough space based on TH2S (for the moment). Saves the hits which enter this Hough space and finds peaks.
 
+TODO Save path through Hough spaces with global indices!!!
 TODO: Separate peak finder from Hough space
 
  The angle (theta in rad) is always on x-axis, the value on the y-axis depends on the kind of Hough transform:
@@ -156,6 +157,7 @@ private:
 	inline void AddHitToHS(UInt_t hitId, Double_t rho);
 	inline void AddHitToHS(FairLink link, Double_t rho);
 	inline const PndFtsHit *const getHitFromHS(UInt_t index) const; // gets the FTS hit corresponding to index
+	inline const Int_t getHitIdFromHS(UInt_t index) const { return fHitId.at(index).GetHitId(); }; // gets the FTS hit Id corresponding to index
 	inline const TVector3 CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit *const myHit) const;
 	inline const TVector3 GetRawOrCalculatedHitPos(const PndFtsHit* const myHit) const;
 
@@ -307,7 +309,7 @@ const PndFtsHit *const PndFtsHoughSpace::getHitFromHS(UInt_t index) const {
 		const PndFtsHit *const myHit = (PndFtsHit*) fTrackerTask->GetFtsHit(hitIndex);
 		return myHit;
 	} else {
-		return 0;
+		throwError("index too high");
 	}
 }
 

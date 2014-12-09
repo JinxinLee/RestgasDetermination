@@ -55,7 +55,7 @@ ClassImp(PndFtsHoughSpace);
 
 
 //TString PndFtsHoughSpace::peakfinderOption="scanPaths"; // see FindAllPeaks for available options
-TString PndFtsHoughSpace::peakfinderOption="allPeaks>minHeight Old"; // see FindAllPeaks for available options
+TString PndFtsHoughSpace::peakfinderOption="scanPaths"; // see FindAllPeaks for available options
 
 
 
@@ -128,19 +128,19 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-												fTrackerTask(trackerTask),
+																																		fTrackerTask(trackerTask),
 
-												fZRefPos(zRefPos),
-												fInterceptZx(interceptZx),
+																																		fZRefPos(zRefPos),
+																																		fInterceptZx(interceptZx),
 
-												TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+																																		TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-												// set from tracker task
-												fFtsBranchId(0),
-												fVerbose(0),
-												fField(0),
+																																		// set from tracker task
+																																		fFtsBranchId(0),
+																																		fVerbose(0),
+																																		fField(0),
 
-												fAssociatedTrackCand(associatedTrackCand)
+																																		fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -577,7 +577,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 		// for each hit scan the Hough space along the hit's path -> this reduces the 2d peak finding to nHits 1d problems plus peak merging.
 		// require bin height >= minHeight
-		// and that it is between a falling and a rising area
+		// and that we are on a rising edge
 
 
 		// stores possible peaks for all hits
@@ -585,6 +585,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 		PeakVec peaksForOneHit; // stores (possible) peaks for one hit
 		PeakVec mergedPeaksForAllHits; // stores merged peaks for all hits
+		mergedPeaksForAllHits.clear();
 
 		// hit loop
 		for (HitIdxPathMap::const_iterator itMap = fHitThetaYIdxPath.begin(); itMap != fHitThetaYIdxPath.end(); ++itMap){
@@ -593,7 +594,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			peaksForOneHit.clear();
 
 			// loop over bins along the path
-			for (UInt_t iBinPair = 0; iBinPair < path.size(); ++iBinPair){
+			for (Int_t iBinPair = 0; iBinPair < path.size(); ++iBinPair){
 				// current bin
 				ThetaYIdxPair binPair = path[iBinPair];
 				const Int_t currBinX = binPair.first;
@@ -602,23 +603,43 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 				const Int_t currBinNumber = GetBin(currBinX,currBinY);
 				const Int_t currHeight = GetBinContent(currBinNumber);
 
-				if (minHeight <= currHeight) { // Bin could belong to a peak
-					// check if we already found a peak candidate
-					const Int_t nPeaksSoFar = peaksForOneHit.size();
-					if ( 0 < nPeaksSoFar ){ // if we already have a peak, we might need to continue building it
-						PndFtsHoughSpacePeak& currPeak = peaksForOneHit[nPeaksSoFar-1]; // get last peak
-						if ( kFALSE == currPeak.isFinished() ){ // continue building up current peak
-							if ( currHeight == currPeak.getHeight() ) currPeak.addBin(currBinNumber, hitIdx);
-							if ( currHeight < currPeak.getHeight() ) currPeak.setFinished(kTRUE);
-							if ( currHeight > currPeak.getHeight() ) currPeak.replaceBins(currHeight, currBinNumber, hitIdx);
-							continue; // do not create a new peak as we were building an old one
-						}
+				// check if we already found a peak candidate
+				const Int_t nPeaksSoFar = peaksForOneHit.size();
+				if ( 0 < nPeaksSoFar ){ // if we already have a peak, we might need to continue building it
+					PndFtsHoughSpacePeak& currPeak = peaksForOneHit[nPeaksSoFar-1]; // get last peak
+					if ( kFALSE == currPeak.isFinished() ){ // continue building up current peak
+						if ( currHeight < currPeak.getHeight() ) currPeak.setFinished(kTRUE);
+						if ( currHeight == currPeak.getHeight() ) currPeak.addBin(currBinNumber, hitIdx);
+						if ( currHeight > currPeak.getHeight() ) currPeak.replaceBins(currHeight, currBinNumber, hitIdx);
+						continue; // do not create a new peak as we were building an old one
 					}
-					// Add a new peak (only if we do not continue a nonfinished existing one)
-					// either we did not have any peaks or the last peak was already finished
-					PndFtsHoughSpacePeak newPeak(currHeight, currBinNumber);
-					peaksForOneHit.push_back(newPeak);
-				} // Bin could belong to a peak
+				} // we have already >= 1 peaks
+
+				if ( minHeight <= currHeight ) { // Bin could belong to a peak
+
+
+					// Make sure we are not on a falling edge by checking that the previous position was strictly lower!
+					// previous bin
+					const Int_t prevIdx = std::max(0, iBinPair-1); // make sure we stay within bounds of vector
+					ThetaYIdxPair prevBinPair = path[prevIdx];
+					const Int_t prevBinX = prevBinPair.first;
+					const Int_t prevBinY = prevBinPair.second;
+					// check height of previous bin
+					const Int_t prevBinNumber = GetBin(prevBinX,prevBinY);
+					const Int_t prevHeight = GetBinContent(prevBinNumber);
+
+					Bool_t rising = prevHeight < currHeight;
+					if ( 0 == iBinPair ) rising == kTRUE; // always save if we are at the beginning
+
+					if ( kTRUE == rising ){ // we are on rising edge
+						// Add a new peak (only if we do not continue a nonfinished existing one)
+						// either we did not have any peaks or the last peak was already finished
+						PndFtsHoughSpacePeak newPeak(currHeight, currBinNumber, hitIdx);
+						peaksForOneHit.push_back(newPeak);
+					}
+				}
+
+
 			}// loop over bins along the path
 
 			// now merge peaksForOneHit with mergedPeaksForAllHits
@@ -626,10 +647,10 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			for (UInt_t iPeaksForOneHit = 0; iPeaksForOneHit < peaksForOneHit.size(); ++iPeaksForOneHit){
 				Bool_t merged = kFALSE;
 				for (UInt_t iPeaksForAllHits = 0; iPeaksForAllHits < mergedPeaksForAllHits.size(); ++iPeaksForAllHits){
-					if ( mergedPeaksForAllHits[iPeaksForAllHits].OverlapsWith(peaksForOneHit[iPeaksForOneHit]) ) {
-						mergedPeaksForAllHits[iPeaksForAllHits].MergeWith(peaksForOneHit[iPeaksForOneHit]);
+					if ( mergedPeaksForAllHits[iPeaksForAllHits].binsOverlapWith(peaksForOneHit[iPeaksForOneHit]) ) {
+						mergedPeaksForAllHits[iPeaksForAllHits].mergeWith(peaksForOneHit[iPeaksForOneHit]);
 						merged = kTRUE;
-						continue; // skip checking with all other peaks as they cannot overlap anymore (TODO Check if that is true)
+						//continue; // skip checking with all other peaks as they cannot overlap anymore (TODO Check if that is true)
 					}
 				}
 				if ( kFALSE==merged ) mergedPeaksForAllHits.push_back(peaksForOneHit[iPeaksForOneHit]); // add peaks which could not be merged with preexisting ones
@@ -638,10 +659,55 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			//hitIdxPeaks.insert( hitPeaksPair );
 		}// hit loop
 
-		// TODO Build up tracklets from peaks, go through vector of merged peaks
+		// Build up tracklets from peaks by going through vector of merged peaks
+		for (UInt_t iPeaks = 0; iPeaks < mergedPeaksForAllHits.size(); ++iPeaks){
+			const Double_t currentHeight = mergedPeaksForAllHits[iPeaks].getHeight();
+			const std::set<Int_t>& binsInPeak = mergedPeaksForAllHits[iPeaks].getBins();
+			// calculate center and halfwidth (HW) in theta and in secondVal for all global bins in peak
+			// save min and max values
+			Double_t minThetaVal = 0, maxThetaVal = 0, minSecondVal = 0, maxSecondVal = 0;
+			for (std::set< Int_t >::iterator itBin = binsInPeak.begin(); itBin != binsInPeak.end(); ++itBin){
+				Int_t currentBinX = 0, currentBinY = 0, currentBinZ = 0;
+				GetBinXYZ(*itBin, currentBinX, currentBinY, currentBinZ); // get bin numbers for x, y (and z) axis
+				// get values for corresponding to global bin number
+				const Double_t currThetaVal = fXaxis.GetBinCenter(currentBinX);
+				const Double_t currSecondVal = fYaxis.GetBinCenter(currentBinY);
+
+				if ( binsInPeak.begin() == itBin ){ // initialise values if this is the first bin
+					minThetaVal = currThetaVal;
+					maxThetaVal = currThetaVal;
+					minSecondVal = currSecondVal;
+					maxSecondVal = currSecondVal;
+				} else { // save min and max
+					minThetaVal = std::min(minThetaVal,currThetaVal);
+					maxThetaVal = std::max(maxThetaVal,currThetaVal);
+					minSecondVal = std::min(minSecondVal,currSecondVal);
+					maxSecondVal = std::max(maxSecondVal,currSecondVal);
+				}
+			}
+
+			const Double_t peakThetaVal = (maxThetaVal + minThetaVal)/2.;
+			const Double_t peakSecondVal = (maxSecondVal + minSecondVal)/2.;
+			const Double_t peakThetaHw = (maxThetaVal - minThetaVal)/2. + fXaxis.GetBinWidth(peakThetaVal)/2.;
+			const Double_t peakSecondHw = (maxSecondVal - minSecondVal)/2. + fYaxis.GetBinWidth(peakSecondVal)/2.;
 
 
 
+			// create tracklet, add hits and push it back to output
+			PndFtsHoughTracklet currentTracklet(fZRefPos, fTrackerTask);
+			currentTracklet.SetHoughTransformResults(peakThetaVal, peakSecondVal, currentHeight, peakThetaHw, peakSecondHw);
+			// add hits to tracklet
+			const std::set<Int_t>& hitIdsInPeak = mergedPeaksForAllHits[iPeaks].getHitIds();
+			for (std::set< Int_t >::iterator itHitId= hitIdsInPeak.begin(); itHitId != hitIdsInPeak.end(); ++itHitId){
+				const Int_t hitIndex = fHitId.at(*itHitId).GetHitId();
+				const PndFtsHit* myHit = getHitFromHS(*itHitId);
+				// get hit position
+				const TVector3 hitPos = GetRawOrCalculatedHitPos(myHit);
+				Double_t hitZLabSys = hitPos.Z();
+				currentTracklet.AddHit(fFtsBranchId, hitIndex, hitZLabSys);
+			}
+			tracklets.push_back(currentTracklet);
+		}
 		return kTRUE;
 	} else
 		if ("allPeaks>minHeight, merge peaks" == peakfinderOption)
@@ -923,7 +989,8 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 
 							if ( (yMin-yMinHw <= peakSecondVal) && (yMax+yMaxHw >= peakSecondVal) ){
-								currentTracklet.AddHit(fFtsBranchId, iHit, hitZLabSys);
+								Int_t hitIndex = fHitId.at(iHit).GetHitId();
+								currentTracklet.AddHit(fFtsBranchId, hitIndex, hitZLabSys);
 							}
 
 						} // loop over hits

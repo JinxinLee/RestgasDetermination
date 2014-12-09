@@ -27,7 +27,7 @@
 
 
 
-class PndFtsHoughSpacePeak {
+class PndFtsHoughSpacePeak : public TObject {
 public:
 	static const Int_t noVal = -1;
 
@@ -35,22 +35,9 @@ public:
 	PndFtsHoughSpacePeak( Int_t height = noVal, Int_t firstBin = noVal, Int_t firstHitIdx = noVal );
 	~PndFtsHoughSpacePeak();
 
-	void resetBins(){
-		fBins.clear();
-		fHitIds.clear();
-		fFinished = kFALSE;
-		fHeight = noVal;
-	};
-
-	void replaceBins( Int_t height, Int_t firstBin, Int_t firstHitIdx ){
-		resetBins();
-		addBin(firstBin, firstHitIdx);
-	};
-
-	void addBin(Int_t binNumber, Int_t hitIdx){
-		fBins.insert(binNumber);
-		fHitIds.insert(hitIdx);
-	};
+	inline void resetBins();
+	inline void replaceBins( Int_t height, Int_t firstBin, Int_t firstHitIdx );
+	inline void addBin(Int_t binNumber, Int_t hitIdx);
 
 	void setFinished(Bool_t newVal){ fFinished = newVal; };
 
@@ -60,25 +47,8 @@ public:
 	const std::set<Int_t>& getBins() const { return fBins; };
 	const std::set<Int_t>& getHitIds() const { return fHitIds; };
 
-	Bool_t OverlapsWith(const PndFtsHoughSpacePeak& toAdd){
-		// return kTRUE iif toAdd has bins in common with this
-		const std::set< Int_t > binsToSearch = toAdd.getBins();
-		// try to find elements from toAdd in this
-		for (std::set< Int_t >::iterator it = binsToSearch.begin(); it != binsToSearch.end(); ++it){
-			std::set< Int_t >::iterator itFind = fBins.find( *it );
-			if ( itFind != fBins.end() ) return kTRUE; // element from binsToSearch was found in this
-		}
-		return kFALSE; // none of the elements from binsToSearch was found in this
-	};
-
-	void MergeWith(const PndFtsHoughSpacePeak& toAdd) {
-		// merge bins
-		const std::set< Int_t > binsToMerge = toAdd.getBins();
-		fBins.insert( binsToMerge.begin(), binsToMerge.end() );
-		// merge hit indices
-		const std::set< Int_t > hitsToMerge = toAdd.getHitIds();
-		fHitIds.insert(  hitsToMerge.begin(), hitsToMerge.end()  );
-	};
+	inline Bool_t binsOverlapWith(const PndFtsHoughSpacePeak& toCheck);
+	inline void mergeWith(const PndFtsHoughSpacePeak& toAdd);
 
 
 private:
@@ -90,5 +60,43 @@ private:
 	ClassDef(PndFtsHoughSpacePeak, 1);
 
 };
+
+void PndFtsHoughSpacePeak::addBin(Int_t binNumber, Int_t hitIdx){
+	fBins.insert(binNumber);
+	fHitIds.insert(hitIdx);
+}
+
+void PndFtsHoughSpacePeak::replaceBins( Int_t height, Int_t firstBin, Int_t firstHitIdx ){
+	resetBins();
+	addBin(firstBin, firstHitIdx);
+}
+
+
+void PndFtsHoughSpacePeak::resetBins(){
+	fBins.clear();
+	fHitIds.clear();
+	fFinished = kFALSE;
+	fHeight = noVal;
+}
+
+Bool_t PndFtsHoughSpacePeak::binsOverlapWith(const PndFtsHoughSpacePeak& toCheck){
+	// return kTRUE iif toAdd has bins in common with this
+	const std::set< Int_t > binsToSearch = toCheck.getBins();
+	// try to find elements from toAdd in this
+	for (std::set< Int_t >::iterator it = binsToSearch.begin(); it != binsToSearch.end(); ++it){
+		std::set< Int_t >::iterator itFind = fBins.find( *it );
+		if ( itFind != fBins.end() ) return kTRUE; // element from binsToSearch was found in this
+	}
+	return kFALSE; // none of the elements from binsToSearch was found in this
+}
+
+void PndFtsHoughSpacePeak::mergeWith(const PndFtsHoughSpacePeak& toAdd) {
+	// merge bins
+	const std::set< Int_t > binsToMerge = toAdd.getBins();
+	fBins.insert( binsToMerge.begin(), binsToMerge.end() );
+	// merge hit indices
+	const std::set< Int_t > hitsToMerge = toAdd.getHitIds();
+	fHitIds.insert(  hitsToMerge.begin(), hitsToMerge.end()  );
+}
 
 #endif
