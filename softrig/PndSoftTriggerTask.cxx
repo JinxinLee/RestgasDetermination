@@ -32,6 +32,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TString.h"
+#include "TRegexp.h"
 
 // RHO headers
 #include "RhoCandidate.h"
@@ -53,24 +54,26 @@
 #include "PndEventShape.h"
 #include "PndRhoTupleQA.h"
 		
+const int STMAXCUT  = 50;
+const int STMAXEVVARS  = 50;
+
 using std::cout;
 using std::endl;
-
-const int MAXCUT=50;
 
 // *** Holds the cut set for a certain mode
 struct STCutSet
 {
 	int    ncut;
-	int    varid[MAXCUT];
-	int    op[MAXCUT];
-	double cutval[MAXCUT];
+	int    varid[STMAXCUT];
+	int    op[STMAXCUT];
+	double cutval[STMAXCUT];
 };
 
 // *** maps needed for selection parsing
 std::map<TString, int> fSTVarmap;
 std::map<int, STCutSet> fSTSelmap;
-std::map<int, TString> fSTOps;
+//std::map<int, TString> fSTOps;
+TString fSTOps[5]={">=",">","==","<=","<"};
 std::map<int, PndSoftTriggerLine*> fSTTriggers;
 std::map<int, int> fSTMapListIndex;
 
@@ -79,30 +82,41 @@ typedef std::map<int, PndSoftTriggerLine*>::iterator TrigIt;
 //                            e+  e-  mu+  mu- pi+   pi-  K+    K-    p     pb   gam  pi0  KS   eta   aux  anti-aux
 int fSTPidIndex[16] =       {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22, 111, 310, 221,   0,   0};
 
-// *** mapped variable names for selection
-//                       0            1             2           3           4          5           6          7           8         9         
-TString fSTnames[] = {"eslnpide",  "eslnpidmu", "eslnpidpi", "eslnpidk", "eslnpidp", "esthr",    "esapl",   "esfw1",   "esnpart", "esptmax",
+// *** Event Shape Vars
 
-//                       10           11            12          13          14         15          16         17          18        19  
-                      "detemcsum", "detemcmax", "p",         "pt",       "pcm",      "tht",      "d0pt",    "d1pt",    "d0pidk",  "d1tht",
-                      
-//                       20,          21            22          23          24         25          26         27          28        29
-				      "mmiss",     "essumpt",   "essumptcl", "d0pcm",    "d1p",      "thtcm",    "ecm",     "esfw4",   "esfw2",   "esptmin", 
-				       
-//                       30,          31            32          33          34         35          36         37          38        39
-				      "espmin",    "d0pide",    "d1pide",    "d0pidpi",  "d1pidpi",  "essumptc", "esfw5",   "essumpc", "d1pidk",  "oang",
-				       
-//                       40,          41            42          43          44         45          46         47          48        49
-                      "espmax",    "essumenl",  "d2pidk",   "d3pidk",   "essumpcl", "d0pidmu", "d1pidmu", "essumen", "d0tht",     "d0p" };
+// (  0) eslnpide        (  1) eslnpidmu       (  2) eslnpidpi       (  3) eslnpidk        (  4) eslnpidp           
+// (  5) esfw1           (  6) esfw2           (  7) esfw3           (  8) esfw4           (  9) esfw5
+// ( 10) esapl           ( 11) escir           ( 12) espla           ( 13) esnneut         ( 14) esnpart      
+// ( 15) esnchrg         ( 16) espmax          ( 17) espmaxl         ( 18) espmin          ( 19) espminl       
+// ( 20) esprapmax       ( 21) esptmax         ( 22) essumen         ( 23) essumenl        ( 24) essumetn       
+// ( 25) essumpc         ( 26) essumpc05       ( 27) essumpcl        ( 28) essumpt         ( 29) essumptc    
+// ( 30) esthr           ( 31)                 ( 32)                 ( 33)                 ( 34)    
 
-//                       50,          51            52          53          54         55          56         57          58        59
+int   fSTNEvVars = 31;
+TString fSTenames[] = {
+    "eslnpide"     , "eslnpidmu"    , "eslnpidpi"    , "eslnpidk"     , "eslnpidp"     , 
+    "esfw1"        , "esfw2"        , "esfw3"        , "esfw4"        , "esfw5"        , 
+    "esapl"        , "escir"        , "espla"        , "esnneut"      , "esnpart"      , 
+    "esnchrg"      , "espmax"       , "espmaxl"      , "espmin"       , "espminl"      , 
+    "esprapmax"    , "esptmax"      , "essumen"      , "essumenl"     , "essumetn"     , 
+    "essumpc"      , "essumpc05"    , "essumpcl"     , "essumpt"      , "essumptc"     , 
+    "esthr"        
+};
 
-// array to hold the current variable values; indices are according to the fSTnames array
-// has to be filled for every tag mode
-double fSTVarArray[100];
+// coding for variable suffix (to translate variable names to code)
+int   fSTNQuant = 16;
+TString fSTVarSuff[] = {"pt","tht","pcm","thtcm","pide","pidmu","pidpi","pidk","pidp","pocqa","pocdist","pocctau","oang","cdecang","decang","p" };
+int   fSTQuantCode[] = { 11,  12,   13,   14,      20,    21,     22,     23,    24,    30,     31,       32,      40,     42,      41,      10 };
+
+
+// cache for event shape variables
+double fSTVarEvArray[STMAXEVVARS];
+
+// cache map for candidate variables
+std::map<int, double> fSTVarCandArray;
 
 // codes for the available energies
-int fSTencode[]   = {24, 38, 45, 55};
+std::vector<int> fSTencode;
 int fSTModeIndex = 0;
 
 // -----   Default constructor   -------------------------------------------
@@ -225,34 +239,41 @@ InitStatus PndSoftTriggerTask::Init()
 	fPocaVertexer = new PndVtxPoca();
 		
 	// *** read selection from configuration file
+	fSTencode.clear();
 	if (fCfgFileName!="" && fApplyFullSelection) ReadConfiguration();
 
 	// *** set mode index for current beam momentum
 	fSTModeIndex = 0;
 	double diff = 1000.;
 	
-	for (int i=0;i<4;++i) 
+	for (int i=0; i<fSTencode.size(); ++i) 
 	{
-		double en = (double)fSTencode[i]/10.;
+		double en = (double)fSTencode[i]/100.;
 		if (fabs(fEcm-en)<diff)
 		{
 			diff=fabs(fEcm-en);
 			fSTModeIndex = i;
 		}
 	}
+	
+	if (fApplyFullSelection && diff>1.0) cout <<"[PndSoftTriggerTask::Init] **** WARNING: Energy of best matching selection differs "<<diff<<" GeV from current energy!"<<endl;
 
 	// *** initialize triggers
 	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 	{
 		PndSoftTriggerLine *tl = it->second;
-		tl->Init();
-		if (tl->GetRhoTuple()) tl->GetRhoTuple()->GetInternalTree()->SetDirectory(gDirectory);
 		
-		if (fVerbose>0)
+		if (tl->GetThreshold()<=fEcm)
 		{
-			cout <<"*** MODE: "<<it->first<<endl;
-			tl->Print();
-			cout <<endl<<endl;
+			tl->Init();
+			if (tl->GetRhoTuple()) tl->GetRhoTuple()->GetInternalTree()->SetDirectory(gDirectory);
+			
+			if (fVerbose>0)
+			{
+				cout <<"*** MODE: "<<it->first<<endl;
+				tl->Print();
+				cout <<endl<<endl;
+			}
 		}
 	}
 	
@@ -511,10 +532,7 @@ bool PndSoftTriggerTask::ReadTriggerLines()
 // $VMCWORKDIR/softrig/selection_10ch_loose.cfg (eff of 95%)
 bool PndSoftTriggerTask::ReadConfiguration()
 {
-	for (int i=0;i<MAXCUT;++i) fSTVarmap[fSTnames[i]] = i;
-	fSTOps[0]=">";
-	fSTOps[1]="==";
-	fSTOps[2]="<";
+	for (int i=0;i<fSTNEvVars;++i) fSTVarmap[fSTenames[i]] = i;
 
 	ifstream file(fCfgFileName.Data());
 	
@@ -535,9 +553,15 @@ bool PndSoftTriggerTask::ReadConfiguration()
 	{
 		file.getline(line,499);
 		TString sline(line);
+		
+		// remove tabs everywhere
+		sline.ReplaceAll("\t","");
 
-		// empty lines or comments are skipped (a comment has to have a # as _first_ char)
-		if (sline.BeginsWith("#")||sline=="") continue;	 
+		// if lines contains a '#' somewhere, cut string from that position (=comment)
+		if (sline.Contains("#")) sline = sline(0,sline.Index("#")-1);
+		
+		// remove whitespace at begin and end
+		sline = sline.Strip(TString::kBoth);
 		
 		// split the line into tokens; token 0 ist the mode code, token 1 is the complete cut string
 		// e.g. '38400 : eslnpidp>0&&abs(pcm-2.105)<0.695&&esthr>0.9&&pt>0.8'
@@ -546,6 +570,10 @@ bool PndSoftTriggerTask::ReadConfiguration()
 
 		// extract the mode code by converting to integer
 		int mcode = toks[0].Atoi();
+		int en    = mcode / 1000; // energy prefix (e.g. 550 for sqs=5.5GeV)
+		
+		// if new energy, store the energy prefix in fSTencode
+		if ( std::find(fSTencode.begin(), fSTencode.end(), en) == fSTencode.end() ) fSTencode.push_back(en);
 		
 		// now split the cut string into single cuts
 		N = SplitString(toks[1],"&&",toks,30);
@@ -555,7 +583,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		for (int i=0;i<N;++i) 
 		{
 			toks[i].ReplaceAll(" ","");
-			toks[i].ReplaceAll("==","=");
+			if (toks[i]=="tag") toks[i]="tag>0";
 			
 			// is cut a window cut?
 			if (toks[i].BeginsWith("abs"))
@@ -567,8 +595,8 @@ bool PndSoftTriggerTask::ReadConfiguration()
 				TString name = TString(toks[i](4,pos1-4));  // name is from first char after 'abs(' to '-' sign
 				double val = TString(toks[i](pos1+1,(pos2-pos1)-1)).Atof(); // val to cut on is from '-' to closing bracket ')'
 				double win = TString(toks[i](pos3+1,1000)).Atof();  // window size is from '<' to end
-				toks[i]= TString::Format("%s>%.3f",name.Data(), val-win);      // construct the 1st and
-				toks[N++] = TString::Format("%s<%.3f",name.Data(), val+win);   // 2nd single cut
+				toks[i]= TString::Format("%s>%f",name.Data(), val-win);      // construct the 1st and
+				toks[N++] = TString::Format("%s<%f",name.Data(), val+win);   // 2nd single cut
 			}
 		}
 		
@@ -581,21 +609,41 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		
 		for (int i=0;i<N;++i)
 		{
-			int op=-1;
-			if (toks[i].Contains(">")) {SplitString(toks[i],">",toks2,5); op = 0;}
-			else if (toks[i].Contains("=")) {SplitString(toks[i],"=",toks2,5); op = 1;}
-			else if (toks[i].Contains("<")) {SplitString(toks[i],"<",toks2,5); op = 2;}
-			else // fail
+			int op=-1, j=0;
+			while (j<5 && op==-1) 
+			{
+				if (toks[i].Contains(fSTOps[j])) 
+				{
+					SplitString(toks[i],fSTOps[j],toks2,5); 
+					op = j;
+				}
+				j++;
+			}
+/*			if (toks[i].Contains(">=")) {SplitString(toks[i],">=",toks2,5); op = 1;}
+			else if (toks[i].Contains(">")) {SplitString(toks[i],">",toks2,5); op = 0;}
+			else if (toks[i].Contains("==")) {SplitString(toks[i],"==",toks2,5); op = 2;}
+			else if (toks[i].Contains("<=")) {SplitString(toks[i],"<=",toks2,5); op = 3;}
+			else if (toks[i].Contains("<")) {SplitString(toks[i],"<",toks2,5); op = 4;}*/
+			if (op<0) // fail
 			{
 				i=N+1;
 				ok=false;
 			}
 			
+			// event shape variable?
 			if (fSTVarmap.find(toks2[0]) != fSTVarmap.end())
 			{
 				cs.varid[i]  = fSTVarmap[toks2[0]];
 				cs.op[i]     = op;
 				cs.cutval[i] = toks2[1].Atof();
+			}
+			// candidate variable?
+			else if (CodeVariable(toks2[0])>0)
+			{
+				cs.varid[i]  = CodeVariable(toks2[0]);
+				cs.op[i]     = op;
+				cs.cutval[i] = toks2[1].Atof();
+				
 			}
 			else // fail
 			{
@@ -667,30 +715,34 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	
 	if (fApplyFullSelection) FillEventShapeVarArray();
 	
-	int tag_glob = 0, tag_pre = 0;
+	int tag_glob = 0, tag_glob_pre = 0, tag_pre = 0;
 
 	PndOnlineFilterInfo* info=new ( (*fTcaOnlineFilterInfo)[0] ) PndOnlineFilterInfo();	
 	
 	// *** loop through all channels and tag
 	for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 	{
-		PndSoftTriggerLine *tl = it->second;		
-		int ntag =  TagMode( tl , tag_pre);
-		tl->SetNTagged( ntag );
-		info->SetNTag(it->first, ntag);                      
-		tag_glob += ntag;
+		PndSoftTriggerLine *tl = it->second;	
+		
+		if (tl->GetThreshold()<=fEcm)
+		{
+			int ntag =  TagMode( tl , tag_pre);
+			tl->SetNTagged( ntag );
+			info->SetNTag(it->first, ntag);                      
+			tag_glob += ntag;
+			tag_glob_pre += tag_pre;
+		}
 	}
 	
-	Float_t tagged  = (tag_glob>0);
-	Float_t taggedm = (tag_pre>0);  // tagged by mass cut only
+	Int_t tagged  = (tag_glob>0);
+	Int_t taggedm = (tag_glob_pre>0);  // tagged by mass cut only
 	
 	// *** write common information	
 	if (fQAEvent)
 	{
-		ntp->Column("ev",		(Float_t) 	fEvtCount,	0.0f);
-		ntp->Column("run",  	(Float_t) 	fRunNum,	0.0f);
-		ntp->Column("mode",		(Float_t)	fMode,		0.0f);
-		ntp->Column("ecm",		(Float_t)	fEcm,		0.0f);
+		ntp->Column("ev",		(Int_t) 	fEvtCount,	0);
+		ntp->Column("run",  	(Int_t) 	fRunNum,	0);
+		ntp->Column("mode",		(Int_t)		fMode,		0);
 
 		fQA->qaP4("beam", fIniP4, ntp);
 		ntp->Column("primvx",   (Float_t)   fPrimVtx.X(), 0.0f);
@@ -702,13 +754,17 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 		{
 			PndSoftTriggerLine *tl = it->second;
-			if ( tl->GetTagActive() ) ntp->Column("tag"+tl->GetName(), (Float_t) tl->GetNTagged(), 0.0f);
+			if ( tl->GetTagActive() ) 
+			{
+				ntp->Column("tag_"+tl->GetName(), (Int_t) tl->GetNTagged(), 0);
+				ntp->Column(TString::Format("tag%d",tl->GetModeCode()), (Int_t) tl->GetNTagged(), 0);
+			}
 		}
 
-		ntp->Column("tagall",	(Float_t)	tag_glob,	0.0f);
-		ntp->Column("tagpre",	(Float_t)	tag_pre,	0.0f);
-		ntp->Column("tag",		(Float_t)	tagged,		0.0f);
-		ntp->Column("tagm",		(Float_t)	taggedm,	0.0f);
+		ntp->Column("tagall",	(Int_t)	tag_glob,		0);
+		ntp->Column("tagpre",	(Int_t)	tag_glob_pre,	0);
+		ntp->Column("tag",		(Int_t)	tagged,			0);
+		ntp->Column("tagm",		(Int_t)	taggedm,		0);
 		
 		fQA->qaEventShape("es", fEventShape, ntp);
 		
@@ -943,132 +999,81 @@ void PndSoftTriggerTask::FillGlobalLists()
 
 void PndSoftTriggerTask::FillEventShapeVarArray()
 {
-//                       0            1             2           3           4          5           6          7           8         9         
-//TString fSTnames[]={"eslnpide",  "eslnpidmu", "eslnpidpi", "eslnpidk", "eslnpidp", "esthr",    "esapl",   "esfw1",   "esnpart", "esptmax",
+	// *** Event Shape Vars
 
-//                       10           11            12          13          14         15          16         17          18        19  
-//                    "detemcsum", "detemcmax", "p",         "pt",       "pcm",      "tht",      "d0pt",    "d1pt",    "d0pidk",  "d1tht",
-                      
-//                       20,          21            22          23          24         25          26         27          28        29
-//				      "mmiss",     "essumpt",   "essumptcl", "d0pcm",    "d1p",      "thtcm",    "ecm",     "esfw4",   "esfw2",   "esptmin", 
-				       
-//                       30,          31            32          33          34         35          36         37          38        39
-//				      "espmin",    "d0pide",    "d1pide",    "d0pidpi",  "d1pidpi",  "essumptc", "esfw5",   "essumpc", "d1pidk",  "oang",
-				       
-//                       40,          41            42          43          44         45          46         47          48        49
-//                    "espmax",    "essumenl",  "d2pidk",   "d3pidk",   "essumpcl", "d0pidmu", "d1pidmu", "essumen", "d0tht",     "d0p" };
-
-	int i=0;
+	// (  0) eslnpide        (  1) eslnpidmu       (  2) eslnpidpi       (  3) eslnpidk        (  4) eslnpidp           
+	// (  5) esfw1           (  6) esfw2           (  7) esfw3           (  8) esfw4           (  9) esfw5
+	// ( 10) esapl           ( 11) escir           ( 12) espla           ( 13) esnneut         ( 14) esnpart      
+	// ( 15) esnchrg         ( 16) espmax          ( 17) espmaxl         ( 18) espmin          ( 19) espminl       
+	// ( 20) esprapmax       ( 21) esptmax         ( 22) essumen         ( 23) essumenl        ( 24) essumetn       
+	// ( 25) essumpc         ( 26) essumpc05       ( 27) essumpcl        ( 28) essumpt         ( 29) essumptc    
+	// ( 30) esthr           ( 31)                 ( 32)                 ( 33)                 ( 34)    
+	
 	// don't use PID mult values from fEventShape (based on AllCands and only one algo)
-	for (i=0;i<5;++i) fSTVarArray[i] = fPidMult_025[i]; 
-		
-	fSTVarArray[ 5] = fEventShape->Thrust();
-	fSTVarArray[ 6] = fEventShape->Aplanarity();
-	fSTVarArray[ 7] = fEventShape->FoxWolfMomR(1);
-	fSTVarArray[ 8] = fEventShape->NParticles();
-	fSTVarArray[ 9] = fEventShape->Ptmax();
-
-	fSTVarArray[10] = fEventShape->DetEmcSum();
-	fSTVarArray[11] = fEventShape->DetEmcMax();
+	for (int i=0;i<5;++i) fSTVarEvArray[i] = fPidMult_025[i]; 
 	
-	fSTVarArray[21] = fEventShape->PtSumLab();
-	fSTVarArray[22] = fEventShape->ChrgPtSumLab();
+	fSTVarEvArray[ 5] = fEventShape->FoxWolfMomR(1);
+	fSTVarEvArray[ 6] = fEventShape->FoxWolfMomR(2);
+	fSTVarEvArray[ 7] = fEventShape->FoxWolfMomR(3);
+	fSTVarEvArray[ 8] = fEventShape->FoxWolfMomR(4) ;
+	fSTVarEvArray[ 9] = fEventShape->FoxWolfMomR(5);
 	
-	fSTVarArray[27] = fEventShape->FoxWolfMomR(4);
-	fSTVarArray[28] = fEventShape->FoxWolfMomR(2);
+	fSTVarEvArray[10] = fEventShape->Aplanarity();
+	fSTVarEvArray[11] = fEventShape->Circularity();
+	fSTVarEvArray[12] = fEventShape->Planarity();
+	fSTVarEvArray[13] = fEventShape->NNeutral();
+	fSTVarEvArray[14] = fEventShape->NParticles();
 	
-	fSTVarArray[29] = fEventShape->Ptmin();	
-	fSTVarArray[30] = fEventShape->PminCms();	
-	fSTVarArray[35] = fEventShape->ChrgPtSumCms();	
-	fSTVarArray[36] = fEventShape->FoxWolfMomR(5);	
-	fSTVarArray[37] = fEventShape->ChrgPSumCms();	
+	fSTVarEvArray[15] = fEventShape->NCharged();
+	fSTVarEvArray[16] = fEventShape->PmaxCms();
+	fSTVarEvArray[17] = fEventShape->PmaxLab();
+	fSTVarEvArray[18] = fEventShape->PminCms();
+	fSTVarEvArray[19] = fEventShape->PminLab();
 	
-	fSTVarArray[40] = fEventShape->PmaxCms();	
-	fSTVarArray[41] = fEventShape->NeutESumLab();
-	fSTVarArray[44] = fEventShape->ChrgPSumLab();
-	fSTVarArray[47] = fEventShape->NeutESumCms();
-
+	fSTVarEvArray[20] = fEventShape->PRapmax();
+	fSTVarEvArray[21] = fEventShape->Ptmax();
+	fSTVarEvArray[22] = fEventShape->NeutESumCms();
+	fSTVarEvArray[23] = fEventShape->NeutESumLab();
+	fSTVarEvArray[24] = fEventShape->NeutEtSumCms();
+	
+	fSTVarEvArray[25] = fEventShape->ChrgPSumCms();
+	fSTVarEvArray[26] = fEventShape->SumChrgPminCms(0.5);
+	fSTVarEvArray[27] = fEventShape->ChrgPSumLab();
+	fSTVarEvArray[28] = fEventShape->PtSumLab();
+	fSTVarEvArray[29] = fEventShape->ChrgPtSumCms();
+	
+	fSTVarEvArray[30] = fEventShape->Thrust();
 }
 
 // -------------------------------------------------------------------------
-// Fill the array of candidate specific variables (called for every candidate)
-// here the connection between the variable indices and the values is made
 
-void PndSoftTriggerTask::FillVarArray(RhoCandidate *c)
+TLorentzVector PndSoftTriggerTask::BoostCms(TLorentzVector l)
 {
-//                       0            1             2           3           4          5           6          7           8         9         
-//TString fSTnames[] = {"eslnpide",  "eslnpidmu", "eslnpidpi", "eslnpidk", "eslnpidp", "esthr",    "esapl",   "esfw1",   "esnpart", "esptmax",
-
-//                       10           11            12          13          14         15          16         17          18        19  
-//                    "detemcsum", "detemcmax", "p",         "pt",       "pcm",      "tht",      "d0pt",    "d1pt",    "d0pidk",  "d1tht",
-                      
-//                       20,          21            22          23          24         25          26         27          28        29
-//				      "mmiss",     "essumpt",   "essumptcl", "d0pcm",    "d1p",      "thtcm",    "ecm",     "esfw4",   "esfw2",   "esptmin", 
-				       
-//                       30,          31            32          33          34         35          36         37          38        39
-//				      "espmin",    "d0pide",    "d1pide",    "d0pidpi",  "d1pidpi",  "essumptc", "esfw5",   "essumpc", "d1pidk",  "oang",
-				       
-//                       40,          41            42          43          44         45          46         47          48        49
-//                    "espmax",    "essumenl",  "d2pidk",   "d3pidk",   "essumpcl", "d0pidmu", "d1pidmu", "essumen", "d0tht",     "d0p" };
-
-	TVector3 p4boost = fIniP4.BoostVector();
-
-	TLorentzVector l=c->P4();
 	TLorentzVector lcm = l;
-	lcm.Boost(-p4boost);
-	
-	int nd = c->NDaughters();
-	TLorentzVector ld[4], ldcm[4];
-	
-	for (int i=0;i<4;++i)
-		if (nd>i) 
-		{
-			ld[i]    = c->Daughter(i)->P4();
-			ldcm[i]  = ld[i];
-			ldcm[i].Boost(-p4boost);
-		}
-	
-	//PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
-	
-	fSTVarArray[12] = l.P();
-	fSTVarArray[13] = l.Pt();
-	fSTVarArray[14] = lcm.P();
-	fSTVarArray[15] = l.Theta();
-	fSTVarArray[16] = nd>0 ? ld[0].Pt() : -999.0;
-	fSTVarArray[17] = nd>1 ? ld[1].Pt() : -999.0;
-	fSTVarArray[18] = nd>0 ? c->Daughter(0)->GetPidInfo(3) : -999.0;
-	fSTVarArray[19] = nd>1 ? ld[1].Theta() : -999.0;
-	fSTVarArray[20] = (fIniP4-l).M();
-	fSTVarArray[23] = ldcm[0].P();
-	fSTVarArray[24] = ld[1].P();
-	fSTVarArray[25] = lcm.Theta();
-	fSTVarArray[26] = lcm.E();
-	
-	fSTVarArray[31] = nd>0 ? c->Daughter(0)->GetPidInfo(0) : -999.0;
-	fSTVarArray[32] = nd>1 ? c->Daughter(1)->GetPidInfo(0) : -999.0;
-	fSTVarArray[33] = nd>0 ? c->Daughter(0)->GetPidInfo(2) : -999.0;
-	fSTVarArray[34] = nd>1 ? c->Daughter(1)->GetPidInfo(2) : -999.0;
-	fSTVarArray[38] = nd>1 ? c->Daughter(1)->GetPidInfo(3) : -999.0;
-	fSTVarArray[39] = nd>1 ? ld[0].Vect().Angle(ld[1].Vect()) : -999.0;
-	fSTVarArray[42] = nd>2 ? c->Daughter(2)->GetPidInfo(3) : -999.0;
-	fSTVarArray[43] = nd>3 ? c->Daughter(3)->GetPidInfo(3) : -999.0;
-	fSTVarArray[45] = nd>0 ? c->Daughter(0)->GetPidInfo(1) : -999.0;
-	fSTVarArray[46] = nd>1 ? c->Daughter(1)->GetPidInfo(1) : -999.0;
-	fSTVarArray[48] = ld[0].Theta();
-	fSTVarArray[49] = ld[0].P();
+	lcm.Boost(-fIniP4.BoostVector());
+	return lcm;
 }
 
 // -------------------------------------------------------------------------
-// *** In case a particle is a D*0, D*+, D_s*+, apply cut on mass difference 
-// *** for QA NTuple writeout (smaller file size)
-bool PndSoftTriggerTask::AcceptDstCut(RhoCandidate *c)
+void PndSoftTriggerTask::GetAngles(RhoCandidate *c, double &oang, double &decang)
 {
-	int pdg = abs(c->PdgCode());
+	oang   = -999.;
+	decang = -999.;
 	
-	if ( (pdg==413 || pdg==423 || pdg==433) && fabs(c->M() - c->Daughter(0)->M() - 0.143) > fDstMDiffCut ) return false;
-	
-	return true;
+	if (c->NDaughters()!=2) return;
+
+	RhoCandidate *d0 = c->Daughter(0);
+	RhoCandidate *d1 = c->Daughter(1);
+
+	// opening angle lab
+	oang = d0->P3().Angle(d1->P3());
+
+	// decay angle
+	TLorentzVector d_cms = d0->P4();
+	d_cms.Boost(-(c->P4().BoostVector()));
+	decang  = d_cms.Vect().Angle(c->P3());
 }
+
 
 // -------------------------------------------------------------------------
 // *** Get Poca vertex info (for secondary vertex cuts)
@@ -1098,6 +1103,184 @@ double PndSoftTriggerTask::GetPocaVtx(RhoCandidate* c, double &dist, double &cta
 	return qavtx;
 }
 
+
+// -------------------------------------------------------------------------
+// transform a variable string to an integer code
+// code conventions are for code ABCDEF
+// - ABCDEF < 100: special variable directly filled (e.g. mmiss = 80, mdif = 81, tag = 99)
+// - ABCD defines candidate (e.g. x=9999, xd0=9099, xd1=9199, xd0d1=9019, xd0d0g2=9001 etc)
+// - EF defines variable: 
+//    - E: 1=kin, 2=pid, 3=vtx, 4=ang
+//    
+//   E\F    |    0    |    1    |    2    |    3    |    4     
+// ----------------------------------------------------------
+//  1 (kin) |    p    |   pt    |  tht    |  pcm    |  thtcm 
+//  2 (pid) |  pide   |  pidmu  |  pidpi  |  pidk   |  pidp
+//  3 (vtx) |  pocqa  | pocdist | pocctau |         |
+//  4 (ang) |  oang   | decang  | cdecang |         |   
+
+int PndSoftTriggerTask::CodeVariable(TString v)
+{
+	int i=0, code=0, A=9, B=9, C=9, D=9, EF=0;
+	
+	if (v=="mmiss") return 80;
+	if (v=="xmdif") return 82;
+	if (v=="tag")   return 99;
+	
+	for (i=0; i<fSTNQuant; ++i) 
+		if (v.EndsWith(fSTVarSuff[i])) 
+		{
+			EF=fSTQuantCode[i]; 
+			v=v(0,v.Length()-fSTVarSuff[i].Length());
+			i=1000;
+		} 
+	
+	if (i<1000) {cout <<"[PndSoftTriggerTask] ***** Unknown variable suffix in variable '"<<v<<"'"<<endl; return -1;}
+	
+	// get rid of special daughter namings for pi0 gammas and KS pi+-
+	v.ReplaceAll("pi1","d0");
+	v.ReplaceAll("pi2","d1");
+	v.ReplaceAll("g1","d0");
+	v.ReplaceAll("g2","d1");
+	
+	TRegexp r1("xd[0-4]$");
+	TRegexp r2("xd[0-4]d[0-4]$");
+	TRegexp r3("xd[0-4]d[0-4]d[0-4]$");
+	
+	if (v!="x" && v(r1)=="" && v(r2)=="" && v(r3)=="") {cout <<"[PndSoftTriggerTask] ***** Unknown candidate prefix in variable '"<<v<<"'"<<endl; return -1;}
+	
+	int l = v.Length();
+	
+	if (l>1) B = TString(v(2,1)).Atoi();
+	if (l>3) C = TString(v(4,1)).Atoi();
+	if (l>5) D = TString(v(6,1)).Atoi();
+	
+	code=EF+100*D+1000*C+10000*B+100000*A;
+	
+	return code;
+}
+
+// -------------------------------------------------------------------------
+// Fill individual candidate specific variables (called for every candidate)
+// here the connection between the variable indices and the values is made
+// in case variables are connected with more computing effort, they are filled simultaneously
+
+double PndSoftTriggerTask::GetVarValue(RhoCandidate *c, int id)
+{	
+	// previously filled event shape var?
+	if (id>=0 && id<35) return fSTVarEvArray[id];
+	
+	// is variable already in cache?
+	if (fSTVarCandArray.find(id) != fSTVarCandArray.end()) return fSTVarCandArray[id];
+	
+	// *** now compute variable values based on code 'id'
+	
+	// these are special cases with simple code numbers
+	if (id==80) return (fIniP4 - c->P4()).M();         // mmiss
+	if (id==82) return (c->M() - c->Daughter(0)->M()); // D* mdif
+	if (id==99) return 1.0;                            // artificial value for tag>0 (= empty cut)
+		
+	// determine quantity and candidate from id code
+	int quant = id%100;
+	int cand  = id/100;
+	int B = (id/10000)%10, C = (id/1000)%10, D = (id/100)%10;
+	
+	// find particle under consideration
+	RhoCandidate *cnd=0;
+	
+	if (B==9) cnd = c;
+	else if (C==9) cnd = c->Daughter(B);
+	else if (D==9) cnd = c->Daughter(B)->Daughter(C);
+	else cnd = c->Daughter(B)->Daughter(C)->Daughter(D);
+	
+	// coding for variable suffix (to translate variable names to code)
+	//   E\F    |    0    |    1    |    2    |    3    |    4     
+	// ----------------------------------------------------------
+	//  1 (kin) |    p    |   pt    |  tht    |  pcm    |  thtcm 
+	//  2 (pid) |  pide   |  pidmu  |  pidpi  |  pidk   |  pidp
+	//  3 (vtx) |  pocqa  | pocdist | pocctau |         |
+	//  4 (ang) |  oang   | decang  | cdecang |         |   
+	
+	double val = -999.;
+	double pocqa, pocdist, pocctau, oang, decang, cdecang;
+	TLorentzVector bl;
+	
+	switch (quant)
+	{
+		case 10 : // p
+			fSTVarCandArray[id] = cnd->P();  break;
+		
+		case 11 : // pt 
+			fSTVarCandArray[id] = cnd->Pt(); break;
+		
+		case 12 : // tht 
+			fSTVarCandArray[id] = cnd->P4().Theta(); break;
+		
+		case 13 : case 14 : // pcm, thtcm
+			bl = BoostCms(cnd->P4());
+			fSTVarCandArray[cand*100+13] = bl.P();
+			fSTVarCandArray[cand*100+14] = bl.Theta();
+			break;
+			
+		case 20 : case 21 : case 22 : case 23 : case 24 :  // pide,..., pidp
+			fSTVarCandArray[id] = cnd->GetPidInfo(quant%10);
+			break;
+		
+		case 30 : case 31 : case 32 :
+			fSTVarCandArray[cand*100+30] = GetPocaVtx(cnd, pocdist, pocctau);
+			fSTVarCandArray[cand*100+31] = pocdist; 
+			fSTVarCandArray[cand*100+32] = pocctau; 
+			break;
+		
+		case 40 : case 41 : case 42 :
+			GetAngles(cnd, oang, decang);
+			cdecang = cos(decang);
+			fSTVarCandArray[cand*100+40] = oang; 
+			fSTVarCandArray[cand*100+41] = decang; 
+			fSTVarCandArray[cand*100+42] = cdecang; 
+			break;
+		default:
+			cout <<"[PndSoftTriggerTask] ***** wrong variable code '"<<quant<<"'"<<endl;
+	}
+	
+	return fSTVarCandArray[id];
+}
+
+// -------------------------------------------------------------------------
+// Fill the array of candidate specific variables (called for every candidate)
+// here the connection between the variable indices and the values is made
+
+void PndSoftTriggerTask::FillVarArray(RhoCandidate *c, int mcode, std::vector<double> &values)
+{
+	int i=0;
+	std::vector<int> lidx;
+	
+	values.clear();            // vector of values
+	fSTVarCandArray.clear();   // reset cand var cache (used during fill of values)
+	
+	// will only fill variables needed by this mode; also reset vars
+	for (i=0; i<fSTSelmap[mcode].ncut; ++i) 
+	{
+		lidx.push_back(fSTSelmap[mcode].varid[i]); 
+	}
+
+	// fill all requested variables
+	for (i=0; i<lidx.size(); ++i) 
+		values.push_back(GetVarValue(c, lidx[i]));
+}
+
+// -------------------------------------------------------------------------
+// *** In case a particle is a D*0, D*+, D_s*+, apply cut on mass difference 
+// *** for QA NTuple writeout (smaller file size)
+bool PndSoftTriggerTask::AcceptDstCut(RhoCandidate *c)
+{
+	int pdg = abs(c->PdgCode());
+	
+	if ( (pdg==413 || pdg==423 || pdg==433) && fabs(c->M() - c->Daughter(0)->M() - 0.143) > fDstMDiffCut ) return false;
+	
+	return true;
+}
+
 // -------------------------------------------------------------------------
 // *** Apply full selection to a candidate
 bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel)
@@ -1112,30 +1295,36 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 	
 	// not accepted by final (mass) selector
 	if ( sel && !(sel->Accept(c)) ) {if (fVerbose>1) cout <<endl;return false;}
+	// not accepted by D* mass diff cut
+	if (!AcceptDstCut(c)) return false;
 		
 	if (fVerbose>1) cout <<" accepted by precuts"<<endl;
 	
 	STCutSet cs = fSTSelmap[mcode];
-	FillVarArray(c);
-	
-	// not accepted by D* mass diff cut
-	if (!AcceptDstCut(c)) return false;
+	std::vector<double> values;
+	FillVarArray(c, mcode, values);
 	
 	bool acc = true;
 	
 	for (int i=0;i<cs.ncut;++i)
 	{
-		if (fVerbose>1) cout <<"  -> checking var["<<cs.varid[i]<<"] ("<<fSTVarArray[cs.varid[i]]<<") "<<fSTOps[cs.op[i]]<<" "<<cs.cutval[i]<<endl;
+		if (fVerbose>1) cout <<"  -> checking var["<<cs.varid[i]<<"] ("<<values[i]<<") "<<fSTOps[cs.op[i]]<<" "<<cs.cutval[i]<<endl;
 		switch (cs.op[i]) // which operator is used for this cut?
 		{
-		case 0:	// check var > value
-			if ( !(fSTVarArray[cs.varid[i]]>cs.cutval[i]) ) acc=false; 
+		case 0:	// check var >= value
+			if ( !(values[i]>=cs.cutval[i]) ) acc=false; 
 			break;
-		case 1:	// check var == value
-			if ( !(fSTVarArray[cs.varid[i]]==cs.cutval[i]) ) acc=false; 
+		case 1:	// check var > value
+			if ( !(values[i]>cs.cutval[i]) ) acc=false; 
 			break;
-		case 2:	// check var < value
-			if ( !(fSTVarArray[cs.varid[i]]<cs.cutval[i]) ) acc=false; 
+		case 2:	// check var == value
+			if ( !(values[i]==cs.cutval[i]) ) acc=false; 
+			break;
+		case 3:	// check var <= value
+			if ( !(values[i]<=cs.cutval[i]) ) acc=false; 
+			break;
+		case 4:	// check var < value
+			if ( !(values[i]<cs.cutval[i]) ) acc=false; 
 			break;
 		default : 
 			acc=false; 
@@ -1332,6 +1521,7 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 {
 	// *** counter for full selection accepted cands
 	int nacc = 0; 
+	npre = 0;
 	
 	if ( !tl->GetTagActive() ) return 0;
 	if ( fEcm < tl->GetThreshold() ) return 0;
@@ -1356,17 +1546,20 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 	for (int i=0;i<l.GetLength();++i)
 	{
 		bool acc = false;
+		bool tag = sel->Accept(l[i]) && AcceptDstCut(l[i]);
 		
-		// full selection
-		if (fApplyFullSelection>0) acc = AcceptCandidate(mode, l[i], sel);
-		// simple mass window selection
-		else acc = sel->Accept(l[i]) && AcceptDstCut(l[i]);
+		// full selection?
+		if (fApplyFullSelection>0) 
+			acc = AcceptCandidate(mode, l[i], sel);
+		// if not, simple mass window selection (and D* cut if applicable)
+		else acc = tag;
 		
 		// for full selection in open mode (=2), trigger w/o detailed cuts are accepted based on mass window only 
 		if ( !acc && fApplyFullSelection==2 && fSTSelmap.find(fSTencode[fSTModeIndex]*1000+mode) == fSTSelmap.end() )
-			acc = sel->Accept(l[i]) && AcceptDstCut(l[i]);
+			acc = tag;
 				
-		if (acc) nacc++;
+		if (acc) nacc++;		
+		if (tag) npre++;
 		
 		fAnalysis->McTruthMatch(l[i]);
 		
@@ -1391,12 +1584,8 @@ int PndSoftTriggerTask::TagMode(PndSoftTriggerLine *tl, int &npre)
 			n->Column("primvz",   (Float_t)   fPrimVtx.Z(), 0.0f);
 			n->Column("primvqa",  (Float_t)   fPrimVtxQa  , 0.0f);
 
-			Float_t nsig = (Float_t) fabs(l[i]->Mass()-mean)/sigma;
-			Int_t   tag  = nsig < tl->GetTagNSig();
-			
-			if (tag>0) npre++;
-			
 			Float_t mmiss = (fIniP4-(l[i]->P4())).M();
+			Float_t nsig = (Float_t) fabs(l[i]->Mass()-mean)/sigma;
 			
 			n->Column("ev",  	(Int_t)   fEvtCount,	0);
 			n->Column("num", 	(Int_t)   i,			0);

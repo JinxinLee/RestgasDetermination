@@ -126,11 +126,14 @@ class PndSoftTriggerTask : public FairTask
 	int DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl);         // do combinatorics for certain trigger line
 	void CombineList(RhoCandList &l, int mothpdg, int amothpdg, std::vector<int> &idx, std::vector<int> &aidx, bool cc=false);
 	int AntiPdg(int pdg);                                                // gives pdg code of antiparticle if exists
-	void FillVarArray(RhoCandidate *c);                                  // fill candidate variable array for selection
+	double GetVarValue(RhoCandidate *c, int id);                               // fill single candidate variable with index id 
+	void FillVarArray(RhoCandidate *c, int id, std::vector<double> &values);     // fill candidate variable array for selection
 	void FillEventShapeVarArray();                        			     // fill event shape variable array for selection
+	
 	bool AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel=0); // accept candidate for full selection
 	bool AcceptDstCut(RhoCandidate *c);                                  // accept the D* mass diff cut?
 	double GetPocaVtx(RhoCandidate* c, double &dist, double &ctau);
+    void GetAngles(RhoCandidate *c, double &oang, double &decang);
 	
 	// *** some helper functions
 	int SelectTruePid(RhoCandList &l);
@@ -139,7 +142,9 @@ class PndSoftTriggerTask : public FairTask
 	double DbMass(TString name) {if (fPdg->GetParticle(name)) return fPdg->GetParticle(name)->Mass(); else return 0.;}
 	int SplitString(TString s, TString delim, TString *toks, int maxtoks); 
 	int DetermineRecoilMode(int &mode);
-		
+	TLorentzVector BoostCms(TLorentzVector in);	
+	int CodeVariable(TString v);
+	
 	// *** Created necessary composites
 	int CreateKs0Cands(RhoTuple *n);
 	
