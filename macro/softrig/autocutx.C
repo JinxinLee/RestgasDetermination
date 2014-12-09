@@ -32,6 +32,8 @@ std::map<TString, TString> mctvar;
 TString vars[MAX];
 TString cuts[MAX];
 double cut[MAX];
+double qual[MAX];
+int idx[MAX];
 
 double N0_sig, N0_bg;
 double Nsigev, Nbgev;
@@ -53,6 +55,13 @@ int gettype(TTree *t, TString varname)
 	else if (leaftype=="Bool_t") return 2;
 	
 	return -1;
+}
+
+// ---------------------------------------------------------------
+
+bool mycompare(int i, int j)
+{
+  return qual[i]>qual[j];
 }
 
 // ---------------------------------------------------------------
@@ -227,6 +236,8 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 		if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
 		if (dtype==0) cuts[id] = TString::Format(TString("%s<"+prec).Data(),varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
+		
+		qual[id] = lefteff;
 
 		return lefteff;
 	}
@@ -235,6 +246,8 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 
 	if (dtype==0) cuts[id] = TString::Format(TString("%s>"+prec).Data(),varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
+
+	qual[id] = righteff;
 
 	return righteff;
 }
@@ -296,6 +309,8 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 		if (dtype==0) cuts[id] = TString::Format(TString("%s<"+prec).Data(),varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 		
+		qual[id] = leftsupr;
+
 		return leftsupr;
 	}
 	
@@ -304,12 +319,14 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	if (dtype==0) cuts[id] = TString::Format(TString("%s>"+prec).Data(),varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
+	qual[id] = rightsupr;
+
 	return rightsupr;
 }
 
 // ---------------------------------------------------------------
 
-TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr, double &bestqa)
+int findcut(TTree *t, TEventList &els, TEventList &elb, double supr, double &bestqa)
 {
 	int i;
 	
@@ -317,10 +334,14 @@ TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr, double 
 	
 	TString bestcut="";
 	
+	int bestid = -1;
+	
 	//cout <<"000/000"<<flush;
 
 	for(i=0; i<nbranch; ++i)
 	{
+		idx[i] = i;
+		
 		if (i%(nbranch/10)==0){ cout <<"#"<<flush;}
 //		printf("\b\b\b\b\b\b\b%03d/%03d",i+1,nbranch);
 //		fflush(stdout);
@@ -334,9 +355,11 @@ TString findcut(TTree *t, TEventList &els, TEventList &elb, double supr, double 
 		{
 			bestqa  = qa;
 			bestcut = cuts[i];
+			bestid = i;
 		}
 	}
-	return bestcut;
+	
+	return bestid;
 }
 
 // ---------------------------------------------------------------
@@ -405,9 +428,7 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 	TRegexp rnum("[\\-]*[0-9]+\\.[0-9]+$");
 	int cnt=0;
 	
-	bool stop=false;
-		
-	while (cnt<25 && !stop && beff>target && seff>=mineff && rseff>=minreleff) 
+	while (cnt<50 && beff>target && seff>=mineff && rseff>=minreleff) 
 	{		
 		c1->cd(cnt%7+1); 
 		t->SetLineColor(1);	t->Draw("xm",precut);
@@ -433,7 +454,24 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 		
 		double qa=0.;
 		
-		TString bestcut = findcut(t, els, elb, supr, qa);
+		int bestid = findcut(t, els, elb, supr, qa);
+		
+		TString bestcut = cuts[bestid];
+		
+		//cout <<" "<<bestcut<<" ("<<qa<<") -> ";
+		
+		std::vector<int> myidx (idx, idx+nbranch);	
+		std::sort(myidx.begin(), myidx.end(), mycompare);	
+		
+		if (precut.Length()>3 && precut.Index(vars[bestid]+">")<0 && precut.Index(vars[bestid]+"<")<0)
+		{
+			int i = 0;
+			while (i<nbranch && precut.Index(vars[idx[i]]+">")<0 && precut.Index(vars[idx[i]]+"<")<0) ++i;
+			
+			if (qual[idx[i]]/qa>0.8) bestcut = cuts[idx[i]];
+			
+			//cout <<" "<<bestcut<<" ("<<qual[idx[i]]<<") r="<<qual[idx[i]]/qa<<endl;
+		}		
 
 		/*
 		while (qa<0.1) 

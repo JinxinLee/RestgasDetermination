@@ -47,7 +47,22 @@ my $cnt = 0;
 
 foreach ( sort keys %vars)
 {
+	if ($cnt<50 && !m/^es/) {$cnt=50; print"\n";}
 	printf "(%3d) %-15s ", $cnt++, $_;
 	if ($cnt%5 == 0) {print "\n";}
 }
 print "\n";
+
+my $cnt = 0;
+
+print "TString fSTenames [] = {\n    ";
+foreach ( sort keys %vars)
+{
+	if ($cnt<50 && !m/^es/) {$cnt=50; print " };\n\nTString fSTcnames [] = {\n    ";}
+	printf "%-15s, ", '"'.$_.'"';
+	$cnt++;
+	if ($cnt%5 == 0) {print "\n    ";}
+}
+print "};\n";
+
+
