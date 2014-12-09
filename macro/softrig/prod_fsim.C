@@ -42,6 +42,10 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 		return;
 	}
 	
+	// Allow shortcut for resonance
+	if (Resonance=="pbp")  Resonance = "pbarpSystem";
+	if (Resonance=="pbp0") Resonance = "pbarpSystem0";
+	
 	// Prevent generator from throwing a lot of warnings
 	TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888);
@@ -411,6 +415,8 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 		stTask->SetQAMode(modeshort); // -> only write signal n-tuple
 		stTask->SetQAMctOnly();       // -> only keep signals with mct match in QA tuple
 	}
+	
+	if (applyfull) stTask->SetQAAll(false); // in full selection mode don't create QA output
 	
 	stTask->SetQAEvent(true);		// event info
 	stTask->SetQAMc(true);          // mc info
