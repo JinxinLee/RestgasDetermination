@@ -92,7 +92,7 @@ int fSTPidIndex[16] =       {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212
 // ( 25) essumpc         ( 26) essumpc05       ( 27) essumpcl        ( 28) essumpt         ( 29) essumptc    
 // ( 30) esthr           ( 31)                 ( 32)                 ( 33)                 ( 34)    
 
-int   fSTNEvVars = 31;
+int   fSTNEvVars = 35;
 TString fSTenames[] = {
     "eslnpide"     , "eslnpidmu"    , "eslnpidpi"    , "eslnpidk"     , "eslnpidp"     , 
     "esfw1"        , "esfw2"        , "esfw3"        , "esfw4"        , "esfw5"        , 
@@ -100,13 +100,13 @@ TString fSTenames[] = {
     "esnchrg"      , "espmax"       , "espmaxl"      , "espmin"       , "espminl"      , 
     "esprapmax"    , "esptmax"      , "essumen"      , "essumenl"     , "essumetn"     , 
     "essumpc"      , "essumpc05"    , "essumpcl"     , "essumpt"      , "essumptc"     , 
-    "esthr"        
+    "esthr"        , "essph"        , "esptmin"      , "esncp10l"     , "esnne10l"
 };
 
 // coding for variable suffix (to translate variable names to code)
-int   fSTNQuant = 16;
-TString fSTVarSuff[] = {"pt","tht","pcm","thtcm","pide","pidmu","pidpi","pidk","pidp","pocqa","pocdist","pocctau","oang","cdecang","decang","p" };
-int   fSTQuantCode[] = { 11,  12,   13,   14,      20,    21,     22,     23,    24,    30,     31,       32,      40,     42,      41,      10 };
+int   fSTNQuant = 17;
+TString fSTVarSuff[] = {"pt","tht","pcm","thtcm","pide","pidmu","pidpi","pidk","pidp", "pidmax","pocqa","pocdist","pocctau","oang","cdecang","decang","p" };
+int   fSTQuantCode[] = { 11,  12,   13,   14,      20,    21,     22,     23,    24,     25,     30,     31,       32,      40,     42,      41,      10 };
 
 
 // cache for event shape variables
@@ -724,7 +724,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	{
 		PndSoftTriggerLine *tl = it->second;	
 		
-		if (tl->GetThreshold()<=fEcm)
+		if (tl->GetThreshold()<=fEcm && tl->GetTagActive() )
 		{
 			int ntag =  TagMode( tl , tag_pre);
 			tl->SetNTagged( ntag );
@@ -740,9 +740,11 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// *** write common information	
 	if (fQAEvent)
 	{
-		ntp->Column("ev",		(Int_t) 	fEvtCount,	0);
-		ntp->Column("run",  	(Int_t) 	fRunNum,	0);
-		ntp->Column("mode",		(Int_t)		fMode,		0);
+		ntp->Column("ev",		(Int_t) 	fEvtCount,	  0);
+		ntp->Column("run",  	(Int_t) 	fRunNum,	  0);
+		ntp->Column("mode",		(Int_t)		fMode,		  0);
+		ntp->Column("recmode",  (Int_t)     fRecoilMode,  0);
+		ntp->Column("reccnt",   (Int_t)     fRecoilCnt,   0);
 
 		fQA->qaP4("beam", fIniP4, ntp);
 		ntp->Column("primvx",   (Float_t)   fPrimVtx.X(), 0.0f);
@@ -754,9 +756,9 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 		for (TrigIt it=fSTTriggers.begin(); it!=fSTTriggers.end(); ++it)
 		{
 			PndSoftTriggerLine *tl = it->second;
-			if ( tl->GetTagActive() ) 
+			if ( tl->GetThreshold()<=fEcm && tl->GetTagActive() ) 
 			{
-				ntp->Column("tag_"+tl->GetName(), (Int_t) tl->GetNTagged(), 0);
+				//ntp->Column("tag_"+tl->GetName(), (Int_t) tl->GetNTagged(), 0);
 				ntp->Column(TString::Format("tag%d",tl->GetModeCode()), (Int_t) tl->GetNTagged(), 0);
 			}
 		}
@@ -1041,8 +1043,13 @@ void PndSoftTriggerTask::FillEventShapeVarArray()
 	fSTVarEvArray[27] = fEventShape->ChrgPSumLab();
 	fSTVarEvArray[28] = fEventShape->PtSumLab();
 	fSTVarEvArray[29] = fEventShape->ChrgPtSumCms();
-	
+
 	fSTVarEvArray[30] = fEventShape->Thrust();
+	fSTVarEvArray[31] = fEventShape->Sphericity();
+	fSTVarEvArray[32] = fEventShape->Ptmin();
+	fSTVarEvArray[33] = fEventShape->MultChrgPminLab(1.0);
+	fSTVarEvArray[34] = fEventShape->MultNeutEminLab(1.0);
+	
 }
 
 // -------------------------------------------------------------------------
@@ -1112,12 +1119,12 @@ double PndSoftTriggerTask::GetPocaVtx(RhoCandidate* c, double &dist, double &cta
 // - EF defines variable: 
 //    - E: 1=kin, 2=pid, 3=vtx, 4=ang
 //    
-//   E\F    |    0    |    1    |    2    |    3    |    4     
-// ----------------------------------------------------------
-//  1 (kin) |    p    |   pt    |  tht    |  pcm    |  thtcm 
-//  2 (pid) |  pide   |  pidmu  |  pidpi  |  pidk   |  pidp
-//  3 (vtx) |  pocqa  | pocdist | pocctau |         |
-//  4 (ang) |  oang   | decang  | cdecang |         |   
+//   E\F    |    0    |    1    |    2    |    3    |    4    |    5 
+// ----------------------------------------------------------------------
+//  1 (kin) |    p    |   pt    |  tht    |  pcm    |  thtcm  |
+//  2 (pid) |  pide   |  pidmu  |  pidpi  |  pidk   |  pidp   |  pidmax
+//  3 (vtx) |  pocqa  | pocdist | pocctau |         |         |
+//  4 (ang) |  oang   | decang  | cdecang |         |         |
 
 int PndSoftTriggerTask::CodeVariable(TString v)
 {
@@ -1194,15 +1201,15 @@ double PndSoftTriggerTask::GetVarValue(RhoCandidate *c, int id)
 	else cnd = c->Daughter(B)->Daughter(C)->Daughter(D);
 	
 	// coding for variable suffix (to translate variable names to code)
-	//   E\F    |    0    |    1    |    2    |    3    |    4     
-	// ----------------------------------------------------------
-	//  1 (kin) |    p    |   pt    |  tht    |  pcm    |  thtcm 
-	//  2 (pid) |  pide   |  pidmu  |  pidpi  |  pidk   |  pidp
-	//  3 (vtx) |  pocqa  | pocdist | pocctau |         |
-	//  4 (ang) |  oang   | decang  | cdecang |         |   
+	//   E\F    |    0    |    1    |    2    |    3    |    4    |    5 
+	// ----------------------------------------------------------------------
+	//  1 (kin) |    p    |   pt    |  tht    |  pcm    |  thtcm  |
+	//  2 (pid) |  pide   |  pidmu  |  pidpi  |  pidk   |  pidp   |  pidmax
+	//  3 (vtx) |  pocqa  | pocdist | pocctau |         |         |
+	//  4 (ang) |  oang   | decang  | cdecang |         |         |
 	
 	double val = -999.;
-	double pocqa, pocdist, pocctau, oang, decang, cdecang;
+	double pocqa, pocdist, pocctau, oang, decang, cdecang, pidmax;
 	TLorentzVector bl;
 	
 	switch (quant)
@@ -1226,13 +1233,19 @@ double PndSoftTriggerTask::GetVarValue(RhoCandidate *c, int id)
 			fSTVarCandArray[id] = cnd->GetPidInfo(quant%10);
 			break;
 		
-		case 30 : case 31 : case 32 :
+		case 25 : // pidmax
+			pidmax = 0;
+			for (int i=0;i<5;++i) if (cnd->GetPidInfo(i)>pidmax) pidmax = cnd->GetPidInfo(i);
+			fSTVarCandArray[id] = pidmax;
+			break;
+		
+		case 30 : case 31 : case 32 : // pocqa, pocdist, pocctau
 			fSTVarCandArray[cand*100+30] = GetPocaVtx(cnd, pocdist, pocctau);
 			fSTVarCandArray[cand*100+31] = pocdist; 
 			fSTVarCandArray[cand*100+32] = pocctau; 
 			break;
 		
-		case 40 : case 41 : case 42 :
+		case 40 : case 41 : case 42 : // oang, decang, cdecang
 			GetAngles(cnd, oang, decang);
 			cdecang = cos(decang);
 			fSTVarCandArray[cand*100+40] = oang; 
