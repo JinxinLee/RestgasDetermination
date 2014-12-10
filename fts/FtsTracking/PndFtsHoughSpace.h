@@ -124,8 +124,10 @@ public:
 	 TODO For each hit the "path" through the 2d histogram is saved for peak finding.
 
 	 y component of B field will be read from field maps if fKeepBConstant is kFALSE.
+
+	 @param[in] Running index, only needed for Debugging output of Hough spaces
 	 */
-	void FillHoughSpace();
+	void FillHoughSpace(const Int_t index = -1);
 
 	// operators
 	// PndFtsHoughSpace are the same if they contain the same hits, that means if the PndTrackCand are the same, therefore no need to implement that operator here
@@ -140,6 +142,15 @@ public:
 	Double_t getZRefPos() const { return fZRefPos; };
 
 	inline UInt_t GetNHits() const { return fHitId.size(); };
+
+	//------
+	//DEBUG
+	//-----
+	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
+	 * @param[in] houghSpace To be written as histogram.
+	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
+	 */
+	void WriteHistoOfHoughSpace(Int_t index=-1) const;
 
 
 private:
@@ -281,6 +292,13 @@ private:
 		return yVal;
 	}
 
+
+	//------
+	//DEBUG
+	//-----
+	TH2S MakeEmptyHistoOfSameDimensions() const;
+	void WriteHistoOfAllPeaks(const PeakVec& mergedPeaksForAllHits) const;
+
 public:
 	ClassDef(PndFtsHoughSpace,1);
 
@@ -305,15 +323,14 @@ const PndFtsHit *const PndFtsHoughSpace::getHitFromHS(UInt_t index) const {
 		Int_t hitIndex = fHitId.at(index).GetHitId();
 		const PndFtsHit *const myHit = (PndFtsHit*) fTrackerTask->GetFtsHit(hitIndex);
 		return myHit;
-	} else {
-		throwError("index too high");
 	}
+	throwError("index too high");
 }
 
 
 const TVector3 PndFtsHoughSpace::GetRawOrCalculatedHitPos(
 		const PndFtsHit* const myHit
-	) const {
+) const {
 	// get hit position
 	TVector3 hitPos;
 	if (kFALSE == myHit->GetSkewed()) {

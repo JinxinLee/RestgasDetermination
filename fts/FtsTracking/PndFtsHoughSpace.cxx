@@ -128,19 +128,19 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																																				fTrackerTask(trackerTask),
+						fTrackerTask(trackerTask),
 
-																																				fZRefPos(zRefPos),
-																																				fInterceptZx(interceptZx),
+						fZRefPos(zRefPos),
+						fInterceptZx(interceptZx),
 
-																																				TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-																																				// set from tracker task
-																																				fFtsBranchId(0),
-																																				fVerbose(0),
-																																				fField(0),
+						// set from tracker task
+						fFtsBranchId(0),
+						fVerbose(0),
+						fField(0),
 
-																																				fAssociatedTrackCand(associatedTrackCand)
+						fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -184,6 +184,9 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// Line for stations 1+2
 		fOnlyUseHitsFromZ = 100.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 380.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+
+		GetXaxis()->SetTitle("#theta [rad]");
+		GetYaxis()->SetTitle("x [cm]");
 	}
 	else if ("parabola" == option)
 	{
@@ -193,6 +196,9 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// parabola for stations 3-5
 		fOnlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 630.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+
+		GetXaxis()->SetTitle("#theta [rad]");
+		GetYaxis()->SetTitle("x_{LP} [cm]");
 	}
 	else if ("parabolapz" == option)
 	{
@@ -202,7 +208,11 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// parabola for stations 3-5
 		fOnlyUseHitsFromZ = 380.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 630.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
-	} else if ("lineBehindDipole" == option)
+
+		GetXaxis()->SetTitle("#theta [rad]");
+		GetYaxis()->SetTitle("x_{LP} [cm]");
+	}
+	else if ("lineBehindDipole" == option)
 	{
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
@@ -217,7 +227,11 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// Line for stations 5+6
 		fOnlyUseHitsFromZ = 550.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 1000.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
-	} else if ("lineZy" == option)
+
+		GetXaxis()->SetTitle("#theta [rad]");
+		GetYaxis()->SetTitle("x [cm]");
+	}
+	else if ("lineZy" == option)
 	{
 		// make sure hits are not shifted for line hough transform
 		if (0!=fInterceptZx) {
@@ -232,6 +246,9 @@ Bool_t PndFtsHoughSpace::setParametersForHsOption()
 		// Line for all FTS stations
 		fOnlyUseHitsFromZ = 100.; // Set = 100. if you want to use all FTS hits, higher if you want to exclude hits that are closer to the interaction point than the value
 		fOnlyUseHitsUpToZ = 1000.; // Set = 1000. if you want to use all FTS hits, lower if you want to exclude hits that are further away from the interaction point than the value
+
+		GetXaxis()->SetTitle("#theta [rad]");
+		GetYaxis()->SetTitle("y [cm]");
 	}
 	else
 	{
@@ -355,7 +372,7 @@ Bool_t PndFtsHoughSpace::FillHoles(
 	return kTRUE;
 }
 
-void PndFtsHoughSpace::FillHoughSpace()
+void PndFtsHoughSpace::FillHoughSpace( const Int_t index )
 {
 	// make sure we have hits in the Hough space
 	if (0==GetNHits()){
@@ -546,10 +563,87 @@ void PndFtsHoughSpace::FillHoughSpace()
 		}
 	} // for iHit
 	if (1<fVerbose) std::cout << "map after all hits: " << fHitThetaYIdxPath << '\n';
+	if (fTrackerTask->GetSaveDebugInfo()) WriteHistoOfHoughSpace(index);
+}
+
+TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions() const {
+	TH2S peaks(GetName(), GetName(), fXaxis.GetNbins(), fXaxis.GetXmin(),
+			fXaxis.GetXmax(), fYaxis.GetNbins(), fYaxis.GetXmin(),
+			fYaxis.GetXmax());
+	return peaks;
+}
+
+void PndFtsHoughSpace::WriteHistoOfAllPeaks(const PeakVec& mergedPeaksForAllHits) const {
+	// write out histograms containing found hits
+	// filling all peaks in separate histos and all together in one histo
+	TH2S allPeaks = MakeEmptyHistoOfSameDimensions();
+	for (UInt_t iPeaks = 0; iPeaks < mergedPeaksForAllHits.size(); ++iPeaks) {
+		TH2S onePeak = MakeEmptyHistoOfSameDimensions();
+		const Double_t currentHeight = mergedPeaksForAllHits[iPeaks].getHeight();
+		const std::set<Int_t>& binsInPeak = mergedPeaksForAllHits[iPeaks].getBins();
+		for (std::set<Int_t>::iterator itBin = binsInPeak.begin(); itBin != binsInPeak.end(); ++itBin) {
+			onePeak.SetBinContent(*itBin, currentHeight);
+			allPeaks.SetBinContent(*itBin, currentHeight);
+		}
+		TString outNameOne = "plots/";
+		outNameOne += onePeak.GetName();
+		outNameOne += fTrackerTask->GetEventNr();
+		outNameOne += "-Peak";
+		outNameOne += iPeaks;
+		outNameOne += "-H";
+		outNameOne += currentHeight;
+		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+		onePeak.SaveAs(outNameOne, "LEGO2");
+	}
+	TString outNameAll = "plots/";
+	outNameAll += allPeaks.GetName();
+	outNameAll += fTrackerTask->GetEventNr();
+	outNameAll += "-AllPeaks.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+	allPeaks.SaveAs(outNameAll, "LEGO2");
 }
 
 
 
+void PndFtsHoughSpace::WriteHistoOfHoughSpace(Int_t index) const{
+	//	Int_t index = fHoughSpaces->GetEntriesFast();
+	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
+
+	TH2S histo = MakeEmptyHistoOfSameDimensions();
+	TString outName = "plots/";
+	outName += GetName();
+	outName+=fTrackerTask->GetEventNr();
+	if (-1!=index){
+		outName+="-";
+		outName+=index;
+	}
+	outName+=".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+	//TH2S histo = houghspace.ExportTH2S();
+	histo.SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
+	// sed -i 's/PndFtsHoughSpace/TH2S/g' *.rtg
+
+
+	//	fOutFile = FairRootManager::Instance()->GetOutFile();
+	//	if (0==fOutFile)
+	//	{
+	//		std::cout << "WriteHistograms: Cannot get outfile.\n";
+	//	}
+	//	else
+	//	{
+	//		//			fOutFile->cd();
+	//		//			fOutFile->cd("PndFtsHoughTrackerTask");
+	//		if(3<fVerbose) std::cout << "WriteHistograms: Got outfile for debugging output.\n";
+	//		if (0!=houghSpace)
+	//		{
+	//			TString histNameOld = houghSpace->GetName();
+	//			TString histNameNew = houghSpace->GetName();
+	//			histNameNew+=fEventNr;
+	//			houghSpace->SetName(histNameNew);
+	//			houghSpace->Write();
+	//			houghSpace->SetName(histNameOld);
+	//		}
+	//		//			fOutFile->cd();
+	//	}
+}
 
 
 
@@ -654,27 +748,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 			//hitIdxPeaks.insert( hitPeaksPair );
 		}// hit loop
 
-		if ( kTRUE == fTrackerTask->GetSaveDebugInfo() ) { // write out histograms containing found hits
-			// filling all peaks in separate histos
-			for (UInt_t iPeaks = 0; iPeaks < mergedPeaksForAllHits.size(); ++iPeaks){
-				TH2S peaks( GetName(),GetName(),fXaxis.GetNbins(),fXaxis.GetXmin(),fXaxis.GetXmax(),fYaxis.GetNbins(),fYaxis.GetXmin(),fYaxis.GetXmax() );
-				const Double_t currentHeight = mergedPeaksForAllHits[iPeaks].getHeight();
-				const std::set<Int_t>& binsInPeak = mergedPeaksForAllHits[iPeaks].getBins();
-				for (std::set< Int_t >::iterator itBin = binsInPeak.begin(); itBin != binsInPeak.end(); ++itBin){
-					peaks.SetBinContent(*itBin, currentHeight);
-				}
-				TString outName = "plots/";
-				outName += peaks.GetName();
-				outName+=fTrackerTask->GetEventNr();
-				outName+="-Peak";
-				outName+=iPeaks;
-				outName+="-H";
-				outName+=currentHeight;
-				outName+=".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
-				peaks.SaveAs(outName, "LEGO2");
-				peaks.SaveAs();
-			}
-		}
+		if ( kTRUE == fTrackerTask->GetSaveDebugInfo() ) WriteHistoOfAllPeaks(mergedPeaksForAllHits);
 
 
 		// Build up tracklets from peaks by going through vector of merged peaks

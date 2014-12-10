@@ -149,14 +149,6 @@ public:
 	FairField *const getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
 
 
-	//------
-	//DEBUG
-	//-----
-	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
-	 * @param[in] houghSpace To be written as histogram.
-	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
-	 */
-	void WriteHistogram(const PndFtsHoughSpace *const houghSpace, Int_t index=-1) const;
 	FairLogger* fLogger; ///< @brief For output handling.
 
 

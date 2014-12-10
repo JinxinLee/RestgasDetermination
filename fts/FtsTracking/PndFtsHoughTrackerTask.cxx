@@ -234,46 +234,7 @@ InitStatus PndFtsHoughTrackerTask::Init()
 //}
 
 
-void PndFtsHoughTrackerTask::WriteHistogram(const PndFtsHoughSpace *const houghSpace, Int_t index) const{
-	//	Int_t index = fHoughSpaces->GetEntriesFast();
-	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
 
-
-	TString outName = "plots/";
-	outName += houghSpace->GetName();
-	outName+=fEventNr;
-	if (-1!=index){
-		outName+="-";
-		outName+=index;
-	}
-	outName+=".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
-	//TH2S histo = houghspace.ExportTH2S();
-	houghSpace->SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
-	// sed -i 's/PndFtsHoughSpace/TH2S/g' *.rtg
-
-
-	//	fOutFile = FairRootManager::Instance()->GetOutFile();
-	//	if (0==fOutFile)
-	//	{
-	//		std::cout << "WriteHistograms: Cannot get outfile.\n";
-	//	}
-	//	else
-	//	{
-	//		//			fOutFile->cd();
-	//		//			fOutFile->cd("PndFtsHoughTrackerTask");
-	//		if(3<fVerbose) std::cout << "WriteHistograms: Got outfile for debugging output.\n";
-	//		if (0!=houghSpace)
-	//		{
-	//			TString histNameOld = houghSpace->GetName();
-	//			TString histNameNew = houghSpace->GetName();
-	//			histNameNew+=fEventNr;
-	//			houghSpace->SetName(histNameNew);
-	//			houghSpace->Write();
-	//			houghSpace->SetName(histNameOld);
-	//		}
-	//		//			fOutFile->cd();
-	//	}
-}
 
 
 // ---- ReInit  -------------------------------------------------------
