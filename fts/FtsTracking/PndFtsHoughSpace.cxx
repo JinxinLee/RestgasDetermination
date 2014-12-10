@@ -553,20 +553,15 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 
 
-Bool_t PndFtsHoughSpace::FindAllPeaks(
-		const UInt_t minHeight,
-		std::vector<PndFtsHoughTracklet> &tracklets
-)
+std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t minHeight)
 {
-	// make sure the output vector is empty
-	if ( 0!=tracklets.size() ) throwError("in PndFtsHoughSpace: tracklet vector is not empty.");
-
+	std::vector<PndFtsHoughTracklet> tracklets; // for output
 
 	// check if Hough space has at least one entry
 	if (1>GetEntries())
 	{
 		std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
-		return kFALSE;
+		return tracklets;
 	}
 
 
@@ -681,6 +676,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			}
 		}
 
+
 		// Build up tracklets from peaks by going through vector of merged peaks
 		for (UInt_t iPeaks = 0; iPeaks < mergedPeaksForAllHits.size(); ++iPeaks){
 			const Double_t currentHeight = mergedPeaksForAllHits[iPeaks].getHeight();
@@ -695,7 +691,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 				const Double_t currThetaVal = fXaxis.GetBinCenter(currentBinX);
 				const Double_t currSecondVal = fYaxis.GetBinCenter(currentBinY);
 
-				if ( binsInPeak.begin() == itBin ){ // initialise values if this is the first bin
+				if ( binsInPeak.begin() == itBin ){ // initialize values if this is the first bin
 					minThetaVal = currThetaVal;
 					maxThetaVal = currThetaVal;
 					minSecondVal = currSecondVal;
@@ -730,7 +726,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			}
 			tracklets.push_back(currentTracklet);
 		}
-		return kTRUE;
+		return tracklets;
 	} else
 		if ("allPeaks>minHeight, merge peaks" == peakfinderOption)
 		{
@@ -997,8 +993,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 							}
 							else
 							{
-								std::cout << "Error in FillHoughSpace! option " << option << " is not implemented!" << '\n';
-								return kFALSE;
+								throwError("Error in FillHoughSpace! option " + option + " is not implemented!");
 							}
 
 
@@ -1024,7 +1019,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 
 
 
-				return kTRUE;
+				return tracklets;
 			} else
 
 				if (("allPeaks>minHeight Old" == peakfinderOption) || ("allPeaksSearchWindow>minHeight Old" == peakfinderOption))
@@ -1206,8 +1201,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 									}
 									else
 									{
-										std::cout << "Error in FillHoughSpace! option " << option << " is not implemented!" << '\n';
-										return kFALSE;
+										throwError("Error in FillHoughSpace! option " + option + " is not implemented!");
 									}
 
 
@@ -1231,7 +1225,7 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 					} // y loop
 					//		   } // z loop
 
-					return kTRUE;
+					return tracklets;
 				}
 				else if ("tspectrum2" == peakfinderOption)
 				{
@@ -1268,11 +1262,10 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 						tracklets.push_back(currentTracklet);
 					}
 					//		binmaxglobal = houghspace->Fill(peakTheta, peakSecond, 0); // returns binnumber without modifying the histogram
-					return kTRUE;
+					return tracklets;
 				}
 				else
 				{
-					std::cout << "PeakFinder error: Option " << peakfinderOption << " is not implemented!\n";
-					return kFALSE;
+					throwError("PeakFinder error: Option " + peakfinderOption + " is not implemented!");
 				}
 }

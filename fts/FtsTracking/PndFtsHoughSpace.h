@@ -109,10 +109,7 @@ public:
 	 * @param tracklets should be empty at the beginning and will contain all values found for the peaks in the Hough space. They will contain the hitIds of all hits that contribute to the peaks.
 	 * @return kTRUE if at least one peak was found, kFALSE otherwise (Hough Space is empty / has too few hits or tracklets were not empty)
 	 */
-	Bool_t FindAllPeaks(
-			const UInt_t minHeight,
-			std::vector<PndFtsHoughTracklet> &tracklets
-	);
+	std::vector<PndFtsHoughTracklet> FindAllPeaks(const UInt_t minHeight);
 
 	/**@brief Fills the Hough space using the equation which corresponds to the name of the Hough space.
 

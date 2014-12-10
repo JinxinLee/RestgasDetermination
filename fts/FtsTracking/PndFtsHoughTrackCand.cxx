@@ -16,20 +16,20 @@
 ClassImp(PndFtsHoughTrackCand);
 
 PndFtsHoughTrackCand::PndFtsHoughTrackCand(PndFtsHoughTrackerTask *trackerTask) :
-												fTrackerTask(trackerTask),
+				fTrackerTask(trackerTask),
 
-												fVerbose(0),
+				fVerbose(0),
 
-												fZxLineBeforeDipole(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
+				fZxLineBeforeDipole(0., trackerTask), // TODO: It could be a problem here that I set the z reference value to 0.
 
-												fZxParabola(0., trackerTask),
+				fZxParabola(0., trackerTask),
 
-												fZxLineBehindDipole(0., trackerTask),
+				fZxLineBehindDipole(0., trackerTask),
 
-												fZyLine(0., trackerTask),
+				fZyLine(0., trackerTask),
 
-												fZCoordLineParabola(0.),
-												fZCoordParabolaLine(0.)
+				fZCoordLineParabola(0.),
+				fZCoordParabolaLine(0.)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackCand FATAL ERROR Tracker task pointer not set.\n";
@@ -132,48 +132,48 @@ void PndFtsHoughTrackCand::addUniqueTrackletHits(PndFtsHoughTracklet inTracklet)
 }
 
 
-	// TODO: Check this!
-	Double_t PndFtsHoughTrackCand::getXLabForParabola(const Double_t &zLabSys) const {
-		// does not take option of varying B field into account
-		// calculate x in lab sys for a given z position in lab sys for which the parabola assumption holds
-		// theta in radian in zx plane given at z = zRefLabSys
-		const Double_t thetaRad = fZxParabola.getThetaRadVal();
-		const Double_t qDivPzx = getQdivPzx(); // Q/pzx
-		const Double_t zRefLabSys = fZxParabola.getZRefLabSys();
-		const Double_t zshifted = zLabSys-zRefLabSys;
+// TODO: Check this!
+Double_t PndFtsHoughTrackCand::getXLabForParabola(const Double_t &zLabSys) const {
+	// does not take option of varying B field into account
+	// calculate x in lab sys for a given z position in lab sys for which the parabola assumption holds
+	// theta in radian in zx plane given at z = zRefLabSys
+	const Double_t thetaRad = fZxParabola.getThetaRadVal();
+	const Double_t qDivPzx = getQdivPzx(); // Q/pzx
+	const Double_t zRefLabSys = fZxParabola.getZRefLabSys();
+	const Double_t zshifted = zLabSys-zRefLabSys;
 
-		const Double_t interceptLine = fZxLineBeforeDipole.getSecondVal();
+	const Double_t interceptLine = fZxLineBeforeDipole.getSecondVal();
 
-		const Double_t By = 1.;
+	const Double_t By = 1.;
 
-		if (0==thetaRad){
-			Double_t xParabolaSys = qDivPzx /2. * By * zshifted;
-			// go from local parabola system to the lab system
-			Double_t xLabSys = xParabolaSys + interceptLine;
-			return xLabSys;
-		}
-
-
-		const Double_t tantheta = tan(thetaRad);
-		const Double_t pzstuff = 1. / qDivPzx / By / sin(thetaRad);
-		const Double_t ztantheta = zshifted / tantheta;
-		const Double_t a = -ztantheta + pzstuff / tantheta;
-
-		const Double_t wurzel = sqrt(a * a - 2. * pzstuff * zshifted - ztantheta * ztantheta);
-		const Double_t x1ParabolaSys = a - wurzel;
-		const Double_t x2ParabolaSys = a + wurzel;
-
+	if (0==thetaRad){
+		Double_t xParabolaSys = qDivPzx /2. * By * zshifted;
 		// go from local parabola system to the lab system
-		Double_t x1LabSys = x1ParabolaSys + interceptLine;
-		Double_t x2LabSys = x2ParabolaSys + interceptLine;
-
-		// there are two analytical solutions, take the one closer to 0
-		if (fabs(x1LabSys)<fabs(x2LabSys)) {
-			return x1LabSys;
-		} else {
-			return x2LabSys;
-		}
+		Double_t xLabSys = xParabolaSys + interceptLine;
+		return xLabSys;
 	}
+
+
+	const Double_t tantheta = tan(thetaRad);
+	const Double_t pzstuff = 1. / qDivPzx / By / sin(thetaRad);
+	const Double_t ztantheta = zshifted / tantheta;
+	const Double_t a = -ztantheta + pzstuff / tantheta;
+
+	const Double_t wurzel = sqrt(a * a - 2. * pzstuff * zshifted - ztantheta * ztantheta);
+	const Double_t x1ParabolaSys = a - wurzel;
+	const Double_t x2ParabolaSys = a + wurzel;
+
+	// go from local parabola system to the lab system
+	Double_t x1LabSys = x1ParabolaSys + interceptLine;
+	Double_t x2LabSys = x2ParabolaSys + interceptLine;
+
+	// there are two analytical solutions, take the one closer to 0
+	if (fabs(x1LabSys)<fabs(x2LabSys)) {
+		return x1LabSys;
+	} else {
+		return x2LabSys;
+	}
+}
 
 
 
