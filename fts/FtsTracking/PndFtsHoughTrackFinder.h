@@ -115,8 +115,6 @@ private:
 	/** @brief For error reporting */
 	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
 
-	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const;
-
 	//	Int_t   fFtsBranchId; // needed for saving and accessing hits
 	//	TClonesArray *fFtsHitArray; ///< @brief Input array of all FTS hits.
 
@@ -178,12 +176,12 @@ private:
 	void FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(
 			const std::vector<PndFtsHoughTracklet>& trackletsLineBeforeDipole,
 			const std::vector<PndFtsHoughTracklet>& trackletsLineBehindDipole
-			);
+	);
 	// kTRUE iif angles of parabola and of line behind dipole match at z coordinate where I switch from parabola to line (in zx plane)
 	inline Bool_t LineBehindDipoleMatchesToLinePlusParabola(
 			const PndFtsHoughTrackCand &lineParabola,
 			const PndFtsHoughTracklet &lineBehindDipole
-			) const;
+	) const;
 
 
 	ClassDef(PndFtsHoughTrackFinder,1);
@@ -193,20 +191,10 @@ private:
 
 
 // inline
-void PndFtsHoughTrackFinder::PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets, const TString& option) const{
-		std::cout << tracklets.size() << " peaks found for " << option << '\n';
-		if (10<fVerbose){
-			for (UInt_t i=0; i< tracklets.size(); ++i)
-			{
-				tracklets[i].Print();
-			}
-		}
-	};
-
 Bool_t PndFtsHoughTrackFinder::LineBehindDipoleMatchesToLinePlusParabola(
 		const PndFtsHoughTrackCand& lineParabola,
 		const PndFtsHoughTracklet& lineBehindDipole
-		) const {
+) const {
 
 	// the angles should be compared at the z coordinate where I switch from parabola to line behind dipole
 	Double_t zParabolaLine = lineBehindDipole.getZRefLabSys();

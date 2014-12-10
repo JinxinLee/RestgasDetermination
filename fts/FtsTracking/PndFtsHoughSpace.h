@@ -143,15 +143,6 @@ public:
 
 	inline UInt_t GetNHits() const { return fHitId.size(); };
 
-	//------
-	//DEBUG
-	//-----
-	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
-	 * @param[in] houghSpace To be written as histogram.
-	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
-	 */
-	void WriteHistoOfHoughSpace(Int_t index=-1) const;
-
 
 private:
 	// for PandaRoot input/output
@@ -296,8 +287,18 @@ private:
 	//------
 	//DEBUG
 	//-----
+	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
+	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
+	 */
+	void WriteHistoOfHoughSpace(Int_t index=-1) const;
+	/** @brief Makes a new empty histogram with the same binning and limits as this.
+	 */
 	TH2S MakeEmptyHistoOfSameDimensions() const;
-	void WriteHistoOfAllPeaks(const PeakVec& mergedPeaksForAllHits) const;
+	/** @brief For writing out peaks in Hough spaces as histograms (for debugging purposes).
+	 * @param[in] peaksToPlot contains the peaks that should be plotted.
+	 */
+	void WriteHistoOfAllPeaks(const PeakVec& peaksToPlot) const;
+	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets) const;
 
 public:
 	ClassDef(PndFtsHoughSpace,1);
@@ -317,14 +318,23 @@ void PndFtsHoughSpace::Print() const {
 	TH2S::Print();
 }
 
+void PndFtsHoughSpace::PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets) const{
+	std::cout << tracklets.size() << " peaks found for " << GetName() << '\n';
+	if (10<fVerbose){
+		for (UInt_t i=0; i< tracklets.size(); ++i)
+		{
+			tracklets[i].Print();
+		}
+	}
+}
+
 
 const PndFtsHit *const PndFtsHoughSpace::getHitFromHS(UInt_t index) const {
-	if (index < GetNHits()){
-		Int_t hitIndex = fHitId.at(index).GetHitId();
-		const PndFtsHit *const myHit = (PndFtsHit*) fTrackerTask->GetFtsHit(hitIndex);
-		return myHit;
-	}
-	throwError("index too high");
+	if (GetNHits() < index) throwError("index too high");
+
+	Int_t hitIndex = fHitId.at(index).GetHitId();
+	const PndFtsHit *const myHit = (PndFtsHit*) fTrackerTask->GetFtsHit(hitIndex);
+	return myHit;
 }
 
 

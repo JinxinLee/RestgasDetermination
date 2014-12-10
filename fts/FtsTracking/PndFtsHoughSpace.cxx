@@ -128,19 +128,19 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-						fTrackerTask(trackerTask),
+								fTrackerTask(trackerTask),
 
-						fZRefPos(zRefPos),
-						fInterceptZx(interceptZx),
+								fZRefPos(zRefPos),
+								fInterceptZx(interceptZx),
 
-						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+								TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-						// set from tracker task
-						fFtsBranchId(0),
-						fVerbose(0),
-						fField(0),
+								// set from tracker task
+								fFtsBranchId(0),
+								fVerbose(0),
+								fField(0),
 
-						fAssociatedTrackCand(associatedTrackCand)
+								fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -800,7 +800,6 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 			}
 			tracklets.push_back(currentTracklet);
 		}
-		return tracklets;
 	} else
 		if ("allPeaks>minHeight, merge peaks" == peakfinderOption)
 		{
@@ -1090,10 +1089,6 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 						// } // z loop
 					} // y loop
 				} // x loop
-
-
-
-				return tracklets;
 			} else
 
 				if (("allPeaks>minHeight Old" == peakfinderOption) || ("allPeaksSearchWindow>minHeight Old" == peakfinderOption))
@@ -1299,7 +1294,6 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 					} // y loop
 					//		   } // z loop
 
-					return tracklets;
 				}
 				else if ("tspectrum2" == peakfinderOption)
 				{
@@ -1336,10 +1330,13 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 						tracklets.push_back(currentTracklet);
 					}
 					//		binmaxglobal = houghspace->Fill(peakTheta, peakSecond, 0); // returns binnumber without modifying the histogram
-					return tracklets;
+
 				}
 				else
 				{
 					throwError("PeakFinder error: Option " + peakfinderOption + " is not implemented!");
 				}
+
+	if (0 < fVerbose) PrintFoundTracklets(tracklets);
+	return tracklets;
 }
