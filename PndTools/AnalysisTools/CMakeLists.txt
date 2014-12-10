@@ -1,4 +1,5 @@
 # Create a library called "AnalysisTools"
+#add_subdirectory (DecayTreeFitter)
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
@@ -64,6 +65,7 @@ Fitter/PndKinVtxFitter.cxx
 Fitter/PndKinFitter.cxx
 Fitter/PndVtxPoca.cxx
 Fitter/PndVtxPRG.cxx
+Fitter/PndKalmanVtxFitter.cxx
 StrTok.cxx
 )
 
