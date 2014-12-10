@@ -128,19 +128,19 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																																		fTrackerTask(trackerTask),
+																																				fTrackerTask(trackerTask),
 
-																																		fZRefPos(zRefPos),
-																																		fInterceptZx(interceptZx),
+																																				fZRefPos(zRefPos),
+																																				fInterceptZx(interceptZx),
 
-																																		TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+																																				TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-																																		// set from tracker task
-																																		fFtsBranchId(0),
-																																		fVerbose(0),
-																																		fField(0),
+																																				// set from tracker task
+																																				fFtsBranchId(0),
+																																				fVerbose(0),
+																																				fField(0),
 
-																																		fAssociatedTrackCand(associatedTrackCand)
+																																				fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -658,6 +658,28 @@ Bool_t PndFtsHoughSpace::FindAllPeaks(
 			//HitIdxPeakVecPair hitPeaksPair( hitIdx, peaksForOneHit );
 			//hitIdxPeaks.insert( hitPeaksPair );
 		}// hit loop
+
+		if ( kTRUE == fTrackerTask->GetSaveDebugInfo() ) { // write out histograms containing found hits
+			// filling all peaks in separate histos
+			for (UInt_t iPeaks = 0; iPeaks < mergedPeaksForAllHits.size(); ++iPeaks){
+				TH2S peaks( GetName(),GetName(),fXaxis.GetNbins(),fXaxis.GetXmin(),fXaxis.GetXmax(),fYaxis.GetNbins(),fYaxis.GetXmin(),fYaxis.GetXmax() );
+				const Double_t currentHeight = mergedPeaksForAllHits[iPeaks].getHeight();
+				const std::set<Int_t>& binsInPeak = mergedPeaksForAllHits[iPeaks].getBins();
+				for (std::set< Int_t >::iterator itBin = binsInPeak.begin(); itBin != binsInPeak.end(); ++itBin){
+					peaks.SetBinContent(*itBin, currentHeight);
+				}
+				TString outName = "plots/";
+				outName += peaks.GetName();
+				outName+=fTrackerTask->GetEventNr();
+				outName+="-Peak";
+				outName+=iPeaks;
+				outName+="-H";
+				outName+=currentHeight;
+				outName+=".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+				peaks.SaveAs(outName, "LEGO2");
+				peaks.SaveAs();
+			}
+		}
 
 		// Build up tracklets from peaks by going through vector of merged peaks
 		for (UInt_t iPeaks = 0; iPeaks < mergedPeaksForAllHits.size(); ++iPeaks){

@@ -69,6 +69,7 @@ void PndFtsHoughSpacePeak::addBin(Int_t binNumber, Int_t hitIdx){
 void PndFtsHoughSpacePeak::replaceBins( Int_t height, Int_t firstBin, Int_t firstHitIdx ){
 	resetBins();
 	addBin(firstBin, firstHitIdx);
+	fHeight = height;
 }
 
 
