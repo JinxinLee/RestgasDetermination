@@ -48,20 +48,12 @@ class FairField;
 
 
 // for saving the path through the Hough space
-typedef std::pair<Int_t, Int_t> ThetaYIdxPair; // helper -- just a pair of thetaRad index and the yVal index in the Hough space histogram
-typedef std::vector< ThetaYIdxPair > IdxPath; // helper -- path for one hit
+typedef std::vector< Int_t > IdxPath; // helper -- path for one hit
 typedef std::map<Int_t, IdxPath > HitIdxPathMap; // that is the one I need -- map of hit indices to path for the corresponding hits
 typedef std::pair<Int_t, IdxPath > HitIdxPathPair; // helper for inserting one pair of hit index and path into map
 
 
-
-// for peaks
-typedef std::vector< PndFtsHoughSpacePeak > PeakVec; // helper -- vector of peaks
-typedef std::map<Int_t, PeakVec > HitIdxPeakVec; // that is the one I need -- map of hit indices to vector of peaks in which the hit could be in
-typedef std::pair<Int_t, PeakVec > HitIdxPeakVecPair; // helper for inserting one pair of hit index and vector of peaks into map
-
 // cout for the above types
-std::ostream& operator <<(std::ostream& os, const ThetaYIdxPair& outPair);
 std::ostream& operator <<(std::ostream& os, const IdxPath& outVector);
 std::ostream& operator <<(std::ostream& os, const HitIdxPathMap& outMap);
 
@@ -297,7 +289,11 @@ private:
 	/** @brief For writing out peaks in Hough spaces as histograms (for debugging purposes).
 	 * @param[in] peaksToPlot contains the peaks that should be plotted.
 	 */
-	void WriteHistoOfAllPeaks(const PeakVec& peaksToPlot) const;
+	void WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpacePeak >& peaksToPlot) const;
+	/** @brief For writing out paths (how the Hough space was filled seen from one hit) as histograms (for debugging purposes).
+	 * @param[in] pathsToPlot contains the paths which should be plotted.
+	 */
+	void WriteHistoOfAllPaths() const;
 	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets) const;
 
 public:

@@ -60,11 +60,6 @@ TString PndFtsHoughSpace::peakfinderOption="scanPaths"; // see FindAllPeaks for 
 
 
 
-std::ostream& operator <<(std::ostream& os, const ThetaYIdxPair& outPair){
-	os << "(" << outPair.first << ", " << outPair.second << ")";
-	return os;
-}
-
 std::ostream& operator <<(std::ostream& os, const IdxPath& outVector){
 	os << "[";
 	Int_t lastIdx = outVector.size()-1;
@@ -352,17 +347,16 @@ Bool_t PndFtsHoughSpace::FillHoles(
 		const Int_t interpolateBinX = lastBinX+xCorrect;
 		const Int_t interpolateBinY = lastBinY+yCorrect;
 
-		const Int_t globalBin = GetBin(interpolateBinX,interpolateBinY);
-		AddBinContent(globalBin);
+		const Int_t interpolatedGlobalBin = GetBin(interpolateBinX,interpolateBinY);
+		AddBinContent(interpolatedGlobalBin);
 
-		// save interpolated values into path vector
-		ThetaYIdxPair idxPair(interpolateBinX,interpolateBinY);
-		ptrThetaYIdxPathVec->push_back(idxPair);
+		// save interpolated globalBin into path vector
+		ptrThetaYIdxPathVec->push_back(interpolatedGlobalBin);
 
 		if (8<fVerbose)
 		{
 			std::cout << "I am filling hole " << iCorrect << " of " << nHolesToFill << '\n';
-			std::cout << "globalbin = " << globalBin << '\n';
+			std::cout << "interpolatedGlobalBin = " << interpolatedGlobalBin << '\n';
 			std::cout << "(lastBinX, lastBinY) = (" << lastBinX << ", " << lastBinY << ")" << '\n';
 			std::cout << "(lastBinX+1, currentBinY)     = (" << lastBinX+1 << ", " << currentBinY << ")" << '\n';
 			std::cout << "xCorrect = " << xCorrect << "  yCorrect = " << yCorrect << '\n';
@@ -452,7 +446,7 @@ void PndFtsHoughSpace::FillHoughSpace( const Int_t index )
 		Int_t iThetaLast   = fXaxis.GetLast();
 
 		// save path for each hit
-		IdxPath thetaYIdxPathVec;
+		IdxPath globalBinPathVec;
 
 		// calculate Hough transform for hit iHit
 		// for each hit a scan in theta is done by going through the x-axis of the Hough space from lower to higher values
@@ -526,7 +520,7 @@ void PndFtsHoughSpace::FillHoughSpace( const Int_t index )
 						std::cout << "This is not the first point of the hit in the histogram. I will fix all holes which might be between this entry and the last one in the histogram"<<'\n';
 					}
 
-					FillHoles(lastBinX, lastBinY, currentBinY, &thetaYIdxPathVec);
+					FillHoles(lastBinX, lastBinY, currentBinY, &globalBinPathVec);
 
 				} // if not first entry to be written into histogram
 				else
@@ -538,9 +532,8 @@ void PndFtsHoughSpace::FillHoughSpace( const Int_t index )
 
 				firstEntry = kFALSE;
 
-				// save calculated values into path vector
-				ThetaYIdxPair idxPair(currentBinX,currentBinY);
-				thetaYIdxPathVec.push_back(idxPair);
+				// save calculated globalBin into path vector
+				globalBinPathVec.push_back(globalBin);
 
 			} // if NOT filled into over- or underflow
 			else
@@ -557,13 +550,16 @@ void PndFtsHoughSpace::FillHoughSpace( const Int_t index )
 		} // for theta
 		//		std::cout << "map before iHit " << iHit << ": " << fHitThetaYIdxPath << '\n';
 		// save the final path for the hit
-		if ( 0 < thetaYIdxPathVec.size() ){
-			HitIdxPathPair hitPathPair( iHit, thetaYIdxPathVec );
+		if ( 0 < globalBinPathVec.size() ){
+			HitIdxPathPair hitPathPair( iHit, globalBinPathVec );
 			fHitThetaYIdxPath.insert( hitPathPair );
 		}
 	} // for iHit
 	if (1<fVerbose) std::cout << "map after all hits: " << fHitThetaYIdxPath << '\n';
-	if (fTrackerTask->GetSaveDebugInfo()) WriteHistoOfHoughSpace(index);
+	if (fTrackerTask->GetSaveDebugInfo()) {
+		WriteHistoOfHoughSpace(index);
+		WriteHistoOfAllPaths();
+	}
 }
 
 TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions() const {
@@ -573,25 +569,25 @@ TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions() const {
 	return peaks;
 }
 
-void PndFtsHoughSpace::WriteHistoOfAllPeaks(const PeakVec& mergedPeaksForAllHits) const {
-	// write out histograms containing found hits
+void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpacePeak >& peaksToPlot) const {
+	// write out histograms containing found peaks
 	// filling all peaks in separate histos and all together in one histo
 	TH2S allPeaks = MakeEmptyHistoOfSameDimensions();
-	for (UInt_t iPeaks = 0; iPeaks < mergedPeaksForAllHits.size(); ++iPeaks) {
+	for (UInt_t iPeak = 0; iPeak < peaksToPlot.size(); ++iPeak) {
 		TH2S onePeak = MakeEmptyHistoOfSameDimensions();
-		const Double_t currentHeight = mergedPeaksForAllHits[iPeaks].getHeight();
-		const std::set<Int_t>& binsInPeak = mergedPeaksForAllHits[iPeaks].getBins();
+		const Double_t currHeight = peaksToPlot[iPeak].getHeight();
+		const std::set<Int_t>& binsInPeak = peaksToPlot[iPeak].getBins();
 		for (std::set<Int_t>::iterator itBin = binsInPeak.begin(); itBin != binsInPeak.end(); ++itBin) {
-			onePeak.SetBinContent(*itBin, currentHeight);
-			allPeaks.SetBinContent(*itBin, currentHeight);
+			onePeak.SetBinContent(*itBin, currHeight);
+			allPeaks.SetBinContent(*itBin, currHeight);
 		}
 		TString outNameOne = "plots/";
 		outNameOne += onePeak.GetName();
 		outNameOne += fTrackerTask->GetEventNr();
 		outNameOne += "-Peak";
-		outNameOne += iPeaks;
+		outNameOne += iPeak;
 		outNameOne += "-H";
-		outNameOne += currentHeight;
+		outNameOne += currHeight;
 		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
 		onePeak.SaveAs(outNameOne, "LEGO2");
 	}
@@ -602,13 +598,33 @@ void PndFtsHoughSpace::WriteHistoOfAllPeaks(const PeakVec& mergedPeaksForAllHits
 	allPeaks.SaveAs(outNameAll, "LEGO2");
 }
 
+void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
+	// filling each path in separate histos
+	for (HitIdxPathMap::const_iterator itPath = fHitThetaYIdxPath.begin(); itPath != fHitThetaYIdxPath.end(); ++itPath) {
+		TH2S onePath = MakeEmptyHistoOfSameDimensions();
+		const Int_t currHit = itPath->first;
+		const IdxPath& currPath = itPath->second;
+		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
+			Int_t currBinNumber = currPath[iGlobalBin];
+			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
+			onePath.SetBinContent(currBinNumber, currHeight);
+		}
+		TString outNameOne = "plots/";
+		outNameOne += onePath.GetName();
+		outNameOne += fTrackerTask->GetEventNr();
+		outNameOne += "-Path";
+		outNameOne += currHit;
+		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+		onePath.SaveAs(outNameOne, "LEGO2");
+	}
+}
+
 
 
 void PndFtsHoughSpace::WriteHistoOfHoughSpace(Int_t index) const{
 	//	Int_t index = fHoughSpaces->GetEntriesFast();
 	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
 
-	TH2S histo = MakeEmptyHistoOfSameDimensions();
 	TString outName = "plots/";
 	outName += GetName();
 	outName+=fTrackerTask->GetEventNr();
@@ -617,8 +633,7 @@ void PndFtsHoughSpace::WriteHistoOfHoughSpace(Int_t index) const{
 		outName+=index;
 	}
 	outName+=".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
-	//TH2S histo = houghspace.ExportTH2S();
-	histo.SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
+	SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
 	// sed -i 's/PndFtsHoughSpace/TH2S/g' *.rtg
 
 
@@ -669,11 +684,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 		// and that we are on a rising edge
 
 
-		// stores possible peaks for all hits
-		//HitIdxPeakVec hitIdxPeaks;
-
-		PeakVec peaksForOneHit; // stores (possible) peaks for one hit
-		PeakVec mergedPeaksForAllHits; // stores merged peaks for all hits
+		std::vector< PndFtsHoughSpacePeak > peaksForOneHit; // stores (possible) peaks for one hit
+		std::vector< PndFtsHoughSpacePeak > mergedPeaksForAllHits; // stores merged peaks for all hits
 		mergedPeaksForAllHits.clear();
 
 		// hit loop
@@ -685,11 +697,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 			// loop over bins along the path
 			for (Int_t iBinPair = 0; iBinPair < path.size(); ++iBinPair){
 				// current bin
-				ThetaYIdxPair binPair = path[iBinPair];
-				const Int_t currBinX = binPair.first;
-				const Int_t currBinY = binPair.second;
-				// check height of current bin
-				const Int_t currBinNumber = GetBin(currBinX,currBinY);
+				const Int_t currBinNumber = path[iBinPair];
 				const Int_t currHeight = GetBinContent(currBinNumber);
 
 				// check if we already found a peak candidate
@@ -710,11 +718,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 					// Make sure we are not on a falling edge by checking that the previous position was strictly lower!
 					// previous bin
 					const Int_t prevIdx = std::max(0, iBinPair-1); // make sure we stay within bounds of vector
-					ThetaYIdxPair prevBinPair = path[prevIdx];
-					const Int_t prevBinX = prevBinPair.first;
-					const Int_t prevBinY = prevBinPair.second;
-					// check height of previous bin
-					const Int_t prevBinNumber = GetBin(prevBinX,prevBinY);
+					const Int_t prevBinNumber = path[prevIdx];
 					const Int_t prevHeight = GetBinContent(prevBinNumber);
 
 					Bool_t rising = prevHeight < currHeight;
@@ -744,8 +748,6 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 				}
 				if ( kFALSE==merged ) mergedPeaksForAllHits.push_back(peaksForOneHit[iPeaksForOneHit]); // add peaks which could not be merged with preexisting ones
 			}
-			//HitIdxPeakVecPair hitPeaksPair( hitIdx, peaksForOneHit );
-			//hitIdxPeaks.insert( hitPeaksPair );
 		}// hit loop
 
 		if ( kTRUE == fTrackerTask->GetSaveDebugInfo() ) WriteHistoOfAllPeaks(mergedPeaksForAllHits);
