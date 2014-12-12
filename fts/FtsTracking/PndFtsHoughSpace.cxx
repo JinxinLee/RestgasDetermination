@@ -695,9 +695,9 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 			peaksForOneHit.clear();
 
 			// loop over bins along the path
-			for (Int_t iBinPair = 0; iBinPair < path.size(); ++iBinPair){
+			for (Int_t iGlobalBin = 0; iGlobalBin < path.size(); ++iGlobalBin){
 				// current bin
-				const Int_t currBinNumber = path[iBinPair];
+				const Int_t currBinNumber = path[iGlobalBin];
 				const Int_t currHeight = GetBinContent(currBinNumber);
 
 				// check if we already found a peak candidate
@@ -717,12 +717,12 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 
 					// Make sure we are not on a falling edge by checking that the previous position was strictly lower!
 					// previous bin
-					const Int_t prevIdx = std::max(0, iBinPair-1); // make sure we stay within bounds of vector
+					const Int_t prevIdx = std::max(0, iGlobalBin-1); // make sure we stay within bounds of vector
 					const Int_t prevBinNumber = path[prevIdx];
 					const Int_t prevHeight = GetBinContent(prevBinNumber);
 
 					Bool_t rising = prevHeight < currHeight;
-					if ( 0 == iBinPair ) rising == kTRUE; // always save if we are at the beginning
+					if ( 0 == iGlobalBin ) rising == kTRUE; // always save if we are at the beginning
 
 					if ( kTRUE == rising ){ // we are on rising edge
 						// Add a new peak (only if we do not continue a nonfinished existing one)
@@ -759,7 +759,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaks(const UInt_t min
 			const std::set<Int_t>& binsInPeak = mergedPeaksForAllHits[iPeaks].getBins();
 			// calculate center and halfwidth (HW) in theta and in secondVal for all global bins in peak
 			// save min and max values
-			Double_t minThetaVal = 0, maxThetaVal = 0, minSecondVal = 0, maxSecondVal = 0;
+			Double_t minThetaVal = 0., maxThetaVal = 0., minSecondVal = 0., maxSecondVal = 0.;
 			for (std::set< Int_t >::iterator itBin = binsInPeak.begin(); itBin != binsInPeak.end(); ++itBin){
 				Int_t currentBinX = 0, currentBinY = 0, currentBinZ = 0;
 				GetBinXYZ(*itBin, currentBinX, currentBinY, currentBinZ); // get bin numbers for x, y (and z) axis

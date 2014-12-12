@@ -134,14 +134,17 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				* (thetaDegHighParabola - thetaDegLowParabola));
 
 		if (0 < fVerbose) std::cout << "event: " << fTrackerTask->GetEventNr()
-    														  << "Line " << iLB4D
-    														  << "\nthetaDegLowParabola=" << thetaDegLowParabola
-    														  << " thetaDegHighParabola=" << thetaDegHighParabola
+    														  << " Line " << iLB4D
+    														  << "\n thetaRadLowParabola=" << thetaRadLowParabola
+    														  << " thetaRadHighParabola=" << thetaRadHighParabola
     														  << " thetaBins=" << thetaBins
-    														  << "  peakThetaDegLineBeforeDipole="
-    														  << peakThetaRadLB4D / meinpi * 180.
-    														  << " peakThetaDegHwLineBeforeDipole="
-    														  << peakThetaRadHwLB4D / meinpi * 180. << '\n';
+    														  << "  peakThetaRadLB4D="
+    														  << peakThetaRadLB4D
+    														  << " peakThetaRadHwLB4D="
+    														  << peakThetaRadHwLB4D
+    														  << " peakInterceptLB4D=" << peakInterceptLB4D
+    														  << " peakThetaRadHwLB4D=" << peakThetaRadHwLB4D
+    														  << '\n';
 
 		delete fHoughspaceZxParabola;
 		fHoughspaceZxParabola = new PndFtsHoughSpace("parabola", thetaBins,

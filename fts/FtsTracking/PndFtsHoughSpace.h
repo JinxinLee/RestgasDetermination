@@ -50,7 +50,7 @@ class FairField;
 // for saving the path through the Hough space
 typedef std::vector< Int_t > IdxPath; // helper -- path for one hit
 typedef std::map<Int_t, IdxPath > HitIdxPathMap; // that is the one I need -- map of hit indices to path for the corresponding hits
-typedef std::pair<Int_t, IdxPath > HitIdxPathPair; // helper for inserting one pair of hit index and path into map
+typedef std::pair<Int_t, IdxPath > HitIdxPathPair; // helper for inserting one pair of hit index and path in map
 
 
 // cout for the above types
@@ -153,10 +153,10 @@ private:
 	inline const TVector3 GetRawOrCalculatedHitPos(const PndFtsHit* const myHit) const;
 
 
-	/**For each hit index the "path through the Hough space" [order of index pairs in which the (thetaRad, yVal) pairs are filled during the thetaRad scan] is saved
+	/**For each hit index the "path through the Hough space" [ordered globalbins which were filled during the thetaRad scan] is saved
 	 * This is useful for peak finding.
 	 * Map index: hit index, use as argument of getHit.
-	 * The map gives the vector of (index(thetaRad), index(yVal)) pairs which were filled during the theta scan for the hit.
+	 * The map gives the vector of globalbins which were filled during the theta scan for the hit.
 	 */
 	HitIdxPathMap fHitThetaYIdxPath;
 
