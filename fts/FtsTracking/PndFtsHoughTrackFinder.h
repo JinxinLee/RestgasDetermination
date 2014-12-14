@@ -141,7 +141,7 @@ private:
 	static const Double_t fZLineParabola; // the value should coincide with the start of the dipole field // 368. was ok
 	static const Double_t fZParabolaLine; // the value should coincide with the end of the dipole field // TODO determine this value
 
-	static const Double_t fThetaRadLineBehindDipoleMatchesToParabolaIfBelow = 5*180/3.14159265359;
+	static const Double_t fThetaRadLineBehindDipoleMatchesToParabolaIfBelow;
 
 	///< @brief Minimum required height for peaks in Hough spaces.
 	const UInt_t fMinPeakHeightZxLineParabola; ///< zx line before dipole field

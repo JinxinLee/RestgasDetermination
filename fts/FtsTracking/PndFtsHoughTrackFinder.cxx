@@ -7,6 +7,7 @@ ClassImp(PndFtsHoughTrackFinder);
 const Double_t PndFtsHoughTrackFinder::meinpi = 3.14159265359;
 const Double_t PndFtsHoughTrackFinder::fZLineParabola = 368.;
 const Double_t PndFtsHoughTrackFinder::fZParabolaLine = 605.;
+const Double_t PndFtsHoughTrackFinder::fThetaRadLineBehindDipoleMatchesToParabolaIfBelow = 5*180/3.14159265359;
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask) :
 				fTrackerTask(trackerTask),
