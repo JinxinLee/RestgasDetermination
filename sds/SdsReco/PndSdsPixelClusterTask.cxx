@@ -29,6 +29,10 @@
 #include "PndSdsChargeWeightedPixelMapping.h"
 #include "PndSdsFESimple.h"
 
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
+  #include "FairMultiLinkedData_Interface.h"
+#endif
+
 // -----   Default constructor   -------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
 PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1), fEventNr(0), fUseNoiseSuppression(kTRUE)

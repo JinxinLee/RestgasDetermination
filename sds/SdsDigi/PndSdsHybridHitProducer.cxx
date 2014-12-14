@@ -27,6 +27,10 @@
 
 #include "PndSdsFEAmpModelSimple.h"
 
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
+  #include "FairMultiLinkedData_Interface.h"
+#endif
+
 #include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
