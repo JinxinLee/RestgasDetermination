@@ -32,6 +32,7 @@ my %thres;     # hash array holding the min sqrt(s) for every mode
 my %decfile;   # hash containing full decay files for each mode
 my %decay;     # decay strings
 my %assocdec;  # associated decay particles (e.g. D-/D*- for a D+ decay)
+my %assocrec;  # associated recoil modes
 
 ####
 # Subroutines
@@ -76,7 +77,7 @@ sub mass
 foreach $line (@lines) # loop thru lines
 {
 	chomp($line);
-	if ($line eq "" || $line =~ m/^#/) {next;} # ignore empty lines and those staring with #
+	if ($line eq "" || $line =~ m/^#/) {next;} # ignore empty lines and those starting with #
 
 	my @toks = split / /, $line;               # break into tokens separated by single space
     my $n = @toks;
@@ -111,13 +112,26 @@ foreach $line (@lines) # loop thru lines
 	}
 
 	# associated decay particles
-	if ($toks[0] eq "GenerateWith")                 
+	if ($toks[0] eq "AssociatePart")                 
 	{
 		my @sub = @toks; shift @sub; shift @sub;
 		$assocdec{$toks[1]} = join(" ",@sub);
 #		print "'".$toks[1]."' -> '".$assocdec{$toks[1]}."'\n";
 	}
-}   
+
+	# associated recoil modes
+	if ($toks[0] eq "SpecifyRecoil")                 
+	{
+		$line =~ m/^SpecifyRecoil\s+([A-Za-z0-9*_\-\/+]+)\s+([0-9 ]+)/;
+		$assocrec{$toks[1]} = " ".$2." ";
+#		print "'".$toks[1]."' -> '".$assocdec{$toks[1]}."'\n";
+	}
+}
+   
+# foreach my $key (keys %assocrec)
+# {
+# 	print "$key : '".$assocrec{$key}."'\n";
+# }
 
 # foreach my $key (keys %assocdec)
 # {
@@ -164,9 +178,15 @@ foreach $line (@lines) # loop again thru lines
 			my $rec = $recoil{$key};
 
 			$line =~ /^Decay\s+(\d+)\s+([A-Za-z0-9*_\-\/+]+).+/;
-
+			
 			my @sub = ("");
+					
+			# do we have associated recoils
+			if ( (defined($assocrec{$1}) && ($assocrec{$1} !~ m/ $key /)) || (defined($assocrec{$2}) && ($assocrec{$2} !~ m/ $key /)) ) {next;}
+	
+			$line =~ /^Decay\s+(\d+)\s+([A-Za-z0-9*_\-\/+]+).+/;
 
+			# do we have associated resonances?
 			if (defined($assocdec{$2})) 
 			{
 				@sub = split / /, $assocdec{$2}; 
@@ -269,14 +289,15 @@ foreach $line (@lines) # loop again thru lines
 					#
 					else 
 					{
-						if ($rec ne "") {next;}
+						#if ($rec ne "") {next;}
 						$thres{"$code"} = mass("$3 $rec");
 						$decay{"$code"} = "$3 $rec";
 						$dec .= "# ppb -> ".$decay{$code}."\n# sqrt(s) > ".$thres{$code}."\n\nnoPhotos\n\nAlias KS K_S0\n\n";
 						
 						$dec .=  "Decay pbarpSystem0\n";
 						#foreach my $key (sort keys %recoil) {
-							$dec .=  " 1.0 $3 $rec PHSP;\n";
+						
+						$dec .=  " 1.0 $rec $3;\n";
 
 						#}
 						$dec .=  "Enddecay\n\n";
@@ -290,6 +311,7 @@ foreach $line (@lines) # loop again thru lines
 		} # recoils
 	}
 }   
+
 if (defined($mode)) {print "mode = $mode\n";}
 my $mp0 = $m0{"p+"};
 foreach my $code (sort keys %decfile)
@@ -299,12 +321,13 @@ foreach my $code (sort keys %decfile)
 		my $minp = 0.;
 		my $s    = $thres{$code}*$thres{$code};
 		if (sqrt($s)>2.*$mp0) {$minp = sqrt(($s-2.*$mp0*$mp0)*($s-2.*$mp0*$mp0)/(4.*$mp0*$mp0)-$mp0*$mp0);}
-		if ($sqs>$thres{$code})
-		{
-			printf "%6d  (sqs > %6.4f GeV; p > %7.4f GeV/c)  %s\n", $code, sqrt($s), $minp, $decay{$code};
-		}
-		print $decfile{$code};
-		print "------------------\n";
+# 		if ($sqs>$thres{$code})
+# 		{
+# 			printf "%6d  (sqs > %6.4f GeV; p > %7.4f GeV/c)  %s\n", $code, sqrt($s), $minp, $decay{$code};
+# 		}
+		print "Writing 'decfiles/M$code.dec'\n";
+#		print $decfile{$code};
+#		print "------------------\n";
  		open (MYFILE, ">decfiles/M$code.dec");
  		print MYFILE $decfile{$code};
  		close (MYFILE); 
@@ -312,11 +335,18 @@ foreach my $code (sort keys %decfile)
 }
 
 my $i = 0;
-print "\@modes = qw( ";
+print "\n***********************************************\n";
+print ">>> Update this array in submit(_fsim).pl!! <<<\n";
+print "***********************************************\n\n";
+print "my \@modes = qw( ";
 foreach my $name (sort { $thres{$a} <=> $thres{$b} or $a cmp $b } keys %thres) 
 {
-	printf "%03d%s ",$thres{$name}*100+1,$name;
-	if (++$i%10 == 0) { print "\n             ";}
+	printf "%03d%s ",$thres{$name}*100,$name;
+#	printf "%s ",$name;
+	if (++$i%10 == 0) { print "\n                ";}
 	#printf "%03d%s %5.3f %s\n", $thres{$name}*100+1, $name, $thres{$name}, $decay{$name};
 }
-print ");\n";
+print ");\n\n";
+print "***********************************************\n";
+print ">>> Update this array in submit(_fsim).pl!! <<<\n";
+print "***********************************************\n";

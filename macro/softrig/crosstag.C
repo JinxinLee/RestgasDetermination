@@ -53,7 +53,7 @@ void resizePalette(TH1* h)
 	palette->SetY2NDC(0.95);
 }
 
-void init(TTree *t)
+void init(TTree *t, double sqs)
 {
 	// prepare tree by setting branches
 	t->SetBranchAddress("mode",&mode);
@@ -80,12 +80,15 @@ void init(TTree *t)
 		if (v(reg)!="") 
 		{
 			int m = TString(v(3,3)).Atoi();
-			t->SetBranchAddress(v,&(tagline[nlines]));
-			//t->SetBranchStatus(v,1);
-			codeidx[m]=nlines;
-			codes[nlines] = m;
-			
-			nlines++;
+			if (sqs!=2.98 || m>=400) 
+			{
+				t->SetBranchAddress(v,&(tagline[nlines]));
+				//t->SetBranchStatus(v,1);
+				codeidx[m]=nlines;
+				codes[nlines] = m;
+				
+				nlines++;
+			}
 		}
 	}
 	codeidx[900]=nlines;
@@ -123,7 +126,7 @@ void config_histo(TH1* h, double labs=0.018, TString titley="", TString titlex="
 	h->GetYaxis()->SetLabelOffset(0.01);
 	h->GetYaxis()->SetTitleSize(0.03);
 	h->GetYaxis()->SetTitleOffset(1.5);
-	
+
 	h->GetZaxis()->SetLabelSize(0.018);
 	h->GetZaxis()->SetLabelOffset(0.005);
 	
@@ -144,10 +147,12 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	TFile *f = new TFile(fname,"READ");
 	TTree *t = (TTree*)f->Get("ntpev");
 	
-	init(t);
-
 	if (sqs<0.) sqs = TString(fname(fname.Index("/M")+2,3)).Atoi()/100.; // assume file name Mxxx_... with xxx = sqs*100
 	if (sqs<0. || sqs>6.) return;
+
+	init(t, sqs);
+	
+	TString sqsstr = TString::Format("%03d",int(sqs*100.));
 	
 /*	for ( std::map< int, int>::const_iterator iter = codeidx.begin(); iter != codeidx.end(); ++iter )
 	{
@@ -159,28 +164,31 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	TCanvas *c2=new TCanvas("c2","c2",400,20,1000,900);
 	c2->Divide(1,2);
 	
+	TFile *ff=0;
+	if (saveplots) ff=new TFile("crosstag_histos.root","UPDATE");
+	
 	// 2D Matrix
-	TH2F *hall=new TH2F("hall","normalization",nlines,0,nlines,nlines,0,nlines);
-	TH2F *htag=new TH2F("htag",TString::Format("Cross tags @ %.1f GeV",sqs),nlines,0,nlines,nlines,0,nlines);
+	TH2F *hall=new TH2F("hall"+sqsstr,"normalization",nlines,0,nlines,nlines,0,nlines);
+	TH2F *htag=new TH2F("htag"+sqsstr,TString::Format("Cross tags @ %.1f GeV",sqs),nlines,0,nlines,nlines,0,nlines);
 	
 	config_histo(htag,0.018+0.008*(57.-nlines)/43.,"Data Mode","Trigger Line");
 	config_histo(hall);
 
 	// signal efficiencies
-	TH1F *hsig=new TH1F("hsig",TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
-	TH1F *hsigi=new TH1F("hsigi",TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
-	TH1F *hsign=new TH1F("hsign",TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
+	TH1F *hsig=new TH1F("hsig"+sqsstr,TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
+	TH1F *hsigi=new TH1F("hsigi"+sqsstr,TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
+	TH1F *hsign=new TH1F("hsign"+sqsstr,TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
 	
 	config_histo(hsig,0.04+0.01*(57.-nlines)/43.,"efficiency [%]","Data Mode");
 	hsig->GetXaxis()->SetTitleSize(0.045);
-	hsig->SetFillColor(hsig->GetLineColor());hsig->SetFillStyle(1001);
+	hsig->SetFillColor(hsig->GetLineColor());hsig->SetFillStyle(1001);hsig->GetYaxis()->SetLabelSize(0.04);
 	config_histo(hsigi,0.04+0.01*(57.-nlines)/43.,"efficiency [%]");
 	hsigi->SetLineColor(2);hsigi->SetFillColor(2);hsigi->SetFillStyle(1001);
 	
 	// background contributions
-	TH1F *hbg=new TH1F("hsig",TString::Format("Background fractions @ %.1f GeV",sqs),nlines,0,nlines);
+	TH1F *hbg=new TH1F("hbg"+sqsstr,TString::Format("Background fractions @ %.1f GeV",sqs),nlines,0,nlines);
 	config_histo(hbg,0.04+0.01*(57.-nlines)/43.,"acc. background [%]","Trigger Line");
-	hbg->GetXaxis()->SetTitleSize(0.045);
+	hbg->GetXaxis()->SetTitleSize(0.045);hbg->GetYaxis()->SetLabelSize(0.04);
 		
 	for (int i=0;i<nlines-1;++i)
 	{
@@ -268,22 +276,6 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	resizePalette(htag);
 	htag->Draw("colz");	
 	
-/*	TLine l;
-	l.SetLineColor(1);
-	l.SetLineWidth(2);
-	for (int i=1;i<nlines;++i)
-	{
-		TString lab1 = htag->GetXaxis()->GetBinLabel(i);
-		TString lab2 = htag->GetXaxis()->GetBinLabel(i+1);
-		int num1 = TString(lab1(1,3)).Atoi()/10;
-		int num2 = TString(lab2(1,3)).Atoi()/10;
-		
-		if (num1!=num2) 
-		{
-			l.DrawLine(i,0,i,nlines);
-			l.DrawLine(0,nlines-i,nlines,nlines-i);
-		}
-	}*/
 	c1->Update();
 		
 	gStyle->SetTitleH(0.06);
@@ -303,8 +295,8 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	hsigi->Draw("same");
 	
 	TLegend *leg=new TLegend(0.08,0.78,0.3,0.92);
-	leg->AddEntry("hsigi","dedicated trigger","l");
-	leg->AddEntry("hsig","total","l");
+	leg->AddEntry("hsigi"+sqsstr,"dedicated trigger","l");
+	leg->AddEntry("hsig"+sqsstr,"total","l");
 	leg->Draw("same");
 	
 	c2->cd(2);
@@ -319,12 +311,7 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	l.SetLineWidth(2);
 	
 	for (int i=1;i<nlines;++i)
-	{
-/*		TString lab1 = htag->GetXaxis()->GetBinLabel(i);
-		TString lab2 = htag->GetXaxis()->GetBinLabel(i+1);
-		int num1 = TString(lab1(1,3)).Atoi()/10;
-		int num2 = TString(lab2(1,3)).Atoi()/10;*/
-		
+	{		
 		if (drawline.find(codes[i])!=drawline.end() || i==nlines-1) 
 		{
 			c1->cd();
@@ -347,6 +334,14 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 		c1->SaveAs(TString::Format("cross_tag_%d.gif",int(sqs*100)));
 		c2->SaveAs(TString::Format("cross_tag_sigbg_%d.pdf",int(sqs*100)));
 		c2->SaveAs(TString::Format("cross_tag_sigbg_%d.gif",int(sqs*100)));
+		
+		htag->Write();
+		hall->Write();
+		hsig->Write();
+		hsign->Write();
+		hsigi->Write();
+		hbg->Write();
+		ff->Close();
 	}
 }
 

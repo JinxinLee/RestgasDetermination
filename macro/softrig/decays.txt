@@ -50,18 +50,36 @@ Recoil 09 pi+ pi- pi0
 
 # --------------------
 
-# define which particles have to be generated in addition; each additional part. produces another mode
-# SYNTAX: GenerateWith <name> <additional 1> <additional 2>
+# define which associate particles have to be generated in addition; each additional part. produces another mode
+# SYNTAX: AssociateRes <name> <additional 1> <additional 2> ...
 
-GenerateWith D0 anti-D0 anti-D*0
-GenerateWith D*0 anti-D*0 anti-D0
-GenerateWith D+ D- D*-
-GenerateWith D*+ D*- D-
-GenerateWith D_s+ D_s- D_s*-
-GenerateWith D_s*+ D_s*- D_s-
-GenerateWith Lambda0 anti-Lambda0
-GenerateWith Sigma+ anti-Sigma-
-GenerateWith Lambda_c+ anti-Lambda_c-
+AssociatePart D0 anti-D0 anti-D*0
+AssociatePart D*0 anti-D*0 anti-D0
+AssociatePart D+ D- D*-
+AssociatePart D*+ D*- D-
+AssociatePart D_s+ D_s- D_s*-
+AssociatePart D_s*+ D_s*- D_s-
+AssociatePart Lambda0 anti-Lambda0
+AssociatePart Sigma+ anti-Sigma-
+AssociatePart Lambda_c+ anti-Lambda_c-
+
+# --------------------
+
+# if given, defines the different recoils (see def. above) which this mode/resonance is generate with;
+# if not given, all recoils will be taken into account
+# can be defined for a single mode or particle type; mode has priority over particle
+# SYNTAX: SpecifyRecoil <name/mode> <rec code 1> <rec code 2> ...
+
+SpecifyRecoil 600 00
+SpecifyRecoil 601 00
+SpecifyRecoil 602 00
+SpecifyRecoil 620 00
+SpecifyRecoil 621 00
+SpecifyRecoil 622 00
+SpecifyRecoil 640 00
+SpecifyRecoil 641 00
+SpecifyRecoil 642 00
+SpecifyRecoil 660 00
 
 # --------------------
 
@@ -130,16 +148,16 @@ Decay 422 Lambda_c+ p+ KS pi0 PHSP
 
 Decay 500 phi K+ K- VSS
 
-Decay 600 NR e+ e-
-Decay 601 NR e+ e- gamma
-Decay 602 NR e+ e- pi0
+Decay 600 NR e+ e- PHSP
+Decay 601 NR e+ e- gamma PHSP
+Decay 602 NR e+ e- pi0 PHSP
 
-Decay 620 NR mu+ mu-
-Decay 621 NR mu+ mu- gamma
-Decay 622 NR mu+ mu- pi0
+Decay 620 NR mu+ mu- PHSP
+Decay 621 NR mu+ mu- gamma PHSP
+Decay 622 NR mu+ mu- pi0 PHSP
 
-Decay 640 NR gamma gamma
-Decay 641 NR gamma gamma gamma
-Decay 642 NR gamma gamma pi0
+Decay 640 NR gamma gamma PHSP
+Decay 641 NR gamma gamma gamma PHSP
+Decay 642 NR gamma gamma pi0 PHSP
 
-Decay 660 NR pi0 gamma
+Decay 660 NR pi0 gamma PHSP
