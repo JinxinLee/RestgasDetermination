@@ -69,7 +69,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBehindDipoleZxT
 		std::cerr << "runtime_error: " << e.what() << '\n';
 	}
 	// find peaks for line hough space and store in vector
-	std::vector<PndFtsHoughTracklet> trackletsLineBehindDipole = fHoughSpaceZxLineBehindDipole->FindAllPeaks(
+	std::vector<PndFtsHoughTracklet> trackletsLineBehindDipole = fHoughSpaceZxLineBehindDipole->FindAllPeaksScanPathsMergeBins(
 			fMinPeakHeightZxParabolaLine);
 	return trackletsLineBehindDipole;
 }
@@ -100,7 +100,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBeforeDipoleZxT
 		std::cerr << "runtime_error: " << e.what() << '\n';
 	}
 	// find peaks for line Hough space and store in vector
-	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = fHoughSpaceZxLineBeforeDipole->FindAllPeaks(fMinPeakHeightZxLineParabola);
+	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = fHoughSpaceZxLineBeforeDipole->FindAllPeaksBinsWoMergingWithSearchWindow(fMinPeakHeightZxLineParabola);
 	return trackletsLineBeforeDipole;
 }
 
@@ -164,7 +164,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 		}
 
 		// find peaks for zx parabola Hough space (for current line before dipole)
-		std::vector<PndFtsHoughTracklet> zxParabolaTracklets = fHoughspaceZxParabola->FindAllPeaks(fMinPeakHeightZxParabola);
+		std::vector<PndFtsHoughTracklet> zxParabolaTracklets = fHoughspaceZxParabola->FindAllPeaksScanPathsMergeBins(fMinPeakHeightZxParabola);
 
 
 
@@ -286,7 +286,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 			std::cerr << "runtime_error: " << e.what() << '\n';
 		}
 		// find peaks for line Hough space and store in vector
-		std::vector<PndFtsHoughTracklet> trackletsZyLine = houghspaceZyLine->FindAllPeaks(fMinPeakHeightZyLine);
+		std::vector<PndFtsHoughTracklet> trackletsZyLine = houghspaceZyLine->FindAllPeaksScanPathsMergeBins(fMinPeakHeightZyLine);
 
 
 

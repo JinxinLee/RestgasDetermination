@@ -85,23 +85,61 @@ public:
 
 	TH2S ExportTH2S();
 
+	// General info for peak finders
+	//	The peaks contain the following information
+	//			peakTheta = theta for peak
+	//			peakSecond = Q/pzx for peak (parabola HT)
+	//			peakSecond = intercept for peak (line HT) (in z-x- or z-y-plane)
+	//
+	//			peakThetaHw = half width of peak in theta
+	//			peakSecondHw = half width of peak in second value (see above for what it stands for)
+	//
+	//			actualHeight height of the peak in the histogram (in counts)
+
+
+
+	/**@brief Finds all peaks that satisfy the minimum height requirement minHeight.
+	 *
+	 * @param minHeight only bins of at least this height are regarded as possibly belonging to a peak.
+	 * @return tracklets containing all values found for the peaks in the Hough space. They will contain the hitIds of all hits that contribute to the peaks.
+	 */
+	std::vector<PndFtsHoughTracklet> FindAllPeaksScanPathsMergeBins(const UInt_t minHeight);
+
+
 	/**@brief Finds all peaks that satisfy the minimum height requirement minHeight.
 
-	 TODO: This information is obsolete and should be adjusted
-		peakTheta = theta for peak
-		peakSecond = Q/pzx for peak (parabola HT)
-		peakSecond = intercept for peak (line HT) (in z-x- or z-y-plane)
-
-		peakThetaHw = half width of peak in theta
-	 	 peakSecondHw = half width of peak in second value (see above for what it stands for)
-
-	 actualHeight height of the peak in the histogram (in counts)
-	 *
-	 * @param minHeight
-	 * @param tracklets should be empty at the beginning and will contain all values found for the peaks in the Hough space. They will contain the hitIds of all hits that contribute to the peaks.
-	 * @return kTRUE if at least one peak was found, kFALSE otherwise (Hough Space is empty / has too few hits or tracklets were not empty)
+	 * @param minHeight only bins of at least this height are regarded as possibly belonging to a peak.
+	 * @return tracklets containing all values found for the peaks in the Hough space. They will contain the hitIds of all hits that contribute to the peaks.
 	 */
-	std::vector<PndFtsHoughTracklet> FindAllPeaks(const UInt_t minHeight);
+	std::vector<PndFtsHoughTracklet> FindAllPeaksScanPathsMergeBinsCalculatingPaths(const UInt_t minHeight);
+
+
+	/**@brief Finds all peaks that satisfy the minimum height requirement minHeight.
+
+	 * @param minHeight only bins of at least this height are regarded as possibly belonging to a peak.
+	 * @return tracklets containing all values found for the peaks in the Hough space. They will contain the hitIds of all hits that contribute to the peaks.
+	 */
+	std::vector<PndFtsHoughTracklet> FindAllPeaksWithTSpectrum2(const UInt_t minHeight);
+
+
+	/**@brief Finds all peaks that satisfy the minimum height requirement minHeight.
+
+	 * @param minHeight only bins of at least this height are regarded as possibly belonging to a peak.
+	 * @return tracklets containing all values found for the peaks in the Hough space. They will contain the hitIds of all hits that contribute to the peaks.
+	 */
+	std::vector<PndFtsHoughTracklet> FindAllPeaksBinsWoMergingWithSearchWindow(const UInt_t minHeight, const Int_t vicinityLength = 0);
+
+	/**@brief Finds all peaks that satisfy the minimum height requirement minHeight.
+
+	 * @param minHeight only bins of at least this height are regarded as possibly belonging to a peak.
+	 * @return tracklets containing all values found for the peaks in the Hough space. They will contain the hitIds of all hits that contribute to the peaks.
+	 */
+	std::vector<PndFtsHoughTracklet> FindAllPeaksBlanko(const UInt_t minHeight);
+
+
+
+
+
 
 	/**@brief Fills the Hough space using the equation which corresponds to the name of the Hough space.
 
@@ -153,6 +191,11 @@ private:
 	inline const TVector3 GetRawOrCalculatedHitPos(const PndFtsHit* const myHit) const;
 
 
+	void AddHitsToTrackletByCalculating(PndFtsHoughTracklet *currentTracklet, Int_t locmax);
+
+
+
+
 	/**For each hit index the "path through the Hough space" [ordered globalbins which were filled during the thetaRad scan] is saved
 	 * This is useful for peak finding.
 	 * Map index: hit index, use as argument of getHit.
@@ -202,10 +245,6 @@ private:
 	// for B field access
 	FairField* fField;
 
-
-
-	// Which PeakFinder should be used?
-	static TString peakfinderOption;
 
 	// for HoughTransform
 	/////////////////////
