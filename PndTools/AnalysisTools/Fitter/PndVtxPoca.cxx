@@ -24,52 +24,68 @@ PndVtxPoca::~PndVtxPoca()
 {
 }
 
-
 Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
 {
-  vertex.SetXYZ(0.,0.,0.);
-  if ( composite->NDaughters() <  2 ) { return 0.; }
-  if ( composite->NDaughters() == 2 ) { return GetPoca(vertex,composite->Daughter(0),composite->Daughter(1)); }
+	RhoCandList cands;
 
-  std::vector<Double_t> distances;
-  std::vector<TVector3> results;
-  // loop over daughters, take the mean value of all "best" positions
-  // TODO do this smarter by using already found vertices ?
-  TVector3 theVertex(0.,0.,0.);
-  Double_t actualDoca=0.;
-  for(Int_t daug1 =0; daug1<composite->NDaughters(); daug1++) {
-    RhoCandidate* a=composite->Daughter(daug1);
-    for(Int_t daug2=daug1+1; daug2<composite->NDaughters(); daug2++) {
-      RhoCandidate* b=composite->Daughter(daug2);
-      actualDoca = GetPoca(theVertex,a,b);
-      if(actualDoca < 0) {
-        printf("PndVtxPoca - Error with getting a POCA. \"Distance\" is %g. SKIPPING Candidate pair now!",actualDoca);
-        continue;
-      }
-      distances.push_back(actualDoca);
-      results.push_back(theVertex);
-    }//daug2
-  }//daug1
-  // Averaging vertex results from each track pair, weighted with 1/distance
-  std::vector<Double_t>::iterator iterDoca;
-  std::vector<TVector3>::iterator iterVtx;
-  Double_t docaweight=0,sumdocaweigts=0;
-  TVector3 vertexK;
-  for(iterVtx=results.begin(), iterDoca=distances.begin(); iterVtx!=results.end()&&iterDoca!=distances.end(); ++iterVtx,++iterDoca) {
-    docaweight=1/(*iterDoca);
-    //docaweight *= docaweight;
-    vertexK=*iterVtx;
-    if (docaweight == 0) { docaweight = 1; } // right so?
-    vertexK *= docaweight;
-    vertex+=vertexK;
-    sumdocaweigts+=docaweight;
-  }
-  if (sumdocaweigts == 0) { sumdocaweigts=1; }
-  vertex*=1./sumdocaweigts;
-  //sumdocaweigts = sqrt(sumdocaweigts);
-  return composite->NDaughters()/sumdocaweigts;
+	for (int i=0;i<composite->NDaughters();++i) cands.Put(composite->Daughter(i));
+
+	return GetPocaVtx(vertex, cands); 
 }
 
+Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandList  &cands)
+{
+	vertex.SetXYZ(0.,0.,0.);
+	if ( cands.GetLength() <  2 ) { return -99999.; }
+	if ( cands.GetLength() == 2 ) { return GetPoca(vertex, cands[0], cands[1]); }
+
+	std::vector<Double_t> distances;
+	std::vector<TVector3> results;
+	// loop over daughters, take the mean value of all "best" positions
+	// TODO do this smarter by using already found vertices ?
+	TVector3 theVertex(0.,0.,0.);
+	Double_t actualDoca=0.;
+	
+	for(Int_t daug1 =0; daug1<cands.GetLength(); daug1++) 
+	{
+		RhoCandidate* a=cands[daug1];
+		
+		for(Int_t daug2=daug1+1; daug2<cands.GetLength(); daug2++) 
+		{
+			RhoCandidate* b=cands[daug2];
+			
+			actualDoca = GetPoca(theVertex,a,b);
+			if(actualDoca < 0) 
+			{
+				printf("PndVtxPoca - Error with getting a POCA. \"Distance\" is %g. SKIPPING Candidate pair now!",actualDoca);
+				continue;
+			}
+			distances.push_back(actualDoca);
+			results.push_back(theVertex);
+		}//daug2
+	}//daug1
+	
+	// Averaging vertex results from each track pair, weighted with 1/distance
+	std::vector<Double_t>::iterator iterDoca;
+	std::vector<TVector3>::iterator iterVtx;
+	Double_t docaweight=0,sumdocaweigts=0;
+	TVector3 vertexK;
+	for(iterVtx=results.begin(), iterDoca=distances.begin(); iterVtx!=results.end()&&iterDoca!=distances.end(); ++iterVtx,++iterDoca) 
+	{
+		docaweight=1/(*iterDoca);
+		//docaweight *= docaweight;
+		vertexK=*iterVtx;
+		if (docaweight == 0) { docaweight = 1; } // right so?
+		vertexK *= docaweight;
+		vertex+=vertexK;
+		sumdocaweigts+=docaweight;
+	}
+	if (sumdocaweigts == 0) { sumdocaweigts=1; }
+	vertex*=1./sumdocaweigts;
+	//sumdocaweigts = sqrt(sumdocaweigts);
+	return cands.GetLength()/sumdocaweigts;
+		
+}
 
 Double_t PndVtxPoca::GetPoca(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
 {
@@ -78,7 +94,7 @@ Double_t PndVtxPoca::GetPoca(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
   if      (fabs(a->Charge())>1e-6 && fabs(b->Charge())>1e-6) return GetPocaTwoCharged(vertex, a, b);
   else if (fabs(a->Charge())<1e-6 && fabs(b->Charge())<1e-6) return GetPocaTwoNeutral(vertex, a, b);
   else if (fabs(a->Charge())<1e-6 || fabs(b->Charge())<1e-6) return GetPocaChargedToNeutral(vertex, a, b);
-  else return -99999;
+  else return -99999.;
 }
 
 Double_t PndVtxPoca::GetPocaTwoCharged(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
@@ -201,7 +217,7 @@ Double_t PndVtxPoca::GetPocaChargedToNeutral(TVector3& vertex,RhoCandidate* a, R
   } else if (fabs(a->Charge())>1e-6 && fabs(b->Charge())<1e-6){
     charged=a; 
     neutral=b;
-  } else return -9999;
+  } else return -99999.;
 
   vertex.SetXYZ(0.,0.,0.);
   Double_t bField = 0.1*RhoCalculationTools::GetBz(vertex); // T, assume field in z only
