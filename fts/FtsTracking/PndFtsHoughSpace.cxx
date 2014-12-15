@@ -119,19 +119,19 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																				fTrackerTask(trackerTask),
+						fTrackerTask(trackerTask),
 
-																				fZRefPos(zRefPos),
-																				fInterceptZx(interceptZx),
+						fZRefPos(zRefPos),
+						fInterceptZx(interceptZx),
 
-																				TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-																				// set from tracker task
-																				fFtsBranchId(0),
-																				fVerbose(0),
-																				fField(0),
+						// set from tracker task
+						fFtsBranchId(0),
+						fVerbose(0),
+						fField(0),
 
-																				fAssociatedTrackCand(associatedTrackCand)
+						fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";

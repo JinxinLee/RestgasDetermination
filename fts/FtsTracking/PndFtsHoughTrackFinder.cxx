@@ -4,19 +4,18 @@
 
 ClassImp(PndFtsHoughTrackFinder);
 
-const Double_t PndFtsHoughTrackFinder::meinpi = 3.14159265359;
-const Double_t PndFtsHoughTrackFinder::fZLineParabola = 368.;
+const Double_t PndFtsHoughTrackFinder::fZLineParabola = 366.; // 368. seemed fine
 const Double_t PndFtsHoughTrackFinder::fZParabolaLine = 605.;
-const Double_t PndFtsHoughTrackFinder::fThetaRadLineBehindDipoleMatchesToParabolaIfBelow = 5*180/3.14159265359;
+const Double_t PndFtsHoughTrackFinder::fThetaRadLineBehindDipoleMatchesToParabolaIfBelow = 5*TMath::DegToRad();
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask) :
 				fTrackerTask(trackerTask),
 
 				// min peak heights
-				fMinPeakHeightZxLineParabola(6),
+				fMinPeakHeightZxLineBeforeDipole(6),
 				fMinPeakHeightZxParabola(8),
-				fMinPeakHeightZxParabolaLine(6),
-				fMinPeakHeightZyLine(4),
+				fMinPeakHeightZxLineBehindDipole(6),
+				fMinPeakHeightZyLine(8),
 
 				// general
 				fSaveDebugInfo(kFALSE),
@@ -44,7 +43,7 @@ PndFtsHoughTrackFinder::~PndFtsHoughTrackFinder()
 }
 
 
-std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBehindDipoleZxTracklets() {
+std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBehindDipoleZx() {
 	// zx plane: Straight line Hough transform behind dipole
 	static const Int_t stepsPerThetaDegLineBehindDipole = 4; // greater number means finer scanning in theta
 	static const Int_t thetaDegLowLineBehindDipole = -80; // in degree
@@ -54,8 +53,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBehindDipoleZxT
 			stepsPerThetaDegLineBehindDipole
 			* (thetaDegHighLineBehindDipole
 					- thetaDegLowLineBehindDipole),
-					thetaDegLowLineBehindDipole / 180. * meinpi, // in rad
-					thetaDegHighLineBehindDipole / 180. * meinpi, // in rad
+					thetaDegLowLineBehindDipole * TMath::DegToRad(), // in rad
+					thetaDegHighLineBehindDipole * TMath::DegToRad(), // in rad
 					stepsPerThetaDegLineBehindDipole * 40, // TODO: Check values
 					-200., // in cm // TODO: Check values
 					200., // in cm
@@ -70,11 +69,11 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBehindDipoleZxT
 	}
 	// find peaks for line hough space and store in vector
 	std::vector<PndFtsHoughTracklet> trackletsLineBehindDipole = fHoughSpaceZxLineBehindDipole->FindAllPeaksScanPathsMergeBins(
-			fMinPeakHeightZxParabolaLine);
+			fMinPeakHeightZxLineBehindDipole);
 	return trackletsLineBehindDipole;
 }
 
-std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBeforeDipoleZxTracklets() {
+std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBeforeDipoleZx() {
 	//----------------------------------
 	// zx plane: Straight line Hough transform before dipole
 	static const Int_t stepsPerThetaDegLineBeforeDipole = 4; // greater number means finer scanning in theta
@@ -85,8 +84,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBeforeDipoleZxT
 			stepsPerThetaDegLineBeforeDipole
 			* (thetaDegHighLineBeforeDipole
 					- thetaDegLowLineBeforeDipole),
-					thetaDegLowLineBeforeDipole / 180. * meinpi, // in rad
-					thetaDegHighLineBeforeDipole / 180. * meinpi, // in rad
+					thetaDegLowLineBeforeDipole * TMath::DegToRad(), // in rad
+					thetaDegHighLineBeforeDipole * TMath::DegToRad(), // in rad
 					stepsPerThetaDegLineBeforeDipole * 16, // TODO: Check values
 					-80., // in cm // TODO: Check values
 					80., // in cm
@@ -100,7 +99,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLineBeforeDipoleZxT
 		std::cerr << "runtime_error: " << e.what() << '\n';
 	}
 	// find peaks for line Hough space and store in vector
-	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = fHoughSpaceZxLineBeforeDipole->FindAllPeaksBinsWoMergingWithSearchWindow(fMinPeakHeightZxLineParabola);
+	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = fHoughSpaceZxLineBeforeDipole->FindAllPeaksBinsWoMergingWithSearchWindow(fMinPeakHeightZxLineBeforeDipole);
 	return trackletsLineBeforeDipole;
 }
 
@@ -120,14 +119,14 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 		const Double_t peakThetaRadHwLB4D = linesBeforeDipole[iLB4D].getThetaRadHw();
 
 		// determine where to look for parabola
-		const Int_t stepsPerThetaDegParabola = 10; // greater number means finer scanning in theta
+		const Int_t stepsPerThetaDegParabola = 2; // greater number means finer scanning in theta
 		// TODO: Rework this
 		const Double_t thetaRadLowParabola = peakThetaRadLB4D
-				- peakThetaRadHwLB4D; // in rad
+				- 20.*peakThetaRadHwLB4D; // in rad
 		const Double_t thetaRadHighParabola = peakThetaRadLB4D
-				+ peakThetaRadHwLB4D; // in rad
-		const Double_t thetaDegLowParabola = thetaRadLowParabola / meinpi * 180.; // in deg
-		const Double_t thetaDegHighParabola = thetaRadHighParabola / meinpi * 180.; // in deg
+				+ 20.*peakThetaRadHwLB4D; // in rad
+		const Double_t thetaDegLowParabola = thetaRadLowParabola*TMath::RadToDeg(); // in deg
+		const Double_t thetaDegHighParabola = thetaRadHighParabola*TMath::RadToDeg(); // in deg
 		if (thetaRadHighParabola == thetaRadLowParabola) std::cout << "ERROR: low and high are the same for parabola!\n";
 
 		UInt_t thetaBins = ceil(
@@ -151,7 +150,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 		fHoughspaceZxParabola = new PndFtsHoughSpace("parabola", thetaBins,
 				thetaRadLowParabola, // in rad
 				thetaRadHighParabola, // in rad
-				stepsPerThetaDegParabola * 300, // 300 is good as factor
+				300,
 				-0.015, // a.u.
 				0.015, // a.u.
 				fZLineParabola, peakInterceptLB4D, 0, fTrackerTask);
@@ -229,12 +228,12 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 	// zx plane: Straight line Hough transform behind dipole
 	std::cout << "Lines behind dipole:\n";
-	std::vector<PndFtsHoughTracklet> linesBehindDipole = FindLineBehindDipoleZxTracklets();
+	std::vector<PndFtsHoughTracklet> linesBehindDipole = FindLinesBehindDipoleZx();
 
 
 	// zx plane: Straight line Hough transform before dipole
 	std::cout << "Lines before dipole:\n";
-	std::vector<PndFtsHoughTracklet> linesBeforeDipole = FindLineBeforeDipoleZxTracklets();
+	std::vector<PndFtsHoughTracklet> linesBeforeDipole = FindLinesBeforeDipoleZx();
 
 
 	// loop over all line tracklets which were found by line HT before dipole field and find a matching parabola
@@ -269,8 +268,8 @@ void PndFtsHoughTrackFinder::FindTracks() {
 				stepsPerThetaDegZyLine
 				* (thetaDegHighZyLine
 						- thetaDegLowZyLine),
-						thetaDegLowZyLine / 180. * meinpi, // in rad
-						thetaDegHighZyLine / 180. * meinpi, // in rad
+						thetaDegLowZyLine * TMath::DegToRad(), // in rad
+						thetaDegHighZyLine * TMath::DegToRad(), // in rad
 						stepsPerThetaDegZyLine * 16, // TODO: Check values
 						-80., // in cm // TODO: Check values
 						80., // in cm

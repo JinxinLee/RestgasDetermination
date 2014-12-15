@@ -98,14 +98,6 @@ public:
 	PndFtsHoughTrackCand GetHoughTrack(int i) const { return fHoughTrackCandsComplete[i]; };
 
 
-	// Parameters
-	//	void SetMinPeakHeightZxLineParabola(UInt_t val){ fMinPeakHeightZxLineParabola = val; };
-	//	void SetMinPeakHeightZxParabola(UInt_t val){ fMinPeakHeightZxParabola = val; };
-	//	void SetMinPeakHeightZxParabolaLine(UInt_t val){ fMinPeakHeightZxParabolaLine = val; };
-	//	void SetMinPeakHeightZyLine(UInt_t val){ fMinPeakHeightZyLine= val; };
-
-
-
 
 private:
 	/// @brief Task which handles PandaRoot input/output and provides settings for FTS PR.
@@ -136,7 +128,6 @@ private:
 	//	std::vector<PndTrackCand> fTrackCand; // resulting track candidates, also used for returning PndTracks
 
 
-	static const Double_t meinpi;
 	///< sets where the apex of the parabola is supposed to be
 	static const Double_t fZLineParabola; // the value should coincide with the start of the dipole field // 368. was ok
 	static const Double_t fZParabolaLine; // the value should coincide with the end of the dipole field // TODO determine this value
@@ -144,11 +135,11 @@ private:
 	static const Double_t fThetaRadLineBehindDipoleMatchesToParabolaIfBelow;
 
 	///< @brief Minimum required height for peaks in Hough spaces.
-	const UInt_t fMinPeakHeightZxLineParabola; ///< zx line before dipole field
+	const UInt_t fMinPeakHeightZxLineBeforeDipole; ///< zx line before dipole field
 	///< @brief Minimum required height for peaks in Hough spaces.
 	const UInt_t fMinPeakHeightZxParabola; ///< zx parabola within dipole field
 	///< @brief Minimum required height for peaks in Hough spaces.
-	const UInt_t fMinPeakHeightZxParabolaLine; ///< zx line after dipole field
+	const UInt_t fMinPeakHeightZxLineBehindDipole; ///< zx line after dipole field
 	///< @brief Minimum required height for peaks in Hough spaces.
 	const UInt_t fMinPeakHeightZyLine; ///< zy line
 
@@ -171,8 +162,8 @@ private:
 			std::vector<PndFtsHoughTracklet> &tracklets
 	);
 	// helper functions for tracking algorithm
-	std::vector<PndFtsHoughTracklet> FindLineBehindDipoleZxTracklets();
-	std::vector<PndFtsHoughTracklet> FindLineBeforeDipoleZxTracklets();
+	std::vector<PndFtsHoughTracklet> FindLinesBehindDipoleZx();
+	std::vector<PndFtsHoughTracklet> FindLinesBeforeDipoleZx();
 	void FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(
 			const std::vector<PndFtsHoughTracklet>& trackletsLineBeforeDipole,
 			const std::vector<PndFtsHoughTracklet>& trackletsLineBehindDipole

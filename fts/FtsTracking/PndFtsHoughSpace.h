@@ -5,6 +5,8 @@
 
  @brief Class for Hough space based on TH2S (for the moment). Saves the hits which enter this Hough space and finds peaks.
 
+Note //! after a member means for root that it should not write it to disk when the object is saved
+
 TODO Save path through Hough spaces with global indices!!!
 TODO: Separate peak finder from Hough space
 
@@ -176,7 +178,7 @@ public:
 
 private:
 	// for PandaRoot input/output
-	PndFtsHoughTrackerTask *fTrackerTask;
+	PndFtsHoughTrackerTask *fTrackerTask; //!
 
 	/** @brief For error reporting */
 	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
@@ -201,14 +203,14 @@ private:
 	 * Map index: hit index, use as argument of getHit.
 	 * The map gives the vector of globalbins which were filled during the theta scan for the hit.
 	 */
-	HitIdxPathMap fHitThetaYIdxPath;
+	HitIdxPathMap fHitThetaYIdxPath; //!
 
 	// Private Data Members ------------
-	Int_t fVerbose;
+	Int_t fVerbose; //!
 
 	/// @ brief FTS Hits
 	Int_t   fFtsBranchId;
-	std::vector<PndTrackCandHit> fHitId;  ///< @brief hits relevant for this Hough space
+	std::vector<PndTrackCandHit> fHitId; //! ///< @brief hits relevant for this Hough space
 	///< first index is detId, second index is hit Id
 
 	PndFtsHoughTrackCand *fAssociatedTrackCand; ///< @brief For skewed hits a track candidate is needed
@@ -243,7 +245,7 @@ private:
 
 
 	// for B field access
-	FairField* fField;
+	FairField* fField; //!
 
 
 	// for HoughTransform
