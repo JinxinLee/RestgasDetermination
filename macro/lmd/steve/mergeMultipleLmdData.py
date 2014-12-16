@@ -16,8 +16,9 @@ dir_pattern = ''
 
 def getListOfDirectories(path):
   if os.path.isdir(path):
+    print 'looking at path ' + path
     for dir in os.listdir(path):
-      bunch_dirs = glob.glob(path + '/bunches_*')
+      bunch_dirs = glob.glob(path + '/' + dir + '/bunches_*')
       if bunch_dirs:
         for bunch_dir in bunch_dirs:
           filelists = glob.glob(bunch_dir + '/' + glob_pattern)
@@ -25,9 +26,9 @@ def getListOfDirectories(path):
             m = re.search(dir_pattern, bunch_dir)
             if m:
               dirs.append(bunch_dir)
-        return
+              return
       else:
-        if glob.glob(path + '/Lumi_MC_*.root'):
+        if glob.glob(path + '/Lumi_TrksQA_*.root'):
           return
       dirpath = path + '/' + dir
       if os.path.isdir(dirpath):

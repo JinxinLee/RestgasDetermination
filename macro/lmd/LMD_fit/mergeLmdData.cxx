@@ -3,7 +3,6 @@
 #include "data/PndLmdAngularData.h"
 #include "data/PndLmdVertexData.h"
 #include "data/PndLmdAcceptance.h"
-#include "data/PndLmdResolution.h"
 
 #include "TString.h"
 #include "TFile.h"
@@ -101,12 +100,12 @@ template<class T> void mergeData(vector<std::string> found_files,
 			iter = merged_files.find(*entry);
 
 			PndLmdAbstractData *lmd_data = (PndLmdAbstractData*) &(*entry);
-			PndLmdAbstractData *lmd_data_merge = (PndLmdAbstractData*) &(*iter);
 
 			if (iter == merged_files.end()) {
 				ret = merged_files.insert(*entry);
 				((PndLmdAbstractData*) &(*ret.first))->cloneData(*lmd_data);
 			} else {
+				PndLmdAbstractData *lmd_data_merge = (PndLmdAbstractData*) &(*iter);
 				lmd_data_merge->add(*lmd_data);
 			}
 		}
@@ -219,7 +218,7 @@ int main(int argc, char* argv[]) {
 		} else if (1 == type) {
 			mergeData<PndLmdAcceptance>(found_files, fmergeddata);
 		} else if (2 == type) {
-			mergeData<PndLmdResolution>(found_files, fmergeddata);
+			mergeData<PndLmdHistogramData>(found_files, fmergeddata);
 		} else if (3 == type) {
 			mergeData<PndLmdVertexData>(found_files, fmergeddata);
 		}

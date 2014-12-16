@@ -16,13 +16,14 @@ class PndLmdVertexData: public PndLmdHistogramData {
 
 public:
 	PndLmdVertexData();
+	PndLmdVertexData(const PndLmdVertexData &lmd_vertex_data_);
 	virtual ~PndLmdVertexData();
 
 	const LumiFit::LmdSimIPParameters& getSimulationIPParameters() const;
 	void setSimulationIPParameters(
 			LumiFit::LmdSimIPParameters& simulation_ip_parameters_);
 
-	ClassDef(PndLmdVertexData, 1)
+	ClassDef(PndLmdVertexData, 2)
 };
 
 #endif /* PNDLMDVERTEXDATA_H_ */

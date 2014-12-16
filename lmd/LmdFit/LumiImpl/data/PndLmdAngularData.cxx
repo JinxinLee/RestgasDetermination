@@ -6,10 +6,16 @@
  */
 #include "PndLmdAngularData.h"
 
-ClassImp (PndLmdAngularData)
+ClassImp(PndLmdAngularData)
 
 PndLmdAngularData::PndLmdAngularData() :
 		reference_luminosity_per_event(1.0) {
+}
+
+PndLmdAngularData::PndLmdAngularData(const PndLmdAngularData &lmd_ang_data_) :
+		PndLmdHistogramData(lmd_ang_data_) {
+	reference_luminosity_per_event =
+			lmd_ang_data_.getReferenceLuminosityPerEvent();
 }
 
 PndLmdAngularData::~PndLmdAngularData() {

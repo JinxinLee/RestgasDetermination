@@ -16,6 +16,10 @@ pattern = ''
 
 def getListOfDirectories(path):
   if os.path.isdir(path):
+      
+    if os.path.split(path)[1] == 'mc_data':
+      return
+      
     for dir in os.listdir(path):
       bunch_dirs = glob.glob(path + '/bunches_*/merge_data')
       if bunch_dirs:
@@ -27,7 +31,7 @@ def getListOfDirectories(path):
               dirs.append(bunch_dir)
         return
       else:
-        if glob.glob(path + '/Lumi_MC_*.root'):
+        if glob.glob(path + '/Lumi_TrksQA_*.root'):
           return
       dirpath = path + '/' + dir
       if os.path.isdir(dirpath):
@@ -53,5 +57,5 @@ bashcommand = default=os.getenv('VMCWORKDIR') + '/build/bin/plotLumiFitResults -
 for dir in dirs:
   bashcommand += ' ' + dir
 
-print bashcommand
+#print bashcommand
 returnvalue = subprocess.call(bashcommand.split())

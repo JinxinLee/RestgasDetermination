@@ -37,6 +37,8 @@ protected:
 	// model used for fitting
 	shared_ptr<Model> fit_model;
 
+	EstimatorOptions estimator_options;
+
 public:
 	ModelEstimator();
 	virtual ~ModelEstimator();
@@ -51,12 +53,12 @@ public:
 
 	double evaluate(const double *par);
 
-	void applyEstimatorOptions(const EstimatorOptions &estimator_options);
+	void applyEstimatorOptions(const EstimatorOptions &estimator_options_);
 
 	/**
 	 * The estimator function (chi2, likelihood, etc)
 	 */
-	virtual double eval() const =0;
+	virtual double eval() =0;
 };
 
 #endif /* MODELESTIMATOR_H_ */

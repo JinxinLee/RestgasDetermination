@@ -9,10 +9,9 @@
 
 #include <cmath>
 
-GaussianModel2D::GaussianModel2D(std::string name_) :
-		Model2D(name_) {
+GaussianModel2D::GaussianModel2D(std::string name_, double num_sigmas_) :
+		Model2D(name_), num_sigmas(num_sigmas_) {
 	initModelParameters();
-	num_sigmas = 5.0;
 }
 
 GaussianModel2D::~GaussianModel2D() {
@@ -26,6 +25,7 @@ void GaussianModel2D::initModelParameters() {
 			"gauss_sigma_var2");
 	gauss_mean_var1 = getModelParameterSet().addModelParameter("gauss_mean_var1");
 	gauss_mean_var2 = getModelParameterSet().addModelParameter("gauss_mean_var2");
+	gauss_rho = getModelParameterSet().addModelParameter("gauss_rho");
 	// as default the amplitude of the gauss is set to 1,
 	// which makes it a normal distribution
 	gauss_amplitude = getModelParameterSet().addModelParameter("gauss_amplitude");
@@ -34,16 +34,24 @@ void GaussianModel2D::initModelParameters() {
 }
 
 double GaussianModel2D::eval(const double *x) const {
-	return gauss_amplitude->getValue()
-			* exp(
-					-(pow(x[0] - gauss_mean_var1->getValue(), 2.0)
-							/ (2.0 * gauss_sigma_var1->getValue()
-									* gauss_sigma_var1->getValue())
-							+ pow(x[0] - gauss_mean_var2->getValue(), 2.0)
-									/ (2.0 * gauss_sigma_var2->getValue()
-											* gauss_sigma_var2->getValue())))
-			/ (gauss_sigma_var1->getValue() * gauss_sigma_var2->getValue() * 2.0
-					* M_PI);
+	// see wikipedia definition
+
+	double normalization = 1.0
+			/ (2.0 * M_PI * gauss_sigma_var1->getValue()
+					* gauss_sigma_var2->getValue()
+					* sqrt(1 - pow(gauss_rho->getValue(), 2.0)));
+
+	double exp_value = exp(
+			-(pow(x[0] - gauss_mean_var1->getValue(), 2.0)
+					/ pow(gauss_sigma_var1->getValue(), 2.0)
+					+ pow(x[1] - gauss_mean_var2->getValue(), 2.0)
+							/ pow(gauss_sigma_var2->getValue(), 2.0)
+					+ 2.0 * gauss_rho->getValue() * (x[0] - gauss_mean_var1->getValue())
+							* (x[1] - gauss_mean_var2->getValue())
+							/ (gauss_sigma_var1->getValue() * gauss_sigma_var2->getValue()))
+					/ (2.0 * (1 - pow(gauss_rho->getValue(), 2.0))));
+
+	return gauss_amplitude->getValue()*normalization*exp_value;
 }
 
 void GaussianModel2D::updateDomain() {

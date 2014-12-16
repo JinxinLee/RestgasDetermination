@@ -4,7 +4,7 @@ C------modify by A.Galoyan 10.09.08--------------------
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
       
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
-     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
+     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1,AMProton
  
       COMMON/AB/aelm,betav, sigma_tot, parB, rho      !aida
       COMMON /AGT/ TTR 
@@ -26,7 +26,7 @@ C------modify by A.Galoyan 10.09.08--------------------
 C-----------------------------------------------------------------------
       
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
-     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
+     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1,AMProton
  
 C-----------------------------------------------------------------------
 C             PARAMETERS OF QUARK-GLUON STRING MODEL
@@ -949,7 +949,7 @@ C                   Simulation of elastic scattering
 C############################################################################
 c      print *, 'started 700', prob_col, prob_int
 
-      Pcms=sqrt(Ecms**2-0.88)
+      Pcms=sqrt(Ecms**2-AMProton**2)
       X0=RNDM1(-1)
 
       imode=0

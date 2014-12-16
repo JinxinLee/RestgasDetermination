@@ -49,7 +49,14 @@ parser.add_argument('--use_beam_gradient', metavar=("beam_gradient_x", "beam_gra
 parser.add_argument('--use_xy_cut', action='store_true', help='Use the x-theta & y-phi filter after the tracking stage to remove background.')
 parser.add_argument('--use_m_cut', action='store_true', help='Use the tmva based momentum cut filter after the backtracking stage to remove background.')
 
+parser.add_argument('--reco_ip_offset', metavar=("rec_ip_offset_x", "rec_ip_offset_y", "rec_ip_spread_x", "rec_ip_spread_y"), type=float, nargs=4, default=[0.0, 0.0, -1.0, -1.0],
+                   help="rec_ip_offset_x: interaction vertex mean X position (in cm)\n"
+            "rec_ip_offset_y: interaction vertex mean Y position (in cm)\n"
+            "rec_ip_spread_x: interaction vertex X position distribution width (in cm)\n"
+            "rec_ip_spread_y: interaction vertex Y position distribution width (in cm)\n")
+
 args = parser.parse_args()
+
 
 offset_list = []
 
@@ -82,9 +89,15 @@ if args.use_m_cut:
   additional_flags += ' --use_m_cut'
 
 for offset in offset_list:
+  rec_ip_info = ''
+  #if we are using the xy cut 
+  if args.use_xy_cut or args.use_m_cut:
+    if args.reco_ip_offset[2] >= 0.0 and args.reco_ip_offset[3] >= 0.0:
+      rec_ip_info = ' --reco_ip_offset ' + str(args.reco_ip_offset[0]) + ' ' + str(args.reco_ip_offset[1]) + ' ' + str(args.reco_ip_offset[2]) + ' ' + str(args.reco_ip_offset[3])
+    
   bashcommand = 'python runSimulations.py --low_index ' + str(args.low_index) + ' --high_index ' + str(args.high_index) \
                 + ' --use_ip_offset ' +  str(offset[0]) + ' ' + str(offset[1]) + ' ' + str(offset[2]) + ' ' + str(args.use_ip_spread[0]) + ' ' +  str(args.use_ip_spread[1]) + ' ' + str(args.use_ip_spread[2]) \
                 + ' --use_beam_gradient ' + str(args.use_beam_gradient[0]) + ' ' + str(args.use_beam_gradient[1]) + ' ' + str(args.use_beam_gradient[2]) + ' ' + str(args.use_beam_gradient[3]) \
-                + additional_flags + ' ' + str(args.num_events[0]) + ' ' + str(args.lab_momentum[0]) + ' ' + args.gen_data_dirname[0]
+                + additional_flags + rec_ip_info + ' ' + str(args.num_events[0]) + ' ' + str(args.lab_momentum[0]) + ' ' + args.gen_data_dirname[0]
   returnvalue = subprocess.call(bashcommand.split())
 

@@ -12,8 +12,8 @@
 PndLmdDPMAngModel1D::PndLmdDPMAngModel1D(std::string name_,
 		LumiFit::DPMElasticParts elastic_type_) :
 		PndLmdDPMMTModel1D(name_, elastic_type_) {
-	// TODO Auto-generated constructor stub
 
+	initModelParameters();
 }
 
 PndLmdDPMAngModel1D::~PndLmdDPMAngModel1D() {
@@ -55,8 +55,9 @@ double PndLmdDPMAngModel1D::getThetaMomentumTransferJacobian(
 }
 
 double PndLmdDPMAngModel1D::eval(const double *x) const {
-	double t = getMomentumTransferFromTheta(x[0]);
-	double jaco = getThetaMomentumTransferJacobian(x[0]);
+	double theta = x[0];
+	double t = getMomentumTransferFromTheta(theta);
+	double jaco = getThetaMomentumTransferJacobian(theta);
 	return PndLmdDPMMTModel1D::eval(&t) * jaco;
 }
 

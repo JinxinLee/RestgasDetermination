@@ -1,8 +1,8 @@
 // macro for calculation DPM model in uncertainty in LMD range
 //include <PndLmdDPMAngModel1D.h>
-#include <PndLmdLumiFitOptions.h>
-#include <PndLmdModelFactory.h>
-#include <Model1D.h>
+#include <fit/PndLmdLumiFitOptions.h>
+#include <model/PndLmdModelFactory.h>
+#include <core/Model1D.h>
 #include <PndLmdLumiHelper.h>
 #include <TMath.h>
 #include <TCanvas.h>

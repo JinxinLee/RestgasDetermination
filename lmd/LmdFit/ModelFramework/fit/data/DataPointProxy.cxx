@@ -7,14 +7,10 @@
 
 #include "DataPointProxy.h"
 
-DataPointProxy::DataPointProxy() {
-	// TODO Auto-generated constructor stub
-  state = -1;
-  is_point_used = false;
+DataPointProxy::DataPointProxy() : state(-1),  is_point_used(true) {
 }
 
 DataPointProxy::~DataPointProxy() {
-	// TODO Auto-generated destructor stub
 }
 
 bool DataPointProxy::isBinnedDataPoint() const {

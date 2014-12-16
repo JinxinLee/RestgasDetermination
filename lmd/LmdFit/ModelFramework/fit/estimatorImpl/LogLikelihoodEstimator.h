@@ -9,7 +9,7 @@ public:
 	virtual ~LogLikelihoodEstimator();
 
 	// the likelihood function
-	double eval() const;
+	double eval();
 };
 
 #endif /* LOGLIKELIHOODESTIMATOR_H_ */

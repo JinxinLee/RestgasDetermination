@@ -2,22 +2,6 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-# This is a macro that returns a list of directories where all .h (header) files are
-# located including subdirectories
-# return_list is the variable that is written with that list and dir is the directory
-# which is scanned
-MACRO(HEADER_DIRECTORIES return_list dir)
-    FILE(GLOB_RECURSE new_list ${dir}/*.h)
-    SET(dir_list "")
-    FOREACH(file_path ${new_list})
-        GET_FILENAME_COMPONENT(dir_path ${file_path} PATH)
-        SET(dir_list ${dir_list} ${dir_path})
-    ENDFOREACH()
-    LIST(REMOVE_DUPLICATES dir_list)
-    SET(${return_list} ${dir_list})
-ENDMACRO()
-
-
 set(INCLUDE_DIRECTORIES
 ${SIMPATH}/include
 ${ROOT_INCLUDE_DIR}
@@ -191,15 +175,16 @@ LmdFit/LumiImpl/data/PndLmdHistogramData.h
 LmdFit/LumiImpl/data/PndLmdAngularData.h
 LmdFit/LumiImpl/data/PndLmdVertexData.h
 LmdFit/LumiImpl/data/PndLmdAcceptance.h
-LmdFit/LumiImpl/data/PndLmdResolution.h
 LmdFit/LumiImpl/PndLmdLumiHelper.h 
-LmdFit/LumiImpl/PndLmdResultPlotter.h
+LmdFit/LumiImpl/PndLmdPlotter.h
+LmdFit/LumiImpl/ROOTPlotHelper.hpp
 LmdFit/LumiImpl/LumiFitStructs.h
+LmdFit/LumiImpl/LumiModelOptions.h
 )
 
 set(LINKDEF  LmdFitLinkDef.h)
 set(LIBRARY_NAME LmdFit)
 
-set(DEPENDENCIES MathMore PndData LmdTool Model boost_filesystem)
+set(DEPENDENCIES MathMore PndData LmdTool Model boost_filesystem boost_regex)
 
 GENERATE_LIBRARY()

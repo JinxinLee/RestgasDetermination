@@ -3,7 +3,7 @@ C-----------------A. Galoyan last edition 2 March 2012 -----
        SUBROUTINE INIT1(Plab, seed, Elastic, tetmin)
 C-----------------------------------------------------------------------
        COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
-     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
+     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1,AMProton
 C-----------------------------------------------------------------------
 C             PARAMETERS OF QUARK-GLUON STRING MODEL
 C-----------------------------------------------------------------------
@@ -26,15 +26,17 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 c      print*, plab, seed, Elastic, tetmin
 
-      Elab=sqrt(0.88+Plab**2)
-      Etot=Elab+0.938
-      S=1.76+2.0*0.938*Elab
+      AMProton=0.938272
+      Elab=sqrt(AMProton**2+Plab**2)
+      Etot=Elab+AMProton
+      S=2.0*AMProton**2+2.0*AMProton*Elab
       SS=sqrt(S)
       SqrtS=SS
       Ecms=SS/2.
-      Pcms=sqrt(Ecms**2-0.88)
-      Vcms=Plab/(Elab+0.938)
-      Gamma=(Elab+0.938)/SqrtS
+      Pcms=sqrt(Ecms**2-AMProton**2)
+      Vcms=Plab/(Elab+AMProton)
+      Gamma=(Elab+AMProton)/SqrtS
+
 *      write(6,*)'" ',Plab,SqrtS,'Plab,SqrtS'
 *      write(6,*)'" ',Ecms,Pcms ,'Ecms,Pcms '
 c-----------------------------------------------------------------------
@@ -603,8 +605,8 @@ C
 C
 C    PARTICLE MASSES IN GEV
 C
-      DATA AM/2*0.938,2*0.0005,3*0,2*0.94,2*0.106,0.498,2*0.140,2*0.494,
-     *2*1.116,0.498,1.197,1.189,1.193,0.134,2*0.498,
+      DATA AM/2*0.938272,2*0.0005,3*0,2*0.94,2*0.106,0.498,2*0.140,
+     *2*0.494,2*1.116,0.498,1.197,1.189,1.193,0.134,2*0.498,
      *0.,2*1.43,
      *2*0,0.548,3*0.776,0.783,4*0.896,4*1.25,4*1.421,3*1.382,1.82,2.03, ! Uzhi
      *4*1.232,4*1.675,2*1.43,2*1.515,2*1.775,4*1.232,4*1.675,2*1.515,

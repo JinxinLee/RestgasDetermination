@@ -25,7 +25,7 @@ def getListOfDirectories(path):
               dirs.append(bunch_dir)
         return
       else:
-        if glob.glob(path + '/Lumi_MC_*.root'):
+        if glob.glob(path + '/Lumi_TrksQA_*.root'):
           return
       dirpath = path + '/' + dir
       if os.path.isdir(dirpath):

@@ -15,11 +15,10 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <set>
 
 #include "TObject.h"
 #include "TString.h"
-
-class PndLmdAcceptance;
 
 namespace LumiFit {
 
@@ -32,11 +31,21 @@ enum LmdDataType {
 };
 
 enum LmdDimensionType {
-	X, Y, Z, T, THETA, PHI
+	X,
+	Y,
+	Z,
+	T,
+	THETA,
+	PHI,
+	THETA_X,
+	THETA_Y,
+	PHI_FIRST_LMD_PLANE,
+	PARTICLE_ID,
+	SECONDARY
 };
 
 enum LmdTrackType {
-	MC, MC_ACC, RECO
+	MC, MC_ACC, RECO, DIFF_RECO_MC
 };
 
 enum LmdTrackParamType {
@@ -53,10 +62,6 @@ enum InterpolationType {
 
 enum DPMElasticParts {
 	COUL, INT, HAD, HAD_RHO_B_SIGTOT, ALL_RHO_B_SIGTOT, ALL
-};
-
-enum LmdDimensionUnitPrefix {
-	PICO, NANO, MICRO, MILLI, CENTI, NONE, KILO, MEGA, GIGA
 };
 
 struct LmdDimensionOptions: public TObject {
@@ -116,54 +121,16 @@ struct LmdDimensionOptions: public TObject {
 		return !(*this == rhs);
 	}
 
-ClassDef(LmdDimensionOptions, 1)
+	friend std::ostream & operator <<(std::ostream & os,
+			const LmdDimensionOptions & lmd_dim_opt) {
+		os << lmd_dim_opt.dimension_type;
+		os << "_" << lmd_dim_opt.track_type;
+		os << "_" << lmd_dim_opt.track_param_type;
+
+		return os;
+	}
+ClassDef(LmdDimensionOptions, 2)
 	;
-};
-
-struct LmdDimensionUnitFactor {
-	static std::string getUnitNamePrefix(LmdDimensionUnitPrefix unit_prefix) {
-		if (PICO == unit_prefix)
-			return "p";
-		else if (NANO == unit_prefix)
-			return "n";
-		else if (MICRO == unit_prefix)
-			return "#mu";
-		else if (MILLI == unit_prefix)
-			return "m";
-		else if (CENTI == unit_prefix)
-			return "cm";
-		else if (NONE == unit_prefix)
-			return "";
-		else if (KILO == unit_prefix)
-			return "k";
-		else if (MEGA == unit_prefix)
-			return "M";
-		else if (GIGA == unit_prefix)
-			return "G";
-		return "";
-	}
-
-	static double getUnitFactor(LmdDimensionUnitPrefix unit_prefix) {
-		if (PICO == unit_prefix)
-			return 1e-12;
-		else if (NANO == unit_prefix)
-			return 1e-9;
-		else if (MICRO == unit_prefix)
-			return 1e-6;
-		else if (MILLI == unit_prefix)
-			return 1e-3;
-		else if (CENTI == unit_prefix)
-			return 1e-2;
-		else if (NONE == unit_prefix)
-			return 1.0;
-		else if (KILO == unit_prefix)
-			return 1e3;
-		else if (MEGA == unit_prefix)
-			return 1e6;
-		else if (GIGA == unit_prefix)
-			return 1e9;
-		return 1.0;
-	}
 };
 
 class LmdDimensionRange: public TObject {
@@ -173,11 +140,9 @@ private:
 	// upper bound on this axis/dimension
 	double range_high;
 
-	LmdDimensionUnitPrefix unit_prefix;
-
 public:
 	LmdDimensionRange() :
-			range_low(0.0), range_high(0.0), unit_prefix(NONE) {
+			range_low(0.0), range_high(0.0) {
 	}
 
 	double getDimensionLength() const {
@@ -188,16 +153,12 @@ public:
 		return (getRangeHigh() + getRangeLow()) / 2.0;
 	}
 
-	double getUnitFactor() const {
-		return LmdDimensionUnitFactor::getUnitFactor(unit_prefix);
-	}
-
 	double getRangeLow() const {
-		return range_low * getUnitFactor();
+		return range_low;
 	}
 
 	double getRangeHigh() const {
-		return range_high * getUnitFactor();
+		return range_high;
 	}
 
 	void setRangeLow(double range_low_) {
@@ -206,10 +167,6 @@ public:
 
 	void setRangeHigh(double range_high_) {
 		range_high = range_high_;
-	}
-
-	void setUnitPrefix(LmdDimensionUnitPrefix unit_prefix_) {
-		unit_prefix = unit_prefix_;
 	}
 
 	bool isDataWithinRange(double data_value) const {
@@ -243,8 +200,6 @@ public:
 		if (range_low != lmd_dim_range.range_low)
 			return false;
 		if (range_high != lmd_dim_range.range_high)
-			return false;
-		if (unit_prefix != lmd_dim_range.unit_prefix)
 			return false;
 
 		return true;
@@ -283,18 +238,10 @@ struct LmdDimension: public TObject {
 
 	LmdDimensionRange dimension_range;
 
-	/**
-	 * Label of this dimension which will be printed on the corresponding axis as
-	 * labels. Default value will be automatically generated from the
-	 * #LmdDimensionType and #LmdTrackParamType.
-	 */
-	TString label;
-
 	LmdDimension() {
 		is_active = false;
 		bins = 0;
 		bin_size = 1.0;
-		label = "";
 	}
 
 	void calculateBinSize() {
@@ -309,6 +256,88 @@ struct LmdDimension: public TObject {
 		clone_object.dimension_options = dimension_options;
 		clone_object.calculateBinSize();
 		return clone_object;
+	}
+
+	std::string createDimensionLabel() const {
+		std::stringstream label;
+
+		// var type
+		if (dimension_options.dimension_type == X) {
+			label << "x";
+		} else if (dimension_options.dimension_type == Y) {
+			label << "y";
+		} else if (dimension_options.dimension_type == Z) {
+			label << "z";
+		} else if (dimension_options.dimension_type == T) {
+			label << "|t|";
+		} else if (dimension_options.dimension_type == THETA) {
+			label << "#theta";
+		} else if (dimension_options.dimension_type == PHI) {
+			label << "#phi";
+		} else if (dimension_options.dimension_type == PHI_FIRST_LMD_PLANE) {
+			label << "#phi^{LMD}";
+		} else if (dimension_options.dimension_type == THETA_X) {
+			label << "#theta^{x}";
+		} else if (dimension_options.dimension_type == THETA_Y) {
+			label << "#theta^{y}";
+		}
+
+		// data type
+		if (dimension_options.track_type == MC) {
+			label << "_{MC}";
+		} else if (dimension_options.track_type == MC_ACC) {
+			label << "_{MC}";
+		} else if (dimension_options.track_type == RECO) {
+			label << "_{Rec}";
+		} else if (dimension_options.track_type == DIFF_RECO_MC) {
+			std::string temp(label.str());
+			label << "_{Rec}-" << temp << "_{MC}";
+		}
+
+		return label.str();
+	}
+
+	std::string createUnitLabel() const {
+		std::string unit;
+		// var type
+		if (dimension_options.dimension_type == X) {
+			unit = "cm";
+		} else if (dimension_options.dimension_type == Y) {
+			unit = "cm";
+		} else if (dimension_options.dimension_type == Z) {
+			unit = "cm";
+		} else if (dimension_options.dimension_type == T) {
+			unit = "#frac{GeV^{2}}{c^{2}}";
+		} else if (dimension_options.dimension_type == THETA) {
+			unit = "rad";
+		} else if (dimension_options.dimension_type == PHI) {
+			unit = "rad";
+		} else if (dimension_options.dimension_type == PHI_FIRST_LMD_PLANE) {
+			unit = "rad";
+		}
+
+		return unit;
+	}
+
+	/**
+	 * Create label of this dimension which will be printed on the corresponding
+	 * axis as labels. Generated from the #LmdDimensionType and #LmdTrackParamType.
+	 */
+	std::string createAxisLabel() const {
+		std::stringstream label;
+
+		label << createDimensionLabel() << " /" << createUnitLabel();
+
+		return label.str();
+	}
+
+	std::string createSelectionLabel() const {
+		std::stringstream label;
+
+		label << createDimensionLabel() << " = "
+				<< dimension_range.getDimensionMean() << " " << createUnitLabel();
+
+		return label.str();
 	}
 
 	bool operator<(const LmdDimension &lmd_dim) const {
@@ -345,140 +374,17 @@ struct LmdDimension: public TObject {
 		return !(*this == lmd_dim);
 	}
 
-ClassDef(LmdDimension, 1)
-	;
-};
-
-struct PndLmdFitModelOptions: public TObject {
-	// fields
-	int fit_dimension;
-
-	DPMElasticParts dpm_elastic_parts;
-	bool momentum_transfer_active; // if this is enabled everything else cannot be used
-
-	bool acceptance_correction_active;
-	PndLmdAcceptance *acceptance;
-	InterpolationType acceptance_interpolation;
-
-	bool resolution_smearing_active;
-	ModelType smearing_model;
-	bool use_resolution_parameter_interpolation;
-	std::string resolution_parametrization_file_url;
-
-	ModelType vertex_model;
-
-	/**
-	 * Empty Constructor
-	 */
-	PndLmdFitModelOptions() :
-			momentum_transfer_active(false), acceptance_correction_active(false), resolution_smearing_active(
-					false), fit_dimension(1), acceptance(0), resolution_parametrization_file_url(
-					""), smearing_model(GAUSSIAN), acceptance_interpolation(SPLINE), dpm_elastic_parts(
-					ALL), vertex_model(GAUSSIAN) {
-	}
-
-	PndLmdFitModelOptions(LmdTrackType track_type,
-			LmdDimensionType dimension_type) {
-		if (dimension_type == T) {
-			momentum_transfer_active = true;
-		} else {
-			momentum_transfer_active = false;
-		}
-		if (track_type == MC) {
-			acceptance_correction_active = false;
-			resolution_smearing_active = false;
-		} else if (track_type == MC_ACC) {
-			acceptance_correction_active = true;
-			resolution_smearing_active = false;
-		} else if (track_type == RECO) {
-			acceptance_correction_active = true;
-			resolution_smearing_active = true;
-		}
-	}
-
-	bool lessThanBinaryOptions(const PndLmdFitModelOptions &rhs) const {
-		if (momentum_transfer_active < rhs.momentum_transfer_active)
-			return true;
-		else if (momentum_transfer_active > rhs.momentum_transfer_active)
-			return false;
-		if (acceptance_correction_active < rhs.acceptance_correction_active)
-			return true;
-		else if (acceptance_correction_active > rhs.acceptance_correction_active)
-			return false;
-		if (resolution_smearing_active < rhs.resolution_smearing_active)
-			return true;
-		else if (resolution_smearing_active > rhs.resolution_smearing_active)
-			return false;
-
-		return false;
-	}
-
-	bool equalBinaryOptions(const PndLmdFitModelOptions &rhs) const {
-		return (lessThanBinaryOptions(rhs) == rhs.lessThanBinaryOptions(*this));
-	}
-
-	bool operator<(const PndLmdFitModelOptions &rhs) const {
-		if (lessThanBinaryOptions(rhs) == true)
-			return true;
-		else if (rhs.lessThanBinaryOptions(*this) == true)
-			return false;
-
-		if (smearing_model < rhs.smearing_model)
-			return true;
-		else if (smearing_model > rhs.smearing_model)
-			return false;
-		if (acceptance_interpolation < rhs.acceptance_interpolation)
-			return true;
-		else if (acceptance_interpolation > rhs.acceptance_interpolation)
-			return false;
-		if (dpm_elastic_parts < rhs.dpm_elastic_parts)
-			return true;
-		else if (dpm_elastic_parts > rhs.dpm_elastic_parts)
-			return false;
-		if (use_resolution_parameter_interpolation
-				< rhs.use_resolution_parameter_interpolation)
-			return true;
-		else if (use_resolution_parameter_interpolation
-				> rhs.use_resolution_parameter_interpolation)
-			return false;
-		if (vertex_model < rhs.vertex_model)
-			return true;
-		else if (vertex_model > rhs.vertex_model)
-			return false;
-
-		ModelStructs::string_comp strcomp;
-		return strcomp(resolution_parametrization_file_url,
-				rhs.resolution_parametrization_file_url);
-	}
-
-	bool operator>(const PndLmdFitModelOptions &rhs) const {
-		return (rhs < *this);
-	}
-
-	bool operator==(const PndLmdFitModelOptions &rhs) const {
-		return ((*this < rhs) == (*this > rhs));
-	}
-
-	bool operator!=(const PndLmdFitModelOptions &rhs) const {
-		return !(*this == rhs);
-	}
-
 	friend std::ostream & operator <<(std::ostream & os,
-			const PndLmdFitModelOptions & model_opt) {
-		if (model_opt.momentum_transfer_active)
-			os << "t";
-		else
-			os << "th";
-
-		if (model_opt.acceptance_correction_active)
-			os << "-acc_cor";
-		if (model_opt.resolution_smearing_active)
-			os << "-res_smear";
+			const LmdDimension & lmd_dim) {
+		os << lmd_dim.dimension_options;
+		os << "_" << lmd_dim.bins;
+		os << "_" << lmd_dim.dimension_range.getRangeLow() << "-"
+				<< lmd_dim.dimension_range.getRangeHigh();
 
 		return os;
 	}
 
-ClassDef(PndLmdFitModelOptions ,1)
+ClassDef(LmdDimension, 2)
 	;
 };
 

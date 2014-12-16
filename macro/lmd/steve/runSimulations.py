@@ -14,26 +14,26 @@ import argparse
 himster_total_job_threshold = 1600
 
 # define a function that relinks the field maps (temp workaround for the hc solenoid field map problem)
-def relinkSolenoidFieldMaps(mom):
-    if mom > 3.0:
-        fieldmap_path = os.getenv('VMCWORKDIR') + '/macro/lmd/Anastasia/solenoid_fc';
-    else:
-        fieldmap_path = os.getenv('VMCWORKDIR') + '/macro/lmd/Anastasia/solenoid_hc';
-    
-    fieldmaps = os.listdir(fieldmap_path);
-    for fieldmap in fieldmaps:
-        if os.path.splitext(fieldmap)[1] == '.root':
-            bashcommand = 'ln -sf ' + fieldmap_path + '/' + fieldmap + ' ' + os.getenv('VMCWORKDIR') + '/input/.'
-            subprocess.call(bashcommand.split())
-    
-    return;
+# def relinkSolenoidFieldMaps(mom):
+#     if mom > 3.0:
+#         fieldmap_path = os.getenv('VMCWORKDIR') + '/macro/lmd/Anastasia/solenoid_fc';
+#     else:
+#         fieldmap_path = os.getenv('VMCWORKDIR') + '/macro/lmd/Anastasia/solenoid_hc';
+#     
+#     fieldmaps = os.listdir(fieldmap_path);
+#     for fieldmap in fieldmaps:
+#         if os.path.splitext(fieldmap)[1] == '.root':
+#             bashcommand = 'ln -sf ' + fieldmap_path + '/' + fieldmap + ' ' + os.getenv('VMCWORKDIR') + '/input/.'
+#             subprocess.call(bashcommand.split())
+#     
+#     return;
 
 
 # check number of jobs currently running or in queue on himster from my side
 def getNumJobsOnHimster():    
     bashcommand = 'qstat -t | wc -l'
     returnvalue = subprocess.Popen(bashcommand, shell=True, stdout=subprocess.PIPE)
-    out,err = returnvalue.communicate()
+    out, err = returnvalue.communicate()
     return int(out)
 
 
@@ -41,6 +41,9 @@ def getListOfMCFiles(pathname):
     return glob.glob(pathname + '/Lumi_MC_*.root')
 
 def linkPossibleMCFiles(pathname):
+    #get list of mc files in the this directory
+    mc_files_in_path = getListOfMCFiles(pathname)
+    
     #get list of all directories for these setting and remove current pathname
     #so strip of the cut stuff
     m = re.match('^(.*/\d*-\d*x\d*_).*$', pathname)
@@ -48,24 +51,36 @@ def linkPossibleMCFiles(pathname):
     other_dir_list = glob.glob(m.group(1) + '*')
     print other_dir_list
     other_dir_list.remove(pathname)
+    dir_to_copy_from = ''
     for other_dir in other_dir_list:
-        mc_files = getListOfMCFiles(other_dir)
-        if mc_files:
-            print 'linking mc files from ' + other_dir + ' to ' + pathname + '!'
-            currentpath = os.getcwd()
-            os.chdir(pathname)
-            bashcommand = 'ln -sf ../'+os.path.split(other_dir)[1]+'/Lumi_MC_*.root .'
-            print bashcommand
-            returnvalue = subprocess.Popen(bashcommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out,err = returnvalue.communicate()
-            print out
-            bashcommand = 'ln -sf ../'+os.path.split(other_dir)[1]+'/Lumi_Params_*.root .'
-            print bashcommand
-            returnvalue = subprocess.Popen(bashcommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out,err = returnvalue.communicate()
-            print out
-            os.chdir(currentpath)
-            return
+      #prioritize the uncut case to copy the files from
+      m = re.match('.*_uncut.*', other_dir)
+      if m:
+        dir_to_copy_from = other_dir
+        break
+    
+    #if we didn't find the uncut case just copy from the first directory we found
+    if dir_to_copy_from == '' and len(other_dir_list):
+      dir_to_copy_from = other_dir_list[0]
+      
+    if dir_to_copy_from != '':
+      mc_files = getListOfMCFiles(dir_to_copy_from)
+      if len(mc_files) != len(mc_files_in_path):
+        print 'linking mc files from ' + dir_to_copy_from + ' to ' + pathname + '!'
+        currentpath = os.getcwd()
+        os.chdir(pathname)
+        bashcommand = 'ln -sf ../' + os.path.split(dir_to_copy_from)[1] + '/Lumi_MC_*.root .'
+        print bashcommand
+        returnvalue = subprocess.Popen(bashcommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = returnvalue.communicate()
+        print out
+        bashcommand = 'ln -sf ../' + os.path.split(dir_to_copy_from)[1] + '/Lumi_Params_*.root .'
+        print bashcommand
+        returnvalue = subprocess.Popen(bashcommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = returnvalue.communicate()
+        print out
+        os.chdir(currentpath)
+        return
     return
     
 
@@ -106,7 +121,7 @@ parser.add_argument('--use_beam_gradient', metavar=("beam_gradient_x", "beam_gra
 parser.add_argument('--use_xy_cut', action='store_true', help='Use the x-theta & y-phi filter after the tracking stage to remove background.')
 parser.add_argument('--use_m_cut', action='store_true', help='Use the tmva based momentum cut filter after the backtracking stage to remove background.')
 
-parser.add_argument('--reco_ip_offset', metavar=("rec_ip_offset_x", "rec_ip_offset_y", "rec_ip_spread_x", "rec_ip_spread_y"), type=float, nargs=4, default=[0.0, 0.0, 0.0, 0.0],
+parser.add_argument('--reco_ip_offset', metavar=("rec_ip_offset_x", "rec_ip_offset_y", "rec_ip_spread_x", "rec_ip_spread_y"), type=float, nargs=4, default=[0.0, 0.0, -1.0, -1.0],
                    help="rec_ip_offset_x: interaction vertex mean X position (in cm)\n"
             "rec_ip_offset_y: interaction vertex mean Y position (in cm)\n"
             "rec_ip_spread_x: interaction vertex X position distribution width (in cm)\n"
@@ -118,11 +133,11 @@ args = parser.parse_args()
 
 rec_ip_info = '",rec_beamX0="0.0",rec_beamY0="0.0",rec_targetZ0="0.0'
 #if we are using the xy cut 
-if args.use_xy_cut:
-  if args.reco_ip_offset[2] != 0.0 and args.reco_ip_offset[3] != 0.0:
+if args.use_xy_cut or args.use_m_cut:
+  if args.reco_ip_offset[2] >= 0.0 and args.reco_ip_offset[3] >= 0.0:
     rec_ip_info = '",rec_beamX0="' + str(args.reco_ip_offset[0]) + '",rec_beamY0="' + str(args.reco_ip_offset[1]) + '",rec_targetZ0="0.0' 
   else:
-    rec_ip_info = '",rec_beamX0="' + str(args.use_ip_offset[0]) + '",rec_beamY0="' + str(args.use_ip_offset[0]) + '",rec_targetZ0="0.0'
+    rec_ip_info = '",rec_beamX0="' + str(args.use_ip_offset[0]) + '",rec_beamY0="' + str(args.use_ip_offset[1]) + '",rec_targetZ0="0.0'
 
   
 # generator file prefix
@@ -178,39 +193,42 @@ if args.output_dir == '':
   dirname += '/beam_grad_XYDXDY'
   for val in args.use_beam_gradient:
     dirname = dirname + '_' + str(val)
-  dirname += '/' + str(args.low_index) + '-' + str(args.high_index) + 'x' + str(args.num_events[0]) + '_'
+  dirname += '/' + str(args.num_events[0]) 
+  
+  dirname_filter_suffix = str(args.low_index) + '-' + str(args.high_index) + '_'
   if args.use_xy_cut:
-    dirname += 'xy_'
+    dirname_filter_suffix += 'xy_'
   if args.use_m_cut:
-    dirname += 'm_'
+    dirname_filter_suffix += 'm_'
   if not args.use_xy_cut and not args.use_m_cut:
-    dirname += 'un'
-  dirname += 'cut'
+    dirname_filter_suffix += 'un'
+  dirname_filter_suffix += 'cut'
   if args.use_xy_cut:
-    if args.reco_ip_offset[2] != 0.0 and args.reco_ip_offset[3] != 0.0:
-      dirname += '_real'
+    if args.reco_ip_offset[2] >= 0.0 and args.reco_ip_offset[3] >= 0.0:
+      dirname_filter_suffix += '_real'
 else:
   dirname = args.output_dir
 
-dirname_full = os.getenv('DATA_DIR') + '/' + dirname
+pathname_base = os.getenv('DATA_DIR') + '/' + dirname
+path_mc_data = pathname_base + '/mc_data'
+dirname_full = dirname + '/' + dirname_filter_suffix
+pathname_full = os.getenv('DATA_DIR') + '/' + dirname_full
 
 print 'using output folder structure: ' + dirname_full
 
 try:
-    os.makedirs(dirname_full)
+    os.makedirs(pathname_full)
+    os.makedirs(path_mc_data)
 except OSError as exception:
     if exception.errno != errno.EEXIST:
         print 'error: thought dir does not exists but it does...'
 
-f = open(dirname_full + '/sim_beam_prop.config', 'w')
+f = open(pathname_base + '/sim_beam_prop.config', 'w')
 f.write('ip_offset_x=' + str(args.use_ip_offset[0]) + '\nip_offset_y=' + str(args.use_ip_offset[1]) + '\nip_offset_z=' + str(args.use_ip_offset[2]) + '\nip_spread_x=' + str(args.use_ip_offset[3]) + '\nip_spread_y=' + str(args.use_ip_offset[4]) + '\nip_spread_z=' + str(args.use_ip_offset[5]) + '\nbeam_gradient_x=' + str(args.use_beam_gradient[0]) + '\nbeam_gradient_y=' + str(args.use_beam_gradient[1]) + '\nbeam_emittance_x=' + str(args.use_beam_gradient[2]) + '\nbeam_emittance_y=' + str(args.use_beam_gradient[3]))
 f.close()
 
-# check if there are existing mc files in this dir then just skip
-mc_file_list = glob.glob(dirname_full + '/Lumi_MC_*.root')
-# if not then try to search for mc files in other directories at the lowest level (of course num events and num samples have to match)
-if not mc_file_list:
-  linkPossibleMCFiles(dirname_full)
+# try to search for mc files in other directories at the lowest level (of course num events and num samples have to match)
+#linkPossibleMCFiles(dirname_full)
 
 # now chop all jobs into bunches of 100 which is max job array size on himster atm
 max_jobarray_size = 100
@@ -238,16 +256,16 @@ failed_submit_commands = []
 
 if is_cluster:
   print 'This is a cluster environment... submitting jobs to cluster!'
-  relinkSolenoidFieldMaps(args.lab_momentum[0]);
+  #relinkSolenoidFieldMaps(args.lab_momentum[0]);
   
   for job_index in range(low_index_used, high_index_used + 1, max_jobarray_size):
       bashcommand = 'qsub -t ' + str(job_index) + '-' + str(min(job_index + max_jobarray_size - 1, high_index_used)) + ' -N lmd_fullsim_' + dirname \
-                    + ' -l nodes=1:ppn=1,walltime=20:00:00 -j oe -o ' + dirname_full + '/sim.log -v num_evts="' + str(args.num_events[0]) + '",mom="' + str(args.lab_momentum[0]) \
-                    + '",gen_input_file_stripped="' + args.gen_data_dir + '/' + args.gen_data_dirname[0] + '/' + filename_base + '",dirname="' + dirname + '",pathname="' + dirname_full \
+                    + ' -l nodes=1:ppn=1,walltime=20:00:00,file=200mb -j oe -o ' + pathname_full + '/sim.log -v num_evts="' + str(args.num_events[0]) + '",mom="' + str(args.lab_momentum[0]) \
+                    + '",gen_input_file_stripped="' + args.gen_data_dir + '/' + args.gen_data_dirname[0] + '/' + filename_base + '",dirname="' + dirname_full + '",pathname_base="' + path_mc_data + '",pathname="' + pathname_full \
                     + '",beamX0="' + str(args.use_ip_offset[0]) + '",beamY0="' + str(args.use_ip_offset[1]) + '",targetZ0="' + str(args.use_ip_offset[2]) \
                     + '",beam_widthX="' + str(args.use_ip_offset[3]) + '",beam_widthY="' + str(args.use_ip_offset[4]) + '",target_widthZ="' + str(args.use_ip_offset[5]) \
                     + '",beam_gradX="' + str(args.use_beam_gradient[0]) + '",beam_gradY="' + str(args.use_beam_gradient[1]) + '",beam_grad_sigmaX="' + str(args.use_beam_gradient[2]) + '",beam_grad_sigmaY="' + str(args.use_beam_gradient[3]) \
-                    + '",SkipFilt="' + str(not args.use_xy_cut).lower() + '",XThetaCut="' + str(args.use_xy_cut).lower() + '",YPhiCut="' + str(args.use_xy_cut).lower()  + '",CleanSig="' + str(args.use_m_cut).lower() + rec_ip_info + '" -V ./runLumiFullSimPixel.sh'
+                    + '",SkipFilt="' + str(not args.use_xy_cut).lower() + '",XThetaCut="' + str(args.use_xy_cut).lower() + '",YPhiCut="' + str(args.use_xy_cut).lower() + '",CleanSig="' + str(args.use_m_cut).lower() + rec_ip_info + '" -V ./runLumiFullSimPixel.sh'
       jobs_on_himster = getNumJobsOnHimster()
       print str(jobs_on_himster) + " < " + str(himster_total_job_threshold) + " ?"
       if getNumJobsOnHimster() < himster_total_job_threshold:

@@ -28,6 +28,11 @@ if [ ! $numEv ]; then
   numEv=0
 fi
 
+slice_flag=""
+if [ "${module_phi_slicing}" -eq "1" ]; then
+  slice_flag="-s"
+fi
+
 if [[ $type == *a* ]]; then
   if [ -z "${elastic_cross_section}" ]; then
     dpm_logfile=${GEN_DATA}/`echo ${data_path} | sed -rn 's/^.*\/(.*)_pixel.*$/\1/p'`/*_1.log
@@ -38,18 +43,18 @@ fi
   
 echo "using elastic cross section of ${elastic_cross_section}"
 if [ -z ${filelist_url} ]; then
-  echo $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section}
+  echo $VMCWORKDIR/build/bin/createLumiFitData ${slice_flag} -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section}
   if [ $batchjob -eq "0" ]; then
-    $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section} 2>&1 >> ${data_path}/createLumiFitData.log
+    $VMCWORKDIR/build/bin/createLumiFitData ${slice_flag} -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section} 2>&1 >> ${data_path}/createLumiFitData.log
   else
-    $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section}
+    $VMCWORKDIR/build/bin/createLumiFitData ${slice_flag} -m $pbeam -t $type -p ${input_path} -n ${numEv} -c ${elastic_cross_section}
   fi
 else
-  echo $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section}
+  echo $VMCWORKDIR/build/bin/createLumiFitData ${slice_flag} -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section}
   if [ $batchjob -eq "0" ]; then
-    $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section} 2>&1 >> ${data_path}/createLumiFitData.log
+    $VMCWORKDIR/build/bin/createLumiFitData ${slice_flag} -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section} 2>&1 >> ${data_path}/createLumiFitData.log
   else
-    $VMCWORKDIR/build/bin/createLumiFitData -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section}
+    $VMCWORKDIR/build/bin/createLumiFitData ${slice_flag} -m $pbeam -t $type -p ${input_path} -f ${filelist_url} -o ${output_path} -n ${numEv} -c ${elastic_cross_section}
   fi
 fi
   

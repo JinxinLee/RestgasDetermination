@@ -1,6 +1,6 @@
 #include "PndLmdLumiHelper.h"
+#include "data/PndLmdHistogramData.h"
 #include "data/PndLmdDataFacade.h"
-#include "data/PndLmdResolution.h"
 #include "fit/PndLmdFitFacade.h"
 
 #include <vector>
@@ -46,35 +46,40 @@ void determineResolution(TString input_file_dir,
 			in_ss << input_file_dir << "/lmd_res_data.root";
 			TFile *infile = new TFile(in_ss.str().c_str(), "READ");
 
-			vector<PndLmdResolution> all_lmd_res = lmd_data_facade.getDataFromFile<
-					PndLmdResolution>(infile);
+			vector<PndLmdHistogramData> all_lmd_res = lmd_data_facade.getDataFromFile<
+					PndLmdHistogramData>(infile);
 
 			// filter the vector for specific options
 			LumiFit::LmdDimensionOptions lmd_dim_opt;
 			lmd_dim_opt.dimension_type = LumiFit::THETA;
 			lmd_dim_opt.track_param_type = LumiFit::IP;
-			lmd_dim_opt.track_type = LumiFit::MC;
+			lmd_dim_opt.track_type = LumiFit::DIFF_RECO_MC;
 
-			std::cout<<all_lmd_res.size()<<std::endl;
-			vector<PndLmdResolution> lmd_res_vec = lmd_data_facade.filterData<
-					PndLmdResolution>(all_lmd_res, lmd_dim_opt);
-			std::cout<<lmd_res_vec.size()<<std::endl;
+			LumiFit::Comparisons::data_primary_dimension_options_filter filter(lmd_dim_opt);
+
+			cout << all_lmd_res.size() << endl;
+			vector<PndLmdHistogramData> lmd_res_vec = lmd_data_facade.filterData<
+					PndLmdHistogramData>(all_lmd_res, filter);
+			cout << lmd_res_vec.size() << endl;
 
 			// specify which of type of smearing model we want to generate
 			PndLmdFitFacade lmd_fit_facade;
 
-			DataStructs::DimensionRange res_fit_range(-0.002, 0.002);
-			EstimatorOptions est_opt;
-			est_opt.setWithIntegralScaling(true);
-			est_opt.setFitRangeX(res_fit_range);
+			//DataStructs::DimensionRange res_fit_range(-0.002, 0.002);
+			//EstimatorOptions est_opt;
+			//est_opt.setWithIntegralScaling(true);
+			//est_opt.setFitRangeX(res_fit_range);
 
-			lmd_fit_facade.setEstimatorOptions(est_opt);
+			//lmd_fit_facade.setEstimatorOptions(est_opt);
 
 			// now only the smearing model type has to be set
 			// all other settings are not relevant for the resolution
 			LumiFit::PndLmdFitModelOptions model_opt;
+		//	model_opt.smearing_model = LumiFit::GAUSSIAN;
 			model_opt.smearing_model = LumiFit::ASYMMETRIC_GAUSSIAN;
+			//model_opt.smearing_model = LumiFit::DOUBLE_GAUSSIAN;
 			model_opt.use_resolution_parameter_interpolation = true;
+		//	model_opt.fit_dimension = 2;
 
 			lmd_fit_facade.setModelFitOptions(model_opt);
 
@@ -93,46 +98,50 @@ void determineResolution(TString input_file_dir,
 			in_ss << input_file_dir << "/resolution_params_"
 					<< parametrization_level - 1 << ".root";
 			TFile *infile = new TFile(in_ss.str().c_str(), "READ");
-			vector<PndLmdResolution> all_res_vec = lmd_data_facade.getDataFromFile<
-					PndLmdResolution>(infile);
+			vector<PndLmdHistogramData> all_res_vec = lmd_data_facade.getDataFromFile<
+					PndLmdHistogramData>(infile);
 
 			// filter the vector for specific options
 			LumiFit::LmdDimensionOptions lmd_dim_opt;
 			lmd_dim_opt.dimension_type = LumiFit::THETA;
 			lmd_dim_opt.track_param_type = LumiFit::IP;
-			lmd_dim_opt.track_type = LumiFit::MC;
+			lmd_dim_opt.track_type = LumiFit::DIFF_RECO_MC;
 
-			vector<PndLmdResolution> lmd_res_vec = lmd_data_facade.filterData<
-					PndLmdResolution>(all_res_vec, lmd_dim_opt);
+			LumiFit::Comparisons::data_primary_dimension_options_filter filter(lmd_dim_opt);
+			vector<PndLmdHistogramData> lmd_res_vec = lmd_data_facade.filterData<
+					PndLmdHistogramData>(all_res_vec, filter);
 
 			DataStructs::DimensionRange fit_range(0.004, 0.0072);
 
+			cout << "working with " << lmd_res_vec.size() << " objects!" << endl;
 			vector<PndLmdLumiHelper::lmd_graph*> graph_vec =
 					lumifit_helper.generateLmdGraphs(lmd_res_vec, fit_range);
+			cout << "created " << graph_vec.size() << " lmd graph objects!" << endl;
+
 			lumifit_helper.fitParametrizationModelToGraphs(graph_vec);
 
 			outfile->cd();
 			lumifit_helper.saveLmdGraphsToFile(graph_vec);
 		}
 			break;
-		case 2: {
-			stringstream in_ss;
-			in_ss << input_file_dir << "/resolution_params_"
-					<< parametrization_level - 1 << ".root";
-			TFile *infile = new TFile(in_ss.str().c_str(), "READ");
-			vector<PndLmdLumiHelper::lmd_graph*> graph_vec =
-					lumifit_helper.getResolutionModelResultsFromFile(infile);
-			vector<PndLmdLumiHelper::lmd_graph*> filtered_graph_vec =
-					lumifit_helper.filterLmdGraphs(graph_vec, "theta");
-			vector<PndLmdLumiHelper::lmd_graph*> new_graph_vec =
-					lumifit_helper.generateNewLmdGraphs(filtered_graph_vec);
-			outfile->cd();
-			lumifit_helper.saveLmdGraphsToFile(filtered_graph_vec);
-		}
-			break;
+			/*case 2: {
+			 stringstream in_ss;
+			 in_ss << input_file_dir << "/resolution_params_"
+			 << parametrization_level - 1 << ".root";
+			 TFile *infile = new TFile(in_ss.str().c_str(), "READ");
+			 vector<PndLmdLumiHelper::lmd_graph*> graph_vec =
+			 lumifit_helper.getResolutionModelResultsFromFile(infile);
+			 vector<PndLmdLumiHelper::lmd_graph*> filtered_graph_vec =
+			 lumifit_helper.filterLmdGraphs(graph_vec, "theta");
+			 vector<PndLmdLumiHelper::lmd_graph*> new_graph_vec =
+			 lumifit_helper.generateNewLmdGraphs(filtered_graph_vec);
+			 outfile->cd();
+			 lumifit_helper.saveLmdGraphsToFile(filtered_graph_vec);
+			 }
+			 break;*/
 		default: {
 			cout << "Error: The requested parametrization level "
-					<< parametrization_level << " does not exist. The highest level is 3."
+					<< parametrization_level << " does not exist. The highest level is 2."
 					<< endl;
 		}
 			break;
@@ -180,7 +189,7 @@ int main(int argc, char* argv[]) {
 			case '?':
 				if (optopt == 'd' || optopt == 'l')
 					cerr << "Option -" << optopt << " requires an argument." << endl;
-				else if (isprint(optopt))
+				else if (isprint (optopt))
 					cerr << "Unknown option -" << optopt << "." << endl;
 				else
 					cerr << "Unknown option character" << optopt << "." << endl;

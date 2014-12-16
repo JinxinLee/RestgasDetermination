@@ -15,6 +15,12 @@ PndLmdVertexData::PndLmdVertexData() :
 
 }
 
+PndLmdVertexData::PndLmdVertexData(const PndLmdVertexData &lmd_vertex_data_) :
+		PndLmdHistogramData(lmd_vertex_data_), simulation_ip_parameters(
+				lmd_vertex_data_.getSimulationIPParameters()), simulation_ip_parameters_exist(
+				lmd_vertex_data_.simulation_ip_parameters_exist) {
+}
+
 PndLmdVertexData::~PndLmdVertexData() {
 	// TODO Auto-generated destructor stub
 }

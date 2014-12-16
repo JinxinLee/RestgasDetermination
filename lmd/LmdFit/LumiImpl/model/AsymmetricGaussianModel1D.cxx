@@ -9,7 +9,7 @@
 
 #include <iostream>
 #define _USE_MATH_DEFINES
-#include "math.h"
+#include <cmath>
 
 AsymmetricGaussianModel1D::AsymmetricGaussianModel1D(std::string name_) :
 		Model1D(name_) {

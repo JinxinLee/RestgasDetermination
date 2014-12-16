@@ -15,9 +15,6 @@
 #include "TString.h"
 #include "TObject.h"
 
-using std::set;
-
-
 class PndLmdAbstractData: public TObject {
 private:
 	/**
@@ -35,7 +32,7 @@ private:
 	 * bookkeeping/logging so later on it can be identified which data was used
 	 * for this data object.
 	 */
-	set<TString> filepath_list;
+	std::set<TString> filepath_list;
 
 protected:
 	/** Name of the object used for saving the object in a root file */
@@ -50,8 +47,15 @@ protected:
 	virtual void init1DData() =0;
 	virtual void init2DData() =0;
 
+	/**
+	 * Unique list of dimensions that define the selections that will be
+	 * performed on the input data
+	 */
+	std::set<LumiFit::LmdDimension> selection_dimensions;
+
 public:
 	PndLmdAbstractData();
+	PndLmdAbstractData(const PndLmdAbstractData &lmd_abs_data_);
 	virtual ~PndLmdAbstractData();
 
 	// getter methods
@@ -62,7 +66,9 @@ public:
 	const LumiFit::LmdDimension& getPrimaryDimension() const;
 	const LumiFit::LmdDimension& getSecondaryDimension() const;
 
-	double getBinningFactor() const;
+	double getBinningFactor(int dimension) const;
+
+	const std::set<LumiFit::LmdDimension>& getSelectorSet() const;
 
 	// setter methods
 	void setNumEvents(int num_events_);
@@ -71,6 +77,8 @@ public:
 
 	void setPrimaryDimension(LumiFit::LmdDimension primary_dimension_);
 	void setSecondaryDimension(LumiFit::LmdDimension secondary_dimension_);
+
+	void addSelectionDimension(const LumiFit::LmdDimension &lmd_dim);
 
 	virtual void saveToRootFile();
 	int addFileToList(TString filepath);
@@ -83,7 +91,7 @@ public:
 	virtual bool operator==(const PndLmdAbstractData &lmd_data_int) const;
 	virtual bool operator!=(const PndLmdAbstractData &lmd_data_int) const;
 
-ClassDef(PndLmdAbstractData,1)
+ClassDef(PndLmdAbstractData,2)
 };
 
 #endif /* PNDLMDABSTRACTDATA_H_ */

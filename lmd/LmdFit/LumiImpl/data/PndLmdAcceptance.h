@@ -30,7 +30,7 @@ class PndLmdAcceptance: public PndLmdAbstractData {
 
 	public:
 		PndLmdAcceptance();
-
+		PndLmdAcceptance(const PndLmdAcceptance &lmd_acc_data_);
 		~PndLmdAcceptance();
 		// getter/setter methods
 		TEfficiency* getAcceptance1D() const;
@@ -43,7 +43,7 @@ class PndLmdAcceptance: public PndLmdAbstractData {
 		void addData(bool is_accepted, double primary_value,
 				double secondary_value = 0);
 
-	ClassDef(PndLmdAcceptance, 1)
+	ClassDef(PndLmdAcceptance, 2)
 };
 
 #endif /* PNDLMDACCEPTANCE_H_ */

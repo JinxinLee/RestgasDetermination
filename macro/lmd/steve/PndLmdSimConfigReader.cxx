@@ -33,6 +33,8 @@ PndLmdSimConfig PndLmdSimConfigReader::readConfigFromFile(std::string dir_path,
 			"Basics.generator_filename_template");
 
 	//Section:Reco
+	sim_config.pitch = pt.get<int>("Reco.pitch");
+
 	sim_config.use_missing_plane = pt.get<bool>("Reco.use_missing_plane");
 	sim_config.use_track_cuts = pt.get<bool>("Reco.use_track_cuts");
 	sim_config.merge_hits = pt.get<bool>("Reco.merge_hits");

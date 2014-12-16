@@ -1,6 +1,7 @@
 import os, sys, re, errno, glob, time, glob
 import subprocess
 import multiprocessing
+import shutil
 
 cpu_cores = multiprocessing.cpu_count()
 
@@ -9,7 +10,7 @@ sys.path.append(lib_path)
 
 import argparse
 
-himster_total_job_threshold = 100 # job threshold of this type (too many jobs could generate to much io load as quite a lot of data is read in from the storage...)
+himster_total_job_threshold = 100  # job threshold of this type (too many jobs could generate to much io load as quite a lot of data is read in from the storage...)
 
 # check number of jobs currently running or in queue on himster from my side
 def getNumJobsOnHimster():    
@@ -24,6 +25,31 @@ pattern = ''
 
 def getListOfDirectories(path, force):
   if os.path.isdir(path):
+    print 'currently looking at directory ' + path
+    
+    if os.path.split(path)[1] == 'mc_data':
+      return
+    
+    # check if this directory has MC files
+    mc_files = glob.glob(path + '/Lumi_MC_*.root')
+    param_files = glob.glob(path + '/Lumi_Params_*.root')
+    # if that is the case, their parent folder has to be named mc_data
+    if mc_files or param_files:
+      if not os.path.split(path)[1] == 'mc_data':
+        print 'Found mc files in ' + path + '. Since they are not inside a folder mc_data, proposing to create mc_data dir and moving files there.'
+        try:
+          os.mkdir(path + '/mc_data')
+        except OSError as exception:
+          if exception.errno != errno.EEXIST:
+            print 'dont need to create mc_data dir...'
+        for mc_file in mc_files:
+          mc_filename = os.path.split(mc_file)[1]
+          shutil.move(path+'/'+mc_filename, path+'/mc_data/'+mc_filename)
+        for param_file in param_files:
+          param_filename = os.path.split(param_file)[1]
+          shutil.move(path+'/'+param_filename, path+'/mc_data/'+param_filename)
+        print 'successfully moved all mc files there!'
+    
     for dir in os.listdir(path):
       bunch_dirs = glob.glob(path + '/bunches_*')
       if bunch_dirs:
@@ -38,9 +64,10 @@ def getListOfDirectories(path, force):
               m = re.search(pattern, bunch_dir)
               if m:
                 dirs.append(bunch_dir)
+                print "using this directory!"
         return
       else:
-        if glob.glob(path + '/Lumi_MC_*.root'):
+        if glob.glob(path + '/Lumi_TrksQA_*.root'):
           return
       dirpath = path + '/' + dir
       if os.path.isdir(dirpath):
@@ -58,6 +85,7 @@ parser.add_argument('dirname', metavar='dirname_to_scan', type=str, nargs=1,
 
 parser.add_argument('--dir_pattern', metavar='path name pattern', type=str, default='.*', help='')
 parser.add_argument('--force', action='store_true', help='number of events to use')
+parser.add_argument('--use_phi_module_slicing', action='store_true', help='')
 parser.add_argument('--num_events', metavar='num_events', type=int, default=0, help='number of events to use')
 parser.add_argument('--elastic_cross_section', metavar='elastic_cross_section', type=float, default=1.0, help='Total elastic cross section. Relevant for luminosity extraction performance tests!')
 
@@ -71,6 +99,10 @@ getListOfDirectories(args.dirname[0], args.force)
 
 max_jobarray_size = 100
 
+slicing_flag = '",module_phi_slicing="0'
+if args.use_phi_module_slicing:
+  slicing_flag = '",module_phi_slicing="1'
+
 for dir in dirs:
   num_filelists = len(glob.glob(dir + '/filelist_*.txt'))
 
@@ -80,10 +112,10 @@ for dir in dirs:
 
   for job_index in range(1, num_filelists, max_jobarray_size):
     bashcommand = 'qsub -t ' + str(job_index) + '-' + str(min(job_index + max_jobarray_size - 1, num_filelists)) + ' -N createLumiFitData' \
-                    + ' -l nodes=1:ppn=1,walltime=02:00:00,mem=100mb,vmem=700mb -j oe -o ' + output_path + '/createLumiFitData_pbs.log ' \
+                    + ' -l nodes=1:ppn=1,walltime=02:00:00,mem=500mb,vmem=1000mb -j oe -o ' + output_path + '/createLumiFitData_pbs.log ' \
                     + '-v numEv="' + str(args.num_events) + '",pbeam="' + str(args.lab_momentum[0]) \
                     + '",input_path="' + input_path + '",filelist_path="' + filelist_path + '",output_path="' + output_path \
-                    + '",type="' + args.type[0] + '",elastic_cross_section="' + str(args.elastic_cross_section) + '" -V ./createLumiFitData.sh'
+                    + '",type="' + args.type[0] + '",elastic_cross_section="' + str(args.elastic_cross_section) + slicing_flag + '" -V ./createLumiFitData.sh'
     
     jobs_on_himster = getNumJobsOnHimster()
     print str(jobs_on_himster) + " < " + str(himster_total_job_threshold) + " ?"
@@ -93,7 +125,7 @@ for dir in dirs:
       if returnvalue > 0:
         failed_submit_commands.append(bashcommand)
       else:
-          time.sleep(5) # sleep 5 sec to make the queue changes active
+          time.sleep(5)  # sleep 5 sec to make the queue changes active
     else:
       failed_submit_commands.append(bashcommand)
 
@@ -114,4 +146,4 @@ while failed_submit_commands:
     failed_submit_commands.insert(0, bashcommand)
     # and sleep for 30 min
     print 'waiting for 30 min and then try a resubmit...'
-    time.sleep(180) #sleep for 30min
+    time.sleep(180)  # sleep for 30min

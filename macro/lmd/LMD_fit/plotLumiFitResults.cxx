@@ -19,7 +19,7 @@
  *  different type of plots
  */
 
-#include "PndLmdResultPlotter.h"
+#include "PndLmdPlotter.h"
 #include "data/PndLmdAngularData.h"
 #include "data/PndLmdAcceptance.h"
 #include "data/PndLmdDataFacade.h"
@@ -30,258 +30,342 @@
 #include <iterator>
 #include <sstream>
 
-#include "TString.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TFile.h"
-#include "TLatex.h"
-#include "TGraphAsymmErrors.h"
-#include "TH1D.h"
-
 #include "boost/filesystem.hpp"
+#include "boost/regex.hpp"
 
-void plotLumiFitResults(TString path, TString filename_prefix = "fitresults") {
-	std::cout << "Generating lumi plots for fit results....\n";
+#include "TGaxis.h"
 
-	// A small helper class that helps to construct lmd data objects
-	PndLmdDataFacade lmd_data_facade;
-
-	// create an instance of PndLmdResultPlotter the plotting helper class
-	PndLmdResultPlotter plotter;
-
-	// ================================ BEGIN CONFIG ================================ //
-	// PndLmdResultPlotter sets default pad margins etc that should be fine for most cases
-	// you can fine tune it and overwrite the default values
-	//gStyle->SetPadTopMargin(0.06);
-	//gStyle->SetPadBottomMargin(0.12);
-	gStyle->SetPadLeftMargin(0.15);
-	//gStyle->SetPadRightMargin(0.1);
-
-	// overwrite the default theta plot range if possible
-	//plotter.setThetaPlotRange(0.5, 16.0);
-
-	// The plotter has more options for text positioning and tex sizes for which you can
-	// overwrite the default values here
-	plotter.setTextLeftPos(0.40);
-	plotter.setTextTopPos(0.9);
-	//plotter.setTextSpacing(0.08);
-	//plotter.setTextSize(0.06);
-	//plotter.setLabelSize(0.06);
-
-	//plotter.setLabelOffsetX(0.007);
-	//plotter.setLabelOffsetY(0.007);
-	//plotter.setTitleOffsetX(1.0);
-	//plotter.setTitleOffsetY(1.5);
-	// ================================= END CONFIG ================================= //
-
-	// ------ get files -------------------------------------------------------
-	TFile *fdata = new TFile(path + "/lmd_fitted_data.root", "OPEN");
-
-	// read in data from a root file which will return a map of pointers to PndLmdAngularData objects
-	std::vector<PndLmdAngularData> data_vec = lmd_data_facade.getDataFromFile<
-			PndLmdAngularData>(fdata);
-
-	// =============================== BEGIN PLOTTING =============================== //
-
-	// create a vector of graph bundles (one entry for each fit option)
-	std::map<PndLmdLumiFitOptions,
-			std::map<int, PndLmdResultPlotter::graph_bundle>,
-			PndLmdResultPlotter::fit_options_compare> graph_bundle_map =
-			plotter.makeGraphBundles1D(data_vec);
-
-	// make an overview canvas for these fit specs
-	plotter.makeFitResultBooky(graph_bundle_map, filename_prefix);
-
-	plotter.setThetaPlotRange(0.0, 0.011);
-	// get reco graph bundle
-	PndLmdResultPlotter::graph_bundle gb = graph_bundle_map.begin()->second[6];
-	TCanvas c("c", "", 1000, 700);
-	plotter.fillSinglePad(&c, gb);
-	c.SaveAs("lumifit_reco.pdf");
-
-	if (false) {
-		//save it as root file as well
-		TFile outputfile("reco-results.root", "RECREATE");
-		gb.hist1d->Write("data");
-		gb.model->Write("model");
-		TLatex l_plab(0.5, 0.5, gb.labels[0].first);
-		l_plab.Write("plab");
-		TLatex l_rdiff(0.5, 0.5, gb.labels[1].first);
-		l_rdiff.Write("reldiff");
-		outputfile.Close();
-	}
-
-	// ================================ END PLOTTING ================================ //
-}
-
-void makeOverviewCanvas(
-		std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> &reco_graph_map,
-		TString filename, PndLmdResultPlotter &plotter, bool use_2d) {
-	std::cout << "size of reco graph map: " << reco_graph_map.size() << std::endl;
-	// check for different magnitudes in x and y offsets
-	std::set<double> x_offsets;
-	std::set<double> y_offsets;
-	std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle>::iterator map_it;
-	for (map_it = reco_graph_map.begin(); map_it != reco_graph_map.end();
-			map_it++) {
-		x_offsets.insert(map_it->first.offset_x_mean);
-		y_offsets.insert(map_it->first.offset_y_mean);
-	}
-
-	std::cout << "dividing canvas into: " << x_offsets.size() << " x "
-			<< y_offsets.size() << std::endl;
-	TCanvas c;
-	c.Divide(x_offsets.size(), y_offsets.size());
-	for (map_it = reco_graph_map.begin(); map_it != reco_graph_map.end();
-			map_it++) {
-		unsigned int x_coord = std::distance(x_offsets.begin(),
-				x_offsets.find(map_it->first.offset_x_mean)) + 1;	// add 1 because pad starts counting at zero
-		unsigned int y_coord = std::distance(
-				y_offsets.find(map_it->first.offset_y_mean), --y_offsets.end());
-
-		std::stringstream ss;
-		ss << "(" << map_it->first.offset_x_mean << ","
-				<< map_it->first.offset_y_mean << ")";
-		map_it->second.labels.push_back(std::make_pair(ss.str().c_str(), 1));
-
-		std::cout << "filling pad " << y_coord * x_offsets.size() + x_coord
-				<< std::endl;
-		c.cd(y_coord * x_offsets.size() + x_coord);
-		plotter.fillSinglePad(&c, map_it->second, use_2d);
-	}
-
-	c.SaveAs(filename);
-}
-
-void plotMultipleLumiFitResults(std::vector<TString> paths,
+void plotLumiFitResults(std::vector<std::string> paths,
 		TString filename_suffix) {
 	std::cout << "Generating lumi plots for fit results....\n";
 
-	// A small helper class that helps to construct lmd data objects
+// A small helper class that helps to construct lmd data objects
 	PndLmdDataFacade lmd_data_facade;
 
-	// create an instance of PndLmdResultPlotter the plotting helper class
-	PndLmdResultPlotter plotter;
+	LumiFit::PndLmdPlotter lmd_plotter;
 
-	// ================================ BEGIN CONFIG ================================ //
-	// PndLmdResultPlotter sets default pad margins etc that should be fine for most cases
-	// you can fine tune it and overwrite the default values
-	//gStyle->SetPadTopMargin(0.06);
-	//gStyle->SetPadBottomMargin(0.12);
-	gStyle->SetPadLeftMargin(0.15);
-	//gStyle->SetPadRightMargin(0.1);
+	lmd_plotter.primary_dimension_plot_range.range_low = 0.5;
+	lmd_plotter.primary_dimension_plot_range.range_high = 16.0;
 
-	// overwrite the default theta plot range if possible
-	//plotter.setThetaPlotRange(0.5, 16.0);
+// ================================ BEGIN CONFIG ================================ //
+// PndLmdResultPlotter sets default pad margins etc that should be fine for most cases
+// you can fine tune it and overwrite the default values
+	gStyle->SetPadRightMargin(0.18);
+	gStyle->SetPadLeftMargin(0.115);
+	gStyle->SetPadBottomMargin(0.12);
+	gStyle->SetPadColor(10);
+	gStyle->SetCanvasColor(10);
+	gStyle->SetStatColor(10);
 
-	// The plotter has more options for text positioning and tex sizes for which you can
-	// overwrite the default values here
-	plotter.setTextLeftPos(0.50);
-	plotter.setTextTopPos(0.9);
-	//plotter.setTextSpacing(0.08);
-	//plotter.setTextSize(0.06);
-	//plotter.setLabelSize(0.06);
+	TGaxis::SetMaxDigits(3);
+	gStyle->SetOptStat(0);
+	gStyle->SetOptFit(0);
 
-	//plotter.setLabelOffsetX(0.007);
-	//plotter.setLabelOffsetY(0.007);
-	//plotter.setTitleOffsetX(1.0);
-	//plotter.setTitleOffsetY(1.5);
-	// ================================= END CONFIG ================================= //
+// overwrite the default theta plot range if possible
+//plotter.setThetaPlotRange(0.5, 16.0);
+// ================================= END CONFIG ================================= //
 
-	std::map<PndLmdLumiFitOptions,
-			std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> > reco_graph_map;
-	std::map<PndLmdLumiFitOptions,
-			std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> > reco_resid_graph_map;
-	std::map<PndLmdLumiFitOptions,
-			std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> > acc2d_graph_map;
+// create and fill data map first of all
+	std::map<LumiFit::LmdSimIPParameters, std::vector<PndLmdAngularData> > data_map;
 
 	for (unsigned int i = 0; i < paths.size(); i++) {
 		// ------ get files -------------------------------------------------------
-		TFile *fdata = new TFile(paths[i] + "/lmd_fitted_data.root", "READ");
+		/*	std::vector<std::string> file_paths = lmd_data_facade.findFilesByName(
+		 paths[i], "merge_data", "lmd_fitted_data.*.root");*/
+		std::vector<std::string> file_paths = lmd_data_facade.findFilesByName(
+				paths[i], "merge_data", "lmd_fitted_data.root");
 
-		// get simulation ip distribution properties
-		LumiFit::LmdSimIPParameters true_ip_values =
-				lmd_data_facade.readSimulationIPParameters(
-						(boost::filesystem::path(paths[i]).branch_path().branch_path()).string());
+		for (unsigned int j = 0; j < file_paths.size(); j++) {
+			std::string fullpath = file_paths[j];
+			TFile *fdata = new TFile(fullpath.c_str(), "READ");
 
-		// read in data from a root file which will return a map of pointers to PndLmdAngularData objects
-		std::vector<PndLmdAngularData> data_vec = lmd_data_facade.getDataFromFile<
-				PndLmdAngularData>(fdata);
+			// get simulation ip distribution properties
+			LumiFit::LmdSimIPParameters true_ip_values =
+					lmd_data_facade.readSimulationIPParameters(
+							(boost::filesystem::path(paths[i]).branch_path().branch_path().branch_path()).string());
 
-		LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA);
-		// create a vector of graph bundles (one entry for each fit option)
-		std::map<PndLmdLumiFitOptions, PndLmdResultPlotter::graph_bundle> graph_bundle_map =
-				plotter.makeGraphBundles1D(data_vec, fitop_normal);
+			// read in data from a root file which will return a map of PndLmdAngularData objects
+			std::vector<PndLmdAngularData> data_vec = lmd_data_facade.getDataFromFile<
+					PndLmdAngularData>(fdata);
 
-		std::cout << "number of overview canvases: " << graph_bundle_map.size()
-				<< std::endl;
-
-		plotter.setThetaPlotRange(0.0, 0.012);
-		// get reco graph bundle
-		std::map<PndLmdLumiFitOptions, PndLmdResultPlotter::graph_bundle>::iterator graph_bundle_it;
-		for (graph_bundle_it = graph_bundle_map.begin();
-				graph_bundle_it != graph_bundle_map.end(); graph_bundle_it++) {
-			//PndLmdResultPlotter::graph_bundle gb_resid =
-			//		graph_bundle_map.begin()->second[9];
-			//PndLmdResultPlotter::graph_bundle gb_acc =
-			//		graph_bundle_map.begin()->second[3];
-
-			reco_graph_map[graph_bundle_it->first][true_ip_values] =
-					graph_bundle_it->second;
-			//reco_resid_graph_map[graph_bundle_map.begin()->first][true_ip_values] =
-			//		gb_resid;
-			//acc2d_graph_map[graph_bundle_map.begin()->first][true_ip_values] = gb_acc;
+			// append all data objects to the end of the corresponding data map vectors
+			data_map[true_ip_values].insert(data_map[true_ip_values].end(),
+					data_vec.begin(), data_vec.end());
 		}
 	}
 
-	std::map<PndLmdLumiFitOptions,
-			std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> >::iterator iter;
+	// =============================== BEGIN PLOTTING =============================== //
 
-	std::map<LumiFit::LmdSimIPParameters, PndLmdResultPlotter::graph_bundle> remainder_map;
+	std::stringstream basepath;
+	basepath << std::getenv("HOME") << "/plots";
 
-	// remove entries of the upper map in which the secondary map contain just a single entry
-	iter = reco_graph_map.begin();
-	while (iter != reco_graph_map.end()) {
-		if (iter->second.size() == 1) {
-			remainder_map[iter->second.begin()->first] = iter->second.begin()->second;
-			reco_graph_map.erase(iter++);
+	std::map<LumiFit::LmdSimIPParameters, PndLmdAngularData> reco_data_ip_map;
+
+	// now loop over this map and create plots for each ip parameter setting
+	std::map<LumiFit::LmdSimIPParameters, std::vector<PndLmdAngularData> >::iterator data_map_iter;
+	for (data_map_iter = data_map.begin(); data_map_iter != data_map.end();
+			data_map_iter++) {
+		std::vector<PndLmdAngularData> data_vec = data_map_iter->second;
+		// group data into same selections
+		// and make sure that one selection is of the phi slice type
+		std::map<LumiFit::LmdDimension, std::vector<PndLmdAngularData> > phi_slice_map;
+
+		std::vector<PndLmdAngularData> full_phi_vec;
+
+		for (unsigned int j = 0; j < data_vec.size(); j++) {
+			bool found_phi_selection = false;
+			const std::set<LumiFit::LmdDimension> &selection_set =
+					data_vec[j].getSelectorSet();
+			std::set<LumiFit::LmdDimension>::const_iterator selection_set_it;
+			for (selection_set_it = selection_set.begin();
+					selection_set_it != selection_set.end(); selection_set_it++) {
+				if (selection_set_it->dimension_options.dimension_type
+						== LumiFit::PHI_FIRST_LMD_PLANE) {
+					phi_slice_map[*selection_set_it].push_back(data_vec[j]);
+					found_phi_selection = true;
+					break;
+				}
+			}
+			if (!found_phi_selection) {
+				full_phi_vec.push_back(data_vec[j]);
+			}
 		}
-		else
-			++iter;
+
+		if (full_phi_vec.size() > 0) {
+			std::stringstream filepath_base;
+			filepath_base << basepath.str() << "/";
+			filepath_base << "plab_" << full_phi_vec[0].getLabMomentum() << "/";
+			filepath_base << data_map_iter->first.getLabel();
+
+			boost::filesystem::create_directories(filepath_base.str());
+
+			// ---------- reco -- full phi stuff
+			LumiFit::LmdDimensionOptions lmd_dim_opt;
+			lmd_dim_opt.track_type = LumiFit::RECO;
+
+			LumiFit::Comparisons::data_primary_dimension_options_filter filter(
+					lmd_dim_opt);
+			std::vector<PndLmdAngularData> full_phi_reco_data_vec =
+					lmd_data_facade.filterData(full_phi_vec, filter);
+
+			for (unsigned int reco_data_obj_index = 0;
+					reco_data_obj_index < full_phi_reco_data_vec.size();
+					reco_data_obj_index++) {
+
+				if (full_phi_reco_data_vec[reco_data_obj_index].getSelectorSet().size()
+						> 0)
+					continue;
+
+				if (reco_data_ip_map.find(data_map_iter->first)
+						== reco_data_ip_map.end())
+					reco_data_ip_map[data_map_iter->first] =
+							full_phi_reco_data_vec[reco_data_obj_index];
+			}
+
+			LumiFit::PndLmdFitModelOptions model_op;
+			model_op.acceptance_correction_active = true;
+			model_op.resolution_smearing_active = true;
+
+			std::stringstream filepath;
+			TCanvas c("", "", 1000, 700);
+
+			if (false) {
+				NeatPlotting::PlotBundle plot_bundle =
+						lmd_plotter.createLowerFitRangeDependencyPlotBundle(
+								full_phi_reco_data_vec, model_op);
+
+				filepath << filepath_base.str()
+						<< "/reco_lower_fit_range_dependency.pdf";
+
+				NeatPlotting::PlotStyle plot_style;
+				plot_bundle.drawOnCurrentPad(plot_style);
+				c.SaveAs(filepath.str().c_str());
+
+				// create a vector of graph bundles (one entry for each fit option)
+
+				filepath.str("");
+				filepath << filepath_base.str() << "/fit_result_overview_booky.pdf";
+
+				NeatPlotting::Booky booky = lmd_plotter.makeLumiFitResultOverviewBooky(
+						full_phi_vec);
+				booky.createBooky(filepath.str());
+
+				// create single plots
+				for (unsigned int reco_data_obj_index = 0;
+						reco_data_obj_index < full_phi_reco_data_vec.size();
+						reco_data_obj_index++) {
+
+					if (full_phi_reco_data_vec[reco_data_obj_index].getSelectorSet().size()
+							> 0)
+						continue;
+
+					const map<PndLmdLumiFitOptions, PndLmdLumiFitResult>& fit_results =
+							full_phi_reco_data_vec[reco_data_obj_index].getFitResults();
+					if (fit_results.size() > 0) {
+						NeatPlotting::PlotStyle single_plot_style;
+
+						c.Clear();
+						NeatPlotting::PlotBundle reco_plot_bundle =
+								lmd_plotter.makeGraphBundle1D(full_phi_reco_data_vec[0],
+										fit_results.begin()->first);
+						reco_plot_bundle.drawOnCurrentPad(single_plot_style);
+						filepath.str("");
+						filepath << filepath_base.str() << "/fit_result_reco.pdf";
+						c.SaveAs(filepath.str().c_str());
+
+						// save additional root file for tdr...
+						TGraph* grmodel = reco_plot_bundle.getGraphs()[0].data_object;
+						TH1D* histdata =
+								(TH1D*) reco_plot_bundle.getHistograms()[0].data_object;
+						filepath.str("");
+						filepath << filepath_base.str() << "/fit_result_reco.root";
+						TDirectory *curdir = gDirectory;
+						TFile *ftemp = new TFile(filepath.str().c_str(), "RECREATE");
+						grmodel->Write("model");
+						histdata->Write("data");
+						TNamed label("reldiff_label",
+								reco_plot_bundle.plot_decoration.labels[reco_plot_bundle.plot_decoration.labels.size()
+										- 1].getTitle());
+						label.Write();
+						ftemp->Write();
+						ftemp->Close();
+						if (curdir)
+							curdir->cd();
+
+						NeatPlotting::PlotBundle acc_bundle_1d =
+								lmd_plotter.makeAcceptanceBundle1D(full_phi_reco_data_vec[0],
+										fit_results.begin()->first);
+						acc_bundle_1d.drawOnCurrentPad(single_plot_style);
+						filepath.str("");
+						filepath << filepath_base.str() << "/acceptance1d.pdf";
+						c.SaveAs(filepath.str().c_str());
+
+						NeatPlotting::PlotBundle acc_bundle_2d =
+								lmd_plotter.makeAcceptanceBundle2D(full_phi_reco_data_vec[0],
+										fit_results.begin()->first);
+						acc_bundle_2d.plot_axis.x_axis_range.active = true;
+						acc_bundle_2d.plot_axis.x_axis_range.low = 0.002;
+						acc_bundle_2d.plot_axis.x_axis_range.high = 0.01;
+						acc_bundle_2d.drawOnCurrentPad(single_plot_style);
+						filepath.str("");
+						filepath << filepath_base.str() << "/acceptance2d.png";
+						c.SaveAs(filepath.str().c_str());
+					}
+				}
+
+				lmd_dim_opt.track_type = LumiFit::MC;
+
+				LumiFit::Comparisons::data_primary_dimension_options_filter filter_mc(
+						lmd_dim_opt);
+				std::vector<PndLmdAngularData> full_phi_mc_data_vec =
+						lmd_data_facade.filterData(full_phi_vec, filter_mc);
+
+				if (full_phi_mc_data_vec.size() == 1) {
+					const map<PndLmdLumiFitOptions, PndLmdLumiFitResult>& fit_results =
+							full_phi_mc_data_vec[0].getFitResults();
+					if (fit_results.size() > 0) {
+						NeatPlotting::PlotStyle single_plot_style;
+
+						c.Clear();
+						NeatPlotting::PlotBundle mc_plot_bundle =
+								lmd_plotter.makeGraphBundle1D(full_phi_mc_data_vec[0],
+										fit_results.begin()->first);
+						mc_plot_bundle.drawOnCurrentPad(single_plot_style);
+						filepath.str("");
+						filepath << filepath_base.str() << "/fit_result_mc.pdf";
+						c.SaveAs(filepath.str().c_str());
+					}
+				}
+
+				std::cout << "mc accepted case..." << std::endl;
+				lmd_dim_opt.track_type = LumiFit::MC_ACC;
+
+				LumiFit::Comparisons::data_primary_dimension_options_filter filter_mc_acc(
+						lmd_dim_opt);
+				std::vector<PndLmdAngularData> full_phi_mc_acc_data_vec =
+						lmd_data_facade.filterData(full_phi_vec, filter_mc_acc);
+
+				if (full_phi_mc_acc_data_vec.size() == 1) {
+					const map<PndLmdLumiFitOptions, PndLmdLumiFitResult>& fit_results =
+							full_phi_mc_acc_data_vec[0].getFitResults();
+
+					if (fit_results.size() > 0) {
+						NeatPlotting::PlotStyle single_plot_style;
+
+						c.Clear();
+						NeatPlotting::PlotBundle mc_acc_plot_bundle =
+								lmd_plotter.makeGraphBundle1D(full_phi_mc_acc_data_vec[0],
+										fit_results.begin()->first);
+						mc_acc_plot_bundle.drawOnCurrentPad(single_plot_style);
+						filepath.str("");
+						filepath << filepath_base.str() << "/fit_result_mc_acc.pdf";
+						c.SaveAs(filepath.str().c_str());
+
+						// different acceptances overview plot
+						TCanvas acc_systematic_canvas;
+
+						NeatPlotting::GraphAndHistogramHelper gh_helper;
+						std::vector<NeatPlotting::GraphPoint> graph_data;
+
+						map<PndLmdLumiFitOptions, PndLmdLumiFitResult>::const_iterator fit_result;
+						for (fit_result = fit_results.begin();
+								fit_result != fit_results.end(); fit_result++) {
+							std::pair<double, double> lumi = lmd_plotter.calulateLumiRelDiff(
+									fit_result->second.getLuminosity(),
+									fit_result->second.getLuminosityError(),
+									full_phi_mc_acc_data_vec[0].getReferenceLuminosity());
+							NeatPlotting::GraphPoint gp;
+							gp.x =
+									fit_result->first.getFitModelOptions().acceptance->getPrimaryDimension().bin_size;
+							gp.y = lumi.first;
+							gp.y_err_high = lumi.second;
+							gp.y_err_low = lumi.second;
+							graph_data.push_back(gp);
+						}
+
+						TGraphAsymmErrors* graph = gh_helper.makeGraph(graph_data);
+						graph->Draw("A*");
+						filepath.str("");
+						filepath << filepath_base.str() << "/lumi_systematic_acc.pdf";
+						acc_systematic_canvas.SaveAs(filepath.str().c_str());
+					}
+				}
+
+			}
+
+			// testing 2d fit result plotting
+			if (true) {
+				filepath.str("");
+				filepath << filepath_base.str() << "/fit_result_overview_booky_2d.pdf";
+
+				NeatPlotting::Booky booky2 = lmd_plotter.create2DFitResultPlots(
+						full_phi_vec);
+				booky2.createBooky(filepath.str());
+			}
+			// ================================ END PLOTTING ================================ //
+		}
 	}
 
-	int counter = 1;
-	for (iter = reco_graph_map.begin(); iter != reco_graph_map.end(); iter++) {
-		std::stringstream s;
-		s << "lumifit_results_reco_overview" << filename_suffix << "_" << counter++
-				<< ".pdf";
-		makeOverviewCanvas(iter->second, s.str(), plotter, false);
+	if (reco_data_ip_map.size() > 1) {
+		std::stringstream filename;
+		filename << basepath.str() << "/";
+		filename << "plab_" << reco_data_ip_map.begin()->second.getLabMomentum()
+				<< "/lumifit_result_ip_overview.pdf";
+
+		NeatPlotting::PlotBundle bundle = lmd_plotter.makeXYOverviewHistogram(
+				reco_data_ip_map);
+
+		TCanvas c;
+		NeatPlotting::PlotStyle plot_style;
+		plot_style.palette_color_style = 0;
+		plot_style.z_axis_style.log_scale = true;
+		bundle.drawOnCurrentPad(plot_style);
+		c.SaveAs(filename.str().c_str());
 	}
-
-	std::stringstream s;
-	s << "lumifit_results_reco_overview" << filename_suffix << "_remain.pdf";
-	makeOverviewCanvas(remainder_map, s.str(), plotter, false);
-
-	/*counter = 1;
-	 for (iter = reco_resid_graph_map.begin(); iter != reco_resid_graph_map.end();
-	 iter++) {
-	 std::stringstream s;
-	 s << "lumifit_results_reco_residuals_overview" << filename_suffix << "_"
-	 << counter++ << ".pdf";
-	 makeOverviewCanvas(iter->second, s.str(), plotter, false);
-	 }
-	 counter = 1;
-	 for (iter = acc2d_graph_map.begin(); iter != acc2d_graph_map.end(); iter++) {
-	 std::stringstream s;
-	 s << "acc2d_overview" << filename_suffix << "_" << counter++ << ".pdf";
-	 makeOverviewCanvas(iter->second, s.str(), plotter, false);
-	 }*/
-
-	// ================================ END PLOTTING ================================ //
 }
 
 void displayInfo() {
-	// display info
+// display info
 	std::cout << "Required arguments are: " << std::endl;
 	std::cout << "list of directories to be scanned for vertex data" << std::endl;
 	std::cout << "Optional arguments are: " << std::endl;
@@ -290,7 +374,7 @@ void displayInfo() {
 
 int main(int argc, char* argv[]) {
 	bool is_filename_suffix_set = false;
-	std::string filename_suffix("");
+	std::string filename_suffix("fitresults");
 
 	int c;
 
@@ -319,16 +403,12 @@ int main(int argc, char* argv[]) {
 
 	int argoffset = optind;
 
-	if (argc == 2) {
-		plotLumiFitResults(TString(argv[1]));
-	} else if (argc == 3) {
-		plotLumiFitResults(TString(argv[1]), TString(argv[2]));
-	} else {
-		std::vector<TString> paths;
+	if (argc > 1) {
+		std::vector<std::string> paths;
 		for (unsigned int i = argoffset; i < argc; i++) {
-			paths.push_back(TString(argv[i]));
+			paths.push_back(std::string(argv[i]));
 		}
-		plotMultipleLumiFitResults(paths, filename_suffix);
+		plotLumiFitResults(paths, filename_suffix);
 	}
 
 	return 0;

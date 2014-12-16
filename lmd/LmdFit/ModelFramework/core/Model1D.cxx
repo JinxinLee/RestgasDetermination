@@ -17,9 +17,9 @@ Model1D::~Model1D() {
 	// TODO Auto-generated destructor stub
 }
 
-double Model1D::Integral(std::vector<std::pair<double, double> > &ranges
+double Model1D::Integral(std::vector<DataStructs::DimensionRange> &ranges
 		, double precision) {
-	return integral_strategy->Integral(this, ranges[0].first, ranges[0].second,
+	return integral_strategy->Integral(this, ranges[0].range_low, ranges[0].range_high,
 			precision);
 }
 

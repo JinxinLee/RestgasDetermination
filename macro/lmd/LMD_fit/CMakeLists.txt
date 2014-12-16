@@ -44,10 +44,10 @@ link_directories(${LINK_DIRECTORIES})
 #add_executable(phiSliceData phiSliceData.cxx)
 #target_link_libraries(phiSliceData Lmd LmdTool MathMore Eve)
 
-########################### create phiSlicingPlotter app ##################################
+########################### create createPhiSlicedAnalysisLmdData app ##################################
 
-add_executable(plotPhiSlicedLumiFitResults plotPhiSlicedLumiFitResults.cxx)
-target_link_libraries(plotPhiSlicedLumiFitResults LmdFit MathMore Eve boost_regex)
+add_executable(createPhiSlicedAnalysisLmdData createPhiSlicedAnalysisLmdData.cxx)
+target_link_libraries(createPhiSlicedAnalysisLmdData LmdFit boost_regex)
 
 ########################### create lumiFitData app ##################################
 
@@ -58,6 +58,11 @@ target_link_libraries(createLumiFitData LmdFit boost_regex)
 
 add_executable(mergeLmdData mergeLmdData.cxx)
 target_link_libraries(mergeLmdData LmdFit boost_regex)
+
+########################### create mergeLmdData app ##################################
+
+add_executable(makeTalkPlots makeTalkPlots.cxx)
+target_link_libraries(makeTalkPlots LmdFit)
 
 ########################### create lumiFit app ##################################
 
@@ -79,11 +84,6 @@ target_link_libraries(determineBeamOffset LmdFit)
 add_executable(determineLumiFitSystematics determineLumiFitSystematics.cxx)
 target_link_libraries(determineLumiFitSystematics LmdFit boost_regex)
 
-########################### create lumiFitComparison app ##################################
-
-add_executable(combineLumiFitResults combineLumiFitResults.cxx)
-target_link_libraries(combineLumiFitResults LmdFit)
-
 ########################### create acceptanceComparison app ##################################
 
 add_executable(compareAcceptances compareAcceptances.cxx)
@@ -93,6 +93,11 @@ target_link_libraries(compareAcceptances LmdFit)
 
 add_executable(fitRawDPMElasticData fitRawDPMElasticData.cxx)
 target_link_libraries(fitRawDPMElasticData LmdFit)
+
+########################### create fitRawDPMElasticData app ##################################
+
+add_executable(resolutionModelFitTesting1D resolutionModelFitTesting1D.cxx)
+target_link_libraries(resolutionModelFitTesting1D LmdFit)
 
 ########################### create checkFramework app ##################################
 
@@ -129,6 +134,11 @@ target_link_libraries(plotResolutionParametrization LmdFit)
 
 add_executable(plotDPMModelParts plotDPMModelParts.cxx)
 target_link_libraries(plotDPMModelParts LmdFit)
+
+########################### create DPMModel2D plotter app ##################################
+
+add_executable(plotShifted2DDPMModel plotShifted2DDPMModel.cxx)
+target_link_libraries(plotShifted2DDPMModel LmdFit)
 
 ########################### create convolution plotter app ##################################
 

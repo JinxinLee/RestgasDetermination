@@ -18,6 +18,9 @@ tail_dir_pattern = ''
 
 def getListOfDPMDirectories(path):
   if os.path.isdir(path):
+    print path
+    if os.path.split(path)[1] == 'mc_data':
+      return
     for dir in os.listdir(path):
       bunch_dirs = glob.glob(path + '/bunches_*/' + tail_dir_pattern)
       if bunch_dirs:
@@ -27,7 +30,7 @@ def getListOfDPMDirectories(path):
             dirs.append(bunch_dir)
         return
       else:
-        if glob.glob(path + '/Lumi_MC_*.root'):
+        if glob.glob(path + '/Lumi_TrksQA_*.root'):
           return
       dirpath = path + '/' + dir
       if os.path.isdir(dirpath):
@@ -49,26 +52,30 @@ def getListOfBoxDirectories(path):
               box_dirs.append(bunch_dir)
         return
       else:
-        if glob.glob(path + '/Lumi_MC_*.root'):
+        if glob.glob(path + '/Lumi_TrksQA_*.root'):
           return
       dirpath = path + '/' + dir
       if os.path.isdir(dirpath):
         getListOfBoxDirectories(dirpath)
 
-def findMatchingDirs():
+def findMatchingDirs(box_data_path):
   matching_dir_pairs = []
-  for dpm_dir in dirs:
-    m = re.search(dir_pattern, dpm_dir)
-    if m:
-      match = re.search('^(.*/)dpm_.*?(/.*/)\d*-\d*x\d*_(.*cut)/.*(/.*?)$', dpm_dir)
-      pattern = '^' + match.group(1) + 'box_.*?' + match.group(2) + '.*' + match.group(3) + '/.*' + match.group(4) + '$'
-      print pattern
-      for box_dir in box_dirs:
-        print box_dir
-        box_match = re.search(pattern, box_dir)
-        if box_match:
-          matching_dir_pairs.append([dpm_dir, box_dir])
-          break
+  if box_data_path == '':
+    for dpm_dir in dirs:
+      m = re.search(dir_pattern, dpm_dir)
+      if m:
+        match = re.search('^(.*/)dpm_.*?(/.*/)\d*-\d*x\d*_(.*cut)/.*(/.*?)$', dpm_dir)
+        pattern = '^' + match.group(1) + 'box_.*?' + match.group(2) + '.*' + match.group(3) + '/.*' + match.group(4) + '$'
+        print pattern
+        for box_dir in box_dirs:
+          print box_dir
+          box_match = re.search(pattern, box_dir)
+          if box_match:
+            matching_dir_pairs.append([dpm_dir, box_dir])
+            break
+  else:
+    for dpm_dir in dirs:
+      matching_dir_pairs.append([dpm_dir, box_data_path])
   return matching_dir_pairs
       
       
@@ -87,6 +94,9 @@ parser.add_argument('--tail_dir_pattern', metavar='tail directory pattern', type
 parser.add_argument('--ref_box_gen_data', metavar='ref box gen data', type=str, default='',
                     help='If specified then this path will be used for all fits as the reference box gen data.')
 
+parser.add_argument('--forced_box_gen_data', metavar='forced box gen data', type=str, default='',
+                    help='If specified then this path will be used for all fits as the box gen data, ignoring other box gen data directories.')
+
 args = parser.parse_args()
 
 dir_pattern = args.dirname_pattern[0]
@@ -94,12 +104,13 @@ dir_pattern = args.dirname_pattern[0]
 tail_dir_pattern = args.tail_dir_pattern
 
 getListOfDPMDirectories(args.dirname[0])
-getListOfBoxDirectories(args.dirname[0])
-
+if args.forced_box_gen_data == '':
+  getListOfBoxDirectories(args.dirname[0])
+  
 print dirs
 print box_dirs
 
-matches = findMatchingDirs()
+matches = findMatchingDirs(args.forced_box_gen_data)
 
 command_suffix = '';
 if args.ref_box_gen_data != '':

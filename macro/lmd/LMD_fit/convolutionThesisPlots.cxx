@@ -8,7 +8,7 @@
 #include "models1d/GaussianModel1D.h"
 #include "visualization/ModelVisualizationProperties1D.h"
 #include "data/PndLmdDataFacade.h"
-#include "PndLmdResultPlotter.h"
+#include "PndLmdPlotter.h"
 #include "fit/PndLmdLumiFitOptions.h"
 #include "data/PndLmdAcceptance.h"
 #include "model/PndLmdModelFactory.h"
@@ -28,9 +28,8 @@ void makeConvolutionThesisPlots(std::string acceptance_file_dir) {
 	PndLmdDataFacade lmd_data_facade;
 
 	LumiFit::LmdDimensionRange fit_range;
-	fit_range.setUnitPrefix(LumiFit::MILLI);
 	fit_range.setRangeLow(0.0);
-	fit_range.setRangeHigh(20.0);
+	fit_range.setRangeHigh(0.02);
 
 	std::stringstream strstream;
 	strstream.precision(3);
@@ -80,8 +79,9 @@ void makeConvolutionThesisPlots(std::string acceptance_file_dir) {
 
 	smeared_model->getModelParameterSet().printInfo();
 
-	std::vector<std::pair<double, double> > temp_vec_range;
-	temp_vec_range.push_back(std::make_pair(0.001, 0.012));
+	std::vector<DataStructs::DimensionRange> temp_vec_range;
+	DataStructs::DimensionRange dr(0.001, 0.012);
+	temp_vec_range.push_back(dr);
 
 	shared_ptr<Model1D> asymmgauss(new AsymmetricGaussianModel1D("asymmgauss1"));
 	asymmgauss->getModelParameterSet().getModelParameter("asymm_gauss_mean")->setValue(

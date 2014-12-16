@@ -19,7 +19,7 @@ Chi2Estimator::~Chi2Estimator() {
 	// TODO Auto-generated destructor stub
 }
 
-double Chi2Estimator::eval() const {
+double Chi2Estimator::eval() {
 	//calculate chisquare
 	double chisq = 0.0;
 	double delta;

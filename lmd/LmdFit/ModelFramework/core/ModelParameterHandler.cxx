@@ -106,8 +106,8 @@ void ModelParameterHandler::registerParametrization(
 
 void ModelParameterHandler::registerParametrizations(
 		ModelParSet &model_par_set_, shared_ptr<Parametrization> parametrization) {
-	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::iterator it =
+	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>,
+			ModelStructs::stringpair_comp>::iterator it =
 			model_par_set_.getModelParameterMap().begin();
 			it != model_par_set_.getModelParameterMap().end(); it++) {
 		registerParametrization(it->second, parametrization);
@@ -155,10 +155,17 @@ void ModelParameterHandler::executeParametrizationModels(const double *x) {
 	for (std::map<const shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
 			parametrizations.begin(); it != parametrizations.end(); it++) {
 		if (it->second.hasParametrizationModel()) {
+			//std::cout
+			//		<< it->second.getParametrizationModel()->getModelPar()->getName()
+			//		<< std::endl;
 			// if the model parameter is freed do NOT call the parametrization model
 			if (it->second.getParametrizationModel()->getModelPar()->isParameterFixed()) {
-				it->second.getParametrizationModel()->getModel()->updateDomain();
+				//it->second.getParametrizationModel()->getModel()->updateDomain();
+				//std::cout << x[0] << " " << x[1] << std::endl;
 				it->second.getParametrizationModel()->parametrize(x);
+				//std::cout
+				//		<< it->second.getParametrizationModel()->getModelPar()->getValue()
+				//		<< std::endl;
 			}
 		}
 	}
@@ -168,11 +175,11 @@ void ModelParameterHandler::updateModelParameters() {
 	// loop over all registered updater parametrizations which
 	// adjust the dependent parameters
 	/*for (std::map<shared_ptr<ModelPar>, ParametrizationProxy>::iterator it =
-			parametrizations.begin(); it != parametrizations.end(); it++) {
-		if (it->second.hasParametrization()) {
-			it->second.getParametrization()->parametrize();
-		}
-	}*/
+	 parametrizations.begin(); it != parametrizations.end(); it++) {
+	 if (it->second.hasParametrization()) {
+	 it->second.getParametrization()->parametrize();
+	 }
+	 }*/
 }
 
 void ModelParameterHandler::initModelParametersFromFitResult(

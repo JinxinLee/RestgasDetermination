@@ -1,4 +1,5 @@
-#include "PndLmdResultPlotter.h"
+#include "PndLmdPlotter.h"
+#include "model/PndLmdModelFactory.h"
 
 #include <stdlib.h>
 #include <utility>
@@ -49,12 +50,25 @@ int main(int argc, char* argv[]) {
 	if (argc == 2) {
 		double plab = atof(argv[1]);
 
+		PndLmdModelFactory model_factory;
+
+		LumiFit::PndLmdFitModelOptions fit_op_full;
+
+		shared_ptr<Model1D> model = model_factory.generate1DModel(fit_op_full, plab);
+		if (model->init()) {
+			std::cout << "Error: not all parameters have been set!" << std::endl;
+		}
+		std::vector<DataStructs::DimensionRange> integral_region;
+		DataStructs::DimensionRange th_int_range(0.003, 0.09);
+		integral_region.push_back(th_int_range);
+		std::cout<<"cross section integral in mb: "<<model->Integral(integral_region, 1e-3)<<std::endl;
+
 		const double theta_min = 0.0025;
 		const double theta_max = 0.01;
 
 		const double log_scale = true;
 
-		PndLmdResultPlotter plotter;
+		LumiFit::PndLmdPlotter plotter;
 		DataStructs::DimensionRange plot_range(theta_min, theta_max);
 
 		// model part choices are: COUL, INT, HAD, HAD_RHO_B_SIGTOT, ALL_RHO_B_SIGTOT, ALL

@@ -15,6 +15,14 @@ PndLmdAcceptance::PndLmdAcceptance() {
 	acceptance_2d = 0;
 }
 
+PndLmdAcceptance::PndLmdAcceptance(const PndLmdAcceptance &lmd_acc_data_) :
+		PndLmdAbstractData(lmd_acc_data_) {
+	if (lmd_acc_data_.getAcceptance1D())
+		acceptance_1d = new TEfficiency(*lmd_acc_data_.getAcceptance1D());
+	if (lmd_acc_data_.getAcceptance2D())
+		acceptance_2d = new TEfficiency(*lmd_acc_data_.getAcceptance2D());
+}
+
 PndLmdAcceptance::~PndLmdAcceptance() {
 }
 
@@ -36,7 +44,8 @@ void PndLmdAcceptance::init2DData() {
 }
 
 void PndLmdAcceptance::cloneData(const PndLmdAbstractData &lmd_abs_data) {
-	const PndLmdAcceptance * lmd_acc = dynamic_cast<const PndLmdAcceptance*>(&lmd_abs_data);
+	const PndLmdAcceptance * lmd_acc =
+			dynamic_cast<const PndLmdAcceptance*>(&lmd_abs_data);
 	if (lmd_acc) {
 		acceptance_1d = new TEfficiency(*lmd_acc->getAcceptance1D());
 		if (getSecondaryDimension().is_active) {

@@ -134,9 +134,9 @@ void runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 
 //reading the new field map in the old format
 	fRun->SetBeamMom(mom);
-// PndMultiField *fField= new PndMultiField("FULL");
+ PndMultiField *fField= new PndMultiField("AUTO");
 // fRun->SetField(fField);
-	PndMultiField *fField = new PndMultiField();
+	/*PndMultiField *fField = new PndMultiField();
 	PndTransMap *map_t = new PndTransMap("TransMap", "R");
 	PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
 	PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
@@ -151,7 +151,7 @@ void runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 	fField->AddField(map_s1);
 	fField->AddField(map_s2);
 	fField->AddField(map_s3);
-	fField->AddField(map_s4);
+	fField->AddField(map_s4);*/
 
 	fRun->SetField(fField);
 

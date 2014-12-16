@@ -10,6 +10,8 @@
 
 #include "ModelParameterHandler.h"
 
+#include "fit/data/DataStructs.h"
+
 #include <set>
 #include <string>
 
@@ -71,7 +73,7 @@ public:
 	 */
 	double evaluate(const double *x);
 
-	virtual double Integral(std::vector<std::pair<double, double> > &ranges
+	virtual double Integral(std::vector<DataStructs::DimensionRange> &ranges
 			, double precision) =0;
 
 	/**

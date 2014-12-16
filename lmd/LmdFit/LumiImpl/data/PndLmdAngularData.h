@@ -29,6 +29,7 @@ private:
 
 public:
 	PndLmdAngularData();
+	PndLmdAngularData(const PndLmdAngularData &lmd_ang_data_);
 
 	virtual ~PndLmdAngularData();
 
@@ -41,7 +42,7 @@ public:
 	bool operator==(const PndLmdAngularData &lmd_data) const;
 	bool operator!=(const PndLmdAngularData &lmd_data) const;
 
-ClassDef(PndLmdAngularData,1)
+ClassDef(PndLmdAngularData,2)
 };
 
 #endif /* PNDLMDANGULARDATA_H_ */

@@ -16,21 +16,22 @@ PndLmdFitStorage::~PndLmdFitStorage() {
 	// TODO Auto-generated destructor stub
 }
 
-const map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>& PndLmdFitStorage::getFitResults() const {
+const map<PndLmdLumiFitOptions, PndLmdLumiFitResult>& PndLmdFitStorage::getFitResults() const {
 	return fit_results;
 }
 
-PndLmdLumiFitResult* PndLmdFitStorage::getFitResult(
+PndLmdLumiFitResult PndLmdFitStorage::getFitResult(
 		const PndLmdLumiFitOptions &fit_options) const {
-	map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>::const_iterator fit_result =
+	PndLmdLumiFitResult return_result;
+	map<PndLmdLumiFitOptions, PndLmdLumiFitResult>::const_iterator fit_result =
 			fit_results.find(fit_options);
 	if (fit_result != fit_results.end())
-		return fit_result->second;
-	else
-		return 0;
+		return_result = fit_result->second;
+
+	return return_result;
 }
 
-void PndLmdFitStorage::addFitResult(const PndLmdLumiFitOptions *fit_options,
-		PndLmdLumiFitResult* fit_result_) {
-	fit_results[*fit_options] = fit_result_;
+void PndLmdFitStorage::addFitResult(const PndLmdLumiFitOptions &fit_options,
+		const PndLmdLumiFitResult &fit_result_) {
+	fit_results[fit_options] = fit_result_;
 }

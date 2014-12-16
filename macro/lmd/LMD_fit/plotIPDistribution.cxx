@@ -19,7 +19,7 @@
  *  different type of plots
  */
 
-#include "PndLmdResultPlotter.h"
+#include "PndLmdPlotter.h"
 #include "data/PndLmdVertexData.h"
 #include "data/PndLmdDataFacade.h"
 
@@ -185,32 +185,18 @@ void plotIPDistribution(std::vector<TString> paths, TString ref_path) {
 	PndLmdLumiHelper lumifit_helper;
 
 	// create an instance of PndLmdResultPlotter the plotting helper class
-	PndLmdResultPlotter plotter;
+	LumiFit::PndLmdPlotter plotter;
 
 	// ================================ BEGIN CONFIG ================================ //
-	// PndLmdResultPlotter sets default pad margins etc that should be fine for most cases
-	// you can fine tune it and overwrite the default values
-	//gStyle->SetPadTopMargin(0.06);
-	//gStyle->SetPadBottomMargin(0.12);
-	//gStyle->SetPadLeftMargin(0.14);
-	//gStyle->SetPadRightMargin(0.1);
-
 	// overwrite the default theta plot range if possible (if its larger than the max
 	// plot range then it has no effect)
-	plotter.setThetaPlotRange(-2.0, 2.0);
+	gStyle->SetPadRightMargin(0.125);
+	gStyle->SetPadLeftMargin(0.115);
+	gStyle->SetPadBottomMargin(0.12);
+	gStyle->SetPadColor(10);
+	gStyle->SetCanvasColor(10);
+	gStyle->SetStatColor(10);
 
-	// The plotter has more options for text positioning and tex sizes for which you can
-	// overwrite the default values here
-	//plotter.setTextLeftPos(0.55);
-	//plotter.setTextTopPos(0.98);
-	//plotter.setTextSpacing(0.08);
-	//plotter.setTextSize(0.06);
-	//plotter.setLabelSize(0.06);
-
-	//plotter.setLabelOffsetX(0.007);
-	//plotter.setLabelOffsetY(0.007);
-	//plotter.setTitleOffsetX(1.0);
-	//plotter.setTitleOffsetY(1.5);
 	// ================================= END CONFIG ================================= //
 
 	// ok here we should allow for multiple input root files of some pattern
@@ -228,11 +214,10 @@ void plotIPDistribution(std::vector<TString> paths, TString ref_path) {
 	std::vector<PndLmdVertexData> data_vec;
 
 	std::stringstream basepath;
-	basepath << std::getenv("DATA_DIR") << "/ip-tilt";
-
-	boost::filesystem::create_directories(basepath.str());
+	basepath << std::getenv("HOME") << "/plots";
 
 	std::stringstream filepath;
+	std::stringstream filepath_base;
 
 	for (unsigned int i = 0; i < paths.size(); i++) {
 		// ------ get files -------------------------------------------------------
@@ -242,16 +227,20 @@ void plotIPDistribution(std::vector<TString> paths, TString ref_path) {
 		std::vector<PndLmdVertexData> file_data = lmd_data_facade.getDataFromFile<
 				PndLmdVertexData>(fdata);
 
-		std::vector<std::map<int, PndLmdResultPlotter::graph_bundle> > graph_bundles_vec;
-		graph_bundles_vec.push_back(plotter.makeVertexGraphBundles1D(file_data));
-
 		if (file_data.size() > 0) {
+			if (i == 0) {
+				filepath_base << basepath.str() << "/";
+				filepath_base << "plab_" << file_data[0].getLabMomentum();
+			}
 			filepath.str("");
-			filepath << basepath.str() << "/ip-fit_results-";
-			filepath << file_data[0].getSimulationIPParameters().getLabel();
+			filepath << filepath_base.str() << "/"
+					<< file_data[0].getSimulationIPParameters().getLabel();
+			boost::filesystem::create_directories(filepath.str());
+			filepath << "/ip-dist-fit_results.pdf";
 
-			plotter.makeVertexFitResultBooky(graph_bundles_vec,
-					filepath.str().c_str());
+			NeatPlotting::Booky vertex_booky = plotter.makeVertexFitResultBooky(
+					file_data);
+			vertex_booky.createBooky(filepath.str());
 
 			if (ref_vertex_vec.size() > 0) {
 				plotter.makeVertexDifferencesBooky(file_data, ref_vertex_vec);
@@ -261,11 +250,23 @@ void plotIPDistribution(std::vector<TString> paths, TString ref_path) {
 		data_vec.insert(data_vec.end(), file_data.begin(), file_data.end());
 	}
 
+	// ----------- make overview plot ---------------
+
+	// first filter data vector for reco type objects only
+	LumiFit::Comparisons::data_primary_dimension_track_type_filter filter(
+			LumiFit::RECO);
+	std::vector<PndLmdVertexData> reco_filtered_vertex_data_vec =
+			lmd_data_facade.filterData(data_vec, filter);
+
+	NeatPlotting::PlotStyle plot_style;
+
 	TCanvas c;
-	c.SetGrid();
-	plotter.plotXYOverviewGraph(data_vec);
+	//c.SetGrid();
+	NeatPlotting::PlotBundle overview_bundle =
+			plotter.makeIPXYOverviewGraphBundle(reco_filtered_vertex_data_vec);
+	overview_bundle.drawOnCurrentPad(plot_style);
 	filepath.str("");
-	filepath << basepath.str() << "/ip-fit_result-overview.pdf";
+	filepath << filepath_base.str() << "/ip-fit_result-overview.pdf";
 	c.SaveAs(filepath.str().c_str());
 
 	std::map<LumiFit::LmdSimIPParameters,

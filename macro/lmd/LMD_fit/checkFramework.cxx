@@ -100,7 +100,7 @@ void checkFramework(unsigned int num_events) {
 		model1d->getModelParameterSet().getModelParameter("gauss_amplitude")->setParameterFixed(
 				false);
 		// set model
-		model_fit_facade.setModel1d(model1d);
+		model_fit_facade.setModel(model1d);
 
 		// create and set data
 		ROOTDataHelper data_helper;

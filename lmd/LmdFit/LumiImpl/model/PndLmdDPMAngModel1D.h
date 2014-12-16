@@ -11,7 +11,7 @@
 #include "PndLmdDPMMTModel1D.h"
 
 class PndLmdDPMAngModel1D: public PndLmdDPMMTModel1D {
-  public:
+public:
     PndLmdDPMAngModel1D(std::string name_, LumiFit::DPMElasticParts elastic_type_);
     virtual ~PndLmdDPMAngModel1D();
 

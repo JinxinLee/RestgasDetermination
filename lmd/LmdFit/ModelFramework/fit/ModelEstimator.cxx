@@ -66,7 +66,9 @@ void ModelEstimator::updateFreeModelParameters(const double *new_values) {
 }
 
 void ModelEstimator::applyEstimatorOptions(
-		const EstimatorOptions &estimator_options) {
+		const EstimatorOptions &estimator_options_) {
+	estimator_options = estimator_options_;
+
 	std::vector<DataPointProxy> &datapoints = data->getData();
 	for (unsigned int i = 0; i < datapoints.size(); i++) {
 		if (datapoints[i].isBinnedDataPoint()) {
@@ -94,12 +96,12 @@ void ModelEstimator::applyEstimatorOptions(
 			}
 			if (estimator_options.isWithIntegralScaling()) {
 				if (fit_model.get()) {
-					std::vector<std::pair<double, double> > bin_ranges;
+					std::vector<DataStructs::DimensionRange> bin_ranges;
 					for (unsigned int dim = 0; dim < data->getDimension(); dim++) {
-						std::pair<double, double> bin_range;
-						bin_range.first = data_point->bin_center_value[dim]
+						DataStructs::DimensionRange bin_range;
+						bin_range.range_low = data_point->bin_center_value[dim]
 								- data_point->bin_widths[dim] / 2.0;
-						bin_range.second = bin_range.first + data_point->bin_widths[dim];
+						bin_range.range_high = bin_range.range_low + data_point->bin_widths[dim];
 						bin_ranges.push_back(bin_range);
 					}
 
@@ -109,7 +111,7 @@ void ModelEstimator::applyEstimatorOptions(
 					double int_func_approx = fit_model->evaluate(
 							data_point->bin_center_value);
 					for (unsigned int dim = 0; dim < data->getDimension(); dim++) {
-						int_func_approx *= (bin_ranges[dim].second - bin_ranges[dim].first);
+						int_func_approx *= (bin_ranges[dim].range_high - bin_ranges[dim].range_low);
 					}
 
 					if (int_func_approx > 0.0 && int_func_real > 0.0) {

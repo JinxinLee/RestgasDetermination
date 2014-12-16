@@ -6,7 +6,7 @@
  */
 
 #include "model/PndLmdModelFactory.h"
-#include "LumiFitStructs.h"
+#include "LumiModelOptions.h"
 
 #include <utility>
 #include <vector>
@@ -23,9 +23,9 @@ void calculateElasticCrossSection(double momentum, double lower_bound,
 
 	shared_ptr<Model1D> model = model_factory.generate1DModel(model_opt,
 			momentum);
-	std::vector<std::pair<double, double> > integral_ranges;
-	integral_ranges.push_back(
-			std::make_pair(lower_bound / 1000.0, upper_bound / 1000.0));
+	std::vector<DataStructs::DimensionRange> integral_ranges;
+	DataStructs::DimensionRange dr(lower_bound / 1000.0, upper_bound / 1000.0);
+	integral_ranges.push_back(dr);
 	double integral = model->Integral(integral_ranges, 0.001);
 
 	std::cout << "Integrated total elastic cross section in theta range ["

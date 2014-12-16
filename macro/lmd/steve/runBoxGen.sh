@@ -24,7 +24,9 @@ if [ ! -d $basedir/${dirname} ]; then
   mkdir $basedir/${dirname}
 fi
 
-root -l -b -q 'standaloneBoxGen.C('${lab_momentum}', '${num_events}', '${theta_min}', '${theta_max}', "'$basedir/$dirname/$filename'", '${random_num}')'
+echo root -l -b -q 'standaloneBoxGen.C('${lab_momentum}', '${num_events}', '${theta_min}', '${theta_max}', "'$basedir/$dirname/$filename'", '${random_num}', '${use_recoil_mom}')'
+
+root -l -b -q 'standaloneBoxGen.C('${lab_momentum}', '${num_events}', '${theta_min}', '${theta_max}', "'$basedir/$dirname/$filename'", '${random_num}', '${use_recoil_mom}')'
 
 sleep 10;
 exit 0;

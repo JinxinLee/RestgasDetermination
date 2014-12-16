@@ -7,8 +7,11 @@
 
 #include "Model2D.h"
 
-Model2D::Model2D(std::string name_) : Model(name_, 2) {
-	// TODO Auto-generated constructor stub
+#include "operators2d/integration/IntegralStrategyGSL2D.h"
+
+Model2D::Model2D(std::string name_) :
+		Model(name_, 2) {
+	integral_strategy = new IntegralStrategyGSL2D();
 }
 
 Model2D::~Model2D() {
@@ -35,4 +38,15 @@ void Model2D::setVar1Domain(double lower_bound, double upper_bound) {
 void Model2D::setVar2Domain(double lower_bound, double upper_bound) {
 	var2_domain_bounds.first = lower_bound;
 	var2_domain_bounds.second = upper_bound;
+}
+
+void Model2D::setIntegralStrategy(IntegralStrategy2D *integral_strategy_) {
+	integral_strategy = integral_strategy_;
+}
+
+double Model2D::Integral(std::vector<DataStructs::DimensionRange> &ranges,
+		double precision) {
+	return integral_strategy->Integral(this, ranges[0].range_low,
+			ranges[0].range_high, ranges[1].range_low, ranges[1].range_high,
+			precision);
 }

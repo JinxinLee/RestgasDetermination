@@ -1,4 +1,4 @@
-double getMomentumTransferFromTheta(const double theta) const {
+/*double getMomentumTransferFromTheta(const double theta) const {
 	// read lmd note/tdr for a derivation of this formula
 	double signum = -1.0;
 	double denominator = p_lab * cos(theta) - beta_lab_cms * E_lab;
@@ -14,10 +14,10 @@ double getMomentumTransferFromTheta(const double theta) const {
 													p_lab->getValue() * sin(theta)
 															/ (gamma->getValue() * denominator), 2.0)));
 	return t;
-}
+}*/
 
 void standaloneBoxGen(double plab, int nevents, double fThetaMin,
-		double fThetaMax, TString output_filename, double seed = 123456.) {
+		double fThetaMax, TString output_filename, double seed = 123456., bool use_recoil_correction = true) {
 	double mp = 0.938272;
 	double fPhiMin = 0.0;
 	double fPhiMax = 360.0;
@@ -45,12 +45,12 @@ void standaloneBoxGen(double plab, int nevents, double fThetaMin,
 		//double theta = tmp->GetRandom(gen_range_low, gen_range_high) / 1000.0;
 		//double phi = gRandom->Uniform(-C_PI, C_PI);
 
-		double theta = gRandom->Uniform(fThetaMin, fThetaMax) * TMath::DegToRad();
+		double theta = gRandom->Uniform(fThetaMin, fThetaMax) / 1000.0;
 		double phi = gRandom->Uniform(fPhiMin, fPhiMax) * TMath::DegToRad();
 
 		double Er = 0.0;
-		//uncomment if block below, if recoil energy should be taken into account
-		if (true) {
+		// if recoil energy should be taken into account
+		if (use_recoil_correction) {
 			// read lmd note/tdr for a derivation of this formula
 			double signum = -1.0;
 			double denominator = plab * cos(theta) - beta_lab_cms * Elab;

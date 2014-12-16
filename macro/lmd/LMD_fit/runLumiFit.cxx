@@ -61,6 +61,18 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir,
 	// get lmd data and objects from files
 	vector<PndLmdAngularData> my_lmd_data_vec = lmd_data_facade.getDataFromFile<
 			PndLmdAngularData>(fdata);
+
+	// get lmd data and objects from files
+	/*	vector<PndLmdAngularData> temp_my_lmd_data_vec = lmd_data_facade.getDataFromFile<
+	 PndLmdAngularData>(fdata);
+	 // choose data do be fitted...
+	 vector<PndLmdAngularData> my_lmd_data_vec;
+	 for(unsigned int i = 0; i < temp_my_lmd_data_vec.size(); i++) {
+	 if(temp_my_lmd_data_vec[i].getSelectorSet().size() == 0) {
+	 my_lmd_data_vec.push_back(temp_my_lmd_data_vec[i]);
+	 }
+	 }*/
+
 	vector<PndLmdAcceptance> my_lmd_acc_vec = lmd_data_facade.getDataFromFile<
 			PndLmdAcceptance>(facc);
 	vector<PndLmdAcceptance> lmd_ref_acc_vec = lmd_data_facade.getDataFromFile<
@@ -74,75 +86,129 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir,
 	// =============================== END STEP 1 =============================== //
 
 	// ============================== BEGIN STEP 2 ============================== //
+	DataStructs::DimensionRange fit_range_theta;
+	fit_range_theta.is_active = true;
+
+	fit_range_theta.range_low = 0.002;
+	fit_range_theta.range_high = 0.01;
 
 	PndLmdFitFacade lmd_fit_facade;
 
-	LumiFit::PndLmdFitModelOptions model_opt;
+	// add acceptance data to pools
+	// the corresponding acceptances to the data will automatically be taken
+	// if not found then this fit is skipped
+	lmd_fit_facade.addAcceptencesToPool(my_lmd_acc_vec);
+	lmd_fit_facade.addReferenceAcceptancesToPool(lmd_ref_acc_vec);
 
-	//model_opt.dpm_elastic_parts = LumiFit::ALL_RHO_B_SIGTOT;
-	model_opt.dpm_elastic_parts = LumiFit::ALL;
+	if (false) { // standard 1d fitting
+		LumiFit::PndLmdFitModelOptions model_opt;
 
-	// we will just take the first theta ip acceptance
-	// (usually you would only have a single one)
-	// otherwise just choose the one you want to use
-	if (my_lmd_acc_vec.size() > 0)
-		model_opt.acceptance = &my_lmd_acc_vec[0];
+		//model_opt.dpm_elastic_parts = LumiFit::ALL_RHO_B_SIGTOT;
+		model_opt.dpm_elastic_parts = LumiFit::ALL;
 
-	model_opt.acceptance_interpolation = LumiFit::SPLINE;
-
-	// specify the resolution parametriztion file which will take care of the smearing
-	hs.str("");
-	hs << acceptance_file_dir << "/resolution_params_1.root";
-	lmd_fit_facade.initializeResolutionModelOptionsFromParametrizationFile(
-			model_opt, hs.str());
-
-	lmd_fit_facade.setModelFitOptions(model_opt);
-
-	// perform luminosity fits
-	// only luminosity is free parameter
-	//lmd_fit_facade.addFreeFitParameter("sigma_tot");
-	//lmd_fit_facade.addFreeFitParameter("rho");
-	//lmd_fit_facade.addFreeFitParameter("b");
-
-	// lets perform "standard" fits first if possible
-	EstimatorOptions est_opt;
-	est_opt.setWithIntegralScaling(true);
-
-	DataStructs::DimensionRange fit_range;
-	fit_range.is_active = true;
-
-	for (unsigned int i = 0; i < 1; i++) {
-		fit_range.range_low = (2.1 + 0.5 * i) / 1000.0;
-		fit_range.range_high = 0.01;
-
-		est_opt.setFitRangeX(fit_range);
-		lmd_fit_facade.setEstimatorOptions(est_opt);
-		lmd_fit_facade.doLmdLumiFits(my_lmd_data_vec);
-	}
-
-	if (reference_acceptance_file_dir != "" && acceptance_file_dir != reference_acceptance_file_dir) {
-		// we will just take the first theta ip acceptance
-		// (usually you would only have a single one)
-		// otherwise just choose the one you want to use
-		if (lmd_ref_acc_vec.size() > 0)
-			model_opt.acceptance = &lmd_ref_acc_vec[0];
+		model_opt.acceptance_interpolation = LumiFit::SPLINE;
 
 		// specify the resolution parametriztion file which will take care of the smearing
 		hs.str("");
-		hs << reference_acceptance_file_dir << "/resolution_params_1.root";
+		hs << acceptance_file_dir << "/resolution_params_1.root";
 		lmd_fit_facade.initializeResolutionModelOptionsFromParametrizationFile(
 				model_opt, hs.str());
 
 		lmd_fit_facade.setModelFitOptions(model_opt);
 
-		for (unsigned int i = 0; i < 1; i++) {
-			fit_range.range_low = (2.1 + 0.5 * i) / 1000.0;
-			fit_range.range_high = 0.01;
+		// perform luminosity fits
+		// only luminosity is free parameter
+		//lmd_fit_facade.addFreeFitParameter("sigma_tot");
+		//lmd_fit_facade.addFreeFitParameter("rho");
+		//lmd_fit_facade.addFreeFitParameter("b");
 
-			est_opt.setFitRangeX(fit_range);
-			lmd_fit_facade.setEstimatorOptions(est_opt);
-			lmd_fit_facade.doLmdLumiFits(my_lmd_data_vec);
-		}
+		// lets perform "standard" fits first if possible
+		EstimatorOptions est_opt;
+		est_opt.setWithIntegralScaling(true);
+
+		est_opt.setFitRangeX(fit_range_theta);
+		lmd_fit_facade.setEstimatorOptions(est_opt);
+		lmd_fit_facade.doLmdLumiFits(my_lmd_data_vec);
+	}
+
+	// special fit: acc corr. model on reco data
+	// filter data for all mc acc data
+	/*LumiFit::LmdDimensionOptions lmd_dim_opt;
+	 lmd_dim_opt.track_type = LumiFit::MC_ACC;
+	 LumiFit::Comparisons::data_primary_dimension_options_filter filter(
+	 lmd_dim_opt);
+	 std::vector<PndLmdAngularData> my_lmd_acc_corr_data_vec =
+	 lmd_data_facade.filterData<PndLmdAngularData>(my_lmd_data_vec, filter);
+
+	 std::cout<<"trying to do special fit..."<<std::endl;
+	 if (my_lmd_acc_corr_data_vec.size() > 0) {
+	 lmd_dim_opt.track_type = LumiFit::RECO;
+	 LumiFit::Comparisons::data_primary_dimension_options_filter filter2(
+	 lmd_dim_opt);
+	 std::vector<PndLmdAngularData> my_lmd_reco_data_vec =
+	 lmd_data_facade.filterData<PndLmdAngularData>(my_lmd_data_vec, filter2);
+	 const std::vector<PndLmdLumiFitOptions> &fit_options_vec =
+	 lmd_fit_facade.createFitOptions(my_lmd_acc_corr_data_vec[0]);
+
+	 for (unsigned int j = 0; j < my_lmd_reco_data_vec.size(); j++) {
+	 lmd_fit_facade.fitMultipleElasticPPbar(my_lmd_reco_data_vec[j],
+	 fit_options_vec);
+	 }
+	 }*/
+
+	/*
+	 // scan lower acceptance edge
+	 for (unsigned int i = 0; i < 13; i++) {
+	 fit_range.range_low = (1.0 + 0.25 * i) / 1000.0;
+	 fit_range.range_high = 0.01;
+
+	 est_opt.setFitRangeX(fit_range);
+	 lmd_fit_facade.setEstimatorOptions(est_opt);
+	 lmd_fit_facade.doLmdLumiFits(my_lmd_data_vec);
+	 }
+
+	 // scan upper acceptance edge
+	 for (unsigned int i = 0; i < 13; i++) {
+	 fit_range.range_low = 1.0 / 1000.0;
+	 fit_range.range_high = (8.0 + 0.25 * i) / 1000.0;
+
+	 est_opt.setFitRangeX(fit_range);
+	 lmd_fit_facade.setEstimatorOptions(est_opt);
+	 lmd_fit_facade.doLmdLumiFits(my_lmd_data_vec);
+	 }*/
+
+	// 2d fits
+	if (true) {
+		LumiFit::PndLmdFitModelOptions fit2d_model_opt;
+		fit2d_model_opt.dpm_elastic_parts = LumiFit::ALL;
+		fit2d_model_opt.fit_dimension = 2;
+		fit2d_model_opt.acceptance_interpolation = LumiFit::CONSTANT;
+		fit2d_model_opt.divergence_smearing_active = false;
+
+		//fit2d_model_opt.fix_beam_tilts = true;
+		fit2d_model_opt.beam_tilt_x = 0.001;
+		fit2d_model_opt.beam_tilt_y = 0.001;
+
+		hs.str("");
+		hs << acceptance_file_dir << "/lmd_res_data.root";
+
+		fit2d_model_opt.resolution_parametrization_file_url = hs.str();
+		hs.str("");
+		hs << input_file_dir << "/lmd_data.root";
+
+		fit2d_model_opt.elastic_reco_data_file_url = hs.str();
+
+		lmd_fit_facade.setModelFitOptions(fit2d_model_opt);
+
+		EstimatorOptions est_opt;
+		est_opt.setWithIntegralScaling(false);
+
+		fit_range_theta.range_low = 0.0025;
+		fit_range_theta.range_high = 0.010;
+		est_opt.setFitRangeX(fit_range_theta);
+		lmd_fit_facade.setEstimatorOptions(est_opt);
+
+		lmd_fit_facade.doLmdLumiFits(my_lmd_data_vec);
 	}
 
 	// save fit results by just saving the lmd data objects. They contain both
@@ -150,22 +216,19 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir,
 	// construct some nice plots for you!
 	cout << "Saving data...." << endl;
 	ffitteddata->cd();
-	for (std::vector<PndLmdAngularData>::iterator lmd_data_iter =
-			my_lmd_data_vec.begin(); lmd_data_iter != my_lmd_data_vec.end();
-			lmd_data_iter++) {
-		if (lmd_data_iter->getFitResults().size() > 0)
-			lmd_data_iter->saveToRootFile();
-	}
+
+	lmd_fit_facade.saveFittedObjectsToFile();
+
+	ffitteddata->Close();
+	fdata->Close();
+	if (facc)
+		facc->Close();
 
 	// =============================== END STEP 2 =============================== //
 
 	// -----   Finish   -------------------------------------------------------
 	cout << endl << endl;
 	cout << "Application finished successfully." << endl;
-
-	fdata->Close();
-	if (facc)
-		facc->Close();
 	// ------------------------------------------------------------------------
 }
 
@@ -174,6 +237,7 @@ void displayInfo() {
 	cout << "Required arguments are: " << endl;
 	cout << "-d [path to data]" << endl;
 	cout << "Optional arguments are: " << endl;
+	cout << "-s module phi sliced fitting" << endl;
 	cout << "-a [path to box gen data] (acceptance)" << endl;
 	cout << "-r [path to reference box gen data] (acceptance)" << endl;
 }
@@ -182,12 +246,15 @@ int main(int argc, char* argv[]) {
 	string data_path;
 	string acc_path = "";
 	string ref_acc_path = "";
-	bool is_data_set = false, is_acc_set = false;
+	bool is_data_set = false, is_acc_set = false, do_phi_slice_fitting = false;
 
 	int c;
 
-	while ((c = getopt(argc, argv, "ha:r:d:")) != -1) {
+	while ((c = getopt(argc, argv, "hsa:r:d:")) != -1) {
 		switch (c) {
+			case 's':
+				do_phi_slice_fitting = true;
+				break;
 			case 'a':
 				acc_path = optarg;
 				is_acc_set = true;
@@ -200,7 +267,7 @@ int main(int argc, char* argv[]) {
 				is_data_set = true;
 				break;
 			case '?':
-				if (optopt == 'd' || optopt == 'a' || optopt == 'r')
+				if (optopt == 's' || optopt == 'd' || optopt == 'a' || optopt == 'r')
 					cerr << "Option -" << optopt << " requires an argument." << endl;
 				else if (isprint(optopt))
 					cerr << "Unknown option -" << optopt << "." << endl;

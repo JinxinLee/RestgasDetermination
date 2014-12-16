@@ -18,16 +18,24 @@ parser.add_argument('high_index', metavar='high_index', type=int, nargs=1, help=
 
 
 parser.add_argument('--theta_min', metavar='theta_min', type=float, default=0.0,
-                   help='Minimal value of the scattering angle theta.')
-parser.add_argument('--theta_max', metavar='theta_max', type=float, default=1.0,
-                   help='Maximal value of the scattering angle theta.')
+                   help='Minimal value of the scattering angle theta in mrad.')
+parser.add_argument('--theta_max', metavar='theta_max', type=float, default=15.0,
+                   help='Maximal value of the scattering angle theta in mrad.')
 
 parser.add_argument('--gen_data_dir', metavar='gen_data_dir', type=str, default=os.getenv('GEN_DATA'),
                    help='Base directory for generator output files. By default the environment variable $GEN_DATA will be used!')
 
+parser.add_argument('--neglect_recoil_momentum', action='store_false', help='If recoil momentum should not be subtracted from scattered antiprotons.')
+
 args = parser.parse_args()
 
-dirname = str(args.evts_per_sample[0]) + '_box_plab_' + str(args.lab_momentum[0]) + 'GeV_th_' + str(args.theta_min) + '-' + str(args.theta_max) + 'deg_recoil_corrected'
+suffix='_recoil_corrected'
+boolval='1'
+if not args.neglect_recoil_momentum:
+  suffix=''
+  boolval='0'  
+
+dirname = str(args.evts_per_sample[0]) + '_box_plab_' + str(args.lab_momentum[0]) + 'GeV_th_' + str(args.theta_min) + '-' + str(args.theta_max) + 'mrad' + suffix
 dirname_cleaned = re.sub('\.', 'o', dirname)
 
 basedir=args.gen_data_dir
@@ -68,7 +76,10 @@ if is_cluster:
   print 'This is a cluster environment... submitting jobs to cluster!'
   
   for job_index in range(low_index_used, high_index_used+1, max_jobarray_size):
-    bashcommand = 'qsub -t ' + str(job_index) + '-' + str(min(job_index+max_jobarray_size-1, high_index_used)) + ' -N runBoxGen_'+dirname_cleaned+' -l nodes=1:ppn=1,walltime=00:30:00 -j oe -o '+basedir + '/' + dirname + '/runBoxGen_' + dirname_cleaned+' -v lab_momentum="'+str(args.lab_momentum[0])+'",num_events="'+str(args.evts_per_sample[0])+'",theta_min="'+str(args.theta_min)+'",theta_max="'+str(args.theta_max)+'",dirname="'+dirname+'",dirname_cleaned="'+dirname_cleaned+'",basedir="'+basedir+'" -V ./runBoxGen.sh'
+    bashcommand = 'qsub -t ' + str(job_index) + '-' + str(min(job_index+max_jobarray_size-1, high_index_used)) + ' -N runBoxGen_'+dirname_cleaned \
+                  + ' -l nodes=1:ppn=1,walltime=00:30:00 -j oe -o '+basedir + '/' + dirname + '/runBoxGen_' + dirname_cleaned+' -v lab_momentum="' \
+                  + str(args.lab_momentum[0])+'",num_events="'+str(args.evts_per_sample[0])+'",theta_min="'+str(args.theta_min)+'",theta_max="' \
+                  + str(args.theta_max)+'",dirname="'+dirname+'",dirname_cleaned="'+dirname_cleaned+'",basedir="'+basedir+'",use_recoil_mom="'+boolval+'" -V ./runBoxGen.sh'
     subprocess.call(bashcommand.split())
 
 elif is_parallel:

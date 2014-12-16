@@ -37,10 +37,11 @@ double SmearingConvolutionModel1D::eval(const double *x) const {
 	double high = first->getDomain().second;
 	double interval_width = first->getDomainRange() / divisions;
 
-	std::vector<std::pair<double, double> > temp_range_first;
-	temp_range_first.push_back(std::make_pair(0.0, 0.0));
-	std::vector<std::pair<double, double> > temp_range_second;
-	temp_range_second.push_back(std::make_pair(0.0, 0.0));
+	std::vector<DataStructs::DimensionRange> temp_range_first;
+	DataStructs::DimensionRange dr;
+	temp_range_first.push_back(dr);
+	std::vector<DataStructs::DimensionRange> temp_range_second;
+	temp_range_second.push_back(dr);
 
 	//std::cout<<"x0: "<<x[0]<<std::endl;
 	// and loop over these invervals
@@ -69,13 +70,13 @@ double SmearingConvolutionModel1D::eval(const double *x) const {
 		//std::cout<<x[0]<< " "<<interval_low<<" "<<smear_interval_low<<std::endl;
 
 		// integrate second (smearing) function in that smear interval range
-		temp_range_second[0].first = smear_interval_low;
-		temp_range_second[0].second = smear_interval_low + interval_width;
+		temp_range_second[0].range_low = smear_interval_low;
+		temp_range_second[0].range_high = smear_interval_low + interval_width;
 		double int_second = second->Integral(temp_range_second, 1e-3);
 
 		// integrate second (smearing) function in that smear interval range
-		temp_range_first[0].first = interval_low;
-		temp_range_first[0].second = low + interval_width * (i + 1);
+		temp_range_first[0].range_low = interval_low;
+		temp_range_first[0].range_high = low + interval_width * (i + 1);
 		double int_first = first->Integral(temp_range_first, 1e-3);
 
 		value += int_first * int_second;

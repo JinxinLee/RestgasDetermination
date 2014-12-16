@@ -41,8 +41,8 @@ shared_ptr<ModelMinimizer> ModelFitFacade::getMinimizer() const {
 	return minimizer;
 }
 
-shared_ptr<Model1D> ModelFitFacade::getModel1d() const {
-	return model1d;
+shared_ptr<Model> ModelFitFacade::getModel() const {
+	return model;
 }
 
 void ModelFitFacade::setData(shared_ptr<Data> data_) {
@@ -57,8 +57,8 @@ void ModelFitFacade::setMinimizer(shared_ptr<ModelMinimizer> minimizer_) {
 	minimizer = minimizer_;
 }
 
-void ModelFitFacade::setModel1d(shared_ptr<Model1D> model1d_) {
-	model1d = model1d_;
+void ModelFitFacade::setModel(shared_ptr<Model> model_) {
+	model = model_;
 }
 
 ModelFitResult ModelFitFacade::Fit() {
@@ -70,11 +70,22 @@ ModelFitResult ModelFitFacade::Fit() {
 		return fit_result_dummy;
 	}
 
+	// check if data and model have the correct dimensions
+	if (model->getDimension() != data->getDimension()) {
+		std::cout << "The model has a dimension of " << model->getDimension()
+				<< ", which does not match the data dimension of "
+				<< data->getDimension() << "!" << std::endl;
+		return fit_result_dummy;
+	}
+
 	// set model
-	estimator->setModel(model1d);
+	estimator->setModel(model);
 	// set data
 	estimator->setData(data);
 	// apply estimator options
+	std::cout
+			<< "applying estimator options (in case of integral scaling this can mean integrals are being computed!)..."
+			<< std::endl;
 	estimator->applyEstimatorOptions(estimator_options);
 
 	// check that minimizer exists

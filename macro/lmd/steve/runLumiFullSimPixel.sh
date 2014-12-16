@@ -72,14 +72,14 @@ if [ ! -d $workpathname ]; then
 fi
 
 #simulation
-check_stage_success "$pathname/Lumi_MC_${start_evt}.root"
+check_stage_success "${pathname_base}/Lumi_MC_${start_evt}.root"
 if [ 0 -eq "$?" ]; then
   root -l -b -q 'runLumiPixel0SimDPM.C('${num_evts}','${start_evt}','${mom}',"'${gen_input_filename}'", "'${workpathname}'",'$beamX0', '$beamY0', '${targetZ0}', '${beam_widthX}', '${beam_widthY}', '${target_widthZ}', '${beam_gradX}', '${beam_gradY}', '${beam_grad_sigmaX}', '${beam_grad_sigmaY}','$verbositylvl')' > /dev/null 2>&1
-  cp $workpathname/Lumi_MC_${start_evt}.root $pathname/Lumi_MC_${start_evt}.root
-  cp $workpathname/Lumi_Params_${start_evt}.root $pathname/Lumi_Params_${start_evt}.root
+  cp $workpathname/Lumi_MC_${start_evt}.root ${pathname_base}/Lumi_MC_${start_evt}.root
+  cp $workpathname/Lumi_Params_${start_evt}.root ${pathname_base}/Lumi_Params_${start_evt}.root
 else
-  cp $pathname/Lumi_MC_${start_evt}.root $workpathname/Lumi_MC_${start_evt}.root
-  cp $pathname/Lumi_Params_${start_evt}.root $workpathname/Lumi_Params_${start_evt}.root
+  cp ${pathname_base}/Lumi_MC_${start_evt}.root $workpathname/Lumi_MC_${start_evt}.root
+  cp ${pathname_base}/Lumi_Params_${start_evt}.root $workpathname/Lumi_Params_${start_evt}.root
 fi
 
 #digitization
@@ -139,7 +139,7 @@ fi
 
 # filter back-propagated tracks (momentum cut)
 if [ $CleanSig == "true" ]; then 
-  root -l -b -q 'runLumiPixel5bCleanSig.C('${num_evts}', '${start_evt}', "'${workpathname}'", '$verbositylvl', '${mom}', '${beamX0}', '${beamY0}')'
+  root -l -b -q 'runLumiPixel5bCleanSig.C('${num_evts}', '${start_evt}', "'${workpathname}'", '$verbositylvl', '${mom}', '${rec_beamX0}', '${rec_beamY0}')'
 fi
 
 

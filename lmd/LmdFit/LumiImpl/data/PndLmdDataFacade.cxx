@@ -8,7 +8,6 @@
 #include "PndLmdDataFacade.h"
 #include "PndLmdAngularData.h"
 #include "PndLmdVertexData.h"
-#include "PndLmdResolution.h"
 #include "PndLmdAcceptance.h"
 #include "fit/data/DataStructs.h"
 #include "PndLmdLumiHelper.h"
@@ -17,6 +16,7 @@
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include "boost/regex.hpp"
 
 using boost::property_tree::ptree;
 
@@ -44,8 +44,8 @@ std::vector<PndLmdVertexData> PndLmdDataFacade::getLmdVertexData() const {
 	return lmd_vertex_data;
 }
 
-std::vector<PndLmdResolution> PndLmdDataFacade::getLmdResolutions() const {
-	return lmd_resolutions;
+std::vector<PndLmdHistogramData> PndLmdDataFacade::getLmdHistogramData() const {
+	return lmd_hist_data;
 }
 
 void PndLmdDataFacade::addDataDirectory(TString directory) {
@@ -59,7 +59,7 @@ void PndLmdDataFacade::addFileList(std::string filelist) {
 	std::string line;
 
 	while (std::getline(input, line)) {
-    std::cout<<line<<std::endl;
+		std::cout << line << std::endl;
 		data_reader->addFilePath(line);
 	}
 }
@@ -72,89 +72,264 @@ LumiFit::LmdDimension PndLmdDataFacade::constructSecondaryDimension() const {
 	return secondary_dimension_template.clone();
 }
 
-void PndLmdDataFacade::initialize1DData(PndLmdAbstractData & data) const {
+void PndLmdDataFacade::clearSelectionDimensionMap() {
+	selections_map.clear();
+}
+
+void PndLmdDataFacade::createSelectionDimensionCombinations() {
+	// create a map of selection dimension lists
+	// one entry in the map for each combination
+	selections_map.clear();
+	std::map<std::string, std::vector<LumiFit::LmdDimension> > temp_selections_map;
+
+	LumiFit::LmdDimension primary_selection_dimension;
+
+	// for the first selection dimension bundle just fill the map with all different combinations
+	for (unsigned int i = 0; i < selection_dimension_bundles.size(); i++) {
+		selection_dimension_bundles[i].calculateBinSize();
+		if (0 == i) {
+			primary_selection_dimension = selection_dimension_bundles[i];
+
+			primary_selection_dimension.bins = 1;
+
+			for (unsigned int slice_index = 0;
+					slice_index < selection_dimension_bundles[i].bins; slice_index++) {
+				primary_selection_dimension.dimension_range.setRangeLow(
+						selection_dimension_bundles[i].dimension_range.getRangeLow()
+								+ selection_dimension_bundles[i].bin_size * slice_index);
+				primary_selection_dimension.dimension_range.setRangeHigh(
+						selection_dimension_bundles[i].dimension_range.getRangeLow()
+								+ selection_dimension_bundles[i].bin_size * (slice_index + 1));
+				primary_selection_dimension.calculateBinSize();
+				std::stringstream ss;
+				ss << "_" << slice_index;
+				temp_selections_map[ss.str()].push_back(primary_selection_dimension);
+			}
+		} else {
+			temp_selections_map = extendSelectionsMapByDimensionBundle(
+					temp_selections_map, selection_dimension_bundles[i]);
+		}
+	}
+	selections_map = temp_selections_map;
+	std::cout << "successfully created selection dimension combination map!"
+			<< std::endl;
+}
+
+std::map<std::string, std::vector<LumiFit::LmdDimension> > PndLmdDataFacade::extendSelectionsMapByDimensionBundle(
+		std::map<std::string, std::vector<LumiFit::LmdDimension> > &current_selections_map,
+		LumiFit::LmdDimension &selection_dimension_bundle) const {
+
+	std::map<std::string, std::vector<LumiFit::LmdDimension> > new_selections_map;
+// for the remaining selection dimensions
+// (atm its just the secondary, but it could be more in principle):
+// loop over them, and for each entry in the map
+
+	LumiFit::LmdDimension selection_dimension = selection_dimension_bundle;
+
+	selection_dimension.bins = 1;
+
+	for (unsigned int slice_index = 0;
+			slice_index < selection_dimension_bundle.bins; slice_index++) {
+		selection_dimension.dimension_range.setRangeLow(
+				selection_dimension_bundle.dimension_range.getRangeLow()
+						+ selection_dimension_bundle.bin_size * slice_index);
+		selection_dimension.dimension_range.setRangeHigh(
+				selection_dimension_bundle.dimension_range.getRangeLow()
+						+ selection_dimension_bundle.bin_size * (slice_index + 1));
+
+		selection_dimension.calculateBinSize();
+		// loop over current map and for each entry create a new entry with addition suffix
+		std::map<std::string, std::vector<LumiFit::LmdDimension> >::iterator current_selection_map_it =
+				current_selections_map.begin();
+		while (current_selection_map_it != current_selections_map.end()) {
+			std::stringstream ss;
+			ss << current_selection_map_it->first << "_" << slice_index;
+			new_selections_map[ss.str()] = current_selection_map_it->second;
+			new_selections_map[ss.str()].push_back(selection_dimension);
+			++current_selection_map_it;
+		}
+	}
+
+	return new_selections_map;
+}
+
+void PndLmdDataFacade::initialize1DData(std::string name,
+		PndLmdAbstractData & data) const {
+	data.setName(name);
+	data.setLabMomentum(lab_momentum);
 	data.setPrimaryDimension(constructPrimaryDimension());
 }
 
-void PndLmdDataFacade::initialize2DData(PndLmdAbstractData & data) const {
+void PndLmdDataFacade::initialize2DData(std::string name,
+		PndLmdAbstractData & data) const {
+	data.setName(name);
+	data.setLabMomentum(lab_momentum);
 	data.setPrimaryDimension(constructPrimaryDimension());
 	data.setSecondaryDimension(constructSecondaryDimension());
 }
 
-void PndLmdDataFacade::createAcceptance1D(unsigned int num_events) {
-	PndLmdAcceptance acc;
-	acc.setNumEvents(num_events);
-	acc.setLabMomentum(lab_momentum);
-	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
-	primary_dimension_template.dimension_options.dimension_type = LumiFit::THETA;
-	initialize1DData(acc);
-	lmd_acceptances.push_back(acc);
+void PndLmdDataFacade::addMultipleInstancesBasedOnSelections(
+		const PndLmdAngularData & data) {
+	if (selections_map.size() > 0) {
+		std::map<std::string, std::vector<LumiFit::LmdDimension> >::iterator selections_map_iter =
+				selections_map.begin();
+		while (selections_map_iter != selections_map.end()) {
+			// clone the data object
+			PndLmdAngularData data_clone(data);
+			//rename
+			data_clone.setName(data.getName() + selections_map_iter->first);
+			for (unsigned int i = 0; i < selections_map_iter->second.size(); i++) {
+				data_clone.addSelectionDimension(selections_map_iter->second[i]);
+			}
+			lmd_angular_data.push_back(data_clone);
+			++selections_map_iter;
+		}
+	} else
+		lmd_angular_data.push_back(data);
 }
 
-void PndLmdDataFacade::createAcceptance2D(unsigned int num_events) {
+void PndLmdDataFacade::addMultipleInstancesBasedOnSelections(
+		const PndLmdAcceptance & data) {
+	if (selections_map.size() > 0) {
+		std::cout << "adding " << selections_map.size()
+				<< " different acceptance instances with different selections!"
+				<< std::endl;
+		std::map<std::string, std::vector<LumiFit::LmdDimension> >::iterator selections_map_iter =
+				selections_map.begin();
+		while (selections_map_iter != selections_map.end()) {
+			// clone the data object
+			PndLmdAcceptance data_clone(data);
+			data_clone.cloneData(data);
+			//rename
+			data_clone.setName(data.getName() + selections_map_iter->first);
+			for (unsigned int i = 0; i < selections_map_iter->second.size(); i++) {
+				data_clone.addSelectionDimension(selections_map_iter->second[i]);
+			}
+			lmd_acceptances.push_back(data_clone);
+			++selections_map_iter;
+		}
+	} else
+		lmd_acceptances.push_back(data);
+}
+
+void PndLmdDataFacade::addMultipleInstancesBasedOnSelections(
+		const PndLmdHistogramData & data) {
+	if (selections_map.size() > 0) {
+		std::cout << "adding " << selections_map.size()
+				<< " different histogram data instances with different selections!"
+				<< std::endl;
+		std::map<std::string, std::vector<LumiFit::LmdDimension> >::iterator selections_map_iter =
+				selections_map.begin();
+		while (selections_map_iter != selections_map.end()) {
+			// clone the data object
+			PndLmdHistogramData data_clone(data);
+			//rename
+			data_clone.setName(data.getName() + selections_map_iter->first);
+			for (unsigned int i = 0; i < selections_map_iter->second.size(); i++) {
+				data_clone.addSelectionDimension(selections_map_iter->second[i]);
+			}
+			lmd_hist_data.push_back(data_clone);
+			++selections_map_iter;
+		}
+	} else
+		lmd_hist_data.push_back(data);
+}
+
+void PndLmdDataFacade::addMultipleInstancesBasedOnSelections(
+		const PndLmdVertexData & data) {
+	if (selections_map.size() > 0) {
+		std::map<std::string, std::vector<LumiFit::LmdDimension> >::iterator selections_map_iter =
+				selections_map.begin();
+		while (selections_map_iter != selections_map.end()) {
+			// clone the data object
+			PndLmdVertexData data_clone(data);
+			//rename
+			data_clone.setName(data.getName() + selections_map_iter->first);
+			for (unsigned int i = 0; i < selections_map_iter->second.size(); i++) {
+				data_clone.addSelectionDimension(selections_map_iter->second[i]);
+			}
+			lmd_vertex_data.push_back(data_clone);
+			++selections_map_iter;
+		}
+	} else
+		lmd_vertex_data.push_back(data);
+}
+
+void PndLmdDataFacade::createAcceptance1D(std::string name,
+		unsigned int num_events) {
 	PndLmdAcceptance acc;
 	acc.setNumEvents(num_events);
-	acc.setLabMomentum(lab_momentum);
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
-	primary_dimension_template.dimension_options.dimension_type = LumiFit::THETA;
+	initialize1DData(name, acc);
+
+	addMultipleInstancesBasedOnSelections(acc);
+}
+
+void PndLmdDataFacade::createAcceptance2D(std::string name,
+		unsigned int num_events) {
+	PndLmdAcceptance acc;
+	acc.setNumEvents(num_events);
+	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
 	secondary_dimension_template.dimension_options.track_type = LumiFit::MC;
-	secondary_dimension_template.dimension_options.dimension_type = LumiFit::PHI;
-	initialize2DData(acc);
-	lmd_acceptances.push_back(acc);
+	initialize2DData(name, acc);
+
+	addMultipleInstancesBasedOnSelections(acc);
 }
 
-void PndLmdDataFacade::createData1D(unsigned int num_events) {
+void PndLmdDataFacade::createData1D(std::string name, unsigned int num_events) {
 	PndLmdAngularData data;
 	data.setNumEvents(num_events);
-	data.setLabMomentum(lab_momentum);
-	initialize1DData(data);
+	initialize1DData(name, data);
 	data.setReferenceLuminosityPerEvent(current_reference_luminosity_per_event);
-	lmd_angular_data.push_back(data);
+
+	addMultipleInstancesBasedOnSelections(data);
 }
 
-void PndLmdDataFacade::createData2D(unsigned int num_events) {
+void PndLmdDataFacade::createData2D(std::string name, unsigned int num_events) {
 	PndLmdAngularData data;
 	data.setNumEvents(num_events);
-	initialize2DData(data);
+	initialize2DData(name, data);
 	data.setReferenceLuminosityPerEvent(current_reference_luminosity_per_event);
-	lmd_angular_data.push_back(data);
+
+	addMultipleInstancesBasedOnSelections(data);
 }
 
-void PndLmdDataFacade::createVertexData1D(unsigned int num_events) {
+void PndLmdDataFacade::createVertexData1D(std::string name,
+		unsigned int num_events) {
 	PndLmdVertexData data;
 	data.setNumEvents(num_events);
-	data.setLabMomentum(lab_momentum);
-	initialize1DData(data);
+	initialize1DData(name, data);
 	data.setSimulationIPParameters(current_simulation_ip_parameters);
-	lmd_vertex_data.push_back(data);
+
+	addMultipleInstancesBasedOnSelections(data);
 }
 
-void PndLmdDataFacade::createVertexData2D(unsigned int num_events) {
+void PndLmdDataFacade::createVertexData2D(std::string name,
+		unsigned int num_events) {
 	PndLmdVertexData data;
 	data.setNumEvents(num_events);
-	initialize2DData(data);
+	initialize2DData(name, data);
 	data.setSimulationIPParameters(current_simulation_ip_parameters);
-	lmd_vertex_data.push_back(data);
+
+	addMultipleInstancesBasedOnSelections(data);
 }
 
-void PndLmdDataFacade::createResolution1D(unsigned int num_events) {
-	PndLmdResolution res;
+void PndLmdDataFacade::createHistogramData1D(std::string name,
+		unsigned int num_events) {
+	PndLmdHistogramData res;
 	res.setNumEvents(num_events);
-	res.setLabMomentum(lab_momentum);
-	res.setPrimarySelectionDimension(primary_selection_dimension_template);
-	res.setSecondarySelectionDimension(secondary_selection_dimension_template);
-	initialize1DData(res);
-	lmd_resolutions.push_back(res);
+	initialize1DData(name, res);
+
+	addMultipleInstancesBasedOnSelections(res);
 }
 
-void PndLmdDataFacade::createResolution2D(unsigned int num_events) {
-	PndLmdResolution res;
+void PndLmdDataFacade::createHistogramData2D(std::string name,
+		unsigned int num_events) {
+	PndLmdHistogramData res;
 	res.setNumEvents(num_events);
-	res.setLabMomentum(lab_momentum);
-	res.setPrimarySelectionDimension(primary_selection_dimension_template);
-	res.setSecondarySelectionDimension(secondary_selection_dimension_template);
-	initialize2DData(res);
-	lmd_resolutions.push_back(res);
+	initialize2DData(name, res);
+
+	addMultipleInstancesBasedOnSelections(res);
 }
 
 void PndLmdDataFacade::create1DVertexDataBundle(unsigned int num_events) {
@@ -162,149 +337,179 @@ void PndLmdDataFacade::create1DVertexDataBundle(unsigned int num_events) {
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
 	primary_dimension_template.dimension_options.track_param_type = LumiFit::IP;
 
-	// we are actually using and filling cm here as it is the standard length unit
-	//primary_dimension_template.unit_factor.unit_prefix = LumiFit::CENTI;
+// we are actually using and filling cm here as it is the standard length unit
+//primary_dimension_template.unit_factor.unit_prefix = LumiFit::CENTI;
 
-	createVertexData1D(num_events);
-	lmd_vertex_data[0].setName("mc_x");
+	createVertexData1D("mc_x", num_events);
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
-	createVertexData1D(num_events);
-	lmd_vertex_data[1].setName("reco_x");
+	createVertexData1D("reco_x", num_events);
 
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::Y;
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
-	createVertexData1D(num_events);
-	lmd_vertex_data[2].setName("mc_y");
+	createVertexData1D("mc_y", num_events);
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
-	createVertexData1D(num_events);
-	lmd_vertex_data[3].setName("reco_y");
+	createVertexData1D("reco_y", num_events);
 
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::Z;
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
-	createVertexData1D(num_events);
-	lmd_vertex_data[4].setName("mc_z");
+	createVertexData1D("mc_z", num_events);
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
-	createVertexData1D(num_events);
-	lmd_vertex_data[5].setName("reco_z");
+	createVertexData1D("reco_z", num_events);
 }
 
 void PndLmdDataFacade::create1DAngularDataBundle(unsigned int num_events) {
-	LumiFit::LmdDimensionRange temp_dimension_range =
+	LumiFit::LmdDimensionRange theta_dimension_range =
 			primary_dimension_template.dimension_range;
 
 	PndLmdLumiHelper helper;
-	primary_dimension_template.dimension_range.setRangeLow(
+	LumiFit::LmdDimensionRange t_dimension_range;
+	t_dimension_range.setRangeLow(
 			helper.getMomentumTransferFromTheta(lab_momentum,
 					primary_dimension_template.dimension_range.getRangeLow()));
-	primary_dimension_template.dimension_range.setRangeHigh(
+	t_dimension_range.setRangeHigh(
 			helper.getMomentumTransferFromTheta(lab_momentum,
 					primary_dimension_template.dimension_range.getRangeHigh()));
-	primary_dimension_template.dimension_range.setUnitPrefix(LumiFit::NONE);
 
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::T;
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
+	primary_dimension_template.dimension_range = t_dimension_range;
+	createData1D("mc_t", num_events);
 
-	createData1D(num_events);
-	lmd_angular_data[lmd_angular_data.size() - 1].setName("mc_t");
-
-	primary_dimension_template.dimension_range = temp_dimension_range;
+	primary_dimension_template.dimension_range = theta_dimension_range;
 	primary_dimension_template.dimension_options.dimension_type = LumiFit::THETA;
-	createData1D(num_events);
-	lmd_angular_data[lmd_angular_data.size() - 1].setName("mc_th");
+	createData1D("mc_th", num_events);
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC_ACC;
-	createData1D(num_events);
-	lmd_angular_data[lmd_angular_data.size() - 1].setName("mc_acc_th");
+	createData1D("mc_acc", num_events);
 
 	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
-	createData1D(num_events);
-	lmd_angular_data[lmd_angular_data.size() - 1].setName("reco");
+	createData1D("reco", num_events);
+}
+
+void PndLmdDataFacade::create2DAngularDataBundle(unsigned int num_events) {
+	primary_dimension_template.is_active = true;
+	secondary_dimension_template.is_active = true;
+
+	LumiFit::LmdDimension secondary_selection_dimension;
+	secondary_selection_dimension.dimension_options.dimension_type =
+			LumiFit::SECONDARY;
+	secondary_selection_dimension.dimension_range.setRangeLow(-10000.0);
+	secondary_selection_dimension.dimension_range.setRangeHigh(-0.1);
+	// primarys are negative in the secondary number
+	selections_map["_prim"].push_back(secondary_selection_dimension);
+
+	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
+	secondary_dimension_template.dimension_options.track_type = LumiFit::MC;
+	createData2D("mc_th", num_events);
+
+	primary_dimension_template.dimension_options.track_type = LumiFit::MC_ACC;
+	secondary_dimension_template.dimension_options.track_type = LumiFit::MC_ACC;
+	createData2D("mc_acc", num_events);
+
+	primary_dimension_template.dimension_options.track_type = LumiFit::RECO;
+	secondary_dimension_template.dimension_options.track_type = LumiFit::RECO;
+	createData2D("reco", num_events);
+
+	selections_map.clear();
+
+	createData2D("reco", num_events);
 }
 
 void PndLmdDataFacade::create1DAngularResolutionDataBundle(
 		unsigned int num_events) {
-	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
-	secondary_dimension_template.dimension_options.track_type = LumiFit::MC;
+	primary_dimension_template.dimension_options.track_type =
+			LumiFit::DIFF_RECO_MC;
+	secondary_dimension_template.dimension_options.track_type =
+			LumiFit::DIFF_RECO_MC;
 
-	primary_selection_dimension_bundle_template.dimension_range.setUnitPrefix(
-			LumiFit::MILLI);
-	primary_selection_dimension_bundle_template.dimension_options.dimension_type =
-			LumiFit::THETA;
-	primary_selection_dimension_bundle_template.dimension_options.track_param_type =
-			LumiFit::IP;
-	secondary_selection_dimension_bundle_template.dimension_options.dimension_type =
-			LumiFit::PHI;
-	secondary_selection_dimension_bundle_template.dimension_options.track_param_type =
-			LumiFit::IP;
+	createHistogramData1D("ang_res", num_events);
+}
 
-	primary_selection_dimension_bundle_template.calculateBinSize();
-	secondary_selection_dimension_bundle_template.calculateBinSize();
+void PndLmdDataFacade::create2DAngularResolutionDataBundle(
+		unsigned int num_events) {
+	primary_dimension_template.dimension_options.track_type =
+			LumiFit::DIFF_RECO_MC;
+	secondary_dimension_template.dimension_options.track_type =
+			LumiFit::DIFF_RECO_MC;
 
-	primary_selection_dimension_template =
-			primary_selection_dimension_bundle_template;
-	primary_selection_dimension_template.dimension_range.setUnitPrefix(
-			LumiFit::NONE);
-
-	secondary_selection_dimension_template =
-			secondary_selection_dimension_bundle_template;
-
-	primary_selection_dimension_template.bins = 1;
-	secondary_selection_dimension_template.bins = 1;
-
-	for (unsigned int index_slice_theta = 0;
-			index_slice_theta < primary_selection_dimension_bundle_template.bins;
-			index_slice_theta++) {
-		for (unsigned int index_slice_phi = 0;
-				index_slice_phi < secondary_selection_dimension_bundle_template.bins;
-				index_slice_phi++) {
-			// create and register lmd resolution objects
-			// 1d resolution is saved in the same object as well
-			primary_selection_dimension_template.dimension_range.setRangeLow(
-					primary_selection_dimension_bundle_template.dimension_range.getRangeLow()
-							+ primary_selection_dimension_bundle_template.bin_size
-									* index_slice_theta);
-			primary_selection_dimension_template.dimension_range.setRangeHigh(
-					primary_selection_dimension_bundle_template.dimension_range.getRangeLow()
-							+ primary_selection_dimension_bundle_template.bin_size
-									* (index_slice_theta + 1));
-			secondary_selection_dimension_template.dimension_range.setRangeLow(
-					secondary_selection_dimension_bundle_template.dimension_range.getRangeLow()
-							+ secondary_selection_dimension_bundle_template.bin_size
-									* index_slice_phi);
-			secondary_selection_dimension_template.dimension_range.setRangeHigh(
-					secondary_selection_dimension_bundle_template.dimension_range.getRangeLow()
-							+ secondary_selection_dimension_bundle_template.bin_size
-									* (index_slice_phi + 1));
-
-			primary_selection_dimension_template.calculateBinSize();
-			secondary_selection_dimension_template.calculateBinSize();
-			createResolution1D(num_events);
-			std::stringstream ss;
-			ss << "ang_res_" << index_slice_theta << "_" << index_slice_phi;
-			lmd_resolutions[lmd_resolutions.size() - 1].setName(ss.str());
-		}
-	}
+	createHistogramData2D("ang_res", num_events);
 }
 
 void PndLmdDataFacade::fillAll() {
 	data_reader->registerAcceptances(lmd_acceptances);
 	data_reader->registerData(lmd_angular_data);
 	data_reader->registerData(lmd_vertex_data);
-	data_reader->registerResolutions(lmd_resolutions);
+	data_reader->registerData(lmd_hist_data);
 
 	data_reader->read();
+}
+
+std::vector<std::string> PndLmdDataFacade::findFilesByName(
+		const boost::filesystem::path &top_dir_path_to_search,
+		const std::string dir_name_filter, const std::string file_name) {
+
+	const boost::regex my_filter(dir_name_filter,
+			boost::regex::extended | boost::regex::icase);
+	const boost::regex my_filename_filter(file_name,
+			boost::regex::extended | boost::regex::icase);
+
+	std::vector<std::string> all_matching_files;
+
+	if (exists(top_dir_path_to_search)) {
+		// try to find directory pattern
+		bool dirname_ok(false);
+		boost::smatch what;
+		std::cout << "trying find " << dir_name_filter << " within "
+				<< top_dir_path_to_search.string() << std::endl;
+		if (boost::regex_search(top_dir_path_to_search.string(), what, my_filter)) {
+			dirname_ok = true;
+			std::cout << "This directory matches the filter " << dir_name_filter
+					<< std::endl;
+		}
+
+		std::cout << top_dir_path_to_search.string()
+				<< " exists... Looping over this directory.." << std::endl;
+		boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
+		for (boost::filesystem::directory_iterator itr(top_dir_path_to_search);
+				itr != end_itr; ++itr) {
+			// if the current entry is a file, just test for the filename
+			if (boost::filesystem::is_regular_file(itr->status())) {
+				if (dirname_ok) {
+					// File matches, check if fit_result.root file resides in this directory
+					boost::smatch fwhat;
+
+					// Skip if no match
+					if (!boost::regex_search(itr->path().string(), fwhat,
+							my_filename_filter))
+						continue;
+
+					all_matching_files.push_back(itr->path().string());
+				}
+			}
+
+			else if (boost::filesystem::is_directory(itr->status())) {
+				std::vector<std::string> found_files = findFilesByName(itr->path(),
+						dir_name_filter, file_name);
+				all_matching_files.insert(all_matching_files.end(), found_files.begin(),
+						found_files.end());
+			}
+		}
+	}
+	std::cout << "Found a total of " << all_matching_files.size()
+			<< " matching files!" << std::endl;
+	return all_matching_files;
 }
 
 LumiFit::LmdSimIPParameters PndLmdDataFacade::readSimulationIPParameters(
 		std::string dir_path) {
 	LumiFit::LmdSimIPParameters bp;
-	// Create an empty property tree object
+// Create an empty property tree object
 	ptree pt;
 
-	// read the config file
+// read the config file
 	read_ini(dir_path + "/sim_beam_prop.config", pt);
 
 	bp.offset_x_mean = pt.get<double>("ip_offset_x");

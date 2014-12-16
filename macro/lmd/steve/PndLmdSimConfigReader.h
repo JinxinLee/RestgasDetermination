@@ -17,8 +17,10 @@ struct PndLmdSimConfig {
 		std::string generator_filename_template;
 
 		//Section:Reco
+		int pitch; // dunno what that is, seems to be unused atm
+
 		bool use_missing_plane;
-		bool use_track_cuts; //use cuts during trk seacrh with "CA". Should be 'false' if sensors missaligned!
+		bool use_track_cuts; //use cuts during trk search with "CA". Should be 'false' if sensors miss-aligned!
 		bool merge_hits;
 
 		bool use_x_theta_cut;
@@ -36,8 +38,8 @@ struct PndLmdSimConfig {
 		double ip_spread_y;
 		double ip_spread_z;
 
-		double beam_gradient_x;
-		double beam_gradient_y;
+		double beam_tilt_x;
+		double beam_tilt_y;
 		double beam_divergence_x;
 		double beam_divergence_y;
 

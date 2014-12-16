@@ -11,6 +11,7 @@
 #include "SharedPtr.h"
 
 class TH1D;
+class TH2D;
 class TGraphErrors;
 
 class Data;
@@ -21,6 +22,8 @@ public:
 	virtual ~ROOTDataHelper();
 
 	void fillBinnedData(shared_ptr<Data> data, const TH1D* hist_1d) const;
+	void fillBinnedData(shared_ptr<Data> data, const TH2D* hist_2d) const;
+
 	void fillBinnedData(shared_ptr<Data> data, const TGraphErrors* graph_1d) const;
 };
 

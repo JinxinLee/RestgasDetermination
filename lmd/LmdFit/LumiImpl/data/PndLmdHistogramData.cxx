@@ -9,11 +9,28 @@
 
 ClassImp(PndLmdHistogramData)
 
-PndLmdHistogramData::PndLmdHistogramData() : hist_1d(0), hist_2d(0) {
+PndLmdHistogramData::PndLmdHistogramData() :
+		hist_1d(0), hist_2d(0) {
+}
+
+PndLmdHistogramData::PndLmdHistogramData(
+		const PndLmdHistogramData &lmd_hist_data_) :
+		PndLmdAbstractData(lmd_hist_data_), fit_storage(lmd_hist_data_.fit_storage) {
+	if (lmd_hist_data_.getPrimaryDimension().is_active)
+		hist_1d = new TH1D(*lmd_hist_data_.get1DHistogram());
+	else
+		hist_1d = 0;
+	if (lmd_hist_data_.getSecondaryDimension().is_active)
+		hist_2d = new TH2D(*lmd_hist_data_.get2DHistogram());
+	else
+		hist_2d = 0;
 }
 
 PndLmdHistogramData::~PndLmdHistogramData() {
-	// TODO Auto-generated destructor stub
+	if (hist_1d)
+		delete hist_1d;
+	if (hist_2d)
+		delete hist_2d;
 }
 
 void PndLmdHistogramData::init1DData() {
@@ -37,7 +54,8 @@ void PndLmdHistogramData::init2DData() {
 }
 
 void PndLmdHistogramData::cloneData(const PndLmdAbstractData &lmd_abs_data) {
-	const PndLmdHistogramData * lmd_data = dynamic_cast<const PndLmdHistogramData*>(&lmd_abs_data);
+	const PndLmdHistogramData * lmd_data =
+			dynamic_cast<const PndLmdHistogramData*>(&lmd_abs_data);
 	if (lmd_data) {
 		hist_1d = new TH1D(*lmd_data->get1DHistogram());
 		if (getSecondaryDimension().is_active) {
@@ -64,7 +82,8 @@ void PndLmdHistogramData::add(const PndLmdAbstractData &lmd_abs_data_addition) {
 	}
 }
 
-void PndLmdHistogramData::addData(double primary_value, double secondary_value) {
+void PndLmdHistogramData::addData(double primary_value,
+		double secondary_value) {
 	hist_1d->Fill(primary_value);
 	if (secondary_dimension.is_active) {
 		hist_2d->Fill(primary_value, secondary_value);
@@ -79,16 +98,31 @@ TH2D* PndLmdHistogramData::get2DHistogram() const {
 	return hist_2d;
 }
 
-const map<PndLmdLumiFitOptions, PndLmdLumiFitResult*>& PndLmdHistogramData::getFitResults() const {
+const map<PndLmdLumiFitOptions, PndLmdLumiFitResult>& PndLmdHistogramData::getFitResults() const {
 	return fit_storage.getFitResults();
 }
 
-PndLmdLumiFitResult* PndLmdHistogramData::getFitResult(
+PndLmdLumiFitResult PndLmdHistogramData::getFitResult(
 		const PndLmdLumiFitOptions &fit_options) const {
-		return fit_storage.getFitResult(fit_options);
+	return fit_storage.getFitResult(fit_options);
 }
 
-void PndLmdHistogramData::addFitResult(const PndLmdLumiFitOptions *fit_options,
-		PndLmdLumiFitResult* fit_result_) {
+void PndLmdHistogramData::addFitResult(const PndLmdLumiFitOptions &fit_options,
+		const PndLmdLumiFitResult &fit_result_) {
 	fit_storage.addFitResult(fit_options, fit_result_);
+}
+
+PndLmdHistogramData& PndLmdHistogramData::operator=(const PndLmdHistogramData &lmd_hist_data) {
+	PndLmdAbstractData::operator=(lmd_hist_data);
+	fit_storage = lmd_hist_data.fit_storage;
+	if(lmd_hist_data.hist_1d)
+		hist_1d = new TH1D(*(lmd_hist_data.hist_1d));
+	else
+		hist_1d = 0;
+	if(lmd_hist_data.hist_2d)
+		hist_2d = new TH2D(*(lmd_hist_data.hist_2d));
+	else
+		hist_2d = 0;
+
+	return (*this);
 }

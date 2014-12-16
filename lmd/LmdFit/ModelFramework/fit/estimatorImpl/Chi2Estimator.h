@@ -16,7 +16,7 @@ public:
 	virtual ~Chi2Estimator();
 
 	// the chisquare function
-	double eval() const;
+	double eval();
 };
 
 #endif /* CHI2ESTIMATOR_H_ */

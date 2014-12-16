@@ -23,6 +23,7 @@ class PndLmdAcceptance;
 class PndLmdResolution;
 
 class TDatabasePDG;
+class PndLmdDim;
 class PndLmdTrackQ;
 class TClonesArray;
 
@@ -30,7 +31,6 @@ class PndLmdDataReader {
 private:
 	std::vector<PndLmdHistogramData*> registered_data;
 	std::vector<PndLmdAcceptance*> registered_acceptances;
-	std::vector<PndLmdResolution*> registered_resolutions;
 
 	void clearRegisters();
 
@@ -40,12 +40,16 @@ private:
 			int num_events);
 	int getNextMinEventIndex(std::vector<PndLmdAbstractData*> &lmd_vec);
 
-	double getTrackParameterValue(PndLmdTrackQ *track_pars,
+	double getSingleTrackParameterValue(PndLmdTrackQ &track_pars,
 			const LumiFit::LmdDimension &lmd_dim) const;
-	double getTrackParameterDifference(PndLmdTrackQ *track_pars,
-			LumiFit::LmdDimension lmd_dim) const;
+	double getTrackParameterValue(PndLmdTrackQ &track_pars,
+			const LumiFit::LmdDimension &lmd_dim) const;
 
-	bool skipDataObject(const PndLmdAbstractData* data, bool reconstruced) const;
+	bool wasReconstructed(PndLmdTrackQ &track_pars) const;
+	bool skipDataObject(const PndLmdAbstractData* data,
+			PndLmdTrackQ &track_pars) const;
+	bool successfullyPassedFilters(const PndLmdAbstractData* data,
+			PndLmdTrackQ &track_pars) const;
 
 	void fillData(PndLmdTrackQ *track_pars);
 
@@ -61,6 +65,7 @@ private:
 
 protected:
 	TDatabasePDG *pdg;
+	PndLmdDim *lmd_coord_trans;
 
 	std::vector<TString> file_paths;
 
@@ -75,6 +80,7 @@ public:
 	int registerData(PndLmdHistogramData* data);
 	int registerData(std::vector<PndLmdAngularData> &data_vec);
 	int registerData(std::vector<PndLmdVertexData> &data_vec);
+	int registerData(std::vector<PndLmdHistogramData> &data_vec);
 
 	int registerAcceptance(PndLmdAcceptance* acc);
 	int registerAcceptances(std::vector<PndLmdAcceptance> &acc_vec);

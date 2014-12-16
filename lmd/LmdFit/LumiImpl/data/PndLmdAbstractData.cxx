@@ -19,6 +19,14 @@ PndLmdAbstractData::PndLmdAbstractData() :
 		p_lab(0.0) {
 }
 
+PndLmdAbstractData::PndLmdAbstractData(const PndLmdAbstractData &lmd_abs_data_) :
+		num_events(lmd_abs_data_.getNumEvents()), p_lab(
+				lmd_abs_data_.getLabMomentum()), name(lmd_abs_data_.getName()), primary_dimension(
+				lmd_abs_data_.getPrimaryDimension()), secondary_dimension(
+				lmd_abs_data_.getSecondaryDimension()), selection_dimensions(
+				lmd_abs_data_.getSelectorSet()) {
+}
+
 PndLmdAbstractData::~PndLmdAbstractData() {
 	// TODO Auto-generated destructor stub
 }
@@ -43,11 +51,20 @@ const LumiFit::LmdDimension& PndLmdAbstractData::getSecondaryDimension() const {
 	return secondary_dimension;
 }
 
-double PndLmdAbstractData::getBinningFactor() const {
+double PndLmdAbstractData::getBinningFactor(int dimension) const {
 	double bin_factor = getPrimaryDimension().bin_size;
-	if (getSecondaryDimension().is_active)
+	if (getSecondaryDimension().is_active && dimension > 1)
 		bin_factor *= getSecondaryDimension().bin_size;
 	return bin_factor;
+}
+
+const std::set<LumiFit::LmdDimension>& PndLmdAbstractData::getSelectorSet() const {
+	return selection_dimensions;
+}
+
+void PndLmdAbstractData::addSelectionDimension(
+		const LumiFit::LmdDimension &lmd_dim) {
+	selection_dimensions.insert(lmd_dim);
 }
 
 void PndLmdAbstractData::setNumEvents(int num_events_) {
@@ -111,6 +128,12 @@ bool PndLmdAbstractData::operator<(
 			return true;
 	}
 
+	if (selection_dimensions < lmd_data_int.selection_dimensions)
+		return true;
+	else if (selection_dimensions > lmd_data_int.selection_dimensions) {
+		return false;
+	}
+
 	return false;
 }
 
@@ -132,6 +155,10 @@ bool PndLmdAbstractData::operator==(
 		if (secondary_dimension != lmd_data_int.secondary_dimension)
 			return false;
 	}
+
+	if (selection_dimensions != lmd_data_int.selection_dimensions)
+		return false;
+
 	return true;
 }
 

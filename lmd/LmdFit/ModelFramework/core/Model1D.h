@@ -22,7 +22,7 @@ public:
   Model1D(std::string name_);
   virtual ~Model1D();
 
-  double Integral(std::vector<std::pair<double, double> > &ranges, double precision);
+  double Integral(std::vector<DataStructs::DimensionRange> &ranges, double precision);
   double getDomainRange();
   double getDomainLowerBound();
   const std::pair<double, double>& getDomain() const;
