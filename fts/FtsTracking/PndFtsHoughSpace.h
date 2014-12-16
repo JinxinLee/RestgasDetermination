@@ -85,7 +85,7 @@ public:
 	);
 	~PndFtsHoughSpace();
 
-	TH2S ExportTH2S();
+//	TH2S ExportTH2S();
 
 	// General info for peak finders
 	//	The peaks contain the following information
