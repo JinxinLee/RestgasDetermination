@@ -53,10 +53,6 @@ public:
 	  PndTrackCand myCand = ((PndTrack)myTrack).GetTrackCand();
 	  if      (fTimeStamp < myCand.GetTimeStamp() ) return true; 
 	  else if (fTimeStamp > myCand.GetTimeStamp() ) return false; 
-	  if      (fTrackCand.getDirSeed().Mag() < myCand.getDirSeed().Mag() ) return true; 
-	  else if (fTrackCand.getDirSeed().Mag() > myCand.getDirSeed().Mag() ) return false;
-	  if      (fTrackCand.getPosSeed().Mag() < myCand.getPosSeed().Mag() ) return true; 
-	  else if (fTrackCand.getPosSeed().Mag() > myCand.getPosSeed().Mag() ) return false; 
 	  return false;
 	}
 	
@@ -64,10 +60,6 @@ public:
 	  PndTrackCand myCand = ((PndTrack)myTrack).GetTrackCand();
 	  if      (fTimeStamp > myCand.GetTimeStamp() ) return true; 
 	  else if (fTimeStamp < myCand.GetTimeStamp() ) return false; 
-	  if      (fTrackCand.getDirSeed().Mag() > myCand.getDirSeed().Mag() ) return true; 
-	  else if (fTrackCand.getDirSeed().Mag() < myCand.getDirSeed().Mag() ) return false;
-	  if      (fTrackCand.getPosSeed().Mag() > myCand.getPosSeed().Mag() ) return true; 
-	  else if (fTrackCand.getPosSeed().Mag() < myCand.getPosSeed().Mag() ) return false; 
 	  return false;
 	}
 	
