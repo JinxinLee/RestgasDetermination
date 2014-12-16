@@ -554,7 +554,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 		}
 	} // for iHit
 	if (1<fVerbose) std::cout << "map after all hits: " << fHitThetaYIdxPath << '\n';
-	if (fTrackerTask->GetSaveDebugInfo()) {
+	if (0 < fTrackerTask->GetSaveDebugInfo()) {
 		WriteHistoOfHoughSpace();
 		WriteHistoOfAllPaths();
 	}
@@ -568,6 +568,8 @@ TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions() const {
 }
 
 void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpacePeak >& peaksToPlot) const {
+	if ( (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaks) && (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeak) ) return;
+
 	// write out histograms containing found peaks
 	// filling all peaks in separate histos and all together in one histo
 	TH2S allPeaks = MakeEmptyHistoOfSameDimensions();
@@ -585,15 +587,17 @@ void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpaceP
 		outNameOne += "-H";
 		outNameOne += currHeight;
 		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
-		onePeak.SaveAs(outNameOne, "LEGO2");
+		if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeak) onePeak.SaveAs(outNameOne, "LEGO2");
 	}
 	TString outNameAll = GetDebugOutPrefix();
 	outNameAll += "-AllPeaks.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
-	allPeaks.SaveAs(outNameAll, "LEGO2");
+	if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaks) allPeaks.SaveAs(outNameAll, "LEGO2");
 }
 
 void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
-	// filling each path in separate histos
+	if (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kHitCurves) return;
+
+	// filling each path in separate histo
 	for (HitIdxPathMap::const_iterator itPath = fHitThetaYIdxPath.begin(); itPath != fHitThetaYIdxPath.end(); ++itPath) {
 		TH2S onePath = MakeEmptyHistoOfSameDimensions();
 		const Int_t currHit = itPath->first;
@@ -613,11 +617,40 @@ void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
 
 
 
+void PndFtsHoughSpace::WriteHistoOfMcTruthPeaks() const {
+	if (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaks) return;
+
+	// TODO
+
+
+	// filling all paths belonging to hits from the same MC truth particle in separate histo
+//	for (HitIdxPathMap::const_iterator itPath = fHitThetaYIdxPath.begin(); itPath != fHitThetaYIdxPath.end(); ++itPath) {
+//		TH2S onePath = MakeEmptyHistoOfSameDimensions();
+//		const Int_t currHit = itPath->first;
+//		const IdxPath& currPath = itPath->second;
+//		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
+//			Int_t currBinNumber = currPath[iGlobalBin];
+//			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
+//			onePath.SetBinContent(currBinNumber, currHeight);
+//		}
+//		TString outNameOne = GetDebugOutPrefix();
+//		outNameOne += "-Path";
+//		outNameOne += currHit;
+//		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+//		onePath.SaveAs(outNameOne, "LEGO2");
+//	}
+}
+
+
+
+
 void PndFtsHoughSpace::WriteHistoOfHoughSpace() const{
+	if (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kHoughSpaces) return;
+
 	//	Int_t index = fHoughSpaces->GetEntriesFast();
 	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
 	TString outName = GetDebugOutPrefix();
-	outName+="histo.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+	outName+="-histo.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
 	SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
 	// sed -i 's/PndFtsHoughSpace/TH2S/g' *.rtg
 
@@ -969,7 +1002,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 		}
 	}// hit loop
 
-	if ( kTRUE == fTrackerTask->GetSaveDebugInfo() ) WriteHistoOfAllPeaks(mergedPeaksForAllHits);
+	if ( 0 < fTrackerTask->GetSaveDebugInfo() ) WriteHistoOfAllPeaks(mergedPeaksForAllHits);
 
 
 	// Build up tracklets from peaks by going through vector of merged peaks

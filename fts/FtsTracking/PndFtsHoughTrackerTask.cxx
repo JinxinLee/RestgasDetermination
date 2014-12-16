@@ -317,7 +317,7 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 
 		// for debug output get PndFtsHoughTrackCand
 		// TODO Check if that works
-		if (kTRUE==fSaveDebugInfo) {
+		if (0<fSaveDebugInfo) {
 			PndFtsHoughTrackCand* myHoughCand = new ((*fHoughTrackCands)[iFoundTrack])PndFtsHoughTrackCand(trackFinder.GetHoughTrack(iFoundTrack));
 		}
 

@@ -324,16 +324,7 @@ private:
 	//-----
 	/** @brief For writing out debugging histograms.
 	 */
-	TString GetDebugOutPrefix() const{
-		TString debugOut = "/home/plots/";
-		debugOut += GetName();
-		debugOut+=fTrackerTask->GetEventNr();
-		if (-1!=fRefIndex){
-			debugOut+="-rId";
-			debugOut+=fRefIndex;
-		}
-		return debugOut;
-	};
+	inline TString GetDebugOutPrefix() const;
 	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
 	 */
 	void WriteHistoOfHoughSpace() const;
@@ -346,6 +337,9 @@ private:
 	/** @brief For writing out paths (how the Hough space was filled seen from one hit) as histograms (for debugging purposes).
 	 */
 	void WriteHistoOfAllPaths() const;
+	/** @brief For writing out the Hough space filtered to paths which belong to hits from the same MC truth particle (for debugging and parameter optimisation purposes).
+	 */
+	void WriteHistoOfMcTruthPeaks() const;
 	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets) const;
 
 public:
@@ -418,6 +412,18 @@ const TVector3 PndFtsHoughSpace::CalculateHitPosFromIntersectionsWithZxTrackMode
 
 	TVector3 crossingPosition(xTM,yStraw,hitZLabSys);
 	return crossingPosition;
+}
+
+
+TString PndFtsHoughSpace::GetDebugOutPrefix() const{
+	TString debugOut = "/home/plots/";
+	debugOut += GetName();
+	debugOut+=fTrackerTask->GetEventNr();
+	if (-1!=fRefIndex){
+		debugOut+="-rId";
+		debugOut+=fRefIndex;
+	}
+	return debugOut;
 }
 
 

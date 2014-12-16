@@ -48,6 +48,9 @@ class FairField;
 class PndFtsHoughTrackerTask : public FairTask
 {
 public:
+	enum DebugLevelMultiplicators { kHoughSpaces=2, kAllFoundPeaks=3, kEachFoundPeak=5, kMcTruthPeaks=7, kHitCurves=11 };
+
+
 	/** @brief Constructor with flags. Can also be used as standard constructor.
 	 * @param[in] verbose Verbosity level: 0 least, higher -> more output.
 	 * @param[in] persistence kFALSE does not write track candidates from PR to output root file.
@@ -80,14 +83,14 @@ public:
 	//----------
 	void SetVerbose(Int_t verbose){ fVerbose = verbose;};
 	void SetPersistence(Bool_t val){ fPersistence = val;};
-	void SetSaveDebugInfo(Bool_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
+	void SetSaveDebugInfo(Int_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
 	//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
 	//----------
 	// GETTERS
 	//----------
 	const Int_t GetVerbose() const { return fVerbose; }; ///< @brief Returns the verbosity level.
-	const Bool_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
+	const Int_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
 	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
 
 	//-----------
@@ -201,7 +204,7 @@ private:
 	//-------
 	// Debug
 	//-------
-	Bool_t fSaveDebugInfo; ///< @brief Debug information will be created iif kTRUE.
+	Int_t fSaveDebugInfo; ///< @brief Debug information will be created if >0.
 	UInt_t fEventNr; ///< @brief Event number for debugging purposes.
 	/** @brief For error reporting */
 	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };

@@ -17,10 +17,6 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 				fMinPeakHeightZxLineBehindDipole(6),
 				fMinPeakHeightZyLine(8),
 
-				// general
-				fSaveDebugInfo(kFALSE),
-				fVerbose(0),
-
 				// Hough spaces
 				fHoughSpaceZxLineBeforeDipole(0),
 				fHoughspaceZxParabola(0),
@@ -30,16 +26,14 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Tracker task not set.\n";
 	} else {
-		fVerbose = fTrackerTask->GetVerbose();
-		if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder called with tracker ptr " << fTrackerTask << '\n';
-		fSaveDebugInfo = fTrackerTask->GetSaveDebugInfo();
+		if(3<fTrackerTask->GetVerbose()) std::cout << "PndFtsHoughTrackFinder called with tracker ptr " << fTrackerTask << '\n';
 	}
 }
 
 
 PndFtsHoughTrackFinder::~PndFtsHoughTrackFinder()
 {
-	if(3<fVerbose) fTrackerTask->fLogger->Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackFinder");
+	if(3<fTrackerTask->GetVerbose()) fTrackerTask->fLogger->Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackFinder");
 }
 
 
@@ -133,7 +127,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				stepsPerThetaDegParabola
 				* (thetaDegHighParabola - thetaDegLowParabola));
 
-		if (0 < fVerbose) std::cout << "event: " << fTrackerTask->GetEventNr()
+		if (0 < fTrackerTask->GetVerbose()) std::cout << "event: " << fTrackerTask->GetEventNr()
     														  << " Line " << iLB4D
     														  << "\n thetaRadLowParabola=" << thetaRadLowParabola
     														  << " thetaRadHighParabola=" << thetaRadHighParabola
@@ -170,7 +164,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 
 
 		// construct newHoughTrackCand from line+parabola+line (in zx)
-		if (1 < fVerbose) {
+		if (1 < fTrackerTask->GetVerbose()) {
 			std::cout
 			<< "Create track candidates from line in zx before dipole "
 			<< iLB4D << " and all parabolas within dipole.\n"
@@ -209,7 +203,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 
 void PndFtsHoughTrackFinder::FindTracks() {
 
-	if (0<fVerbose) std::cout << "PndFtsHoughTrackFinder::FindTracks()\n";
+	if (0<fTrackerTask->GetVerbose()) std::cout << "PndFtsHoughTrackFinder::FindTracks()\n";
 
 	// reset
 	fHoughTrackCandsZxPlaneOnly.clear();
@@ -219,7 +213,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	//--------------------------
 	// Do we have enough hits in the FTS?
 	if( fMinPeakHeightZxParabola > fTrackerTask->GetNFtsHits() ) {
-		if(0<fVerbose) fTrackerTask->fLogger->Info(MESSAGE_ORIGIN,"Skip the event, since we have too few hits in FTS");
+		if(0<fTrackerTask->GetVerbose()) fTrackerTask->fLogger->Info(MESSAGE_ORIGIN,"Skip the event, since we have too few hits in FTS");
 		return;
 	}
 
@@ -292,7 +286,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 		// construct newHoughTrackCand by adding zy line to line+parabola+line (in zx)
-		if (1 < fVerbose) {
+		if (1 < fTrackerTask->GetVerbose()) {
 			std::cout
 			<< "Create track candidates by adding line in zy to line+parabola+line in zx "
 			<< iLPL <<"\n"
@@ -324,7 +318,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	//	pzinvpeakWithBField = pzinvpeak/BMeanForParabola;
 
 
-	if(0<fVerbose) {
+	if(0<fTrackerTask->GetVerbose()) {
 
 		// TODO Add missing output
 
@@ -392,7 +386,7 @@ Bool_t PndFtsHoughTrackFinder::FilterTrackletsBasedOnSharedHits(
 
 	// if we have no tracklets to "delete", we don't need to do anything
 	if (0==indicesToDelete.size()){
-		if (0<fVerbose) {  std::cout << "FilterTrackletsBasedOnSharedHits: No tracklets are marked for deletion.\n"; }
+		if (0<fTrackerTask->GetVerbose()) {  std::cout << "FilterTrackletsBasedOnSharedHits: No tracklets are marked for deletion.\n"; }
 		return kTRUE;
 	}
 

@@ -112,10 +112,6 @@ private:
 
 
 
-	Int_t fVerbose;
-	Bool_t fSaveDebugInfo;
-
-
 
 	// for Hough
 	//-----------
