@@ -67,6 +67,7 @@ public:
 	// Constructors/Destructors ---------
 	PndFtsHoughSpace(
 			const char *name=0,
+			const Int_t refIndex = -1,
 
 			Int_t nbinsx=0,
 			Double_t xlow=0.,
@@ -85,7 +86,7 @@ public:
 	);
 	~PndFtsHoughSpace();
 
-//	TH2S ExportTH2S();
+	//	TH2S ExportTH2S();
 
 	// General info for peak finders
 	//	The peaks contain the following information
@@ -159,7 +160,7 @@ public:
 
 	 @param[in] Running index, only needed for Debugging output of Hough spaces
 	 */
-	void FillHoughSpace(const Int_t index = -1);
+	void FillHoughSpace();
 
 	// operators
 	// PndFtsHoughSpace are the same if they contain the same hits, that means if the PndTrackCand are the same, therefore no need to implement that operator here
@@ -207,9 +208,10 @@ private:
 
 	// Private Data Members ------------
 	Int_t fVerbose; //!
+	const Int_t fRefIndex; ///< for debugging output (to which index in some loop does this Hough space and its output belong to)
 
 	/// @ brief FTS Hits
-	Int_t   fFtsBranchId;
+	Int_t fFtsBranchId;
 	std::vector<PndTrackCandHit> fHitId; //! ///< @brief hits relevant for this Hough space
 	///< first index is detId, second index is hit Id
 
@@ -320,19 +322,28 @@ private:
 	//------
 	//DEBUG
 	//-----
-	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
-	 * @param[in] index Use this parameter in case the same kind of Hough space needs to be written out multiple times per event.
+	/** @brief For writing out debugging histograms.
 	 */
-	void WriteHistoOfHoughSpace(Int_t index=-1) const;
+	TString GetDebugOutPrefix() const{
+		TString debugOut = "/home/plots/";
+		debugOut += GetName();
+		debugOut+=fTrackerTask->GetEventNr();
+		if (-1!=fRefIndex){
+			debugOut+="-rId";
+			debugOut+=fRefIndex;
+		}
+		return debugOut;
+	};
+	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
+	 */
+	void WriteHistoOfHoughSpace() const;
 	/** @brief Makes a new empty histogram with the same binning and limits as this.
 	 */
 	TH2S MakeEmptyHistoOfSameDimensions() const;
 	/** @brief For writing out peaks in Hough spaces as histograms (for debugging purposes).
-	 * @param[in] peaksToPlot contains the peaks that should be plotted.
 	 */
 	void WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpacePeak >& peaksToPlot) const;
 	/** @brief For writing out paths (how the Hough space was filled seen from one hit) as histograms (for debugging purposes).
-	 * @param[in] pathsToPlot contains the paths which should be plotted.
 	 */
 	void WriteHistoOfAllPaths() const;
 	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets) const;

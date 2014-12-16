@@ -49,7 +49,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBehindDipoleZx
 	static const Int_t thetaDegLowLineBehindDipole = -80; // in degree
 	static const Int_t thetaDegHighLineBehindDipole = 80; // in degree
 	delete fHoughSpaceZxLineBehindDipole;
-	fHoughSpaceZxLineBehindDipole = new PndFtsHoughSpace("lineBehindDipole",
+	fHoughSpaceZxLineBehindDipole = new PndFtsHoughSpace("lineBehindDipole", -1,
 			stepsPerThetaDegLineBehindDipole
 			* (thetaDegHighLineBehindDipole
 					- thetaDegLowLineBehindDipole),
@@ -80,7 +80,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBeforeDipoleZx
 	static const Int_t thetaDegLowLineBeforeDipole = -25; // in degree
 	static const Int_t thetaDegHighLineBeforeDipole = 25; // in degree
 	delete fHoughSpaceZxLineBeforeDipole;
-	fHoughSpaceZxLineBeforeDipole = new PndFtsHoughSpace("lineBeforeDipole",
+	fHoughSpaceZxLineBeforeDipole = new PndFtsHoughSpace("lineBeforeDipole", -1,
 			stepsPerThetaDegLineBeforeDipole
 			* (thetaDegHighLineBeforeDipole
 					- thetaDegLowLineBeforeDipole),
@@ -147,7 +147,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
     														  << '\n';
 
 		delete fHoughspaceZxParabola;
-		fHoughspaceZxParabola = new PndFtsHoughSpace("parabola", thetaBins,
+		fHoughspaceZxParabola = new PndFtsHoughSpace("parabola", iLB4D, thetaBins,
 				thetaRadLowParabola, // in rad
 				thetaRadHighParabola, // in rad
 				300,
@@ -156,7 +156,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				fZLineParabola, peakInterceptLB4D, 0, fTrackerTask);
 
 		// Do parabola Hough transform for current line before dipole (shifts FTS hits by hitshiftinx) for non-skewed hits in stations 3+4+5
-		try { fHoughspaceZxParabola->FillHoughSpace(iLB4D); }
+		try { fHoughspaceZxParabola->FillHoughSpace(); }
 		catch (std::runtime_error& e) {
 			std::cerr << "Hough Space for zx parabola could not be created! \n";
 			std::cerr << "runtime_error: " << e.what() << '\n';
@@ -264,7 +264,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 		// create Hough space
 		delete houghspaceZyLine;
-		houghspaceZyLine = new PndFtsHoughSpace("lineZy",
+		houghspaceZyLine = new PndFtsHoughSpace("lineZy", iLPL,
 				stepsPerThetaDegZyLine
 				* (thetaDegHighZyLine
 						- thetaDegLowZyLine),

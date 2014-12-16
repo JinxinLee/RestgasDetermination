@@ -103,6 +103,7 @@ inline void PndFtsHoughSpace::AddHitToHS(FairLink link, Double_t rho)
 
 PndFtsHoughSpace::PndFtsHoughSpace(
 		const char *name,
+		const Int_t refIndex,
 
 		Int_t nbinsx,
 		Double_t xlow,
@@ -119,19 +120,20 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-						fTrackerTask(trackerTask),
+														fTrackerTask(trackerTask),
+														fRefIndex(refIndex),
 
-						fZRefPos(zRefPos),
-						fInterceptZx(interceptZx),
+														fZRefPos(zRefPos),
+														fInterceptZx(interceptZx),
 
-						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+														TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-						// set from tracker task
-						fFtsBranchId(0),
-						fVerbose(0),
-						fField(0),
+														// set from tracker task
+														fFtsBranchId(0),
+														fVerbose(0),
+														fField(0),
 
-						fAssociatedTrackCand(associatedTrackCand)
+														fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -362,7 +364,7 @@ Bool_t PndFtsHoughSpace::FillHoles(
 	return kTRUE;
 }
 
-void PndFtsHoughSpace::FillHoughSpace( const Int_t index )
+void PndFtsHoughSpace::FillHoughSpace()
 {
 	// make sure we have hits in the Hough space
 	if (0==GetNHits()){
@@ -553,7 +555,7 @@ void PndFtsHoughSpace::FillHoughSpace( const Int_t index )
 	} // for iHit
 	if (1<fVerbose) std::cout << "map after all hits: " << fHitThetaYIdxPath << '\n';
 	if (fTrackerTask->GetSaveDebugInfo()) {
-		WriteHistoOfHoughSpace(index);
+		WriteHistoOfHoughSpace();
 		WriteHistoOfAllPaths();
 	}
 }
@@ -577,9 +579,7 @@ void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpaceP
 			onePeak.SetBinContent(*itBin, currHeight);
 			allPeaks.SetBinContent(*itBin, currHeight);
 		}
-		TString outNameOne = "plots/";
-		outNameOne += onePeak.GetName();
-		outNameOne += fTrackerTask->GetEventNr();
+		TString outNameOne = GetDebugOutPrefix();
 		outNameOne += "-Peak";
 		outNameOne += iPeak;
 		outNameOne += "-H";
@@ -587,9 +587,7 @@ void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpaceP
 		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
 		onePeak.SaveAs(outNameOne, "LEGO2");
 	}
-	TString outNameAll = "plots/";
-	outNameAll += allPeaks.GetName();
-	outNameAll += fTrackerTask->GetEventNr();
+	TString outNameAll = GetDebugOutPrefix();
 	outNameAll += "-AllPeaks.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
 	allPeaks.SaveAs(outNameAll, "LEGO2");
 }
@@ -605,9 +603,7 @@ void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
 			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
 			onePath.SetBinContent(currBinNumber, currHeight);
 		}
-		TString outNameOne = "plots/";
-		outNameOne += onePath.GetName();
-		outNameOne += fTrackerTask->GetEventNr();
+		TString outNameOne = GetDebugOutPrefix();
 		outNameOne += "-Path";
 		outNameOne += currHit;
 		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
@@ -617,18 +613,11 @@ void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
 
 
 
-void PndFtsHoughSpace::WriteHistoOfHoughSpace(Int_t index) const{
+void PndFtsHoughSpace::WriteHistoOfHoughSpace() const{
 	//	Int_t index = fHoughSpaces->GetEntriesFast();
 	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
-
-	TString outName = "plots/";
-	outName += GetName();
-	outName+=fTrackerTask->GetEventNr();
-	if (-1!=index){
-		outName+="-";
-		outName+=index;
-	}
-	outName+=".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+	TString outName = GetDebugOutPrefix();
+	outName+="histo.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
 	SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
 	// sed -i 's/PndFtsHoughSpace/TH2S/g' *.rtg
 
