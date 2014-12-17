@@ -764,7 +764,6 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  Vec <int> FromSciTiltoMCTrackList(FromSciTiltoMCTrackL,nSciTilHits*nMCTracks,"FromSciTiltoMCTrackList");
 	// fine processamento;
 
-
  // inizio cambio_in_perl
 	SciTilMatchtoMC(
 	BFIELD,
@@ -1916,19 +1915,39 @@ cout<<"Evento n. "<<IVOLTE<<
 	// the number of the first hit [in the SciTil hit list]
 	// belonging to that tile;
 	// OriginalSciTilList[n][nnn]  is their list; the dimension of
-	// OriginalSciTilList  is fSciTilMaxNumber*fSciTilMaxNumbe when nSciTilHits>0
+	// OriginalSciTilList  is fSciTilMaxNumber*fSciTilMaxNumber when nSciTilHits>0
 	// (otherwise it is 1*1 ).
+
+
 	for(int h=0;h<nHitsInSciTile[nsc];h++){
 		int m=OriginalSciTilList[nsc*fSciTilMaxNumber+h];
 		PndSciTHit *hit=(PndSciTHit*)fSciTHitArray->At(m);
 		PndSciTPoint *point=(PndSciTPoint*)
 			fSciTPointArray->At(hit->GetRefIndex());
 		if( point->GetTrackID()>=0){
-		   FromSciTiltoMCTrackList->at(nsc*nMCTracks+nFromSciTiltoMCTrack->at(nsc))
-			=point->GetTrackID();
-		   nFromSciTiltoMCTrack->at(nsc)++;
-		}
+
+			// controllo se questa traccia MC non sia gia' stata inserita
+			// prima da uno hit della stessa SciTil;
+			bool accetto = true;
+			for(int kk=0;kk<nFromSciTiltoMCTrack->at(nsc);kk++){ // loop sulle tracce MC finora associate;
+			   if( point->GetTrackID() == 
+				FromSciTiltoMCTrackList->at(nsc*nMCTracks+kk) ){
+				accetto=false;
+				break;
+			    }
+			}  // end of  for(int kk=0;kk<nFromSciTiltoMCTrack->at(nsc);kk++)
+
+
+			if( accetto){
+		   		FromSciTiltoMCTrackList->at(nsc*nMCTracks+nFromSciTiltoMCTrack->at(nsc))
+					=point->GetTrackID();
+		   		nFromSciTiltoMCTrack->at(nsc)++;
+			}
+		}  //  end of  if( point->GetTrackID()>=0)
 	} // end of for(int h=0;h<nHitsInSciTile[nsc];h++)
+
+
+
  }  // end of  for(int nsc=0; nsc<nSciTilHits; nsc++)
 
 
