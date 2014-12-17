@@ -22,6 +22,8 @@
 #define MAX 1000
 #define BINS 500
 #define NCAN 3
+#define MAXVARS 8  //maximum allowed number of variables for one selection
+#define MAXCUTS 12  //maximum allowed number of cuts for one selection
 
 typedef std::vector<pair<double, int> > ValueMap;
 typedef std::map<int, int> CountMap;
@@ -363,6 +365,38 @@ int findcut(TTree *t, TEventList &els, TEventList &elb, double supr, double &bes
 }
 
 // ---------------------------------------------------------------
+int countVars(TString s)
+{
+	int cnt = 0;
+	TString svar="";
+	TRegexp rvar("-[a-zA-Z_][a-zA-Z0-9_]+-");
+	
+	TObjArray *tok = s.Tokenize("&&");
+	int N = tok->GetEntries();	
+	for (int i=0;i<N;++i) 
+	{
+		if (i<100) 
+		{
+			TString toks = ((TObjString*)tok->At(i))->String();
+			toks.ReplaceAll("\t","");
+			toks = toks.Strip(TString::kBoth);
+			if (toks.Index("<")>0) toks = toks(0,toks.Index("<"));
+			if (toks.Index(">")>0) toks = toks(0,toks.Index(">"));
+			svar += "-"+toks+"-";
+		}
+	}
+	while (svar(rvar)!="") {svar.ReplaceAll(svar(rvar),""); cnt++;}
+	return cnt;
+}
+
+// ---------------------------------------------------------------
+int countCuts(TString s)
+{
+	TObjArray *tok = s.Tokenize("&&");
+	return tok->GetEntries();	
+}
+
+// ---------------------------------------------------------------
 
 void autocutx(TString fname, TString precut="", double supr=0.95, double target=0.0001, double mineff = 0.1, double minreleff = 0.0, int evmult=10000, double norm=1.0, int n0s=-1)
 {
@@ -428,7 +462,7 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 	TRegexp rnum("[\\-]*[0-9]+\\.[0-9]+$");
 	int cnt=0;
 	
-	while (cnt<50 && beff>target && seff>=mineff && rseff>=minreleff) 
+	while (cnt<150 && beff>target && seff>=mineff && rseff>=minreleff) 
 	{		
 		c1->cd(cnt%7+1); 
 		t->SetLineColor(1);	t->Draw("xm",precut);
@@ -458,28 +492,17 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 		
 		TString bestcut = cuts[bestid];
 		
-		//cout <<" "<<bestcut<<" ("<<qa<<") -> ";
-		
 		std::vector<int> myidx (idx, idx+nbranch);	
 		std::sort(myidx.begin(), myidx.end(), mycompare);	
 		
 		if (precut.Length()>3 && precut.Index(vars[bestid]+">")<0 && precut.Index(vars[bestid]+"<")<0)
 		{
-			int i = 0;
+			int i = 0, ncuts = countCuts(precut);
+			
 			while (i<nbranch && precut.Index(vars[idx[i]]+">")<0 && precut.Index(vars[idx[i]]+"<")<0) ++i;
 			
-			if (qual[idx[i]]/qa>0.8) bestcut = cuts[idx[i]];
-			
-			//cout <<" "<<bestcut<<" ("<<qual[idx[i]]<<") r="<<qual[idx[i]]/qa<<endl;
+			if (qual[idx[i]]/qa>0.8 ) bestcut = cuts[idx[i]];
 		}		
-
-		/*
-		while (qa<0.1) 
-		{	
-			supr   *= 0.95; 
-			cout <<" try again with qa="<<supr<<endl;
-			bestcut = findcut(t, els, elb, supr, qa);
-		}*/
 		
 		TString thenum = bestcut(rnum);
 		double cutval = thenum.Atof();
@@ -489,7 +512,7 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 		thebarevar.ReplaceAll("<","");
 		thebarevar.ReplaceAll("=","");
 				
-		TRegexp rcut(thevar+"[0-9]+\\.[0-9]+");
+		TRegexp rcut(thevar+"[\\-]*[0-9]+\\.[0-9]+");
 		TString theoldcut = precut(rcut);
 		
 		c1->cd(cnt%7+8);

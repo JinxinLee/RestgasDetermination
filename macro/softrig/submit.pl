@@ -129,8 +129,8 @@ my $pmom = sprintf "%.5f", pbarmom($sqs);
           
 if ($pref eq "DPM")
 {
-	print "qsub -t $min-$max job_sof_fsim.sge $sqscode\900 $nevt DPM $pmom\n";
-	if ($nevt>0) {`qsub -t $min-$max job_sof_fsim.sge $sqscode\900 $nevt DPM $pmom`;}
+	print "qsub -t $min-$max job_sof.sge $sqscode\900 $nevt DPM $pmom\n";
+	if ($nevt>0) {`qsub -t $min-$max job_sof.sge $sqscode\900 $nevt DPM $pmom`;}
 }
 			
 foreach my $mode (@modes)
