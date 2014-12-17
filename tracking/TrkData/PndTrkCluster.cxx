@@ -651,15 +651,33 @@ PndTrkHit *PndTrkCluster::GetNextHit(int index) {
 
 
 Bool_t PndTrkCluster::IsSimilarTo(PndTrkCluster *cluster2) {
-  int similarity = 0;
-  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
-    //    PndTrkHit *hit = (PndTrkHit*) hitlist[ihit];
-    PndTrkHit *hit = (PndTrkHit*) fHitList.At(ihit);
-    if(cluster2->DoesContain(hit)) similarity++;
-  }
+  int similarity = NofSharedHits(cluster2);
   if(((double) similarity/GetNofHits()) > 0.5 || ((double) similarity/cluster2->GetNofHits()) > 0.5) return kTRUE;
   return kFALSE;
 }
+
+Int_t PndTrkCluster::NofSharedHits(PndTrkCluster *cluster2) {
+  int similarity = 0;
+//   cout << "GetNofHits " << GetNofHits() << endl;
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    PndTrkHit *hit = (PndTrkHit*) fHitList.At(ihit);
+    if(cluster2->DoesContain(hit)) {
+//       cout << hit->GetDetectorID() << " " << hit->GetHitID() << " simile" << endl;
+      similarity++;
+    }
+  }
+  // cout << "similarity " << similarity << endl;	
+  return similarity;
+}
+
+Bool_t PndTrkCluster::SharedAt(PndTrkCluster *cluster2, double limit) {
+  int similarity = NofSharedHits(cluster2);
+//   cout  << "similarity " << similarity << " on " << GetNofHits() << " and " << cluster2->GetNofHits() << endl;
+
+  if(((double) similarity/GetNofHits()) > limit || ((double) similarity/cluster2->GetNofHits()) > limit) return kTRUE;
+  return kFALSE;
+}
+
 
 
 int PndTrkCluster::MergeTo(PndTrkCluster *cluster2) {
@@ -676,6 +694,8 @@ int PndTrkCluster::MergeTo(PndTrkCluster *cluster2) {
     PndTrkHit *hit = cluster2->GetHit(hitno);
     AddHit(hit);
   }
+
+  Sort();
   return GetNofHits();
 }
 

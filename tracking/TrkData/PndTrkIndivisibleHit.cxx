@@ -59,7 +59,7 @@ void PndTrkIndivisibleHit::Draw(Color_t color) {
  
   TMarker *mrk = new TMarker(fPosition.X(), fPosition.Y(), 1);
   mrk->SetMarkerColor(color);
-  mrk->SetMarkerSize(0.5);
+  mrk->SetMarkerStyle(20);
   mrk->Draw("SAME");
 
 }

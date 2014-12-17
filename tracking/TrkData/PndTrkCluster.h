@@ -63,6 +63,10 @@ class PndTrkCluster : public TObject
 
   Bool_t DoesContain(PndTrkHit *hit);
   Bool_t IsSimilarTo(PndTrkCluster *cluster2);
+
+  Int_t NofSharedHits(PndTrkCluster *cluster2);
+  Bool_t SharedAt(PndTrkCluster *cluster2, double limit);
+
   int MergeTo(PndTrkCluster *cluster2);
   PndTrkCluster GetMvdStripHitList();
   PndTrkCluster GetMvdPixelHitList();

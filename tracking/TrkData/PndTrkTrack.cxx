@@ -137,27 +137,28 @@ void PndTrkTrack::ComputeCharge() { // CHECK!!!
   PndTrkTools tools;
   TVector3 position1 = tools.ComputePocaToPointOnCircle3(hit1->GetPosition().X(), hit1->GetPosition().Y(), fCenterX, fCenterY, fRadius);
       
-  // vector from 1st to last hit
-  TVector3 direction1 = position1 - TVector3(fCenterX, fCenterY, 0.);
-
-  double tmpphi = 0.;
+  // phi of first hit with respect to center of curvature
+  TVector3 direction1 = position1 - TVector3(fCenterX, fCenterY, 0);
+  double tmpphi = direction1.Phi();
+  //  
+  if(direction1.Y()) tmpphi += 2 * TMath::Pi(); // CHECK
 
   for(int ihit = 1; ihit < fCluster.GetNofHits(); ihit++) {
     PndTrkHit *hit = fCluster.GetHit(ihit);
     TVector3 position = tools.ComputePocaToPointOnCircle3(hit->GetPosition().X(), hit->GetPosition().Y(), fCenterX, fCenterY, fRadius);
       
     // vector from 1st to this hit
-    TVector3 direction = position - TVector3(fCenterX, fCenterY, 0.);
-    double phi = TMath::ACos(direction.Dot(direction1)/(direction.Mag() * direction1.Mag()));
+    TVector3 direction = position - TVector3(fCenterX, fCenterY, 0);
+    double phi = direction.Phi();
     if(ihit > 1) phi >= tmpphi ? nmore++ : nless++;
     tmpphi = phi;
-    // cout << "phi " << phi * TMath::RadToDeg() << " " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
+    //    cout << "phi " << phi * TMath::RadToDeg() << " " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
   }
   
   if(nmore > nless) fCharge = -1;
   else fCharge = 1;
-
-  //  cout << "fCharge " << fCharge << " " << nmore << " " << nless << endl;
+  
+//   cout << "fCharge " << fCharge << " " << nmore << " " << nless << endl;
 
 }
 
