@@ -312,6 +312,8 @@ double PndLmdDataReader::getTrackParameterValue(PndLmdTrackQ &track_pars,
 		const LumiFit::LmdDimension &lmd_dim) const {
 	TVector3 pos(0.0, 0.0, 0.0);
 	TVector3 mom(0.0, 0.0, 1.0);
+	double theta(0.0);
+	double phi(0.0);
 	double theta_x(0.0);
 	double theta_y(0.0);
 
@@ -319,7 +321,7 @@ double PndLmdDataReader::getTrackParameterValue(PndLmdTrackQ &track_pars,
 			== LumiFit::PHI_FIRST_LMD_PLANE) {
 		track_pars.GetLMDpoint(pos);
 		TVector3 local = lmd_coord_trans->Transform_global_to_lmd_local(pos);
-		double phi = atan2(local.Y(), local.X());
+		phi = atan2(local.Y(), local.X());
 		return phi;
 	}
 
@@ -342,7 +344,8 @@ double PndLmdDataReader::getTrackParameterValue(PndLmdTrackQ &track_pars,
 			mom.SetMagThetaPhi(track_pars.GetMCmomLMD(), track_pars.GetMCthetaLMD(),
 					track_pars.GetMCphiLMD());
 		}
-
+		theta = mom.Theta();
+		phi = mom.Phi();
 		theta_x = mom.X() / mom.Z();
 		theta_y = mom.Y() / mom.Z();
 	} else if (lmd_dim.dimension_options.track_type == LumiFit::RECO) {
@@ -356,28 +359,33 @@ double PndLmdDataReader::getTrackParameterValue(PndLmdTrackQ &track_pars,
 					track_pars.GetLMDphi());
 
 		}
-
+		theta = mom.Theta();
+		phi = mom.Phi();
 		theta_x = mom.X() / mom.Z();
 		theta_y = mom.Y() / mom.Z();
-	} else if (lmd_dim.dimension_options.track_type == LumiFit::DIFF_RECO_MC) {
-		TVector3 temppos(0.0, 0.0, 0.0);
-		TVector3 tempmom(0.0, 0.0, 0.0);
+	}
+
+	else if (lmd_dim.dimension_options.track_type == LumiFit::DIFF_RECO_MC) {
+		TVector3 mcpos(0.0, 0.0, 0.0);
+		TVector3 mcmom(0.0, 0.0, 0.0);
 		if (lmd_dim.dimension_options.track_param_type == LumiFit::IP) {
-			track_pars.GetMCpoint(temppos);
-			tempmom.SetMagThetaPhi(1.0, track_pars.GetMCtheta(),
-					track_pars.GetMCphi());
+			track_pars.GetMCpoint(mcpos);
+			mcmom.SetMagThetaPhi(1.0, track_pars.GetMCtheta(), track_pars.GetMCphi());
+			track_pars.GetIPpoint(pos);
 			mom.SetMagThetaPhi(1.0, track_pars.GetIPtheta(), track_pars.GetIPphi());
 		} else if (lmd_dim.dimension_options.track_param_type == LumiFit::LMD) {
-			track_pars.GetMCpointLMD(temppos);
-			tempmom.SetMagThetaPhi(1.0, track_pars.GetMCthetaLMD(),
+			track_pars.GetMCpointLMD(mcpos);
+			mcmom.SetMagThetaPhi(1.0, track_pars.GetMCthetaLMD(),
 					track_pars.GetMCphiLMD());
+			track_pars.GetLMDpoint(pos);
 			mom.SetMagThetaPhi(1.0, track_pars.GetLMDtheta(), track_pars.GetLMDphi());
 		}
 
-		theta_x = mom.X() / mom.Z() - tempmom.X() / tempmom.Z();
-		theta_y = mom.Y() / mom.Z() - tempmom.Y() / tempmom.Z();
-		pos = pos - temppos;
-		mom = mom - tempmom;
+		pos.SetXYZ(pos.X() - mcpos.X(), pos.Y() - mcpos.Y(), pos.Z() - mcpos.Z());
+		theta = mom.Theta() - mcmom.Theta();
+		phi = mom.Phi() - mcmom.Phi();
+		theta_x = mom.X() / mom.Z() - mcmom.X() / mcmom.Z();
+		theta_y = mom.Y() / mom.Z() - mcmom.Y() / mcmom.Z();
 	}
 
 	if (lmd_dim.dimension_options.dimension_type == LumiFit::X) {
@@ -395,9 +403,9 @@ double PndLmdDataReader::getTrackParameterValue(PndLmdTrackQ &track_pars,
 	} else if (lmd_dim.dimension_options.dimension_type == LumiFit::THETA_Y) {
 		return theta_y;
 	} else if (lmd_dim.dimension_options.dimension_type == LumiFit::THETA) {
-		return mom.Theta();
+		return theta;
 	} else if (lmd_dim.dimension_options.dimension_type == LumiFit::PHI) {
-		return mom.Phi();
+		return phi;
 	} else
 		return 0.0;
 }
