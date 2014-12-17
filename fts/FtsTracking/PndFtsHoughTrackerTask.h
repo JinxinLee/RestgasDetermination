@@ -110,6 +110,11 @@ public:
 		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
 		return myHit;
 	};
+	Int_t getMcTruthIdForHitId(UInt_t hitId) const {
+		if ( hitId >= GetNFtsHits() ) throwError("GetFtsHit: hitId is too large.");
+		// TODO
+		return 1;
+	}
 	/** @brief Returns pointer to the FTS tube corresponding to input FTS hit.
 	 * @param[in] myHit: FTS hit for which the tube should be returned.
 	 * @return Pointer to tube corresponding to myHit.

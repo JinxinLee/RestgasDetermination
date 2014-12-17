@@ -14,9 +14,7 @@
 #include "PndFtsHit.h"
 #include "FairHit.h"
 
-// magnetic field
-#include "FairField.h"
-#include "TVector3.h"
+
 
 // (Hough) tracking
 #include "PndTrackCand.h"
@@ -120,20 +118,20 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-														fTrackerTask(trackerTask),
-														fRefIndex(refIndex),
+																						fTrackerTask(trackerTask),
+																						fRefIndex(refIndex),
 
-														fZRefPos(zRefPos),
-														fInterceptZx(interceptZx),
+																						fZRefPos(zRefPos),
+																						fInterceptZx(interceptZx),
 
-														TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+																						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-														// set from tracker task
-														fFtsBranchId(0),
-														fVerbose(0),
-														fField(0),
+																						// set from tracker task
+																						fFtsBranchId(0),
+																						fVerbose(0),
+																						fField(0),
 
-														fAssociatedTrackCand(associatedTrackCand)
+																						fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -364,6 +362,8 @@ Bool_t PndFtsHoughSpace::FillHoles(
 	return kTRUE;
 }
 
+
+
 void PndFtsHoughSpace::FillHoughSpace()
 {
 	// make sure we have hits in the Hough space
@@ -375,12 +375,6 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 	// make Hough space according to the Hough transform I want to do
 	const TString option = GetName();
-
-
-	// for B field access
-	Double_t By = 0.;
-
-
 
 
 	// for storing the value to be calculated in Hough transform (yValue = offset for line, yValue = Q/p_{zx} for parabola)
@@ -417,22 +411,8 @@ void PndFtsHoughSpace::FillHoughSpace()
 			if (kTRUE == fKeepBConstant) { std::cout << " ignoring B field maps\n"; } else { std::cout << " reading B field maps\n"; }
 		}
 
-		// B field
-		if (kTRUE == fKeepBConstant)
-		{
-			// do not take B field into account
-			By = 1.;
-		}
-		else
-		{
-			// Use B field information
-			Double_t po[3], BB[3];
-			po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
-			po[1] = hitYLabSys;
-			po[2] = hitZLabSys;
-			fField->GetFieldValue(po, BB); //return value in KG (G3)
-			By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
-		}
+		// y component of B field
+		Double_t By = getByFromBField(hitXLabSys, hitYLabSys, hitZLabSys);
 
 
 		//------------------
@@ -617,30 +597,51 @@ void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
 
 
 
-void PndFtsHoughSpace::WriteHistoOfMcTruthPeaks() const {
+
+
+void PndFtsHoughSpace::WriteHistoOfAllPathsForEachMcTruthTrack() const {
 	if (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaks) return;
 
-	// TODO
 
 
-	// filling all paths belonging to hits from the same MC truth particle in separate histo
-//	for (HitIdxPathMap::const_iterator itPath = fHitThetaYIdxPath.begin(); itPath != fHitThetaYIdxPath.end(); ++itPath) {
-//		TH2S onePath = MakeEmptyHistoOfSameDimensions();
-//		const Int_t currHit = itPath->first;
-//		const IdxPath& currPath = itPath->second;
-//		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
-//			Int_t currBinNumber = currPath[iGlobalBin];
-//			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
-//			onePath.SetBinContent(currBinNumber, currHeight);
-//		}
-//		TString outNameOne = GetDebugOutPrefix();
-//		outNameOne += "-Path";
-//		outNameOne += currHit;
-//		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
-//		onePath.SaveAs(outNameOne, "LEGO2");
-//	}
+	// create map collecting histos of all hit indices from same Mc truth track
+	std::map<Int_t, TH2S > mcTruthIdHistoMap;
+
+	for (HitIdxPathMap::const_iterator itPath = fHitThetaYIdxPath.begin(); itPath != fHitThetaYIdxPath.end(); ++itPath) {
+
+		// figure out to which MC Truth track hit belongs
+		const Int_t currHit = itPath->first;
+		const Int_t hitId = getHitIdFromHS(currHit);
+		const Int_t mcTruthId = fTrackerTask->getMcTruthIdForHitId(hitId);
+
+		// if MC truth index not yet in map add new histo
+		std::map<Int_t, TH2S >::iterator itFind;
+		itFind = mcTruthIdHistoMap.find(mcTruthId);
+		if ( mcTruthIdHistoMap.end() == itFind ){// not found
+			TH2S newHisto = MakeEmptyHistoOfSameDimensions();
+			std::pair<Int_t, TH2S > mcTruthIdHistoPair( mcTruthId, newHisto );
+			mcTruthIdHistoMap.insert( mcTruthIdHistoPair );
+			itFind = mcTruthIdHistoMap.find(mcTruthId); // now histo can be found in map
+		}
+
+		// Fill current path into correct histo
+		const IdxPath& currPath = itPath->second;
+		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
+			Int_t currBinNumber = currPath[iGlobalBin];
+			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
+			itFind->second.SetBinContent(currBinNumber, currHeight);
+		}
+	}
+	// loop over all histos that have been created
+	for ( std::map<Int_t, TH2S >::const_iterator itHisto = mcTruthIdHistoMap.begin(); itHisto != mcTruthIdHistoMap.end(); ++itHisto) {
+		TString outNameOneMcTruthTrack = GetDebugOutPrefix();
+		outNameOneMcTruthTrack += "-McTruthPeak";
+		const Int_t mcTruthId = itHisto->first;
+		outNameOneMcTruthTrack += mcTruthId;
+		outNameOneMcTruthTrack += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+		itHisto->second.SaveAs(outNameOneMcTruthTrack, "LEGO2");
+	}
 }
-
 
 
 
@@ -724,9 +725,6 @@ void PndFtsHoughSpace::AddHitsToTrackletByCalculating(PndFtsHoughTracklet *curre
 	Double_t yValLo = 0.;
 	Double_t yValHi = 0.;
 
-	// for B field access
-	Double_t By = 0.;
-
 
 	for (int iHit = 0; iHit < GetNHits(); iHit++)
 	{
@@ -741,21 +739,8 @@ void PndFtsHoughSpace::AddHitsToTrackletByCalculating(PndFtsHoughTracklet *curre
 		Double_t hitXShifted = hitXLabSys - fInterceptZx; // shifts all x positions of hits so that they go through x=0 at z=zOffset (for parabola)
 		Double_t hitZShifted = hitZLabSys - fZRefPos; // z coordinate in local coordinate system (for parabola and for line)
 
-		if (kTRUE == fKeepBConstant)
-		{
-			// do not take B field into account
-			By = 1.;
-		}
-		else
-		{
-			// Use B field information
-			Double_t po[3], BB[3];
-			po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
-			po[1] = hitYLabSys;
-			po[2] = hitZLabSys;
-			fField->GetFieldValue(po, BB); //return value in KG (G3)
-			By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
-		}
+		// y component of B field
+		Double_t By = getByFromBField(hitXLabSys, hitYLabSys, hitZLabSys);
 
 		const TString option = GetName();
 		if ("parabola" == option)
@@ -1246,10 +1231,6 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 			Double_t yValLo = 0.;
 			Double_t yValHi = 0.;
 
-			// for B field access
-			Double_t By = 0.;
-
-
 			for (int iHit = 0; iHit < GetNHits(); iHit++)
 			{
 				const PndFtsHit* myHit = getHitFromHS(iHit);
@@ -1264,21 +1245,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 				Double_t hitXShifted = hitXLabSys - fInterceptZx; // shifts all x positions of hits so that they go through x=0 at z=zOffset (for parabola)
 				Double_t hitZShifted = hitZLabSys - fZRefPos; // z coordinate in local coordinate system (for parabola and for line)
 
-				if (kTRUE == fKeepBConstant)
-				{
-					// do not take B field into account
-					By = 1.;
-				}
-				else
-				{
-					// Use B field information
-					Double_t po[3], BB[3];
-					po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
-					po[1] = hitYLabSys;
-					po[2] = hitZLabSys;
-					fField->GetFieldValue(po, BB); //return value in KG (G3)
-					By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
-				}
+				// y component of B field
+				Double_t By = getByFromBField(hitXLabSys, hitYLabSys, hitZLabSys);
 
 				const TString option = GetName();
 				if ("parabola" == option)

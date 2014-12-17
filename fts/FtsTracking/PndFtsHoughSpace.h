@@ -38,7 +38,9 @@ TODO: Separate peak finder from Hough space
 #include "PndTrackCandHit.h"
 #include "TClonesArray.h"
 
-class FairField;
+// magnetic field
+#include "FairField.h"
+#include "TVector3.h"
 
 #include "PndFtsHoughTracklet.h"
 #include "PndFtsHoughTrackCand.h"
@@ -337,10 +339,12 @@ private:
 	/** @brief For writing out paths (how the Hough space was filled seen from one hit) as histograms (for debugging purposes).
 	 */
 	void WriteHistoOfAllPaths() const;
-	/** @brief For writing out the Hough space filtered to paths which belong to hits from the same MC truth particle (for debugging and parameter optimisation purposes).
+	/** @brief For writing out paths from hits which stem from the same MC truth tracks (how the Hough space would be filled if only hits from one track were present) as histograms (for debugging and parameter optimization purposes).
 	 */
-	void WriteHistoOfMcTruthPeaks() const;
+	void WriteHistoOfAllPathsForEachMcTruthTrack() const;
 	inline void PrintFoundTracklets(const std::vector<PndFtsHoughTracklet>& tracklets) const;
+	inline Double_t getByFromBField(Double_t hitXLabSys,
+			Double_t hitYLabSys, Double_t hitZLabSys);
 
 public:
 	ClassDef(PndFtsHoughSpace,1);
@@ -424,6 +428,26 @@ TString PndFtsHoughSpace::GetDebugOutPrefix() const{
 		debugOut+=fRefIndex;
 	}
 	return debugOut;
+}
+
+
+Double_t PndFtsHoughSpace::getByFromBField(Double_t hitXLabSys,
+		Double_t hitYLabSys, Double_t hitZLabSys) {
+	Double_t By = 0.;
+	// set y component of B field constant
+	if (kTRUE == fKeepBConstant) {
+		// do not take B field into account
+		By = 1.;
+	} else {
+		// Use B field information
+		Double_t po[3], BB[3];
+		po[0] = hitXLabSys; // Use magnetic field at real (not shifted) x position
+		po[1] = hitYLabSys;
+		po[2] = hitZLabSys;
+		fField->GetFieldValue(po, BB); //return value in KG (G3)
+		By = BB[1] / 10.; // By is y-component of magnetic field in Tesla
+	}
+	return By;
 }
 
 
