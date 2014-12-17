@@ -49,7 +49,7 @@ void reco_complete()
   // ------------------------------------------------------------------------
   //  use the constructor with input :
   //      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.
-  PndTrkTracking2* tracking = new PndTrkTracking2(0,false,false,false);
+  PndTrkTracking2* tracking = new PndTrkTracking2(0,false,false,true);
   tracking->SetInputBranchName("STTHit","MVDHitsPixel","MVDHitsStrip");
   // tracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
   //  don't do the Pattern Recognition second part, starting from the Mvd;
