@@ -317,7 +317,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fHitMap->Clear();
   FillHitMap();
   // ##########################################################
- 
+
   PndTrkHit *stthit = NULL;
   TObjArray indiv;
   // calculate the indivisible parallel hits and
@@ -589,14 +589,14 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       ym /= count;
       rm /= count;
 
-     cout << posit << " " << count << " " << (x01 + x02 + x03)/count << endl;
-        cout << "01 " << x01 << " " << y01 << " " << rad1 << endl;
-        cout << "02 " << x02 << " " << y02 << " " << rad2 << endl;
-        cout << "03 " << x03 << " " << y03 << " " << rad3 << endl;
+      cout << posit << " " << count << " " << (x01 + x02 + x03)/count << endl;
+      cout << "01 " << x01 << " " << y01 << " " << rad1 << endl;
+      cout << "02 " << x02 << " " << y02 << " " << rad2 << endl;
+      cout << "03 " << x03 << " " << y03 << " " << rad3 << endl;
 
-
-     //  cout << quadriplet[0] << " " << quadriplet[1] << " " << quadriplet[2] << " " << quadriplet[3] << " MEAN " << xm << " " << ym << " " << rm << endl;
-
+      
+      //  cout << quadriplet[0] << " " << quadriplet[1] << " " << quadriplet[2] << " " << quadriplet[3] << " MEAN " << xm << " " << ym << " " << rm << endl;
+      
       if(fDisplayOn)  {
 	char goOnChar;
 	// //       display->cd(2);
@@ -622,19 +622,19 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	// 	//	arc3->Draw("SAME");
 	//       }
 	Refresh();
-	TArc *arc1 = new TArc(x01, y01, rad1);
-	arc1->SetFillStyle(0);
-	arc1->SetLineColor(1);
-	arc1->Draw("SAME");
-	TArc *arc2 = new TArc(x02, y02, rad2);
-	arc2->SetFillStyle(0);
-	arc2->SetLineColor(2);
-	arc2->Draw("SAME");
-	TArc *arc3 = new TArc(x03, y03, rad3);
-	arc3->SetFillStyle(0);
-	arc3->SetLineColor(4);
-	arc3->Draw("SAME");
-      
+	// 	TArc *arc1 = new TArc(x01, y01, rad1);
+	// 	arc1->SetFillStyle(0);
+	// 	arc1->SetLineColor(1);
+	// 	arc1->Draw("SAME");
+	// 	TArc *arc2 = new TArc(x02, y02, rad2);
+	// 	arc2->SetFillStyle(0);
+	// 	arc2->SetLineColor(2);
+	// 	arc2->Draw("SAME");
+	// 	TArc *arc3 = new TArc(x03, y03, rad3);
+	// 	arc3->SetFillStyle(0);
+	// 	arc3->SetLineColor(4);
+	// 	arc3->Draw("SAME");
+	
 	TArc *arcm = new TArc(xm, ym, rm);
 	arcm->SetFillStyle(0);
 	arcm->SetLineColor(3);
@@ -670,7 +670,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   }
   //  cout << "nof tracks reduced from " << trackcandidates3.size() << " to " << trackcandidates4.size() << endl;
   PndTrkClusterList clusterlist;
-
+  
   for(int itrk = 0; itrk < tracks.size(); itrk++) {
     std::vector< double > track = tracks[itrk];
     double x = track[0];
@@ -780,6 +780,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // get indivisible hits
     PndTrkCluster indcluster;
     //    cout << "indivisibles " << fIndivisibleHitList->GetNofHits() << endl;
+    if(fDisplayOn) {
+      Refresh();
+    }
     for(int ihit = 0; ihit < fIndivisibleHitList->GetNofHits(); ihit++) {
       PndTrkIndivisibleHit *indhit = (PndTrkIndivisibleHit*) fIndivisibleHitList->GetHit(ihit);
       double distance_hit_center = (indhit->GetPosition().XYvector() - TVector2(x, y)).Mod();
@@ -788,12 +791,16 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       if(recoiso < 1.) {
 	indcluster.AddHit(indhit);
 	if(fDisplayOn) {
-	  //  cout << "recoiso indhit " << recoiso << endl;
+	  //	  cout << "recoiso indhit " << indhit->GetPosition().X() << " " << indhit->GetPosition().Y()  << endl;
 	  indhit->Draw(kRed);
-	  display->Update();
-	  display->Modified();
 	}
       }
+    }
+    if(fDisplayOn) {
+      display->Update();
+      display->Modified();
+      char goOnChar;
+      cin >> goOnChar;
     }
   
     // conformal map on last indivisible hit
@@ -871,7 +878,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	}
       }
     }
-  
+    
     // ====== REFIT CLUSTER ANALYTICALLY
     double fitm, fitq;
     //    AnalyticalFit(&cluster, x, y, r, fitm, fitq);
@@ -898,7 +905,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     legendre->ExtractLegendreMaxima(1, theta_max, r_max, content_max);
     // ExtractLegendre(1, theta_max, r_max); // CHECK mode??
     // if(maxpeak < 4) return NULL; // CHECK
-
+    
     // from theta/r to line parameters in CONFORMAL plane 
     double fitm2, fitq2;
     legendre->ExtractLineParameters(theta_max[0], r_max[0], fitm2, fitq2);
@@ -906,6 +913,13 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       display->cd(2);
       TLine *line = new TLine(-10.07, fitq2 + fitm2 * (-10.07), 10.07, fitq2 + fitm2 * (10.07));
       line->Draw("SAME");
+
+      display->cd(3);
+      DrawLegendreHisto();
+      display->Update();
+      display->Modified();
+  
+      
     }
     
     // from line parameters to center/radius in REAL plane
@@ -924,6 +938,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       arcm->Draw("SAME");
       display->Update();
       display->Modified();
+      cin >> goOnChar;
     }
     
     // what about adding the mvd hits now? lets do it!
@@ -1021,12 +1036,15 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // cluster.AddHit(hit);
       if(fDisplayOn)  {
 	hit->Draw(kOrange);
+	cout << "herh" << endl;
+	char goOnChar;
+	cin >> goOnChar;
 	display->Update();
 	display->Modified();
       } 
       //     PndTrkConformalHit *chit = conform->GetConformalHit(hit); 
       //     fConformalHitList->AddHit(chit);  
-     }
+    }
 
     // -------------------------- 
     // if there is a scitil lets use it as seed hit
@@ -1038,7 +1056,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       conform->SetOrigin(trasl[0], trasl[1], delta);
       fConformalHitList->SetConformalTransform(conform);
       // cout << "conformal hits " << fConformalHitList->GetNofHits() << endl;
-
+   
       // fill conformal hits
       nofconfhits = FillConformalHitList(&cluster);
 
@@ -1119,7 +1137,6 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // MAKE the FINAL CLUSTER (at least in xy)
     //    finalcluster = new PndTrkCluster();
     fFinalCluster->Clear("C");
-
     // STT
     for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
       hit = stthitlist->GetHit(ihit);
@@ -1129,7 +1146,10 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       else if(border == true && (tube->GetSectorID() != sectorID && tube->GetSectorID() != othersecID)) continue;
       double distance_hit_center = (tube->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
-      if(recoiso < 0.5) fFinalCluster->AddHit(hit);
+      if(recoiso < 0.5) {
+	// 	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID() << " " <<tube->GetSectorID() << " " << sectorID <<  endl;
+	fFinalCluster->AddHit(hit);
+      }
     }
     // MVD PIX
     for(int ihit = 0; ihit < mvdpixhitlist->GetNofHits(); ihit++) {
@@ -1138,7 +1158,10 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
-      if(recoiso < 0.5) fFinalCluster->AddHit(hit);
+      if(recoiso < 0.5) {
+	// 	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID()  << endl;
+	fFinalCluster->AddHit(hit);
+      }
     }
     // MVD STR
     for(int ihit = 0; ihit < mvdstrhitlist->GetNofHits(); ihit++) {
@@ -1147,7 +1170,10 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
-      if(recoiso < 0.5) fFinalCluster->AddHit(hit);
+      if(recoiso < 0.5)  {
+	// 	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID() <<  endl;
+	fFinalCluster->AddHit(hit);
+      }
     }
     // GEM
     for(int ihit = 0; ihit < gemhitlist->GetNofHits(); ihit++) {
@@ -1156,7 +1182,10 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
-      if(recoiso < 0.5  && hit->GetPosition().Perp() > CTOUTRADIUS) fFinalCluster->AddHit(hit);
+      if(recoiso < 0.5  && hit->GetPosition().Perp() > CTOUTRADIUS)  {
+	// 	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID()  << endl;
+	fFinalCluster->AddHit(hit);
+      }
     }
     // SCITIL
     tmphit = -1; 
@@ -1175,6 +1204,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
     if(tmphit > -1) {
       hit = scithitlist->GetHit(tmphit);
+      //      cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID() <<  endl;
       fFinalCluster->AddHit(hit);
     }
 
@@ -1182,7 +1212,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       continue;
     }
 
-    //        cout << "FINAL CLUSTER HAS " << fFinalCluster->GetNofHits() << endl;
+    //           cout << "FINAL CLUSTER HAS " << fFinalCluster->GetNofHits() << endl;
     if(fDisplayOn) {
       Refresh();
       fFinalCluster->LightUp();
@@ -1192,7 +1222,22 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       cin >> goOnChar;
     }
     
+    // sorting
+    for(int ihit = 0; ihit < fFinalCluster->GetNofHits(); ihit++) {
+      hit = fFinalCluster->GetHit(ihit);
+      hit->SetSortVariable(hit->GetPosition().Perp());
+      /**
+	 if(hit->IsMvdPixel())
+	 else if(hit->IsMvdStrip())
+	 else if(hit->IsStt())
+	 else if(hit->IsGem())
+	 else if(hit->IsScitil())
+      **/
+    }
+    fFinalCluster->Sort();
+
     PndTrkTrack finaltrack(fFinalCluster, xc2, yc2, R2);
+
     // =========================== Z PART ==================================
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // SKEWED ASSOCIATION ********* CHECK *********
@@ -1637,20 +1682,42 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
        cin >> goOnChar;
      }
 
-
-     // compute charge
-     finaltrack.ComputeCharge();
-
-     // last two parameters in real plane
-     double tanl = - finaltrack.GetCharge() * fitm4 * (180./TMath::Pi())/R2;
-     double z0 = fitq4;
-
      // finalize the cluster
      for(int ihit = 0; ihit < skewhitlist2.GetNofHits(); ihit++) {
        hit = skewhitlist2.GetHit(ihit);
-       fFinalCluster->AddHit((PndTrkHit*) hit);
+       if(fFinalCluster->DoesContain(hit) == kFALSE) fFinalCluster->AddHit((PndTrkHit*) hit);
      }
-  
+
+    // sorting
+    for(int ihit = 0; ihit < fFinalCluster->GetNofHits(); ihit++) {
+      hit = fFinalCluster->GetHit(ihit);
+      hit->SetSortVariable(hit->GetPosition().Perp());
+      /**
+	 if(hit->IsMvdPixel())
+	 else if(hit->IsMvdStrip())
+	 else if(hit->IsStt())
+	 else if(hit->IsGem())
+	 else if(hit->IsScitil())
+      **/
+
+      // cout << "before sorting " << hit->GetDetectorID() << " " << hit->GetSortVariable() << " " << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->GetPosition().Z() << endl;
+    }
+    fFinalCluster->Sort();
+    // sorting
+    for(int ihit = 0; ihit < fFinalCluster->GetNofHits(); ihit++) {
+      hit = fFinalCluster->GetHit(ihit);
+      // cout << "becomes  sorting " << hit->GetDetectorID() << " " << hit->GetSortVariable() << " " << hit->GetPosition().X() << " " << hit->GetPosition().Y() << " " << hit->GetPosition().Z() << endl;
+    }
+
+    // compute charge
+    finaltrack.ComputeCharge();
+    
+    // last two parameters in real plane
+    double tanl = - finaltrack.GetCharge() * fitm4 * (180./TMath::Pi())/R2;
+    double z0 = fitq4;
+    
+
+
      // PndTrkTrack *finaltrack2 = new PndTrkTrack(finalcluster, xc2, yc2, R2);
 
      finaltrack.SetCluster(fFinalCluster);
@@ -1665,66 +1732,209 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
        PndTrkTrack *tmptrack = fTrackList->GetTrack(jtrk);
      }
   }
+
+  
  
-  
+
+  // ====== MERGIN ==========================
+
+  PndTrkTrackList *mergedtracklist = new PndTrkTrackList();
+  // choose what to merge
+  std::vector< int > merged;
+  merged.resize(fTrackList->GetNofTracks());
+  for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++)  merged[itrk] = 0;
+  std::map < int , std::vector < int > > mergingtracks;
+
+  for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++) {
+    if(merged[itrk] == 1) continue;
+    PndTrkTrack *tracki = fTrackList->GetTrack(itrk);
+    PndTrkCluster clusteri = tracki->GetCluster();
+//     if(fDisplayOn)  {
+//       char goOnChar;
+//       display->cd(1);
+//       Refresh();
+//       clusteri.LightUp();
+//       display->Update();
+//       display->Modified();
+//       cin >> goOnChar;
+//     }
+    std::vector< int > mtracks;
+    for(int jtrk = itrk + 1; jtrk < fTrackList->GetNofTracks() ; jtrk++) {
+      if(merged[jtrk] == 1) continue;
+      PndTrkTrack *trackj = fTrackList->GetTrack(jtrk);
+      PndTrkCluster clusterj = trackj->GetCluster();
+      if(clusterj.SharedAt(&clusteri, 0.70) == kTRUE) {
+	mtracks.push_back(jtrk);
+	//	cout << "track " << itrk << " needs merging with track " << jtrk << endl;
+	merged[itrk] = 1; // CHECK save time!
+	merged[jtrk] = 1;
      
-  //     // ----------------- loop on the final clusters
+// 	if(fDisplayOn)  {
+// 	  char goOnChar;
+// 	  display->cd(1);
+// 	  Refresh();
+// 	  clusterj.LightUp();
+// 	  display->Update();
+// 	  display->Modified();
+// 	  cin >> goOnChar;
+// 	}
+      }
+    }
+   if(mtracks.size() == 0)  mtracks.push_back(-1);
+   mergingtracks.insert(std::pair<int , std::vector < int > >(itrk, mtracks));
+   //   cout << "pair of " << itrk << " and " << mtracks.size() << endl;
+  }
 
-  //      // reset hits to unused (CHECK do it in a better way)
-  //      for(int ihit = 0; ihit < mvdpixhitlist->GetNofHits(); ihit++) {
-  //      PndTrkHit *hit = mvdpixhitlist->GetHit(ihit);
-  //      hit->SetUsedFlag(kFALSE);
-  //      }
-  //      for(int ihit = 0; ihit < mvdstrhitlist->GetNofHits(); ihit++) {
-  //      PndTrkHit *hit = mvdstrhitlist->GetHit(ihit);
-  //      hit->SetUsedFlag(kFALSE);
-  //      }
-  //      for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
-  //      PndTrkHit *hit = stthitlist->GetHit(ihit);
-  //      hit->SetUsedFlag(kFALSE);
-  //      }
-  //      for(int ihit = 0; ihit < scithitlist->GetNofHits(); ihit++) {
-  //      PndTrkHit *hit = scithitlist->GetHit(ihit);
-  //      hit->SetUsedFlag(kFALSE);
-  //      }
-  //      for(int ihit = 0; ihit < gemhitlist->GetNofHits(); ihit++) {
-  //      PndTrkHit *hit = gemhitlist->GetHit(ihit);
-  //      hit->SetUsedFlag(kFALSE);
-  //      }
+  //  cout << "merging " << mergingtracks.size() << endl;
+  // do the actual merging
+  std::map< int, std::vector < int > >::iterator it;
+  for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++) {
+    PndTrkTrack *tracki = fTrackList->GetTrack(itrk);
+    PndTrkCluster clusteri = tracki->GetCluster();
+    it = mergingtracks.find(itrk);
+    if(it == mergingtracks.end()) continue;
 
-  //      // set used hits
-  //      for(int iclus = 0; iclus < clusterlist.GetNofClusters(); iclus++) {
-  //      PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
-  //      for(int ihit = 0; ihit <  cluster->GetNofHits(); ihit++) {
-  //      PndTrkHit *hit = cluster->GetHit(ihit);
-  //      hit->SetUsedFlag(kTRUE);
-  //      }
-  //      }
-  
-  //      cout << "CLUSTER LIST " << clusterlist.GetNofClusters() << endl;
-  //      if(fDisplayOn) {
-  //      Refresh();
-  //      for(int iclus = 0; iclus < clusterlist.GetNofClusters(); iclus++) {
-  //      PndTrkCluster *cluster = clusterlist.GetCluster(iclus);
-  //      cout << "cluster has " << cluster->GetNofHits() << endl;
-  //      for(int ihit = 0; ihit <  cluster->GetNofHits(); ihit++) {
-  //      PndTrkHit *hit = cluster->GetHit(ihit);
-  //      hit->Draw(kOrange);
-  //      cout << "iclus " << iclus << " ihit " << ihit << endl;
-  //      }
-  //      }
-  //      char goOnChar;
-  //      display->Update();
-  //      display->Modified();
-  //      cout << "Seen the unassigned? ";
-  //      cin >> goOnChar;
+    std::vector< int > mtracks = it->second;
+    // if it has merged tracks
+    if(mtracks[0] != -1) {
+      //  cout << it->first << "/" << mergingtracks.size() << endl; // " last fit " <<  clusteri.GetNofHits() << endl;
+      // cout << "i " << clusteri.GetNofHits() << endl;
+      for(int ktrk = 0; ktrk < mtracks.size(); ktrk++) {
+	int jtrk = mtracks[ktrk];
+	PndTrkTrack *trackj = fTrackList->GetTrack(jtrk);
+	PndTrkCluster clusterj = trackj->GetCluster();
+	// cout << "j " << clusterj.GetNofHits() << endl;
+	// 	if(fDisplayOn)  {
+	// 	  char goOnChar;
+	// 	  display->cd(1);
+	// 	  Refresh();
+	// 	  clusteri.LightUp();
+	// 	  display->Update();
+	// 	  display->Modified();
+	//   cin >> goOnChar;
+	  
+	// 	  Refresh();
+	// 	  clusterj.LightUp(); 
+	// 	  display->Update();
+	// 	  display->Modified();
+	//   cin >> goOnChar;
     
-  //      }
+	// 	  display->Update();
+	// 	  display->Modified();
+	// 	}
+	clusteri.MergeTo(&clusterj);
+
+    
+	// cout << "dopo " << clusteri.GetNofHits() << endl;
+	//
+      }
+    }
+    //    else {
+    //       cout << it->first << " not merged" << endl; // " last fit " <<  clusteri.GetNofHits() << endl;
+    //     }
+    //--------------------------------------
+    // to conformal
+    PndTrkHit *refhit = clusteri.GetHit(clusteri.GetNofHits() - 1);
+    fConformalHitList->Reset();
+    double delta, trasl[2];
+    ComputeTraAndRot(refhit, delta, trasl);
+    conform->SetOrigin(trasl[0], trasl[1], delta);
+    fConformalHitList->SetConformalTransform(conform);
+    // cout << "conformal hits " << fConformalHitList->GetNofHits() << endl;
+    
+    // fill conformal hits
+    int nofconfhits = FillConformalHitList(&clusteri);
+  
+    // compute conformal plane extremities ---------------------------- this must go to a fctn CHECK
+    fUmin =  1000, fVmin =  1000, fRmin =  1000;
+    fUmax = -1000, fVmax = -1000, fRmax = -1000;
+    double rc_of_min, rc_of_max;
+    
+    for(int jhit = 0; jhit < fConformalHitList->GetNofHits(); jhit++) {
+      PndTrkConformalHit *chit = fConformalHitList->GetHit(jhit);
+      double u = chit->GetU();
+      double v = chit->GetV();
+      double rc = chit->GetIsochrone();
+      if(rc < 0) rc = 0;
+      // cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
+      u - rc < fUmin ? fUmin = u - rc : fUmin;
+      v - rc < fVmin ? fVmin = v - rc : fVmin;
+      u + rc > fUmax ? fUmax = u + rc : fUmax;
+      v + rc > fVmax ? fVmax = v + rc : fVmax;
+      
+      double theta1 = TMath::ATan2(v, u);
+      double theta2 = theta1 + TMath::Pi();
+      
+      double r1 = u * TMath::Cos(theta1) + v * TMath::Sin(theta1);
+      double r2 = u * TMath::Cos(theta2) + v * TMath::Sin(theta2);
+      
+      double rimin, rimax;
+      r1 < r2 ? (rimin = r1, rimax = r2) : (rimin = r2, rimax = r1);
+      
+      rimin < fRmin ? (rc_of_min = rc, fRmin = rimin) : fRmin;
+      rimax > fRmax ? (rc_of_max = rc, fRmax = rimax) : fRmax;
+    }
+    
+    fRmin -= rc_of_min;
+    fRmax += rc_of_max;
+    
+    // to square the conformal plane
+    double du = fUmax - fUmin;
+    double dv = fVmax - fVmin;
+    double delt = 0.5 * fabs(dv - du);
+    du < dv ? (fUmin -= delt, fUmax += delt) : (fVmin -= delt, fVmax += delt);
+    
+    if(fDisplayOn) {
+      DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
+      // ----------------------------------------------------------------------
+      for(int ihit = 0; ihit < nofconfhits; ihit++) {
+	PndTrkConformalHit *chit = fConformalHitList->GetHit(ihit);
+	if(fDisplayOn) {
+	  chit->Draw(kRed);
+	}
+      }
+    }
+    
+  
+    // last fit
+    double xc2 = tracki->GetCenter().X();
+    double yc2 = tracki->GetCenter().Y();
+    double R2 = tracki->GetRadius();
+    double fitm, fitq;
+
+    AnalyticalFit(&clusteri, xc2, yc2, R2, fitm, fitq);
+    
+    double xc3, yc3, R3;
+    FromConformalToRealTrack(fitm, fitq, xc3, yc3, R3);
+    if(fDisplayOn)  {
+      char goOnChar;
+      Refresh();
+      display->cd(1);
+      clusteri.LightUp();
+      TArc *arcm = new TArc(xc3, yc3, R3);
+      arcm->SetFillStyle(0);
+      arcm->SetLineColor(kGreen);
+      arcm->Draw("SAME");
+      display->Update();
+      display->Modified();
+      cin >> goOnChar;
+    }
+    
+    tracki->SetCluster(&clusteri);
+    tracki->SetCenter(xc3, yc3);
+    tracki->SetRadius(R3);
+  
+    mergedtracklist->AddTrack(tracki);
+    
+  }
+  // =============================================
+
+  fTrackList = mergedtracklist; // CHECK
 
   if(fDisplayOn) {
-      char goOnChar;
-      display->cd(1);
-      Refresh();
+    char goOnChar;
+    display->cd(1);
+    Refresh();
   }
   // PndTrkTrack --> PndTrack
   for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++) {
@@ -1749,15 +1959,13 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       track->Draw(kRed);
       display->Update();
       display->Modified();
-      
-      //      cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
-      //       cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
-      //       cout << "CHARGE " <<  track->GetCharge() << endl;
-      //      cin >> goOnChar;
+     
+      //      cout << "TRACK " << itrk << endl;
+      //      cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << " nofhits " << outputtrackcand->GetNHits() <<  endl;
+//       cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
+//       cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
+//       cout << "CHARGE " <<  track->GetCharge() << endl;
     }
-
-    //    cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << " nofhits " << outputtrackcand->GetNHits() <<  endl;
-
 
   }
 
@@ -2113,6 +2321,9 @@ void PndTrkTrackFinder::DrawGeometry() {
       TArc * arc = new TArc(tube->GetPosition().X(), tube->GetPosition().Y(), 0.5);
       arc->SetFillStyle(0);
       arc->SetLineColor(kCyan - 10);
+//       if(tube->GetLayerID() == 0 || tube->GetLayerID() == 7 || tube->GetLayerID() == 16 || tube->GetLayerID() == 20) arc->SetFillColor(kRed);
+//       else         arc->SetFillStyle(0);
+
       arc->Draw("SAME");
     }
     else {
@@ -3414,8 +3625,11 @@ void PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, double 
       PndTrkConformalHit chitstt = conform->GetConformalSttHit(hit);
       double sigma = 1e-5;
       if(hit->IsSttParallel()) sigma = chitstt.GetIsochrone(); // 0.1; // CHECK
+
+      if(TMath::IsNaN(chit.GetPosition().X())) continue; // prevents the nan of the ref hit
+
       fFitter->SetPointToFit(chit.GetPosition().X(), chit.GetPosition().Y(), sigma);
-      //      cout << "set point to fit " << chit->GetPosition().X() << " " <<  chit->GetPosition().Y() << " " << sigma << endl;
+      // cout << "set point to fit " << chit.GetPosition().X() << " " <<  chit.GetPosition().Y() << " " << sigma << endl;
       if(fDisplayOn) {
        	display->cd(1);
        	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
