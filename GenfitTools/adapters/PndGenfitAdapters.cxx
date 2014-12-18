@@ -26,9 +26,6 @@ PndTrackCand* GenfitTrackCand2PndTrackCand(const GFTrackCand* cand){
     retVal->AddHit(detId,hitId,rho);
   }
   retVal->setMcTrackId(cand->getMcTrackId());
-  retVal->setTrackSeed(cand->getPosSeed(),
-		       cand->getDirSeed(),
-		       cand->getQoverPseed());
   return retVal;
 }
 
@@ -40,9 +37,6 @@ GFTrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand* cand){
     retVal->addHit(candHit.GetDetId(),candHit.GetHitId(),candHit.GetRho(),i);
   }
   retVal->setMcTrackId(cand->getMcTrackId());
-  retVal->setTrackSeed(cand->getPosSeed(),
-		       cand->getDirSeed(),
-		       cand->getQoverPseed());
   return retVal;
 }
 
