@@ -72,10 +72,17 @@ TString getFromCut(TString vars)
 void TMVATraining(TString fname, TString vars, TString precut="", TString treename="")
 {
 	if (vars.Contains("&&")) vars = getFromCut(vars);
-	cout <<"Training with variables: "<<vars<<endl;
-	
+	cout <<"Vars : "<<vars<<endl;
+
 	TString sigcut = "tag&&mode%1000!=900";
 	TString bkgcut = "tag&&mode%1000==900";
+	
+	if (precut!="")
+	{
+		cout <<"Precut : "<<precut<<endl;
+		sigcut += "&&" + precut;
+		bkgcut += "&&" + precut;
+	}
 	
 	TRegexp rntp("n[0-9][0-9][0-9]");
 	TRegexp rmod("M[0-9][0-9][0-9]");
@@ -107,7 +114,7 @@ void TMVATraining(TString fname, TString vars, TString precut="", TString treena
 	int nsig = t->GetEntries(sigcut);
 	int nbkg = t->GetEntries(bkgcut);
 	
-	factory->PrepareTrainingAndTestTree( TCut(precut.Data()), int(nsig*0.8), int(nbkg*0.8), int(nsig*0.19), int(nbkg*0.19)); 
+	factory->PrepareTrainingAndTestTree( "", int(nsig*0.8), int(nbkg*0.8), int(nsig*0.19), int(nbkg*0.19)); 
 
 // 	factory->BookMethod( TMVA::Types::kLikelihood, "Likelihood","!V:NAvEvtPerBin=50" );
  	//factory->BookMethod( TMVA::Types::kMLP, "MLP", "!V:NCycles=50:HiddenLayers=10,10:TestRate=5" );

@@ -137,7 +137,7 @@ TString getFromCut(TString vars)
 }
 // ---------------------------------------------------------------
 
-void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.0001)
+void TMVAApply(TString fname, TString vars, TString precut="", TString wfile="", Float_t bglevel=0.0001)
 {
 	if (vars.Contains("&&")) vars = getFromCut(vars);
 	cout <<"Vars : "<<vars<<endl;
@@ -145,7 +145,15 @@ void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.000
 	TString sigcut = "tag&&mode%1000!=900";
 	TString bkgcut = "tag&&mode%1000==900";
 
+	if (precut!="")
+	{
+		cout <<"Precut : "<<precut<<endl;
+		sigcut += "&&" + precut;
+		bkgcut += "&&" + precut;
+	}
+
 	// determine ntp name and S0 and B0
+	TRegexp rmode("M[0-9][0-9][0-9]");
 	TRegexp rntp("n[0-9][0-9][0-9]");
 	TRegexp regS("[0-9]+S");
 	TRegexp regB("[0-9]+B");
@@ -155,6 +163,9 @@ void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.000
 	int n0s = s.Atoi()*10000;
 	int n0b = b.Atoi()*10000;	
 	TString treename = fname(rntp);	
+	TString smode = fname(rmode);
+	
+	if (wfile=="") wfile="weights/M"+smode(1,3)+treename(1,3)+"_BDT.weights.xml";
 	
 	TFile *f = TFile::Open(fname);
 	TTree *t =(TTree*) f->Get(treename);
@@ -177,7 +188,9 @@ void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.000
 	float nbkg = countEvents(t,elball);
 	
 	// apply tag cut
-	t->Draw(">>el","tag");
+	TString tagcut="tag";
+	if (precut!="") tagcut+="&&"+precut;
+	t->Draw(">>el",tagcut);
 	TEventList *el=(TEventList*)gDirectory->Get("el");
 	
 	int N = el->GetN();
@@ -199,7 +212,7 @@ void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.000
 			freader[j] = var;
 		}
 		
-		float mvares = reader->EvaluateMVA( "BDT");
+		float mvares = reader->EvaluateMVA("BDT");
 		
 		if (mode%1000==900)	
 			bkgvals.push_back( std::make_pair(mvares, uid(ev,run,mode) ));
@@ -219,6 +232,11 @@ void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.000
 	printf("S : eff = %0.3f     N = %5d / %5d   N0 = %d\n", (double)sigcnt.size()/n0s, (int)sigcnt.size(), (int)nsig, n0s);
 	printf("B : eff = %0.5f   N = %5d / %5d   N0 = %d\n",   (double)bkgcnt.size()/n0b, (int)bkgcnt.size(), (int)nbkg, n0b);
 	cout <<"\nCUT = "<<cut<<endl;
+	
+	if (precut=="") precut="tag";
+	else precut="tag&&"+precut;
+	TString cfgline = smode(1,3)+treename(1,3)+" : "+precut+" : M"+smode(1,3)+treename(1,3)+"_BDT "+vars+" "+TString::Format("%f",cut);
+	cout <<"cfgline -> "<<cfgline<<endl;
 }
 
 
