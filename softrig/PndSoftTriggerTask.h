@@ -127,7 +127,7 @@ class PndSoftTriggerTask : public FairTask
 	void CombineList(RhoCandList &l, int mothpdg, int amothpdg, std::vector<int> &idx, std::vector<int> &aidx, bool cc=false);
 	int AntiPdg(int pdg);                                                // gives pdg code of antiparticle if exists
 	double GetVarValue(RhoCandidate *c, int id);                               // fill single candidate variable with index id 
-	void FillVarArray(RhoCandidate *c, int id, std::vector<double> &values);     // fill candidate variable array for selection
+	void FillVarArray(RhoCandidate *c, int id, Bool_t tmva=false);     // fill candidate variable array for selection
 	void FillEventShapeVarArray();                        			     // fill event shape variable array for selection
 	
 	bool AcceptCandidate(int mode, RhoCandidate *c, RhoParticleSelectorBase *sel=0); // accept candidate for full selection

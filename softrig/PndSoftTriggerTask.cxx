@@ -18,6 +18,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <stdlib.h>     /* getenv */
 
 // FAIR headers
 #include "FairRootManager.h"
@@ -33,6 +34,7 @@
 #include "TH2F.h"
 #include "TString.h"
 #include "TRegexp.h"
+#include "TMVA/Reader.h"
 
 // RHO headers
 #include "RhoCandidate.h"
@@ -67,7 +69,16 @@ struct STCutSet
 	int    varid[STMAXCUT];
 	int    op[STMAXCUT];
 	double cutval[STMAXCUT];
+	
+	TMVA::Reader *tmvaread;
+	int    tmvanvar;
+	int    tmvavarid[STMAXCUT];
+	float  tmvacut;
+	TString tmvameth;
 };
+
+// *** this is the array of input variables for the cut selection or TMVA
+float fSTInputValues[STMAXCUT];
 
 // *** maps needed for selection parsing
 std::map<TString, int> fSTVarmap;
@@ -90,7 +101,7 @@ int fSTPidIndex[16] =       {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212
 // ( 15) esnchrg         ( 16) espmax          ( 17) espmaxl         ( 18) espmin          ( 19) espminl       
 // ( 20) esprapmax       ( 21) esptmax         ( 22) essumen         ( 23) essumenl        ( 24) essumetn       
 // ( 25) essumpc         ( 26) essumpc05       ( 27) essumpcl        ( 28) essumpt         ( 29) essumptc    
-// ( 30) esthr           ( 31)                 ( 32)                 ( 33)                 ( 34)    
+// ( 30) esthr           ( 31) essph           ( 32) esptmin         ( 33) esncp10l        ( 34) esnne10l   
 
 int   fSTNEvVars = 35;
 TString fSTenames[] = {
@@ -290,6 +301,12 @@ InitStatus PndSoftTriggerTask::Init()
 			STCutSet cs = it->second;
 			for (int i=0;i<cs.ncut;++i) cout <<"v["<<cs.varid[i]<<"]"<<fSTOps[cs.op[i]]<<cs.cutval[i]<<"  ";
 			cout <<endl;
+			if (cs.tmvaread)
+			{
+				cout<<"TMVA cut:"<<cs.tmvacut<<"  vars:";
+				for (int i=0;i<cs.tmvanvar;++i) cout <<cs.tmvavarid[i]<<" ";
+				cout<< endl;
+			}
 		}
 	}
 
@@ -546,7 +563,8 @@ bool PndSoftTriggerTask::ReadConfiguration()
 	char line[500];
 	
 	TString toks[30];
-	TString toks2[5];
+	TString cuts[30];
+	TString toks2[30];
 
 	// loop through file line by line
 	while (!file.eof())
@@ -565,8 +583,10 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		
 		// split the line into tokens; token 0 ist the mode code, token 1 is the complete cut string
 		// e.g. '38400 : eslnpidp>0&&abs(pcm-2.105)<0.695&&esthr>0.9&&pt>0.8'
-		int N = SplitString(sline, ":", toks,30);
-		if (N>2)  {cout <<"invalid line: "<<sline.Data()<<endl; continue;}
+		int N1 = SplitString(sline, ":", toks,30);
+		
+		// if N==2, only simple cut; N==3 includes TMVA selector
+		if (N1>3)  {cout <<"invalid line: "<<sline.Data()<<endl; continue;}
 
 		// extract the mode code by converting to integer
 		int mcode = toks[0].Atoi();
@@ -576,57 +596,56 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		if ( std::find(fSTencode.begin(), fSTencode.end(), en) == fSTencode.end() ) fSTencode.push_back(en);
 		
 		// now split the cut string into single cuts
-		N = SplitString(toks[1],"&&",toks,30);
-		
+		int N2 = SplitString(toks[1],"&&",cuts,30);
 		
 		// replace windows cuts 'abs(<name>-x)<y' by 2 single cuts
-		for (int i=0;i<N;++i) 
+		for (int i=0;i<N2;++i) 
 		{
-			toks[i].ReplaceAll(" ","");
-			if (toks[i]=="tag") toks[i]="tag>0";
+			cuts[i].ReplaceAll(" ","");
+			if (cuts[i]=="tag") cuts[i]="tag>0";
 			
 			// is cut a window cut?
-			if (toks[i].BeginsWith("abs"))
+			if (cuts[i].BeginsWith("abs"))
 			{
-				int pos1 = toks[i].First('-'); // position of '-'
-				int pos2 = toks[i].Last(')');  // position of closing abs bracket 
-				int pos3 = toks[i].Last('<');  // position of operator '<'
+				int pos1 = cuts[i].First('-'); // position of '-'
+				int pos2 = cuts[i].Last(')');  // position of closing abs bracket 
+				int pos3 = cuts[i].Last('<');  // position of operator '<'
 				
-				TString name = TString(toks[i](4,pos1-4));  // name is from first char after 'abs(' to '-' sign
-				double val = TString(toks[i](pos1+1,(pos2-pos1)-1)).Atof(); // val to cut on is from '-' to closing bracket ')'
-				double win = TString(toks[i](pos3+1,1000)).Atof();  // window size is from '<' to end
-				toks[i]= TString::Format("%s>%f",name.Data(), val-win);      // construct the 1st and
-				toks[N++] = TString::Format("%s<%f",name.Data(), val+win);   // 2nd single cut
+				TString name = TString(cuts[i](4,pos1-4));  // name is from first char after 'abs(' to '-' sign
+				double val = TString(cuts[i](pos1+1,(pos2-pos1)-1)).Atof(); // val to cut on is from '-' to closing bracket ')'
+				double win = TString(cuts[i](pos3+1,1000)).Atof();  // window size is from '<' to end
+				cuts[i]= TString::Format("%s>%f",name.Data(), val-win);      // construct the 1st and
+				cuts[N2++] = TString::Format("%s<%f",name.Data(), val+win);   // 2nd single cut
 			}
 		}
 		
-		// now encode the string cuts into sets of (variable index, operator, cutvalue)
-		// and put the cut sets into a map with key being the mode code
+		// *** now encode the string cuts into sets of (variable index, operator, cutvalue)
+		// *** and put the cut sets into a map with key being the mode code
+		
 		STCutSet cs;
-		cs.ncut = N;
+		cs.ncut = N2;
+		
+		cs.tmvaread = 0;
+		cs.tmvanvar = 0;
 		
 		bool ok = true;  // if a variable is not know switch to false
 		
-		for (int i=0;i<N;++i)
+		for (int i=0;i<N2;++i)
 		{
 			int op=-1, j=0;
 			while (j<5 && op==-1) 
 			{
-				if (toks[i].Contains(fSTOps[j])) 
+				if (cuts[i].Contains(fSTOps[j])) 
 				{
-					SplitString(toks[i],fSTOps[j],toks2,5); 
+					SplitString(cuts[i],fSTOps[j],toks2,5); 
 					op = j;
 				}
 				j++;
 			}
-/*			if (toks[i].Contains(">=")) {SplitString(toks[i],">=",toks2,5); op = 1;}
-			else if (toks[i].Contains(">")) {SplitString(toks[i],">",toks2,5); op = 0;}
-			else if (toks[i].Contains("==")) {SplitString(toks[i],"==",toks2,5); op = 2;}
-			else if (toks[i].Contains("<=")) {SplitString(toks[i],"<=",toks2,5); op = 3;}
-			else if (toks[i].Contains("<")) {SplitString(toks[i],"<",toks2,5); op = 4;}*/
+
 			if (op<0) // fail
 			{
-				i=N+1;
+				i=N2+1;
 				ok=false;
 			}
 			
@@ -647,9 +666,53 @@ bool PndSoftTriggerTask::ReadConfiguration()
 			}
 			else // fail
 			{
-				cout <<"[PndSoftTriggerTask] **** Unmapped variable: "<<toks2[0].Data()<<". Skipping mode "<<mcode<<"."<<endl;
-				i=N+1;
+				cout <<"[PndSoftTriggerTask] **** Unmapped cut variable: "<<toks2[0].Data()<<". Skipping mode "<<mcode<<"."<<endl;
+				i=N2+1;
 				ok=false;
+			}
+		}
+		
+		// *** do we have a TMVA Selector defined?
+		if (N1==3)
+		{
+			// now split the TMVA string into single tokens
+			int N3 = SplitString(toks[2]," ",toks2,30);
+			
+			if (N3<3) // at least four elements expected; fail
+			{
+				cout <<"[PndSoftTriggerTask] **** Invalid TMVA configuration for mode "<<mcode<<". Skipping."<<endl;
+				ok = false;
+			}
+			
+			if (ok)
+			{
+				// first token is the weightfile name without leading path and ending '.weights.xml'
+				TString wfile   = TString(getenv("VMCWORKDIR"))+"/softrig/weights/"+toks2[0]+".weights.xml";
+				if (fVerbose) cout <<wfile<<endl;
+				cs.tmvameth = toks2[0](toks2[0].Length()-3,3); 
+				
+				// last token is the cut to the TMVA output
+				cs.tmvacut  = toks2[N3-1].Atof();
+				
+				// tokens inbetween are the variables
+				cs.tmvanvar = N3 - 2;
+				
+				// create the reader
+				cs.tmvaread = new TMVA::Reader("Silent");
+
+				for (int i=1; i<N3-1; ++i)
+				{
+					if (fSTVarmap.find(toks2[i]) != fSTVarmap.end()) cs.tmvavarid[i-1] = fSTVarmap[toks2[i]];
+					else if (CodeVariable(toks2[i])>0) cs.tmvavarid[i-1] = CodeVariable(toks2[i]);
+					else // fail 
+					{
+						cout <<"[PndSoftTriggerTask] **** Unmapped TMVA variable: "<<toks2[i].Data()<<". Skipping mode "<<mcode<<"."<<endl;
+						i=N2+1;
+						ok=false;
+					}
+					if (ok) cs.tmvaread->AddVariable(toks2[i], &fSTInputValues[i-1]);
+				}
+				if (ok) cs.tmvaread->BookMVA(cs.tmvameth,wfile);
 			}
 		}
 		
@@ -1009,7 +1072,7 @@ void PndSoftTriggerTask::FillEventShapeVarArray()
 	// ( 15) esnchrg         ( 16) espmax          ( 17) espmaxl         ( 18) espmin          ( 19) espminl       
 	// ( 20) esprapmax       ( 21) esptmax         ( 22) essumen         ( 23) essumenl        ( 24) essumetn       
 	// ( 25) essumpc         ( 26) essumpc05       ( 27) essumpcl        ( 28) essumpt         ( 29) essumptc    
-	// ( 30) esthr           ( 31)                 ( 32)                 ( 33)                 ( 34)    
+    // ( 30) esthr           ( 31) essph           ( 32) esptmin         ( 33) esncp10l        ( 34) esnne10l   
 	
 	// don't use PID mult values from fEventShape (based on AllCands and only one algo)
 	for (int i=0;i<5;++i) fSTVarEvArray[i] = fPidMult_025[i]; 
@@ -1263,24 +1326,20 @@ double PndSoftTriggerTask::GetVarValue(RhoCandidate *c, int id)
 // Fill the array of candidate specific variables (called for every candidate)
 // here the connection between the variable indices and the values is made
 
-void PndSoftTriggerTask::FillVarArray(RhoCandidate *c, int mcode, std::vector<double> &values)
+void PndSoftTriggerTask::FillVarArray(RhoCandidate *c, int mcode, Bool_t tmva)
 {
 	int i=0;
-	std::vector<int> lidx;
 	
-	values.clear();            // vector of values
 	fSTVarCandArray.clear();   // reset cand var cache (used during fill of values)
 	
-	// will only fill variables needed by this mode; also reset vars
-	for (i=0; i<fSTSelmap[mcode].ncut; ++i) 
-	{
-		lidx.push_back(fSTSelmap[mcode].varid[i]); 
-	}
-
 	// fill all requested variables
-	for (i=0; i<lidx.size(); ++i) 
-		values.push_back(GetVarValue(c, lidx[i]));
-}
+	if (tmva) 
+		for (i=0; i<fSTSelmap[mcode].tmvanvar; ++i) 
+			fSTInputValues[i] = GetVarValue(c, fSTSelmap[mcode].tmvavarid[i]);  // fill variables for tmva
+	else
+		for (i=0; i<fSTSelmap[mcode].ncut; ++i) 
+			fSTInputValues[i] = GetVarValue(c, fSTSelmap[mcode].varid[i]);      // fill variables for cut selection
+}	
 
 // -------------------------------------------------------------------------
 // *** In case a particle is a D*0, D*+, D_s*+, apply cut on mass difference 
@@ -1313,37 +1372,52 @@ bool PndSoftTriggerTask::AcceptCandidate(int mode, RhoCandidate *c, RhoParticleS
 		
 	if (fVerbose>1) cout <<" accepted by precuts"<<endl;
 	
+	// *** 
+	// *** check for cut selection
+	// *** 
 	STCutSet cs = fSTSelmap[mcode];
-	std::vector<double> values;
-	FillVarArray(c, mcode, values);
+	FillVarArray(c, mcode);
 	
 	bool acc = true;
 	
 	for (int i=0;i<cs.ncut;++i)
 	{
-		if (fVerbose>1) cout <<"  -> checking var["<<cs.varid[i]<<"] ("<<values[i]<<") "<<fSTOps[cs.op[i]]<<" "<<cs.cutval[i]<<endl;
+		if (fVerbose>1) cout <<"  -> checking var["<<cs.varid[i]<<"] ("<<fSTInputValues[i]<<") "<<fSTOps[cs.op[i]]<<" "<<cs.cutval[i]<<endl;
+		
 		switch (cs.op[i]) // which operator is used for this cut?
 		{
 		case 0:	// check var >= value
-			if ( !(values[i]>=cs.cutval[i]) ) acc=false; 
+			if ( !(fSTInputValues[i]>=cs.cutval[i]) ) acc=false; 
 			break;
 		case 1:	// check var > value
-			if ( !(values[i]>cs.cutval[i]) ) acc=false; 
+			if ( !(fSTInputValues[i]>cs.cutval[i]) ) acc=false; 
 			break;
 		case 2:	// check var == value
-			if ( !(values[i]==cs.cutval[i]) ) acc=false; 
+			if ( !(fSTInputValues[i]==cs.cutval[i]) ) acc=false; 
 			break;
 		case 3:	// check var <= value
-			if ( !(values[i]<=cs.cutval[i]) ) acc=false; 
+			if ( !(fSTInputValues[i]<=cs.cutval[i]) ) acc=false; 
 			break;
 		case 4:	// check var < value
-			if ( !(values[i]<cs.cutval[i]) ) acc=false; 
+			if ( !(fSTInputValues[i]<cs.cutval[i]) ) acc=false; 
 			break;
 		default : 
 			acc=false; 
 			break;
 		}
 	}
+	
+	// *** 
+	// *** check for TMVA selector in addition
+	// *** 
+	if (cs.tmvaread)
+	{
+		FillVarArray(c, mcode, true);
+		if (fVerbose>1) cout <<"  -> checking TMVA "<<cs.tmvameth<<endl;
+		float mvaout = cs.tmvaread->EvaluateMVA(cs.tmvameth);
+		if (mvaout<cs.tmvacut) acc=false;
+	}
+	
 	
 	if (fVerbose>1)
 	{

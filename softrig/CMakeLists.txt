@@ -40,6 +40,6 @@ PndAnaWithTrigger.cxx
 set(LINKDEF  SofTrig_LinkDef.h)
 set(LIBRARY_NAME SofTrig)
 
-set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase)
+set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase TMVA)
 
 GENERATE_LIBRARY()
