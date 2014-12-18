@@ -221,8 +221,8 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
     //closestDistanceError =TMath::Sqrt(2.)*radius/TMath::Sqrt(12);
 
 
-    //TVector3 position(point->GetX(), point->GetY(), point->GetZ()); //point info
-    TVector3 position = tube->GetPosition();
+    //TVector3 position(point->GetX(), point->GetY(), point->GetZ()); // use this for hits having same coordinates as MC points
+    TVector3 position = tube->GetPosition(); // use this for realistic hit production
     pos.SetXYZ(position.X(), position.Y(), position.Z()); // <--- stt1
 
     //    dpos.SetXYZ(innerStrawDiameter / 2., innerStrawDiameter / 2., GetLongitudinalResolution(position.Z()));
