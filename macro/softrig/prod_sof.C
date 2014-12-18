@@ -62,9 +62,9 @@ void prod_sof(TString outpre="", Float_t Mom=15.15, int mode=9999, int run=-1, i
 		
 	stTask->ApplyFullSelection(applyfull);
 	
-	stTask->SetPi0SignalParams(0.134, 0.0035);
-	stTask->SetKs0SignalParams(0.497, 0.0055);
-	stTask->SetEtaSignalParams(0.549, 0.0055);
+	stTask->SetPi0SignalParams(0.134, 0.0045);
+	stTask->SetKs0SignalParams(0.497, 0.0085);
+	stTask->SetEtaSignalParams(0.549, 0.0055); // needs to be refined!
 	
 	// set PID algos
 	TString algo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoMvd";	

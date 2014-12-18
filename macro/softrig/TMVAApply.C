@@ -76,7 +76,7 @@ int init(TTree *t, TString vars)
 			case 1: t->SetBranchAddress(v, &(ibranch[i])); break;
 			case 2: t->SetBranchAddress(v, &(bbranch[i])); break;
 		}
-		cout <<toks[i]<<" of type "<<types[i]<<endl;
+		//cout <<toks[i]<<" of type "<<types[i]<<endl;
 	}   
 	
 	return N;
@@ -110,10 +110,38 @@ int countEvents(TTree *t, TEventList &el)
 
 	return evcnt.size();
 }
+
+// ---------------------------------------------------------------
+
+TString getFromCut(TString vars)
+{
+	TString toks[50];
+	int n=SplitString(vars, "&&", toks, 50);
+	TRegexp rvar("[_a-zA-Z][_a-zA-Z0-9]*");
+	
+	TString res=" ";
+	
+	for (int i=0;i<n;++i)
+	{
+		TString v = toks[i](rvar);
+		if (v!="")
+		{
+			if (v=="tag" || res.Contains(" "+v+" ")) continue;
+			res+=v+" ";
+		}
+	}
+	
+	res = res.Strip(TString::kBoth);
+	
+	return res;
+}
 // ---------------------------------------------------------------
 
 void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.0001)
 {
+	if (vars.Contains("&&")) vars = getFromCut(vars);
+	cout <<"Vars : "<<vars<<endl;
+	
 	TString sigcut = "tag&&mode%1000!=900";
 	TString bkgcut = "tag&&mode%1000==900";
 
@@ -162,7 +190,7 @@ void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.000
 	{
 		t->GetEntry(el->GetEntry(i));
 		
-		if (i%10000==0) cout <<i<<endl;
+		if (i%10000==0) cout <<"#"<<flush;
 			
 		for (int j=0;j<Nbr;++j) 
 		{
@@ -182,14 +210,15 @@ void TMVAApply(TString fname, TString vars, TString wfile, Float_t bglevel=0.000
 	sort(bkgvals.begin(), bkgvals.end());
 	
 	int nbgmax = bglevel*n0b, i = bkgvals.size()-1;
-	while (bkgcnt.size()<nbgmax && i>=0) bkgcnt[bkgvals[i--].second]+=1;
+	while ((int)bkgcnt.size()<nbgmax && i>=0) bkgcnt[bkgvals[i--].second]+=1;
 	double cut = bkgvals[i].first;
 
 	for (i=0;i<(int)sigvals.size();++i)
 		if (sigvals[i].first>cut) sigcnt[sigvals[i].second]+=1;
-	cout <<"CUT = "<<cut<<endl;
+	cout <<endl;
 	printf("S : eff = %0.3f     N = %5d / %5d   N0 = %d\n", (double)sigcnt.size()/n0s, (int)sigcnt.size(), (int)nsig, n0s);
 	printf("B : eff = %0.5f   N = %5d / %5d   N0 = %d\n",   (double)bkgcnt.size()/n0b, (int)bkgcnt.size(), (int)nbkg, n0b);
+	cout <<"\nCUT = "<<cut<<endl;
 }
 
 
