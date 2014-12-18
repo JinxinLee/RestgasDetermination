@@ -316,6 +316,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // initialize hit map -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-
   fHitMap->Clear();
   FillHitMap();
+
+  fDisplayOn = kFALSE;
   // ##########################################################
 
   PndTrkHit *stthit = NULL;
@@ -1928,8 +1930,67 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     
   }
   // =============================================
+  // CLEANING
+  // rms
+  PndTrkTrackList *cleanedtracklist = new PndTrkTrackList();
+  for(int itrk = 0; itrk < mergedtracklist->GetNofTracks(); itrk++) {
+    PndTrkTrack *track = mergedtracklist->GetTrack(itrk);
+    double xc3 = track->GetCenter().X();
+    double yc3 = track->GetCenter().Y();
+    double R3 = track->GetRadius();
 
-  fTrackList = mergedtracklist; // CHECK
+     bool vote = true;
+    // CHI2 ___________________
+    double gap[5] = {0, 0, 0, 0, 0};
+    
+    PndTrkCluster clusteri = track->GetCluster();
+    
+    // check if it is a long track
+    hit = clusteri.GetHit(0);
+       
+    for(int ihit = 0; ihit < clusteri.GetNofHits(); ihit++) {
+      hit = clusteri.GetHit(ihit);
+      int detID = hit->GetDetectorID();
+      TVector3 pos = hit->GetPosition();
+    
+      // mvd pix
+      if(detID == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+	gap[0] += fabs(TMath::Sqrt((pos.X() - xc3) * (pos.X() - xc3) + (pos.Y() - yc3) * (pos.Y() - yc3)) - R3);
+      }
+      // mvd str
+      else if(detID == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	gap[1] += fabs(TMath::Sqrt((pos.X() - xc3) * (pos.X() - xc3) + (pos.Y() - yc3) * (pos.Y() - yc3)) - R3);
+      }
+      // stt
+      else if(detID == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	gap[2] += fabs(TMath::Sqrt((pos.X() - xc3) * (pos.X() - xc3) + (pos.Y() - yc3) * (pos.Y() - yc3)) - R3) - hit->GetIsochrone();
+      }
+      // scitil;
+      else if(detID == FairRootManager::Instance()->GetBranchId(fSciTBranch)) {
+	gap[3] += fabs(TMath::Sqrt((pos.X() - xc3) * (pos.X() - xc3) + (pos.Y() - yc3) * (pos.Y() - yc3)) - R3);
+      }
+      // gem
+      else if(detID == FairRootManager::Instance()->GetBranchId(fGemBranch)) {
+	gap[4] += fabs(TMath::Sqrt((pos.X() - xc3) * (pos.X() - xc3) + (pos.Y() - yc3) * (pos.Y() - yc3)) - R3);
+      }
+    }
+
+    // give large cuts CHECK
+    if(gap[0] > 5) vote = false; // mvd pix
+    if(gap[1] > 5) vote = false; // mvd str
+    if(gap[2] > 50) vote = false; // stt
+    if(gap[3] > 1) vote = false; // scit
+    if(gap[4] > 5) vote = false; // gem
+    cout << "VOTE " << vote << endl;
+
+    if(vote == true) cleanedtracklist->AddTrack(track);
+  }
+  delete mergedtracklist;
+
+
+
+  fTrackList =  cleanedtracklist; //  CHECK
+  // fDisplayOn = kTRUE;
 
   if(fDisplayOn) {
     char goOnChar;
@@ -1939,7 +2000,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // PndTrkTrack --> PndTrack
   for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++) {
     PndTrkTrack *track = fTrackList->GetTrack(itrk);
-
+  
     PndTrack theTrack = track->ConvertToPndTrack();
 
     TClonesArray& clref1 = *fTrackArray;
@@ -1960,15 +2021,16 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       display->Update();
       display->Modified();
      
-      //      cout << "TRACK " << itrk << endl;
+      cout << "TRACK " << itrk << endl;
       //      cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << " nofhits " << outputtrackcand->GetNHits() <<  endl;
-//       cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
-//       cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
-//       cout << "CHARGE " <<  track->GetCharge() << endl;
+      cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
+      //       cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
+      //       cout << "CHARGE " <<  track->GetCharge() << endl;
+      cin >> goOnChar;
     }
-
+    
   }
-
+  
   if(fDisplayOn) {
     char goOnChar;
     display->Update();
