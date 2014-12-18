@@ -115,10 +115,6 @@ private:
 
 	// for Hough
 	//-----------
-	PndFtsHoughSpace* fHoughSpaceZxLineBeforeDipole;
-	PndFtsHoughSpace* fHoughspaceZxParabola;
-	PndFtsHoughSpace* fHoughSpaceZxLineBehindDipole;
-	PndFtsHoughSpace* fHoughspaceZyLine;
 	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsComplete; ///< For internal storing of complete track cands.
 	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsZxPlaneOnly; ///< For internal storing of track cands. (zx plane track model only)
 	//	std::vector<PndTrackCand> fTrackCand; // resulting track candidates, also used for returning PndTracks

@@ -107,6 +107,10 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
 PndFtsHoughTrackerTask::~PndFtsHoughTrackerTask()
 {
 	if(fVerbose>3) fLogger->Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackerTask");
+	// TODO Is that correct?!?
+	delete fHoughTrackCands;
+	delete fTrackCands;
+	delete fTracks;
 	//	fOutFile->Close();
 }
 
@@ -165,17 +169,17 @@ InitStatus PndFtsHoughTrackerTask::Init()
 		return kERROR;
 	}
 	fFtsMcPoints = dynamic_cast<TClonesArray *> (ioman->GetObject("FTSPoint"));
-		if ( ! fFtsMcPoints ) {
-			fLogger->Info(MESSAGE_ORIGIN,"No McPoints array!");
-			return kERROR;
-		}
+	if ( ! fFtsMcPoints ) {
+		fLogger->Info(MESSAGE_ORIGIN,"No McPoints array!");
+		return kERROR;
+	}
 
 	// FTS Branch
 	fFtsBranchId = 	ioman->GetBranchId("FTSHit");
 
 	// FTS Tube Array
-	PndFtsMapCreator *mapperFts = new PndFtsMapCreator(fFtsParameters);
-	fFtsTubeArray = mapperFts->FillTubeArray();
+	PndFtsMapCreator mapperFts(fFtsParameters);
+	fFtsTubeArray = mapperFts.FillTubeArray();
 
 
 
@@ -279,7 +283,7 @@ const TMatrixT<Double_t> PndFtsHoughTrackerTask::GetFtsHitCovMatrix(const PndFts
 	for (Int_t firstIdx=0; firstIdx < 3; ++firstIdx){
 		for (Int_t secondIdx=0; secondIdx < 3; ++secondIdx){
 			unrotatedCovMatrix[firstIdx][secondIdx] = 0;
-			}
+		}
 	}
 	unrotatedCovMatrix[0][0] = pow(rhoError, 2);
 	unrotatedCovMatrix[1][1] = pow(rhoError, 2);
@@ -371,7 +375,9 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 
 void PndFtsHoughTrackerTask::FinishEvent()
 {
-
+	fTrackCands->Delete();
+	fTracks->Delete();
+	fHoughTrackCands->Delete();
 }
 
 

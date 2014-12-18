@@ -15,13 +15,7 @@ PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTa
 				fMinPeakHeightZxLineBeforeDipole(6),
 				fMinPeakHeightZxParabola(8),
 				fMinPeakHeightZxLineBehindDipole(6),
-				fMinPeakHeightZyLine(8),
-
-				// Hough spaces
-				fHoughSpaceZxLineBeforeDipole(0),
-				fHoughspaceZxParabola(0),
-				fHoughSpaceZxLineBehindDipole(0),
-				fHoughspaceZyLine(0)
+				fMinPeakHeightZyLine(8)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Tracker task not set.\n";
@@ -42,8 +36,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBehindDipoleZx
 	static const Int_t stepsPerThetaDegLineBehindDipole = 4; // greater number means finer scanning in theta
 	static const Int_t thetaDegLowLineBehindDipole = -80; // in degree
 	static const Int_t thetaDegHighLineBehindDipole = 80; // in degree
-	delete fHoughSpaceZxLineBehindDipole;
-	fHoughSpaceZxLineBehindDipole = new PndFtsHoughSpace("lineBehindDipole", -1,
+	PndFtsHoughSpace houghSpaceZxLineBehindDipole("lineBehindDipole", -1,
 			stepsPerThetaDegLineBehindDipole
 			* (thetaDegHighLineBehindDipole
 					- thetaDegLowLineBehindDipole),
@@ -55,14 +48,14 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBehindDipoleZx
 					fZParabolaLine, 0., 0, fTrackerTask);
 
 	// Do straight line Hough transform on non-skewed hits from stations 1+2
-	try { fHoughSpaceZxLineBehindDipole->FillHoughSpace(); }
+	try { houghSpaceZxLineBehindDipole.FillHoughSpace(); }
 	catch (std::runtime_error& e) {
 		std::cerr
 		<< "Hough Space for zx line behind dipole could not be created! \n";
 		std::cerr << "runtime_error: " << e.what() << '\n';
 	}
 	// find peaks for line hough space and store in vector
-	std::vector<PndFtsHoughTracklet> trackletsLineBehindDipole = fHoughSpaceZxLineBehindDipole->FindAllPeaksScanPathsMergeBins(
+	std::vector<PndFtsHoughTracklet> trackletsLineBehindDipole = houghSpaceZxLineBehindDipole.FindAllPeaksScanPathsMergeBins(
 			fMinPeakHeightZxLineBehindDipole);
 	return trackletsLineBehindDipole;
 }
@@ -73,8 +66,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBeforeDipoleZx
 	static const Int_t stepsPerThetaDegLineBeforeDipole = 4; // greater number means finer scanning in theta
 	static const Int_t thetaDegLowLineBeforeDipole = -25; // in degree
 	static const Int_t thetaDegHighLineBeforeDipole = 25; // in degree
-	delete fHoughSpaceZxLineBeforeDipole;
-	fHoughSpaceZxLineBeforeDipole = new PndFtsHoughSpace("lineBeforeDipole", -1,
+
+	PndFtsHoughSpace houghSpaceZxLineBeforeDipole("lineBeforeDipole", -1,
 			stepsPerThetaDegLineBeforeDipole
 			* (thetaDegHighLineBeforeDipole
 					- thetaDegLowLineBeforeDipole),
@@ -86,14 +79,14 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBeforeDipoleZx
 					fZLineParabola, 0., 0, fTrackerTask);
 
 	// Do straight line Hough transform on non-skewed hits from stations 1+2
-	try { fHoughSpaceZxLineBeforeDipole->FillHoughSpace(); }
+	try { houghSpaceZxLineBeforeDipole.FillHoughSpace(); }
 	catch (std::runtime_error& e) {
 		std::cerr
 		<< "Hough Space could not be created! \n";
 		std::cerr << "runtime_error: " << e.what() << '\n';
 	}
 	// find peaks for line Hough space and store in vector
-	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = fHoughSpaceZxLineBeforeDipole->FindAllPeaksBinsWoMergingWithSearchWindow(fMinPeakHeightZxLineBeforeDipole);
+	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = houghSpaceZxLineBeforeDipole.FindAllPeaksBinsWoMergingWithSearchWindow(fMinPeakHeightZxLineBeforeDipole);
 	return trackletsLineBeforeDipole;
 }
 
@@ -140,8 +133,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
     														  << " peakThetaRadHwLB4D=" << peakThetaRadHwLB4D
     														  << '\n';
 
-		delete fHoughspaceZxParabola;
-		fHoughspaceZxParabola = new PndFtsHoughSpace("parabola", iLB4D, thetaBins,
+		PndFtsHoughSpace houghspaceZxParabola("parabola", iLB4D, thetaBins,
 				thetaRadLowParabola, // in rad
 				thetaRadHighParabola, // in rad
 				300,
@@ -150,14 +142,14 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				fZLineParabola, peakInterceptLB4D, 0, fTrackerTask);
 
 		// Do parabola Hough transform for current line before dipole (shifts FTS hits by hitshiftinx) for non-skewed hits in stations 3+4+5
-		try { fHoughspaceZxParabola->FillHoughSpace(); }
+		try { houghspaceZxParabola.FillHoughSpace(); }
 		catch (std::runtime_error& e) {
 			std::cerr << "Hough Space for zx parabola could not be created! \n";
 			std::cerr << "runtime_error: " << e.what() << '\n';
 		}
 
 		// find peaks for zx parabola Hough space (for current line before dipole)
-		std::vector<PndFtsHoughTracklet> zxParabolaTracklets = fHoughspaceZxParabola->FindAllPeaksScanPathsMergeBins(fMinPeakHeightZxParabola);
+		std::vector<PndFtsHoughTracklet> zxParabolaTracklets = houghspaceZxParabola.FindAllPeaksScanPathsMergeBins(fMinPeakHeightZxParabola);
 
 
 
@@ -249,7 +241,6 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	// zy plane: Straight line Hough transform
 	// loop over line+parabola+line from zx plane
 	std::cout << "Lines in zy plane:\n";
-	PndFtsHoughSpace* houghspaceZyLine = 0;
 	for (UInt_t iLPL = 0; iLPL < fHoughTrackCandsZxPlaneOnly.size(); ++iLPL) {
 		// determine where to look for line in zy plane
 		static const Int_t stepsPerThetaDegZyLine = 4; // greater number means finer scanning in theta
@@ -257,8 +248,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		static const Int_t thetaDegHighZyLine = 18; // in degree
 
 		// create Hough space
-		delete houghspaceZyLine;
-		houghspaceZyLine = new PndFtsHoughSpace("lineZy", iLPL,
+		PndFtsHoughSpace houghspaceZyLine("lineZy", iLPL,
 				stepsPerThetaDegZyLine
 				* (thetaDegHighZyLine
 						- thetaDegLowZyLine),
@@ -272,14 +262,14 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 		// Do line Hough transform for current line+parabola+line for skewed hits in all stations
 		try {
-			houghspaceZyLine->FillHoughSpace();
+			houghspaceZyLine.FillHoughSpace();
 		} catch (std::runtime_error& e) {
 			std::cerr
 			<< "Hough Space for zy line before dipole could not be created! \n";
 			std::cerr << "runtime_error: " << e.what() << '\n';
 		}
 		// find peaks for line Hough space and store in vector
-		std::vector<PndFtsHoughTracklet> trackletsZyLine = houghspaceZyLine->FindAllPeaksScanPathsMergeBins(fMinPeakHeightZyLine);
+		std::vector<PndFtsHoughTracklet> trackletsZyLine = houghspaceZyLine.FindAllPeaksScanPathsMergeBins(fMinPeakHeightZyLine);
 
 
 
@@ -330,13 +320,6 @@ void PndFtsHoughTrackFinder::FindTracks() {
 		//			std::cout << "Watch out! p_z value in plot is already corrected!!!"  << std::endl;
 		//		}
 	}
-
-
-	delete fHoughSpaceZxLineBeforeDipole;
-	delete fHoughspaceZxParabola;
-	delete fHoughSpaceZxLineBehindDipole;
-	delete fHoughspaceZyLine;
-
 }
 
 
