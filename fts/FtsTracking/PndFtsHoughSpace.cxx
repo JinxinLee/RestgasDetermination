@@ -636,8 +636,8 @@ void PndFtsHoughSpace::WriteHistoOfAllPathsForEachMcTruthTrack() const {
 			histoPair.first.SetBinContent(currBinNumber, currHeight); // projection
 			Int_t currBinX = 0, currBinY = 0, notUsedBinZ = 0;
 			GetBinXYZ(currBinNumber, currBinX, currBinY, notUsedBinZ); // Find currBinX and currBinY from globalBin
-			Double_t currXVal = GetXaxis()->GetBinCenter(currBinX);
-			Double_t currYVal = GetYaxis()->GetBinCenter(currBinY);
+			const Double_t currXVal = GetXaxis()->GetBinCenter(currBinX);
+			const Double_t currYVal = GetYaxis()->GetBinCenter(currBinY);
 			histoPair.second.Fill(currXVal,currYVal); // exclusive fill
 		}
 	}
@@ -658,8 +658,9 @@ void PndFtsHoughSpace::WriteHistoOfHoughSpace() const{
 
 	//	Int_t index = fHoughSpaces->GetEntriesFast();
 	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
-	TString outName = GetDebugOutName();
-	outName+="-histo.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+	TString title = GetTitle();
+	title += " histo";
+	TString outName = GetDebugOutName(title);
 	SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
 	// sed -i 's/PndFtsHoughSpace/TH2S/g' *.rtg
 
