@@ -1,4 +1,4 @@
-void create_pro_rootgeo(Double_t distance = 750){
+void create_pro_rootgeo_old(Double_t distance = 750){
   // Forward tof geometry parameters
   //-----------------------------
   //-- macro created by Alicia S. based on step file
@@ -70,6 +70,7 @@ char namV2[13];
   TileShape = new TGeoBBox("Scitil_logicTile", 1.425, 0.25, 1.425);
   
   TileVol = new TGeoVolume("SciTil",TileShape, gGeoMan->GetMedium("polyvinyltoluene"));
+   TileVol->SetLineColor(kBlue);
   // creating Quad
 
   Double_t dx, dy, dz;
@@ -127,11 +128,11 @@ char namV2[13];
 	
 
 	  top->AddNode(SciTVol,0,new TGeoCombiTrans(0.,0.,32.0,new TGeoRotation ()));
-	  
+	  //top->AddNode(SModAssVol,0,new TGeoCombiTrans(0.,0.,32.0,new TGeoRotation ()));
 	  gGeoMan->CloseGeometry();
 	  top->Write();
 	  fi->Close();
-	  //   gGeoManager->Export(outfile);
+	  //gGeoManager->Export(outfile);
 	  top->Draw("ogl");
   }  
   
