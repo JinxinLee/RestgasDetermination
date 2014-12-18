@@ -1,153 +1,189 @@
-// Macro created A.Sanchez
-// It creates a geant simulation file for forward tof wall
+// Macro for running Panda simulation  with Geant3  or Geant4 (M. Al-Turany)
+// This macro is supposed to run the simulation of the scitil detector of the panda detector with the most recent geometry
+// to run the macro:
+// root  sim_scitil.C  or in root session root>.x  sim_scitil.C
+// to run with different options:(e.g more events, different momentum, Geant4)
+// root  sim_complete.C"(100, "TGeant4",2)"
+
+sim_scit(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
+  //-----User Settings:-----------------------------------------------
+  TString  OutputFile     ="sim_scit.root";
+  TString  ParOutputfile  ="sim_scit_params.root";
+  TString  MediaFile      ="media_pnd.geo";
+  gDebug                  = 0;
+  TString digiFile        = "all.par"; //The emc run the hit producer directly 
+  // choose your event generator 
+  Bool_t UseEvtGenDirect      =kTRUE;     
+  Bool_t UseDpm 	      =kFALSE;
+  Bool_t UseBoxGenerator      =kFALSE;
+
+  Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
+  if (UseBoxGenerator)
+    {
+      BeamMomentum   =15.0; // ** change HERE if you run Box generator
+    }
+  else
+    {
+      BeamMomentum = mom;  // for DPM/EvtGen BeamMomentum is always = mom
+    }	
+  //------------------------------------------------------------------
+  TLorentzVector fIni(0, 0, mom, sqrt(mom*mom+9.3827203e-01*9.3827203e-01)+9.3827203e-01);  
+  TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888); 
+  //------------------------------------------------------------------
   TStopwatch timer;
   timer.Start();
-  gDebug=0;
-  // Load basic libraries
-  // If it does not work,  please check the path of the libs and put it by hands
-  
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libSciT");
+  gRandom->SetSeed(); 
 
+  // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
+  fRun->SetName(SimEngine.Data() );
+  fRun->SetOutputFile(OutputFile.Data());
+  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetBeamMom(BeamMomentum);
+  fRun->SetMaterials(MediaFile.Data());
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   
-  
-  TString inFile3= "pbarC_3_GeV.root";
-
-  // set the MC version used
-  // ------------------------
-  
-  fRun->SetName("TGeant3");
-  
-  
+  // Set the parameters 
+  //-------------------------------
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/";
+  allDigiFile += digiFile;
  
-  fRun->SetOutputFile("test.root");
-  
-  // Set Material file Name
-  //-----------------------
-  
-  fRun->SetMaterials("media_pnd.geo");
-  
-  // Create and add detectors
-  //-------------------------
+ 
+  //-------Set the parameter output --------------------
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);        
+
+ //---------------------Set Parameter output      ---------- 
+  Bool_t kParameterMerged=kTRUE;
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(ParOutputfile.Data());
+  rtdb->setOutput(output);
+
+   // Create and add detectors
+
+ //-------------------------  CAVE      -----------------
 
   FairModule *Cave= new PndCave("CAVE");
-  Cave->SetGeometryFileName("cave.geo");
+  Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-  
-   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("magnet.geo");
+  //-------------------------  Magnet   ----------------- 
+  FairModule *Magnet= new PndMagnet("MAGNET");
+  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
-
-  
-  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("BarrelScitil_Copy.root");//barrel-SciTil_18122012.root");//SciTil_Barrel_woPCB.root");
-  fRun->AddModule(SciT);
- // 
-   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
-  // set reflectivity for the mirror at the bar end, in case of kFALSE reflectivity = 1 = const.
-  Drc->SetMirrorReal(kTRUE);  
-  Drc->SetDetEffAtProduction(kTRUE);
-  Drc->SetStopTime(200.); 
-  Drc->SetVerboseLevel(0);
-  Drc->SetOnlyDirectPho(kFALSE);
-  // put the geometry file you want into the next line:  
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
-  fRun->AddModule(Drc);
-  
- PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  FairModule *Dipole= new PndMagnet("MAGNET");
+  Dipole->SetGeometryFileName("dipole.geo");
+  fRun->AddModule(Dipole);
+  //-------------------------  Pipe     -----------------
+   FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("beampipe_201309.root");
+  fRun->AddModule(Pipe);
+  //-------------------------  STT       -----------------
+  FairDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  fRun->AddModule(Stt);
+  //-------------------------  MVD       -----------------
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+  fRun->AddModule(Mvd);
+  //-------------------------  GEM       -----------------
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations_Tube.root");
+  fRun->AddModule(Gem);
+  //-------------------------  EMC       -----------------
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(1);
-  // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
-  Emc->SetStorageOfData(kTRUE);
+  Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
-  
+  //-------------------------  SCITIL    -----------------
+  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("BarrelScitil_Copy.root");
+  fRun->AddModule(SciT);
+  //-------------------------  DRC       -----------------  
+  //hier noch einstellungs potential, siehe sim_scitil_old.C
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  Drc->SetRunCherenkov(kFALSE);
+  fRun->AddModule(Drc); 
+  //-------------------------  DISC      -----------------
+  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  Dsk->SetStoreCerenkovs(kFALSE);
+  Dsk->SetStoreTrackPoints(kFALSE);
+  fRun->AddModule(Dsk);
+  //-------------------------  MDT       -----------------
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  fRun->AddModule(Muo);
+  //-------------------------  FTS       -----------------
+  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  Fts->SetGeometryFileName("fts.geo");
+  fRun->AddModule(Fts); 
+  //-------------------------  FTOF      -----------------
+  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FTof->SetGeometryFileName("ftofwall.root");
+  fRun->AddModule(FTof);
+  //-------------------------  RICH       ----------------
+  FairDetector *Rich= new PndRich("RICH",kFALSE);
+  Rich->SetGeometryFileName("rich_v2_shift.geo");
+  fRun->AddModule(Rich);
 
   // Create and Set Event Generator
   //-------------------------------
-  
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
+	 
+  if(UseBoxGenerator){	// Box Generator
+     FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
+     boxGen->SetPRange(mom,mom); // GeV/c
+     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+     boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
+     boxGen->SetXYZ(0., 0., 0.); // cm
+     primGen->AddGenerator(boxGen);
+  }
+  if(UseDpm){
+  	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
+	  primGen->AddGenerator(Dpm);
+  }
+  if(UseEvtGenDirect){
+          TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+          EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";	
+          PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
+	  EvtGen->SetStoreTree(kTRUE);
+	  primGen->AddGenerator(EvtGen);
+  }	
 
-   
-  PndUrqmdSmmGenerator* urqmdGen = new PndUrqmdSmmGenerator(inFile3);
-  
-  primGen->AddGenerator(urqmdGen);
-  
-  // Box Generator: 
-  // PndBoxGenerator* boxGen = new PndBoxGenerator(2212, 1); // 13 = muon; 1 = multipl. // 211 = pi+
-//   // first number: PDG particle code: 2nd number: particle multiplicity per event
-  
-  
-//   boxGen->SetPRange(1.,1.); // GeV/c
-//   // boxGen->SetPtRange(1.,1.); // GeV/c
-//   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-//   boxGen->SetThetaRange(20., 90.); // Polar angle in lab system range [degree]
-//   boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
-//   boxGen->SetXYZ(0., 0., 0.); // vertex coordinates [cm]
-//   primGen->AddGenerator(boxGen);  
-  
-  
-  // Create and Set Magnetic Field
+ //---------------------Create and Set the Field(s)---------- 
+  PndMultiField *fField= new PndMultiField("AUTO");
+  fRun->SetField(fField);
+
+ // EMC Hit producer
   //-------------------------------
-  /*PndMultiField *fField= new PndMultiField("FULL");
-      
-    fRun->SetField(fField);*/
+  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  fRun->AddTask(emcHitProd);
   
-  /*
-    PndConstField *fMagField=new PndConstField();
-    fMagField->SetField(0, 0 ,20. ); // values are in kG
-    // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
-    fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
-    fRun->SetField(fMagField);*/
-  
-  
-  fRun->SetBeamMom(15);
-  
-  fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
-  
-  /*FairTrajFilter* trajFilter = FairTrajFilter::Instance();
-    trajFilter->SetStepSizeCut(0.001); // 1 cm
-    //  trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
-    // trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
-    //  trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
-    trajFilter->SetStorePrimaries(kTRUE);
-    trajFilter->SetStoreSecondaries(kTRUE);*/ // not used for the others.????
-  
+ //-------------------------  Initialize the RUN  -----------------  
   fRun->Init();
-  
-  
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
-  
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  
-  /* PndMultiFieldPar* fieldPar = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-  if ( fField ) { fieldPar->SetParameters(fField); }
-  fieldPar->setInputVersion(fRun->GetRunId(),1);
-  fieldPar->setChanged();*/
-
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("simparams.root");
-  rtdb->setOutput(output);
-  rtdb->saveOutput();
-  rtdb->print();
-  
-  // Transport nEvents
-  // -----------------
-   
-  // Set the number of events
-  Int_t nEvents = 100; 
+ //-------------------------  Run the Simulation  -----------------   
   fRun->Run(nEvents);
-  
+ //-------------------------  Save the parameters ----------------- 
+  rtdb->saveOutput();
+ //------------------------Print some info and exit----------------     
   timer.Stop();
-  
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  delete fRun;
+  
+  cout << " Test passed" << endl;
+  cout << " All ok " << endl;
+  
   //exit(0);
 
 }  
