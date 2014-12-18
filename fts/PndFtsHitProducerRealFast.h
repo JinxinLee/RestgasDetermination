@@ -16,65 +16,67 @@ class TObjectArray;
 class PndFtsHitProducerRealFast : public FairTask
 {
 
- public:
+public:
 
-  /** Default constructor **/  
-  PndFtsHitProducerRealFast();
-
-
-  /** Destructor **/
-  ~PndFtsHitProducerRealFast();
+	/** Default constructor **/
+	PndFtsHitProducerRealFast(Bool_t useMcTruthPositionForHits=kFALSE);
 
 
-  /** Virtual method Init **/
-  virtual InitStatus Init();
+	/** Destructor **/
+	~PndFtsHitProducerRealFast();
 
 
-  /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt);
-
-  PndFtsHit* AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge);
-
-  PndFtsHitInfo* AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake);
-
-  void FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, TVector3 localInPos, TVector3 localOutPos);
-  
-  Double_t GetError(Double_t);
-
- 
-  /** set persistence flag **/
-  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
-
-  private: 
-
-  void SetParContainers();
+	/** Virtual method Init **/
+	virtual InitStatus Init();
 
 
-  /** Input array of PndFtsPoints **/
-  TClonesArray* fPointArray; 
+	/** Virtual method Exec **/
+	virtual void Exec(Option_t* opt);
 
-  /** Output array of PndFtsHits **/
-  TClonesArray* fHitArray;   
+	PndFtsHit* AddHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge);
 
-  TObjArray *fVolumeArray;   
+	PndFtsHitInfo* AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake);
 
-  /** Output array of PndFtsHitInfo **/
-  TClonesArray* fHitInfoArray;
-  Int_t fevtn;
+	void FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, TVector3 localInPos, TVector3 localOutPos);
 
-  PndGeoFtsPar*  fFtsParameters;
-  
-  /** object persistence **/
-  Bool_t  fPersistence; //!
+	Double_t GetError(Double_t);
 
 
-  TClonesArray* fTubeArray;
+	/** set persistence flag **/
+	void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
+private:
+
+	void SetParContainers();
 
 
-  PndFtsHitProducerRealFast(const  PndFtsHitProducerRealFast& L);
-  PndFtsHitProducerRealFast& operator= (const  PndFtsHitProducerRealFast&) {return *this;}
-  
-  ClassDef(PndFtsHitProducerRealFast,1);
+	/** Input array of PndFtsPoints **/
+	TClonesArray* fPointArray;
+
+	/** Output array of PndFtsHits **/
+	TClonesArray* fHitArray;
+
+	TObjArray *fVolumeArray;
+
+	/** Output array of PndFtsHitInfo **/
+	TClonesArray* fHitInfoArray;
+	Int_t fevtn;
+
+	PndGeoFtsPar*  fFtsParameters;
+
+	/** object persistence **/
+	Bool_t  fPersistence; //!
+
+	/** if kTRUE then hits have same coordinates as MC points. If kFALSE hits have center of straw as position. **/
+	const Bool_t fUseMcTruthPositionForHits;
+
+	TClonesArray* fTubeArray;
+
+
+	PndFtsHitProducerRealFast(const  PndFtsHitProducerRealFast& L);
+	PndFtsHitProducerRealFast& operator= (const  PndFtsHitProducerRealFast&) {return *this;}
+
+	ClassDef(PndFtsHitProducerRealFast,1);
 
 };
 
