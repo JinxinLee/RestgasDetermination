@@ -238,10 +238,20 @@ Double_t PndTrkTrack::ComputePhi(TVector3 hit)
 
 // =======================================================================================
 void PndTrkTrack::Draw(Color_t color) {
-  TArc *track = new TArc(fCenterX, fCenterY, fRadius);
+  PndTrkHit *hit0 = fCluster.GetHit(0);
+  double phi0 = ComputePhi(hit0->GetPosition());
+  if(phi0 > 180) phi0 -= 360;
+
+  PndTrkHit *hitN = fCluster.GetHit(fCluster.GetNofHits() - 1);
+  double phiN = ComputePhi(hitN->GetPosition());
+  if(phiN > 180) phiN -= 360;
+
+  TArc *track = new TArc(fCenterX, fCenterY, fRadius, phi0, phiN);
+
+  // cout << fCenterX << " " << fCenterY << " " << fRadius << " " << phi0 << " " << phiN << endl;
   track->SetFillStyle(0);
   track->SetLineColor(color);
-  track->Draw("SAME");
+  track->Draw("only SAME");
 }
 
 void PndTrkTrack::LightUp() {
