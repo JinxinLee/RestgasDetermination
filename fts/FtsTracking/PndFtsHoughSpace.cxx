@@ -118,20 +118,20 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																						fTrackerTask(trackerTask),
-																						fRefIndex(refIndex),
+																								fTrackerTask(trackerTask),
+																								fRefIndex(refIndex),
 
-																						fZRefPos(zRefPos),
-																						fInterceptZx(interceptZx),
+																								fZRefPos(zRefPos),
+																								fInterceptZx(interceptZx),
 
-																						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+																								TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-																						// set from tracker task
-																						fFtsBranchId(0),
-																						fVerbose(0),
-																						fField(0),
+																								// set from tracker task
+																								fFtsBranchId(0),
+																								fVerbose(0),
+																								fField(0),
 
-																						fAssociatedTrackCand(associatedTrackCand)
+																								fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -537,11 +537,21 @@ void PndFtsHoughSpace::FillHoughSpace()
 	if (0 < fTrackerTask->GetSaveDebugInfo()) {
 		WriteHistoOfHoughSpace();
 		WriteHistoOfAllPaths();
+		WriteHistoOfAllPathsForEachMcTruthTrack();
 	}
 }
 
-TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions() const {
-	TH2S peaks(GetName(), GetName(), fXaxis.GetNbins(), fXaxis.GetXmin(),
+TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions(TString specifier, Int_t index) const {
+	TString newTitle = GetName();
+	if (""!=specifier){
+		newTitle += " ";
+		newTitle += specifier;
+	}
+	if (-1 != index){
+		newTitle += " ";
+		newTitle += index;
+	}
+	TH2S peaks(GetName(), newTitle, fXaxis.GetNbins(), fXaxis.GetXmin(),
 			fXaxis.GetXmax(), fYaxis.GetNbins(), fYaxis.GetXmin(),
 			fYaxis.GetXmax());
 	return peaks;
@@ -552,25 +562,19 @@ void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpaceP
 
 	// write out histograms containing found peaks
 	// filling all peaks in separate histos and all together in one histo
-	TH2S allPeaks = MakeEmptyHistoOfSameDimensions();
+	TH2S allPeaks = MakeEmptyHistoOfSameDimensions("AllPeaks");
 	for (UInt_t iPeak = 0; iPeak < peaksToPlot.size(); ++iPeak) {
-		TH2S onePeak = MakeEmptyHistoOfSameDimensions();
+		TH2S onePeak = MakeEmptyHistoOfSameDimensions("Peak", iPeak);
 		const Double_t currHeight = peaksToPlot[iPeak].getHeight();
 		const std::set<Int_t>& binsInPeak = peaksToPlot[iPeak].getBins();
 		for (std::set<Int_t>::iterator itBin = binsInPeak.begin(); itBin != binsInPeak.end(); ++itBin) {
 			onePeak.SetBinContent(*itBin, currHeight);
 			allPeaks.SetBinContent(*itBin, currHeight);
 		}
-		TString outNameOne = GetDebugOutPrefix();
-		outNameOne += "-Peak";
-		outNameOne += iPeak;
-		outNameOne += "-H";
-		outNameOne += currHeight;
-		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+		TString outNameOne = GetDebugOutName(onePeak.GetTitle(), currHeight);
 		if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeak) onePeak.SaveAs(outNameOne, "LEGO2");
 	}
-	TString outNameAll = GetDebugOutPrefix();
-	outNameAll += "-AllPeaks.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+	TString outNameAll = GetDebugOutName(allPeaks.GetTitle());
 	if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaks) allPeaks.SaveAs(outNameAll, "LEGO2");
 }
 
@@ -579,18 +583,15 @@ void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
 
 	// filling each path in separate histo
 	for (HitIdxPathMap::const_iterator itPath = fHitThetaYIdxPath.begin(); itPath != fHitThetaYIdxPath.end(); ++itPath) {
-		TH2S onePath = MakeEmptyHistoOfSameDimensions();
 		const Int_t currHit = itPath->first;
+		TH2S onePath = MakeEmptyHistoOfSameDimensions("Path", currHit);
 		const IdxPath& currPath = itPath->second;
 		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
 			Int_t currBinNumber = currPath[iGlobalBin];
 			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
 			onePath.SetBinContent(currBinNumber, currHeight);
 		}
-		TString outNameOne = GetDebugOutPrefix();
-		outNameOne += "-Path";
-		outNameOne += currHit;
-		outNameOne += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
+		TString outNameOne = GetDebugOutName(onePath.GetTitle());
 		onePath.SaveAs(outNameOne, "LEGO2");
 	}
 }
@@ -605,7 +606,7 @@ void PndFtsHoughSpace::WriteHistoOfAllPathsForEachMcTruthTrack() const {
 
 
 	// create map collecting histos of all hit indices from same Mc truth track
-	std::map<Int_t, TH2S > mcTruthIdHistoMap;
+	std::map<Int_t, std::pair < TH2S, TH2S > > mcTruthIdHistos;
 
 	for (HitIdxPathMap::const_iterator itPath = fHitThetaYIdxPath.begin(); itPath != fHitThetaYIdxPath.end(); ++itPath) {
 
@@ -615,31 +616,38 @@ void PndFtsHoughSpace::WriteHistoOfAllPathsForEachMcTruthTrack() const {
 		const Int_t mcTruthId = fTrackerTask->getMcTruthIdForHitId(hitId);
 
 		// if MC truth index not yet in map add new histo
-		std::map<Int_t, TH2S >::iterator itFind;
-		itFind = mcTruthIdHistoMap.find(mcTruthId);
-		if ( mcTruthIdHistoMap.end() == itFind ){// not found
-			TH2S newHisto = MakeEmptyHistoOfSameDimensions();
-			std::pair<Int_t, TH2S > mcTruthIdHistoPair( mcTruthId, newHisto );
-			mcTruthIdHistoMap.insert( mcTruthIdHistoPair );
-			itFind = mcTruthIdHistoMap.find(mcTruthId); // now histo can be found in map
+		std::map<Int_t, std::pair < TH2S, TH2S > >::iterator itFind;
+		itFind = mcTruthIdHistos.find(mcTruthId);
+		if ( mcTruthIdHistos.end() == itFind ){// not found
+			TH2S newHisto = MakeEmptyHistoOfSameDimensions("McTruthPeak projected", mcTruthId);
+			TH2S newHisto2 = MakeEmptyHistoOfSameDimensions("McTruthPeak exclusive", mcTruthId);
+			std::pair<TH2S, TH2S > histoPair( newHisto, newHisto2 );
+			std::pair<Int_t, std::pair<TH2S, TH2S > > mcTruthIdHistosPair( mcTruthId, histoPair );
+			mcTruthIdHistos.insert( mcTruthIdHistosPair );
+			itFind = mcTruthIdHistos.find(mcTruthId); // now histos can be found in map
 		}
 
-		// Fill current path into correct histo
+		// Fill current path into correct histo (first as projection, second as if only hits from same mc truth track were filled)
 		const IdxPath& currPath = itPath->second;
 		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
 			Int_t currBinNumber = currPath[iGlobalBin];
 			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
-			itFind->second.SetBinContent(currBinNumber, currHeight);
+			std::pair<TH2S, TH2S >& histoPair = itFind->second;
+			histoPair.first.SetBinContent(currBinNumber, currHeight); // projection
+			Int_t currBinX = 0, currBinY = 0, notUsedBinZ = 0;
+			GetBinXYZ(currBinNumber, currBinX, currBinY, notUsedBinZ); // Find currBinX and currBinY from globalBin
+			Double_t currXVal = GetXaxis()->GetBinCenter(currBinX);
+			Double_t currYVal = GetYaxis()->GetBinCenter(currBinY);
+			histoPair.second.Fill(currXVal,currYVal); // exclusive fill
 		}
 	}
 	// loop over all histos that have been created
-	for ( std::map<Int_t, TH2S >::const_iterator itHisto = mcTruthIdHistoMap.begin(); itHisto != mcTruthIdHistoMap.end(); ++itHisto) {
-		TString outNameOneMcTruthTrack = GetDebugOutPrefix();
-		outNameOneMcTruthTrack += "-McTruthPeak";
-		const Int_t mcTruthId = itHisto->first;
-		outNameOneMcTruthTrack += mcTruthId;
-		outNameOneMcTruthTrack += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
-		itHisto->second.SaveAs(outNameOneMcTruthTrack, "LEGO2");
+	for ( std::map<Int_t, std::pair<TH2S, TH2S > >::const_iterator itHisto = mcTruthIdHistos.begin(); itHisto != mcTruthIdHistos.end(); ++itHisto) {
+		const std::pair<TH2S, TH2S >& histoPair = itHisto->second;
+		TString outNameProjection = GetDebugOutName(histoPair.first.GetTitle());
+		TString outNameOneMcTruthTrack = GetDebugOutName(histoPair.second.GetTitle());
+		histoPair.first.SaveAs(outNameProjection, "LEGO2");
+		histoPair.second.SaveAs(outNameOneMcTruthTrack, "LEGO2");
 	}
 }
 
@@ -650,7 +658,7 @@ void PndFtsHoughSpace::WriteHistoOfHoughSpace() const{
 
 	//	Int_t index = fHoughSpaces->GetEntriesFast();
 	//	PndFtsHoughSpace* myHoughSpace = new ((*fHoughSpaces)[index])PndFtsHoughSpace(*houghSpace);
-	TString outName = GetDebugOutPrefix();
+	TString outName = GetDebugOutName();
 	outName+="-histo.rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
 	SaveAs(outName, "LEGO2"); // resulting files need to have PndFtsHoughSpace replaced with TH2S
 	// sed -i 's/PndFtsHoughSpace/TH2S/g' *.rtg

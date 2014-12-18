@@ -43,7 +43,8 @@ class FairField;
 // For error reporting
 #include "TString.h"
 #include <stdexcept>
-
+// for debugging
+#include "FairMCPoint.h"
 
 class PndFtsHoughTrackerTask : public FairTask
 {
@@ -108,12 +109,18 @@ public:
 		if ( hitId >= GetNFtsHits() ) throwError("GetFtsHit: hitId is too large.");
 		//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
 		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
+		if (0 == myHit) throwError("GetFtsHit was not able to get the hit.");
 		return myHit;
 	};
 	Int_t getMcTruthIdForHitId(UInt_t hitId) const {
-		if ( hitId >= GetNFtsHits() ) throwError("GetFtsHit: hitId is too large.");
-		// TODO
-		return 1;
+		const PndFtsHit *const ftsHit = GetFtsHit(hitId);
+		Int_t mcPointId=ftsHit->GetRefIndex();
+		if(0 > mcPointId) throwError("getMcTruthIdForHitId: negative mcPointId.");
+		FairMCPoint* myPoint = (FairMCPoint*)(fFtsMcPoints->At(mcPointId));
+		if(0==myPoint) throwError("getMcTruthIdForHitId: Could not get point belonging to hit.");
+		Int_t mcTrackId = myPoint->GetTrackID();
+		if(mcTrackId<0) throwError("getMcTruthIdForHitId: negative mcTrackId.");
+		return mcTrackId;
 	}
 	/** @brief Returns pointer to the FTS tube corresponding to input FTS hit.
 	 * @param[in] myHit: FTS hit for which the tube should be returned.
@@ -176,6 +183,7 @@ private:
 	//--------
 	Int_t   fFtsBranchId; ///< @brief Detector Id of FTS.
 	TClonesArray *fFtsHitArray; ///< @brief Input array of PndFtsHit
+	TClonesArray*  fFtsMcPoints;      ///< @brief Input array of McPoints
 
 	/** @brief Needed for FTS map creator.
 	 *

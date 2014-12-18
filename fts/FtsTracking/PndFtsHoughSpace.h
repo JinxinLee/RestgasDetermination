@@ -326,13 +326,13 @@ private:
 	//-----
 	/** @brief For writing out debugging histograms.
 	 */
-	inline TString GetDebugOutPrefix() const;
+	inline TString GetDebugOutName(TString title="", Int_t param=-1) const;
 	/** @brief For writing out Hough spaces as histograms (for debugging purposes).
 	 */
 	void WriteHistoOfHoughSpace() const;
 	/** @brief Makes a new empty histogram with the same binning and limits as this.
 	 */
-	TH2S MakeEmptyHistoOfSameDimensions() const;
+	TH2S MakeEmptyHistoOfSameDimensions(TString specifier="", Int_t index=-1) const;
 	/** @brief For writing out peaks in Hough spaces as histograms (for debugging purposes).
 	 */
 	void WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpacePeak >& peaksToPlot) const;
@@ -419,14 +419,18 @@ const TVector3 PndFtsHoughSpace::CalculateHitPosFromIntersectionsWithZxTrackMode
 }
 
 
-TString PndFtsHoughSpace::GetDebugOutPrefix() const{
+TString PndFtsHoughSpace::GetDebugOutName(TString title, Int_t param) const{
 	TString debugOut = "/home/plots/";
-	debugOut += GetName();
 	debugOut+=fTrackerTask->GetEventNr();
+	debugOut += title;
 	if (-1!=fRefIndex){
 		debugOut+="-rId";
 		debugOut+=fRefIndex;
 	}
+	if (-1!=fRefIndex){
+			debugOut+=param;
+	}
+	debugOut += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
 	return debugOut;
 }
 

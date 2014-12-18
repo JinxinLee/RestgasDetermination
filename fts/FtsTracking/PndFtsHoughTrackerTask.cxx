@@ -11,6 +11,7 @@
 #include "PndFtsHit.h"
 #include "FairHit.h"
 
+
 // magnetic field
 #include "FairField.h"
 
@@ -160,9 +161,14 @@ InitStatus PndFtsHoughTrackerTask::Init()
 	// FTS Hits
 	fFtsHitArray= (TClonesArray *)ioman->GetObject("FTSHit");
 	if ( ! fFtsHitArray ) {
-		if(fVerbose>3) fLogger->Info(MESSAGE_ORIGIN,"No FTSHit array!");
+		fLogger->Info(MESSAGE_ORIGIN,"No FTSHit array!");
 		return kERROR;
 	}
+	fFtsMcPoints = dynamic_cast<TClonesArray *> (ioman->GetObject("FTSPoint"));
+		if ( ! fFtsMcPoints ) {
+			fLogger->Info(MESSAGE_ORIGIN,"No McPoints array!");
+			return kERROR;
+		}
 
 	// FTS Branch
 	fFtsBranchId = 	ioman->GetBranchId("FTSHit");
