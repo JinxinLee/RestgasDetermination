@@ -266,7 +266,7 @@ InitStatus PndSttMvdGemTracking::Init() {
 
 void PndSttMvdGemTracking::SetParContainers() {
 
-  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  FairRuntimeDb* rtdb = FairRun::Instance()->GetRuntimeDb();
 
   // get STT parameters
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");

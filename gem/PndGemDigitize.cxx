@@ -545,7 +545,7 @@ void PndGemDigitize::PrintDigis() {
 void PndGemDigitize::SetParContainers() {
   
   // Get run and runtime database
-  FairRunAna* run = FairRunAna::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   FairRuntimeDb* db = run->GetRuntimeDb();

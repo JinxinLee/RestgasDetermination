@@ -52,7 +52,7 @@ class PndSttHitProducerRealFast : public FairTask
 
   private: 
 
-  void SetParContainers();
+  virtual void SetParContainers();
 
   /** Input array of PndSttPoints **/
   TClonesArray* fPointArray;

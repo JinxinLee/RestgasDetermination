@@ -41,7 +41,7 @@ class PndSttMvdGemTracking : public FairTask {
   void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
  
 
-  void SetParContainers();
+  virtual void SetParContainers();
 
   // -------- MVD + STT ---> + GEM --------------
   void Copy(PndTrackCand *completeCand, PndTrack *completeTrack,

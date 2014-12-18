@@ -40,7 +40,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerRealFast::PndSttHitProducerRealFast() :
-  FairTask("Ideal STT Hit Producer",0) { 
+  FairTask("Ideal STT Hit Producer",0), fSttParameters(NULL)  { 
   fPersistence = kTRUE;
   fOverlap = kFALSE;
 }
@@ -107,7 +107,7 @@ InitStatus PndSttHitProducerRealFast::Init() {
 // -------------------------------------------------------------------------
 
 void PndSttHitProducerRealFast::SetParContainers() {
-  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  FairRuntimeDb* rtdb = FairRun::Instance()->GetRuntimeDb();
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
