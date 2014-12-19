@@ -427,8 +427,8 @@ TString PndFtsHoughSpace::GetDebugOutName(TString title, Int_t param) const{
 		debugOut+="-rId";
 		debugOut+=fRefIndex;
 	}
-	if (-1!=fRefIndex){
-			debugOut+=param;
+	if (-1!=param){
+		debugOut+=param;
 	}
 	debugOut += ".rtg"; // root textual graphics ;) -- actually just a macro // png does not work in this way
 	return debugOut;

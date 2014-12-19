@@ -92,9 +92,9 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
   fField(0),
 
   // Debugging
-  //fHoughSpaces(0),
   fHoughTrackCands(0),
   fLogger(FairLogger::GetLogger()),
+  fFtsMcPoints(0),
 
   // output
   fTrackCands(0),

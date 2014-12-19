@@ -42,7 +42,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBehindDipoleZx
 					- thetaDegLowLineBehindDipole),
 					thetaDegLowLineBehindDipole * TMath::DegToRad(), // in rad
 					thetaDegHighLineBehindDipole * TMath::DegToRad(), // in rad
-					stepsPerThetaDegLineBehindDipole * 40, // TODO: Check values
+					stepsPerThetaDegLineBehindDipole * 16, // TODO: Check values
 					-200., // in cm // TODO: Check values
 					200., // in cm
 					fZParabolaLine, 0., 0, fTrackerTask);
@@ -86,7 +86,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBeforeDipoleZx
 		std::cerr << "runtime_error: " << e.what() << '\n';
 	}
 	// find peaks for line Hough space and store in vector
-	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = houghSpaceZxLineBeforeDipole.FindAllPeaksBinsWoMergingWithSearchWindow(fMinPeakHeightZxLineBeforeDipole);
+//	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = houghSpaceZxLineBeforeDipole.FindAllPeaksBinsWoMergingWithSearchWindow(fMinPeakHeightZxLineBeforeDipole);
+	std::vector<PndFtsHoughTracklet> trackletsLineBeforeDipole = houghSpaceZxLineBeforeDipole.FindAllPeaksScanPathsMergeBins(fMinPeakHeightZxLineBeforeDipole);
 	return trackletsLineBeforeDipole;
 }
 
@@ -239,7 +240,7 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 	//----------------------------------
 	// zy plane: Straight line Hough transform
-	// loop over line+parabola+line from zx plane
+	// loop over line+parabola+line (LPL) from zx plane
 	std::cout << "Lines in zy plane:\n";
 	for (UInt_t iLPL = 0; iLPL < fHoughTrackCandsZxPlaneOnly.size(); ++iLPL) {
 		// determine where to look for line in zy plane
@@ -261,9 +262,8 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 		// Do line Hough transform for current line+parabola+line for skewed hits in all stations
-		try {
-			houghspaceZyLine.FillHoughSpace();
-		} catch (std::runtime_error& e) {
+		try { houghspaceZyLine.FillHoughSpace(); }
+		catch (std::runtime_error& e) {
 			std::cerr
 			<< "Hough Space for zy line before dipole could not be created! \n";
 			std::cerr << "runtime_error: " << e.what() << '\n';
@@ -308,18 +308,18 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	//	pzinvpeakWithBField = pzinvpeak/BMeanForParabola;
 
 
-	if(0<fTrackerTask->GetVerbose()) {
-
-		// TODO Add missing output
-
-
-
-
-		//		if (kTRUE == correctpz)
-		//		{
-		//			std::cout << "Watch out! p_z value in plot is already corrected!!!"  << std::endl;
-		//		}
-	}
+//	if(0<fTrackerTask->GetVerbose()) {
+//
+//		// TODO Add missing output
+//
+//
+//
+//
+//		//		if (kTRUE == correctpz)
+//		//		{
+//		//			std::cout << "Watch out! p_z value in plot is already corrected!!!"  << std::endl;
+//		//		}
+//	}
 }
 
 

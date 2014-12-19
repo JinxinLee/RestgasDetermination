@@ -118,20 +118,20 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																								fTrackerTask(trackerTask),
-																								fRefIndex(refIndex),
+																										fTrackerTask(trackerTask),
+																										fRefIndex(refIndex),
 
-																								fZRefPos(zRefPos),
-																								fInterceptZx(interceptZx),
+																										fZRefPos(zRefPos),
+																										fInterceptZx(interceptZx),
 
-																								TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+																										TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-																								// set from tracker task
-																								fFtsBranchId(0),
-																								fVerbose(0),
-																								fField(0),
+																										// set from tracker task
+																										fFtsBranchId(0),
+																										fVerbose(0),
+																										fField(0),
 
-																								fAssociatedTrackCand(associatedTrackCand)
+																										fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -542,16 +542,23 @@ void PndFtsHoughSpace::FillHoughSpace()
 }
 
 TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions(TString specifier, Int_t index) const {
+	// for getting rid of warning about potential memory leak (same name for mutliple different histos)
+	static Int_t histoCounter = 0;
+	TString newname = GetName();
+	newname += histoCounter;
+	std::cout<<newname << '\n';
+	++histoCounter;
+
 	TString newTitle = GetName();
 	if (""!=specifier){
 		newTitle += " ";
 		newTitle += specifier;
 	}
-	if (-1 != index){
+	if (-1 < index){
 		newTitle += " ";
 		newTitle += index;
 	}
-	TH2S peaks(GetName(), newTitle, fXaxis.GetNbins(), fXaxis.GetXmin(),
+	TH2S peaks(newname, newTitle, fXaxis.GetNbins(), fXaxis.GetXmin(),
 			fXaxis.GetXmax(), fYaxis.GetNbins(), fYaxis.GetXmin(),
 			fYaxis.GetXmax());
 	return peaks;
@@ -968,7 +975,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 				const Int_t prevHeight = GetBinContent(prevBinNumber);
 
 				Bool_t rising = prevHeight < currHeight;
-				if ( 0 == iGlobalBin ) rising == kTRUE; // always save if we are at the beginning
+				if ( 0 == iGlobalBin ) rising = kTRUE; // always save if we are at the beginning
 
 				if ( kTRUE == rising ){ // we are on rising edge
 					// Add a new peak (only if we do not continue a nonfinished existing one)
