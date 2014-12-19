@@ -1438,7 +1438,7 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix5(
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
-	Double_t STRAWRADIUS
+	Double_t strawradius
 	)
 {
 
@@ -1469,7 +1469,7 @@ Short_t PndTrkCTFindTrackInXY2::TrkAssociatedParallelHitsToHelix5(
 	if(angle<0.) angle =0.;
 	distance = sqrt(dx*dx+dy*dy);
 
-	if ( fabs(Rr - distance ) > NTIMES*STRAWRADIUS )  continue;
+	if ( fabs(Rr - distance ) > NTIMES*strawradius )  continue;
 	if(angle<Fi_low) angle += 2.*PI;
 	if(angle>Fi_up) continue;
 	auxListHitsinTrack[nAssociatedHits]= ListSttParHits[i];
