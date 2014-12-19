@@ -546,7 +546,7 @@ TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions(TString specifier, Int_t i
 	static Int_t histoCounter = 0;
 	TString newname = GetName();
 	newname += histoCounter;
-	std::cout<<newname << '\n';
+//	std::cout<<newname << '\n';
 	++histoCounter;
 
 	TString newTitle = GetName();

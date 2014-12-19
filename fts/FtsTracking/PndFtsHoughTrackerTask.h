@@ -206,7 +206,7 @@ private:
 	TString fTracksArrayName;     ///< @brief Branch name where to store the Track candidates
 	TClonesArray  *fTrackCands;   ///< @brief Array of found track candidates in PndTrackCand (for output)
 	TClonesArray  *fTracks;       ///< @brief Array of found tracks in PndTrack (for output)
-	TClonesArray *fHoughTrackCands; ///< @brief Array of found track cands in PndFtsHoughTrackCand (only for debugging)
+//	TClonesArray *fHoughTrackCands; ///< @brief Array of found track cands in PndFtsHoughTrackCand (only for debugging)
 	/* @brief Not used.
 	 *
 	 * The idea was to use this in order to write out the Hough spaces to the root file.

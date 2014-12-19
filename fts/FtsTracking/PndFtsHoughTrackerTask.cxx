@@ -92,7 +92,7 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
   fField(0),
 
   // Debugging
-  fHoughTrackCands(0),
+//  fHoughTrackCands(0),
   fLogger(FairLogger::GetLogger()),
   fFtsMcPoints(0),
 
@@ -108,7 +108,7 @@ PndFtsHoughTrackerTask::~PndFtsHoughTrackerTask()
 {
 	if(fVerbose>3) fLogger->Info(MESSAGE_ORIGIN,"Destructor of PndFtsHoughTrackerTask");
 	// TODO Is that correct?!?
-	delete fHoughTrackCands;
+//	delete fHoughTrackCands;
 	delete fTrackCands;
 	delete fTracks;
 	//	fOutFile->Close();
@@ -195,8 +195,9 @@ InitStatus PndFtsHoughTrackerTask::Init()
 	//	if (fSaveDebugInfo){
 	//		InitOutFileForDebugging();
 	//	}
-	fHoughTrackCands = new TClonesArray("PndFtsHoughTrackCand");
-	ioman->Register("FTSTrkDebugCand", "HoughTrackCand", fHoughTrackCands, fSaveDebugInfo);
+	// FIXME this caused trouble, but I don't need it
+//	fHoughTrackCands = new TClonesArray("PndFtsHoughTrackCand");
+//	ioman->Register("FTSTrkDebugCand", "HoughTrackCand", fHoughTrackCands, fSaveDebugInfo);
 
 	//fHoughSpaces = new TClonesArray("PndFtsHoughSpace");
 	//ioman->Register("FTSTrkDebugHS", "HoughSpaces", fHoughSpaces, fSaveDebugInfo);
@@ -307,7 +308,7 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 
 	fTrackCands->Delete();
 	fTracks->Delete();
-	fHoughTrackCands->Delete();
+//	fHoughTrackCands->Delete();
 	//fHoughSpaces->Delete();
 
 
@@ -325,11 +326,11 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 	// store the found tracks as PndTrack and PndTrackCand
 	for (Int_t iFoundTrack = 0; iFoundTrack < trackFinder.NTracks(); ++iFoundTrack){
 
-		// for debug output get PndFtsHoughTrackCand
-		// TODO Check if that works
-		if (0<fSaveDebugInfo) {
-			PndFtsHoughTrackCand* myHoughCand = new ((*fHoughTrackCands)[iFoundTrack])PndFtsHoughTrackCand(trackFinder.GetHoughTrack(iFoundTrack));
-		}
+//		// for debug output get PndFtsHoughTrackCand
+//		// FIXME this caused trouble, but I don't need it
+//		if (0<fSaveDebugInfo) {
+//			PndFtsHoughTrackCand* myHoughCand = new ((*fHoughTrackCands)[iFoundTrack])PndFtsHoughTrackCand(trackFinder.GetHoughTrack(iFoundTrack));
+//		}
 
 		// get output as PndTrackCand and store into TCA
 		PndTrackCand* myCand = new ((*fTrackCands)[iFoundTrack])PndTrackCand(trackFinder.GetPndTrackCand(iFoundTrack));
@@ -377,7 +378,7 @@ void PndFtsHoughTrackerTask::FinishEvent()
 {
 	fTrackCands->Delete();
 	fTracks->Delete();
-	fHoughTrackCands->Delete();
+//	fHoughTrackCands->Delete();
 }
 
 
