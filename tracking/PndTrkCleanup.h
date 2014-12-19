@@ -2,6 +2,7 @@
 #define PndTrkCleanup_H 1
 
 #include "PndTrkCTGeometryCalculations.h"
+#include "PndTrkConstants.h"
 
 // Root includes
 #include "TROOT.h"
@@ -13,17 +14,18 @@ class PndTrkCleanup : public TObject
 
  public:
 
+
  /** Default constructor **/
  PndTrkCleanup(){};
  /** Destructor **/
  ~PndTrkCleanup(){};
 
 
-bool BadTrack_ParStt(
+ bool BadTrack_ParStt(
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t Rr,
-	Double_t STRAWRADIUS,
+	Double_t Stawradius,
 	Short_t Charge,
 	Double_t Xcross[2],  // Xcross[0]=point of entrance;
 				//  Xcross[1]=point of exit.
@@ -40,9 +42,7 @@ bool BadTrack_ParStt(
 
 
  bool GoodTrack(
-//		Short_t Sector,			// input, Sector number;
 		Double_t info[][7],		// input
-//		bool no_holes,			// input
 		bool farthest_hit_is_boundary,	// input
 		Double_t Ox,			// input; center of the current track;
 		Double_t Oy,			// input; center of the current track;
@@ -63,6 +63,53 @@ bool BadTrack_ParStt(
 		Short_t & holes			// input and output
 
 		);
+
+
+
+ Short_t Is_Contained_in_Mvd_Vertical_Strip(
+	Short_t iLayer,	// index of the Mvd Disk Layer under scrutiny here;
+ 	Short_t nXlow, //  index of the strip containing Xlow;
+	Short_t nXup, //  index of the strip containing Xlow;
+	Double_t tmpYlow, // Ylow (abs of it if it is the case);
+	Double_t tmpYup // Yup (abs of it if it is the case);
+					);
+
+ bool MvdCleanup(
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Double_t fi0,
+	Double_t kappa,
+	Double_t charge,
+	Double_t* XMvdPixel,  // list of the X positions of ALL Mvd hits of the event;
+	Double_t* XMvdStrip,  // list of the X positions of ALL Mvd hits of the event;
+	Double_t* YMvdPixel,  // list of the Y positions of ALL Mvd hits of the event;
+	Double_t* YMvdStrip,  // list of the Y positions of ALL Mvd hits of the event;
+	Double_t* ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
+	Double_t* ZMvdStrip,  // list of the Z positions of ALL Mvd hits of the event;
+	Short_t nPixelHitsinTrack,  // number of Mvd Pixel hits in this track;
+	Short_t * ListMvdPixelHitsinTrack,	
+	Short_t nStripHitsinTrack,  // number of Mvd Strip hits in this track;
+	Short_t * ListMvdStripHitsinTrack,
+	Double_t extra_distance,
+	Double_t extra_distance_Z,
+	PndTrkCTGeometryCalculations* GeomCalculator
+		);
+
+
+ bool MvdCleanup_prova(
+	Double_t Ox,
+	Double_t Oy,
+	Double_t R,
+	Double_t fi0,
+	Double_t kappa,
+	Double_t charge,
+	Double_t semiverticalgap,
+	Short_t nMvdHits,
+	PndTrkCTGeometryCalculations* GeomCalculator	
+		);
+
+
 
  void SeparateInnerOuterParallel(
 
@@ -110,16 +157,6 @@ void SeparateInnerOuterRightLeftAxialStt(
 	Short_t *nOuterHitsRight
 	);
 
- bool MvdCleanup(
-	Double_t Ox,
-	Double_t Oy,
-	Double_t R,
-	Double_t fi0,
-	Double_t kappa,
-	Double_t charge,
-	Double_t semiverticalgap,
-	PndTrkCTGeometryCalculations* GeomCalculator	
-		);
 
  bool SttParalCleanup(
 	Double_t ApotemaInnerParMax,
@@ -140,7 +177,7 @@ void SeparateInnerOuterRightLeftAxialStt(
 				// the straw detector;
 	Double_t RStrawDetMin,
 	Double_t Start[3],
-	Double_t STRAWRADIUS
+	Double_t Strawradius
  );
 
 bool SttSkewCleanup(
@@ -164,7 +201,7 @@ bool SttSkewCleanup(
 	Double_t RStrawDetMax,
 	Double_t *S,
 	Double_t Start[3],
-	Double_t STRAWRADIUS
+	Double_t Strawradius
 	);
 
  bool TrackCleanup(
@@ -190,10 +227,8 @@ bool SttSkewCleanup(
 	Double_t Rr,
 	Double_t RStrawDetMax,
 	Double_t RStrawDetMin,
-//	Double_t SEMILENGTH_STRAIGHT,
 	Double_t Start[3],
-	Double_t STRAWRADIUS
-//	Double_t ZCENTER_STRAIGHT
+	Double_t Strawradius
 	);
 
  bool XYCleanup(
