@@ -770,9 +770,7 @@ void PndSttMvdGemTracking::Copy(PndTrackCand *completeCand, PndTrack *completeTr
 
 
   completeCand->setMcTrackId(sttmvdCand->getMcTrackId());
-  completeCand->setTrackSeed(sttmvdCand->getPosSeed(),
-			     sttmvdCand->getDirSeed(),
-			     sttmvdCand->getQoverPseed());
+
   std::vector<PndTrackCandHit> sttmvdhits = sttmvdCand->GetSortedHits();
   for(int ihit = 0; ihit < sttmvdCand->GetNHits(); ihit++) {
     completeCand->AddHit(sttmvdCand->GetSortedHit(ihit).GetDetId(),

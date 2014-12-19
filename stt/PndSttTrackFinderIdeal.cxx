@@ -473,9 +473,6 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	  Double_t qop = chargeSeed/dirSeed.Mag(); // q over p 
 	  dirSeed.SetMag(1.);
 
-	  
-	  pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-	  
 	  // set up PndTrack ***********************************************************************
 	  TVector3 momSeed(mcTrack2->GetMomentum().X(),
 			   mcTrack2->GetMomentum().Y(),
