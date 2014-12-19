@@ -19,7 +19,6 @@
 #include "PndSciTHit.h"
 #include "PndSttPoint.h"
 #include "PndSttTrack.h"
-#include "PndSttPoint.h"
 #include "PndSttHelixHit.h"
 #include "PndSttSingleStraw.h"
 #include "PndSttTube.h"
@@ -56,17 +55,6 @@
 
 
 using namespace std;
-
-
-
-
-const Double_t
-	PndTrkTracking2::THETAMIN		= 0.,
-	PndTrkTracking2::THETAMAX		= 2.*3.141592654;
-
-
-
-
 
 // -----   Default constructor   -------------------------------------------
 PndTrkTracking2::PndTrkTracking2() : FairTask("Tracking") { 
@@ -1081,7 +1069,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 */
 
  if(istampa>=1)
-	cout<<endl<<"Entering in PndTrkTrack : evt (starting from 0)  n. "<<IVOLTE<<endl;
+	cout<<endl<<"Entering in PndTrkTracking2 : evt (starting from 0)  n. "<<IVOLTE<<endl;
 
 
 // -------------------------------------  fetch info from MVD
@@ -1231,24 +1219,6 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 			);
 
 
-// ------------------------------------------ get info from trackcand  of MVD
-
- if( fMvdAloneTracking ){
-	fnMvdTrackCand = fMvdTrackCandArray->GetEntriesFast();
-	if (fnMvdTrackCand> MAXMVDTRACKSPEREVENT) {
-		cout<<"from PndTrkTracking2  :  N. of MvdTrackCand = "<<
-		fnMvdTrackCand<<" and it is > MAXMVDTRACKSPEREVENT (="<<MAXMVDTRACKSPEREVENT
-		<<"),  therefore it is set to "<<MAXMVDTRACKSPEREVENT<<endl;
-		fnMvdTrackCand= MAXMVDTRACKSPEREVENT;
-		ExtractInfoFromMvdTrackCand();
-	}
-
- } else {
-	fnMvdTrackCand=0;
- }
-
-
-
 
 
 //---------------------------------------------   fetching the STT  MC points
@@ -1393,8 +1363,6 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
  if(istampa>=1) cout<<"from PndTrkTracking2, event "<<IVOLTE<<", "<<fnSciTilHits
 		<<" SciTil hits present initially."<<endl;
-	for(j=0; j<fnSciTilHits; j++){
-	}
 
    if( fnSciTilHits >0 ){
 	// OriginalSciTilList is the list of original SciTil hits (not purged yet)
@@ -1468,8 +1436,9 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 if(istampa>0){
   cout<<"from PndTrkTracking2, after purging  SciTil; # hits = "<<fnSciTilHits<<endl;
   for(j=0; j<fnSciTilHits; j++){
-	cout<<"from PndTrkTracking2 SciTil Xpos "<<fposizSciTil[j][0]<<", Ypos "<<
-	fposizSciTil[j][1]<<", Zpos "<<fposizSciTil[j][2]<<endl;
+	cout<<"from PndTrkTracking2 SciTil n. "<<j<<"Xpos "<<fposizSciTil[j][0]<<", Ypos "<<
+	fposizSciTil[j][1]<<", Zpos "<<fposizSciTil[j][2]<<" and # hits n this SciTil "<<
+	nHitsInSciTile[j]<<endl;
   }
 }
 //---------- fine stampe.
@@ -1793,9 +1762,6 @@ int iconta=0;
 
 
 
-	// cleanup section using only the Mvd info in XY projection; it's no time yet to use the Stt
-	// info in XY projection since at this point it is not known how much fi angle is covered
-	// by this track; that will be known only after the SZ fit; 
 
 	keepit[nSttTrackCand]=true;
 	nSttTrackCand++;
@@ -2255,7 +2221,7 @@ if(istampa>=2){
 
 
 
-		if( resultFitSZagain[ncand]==1){
+		if( resultFitSZagain[ncand]==1 && fabs(emme) > 1.e-10 ){
 			KAPPA[ncand] = emme;
 			GoodSkewFit[ncand] = true;
 			if( ncand<= nSttTrackCand ) SttSZfit[ncand]=true;
@@ -2382,31 +2348,47 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 //	First cleanup based on the absence of Mvd hits
-
-
+fYesCleanMvd=falsee;
 	if(fYesCleanMvd ){
 
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
-/*
-		if( (!GeomCalculator.IsInTargetPipe(
+
+
+
+
+		if(
+		    !Cleaner.MvdCleanup(
 			fOx[ncand],
 			fOy[ncand],
 			fR[ncand],
 			FI0[ncand],
 			KAPPA[ncand],
 			Charge[ncand],
-			VERTICALGAP/2.
-			) )
-				 &&
-			fnMvdStripHitsinTrack[ncand]+fnMvdPixelHitsinTrack[ncand]==0)
-		{
-			keepit[ncand]=false;
-		}
-*/
+			fXMvdPixel,
+			fXMvdStrip,
+			fYMvdPixel,
+			fYMvdStrip,
+			fZMvdPixel,
+			fZMvdStrip,
+			fnMvdPixelHitsinTrack[ncand],
+			&fListMvdPixelHitsinTrack[ncand][0],	
+			fnMvdStripHitsinTrack[ncand],
+			&fListMvdStripHitsinTrack[ncand][0],
+			0.1,	// uncertainty allowed in the X and Y position of the crossing point of the found
+				// trajectory on a disk sensor (cm) allowed because of the uncertainty on the found
+				// trajectory parameters;
+			2.,	// uncertainty in the Z of the crossing point of the found trajectory; (cm) allowed because
+				// of the uncertainty on the found trajectory parameters;
+			&GeomCalculator
+					)
+		)keepit[ncand]=false;
 
 
-		if( !Cleaner.MvdCleanup(
+
+
+/*
+		if( !Cleaner.MvdCleanup_prova(
 			fOx[ncand],
 			fOy[ncand],
 			fR[ncand],
@@ -2414,11 +2396,15 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			KAPPA[ncand],
 			Charge[ncand],
 			VERTICALGAP/2.,
+			fnMvdStripHitsinTrack[ncand]+fnMvdPixelHitsinTrack[ncand],
 			&GeomCalculator
 					) )
-		{
 			keepit[ncand]=false;
-		} // end if
+
+
+*/
+
+
 
 	}  // end of  (fYesCleanMvd)
 
@@ -3934,148 +3920,6 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 
 
 
-//----------------  begin of function PndTrkTracking2::ExtractInfoFromMvdTrackCand
-
-void PndTrkTracking2::ExtractInfoFromMvdTrackCand()
-{
-
-  Short_t
-	i,
-	j,
-	k;
-
-  Double_t qop;
-
-  PndTrackCand* pMvdTrackCand;
-
-  PndTrackCandHit pndtrackcandhit; 
-
-  for( i= 0; i< fnMvdTrackCand ; i++){
-
-	pMvdTrackCand= (PndTrackCand*) fMvdTrackCandArray->At(i);
-	TVector3 dirSeed=pMvdTrackCand->getDirSeed();
-	TVector3 posSeed=pMvdTrackCand->getPosSeed();
-	qop = pMvdTrackCand->getQoverPseed();
-	// n. hits in this track cand
-	fnHitMvdTrackCand[i] = pMvdTrackCand->GetNHits();
-	if( fnHitMvdTrackCand[i]>MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK){
-		cout<<"from PndTrkTracking2, fnHitMvdTrackCand[i] = "<<fnHitMvdTrackCand[i]
-		<<" and it is > MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK (="
-		<<MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK
-		<<"); setting fnHitMvdTrackCand[i] to "
-		<<MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK<<endl;
-	fnHitMvdTrackCand[i]=MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK;
-	}
-
-	Short_t kPixel,kStrip;
-
-	for(j=0, k=0, kPixel=0, kStrip=0; j<fnHitMvdTrackCand[i]; j++){
-		pndtrackcandhit = pMvdTrackCand->GetSortedHit(j);
-
-	// the following case should never happen (in principle), but, just to be on
-	// the safe side ....
-		if(pndtrackcandhit.GetHitId()<0||pndtrackcandhit.GetDetId()<0)continue;
-
-	// this is a Pixel.
-	if( pndtrackcandhit.GetDetId()==
-		FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)
-			&& kPixel < MAXMVDPIXELHITSINTRACK){
-
-		// the following is a protection because the maximum Mvd hit n.
-		// cannot exceed MAXMVDPIXELHITS .
-		if( pndtrackcandhit.GetHitId()>MAXMVDPIXELHITS ){
-			cout<<"from PndTrkTracking2, this Pixel Mvd hit has a number = "
-			<<pndtrackcandhit.GetHitId()<<
-			" that is > MAXMVDPIXELHITS (="<<
-				MAXMVDPIXELHITS<<"), rejected!"<<endl;
-			continue;
-		}
-
-
-		finMvdTrackCandPixel[ pndtrackcandhit.GetHitId() ]= true;
-		fListHitTypeMvdTrackCand[i][k] = pndtrackcandhit.GetDetId();
-					  // this in reality is the Branch name of
-					  // Hit; this Branch name is used to identify
-					  // a Pixel.
-					  // If it is -1 is supposed to be noise but
-					  // a in which Pixel or Strip?? Mistery.
-		kPixel++;
-
-	// this is a Strip.
-	} else if( pndtrackcandhit.GetDetId()==
-		FairRootManager::Instance()->GetBranchId(fMvdStripBranch)
-			&& kStrip < MAXMVDSTRIPHITSINTRACK){
-
-		// the following is a protection because the maximum Mvd hit n. cannot
-		// exceed MAXMVDSTRIPHITS .
-		if( pndtrackcandhit.GetHitId()>MAXMVDSTRIPHITS ){
-			cout<<"from PndTrkTracking2, this Strip Mvd hit has a number = "
-			<<pndtrackcandhit.GetHitId()<<
-			" that is > MAXMVDSTRIPHITS (="<<
-			MAXMVDSTRIPHITS<<"), rejected!"<<endl;
-			continue;
-		}
-
-		finMvdTrackCandStrip[ pndtrackcandhit.GetHitId() ]= true;
-		fListHitTypeMvdTrackCand[i][k] = pndtrackcandhit.GetDetId();
-					  // this in reality is the Branch name of
-					  // Hit; this Branch name is used to identify
-					  // a Pixel.
-					  // If it is -1 is supposed to be noise but
-					  // a in which Pixel or Strip?? Mistery.
-		kStrip++;
-	} else {	// this is the case should (in principle) never happen.
-		continue;	// ignore this hit.
-	}
-
-	// the following is the native Hit number that one can use
-	// to extract all the info. If it is -1 I won't consider it (noise).
-	fListHitMvdTrackCand[i][k] = pndtrackcandhit.GetHitId();
-
-	k++;
-
-     }    //   end of    for(j=0; j<fnHitMvdTrackCand; j++)
-
-     fnHitMvdTrackCand[i]=k; // if the case, readjust the # of hits in this candidate.
-
-  }   //   end of        for( i= 0; i< fnMvdTrackCand ; i++)
-
-
-//  now load the arrays containing the Pixel Hits and Strip Hits
-// not belonging to any Mvd Track Cand
-
-  fnMvdUSPixelHitNotTrackCand=0;
-  fnMvdDSPixelHitNotTrackCand=0;
-  fnMvdUSStripHitNotTrackCand=0;
-  fnMvdDSStripHitNotTrackCand=0;
-  for( i= 0; i< fnMvdPixelHit ; i++){
-	if( ! finMvdTrackCandPixel[i] ){
-		if( fZMvdPixel[i]>=0.){
-			fListMvdDSPixelHitNotTrackCand[fnMvdDSPixelHitNotTrackCand] = i;
-			fnMvdDSPixelHitNotTrackCand++;
-		} else {
-			fListMvdUSPixelHitNotTrackCand[fnMvdUSPixelHitNotTrackCand] = i;
-			fnMvdUSPixelHitNotTrackCand++;
-		}
-	}
-  }
-
-  for( i= 0; i< fnMvdStripHit ; i++){
-	if( ! finMvdTrackCandStrip[i] ){
-		if( fZMvdStrip[i]>=0.){
-			fListMvdDSStripHitNotTrackCand[fnMvdDSStripHitNotTrackCand] = i;
-			fnMvdDSStripHitNotTrackCand++;
-		} else {
-			fListMvdUSStripHitNotTrackCand[fnMvdUSStripHitNotTrackCand] = i;
-			fnMvdUSStripHitNotTrackCand++;
-		}
-	}
-  }
-
- 
- }
-//-----------------------  end of function   PndTrkTracking2::ExtractInfoFromMvdTrackCand
-
 
 //----------begin of function PndTrkTracking2::FindCharge
 
@@ -4330,7 +4174,7 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	Pzini,
 	px,
 	py,
-	qop,
+//	qop,
 	x,
 	y,
 	Posiz1[3],
@@ -4373,11 +4217,10 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	// PndTrackCand Array loading
 	new((*fSttMvdPndTrackCandArray)[ipinco])  PndTrackCand;
 	PndTrackCand *pTrckCand = (PndTrackCand*) fSttMvdPndTrackCandArray->At(ipinco);
-	TVector3 dirSeed(Pxini,Pyini,Pzini); // momentum direction in starting point
-	qop = Charge[ncand]/dirSeed.Mag();
-	dirSeed.SetMag(1.);
-	pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
-//	pTrckCand->setMcTrackId(  -1   );
+//	TVector3 dirSeed(Pxini,Pyini,Pzini); // momentum direction in starting point
+//	qop = Charge[ncand]/dirSeed.Mag();
+//	dirSeed.SetMag(1.);
+//	pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
 	pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[ncand]   );
 
 	for(j=0; j< fnTrackCandHit[ncand]; j++){
