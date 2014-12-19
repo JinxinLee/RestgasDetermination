@@ -19,8 +19,6 @@ PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, PndFtsHoughTracker
 						fTrackerTask(trackerTask),
 
 						fVerbose(0),
-//						fFtsHitArray(0),
-//						fFtsBranchId(0),
 
 						fIsSet(kFALSE),
 
@@ -73,11 +71,6 @@ void PndFtsHoughTracklet::SetHoughTransformResults(
 }
 
 
-//void PndFtsHoughTracklet::addPeakHits(){
-//	// check which hits are within the peak region and add the hits
-//	// functionality is not implemented here, because I don't know how to pass the equation into this class without copy pasting it
-//
-//}
 
 
 UInt_t PndFtsHoughTracklet::getNSharedHits(const PndFtsHoughTracklet& rhs) {

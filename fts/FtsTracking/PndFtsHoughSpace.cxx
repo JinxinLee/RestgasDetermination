@@ -565,7 +565,7 @@ TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions(TString specifier, Int_t i
 }
 
 void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpacePeak >& peaksToPlot) const {
-	if ( (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaks) && (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeak) ) return;
+	if ( (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaksTogether) && (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeakSeparately) ) return;
 
 	// write out histograms containing found peaks
 	// filling all peaks in separate histos and all together in one histo
@@ -579,10 +579,10 @@ void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpaceP
 			allPeaks.SetBinContent(*itBin, currHeight);
 		}
 		TString outNameOne = GetDebugOutName(onePeak.GetTitle(), currHeight);
-		if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeak) onePeak.SaveAs(outNameOne, "LEGO2");
+		if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeakSeparately) onePeak.SaveAs(outNameOne, "LEGO2");
 	}
 	TString outNameAll = GetDebugOutName(allPeaks.GetTitle());
-	if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaks) allPeaks.SaveAs(outNameAll, "LEGO2");
+	if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaksTogether) allPeaks.SaveAs(outNameAll, "LEGO2");
 }
 
 void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
@@ -608,7 +608,7 @@ void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
 
 
 void PndFtsHoughSpace::WriteHistoOfAllPathsForEachMcTruthTrack() const {
-	if (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaks) return;
+	if ( (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaksExclusively) && (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaksProjected) ) return;
 
 
 

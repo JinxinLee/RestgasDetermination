@@ -83,11 +83,6 @@ private:
 
 	Int_t fVerbose;
 
-//	// FTS Hits
-//	Int_t   fFtsBranchId;
-//	TClonesArray *fFtsHitArray;
-
-
 	Bool_t fIsSet; // kTRUE if values have already been filled
 
 

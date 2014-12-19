@@ -165,7 +165,7 @@ private:
 			const PndFtsHoughTrackCand &lineParabola,
 			const PndFtsHoughTracklet &lineBehindDipole
 	) const;
-
+	void FindZyLineMatchingToLineParabolaLineInZx();
 
 	ClassDef(PndFtsHoughTrackFinder,1);
 };

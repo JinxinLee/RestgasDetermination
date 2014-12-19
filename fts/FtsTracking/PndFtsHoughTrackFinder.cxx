@@ -73,7 +73,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBeforeDipoleZx
 					- thetaDegLowLineBeforeDipole),
 					thetaDegLowLineBeforeDipole * TMath::DegToRad(), // in rad
 					thetaDegHighLineBeforeDipole * TMath::DegToRad(), // in rad
-					stepsPerThetaDegLineBeforeDipole * 16, // TODO: Check values
+					stepsPerThetaDegLineBeforeDipole * 32, // TODO: Check values
 					-80., // in cm // TODO: Check values
 					80., // in cm
 					fZLineParabola, 0., 0, fTrackerTask);
@@ -189,6 +189,58 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 	} // loop over all line tracklets which were found by line HT before dipole field
 }
 
+void PndFtsHoughTrackFinder::FindZyLineMatchingToLineParabolaLineInZx() {
+	// loop over line+parabola+line track candidates in zx plane, pass track cand. to Hough space (one Hough transform needed for each line+parabola+line track cand.)
+	// Check all skewed hits whether they might belong to any of the track candidates
+	// Calculate (x,z) coordinate hypotheses for skewed hits which might belong to track candidates and run line Hough transform on these hypotheses
+	//----------------------------------
+	// zy plane: Straight line Hough transform
+	// loop over line+parabola+line (LPL) from zx plane
+	for (UInt_t iLPL = 0; iLPL < fHoughTrackCandsZxPlaneOnly.size(); ++iLPL) {
+		// determine where to look for line in zy plane
+		static const Int_t stepsPerThetaDegZyLine = 4; // greater number means finer scanning in theta
+		static const Int_t thetaDegLowZyLine = -18; // in degree
+		static const Int_t thetaDegHighZyLine = 18; // in degree
+		// create Hough space
+		PndFtsHoughSpace houghspaceZyLine("lineZy", iLPL,
+				stepsPerThetaDegZyLine
+						* (thetaDegHighZyLine - thetaDegLowZyLine),
+				thetaDegLowZyLine * TMath::DegToRad(), // in rad
+				thetaDegHighZyLine * TMath::DegToRad(), // in rad
+				stepsPerThetaDegZyLine * 16, // TODO: Check values
+				-80., // in cm // TODO: Check values
+				80., // in cm
+				fZLineParabola, 0., &(fHoughTrackCandsZxPlaneOnly[iLPL]),
+				fTrackerTask);
+		// Do line Hough transform for current line+parabola+line for skewed hits in all stations
+		try {
+			houghspaceZyLine.FillHoughSpace();
+		} catch (std::runtime_error& e) {
+			std::cerr
+					<< "Hough Space for zy line before dipole could not be created! \n";
+			std::cerr << "runtime_error: " << e.what() << '\n';
+		}
+		// find peaks for line Hough space and store in vector
+		std::vector<PndFtsHoughTracklet> trackletsZyLine =
+				houghspaceZyLine.FindAllPeaksScanPathsMergeBins(
+						fMinPeakHeightZyLine);
+		// construct newHoughTrackCand by adding zy line to line+parabola+line (in zx)
+		if (1 < fTrackerTask->GetVerbose()) {
+			std::cout
+					<< "Create track candidates by adding line in zy to line+parabola+line in zx "
+					<< iLPL << "\n"
+					<< "If no zy line can be found, delete track candidate.\n";
+		}
+		// loop over all zy lines which were found for line+parabola+line
+		for (UInt_t iZyLine = 0; iZyLine < trackletsZyLine.size(); ++iZyLine) {
+			PndFtsHoughTrackCand fullTrackCand(
+					fHoughTrackCandsZxPlaneOnly[iLPL]); // make copy
+			fullTrackCand.SetZyLine(trackletsZyLine[iZyLine]); // add zy line
+			fHoughTrackCandsComplete.push_back(fullTrackCand); // add as track candidate
+		}
+	} // loop over all line+parabola+line from zx plane
+}
+
 //void PndFtsHoughTrackFinder::CreatePndTrackCands() {
 //
 //}
@@ -227,74 +279,9 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	if(0<fTrackerTask->GetVerbose()) std::cout << "Matching parabolas to lines before dipole:\n";
 	FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(linesBeforeDipole, linesBehindDipole);
 
-
-
-
-
-
-	// loop over line+parabola+line track candidates in zx plane, pass track cand. to Hough space (one Hough transform needed for each line+parabola+line track cand.
-	// Check all skewed hits whether they might belong to any of the track candidates
-	// Calculate (x,z) coordinate hypotheses for skewed hits which might belong to track candidates and run line Hough transform on these hypotheses
-
-
-
-	//----------------------------------
-	// zy plane: Straight line Hough transform
-	// loop over line+parabola+line (LPL) from zx plane
-	if(0<fTrackerTask->GetVerbose()) std::cout << "Lines in zy plane:\n";
-	for (UInt_t iLPL = 0; iLPL < fHoughTrackCandsZxPlaneOnly.size(); ++iLPL) {
-		// determine where to look for line in zy plane
-		static const Int_t stepsPerThetaDegZyLine = 4; // greater number means finer scanning in theta
-		static const Int_t thetaDegLowZyLine = -18; // in degree
-		static const Int_t thetaDegHighZyLine = 18; // in degree
-
-		// create Hough space
-		PndFtsHoughSpace houghspaceZyLine("lineZy", iLPL,
-				stepsPerThetaDegZyLine
-				* (thetaDegHighZyLine
-						- thetaDegLowZyLine),
-						thetaDegLowZyLine * TMath::DegToRad(), // in rad
-						thetaDegHighZyLine * TMath::DegToRad(), // in rad
-						stepsPerThetaDegZyLine * 16, // TODO: Check values
-						-80., // in cm // TODO: Check values
-						80., // in cm
-						fZLineParabola, 0., &(fHoughTrackCandsZxPlaneOnly[iLPL]), fTrackerTask);
-
-
-		// Do line Hough transform for current line+parabola+line for skewed hits in all stations
-		try { houghspaceZyLine.FillHoughSpace(); }
-		catch (std::runtime_error& e) {
-			std::cerr
-			<< "Hough Space for zy line before dipole could not be created! \n";
-			std::cerr << "runtime_error: " << e.what() << '\n';
-		}
-		// find peaks for line Hough space and store in vector
-		std::vector<PndFtsHoughTracklet> trackletsZyLine = houghspaceZyLine.FindAllPeaksScanPathsMergeBins(fMinPeakHeightZyLine);
-
-
-
-
-
-		// construct newHoughTrackCand by adding zy line to line+parabola+line (in zx)
-		if (1 < fTrackerTask->GetVerbose()) {
-			std::cout
-			<< "Create track candidates by adding line in zy to line+parabola+line in zx "
-			<< iLPL <<"\n"
-			<< "If no zy line can be found, delete track candidate.\n";
-		}
-		// loop over all zy lines which were found for line+parabola+line
-		for (UInt_t iZyLine = 0; iZyLine < trackletsZyLine.size(); ++iZyLine) {
-			PndFtsHoughTrackCand fullTrackCand(fHoughTrackCandsZxPlaneOnly[iLPL]); // make copy
-			fullTrackCand.SetZyLine(trackletsZyLine[iZyLine]); // add zy line
-			fHoughTrackCandsComplete.push_back(fullTrackCand); // add as track candidate
-		}
-	} // loop over all line+parabola+line from zx plane
-
-
-
-
-
-
+	// loop over line+parabola+line (LPL) from zx plane and do straight line Hough transform in zy plane
+	if (0 < fTrackerTask->GetVerbose()) std::cout << "Lines in zy plane:\n";
+	FindZyLineMatchingToLineParabolaLineInZx();
 
 
 
