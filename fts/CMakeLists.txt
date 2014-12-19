@@ -50,6 +50,7 @@ FtsTracking/PndFtsHoughSpace.cxx
 FtsTracking/PndFtsHoughSpacePeak.cxx
 FtsTracking/PndFtsHoughTrackFinder.cxx
 FtsTracking/PndFtsHoughTrackerTask.cxx
+FtsTracking/PndFtsHitProducerMcPointCoordinates.cxx
 )
 
 set(LINKDEF  FtsLinkDef.h)

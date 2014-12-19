@@ -21,6 +21,7 @@
 #pragma link C++ class PndFtsHoughSpacePeak+;
 #pragma link C++ class PndFtsHoughTrackFinder+;
 #pragma link C++ class PndFtsHoughTrackerTask+;
+#pragma link C++ class PndFtsHitProducerMcPointCoordinates+;
 #pragma link C++ class PndFtsHitProducerRealFull+;
 #pragma link C++ class PndFtsTrackerIdeal+;
 #pragma link C++ class PndFtsDataAccessor+;
