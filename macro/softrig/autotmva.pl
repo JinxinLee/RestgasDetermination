@@ -12,17 +12,24 @@ if (!defined $ARGV[0])
     print "USAGE:\n";
     print "autotmva.pl [pref] [qa]\n\n";
     print "   [pref]     : file names prefix\n";
-	print "   [maxbg]    : background target (e.g. 0.0001 -> determine cut on TMVA output with 0.01% bgk level); default = 0.0001\n";
+	print "   [maxbg]    : background target (e.g. 0.0001 -> determine cut on TMVA output with 0.01% bgk level); default = 0.0001; 0 just prints commands\n";
 	print "   [var file] : file with variable lists; can be selection.cfg - variables will be determined automatically\n";
-	print "                will only be applied for cases with n_var > 1\n\n";
+	print "                will only be applied for cases with n_var > 2\n\n";
     exit(0);
 }
 
 if (!defined($tgt)) {$tgt = 0.0001;}
 
-my $trnmacro = $ENV{"VMCWORKDIR"}."/macro/softrig/TMVATraining.C+";
-my $tstmacro = $ENV{"VMCWORKDIR"}."/macro/softrig/TMVAApply.C+";
+my $trnmacro = "../TMVATraining.C+";
+my $tstmacro = "../TMVAApply.C+";
+my $cutmacro = "cutfinderx.C+";
 
+if (defined($ENV{"VMCWORKDIR"}))
+{
+	$trnmacro = $ENV{"VMCWORKDIR"}."/macro/softrig/TMVATraining.C+";
+	$tstmacro = $ENV{"VMCWORKDIR"}."/macro/softrig/TMVAApply.C+";
+	$cutmacro = $ENV{"VMCWORKDIR"}."/macro/softrig/cutfinderx.C+";
+}
 # remove leading and trailing whitespace
 sub  trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
 
@@ -85,7 +92,7 @@ my @files = `ls $pref*`;
 
 $pref =~ s/[\*\[\]\|]//g;
 
-open (SELFILE, ">selection_TMVA_$pref.cfg");
+if ($tgt>0.0) {open (SELFILE, ">selection_TMVA_$pref.cfg");}
 			
 foreach my $file (@files)
 {
@@ -114,21 +121,40 @@ foreach my $file (@files)
 	}	
 		
 	my $vars = "";
+	
+	# did we have a conventional cut as hint?
 	if (defined($varhints{$code})) { $vars = $varhints{$code};}
+
+	# if no cut or var file was given, use cutfinderx to find potent variables
+	if (!defined($varfile))
+	{
+		my $findcom = "root -l -b -q '$cutmacro(\"$file\",\"$precut\")'";
+		print $findcom."\n";
+		my @cutfinderout;
+
+		if ($tgt>0.0) {@cutfinderout = `$findcom`;}
+		foreach (@cutfinderout)
+		{
+			chomp;
+			if (m/^Vars : (.+)/) {$vars = $1;}
+		}
+	}
 
 	if (cntvars($vars)>2) 
 	{
 		# perform the training
 		my $trncom = "root -l -b -q '$trnmacro(\"$file\",\"$vars\",\"$precut\")'";
 		print $trncom."\n";
-		system($trncom);
+		if ($tgt>0.0) {system($trncom);}
 		print "\n";
 		
 		# determine the cut for target background level
 		my $tstcom = "root -l -b -q '$tstmacro(\"$file\",\"$vars\",\"$precut\",\"\",$tgt)'\n";
 		print $tstcom."\n";
-		my @out = `$tstcom`;
+		my @out;
 
+		if ($tgt>0.0) { @out = `$tstcom`;}
+		
 		my $seff, my $beff, my $cfgline;
 
 		foreach (@out)
@@ -138,23 +164,33 @@ foreach my $file (@files)
 			if (m/^cfgline -> (.+)/) {$cfgline = $1;}
 		}
 	
+		if (defined($comment{$code}))  
+		{
+			print "#".$comment{$code}."\n";
+			if ($tgt>0.0) {print SELFILE $comment{$code}."\n";}
+		}
+		if (defined($cuts{$code}))  
+		{
+			print "## ".$cuts{$code}."\n";
+			if ($tgt>0.0) {print SELFILE $cuts{$code}."\n";}
+		}
 		printf "# %s : eff_s = %.1f%%  eff_b = %.3f%%\n", $code, $seff, $beff;	
 		printf $cfgline."\n\n";	
-		printf SELFILE "# %s : eff_s = %.1f%%  eff_b = %.3f%%\n", $code, $seff, $beff;	
-		printf SELFILE $cfgline."\n\n";	
+		if ($tgt>0.0) {printf SELFILE "# %s : eff_s = %.1f%%  eff_b = %.3f%%\n", $code, $seff, $beff;	}
+		if ($tgt>0.0) {printf SELFILE $cfgline."\n\n";	}
 	}
 	else
 	{
 		if (defined($comment{$code}))  
 		{
 			print $comment{$code}."\n";
-			print SELFILE $comment{$code}."\n";
+			if ($tgt>0.0) {print SELFILE $comment{$code}."\n";}
 		}
 		if (defined($cuts{$code}))  
 		{
 			print $cuts{$code}."\n";
-			print SELFILE $cuts{$code}."\n";
+			if ($tgt>0.0) {print SELFILE $cuts{$code}."\n";}
 		}
 	}
 }
-close (SELFILE); 
+if ($tgt>0.0) {close (SELFILE); }

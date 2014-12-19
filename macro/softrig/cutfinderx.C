@@ -30,6 +30,8 @@ typedef std::map<int, int> CountMap;
 CountMap evcnt, evcntrec[10];
 std::map<TString, TString> mctvar;
 
+Bool_t isbt;
+
 double signi[MAX];
 int idx[MAX];
 TString vars[MAX];
@@ -81,6 +83,7 @@ int init(TTree *t)
 		TString v=branch->GetName(); 
 
 		if ( v=="ev" || v=="mode" || v=="run" || v=="nsig" ) continue;
+		if ( v=="essumpt" || v=="essumptc") continue;
 		if ( v.Contains("pdg") || v.Contains("beam") || v.Contains("mct") ) continue;
 		if ( v.BeginsWith("t") && v!="thr") continue;
 		if ( v.EndsWith("vx") || v.EndsWith("vy") || v.EndsWith("vz") || v.EndsWith("pocmag")) continue;
@@ -122,9 +125,9 @@ bool mycompare(int i, int j)
 
 // ---------------------------------------------------------------
 
-int uid(int ev, int run, int mode)
+int uid(int lev, int lrun, int lmode)
 {
-	return ev+10000*run+(((mode/100)%10)*20+mode%10)*100000;
+	return lev+10000*lrun+(((lmode/100)%10)*20+lmode%10)*100000;
 }
 
 // ---------------------------------------------------------------
@@ -227,7 +230,7 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	sigcnt.clear();
 	sigcnt2.clear();
 	
-	for (i=0;i<sigvals.size();++i)
+	for (i=0;i<(int)sigvals.size();++i)
 	{
 		if (sigvals[i].first<leftcut)  sigcnt[sigvals[i].second]+=1;
 		if (sigvals[i].first>rightcut) sigcnt2[sigvals[i].second]+=1;
@@ -286,7 +289,7 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	bgcnt.clear();
 	bgcnt2.clear();
 	
-	for (i=0;i<bgvals.size();++i)
+	for (i=0;i<(int)bgvals.size();++i)
 	{
 		if (bgvals[i].first<=leftcut)  bgcnt[bgvals[i].second];
 		if (bgvals[i].first>=rightcut) bgcnt2[bgvals[i].second];
@@ -393,6 +396,8 @@ double bestCombiEvt(TTree *t, TString varname, TEventList &els, TEventList &elb,
 
 void cutfinderx(TString fname, TString precut="", double supr=0.95, int evmult=10000, double norm=1.0, int n0s=-1)
 {
+	isbt = gROOT->IsBatch();
+	
 	gStyle->SetTitleX(0.2);
 	gStyle->SetTitleY(0.993);
 	gStyle->SetTitleH(0.07);
@@ -477,76 +482,79 @@ void cutfinderx(TString fname, TString precut="", double supr=0.95, int evmult=1
 			
 	}
 	cout <<endl;
-	 	
-	cout <<"\n\nBEST 20 vars:"<<endl<<endl;
- 	
-	std::vector<int> myidx (idx, idx+nbranch);	
 	
+	std::vector<int> myidx (idx, idx+nbranch);	
 	std::sort(myidx.begin(), myidx.end(), mycompare);
 
-	TLine l;
-	l.SetLineColor(6);
-	l.SetLineStyle(2);
-	l.SetLineWidth(2);
-	TLatex lt;
-	lt.SetTextSize(0.06);
-	TString target="supr";
-	if (supr<0) target="eff";
-	if (supr==0) target="qa";
-	
-	for (j=0;j<21;++j)
-	{		
-		i=myidx[j];
-
-		if (j<20)
-		{
-			printf("%2d) %-15s : %4s = %5.3f   cut = %.4f ( %s )\n",j,vars[i].Data(), target.Data(), signi[i], cut[i], cuts[i].Data());
-
-			TH1F h1("h1",vars[i],BINS,minh[i],maxh[i]);
-			TH1F h2("h2",vars[i],BINS,minh[i],maxh[i]);
-			h2.SetLineColor(2);
+	if (!isbt)
+	{
+			
+		cout <<"\n\nBEST 20 vars:"<<endl<<endl;
 		
-			t->SetEventList(&els);
-			t->Project("h1",vars[i]);
-			t->SetEventList(&elb);
-			t->Project("h2",vars[i]);
-			
-			h1.Scale(1.0/h1.Integral());
-			h2.Scale(1.0/h2.Integral());
-			h1.SetTitleSize(0.05);
-			
-			c1->cd(j+1);
-			double maxi = h1.GetMaximum();
-			if (h2.GetMaximum()>maxi ) maxi = h2.GetMaximum();
-			maxi*=1.1;
-			h1.SetMaximum(maxi);
-			h2.SetMaximum(maxi);
-						
-			h1.DrawNormalized();
-			h2.DrawNormalized("same");
+		TLine l;
+		l.SetLineColor(6);
+		l.SetLineStyle(2);
+		l.SetLineWidth(2);
+		TLatex lt;
+		lt.SetTextSize(0.06);
+		TString target="supr";
+		if (supr<0) target="eff";
+		if (supr==0) target="qa";
+		
+		for (j=0;j<21;++j)
+		{		
+			i=myidx[j];
 
-			double axmin = h1.GetXaxis()->GetXmin(),axmax = h1.GetXaxis()->GetXmax(); 
-			
-			l.DrawLine(cut[i],0, cut[i], maxi*0.9);
-			
-			lt.DrawLatex(axmin+(axmax-axmin)*0.6,1.01*maxi,TString::Format("%s = %6.4f",target.Data(),signi[i]));
+			if (j<20)
+			{
+				printf("%2d) %-15s : %4s = %5.3f   cut = %.4f ( %s )\n",j,vars[i].Data(), target.Data(), signi[i], cut[i], cuts[i].Data());
 
+				TH1F h1("h1",vars[i],BINS,minh[i],maxh[i]);
+				TH1F h2("h2",vars[i],BINS,minh[i],maxh[i]);
+				h2.SetLineColor(2);
+			
+				t->SetEventList(&els);
+				t->Project("h1",vars[i]);
+				t->SetEventList(&elb);
+				t->Project("h2",vars[i]);
+				
+				h1.Scale(1.0/h1.Integral());
+				h2.Scale(1.0/h2.Integral());
+				h1.SetTitleSize(0.05);
+				
+				c1->cd(j+1);
+				double maxi = h1.GetMaximum();
+				if (h2.GetMaximum()>maxi ) maxi = h2.GetMaximum();
+				maxi*=1.1;
+				h1.SetMaximum(maxi);
+				h2.SetMaximum(maxi);
+							
+				h1.DrawNormalized();
+				h2.DrawNormalized("same");
+
+				double axmin = h1.GetXaxis()->GetXmin(),axmax = h1.GetXaxis()->GetXmax(); 
+				
+				l.DrawLine(cut[i],0, cut[i], maxi*0.9);
+				
+				lt.DrawLatex(axmin+(axmax-axmin)*0.6,1.01*maxi,TString::Format("%s = %6.4f",target.Data(),signi[i]));
+
+			}
+			else
+			{
+				TH1F hr("hr","recmodes",10,0,10);
+				c1->cd(21);
+				
+				for (int k=0;k<10;++k) hr.SetBinContent(k+1,(double) evcntrec[k].size()/evmult*norm);
+				
+				hr.DrawCopy();
+			}		
 		}
-		else
-		{
-			TH1F hr("hr","recmodes",10,0,10);
- 			c1->cd(21);
-			
-			for (int k=0;k<10;++k) hr.SetBinContent(k+1,(double) evcntrec[k].size()/evmult*norm);
-			
-			hr.DrawCopy();
-		}		
-	}
-	
-	//t->Draw(">>els",sigcut+"&&"+cuts[myidx[0]]);
-	
 		
-	c1->Update();
+		//t->Draw(">>els",sigcut+"&&"+cuts[myidx[0]]);
+		
+			
+		c1->Update();
+	}
 	
 	cout <<"\nCUT     : "<<precut.Data()<<endl;
 	cout <<"SIG EVT: "<<Nsigev<<" ev  "<<els.GetN()<<" cn   BG: "<<Nbgev<<" ev  "<<elb.GetN()<<" cn"<<endl;
@@ -558,4 +566,11 @@ void cutfinderx(TString fname, TString precut="", double supr=0.95, int evmult=1
 	cout<<"Eff    : "; for (int k=0;k<10;++k) printf("%6.1f%%",(double) evcntrec[k].size()/evmult*norm*100.);cout <<endl<<endl;
 
 	t->SetEventList(0);
+	
+	if (isbt)
+	{
+		cout <<"Vars : ";
+		for (j=0;j<20;++j) cout <<vars[myidx[j]].Data()<<" ";
+		cout <<endl;
+	}
 }
