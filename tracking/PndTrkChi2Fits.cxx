@@ -690,8 +690,8 @@ return 1;
 	+ Stt_DriftRad_DriftRad_Sum;
 
  for(i=0;i<Combinations; i++){
-        M = (A + Stt_DriftRad_IndVar_Sum[i])/(Stt_IndVar_IndVar_Sum + Mvd_IndVar_IndVar_Sum) ;
-        chi2 =  chi2_fixed +
+	M = (A + Stt_DriftRad_IndVar_Sum[i])/(Stt_IndVar_IndVar_Sum + Mvd_IndVar_IndVar_Sum) ;
+	chi2 =  chi2_fixed +
 		M*M*(Mvd_IndVar_IndVar_Sum + Stt_IndVar_IndVar_Sum)
 		+ 2.*Stt_DriftRad_DipVar_Sum[i]
 		- 2.*M*(Mvd_IndVar_DipVar_Sum + Stt_IndVar_DipVar_Sum)
@@ -772,7 +772,7 @@ return 1;
 
   // at this moment  *emme  corresponds to 1/KAPPA so now it is inverted;
   if( status>0){
-	if( fabs(*emme) > 1.e-9 ) {  *emme = 1./(*emme); } else { *emme = 1.e9; }
+	if( fabs(*emme) > 1.e-10 ) {  *emme = 1./(*emme); } else { *emme = 1.e10; }
   }
 
 
