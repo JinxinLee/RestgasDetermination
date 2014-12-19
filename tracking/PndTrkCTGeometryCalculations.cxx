@@ -469,6 +469,9 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExit3(
  PndTrkMergeSort MergeSort;
 
 // this method works under the hypothesis that there are at least 2 intersections.
+// It is the same as ChooseEntranceExitbis but it gives in output the values of the ordered
+// Fi ( in FiOrderedLis);
+
 	if (nIntersections<2) return;
 
 	  if(Charge > 0) {	// charge positive, particle rotates clockwise when looking into the beam;
@@ -1123,14 +1126,15 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange2(
 Short_t PndTrkCTGeometryCalculations::FindIntersectionsOuterCircle(
 	Double_t oX,
 	Double_t oY,
-	Double_t Rr,
-	Double_t Rma,
+	Double_t Rr,  // radius of the trajectory intersecting originating from the vertex at (0,0)
+			// intersecting with the circle centered at (0,0);
+	Double_t Rma, // radius of the circle centered at (0,0);
 	Double_t Xcross[2],
 	Double_t Ycross[2]
 	)
 {
 
-	// return -1 --> non intersection;
+	// return -1 --> non-intersection;
 	// return 0  --> 2 intersections.
 
 	Double_t	a,
@@ -1139,7 +1143,7 @@ Short_t PndTrkCTGeometryCalculations::FindIntersectionsOuterCircle(
 			FI0;
 	a = sqrt(oX*oX+oY*oY);
 
-	// case with no intersections.
+	// case with no intersections or just 1 intersection;
 	if( a >= Rr + Rma || Rr >= a + Rma ||  a + Rr <= Rma) return -1;
 
 
