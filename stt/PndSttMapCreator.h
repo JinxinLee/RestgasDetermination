@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include "TObject.h"
+#include "PndSttGeometryMap.h"
 
 class PndSttTubeParameters;
 class PndSttTube; 
@@ -57,10 +58,13 @@ class PndSttMapCreator : public TObject
   PndSttTube * GetTubeFromTubeIDGeoType1(Int_t tubeid);
 
  protected:
-  
+  TClonesArray *fTubeArray; //!
+  PndSttTube *fSttTube; // !
+  PndSttGeometryMap *fMap; //!
+
   
   ClassDef(PndSttMapCreator,1) 
     
-    };
+};
 
 #endif

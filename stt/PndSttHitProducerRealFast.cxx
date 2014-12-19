@@ -98,8 +98,8 @@ InitStatus PndSttHitProducerRealFast::Init() {
   //cout << "-I- PndSttHitProducerRealFast: Intialization successfull" << endl;
 
    // CHECK added 
-  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  fTubeArray = mapper->FillTubeArray();
+  PndSttMapCreator mapper(fSttParameters);
+  fTubeArray = mapper.FillTubeArray();
 
   return kSUCCESS;
 

@@ -127,8 +127,8 @@ InitStatus PndSttFindTracks::Init()
   fFinder->SetHelixHitProduction(fHelixHitProduction);
    
   // CHECK added 
-  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  fTubeArray = mapper->FillTubeArray();
+  PndSttMapCreator mapper(fSttParameters);
+  fTubeArray = mapper.FillTubeArray();
   
   // Call the Init method of the track finder
   fFinder->Init();

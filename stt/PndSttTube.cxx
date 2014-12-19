@@ -13,7 +13,7 @@ PndSttTube::PndSttTube()
    fSectorID(-1),
    fLayerID(-1),
    fLayerLimit(kFALSE),
-   fSectorLimit(0)
+   fSectorLimit(kFALSE)
 {
   fRotationMatrix[0][0] = -1.;
   fRotationMatrix[0][1] = -1.;
@@ -57,7 +57,7 @@ PndSttTube::PndSttTube(PndSttTubeParameters *parms,
    fSectorID(-1),
    fLayerID(-1),
    fLayerLimit(kFALSE),
-   fSectorLimit(0)
+   fSectorLimit(kFALSE)
 {
 
   //  fCenPosition.SetXYZ(x,y,z);

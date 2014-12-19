@@ -93,8 +93,8 @@ InitStatus PndSttFitTracks::Init()
   ioman->Register("STTTrack", "STT", fTrackArray, kTRUE); // fPersistence); // CHECK
   
   // CHECK added 
-  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  fTubeArray = mapper->FillTubeArray();
+  PndSttMapCreator mapper(fSttParameters);
+  fTubeArray = mapper.FillTubeArray();
   
   // Call the Init method of the track fitter
   fFitter->Init();

@@ -217,8 +217,8 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	  fpostot.SetXYZM((fpostotin.X() +  fpostotout.X())/2., (fpostotin.Y() + fpostotout.Y())/2., (fpostotin.Z() + fpostotout.Z())/2.,0.0);  // CHECK (delete this?)
 
 	  // CHECK -----------------------------------------------------------
-	  PndSttMapCreator *mapper = new PndSttMapCreator(fGeoType);
-	  Int_t tubeID = mapper->GetTubeIDFromPath(gMC->CurrentVolPath());
+	  PndSttMapCreator mapper(fGeoType);
+	  Int_t tubeID = mapper.GetTubeIDFromPath(gMC->CurrentVolPath());
 	  // -----------------------------------------------------------------
 
 	  AddHit(fTrackID, fVolumeID, tubeID,
@@ -353,8 +353,8 @@ void PndStt::ConstructGeometry()
   if(GetGeometryFileName().Contains("straws_skewed_blocks_35cm_pipe.geo")) fGeoType = 1; 
   else cout << "-E- STT: this geometry is not supported now" << endl;
 
-  PndSttMapCreator *mapper = new PndSttMapCreator(fGeoType);
-  int tubecounter =  mapper->FillSttTubeParameters(par, volList);
+  PndSttMapCreator mapper(fGeoType);
+  int tubecounter =  mapper.FillSttTubeParameters(par, volList);
   cout << "-I- STT total number of tubes: " << tubecounter << endl;
   par->setChanged();
   par->setInputVersion(fRun->GetRunId(),1);

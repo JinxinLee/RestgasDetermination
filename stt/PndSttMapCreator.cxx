@@ -241,21 +241,21 @@ PndSttTubeParameters *PndSttMapCreator::CreateTubeParametersGeoType1(FairGeoNode
 TClonesArray* PndSttMapCreator::FillTubeArrayGeoType1() { 
   TObjArray *pararray = fSttParameters->GetTubeParameters();
   
-  TClonesArray *tubeArray = new TClonesArray("PndSttTube");
-  tubeArray->Delete();
+  fTubeArray = new TClonesArray("PndSttTube");
+  fTubeArray->Delete();
 
   for(int i = 1; i < pararray->GetEntries(); i++) {
     PndSttTubeParameters *parms = (PndSttTubeParameters*) pararray->At(i);
     int tubeID = parms->GetTubeID();
-    PndSttTube *stttube = GetTubeFromParametersToFillGeoType1(parms);
-    if(!stttube) continue;
+    fSttTube = GetTubeFromParametersToFillGeoType1(parms);
+    if(!fSttTube) continue;
     // correspondance position in TCA <-> tubeID
-    new((*tubeArray)[tubeID]) PndSttTube(*stttube);
+    new((*fTubeArray)[tubeID]) PndSttTube(*fSttTube);
   }
 
-  PndSttGeometryMap *map = new PndSttGeometryMap(tubeArray, fGeoType);
-  map->FillGeometryParameters();
-  return tubeArray;
+  fMap = new PndSttGeometryMap(fTubeArray, fGeoType);
+  fMap->FillGeometryParameters();
+  return fTubeArray;
 }
 
 PndSttTube * PndSttMapCreator::GetTubeFromParametersToFillGeoType1(PndSttTubeParameters *parms) {

@@ -83,8 +83,8 @@ InitStatus PndSttHitProducerRealFull::Init() {
   ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
   
   // CHECK added 
-  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  fTubeArray = mapper->FillTubeArray();
+  PndSttMapCreator mapper(fSttParameters);
+  fTubeArray = mapper.FillTubeArray();
   
   cout << "-I- PndSttHitProducerRealFull: Intialization successfull" << endl;
   

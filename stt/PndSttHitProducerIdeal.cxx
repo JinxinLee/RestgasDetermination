@@ -113,8 +113,8 @@ void PndSttHitProducerIdeal::SetParContainers() {
 void PndSttHitProducerIdeal::Exec(Option_t* opt) 
 {
   if ( fTubeArray == NULL ) {
-    PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-    fTubeArray = mapper->FillTubeArray();
+    PndSttMapCreator mapper(fSttParameters);
+    fTubeArray = mapper.FillTubeArray();
   }
  
   // Reset output array
