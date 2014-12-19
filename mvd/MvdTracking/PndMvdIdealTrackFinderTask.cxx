@@ -200,11 +200,11 @@ void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t
     else{
       charge = 0.;
     }
-    myTCand->setTrackSeed(
-			  myMCTrack->GetStartVertex(),
-			  myMCTrack->GetMomentum(),
-			  charge/myMCTrack->GetMomentum().Mag()
-			  );
+//    myTCand->setTrackSeed(
+//			  myMCTrack->GetStartVertex(),
+//			  myMCTrack->GetMomentum(),
+//			  charge/myMCTrack->GetMomentum().Mag()
+//			  );
     myTCand->setMcTrackId(trackID);
     fTrackCandMap[trackID] = myTCand;
   }
