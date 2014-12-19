@@ -34,6 +34,8 @@ struct PndLmdFitModelOptions: public TObject {
 	std::string resolution_parametrization_file_url;
 	std::string elastic_reco_data_file_url;
 
+	bool with_background_model;
+
 	ModelType vertex_model;
 
 	/**
@@ -59,7 +61,7 @@ struct PndLmdFitModelOptions: public TObject {
 	friend std::ostream & operator <<(std::ostream & os,
 			const PndLmdFitModelOptions & model_opt);
 
-ClassDef(PndLmdFitModelOptions ,4)
+ClassDef(PndLmdFitModelOptions ,5)
 	;
 };
 

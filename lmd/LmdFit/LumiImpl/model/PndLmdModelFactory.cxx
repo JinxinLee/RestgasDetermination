@@ -22,6 +22,9 @@
 #include "models1d/DoubleGaussianModel1D.h"
 #include "AsymmetricGaussianModel1D.h"
 
+#include "PndLmdSignalBackgroundModel1D.h"
+#include "PndLmdBackgroundModel1D.h"
+
 #include "operators2d/integration/SimpleIntegralStrategy2D.h"
 #include "operators1d/ProductModel1D.h"
 #include "operators2d/ProductModel2D.h"
@@ -226,6 +229,15 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 				<< "ERROR: Not all parameters of the model were successfully initialized!"
 				<< std::endl;
 		current_model->getModelParameterSet().printInfo();
+	}
+
+	// add background model on top
+
+	if (model_options.with_background_model) {
+		shared_ptr<Model1D> background_model(new PndLmdBackgroundModel1D);
+		current_model.reset(
+				new PndLmdSignalBackgroundModel1D("signal_background", current_model,
+						background_model));
 	}
 
 	return current_model;

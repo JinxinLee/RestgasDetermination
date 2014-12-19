@@ -6,14 +6,16 @@ ClassImp(LumiFit::PndLmdFitModelOptions)
 namespace LumiFit {
 
 PndLmdFitModelOptions::PndLmdFitModelOptions() :
-		momentum_transfer_active(false), divergence_smearing_active(false), fix_beam_tilts(false), acceptance_correction_active(
-				false), resolution_smearing_active(false), fit_dimension(1), acceptance(
-				0), resolution_parametrization_file_url(""), smearing_model(GAUSSIAN), acceptance_interpolation(
-				SPLINE), dpm_elastic_parts(ALL), vertex_model(GAUSSIAN) {
+		momentum_transfer_active(false), divergence_smearing_active(false), fix_beam_tilts(
+				false), acceptance_correction_active(false), resolution_smearing_active(
+				false), fit_dimension(1), acceptance(0), resolution_parametrization_file_url(
+				""), smearing_model(GAUSSIAN), acceptance_interpolation(SPLINE), dpm_elastic_parts(
+				ALL), with_background_model(false), vertex_model(GAUSSIAN) {
 }
 
 PndLmdFitModelOptions::PndLmdFitModelOptions(LmdTrackType track_type,
-		LmdDimensionType dimension_type, bool divergence_smearing_active_) : fix_beam_tilts(false) {
+		LmdDimensionType dimension_type, bool divergence_smearing_active_) :
+		fix_beam_tilts(false), with_background_model(false) {
 	divergence_smearing_active = divergence_smearing_active_;
 
 	if (dimension_type == T) {
@@ -50,6 +52,10 @@ bool PndLmdFitModelOptions::lessThanBinaryOptions(
 	if (resolution_smearing_active < rhs.resolution_smearing_active)
 		return true;
 	else if (resolution_smearing_active > rhs.resolution_smearing_active)
+		return false;
+	if (with_background_model < rhs.with_background_model)
+		return true;
+	else if (with_background_model > rhs.with_background_model)
 		return false;
 
 	return false;
