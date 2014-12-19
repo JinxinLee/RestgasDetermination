@@ -141,7 +141,7 @@ private:
 	// y intercept
 
 	// internal track candidate for storing of hits belonging to this track candidate
-	PndTrackCand intTrackCand;
+	PndTrackCand fIntTrackCand;
 
 
 	// at which z value the transition in the bending zx plane is done from a line (before dipole field) to a parabola (within dipole field)

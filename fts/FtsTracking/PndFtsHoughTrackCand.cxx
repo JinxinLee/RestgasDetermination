@@ -28,6 +28,8 @@ PndFtsHoughTrackCand::PndFtsHoughTrackCand(PndFtsHoughTrackerTask *trackerTask) 
 
 				fZyLine(0., trackerTask),
 
+				fIntTrackCand(),
+
 				fZCoordLineParabola(0.),
 				fZCoordParabolaLine(0.)
 {
@@ -90,8 +92,8 @@ void PndFtsHoughTrackCand::SetZyLine(const PndFtsHoughTracklet zyLine){
 
 
 void PndFtsHoughTrackCand::Print() {
-	std::cout << "=========== PndFtsHoughTrackCand::Print() ==========" << std::endl;
-	intTrackCand.Print();
+	std::cout << "=========== PndFtsHoughTrackCand::Print() ==========\n";
+	fIntTrackCand.Print();
 	if (kTRUE==fZxLineBeforeDipole.isSet()){
 		std::cout << "zx plane\n\n";
 		std::cout << "1st line: ";
@@ -123,10 +125,10 @@ void PndFtsHoughTrackCand::addUniqueTrackletHits(PndFtsHoughTracklet inTracklet)
 		const Int_t inHitId = inHit.GetHitId();
 		const Int_t inDetId = inHit.GetDetId();
 		// if hit is NOT in track -1 is returned by HitInTrack, otherwise the index (>=0) in the HitId vector is returned
-		if (-1==intTrackCand.HitInTrack(inDetId,inHitId)){
+		if (-1==fIntTrackCand.HitInTrack(inDetId,inHitId)){
 			// add hit to track cand
 			const Double_t inRho = inHit.GetRho();
-			intTrackCand.AddHit(inDetId, inHitId, inRho);
+			fIntTrackCand.AddHit(inDetId, inHitId, inRho);
 		}
 	}
 }
@@ -180,7 +182,7 @@ Double_t PndFtsHoughTrackCand::getXLabForParabola(const Double_t &zLabSys) const
 
 
 PndTrackCand PndFtsHoughTrackCand::getPndTrackCand() {
-	return intTrackCand;
+	return fIntTrackCand;
 
 	//	// The following is what I used when I derived this class from PndTrackCand. Instead this class now contains a member of PndTrackCand
 	//	// Maybe this is not necessary because PndFtsHoughTrackCand is derived from PndTrackCand
@@ -207,9 +209,9 @@ PndTrack PndFtsHoughTrackCand::getPndTrack() {
 	// calculates first and last parameter, but uses an empty PndTrackCand which has to be set lateron using SetTrackCandRef
 	FairTrackParP firstPar, lastPar;
 	PndTrackCand myCand;
-	if (intTrackCand.GetNHits() > 0){
+	if (fIntTrackCand.GetNHits() > 0){
 		firstPar = getTrackParPForHit(0);
-		lastPar = getTrackParPForHit(intTrackCand.GetNHits()-1);
+		lastPar = getTrackParPForHit(fIntTrackCand.GetNHits()-1);
 	}
 	return PndTrack(firstPar, lastPar, myCand);
 }
@@ -222,13 +224,13 @@ FairTrackParP PndFtsHoughTrackCand::getTrackParPForHit(const UInt_t index) {
 	// TODO: Check if all arguments are correct
 
 	// Warn if we do not have a complete track candidate
-	if (!isComplete()) Warning("getHit","You try to access hits before we have a complete track candidate.");
+	if (!isComplete()) std::cout << "getHit: You try to access hits before we have a complete track candidate.\n";
 
 	// not necessary, I check later if I get a hit or not
 	//if (index >= intTrackCand.GetNHits()) throwError("index in PndFtsHoughTrackCand::getTrackParPForHit is too large.");
 
 	// Translate index in track candidate to hitId in FTS hit array
-	UInt_t hitId = intTrackCand.GetSortedHit(index).GetHitId();
+	UInt_t hitId = fIntTrackCand.GetSortedHit(index).GetHitId();
 
 	// get position of hit
 	const PndFtsHit *myHit = fTrackerTask->GetFtsHit(hitId);
@@ -267,7 +269,7 @@ TVector3 PndFtsHoughTrackCand::getP(const Double_t zLabSys) const{
 
 	if (kFALSE == isComplete())
 	{
-		Warning("getPforHit","Track cand. is not complete yet. Momentum will be calculated for incomplete track cand.");
+		std::cout << "getPforHit: Track cand. is not complete yet. Momentum will be calculated for incomplete track cand.\n";
 	}
 
 	Double_t pZLabSys;
@@ -290,7 +292,7 @@ TVector3 PndFtsHoughTrackCand::getP(const Double_t zLabSys) const{
 	pXLabSys = pZPXLabSys.second;
 	const Double_t pYLabSys = getPYLab();
 	mom.SetXYZ(pXLabSys, pYLabSys, pZLabSys);
-	if (fVerbose > 10) std::cout << "P-Vector for z=" << zLabSys << " : " << mom.X() << " " << mom.Y() << " " << mom.Z() << std::endl;
+	if (fVerbose > 10) std::cout << "P-Vector for z=" << zLabSys << " : " << mom.X() << " " << mom.Y() << " " << mom.Z() << '\n';
 	return mom;
 }
 
@@ -331,7 +333,7 @@ TVector3 PndFtsHoughTrackCand::getPos(const Double_t zLabSys) const{
 
 	throwIfZOutOfRange(zLabSys);
 
-	if (kFALSE == isComplete()) Warning("getPositionForHit","Track cand. is not complete yet. Position will be calculated for incomplete track cand.");
+	if (kFALSE == isComplete()) std::cout << "getPositionForHit: Track cand. is not complete yet. Position will be calculated for incomplete track cand.\n";
 
 	TVector3 position;
 	// track model is assumed to be line+parabola+line in zx and line in zy
@@ -340,7 +342,7 @@ TVector3 PndFtsHoughTrackCand::getPos(const Double_t zLabSys) const{
 	Double_t xLabSys = getXLabSys(zLabSys);
 
 	position.SetXYZ(xLabSys, yLabSys, zLabSys);
-	if (fVerbose > 10) std::cout << "Pos-Vector for z=" << zLabSys << " : " << position.X() << " " << position.Y() << " " << position.Z() << std::endl;
+	if (fVerbose > 10) std::cout << "Pos-Vector for z=" << zLabSys << " : " << position.X() << " " << position.Y() << " " << position.Z() << '\n';
 	return position;
 }
 
