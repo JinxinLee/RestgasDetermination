@@ -126,8 +126,8 @@ class PndTrkTracking2 : public FairTask
 				// start at 1 and goes up to 4542 included;
 
   static const Double_t
-	THETAMIN,
-	THETAMAX;
+	THETAMIN		= 0.,
+	THETAMAX		= 2.*3.141592654;
 
 
   bool
@@ -530,7 +530,6 @@ class PndTrkTracking2 : public FairTask
 	Double_t FI0,
 	Double_t Rr
 	);
- void ExtractInfoFromMvdTrackCand();
 
 
 
