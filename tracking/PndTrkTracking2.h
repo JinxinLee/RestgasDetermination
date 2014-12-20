@@ -125,10 +125,6 @@ class PndTrkTracking2 : public FairTask
 	NUMBER_STRAWS		= 4542; // the straw numbers
 				// start at 1 and goes up to 4542 included;
 
-  static const Double_t
-	THETAMIN		= 0.,
-	THETAMAX		= 2.*3.141592654;
-
 
   bool
 	doMcComparison,
