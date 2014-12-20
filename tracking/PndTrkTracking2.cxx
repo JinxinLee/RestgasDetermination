@@ -53,10 +53,11 @@
 
 #include "PndTrkConstants.h"
 
-
   static const Double_t
 	THETAMIN		= 0.,
 	THETAMAX		= 2.*3.141592654;
+
+
 
 
 using namespace std;
@@ -791,7 +792,6 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	tdaTrackFoundaTrackMC[MAXTRACKSPEREVENT],
 	resultFitSZagain[MAXTRACKSPEREVENT],
 	SttStrawOn[NUMBER_STRAWS];
-
 
 
  Vec <Short_t>
@@ -2353,14 +2353,14 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 //	First cleanup based on the absence of Mvd hits
-fYesCleanMvd=false;
+fYesCleanMvd=true;
 	if(fYesCleanMvd ){
 
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
 
 
-
+cout<<"cazzo, prima, cand. n. "<<ncand<<", R "<<fR[ncand]<<", Ox "<<fOx[ncand]<<", Oy "<<endl;
 
 		if(
 		    !Cleaner.MvdCleanup(
@@ -5798,7 +5798,7 @@ void PndTrkTracking2::OrderingR_Loading_ListTrackCandHit(
 	b1 = PI/4.;
 
 
-	if(aaa>b1&&aaa<3.*b1|| (aaa>-3.*b1&&aaa<-b1)){  //  case #1 or #3;see Gianluigi's Logbook page 285.
+	if( (aaa>b1&&aaa<3.*b1 ) || (aaa>-3.*b1&&aaa<-b1)){  //  case #1 or #3;see Gianluigi's Logbook page 285.
 		if( (aaa>b1&&aaa<3.*b1 && Charge == -1)||( aaa>-3.*b1&&aaa<-b1 && Charge == 1) )
 				{  // for speeding up the ordering taking advantage
 				    // that the parallel hits were earlier ordered and
