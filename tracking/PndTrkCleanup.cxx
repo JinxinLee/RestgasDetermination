@@ -517,6 +517,8 @@ bool PndTrkCleanup::GoodTrack(
 	PndTrkCTGeometryCalculations* GeomCalculator  -->  class that makes the geometrical calculations;
 */
 
+	bool
+		GoOn;
 
 	Short_t
 		i,
@@ -599,7 +601,8 @@ bool PndTrkCleanup::GoodTrack(
 			//  > 1.e-10 by construction, then Z is always well defined;
 			z = (FiOrderedList[0]-fi0)/kappa;
 
-
+cout<<"cazzo1,barrel, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrderedList[0]<<", Z "
+	<<z<<", R "<< sqrt(Xcross[0]*Xcross[0]+Ycross[0]*Ycross[0]    )<<endl;
 			// condition for having Mvd hits in the Mvd Barrel layers certainly, namely taking
 			// into account also possible errors in the Z caused by the uncertainty of the
 			// trajectory; such an error is called extra_distance_Z (in cm);
@@ -631,14 +634,18 @@ bool PndTrkCleanup::GoodTrack(
 	for(i=0;i<MVD_BARREL_LAYERS;i++){
 		if (n_intersections_barrel[i]>0){
 			// loop over all Mvd hits of the track;
+			nFaults++;
+			GoOn=true;
 			for(j=0;j< nPixelHitsinTrack; j++){
 				r2 = XMvdPixel[ ListMvdPixelHitsinTrack[j] ]*XMvdPixel[ ListMvdPixelHitsinTrack[j] ]+
 				     YMvdPixel[ ListMvdPixelHitsinTrack[j] ]*YMvdPixel[ ListMvdPixelHitsinTrack[j] ];
-				if( fabs( r2 - MVD_BARREL_RADIASQMean[i]) > MVD_BARREL_RADIASQDifference[i]){
-					nFaults++;
+				if( fabs( r2 - MVD_BARREL_RADIASQMean[i]) <= MVD_BARREL_RADIASQDifference[i]){
+					nFaults--;
+					GoOn = false;
+					break;
 				}
 			} // end of for(j=0;j< nPixelHitsinTrack; j++)
-
+			if(GoOn){
 			for(j=0;j< nStripHitsinTrack; j++){
 				r2 = XMvdStrip[ ListMvdStripHitsinTrack[j] ]*XMvdStrip[ ListMvdStripHitsinTrack[j] ]+
 				     YMvdStrip[ ListMvdStripHitsinTrack[j] ]*YMvdStrip[ ListMvdStripHitsinTrack[j] ];
@@ -646,8 +653,8 @@ bool PndTrkCleanup::GoodTrack(
 					nFaults++;
 				}
 			} // end of for(j=0;j< nStripHitsinTrack; j++)
-
-		}
+			}	// end of   if(GoOn)
+		}  // end of     if (n_intersections_barrel[i]>0)
 	};  // end of  for(i=0;i<MVD_BARREL_LAYERS;i++)
 	
 	if(nFaults>1) return false;
@@ -690,7 +697,7 @@ bool PndTrkCleanup::GoodTrack(
 					Ylow, // Ylow (abs of it if it is the case);
 					Yup // Yup (abs of it if it is the case);
 				);
-				if(type_of_intersection_in_disk[i]== 1) type_of_intersection_in_disk[i]== 0; // because
+				if(type_of_intersection_in_disk[i]== 1) type_of_intersection_in_disk[i]= 0; // because
 					// Xlow was outside already of the boundary;
 				continue;
 			}
@@ -712,7 +719,7 @@ bool PndTrkCleanup::GoodTrack(
 				Ylow, // Ylow (abs of it if it is the case);
 				Yup // Yup (abs of it if it is the case);
 										);
-			if(type_of_intersection_in_disk[i]== 1) type_of_intersection_in_disk[i]== 0; // because
+			if(type_of_intersection_in_disk[i]== 1) type_of_intersection_in_disk[i]= 0; // because
 					// nXup was outside already of the boundary;
 			continue;
 		} // end of   if( nXup >= MVD_DISK_PIECES[i] )
