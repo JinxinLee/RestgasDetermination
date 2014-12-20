@@ -54,6 +54,11 @@
 #include "PndTrkConstants.h"
 
 
+  static const Double_t
+	THETAMIN		= 0.,
+	THETAMAX		= 2.*3.141592654;
+
+
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
