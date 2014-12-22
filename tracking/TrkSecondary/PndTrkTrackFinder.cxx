@@ -1271,8 +1271,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
      TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
      TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
     
-     double m1 = (first - second).Y()/(first - second).X();
-     double q1 = first.Y() - m1 * first.X();
+     //    double m1 = (first - second).Y()/(first - second).X();
+     //    double q1 = first.Y() - m1 * first.X();
       
      // 1. compute intersection between the track circle and the wire
      TVector2 intersection1, intersection2;
@@ -3961,8 +3961,8 @@ PndTrkCluster PndTrkTrackFinder::CreateSkewHitList(PndTrkTrack *track) {
       // 	display->Modified();
       // 	cin >> goOnChar;   
       //       }
-      double m1 = (first - second).Y()/(first - second).X();
-      double q1 = first.Y() - m1 * first.X();
+      //    double m1 = (first - second).Y()/(first - second).X();
+      //    double q1 = first.Y() - m1 * first.X();
       
       // 1. compute intersection between the track circle and the wire
       TVector2 intersection1, intersection2;

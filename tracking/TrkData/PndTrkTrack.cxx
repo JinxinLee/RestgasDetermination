@@ -14,16 +14,57 @@
 
 using namespace std;
 
-PndTrkTrack::PndTrkTrack() :  fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack() :  fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
 
-PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster) :  fRefHit(NULL), fCluster(*cluster), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster) :  fRefHit(NULL), fCluster(*cluster), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360){}
 
-PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(NULL), fCluster(*cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(NULL), fCluster(*cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) , fPhiMin(0), fPhiMax(360){}
 
-PndTrkTrack::PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(hit), fCluster(*cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(hit), fCluster(*cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
 
-PndTrkTrack::PndTrkTrack(double x, double y, double radius) : fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) {}
+PndTrkTrack::PndTrkTrack(double x, double y, double radius) : fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
 
+
+PndTrkTrack::PndTrkTrack(PndTrack *trk)  :  fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360){
+
+  TVector3 momentum = trk->GetParamFirst().GetMomentum();
+  TVector3 position = trk->GetParamFirst().GetPosition();
+
+  fCharge = TMath::Sign(1., trk->GetParamFirst().GetQp());
+
+  Double_t pl = trk->GetParamFirst().GetMomentum().Z();
+  Double_t pt = trk->GetParamFirst().GetMomentum().Perp();
+  fRadius = pt/0.006;
+  fTanL = pl/pt;
+
+  TVector2 radius = momentum.XYvector();
+  radius = radius.Unit();
+  double rotx = radius.X(); 
+  double roty = radius.Y(); 
+  TVector2 myrad(fCharge * roty, - fCharge * rotx);
+  myrad *= fRadius;
+
+  TVector2 center = myrad + position.XYvector();
+  fCenterX = center.X();
+  fCenterY = center.Y();
+
+  fZ0 = 0; // CHECK
+
+  // ----------------------------------------------
+  // cluster? // CHECK
+ 
+
+
+
+  fPhiMin = ComputePhi(trk->GetParamFirst().GetPosition());
+  if(fPhiMin > 180) fPhiMin -= 360;
+
+  fPhiMax = ComputePhi(trk->GetParamLast().GetPosition());
+  if(fPhiMax > 180) fPhiMax -= 360;
+
+
+
+}
 
 PndTrkTrack::~PndTrkTrack() {
   delete fRefHit;
@@ -208,7 +249,7 @@ TVector3 PndTrkTrack::ComputeMomentumAtPosition(TVector3 position, TVector3 &new
 
   momentum.SetX(rotx); // CHECK magnitude?
   momentum.SetY(roty); // CHECK magnitude?
-  momentum.SetZ(0.);
+  momentum.SetZ(0.); // CHECK
   momentum.SetMag(pt);
   momentum.SetZ(pl);
   return momentum;
@@ -238,15 +279,17 @@ Double_t PndTrkTrack::ComputePhi(TVector3 hit)
 
 // =======================================================================================
 void PndTrkTrack::Draw(Color_t color) {
-  PndTrkHit *hit0 = fCluster.GetHit(0);
-  double phi0 = ComputePhi(hit0->GetPosition());
-  if(phi0 > 180) phi0 -= 360;
-
-  PndTrkHit *hitN = fCluster.GetHit(fCluster.GetNofHits() - 1);
-  double phiN = ComputePhi(hitN->GetPosition());
-  if(phiN > 180) phiN -= 360;
-
-  TArc *track = new TArc(fCenterX, fCenterY, fRadius, phi0, phiN);
+  if(fCluster.GetNofHits() > 0)    {
+    PndTrkHit *hit0 = fCluster.GetHit(0);
+    fPhiMin = ComputePhi(hit0->GetPosition());
+    if(fPhiMin > 180) fPhiMin -= 360;
+    
+    PndTrkHit *hitN = fCluster.GetHit(fCluster.GetNofHits() - 1);
+    fPhiMax = ComputePhi(hitN->GetPosition());
+    if(fPhiMax > 180) fPhiMax -= 360;
+  }
+  
+  TArc *track = new TArc(fCenterX, fCenterY, fRadius, fPhiMin, fPhiMax);
 
   // cout << fCenterX << " " << fCenterY << " " << fRadius << " " << phi0 << " " << phiN << endl;
   track->SetFillStyle(0);

@@ -359,6 +359,14 @@ void PndTrkShortTrackFinder::Exec(Option_t* opt)  {
 
 
     Refresh();
+
+    for(int itrk = 0; itrk < fLongTrackArray->GetEntriesFast(); itrk++) {
+      PndTrack *trk = (PndTrack*) fLongTrackArray->At(itrk);
+      PndTrkTrack track(trk);
+      track.Draw();
+    }
+
+
     char goOnChar;
     display->Update();
     display->Modified();

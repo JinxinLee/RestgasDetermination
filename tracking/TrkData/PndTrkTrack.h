@@ -24,7 +24,7 @@ class PndTrkTrack : public TObject
   PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius);
   PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius);
   PndTrkTrack(double x, double y, double radius);
-
+  PndTrkTrack(PndTrack *trk);
   ~PndTrkTrack();    
 
 
@@ -61,7 +61,8 @@ class PndTrkTrack : public TObject
   int fCharge; //!
   PndTrkCluster fCluster; //!
   PndTrkHit *fRefHit; //!
-
+  double fPhiMin; //!
+  double fPhiMax; //!
   // parameters:
   // pT = p cos(lam)
   // pL = p sin(lam)
