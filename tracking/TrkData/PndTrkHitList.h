@@ -38,7 +38,8 @@ class PndTrkHitList : public TObject
 
   PndTrkHit *GetHit(int index);
   std::vector<PndTrkHit> GetHitList();
-  
+  PndTrkHit *GetHitByID(int id);
+
   inline Int_t  GetNofHits() { return hitlist.size(); }
   
   void Print();

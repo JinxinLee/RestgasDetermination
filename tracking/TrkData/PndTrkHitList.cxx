@@ -72,6 +72,15 @@ PndTrkHit *PndTrkHitList::GetHit(int index) {
 
 }
 
+PndTrkHit *PndTrkHitList::GetHitByID(int id) {
+  std::vector< PndTrkHit >::iterator itr = hitlist.begin();
+  while(itr != hitlist.end()) {
+    if(id == (*itr).GetHitID()) return &(*itr);
+  }
+  return NULL;
+
+}
+
 void PndTrkHitList::Print() {
 
   cout << "###############################" << endl;

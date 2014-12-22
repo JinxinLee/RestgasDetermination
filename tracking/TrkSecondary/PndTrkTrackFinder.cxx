@@ -1947,7 +1947,20 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     
     // check if it is a long track
     hit = clusteri.GetHit(0);
-       
+    cout << "FIRST LAY " << hit->GetDetectorID() << endl;
+    if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      PndSttTube *tube0 = (PndSttTube* ) fTubeArray->At(hit->GetTubeID());
+      cout << tube0->GetLayerID() << endl;
+      if(tube0->GetLayerID() > 4) continue; // CHECK
+    }
+    hit = clusteri.GetHit(clusteri.GetNofHits() - 1);
+    cout << "LAST LAY " << hit->GetDetectorID() << endl;
+    if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      PndSttTube *tubeN = (PndSttTube* ) fTubeArray->At(hit->GetTubeID());
+      cout << tubeN->GetLayerID() << endl;
+      if(tubeN->GetLayerID() < 16) continue; // CHECK
+    }
+
     for(int ihit = 0; ihit < clusteri.GetNofHits(); ihit++) {
       hit = clusteri.GetHit(ihit);
       int detID = hit->GetDetectorID();
@@ -1990,7 +2003,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
 
   fTrackList =  cleanedtracklist; //  CHECK
-  // fDisplayOn = kTRUE;
+ //  fDisplayOn = kTRUE;
 
   if(fDisplayOn) {
     char goOnChar;
