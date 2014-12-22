@@ -31,6 +31,7 @@
 #include "TROOT.h"
 #include "TGeoVolume.h"
 #include "TGeoMatrix.h"
+#include "TGeoManager.h"
 #include "TVector3.h"
 #include "TSystem.h"
 #include "TString.h"
@@ -196,7 +197,12 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 			}
 			id = pt->GetMotherID();
 			//pt=(PndMCTrack*)mcTrackArray->At(id);
-
+                        // Stop when it finds the first MCTrack not produced in emc
+                        TString node =  gGeoManager->FindNode(pt->GetStartVertex().X(),pt->GetStartVertex().Y(),pt->GetStartVertex().Z())->GetName();
+                        if ( !(node.BeginsWith("emc") || node.BeginsWith("CrystalVol") || node.BeginsWith("Fsc") ) ) { 
+                                tmplist2.push_back(id);
+                                break;
+                        }
 			for(Int_t k=j-1; k>=0; k--){
 				if(tmplist[k]==id){
 					tmplist.erase(tmplist.begin()+j);
