@@ -2353,14 +2353,13 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 //	First cleanup based on the absence of Mvd hits
-fYesCleanMvd=true;
+fYesCleanMvd=false;
 	if(fYesCleanMvd ){
 
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
 
 
-cout<<"cazzo, prima, cand. n. "<<ncand<<", R "<<fR[ncand]<<", Ox "<<fOx[ncand]<<", Oy "<<endl;
 
 		if(
 		    !Cleaner.MvdCleanup(
