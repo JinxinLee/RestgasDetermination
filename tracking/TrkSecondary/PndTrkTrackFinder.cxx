@@ -317,7 +317,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fHitMap->Clear();
   FillHitMap();
 
-  fDisplayOn = kFALSE;
+//   fDisplayOn = kFALSE;
   // ##########################################################
 
   PndTrkHit *stthit = NULL;
@@ -1836,10 +1836,10 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     //     }
     //--------------------------------------
     // to conformal
-    PndTrkHit *refhit = clusteri.GetHit(clusteri.GetNofHits() - 1);
+    fRefHit = clusteri.GetHit(clusteri.GetNofHits() - 1);
     fConformalHitList->Reset();
     double delta, trasl[2];
-    ComputeTraAndRot(refhit, delta, trasl);
+    ComputeTraAndRot(fRefHit, delta, trasl);
     conform->SetOrigin(trasl[0], trasl[1], delta);
     fConformalHitList->SetConformalTransform(conform);
     // cout << "conformal hits " << fConformalHitList->GetNofHits() << endl;
@@ -2003,7 +2003,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
 
   fTrackList =  cleanedtracklist; //  CHECK
- //  fDisplayOn = kTRUE;
+  //  fDisplayOn = kTRUE;
 
   if(fDisplayOn) {
     char goOnChar;
@@ -2516,7 +2516,7 @@ void PndTrkTrackFinder::DrawNeighboringsToHit(PndTrkHit *hit) {
   TObjArray neighs = fHitMap->GetNeighboringsToHit(hit);
 
 
-  cout << "HIT " << hit->GetHitID() << "(" << hit->GetTubeID() << "/" << tube->GetLayerID() << ")" << " has " << neighs.GetEntriesFast() << " neighborings: ";
+  //  cout << "HIT " << hit->GetHitID() << "(" << hit->GetTubeID() << "/" << tube->GetLayerID() << ")" << " has " << neighs.GetEntriesFast() << " neighborings: ";
   for(int i = 0; i < neighs.GetEntriesFast(); i++) {
     PndTrkHit *hitA = (PndTrkHit*) neighs.At(i);
     hitA->DrawTube(kCyan);
@@ -2556,7 +2556,7 @@ Int_t PndTrkTrackFinder::FillConformalHitList(PndTrkCluster *cluster) {
     PndTrkHit *hit = cluster->GetHit(jhit);
     if(hit == fRefHit) continue;
     PndTrkConformalHit chit;
-    //    cout << "HIT " << hit->GetHitID() << " " << hit->IsSttParallel() << " " << hit->IsSttSkew() << endl;
+    // cout << "HIT " << hit->GetHitID() << " " << hit->IsSttParallel() << " " << hit->IsSttSkew() << endl;
     if(hit->IsSttParallel() == kTRUE) chit = conform->GetConformalSttHit(hit);
     else chit = conform->GetConformalHit(hit); // CHECK
     fConformalHitList->AddHit(&chit);  
@@ -3694,6 +3694,7 @@ void PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, double 
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
     {
       PndTrkHit *hit = cluster->GetHit(ihit);
+      if(hit == fRefHit) continue;
       if(hit->IsSttSkew()) continue;
       if(hit->IsSttParallel()) IntersectionFinder(hit, xc, yc, R);
       PndTrkConformalHit chit = conform->GetConformalHit(hit);

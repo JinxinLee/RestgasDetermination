@@ -62,7 +62,7 @@ class PndTrkShortTrackFinder : public FairTask {
   void Initialize();
   void Reset();
 
-  inline void SwitchOnDisplay() { fDisplayOn = kTRUE; }
+  inline void SwitchOnDisplay() { fDisplayOn2 = kTRUE; }
   void DrawGeometry();
   void DrawHits(PndTrkHitList *hitlist);
   void DrawLists();
@@ -152,7 +152,7 @@ class PndTrkShortTrackFinder : public FairTask {
   double fUmin, fUmax, fVmin, fVmax, fRmin, fRmax, fThetamin, fThetamax;
 
   // display
-  Bool_t fDisplayOn;
+  Bool_t fDisplayOn2;
   TH2F *hxy, *hxz, *hzphi;
   TCanvas *display;
   TH2F *huv;

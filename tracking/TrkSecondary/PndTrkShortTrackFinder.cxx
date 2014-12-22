@@ -54,7 +54,7 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkShortTrackFinder::PndTrkShortTrackFinder() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL) {
+PndTrkShortTrackFinder::PndTrkShortTrackFinder() : FairTask("secondary track finder", 0), fDisplayOn2(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -63,7 +63,7 @@ PndTrkShortTrackFinder::PndTrkShortTrackFinder() : FairTask("secondary track fin
   PndGeoHandling::Instance();
 }
 
-PndTrkShortTrackFinder::PndTrkShortTrackFinder(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL) {
+PndTrkShortTrackFinder::PndTrkShortTrackFinder(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn2(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -192,7 +192,7 @@ InitStatus PndTrkShortTrackFinder::Init() {
   fTubeArray = fMapper->FillTubeArray();
   // ----------------------------------------------------  end map
  
-  if(fDisplayOn) {
+  if(fDisplayOn2) {
     display = new TCanvas("display", "display", 0, 0, 800, 800); // CHECK
     display->Divide(2, 2);
   }
@@ -294,7 +294,7 @@ void PndTrkShortTrackFinder::Exec(Option_t* opt)  {
     cout << "number of gem    hits " << fGemHitArray->GetEntriesFast() << endl;
   }
   // initialize display -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-
-  if(fDisplayOn)  {
+  if(fDisplayOn2)  {
     Refresh();
     char goOnChar;
     display->Update();
@@ -355,7 +355,7 @@ void PndTrkShortTrackFinder::Exec(Option_t* opt)  {
   }
 
 
-  if(fDisplayOn)  {
+  if(fDisplayOn2)  {
 
 
     Refresh();
@@ -378,7 +378,7 @@ void PndTrkShortTrackFinder::Exec(Option_t* opt)  {
 void PndTrkShortTrackFinder::Reset()
 {
   
-  if(fDisplayOn) {
+  if(fDisplayOn2) {
     char goOnChar;
     display->Update();
     display->Modified();
@@ -503,14 +503,14 @@ void PndTrkShortTrackFinder::FillHitMap() {
     }
    
     //    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
-//     if(fDisplayOn) { 
+//     if(fDisplayOn2) { 
 //       Refresh();
 //     }
   
 
     fHitMap->AddNeighboringsToHit(hit, neighborings);
 
-//     if(fDisplayOn) {
+//     if(fDisplayOn2) {
 //       char goOnChar;
 //       display->Update();
 //       display->Modified();
@@ -521,7 +521,7 @@ void PndTrkShortTrackFinder::FillHitMap() {
   //  neighborings = NULL;
   //   delete neighborings;
 
-  if(fDisplayOn) {
+  if(fDisplayOn2) {
     if(1 == 1)  DrawLists();
     if(1 == 2)  DrawNeighborings();
     // ================================================
