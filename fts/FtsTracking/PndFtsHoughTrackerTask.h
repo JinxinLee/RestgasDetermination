@@ -49,7 +49,7 @@ class FairField;
 class PndFtsHoughTrackerTask : public FairTask
 {
 public:
-	enum DebugLevelMultiplicators { kHoughSpaces=2, kAllFoundPeaksTogether=3, kEachFoundPeakSeparately=5, kMcTruthPeaksExclusively=7, kMcTruthPeaksProjected=11, kHitCurves=13 };
+	enum DebugLevelMultiplicators { kHoughSpaces=2, kAllFoundPeaksTogether=3, kEachFoundPeakSeparately=5, kMcTruthPeaksExclusively=7, kMcTruthPeaksProjected=11, kHitCurvesExclusively=13, kHitCurvesProjected=17 };
 
 
 	/** @brief Constructor with flags. Can also be used as standard constructor.

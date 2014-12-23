@@ -265,9 +265,9 @@ void PndFtsHoughTrackFinder::FindTracks() {
 
 
 
-	// zx plane: Straight line Hough transform behind dipole
-	if(0<fTrackerTask->GetVerbose()) std::cout << "Lines behind dipole:\n";
-	std::vector<PndFtsHoughTracklet> linesBehindDipole = FindLinesBehindDipoleZx();
+//	// zx plane: Straight line Hough transform behind dipole
+//	if(0<fTrackerTask->GetVerbose()) std::cout << "Lines behind dipole:\n";
+//	std::vector<PndFtsHoughTracklet> linesBehindDipole = FindLinesBehindDipoleZx();
 
 
 	// zx plane: Straight line Hough transform before dipole
@@ -275,13 +275,13 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	std::vector<PndFtsHoughTracklet> linesBeforeDipole = FindLinesBeforeDipoleZx();
 
 
-	// loop over all line tracklets which were found by line HT before dipole field and find a matching parabola
-	if(0<fTrackerTask->GetVerbose()) std::cout << "Matching parabolas to lines before dipole:\n";
-	FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(linesBeforeDipole, linesBehindDipole);
-
-	// loop over line+parabola+line (LPL) from zx plane and do straight line Hough transform in zy plane
-	if (0 < fTrackerTask->GetVerbose()) std::cout << "Lines in zy plane:\n";
-	FindZyLineMatchingToLineParabolaLineInZx();
+//	// loop over all line tracklets which were found by line HT before dipole field and find a matching parabola
+//	if(0<fTrackerTask->GetVerbose()) std::cout << "Matching parabolas to lines before dipole:\n";
+//	FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(linesBeforeDipole, linesBehindDipole);
+//
+//	// loop over line+parabola+line (LPL) from zx plane and do straight line Hough transform in zy plane
+//	if (0 < fTrackerTask->GetVerbose()) std::cout << "Lines in zy plane:\n";
+//	FindZyLineMatchingToLineParabolaLineInZx();
 
 
 

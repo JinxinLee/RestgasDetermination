@@ -118,20 +118,20 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																										fTrackerTask(trackerTask),
-																										fRefIndex(refIndex),
+																																				fTrackerTask(trackerTask),
+																																				fRefIndex(refIndex),
 
-																										fZRefPos(zRefPos),
-																										fInterceptZx(interceptZx),
+																																				fZRefPos(zRefPos),
+																																				fInterceptZx(interceptZx),
 
-																										TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+																																				TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-																										// set from tracker task
-																										fFtsBranchId(0),
-																										fVerbose(0),
-																										fField(0),
+																																				// set from tracker task
+																																				fFtsBranchId(0),
+																																				fVerbose(0),
+																																				fField(0),
 
-																										fAssociatedTrackCand(associatedTrackCand)
+																																				fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -546,7 +546,7 @@ TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions(TString specifier, Int_t i
 	static Int_t histoCounter = 0;
 	TString newname = GetName();
 	newname += histoCounter;
-//	std::cout<<newname << '\n';
+	//	std::cout<<newname << '\n';
 	++histoCounter;
 
 	TString newTitle = GetName();
@@ -565,7 +565,10 @@ TH2S PndFtsHoughSpace::MakeEmptyHistoOfSameDimensions(TString specifier, Int_t i
 }
 
 void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpacePeak >& peaksToPlot) const {
-	if ( (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaksTogether) && (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeakSeparately) ) return;
+	// test if we need to do anything here
+	Bool_t saveEachSeparately = !(fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeakSeparately);
+	Bool_t saveAllTogether = !(fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaksTogether);
+	if ( (kTRUE == saveEachSeparately) && (kTRUE == saveAllTogether) )return;
 
 	// write out histograms containing found peaks
 	// filling all peaks in separate histos and all together in one histo
@@ -579,27 +582,49 @@ void PndFtsHoughSpace::WriteHistoOfAllPeaks(const std::vector< PndFtsHoughSpaceP
 			allPeaks.SetBinContent(*itBin, currHeight);
 		}
 		TString outNameOne = GetDebugOutName(onePeak.GetTitle(), currHeight);
-		if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kEachFoundPeakSeparately) onePeak.SaveAs(outNameOne, "LEGO2");
+		if ( kTRUE == saveEachSeparately ) onePeak.SaveAs(outNameOne, "LEGO2");
 	}
 	TString outNameAll = GetDebugOutName(allPeaks.GetTitle());
-	if (0 == fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kAllFoundPeaksTogether) allPeaks.SaveAs(outNameAll, "LEGO2");
+	if ( kTRUE == saveAllTogether ) allPeaks.SaveAs(outNameAll, "LEGO2");
 }
 
 void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
-	if (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kHitCurves) return;
+	// test if we need to do anything here
+	Bool_t saveExclusively = !(fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kHitCurvesExclusively);
+	Bool_t saveProjected = !(fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kHitCurvesProjected);
+	if ( (kTRUE == saveExclusively) && (kTRUE == saveProjected) )return;
 
 	// filling each path in separate histo
 	for (HitIdxPathMap::const_iterator itPath = fHitThetaYIdxPath.begin(); itPath != fHitThetaYIdxPath.end(); ++itPath) {
 		const Int_t currHit = itPath->first;
-		TH2S onePath = MakeEmptyHistoOfSameDimensions("Path", currHit);
+		TH2S onePathProjected = MakeEmptyHistoOfSameDimensions("PathProjected", currHit);
+		TH2S onePathExclusively = MakeEmptyHistoOfSameDimensions("PathExclusively", currHit);
 		const IdxPath& currPath = itPath->second;
+
+		Int_t lastBinNumber = -1;
 		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
-			Int_t currBinNumber = currPath[iGlobalBin];
-			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
-			onePath.SetBinContent(currBinNumber, currHeight);
+			const Int_t currBinNumber = currPath[iGlobalBin];
+			// warn if we accidently saved the same bin twice in the path
+			if ( currBinNumber == lastBinNumber ) std::cerr << "FATAL! Bin " << currBinNumber << " twice in a row! in hit " << currHit << '\n';
+			lastBinNumber = currBinNumber;
+
+			if ( kTRUE == saveProjected){
+				const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
+				onePathProjected.SetBinContent(currBinNumber, currHeight);
+			}
+
+			if ( kTRUE == saveExclusively){
+				Int_t currBinX = 0, currBinY = 0, notUsedBinZ = 0;
+				GetBinXYZ(currBinNumber, currBinX, currBinY, notUsedBinZ); // Find currBinX and currBinY from globalBin
+				const Double_t currXVal = GetXaxis()->GetBinCenter(currBinX);
+				const Double_t currYVal = GetYaxis()->GetBinCenter(currBinY);
+				onePathExclusively.Fill(currXVal,currYVal); // exclusive fill
+			}
 		}
-		TString outNameOne = GetDebugOutName(onePath.GetTitle());
-		onePath.SaveAs(outNameOne, "LEGO2");
+		TString outNameProj = GetDebugOutName(onePathProjected.GetTitle());
+		if ( kTRUE == saveProjected ) onePathProjected.SaveAs(outNameProj, "LEGO2");
+		TString outNameExcl = GetDebugOutName(onePathExclusively.GetTitle());
+		if ( kTRUE == saveExclusively ) onePathExclusively.SaveAs(outNameExcl, "LEGO2");
 	}
 }
 
@@ -608,8 +633,10 @@ void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
 
 
 void PndFtsHoughSpace::WriteHistoOfAllPathsForEachMcTruthTrack() const {
-	if ( (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaksExclusively) && (0 != fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaksProjected) ) return;
-
+	// test if we need to do anything here
+	Bool_t saveExclusively = !(fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaksExclusively);
+	Bool_t saveProjected = !(fTrackerTask->GetSaveDebugInfo() % PndFtsHoughTrackerTask::kMcTruthPeaksProjected);
+	if ( (kTRUE == saveExclusively) && (kTRUE == saveProjected) )return;
 
 
 	// create map collecting histos of all hit indices from same Mc truth track
@@ -638,23 +665,29 @@ void PndFtsHoughSpace::WriteHistoOfAllPathsForEachMcTruthTrack() const {
 		const IdxPath& currPath = itPath->second;
 		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
 			Int_t currBinNumber = currPath[iGlobalBin];
-			const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
 			std::pair<TH2S, TH2S >& histoPair = itFind->second;
-			histoPair.first.SetBinContent(currBinNumber, currHeight); // projection
-			Int_t currBinX = 0, currBinY = 0, notUsedBinZ = 0;
-			GetBinXYZ(currBinNumber, currBinX, currBinY, notUsedBinZ); // Find currBinX and currBinY from globalBin
-			const Double_t currXVal = GetXaxis()->GetBinCenter(currBinX);
-			const Double_t currYVal = GetYaxis()->GetBinCenter(currBinY);
-			histoPair.second.Fill(currXVal,currYVal); // exclusive fill
+
+			if ( kTRUE == saveProjected ){
+				const Double_t currHeight = GetBinContent(currBinNumber); // get height of Hough space
+				histoPair.first.SetBinContent(currBinNumber, currHeight); // projection
+			}
+
+			if ( kTRUE == saveExclusively ){
+				Int_t currBinX = 0, currBinY = 0, notUsedBinZ = 0;
+				GetBinXYZ(currBinNumber, currBinX, currBinY, notUsedBinZ); // Find currBinX and currBinY from globalBin
+				const Double_t currXVal = GetXaxis()->GetBinCenter(currBinX);
+				const Double_t currYVal = GetYaxis()->GetBinCenter(currBinY);
+				histoPair.second.Fill(currXVal,currYVal); // exclusive fill
+			}
 		}
 	}
 	// loop over all histos that have been created
 	for ( std::map<Int_t, std::pair<TH2S, TH2S > >::const_iterator itHisto = mcTruthIdHistos.begin(); itHisto != mcTruthIdHistos.end(); ++itHisto) {
 		const std::pair<TH2S, TH2S >& histoPair = itHisto->second;
 		TString outNameProjection = GetDebugOutName(histoPair.first.GetTitle());
-		TString outNameOneMcTruthTrack = GetDebugOutName(histoPair.second.GetTitle());
-		histoPair.first.SaveAs(outNameProjection, "LEGO2");
-		histoPair.second.SaveAs(outNameOneMcTruthTrack, "LEGO2");
+		TString outNameExclusive = GetDebugOutName(histoPair.second.GetTitle());
+		if ( kTRUE == saveProjected ) histoPair.first.SaveAs(outNameProjection, "LEGO2");
+		if ( kTRUE == saveExclusively ) histoPair.second.SaveAs(outNameExclusive, "LEGO2");
 	}
 }
 
