@@ -77,6 +77,7 @@ using std::endl;
 PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence, Bool_t saveDebugInfo)
 : FairTask("PndFtsHoughTrackerTask", verbose),
   fSaveDebugInfo(saveDebugInfo),
+  fOnlyFindMcTruthLinesBeforeDipole(kFALSE),
   fPersistence(persistence),
   fEventNr(0),
   //  fOutFile(0),

@@ -85,6 +85,7 @@ public:
 	void SetVerbose(Int_t verbose){ fVerbose = verbose;};
 	void SetPersistence(Bool_t val){ fPersistence = val;};
 	void SetSaveDebugInfo(Int_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
+	void SetOnlyFindMcTruthLinesBeforeDipole(Bool_t val){ fOnlyFindMcTruthLinesBeforeDipole = val;};
 	//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
 	//----------
@@ -93,6 +94,7 @@ public:
 	const Int_t GetVerbose() const { return fVerbose; }; ///< @brief Returns the verbosity level.
 	const Int_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
 	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
+	const Bool_t GetOnlyFindMcTruthLinesBeforeDipole() const { return fOnlyFindMcTruthLinesBeforeDipole; }; // for debugging only
 
 	//-----------
 	//DATA ACCESS TO FTS
@@ -217,6 +219,7 @@ private:
 	//-------
 	// Debug
 	//-------
+	Bool_t fOnlyFindMcTruthLinesBeforeDipole; ///< @brief Only use for debugging / parameter optimization: Track finder only finds Mc Truth peaks for line before dipole iif kTRUE
 	Int_t fSaveDebugInfo; ///< @brief Debug information will be created if >0.
 	UInt_t fEventNr; ///< @brief Event number for debugging purposes.
 	/** @brief For error reporting */
