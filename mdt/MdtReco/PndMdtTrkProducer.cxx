@@ -66,11 +66,14 @@ InitStatus PndMdtTrkProducer::Init() {
     return kERROR;
   }
  
-  fLheGenTrack = (TClonesArray*) ioman->GetObject("LheGenTrack");
-  if ( ! fLheGenTrack ){
-    cout << "-W- PndMdtTrkProducer::Init: "
+  if (fRec_method==1)
+    {
+      fLheGenTrack = (TClonesArray*) ioman->GetObject("LheGenTrack");
+      if ( ! fLheGenTrack ){
+      cout << "-W- PndMdtTrkProducer::Init: "
          << "No LheGenTrack array!" << endl;
     //return kERROR;
+    }
   }
  
   // Create and register output array
