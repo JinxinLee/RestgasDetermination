@@ -96,11 +96,6 @@ void PndAnalysis::Init()
 
   if ( !fTracks ) {
     std::cout << "-I- PndAnalysis::Init(): Trying SttMvdGenTrack now." << std::endl;
-    fTracks = ReadTCA ( "LheGenTrack" );
-  }
-
-  if ( !fTracks ) {
-    std::cout << "-I- PndAnalysis::Init(): Trying SttMvdGenTrack now." << std::endl;
     fTracks = ReadTCA ( "SttMvdGenTrack" );
   }
 
