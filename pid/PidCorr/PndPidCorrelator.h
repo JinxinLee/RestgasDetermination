@@ -121,8 +121,9 @@ protected:
   Bool_t fFast;                     // 0: normal; 1: no correlation/extrapolation/neutral
   Bool_t fFlagCut;                  // kFALSE -> all the tracks; (kTRUE) -> store tracks only if flag>0
   Bool_t fBackPropagate;            // kFALSE -> do not propagate to IP; (kTRUE) -> propagate to IP
-  PndGeoHandling* fGeoH;             // Object to retrieve MVD geometry
-  PndRecoKalmanFit *fFitter;         // Refitter for MDT tracks
+  PndGeoHandling* fGeoH;             //! Object to retrieve MVD geometry
+  PndRecoKalmanFit *fFitter;         //! Refitter for MDT tracks
+  FairGeanePro* fGeanePropagator;    //! Geane propagator
   TFile *r;                          // File for debug ntuples
   TNtuple *tofCorr;                  // Debug ntuple for tof correlation
   TNtuple *ftofCorr;                 // Debug ntuple for ftof correlation

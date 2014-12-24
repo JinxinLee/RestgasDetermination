@@ -14,9 +14,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
   FairTrackParH *helix = new FairTrackParH(&par, ierr);
  
   map<Int_t, Int_t>mapMdtTrk;
-  FairGeanePro *fProMdt = new FairGeanePro();
-  if (!fCorrErrorProp) fProMdt->PropagateOnlyParameters();
-
+  
   if (fMdtMode == 3)
     { 
       for (Int_t tt = 0; tt<fMdtTrk->GetEntriesFast(); tt++)
@@ -46,18 +44,17 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
       mdtHit->Position(mdtPos);
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{ 
-     
-	  fProMdt->SetPoint(mdtPos);
-	  fProMdt->PropagateToPCA(1, 1);
+     	  fGeanePropagator->SetPoint(mdtPos);
+	  fGeanePropagator->PropagateToPCA(1, 1);
 	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  vertexD.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProMdt->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 
+	  Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 
 	  if (!rc) continue;
 	  mdtTempMom = fRes->GetMomentum().Mag(); 
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	  vertexD.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
-	  mdtGLength = fProMdt->GetLengthAtPCA();
+	  mdtGLength = fGeanePropagator->GetLengthAtPCA();
 	}
     
       Float_t dist;

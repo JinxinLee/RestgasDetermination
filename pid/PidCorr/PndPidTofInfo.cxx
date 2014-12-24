@@ -12,10 +12,6 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return kFALSE; 
       if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return kFALSE;
     }
-  FairGeanePro *fProTof = new FairGeanePro();
-  if (!fCorrErrorProp) fProTof->PropagateOnlyParameters(); 
-  FairGeanePro *fProVertex = new FairGeanePro();
-  if (!fCorrErrorProp) fProVertex->PropagateOnlyParameters();
   //---
   PndSciTHit *tofHit = NULL; 
   Int_t tofEntries = fTofHit->GetEntriesFast();
@@ -35,20 +31,19 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{ 
-     
-	  fProTof->SetPoint(tofPos);
-	  fProTof->PropagateToPCA(1, 1);
+     	  fGeanePropagator->SetPoint(tofPos);
+	  fGeanePropagator->PropagateToPCA(1, 1);
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProTof->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
+	  Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
 	  if (!rc) continue;
       
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
      
-	  fProVertex->SetPoint(TVector3(0,0,0));
-	  fProVertex->PropagateToPCA(1, -1);
+	  fGeanePropagator->SetPoint(TVector3(0,0,0));
+	  fGeanePropagator->PropagateToPCA(1, -1);
 	  FairTrackParH *fRes2= new FairTrackParH();
-	  Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, fPidHyp*pidCand->GetCharge());
-	  if (rc2) tofLengthTemp = fProVertex->GetLengthAtPCA();
+	  Bool_t rc2 =  fGeanePropagator->Propagate(fRes, fRes2, fPidHyp*pidCand->GetCharge());
+	  if (rc2) tofLengthTemp = fGeanePropagator->GetLengthAtPCA();
 	}
     
       Float_t dist = (tofPos-vertex).Mag2();

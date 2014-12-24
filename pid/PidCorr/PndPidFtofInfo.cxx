@@ -38,11 +38,6 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
       std::cout << "-W- PndPidCorrelator::GetFtofInfo: Skipping tracks going backward" << std::endl;
       return kFALSE;
     }
- 
-  FairGeanePro *fProTof = new FairGeanePro();
-  if (!fCorrErrorProp) fProTof->PropagateOnlyParameters(); 
-  FairGeanePro *fProVertex = new FairGeanePro();
-  fProVertex->PropagateOnlyParameters();
 
   PndFtofHit *tofHit = NULL;
   Int_t tofEntries = fFtofHit->GetEntriesFast();
@@ -60,13 +55,13 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
   if (fGeanePro) // Overwrites vertex if Geane is used
     {
       // calculates track length from (0,0,0) to last point
-      fProVertex->SetPoint(TVector3(0,0,0));
-      fProVertex->PropagateToPCA(1, -1);
+      fGeanePropagator->SetPoint(TVector3(0,0,0));
+      fGeanePropagator->PropagateToPCA(1, -1);
       FairTrackParH *fRes= new FairTrackParH();
-      Bool_t rc =  fProVertex->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
+      Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
       if (rc) 
 	{
-	  tofTrackLength = fProVertex->GetLengthAtPCA(); 
+	  tofTrackLength = fGeanePropagator->GetLengthAtPCA(); 
 	  vertexrec.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ()); 
 	  momrec.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
 	}
@@ -86,12 +81,12 @@ Bool_t PndPidCorrelator::GetFtofInfo(FairTrackParH* helix, PndPidCandidate* pidC
       
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{ 
-	  fProTof->SetPoint(tofPos);
-	  fProTof->PropagateToPCA(1, 1);
+	  fGeanePropagator->SetPoint(tofPos);
+	  fGeanePropagator->PropagateToPCA(1, 1);
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProTof->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
+	  Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());	
 	  if (!rc) continue;
-	  tofGLength = fProTof->GetLengthAtPCA(); 
+	  tofGLength = fGeanePropagator->GetLengthAtPCA(); 
       	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	}
       

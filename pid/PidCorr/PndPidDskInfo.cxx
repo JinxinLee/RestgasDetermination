@@ -5,9 +5,6 @@
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
   if (helix->GetZ()<165.) return kFALSE; // consider tracks only from last gem plane
-  
-  FairGeanePro *fProDsk = new FairGeanePro(); 
-  if (!fCorrErrorProp) fProDsk->PropagateOnlyParameters();
   //---
   PndDskParticle *dskParticle = NULL;
   Int_t dskEntries = fDskParticle->GetEntriesFast();
@@ -22,13 +19,13 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
   if (fGeanePro) // Overwrites vertex if Geane is used
     {     
-      fProDsk->PropagateToVolume("Plate",0,1);
+      fGeanePropagator->PropagateToVolume("Plate",0,1);
       vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
       FairTrackParH *fRes= new FairTrackParH();
-      Bool_t rc =  fProDsk->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
+      Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge());
       if (!rc) return kFALSE;
       vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-      dskGLength = fProDsk->GetLengthAtPCA();
+      dskGLength = fGeanePropagator->GetLengthAtPCA();
       x_p = fRes->GetMomentum().Mag();
     }
   

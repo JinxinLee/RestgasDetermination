@@ -88,7 +88,8 @@ PndPidCorrelator::PndPidCorrelator() :
   fClusterQ(),
   mapMdtBarrel(),
   mapMdtEndcap(),
-  mapMdtForward()
+  mapMdtForward(),
+  fGeanePropagator(NULL)
 {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -151,7 +152,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   fClusterQ(),
   mapMdtBarrel(),
   mapMdtEndcap(),
-  mapMdtForward()
+  mapMdtForward(),
+  fGeanePropagator(NULL)
 {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -506,10 +508,13 @@ InitStatus PndPidCorrelator::Init() {
   
   if (fGeanePro)
     { 
-      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
+      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl; 
+      fGeanePropagator = new FairGeanePro(); 
+      
       if (!fCorrErrorProp)
 	{
 	  cout << "-I- PndPidCorrelator::Init: Switching OFF Geane error propagation" << endl;
+	  fGeanePropagator->PropagateOnlyParameters();
 	}
       if (fIdealHyp)
 	{
@@ -877,8 +882,6 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       TMatrixD covP4=fEmcErrorMatrix->Get4MomentumErrorMatrix(*clu);
       TMatrixD covP7=fEmcErrorMatrix->GetErrorP7(*clu);
  
-      FairGeanePro *fProEmc = new FairGeanePro(); 
-      if (!fCorrErrorProp) fProEmc->PropagateOnlyParameters();
       Float_t emcQuality = 1000000;
       TVector3 vertex(0., 0., 0.); 
       
@@ -922,11 +925,11 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 
 	  if (fGeanePro)
 	    { // Overwrites vertex if Geane is used
-	      fProEmc->SetPoint(v1);
-	      fProEmc->PropagateToPCA(1, 1);
+	      fGeanePropagator->SetPoint(v1);
+	      fGeanePropagator->PropagateToPCA(1, 1);
 	      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	      FairTrackParH *fRes= new FairTrackParH();
-	      Bool_t rc =  fProEmc->Propagate(helix, fRes, fPidHyp*par.GetQ()); // First propagation at module
+	      Bool_t rc =   fGeanePropagator->Propagate(helix, fRes, fPidHyp*par.GetQ()); // First propagation at module
 	      if (!rc) continue;
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	    }

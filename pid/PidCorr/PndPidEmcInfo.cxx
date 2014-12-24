@@ -14,8 +14,6 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 	      <<std::endl;
     return kFALSE;
   }
-  FairGeanePro *fProEmc = new FairGeanePro(); 
-  if (!fCorrErrorProp) fProEmc->PropagateOnlyParameters();
   //---
   Float_t trackTheta = helix->GetMomentum().Theta()*TMath::RadToDeg();
   
@@ -51,14 +49,14 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       emcPos = emcHit->where();
       if (fGeanePro)
 	{ // Overwrites vertex if Geane is used
-	  fProEmc->SetPoint(emcPos);
-	  fProEmc->PropagateToPCA(1, 1);
+	  fGeanePropagator->SetPoint(emcPos);
+	  fGeanePropagator->PropagateToPCA(1, 1);
 	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProEmc->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); // First propagation at module
+	  Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); // First propagation at module
 	  if (!rc) continue;
 	  
-	  emcGLength = fProEmc->GetLengthAtPCA();
+	  emcGLength = fGeanePropagator->GetLengthAtPCA();
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	  //std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	  //PndEmcDigi *lDigi= (PndEmcDigi*)emcHit->Maxima();

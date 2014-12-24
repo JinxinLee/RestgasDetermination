@@ -34,7 +34,6 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
   if (fGeanePro && fBackPropagate) // Overwrites vertex if Geane is used and if backpropagation
     {
     FairTrackParH *helix = new FairTrackParH(&par, ierr);
-    FairGeanePro *fPro0 = new FairGeanePro();
     fRes= new FairTrackParH();
 
     // track back to Origin
@@ -42,12 +41,12 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     //fPro0->SetPoint(TVector3(0,0,0));
     //fPro0->PropagateToPCA(1, -1);
     // Propagatetrack back to z Axis
-    fPro0->PropagateToPCA(2, -1);// track back to z axis
+    fGeanePropagator->PropagateToPCA(2, -1);// track back to z axis
     TVector3 ex1(0.,0.,-50.); // virtual wire, dimensions chosen arbitrarily
     TVector3 ex2(0.,0.,100.); // we expect fast decaying tracks to be close to that
-    fPro0->SetWire(ex1,ex2);
+    fGeanePropagator->SetWire(ex1,ex2);
 
-    Bool_t rc =  fPro0->Propagate(helix, fRes, fPidHyp*charge);
+    Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*charge);
     if (!rc)
     {
       std::cout << "-W- PndPidCorrelator::GetTrackInfo :: Failed backward propagation" << std::endl;
