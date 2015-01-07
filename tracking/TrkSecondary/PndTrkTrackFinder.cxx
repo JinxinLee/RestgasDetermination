@@ -2000,11 +2000,63 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   }
   delete mergedtracklist;
 
+  // at last, add the INDIVISIBLES
+  PndTrkTrackList *indivtracklist = new PndTrkTrackList();
+  for(int itrk = 0; itrk < cleanedtracklist->GetNofTracks(); itrk++) {
+    PndTrkTrack *tracki = cleanedtracklist->GetTrack(itrk);
+    PndTrkCluster clusteri = tracki->GetCluster();
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(1);
+      Refresh();
+      clusteri.Draw(kRed);
+      display->Update();
+      display->Modified();
+      cin >> goOnChar ;
+    }
+    for(int ihit = 0; ihit < clusteri.GetNofHits(); ihit++) {
+      hit = clusteri.GetHit(ihit);
+      if(hit->GetDetectorID() != FairRootManager::Instance()->GetBranchId(fSttBranch)) continue;
+      TObjArray indiv2 = fHitMap->GetIndivisiblesToHit(hit);
+
+      if(fDisplayOn) {
+	  hit->Draw(kBlue);
+	  display->Update();
+	  display->Modified();
+	}	
+	for(int jhit = 0; jhit < indiv2.GetEntriesFast(); jhit++) {
+	  PndTrkHit *hit2 = (PndTrkHit*) indiv2.At(jhit);
+	  hit2->Draw(kGreen);
+	  hit2->SetSortVariable(hit2->GetPosition().Perp());
+	  if(!clusteri.DoesContain(hit2)) {
+	    clusteri.AddHit(hit2);
+	  }
+	}
+	if(fDisplayOn) {
+	  char goOnChar;
+	  cin >> goOnChar ;
+	}
+    }
+    clusteri.Sort();
+    tracki->SetCluster(&clusteri);
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(1);
+      Refresh();
+      clusteri.Draw(kMagenta);
+      display->Update();
+      display->Modified();
+      cin >> goOnChar ;
+    }
+    indivtracklist->AddTrack(tracki);
+  }
+  delete cleanedtracklist;
 
 
-  fTrackList =  cleanedtracklist; //  CHECK
-  //  fDisplayOn = kTRUE;
 
+  fTrackList = indivtracklist;
+  
+//   fDisplayOn = kTRUE;
   if(fDisplayOn) {
     char goOnChar;
     display->cd(1);

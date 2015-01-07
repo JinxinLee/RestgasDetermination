@@ -202,8 +202,15 @@ TObjArray PndTrkNeighboringMap::GetIndivisibles() {
 }
    
 TObjArray PndTrkNeighboringMap::GetIndivisiblesToHit(PndTrkHit *hit) {
-  // cout << "indiv hit "  << hit << " " << hit->GetHitID() << endl;
-  return *((TObjArray*) hit2indiv.GetValue(hit));
+  TMapIter *it2 = (TMapIter*) hit2indiv.MakeIterator();
+  while(PndTrkHit *hit2 = (PndTrkHit*) it2->Next()) {
+    if(hit->GetHitID() == hit2->GetHitID() && hit->GetDetectorID() == hit2->GetDetectorID()) {
+      // cout << "indiv hit "  << hit << " " << hit->GetHitID() << endl;
+      if(hit2indiv.GetValue(hit2) == NULL) return TObjArray(0);
+      return *((TObjArray*) hit2indiv.GetValue(hit2));
+    }
+  }
+  return TObjArray(0);
 }
 
 void PndTrkNeighboringMap::PrintIndivisibleMap() {
@@ -211,6 +218,12 @@ void PndTrkNeighboringMap::PrintIndivisibleMap() {
   TObjArray *hits2;
   while(PndTrkHit *hit = (PndTrkHit*) it2->Next()) {
     hits2 = (TObjArray*) hit2indiv.GetValue(hit);
+    //     cout << hit->GetHitID() << " has " << hits2->GetEntriesFast() << " indivisibles: ";
+    for(int ihit = 0; ihit <  hits2->GetEntriesFast(); ihit++) {
+      PndTrkHit *hit2 = (PndTrkHit*) hits2->At(ihit);
+      //       cout << " " << hit2->GetHitID();
+    }
+    //     cout << endl;
   }
 }
 
