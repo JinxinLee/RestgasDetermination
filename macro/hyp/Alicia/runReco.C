@@ -5,10 +5,10 @@
   
 // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;//iVerbose = 3
-  TString inFile = "sim_piTr.root";//sim_pidC.root";
-  Int_t nEvents = 0;//50000;
-  TString parFile="PiTrparams.root";//pidparams.root";
-  TString RecoFile = "hypIdealreco.root";
+  TString inFile = "Bup_hypFSG41TXm.root";//sim_piTr.root";//sim_pidC.root";
+  Int_t nEvents = 420;//50000;
+  TString parFile="Bup_hypFS1TG4Xmparams.root";//PiTrparams.root";//pidparams.root";
+  TString RecoFile = "output_hitbup.root";//hypIdealreco.root";
   //hypIdealPidreco.root";
   TString outFile = "HypIdrecdos2.root";//HypPidIdrecdos2.root";
  
@@ -22,8 +22,10 @@
  // ----  Load libraries   -------------------------------------------------
   
  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
- rootlogon();
-
+ //rootlogon();
+ 
+ gSystem->Load("libtrackrep");
+ gSystem->Load("librazhyp");
  gSystem->Load("libHyp"); 
 
 // -----   Timer   --------------------------------------------------------
@@ -76,7 +78,7 @@
    DemoPR->SetPersistence();
    DemoPR->UseGeane();
    //DemoPR->SetHitFL(kTRUE);//starting fit values from first hit in HYP
-   
+   //DemoPR->SetVtxAbsName("Absorber14_");
    fRun->AddTask(DemoPR);
    
    PndHypDKalmanTask* DemoKalman = new PndHypDKalmanTask();

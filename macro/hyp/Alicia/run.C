@@ -15,7 +15,7 @@
 // 2.a) standard--> alicia version 
 // 2.b) current --> sebastian version
 
-void run(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "giBUU", TString vers = "current",Bool_t HYP_File= true,Bool_t gam = false){
+void run(TString prefix = "",Int_t nEvents = 420,TString Decfile = "hypbup", TString vers = "current",Bool_t HYP_File= false,Bool_t gam = false){
   TStopwatch timer;
   timer.Start();
   gRandom->SetSeed(); 
@@ -25,7 +25,6 @@ void run(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "giBUU", TSt
 
   
   gSystem->Load("libtrackrep");
-
 
   gSystem->Load("librazhyp");
   gSystem->Load("libHyp");
@@ -61,7 +60,7 @@ void run(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "giBUU", TSt
     if(gam){ 
       inFile= "/data/work/kpha4/lorente/sim_panda/hypBupV1T_Decay_gam_"+prefix+".root";
     }else{
-      inFile= "hypBupV1T_Decay_3.root";
+      inFile= "hypBupV1T_Decay_"+prefix+".root";
     }
   }
   
@@ -175,11 +174,11 @@ void run(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "giBUU", TSt
       Hyp->SetHypGamFEm(gam);
       Hyp->SetTreeFName("/data/work/kpha4/lorente/sim_panda/hypBupV1T_Decay_gam_"+prefix+".root");
     }else{
-      Hyp->SetTreeFName("hypBupV1T_Decay_3.root");
+      Hyp->SetTreeFName("hypBupV1T_Decay_"+prefix+".root");
     }
   }
   
-  Hyp->SetMatbud(true); //material budget hit Collection production
+  Hyp->SetMatbud(false); //material budget hit Collection production
 
   fRun->AddModule(Hyp);
   
