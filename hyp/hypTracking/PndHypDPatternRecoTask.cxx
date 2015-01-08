@@ -32,6 +32,7 @@
 #include "FairMCPoint.h"
 #include "FairRunAna.h"
 //#include "../../tof/PndTofPoint.h"
+#include "TGeoManager.h"
 #include "PndHypPoint.h"
 #include "PndHypHit.h"
 #include "../../pnddata/SdsData/PndSdsMCPoint.h"
@@ -51,7 +52,8 @@
 // Class Member definitions -----------
 
 PndHypDPatternRecoTask::PndHypDPatternRecoTask()
-  : FairTask("Ideal Pattern Reco"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMVD(false),fMCvalue(kFALSE),fEventNr(0)
+  : FairTask("Ideal Pattern Reco"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMVD(false),
+fVtx(false),fMCvalue(kFALSE),fVtxName(0),fEventNr(0)
 {
 }
 
@@ -118,7 +120,9 @@ PndHypDPatternRecoTask::Init()
   
   // GeanePro will get Geometry and BField from the Run
   fGeanePro=new FairGeanePro();
-  
+
+  std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
+
   return kSUCCESS;
 }
 
@@ -213,6 +217,32 @@ PndHypDPatternRecoTask::Exec(Option_t* opt)
      else{ q=TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
        //std::cout<<" particle "<<q<<std::endl;
      }
+
+     TVector3 vtx;
+     TString VolName;
+
+     if(fVtx){ 
+       if(mc->GetMotherID()!=-1){
+	 ++candIter;
+	 continue;
+       }
+       
+       vtx = mc->GetStartVertex();
+       std::cout<<" pion prim "<<mc->GetMotherID()<<std::endl;
+       std::cout<<" pion vertex "<<vtx.X()<<" "<<vtx.Y()<<" "<<vtx.Z()<<std::endl;
+
+       VolName = gGeoManager->FindNode(vtx.X(),vtx.Y(),vtx.Z())->GetName();
+
+	  std::cout<<" vol name "<<VolName.Data()<<std::endl;
+
+	  if(!(VolName.Contains(fVtxName.Data())))
+	    {
+	      ++candIter;
+	      continue;
+	    }
+
+       std::cout<<" vol name "<<VolName.Data()<<" "<<fVtxName.Data()<<std::endl;
+	  }
 
      TVector3 pos;
      double pre;

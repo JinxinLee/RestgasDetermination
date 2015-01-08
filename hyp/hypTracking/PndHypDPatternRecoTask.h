@@ -21,6 +21,7 @@
 #include "FairTask.h"
 #include<map>
 
+
 // Collaborating Class Headers -------
 
 
@@ -45,7 +46,10 @@ public:
 
 
   // Modifiers -----------------------
-  //void SetPointBranchName(const TString& name) {_pointBranchName=name;}
+  void SetVtxAbsName(TString name) {
+    fVtx = true;
+    fVtxName=name;
+  }
   void AddHitBranch(unsigned int detId, const TString& m){fHitBranchNameMap[detId]=m;};
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
   void SetField(FairField* f){fField=f;}
@@ -70,13 +74,18 @@ private:
   TClonesArray* fHitArray;
   TClonesArray* fMcArray;
 
+  //TGeoManager* fGeom;
+
   std::map<unsigned int,TString> fHitBranchNameMap;
   std::map<unsigned int,TClonesArray*> fHitBranchMap;
   int fEventNr;
+
+  TString fVtxName;
   Bool_t fPersistence;
   Bool_t fUseGeane;
   bool fUseMVD;
   Bool_t fMCvalue;
+  Bool_t fVtx;
 
   GFRecoHitFactory* fTheRecoHitFactory;
  
@@ -88,7 +97,7 @@ private:
 Int_t GetChargeIon(Int_t ion);
 
 public:
-  ClassDef(PndHypDPatternRecoTask,3)
+  ClassDef(PndHypDPatternRecoTask,4)
 
 };
 
