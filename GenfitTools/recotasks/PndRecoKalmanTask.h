@@ -53,6 +53,7 @@ public:
   void SetIdealHyp(Bool_t opt = kTRUE)             { fIdealHyp = opt;            }
   void SetDaf(Bool_t opt = kTRUE)                  { fDaf = opt;                 }
   void SetPropagateToIP(Bool_t opt = kTRUE)        { fPropagateToIP = opt;       }
+  void SetPropagateDistance(Float_t opt = -1.)     { fPropagateDistance = opt;   }
   void SetPerpPlane(Bool_t opt = kTRUE)            { fPerpPlane = opt;           }
   void SetNumIterations(Int_t num)                 { fNumIt = num;               }
   void SetTrackRep(Short_t num)                    { fTrackRep = num;            }
@@ -90,7 +91,8 @@ protected:
   Bool_t fSmoothing;             //! Flag to set on smoothing (not used) 
   Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
   Bool_t fDaf;                   //! Flag to use Deterministic Annealing
-  Bool_t fPropagateToIP;         //! Flag to propagate the parameters to the interaction point (kTRUE)
+  Bool_t fPropagateToIP;         //! Flag to propagate the parameters to the interaction point (kTRUE) 
+  Float_t fPropagateDistance;    //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
   Bool_t fPerpPlane;             //! Flag to use as initial plane the one perpendicular to the track (kFALSE)
   Short_t fTrackRep;             //! (0) GeaneTrackRep, 1 RKTrackRep
   Int_t fNumIt;                  //! Number of iterations

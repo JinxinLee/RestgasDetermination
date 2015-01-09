@@ -69,7 +69,7 @@
 
 PndRecoKalmanFit::PndRecoKalmanFit(): TNamed("Genfit", "Fit Tracks"),
                                       fMvdBranchName(""), fCentralTrackerBranchName(""),
-				      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0), fTrackRep(0)
+				      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPropagateDistance(-1.f), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0), fTrackRep(0)
 {
   PndGeoHandling::Instance();
 }
@@ -235,6 +235,25 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
       FairTrackParH *fRes= new FairTrackParH();
       fPro0->SetPoint(TVector3(0,0,0));
       fPro0->PropagateToPCA(1, -1);
+      Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
+      if (rc)
+        {
+          StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+          StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
+          StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
+          StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
+        }
+    }
+  else if (fPropagateDistance>0.f)
+    { 
+      // Calculating params at fPropagateDistance cm before the first hit
+      FairTrackParP par = tBefore->GetParamFirst();
+      Int_t ierr = 0;
+      FairTrackParH *helix = new FairTrackParH(&par, ierr);
+      FairGeanePro *fPro0 = new FairGeanePro();
+      if (fVerbose==0) fPro0->SetPrintErrors(kFALSE);
+      FairTrackParH *fRes= new FairTrackParH();
+      fPro0->PropagateToLength(-fPropagateDistance);
       Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
       if (rc)
         {

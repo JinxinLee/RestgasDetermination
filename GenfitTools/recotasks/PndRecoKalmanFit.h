@@ -38,7 +38,8 @@ class PndRecoKalmanFit : public TNamed
   
   // Modifiers -----------------------
   void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;     }
-  void SetPropagateToIP(Bool_t opt = kTRUE)      { fPropagateToIP = opt;}
+  void SetPropagateToIP(Bool_t opt = kTRUE)      { fPropagateToIP = opt;} 
+  void SetPropagateDistance(Float_t opt = -1.f)  { fPropagateDistance = opt;}
   void SetPerpPlane(Bool_t opt = kTRUE)          { fPerpPlane = opt;    }
   void SetNumIterations(Int_t num)               { fNumIt    = num;     } 
   void SetTrackRep(Int_t num)                    { fTrackRep    = num;  } 
@@ -63,7 +64,8 @@ private:
   TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
   
   Bool_t fUseGeane;     //! Flag to use Geane
-  Bool_t fPropagateToIP;//! Flag to propagate to the interaction point
+  Bool_t fPropagateToIP;//! Flag to propagate to the interaction point 
+  Bool_t fPropagateDistance; //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
   Bool_t fPerpPlane;    //! Flag to use as initial plane the one perpendicular to the track 
   Int_t fNumIt;         //! Number of iterations
   Short_t fTrackRep;    //! (0) GeaneTrackRep, 1 RKTrackRep

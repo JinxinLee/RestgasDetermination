@@ -40,7 +40,7 @@ PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
 fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
 fFitTrackArray(), fFitter(), fDafFitter(), fPDGHyp(-13),
 fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE), fPersistence(kTRUE),
-fPropagateToIP(kTRUE), fPerpPlane(kFALSE),
+  fPropagateToIP(kTRUE), fPropagateDistance(-1.f), fPerpPlane(kFALSE),
   fNumIt(1), fBusyCut(20), fTrackRep(0)
 {
   fFitTrackArray = new TClonesArray("PndTrack");  
@@ -74,6 +74,7 @@ PndRecoKalmanTask::Init()
     {
       fFitter->SetGeane(fUseGeane);
       fFitter->SetPropagateToIP(fPropagateToIP);
+      fFitter->SetPropagateDistance(fPropagateDistance);
       fFitter->SetPerpPlane(fPerpPlane);
       fFitter->SetNumIterations(fNumIt); 
       fFitter->SetMvdBranchName(fMvdBranchName);
