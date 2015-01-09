@@ -1,5 +1,3 @@
-// $Id: TofLinkDef.h,v 1.3 2006/03/07 11:51:55 friese Exp $
-
 #ifdef __CINT__
 
 
@@ -8,7 +6,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class GeaneTrackRep+;
-#pragma link C++ class LSLTrackRep+;
 #pragma link C++ class RKTrackRep+;
 
 #endif

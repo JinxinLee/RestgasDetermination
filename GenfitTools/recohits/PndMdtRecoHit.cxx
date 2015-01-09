@@ -27,7 +27,6 @@
 // Collaborating Class Headers --------
 #include "PndMdtPoint.h"
 #include "PndMdtHit.h"
-#include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 
 // Class Member definitions -----------
@@ -136,26 +135,9 @@ PndMdtRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
     HMatrix[1][4] = 1.;
     return HMatrix;
   }
-  else if (dynamic_cast<const LSLTrackRep*>(stateVector) != NULL) {
-    // Uses TrackParP (u,v,u',v',q/p)
-    // coordinates are defined by detplane!
-    TMatrixT<double> HMatrix(2,5);
-    HMatrix[0][0] = 1.;
-    HMatrix[0][1] = 0.;
-    HMatrix[0][2] = 0.;
-    HMatrix[0][3] = 0.;
-    HMatrix[0][4] = 0.;
-
-    HMatrix[1][0] = 0.;
-    HMatrix[1][1] = 1.;
-    HMatrix[1][2] = 0.;
-    HMatrix[1][3] = 0.;
-    HMatrix[1][4] = 0.;
-    return HMatrix;
-  }
   else {
     std::cerr << "PndMdtRecoHit can only handle state"
-              << " vectors of type GeaneTrackRep or LSLTrackRep-> abort" 
+              << " vectors of type GeaneTrackRep-> abort" 
 	      << std::endl;
     throw;
   }

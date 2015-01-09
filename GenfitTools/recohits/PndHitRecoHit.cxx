@@ -20,7 +20,6 @@
 #include "TMatrixT.h"
 #include "TMath.h"
 // Collaborating Class Headers --------
-#include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 // This Class' Header ------------------
 #include "PndHitRecoHit.h"
@@ -99,26 +98,9 @@ PndHitRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
     HMatrix[1][4] = 1.;
     return HMatrix;
   }
-  else if (dynamic_cast<const LSLTrackRep*>(stateVector) != NULL) {
-    // LSLTrackRep (x,y,x',y',q/p) recohits are (Xloc,Yloc,0.)
-    // The virtual detector plane in LSL is perpendicular to Zlab
-    TMatrixT<double> HMatrix(fNparHitRep,5);
-    HMatrix[0][0] = 1.;
-    HMatrix[0][1] = 0.;
-    HMatrix[0][2] = 0.;
-    HMatrix[0][3] = 0.;
-    HMatrix[0][4] = 0.;
-    
-    HMatrix[1][0] = 0.;
-    HMatrix[1][1] = 1.;
-    HMatrix[1][2] = 0.;
-    HMatrix[1][3] = 0.;
-    HMatrix[1][4] = 0.;
-    return HMatrix;
-  }
   else {
     std::cerr << "PndHitRecoHit can only handle state"
-    << " vectors of type LSLTrackRep or GeaneTrackRep -> abort"
+    << " vectors of type GeaneTrackRep -> abort"
     << std::endl;
     throw;
   }
