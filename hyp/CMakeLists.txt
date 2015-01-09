@@ -20,15 +20,14 @@ ${CMAKE_SOURCE_DIR}/hyp/hypData
 ${CMAKE_SOURCE_DIR}/hyp/hypDigi
 ${CMAKE_SOURCE_DIR}/hyp/hypTools
 ${CMAKE_SOURCE_DIR}/hyp/hypReco
-${CMAKE_SOURCE_DIR}/hyp/hypTracking
-${CMAKE_SOURCE_DIR}/hyp/hypFullAna
-${CMAKE_SOURCE_DIR}/genfit
+#${CMAKE_SOURCE_DIR}/hyp/hypTracking
+#${CMAKE_SOURCE_DIR}/hyp/hypFullAna
+#${CMAKE_SOURCE_DIR}/genfit
 #${CMAKE_SOURCE_DIR}/recotasks
-${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
-${CMAKE_SOURCE_DIR}/geane
-#${CMAKE_SOURCE_DIR}/tpc
+#${CMAKE_SOURCE_DIR}/trackbase
+#${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
+#${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+#${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/rho
 )
 
@@ -59,8 +58,8 @@ HypStatDecay.cxx
 #hypData/PndHypDigi.cxx
 #hypData/PndHypClusterCand.cxx
 #hypData/PndHypStripCluster.cxx
-hypData/PndHypRecoHit.cxx
-hypData/PndHypRecoSPHit.cxx
+#hypData/PndHypRecoHit.cxx
+#hypData/PndHypRecoSPHit.cxx
 
 hypDigi/PndHypStripHitProducer.cxx
 #hypDigi/PndHypPixelHitProducer.cxx
@@ -84,16 +83,16 @@ hypReco/PndHypStripClusterTask.cxx
 
 hypTools/PndHypGeoHandling.cxx
 hypTools/PndStringVector.cxx
-hypTools/PndHypMSAnaTask.cxx
+#hypTools/PndHypMSAnaTask.cxx
 
-hypTracking/PndHypIdealTrackFinderTask.cxx
+#hypTracking/PndHypIdealTrackFinderTask.cxx
 #hypTracking/PndHypRiemannTrackFinderTask.cxx
-hypTracking/PndHypIdealTrackingTask.cxx
-hypTracking/PndHypKalmanTask.cxx
-hypTracking/PndHypDKalmanTask.cxx
-hypTracking/PndHypDPatternRecoTask.cxx
-hypTracking/PndHypIdealPRTask.cxx
-hypTracking/PndFieldAdaptor.cxx
+#hypTracking/PndHypIdealTrackingTask.cxx
+#hypTracking/PndHypKalmanTask.cxx
+#hypTracking/PndHypDKalmanTask.cxx
+#hypTracking/PndHypDPatternRecoTask.cxx
+#hypTracking/PndHypIdealPRTask.cxx
+#hypTracking/PndFieldAdaptor.cxx
 
 hypPID/PndHypAdvancedPidAlgo.cxx
 hypPID/PndHypPidIdealTask.cxx

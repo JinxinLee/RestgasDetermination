@@ -25,8 +25,10 @@
 //#pragma link C++ class PndHypGeoMappingPar+;
 //#pragma link C++ class PndHypCluster+;
 */
-#pragma link C++ class PndHypRecoHit+;
-#pragma link C++ class PndHypRecoSPHit+;
+
+//#pragma link C++ class PndHypRecoHit+;
+//#pragma link C++ class PndHypRecoSPHit+;
+
 //#pragma link C++ class PndHypStripCluster+;
 
 //digi
@@ -55,11 +57,11 @@
 
 //tools
 #pragma link C++ class PndHypGeoHandling+;
-#pragma link C++ class PndHypMSAnaTask+;
+//#pragma link C++ class PndHypMSAnaTask+;
 #pragma link C++ class PndStringVector+;
 
 //tracking
-#pragma link C++ class PndHypIdealTrackingTask+;
+/*#pragma link C++ class PndHypIdealTrackingTask+;
 #pragma link C++ class PndHypIdealTrackFinderTask+;
 //#pragma link C++ class PndHypRiemannTrackFinderTask+;
 #pragma link C++ class PndHypKalmanTask+;
@@ -67,7 +69,7 @@
 #pragma link C++ class PndHypDPatternRecoTask+;
 #pragma link C++ class PndHypIdealPRTask+;
 #pragma link C++ class PndFieldAdaptor+;
-
+*/
 #pragma link C++ class PndHypAdvancedPidAlgo+;
 #pragma link C++ class PndHypPidIdealTask+;
 
