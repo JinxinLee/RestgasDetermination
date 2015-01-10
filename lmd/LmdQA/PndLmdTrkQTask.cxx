@@ -296,9 +296,21 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 
       int candID = trkpnd->GetRefIndex();
       PndTrackCand *trkcand = (PndTrackCand*)fRecCandTracks->At(candID);    
-      TVector3 PosRecCandLMD = trkcand->getPosSeed();
-      TVector3 MomRecCandLMD = trkcand->getDirSeed();
+  /// Obtain first approximation
+      const int numPts = trkcand->GetNHits(); //read how many points in this track
+      PndTrackCandHit theHit1 = trkcand->GetSortedHit(0); //get 1st hit
+      Int_t index1 = theHit1.GetHitId();
+      PndSdsHit* Hit1sds = (PndSdsHit*) fRecHits->At(index1);
+      TVector3 posSeed = Hit1sds->GetPosition();
+      PndTrackCandHit theHit2 = trkcand->GetSortedHit(numPts-1); //get last hit
+      Int_t index2 = theHit2.GetHitId();
+      PndSdsHit* Hit2sds = (PndSdsHit*) fRecHits->At(index2);
+      TVector3 pos2 = Hit2sds->GetPosition();
+      TVector3 MomRecCandLMD = pos2 - posSeed;
       MomRecCandLMD *=fPbeam/MomRecCandLMD.Mag();
+      // TVector3 PosRecCandLMD = trkcand->getPosSeed();
+      // TVector3 MomRecCandLMD = trkcand->getDirSeed();
+      // MomRecCandLMD *=fPbeam/MomRecCandLMD.Mag();
     }
     ///-------------------------------------------------------------------
 

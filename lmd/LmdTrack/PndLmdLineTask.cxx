@@ -147,23 +147,20 @@ void PndLmdLineTask::Exec(Option_t* opt)
     PndTrackCand* trcnd = (PndTrackCand*)fTCandArray->At(track);
     const int numPts = trcnd->GetNHits(); //read how many points in this track
 
-   
-
     /// Obtain first approximation
-    TVector3 posSeed = trcnd->getPosSeed();
-    // cout<<"posSeed = "<<endl;
-    // posSeed.Print();
-    TVector3 dirSeed = trcnd->getDirSeed();
-    // cout<<"dirSeed = "<<endl;
-    // dirSeed.Print();
-    // if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.26){
-    //   PndLinTrack* trackfit = new PndLinTrack();
-    //   new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save NULL Track
-    //   delete trackfit;
-    // }
-    //if(dirSeed.Theta()<3e-2 || dirSeed.Theta()>5e-2 ||  fabs(dirSeed.Phi())>0.26) continue;
+    PndTrackCandHit theHit1 = trcnd->GetSortedHit(0); //get 1st hit
+    Int_t index1 = theHit1.GetHitId();
+    PndSdsHit* Hit1sds = (PndSdsHit*) fRecoArray->At(index1);
+    TVector3 posSeed = Hit1sds->GetPosition();
+    PndTrackCandHit theHit2 = trcnd->GetSortedHit(numPts-1); //get last hit
+    Int_t index2 = theHit2.GetHitId();
+    PndSdsHit* Hit2sds = (PndSdsHit*) fRecoArray->At(index2);
+    TVector3 pos2 = Hit2sds->GetPosition();
+    TVector3 dirSeed = pos2 - posSeed;
+    dirSeed *= 1./dirSeed.Mag();
+    // TVector3 posSeed = trcnd->getPosSeed();
+    // TVector3 dirSeed = trcnd->getDirSeed();
     if(fVerbose>2) std::cout << "Track: "<< track<< " Points: "<< numPts <<std::endl;
-    // if(dirSeed.Theta()>5e-5) continue;
     ///------------------------------
 
     //TGraph2DErrors fitme(numPts); //new graph for fitting

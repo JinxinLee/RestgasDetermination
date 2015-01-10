@@ -1035,7 +1035,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	double startX = cells0.at(cellNum);
 	double startY = cells1.at(cellNum);
 	double startZ = cells2.at(cellNum);
-	TVector3 posSeed(startX,startY,startZ);
+	//	TVector3 posSeed(startX,startY,startZ);
 	int cellNumNext=trk_cells.at(icell+1).at(itrk);
 	if(cellNumNext<0){//next plane is missing
 	  cellNumNext=trk_cells.at(icell+2).at(itrk);
@@ -1048,20 +1048,20 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	  cout<<"Trk-cand direction is taking based on "<<dir.Mag()<<" cm"<<endl;
 
 	dir*=1./dir.Mag();
-	//shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
-	double sh_z = -0.035; //350 mkm
-	double sh_x = dirX*sh_z;
-	double sh_y = dirY*sh_y;
-	TVector3 sh_point(sh_x,sh_y,sh_z);
-	posSeed +=sh_point;
-	// if(fVerbose>2){
-	//   cout<<"posSeed:"<<endl;
-	//   posSeed.Print();
-	//   cout<<"dirSeed:"<<endl;
-	//   dir.Print();
-	// }
+	// //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
+	// double sh_z = -0.035; //350 mkm
+	// double sh_x = dirX*sh_z;
+	// double sh_y = dirY*sh_y;
+	// TVector3 sh_point(sh_x,sh_y,sh_z);
+	// posSeed +=sh_point;
+	// // if(fVerbose>2){
+	// //   cout<<"posSeed:"<<endl;
+	// //   posSeed.Print();
+	// //   cout<<"dirSeed:"<<endl;
+	// //   dir.Print();
+	// // }
 	
-	myTCand->setTrackSeed(posSeed,dir,-1);
+	// myTCand->setTrackSeed(posSeed,dir,-1);
 	firstHit=false;
       }
       unsigned int id = cells7.at(cellNum);

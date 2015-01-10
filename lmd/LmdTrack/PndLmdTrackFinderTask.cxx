@@ -360,20 +360,20 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
         hitsd.at(otherIDs.at(id).first).at(otherIDs.at(id).second).second=true;
       }
 
-      ///Add seed information to track------------
-      PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
-      PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
-      TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
-      TVector3 posSeed(hit0.X(),hit0.Y(),hit0.Z());
-      vec*=1./vec.Mag();
-      //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
-      double sh_z = -0.035; //350 mkm
-      double sh_x = vec.X()*sh_z;
-      double sh_y = vec.Y()*sh_y;
-      TVector3 sh_point(sh_x,sh_y,sh_z);
-      posSeed +=sh_point;
-      myTCand->setTrackSeed(posSeed,vec,-1);
-      ///-------------------------------------
+      // ///Add seed information to track------------
+      // PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
+      // PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
+      // TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
+      // TVector3 posSeed(hit0.X(),hit0.Y(),hit0.Z());
+      // vec*=1./vec.Mag();
+      // //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
+      // double sh_z = -0.035; //350 mkm
+      // double sh_x = vec.X()*sh_z;
+      // double sh_y = vec.Y()*sh_y;
+      // TVector3 sh_point(sh_x,sh_y,sh_z);
+      // posSeed +=sh_point;
+      // myTCand->setTrackSeed(posSeed,vec,-1);
+      // ///-------------------------------------
 
       tofill.push_back(*(myTCand)); //save Track Candidate
       //new((*fTrackCandArray)[trackCnt]) PndTrackCand(*(myTCand)); 
@@ -496,20 +496,20 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
         hitsd.at(otherIDs.at(id).first).at(otherIDs.at(id).second).second=true;
       }
 
-      ///Add seed information to track------------
-      PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
-      PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
-      TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
-      TVector3 posSeed(hit0.X(),hit0.Y(),hit0.Z());
-      vec*=1./vec.Mag();
-	//shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
-	double sh_z = -0.035; //350 mkm
-	double sh_x = vec.X()*sh_z;
-	double sh_y = vec.Y()*sh_y;
-	TVector3 sh_point(sh_x,sh_y,sh_z);
-	posSeed +=sh_point;
-      myTCand->setTrackSeed(posSeed,vec,-1);
-      ///-------------------------------------
+      // ///Add seed information to track------------
+      // PndSdsHit* myHit0 = (PndSdsHit*)(fStripHitArray->At(ids.at(0)));
+      // PndSdsHit* myHit1 = (PndSdsHit*)(fStripHitArray->At(ids.at(1)));
+      // TVector3 hit0 = myHit0->GetPosition(); TVector3 hit1 = myHit1->GetPosition();
+      // TVector3 posSeed(hit0.X(),hit0.Y(),hit0.Z());
+      // vec*=1./vec.Mag();
+      // 	//shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
+      // 	double sh_z = -0.035; //350 mkm
+      // 	double sh_x = vec.X()*sh_z;
+      // 	double sh_y = vec.Y()*sh_y;
+      // 	TVector3 sh_point(sh_x,sh_y,sh_z);
+      // 	posSeed +=sh_point;
+      // myTCand->setTrackSeed(posSeed,vec,-1);
+      // ///-------------------------------------
 
       tofill.push_back(*(myTCand)); //save Track Candidate
       //new((*fTrackCandArray)[trackCnt]) PndTrackCand(*(myTCand)); 
@@ -654,23 +654,23 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       //   cout<<"dirSeed:"<<endl;
       //   dirSeed.Print();
 
-      //  Double_t Z0 = 1099.;
-      //     TVector3 posSeed(start.X(),start.Y(),Z0);
-      TVector3 posSeed(start.X(),start.Y(),start.Z());
-      // cout<<"Trk cand: pos"<<endl;
-      // posSeed.Print();
-      vec*=1./vec.Mag();
-      //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
-      double sh_z = -0.035; //350 mkm
-      double sh_x = vec.X()*sh_z;
-      double sh_y = vec.Y()*sh_y;
-      TVector3 sh_point(sh_x,sh_y,sh_z);
-      posSeed +=sh_point;
+      // //  Double_t Z0 = 1099.;
+      // //     TVector3 posSeed(start.X(),start.Y(),Z0);
+      // TVector3 posSeed(start.X(),start.Y(),start.Z());
+      // // cout<<"Trk cand: pos"<<endl;
+      // // posSeed.Print();
+      // vec*=1./vec.Mag();
+      // //shift trk out of plane [needed for correct treatment in Kalman Fillter and GEANE]
+      // double sh_z = -0.035; //350 mkm
+      // double sh_x = vec.X()*sh_z;
+      // double sh_y = vec.Y()*sh_y;
+      // TVector3 sh_point(sh_x,sh_y,sh_z);
+      // posSeed +=sh_point;
 
-      // cout<<"Trk cand: vec"<<endl;
-      // vec.Print();
-      myTCand->setTrackSeed(posSeed,vec,-1);
-      ///-------------------------------------
+      // // cout<<"Trk cand: vec"<<endl;
+      // // vec.Print();
+      // myTCand->setTrackSeed(posSeed,vec,-1);
+      // ///-------------------------------------
       
 
       tofill.push_back(*(myTCand)); //save Track Candidate
