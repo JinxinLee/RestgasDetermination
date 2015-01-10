@@ -14,9 +14,11 @@
 #include "TGo4EventElement.h"
 
 #include "TTree.h"
+#include <iostream>
 
-
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,34,19)
 R__EXTERN TTree *gTree;
+#endif
 
 TGo4EventElement::TGo4EventElement() :
    TNamed("Go4Element","This is a Go4 EventElement"),
@@ -153,19 +155,27 @@ Int_t TGo4EventElement::activateBranch(TBranch *branch, Int_t init, TGo4EventEle
 void TGo4EventElement::deactivate()
 {
    TString name = GetName();
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,34,19)
    name+=".";
    gTree->SetBranchStatus(name.Data(), 0);
    name+="*";
    gTree->SetBranchStatus(name.Data(), 0);
+#else
+   std::cout << "-W- Could not deactivate() event element %s in this ROOT Version, do not use!" << name.Data() << std::endl;
+#endif
 }
 
 void TGo4EventElement::activate()
 {
    TString name=GetName();
+#if ROOT_VERSION_CODE <= ROOT_VERSION(5,34,19)
    name+=".";
    gTree->SetBranchStatus(name.Data(), 1);
    name+="*";
    gTree->SetBranchStatus(name.Data(), 1);
+#else
+   std::cout << "-W- Could not activate() element %s in this ROOT Version, do not use!" << name.Data() << std::endl;
+#endif
 }
 
 void TGo4EventElement::Clear(Option_t *)
