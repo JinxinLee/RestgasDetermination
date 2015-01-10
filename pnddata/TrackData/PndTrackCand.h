@@ -52,9 +52,6 @@ public:
   }
   UInt_t GetNHits() const {return fHitId.size();}
   int getMcTrackId() const {return fMcTrackId;}
-  TVector3 getPosSeed() const {return fPosSeed;}
-  TVector3 getDirSeed() const {return fDirSeed;}
-  double getQoverPseed() const {return fQoverPseed;}
 
   UInt_t GetNHitsDet(UInt_t detId);
   std::vector<PndTrackCandHit>GetSortedHits();
@@ -67,9 +64,6 @@ public:
   void DeleteHit(UInt_t detId, UInt_t hitId);
   Int_t HitInTrack(UInt_t detId, UInt_t hitId) const;
   void setMcTrackId(int i){fMcTrackId=i;}
-  void setTrackSeed(const TVector3& p,const TVector3& d,double qop){
-    fPosSeed=p;fDirSeed=d;fQoverPseed=qop;
-  }
 
   void CalcTimeStamp();
 
@@ -82,12 +76,9 @@ private:
 	std::vector<PndTrackCandHit> fHitId;  ///< first index is detId, second index is hit Id
 	bool sorted;
 	int fMcTrackId; //track id for MC simulation
-	TVector3 fPosSeed;
-	TVector3 fDirSeed;
-	double fQoverPseed;
 	Int_t fVerbose;
 public:
-  ClassDef(PndTrackCand,2);
+  ClassDef(PndTrackCand,3);
 };
 
 #endif
