@@ -13,6 +13,9 @@ class PndLmdFastDPMAngModel2D: public Model2D {
 	std::pair<double, double> calculateThetaFromTiltedSystem(const double theta,
 			const double phi) const;
 
+	std::pair<double, double> calculateInverseThetaFromTiltedSystem(
+			const double theta, const double phi) const;
+
 	double calculateJacobianDeterminant(const double theta,
 			const double phi) const;
 

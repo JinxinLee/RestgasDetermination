@@ -53,6 +53,7 @@ public:
 	double eval(const double *x) const;
 
 	std::pair<double, double> getAcceptanceBounds() const;
+	void setAcceptanceBounds(double low, double high);
 
 	double evaluateConstant(const double *x) const;
 	double evaluateLinear(const double *x) const;

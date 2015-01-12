@@ -195,6 +195,10 @@ shared_ptr<Model1D> PndLmdModelFactory::generate1DModel(
 			data_model->setGraph(
 					model_options.acceptance->getAcceptance1D()->GetPaintedGraph());
 			data_model->setIntpolType(model_options.acceptance_interpolation);
+			if (!model_options.automatic_acceptance_boundary_finding_active) {
+				data_model->setAcceptanceBounds(model_options.acceptance_bound_low,
+						model_options.acceptance_bound_high);
+			}
 			data_model->setDataDimension(
 					model_options.acceptance->getPrimaryDimension().dimension_range);
 			shared_ptr<Model1D> acc(data_model);

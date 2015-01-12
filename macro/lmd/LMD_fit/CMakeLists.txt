@@ -69,6 +69,12 @@ target_link_libraries(makeTalkPlots LmdFit)
 add_executable(runLumiFit runLumiFit.cxx)
 target_link_libraries(runLumiFit LmdFit)
 
+########################### create lumiFit app ##################################
+
+add_executable(runLmdFit runLmdFit.cxx)
+target_link_libraries(runLmdFit LmdFit)
+
+
 ########################### create determineResolution app ##################################
 
 add_executable(determineResolution determineResolution.cxx)
@@ -94,7 +100,7 @@ target_link_libraries(compareAcceptances LmdFit)
 add_executable(fitRawDPMElasticData fitRawDPMElasticData.cxx)
 target_link_libraries(fitRawDPMElasticData LmdFit)
 
-########################### create fitRawDPMElasticData app ##################################
+########################### create resolutionModelFitTesting1D app ##################################
 
 add_executable(resolutionModelFitTesting1D resolutionModelFitTesting1D.cxx)
 target_link_libraries(resolutionModelFitTesting1D LmdFit)
@@ -149,19 +155,3 @@ target_link_libraries(convolutionThesisPlots $ENV{ROOT_LIBRARIES} Model LmdFit)
 
 add_executable(calculateElasticCrossSection calculateElasticCrossSection.cxx)
 target_link_libraries(calculateElasticCrossSection LmdFit)
-
-########################### create DPM vs E760 app ##################################
-add_executable(dpm_vs_e760 ../Anastasia/tests/ModelUncert/DPM_vs_E760.cxx)
-target_link_libraries(dpm_vs_e760 $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)
-
-########################### create DPM fit params app ##################################
-add_executable(dpm_fit_params ../Anastasia/tests/ModelUncert/DPM_fit.cxx)
-target_link_libraries(dpm_fit_params $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)
-
-########################### create E760 fit params app ##################################
-add_executable(e760_fit_params ../Anastasia/tests/ModelUncert/E760_fit.cxx)
-target_link_libraries(e760_fit_params $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)
-
-########################### create E760 and DPM fit params comparision with exp data app ##################################
-add_executable(data_dpg_e760 ../Anastasia/tests/ModelUncert/E760_fit_DPM_fit_vs_ExpDATA.cxx)
-target_link_libraries(data_dpg_e760 $ENV{ROOT_LIBRARIES} MathMore LmdFit Model GL X11 GLU gsl gslcblas boost_regex)

@@ -36,6 +36,7 @@
 #include "TGaxis.h"
 
 void plotLumiFitResults(std::vector<std::string> paths,
+		const std::string &filter_string, const std::string &output_directory_path,
 		TString filename_suffix) {
 	std::cout << "Generating lumi plots for fit results....\n";
 
@@ -73,7 +74,7 @@ void plotLumiFitResults(std::vector<std::string> paths,
 		/*	std::vector<std::string> file_paths = lmd_data_facade.findFilesByName(
 		 paths[i], "merge_data", "lmd_fitted_data.*.root");*/
 		std::vector<std::string> file_paths = lmd_data_facade.findFilesByName(
-				paths[i], "merge_data", "lmd_fitted_data.root");
+				paths[i], filter_string, "lmd_fitted_data.root");
 
 		for (unsigned int j = 0; j < file_paths.size(); j++) {
 			std::string fullpath = file_paths[j];
@@ -97,7 +98,14 @@ void plotLumiFitResults(std::vector<std::string> paths,
 	// =============================== BEGIN PLOTTING =============================== //
 
 	std::stringstream basepath;
-	basepath << std::getenv("HOME") << "/plots";
+	basepath << output_directory_path;
+
+	if (!boost::filesystem::exists(output_directory_path)) {
+		std::cout
+				<< "The output directory path you specified does not exist! Please make sure you are pointing to an existing directory."
+				<< std::endl;
+		return;
+	}
 
 	std::map<LumiFit::LmdSimIPParameters, PndLmdAngularData> reco_data_ip_map;
 
@@ -370,22 +378,37 @@ void displayInfo() {
 	std::cout << "list of directories to be scanned for vertex data" << std::endl;
 	std::cout << "Optional arguments are: " << std::endl;
 	std::cout << "-f [output filename suffix]" << std::endl;
+	std::cout << "-o [output directory]" << std::endl;
+	std::cout
+			<< "-s [filtering string, which has to appear in the full directory path for all found paths]"
+			<< std::endl;
 }
 
 int main(int argc, char* argv[]) {
 	bool is_filename_suffix_set = false;
 	std::string filename_suffix("fitresults");
+	std::string filter_string("");
+
+	std::stringstream tempstream;
+	tempstream << std::getenv("HOME") << "/plots";
+	std::string output_directory_path(tempstream.str());
 
 	int c;
 
-	while ((c = getopt(argc, argv, "hf:")) != -1) {
+	while ((c = getopt(argc, argv, "hf:s:o:")) != -1) {
 		switch (c) {
 			case 'f':
 				filename_suffix = optarg;
 				is_filename_suffix_set = true;
 				break;
+			case 's':
+				filter_string = optarg;
+				break;
+			case 'o':
+				output_directory_path = optarg;
+				break;
 			case '?':
-				if (optopt == 'f')
+				if (optopt == 'f' || optopt == 's' || optopt == 'o')
 					std::cerr << "Option -" << optopt << " requires an argument."
 							<< std::endl;
 				else if (isprint(optopt))
@@ -408,7 +431,8 @@ int main(int argc, char* argv[]) {
 		for (unsigned int i = argoffset; i < argc; i++) {
 			paths.push_back(std::string(argv[i]));
 		}
-		plotLumiFitResults(paths, filename_suffix);
+		plotLumiFitResults(paths, filter_string, output_directory_path,
+				filename_suffix);
 	}
 
 	return 0;

@@ -180,6 +180,8 @@ std::vector<PndLmdLumiFitOptions> PndLmdFitFacade::createFitOptions(
 			|| lmd_data.getPrimaryDimension().dimension_options.dimension_type
 					== LumiFit::THETA_X) {
 		fit_options_template.model_opt.momentum_transfer_active = false;
+		fit_options_template.model_opt.acceptance_correction_active = false;
+		fit_options_template.model_opt.resolution_smearing_active = false;
 		if (LumiFit::MC_ACC
 				== lmd_data.getPrimaryDimension().dimension_options.track_type)
 			fit_options_template.model_opt.acceptance_correction_active = true;

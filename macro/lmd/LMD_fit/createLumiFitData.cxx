@@ -262,7 +262,7 @@ void createLumiFitData(std::string input_dir_path, std::string filelist_path,
 		}
 
 		// now the resolution parameterization stuff
-		if (true) { //2d
+		if (false) { //2d
 			lmd_data_facade.primary_dimension_template.bins = 25; //200 for 1d and 25 for 2d
 			lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
 					-theta_plot_range_max);
@@ -347,7 +347,7 @@ void createLumiFitData(std::string input_dir_path, std::string filelist_path,
 
 			lmd_data_facade.create2DAngularResolutionDataBundle(num_events);
 		}
-		if (false) { // 1d
+		if (true) { // 1d
 			lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
 					LumiFit::THETA;
 			lmd_data_facade.primary_dimension_template.bins = 200; //200 for 1d and 25 for 2d

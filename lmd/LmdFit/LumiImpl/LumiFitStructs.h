@@ -17,6 +17,11 @@
 #include <sstream>
 #include <set>
 
+#ifndef __CINT__
+#include <boost/assign/list_of.hpp>
+#include <boost/unordered_map.hpp>
+#endif
+
 #include "TObject.h"
 #include "TString.h"
 
@@ -25,6 +30,11 @@ namespace LumiFit {
 enum LmdEstimatorType {
 	CHI2, LOG_LIKELIHOOD
 };
+
+#ifndef __CINT__
+const boost::unordered_map<std::string, LmdEstimatorType> StringToLmdEstimatorType =
+		boost::assign::map_list_of("CHI2", CHI2)("LOG_LIKELIHOOD", LOG_LIKELIHOOD);
+#endif
 
 enum LmdDataType {
 	HISTOGRAM, EFFICIENCY
@@ -56,13 +66,33 @@ enum ModelType {
 	GAUSSIAN, DOUBLE_GAUSSIAN, ASYMMETRIC_GAUSSIAN, UNIFORM
 };
 
+#ifndef __CINT__
+const boost::unordered_map<std::string, ModelType> StringToModelType =
+		boost::assign::map_list_of("GAUSSIAN", GAUSSIAN)("DOUBLE_GAUSSIAN",
+				DOUBLE_GAUSSIAN)("ASYMMETRIC_GAUSSIAN", ASYMMETRIC_GAUSSIAN)("UNIFORM",
+				UNIFORM);
+#endif
+
 enum InterpolationType {
 	CONSTANT, LINEAR, SPLINE
 };
 
+#ifndef __CINT__
+const boost::unordered_map<std::string, InterpolationType> StringToInterpolationType =
+		boost::assign::map_list_of("CONSTANT", CONSTANT)("LINEAR", LINEAR)("SPLINE",
+				SPLINE);
+#endif
+
 enum DPMElasticParts {
 	COUL, INT, HAD, HAD_RHO_B_SIGTOT, ALL_RHO_B_SIGTOT, ALL
 };
+
+#ifndef __CINT__
+const boost::unordered_map<std::string, DPMElasticParts> StringToDPMElasticParts =
+		boost::assign::map_list_of("COUL", COUL)("INT", INT)("HAD", HAD)(
+				"HAD_RHO_B_SIGTOT", HAD_RHO_B_SIGTOT)("ALL_RHO_B_SIGTOT",
+				ALL_RHO_B_SIGTOT)("ALL", ALL);
+#endif
 
 struct LmdDimensionOptions: public TObject {
 	LmdDimensionType dimension_type;

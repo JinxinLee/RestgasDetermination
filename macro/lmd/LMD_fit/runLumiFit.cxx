@@ -29,7 +29,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-void runLumiFit(string input_file_dir, string acceptance_file_dir,
+void runLumiFit(string input_file_dir, string config_file_url, string acceptance_file_dir,
 		string reference_acceptance_file_dir) {
 	cout << "Running LumiFit...." << endl;
 
@@ -61,17 +61,6 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir,
 	// get lmd data and objects from files
 	vector<PndLmdAngularData> my_lmd_data_vec = lmd_data_facade.getDataFromFile<
 			PndLmdAngularData>(fdata);
-
-	// get lmd data and objects from files
-	/*	vector<PndLmdAngularData> temp_my_lmd_data_vec = lmd_data_facade.getDataFromFile<
-	 PndLmdAngularData>(fdata);
-	 // choose data do be fitted...
-	 vector<PndLmdAngularData> my_lmd_data_vec;
-	 for(unsigned int i = 0; i < temp_my_lmd_data_vec.size(); i++) {
-	 if(temp_my_lmd_data_vec[i].getSelectorSet().size() == 0) {
-	 my_lmd_data_vec.push_back(temp_my_lmd_data_vec[i]);
-	 }
-	 }*/
 
 	vector<PndLmdAcceptance> my_lmd_acc_vec = lmd_data_facade.getDataFromFile<
 			PndLmdAcceptance>(facc);
@@ -191,11 +180,10 @@ void runLumiFit(string input_file_dir, string acceptance_file_dir,
 
 		hs.str("");
 		hs << acceptance_file_dir << "/lmd_res_data.root";
-
 		fit2d_model_opt.resolution_parametrization_file_url = hs.str();
+
 		hs.str("");
 		hs << input_file_dir << "/lmd_data.root";
-
 		fit2d_model_opt.elastic_reco_data_file_url = hs.str();
 
 		lmd_fit_facade.setModelFitOptions(fit2d_model_opt);
@@ -236,6 +224,7 @@ void displayInfo() {
 	// display info
 	cout << "Required arguments are: " << endl;
 	cout << "-d [path to data]" << endl;
+	cout << "-c [path to config file] " << endl;
 	cout << "Optional arguments are: " << endl;
 	cout << "-s module phi sliced fitting" << endl;
 	cout << "-a [path to box gen data] (acceptance)" << endl;
@@ -244,13 +233,14 @@ void displayInfo() {
 
 int main(int argc, char* argv[]) {
 	string data_path;
-	string acc_path = "";
-	string ref_acc_path = "";
-	bool is_data_set = false, is_acc_set = false, do_phi_slice_fitting = false;
+	string acc_path("");
+	string config_path("");
+	string ref_acc_path("");
+	bool is_data_set(false), is_config_set(false), is_acc_set(false), do_phi_slice_fitting(false);
 
 	int c;
 
-	while ((c = getopt(argc, argv, "hsa:r:d:")) != -1) {
+	while ((c = getopt(argc, argv, "hsc:a:r:d:")) != -1) {
 		switch (c) {
 			case 's':
 				do_phi_slice_fitting = true;
@@ -258,6 +248,10 @@ int main(int argc, char* argv[]) {
 			case 'a':
 				acc_path = optarg;
 				is_acc_set = true;
+				break;
+			case 'c':
+				config_path = optarg;
+				is_config_set = true;
 				break;
 			case 'r':
 				ref_acc_path = optarg;
@@ -267,7 +261,7 @@ int main(int argc, char* argv[]) {
 				is_data_set = true;
 				break;
 			case '?':
-				if (optopt == 's' || optopt == 'd' || optopt == 'a' || optopt == 'r')
+				if (optopt == 'd' || optopt == 'a' || optopt == 'c' || optopt == 'r')
 					cerr << "Option -" << optopt << " requires an argument." << endl;
 				else if (isprint(optopt))
 					cerr << "Unknown option -" << optopt << "." << endl;
@@ -282,8 +276,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	if (is_data_set)
-		runLumiFit(data_path, acc_path, ref_acc_path);
+	if (is_data_set && is_config_set)
+		runLumiFit(data_path, config_path, acc_path, ref_acc_path);
 	else
 		displayInfo();
 	return 0;

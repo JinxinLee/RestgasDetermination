@@ -7,8 +7,9 @@ namespace LumiFit {
 
 PndLmdFitModelOptions::PndLmdFitModelOptions() :
 		momentum_transfer_active(false), divergence_smearing_active(false), fix_beam_tilts(
-				false), acceptance_correction_active(false), resolution_smearing_active(
-				false), fit_dimension(1), acceptance(0), resolution_parametrization_file_url(
+				false), acceptance_correction_active(false), automatic_acceptance_boundary_finding_active(
+				true), resolution_smearing_active(false), acceptance_bound_low(0.0), acceptance_bound_high(
+				0.0), fit_dimension(1), acceptance(0), resolution_parametrization_file_url(
 				""), smearing_model(GAUSSIAN), acceptance_interpolation(SPLINE), dpm_elastic_parts(
 				ALL), with_background_model(false), vertex_model(GAUSSIAN) {
 }
@@ -90,6 +91,12 @@ bool PndLmdFitModelOptions::operator<(const PndLmdFitModelOptions &rhs) const {
 	if (acceptance_interpolation < rhs.acceptance_interpolation)
 		return true;
 	else if (acceptance_interpolation > rhs.acceptance_interpolation)
+		return false;
+	if (automatic_acceptance_boundary_finding_active
+			< rhs.automatic_acceptance_boundary_finding_active)
+		return true;
+	else if (automatic_acceptance_boundary_finding_active
+			> rhs.automatic_acceptance_boundary_finding_active)
 		return false;
 	if (dpm_elastic_parts < rhs.dpm_elastic_parts)
 		return true;

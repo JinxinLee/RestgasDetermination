@@ -23,9 +23,14 @@ struct PndLmdFitModelOptions: public TObject {
 	double beam_tilt_x;
 	double beam_tilt_y;
 
+	std::string acceptance_resolution_input_directory;
+
 	bool acceptance_correction_active;
 	const PndLmdAcceptance *acceptance;
 	InterpolationType acceptance_interpolation;
+	bool automatic_acceptance_boundary_finding_active;
+	double acceptance_bound_low;
+	double acceptance_bound_high;
 
 	bool resolution_smearing_active;
 	ModelType smearing_model;
@@ -61,7 +66,7 @@ struct PndLmdFitModelOptions: public TObject {
 	friend std::ostream & operator <<(std::ostream & os,
 			const PndLmdFitModelOptions & model_opt);
 
-ClassDef(PndLmdFitModelOptions ,5)
+ClassDef(PndLmdFitModelOptions ,6)
 	;
 };
 

@@ -39,6 +39,7 @@ class PndLmdAcceptance;
 class PndLmdLumiFitOptions: public TObject {
   friend class PndLmdFitFacade;
   friend class PndLmdLumiHelper;
+  friend class PndLmdRuntimeConfiguration;
 
 private:
   LumiFit::PndLmdFitModelOptions model_opt;

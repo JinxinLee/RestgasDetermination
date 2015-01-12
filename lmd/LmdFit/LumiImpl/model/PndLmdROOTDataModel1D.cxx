@@ -108,6 +108,11 @@ std::pair<double, double> PndLmdROOTDataModel1D::getAcceptanceBounds() const {
 	return std::make_pair(acc_range_low, acc_range_high);
 }
 
+void PndLmdROOTDataModel1D::setAcceptanceBounds(double low, double high) {
+	acc_range_low = low;
+	acc_range_high = high;
+}
+
 double PndLmdROOTDataModel1D::evaluateConstant(const double *x) const {
 	Int_t closest = -1;
 	double diff = -1.0;
