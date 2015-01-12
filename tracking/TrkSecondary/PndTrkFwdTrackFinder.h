@@ -1,5 +1,5 @@
-#ifndef PNDTRKSHORTTRACKFINDER_H
-#define PNDTRKSHORTTRACKFINDER_H
+#ifndef PNDTRKFWDTRACKFINDER_H
+#define PNDTRKFWDTRACKFINDER_H
 
 // fairroot
 #include "FairTask.h"
@@ -36,17 +36,17 @@ class TClonesArray;
 class TObjectArray;
 class PndTrkLegendreTransform;
 class PndTrkConformalTransform;
-class PndTrkShortTrackFinder : public FairTask {
+class PndTrkFwdTrackFinder : public FairTask {
  
  public:
   
   /** Default constructor **/
-  PndTrkShortTrackFinder();
-  PndTrkShortTrackFinder(int verbose);
+  PndTrkFwdTrackFinder();
+  PndTrkFwdTrackFinder(int verbose);
 
 
   /** Destructor **/
-  ~PndTrkShortTrackFinder();
+  ~PndTrkFwdTrackFinder();
 
 
   /** Virtual method Init **/
@@ -77,7 +77,12 @@ class PndTrkShortTrackFinder : public FairTask {
   void LightCluster(PndTrkCluster *cluster);
   void DrawLegendreHisto();
 
-
+  void ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double_t trasl[2]);
+  Int_t FillConformalHitList(PndTrkCluster *cluster);
+  void FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R);
+  void AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double&fitq);
+  void IntersectionFinder(PndTrkHit *hit, double xc, double yc, double R);
+  void FillLegendreHisto(PndTrkCluster *cluster);
 
 
  private:
@@ -160,6 +165,7 @@ class PndTrkShortTrackFinder : public FairTask {
 
   PndTrkCluster *fCluster;
   PndTrkCluster *fFinalCluster;
+
   PndTrkCluster *fIndivCluster;
   PndTrkCluster *fSkewCluster;
   PndTrkCluster *fFinalSkewCluster;
@@ -167,7 +173,7 @@ class PndTrkShortTrackFinder : public FairTask {
 
   PndTrkTrackList *fTrackList;
 
-  ClassDef(PndTrkShortTrackFinder,1);
+  ClassDef(PndTrkFwdTrackFinder,1);
   
 };
 
