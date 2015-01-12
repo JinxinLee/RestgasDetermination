@@ -40,6 +40,7 @@
 #pragma link C++ class PndTrkLegendreTransform+;
 #pragma link C++ class PndTrkTrackFinder+;
 #pragma link C++ class PndTrkFwdTrackFinder+;
+#pragma link C++ class PndTrkShortTrackFinder+;
 #pragma link C++ class PndTrkConformalTransform+;
 #pragma link C++ class PndTrkConformalHit+;
 #pragma link C++ class PndTrkConformalHitList+;

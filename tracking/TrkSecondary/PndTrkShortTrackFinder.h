@@ -102,7 +102,7 @@ class PndTrkShortTrackFinder : public FairTask {
   /** Input array of GemHitArray **/
   TClonesArray* fGemHitArray;
 
-  TClonesArray *fLongTrackArray;
+  TClonesArray *fLongTrackArray, *fFwdTrackArray;
 
   TClonesArray* fTrackArray, * fTrackCandArray;
 

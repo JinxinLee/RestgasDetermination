@@ -178,6 +178,14 @@ InitStatus PndTrkShortTrackFinder::Init() {
     std::cout << "-W- PndTrkShortTrackFinder::Init: " << "No long track Array, return!" << std::endl;
     return kERROR;
   }
+  //
+  // fwd tracks
+  fFwdTrackArray = (TClonesArray*) ioman->GetObject("Track");
+  if ( !fFwdTrackArray) {
+    std::cout << "-W- PndTrkFwdTrackFinder::Init: " << "No long track Array, return!" << std::endl;
+    return kERROR;
+  }
+
 
 
   // output
@@ -355,6 +363,51 @@ void PndTrkShortTrackFinder::Exec(Option_t* opt)  {
   }
 
 
+  for(int itrk = 0; itrk < fFwdTrackArray->GetEntriesFast(); itrk++) {
+    PndTrack *trk = (PndTrack*) fFwdTrackArray->At(itrk);
+    PndTrackCand *cand = trk->GetTrackCandPtr();
+    if(!cand) 
+      { 
+	cout << "ERROR track " << itrk << " has no candidate association" << endl; 
+	continue;
+      }
+
+    for (Int_t ihit = 0; ihit < cand->GetNHits(); ihit++) {
+      PndTrackCandHit candhit = cand->GetSortedHit(ihit);
+      Int_t hitId = candhit.GetHitId();
+      Int_t detId = candhit.GetDetId();
+
+      if(detId == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+	hit = mvdpixhitlist->GetHitByID(hitId);
+	hit->SetUsedFlag(true);
+      }
+      // mvd str
+      else if(detId == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+	hit = mvdstrhitlist->GetHitByID(hitId);
+	hit->SetUsedFlag(true);
+      }
+      // stt
+      else if(detId == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+	hit = stthitlist->GetHitByID(hitId);
+	hit->SetUsedFlag(true);
+      }
+      // scitil;
+      else if(detId == FairRootManager::Instance()->GetBranchId(fSciTBranch)) {
+	hit = scithitlist->GetHitByID(hitId);
+	hit->SetUsedFlag(true);
+      }
+      // gem
+      else if(detId == FairRootManager::Instance()->GetBranchId(fGemBranch)) {
+	hit = gemhitlist->GetHitByID(hitId);
+	hit->SetUsedFlag(true);
+      }
+
+    } 
+    
+  }
+
+
+
   if(fDisplayOn2)  {
 
 
@@ -366,6 +419,11 @@ void PndTrkShortTrackFinder::Exec(Option_t* opt)  {
       track.Draw();
     }
 
+    for(int itrk = 0; itrk < fFwdTrackArray->GetEntriesFast(); itrk++) {
+      PndTrack *trk = (PndTrack*) fFwdTrackArray->At(itrk);
+      PndTrkTrack track(trk);
+      track.Draw();
+    }
 
     char goOnChar;
     display->Update();

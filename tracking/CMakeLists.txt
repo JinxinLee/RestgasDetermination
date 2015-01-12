@@ -88,6 +88,7 @@ TrkData/PndTrkNeighboringMap.cxx
 #
 TrkSecondary/PndTrkTrackFinder.cxx
 TrkSecondary/PndTrkFwdTrackFinder.cxx
+TrkSecondary/PndTrkShortTrackFinder.cxx
 
 #
 TrkStructure/PndTrkQATask.cxx
