@@ -124,7 +124,7 @@ PndDrc::PndDrc()
   fFocusing(-1), 
   fTakeRealReflectivity(kFALSE),
   fStopSecondaries(kFALSE),
-
+  fStopChargedTrackAfterDIRC(kFALSE),
   fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
 
   fPdgCode(-1),
@@ -946,7 +946,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     }
   }
 
-  // stop the track after the DIRC in radius:
+  // stop the track after the DIRC:
   if(fStopChargedTrackAfterDIRC){
     if(fPdgCode != 50000050 && gMC->IsTrackExiting()==1 && num == fbarID){
       cout<<"track is exiting the bar!!!"<<endl;
