@@ -216,6 +216,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
 	       fTakeRealReflectivity(kFALSE),
 	       fStopSecondaries(kFALSE),
 
+	       fStopChargedTrackAfterDIRC(kFALSE),
 	       fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
 
 	       fPdgCode(-1),
