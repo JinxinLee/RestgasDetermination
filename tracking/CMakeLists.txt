@@ -87,7 +87,7 @@ TrkData/PndTrkSkewHitList.cxx
 TrkData/PndTrkNeighboringMap.cxx
 #
 TrkSecondary/PndTrkTrackFinder.cxx
-TrkSecondary/PndTrkShortTrackFinder.cxx
+TrkSecondary/PndTrkFwdTrackFinder.cxx
 
 #
 TrkStructure/PndTrkQATask.cxx
