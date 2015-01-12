@@ -62,6 +62,21 @@ void PndTrkConformalHit::Draw(Color_t color) {
       mrk = new TMarker(fPosition.X(), fPosition.Y(), 3);
       break;
     }
+  case 8: 
+    {
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 29);
+      break;
+    }
+  case 9: 
+    {
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 24);
+      break;
+    }
+  case 10:
+    {
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 25);
+      break;
+    }
   }
 
   if(mrk) {

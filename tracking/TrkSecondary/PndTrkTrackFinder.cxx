@@ -881,7 +881,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
     }
     
-    // ====== REFIT CLUSTER ANALYTICALLY
+    // ====== REFIT CLUSTER LEGENDRE
     double fitm, fitq;
     //    AnalyticalFit(&cluster, x, y, r, fitm, fitq);
     // LEGENDRE ----------------------------------------------------------

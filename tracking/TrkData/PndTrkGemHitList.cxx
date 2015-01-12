@@ -42,9 +42,14 @@ void PndTrkGemHitList::AddHit(Int_t hitid, Int_t detid, FairHit *hit)
   TVector3 position;
   hit->Position(position);
   int station = ((PndGemHit*) hit)->GetStationNr();
-  // int sensor = hit->GetSensorNr();
+  int sensor =  ((PndGemHit*) hit)->GetSensorNr();
 
-  PndTrkHitList::AddHit(hitid, detid, 0, GEM, station, position); // CHECK iregion
+
+  // layerid = 0, 1, 2, ...
+  int layerid = 2 * station + sensor - 3;
+
+
+  PndTrkHitList::AddHit(hitid, detid, 0, GEM, layerid, position); // CHECK iregion
 }
 
 

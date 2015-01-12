@@ -13,6 +13,12 @@
 #define SKEWANGLE  3. * TMath::DegToRad()
 #define SKEWLIMIT 30.   // CHECK
 
+// GEM - geometry
+#define NOFSTATIONS 3
+#define NOFSENSORS  2 
+#define NOFLAYERS   NOFSTATIONS * NOFSENSORS
+
+
 // IREGIONS ....................................
 // MVD
 #define MVDPIXEL   0

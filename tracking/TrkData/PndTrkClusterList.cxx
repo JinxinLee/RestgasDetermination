@@ -16,39 +16,46 @@
 
 using namespace std;
 
-PndTrkClusterList::PndTrkClusterList() : clusterlist(TObjArray()) {}
+PndTrkClusterList::PndTrkClusterList() : fClusterList(TClonesArray("PndTrkCluster", 10000)) {}
+
 PndTrkClusterList::PndTrkClusterList(const PndTrkClusterList& clist) {
   *this = clist;
 }
 
 PndTrkClusterList::~PndTrkClusterList() {
-clusterlist.Clear();
+fClusterList.Clear();
 }
   
 PndTrkClusterList& PndTrkClusterList::operator=(const PndTrkClusterList &clist){ 
-  clusterlist = TObjArray(clist.clusterlist);
+  fClusterList = TClonesArray(clist.fClusterList);
   return *this;
 }
 
 
 void PndTrkClusterList::AddCluster(PndTrkCluster *cluster) {
-  clusterlist.Add(cluster);
+  int size = fClusterList.GetEntriesFast();
+  new(fClusterList[size]) PndTrkCluster(*cluster);
 }
 
 void PndTrkClusterList::DeleteCluster(Int_t index) {
-  clusterlist.RemoveAt(index);
+  fClusterList.RemoveAt(index);
 }
 
 
-// CHECK test this
-void PndTrkClusterList::ReplaceCluster(Int_t index, PndTrkCluster *cluster) { 
-  clusterlist.RemoveAt(index);
-  clusterlist.AddAt(cluster, index);
-}
+// // CHECK test this
+// void PndTrkClusterList::ReplaceCluster(Int_t index, PndTrkCluster *cluster) { 
+//   fClusterList.RemoveAt(index);
+//   fClusterList.AddAt(cluster, index);
+// }
  
 void PndTrkClusterList::Reset() {
-clusterlist.Clear();
+  Clear();
 }
+
+void PndTrkClusterList::Clear(Option_t* opt) {
+fClusterList.Clear(opt);
+}
+
 // merge clusters
 
 ClassImp(PndTrkClusterList)

@@ -147,11 +147,15 @@ void PndTrkHit::Draw(Color_t color) {
       break;
     }
   case 9: 
-    mrk = new TMarker(fPosition.X(), fPosition.Y(), 24);
-    break;
+    { 
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 24);
+      break;
+    }
   case 10:
-    mrk = new TMarker(fPosition.X(), fPosition.Y(), 25);
-    break;
+    {
+      mrk = new TMarker(fPosition.X(), fPosition.Y(), 25);
+      break;
+    }
   }
 
   if(mrk) {
