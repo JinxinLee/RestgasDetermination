@@ -50,12 +50,20 @@ void reco_fts()
 
 
 
-	PndFtsHoughTrackerTask* trackFts = new PndFtsHoughTrackerTask(0, kTRUE, kFALSE);
+	PndFtsHoughTrackerTask* trackFts = new PndFtsHoughTrackerTask();
 	//  trackFts->SetTrackOutput("FtsHoughTrack");
 	//  trackFts->SetPersistence(kTRUE);
 	//  trackFts->SetSaveDebugInfo(kFALSE);
-	//  trackFts->SetSaveDebugInfo(kTRUE);
-	trackFts->SetVerbose(0);
+	Int_t debugLevel = 1;
+//	debugLevel *= PndFtsHoughTrackerTask::kHoughSpaces;
+//	debugLevel *= PndFtsHoughTrackerTask::kAllFoundPeaksTogether;
+//	debugLevel *= PndFtsHoughTrackerTask::kEachFoundPeakSeparately;
+	debugLevel *= PndFtsHoughTrackerTask::kMcTruthPeaksExclusively;
+//	debugLevel *= PndFtsHoughTrackerTask::kMcTruthPeaksProjected;
+//	debugLevel *= PndFtsHoughTrackerTask::kHitCurvesExclusively;
+//	debugLevel *= PndFtsHoughTrackerTask::kHitCurvesProjected;
+	trackFts->SetSaveDebugInfo(debugLevel);
+//	trackFts->SetVerbose(1);
 	fRun->AddTask(trackFts);
 
 	//  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();

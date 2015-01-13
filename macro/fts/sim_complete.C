@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+sim_complete(Int_t nEvents = 20, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -142,12 +142,19 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.
   fRun->SetGenerator(primGen);
 	 
   if(UseBoxGenerator){	// Box Generator
-     FairBoxGenerator* boxGen = new FairBoxGenerator(13, 4); // 13 = muon; 1 = multipl.
-     boxGen->SetPRange(mom,mom); // GeV/c
-     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-     boxGen->SetThetaRange(0., 12.); // Polar angle in lab system range [degree]
-     boxGen->SetXYZ(0., 0., 0.); // cm
-     primGen->AddGenerator(boxGen);
+     FairBoxGenerator* muMinusBoxGen = new FairBoxGenerator(13, 6); // 13 = muon-; 1 = multipl.
+     muMinusBoxGen->SetPRange(0.3,3.0); // GeV/c
+     muMinusBoxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+     muMinusBoxGen->SetThetaRange(0., 20.); // Polar angle in lab system range [degree]
+     muMinusBoxGen->SetXYZ(0., 0., 0.); // cm
+     primGen->AddGenerator(muMinusBoxGen);
+
+     FairBoxGenerator* muPlusBoxGen = new FairBoxGenerator(-13, 6); // 13 = muon-; 1 = multipl.
+     muPlusBoxGen->SetPRange(0.3,3.0); // GeV/c
+     muPlusBoxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+     muPlusBoxGen->SetThetaRange(0., 20.); // Polar angle in lab system range [degree]
+     muPlusBoxGen->SetXYZ(0., 0., 0.); // cm
+     primGen->AddGenerator(muPlusBoxGen);
   }
   if(UseDpm){
   	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
