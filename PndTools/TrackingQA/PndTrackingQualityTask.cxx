@@ -39,8 +39,8 @@ PndTrackingQualityTask::~PndTrackingQualityTask() {
 InitStatus PndTrackingQualityTask::Init() {
 
 
-	fPHisto = new TH1D("fPHisto", "Momentum Resolution", 1000, -10, 10);
-	fPtHisto = new TH1D("fPtHisto", "Transverse Momentum Resolution", 1000, -10, 10);
+	fPHisto = new TH1D("fPHisto", "Momentum Resolution", 1000, -1, 1);
+	fPtHisto = new TH1D("fPtHisto", "Transverse Momentum Resolution", 1000, -1, 1);
 	fQualyHisto = new TH1I("fQualyHisto", "Quality of Trackfinding", 26, -15.5, 10.5);
 
 	ioman = FairRootManager::Instance();
@@ -59,7 +59,13 @@ InitStatus PndTrackingQualityTask::Init() {
 		AddHitsBranchName("MVDHitsPixel");
 		AddHitsBranchName("MVDHitsStrip");
 		AddHitsBranchName("STTHit");
-		AddHitsBranchName("GEMHit");
+//		AddHitsBranchName("GEMHit");
+		std::cout << "PndTrackingQualityAnalysis::Init() CorrectedSkewedHits present: " << FairRootManager::Instance()->GetBranchId("CorrectedSkewedHits") << " ";
+		if (FairRootManager::Instance()->GetBranchId("CorrectedSkewedHits")  > 0){
+			std::cout << "kTRUE";
+			AddHitsBranchName("CorrectedSkewedHits");
+		}
+		std::cout << std::endl;
 	}
 
 
@@ -84,7 +90,7 @@ void PndTrackingQualityTask::Exec(Option_t* opt) {
 	std::cout << "----- Event " << fEventNr << " ------" << std::endl;
 	fEventNr++;
 
-	PndTrackingQualityAnalysis qaAna(fTrackBranchName, fPndTrackOrTrackCand);
+	PndTrackingQualityAnalysis qaAna(fTrackBranchName, new CircleHoughTrackFunctor(), fPndTrackOrTrackCand);
 	qaAna.SetVerbose(fVerbose);
 	qaAna.SetHitsBranchNames(fBranchNames);
 	qaAna.Init();
@@ -184,9 +190,9 @@ void PndTrackingQualityTask::Finish() {
 	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-1));
 
 	std::cout << "fQualyHisto: All Tracks: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) + allTracksWithHits << std::endl
-			  << " Primary Tracks wo hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) << std::endl
+			  << " Primary Tracks < 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) << std::endl
 			  << " All Tracks with hits: " << allTracksWithHits << " not Found: " << allTracksWithHitsNotFound << std::endl
-			  << " Primary Tracks with 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-10)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-4)) << std::endl
+			  << " Primary Tracks with > 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-10)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-4)) << std::endl
 			  << " Secondary Tracks with 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-9)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-3)) << std::endl
 			  << " Primary Tracks possible: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-8)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-2)) << std::endl
 			  << " Secondary Tracks possible: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-7)) << " not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-1)) << std::endl

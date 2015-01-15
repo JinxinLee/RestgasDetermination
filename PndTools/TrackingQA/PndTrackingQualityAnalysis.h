@@ -24,11 +24,11 @@
 
 #include <functional>
 
-class PossibleTrackFunctor : public std::unary_function<FairMultiLinkedData* , Bool_t>
+class PossibleTrackFunctor : public std::binary_function<FairMultiLinkedData* , Bool_t, Bool_t>
 {
   public :
-    virtual Bool_t operator() (FairMultiLinkedData* a) {return Call(a);};
-    virtual Bool_t Call(FairMultiLinkedData* a) = 0;
+    virtual Bool_t operator() (FairMultiLinkedData* a, Bool_t primary) {return Call(a, primary);};
+    virtual Bool_t Call(FairMultiLinkedData* a, Bool_t primary) = 0;
     virtual void Print() = 0;
 
     virtual ~PossibleTrackFunctor() {};
@@ -37,7 +37,7 @@ class PossibleTrackFunctor : public std::unary_function<FairMultiLinkedData* , B
 
 class StandardTrackFunctor : public PossibleTrackFunctor
 {
-	Bool_t Call(FairMultiLinkedData* a){
+	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
 		possibleTrack = possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
@@ -57,7 +57,7 @@ class StandardTrackFunctor : public PossibleTrackFunctor
 
 class OnlySttFunctor : public PossibleTrackFunctor
 {
-	Bool_t Call(FairMultiLinkedData* a){
+	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
 
@@ -72,7 +72,7 @@ class OnlySttFunctor : public PossibleTrackFunctor
 
 class RiemannMvdSttGemFunctor : public PossibleTrackFunctor
 {
-	Bool_t Call(FairMultiLinkedData* a){
+	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
 		Bool_t mvdHits =  ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
@@ -85,6 +85,22 @@ class RiemannMvdSttGemFunctor : public PossibleTrackFunctor
 	}
 	void Print(){
 		std::cout << "RiemannMvdSttGemFunctor: > 2 Hits in MVD and >0 Hits in (Stt+Gem)" << std::endl;
+	}
+
+};
+
+class CircleHoughTrackFunctor : public PossibleTrackFunctor
+{
+	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
+		if (primary == kFALSE) return kFALSE;
+		FairRootManager* ioman = FairRootManager::Instance();
+		Bool_t possibleTrack = ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
+									a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks()) > 3);
+
+		return possibleTrack;
+	}
+	void Print(){
+		std::cout << "CircleHoughTrackFunctor: > 3 Hits in MVD and primary track" << std::endl;
 	}
 
 };
@@ -151,6 +167,8 @@ private:
 	TString fTrackBranchName;
 	Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
 	PossibleTrackFunctor* fPossibleTrack;
+
+	Bool_t fUseCorrectedSkewedHits;
 
 	std::vector<TString> fBranchNames;
 	std::map<Int_t, Int_t> fTrackIdMCId;				//< map between track id and most probable MC track id

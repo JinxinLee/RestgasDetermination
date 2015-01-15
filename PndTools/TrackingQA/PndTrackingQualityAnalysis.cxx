@@ -14,7 +14,7 @@
 ClassImp(PndTrackingQualityAnalysis);
 
 PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName, Bool_t pndTrackData):
-	fTrackBranchName(trackBranchName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fNGhosts(0), fVerbose(0)
+	fTrackBranchName(trackBranchName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQualityAnalysis::PndTrackingQualityAnalysis no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -29,7 +29,7 @@ PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName,
 }
 
 PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData):
-	fTrackBranchName(trackBranchName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fNGhosts(0), fVerbose(0)
+	fTrackBranchName(trackBranchName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQualityAnalysis::PndTrackingQualityAnalysis no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -73,6 +73,10 @@ void PndTrackingQualityAnalysis::Init()
 		AddHitsBranchName("MVDHitsStrip");
 		AddHitsBranchName("STTHit");
 		AddHitsBranchName("GEMHit");
+
+		if (FairRootManager::Instance()->GetBranchId("CorrectedSkewedHits")  > 0){
+			AddHitsBranchName("CorrectedSkewedHits");
+		}
 	}
 	std::cout << "-I- PndTRackingQualityAnalysis::Init: PossibleTrackFunctor: ";
 	fPossibleTrack->Print();
@@ -139,8 +143,8 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 
 	Int_t mostProbableTrack = -1;
 	if (fVerbose > 0)
-		std::cout << "PndTrackingQualityAnalysis::AnalyseTrackInfo: TrackInfo: " << std::endl;
-//	PrintTrackDataSummary(trackInfo["AllHits"]);
+		std::cout << "PndTrackingQualityAnalysis::AnalyseTrackInfo: TrackInfo: " << trackInfo["AllHits"].GetNLinks() << std::endl;
+	PrintTrackDataSummary(trackInfo["AllHits"]);
 
 	if (trackInfo["AllHits"].GetNLinks() == 1){
 		mostProbableTrack = trackInfo["AllHits"].GetLink(0).GetIndex();
@@ -224,7 +228,7 @@ void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 			}						//No hits for primary track in central tracking detectors
 			
 			PndMCEntry entry = fIdealTracksData.GetEntry(i);
-			if ((*fPossibleTrack)((FairMultiLinkedData*)&entry))
+			if ((*fPossibleTrack)((FairMultiLinkedData*)&entry, primaryTrack))
 			{
 				if (primaryTrack) {
 					fMapTrackQualifikation[i] = -2;

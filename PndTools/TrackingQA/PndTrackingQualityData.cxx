@@ -47,6 +47,8 @@ void PndTrackingQualityData::Init()
 		AddHitsBranchName("MVDHitsStrip");
 		AddHitsBranchName("STTHit");
 		AddHitsBranchName("GEMHit");
+		if (FairRootManager::Instance()->GetBranchId("CorrectedSkewedHits")  > 0)
+			AddHitsBranchName("CorrectedSkewedHits");
 	}
 
 }
