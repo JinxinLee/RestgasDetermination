@@ -18,6 +18,8 @@
 #define NOFSENSORS  2 
 #define NOFLAYERS   NOFSTATIONS * NOFSENSORS
 
+// PIPE
+#define PIPEDIAMETER 4.08 // CHECK
 
 // IREGIONS ....................................
 // MVD

@@ -45,7 +45,8 @@ class PndTrkTrack : public TObject
   PndTrkCluster GetCluster() { return fCluster; }
 
   Double_t ComputePhi(TVector3 hit);
- 
+  Double_t ComputePhiFrom(TVector3 hit, TVector3 from); 
+
   TVector3 ComputeMomentumAtPosition(TVector3 position, TVector3 &newposition);
   void ComputeCharge();
   PndTrackCand ConvertToPndTrackCand(); 

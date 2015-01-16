@@ -269,14 +269,48 @@ Double_t PndTrkTrack::ComputePhi(TVector3 hit)
   // -   +     90/180      phi
   // -   -   -180/-90    phi + 360
   // +   -    -90/0      phi + 360
-  
+  //  cout << "phi " << hit.X() << " " << hit.Y() << endl;
+
   double phi = fromcentertohit.Phi();
   if(fromcentertohit.Y() < 0) phi += (2 * TMath::Pi());
   // cout << "final phi in rad " << phi << endl;
   return phi * TMath::RadToDeg();
 }
 
+Double_t PndTrkTrack::ComputePhiFrom(TVector3 hit, TVector3 from) 
+{
 
+  //  cout << "phi " << hit.X() << " " << hit.Y() << endl;
+
+  TVector3 center(fCenterX, fCenterY, 0.);
+  TVector3 fromcentertofrom = from - center;
+  double phi0 = fromcentertofrom.Phi();
+  
+  double xtr = hit.X() - fCenterX;
+  double ytr = hit.Y() - fCenterY;
+  double xp = TMath::Cos(phi0) * xtr + TMath::Sin(phi0) * ytr;
+  double yp = -TMath::Sin(phi0) * xtr + TMath::Cos(phi0) * ytr;
+
+  TVector3 trarothit = TVector3(xp, yp, 0.);
+
+  // I want the positive phi angle from x axis
+  // in range [0, 360[.
+  // I use TVector3::Phi() [fromcentertohit.Phi()]:
+  // x   y      Phi        use!
+  // -------------------------
+  // +   +      0/90       phi
+  // -   +     90/180      phi
+  // -   -   -180/-90    phi + 360
+  // +   -    -90/0      phi + 360
+  
+
+  double phi = trarothit.Phi();
+  if(trarothit.Y() < 0) phi += (2 * TMath::Pi());
+
+  // cout << "final phi in rad " << phi << endl;
+  return phi * TMath::RadToDeg();
+
+}
 // =======================================================================================
 void PndTrkTrack::Draw(Color_t color) {
   if(fCluster.GetNofHits() > 0)    {
