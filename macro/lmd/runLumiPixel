@@ -24,13 +24,13 @@ pbeam=$mom
 # ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-path=${VMCWORKDIR}/macro/lmd/testDPM/mom_${momStr}/
+path=${VMCWORKDIR}/macro/lmd/test/mom_${momStr}/
 
 mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #number of events
-numEv=10000
+numEv=1000
 
 ##############
 # set flags
@@ -65,7 +65,7 @@ WrAllMC=true
 root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
-  modeDPM=0 #inel
+#  modeDPM=0 #inel
 # #    modeDPM=1 #el+inel
 # #    modeDPM=2 #el
 #  root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\)
@@ -83,7 +83,8 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 	 trkcut=true
 ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
 ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
-     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+#     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"Follow\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
 
 #track fit: 
 ### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
@@ -121,5 +122,6 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 	 else
 	     root -l -b -q runLumiPixel7TrksQA.C\(${numEv},0,"\"${path}\"",0,${pbeam},${WrAllMC},${CleanSig}\)
 	 fi
-      root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
-      root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
+#	 root -l -b -q  Anastasia/test_macros/BkgSignalCount.C\("\"${path}\"",${numEv},0\)
+	 root -l -b -q  Anastasia/test_macros/FantastischSchnitt.C\("\"${path}\"",${numEv},0\)
+      # root -l -b -q Anastasia/test_macros/EffTrks.C\(${numEv},0,"\"${path}\""\)
