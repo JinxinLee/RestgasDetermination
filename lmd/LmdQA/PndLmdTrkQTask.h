@@ -24,6 +24,7 @@
 #include <map>
 #include "TDatabasePDG.h"
 #include "LmdQA/PndLmdTrackQ.h"
+#include "PndLmdDim.h"
 
 class TClonesArray;
 class PndSdsCluster;
@@ -77,7 +78,7 @@ class PndLmdTrkQTask : public FairTask
   bool fWriteAllMC;
 
   //  TDatabasePDG *fdbPDG;
-  
+  PndLmdDim* lmddim;
 
 
   

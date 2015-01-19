@@ -148,6 +148,8 @@ InitStatus PndLmdTrkQTask::Init()
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   //  TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
   //  fdbPDG = TDatabasePDG::Instance();
+
+  lmddim = PndLmdDim::Instance();
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -173,6 +175,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
   int glNumMChits;
   int glNumDoubleMChits;
 
+  int glModule,  glHalf;
   FairRootManager* ioman = FairRootManager::Instance();
   //  double glEvTime = FairRootManager::Instance()->GetEventTime();
   double glEvTime= ioman->GetEventTime();
@@ -635,6 +638,11 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(0));//1st hit info
       Int_t hitID = candhit.GetHitId();
       PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fRecHits->At(hitID));
+      int sensorID = myHit->GetSensorID();
+      int ihalf, iplane, imodule, iside, idie, isensor;
+      lmddim->Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+      glModule = imodule;
+      glHalf = ihalf;
       glTrkTime = myHit->GetTimeStamp();
       //TODO: include info from GetTimeStampError()
 
@@ -719,6 +727,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkqlmd->SetEvRECMulti(nGeaneTrks);
       trkqlmd->SetEvTime(glEvTime);
       trkqlmd->SetTrkTime(glTrkTime);
+      trkqlmd->SetModule(glModule);
+      trkqlmd->SetHalf(glHalf);
       //(end) Fill tree with rec vs. mc trk info ---------------------------------------
     }
     ///END GHOST--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -840,6 +850,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    trkqlmd->SetEvRECMulti(nGeaneTrks);
 	    trkqlmd->SetEvTime(glEvTime);
 	    trkqlmd->SetTrkTime(glTrkTime);
+	    trkqlmd->SetModule(glModule);
+	    trkqlmd->SetHalf(glHalf);
 	  }
 	//(end) Fill tree with rec vs. mc trk info for missed trks ---------------------------------------
 	}

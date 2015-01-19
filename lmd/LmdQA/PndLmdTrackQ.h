@@ -192,6 +192,12 @@ public:
   void SetTrkTime(double trktm){ fTrkTime = trktm;}
   double GetEvTime() const{return fEvTime;}
   double GetTrkTime() const{return fTrkTime;}
+
+  /** set and get module and half of the 1st hit **/
+  void SetModule(int mod){fModule = mod;}
+  void SetHalf(int hf){fHalf = hf;}
+  int GetModule() const{return fModule;}
+  int GetHalf() const{return fHalf;}
  private:
 
   //  Int_t ftotCharge;
@@ -212,6 +218,8 @@ public:
   double fEvTime;//global time for event
   double fTrkTime;//time for 1st hit in the Trk = ToF (flight time from IP to LMD)
 
+  int fModule; //module number of 1st hit
+  int fHalf;// half of the plane number of 1st hit
   ClassDef(PndLmdTrackQ,11);
 };
 
