@@ -56,7 +56,7 @@ class PndTrkHit : public FairTimeStamp
   inline Int_t    GetHitID()          { return fHitID; }
   inline Int_t    GetDetectorID()     { return fDetectorID; }
   inline Bool_t   IsUsed()            { return fUsed; }
-   inline Bool_t  WasRefHit()         { return fUsedAsRefHit; }
+  inline Bool_t   WasRefHit()         { return fUsedAsRefHit; }
   inline Int_t    GetSensorID()       { return fSensorID; }
   inline Int_t    GetTubeID()         { return fSensorID; }
   inline TVector3 GetPosition()       { return fPosition; }

@@ -70,6 +70,7 @@ Int_t PndTrkHit::Compare(const TObject *hit)  const {
   //  Compare abstract method. Must be overridden if a class wants to be able
   //  to compare itself with other objects. Must return -1 if this is smaller
   //  than obj, 0 if objects are equal and 1 if this is larger than obj.
+  //  cout << "comparison " << fSortVariable<< " " << ((PndTrkHit*) hit)->fSortVariable << " " << (fSortVariable < ((PndTrkHit*) hit)->fSortVariable) << " " << (fSortVariable == ((PndTrkHit*) hit)->fSortVariable) << endl;
   if(fSortVariable < ((PndTrkHit*) hit)->fSortVariable) return -1;
   else if(fSortVariable == ((PndTrkHit*) hit)->fSortVariable) return 0;
   else return 1;

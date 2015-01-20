@@ -508,9 +508,12 @@ void PndTrkCluster::SortFromHit(PndTrkHit *firstextremity, TString criterion) {
 void PndTrkCluster::Sort()
 {
   // CHECK each TObject must return IsSortable = kTRUE
-
+ 
+  fHitList.UnSort();
   //  hitlist.Sort(); 
   fHitList.Sort();
+ 
+
 }
 
 void PndTrkCluster::ReverseSort()
