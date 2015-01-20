@@ -112,33 +112,46 @@ void PndTrackingQualityAnalysis::AnalyseEvent()
 		if (fVerbose > 1){
 			std::cout << "PndTrackingQualityAnalysis::AnalyseEvent Analyse track: " << i << std::endl;
 		}
-		Int_t mostProbableTrack = AnalyseTrackInfo(trackInfo);
+		Int_t mostProbableTrack = AnalyseTrackInfo(trackInfo, i);
 
 		if (mostProbableTrack == -1) continue;
 
 		fTrackIdMCId[i] = mostProbableTrack;
-
 		CalcEfficiencies(mostProbableTrack, trackInfo);
 
 		fMCTrackFound[mostProbableTrack]++;
+	}
 
-		if (mostProbableTrack > -1){
-			PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(mostProbableTrack);
+	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualification.begin();
+			iter != fMapTrackQualification.end(); iter++) {
 
-			if (fPndTrackOrTrackCand){
-				PndTrack* myTrack = (PndTrack*)fTrack->At(i);
-				TVector3 mom(myTrack->GetParamFirst().GetPx(), myTrack->GetParamFirst().GetPy(), myTrack->GetParamFirst().GetPz());
+
+		if (iter->first > -1 && iter->second > 0) {
+			PndMCTrack* mcTrack = (PndMCTrack*) fMCTrack->At(iter->first);
+
+			if (fPndTrackOrTrackCand) {
+				PndTrack* myTrack = (PndTrack*) fTrack->At(fMCIdTrackId[iter->first]);
+				TVector3 mom(myTrack->GetParamFirst().GetPx(),
+						myTrack->GetParamFirst().GetPy(),
+						myTrack->GetParamFirst().GetPz());
 				TVector3 McMom(mcTrack->GetMomentum());
 
-				fMapPResolution[mostProbableTrack] = (mom.Mag() - McMom.Mag());
-				fMapPtResolution[mostProbableTrack] =(mom.Pt() - McMom.Pt());
+				fMapPResolution[iter->first] = (mom.Mag() - McMom.Mag());
+				fMapP[iter->first] = mom;
+				fMapPtResolution[iter->first] = (mom.Pt() - McMom.Pt());
+				fMapPt[iter->first] = mom.Pt();
+				fMapPResolutionRel[iter->first] = (mom.Mag() - McMom.Mag())
+						/ McMom.Mag();
+				fMapPtResolutionRel[iter->first] = (mom.Pt() - McMom.Pt())
+						/ McMom.Pt();
 			}
 		}
 
 	}
+
 }
 
-Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo)
+Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId)
 {
 
 	Int_t mostProbableTrack = -1;
@@ -152,10 +165,13 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 		Int_t nMCHits = GetSumOfAllValidMCHits(&myEntry);
 
 		if (nMCHits == trackInfo["AllHits"].GetLink(0).GetWeight()){
-			fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] = 1;
+			fMapTrackQualification[trackInfo["AllHits"].GetLink(0).GetIndex()] = qualityNumbers::kFullyFound;
+			fMCIdTrackId[mostProbableTrack] = trackId;
 		} else {
-			if (fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] != 1)
-				fMapTrackQualifikation[trackInfo["AllHits"].GetLink(0).GetIndex()] = 2;
+			if (fMapTrackQualification[trackInfo["AllHits"].GetLink(0).GetIndex()] != qualityNumbers::kFullyFound){
+				fMapTrackQualification[trackInfo["AllHits"].GetLink(0).GetIndex()] = qualityNumbers::kPartiallyFound;
+				fMCIdTrackId[mostProbableTrack] = trackId;
+			}
 		}
 	} else {
 		Int_t highestCount = 0;
@@ -169,8 +185,11 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 		}
 
 		if ((Double_t)highestCount/(Double_t)allCounts > 0.7){
-			if (fMapTrackQualifikation[mostProbableTrack] < 1)
-				fMapTrackQualifikation[mostProbableTrack] = 3;
+			if (fMapTrackQualification[mostProbableTrack] != qualityNumbers::kFullyFound
+					&& fMapTrackQualification[mostProbableTrack] != qualityNumbers::kPartiallyFound){
+				fMapTrackQualification[mostProbableTrack] = qualityNumbers::kSpuriousFound;
+				fMCIdTrackId[mostProbableTrack] = trackId;
+			}
 		}
 		else {
 			fNGhosts++;
@@ -185,7 +204,7 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 			PrintTrackDataSummary(myEntry);
 
 		}
-		std::cout << "MostProbableTrack: " << mostProbableTrack << " Quality: " << fMapTrackQualifikation[mostProbableTrack] << std::endl;
+		std::cout << "MostProbableTrack: " << mostProbableTrack << " Quality: " << fMapTrackQualification[mostProbableTrack] << std::endl;
 		std::cout << std::endl;
 	}
 
@@ -194,7 +213,7 @@ Int_t PndTrackingQualityAnalysis::AnalyseTrackInfo(std::map<TString, FairMultiLi
 
 void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 {
-	fMapTrackQualifikation.clear();
+	fMapTrackQualification.clear();
 	fMapTrackMCStatus.clear();
 	for (int i = 0; i < fIdealTracksData.GetNEntries(); i++){
 		if (fIdealTracksData.GetEntry(i).GetNLinks() > 0){
@@ -211,29 +230,29 @@ void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 			nHits += GetNIdealHits(i, "STTHit");
 			nHits += GetNIdealHits(i, "GEMHit");
 			//std::cout << "FillMapTrackQualifikation: NHits: " << nHits << std::endl;
-			if (nHits > 2){
-				atLeastThreeHits = kTRUE;
-			}
-			if (atLeastThreeHits)
-			{
+			
+			if (nHits > 2) atLeastThreeHits = kTRUE;
+
+			if (atLeastThreeHits) {
 				if (primaryTrack) {
-					fMapTrackQualifikation[i] = -4;
+					fMapTrackQualification[i] = qualityNumbers::kAtLeastThreePrim;
 				} else {
-					fMapTrackQualifikation[i] = -3;
+					fMapTrackQualification[i] = qualityNumbers::kAtLeastThreeSec;
 				}
-			//	std::cout << "AtLeastThreeHits: Track "<< i << " status: " << fMapTrackQualifikation[i] << std::endl;
+			//	std::cout << "AtLeastThreeHits: Track "<< i << " status: " << fMapTrackQualification[i] << std::endl;
 			}
-			else if (primaryTrack){
-				fMapTrackQualifikation[i] = -5;
-			}						//No hits for primary track in central tracking detectors
+
+			else if (primaryTrack){  //No hits for primary track in central tracking detectors
+				fMapTrackQualification[i] = qualityNumbers::kLessThanThreePrim;
+			}
 			
 			PndMCEntry entry = fIdealTracksData.GetEntry(i);
 			if ((*fPossibleTrack)((FairMultiLinkedData*)&entry, primaryTrack))
 			{
 				if (primaryTrack) {
-					fMapTrackQualifikation[i] = -2;
+					fMapTrackQualification[i] = qualityNumbers::kPossiblePrim;
 				} else {
-					fMapTrackQualifikation[i] = -1;
+					fMapTrackQualification[i] = qualityNumbers::kPossibleSec;
 				}
 			}
 		}
@@ -242,7 +261,7 @@ void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 		std::cout << "-I- PndMCTestPatternRecoQuality::FillMapTrackQualifikation:" << std::endl;
 //		PrintTrackQualityMap();
 	}
-	fMapTrackMCStatus = fMapTrackQualifikation;
+	fMapTrackMCStatus = fMapTrackQualification;
 }
 
 //Bool_t PndTrackingQualityAnalysis::PossibleTrack(FairMultiLinkedData& mcForward)
@@ -345,8 +364,8 @@ void PndTrackingQualityAnalysis::PrintTrackDataSummary(FairMultiLinkedData& trac
 
 void PndTrackingQualityAnalysis::PrintTrackQualityMap(Bool_t detailedInfo)
 {
-	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualifikation.begin(); iter != fMapTrackQualifikation.end(); iter++){
-		std::cout << "TrackID: " << iter->first << " MCQuality: "  << fMapTrackMCStatus[iter->first] << " Quality: "<< iter->second << " Found: " << fMCTrackFound[iter->first] << " MCData: ";
+	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualification.begin(); iter != fMapTrackQualification.end(); iter++){
+		std::cout << "TrackID: " << iter->first << " MCQuality: "  << fMapTrackMCStatus[iter->first] << " Found: " << fMCTrackFound[iter->first] << " MCData: ";
 		PndMCEntry entry = fIdealTracksData.GetEntry(iter->first);
 		PrintTrackDataSummary(entry, detailedInfo);
 	}
@@ -363,3 +382,11 @@ void PndTrackingQualityAnalysis::PrintTrackMCStatusMap()
 	std::cout << std::endl;
 }
 
+
+Bool_t PndTrackingQualityAnalysis::IsBetterTrackExisting(Int_t& mcIndex,  int quality)
+{
+	if (fMapTrackQualification.count(mcIndex) == 1){
+		if (fMapTrackQualification[mcIndex] > 0 && fMapTrackQualification[mcIndex] > quality) return true;
+	}
+	return false;
+}

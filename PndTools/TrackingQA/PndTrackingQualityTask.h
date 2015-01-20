@@ -22,6 +22,8 @@
 #include "PndDetectorList.h"
 #include "PndTrackCand.h"
 #include "TH2.h"
+#include "THStack.h"
+#include "RhoHistogram/RhoTuple.h"
 
 
 #include <vector>
@@ -75,11 +77,13 @@ class PndTrackingQualityTask : public FairTask
   virtual void FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts);
   virtual void FillMCStatus(std::map<Int_t, Int_t> trackMCStatus);
   virtual void FillEfficiencies(std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > efficiencies);
-  virtual void FillPResolution (std::map<Int_t, Double_t> pResolution);
-  virtual void FillPtResolution(std::map<Int_t, Double_t> ptResolution);
+  virtual void MapToHist(std::map<Int_t, Double_t>, TH1*);
 
   virtual Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 
+  void InitializeHistograms();
+  void LabelQualyHistogram(TH1 *);
+  void ColorHistogram();
   std::vector<TString> fBranchNames;
 
   std::map<TString, FairMultiLinkedData> fMapLinkData;
@@ -101,9 +105,18 @@ class PndTrackingQualityTask : public FairTask
   TString fTrackBranchName;
   Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
 
+  RhoTuple * fTuple;
+
   TH1* fPHisto;
+  TH1* fPRelHisto;
   TH1* fPtHisto;
+  TH1* fPtRelHisto;
   TH1* fQualyHisto;
+  THStack * fQualyStack;
+  TH1 * fQualyHisto_mc;
+  TH1 * fQualyHisto_neg;
+  TH1 * fQualyHisto_pos;
+  TH1 * fQualyHisto_all;
 
   Int_t fEventNr;
 

@@ -12,6 +12,8 @@ ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/PndMCMatch 
 ${CMAKE_SOURCE_DIR}/PndTools/TrackingQA
+${CMAKE_SOURCE_DIR}/rho
+${CMAKE_SOURCE_DIR}/rho/RhoBase
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -32,6 +34,6 @@ PndTrackingQualityTask.cxx
 set(LINKDEF  TrackingQualityAnalysis_LinkDef.h)
 set(LIBRARY_NAME TrackingQA)
 
-set(DEPENDENCIES Base PndData MCMatch)
+set(DEPENDENCIES Base PndData MCMatch Rho)
 
 GENERATE_LIBRARY()

@@ -94,9 +94,15 @@ class CircleHoughTrackFunctor : public PossibleTrackFunctor
 	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
 		if (primary == kFALSE) return kFALSE;
 		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-									a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks()) > 3);
+		Bool_t possibleTrack = kFALSE;
 
+		Int_t nHitsMvdPixel = a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks();
+		Int_t nHitsMvdStrip = a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks();
+		if (nHitsMvdPixel + nHitsMvdStrip > 2) {  // First requirement: more than two MVD hits
+			Int_t nHitsStt = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks();
+			Int_t nHitsGem = a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks();
+			possibleTrack = (nHitsMvdPixel + nHitsMvdStrip + nHitsStt + nHitsGem > 6);  // Second requirement: More than six hits total
+		}
 		return possibleTrack;
 	}
 	void Print(){
@@ -104,6 +110,44 @@ class CircleHoughTrackFunctor : public PossibleTrackFunctor
 	}
 
 };
+/**
+ * @brief Holding statically callable quality numbers
+ * @details Per event, a track can have a certain quality. On a MC level, it can be below a threshold to be even found. If found, it can be found fully, or partially. 
+ * The struct holds the identifiers needed to categorize tracks. 
+ * The rough idea is: 
+ * Positive numbers are referring to reconstructed tracks, negative numbers to track before reconstruction. 
+ * The five numbers from -5 to -1 are repeating from -11 to -7 and there referring to monte carlo data.
+ *  
+ */
+struct qualityNumbers {
+	static const int
+		// Following: Default statuses.
+		// Are the 'not found' tracks in the quality histogram of PndTrackingQualityTask.
+		kPossibleSec = -1,  // possible: As defined through the possibleFunctor; secondary: a non-primary particle
+		kPossiblePrim = -2,  // possible: As defined through the possibleFunctor; primary: coming directly from particle generator (e.g. EvtGen)
+		kAtLeastThreeSec = -3,  // atLeastThree: min. 3 hit points in central tracking detectors (MVD, STT, GEM); secondary: a non-primary particle
+		kAtLeastThreePrim = -4,  // atLeastThree: min. 3 hit points in central tracking detectors (MVD, STT, GEM); primary: coming directly from particle generator (e.g. EvtGen)
+		kLessThanThreePrim = -5,  // LessThanThree: fewer than 3 hit points in central tracking detectors (MVD, STT, GEM); primar: coming directly from particle generator (e.g. EvtGen)
+
+		// Following: MC statuses of all (found+notfound) tracks
+		kMcPossibleSec = -7,  // see above
+		kMcPossiblePrim = -8, 
+		kMcAtLeastThreeSec = -9, 
+		kMcAtLeastThreePrim = -10, 
+		kMcLessThanThreePrim = -11,  
+
+		// Following: Status of reconstructed tracks (= created PndTracks)
+		kSpuriousFound = 1,  // spuriousFound: at least 70% of hits of reco'd track come from one MC track ('mostProbableTrack')
+		kPartiallyFound = 2,  // partiallyFound: all hits of reco'd track come from one single MC track; at least 70% of hits of MC track have been found in reco'd track
+		kFullyFound = 3,  // fullyFound: all hits of reco'd track come from one single MC track; all hits of MC track have been found in reco'd track
+
+		kGhost = 5,  // ghost: less than 70% of hits of reco'd track come from one MC track ('mostProbableTrack')
+
+		kNotFound = 7,  // notFound: total number of not reco'd tracks
+		kFound = 8;  // found: total number of reco'd tracks; the sum of fullyFound, partiallyFound, spuriousFound
+};
+
+
 
 class PndTrackingQualityAnalysis : public TObject
 {
@@ -124,11 +168,15 @@ public:
 	Int_t GetNIdealHits(Int_t trackId, TString branchName);
 	Int_t GetNIdealHits(FairMultiLinkedData& track, TString branchName);
 	std::map<Int_t, Int_t> GetMCTrackFound()						{return fMCTrackFound;}
-	std::map<Int_t, Int_t> GetTrackQualifikation()					{return fMapTrackQualifikation;}
-	std::map<Int_t, Int_t> GetTrackMCStatus()							{return fMapTrackMCStatus;}
+	std::map<Int_t, Int_t> GetTrackQualification()					{return fMapTrackQualification;}
+	std::map<Int_t, Int_t> GetTrackMCStatus()						{return fMapTrackMCStatus;}
 	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > GetEfficiencies()	{return fMapEfficiencies;}
 	std::map<Int_t, Double_t> GetPResolution()						{return fMapPResolution;}
+	std::map<Int_t, TVector3> GetP()								{return fMapP;}
 	std::map<Int_t, Double_t> GetPtResolution()						{return fMapPtResolution;}
+	std::map<Int_t, Double_t> GetPt()								{return fMapPt;}
+	std::map<Int_t, Double_t> GetPResolutionRel()					{return fMapPResolutionRel;}
+	std::map<Int_t, Double_t> GetPtResolutionRel()					{return fMapPtResolutionRel;}
 	std::map<Int_t, Int_t> GetTrackIdMCId()							{return fTrackIdMCId;}
 	Int_t GetNGhosts()												{return fNGhosts;}
 
@@ -136,15 +184,9 @@ public:
 
 	void PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo = kFALSE);
 
-	/** Prints the information of the track quality map.
-	* First output value is the MC track ID. Second output the quality indicator:
-	* -1 : Track with at least one hit in a tracking detector but of type 0
-	* 0  : Track with sufficient hits in tracking detectors for track finding but not found
-	* 1  : Not assigned
-	* 2  : All hits of the MC track were found and no additional once
-	* 3  : Some hits of the MC track were found and no additional once
-	* 4  : 70 % of all hits found belong to this MC track
-	*/
+	/**
+	 * The description of the quality map IDs is now located a but further up, at struct qualityNumbers	
+	 */
 	void PrintTrackQualityMap(Bool_t detailedInfo = kFALSE);
 	void PrintTrackMCStatusMap();
 
@@ -153,9 +195,10 @@ private:
 
 
 	virtual void FillMapTrackQualifikation();
+	Bool_t IsBetterTrackExisting(Int_t& mcIndex,  int quality);
 //	virtual Bool_t PossibleTrack(FairMultiLinkedData& mcForward);
 	Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
-	virtual Int_t AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo);
+	virtual Int_t AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId);
 	virtual void CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo);
 
 	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);
@@ -172,14 +215,19 @@ private:
 
 	std::vector<TString> fBranchNames;
 	std::map<Int_t, Int_t> fTrackIdMCId;				//< map between track id and most probable MC track id
+	std::map<Int_t, Int_t> fMCIdTrackId;				//< map between MC id and track id
 	std::map<Int_t, Int_t> fMCTrackFound;				//< How often was a MC Track (key) found
 	PndMCResult fIdealTracksData;
 
 	std::map<Int_t, Int_t> fMapTrackMCStatus;			//< TrackId vs TrackStatus from MC
-	std::map<Int_t, Int_t> fMapTrackQualifikation;		//< TrackId vs TrackStatus after analysis of track finding
+	std::map<Int_t, Int_t> fMapTrackQualification;		//< TrackId vs TrackStatus after analysis of track finding
 	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;  //< MostProbable TrackId, BranchName, Efficiency, #FoundHits / #MCHits, #MCHits
 	std::map<Int_t, Double_t> fMapPResolution;
+	std::map<Int_t, TVector3> fMapP;
 	std::map<Int_t, Double_t> fMapPtResolution;
+	std::map<Int_t, Double_t> fMapPt;
+	std::map<Int_t, Double_t> fMapPResolutionRel;
+	std::map<Int_t, Double_t> fMapPtResolutionRel;
 
 
 	PndMCMatch* fMCMatch;
