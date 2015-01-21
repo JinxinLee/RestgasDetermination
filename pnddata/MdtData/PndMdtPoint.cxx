@@ -8,10 +8,9 @@ using std::endl;
 #include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMdtPoint::PndMdtPoint() : FairMCPoint()
+PndMdtPoint::PndMdtPoint() : FairMCPoint(), fPosIn(), fMomIn()
 {
-  fTrackParentID = -999;
-  fPDG           = -999;
+  
 }
 // -------------------------------------------------------------------------
 
@@ -19,13 +18,10 @@ PndMdtPoint::PndMdtPoint() : FairMCPoint()
 
 // -----   Standard constructor   ------------------------------------------
 PndMdtPoint::PndMdtPoint( Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
-	     Double_t tof, Double_t length, Double_t eLoss, Int_t
-			  MotherTrId, Int_t pdg, TVector3 pos_in, TVector3 mom_in) :  FairMCPoint(trackID, detID, pos, mom,tof, length, eLoss )
+			  Double_t tof, Double_t length, Double_t eLoss, 
+			  TVector3 pos_in, TVector3 mom_in) 
+  :  FairMCPoint(trackID, detID, pos, mom,tof, length, eLoss ), fPosIn(pos_in),  fMomIn(mom_in)
 {
-  fTrackParentID = MotherTrId;
-  fPDG           = pdg;
-  fPosIn         = pos_in;
-  fMomIn         = mom_in;
   SetLink(FairLink("MCTrack", trackID));
 }
 
@@ -36,14 +32,12 @@ PndMdtPoint::~PndMdtPoint() { }
 
 // -----   Public method Print   -------------------------------------------
 void PndMdtPoint::Print(const Option_t* opt) const {
-/*  cout << "-I- PndMdtPoint: MDT Point for track " << fTrackID << " in the detector " << fDetectorID << endl;
-  cout << " in event " << fEventID+1 << " with parent track " << fTrackParentID 
-       << " and its particle PDG " << fPDG << endl;
-  cout << "    Position (" << fPos.X() << ", " << fPos.Y() << ", " << fPos.Z() << ", " << fPos.T()
-       << ") cm^3*s" << endl;
-  cout << "    Momentum (" << fMom.X() << ", " << fMom.Y() << ", " << fMom.Z() << ", " << fMom.T()
-       << ") GeV^4" << endl;
-*/
+  cout << "-I- PndMdtPoint: MDT Point for track " << fTrackID << " in the detector " << fDetectorID << endl;
+  cout << " in event " << fEventId << " track length " << fLength << " time " << fTime << " eloss " << fELoss << endl;
+  cout << "    Position In (" << fPosIn.X() << ", " << fPosIn.Y() << ", " << fPosIn.Z() << ") cm^3*s" << endl;
+  cout << "    Momentum In (" << fMomIn.X() << ", " << fMomIn.Y() << ", " << fMomIn.Z() << ") GeV^4" << endl; 
+  cout << "    Position Out (" << fX << ", " << fY << ", " << fZ << ") cm^3*s" << endl;
+  cout << "    Momentum Out(" << fPx << ", " << fPy << ", " << fPz << ") GeV^4" << endl;
 }
 // -------------------------------------------------------------------------
 

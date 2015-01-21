@@ -42,10 +42,6 @@ public:
 /** Accessors **/
     TClonesArray* GetCollection(Int_t iColl) const ;
     
-/** Modifiers **/
-    inline void SetPos(TLorentzVector vect) { fPos.SetXYZT(vect.X(),vect.Y(),vect.Z(),vect.T()); };
-    inline void SetMom(TLorentzVector vect) { fMom.SetXYZT(vect.X(),vect.Y(),vect.Z(),vect.T()); };
-
 // detector
     inline void SetVerbosity(Bool_t verbosity) { fVerboseLevel = verbosity; };
 
@@ -74,9 +70,8 @@ private:
 // hit
     TClonesArray* fMdtCollection; //!
     Int_t fTrkIn;       
-    Float_t fELoss; 
-    TLorentzVector fPos;  
-    TLorentzVector fMom;  
+    Float_t fELoss;  
+    Float_t fTime; 
     TLorentzVector fPos_In;  
     TLorentzVector fMom_In;  
 

@@ -32,7 +32,7 @@ PndMdt::PndMdt()
   :  FairDetector(), fMdtCollection(0), fTrkIn(-1), 
      fBarrel(""), fEndcap(""), fMuonFilter(""), fForward(""),
      mdtMagnet(0), mdtMFI(0), mdtCoil(0), fVerboseLevel(0),
-     fELoss(0), fPos(), fMom(), fPos_In(), fMom_In()
+     fELoss(0), fPos_In(), fMom_In(), fTime(0)
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
 }
@@ -44,7 +44,7 @@ PndMdt::PndMdt(const char* name, Bool_t active)
   : FairDetector(name,active), fMdtCollection(0), fTrkIn(-1), 
      fBarrel(""), fEndcap(""), fMuonFilter(""), fForward(""),
      mdtMagnet(0), mdtMFI(0), mdtCoil(0), fVerboseLevel(0),
-     fELoss(0), fPos(), fMom(), fPos_In(), fMom_In()
+     fELoss(0), fPos_In(), fMom_In(), fTime(0)
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
 }
@@ -81,9 +81,8 @@ void PndMdt::Reset()
 // -----   Public method ResetParameters   ------------------------------------
 void PndMdt::ResetParameters() 
 {
-    fELoss = 0.;
-    fPos.SetXYZT(0., 0., 0., 0.);
-    fMom.SetXYZT(0., 0., 0., 0.) ;
+    fELoss = 0.; 
+    fTime = 0.;
 }
 // ----------------------------------------------------------------------------
 
@@ -213,6 +212,7 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
       gMC->TrackPosition(fPos_In);
       gMC->TrackMomentum(fMom_In);
       fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
+      fTime = gMC->TrackTime()*1e9;
     }; // end entering
   
   fELoss += gMC->Edep(); 
@@ -236,8 +236,8 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
 	  gMC->TrackMomentum(lMom); // GeV
 	  TClonesArray& clref = *fMdtCollection;
 	  Int_t size = fMdtCollection->GetEntriesFast();
-	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
-							gMC->TrackLength(), fELoss, gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
+	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), fTime,
+							gMC->TrackLength(), fELoss, 
 							fPos_In.Vect(), fMom_In.Vect());
 	  /**if you add a point then tell the stack! here*/
 	  PndStack* stack = (PndStack*) gMC->GetStack();
@@ -265,6 +265,7 @@ Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol)
       gMC->TrackPosition(fPos_In);
       gMC->TrackMomentum(fMom_In);
       fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
+      fTime = gMC->TrackTime()*1e9;
     }; // end entering
   
   fELoss += gMC->Edep();
@@ -299,8 +300,8 @@ Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol)
 	  gMC->TrackMomentum(lMom); // GeV
 	  TClonesArray& clref = *fMdtCollection;
 	  Int_t size = fMdtCollection->GetEntriesFast();
-	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
-							gMC->TrackLength(), fELoss, gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
+	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), fTime,
+							gMC->TrackLength(), fELoss, 
 							fPos_In.Vect(), fMom_In.Vect());
 	  /**if you add a point then tell the stack! here*/
 	  PndStack* stack = (PndStack*) gMC->GetStack();
