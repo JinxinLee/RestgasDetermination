@@ -138,7 +138,7 @@ InitStatus PndTrkTrackFinder::Init() {
     fMvdStr_RealDistLimit = 1.; // CHECK limits
     fMvdPix_ConfDistLimit = 0.007; // CHECK limits
     fMvdStr_ConfDistLimit = 0.007; // CHECK limits
-   }
+  }
    
 
   // Get RootManager
@@ -293,14 +293,14 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fEventCounter++;
   // initialize -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~
   Initialize();
-   if(fVerbose > 1) 
-  {
-    cout << "number of stt    hits " << fSttHitArray->GetEntriesFast() << endl;
-    cout << "number of mvdpix hits " << fMvdPixelHitArray->GetEntriesFast() << endl;
-    cout << "number of mvdstr hits " << fMvdStripHitArray->GetEntriesFast() << endl;
-    cout << "number of scit   hits " << fSciTHitArray->GetEntriesFast() << endl;
-    cout << "number of gem    hits " << fGemHitArray->GetEntriesFast() << endl;
-  }
+  if(fVerbose > 1) 
+    {
+      cout << "number of stt    hits " << fSttHitArray->GetEntriesFast() << endl;
+      cout << "number of mvdpix hits " << fMvdPixelHitArray->GetEntriesFast() << endl;
+      cout << "number of mvdstr hits " << fMvdStripHitArray->GetEntriesFast() << endl;
+      cout << "number of scit   hits " << fSciTHitArray->GetEntriesFast() << endl;
+      cout << "number of gem    hits " << fGemHitArray->GetEntriesFast() << endl;
+    }
   // initialize display -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-
   if(fDisplayOn)  {
     Refresh();
@@ -431,17 +431,17 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       
       //      cout << " are fine! " << cosalpha << endl;
 
- //      if(fDisplayOn)  {
-// 	char goOnChar;
-// 	hiti->Draw(kRed);
-// 	hitj->Draw(kOrange);
-// 	display->Update();
-// 	display->Modified();
-// 	//	cin >> goOnChar;
-// 	Refresh();
-// 	display->Update();
-// 	display->Modified();
-//       }
+      //      if(fDisplayOn)  {
+      // 	char goOnChar;
+      // 	hiti->Draw(kRed);
+      // 	hitj->Draw(kOrange);
+      // 	display->Update();
+      // 	display->Modified();
+      // 	//	cin >> goOnChar;
+      // 	Refresh();
+      // 	display->Update();
+      // 	display->Modified();
+      //       }
 
       std::vector< int > couple;
       couple.push_back(hits0[ihit]);
@@ -539,16 +539,16 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     PndTrkHit *hit2 = stthitlist->GetHit(quadriplet[2]);
     PndTrkHit *hit3 = stthitlist->GetHit(quadriplet[3]);
 
-//     TH3F *hapollonius = new TH3F("hapollonius", "Apollonius field", 100, -500, 500, 100, -500, 500, 100, 0., 400);
-//     std::vector< double > X1, Y1, R1;
-//     Apollonius(hit0, hit1, hit2, X1, Y1, R1);
-//     for(int itrk = 0; itrk < X1.size(); itrk++) hapollonius->Fill(X1[itrk], Y1[itrk], R1[iitrk]);
-//     std::vector< double > X2, Y2, R2;
-//     Apollonius(hit0, hit1, hit3, X2, Y2, R2);
-//     for(int itrk = 0; itrk < X2.size(); itrk++) hapollonius->Fill(X2[itrk], Y2[itrk], R2[itrk]);
-//     std::vector< double > X3, Y3, R3;
-//     Apollonius(hit3, hit1, hit2, X3, Y3, R3);
-//     for(int itrk = 0; itrk < X3.size(); itrk++) hapollonius->Fill(X3[itrk], Y3[itrk], R3[itrk]);
+    //     TH3F *hapollonius = new TH3F("hapollonius", "Apollonius field", 100, -500, 500, 100, -500, 500, 100, 0., 400);
+    //     std::vector< double > X1, Y1, R1;
+    //     Apollonius(hit0, hit1, hit2, X1, Y1, R1);
+    //     for(int itrk = 0; itrk < X1.size(); itrk++) hapollonius->Fill(X1[itrk], Y1[itrk], R1[iitrk]);
+    //     std::vector< double > X2, Y2, R2;
+    //     Apollonius(hit0, hit1, hit3, X2, Y2, R2);
+    //     for(int itrk = 0; itrk < X2.size(); itrk++) hapollonius->Fill(X2[itrk], Y2[itrk], R2[itrk]);
+    //     std::vector< double > X3, Y3, R3;
+    //     Apollonius(hit3, hit1, hit2, X3, Y3, R3);
+    //     for(int itrk = 0; itrk < X3.size(); itrk++) hapollonius->Fill(X3[itrk], Y3[itrk], R3[itrk]);
 
     double x01, y01, rad1;
     CircleBy3Points(hit0, hit1, hit2, x01, y01, rad1);
@@ -558,127 +558,127 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     CircleBy3Points(hit3, hit1, hit2, x03, y03, rad3);
    
 
- //    cout << endl;
-//     hit0->GetPosition().Print();
-//     cout << hit0->GetIsochrone() << " " << hit0->GetPosition().Mag() << endl;
-//     hit1->GetPosition().Print();
-//     cout << hit1->GetIsochrone() <<  " " << hit1->GetPosition().Mag() << endl;
-//     hit2->GetPosition().Print();
-//     cout << hit2->GetIsochrone() <<  " " << hit2->GetPosition().Mag() << endl;
-//     hit3->GetPosition().Print();
-//     cout << hit3->GetIsochrone() <<  " " << hit3->GetPosition().Mag() << endl;
+    //    cout << endl;
+    //     hit0->GetPosition().Print();
+    //     cout << hit0->GetIsochrone() << " " << hit0->GetPosition().Mag() << endl;
+    //     hit1->GetPosition().Print();
+    //     cout << hit1->GetIsochrone() <<  " " << hit1->GetPosition().Mag() << endl;
+    //     hit2->GetPosition().Print();
+    //     cout << hit2->GetIsochrone() <<  " " << hit2->GetPosition().Mag() << endl;
+    //     hit3->GetPosition().Print();
+    //     cout << hit3->GetIsochrone() <<  " " << hit3->GetPosition().Mag() << endl;
  
-//     cout << "dist " << hit0->GetXYDistance(hit1) << endl;
-//     cout << "dist " << hit1->GetXYDistance(hit2) << endl;
-//     cout << "dist " << hit2->GetXYDistance(hit3) << endl;
+    //     cout << "dist " << hit0->GetXYDistance(hit1) << endl;
+    //     cout << "dist " << hit1->GetXYDistance(hit2) << endl;
+    //     cout << "dist " << hit2->GetXYDistance(hit3) << endl;
 
 
-     double xm = 0, ym = 0, rm = 0;
-      int positive = 0, negative = 0;
-      if(x01 > 0) positive++; 
-      else negative++;
-      if(x02 > 0) positive++;
-      else negative++;
-      if(x03 > 0) positive++;
-      else negative++;
-      bool posit = false;
-      positive > negative ? posit = true : posit = false;
-      int count = 0;
-      if(posit == true) {
-	if(x01 > 0)  { xm += x01; ym += y01; rm += rad1; count++; }
-	if(x02 > 0)  { xm += x02; ym += y02; rm += rad2; count++; } 
-	if(x03 > 0)  { xm += x03; ym += y03; rm += rad3; count++; }
-      }
-      else {
-	if(x01 < 0)  { xm += x01; ym += y01; rm += rad1; count++; }
-	if(x02 < 0)  { xm += x02; ym += y02; rm += rad2; count++; } 
-	if(x03 < 0)  { xm += x03; ym += y03; rm += rad3; count++; }
-      }
+    double xm = 0, ym = 0, rm = 0;
+    int positive = 0, negative = 0;
+    if(x01 > 0) positive++; 
+    else negative++;
+    if(x02 > 0) positive++;
+    else negative++;
+    if(x03 > 0) positive++;
+    else negative++;
+    bool posit = false;
+    positive > negative ? posit = true : posit = false;
+    int count = 0;
+    if(posit == true) {
+      if(x01 > 0)  { xm += x01; ym += y01; rm += rad1; count++; }
+      if(x02 > 0)  { xm += x02; ym += y02; rm += rad2; count++; } 
+      if(x03 > 0)  { xm += x03; ym += y03; rm += rad3; count++; }
+    }
+    else {
+      if(x01 < 0)  { xm += x01; ym += y01; rm += rad1; count++; }
+      if(x02 < 0)  { xm += x02; ym += y02; rm += rad2; count++; } 
+      if(x03 < 0)  { xm += x03; ym += y03; rm += rad3; count++; }
+    }
 
-      xm /= count;
-      ym /= count;
-      rm /= count;
+    xm /= count;
+    ym /= count;
+    rm /= count;
 
 
-      /**
-	 cout << posit << " " << count << " " << (x01 + x02 + x03)/count << endl;
-	 cout << "01 " << x01 << " " << y01 << " " << rad1 << endl;
-	 cout << "02 " << x02 << " " << y02 << " " << rad2 << endl;
-	 cout << "03 " << x03 << " " << y03 << " " << rad3 << endl;
-      **/
+    /**
+       cout << posit << " " << count << " " << (x01 + x02 + x03)/count << endl;
+       cout << "01 " << x01 << " " << y01 << " " << rad1 << endl;
+       cout << "02 " << x02 << " " << y02 << " " << rad2 << endl;
+       cout << "03 " << x03 << " " << y03 << " " << rad3 << endl;
+    **/
       
-      //  cout << quadriplet[0] << " " << quadriplet[1] << " " << quadriplet[2] << " " << quadriplet[3] << " MEAN " << xm << " " << ym << " " << rm << endl;
+    //  cout << quadriplet[0] << " " << quadriplet[1] << " " << quadriplet[2] << " " << quadriplet[3] << " MEAN " << xm << " " << ym << " " << rm << endl;
       
-      if(fDisplayOn)  {
-	char goOnChar;
-	// //       display->cd(2);
-	//       hapollonius->Draw("colz");
-	//       display->cd(1);
-	//       Refresh();
-	//       hit0->Draw(kOrange);
-	//       hit1->Draw(kOrange);
-	//       hit2->Draw(kOrange);
-	//      for(int itrk = 0; itrk < X1.size(); itrk++) {
-	// 	TArc *arc1 = new TArc(X1[itrk], Y1[itrk], R1[itrk]);
-	// 	arc1->SetFillStyle(0);
-	// 	//	arc1->Draw("SAME");
-	//       }
-	//       for(int itrk = 0; itrk < X2.size(); itrk++) {
-	// 	TArc *arc2 = new TArc(X2[itrk], Y2[itrk], R2[itrk]);
-	// 	arc2->SetFillStyle(0);
-	// 	//	arc2->Draw("SAME");
-	//       }
-	//       for(int itrk = 0; itrk < X3.size(); itrk++) {
-	// 	TArc *arc3 = new TArc(X3[itrk], Y3[itrk], R3[itrk]);
-	// 	arc3->SetFillStyle(0);
-	// 	//	arc3->Draw("SAME");
-	//       }
-	Refresh();
-	// 	TArc *arc1 = new TArc(x01, y01, rad1);
-	// 	arc1->SetFillStyle(0);
-	// 	arc1->SetLineColor(1);
-	// 	arc1->Draw("SAME");
-	// 	TArc *arc2 = new TArc(x02, y02, rad2);
-	// 	arc2->SetFillStyle(0);
-	// 	arc2->SetLineColor(2);
-	// 	arc2->Draw("SAME");
-	// 	TArc *arc3 = new TArc(x03, y03, rad3);
-	// 	arc3->SetFillStyle(0);
-	// 	arc3->SetLineColor(4);
-	// 	arc3->Draw("SAME");
+    if(fDisplayOn)  {
+      char goOnChar;
+      // //       display->cd(2);
+      //       hapollonius->Draw("colz");
+      //       display->cd(1);
+      //       Refresh();
+      //       hit0->Draw(kOrange);
+      //       hit1->Draw(kOrange);
+      //       hit2->Draw(kOrange);
+      //      for(int itrk = 0; itrk < X1.size(); itrk++) {
+      // 	TArc *arc1 = new TArc(X1[itrk], Y1[itrk], R1[itrk]);
+      // 	arc1->SetFillStyle(0);
+      // 	//	arc1->Draw("SAME");
+      //       }
+      //       for(int itrk = 0; itrk < X2.size(); itrk++) {
+      // 	TArc *arc2 = new TArc(X2[itrk], Y2[itrk], R2[itrk]);
+      // 	arc2->SetFillStyle(0);
+      // 	//	arc2->Draw("SAME");
+      //       }
+      //       for(int itrk = 0; itrk < X3.size(); itrk++) {
+      // 	TArc *arc3 = new TArc(X3[itrk], Y3[itrk], R3[itrk]);
+      // 	arc3->SetFillStyle(0);
+      // 	//	arc3->Draw("SAME");
+      //       }
+      Refresh();
+      // 	TArc *arc1 = new TArc(x01, y01, rad1);
+      // 	arc1->SetFillStyle(0);
+      // 	arc1->SetLineColor(1);
+      // 	arc1->Draw("SAME");
+      // 	TArc *arc2 = new TArc(x02, y02, rad2);
+      // 	arc2->SetFillStyle(0);
+      // 	arc2->SetLineColor(2);
+      // 	arc2->Draw("SAME");
+      // 	TArc *arc3 = new TArc(x03, y03, rad3);
+      // 	arc3->SetFillStyle(0);
+      // 	arc3->SetLineColor(4);
+      // 	arc3->Draw("SAME");
 	
-	TArc *arcm = new TArc(xm, ym, rm);
-	arcm->SetFillStyle(0);
-	arcm->SetLineColor(3);
-	arcm->Draw("SAME");
-	display->Update();
-	display->Modified();
-	cout << "next quadriplet?" << endl;    
-	cin >> goOnChar;
+      TArc *arcm = new TArc(xm, ym, rm);
+      arcm->SetFillStyle(0);
+      arcm->SetLineColor(3);
+      arcm->Draw("SAME");
+      display->Update();
+      display->Modified();
+      cout << "next quadriplet?" << endl;    
+      cin >> goOnChar;
+    }
+
+
+    std::vector< double > track;
+    track.push_back(xm);
+    track.push_back(ym);
+    track.push_back(rm);
+
+    // suppress identical clones
+    std::vector< std::vector < double > >::iterator itr = tracks.begin();
+    itr = std::find(tracks.begin(), tracks.end(), track);
+    if(itr == tracks.end()) {
+      //	cout << "miss" << endl;
+
+      // request 10 < rm < 2500
+      // . 10 because it touches layers 0 and 20 -->
+      // minimum diameter = 20 * 1 cm = 20 cm --> rm > 10
+      // . 2500 [cm] = 15 [GeV/c] / 0.006
+      if(rm > 10 && rm < 2500) { 
+	tracks.push_back(track);
+	trackcandidates4.push_back(quadriplet);
       }
-
-
-      std::vector< double > track;
-      track.push_back(xm);
-      track.push_back(ym);
-      track.push_back(rm);
-
-      // suppress identical clones
-      std::vector< std::vector < double > >::iterator itr = tracks.begin();
-      itr = std::find(tracks.begin(), tracks.end(), track);
-      if(itr == tracks.end()) {
-	//	cout << "miss" << endl;
-
-	// request 10 < rm < 2500
-	// . 10 because it touches layers 0 and 20 -->
-	// minimum diameter = 20 * 1 cm = 20 cm --> rm > 10
-	// . 2500 [cm] = 15 [GeV/c] / 0.006
-	if(rm > 10 && rm < 2500) { 
-	  tracks.push_back(track);
-	  trackcandidates4.push_back(quadriplet);
-	}
-      }
-      //      else cout << "already" << endl;
+    }
+    //      else cout << "already" << endl;
   }
   //  cout << "nof tracks reduced from " << trackcandidates3.size() << " to " << trackcandidates4.size() << endl;
   PndTrkClusterList clusterlist;
@@ -1272,433 +1272,433 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       if(border == false && hit->GetSector() != sectorID) continue;
       else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
 
-     int tubeID = hit->GetTubeID();
-     PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+      int tubeID = hit->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
    
-     TVector3 wireDirection = tube->GetWireDirection();
-     Double_t halflength = tube->GetHalfLength();
+      TVector3 wireDirection = tube->GetWireDirection();
+      Double_t halflength = tube->GetHalfLength();
       
-     TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
-     TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
+      TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
+      TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
     
-     //    double m1 = (first - second).Y()/(first - second).X();
-     //    double q1 = first.Y() - m1 * first.X();
+      //    double m1 = (first - second).Y()/(first - second).X();
+      //    double q1 = first.Y() - m1 * first.X();
       
-     // 1. compute intersection between the track circle and the wire
-     TVector2 intersection1, intersection2;
-     Int_t nofintersections = tools->ComputeSegmentCircleIntersection(TVector2(first.X(), first.Y()), TVector2(second.X(), second.Y()), xc2, yc2, R2, intersection1, intersection2);
+      // 1. compute intersection between the track circle and the wire
+      TVector2 intersection1, intersection2;
+      Int_t nofintersections = tools->ComputeSegmentCircleIntersection(TVector2(first.X(), first.Y()), TVector2(second.X(), second.Y()), xc2, yc2, R2, intersection1, intersection2);
       
-     if(nofintersections == 0) continue;
-     if(nofintersections >= 2) {
-     cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
-     continue; // CHECK
-     }
+      if(nofintersections == 0) continue;
+      if(nofintersections >= 2) {
+	cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
+	continue; // CHECK
+      }
 
-     // 2. find the tangent to the track in the intersection point
-     // tangent approximation
-     TVector2 tangent = tools->ComputeTangentInPoint(xc2, yc2, intersection1);
+      // 2. find the tangent to the track in the intersection point
+      // tangent approximation
+      TVector2 tangent = tools->ComputeTangentInPoint(xc2, yc2, intersection1);
        
-     // 3. rotate clockwise the tangent/point/(wire, not explicitely)
-     // in order to have the wire parallel to the x axis;
-     // then translate everything to have the wire ON the x axis
-     double beta = wireDirection.Phi();
-     if(beta < 0) beta += TMath::Pi();
-     // ... rotate the tangent
-     double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
-     double rty = TMath::Cos(beta) * tangent.Y() - TMath::Sin(beta) * tangent.X();
-    TVector2 rottangent(rtx, rty);
-     rottangent = rottangent.Unit();
-     // ... rotate the point
-     double rx = TMath::Cos(beta) * intersection1.X() + TMath::Sin(beta) * intersection1.Y();
-     double ry = TMath::Cos(beta) * intersection1.Y() - TMath::Sin(beta) * intersection1.X();
+      // 3. rotate clockwise the tangent/point/(wire, not explicitely)
+      // in order to have the wire parallel to the x axis;
+      // then translate everything to have the wire ON the x axis
+      double beta = wireDirection.Phi();
+      if(beta < 0) beta += TMath::Pi();
+      // ... rotate the tangent
+      double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
+      double rty = TMath::Cos(beta) * tangent.Y() - TMath::Sin(beta) * tangent.X();
+      TVector2 rottangent(rtx, rty);
+      rottangent = rottangent.Unit();
+      // ... rotate the point
+      double rx = TMath::Cos(beta) * intersection1.X() + TMath::Sin(beta) * intersection1.Y();
+      double ry = TMath::Cos(beta) * intersection1.Y() - TMath::Sin(beta) * intersection1.X();
        
-     // translation
-     Double_t deltay = ry;
-     rty -= deltay;
-     ry -= deltay;
+      // translation
+      Double_t deltay = ry;
+      rty -= deltay;
+      ry -= deltay;
 
-     // rotm, rotp
-     Double_t rotm = rottangent.Y()/rottangent.X();
-     Double_t rotp = ry - rotm * rx;
+      // rotm, rotp
+      Double_t rotm = rottangent.Y()/rottangent.X();
+      Double_t rotp = ry - rotm * rx;
 
-     // ellipsis
-     double a = hit->GetIsochrone() * TMath::Cos(SKEW_ANGLE); // CHECK skew angle hard coded
-     double b = hit->GetIsochrone();
+      // ellipsis
+      double a = hit->GetIsochrone() * TMath::Cos(SKEW_ANGLE); // CHECK skew angle hard coded
+      double b = hit->GetIsochrone();
 
-     // center of ellipsis
-     Double_t x0a, x0b, y0;
-     y0 = 0.;
-     x0a = (-rotp + TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
-     x0b = (-rotp - TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
+      // center of ellipsis
+      Double_t x0a, x0b, y0;
+      y0 = 0.;
+      x0a = (-rotp + TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
+      x0b = (-rotp - TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
  
-     // intersection point
-     double intxa = (x0a * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
-     double intya = rotm * intxa + rotp;
-     double intxb = (x0b * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
-     double intyb = rotm * intxb + rotp;
+      // intersection point
+      double intxa = (x0a * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
+      double intya = rotm * intxa + rotp;
+      double intxb = (x0b * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
+      double intyb = rotm * intxb + rotp;
    
-     // 4. retraslate/rerotate all back to the original plane
-     // retranslate
-     y0 += deltay; 
-     intya  += deltay; 
-     intyb  += deltay; 
+      // 4. retraslate/rerotate all back to the original plane
+      // retranslate
+      y0 += deltay; 
+      intya  += deltay; 
+      intyb  += deltay; 
    
-     // rerotate
-     double x0anew = TMath::Cos(beta) * x0a - TMath::Sin(beta) * y0;
-     double y0anew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0a;
-     double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
-     double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
+      // rerotate
+      double x0anew = TMath::Cos(beta) * x0a - TMath::Sin(beta) * y0;
+      double y0anew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0a;
+      double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
+      double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
    
-     double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
-     double intyanew = TMath::Cos(beta) * intya + TMath::Sin(beta) * intxa;
-     double intxbnew = TMath::Cos(beta) * intxb - TMath::Sin(beta) * intyb;
-     double intybnew = TMath::Cos(beta) * intyb + TMath::Sin(beta) * intxb;
+      double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
+      double intyanew = TMath::Cos(beta) * intya + TMath::Sin(beta) * intxa;
+      double intxbnew = TMath::Cos(beta) * intxb - TMath::Sin(beta) * intyb;
+      double intybnew = TMath::Cos(beta) * intyb + TMath::Sin(beta) * intxb;
    
-     intxa = intxanew;
-     intya = intyanew;
-     intxb = intxbnew;
-     intyb = intybnew;
+      intxa = intxanew;
+      intya = intyanew;
+      intxb = intxbnew;
+      intyb = intybnew;
 
-     // now we have x0a, y0a, center of the 1st ellipse
-     // and x0b, y0b, center of the 2nd ellipse
-     x0a = x0anew;
-     double y0a = y0anew;
-     x0b = x0bnew;
-     double y0b = y0bnew;
+      // now we have x0a, y0a, center of the 1st ellipse
+      // and x0b, y0b, center of the 2nd ellipse
+      x0a = x0anew;
+      double y0a = y0anew;
+      x0b = x0bnew;
+      double y0b = y0bnew;
 
-     if(fDisplayOn) {
-     char goOnChar;
-     display->cd(1);
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(1);
 
-     TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
-     ell1->SetFillStyle(0);
-     ell1->SetLineColor(4);
-     ell1->Draw("SAME");
-     TEllipse *ell2 = new TEllipse(x0b, y0b, a, b, 0, 360, -beta);
-     ell2->SetFillStyle(0);
-     ell2->SetLineColor(6);
-     ell2->Draw("SAME");
+	TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
+	ell1->SetFillStyle(0);
+	ell1->SetLineColor(4);
+	ell1->Draw("SAME");
+	TEllipse *ell2 = new TEllipse(x0b, y0b, a, b, 0, 360, -beta);
+	ell2->SetFillStyle(0);
+	ell2->SetLineColor(6);
+	ell2->Draw("SAME");
 
-     TMarker *mrkinta = new TMarker(intxa, intya, 20);
-     mrkinta->SetMarkerColor(4);
-     mrkinta->Draw("SAME");
-     TMarker *mrkintb = new TMarker(intxb, intyb, 20);
-     mrkintb->SetMarkerColor(6);
-     mrkintb->Draw("SAME");
-     }
+	TMarker *mrkinta = new TMarker(intxa, intya, 20);
+	mrkinta->SetMarkerColor(4);
+	mrkinta->Draw("SAME");
+	TMarker *mrkintb = new TMarker(intxb, intyb, 20);
+	mrkintb->SetMarkerColor(6);
+	mrkintb->Draw("SAME");
+      }
 
-     // 5. calculate z coordinate for each intersection
+      // 5. calculate z coordinate for each intersection
        
-     // calculate z0a, z0b of the center of the ellipse
-     Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
-     Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
-     //    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
+      // calculate z0a, z0b of the center of the ellipse
+      Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
+      Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
+      //    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
  
-     t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
-     Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
+      t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
+      Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
  
-     TVector3 center1(x0a, y0a, z0a);
-     TVector3 center2(x0b, y0b, z0b);
+      TVector3 center1(x0a, y0a, z0a);
+      TVector3 center2(x0b, y0b, z0b);
 
-     // calculate the z of the intersection ON the ellipse (CHECK this step calculations!)
-     double dx = intxa - x0a;
-     double dy = intya - y0a;
-     TVector3 dxdy(dx, dy, 0.0);
+      // calculate the z of the intersection ON the ellipse (CHECK this step calculations!)
+      double dx = intxa - x0a;
+      double dy = intya - y0a;
+      TVector3 dxdy(dx, dy, 0.0);
 
-     TVector3 tfirst = first + dxdy;
-     TVector3 tsecond = second + dxdy;
+      TVector3 tfirst = first + dxdy;
+      TVector3 tsecond = second + dxdy;
 
-     t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
-     double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
-     if(fDisplayOn) {
-     char goOnChar;
-     display->cd(3);
-     TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
-     linezx1->SetLineStyle(1);
-     linezx1->Draw("SAME");
-     TMarker *mrkza1 = new TMarker(intxa, intza, 20);
-     mrkza1->SetMarkerColor(kBlue - 9);
-     mrkza1->Draw("SAME");
-     // cin >> goOnChar;   
-     }
+      t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
+      double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+      if(fDisplayOn) {
+	char goOnChar;
+	display->cd(3);
+	TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
+	linezx1->SetLineStyle(1);
+	linezx1->Draw("SAME");
+	TMarker *mrkza1 = new TMarker(intxa, intza, 20);
+	mrkza1->SetMarkerColor(kBlue - 9);
+	mrkza1->Draw("SAME");
+	// cin >> goOnChar;   
+      }
 
-     tfirst = first - dxdy;
-     tsecond = second - dxdy;
+      tfirst = first - dxdy;
+      tsecond = second - dxdy;
 
-     t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
-     double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+      t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
+      double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
  
-     TVector3 fin_intersection1(intxa, intya, intza);
-     TVector3 fin_intersection2(intxb, intyb, intzb);
+      TVector3 fin_intersection1(intxa, intya, intza);
+      TVector3 fin_intersection2(intxb, intyb, intzb);
 
-     // CHECK to be changed
-     int trackID = 1;
-     double phi1 = finaltrack.ComputePhi(fin_intersection1);
-     double phi2 = finaltrack.ComputePhi(fin_intersection2);
+      // CHECK to be changed
+      int trackID = 1;
+      double phi1 = finaltrack.ComputePhi(fin_intersection1);
+      double phi2 = finaltrack.ComputePhi(fin_intersection2);
 
      
-     // skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
-     //    //      skewhit->Print();
-     //       skewhitlist.AddHit(skewhit);
+      // skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
+      //    //      skewhit->Print();
+      //       skewhitlist.AddHit(skewhit);
 
-     skewhitlist.AddHit(PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta));
-     }
-     // --------------------------
+      skewhitlist.AddHit(PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta));
+    }
+    // --------------------------
 
-     // add hits which have a z info
-     // and belong to the cluster
-     for(int ihit = 0; ihit <  fFinalCluster->GetNofHits(); ihit++) {
-       hit = fFinalCluster->GetHit(ihit);
-       if(hit->IsStt() == kFALSE) skewhitlist.AddHit(PndTrkSkewHit(*hit));
-     }
-     // skewhitlist = CleanUpSkewHitList(&skewhitlist);
+    // add hits which have a z info
+    // and belong to the cluster
+    for(int ihit = 0; ihit <  fFinalCluster->GetNofHits(); ihit++) {
+      hit = fFinalCluster->GetHit(ihit);
+      if(hit->IsStt() == kFALSE) skewhitlist.AddHit(PndTrkSkewHit(*hit));
+    }
+    // skewhitlist = CleanUpSkewHitList(&skewhitlist);
     
-     // ========================================================
-     std::vector < int > first, second;
-     for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
-       hit = skewhitlist.GetHit(ihit);
-       if(!hit) continue;
-       if(hit->IsStt() == kFALSE) continue;
+    // ========================================================
+    std::vector < int > first, second;
+    for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
+      hit = skewhitlist.GetHit(ihit);
+      if(!hit) continue;
+      if(hit->IsStt() == kFALSE) continue;
 
-       PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
+      PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
        
-       TVector3 fin_intersection1 = skewhit->GetIntersection1();
-       TVector3 fin_intersection2 = skewhit->GetIntersection2();
-       double phi1 = skewhit->GetPhi1();
-       double phi2 = skewhit->GetPhi2();
+      TVector3 fin_intersection1 = skewhit->GetIntersection1();
+      TVector3 fin_intersection2 = skewhit->GetIntersection2();
+      double phi1 = skewhit->GetPhi1();
+      double phi2 = skewhit->GetPhi2();
        
 
-       if(fDisplayOn) {
-	 display->cd(4);
-	 TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
-	 linezphi->SetLineStyle(1);
-	 linezphi->Draw("SAME");
-	 TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
-	 mrkzphi1->SetMarkerColor(kBlue - 9);
-	 mrkzphi1->Draw("SAME");
-	 TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
-	 mrkzphi2->SetMarkerColor(kMagenta - 7);
-	 mrkzphi2->Draw("SAME");
-	 display->Update();
-	 display->Modified();
-       }
+      if(fDisplayOn) {
+	display->cd(4);
+	TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
+	linezphi->SetLineStyle(1);
+	linezphi->Draw("SAME");
+	TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
+	mrkzphi1->SetMarkerColor(kBlue - 9);
+	mrkzphi1->Draw("SAME");
+	TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
+	mrkzphi2->SetMarkerColor(kMagenta - 7);
+	mrkzphi2->Draw("SAME");
+	display->Update();
+	display->Modified();
+      }
 
 
-       // check neighborings @ layer 8 & 15
-       PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-       if(tube->GetLayerID() == 8) {
-	 PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
-	 TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
-	 //	 cout << thit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
-	 for(int j = 0; j < neighs.GetEntriesFast(); j++) {
-	   PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
-	   PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
-	   if(ntube->GetLayerID() == 7) {
-	     //	     cout << "hit close to 7" << endl;
-	     first.push_back(ihit);
-	   }
-	 }
-       }
-       if(tube->GetLayerID() == 15) 
-	 {
-	   PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
-	   TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
-	   // cout << hit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
-	   for(int j = 0; j < neighs.GetEntriesFast(); j++) {
-	     PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
-	     PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
-	     if(ntube->GetLayerID() == 16) {
-	       //	       cout << "hit close to 16" << endl;
-	       second.push_back(ihit);
-	     }
-	   }
-	 }
-     }
+      // check neighborings @ layer 8 & 15
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+      if(tube->GetLayerID() == 8) {
+	PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
+	TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
+	//	 cout << thit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
+	for(int j = 0; j < neighs.GetEntriesFast(); j++) {
+	  PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
+	  PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
+	  if(ntube->GetLayerID() == 7) {
+	    //	     cout << "hit close to 7" << endl;
+	    first.push_back(ihit);
+	  }
+	}
+      }
+      if(tube->GetLayerID() == 15) 
+	{
+	  PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
+	  TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
+	  // cout << hit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
+	  for(int j = 0; j < neighs.GetEntriesFast(); j++) {
+	    PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
+	    PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
+	    if(ntube->GetLayerID() == 16) {
+	      //	       cout << "hit close to 16" << endl;
+	      second.push_back(ihit);
+	    }
+	  }
+	}
+    }
 
-     double zdistance = 1000;
-     int tmpi = -1, tmpj = -1;
-     double tmpiz, tmpjz, tmpiphi, tmpjphi;
+    double zdistance = 1000;
+    int tmpi = -1, tmpj = -1;
+    double tmpiz, tmpjz, tmpiphi, tmpjphi;
 
 
-     for(int ihit = 0; ihit < first.size(); ihit++) {
-       int hitiskeid = first[ihit];
-       PndTrkSkewHit *skewhiti = (PndTrkSkewHit*) skewhitlist.GetHit(hitiskeid);
-       TVector3 fin_intersectioni = 0.5 * (skewhiti->GetIntersection1() + skewhiti->GetIntersection2());
-       double phii = 0.5 * (skewhiti->GetPhi1() + skewhiti->GetPhi2()) ;
-       for(int jhit = 0; jhit < second.size(); jhit++) {
-	 int hitjskeid = second[jhit];
-	 PndTrkSkewHit *skewhitj = (PndTrkSkewHit*) skewhitlist.GetHit(hitjskeid);
-	 TVector3 fin_intersectionj = 0.5 * (skewhitj->GetIntersection1() + skewhitj->GetIntersection2());
-	 double phij = 0.5 * (skewhitj->GetPhi1() + skewhitj->GetPhi2()) ;
+    for(int ihit = 0; ihit < first.size(); ihit++) {
+      int hitiskeid = first[ihit];
+      PndTrkSkewHit *skewhiti = (PndTrkSkewHit*) skewhitlist.GetHit(hitiskeid);
+      TVector3 fin_intersectioni = 0.5 * (skewhiti->GetIntersection1() + skewhiti->GetIntersection2());
+      double phii = 0.5 * (skewhiti->GetPhi1() + skewhiti->GetPhi2()) ;
+      for(int jhit = 0; jhit < second.size(); jhit++) {
+	int hitjskeid = second[jhit];
+	PndTrkSkewHit *skewhitj = (PndTrkSkewHit*) skewhitlist.GetHit(hitjskeid);
+	TVector3 fin_intersectionj = 0.5 * (skewhitj->GetIntersection1() + skewhitj->GetIntersection2());
+	double phij = 0.5 * (skewhitj->GetPhi1() + skewhitj->GetPhi2()) ;
        
-	 double tmpzdistance = fabs(fin_intersectioni.Z() - fin_intersectionj.Z());
-	 if(tmpzdistance < zdistance) {
-	   zdistance = tmpzdistance;
-	   tmpi = hitiskeid;
-	   tmpj = hitjskeid;
-	   tmpiz = fin_intersectioni.Z(); 
-	   tmpjz = fin_intersectionj.Z();
-	   tmpiphi = phii;
-	   tmpjphi = phij;
-	 }
-       }
-     }
+	double tmpzdistance = fabs(fin_intersectioni.Z() - fin_intersectionj.Z());
+	if(tmpzdistance < zdistance) {
+	  zdistance = tmpzdistance;
+	  tmpi = hitiskeid;
+	  tmpj = hitjskeid;
+	  tmpiz = fin_intersectioni.Z(); 
+	  tmpjz = fin_intersectionj.Z();
+	  tmpiphi = phii;
+	  tmpjphi = phij;
+	}
+      }
+    }
 
-     double linem = (tmpiz - tmpjz) / (tmpiphi - tmpjphi);
-     double lineq = tmpiz - linem * tmpiphi;
+    double linem = (tmpiz - tmpjz) / (tmpiphi - tmpjphi);
+    double lineq = tmpiz - linem * tmpiphi;
 
-     // =
-
-
+    // =
 
 
 
 
 
 
-     /**
 
 
-     // -------- fit with a line
-     fFitter->Reset();    
-     // see the hits
-     for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
-       hit = skewhitlist.GetHit(ihit);
-       if(!hit) continue;
-       if(hit->IsStt() == kFALSE) {
-	 TVector3 position = hit->GetPosition();
-	 double phi = finaltrack.ComputePhi(position);
-	 fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK the error?
-	 // cout << "point " << phi << " " << position.Z() << " " << hit->IsMvdPixel() << " " << hit->IsMvdStrip() << " " << hit->IsGem() << " " << hit->IsSciTil() << endl;
-	 if(fDisplayOn)	{
-	   display->cd(4);
-	   TMarker *mrkzphi = new TMarker(phi, position.Z(), 20);
-	   mrkzphi->SetMarkerColor(kGreen - 9);
-	   mrkzphi->Draw("SAME");
-	   display->Update();
-	   display->Modified();
-	 }
-       }
-       else {
-
-	 PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
-
-	 TVector3 fin_intersection1 = skewhit->GetIntersection1();
-	 TVector3 fin_intersection2 = skewhit->GetIntersection2();
-	 double phi1 = skewhit->GetPhi1();
-	 double phi2 = skewhit->GetPhi2();
-	//  cout << "driftI  " << phi1 << " " << fin_intersection1.Z() << endl;
-// 	 cout << "driftII " << phi2 << " " << fin_intersection2.Z() << endl;
-	 fFitter->SetPointToFit(phi1, fin_intersection1.Z(), fabs(fin_intersection1.Z() - fin_intersection2.Z())/sqrt(12.)); // CHECK the error?
-	 fFitter->SetPointToFit(phi2, fin_intersection2.Z(), fabs(fin_intersection1.Z() - fin_intersection2.Z())/sqrt(12.)); // CHECK the error?
-
-	 if(fDisplayOn) {
-	   display->cd(4);
-	   TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
-	   linezphi->SetLineStyle(1);
-	   linezphi->Draw("SAME");
-	   TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
-	   mrkzphi1->SetMarkerColor(kBlue - 9);
-	   mrkzphi1->Draw("SAME");
-	   TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
-	   mrkzphi2->SetMarkerColor(kMagenta - 7);
-	   mrkzphi2->Draw("SAME");
-	   display->Update();
-	   display->Modified();
-	 }
-       }
-     }
-
-     double fitm3 = 0, fitq3 = 0;
-     fFitter->StraightLineFit(fitm3, fitq3);
-     **/
+    /**
 
 
-     double fitm3 = linem, fitq3 = lineq; // CHECK 
+    // -------- fit with a line
+    fFitter->Reset();    
+    // see the hits
+    for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
+    hit = skewhitlist.GetHit(ihit);
+    if(!hit) continue;
+    if(hit->IsStt() == kFALSE) {
+    TVector3 position = hit->GetPosition();
+    double phi = finaltrack.ComputePhi(position);
+    fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK the error?
+    // cout << "point " << phi << " " << position.Z() << " " << hit->IsMvdPixel() << " " << hit->IsMvdStrip() << " " << hit->IsGem() << " " << hit->IsSciTil() << endl;
+    if(fDisplayOn)	{
+    display->cd(4);
+    TMarker *mrkzphi = new TMarker(phi, position.Z(), 20);
+    mrkzphi->SetMarkerColor(kGreen - 9);
+    mrkzphi->Draw("SAME");
+    display->Update();
+    display->Modified();
+    }
+    }
+    else {
 
-     if(fDisplayOn) {
-       display->cd(4);
-       TLine *line = new TLine(0, fitq3, 360, 360 * fitm3 + fitq3);
-       line->SetLineColor(2);
-       line->Draw("SAME");
+    PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
 
-   //     TLine *tlinezphi = new TLine(0, lineq, 360, 360 * linem + lineq);
-//        tlinezphi->SetLineColor(5);
-//        tlinezphi->Draw("SAME");
+    TVector3 fin_intersection1 = skewhit->GetIntersection1();
+    TVector3 fin_intersection2 = skewhit->GetIntersection2();
+    double phi1 = skewhit->GetPhi1();
+    double phi2 = skewhit->GetPhi2();
+    //  cout << "driftI  " << phi1 << " " << fin_intersection1.Z() << endl;
+    // 	 cout << "driftII " << phi2 << " " << fin_intersection2.Z() << endl;
+    fFitter->SetPointToFit(phi1, fin_intersection1.Z(), fabs(fin_intersection1.Z() - fin_intersection2.Z())/sqrt(12.)); // CHECK the error?
+    fFitter->SetPointToFit(phi2, fin_intersection2.Z(), fabs(fin_intersection1.Z() - fin_intersection2.Z())/sqrt(12.)); // CHECK the error?
 
-       display->Update();
-       display->Modified();
-       char goOnChar;
-       cin >> goOnChar;
+    if(fDisplayOn) {
+    display->cd(4);
+    TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
+    linezphi->SetLineStyle(1);
+    linezphi->Draw("SAME");
+    TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
+    mrkzphi1->SetMarkerColor(kBlue - 9);
+    mrkzphi1->Draw("SAME");
+    TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
+    mrkzphi2->SetMarkerColor(kMagenta - 7);
+    mrkzphi2->Draw("SAME");
+    display->Update();
+    display->Modified();
+    }
+    }
+    }
+
+    double fitm3 = 0, fitq3 = 0;
+    fFitter->StraightLineFit(fitm3, fitq3);
+    **/
+
+
+    double fitm3 = linem, fitq3 = lineq; // CHECK 
+
+    if(fDisplayOn) {
+      display->cd(4);
+      TLine *line = new TLine(0, fitq3, 360, 360 * fitm3 + fitq3);
+      line->SetLineColor(2);
+      line->Draw("SAME");
+
+      //     TLine *tlinezphi = new TLine(0, lineq, 360, 360 * linem + lineq);
+      //        tlinezphi->SetLineColor(5);
+      //        tlinezphi->Draw("SAME");
+
+      display->Update();
+      display->Modified();
+      char goOnChar;
+      cin >> goOnChar;
 
 
 
-     }
-     // choose the fin_intersection of the skew
-     PndTrkSkewHitList skewhitlist2;
-     for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
-       hit = (PndTrkHit*) skewhitlist.GetHit(ihit);
-       if(!hit) continue;
-       if(hit->IsSttSkew() == kFALSE) {
-	 skewhitlist2.AddHit(hit);
-	 continue;
-       }
-       else {
-	 TVector3 fin_intersection1 = ((PndTrkSkewHit*) hit)->GetIntersection1();
-	 TVector3 fin_intersection2 = ((PndTrkSkewHit*) hit)->GetIntersection2();
-	 double phi1 = ((PndTrkSkewHit*) hit)->GetPhi1();
-	 double phi2 = ((PndTrkSkewHit*) hit)->GetPhi2();
+    }
+    // choose the fin_intersection of the skew
+    PndTrkSkewHitList skewhitlist2;
+    for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
+      hit = (PndTrkHit*) skewhitlist.GetHit(ihit);
+      if(!hit) continue;
+      if(hit->IsSttSkew() == kFALSE) {
+	skewhitlist2.AddHit(hit);
+	continue;
+      }
+      else {
+	TVector3 fin_intersection1 = ((PndTrkSkewHit*) hit)->GetIntersection1();
+	TVector3 fin_intersection2 = ((PndTrkSkewHit*) hit)->GetIntersection2();
+	double phi1 = ((PndTrkSkewHit*) hit)->GetPhi1();
+	double phi2 = ((PndTrkSkewHit*) hit)->GetPhi2();
    
-	 double dist1 = fabs(fitm3 * phi1 - fin_intersection1.Z() + fitq3) / TMath::Sqrt(fitm3 * fitm3 + 1); // CHECK ortho distance or not?
-	 double dist2 = fabs(fitm3 * phi2 - fin_intersection2.Z() + fitq3) / TMath::Sqrt(fitm3 * fitm3 + 1); // CHECK    "           "
+	double dist1 = fabs(fitm3 * phi1 - fin_intersection1.Z() + fitq3) / TMath::Sqrt(fitm3 * fitm3 + 1); // CHECK ortho distance or not?
+	double dist2 = fabs(fitm3 * phi2 - fin_intersection2.Z() + fitq3) / TMath::Sqrt(fitm3 * fitm3 + 1); // CHECK    "           "
      
-	 double distance = 1000;
-	 dist1 < dist2 ? (distance = dist1, hit->SetPosition(fin_intersection1), hit->SetPhi(phi1)) : (distance = dist2, hit->SetPosition(fin_intersection2), hit->SetPhi(phi2)); 
+	double distance = 1000;
+	dist1 < dist2 ? (distance = dist1, hit->SetPosition(fin_intersection1), hit->SetPhi(phi1)) : (distance = dist2, hit->SetPosition(fin_intersection2), hit->SetPhi(phi2)); 
 
-	 if(distance < 3) skewhitlist2.AddHit(hit);
-       }
-     }
-     // -------- refit with a line
-     fFitter->Reset();    
+	if(distance < 3) skewhitlist2.AddHit(hit);
+      }
+    }
+    // -------- refit with a line
+    fFitter->Reset();    
      
-     // see the hits
-     for(int ihit = 0; ihit < skewhitlist2.GetNofHits(); ihit++) {
-       hit = skewhitlist2.GetHit(ihit);
-       if(!hit) continue;
-       TVector3 position = hit->GetPosition();
-       double phi = finaltrack.ComputePhi(position);
-       fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK the error?
-       //      cout << "final point " << phi << " " << position.Z() << endl;
-       if(fDisplayOn)	{
-	 display->cd(4);
-	 TMarker *mrkzphi = new TMarker(phi, position.Z(), 20);
-	 mrkzphi->SetMarkerColor(kGreen);
-	 if(hit->IsStt() == kTRUE) mrkzphi->SetMarkerColor(kOrange);
-	 mrkzphi->Draw("SAME");
-	 display->Update();
-	 display->Modified();
-       }
-     }
+    // see the hits
+    for(int ihit = 0; ihit < skewhitlist2.GetNofHits(); ihit++) {
+      hit = skewhitlist2.GetHit(ihit);
+      if(!hit) continue;
+      TVector3 position = hit->GetPosition();
+      double phi = finaltrack.ComputePhi(position);
+      fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK the error?
+      //      cout << "final point " << phi << " " << position.Z() << endl;
+      if(fDisplayOn)	{
+	display->cd(4);
+	TMarker *mrkzphi = new TMarker(phi, position.Z(), 20);
+	mrkzphi->SetMarkerColor(kGreen);
+	if(hit->IsStt() == kTRUE) mrkzphi->SetMarkerColor(kOrange);
+	mrkzphi->Draw("SAME");
+	display->Update();
+	display->Modified();
+      }
+    }
 
-     double fitm4, fitq4;
-     fFitter->StraightLineFit(fitm4, fitq4);
+    double fitm4, fitq4;
+    fFitter->StraightLineFit(fitm4, fitq4);
 
-     if(fDisplayOn) {
-       display->cd(4);
-       TLine *line = new TLine(0, fitq4, 360, 360 * fitm4 + fitq4);
-       line->SetLineColor(4);
-       line->Draw("SAME");
-       display->Update();
-       display->Modified();
-       char goOnChar;
-       cin >> goOnChar;
-     }
+    if(fDisplayOn) {
+      display->cd(4);
+      TLine *line = new TLine(0, fitq4, 360, 360 * fitm4 + fitq4);
+      line->SetLineColor(4);
+      line->Draw("SAME");
+      display->Update();
+      display->Modified();
+      char goOnChar;
+      cin >> goOnChar;
+    }
 
-     // finalize the cluster
-     for(int ihit = 0; ihit < skewhitlist2.GetNofHits(); ihit++) {
-       hit = skewhitlist2.GetHit(ihit);
-       if(fFinalCluster->DoesContain(hit) == kFALSE) fFinalCluster->AddHit((PndTrkHit*) hit);
-     }
+    // finalize the cluster
+    for(int ihit = 0; ihit < skewhitlist2.GetNofHits(); ihit++) {
+      hit = skewhitlist2.GetHit(ihit);
+      if(fFinalCluster->DoesContain(hit) == kFALSE) fFinalCluster->AddHit((PndTrkHit*) hit);
+    }
 
     // sorting
     for(int ihit = 0; ihit < fFinalCluster->GetNofHits(); ihit++) {
@@ -1730,19 +1730,19 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     
 
 
-     // PndTrkTrack *finaltrack2 = new PndTrkTrack(finalcluster, xc2, yc2, R2);
+    // PndTrkTrack *finaltrack2 = new PndTrkTrack(finalcluster, xc2, yc2, R2);
 
-     finaltrack.SetCluster(fFinalCluster);
-     finaltrack.SetCenter(xc2, yc2);
-     finaltrack.SetRadius(R2);
-     finaltrack.SetZ0(z0);
-     finaltrack.SetTanL(tanl);
+    finaltrack.SetCluster(fFinalCluster);
+    finaltrack.SetCenter(xc2, yc2);
+    finaltrack.SetRadius(R2);
+    finaltrack.SetZ0(z0);
+    finaltrack.SetTanL(tanl);
 
-     // clusterlist.AddCluster(finalcluster);
-     fTrackList->AddTrack(&finaltrack);
-     for(int jtrk = 0; jtrk < fTrackList->GetNofTracks(); jtrk++) {
-       PndTrkTrack *tmptrack = fTrackList->GetTrack(jtrk);
-     }
+    // clusterlist.AddCluster(finalcluster);
+    fTrackList->AddTrack(&finaltrack);
+    for(int jtrk = 0; jtrk < fTrackList->GetNofTracks(); jtrk++) {
+      PndTrkTrack *tmptrack = fTrackList->GetTrack(jtrk);
+    }
   }
 
   
@@ -1761,15 +1761,15 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     if(merged[itrk] == 1) continue;
     PndTrkTrack *tracki = fTrackList->GetTrack(itrk);
     PndTrkCluster clusteri = tracki->GetCluster();
-//     if(fDisplayOn)  {
-//       char goOnChar;
-//       display->cd(1);
-//       Refresh();
-//       clusteri.LightUp();
-//       display->Update();
-//       display->Modified();
-//       cin >> goOnChar;
-//     }
+    //     if(fDisplayOn)  {
+    //       char goOnChar;
+    //       display->cd(1);
+    //       Refresh();
+    //       clusteri.LightUp();
+    //       display->Update();
+    //       display->Modified();
+    //       cin >> goOnChar;
+    //     }
     std::vector< int > mtracks;
     for(int jtrk = itrk + 1; jtrk < fTrackList->GetNofTracks() ; jtrk++) {
       if(merged[jtrk] == 1) continue;
@@ -1781,20 +1781,20 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	merged[itrk] = 1; // CHECK save time!
 	merged[jtrk] = 1;
      
-// 	if(fDisplayOn)  {
-// 	  char goOnChar;
-// 	  display->cd(1);
-// 	  Refresh();
-// 	  clusterj.LightUp();
-// 	  display->Update();
-// 	  display->Modified();
-// 	  cin >> goOnChar;
-// 	}
+	// 	if(fDisplayOn)  {
+	// 	  char goOnChar;
+	// 	  display->cd(1);
+	// 	  Refresh();
+	// 	  clusterj.LightUp();
+	// 	  display->Update();
+	// 	  display->Modified();
+	// 	  cin >> goOnChar;
+	// 	}
       }
     }
-   if(mtracks.size() == 0)  mtracks.push_back(-1);
-   mergingtracks.insert(std::pair<int , std::vector < int > >(itrk, mtracks));
-   //   cout << "pair of " << itrk << " and " << mtracks.size() << endl;
+    if(mtracks.size() == 0)  mtracks.push_back(-1);
+    mergingtracks.insert(std::pair<int , std::vector < int > >(itrk, mtracks));
+    //   cout << "pair of " << itrk << " and " << mtracks.size() << endl;
   }
 
   //  cout << "merging " << mergingtracks.size() << endl;
@@ -1949,7 +1949,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     double yc3 = track->GetCenter().Y();
     double R3 = track->GetRadius();
 
-     bool vote = true;
+    bool vote = true;
     // CHI2 ___________________
     double gap[5] = {0, 0, 0, 0, 0};
     
@@ -1960,14 +1960,14 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     //    cout << "FIRST LAY " << hit->GetDetectorID() << endl;
     if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
       PndSttTube *tube0 = (PndSttTube* ) fTubeArray->At(hit->GetTubeID());
-//       cout << tube0->GetLayerID() << endl;
+      //       cout << tube0->GetLayerID() << endl;
       if(tube0->GetLayerID() > 4) continue; // CHECK
     }
     hit = clusteri.GetHit(clusteri.GetNofHits() - 1);
     //    cout << "LAST LAY " << hit->GetDetectorID() << endl;
     if(hit->GetDetectorID() == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
       PndSttTube *tubeN = (PndSttTube* ) fTubeArray->At(hit->GetTubeID());
-//       cout << tubeN->GetLayerID() << endl;
+      //       cout << tubeN->GetLayerID() << endl;
       if(tubeN->GetLayerID() < 16) continue; // CHECK
     }
 
@@ -2030,22 +2030,22 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       TObjArray indiv2 = fHitMap->GetIndivisiblesToHit(hit);
 
       if(fDisplayOn) {
-	  hit->Draw(kBlue);
-	  display->Update();
-	  display->Modified();
-	}	
-	for(int jhit = 0; jhit < indiv2.GetEntriesFast(); jhit++) {
-	  PndTrkHit *hit2 = (PndTrkHit*) indiv2.At(jhit);
-	  hit2->Draw(kGreen);
-	  hit2->SetSortVariable(hit2->GetPosition().Perp());
-	  if(!clusteri.DoesContain(hit2)) {
-	    clusteri.AddHit(hit2);
-	  }
+	hit->Draw(kBlue);
+	display->Update();
+	display->Modified();
+      }	
+      for(int jhit = 0; jhit < indiv2.GetEntriesFast(); jhit++) {
+	PndTrkHit *hit2 = (PndTrkHit*) indiv2.At(jhit);
+	hit2->Draw(kGreen);
+	hit2->SetSortVariable(hit2->GetPosition().Perp());
+	if(!clusteri.DoesContain(hit2)) {
+	  clusteri.AddHit(hit2);
 	}
-	if(fDisplayOn) {
-	  char goOnChar;
-	  cin >> goOnChar ;
-	}
+      }
+      if(fDisplayOn) {
+	char goOnChar;
+	cin >> goOnChar ;
+      }
     }
     clusteri.Sort();
     tracki->SetCluster(&clusteri);
@@ -2546,7 +2546,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	y2right =  yc - TMath::Sqrt(delta2);
 	crossR = true;
       }
-//       cout << "CROSS? " << crossL << " " << crossR << endl;
+      //       cout << "CROSS? " << crossL << " " << crossR << endl;
       bool crossingpipe = false;
       if(crossL && crossR) {
 	double ycross = 0.5 * (y1left + y1right);
@@ -2762,7 +2762,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       for(int jhit = 0; jhit < cluster2.GetNofHits(); jhit++) {
 	hit = cluster2.GetHit(jhit);
 	//	cout << "hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << " " << hit->GetSortVariable() << endl;
-     }
+      }
 
       // first hypothesis of z slope
       if(fDisplayOn) DrawZGeometry(-360, 360, -40, 200);
@@ -2949,7 +2949,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	    display->Update();
 	    display->Modified();
 	  }
-// 	  cout << " add hit " << jhit << endl;
+	  // 	  cout << " add hit " << jhit << endl;
 	  cluster3.AddHit(hit);
 	}
       }
@@ -3090,7 +3090,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // ==================
       // MAKE the FINAL CLUSTER (at least in xy)
       fFinalCluster->Clear("C");
-//       cout << "cluster3 " << cluster3.GetNofHits() << " fFinalCluster " << fFinalCluster->GetNofHits() << endl;
+      //       cout << "cluster3 " << cluster3.GetNofHits() << " fFinalCluster " << fFinalCluster->GetNofHits() << endl;
       // GEM
       for(int jhit = 0; jhit < gemhitlist->GetNofHits(); jhit++) {
 	hit = gemhitlist->GetHit(jhit);
@@ -3113,7 +3113,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       fFinalCluster->ReverseSort();
 
       TVector3 fromhere = fFinalCluster->GetHit(0)->GetPosition(); // CHECK HERE
-//       cout << "fFinalCluster, gem " << fFinalCluster->GetNofHits() << endl;
+      //       cout << "fFinalCluster, gem " << fFinalCluster->GetNofHits() << endl;
 
       // STT
       for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
@@ -3128,272 +3128,272 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	  fFinalCluster->AddHit(hit);
 	}
       }
- //      cout << "fFinalCluster, gem + stt " << fFinalCluster->GetNofHits() << endl;
+      //      cout << "fFinalCluster, gem + stt " << fFinalCluster->GetNofHits() << endl;
 
 
-    // MVD PIX
-    for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
-      hit = mvdpixhitlist->GetHit(jhit);
+      // MVD PIX
+      for(int jhit = 0; jhit < mvdpixhitlist->GetNofHits(); jhit++) {
+	hit = mvdpixhitlist->GetHit(jhit);
 
-      // check if already discarded in the phi.z procedure
-      std::pair< int, int > thispair(hit->GetHitID(), hit->GetDetectorID());
-      std::vector < std::pair< int, int > >::iterator itr = dontuse.begin();
-      itr = std::find(dontuse.begin(), dontuse.end(), thispair);
-      if(itr != dontuse.end()) continue;
+	// check if already discarded in the phi.z procedure
+	std::pair< int, int > thispair(hit->GetHitID(), hit->GetDetectorID());
+	std::vector < std::pair< int, int > >::iterator itr = dontuse.begin();
+	itr = std::find(dontuse.begin(), dontuse.end(), thispair);
+	if(itr != dontuse.end()) continue;
       
-      if(border == false && hit->GetSector() != sectorID) continue;
-      else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
-      double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
-      double recoiso = fabs(distance_hit_center - R3);
-      if(recoiso < 0.5) {
-	fFinalCluster->AddHit(hit);
-      }
-    }
- //      cout << "fFinalCluster, gem + stt + pix " << fFinalCluster->GetNofHits() << endl;
-
-
-    // MVD STR
-    for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
-      hit = mvdstrhitlist->GetHit(jhit);
-      
-      // check if already discarded in the phi.z procedure
-      std::pair< int, int > thispair(hit->GetHitID(), hit->GetDetectorID());
-      std::vector < std::pair< int, int > >::iterator itr = dontuse.begin();
-      itr = std::find(dontuse.begin(), dontuse.end(), thispair);
-      if(itr != dontuse.end()) continue;
-      
-      if(border == false && hit->GetSector() != sectorID) continue;
-      else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
-      double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
-      double recoiso = fabs(distance_hit_center - R3);
-      if(recoiso < 0.5)  {
-	fFinalCluster->AddHit(hit);
-      }
-    }
-//     cout << "fFinalCluster, gem + stt + str " << fFinalCluster->GetNofHits() << endl;
-
-    // SCITIL
-    int tmphit = -1; 
-    double tmpdistance = 1000;
-    for(int jhit = 0; jhit < scithitlist->GetNofHits(); jhit++) {
-      hit = scithitlist->GetHit(jhit);
-      double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
-      double recoiso = fabs(distance_hit_center - R3);
-      if(recoiso < 0.5) {
-	if(recoiso < tmpdistance) {
-	  tmphit = jhit;
-	  tmpdistance = recoiso;
+	if(border == false && hit->GetSector() != sectorID) continue;
+	else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
+	double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
+	double recoiso = fabs(distance_hit_center - R3);
+	if(recoiso < 0.5) {
+	  fFinalCluster->AddHit(hit);
 	}
       }
-    }
-    if(tmphit > -1) {
-      hit = scithitlist->GetHit(tmphit);
-      fFinalCluster->AddHit(hit);
-    }
-//       cout << "fFinalCluster, gem + stt + pix + str + scit " << fFinalCluster->GetNofHits() << endl;
-
-    if(fFinalCluster->GetNofHits() == 0) {
-      continue;
-    }
+      //      cout << "fFinalCluster, gem + stt + pix " << fFinalCluster->GetNofHits() << endl;
 
 
-    // sorting from last gem
-
-    PndTrkTrack track3(fFinalCluster, xc3, yc3, R3);
-    for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
-      hit = fFinalCluster->GetHit(jhit);
-      double phi = track3.ComputePhiFrom(hit->GetPosition(), fromhere);
-      if(phi == 360) phi = 0;
-      hit->SetPhi(phi);
-hit->SetSortVariable(phi);
+      // MVD STR
+      for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
+	hit = mvdstrhitlist->GetHit(jhit);
       
-      //      if(hit->IsMvdPixel()) hit->SetSortVariable(phi);
-      //       else if(hit->IsMvdStrip()) hit->SetSortVariable(phi + 400);
-      //       else if(hit->IsStt()) hit->SetSortVariable(phi + 4000);
-      //       else if(hit->IsGem()) hit->SetSortVariable(phi + 400000);
-      //       else if(hit->IsSciTil()) hit->SetSortVariable(phi + 40000);
-	
-    }
-    fFinalCluster->Sort();
-     
-    for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
-      hit = fFinalCluster->GetHit(jhit);
-      //      cout << "-> " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
-    }
-//    // check the 0/360 discontinuity ..................
-//     double tmpphi = 0;
-//     for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
-//       hit = fFinalCluster->GetHit(jhit);
-//       double phi = hit->GetPhi();
-//        if(phi < 1e-9 && phi < tmpphi)  {
-//  	phi += 360.;
-//  	hit->SetPhi(phi);
-//        }
-//        else if(fabs(phi - 360) < 1e-9 && phi > tmpphi)  {
-// 	phi -= 360.;
-//  	hit->SetPhi(phi);
-//        }
-//        hit->SetSortVariable(phi);
-//        //      if(hit->IsMvdPixel()) hit->SetSortVariable(phi);
-//        //        else if(hit->IsMvdStrip()) hit->SetSortVariable(phi + 400.);
-//        //        else if(hit->IsStt()) hit->SetSortVariable(phi + 4000.);
-//        //        else if(hit->IsGem()) hit->SetSortVariable(phi + 400000.);
-//        //        else if(hit->IsSciTil()) hit->SetSortVariable(phi + 40000.);
+	// check if already discarded in the phi.z procedure
+	std::pair< int, int > thispair(hit->GetHitID(), hit->GetDetectorID());
+	std::vector < std::pair< int, int > >::iterator itr = dontuse.begin();
+	itr = std::find(dontuse.begin(), dontuse.end(), thispair);
+	if(itr != dontuse.end()) continue;
+      
+	if(border == false && hit->GetSector() != sectorID) continue;
+	else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
+	double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
+	double recoiso = fabs(distance_hit_center - R3);
+	if(recoiso < 0.5)  {
+	  fFinalCluster->AddHit(hit);
+	}
+      }
+      //     cout << "fFinalCluster, gem + stt + str " << fFinalCluster->GetNofHits() << endl;
 
-//        tmpphi = phi;
-//     }
+      // SCITIL
+      int tmphit = -1; 
+      double tmpdistance = 1000;
+      for(int jhit = 0; jhit < scithitlist->GetNofHits(); jhit++) {
+	hit = scithitlist->GetHit(jhit);
+	double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
+	double recoiso = fabs(distance_hit_center - R3);
+	if(recoiso < 0.5) {
+	  if(recoiso < tmpdistance) {
+	    tmphit = jhit;
+	    tmpdistance = recoiso;
+	  }
+	}
+      }
+      if(tmphit > -1) {
+	hit = scithitlist->GetHit(tmphit);
+	fFinalCluster->AddHit(hit);
+      }
+      //       cout << "fFinalCluster, gem + stt + pix + str + scit " << fFinalCluster->GetNofHits() << endl;
 
-   // check the 0/360 discontinuity ..................
-    PndTrkHit *hit1 = fFinalCluster->GetHit(0);
-    PndTrkHit *hit2 = fFinalCluster->GetHit(1);
+      if(fFinalCluster->GetNofHits() == 0) {
+	continue;
+      }
 
-    if(fDisplayOn) {
+
+      // sorting from last gem
+
+      PndTrkTrack track3(fFinalCluster, xc3, yc3, R3);
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
-	cout << "-> " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << endl;
-	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
-	mrk->SetMarkerColor(kMagenta);
-	mrk->Draw("SAME");
-	char goOnChar;
- 	cin >> goOnChar;
-	display->Update();
-	display->Modified();
+	double phi = track3.ComputePhiFrom(hit->GetPosition(), fromhere);
+	if(phi == 360) phi = 0;
+	hit->SetPhi(phi);
+	hit->SetSortVariable(phi);
+      
+	//      if(hit->IsMvdPixel()) hit->SetSortVariable(phi);
+	//       else if(hit->IsMvdStrip()) hit->SetSortVariable(phi + 400);
+	//       else if(hit->IsStt()) hit->SetSortVariable(phi + 4000);
+	//       else if(hit->IsGem()) hit->SetSortVariable(phi + 400000);
+	//       else if(hit->IsSciTil()) hit->SetSortVariable(phi + 40000);
+	
       }
-    }
-
-    int counter = 0;
-    double meanphi = 0;
-    for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
-      hit = fFinalCluster->GetHit(jhit);
-      if(!hit->IsGem()) continue;
-      double phi = hit->GetPhi();
-      if(phi != 0) {
-	meanphi += phi;
-	counter++;
+      fFinalCluster->Sort();
+     
+      for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	hit = fFinalCluster->GetHit(jhit);
+	//      cout << "-> " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
       }
-    }
+      //    // check the 0/360 discontinuity ..................
+      //     double tmpphi = 0;
+      //     for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+      //       hit = fFinalCluster->GetHit(jhit);
+      //       double phi = hit->GetPhi();
+      //        if(phi < 1e-9 && phi < tmpphi)  {
+      //  	phi += 360.;
+      //  	hit->SetPhi(phi);
+      //        }
+      //        else if(fabs(phi - 360) < 1e-9 && phi > tmpphi)  {
+      // 	phi -= 360.;
+      //  	hit->SetPhi(phi);
+      //        }
+      //        hit->SetSortVariable(phi);
+      //        //      if(hit->IsMvdPixel()) hit->SetSortVariable(phi);
+      //        //        else if(hit->IsMvdStrip()) hit->SetSortVariable(phi + 400.);
+      //        //        else if(hit->IsStt()) hit->SetSortVariable(phi + 4000.);
+      //        //        else if(hit->IsGem()) hit->SetSortVariable(phi + 400000.);
+      //        //        else if(hit->IsSciTil()) hit->SetSortVariable(phi + 40000.);
 
-    if(meanphi > 300) {
+      //        tmpphi = phi;
+      //     }
+
+      // check the 0/360 discontinuity ..................
+      PndTrkHit *hit1 = fFinalCluster->GetHit(0);
+      PndTrkHit *hit2 = fFinalCluster->GetHit(1);
+
+      if(fDisplayOn) {
+	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	  hit = fFinalCluster->GetHit(jhit);
+	  cout << "-> " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << endl;
+	  TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
+	  mrk->SetMarkerColor(kMagenta);
+	  mrk->Draw("SAME");
+	  char goOnChar;
+	  cin >> goOnChar;
+	  display->Update();
+	  display->Modified();
+	}
+      }
+
+      int counter = 0;
+      double meanphi = 0;
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
 	if(!hit->IsGem()) continue;
 	double phi = hit->GetPhi();
-	if(phi < 10) phi += 360;
-	hit->SetPhi(phi);
-	hit->SetSortVariable(phi);
+	if(phi != 0) {
+	  meanphi += phi;
+	  counter++;
+	}
       }
-      fFinalCluster->Sort();
-    }
-    else fFinalCluster->ReverseSort();
 
-    if(fDisplayOn) {
+      if(meanphi > 300) {
+	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	  hit = fFinalCluster->GetHit(jhit);
+	  if(!hit->IsGem()) continue;
+	  double phi = hit->GetPhi();
+	  if(phi < 10) phi += 360;
+	  hit->SetPhi(phi);
+	  hit->SetSortVariable(phi);
+	}
+	fFinalCluster->Sort();
+      }
+      else fFinalCluster->ReverseSort();
+
+      if(fDisplayOn) {
+	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	  hit = fFinalCluster->GetHit(jhit);
+	  cout << "*** " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << endl;
+	  TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
+	  mrk->SetMarkerColor(kGreen);
+	  mrk->Draw("SAME");
+	  char goOnChar;
+	  cin >> goOnChar;
+	  display->Update();
+	  display->Modified();
+	}
+      }
+      // ....................................................
+
+      cout << "FINAL CLUSTER HAS " << fFinalCluster->GetNofHits() << endl;
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
-	cout << "*** " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << endl;
-	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
-	mrk->SetMarkerColor(kGreen);
-	mrk->Draw("SAME");
-	char goOnChar;
- 	cin >> goOnChar;
-	display->Update();
-	display->Modified();
+	cout << "final " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
       }
-    }
-    // ....................................................
-
-     cout << "FINAL CLUSTER HAS " << fFinalCluster->GetNofHits() << endl;
-     for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
-       hit = fFinalCluster->GetHit(jhit);
-       cout << "final " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
-     }
-    if(fDisplayOn) {
-      Refresh();
-      fFinalCluster->LightUp();
-      for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
-	hit = fFinalCluster->GetHit(jhit);
-	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
-	mrk->SetMarkerColor(kOrange);
-	mrk->Draw("SAME");
+      if(fDisplayOn) {
+	Refresh();
+	fFinalCluster->LightUp();
+	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	  hit = fFinalCluster->GetHit(jhit);
+	  TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
+	  mrk->SetMarkerColor(kOrange);
+	  mrk->Draw("SAME");
+	  char goOnChar;
+	  cin >> goOnChar;
+	  display->Update();
+	  display->Modified();
+	}
 	char goOnChar;
- 	cin >> goOnChar;
-	display->Update();
-	display->Modified();
+	cin >> goOnChar;
       }
-      char goOnChar;
-      cin >> goOnChar;
-    }
 
-    // ====== REFIT CLUSTER ANALYTICALLY
-    // REFIT ANALYTICALLY ....again taken from-..
-    // -------------------------- 
-    // if there is a scitil lets use it as seed hit
-    // for the conformal map
-    fConformalHitList->Clear("C");
-    refhit = fFinalCluster->GetHit(0); // cluster3.GetNofHits() - 1);
-    cout << "refhit ---> " << refhit << endl;
-    ComputeTraAndRot(refhit, delta, trasl);
-    conform->SetOrigin(trasl[0], trasl[1], delta);
-    fConformalHitList->SetConformalTransform(conform);
+      // ====== REFIT CLUSTER ANALYTICALLY
+      // REFIT ANALYTICALLY ....again taken from-..
+      // -------------------------- 
+      // if there is a scitil lets use it as seed hit
+      // for the conformal map
+      fConformalHitList->Clear("C");
+      refhit = fFinalCluster->GetHit(0); // cluster3.GetNofHits() - 1);
+      cout << "refhit ---> " << refhit << endl;
+      ComputeTraAndRot(refhit, delta, trasl);
+      conform->SetOrigin(trasl[0], trasl[1], delta);
+      fConformalHitList->SetConformalTransform(conform);
 
-    nofconfhits = FillConformalHitList(fFinalCluster);
+      nofconfhits = FillConformalHitList(fFinalCluster);
 
-    // compute conformal plane extremities ---------------------------- this must go to a fctn CHECK
-    fUmin =  1000, fVmin =  1000, fRmin =  1000;
-    fUmax = -1000, fVmax = -1000, fRmax = -1000;
+      // compute conformal plane extremities ---------------------------- this must go to a fctn CHECK
+      fUmin =  1000, fVmin =  1000, fRmin =  1000;
+      fUmax = -1000, fVmax = -1000, fRmax = -1000;
     
-    for(int jhit = 0; jhit < fConformalHitList->GetNofHits(); jhit++) {
-      PndTrkConformalHit *chit = fConformalHitList->GetHit(jhit);
-      double u = chit->GetU();
-      double v = chit->GetV();
-      double rc = chit->GetIsochrone();
-      if(TMath::IsNaN(u)) continue; // prevents the nan of the ref hit
-      if(rc < 0) rc = 0;
-      cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
-      u - rc < fUmin ? fUmin = u - rc : fUmin;
-      v - rc < fVmin ? fVmin = v - rc : fVmin;
-      u + rc > fUmax ? fUmax = u + rc : fUmax;
-      v + rc > fVmax ? fVmax = v + rc : fVmax;
-      
-      double theta1 = TMath::ATan2(v, u);
-      double theta2 = theta1 + TMath::Pi();
-      
-      double r1 = u * TMath::Cos(theta1) + v * TMath::Sin(theta1);
-      double r2 = u * TMath::Cos(theta2) + v * TMath::Sin(theta2);
-      
-      double rimin, rimax;
-      r1 < r2 ? (rimin = r1, rimax = r2) : (rimin = r2, rimax = r1);
-      
-      rimin < fRmin ? (rc_of_min = rc, fRmin = rimin) : fRmin;
-      rimax > fRmax ? (rc_of_max = rc, fRmax = rimax) : fRmax;
-    }
-    
-    fRmin -= rc_of_min;
-    fRmax += rc_of_max;
-    
-    // to square the conformal plane
-    du = fUmax - fUmin;
-    dv = fVmax - fVmin;
-    delt = fabs(dv - du)/2.;
-    du < dv ? (fUmin -= delt, fUmax += delt) : (fVmin -= delt, fVmax += delt);
-    cout << "min/max " << fUmin << " " << fUmax << " " << fVmin << " " << fVmax << endl;
-    if(fDisplayOn) {
-      DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
-      // ----------------------------------------------------------------------
-      for(int jhit = 0; jhit < nofconfhits; jhit++) {
+      for(int jhit = 0; jhit < fConformalHitList->GetNofHits(); jhit++) {
 	PndTrkConformalHit *chit = fConformalHitList->GetHit(jhit);
-	chit->Draw(kBlue);
+	double u = chit->GetU();
+	double v = chit->GetV();
+	double rc = chit->GetIsochrone();
+	if(TMath::IsNaN(u)) continue; // prevents the nan of the ref hit
+	if(rc < 0) rc = 0;
+	cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
+	u - rc < fUmin ? fUmin = u - rc : fUmin;
+	v - rc < fVmin ? fVmin = v - rc : fVmin;
+	u + rc > fUmax ? fUmax = u + rc : fUmax;
+	v + rc > fVmax ? fVmax = v + rc : fVmax;
+      
+	double theta1 = TMath::ATan2(v, u);
+	double theta2 = theta1 + TMath::Pi();
+      
+	double r1 = u * TMath::Cos(theta1) + v * TMath::Sin(theta1);
+	double r2 = u * TMath::Cos(theta2) + v * TMath::Sin(theta2);
+      
+	double rimin, rimax;
+	r1 < r2 ? (rimin = r1, rimax = r2) : (rimin = r2, rimax = r1);
+      
+	rimin < fRmin ? (rc_of_min = rc, fRmin = rimin) : fRmin;
+	rimax > fRmax ? (rc_of_max = rc, fRmax = rimax) : fRmax;
       }
-    }
+    
+      fRmin -= rc_of_min;
+      fRmax += rc_of_max;
+    
+      // to square the conformal plane
+      du = fUmax - fUmin;
+      dv = fVmax - fVmin;
+      delt = fabs(dv - du)/2.;
+      du < dv ? (fUmin -= delt, fUmax += delt) : (fVmin -= delt, fVmax += delt);
+      cout << "min/max " << fUmin << " " << fUmax << " " << fVmin << " " << fVmax << endl;
+      if(fDisplayOn) {
+	DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
+	// ----------------------------------------------------------------------
+	for(int jhit = 0; jhit < nofconfhits; jhit++) {
+	  PndTrkConformalHit *chit = fConformalHitList->GetHit(jhit);
+	  chit->Draw(kBlue);
+	}
+      }
     
 
-    double fitm6, fitq6;
-    AnalyticalFit(fFinalCluster, xc3, yc3, R3, fitm6, fitq6);
-    cout << "fitm6 " << fitm6 << " fitq6 " << fitq6 << endl;
-    double xc6, yc6, R6;
-    FromConformalToRealTrack(fitm6, fitq6, xc6, yc6, R6);
-    PndTrkTrack finaltrack(fFinalCluster, xc6, yc6, R6);
-    cout << "xc6, yc6, R6 " << xc6 << " " << yc6 << " " << R6 << endl;
-    if(fDisplayOn)  {
+      double fitm6, fitq6;
+      AnalyticalFit(fFinalCluster, xc3, yc3, R3, fitm6, fitq6);
+      cout << "fitm6 " << fitm6 << " fitq6 " << fitq6 << endl;
+      double xc6, yc6, R6;
+      FromConformalToRealTrack(fitm6, fitq6, xc6, yc6, R6);
+      PndTrkTrack finaltrack(fFinalCluster, xc6, yc6, R6);
+      cout << "xc6, yc6, R6 " << xc6 << " " << yc6 << " " << R6 << endl;
+      if(fDisplayOn)  {
 	char goOnChar;
 
 	display->cd(2);
@@ -3414,570 +3414,570 @@ hit->SetSortVariable(phi);
 
 
     
-    // ============================ Z PART FOR FWD
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // SKEWED ASSOCIATION ********* CHECK *********
-    // -------------------------------------------------------
-    //    cout << " %%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+      // ============================ Z PART FOR FWD
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      // SKEWED ASSOCIATION ********* CHECK *********
+      // -------------------------------------------------------
+      //    cout << " %%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
     
-    if(fDisplayOn) DrawZGeometry(-360, 360, -40, 200);
+      if(fDisplayOn) DrawZGeometry(-360, 360, -40, 200);
 
-    // set a new fromhere, from 1st hit;
-  //   fromhere = TVector3(fFinalCluster->GetHit(0)->GetPosition());
-  //   cout << "fromhere " << fromhere.X() <<  " " << fromhere.Y() << endl;
-    cout << "track 6: " << xc6 << " " << yc6 << " " << R6 << endl;
+      // set a new fromhere, from 1st hit;
+      //   fromhere = TVector3(fFinalCluster->GetHit(0)->GetPosition());
+      //   cout << "fromhere " << fromhere.X() <<  " " << fromhere.Y() << endl;
+      cout << "track 6: " << xc6 << " " << yc6 << " " << R6 << endl;
 
     
-    // create cluster for z finding
+      // create cluster for z finding
 
-    // lets start from the skewed --------------------------------
-    //    PndTrkCluster skewhitlist = CreateSkewHitList(finaltrack);
-    PndTrkSkewHitList skewhitlist;
-    double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
-    for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
-      hit = stthitlist->GetHit(jhit);	
-      //      cout << hit->IsSttSkew() << " " << hit->GetSector() << " " << TMath::RadToDeg() * hit->GetPosition().Phi() << " " << sectorID << " " << othersecID << endl;
-      if(hit->IsSttSkew() == kFALSE) continue;
+      // lets start from the skewed --------------------------------
+      //    PndTrkCluster skewhitlist = CreateSkewHitList(finaltrack);
+      PndTrkSkewHitList skewhitlist;
+      double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
+      for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
+	hit = stthitlist->GetHit(jhit);	
+	//      cout << hit->IsSttSkew() << " " << hit->GetSector() << " " << TMath::RadToDeg() * hit->GetPosition().Phi() << " " << sectorID << " " << othersecID << endl;
+	if(hit->IsSttSkew() == kFALSE) continue;
  
-      if(border == false && hit->GetSector() != sectorID) continue;
-      else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
+	if(border == false && hit->GetSector() != sectorID) continue;
+	else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
 
-      int tubeID = hit->GetTubeID();
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+	int tubeID = hit->GetTubeID();
+	PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
    
-      TVector3 wireDirection = tube->GetWireDirection();
-      Double_t halflength = tube->GetHalfLength();
+	TVector3 wireDirection = tube->GetWireDirection();
+	Double_t halflength = tube->GetHalfLength();
       
-      TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
-      TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
+	TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
+	TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
     
-      //    double m1 = (first - second).Y()/(first - second).X();
-      //    double q1 = first.Y() - m1 * first.X();
+	//    double m1 = (first - second).Y()/(first - second).X();
+	//    double q1 = first.Y() - m1 * first.X();
       
-      // 1. compute intersection between the track circle and the wire
-      TVector2 intersection1, intersection2;
-      Int_t nofintersections = tools->ComputeSegmentCircleIntersection(TVector2(first.X(), first.Y()), TVector2(second.X(), second.Y()), xc6, yc6, R6, intersection1, intersection2);
+	// 1. compute intersection between the track circle and the wire
+	TVector2 intersection1, intersection2;
+	Int_t nofintersections = tools->ComputeSegmentCircleIntersection(TVector2(first.X(), first.Y()), TVector2(second.X(), second.Y()), xc6, yc6, R6, intersection1, intersection2);
       
-      if(nofintersections == 0) continue;
-      if(nofintersections >= 2) {
-	cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
-	continue; // CHECK
-      }
+	if(nofintersections == 0) continue;
+	if(nofintersections >= 2) {
+	  cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
+	  continue; // CHECK
+	}
 
-      // 2. find the tangent to the track in the intersection point
-      // tangent approximation
-      TVector2 tangent = tools->ComputeTangentInPoint(xc6, yc6, intersection1);
+	// 2. find the tangent to the track in the intersection point
+	// tangent approximation
+	TVector2 tangent = tools->ComputeTangentInPoint(xc6, yc6, intersection1);
        
-      // 3. rotate clockwise the tangent/point/(wire, not explicitely)
-      // in order to have the wire parallel to the x axis;
-      // then translate everything to have the wire ON the x axis
-      beta = wireDirection.Phi();
-      if(beta < 0) beta += TMath::Pi();
-      // ... rotate the tangent
-      double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
-      double rty = TMath::Cos(beta) * tangent.Y() - TMath::Sin(beta) * tangent.X();
-      TVector2 rottangent(rtx, rty);
-      rottangent = rottangent.Unit();
-      // ... rotate the point
-      double rx = TMath::Cos(beta) * intersection1.X() + TMath::Sin(beta) * intersection1.Y();
-      double ry = TMath::Cos(beta) * intersection1.Y() - TMath::Sin(beta) * intersection1.X();
+	// 3. rotate clockwise the tangent/point/(wire, not explicitely)
+	// in order to have the wire parallel to the x axis;
+	// then translate everything to have the wire ON the x axis
+	beta = wireDirection.Phi();
+	if(beta < 0) beta += TMath::Pi();
+	// ... rotate the tangent
+	double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
+	double rty = TMath::Cos(beta) * tangent.Y() - TMath::Sin(beta) * tangent.X();
+	TVector2 rottangent(rtx, rty);
+	rottangent = rottangent.Unit();
+	// ... rotate the point
+	double rx = TMath::Cos(beta) * intersection1.X() + TMath::Sin(beta) * intersection1.Y();
+	double ry = TMath::Cos(beta) * intersection1.Y() - TMath::Sin(beta) * intersection1.X();
        
-      // translation
-      Double_t deltay = ry;
-      rty -= deltay;
-      ry -= deltay;
+	// translation
+	Double_t deltay = ry;
+	rty -= deltay;
+	ry -= deltay;
 
-      // rotm, rotp
-      Double_t rotm = rottangent.Y()/rottangent.X();
-      Double_t rotp = ry - rotm * rx;
+	// rotm, rotp
+	Double_t rotm = rottangent.Y()/rottangent.X();
+	Double_t rotp = ry - rotm * rx;
 
-      // ellipsis
-      double a = hit->GetIsochrone() * TMath::Cos(SKEW_ANGLE); // CHECK skew angle hard coded
-      double b = hit->GetIsochrone();
+	// ellipsis
+	double a = hit->GetIsochrone() * TMath::Cos(SKEW_ANGLE); // CHECK skew angle hard coded
+	double b = hit->GetIsochrone();
 
-      // center of ellipsis
-      Double_t x0a, x0b, y0;
-      y0 = 0.;
-      x0a = (-rotp + TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
-      x0b = (-rotp - TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
+	// center of ellipsis
+	Double_t x0a, x0b, y0;
+	y0 = 0.;
+	x0a = (-rotp + TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
+	x0b = (-rotp - TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
  
-      // intersection point
-      double intxa = (x0a * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
-      double intya = rotm * intxa + rotp;
-      double intxb = (x0b * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
-      double intyb = rotm * intxb + rotp;
+	// intersection point
+	double intxa = (x0a * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
+	double intya = rotm * intxa + rotp;
+	double intxb = (x0b * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
+	double intyb = rotm * intxb + rotp;
    
-      // 4. retraslate/rerotate all back to the original plane
-      // retranslate
-      y0 += deltay; 
-      intya  += deltay; 
-      intyb  += deltay; 
+	// 4. retraslate/rerotate all back to the original plane
+	// retranslate
+	y0 += deltay; 
+	intya  += deltay; 
+	intyb  += deltay; 
    
-      // rerotate
-      double x0anew = TMath::Cos(beta) * x0a - TMath::Sin(beta) * y0;
-      double y0anew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0a;
-      double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
-      double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
+	// rerotate
+	double x0anew = TMath::Cos(beta) * x0a - TMath::Sin(beta) * y0;
+	double y0anew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0a;
+	double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
+	double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
    
-      double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
-      double intyanew = TMath::Cos(beta) * intya + TMath::Sin(beta) * intxa;
-      double intxbnew = TMath::Cos(beta) * intxb - TMath::Sin(beta) * intyb;
-      double intybnew = TMath::Cos(beta) * intyb + TMath::Sin(beta) * intxb;
+	double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
+	double intyanew = TMath::Cos(beta) * intya + TMath::Sin(beta) * intxa;
+	double intxbnew = TMath::Cos(beta) * intxb - TMath::Sin(beta) * intyb;
+	double intybnew = TMath::Cos(beta) * intyb + TMath::Sin(beta) * intxb;
    
-      intxa = intxanew;
-      intya = intyanew;
-      intxb = intxbnew;
-      intyb = intybnew;
+	intxa = intxanew;
+	intya = intyanew;
+	intxb = intxbnew;
+	intyb = intybnew;
 
-      // now we have x0a, y0a, center of the 1st ellipse
-      // and x0b, y0b, center of the 2nd ellipse
-      x0a = x0anew;
-      double y0a = y0anew;
-      x0b = x0bnew;
-      double y0b = y0bnew;
+	// now we have x0a, y0a, center of the 1st ellipse
+	// and x0b, y0b, center of the 2nd ellipse
+	x0a = x0anew;
+	double y0a = y0anew;
+	x0b = x0bnew;
+	double y0b = y0bnew;
 
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(1);
+	if(fDisplayOn) {
+	  char goOnChar;
+	  display->cd(1);
 
-	TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
-	ell1->SetFillStyle(0);
-	ell1->SetLineColor(4);
-	ell1->Draw("SAME");
-	TEllipse *ell2 = new TEllipse(x0b, y0b, a, b, 0, 360, -beta);
-	ell2->SetFillStyle(0);
-	ell2->SetLineColor(6);
-	ell2->Draw("SAME");
+	  TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
+	  ell1->SetFillStyle(0);
+	  ell1->SetLineColor(4);
+	  ell1->Draw("SAME");
+	  TEllipse *ell2 = new TEllipse(x0b, y0b, a, b, 0, 360, -beta);
+	  ell2->SetFillStyle(0);
+	  ell2->SetLineColor(6);
+	  ell2->Draw("SAME");
 
-	TMarker *mrkinta = new TMarker(intxa, intya, 20);
-	mrkinta->SetMarkerColor(4);
-	mrkinta->Draw("SAME");
-	TMarker *mrkintb = new TMarker(intxb, intyb, 20);
-	mrkintb->SetMarkerColor(6);
-	mrkintb->Draw("SAME");
-	display->Update();
-	display->Modified();
-// 	cin >> goOnChar;
+	  TMarker *mrkinta = new TMarker(intxa, intya, 20);
+	  mrkinta->SetMarkerColor(4);
+	  mrkinta->Draw("SAME");
+	  TMarker *mrkintb = new TMarker(intxb, intyb, 20);
+	  mrkintb->SetMarkerColor(6);
+	  mrkintb->Draw("SAME");
+	  display->Update();
+	  display->Modified();
+	  // 	cin >> goOnChar;
      
+	}
+
+	// 5. calculate z coordinate for each intersection
+       
+	// calculate z0a, z0b of the center of the ellipse
+	Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
+	Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
+	//    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
+ 
+	t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
+	Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
+ 
+	TVector3 center1(x0a, y0a, z0a);
+	TVector3 center2(x0b, y0b, z0b);
+
+	// calculate the z of the intersection ON the ellipse (CHECK this step calculations!)
+	double dx = intxa - x0a;
+	double dy = intya - y0a;
+	TVector3 dxdy(dx, dy, 0.0);
+
+	TVector3 tfirst = first + dxdy;
+	TVector3 tsecond = second + dxdy;
+
+	t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
+	double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+	if(fDisplayOn) {
+	  char goOnChar;
+	  display->cd(3);
+	  TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
+	  linezx1->SetLineStyle(1);
+	  linezx1->Draw("SAME");
+	  TMarker *mrkza1 = new TMarker(intxa, intza, 20);
+	  mrkza1->SetMarkerColor(kBlue - 9);
+	  mrkza1->Draw("SAME");
+	  // cin >> goOnChar;   
+	}
+
+	tfirst = first - dxdy;
+	tsecond = second - dxdy;
+
+	t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
+	double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+ 
+	TVector3 fin_intersection1(intxa, intya, intza);
+	TVector3 fin_intersection2(intxb, intyb, intzb);
+
+	// CHECK to be changed
+	int trackID = 1;
+	double phi1 = finaltrack.ComputePhiFrom(fin_intersection1, fromhere);
+	double phi2 = finaltrack.ComputePhiFrom(fin_intersection2, fromhere);
+	//      cout << "1hit.det. " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << " " << hit->GetSortVariable() << endl;
+	//      cout << "phi1,phi2: " << phi1 << " " << phi2 << endl;
+	//     fin_intersection1.Print();
+	//       fin_intersection2.Print();
+	cout << "position " <<    fin_intersection1.X() << " " << fin_intersection1.Y() << endl;
+	cout << "position " <<    fin_intersection2.X() << " " << fin_intersection2.Y() << endl;
+
+	// skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
+	//    //      skewhit->Print();
+	//       skewhitlist.AddHit(skewhit);
+      
+	hit->SetPhi((phi1 + phi2) * 0.5);
+	hit->SetSortVariable((phi1 + phi2) * 0.5);
+	skewhitlist.AddHit(PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta));
+      }
+    
+      // --------------------------
+      //    // sort again, dont know if this is strictly needed
+      //     for(int jhit = 0; jhit <  fFinalCluster->GetNofHits(); jhit++) {
+      //       hit = fFinalCluster->GetHit(jhit);
+      //       double phi = finaltrack.ComputePhiFrom(hit->GetPosition(), fromhere);
+      //       cout << "position " <<    hit->GetPosition().X() << " " << hit->GetPosition().Y() << endl;
+
+      //       if(phi == 360) phi = 0;
+      //       hit->SetPhi(phi);
+      //       hit->SetSortVariable(phi);
+      //       //      cout << "2hit.det. " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << phi << " " << hit->GetSortVariable() << endl;
+      //       // if(hit->IsStt() == kFALSE) skewhitlist.AddHit(PndTrkSkewHit(*hit));
+      //     }
+      //     fFinalCluster->Sort();
+      //     if(hit1->IsGem() && !hit2->IsGem()) {
+      //       double phi = hit1->GetPhi();
+      //       phi += 360;
+      //       hit1->SetPhi(phi);
+      //       hit1->SetSortVariable(phi);
+      //       fFinalCluster->Sort();
+      //     }
+      //     else fFinalCluster->ReverseSort();
+      // ...............................................
+
+      // add hits which have a z info
+      // and belong to the cluster
+      for(int jhit = 0; jhit <  fFinalCluster->GetNofHits(); jhit++) {
+	hit = fFinalCluster->GetHit(jhit);
+	double phi = hit->GetPhi(); // finaltrack.ComputePhiFrom(hit->GetPosition(), fromhere);
+	if(hit->IsStt() == kFALSE) {
+	  //	hit->SetPhi(phi);
+	  //	hit->SetSortVariable(phi);
+	  skewhitlist.AddHit(PndTrkSkewHit(*hit));
+	}
       }
 
-      // 5. calculate z coordinate for each intersection
-       
-      // calculate z0a, z0b of the center of the ellipse
-      Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
-      Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
-      //    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
- 
-      t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
-      Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
- 
-      TVector3 center1(x0a, y0a, z0a);
-      TVector3 center2(x0b, y0b, z0b);
 
-      // calculate the z of the intersection ON the ellipse (CHECK this step calculations!)
-      double dx = intxa - x0a;
-      double dy = intya - y0a;
-      TVector3 dxdy(dx, dy, 0.0);
 
-      TVector3 tfirst = first + dxdy;
-      TVector3 tsecond = second + dxdy;
+      //    cout << "dopo sorting" << endl;
+      for(int jhit = 0; jhit <  fFinalCluster->GetNofHits(); jhit++) {
+	hit = fFinalCluster->GetHit(jhit);
+	//       if(hit->IsSttParallel() == kFALSE) {
+	cout << "-> position " << hit->GetPosition().X() << " " << hit->GetPosition().Y() << endl;
+	cout << "3hit.det. " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << endl;
+	if(fDisplayOn) {
+	  display->cd(1);
+	  TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
+	  mrk->SetMarkerColor(kBlue);
+	  mrk->Draw("SAME");
+	  display->Update();
+	  display->Modified();
+	  char goOnChar;
+	  cin >> goOnChar;
+	}
+      }
 
-      t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
-      double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+      cout << "fitm5 " << fitm5 << " fitq5 " << fitq5 << endl;;
+      double fitm7 = fitm5;
+      double fitq7 = 0.;
+      for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
+	hit = skewhitlist.GetHit(jhit);
+	if(!hit) continue;
+	if(hit->IsStt() == kFALSE) {
+	  fitq7 = hit->GetPosition().Z() - fitm7 * hit->GetPhi();
+	  cout << "non stt " << hit->GetPhi() << " " << hit->GetPosition().Z() << endl;
+	}
+      }
+      cout << "fitm7 " << fitm7 << " fitq7 " << fitq7;
+    
       if(fDisplayOn) {
 	char goOnChar;
-	display->cd(3);
-	TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
-	linezx1->SetLineStyle(1);
-	linezx1->Draw("SAME");
-	TMarker *mrkza1 = new TMarker(intxa, intza, 20);
-	mrkza1->SetMarkerColor(kBlue - 9);
-	mrkza1->Draw("SAME");
-	// cin >> goOnChar;   
+	display->cd(4);
+	for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
+	  hit = skewhitlist.GetHit(jhit);
+	  if(!hit) continue;
+	  cout << "hit.det.phi " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << endl;
+	  if(hit->IsStt() == kTRUE) {
+	    PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
+	  
+	    TVector3 fin_intersection1 = skewhit->GetIntersection1();
+	    TVector3 fin_intersection2 = skewhit->GetIntersection2();
+	    double phi1 = skewhit->GetPhi1();
+	    double phi2 = skewhit->GetPhi2();
+	  
+	    display->cd(4);
+	    TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
+	    linezphi->SetLineStyle(1);
+	    linezphi->Draw("SAME");
+	    TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
+	    mrkzphi1->SetMarkerColor(kBlue - 9);
+	    mrkzphi1->Draw("SAME");
+	    TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
+	    mrkzphi2->SetMarkerColor(kMagenta - 7);
+	    mrkzphi2->Draw("SAME");
+	    display->Update();
+	    display->Modified();
+	  }
+	  else {
+	    cout << "2non stt " << hit->GetPhi() << " " << hit->GetPosition().Z() << endl;
+	    TMarker *mrkzphi = new TMarker(hit->GetPhi(), hit->GetPosition().Z(), 20);
+	    mrkzphi->SetMarkerColor(kOrange);
+	    mrkzphi->Draw("SAME");
+	    display->Update();
+	    display->Modified();
+	  }
+	}
+	cin >> goOnChar;
       }
 
-      tfirst = first - dxdy;
-      tsecond = second - dxdy;
+      /**
+       // ========================================================
+       std::vector < int > first, second;
+       for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
+       hit = skewhitlist.GetHit(jhit);
+       if(!hit) continue;
+       if(hit->IsStt() == kFALSE) continue;
 
-      t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
-      double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
- 
-      TVector3 fin_intersection1(intxa, intya, intza);
-      TVector3 fin_intersection2(intxb, intyb, intzb);
+       PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
+       
+       TVector3 fin_intersection1 = skewhit->GetIntersection1();
+       TVector3 fin_intersection2 = skewhit->GetIntersection2();
+       double phi1 = skewhit->GetPhi1();
+       double phi2 = skewhit->GetPhi2();
+       
 
-      // CHECK to be changed
-      int trackID = 1;
-      double phi1 = finaltrack.ComputePhiFrom(fin_intersection1, fromhere);
-      double phi2 = finaltrack.ComputePhiFrom(fin_intersection2, fromhere);
-      //      cout << "1hit.det. " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << " " << hit->GetSortVariable() << endl;
-      //      cout << "phi1,phi2: " << phi1 << " " << phi2 << endl;
-  //     fin_intersection1.Print();
-//       fin_intersection2.Print();
-      cout << "position " <<    fin_intersection1.X() << " " << fin_intersection1.Y() << endl;
-      cout << "position " <<    fin_intersection2.X() << " " << fin_intersection2.Y() << endl;
-
-   // skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
-      //    //      skewhit->Print();
-      //       skewhitlist.AddHit(skewhit);
-      
-      hit->SetPhi((phi1 + phi2) * 0.5);
-      hit->SetSortVariable((phi1 + phi2) * 0.5);
-      skewhitlist.AddHit(PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta));
-    }
-    
-    // --------------------------
- //    // sort again, dont know if this is strictly needed
-//     for(int jhit = 0; jhit <  fFinalCluster->GetNofHits(); jhit++) {
-//       hit = fFinalCluster->GetHit(jhit);
-//       double phi = finaltrack.ComputePhiFrom(hit->GetPosition(), fromhere);
-//       cout << "position " <<    hit->GetPosition().X() << " " << hit->GetPosition().Y() << endl;
-
-//       if(phi == 360) phi = 0;
-//       hit->SetPhi(phi);
-//       hit->SetSortVariable(phi);
-//       //      cout << "2hit.det. " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << phi << " " << hit->GetSortVariable() << endl;
-//       // if(hit->IsStt() == kFALSE) skewhitlist.AddHit(PndTrkSkewHit(*hit));
-//     }
-//     fFinalCluster->Sort();
-//     if(hit1->IsGem() && !hit2->IsGem()) {
-//       double phi = hit1->GetPhi();
-//       phi += 360;
-//       hit1->SetPhi(phi);
-//       hit1->SetSortVariable(phi);
-//       fFinalCluster->Sort();
-//     }
-//     else fFinalCluster->ReverseSort();
-    // ...............................................
-
-    // add hits which have a z info
-    // and belong to the cluster
-    for(int jhit = 0; jhit <  fFinalCluster->GetNofHits(); jhit++) {
-      hit = fFinalCluster->GetHit(jhit);
-      double phi = hit->GetPhi(); // finaltrack.ComputePhiFrom(hit->GetPosition(), fromhere);
-      if(hit->IsStt() == kFALSE) {
-	//	hit->SetPhi(phi);
-	//	hit->SetSortVariable(phi);
-	skewhitlist.AddHit(PndTrkSkewHit(*hit));
-      }
-    }
+       if(fDisplayOn) {
+       display->cd(4);
+       TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
+       linezphi->SetLineStyle(1);
+       linezphi->Draw("SAME");
+       TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
+       mrkzphi1->SetMarkerColor(kBlue - 9);
+       mrkzphi1->Draw("SAME");
+       TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
+       mrkzphi2->SetMarkerColor(kMagenta - 7);
+       mrkzphi2->Draw("SAME");
+       display->Update();
+       display->Modified();
+       }
 
 
+       // check neighborings @ layer 8 & 15
+       PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+       if(tube->GetLayerID() == 8) {
+       PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
+       TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
+       //	 cout << thit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
+       for(int j = 0; j < neighs.GetEntriesFast(); j++) {
+       PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
+       PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
+       if(ntube->GetLayerID() == 7) {
+       //	     cout << "hit close to 7" << endl;
+       first.push_back(jhit);
+       }
+       }
+       }
+       if(tube->GetLayerID() == 15) 
+       {
+       PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
+       TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
+       // cout << hit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
+       for(int j = 0; j < neighs.GetEntriesFast(); j++) {
+       PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
+       PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
+       if(ntube->GetLayerID() == 16) {
+       //	       cout << "hit close to 16" << endl;
+       second.push_back(jhit);
+       }
+       }
+       }
+       }
 
-     //    cout << "dopo sorting" << endl;
-    for(int jhit = 0; jhit <  fFinalCluster->GetNofHits(); jhit++) {
-      hit = fFinalCluster->GetHit(jhit);
-      //       if(hit->IsSttParallel() == kFALSE) {
-      cout << "-> position " << hit->GetPosition().X() << " " << hit->GetPosition().Y() << endl;
-      cout << "3hit.det. " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << endl;
+       double zdistance = 1000;
+       int tmpi = -1, tmpj = -1;
+       double tmpiz, tmpjz, tmpiphi, tmpjphi;
+
+
+       for(int jhit = 0; jhit < first.size(); jhit++) {
+       int hitiskeid = first[jhit];
+       PndTrkSkewHit *skewhiti = (PndTrkSkewHit*) skewhitlist.GetHit(hitiskeid);
+       TVector3 fin_intersectioni = 0.5 * (skewhiti->GetIntersection1() + skewhiti->GetIntersection2());
+       double phii = 0.5 * (skewhiti->GetPhi1() + skewhiti->GetPhi2()) ;
+       for(int khit = 0; khit < second.size(); khit++) {
+       int hitjskeid = second[khit];
+       PndTrkSkewHit *skewhitj = (PndTrkSkewHit*) skewhitlist.GetHit(hitjskeid);
+       TVector3 fin_intersectionj = 0.5 * (skewhitj->GetIntersection1() + skewhitj->GetIntersection2());
+       double phij = 0.5 * (skewhitj->GetPhi1() + skewhitj->GetPhi2()) ;
+       
+       double tmpzdistance = fabs(fin_intersectioni.Z() - fin_intersectionj.Z());
+       if(tmpzdistance < zdistance) {
+       zdistance = tmpzdistance;
+       tmpi = hitiskeid;
+       tmpj = hitjskeid;
+       tmpiz = fin_intersectioni.Z(); 
+       tmpjz = fin_intersectionj.Z();
+       tmpiphi = phii;
+       tmpjphi = phij;
+       }
+       }
+       }
+
+       double linem = (tmpiz - tmpjz) / (tmpiphi - tmpjphi);
+       double lineq = tmpiz - linem * tmpiphi;
+     
+       double fitm7 = linem, fitq7 = lineq; // CHECK 
+      **/
+
       if(fDisplayOn) {
-	display->cd(1);
-	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
-	mrk->SetMarkerColor(kBlue);
-	mrk->Draw("SAME");
+	display->cd(4);
+	TLine *line = new TLine(-360, -360 * fitm7 + fitq7, 360, 360 * fitm7 + fitq7);
+	line->SetLineColor(2);
+	line->Draw("SAME");
+
 	display->Update();
 	display->Modified();
 	char goOnChar;
 	cin >> goOnChar;
       }
-    }
 
-    cout << "fitm5 " << fitm5 << " fitq5 " << fitq5 << endl;;
-    double fitm7 = fitm5;
-    double fitq7 = 0.;
-    for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
-      hit = skewhitlist.GetHit(jhit);
-      if(!hit) continue;
-      if(hit->IsStt() == kFALSE) {
-	fitq7 = hit->GetPosition().Z() - fitm7 * hit->GetPhi();
-	cout << "non stt " << hit->GetPhi() << " " << hit->GetPosition().Z() << endl;
-      }
-    }
-    cout << "fitm7 " << fitm7 << " fitq7 " << fitq7;
-    
-    if(fDisplayOn) {
-      char goOnChar;
-      display->cd(4);
+      // choose the fin_intersection of the skew
+      PndTrkSkewHitList skewhitlist2;
       for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
-	hit = skewhitlist.GetHit(jhit);
+	hit = (PndTrkHit*) skewhitlist.GetHit(jhit);
 	if(!hit) continue;
-	cout << "hit.det.phi " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << endl;
-	if(hit->IsStt() == kTRUE) {
-	  PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
-	  
-	  TVector3 fin_intersection1 = skewhit->GetIntersection1();
-	  TVector3 fin_intersection2 = skewhit->GetIntersection2();
-	  double phi1 = skewhit->GetPhi1();
-	  double phi2 = skewhit->GetPhi2();
-	  
-	  display->cd(4);
-	  TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
-	  linezphi->SetLineStyle(1);
-	  linezphi->Draw("SAME");
-	  TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
-	  mrkzphi1->SetMarkerColor(kBlue - 9);
-	  mrkzphi1->Draw("SAME");
-	  TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
-	  mrkzphi2->SetMarkerColor(kMagenta - 7);
-	  mrkzphi2->Draw("SAME");
-	  display->Update();
-	  display->Modified();
+	if(hit->IsSttSkew() == kFALSE) {
+	  skewhitlist2.AddHit(hit);
+	  continue;
 	}
 	else {
-	  cout << "2non stt " << hit->GetPhi() << " " << hit->GetPosition().Z() << endl;
-	  TMarker *mrkzphi = new TMarker(hit->GetPhi(), hit->GetPosition().Z(), 20);
-	  mrkzphi->SetMarkerColor(kOrange);
-	  mrkzphi->Draw("SAME");
-	  display->Update();
-	  display->Modified();
+	  TVector3 fin_intersection1 = ((PndTrkSkewHit*) hit)->GetIntersection1();
+	  TVector3 fin_intersection2 = ((PndTrkSkewHit*) hit)->GetIntersection2();
+	  double phi1 = ((PndTrkSkewHit*) hit)->GetPhi1();
+	  double phi2 = ((PndTrkSkewHit*) hit)->GetPhi2();
+   
+	  double dist1 = fabs(fitm7 * phi1 - fin_intersection1.Z() + fitq7) / TMath::Sqrt(fitm7 * fitm7 + 1); // CHECK ortho distance or not?
+	  double dist2 = fabs(fitm7 * phi2 - fin_intersection2.Z() + fitq7) / TMath::Sqrt(fitm7 * fitm7 + 1); // CHECK    "           "
+     
+	  double distance = 1000;
+	  dist1 < dist2 ? (distance = dist1, hit->SetPosition(fin_intersection1), hit->SetPhi(phi1)) : (distance = dist2, hit->SetPosition(fin_intersection2), hit->SetPhi(phi2)); 
+
+	  if(distance < 10) skewhitlist2.AddHit(hit);
 	}
       }
-      cin >> goOnChar;
-    }
 
-    /**
-     // ========================================================
-     std::vector < int > first, second;
-     for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
-     hit = skewhitlist.GetHit(jhit);
-     if(!hit) continue;
-     if(hit->IsStt() == kFALSE) continue;
-
-     PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
-       
-     TVector3 fin_intersection1 = skewhit->GetIntersection1();
-     TVector3 fin_intersection2 = skewhit->GetIntersection2();
-     double phi1 = skewhit->GetPhi1();
-     double phi2 = skewhit->GetPhi2();
-       
-
-     if(fDisplayOn) {
-     display->cd(4);
-     TLine *linezphi = new TLine(phi1, fin_intersection1.Z(), phi2, fin_intersection2.Z());
-     linezphi->SetLineStyle(1);
-     linezphi->Draw("SAME");
-     TMarker *mrkzphi1 = new TMarker(phi1, fin_intersection1.Z(), 20);
-     mrkzphi1->SetMarkerColor(kBlue - 9);
-     mrkzphi1->Draw("SAME");
-     TMarker *mrkzphi2 = new TMarker(phi2, fin_intersection2.Z(), 20);
-     mrkzphi2->SetMarkerColor(kMagenta - 7);
-     mrkzphi2->Draw("SAME");
-     display->Update();
-     display->Modified();
-     }
-
-
-     // check neighborings @ layer 8 & 15
-     PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-     if(tube->GetLayerID() == 8) {
-     PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
-     TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
-     //	 cout << thit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
-     for(int j = 0; j < neighs.GetEntriesFast(); j++) {
-     PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
-     PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
-     if(ntube->GetLayerID() == 7) {
-     //	     cout << "hit close to 7" << endl;
-     first.push_back(jhit);
-     }
-     }
-     }
-     if(tube->GetLayerID() == 15) 
-     {
-     PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
-     TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
-     // cout << hit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
-     for(int j = 0; j < neighs.GetEntriesFast(); j++) {
-     PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
-     PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
-     if(ntube->GetLayerID() == 16) {
-     //	       cout << "hit close to 16" << endl;
-     second.push_back(jhit);
-     }
-     }
-     }
-     }
-
-     double zdistance = 1000;
-     int tmpi = -1, tmpj = -1;
-     double tmpiz, tmpjz, tmpiphi, tmpjphi;
-
-
-     for(int jhit = 0; jhit < first.size(); jhit++) {
-     int hitiskeid = first[jhit];
-     PndTrkSkewHit *skewhiti = (PndTrkSkewHit*) skewhitlist.GetHit(hitiskeid);
-     TVector3 fin_intersectioni = 0.5 * (skewhiti->GetIntersection1() + skewhiti->GetIntersection2());
-     double phii = 0.5 * (skewhiti->GetPhi1() + skewhiti->GetPhi2()) ;
-     for(int khit = 0; khit < second.size(); khit++) {
-     int hitjskeid = second[khit];
-     PndTrkSkewHit *skewhitj = (PndTrkSkewHit*) skewhitlist.GetHit(hitjskeid);
-     TVector3 fin_intersectionj = 0.5 * (skewhitj->GetIntersection1() + skewhitj->GetIntersection2());
-     double phij = 0.5 * (skewhitj->GetPhi1() + skewhitj->GetPhi2()) ;
-       
-     double tmpzdistance = fabs(fin_intersectioni.Z() - fin_intersectionj.Z());
-     if(tmpzdistance < zdistance) {
-     zdistance = tmpzdistance;
-     tmpi = hitiskeid;
-     tmpj = hitjskeid;
-     tmpiz = fin_intersectioni.Z(); 
-     tmpjz = fin_intersectionj.Z();
-     tmpiphi = phii;
-     tmpjphi = phij;
-     }
-     }
-     }
-
-     double linem = (tmpiz - tmpjz) / (tmpiphi - tmpjphi);
-     double lineq = tmpiz - linem * tmpiphi;
-     
-     double fitm7 = linem, fitq7 = lineq; // CHECK 
-    **/
-
-    if(fDisplayOn) {
+      /**
+       // -------- refit with a line
+       fFitter->Reset();    
+      
+       // see the hits
+       for(int jhit = 0; jhit < skewhitlist2.GetNofHits(); jhit++) {
+       hit = skewhitlist2.GetHit(jhit);
+       if(!hit) continue;
+       TVector3 position = hit->GetPosition();
+       double phi = hit->GetPhi();
+       fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK the error?
+       cout << "final point " << phi << " " << position.Z() << endl;
+       if(fDisplayOn)	{
        display->cd(4);
-       TLine *line = new TLine(-360, -360 * fitm7 + fitq7, 360, 360 * fitm7 + fitq7);
-       line->SetLineColor(2);
-       line->Draw("SAME");
+       TMarker *mrkzphi = new TMarker(phi, position.Z(), 20);
+       mrkzphi->SetMarkerColor(kGreen);
+       mrkzphi->Draw("SAME");
+       display->Update();
+       display->Modified();
+       }
+       }
 
+       double fitm8, fitq8;
+       fFitter->StraightLineFit(fitm8, fitq8);
+      
+       if(fDisplayOn) {
+       display->cd(4);
+       TLine *line = new TLine(-360, -360 * fitm8 + fitq8, 360, 360 * fitm8 + fitq8);
+       line->SetLineColor(4);
+       line->Draw("SAME");
        display->Update();
        display->Modified();
        char goOnChar;
        cin >> goOnChar;
-    }
-
-     // choose the fin_intersection of the skew
-     PndTrkSkewHitList skewhitlist2;
-     for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
-       hit = (PndTrkHit*) skewhitlist.GetHit(jhit);
-       if(!hit) continue;
-       if(hit->IsSttSkew() == kFALSE) {
-	 skewhitlist2.AddHit(hit);
-	 continue;
        }
-       else {
-	 TVector3 fin_intersection1 = ((PndTrkSkewHit*) hit)->GetIntersection1();
-	 TVector3 fin_intersection2 = ((PndTrkSkewHit*) hit)->GetIntersection2();
-	 double phi1 = ((PndTrkSkewHit*) hit)->GetPhi1();
-	 double phi2 = ((PndTrkSkewHit*) hit)->GetPhi2();
-   
-	 double dist1 = fabs(fitm7 * phi1 - fin_intersection1.Z() + fitq7) / TMath::Sqrt(fitm7 * fitm7 + 1); // CHECK ortho distance or not?
-	 double dist2 = fabs(fitm7 * phi2 - fin_intersection2.Z() + fitq7) / TMath::Sqrt(fitm7 * fitm7 + 1); // CHECK    "           "
-     
-	 double distance = 1000;
-	 dist1 < dist2 ? (distance = dist1, hit->SetPosition(fin_intersection1), hit->SetPhi(phi1)) : (distance = dist2, hit->SetPosition(fin_intersection2), hit->SetPhi(phi2)); 
+      **/
 
-	 if(distance < 10) skewhitlist2.AddHit(hit);
-       }
-     }
-
-     /**
-      // -------- refit with a line
-      fFitter->Reset();    
-      
+      fLineHisto->Reset();
       // see the hits
+      TVector3 position, positionk;
+      double phi, phik;
       for(int jhit = 0; jhit < skewhitlist2.GetNofHits(); jhit++) {
-      hit = skewhitlist2.GetHit(jhit);
-      if(!hit) continue;
-      TVector3 position = hit->GetPosition();
-      double phi = hit->GetPhi();
-      fFitter->SetPointToFit(phi, position.Z(), 0.1); // CHECK the error?
-      cout << "final point " << phi << " " << position.Z() << endl;
-      if(fDisplayOn)	{
-      display->cd(4);
-      TMarker *mrkzphi = new TMarker(phi, position.Z(), 20);
-      mrkzphi->SetMarkerColor(kGreen);
-      mrkzphi->Draw("SAME");
-      display->Update();
-      display->Modified();
-      }
-      }
+	hit = skewhitlist2.GetHit(jhit);
+	if(!hit) continue;
 
-      double fitm8, fitq8;
-      fFitter->StraightLineFit(fitm8, fitq8);
-      
-      if(fDisplayOn) {
-      display->cd(4);
-      TLine *line = new TLine(-360, -360 * fitm8 + fitq8, 360, 360 * fitm8 + fitq8);
-      line->SetLineColor(4);
-      line->Draw("SAME");
-      display->Update();
-       display->Modified();
-       char goOnChar;
-       cin >> goOnChar;
-     }
-     **/
-
-     fLineHisto->Reset();
-     // see the hits
-     TVector3 position, positionk;
-     double phi, phik;
-     for(int jhit = 0; jhit < skewhitlist2.GetNofHits(); jhit++) {
-       hit = skewhitlist2.GetHit(jhit);
-       if(!hit) continue;
-
-       int solutions = 0;
-       if(hit->IsStt()) solutions == 2;
-       else solutions = 1;
+	int solutions = 0;
+	if(hit->IsStt()) solutions == 2;
+	else solutions = 1;
        
-       for(int khit = jhit + 1; khit < skewhitlist2.GetNofHits(); khit++) {
-	 PndTrkHit*  hitk = skewhitlist2.GetHit(khit);
-	 if(!hitk) continue;
+	for(int khit = jhit + 1; khit < skewhitlist2.GetNofHits(); khit++) {
+	  PndTrkHit*  hitk = skewhitlist2.GetHit(khit);
+	  if(!hitk) continue;
 	 
-	 int ksolutions = 0;
-	 if(hitk->IsStt()) ksolutions == 2;
-	 else ksolutions = 1;
+	  int ksolutions = 0;
+	  if(hitk->IsStt()) ksolutions == 2;
+	  else ksolutions = 1;
 	 
-	 for(int jsol = 0; jsol < solutions; jsol++) 
-	   {
-	     if(solutions == 1) {
-	       position = hit->GetPosition();
-	       phi = hit->GetPhi();
-	     }
-	     else if(jsol == 0) {
-	       position = ((PndTrkSkewHit*) hit)->GetIntersection1();
-	       phi = ((PndTrkSkewHit*) hit)->GetPhi1();
-	     }
-	     else {
-	       position = ((PndTrkSkewHit*) hit)->GetIntersection2();
-	       phi = ((PndTrkSkewHit*) hit)->GetPhi2();
-	     }
+	  for(int jsol = 0; jsol < solutions; jsol++) 
+	    {
+	      if(solutions == 1) {
+		position = hit->GetPosition();
+		phi = hit->GetPhi();
+	      }
+	      else if(jsol == 0) {
+		position = ((PndTrkSkewHit*) hit)->GetIntersection1();
+		phi = ((PndTrkSkewHit*) hit)->GetPhi1();
+	      }
+	      else {
+		position = ((PndTrkSkewHit*) hit)->GetIntersection2();
+		phi = ((PndTrkSkewHit*) hit)->GetPhi2();
+	      }
 	     
-	     for(int ksol = 0; ksol < ksolutions; ksol++) 
-	       {
-		 if(ksolutions == 1) {
-		   positionk = hitk->GetPosition();
-		   phik = hitk->GetPhi();
-		 }
-		 else if(ksol == 0) {
-		   positionk = ((PndTrkSkewHit*) hitk)->GetIntersection1();
-		   phik = ((PndTrkSkewHit*) hitk)->GetPhi1();
-		 }
-		 else {
-		   positionk = ((PndTrkSkewHit*) hitk)->GetIntersection2();
-		   phik = ((PndTrkSkewHit*) hitk)->GetPhi2();
-		 }
+	      for(int ksol = 0; ksol < ksolutions; ksol++) 
+		{
+		  if(ksolutions == 1) {
+		    positionk = hitk->GetPosition();
+		    phik = hitk->GetPhi();
+		  }
+		  else if(ksol == 0) {
+		    positionk = ((PndTrkSkewHit*) hitk)->GetIntersection1();
+		    phik = ((PndTrkSkewHit*) hitk)->GetPhi1();
+		  }
+		  else {
+		    positionk = ((PndTrkSkewHit*) hitk)->GetIntersection2();
+		    phik = ((PndTrkSkewHit*) hitk)->GetPhi2();
+		  }
 		 
-		 double cost = (positionk.Z() - position.Z()) / TMath::Sqrt((phi - phik) * (phi - phik) + (positionk.Z() - position.Z()) * (positionk.Z() - position.Z()));
-		 double theta = TMath::ACos(cost);
-		 double r1 = phi * cost + position.Z() * TMath::Sin(theta);
-		 double r2 = phik * cost + positionk.Z() * TMath::Sin(theta);
-		 double r = r1;
-		 if(fabs(r1 - r2) > 1.e-9) {
-		   theta = -TMath::ACos(cost);
-		   r = phi * cost + position.Z() * TMath::Sin(theta);
-		 }
-		 fLineHisto->Fill(theta * TMath::RadToDeg(), r);
-	       }
-	   }
-       }
-     }
+		  double cost = (positionk.Z() - position.Z()) / TMath::Sqrt((phi - phik) * (phi - phik) + (positionk.Z() - position.Z()) * (positionk.Z() - position.Z()));
+		  double theta = TMath::ACos(cost);
+		  double r1 = phi * cost + position.Z() * TMath::Sin(theta);
+		  double r2 = phik * cost + positionk.Z() * TMath::Sin(theta);
+		  double r = r1;
+		  if(fabs(r1 - r2) > 1.e-9) {
+		    theta = -TMath::ACos(cost);
+		    r = phi * cost + position.Z() * TMath::Sin(theta);
+		  }
+		  fLineHisto->Fill(theta * TMath::RadToDeg(), r);
+		}
+	    }
+	}
+      }
 
-     bin = fLineHisto->GetMaximumBin();
-     fLineHisto->GetBinXYZ(bin, binx, biny, binz);
-     tpeak = fLineHisto->GetXaxis()->GetBinCenter(binx);
-     rpeak = fLineHisto->GetYaxis()->GetBinCenter(biny);
-     //  cout << "tpeak " << tpeak << " rpeak " << rpeak << endl;
-     double fitm8 = -TMath::Cos(tpeak * TMath::DegToRad())/TMath::Sin(tpeak * TMath::DegToRad());
-     double fitq8 = rpeak/TMath::Sin(tpeak * TMath::DegToRad());
+      bin = fLineHisto->GetMaximumBin();
+      fLineHisto->GetBinXYZ(bin, binx, biny, binz);
+      tpeak = fLineHisto->GetXaxis()->GetBinCenter(binx);
+      rpeak = fLineHisto->GetYaxis()->GetBinCenter(biny);
+      //  cout << "tpeak " << tpeak << " rpeak " << rpeak << endl;
+      double fitm8 = -TMath::Cos(tpeak * TMath::DegToRad())/TMath::Sin(tpeak * TMath::DegToRad());
+      double fitq8 = rpeak/TMath::Sin(tpeak * TMath::DegToRad());
  
       if(fDisplayOn) {
 	display->cd(3);
@@ -3989,14 +3989,14 @@ hit->SetSortVariable(phi);
 	display->Update();
 	display->Modified();
 	char goOnChar;
-	 cin >> goOnChar;
+	cin >> goOnChar;
       }
 
-     // finalize the cluster
-     for(int jhit = 0; jhit < skewhitlist2.GetNofHits(); jhit++) {
-       hit = skewhitlist2.GetHit(jhit);
-       if(fFinalCluster->DoesContain(hit) == kFALSE) fFinalCluster->AddHit((PndTrkHit*) hit);
-     }
+      // finalize the cluster
+      for(int jhit = 0; jhit < skewhitlist2.GetNofHits(); jhit++) {
+	hit = skewhitlist2.GetHit(jhit);
+	if(fFinalCluster->DoesContain(hit) == kFALSE) fFinalCluster->AddHit((PndTrkHit*) hit);
+      }
 
 
     }
@@ -4032,8 +4032,8 @@ hit->SetSortVariable(phi);
   fTrackList->Clear("C");
   fConformalHitList->Clear("C"); 
   
-//   delete stthit;
-//   delete indiv;
+  //   delete stthit;
+  //   delete indiv;
 }
 
 
@@ -4140,38 +4140,38 @@ void PndTrkTrackFinder::Apollonius(PndTrkCluster *cluster, std::vector< double >
 
 	      if((thisb * thisb - thisa * thisc) < 0) continue;
 	      double r = (- thisb + TMath::Sqrt(thisb * thisb - thisa * thisc))/ thisa;
-// 	      cout << "r1 " << r << endl;
+	      // 	      cout << "r1 " << r << endl;
 	      if(r < 0) {
 		r = (- thisb - TMath::Sqrt(thisb * thisb - thisa * thisc))/ thisa;
-	// 	cout << "r2 " << r << endl;
+		// 	cout << "r2 " << r << endl;
 	      }
 
 	      if(r < 0) continue; // CHECK
 
-	     //  R[counter] = r;
-// 	      X[counter] = thism * R[counter] + thisq;
-// 	      Y[counter]  = thiss * R[counter] + thisp;
+	      //  R[counter] = r;
+	      // 	      X[counter] = thism * R[counter] + thisq;
+	      // 	      Y[counter]  = thiss * R[counter] + thisp;
 
 	      R.push_back(r);
 	      X.push_back(thism * R[counter] + thisq);
 	      Y.push_back(thiss * R[counter] + thisp);
 	      cout << R[counter] << " " << X[counter] << " " << Y[counter] << endl;
-	     //  if(fDisplayOn) {
-// 		char goOnChar;
-// 		display->cd(2); 
-// 		TArc *arc0 = new TArc(X[counter], Y[counter], R[counter]);
-// 		arc0->SetFillStyle(0);
-// 		arc0->SetLineColor(2);
-// 		arc0->Draw("SAME");
-// 		display->Update();
-// 		display->Modified();
-// 		//	cin >> goOnChar;
-// 	      }
+	      //  if(fDisplayOn) {
+	      // 		char goOnChar;
+	      // 		display->cd(2); 
+	      // 		TArc *arc0 = new TArc(X[counter], Y[counter], R[counter]);
+	      // 		arc0->SetFillStyle(0);
+	      // 		arc0->SetLineColor(2);
+	      // 		arc0->Draw("SAME");
+	      // 		display->Update();
+	      // 		display->Modified();
+	      // 		//	cin >> goOnChar;
+	      // 	      }
 
 
-	  //     cout << "ctr/dist/R " << counter << " " << TMath::Sqrt((circle[a][0] - X[counter]) * (circle[a][0] - X[counter]) + (circle[a][1] - Y[counter]) * (circle[a][1] - Y[counter])) - R[counter] << " " << R[counter] << endl;
+	      //     cout << "ctr/dist/R " << counter << " " << TMath::Sqrt((circle[a][0] - X[counter]) * (circle[a][0] - X[counter]) + (circle[a][1] - Y[counter]) * (circle[a][1] - Y[counter])) - R[counter] << " " << R[counter] << endl;
 	      counter++;
-	     //  cout << endl;
+	      //  cout << endl;
 	    }
 	  }
 	}
@@ -4370,8 +4370,8 @@ void PndTrkTrackFinder::DrawGeometry() {
       TArc * arc = new TArc(tube->GetPosition().X(), tube->GetPosition().Y(), 0.5);
       arc->SetFillStyle(0);
       arc->SetLineColor(kCyan - 10);
-//       if(tube->GetLayerID() == 0 || tube->GetLayerID() == 7 || tube->GetLayerID() == 16 || tube->GetLayerID() == 20) arc->SetFillColor(kRed);
-//       else         arc->SetFillStyle(0);
+      //       if(tube->GetLayerID() == 0 || tube->GetLayerID() == 7 || tube->GetLayerID() == 16 || tube->GetLayerID() == 20) arc->SetFillColor(kRed);
+      //       else         arc->SetFillStyle(0);
 
       arc->Draw("SAME");
     }
@@ -4401,7 +4401,7 @@ void PndTrkTrackFinder::DrawGeometryConf(double x1, double x2, double y1, double
     huv->Reset(); 
     huv->GetXaxis()->SetLimits(x1, x2);
     huv->GetYaxis()->SetLimits(y1, y2);
-   }
+  }
   display->cd(2);
   huv->Draw();
   display->Update();
@@ -4412,9 +4412,9 @@ void PndTrkTrackFinder::DrawGeometryConf(double x1, double x2, double y1, double
 // draw lists ---------
 void PndTrkTrackFinder::DrawLists() {
   char goOnChar;
-//   cout << "DrawLists" << endl;
-//   cin >> goOnChar;
-//   Refresh(); 
+  //   cout << "DrawLists" << endl;
+  //   cin >> goOnChar;
+  //   Refresh(); 
   
   
   for(int i = 0; i < fHitMap->GetStandalone().GetEntriesFast(); i++) {
@@ -4576,7 +4576,7 @@ PndTrkHit *PndTrkTrackFinder::FindSttReferenceHit(int isec) {
 }
  
 PndTrkHit *PndTrkTrackFinder::FindMvdPixelReferenceHit()
-  {
+{
   if(mvdpixhitlist->GetNofHits() == 0) return NULL;
   // loop on mvd pix hits
   int tmphitid = -1;
@@ -4592,7 +4592,7 @@ PndTrkHit *PndTrkTrackFinder::FindMvdPixelReferenceHit()
   }   
   if(tmphitid == -1)  return NULL;
   refhit = mvdpixhitlist->GetHit(tmphitid);
-   if(fVerbose > 1) cout << "MVD PIXEL REFERENCE HIT " << refhit->GetHitID() << endl;
+  if(fVerbose > 1) cout << "MVD PIXEL REFERENCE HIT " << refhit->GetHitID() << endl;
   return refhit;
 }
 
@@ -4605,7 +4605,7 @@ PndTrkHit *PndTrkTrackFinder::FindMvdStripReferenceHit()
   for(int jhit = 0; jhit < mvdstrhitlist->GetNofHits(); jhit++) {
     PndTrkHit *hit = mvdstrhitlist->GetHit(jhit);
     if(hit->IsUsed()) { 
-       if(fVerbose > 1) cout << "already used V" << endl; 
+      if(fVerbose > 1) cout << "already used V" << endl; 
       continue; 
     }
     tmphitid = jhit;
@@ -4613,7 +4613,7 @@ PndTrkHit *PndTrkTrackFinder::FindMvdStripReferenceHit()
   }   
   if(tmphitid == -1)  return NULL;
   refhit = mvdstrhitlist->GetHit(tmphitid);
-   if(fVerbose > 1) cout << "MVD STRIP REFERENCE HIT " << refhit->GetHitID() << endl;
+  if(fVerbose > 1) cout << "MVD STRIP REFERENCE HIT " << refhit->GetHitID() << endl;
   return refhit;
 }
 
@@ -4637,7 +4637,7 @@ PndTrkHit *PndTrkTrackFinder::FindReferenceHit()
   // refhit = FindSttReferenceHit();
   FindMvdReferenceHit();
 
- return refhit;
+  return refhit;
 }
 
 PndTrkHit *PndTrkTrackFinder::FindReferenceHit(PndTrkCluster *cluster) {
@@ -4828,11 +4828,11 @@ Int_t  PndTrkTrackFinder::ExtractLegendre(Int_t mode, double &theta_max, double 
   }
 
   if(mode == 0 && alreadythere == true) {
-     cout << "THIS PEAK IS ALREADY THERE" << endl;
+    cout << "THIS PEAK IS ALREADY THERE" << endl;
     legendre->DeleteZoneAroundXYZoom(theta_max, r_max);
   }
 
- int maxpeakzoom = legendre->ExtractZoomMaximum(theta_max, r_max);
+  int maxpeakzoom = legendre->ExtractZoomMaximum(theta_max, r_max);
   //  cout << "THETA/R ZOOM " << theta_max << " " << r_max <<  " maxpeakzoom " << maxpeakzoom << endl;
 
   if(fDisplayOn) {
@@ -4852,7 +4852,7 @@ Int_t  PndTrkTrackFinder::ExtractLegendre(Int_t mode, double &theta_max, double 
 }
 
 void PndTrkTrackFinder::FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R) {
- // CHECK if this needs to be kept --> change xc0 to xc etc
+  // CHECK if this needs to be kept --> change xc0 to xc etc
   // center and radius
   Double_t xcrot0, ycrot0;
   ycrot0 = 1 / (2 * fitp);
@@ -4868,7 +4868,7 @@ void PndTrkTrackFinder::FromConformalToRealTrack(double fitm, double fitp, doubl
 }
 
 void PndTrkTrackFinder::FromRealToConformalTrack(double x0, double y0, double R, double &fitm, double &fitp) {
- // CHECK if this needs to be kept --> change xc0 to xc etc
+  // CHECK if this needs to be kept --> change xc0 to xc etc
   Double_t xcrot0, ycrot0;
  
   // traslation 
@@ -4927,20 +4927,20 @@ void PndTrkTrackFinder::FillHitMap() {
     }
    
     //    cout << "HIT: " << hit->GetHitID() << " has " << neighborings->GetEntriesFast() << " hits" << endl;
-//     if(fDisplayOn) { 
-//       Refresh();
-//     }
+    //     if(fDisplayOn) { 
+    //       Refresh();
+    //     }
   
 
     fHitMap->AddNeighboringsToHit(hit, neighborings);
 
-//     if(fDisplayOn) {
-//       char goOnChar;
-//       display->Update();
-//       display->Modified();
-//       cout << " go on?" << endl;
-//       cin >> goOnChar;
-//     }
+    //     if(fDisplayOn) {
+    //       char goOnChar;
+    //       display->Update();
+    //       display->Modified();
+    //       cout << " go on?" << endl;
+    //       cin >> goOnChar;
+    //     }
   }
   //  neighborings = NULL;
   //   delete neighborings;
@@ -4956,8 +4956,8 @@ void PndTrkTrackFinder::FillHitMap() {
       TObjArray indiv = fHitMap->GetIndivisiblesToHit(stthit);
       for(int jhit = 0; jhit < indiv.GetEntriesFast(); jhit++) {
 	PndTrkHit *stthit2 = (PndTrkHit*) indiv.At(jhit);
-// 	stthit2->Draw(kOrange);
-//  	stthit->Draw(kOrange);
+	// 	stthit2->Draw(kOrange);
+	//  	stthit->Draw(kOrange);
       }
     }
 
@@ -5058,7 +5058,7 @@ PndTrkClusterList PndTrkTrackFinder::CreateFullClusterization() {
 	      char goOnChar;
 	      cin >> goOnChar;
 	      neighhit->Draw(kGreen);
-		cout << "nof hits " << cluster->GetNofHits() << endl;
+	      cout << "nof hits " << cluster->GetNofHits() << endl;
 	      // cluster->LightUp();
 	      display->Update();
 	      display->Modified();
@@ -5084,116 +5084,116 @@ PndTrkClusterList PndTrkTrackFinder::CreateFullClusterization() {
   // -----------------------------------------
   cout << "NOF TOTAL HITS " << stthitlist->GetNofHits() << " NOF CLUSTERIZED HITS " <<  clusterizedhits << endl;
   if(stthitlist->GetNofHits() - clusterizedhits > 6) {
-  // get candseeds *********************************************8
-  TObjArray candseeds = fHitMap->GetCandseeds();
-  // ----------------- loop over cand seeds
+    // get candseeds *********************************************8
+    TObjArray candseeds = fHitMap->GetCandseeds();
+    // ----------------- loop over cand seeds
 
-  cout << "we have " << candseeds.GetEntriesFast() << " canduidate seeds" << endl;
-  for(int jseed = 0; jseed < candseeds.GetEntriesFast(); jseed++) {
-    PndTrkCluster *cluster = new PndTrkCluster();
-    PndTrkHit *cseedhit = (PndTrkHit*) candseeds.At(jseed);
+    cout << "we have " << candseeds.GetEntriesFast() << " canduidate seeds" << endl;
+    for(int jseed = 0; jseed < candseeds.GetEntriesFast(); jseed++) {
+      PndTrkCluster *cluster = new PndTrkCluster();
+      PndTrkHit *cseedhit = (PndTrkHit*) candseeds.At(jseed);
     
-    // is it already used
+      // is it already used
 
-    if(fDisplayOn) {
-      display->cd(1);
-      char goOnChar;
-      cin >> goOnChar;
-      cout << "CSEED " << endl;
-      cseedhit->Draw(kBlue);
-      display->Update();
-      display->Modified();
-    }
-
-
-    if(cseedhit->IsUsed() == kTRUE) { cout << "already" << endl ; continue; }
-    
-    int cseedtubeID = cseedhit->GetTubeID();
-    PndSttTube *cseedtube = (PndSttTube*) fTubeArray->At(cseedtubeID);
-    int cseedlayerID = cseedtube->GetLayerID();
-    
-    // add hit to cluster
-    cluster->AddHit(cseedhit);
-
-    if(fDisplayOn) {
-      display->cd(1);
-      char goOnChar;
-      cin >> goOnChar;
-      cout << "SEED " << cseedtubeID << endl; 
-      cseedhit->Draw(kRed);
-      display->Update();
-      display->Modified();
-    }
-
-    //    // add cluster to clusterlist
-    //    clusterlist.AddCluster(cluster);
-
-    int nlastadded = 1, addedcounter = 0;
-    // cout << "nlastadded to " << seedhit->GetHitID() << "(" << seedtubeID << ")" << " " << nlastadded << endl;
-    //    if(nlastadded == 0) continue;
-    while(nlastadded > 0) {
-      // loop on the last nlastadded hits to this cluster
-      // example: add to a 5 hits cluster: 0 1 2 3 4
-      // the hits no. 5, 6, 7
-      // --> nlastadded = 3 & nof hits in cluster = 5 + 3 = 8
-      // 7 6 5 = 8 - 3
-      // here loop from hit 8 - 1 = 7 to hit 8 - 3 = 5
-
-      addedcounter = 0;
-
-      // cout << "@@@@@@@@@@@@@@@@@ loop on the last " << nlastadded << " hits of cluster" << endl;
-      //   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-      // 	PndTrkHit *hit = cluster->GetHit(ihit);
-      // 	cout << " " << hit->GetHitID() ;
-      //       }
-      //       cout << endl;
-
-
-      int nclusterhits = cluster->GetNofHits();
-      for(int iadded = nclusterhits - 1; iadded >= (nclusterhits - nlastadded); iadded--) {
-	PndTrkHit *addedhit = cluster->GetHit(iadded);
-	neighborings = fHitMap->GetNeighboringsToHit(addedhit);
-	if(neighborings.GetEntriesFast() == 0) continue;
-	//	cout << "hit " << addedhit->GetHitID() << "(" << addedhit->GetTubeID() << ")" << " has " << neighborings->GetEntriesFast()  << " neighborigns: " << endl;
-
-	// loop over the neighborings and add them all
-	for(int ineigh = 0; ineigh < neighborings.GetEntriesFast(); ineigh++)
-	  {
-	    PndTrkHit *neighhit = (PndTrkHit*) neighborings.At(ineigh);
-	    //  cout << " " << neighhit->GetHitID() << "(" << neighhit->GetTubeID() << ")";
-	    if(cluster->DoesContain(neighhit) == kTRUE) {
-	      //  cout << "UN-ADDED, in cluster already" << endl;
-	      continue;
-	    }
-	    cluster->AddHit(neighhit);
-	    addedcounter++;
-	    //  cout << " - ADDED; ";
-
-	    if(fDisplayOn) {
-	      display->cd(1);
-	      char goOnChar;
-	      cin >> goOnChar;
-	      neighhit->Draw(kGreen);
-		cout << "nof hits " << cluster->GetNofHits() << endl;
-	      // cluster->LightUp();
-	      display->Update();
-	      display->Modified();
-	      cin >> goOnChar;
-	    }
-	    
-	  }
-
-
+      if(fDisplayOn) {
+	display->cd(1);
+	char goOnChar;
+	cin >> goOnChar;
+	cout << "CSEED " << endl;
+	cseedhit->Draw(kBlue);
+	display->Update();
+	display->Modified();
       }
-      //       cout << endl;
-      nlastadded = addedcounter;
-    }   
 
-    if(cluster->GetNofHits() > 3) {
-      clusterlist.AddCluster(cluster); // CHECK
+
+      if(cseedhit->IsUsed() == kTRUE) { cout << "already" << endl ; continue; }
+    
+      int cseedtubeID = cseedhit->GetTubeID();
+      PndSttTube *cseedtube = (PndSttTube*) fTubeArray->At(cseedtubeID);
+      int cseedlayerID = cseedtube->GetLayerID();
+    
+      // add hit to cluster
+      cluster->AddHit(cseedhit);
+
+      if(fDisplayOn) {
+	display->cd(1);
+	char goOnChar;
+	cin >> goOnChar;
+	cout << "SEED " << cseedtubeID << endl; 
+	cseedhit->Draw(kRed);
+	display->Update();
+	display->Modified();
+      }
+
+      //    // add cluster to clusterlist
+      //    clusterlist.AddCluster(cluster);
+
+      int nlastadded = 1, addedcounter = 0;
+      // cout << "nlastadded to " << seedhit->GetHitID() << "(" << seedtubeID << ")" << " " << nlastadded << endl;
+      //    if(nlastadded == 0) continue;
+      while(nlastadded > 0) {
+	// loop on the last nlastadded hits to this cluster
+	// example: add to a 5 hits cluster: 0 1 2 3 4
+	// the hits no. 5, 6, 7
+	// --> nlastadded = 3 & nof hits in cluster = 5 + 3 = 8
+	// 7 6 5 = 8 - 3
+	// here loop from hit 8 - 1 = 7 to hit 8 - 3 = 5
+
+	addedcounter = 0;
+
+	// cout << "@@@@@@@@@@@@@@@@@ loop on the last " << nlastadded << " hits of cluster" << endl;
+	//   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
+	// 	PndTrkHit *hit = cluster->GetHit(ihit);
+	// 	cout << " " << hit->GetHitID() ;
+	//       }
+	//       cout << endl;
+
+
+	int nclusterhits = cluster->GetNofHits();
+	for(int iadded = nclusterhits - 1; iadded >= (nclusterhits - nlastadded); iadded--) {
+	  PndTrkHit *addedhit = cluster->GetHit(iadded);
+	  neighborings = fHitMap->GetNeighboringsToHit(addedhit);
+	  if(neighborings.GetEntriesFast() == 0) continue;
+	  //	cout << "hit " << addedhit->GetHitID() << "(" << addedhit->GetTubeID() << ")" << " has " << neighborings->GetEntriesFast()  << " neighborigns: " << endl;
+
+	  // loop over the neighborings and add them all
+	  for(int ineigh = 0; ineigh < neighborings.GetEntriesFast(); ineigh++)
+	    {
+	      PndTrkHit *neighhit = (PndTrkHit*) neighborings.At(ineigh);
+	      //  cout << " " << neighhit->GetHitID() << "(" << neighhit->GetTubeID() << ")";
+	      if(cluster->DoesContain(neighhit) == kTRUE) {
+		//  cout << "UN-ADDED, in cluster already" << endl;
+		continue;
+	      }
+	      cluster->AddHit(neighhit);
+	      addedcounter++;
+	      //  cout << " - ADDED; ";
+
+	      if(fDisplayOn) {
+		display->cd(1);
+		char goOnChar;
+		cin >> goOnChar;
+		neighhit->Draw(kGreen);
+		cout << "nof hits " << cluster->GetNofHits() << endl;
+		// cluster->LightUp();
+		display->Update();
+		display->Modified();
+		cin >> goOnChar;
+	      }
+	    
+	    }
+
+
+	}
+	//       cout << endl;
+	nlastadded = addedcounter;
+      }   
+
+      if(cluster->GetNofHits() > 3) {
+	clusterlist.AddCluster(cluster); // CHECK
+      }
+
     }
-
-  }
   }
   // -----------------------------------------
   return clusterlist;
@@ -5493,7 +5493,7 @@ PndTrkTrack * PndTrkTrackFinder::LegendreFit(PndTrkCluster *cluster) {
   Double_t xc, yc, R;
   FromConformalToRealTrack(fitm, fitq, xc, yc, R);
   //  cout << "\033[1;33m MAXPEAK " << maxpeak << " XR, YC, R: " << xc << " " << yc << " " << R << "\033[0m" << endl;
-	//	cout << "start hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
+  //	cout << "start hit " << ihit << " " << hit->GetHitID() << " " << endsecid << " " << endlayid << endl;
 
   // create a track from the cluster
   PndTrkTrack *track = new PndTrkTrack(cluster, xc, yc, R);
@@ -5511,7 +5511,7 @@ PndTrkCluster * PndTrkTrackFinder::CreateClusterAroundTrack(PndTrkTrack *track) 
   FromRealToConformalTrack(xc, yc, R, fitm, fitp);
 
 
- PndTrkCluster cluster = track->GetCluster();
+  PndTrkCluster cluster = track->GetCluster();
 
   // create cluster depending on fitting
   double rmin = R - R * 0.05; // CHECK 5%?
@@ -5530,8 +5530,8 @@ PndTrkCluster * PndTrkTrackFinder::CreateClusterAroundTrack(PndTrkTrack *track) 
     arcmin->SetLineColor(kGreen);
     arcmax->SetLineColor(kBlue);
 
- //    arcmin->Draw("SAME");
-//     arcmax->Draw("SAME");
+    //    arcmin->Draw("SAME");
+    //     arcmax->Draw("SAME");
 
     display->Update();
     display->Modified();
@@ -5817,92 +5817,92 @@ void PndTrkTrackFinder::IntersectionFinder(PndTrkHit *hit, double xc, double yc,
   TVector2 vec(xc, yc);
   
   // tubeID  CHECK added
-    Int_t tubeID = hit->GetTubeID();
-    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+  Int_t tubeID = hit->GetTubeID();
+  PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
 
-    // [xp, yp] point = coordinates xy of the centre of the firing tube
-    TVector2 point(tube->GetPosition().X(), tube->GetPosition().Y());
-    double radius = hit->GetIsochrone();
+  // [xp, yp] point = coordinates xy of the centre of the firing tube
+  TVector2 point(tube->GetPosition().X(), tube->GetPosition().Y());
+  double radius = hit->GetIsochrone();
 
-    // the coordinates of the point are taken from the intersection
-    // between the circumference from the drift time and the R radius of
-    // curvature. -------------------------------------------------------
-    // 2. find the intersection between the little circle and the line // R
-    // 2.a
-    // find the line passing throught [xc, yc] (centre of curvature) and [xp, yp] (first wire)
-    // y = mx + q
-    Double_t m = (point.Y() - vec.Y())/(point.X() - vec.X());
-    Double_t q = point.Y() - m*point.X();
+  // the coordinates of the point are taken from the intersection
+  // between the circumference from the drift time and the R radius of
+  // curvature. -------------------------------------------------------
+  // 2. find the intersection between the little circle and the line // R
+  // 2.a
+  // find the line passing throught [xc, yc] (centre of curvature) and [xp, yp] (first wire)
+  // y = mx + q
+  Double_t m = (point.Y() - vec.Y())/(point.X() - vec.X());
+  Double_t q = point.Y() - m*point.X();
 
-    Double_t x1 = 0, y1 = 0,
-      x2 = 0, y2 = 0,
-      xb1 = 0, yb1 = 0,
-      xb2 = 0, yb2 = 0;
+  Double_t x1 = 0, y1 = 0,
+    x2 = 0, y2 = 0,
+    xb1 = 0, yb1 = 0,
+    xb2 = 0, yb2 = 0;
 
-    // CHECK the vertical track
-    if(fabs(point.X() - vec.X()) < 1e-6) {
+  // CHECK the vertical track
+  if(fabs(point.X() - vec.X()) < 1e-6) {
       
-      // 2.b
-      // intersection little circle and line --> [x1, y1]
-      // + and - refer to the 2 possible intersections
-      // +
-      x1 = point.X();
-      y1 = point.Y() + sqrt(radius * radius - (x1 - point.X()) * (x1 - point.X()));
-      // - 
-      x2 = x1;
-      y2 = point.Y() - sqrt(radius * radius - (x2 - point.X()) * (x2 - point.X()));
+    // 2.b
+    // intersection little circle and line --> [x1, y1]
+    // + and - refer to the 2 possible intersections
+    // +
+    x1 = point.X();
+    y1 = point.Y() + sqrt(radius * radius - (x1 - point.X()) * (x1 - point.X()));
+    // - 
+    x2 = x1;
+    y2 = point.Y() - sqrt(radius * radius - (x2 - point.X()) * (x2 - point.X()));
       
-      // 2.c intersection between line and circle
-      // +
-      xb1 = vec.X();
-      yb1 = vec.Y() + sqrt(R * R - (xb1 - vec.X()) * (xb1 - vec.X()));
-      // -
-      xb2 = xb1;
-      yb2 = vec.Y() - sqrt(R * R - (xb2 - vec.X()) * (xb2 - vec.X()));
+    // 2.c intersection between line and circle
+    // +
+    xb1 = vec.X();
+    yb1 = vec.Y() + sqrt(R * R - (xb1 - vec.X()) * (xb1 - vec.X()));
+    // -
+    xb2 = xb1;
+    yb2 = vec.Y() - sqrt(R * R - (xb2 - vec.X()) * (xb2 - vec.X()));
 
-    }    // END CHECK
-    else {
+  }    // END CHECK
+  else {
       
-      // 2.b
-      // intersection little circle and line --> [x1, y1]
-      // + and - refer to the 2 possible intersections
-      // +
-      x1 = (-(m*(q - point.Y()) - point.X()) + sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
-      y1 = m*x1 + q;
-      // - 
-      x2 = (-(m*(q - point.Y()) - point.X()) - sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
-      y2 = m*x2 + q;
+    // 2.b
+    // intersection little circle and line --> [x1, y1]
+    // + and - refer to the 2 possible intersections
+    // +
+    x1 = (-(m*(q - point.Y()) - point.X()) + sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
+    y1 = m*x1 + q;
+    // - 
+    x2 = (-(m*(q - point.Y()) - point.X()) - sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
+    y2 = m*x2 + q;
       
-      // 2.c intersection between line and circle
-      // +
-      xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - R * R))) / (m*m + 1);
-      yb1 = m*xb1 + q;
-      // -
-      xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - R * R))) / (m*m + 1);
-      yb2 = m*xb2 + q;
-    }
+    // 2.c intersection between line and circle
+    // +
+    xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - R * R))) / (m*m + 1);
+    yb1 = m*xb1 + q;
+    // -
+    xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - R * R))) / (m*m + 1);
+    yb2 = m*xb2 + q;
+  }
     
-    // calculation of the distance between [xb, yb] and [xp, yp]
-    Double_t distb1 = sqrt((yb1 - point.Y())*(yb1 - point.Y()) + (xb1 - point.X())*(xb1 - point.X()));
-    Double_t distb2 = sqrt((yb2 - point.Y())*(yb2 - point.Y()) + (xb2 - point.X())*(xb2 - point.X()));
+  // calculation of the distance between [xb, yb] and [xp, yp]
+  Double_t distb1 = sqrt((yb1 - point.Y())*(yb1 - point.Y()) + (xb1 - point.X())*(xb1 - point.X()));
+  Double_t distb2 = sqrt((yb2 - point.Y())*(yb2 - point.Y()) + (xb2 - point.X())*(xb2 - point.X()));
     
-    // choice of [xb, yb]
-    TVector2 xyb;
-    if(distb1 > distb2) xyb.Set(xb2, yb2); 
-    else xyb.Set(xb1, yb1); 
+  // choice of [xb, yb]
+  TVector2 xyb;
+  if(distb1 > distb2) xyb.Set(xb2, yb2); 
+  else xyb.Set(xb1, yb1); 
 
-    // calculation of the distance between [x, y] and [xb. yb]
-    Double_t dist1 = sqrt((xyb.Y() - y1)*(xyb.Y() - y1) + (xyb.X() - x1)*(xyb.X() - x1));
-    Double_t dist2 = sqrt((xyb.Y() - y2)*(xyb.Y() - y2) + (xyb.X() - x2)*(xyb.X() - x2));
+  // calculation of the distance between [x, y] and [xb. yb]
+  Double_t dist1 = sqrt((xyb.Y() - y1)*(xyb.Y() - y1) + (xyb.X() - x1)*(xyb.X() - x1));
+  Double_t dist2 = sqrt((xyb.Y() - y2)*(xyb.Y() - y2) + (xyb.X() - x2)*(xyb.X() - x2));
 
-    // choice of [x, y]
-    TVector2 *xy;
-    if(dist1 > dist2) xy = new TVector2(x2, y2);
-    else xy = new TVector2(x1, y1);   // <========= THIS IS THE NEW POINT to be used for the fit
+  // choice of [x, y]
+  TVector2 *xy;
+  if(dist1 > dist2) xy = new TVector2(x2, y2);
+  else xy = new TVector2(x1, y1);   // <========= THIS IS THE NEW POINT to be used for the fit
     
-    hit->SetPosition(TVector3(xy->X(), xy->Y(), 0.0));
+  hit->SetPosition(TVector3(xy->X(), xy->Y(), 0.0));
     
-    delete xy;
+  delete xy;
 }
 
 
@@ -5914,245 +5914,245 @@ PndTrkCluster PndTrkTrackFinder::CreateSkewHitList(PndTrkTrack *track) {
   double R = track->GetRadius();
   PndTrkCluster skewhitlist;
 
-    double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
-    for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
-      PndTrkHit *hit = stthitlist->GetHit(ihit);	
-      if(hit->IsSttSkew() == kFALSE) continue;
+  double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
+  for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
+    PndTrkHit *hit = stthitlist->GetHit(ihit);	
+    if(hit->IsSttSkew() == kFALSE) continue;
       
-      int tubeID = hit->GetTubeID();
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    int tubeID = hit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
    
-      TVector3 wireDirection = tube->GetWireDirection();
-      Double_t halflength = tube->GetHalfLength();
+    TVector3 wireDirection = tube->GetWireDirection();
+    Double_t halflength = tube->GetHalfLength();
       
-      TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
-      TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
-      //    if(fDisplayOn) {
-      // 	char goOnChar;
-      //      	display->cd(1);
-      // 	TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
-      // 	l->SetLineColor(kBlue);
-      // 	l->Draw("SAME");
-      // 	display->Update();
-      // 	display->Modified();
-      // 	cin >> goOnChar;   
-      //       }
-      //    double m1 = (first - second).Y()/(first - second).X();
-      //    double q1 = first.Y() - m1 * first.X();
+    TVector3 first  = tube->GetPosition() + wireDirection * halflength; // CHECK
+    TVector3 second = tube->GetPosition() - wireDirection * halflength; // CHECK
+    //    if(fDisplayOn) {
+    // 	char goOnChar;
+    //      	display->cd(1);
+    // 	TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
+    // 	l->SetLineColor(kBlue);
+    // 	l->Draw("SAME");
+    // 	display->Update();
+    // 	display->Modified();
+    // 	cin >> goOnChar;   
+    //       }
+    //    double m1 = (first - second).Y()/(first - second).X();
+    //    double q1 = first.Y() - m1 * first.X();
       
-      // 1. compute intersection between the track circle and the wire
-      TVector2 intersection1, intersection2;
-      Int_t nofintersections = tools->ComputeSegmentCircleIntersection(TVector2(first.X(), first.Y()), TVector2(second.X(), second.Y()), xc, yc, R, intersection1, intersection2);
+    // 1. compute intersection between the track circle and the wire
+    TVector2 intersection1, intersection2;
+    Int_t nofintersections = tools->ComputeSegmentCircleIntersection(TVector2(first.X(), first.Y()), TVector2(second.X(), second.Y()), xc, yc, R, intersection1, intersection2);
       
-      if(nofintersections == 0) continue;
-      if(nofintersections >= 2) {
-	cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
-	continue; // CHECK
-      }
+    if(nofintersections == 0) continue;
+    if(nofintersections >= 2) {
+      cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
+      continue; // CHECK
+    }
     
-      if(fDisplayOn) {
-	char goOnChar;
-     	display->cd(1);
-	TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
-	l->SetLineColor(kBlue);
-	l->Draw("SAME");
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(1);
+      TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
+      l->SetLineColor(kBlue);
+      l->Draw("SAME");
 
-	TMarker *mrk = new TMarker(intersection1.X(), intersection1.Y(), 20);
-	mrk->SetMarkerColor(kBlue);
-	mrk->Draw("SAME");
+      TMarker *mrk = new TMarker(intersection1.X(), intersection1.Y(), 20);
+      mrk->SetMarkerColor(kBlue);
+      mrk->Draw("SAME");
 
-	display->Update();
-	display->Modified();
+      display->Update();
+      display->Modified();
 
 
-	//	cin >> goOnChar;   
-      }
+      //	cin >> goOnChar;   
+    }
   
 
-      // 2. find the tangent to the track in the intersection point
-      // tangent approximation
-      TVector2 tangent = tools->ComputeTangentInPoint(xc, yc, intersection1);
+    // 2. find the tangent to the track in the intersection point
+    // tangent approximation
+    TVector2 tangent = tools->ComputeTangentInPoint(xc, yc, intersection1);
        
-      // 3. rotate clockwise the tangent/point/(wire, not explicitely)
-      // in order to have the wire parallel to the x axis;
-      // then translate everything to have the wire ON the x axis
-      double beta = wireDirection.Phi();
-      if(beta < 0) beta += TMath::Pi();
-      // ... rotate the tangent
-      double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
-      double rty = TMath::Cos(beta) * tangent.Y() - TMath::Sin(beta) * tangent.X();
-      TVector2 rottangent(rtx, rty);
-      rottangent = rottangent.Unit();
-      // ... rotate the point
-      double rx = TMath::Cos(beta) * intersection1.X() + TMath::Sin(beta) * intersection1.Y();
-      double ry = TMath::Cos(beta) * intersection1.Y() - TMath::Sin(beta) * intersection1.X();
+    // 3. rotate clockwise the tangent/point/(wire, not explicitely)
+    // in order to have the wire parallel to the x axis;
+    // then translate everything to have the wire ON the x axis
+    double beta = wireDirection.Phi();
+    if(beta < 0) beta += TMath::Pi();
+    // ... rotate the tangent
+    double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
+    double rty = TMath::Cos(beta) * tangent.Y() - TMath::Sin(beta) * tangent.X();
+    TVector2 rottangent(rtx, rty);
+    rottangent = rottangent.Unit();
+    // ... rotate the point
+    double rx = TMath::Cos(beta) * intersection1.X() + TMath::Sin(beta) * intersection1.Y();
+    double ry = TMath::Cos(beta) * intersection1.Y() - TMath::Sin(beta) * intersection1.X();
        
-      // translation
-      Double_t deltay = ry;
-      rty -= deltay;
-      ry -= deltay;
+    // translation
+    Double_t deltay = ry;
+    rty -= deltay;
+    ry -= deltay;
 
-      // rotm, rotp
-      Double_t rotm = rottangent.Y()/rottangent.X();
-      Double_t rotp = ry - rotm * rx;
+    // rotm, rotp
+    Double_t rotm = rottangent.Y()/rottangent.X();
+    Double_t rotp = ry - rotm * rx;
 
-      // ellipsis
-      double a = hit->GetIsochrone() * TMath::Cos(SKEW_ANGLE); // CHECK skew angle hard coded
-      double b = hit->GetIsochrone();
+    // ellipsis
+    double a = hit->GetIsochrone() * TMath::Cos(SKEW_ANGLE); // CHECK skew angle hard coded
+    double b = hit->GetIsochrone();
 
-      // center of ellipsis
-      Double_t x0a, x0b, y0;
-      y0 = 0.;
-      x0a = (-rotp + TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
-      x0b = (-rotp - TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
+    // center of ellipsis
+    Double_t x0a, x0b, y0;
+    y0 = 0.;
+    x0a = (-rotp + TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
+    x0b = (-rotp - TMath::Sqrt(b * b + a * a * rotm * rotm)) / rotm;
  
-      // intersection point
-      double intxa = (x0a * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
-      double intya = rotm * intxa + rotp;
-      double intxb = (x0b * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
-      double intyb = rotm * intxb + rotp;
+    // intersection point
+    double intxa = (x0a * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
+    double intya = rotm * intxa + rotp;
+    double intxb = (x0b * b * b - rotm * rotp * a * a) / (b * b + rotm * rotm * a * a);
+    double intyb = rotm * intxb + rotp;
    
-      // 4. retraslate/rerotate all back to the original plane
-      // retranslate
-      y0 += deltay; 
-      intya  += deltay; 
-      intyb  += deltay; 
+    // 4. retraslate/rerotate all back to the original plane
+    // retranslate
+    y0 += deltay; 
+    intya  += deltay; 
+    intyb  += deltay; 
    
-      // rerotate
-      double x0anew = TMath::Cos(beta) * x0a - TMath::Sin(beta) * y0;
-      double y0anew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0a;
-      double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
-      double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
+    // rerotate
+    double x0anew = TMath::Cos(beta) * x0a - TMath::Sin(beta) * y0;
+    double y0anew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0a;
+    double x0bnew = TMath::Cos(beta) * x0b - TMath::Sin(beta) * y0;
+    double y0bnew = TMath::Cos(beta) * y0 + TMath::Sin(beta) * x0b;
    
-      double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
-      double intyanew = TMath::Cos(beta) * intya + TMath::Sin(beta) * intxa;
-      double intxbnew = TMath::Cos(beta) * intxb - TMath::Sin(beta) * intyb;
-      double intybnew = TMath::Cos(beta) * intyb + TMath::Sin(beta) * intxb;
+    double intxanew = TMath::Cos(beta) * intxa - TMath::Sin(beta) * intya;
+    double intyanew = TMath::Cos(beta) * intya + TMath::Sin(beta) * intxa;
+    double intxbnew = TMath::Cos(beta) * intxb - TMath::Sin(beta) * intyb;
+    double intybnew = TMath::Cos(beta) * intyb + TMath::Sin(beta) * intxb;
    
-      intxa = intxanew;
-      intya = intyanew;
-      intxb = intxbnew;
-      intyb = intybnew;
+    intxa = intxanew;
+    intya = intyanew;
+    intxb = intxbnew;
+    intyb = intybnew;
 
-      // now we have x0a, y0a, center of the 1st ellipse
-      // and x0b, y0b, center of the 2nd ellipse
-      x0a = x0anew;
-      double y0a = y0anew;
-      x0b = x0bnew;
-      double y0b = y0bnew;
+    // now we have x0a, y0a, center of the 1st ellipse
+    // and x0b, y0b, center of the 2nd ellipse
+    x0a = x0anew;
+    double y0a = y0anew;
+    x0b = x0bnew;
+    double y0b = y0bnew;
 
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(1);
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(1);
 
-	TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
-	ell1->SetFillStyle(0);
-	ell1->SetLineColor(4);
-	ell1->Draw("SAME");
-	TEllipse *ell2 = new TEllipse(x0b, y0b, a, b, 0, 360, -beta);
-	ell2->SetFillStyle(0);
-	ell2->SetLineColor(6);
-	ell2->Draw("SAME");
+      TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
+      ell1->SetFillStyle(0);
+      ell1->SetLineColor(4);
+      ell1->Draw("SAME");
+      TEllipse *ell2 = new TEllipse(x0b, y0b, a, b, 0, 360, -beta);
+      ell2->SetFillStyle(0);
+      ell2->SetLineColor(6);
+      ell2->Draw("SAME");
 
-	TMarker *mrkinta = new TMarker(intxa, intya, 20);
-	mrkinta->SetMarkerColor(4);
-	mrkinta->Draw("SAME");
-	TMarker *mrkintb = new TMarker(intxb, intyb, 20);
-	mrkintb->SetMarkerColor(6);
-	mrkintb->Draw("SAME");
-	//	 cin >> goOnChar;   
-      }
-
-      // 5. calculate z coordinate for each intersection
-       
-      // calculate z0a, z0b of the center of the ellipse
-      Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
-      Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
-      //    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
- 
-      t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
-      Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
- 
-      TVector3 center1(x0a, y0a, z0a);
-      TVector3 center2(x0b, y0b, z0b);
-    //   if(fDisplayOn) {
-// 	char goOnChar;
-// 	display->cd(3);
-// 	//	cout << "COMPUTE Z COORDINATE" << endl;
-// 	DrawZGeometry();
-// 	TLine *linezx = new TLine(first.X(), first.Z(), second.X(), second.Z());
-// 	linezx->Draw("SAME");
-// 	TMarker *mrkza = new TMarker(x0a, z0a, 20);
-// 	mrkza->SetMarkerColor(4);
-// 	mrkza->Draw("SAME");
-// 	TMarker *mrkzb = new TMarker(x0b, z0b, 20);
-// 	mrkzb->SetMarkerColor(6);
-// 	mrkzb->Draw("SAME");
-// 	//	 cin >> goOnChar;   
-//       }
-
-      // calculate the z of the intersection ON the ellipse (CHECK this step calculations!)
-      double dx = intxa - x0a;
-      double dy = intya - y0a;
-      TVector3 dxdy(dx, dy, 0.0);
-
-      TVector3 tfirst = first + dxdy;
-      TVector3 tsecond = second + dxdy;
-
-      t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
-      double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
-      if(fDisplayOn) {
-	char goOnChar;
-	display->cd(3);
-	TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
-	linezx1->SetLineStyle(1);
-	linezx1->Draw("SAME");
-	TMarker *mrkza1 = new TMarker(intxa, intza, 20);
-	mrkza1->SetMarkerColor(kBlue - 9);
-	mrkza1->Draw("SAME");
-	// cin >> goOnChar;   
-      }
-
-      tfirst = first - dxdy;
-      tsecond = second - dxdy;
-
-      t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
-      double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
- 
-      TVector3 fin_intersection1(intxa, intya, intza);
-      TVector3 fin_intersection2(intxb, intyb, intzb);
-
-    //   if(fDisplayOn) {
-// 	char goOnChar;
-// 	display->cd(3);
-// 	TLine *linezx2 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
-// 	linezx2->SetLineStyle(1);
-// 	linezx2->Draw("SAME");
-// 	TMarker *mrkzb1 = new TMarker(intxb, intzb, 20);
-// 	mrkzb1->SetMarkerColor(kMagenta - 7);
-// 	mrkzb1->Draw("SAME");
-// 	//	 cin >> goOnChar;   
-//       }
-      //        int1.SetXYZ(intxa, intya, intza);
-      //        int2.SetXYZ(intxb, intyb, intzb);
-      //        errz = fabs(intza - intzb)/2.   ;
-   
-      // CHECK to be changed
-      int trackID = 1;
-      double phi1 = track->ComputePhi(fin_intersection1);
-      double phi2 = track->ComputePhi(fin_intersection2);
-
-      PndTrkSkewHit *skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
-      //      skewhit->Print();
-      skewhitlist.AddHit(skewhit);
-
-   
+      TMarker *mrkinta = new TMarker(intxa, intya, 20);
+      mrkinta->SetMarkerColor(4);
+      mrkinta->Draw("SAME");
+      TMarker *mrkintb = new TMarker(intxb, intyb, 20);
+      mrkintb->SetMarkerColor(6);
+      mrkintb->Draw("SAME");
+      //	 cin >> goOnChar;   
     }
-    //     cout << "PHI: " << phimin << " " << phimax << endl;
-    //     cout << "Z  : " << zmin << " " << zmax << endl;
+
+    // 5. calculate z coordinate for each intersection
+       
+    // calculate z0a, z0b of the center of the ellipse
+    Double_t t = ((x0a + y0a) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
+    Double_t z0a = first.Z() + (second.Z() - first.Z()) * t;
+    //    cout << "0 : calculate t, z0a " << t << " " << z0a << endl;
+ 
+    t = ((x0b + y0b) - (first.X() + first.Y())) /  ((second.X() - first.X()) + (second.Y() - first.Y()));
+    Double_t z0b = first.Z() + (second.Z() - first.Z()) * t;
+ 
+    TVector3 center1(x0a, y0a, z0a);
+    TVector3 center2(x0b, y0b, z0b);
+    //   if(fDisplayOn) {
+    // 	char goOnChar;
+    // 	display->cd(3);
+    // 	//	cout << "COMPUTE Z COORDINATE" << endl;
+    // 	DrawZGeometry();
+    // 	TLine *linezx = new TLine(first.X(), first.Z(), second.X(), second.Z());
+    // 	linezx->Draw("SAME");
+    // 	TMarker *mrkza = new TMarker(x0a, z0a, 20);
+    // 	mrkza->SetMarkerColor(4);
+    // 	mrkza->Draw("SAME");
+    // 	TMarker *mrkzb = new TMarker(x0b, z0b, 20);
+    // 	mrkzb->SetMarkerColor(6);
+    // 	mrkzb->Draw("SAME");
+    // 	//	 cin >> goOnChar;   
+    //       }
+
+    // calculate the z of the intersection ON the ellipse (CHECK this step calculations!)
+    double dx = intxa - x0a;
+    double dy = intya - y0a;
+    TVector3 dxdy(dx, dy, 0.0);
+
+    TVector3 tfirst = first + dxdy;
+    TVector3 tsecond = second + dxdy;
+
+    t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
+    double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(3);
+      TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
+      linezx1->SetLineStyle(1);
+      linezx1->Draw("SAME");
+      TMarker *mrkza1 = new TMarker(intxa, intza, 20);
+      mrkza1->SetMarkerColor(kBlue - 9);
+      mrkza1->Draw("SAME");
+      // cin >> goOnChar;   
+    }
+
+    tfirst = first - dxdy;
+    tsecond = second - dxdy;
+
+    t = ((intxb + intyb) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
+    double intzb = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
+ 
+    TVector3 fin_intersection1(intxa, intya, intza);
+    TVector3 fin_intersection2(intxb, intyb, intzb);
+
+    //   if(fDisplayOn) {
+    // 	char goOnChar;
+    // 	display->cd(3);
+    // 	TLine *linezx2 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
+    // 	linezx2->SetLineStyle(1);
+    // 	linezx2->Draw("SAME");
+    // 	TMarker *mrkzb1 = new TMarker(intxb, intzb, 20);
+    // 	mrkzb1->SetMarkerColor(kMagenta - 7);
+    // 	mrkzb1->Draw("SAME");
+    // 	//	 cin >> goOnChar;   
+    //       }
+    //        int1.SetXYZ(intxa, intya, intza);
+    //        int2.SetXYZ(intxb, intyb, intzb);
+    //        errz = fabs(intza - intzb)/2.   ;
+   
+    // CHECK to be changed
+    int trackID = 1;
+    double phi1 = track->ComputePhi(fin_intersection1);
+    double phi2 = track->ComputePhi(fin_intersection2);
+
+    PndTrkSkewHit *skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
+    //      skewhit->Print();
+    skewhitlist.AddHit(skewhit);
+
+   
+  }
+  //     cout << "PHI: " << phimin << " " << phimax << endl;
+  //     cout << "Z  : " << zmin << " " << zmax << endl;
 
 
-    return skewhitlist;
+  return skewhitlist;
 }
  
 PndTrkCluster PndTrkTrackFinder::CleanUpSkewHitList(PndTrkCluster *skewhitlist) {
