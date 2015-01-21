@@ -3112,7 +3112,38 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
       fFinalCluster->ReverseSort();
 
+   // check if last station has only one hit ~~~~~~~~~~~~~~~~~~~~~
+      int hitsonstat5 = 0;
+      for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	hit = fFinalCluster->GetHit(jhit);
+	cout << "hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSensorID() << endl;
+	if(hit->GetSensorID() != 5) continue;
+	hitsonstat5++;
+      }
+      cout << "ON STATION 5- " << hitsonstat5 << endl;
+
       TVector3 fromhere = fFinalCluster->GetHit(0)->GetPosition(); // CHECK HERE
+      fromhere.Print();
+      if(hitsonstat5 > 1) {
+	double dist45 = 1000;
+	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	  hit = fFinalCluster->GetHit(jhit);
+	  if(hit->GetSensorID() != 5) continue;
+	  else if(hit->GetSensorID() < 5) break;
+	  for(int khit = jhit + 1; khit < fFinalCluster->GetNofHits(); khit++) {
+	    PndTrkHit *hitk = fFinalCluster->GetHit(khit);
+	    if(hitk->GetSensorID() != 4) continue;
+	    else if(hit->GetSensorID() < 4) break;
+	    double tmpdist = hit->GetXYDistance(hitk);
+	    if(tmpdist < dist45) fromhere = hit->GetPosition();
+	  }
+	}
+      }
+      fromhere.Print();
+
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//       TVector3 fromhere = fFinalCluster->GetHit(0)->GetPosition(); // CHECK HERE
       //       cout << "fFinalCluster, gem " << fFinalCluster->GetNofHits() << endl;
 
       // STT
@@ -3215,7 +3246,6 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	
       }
       fFinalCluster->Sort();
-     
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
 	//      cout << "-> " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
