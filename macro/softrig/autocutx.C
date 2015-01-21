@@ -217,8 +217,8 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	
 	for (i=0;i<(int)sigvals.size();++i)
 	{
-		if (sigvals[i].first<leftcut)  sigcnt[sigvals[i].second]+=1;
-		if (sigvals[i].first>rightcut) sigcnt2[sigvals[i].second]+=1;
+		if (sigvals[i].first<=leftcut)  sigcnt[sigvals[i].second]+=1;
+		if (sigvals[i].first>=rightcut) sigcnt2[sigvals[i].second]+=1;
 	}
 	
 	t->SetBranchStatus("*",1);
@@ -236,7 +236,7 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 		bestcut = leftcut;
 		
 		if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
-		if (dtype==0) cuts[id] = TString::Format(TString("%s<"+prec).Data(),varname.Data(),leftcut);
+		if (dtype==0) cuts[id] = TString::Format(TString("%s<="+prec).Data(),varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 		
 		qual[id] = lefteff;
@@ -246,7 +246,7 @@ double bestEffEvt(TTree *t, TString varname, TEventList &els, TEventList &elb, d
 	
 	if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
 
-	if (dtype==0) cuts[id] = TString::Format(TString("%s>"+prec).Data(),varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format(TString("%s>="+prec).Data(),varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
 	qual[id] = righteff;
@@ -308,7 +308,7 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 		bestcut = leftcut;
 		
 		if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
-		if (dtype==0) cuts[id] = TString::Format(TString("%s<"+prec).Data(),varname.Data(),leftcut);
+		if (dtype==0) cuts[id] = TString::Format(TString("%s<="+prec).Data(),varname.Data(),leftcut);
 		else cuts[id] = TString::Format("%s<=%.1f",varname.Data(),leftcut);
 		
 		qual[id] = leftsupr;
@@ -318,7 +318,7 @@ double bestSuppressionEvt(TTree *t, TString varname, TEventList &els, TEventList
 	
 	if (bestcut<1e-3 || fabs(1.-bestcut)<1e-3) prec="%.6f";
 
-	if (dtype==0) cuts[id] = TString::Format(TString("%s>"+prec).Data(),varname.Data(),rightcut);
+	if (dtype==0) cuts[id] = TString::Format(TString("%s>="+prec).Data(),varname.Data(),rightcut);
 	else cuts[id] = TString::Format("%s>=%.1f",varname.Data(),rightcut);
 
 	qual[id] = rightsupr;
