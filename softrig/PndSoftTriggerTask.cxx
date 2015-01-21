@@ -303,7 +303,7 @@ InitStatus PndSoftTriggerTask::Init()
 			cout <<endl;
 			if (cs.tmvaread)
 			{
-				cout<<"TMVA cut:"<<cs.tmvacut<<"  vars:";
+				cout<<"  TMVA cut:"<<cs.tmvacut<<"  vars:";
 				for (int i=0;i<cs.tmvanvar;++i) cout <<cs.tmvavarid[i]<<" ";
 				cout<< endl;
 			}
@@ -581,12 +581,14 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		// remove whitespace at begin and end
 		sline = sline.Strip(TString::kBoth);
 		
+		if (sline=="") continue;
+		
 		// split the line into tokens; token 0 ist the mode code, token 1 is the complete cut string
 		// e.g. '38400 : eslnpidp>0&&abs(pcm-2.105)<0.695&&esthr>0.9&&pt>0.8'
 		int N1 = SplitString(sline, ":", toks,30);
 		
 		// if N==2, only simple cut; N==3 includes TMVA selector
-		if (N1>3)  {cout <<"invalid line: "<<sline.Data()<<endl; continue;}
+		if (N1<2 || N1>3)  {cout <<"invalid line: "<<sline.Data()<<endl; continue;}
 
 		// extract the mode code by converting to integer
 		int mcode = toks[0].Atoi();
@@ -678,7 +680,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 			// now split the TMVA string into single tokens
 			int N3 = SplitString(toks[2]," ",toks2,30);
 			
-			if (N3<3) // at least four elements expected; fail
+			if (N3<4) // at least four elements expected; fail
 			{
 				cout <<"[PndSoftTriggerTask] **** Invalid TMVA configuration for mode "<<mcode<<". Skipping."<<endl;
 				ok = false;
@@ -688,7 +690,6 @@ bool PndSoftTriggerTask::ReadConfiguration()
 			{
 				// first token is the weightfile name without leading path and ending '.weights.xml'
 				TString wfile   = TString(getenv("VMCWORKDIR"))+"/softrig/weights/"+toks2[0]+".weights.xml";
-				if (fVerbose) cout <<wfile<<endl;
 				cs.tmvameth = toks2[0](toks2[0].Length()-3,3); 
 				
 				// last token is the cut to the TMVA output
@@ -699,7 +700,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 				
 				// create the reader
 				cs.tmvaread = new TMVA::Reader("Silent");
-
+				
 				for (int i=1; i<N3-1; ++i)
 				{
 					if (fSTVarmap.find(toks2[i]) != fSTVarmap.end()) cs.tmvavarid[i-1] = fSTVarmap[toks2[i]];
@@ -717,6 +718,21 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		}
 		
 		if (ok) fSTSelmap[mcode] = cs;
+		
+		if (fVerbose)
+		{
+			cout <<"mcode="<<mcode<<endl;
+			STCutSet cts = fSTSelmap[mcode];
+			cout <<"  Ncut="<<cts.ncut<<" (";
+			for (int k=0;k<cts.ncut;++k) cout <<cts.varid[k]<<" ";
+			cout <<")"<<endl;
+			if (cts.tmvaread!=0)
+			{
+				cout <<"  TMVAMeth="<<cts.tmvameth<<"; Nvar="<<cts.tmvanvar<<"; Cut="<<cts.tmvacut<<"; TMVAobject="<<cts.tmvaread<<" (";			
+				for (int k=0;k<cts.tmvanvar;++k) cout <<cts.tmvavarid[k]<<" ";
+				cout <<")"<<endl;
+			}
+		}
 	}
 	
 }
@@ -1072,7 +1088,7 @@ void PndSoftTriggerTask::FillEventShapeVarArray()
 	// ( 15) esnchrg         ( 16) espmax          ( 17) espmaxl         ( 18) espmin          ( 19) espminl       
 	// ( 20) esprapmax       ( 21) esptmax         ( 22) essumen         ( 23) essumenl        ( 24) essumetn       
 	// ( 25) essumpc         ( 26) essumpc05       ( 27) essumpcl        ( 28) essumpt         ( 29) essumptc    
-    // ( 30) esthr           ( 31) essph           ( 32) esptmin         ( 33) esncp10l        ( 34) esnne10l   
+	// ( 30) esthr           ( 31) essph           ( 32) esptmin         ( 33) esncp10l        ( 34) esnne10l   
 	
 	// don't use PID mult values from fEventShape (based on AllCands and only one algo)
 	for (int i=0;i<5;++i) fSTVarEvArray[i] = fPidMult_025[i]; 
