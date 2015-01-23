@@ -203,7 +203,7 @@ class PndTrkTrackFinder : public FairTask {
   TH2F *hxy, *hxz, *hzphi;
   TCanvas *display;
   TH2F *huv;
-
+  TH2F *fLineHisto;
   PndTrkCluster *fCluster;
   PndTrkCluster *fFinalCluster;
   PndTrkCluster *fIndivCluster;

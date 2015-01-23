@@ -222,7 +222,9 @@ InitStatus PndTrkTrackFinder::Init() {
 
   fConformalHitList = new PndTrkConformalHitList();
 
+  fLineHisto = new TH2F("fLineHisto", "hl", 720, -360, 360, 8000, -400, 400);
 
+   
   return kSUCCESS;
 
 }
@@ -2081,6 +2083,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     TClonesArray& clref1 = *fTrackArray;
     Int_t size = clref1.GetEntriesFast();
     PndTrack *outputtrack = new(clref1[size]) PndTrack(theTrack.GetParamFirst(),theTrack.GetParamLast(), theTrack.GetTrackCand());
+    outputtrack->SetFlag(1);
 
     TClonesArray& clref2 = *fTrackCandArray;
     size = clref2.GetEntriesFast();
@@ -2114,7 +2117,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // F     W W W D   D
   // F      W W  DDDD
 
-  fDisplayOn = kTRUE;
+  //   fDisplayOn = kTRUE;
   // set unusable the hits assigned to long tracks ....................................
   for(int itrk = 0; itrk < fTrackArray->GetEntriesFast(); itrk++) {
     PndTrack *trk = (PndTrack*) fTrackArray->At(itrk);
@@ -2195,7 +2198,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   PndTrkClusterList newclusterlist;
 
   // make tracklets out of the gem hits ..............................
-  cout << "GEM CLUSTER " << gemcluster.GetNofHits() << endl;
+  //  cout << "GEM CLUSTER " << gemcluster.GetNofHits() << endl;
   for(int ihit = 0; ihit < gemcluster.GetNofHits(); ihit++) {
     PndTrkHit *hiti = gemcluster.GetHit(ihit);
     if(hiti->IsUsed() == kTRUE) continue;
@@ -2253,7 +2256,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       else goOn = false;
     }
 
-    cout << "CLUSTER " << cluster.GetNofHits() << endl;
+    //    cout << "CLUSTER " << cluster.GetNofHits() << endl;
     if(cluster.GetNofHits() >= 3) {
 
 
@@ -2452,8 +2455,11 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
 
 
-
-      
+      // put in a list the hits you considered and
+      // decided do not belong to the track 
+      std::vector< std::pair< int, int > > dontuse;
+ 
+ 
       // GET SECTOR ID ---------------------------------------------
       std::map< int, int > sectorids;
       for(int jhit = 0; jhit < cluster.GetNofHits(); jhit++) 
@@ -2485,7 +2491,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	  othersecID = isec;
 	}
       }
-      cout << "SECTOR " << sectorID << " " << sectorids.size() << " " << othersecID << " " << border << endl;
+      //      cout << "SECTOR " << sectorID << " " << sectorids.size() << " " << othersecID << " " << border << endl;
       // --------------------------------------------------------------
 
       // EVALUATE WHICH SECTORS are interesting
@@ -2493,29 +2499,29 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
       double xydistance = TMath::Sqrt(xc * xc + yc * yc);
 
-      cout << CTINRADIUS - R << endl;
+     //  cout << CTINRADIUS - R << endl;
       bool searchnearby = false;
       if(xydistance < CTINRADIUS - R) {
-	cout << "************* INTERNAL TO INNER *****************" << endl;
+// 	cout << "************* INTERNAL TO INNER *****************" << endl;
 	continue;
       }
       else if(xydistance < CTINRADIUS + R && xydistance < CTOUTRADIUS - R) {
-	cout << "************* INTERSECTING INNER *****************" << endl;
+// 	cout << "************* INTERSECTING INNER *****************" << endl;
 	searchnearby = true;
       }
       else if(xydistance < CTINRADIUS + R) {
-	cout << "************* INTERSECTING BOTH *****************" << endl;
+// 	cout << "************* INTERSECTING BOTH *****************" << endl;
       }
       else if(xydistance < CTOUTRADIUS - R) {
-	cout << "************* INTERNAL *****************" << endl;
+// 	cout << "************* INTERNAL *****************" << endl;
 	searchnearby = true;
       }
       else if(xydistance < CTOUTRADIUS + R) {
-	cout << "************* INTERSECTING EXTERNAL *****************" << endl;
+// 	cout << "************* INTERSECTING EXTERNAL *****************" << endl;
 	searchnearby = true;
       }
       else {
-	cout << "************* EXTERNAL TO OUTER *****************" << endl;
+// 	cout << "************* EXTERNAL TO OUTER *****************" << endl;
 	continue;
       }
  
@@ -2559,7 +2565,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
 
       if(crossingpipe) {
-	cout << "************* CROSSING PIPE *****************" << endl;
+	//	cout << "************* CROSSING PIPE *****************" << endl;
 	crossingpipe = true;
       }
 
@@ -2626,9 +2632,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	  othersecID = isec;
 	}
       }
-      cout << "SECTOR " << sectorID << " " << sectorids.size() << " " << othersecID << " " << border << endl;
+      //      cout << "SECTOR " << sectorID << " " << sectorids.size() << " " << othersecID << " " << border << endl;
       // --------------------------------------------------------------
-
 
       // what about adding the mvd hits now? lets do it!
       // ... and put mvd pixel hits to conformal plane --------------- 
@@ -2648,7 +2653,30 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double recoiso = fabs(distance_hit_center - R);
 	//	cout << "recoiso pix " << recoiso << endl;
 	if(recoiso < 3.) {
-	  cluster2.AddHit(hit);
+
+	  // dont want two hits on the same sensor
+	  int samesensor = false;
+	  for(int khit = 0; khit < cluster2.GetNofHits(); khit++) {
+	    PndTrkHit *hitk = cluster2.GetHit(khit);
+	    if(!hitk->IsMvdPixel()) continue;
+	    if(hitk->GetSensorID() != hit->GetSensorID()) continue;
+	    samesensor = true;
+	    double distance_hitk_center = (hitk->GetPosition().XYvector() - TVector2(xc, yc)).Mod();
+	    double recoisok = fabs(distance_hitk_center - R);
+	    if(recoiso < recoisok) {
+	      cluster2.DeleteHitAndCompress(hitk);
+	      std::pair< int, int > dontpair(hitk->GetHitID(), hitk->GetDetectorID());
+	      dontuse.push_back(dontpair);
+	      cluster2.AddHit(hit);
+	    }
+	    else {
+	      std::pair< int, int > dontpair(hit->GetHitID(), hit->GetDetectorID());
+	      dontuse.push_back(dontpair);
+	    }
+	  }
+	  
+ 	  if(samesensor == false) cluster2.AddHit(hit);
+
 	  if(fDisplayOn)  {
 	    hit->Draw(kOrange);
 	    display->Update();
@@ -2675,7 +2703,30 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double recoiso = fabs(distance_hit_center - R);
 	//	cout << "recoiso str " << recoiso << endl;
 	if(recoiso < 3.) {
-	  cluster2.AddHit(hit);
+
+	  // dont want two hits on the same sensor
+	  int samesensor = false;
+	  for(int khit = 0; khit < cluster2.GetNofHits(); khit++) {
+	    PndTrkHit *hitk = cluster2.GetHit(khit);
+	    if(!hitk->IsMvdStrip()) continue;
+	    if(hitk->GetSensorID() != hit->GetSensorID()) continue;
+	    samesensor = true;
+	    double distance_hitk_center = (hitk->GetPosition().XYvector() - TVector2(xc, yc)).Mod();
+	    double recoisok = fabs(distance_hitk_center - R);
+	    if(recoiso < recoisok) {
+	      cluster2.DeleteHitAndCompress(hitk);
+	      std::pair< int, int > dontpair(hitk->GetHitID(), hitk->GetDetectorID());
+	      dontuse.push_back(dontpair);
+	      cluster2.AddHit(hit);
+	    }
+	    else {
+	      std::pair< int, int > dontpair(hit->GetHitID(), hit->GetDetectorID());
+	      dontuse.push_back(dontpair);
+	    }
+	  }
+	  
+	  if(samesensor == false) cluster2.AddHit(hit);
+
 	  if(fDisplayOn)  {
 	    hit->Draw(kOrange);
 	    display->Update();
@@ -2686,6 +2737,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	}
       }
     
+
       if(fDisplayOn) {
 	display->cd(1);
 	cluster2.Draw(kRed);
@@ -2730,7 +2782,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       cluster2.Sort();
       // ... then sort in phi from the 1st hit
       PndTrkTrack track2(&cluster2, xc, yc, R);
-      cout << "xc, yc, R " << xc << " " << yc << " " << R << endl;
+      //      cout << "xc, yc, R " << xc << " " << yc << " " << R << endl;
       for(int jhit = 0; jhit < cluster2.GetNofHits(); jhit++) {
 	hit = cluster2.GetHit(jhit);
 	double phi = track2.ComputePhiFrom(hit->GetPosition(), cluster2.GetHit(0)->GetPosition());
@@ -2743,7 +2795,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // if the track is positive --> add 360 (otherwise is 0 followed by 350, 350...)
       track2.ComputeCharge();
       double charge = track2.GetCharge();
-      cout << "charge " << charge << endl;
+      //      cout << "charge " << charge << endl;
       if(charge > 0)      cluster2.GetHit(0)->SetPhi(360.) ; // CHECK
 
       // further check, but maybe nomore necessary CHECK
@@ -2810,7 +2862,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	 }
       **/
 
-      TH2F *fLineHisto = new TH2F("fLineHisto", "hl", 720, -360, 360, 8000, -400, 400);
+      fLineHisto->Reset();
 
       for(int jhit = 0; jhit < cluster2.GetNofHits(); jhit++) {
     	hit = cluster2.GetHit(jhit);
@@ -2890,14 +2942,12 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	    else phi -= 360.;
 	    hit->SetPhi(phi);
 	    distance =  fabs(position.Z() - fitm4 * phi - fitq4);
-	    cout << "PHI possible! " << fabs(comp_phi - phi) << endl;
-	    
+	    //	    cout << "PHI possible! " << fabs(comp_phi - phi) << endl;
 	  }
 	}
       }
 
 
-      std::vector< std::pair< int, int > > dontuse;
       // associate only the right hits in z for gem & mvd
       PndTrkCluster cluster3;
       for(int jhit = 0; jhit < cluster2.GetNofHits(); jhit++) {
@@ -2924,7 +2974,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	    dontuse.push_back(dontpair);
 
 	    thishit->SetUsedFlag(kFALSE);
- 	    cout << "distance " << distance << " of hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->IsMvdPixel() << endl;
+	    // 	    cout << "distance " << distance << " of hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->IsMvdPixel() << endl;
 	    continue;
 	  }
 	  else if(distance > 20 && hit->IsGem() == kTRUE) {
@@ -2954,6 +3004,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	}
       }
       cluster3.Sort();
+      if(cluster3.GetNofHits() == 0) continue;
 
       // -------- fit with a line
       fFitter->Reset();    
@@ -3007,7 +3058,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       double trasl[2] = {0, 0};
       double delta;
 
-      cout << "refhit ---> " << refhit << endl;
+//       cout <<  cluster3.GetNofHits() << " refhit ---> " << refhit << endl;
 
       ComputeTraAndRot(refhit, delta, trasl);
       conform->SetOrigin(trasl[0], trasl[1], delta);
@@ -3015,7 +3066,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
       int nofconfhits = FillConformalHitList(&cluster3);
       
-      cout << "nofhits1: " << nofconfhits << endl;
+      //      cout << "nofhits1: " << nofconfhits << endl;
 
       // compute conformal plane extremities ---------------------------- this must go to a fctn CHECK
       fUmin =  1000, fVmin =  1000, fRmin =  1000;
@@ -3029,7 +3080,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double rc = chit->GetIsochrone();
 	if(TMath::IsNaN(u)) continue; // prevents the nan of the ref hit
 	if(rc < 0) rc = 0;
-	cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
+	//	cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
 	u - rc < fUmin ? fUmin = u - rc : fUmin;
 	v - rc < fVmin ? fVmin = v - rc : fVmin;
 	u + rc > fUmax ? fUmax = u + rc : fUmax;
@@ -3067,10 +3118,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
   
       // ====== REFIT CLUSTER ANALYTICALLY
-       
       double fitm3, fitq3;
       AnalyticalFit(&cluster3, xc, yc, R, fitm3, fitq3);
-       
       double xc3, yc3, R3;
       FromConformalToRealTrack(fitm3, fitq3, xc3, yc3, R3);
   
@@ -3107,39 +3156,83 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double recoiso = fabs(distance_hit_center - R3);
 	if(recoiso < 0.5) {
 	  hit->SetSortVariable(hit->GetPosition().Z());
-	  fFinalCluster->AddHit(hit);
+	  
+ 	  // dont want two hits on the same sensor
+	  int samesensor = false;
+	  for(int khit = 0; khit < fFinalCluster->GetNofHits(); khit++) {
+	    PndTrkHit *hitk = fFinalCluster->GetHit(khit);
+	    if(!hitk->IsGem()) continue;
+	    if(hitk->GetSensorID() != hit->GetSensorID()) continue;
+	    samesensor = true;
+	    double distance_hitk_center = (hitk->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
+	    double recoisok = fabs(distance_hitk_center - R3);
+	    if(recoiso < recoisok) {
+	      fFinalCluster->DeleteHitAndCompress(hitk);
+	      std::pair< int, int > dontpair(hitk->GetHitID(), hitk->GetDetectorID());
+	      dontuse.push_back(dontpair);
+	      fFinalCluster->AddHit(hit);
+	    }
+	    else {
+	      std::pair< int, int > dontpair(hit->GetHitID(), hit->GetDetectorID());
+	      dontuse.push_back(dontpair);
+	    }
+	  }
+	  
+	  if(samesensor == false) fFinalCluster->AddHit(hit);
+
+// 	  fFinalCluster->AddHit(hit);
 	}
       }
       fFinalCluster->ReverseSort();
 
-   // check if last station has only one hit ~~~~~~~~~~~~~~~~~~~~~
-      int hitsonstat5 = 0;
+      for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	 hit = fFinalCluster->GetHit(jhit);
+
+	 PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hit->GetHitID());
+	 int refindex = gemhit->GetRefIndex();
+	 
+// 	 cout << "THIS it is " <<  hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSensorID() << " " << refindex << endl;
+      }
+
+
+      // check if last station has only one hit ~~~~~~~~~~~~~~~~~~~~~
+      // define last and almost last stations    
+      int laststat = -1, almostlaststat = -1;
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
-	cout << "hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSensorID() << endl;
-	if(hit->GetSensorID() != 5) continue;
-	hitsonstat5++;
+	if(laststat == -1) laststat = hit->GetSensorID();
+	if(laststat != -1 && almostlaststat == -1 && hit->GetSensorID() != laststat) almostlaststat = hit->GetSensorID();
       }
-      cout << "ON STATION 5- " << hitsonstat5 << endl;
+      // count
+      int hitsonlaststat = 0;
+      for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	hit = fFinalCluster->GetHit(jhit);
+// 	cout << "hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSensorID() << endl;
+	if(hit->GetSensorID() != laststat) continue;
+	hitsonlaststat++;
+      }
 
+
+ //      cout << "ON LAST STATION " << laststat << " - " << hitsonlaststat << endl;
+      if(laststat == -1 || almostlaststat == -1) continue;
       TVector3 fromhere = fFinalCluster->GetHit(0)->GetPosition(); // CHECK HERE
-      fromhere.Print();
-      if(hitsonstat5 > 1) {
+      //      fromhere.Print();
+      if(hitsonlaststat > 1) {
 	double dist45 = 1000;
 	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	  hit = fFinalCluster->GetHit(jhit);
-	  if(hit->GetSensorID() != 5) continue;
-	  else if(hit->GetSensorID() < 5) break;
+	  if(hit->GetSensorID() != laststat) continue;
+	  else if(hit->GetSensorID() < laststat) break;
 	  for(int khit = jhit + 1; khit < fFinalCluster->GetNofHits(); khit++) {
 	    PndTrkHit *hitk = fFinalCluster->GetHit(khit);
-	    if(hitk->GetSensorID() != 4) continue;
-	    else if(hit->GetSensorID() < 4) break;
+	    if(hitk->GetSensorID() != almostlaststat) continue;
+	    else if(hit->GetSensorID() < almostlaststat) break;
 	    double tmpdist = hit->GetXYDistance(hitk);
 	    if(tmpdist < dist45) fromhere = hit->GetPosition();
 	  }
 	}
       }
-      fromhere.Print();
+      //      fromhere.Print();
 
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -3177,10 +3270,35 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
 	double recoiso = fabs(distance_hit_center - R3);
 	if(recoiso < 0.5) {
-	  fFinalCluster->AddHit(hit);
+
+
+	  // dont want two hits on the same sensor
+	  int samesensor = false;
+	  for(int khit = 0; khit < fFinalCluster->GetNofHits(); khit++) {
+	    PndTrkHit *hitk = fFinalCluster->GetHit(khit);
+	    if(!hitk->IsMvdPixel()) continue;
+	    if(hitk->GetSensorID() != hit->GetSensorID()) continue;
+	    samesensor = true;
+	    double distance_hitk_center = (hitk->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
+	    double recoisok = fabs(distance_hitk_center - R3);
+	    if(recoiso < recoisok) {
+	      fFinalCluster->DeleteHitAndCompress(hitk);
+	      std::pair< int, int > dontpair(hitk->GetHitID(), hitk->GetDetectorID());
+	      dontuse.push_back(dontpair);
+	      fFinalCluster->AddHit(hit);
+	    }
+	    else {
+	      std::pair< int, int > dontpair(hit->GetHitID(), hit->GetDetectorID());
+	      dontuse.push_back(dontpair);
+	    }
+	  }
+	  
+	  if(samesensor == false) fFinalCluster->AddHit(hit);
+	  // fFinalCluster->AddHit(hit);
+
 	}
       }
-      //      cout << "fFinalCluster, gem + stt + pix " << fFinalCluster->GetNofHits() << endl;
+      //           cout << "fFinalCluster, gem + stt + pix " << fFinalCluster->GetNofHits() << endl;
 
 
       // MVD STR
@@ -3198,7 +3316,30 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
 	double recoiso = fabs(distance_hit_center - R3);
 	if(recoiso < 0.5)  {
+// 	  // dont want two hits on the same sensor
+// 	  int samesensor = false;
+// 	  for(int khit = 0; khit < fFinalCluster->GetNofHits(); khit++) {
+// 	    PndTrkHit *hitk = fFinalCluster->GetHit(khit);
+// 	    if(!hitk->IsMvdStrip()) continue;
+// 	    if(hitk->GetSensorID() != hit->GetSensorID()) continue;
+// 	    samesensor = true;
+// 	    double distance_hitk_center = (hitk->GetPosition().XYvector() - TVector2(xc3, yc3)).Mod();
+// 	    double recoisok = fabs(distance_hitk_center - R3);
+// 	    if(recoiso < recoisok) {
+// 	      fFinalCluster->DeleteHitAndCompress(hitk);
+// 	      std::pair< int, int > dontpair(hitk->GetHitID(), hitk->GetDetectorID());
+// 	      dontuse.push_back(dontpair);
+// 	      fFinalCluster->AddHit(hit);
+// 	    }
+// 	    else {
+// 	      std::pair< int, int > dontpair(hit->GetHitID(), hit->GetDetectorID());
+// 	      dontuse.push_back(dontpair);
+// 	    }
+// 	  }
+	  
+// 	  if(samesensor == false) fFinalCluster->AddHit(hit);
 	  fFinalCluster->AddHit(hit);
+
 	}
       }
       //     cout << "fFinalCluster, gem + stt + str " << fFinalCluster->GetNofHits() << endl;
@@ -3233,6 +3374,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       PndTrkTrack track3(fFinalCluster, xc3, yc3, R3);
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
+
 	double phi = track3.ComputePhiFrom(hit->GetPosition(), fromhere);
 	if(phi == 360) phi = 0;
 	hit->SetPhi(phi);
@@ -3280,7 +3422,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       if(fDisplayOn) {
 	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	  hit = fFinalCluster->GetHit(jhit);
-	  cout << "-> " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << endl;
+	  //	  cout << "-> " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << endl;
 	  TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
 	  mrk->SetMarkerColor(kMagenta);
 	  mrk->Draw("SAME");
@@ -3331,10 +3473,10 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
       // ....................................................
 
-      cout << "FINAL CLUSTER HAS " << fFinalCluster->GetNofHits() << endl;
+      //     cout << "FINAL CLUSTER HAS " << fFinalCluster->GetNofHits() << endl;
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
-	cout << "final " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
+	// cout << "final " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi()  << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
       }
       if(fDisplayOn) {
 	Refresh();
@@ -3360,7 +3502,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // for the conformal map
       fConformalHitList->Clear("C");
       refhit = fFinalCluster->GetHit(0); // cluster3.GetNofHits() - 1);
-      cout << "refhit ---> " << refhit << endl;
+      //      cout << "refhit ---> " << refhit << endl;
       ComputeTraAndRot(refhit, delta, trasl);
       conform->SetOrigin(trasl[0], trasl[1], delta);
       fConformalHitList->SetConformalTransform(conform);
@@ -3378,7 +3520,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double rc = chit->GetIsochrone();
 	if(TMath::IsNaN(u)) continue; // prevents the nan of the ref hit
 	if(rc < 0) rc = 0;
-	cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
+	//	cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
 	u - rc < fUmin ? fUmin = u - rc : fUmin;
 	v - rc < fVmin ? fVmin = v - rc : fVmin;
 	u + rc > fUmax ? fUmax = u + rc : fUmax;
@@ -3405,7 +3547,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       dv = fVmax - fVmin;
       delt = fabs(dv - du)/2.;
       du < dv ? (fUmin -= delt, fUmax += delt) : (fVmin -= delt, fVmax += delt);
-      cout << "min/max " << fUmin << " " << fUmax << " " << fVmin << " " << fVmax << endl;
+      //      cout << "min/max " << fUmin << " " << fUmax << " " << fVmin << " " << fVmax << endl;
       if(fDisplayOn) {
 	DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
 	// ----------------------------------------------------------------------
@@ -3418,11 +3560,11 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
       double fitm6, fitq6;
       AnalyticalFit(fFinalCluster, xc3, yc3, R3, fitm6, fitq6);
-      cout << "fitm6 " << fitm6 << " fitq6 " << fitq6 << endl;
+      //       cout << "fitm6 " << fitm6 << " fitq6 " << fitq6 << endl;
       double xc6, yc6, R6;
       FromConformalToRealTrack(fitm6, fitq6, xc6, yc6, R6);
       PndTrkTrack finaltrack(fFinalCluster, xc6, yc6, R6);
-      cout << "xc6, yc6, R6 " << xc6 << " " << yc6 << " " << R6 << endl;
+//       cout << "xc6, yc6, R6 " << xc6 << " " << yc6 << " " << R6 << endl;
       if(fDisplayOn)  {
 	char goOnChar;
 
@@ -3455,7 +3597,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // set a new fromhere, from 1st hit;
       //   fromhere = TVector3(fFinalCluster->GetHit(0)->GetPosition());
       //   cout << "fromhere " << fromhere.X() <<  " " << fromhere.Y() << endl;
-      cout << "track 6: " << xc6 << " " << yc6 << " " << R6 << endl;
+ //      cout << "track 6: " << xc6 << " " << yc6 << " " << R6 << endl;
 
     
       // create cluster for z finding
@@ -3643,8 +3785,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	//      cout << "phi1,phi2: " << phi1 << " " << phi2 << endl;
 	//     fin_intersection1.Print();
 	//       fin_intersection2.Print();
-	cout << "position " <<    fin_intersection1.X() << " " << fin_intersection1.Y() << endl;
-	cout << "position " <<    fin_intersection2.X() << " " << fin_intersection2.Y() << endl;
+// 	cout << "position " <<    fin_intersection1.X() << " " << fin_intersection1.Y() << endl;
+// 	cout << "position " <<    fin_intersection2.X() << " " << fin_intersection2.Y() << endl;
 
 	// skewhit = new PndTrkSkewHit(*hit, trackID, center1, fin_intersection1, phi1, center2, fin_intersection2, phi2, a, b, -1, beta);
 	//    //      skewhit->Print();
@@ -3697,8 +3839,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       for(int jhit = 0; jhit <  fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
 	//       if(hit->IsSttParallel() == kFALSE) {
-	cout << "-> position " << hit->GetPosition().X() << " " << hit->GetPosition().Y() << endl;
-	cout << "3hit.det. " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << endl;
+// 	cout << "-> position " << hit->GetPosition().X() << " " << hit->GetPosition().Y() << endl;
+// 	cout << "3hit.det. " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << endl;
 	if(fDisplayOn) {
 	  display->cd(1);
 	  TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
@@ -3711,7 +3853,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	}
       }
 
-      cout << "fitm5 " << fitm5 << " fitq5 " << fitq5 << endl;;
+      //      cout << "fitm5 " << fitm5 << " fitq5 " << fitq5 << endl;;
       double fitm7 = fitm5;
       double fitq7 = 0.;
       for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
@@ -3719,10 +3861,10 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	if(!hit) continue;
 	if(hit->IsStt() == kFALSE) {
 	  fitq7 = hit->GetPosition().Z() - fitm7 * hit->GetPhi();
-	  cout << "non stt " << hit->GetPhi() << " " << hit->GetPosition().Z() << endl;
+	  //	  cout << "non stt " << hit->GetPhi() << " " << hit->GetPosition().Z() << endl;
 	}
       }
-      cout << "fitm7 " << fitm7 << " fitq7 " << fitq7;
+      //      cout << "fitm7 " << fitm7 << " fitq7 " << fitq7;
     
       if(fDisplayOn) {
 	char goOnChar;
@@ -3730,7 +3872,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	for(int jhit = 0; jhit < skewhitlist.GetNofHits(); jhit++) {
 	  hit = skewhitlist.GetHit(jhit);
 	  if(!hit) continue;
-	  cout << "hit.det.phi " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << endl;
+	  //	  cout << "hit.det.phi " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetPhi() << endl;
 	  if(hit->IsStt() == kTRUE) {
 	    PndTrkSkewHit *skewhit = (PndTrkSkewHit*) hit;
 	  
@@ -4027,12 +4169,86 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	hit = skewhitlist2.GetHit(jhit);
 	if(fFinalCluster->DoesContain(hit) == kFALSE) fFinalCluster->AddHit((PndTrkHit*) hit);
       }
+      fFinalCluster->Sort();
+      if(fFinalCluster->GetHit(0)->IsGem()) {
+	if(fFinalCluster->GetHit(1)->GetPosition().Z() < fFinalCluster->GetHit(0)->GetPosition().Z()) fFinalCluster->ReverseSort();
+      }
+
+      cout << endl;
+      for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
+	hit = fFinalCluster->GetHit(jhit);
+	//	cout << "final hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSortVariable() << endl;
+      }
 
 
-    }
+      // ................ final track ......................
+      PndTrkTrack finalfwdtrack(fFinalCluster, xc6, yc6, R6);
+      // compute charge
+      finalfwdtrack.ComputeCharge();
+      
+      // last two parameters in real plane
+      double tanl = - finalfwdtrack.GetCharge() * fitm8 * (180./TMath::Pi())/R6;
+      double z0 = fitq8;
+      finalfwdtrack.SetZ0(z0);
+      finalfwdtrack.SetTanL(tanl);
+      
+      fTrackList->AddTrack(&finalfwdtrack);
+      for(int jtrk = 0; jtrk < fTrackList->GetNofTracks(); jtrk++) {
+	PndTrkTrack *tmptrack = fTrackList->GetTrack(jtrk);
+      }
+    }    
   }
   
+  //  fDisplayOn = kTRUE;
+  if(fDisplayOn) {
+    char goOnChar;
+    display->cd(1);
+    Refresh();
+  }
+  // PndTrkTrack --> PndTrack
+  for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++) {
+    PndTrkTrack *track = fTrackList->GetTrack(itrk);
   
+    PndTrack theTrack = track->ConvertToPndTrack();
+
+    TClonesArray& clref1 = *fTrackArray;
+    Int_t size = clref1.GetEntriesFast();
+    PndTrack *outputtrack = new(clref1[size]) PndTrack(theTrack.GetParamFirst(),theTrack.GetParamLast(), theTrack.GetTrackCand());
+    outputtrack->SetFlag(2);
+    TClonesArray& clref2 = *fTrackCandArray;
+    size = clref2.GetEntriesFast();
+    PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(theTrack.GetTrackCand());
+    
+    //         cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
+    //     cout << "MOM LAST: TOT, PT, PL " << outputtrack->GetParamLast().GetMomentum().Mag() << " " << outputtrack->GetParamLast().GetMomentum().Perp() << " " << outputtrack->GetParamLast().GetMomentum().Z() << endl;
+    
+    if(fDisplayOn) {
+      char goOnChar;
+      display->cd(1);
+      track->Draw(kRed);
+      track->GetCluster().LightUp();
+
+      //      for(int jhit = 0; jhit < track->GetCluster().GetNofHits(); jhit++) {
+      // 	hit = track->GetCluster().GetHit(jhit);
+      // 	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 20);
+      // 	mrk->SetMarkerColor(4);
+      // 	mrk->Draw("SAME");
+      // 	display->Update();
+      // 	display->Modified();
+      // 	cin >> goOnChar;
+      //       }
+     
+      cout << "TRACK " << itrk << endl;
+      //      cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << " nofhits " << outputtrackcand->GetNHits() <<  endl;
+      cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
+      //       cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
+      track->ComputeCharge();
+
+      cout << "CHARGE " <<  track->GetCharge() << endl;
+      cin >> goOnChar;
+    }
+    
+  }
   // -----------------------------------------------------------
   //   Reset();
   //   fFinalCluster->Clear("C");
@@ -5612,8 +5828,8 @@ PndTrkCluster * PndTrkTrackFinder::CreateClusterAroundTrack(PndTrkTrack *track) 
 
   double meandistanceconf = totaldistanceconf/thiscluster->GetNofHits();
 
-  cout << "START SECTOR " << startsecid << " END SECTOR " << endsecid << endl;
-  cout << "START LAYER  " << startlayid << " END LAYER  " << endlayid << endl;
+//   cout << "START SECTOR " << startsecid << " END SECTOR " << endsecid << endl;
+//   cout << "START LAYER  " << startlayid << " END LAYER  " << endlayid << endl;
 
   if(fDisplayOn) {
     display->cd(1);
@@ -5709,9 +5925,8 @@ void PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, double 
       // if(chit.GetPosition().Mod() > 2) continue; // CHECK THIS OUT!
 
       if(TMath::IsNaN(chit.GetPosition().X())) continue; // prevents the nan of the ref hit
-
       fFitter->SetPointToFit(chit.GetPosition().X(), chit.GetPosition().Y(), sigma);
-      cout << "set point to fit " << chit.GetHit()->GetHitID() << " " << chit.GetHit()->GetDetectorID() << " " << chit.GetPosition().X() << " " <<  chit.GetPosition().Y() << " " << sigma << endl;
+      //      cout << "set point to fit " << chit.GetHit()->GetHitID() << " " << chit.GetHit()->GetDetectorID() << " " << chit.GetPosition().X() << " " <<  chit.GetPosition().Y() << " " << sigma << endl;
       if(fDisplayOn) {
        	display->cd(1);
        	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
