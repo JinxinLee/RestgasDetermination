@@ -54,7 +54,7 @@ PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis):
 	fPulseshape_pmt(0), fpsaAlgorithm(0), fpsaAlgorithm_pmt(0), fpsaAlgorithm_fwd(0), fDigiPar(new PndEmcDigiPar()),
 	fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), 
 	fWfNormalisation(0), fWfNormalisation_pmt(0), fWfNormalisation_fwd(0), fTimeOrderedDigi(kFALSE), fFpgaPar(new PndEmcFpgaPar()) ,
-	fDigitizationVersion2(kFALSE)
+	fDigitizationVersion2(kFALSE),fCalibrator()
 {
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
