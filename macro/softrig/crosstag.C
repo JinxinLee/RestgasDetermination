@@ -20,7 +20,9 @@
 
 std::map<int,int> codeidx, drawline;
 
-Int_t tagline[60], mode, recmode, tag, tagm, codes[60], nlines;
+Int_t tagline[60], mode, recmode, tag, tagall, tagm, codes[60], nlines;
+
+// -----------------------------------------------------------------------
 
 void palette2()
 {  
@@ -31,6 +33,8 @@ void palette2()
 	
 	TColor::CreateGradientColorTable(3,stp,red,grn,blu,100);
 }
+
+// -----------------------------------------------------------------------
 
 void setStyle()
 {	
@@ -44,6 +48,8 @@ void setStyle()
 	gStyle->SetPalette(1);
 }
 
+// -----------------------------------------------------------------------
+
 void resizePalette(TH1* h)
 {
 	TPaletteAxis *palette = (TPaletteAxis*)h->GetListOfFunctions()->FindObject("palette");
@@ -53,12 +59,15 @@ void resizePalette(TH1* h)
 	palette->SetY2NDC(0.95);
 }
 
+// -----------------------------------------------------------------------
+
 void init(TTree *t, double sqs)
 {
 	// prepare tree by setting branches
 	t->SetBranchAddress("mode",&mode);
 	t->SetBranchAddress("recmode",&recmode);
 	t->SetBranchAddress("tag",&tag);
+	t->SetBranchAddress("tagall",&tagall);
 	t->SetBranchAddress("tagm",&tagm);
 	
 	t->SetBranchStatus("*",0);
@@ -66,6 +75,7 @@ void init(TTree *t, double sqs)
 	t->SetBranchStatus("mode",1);
 	t->SetBranchStatus("recmode",1);
 	t->SetBranchStatus("tag",1);
+	t->SetBranchStatus("tagall",1);
 	t->SetBranchStatus("tagm",1);
 	
 	TObjArray* branches = t->GetListOfBranches();	
@@ -80,7 +90,7 @@ void init(TTree *t, double sqs)
 		if (v(reg)!="") 
 		{
 			int m = TString(v(3,3)).Atoi();
-			if (sqs!=2.98 || m>=400) 
+			if (sqs!=3.0 || m>=400) 
 			{
 				t->SetBranchAddress(v,&(tagline[nlines]));
 				//t->SetBranchStatus(v,1);
@@ -105,6 +115,8 @@ void init(TTree *t, double sqs)
 	drawline[600] = 1;
 }
 
+// -----------------------------------------------------------------------
+
 void config_pad(TVirtualPad* p, double b=0.1, double r=0.07, double t=0.05,  double l=0.1)
 {
 	p->SetTopMargin(t);
@@ -114,6 +126,8 @@ void config_pad(TVirtualPad* p, double b=0.1, double r=0.07, double t=0.05,  dou
 	p->SetGridx();
 	p->SetGridy();
 }
+
+// -----------------------------------------------------------------------
 
 void config_histo(TH1* h, double labs=0.018, TString titley="", TString titlex="")
 {
@@ -140,6 +154,52 @@ void config_histo(TH1* h, double labs=0.018, TString titley="", TString titlex="
 	h->SetLineWidth(2);
 }
 
+// -----------------------------------------------------------------------
+
+void config_histo2d(TH1* h, TString titley="", TString titlex="")
+{
+	double labs = 0.018+0.008*(57.-nlines)/43.;
+	
+	config_histo(h, labs, titley, titlex);
+
+	for (int i=0;i<nlines-1;++i)
+	{
+		h->GetXaxis()->SetBinLabel(i+1,TString::Format("T%d",codes[i]));
+		h->GetYaxis()->SetBinLabel(nlines-i,TString::Format("M%d",codes[i]));
+	}
+	
+	h->GetYaxis()->SetBinLabel(1,"DPM");
+	h->GetXaxis()->SetBinLabel(nlines,"any");
+	h->GetXaxis()->LabelsOption("v");
+}
+
+// -----------------------------------------------------------------------
+
+void config_histo1d(TH1* h, TString titley="", TString titlex="", int lincol=1, int fillcol=0, int fillstyle=0)
+{
+	double labs = 0.04+0.01*(57.-nlines)/43.;
+	
+	config_histo(h, labs, titley, titlex);
+	
+	h->GetYaxis()->SetTitleSize(0.05);
+	h->GetYaxis()->SetTitleOffset(0.7);
+	h->GetYaxis()->SetLabelSize(0.04);
+	
+	h->GetXaxis()->SetTitleSize(0.045);
+	
+	for (int i=0;i<nlines-1;++i)
+		h->GetXaxis()->SetBinLabel(i+1,TString::Format("M%d",codes[i]));
+
+	h->GetXaxis()->SetBinLabel(nlines,"DPM");
+	h->GetXaxis()->LabelsOption("v");
+	
+	h->SetLineColor(lincol);
+	h->SetFillColor(fillcol);
+	h->SetFillStyle(fillstyle);
+}
+
+// -----------------------------------------------------------------------
+
 void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 {
 	setStyle();
@@ -150,78 +210,64 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	if (sqs<0.) sqs = TString(fname(fname.Index("/M")+2,3)).Atoi()/100.; // assume file name Mxxx_... with xxx = sqs*100
 	if (sqs<0. || sqs>6.) return;
 
+	
+	// ********
+	// init branches in trees, global vars etc
+	// ********
 	init(t, sqs);
 	
 	TString sqsstr = TString::Format("%03d",int(sqs*100.));
 	
-/*	for ( std::map< int, int>::const_iterator iter = codeidx.begin(); iter != codeidx.end(); ++iter )
-	{
-		cout <<iter->first<<"  ";
-	}
-	cout <<endl;
-	*/
 	TCanvas *c1=new TCanvas("c1","c1",10,10,1000,900);
+	TCanvas *c3=new TCanvas("c3","c3",100,100,1000,900);
 	TCanvas *c2=new TCanvas("c2","c2",400,20,1000,900);
+	
 	c2->Divide(1,2);
 	
 	TFile *ff=0;
 	if (saveplots) ff=new TFile("crosstag_histos.root","UPDATE");
 	
-	// 2D Matrix
-	TH2F *hall=new TH2F("hall"+sqsstr,"normalization",nlines,0,nlines,nlines,0,nlines);
-	TH2F *htag=new TH2F("htag"+sqsstr,TString::Format("Cross tags @ %.1f GeV",sqs),nlines,0,nlines,nlines,0,nlines);
 	
-	config_histo(htag,0.018+0.008*(57.-nlines)/43.,"Data Mode","Trigger Line");
-	config_histo(hall);
+	// ********
+	// 2D Plots
+	// ********
+	
+	// normalization histo
+	TH2F *hall   = new TH2F("hall"+sqsstr,"normalization",nlines,0,nlines,nlines,0,nlines);
 
+	// matrix of tag line vs data mode
+	TH2F *htag   = new TH2F("htag"+sqsstr,TString::Format("Cross tags @ %.1f GeV",sqs),nlines,0,nlines,nlines,0,nlines);
+	
+	// matrix of tag line vs data mode, containing the exclusive triggers for certain data modes
+	TH2F *htagex = new TH2F("htagex"+sqsstr,TString::Format("Excl. cross tags @ %.1f GeV",sqs),nlines,0,nlines,nlines,0,nlines);
+	
+	config_histo2d(htag,"Data Mode","Trigger Line");
+	config_histo2d(htagex,"Data Mode","Trigger Line");
+	config_histo2d(hall);
+
+	
+	// ********
 	// signal efficiencies
+	// ********
 	TH1F *hsig=new TH1F("hsig"+sqsstr,TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
 	TH1F *hsigi=new TH1F("hsigi"+sqsstr,TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
 	TH1F *hsign=new TH1F("hsign"+sqsstr,TString::Format("Signal efficiencies @ %.1f GeV",sqs),nlines,0,nlines);
 	
-	config_histo(hsig,0.04+0.01*(57.-nlines)/43.,"efficiency [%]","Data Mode");
-	hsig->GetXaxis()->SetTitleSize(0.045);
-	hsig->SetFillColor(hsig->GetLineColor());hsig->SetFillStyle(1001);hsig->GetYaxis()->SetLabelSize(0.04);
-	config_histo(hsigi,0.04+0.01*(57.-nlines)/43.,"efficiency [%]");
-	hsigi->SetLineColor(2);hsigi->SetFillColor(2);hsigi->SetFillStyle(1001);
+	config_histo1d(hsig, "efficiency [%]", "Data Mode",hsig->GetLineColor(),hsig->GetLineColor(),3003);
+	config_histo1d(hsigi, "efficiency [%]","Data Mode", 2, 2, 3003);
+	config_histo1d(hsign, "efficiency [%]","Data Mode");
 	
+	// ********
 	// background contributions
+	// ********
 	TH1F *hbg=new TH1F("hbg"+sqsstr,TString::Format("Background fractions @ %.1f GeV",sqs),nlines,0,nlines);
-	config_histo(hbg,0.04+0.01*(57.-nlines)/43.,"acc. background [%]","Trigger Line");
-	hbg->GetXaxis()->SetTitleSize(0.045);hbg->GetYaxis()->SetLabelSize(0.04);
-		
-	for (int i=0;i<nlines-1;++i)
-	{
-		htag->GetXaxis()->SetBinLabel(i+1,TString::Format("T%d",codes[i]));
-		htag->GetYaxis()->SetBinLabel(nlines-i,TString::Format("M%d",codes[i]));
-		hall->GetXaxis()->SetBinLabel(i+1,TString::Format("T%d",codes[i]));
-		hall->GetYaxis()->SetBinLabel(nlines-i,TString::Format("M%d",codes[i]));
-		
-		hsig->GetXaxis()->SetBinLabel(i+1,TString::Format("M%d",codes[i]));
-		hsign->GetXaxis()->SetBinLabel(i+1,TString::Format("M%d",codes[i]));
-		
-		hbg->GetXaxis()->SetBinLabel(i+1,TString::Format("T%d",codes[i]));
-	}
-	
-	hsig->GetXaxis()->SetBinLabel(nlines,"DPM");
-	hsign->GetXaxis()->SetBinLabel(nlines,"DPM");
-	hbg->GetXaxis()->SetBinLabel(nlines,"any");
-	hsig->GetXaxis()->LabelsOption("v");
-	hbg->GetXaxis()->LabelsOption("v");
-	
-	htag->GetYaxis()->SetBinLabel(1,"DPM");
-	htag->GetXaxis()->SetBinLabel(nlines,"any");
-	htag->GetXaxis()->LabelsOption("v");
-	hall->GetYaxis()->SetBinLabel(1,"DPM");
-	hall->GetXaxis()->SetBinLabel(nlines,"any");
-	hall->GetXaxis()->LabelsOption("v");
-	
+	config_histo1d(hbg, "acc. background [%]", "Trigger Line",1,1,3003);
+			
 	int N = t->GetEntries();
 	int Nbg = 0;
 	
-	c1->cd();
-	config_pad(gPad);
-	gPad->SetLogz();
+	c3->cd(); config_pad(gPad); gPad->SetLogz();
+	c1->cd(); config_pad(gPad); gPad->SetLogz();
 	
 	for (int i=0;i<N;++i)
 	{
@@ -242,8 +288,9 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 		if (i%100000==0) 
 		{
 			cout <<i<<"/"<<N<<endl;
-			htag->Draw("colz");
-			c1->Update();
+			
+			c1->cd(); htag->Draw("colz"); c1->Update();
+			c3->cd(); htagex->Draw("colz"); c3->Update();
 		}
 	
 		if (tag>0)
@@ -260,23 +307,37 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 				if (tagline[j]>0)
 				{
 					htag->Fill(j,nlines-codeidx[smode]-1);
+					if (tagline[j]==tagall) htagex->Fill(j,nlines-codeidx[smode]-1);
 					if (smode==900) hbg->Fill(j);
 					if (j==codeidx[smode]) hsigi->Fill(j);
 				}
 			}
 		}
 	}
-
+	
+	// ********
+	// matrix of tag line vs data mode
+	// ********
 	c1->cd();
-	htag->Divide(hall);
-	htag->SetMinimum(0.00001);
-	htag->SetMaximum(1.0);
+	htag->Divide(hall);	htag->SetMinimum(0.00001); htag->SetMaximum(1.0);
 	htag->Draw("colz");
 
 	resizePalette(htag);
 	htag->Draw("colz");	
 	
 	c1->Update();
+	
+	// ********
+	// matrix of tag line vs data mode, containing the exclusive triggers (= events not tagged by any other line) for certain data modes 
+	// ********
+	c3->cd();
+	htagex->Divide(hall); htagex->SetMinimum(0.00001); htagex->SetMaximum(1.0);
+	htagex->Draw("colz");
+
+	resizePalette(htagex);
+	htagex->Draw("colz");	
+	
+	c3->Update();
 		
 	gStyle->SetTitleH(0.06);
 	c2->cd(1);
@@ -284,8 +345,6 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	hsig->Divide(hsign);
 	hsig->Scale(100.);
 	hsig->SetMaximum(100.);
-	hsig->GetYaxis()->SetTitleSize(0.05);
-	hsig->GetYaxis()->SetTitleOffset(0.7);
 
 	hsigi->Divide(hsign);
 	hsigi->Scale(100.);
@@ -302,8 +361,6 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	c2->cd(2);
 	config_pad(gPad,0.14,0.03,0.08,0.08);
 	hbg->Scale(100./Nbg);
-	hbg->GetYaxis()->SetTitleSize(0.05);
-	hbg->GetYaxis()->SetTitleOffset(0.7);
 	hbg->Draw();
 	
 	TLine l;
@@ -319,6 +376,11 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 			l.DrawLine(i,0,i,nlines);
 			l.DrawLine(0,nlines-i,nlines,nlines-i);
 			l.SetLineWidth(1);
+			c3->cd();
+			l.SetLineWidth(2);
+			l.DrawLine(i,0,i,nlines);
+			l.DrawLine(0,nlines-i,nlines,nlines-i);
+			l.SetLineWidth(1);
 			c2->cd(1);
 			l.DrawLine(i,0,i,hsig->GetMaximum()*0.75);
 			c2->cd(2);
@@ -327,6 +389,7 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	}
 	c1->Update();
 	c2->Update();
+	c3->Update();
 	
 	if (saveplots>0)
 	{

@@ -98,7 +98,7 @@ void init()
 
 // ---------------------------------------------------------------------
 				
-void evaltrig(TString fname="crosstag_histos.root")
+void evaltrig(TString fname="crosstag_histos.root", bool makeplots=0)
 {
 	init();
 	
@@ -220,5 +220,14 @@ void evaltrig(TString fname="crosstag_histos.root")
 	TLine l;
 	l.SetLineColor(2);l.SetLineStyle(2);l.SetLineWidth(2);
 	l.DrawLine(2,0.1,6,0.1);
+	
+	if (makeplots)
+	{
+		c2->SaveAs("effsig_graphs.gif");
+		c2->SaveAs("effsig_graphs.pdf");
+	
+		c3->SaveAs("effbg_graphs.gif");
+		c3->SaveAs("effbg_graphs.pdf");
+	}
 }
 
