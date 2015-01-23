@@ -560,7 +560,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 	}
 	else cout <<"[PndSoftTriggerTask] **** Reading selection from "<<fCfgFileName.Data()<<endl;
 	
-	char line[500];
+	char line[1500];
 	
 	TString toks[30];
 	TString cuts[30];
@@ -569,7 +569,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 	// loop through file line by line
 	while (!file.eof())
 	{
-		file.getline(line,499);
+		file.getline(line,1499);
 		TString sline(line);
 		
 		// remove tabs everywhere
