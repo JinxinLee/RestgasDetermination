@@ -169,37 +169,94 @@ void PndTrkTrack::ComputeCharge() { // CHECK!!!
    if(nright > nleft) fCharge = -1;
    else fCharge = 1;
   **/
+   // consider the poca on track
+   Int_t nmore = 0, nless = 0;
+   
+   // first
+   PndTrkHit *hit1 = (PndTrkHit*) fCluster.GetHit(0);
+   PndTrkTools tools;
+   TVector3 position1 = tools.ComputePocaToPointOnCircle3(hit1->GetPosition().X(), hit1->GetPosition().Y(), fCenterX, fCenterY, fRadius);
+   
+   // phi of first hit with respect to center of curvature
+   TVector3 direction1 = position1 - TVector3(fCenterX, fCenterY, 0);
+   double tmpphi = direction1.Phi();
+   //  
+   if(direction1.Y()) tmpphi += 2 * TMath::Pi(); // CHECK
+   
+   for(int ihit = 1; ihit < fCluster.GetNofHits(); ihit++) {
+   PndTrkHit *hit = fCluster.GetHit(ihit);
+   TVector3 position = tools.ComputePocaToPointOnCircle3(hit->GetPosition().X(), hit->GetPosition().Y(), fCenterX, fCenterY, fRadius);
+   
+   // vector from 1st to this hit
+   TVector3 direction = position - TVector3(fCenterX, fCenterY, 0);
+   double phi = direction.Phi();
+   if(ihit > 1) phi >= tmpphi ? nmore++ : nless++;
+   tmpphi = phi;
+   //    cout << "phi " << phi * TMath::RadToDeg() << " " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
+   }
+   
+   if(nmore > nless) fCharge = -1;
+   else fCharge = 1;
+   
+   //   cout << "fCharge " << fCharge << " " << nmore << " " << nless << endl;
 
-  // consider the poca on track
-  Int_t nmore = 0, nless = 0;
-
+   /**
   // first
-  PndTrkHit *hit1 = (PndTrkHit*) fCluster.GetHit(0);
-  PndTrkTools tools;
-  TVector3 position1 = tools.ComputePocaToPointOnCircle3(hit1->GetPosition().X(), hit1->GetPosition().Y(), fCenterX, fCenterY, fRadius);
-      
-  // phi of first hit with respect to center of curvature
-  TVector3 direction1 = position1 - TVector3(fCenterX, fCenterY, 0);
-  double tmpphi = direction1.Phi();
-  //  
-  if(direction1.Y()) tmpphi += 2 * TMath::Pi(); // CHECK
+//   PndTrkHit *hit1 = (PndTrkHit*) fCluster.GetHit(0);
+  TVector3 pos1 = hit1->GetPosition();
+  // last 
+  PndTrkHit *hit2 = (PndTrkHit*) fCluster.GetHit(fCluster.GetNofHits() - 1);
+  TVector3 pos2 = hit2->GetPosition();
 
-  for(int ihit = 1; ihit < fCluster.GetNofHits(); ihit++) {
-    PndTrkHit *hit = fCluster.GetHit(ihit);
-    TVector3 position = tools.ComputePocaToPointOnCircle3(hit->GetPosition().X(), hit->GetPosition().Y(), fCenterX, fCenterY, fRadius);
-      
-    // vector from 1st to this hit
-    TVector3 direction = position - TVector3(fCenterX, fCenterY, 0);
-    double phi = direction.Phi();
-    if(ihit > 1) phi >= tmpphi ? nmore++ : nless++;
-    tmpphi = phi;
-    //    cout << "phi " << phi * TMath::RadToDeg() << " " << hit->GetHitID() << " " << hit->GetDetectorID() << endl;
+  double m = (pos2.Y() - pos1.Y())/(pos2.X() - pos1.X());
+  double q = pos1.Y() - m + pos1.X();
+
+  TVector3 posbar(0.5 * (pos1.X() + pos2.X()), 0.5 * (pos1.Y() + pos2.Y()));
+
+  double mortho = -1./m;
+  double qortho = posbar.Y() - mortho * posbar.X();
+
+  // solve the system
+  // (x - xc)**2 + (y - yc)**2 = R**2
+  // y = mortho * x + qortho
+  // and find xI xII
+  double alpha = 1 + mortho * mortho;
+  double beta = mortho * (qortho - fCenterY) - fCenterX;
+  double gamma = fCenterX * fCenterX + (qortho - fCenterY) * (qortho - fCenterY) - fRadius * fRadius;
+
+  double xI = (-beta + TMath::Sqrt(beta * beta - alpha * gamma))/alpha;
+  double yI = xI * mortho + qortho;
+  double xII = (-beta - TMath::Sqrt(beta * beta - alpha * gamma))/alpha;
+  double yII = xII * mortho + qortho;
+
+ // mean hit
+  int mean = (int) (fCluster.GetNofHits() * 0.5);
+  PndTrkHit *hit_mean = (PndTrkHit*) fCluster.GetHit(mean);
+  double distI = hit_mean->GetXYDistance(TVector3(xI, yI, 0.));
+  double distII = hit_mean->GetXYDistance(TVector3(xII, yII, 0.));
+
+  double x, y;
+  if(distI < distII) {
+    x = xI;
+    y = yI;
   }
-  
-  if(nmore > nless) fCharge = -1;
-  else fCharge = 1;
-  
-//   cout << "fCharge " << fCharge << " " << nmore << " " << nless << endl;
+  else  {
+    x = xII;
+    y = yII;
+  }
+
+  // translation
+  x -= pos1.X();
+  y -= pos1.Y();
+
+  double delta = (pos2 - pos1).Phi();
+  double xrot = x * TMath::Cos(delta) + y * TMath::Sin(delta);
+  double yrot = -x * TMath::Sin(delta) + y * TMath::Cos(delta);
+
+  //  cout << "x, y " << xrot << " " << yrot << endl;
+
+   **/
+ 
 
 }
 
@@ -249,9 +306,9 @@ TVector3 PndTrkTrack::ComputeMomentumAtPosition(TVector3 position, TVector3 &new
 
   momentum.SetX(rotx); // CHECK magnitude?
   momentum.SetY(roty); // CHECK magnitude?
-  momentum.SetZ(0.); // CHECK
   momentum.SetMag(pt);
   momentum.SetZ(pl);
+
   return momentum;
 }
 
@@ -321,11 +378,15 @@ void PndTrkTrack::Draw(Color_t color) {
     PndTrkHit *hitN = fCluster.GetHit(fCluster.GetNofHits() - 1);
     fPhiMax = ComputePhi(hitN->GetPosition());
     if(fPhiMax > 180) fPhiMax -= 360;
-  }
-  
-  TArc *track = new TArc(fCenterX, fCenterY, fRadius, fPhiMin, fPhiMax);
 
-  // cout << fCenterX << " " << fCenterY << " " << fRadius << " " << phi0 << " " << phiN << endl;
+
+    if(fCharge > 0 && fPhiMin < fPhiMax) fPhiMin += 360;
+    else if(fCharge < 0 && fPhiMin > fPhiMax) fPhiMax += 360;
+
+  }
+    TArc *track = new TArc(fCenterX, fCenterY, fRadius, fPhiMin, fPhiMax);
+
+  cout << fCenterX << " " << fCenterY << " " << fRadius << " " << fPhiMin << " " << fPhiMax << endl;
   track->SetFillStyle(0);
   track->SetLineColor(color);
   track->Draw("only SAME");

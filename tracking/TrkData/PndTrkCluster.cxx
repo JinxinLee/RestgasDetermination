@@ -528,7 +528,16 @@ void PndTrkCluster::ReverseSort()
     hit->SetSortVariable(-srt);
   }
   // hitlist.Sort(); 
-  fHitList.Sort();}
+  fHitList.Sort();
+
+  // reput the sort variable as they were before
+  for(int ihit = 0; ihit < GetNofHits(); ihit++) {
+    hit = (PndTrkHit* ) fHitList[ihit];
+    int srt = hit->GetSortVariable();
+    hit->SetSortVariable(-srt);
+  }
+
+}
 // =======================================================================================
 // MERGE CLUSTERS
 
