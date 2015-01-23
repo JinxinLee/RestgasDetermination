@@ -562,9 +562,9 @@ bool PndSoftTriggerTask::ReadConfiguration()
 	
 	char line[1500];
 	
-	TString toks[30];
-	TString cuts[30];
-	TString toks2[30];
+	TString toks[200];
+	TString cuts[200];
+	TString toks2[200];
 
 	// loop through file line by line
 	while (!file.eof())
@@ -585,7 +585,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		
 		// split the line into tokens; token 0 ist the mode code, token 1 is the complete cut string
 		// e.g. '38400 : eslnpidp>0&&abs(pcm-2.105)<0.695&&esthr>0.9&&pt>0.8'
-		int N1 = SplitString(sline, ":", toks,30);
+		int N1 = SplitString(sline, ":", toks,200);
 		
 		// if N==2, only simple cut; N==3 includes TMVA selector
 		if (N1<2 || N1>3)  {cout <<"invalid line: "<<sline.Data()<<endl; continue;}
@@ -598,7 +598,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		if ( std::find(fSTencode.begin(), fSTencode.end(), en) == fSTencode.end() ) fSTencode.push_back(en);
 		
 		// now split the cut string into single cuts
-		int N2 = SplitString(toks[1],"&&",cuts,30);
+		int N2 = SplitString(toks[1],"&&",cuts,200);
 		
 		// replace windows cuts 'abs(<name>-x)<y' by 2 single cuts
 		for (int i=0;i<N2;++i) 
@@ -678,7 +678,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 		if (N1==3)
 		{
 			// now split the TMVA string into single tokens
-			int N3 = SplitString(toks[2]," ",toks2,30);
+			int N3 = SplitString(toks[2]," ",toks2,200);
 			
 			if (N3<4) // at least four elements expected; fail
 			{
