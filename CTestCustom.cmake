@@ -55,7 +55,15 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         # -- boost warnings
         "/include/boost/exception/exception.hpp:"
         "/include/boost/smart_ptr/detail/sp_convertible.hpp:"
-        "/include/boost/smart_ptr/shared_ptr.hpp:"  
+        "/include/boost/smart_ptr/shared_ptr.hpp:"
+        "/include/boost/type_traits/is_void.hpp:"
+        "/include/boost/assign/list_of.hpp:"
+        "/include/boost/type_traits/is_empty.hpp:"
+        "/include/boost/type_traits/is_rvalue_reference.hpp:"
+        "/include/boost/type_traits/is_function.hpp:"
+        "/include/boost/type_traits/detail/bool_trait_def.hpp:"
+        "/include/boost/mpl/aux_/nested_type_wknd.hpp:"
+        "/include/boost/type_traits/is_lvalue_reference.hpp:"
 
         # -- Root warnings when installed in installation dir
         "/include/root/"
@@ -122,4 +130,14 @@ Set (CTEST_CUSTOM_COVERAGE_EXCLUDE
      "Dict.h"
      "Dict.cxx"
     )
+
+# -----------------------------------------------------------
+# -- Error execptions
+# -- Get rid of boost warnings which are misinterpreted as errors
+# -----------------------------------------------------------
+
+Set(CTEST_CUSTOM_ERROR_EXCEPTION
+	${CTEST_CUSTOM_ERROR_EXCEPTION}
+        "/include/boost/"
+)
 
