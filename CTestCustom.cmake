@@ -118,6 +118,8 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         # -- FairTSBufferFunctional.h has to be fixed by Tobias
 	"MbsAPI"
 #	"FairTSBufferFunctional.h"
+       # -- EvtGen source code, cannot be touched by us 
+        "pgenerators/EvtGen/EvtGen/R01-03-00/"
   )
 
 # -----------------------------------------------------------
