@@ -5,6 +5,7 @@
 #include <utility>
 #include <sstream>
 #include <cmath>
+#include <iostream>
 
 #include "TCanvas.h"
 #include "TGraphAsymmErrors.h"
@@ -15,8 +16,12 @@
 #include "TColor.h"
 #include "TLegend.h"
 
+#include "TLatex.h"
+#include "TFile.h"
+#include "TLegendEntry.h"
+
 int main(int argc, char* argv[]) {
-	// some style stuff
+// some style stuff
 	TPad foo; // never remove this line :-)))
 	if(1){
 		gROOT->SetStyle("Plain");
@@ -36,10 +41,10 @@ int main(int argc, char* argv[]) {
 		gStyle->SetLabelSize(0.06,"xyz");
 		gStyle->SetLabelOffset(0.009,"xyz");
 		gStyle->SetPadBottomMargin(0.16);
-		gStyle->SetPadTopMargin(0.16);
+		gStyle->SetPadTopMargin(0.02);
 		gStyle->SetPadLeftMargin(0.16);
-		gStyle->SetPadRightMargin(0.16);
-		gStyle->SetOptTitle(1);
+		gStyle->SetPadRightMargin(0.02);
+		gStyle->SetOptTitle(0);
 		gStyle->SetOptStat(1);
 		gROOT->ForceStyle();
 		gStyle->SetFrameFillColor(0);
@@ -59,8 +64,10 @@ int main(int argc, char* argv[]) {
 			std::cout << "Error: not all parameters have been set!" << std::endl;
 		}
 		std::vector<DataStructs::DimensionRange> integral_region;
-		DataStructs::DimensionRange th_int_range(0.003, 0.09);
+		DataStructs::DimensionRange th_int_range(0.0025, 0.003);
 		integral_region.push_back(th_int_range);
+// integral_region, 1e-3
+
 		std::cout<<"cross section integral in mb: "<<model->Integral(integral_region, 1e-3)<<std::endl;
 
 		const double theta_min = 0.0025;
@@ -79,7 +86,7 @@ int main(int argc, char* argv[]) {
 				LumiFit::COUL, plot_range);
 		TGraphAsymmErrors* had_model_graph = plotter.generateDPMModelPartGraph(plab,
 				LumiFit::HAD, plot_range);
-		TMultiGraph* model_graph = new TMultiGraph();
+		TMultiGraph* model_graph = new TMultiGraph("model_graph", "model graph");
 		// change from rad to mrad
 		for (int ipoint = 0; ipoint < full_model_graph->GetN(); ipoint++){
 			double x, y;
@@ -119,8 +126,63 @@ int main(int argc, char* argv[]) {
 		model_graph->GetYaxis()->SetRangeUser(bottom_pos, top_pos);
 
 		model_graph->GetXaxis()->SetTitle("#theta [mrad]");
-		model_graph->GetYaxis()->SetTitle("d#sigma/d#theta");
+		model_graph->GetYaxis()->SetTitle("d#sigma/d#theta [mbarn]");
+		model_graph->GetYaxis()->SetRangeUser(1.,5e4);
+		TLegend *legend;
+		if (plab > 1.5){
+			legend =	new TLegend(0.6,0.65,0.88,0.85);
+		} else {
+			legend =	new TLegend(0.2,0.4,0.48,0.6);
+		}
+		(legend->AddEntry(full_model_graph,"total","l"))->SetTextFont(model_graph->GetXaxis()->GetTitleFont());
+		(legend->AddEntry(coul_model_graph,"coulomb","l"))->SetTextFont(model_graph->GetXaxis()->GetTitleFont());
+		(legend->AddEntry(had_model_graph,"hadron","l"))->SetTextFont(model_graph->GetXaxis()->GetTitleFont());
+		legend->SetFillColor(0);
+		legend->SetBorderSize(0);
 
+		full_model_graph->SetLineWidth(2);
+		//full_model_graph->Draw("AC");
+		coul_model_graph->SetLineWidth(3);
+		coul_model_graph->SetLineColor(2);
+		coul_model_graph->SetLineStyle(7);
+		//coul_model_graph->Draw("CSAME");
+		had_model_graph->SetLineWidth(3);
+		had_model_graph->SetLineColor(9);
+		had_model_graph->SetLineStyle(7);
+		//had_model_graph->Draw("CSAME");
+		legend->Draw();
+
+		std::stringstream strstream;
+		strstream.precision(3);
+
+		strstream << "DPMModels_" << plab;
+
+		std::stringstream ssplabel;
+		ssplabel.precision(3); ssplabel << "p_{lab} = " << plab << " GeV/c";
+		double posx, posy;
+		if (plab < 6){
+			posx = 0.55;
+			posy = 0.9;
+		} else {
+			posx = 0.55;
+			posy = 0.9;
+		}
+		TLatex plabel(posx, posy, ssplabel.str().c_str());
+		plabel.SetTextFont(model_graph->GetXaxis()->GetTitleFont());
+		plabel.SetNDC();
+		plabel.Draw();
+
+		//c.SaveAs(strstream.str().c_str());
+		c.Print((strstream.str()+".pdf").c_str());
+		c.Print((strstream.str()+".root").c_str());
+
+		TFile filemodel((strstream.str()+"_model"+".root").c_str(), "RECREATE");
+		//full_model_graph->SetDirectory(&model);
+		full_model_graph->Write();
+		filemodel.Close();
+	}
+	return 0;
+/*
 		TLegend *legend;
 		if (plab < 6){
 			legend =	new TLegend(0.6,0.65,0.88,0.85);
@@ -150,5 +212,5 @@ int main(int argc, char* argv[]) {
 		c.SaveAs(strstream.str().c_str());
 		c.Print(strstream.str().c_str());
 	}
-	return 0;
+	return 0;*/
 }
