@@ -1,9 +1,10 @@
 #$ -wd /tmp 
 #$ -j y
+#$ -V
 
 cd $TMPDIR
 
-. /path/to/your/current/build/config.sh
+. $FAIRLIBDIR"/../config.sh"
 
 hera=$VMCWORKDIR"/macro/prod"
 _target=$hera"/data/"
@@ -13,6 +14,7 @@ nEvts=1000
 dec="pp_DpDm_Dp_Kpipi_incl.dec"
 mom=12.3485
 res="pbarpSystem0"
+save=""
 
 sig=1
 
@@ -36,6 +38,10 @@ if test "$5" != ""; then
   res=$5
 fi
 
+if test "$6" != ""; then
+  save=$6
+fi
+
 if test "$dec" == "DPM"; then
   sig=0
 else
@@ -52,8 +58,14 @@ root -l -b -q -w $hera"/"prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
 
 
 # Move the data to the persistent storage
-cp -v $TMPDIR/M*root $_target 
-cp -v $TMPDIR/M*log $_target 
+if test "$save" == "saveall"; then
+  cp -v $TMPDIR/M*root $_target 
+  cp -v $TMPDIR/M*log $_target 
+else
+  cp -v $TMPDIR/M*_pid.root $_target 
+  cp -v $TMPDIR/M*_pid.log $_target 
+  cp -v $TMPDIR/M*_par.root $_target 
+fi
 
 # Evacuate the log-file
 cp -v $SGE_STDOUT_PATH $_target/$JOB_ID.log

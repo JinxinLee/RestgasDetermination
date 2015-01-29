@@ -1,9 +1,10 @@
 #$ -wd /tmp
 #$ -j y
+#$ -V
 
 cd $TMPDIR
 
-. /path/to/your/current/build/config.sh
+. $FAIRLIBDIR"/../config.sh"
 
 data=$VMCWORKDIR"/macro/prod"
 _target=$data"/data/"
@@ -13,6 +14,7 @@ nEvts=1000
 pdg=13
 mom=10.
 mult=1
+save=""
 
 
 if test "$1" != ""; then
@@ -35,9 +37,12 @@ if test "$5" != ""; then
   mult=$5
 fi
 
+if test "$6" != ""; then
+  save=$6
+fi
+
 
 outprefix=$TMPDIR"/M"$prefix"_"$SGE_TASK_ID
-
 
 echo $TMPDIR
 root -l -q -b -w $data"/"prod_sim_pgun.C\(\"$outprefix\",$nEvts,$pdg,$mom,$mult\) &> $outprefix"_sim.log"
@@ -45,9 +50,16 @@ root -l -b -q -w $data"/"prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
 root -l -b -q -w $data"/"prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
 root -l -b -q -w $data"/"prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
 
+
 # Move the data to the persistent storage
-cp -v $TMPDIR/M*root $_target 
-cp -v $TMPDIR/M*log $_target 
+if test "$save" == "saveall"; then
+  cp -v $TMPDIR/M*root $_target 
+  cp -v $TMPDIR/M*log $_target 
+else
+  cp -v $TMPDIR/M*_pid.root $_target 
+  cp -v $TMPDIR/M*_pid.log $_target 
+  cp -v $TMPDIR/M*_par.root $_target 
+fi
 
 # Evacuate the log-file
 cp -v $SGE_STDOUT_PATH $_target/$JOB_ID.log

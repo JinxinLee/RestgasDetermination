@@ -1,11 +1,6 @@
 macro/prodgsi
 ----------------------
 
-  ******************************************************************************************
-  ****               IMPORTANT -> PLEASE ADAPT THE PATH TO  config.sh  IN               ****
-  ****     job_prod.sge, job_prod_pgun.sge  AND  job_ana.sge  BEFORE SUBMITTING JOBS!   ****
-  ******************************************************************************************
-
 A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Prometheus-Cluster@GSI.
 
 See also 
@@ -133,14 +128,12 @@ BEFORE being able to submit jobs to Prometheus, you have to
 3. install PandaROOT in that place, since your GSI linux home directory is not mounted on Prometheus nodes.
    (SIMPATH is /cvmfs/fairroot.gsi.de/fairsoft/apr13/ for apr13 external packages)
 
-4. adapt the line '. /path/to/your/current/build/config.sh' which sources your current config.sh
-   in the job script files (job_prod.sge, job_prod_pgun.sge, job_ana.sge) 
 
 -------------
 Box Generator
 -------------
 
--> qsub -t <min>-<max> job_prod_pgun.sge <prefix> <N_ev> <PDG code> <max mom> <mult>
+-> qsub -t <min>-<max> job_prod_pgun.sge <prefix> <N_ev> <PDG code> <max mom> <mult> <saveall>
 
 Submits an array of jobs with array numbers <min> to <max>
 
@@ -150,15 +143,22 @@ with parameters
  <PDG code>  - PDG code of particle(s) to be created
  <max mom>   - Generate particles with p = 0.01 ... <max mom>, isotropic in cos(theta) and phi
  <mult>      - Multiplicity in single events
+ <saveall>   - "saveall" copies all output stages (par, sim, dig, rec, pid) to data dir; w/o parameter only pid+par is copied
 
 Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
 with '...' running from <prefix>_<min> to <prefix>_<max>. 
 
-Example:
+Example 1:
+qsub -t 1-20 job_prod_pgun.sge PiPlus 1000 211 1 saveall
+
+Result 1: 
+data/MPiPlus_1_par.root, data/MPiPlus_1_sim.root, data/MPiPlus_1_dig.root, data/MPiPlus_1_rec.root, ... , data/MPiPlus_20_pid.root 
+
+Example 2:
 qsub -t 1-20 job_prod_pgun.sge PiPlus 1000 211 1
 
-Result: 
-data/MPiPlus_1_sim.root, ... , data/MPiPlus_20_pid.root 
+Result 2: 
+data/MPiPlus_1_par.root, data/MPiPlus_1_pid.root, ... , data/MPiPlus_20_par.root, data/MPiPlus_20_pid.root 
 
 --------
 EvtGen 
@@ -174,22 +174,29 @@ with parameters
  <decay>     - EvtGen decay file
  <pbar mom>  - Momentum of antiproton beam
  <res>       - Initial resonance used in decay file 
+ <saveall>   - "saveall" copies all output stages (sim, dig, rec, pid) to data dir; w/o parameter only pid is copied
 
 Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
 with '...' running from <prefix>_<min> to <prefix>_<max>. 
 
-Example:
+Example 1:
+qsub -t 1-20 job_prod.sge D0Kpi 1000 D0toKpi.dec 10.0 pbarpSystem saveall
+
+Result 1: 
+data/MD0Kpi_1_par.root, data/MD0Kpi_1_sim.root, data/MD0Kpi_1_dig.root, ... , data/MD0Kpi_20_pid.root 
+
+Example 2:
 qsub -t 1-20 job_prod.sge D0Kpi 1000 D0toKpi.dec 10.0 pbarpSystem
 
-Result: 
-data/MD0Kpi_1_sim.root, ... , data/MD0Kpi_20_pid.root 
+Result 2: 
+data/MD0Kpi_1_par.root, data/MD0Kpi_1_pid.root, ... , data/MD0Kpi_20_pid.root 
 
 
 --------
 DPM
 --------
 
--> qsub -t <min>-<max> job_prod.sge <prefix> <N_ev> DPM <pbar mom>
+-> qsub -t <min>-<max> job_prod.sge <prefix> <N_ev> DPM <pbar mom> <dummy> <saveall>
 
 Submits an array of jobs with array numbers <min> to <max>
 
@@ -197,15 +204,23 @@ Runs DPM generator in _inelastic_ mode. Parameters as above, just replace name o
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
  <pbar mom>  - Momentum of antiproton beam
+ <dummy>     - if running DPM and using switch 'saveall', some dummy string must be used
+ <saveall>   - "saveall" copies all output stages (sim, dig, rec, pid) to data dir; w/o parameter only pid is copied
 
 Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
 with '...' running from <prefix>_<min> to <prefix>_<max>. 
 
-Example:
-qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0 
+Example 1:
+qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0 summy saveall 
 
-Result: 
-data/MDPM10GeV_1_sim.root, ... , data/MDPM10GeV_20_pid.root 
+Result 1: 
+data/MDPM10GeV_1_par.root, data/MDPM10GeV_1_sim.root, data/MDPM10GeV_1_dig.root, ... , data/MDPM10GeV_20_pid.root 
+
+Example 2:
+qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0
+
+Result 2: 
+data/MDPM10GeV_1_par.root, data/MDPM10GeV_1_pid.root, ... , data/MDPM10GeV_20_pid.root 
 
 
 ####################
