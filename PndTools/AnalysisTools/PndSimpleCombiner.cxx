@@ -2,6 +2,24 @@
 //
 // PANDA Simple Particle Combiner Class
 //
+// Offers simple combinatorics
+//
+// ************************************************************************
+//
+// Parameters: 
+// - fAna   : PndAnalysis instance
+// - decay  : decay specification, e.g. "phi -> K+ K-; D_s+ -> phi pi+ cc" (cc indicates charged conjugate; particle used have to be defined beforehand)
+// - params : configuration parameters, e.g. "mwin=0.5:mwin(phi)=0.2:emin=0.1:pid=Loose:pide=Tight:algo=PidChargedProbability"
+//   - mwin     : mass window for all composites
+//   - mwin(X)  : mass window for composite 'X'; X (or cc of X) has to appear in decay 
+//   - emin     : minimum energy threshold for neutrals
+//   - pmin     : minimum momentum threshold for charged
+//   - pid      : PID criterion ("All","VeryLoose","Loose","Tight","VeryTight","Best") for all species
+//   - pide, pidmu, pidpi, pidk, pidp : PID criterion for specific species
+//   - algo     : PID algorithm (e.g. "PidAlgoEmcBayes;PidAlgoDrc" or "PidChargedProbability") for all species
+//   - algoe, ... algop : PID algorithm for specific species
+//
+//
 // K.Goetzen 01/2015
 //
 // ************************************************************************
@@ -35,7 +53,8 @@ using std::endl;
 //  constructor
 // -------------------------------------------------------------------------
 PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params) : 
-	fAnalysis(fAna), fDecay(decay), fGlobParams(params), fNLists(11), fVerbose(0), fESel(0), fPSel(0)		
+	fAnalysis(fAna), fDecay(decay), fGlobParams(params), fNLists(11), fVerbose(0), 
+	fEmin(0.), fPmin(0.), fESel(0), fPSel(0)		
 {
 	fPdg = TDatabasePDG::Instance();
 	
@@ -58,6 +77,16 @@ PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString p
 	
 	assert(ParseDecay(decay));
 	ParseParams(params);
+}
+
+// -------------------------------------------------------------------------
+// destructor
+PndSimpleCombiner::~PndSimpleCombiner()
+{
+	if (fESel) delete fESel;
+	if (fPSel) delete fPSel;
+
+	for (int i=0;i<fDecayInfoArray.size();++i) if (fDecayInfoArray[i].msel) delete fDecayInfoArray[i].msel;
 }
 
 // -------------------------------------------------------------------------
@@ -98,11 +127,12 @@ void PndSimpleCombiner::InitDecayInfo(SCDecayInfo &info, int pdg, int idx)
 bool PndSimpleCombiner::ParseDecay(TString decay)
 {
 	StringList subdec;
+	
 	int ndec = SplitString(decay, ";", subdec);
 	
 	// loop over subdecays
 	for (int i=0;i<ndec;++i)
-	{
+	{	
 		StringList dectoks;
 		// does decay string contain exactly one '->' in the middle of the string?
 		subdec[i].ReplaceAll("->",">");
@@ -201,13 +231,14 @@ bool PndSimpleCombiner::ParseParams(TString params)
 	
 	for (int i=0;i<parm.size();++i)
 	{
-		cout <<parm[i]<<endl;
 		StringList pair;
 		SplitString(parm[i],"=",pair);
 		
 		if (pair.size()!=2) {cout <<"[PndSimpleCombiner] **** WARNING : Invalid parameter setting '"<<parm[i]<<"' ignored"<<endl; continue;}
 		
+		// ****
 		// global mass window setting
+		// ****
 		if (pair[0]=="mwin")
 		{
 			double window = pair[1].Atof();
@@ -220,7 +251,9 @@ bool PndSimpleCombiner::ParseParams(TString params)
 				info.msel = new RhoMassParticleSelector("msel",fPdg->GetParticle(info.mpdg)->Mass(),window);
 			}
 		}
+		// ****
 		// mass window for one composite
+		// ****
 		else if (pair[0].BeginsWith("mwin"))
 		{
 			// extract particle name from string 'mwin(D0)'
@@ -245,7 +278,10 @@ bool PndSimpleCombiner::ParseParams(TString params)
 				}
 			}	
 		}
+		
+		// ****
 		// check for pid setting
+		// ****
 		if (pair[0] == "pid")   SetPid(pair[1]);
 		
 		if (pair[0] == "pide")  SetPidElectron(pair[1]);
@@ -261,6 +297,12 @@ bool PndSimpleCombiner::ParseParams(TString params)
 		if (pair[0] == "algopi") SetPidPion("",pair[1]);
 		if (pair[0] == "algok")  SetPidKaon("",pair[1]);
 		if (pair[0] == "algop")  SetPidProton("",pair[1]);
+		
+		// ****
+		// E_min or p_min
+		// ****
+		if (pair[0] == "emin") {fEmin = pair[1].Atof(); fESel = new RhoEnergyParticleSelector("eSel",50.+fEmin,100.);}
+		if (pair[0] == "pmin") {fPmin = pair[1].Atof(); fPSel = new RhoMomentumParticleSelector("pSel",50.+fPmin,100.);}
 	}
 }
 
@@ -378,6 +420,9 @@ int  PndSimpleCombiner::AntiPdg(int pdg)
 void PndSimpleCombiner::Print()
 {
 	cout <<endl<<"[PndSimpleCombiner] **** Configuration"<<endl<<"---------------------------"<<endl;
+	
+	cout <<"Neutrals E_min = "<<fEmin<<endl;
+	cout <<"Charged  p_min = "<<fPmin<<endl<<endl;
 	
 	// fill all generic lists, which are used by any of the composites
 	// loop through composites

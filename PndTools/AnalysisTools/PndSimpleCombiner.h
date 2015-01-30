@@ -2,6 +2,24 @@
 //
 // PANDA Simple Particle Combiner Class
 //
+// Offers simple combinatorics
+//
+// ************************************************************************
+//
+// Parameters: 
+// - fAna   : PndAnalysis instance
+// - decay  : decay specification, e.g. "phi -> K+ K-; D_s+ -> phi pi+ cc" (cc indicates charged conjugate; particle used have to be defined beforehand)
+// - params : configuration parameters, e.g. "mwin=0.5:mwin(phi)=0.2:emin=0.1:pid=Loose:pide=Tight:algo=PidChargedProbability"
+//   - mwin     : mass window for all composites
+//   - mwin(X)  : mass window for composite 'X'; X (or cc of X) has to appear in decay 
+//   - emin     : minimum energy threshold for neutrals
+//   - pmin     : minimum momentum threshold for charged
+//   - pid      : PID criterion ("All","VeryLoose","Loose","Tight","VeryTight","Best") for all species
+//   - pide, pidmu, pidpi, pidk, pidp : PID criterion for specific species
+//   - algo     : PID algorithm (e.g. "PidAlgoEmcBayes;PidAlgoDrc" or "PidChargedProbability") for all species
+//   - algoe, ... algop : PID algorithm for specific species
+//
+//
 // K.Goetzen 01/2015
 //
 // ************************************************************************
@@ -43,7 +61,7 @@ public:
 	PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params="");
 	
 	// *** Destructor 
-	~PndSimpleCombiner() {};	
+	~PndSimpleCombiner();	
 	
 	// *** general methods
 	void SetVerbose(int verb=1) {fVerbose = verb;}
@@ -78,6 +96,8 @@ private:
 	int          fNLists;
 	RhoCandList  fList[MAXLISTS];
 	int          fVerbose;
+	double       fEmin;
+	double       fPmin;
 	
 	RhoEnergyParticleSelector   *fESel;
 	RhoMomentumParticleSelector *fPSel;

@@ -1,3 +1,11 @@
+// ************************************************************************
+//
+// Analysis Task using PndSimpleCombiner 
+// 
+// K.Goetzen 1/2015
+//
+// ************************************************************************
+
 #ifndef PndSimpleCombinerTask_H
 #define PndSimpleCombinerTask_H 1
 

@@ -1,15 +1,8 @@
 // ************************************************************************
 //
-// Template for an Analysis Task, 
+// Analysis Task using PndSimpleCombiner 
 // 
-// for the December 2013 CM Tutorial 
-//
-// For further info see also
-//
-// http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootRhoTutorial
-// http://panda-wiki.gsi.de/cgi-bin/view/Computing/PandaRootAnalysisJuly13
-//
-// K.Goetzen 11/2013
+// K.Goetzen 1/2015
 //
 // ************************************************************************
 
@@ -102,7 +95,6 @@ InitStatus PndSimpleCombinerTask::Init()
 	// *** initialize PndAnalysis object and SimpleCombiner
 	fAnalysis         = new PndAnalysis();
 	fSimpleCombiner   = new PndSimpleCombiner(fAnalysis, fAnaDecay, fAnaParms);
-	//fSimpleCombiner->SetPid("", fPidAlgo);
 	
 	fSimpleCombiner->Print();
 
@@ -270,6 +262,28 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 			TLorentzVector lv;
 			if (truth) lv = truth->P4();
 			qa.qaP4("trx", lv, vntp[i]);
+			
+			// for the last list we perform a 4C fit
+			if (fFit4C && i==fNntp-1)
+			{
+/*				Pnd4CFitter fit4c(l1[j],fIni);
+				fit4c.FitConserveMasses();*/
+				PndKinFitter fit4c(l1[j]);
+				fit4c.Add4MomConstraint(fIni);
+				fit4c.Fit();
+				
+				double chi2_4c = fit4c.GetChi2();   
+				RhoCandidate *cfit   = l1[j]->GetFit();
+				
+				vntp[i]->Column("chi4c", (Float_t) chi2_4c);
+				qa.qaP4("fx", cfit->P4(), vntp[i]);
+				
+				for (int k=0;k<cfit->NDaughters();++k)
+				{
+					RhoCandidate *d0fit = cfit->Daughter(k);
+					qa.qaP4(TString::Format("fxd%d",k),d0fit->P4(),vntp[i]);
+				}
+			}
 			
 			vntp[i]->DumpData();
 		}
