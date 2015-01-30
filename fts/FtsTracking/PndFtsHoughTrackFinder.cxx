@@ -9,13 +9,13 @@ const Double_t PndFtsHoughTrackFinder::fZParabolaLine = 605.;
 const Double_t PndFtsHoughTrackFinder::fThetaRadLineBehindDipoleMatchesToParabolaIfBelow = 5*TMath::DegToRad();
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask) :
-																fTrackerTask(trackerTask),
+																		fTrackerTask(trackerTask),
 
-																// min peak heights
-																fMinPeakHeightZxLineBeforeDipole(6),
-																fMinPeakHeightZxParabola(8),
-																fMinPeakHeightZxLineBehindDipole(6),
-																fMinPeakHeightZyLine(8)
+																		// min peak heights
+																		fMinPeakHeightZxLineBeforeDipole(6),
+																		fMinPeakHeightZxParabola(8),
+																		fMinPeakHeightZxLineBehindDipole(6),
+																		fMinPeakHeightZyLine(8)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTrackFinder FATAL ERROR Tracker task not set.\n";
@@ -161,17 +161,17 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 				* (thetaDegHighParabola - thetaDegLowParabola));
 
 		if (0 < fTrackerTask->GetVerbose()) std::cout << "event: " << fTrackerTask->GetEventNr()
-  														  << " Line " << iLB4D
-  														  << "\n thetaRadLowParabola=" << thetaRadLowParabola
-  														  << " thetaRadHighParabola=" << thetaRadHighParabola
-  														  << " thetaBins=" << thetaBins
-  														  << "  peakThetaRadLB4D="
-  														  << peakThetaRadLB4D
-  														  << " peakThetaRadHwLB4D="
-  														  << peakThetaRadHwLB4D
-  														  << " peakInterceptLB4D=" << peakInterceptLB4D
-  														  << " peakThetaRadHwLB4D=" << peakThetaRadHwLB4D
-  														  << '\n';
+  																  << " Line " << iLB4D
+  																  << "\n thetaRadLowParabola=" << thetaRadLowParabola
+  																  << " thetaRadHighParabola=" << thetaRadHighParabola
+  																  << " thetaBins=" << thetaBins
+  																  << "  peakThetaRadLB4D="
+  																  << peakThetaRadLB4D
+  																  << " peakThetaRadHwLB4D="
+  																  << peakThetaRadHwLB4D
+  																  << " peakInterceptLB4D=" << peakInterceptLB4D
+  																  << " peakThetaRadHwLB4D=" << peakThetaRadHwLB4D
+  																  << '\n';
 
 		PndFtsHoughSpace houghspaceZxParabola("parabola", iLB4D, thetaBins,
 				thetaRadLowParabola, // in rad
@@ -318,9 +318,9 @@ void PndFtsHoughTrackFinder::FindTracks() {
 	if(0<fTrackerTask->GetVerbose()) std::cout << "Matching parabolas to lines before dipole:\n";
 	FindMatchingParabolaToLineBeforeDipoleZxAndAddLineBehindDipole(linesBeforeDipole, linesBehindDipole);
 
-	//	// loop over line+parabola+line (LPL) from zx plane and do straight line Hough transform in zy plane
-	//	if (0 < fTrackerTask->GetVerbose()) std::cout << "Lines in zy plane:\n";
-	//	FindZyLineMatchingToLineParabolaLineInZx();
+	// loop over line+parabola+line (LPL) from zx plane and do straight line Hough transform in zy plane
+	if (0 < fTrackerTask->GetVerbose()) std::cout << "Lines in zy plane:\n";
+	FindZyLineMatchingToLineParabolaLineInZx();
 
 
 
