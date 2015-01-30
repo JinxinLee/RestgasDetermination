@@ -17,6 +17,7 @@ ${CMAKE_SOURCE_DIR}/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/rho/RhoHistogram
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+${CMAKE_SOURCE_DIR}/softrig
 ${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geane
 )
@@ -56,6 +57,8 @@ PndEventShape.cxx
 PndAnaCovTool.cxx
 PndRhoTupleQA.cxx
 PndParticleQATask.cxx
+PndSimpleCombiner.cxx
+PndSimpleCombinerTask.cxx
 #Fitter/PndVtxFitterParticle.cxx
 #Fitter/PndVtxFitter_Init.cxx
 #Fitter/PndVtxFitterError.cxx

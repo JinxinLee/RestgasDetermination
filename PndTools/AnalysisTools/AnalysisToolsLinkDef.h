@@ -35,6 +35,8 @@
 #pragma link C++ class PndAnaCovTool+;
 #pragma link C++ class PndRhoTupleQA+;
 #pragma link C++ class PndParticleQATask+;
+#pragma link C++ class PndSimpleCombiner+;
+#pragma link C++ class PndSimpleCombinerTask+;
 
 
 #pragma link C++ class  CStrTok+;

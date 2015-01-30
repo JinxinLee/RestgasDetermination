@@ -1,0 +1,495 @@
+// ************************************************************************
+//
+// PANDA Simple Particle Combiner Class
+//
+// K.Goetzen 01/2015
+//
+// ************************************************************************
+
+// The header file
+#include "PndSimpleCombiner.h"
+
+// C++ headers
+#include <iostream>
+#include <assert.h> 
+
+// ROOT headers
+#include "TParticlePDG.h"
+#include "TObjArray.h"
+#include "TObjString.h"
+
+// RHO headers
+#include "RhoMassParticleSelector.h"
+#include "RhoEnergyParticleSelector.h"
+#include "RhoMomentumParticleSelector.h"
+#include "RhoTuple.h"
+
+// PANDA headers
+#include "PndAnalysis.h"
+
+using std::cout;
+using std::endl;
+
+
+// -------------------------------------------------------------------------
+//  constructor
+// -------------------------------------------------------------------------
+PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params) : 
+	fAnalysis(fAna), fDecay(decay), fGlobParams(params), fNLists(11), fVerbose(0), fESel(0), fPSel(0)		
+{
+	fPdg = TDatabasePDG::Instance();
+	
+	// initialize mapping pdg -> list index and list name
+	int pdgcodes[] = {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22};
+	TString pdgnames[] = {"ElectronMinus", "ElectronPlus", "MuonMinus", "MuonPlus", "PionPlus", "PionMinus", "KaonPlus", "KaonMinus", "ProtonPlus", "ProtonMinus", "Neutral"};
+	
+	fPdgIdxMap.clear();
+	fIdxPdgMap.clear();
+	fIdxListNameMap.clear();
+	
+	for (int i=0;i<11;++i) 
+	{
+		fPdgIdxMap[pdgcodes[i]]  = i;             // maps pdg code -> list index
+		fIdxPdgMap[i]            = pdgcodes[i];   // maps list index -> pdg code
+		fIdxListNameMap[i]       = pdgnames[i];   // maps list index -> generic list name (ElectronPlus, PionMinus, ...; see above)
+	}
+	// set initial pid configuration
+	SetPid("All", "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts");
+	
+	assert(ParseDecay(decay));
+	ParseParams(params);
+}
+
+// -------------------------------------------------------------------------
+
+int PndSimpleCombiner::SplitString(TString s, TString delim, StringList &toks)
+{
+	toks.clear();
+	
+	TObjArray *tok = s.Tokenize(delim);
+	int N = tok->GetEntries();	
+	
+	for (int i=0;i<N;++i) 
+	{
+		TString st = ((TObjString*)tok->At(i))->String();
+		st.ReplaceAll("\t","");
+		st = st.Strip(TString::kBoth);
+		if (st != "") toks.push_back(st);
+	}
+	
+	return toks.size();
+}
+
+// -------------------------------------------------------------------------
+
+void PndSimpleCombiner::InitDecayInfo(SCDecayInfo &info, int pdg, int idx)
+{
+	info.mpdg  = pdg;     // mother(composite) pdg code
+	info.midx  = idx;     // add another list for the new composite
+	info.daucc = false;   // in case only the daughters have a cc, but not the mother, we have to care (e.g. etac -> Ks K+ pi-)
+	info.mwin  = 0;       // default: no mass selection
+	info.msel  = 0;       // default: no mass selection
+	info.dpdg.clear();    // pdgs of daughters
+	info.didx.clear();    // list index of daughters
+}
+
+// -------------------------------------------------------------------------
+
+bool PndSimpleCombiner::ParseDecay(TString decay)
+{
+	StringList subdec;
+	int ndec = SplitString(decay, ";", subdec);
+	
+	// loop over subdecays
+	for (int i=0;i<ndec;++i)
+	{
+		StringList dectoks;
+		// does decay string contain exactly one '->' in the middle of the string?
+		subdec[i].ReplaceAll("->",">");
+		SplitString(subdec[i],">",dectoks);
+				
+		if ( dectoks.size()!=2 || !fPdg->GetParticle(dectoks[0]) ) {cout <<"[PndSimpleCombiner] **** ERROR : Invalid decay pattern '"<<subdec[i].Data()<<"'"<<endl; return false;}
+		
+		// split string again; first token is supposed to be the decaying resonance
+		TString curstr = dectoks[0]+" "+dectoks[1];
+		SplitString(curstr," ",dectoks);
+		
+		// too many daughters (>5)
+		if (dectoks.size()>6) {cout <<"[PndSimpleCombiner] **** ERROR : Exceeding max number of daughters (5): '"<<subdec[i].Data()<<"'"<<endl; return false;}
+		
+		SCDecayInfo info;
+		InitDecayInfo(info, fPdg->GetParticle(dectoks[0])->PdgCode(), fNLists++);
+		
+		fPdgIdxMap[info.mpdg]  = info.midx;                     // add new list to the pdg <-> list index maps
+		fIdxPdgMap[info.midx]  = info.mpdg;
+		
+		bool cc=false;
+		
+		// loop over daughters
+		for (int j=1;j<dectoks.size();++j)
+		{
+			if (dectoks[j]=="cc") { cc = true; continue; }
+			
+			if (!fPdg->GetParticle(dectoks[j])) {cout <<"[PndSimpleCombiner] **** ERROR : Unknown particle '"<<dectoks[j].Data()<<"'"<<endl; return false;}
+			
+			// pdg code of daughter
+			int dpdg = fPdg->GetParticle(dectoks[j])->PdgCode();
+			// add corresponding index if exists
+			if ( fPdgIdxMap.find(dpdg) == fPdgIdxMap.end() ) {cout <<"[PndSimpleCombiner] **** ERROR : Undefined list '"<<dectoks[j].Data()<<"'"<<endl; return false;}
+			if ( dpdg == info.mpdg ) {cout <<"[PndSimpleCombiner] **** ERROR : Invalid recursion in '"<<subdec[i].Data()<<"'"<<endl; return false;}
+			
+			info.dpdg.push_back(dpdg);
+			info.didx.push_back(fPdgIdxMap[dpdg]);
+		}
+		info.ndaug = info.didx.size();
+		fDecayInfoArray.push_back(info);
+		
+		// do we need the cc decay definition
+		if (cc)
+		{
+			// does the cc mode exist?
+			// either the mother or the FS has to have a cc not being identical
+			// example: 1) D0 -> K- pi+       has cc -> D0bar -> K+ pi-     (different FS and mother)
+			//          2) D0 -> KS pi+ pi-   has cc -> D0bar -> KS pi+ pi- (different mother)
+			//          3) etac -> KS K- pi+  has cc -> etac -> KS K+ pi-   (different FS)
+			//          4) phi -> K+ K-       has _no_ cc!                  (identical FS and mother)
+			
+			// does the mother have a cc? (case 1 + 2)
+			// then we add a new list
+			if (!CCInvariant(info.mpdg)) 
+			{
+				SCDecayInfo ainfo;
+				InitDecayInfo(ainfo, AntiPdg(info.mpdg), fNLists++);
+
+				fPdgIdxMap[ainfo.mpdg]  = ainfo.midx;
+				fIdxPdgMap[ainfo.midx]  = ainfo.mpdg;
+				
+				for (int j=0;j<info.dpdg.size();++j)
+				{
+					int apdg = AntiPdg(info.dpdg[j]);
+					if (apdg==-999999 || fPdgIdxMap.find(apdg) == fPdgIdxMap.end() ) {cout <<"[PndSimpleCombiner] **** ERROR : No list for PDG code "<<apdg<<endl; return false;}
+					ainfo.dpdg.push_back(apdg);
+					ainfo.didx.push_back(fPdgIdxMap[apdg]);
+				}
+				ainfo.ndaug = info.didx.size();
+				fDecayInfoArray.push_back(ainfo);
+			}
+			// only the daughters have a cc (case 3)
+			// then we simply set the daucc switch, which will be taken into account during combinatorics
+			else if (!CCInvariant(info.dpdg))
+			{
+				for (int j=0;j<info.dpdg.size();++j)
+				{
+					int apdg = AntiPdg(info.dpdg[j]);
+					if (apdg==-999999 || fPdgIdxMap.find(apdg) == fPdgIdxMap.end() ) {cout <<"[PndSimpleCombiner] **** ERROR : No list for PDG code "<<apdg<<endl; return false;}
+				}
+				
+				fDecayInfoArray[fDecayInfoArray.size()-1].daucc=true;
+			}
+		}
+	}
+	
+	return true;
+}
+
+// -------------------------------------------------------------------------
+
+bool PndSimpleCombiner::ParseParams(TString params)
+{
+	StringList parm;
+	SplitString(params,":",parm);
+	
+	for (int i=0;i<parm.size();++i)
+	{
+		cout <<parm[i]<<endl;
+		StringList pair;
+		SplitString(parm[i],"=",pair);
+		
+		if (pair.size()!=2) {cout <<"[PndSimpleCombiner] **** WARNING : Invalid parameter setting '"<<parm[i]<<"' ignored"<<endl; continue;}
+		
+		// global mass window setting
+		if (pair[0]=="mwin")
+		{
+			double window = pair[1].Atof();
+			
+			for (int j=0;j<fDecayInfoArray.size();++j)
+			{
+				SCDecayInfo &info = fDecayInfoArray[j];
+				if (info.msel) delete info.msel;
+				info.mwin = window;
+				info.msel = new RhoMassParticleSelector("msel",fPdg->GetParticle(info.mpdg)->Mass(),window);
+			}
+		}
+		// mass window for one composite
+		else if (pair[0].BeginsWith("mwin"))
+		{
+			// extract particle name from string 'mwin(D0)'
+			pair[0] = pair[0](5,pair[0].Length()-6);
+			
+			if (!fPdg->GetParticle(pair[0])) {cout <<"[PndSimpleCombiner] **** WARNING : Unknown particle type '"<<pair[0]<<"'"<<endl;continue;}
+			
+			int pdg = fPdg->GetParticle(pair[0])->PdgCode();
+			if (fPdgIdxMap.find(pdg) == fPdgIdxMap.end()) {cout <<"[PndSimpleCombiner] **** WARNING : Unknown particle list '"<<pair[0]<<"'"<<endl;continue;}
+			
+			double window = pair[1].Atof();
+			
+			for (int j=0;j<fDecayInfoArray.size();++j)
+			{
+				SCDecayInfo &info = fDecayInfoArray[j];
+				// only set for this particle type
+				if (abs(info.mpdg) == abs(pdg))
+				{
+					if (info.msel) delete info.msel;
+					info.mwin = window;
+					info.msel = new RhoMassParticleSelector("msel",fPdg->GetParticle(info.mpdg)->Mass(),window);
+				}
+			}	
+		}
+		// check for pid setting
+		if (pair[0] == "pid")   SetPid(pair[1]);
+		
+		if (pair[0] == "pide")  SetPidElectron(pair[1]);
+		if (pair[0] == "pidmu") SetPidMuon(pair[1]);
+		if (pair[0] == "pidpi") SetPidPion(pair[1]);
+		if (pair[0] == "pidk")  SetPidKaon(pair[1]);
+		if (pair[0] == "pidp")  SetPidProton(pair[1]);
+		
+		if (pair[0] == "algo") SetPid("",pair[1]);
+		
+		if (pair[0] == "algoe")  SetPidElectron("",pair[1]);
+		if (pair[0] == "algomu") SetPidMuon("",pair[1]);
+		if (pair[0] == "algopi") SetPidPion("",pair[1]);
+		if (pair[0] == "algok")  SetPidKaon("",pair[1]);
+		if (pair[0] == "algop")  SetPidProton("",pair[1]);
+	}
+}
+
+// -------------------------------------------------------------------------
+
+void PndSimpleCombiner::SetPid(TString crit, TString algo)
+{
+	if (crit!="") fIdxPidCritMap.clear();
+	if (algo!="") fIdxPidAlgoMap.clear();
+	
+	SetPidElectron(crit, algo);
+	SetPidMuon(crit, algo);
+	SetPidPion(crit, algo);
+	SetPidKaon(crit, algo);
+	SetPidProton(crit, algo);
+}
+
+// -------------------------------------------------------------------------
+
+void PndSimpleCombiner::SetPidElectron(TString crit, TString algo) 
+{
+	if (crit!="") {	fIdxPidCritMap[0] = crit; fIdxPidCritMap[1] = crit;} 
+	if (algo!="") { fIdxPidAlgoMap[0] = algo; fIdxPidAlgoMap[1] = algo;}
+}
+
+void PndSimpleCombiner::SetPidMuon(TString crit, TString algo)     
+{
+	if (crit!="") {fIdxPidCritMap[2] = crit; fIdxPidCritMap[3] = crit;} 
+	if (algo!="") {fIdxPidAlgoMap[2] = algo; fIdxPidAlgoMap[3] = algo;}
+}
+
+void PndSimpleCombiner::SetPidPion(TString crit, TString algo)     
+{
+	if (crit!="") {fIdxPidCritMap[5] = crit; fIdxPidCritMap[4] = crit;} 
+	if (algo!="") {fIdxPidAlgoMap[5] = algo; fIdxPidAlgoMap[4] = algo;}
+}
+
+void PndSimpleCombiner::SetPidKaon(TString crit, TString algo)    
+{
+	if (crit!="") {fIdxPidCritMap[7] = crit; fIdxPidCritMap[6] = crit;}
+	if (algo!="") {fIdxPidAlgoMap[7] = algo; fIdxPidAlgoMap[6] = algo;}
+}
+
+void PndSimpleCombiner::SetPidProton(TString crit, TString algo)   
+{
+	if (crit!="") {fIdxPidCritMap[9] = crit; fIdxPidCritMap[8] = crit;}
+	if (algo!="") {fIdxPidAlgoMap[9] = algo; fIdxPidAlgoMap[8] = algo;}
+}
+
+
+// -------------------------------------------------------------------------
+// fill all generic lists, which are used by any of the composites
+void PndSimpleCombiner::FillGenericLists()
+{
+	// fill all generic lists, which are used by any of the composites
+	// loop through composites
+	int n = fDecayInfoArray.size();
+	for (int i=0;i<n;++i)
+	{
+		SCDecayInfo info = fDecayInfoArray[i];
+		
+		for (int j=0;j<info.ndaug;++j)
+		{
+			int lidx = info.didx[j];
+			if (lidx<10) // charged lists
+			{
+				fAnalysis->FillList(fList[lidx],fIdxListNameMap[lidx]+fIdxPidCritMap[lidx],fIdxPidAlgoMap[lidx]);
+				if (fPSel) fList[lidx].Select(fPSel);
+			}
+			else if (lidx==10) //neutrals
+			{
+				fAnalysis->FillList(fList[lidx],fIdxListNameMap[lidx]);
+				if (fESel) fList[lidx].Select(fESel);
+			}
+			if (lidx<11 && fVerbose) cout <<"idx:"<<lidx<<" pdg:"<<fIdxPdgMap[lidx]<<" N:"<<fList[lidx].GetLength()<<endl;
+		}
+	}
+}
+
+// -------------------------------------------------------------------------
+// check whether a list of pdg codes is its cc state (e.g. KS pi+ pi-)
+// idea: if the sum of all pdg codes from particles having an anti-particle
+//       is 0 and #positive codes = #negative codes, then its true 
+bool PndSimpleCombiner::CCInvariant(std::vector<int> &vpdg)
+{
+	int sum=0, nminus=0, nplus=0;
+	
+	for (int i=0;i<vpdg.size();++i)
+	{
+		if (!CCInvariant(vpdg[i])) 
+		{
+			sum += vpdg[i];
+			if (vpdg[i]>0) nplus++;
+			else nminus++;
+		}
+	}
+	return (sum==0 && nplus==nminus);
+}
+
+// -------------------------------------------------------------------------
+// Returns pdg code of anti-particle 
+int  PndSimpleCombiner::AntiPdg(int pdg)
+{
+	if (fPdg->GetParticle(pdg))
+	{
+		if (!fPdg->GetParticle(pdg)->AntiParticle()) return pdg;
+		else return fPdg->GetParticle(pdg)->AntiParticle()->PdgCode();
+	}
+	return -999999;
+} 
+
+
+// -------------------------------------------------------------------------
+// Prints the configuration
+void PndSimpleCombiner::Print()
+{
+	cout <<endl<<"[PndSimpleCombiner] **** Configuration"<<endl<<"---------------------------"<<endl;
+	
+	// fill all generic lists, which are used by any of the composites
+	// loop through composites
+	int n = fDecayInfoArray.size();
+	for (int i=0;i<n;++i)
+	{
+		SCDecayInfo info = fDecayInfoArray[i];
+		cout <<"Decay "<<i<<" : " << fPdg->GetParticle(info.mpdg)->GetName()<<"("<<info.mpdg<<"/"<<info.midx<<") -> ";
+		for (int j=0;j<info.dpdg.size();++j) cout << fPdg->GetParticle(info.dpdg[j])->GetName()<<"("<<info.dpdg[j]<<"/"<<info.didx[j]<<") ";
+		
+		cout <<" mass window:"<<info.mwin;
+		cout <<endl;
+	}
+	cout <<endl;
+	for (int i=0;i<10;++i)
+	{
+		printf("%-16s : %s, %s\n",fIdxListNameMap[i].Data(),fIdxPidCritMap[i].Data(),fIdxPidAlgoMap[i].Data());
+	}
+	
+	cout <<endl;
+}
+
+// -------------------------------------------------------------------------
+// The central routine doing the combinatorics
+// Needs to be called after every PndAnalysis::GetEvent
+void PndSimpleCombiner::Combine()
+{
+	// fill list of final state particles
+	FillGenericLists();
+	
+	// loop through list definitions and produce composites
+	int n = fDecayInfoArray.size();
+	for (int i=0;i<n;++i)
+	{
+		SCDecayInfo info = fDecayInfoArray[i];
+		CombineList(fList[info.midx], info.mpdg, info.didx);
+		
+		// do we need to add the cc FS?
+		if (info.daucc)
+		{
+			// create index list with cc daughters
+			std::vector<int> aidx;
+			for (int j=0;j<info.didx.size();++j)
+			{
+				int apdg = AntiPdg(info.dpdg[j]);
+				aidx.push_back(fPdgIdxMap[apdg]);			
+			}
+			// create temporary list with the cc combinatorics
+			RhoCandList l;
+			CombineList(l, info.mpdg, aidx);
+			// append it to the original list
+			fList[info.midx].Append(l);
+		}
+		// if there is a mass selector connected, apply it
+		if (info.msel) fList[info.midx].Select(info.msel);
+	}
+}
+
+// -------------------------------------------------------------------------
+// create a list based on indices
+int PndSimpleCombiner::CombineList(RhoCandList &l, int mpdg, std::vector<int> &idx)
+{
+	l.Cleanup();
+	
+	int nd = idx.size();
+	
+	switch (nd) 
+	{
+	case 2: l.Combine(fList[idx[0]], fList[idx[1]], mpdg); break;	
+	case 3: l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], mpdg); break;	
+	case 4: l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], mpdg); break;
+	case 5:	l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], fList[idx[4]], mpdg); break;
+	}
+	
+	return l.GetLength();
+}
+
+// -------------------------------------------------------------------------
+// access lists by name, pdg or index
+
+bool PndSimpleCombiner::GetList(RhoCandList &l, TString comp)
+{
+	if (!fPdg->GetParticle(comp)) return false;
+	
+	return GetList(l, fPdg->GetParticle(comp)->PdgCode());
+}
+
+// -------------------------------------------------------------------------
+
+bool PndSimpleCombiner::GetList(RhoCandList &l, int pdg)
+{
+	l.Cleanup();
+	
+	if (fPdgIdxMap.find(pdg) == fPdgIdxMap.end()) return false;
+	
+	l = fList[fPdgIdxMap[pdg]];
+	return true;
+}
+
+// -------------------------------------------------------------------------
+
+bool PndSimpleCombiner::GetListN(RhoCandList &l, int idx)
+{
+	l.Cleanup();
+	
+	if (idx>=0 && idx<GetNLists()) 
+	{
+		l = fList[idx+11];
+		return true;
+	}
+	
+	return false;
+}
+
+
