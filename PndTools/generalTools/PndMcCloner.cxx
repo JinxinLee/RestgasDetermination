@@ -6,6 +6,7 @@
 #include "PndMcCloner.h"
 
 #include "PndMCTrack.h"
+#include "PndPidCandidate.h"
 
 #include "FairRootManager.h"
 #include "FairDetector.h"
@@ -20,7 +21,11 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndMcCloner::PndMcCloner() : FairTask("Cloner of PndMCTrack") {}
+PndMcCloner::PndMcCloner() : FairTask("Cloner of PndMCTrack"), 
+           fInputArray(), fPidChargedArray(), fPidNeutralArray(), fOutputArray(),
+           mapMCIndex(), fCleanMC(kFALSE)
+{
+}
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
@@ -47,8 +52,22 @@ InitStatus PndMcCloner::Init() {
   // Get input array
   fInputArray = (TClonesArray*) ioman->GetObject("MCTrack");
   if ( ! fInputArray ) {
-    cout << "-W- PndMcCloner::Init: "
+    cout << "-E- PndMcCloner::Init: "
 	 << "No MCTrack array!" << endl;
+    return kERROR;
+  }
+
+  fPidChargedArray = (TClonesArray*) ioman->GetObject("PidChargedCand");
+  if ( ! fPidChargedArray ) {
+    cout << "-E- PndMcCloner::Init: "
+         << "No PidChargedCand array!" << endl;
+    return kERROR;
+  }
+
+  fPidNeutralArray = (TClonesArray*) ioman->GetObject("PidNeutralCand");
+  if ( ! fPidNeutralArray ) {
+    cout << "-E- PndMcCloner::Init: "
+         << "No PidNeutralCand array!" << endl;
     return kERROR;
   }
 
@@ -73,30 +92,120 @@ void PndMcCloner::Exec(Option_t* opt) {
   if ( ! fOutputArray ) Fatal("Exec", "No Output Array");
   
   fOutputArray->Clear();
-  
-  Int_t nMcTracks = fInputArray->GetEntriesFast();
-  for (Int_t iMc=0; iMc<nMcTracks; iMc++) 
+  mapMCIndex.clear();
+ 
+  if (!fCleanMC)
     {
-      PndMCTrack *mctrack  = (PndMCTrack*) fInputArray->At(iMc);
-      TClonesArray& clref = *fOutputArray;
-      Int_t size = clref.GetEntriesFast();
-      new(clref[size]) PndMCTrack(*mctrack);
-      
-    } // Loop over MCTracks
-  
+      CloneMCTrack();
+    }
+  else
+    {  
+      FindUsedMCIndices();
+      CloneAndCleanMCTrack();
+      CorrectPidIndices();
+    }
 }
 // -------------------------------------------------------------------------
 
-/*
-// -----   Private method AddHit   --------------------------------------------
-PndHit* PndMcCloner::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index){
-  // It fills the PndHit category
- 
-  TClonesArray& clref = *fHitArray;
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndHit(detID, pos, dpos, index);
-}
-// ----
+// -----   Protected method FindUsedMcIndices   --------------------------------------------
+void PndMcCloner::CloneMCTrack() 
+{
+  // Copy 1:1 of the MCTrack TClonesArray
 
-*/
+  Int_t nMCTracks = fInputArray->GetEntriesFast();
+  for (Int_t iMC=0; iMC<nMCTracks; iMC++)
+    {
+      PndMCTrack *mctrack  = (PndMCTrack*) fInputArray->At(iMC);
+      TClonesArray& clref = *fOutputArray;
+      Int_t size = clref.GetEntriesFast();
+      new(clref[size]) PndMCTrack(*mctrack);
+    } // Loop over MCTracks
+}
+
+// -----   Protected method FindUsedMcIndices   --------------------------------------------
+void PndMcCloner::FindUsedMCIndices() {
+  // Loop over PidChargedCand and PidNeutralCand, find the used MC indices, and fill the map 
+  // with this index and all the mother indices
+
+  Int_t nCands = 0;
+
+  nCands = fPidChargedArray->GetEntriesFast();
+  for (Int_t iPid=0; iPid<nCands; iPid++)
+    {
+      PndPidCandidate *pidCand  = (PndPidCandidate*) fPidChargedArray->At(iPid);
+      Int_t mcIndex = pidCand->GetMcIndex();
+      
+      while (mcIndex!=-1)
+        {
+          PndMCTrack *mctrack = (PndMCTrack*)fInputArray->At(mcIndex);
+          if (mctrack==NULL) 
+            {
+              Error("FindUsedMCIndices","PndMCTrack is not existing!");
+            }
+          mapMCIndex[mcIndex] = mcIndex;
+          mcIndex = mctrack->GetMotherID();
+        }
+    } // Loop over PidChargedCand
+
+  nCands = fPidNeutralArray->GetEntriesFast();
+  for (Int_t iPid=0; iPid<nCands; iPid++)
+    {
+      PndPidCandidate *pidCand  = (PndPidCandidate*) fPidNeutralArray->At(iPid);
+      Int_t mcIndex = pidCand->GetMcIndex();
+
+      while (mcIndex!=-1)
+        {
+          PndMCTrack *mctrack = (PndMCTrack*)fInputArray->At(mcIndex);
+          if (mctrack==NULL)
+            {
+              Error("FindUsedMCIndices","PndMCTrack is not existing!");
+            }
+          mapMCIndex[mcIndex] = mcIndex;
+          mcIndex = mctrack->GetMotherID();
+        }
+    } // Loop over PidNeutralCand
+
+}
+// -------------------------------------------------------------------------
+
+// -----   Protected method FindUsedMcIndices   --------------------------------------------
+void PndMcCloner::CloneAndCleanMCTrack()
+{
+  // Copy only the MCTracks which were used
+
+  for (std::map<Int_t,Int_t>::iterator it=mapMCIndex.begin(); it!=mapMCIndex.end(); ++it)
+    {
+      PndMCTrack *mctrack  = (PndMCTrack*) fInputArray->At(it->first);
+      TClonesArray& clref = *fOutputArray;
+      Int_t size = clref.GetEntriesFast();
+      new(clref[size]) PndMCTrack(*mctrack);
+      mapMCIndex[it->first] = size;
+    }
+}
+// -------------------------------------------------------------------------
+
+// -----   Protected method FindUsedMcIndices   --------------------------------------------
+void PndMcCloner::CorrectPidIndices()
+{
+  // Loop over Pid Candidates and set the mc indices with the new value
+
+  Int_t nCands = 0;
+
+  nCands = fPidChargedArray->GetEntriesFast();
+  for (Int_t iPid=0; iPid<nCands; iPid++)
+    {
+      PndPidCandidate *pidCand  = (PndPidCandidate*) fPidChargedArray->At(iPid);
+      Int_t mcIndex = pidCand->GetMcIndex();
+      pidCand->SetMcIndex(mapMCIndex[mcIndex]);
+    }
+
+  nCands = fPidNeutralArray->GetEntriesFast();
+  for (Int_t iPid=0; iPid<nCands; iPid++)
+    {
+      PndPidCandidate *pidCand  = (PndPidCandidate*) fPidNeutralArray->At(iPid);
+      Int_t mcIndex = pidCand->GetMcIndex();
+      pidCand->SetMcIndex(mapMCIndex[mcIndex]);
+    }
+
+}
 ClassImp(PndMcCloner)

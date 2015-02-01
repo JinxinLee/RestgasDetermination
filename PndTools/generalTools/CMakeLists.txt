@@ -9,6 +9,7 @@ ${BASE_INCLUDE_DIRECTORIES}
 ${SIMPATH}/include
 ${CMAKE_SOURCE_DIR}/pnddata 
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/pnddata/PidData
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 )

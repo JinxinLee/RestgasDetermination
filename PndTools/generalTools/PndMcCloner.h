@@ -4,6 +4,9 @@
 
 #include "FairTask.h"
 #include "PndMCTrack.h"
+#include <map>
+
+using namespace std;
 
 class TClonesArray;
 
@@ -27,18 +30,32 @@ class PndMcCloner : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  //  PndHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index);
+  void SetCleanMc(Bool_t opt = kTRUE) { fCleanMC = opt; };
 
- private: 
-  
+ protected:
+
+  void FindUsedMCIndices();  
+  void CloneMCTrack();
+  void CloneAndCleanMCTrack();
+  void CorrectPidIndices();
+
   /** Input array of PndMCTrack **/
   TClonesArray* fInputArray;
+
+  /** Input array of PidChargedCand **/
+  TClonesArray* fPidChargedArray;
+
+  /** Input array of PidNeutralCand **/
+  TClonesArray* fPidNeutralArray;
 
   /** Output array of PndMCTrack **/
   TClonesArray* fOutputArray;  
 
+  map<Int_t, Int_t> mapMCIndex; // Map <old mc index, new mc index>
    
-  ClassDef(PndMcCloner,1);
+  Bool_t fCleanMC; // Flag to clean the MCTrack from unused indices
+
+  ClassDef(PndMcCloner,2);
 
 };
 
