@@ -41,6 +41,7 @@
 #include "TSpectrum.h" 
 #include "TStopwatch.h" 
 #include "TH3D.h"
+#include "TMinuit.h"
 // tracking 
 #include "PndTrkClusterList.h"
 #include "PndTrkTrackList.h"
@@ -52,6 +53,282 @@
     
 using namespace std;
 
+// this is the function used for the fit
+//   par: vector with the fit parameters
+Double_t fit_distance(float x, float y, Double_t *par)
+{
+  double value=(par[0] * x - y + par[1]) / TMath::Sqrt(par[0] * par[0] + 1);
+  return value;
+}
+
+
+void Chi2Calculation(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) 
+{
+
+
+  TMatrixT<Double_t> *objtofit = (TMatrixT<Double_t> *) gMinuit->GetObjectFit();
+  
+  Double_t chi2 = 0;
+  Int_t hitcounter = objtofit->GetNrows();
+
+  for (Int_t ihit = 0; ihit < hitcounter; ihit++)
+    { 
+      double r_reco = fit_distance(objtofit[0][ihit][0], objtofit[0][ihit][1], par);
+      double delta  = (objtofit[0][ihit][2] - r_reco)/objtofit[0][ihit][3];
+
+      cout << "reco iso " << r_reco << endl;
+      cout << "drift " << objtofit[0][ihit][2] << endl;
+      cout << "delta " << delta << endl;
+      chi2 += delta * delta;
+  }
+  f = chi2;
+  return;
+}
+
+void Chi2Calculation2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) 
+{
+
+ TMatrixT<Double_t> *objtofit = (TMatrixT<Double_t> *) gMinuit->GetObjectFit();
+  
+  Double_t chi2 = 0;
+  Int_t hitcounter = objtofit->GetNrows();
+
+  for (Int_t ihit = 0; ihit < hitcounter; ihit++)
+    { 
+
+      double delta = TMath::Sqrt((objtofit[0][ihit][0] - par[0])*(objtofit[0][ihit][0] - par[0])+(objtofit[0][ihit][1] - par[1])*(objtofit[0][ihit][1] - par[1])) - par[2]+ par[3] *  objtofit[0][ihit][2];
+      if(objtofit[0][ihit][2] == 0) chi2 += (delta * delta * 12.);
+      else chi2 += (delta*delta)/(pow(objtofit[0][ihit][3],2));
+    }
+ f = chi2;
+  return;
+}
+
+Bool_t PndTrkTrackFinder::MinuitFit(PndTrkCluster *cluster, double mstart, double qstart, double &fitm, double&fitq) {
+  
+  if(fDisplayOn) {
+    display->cd(1);
+    Refresh();
+  }
+  
+  TMinuit minimizer;
+  minimizer.SetPrintLevel(-1);
+  
+  // set the object to be fitted: ................
+  // TMatrixT<Double_t> [x][y][r][err_r]
+  TMatrixT<Double_t> fitvect;
+  
+  int nofhits = 0;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
+    {
+	PndTrkHit *hit = cluster->GetHit(ihit);
+	if(hit == fRefHit) continue;
+	if(hit->IsSttSkew()) continue;
+	nofhits++;
+    }
+  fitvect.ResizeTo(nofhits, 4); // x y r errr
+  
+  int counter = 0;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
+    {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      if(hit == fRefHit) continue;
+      if(hit->IsSttSkew()) continue;
+      
+      PndTrkConformalHit chit = conform->GetConformalHit(hit);
+      PndTrkConformalHit chitstt = conform->GetConformalSttHit(hit);
+      double sigma = 1e-5;
+      if(hit->IsSttParallel()) {
+	sigma = chitstt.GetIsochrone(); // 0.1; // CHECK
+      
+	fitvect[counter][0] = chitstt.GetPosition().X();
+	fitvect[counter][1] = chitstt.GetPosition().Y();
+	fitvect[counter][2] = chitstt.GetIsochrone();
+	fitvect[counter][3] = sigma;
+      }
+      else {
+	fitvect[counter][0] = chit.GetPosition().X();
+	fitvect[counter][1] = chit.GetPosition().Y();
+	fitvect[counter][2] = 0.;
+	fitvect[counter][3] = sigma;
+      }
+      counter++;
+      
+      if(fDisplayOn) {
+	display->cd(1);
+	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
+	mrk->SetMarkerColor(kRed);
+	mrk->Draw("SAME");
+	
+	display->cd(2);
+	TMarker *mrk2 = new TMarker(chit.GetPosition().X(), chit.GetPosition().Y(), 6);
+	mrk2->SetMarkerColor(kRed);
+	mrk2->Draw("SAME");
+	
+	
+	display->Update();
+	display->Modified();
+      } 
+    }
+  if(nofhits != counter) fitvect.ResizeTo(counter, 4); // x y r errr
+  //.....................
+  
+  minimizer.SetFCN(Chi2Calculation);
+  //  minimizer.SetErrorDef(1);  // ???
+  
+  minimizer.DefineParameter(0, "m", mstart, 0.1, -3000., 3000.); // ???
+  minimizer.DefineParameter(1, "q", qstart, 0.1, -3000., 3000.); // ??? LIMITS ???
+  
+  minimizer.SetObjectFit(&fitvect);
+  minimizer.SetPrintLevel(); 
+  
+  minimizer.SetMaxIterations(500);
+  minimizer.Migrad();
+  
+  Double_t chisquare, results[3], errors[3]; 
+  minimizer.GetParameter(0, results[0], errors[0]);
+  minimizer.GetParameter(1, results[1], errors[1]);
+  
+  cout << "fitm: " << results[0] << endl; 
+  cout << "fitq: " << results[1] << endl; 
+   
+  
+  if(fitm == 0) return kFALSE;
+
+  fitm = results[0];
+  fitq = results[1];
+  
+  //     //  cout << "previous " << xc << " " << yc << " " << R << endl;
+//     FromConformalToRealTrack(fitm, fitq, xc, yc, R);
+//     // cout << "now " << xc << " " << yc << " " << R << endl;
+    
+//     if(fDisplayOn) {
+//       display->cd(2);
+//       cout << "wanna see the line?" << endl;
+//       TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
+//       line->SetLineColor(2);
+//       line->Draw("SAME");
+//       char goOnChar;
+//       display->Update();
+//       display->Modified();
+//       cin >> goOnChar;
+//     }
+    
+    return kTRUE;
+}
+
+Bool_t PndTrkTrackFinder::MinuitFit2(PndTrkCluster *cluster, double xstart, double ystart, double rstart, double &xc, double&yc, double &R, double &sign) {
+  
+  if(fDisplayOn) {
+    display->cd(1);
+    Refresh();
+  }
+  
+  TMinuit minimizer;
+  minimizer.SetPrintLevel(-1);
+  
+  // set the object to be fitted: ................
+  // TMatrixT<Double_t> [x][y][r][err_r]
+  TMatrixT<Double_t> fitvect;
+  
+  int nofhits = 0;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
+    {
+	PndTrkHit *hit = cluster->GetHit(ihit);
+	if(hit == fRefHit) continue;
+	if(hit->IsSttSkew()) continue;
+	nofhits++;
+    }
+  fitvect.ResizeTo(nofhits, 4); // x y r errr
+  
+  int counter = 0;
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
+    {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      if(hit == fRefHit) continue;
+      if(hit->IsSttSkew()) continue;
+      
+      double sigma = 1e-5;
+      if(hit->IsSttParallel()) {
+	sigma = hit->GetIsochrone(); // 0.1; // CHECK
+      
+	fitvect[counter][0] = hit->GetPosition().X();
+	fitvect[counter][1] = hit->GetPosition().Y();
+	fitvect[counter][2] = hit->GetIsochrone();
+	fitvect[counter][3] = sigma;
+      }
+      else {
+	fitvect[counter][0] = hit->GetPosition().X();
+	fitvect[counter][1] = hit->GetPosition().Y();
+	fitvect[counter][2] = 0.;
+	fitvect[counter][3] = sigma;
+      }
+      counter++;
+      
+      if(fDisplayOn) {
+	display->cd(1);
+	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
+	mrk->SetMarkerColor(kRed);
+	mrk->Draw("SAME");
+	
+	display->Update();
+	display->Modified();
+      } 
+    }
+  if(nofhits != counter) fitvect.ResizeTo(counter, 4); // x y r errr
+  //.....................
+  
+  minimizer.SetFCN(Chi2Calculation2);
+  //  minimizer.SetErrorDef(1);  // ???
+  
+  minimizer.DefineParameter(0, "x", xstart, 0.1, -3000., 3000.); // ???
+  minimizer.DefineParameter(1, "y", ystart, 0.1, -3000., 3000.); // ??? LIMITS ???
+  minimizer.DefineParameter(2, "R", rstart, 0.1, 0., 3000.); // ??? LIMITS ???
+  minimizer.DefineParameter(3, "sign", 0, 1, -1, 1); // ??? LIMITS ???
+
+  minimizer.SetObjectFit(&fitvect);
+  minimizer.SetPrintLevel(); 
+  
+  minimizer.SetMaxIterations(500);
+  minimizer.Migrad();
+  
+  Double_t chisquare, results[4], errors[4]; 
+  minimizer.GetParameter(0, results[0], errors[0]);
+  minimizer.GetParameter(1, results[1], errors[1]);
+  minimizer.GetParameter(2, results[2], errors[2]);
+  minimizer.GetParameter(3, results[3], errors[3]);
+  
+  cout << "xc: " << results[0] << endl; 
+  cout << "yc: " << results[1] << endl; 
+  cout << "R: "  << results[2] << endl; 
+  cout << "sign: " << results[3] << endl; 
+  
+  
+  //  if( == 0) return kFALSE;
+
+  xc = results[0];
+  yc = results[1];
+  R = results[2];
+  sign = results[3];
+  
+  //     //  cout << "previous " << xc << " " << yc << " " << R << endl;
+//     FromConformalToRealTrack(fitm, fitq, xc, yc, R);
+//     // cout << "now " << xc << " " << yc << " " << R << endl;
+    
+//     if(fDisplayOn) {
+//       display->cd(2);
+//       cout << "wanna see the line?" << endl;
+//       TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
+//       line->SetLineColor(2);
+//       line->Draw("SAME");
+//       char goOnChar;
+//       display->Update();
+//       display->Modified();
+//       cin >> goOnChar;
+//     }
+    
+    return kTRUE;
+}
 
 // -----   Default constructor   -------------------------------------------
 PndTrkTrackFinder::PndTrkTrackFinder() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL) {
@@ -84,6 +361,7 @@ PndTrkTrackFinder::~PndTrkTrackFinder() {
   delete fSciTHitArray;
   delete fGemHitArray;
   delete fTrackArray;
+  delete fTrkTrackArray;
   delete fTrackCandArray;
   delete fTubeArray;
 
@@ -188,8 +466,10 @@ InitStatus PndTrkTrackFinder::Init() {
   }
   
   fTrackArray = new TClonesArray("PndTrack");
+  fTrkTrackArray = new TClonesArray("PndTrkTrack");
   fTrackCandArray = new TClonesArray("PndTrackCand");
   ioman->Register("Track", "pr", fTrackArray, fPersistence); // CHECK
+  ioman->Register("TrkTrack", "pr", fTrkTrackArray, fPersistence); // CHECK
   ioman->Register("TrackCand",  "pr", fTrackCandArray, fPersistence); // CHECK
 
   
@@ -283,6 +563,7 @@ void PndTrkTrackFinder::Initialize() {
 void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // ############## I N I T I A L I Z A T I O N S ##############
   fTrackArray->Delete();
+  fTrkTrackArray->Delete();
   fTrackCandArray->Delete();
   //  if(fVerbose > 0) 
 
@@ -319,7 +600,6 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fHitMap->Clear();
   FillHitMap();
 
-  fDisplayOn = kFALSE;
   // ##########################################################
   
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -685,6 +965,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   //  cout << "nof tracks reduced from " << trackcandidates3.size() << " to " << trackcandidates4.size() << endl;
   PndTrkClusterList clusterlist;
   
+  //   cout << "tracks " <<  tracks.size() << endl;
+
+
   for(int itrk = 0; itrk < tracks.size(); itrk++) {
     std::vector< double > track = tracks[itrk];
     double x = track[0];
@@ -793,7 +1076,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
     // get indivisible hits
     PndTrkCluster indcluster;
-    //    cout << "indivisibles " << fIndivisibleHitList->GetNofHits() << endl;
+    //     cout << "indivisibles " << fIndivisibleHitList->GetNofHits() << endl;
     if(fDisplayOn) {
       Refresh();
     }
@@ -805,7 +1088,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       if(recoiso < 1.) {
 	indcluster.AddHit(indhit);
 	if(fDisplayOn) {
-	  //	  cout << "recoiso indhit " << indhit->GetPosition().X() << " " << indhit->GetPosition().Y()  << endl;
+	  // 	  cout << "recoiso indhit " << indhit->GetPosition().X() << " " << indhit->GetPosition().Y()  << endl;
 	  indhit->Draw(kRed);
 	}
       }
@@ -830,12 +1113,13 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
 
     if(tmphitID == -1) continue; // CHECK what if there is no indivisible hit??
-    //    cout << "nof indivisible hits " << indcluster.GetNofHits() << " " << tmphitID << endl;
+    //     cout << "nof indivisible hits " << indcluster.GetNofHits() << " " << tmphitID << endl;
     // set up conformal map
     fConformalHitList->Clear("C");
     Double_t delta = 0, trasl[2] = {0., 0.};
     PndTrkHit *refhit = indcluster.GetHit(tmphitID);
     ComputeTraAndRot(refhit, delta, trasl);
+    //     cout << refhit << " " << refhit->GetHitID() << " " << delta << " " << trasl[0] << " " << trasl[1] << endl;
     conform->SetOrigin(trasl[0], trasl[1], delta);
     fConformalHitList->SetConformalTransform(conform);
 
@@ -887,9 +1171,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // ----------------------------------------------------------------------
       for(int ihit = 0; ihit < nofconfhits; ihit++) {
 	PndTrkConformalHit *chit = fConformalHitList->GetHit(ihit);
-	if(fDisplayOn) {
-	  chit->Draw(kBlack);
-	}
+	chit->Draw(kBlack);
+	//	cout << "chit " << chit->GetPosition().X() << " " << chit->GetPosition().Y() << endl;
       }
     }
     
@@ -900,9 +1183,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     legendre->SetUpLegendreHisto(180, 0, 180, 1000, -0.07, 0.07);
     //    PndTrkTrack *legendretrack = LegendreFit(&cluster);
     
-    //    cout << "APPLY LEGENDRE =======================" << endl;
-    //     cout << "nof hits " << cluster.GetNofHits() << endl;
-    
+    //     cout << "APPLY LEGENDRE ======================= " << nofconfhits << endl;
+ 
     // reset the legendre histo for a new legendre fit
     legendre->ResetLegendreHisto();
     
@@ -923,6 +1205,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // from theta/r to line parameters in CONFORMAL plane 
     double fitm2, fitq2;
     legendre->ExtractLineParameters(theta_max[0], r_max[0], fitm2, fitq2);
+    //     cout << "nof hits " << cluster.GetNofHits() << " " << fitm2 << " " << fitq2 << endl;
     if(fDisplayOn) {
       display->cd(2);
       TLine *line = new TLine(-10.07, fitq2 + fitm2 * (-10.07), 10.07, fitq2 + fitm2 * (10.07));
@@ -1132,8 +1415,11 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
     
     // ====== REFIT CLUSTER ANALYTICALLY
-    AnalyticalFit(&cluster, xc, yc, R, fitm, fitq);
+    bool fitting = AnalyticalFit(&cluster, xc, yc, R, fitm, fitq);
+    //   bool fitting = MinuitFit(&cluster, fitm2, fitq2, fitm, fitq);
     
+    //         cout << "xc: " << xc << " " << yc << " " << R << endl;
+    if(fitting == kFALSE) continue;
     double xc2, yc2, R2;
     FromConformalToRealTrack(fitm, fitq, xc2, yc2, R2);
     if(fDisplayOn)  {
@@ -1146,7 +1432,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       display->Update();
       display->Modified();
     }
-
+//     cout << "xc2: " << xc2 << " " << yc2 << " " << R2 << endl;
     // ==================
     // MAKE the FINAL CLUSTER (at least in xy)
     //    finalcluster = new PndTrkCluster();
@@ -1161,9 +1447,11 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       double distance_hit_center = (tube->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
       if(recoiso < 0.5) {
-	// 	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID() << " " <<tube->GetSectorID() << " " << sectorID <<  endl;
+	//	cout << "add " << recoiso<< " " << hit->GetDetectorID() << " " << hit->GetHitID() << " " <<tube->GetSectorID() << " " << sectorID <<  endl;
 	fFinalCluster->AddHit(hit);
       }
+      //      else       cout << recoiso << endl;
+
     }
     // MVD PIX
     for(int ihit = 0; ihit < mvdpixhitlist->GetNofHits(); ihit++) {
@@ -1173,7 +1461,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
       if(recoiso < 0.5) {
-	// 	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID()  << endl;
+	//	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID()  << endl;
 	fFinalCluster->AddHit(hit);
       }
     }
@@ -1185,7 +1473,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
       if(recoiso < 0.5)  {
-	// 	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID() <<  endl;
+	//	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID() <<  endl;
 	fFinalCluster->AddHit(hit);
       }
     }
@@ -1197,7 +1485,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
       if(recoiso < 0.5  && hit->GetPosition().Perp() > CTOUTRADIUS)  {
-	// 	cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID()  << endl;
+	// cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID()  << endl;
 	fFinalCluster->AddHit(hit);
       }
     }
@@ -1218,7 +1506,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
     if(tmphit > -1) {
       hit = scithitlist->GetHit(tmphit);
-      //      cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID() <<  endl;
+      // cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID() << " " << tmphit << endl;
       fFinalCluster->AddHit(hit);
     }
 
@@ -1226,7 +1514,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       continue;
     }
 
-    //           cout << "FINAL CLUSTER HAS " << fFinalCluster->GetNofHits() << endl;
+    //    cout << "FINAL CLUSTER HAS " << fFinalCluster->GetNofHits() << endl;
     if(fDisplayOn) {
       Refresh();
       fFinalCluster->LightUp();
@@ -1551,13 +1839,6 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
     // =
 
-
-
-
-
-
-
-
     /**
 
 
@@ -1742,6 +2023,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
     // clusterlist.AddCluster(finalcluster);
     fTrackList->AddTrack(&finaltrack);
+
     for(int jtrk = 0; jtrk < fTrackList->GetNofTracks(); jtrk++) {
       PndTrkTrack *tmptrack = fTrackList->GetTrack(jtrk);
     }
@@ -1916,19 +2198,65 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     double R2 = tracki->GetRadius();
     double fitm, fitq;
 
-    AnalyticalFit(&clusteri, xc2, yc2, R2, fitm, fitq);
-    
+//     cout << "MINUIT FIT LONG" << endl;
+    bool fitting = AnalyticalFit(&clusteri, xc2, yc2, R2, fitm, fitq);
+    if(fitting == kFALSE) continue;
+//     cout << "fitm " << fitm << " fitq " << fitq << endl;
+
     double xc3, yc3, R3;
     FromConformalToRealTrack(fitm, fitq, xc3, yc3, R3);
+
+							 
+  //   double fitmb, fitqb;
+//     double fitmb0, fitqb0;
+//     FromRealToConformalTrack(xc3, yc3, R3, fitmb0, fitqb0);
+//     //   bool fittingb = MinuitFit(&clusteri, fitmb0, fitqb0, fitmb, fitqb);
+//     // cout << "fitmb " << fitmb << " fitqb " << fitqb << endl;
+//     double xc3b, yc3b, R3b, sign3b;
+//     //     FromConformalToRealTrack(fitmb, fitqb, xc3b, yc3b, R3b);
+//     bool fittingb = MinuitFit2(&clusteri, xc3, yc3, R3, xc3b, yc3b, R3b, sign3b);
+
+// //     // CHECK 15/0.006 cm
+// //       if(R6 > 2500) continue;
+
+//     cout << "xc3,  yc3,  R3  " << xc3 << " " << yc3 << " " << R3 << endl;
+//     cout << "xc3b, yc3b, R3b " << xc3b << " " << yc3b << " " << R3b << endl;
+
+//     xc3 = xc3b;
+//     yc3 = yc3b;
+//     R3 = R3b;
+
+
+
+
     if(fDisplayOn)  {
       char goOnChar;
+
+      display->cd(2);
+      TLine *line = new TLine(-10, -10 * fitm + fitq, 10, 10 * fitm + fitq);
+      line->SetLineColor(kMagenta);
+      line->Draw("SAME");
+      
+//       TLine *lineb = new TLine(-10, -10 * fitmb + fitqb, 10, 10 * fitmb + fitqb);
+//       lineb->SetLineColor(kBlue);
+//       lineb->Draw("SAME");
+      
       Refresh();
+
+
+
+
       display->cd(1);
       clusteri.LightUp();
       TArc *arcm = new TArc(xc3, yc3, R3);
       arcm->SetFillStyle(0);
-      arcm->SetLineColor(kGreen);
+      arcm->SetLineColor(kMagenta);
       arcm->Draw("SAME");
+//       TArc *arcmb = new TArc(xc3b, yc3b, R3b);
+//       arcmb->SetFillStyle(0);
+//       arcmb->SetLineColor(kBlue);
+//       arcmb->Draw("SAME");
+
       display->Update();
       display->Modified();
       cin >> goOnChar;
@@ -2068,7 +2396,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
   fTrackList = indivtracklist;
   
-  //   fDisplayOn = kTRUE;
+//    fDisplayOn = kTRUE;
   if(fDisplayOn) {
     char goOnChar;
     display->cd(1);
@@ -2078,6 +2406,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++) {
     PndTrkTrack *track = fTrackList->GetTrack(itrk);
   
+//     cout << "- ----------------------------------- track red " << track->GetRadius() << endl;
+
     PndTrack theTrack = track->ConvertToPndTrack();
 
     TClonesArray& clref1 = *fTrackArray;
@@ -2089,6 +2419,12 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     size = clref2.GetEntriesFast();
     PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(theTrack.GetTrackCand());
     
+    TClonesArray& clref3 = *fTrkTrackArray;
+    size = clref3.GetEntriesFast();
+    PndTrkTrack *outputtrktrack = new(clref3[size]) PndTrkTrack(*track);
+  
+//     cout << "\033[1;31m RECO R " << outputtrktrack->GetRadius() <<  ", " << outputtrack->GetParamFirst().GetMomentum().Perp() / 0.006 << "\033[0m" << endl;
+
     //         cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
     //     cout << "MOM LAST: TOT, PT, PL " << outputtrack->GetParamLast().GetMomentum().Mag() << " " << outputtrack->GetParamLast().GetMomentum().Perp() << " " << outputtrack->GetParamLast().GetMomentum().Z() << endl;
     
@@ -2100,14 +2436,16 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       display->Modified();
      
       cout << "TRACK " << itrk << endl;
-      //      cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << " nofhits " << outputtrackcand->GetNHits() <<  endl;
+      cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << " nofhits " << outputtrackcand->GetNHits() <<  endl;
       cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
-      //       cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
-      //       cout << "CHARGE " <<  track->GetCharge() << endl;
+      cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
+      cout << "CHARGE " <<  track->GetCharge() << endl;
       cin >> goOnChar;
     }
     
   }
+
+  int noflongtracks = fTrackArray->GetEntriesFast();
 
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2116,8 +2454,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // FFFF  W W W D   D
   // F     W W W D   D
   // F      W W  DDDD
-
-  //   fDisplayOn = kTRUE;
+  //  fDisplayOn = kFALSE;
+ //   fDisplayOn = kTRUE;
   // set unusable the hits assigned to long tracks ....................................
   for(int itrk = 0; itrk < fTrackArray->GetEntriesFast(); itrk++) {
     PndTrack *trk = (PndTrack*) fTrackArray->At(itrk);
@@ -3119,7 +3457,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   
       // ====== REFIT CLUSTER ANALYTICALLY
       double fitm3, fitq3;
-      AnalyticalFit(&cluster3, xc, yc, R, fitm3, fitq3);
+      bool fitting = AnalyticalFit(&cluster3, xc, yc, R, fitm3, fitq3);
+      if(fitting == kFALSE) continue;
       double xc3, yc3, R3;
       FromConformalToRealTrack(fitm3, fitq3, xc3, yc3, R3);
   
@@ -3558,13 +3897,34 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
     
 
+//       cout << "MINUIT FIT FWD" << endl;
       double fitm6, fitq6;
-      AnalyticalFit(fFinalCluster, xc3, yc3, R3, fitm6, fitq6);
-      //       cout << "fitm6 " << fitm6 << " fitq6 " << fitq6 << endl;
+      fitting = AnalyticalFit(fFinalCluster, xc3, yc3, R3, fitm6, fitq6);
+      if(fitting == kFALSE) continue;
+      
+//       cout << "fitm6 " << fitm6 << " fitq6 " << fitq6 << endl;
       double xc6, yc6, R6;
       FromConformalToRealTrack(fitm6, fitq6, xc6, yc6, R6);
+
+  //     //    double fitm6b, fitq6b;
+//       //       bool fittingb = MinuitFit(fFinalCluster, fitm3, fitq3, fitm6b, fitq6b);
+//       double xc6b, yc6b, R6b, sign6b;
+//       //      FromConformalToRealTrack(fitm6b, fitq6b, xc6b, yc6b, R6b);
+//       bool fittingb = MinuitFit2(fFinalCluster, xc3, yc3, R3, xc6b, yc6b, R6b, sign6b);
+
+
+//       xc6 = xc6b;
+//       yc6 = yc6b;
+//       R6 = R6b;
+
+
+      // CHECK 15/0.006 cm
+      if(R6 > 2500) continue;
+
       PndTrkTrack finaltrack(fFinalCluster, xc6, yc6, R6);
-//       cout << "xc6, yc6, R6 " << xc6 << " " << yc6 << " " << R6 << endl;
+//        cout << "xc6,  yc6,  R6  " << xc6 << " " << yc6 << " " << R6 << endl;
+//        cout << "xc6b, yc6b, R6b " << xc6b << " " << yc6b << " " << R6b << endl;
+
       if(fDisplayOn)  {
 	char goOnChar;
 
@@ -3573,19 +3933,32 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	line->SetLineColor(kMagenta);
 	line->Draw("SAME");
 
+// 	TLine *lineb = new TLine(-10, -10 * fitm6b + fitq6b, 10, 10 * fitm6b + fitq6b);
+// 	lineb->SetLineColor(kBlue);
+// 	lineb->Draw("SAME");
 
 	display->cd(1);
 	TArc *arcm = new TArc(xc6, yc6, R6);
 	arcm->SetFillStyle(0);
-	arcm->SetLineColor(2);
+	arcm->SetLineColor(kMagenta);
 	arcm->Draw("SAME");
+// 	TArc *arcmb = new TArc(xc6b, yc6b, R6b);
+// 	arcmb->SetFillStyle(0);
+// 	arcmb->SetLineColor(kBlue);
+// 	arcmb->Draw("SAME");
+
 	display->Update();
 	display->Modified();
 	cin >> goOnChar;
       }
 
+  if(fDisplayOn)  {
+	char goOnChar;
+	display->Update();
+	display->Modified();
+	cin >> goOnChar;
+      }
 
-    
       // ============================ Z PART FOR FWD
       // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       // SKEWED ASSOCIATION ********* CHECK *********
@@ -4191,7 +4564,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       double z0 = fitq8;
       finalfwdtrack.SetZ0(z0);
       finalfwdtrack.SetTanL(tanl);
-      
+//       cout << "xc6 " << xc6 << " " << yc6 << " " << R6 << endl;
       fTrackList->AddTrack(&finalfwdtrack);
       for(int jtrk = 0; jtrk < fTrackList->GetNofTracks(); jtrk++) {
 	PndTrkTrack *tmptrack = fTrackList->GetTrack(jtrk);
@@ -4199,16 +4572,17 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }    
   }
   
-  //  fDisplayOn = kTRUE;
+//   fDisplayOn = kTRUE;
   if(fDisplayOn) {
     char goOnChar;
     display->cd(1);
     Refresh();
   }
   // PndTrkTrack --> PndTrack
-  for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++) {
+  for(int itrk = noflongtracks; itrk < fTrackList->GetNofTracks(); itrk++) {
     PndTrkTrack *track = fTrackList->GetTrack(itrk);
-  
+//       cout << "- ----------------------------------- track green " << track->GetRadius() << endl;
+
     PndTrack theTrack = track->ConvertToPndTrack();
 
     TClonesArray& clref1 = *fTrackArray;
@@ -4219,13 +4593,20 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     size = clref2.GetEntriesFast();
     PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(theTrack.GetTrackCand());
     
-    //         cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
-    //     cout << "MOM LAST: TOT, PT, PL " << outputtrack->GetParamLast().GetMomentum().Mag() << " " << outputtrack->GetParamLast().GetMomentum().Perp() << " " << outputtrack->GetParamLast().GetMomentum().Z() << endl;
+    TClonesArray& clref3 = *fTrkTrackArray;
+    size = clref3.GetEntriesFast();
+    PndTrkTrack*outputtrktrack = new(clref3[size]) PndTrkTrack(*track);
+    
+//     cout << "\033[1;31m RECO R " << outputtrktrack->GetRadius() <<  ", " << outputtrack->GetParamFirst().GetMomentum().Perp() / 0.006 << "\033[0m" << endl;
+
+
+//     cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
+//     cout << "MOM LAST: TOT, PT, PL " << outputtrack->GetParamLast().GetMomentum().Mag() << " " << outputtrack->GetParamLast().GetMomentum().Perp() << " " << outputtrack->GetParamLast().GetMomentum().Z() << endl;
     
     if(fDisplayOn) {
       char goOnChar;
       display->cd(1);
-      track->Draw(kRed);
+      track->Draw(kGreen);
       track->GetCluster().LightUp();
 
       //      for(int jhit = 0; jhit < track->GetCluster().GetNofHits(); jhit++) {
@@ -4239,12 +4620,14 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       //       }
      
       cout << "TRACK " << itrk << endl;
-      //      cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << " nofhits " << outputtrackcand->GetNHits() <<  endl;
+      cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << " nofhits " << outputtrackcand->GetNHits() <<  endl;
       cout << "X, Y, R " << track->GetCenter().X() << " " << track->GetCenter().Y() << " " << track->GetRadius() << endl;
       //       cout << "Z0, TANL " << track->GetZ0() << " " << track->GetTanL() << endl;
       track->ComputeCharge();
 
       cout << "CHARGE " <<  track->GetCharge() << endl;
+      display->Update();
+      display->Modified();
       cin >> goOnChar;
     }
     
@@ -4263,15 +4646,41 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   //  SSS  HHHHH O   O RRRR    T
   //     S H   H O   O R  R    T
   //  SSS  H   H  OOO  R   R   T
-  
+
   if(fDisplayOn) {
     char goOnChar;
+
+    display->cd(1);
+    Refresh();
+
+    // PndTrkTrack --> PndTrack
+    for(int itrk = 0; itrk < fTrackArray->GetEntriesFast(); itrk++) {
+      PndTrack *track = (PndTrack*) fTrackArray->At(itrk);
+      cout << "TRACK " << itrk << " has flag " << track->GetFlag() << endl;;
+
+      PndTrackCand *trackcand = track->GetTrackCandPtr();
+    
+      PndTrkTrack originaltrack(track);
+      originaltrack.Draw(kRed);
+      originaltrack.GetCluster().LightUp();
+      
+      cout << "TRACK " << itrk << endl;
+      cout << "MOM FIRST: TOT, PT, PL " << track->GetParamFirst().GetMomentum().Mag() << " " << track->GetParamFirst().GetMomentum().Perp() << " " << track->GetParamFirst().GetMomentum().Z() << " nofhits " << trackcand->GetNHits() <<  endl;
+      cout << "CHARGE " <<  originaltrack.GetCharge() << endl;
+      display->Update();
+      display->Modified();
+     cin >> goOnChar;
+    }
+    
     display->Update();
     display->Modified();
     cout << "Finish? ";
     cin >> goOnChar;
   }
   Reset();
+
+
+//   cout << " NOF TRACKS TO FILE " << fTrackArray->GetEntriesFast() << endl;
   //  delete fConformalHitList;
   //  delete indhit;
   fFinalCluster->Clear("C");
@@ -4310,6 +4719,7 @@ void PndTrkTrackFinder::Reset()
     }
   }
 
+  fIndivisibleHitList->Clear();
   fInitDone = kFALSE;
 }
 
@@ -5100,6 +5510,9 @@ Int_t  PndTrkTrackFinder::ExtractLegendre(Int_t mode, double &theta_max, double 
 void PndTrkTrackFinder::FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R) {
   // CHECK if this needs to be kept --> change xc0 to xc etc
   // center and radius
+
+  //  cout << "conformal fit " << fitm << " " << fitp << endl;
+
   Double_t xcrot0, ycrot0;
   ycrot0 = 1 / (2 * fitp);
   xcrot0 = - fitm * ycrot0;
@@ -5902,7 +6315,7 @@ PndTrkCluster * PndTrkTrackFinder::CreateClusterAroundTrack(PndTrkTrack *track) 
   return thiscluster;
 }
 
-void PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double&fitq) {
+Bool_t PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double&fitq) {
   
   
   // fit with analytical chi2 -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
@@ -5946,6 +6359,12 @@ void PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, double 
 
   
   fFitter->StraightLineFit(fitm, fitq);
+
+  // fitq == 0 means infinite radius
+  // fitm == 0
+
+  if(fitm == 0) return kFALSE;
+
   //  cout << "previous " << xc << " " << yc << " " << R << endl;
   FromConformalToRealTrack(fitm, fitq, xc, yc, R);
   // cout << "now " << xc << " " << yc << " " << R << endl;
@@ -5961,6 +6380,8 @@ void PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, double 
     display->Modified();
     cin >> goOnChar;
   }
+
+  return kTRUE;
 
 
 

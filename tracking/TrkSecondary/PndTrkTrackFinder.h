@@ -114,7 +114,7 @@ class PndTrkTrackFinder : public FairTask {
  PndTrkTrack *LegendreFit(PndTrkCluster *cluster);
   PndTrkCluster *CreateClusterAroundTrack(PndTrkTrack *track);
 
-  void AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double &fitq);
+  Bool_t AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double &fitq);
   void AnalyticalFit2(PndTrkCluster *cluster, double fitm, double fitp, double &fitm2, double &fip2);
   void IntersectionFinder(PndTrkHit *hit, double xc, double yc, double R);
   void IntersectionFinder(PndTrkConformalHit *chit, double fitm, double fitp);
@@ -126,6 +126,8 @@ class PndTrkTrackFinder : public FairTask {
   void DrawZGeometry(double phimin = 0, double phimax = 360, double zmin = -43, double zmax = 113);
 
 
+  Bool_t MinuitFit(PndTrkCluster *cluster, double mstart, double qstart, double &fitm, double&fitq);
+  Bool_t MinuitFit2(PndTrkCluster *cluster, double xstart, double ystart, double rstart, double &xc, double&yc, double &R, double &sign);
 
 
  private:
@@ -150,7 +152,7 @@ class PndTrkTrackFinder : public FairTask {
   /** Input array of GemHitArray **/
   TClonesArray* fGemHitArray;
 
-  TClonesArray* fTrackArray, * fTrackCandArray;
+  TClonesArray* fTrackArray, * fTrackCandArray, * fTrkTrackArray;
 
   TClonesArray* fTubeArray;
 
