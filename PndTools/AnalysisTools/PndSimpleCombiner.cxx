@@ -153,12 +153,12 @@ bool PndSimpleCombiner::ParseDecay(TString decay)
 		fPdgIdxMap[info.mpdg]  = info.midx;                     // add new list to the pdg <-> list index maps
 		fIdxPdgMap[info.midx]  = info.mpdg;
 		
-		bool cc=false;
+		bool cc=true;
 		
 		// loop over daughters
 		for (int j=1;j<dectoks.size();++j)
 		{
-			if (dectoks[j]=="cc") { cc = true; continue; }
+			if (dectoks[j]=="nocc") { cc = false; continue; }
 			
 			if (!fPdg->GetParticle(dectoks[j])) {cout <<"[PndSimpleCombiner] **** ERROR : Unknown particle '"<<dectoks[j].Data()<<"'"<<endl; return false;}
 			

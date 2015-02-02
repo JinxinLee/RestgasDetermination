@@ -22,6 +22,7 @@ class TDatabasePDG;
 
 class PndAnalysis;
 class RhoCandList;
+class RhoCandidate;
 class RhoTuple;
 class PndSimpleCombiner;
 
@@ -52,6 +53,7 @@ class PndSimpleCombinerTask : public FairTask
 	
  private: 
 	int  SplitString(TString s, TString delim, std::vector<TString> &toks);// routine to split a string in pieces
+	int  CountChargedDaughters(RhoCandidate *c);
 	void InitParms();
 	
 	// *** event counter

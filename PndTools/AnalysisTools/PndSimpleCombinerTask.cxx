@@ -140,6 +140,19 @@ InitStatus PndSimpleCombinerTask::Init()
 	return kSUCCESS;
 }
 
+// -------------------------------------------------------------------------
+
+int PndSimpleCombinerTask::CountChargedDaughters(RhoCandidate *c)
+{
+	int nd = 0;
+	
+	for (int i=0;i<c->NDaughters();++i)
+	{
+		if (fabs(c->Daughter(i)->Charge())>1e-6) nd++;
+	}
+	
+	return nd;
+}
 
 // -------------------------------------------------------------------------
 
@@ -240,8 +253,13 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 		//RhoMassParticleSelector msel("msel",fPdg->GetParticle(pdg)->Mass(),0.2);
 		//l1.Select(&msel);
 		
+		// number of charged daughters for vtx fit
+		int ncdau = -1;
+		
 		for (j=0;j<l1.GetLength();++j) 
 		{
+			if (ncdau<0) ncdau = CountChargedDaughters(l1[j]);
+				
 			Float_t mmiss = (fIni-(l1[j]->P4())).M();
 
 			vntp[i]->Column("ev",		(Int_t) fEvtCount);
@@ -275,7 +293,7 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 				double chi2_4c = fit4c.GetChi2();   
 				RhoCandidate *cfit   = l1[j]->GetFit();
 				
-				vntp[i]->Column("chi4c", (Float_t) chi2_4c);
+				vntp[i]->Column("chi24c", (Float_t) chi2_4c);
 				qa.qaP4("fx", cfit->P4(), vntp[i]);
 				
 				for (int k=0;k<cfit->NDaughters();++k)
@@ -285,6 +303,19 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 				}
 			}
 			
+			// shall we do a vertex fit?
+			if (fFitVtx && ncdau>1)
+			{
+				PndKinVtxFitter vtxfitter(l1[j]);        // *** instantiate the vertex fitter; input is the object to be fitted      
+				vtxfitter.Fit();                           // *** perform fit
+
+				RhoCandidate *cfit = l1[j]->GetFit();      // *** get the fitted candidate
+				
+				qa.qaVtx("x",cfit,vntp[i]);
+				double chi2_vtx = vtxfitter.GetChi2();     // *** and the chi^2 of the fit
+				vntp[i]->Column("chi2vtx", (Float_t) chi2_vtx);
+			}	
+	
 			vntp[i]->DumpData();
 		}
 	}
