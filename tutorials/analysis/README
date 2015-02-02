@@ -1,0 +1,97 @@
+#######################################
+README quickana.C, quickfimsana.C
+#######################################
+
+The two macros 
+
+- quickana.C
+- quickfsimana.C
+
+
+offer a very quick and convenient way of performing an analysis and creating a corresponding ntuple without the need to write an analysis macro yourself. They use the class
+PndSimpleCombiner and the corresponding task PndSimpleCombinerTask. If you want to write your own analysis macro, you can also make use of just PndSimpleCombiner inside to
+shortcut your combinatorics.
+
+
+----------------
+quickana.C
+----------------
+
+In case you already have a file containing AOD (PndPidCandidates) you just need to perform the analysis part
+
+ USAGE:\n";
+ quickana.C+( <input>, <decay>, [nevt], [parms], [fastsim] )
+    <input>    : input file name with PndPidCandidates
+    <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'. Considering charged conjugates is default unless you specify 'nocc' for individual decays
+    [nevt]     : number of events; default = 0 = all
+    [parms]    : parameters for the analysis separated by ':', e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc' see below
+    [fastsim]  : if running fast simulation, set this to 'true'. This adapts the pid algorithm for event shape computation of PndSimpleCombinerTask 
+                 (not for PndSimpleCombiner! this is done via parameter string)
+
+The string <decay> specifying the decay pattern to be reconstructed is a concatenation of the needed subdecays separated by ';'. Please note that you need to define any list in 
+advance of its usage.
+
+*** Example: You want to reconstruct pbarpSystem -> D_s+ D*_0s- with D_s+- -> phi pi+-, phi -> K+ K- and D*_0s- -> D_s- pi0, pi0 -> gamma gamma for data stored in dsds0.root. Note
+             that the charged conjugates are already considered, so you don't need to define the decay D_s- -> phi pi-.
+
+  <decay> = "pi0->gamma gamma; phi -> K+ K-; D_s+ -> phi pi+; D*_0s- -> D_s- pi0; pbarpSystem -> D_s+ D*_0s-"
+
+The optional string [parms] lets you set some parameters for the analysis, some of them as passed to the PndSimpleCombiner class, some are used by PndSimpleCombinerTask. However they are 
+simply given in one string.
+
+- PndSimpleCombiner parameters:
+
+   - mwin     : mass window for all composites
+   - mwin(X)  : mass window for composite 'X'; X (or cc of X) has to appear in decay. E.g. m(D_s+)=0.4 cuts +-0.2 GeV around nominal D_s+ mass 
+   - emin     : minimum energy threshold for neutrals, e.g. 0.1 = 100 MeV energy threshold neutrals
+   - pmin     : minimum momentum threshold for charged, e.g. 0.15 = 150 MeV/c momentum threshold for tracks
+   - pid      : PID criterion ("All","VeryLoose","Loose","Tight","VeryTight","Best") for all species
+   - pide, pidmu, pidpi, pidk, pidp : PID criterion for specific species; overrides previous setting by 'pid' if specified afterwards
+   - algo     : PID algorithm (e.g. "PidAlgoEmcBayes;PidAlgoDrc" or "PidChargedProbability") for all species
+   - algoe, ... algop : PID algorithm for specific species, overrides previous setting by 'algo' if specified afterwards
+
+- PndSimpleCombinerTask parameters:
+ 
+   - fit4c       : Performs a 4 constraint fit on the last decay specified (assuming, that only this one can match the full energy)    
+   - fitvtx      : Performs vertex fits on all decays having at least two final state tracks
+   - qamc        : Dump out an ntuple with mc information
+   - qaevtshape  : Fill event shape variables in ntuples (needs more output space)
+
+*** Example: You want to 
+   - apply a general mass cut on all resonances of +-250 MeV, a +-50 MeV mass cut on the phi and a +-15 MeV cut on the pi0. 
+   - 4C fit should be applied. 
+   - The PID criterion should be loose for all particles in general.
+   - PID = tight for kaons. 
+   - The energy threshold for gammas shall be 50 MeV.
+   - Dumpout of MC ntuple and event shape variables is desired.
+
+  [parms] = "mwin=0.5:mwin(phi)=0.1:mwin(pi0)=0.03:fit4c:pid=Loose:pidk=Tight:emin=0.05:qamc:qaevtshape"
+
+
+----------------
+quickfsimana.C
+----------------
+
+In case you don't have AOD data but want to take a quick look into some channel, you can run FastSim previously by providing a proper decay file (or use DPM to check background behaviour).
+
+ USAGE:\n";
+ quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )
+    <pref>     : output file names prefix
+    <decfile>  : decfile; 'DPM' uses DPM generator instead
+    <mom>      : pbar momentum
+    <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'. charged conjugate is include unless you specify 'nocc' for certain decay
+    [nevt]     : number of events; default = 1000
+    [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'
+    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+
+The specifications to <decay> and [parms] is exactly as above, you only need to specify the decay to be generated.
+
+*** Example: You want to run 1000 events of the 'standard' 
+
+  - pbarp -> J/psi pi+ pi-, J/psi -> e+ e- @ p_pbar = 6.23 GeV (i.e. at psi(2S) energy); 
+  - perform 4c fit
+  - the decay file is 'pp_jpsi2pi.dec'
+  - mass windows are +- 300 MeV
+
+ quickfsimana.C("jpsi2pi","pp_jpsi2pi.dec",6.23,"J/psi -> e+ e-; pbarpSystem -> J/psi pi+ pi-",1000,"pbarpSystem","fit4c:mwin=0.6")
+
