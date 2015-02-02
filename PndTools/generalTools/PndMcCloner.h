@@ -37,6 +37,7 @@ class PndMcCloner : public FairTask
   void FindUsedMCIndices();  
   void CloneMCTrack();
   void CloneAndCleanMCTrack();
+  void CorrectMotherIndices();
   void CorrectPidIndices();
 
   /** Input array of PndMCTrack **/

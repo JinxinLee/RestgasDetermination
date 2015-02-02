@@ -102,6 +102,7 @@ void PndMcCloner::Exec(Option_t* opt) {
     {  
       FindUsedMCIndices();
       CloneAndCleanMCTrack();
+      CorrectMotherIndices();
       CorrectPidIndices();
     }
 }
@@ -128,6 +129,18 @@ void PndMcCloner::FindUsedMCIndices() {
   // with this index and all the mother indices
 
   Int_t nCands = 0;
+
+  // First store primary MC tracks
+  nCands = fInputArray->GetEntriesFast();
+  for (Int_t imc=0; imc<nCands; imc++)
+    {
+       PndMCTrack *mctrack = (PndMCTrack*)fInputArray->At(imc);
+       if (mctrack->GetMotherID()==-1)
+         {
+           mapMCIndex[imc] = imc;
+         }
+       else break;
+    }
 
   nCands = fPidChargedArray->GetEntriesFast();
   for (Int_t iPid=0; iPid<nCands; iPid++)
@@ -171,7 +184,7 @@ void PndMcCloner::FindUsedMCIndices() {
 // -----   Protected method FindUsedMcIndices   --------------------------------------------
 void PndMcCloner::CloneAndCleanMCTrack()
 {
-  // Copy only the MCTracks which were used
+  // Copy only the MCTracks which were used, and update the mother indices
 
   for (std::map<Int_t,Int_t>::iterator it=mapMCIndex.begin(); it!=mapMCIndex.end(); ++it)
     {
@@ -184,7 +197,23 @@ void PndMcCloner::CloneAndCleanMCTrack()
 }
 // -------------------------------------------------------------------------
 
-// -----   Protected method FindUsedMcIndices   --------------------------------------------
+
+// -----   Protected method CorrectMotherIndices   --------------------------------------------
+void PndMcCloner::CorrectMotherIndices()
+{
+  // Loop over the new MCTrack TClonesArray and update the mother indices
+  Int_t nmc = 0;
+  nmc = fOutputArray->GetEntriesFast();
+  for (Int_t imc=0; imc<nmc; imc++)
+    {
+      PndMCTrack *mctrack = (PndMCTrack*)fOutputArray->At(imc);
+      Int_t motherID = mctrack->GetMotherID();
+      Int_t secondMotherID = mctrack->GetSecondMotherID();
+      if (motherID!=-1) mctrack->SetMotherID(mapMCIndex[motherID]);
+      if (secondMotherID!=-1) mctrack->SetSecondMotherID(mapMCIndex[secondMotherID]);
+    }
+}
+// -----   Protected method CorrectMotherIndices   --------------------------------------------
 void PndMcCloner::CorrectPidIndices()
 {
   // Loop over Pid Candidates and set the mc indices with the new value
