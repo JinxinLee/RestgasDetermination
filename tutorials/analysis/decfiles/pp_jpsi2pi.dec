@@ -1,0 +1,15 @@
+noPhotos
+
+Decay pbarpSystem0
+  1.0 J/psi pi+ pi-	PHSP; 
+Enddecay
+
+Decay pbarpSystem
+  1.0 J/psi pi+ pi-	PHSP; 
+Enddecay
+
+Decay J/psi
+  1.0 e+ e-		PHSP;
+Enddecay
+
+End
