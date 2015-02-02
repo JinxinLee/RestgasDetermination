@@ -1721,6 +1721,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     double tmpiz, tmpjz, tmpiphi, tmpjphi;
 
 
+    if(first.size() != 0 && second.size() != 0) {
+
     for(int ihit = 0; ihit < first.size(); ihit++) {
       int hitiskeid = first[ihit];
       PndTrkSkewHit *skewhiti = (PndTrkSkewHit*) skewhitlist.GetHit(hitiskeid);
@@ -1746,7 +1748,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
 
     double fitm3 = (tmpiz - tmpjz) / (tmpiphi - tmpjphi);
-    double fitq3 = tmpiz - linem * tmpiphi;
+    double fitq3 = tmpiz - fitm3 * tmpiphi;
 
     if(fDisplayOn) {
       display->cd(4);
@@ -1850,12 +1852,18 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
 
     // PndTrkTrack *finaltrack2 = new PndTrkTrack(finalcluster, xc2, yc2, R2);
+    finaltrack.SetCluster(fFinalCluster);
+    finaltrack.SetZ0(z0);
+    finaltrack.SetTanL(tanl);
+    }
+    else {
+      finaltrack.SetZ0(-999);
+      finaltrack.SetTanL(-999);
+    } 
 
     finaltrack.SetCluster(fFinalCluster);
     finaltrack.SetCenter(xc2, yc2);
     finaltrack.SetRadius(R2);
-    finaltrack.SetZ0(z0);
-    finaltrack.SetTanL(tanl);
 
     // clusterlist.AddCluster(finalcluster);
     fTrackList->AddTrack(&finaltrack);
