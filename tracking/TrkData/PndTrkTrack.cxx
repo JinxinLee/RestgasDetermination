@@ -62,12 +62,35 @@ PndTrkTrack::PndTrkTrack(PndTrack *trk)  :  fRefHit(NULL), fCluster(PndTrkCluste
   fPhiMax = ComputePhi(trk->GetParamLast().GetPosition());
   if(fPhiMax > 180) fPhiMax -= 360;
 
+  if(fCharge > 0 && fPhiMin < fPhiMax) fPhiMin += 360;
+  else if(fCharge < 0 && fPhiMin > fPhiMax) fPhiMax += 360;
 
 
 }
 
+PndTrkTrack::PndTrkTrack(const PndTrkTrack &track) :  fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {
+  *this = track;
+}
+
+
 PndTrkTrack::~PndTrkTrack() {
   delete fRefHit;
+}
+
+
+// operator equals
+PndTrkTrack& PndTrkTrack::operator=(const PndTrkTrack &track) {
+  fRefHit = track.fRefHit;
+  fCluster = track.fCluster;
+  fCenterX = track.fCenterX;
+  fCenterY = track.fCenterY;
+  fRadius = track.fRadius;
+  fTanL = track.fTanL;
+  fZ0 = track.fZ0;
+  fCharge = track.fCharge;
+  fPhiMin = track.fPhiMin;
+  fPhiMax = track.fPhiMax;
+  return *this;
 }
 
 Bool_t PndTrkTrack::operator==(PndTrkTrack track)  {
@@ -294,21 +317,26 @@ TVector3 PndTrkTrack::ComputeMomentumAtPosition(TVector3 position, TVector3 &new
   roty = fCharge * myrad.X();
 
 
-  //  cout << "COMPUTE MOMENTUM " << endl;
+//   cout << "COMPUTE MOMENTUM " << fRadius << endl;
   Double_t pt = 0.006 * fRadius;
 
-  //  cout << "pt " << pt << endl;
+//   cout << "pt " << pt << endl;
   Double_t pl = -999;
   if(fTanL != -999) pl = pt * fTanL;
-  //  cout << "pl " << pl << " tanl " << fTanL << endl;
+//   cout << "pl " << pl << " tanl " << fTanL << endl;
 
   Double_t ptot = TMath::Sqrt(pt * pt + pl * pl);
 
+
+//   cout << rotx << " " << roty << endl;
   momentum.SetX(rotx); // CHECK magnitude?
   momentum.SetY(roty); // CHECK magnitude?
+  momentum.SetZ(0.); // CHECK magnitude?
+  //   momentum.Print();
   momentum.SetMag(pt);
+  //   momentum.Print();
   momentum.SetZ(pl);
-
+  //  momentum.Print();
   return momentum;
 }
 

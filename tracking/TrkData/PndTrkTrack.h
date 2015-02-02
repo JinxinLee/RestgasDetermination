@@ -25,8 +25,11 @@ class PndTrkTrack : public TObject
   PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius);
   PndTrkTrack(double x, double y, double radius);
   PndTrkTrack(PndTrack *trk);
-  ~PndTrkTrack();    
+  PndTrkTrack(const PndTrkTrack& track);
+ 
+ ~PndTrkTrack();    
 
+  PndTrkTrack& operator=(const PndTrkTrack& track); 
 
   Bool_t operator==( PndTrkTrack track) ; // CHECK this needs to be changed
 
