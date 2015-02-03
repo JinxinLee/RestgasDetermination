@@ -282,6 +282,7 @@ InitStatus PndGemTrackFinderQA::Init() {
   
   // Get and check FairRootManager
   FairRootManager* ioman = FairRootManager::Instance();
+  ioman->SetUseFairLinks(kTRUE);
   if( !ioman ) {
     cout << "-E- "<< GetName() <<"::Init: "
 	 << "RootManager not instantised!" << endl;
@@ -754,10 +755,11 @@ Int_t PndGemTrackFinderQA::FindMatchingPoint(Int_t gemHitIndex) {
   Int_t    bestPointIndex = -1;  
   Double_t bestPointValue =  0.;
 
-  if ( gemHit->GetNLinks() != 2 ) {
-    cout << "THERE ARE " << gemHit->GetNLinks() << " FOR HIT " << gemHitIndex << " IN EVENT " << fNofEvents << endl;
-  }
-  if ( gemHit->GetNLinks() == 2 ) {
+  // if ( gemHit->GetNLinks() != 2 ) {
+  //   cout << "THERE ARE " << gemHit->GetNLinks() << " FOR HIT " << gemHitIndex << " IN EVENT " << fNofEvents << endl;
+  // }
+  //  if ( gemHit->GetNLinks() == 2 ) {
+  // IT SHOULD BE REDONE TO TAKE THE BEST MATCHING MC POINT
     Int_t maxPnt0 = -1, maxPnt1 = -1;
     std::vector<Int_t> pointVector0;
     std::vector<Int_t> pointVector1;
@@ -810,7 +812,7 @@ Int_t PndGemTrackFinderQA::FindMatchingPoint(Int_t gemHitIndex) {
 	}
       }
     }
-  }
+  
   if ( printMCMatching ) {
     cout << "RETURNING " << bestPointIndex << " (with probability " << bestPointValue << " %)" << endl;
   }

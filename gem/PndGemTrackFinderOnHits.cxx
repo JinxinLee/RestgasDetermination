@@ -81,6 +81,7 @@ void PndGemTrackFinderOnHits::Init() {
 
   // Get and check FairRootManager
   FairRootManager* ioman = FairRootManager::Instance();
+  ioman->SetUseFairLinks(kTRUE);
   if( !ioman ) {
     cout << "-E- "<< GetName() <<"::Init: "
 	 << "RootManager not instantised!" << endl;
