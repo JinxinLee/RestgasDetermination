@@ -323,7 +323,9 @@ InitStatus PndGemFindHits::Init() {
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
 
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
   ioman->SetUseFairLinks(kTRUE);
+#endif
 
   if ( fUseClusters ) 
     fDigis = (TClonesArray*) ioman->GetObject("GEMCluster");

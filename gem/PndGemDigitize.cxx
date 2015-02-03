@@ -563,7 +563,10 @@ InitStatus PndGemDigitize::Init() {
 
   // Get input array 
   FairRootManager* ioman = FairRootManager::Instance();
+
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
   ioman->SetUseFairLinks(kTRUE);
+#endif
 
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   fPoints = (TClonesArray*) ioman->GetObject("GEMPoint");

@@ -282,7 +282,11 @@ InitStatus PndGemTrackFinderQA::Init() {
   
   // Get and check FairRootManager
   FairRootManager* ioman = FairRootManager::Instance();
+
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
   ioman->SetUseFairLinks(kTRUE);
+#endif
+
   if( !ioman ) {
     cout << "-E- "<< GetName() <<"::Init: "
 	 << "RootManager not instantised!" << endl;
