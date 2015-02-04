@@ -40,7 +40,7 @@ modified by A. Sanchez for hyp purpose
 #include "PndPidCandidate.h"
 //#include "RhoTools/TEventShape.h"
 #include "RhoBase/RhoCandList.h"
-#include "PndEventInfo.h"
+//#include "PndEventInfo.h"
 #include "RhoBase/RhoFactory.h"
 //#include "RhoBase/TRho.h"
 
@@ -270,28 +270,7 @@ void PndHypMicroWriter::Exec(Option_t* opt)
     int ii,jj;
    
     
-    /*      for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj]; 
-    
-    
-    //Extend matrix for energy (with default pion hypothesis)
-    double invE = 1./lv.E();
-   //  mat[0+3][3+3] = mat[3+3][0+3] = (lv.X()*mat[0+3][0+3]+lv.Y()*mat[0+3][1+3]+lv.Z()*mat[0+3][2+3])*invE;
-//     mat[1+3][3+3] = mat[3+3][1+3] = (lv.X()*mat[0+3][1+3]+lv.Y()*mat[1+3][1+3]+lv.Z()*mat[1+3][2+3])*invE;
-//     mat[2+3][3+3] = mat[3+3][2+3] = (lv.X()*mat[0+3][2+3]+lv.Y()*mat[1+3][2+3]+lv.Z()*mat[2+3][2+3])*invE;
-//     mat[3+3][3+3] = (lv.X()*lv.X()*mat[0+3][0+3]+lv.Y()*lv.Y()*mat[1+3][1+3]+lv.Z()*lv.Z()*mat[2+3][2+3]
-// 		     +2.0*lv.X()*lv.Y()*mat[0+3][1+3]
-// 		     +2.0*lv.X()*lv.Z()*mat[0+3][2+3]
-// 		     +2.0*lv.Y()*lv.Z()*mat[1+3][2+3])*invE*invE;
-    
-//     mat[3+3][4-4] = mat[4-4][3+3] = (lv.X()*mat[0+3][4-4]+lv.Y()*mat[1+3][4-4]+lv.Z()*mat[2+3][4-4])*invE;
-//     mat[3+3][5-4] = mat[5-4][3+3] = (lv.X()*mat[0+3][5-4]+lv.Y()*mat[1+3][5-4]+lv.Z()*mat[2+3][5-4])*invE;
-//     mat[3+3][6-4] = mat[6-4][3+3] = (lv.X()*mat[0+3][6-4]+lv.Y()*mat[1+3][6-4]+lv.Z()*mat[2+3][6-4])*invE;
-    
-    //tcand->SetCov7(mat);
-    
-    //l.Add(*tcand);
-
-    */
+   
      unsigned int detId, hitId;
     unsigned int numhits=0,mvdhits=0,stthits=0,tpchits=0;
     
@@ -314,12 +293,9 @@ void PndHypMicroWriter::Exec(Option_t* opt)
 	  default: tpc_hitidx[tpchits]=hitId; if(tpchits<1000) tpchits++;break;
 	  }
       }
-<<<<<<< .mine
-    micro->SetMvdHits(numhits);
-=======
+
     micro->SetMvdHits(numhits);
 
->>>>>>> .r26986
     //micro->SetSttHitIndexArray(stthits, stt_hitidx);
     //micro->SetTpcHitIndexArray(tpchits, tpc_hitidx);
     
@@ -415,42 +391,6 @@ void PndHypMicroWriter::Exec(Option_t* opt)
 // -------------------------------------------------------------------------
 
 
-// void PndHypMicroWriter::propagate(TLorentzVector &l, TVector3 &p, float charge)
-// {
-//   double x0=p.X()/100;
-//   double y0=p.Y()/100;
-//   double z0=p.Z()/100;
-  
-//   double px0=l.Px();
-//   double py0=l.Py();
-//   double pz0=l.Pz();
-  
-//   double B=2;
-  
-//   double pt=sqrt(px0*px0+py0*py0);
-//   double lambda=pz0/pt;
-//   double s_t=z0/lambda;
-//   double a=-0.2998*B*charge;
-//   double rho=a/pt;
-    
-//   double cosrs=cos(rho*s_t);
-//   double sinrs=sin(rho*s_t);
-  
-//   double px = px0*cosrs + py0*sinrs;
-//   double py = py0*cosrs - px0*sinrs;
-//   double pz = pz0;
-  
-//   double x=x0 - px/a*sinrs + py/a*(1-cosrs); 
-//   double y=y0 - py/a*sinrs - px/a*(1-cosrs); 
-//   double z=z0 - lambda*s_t;
-  
-//   l.SetX(px);
-//   l.SetY(py);
-//   l.SetZ(pz);
-  
-//   p.SetX(x*100);
-//   p.SetY(y*100);
-//   p.SetZ(z*100);
-// }
+
 
 ClassImp(PndHypMicroWriter)
