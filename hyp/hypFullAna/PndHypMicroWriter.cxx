@@ -38,7 +38,7 @@ modified by A. Sanchez for hyp purpose
 
 #include "RhoBase/RhoCandidate.h"
 #include "PndPidCandidate.h"
-#include "RhoTools/TEventShape.h"
+//#include "RhoTools/TEventShape.h"
 #include "RhoBase/RhoCandList.h"
 #include "PndEventInfo.h"
 #include "RhoBase/RhoFactory.h"
@@ -309,7 +309,8 @@ void PndHypMicroWriter::Exec(Option_t* opt)
 	  default: tpc_hitidx[tpchits]=hitId; if(tpchits<1000) tpchits++;break;
 	  }
       }
-    micro->SetMvdHitIndexArray(mvdhits, mvd_hitidx);
+    micro->SetMvdHits(numhits);
+
     //micro->SetSttHitIndexArray(stthits, stt_hitidx);
     //micro->SetTpcHitIndexArray(tpchits, tpc_hitidx);
     
