@@ -338,7 +338,7 @@ InitStatus PndGemFindHits::Init() {
 
   // Test Register output array
   fHitsTemp = new TClonesArray("PndGemHit", 1000);
-  ioman->Register("GEMHitTemp", "temp Hit in GEM", fHitsTemp, kTRUE);
+  ioman->Register("GEMHitTemp", "temp Hit in GEM", fHitsTemp, kFALSE);
   
   // Create sectorwise digi sets
   MakeSets();
