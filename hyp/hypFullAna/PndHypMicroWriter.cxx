@@ -26,7 +26,7 @@ modified by A. Sanchez for hyp purpose
 
 #include "GFTrack.h"
 #include "LSLTrackRep.h"
-
+#include "GeaneTrackRep.h"
 #include "PndHypHit.h"
 
 #include "TVector3.h"
@@ -230,23 +230,26 @@ void PndHypMicroWriter::Exec(Option_t* opt)
       std::cout<< "Discarding track. Status flag !=0" <<std::endl;
       continue;
     }
-    LSLTrackRep* myrep=dynamic_cast<LSLTrackRep*>(tr1->getTrackRep(0));//tr1->getCardinalRep());
+    
+    //LSLTrackRep* myrep=dynamic_cast<LSLTrackRep*>(tr1->getTrackRep(0));//tr1->getCardinalRep());
+    GeaneTrackRep* myrep=dynamic_cast<GeaneTrackRep*>(tr1->getTrackRep(0));
+
     TVectorD d(6);
     //TVector3 vtx;
     
-    d = myrep->getGlobal();
+    //d = myrep->getGlobal();
     //TVector3 pos =tr1->getPos();
-    //TVector3 pos2 =tr1->getTrackRep(0)->getPos();
-    //TVector3 mom =tr1->getTrackRep(0)->getMom();
+    TVector3 pos =tr1->getTrackRep(0)->getPos();
+    TVector3 mom =tr1->getTrackRep(0)->getMom();
     
    //  std::cout<< "pos1 "<<pos.x()<<" "<<pos.x()<<" "<<pos.z()<<std::endl;
 //     std::cout<< "pos2 "<<pos2.x()<<" "<<pos2.x()<<" "<<pos2.z()<<std::endl;
 //     std::cout<< "mom "<<mom.x()<<" "<<mom.x()<<" "<<mom.z()<<std::endl;
 
-    TVector3 vtx(d[0],d[1],d[2]);
+    TVector3 vtx(pos.x(),pos.y(),pos.z());//d[0],d[1],d[2]);
    
     TLorentzVector lv;
-    lv.SetXYZM(d[3],d[4],d[5],0.13957);
+    lv.SetXYZM(mom.x(),mom.y(),mom.z(),0.13957);//d[3],d[4],d[5],0.13957);
    
     //std::cout<< "pos glob "<<d[0]<<" "<<d[1]<<" "<<d[2]<<std::endl;
 //     std::cout<< "mom glob "<<d[3]<<" "<<d[4]<<" "<<d[5]<<std::endl;
@@ -262,12 +265,12 @@ void PndHypMicroWriter::Exec(Option_t* opt)
     
     //set the convariance matrix of tcand
     
-    TMatrixD globalCov = myrep->getGlobalCov();
-    TMatrixD mat(7,7);
+    /*  TMatrixD globalCov = myrep->getGlobalCov();*/
+	TMatrixD mat(7,7);
     int ii,jj;
    
     
-      for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj]; 
+    /*      for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj]; 
     
     
     //Extend matrix for energy (with default pion hypothesis)
@@ -287,6 +290,8 @@ void PndHypMicroWriter::Exec(Option_t* opt)
     //tcand->SetCov7(mat);
     
     //l.Add(*tcand);
+
+    */
      unsigned int detId, hitId;
     unsigned int numhits=0,mvdhits=0,stthits=0,tpchits=0;
     
@@ -309,8 +314,12 @@ void PndHypMicroWriter::Exec(Option_t* opt)
 	  default: tpc_hitidx[tpchits]=hitId; if(tpchits<1000) tpchits++;break;
 	  }
       }
+<<<<<<< .mine
+    micro->SetMvdHits(numhits);
+=======
     micro->SetMvdHits(numhits);
 
+>>>>>>> .r26986
     //micro->SetSttHitIndexArray(stthits, stt_hitidx);
     //micro->SetTpcHitIndexArray(tpchits, tpc_hitidx);
     
@@ -334,7 +343,7 @@ void PndHypMicroWriter::Exec(Option_t* opt)
     //myrep->extrapolate(pinit);
     // myrep->setReferencePlane(pinit);
    
-    TVector3 pos(0,0,-76.5);
+    /* TVector3 pos(0,0,-76.5);
     GFDetPlane pfin(pos,TVector3(1,0,0),TVector3(0,1,0));
 
     TVector3 dist,fin;
@@ -342,8 +351,9 @@ void PndHypMicroWriter::Exec(Option_t* opt)
      TMatrixT<double> state(5,1);
      TMatrixT<double> cov(5,5);
      GFDetPlane p;
-     dist=myrep->getPos(pfin) ;
-     micro->SetPosition(dist);
+    */
+     // dist=myrep->getPos(pfin) ;
+     //micro->SetPosition(dist);
 
      //std::cout<< (micro->GetPosition()).x()<<std::endl;
      //dist = myrep->extrapolateToPoca(pos,state,cov,p);

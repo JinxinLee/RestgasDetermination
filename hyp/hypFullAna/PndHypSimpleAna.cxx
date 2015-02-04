@@ -124,10 +124,10 @@ InitStatus PndHypSimpleAna::Init() {
 
   */
  //hvtx2[0]=new TH2F("hvtx201","vertex positions (x,z)",200,0.03,1.,200,0.03,1.);
- hvtx2[0]=new TH2F("hvtx201","vertex positions (x,z)",100,0.03,0.15,100,0.03,0.15);
-  hvtx2[1]=new TH2F("hvtx202","vertex positions (x,z)",100,0.03,0.15,100,0.03,0.15);
-  hvtx2[2]=new TH2F("hvtx203","vertex positions (x,z)",100,0.03,0.15,100,0.03,0.15);
-  hvtx2[3]=new TH2F("hvtx204","vertex positions (x,z)",100,0.03,0.15,100,0.03,0.15);
+ hvtx2[0]=new TH2F("hvtx201","vertex positions (x,z)",100,0.0,0.15,100,0.0,0.15);
+  hvtx2[1]=new TH2F("hvtx202","vertex positions (x,z)",100,0.0,0.15,100,0.0,0.15);
+  hvtx2[2]=new TH2F("hvtx203","vertex positions (x,z)",100,0.0,0.15,100,0.0,0.15);
+  hvtx2[3]=new TH2F("hvtx204","vertex positions (x,z)",100,0.0,0.15,100,0.0,0.15);
   hvtx2[4]=new TH2F("hvtx205","vertex positions (x,z)",100,0.03,0.15,100,0.03,0.15);
   hvtx2[5]=new TH2F("hvtx206","vertex positions (x,z)",100,0.03,0.15,100,0.03,0.15);
   hvtx2[6]=new TH2F("hvtx207","vertex positions (x,z)",100,0.03,0.15,100,0.03,0.15);
@@ -228,39 +228,6 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
   piCands.Select(minusCands ,piSel);
   // ppCands.Select(plusCands ,pSel);
 
-  /* ppiCands.Combine(minusCands,plusCands);
-  //ppiCands.Combine(pplusCands,piminusCands);
-  ppiCands.Select(LambMSel);
-  
-  for (int la=0;la<ppiCands.GetLength();la++)
-    {
-      Lamb->Fill((ppiCands.Get(la)->P4()).M());
-      
-    }
-  
-  xiCands.Combine(ppiCands,minusCands);
-  
-  RhoCandidate *t4;
-  RhoCandListIterator itX(xiCands);
-  while (t4=itX.Next()) 
-    {
-      ximass->Fill(t4->Mass());
-    }
-  */
-
-  /* for (int c=0;c<chargedCands.GetLength();c++)
-    {
-      bool notinlist = true;
-      for (int d=0;d<xiCands.GetLength();d++)
-	{
-	  if(chargedCands[c].Overlaps(xiCands.Get(d)))notinlist =false;
-	  if(notinlist)nonOvCands.Append(chargedCands[c]);
-	  
-	}
-    }
-  */
-  
-  //cout <<"charg non Overlap:"<<nonOvCands.GetLength()<<endl;
 
   //cout <<"pi-:"<<piCands.GetLength()<<endl;
  
@@ -333,50 +300,6 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 	    
 	}
 	
-/*	for (int k=0;k<npi;k++)
-	  {
-	    RhoCandidate pion=piCands[k];
-	    
-	    TLorentzVector v4=pion.P4(); 
-	    TVector3 v3 = v4.Vect(); 
-	    //VAbsMicroCandidate cm;
-	    //cm = pi.GetMicroCandidate();
-	    PndHypHit*  hp=(PndHypHit*)fMcCands->At((pion.GetMicroCandidate().GetMvdHits())-1);
-	    PndHypPoint* pop=(PndHypPoint*)fMc->At(hp->GetRefIndex());
-	    if(pop==0)continue;
-	    
-	    PndMCTrack* moc=(PndMCTrack*)fMcTr->At(pop->GetTrackID());
-	    if(moc==0)continue;
-	    MotherId= moc->GetMotherID();
-	    if  (MotherId==-1)Motherpdg = moc->GetPdgCode();
-	    else {
-	      PndMCTrack *mother =(PndMCTrack*)fMcTr->At(MotherId);
-	      Motherpdg = mother->GetPdgCode();
-	    }
-	    //****cut on PCA to primary vertex has to be added ****
-		TVector3 vx=moc->GetStartVertex();
-	    
-	    //cout<<" event "<<pop->GetEventID()<<" "<<endl;
-	    //****PID has to be added ****
-		//if(moc->GetPdgCode()!=-211)continue;
-	    //if(vx.x()==0&&vx.y()==0&&vx.z()==-76.5)continue;
-		if((Motherpdg>1020000000||Motherpdg>1010000000)&&moc->GetPdgCode()==-211)ppi2->Fill(v3.Mag());
-	    
-	    if((Motherpdg>1020000000||Motherpdg>1010000000)&&v3.Mag()>0.5)
-		{
-		  Int_t Z,A,L;
-		  
-		  cout<<" mala part "<<moc->GetPdgCode()<<" "<<Motherpdg<<endl;
-		  cout<<" event "<<pop->GetEventID()<<" "<<endl;
-		  Z= GetIonCharge(Motherpdg,A,L);
-		  e->Fill(pop->GetEventID());
-		  
-		  if(L==1)pid->Fill(Z,A);
-		  if(L==2)pidh->Fill(Z,A);
-		}
-	    
-	  }
-*/
 	
 	if(dsi==1){
 	  //if(npi==1){
@@ -387,8 +310,13 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 	  TVector3 pi3v = vpim.Vect();
 	  //cout<<ii<<" "<<pi3v.Mag()<<endl;
 	  
-	  if(pi3v.Mag()<0.2)hvtx2[0]->Fill(pi3v.Mag(),0.);
-	  
+	  if(pi3v.Mag()<0.09){
+	    // hvtx2[0]->Fill(0.,pi3v.Mag());
+	    hvtx2[2]->Fill(0.,pi3v.Mag());}
+	  if(pi3v.Mag()>0.09){
+	    // hvtx2[0]->Fill(pi3v.Mag(),0.);
+	    hvtx2[3]->Fill(pi3v.Mag(),0.);
+	  }
 	}
 
 
@@ -489,7 +417,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			
 			//
 			if((pi3v.Mag()>0.112&&pi3v.Mag()<0.126)&&(pp3v.Mag()>0.09&&pp3v.Mag()<0.103)){
-			  hvtx2[2]->Fill(pi3v.Mag(),pp3v.Mag());
+			  // hvtx2[2]->Fill(pi3v.Mag(),pp3v.Mag());
 			  if(mapp[po->GetEventID()]==0)  {
 			    mapp[po->GetEventID()]=Motherpdg; 
 			    //   SetEnergySpectra(po->GetEventID(),1);//cout<<" Motherpdg Li9LL cl1 "<<Motherpdg<<endl;
@@ -498,7 +426,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			
 			
 			if((pi3v.Mag()>0.128&&pi3v.Mag()<0.147)&&(pp3v.Mag()>0.0898&&pp3v.Mag()<0.109)){
-			  hvtx2[9]->Fill(pi3v.Mag(),pp3v.Mag());
+			  // hvtx2[9]->Fill(pi3v.Mag(),pp3v.Mag());
 			  
 			  //cout<<" Motherpdg Li9LL cl2 "<<Motherpdg<<" "<<mc->GetPdgCode()<<endl;
 			  if(mapp[po->GetEventID()]==0)  {
@@ -523,7 +451,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			  //	if(Motherpdg==1020040100||Motherpdg==1010050100){
 			  
 			  //cout<<" pi3v >pp3v "<<po->GetEventID()<<endl;
-			  hvtx2[3]->Fill(pi3v.Mag(),pp3v.Mag());
+			  // hvtx2[3]->Fill(pi3v.Mag(),pp3v.Mag());
 			  //if((pi3v.Mag()>0.12&&pi3v.Mag()<0.14)&&(pp3v.Mag()>0.065&&pp3v.Mag()<0.08)) {
 			  //cout<<" Be10LL "<<Motherpdg<<" "<<mc->GetPdgCode()<<endl;
 			  
@@ -550,7 +478,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			  
 			  //cout<<" pi3v >pp3v "<<po->GetEventID()<<endl;
 			  
-			  hvtx2[4]->Fill(pi3v.Mag(),pp3v.Mag());
+			  // hvtx2[4]->Fill(pi3v.Mag(),pp3v.Mag());
 			  // cout<<" Middle "<<Motherpdg<<" "<<mc->GetPdgCode()<<endl;
 			  if(mapp[po->GetEventID()]==0)  {
 			    mapp[po->GetEventID()]=Motherpdg;
@@ -574,7 +502,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			  
 			  //cout<<" pi3v >pp3v "<<po->GetEventID()<<endl;
 			  
-			  hvtx2[5]->Fill(pi3v.Mag(),pp3v.Mag());
+			  //  hvtx2[5]->Fill(pi3v.Mag(),pp3v.Mag());
 			  
 			  //cout<<" Top "<<Motherpdg<<" "<<mc->GetPdgCode()<<endl;
 			  if(mapp[po->GetEventID()]==0)  {
@@ -587,10 +515,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			}
 			
 			
-			/*	
-			if((pi3v.Mag()>0.095&&pi3v.Mag()<0.11)&&(pp3v.Mag()>0.09&&pp3v.Mag()<0.103)) SetEnergySpectra(po->GetEventID(),1);
-			if((pi3v.Mag()>0.112&&pi3v.Mag()<0.126)&&(pp3v.Mag()>0.09&&pp3v.Mag()<0.103)) SetEnergySpectra(po->GetEventID(),2);
-			if((pi3v.Mag()>0.126&&pi3v.Mag()<0.14)&&(pp3v.Mag()>0.09&&pp3v.Mag()<0.103)) SetEnergySpectra(po->GetEventID(),3);*/
+		
 		      }
 		    
 		    if(pi3v.Mag()<pp3v.Mag()) {
@@ -628,7 +553,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			 {
 			   //if(Motherpdg==1020030090||(Motherpdg==1010040090&& MotherId!=-1)){
 			   
-			   hvtx2[2]->Fill(pp3v.Mag(),pi3v.Mag());
+			   //  hvtx2[2]->Fill(pp3v.Mag(),pi3v.Mag());
 			   //if((pp3v.Mag()>0.12&&pp3v.Mag()<0.14)&&(pi3v.Mag()>0.065&&pi3v.Mag()<0.08)) {
 			   if(mapp[po->GetEventID()]==0)  {
 			     mapp[po->GetEventID()]=Motherpdg;
@@ -661,7 +586,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 		       if((pp3v.Mag()>0.097&&pp3v.Mag()<0.106)&&(pi3v.Mag()>0.094&&pi3v.Mag()<0.103)) {
 			 // if(Motherpdg==1020040100||Motherpdg==1010050100){
 			 
-			 hvtx2[3]->Fill(pp3v.Mag(),pi3v.Mag());
+			 //	 hvtx2[3]->Fill(pp3v.Mag(),pi3v.Mag());
 			 //
 			 if(mapp[po->GetEventID()]==0)  {
 			   mapp[po->GetEventID()]=Motherpdg;
@@ -680,7 +605,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 		       if((pp3v.Mag()>0.128&&pp3v.Mag()<0.147)&&(pi3v.Mag()>0.110&&pi3v.Mag()<0.124)) {
 			 //if(Motherpdg==1020040120||Motherpdg==1010050120){
 			 
-			 hvtx2[4]->Fill(pp3v.Mag(),pi3v.Mag());
+			 //	 hvtx2[4]->Fill(pp3v.Mag(),pi3v.Mag());
 			 //cout<<" Middle "<<Motherpdg<<" "<<mc->GetPdgCode()<<endl;
 			 //
 			 if(mapp[po->GetEventID()]==0)  {
@@ -705,7 +630,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			  
 			  //cout<<" pi3v >pp3v "<<po->GetEventID()<<endl;
 			  
-			  hvtx2[5]->Fill(pp3v.Mag(),pi3v.Mag());
+			 //  hvtx2[5]->Fill(pp3v.Mag(),pi3v.Mag());
 			  //cout<<" top "<<Motherpdg<<" "<<mc->GetPdgCode()<<endl;
 			 //SetEnergySpectra(po->GetEventID(),5);
 			   if(mapp[po->GetEventID()]==0)  {
@@ -716,10 +641,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 			   }
 		       }
 		       
-		      /*
-		      	if((pp3v.Mag()>0.095&&pp3v.Mag()<0.11)&&(pi3v.Mag()>0.09&&pi3v.Mag()<0.103)) SetEnergySpectra(po->GetEventID(),1);
-			if((pp3v.Mag()>0.112&&pp3v.Mag()<0.126)&&(pi3v.Mag()>0.09&&pi3v.Mag()<0.103)) SetEnergySpectra(po->GetEventID(),2);
-			if((pp3v.Mag()>0.126&&pp3v.Mag()<0.14)&&(pi3v.Mag()>0.09&&pi3v.Mag()<0.103)) SetEnergySpectra(po->GetEventID(),3);*/
+		   
 		    }
 		    
 		    //ppimass->Fill(compo->Mass());
@@ -741,58 +663,7 @@ void PndHypSimpleAna::Exec(Option_t* opt) {
 }
 // -------------------------------------------------------------------------
 
-/*void PndHypSimpleAna::SetEnergySpectra(int event,int cluster)
-{
-  Float_t E;
-  E=0;
-  if(fGe->GetEntriesFast()!=0)
-    {
-      //cout<<" ge entries "<<fGe->GetEntriesFast()<<endl;
-      PndHypGePoint *evCheck;
-      evCheck=(PndHypGePoint*)fGe->At(0);
-      
-      if(event == evCheck->GetEventID()){
-	cout<<" event "<<event<<" is correlated "<<evCheck->GetEventID()<<endl;
-	
-	for(int entries=0;entries<fGe->GetEntriesFast();entries++)
-	  {
-	    
-	    PndHypGePoint *ge;
-	    ge=(PndHypGePoint*)fGe->At(entries);
-	    
-	    E += ge->GetEnergyLoss();
-	  }
-      }
-    }
-  
-  
-  if(E>0.&&E<0.010)spectra[cluster]->Fill(E);
-}
-*/
 
- /*void PndHypSimpleAna::SetTotESpectra(int clus)
-{
-  Float_t E;
-  E=0;
-  if(fGe->GetEntriesFast()!=0)
-    {
-      //cout<<" ge entries total "<<fGe->GetEntriesFast()<<endl;
-      for(int entries=0;entries<fGe->GetEntriesFast();entries++)
-	  {
-	    
-	    PndHypGePoint *ge;
-	    ge=(PndHypGePoint*)fGe->At(entries);
-	    
-	    E += ge->GetEnergyLoss();
-	  }
-      }
-    
-  
-  
-  if(E>0.&&E<0.010)spectra[clus]->Fill(E);
-}
-
- */
 Int_t PndHypSimpleAna::GetIonCharge(Int_t ion,Int_t &mass,Int_t &str)
 {
   Int_t A,Z,L;
