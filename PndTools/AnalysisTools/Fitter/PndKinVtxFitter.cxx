@@ -222,6 +222,9 @@ Bool_t PndKinVtxFitter::Compute()
     //   TMatrixD V_al_new(V_al0);
     //  V_al_new-=V_al0*mD_t*Vd*mD*V_al0_t;
 
+    // protect against errors. RK: is that safe to do?
+    if(TMath::IsNaN(chi2_new[0][0])) continue;
+    
     double deltaChi=chi2_new[0][0]-chi2[0][0];
     //  Check chi^2. If better yes update the values ..............................
     if (deltaChi>0.1*chi2[0][0]) {continue;}
@@ -264,6 +267,9 @@ Bool_t PndKinVtxFitter::Compute()
     if(fVerbose) { cout <<" vertex Position is "<<vtx_new[0][0]<<" "<<vtx_new[1][0]<<" "<<vtx_new[2][0]<<endl; }
     if(fVerbose) { cout << " chi2 in iterartion" << " " << chi2[0][0] << endl; }
   } // end of iteration-loop
+
+  // tell that the fit failed if we have no updated chi2
+  if( TMath::IsNaN(chi2[0][0]) || chi2[0][0]==2000000. ) return kFALSE;
 
   TMatrixD al_new_vtx(7*nd,1);
   TMatrixD Va_new_vtx(7*nd,7*nd);
