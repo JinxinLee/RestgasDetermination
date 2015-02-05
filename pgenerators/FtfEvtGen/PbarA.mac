@@ -25,6 +25,9 @@ G4_C
 #generator
 ftfp
 //
+//switch off elastics?
+//#noElastics
+//
 #events
 1000                               
 //
