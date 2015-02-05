@@ -50,7 +50,7 @@ Bool_t PndVtxPRG::FitNode(RhoCandidate* b)
   Bool_t check = Calculate();
   if(check == kFALSE) {
     fChiSquare=-22222;
-    Error("PndVtxPRG::FitNode()","Fit failed for composite %p. Set chisquare to %i.",b,fChiSquare);
+    Error("PndVtxPRG::FitNode()","Fit failed for composite %p. Set chisquare to %f.",b,fChiSquare);
   }
   return check;
 }
