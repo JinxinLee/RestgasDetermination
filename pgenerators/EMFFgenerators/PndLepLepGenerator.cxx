@@ -12,7 +12,7 @@
 #include "FairPrimaryGenerator.h"
 
 // Default constructor
-PndLepLepGenerator::PndLepLepGenerator()
+PndLepLepGenerator::PndLepLepGenerator() : P(0), seed(0), particleID(-1), PDGParticleID(0), gegm(-1), cos_theta_min(0), cos_theta_max(1)
 {
 }
 

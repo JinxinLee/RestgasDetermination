@@ -12,7 +12,7 @@
 #include "FairPrimaryGenerator.h"
 
 // Default constructor
-PndPiPiGenerator::PndPiPiGenerator()
+PndPiPiGenerator::PndPiPiGenerator() : P(0), seed(0), cos_theta_min(0), cos_theta_max(1) 
 {
 }
 
