@@ -360,12 +360,12 @@ void PndGlobalTrackFitQA::CreateHistos() {
     Double_t ttm = ithe*5.;
     Double_t ttp = ttm+5.;
     fhMomentumImprovementVsPThetaBinned[ithe] = new TH2F(Form("hMomentumImprovementVsPThetaBin%d",ithe),
-							 Form("momentum improvement, %.1f < #theta < %.1f;p_{mc} [GeV/c];(p_{fit}-p{mc})/p_{mc} [%]",ttm,ttp),
+							 Form("momentum improvement, %.1f < #theta < %.1f;p_{mc} [GeV/c];(p_{fit}-p{mc})/p_{mc} [%%]",ttm,ttp),
 							 momBins,minMom,maxMom,yAxBins,minYAx,maxYAx);
     fHistoFList->Add(fhMomentumImprovementVsPThetaBinned[ithe]);
 
     fhThetaImprovementVsPThetaBinned[ithe] = new TH2F(Form("hThetaImprovementVsPThetaBin%d",ithe),
-						      Form("theta improvement, %.1f < #theta < %.1f;p_{mc} [GeV/c];(T_{fit}-T{mc})/T_{mc} [%]",ttm,ttp),
+						      Form("theta improvement, %.1f < #theta < %.1f;p_{mc} [GeV/c];(T_{fit}-T{mc})/T_{mc} [%%]",ttm,ttp),
 						      momBins,minMom,maxMom,yAxBins,minYAx,maxYAx);
     fHistoFList->Add(fhThetaImprovementVsPThetaBinned[ithe]);
   }
@@ -374,12 +374,12 @@ void PndGlobalTrackFitQA::CreateHistos() {
     Double_t tmm = imom*.5;
     Double_t tmp = tmm+.5;
     fhMomentumImprovementVsTMomBinned[imom] = new TH2F(Form("hMomentumImprovementVsTMomBin%d",imom),
-						       Form("momentum improvement, %.1f < |p| < %.1f;#theta_{mc} [deg];(p_{fit}-p{mc})/p_{mc} [%]",tmm,tmp),
+						       Form("momentum improvement, %.1f < |p| < %.1f;#theta_{mc} [deg];(p_{fit}-p{mc})/p_{mc} [%%]",tmm,tmp),
 						       theBins,minThe,maxThe,yAxBins,minYAx,maxYAx);
     fHistoFList->Add(fhMomentumImprovementVsTMomBinned[imom]);
 
     fhThetaImprovementVsTMomBinned[imom] = new TH2F(Form("hThetaImprovementVsTMomBin%d",imom),
-						    Form("theta improvement, %.1f < |p| < %.1f;#theta_{mc} [deg];(T_{fit}-T{mc})/T_{mc} [%]",tmm,tmp),
+						    Form("theta improvement, %.1f < |p| < %.1f;#theta_{mc} [deg];(T_{fit}-T{mc})/T_{mc} [%%]",tmm,tmp),
 						    theBins,minThe,maxThe,yAxBins,minYAx,maxYAx);
     fHistoFList->Add(fhThetaImprovementVsTMomBinned[imom]);
   }
