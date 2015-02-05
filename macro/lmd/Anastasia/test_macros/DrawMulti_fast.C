@@ -19,7 +19,7 @@
 #include "TChain.h"
 #include "TString.h"
 #include<iostream>
-
+#include <TROOT.h>
 #include "LmdQA/PndLmdDigiQ.h"
 using namespace std;
 int main(int nargs, char** args){
@@ -28,12 +28,13 @@ int main(int nargs, char** args){
 	if (nargs == 2) {
 	  momStr = args[1];
 	}
-  //	gROOT->Macro("$VMCWORKDIR/macro/lmd/Anastasia/test_macros/rootlogon.C");
+	gROOT->Macro("$VMCWORKDIR/macro/lmd/Anastasia/test_macros/rootlogon.C");
   //	TFile *f = new TFile("/home/karavdina/soft/pandaroot/macro/lmd/DPM_el_inel_15/Lumi_digi_0.root","READ");
   //	TFile *f = new TFile("/home/karavdina/soft/pandaroot/macro/lmd/DPMelinel_125000ev/mom_15/Lumi_DigisQA_0.root","READ");
 	TString fname = "/panda/myResults/ONLINE/DPM_el_inel_";
 	fname +=momStr;
 	fname +="/Lumi_DigisQA_0.root";
+	//	TString fname = "/panda/myResults/ONLINE/DPM_el_inel_1_5/Sample98/Lumi_DigisQA_0.root";//TEST
 	TString foutname = "MCtrk_in_25ns_";
 	foutname +=momStr;
 	foutname +="GeV.root";
@@ -51,18 +52,27 @@ int main(int nargs, char** args){
 	const double tfr=25;//[ns] time frame
 	int interrate = 40;//[ns] @ 1.5
 	if(momStr=="15") interrate=100;//@15
-	const int Nrun = 1e4*interrate;
+	//	const int Nrun = 1e4*interrate;
+	const int Nrun = 1e4;
 	//	TH2 *hMCtrkTime[5]; 
+	  int nbins=4e7;
 	TH1 *hMCtrkTime1D[5]; 
+	TH1 *hMCtrkTime1D_plot[5]; 
 	TH1 *hMCtrk[5]; 
 	//	TH2D *htev = new TH2D("htev",";ev; t,ns",1e3,0,1e6,1e4,0,1e8);
-	TLegend *leg = new TLegend(0.88,0.7,0.98,0.95);
+	TLegend *leg = new TLegend(0.85,0.65,0.98,0.95);
+	leg->SetFillColor(0);
+	leg->SetTextFont(42);
+	leg->SetTextSize(0.05);
 	for(int j=0;j<5;j++){
+	//	for(int j=0;j<4;j++){
 	  TString name = "hnMCtrk_25ns_pl";
 	  name +=j;
 	  TString name2 = name+"_time";
-	  //  TString plname = "plane #";
-	  TString plname = "sensors #"; //test for sensors
+	  TString name3 = name+"_time_plot";
+	  //	  TString plname = "plane #";
+	  //	  TString plname = "module #"; //test for modules
+	  TString plname = "sensor #"; //test for sensors
 	  plname +=j;
 	  TString title = "; time, ns; trk/25ns";
 	  TString title2 = "; trk/25ns";
@@ -70,14 +80,21 @@ int main(int nargs, char** args){
 	  //	  hMCtrkTime[j] = new TH2D(name2,title,1e4,0,2.5e5,2,0,2);
 	  //	  hMCtrkTime[j] = new TH2D(name2,title,1e2,0,2.5e3,10,0,10);
 	  //	  hMCtrkTime1D[j] = new TH1I(name2,title,4e4,0,1e5); //15 GeV
-	  hMCtrkTime1D[j] = new TH1I(name2,title,2e4,0,5e5);//1.5 GeV
+	  //hMCtrkTime1D[j] = new TH1I(name2,title,2e4,0,5e5);//1.5 GeV
+
+	  hMCtrkTime1D[j] = new TH1I(name2,title,nbins,0,nbins*25);//1 readout frame
+	  hMCtrkTime1D_plot[j] = new TH1I(name3,title,1e-3*nbins,0,1e-3*nbins*25);// 1readout frame
+
+	  // hMCtrkTime1D[j] = new TH1I(name2,title,0.25*nbins,0,nbins*25);//4 readout frames
+	  // hMCtrkTime1D_plot[j] = new TH1I(name3,title,1e-3*0.25*nbins,0,1e-3*nbins*25);//4 readout frames
 	  hMCtrk[j] = new TH1D(name,title2,1e2,0,1e2);
 	  hMCtrk[j]->SetLineWidth(2);
-	  hMCtrk[j]->SetMaximum(100);
+	  hMCtrk[j]->SetMaximum(110);
 	  hMCtrk[j]->SetLineColor(1+j);
 	  leg->AddEntry(hMCtrk[j],plname,"l");
 	}
 	int countMultiPX=0;
+	int countMultiMCin1PX=0;
 	int countTotPX = 0;
 	for (Int_t iEvent = 0; iEvent < nEvents; iEvent++) {
 	  //cout<<"Nrun = "<<Nrun<<endl;
@@ -89,19 +106,26 @@ int main(int nargs, char** args){
 		for (Int_t i=0; i<nDigi; i++){
 		  PndLmdDigiQ* DigiPoint = (PndLmdDigiQ*)(digiq_points->At(i)); // read digi hit
 		  int MCtrk = DigiPoint->GetMCtrkID();
+		  int nMCin1trk = DigiPoint->GetNIndices();
+		  int hf = DigiPoint->GetHalf();
+		  int sd = DigiPoint->GetSide();
 		  int pl = DigiPoint->GetPlane();
 		  int pl_act = pl;
+		  if(pl_act!=0 || hf!=0 || sd!=0) continue;//only 1st plane and 1st half
+		  //	  if(sd!=0) continue;//only side #0
 		  int senID = DigiPoint->GetSensorID();
 		  int moduleID = DigiPoint->GetModule();
-		  pl = senID; //test with sensors
-
-		  int sd = DigiPoint->GetSide();
+		  	  pl = senID; //test with sensors
+		  //	  pl = moduleID; //test with modules
+		  //	  cout<<"senID = "<<senID<<endl;
+	
 		  bool nSt=true;
 		  for(int imc=0;imc<MCid0.size();imc++)
 		    if(pl==0 && sd<1 && MCtrk==MCid0[imc]) nSt = false;
 		  if(pl==0){
 		    if(!nSt) countMultiPX++;
 		    else countTotPX++;
+		    if(nMCin1trk>1) countMultiMCin1PX++;
 		  }
 		  for(int imc=0;imc<MCid1.size();imc++)
 		    if(pl==1 && sd<1 && MCtrk==MCid1[imc]) nSt = false;
@@ -116,43 +140,47 @@ int main(int nargs, char** args){
 		    if(pl==1 && sd<1)  MCid1.push_back(MCtrk);
 		    if(pl==2 && sd<1)  MCid2.push_back(MCtrk);
 		    if(pl==3 && sd<1)  MCid3.push_back(MCtrk);
-		    if(pl==5 && sd<1)  MCid4.push_back(MCtrk);
+		    if(pl==4 && sd<1)  MCid4.push_back(MCtrk);
 
 	
-		  int hf = DigiPoint->GetHalf();
+		
 		  //	  int moduleID = 2*pl*5+hf*5+DigiPoint->GetModule();
 	
 		  //		  if(moduleID==0 && pl==0) cout<<"sensID: "<<senID<<endl;
 		  bool iSig = DigiPoint->GetFlSig();
-		  //if(iSig){ //only sig
-		  //if(!iSig){ //only bkg
+		  //	  if(iSig){ //only sig
+		  //	  if(!iSig){ //only bkg
 		  //	  if(0<1){ //all
-		  if(0<1 && pl<5){ //all, 5 sensors
-		  //		  if(0<1 && pl_act <1 && hf<1){ //all for modules of plane 0
+		  //  if(0<1 && pl<5){ //all, 5 sensors
+		  if(iSig && pl<5){ //sig, 5 sensors
+		  //	  if(0<1 && pl_act <1 && hf<1){ //all for modules of plane 0
+		  // if(!iSig && pl_act <1 && hf<1){ //signal for modules of plane 0
 		  //	   if(sd<1 && senID<200 && iSig){ //only side 0
 		     //	  if(sd<1 && moduleID==0){ 
 		    double tEv = DigiPoint->GetEvT();// global event time
 		    double tSt = DigiPoint->GetTimeStamp();//time within event
-		    double circ = iEvent/Nrun;
+		    double circ = double(iEvent)/Nrun;
 		    int run = circ;
 		    //    cout<<"run = "<<run<<" "<<Nrun<<" "<<iEvent<<endl;
 		    //	    double tTot = tEv+tSt;
 		    double tTot = run*1e4*interrate+tEv+tSt;
-		    //	    cout<<"tTot = "<<tTot<<endl;
+		    if(tTot<4e3)  cout<<iEvent<<" run = "<<run<<" interrate = "<<interrate<<" tTot = "<<tTot<<endl;
 		    //	    if(pl==0) htev->Fill(iEvent,tTot);
 		    //		    if(tTot>2e5) continue;
 		    //		    cout<<"Ev:"<<iEvent<<" modID:"<<moduleID<<" sensID: "<<senID<<" tTot = "<<tTot<<endl;
-		    int nMCin1trk = DigiPoint->GetNIndices();
+
 		    //	    hMCtrkTime[moduleID]->Fill(tTot,nMCin1trk);
 		    hMCtrkTime1D[pl]->Fill(tTot);
+		    hMCtrkTime1D_plot[pl]->Fill(tTot);
+		    //	    cout<<"tTot = "<<tTot<<" pl#"<<pl<<" nMCin1trk = "<<nMCin1trk<<" iSig="<<iSig<<endl;
 		  }
 		  }
 		}
 	}
 	//projectionZ
 	for(int j=0;j<5;j++){
-	  //	  for(int ij=0;ij<1e4;ij++){//x-axis
-	  for(int ij=0;ij<2e4;ij++){//x-axis
+	//	for(int j=0;j<4;j++){
+		  for(int ij=0;ij<nbins;ij++){//x-axis
 	    //	    for(int ik=0;ik<1;ik++){
 	    //	      int Ntrk = (hMCtrkTime[j]->GetBinContent(ij,ik));
 	    int Ntrk = (hMCtrkTime1D[j]->GetBinContent(ij));
@@ -167,8 +195,8 @@ int main(int nargs, char** args){
 	  }
 	}
 	TCanvas *c1 = new TCanvas ("trk_25ns","trk_25ns",600,800);
-	c1->Divide(1,2);
-	c1->cd(1);
+	c1->Divide(1,3);
+	c1->cd(2);
 	// hMCtrkTime1D[0]->Draw();
 	// c1->cd(2);
 	// hMCtrkTime1D[1]->Draw();
@@ -187,6 +215,7 @@ int main(int nargs, char** args){
 	hMCtrk[0]->Draw();
 
 	for(int j=1;j<5;j++){
+	//	for(int j=1;j<4;j++){
 	  double scl1 = 100.*1/(hMCtrk[j]->Integral());
 	  cout<<"scale for "<<j<<" "<<scl1<<" with int = "<<hMCtrk[j]->Integral()<<endl;
 	  hMCtrk[j]->Scale(scl1);
@@ -194,9 +223,20 @@ int main(int nargs, char** args){
 	}
 	leg->Draw();
 	//	c1->cd(6);
-	c1->cd(2);
+	c1->cd(1);
+	for(int jp=0;jp<5;jp++){
+	//	for(int jp=0;jp<4;jp++){
+	 hMCtrkTime1D_plot[jp]->SetLineColor(1+jp);
+	 hMCtrkTime1D_plot[jp]->SetLineWidth(2);
+	 if(jp==0) hMCtrkTime1D_plot[jp]->Draw();
+	 else hMCtrkTime1D_plot[jp]->Draw("same");
+	}
+	leg->Draw();
+	c1->cd(3);
 	TH1D*hsum[5];
 	for(int j=0;j<5;j++){
+	// TH1D*hsum[4];
+	// for(int j=0;j<4;j++){
 	  hsum[j] = (TH1D*)hMCtrk[j]->Clone("hsum");
 	  if(j>0) hsum[0]->Add(hsum[j]);
 	}
@@ -205,8 +245,10 @@ int main(int nargs, char** args){
 	hsum[0]->Draw();
 	c1->Print(foutname);
 
-	cout<<"TOT number of pixel on pl#0 "<<countTotPX+countMultiPX<<" number of multiple pixels "<<countMultiPX<<" ("
-	    << double(100.*countMultiPX/(countTotPX+countMultiPX))<<" %)"<<endl;
+	cout<<"TOT number of pixel on pl#0 "<<countTotPX+countMultiPX<<": number of multiple pixels "<<countMultiPX<<" ("
+	    << double(100.*countMultiPX/(countTotPX+countMultiPX))
+	    <<" %; number of pixels with contribution from diff MC "<<double(100.*countMultiMCin1PX/(countTotPX+countMultiPX))
+	    <<" %)"<<endl;
        // 	TCanvas c2;
        // 	c2.Divide(1,2);
        // for(int j=0;j<4;j++){

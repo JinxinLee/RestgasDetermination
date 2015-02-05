@@ -1,16 +1,17 @@
 void DrawTestTimeBased(){
-	TString fname = "/panda/myResults/ONLINE/DPM_el_inel_1_5/Sample98/Lumi_DigisQA_0.root";
+  	TString fname = "/panda/myResults/ONLINE/DPM_el_inel_1_5/Sample0/Lumi_DigisQA_0.root";
+  //	TString fname = "/panda/myResults/ONLINE/DPM_el_inel_1_5/Lumi_DigisQA_0.root";
 	TFile * fin = new TFile(fname,"READ");
 	TTree *tdigiQA = (TTree*)fin->Get("cbmsim");
 	int tIntrate = 40;
-	TH1 *htpl0_sig = new TH1I("htpl0_sig",";time, ns; fired pixels",500*tIntrate,0,500*tIntrate);
-	TH1 *htpl1_sig = new TH1I("htpl1_sig",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
-	TH1 *htpl2_sig = new TH1I("htpl2_sig",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
-	TH1 *htpl3_sig = new TH1I("htpl3_sig",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
-	tdigiQA->Project("htpl0_sig","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==0 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==0");
-	tdigiQA->Project("htpl1_sig","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==1 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==0");
-	tdigiQA->Project("htpl2_sig","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==2 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==0");
-	tdigiQA->Project("htpl3_sig","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==3 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==0");
+	TH1 *htpl0_sig = new TH1I("htpl0_sig",";time, ns; fired pixels",100*tIntrate,0,100*tIntrate);
+	TH1 *htpl1_sig = new TH1I("htpl1_sig",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
+	TH1 *htpl2_sig = new TH1I("htpl2_sig",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
+	TH1 *htpl3_sig = new TH1I("htpl3_sig",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
+	tdigiQA->Project("htpl0_sig","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==0 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==1");
+	tdigiQA->Project("htpl1_sig","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==1 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==1");
+	tdigiQA->Project("htpl2_sig","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==2 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==1");
+	tdigiQA->Project("htpl3_sig","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==3 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==1");
 	htpl0_sig->SetLineWidth(2);
 	htpl1_sig->SetLineWidth(2);
 	htpl2_sig->SetLineWidth(2);
@@ -36,10 +37,10 @@ void DrawTestTimeBased(){
 	leg_sig->Draw();
 
 	c1->cd(1);
-	TH1 *htpl0_all = new TH1I("htpl0_all",";time, ns; fired pixels",500*tIntrate,0,500*tIntrate);
-	TH1 *htpl1_all = new TH1I("htpl1_all",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
-	TH1 *htpl2_all = new TH1I("htpl2_all",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
-	TH1 *htpl3_all = new TH1I("htpl3_all",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
+	TH1 *htpl0_all = new TH1I("htpl0_all",";time, ns; fired pixels",100*tIntrate,0,100*tIntrate);
+	TH1 *htpl1_all = new TH1I("htpl1_all",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
+	TH1 *htpl2_all = new TH1I("htpl2_all",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
+	TH1 *htpl3_all = new TH1I("htpl3_all",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
 	tdigiQA->Project("htpl0_all","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==0 && LMDPixelDigisQ.fSide==0");
 	tdigiQA->Project("htpl1_all","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==1 && LMDPixelDigisQ.fSide==0");
 	tdigiQA->Project("htpl2_all","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==2 && LMDPixelDigisQ.fSide==0");
@@ -64,14 +65,14 @@ void DrawTestTimeBased(){
 	leg_all->Draw();
 
 	c1->cd(3);
-	TH1 *htpl0_bkg = new TH1I("htpl0_bkg",";time, ns; fired pixels",500*tIntrate,0,500*tIntrate);
-	TH1 *htpl1_bkg = new TH1I("htpl1_bkg",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
-	TH1 *htpl2_bkg = new TH1I("htpl2_bkg",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
-	TH1 *htpl3_bkg = new TH1I("htpl3_bkg",";time, ns; fired pixels",500*tIntrate,0*tIntrate,500*tIntrate);
-	tdigiQA->Project("htpl0_bkg","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==0 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==1");
-	tdigiQA->Project("htpl1_bkg","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==1 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==1");
-	tdigiQA->Project("htpl2_bkg","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==2 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==1");
-	tdigiQA->Project("htpl3_bkg","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==3 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==1");
+	TH1 *htpl0_bkg = new TH1I("htpl0_bkg",";time, ns; fired pixels",100*tIntrate,0,100*tIntrate);
+	TH1 *htpl1_bkg = new TH1I("htpl1_bkg",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
+	TH1 *htpl2_bkg = new TH1I("htpl2_bkg",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
+	TH1 *htpl3_bkg = new TH1I("htpl3_bkg",";time, ns; fired pixels",100*tIntrate,0*tIntrate,100*tIntrate);
+	tdigiQA->Project("htpl0_bkg","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==0 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==0");
+	tdigiQA->Project("htpl1_bkg","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==1 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==0");
+	tdigiQA->Project("htpl2_bkg","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==2 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==0");
+	tdigiQA->Project("htpl3_bkg","LMDPixelDigisQ.fEvTime","LMDPixelDigisQ.fPl==3 && LMDPixelDigisQ.fSide==0 && LMDPixelDigisQ.fSigfl==0");
 	htpl0_bkg->SetLineWidth(2);
 	htpl1_bkg->SetLineWidth(2);
 	htpl2_bkg->SetLineWidth(2);
