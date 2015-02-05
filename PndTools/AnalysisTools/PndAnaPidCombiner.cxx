@@ -216,7 +216,7 @@ TClonesArray* PndAnaPidCombiner::ReadTCA ( const TString& tcaname )
 {
   // Fetch a TCLonesArray from the framework by its root name
   if (tcaname == "") {
-    Warning ( "PndAnaPidCombiner::ReadTCA()","Empty TCA name.",tcaname.Data() );
+    Warning ( "PndAnaPidCombiner::ReadTCA()","Empty TCA name." );
     return NULL;
   }
   TClonesArray* tca = ( TClonesArray* ) fRootManager->GetObject ( tcaname.Data() );
