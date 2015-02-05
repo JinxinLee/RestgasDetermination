@@ -132,7 +132,7 @@ void PndEmcReadProto192Data::Exec(Option_t *){
 		if(cbevent>0){
 			lTaggerTree->GetEntry(cbevent-1);
 			if(lTaggerEventNum != cbevent){
-				printf("-E- PndEmcReadProto192Data: No Matching Tagger Event found for event %i\n",cbevent);
+				printf("-E- PndEmcReadProto192Data: No Matching Tagger Event found for event %li\n",cbevent);
 			}
 		}
 		if(lProto192Event->rawData[0]==65535){

@@ -106,7 +106,7 @@ void ReadMainzProto60v4::read_energy_factor(const char *filename){
 
 
 void ReadMainzProto60v4::PrintEvent(){
-	printf("Printing Event Number %i\n",NumberOfEvents);
+	printf("Printing Event Number %li\n",NumberOfEvents);
 	printf("ADCValues:\n");
 	for(Int_t row=0;row<6;row++){
 		for(Int_t col=0;col<10;col++){
