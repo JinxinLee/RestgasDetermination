@@ -1,15 +1,15 @@
 # The name of our project is "PANDAROOT".  CMakeLists files in this project can
-# refer to the root source directory of the project as ${PANDAROOT_SOURCE_DIR} 
-# or as ${CMAKE_SOURCE_DIR} and to the root binary directory of the project as 
+# refer to the root source directory of the project as ${PANDAROOT_SOURCE_DIR}
+# or as ${CMAKE_SOURCE_DIR} and to the root binary directory of the project as
 # ${PANDAROOT_BINARY_DIR} or ${CMAKE_BINARY_DIR}.
-# This difference is important for the base classes which are in FAIRROOT 
+# This difference is important for the base classes which are in FAIRROOT
 # and PANDAROOT.
 
 # Check if cmake has the required version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
 
 # Set name of our project to "PANDAROOT". Has to be done
-# after check of cmake version since this is a new feature                  
+# after check of cmake version since this is a new feature
 project(PANDAROOT)
 
 ENABLE_LANGUAGE(Fortran)
@@ -32,7 +32,7 @@ Else (FAIRBASE)
 EndIf (FAIRBASE)
 
 
-# where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ 
+# where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/
 # is checked
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 set(CMAKE_MODULE_PATH "${FAIRROOTPATH}/share/fairbase/cmake/modules"  ${CMAKE_MODULE_PATH})
@@ -91,12 +91,12 @@ CHECK_OUT_OF_SOURCE_BUILD()
 # message
 IF(NOT UNIX)
   MESSAGE(FATAL_ERROR "You're not on an UNIX system. The project was up to now only tested on UNIX systems, so we break here. If you want to go on please edit the CMakeLists.txt in the source directory.")
-ENDIF(NOT UNIX)  
+ENDIF(NOT UNIX)
 
 # Check if we are at GSI
 # If we are GSI set some variables
 IF(NOT DEFINED ENV{SIMPATH})
-   MESSAGE(FATAL_ERROR "You did not define the environment variable SIMPATH which is nedded to find the external packages. Please set this variable and execute cmake again.") 
+   MESSAGE(FATAL_ERROR "You did not define the environment variable SIMPATH which is nedded to find the external packages. Please set this variable and execute cmake again.")
 ENDIF(NOT DEFINED ENV{SIMPATH})
 
 SET(SIMPATH $ENV{SIMPATH})
@@ -105,8 +105,8 @@ SET(SIMPATH $ENV{SIMPATH})
 # directory
 CHECK_EXTERNAL_PACKAGE_INSTALL_DIR()
 
-# Set the build type. Possibilities are None, Debug, Release, 
-# RelWithDebInfo and MinSizeRel 
+# Set the build type. Possibilities are None, Debug, Release,
+# RelWithDebInfo and MinSizeRel
 #SET(CMAKE_BUILD_TYPE Debug)
 
 # searches for needed packages
@@ -152,7 +152,7 @@ SET(LD_LIBRARY_PATH  ${CBMLIBDIR} ${LD_LIBRARY_PATH})
 #  Message("Set default install path ...")
 #ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
-install(DIRECTORY geometry DESTINATION pnd_install 
+install(DIRECTORY geometry DESTINATION pnd_install
           PATTERN ".svn" EXCLUDE
           )
 
@@ -196,9 +196,10 @@ add_subdirectory (PndTools/generalTools)
 add_subdirectory (PndTools/buffers)
 add_subdirectory (pnddata)
 add_subdirectory (passive)
-add_subdirectory (field)  
+add_subdirectory (field)
 add_subdirectory (pgenerators)
 add_subdirectory (pgenerators/DpmEvtGen)
+add_subdirectory (pgenerators/FtfEvtGen)
 add_subdirectory (pgenerators/EvtGen)
 add_subdirectory (pgenerators/PndFlukaGen)
 add_subdirectory (pgenerators/EMFFgenerators)
@@ -260,15 +261,15 @@ add_subdirectory (softrig)
 
 if(RULE_CHECKER_FOUND)
 
-  ADD_CUSTOM_TARGET(RULES 
+  ADD_CUSTOM_TARGET(RULES
      COMMAND ${RULE_CHECKER_SCRIPT1} ${CMAKE_BINARY_DIR} viol > violations.html
      DEPENDS $ENV{ALL_RULES})
 
 endif(RULE_CHECKER_FOUND)
 
 WRITE_CONFIG_FILE(config.sh)
- 
-configure_file(${CMAKE_SOURCE_DIR}/CTestCustom.cmake 
+
+configure_file(${CMAKE_SOURCE_DIR}/CTestCustom.cmake
                ${CMAKE_BINARY_DIR}/CTestCustom.cmake
               )
 
