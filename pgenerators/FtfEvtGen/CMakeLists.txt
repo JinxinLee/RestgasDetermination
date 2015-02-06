@@ -44,16 +44,16 @@ main.cc
 
 add_library(FtfEvtGen SHARED ${FTFEVTGEN_SRCS})
 #target_link_libraries(FtfEvtGen ${ROOT_LIBRARIES})
-target_link_libraries(FtfEvtGen Core RIO Physics Tree G4clhep G4global G4geometry G4physicslists EG)
+target_link_libraries(FtfEvtGen Core RIO Physics Tree G4clhep G4materials G4global G4geometry G4physicslists EG)
 set_target_properties(FtfEvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
 
 add_executable(FtfEvtGen_exe ${FTFEVTGEN_EXE_SRCS})
 if (CMAKE_SYSTEM_NAME MATCHES Darwin)
-  target_link_libraries(FtfEvtGen_exe ${ROOT_LIBRARIES} G4clhep G4global G4geometry G4physicslists EG "FtfEvtGen")
+  target_link_libraries(FtfEvtGen_exe ${ROOT_LIBRARIES} G4materials G4clhep G4global G4geometry G4physicslists EG "FtfEvtGen")
 else (CMAKE_SYSTEM_NAME MATCHES Darwin)
-  target_link_libraries(FtfEvtGen_exe G4clhep G4global G4geometry G4physicslists EG FtfEvtGen)
+  target_link_libraries(FtfEvtGen_exe G4materials G4clhep G4global G4geometry G4physicslists EG FtfEvtGen)
 endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
 set_target_properties(FtfEvtGen_exe PROPERTIES OUTPUT_NAME FTFGen)
 
