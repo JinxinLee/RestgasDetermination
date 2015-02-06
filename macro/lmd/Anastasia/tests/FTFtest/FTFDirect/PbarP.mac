@@ -30,5 +30,6 @@ ftfp
 //             Plab for proj. hadron, or per nucleon for AA-collisions
 #Plab(GeV/c)
 15
+#noElastics
 #run
 #exit
