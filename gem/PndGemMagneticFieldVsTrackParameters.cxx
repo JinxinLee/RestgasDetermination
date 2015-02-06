@@ -171,6 +171,7 @@ InitStatus PndGemMagneticFieldVsTrackParameters::Init() {
 
 // -----   Private method ReInit   -----------------------------------------
 InitStatus PndGemMagneticFieldVsTrackParameters::ReInit() {
+  return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
@@ -206,6 +207,7 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill1StationHistograms() {
     fhThetaVsRadiusVsMomentumAll              ->Fill(tMom,pRadius/pZ,tTheta);
 
   }
+  return 0;
 }
 // -------------------------------------------------------------------------
 
@@ -288,6 +290,7 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill2StationsHistograms() {
 
     }
   }
+  return 0;
 }
 // -------------------------------------------------------------------------
 
@@ -403,7 +406,7 @@ void PndGemMagneticFieldVsTrackParameters::CreateHistos() {
 						nofPhi2Bins,phi2Bins,
 						nofPhi1Bins,phi1Bins);
       fhTrackPhiVsCalcPhi   [crHist] = new TH2F(Form("fhTrackPhiVsCalcPhi_s%d_s%d",istat1+1,istat2+1),
-						Form("Track MC phi vs track calculated phi;#phi_{calc} [#circ];#phi_{MC} [#circ]",istat1+1,istat2+1),
+						Form("Track MC phi vs track calculated phi, stat%d vs stat%d;#phi_{calc} [#circ];#phi_{MC} [#circ]",istat1+1,istat2+1),
 						nofPhi1Bins,phi1Bins,
 						nofPhi1Bins,phi1Bins);
       fHistoList->Add(fhTrackPhiVsHitPhis[crHist]);
