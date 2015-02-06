@@ -24,14 +24,14 @@ pbeam=$mom
 # ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
-path=${VMCWORKDIR}/macro/lmd/test/mom_${momStr}/
 
-mkdir -p ${path}
 #number of trks per event
 numTrks=1
 #number of events
 numEv=1000
 
+path=${VMCWORKDIR}/macro/lmd/test/mom_${momStr}/
+mkdir -p ${path}
 ##############
 # set flags
 
@@ -62,13 +62,18 @@ WrAllMC=true
 ##############
 
 # #simulation with Box generator
-root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+# root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
 #  modeDPM=0 #inel
 # #    modeDPM=1 #el+inel
 # #    modeDPM=2 #el
 #  root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\)
+
+
+# simulation with FTF
+# Attention! For inelastic events only add "#noElastics" /pgenerators/FtfEvtGen/PbarP.mac !
+root -l -b -q runLumiPixel0SimFTFDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162\)
 
 # #digi
      root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
