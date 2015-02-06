@@ -308,7 +308,7 @@ int main(){
   int Plabstep= 30;
   // double Plab_min=1.5;
   // double Plab_max=15;
-  //int Plabstep= 2;
+  //  int Plabstep= 2;
   TGraphErrors *resUn2mrad = new TGraphErrors(Plabstep);
   resUn2mrad->SetMarkerStyle(20);
   resUn2mrad->SetMarkerColor(32);
@@ -329,7 +329,7 @@ int main(){
     double dP = 1e-5*plab;
     double plab2 = plab-dP;
     double plab3 = plab+dP;
-
+    cout<<"plab2 = "<<plab2<<" plab3 = "<<plab3<<endl;
     //for main mom value ----------------------------------
   //get patameters for E760 model from the fit
   //par[3]={sigT,b,rho,dsig/dt}
@@ -422,19 +422,22 @@ int main(){
   TGraphErrors *gr_cs_th = new TGraphErrors(nst,th_val,cs_val,0,cs_uncert);
   gr_cs_th->GetXaxis()->SetTitle("#theta, mrad");
   gr_cs_th->GetYaxis()->SetTitle("d#sigma/dt, mb/(GeV/c)^{2}");
-  gr_cs_th->SetFillColor(4);
+  gr_cs_th->SetFillColor(1);
+  gr_cs_th->SetLineColor(1);
   gr_cs_th->SetFillStyle(3001);
 
  TGraphErrors *gr_cs_thpl = new TGraphErrors(nst,th_val,cs_valpl,0,cs_uncert);
   gr_cs_thpl->GetXaxis()->SetTitle("#theta, mrad");
   gr_cs_thpl->GetYaxis()->SetTitle("d#sigma/dt, mb/(GeV/c)^{2}");
-  gr_cs_thpl->SetFillColor(2);
+  gr_cs_thpl->SetFillColor(4);
+  gr_cs_thpl->SetLineColor(4);
   gr_cs_thpl->SetFillStyle(3001);
 
  TGraphErrors *gr_cs_thmn = new TGraphErrors(nst,th_val,cs_valmn,0,cs_uncert);
   gr_cs_thmn->GetXaxis()->SetTitle("#theta, mrad");
   gr_cs_thmn->GetYaxis()->SetTitle("d#sigma/dt, mb/(GeV/c)^{2}");
-  gr_cs_thmn->SetFillColor(3);
+  gr_cs_thmn->SetFillColor(2);
+  gr_cs_thmn->SetLineColor(2);
   gr_cs_thmn->SetFillStyle(3001);
 
   TMultiGraph *mgr_cs_th = new TMultiGraph();
@@ -566,6 +569,14 @@ int main(){
   mg_cs_relun_th->Draw("AL");
   mg_cs_relun_th->GetXaxis()->SetTitle("#theta, mrad");
   mg_cs_relun_th->GetYaxis()->SetTitle("#Delta(d#sigma/dt)/(d#sigma/dt), %");
+  TLegend *legUn2 = new TLegend(0.87,0.64,0.99,0.99);
+  legUn2->SetFillColor(0);
+  legUn2->SetTextFont(42);
+  legUn2->SetTextSize(0.05);
+  legUn2->AddEntry(gr_cs_un_th,"model","l");
+  legUn2->AddEntry(gr_cs_relun_th_mn,"P_{lab}-#DeltaP","l");
+  legUn2->AddEntry(gr_cs_relun_th_pl,"P_{lab}+#DeltaP","l");
+  legUn2->Draw();
   c2.cd(6);
   gr_cs_relun_t->Draw("AL");
   TString fname = "cs_and_uncert_Plab_";

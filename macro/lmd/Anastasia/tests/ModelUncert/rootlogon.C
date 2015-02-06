@@ -10,7 +10,7 @@ rootlogon()
   gStyle->SetTitleYSize(0.05);
   gStyle->SetTitleXSize(0.05);
   gStyle->SetTitleSize(0.05,"Z");
-  //  gStyle->SetTitleOffset(0.9,"Y");
+  gStyle->SetTitleOffset(0.9,"Y");
   // gStyle->SetTitleOffset(0.9,"X");
   gStyle->SetTitleOffset(0.95,"X");
   gStyle->SetHatchesLineWidth(3);
