@@ -62,7 +62,7 @@ WrAllMC=true
 ##############
 
 # #simulation with Box generator
-# root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
 #  modeDPM=0 #inel
@@ -71,9 +71,9 @@ WrAllMC=true
 #  root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\)
 
 
-# simulation with FTF
-# Attention! For inelastic events only add "#noElastics" /pgenerators/FtfEvtGen/PbarP.mac !
-root -l -b -q runLumiPixel0SimFTFDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162\)
+# # simulation with FTF
+# # Attention! For inelastic events only add "#noElastics" /pgenerators/FtfEvtGen/PbarP.mac !
+# #root -l -b -q runLumiPixel0SimFTFDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162\)
 
 # #digi
      root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
