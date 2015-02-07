@@ -38,8 +38,8 @@ class EvtParticle;
 
 class EvtPP_EtacGamma : public EvtDecayProb {
 public:
-    EvtPP_EtacGamma() {};
-    EvtPP_EtacGamma(const EvtPP_EtacGamma& orig) {};
+    EvtPP_EtacGamma();
+    EvtPP_EtacGamma(const EvtPP_EtacGamma& orig);
     virtual ~EvtPP_EtacGamma() { };
   std::string getName() {    return "PP_ETAC_GAMMA";};
   EvtDecayBase* clone() {    return new EvtPP_EtacGamma();};
@@ -55,7 +55,7 @@ private:
     // masses
     double mp, mPsi, mEtaC, mPsi2S, mHc;
     double wPsi, wEtaC, wPsi2S, wHc;
-    double s;
+//    double s;
     
     //constants
     double diag1, diag2, diag3, diag4;

@@ -6,10 +6,23 @@
  */
 
 #include "EvtGenModels/EvtPP_Pi0Eta.hh"
+#define diag1 1
+#define diag2 1
+#define diag3 1
+#define diag4 1
 
-EvtPP_Pi0Eta::EvtPP_Pi0Eta() {}
 
-EvtPP_Pi0Eta::EvtPP_Pi0Eta(const EvtPP_Pi0Eta& orig) {}
+EvtPP_Pi0Eta::EvtPP_Pi0Eta() {
+  mp=0.938;
+  mPi=0.140;
+  mEta=0.5;
+  first_run=true;  
+}
+
+EvtPP_Pi0Eta::EvtPP_Pi0Eta(const EvtPP_Pi0Eta& orig) {
+  mp=orig.mp; mPi=orig.mPi; mEta=orig.mEta;
+  first_run=orig.first_run;
+}
 
 EvtPP_Pi0Eta::~EvtPP_Pi0Eta() {}
 
@@ -19,19 +32,9 @@ EvtDecayBase *EvtPP_Pi0Eta::clone() {return new EvtPP_Pi0Eta;}
 
 void EvtPP_Pi0Eta::init() {
     checkNArg(0);
-    diag1 = 1;
-    diag2 = 1;
-    diag3 = 1;
-    diag4 = 1;
-    mp = EvtPDL::getMass(EvtPDL::getId("p+"));
-    mPi=EvtPDL::getMass(EvtPDL::getId("pi0"));
-    mEta=EvtPDL::getMass(EvtPDL::getId("eta"));
-    first_run = true;
-    nCall=0;
 };
 
 void EvtPP_Pi0Eta::decay(EvtParticle* root) {
-    nCall++;
     root->initializePhaseSpace(getNDaug(), getDaugs());
     if(first_run) {
         first_run=false;

@@ -9,12 +9,24 @@
 
 #include "EvtGenModels/EvtPP_Pi0Gamma.hh"
 
-EvtPP_Pi0Gamma::EvtPP_Pi0Gamma() {};
-EvtPP_Pi0Gamma::EvtPP_Pi0Gamma(const EvtPP_Pi0Gamma& orig) {};
+#define diag1 1
+#define diag2 1
+#define diag3 1
+#define diag4 1
+
+EvtPP_Pi0Gamma::EvtPP_Pi0Gamma() {
+  mp=0.938;
+  mPi=0.140;
+  first_run = true;  
+};
+EvtPP_Pi0Gamma::EvtPP_Pi0Gamma(const EvtPP_Pi0Gamma& orig) {
+  mp=orig.mp; mPi=orig.mPi;
+  first_run=orig.first_run;  
+};
+
 EvtPP_Pi0Gamma::~EvtPP_Pi0Gamma() {};
 
 void EvtPP_Pi0Gamma::decay(EvtParticle* root) {
-    nCall++;
     root->initializePhaseSpace(getNDaug(), getDaugs());
     if(first_run) {
         first_run=false;
@@ -43,12 +55,6 @@ void EvtPP_Pi0Gamma::decay(EvtParticle* root) {
 
 void EvtPP_Pi0Gamma::init() {
     checkNArg(0);
-    diag1 = 1;
-    diag2 = 1;
-    diag3 = 1;
-    diag4 = 1;
     mp = EvtPDL::getMass(EvtPDL::getId("p+"));
     mPi=EvtPDL::getMass(EvtPDL::getId("pi0"));
-    first_run = true;
-    nCall=0;
 }

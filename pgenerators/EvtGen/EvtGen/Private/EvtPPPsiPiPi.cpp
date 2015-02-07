@@ -28,6 +28,22 @@ void EvtPPPsiPiPi::initProbMax()  {
   
 }
 
+EvtPPPsiPiPi::EvtPPPsiPiPi() {
+  diag1=1; diag2=1; diag3=1; diag4=1;
+  mp=0.938;  mpi=0.130;  mPsi=3.1; mmu=0; mPsi2S=3.7; mHc=3.7;
+  mp2=pow(mp,2); mp4=pow(mp,4);
+  mpi2=pow(mpi,2); mpi4=pow(mpi,4);
+  mPsi2=pow(mPsi,2); mPsi4=pow(mPsi,4);
+}
+
+EvtPPPsiPiPi::EvtPPPsiPiPi(const EvtPPPsiPiPi& orig) {
+    diag1=orig.diag1; diag2=orig.diag2; diag3=orig.diag3; diag4=orig.diag4;
+    mp=orig.mp; mpi=orig.mpi; mPsi=orig.mPsi; mmu=orig.mmu; mPsi2S=orig.mPsi2S; mHc=orig.mHc;
+    mp2=pow(mp,2); mp4=pow(mp,4);
+    mpi2=pow(mpi,2); mpi4=pow(mpi,4);
+    mPsi2=pow(mPsi,2); mPsi4=pow(mPsi,4);
+}
+
 void EvtPPPsiPiPi::init() {
     checkNArg(3);
     diag1 = getArg(0); diag2=getArg(1); diag3=getArg(2); diag4=diag3;
@@ -44,9 +60,6 @@ void EvtPPPsiPiPi::init() {
     mp2=pow(mp,2); mp4=pow(mp,4);
     mpi2=pow(mpi,2); mpi4=pow(mpi,4);
     mPsi2=pow(mPsi,2); mPsi4=pow(mPsi,4);
-
-    
-
 }
 
 void EvtPPPsiPiPi::decay(EvtParticle* root) {

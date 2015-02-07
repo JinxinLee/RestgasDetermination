@@ -48,8 +48,6 @@ private:
 
     double mp, mPi,s;
     //constants
-    double diag1, diag2, diag3, diag4;
-    int nCall;
     bool first_run;
 };
 

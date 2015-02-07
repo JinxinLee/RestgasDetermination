@@ -76,8 +76,8 @@ void EvtPP_EtacGamma::decay(EvtParticle* root) {
 
     root->initializePhaseSpace(getNDaug(), getDaugs());
 
+    double s = root->getP4Lab().mass2();
     if (first_run) {
-        s = root->getP4Lab().mass2();
         double beta = sqrt(1 - 4 * mp * mp / s);
         p2 = EvtVector4R(mp, 0, 0, 0);
         p1 = root->getP4Lab() - p2;
@@ -92,9 +92,22 @@ void EvtPP_EtacGamma::decay(EvtParticle* root) {
     setProb(matr2(s, t, u));
 }
 
+EvtPP_EtacGamma::EvtPP_EtacGamma() {
+    mp=0; mPsi=0; wPsi=0; mPsi2S=0; wPsi2S=0; mHc=0; wHc=0; mEtaC=0;
+    diag1=1; diag2=1; diag3=1; diag4=1;    
+    first_run = true;      
+};
+
+EvtPP_EtacGamma::EvtPP_EtacGamma(const EvtPP_EtacGamma& orig) {
+  mp=orig.mp; 
+  mPsi=orig.mPsi; wPsi=orig.wPsi; 
+  mPsi2S=orig.mPsi2S; wPsi2S=orig.wPsi2S;
+  mHc=orig.mHc; wHc=orig.wHc;
+  mEtaC=orig.mEtaC;
+};
+
 void EvtPP_EtacGamma::init() {
     checkNArg(0);
-    
     mp = EvtPDL::getMass(EvtPDL::getId("p+"));
     mPsi = EvtPDL::getMass(EvtPDL::getId("J/psi"));
     wPsi = EvtPDL::getWidth(EvtPDL::getId("J/psi"));
@@ -103,11 +116,5 @@ void EvtPP_EtacGamma::init() {
     mHc = EvtPDL::getMass(EvtPDL::getId("h_c"));
     wHc = EvtPDL::getWidth(EvtPDL::getId("h_c"));
     mEtaC = EvtPDL::getMass(EvtPDL::getId("eta_c"));
-
-    diag1=1; diag2=1; diag3=1; diag4=1;
-
-    nCall = 0;
-
-    first_run = true;
 }
 

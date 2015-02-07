@@ -28,6 +28,11 @@
 #include <iostream>
 #include <fstream>
 
+// #define diag1 1
+// #define diag2 1
+// #define diag3 1
+// #define diag4 1
+
 //double const _ECM=3.518;
 
 class EvtParticle;
@@ -35,7 +40,7 @@ class EvtParticle;
 
 class EvtPPPsiPiPi:public  EvtDecayProb {
 public:
-    EvtPPPsiPiPi() { };
+    EvtPPPsiPiPi();
     EvtPPPsiPiPi(const EvtPPPsiPiPi& orig);
     virtual ~EvtPPPsiPiPi();
 
@@ -47,7 +52,6 @@ public:
 
 private:
     double E,s;
-    double diag1, diag2, diag3, diag4;
     // momenta
     EvtVector4R p1,p2,p,k1,k2,q;
     
@@ -61,6 +65,7 @@ private:
         mpi, mpi2, mpi4, 
         mPsi, mPsi2, mPsi4, 
         mPsi2S,mHc, mmu, GammaPsi2S, GammaHc;
+    double diag1, diag2, diag3, diag4;
 
     double Matr2_pi();
     double Matr2_2();
