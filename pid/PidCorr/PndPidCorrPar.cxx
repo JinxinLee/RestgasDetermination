@@ -14,7 +14,10 @@ ClassImp(PndPidCorrPar)
 
 PndPidCorrPar::PndPidCorrPar(const char* name,const char* title,
 			     const char* context)
-    : FairParGenericSet(name,title,context) 
+    : FairParGenericSet(name,title,context),
+      fTofRadius(-1.), fTofCut(-1.), fEmc12Thr(-1.), fEmc12Radius(-1.), fEmc12Cut(-1.), fEmcNeutralQCut(-1.),
+      fMdtRadius(-1.), fMdtCut(-1.), fDrcRadius(-1.), fDrcCut(-1.), fDskCut(-1.), fZLastPlane(-1.), fFtofZ(-1.),
+      fFTofCut(-1.), fRichZ(-1.), fFMdtCut(-1.) 
 {
 	clear();
 }

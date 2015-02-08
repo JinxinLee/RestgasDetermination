@@ -18,7 +18,7 @@
 
 Test30HadronProduction::Test30HadronProduction(const G4String& aName)
  :G4VDiscreteProcess(aName),
-  theGenerator(0)
+  theGenerator(0), theChange()
 {
   InitializeMe();
 }
@@ -68,14 +68,14 @@ G4VParticleChange* Test30HadronProduction::PostStepDoIt(
   ClearNumberOfInteractionLengthLeft();
   theChange.Initialize(track);
 
-  G4int ns = result->GetNumberOfSecondaries();
-  G4int nb = ns;
+  G4int nos = result->GetNumberOfSecondaries();
+  G4int nb = nos;
   if(result->GetStatusChange() == isAlive) nb++;
 
   theChange.ProposeTrackStatus(fStopAndKill);
   theChange.SetNumberOfSecondaries(nb);
 
-  for(G4int i=0; i<ns; i++) {
+  for(G4int i=0; i<nos; i++) {
     G4Track* tr = new G4Track(result->GetSecondary(i)->GetParticle(),
                               track.GetGlobalTime(),
 	                      track.GetPosition());
