@@ -1,4 +1,4 @@
-void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString luttab = "lut/lut_16_a.root", TString outFile = "reco.root"){
+void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString luttab = "lut/lut_16_a.root", TString outFile = "reco.root"){
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   gStyle->SetOptStat(0);
@@ -16,6 +16,7 @@ void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(digiFile);
   fRun->AddFriend(simFile);
+  fRun->AddFriend(hitFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile1.Data());
   rtdb->setFirstInput(parInput1);
- 
+
   // -- Reconstruction using Look-up tables ---------------------------------
   PndDrcLutReco* lutreco = new PndDrcLutReco(iVerbose+3, luttab);  
   fRun->AddTask(lutreco);

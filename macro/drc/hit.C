@@ -1,4 +1,4 @@
-void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Double_t eventRate=50, Double_t deadTime=5){
+void hit(Int_t nEvents = 0, TString inFile = "sim.root", TString inDigi = "digi.root", TString parFile="par.root", TString outFile = "hit.root"){
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 3;
 
@@ -13,14 +13,13 @@ void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
+  fRun->AddFriend(inDigi);
   fRun->SetOutputFile(outFile);
-  fRun->SetEventMeanTime(eventRate);
+  fRun->RunWithTimeStamps();
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput = new FairParRootFileIo();
-  //parInput->open(parFile.Data());
-  //rtdb->setFirstInput(parInput);
 
   if(parFile=="batch"){
     TList* parlist = new TList();
@@ -31,21 +30,9 @@ void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.
   }
   rtdb->setFirstInput(parInput);
  
-  // -----    DRC Digitization stage ----------------------------------------
-  PndDrcDigiTask* drcdigi = new PndDrcDigiTask(1);
-  drcdigi->SetChargeSharing(kFALSE);
-  drcdigi->SetDeadTime(deadTime); //5 ns
-  drcdigi->SetTimeResolution(0.4); //0.4 ns
-  drcdigi->RunTimeBased();
-  fRun->AddTask(drcdigi);
-
-  // PndDrcDigiSorterTask* digiSorter = new PndDrcDigiSorterTask(1000, 0.4, "DrcDigi", "DrcSortedDigi", "PndDrc");
-  // digiSorter->SetVerbose(3);
-  // fRun->AddTask(digiSorter);
-
-  // // -----    DRC hit producer   -------------------------------------------- 
-  // PndDrcHitFinder* hitfind = new PndDrcHitFinder(0);
-  // fRun->AddTask(hitfind);
+  // -----    DRC hit producer   -------------------------------------------- 
+  PndDrcHitFinder* hitfind = new PndDrcHitFinder(2);
+  fRun->AddTask(hitfind);
      
   // -----   Initialize and run   -------------------------------------------
   fRun->Init();
