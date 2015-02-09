@@ -59,7 +59,7 @@ public:
   
   /** Reset eventwise counters **/
   void Reset();
-  
+
   /** Finish task **/ 
   virtual void Finish();
 
@@ -69,7 +69,6 @@ public:
 
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
-  void SetTimeSmearing(Bool_t ct = 0){fTimeSmearing = ct;}
   void SetChargeSharing(Bool_t ct = 0){fChargeSharing = ct;}
   void SetDeadTime(Double_t var){ fDeadTime = var; }
   void SetTimeResolution(Double_t var){fSigmat = var;}
@@ -85,7 +84,7 @@ private:
   /**   Process MC Points **/
   void ProcessPhotonPoint(); 
   void Smear(Double_t& time, Double_t sigt);
-  void ActivatePixel(Int_t DetectorId, Int_t sensorId, Double_t signalTime, Int_t k, Int_t csflag);
+  void ActivatePixel(Int_t DetectorId, Int_t sensorId, Double_t signalTime, Int_t k, Int_t csflag, PndDrcPDPoint* pdp);
   
   // basic parameters of DIRC
   Double_t fMcpActiveArea;
@@ -98,7 +97,6 @@ private:
   Double_t fThreshold; // in % of the total probability of 1 to detect a hit
   Double_t fTimeGranularity; // granularity of the time signal [ns]
  
-  Bool_t fTimeSmearing;
   Bool_t fChargeSharing;
   Bool_t fTimeOrderedDigi;
   Int_t fDetectorID;

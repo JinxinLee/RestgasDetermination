@@ -124,7 +124,7 @@ InitStatus PndDrcHitFinder::Init(){
     return kFATAL;
   }
   
-  fInBranchName = "DrcSortedDigi";
+  fInBranchName = "DrcDigi";
   // Get input array
   fDigiArray = (TClonesArray*) ioman->GetObject(fInBranchName);  
   if ( ! fDigiArray )
@@ -145,16 +145,15 @@ InitStatus PndDrcHitFinder::Init(){
 
 // -----   Public method Exec   --------------------------------------------
 void PndDrcHitFinder::Exec(Option_t* opt){
-  if (FairRunAna::Instance()->IsTimeStamp()){
-    Double_t etime = FairRootManager::Instance()->GetEventTime();
-    fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStopFunctor, etime + 1);
-    // fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, 
-    //  						      fStopFunctor, etime,
-    //  						      fStopFunctor, etime + 100);
-  }
+  
   if(fVerbose>3) Info("Exec","Start");  
   if (!fPdHitArray) Fatal("Exec", "No PdHitArray");
   fPdHitArray->Clear(); 
+
+  Double_t etime = FairRootManager::Instance()->GetEventTime();
+  if (FairRunAna::Instance()->IsTimeStamp()){
+    fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStopFunctor, etime, fStopFunctor, etime+100);
+  }
 
   Int_t nDigis = fDigiArray->GetEntriesFast();
   if(fVerbose>1) std::cout<<"-I- PndDrcHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
@@ -172,7 +171,8 @@ void PndDrcHitFinder::Exec(Option_t* opt){
     hitTime = fDigi->GetTime();
         
     // the pixel number shows local coordinates of the hit:
-    HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5), 0.);
+    HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),
+		       fPixelStep*(TMath::Floor(((Double_t)pixelID)/((Double_t)fNpix)) - (Double_t)(fNpix/2) + 0.5), 0.);
     Int_t sensorId = fDigi->GetSensorId()/fPixelFactor;
     if(fPixelFactor==2) { //double pixels
       sensorId++;
@@ -185,12 +185,22 @@ void PndDrcHitFinder::Exec(Option_t* opt){
     dPosHit.SetXYZ(fPixelSize/2., fPixelSize/2., 0.);   
     if(fPixelFactor==2)  dPosHit.SetXYZ(fPixelSize, fPixelSize/2., 0.);  
     
-   
-    new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndDrcPDHit(detID, sensorId , HitPosGlobal, dPosHit, hitTime, 0., iDigi); 
-  } // Loop over MCPoints
+
+    if(fDigi->GetTimeStamp()!=etime+hitTime) hitTime =  fDigi->GetTimeStamp() - etime;
+    PndDrcPDHit pdhit = PndDrcPDHit(detID, sensorId , HitPosGlobal, dPosHit, hitTime, 0., iDigi);
+    pdhit.SetTimeStamp(fDigi->GetTimeStamp());
+    pdhit.SetLink(fDigi->GetLink(0)); // MCTrack
+    pdhit.AddLink(fDigi->GetLink(1)); // DrcPDPoint
+    pdhit.AddLink(FairLink(-1,fEventNr, "DrcDigi", iDigi));
+    //((FairMultiLinkedData)pdhit).Print(); std::cout<<std::endl;
+    new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndDrcPDHit(pdhit); 
+  }
   
   fEventNr++;
   if(fVerbose>3) Info("Exec","Loop MC points");
+
+  fPdHitArray->Sort();
+  fDigiArray->Delete(); 
 }
 
 

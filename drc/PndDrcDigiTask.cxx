@@ -35,11 +35,6 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcDigiTask::PndDrcDigiTask() :FairTask("PndDrcDigiTask"){
-  fTimeOrderedDigi = kFALSE;
-  fChargeSharing = kFALSE;
-  fTimeSmearing = kFALSE;
-  fDeadTime = 5;
-  fSigmat=0.1;
   fGeo = new PndGeoDrc();
   fGeoH = NULL;  
   fPDPointArray   = NULL;
@@ -51,20 +46,29 @@ PndDrcDigiTask::PndDrcDigiTask() :FairTask("PndDrcDigiTask"){
 // -----   Standard constructor with verbosity level  -------------------------------------------
 PndDrcDigiTask::PndDrcDigiTask(Int_t verbose) :FairTask("PndDrcDigiTask",verbose){
   fVerbose = verbose;  
-  fDetType= 1; 
-  fDeadTime = 5;
-  fSigmat=0.1;
-
-  fTimeOrderedDigi = kFALSE;
-  fChargeSharing = kFALSE;
-  fTimeSmearing = kFALSE;
-
   fGeo = new PndGeoDrc();
   fGeoH = NULL;  
   fPDPointArray   = NULL;
   
   SetParameters();
   Reset();
+}
+
+void PndDrcDigiTask::SetParameters(){
+  fTimeOrderedDigi = kFALSE;
+  fChargeSharing = kFALSE;
+  fDeadTime = 5;
+
+  fDetType=1;   //  Detector Type =1  
+  fSigmat=0.1;  // Time Resolution is 100 ps ############################
+  fTimeGranularity = 0.001;// [ns] = 98 ps granularity of the time signal
+  fPixelSize	 =  fGeo->PixelSize();
+  fMcpActiveArea =  fGeo->McpActiveArea();
+  fNpix          =  fGeo->Npixels();
+  fPixelGap      =  (fMcpActiveArea - (Double_t)fNpix*fPixelSize) / ((Double_t)fNpix - 1.);
+  fPixelStep     =  fMcpActiveArea/fNpix; //fPixelSize + 0.5*fPixelGap; 
+  fPixelSigma 	 =  fGeo->SigmaCharge();
+  fThreshold	 =  0.20; //threshold to detect charge shared hits
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -77,7 +81,7 @@ PndDrcDigiTask::~PndDrcDigiTask(){
 InitStatus PndDrcDigiTask::Init(){
   cout << " ---------- INITIALIZATION ------------" << endl;
   nevents = 0;
- 
+
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
@@ -171,9 +175,10 @@ void PndDrcDigiTask::ProcessPhotonPoint(){
 	 
     // time is smeared and digitized = has granularity
     fTime=(Int_t)(fPpt->GetTime()/fTimeGranularity)*fTimeGranularity; 
-    if(fTimeSmearing) Smear(fTime,fSigmat);   
+    fTime=fPpt->GetTime(); 
+    if(fSigmat>0) Smear(fTime,fSigmat);   
 
-    ActivatePixel(fDetectorID, sensorId, fTime, k, 0);
+    ActivatePixel(fDetectorID, sensorId, fTime, k, 0, fPpt);
 
     if(fChargeSharing){
       // find fired pixels:
@@ -184,28 +189,28 @@ void PndDrcDigiTask::ProcessPhotonPoint(){
       distance =  posLshifted.X() - TMath::Floor(posLshifted.X()/fPixelStep)*fPixelStep; //[cm]
       if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){   
 	if((Ncol-1) >= 0){
-	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol-1+Nrow*fNpix, fTime, k, 1);	
+	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol-1+Nrow*fNpix, fTime, k, 1, fPpt);	
 	}
       }
       // right pixel
       distance =  TMath::Ceil(posLshifted.X()/fPixelStep)*fPixelStep - posLshifted.X();	  
       if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
 	if(Ncol+1 < fNpix){
-	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+1+Nrow*fNpix, fTime, k, 1);	
+	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+1+Nrow*fNpix, fTime, k, 1, fPpt);	
 	}
       }
       // lower pixel
       distance =  posLshifted.Y() - TMath::Floor(posLshifted.Y()/fPixelStep)*fPixelStep;	  
       if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
 	if(Nrow-1 >= 0){
-	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+(Nrow-1)*fNpix, fTime, k, 1);
+	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+(Nrow-1)*fNpix, fTime, k, 1, fPpt);
 	}
       }
       // upper pixel
       distance =  TMath::Ceil(posLshifted.Y()/fPixelStep)*fPixelStep - posLshifted.Y();
       if(exp(- distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){    
 	if(Nrow+1 < fNpix){
-	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+(Nrow+1)*fNpix, fTime, k, 1);
+	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+(Nrow+1)*fNpix, fTime, k, 1, fPpt);
 	}
       }
 		
@@ -217,7 +222,7 @@ void PndDrcDigiTask::ProcessPhotonPoint(){
       distance = (point-corner).Mag();	  
       if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
 	if(Ncol-1 >= 0 && Nrow+1 < fNpix){
-	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k, 1);
+	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol-1+(Nrow+1)*fNpix, fTime, k, 1, fPpt);
 				
 	}
       }
@@ -228,7 +233,7 @@ void PndDrcDigiTask::ProcessPhotonPoint(){
       distance = (point-corner).Mag();	 
       if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
 	if(Ncol-1 >= 0 && Nrow-1 >= 0){
-	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k, 1);
+	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol-1+(Nrow-1)*fNpix, fTime, k, 1, fPpt);
 	}
       }
 		
@@ -238,7 +243,7 @@ void PndDrcDigiTask::ProcessPhotonPoint(){
       distance = (point-corner).Mag();	  
       if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
 	if(Ncol+1 < fNpix && Nrow-1 >= 0){
-	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k, 1);
+	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+1+(Nrow-1)*fNpix, fTime, k, 1, fPpt);
 	}
       }
 		
@@ -248,7 +253,7 @@ void PndDrcDigiTask::ProcessPhotonPoint(){
       distance = (point-corner).Mag();	  
       if(exp(-distance/fPixelSigma) > gRandom->Uniform(0.,1.) && exp(- distance/fPixelSigma) > fThreshold){	    
 	if(Ncol+1 < fNpix && Nrow+1 < fNpix){
-	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k, 1);
+	  ActivatePixel(fDetectorID, mcpId * 100 +Ncol+1+(Nrow+1)*fNpix, fTime, k, 1, fPpt);
 	}
       }		
     }
@@ -256,17 +261,20 @@ void PndDrcDigiTask::ProcessPhotonPoint(){
 }
 
 // -----   Private method ActivatePixel   -------------------------------
-void PndDrcDigiTask::ActivatePixel(Int_t detectorId, Int_t sensorId, Double_t signalTime, Int_t k, Int_t csflag) {
+void PndDrcDigiTask::ActivatePixel(Int_t detectorId, Int_t sensorId, Double_t signalTime, Int_t k, Int_t csflag, PndDrcPDPoint* pdp) {
   // in case when the same pixel was fired by two different photons this function takes care of which hits from that pixel to write  
   PndDrcDigi* digi = new PndDrcDigi(k, detectorId,  sensorId, 0., signalTime, csflag, 0.);
   Double_t timeStamp =  signalTime + FairRootManager::Instance()->GetEventTime();
-  std::cout<<"signalTime  "<<signalTime <<std::endl;
   
   digi->SetTimeStamp(timeStamp);
-  digi->SetTimeStampError(fSigmat/TMath::Sqrt(fSigmat));
+  if(fSigmat>0) digi->SetTimeStampError(fSigmat/TMath::Sqrt(fSigmat));
+  else digi->SetTimeStampError(0);
 
   FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-  digi->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "DrcDigi", k));
+  digi->SetLink(pdp->GetLink(0)); // MCTrack
+  digi->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "DrcPDPoint", k));
+  
+  //  ((FairMultiLinkedData*)digi)->Print(); std::cout<<std::endl;
   fDataBuffer->FillNewData(digi, timeStamp, timeStamp + fDeadTime);
 
   // if ( fPixelMap.find(sensorId) == fPixelMap.end() ){
@@ -295,20 +303,6 @@ TVector3 PndDrcDigiTask::GetSensorDimensions(Int_t sensorID){
   TVector3 result(actBox->GetDX(),actBox->GetDY(),actBox->GetDZ());
   return result;
 } 
-
-//-------------Set Parameter------------------------------------
-void PndDrcDigiTask::SetParameters(){
-  fDetType=1;   //  Detector Type =1  
-  fSigmat=0.1;  // Time Resolution is 100 ps ############################
-  fTimeGranularity = 0.001;// [ns] = 98 ps granularity of the time signal
-  fPixelSize	 =  fGeo->PixelSize();
-  fMcpActiveArea =  fGeo->McpActiveArea();
-  fNpix          =  fGeo->Npixels();
-  fPixelGap      =  (fMcpActiveArea - (Double_t)fNpix*fPixelSize) / ((Double_t)fNpix - 1.);
-  fPixelStep     =  fMcpActiveArea/fNpix; //fPixelSize + 0.5*fPixelGap; 
-  fPixelSigma 	 =  fGeo->SigmaCharge();
-  fThreshold	 =  0.20; //threshold to detect charge shared hits
-}
 
 //-------------Smear Time------------------------------------
 void PndDrcDigiTask::Smear(Double_t& time, Double_t sigt){
