@@ -55,7 +55,7 @@ class PndDrc : public FairDetector
   /*! \brief  Kill charged track by exiting the DIRC to avoid it hitting the large EV.
     \param sctad
   */
-  void StopChargedTrackAfterDIRC(Bool_t sctad = kFALSE){fStopChargedTrackAfterDIRC = sctad;}
+  void StopChargedTrackAfterDIRC(Bool_t sctad = kTRUE){fStopChargedTrackAfterDIRC = sctad;}
   
     
   
