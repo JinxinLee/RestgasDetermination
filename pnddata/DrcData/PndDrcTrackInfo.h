@@ -32,6 +32,7 @@ public:
   void SetMcPdg(Int_t val)              {fMcPdg = val;}
   void SetMcMomentum(TVector3 val)      {fMcMomentum = val;}
   void SetMcMomentumInBar(TVector3 val) {fMcMomentumInBar = val;}
+  void SetMcPositionInBar(TVector3 val) {fMcPositionInBar = val;}
   void SetMcCherenkov(Double_t val)     {fMcCherenkov = val;}
   void SetMcTimeInBar(Double_t val)     {fMcTimeInBar = val;}
 
@@ -45,6 +46,7 @@ public:
   Int_t    GetMcPdg()	                {return fMcPdg;}    
   TVector3 GetMcMomentum()	        {return fMcMomentum;}
   TVector3 GetMcMomentumInBar()	        {return fMcMomentumInBar;}
+  TVector3 GetMcPositionInBar()	        {return fMcPositionInBar;}
   Double_t GetMcCherenkov()	        {return fMcCherenkov;}
   Double_t GetMcTimeInBar()	        {return fMcTimeInBar;}
   
@@ -63,6 +65,7 @@ protected:
   Int_t    fMcPdg;
   TVector3 fMcMomentum;
   TVector3 fMcMomentumInBar;
+  TVector3 fMcPositionInBar;
   Double_t fMcCherenkov;
   Double_t fMcTimeInBar;
 

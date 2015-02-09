@@ -16,6 +16,7 @@ PndDrcTrackInfo::PndDrcTrackInfo()
   fMcPdg           = 0;
   fMcMomentum      = TVector3(0,0,0);
   fMcMomentumInBar = TVector3(0,0,0);
+  fMcPositionInBar = TVector3(0,0,0);
   fMcCherenkov     = 0;
   fPdg             = 0;
   fMomentum        = TVector3(0,0,0);
