@@ -110,35 +110,23 @@ public : PndDrcDigi();
 		  
   virtual bool equal(FairTimeStamp* data){
     PndDrcDigi* myDigi = dynamic_cast <PndDrcDigi*> (data);
-    if (myDigi != 0){
-	    
-      if (fSensorId == myDigi->GetSensorId()){
-	if(fabs(fEvtTim-myDigi->GetTimeStamp())<5.0){ return true;} 
-	if(fabs(fEvtTim-myDigi->GetTimeStamp())>5.0) return false;
-      }
-	      
-    }
-    else
-      return false;
-	  
+    if (myDigi != 0){ 
+      if (fSensorId == myDigi->GetSensorId()) return true; 
+    }	    
+    return false;
   }
+
   virtual bool operator<(const PndDrcDigi& myDigi) const{
-	  
     if (fSensorId < myDigi.GetSensorId())return true;
     return false;
   }
   virtual bool operator>(const PndDrcDigi& myDigi) const{
-	  
     if (fSensorId > myDigi.GetSensorId())return true; 
     return false;
   }
-  virtual bool operator==(const PndDrcDigi& myDigi) const{
-	  
-    if (fSensorId == myDigi.GetSensorId()){
-      if(fabs(fEvtTim-myDigi.GetTimeStamp())<5.0){ return true;} 
-      if(fabs(fEvtTim-myDigi.GetTimeStamp())>5.0) return false;
-    }
-    else {return false;}
+  virtual bool operator==(const PndDrcDigi& myDigi) const{	  
+    if (fSensorId == myDigi.GetSensorId()) return true;
+    return false;
   }
     
 protected:
