@@ -30,6 +30,12 @@ using std::string;
 using namespace std;
 
 
+EvtLambdaLambdaBarPol::EvtLambdaLambdaBarPol() : EvtDecayProb(), _a0(0.), _a1(0.), _a2(0.), _a3(0.), _a4(0.),
+                                           _a5(0.), _a6(0.), _a7(0.), _a8(0.), _a9(0.), _pbeam(0.),
+                                           _polarisation(0.)
+{
+}
+
 EvtLambdaLambdaBarPol::~EvtLambdaLambdaBarPol()
 { }
 

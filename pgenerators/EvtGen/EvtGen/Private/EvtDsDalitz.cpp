@@ -31,6 +31,10 @@
 #include "EvtGenBase/EvtConst.hh"
 using std::endl;
 
+EvtDsDalitz::EvtDsDalitz() : EvtDecayAmp(), _d1(0), _d2(0), _d3(0), _flag(0), _kkpi_params()
+{
+}
+
 EvtDsDalitz::~EvtDsDalitz() {}
 
 std::string EvtDsDalitz::getName(){

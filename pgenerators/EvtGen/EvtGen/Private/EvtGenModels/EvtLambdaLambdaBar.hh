@@ -21,7 +21,7 @@ class EvtParticle;
 class EvtLambdaLambdaBar:public EvtDecayProb{
 
 public:
-  EvtLambdaLambdaBar() {};
+  EvtLambdaLambdaBar();
   virtual ~EvtLambdaLambdaBar();
   std::string getName();
   EvtDecayBase* clone();

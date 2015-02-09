@@ -23,7 +23,7 @@ class EvtParticle;
 class EvtChic1toJpsiGam:public EvtDecayNew
 {
 public:
-  EvtChic1toJpsiGam() {};
+  EvtChic1toJpsiGam();
   virtual ~EvtChic1toJpsiGam();
   std::string getName();
   EvtDecayBase* clone();

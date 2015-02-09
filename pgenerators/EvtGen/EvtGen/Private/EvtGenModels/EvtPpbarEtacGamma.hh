@@ -18,7 +18,7 @@ class EvtParticle;
 class EvtPpbarEtacGamma:public EvtDecayProb{
 
 public:
-  EvtPpbarEtacGamma() {};
+  EvtPpbarEtacGamma();
   virtual ~EvtPpbarEtacGamma();
   std::string getName();
   EvtDecayBase* clone();

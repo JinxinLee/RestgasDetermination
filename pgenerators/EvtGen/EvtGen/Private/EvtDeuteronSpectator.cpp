@@ -25,6 +25,10 @@
 #include "EvtGenBase/EvtConst.hh"
 using std::endl;
 
+EvtDeuteronSpectator::EvtDeuteronSpectator() : EvtDecayIncoherent(), _pmax(0.), _mmin(0.)
+{
+}
+
 EvtDeuteronSpectator::~EvtDeuteronSpectator() {}
 
 std::string EvtDeuteronSpectator::getName() {

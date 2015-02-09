@@ -28,6 +28,10 @@
 #include "EvtGenBase/EvtReport.hh"
 using std::endl;
 
+EvtDecayNew::EvtDecayNew() : EvtDecayBase(), _prob(0.), _weight(0.)
+{
+}
+
 void EvtDecayNew::makeDecay(EvtParticle* p, bool recursive)
 {
   

@@ -22,7 +22,7 @@ class EvtDeuteronSpectator:public  EvtDecayIncoherent  {
 
 public:
 
-  EvtDeuteronSpectator() {}
+  EvtDeuteronSpectator();
   virtual ~EvtDeuteronSpectator();
 
   std::string getName();

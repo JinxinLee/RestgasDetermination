@@ -19,7 +19,7 @@ class EvtParticle;
 class EvtElectronPositron:public EvtDecayProb{
 
 public:
-  EvtElectronPositron() {};
+  EvtElectronPositron();
   virtual ~EvtElectronPositron();
   std::string getName();
   EvtDecayBase* clone();

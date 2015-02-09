@@ -26,6 +26,9 @@
 using std::string;
 using namespace std;
 
+EvtElectronPositron::EvtElectronPositron() : EvtDecayProb(), _pbarmom(0.), _s(0.), _GeDivGm(-1.)
+{
+}
 
 EvtElectronPositron::~EvtElectronPositron()
 {

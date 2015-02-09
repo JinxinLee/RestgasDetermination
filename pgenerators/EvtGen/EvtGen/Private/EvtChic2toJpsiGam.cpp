@@ -24,6 +24,10 @@ using std::string;
 using namespace std;
 
 
+EvtChic2toJpsiGam::EvtChic2toJpsiGam() : EvtDecayNew(), _B0(0.), _a2(0.), _a3(0.), _prob(0.)
+{
+}
+
 EvtChic2toJpsiGam::~EvtChic2toJpsiGam()
 {
 }

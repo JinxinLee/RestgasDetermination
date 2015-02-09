@@ -33,7 +33,7 @@ class EvtDsDalitz:public  EvtDecayAmp  {
 
 public:
 
-  EvtDsDalitz() {}
+  EvtDsDalitz();
   virtual ~EvtDsDalitz();
 
   std::string getName();

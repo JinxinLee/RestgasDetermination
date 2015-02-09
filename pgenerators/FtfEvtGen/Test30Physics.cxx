@@ -74,7 +74,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-Test30Physics::Test30Physics()
+Test30Physics::Test30Physics() : theProcess(0), theDeExcitation(0), thePreCompound(0), theQuasiElastic(0), hkmod(0)
 {
   Initialise();
 }

@@ -28,6 +28,10 @@ using std::string;
 using namespace std;
 
 
+EvtLambdaLambdaBarHE::EvtLambdaLambdaBarHE() : EvtDecayProb(), p_lambdabar(0.), energy(0.), pbar_p(0.)
+{
+}
+
 EvtLambdaLambdaBarHE::~EvtLambdaLambdaBarHE()
 {
 }

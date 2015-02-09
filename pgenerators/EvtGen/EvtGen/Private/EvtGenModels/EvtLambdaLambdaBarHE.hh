@@ -19,7 +19,7 @@ class EvtParticle;
 class EvtLambdaLambdaBarHE:public EvtDecayProb{
 
 public:
-  EvtLambdaLambdaBarHE() {};
+  EvtLambdaLambdaBarHE();
   virtual ~EvtLambdaLambdaBarHE();
   std::string getName();
   EvtDecayBase* clone();

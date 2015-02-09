@@ -24,6 +24,10 @@ using std::string;
 using namespace std;
 
 
+EvtPpbarEtacGamma::EvtPpbarEtacGamma() : EvtDecayProb(), _pbarmom(0.)
+{
+}
+
 EvtPpbarEtacGamma::~EvtPpbarEtacGamma()
 {
 }
