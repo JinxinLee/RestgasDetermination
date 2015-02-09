@@ -122,6 +122,8 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
 #	"FairTSBufferFunctional.h"
        # -- EvtGen source code, cannot be touched by us 
         "pgenerators/EvtGen/EvtGen/R01-03-00/"
+        "genfit/"
+        "dbase/"
   )
 
 # -----------------------------------------------------------
