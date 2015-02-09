@@ -54,15 +54,15 @@ void reco_fts()
 	// trackFts->SetTrackOutput("FtsHoughTrack");
 	//  trackFts->SetPersistence(kTRUE);
 	Int_t debugLevel = 1;
-//	debugLevel *= PndFtsHoughTrackerTask::kHoughSpaces;
-//	debugLevel *= PndFtsHoughTrackerTask::kAllFoundPeaksTogether;
+	debugLevel *= PndFtsHoughTrackerTask::kHoughSpaces; // sed -i 's/PndFtsHoughSpace/TH2S/g' *histo*.rtg
+	debugLevel *= PndFtsHoughTrackerTask::kAllFoundPeaksTogether;
 //	debugLevel *= PndFtsHoughTrackerTask::kEachFoundPeakSeparately;
 	debugLevel *= PndFtsHoughTrackerTask::kMcTruthPeaksExclusively;
 //	debugLevel *= PndFtsHoughTrackerTask::kMcTruthPeaksProjected;
 //	debugLevel *= PndFtsHoughTrackerTask::kHitCurvesExclusively;
 //	debugLevel *= PndFtsHoughTrackerTask::kHitCurvesProjected;
-//	trackFts->SetSaveDebugInfo(debugLevel);
-//	trackFts->SetVerbose(1);
+//	trackFts->SetSaveDebugInfo(debugLevel); // Make sure that /home/plots is writable for output of debugging histograms
+	trackFts->SetVerbose(1);
 	fRun->AddTask(trackFts);
 
 	//  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
