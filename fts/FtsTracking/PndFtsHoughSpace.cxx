@@ -87,14 +87,41 @@ std::ostream& operator <<(std::ostream& os, const HitIdxPathMap& outMap)
 
 inline void PndFtsHoughSpace::AddHitToHS(UInt_t hitId, Double_t rho)
 {
-	fHitId.push_back(PndTrackCandHit(fFtsBranchId, hitId, rho));
+	const PndFtsHit *const hitToAdd = fTrackerTask->GetFtsHit(hitId);
+	const Int_t tubeIdToAdd = hitToAdd->GetTubeID();
+
+
+	if (kFALSE == IsHitFromTubeIdAlreadyAdded(tubeIdToAdd)) {
+		fHitId.push_back(PndTrackCandHit(fFtsBranchId, hitId, rho));
+	}
 }
 
 
 inline void PndFtsHoughSpace::AddHitToHS(FairLink link, Double_t rho)
 {
-	fHitId.push_back(PndTrackCandHit(link.GetType(), link.GetIndex(), rho));
+	const PndFtsHit *const hitToAdd = fTrackerTask->GetFtsHit(link.GetIndex());
+	const Int_t tubeIdToAdd = hitToAdd->GetTubeID();
+
+	if (kFALSE == IsHitFromTubeIdAlreadyAdded(tubeIdToAdd)) {
+		fHitId.push_back(PndTrackCandHit(link.GetType(), link.GetIndex(), rho));
+	}
 }
+
+
+inline Bool_t PndFtsHoughSpace::IsHitFromTubeIdAlreadyAdded(const Int_t tubeIdToAdd)
+	{
+	return kFALSE; // uncomment this line to switch off testing for duplicates
+		for (int iTestHit = 0; iTestHit < GetNHits(); ++iTestHit)
+		{
+			const PndFtsHit *const myTestHit = getHitFromHS(iTestHit);
+
+			const Int_t tubeIdTestHit = myTestHit->GetTubeID();
+
+			if ( tubeIdToAdd == tubeIdTestHit ) return kTRUE;
+
+		} // for loop over all hits which have already been added to the Hough space
+		return kFALSE;
+	};
 
 
 
@@ -118,20 +145,20 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																																				fTrackerTask(trackerTask),
-																																				fRefIndex(refIndex),
+																																						fTrackerTask(trackerTask),
+																																						fRefIndex(refIndex),
 
-																																				fZRefPos(zRefPos),
-																																				fInterceptZx(interceptZx),
+																																						fZRefPos(zRefPos),
+																																						fInterceptZx(interceptZx),
 
-																																				TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+																																						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
 
-																																				// set from tracker task
-																																				fFtsBranchId(0),
-																																				fVerbose(0),
-																																				fField(0),
+																																						// set from tracker task
+																																						fFtsBranchId(0),
+																																						fVerbose(0),
+																																						fField(0),
 
-																																				fAssociatedTrackCand(associatedTrackCand)
+																																						fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";

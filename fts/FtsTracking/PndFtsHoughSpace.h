@@ -190,6 +190,7 @@ private:
 	void filterInputHits(); // copies input hits (based on z coordinate and skewed/non-skewed) from fFtsHitArray (all FTS hits) to fHitId (only the hits that qualify for the specific Hough transform)
 	inline void AddHitToHS(UInt_t hitId, Double_t rho);
 	inline void AddHitToHS(FairLink link, Double_t rho);
+	inline Bool_t IsHitFromTubeIdAlreadyAdded(const Int_t tubeIdToAdd);
 	inline const PndFtsHit *const getHitFromHS(UInt_t index) const; // gets the FTS hit corresponding to index
 	inline const Int_t getHitIdFromHS(UInt_t index) const { return fHitId.at(index).GetHitId(); }; // gets the FTS hit Id corresponding to index
 	inline const TVector3 CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit *const myHit) const;
