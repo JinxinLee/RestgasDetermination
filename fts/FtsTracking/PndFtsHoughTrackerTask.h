@@ -85,7 +85,6 @@ public:
 	void SetVerbose(Int_t verbose){ fVerbose = verbose;};
 	void SetPersistence(Bool_t val){ fPersistence = val;};
 	void SetSaveDebugInfo(Int_t saveDebugInfo){ fSaveDebugInfo = saveDebugInfo;};
-	void SetOnlyFindMcTruthLinesBeforeDipole(Bool_t val){ fOnlyFindMcTruthLinesBeforeDipole = val;};
 	//	void SetTrackOutput(TString name = "FTSTrkHough") { fTracksArrayName = name; };
 
 	//----------
@@ -94,7 +93,6 @@ public:
 	const Int_t GetVerbose() const { return fVerbose; }; ///< @brief Returns the verbosity level.
 	const Int_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
 	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
-	const Bool_t GetOnlyFindMcTruthLinesBeforeDipole() const { return fOnlyFindMcTruthLinesBeforeDipole; }; // for debugging only
 
 	//-----------
 	//DATA ACCESS TO FTS
@@ -208,7 +206,7 @@ private:
 	TString fTracksArrayName;     ///< @brief Branch name where to store the Track candidates
 	TClonesArray  *fTrackCands;   ///< @brief Array of found track candidates in PndTrackCand (for output)
 	TClonesArray  *fTracks;       ///< @brief Array of found tracks in PndTrack (for output)
-//	TClonesArray *fHoughTrackCands; ///< @brief Array of found track cands in PndFtsHoughTrackCand (only for debugging)
+	//	TClonesArray *fHoughTrackCands; ///< @brief Array of found track cands in PndFtsHoughTrackCand (only for debugging)
 	/* @brief Not used.
 	 *
 	 * The idea was to use this in order to write out the Hough spaces to the root file.
@@ -219,11 +217,31 @@ private:
 	//-------
 	// Debug
 	//-------
-	Bool_t fOnlyFindMcTruthLinesBeforeDipole; ///< @brief Only use for debugging / parameter optimization: Track finder only finds Mc Truth peaks for line before dipole iif kTRUE
 	Int_t fSaveDebugInfo; ///< @brief Debug information will be created if >0.
 	UInt_t fEventNr; ///< @brief Event number for debugging purposes.
 	/** @brief For error reporting */
 	void throwError(const TString s) const{ throw std::runtime_error(s.Data()); };
+
+	void CheckForDuplicateFtsHits()
+	{
+		for (int iHit1 = 0; iHit1 < GetNFtsHits(); ++iHit1)
+		{
+			const PndFtsHit *const myHit1 = GetFtsHit(iHit1);
+
+			const Int_t tubeIdHit1 = myHit1->GetTubeID();
+
+			for (int iHit2 = iHit1+1; iHit2 < GetNFtsHits(); ++iHit2)
+			{
+				const PndFtsHit *const myHit2 = GetFtsHit(iHit2);
+
+				const Int_t tubeIdHit2 = myHit2->GetTubeID();
+
+				if ( tubeIdHit1 == tubeIdHit2 ) std::cout << "Event " << GetEventNr() << ": HitIdx " << iHit1 << " and HitIdx " << iHit2 << " are duplicate!\n";
+			}
+
+		} // for loop over all hits
+	};
+
 
 	// TODO: I don't think I need the copy constructor and the operator=
 	PndFtsHoughTrackerTask(const PndFtsHoughTrackerTask&);

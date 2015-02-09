@@ -77,7 +77,6 @@ using std::endl;
 PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence, Bool_t saveDebugInfo)
 : FairTask("PndFtsHoughTrackerTask", verbose),
   fSaveDebugInfo(saveDebugInfo),
-  fOnlyFindMcTruthLinesBeforeDipole(kFALSE),
   fPersistence(persistence),
   fEventNr(0),
   //  fOutFile(0),
@@ -311,7 +310,7 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 //	fHoughTrackCands->Delete();
 	//fHoughSpaces->Delete();
 
-
+	CheckForDuplicateFtsHits();
 
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder::Exec tracker ptr " << this << '\n';
 	PndFtsHoughTrackFinder trackFinder(this);
