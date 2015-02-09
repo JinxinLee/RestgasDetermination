@@ -98,6 +98,8 @@ public:
 	PndFtsHoughTrackCand GetHoughTrack(int i) const { return fHoughTrackCandsComplete[i]; };
 
 
+	Int_t getNEvtsWithParabolasFound() const { return fNEvtsWithParabolasFound; };
+	Int_t getNEvtsWithTracksFound() const { return fNEvtsWithTracksFound; };
 
 private:
 	/// @brief Task which handles PandaRoot input/output and provides settings for FTS PR.
@@ -137,7 +139,9 @@ private:
 
 
 
-
+	// for debugging
+	static Int_t fNEvtsWithParabolasFound;
+	static Int_t fNEvtsWithTracksFound;
 
 
 	// takes the heighest peak (according to peak finder)

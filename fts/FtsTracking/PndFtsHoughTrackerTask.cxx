@@ -301,8 +301,7 @@ const TMatrixT<Double_t> PndFtsHoughTrackerTask::GetFtsHitCovMatrix(const PndFts
 // ---- Exec ----------------------------------------------------------
 void PndFtsHoughTrackerTask::Exec(Option_t* option)
 {
-	++fEventNr;
-	if(0<fVerbose) Info("Exec","Exec of PndFtsHoughTrackerTask on event %i", fEventNr);
+	if(1<fVerbose) Info("Exec","Exec of PndFtsHoughTrackerTask on event %i", fEventNr);
 
 	// Reset output array
 	if ( ! fTrackCands ) Fatal("Exec", "No track cand array");
@@ -371,6 +370,7 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 
 
 	if(3<fVerbose) Info("Exec","End eventloop.");
+	++fEventNr;
 }
 
 
@@ -393,7 +393,15 @@ void PndFtsHoughTrackerTask::Finish()
 		fLogger->Fatal(MESSAGE_ORIGIN,"RootManager not instantiated, return!");
 	}
 	ioman->Write();
-	if(fVerbose>3) Info("Finish","Found %i tracks.",fTrackCands->GetEntriesFast());
+	if(3<fVerbose) Info("Finish","Found %i tracks.",fTrackCands->GetEntriesFast());
+	if(0<fVerbose){
+		PndFtsHoughTrackFinder trackFinder(this);
+		Int_t nEvtsWithParabolasFound = trackFinder.getNEvtsWithParabolasFound();
+		Int_t nEvtsWithTracksFound = trackFinder.getNEvtsWithTracksFound();
+//		Int_t nTotalEvts = fEventNr-1;
+		std::cout << nEvtsWithParabolasFound << " events have >= 1 parabola.\n";
+		std::cout << nEvtsWithTracksFound << " events have >= 1 track.\n";
+	}
 }
 
 

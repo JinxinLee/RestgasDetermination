@@ -308,7 +308,7 @@ void PndFtsHoughSpace::filterInputHits()
 		AddHitToHS(iHit,hitZLabSys);
 
 	} // for loop over all hits
-	if (0 < fVerbose) std::cout << GetNHits() << " hits in Hough space.\n";
+	if (1<fVerbose) std::cout << GetNHits() << " hits in Hough space.\n";
 }
 
 
@@ -368,7 +368,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 {
 	// make sure we have hits in the Hough space
 	if (0==GetNHits()){
-		if(0<fVerbose) Info("FillHoughSpace","No hits in Hough space.");
+		if(1<fVerbose) Info("FillHoughSpace","No hits in Hough space.");
 		return;
 	}
 
@@ -867,7 +867,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksBinsWoMergingWith
 	// check if Hough space has at least one entry
 	if (1>GetEntries())
 	{
-		if(0<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
+		if(1<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
 		return tracklets;
 	}
 
@@ -942,7 +942,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksBinsWoMergingWith
 	//		   } // z loop
 
 
-	if (0 < fVerbose) PrintFoundTracklets(tracklets);
+	if (1<fVerbose) PrintFoundTracklets(tracklets);
 	return tracklets;
 }
 
@@ -957,7 +957,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 	// check if Hough space has at least one entry
 	if (1>GetEntries())
 	{
-		if(0<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
+		if(1<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
 		return tracklets;
 	}
 
@@ -1090,7 +1090,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 	}
 
 
-	if (0 < fVerbose) PrintFoundTracklets(tracklets);
+	if (1<fVerbose) PrintFoundTracklets(tracklets);
 	return tracklets;
 }
 
@@ -1104,7 +1104,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 	// check if Hough space has at least one entry
 	if (1>GetEntries())
 	{
-		if(0<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
+		if(1<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
 		return tracklets;
 	}
 
@@ -1368,7 +1368,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 		} // y loop
 	} // x loop
 
-	if (0 < fVerbose) PrintFoundTracklets(tracklets);
+	if (1<fVerbose) PrintFoundTracklets(tracklets);
 	return tracklets;
 }
 
@@ -1382,7 +1382,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksWithTSpectrum2(co
 	// check if Hough space has at least one entry
 	if (1>GetEntries())
 	{
-		if(0<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
+		if(1<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
 		return tracklets;
 	}
 
@@ -1426,7 +1426,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksWithTSpectrum2(co
 
 
 
-	if (0 < fVerbose) PrintFoundTracklets(tracklets);
+	if (1<fVerbose) PrintFoundTracklets(tracklets);
 	return tracklets;
 }
 
@@ -1439,7 +1439,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksBlanko(const UInt
 	// check if Hough space has at least one entry
 	if (1>GetEntries())
 	{
-		if(0<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
+		if(1<fVerbose) std::cout << "Hough Space is empty. No peak can be found. Return empty tracklet vector." << '\n';
 		return tracklets;
 	}
 
@@ -1450,7 +1450,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksBlanko(const UInt
 
 
 
-	if (0 < fVerbose) PrintFoundTracklets(tracklets);
+	if (1<fVerbose) PrintFoundTracklets(tracklets);
 	return tracklets;
 }
 
