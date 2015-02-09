@@ -26,6 +26,11 @@
 #include "TF1.h"
 #include "TSpectrum.h"
 
+#include "PndDrcTrackInfo.h"
+#include "PndDrcPhotonInfo.h"
+#include "PndDrcAmbiguityInfo.h"
+
+
 class PndDrcLutReco : public FairTask {
 
 public:
@@ -52,7 +57,10 @@ public:
  
 private:
 
-  void ProcessPhotonHit();
+  void  LoopOverMcTracks();
+  void FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId, Int_t recalculatedSensorId, Double_t directz);
+  void DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t boxId);
+  void DetermineBarId(Double_t phi,  Double_t &boxPhi, Int_t &boxId, Int_t &barId);
   Double_t FindPeak();
   Int_t FindPdg(Double_t mom, Double_t cangle);
   PndGeoDrc* fGeo;
@@ -86,6 +94,7 @@ private:
   Int_t nevents;
   TString fInputFile;
   TH1F *fHist;
+  TH1F *fHist2;
   TF1 *fFit;
   TSpectrum *fSpect;
 
