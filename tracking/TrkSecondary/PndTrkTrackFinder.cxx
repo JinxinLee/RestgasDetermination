@@ -610,7 +610,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // L     O   O N N N G  GG
   // L     O   O N  NN G   G
   // LLLLL  OOO  N   N  GGG 
-  fDisplayOn = kFALSE;
+  //  fDisplayOn = kFALSE;
   PndTrkHit *stthit = NULL;
   TObjArray indiv;
   // calculate the indivisible parallel hits and
@@ -2622,7 +2622,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     display->cd(1);
     Refresh();
   }
-   fDisplayOn = kTRUE;
+  //   fDisplayOn = kTRUE;
 
   //--------------------------------------
   // PndTrkTrack --> PndTrack
