@@ -41,6 +41,7 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "/include/CLHEP/"
         "/include/HepMC/"
         "/include/boost/"
+        "/include/Geant4/"
         "PParticle.h"
         "PDataBase.h"
         "PMesh.h"
