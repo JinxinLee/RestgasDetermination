@@ -9,24 +9,6 @@
 
 using namespace std;
 
-EvtPP_PsiEtaPi0::EvtPP_PsiEtaPi0() {
-    mp = 0;
-    mPi=0;
-    mPsi = 0;
-    mEta=0;
-    wPsi = 0;
-    mPsi2S = 0;
-    wPsi2S = 0;
-
-    diag1 = 1;
-    diag2 = 1;
-    diag3 = 1;
-    diag4 = 1;
-  
-    nCall = 0;
-
-    first_run = true;
-}
 
 EvtPP_PsiEtaPi0::EvtPP_PsiEtaPi0(const EvtPP_PsiEtaPi0& orig) {
     mp = orig.mp;
@@ -36,14 +18,6 @@ EvtPP_PsiEtaPi0::EvtPP_PsiEtaPi0(const EvtPP_PsiEtaPi0& orig) {
     wPsi = orig.wPsi;
     mPsi2S = orig.mPsi2S;
     wPsi2S = orig.wPsi2S;
-
-    diag1 = orig.diag1;
-    diag2 = orig.diag2;
-    diag3 = orig.diag3;
-    diag4 = orig.diag4;
-  
-    nCall = orig.nCall;
-
     first_run = orig.first_run;
 }
 
@@ -63,17 +37,11 @@ void EvtPP_PsiEtaPi0::init() {
     wPsi = EvtPDL::getWidth(EvtPDL::getId("J/psi"));
     mPsi2S = EvtPDL::getMass(EvtPDL::getId("psi(2S)"));
     wPsi2S = EvtPDL::getWidth(EvtPDL::getId("psi(2S)"));
-
-    diag1 = 1;
-    diag2 = 1;
-    diag3 = 1;
-    diag4 = 1;
-
-    
 }
 
 
 double EvtPP_PsiEtaPi0::Matr2_PsiEtaPi0(EvtParticle *root) {
+    const int diag1=1, diag2=1, diag3=1, diag4=1;
     EvtVector4R p=root->getDaug(0)->getP4Lab(), 
             kEta=root->getDaug(1)->getP4Lab(), 
             kPi=root->getDaug(2)->getP4Lab(),
@@ -167,7 +135,6 @@ double EvtPP_PsiEtaPi0::Matr2_PsiEtaPi0(EvtParticle *root) {
 
 
 void EvtPP_PsiEtaPi0::decay(EvtParticle* root) {
-    nCall++;
     root->initializePhaseSpace(getNDaug(), getDaugs());
     if(first_run) {
         first_run=false;

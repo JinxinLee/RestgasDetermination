@@ -28,13 +28,6 @@ void EvtPPPsiPiPi::initProbMax()  {
   
 }
 
-EvtPPPsiPiPi::EvtPPPsiPiPi() {
-  diag1=1; diag2=1; diag3=1; diag4=1;
-  mp=0.938;  mpi=0.130;  mPsi=3.1; mmu=0; mPsi2S=3.7; mHc=3.7;
-  mp2=pow(mp,2); mp4=pow(mp,4);
-  mpi2=pow(mpi,2); mpi4=pow(mpi,4);
-  mPsi2=pow(mPsi,2); mPsi4=pow(mPsi,4);
-}
 
 EvtPPPsiPiPi::EvtPPPsiPiPi(const EvtPPPsiPiPi& orig) {
     diag1=orig.diag1; diag2=orig.diag2; diag3=orig.diag3; diag4=orig.diag4;
@@ -45,8 +38,7 @@ EvtPPPsiPiPi::EvtPPPsiPiPi(const EvtPPPsiPiPi& orig) {
 }
 
 void EvtPPPsiPiPi::init() {
-    checkNArg(3);
-    diag1 = getArg(0); diag2=getArg(1); diag3=getArg(2); diag4=diag3;
+    checkNArg(0);
 
     
     mp = EvtPDL::getMass(EvtPDL::getId("p+"));
@@ -67,26 +59,23 @@ void EvtPPPsiPiPi::decay(EvtParticle* root) {
     EvtVectorParticle *psi = (EvtVectorParticle*) root->getDaug(0);
     EvtId dau[2] = {EvtPDL::getId("e-"), EvtPDL::getId("e+")};
 
-    s=root->getP4Lab().mass2();
+    double s=root->getP4Lab().mass2();
     double beta = sqrt(1 - 4 * mp * mp / s);
     p2 = EvtVector4R(mp, 0, 0, 0);
     p1 = root->getP4Lab() - p2;
     
-    p = root->getDaug(0)->getP4Lab();
-    k1 = root->getDaug(1)->getP4Lab();
-    k2 = root->getDaug(2)->getP4Lab();
-    q = k1 + k2;
+    EvtVector4R  p = root->getDaug(0)->getP4Lab(),
+      k1 = root->getDaug(1)->getP4Lab(),
+      k2 = root->getDaug(2)->getP4Lab();
 
             
-    pp1 = p*p1; pp2 = p*p2; q2 = q.mass2();
-    k1p1=k1*p1; k1p2=k1*p2; k2p=k2*p; k2p2=k2*p2; k2p1=k2*p1; k1p=k1*p;
-    k1k2=k1*k2; k1q=k1*q; k2q=k2*q;
     
-    double prob = Matr2_2();
+    double prob = Matr2_2(s,p,k1,k2);
     
     // add f0 form factor
     double deltaM2 = pow(mPsi2S - mPsi,2);
     double K = 0.15;
+    double q2=(k1+k2).mass2();
     double Fpp = q2 - K*deltaM2*(1+2*mpi*mpi/q2);
     prob = prob*pow(Fpp,2);
 

@@ -12,12 +12,6 @@
 #define diag4 1
 
 
-EvtPP_Pi0Eta::EvtPP_Pi0Eta() {
-  mp=0.938;
-  mPi=0.140;
-  mEta=0.5;
-  first_run=true;  
-}
 
 EvtPP_Pi0Eta::EvtPP_Pi0Eta(const EvtPP_Pi0Eta& orig) {
   mp=orig.mp; mPi=orig.mPi; mEta=orig.mEta;

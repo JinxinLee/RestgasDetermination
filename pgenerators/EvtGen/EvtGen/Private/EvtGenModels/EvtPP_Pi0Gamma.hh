@@ -34,7 +34,7 @@ using namespace std;
 
 class EvtPP_Pi0Gamma: public EvtDecayProb {
 public:
-    EvtPP_Pi0Gamma();
+    EvtPP_Pi0Gamma(): mp(0.938), mPi(0.135), first_run(true), p1(EvtVector4R()), p2(EvtVector4R()), s(10) {};
     EvtPP_Pi0Gamma(const EvtPP_Pi0Gamma& orig);
     virtual ~EvtPP_Pi0Gamma();
     EvtDecayBase *clone() {return new EvtPP_Pi0Gamma();}

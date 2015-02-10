@@ -31,9 +31,32 @@
 class EvtParticle;
 
 
+// EvtPP_PsiEtaPi0::EvtPP_PsiEtaPi0() {
+//     mp = 0;
+//     mPi=0;
+//     mPsi = 0;
+//     mEta=0;
+//     wPsi = 0;
+//     mPsi2S = 0;
+//     wPsi2S = 0;
+// 
+//     diag1 = 1;
+//     diag2 = 1;
+//     diag3 = 1;
+//     diag4 = 1;
+//   
+//     nCall = 0;
+// 
+//     first_run = true;
+// }
+
+
 class EvtPP_PsiEtaPi0: public EvtDecayProb {
 public:
-    EvtPP_PsiEtaPi0();
+    EvtPP_PsiEtaPi0():
+        mp(0.938), mPsi(3.097), wPsi(90e-6), mPsi2S(3.686), mPi(0.135), mEta(0.450),
+        mp_2(pow(mp,2)), mp_4(pow(mp,4)), mPi_2(pow(mPi,2)),mPsi_2(pow(mPsi,2)), mEta_2(pow(mEta,2)),
+	s(10), p1(EvtVector4R()), p2(EvtVector4R()),	first_run(true)   {};
     EvtPP_PsiEtaPi0(const EvtPP_PsiEtaPi0& orig);
     virtual ~EvtPP_PsiEtaPi0();
 
@@ -57,11 +80,9 @@ private:
     double s;
     
     //constants
-    double diag1, diag2, diag3, diag4;
 
     double Matr2_PsiEtaPi0(EvtParticle *root);
     
-    int nCall;
     
     bool first_run;
   

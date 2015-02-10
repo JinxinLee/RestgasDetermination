@@ -47,7 +47,8 @@ double EvtPP_EtacGamma::matr2(double s, double t, double u) {
 
     EvtComplex ii(0., 1.);
 
-
+    int diag1=1, diag2=1, diag3=1, diag4=1;
+    
     EvtComplex Matr2 = -4 * diag3 * diag4 * e * g_eta_pp * g_hc_eta * g_hc_pp * mHc * mp * ((cden41 * den3 + 2 * cden42 * den3 + cden3 * (den41 + 2 * den42)) * t -
             (2 * cden41 * den3 + cden42 * den3 + cden3 * (2 * den41 + den42)) * u + (cden41 * den3 - cden42 * den3 + cden3 * (den41 - den42)) * pow(mp, 2)) +
             4 * pow(diag4, 2) * pow(e, 2) * pow(g_eta_pp, 2)*((cden42 * den41 + cden41 * den42) * s * t + (cden41 + cden42)*(den41 + den42) * t * u +
@@ -72,7 +73,6 @@ double EvtPP_EtacGamma::matr2(double s, double t, double u) {
 }
 
 void EvtPP_EtacGamma::decay(EvtParticle* root) {
-    ++nCall;
 
     root->initializePhaseSpace(getNDaug(), getDaugs());
 
@@ -92,11 +92,7 @@ void EvtPP_EtacGamma::decay(EvtParticle* root) {
     setProb(matr2(s, t, u));
 }
 
-EvtPP_EtacGamma::EvtPP_EtacGamma() {
-    mp=0; mPsi=0; wPsi=0; mPsi2S=0; wPsi2S=0; mHc=0; wHc=0; mEtaC=0;
-    diag1=1; diag2=1; diag3=1; diag4=1;    
-    first_run = true;      
-};
+EvtPP_EtacGamma::EvtPP_EtacGamma();
 
 EvtPP_EtacGamma::EvtPP_EtacGamma(const EvtPP_EtacGamma& orig) {
   mp=orig.mp; 

@@ -14,11 +14,6 @@
 #define diag3 1
 #define diag4 1
 
-EvtPP_Pi0Gamma::EvtPP_Pi0Gamma() {
-  mp=0.938;
-  mPi=0.140;
-  first_run = true;  
-};
 EvtPP_Pi0Gamma::EvtPP_Pi0Gamma(const EvtPP_Pi0Gamma& orig) {
   mp=orig.mp; mPi=orig.mPi;
   first_run=orig.first_run;  

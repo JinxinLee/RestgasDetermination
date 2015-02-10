@@ -38,9 +38,27 @@
 class EvtParticle;
 
 
+// EvtPPPsiPiPi::EvtPPPsiPiPi() {
+//   diag1=1; diag2=1; diag3=1; diag4=1;
+//   mp=0.938;  mpi=0.130;  mPsi=3.1; mmu=0; mPsi2S=3.7; mHc=3.7;
+//   mp2=pow(mp,2); mp4=pow(mp,4);
+//   mpi2=pow(mpi,2); mpi4=pow(mpi,4);
+//   mPsi2=pow(mPsi,2); mPsi4=pow(mPsi,4);
+// }
+
+
 class EvtPPPsiPiPi:public  EvtDecayProb {
 public:
-    EvtPPPsiPiPi();
+// mp=0.938; mpi=0.135; mPsi=3.097; mmu=0.001; mPsi2S=3.686; mHc=3.526;
+  
+    EvtPPPsiPiPi():
+      mp(0.938), mpi(0.135), mPsi(3.097), mmu(0.001), mPsi2S(3.686), mHc(3.526), 
+      GammaPsi2S(300e-6), GammaHc(700e-6),
+      p1(EvtVector4R()), p2(EvtVector4R()),
+      mp2(pow(mp,2)), mp4(pow(mp,4)), mpi2(pow(mpi,2)),
+      mPsi2(pow(mPsi,2)), mPsi4(pow(mPsi,4)),
+      diag1(1), diag2(1), diag3(1), diag4(1)
+      {};
     EvtPPPsiPiPi(const EvtPPPsiPiPi& orig);
     virtual ~EvtPPPsiPiPi();
 
@@ -51,14 +69,14 @@ public:
   void decay(EvtParticle *p);
 
 private:
-    double E,s;
+    //double E,s;
     // momenta
-    EvtVector4R p1,p2,p,k1,k2,q;
+    EvtVector4R p1,p2;//p,k1,k2,q;
     
 //     EvtDiracParticle proton, antiproton; 
     
     // scalar products
-    double pp1, pp2, q2, k1p1, k1p2, k2p1, k2p2, k1p, k2p,k1k2,k1q,k2q;
+//    double pp1, pp2, q2, k1p1, k1p2, k2p1, k2p2, k1p, k2p,k1k2,k1q,k2q;
     
     // masses
     double mp, mp2, mp4,
@@ -68,7 +86,7 @@ private:
     double diag1, diag2, diag3, diag4;
 
     double Matr2_pi();
-    double Matr2_2();
+    double Matr2_2(double s, EvtVector4R p, EvtVector4R k1, EvtVector4R k2);
 //    void Matr2_3();
 };
 

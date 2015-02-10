@@ -32,9 +32,10 @@ class EvtParticle;
 
 using namespace std;
 
+
 class EvtPP_Pi0Eta: public EvtDecayProb {
 public:
-    EvtPP_Pi0Eta();
+    EvtPP_Pi0Eta(): mp(0.938), mPi(0.140), mEta(0.5), first_run(true), p1(EvtVector4R()), p2(EvtVector4R()), s(10) {};
     EvtPP_Pi0Eta(const EvtPP_Pi0Eta& orig);
     virtual ~EvtPP_Pi0Eta();
     string getName();

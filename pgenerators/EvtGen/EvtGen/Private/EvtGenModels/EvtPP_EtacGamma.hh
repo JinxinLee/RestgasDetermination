@@ -34,11 +34,13 @@
 class EvtParticle;
 
 
-
-
 class EvtPP_EtacGamma : public EvtDecayProb {
 public:
-    EvtPP_EtacGamma();
+    EvtPP_EtacGamma():
+      mp(0.938), mPsi(3.097), wPsi(90e-6), mPsi2S(3.686), 
+      wPsi2S(300e-6), mHc(3.526), wHc(700e-6), mEtaC(2.982),
+      p1(EvtVector4R()), p2(EvtVector4R()),
+      first_run(true) {};
     EvtPP_EtacGamma(const EvtPP_EtacGamma& orig);
     virtual ~EvtPP_EtacGamma() { };
   std::string getName() {    return "PP_ETAC_GAMMA";};
@@ -57,12 +59,9 @@ private:
     double wPsi, wEtaC, wPsi2S, wHc;
 //    double s;
     
-    //constants
-    double diag1, diag2, diag3, diag4;
 
     double matr2(double s, double t, double u);
     
-    int nCall;
     
     bool first_run;
 };
