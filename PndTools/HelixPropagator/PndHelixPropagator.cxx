@@ -76,7 +76,7 @@ FairTrackPar PndHelixPropagator::PropagateByAngle(Double_t step)
 	newOrigin.SetPhi(newPhi);
 	newOrigin += circleCenter;
 	if (ratioPtPl != 0)
-		newOrigin.SetZ(stepInRad * Radius() / ratioPtPl);
+		newOrigin.SetZ((stepInRad * Radius() * -1 * fCharge / ratioPtPl) + fOrigin.Z());
 	else
 		newOrigin.SetZ(fOrigin.Z());
 
