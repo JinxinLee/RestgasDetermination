@@ -14,23 +14,23 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   Double_t BeamMomentum   =15.0; // beam momentum ONLY for the scaling of the dipole field. For the generator use "mom"
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
-  TString digiFile        = "all.par"; //The emc run the hit producer directly 
-  // choose your event generator 
-  Bool_t UseEvtGen	      =kTRUE; 
-  Bool_t UseEvtGenDirect      =kFALSE;     
+  TString digiFile        = "all.par"; //The emc run the hit producer directly
+                                       // choose your event generator
+  Bool_t UseEvtGen	      =kTRUE;
+  Bool_t UseEvtGenDirect      =kFALSE;
   Bool_t UseDpm 	      =kFALSE;
   Bool_t UseFtf 	      =kFALSE;
   Bool_t UseBoxGenerator      =kFALSE;
   
   //------------------------------------------------------------------
-
+  
   TStopwatch timer;
   timer.Start();
- 
+  
   // Load basic libraries---------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  gRandom->SetSeed(); 
+  gRandom->SetSeed();
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName(SimEngine.Data() );
@@ -39,32 +39,32 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->SetMaterials(MediaFile.Data());
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   
-  // Set the parameters 
+  // Set the parameters
   //-------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += digiFile;
- 
- 
+  
+  
   //-------Set the parameter output --------------------
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);        
-
-  //---------------------Set Parameter output      ---------- 
+  rtdb->setFirstInput(parIo1);
+  
+  //---------------------Set Parameter output      ----------
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(ParOutputfile.Data());
   rtdb->setOutput(output);
-
+  
   // Create and add detectors
-
+  
   //-------------------------  CAVE      -----------------
-
+  
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
-  fRun->AddModule(Cave); 
-  //-------------------------  Magnet   ----------------- 
+  fRun->AddModule(Cave);
+  //-------------------------  Magnet   -----------------
   FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
@@ -99,9 +99,9 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
   Drc->SetRunCherenkov(kFALSE);
-  fRun->AddModule(Drc); 
+  fRun->AddModule(Drc);
   //-------------------------  DISC      -----------------
   PndDsk* Dsk = new PndDsk("DSK", kTRUE);
   Dsk->SetStoreCerenkovs(kFALSE);
@@ -119,7 +119,7 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   //-------------------------  FTS       -----------------
   FairDetector *Fts= new PndFts("FTS", kTRUE);
   Fts->SetGeometryFileName("fts.geo");
-  fRun->AddModule(Fts); 
+  fRun->AddModule(Fts);
   //-------------------------  FTOF      -----------------
   FairDetector *FTof = new PndFtof("FTOF",kTRUE);
   FTof->SetGeometryFileName("ftofwall.root");
@@ -128,7 +128,7 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   FairDetector *Rich= new PndRich("RICH",kFALSE);
   Rich->SetGeometryFileName("rich_v2.geo");
   fRun->AddModule(Rich);
-
+  
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
@@ -147,52 +147,53 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
     primGen->AddGenerator(Dpm);
   }
   if(UseFtf){
-	TString macfile = gSystem->Getenv("VMCWORKDIR");
-	macfile += "/pgenerators/FtfEvtGen/PbarP.mac";
-	PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());
-	primGen->AddGenerator(Ftf);
+    //	TString macfile = gSystem->Getenv("VMCWORKDIR");
+    //	macfile += "/pgenerators/FtfEvtGen/PbarP.mac";
+    //	PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());
+    PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", mom, 123456);
+    primGen->AddGenerator(Ftf);
   }
-  if(UseEvtGen){	
+  if(UseEvtGen){
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-    EvtInput+="/input/psi2s_jpsi2pi_1k.evt";	
+    EvtInput+="/input/psi2s_jpsi2pi_1k.evt";
     FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(EvtInput.Data());
     primGen->AddGenerator(evtGen);
-  }	
+  }
   if(UseEvtGenDirect){
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
-    EvtInput+="/macro/run/2pipi.dec";	
+    EvtInput+="/macro/run/2pipi.dec";
     PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
     EvtGen->SetStoreTree(kFALSE);
     primGen->AddGenerator(EvtGen);
-  }	
-
-  //---------------------Create and Set the Field(s)---------- 
+  }
+  
+  //---------------------Create and Set the Field(s)----------
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
-
+  
   // EMC Hit producer
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
- 
+  
   //-------------------------- switch on the vis manager-----------
   fRun->SetStoreTraj(kTRUE);
-  //-------------------------  Initialize the RUN  -----------------  
+  //-------------------------  Initialize the RUN  -----------------
   fRun->Init();
   //----------------- Set some cuts for the visualization-----------
   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   // Set cuts for storing the trajectpries
   trajFilter->SetStepSizeCut(0.04); // 1 cm
-  //     trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
-  //     trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
-  //     trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
+                                    //     trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
+                                    //     trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
+                                    //     trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
   trajFilter->SetStorePrimaries(kTRUE);
   trajFilter->SetStoreSecondaries(kTRUE);
-  //-------------------------  Run the Simulation  -----------------   
+  //-------------------------  Run the Simulation  -----------------
   fRun->Run(nEvents);
-  //-------------------------  Save the parameters ----------------- 
+  //-------------------------  Save the parameters -----------------
   rtdb->saveOutput();
-  //------------------------Print some info and exit----------------     
+  //------------------------Print some info and exit----------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
@@ -202,6 +203,6 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   cout << " All ok " << endl;
   
   exit(0);
-
-}  
   
+}  
+
