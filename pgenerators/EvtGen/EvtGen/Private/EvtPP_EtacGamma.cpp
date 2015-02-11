@@ -92,7 +92,6 @@ void EvtPP_EtacGamma::decay(EvtParticle* root) {
     setProb(matr2(s, t, u));
 }
 
-EvtPP_EtacGamma::EvtPP_EtacGamma();
 
 EvtPP_EtacGamma::EvtPP_EtacGamma(const EvtPP_EtacGamma& orig) {
   mp=orig.mp; 
