@@ -49,7 +49,7 @@ void PndTrackCand::AddHit(TString branchName, UInt_t hitId, Double_t rho)
 
 void PndTrackCand::AddHit(FairLink link, Double_t rho)
 {
-	fHitId.push_back(PndTrackCandHit(link.GetType(), link.GetIndex(), rho));
+	fHitId.push_back(PndTrackCandHit(link, rho));
 	sorted = false;
 	AddLink(link);
 }

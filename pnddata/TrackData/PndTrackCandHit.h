@@ -31,6 +31,7 @@ class PndTrackCandHit : public FairLink{
 public:
   PndTrackCandHit():FairLink(), fRho(0){}
   PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):FairLink(detId, hitId), fRho(rho){}
+  PndTrackCandHit(FairLink& link, Double_t& rho):FairLink(link), fRho(rho){};
   ~PndTrackCandHit() {}
   bool operator< (const PndTrackCandHit& rhs) const
   {return fRho<rhs.fRho;};
