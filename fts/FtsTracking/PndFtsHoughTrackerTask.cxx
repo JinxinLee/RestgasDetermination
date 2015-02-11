@@ -18,6 +18,7 @@
 
 // (Hough) tracking
 #include "PndFtsHoughTrackFinder.h"
+#include "PndFtsHoughTrackFinderQA.h"
 #include "PndFtsHoughSpace.h"
 #include "PndTrackCand.h"
 #include "PndTrack.h"
@@ -74,9 +75,9 @@ using std::endl;
 
 
 // ---- Default constructor -------------------------------------------
-PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence, Bool_t saveDebugInfo)
+PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence)
 : FairTask("PndFtsHoughTrackerTask", verbose),
-  fSaveDebugInfo(saveDebugInfo),
+  fSaveDebugInfo(kFALSE),
   fPersistence(persistence),
   fEventNr(0),
   //  fOutFile(0),
@@ -95,6 +96,11 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
 //  fHoughTrackCands(0),
   fLogger(FairLogger::GetLogger()),
   fFtsMcPoints(0),
+
+  fParabolaHwScan(0.),
+  fParabolaStepsPerThetaDeg(0.),
+  fParabolaNBinsPzxInv(0),
+  fParabolaQDivPzxArgMax(0.),
 
   // output
   fTrackCands(0),
@@ -310,10 +316,10 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 //	fHoughTrackCands->Delete();
 	//fHoughSpaces->Delete();
 
-	CheckForDuplicateFtsHits();
+//	CheckForDuplicateFtsHits();
 
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder::Exec tracker ptr " << this << '\n';
-	PndFtsHoughTrackFinder trackFinder(this);
+	PndFtsHoughTrackFinderQA trackFinder(this);
 	//	trackFinder.SetMinPeakHeightZxLineParabola(4);
 	//	trackFinder.SetMinPeakHeightZxParabola(6);
 	//	trackFinder.SetMinPeakHeightZxParabolaLine(4);
@@ -393,14 +399,6 @@ void PndFtsHoughTrackerTask::Finish()
 	}
 	ioman->Write();
 	if(3<fVerbose) Info("Finish","Found %i tracks.",fTrackCands->GetEntriesFast());
-	if(0<fVerbose){
-		PndFtsHoughTrackFinder trackFinder(this);
-		Int_t nEvtsWithParabolasFound = trackFinder.getNEvtsWithParabolasFound();
-		Int_t nEvtsWithTracksFound = trackFinder.getNEvtsWithTracksFound();
-//		Int_t nTotalEvts = fEventNr-1;
-		std::cout << nEvtsWithParabolasFound << " events have >= 1 parabola.\n";
-		std::cout << nEvtsWithTracksFound << " events have >= 1 track.\n";
-	}
 }
 
 

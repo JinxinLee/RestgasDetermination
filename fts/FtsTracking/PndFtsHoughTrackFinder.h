@@ -70,7 +70,7 @@ public:
 	PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask); ///< @brief Set pointer to tracker task (super important as it provides an I/O interface to PandaRoot)
 	virtual ~PndFtsHoughTrackFinder(); ///< @brief Destructor
 
-	void FindTracks();	///< @brief Performs the track finding.
+	virtual void FindTracks();	///< @brief Performs the track finding.
 
 
 	// Output
@@ -97,11 +97,13 @@ public:
 	 */
 	PndFtsHoughTrackCand GetHoughTrack(int i) const { return fHoughTrackCandsComplete[i]; };
 
+	// Output event statistics
+	Int_t getNLinesBeforeDipoleFound() const { return fNLinesBeforeDipoleFound; };
+	Int_t getNLinesBehindDipoleFound() const { return fNLinesBehindDipoleFound; };
+	Int_t getNParabolasFound() const { return fNParabolasFound; };
+	Int_t getNTracksFound() const { return fNTracksFound; };
 
-	Int_t getNEvtsWithParabolasFound() const { return fNEvtsWithParabolasFound; };
-	Int_t getNEvtsWithTracksFound() const { return fNEvtsWithTracksFound; };
-
-private:
+protected:
 	/// @brief Task which handles PandaRoot input/output and provides settings for FTS PR.
 	/// Has to be set using the constructor.
 	PndFtsHoughTrackerTask *fTrackerTask;
@@ -139,9 +141,11 @@ private:
 
 
 
-	// for debugging
-	static Int_t fNEvtsWithParabolasFound;
-	static Int_t fNEvtsWithTracksFound;
+	// event statistics
+	Int_t fNLinesBeforeDipoleFound;
+	Int_t fNLinesBehindDipoleFound;
+	Int_t fNParabolasFound;
+	Int_t fNTracksFound;
 
 
 	// takes the heighest peak (according to peak finder)
@@ -171,6 +175,7 @@ private:
 	) const;
 	void FindZyLineMatchingToLineParabolaLineInZx();
 
+private:
 	ClassDef(PndFtsHoughTrackFinder,1);
 };
 

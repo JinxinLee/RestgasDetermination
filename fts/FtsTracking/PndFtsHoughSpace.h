@@ -28,6 +28,7 @@ TODO: Separate peak finder from Hough space
 
 #include "PndFtsHoughTrackerTask.h"
 #include "PndFtsHoughSpacePeak.h"
+#include "PndFtsHoughSpaceBinning.h"
 
 #include "TH2.h"
 #include <cmath>
@@ -71,13 +72,7 @@ public:
 			const char *name=0,
 			const Int_t refIndex = -1,
 
-			Int_t nbinsx=0,
-			Double_t xlow=0.,
-			Double_t xup=0.,
-
-			Int_t nbinsy=0,
-			Double_t ylow=0.,
-			Double_t yup=0.,
+			PndFtsHoughSpaceBinning binning=PndFtsHoughSpaceBinning(),
 
 			Double_t zRefPos=0.,
 			Double_t interceptZx=0.,

@@ -109,19 +109,19 @@ inline void PndFtsHoughSpace::AddHitToHS(FairLink link, Double_t rho)
 
 
 inline Bool_t PndFtsHoughSpace::IsHitFromTubeIdAlreadyAdded(const Int_t tubeIdToAdd)
+{
+	//	return kFALSE; // uncomment this line to switch off testing for duplicates
+	for (int iTestHit = 0; iTestHit < GetNHits(); ++iTestHit)
 	{
-	return kFALSE; // uncomment this line to switch off testing for duplicates
-		for (int iTestHit = 0; iTestHit < GetNHits(); ++iTestHit)
-		{
-			const PndFtsHit *const myTestHit = getHitFromHS(iTestHit);
+		const PndFtsHit *const myTestHit = getHitFromHS(iTestHit);
 
-			const Int_t tubeIdTestHit = myTestHit->GetTubeID();
+		const Int_t tubeIdTestHit = myTestHit->GetTubeID();
 
-			if ( tubeIdToAdd == tubeIdTestHit ) return kTRUE;
+		if ( tubeIdToAdd == tubeIdTestHit ) return kTRUE;
 
-		} // for loop over all hits which have already been added to the Hough space
-		return kFALSE;
-	};
+	} // for loop over all hits which have already been added to the Hough space
+	return kFALSE;
+};
 
 
 
@@ -130,13 +130,7 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 		const char *name,
 		const Int_t refIndex,
 
-		Int_t nbinsx,
-		Double_t xlow,
-		Double_t xup,
-
-		Int_t nbinsy,
-		Double_t ylow,
-		Double_t yup,
+		PndFtsHoughSpaceBinning binning,
 
 		Double_t zRefPos,
 		Double_t interceptZx,
@@ -145,20 +139,22 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-																																						fTrackerTask(trackerTask),
-																																						fRefIndex(refIndex),
+			fTrackerTask(trackerTask),
+			fRefIndex(refIndex),
 
-																																						fZRefPos(zRefPos),
-																																						fInterceptZx(interceptZx),
+			fZRefPos(zRefPos),
+			fInterceptZx(interceptZx),
 
-																																						TH2S(name,name,nbinsx,xlow,xup,nbinsy,ylow,yup),
+			TH2S(name, name,
+					binning.getNBinsTheta(), binning.getThetaRadLow(), binning.getThetaRadHigh(),
+					binning.getNBinsY(),binning.getYLow(),binning.getYHigh()),
 
-																																						// set from tracker task
-																																						fFtsBranchId(0),
-																																						fVerbose(0),
-																																						fField(0),
+			// set from tracker task
+			fFtsBranchId(0),
+			fVerbose(0),
+			fField(0),
 
-																																						fAssociatedTrackCand(associatedTrackCand)
+			fAssociatedTrackCand(associatedTrackCand)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
