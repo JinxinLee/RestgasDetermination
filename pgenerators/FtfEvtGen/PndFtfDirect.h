@@ -68,7 +68,7 @@ public:
    *  @param Mode = 1. - Elastic and inelastic interactions (default)
    **/
   PndFtfDirect(const char * configfile);
-//  PndFtfDirect(Double_t Mom, Int_t Mode, Long_t Seed, Double_t ThtMin);
+  PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed);
   
   /** Destructor **/
   virtual ~PndFtfDirect();
@@ -78,6 +78,7 @@ public:
    **/
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
   Bool_t ProcessEvent(FairPrimaryGenerator* primGen);
+  void SetVerbose(int v=1) {fverbose=v;};
 
 private:
   

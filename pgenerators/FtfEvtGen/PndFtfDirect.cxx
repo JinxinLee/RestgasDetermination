@@ -183,6 +183,38 @@ PndFtfDirect::PndFtfDirect(const char * configfile)
   //
 }
 
+
+PndFtfDirect::PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed=0)
+{
+  fNoElastics = false;
+  fdefaultEngine = new CLHEP::RanluxEngine( seed, 4 );
+  faPosition = new CLHEP::Hep3Vector(0.,0.,0.);
+  faDirection      = new CLHEP::Hep3Vector(0.0,0.0,1.0);
+  
+  
+  CLHEP::HepRandom::setTheEngine( fdefaultEngine );
+  G4cout << "========================================================" << G4endl;
+  G4cout << "======              FTF Test Start              ========" << G4endl;
+  G4cout << "========================================================" << G4endl;
+  // -------------------------------------------------------------------
+  // Control on input
+  
+  InitZero();
+  
+  fnamePart=particle;
+  fionParticle= false;
+  fnameMat=material;
+  ftargetA=targetA;
+  fnameGen=generator;
+  if(fnameGen == "elastic" || fnameGen == "HElastic" || fnameGen == "DElastic") { fNoElastics=false; }
+  fPlab=mom;
+  fPlab *= GeV;
+  
+  Setup();
+  
+}
+
+
 //PndFtfDirect::PndFtfDirect(Double_t Mom, Int_t Mode, Long_t Seed, Double_t ThtMin)
 //{
 //  faPosition = new CLHEP::Hep3Vector(0.,0.,0.);
