@@ -227,12 +227,12 @@ PndHypDKalmanTask::Exec(Option_t* opt)
 	
       GFDetPlane pl(TVector3(0,0,-55.0),TVector3(1,0,0),TVector3(0,1,0));
 
-      TVector3 p3=trk->getTrackRep(0)->getMom(pl);
+      //TVector3 p3=trk->getTrackRep(0)->getMom(pl);
       //--------------------------------------------
       
       double p=trk->getTrackRep(0)->getMom().Mag();
 
-      std::cout<<" momentum "<<p3.Mag()<<" "<<trk->getMom().Mag()<<std::endl;
+      std::cout<<" momentum "<<" "<<trk->getMom().Mag()<<std::endl;
       std::cout<<" "<<" N reps "<<trk->getNumReps()<<" chi2red "<<trk->getRedChiSqu()<<std::endl;
       
       //INFO: Changing the EPSIL param to 
@@ -240,7 +240,7 @@ PndHypDKalmanTask::Exec(Option_t* opt)
       //propagation to prim vertex works smoothly for 500 ev.
       //no dedx modification from media file is needed
 
-      fPH->Fill(p3.Mag());
+      fPH->Fill(p);
 
       fPEnd->Fill(-1/(trcnd.getQoverPseed()));
 
