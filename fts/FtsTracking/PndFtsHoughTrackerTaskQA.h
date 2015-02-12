@@ -16,6 +16,7 @@
 #define PndFtsHoughTrackerTaskQA_H
 
 #include "PndFtsHoughTrackerTask.h"
+#include "PndFtsHoughTrackFinderParams.h"
 #include "FairTask.h"
 #include <cmath>
 #include <vector>
@@ -66,15 +67,23 @@ public:
 	virtual void Finish();
 
 
+	Int_t getNEvtsWithEnoughParabolas() const { return fNEvtsWithEnoughParabolas; };
+	void setNParabolasToFind(Int_t nParabolasToFind) { fNParabolasToFind = nParabolasToFind; };
+	// use this for parameter optimization
+	void OverwriteTrackFinderParams(PndFtsHoughTrackFinderParams newParams){ fTrackFinderParams = newParams; };
+
 
 private:
 
+	PndFtsHoughTrackFinderParams fTrackFinderParams;
+	Int_t fNParabolasToFind; // defines how many parabolas I should find in the event
+	Int_t fNEvtsWithEnoughParabolas; // counts in how many events I have found >= fNParabolasToFind
 
 	// TODO: I don't think I need the copy constructor and the operator=
 	PndFtsHoughTrackerTaskQA(const PndFtsHoughTrackerTaskQA&);
 	PndFtsHoughTrackerTaskQA operator=(const PndFtsHoughTrackerTaskQA&);
 
-	ClassDef(PndFtsHoughTrackerTaskQA,1);
+ClassDef(PndFtsHoughTrackerTaskQA,1);
 };
 
 #endif

@@ -21,6 +21,7 @@
 #pragma link C++ class PndFtsHoughSpaceBinning+;
 #pragma link C++ class PndFtsHoughSpacePeak+;
 #pragma link C++ class PndFtsHoughTrackFinder+;
+#pragma link C++ class PndFtsHoughTrackFinderParams+;
 #pragma link C++ class PndFtsHoughTrackFinderQA+;
 #pragma link C++ class PndFtsHoughTrackerTask+;
 #pragma link C++ class PndFtsHoughTrackerTaskQA+;

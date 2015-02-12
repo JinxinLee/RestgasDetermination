@@ -4,13 +4,12 @@
 
 ClassImp(PndFtsHoughTrackFinder);
 
-const Double_t PndFtsHoughTrackFinder::fZLineParabola = 342.75; // 368. seemed fine
-const Double_t PndFtsHoughTrackFinder::fZParabolaLine = 605.;
 const Double_t PndFtsHoughTrackFinder::fThetaRadLineBehindDipoleMatchesToParabolaIfBelow = 5*TMath::DegToRad();
 
 
 PndFtsHoughTrackFinder::PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask)
 : fTrackerTask(trackerTask),
+  fParams(),
 
   // min peak heights
   fMinPeakHeightZxLineBeforeDipole(6),
@@ -65,7 +64,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBehindDipoleZx
 	);
 	PndFtsHoughSpace houghSpaceZxLineBehindDipole("lineBehindDipole", -1,
 			binningZxLineBehindDipole,
-			fZParabolaLine, 0., 0, fTrackerTask);
+			fParams.getZParabolaLine(), 0., 0, fTrackerTask);
 
 	// Do straight line Hough transform on non-skewed hits from stations 1+2
 	try { houghSpaceZxLineBehindDipole.FillHoughSpace(); }
@@ -114,7 +113,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughTrackFinder::FindLinesBeforeDipoleZx
 	);
 	PndFtsHoughSpace houghSpaceZxLineBeforeDipole("lineBeforeDipole", -1,
 			binningZxLineBeforeDipole,
-			fZLineParabola, 0., 0, fTrackerTask);
+			fParams.getZLineParabola(), 0., 0, fTrackerTask);
 
 	// Do straight line Hough transform on non-skewed hits from stations 1+2
 	try { houghSpaceZxLineBeforeDipole.FillHoughSpace(); }
@@ -145,10 +144,8 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 		const Double_t peakThetaRadHwLB4D = linesBeforeDipole[iLB4D].getThetaRadHw();
 
 		// determine where to look for parabola
-		Double_t parabolaStepsPerThetaDeg = fTrackerTask->getParabolaStepsPerThetaDeg();
-		if ( 0 == parabolaStepsPerThetaDeg ) parabolaStepsPerThetaDeg = 4.; // greater number means finer scanning in theta (will multiplied and rounded lateron)
-		Double_t parabolaHwScan = fTrackerTask->getParabolaHwScan();
-		if ( 0 == parabolaHwScan ) parabolaHwScan = 20.;
+		const Double_t parabolaStepsPerThetaDeg = fParams.getParabolaStepsPerThetaDeg();
+		const Double_t parabolaHwScan = fParams.getParabolaHwScan();
 
 		const Double_t parabolaThetaRadLow = peakThetaRadLB4D
 				- parabolaHwScan*peakThetaRadHwLB4D; // in rad
@@ -173,10 +170,8 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
   							  << " peakThetaRadHwLB4D=" << peakThetaRadHwLB4D
   							  << '\n';
 
-		Int_t parabolaNBinsPzxInv = fTrackerTask->getParabolaNBinsPzxInv();
-		if (0 == parabolaNBinsPzxInv) parabolaNBinsPzxInv = 600;
-		Double_t parabolaQDivPzxArgMax = fTrackerTask->getParabolaQDivPzxArgMax();
-		if (0 == parabolaQDivPzxArgMax) parabolaQDivPzxArgMax = 0.015; // a.u.
+		const Int_t parabolaNBinsPzxInv = fParams.getParabolaNBinsPzxInv();
+		const Double_t parabolaQDivPzxArgMax = fParams.getParabolaQDivPzxArgMax();
 
 
 		PndFtsHoughSpaceBinning binningZxParabola(
@@ -189,7 +184,7 @@ void PndFtsHoughTrackFinder::FindMatchingParabolaToLineBeforeDipoleZxAndAddLineB
 		);
 		PndFtsHoughSpace houghspaceZxParabola("parabola", iLB4D,
 				binningZxParabola,
-				fZLineParabola, peakInterceptLB4D, 0, fTrackerTask);
+				fParams.getZLineParabola(), peakInterceptLB4D, 0, fTrackerTask);
 
 		// Do parabola Hough transform for current line before dipole (shifts FTS hits by hitshiftinx) for non-skewed hits in stations 3+4+5
 		try { houghspaceZxParabola.FillHoughSpace(); }
@@ -261,7 +256,7 @@ void PndFtsHoughTrackFinder::FindZyLineMatchingToLineParabolaLineInZx() {
 		);
 		PndFtsHoughSpace houghspaceZyLine("lineZy", iLPL,
 				binningZyLine,
-				fZLineParabola, 0., &(fHoughTrackCandsZxPlaneOnly[iLPL]),
+				fParams.getZLineParabola(), 0., &(fHoughTrackCandsZxPlaneOnly[iLPL]),
 				fTrackerTask);
 		// Do line Hough transform for current line+parabola+line for skewed hits in all stations
 		try {

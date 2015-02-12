@@ -94,10 +94,6 @@ public:
 	const Int_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
 	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
 
-	Double_t getParabolaStepsPerThetaDeg() const { return fParabolaStepsPerThetaDeg; }
-	Double_t getParabolaHwScan() const { return fParabolaHwScan; }
-	Int_t getParabolaNBinsPzxInv() const { return fParabolaNBinsPzxInv; }
-	Double_t getParabolaQDivPzxArgMax() const { return fParabolaQDivPzxArgMax; }
 
 
 	//-----------
@@ -190,13 +186,6 @@ protected:
 	Int_t   fFtsBranchId; ///< @brief Detector Id of FTS.
 	TClonesArray *fFtsHitArray; ///< @brief Input array of PndFtsHit
 	TClonesArray*  fFtsMcPoints;      ///< @brief Input array of McPoints
-
-	// for overwriting default parameters of PR algorithm (needed for automatic parameter optimization)
-	// Parabola Hough transform
-	Double_t fParabolaHwScan; // how many halfwidths of the peak for line before dipole should the parabola's theta be looked for
-	Double_t fParabolaStepsPerThetaDeg; // how many scan steps should the Hough transform do per degree in theta when searching for the parabola
-	Int_t fParabolaNBinsPzxInv; // how many bins in Q/p_{zx}
-	Double_t fParabolaQDivPzxArgMax; // -min. and max. allowed values in Hough space for Q/p_{zx} (in arbitrary units)
 
 
 	/** @brief Needed for FTS map creator.

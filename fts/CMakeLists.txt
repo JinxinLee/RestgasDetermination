@@ -49,6 +49,7 @@ FtsTracking/PndFtsHoughTrackCand.cxx
 FtsTracking/PndFtsHoughSpace.cxx
 FtsTracking/PndFtsHoughSpaceBinning.cxx
 FtsTracking/PndFtsHoughSpacePeak.cxx
+FtsTracking/PndFtsHoughTrackFinderParams.cxx
 FtsTracking/PndFtsHoughTrackFinder.cxx
 FtsTracking/PndFtsHoughTrackFinderQA.cxx
 FtsTracking/PndFtsHoughTrackerTask.cxx

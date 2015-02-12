@@ -97,11 +97,6 @@ PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence
   fLogger(FairLogger::GetLogger()),
   fFtsMcPoints(0),
 
-  fParabolaHwScan(0.),
-  fParabolaStepsPerThetaDeg(0.),
-  fParabolaNBinsPzxInv(0),
-  fParabolaQDivPzxArgMax(0.),
-
   // output
   fTrackCands(0),
   fTracks(0)

@@ -37,6 +37,8 @@
 #ifndef PndFtsHoughTrackFinder_H
 #define PndFtsHoughTrackFinder_H
 
+#include "PndFtsHoughTrackFinderParams.h"
+
 //#include "TClonesArray.h"
 #include "Rtypes.h" // for Double_t, Int_t, etc
 #include "FairLogger.h" // for FairLogger, MESSAGE_ORIGIN
@@ -69,6 +71,9 @@ class PndFtsHoughTrackFinder
 public:
 	PndFtsHoughTrackFinder(PndFtsHoughTrackerTask *trackerTask); ///< @brief Set pointer to tracker task (super important as it provides an I/O interface to PandaRoot)
 	virtual ~PndFtsHoughTrackFinder(); ///< @brief Destructor
+
+	// use this for parameter optimization
+	void OverwriteTrackFinderParams(PndFtsHoughTrackFinderParams newParams){ fParams = newParams; };
 
 	virtual void FindTracks();	///< @brief Performs the track finding.
 
@@ -118,15 +123,13 @@ protected:
 
 
 	// for Hough
+	PndFtsHoughTrackFinderParams fParams;
+
 	//-----------
 	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsComplete; ///< For internal storing of complete track cands.
 	std::vector<PndFtsHoughTrackCand> fHoughTrackCandsZxPlaneOnly; ///< For internal storing of track cands. (zx plane track model only)
 	//	std::vector<PndTrackCand> fTrackCand; // resulting track candidates, also used for returning PndTracks
 
-
-	///< sets where the apex of the parabola is supposed to be
-	static const Double_t fZLineParabola; // the value should coincide with the start of the dipole field // 368. was ok
-	static const Double_t fZParabolaLine; // the value should coincide with the end of the dipole field // TODO determine this value
 
 	static const Double_t fThetaRadLineBehindDipoleMatchesToParabolaIfBelow;
 

@@ -76,7 +76,10 @@ using std::endl;
 
 // ---- Default constructor -------------------------------------------
 PndFtsHoughTrackerTaskQA::PndFtsHoughTrackerTaskQA(Int_t verbose)
-: PndFtsHoughTrackerTask(verbose, kTRUE)
+: PndFtsHoughTrackerTask(verbose, kTRUE),
+  fTrackFinderParams(),
+  fNParabolasToFind(1),
+  fNEvtsWithEnoughParabolas(0)
 {
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackerTaskQA is the tracker ptr " << this << '\n';
 }
@@ -117,19 +120,27 @@ void PndFtsHoughTrackerTaskQA::Exec(Option_t* option)
 	if(1<fVerbose) Info("Exec","Exec of PndFtsHoughTrackerTaskQA on event %i", fEventNr);
 
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder::Exec tracker ptr " << this << '\n';
-	PndFtsHoughTrackFinderQA trackFinder(this);
-	//	trackFinder.SetMinPeakHeightZxLineParabola(4);
-	//	trackFinder.SetMinPeakHeightZxParabola(6);
-	//	trackFinder.SetMinPeakHeightZxParabolaLine(4);
-	//	trackFinder.SetMinPeakHeightZyLine(4);
+
+
+	// determine how many parabolas should be found (by performing ideal track finding)
+
+
+
+	// run track finder
+	PndFtsHoughTrackFinder trackFinder(this);
+	trackFinder.OverwriteTrackFinderParams(fTrackFinderParams);
 	trackFinder.FindTracks();
 
-	if(0<fVerbose){
-//		Int_t nEvtsWithParabolasFound = trackFinder.getNEvtsWithParabolasFound();
-//		Int_t nEvtsWithTracksFound = trackFinder.getNEvtsWithTracksFound();
-//		std::cout << nEvtsWithParabolasFound << " events have >= 1 parabola.\n";
-//		std::cout << nEvtsWithTracksFound << " events have >= 1 track.\n";
-	}
+
+
+
+	// check if we found correct number of parabolas
+	if (fNParabolasToFind <= trackFinder.getNParabolasFound()) ++fNEvtsWithEnoughParabolas;
+
+
+
+
+
 
 
 	if(3<fVerbose) Info("Exec","End eventloop.");
@@ -148,6 +159,9 @@ void PndFtsHoughTrackerTaskQA::Finish()
 {
 	if(3<fVerbose) Info("Finish","Found %i tracks.",fTrackCands->GetEntriesFast());
 
+	// print parameters to screen if we have found enough parabolas
+	std::cout << fNEvtsWithEnoughParabolas << " events have >= " << fNParabolasToFind << " parabola.\n";
+	std::cout << " \n";
 }
 
 
