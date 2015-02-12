@@ -146,7 +146,55 @@ PndFtfDirect::PndFtfDirect() {
 
 // -----   Standard constructor   -----------------------------------------
 
-PndFtfDirect::PndFtfDirect(const char * configfile)
+PndFtfDirect::PndFtfDirect(const char * configfile) :
+fverbose(0),
+fsaverand(false),
+fnamePart("proton"),
+fionParticle(false),
+fPlab(100.),//*GeV;   // VU
+fenergy(100.),//*GeV;
+fsigmae(0.0),
+fionZ(0),
+fionA(0),
+ftargetA(0),
+fnameMat("G4_Al"),
+fShen(false),
+fnameGen("binary"),
+fnevt(1000),
+fmodu(1000),
+ftheStep(0.01),//*micrometer;
+fmaterial(0),
+fxsbgg(true),
+faPosition(0),
+faTime(0.),
+faDirection(0),
+fnx(0.0),
+fny(0.0),
+fnz(0.0),
+fmate(0),
+fphys(0),
+fpartTable(0),
+ftheDeExcitation(0),
+ftheEvaporation(0),
+fthePreCompound(0),
+fsigTot(0),
+fsigEl(0),
+fsigIn(0),
+fnpart(0),
+factiveCnt(0),
+fMom(0.),
+fMode(0.),
+fSeed(0.),
+fRsigma(0.),
+fThtMin(0.),
+fin(0),
+fdefaultEngine(0),
+fNoElastics(false),
+dParticle(0),
+proc(0),
+step(0),
+gTrack(0),
+part(0)
 {
   fNoElastics = false;
   fdefaultEngine = new CLHEP::RanluxEngine( 1234567, 4 );
@@ -184,7 +232,55 @@ PndFtfDirect::PndFtfDirect(const char * configfile)
 }
 
 
-PndFtfDirect::PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed=0)
+PndFtfDirect::PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed=0) :
+fverbose(0),
+fsaverand(false),
+fnamePart("proton"),
+fionParticle(false),
+fPlab(100.),//*GeV;   // VU
+fenergy(100.),//*GeV;
+fsigmae(0.0),
+fionZ(0),
+fionA(0),
+ftargetA(0),
+fnameMat("G4_Al"),
+fShen(false),
+fnameGen("binary"),
+fnevt(1000),
+fmodu(1000),
+ftheStep(0.01),//*micrometer;
+fmaterial(0),
+fxsbgg(true),
+faPosition(0),
+faTime(0.),
+faDirection(0),
+fnx(0.0),
+fny(0.0),
+fnz(0.0),
+fmate(0),
+fphys(0),
+fpartTable(0),
+ftheDeExcitation(0),
+ftheEvaporation(0),
+fthePreCompound(0),
+fsigTot(0),
+fsigEl(0),
+fsigIn(0),
+fnpart(0),
+factiveCnt(0),
+fMom(0.),
+fMode(0.),
+fSeed(0.),
+fRsigma(0.),
+fThtMin(0.),
+fin(0),
+fdefaultEngine(0),
+fNoElastics(false),
+dParticle(0),
+proc(0),
+step(0),
+gTrack(0),
+part(0)
 {
   fNoElastics = false;
   fdefaultEngine = new CLHEP::RanluxEngine( seed, 4 );
