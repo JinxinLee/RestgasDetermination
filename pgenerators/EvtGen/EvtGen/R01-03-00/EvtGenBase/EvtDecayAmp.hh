@@ -68,7 +68,7 @@ public:
 
 
 
-
+  EvtDecayAmp();
   virtual ~EvtDecayAmp() {}
 
 protected:

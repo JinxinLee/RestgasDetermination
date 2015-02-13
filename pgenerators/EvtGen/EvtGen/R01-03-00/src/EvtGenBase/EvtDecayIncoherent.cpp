@@ -27,6 +27,13 @@
 #include "EvtGenBase/EvtPDL.hh"
 
 
+EvtDecayIncoherent::EvtDecayIncoherent() : EvtDecayBase(), spinDensitySet()
+{
+  for (size_t i=0; i<static_cast<unsigned int>(MAX_DAUG); i++ ) {
+    spinDensitySet[i]=0;
+  }
+}
+
 void EvtDecayIncoherent::makeDecay(EvtParticle* p, bool recursive){
 
   //initialize this the hard way..

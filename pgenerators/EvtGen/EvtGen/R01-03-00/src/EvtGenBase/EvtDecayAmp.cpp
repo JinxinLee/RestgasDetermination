@@ -32,6 +32,10 @@
 using std::endl;
 
 
+EvtDecayAmp::EvtDecayAmp() : EvtDecayBase(), _amp2(), _weight(0.)
+{
+}
+
 void EvtDecayAmp::makeDecay(EvtParticle* p, bool recursive){
 
   //original default value

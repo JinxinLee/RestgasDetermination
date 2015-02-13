@@ -34,6 +34,7 @@ public:
 
   void makeDecay(EvtParticle* p, bool recursive=true);
 
+  EvtDecayIncoherent();
   virtual ~EvtDecayIncoherent() {}
 
   void setDaughterSpinDensity(int daughter)
