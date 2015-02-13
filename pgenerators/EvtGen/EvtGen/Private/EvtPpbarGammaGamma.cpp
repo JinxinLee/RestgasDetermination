@@ -26,6 +26,10 @@ using std::string;
 using namespace std;
 
 
+EvtPpbarGammaGamma::EvtPpbarGammaGamma() : EvtDecayProb()
+{
+}
+
 EvtPpbarGammaGamma::~EvtPpbarGammaGamma()
 {
 }

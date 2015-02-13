@@ -51,14 +51,7 @@ class EvtPPPsiPiPi:public  EvtDecayProb {
 public:
 // mp=0.938; mpi=0.135; mPsi=3.097; mmu=0.001; mPsi2S=3.686; mHc=3.526;
   
-    EvtPPPsiPiPi():
-      mp(0.938), mpi(0.135), mPsi(3.097), mmu(0.001), mPsi2S(3.686), mHc(3.526), 
-      GammaPsi2S(300e-6), GammaHc(700e-6),
-      p1(EvtVector4R()), p2(EvtVector4R()),
-      mp2(pow(mp,2)), mp4(pow(mp,4)), mpi2(pow(mpi,2)),
-      mPsi2(pow(mPsi,2)), mPsi4(pow(mPsi,4)),
-      diag1(1), diag2(1), diag3(1), diag4(1)
-      {};
+    EvtPPPsiPiPi();
     EvtPPPsiPiPi(const EvtPPPsiPiPi& orig);
     virtual ~EvtPPPsiPiPi();
 
