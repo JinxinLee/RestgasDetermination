@@ -101,6 +101,8 @@ void digi_complete()
   // -----   FTS hit producers   ---------------------------------
   PndFtsHitProducerRealFast* ftsHitProducer = new PndFtsHitProducerRealFast(); // hits have center of straws as positions
 //  PndFtsHitProducerMcPointCoordinates* ftsHitProducer = new PndFtsHitProducerMcPointCoordinates(); // hits have MC truth positions
+  ftsHitProducer->SetVerbose(4);
+  ftsHitProducer->SwitchOnOverlap();
   fRun->AddTask(ftsHitProducer);
 
   // -----   Ftof hit producers   ---------------------------
