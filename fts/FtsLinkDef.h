@@ -13,6 +13,7 @@
 #pragma link C++ class PndFtsMapCreator+;
 #pragma link C++ class PndFtsTube+;
 #pragma link C++ class PndFtsSingleStraw+;
+#pragma link C++ class PndFtsSignalOverlap+;
 #pragma link C++ class PndFtsHitProducerRealFast+;
 #pragma link C++ class PndFtsHitProducerIdeal+;
 #pragma link C++ class PndFtsHoughTracklet+;

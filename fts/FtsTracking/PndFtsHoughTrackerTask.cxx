@@ -311,7 +311,7 @@ void PndFtsHoughTrackerTask::Exec(Option_t* option)
 //	fHoughTrackCands->Delete();
 	//fHoughSpaces->Delete();
 
-//	CheckForDuplicateFtsHits();
+	CheckForDuplicateFtsHits();
 
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackFinder::Exec tracker ptr " << this << '\n';
 	PndFtsHoughTrackFinderQA trackFinder(this);

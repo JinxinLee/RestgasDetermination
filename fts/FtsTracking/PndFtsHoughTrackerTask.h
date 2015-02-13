@@ -239,7 +239,7 @@ protected:
 
 				const Int_t tubeIdHit2 = myHit2->GetTubeID();
 
-				if ( tubeIdHit1 == tubeIdHit2 ) std::cout << "Event " << GetEventNr() << ": HitIdx " << iHit1 << " and HitIdx " << iHit2 << " are duplicate!\n";
+				if ( tubeIdHit1 == tubeIdHit2 ) std::cout << "Event " << GetEventNr() << "tubeID1="<<tubeIdHit1<<" tubeID2="<<tubeIdHit2 <<": HitIdx " << iHit1 << " and HitIdx " << iHit2 << " are duplicate!\n";
 			}
 
 		} // for loop over all hits

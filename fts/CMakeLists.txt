@@ -36,6 +36,7 @@ PndFtsContFact.cxx
 PndFtsMapCreator.cxx
 PndFtsTube.cxx
 PndFtsSingleStraw.cxx
+PndFtsSignalOverlap.cxx
 PndFtsHitProducerRealFast.cxx
 PndFtsHitProducerIdeal.cxx
 PndFtsHitProducerRealFull.cxx

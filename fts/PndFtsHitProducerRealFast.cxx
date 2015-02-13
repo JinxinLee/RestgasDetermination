@@ -18,6 +18,7 @@
 #include "PndGeoFtsPar.h"
 #include "PndFtsTube.h"
 #include "PndFtsMapCreator.h"
+#include "PndFtsSignalOverlap.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -42,7 +43,7 @@ using std::sqrt;
 PndFtsHitProducerRealFast::PndFtsHitProducerRealFast():
   FairTask("Ideal FTS Hit Producer",0), fPointArray(0),  fHitArray(0),
   fVolumeArray(0), fHitInfoArray(0), fevtn(0), fFtsParameters(new PndGeoFtsPar()),
-  fPersistence(kTRUE)
+  fPersistence(kTRUE), fOverlap(kFALSE)
 { 
 }
 // -------------------------------------------------------------------------
@@ -79,11 +80,28 @@ InitStatus PndFtsHitProducerRealFast::Init() {
     return kERROR;
   }
 
+  // Create and register output array: without fOverlap
+  //fHitArray = new TClonesArray("PndFtsHit");
+  //ioman->Register("FTSHit","FTS",fHitArray, fPersistence);
+
+  ////new part: create and register output array  
+  if(!fOverlap){
+    fHitArray = new TClonesArray("PndFtsHit");
+    ioman->Register("FTSHit","FTS",fHitArray, fPersistence);
+  }
+  else{
+    //if overlap on, save the overlapped hits in regular 
+    //output TCA (FTSHit) and the "original" hits (non overlapped)
+    //in another TCA (FTSOriginalHit)
+    fOverlapHitArray = new TClonesArray("PndFtsHit");
+    ioman->Register("FTSHit","FTS",fOverlapHitArray,fPersistence);
+    fHitArray = new TClonesArray("PndFtsHit");
+    ioman->Register("FTSOriginalHit","FTS",fHitArray, fPersistence);
+  }
+
+
+
   // Create and register output array
-  fHitArray = new TClonesArray("PndFtsHit");
-  ioman->Register("FTSHit","FTS",fHitArray, fPersistence);
-  
- // Create and register output array
   fHitInfoArray = new TClonesArray("PndFtsHitInfo");
   ioman->Register("FTSHitInfo", "FTS", fHitInfoArray, kFALSE);
 
@@ -122,6 +140,7 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
   
   fHitArray->Clear();
   fHitInfoArray->Clear();
+  if(fOverlap) fOverlapHitArray->Clear();
 
   Int_t detID = 0;    // detectorID
   TVector3 pos, dpos; // position and error vectors
@@ -213,13 +232,11 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
     // dE/dx calculation postponed
     Double_t dedx = -999;
     
-    // stt2: detID, pos, dpos, index come from --------------
-    // stt2 (FairHit):
-    Double_t closestDistanceError = GetError(radius);//calculates the error according                                                      to Juelich experimental curves
+
+    Double_t closestDistanceError = GetError(radius);//calculates the error according to Juelich experimental curves
     //cout<<"radius "<<radius<<" error "<<closestDistanceError<<endl;                    
     //closestDistanceError = 0.0150; //150 microns check this point!                             
     //closestDistanceError =TMath::Sqrt(2.)*radius/TMath::Sqrt(12);
-
 
     //TVector3 position(point->GetX(), point->GetY(), point->GetZ()); // use this for hits having same coordinates as MC points
     TVector3 position = tube->GetPosition(); // use this for realistic hit production
@@ -232,11 +249,15 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
 
     // create hit
     AddHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
-
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
   }// Loop over MCPoints
 
+  if(fOverlap){
+    PndFtsSignalOverlap *myoverlap=new PndFtsSignalOverlap(fHitArray);
+    bool overlap = myoverlap->OverlapSimultaneousSignals(fOverlapHitArray);
+
+  }
 
   // Event summary
   //cout << "-I- PndSttHitProducerRealFast: " << nPoints << " FtsPoints, "
