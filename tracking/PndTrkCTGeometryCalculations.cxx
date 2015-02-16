@@ -597,13 +597,14 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ_bis(
 	Double_t ZED,	// input
 	Double_t S,	// input
 	Short_t n_allowed_rounds,	// input, number of maximum allowed turns. That means that the number of turns
-				// can go from 0 to  n_allowed_rounds.  It can be negative, in that case
-				// the number of allowed turns go from n_allowed_rounds to 0;
+				// can go from 0 to  n_allowed_rounds.  It canNOT be negative even when Pz<0 !!!;
 	Double_t signPz,	// input, it indicates if the tracks goes forward (Pz>0) or backwords (Pz<0);
 	Double_t & chosenS // output, the S of the point closer to the trajectory and with an
 				// allowed number of roounds;
 	)
 {
+
+
 
 	Short_t	i,
 		nMax,
@@ -671,7 +672,7 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ_bis(
 		}	// end of  for(i=0; i< n_allowed_rounds+2; i++)
 
 	} else {  // in this case Pz <0;
-		// partice moving backward;
+		// particle moving backward;
 
 		// calculate z2pi, see logbook on page 140 for meaning;
 		if(KAPPA>0.) { z2pi = FI0/KAPPA;}  else { z2pi = -(TWO_PI-FI0)/KAPPA; if(z2pi<0.) z2pi=0.;}
