@@ -2095,11 +2095,15 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	    signPz = -Charge[ncand]*KAPPA[ncand];
 	    if(fR[ncand] < RSTRAWDETECTORMAX/2.){
 		if(signPz>0.){	// this means Pz>0.
-		  Turns= 0.5*(ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI;
-		  if( fabs(Turns)<10.) { MaxTurns=(Short_t) Turns ;} else { if(Turns>0) MaxTurns=10; else MaxTurns=-10;}
+//		  Turns= 0.5*(ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI;
+		  Turns= fabs( 0.5*(ZCENTER_STRAIGHT+SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI ) ; // Turns must be always>=0;
+//		  if( fabs(Turns)<10.) { MaxTurns=(Short_t) Turns ;} else { if(Turns>0) MaxTurns=10; else MaxTurns=-10;}
+		  if( Turns<10.) { MaxTurns=(Short_t) Turns ;} else {  MaxTurns=10; }
 		} else {
-		  Turns= 0.5*(ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI;
-		  if( fabs(Turns)<10.) { MaxTurns=(Short_t) Turns ;} else { if(Turns>0) MaxTurns=10; else MaxTurns=-10;}
+//		  Turns= 0.5*(ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI;
+		  Turns= fabs( 0.5*(ZCENTER_STRAIGHT-SEMILENGTH_STRAIGHT)*KAPPA[ncand]/PI );
+//		  if( fabs(Turns)<10.) { MaxTurns=(Short_t) Turns ;} else { if(Turns>0) MaxTurns=10; else MaxTurns=-10;}
+		  if( Turns<10.) { MaxTurns=(Short_t) Turns ;} else { MaxTurns=10;}
 		}
 	    } else {
 		MaxTurns=0;
