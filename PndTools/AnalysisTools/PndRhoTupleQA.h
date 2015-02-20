@@ -22,7 +22,7 @@ public:
 	void qaCand(TString pre, RhoCandidate *cc, RhoTuple *n, bool skip=false);
 	void qaP4(TString pre, TLorentzVector c, RhoTuple *n, bool skip=false);
 	void qaP4Cms(TString pre, TLorentzVector c, RhoTuple *n, bool skip=false);
-    void qaP4Cov(TString pre, RhoCandidate *c, RhoTuple *n, bool skip=false);
+	void qaP4Cov(TString pre, RhoCandidate *c, RhoTuple *n, bool skip=false);
 
 	// *** QA for 2-prong
 	void qaComp(TString pre, RhoCandidate *c, RhoTuple *n);
@@ -61,6 +61,7 @@ public:
 	void qaMuo(TString pre, RhoCandidate *c, RhoTuple *n);
 
 	void qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n);
+	void qaRecoFullTree(TString pre, RhoCandidate *c, RhoTuple *n);
 
 	// *** QA for the full MC list as array.
 	void qaMcList(TString pre, RhoCandList &l, RhoTuple *n, int max=10000);
