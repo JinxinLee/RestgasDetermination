@@ -505,7 +505,12 @@ InitStatus PndTrkTrackFinder::Init() {
   // fLineHisto = new TH2F("fLineHisto", "hl", 720, -360, 360, 8000, -400, 400);
   fLineHisto = new TH2F("fLineHisto", "hl", 360, -360, 360, 1000, -400, 400);
 
-   
+  stthitlist = new PndTrkSttHitList(fTubeArray);
+  mvdpixhitlist = new PndTrkSdsHitList(MVDPIXEL);
+  mvdstrhitlist = new PndTrkSdsHitList(MVDSTRIP);
+  scithitlist = new PndTrkSciTHitList();
+  gemhitlist = new PndTrkGemHitList();
+
   return kSUCCESS;
 
 }
@@ -522,11 +527,18 @@ void PndTrkTrackFinder::SetParContainers() {
 
 void PndTrkTrackFinder::Initialize() {
   
-  stthitlist = new PndTrkSttHitList(fTubeArray);
-  mvdpixhitlist = new PndTrkSdsHitList(MVDPIXEL);
-  mvdstrhitlist = new PndTrkSdsHitList(MVDSTRIP);
-  scithitlist = new PndTrkSciTHitList();
-  gemhitlist = new PndTrkGemHitList();
+//   stthitlist = new PndTrkSttHitList(fTubeArray);
+//   mvdpixhitlist = new PndTrkSdsHitList(MVDPIXEL);
+//   mvdstrhitlist = new PndTrkSdsHitList(MVDSTRIP);
+//   scithitlist = new PndTrkSciTHitList();
+//   gemhitlist = new PndTrkGemHitList();
+
+//   stthitlist->Clear();
+//   mvdpixhitlist->Clear();
+//   mvdstrhitlist->Clear();
+//  gemhitlist->Clear();
+//   scithitlist->Clear();
+
 
   if(fUseSTT) { 
     stthitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fSttBranch), fSttHitArray);
@@ -558,6 +570,13 @@ void PndTrkTrackFinder::Initialize() {
 
   fInitDone = kTRUE;
   //  stthitlist->PrintSectors();
+
+//   cout << "number of stt    hits " << stthitlist->GetNofHits() << endl;
+//   cout << "number of mvdpix hits " << mvdpixhitlist->GetNofHits()  << endl;
+//   cout << "number of mvdstr hits " << mvdstrhitlist->GetNofHits()  << endl;
+//   cout << "number of scit   hits " << scithitlist->GetNofHits()  << endl;
+//   cout << "number of gem    hits " << gemhitlist->GetNofHits()  << endl;
+   
 }
 
 
@@ -610,7 +629,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // L     O   O N N N G  GG
   // L     O   O N  NN G   G
   // LLLLL  OOO  N   N  GGG 
-  //  fDisplayOn = kFALSE;
+  // L fDisplayOn = kFALSE;
   PndTrkHit *stthit = NULL;
   TObjArray indiv;
   // calculate the indivisible parallel hits and
@@ -735,6 +754,25 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
   }
 
+
+  //  cout << "nof couples " << trackcandidates.size() << endl;
+//   for(int i = 0; i < trackcandidates.size(); i++) {
+//     std::vector< int > driplet = trackcandidates[i];
+//     PndTrkHit *hit0 = stthitlist->GetHit(driplet[0]);
+//     PndTrkHit *hit1 = stthitlist->GetHit(driplet[1]);
+//     TMarker *mrk0 = new TMarker(hit0->GetPosition().X(), hit0->GetPosition().Y(), 21);
+//     mrk0->Draw("SAME");
+//     TMarker *mrk1 = new TMarker(hit1->GetPosition().X(), hit1->GetPosition().Y(), 21);
+//     mrk1->Draw("SAME");
+//     char *goOnChar;
+  
+//     display->Update();
+//     display->Modified();
+
+//       cin >> goOnChar;
+//   }
+
+
   //  cout << endl;
   // triplets
   std::vector< std::vector < int > > trackcandidates2;
@@ -751,13 +789,15 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // cout << couple[0] << ", " << couple[1] <<  " and " << hits16[jhit];
       if(distance > 15) { 
 	// cout << " too distant " << distance << endl; 
-	continue; }
+	continue;
+      }
       
       // cut on angle
       TVector2 hit1_0pos = hit1->GetPosition().XYvector() - hit0->GetPosition().XYvector();
       TVector2 hit1_16pos = hit16->GetPosition().XYvector() - hit1->GetPosition().XYvector();
       double cosalpha = hit1_0pos *  hit1_16pos/ (hit1_0pos.Mod() * hit1_16pos.Mod());
-      if(cosalpha < 0.94) { 
+      //      cout << "cosalpha " << cosalpha << endl;
+      if(cosalpha < 0.900) { 
 	// cout << " have bad cosine " << cosalpha << endl; 
 	continue;
       }
@@ -772,6 +812,27 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       trackcandidates2.push_back(triplet);
     }
   }
+  //  cout << "nof triplets " << trackcandidates2.size() << endl;
+//   for(int i = 0; i < trackcandidates2.size(); i++) {
+//     std::vector< int > driplet = trackcandidates2[i];
+//     PndTrkHit *hit0 = stthitlist->GetHit(driplet[0]);
+//     PndTrkHit *hit1 = stthitlist->GetHit(driplet[1]);
+//     PndTrkHit *hit2 = stthitlist->GetHit(driplet[2]);
+
+//     TMarker *mrk0 = new TMarker(hit0->GetPosition().X(), hit0->GetPosition().Y(), 21);
+//     mrk0->Draw("SAME");
+//     TMarker *mrk1 = new TMarker(hit1->GetPosition().X(), hit1->GetPosition().Y(), 21);
+//     mrk1->Draw("SAME");
+//     TMarker *mrk2 = new TMarker(hit2->GetPosition().X(), hit2->GetPosition().Y(), 21);
+//     mrk2->Draw("SAME");
+
+//     char goOnChar;
+  
+//     display->Update();
+//     display->Modified();
+
+//     cin >> goOnChar;
+//   }
 
   // fourth hit
   std::vector< std::vector< int > >  trackcandidates3;
@@ -813,6 +874,30 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       trackcandidates3.push_back(quadriplet);
     }
   }
+  //  cout << "nof quadriplets " << trackcandidates3.size() << endl;
+//   for(int i = 0; i < trackcandidates3.size(); i++) {
+//     std::vector< int > driplet = trackcandidates3[i];
+//     PndTrkHit *hit0 = stthitlist->GetHit(driplet[0]);
+//     PndTrkHit *hit1 = stthitlist->GetHit(driplet[1]);
+//     PndTrkHit *hit2 = stthitlist->GetHit(driplet[2]);
+//     PndTrkHit *hit3 = stthitlist->GetHit(driplet[3]);
+
+//     TMarker *mrk0 = new TMarker(hit0->GetPosition().X(), hit0->GetPosition().Y(), 21);
+//     mrk0->Draw("SAME");
+//     TMarker *mrk1 = new TMarker(hit1->GetPosition().X(), hit1->GetPosition().Y(), 21);
+//     mrk1->Draw("SAME");
+//     TMarker *mrk2 = new TMarker(hit2->GetPosition().X(), hit2->GetPosition().Y(), 21);
+//     mrk2->Draw("SAME");
+//     TMarker *mrk3 = new TMarker(hit3->GetPosition().X(), hit3->GetPosition().Y(), 21);
+//     mrk3->Draw("SAME");
+    
+//     char goOnChar;
+  
+//     display->Update();
+//     display->Modified();
+
+//     cin >> goOnChar;
+//   }
 
 
 
@@ -835,36 +920,64 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     CircleBy3Points(hit3, hit1, hit2, x03, y03, rad3);
    
     double xm = 0, ym = 0, rm = 0;
-    int positive = 0, negative = 0;
-    if(x01 > 0) positive++; 
-    else negative++;
-    if(x02 > 0) positive++;
-    else negative++;
-    if(x03 > 0) positive++;
-    else negative++;
-    bool posit = false;
-    positive > negative ? posit = true : posit = false;
+    int positive[2] = {0, 0}, negative[2] = {0, 0};
+    if(x01 > 0) positive[0]++; 
+    else negative[0]++;
+    if(x02 > 0) positive[0]++;
+    else negative[0]++;
+    if(x03 > 0) positive[0]++;
+    else negative[0]++;
+
+    if(y01 > 0) positive[1]++; 
+    else negative[1]++;
+    if(y02 > 0) positive[1]++;
+    else negative[1]++;
+    if(y03 > 0) positive[1]++;
+    else negative[1]++;
+
+    bool posit[2] = {false, false};
+    positive[0] > negative[0] ? posit[0] = true : posit[0] = false;
+    positive[1] > negative[1] ? posit[1] = true : posit[1] = false;
+
     int count = 0;
-    if(posit == true) {
-      if(x01 > 0)  { xm += x01; ym += y01; rm += rad1; count++; }
-      if(x02 > 0)  { xm += x02; ym += y02; rm += rad2; count++; } 
-      if(x03 > 0)  { xm += x03; ym += y03; rm += rad3; count++; }
+    if(posit[0] == true && x01 > 0)  { 
+      if(posit[1] == true && y01 > 0)   { xm += x01; ym += y01; rm += rad1; count++; }
+      else if(posit[1] == false && y01 < 0) { xm += x01; ym += y01; rm += rad1; count++; }
     }
-    else {
-      if(x01 < 0)  { xm += x01; ym += y01; rm += rad1; count++; }
-      if(x02 < 0)  { xm += x02; ym += y02; rm += rad2; count++; } 
-      if(x03 < 0)  { xm += x03; ym += y03; rm += rad3; count++; }
+    else if(posit[0] == false && x01 < 0)  {
+      if(posit[1] == true && y01 > 0)   { xm += x01; ym += y01; rm += rad1; count++; }
+      else if(posit[1] == false && y01 < 0) { xm += x01; ym += y01; rm += rad1; count++; }
     }
 
-    xm /= count;
-    ym /= count;
-    rm /= count;
+    if(posit[0] == true && x02 > 0)  { 
+      if(posit[1] == true && y02 > 0)   { xm += x02; ym += y02; rm += rad2; count++; }
+      else if(posit[1] == false && y02 < 0) { xm += x02; ym += y02; rm += rad2; count++; }
+    }
+    else if(posit[0] == false && x02 < 0)  {
+      if(posit[1] == true && y02 > 0)   { xm += x02; ym += y02; rm += rad2; count++; }
+      else if(posit[1] == false && y02 < 0) { xm += x02; ym += y02; rm += rad2; count++; }
+    }
 
-    double distance0 = fabs(TMath::Sqrt((hit0->GetPosition().X() - xm) * (hit0->GetPosition().X() - xm) + (hit0->GetPosition().Y() - ym) * (hit0->GetPosition().Y() - ym)) - rm);
-    double distance1 = fabs(TMath::Sqrt((hit1->GetPosition().X() - xm) * (hit1->GetPosition().X() - xm) + (hit1->GetPosition().Y() - ym) * (hit1->GetPosition().Y() - ym)) - rm);
-    double distance2 = fabs(TMath::Sqrt((hit2->GetPosition().X() - xm) * (hit2->GetPosition().X() - xm) + (hit2->GetPosition().Y() - ym) * (hit2->GetPosition().Y() - ym)) - rm);
-    double distance3 = fabs(TMath::Sqrt((hit3->GetPosition().X() - xm) * (hit3->GetPosition().X() - xm) + (hit3->GetPosition().Y() - ym) * (hit3->GetPosition().Y() - ym)) - rm);
+    if(posit[0] == true && x03 > 0)  { 
+      if(posit[1] == true && y03 > 0)   { xm += x03; ym += y03; rm += rad3; count++; }
+      else if(posit[1] == false && y03 < 0) { xm += x03; ym += y03; rm += rad3; count++; }
+    }
+    else if(posit[0] == false && x03 < 0)  {
+      if(posit[1] == true && y03 > 0)   { xm += x03; ym += y03; rm += rad3; count++; }
+      else if(posit[1] == false && y03 < 0) { xm += x03; ym += y03; rm += rad3; count++; }
+    }
 
+     xm /= count;
+     ym /= count;
+     rm /= count;
+
+     //     cout << "pos.neg " << positive << " " << negative << endl;
+     
+     double distance0 = fabs(TMath::Sqrt((hit0->GetPosition().X() - xm) * (hit0->GetPosition().X() - xm) + (hit0->GetPosition().Y() - ym) * (hit0->GetPosition().Y() - ym)) - rm);
+     double distance1 = fabs(TMath::Sqrt((hit1->GetPosition().X() - xm) * (hit1->GetPosition().X() - xm) + (hit1->GetPosition().Y() - ym) * (hit1->GetPosition().Y() - ym)) - rm);
+     double distance2 = fabs(TMath::Sqrt((hit2->GetPosition().X() - xm) * (hit2->GetPosition().X() - xm) + (hit2->GetPosition().Y() - ym) * (hit2->GetPosition().Y() - ym)) - rm);
+     double distance3 = fabs(TMath::Sqrt((hit3->GetPosition().X() - xm) * (hit3->GetPosition().X() - xm) + (hit3->GetPosition().Y() - ym) * (hit3->GetPosition().Y() - ym)) - rm);
+     
     // cut on the distance to accept quadriplet hypo
     double maxlimit = 1.;
     if(fabs(distance0 - hit0->GetIsochrone()) > maxlimit || fabs(distance1 - hit1->GetIsochrone())  > maxlimit || fabs(distance2 - hit2->GetIsochrone())  > maxlimit || fabs(distance3 - hit3->GetIsochrone())  > maxlimit) continue;
@@ -873,6 +986,11 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     if(fDisplayOn)  {
       char goOnChar;
       Refresh();
+
+      cout << "circ1 " << x01 << " " << y01 << " " << rad1 << endl;
+      cout << "circ2 " << x02 << " " << y02 << " " << rad2 << endl;
+      cout << "circ3 " << x03 << " " << y03 << " " << rad3 << endl;
+      cout << "circm " << xm << " " << ym << " " << rm << endl;
 
       TArc *arc01 = new TArc(x01, y01, rad1);
       arc01->SetFillStyle(0);
@@ -1279,13 +1397,13 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // and now: gem time!
     for(int ihit = 0; ihit < gemhitlist->GetNofHits(); ihit++) {
       hit = gemhitlist->GetHit(ihit);
-      if(border == false && hit->GetSector() != sectorID) continue;
-      else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
-      //     if(hit->GetSector() != sectorID) continue;
+      //       if(border == false && hit->GetSector() != sectorID) continue;
+      //       else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
+      if(fabs(hit->GetSector() - sectorID) > 1) continue;
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc, yc)).Mod();
       double recoiso = fabs(distance_hit_center - R);
-      // cout << "recoiso pix " << recoiso << endl;
-      if(recoiso < 1. && hit->GetPosition().Perp() > CTOUTRADIUS) {
+      // if(hit->GetPosition().Perp() > CTOUTRADIUS) cout << "recoiso gem " << recoiso << endl;
+      if(recoiso < 1.5 && hit->GetPosition().Perp() > CTOUTRADIUS) {
 	cluster.AddHit(hit);
 	if(fDisplayOn)  {
 	  hit->Draw(kOrange);
@@ -1531,11 +1649,13 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // GEM
     for(int ihit = 0; ihit < gemhitlist->GetNofHits(); ihit++) {
       hit = gemhitlist->GetHit(ihit);
-      if(border == false && hit->GetSector() != sectorID) continue;
-      else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
+      //     if(border == false && hit->GetSector() != sectorID) continue;
+      //       else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
+      if(fabs(hit->GetSector() - sectorID) > 1) continue;
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
-      if(recoiso < 1.  && hit->GetPosition().Perp() > CTOUTRADIUS)  {
+      //     if(hit->GetPosition().Perp() > CTOUTRADIUS) cout << "gem recoiso " << recoiso << endl;
+      if(recoiso < 1.5  && hit->GetPosition().Perp() > CTOUTRADIUS)  {
 	// cout << "add " << hit->GetDetectorID() << " " << hit->GetHitID()  << endl;
 	fFinalCluster->AddHit(hit);
       }
@@ -2615,20 +2735,39 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     indivtracklist->AddTrack(tracki);
   }
   delete cleanedtracklist;
-  fTrackList = indivtracklist;
+
+  for(int itrk = 0; itrk < indivtracklist->GetNofTracks(); itrk++) {
+    PndTrkTrack *tracki = indivtracklist->GetTrack(itrk);
+    fTrackList->AddTrack(tracki);
+  }
+  delete indivtracklist;
   
   if(fDisplayOn) {
     char goOnChar;
     display->cd(1);
     Refresh();
   }
-  //   fDisplayOn = kTRUE;
-
+  //
+  //  fDisplayOn = kTRUE;
+  
   //--------------------------------------
   // PndTrkTrack --> PndTrack
   for(int itrk = 0; itrk < fTrackList->GetNofTracks(); itrk++) {
     PndTrkTrack *track = fTrackList->GetTrack(itrk);
     //     cout << "- ----------------------------------- track red " << track->GetRadius() << endl;
+    
+    // CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK 
+    //    temporary hacking not to save the SciTil to PndTrackCand CHECK CHECK CHECK CHECK 
+    // CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK 
+    PndTrkCluster tempcluster = track->GetCluster();
+    PndTrkCluster tempcluster2;
+    for(int ihit = 0; ihit < tempcluster.GetNofHits(); ihit++) {
+      hit = tempcluster.GetHit(ihit);
+      if(hit->IsSciTil() == kTRUE) continue;
+      tempcluster2.AddHit(hit);  
+    }
+    track->SetCluster(&tempcluster2);
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
     PndTrack theTrack = track->ConvertToPndTrack();
 
@@ -2670,7 +2809,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
   int noflongtracks = fTrackArray->GetEntriesFast();
 
-  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // FFFFF W   W DDD 
   // F     W   W D  D
@@ -4398,52 +4537,6 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
     
   }
-  // -----------------------------------------------------------
-  //   Reset();
-  //   fFinalCluster->Clear("C");
-  //   fTrackList->Clear("C");
-  //   fConformalHitList->Clear("C"); 
-  
-
-  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  //  SSS  H   H  OOO  RRRR  TTTTT
-  // S     H   H O   O R   R   T
-  //  SSS  HHHHH O   O RRRR    T
-  //     S H   H O   O R  R    T
-  //  SSS  H   H  OOO  R   R   T
-
-  if(fDisplayOn) {
-    char goOnChar;
-
-    display->cd(1);
-    Refresh();
-
-    // PndTrkTrack --> PndTrack
-    for(int itrk = 0; itrk < fTrackArray->GetEntriesFast(); itrk++) {
-      PndTrack *track = (PndTrack*) fTrackArray->At(itrk);
-      cout << "TRACK " << itrk << " has flag " << track->GetFlag() << endl;;
-
-      PndTrackCand *trackcand = track->GetTrackCandPtr();
-    
-      PndTrkTrack originaltrack(track);
-      originaltrack.Draw(kRed);
-      originaltrack.GetCluster().LightUp();
-      
-      cout << "TRACK " << itrk << endl;
-      cout << "MOM FIRST: TOT, PT, PL " << track->GetParamFirst().GetMomentum().Mag() << " " << track->GetParamFirst().GetMomentum().Perp() << " " << track->GetParamFirst().GetMomentum().Z() << " nofhits " << trackcand->GetNHits() <<  endl;
-      cout << "CHARGE " <<  originaltrack.GetCharge() << endl;
-      display->Update();
-      display->Modified();
-     cin >> goOnChar;
-    }
-    
-    display->Update();
-    display->Modified();
-    cout << "Finish? ";
-    cin >> goOnChar;
-  }
-  Reset();
 
   if(fDisplayOn)  {
     char goOnChar;
@@ -4457,6 +4550,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fFinalCluster->Clear("C");
   fTrackList->Clear("C");
   fConformalHitList->Clear("C"); 
+//   delete indivtracklist;
 
 }
 
@@ -4475,11 +4569,18 @@ void PndTrkTrackFinder::Reset()
   }
   
   if(fInitDone) {
-    if(stthitlist)    delete stthitlist;
-    if(mvdpixhitlist) delete mvdpixhitlist; 
-    if(mvdstrhitlist) delete mvdstrhitlist;
-    if(scithitlist)   delete scithitlist;
-    if(gemhitlist)    delete gemhitlist;
+    stthitlist->Clear();
+    mvdpixhitlist->Clear();
+    mvdstrhitlist->Clear();
+    gemhitlist->Clear();
+    scithitlist->Clear();
+
+    //   if(stthitlist)    delete stthitlist;
+    //     if(mvdpixhitlist) delete mvdpixhitlist; 
+    //     if(mvdstrhitlist) delete mvdstrhitlist;
+    //     if(scithitlist)   delete scithitlist;
+    //     if(gemhitlist)    delete gemhitlist;
+    
     if(fTimer) {
       fTimer->Stop();
       fTime += fTimer->RealTime();
@@ -4611,6 +4712,11 @@ void PndTrkTrackFinder::CircleBy3Points(PndTrkHit* hit1, PndTrkHit * hit2, PndTr
   int ncircles = 3;
   double circle[ncircles][3];
   
+  //   cout << "circle 1 by 3 points " << hit1->GetPosition().X() << " " << hit1->GetPosition().Y() << endl;
+  //   cout << "circle 2 by 3 points " << hit2->GetPosition().X() << " " << hit2->GetPosition().Y() << endl;
+  //   cout << "circle 3 by 3 points " << hit3->GetPosition().X() << " " << hit3->GetPosition().Y() << endl;
+
+
   circle[0][0] = hit1->GetPosition().X();
   circle[0][1] = hit1->GetPosition().Y();
   circle[0][2] = hit1->GetIsochrone();
@@ -4622,6 +4728,13 @@ void PndTrkTrackFinder::CircleBy3Points(PndTrkHit* hit1, PndTrkHit * hit2, PndTr
   circle[2][0] = hit3->GetPosition().X();
   circle[2][1] = hit3->GetPosition().Y();
   circle[2][2] = hit3->GetIsochrone();
+
+
+  // in case of alignement ad an error CHECK
+  if((circle[1][1] - circle[0][1])/(circle[1][0] - circle[0][0]) - (circle[2][1] - circle[0][1])/(circle[2][0] - circle[0][0]) < 0.0001){
+    circle[0][0] += 0.01;
+    circle[0][1] += 0.01;
+  }
 
   for(int a = 0; a < ncircles; a++) {
     for(int b = a + 1; b < ncircles; b++) {
@@ -6106,8 +6219,8 @@ Bool_t PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, doubl
       PndTrkConformalHit chitstt = conform->GetConformalSttHit(hit);
       double sigma = 1e-5;
       if(hit->IsSttParallel()) sigma = chitstt.GetIsochrone(); // 0.1; // CHECK
-      //      if(hit->IsGem()) sigma = 0.1; // CHECK
-      //       if(hit->IsSciTil()) sigma = 0.5; // CHECK
+      if(hit->IsGem()) sigma = 0.1; // CHECK
+      if(hit->IsSciTil()) sigma = 0.5; // CHECK
       //       // if(chit.GetPosition().Mod() > 2) continue; // CHECK THIS OUT!
 
       if(TMath::IsNaN(chit.GetPosition().X())) continue; // prevents the nan of the ref hit
