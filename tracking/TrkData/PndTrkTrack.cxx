@@ -75,6 +75,7 @@ PndTrkTrack::PndTrkTrack(const PndTrkTrack &track) :  fRefHit(NULL), fCluster(Pn
 
 PndTrkTrack::~PndTrkTrack() {
   delete fRefHit;
+
 }
 
 
@@ -97,6 +98,12 @@ Bool_t PndTrkTrack::operator==(PndTrkTrack track)  {
  int nofhits = GetCluster().GetNofHits();
   return nofhits == track.GetCluster().GetNofHits() && fRadius == track.GetRadius() && fCenterX == track.GetCenter().X() && fCenterY == track.GetCenter().Y(); // CHECK
 }
+
+void PndTrkTrack::Clear(Option_t* opt) {
+  delete fRefHit;
+  fCluster.Clear(opt);
+}
+
 
 PndTrackCand PndTrkTrack::ConvertToPndTrackCand() {
   PndTrackCand trkcand;

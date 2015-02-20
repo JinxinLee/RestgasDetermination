@@ -60,6 +60,8 @@ class PndTrkTrack : public TObject
   void Draw(Color_t color = kBlack);
   void LightUp();
 
+  void Clear(Option_t* opt = "");
+
  protected:
   double fRadius, fCenterX, fCenterY, fTanL, fZ0; //!
   int fCharge; //!
