@@ -16,14 +16,13 @@
 using namespace std;
 
 
-PndTrkNeighboringMap::PndTrkNeighboringMap(TClonesArray *tubearray) : fTubeArray(tubearray), fIndiv(TClonesArray("PndTrkHit", 10000)), fStandalone(TObjArray()), fOneNeigh(TObjArray()), fTwoNeigh(TObjArray()) {}
+PndTrkNeighboringMap::PndTrkNeighboringMap(TClonesArray *tubearray) : fTubeArray(tubearray), fStandalone(TObjArray()), fOneNeigh(TObjArray()), fTwoNeigh(TObjArray()) {}
 
 PndTrkNeighboringMap::PndTrkNeighboringMap(const PndTrkNeighboringMap &thismap) {
   *this = thismap;
 }
 
 PndTrkNeighboringMap::~PndTrkNeighboringMap() {
-  //  delete fIndiv;
    delete fTubeArray;
 }
 
@@ -59,7 +58,6 @@ void PndTrkNeighboringMap::Clear() {
   fStandalone.Clear();  // CHECK
   fOneNeigh.Clear();  // CHECK
   fTwoNeigh.Clear();  // CHECK
-  fIndiv.Clear() ;    // CHECK
   //  fTubeArray->Clear(); // CHECK
 
 }
@@ -85,30 +83,41 @@ void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits)
   // up to 2 hits
   if(hits->GetEntriesFast() <= 2) {
     hit2indiv.Add(hit, hits);
-    //    cout << "Bset up map " << hit->GetHitID() << " " << hits->GetEntriesFast() << endl; 
+    //   cout << "Bset up map " << hit->GetHitID() << " " << hits->GetEntriesFast() << endl; 
     return;
   }
 
   // more hits
-  //  fIndiv = new TObjArray();
-  
+  std::vector< int > removefromlist;
   int counter = 0;
   for(int k = 0; k < hits->GetEntriesFast(); k++) {
     PndTrkHit *hit2 = (PndTrkHit*) hits->At(k);
     PndSttTube *tube2 = (PndSttTube* ) fTubeArray->At(hit2->GetTubeID());
-    if(tube->GetLayerID() == tube2->GetLayerID()) continue;
-      counter++;
-      //      fIndiv.Add(hit2);
-      int size = fIndiv.GetEntriesFast();
-      new (fIndiv[size]) PndTrkHit(*hit2);
-      //      hit2->DrawTube(kRed); // CHECK
+    if(tube->GetLayerID() == tube2->GetLayerID()) {
+      removefromlist.push_back(k); 
+      continue;
+    }
+    counter++;
   }
   
 
-  if(counter > 2) fIndiv.Clear();
-  hit2indiv.Add(hit, &fIndiv);
+  for(int k = removefromlist.size() - 1; k >=0; k--) {
+    int delk = removefromlist[k];
+    PndTrkHit *hit2 = (PndTrkHit*) hits->At(delk);
+    hits->Remove(hit2);
+    hits->Compress();
+ }
 
-  //  cout << "Aset up map " << hit->GetHitID() << " " << indiv->GetEntriesFast() << endl; 
+  if(counter > 2) {
+    for(int k = hits->GetEntriesFast() - 1; k >=0; k--) {
+      PndTrkHit *hit2 = (PndTrkHit*) hits->At(k);
+      hits->Remove(hit2);
+    }
+  } 
+
+  hit2indiv.Add(hit, hits);
+
+  //  cout << "Aset up map " << hit->GetHitID() << " " << hits->GetEntriesFast() << endl; 
   
 }
 
@@ -205,8 +214,7 @@ TObjArray PndTrkNeighboringMap::GetIndivisiblesToHit(PndTrkHit *hit) {
   TMapIter *it2 = (TMapIter*) hit2indiv.MakeIterator();
   while(PndTrkHit *hit2 = (PndTrkHit*) it2->Next()) {
     if(hit->GetHitID() == hit2->GetHitID() && hit->GetDetectorID() == hit2->GetDetectorID()) {
-      // cout << "indiv hit "  << hit << " " << hit->GetHitID() << endl;
-      if(hit2indiv.GetValue(hit2) == NULL) return TObjArray(0);
+      if(((TObjArray*) hit2indiv.GetValue(hit2))->GetEntriesFast() == 0) return TObjArray(0);
       return *((TObjArray*) hit2indiv.GetValue(hit2));
     }
   }
@@ -218,12 +226,12 @@ void PndTrkNeighboringMap::PrintIndivisibleMap() {
   TObjArray *hits2;
   while(PndTrkHit *hit = (PndTrkHit*) it2->Next()) {
     hits2 = (TObjArray*) hit2indiv.GetValue(hit);
-    //     cout << hit->GetHitID() << " has " << hits2->GetEntriesFast() << " indivisibles: ";
+    cout << hit->GetHitID() << "(tube: " << hit->GetTubeID() << ") has " << hits2->GetEntriesFast() << " indivisibles: ";
     for(int ihit = 0; ihit <  hits2->GetEntriesFast(); ihit++) {
       PndTrkHit *hit2 = (PndTrkHit*) hits2->At(ihit);
-      //       cout << " " << hit2->GetHitID();
+      cout << " " << hit2->GetHitID() << "(tube: " << hit2->GetTubeID() << "), ";
     }
-    //     cout << endl;
+    cout << endl;
   }
 }
 

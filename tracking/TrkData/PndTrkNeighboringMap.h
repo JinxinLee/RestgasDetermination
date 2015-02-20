@@ -41,7 +41,6 @@ class PndTrkNeighboringMap : public TObject
 
 
  protected:
-  TClonesArray fIndiv; //!
   TMap hit2neigh, hit2indiv;
   TClonesArray *fTubeArray;
   TObjArray fStandalone, fOneNeigh, fTwoNeigh;
