@@ -31,7 +31,15 @@ class PndTrkSdsHitList : public PndTrkHitList
   PndTrkSdsHitList* InstanciateStrip();
 
   void AddHit(Int_t hitid, Int_t detid, FairHit *hit);
- 
+
+  void SetRegion(Int_t reg) { fIRegion = reg; }
+
+  void Clear() {
+    ClearList();
+    fpixInstance = NULL;
+    fstrInstance = NULL;
+  }
+
  protected:
 
   static PndTrkSdsHitList * fpixInstance;

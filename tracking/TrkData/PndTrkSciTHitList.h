@@ -28,6 +28,11 @@ class PndTrkSciTHitList : public PndTrkHitList
   
   void AddHit(Int_t hitid, Int_t detid, FairHit *hit);
  
+  void Clear() {
+    ClearList();
+    fscitInstance = NULL;
+  }
+
  protected:
 
   static PndTrkSciTHitList * fscitInstance;

@@ -57,6 +57,17 @@ class PndTrkSttHitList : public PndTrkHitList
 
   std::vector< PndTrkHit* > GetHitList();
 
+  void SetTubeArray(TClonesArray *tubeArray) { fTubeArray = tubeArray; }
+
+  void Clear() {
+    ClearList();
+    fInstance = NULL;
+    hitmap.clear();
+    hitmap2.clear();
+    hitmap3.clear();
+  }
+
+
  protected:
   static PndTrkSttHitList * fInstance;
   TClonesArray *fTubeArray;

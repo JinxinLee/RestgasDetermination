@@ -28,6 +28,11 @@ class PndTrkGemHitList : public PndTrkHitList
   
   void AddHit(Int_t hitid, Int_t detid, FairHit *hit);
  
+  void Clear() {
+    ClearList();
+    fgemInstance = NULL;
+  }
+
  protected:
 
   static PndTrkGemHitList * fgemInstance;

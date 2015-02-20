@@ -44,6 +44,10 @@ class PndTrkHitList : public TObject
   
   void Print();
   void Draw(Color_t color = kBlack);
+  void ClearList() { 
+    hitlist.clear();
+  }
+
 
  protected:
 
