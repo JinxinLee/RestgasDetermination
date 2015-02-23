@@ -15,6 +15,8 @@ struct PndLmdFitModelOptions: public TObject {
 	DPMElasticParts dpm_elastic_parts;
 	bool momentum_transfer_active; // if this is enabled everything else cannot be used
 
+	bool use_theta_xy_coordinate_system;
+
 	bool divergence_smearing_active;
 	LumiFit::LmdDimension data_primary_dimension;
 	LumiFit::LmdDimension data_secondary_dimension;
@@ -66,7 +68,7 @@ struct PndLmdFitModelOptions: public TObject {
 	friend std::ostream & operator <<(std::ostream & os,
 			const PndLmdFitModelOptions & model_opt);
 
-ClassDef(PndLmdFitModelOptions ,6)
+ClassDef(PndLmdFitModelOptions ,7)
 	;
 };
 

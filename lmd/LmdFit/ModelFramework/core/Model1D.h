@@ -16,7 +16,7 @@ class Model1D: public Model {
 private:
 	std::pair<double, double> domain_bounds;
 
-  IntegralStrategy1D *integral_strategy;
+  shared_ptr<IntegralStrategy1D> integral_strategy;
 
 public:
   Model1D(std::string name_);

@@ -54,6 +54,14 @@ enum LmdDimensionType {
 	SECONDARY
 };
 
+#ifndef __CINT__
+const boost::unordered_map<std::string, LmdDimensionType> StringToDimensionType =
+		boost::assign::map_list_of("X", X)("Y", Y)("Z", Z)("T", T)("THETA", THETA)(
+				"PHI", PHI)("THETA_X", THETA_X)("THETA_Y", THETA_Y)(
+				"PHI_FIRST_LMD_PLANE", PHI_FIRST_LMD_PLANE)("PARTICLE_ID", PARTICLE_ID)(
+				"SECONDARY", SECONDARY);
+#endif
+
 enum LmdTrackType {
 	MC, MC_ACC, RECO, DIFF_RECO_MC
 };
@@ -61,6 +69,11 @@ enum LmdTrackType {
 enum LmdTrackParamType {
 	IP, LMD
 };
+
+#ifndef __CINT__
+const boost::unordered_map<std::string, LmdTrackParamType> StringToTrackParamType =
+		boost::assign::map_list_of("IP", IP)("LMD", LMD);
+#endif
 
 enum ModelType {
 	GAUSSIAN, DOUBLE_GAUSSIAN, ASYMMETRIC_GAUSSIAN, UNIFORM

@@ -23,7 +23,7 @@ void runLmdFit(string input_file_dir, string config_file_url,
 	runtime_control.setFitPaths(input_file_dir, acceptance_file_dir,
 			reference_acceptance_file_dir);
 
-	runtime_control.initRuntimeConfiguration(config_file_url);
+	runtime_control.initFitRuntimeConfiguration(config_file_url);
 
 	runtime_control.doLuminosityFits();
 }

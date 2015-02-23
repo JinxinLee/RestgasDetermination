@@ -261,9 +261,13 @@ shared_ptr<Model2D> PndLmdModelFactory::generate2DModel(
 	dpm_angular_1d->getModelParameterHandler().registerParametrizations(
 			dpm_angular_1d->getModelParameterSet(), dpm_parametrization);
 
-	current_model.reset(
-			new PndLmdFastDPMAngModel2D("dpm_angular_2d", dpm_angular_1d));
-
+	if (model_options.use_theta_xy_coordinate_system) {
+		current_model.reset(
+				new PndLmdFastDPMAngModel2D("dpm_angular_2d", dpm_angular_1d));
+	} else {
+		current_model.reset(
+				new PndLmdDPMAngModel2D("dpm_angular_2d", dpm_angular_1d));
+	}
 	current_model->getModelParameterSet().freeModelParameter("tilt_x");
 	current_model->getModelParameterSet().freeModelParameter("tilt_y");
 	if (model_options.fix_beam_tilts) {
@@ -326,18 +330,42 @@ shared_ptr<Model2D> PndLmdModelFactory::generate2DModel(
 			TCanvas c;
 			model_options.acceptance->getAcceptance2D()->Draw("colz");
 			c.Update();
-
 			TH2 *hist =
 					model_options.acceptance->getAcceptance2D()->GetPaintedHistogram();
-			gPad = curpad;
+
+			//NeatPlotting::GraphAndHistogramHelper hh;
+			//std::vector<NeatPlotting::GraphPoint> points;
+			//hh.makeGraph();
+
+
+			std::pair<double, double> pos;
 			std::map<std::pair<double, double>, double> datamap;
-			for (unsigned int ix = 0; ix < hist->GetNbinsX(); ix++) {
-				for (unsigned int iy = 0; iy < hist->GetNbinsY(); iy++) {
-					datamap[std::make_pair(hist->GetXaxis()->GetBinCenter(ix),
-							hist->GetYaxis()->GetBinCenter(iy))] = hist->GetBinContent(ix,
-							iy);
+			for (unsigned int ix = 0; ix < model_options.data_primary_dimension.bins;
+					ix++) {
+				for (unsigned int iy = 0;
+						iy < model_options.data_secondary_dimension.bins; iy++) {
+					pos.first =
+							model_options.data_primary_dimension.dimension_range.getRangeLow()
+									+ (0.5 + ix) * model_options.data_primary_dimension.bin_size;
+					pos.second =
+							model_options.data_secondary_dimension.dimension_range.getRangeLow()
+									+ (0.5 + iy)
+											* model_options.data_secondary_dimension.bin_size;
+					datamap[pos] = hist->Interpolate(pos.first, pos.second);
+					/*std::cout << pos.first << ", " << pos.second << ": "
+							<< hist->Interpolate(pos.first, pos.second) << std::endl;*/
 				}
 			}
+
+			gPad = curpad;
+			/*std::map<std::pair<double, double>, double> datamap;
+			 for (unsigned int ix = 0; ix < hist->GetNbinsX(); ix++) {
+			 for (unsigned int iy = 0; iy < hist->GetNbinsY(); iy++) {
+			 datamap[std::make_pair(hist->GetXaxis()->GetBinCenter(ix),
+			 hist->GetYaxis()->GetBinCenter(iy))] = hist->GetBinContent(ix,
+			 iy);
+			 }
+			 }*/
 
 			acc->setData(datamap);
 
@@ -363,7 +391,10 @@ shared_ptr<Model2D> PndLmdModelFactory::generate2DModel(
 
 		// filter the vector for specific options
 		LumiFit::LmdDimensionOptions lmd_dim_opt;
-		lmd_dim_opt.dimension_type = LumiFit::THETA_X;
+		if (model_options.use_theta_xy_coordinate_system)
+			lmd_dim_opt.dimension_type = LumiFit::THETA_X;
+		else
+			lmd_dim_opt.dimension_type = LumiFit::THETA;
 		lmd_dim_opt.track_param_type = LumiFit::IP;
 		lmd_dim_opt.track_type = LumiFit::DIFF_RECO_MC;
 

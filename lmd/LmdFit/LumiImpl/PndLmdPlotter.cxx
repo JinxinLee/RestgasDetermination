@@ -1071,9 +1071,12 @@ NeatPlotting::Booky PndLmdPlotter::makeLumiFitResultOverviewBooky(
 
 // model types
 	LumiFit::PndLmdFitModelOptions fitop_tmctruth(LumiFit::MC, LumiFit::T, false);
-	LumiFit::PndLmdFitModelOptions fitop_thmctruth(LumiFit::MC, LumiFit::THETA, false);
-	LumiFit::PndLmdFitModelOptions fitop_mcacc(LumiFit::MC_ACC, LumiFit::THETA, false);
-	LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA, false);
+	LumiFit::PndLmdFitModelOptions fitop_thmctruth(LumiFit::MC, LumiFit::THETA,
+			false);
+	LumiFit::PndLmdFitModelOptions fitop_mcacc(LumiFit::MC_ACC, LumiFit::THETA,
+			false);
+	LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA,
+			false);
 
 // go through data map
 	for (std::vector<PndLmdAngularData>::iterator top_it = data_vec.begin();
@@ -1289,9 +1292,12 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 	normal_plot_style.palette_color_style = 1;
 
 // model types
-	LumiFit::PndLmdFitModelOptions fitop_thmctruth(LumiFit::MC, LumiFit::THETA, false);
-	LumiFit::PndLmdFitModelOptions fitop_mcacc(LumiFit::MC_ACC, LumiFit::THETA, false);
-	LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA, false);
+	LumiFit::PndLmdFitModelOptions fitop_thmctruth(LumiFit::MC, LumiFit::THETA,
+			false);
+	LumiFit::PndLmdFitModelOptions fitop_mcacc(LumiFit::MC_ACC, LumiFit::THETA,
+			false);
+	LumiFit::PndLmdFitModelOptions fitop_normal(LumiFit::RECO, LumiFit::THETA,
+			false);
 
 // go through data map
 	for (std::vector<PndLmdAngularData>::const_iterator top_it = data_vec.begin();
@@ -1316,8 +1322,10 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 			// mc stuff:
 			if (top_it->getPrimaryDimension().dimension_options.track_type
 					== LumiFit::MC
-					&& top_it->getPrimaryDimension().dimension_options.dimension_type
-							== LumiFit::THETA_X) {
+					&& (top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA_X
+							|| top_it->getPrimaryDimension().dimension_options.dimension_type
+									== LumiFit::THETA)) {
 
 				if (fitop_thmctruth.equalBinaryOptions(
 						it->first.getFitModelOptions())) {
@@ -1358,6 +1366,7 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 						strstream.str("");
 
 						if (fit_res.getModelFitResult().getFitStatus() == 0) {
+							strstream.str("");
 							strstream << std::setprecision(3) << "#Delta L/L = "
 									<< calulateLumiRelDiff(fit_res.getLuminosity(),
 											fit_res.getLuminosityError(), lumi_ref).first << " #pm "
@@ -1366,7 +1375,21 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 							plot_label.setTitle(strstream.str());
 							ordered_plots[it->first][pad_coord].plot_decoration.labels.push_back(
 									plot_label);
-							strstream.str("");
+
+							const std::set<ModelStructs::minimization_parameter> fit_params =
+									fit_res.getModelFitResult().getFitParameters();
+							std::set<ModelStructs::minimization_parameter>::const_iterator fit_param_it;
+							for (fit_param_it = fit_params.begin();
+									fit_param_it != fit_params.end(); fit_param_it++) {
+								strstream.str("");
+								strstream << std::setprecision(3) << fit_param_it->name.second
+										<< "= " << fit_param_it->value << " #pm "
+										<< fit_param_it->error;
+								plot_label.setTitle(strstream.str());
+
+								ordered_plots[it->first][pad_coord].plot_decoration.labels.push_back(
+										plot_label);
+							}
 						}
 					}
 				}
@@ -1375,8 +1398,10 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 			// mc acc stuff:
 			if (top_it->getPrimaryDimension().dimension_options.track_type
 					== LumiFit::MC_ACC
-					&& top_it->getPrimaryDimension().dimension_options.dimension_type
-							== LumiFit::THETA_X) {
+					&& (top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA_X
+							|| top_it->getPrimaryDimension().dimension_options.dimension_type
+									== LumiFit::THETA)) {
 
 				if (fitop_mcacc.equalBinaryOptions(it->first.getFitModelOptions())) {
 					NeatPlotting::SubpadCoordinates pad_coord(2, 1);
@@ -1416,6 +1441,7 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 						strstream.str("");
 
 						if (fit_res.getModelFitResult().getFitStatus() == 0) {
+							strstream.str("");
 							strstream << std::setprecision(3) << "#Delta L/L = "
 									<< calulateLumiRelDiff(fit_res.getLuminosity(),
 											fit_res.getLuminosityError(), lumi_ref).first << " #pm "
@@ -1424,7 +1450,21 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 							plot_label.setTitle(strstream.str());
 							ordered_plots[it->first][pad_coord].plot_decoration.labels.push_back(
 									plot_label);
-							strstream.str("");
+
+							const std::set<ModelStructs::minimization_parameter> fit_params =
+									fit_res.getModelFitResult().getFitParameters();
+							std::set<ModelStructs::minimization_parameter>::const_iterator fit_param_it;
+							for (fit_param_it = fit_params.begin();
+									fit_param_it != fit_params.end(); fit_param_it++) {
+								strstream.str("");
+								strstream << std::setprecision(3) << fit_param_it->name.second
+										<< "= " << fit_param_it->value << " #pm "
+										<< fit_param_it->error;
+								plot_label.setTitle(strstream.str());
+
+								ordered_plots[it->first][pad_coord].plot_decoration.labels.push_back(
+										plot_label);
+							}
 						}
 					}
 				}
@@ -1433,8 +1473,10 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 			// reco stuff:
 			if (top_it->getPrimaryDimension().dimension_options.track_type
 					== LumiFit::RECO
-					&& top_it->getPrimaryDimension().dimension_options.dimension_type
-							== LumiFit::THETA_X) {
+					&& (top_it->getPrimaryDimension().dimension_options.dimension_type
+							== LumiFit::THETA_X
+							|| top_it->getPrimaryDimension().dimension_options.dimension_type
+									== LumiFit::THETA)) {
 				bool with_secondaries(true);
 
 				const std::set<LumiFit::LmdDimension> &selection_set =
@@ -1494,6 +1536,7 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 							strstream.str("");
 
 							if (fit_res.getModelFitResult().getFitStatus() == 0) {
+								strstream.str("");
 								strstream << std::setprecision(3) << "#Delta L/L = "
 										<< calulateLumiRelDiff(fit_res.getLuminosity(),
 												fit_res.getLuminosityError(), lumi_ref).first << " #pm "
@@ -1502,7 +1545,21 @@ NeatPlotting::Booky PndLmdPlotter::create2DFitResultPlots(
 								plot_label.setTitle(strstream.str());
 								ordered_plots[it->first][pad_coord].plot_decoration.labels.push_back(
 										plot_label);
-								strstream.str("");
+
+								const std::set<ModelStructs::minimization_parameter> fit_params =
+										fit_res.getModelFitResult().getFitParameters();
+								std::set<ModelStructs::minimization_parameter>::const_iterator fit_param_it;
+								for (fit_param_it = fit_params.begin();
+										fit_param_it != fit_params.end(); fit_param_it++) {
+									strstream.str("");
+									strstream << std::setprecision(3) << fit_param_it->name.second
+											<< "= " << fit_param_it->value << " #pm "
+											<< fit_param_it->error;
+									plot_label.setTitle(strstream.str());
+
+									ordered_plots[it->first][pad_coord].plot_decoration.labels.push_back(
+											plot_label);
+								}
 							}
 						}
 					}

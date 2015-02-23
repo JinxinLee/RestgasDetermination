@@ -11,14 +11,9 @@
 
 NumericConvolutionModel1D::NumericConvolutionModel1D(std::string name_,
 		shared_ptr<Model1D> first_, shared_ptr<Model1D> second_) :
-		Model1D(name_) {
-	first = first_;
-	second = second_;
+		Model1D(name_), first(first_), second(second_), divisions(300) {
 	addModelToList(first);
 	addModelToList(second);
-
-	//set some properties of the convolution
-	divisions = 300;
 }
 
 void NumericConvolutionModel1D::initModelParameters() {
@@ -28,7 +23,7 @@ void NumericConvolutionModel1D::initModelParameters() {
 double NumericConvolutionModel1D::eval(const double *x) const {
 	double xx[3], val = 0.0;
 	double integration_range = second->getDomainRange();
-	if(integration_range == 0.0) {
+	if (integration_range == 0.0) {
 		return 0.0;
 	}
 	double division_width = integration_range / 2.0 / divisions;

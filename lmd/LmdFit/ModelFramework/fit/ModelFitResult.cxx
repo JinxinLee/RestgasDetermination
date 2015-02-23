@@ -9,8 +9,9 @@
 
 #include <iostream>
 
-ModelFitResult::ModelFitResult() {
-	fit_status = -1;
+ModelFitResult::ModelFitResult() :
+		fit_status(-1), num_data_points(0), fit_parameters(), final_estimator_value(
+				0.0) {
 }
 
 ModelFitResult::ModelFitResult(const ModelFitResult &fit_result) {
@@ -37,7 +38,7 @@ double ModelFitResult::getFinalEstimatorValue() const {
 }
 
 unsigned int ModelFitResult::getNDF() const {
-	return num_data_points-fit_parameters.size();
+	return num_data_points - fit_parameters.size();
 }
 
 void ModelFitResult::setFinalEstimatorValue(double final_estimator_value_) {
@@ -48,9 +49,8 @@ void ModelFitResult::setNumberOfDataPoints(unsigned int num_data_points_) {
 	this->num_data_points = num_data_points_;
 }
 
-void ModelFitResult::addFitParameter(std::pair<std::string, std::string> name_
-		, double value_,
-		double error_) {
+void ModelFitResult::addFitParameter(std::pair<std::string, std::string> name_,
+		double value_, double error_) {
 	ModelStructs::minimization_parameter fp(name_, value_, error_);
 	fit_parameters.insert(fp);
 }

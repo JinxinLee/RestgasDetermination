@@ -11,9 +11,7 @@
 
 AdditionModel1D::AdditionModel1D(std::string name_, shared_ptr<Model1D> first_,
 		shared_ptr<Model1D> second_) :
-		Model1D(name_) {
-	first = first_;
-	second = second_;
+		Model1D(name_), first(first_), second(second_) {
 
 	addModelToList(first);
 	addModelToList(second);

@@ -13,7 +13,6 @@
 #include <utility>
 
 class EstimatorOptions {
-	private:
 		bool with_integral_scaling;
 
 		DataStructs::DimensionRange fit_range_x;

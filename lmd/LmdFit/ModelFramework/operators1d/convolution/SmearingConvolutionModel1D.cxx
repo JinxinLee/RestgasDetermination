@@ -11,14 +11,9 @@
 
 SmearingConvolutionModel1D::SmearingConvolutionModel1D(std::string name_,
 		shared_ptr<Model1D> first_, shared_ptr<Model1D> second_) :
-		Model1D(name_) {
-	first = first_;
-	second = second_;
+		Model1D(name_), first(first_), second(second_), divisions(300) {
 	addModelToList(first);
 	addModelToList(second);
-
-	//set some properties of the convolution
-	divisions = 300;
 }
 
 SmearingConvolutionModel1D::~SmearingConvolutionModel1D() {
@@ -55,10 +50,10 @@ double SmearingConvolutionModel1D::eval(const double *x) const {
 		//second->getModelParameterSet().printInfo();
 
 		double smear_interval_center = x[0] - interval_center;
-		double smear_interval_low = smear_interval_center - 0.5*interval_width;
+		double smear_interval_low = smear_interval_center - 0.5 * interval_width;
 
 		/*std::cout<<x[0]<<": "<<second->getDomain().first<<"-"<<second->getDomain().second<<std::endl;
-		second->getModelParameterSet().printInfo();*/
+		 second->getModelParameterSet().printInfo();*/
 
 		// if not in range skip this interval
 		if (second->getDomainRange() == 0.0)

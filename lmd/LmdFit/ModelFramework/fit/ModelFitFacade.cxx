@@ -13,8 +13,8 @@
 using std::cout;
 using std::endl;
 
-ModelFitFacade::ModelFitFacade() {
-	// TODO Auto-generated constructor stub
+ModelFitFacade::ModelFitFacade() :
+		data(), model(), estimator(), minimizer(), estimator_options() {
 }
 
 ModelFitFacade::~ModelFitFacade() {

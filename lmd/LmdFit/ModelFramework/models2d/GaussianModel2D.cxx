@@ -10,7 +10,7 @@
 #include <cmath>
 
 GaussianModel2D::GaussianModel2D(std::string name_, double num_sigmas_) :
-		Model2D(name_), num_sigmas(num_sigmas_) {
+		Model2D(name_), num_sigmas(num_sigmas_), gauss_sigma_var1(), gauss_sigma_var2(), gauss_mean_var1(), gauss_mean_var2(), gauss_rho(), gauss_amplitude() {
 	initModelParameters();
 }
 
@@ -51,7 +51,7 @@ double GaussianModel2D::eval(const double *x) const {
 							/ (gauss_sigma_var1->getValue() * gauss_sigma_var2->getValue()))
 					/ (2.0 * (1 - pow(gauss_rho->getValue(), 2.0))));
 
-	return gauss_amplitude->getValue()*normalization*exp_value;
+	return gauss_amplitude->getValue() * normalization * exp_value;
 }
 
 void GaussianModel2D::updateDomain() {

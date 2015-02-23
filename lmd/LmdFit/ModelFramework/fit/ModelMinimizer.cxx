@@ -7,23 +7,21 @@
 
 #include "ModelMinimizer.h"
 
-ModelMinimizer::ModelMinimizer() {
-	// TODO Auto-generated constructor stub
-
+ModelMinimizer::ModelMinimizer() :
+		control_parameter() {
 }
 
 ModelMinimizer::~ModelMinimizer() {
 	// TODO Auto-generated destructor stub
 }
 
-shared_ptr<ModelControlParameter> ModelMinimizer::getControlParameter() const
-{
-    return control_parameter;
+shared_ptr<ModelControlParameter> ModelMinimizer::getControlParameter() const {
+	return control_parameter;
 }
 
-void ModelMinimizer::setControlParameter(shared_ptr<ModelControlParameter> control_parameter_)
-{
-    control_parameter = control_parameter_;
+void ModelMinimizer::setControlParameter(
+		shared_ptr<ModelControlParameter> control_parameter_) {
+	control_parameter = control_parameter_;
 }
 
 int ModelMinimizer::doMinimization() {

@@ -8,10 +8,8 @@
 #include "Data.h"
 
 Data::Data(unsigned int dimension_) :
-		dimension(dimension_) {
-	// TODO Auto-generated constructor stub
-	binning_factor = 1.0;
-	is_binning_factor_set = false;
+		data_points(), dimension(dimension_), binning_factor(1.0), is_binning_factor_set(
+				false) {
 }
 
 Data::~Data() {
@@ -29,8 +27,8 @@ unsigned int Data::getNumberOfDataPoints() const {
 unsigned int Data::getNumberOfUsedDataPoints() const {
 	unsigned int num_points = 0;
 
-	for(unsigned int i = 0; i < data_points.size(); i++) {
-		if(data_points[i].isPointUsed())
+	for (unsigned int i = 0; i < data_points.size(); i++) {
+		if (data_points[i].isPointUsed())
 			num_points++;
 	}
 	return num_points;
@@ -60,8 +58,7 @@ void Data::insertData(DataPointProxy &data_point_) {
 			is_binning_factor_set = true;
 			binning_factor = 1.0;
 			for (unsigned int i = 0; i < getDimension(); i++) {
-				binning_factor *=
-						data_point_.getBinnedDataPoint()->bin_widths[i];
+				binning_factor *= data_point_.getBinnedDataPoint()->bin_widths[i];
 			}
 		}
 	} else {

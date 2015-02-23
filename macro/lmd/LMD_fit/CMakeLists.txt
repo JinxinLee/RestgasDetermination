@@ -54,6 +54,11 @@ target_link_libraries(createPhiSlicedAnalysisLmdData LmdFit boost_regex)
 add_executable(createLumiFitData createLumiFitData.cxx)
 target_link_libraries(createLumiFitData LmdFit boost_regex)
 
+########################### create lumiFitData app ##################################
+
+add_executable(createLmdFitData createLmdFitData.cxx)
+target_link_libraries(createLmdFitData LmdFit boost_regex)
+
 ########################### create mergeLmdData app ##################################
 
 add_executable(mergeLmdData mergeLmdData.cxx)
@@ -109,6 +114,11 @@ target_link_libraries(resolutionModelFitTesting1D LmdFit)
 
 add_executable(checkFramework checkFramework.cxx)
 target_link_libraries(checkFramework $ENV{ROOT_LIBRARIES} Model)
+
+########################### create checkTilted2DDPMModel app ##################################
+
+add_executable(checkTilted2DDPMModel checkTilted2DDPMModel.cxx)
+target_link_libraries(checkTilted2DDPMModel $ENV{ROOT_LIBRARIES} LmdFit)
 
 ########################### create checkMCInfoTrackMatching app ##################################
 set(INCLUDE_DIRECTORIES

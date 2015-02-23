@@ -5,16 +5,10 @@
 
 SmearingConvolutionModel2D::SmearingConvolutionModel2D(std::string name_,
 		shared_ptr<Model2D> first_, shared_ptr<Model2D> second_) :
-		Model2D(name_) {
-	first = first_;
-	second = second_;
-
+		Model2D(name_), first(first_), second(second_), divisions_var1(100), divisions_var2(
+				100) {
 	addModelToList(first);
 	addModelToList(second);
-
-	//set some properties of the convolution
-	divisions_var1 = 100;
-	divisions_var2 = 100;
 }
 
 SmearingConvolutionModel2D::~SmearingConvolutionModel2D() {
@@ -82,13 +76,13 @@ double SmearingConvolutionModel2D::eval(const double *x) const {
 			//second->getModelParameterSet().printInfo();
 
 			/*temp_range_second[0].range_low = x[0] - interval_center[0]
-					- 0.5 * division_width_var1;
-			temp_range_second[0].range_high = temp_range_second[0].range_low
-					+ division_width_var1;
-			temp_range_second[1].range_low = x[1] - interval_center[1]
-					- 0.5 * division_width_var2;
-			temp_range_second[1].range_high = temp_range_second[1].range_low
-					+ division_width_var2;*/
+			 - 0.5 * division_width_var1;
+			 temp_range_second[0].range_high = temp_range_second[0].range_low
+			 + division_width_var1;
+			 temp_range_second[1].range_low = x[1] - interval_center[1]
+			 - 0.5 * division_width_var2;
+			 temp_range_second[1].range_high = temp_range_second[1].range_low
+			 + division_width_var2;*/
 
 			// if not in range skip this interval
 			if (second->getVar1DomainRange() < division_width_var1
@@ -138,15 +132,15 @@ double SmearingConvolutionModel2D::eval(const double *x) const {
 			double intfirst = first->evaluate(interval_center);
 			if (intfirst != intfirst) {
 				/*std::cout << interval_center[0] << " : " << interval_center[1] << " => "
-						<< intfirst << std::endl;*/
+				 << intfirst << std::endl;*/
 				intfirst = 0.0;
 			}
 			double intsecond = second->eval(smear_interval_center);
 			if (intsecond != intsecond) {
 				/*second->getModelParameterSet().printInfo();
-				std::cout << smear_interval_center[0] << " : "
-						<< smear_interval_center[1] << " => " << intsecond << std::endl;
-				std::cout<<x[0]<<" : "<<x[1]<<std::endl;*/
+				 std::cout << smear_interval_center[0] << " : "
+				 << smear_interval_center[1] << " => " << intsecond << std::endl;
+				 std::cout<<x[0]<<" : "<<x[1]<<std::endl;*/
 				intsecond = 0.0;
 			}
 

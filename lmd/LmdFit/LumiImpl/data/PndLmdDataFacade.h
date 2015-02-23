@@ -100,6 +100,8 @@ public:
 	void create1DAngularResolutionDataBundle(unsigned int num_events);
 	void create2DAngularResolutionDataBundle(unsigned int num_events);
 
+	void appendSelectionDimensions(
+			const std::pair<std::string, std::vector<LumiFit::LmdDimension> > &selection_dimensions);
 	void createSelectionDimensionCombinations();
 	void clearSelectionDimensionMap();
 
@@ -131,8 +133,8 @@ public:
 		return lmd_data_vec;
 	}
 
-	template<class T> std::vector<T> filterData(
-			std::vector<T> all_data, LumiFit::Comparisons::AbstractLmdDataFilter &filter) {
+	template<class T> std::vector<T> filterData(std::vector<T> all_data,
+			LumiFit::Comparisons::AbstractLmdDataFilter &filter) {
 		std::vector<T> lmd_data_vec;
 
 		for (unsigned int i = 0; i < all_data.size(); i++) {

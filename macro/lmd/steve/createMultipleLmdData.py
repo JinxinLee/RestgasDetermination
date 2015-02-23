@@ -82,10 +82,11 @@ parser.add_argument('type', metavar='type', type=str, nargs=1,
                     help='type of data to create (a = angular, e = efficiency, r = resolution, v = vertex/ip')
 parser.add_argument('dirname', metavar='dirname_to_scan', type=str, nargs=1,
                     help='Name of directory to scan recursively for qa files and create bunches')
+parser.add_argument('config_url', metavar='config_url', type=str, nargs=1,
+                    help='Path to data config file in json format.')
 
 parser.add_argument('--dir_pattern', metavar='path name pattern', type=str, default='.*', help='')
 parser.add_argument('--force', action='store_true', help='number of events to use')
-parser.add_argument('--use_phi_module_slicing', action='store_true', help='')
 parser.add_argument('--num_events', metavar='num_events', type=int, default=0, help='number of events to use')
 parser.add_argument('--elastic_cross_section', metavar='elastic_cross_section', type=float, default=1.0, help='Total elastic cross section. Relevant for luminosity extraction performance tests!')
 
@@ -99,10 +100,6 @@ getListOfDirectories(args.dirname[0], args.force)
 
 max_jobarray_size = 100
 
-slicing_flag = '",module_phi_slicing="0'
-if args.use_phi_module_slicing:
-  slicing_flag = '",module_phi_slicing="1'
-
 for dir in dirs:
   num_filelists = len(glob.glob(dir + '/filelist_*.txt'))
 
@@ -115,7 +112,7 @@ for dir in dirs:
                     + ' -l nodes=1:ppn=1,walltime=02:00:00,mem=500mb,vmem=1000mb -j oe -o ' + output_path + '/createLumiFitData_pbs.log ' \
                     + '-v numEv="' + str(args.num_events) + '",pbeam="' + str(args.lab_momentum[0]) \
                     + '",input_path="' + input_path + '",filelist_path="' + filelist_path + '",output_path="' + output_path \
-                    + '",type="' + args.type[0] + '",elastic_cross_section="' + str(args.elastic_cross_section) + slicing_flag + '" -V ./createLumiFitData.sh'
+                    + '",config_path="' + args.config_url[0] + '",type="' + args.type[0] + '",elastic_cross_section="' + str(args.elastic_cross_section) + '" -V ./createLumiFitData.sh'
     
     jobs_on_himster = getNumJobsOnHimster()
     print str(jobs_on_himster) + " < " + str(himster_total_job_threshold) + " ?"

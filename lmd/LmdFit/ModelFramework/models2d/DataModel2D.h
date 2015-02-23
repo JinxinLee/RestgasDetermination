@@ -20,6 +20,7 @@ private:
 			const std::set<double> &values);
 public:
 	DataModel2D(std::string name_, interpolation_type type = LINEAR);
+	DataModel2D(const DataModel2D &data_model_);
 	virtual ~DataModel2D();
 
 	void setData(const std::map<std::pair<double, double>, double> &data_);
@@ -29,6 +30,8 @@ public:
 	void initModelParameters();
 
 	void updateDomain();
+
+	DataModel2D& operator=(const DataModel2D &data_model_);
 };
 
 #endif /* DATAMODEL2D_H_ */

@@ -46,35 +46,35 @@ void createLumiFitData(std::string input_dir_path, std::string filelist_path,
 	lmd_data_facade.lab_momentum = mom;
 
 	// set some dimension parameters
-	/*lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
+	lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
 	 LumiFit::THETA;
 	 lmd_data_facade.primary_dimension_template.bins = 100;
-	 lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(0.5);
-	 lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(15.0);*/
+	 lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(0.0005);
+	 lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(0.015);
 
-	lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
+	/*lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
 			LumiFit::THETA_X;
 	lmd_data_facade.primary_dimension_template.bins = 100;
 	lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(-0.015);
-	lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(0.015);
+	lmd_data_facade.primary_dimension_template.dimension_range.setRangeHigh(0.015);*/
 
 	lmd_data_facade.primary_dimension_template.dimension_options.track_param_type =
 			LumiFit::IP;
 
-	/*lmd_data_facade.secondary_dimension_template.dimension_options.dimension_type =
+	lmd_data_facade.secondary_dimension_template.dimension_options.dimension_type =
 	 LumiFit::PHI;
 	 lmd_data_facade.secondary_dimension_template.bins = 50;
 	 lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(
 	 -TMath::Pi());
 	 lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(
-	 TMath::Pi());*/
-	lmd_data_facade.secondary_dimension_template.dimension_options.dimension_type =
+	 TMath::Pi());
+	/*lmd_data_facade.secondary_dimension_template.dimension_options.dimension_type =
 			LumiFit::THETA_Y;
 	lmd_data_facade.secondary_dimension_template.bins = 100;
 	lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(
 			-0.015);
 	lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(
-			0.015);
+			0.015);*/
 	lmd_data_facade.secondary_dimension_template.dimension_options.track_param_type =
 			LumiFit::IP;
 
@@ -262,7 +262,7 @@ void createLumiFitData(std::string input_dir_path, std::string filelist_path,
 		}
 
 		// now the resolution parameterization stuff
-		if (false) { //2d
+		if (true) { //2d
 			lmd_data_facade.primary_dimension_template.bins = 25; //200 for 1d and 25 for 2d
 			lmd_data_facade.primary_dimension_template.dimension_range.setRangeLow(
 					-theta_plot_range_max);
@@ -272,18 +272,18 @@ void createLumiFitData(std::string input_dir_path, std::string filelist_path,
 					LumiFit::IP;
 
 			lmd_data_facade.secondary_dimension_template.bins = 25;
-			/*lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(
+			lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(
 			 -phi_plot_range_max);
 			 lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(
-			 phi_plot_range_max);*/
-			lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(
+			 phi_plot_range_max);
+			/*lmd_data_facade.secondary_dimension_template.dimension_range.setRangeLow(
 					-theta_plot_range_max);
 			lmd_data_facade.secondary_dimension_template.dimension_range.setRangeHigh(
-					theta_plot_range_max);
+					theta_plot_range_max);*/
 			lmd_data_facade.secondary_dimension_template.dimension_options.track_param_type =
 					LumiFit::IP;
 
-			/*LumiFit::LmdDimension primary_selection_dimension_bundle_template;
+			LumiFit::LmdDimension primary_selection_dimension_bundle_template;
 			 primary_selection_dimension_bundle_template.dimension_options.dimension_type =
 			 LumiFit::THETA;
 			 primary_selection_dimension_bundle_template.dimension_options.track_param_type =
@@ -311,9 +311,9 @@ void createLumiFitData(std::string input_dir_path, std::string filelist_path,
 			 TMath::Pi());
 			 secondary_selection_dimension_bundle_template.bins = 30;
 			 lmd_data_facade.selection_dimension_bundles.push_back(
-			 secondary_selection_dimension_bundle_template);*/
+			 secondary_selection_dimension_bundle_template);
 
-			LumiFit::LmdDimension primary_selection_dimension_bundle_template;
+			/*LumiFit::LmdDimension primary_selection_dimension_bundle_template;
 			primary_selection_dimension_bundle_template.dimension_options.dimension_type =
 					LumiFit::THETA_X;
 			primary_selection_dimension_bundle_template.dimension_options.track_param_type =
@@ -341,13 +341,13 @@ void createLumiFitData(std::string input_dir_path, std::string filelist_path,
 					0.01);
 			secondary_selection_dimension_bundle_template.bins = 30;
 			lmd_data_facade.selection_dimension_bundles.push_back(
-					secondary_selection_dimension_bundle_template);
+					secondary_selection_dimension_bundle_template);*/
 
 			lmd_data_facade.createSelectionDimensionCombinations();
 
 			lmd_data_facade.create2DAngularResolutionDataBundle(num_events);
 		}
-		if (true) { // 1d
+		if (false) { // 1d
 			lmd_data_facade.primary_dimension_template.dimension_options.dimension_type =
 					LumiFit::THETA;
 			lmd_data_facade.primary_dimension_template.bins = 200; //200 for 1d and 25 for 2d

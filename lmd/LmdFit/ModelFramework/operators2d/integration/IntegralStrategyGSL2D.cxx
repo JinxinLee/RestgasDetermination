@@ -46,15 +46,22 @@ double IntegralStrategyGSL2D::Integral(Model2D *model1d, double xlow,
 		while (true) {
 			gsl_monte_vegas_integrate(&G, xl, xu, 2, calls, r, s, &result, &error);
 
+			//std::cout << result << " " << error << std::endl;
+			//std::cout << calls << std::endl;
+			//std::cout << gsl_monte_vegas_chisq(s) << std::endl;
+
 			if (result == 0 && error == 0)
 				break;
-			if (fabs(gsl_monte_vegas_chisq(s) - 1.0) < 0.5)
-				break;
+			//if (fabs(gsl_monte_vegas_chisq(s) - 1.0) < 0.1)
+			//	break;
 			if (fabs(error / result) < precision)
 				break;
+      if (maxcalls < calls)
+      	break;
 
 			if (calls < maxcalls)
 				calls *= 2;
+
 		}
 
 		gsl_monte_vegas_free(s);

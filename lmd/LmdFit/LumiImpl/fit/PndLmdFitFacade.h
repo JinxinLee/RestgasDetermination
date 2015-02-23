@@ -85,6 +85,7 @@ public:
 
 	PndLmdLumiFitOptions& getFitOptionTemplate();
 
+	void setEstimatorType(LumiFit::LmdEstimatorType est_type_);
 	void setModelFitOptions(LumiFit::PndLmdFitModelOptions& model_opt_);
 	void setEstimatorOptions(EstimatorOptions& est_opt_);
 	void addFreeFitParameter(std::string name);

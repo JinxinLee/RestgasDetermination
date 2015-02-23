@@ -9,18 +9,17 @@
 #include "operators1d/integration/IntegralStrategyGSL1D.h"
 
 Model1D::Model1D(std::string name_) :
-		Model(name_, 1) {
-	integral_strategy = new IntegralStrategyGSL1D();
+		Model(name_, 1), domain_bounds(), integral_strategy(new IntegralStrategyGSL1D()) {
 }
 
 Model1D::~Model1D() {
 	// TODO Auto-generated destructor stub
 }
 
-double Model1D::Integral(std::vector<DataStructs::DimensionRange> &ranges
-		, double precision) {
-	return integral_strategy->Integral(this, ranges[0].range_low, ranges[0].range_high,
-			precision);
+double Model1D::Integral(std::vector<DataStructs::DimensionRange> &ranges,
+		double precision) {
+	return integral_strategy->Integral(this, ranges[0].range_low,
+			ranges[0].range_high, precision);
 }
 
 double Model1D::getDomainRange() {

@@ -13,9 +13,12 @@
 #include "fit/minimizerImpl/ROOT/ROOTMinimizer.h"
 #include "fit/data/Data.h"
 #include "PndLmdLumiHelper.h"
+#include "data/PndLmdDataFacade.h"
 
 #include <iostream>
 #include <algorithm>
+
+#include <boost/filesystem.hpp>
 
 #include "TFile.h"
 #include "TH1D.h"
@@ -38,6 +41,9 @@ PndLmdLumiFitOptions& PndLmdFitFacade::getFitOptionTemplate() {
 	return fit_options_template;
 }
 
+void PndLmdFitFacade::setEstimatorType(LumiFit::LmdEstimatorType est_type_) {
+	fit_options_template.estimator_type = est_type_;
+}
 void PndLmdFitFacade::setModelFitOptions(
 		LumiFit::PndLmdFitModelOptions& model_opt_) {
 	fit_options_template.model_opt = model_opt_;
@@ -179,6 +185,11 @@ std::vector<PndLmdLumiFitOptions> PndLmdFitFacade::createFitOptions(
 			== LumiFit::THETA
 			|| lmd_data.getPrimaryDimension().dimension_options.dimension_type
 					== LumiFit::THETA_X) {
+		if (lmd_data.getPrimaryDimension().dimension_options.dimension_type
+				== LumiFit::THETA)
+			fit_options_template.model_opt.use_theta_xy_coordinate_system = false;
+		else
+			fit_options_template.model_opt.use_theta_xy_coordinate_system = true;
 		fit_options_template.model_opt.momentum_transfer_active = false;
 		fit_options_template.model_opt.acceptance_correction_active = false;
 		fit_options_template.model_opt.resolution_smearing_active = false;
@@ -237,6 +248,41 @@ std::vector<PndLmdLumiFitOptions> PndLmdFitFacade::createFitOptions(
 
 // set model options back to user settings
 	fit_options_template.model_opt = current_mod_opt;
+
+	//get reco data dimensions automatically
+	for (unsigned int i = 0; i < return_vector.size(); i++) {
+		if (boost::filesystem::exists(
+				return_vector[i].model_opt.elastic_reco_data_file_url)) {
+			TFile infile(
+					return_vector[i].model_opt.elastic_reco_data_file_url.c_str(),
+					"READ");
+			// filter the vector for specific options
+			LumiFit::LmdDimensionOptions lmd_dim_opt;
+			if (return_vector[i].model_opt.use_theta_xy_coordinate_system)
+				lmd_dim_opt.dimension_type = LumiFit::THETA_X;
+			else
+				lmd_dim_opt.dimension_type = LumiFit::THETA;
+			lmd_dim_opt.track_param_type = LumiFit::IP;
+			lmd_dim_opt.track_type = LumiFit::RECO;
+
+			LumiFit::Comparisons::data_primary_dimension_options_filter filter(
+					lmd_dim_opt);
+			filter.setDimensionOptions(lmd_dim_opt);
+
+			PndLmdDataFacade lmd_data_facade;
+			std::vector<PndLmdAngularData> all_lmd_data =
+					lmd_data_facade.getDataFromFile<PndLmdAngularData>(&infile);
+			std::vector<PndLmdAngularData> reco_lmd_data_vec =
+					lmd_data_facade.filterData<PndLmdAngularData>(all_lmd_data, filter);
+
+			if (reco_lmd_data_vec.size() > 0) {
+				return_vector[i].model_opt.data_primary_dimension =
+						reco_lmd_data_vec[0].getPrimaryDimension();
+				return_vector[i].model_opt.data_secondary_dimension =
+						reco_lmd_data_vec[0].getSecondaryDimension();
+			}
+		}
+	}
 
 	return return_vector;
 }
@@ -302,6 +348,15 @@ PndLmdLumiFitResult PndLmdFitFacade::doFit(PndLmdHistogramData &lmd_hist_data,
 		return fit_result;
 	}
 
+	// create estimator
+	shared_ptr<ModelEstimator> estimator;
+	if (fit_options.estimator_type == LumiFit::CHI2)
+		estimator.reset(new Chi2Estimator());
+	else
+		estimator.reset(new LogLikelihoodEstimator());
+
+	model_fit_facade.setEstimator(estimator);
+
 	model_fit_facade.setEstimatorOptions(fit_options.getEstimatorOptions());
 
 	ModelFitResult temp_fit_result = model_fit_facade.Fit();
@@ -321,13 +376,6 @@ void PndLmdFitFacade::fitMultipleElasticPPbar(PndLmdAngularData &lmd_data,
 	for (unsigned int fit_option_index = 0; fit_option_index < fit_opt_vec.size();
 			fit_option_index++) {
 		PndLmdLumiFitOptions fit_options = fit_opt_vec[fit_option_index];
-		// create chi2 estimator
-		//shared_ptr<Chi2Estimator> chi2_est(new Chi2Estimator());
-		//model_fit_facade.setEstimator(chi2_est);
-
-		shared_ptr<LogLikelihoodEstimator> loglikelihood_est(
-				new LogLikelihoodEstimator());
-		model_fit_facade.setEstimator(loglikelihood_est);
 
 		// create a new model via the factory
 		shared_ptr<Model> model = model_factory.generateModel(

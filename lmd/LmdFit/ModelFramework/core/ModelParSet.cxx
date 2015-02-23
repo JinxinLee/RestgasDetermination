@@ -9,8 +9,8 @@
 
 #include <iostream>
 
-ModelParSet::ModelParSet(std::string model_name_) {
-	model_name = model_name_;
+ModelParSet::ModelParSet(std::string model_name_) :
+		model_name(model_name_), model_par_map() {
 }
 
 ModelParSet::~ModelParSet() {

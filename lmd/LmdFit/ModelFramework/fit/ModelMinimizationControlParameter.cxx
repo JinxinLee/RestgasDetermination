@@ -8,9 +8,7 @@
 #include "ModelMinimizationControlParameter.h"
 #include "core/Model.h"
 
-ModelMinimizationControlParameter::ModelMinimizationControlParameter() {
-	// TODO Auto-generated constructor stub
-
+ModelMinimizationControlParameter::ModelMinimizationControlParameter() : model() {
 }
 
 ModelMinimizationControlParameter::~ModelMinimizationControlParameter() {

@@ -7,6 +7,26 @@ DataModel2D::DataModel2D(std::string name_, interpolation_type type) :
 		Model2D(name_), intpol_type(type), data(0) {
 }
 
+DataModel2D::DataModel2D(const DataModel2D &data_model_) :
+		Model2D(data_model_.getName()), intpol_type(data_model_.intpol_type), data(
+				new double[data_model_.cell_count[0] * data_model_.cell_count[1]]) {
+	grid_spacing[0] = data_model_.grid_spacing[0];
+	grid_spacing[1] = data_model_.grid_spacing[1];
+
+	cell_count[0] = data_model_.cell_count[0];
+	cell_count[1] = data_model_.cell_count[1];
+
+	domain_low[0] = data_model_.domain_low[0];
+	domain_low[1] = data_model_.domain_low[1];
+
+	domain_high[0] = data_model_.domain_high[0];
+	domain_high[1] = data_model_.domain_high[1];
+
+	for (unsigned int i = 0; i < cell_count[0] * cell_count[1]; i++) {
+		data[i] = data_model_.data[i];
+	}
+}
+
 DataModel2D::~DataModel2D() {
 	if (data)
 		delete[] data;
@@ -87,9 +107,9 @@ void DataModel2D::setData(
 		cell_count[1] = y_values.size();
 
 		/*std::cout<<"detected grid spacing:"<<std::endl;
-		std::cout<<grid_spacing[0]<<" x "<<grid_spacing[1]<<std::endl;
-		std::cout<<"detected grid size:"<<std::endl;
-		std::cout<<cell_count[0]<<" x "<<cell_count[1]<<std::endl;*/
+		 std::cout<<grid_spacing[0]<<" x "<<grid_spacing[1]<<std::endl;
+		 std::cout<<"detected grid size:"<<std::endl;
+		 std::cout<<cell_count[0]<<" x "<<cell_count[1]<<std::endl;*/
 
 		domain_low[0] = domain_low[0] - 0.5 * grid_spacing[0];
 		domain_high[0] = domain_high[0] + 0.5 * grid_spacing[0];
@@ -121,7 +141,7 @@ void DataModel2D::setData(
 				missing_end_x = missing_start_x + diffx;
 			}
 
-			unsigned int missing_start_y = idy_last+1;
+			unsigned int missing_start_y = idy_last + 1;
 			unsigned int missing_end_y = idy;
 
 			unsigned int diffy = abs(idy - idy_last) % (cell_count[1] - 1);
@@ -149,8 +169,7 @@ void DataModel2D::setData(
 
 		// now fix the missing values
 		std::cout << "found " << missing_indices.size()
-				<< " missing evaluation points. Fixing interpolation!"
-				<< std::endl;
+				<< " missing evaluation points. Fixing interpolation!" << std::endl;
 		for (unsigned int i = 0; i < missing_indices.size(); i++) {
 			data[missing_indices[i]] = 0.0;
 		}
@@ -178,4 +197,24 @@ double DataModel2D::eval(const double *x) const {
 
 void DataModel2D::updateDomain() {
 
+}
+
+DataModel2D& DataModel2D::operator=(const DataModel2D &data_model_) {
+	grid_spacing[0] = data_model_.grid_spacing[0];
+	grid_spacing[1] = data_model_.grid_spacing[1];
+
+	cell_count[0] = data_model_.cell_count[0];
+	cell_count[1] = data_model_.cell_count[1];
+
+	domain_low[0] = data_model_.domain_low[0];
+	domain_low[1] = data_model_.domain_low[1];
+
+	domain_high[0] = data_model_.domain_high[0];
+	domain_high[1] = data_model_.domain_high[1];
+
+	for (unsigned int i = 0; i < cell_count[0] * cell_count[1]; i++) {
+		data[i] = data_model_.data[i];
+	}
+
+	return *this;
 }

@@ -9,9 +9,8 @@
 
 #include <iostream>
 
-EstimatorOptions::EstimatorOptions() {
-	// TODO Auto-generated constructor stub
-
+EstimatorOptions::EstimatorOptions() :
+		with_integral_scaling(true), fit_range_x(), fit_range_y() {
 }
 
 EstimatorOptions::~EstimatorOptions() {

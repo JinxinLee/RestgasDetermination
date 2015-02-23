@@ -11,10 +11,7 @@
 
 ProductModel2D::ProductModel2D(std::string name_, shared_ptr<Model2D> first_,
 		shared_ptr<Model2D> second_) :
-		Model2D(name_) {
-	first = first_;
-	second = second_;
-
+		Model2D(name_), first(first_), second(second_) {
 	addModelToList(first);
 	addModelToList(second);
 }

@@ -10,9 +10,8 @@
 //#include <iostream>
 
 Model::Model(std::string name_, unsigned int dimension_) :
-		model_par_handler(name_) {
-	name = name_;
-	dimension = dimension_;
+		model_par_handler(name_), submodel_list(), name(name_), dimension(
+				dimension_) {
 }
 
 Model::~Model() {
@@ -26,7 +25,8 @@ double Model::multiply(shared_ptr<Model> m1, shared_ptr<Model> m2,
 	return m1->evaluate(x) * m2->evaluate(x);
 }
 
-double Model::add(shared_ptr<Model> m1, shared_ptr<Model> m2, const double *x) const {
+double Model::add(shared_ptr<Model> m1, shared_ptr<Model> m2,
+		const double *x) const {
 	return m1->evaluate(x) + m2->evaluate(x);
 }
 
@@ -55,8 +55,8 @@ ModelParSet& Model::getModelParameterSet() {
 void Model::executeParametrizationModels(const double *x) {
 	//first call through all submodels of this model
 	for (unsigned int i = 0; i < submodel_list.size(); i++) {
-	/*	std::cout<<submodel_list[i]<<std::endl;
-		std::cout<<submodel_list[i]->getName()<<std::endl;*/
+		/*	std::cout<<submodel_list[i]<<std::endl;
+		 std::cout<<submodel_list[i]->getName()<<std::endl;*/
 		submodel_list[i]->executeParametrizationModels(x);
 	}
 	// loop over all parametrization models...

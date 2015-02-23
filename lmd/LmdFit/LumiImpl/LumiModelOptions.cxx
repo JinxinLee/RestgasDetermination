@@ -6,7 +6,7 @@ ClassImp(LumiFit::PndLmdFitModelOptions)
 namespace LumiFit {
 
 PndLmdFitModelOptions::PndLmdFitModelOptions() :
-		momentum_transfer_active(false), divergence_smearing_active(false), fix_beam_tilts(
+		momentum_transfer_active(false), use_theta_xy_coordinate_system(true), divergence_smearing_active(false), fix_beam_tilts(
 				false), acceptance_correction_active(false), automatic_acceptance_boundary_finding_active(
 				true), resolution_smearing_active(false), acceptance_bound_low(0.0), acceptance_bound_high(
 				0.0), fit_dimension(1), acceptance(0), resolution_parametrization_file_url(
@@ -15,8 +15,7 @@ PndLmdFitModelOptions::PndLmdFitModelOptions() :
 }
 
 PndLmdFitModelOptions::PndLmdFitModelOptions(LmdTrackType track_type,
-		LmdDimensionType dimension_type, bool divergence_smearing_active_) :
-		fix_beam_tilts(false), with_background_model(false) {
+		LmdDimensionType dimension_type, bool divergence_smearing_active_) {
 	divergence_smearing_active = divergence_smearing_active_;
 
 	if (dimension_type == T) {
@@ -54,10 +53,6 @@ bool PndLmdFitModelOptions::lessThanBinaryOptions(
 		return true;
 	else if (resolution_smearing_active > rhs.resolution_smearing_active)
 		return false;
-	if (with_background_model < rhs.with_background_model)
-		return true;
-	else if (with_background_model > rhs.with_background_model)
-		return false;
 
 	return false;
 }
@@ -84,6 +79,10 @@ bool PndLmdFitModelOptions::operator<(const PndLmdFitModelOptions &rhs) const {
 		}
 	}
 
+	if (use_theta_xy_coordinate_system < rhs.use_theta_xy_coordinate_system)
+		return true;
+	else if (use_theta_xy_coordinate_system > rhs.use_theta_xy_coordinate_system)
+		return false;
 	if (smearing_model < rhs.smearing_model)
 		return true;
 	else if (smearing_model > rhs.smearing_model)
@@ -111,6 +110,10 @@ bool PndLmdFitModelOptions::operator<(const PndLmdFitModelOptions &rhs) const {
 	if (vertex_model < rhs.vertex_model)
 		return true;
 	else if (vertex_model > rhs.vertex_model)
+		return false;
+	if (with_background_model < rhs.with_background_model)
+		return true;
+	else if (with_background_model > rhs.with_background_model)
 		return false;
 
 	ModelStructs::string_comp strcomp;

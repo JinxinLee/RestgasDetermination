@@ -89,12 +89,17 @@ void PndLmdDPMAngModel2D::initModelParameters() {
 }
 
 double PndLmdDPMAngModel2D::eval(const double *x) const {
-	double theta_tilted(calculateThetaFromTiltedSystem(x[0], x[1]).first);
-	double jaco(calculateJacobianDeterminant(x[0], x[1]));
-	/*std::cout << "measured theta,phi: " << x[0] << "," << x[1]
-	 << " -> transforms to evaluated theta of: " << theta_tilted << std::endl;
-	std::cout<<jaco<<" "<<dpm_model_1d->eval(&theta_tilted)<<std::endl;*/
-	return jaco * dpm_model_1d->eval(&theta_tilted) / (2.0 * TMath::Pi());
+	/*double theta_tilted(calculateThetaFromTiltedSystem(x[0], x[1]).first);
+	double jaco(calculateJacobianDeterminant(x[0], x[1]));*/
+/*	std::cout << "measured theta,phi: " << x[0] << "," << x[1]
+			<< " -> transforms to evaluated theta of: " << theta_tilted << std::endl;
+	std::cout << "jacobian: " << jaco << std::endl;*/
+  /*if(theta_tilted > 0.001 && theta_tilted < 0.002) {
+  	return jaco*1.0;
+  }
+  return 0.0;*/
+	//return jaco * dpm_model_1d->eval(&theta_tilted) / (2.0 * TMath::Pi());
+	return dpm_model_1d->eval(x) / (2.0 * TMath::Pi());
 }
 
 void PndLmdDPMAngModel2D::updateDomain() {

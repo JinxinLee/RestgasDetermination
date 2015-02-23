@@ -76,6 +76,31 @@ void PndLmdDataFacade::clearSelectionDimensionMap() {
 	selections_map.clear();
 }
 
+void PndLmdDataFacade::appendSelectionDimensions(
+		const std::pair<std::string, std::vector<LumiFit::LmdDimension> > &selection_dimensions) {
+
+	if (selections_map.size() == 0) {
+		selections_map[selection_dimensions.first] = selection_dimensions.second;
+	} else {
+		std::map<std::string, std::vector<LumiFit::LmdDimension> > new_selections_map;
+
+		std::map<std::string, std::vector<LumiFit::LmdDimension> >::iterator current_selection_map_it =
+				selections_map.begin();
+		while (current_selection_map_it != selections_map.end()) {
+			std::stringstream ss;
+			ss << current_selection_map_it->first << "_"
+					<< selection_dimensions.first;
+			new_selections_map[ss.str()] = current_selection_map_it->second;
+			new_selections_map[ss.str()].insert(new_selections_map[ss.str()].end(),
+					selection_dimensions.second.begin(),
+					selection_dimensions.second.end());
+			++current_selection_map_it;
+		}
+
+		selections_map = new_selections_map;
+	}
+}
+
 void PndLmdDataFacade::createSelectionDimensionCombinations() {
 	// create a map of selection dimension lists
 	// one entry in the map for each combination
@@ -393,14 +418,6 @@ void PndLmdDataFacade::create2DAngularDataBundle(unsigned int num_events) {
 	primary_dimension_template.is_active = true;
 	secondary_dimension_template.is_active = true;
 
-	LumiFit::LmdDimension secondary_selection_dimension;
-	secondary_selection_dimension.dimension_options.dimension_type =
-			LumiFit::SECONDARY;
-	secondary_selection_dimension.dimension_range.setRangeLow(-10000.0);
-	secondary_selection_dimension.dimension_range.setRangeHigh(-0.1);
-	// primarys are negative in the secondary number
-	selections_map["_prim"].push_back(secondary_selection_dimension);
-
 	primary_dimension_template.dimension_options.track_type = LumiFit::MC;
 	secondary_dimension_template.dimension_options.track_type = LumiFit::MC;
 	createData2D("mc_th", num_events);
@@ -413,9 +430,11 @@ void PndLmdDataFacade::create2DAngularDataBundle(unsigned int num_events) {
 	secondary_dimension_template.dimension_options.track_type = LumiFit::RECO;
 	createData2D("reco", num_events);
 
-	selections_map.clear();
+	if (selections_map.size() > 0) {
+		selections_map.clear();
 
-	createData2D("reco", num_events);
+		createData2D("reco", num_events);
+	}
 }
 
 void PndLmdDataFacade::create1DAngularResolutionDataBundle(

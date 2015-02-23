@@ -12,9 +12,8 @@
 
 #include <cmath>
 
-ModelEstimator::ModelEstimator() {
-	// TODO Auto-generated constructor stub
-
+ModelEstimator::ModelEstimator() :
+		free_parameters(), data(), fit_model(), estimator_options() {
 }
 
 ModelEstimator::~ModelEstimator() {
@@ -44,8 +43,8 @@ void ModelEstimator::setData(shared_ptr<Data> new_data) {
 }
 
 void ModelEstimator::insertParameters() {
-	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::iterator it = free_parameters.begin();
+	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>,
+			ModelStructs::stringpair_comp>::iterator it = free_parameters.begin();
 			it != free_parameters.end(); it++) {
 		getParameterList().push_back(
 				ModelStructs::minimization_parameter(it->first, it->second->getValue(),
@@ -57,8 +56,8 @@ void ModelEstimator::updateFreeModelParameters(const double *new_values) {
 	int counter = 0;
 	// first overwrite the corresponding parameter values
 	// loop over the parameter set and update all the free parameters with these values
-	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>
-			, ModelStructs::stringpair_comp>::iterator it = free_parameters.begin();
+	for (std::map<std::pair<std::string, std::string>, shared_ptr<ModelPar>,
+			ModelStructs::stringpair_comp>::iterator it = free_parameters.begin();
 			it != free_parameters.end(); it++) {
 		it->second->setValue(new_values[counter]);
 		counter++;
@@ -75,7 +74,8 @@ void ModelEstimator::applyEstimatorOptions(
 			shared_ptr<DataStructs::binned_data_point> data_point =
 					datapoints[i].getBinnedDataPoint();
 			// check fit ranges
-			if (data->getDimension() > 0 && estimator_options.getFitRangeX().is_active) {
+			if (data->getDimension() > 0
+					&& estimator_options.getFitRangeX().is_active) {
 				if (data_point->bin_center_value[0]
 						< estimator_options.getFitRangeX().range_low
 						|| data_point->bin_center_value[0]
@@ -83,7 +83,8 @@ void ModelEstimator::applyEstimatorOptions(
 					datapoints[i].setPointUsed(false);
 					continue;
 				}
-				if (data->getDimension() > 1 && estimator_options.getFitRangeY().is_active) {
+				if (data->getDimension() > 1
+						&& estimator_options.getFitRangeY().is_active) {
 					if (data_point->bin_center_value[0]
 							< estimator_options.getFitRangeY().range_low
 							|| data_point->bin_center_value[0]
@@ -101,17 +102,19 @@ void ModelEstimator::applyEstimatorOptions(
 						DataStructs::DimensionRange bin_range;
 						bin_range.range_low = data_point->bin_center_value[dim]
 								- data_point->bin_widths[dim] / 2.0;
-						bin_range.range_high = bin_range.range_low + data_point->bin_widths[dim];
+						bin_range.range_high = bin_range.range_low
+								+ data_point->bin_widths[dim];
 						bin_ranges.push_back(bin_range);
 					}
 
 					double scale = 1.0;
-					double precision = 1e-6;
+					double precision = 1e-3;
 					double int_func_real = fit_model->Integral(bin_ranges, precision);
 					double int_func_approx = fit_model->evaluate(
 							data_point->bin_center_value);
 					for (unsigned int dim = 0; dim < data->getDimension(); dim++) {
-						int_func_approx *= (bin_ranges[dim].range_high - bin_ranges[dim].range_low);
+						int_func_approx *= (bin_ranges[dim].range_high
+								- bin_ranges[dim].range_low);
 					}
 
 					if (int_func_approx > 0.0 && int_func_real > 0.0) {

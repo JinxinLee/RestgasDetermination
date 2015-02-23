@@ -11,8 +11,7 @@
 #include <iostream>
 
 ModelParameterHandler::ModelParameterHandler(std::string model_name_) :
-		model_par_set(model_name_) {
-	// TODO Auto-generated constructor stub
+		model_par_set(model_name_), parametrizations() {
 }
 
 ModelParameterHandler::~ModelParameterHandler() {

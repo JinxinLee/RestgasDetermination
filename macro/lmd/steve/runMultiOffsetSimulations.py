@@ -11,6 +11,67 @@ sys.path.append(lib_path)
 
 import argparse
 
+
+class IPParams:
+  ip_offset_x = 0.0 #in cm
+  ip_offset_y = 0.0 #in cm
+  ip_spread_x = 0.08 # in cm
+  ip_spread_y = 0.08 # in cm
+  ip_spread_z = 0.35 # in cm
+  
+  beam_tilt_x = 0.0 # in mrad
+  beam_tilt_y = 0.0 # in mrad
+  beam_divergence_x = 0.0 # in mrad
+  beam_divergence_y = 0.0 # in mrad
+  
+  def setIPOffsetXY(self, ip_offset_x_, ip_offset_y_):
+    self.ip_offset_x = ip_offset_x_
+    self.ip_offset_y = ip_offset_y_
+    
+  def setIPSpreadXYZ(self, ip_spread_x_, ip_spread_y_, ip_spread_z_):
+    self.ip_spread_x = ip_spread_x_
+    self.ip_spread_y = ip_spread_y_
+    self.ip_spread_z = ip_spread_z_
+    
+  def setBeamTiltXY(self, beam_tilt_x_, beam_tilt_y_):
+    self.beam_tilt_x_ = beam_tilt_x_
+    self.beam_tilt_y_ = beam_tilt_y_
+    
+  def setBeamDivergenceXY(self, beam_divergence_x_, beam_divergence_y_):
+    self.beam_divergence_x_ = beam_divergence_x_
+    self.beam_divergence_y_ = beam_divergence_y_
+
+
+def createIPOffsetScenarios(ip_param_list, ip_offset_abs_list, ip_offset_mode):
+    if not ip_param_list:
+    offset_values = abs(ip_offset_abs_list)
+    if offset_value > 0.0:
+    if args.ip_offset_mode == 'a':
+    offset_list.append([offset_value, 0.0, 0.0])
+    offset_list.append([-offset_value, 0.0, 0.0])
+    offset_list.append([0.0, offset_value, 0.0])
+    offset_list.append([0.0, -offset_value, 0.0])
+    elif args.ip_offset_mode == 'c':
+    offset_list.append([offset_value, offset_value, 0.0])
+    offset_list.append([offset_value, -offset_value, 0.0])
+    offset_list.append([-offset_value, offset_value, 0.0])
+    offset_list.append([-offset_value, -offset_value, 0.0])
+    else:
+    offset_list.append([offset_value, 0.0, 0.0])
+    offset_list.append([-offset_value, 0.0, 0.0])
+    offset_list.append([0.0, offset_value, 0.0])
+    offset_list.append([0.0, -offset_value, 0.0])
+    offset_list.append([offset_value, offset_value, 0.0])
+    offset_list.append([offset_value, -offset_value, 0.0])
+    offset_list.append([-offset_value, offset_value, 0.0])
+    offset_list.append([-offset_value, -offset_value, 0.0])
+      
+def createIPParameterScenarios():
+ offset_list = []
+
+
+
+
 parser = argparse.ArgumentParser(description='Script for full simulation of PANDA Luminosity Detector via externally generated MC data.', formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument('num_events', metavar='num_events', type=int, nargs=1, help='number of events to simulate')
@@ -32,19 +93,24 @@ parser.add_argument('--gen_data_dir', metavar='gen_data_dir', type=str, default=
 parser.add_argument('--output_dir', metavar='output_dir', type=str, default='', help='This directory is used for the output. Default is the generator directory as a prefix, with beam offset infos etc. added')
 
 
-parser.add_argument('--ip_offset_mode', metavar='ip_offset_mode', choices=['a', 'c', 'f'], help='a = axis, c=corners, f=full round')
+parser.add_argument('--ip_offset_mode', metavar='ip_offset_mode', choices=['m', 'a', 'c', 'f'], help='m=middle/center, a=axis, c=corners, f=full round')
 
-parser.add_argument('--ip_offset_abs', metavar='ip_offset_abs', type=float, nargs=1, default=0.0,
-                   help="ip_offset_abs: distance from center that is used as a template value (in cm)")
+parser.add_argument('--ip_offset_abs', metavar='ip_offset_abs', type=float, nargs='*', default=0.0,
+                   help="ip_offset_abs: distances from center that are used as a template value (in cm)")
 
-parser.add_argument('--use_ip_spread', metavar=('ip_spread_x', 'ip_spread_y', 'ip_spread_z'), type=float, nargs=3, default=[0.08, 0.08, 0.05],
+
+parser.add_argument('--beam_tilt_mode', metavar='beam_tilt_mode', choices=['m', 'a', 'c', 'f'], help='m=middle/center, a = axis, c=corners, f=full round')
+
+parser.add_argument('--beam_tilt_abs', metavar='beam_tilt_abs', type=float, nargs='*', default=0.0,
+                   help="beam_tilt_abs: tilts with respect to the beam axis, which are used as a template value for the scans (in mrad)")
+
+
+parser.add_argument('--use_ip_spread', metavar=('ip_spread_x', 'ip_spread_y', 'ip_spread_z'), type=float, nargs=3, default=[0.08, 0.08, 0.35],
                    help="ip_spread in xyz direction (in cm)")
 
-parser.add_argument('--use_beam_gradient', metavar=("beam_gradient_x", "beam_gradient_y", "beam_emittance_x", "beam_emittance_y"), type=float, nargs=4, default=[0.0, 0.0, 0.0, 0.0],
-                   help="beam_gradient_x: mean beam inclination on target in x direction dPx/dPz (in mrad)\n"
-			"beam_gradient_y: mean beam inclination on target in y direction dPy/dPz (in mrad)\n"
-			"beam_emittance_x: beam emittance in x direction (in mrad)\n"
-			"beam_emittance_y: beam emittance in y direction (in mrad)")
+parser.add_argument('--use_beam_divergence', metavar=("beam_divergence_x", "beam_divergence_y"), type=float, nargs=2, default=[0.0, 0.0],
+                   help="beam_divergence_x: beam divergence in x direction (in mrad)\n"
+			"beam_divergence_y: beam divergence in y direction (in mrad)")
 
 parser.add_argument('--use_xy_cut', action='store_true', help='Use the x-theta & y-phi filter after the tracking stage to remove background.')
 parser.add_argument('--use_m_cut', action='store_true', help='Use the tmva based momentum cut filter after the backtracking stage to remove background.')
@@ -58,29 +124,7 @@ parser.add_argument('--reco_ip_offset', metavar=("rec_ip_offset_x", "rec_ip_offs
 args = parser.parse_args()
 
 
-offset_list = []
 
-offset_value = abs(args.ip_offset_abs[0])
-if offset_value > 0.0:
-  if args.ip_offset_mode == 'a':
-    offset_list.append([offset_value, 0.0, 0.0])
-    offset_list.append([-offset_value, 0.0, 0.0])
-    offset_list.append([0.0, offset_value, 0.0])
-    offset_list.append([0.0, -offset_value, 0.0])
-  elif args.ip_offset_mode == 'c':
-    offset_list.append([offset_value, offset_value, 0.0])
-    offset_list.append([offset_value, -offset_value, 0.0])
-    offset_list.append([-offset_value, offset_value, 0.0])
-    offset_list.append([-offset_value, -offset_value, 0.0])
-  else:
-    offset_list.append([offset_value, 0.0, 0.0])
-    offset_list.append([-offset_value, 0.0, 0.0])
-    offset_list.append([0.0, offset_value, 0.0])
-    offset_list.append([0.0, -offset_value, 0.0])
-    offset_list.append([offset_value, offset_value, 0.0])
-    offset_list.append([offset_value, -offset_value, 0.0])
-    offset_list.append([-offset_value, offset_value, 0.0])
-    offset_list.append([-offset_value, -offset_value, 0.0])
 
 additional_flags = ''
 if args.use_xy_cut:
