@@ -11,23 +11,38 @@ In this directory are several files to run the complete simulation chain + soft-
    
    > ./create_decfiles.pl decays.txt
 
+
 2. check prod_fsim.C/prod_sof.C to configure PndSoftTriggerTask
 
-   - Define QA's to write out (default should be fine in the frist place) 
+   - Define QA's to write out (default should be fine in the first place) 
    - Comment out stTask->ApplyFullSelection(); (we want to find the selection!)
+
   
-3. submit jobs to prometheus for various energies
+3. submit jobs to prometheus for various energies for signal and DPM
 
    > ./submit(_fsim).pl <energy>
+   > ./submit(_fsim).pl <energy> 10000 100 399 DPM
+
 
 4. after all jobs complete go to data directory and merge data
 
    > cd data
    > ../merge.pl mct
 
+   NOTE: An easy way to check beforehand which jobs failed is to list them sorted by file size
+   > ls -lS *root
+
+   Files with just a couple of bytes size need to be resubmitted; e.g. for M380222002_1_fsim.root and M240900_251_fsim.root:
+
+   > cd ..
+   > ./submit_fsim.pl 3.8 10000 1 1 222002
+   > ./submit_fsim.pl 2.4 10000 251 251 DPM
+
+
 5. after merge completed, compress files (switch off branches and apply precuts) for speedup
 
    > ../compress.pl M
+
 
 6. do autocut optimization
 
@@ -36,13 +51,18 @@ In this directory are several files to run the complete simulation chain + soft-
    > cd shr
    > ../../autocut.pl M
 
-7. apply selection to prod_fsim.cfg / prod_sof.cfg and enable full selection
+
+7. apply selection to prod_fsim.C / prod_sof.C and enable full selection
 
    TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/softrig/data/shr/selection_M.cfg";
    stTask->ApplyFullSelection()
 
-8. just enable event QA (for speed) and restart all jobs
 
+8. just enable event QA (ntpev) for speed and restart all jobs like under 3.
+
+    Therefore modify prod_fsim.C or prod_sof.C:
+
+    ---
 	if (modeshort==900)	
 	{
 		stTask->SetQAAll(false);
@@ -55,8 +75,26 @@ In this directory are several files to run the complete simulation chain + soft-
 	
 	stTask->SetQAEvent(true);		// event info
 	stTask->SetQAMc(false);
+    ---
+ 
+9. merge the ntpev tuples of the output files energy-wise (for now by hand)
 
-9. evaluate output in ntpev
+   > root -l -b -q '../merge.C("ntpev","M240_ntpev.root","M240*_fsim.root")'
+   ...
+   > root -l -b -q '../merge.C("ntpev","M550_ntpev.root","M550*_fsim.root")'
+
+
+10. create file with cross tag histos (each run adds histos to common output 'crosstag_histos.root')
+  
+   > rm crosstag_histos.root
+   > root -l -b -q '../crosstag.C("M240_ntpev.root",1,1)'
+   ...
+   > root -l -b -q '../crosstag.C("M550_ntpev.root",1,1)'
+
+
+11. create evaluation plots
+
+   > root -l -b -q '../evaltrig.C("crosstag_histos.root",1)'
 
 
 ----------------------------------------------------------
@@ -94,6 +132,10 @@ Files in this directory:
 
 - autocutx.C    : automatic selection finder for one signal mode; in principle re-iterates cutfinderx.C (-> used by autocut.pl)
 
+- crosstag.C    : evaluates the output in ntuple 'ntpev' after running with full trigger selection (apply to merged file of all modes for specific energy)
+
+- evaltrig.C    : create final performance histos for all modes and energies (apply after running crosstag.C for all energies separately)
+
 
 *** some helper macros
 
@@ -108,11 +150,14 @@ Files in this directory:
 - sizetree.C   : takes root file name as input and prints a list of the TTrees sorted by memory consumption.
 
 
+
 ***
 *** Scripts
 ***
 
 - autocut.pl          : Applies autocutx.C to multiple files in directory
+
+- autotmva.pl         : Applies autocutx.C to multiple files in directory
 
 - merge.pl            : automatically merges the relevant files for various modes; uses merge(mct).C
 

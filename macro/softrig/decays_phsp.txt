@@ -1,0 +1,164 @@
+# ---------------------------------------------
+# Definition file for script create_decfiles.pl
+# used to produce all needed decay files
+# needs to be synchronized with triggerlines.cfg
+# *****  ALL DECAYS HERE ARE PHSP FOR QA  *****
+# ---------------------------------------------
+
+# all particles needed
+# SYNTAX: Particle <name> <antiparticle-name if exists> <mass> 
+
+Particle D0 anti-D0 1.8648
+Particle D+ D- 1.8696
+Particle D_s+ D_s- 1.9685
+Particle D*0 anti-D*0 2.0070
+Particle D*+ D*- 2.0103
+Particle D_s*+ D_s*- 2.1123
+Particle eta_c 2.9803
+Particle J/psi 3.0969
+Particle chi_c0 3.4148
+Particle Lambda0 anti-Lambda0 1.1157
+Particle Sigma+ anti-Sigma- 1.1893
+Particle Lambda_c+ anti-Lambda_c- 2.2865
+Particle phi 1.0195
+Particle e+ e- 0.0005
+Particle mu+ mu- 0.1057
+Particle pi+ pi- 0.1396
+Particle K+ K- 0.4937
+Particle p+ anti-p- 0.9383
+Particle pi0 0.1350
+Particle K_S0 0.4976
+Particle eta 0.5479
+Particle gamma 0.0
+Particle K0 anti-K0 0.4976
+Particle KS 0.4976
+
+# -------------------
+
+# all possible recoils (common for all modes!)
+# SYNTAX: Recoil <mode idx> <particle list>
+
+Recoil 00
+Recoil 01 gamma
+Recoil 02 pi0
+Recoil 03 eta
+Recoil 04 pi0 pi0
+Recoil 05 pi+ pi-
+Recoil 06 K+ K-
+Recoil 07 K0 anti-K0
+Recoil 08 eta eta
+Recoil 09 pi+ pi- pi0
+
+# --------------------
+
+# define which associate particles have to be generated in addition; each additional part. produces another mode
+# SYNTAX: AssociateRes <name> <additional 1> <additional 2> ...
+
+AssociatePart D0 anti-D0 anti-D*0
+AssociatePart D*0 anti-D*0 anti-D0
+AssociatePart D+ D- D*-
+AssociatePart D*+ D*- D-
+AssociatePart D_s+ D_s- D_s*-
+AssociatePart D_s*+ D_s*- D_s-
+AssociatePart Lambda0 anti-Lambda0
+AssociatePart Sigma+ anti-Sigma-
+AssociatePart Lambda_c+ anti-Lambda_c-
+
+# --------------------
+
+# if given, defines the different recoils (see def. above) which this mode/resonance is generate with;
+# if not given, all recoils will be taken into account
+# can be defined for a single mode or particle type; mode has priority over particle
+# SYNTAX: SpecifyRecoil <name/mode> <rec code 1> <rec code 2> ...
+
+SpecifyRecoil 600 00
+SpecifyRecoil 601 00
+SpecifyRecoil 602 00
+SpecifyRecoil 620 00
+SpecifyRecoil 621 00
+SpecifyRecoil 622 00
+SpecifyRecoil 640 00
+SpecifyRecoil 641 00
+SpecifyRecoil 642 00
+SpecifyRecoil 660 00
+
+# --------------------
+
+# define decay patterns
+# SYNTAX: 
+# 1. Decay <mode idx> <signal particle/'NR' for non-resonant> <decay particle list> <EvtGen decay model>
+# 2. Decay <mode idx> <signal particle> <1st daughter> [<decay list of 1st daughter>] <further daughters> <EvtGen decay model>
+
+Decay 100 D0 K- pi+ PHSP
+Decay 101 D0 K- pi+ pi0 PHSP
+Decay 102 D0 K- pi+ pi+ pi- PHSP
+Decay 103 D0 KS pi+ pi- PHSP
+Decay 104 D0 KS pi+ pi- pi0 PHSP
+
+Decay 120 D+ K- pi+ pi+ PHSP
+Decay 121 D+ K- pi+ pi+ pi0 PHSP
+Decay 122 D+ KS pi+ pi0 PHSP
+Decay 123 D+ KS pi+ pi+ pi- PHSP
+
+Decay 140 D_s+ K+ K- pi+ PHSP
+Decay 141 D_s+ K+ K- pi+ pi0 PHSP
+
+Decay 110 D*0 D0 [K- pi+ PHSP] pi0 PHSP
+Decay 111 D*0 D0 [K- pi+ pi0 PHSP] pi0 PHSP
+Decay 112 D*0 D0 [K- pi+ pi+ pi- PHSP] pi0 PHSP
+Decay 113 D*0 D0 [KS pi+ pi- PHSP] pi0 PHSP
+Decay 114 D*0 D0 [KS pi+ pi- pi0 PHSP] pi0 PHSP
+Decay 115 D*0 D0 [K- pi+ PHSP] gamma PHSP
+Decay 116 D*0 D0 [K- pi+ pi0 PHSP] gamma PHSP
+Decay 117 D*0 D0 [K- pi+ pi+ pi- PHSP] gamma PHSP
+Decay 118 D*0 D0 [KS pi+ pi- PHSP] gamma PHSP
+Decay 119 D*0 D0 [KS pi+ pi- pi0 PHSP] gamma PHSP
+
+Decay 130 D*+ D0 [K- pi+ PHSP] pi+ PHSP
+Decay 131 D*+ D0 [K- pi+ pi0 PHSP] pi+ PHSP
+Decay 132 D*+ D0 [K- pi+ pi+ pi- PHSP] pi+ PHSP
+Decay 133 D*+ D0 [KS pi+ pi- PHSP] pi+ PHSP
+Decay 134 D*+ D0 [KS pi+ pi- pi0 PHSP] pi+ PHSP
+Decay 135 D*+ D+ [K- pi+ pi+ PHSP] pi0 PHSP
+Decay 136 D*+ D+ [K- pi+ pi+ pi0 PHSP] pi0 PHSP
+Decay 137 D*+ D+ [KS pi+ pi0 PHSP] pi0 PHSP
+Decay 138 D*+ D+ [KS pi+ pi+ pi- PHSP] pi0 PHSP
+
+Decay 150 D_s*+ D_s+ [K+ K- pi+ PHSP] gamma PHSP
+Decay 151 D_s*+ D_s+ [K+ K- pi+ pi0 PHSP] gamma PHSP
+
+Decay 200 J/psi e+ e- PHSP
+Decay 201 J/psi mu+ mu- PHSP
+
+Decay 220 eta_c K+ K- pi0 PHSP
+Decay 221 eta_c KS K- pi+ PHSP
+Decay 222 eta_c gamma gamma PHSP
+Decay 223 eta_c K+ K- pi+ pi- pi0 PHSP
+Decay 224 eta_c KS K- pi+ pi- pi+ PHSP
+
+Decay 240 chi_c0 pi+ pi- K+ K- PHSP
+Decay 241 chi_c0 K+ pi- KS pi0 PHSP
+
+Decay 400 Lambda0 p+ pi- PHSP
+
+Decay 410 Sigma+ p+ pi0 PHSP
+
+Decay 420 Lambda_c+ p+ K- pi+ PHSP
+Decay 421 Lambda_c+ p+ K- pi+ pi0 PHSP
+Decay 422 Lambda_c+ p+ KS pi0 PHSP
+
+Decay 500 phi K+ K- PHSP
+
+Decay 600 NR e+ e- PHSP
+Decay 601 NR e+ e- gamma PHSP
+Decay 602 NR e+ e- pi0 PHSP
+
+Decay 620 NR mu+ mu- PHSP
+Decay 621 NR mu+ mu- gamma PHSP
+Decay 622 NR mu+ mu- pi0 PHSP
+
+Decay 640 NR gamma gamma PHSP
+Decay 641 NR gamma gamma gamma PHSP
+Decay 642 NR gamma gamma pi0 PHSP
+
+Decay 660 NR pi0 gamma PHSP
