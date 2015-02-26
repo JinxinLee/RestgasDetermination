@@ -75,6 +75,10 @@ public:
 
 private:
 
+  // hide assignment operator as private
+  Test30Physics(const Test30Physics&);
+  Test30Physics& operator = (const Test30Physics &right);
+
   void Initialise();
 
   Test30HadronProduction* theProcess;

@@ -56,7 +56,7 @@ private:
     
     // masses
     double mp, mPsi, mEtaC, mPsi2S, mHc;
-    double wPsi, wEtaC, wPsi2S, wHc;
+    double wPsi, wPsi2S, wHc;
 //    double s;
     
 
