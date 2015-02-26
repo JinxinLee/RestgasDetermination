@@ -42,6 +42,8 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "/include/HepMC/"
         "/include/boost/"
         "/include/Geant4/"
+        "/include/pythia8/"
+        "/include/pluto/"
         "PParticle.h"
         "PDataBase.h"
         "PMesh.h"
@@ -123,6 +125,7 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
 #	"FairTSBufferFunctional.h"
        # -- EvtGen source code, cannot be touched by us 
         "pgenerators/EvtGen/EvtGen/R01-03-00/"
+        "pgenerators/EvtGen/Photos/"
         "genfit/"
         "dbase/"
   )
