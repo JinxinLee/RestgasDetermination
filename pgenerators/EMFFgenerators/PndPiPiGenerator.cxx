@@ -23,6 +23,7 @@ PndPiPiGenerator::~PndPiPiGenerator()
 Bool_t PndPiPiGenerator::Init()
 {
   mz_pp_to_pipi_vandewi_init(seed,P,cos_theta_min,cos_theta_max);
+  return kTRUE;
 }
 
 Bool_t PndPiPiGenerator::ReadEvent(FairPrimaryGenerator* primGen)

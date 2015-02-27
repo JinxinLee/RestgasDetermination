@@ -76,8 +76,8 @@ public:
 private:
 
   // hide assignment operator as private
-  Test30Physics(const Test30Physics&);
-  Test30Physics& operator = (const Test30Physics &right);
+  Test30Physics(const Test30Physics& other);
+  Test30Physics& operator = (const Test30Physics &other);
 
   void Initialise();
 
