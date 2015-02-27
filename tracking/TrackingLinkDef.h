@@ -46,9 +46,12 @@
 #pragma link C++ class PndTrkConformalHitList+;
 #pragma link C++ class PndTrkSkewHitList+;
 #pragma link C++ class PndTrkQATask+;
+#pragma link C++ class PndTrkQualityAssuranceTask+;
 #pragma link C++ class PndTrkClean+;
 #pragma link C++ class PndTrkFitter+;
 #pragma link C++ class PndTrkNeighboringMap+;
-
+#pragma link C++ class PndTrkMCTrackInfo+;
+#pragma link C++ class PndTrkRecoTrackInfo+;
+#pragma link C++ class PndTrkAnaTask+;
 #endif
 

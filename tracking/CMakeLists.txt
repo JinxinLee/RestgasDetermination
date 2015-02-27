@@ -23,12 +23,18 @@ ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/gem 
 ${CMAKE_SOURCE_DIR}/pnddata/GemData 
 ${CMAKE_SOURCE_DIR}/geane 
+${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
+${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+${CMAKE_SOURCE_DIR}/rho
+${CMAKE_SOURCE_DIR}/rho/RhoBase
+${CMAKE_SOURCE_DIR}/rho/RhoMath
 ${CMAKE_SOURCE_DIR}/tracking
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
 ${CMAKE_SOURCE_DIR}/tracking/TrkSecondary
 ${CMAKE_SOURCE_DIR}/tracking/TrkStructure
 ${CMAKE_SOURCE_DIR}/tracking/TrkAlgo
 ${CMAKE_SOURCE_DIR}/tracking/TrkData
+${CMAKE_SOURCE_DIR}/tracking/TrkQA
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -92,6 +98,11 @@ TrkSecondary/PndTrkShortTrackFinder.cxx
 
 #
 TrkStructure/PndTrkQATask.cxx
+TrkQA/PndTrkQualityAssuranceTask.cxx
+TrkQA/PndTrkMCTrackInfo.cxx
+TrkQA/PndTrkRecoTrackInfo.cxx
+TrkQA/PndTrkAnaTask.cxx
+
 )
 
 set(LINKDEF  TrackingLinkDef.h)
