@@ -32,6 +32,7 @@ class PndFileNameCreator : public TObject
     std::string GetSimFileName(std::string addon = "", bool cut = false);
     std::string GetDigiFileName(std::string addon = "", bool cut = false);
     std::string GetRecoFileName(std::string addon = "", bool cut = false);
+    std::string GetPidFileName(std::string addon = "", bool cut = false);
     std::string GetTrackFindingFileName(std::string addon = "", bool cut = false);
     std::string GetRiemannFileName(std::string addon = "", bool cut = false);
     std::string GetCombinedRiemannFileName(std::string addon = "", bool cut = false);
@@ -65,6 +66,7 @@ class PndFileNameCreator : public TObject
     std::string fExtSim;
     std::string fExtDigi;
     std::string fExtReco;
+    std::string fExtPid;
     std::string fExtTrackF;
     std::string fExtIdealTrackF;
     std::string fExtRiemann;

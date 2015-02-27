@@ -9,10 +9,11 @@ sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim.root";
-  TString  ParOutputfile  ="params.root";
+  PndFileNameCreator creator(OutputFile.Data());
+  TString ParOutputfile = creator.GetParFileName();
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
-  TString digiFile        = "all.par"; //The emc run the hit producer directly 
+  TString digiParFile        = "all.par"; //The emc run the hit producer directly
   // choose your event generator 
   Bool_t UseEvtGenDirect      =kFALSE;    
   Bool_t UseDpm 	      =kTRUE;
@@ -41,7 +42,7 @@ sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
   //-------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
-  allDigiFile += digiFile;
+  allDigiFile += digiParFile;
  
   //-------Set the parameter output --------------------
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();

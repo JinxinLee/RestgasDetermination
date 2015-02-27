@@ -7,30 +7,30 @@ void digi()
   Int_t iVerbose = 0; // just forget about it, for the moment
   
   // Input file (MC events)
-  TString inFile = "sim.root";
-  
-  // Parameter file
-  TString parFile = "params.root"; // at the moment you do not need it
+  TString simFile = "sim.root";
+  PndFileNameCreator creator(simFile.Data());
+  TString digiFile = creator.GetDigiFileName();
+  TString parFile = creator.GetParFileName();
   
   // Digitisation file (ascii)
-  TString digiFile = "all.par";
+  TString digiParFile = "all.par";
   
   // Output file
-  TString outFile = "digi.root";
+
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
-  fRun->SetOutputFile(outFile);
+  fRun->SetInputFile(simFile);
+  fRun->SetOutputFile(digiFile);
   fRun->SetWriteRunInfoFile(kFALSE);  
   
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
-  allDigiFile += digiFile;
+  allDigiFile += digiParFile;
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();

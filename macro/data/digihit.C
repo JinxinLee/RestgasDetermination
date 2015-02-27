@@ -6,31 +6,31 @@ void digihit()
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
   
-  // Input file (MC events)
-  TString inFile = "sim.root";
-  
-  // Parameter file
-  TString parFile = "params.root"; // at the moment you do not need it
+  TString simFile = "sim.root";
+  PndFileNameCreator creator(simFile.Data());
+  TString digiFile = creator.GetDigiFileName();
+  TString recoFile = creator.GetRecoFileName();
+  TString pidFile = creator.GetPidFileName();
+  TString outFile = creator.GetCustomFileName("digihit");
+  TString parFile = creator.GetParFileName();
   
   // Digitisation file (ascii)
-  TString digiFile = "all.par";
-  
-  // Output file
-  TString outFile = "digihit.root";
+  TString digiParFile = "all.par";
+
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
+  fRun->SetInputFile(simFile);
   fRun->SetOutputFile(outFile);
   fRun->SetWriteRunInfoFile(kFALSE);  
   
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
-  allDigiFile += digiFile;
+  allDigiFile += digiParFile;
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kFALSE);

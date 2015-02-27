@@ -5,7 +5,7 @@
 
 
 PndFileNameCreator::PndFileNameCreator():
-	fFileName(), fExtPar("par"), fExtSim("sim"), fExtDigi("digi"), fExtReco("reco"),
+	fFileName(), fExtPar("par"), fExtSim("sim"), fExtDigi("digi"), fExtReco("reco"), fExtPid("pid"),
 	fExtTrackF("trackF"), fExtIdealTrackF("idealTrackF"), fExtKalman("kalman"),
 	fExtRiemann("riemann"),fExtCombinedRiemann("combRiemann"),fExtVertex("vertex"),
 	fVerbose(0)
@@ -13,7 +13,7 @@ PndFileNameCreator::PndFileNameCreator():
 }
 
 PndFileNameCreator::PndFileNameCreator(std::string fileName):
-	fFileName(fileName), fExtPar("par"), fExtSim("sim"), fExtDigi("digi"), fExtReco("reco"),
+	fFileName(fileName), fExtPar("par"), fExtSim("sim"), fExtDigi("digi"), fExtReco("reco"), fExtPid("pid"),
 	fExtTrackF("trackF"), fExtIdealTrackF("idealTrackF"), fExtKalman("kalman"),
 	fExtRiemann("riemann"),fExtCombinedRiemann("combRiemann"),fExtVertex("vertex"),
 	fVerbose(0)
@@ -41,6 +41,11 @@ std::string PndFileNameCreator::GetDigiFileName(std::string addon, bool cut)
 std::string PndFileNameCreator::GetRecoFileName(std::string addon, bool cut)
 {
 	return GetCustomFileName(fExtReco, addon, cut);
+}
+
+std::string PndFileNameCreator::GetPidFileName(std::string addon, bool cut)
+{
+	return GetCustomFileName(fExtPid, addon, cut);
 }
 
 std::string PndFileNameCreator::GetTrackFindingFileName(std::string addon, bool cut)

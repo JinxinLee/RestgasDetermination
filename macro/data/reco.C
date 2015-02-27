@@ -9,14 +9,14 @@ void reco()
 	// Number of events to process
   Int_t nEvents = 0;  // if 0 all the vents will be processed
   
-  // Parameter file
-  TString parFile = "params.root"; // at the moment you do not need it
+  TString simFile = "sim.root";
+  PndFileNameCreator creator(simFile.Data());
+  TString digiFile = creator.GetDigiFileName();
+  TString recoFile = creator.GetRecoFileName();
+  TString parFile = creator.GetParFileName();
   
   // Digitisation file (ascii)
-  TString digiFile = "all.par";
-  
-  // Output file
-  TString outFile = "reco.root";
+  TString digiParFile = "all.par";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -24,9 +24,9 @@ void reco()
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("sim.root");
-  fRun->AddFriend("digi.root");
-  fRun->SetOutputFile(outFile);
+  fRun->SetInputFile(simFile);
+  fRun->AddFriend(digiFile);
+  fRun->SetOutputFile(recoFile);
   fRun->SetWriteRunInfoFile(kFALSE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
@@ -34,7 +34,7 @@ void reco()
   // -----  Parameter database   --------------------------------------------
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
   emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
+  emcDigiFile += digiParFile;
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();

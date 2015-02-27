@@ -8,15 +8,20 @@ void clonemc()
   
 	// Number of events to process
   Int_t nEvents = 0;  // if 0 all the vents will be processed
+  TString simFile = "sim.root";
+  PndFileNameCreator creator(simFile.Data());
+  TString digiFile = creator.GetDigiFileName();
+  TString recoFile = creator.GetRecoFileName();
+  TString pidFile = creator.GetPidFileName();
+  TString cloneFile = creator.GetCustomFileName("clonemc");
+  TString parFile = creator.GetParFileName();
   
   // Parameter file
   TString parFile = "params.root"; // at the moment you do not need it
   
   // Digitisation file (ascii)
-  TString digiFile = "all.par";
-  
-  // Output file
-  TString outFile = "clonemc.root";
+  TString digiParFile = "all.par";
+
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -24,15 +29,15 @@ void clonemc()
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("sim.root");
-  fRun->AddFriend("pid.root");
-  fRun->SetOutputFile(outFile);
+  fRun->SetInputFile(simFile);
+  fRun->AddFriend(pidFile);
+  fRun->SetOutputFile(cloneFile);
   fRun->SetWriteRunInfoFile(kFALSE);
  
   // -----  Parameter database   --------------------------------------------
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
   emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
+  emcDigiFile += digiParFile;
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
