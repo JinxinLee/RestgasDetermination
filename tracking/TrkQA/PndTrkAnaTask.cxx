@@ -5,7 +5,7 @@
 // Class for Quality Assurance
 //
 // authors: Lia Lavezzi - University of Torino (2015)
-//
+//          from a macro by Karin Schoenning /thanks!/
 ////////////////////////////////////////////////////////////
 
 #include "PndTrkAnaTask.h"
