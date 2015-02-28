@@ -2,7 +2,7 @@
 
 #include <cmath>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 DataModel2D::DataModel2D(std::string name_, interpolation_type type) :
 		Model2D(name_), intpol_type(type), data(0) {
