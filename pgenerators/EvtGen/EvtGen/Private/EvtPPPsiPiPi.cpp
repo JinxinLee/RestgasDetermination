@@ -11,10 +11,11 @@ using namespace std;
 
 
 
-EvtPPPsiPiPi::EvtPPPsiPiPi() : EvtDecayProb(), mp(0.938), mpi(0.135), mPsi(3.097), mmu(0.001), mPsi2S(3.686), mHc(3.526), 
-			       GammaPsi2S(300e-6), GammaHc(700e-6),  p1(EvtVector4R()), p2(EvtVector4R()), mp2(pow(mp,2)), 
-			       mp4(pow(mp,4)), mpi2(pow(mpi,2)), mPsi2(pow(mPsi,2)), mPsi4(pow(mPsi,4)),
-			       diag1(1), diag2(1), diag3(1), diag4(1), mpi4(pow(mpi,4))
+EvtPPPsiPiPi::EvtPPPsiPiPi() : EvtDecayProb(), p1(EvtVector4R()), p2(EvtVector4R()), mp(0.938), mp2(pow(mp,2)),  mp4(pow(mp,4)),
+                               mpi(0.135), mpi2(pow(mpi,2)), mpi4(pow(mpi,4)), mPsi(3.097),  mPsi2(pow(mPsi,2)), mPsi4(pow(mPsi,4)),
+                               mPsi2S(3.686), mHc(3.526), mmu(0.001),
+			       GammaPsi2S(300e-6), GammaHc(700e-6),  
+			       diag1(1), diag2(1), diag3(1), diag4(1)
 {
 }
 
@@ -36,11 +37,11 @@ void EvtPPPsiPiPi::initProbMax()  {
 }
 
 
-EvtPPPsiPiPi::EvtPPPsiPiPi(const EvtPPPsiPiPi& orig) : diag1(orig.diag1), diag2(orig.diag2), diag3(orig.diag3), diag4(orig.diag4),
-						       mp(orig.mp), mpi(orig.mpi), mPsi(orig.mPsi), mmu(orig.mmu),
-						       mPsi2S(orig.mPsi2S), mHc(orig.mHc), mp2(orig.mp2), mp4(orig.mp4), 
-						       mpi2(orig.mpi2), mpi4(mpi4), mPsi2(mPsi2), mPsi4(mPsi4),
-						       p1(orig.p1), p2(orig.p2), GammaPsi2S(orig.GammaPsi2S), GammaHc(orig.GammaHc)
+EvtPPPsiPiPi::EvtPPPsiPiPi(const EvtPPPsiPiPi& orig) : p1(orig.p1), p2(orig.p2), mp(orig.mp), mp2(orig.mp2), mp4(orig.mp4),
+                                                       mpi(orig.mpi), mpi2(orig.mpi2), mpi4(orig.mpi4), mPsi(orig.mPsi), mPsi2(orig.mPsi2), mPsi4(orig.mPsi4),
+                                                       mPsi2S(orig.mPsi2S), mHc(orig.mHc), mmu(orig.mmu),
+                                                       GammaPsi2S(orig.GammaPsi2S), GammaHc(orig.GammaHc),
+                                                       diag1(orig.diag1), diag2(orig.diag2), diag3(orig.diag3), diag4(orig.diag4)
 {
 }
 
@@ -63,11 +64,8 @@ void EvtPPPsiPiPi::init() {
 
 void EvtPPPsiPiPi::decay(EvtParticle* root) {
     root->initializePhaseSpace(getNDaug(), getDaugs());
-    EvtVectorParticle *psi = (EvtVectorParticle*) root->getDaug(0);
-    EvtId dau[2] = {EvtPDL::getId("e-"), EvtPDL::getId("e+")};
 
     double s=root->getP4Lab().mass2();
-    double beta = sqrt(1 - 4 * mp * mp / s);
     p2 = EvtVector4R(mp, 0, 0, 0);
     p1 = root->getP4Lab() - p2;
     

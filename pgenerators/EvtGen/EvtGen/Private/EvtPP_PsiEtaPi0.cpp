@@ -10,15 +10,10 @@
 using namespace std;
 
 
-EvtPP_PsiEtaPi0::EvtPP_PsiEtaPi0(const EvtPP_PsiEtaPi0& orig) {
-    mp = orig.mp;
-    mPi=orig.mPi;
-    mPsi = orig.mPsi;
-    mEta=orig.mEta;
-    wPsi = orig.wPsi;
-    mPsi2S = orig.mPsi2S;
-    wPsi2S = orig.wPsi2S;
-    first_run = orig.first_run;
+EvtPP_PsiEtaPi0::EvtPP_PsiEtaPi0(const EvtPP_PsiEtaPi0& orig) : p1(orig.p1), p2(orig.p2), mp(orig.mp),  mp_2(orig.mp_2), mp_4(orig.mp_4),
+    mPi(orig.mPi), mPi_2(orig.mPi_2), mPsi(orig.mPsi), wPsi(orig.wPsi), mPsi_2(orig.mPsi_2), 
+    mEta(orig.mEta), mEta_2(orig.mEta_2), mPsi2S(orig.mPsi2S), wPsi2S(orig.wPsi2S), s(orig.s), first_run(orig.first_run)
+{
 }
 
 EvtPP_PsiEtaPi0::~EvtPP_PsiEtaPi0() {}

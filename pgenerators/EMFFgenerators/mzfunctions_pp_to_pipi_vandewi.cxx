@@ -44,7 +44,6 @@ void mz_pp_to_pipi_vandewi_init(int seed, double P,
   double P_PANDA_THRESHOLD=1.5;    //pbar momentum threshold in PANDA
 
   double M=mp;             //proton mass
-  double PI=acos(-1.0);
 
   double p_p[4];           //lab frame: 4-mom p    (proton target)
   double pbar_p[4];        //lab frame: 4-mom pbar (anti-proton beam)

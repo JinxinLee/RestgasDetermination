@@ -78,7 +78,6 @@ void EvtPP_EtacGamma::decay(EvtParticle* root) {
 
     double s = root->getP4Lab().mass2();
     if (first_run) {
-        double beta = sqrt(1 - 4 * mp * mp / s);
         p2 = EvtVector4R(mp, 0, 0, 0);
         p1 = root->getP4Lab() - p2;
 
@@ -93,12 +92,11 @@ void EvtPP_EtacGamma::decay(EvtParticle* root) {
 }
 
 
-EvtPP_EtacGamma::EvtPP_EtacGamma(const EvtPP_EtacGamma& orig) {
-  mp=orig.mp; 
-  mPsi=orig.mPsi; wPsi=orig.wPsi; 
-  mPsi2S=orig.mPsi2S; wPsi2S=orig.wPsi2S;
-  mHc=orig.mHc; wHc=orig.wHc;
-  mEtaC=orig.mEtaC;
+EvtPP_EtacGamma::EvtPP_EtacGamma(const EvtPP_EtacGamma& orig) : p1(orig.p1), p2(orig.p2),
+       mp(orig.mp), mPsi(orig.mPsi), wPsi(orig.wPsi), mPsi2S(orig.mPsi2S), wPsi2S(orig.wPsi2S),
+       mHc(orig.mHc), wHc(orig.wHc), mEtaC(orig.mEtaC),
+       first_run(orig.first_run)
+{
 };
 
 void EvtPP_EtacGamma::init() {

@@ -36,10 +36,9 @@ class EvtParticle;
 
 class EvtPP_EtacGamma : public EvtDecayProb {
 public:
-    EvtPP_EtacGamma():
-      mp(0.938), mPsi(3.097), wPsi(90e-6), mPsi2S(3.686), 
-      wPsi2S(300e-6), mHc(3.526), wHc(700e-6), mEtaC(2.982),
-      p1(EvtVector4R()), p2(EvtVector4R()),
+    EvtPP_EtacGamma(): p1(EvtVector4R()), p2(EvtVector4R()),
+      mp(0.938), mPsi(3.097),  mEtaC(2.982),  mPsi2S(3.686), mHc(3.526),
+      wPsi(90e-6), wPsi2S(300e-6), wHc(700e-6),
       first_run(true) {};
     EvtPP_EtacGamma(const EvtPP_EtacGamma& orig);
     virtual ~EvtPP_EtacGamma() { };

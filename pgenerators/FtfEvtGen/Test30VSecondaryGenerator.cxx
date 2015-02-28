@@ -52,12 +52,12 @@ Test30VSecondaryGenerator::Test30VSecondaryGenerator(
     G4HadronicInteraction* hadi, const G4Material* mat):
   hInteraction(hadi),
   material(mat),
-  targetA(0),
   generatorName(""),
   elm(0),
   targetNucleus(0),
   result(0),
-  targetZ(0)
+  targetZ(0),
+  targetA(0)
 {
   elm = material->GetElement(0);
   targetZ = G4lrint(elm->GetZ());

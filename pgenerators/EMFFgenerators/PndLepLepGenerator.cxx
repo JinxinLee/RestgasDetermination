@@ -23,6 +23,7 @@ PndLepLepGenerator::~PndLepLepGenerator()
 Bool_t PndLepLepGenerator::Init()
 {
   mz_pp_to_leplep_vandewi_init(seed,particleID,P,gegm,cos_theta_min,cos_theta_max);
+  return kTRUE;
 }
 
 Bool_t PndLepLepGenerator::ReadEvent(FairPrimaryGenerator* primGen)

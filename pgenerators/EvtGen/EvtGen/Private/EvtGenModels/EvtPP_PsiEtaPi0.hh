@@ -54,9 +54,10 @@ class EvtParticle;
 class EvtPP_PsiEtaPi0: public EvtDecayProb {
 public:
     EvtPP_PsiEtaPi0():
-        mp(0.938), mPsi(3.097), wPsi(90e-6), mPsi2S(3.686), mPi(0.135), mEta(0.450),
-        mp_2(pow(mp,2)), mp_4(pow(mp,4)), mPi_2(pow(mPi,2)),mPsi_2(pow(mPsi,2)), mEta_2(pow(mEta,2)),
-	s(10), p1(EvtVector4R()), p2(EvtVector4R()),	first_run(true)   {};
+        p1(EvtVector4R()), p2(EvtVector4R()),
+        mp(0.938), mp_2(pow(mp,2)), mp_4(pow(mp,4)), mPi(0.135),  mPi_2(pow(mPi,2)),
+        mPsi(3.097), wPsi(90e-6), mPsi_2(pow(mPsi,2)), mEta(0.450), mEta_2(pow(mEta,2)),
+        mPsi2S(3.686), wPsi2S(3.17e-4), s(10), first_run(true)   {};
     EvtPP_PsiEtaPi0(const EvtPP_PsiEtaPi0& orig);
     virtual ~EvtPP_PsiEtaPi0();
 

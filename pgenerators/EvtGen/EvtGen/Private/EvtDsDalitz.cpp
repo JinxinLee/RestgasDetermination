@@ -118,18 +118,6 @@ if ( _flag==5 ) {setProbMax(50000.0);}
 
 void EvtDsDalitz::decay( EvtParticle *p){
 
-  //added by Lange Jan4,2000
-
-  static EvtId DSP=EvtPDL::getId("D_s+");
-  static EvtId DSM=EvtPDL::getId("D_s-");
-  static EvtId KM=EvtPDL::getId("K-");
-  static EvtId KP=EvtPDL::getId("K+");
-  static EvtId PIM=EvtPDL::getId("pi-");
-  static EvtId PIP=EvtPDL::getId("pi+");
-
-
-  double oneby2 = 0.707106782;
-
 //same structure for all of these decays
 
   p->initializePhaseSpace(getNDaug(),getDaugs());
