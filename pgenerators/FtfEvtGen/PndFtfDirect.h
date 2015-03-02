@@ -9,7 +9,7 @@
  The PndFtfDirect generates FTF events using the Geant4 Code
  and inserts the tracks into the PndStack via the FairPrimaryGenerator.
  Derived from FairGenerator.
- 
+
  Caveat: There are some files incuded directly iside the code, as it was provided
  in the executable by the original authors. This should be restructured.
  **/
@@ -56,23 +56,24 @@ class FairPrimaryGenerator;
 
 class PndFtfDirect : public FairGenerator
 {
-  
+
 public:
-  
+
   /** Default constructor (should not be used) **/
   PndFtfDirect();
-  
+
   /** Standard constructor
    *  @param Mom in GeV/C
    *  @param Mode = 0. - No elastic scattering, only inelastic
    *  @param Mode = 1. - Elastic and inelastic interactions (default)
    **/
   PndFtfDirect(const char * configfile);
+  PndFtfDirect(const PndFtfDirect&);
   PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed);
-  
+
   /** Destructor **/
   virtual ~PndFtfDirect();
-  
+
   /** Generate one event using DPM
    ** @param primGen  pointer to the FairPrimaryGenerator
    **/
@@ -81,11 +82,11 @@ public:
   void SetVerbose(int v=1) {fverbose=v;};
 
 private:
-  
+
   void InitZero(); // initialize numbers etc. to defaults
   void parseConfigfile(); // parse the configuration file
   void Setup(); // setup
-  
+
   /**
    * P_lab(GeV/c)
    */
@@ -98,16 +99,16 @@ private:
   double fSeed;
   double fRsigma;
   float  fThtMin;
-  
-  
-  
+
+
+
   std::ifstream* fin;
   Test30Material*  fmate;
   Test30Physics*   fphys;
   G4ParticleTable* fpartTable;
-  
+
   CLHEP::RanluxEngine* fdefaultEngine;
-  
+
   G4int     fverbose;
   G4bool    fsaverand;
   G4bool    fNoElastics;
@@ -138,35 +139,35 @@ private:
   G4double      faTime;
   CLHEP::Hep3Vector* faDirection;
   G4double fnx, fny, fnz;
-  
-  
+
+
   G4ExcitationHandler* ftheDeExcitation;
   G4Evaporation* ftheEvaporation;
   G4PreCompoundModel* fthePreCompound;
-  
+
   G4double fsigTot;
   G4double fsigEl;
   G4double fsigIn;
-  
+
   int fnpart;
   //   Root initialization
   //TFile f1("FTF.root","RECREATE","ROOT_Tree");
-  
+
   Int_t factiveCnt;
   //TTree* fTree = new TTree("data","FTF Background");
   //TClonesArray* fEvt;
-  
+
   //fEvt=new TClonesArray("TParticle",100);
   //fTree->Branch("Npart",&activeCnt,"Npart/I");
   //fTree->Branch("Particles",&fEvt, 32000,99);
-  
+
   G4DynamicParticle* dParticle;
   G4VProcess* proc;
   G4Step* step;
   G4Track* gTrack;
   G4ParticleDefinition* part;
-  
-  
+
+
   //  static const G4ParticleDefinition* gamma;
   static const G4ParticleDefinition* electron;
   static const G4ParticleDefinition* proton;
@@ -179,18 +180,18 @@ private:
   static const G4ParticleDefinition* he3;
   static const G4ParticleDefinition* alp;
   //static const G4ParticleDefinition* ion;
-  
+
   static const G4ParticleDefinition* anti_proton;
   static const G4ParticleDefinition* anti_neutron;
   static const G4ParticleDefinition* anti_deuteron;
   static const G4ParticleDefinition* anti_triton;
   static const G4ParticleDefinition* anti_He3;
   static const G4ParticleDefinition* anti_alpha;
-  
-  
-  
+
+
+
   ClassDef(PndFtfDirect,1);
-  
+
 };
 
 #endif
