@@ -5,8 +5,33 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jpsi_ll.dec", Float_t mom = 6.56903, TString Resonance="pbarpSystem0" )
+prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom = 0., TString Resonance="pbarpSystem0" )
 {
+	if (Prefix=="" || Decfile=="" || Mom==0.) 
+	{
+		cout << "USAGE:\n";
+		cout << "prod_sim.C+( <pref>,  <nevt>, <decfile>, <mom>, [res] )\n\n";
+		cout << "   <pref>     : output file names prefix\n";
+		cout << "   <nevt>     : number of events\n";
+		cout << "   <decfile>  : decfile; 'DPM' uses DPM generator instead\n";
+		cout << "   <mom>      : pbar momentum\n";
+		cout << "   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'\n\n";
+		return;
+	}
+	
+	double mp = 0.938272;
+	
+	// if mom<0, it's -E_cm -> compute mom
+	if (mom<0)
+	{
+		double X = (mom*mom-2*mp*mp)/(2*mp);
+		mom = sqrt(X*X-mp*mp);
+	}
+	
+	// Allow shortcut for resonance
+	if (Resonance=="pbp")  Resonance = "pbarpSystem";
+	if (Resonance=="pbp0") Resonance = "pbarpSystem0";
+
   //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant3";
   TString  Workdir        =gSystem->Getenv("VMCWORKDIR");
@@ -75,10 +100,10 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jps
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
-  FairModule *Magnet= new PndMagnet("MAGNET");
+  //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
-  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
-  fRun->AddModule(Magnet);
+  //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+  //fRun->AddModule(Magnet);
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
@@ -124,6 +149,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="pp_Jpsi2pi_Jps
   Muo->SetMuonFilter("fast");
   Muo->SetForward("fast");
   Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtCoil(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
   //-------------------------  FTS       -----------------
