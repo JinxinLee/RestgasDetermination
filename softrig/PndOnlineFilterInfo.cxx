@@ -49,6 +49,7 @@ void PndOnlineFilterInfo::SetNTag(int mode, int tag)
 	fMode[fNModes] = mode;
 	fNTag[fNModes++] = tag;
 	fNTagTotal += tag;
+	fTag = (fNTagTotal>0);
 }
 
 // ---------------------------------------
