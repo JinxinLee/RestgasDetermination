@@ -1,7 +1,19 @@
 // ************************************************************************
 //
-// Analysis Task using PndSimpleCombiner 
+//  Analysis Task using PndSimpleCombiner 
 // 
+// ************************************************************************
+//
+// Parameters: 
+// - anadecay     : decay specification, e.g. "phi -> K+ K-; D_s+ -> phi pi+ cc" (cc indicates charged conjugate; particle used have to be defined beforehand)
+//                  is handed over to PndSimpleCombiner
+//
+// - params       : configuration parameters, e.g. "fit4c:qamc". The string contains also parameters handled by PndSimpleCombiner; those handled by this task are:
+//   - fit4c      : perform 4C fit on last resonance
+//   - fitvtx     : perform vertex fit on all resonances when possible (at least two daughters)
+//   - qamc       : stored MC information
+//   - qaevtshape : store event shape information
+//
 // K.Goetzen 1/2015
 //
 // ************************************************************************
@@ -33,10 +45,12 @@ class PndSimpleCombinerTask : public FairTask
  public:
 	
 	// ** Default constructor   
-	PndSimpleCombinerTask(TString anadecay, TString anaparms);
+	PndSimpleCombinerTask(TString anadecay, TString anaparms, double p=0, int run=0);
 	
 	// ** Destructor 
 	~PndSimpleCombinerTask();	
+	
+	void SetMultFactor(int fac) {fRunMult=fac;} // set run multiplicator
 	
 	// ** Virtual method Init 
 	virtual InitStatus Init();
@@ -56,31 +70,25 @@ class PndSimpleCombinerTask : public FairTask
 	int  CountChargedDaughters(RhoCandidate *c);
 	void InitParms();
 	
-	// *** event counter
-	int fEvtCount;	
+	int fEvtCount;                    // event counter
+	int fRun;                         // run number to be stored in ntuple (for unique event ID)
+	int fRunMult;                     // factor for fRun to create unique event ID; default = 10000 (has be larger the num. of events per job!)
 	
-	// *** the initial 4-vector
-	TLorentzVector fIni;
-	TString        fAnaDecay;
-	TString        fAnaParms;
-	int            fNntp;
-	TString        fPidAlgo;
-	bool           fQaMC;
-	bool           fQaEventShape;
-	bool           fFit4C;
-	bool           fFitVtx;
+	TLorentzVector fIni;              // initial 4-vector; either computed from constructor parameter Mom, or taken from MC list
+	TString        fAnaDecay;         // decay string
+	TString        fAnaParms;         // parameter string; has to contain also parameters for PndSimpleCombiner
+	int            fNntp;             // number of ntuples to be created
+	TString        fPidAlgo;          // PID algo name 
+	bool           fQaMC;             // flag to store MC list
+	bool           fQaEventShape;     // flag to store event shape variables
+	bool           fFit4C;            // flag to perform 4C fit
+	bool           fFitVtx;           // flag to perform vtx fit
 	
-	// *** the PndAnalysis object
+	// *** object instances needed
 	PndAnalysis       *fAnalysis;
 	TDatabasePDG      *fPdg;
 	PndSimpleCombiner *fSimpleCombiner;
-
-	
-	
-	// *******
-	// ******* DECLARE THE STUFF YOU NEED
-	// *******
-	
+		
 	std::vector<int> vmpdg;        // pdg code of the composites
 	std::vector<RhoTuple*> vntp;   // ntuples for the composites
 	RhoTuple *nmc;                 // MC ntuple

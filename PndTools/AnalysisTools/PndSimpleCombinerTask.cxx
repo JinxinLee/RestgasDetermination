@@ -1,7 +1,19 @@
 // ************************************************************************
 //
-// Analysis Task using PndSimpleCombiner 
+//  Analysis Task using PndSimpleCombiner 
 // 
+// ************************************************************************
+//
+// Parameters: 
+// - anadecay     : decay specification, e.g. "phi -> K+ K-; D_s+ -> phi pi+ cc" (cc indicates charged conjugate; particle used have to be defined beforehand)
+//                  is handed over to PndSimpleCombiner
+//
+// - params       : configuration parameters, e.g. "fit4c:qamc". The string contains also parameters handled by PndSimpleCombiner; those handled by this task are:
+//   - fit4c      : perform 4C fit on last resonance
+//   - fitvtx     : perform vertex fit on all resonances when possible (at least two daughters)
+//   - qamc       : stored MC information
+//   - qaevtshape : store event shape information
+//
 // K.Goetzen 1/2015
 //
 // ************************************************************************
@@ -54,12 +66,15 @@ using std::endl;
 
 
 // -----   Default constructor   -------------------------------------------
-PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms) :
-  FairTask("PndSimpleCombinerTask"),
+PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms, double p, int run) :
+  FairTask("PndSimpleCombinerTask"), fRun(run), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
   fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"),
   fQaMC(false), fQaEventShape(false), fFit4C(false), fFitVtx(false), nmc(0)
 { 
+	fIni.SetXYZT(0,0,0,0);
+	double mp = 0.938272;
+	if (p>0.0001) fIni.SetXYZT(0,0,p, sqrt(p*p+mp*mp)+mp);
 }
 // -------------------------------------------------------------------------
 
@@ -86,7 +101,6 @@ void PndSimpleCombinerTask::InitParms()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndSimpleCombinerTask::Init() 
 {		
-	fIni.SetXYZT(0,0,0,0);
 	InitParms();
 	
 	// *** reset the event counter
@@ -266,6 +280,8 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 			vntp[i]->Column("cand",	    (Int_t) j);
 			vntp[i]->Column("ncand",    (Int_t) l1.GetLength());
 			vntp[i]->Column("mmiss",	(Float_t) mmiss);
+			vntp[i]->Column("run",      (Int_t) fRun);
+			vntp[i]->Column("uid",      (Int_t) fRun*fRunMult+fEvtCount);
 			
 			qa.qaP4("beam", fIni, vntp[i]);
 			
@@ -274,6 +290,13 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 			
 			// store info about event shapes
 			if (fQaEventShape) qa.qaEventShapeShort("es",evsh, vntp[i]);
+			
+			// *** store info from trigger
+			if (stInfo)
+			{
+				vntp[i]->Column("trig",    (Int_t) stInfo->Tagged() );       // event triggered
+				vntp[i]->Column("ntrig",   (Int_t) stInfo->GetNTagTotal());  // total number of triggered candidates from all active lines
+			}
 		
 			// store the 4-vector of the truth matched candidate (or a dummy, if not matched to keep ntuple consistent)
 			RhoCandidate *truth = l1[j]->GetMcTruth();		
