@@ -7,28 +7,42 @@
 // USAGE:\n";
 // quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )
 //    <pref>     : output file names prefix
-//    <decfile>  : decfile; 'DPM' uses DPM generator instead
+//    <decfile>  : decfile; 'DPM'/'FTF' uses DPM/FTF generator instead
 //    <mom>      : pbar momentum
 //    <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'. charged conjugate is include unless you specify 'nocc' for certain decay
 //    [nevt]     : number of events; default = 1000
 //    [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'
 //    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+//    [runST]    : if 'true' runs Software Trigger (default: false)
 
 
-void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="" )
+void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
+				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 )
 {
 	if (Prefix=="" || Decfile=="" || Mom==0. || anadecay=="") 
 	{
 		cout << "USAGE:\n";
 		cout << "quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
-		cout << "   <decfile>  : decfile; 'DPM' uses DPM generator instead\n";
-		cout << "   <mom>      : pbar momentum\n";
+		cout << "   <decfile>  : decfile; 'DPM'/'FTF' uses DPM/FTF generator instead\n";
+		cout << "   <mom>      : pbar momentum; negative values are interpreted as -E_cm\n";
 		cout << "   <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'\n";
 		cout << "   [nevt]     : number of events; default = 1000\n";
 		cout << "   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'\n";
-		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n\n";
+		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
+        cout << "   [runST]    : if 'true' runs Software Trigger (default: false)\n";
+        cout << "   [runnum]   : integer run number (default: 0)\n\n";
 		return;
+	}
+	
+	// if Mom<0, interprete as -E_cm
+	double mp = 0.938272;
+	
+	// if mom<0, it's -E_cm -> compute mom
+	if (Mom<0)
+	{
+		double X = (Mom*Mom-2*mp*mp)/(2*mp);
+		Mom = sqrt(X*X-mp*mp);
 	}
 	
 	// Allow shortcut for resonance
@@ -39,7 +53,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	anadecay.ReplaceAll("pbp0","pbarpSystem0");
 
 	// Prevent generator from throwing a lot of warnings
-	TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
+	TLorentzVector fIni(0,0,Mom,mp+sqrt(Mom*Mom+mp*mp));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
 	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.1,0, "",90000);
@@ -73,6 +87,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 
 	// choose your event generator
 	Bool_t UseEvtGenDirect  = kTRUE;
+	Bool_t UseFtf           = kFALSE;
 	Bool_t UseDpm           = kFALSE;
 	Bool_t UseBoxGenerator  = kFALSE;
 
@@ -81,6 +96,13 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	{
 		UseEvtGenDirect = kFALSE;
 		UseDpm 	      = kTRUE;
+	}
+
+	// use FTF generator; 
+	if (Decfile=="FTF")
+	{
+		UseEvtGenDirect = kFALSE;
+		UseFtf 	        = kTRUE;
 	}
 
 	// use BOX generator; default: single mu-, 0<tht<180, 0<phi<360, 0.1<p<mom
@@ -111,6 +133,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
 	fRun->SetWriteRunInfoFile(kFALSE);
+//	fRun->SetUserConfig(BaseDir+"/gconfig/g3ConfigFast.C");
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
@@ -131,6 +154,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		boxGen->SetXYZ(0., 0., 0.); //cm
 		primGen->AddGenerator(boxGen);
 	}
+	
 	if(UseDpm)
 	{
 		PndDpmDirect *Dpm= new PndDpmDirect(Mom,0);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
@@ -141,6 +165,13 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		Dpm->SetUnstable(221);   // eta
 		primGen->AddGenerator(Dpm);
 	}
+	
+	if(UseFtf)
+	{
+		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", Mom, 123456);
+		primGen->AddGenerator(Ftf);
+	}
+
 	if(UseEvtGenDirect)
 	{
 		PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), Mom);
@@ -353,12 +384,53 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 
 	fRun->AddTask(fastSim);
 	
-	// *****************************
+	
+	// ***********************
+	// *** SoftTriggerTask ***
+	// ***********************
+	
+	if (runST)
+	{	
+		// this file contains the trigger line definitions
+		TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";
+		
+		// this file contains the cut setup for various modes
+		TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_fsim_dec2014.cfg"; 
+		
+		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, 0, 0, triggercfg);
+		stTask->SetConfigurationFile(selectioncfg);
+		stTask->ApplyFullSelection(1);  // apply selection defined in 'TString selectioncfg'
+		
+		stTask->SetPi0SignalParams(0.134, 0.0035);  // set parameters for pi0
+		stTask->SetKs0SignalParams(0.497, 0.0055);  // set parameters for KS
+		stTask->SetEtaSignalParams(0.549, 0.0055);  // set parameters for eta
+		
+		stTask->SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
+		stTask->SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
+		stTask->SetInitialPidCut(0.1);	// global PID pre-cut for charged 	
+		stTask->SetDstMDiffCut(0.1);    // special cut on D*-D mass difference (to reduce comb and output file size)
+		
+		// set fast sim PID algos
+		stTask->SetPidAlgoAll("PidChargedProbability");
+		
+		stTask->SetTagAll(true);		// tag all modes
+		stTask->SetQAAll(false);        // don't write any QA tuple	
+		stTask->SetQAEvent(true);        // don't write any QA tuple	
+		
+		fRun->AddTask(stTask);
+	}
+	
+	// ***********************
+	// *** SoftTriggerTask ***
+	// ***********************
+
+    
+    // *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
 	
 	// since this is fast sim, there is only one PidAlgo
-	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability");
+	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run);
 	scTask->SetPidAlgo("PidChargedProbability");
 	fRun->AddTask(scTask);
 

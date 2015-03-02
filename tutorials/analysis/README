@@ -19,14 +19,17 @@ quickana.C
 
 In case you already have a file containing AOD (PndPidCandidates) you just need to perform the analysis part
 
- USAGE:\n";
- quickana.C+( <input>, <decay>, [nevt], [parms], [fastsim] )
-    <input>    : input file name with PndPidCandidates
-    <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'. Considering charged conjugates is default unless you specify 'nocc' for individual decays
-    [nevt]     : number of events; default = 0 = all
-    [parms]    : parameters for the analysis separated by ':', e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc' see below
-    [fastsim]  : if running fast simulation, set this to 'true'. This adapts the pid algorithm for event shape computation of PndSimpleCombinerTask 
-                 (not for PndSimpleCombiner! this is done via parameter string)
+ USAGE:
+ quickana.C+( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )
+
+	<input>   : input file name with PndPidCandidates
+	<mom>     : pbar momentum; negative values are interpreted as -E_cm
+	<decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'
+	[nevt]    : number of events; default: 0 = all
+	[parms]   : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+	[fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'
+    [runST]   : if 'true' runs Software Trigger (default: false)
+    [runnum]  : integer run number (default: 0)
 
 The string <decay> specifying the decay pattern to be reconstructed is a concatenation of the needed subdecays separated by ';'. Please note that you need to define any list in 
 advance of its usage.
@@ -74,24 +77,28 @@ quickfsimana.C
 
 In case you don't have AOD data but want to take a quick look into some channel, you can run FastSim previously by providing a proper decay file (or use DPM to check background behaviour).
 
- USAGE:\n";
- quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )
-    <pref>     : output file names prefix
-    <decfile>  : decfile; 'DPM' uses DPM generator instead
-    <mom>      : pbar momentum
-    <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'. charged conjugate is include unless you specify 'nocc' for certain decay
-    [nevt]     : number of events; default = 1000
-    [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'
-    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+USAGE:
+quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )
+   <pref>     : output file names prefix
+   <decfile>  : decfile; 'DPM'/'FTF' uses DPM/FTF generator instead
+   <mom>      : pbar momentum; negative values are interpreted as -E_cm
+   <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'
+   [nevt]     : number of events; default = 1000
+   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'
+   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+   [runST]    : if 'true' runs Software Trigger (default: false)
+   [runnum]   : integer run number (default: 0)
 
 The specifications to <decay> and [parms] is exactly as above, you only need to specify the decay to be generated.
 
-*** Example: You want to run 1000 events of the 'standard' 
+*** Example: You want to run 1000 events of the 'standard' analysis example:
 
   - pbarp -> J/psi pi+ pi-, J/psi -> e+ e- @ p_pbar = 6.23 GeV (i.e. at psi(2S) energy); 
   - perform 4c fit
   - the decay file is 'pp_jpsi2pi.dec'
   - mass windows are +- 300 MeV
 
- quickfsimana.C("jpsi2pi","pp_jpsi2pi.dec",6.23,"J/psi -> e+ e-; pbarpSystem -> J/psi pi+ pi-",1000,"pbarpSystem","fit4c:mwin=0.6")
+(Note the shortcuts: pbarpSystem = pbp, pbarpSystem0 = pbp0)
+
+ > root -l -b -q 'quickfsimana.C("jpsi2pi", "decfiles/pp_jpsi2pi.dec", 6.23, "J/psi -> e+ e-; pbp -> J/psi pi+ pi-", 1000, "pbp", "fit4c:mwin=0.6")'
 
