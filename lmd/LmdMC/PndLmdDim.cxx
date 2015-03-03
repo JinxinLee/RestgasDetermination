@@ -1868,6 +1868,26 @@ TVector3 PndLmdDim::Decode_hit(const int sensorID,
 	return Transform_sensor_to_global(hit, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
 }
 
+void PndLmdDim::Propagate_fast_ip_to_lmd(TVector3& pos, TVector3& mom, double pbeam){
+	static bool first_call(true);
+	if (geometry_version != 2 && !first_call){
+		first_call = false;
+		cout << " Warning in PndLmdDim::Propagate_fast_ip_to_lmd: Wrong geometry version " << geometry_version << endl;
+		cout << " Transformation matrix was fit to data with geometry version 2 ! " << endl;
+	}
+	if (pbeam != 1.5 && pbeam != 15){
+		cout << " Error in PndLmdDim::Propagate_fast_ip_to_lmd: no matrix fit for " << pbeam << " GeV/c beam momentum";
+		cout << " nor interpolation is implemented yet " << endl;
+		return;
+	}
+	// check if to create and initialize a matrix first
+	if (propagation_matrices.find(pbeam) == propagation_matrices.end()){
+		PndLmdDimPropMat propmat(pbeam);
+		propagation_matrices[pbeam] = propmat;
+	}
+	propagation_matrices[pbeam].Propagate(pos, mom);
+}
+
 bool PndLmdDim::Get_overlapping_sensor(const TVector3& point,int& ihalf, int& iplane, int& imodule, int& iside, int& idie, int& isensor, bool aligned){
 	bool result = false;
 	int _ihalf = ihalf; ihalf = -1;

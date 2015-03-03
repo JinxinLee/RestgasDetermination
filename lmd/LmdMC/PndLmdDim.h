@@ -48,6 +48,92 @@ typedef TMatrixT<double> TMatrixD; // hmm funny, should be declared in TMatrixT.
 
 using namespace std;
 
+// simple class used for a fast particle track propagation
+// based on a matrix fit to simulated data
+// the representation of the basis is
+// x, y, z, w, px/pz, py/pz, pw
+// w und pw are weights in order to
+// provide homogeneous coordinates
+class PndLmdDimPropMat {
+public:
+	double mom;
+	double M[7][7];
+	PndLmdDimPropMat(){
+		mom = 0;
+		for (int i = 0; i < 7; i++){
+			for (int j = 0; j < 7; j++){
+				M[i][j] = 0;
+			}
+		}
+	}
+	// set a matrix which is given as an array
+	void Set(const double* matrix){
+		for (int i = 0; i < 7*7; i++){
+			M[i/7][i%7]=matrix[i];
+		}
+	}
+	// set a matrix with fitted hardcoded values
+	// up to now only 1.5 GeV/c and 15 GeV/c are available
+	// to produce more, please modify and use trafo_matrix_fit.C
+	PndLmdDimPropMat(double mom_init){
+		mom = mom_init;
+		if (mom == 1.5){
+			double matrix_init[49] = {
+					1.008, 	1.224, 	0.0002019, 	0.2599, 	1.097, 	-0.1589, 	-0.0001195,
+					-0.5955, 	1.039, 	-0.0005971, 	-1.346e-05, 	0.3111, 	1.064, 	-1.346e-05,
+					-0.04988, 	-0.05086, 	-0.001412, 	11.24, 	-0.04313, 	0.008298, 	0.0001872,
+					3.902e-15, 	7.585e-16, 	9.545e-15, 	1, 	-1.233e-15, 	3.314e-16, 	2.02e-17,
+					0.007612, 	1.362, 	-1.555e-05, 	0.0001312, 	0.9807, 	-0.1218, 	0.4001,
+					-0.6376, 	0.03731, 	-0.003707, 	-3.515e-06, 	0.2933, 	0.9396, 	-3.515e-06,
+					-6.249e-16, 	-6.08e-15, 	3.831e-16, 	-2.305e-16, 	1.199e-15, 	3.776e-16, 	1
+			};
+			Set(matrix_init);
+		} else {
+			if (mom == 15){
+				double matrix_init[49] = {
+						0.9964, 	0.2344, 	-0.001914, 	0.2595, 	1.122, 	-0.03301, 	8.147e-06,
+						-0.1186, 	1.003, 	0.004168, 	-1.317e-05, 	0.06374, 	1.12, 	-1.317e-05,
+						-0.04133, 	-0.00675, 	0.004662, 	11.24, 	-0.04459, 	0.001854, 	0.0001689,
+						-1.308e-06, 	-0.0004408, 	-0.0001933, 	1, 	1.735e-06, 	-3.104e-05, 	-3.934e-07,
+						-0.006095, 	0.259, 	-0.001436, 	0.0001743, 	1, 	-0.02576, 	0.4002,
+						-0.1297, 	-0.003878, 	0.007372, 	-7.3e-06, 	0.06048, 	0.9946, 	-7.3e-06,
+						-1.308e-06, 	-0.0004408, 	-0.0001933, 	-3.934e-07, 	1.735e-06, 	-3.104e-05, 	1
+				};
+				Set(matrix_init);
+			} else { // unitity matrix
+				cout << " Warning in PndLmdDimPropMat: loading unitiy matrix only " << endl;
+				double matrix_init[49] = {
+						1, 0, 0, 0, 0, 0, 0,
+						0, 1, 0, 0, 0, 0, 0,
+						0, 0, 1, 0, 0, 0, 0,
+						0, 0, 0, 1, 0, 0, 0,
+						0, 0, 0, 0, 1, 0, 0,
+						0, 0, 0, 0, 0, 1, 0,
+						0, 0, 0, 0, 0, 0, 1
+				};
+				Set(matrix_init);
+			}
+		}
+	}
+	// transform the position and momentum at the IP
+	// to a position and momentum at the first plane of the LMD
+	void Propagate(TVector3& pos, TVector3& mom){
+		//TVector3 dir = mom.Unit();
+		double mommag = mom.Mag();
+		// position transformation was evaluated for meter and angles * 10.
+		double xip[7] = {pos.X()/100., pos.Y()/100., pos.Z()/100., 1, mom.X()/mom.Z()*10., mom.Y()/mom.Z()*10., 1};
+		double xlmd[7] = {0,0,0,0,0,0,0};
+		for (int i = 0; i < 7; i++){
+			for (int j = 0; j < 7; j++){
+				xlmd[i] += M[i][j] * xip[j];
+			}
+		}
+		pos.SetXYZ(xlmd[0]*100., xlmd[1]*100., xlmd[2]*100.);
+		mom.SetXYZ(xlmd[4]/10., xlmd[5]/10., 1.); // not an exact calculation ;)
+		mom = mom.Unit()*mommag;
+	}
+};
+
 class PndLmdDim {
 private:
 	// in case you change anything in the geometry
@@ -474,173 +560,19 @@ public:
 	// column and row can be also the mean from a cluster and therefore
 	// not an integer
 	TVector3 Decode_hit(const int sensorID, const double column, const double row, const bool aligned = true);
-/*
-	// the local system is where the first plane is at xyz = 0 and
-	// the detector is oriented along z
-	// module counting starts from the first plane (positive x and positive y)
-	// rotation is right handed
 
-	// rotation of the i'th module around z
-	double Get_rot_z_local(int imodule){
-		if (Is_valid_idcall(0, imodule))
-			return delta_phi * imodule + delta_phi/2.;
-		else
-			return 0;
-	}
+	// matrices for a fast prediction of a particle track to the lmd
+	// depending on the momentum setting of the hesr which is the key
+	map<double, PndLmdDimPropMat> propagation_matrices;
 
-	// returns the position and rotation of the i'th module at the i'th plane
-	// the origin is the center of the cvd disc
-	// first comes translation than rotation
-	void Get_pos_mod_local(int iplane, int imodule,
-			double& x, double& y, double& z,
-			double& rotx, double& roty, double& rotz,
-			bool misaligned = false){
-		//x = 0; y = 0; z = 0; rotx = 0; roty = 0; rotz = 0;
-		if (Is_valid_idcall(iplane, imodule)){
-			double angle = Get_rot_z_local(imodule);
-			double add_z = cvd_disc_even_odd_offset;
-			if ((imodule%2)==0) add_z = -add_z;
-			x += cvd_disc_dist*cos(angle);
-			y += cvd_disc_dist*sin(angle);
-			z += plane_pos_z[iplane] + add_z;
-			rotz += angle;
-			if (misaligned){
-				double offset_x, offset_y, offset_z, tilt_x, tilt_y, tilt_z;
-				Get_offset(iplane, imodule, -1, -1,
-						offset_x, offset_y, offset_z,
-						tilt_x, tilt_y, tilt_z);
-				// x and y rotation must take the orientation
-				// of the rotational axis into account
-				rotx += tilt_x;
-				roty += tilt_y;
-				rotz += tilt_z;
-				double offset_r = offset_x;
-				double offset_tan = offset_y;
-				x += offset_r*cos(angle);
-				y += offset_r*sin(angle);
-				x -= offset_tan*sin(angle);
-				y += offset_tan*cos(angle);
-				z += offset_z;
-
-			}
-		}
-	}
-
-	// returns the position and rotation of the i'th sensor at the i'th plane
-	// and i'th module
-	// the origin is the center of the sensor
-	// first comes translation than rotation
-	void Get_pos_sens_local(int iplane, int imodule, int iside, int isensor,
-			double& x, double& y, double& z,
-			double& rotx, double& roty, double& rotz,
-			bool misaligned = false){
-		x = 0; y = 0; z = 0; rotx = 0; roty = 0; rotz = 0;
-		if (Is_valid_idcall(iplane, imodule, iside, isensor)){
-			// retrieve the (aligned) center of the corresponding CVD disc
-			Get_pos_mod_local(iplane, imodule, x, y, z, rotx, roty, rotz, misaligned);
-			// distances in the coordinate system of the cvd disc
-			// the inner edge
-			double _x(0), _y(0), _z(0), _rotx(0), _roty(0), _rotz(0);
-			// apply the sensor misalignment before cvd rotation
-			double offset_x(0), offset_y(0), offset_z(0), tilt_x(0), tilt_y(0), tilt_z(0);
-			if (misaligned){
-				Get_offset(iplane, imodule, iside, -1,
-							offset_x, offset_y, offset_z,
-							tilt_x, tilt_y, tilt_z);
-			}
-			const double _sinhalf = sin (delta_phi/2.);
-			const double _coshalf = cos (delta_phi/2.);
-			const double _edge_y = -_sinhalf*inner_rad;
-			// angle between the edge and the half of the cvd disc
-			const double _edgeangle = asin(-_edge_y/cvd_disc_rad);
-			const double _edge_x = - cvd_disc_rad * cos(_edgeangle);
-			_x = _edge_x + offset_x*_coshalf + offset_y*_sinhalf;
-			_y = _edge_y - offset_x*_sinhalf + offset_y*_coshalf;
-			if (isensor < 3) {
-				_x += (0.5+isensor)*maps_width*2.*_coshalf + maps_height*_sinhalf;
-				_y -= (0.5+isensor)*maps_width*2.*_sinhalf - maps_height*_coshalf;
-			}
-			if (isensor >= 3 && isensor < n_sensors){
-				_x += (0.5+isensor-2)*maps_width*2.*_coshalf + (maps_height*3. + die_gap)*_sinhalf;
-				_y -= (0.5+isensor-2)*maps_width*2.*_sinhalf - (maps_height*3. + die_gap)*_coshalf;
-			}
-			_z = -cvd_disc_thick_half - maps_thickness + offset_z;
-
-			_rotz = - delta_phi/2.;
-			// the other side is not only displaced
-			// but also rotated to keep the surface
-			// on the correct side
-			if (iside == 1) {
-				_y = -_y;
-				_z = -_z;
-				_rotz = -_rotz;
-				_rotx = pi;
-			}
-			// translate and rotate now into the cvd reference frame
-			// taking an additional tilt into account
-			x +=  _x*cos(rotz)-_y*sin(rotz);
-			y +=  _x*sin(rotz)+_y*cos(rotz);
-			z +=  _z;
-
-			rotx += _rotx;
-			roty += _roty;
-			rotz += _rotz;
-
-			if (0){
-				cout << endl;
-				//cout << Get_sensor_id(iplane, imodule, iside, isensor) << endl;
-				cout  << '\t' << "iplane" << '\t' << "imodule" << '\t' << "iside" << '\t' << "isensor";
-				cout  << '\t' << "x" << '\t' << "y" << '\t' << "z";
-				cout  << '\t' << "rotx" << '\t' << "roty" << '\t' << "rotz" << endl;
-				cout  << '\t' << iplane << '\t' << imodule << '\t' << iside << '\t' << isensor;
-				cout  << '\t' << x << '\t' << y << '\t' << z;
-				cout  << '\t' << rotx << '\t' << roty << '\t' << rotz << endl;
-				double test_x = x;
-				double test_y = y;
-				double test_z = z;
-				//transform_to_sensor_local(Get_sensor_id(iplane, imodule, iside, isensor), test_x, test_y, test_z, misaligned);
-				//cout << '\t' << test_x << '\t' << test_y << '\t' << test_z << endl;
-			}
-		}
-	}
-
-	// x, y, z coordinates are expressed in the reference frame of one sensor
-	void transform_to_lmd_local(double& x, double& y, double& z, bool misaligned = false){
-		double _x(0), _y(0), _z(0), _rotx(0), _roty(0), _rotz(0);
-		Get_pos_lmd_global(_x, _y, _z, _rotx, _roty, _rotz, misaligned);
-		x -= _x;
-		y -= _y;
-		z -= _z;
-		// for now only the rotation around the luminosity detector y axis is taken into account
-		_z = z * cos(-rot_y) - x * sin (-rot_y);
-		_x = z * sin(-rot_y) + x * cos (-rot_y);
-		x = _x;
-		z = _z;
-	}
-
-	// x, y, z coordinates are expressed in the reference frame of one sensor
-	void transform_to_sensor_local(const int sensor_id, double& x, double& y, double& z, bool misaligned = false){
-		int ihalf, iplane, imodule, iside, idie, isensor;
-		transform_to_lmd_local(x, y, z);
-		Get_sensor_by_id(sensor_id, ihalf, iplane, imodule, iside, idie, isensor);
-		double _x(0), _y(0), _z(0), _rotx(0), _roty(0), _rotz(0);
-		Get_pos_sens_local(iplane, imodule, iside, isensor, _x, _y, _z, _rotx, _roty, _rotz, misaligned);
-		x -= _x;
-		y -= _y;
-		z -= _z;
-		// for now only the rotation around the sensor z axis is taken into account
-		_x = x * cos(-rot_z) - y * sin (-rot_z);
-		_y = x * sin(-rot_z) + y * cos (-rot_z);
-		x = _x;
-		y = _y;
-		// take into account that the sensitive area is not centered
-		if (iside)
-			x -= maps_active_offset_x;
-		else // the rotated sensor
-			x += maps_active_offset_x;
-		y -= maps_active_offset_y;
-	}
-	*/
+	// propagate a particle at the IP to the first plane of the lmd
+	// the propagation is based on a transformation matrix which was
+	// fit to GEANT4 propagated data from January 2015
+	// only 1.5 GeV/c and 15 GeV/c are implemented properly
+	// to do: interpolation between matrices
+	// back propagation not implemented yet since
+	// Mathematica inverted matrices did not work
+	void Propagate_fast_ip_to_lmd(TVector3& pos, TVector3& mom, double pbeam);
 
 	// Find the corresponding sensor on the opposite side of a module
 	// point is in the panda frame
