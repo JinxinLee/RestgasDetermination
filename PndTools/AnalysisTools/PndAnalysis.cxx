@@ -312,6 +312,7 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
   {
     // copy candidates via put
     truth = (RhoCandidate*) fMcCands->At(i);
+	if(fVerbose>4) std::cout<<"PndAnalysis::GetMcCandList: mccand "<<i<<" :"<<truth<<" \t "<<*truth<<std::endl;
     l.Put(truth);
   }
 
@@ -332,6 +333,23 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
     truthmother = (RhoCandidate*) l[mcMotherID];
     l[k]->SetMotherLink(truthmother, false);
   }
+
+  // And now we have to rapair the charges, because delta electrons are inside the MC list, but not the inons
+  for (int k=0;k<l.GetLength();k++)
+  {
+    TParticlePDG* ppdg = fPdg->GetParticle(l[k]->PdgCode());
+    double charge=0.0;
+    if ( ppdg ) {
+       charge=ppdg->Charge();
+    } else if (fVerbose) {
+       cout <<"-W- CreateMcCandidate: strange PDG code:"<<l[k]->PdgCode() <<endl;
+    }
+       if ( fabs(charge) >2 ) {
+       charge/=3.;
+    }
+    l[k]->SetCharge(charge);
+  }
+
 
   return kTRUE;
 }
@@ -872,11 +890,11 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   }
 
   //now check the tree structure:
-  
+
   int  ndaudiff  = mcdauzeromother->NDaughters() - nd;
-  
+
   // we still might accept if only photos photons are missing in the reco tree
-  // if overall difference is small enough, we check further below what particles are missing			
+  // if overall difference is small enough, we check further below what particles are missing
   if( ndaudiff<0 || ndaudiff>fPhotosMax )
   {
     if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by differing daughter count: cand:%i mc:%i",c->NDaughters(),mcdauzeromother->NDaughters());
@@ -885,8 +903,8 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   // count daughter photons (pdg==22) from MC mother with E < photos_thresh
   int nphall = 0;
   if (ndaudiff>0)
-    for (int idau=0;idau<mcdauzeromother->NDaughters();++idau) 
-      if (mcdauzeromother->Daughter(idau)->PdgCode()==22 && mcdauzeromother->Daughter(idau)->E()<fPhotosThresh) nphall++; 
+    for (int idau=0;idau<mcdauzeromother->NDaughters();++idau)
+      if (mcdauzeromother->Daughter(idau)->PdgCode()==22 && mcdauzeromother->Daughter(idau)->E()<fPhotosThresh) nphall++;
 
   // reco'd photons with E<photos_thresh
   int nphreco = 0;
@@ -914,7 +932,7 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
        			,idau,mcdaumother,mcdauzeromother);
       return false;
     }
-    
+
     // daughter was correctly matched; now check for low energetic photon for photos accept
     if (ndaudiff>0 && mcdau->PdgCode()==22 && mcdau->E()<fPhotosThresh) nphreco++;
   }
