@@ -260,9 +260,12 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 		int apdg = 0;
 		if (fPdg->GetParticle(pdg)->AntiParticle()) apdg = fPdg->GetParticle(pdg)->AntiParticle()->PdgCode();
 		
+		// check whether there is an own ntuple connected to the anti-particle pdg; if yes, reset apdg
+		for (j=0; j<fNntp; ++j) if (vmpdg[j]==apdg) {apdg=0; j=fNntp+1;}
+		
 		// merge list from particles and anti-particles
 		fSimpleCombiner->GetList(l1, pdg);
-		if (fSimpleCombiner->GetList(l2, apdg)) l1.Append(l2);
+		if (apdg!=0 && fSimpleCombiner->GetList(l2, apdg)) l1.Append(l2);
 
 		//RhoMassParticleSelector msel("msel",fPdg->GetParticle(pdg)->Mass(),0.2);
 		//l1.Select(&msel);
