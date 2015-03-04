@@ -6,8 +6,6 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 OLD)
 endif(COMMAND cmake_policy)
 
-
-
 set(INCLUDE_DIRECTORIES
 ${CLHEP_INCLUDE_DIR}
 ${ROOT_INCLUDE_DIR}
@@ -36,11 +34,9 @@ Test30Physics.cxx
 Test30VSecondaryGenerator.cxx
 )
 
-
 set(FTFEVTGEN_EXE_SRCS
 main.cc
 )
-
 
 add_library(FtfEvtGen SHARED ${FTFEVTGEN_SRCS})
 #target_link_libraries(FtfEvtGen ${ROOT_LIBRARIES})
@@ -48,43 +44,30 @@ target_link_libraries(FtfEvtGen Core RIO Physics Tree G4clhep G4materials G4glob
 set_target_properties(FtfEvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
-
-#add_executable(FtfEvtGen_exe ${FTFEVTGEN_EXE_SRCS})
-#if (CMAKE_SYSTEM_NAME MATCHES Darwin)
-#  target_link_libraries(FtfEvtGen_exe ${ROOT_LIBRARIES} G4materials G4particles G4clhep G4global G4geometry G4physicslists EG "FtfEvtGen")
-#else (CMAKE_SYSTEM_NAME MATCHES Darwin)
-#  target_link_libraries(FtfEvtGen_exe G4materials G4particles G4processes G4clhep G4global G4geometry G4physicslists EG FtfEvtGen)
-#endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
-#set_target_properties(FtfEvtGen_exe PROPERTIES OUTPUT_NAME FTFGen)
+add_executable(FtfEvtGen_exe ${FTFEVTGEN_EXE_SRCS})
+if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  target_link_libraries(FtfEvtGen_exe ${ROOT_LIBRARIES} G4materials G4particles G4clhep G4global G4geometry G4physicslists EG "FtfEvtGen")
+else (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  target_link_libraries(FtfEvtGen_exe G4materials G4particles G4processes G4clhep G4global G4geometry G4physicslists EG FtfEvtGen)
+endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
+set_target_properties(FtfEvtGen_exe PROPERTIES OUTPUT_NAME FTFGen)
 
 ################ install ###################
 install(TARGETS FtfEvtGen DESTINATION ${CMAKE_BINARY_DIR}/lib)
-#install(TARGETS FtfEvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
+install(TARGETS FtfEvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 
 ### FTF DIRECT ###
 set(FTFGENDIRECT_SRCS PndFtfDirect.cxx)
 CHANGE_FILE_EXTENSION(*.cxx *.h FTFGENDIRECT_HEADERS "${FTFGENDIRECT_SRCS}")
 set(FTFGENDIRECT_LINKDEF  FtfLinkDef.h)
-## Dictionary
-#set(FTFGENDIRECT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndFtfDirectDict.cxx)
-#set(FTFGENDIRECT_DICT_SRCS  ${FTFGENDIRECT_SRCS}  ${FTFGENDIRECT_DICTIONARY})
-#ROOT_GENERATE_DICTIONARY("${FTFGENDIRECT_HEADERS}" "${FTFGENDIRECT_LINKDEF}" "${FTFGENDIRECT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-## Rootmap
-  set(LIBRARY_NAME FtfGenDirect)
-  set(SRCS PndFtfDirect.cxx)
-  set(LINKDEF FtfLinkDef.h)
-  set(HEADERS PndFtfDirect.h)
-  set(DEPENDENCIES G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen)
-  Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1)
-#  ROOT_GENERATE_ROOTMAP()
-  GENERATE_LIBRARY()
+set(LIBRARY_NAME FtfGenDirect)
+set(SRCS PndFtfDirect.cxx)
+set(LINKDEF FtfLinkDef.h)
+set(HEADERS PndFtfDirect.h)
+set(DEPENDENCIES G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen)
+Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1)
+GENERATE_LIBRARY()
 
-## add Library/compile
-#add_library(FtfEvtGenDirect SHARED ${FTFGENDIRECT_DICT_SRCS} ${FTFGENDIRECT_SRCS})
-#add_library(FtfEvtGenDirect SHARED ${FTFGENDIRECT_SRCS})
-#target_link_libraries(FtfEvtGenDirect G4clhep G4global G4geometry G4physicslists EG "FtfEvtGen")
-#set_target_properties(FtfEvtGenDirect PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-#install(TARGETS FtfEvtGenDirect DESTINATION ${CMAKE_BINARY_DIR}/lib)
 
 

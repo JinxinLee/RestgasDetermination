@@ -37,15 +37,15 @@ BINDIR        = ./
 ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTLIBS      = $(shell root-config --libs)
 ROOTGLIBS     = $(shell root-config --glibs)
- 
+
 # Linux with egcs
 
 F77	      = gfortran
 CXX           = g++
 CXXFLAGS      = -g -O0 -Wall -DGNU_GCC -fexceptions -fPIC
 LD            = g++
-LDFLAGS       = -g -Wl,-rpath,$(LIBDIR):$(ROOTSYS)/lib:/lib 
-SOFLAGS       = -shared 
+LDFLAGS       = -g -Wl,-rpath,$(LIBDIR):$(ROOTSYS)/lib:/lib
+SOFLAGS       = -shared
 F77FLAGS      = -fPIC
 
 
@@ -55,16 +55,16 @@ CPPFLAGS += -I$(CLHEP_INCLUDE_DIR)
 #LDFLAGS  += -L$(CLHEP_LIBRARY_DIR)
 #LDLIBS   += -l$(CLHEP_LIB)
 
-CPPFLAGS 	+= $(ROOTCFLAGS) -I$(ROOTSYS)/include -I.. 
+CPPFLAGS 	+= $(ROOTCFLAGS) -I$(ROOTSYS)/include -I..
 
 LIBS          = $(ROOTLIBS) -lEG  -lTreePlayer -lMinuit
 GLIBS         = $(ROOTGLIBS) -lEG -lTreePlayer -lMinuit
 
 FTFLIB		= -L$(LIBDIR) -lFtfEvtGen
 
-PANDALIBS       = -L$(LIBDIR) 
+PANDALIBS       = -L$(LIBDIR)
 
-PANDARECOLIBS   = -L$(LIBDIR) 
+PANDARECOLIBS   = -L$(LIBDIR)
 
 
 EXTRALIBS	+= $(shell \
@@ -76,9 +76,9 @@ EXTRALIBS	+= $(shell \
               < $(G4INSTALL)/lib/$(G4SYSTEM)/libname.map; fi )
 
 
-EXTRALIBS	+= -L$(LIBDIR) 
+EXTRALIBS	+= -L$(LIBDIR)
 
-LDLIBS		+= $(PANDALIBS) -L$(GEANT4_LIBRARY_DIR) -lG4clhep -lG4global -lG4geometry -lG4physicslists $(GLIBS) 
+LDLIBS		+= $(PANDALIBS) -L$(GEANT4_LIBRARY_DIR) -lG4clhep -lG4global -lG4geometry -lG4physicslists $(GLIBS)
 
 # Static pattern rule for object file dependency on sources:
 $(OBJDIR)/%.o: %.cc
@@ -91,6 +91,15 @@ else
 endif
 
 $(OBJDIR)/%.o: %.c
+	@echo Compiling  file $< ...
+	@if [ ! -d $(OBJDIR) ] ; then mkdir -p $(OBJDIR)  ;fi
+ifdef PNDVERBOSE
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+else
+	@($(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@ )
+endif
+
+$(OBJDIR)/%.o: %.cxx
 	@echo Compiling  file $< ...
 	@if [ ! -d $(OBJDIR) ] ; then mkdir -p $(OBJDIR)  ;fi
 ifdef PNDVERBOSE

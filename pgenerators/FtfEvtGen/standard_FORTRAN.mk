@@ -3,7 +3,7 @@
 #      $Id: standard_FORTRAN.mk,v 1.4 2003/09/11 15:23:06 sokolov Exp $
 #
 # Description:
-# 	Standard standalone makefile for FORTRAN written package 
+# 	Standard standalone makefile for FORTRAN written package
 #	for PANDA software
 #
 # Environment:
@@ -26,7 +26,7 @@ LIBSO   = $(SLIBDIR)/lib$(PACKAGE).so
 # Lists of objects to include in library:
 
 
-SRCS := $(filter-out $(addsuffix .c, $(MAIN) ), $(wildcard *.c))   
+SRCS := $(filter-out $(addsuffix .cxx, $(MAIN) ), $(wildcard *.cxx))
 
 ifdef SRC
         OBJS := $(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
@@ -46,7 +46,7 @@ shlib: 	$(LIBSO)
 bin:	$(PROGRAM)
 
 # Static library:
-$(LIBA) : $(OBJS)  
+$(LIBA) : $(OBJS)
 	@echo Building  $@ library ...
 	rm -f $@
 	@if [ ! -d $(LIBDIR) ] ; then mkdir -p $(LIBDIR)  ;fi
@@ -57,7 +57,7 @@ else
 endif
 
 # Shared library:
-$(LIBSO) : $(OBJS)  
+$(LIBSO) : $(OBJS)
 	@echo Building  $@ library ...
 	@if [ ! -d $(SLIBDIR) ] ; then mkdir -p $(SLIBDIR)  ;fi
 ifdef PNDVERBOSE
@@ -72,7 +72,7 @@ endif
 
 clean : clean_libs
 	@echo Removing objs for $(PACKAGE) package ...
-	@rm  -f $(OBJDIR)/*.o  
+	@rm  -f $(OBJDIR)/*.o
 	@if [ -f $(PACKAGE)_LinkDef.hh ] ; then \
 	echo Removing  dictionary $(PACKAGE)Cint ... ; \
 	rm -f $(PACKAGE)Cint.* ; fi
@@ -95,7 +95,7 @@ clean_libs:
 
 
 #
-# include binmake: 
+# include binmake:
 #
 include ./binmake_FORTRAN.mk
 
