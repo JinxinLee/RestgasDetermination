@@ -47,6 +47,10 @@ class PndSoftTriggerTask : public FairTask
 	
 	virtual void Finish();
 	
+	// *** set default settings for fast and full sim
+	void SetFastSimDefaults();
+	void SetFullSimDefaults();
+	
 	// *** read selection configuration from file
 	void SetConfigurationFile(TString fname) {fCfgFileName = fname;}
 	

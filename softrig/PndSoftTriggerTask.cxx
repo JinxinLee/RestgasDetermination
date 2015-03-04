@@ -200,6 +200,52 @@ PndSoftTriggerTask::~PndSoftTriggerTask()
 }
 // -------------------------------------------------------------------------
 
+void PndSoftTriggerTask::SetFastSimDefaults()
+{
+	TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_fsim_dec2014.cfg"; 
+	
+	SetConfigurationFile(selectioncfg);
+	ApplyFullSelection(1);  // apply selection defined in 'TString selectioncfg'
+	
+	SetPi0SignalParams(0.134, 0.0035);  // set parameters for pi0
+	SetKs0SignalParams(0.497, 0.0055);  // set parameters for KS
+	SetEtaSignalParams(0.549, 0.0055);  // set parameters for eta
+	
+	SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
+	SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
+	SetInitialPidCut(0.1);	// global PID pre-cut for charged 	
+	SetDstMDiffCut(0.1);    // special cut on D*-D mass difference (to reduce comb and output file size)
+	
+	SetPidAlgoAll("PidChargedProbability");
+	
+	SetTagAll(true);		// tag all modes	
+	SetQAAll(false);        // don't write any QA tuple	
+}
+
+// -------------------------------------------------------------------------
+void PndSoftTriggerTask::SetFullSimDefaults()
+{
+	TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_full_jan2015.cfg"; 
+	
+	SetConfigurationFile(selectioncfg);
+	ApplyFullSelection(1);  // apply selection defined in 'TString selectioncfg'
+	
+    SetPi0SignalParams(0.134, 0.0049);
+    SetKs0SignalParams(0.497, 0.0085);
+    SetEtaSignalParams(0.549, 0.0092);
+
+    SetGammaMinE(0.10);        // global energy pre-cut for neutrals
+    SetTrackMinP(0.10);        // global momentum pre-cut for charged
+    SetInitialPidCut(0.1);            // global PID pre-cut for charged
+    SetDstMDiffCut(0.1);            // special cut on D*-D mass difference (to reduce comb and output file size)
+
+ 	SetPidAlgoAll("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoMvd");
+
+	SetTagAll(true);		// tag all modes	
+	SetQAAll(false);        // don't write any QA tuple	
+}
+
+// -------------------------------------------------------------------------
 // -----   Public method Init   --------------------------------------------
 InitStatus PndSoftTriggerTask::Init() 
 {		
