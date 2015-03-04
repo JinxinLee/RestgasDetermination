@@ -200,7 +200,7 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 	fAnalysis->GetEventInTask();
 	
 	// *** print event counter
-	if (!(++fEvtCount%100)) cout << "evt "<<fEvtCount<<endl;
+	if (!(++fEvtCount%100)) cout << "[PndSimpleCombinerTask] evt "<<fEvtCount<<endl;
 	
 	// *******
 	// ******* PUT ANALYSIS CODE HERE			

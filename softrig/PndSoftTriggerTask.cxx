@@ -774,7 +774,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	// *** some variables
 	int i=0,j=0, k=0;
 	
-	if (!(++fEvtCount%100)) cout << "evt "<<fEvtCount<<endl;
+	if (!(++fEvtCount%100)) cout << "[PndSoftTriggerTask] evt "<<fEvtCount<<endl;
 	
 	// *** read the next event
 	fAnalysis->GetEventInTask();
