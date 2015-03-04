@@ -171,6 +171,7 @@ class PndStack : public FairGenericStack
   void SetMinPoints(Int_t min)                 { fMinPoints        = min;    }
   void SetEnergyCut(Double_t eMin)             { fEnergyCut        = eMin;   }
   void StoreMothers(Bool_t choice = kTRUE)     { fStoreMothers     = choice; }
+  void SetPersistence(Bool_t choice)           { fPersistence      = choice; }
 
 
   /** Increment number of points for the current track in a given detector
@@ -236,6 +237,7 @@ class PndStack : public FairGenericStack
   Int_t      fMinPoints;
   Double32_t fEnergyCut;
   Bool_t     fStoreMothers;
+  Bool_t     fPersistence;
 
 
   /** Mark tracks for output using selection criteria  **/

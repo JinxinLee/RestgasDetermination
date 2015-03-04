@@ -25,7 +25,7 @@ using std::pair;
 
 // -----   Default constructor   -------------------------------------------
 PndStack::PndStack(Int_t size):
-fStack(), fParticles(), fTracks(), fStoreMap(), fStoreIter(), fIndexMap(), fIndexIter(), fPointsMap(), fCurrentTrack(-1), fNPrimaries(0), fNParticles(0), fNTracks(0), fIndex(0), fStoreSecondaries(kTRUE), fMinPoints(1), fEnergyCut(0), fStoreMothers(kTRUE)
+fStack(), fParticles(), fTracks(), fStoreMap(), fStoreIter(), fIndexMap(), fIndexIter(), fPointsMap(), fCurrentTrack(-1), fNPrimaries(0), fNParticles(0), fNTracks(0), fIndex(0), fStoreSecondaries(kTRUE), fMinPoints(1), fEnergyCut(0), fStoreMothers(kTRUE), fPersistence(kTRUE)
 {
   fStoreMap.clear();
   fIndexMap.clear();
@@ -384,7 +384,7 @@ void PndStack::Reset() {
 
 // -----   Public method Register   ----------------------------------------
 void PndStack::Register() {
-  FairRootManager::Instance()->Register("MCTrack", "Stack", fTracks,kTRUE);
+  FairRootManager::Instance()->Register("MCTrack", "Stack", fTracks, fPersistence);
 }
 // -------------------------------------------------------------------------
 
