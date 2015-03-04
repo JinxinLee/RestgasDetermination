@@ -175,7 +175,7 @@ void config_histo2d(TH1* h, TString titley="", TString titlex="")
 
 // -----------------------------------------------------------------------
 
-void config_histo1d(TH1* h, TString titley="", TString titlex="", int lincol=1, int fillcol=0, int fillstyle=0)
+void config_histo1d(TH1* h, TString titley="", TString titlex="", int lincol=1, int fillcol=0, int fillstyle=0, TString label="M")
 {
 	double labs = 0.04+0.01*(57.-nlines)/43.;
 	
@@ -188,7 +188,7 @@ void config_histo1d(TH1* h, TString titley="", TString titlex="", int lincol=1, 
 	h->GetXaxis()->SetTitleSize(0.045);
 	
 	for (int i=0;i<nlines-1;++i)
-		h->GetXaxis()->SetBinLabel(i+1,TString::Format("M%d",codes[i]));
+		h->GetXaxis()->SetBinLabel(i+1,TString::Format("%s%d",label.Data(),codes[i]));
 
 	h->GetXaxis()->SetBinLabel(nlines,"DPM");
 	h->GetXaxis()->LabelsOption("v");
@@ -261,8 +261,9 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 	// background contributions
 	// ********
 	TH1F *hbg=new TH1F("hbg"+sqsstr,TString::Format("Background fractions @ %.1f GeV",sqs),nlines,0,nlines);
-	config_histo1d(hbg, "acc. background [%]", "Trigger Line",1,1,3003);
-			
+	config_histo1d(hbg, "acc. background [%]", "Trigger Line",1,1,3003,"T");
+	hbg->GetXaxis()->SetBinLabel(nlines,"any");
+	
 	int N = t->GetEntries();
 	int Nbg = 0;
 	
