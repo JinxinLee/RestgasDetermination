@@ -78,6 +78,7 @@ void online_monitoring_studies(){
 	//TFile treefile("asymmetries_results.root", "RECREATE");
 	TTree results("asymmetry_results", "Asymmetry results");
 	double offsetx, offsety, tiltx, tilty, momentum,
+		offsetx_lmd, offsety_lmd, tiltx_lmd, tilty_lmd,
 		offsetx_fit, offsety_fit, tiltx_fit, tilty_fit,
 		meanx_0, meany_0, rmsx_0, rmsy_0,
 		meanx_1, meany_1, rmsx_1, rmsy_1,
@@ -93,6 +94,10 @@ void online_monitoring_studies(){
 	results.Branch("offsety", &offsety);
 	results.Branch("tiltx", &tiltx);
 	results.Branch("tilty", &tilty);
+	results.Branch("offsetx_lmd", &offsetx_lmd);
+	results.Branch("offsety_lmd", &offsety_lmd);
+	results.Branch("tiltx_lmd", &tiltx_lmd);
+	results.Branch("tilty_lmd", &tilty_lmd);
 	results.Branch("momentum", &momentum);
 	results.Branch("offsetx_fit", &offsetx_fit);
 	results.Branch("offsety_fit", &offsety_fit);
@@ -122,44 +127,68 @@ void online_monitoring_studies(){
 
 	vector< string > files;
 
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.001_0.001_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_15.0GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.001_0.001_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.001_0.001/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
-	files.push_back("./plab_1.5GeV/dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	// 15 GeV/c
+	double pbeam = 1.5;
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.001_0.001_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_-0.0002_-0.0002_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_-0.0002_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_-0.0002_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_-0.0001_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_-0.0001_0.0001_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0002_-0.0002_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0001_-0.0001_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0001_0.0001_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_-0.0001_-0.0001_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_-0.0002_0.0002_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.001_0.001/200000/mc_data/asymmetries_results.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.001_0.001/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_-0.0001_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0001_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0001_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0002_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0002_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/asymmetries_results.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data/Lumi_MC_200000.root");
+/*
 
+	// 1.5 GeV/c
+	double pbeam = 1.5;
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.001_0.001_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.001_0.001/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.1_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_-0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.0_0.1_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_-0.5_-0.5_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+	files.push_back("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.0_0.0_0.08_0.08_0.35/beam_grad_XYDXDY_0.0_0.0_0.0_0.0/200000/mc_data");
+*/
 	int nfiles = files.size();
 	for (int ifile = 0; ifile < nfiles; ifile++){
 		cout << endl << " file " << ifile << " of " << nfiles << "  = " <<  files[ifile] << endl;
@@ -244,7 +273,10 @@ void online_monitoring_studies(){
 
 			for (Int_t iHit = 0; iHit < nHits; iHit++) {
 				PndSdsMCPoint* mcpoint = (PndSdsMCPoint*) true_points->At(iHit);
-				//if (mcpoint->GetTrackID() < 0) continue;
+				double theta_ip = 0.;
+				//if (mcpoint->GetTrackID() >= 0) {
+				//	(true_tracks->At(mcpoint->GetTrackID))->;
+				//}
 				// cout << mcpoint->GetEnergyLoss() << endl;
 				//hist_eloss_total->Fill(mcpoint->GetEnergyLoss()*1.e6); // in keV
 				//hist_eloss->Fill(mcpoint->GetEnergyLoss()*1.e9/50.); // in eV
@@ -262,33 +294,69 @@ void online_monitoring_studies(){
 				double Y = hit_pos_lmd.Y()*0.01;
 				//cout << hit_pos.Z() << endl;
 				double RR = X*X+Y*Y;
+
+				/*
 				if (Rmin_cuts[iplane] < RR && RR < Rmax_cuts[iplane]){//(Rmin < RR && RR < Rmax){
 					hist_XY_plane[iplane]->Fill(X, Y);
-				}
+				}*/
 			}
 		}
 
 		offsetx /= (double) npbar;
 		offsety /= (double) npbar;
+		TVector3 offset_ip(offsetx, offsety, 0);
 		offsetx *= 10.; // mm
 		offsety *= 10.; // mm
 		tiltx /= (double) npbar;
 		tilty /= (double) npbar;
+		TVector3 tilt_ip(tiltx, tilty, 1.);
 		tiltx *= 1000.; // mrad
 		tilty *= 1000.; // mrad
 		momentum /= (double) npbar;
 
+		// propagate properties to lmd
+		TVector3 tilt_lmd = tilt_ip;
+		TVector3 offset_lmd = offset_ip;
+		cout << " before propagation " << endl;
+		offset_lmd.Print();
+		tilt_lmd.Print();
+		cout << endl;
+
+		lmddim.Propagate_fast_ip_to_lmd(offset_lmd, tilt_lmd, pbeam);
+		cout << " after propagation " << endl;
+		offset_lmd.Print();
+		tilt_lmd.Print();
+		cout << endl;
+
+		offset_lmd = lmddim.Transform_global_to_lmd_local(offset_lmd, false, true);
+		tilt_lmd = lmddim.Transform_global_to_lmd_local(tilt_lmd, true, true);
+		cout << " in lmd frame " << endl;
+		offset_lmd.Print();
+		tilt_lmd.Print();
+		cout << endl;
+
+		offsetx_lmd = offset_lmd.X()/10.;
+		offsety_lmd = offset_lmd.Y()/10.;
+		tiltx_lmd = tilt_lmd.X()/tilt_lmd.Z() * 1000.;
+		tilty_lmd = tilt_lmd.Y()/tilt_lmd.Z() * 1000.;
+
 
 		cout << " analyzing histograms for momentum " << momentum << endl;
 		cout << " mean pos of ip was (generated)" << endl;
-		cout << " x = " << hist_gen_x_y.GetMean(1)*1e3 << " mm ("<< offsetx <<" mm)" << endl;
-		cout << " y = " << hist_gen_x_y.GetMean(2)*1e3 << " mm ("<< offsety <<" mm)" << endl;
+		cout << " x = " << hist_gen_x_y.GetMean(1) << " mm ("<< offsetx <<" mm)" << endl;
+		cout << " y = " << hist_gen_x_y.GetMean(2) << " mm ("<< offsety <<" mm)" << endl;
 
 		cout << " mean dir of beam was (generated)" << endl;
-		cout << " theta = " << hist_gen_theta_phi.GetMean(1)*1e3 << " mrad ("<< tiltx <<" mrad)" << endl;
+		cout << " theta = " << hist_gen_theta_phi.GetMean(1) << " mrad ("<< tiltx <<" mrad)" << endl;
 		cout << " phi = " << hist_gen_theta_phi.GetMean(2) << " rad ("<< tilty <<" mrad)" << endl;
-		cout << " dx/dz = " << hist_gen_dx_dy.GetMean(1)*1e3 << " mrad ("<< tiltx <<" mrad)" << endl;
-		cout << " dy/dz = " << hist_gen_dx_dy.GetMean(2)*1e3 << " mrad ("<< tilty <<" mrad)" << endl;
+		cout << " dx/dz = " << hist_gen_dx_dy.GetMean(1) << " mrad ("<< tiltx <<" mrad)" << endl;
+		cout << " dy/dz = " << hist_gen_dx_dy.GetMean(2) << " mrad ("<< tilty <<" mrad)" << endl;
+
+		cout << " mean dir of beam was (propagated to lmd)" << endl;
+		//cout << " theta = " << " mrad ("<< theta_lmd <<" mrad)" << endl;
+		//cout << " phi = " << " rad ("<< phi_lmd <<" rad)" << endl;
+		cout << " dx/dz = " << " mrad ("<< tiltx_lmd <<" mrad)" << endl;
+		cout << " dy/dz = "  << " mrad ("<< tilty_lmd <<" mrad)" << endl;
 
 		cout << " mean in plane 0,1,2,3 is " << endl;
 		vector < double > means_x;
@@ -349,8 +417,10 @@ void online_monitoring_studies(){
 		graph_average_x.GetYaxis()->SetRangeUser(-0.02, 0.02);
 		TF1 funcx("funcx", "pol1", -0.1, 0.5);
 		graph_average_x.Fit(&funcx);
-		line.DrawLine(z[0], offsetx*1e-3, z[3], offsetx*1e-3);
-		line.DrawLine(z[0], tiltx*1e-3*z[0]+offsetx*1e-3, z[3], tiltx*1e-3*z[3]+offsetx*1e-3);
+		//line.DrawLine(z[0], offsetx*1e-3, z[3], offsetx*1e-3);
+		//line.DrawLine(z[0], tiltx*1e-3*z[0]+offsetx*1e-3, z[3], tiltx*1e-3*z[3]+offsetx*1e-3);
+		//line.DrawLine(z[0], offsetx_lmd/100., z[3], offsetx_lmd/100.);
+		line.DrawLine(z[0], offsetx_lmd/100., z[3], offsetx_lmd/100.+tiltx_lmd/1000.*(z[3]-z[0]));
 		gPad->Update();
 		//sleep(2);
 		//graph_average_x.Write();
@@ -362,22 +432,24 @@ void online_monitoring_studies(){
 		graph_average_y.GetYaxis()->SetRangeUser(-0.02, 0.02);
 		TF1 funcy("funcy", "pol1", -0.1, 0.5);
 		graph_average_y.Fit(&funcy);
-		line.DrawLine(z[0], offsety*1e-3, z[3], offsety*1e-3);
-		line.DrawLine(z[0], tilty*1e-3*z[0]+offsety*1e-3, z[3], tilty*1e-3*z[3]+offsety*1e-3);
+		//line.DrawLine(z[0], offsety*1e-3, z[3], offsety*1e-3);
+		//line.DrawLine(z[0], tilty*1e-3*z[0]+offsety*1e-3, z[3], tilty*1e-3*z[3]+offsety*1e-3);
+		//line.DrawLine(z[0], offsety_lmd/100., z[3], offsety_lmd/100.);
+		line.DrawLine(z[0], offsety_lmd/100., z[3], offsety_lmd/100.+tilty_lmd/1000.*(z[3]-z[0]));
 		//graph_average_y.Write();
 		gPad->Update();
 
-		cout << " mean pos of ip fit (generated)" << endl;
-		offsetx_fit = funcx.GetParameter(0)*1e3;
-		offsety_fit = funcy.GetParameter(0)*1e3;
-		cout << " x = " << offsetx_fit << " mm ("<< offsetx <<" mm)" << endl;
-		cout << " y = " << offsety_fit << " mm ("<< offsety <<" mm)" << endl;
+		cout << " mean pos of ip fit (generated and propagated)" << endl;
+		offsetx_fit = funcx.Eval(z[0])*1e3;// GetParameter(0)*1e3;
+		offsety_fit = funcy.Eval(z[0])*1e3;// GetParameter(0)*1e3;
+		cout << " x = " << offsetx_fit << " mm ("<< offsetx_lmd <<" mm)" << endl;
+		cout << " y = " << offsety_fit << " mm ("<< offsety_lmd <<" mm)" << endl;
 
 		tiltx_fit = funcx.GetParameter(1)*1e3;
 		tilty_fit = funcy.GetParameter(1)*1e3;
-		cout << " mean dir of beam fit (generated)" << endl;
-		cout << " dx/dz = " << tiltx_fit << " mrad ("<< tiltx <<" mrad)" << endl;
-		cout << " dy/dz = " << tilty_fit << " mrad ("<< tilty <<" mrad)" << endl;
+		cout << " mean dir of beam fit (generated and propagated)" << endl;
+		cout << " dx/dz = " << tiltx_fit << " mrad ("<< tiltx_lmd <<" mrad)" << endl;
+		cout << " dy/dz = " << tilty_fit << " mrad ("<< tilty_lmd <<" mrad)" << endl;
 
 		cout << endl;
 		results.Fill();
