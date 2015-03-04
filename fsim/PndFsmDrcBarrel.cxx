@@ -66,7 +66,7 @@ PndFsmDrcBarrel::PndFsmDrcBarrel()
   
   readParameters();
   
-  print(std::cout);
+//  print(std::cout);
 }
 
 PndFsmDrcBarrel::PndFsmDrcBarrel(ArgList &par) 
@@ -82,7 +82,7 @@ PndFsmDrcBarrel::PndFsmDrcBarrel(ArgList &par)
   
   readParameters();
   
-  print(std::cout);
+//  print(std::cout);
 }
 
 //--------------

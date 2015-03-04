@@ -61,7 +61,7 @@ PndFsmSimpleVtx::PndFsmSimpleVtx()
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmSimpleVtx::PndFsmSimpleVtx(ArgList &par)
@@ -74,7 +74,7 @@ PndFsmSimpleVtx::PndFsmSimpleVtx(ArgList &par)
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

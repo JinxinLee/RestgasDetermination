@@ -58,7 +58,7 @@ PndFsmIdealPid::PndFsmIdealPid()
 {
   initParameters();
   readParameters();
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmIdealPid::PndFsmIdealPid(ArgList &par)
@@ -66,7 +66,7 @@ PndFsmIdealPid::PndFsmIdealPid(ArgList &par)
   initParameters();
   parseParameterList(par);
   readParameters();
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

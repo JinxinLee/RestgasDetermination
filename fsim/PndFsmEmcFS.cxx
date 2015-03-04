@@ -60,7 +60,7 @@ PndFsmEmcFS::PndFsmEmcFS()
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmEmcFS::PndFsmEmcFS(ArgList &par)
@@ -73,7 +73,7 @@ PndFsmEmcFS::PndFsmEmcFS(ArgList &par)
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

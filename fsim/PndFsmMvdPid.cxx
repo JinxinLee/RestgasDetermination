@@ -37,7 +37,7 @@ PndFsmMvdPid::PndFsmMvdPid()
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmMvdPid::PndFsmMvdPid(ArgList &par)
@@ -50,7 +50,7 @@ PndFsmMvdPid::PndFsmMvdPid(ArgList &par)
 
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

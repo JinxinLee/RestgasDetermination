@@ -64,7 +64,7 @@ PndFsmMdtPid::PndFsmMdtPid()
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
   readParameters();
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmMdtPid::PndFsmMdtPid(ArgList &par)
@@ -78,7 +78,7 @@ PndFsmMdtPid::PndFsmMdtPid(ArgList &par)
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
   readParameters();
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

@@ -67,7 +67,7 @@ PndFsmEffTracker::PndFsmEffTracker()
   _parFileName = "$VMCWORKDIR/fsim/resParsTracker.dat";
   readParameters();
 
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmEffTracker::PndFsmEffTracker(ArgList &par) 
@@ -83,7 +83,7 @@ PndFsmEffTracker::PndFsmEffTracker(ArgList &par)
   _parFileName = "$VMCWORKDIR/fsim/resParsTracker.dat";
   readParameters();
 
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

@@ -61,7 +61,7 @@ PndFsmStt::PndFsmStt()
   _X0=100.0*11.0/_n;
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmStt::PndFsmStt(ArgList &par) 
@@ -75,7 +75,7 @@ PndFsmStt::PndFsmStt(ArgList &par)
   _X0=100.0*11.0/_n;
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

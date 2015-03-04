@@ -58,7 +58,7 @@ PndFsmSimpleTracker::PndFsmSimpleTracker()
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
 
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmSimpleTracker::PndFsmSimpleTracker(ArgList &par)
@@ -72,7 +72,7 @@ PndFsmSimpleTracker::PndFsmSimpleTracker(ArgList &par)
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
 
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

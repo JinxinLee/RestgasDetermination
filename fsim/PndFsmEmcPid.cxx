@@ -65,7 +65,7 @@ PndFsmEmcPid::PndFsmEmcPid()
   _phiMax=_phiMax*M_PI/180.0;
   readParameters();
 
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmEmcPid::PndFsmEmcPid(ArgList &par)
@@ -82,7 +82,7 @@ PndFsmEmcPid::PndFsmEmcPid(ArgList &par)
   _phiMax=_phiMax*M_PI/180.0;
   readParameters();
 
-  print(std::cout);
+  //print(std::cout);
 }
 
 

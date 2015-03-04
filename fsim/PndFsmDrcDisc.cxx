@@ -66,7 +66,7 @@ PndFsmDrcDisc::PndFsmDrcDisc()
 
   readParameters();
   
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmDrcDisc::PndFsmDrcDisc(ArgList &par) 
@@ -82,7 +82,7 @@ PndFsmDrcDisc::PndFsmDrcDisc(ArgList &par)
 
   readParameters();
   
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

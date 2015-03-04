@@ -619,7 +619,7 @@ void PndFastSim::Exec(Option_t* opt)
   int nNeutral = 0;
 
   if ((++evtcnt)%100==0)
-    cout <<"evt: "<<evtcnt<<endl;
+    cout <<"[PndFastSim] evt "<<evtcnt<<endl;
 
   PndStack *fStack=(PndStack*)gMC->GetStack();
   Int_t nTracks=fStack->GetNtrack();

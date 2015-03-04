@@ -60,7 +60,7 @@ PndFsmRich::PndFsmRich()
 
   _angleXMax *= M_PI/180.0;
   _angleYMax *= M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmRich::PndFsmRich(ArgList &par) 
@@ -73,7 +73,7 @@ PndFsmRich::PndFsmRich(ArgList &par)
 
   _angleXMax *= M_PI/180.0;
   _angleYMax *= M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

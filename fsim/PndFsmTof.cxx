@@ -60,7 +60,7 @@ PndFsmTof::PndFsmTof()
   
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmTof::PndFsmTof(ArgList &par) 
@@ -73,7 +73,7 @@ PndFsmTof::PndFsmTof(ArgList &par)
   
   _thtMin=_thtMin*M_PI/180.0;
   _thtMax=_thtMax*M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------

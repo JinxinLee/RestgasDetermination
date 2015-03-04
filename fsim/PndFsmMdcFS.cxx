@@ -63,7 +63,7 @@ PndFsmMdcFS::PndFsmMdcFS()
   _thtMax=_thtMax*M_PI/180.0;
   _angleXMax *= M_PI/180.0;
   _angleYMax *= M_PI/180.0;
-  print(std::cout);
+  //print(std::cout);
 }
 
 PndFsmMdcFS::PndFsmMdcFS(ArgList &par) 
@@ -80,7 +80,7 @@ PndFsmMdcFS::PndFsmMdcFS(ArgList &par)
   _angleYMax *= M_PI/180.0;
 
 
-  print(std::cout);
+  //print(std::cout);
 }
 
 //--------------
