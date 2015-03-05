@@ -320,12 +320,12 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 				RhoCandidate *cfit   = l1[j]->GetFit();
 				
 				vntp[i]->Column("chi24c", (Float_t) chi2_4c);
-				qa.qaP4("fx", cfit->P4(), vntp[i]);
+				qa.qaP4("f4cx", cfit->P4(), vntp[i]);
 				
 				for (int k=0;k<cfit->NDaughters();++k)
 				{
 					RhoCandidate *d0fit = cfit->Daughter(k);
-					qa.qaP4(TString::Format("fxd%d",k),d0fit->P4(),vntp[i]);
+					qa.qaP4(TString::Format("f4cxd%d",k),d0fit->P4(),vntp[i]);
 				}
 			}
 			
@@ -337,9 +337,10 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 
 				RhoCandidate *cfit = l1[j]->GetFit();      // *** get the fitted candidate
 				
-				qa.qaVtx("x",cfit,vntp[i]);
+				qa.qaVtx("fvxx",cfit,vntp[i]);
+				qa.qaP4("fvxx", cfit->P4(), vntp[i]);
 				double chi2_vtx = vtxfitter.GetChi2();     // *** and the chi^2 of the fit
-				vntp[i]->Column("chi2vtx", (Float_t) chi2_vtx);
+				vntp[i]->Column("chi2vx", (Float_t) chi2_vtx);
 			}	
 	
 			vntp[i]->DumpData();
