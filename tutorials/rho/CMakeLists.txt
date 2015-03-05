@@ -4,7 +4,7 @@ set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${BASE_INCLUDE_DIRECTORIES} 
 ${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/trackbase 
+#${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/PidData
 ${CMAKE_SOURCE_DIR}/passive
@@ -26,6 +26,7 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+${FAIRROOT_LIBRARY_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -37,6 +38,6 @@ PndTutAnaTask.cxx
 set(LINKDEF tutrhoLinkDef.h)
 set(LIBRARY_NAME tutrhotask)
 
-set(DEPENDENCIES Base PndData Rho AnalysisTools TrkBase)
+set(DEPENDENCIES PndData Rho AnalysisTools)
 
 GENERATE_LIBRARY()

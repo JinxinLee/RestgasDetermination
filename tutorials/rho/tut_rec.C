@@ -49,22 +49,25 @@ void tut_rec()
   // ------------------------------------------------------------------------
   //  use the constructor with input :
   //      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.
-  PndTrkTracking* tracking = new PndTrkTracking(0,false,false,false);
+  PndTrkTracking2* tracking = new PndTrkTracking2(0,false,false,true);
   tracking->SetInputBranchName("STTHit","MVDHitsPixel","MVDHitsStrip");
   // tracking->SetInputBranchName("STTHitMix","MVDHitsPixelMix","MVDHitsStripMix");
   //  don't do the Pattern Recognition second part, starting from the Mvd;
   tracking->NoMvdAloneTracking();
   // do Cleanup only when there is Mixing;
   // tracking->Cleanup();
+  tracking->SetPersistence(kFALSE);
   fRun->AddTask(tracking);
   
   PndSttMvdGemTracking * SttMvdGemTracking = new PndSttMvdGemTracking(0);
   //SttMvdGemTracking->SetPdgFromMC();
+  SttMvdGemTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdGemTracking);
   
   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
   trackMC->SetTrackInBranchName("SttMvdGemTrack");
   trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
+  trackMC->SetPersistence(kFALSE);
   fRun->AddTask(trackMC);
 
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
@@ -74,6 +77,8 @@ void tut_rec()
   recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetIdealHyp(kTRUE);
   //recoKalman->SetNumIterations(3);
+  recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
+  //recoKalman->SetPropagateToIP(kFALSE);
   fRun->AddTask(recoKalman);
 
   PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
@@ -86,7 +91,13 @@ void tut_rec()
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetTrackOutput("FtsIdealTrack");
+  trackFts->SetPersistence(kFALSE);
   fRun->AddTask(trackFts);
+
+  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
+  trackMCfwd->SetTrackInBranchName("FtsIdealTrack");
+  trackMCfwd->SetTrackOutBranchName("FtsIdealTrackID");
+  fRun->AddTask(trackMCfwd);
 
   PndRecoKalmanTask* recoKalmanFwd = new PndRecoKalmanTask();
   recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
@@ -95,6 +106,8 @@ void tut_rec()
   recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
   //recoKalmanFwd->SetIdealHyp(kTRUE);
   //recoKalmanFwd->SetNumIterations(3);
+  recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
+  //recoKalmanFwd->SetPropagateToIP(kFALSE);
   fRun->AddTask(recoKalmanFwd);
 
   PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();

@@ -221,7 +221,7 @@ void PndTutAnaTask::Exec(Option_t* opt)
 	// ***
 	// *** do the TRUTH MATCH for psi(2S)
 	// ***
-	psi2s.SetType(30443);
+	psi2s.SetType(88888);
 	for (j=0;j<psi2s.GetLength();++j) 
 	{
 		hpsim_all->Fill( psi2s[j]->M() );

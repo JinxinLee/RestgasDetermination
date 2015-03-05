@@ -186,7 +186,7 @@ void tut_ana_ntp(int nevts=0)
 		
 		// *** combinatorics for psi(2S) -> J/psi pi+ pi-
 		psi2s.Combine(jpsi, piplus, piminus);
-		psi2s.SetType(30443);
+		psi2s.SetType(88888);
 		
 		for (j=0;j<psi2s.GetLength();++j) 
 		{
