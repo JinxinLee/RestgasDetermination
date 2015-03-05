@@ -19,14 +19,14 @@
 void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
 				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 )
 {
-	if (Prefix=="" || Decfile=="" || Mom==0. || anadecay=="") 
+	if (Prefix=="" || Decfile=="" || Mom==0. ) 
 	{
 		cout << "USAGE:\n";
 		cout << "quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <decfile>  : decfile; 'DPM'/'FTF' uses DPM/FTF generator instead\n";
 		cout << "   <mom>      : pbar momentum; negative values are interpreted as -E_cm\n";
-		cout << "   <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'\n";
+		cout << "   [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; '' -> only fast sim will be run\n";
 		cout << "   [nevt]     : number of events; default = 1000\n";
 		cout << "   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'\n";
 		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
@@ -34,6 +34,9 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
         cout << "   [runnum]   : integer run number (default: 0)\n\n";
 		return;
 	}
+	
+	// only run fast sim without analysis
+	bool simonly = (anadecay=="");
 	
 	// if Mom<0, interprete as -E_cm
 	double mp = 0.938272;
@@ -56,8 +59,8 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	TLorentzVector fIni(0,0,Mom,mp+sqrt(Mom*Mom+mp*mp));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
-	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.1,0, "",90000);
-	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.1,0, "",-90000);
+	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.03,0, "",90000);
+	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.03,0, "",-90000);
 	
 	//-----Evaluate Detector Setup ---------------------------------------
 	bool SwMvdGem  = true;  // Enable MVD and GEM for central tracking in addition to STT
@@ -74,7 +77,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	Bool_t usePndEventFilter = false;  // enable Panda event filter. *** Needs configuration (see below) *** 
 	
 	//----- Presist simulation output ------------------------------
-	Bool_t persist           = false;  // we just want to keep SoftTrigger Output
+	Bool_t persist           = simonly;  // if analysis is running, fsim output not needed
 
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
@@ -82,7 +85,9 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	gRandom->SetSeed();
 
 	//-----User Settings:-------------------------------------------------
-	TString  OutputFile     = Prefix+"_fsim.root";
+	TString  OutputFile     = Prefix+"_ana.root";
+	if (simonly) OutputFile = Prefix+"_fsim.root";
+	
 	gDebug             = 0;
 
 	// choose your event generator
@@ -92,7 +97,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	Bool_t UseBoxGenerator  = kFALSE;
 
 	// use DPM generator; default: inelastic @ pbarmom = mom
-	if (Decfile=="DPM")
+	if (Decfile.BeginsWith("DPM"))
 	{
 		UseEvtGenDirect = kFALSE;
 		UseDpm 	      = kTRUE;
@@ -133,7 +138,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
 	fRun->SetWriteRunInfoFile(kFALSE);
-//	fRun->SetUserConfig(BaseDir+"/gconfig/g3ConfigFast.C");
+	//if (!simonly) fRun->SetUserConfig(BaseDir+"/macro/softrig/g3ConfigNoMC.C");
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
@@ -157,7 +162,11 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	
 	if(UseDpm)
 	{
-		PndDpmDirect *Dpm= new PndDpmDirect(Mom,0);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
+		int mode = 0;
+		if (Decfile=="DPM1") mode = 1;
+		if (Decfile=="DPM2") mode = 2;
+		
+		PndDpmDirect *Dpm= new PndDpmDirect(Mom,mode);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
 		Dpm->SetUnstable(111);   // pi0
 		Dpm->SetUnstable(310);   // K_S0
 		Dpm->SetStable(3122);  // Lambda
@@ -394,29 +403,9 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		// this file contains the trigger line definitions
 		TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";
 		
-		// this file contains the cut setup for various modes
-		TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_fsim_dec2014.cfg"; 
-		
 		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, 0, 0, triggercfg);
-		stTask->SetConfigurationFile(selectioncfg);
-		stTask->ApplyFullSelection(1);  // apply selection defined in 'TString selectioncfg'
-		
-		stTask->SetPi0SignalParams(0.134, 0.0035);  // set parameters for pi0
-		stTask->SetKs0SignalParams(0.497, 0.0055);  // set parameters for KS
-		stTask->SetEtaSignalParams(0.549, 0.0055);  // set parameters for eta
-		
-		stTask->SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
-		stTask->SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
-		stTask->SetInitialPidCut(0.1);	// global PID pre-cut for charged 	
-		stTask->SetDstMDiffCut(0.1);    // special cut on D*-D mass difference (to reduce comb and output file size)
-		
-		// set fast sim PID algos
-		stTask->SetPidAlgoAll("PidChargedProbability");
-		
-		stTask->SetTagAll(true);		// tag all modes
-		stTask->SetQAAll(false);        // don't write any QA tuple	
-		stTask->SetQAEvent(true);        // don't write any QA tuple	
-		
+		stTask->SetFastSimDefaults();
+		stTask->SetQAEvent();
 		fRun->AddTask(stTask);
 	}
 	
@@ -428,12 +417,13 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
     // *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
-	
-	// since this is fast sim, there is only one PidAlgo
-	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run);
-	scTask->SetPidAlgo("PidChargedProbability");
-	fRun->AddTask(scTask);
-
+		
+	if (!simonly)
+	{
+		PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run);
+		scTask->SetPidAlgo("PidChargedProbability");
+		fRun->AddTask(scTask);
+	}
 	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************

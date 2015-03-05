@@ -79,52 +79,14 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	if (runST)
 	{	
 		// this file contains the trigger line definitions
-		TString triggercfg, selectioncfg;
-		if (fastsim) // fast sim settings
-		{
-			triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";         // trigger definitions
-			selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_fsim_dec2014.cfg";  // cut setup for complete tagging
-		}
-		else  // full sim settings
-		{
-			triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";              // trigger definitions
-			selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_full_dec2014.cfg";  // cut setup for complete tagging
-		}
+		TString      triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";       // fullsim trigger definitions 		
+		if (fastsim) triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";  // fastsim trigger definitions	
 		
 		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, 0, 0, triggercfg);
-		stTask->SetConfigurationFile(selectioncfg);
-		stTask->ApplyFullSelection(1);  // apply complete tagging 
 		
-		if (fastsim) // set parameters for fast sim
-		{
-			stTask->SetPi0SignalParams(0.134, 0.0035);  // set parameters for pi0
-			stTask->SetKs0SignalParams(0.497, 0.0055);  // set parameters for KS
-			stTask->SetEtaSignalParams(0.549, 0.0055);  // set parameters for eta
-			
-			stTask->SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
-			stTask->SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
-			stTask->SetInitialPidCut(0.1);	// global PID pre-cut for charged 	
-			stTask->SetDstMDiffCut(0.1);    // special cut on D*-D mass difference (to reduce comb and output file size)
-		}
-		else // set parameters for full sim
-		{
-			stTask->SetPi0SignalParams(0.134, 0.0035);  // set parameters for pi0
-			stTask->SetKs0SignalParams(0.497, 0.0055);  // set parameters for KS
-			stTask->SetEtaSignalParams(0.549, 0.0055);  // set parameters for eta
-			
-			stTask->SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
-			stTask->SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
-			stTask->SetInitialPidCut(0.1);	// global PID pre-cut for charged 	
-			stTask->SetDstMDiffCut(0.1);    // special cut on D*-D mass difference (to reduce comb and output file size)
-		}
-		
-		// set PID algos
-		stTask->SetPidAlgoAll(pidalgo);
-		
-		stTask->SetTagAll(true);		// tag all modes
-		stTask->SetQAAll(false);        // don't write any QA tuple	
-		stTask->SetQAEvent(true);       // don't write any QA tuple	
-		
+		if (fastsim) stTask->SetFastSimDefaults();
+		else         stTask->SetFullSimDefaults();
+				
 		fRun->AddTask(stTask);
 	}
 	
