@@ -3,7 +3,7 @@
 #      $Id: binmake_FORTRAN.mk,v 1.5 2003/09/12 09:28:18 sokolov Exp $
 #
 # Description:
-# 	Standard binary  makefile for FORTRAN written package 
+# 	Standard binary  makefile for FORTRAN written package
 #	for PANDA software
 #
 # Environment:
@@ -22,11 +22,11 @@ $(PROGRAM) : $(OBJDIR)/$(addsuffix .o, $(MAIN) ) $(OBJS)
 	@if [ ! -d $(BINDIR) ] ; then mkdir -p $(BINDIR)  ;fi
 ifdef PNDVERBOSE
  ifeq ($(PROGRAM), FTFGen)
-	$(LD) -o $(BINDIR)/$@ $< $(FTFLIB) $(LDFLAGS) $(LDLIBS)
+	$(LD) -o $(BINDIR)/$@ $< $(FTFLIB) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(LDLIBS)
  endif
-else 
+else
  ifeq ($(PROGRAM),FTFGen)
-	@$(LD) -o $(BINDIR)/$@ $(FTFLIB) $(LDFLAGS) $(LDLIBS) $< $(OBJS)
+	@$(LD) -o $(BINDIR)/$@ $(FTFLIB) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(LDLIBS) $< $(OBJS)
  endif
 endif
-       
+

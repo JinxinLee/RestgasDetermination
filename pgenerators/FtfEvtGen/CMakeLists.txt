@@ -58,16 +58,16 @@ install(TARGETS FtfEvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 
 ### FTF DIRECT ###
-set(FTFGENDIRECT_SRCS PndFtfDirect.cxx)
-CHANGE_FILE_EXTENSION(*.cxx *.h FTFGENDIRECT_HEADERS "${FTFGENDIRECT_SRCS}")
-set(FTFGENDIRECT_LINKDEF  FtfLinkDef.h)
-set(LIBRARY_NAME FtfGenDirect)
-set(SRCS PndFtfDirect.cxx)
-set(LINKDEF FtfLinkDef.h)
-set(HEADERS PndFtfDirect.h)
-set(DEPENDENCIES G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen)
-Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1)
-GENERATE_LIBRARY()
+#set(FTFGENDIRECT_SRCS PndFtfDirect.cxx)
+#CHANGE_FILE_EXTENSION(*.cxx *.h FTFGENDIRECT_HEADERS "${FTFGENDIRECT_SRCS}")
+#set(FTFGENDIRECT_LINKDEF  FtfLinkDef.h)
+#set(LIBRARY_NAME FtfGenDirect)
+#set(SRCS PndFtfDirect.cxx)
+#set(LINKDEF FtfLinkDef.h)
+#set(HEADERS PndFtfDirect.h)
+#set(DEPENDENCIES G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen)
+#Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1)
+#GENERATE_LIBRARY()
 
 
 

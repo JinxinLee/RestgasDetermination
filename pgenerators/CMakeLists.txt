@@ -3,22 +3,25 @@
 # The extension is already found.  Any number of sources could be listed here.
 
 set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
+${ROOT_INCLUDE_DIR}
 ${PYTHIA8_INCLUDE_DIR}
 ${SIMPATH}/include
-${BASE_INCLUDE_DIRECTORIES} 
+${BASE_INCLUDE_DIRECTORIES}
+${GEANT4_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/generators
 ${CMAKE_SOURCE_DIR}/pgenerators
 ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
+${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
+${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
 ${CMAKE_SOURCE_DIR}/base/sim
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/fairtools
-${CMAKE_SOURCE_DIR}/geobase 
-${CMAKE_SOURCE_DIR}/parbase 
+${CMAKE_SOURCE_DIR}/geobase
+${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/base/steer
 ${CMAKE_SOURCE_DIR}/base/event
@@ -37,8 +40,9 @@ include_directories( ${INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
+${GEANT4_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
@@ -47,6 +51,7 @@ PndDpmGenerator.cxx
 PndFtfGenerator.cxx
 PndEvtGenGenerator.cxx
 PndDpmDirect.cxx
+PndFtfDirect.cxx
 PndBoxGenerator.cxx
 PndUrqmdSmmGenerator.cxx
 PndJRGenerator.cxx
@@ -71,6 +76,7 @@ eventFilter/PndEvtFilterOnInvMassCounts.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES Base DpmEvtGen)
+set(DEPENDENCIES Base DpmEvtGen G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen)
+Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1)
 
 GENERATE_LIBRARY()

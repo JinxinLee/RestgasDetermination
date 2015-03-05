@@ -20,6 +20,7 @@
 include ./common.mk
 
 
+
 LIBA    = $(LIBDIR)/lib$(PACKAGE).a
 LIBSO   = $(SLIBDIR)/lib$(PACKAGE).so
 
@@ -47,7 +48,7 @@ bin:	$(PROGRAM)
 
 # Static library:
 $(LIBA) : $(OBJS)
-	@echo Building  $@ library ...
+	@echo Building static $@ library ...
 	rm -f $@
 	@if [ ! -d $(LIBDIR) ] ; then mkdir -p $(LIBDIR)  ;fi
 ifdef PNDVERBOSE
@@ -58,12 +59,12 @@ endif
 
 # Shared library:
 $(LIBSO) : $(OBJS)
-	@echo Building  $@ library ...
+	@echo Building shared $@ library ...
 	@if [ ! -d $(SLIBDIR) ] ; then mkdir -p $(SLIBDIR)  ;fi
 ifdef PNDVERBOSE
-	$(LD) -g $(SOFLAGS) $(GLIBS) -o $@ $^
+	$(LD) -g $(SOFLAGS) $(GLIBS) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
 else
-	@$(LD) -g $(SOFLAGS) $(GLIBS) -o $@ $^
+	@$(LD) -g $(SOFLAGS) $(GLIBS) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
 endif
 
 #
