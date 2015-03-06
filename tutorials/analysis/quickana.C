@@ -16,10 +16,10 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	if (Fname=="" || anadecay=="") 
 	{
 		cout << "USAGE:\n";
-		cout << "quickana.C+( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )\n\n";
+		cout << "quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )\n\n";
 		cout << "   <input>   : input file name with PndPidCandidates\n";
 		cout << "   <mom>     : pbar momentum; negative values are interpreted as -E_cm\n";
-		cout << "   <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'\n";
+		cout << "   <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'\n";
 		cout << "   [nevt]    : number of events; default: 0 = all\n";
 		cout << "   [parms]   : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
 		cout << "   [fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'\n";

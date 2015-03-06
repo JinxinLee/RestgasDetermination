@@ -22,7 +22,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	if (Prefix=="" || Decfile=="" || Mom==0. ) 
 	{
 		cout << "USAGE:\n";
-		cout << "quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )\n\n";
+		cout << "quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <decfile>  : decfile; 'DPM'/'FTF' uses DPM/FTF generator instead\n";
 		cout << "   <mom>      : pbar momentum; negative values are interpreted as -E_cm\n";
@@ -138,7 +138,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
 	fRun->SetWriteRunInfoFile(kFALSE);
-	//if (!simonly) fRun->SetUserConfig(BaseDir+"/macro/softrig/g3ConfigNoMC.C");
+	if (!simonly) fRun->SetUserConfig(BaseDir+"/tutorials/analysis/g3ConfigNoMC.C");
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
