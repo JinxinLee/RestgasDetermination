@@ -25,11 +25,11 @@
 //
 //
 // -------------------------------------------------------------
-//      GEANT 4 class 
+//      GEANT 4 class
 //
 //      ---------- Test30VSecondaryGenerator -------
-//                by Vladimir Ivanchenko, 12 March 2002 
-// 
+//                by Vladimir Ivanchenko, 12 March 2002
+//
 //    Modified:
 //
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -54,17 +54,17 @@ Test30VSecondaryGenerator::Test30VSecondaryGenerator(
   material(mat),
   generatorName(""),
   elm(0),
-  targetNucleus(0),
+  targetNucleus(), ///FIXME should we use the default constructor or pass the mat pointer here? Is targetNucleus relevant at all?
   result(0),
   targetZ(0),
   targetA(0)
 {
   elm = material->GetElement(0);
   targetZ = G4lrint(elm->GetZ());
-  G4cout << "New generator for material " << material->GetName() 
-	 << " Nelm= " <<  material->GetNumberOfElements() 
-	 << " Nmat= " <<  material->GetNumberOfMaterials() 
-	 << " Target element: " << elm->GetName() 
+  G4cout << "New generator for material " << material->GetName()
+	 << " Nelm= " <<  material->GetNumberOfElements()
+	 << " Nmat= " <<  material->GetNumberOfMaterials()
+	 << " Target element: " << elm->GetName()
 	 << G4endl;
 }
 
@@ -75,14 +75,14 @@ Test30VSecondaryGenerator::~Test30VSecondaryGenerator()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-void Test30VSecondaryGenerator::SetA(G4int A) 
+void Test30VSecondaryGenerator::SetA(G4int A)
 {
   targetA = A;
-  G4cout << "Nucleus with A= " << targetA << "  Z= " << targetZ 
+  G4cout << "Nucleus with A= " << targetA << "  Z= " << targetZ
 	 << "  A(amu)= " << elm->GetN();
   if(targetA < targetZ) {
-    targetA = 0; 
-    G4cout << "  Natural abundances"; 
+    targetA = 0;
+    G4cout << "  Natural abundances";
   } else {
     G4double mass = G4NucleiProperties::GetNuclearMass(targetA, targetZ);
     G4cout << "Mass from G4NucleiProperties(GeV)= " << mass/GeV << G4endl;
