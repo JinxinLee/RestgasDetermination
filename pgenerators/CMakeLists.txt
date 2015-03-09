@@ -76,7 +76,7 @@ eventFilter/PndEvtFilterOnInvMassCounts.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES Base DpmEvtGen G4clhep G4global G4geometry G4physicslists G4materials G4track EG FtfEvtGen)
+set(DEPENDENCIES Base DpmEvtGen FtfEvtGen G4particles G4processes G4clhep G4global G4geometry G4physicslists G4materials G4track EG)
 Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1)
 
 GENERATE_LIBRARY()
