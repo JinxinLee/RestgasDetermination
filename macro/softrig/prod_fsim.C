@@ -32,8 +32,8 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 		cout << "USAGE:\n";
 		cout << "prod_fsim.C+( <pref>, <decfile>, <mom>, [nevt], [res], [mode], [run], [full] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
-		cout << "   <decfile>  : decfile; 'DPM' uses DPM generator instead\n";
-		cout << "   <mom>      : pbar momentum\n";
+		cout << "   <decfile>  : decfile; 'DPM'/'FTF' uses DPM/FTF generator instead\n";
+		cout << "   <mom>      : pbar momentum; negative values are interpreted as -E_cm\n";
 		cout << "   [nevt]     : number of events; default = 1000\n";
 		cout << "   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'\n";
 		cout << "   [mode]     : mode code; default = 900 (->DPM code)\n";
@@ -41,6 +41,17 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 		cout << "   [full]     : apply full selection, defined in config file 'softrig/selection_fsim.cfg'; default = 0\n\n";
 		return;
 	}
+	
+	// if Mom<0, interprete as -E_cm
+	double mp = 0.938272;
+	
+	// if mom<0, it's -E_cm -> compute mom
+	if (Mom<0)
+	{
+		double X = (Mom*Mom-2*mp*mp)/(2*mp);
+		Mom = sqrt(X*X-mp*mp);
+	}
+	
 	
 	// Allow shortcut for resonance
 	if (Resonance=="pbp")  Resonance = "pbarpSystem";
@@ -50,8 +61,8 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880);
-	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.1,0, "",90000);
-	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.1,0, "",-90000);
+	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.03,0, "",90000);
+	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.03,0, "",-90000);
 	
 	//-----Evaluate Detector Setup ---------------------------------------
 	bool SwMvdGem  = true;  // Enable MVD and GEM for central tracking in addition to STT
@@ -88,14 +99,22 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 
 	// choose your event generator
 	Bool_t UseEvtGenDirect  = kTRUE;
+	Bool_t UseFtf           = kFALSE;
 	Bool_t UseDpm           = kFALSE;
 	Bool_t UseBoxGenerator  = kFALSE;
 
 	// use DPM generator; default: inelastic @ pbarmom = mom
-	if (Decfile=="DPM")
+	if (Decfile.BeginsWith("DPM"))
 	{
 		UseEvtGenDirect = kFALSE;
 		UseDpm 	      = kTRUE;
+	}
+
+	// use FTF generator; 
+	if (Decfile.BeginsWith("FTF"))
+	{
+		UseEvtGenDirect = kFALSE;
+		UseFtf 	        = kTRUE;
 	}
 
 	// use BOX generator; default: single mu-, 0<tht<180, 0<phi<360, 0.1<p<mom
@@ -108,13 +127,6 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	usePndEventFilter=UseDpm;
 
 	Double_t MomMin  = 0.1;  // minimum momentum for box generator
-
-	// for negative values of Mom and use of Box generator -> Just generate tracks with p=-Mom
-	if (Mom<0)
-	{
-		Mom    = -Mom;
-		MomMin = Mom;
-	}
 	Double_t MomMax  = Mom;  // maximum   "       "
 
 	// Start a stop watch
@@ -126,6 +138,7 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
 	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetUserConfig(BaseDir+"/macro/softrig/g3ConfigNoMC.C"); // this prevents storing the MCTracks array
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
@@ -148,13 +161,26 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	}
 	if(UseDpm)
 	{
-		PndDpmDirect *Dpm= new PndDpmDirect(Mom,0);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
+		int mode = 0;
+		if (Decfile=="DPM1") mode = 1;
+		if (Decfile=="DPM2") mode = 2;
+		
+		PndDpmDirect *Dpm= new PndDpmDirect(Mom,mode);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
 		Dpm->SetUnstable(111);   // pi0
 		Dpm->SetUnstable(310);   // K_S0
 		Dpm->SetStable(3122);  // Lambda
 		Dpm->SetStable(-3122); // anti-Lambda
+		Dpm->SetStable(3222);  // Sigma
+		Dpm->SetStable(-3222); // anti-Sigma
 		Dpm->SetUnstable(221);   // eta
 		primGen->AddGenerator(Dpm);
+	}
+	if(UseFtf)
+	{
+		bool noelastic = true;
+		if (Decfile=="FTF1") noelastic=false;
+		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", Mom, 0);//, noelastic); 
+		primGen->AddGenerator(Ftf);
 	}
 	if(UseEvtGenDirect)
 	{
@@ -169,16 +195,21 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	//---------------------Create and Set the Field(s)----------
 	PndMultiField *fField= new PndMultiField("AUTO");
 	fRun->SetField(fField);
+	
+	
+	// ********************************
+	//  Setup the Fast Simulation Task
+	// ********************************
 
-	// Setup the Fast Simulation Task
-	//-----------------------------
 	PndFastSim* fastSim = new PndFastSim(persist);
 		
 	// increasing verbosity increases the amount of console output (mainly for debugging)
 	fastSim->SetVerbosity(0);
 
+	//-----------------------------
 	// set PANDA event filters
 	//-----------------------------
+	if (mode==900) usePndEventFilter=true; // switch on filter for background events
 	if (usePndEventFilter)
 	{
 		primGen->SetFilterMaxTries(100000); // for testing small number, for real produrction set usually to 9999999 or something very big
@@ -186,34 +217,10 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 		// new FairEvtFilterOnSingleParticleCounts named "PdgFilter"
 		lambfilt->AndMaxPdgCodes(0, 3122, -3122);  // filter out Lambda0
 		lambfilt->AndMaxPdgCodes(0, 3222, -3222);  // filter out Sigma+
-		primGen->AndFilter(lambfilt);
-		
-		//primGen->SetVerbose(); // highest commenting level of the FairPrimaryGenerator
-		
-/*		FairEvtFilterOnCounts* chrgFilter = new FairEvtFilterOnCounts("chrgFilter");
-		chrgFilter->AndMinCharge(4, FairEvtFilter::kPlus);
-		primGen->AndFilter(chrgFilter);
-		
-		FairEvtFilterOnCounts* neutFilter = new FairEvtFilterOnCounts("neutFilter");
-		neutFilter->AndMaxCharge(4, FairEvtFilter::kNeutral);
-		primGen->AndFilter(neutFilter);
-		
-		PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
-		//eeInv->SetVerbose();//highest commenting level of the FairEvtFilterOnCounts
-		eeInv->SetPdgCodesToCombine( 11, -11);
-		eeInv->SetMinMaxInvMass( 2.9, 3.2 );
-		eeInv->SetMinMaxCounts(1,10000);
-		primGen->AndFilter(eeInv);  //add filter to fFilterList
-		*/
-		
+		primGen->AndFilter(lambfilt);		
 	}
-/*	else
-	{
-		FairEvtFilterOnCounts* chrgFilter = new FairEvtFilterOnCounts("chrgFilter");
-		chrgFilter->AndMinCharge(-1, FairEvtFilter::kPlus);
-		primGen->AndFilter(chrgFilter);
-	}*/
 	
+	//-----------------------------
 	// set event filters
 	//-----------------------------
 	if (useEventFilter)
@@ -372,7 +379,6 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	// *** SoftTriggerTask ***
 	// ***********************
 	
-	
 	// mode code: 
 	//  -> signals should have 9-digit code (e.g. 450110002; 450 = 4.5 GeV, 110 = triggerline, 002 = recoil type in decfile)
 	//  -> DPM has 6-digits (550900; 550 = 5.5 GeV, 900 = mode code for DPM)
@@ -381,31 +387,12 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	if (modeshort>1000)    modeshort %= 1000;
 	
 	cout <<" ****** mode:"<<mode<<"  modeshort:"<<modeshort<<endl;
-	
-	// this file contains the trigger line definitions
-	TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";
-	
-	// this file contains the cut setup for various modes
-	TString selectioncfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/selection_fsim.cfg"; 
-	
-	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, mode, run, triggercfg);
-	stTask->SetConfigurationFile(selectioncfg);
-	
-	//stTask->McMatchAllowPhotos(10, 1.0); // MC truth match shall partially ignore photos photons (here max 1 with E<50 MeV)
-		
+
+	PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, mode, run, BaseDir+"/softrig/triggerlines_fsim.cfg");
+	stTask->SetFastSimDefaults();	
 	stTask->ApplyFullSelection(applyfull);  // apply selection defined in 'TString selectioncfg'
 	
-	stTask->SetPi0SignalParams(0.134, 0.0035);  // set parameters for pi0
-	stTask->SetKs0SignalParams(0.497, 0.0055);  // set parameters for KS
-	stTask->SetEtaSignalParams(0.549, 0.0055);  // set parameters for eta
-	
-	// set PID algos
-	TString algo = "PidChargedProbability";	
-	stTask->SetPidAlgoAll(algo);
-	
-	stTask->SetTagAll(true);		// tag all modes
-	
-	if (modeshort==900)	            // for DPM events
+	if (modeshort==900)	            // for DPM/FTF events
 	{
 		stTask->SetQAAll(true);		// -> write all QA tuples
 	}
@@ -415,16 +402,10 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 		stTask->SetQAMode(modeshort); // -> only write signal n-tuple
 		stTask->SetQAMctOnly();       // -> only keep signals with mct match in QA tuple
 	}
-	
+		
 	if (applyfull) stTask->SetQAAll(false); // in full selection mode don't create QA output
 	
 	stTask->SetQAEvent(true);		// event info
-	stTask->SetQAMc(true);          // mc info
-	
-	stTask->SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
-	stTask->SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
-	stTask->SetInitialPidCut(0.1);	// global PID pre-cut for charged 	
-	stTask->SetDstMDiffCut(0.1);    // special cut on D*-D mass difference (to reduce comb and output file size)
 	
 	fRun->AddTask(stTask);
 
