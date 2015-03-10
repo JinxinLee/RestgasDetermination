@@ -294,7 +294,6 @@ step(0),
 gTrack(0),
 part(0)
 {
-  fNoElastics = false;
   fdefaultEngine = new CLHEP::RanluxEngine( 1234567, 4 );
   faPosition = new CLHEP::Hep3Vector(0.,0.,0.);
   faDirection      = new CLHEP::Hep3Vector(0.0,0.0,1.0);
@@ -330,7 +329,7 @@ part(0)
 }
 
 
-PndFtfDirect::PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed=0) :
+PndFtfDirect::PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed=0, bool noelastic=false) :
 fverbose(0),
 fsaverand(false),
 fnamePart("proton"),
@@ -373,14 +372,13 @@ fRsigma(0.),
 fThtMin(0.),
 fin(0),
 fdefaultEngine(0),
-fNoElastics(false),
+fNoElastics(noelastic),
 dParticle(0),
 proc(0),
 step(0),
 gTrack(0),
 part(0)
 {
-  fNoElastics = false;
   fdefaultEngine = new CLHEP::RanluxEngine( seed, 4 );
   faPosition = new CLHEP::Hep3Vector(0.,0.,0.);
   faDirection      = new CLHEP::Hep3Vector(0.0,0.0,1.0);

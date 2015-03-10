@@ -69,7 +69,7 @@ public:
    **/
   PndFtfDirect(const char * configfile);
   PndFtfDirect(const PndFtfDirect&);
-  PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed);
+  PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed, bool noelastic);
 
   /** Destructor **/
   virtual ~PndFtfDirect();
@@ -80,6 +80,7 @@ public:
   virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
   Bool_t ProcessEvent(FairPrimaryGenerator* primGen);
   void SetVerbose(int v=1) {fverbose=v;};
+  void SetNoElastic(bool n=true){fNoElastics=n;};
 
 private:
 
