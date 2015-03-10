@@ -46,7 +46,7 @@ set_target_properties(FtfEvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 add_executable(FtfEvtGen_exe ${FTFEVTGEN_EXE_SRCS})
 if (CMAKE_SYSTEM_NAME MATCHES Darwin)
-  target_link_libraries(FtfEvtGen_exe ${ROOT_LIBRARIES} G4materials G4particles G4clhep G4global G4geometry G4physicslists G4track EG "FtfEvtGen")
+  target_link_libraries(FtfEvtGen_exe ${ROOT_LIBRARIES} G4materials G4particles G4processes G4clhep G4global G4geometry G4physicslists G4track EG "FtfEvtGen")
 else (CMAKE_SYSTEM_NAME MATCHES Darwin)
   target_link_libraries(FtfEvtGen_exe G4materials G4particles G4processes G4clhep G4global G4geometry G4physicslists G4track EG FtfEvtGen)
 endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
