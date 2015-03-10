@@ -382,11 +382,11 @@ void PndRhoTupleQA::qaPi0(TString pre, RhoCandidate *c, RhoTuple *n)
   qaCand(pre, c, n);
   n->Column(pre+"oang",(Float_t) ang,		0.0f);
   
-  qaCand(pre+"g1", d0, n);
-  qaEmc(pre+"g1", d0, n);
+  qaCand(pre+"d0", d0, n);
+  qaEmc(pre+"d0", d0, n);
   
-  qaCand(pre+"g2", d1, n);
-  qaEmc(pre+"g2", d1, n);
+  qaCand(pre+"d1", d1, n);
+  qaEmc(pre+"d1", d1, n);
   
   if (truth!=0)
   {
@@ -418,11 +418,11 @@ void PndRhoTupleQA::qaKs0(TString pre, RhoCandidate *c, RhoTuple *n)
   
   n->Column(pre+"oang",(Float_t) ang,		0.0f);
   
-  qaCand(pre+"pi1", d0, n);
-  qaPid(pre+"pi1",  d0, n);
+  qaCand(pre+"d0", d0, n);
+  qaPid(pre+"d0",  d0, n);
   
-  qaCand(pre+"pi2", d1, n);
-  qaPid(pre+"pi2",  d1, n);
+  qaCand(pre+"d1", d1, n);
+  qaPid(pre+"d1",  d1, n);
   
   if (truth!=0)
   {
