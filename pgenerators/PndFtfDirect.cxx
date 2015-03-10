@@ -921,64 +921,74 @@ Bool_t PndFtfDirect::ProcessEvent(FairPrimaryGenerator* primGen)
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   bool flag_good=true;
-  for(G4int i=0; i<n; ++i)              // Loop over produced particles
-  {
-    sec = aChange->GetSecondary(i)->GetDynamicParticle();
-    pd  = sec->GetDefinition();
-    G4String pname=pd->GetParticleName();
-
-    if(fverbose>=1) G4cout<<" Part  "<<i<<" "<<pname
-      <<" "<<sec->Get4Momentum()/GeV
-      <<sec->Get4Momentum().mag()/GeV<<G4endl;
-
-    fm  = sec->Get4Momentum();
-
-    mom = sec->GetMomentum();
-    //      G4double mas = pd->GetPDGMass();
-    //  G4double p = mom.mag();
-
-    labv -= fm;   // For checking energy-momentum conservation
-
-    // electron can come only from internal conversion
-    // its mass should be added to initial state
-    if(pd == electron) {
-
-      labv += G4LorentzVector(0.0,0.0,0.0,electron_mass_c2);
-    }
-
-    px = mom.x()/GeV;
-    py = mom.y()/GeV;
-    pz = mom.z()/GeV;
-    pt = std::sqrt(px*px +py*py)/GeV;
-    e  = fm.e()/GeV; // - m;
-    theta = mom.theta();
-    if(std::abs(pd->GetBaryonNumber()) < 2)
+  if(fNoElastics&&(n==2)) {
+	const G4DynamicParticle *sec1 = aChange->GetSecondary(0)->GetDynamicParticle();
+	const G4DynamicParticle *sec2 = aChange->GetSecondary(1)->GetDynamicParticle();
+    G4ParticleDefinition *pd1  = sec1->GetDefinition();
+    G4ParticleDefinition *pd2  = sec2->GetDefinition();
+    int id1 = pd1->GetPDGEncoding();
+    int id2 = pd2->GetPDGEncoding();
+	// now we know it's fully elastic!
+    if(abs(id1)==2212 && abs(id1)==2212)
+	{
+		flag_good=false;
+		delete aChange->GetSecondary(0);
+		delete aChange->GetSecondary(1);
+	}
+  } else { // now inelastic
+    for(G4int i=0; i<n; ++i)              // Loop over produced particles
     {
-      int id = pd->GetPDGEncoding();
-      // choice of inelastic
-      if(fNoElastics&&(n==2)&&(abs(id)==2212)) {
-        flag_good=false; // elastic!
-      } else if( (n>2) || ((abs(id)!=2212)&&(n==2)) ) {
+      sec = aChange->GetSecondary(i)->GetDynamicParticle();
+      pd  = sec->GetDefinition();
+      G4String pname=pd->GetParticleName();
+
+      if(fverbose>=1) G4cout<<" Part  "<<i<<" "<<pname
+        <<" "<<sec->Get4Momentum()/GeV
+        <<sec->Get4Momentum().mag()/GeV<<G4endl;
+
+      fm  = sec->Get4Momentum();
+
+      mom = sec->GetMomentum();
+      //      G4double mas = pd->GetPDGMass();
+      //  G4double p = mom.mag();
+
+      labv -= fm;   // For checking energy-momentum conservation
+
+      // electron can come only from internal conversion
+      // its mass should be added to initial state
+      if(pd == electron) {
+
+        labv += G4LorentzVector(0.0,0.0,0.0,electron_mass_c2);
+      }
+
+      px = mom.x()/GeV;
+      py = mom.y()/GeV;
+      pz = mom.z()/GeV;
+      pt = std::sqrt(px*px +py*py)/GeV;
+      e  = fm.e()/GeV; // - m;
+      theta = mom.theta();
+      if(std::abs(pd->GetBaryonNumber()) < 2)
+      {
+        int id = pd->GetPDGEncoding();
         Mom.SetPxPyPzE(px,py,pz,e);
         //      TParticle  fparticle(id,1,0,0,0,0,Mom,V);
         //      new((*fEvt)[cnt++]) TParticle(fparticle);
         // add track
         //printf("- I -: new particle at: %f, %f, %f ...\n", fX, fY, fZ);
         primGen->AddTrack(id, px, py, pz, 0.,0.,0.); //fX, fY, fZ);
-      }
 
-    }
-    theta=theta*180./pi;
-    fm.boost(-bst);
+      }
+      theta=theta*180./pi;
+      fm.boost(-bst);
 
     //        G4double costcm = std::cos(fm.theta());
-    de += e;
+      de += e;
 
     //  delete sec;
-    delete aChange->GetSecondary(i);
+      delete aChange->GetSecondary(i);
 
-  } //     end of the loop on particles
-
+    } //     end of the loop on particles
+  }
   if(flag_good){ // inelastic!
     if(fverbose > 0)
       G4cout << "We have an inelastic event." << G4endl;
