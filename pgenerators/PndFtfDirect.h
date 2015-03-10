@@ -69,7 +69,7 @@ public:
    **/
   PndFtfDirect(const char * configfile);
   PndFtfDirect(const PndFtfDirect&);
-  PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed, bool noelastic);
+  PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed=0, bool noelastic=false);
 
   /** Destructor **/
   virtual ~PndFtfDirect();

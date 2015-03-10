@@ -329,7 +329,7 @@ part(0)
 }
 
 
-PndFtfDirect::PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed=0, bool noelastic=false) :
+PndFtfDirect::PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed, bool noelastic) :
 fverbose(0),
 fsaverand(false),
 fnamePart("proton"),
