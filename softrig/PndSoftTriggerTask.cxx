@@ -209,7 +209,7 @@ void PndSoftTriggerTask::SetFastSimDefaults()
 	
 	SetPi0SignalParams(0.134, 0.0035);  // set parameters for pi0
 	SetKs0SignalParams(0.497, 0.0055);  // set parameters for KS
-	SetEtaSignalParams(0.549, 0.0055);  // set parameters for eta
+	SetEtaSignalParams(0.549, 0.0088);  // set parameters for eta
 	
 	SetGammaMinE(0.10);		// global energy pre-cut for neutrals 
 	SetTrackMinP(0.10);		// global momentum pre-cut for charged 	
