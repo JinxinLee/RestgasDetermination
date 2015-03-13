@@ -9,9 +9,12 @@ cd $TMPDIR
 hera=$VMCWORKDIR"/tutorials/analysis"
 _target=$hera"/data/"
 
+command=$1
+command=${command/SGE_TASK_ID/$SGE_TASK_ID}
+
 echo $PWD
-echo root -l -b -q \'$1\'
-root -l -b -q $1
+echo root -l -b -q \'$command\'
+root -l -b -q $command
 
 # Move the data to the persistent storage
 cp -v $TMPDIR/*_ana.root $_target

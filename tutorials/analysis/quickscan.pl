@@ -55,7 +55,7 @@ for (my $ecm = $min; $ecm<=$max; $ecm+=$step)
 	{
 		$decay =~ s/ /§/g;
 		$parms =~ s/ //g;
-		$command = "qsub -t 1-$njobs job_scan.sge '$wd/$macro(\"$pref$ecmstr\",\"$wd/$decfile\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\",true,$cnt)'";
+		$command = "qsub -t 1-$njobs job_scan.sge '$wd/$macro(\"$pref$ecmstr\",\"$wd/$decfile\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\",true,SGE_TASK_ID)'";
 	}
 	print $command."\n";
 	system($command);
