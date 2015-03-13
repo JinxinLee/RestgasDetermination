@@ -1,0 +1,21 @@
+#$ -wd /tmp 
+#$ -j y
+#$ -V
+
+cd $TMPDIR
+
+. $FAIRLIBDIR"/../config.sh"
+
+hera=$VMCWORKDIR"/tutorials/analysis"
+_target=$hera"/data/"
+
+echo $PWD
+echo root -l -b -q \'$1\'
+root -l -b -q $1
+
+# Move the data to the persistent storage
+cp -v $TMPDIR/*_ana.root $_target
+rm $TMPDIR/*_ana.root
+ 
+# Evacuate the log-file
+cp -v $SGE_STDOUT_PATH $_target/$JOB_ID.log

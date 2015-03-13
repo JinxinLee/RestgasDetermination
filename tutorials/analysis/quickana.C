@@ -4,12 +4,17 @@
 
 // The parameters are
 // -------------------
-// USAGE:\n";
-// quickana.C+( <pref>, <decay>, [nevt], [parms] )
-//    <pref>     : input file name with PndPidCandidates
-//    <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'. charged conjugate is include unless you specify 'nocc' for certain decay
-//    [nevt]     : number of events; default = 0 = all
-//    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+// USAGE
+// quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )
+//    <input>   : input file name with PndPidCandidates
+//    <mom>     : pbar momentum; negative values are interpreted as -E_cm
+//    <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'
+//    [nevt]    : number of events; default: 0 = all
+//    [parms]   : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+//    [fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'
+//    [runST]   : if 'true' runs Software Trigger (default: false)
+//    [runnum]  : integer run number (default: 0)
+// -------------------
 
 void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0 )
 {
@@ -82,7 +87,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 		TString      triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";       // fullsim trigger definitions 		
 		if (fastsim) triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";  // fastsim trigger definitions	
 		
-		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, 0, 0, triggercfg);
+		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, 0, run, triggercfg);
 		
 		if (fastsim) stTask->SetFastSimDefaults();
 		else         stTask->SetFullSimDefaults();
