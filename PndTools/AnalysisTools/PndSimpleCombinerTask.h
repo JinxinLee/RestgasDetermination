@@ -5,8 +5,9 @@
 // ************************************************************************
 //
 // Parameters: 
-// - anadecay     : decay specification, e.g. "phi -> K+ K-; D_s+ -> phi pi+ cc" (cc indicates charged conjugate; particle used have to be defined beforehand)
-//                  is handed over to PndSimpleCombiner
+// - anadecay     : Decay specification, e.g. "phi -> K+ K-; D_s+ -> phi pi+" (automatic charged conjugation; particle used have to be defined beforehand)
+//                  Keyword 'nocc' at end of decay definition suppresses automatic charged conjugation
+//                  This string is handed over to PndSimpleCombiner
 //
 // - params       : configuration parameters, e.g. "fit4c:qamc". The string contains also parameters handled by PndSimpleCombiner; those handled by this task are:
 //   - fit4c      : perform 4C fit on last resonance

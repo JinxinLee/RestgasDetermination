@@ -759,7 +759,7 @@ void PndRhoTupleQA::qaGem(TString pre, RhoCandidate *c, RhoTuple *n)
   
   if (mic)
   {
-    n->Column(pre+"gemnhits",  (Int_t) mic->GetMvdDEDX(),			0 );
+    n->Column(pre+"gemnhits",  (Int_t) mic->GetGemHits(),			0 );
   }
 }
 
