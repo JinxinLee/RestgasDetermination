@@ -30,6 +30,7 @@ class PndAnalysisCalcTools
     static Bool_t P7toPRG(const TVector3& pos, const TLorentzVector& p4, const Double_t Q, const TMatrixD& cov77,
                           const TVector3& expPoint, Float_t* helixparams, TMatrixD& helixCov, TMatrixD& jacobian, Bool_t skipcov=kFALSE);
 //    static Bool_t SDtoHelix(FairTrackParH* par, RhoCandidate* cand, Bool_t skipcov=kFALSE);
+  static Bool_t StateFromTrajectory( TVectorD& state, const RhoCandidate* track, Double_t z ) {std::cerr<<"PndAnalysisCalcTools::StateFromTrajectory not implemented!!"<<std::endl;return kFALSE;};
 
     static Double_t GetBz(const TVector3& position) {RhoCalculationTools::GetBz(position);};
 

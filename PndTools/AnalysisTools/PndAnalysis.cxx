@@ -39,6 +39,7 @@ using std::endl;
 #include "PndMCTrack.h"
 #include "PndAnaCovTool.h" // using a cov matrix tool
 #include "PndAnalysisCalcTools.h"
+#include "PndPidBremCorrected4Mom.h"
 
 ClassImp ( PndAnalysis );
 
@@ -87,6 +88,7 @@ void PndAnalysis::Init()
 
   //read arrays
   fChargedCands = ReadTCA ( "PidChargedCand" );
+  fBremCorr = ReadTCA( "BremCorrected4Mom" );
   fChargedProbability = ReadTCA ( fChargedPidName.Data() );
   fNeutralCands = ReadTCA ( "PidNeutralCand" );
   fNeutralProbability = ReadTCA ( fNeutralPidName.Data() );
@@ -274,6 +276,9 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
     return kTRUE;
   }
 
+  const bool doBremCorr = listkey.Contains("Brem");
+  if (doBremCorr) listkey.ReplaceAll("Brem","");
+
   // Real selection requested:
   // set the base list for the PID list maker
   Bool_t checkcrit = fPidSelector->SetCriterion ( listkey );
@@ -282,6 +287,22 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
   if ( listkey.Contains ( "Electron" ) ||listkey.Contains ( "Muon" ) ||listkey.Contains ( "Pion" )
        || listkey.Contains ( "Kaon" ) ||listkey.Contains ( "Proton" )
        || listkey.Contains ( "Plus" ) ||listkey.Contains ( "Minus" ) ||listkey.Contains ( "Charged" ) ) {
+
+    if ( doBremCorr ) {
+      if (fBremCorr==0) {
+	if(fVerbose)
+	  Warning("PndAnalysis::FillList","Brem requested but no PndPidBremCorrected4Mom found on input file. Brem Correction can't be done.");
+      } else {
+    	for (int j=0; j<fChargedCandList.GetLength(); ++j) {
+    	  int trk_id = fChargedCandList[j]->GetTrackNumber();
+    	  int nBremCorr = fBremCorr->GetEntriesFast();
+    	  if (nBremCorr!=fChargedCandList.GetLength())
+	    if(fVerbose) Warning("PndAnalysis::FillList","Warning: BermCorr list size diff. from chargeCandList");
+    	  PndPidBremCorrected4Mom *bremCorr = (PndPidBremCorrected4Mom*) fBremCorr->At(trk_id);
+    	  fChargedCandList[j]->SetP3(bremCorr->GetMomentum());
+    	}
+      }
+    }
 
     l=fChargedCandList;
     fPidCombiner->Apply ( l );
@@ -312,7 +333,6 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
   {
     // copy candidates via put
     truth = (RhoCandidate*) fMcCands->At(i);
-	if(fVerbose>4) std::cout<<"PndAnalysis::GetMcCandList: mccand "<<i<<" :"<<truth<<" \t "<<*truth<<std::endl;
     l.Put(truth);
   }
 
@@ -333,23 +353,6 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
     truthmother = (RhoCandidate*) l[mcMotherID];
     l[k]->SetMotherLink(truthmother, false);
   }
-
-  // And now we have to rapair the charges, because delta electrons are inside the MC list, but not the inons
-  for (int k=0;k<l.GetLength();k++)
-  {
-    TParticlePDG* ppdg = fPdg->GetParticle(l[k]->PdgCode());
-    double charge=0.0;
-    if ( ppdg ) {
-       charge=ppdg->Charge();
-    } else if (fVerbose) {
-       cout <<"-W- CreateMcCandidate: strange PDG code:"<<l[k]->PdgCode() <<endl;
-    }
-       if ( fabs(charge) >2 ) {
-       charge/=3.;
-    }
-    l[k]->SetCharge(charge);
-  }
-
 
   return kTRUE;
 }
@@ -966,5 +969,3 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   if (verbose) cout <<*c->GetMcTruth()<<endl;
   return true;  // c's tree matches!
 }
-
-
