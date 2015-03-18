@@ -18,7 +18,7 @@
 
 
 void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
-				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 )
+				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 , int mode=0)
 {
 	if (Prefix=="" || Decfile=="" || Mom==0. ) 
 	{
@@ -32,7 +32,8 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		cout << "   [res]      : resonance/particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'\n";
 		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
         cout << "   [runST]    : if 'true' runs Software Trigger (default: false)\n";
-        cout << "   [runnum]   : integer run number (default: 0)\n\n";
+        cout << "   [runnum]   : integer run number (default: 0)\n";
+        cout << "   [mode]     : arbitrary mode number (default: 0)\n\n";
 		return;
 	}
 	
@@ -420,7 +421,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		
 	if (!simonly)
 	{
-		PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run);
+		PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run, mode);
 		scTask->SetPidAlgo("PidChargedProbability");
 		fRun->AddTask(scTask);
 	}

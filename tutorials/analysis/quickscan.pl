@@ -11,12 +11,14 @@ my $decay    = $ARGV[5];
 my $nevt     = $ARGV[6];
 my $parms    = $ARGV[7];
 my $res      = $ARGV[8];
+my $mode     = $ARGV[9];
 my $njobs    = 0;
 
 if (!defined($nevt))  {$nevt  = 1000;}
 if (!defined($parms)) {$parms = "mwin=0.6";}
 if (!defined($res))   {$res   = "pbp0";}
-if (defined($ARGV[9])) {$njobs = $ARGV[9];}
+if (!defined($mode))  {$mode  = 0;}
+if (defined($ARGV[10])) {$njobs = $ARGV[10];}
 
 if (!defined($ARGV[5])) 
 {
@@ -31,7 +33,8 @@ if (!defined($ARGV[5]))
     print "   [nevt]    : events per scan point; default: 1000\n";
     print "   [parms]   : task parameters; default: 'mwin=0.6'\n";
     print "   [res]     : resonance; default: 'pbp0'\n";
-    print "   [njobs]   : if > 0, njobs jobs will be submitted per energy; default: 0\n\n";
+    print "   [mode]    : arbitrary mode number: default: 0\n";
+    print "   [njobs]   : if > 0, array 1-njobs will be submitted per energy; default: 0\n\n";
    exit(0);
 }
 
@@ -49,13 +52,21 @@ for (my $ecm = $min; $ecm<=$max; $ecm+=$step)
 	my $command = "";
 	if ($njobs==0)
 	{
-		$command = "root -l -b -q '$macro(\"$pref$ecmstr\",\"$decfile\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\", true, $cnt )'";
+		$command = "root -l -b -q '$macro(\"$pref$ecmstr\",\"$decfile\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\", true, $cnt, $mode )'";
 	}
 	else
 	{
 		$decay =~ s/ /§/g;
 		$parms =~ s/ //g;
-		$command = "qsub -t 1-$njobs job_scan.sge '$wd/$macro(\"$pref$ecmstr\",\"$wd/$decfile\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\",true,SGE_TASK_ID)'";
+		if ($njobs<0) # just submit 1 jobs with number njobs
+		{
+			my $jobnum = -$njobs;
+			$command = "qsub -t $jobnum-$jobnum job_scan.sge '$wd/$macro(\"$pref$ecmstr\",\"$wd/$decfile\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\",true,SGE_TASK_ID,$mode)'";
+		}
+		else # submit jobs 1-njobs
+		{
+			$command = "qsub -t 1-$njobs job_scan.sge '$wd/$macro(\"$pref$ecmstr\",\"$wd/$decfile\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\",true,SGE_TASK_ID,$mode)'";
+		}
 	}
 	print $command."\n";
 	system($command);
