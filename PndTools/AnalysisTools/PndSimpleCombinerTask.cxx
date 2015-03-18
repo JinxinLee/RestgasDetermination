@@ -67,8 +67,8 @@ using std::endl;
 
 
 // -----   Default constructor   -------------------------------------------
-PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms, double p, int run) :
-  FairTask("PndSimpleCombinerTask"), fRun(run), fRunMult(10000),
+PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms, double p, int run, int mode) :
+  FairTask("PndSimpleCombinerTask"), fRun(run), fMode(mode), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
   fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"),
   fQaMC(false), fQaEventShape(false), fFit4C(false), fFitVtx(false), nmc(0)
@@ -286,6 +286,7 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 			vntp[i]->Column("mmiss",	(Float_t) mmiss);
 			vntp[i]->Column("run",      (Int_t) fRun);
 			vntp[i]->Column("uid",      (Int_t) fRun*fRunMult+fEvtCount);
+			vntp[i]->Column("mode",     (Int_t) fMode);
 			
 			qa.qaP4("beam", fIni, vntp[i]);
 			

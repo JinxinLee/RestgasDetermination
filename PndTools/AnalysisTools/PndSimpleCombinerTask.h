@@ -46,7 +46,7 @@ class PndSimpleCombinerTask : public FairTask
  public:
 	
 	// ** Default constructor   
-	PndSimpleCombinerTask(TString anadecay, TString anaparms, double p=0, int run=0);
+	PndSimpleCombinerTask(TString anadecay, TString anaparms, double p=0, int run=0, int mode=0);
 	
 	// ** Destructor 
 	~PndSimpleCombinerTask();	
@@ -73,6 +73,7 @@ class PndSimpleCombinerTask : public FairTask
 	
 	int fEvtCount;                    // event counter
 	int fRun;                         // run number to be stored in ntuple (for unique event ID)
+	int fMode;                        // optional arbitrary mode number
 	int fRunMult;                     // factor for fRun to create unique event ID; default = 10000 (has be larger the num. of events per job!)
 	
 	TLorentzVector fIni;              // initial 4-vector; either computed from constructor parameter Mom, or taken from MC list
