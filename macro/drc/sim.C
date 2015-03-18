@@ -1,31 +1,25 @@
-void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root", Double_t theta=30, Double_t phi=10.825, Int_t pdg=13){
+void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root", Int_t pdg=13, Double_t theta=130, Double_t phi=10.825){
 
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  
   // Load libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //rootlogon();
 
-  TString digiFile = "all.par";
-  
   FairRunSim *fRun = new FairRunSim();
-
-  // set the MC version used
-  // ------------------------
-  //fRun->SetName("TGeant3");
   fRun->SetName("TGeant4");
-
+  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetBeamMom(15);
   fRun->SetOutputFile(simFile);
- 
+  fRun->SetMaterials("media_pnd.geo");
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+
   // Set the parameters
   //-------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
-  allDigiFile += "/macro/params/";
-  allDigiFile += digiFile;
+  allDigiFile += "/macro/params/all.par";
   
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
   rtdb->setFirstInput(parIo1);  
@@ -34,10 +28,6 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
   FairParRootFileIo* output = new FairParRootFileIo(kParameterMerged);
   output->open(parFile);
   rtdb->setOutput(output);
-  
-  // Set Material file Name
-  //-----------------------
-  fRun->SetMaterials("media_pnd.geo");
 
   // Create and add detectors
   //-------------------------
@@ -48,6 +38,7 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
   //-----------------------  Pipe  -----------------
   FairModule *Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
+
   // //-----------------------  STT   -----------------
   // FairDetector *Stt= new PndStt("STT", kTRUE);
   // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
@@ -75,9 +66,9 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
 
 
  // //-------------------------  STT       -----------------
- //  FairDetector *Stt= new PndStt("STT", kTRUE);
- //  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
- //  fRun->AddModule(Stt);
+  // FairDetector *Stt= new PndStt("STT", kTRUE);
+  // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  // fRun->AddModule(Stt);
  //  //-------------------------  MVD       -----------------
  //  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
  //  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
@@ -137,19 +128,22 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(321, 1);// 211 = pion, 321 = kaon; 13 = muon-; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pdg, 1);// 211 = pion, 321 = kaon; 13 = muon-; 1 = multipl.
+
+  // boxGen->SetPRange(0,4);
+  // boxGen->SetPhiRange(0, 180);
+  // boxGen->SetThetaRange(22,140);
+
   boxGen->SetPRange(3,3);
   boxGen->SetPhiRange(phi, phi);      // Azimuth angle range [degree]
   boxGen->SetThetaRange(theta,theta); // Polar a1ngle in lab system range [degree]  
   boxGen->SetXYZ(0.,0.,0.);
-
   primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kFALSE); // to store particle trajectories  
+  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
 
   // Create and Set Magnetic Field
   //-------------------------------
-  fRun->SetBeamMom(15);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
 
@@ -159,11 +153,12 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
   // trajFilter->SetStorePrimaries(kFALSE);
   // trajFilter->SetStoreSecondaries(kTRUE);
   
+
+  fRun->Run(nEvents); 
+
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
-
-  fRun->Run(nEvents); 
 
   timer.Stop();
 
