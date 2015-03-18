@@ -178,31 +178,27 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 	for(Int_t j=tmplist.size()-1; j>=0; j--){
 		bool flag = false;
 		PndMCTrack *pt;
-		//pt=((PndMCTrack*)mcTrackArray->At(tmplist[j]));
-		//if(pt->GetMotherID()<0) { 
-		//	tmplist2.push_back(tmplist[j]);
-		//	continue;
-		//}
 		Int_t id = tmplist[j];
-		if(id < 0) {
+                // if -1 index put it in the list and continue
+		if(id < 0) { 
 			tmplist2.push_back(id);
 			continue;
 		}
 		while(!flag){
 			pt=((PndMCTrack*)mcTrackArray->At(id));
-			//id=pt->GetMotherID();
+			// If the particle is primary store it and stop
 			if(pt->GetMotherID()<0) {
 				tmplist2.push_back(id);
 				break;
 			}
-			id = pt->GetMotherID();
-			//pt=(PndMCTrack*)mcTrackArray->At(id);
                         // Stop when it finds the first MCTrack not produced in emc
                         TString node =  gGeoManager->FindNode(pt->GetStartVertex().X(),pt->GetStartVertex().Y(),pt->GetStartVertex().Z())->GetName();
                         if ( !(node.BeginsWith("emc") || node.BeginsWith("CrystalVol") || node.BeginsWith("Fsc") ) ) { 
                                 tmplist2.push_back(id);
                                 break;
                         }
+                        // not exactly clear this part of the code, it needs to be checked (SS, 18/03/2015)
+                        id = pt->GetMotherID();
 			for(Int_t k=j-1; k>=0; k--){
 				if(tmplist[k]==id){
 					tmplist.erase(tmplist.begin()+j);
