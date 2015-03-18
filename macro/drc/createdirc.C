@@ -737,7 +737,8 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
   gGeoManager->SetNsegments(100);
 
   TGeoBBox*   lTop = new TGeoBBox(500,500,300);
-  TGeoVolume* top = new TGeoVolume("DIRC", lTop, gGeoManager->GetMedium("air"));
+  TGeoVolume* top = new TGeoVolumeAssembly("BarrelDIRCa");
+  //new TGeoVolume("DIRC", lTop, gGeoManager->GetMedium("air"));
   gGeoManager->SetTopVolume(top);
   
   // create pre-top volume:
@@ -763,7 +764,8 @@ void createdirc(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TS
     shape->DefineSection(4, bbox_zup - sob_len, radiusMiddleSmall-1, sob_Rout+poffset+pheight+EVoffset+1.);
     shape->DefineSection(5, bbox_zup - sob_len - 2*PDbaseLayer - 2*sum +zzev  , radiusMiddleSmall-1, sob_Rout+poffset+pheight+EVoffset+1.);
   }
-  vLocalMother = new TGeoVolume("BarrelDIRC", shape, gGeoManager->GetMedium("air"));
+  vLocalMother  = new TGeoVolumeAssembly("BarrelDIRC");
+  //= new TGeoVolume("BarrelDIRC", shape, gGeoManager->GetMedium("air"));
   top->AddNode(vLocalMother, 0,0);
 
 
