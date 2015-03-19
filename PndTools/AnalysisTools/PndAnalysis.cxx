@@ -333,6 +333,7 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
   {
     // copy candidates via put
     truth = (RhoCandidate*) fMcCands->At(i);
+    if(fVerbose>4) std::cout<<"PndAnalysis::GetMcCandList: mccand "<<i<<" :"<<truth<<" \t "<<*truth<<std::endl;
     l.Put(truth);
   }
 
@@ -352,6 +353,21 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
     // do the linking
     truthmother = (RhoCandidate*) l[mcMotherID];
     l[k]->SetMotherLink(truthmother, false);
+  }
+  // And now we have to rapair the charges, because delta electrons are inside the MC list, but not the inons
+  for (int k=0;k<l.GetLength();k++)
+  {
+    TParticlePDG* ppdg = fPdg->GetParticle(l[k]->PdgCode());
+    double charge=0.0;
+    if ( ppdg ) {
+       charge=ppdg->Charge();
+    } else if (fVerbose) {
+       cout <<"-W- CreateMcCandidate: strange PDG code:"<<l[k]->PdgCode() <<endl;
+    }
+       if ( fabs(charge) >2 ) {
+       charge/=3.;
+    }
+    l[k]->SetCharge(charge);
   }
 
   return kTRUE;
