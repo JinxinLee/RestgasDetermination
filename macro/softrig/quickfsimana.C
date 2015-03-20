@@ -1,34 +1,54 @@
-// *******
-// Macro for running fast simulation + simple analysis
-// *******
+// **********************************************************************************************
+// Macro for running fast simulation + Software Trigger + simple analysis (PndSimpleCombinerTask)
+// **********************************************************************************************
 
 // The parameters are
 // -------------------
-// USAGE:\n";
-// quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )
+// quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )
 //    <pref>     : output file names prefix
-//    <decfile>  : decfile; 'DPM' uses DPM generator instead
-//    <mom>      : pbar momentum
-//    <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'
+//    <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or box generator instead
+//    <mom>      : pbar momentum; negative values are interpreted as -E_cm
+//    [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; emtpy string: only fast sim will be run
 //    [nevt]     : number of events; default = 1000
-//    [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'
+//    [res]      : resonance/particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'
 //    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+//    [runST]    : if 'true' runs Software Trigger (default: false)
+//    [runnum]   : integer run number (default: 0)
+// -------------------
 
 
-void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="" )
+void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
+				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 , int mode=0)
 {
-	if (Prefix=="" || Decfile=="" || Mom==0. || anadecay=="") 
+	if (Prefix=="" || Decfile=="" || Mom==0. ) 
 	{
 		cout << "USAGE:\n";
-		cout << "quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )\n\n";
+		cout << "quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
-		cout << "   <decfile>  : decfile; 'DPM' uses DPM generator instead\n";
-		cout << "   <mom>      : pbar momentum\n";
-		cout << "   <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'\n";
+		cout << "   <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or box generator instead\n";
+		cout << "   <mom>      : pbar momentum; negative values are interpreted as -E_cm\n";
+		cout << "   [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; emtpy string: only fast sim will be run\n";
 		cout << "   [nevt]     : number of events; default = 1000\n";
-		cout << "   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'\n";
-		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n\n";
+		cout << "   [res]      : resonance/particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'\n";
+		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
+        cout << "   [runST]    : if 'true' runs Software Trigger (default: false)\n";
+        cout << "   [runnum]   : integer run number (default: 0)\n";
+        cout << "   [mode]     : arbitrary mode number (default: 0)\n\n";
 		return;
+	}
+	
+	// only run fast sim without analysis
+	bool simonly = (anadecay=="");
+	
+	// for submission to queue all blanks in decay string were replaced by '§'; now we replace again the other way around
+	anadecay.ReplaceAll("§"," ");
+	
+	// if Mom<0, interprete as -E_cm
+	double mp = 0.938272;
+	if (Mom<0)
+	{
+		double X = (Mom*Mom-2*mp*mp)/(2*mp);
+		Mom = sqrt(X*X-mp*mp);
 	}
 	
 	// Allow shortcut for resonance
@@ -39,11 +59,11 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	anadecay.ReplaceAll("pbp0","pbarpSystem0");
 
 	// Prevent generator from throwing a lot of warnings
-	TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
+	TLorentzVector fIni(0,0,Mom,mp+sqrt(Mom*Mom+mp*mp));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
-	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.1,0, "",90000);
-	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.1,0, "",-90000);
+	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.03,0, "",90000);
+	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.03,0, "",-90000);
 	
 	//-----Evaluate Detector Setup ---------------------------------------
 	bool SwMvdGem  = true;  // Enable MVD and GEM for central tracking in addition to STT
@@ -53,14 +73,14 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	bool SwFwdSpec = true;  // Enable complete Forward Spectrometer (= Fwd Spec. EMC, Fwd Tracking, RICH, Fwd MUO)
 	
 	//----- Switches for Simulation Options ------------------------------
-	Bool_t enableSplitoff    = true;  // create e.-m. and hadronic split offs
-	Bool_t mergeNeutrals     = true;  // merge neutrals (for merged pi0s)
-	Bool_t electronBrems     = true;  // bremsstrahlung loss for electrons 
+	Bool_t enableSplitoff    = true;   // create e.-m. and hadronic split offs
+	Bool_t mergeNeutrals     = true;   // merge neutrals (for merged pi0s)
+	Bool_t electronBrems     = true;   // bremsstrahlung loss for electrons 
 	Bool_t useEventFilter    = false;  // enable Fast Sim event filter. *** Needs configuration (see below) *** 
 	Bool_t usePndEventFilter = false;  // enable Panda event filter. *** Needs configuration (see below) *** 
 	
 	//----- Presist simulation output ------------------------------
-	Bool_t persist           = false;  // we just want to keep SoftTrigger Output
+	Bool_t persist           = simonly;  // if analysis is running, fsim output not needed
 
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
@@ -68,19 +88,29 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	gRandom->SetSeed();
 
 	//-----User Settings:-------------------------------------------------
-	TString  OutputFile     = Prefix+"_fsim.root";
+	TString  OutputFile     = TString::Format("%s_%d_ana.root",Prefix.Data(), run);
+	if (simonly) OutputFile = TString::Format("%s_%d_fsim.root",Prefix.Data(), run);
+	
 	gDebug             = 0;
 
 	// choose your event generator
 	Bool_t UseEvtGenDirect  = kTRUE;
+	Bool_t UseFtf           = kFALSE;
 	Bool_t UseDpm           = kFALSE;
 	Bool_t UseBoxGenerator  = kFALSE;
 
 	// use DPM generator; default: inelastic @ pbarmom = mom
-	if (Decfile=="DPM")
+	if (Decfile.BeginsWith("DPM"))
 	{
 		UseEvtGenDirect = kFALSE;
 		UseDpm 	      = kTRUE;
+	}
+
+	// use FTF generator; 
+	if (Decfile.BeginsWith("FTF"))
+	{
+		UseEvtGenDirect = kFALSE;
+		UseFtf 	        = kTRUE;
 	}
 
 	// use BOX generator; default: single mu-, 0<tht<180, 0<phi<360, 0.1<p<mom
@@ -93,13 +123,6 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	usePndEventFilter=UseDpm;
 
 	Double_t MomMin  = 0.1;  // minimum momentum for box generator
-
-	// for negative values of Mom and use of Box generator -> Just generate tracks with p=-Mom
-	if (Mom<0)
-	{
-		Mom    = -Mom;
-		MomMin = Mom;
-	}
 	Double_t MomMax  = Mom;  // maximum   "       "
 
 	// Start a stop watch
@@ -111,6 +134,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
 	fRun->SetWriteRunInfoFile(kFALSE);
+	if (!simonly) fRun->SetUserConfig(BaseDir+"/tutorials/analysis/g3ConfigNoMC.C");
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
@@ -124,6 +148,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 
 	if(UseBoxGenerator)
 	{  // Box Generator
+		int Pdgcode = TDatabasePDG::Instance()->GetParticle(Resonance)->PdgCode();
 		FairBoxGenerator* boxGen = new FairBoxGenerator(Pdgcode, 1); // 211 = pion; 1 = multipl.
 		boxGen->SetPRange(MomMin,MomMax); // GeV/c
 		boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
@@ -131,16 +156,36 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		boxGen->SetXYZ(0., 0., 0.); //cm
 		primGen->AddGenerator(boxGen);
 	}
+	
 	if(UseDpm)
 	{
-		PndDpmDirect *Dpm= new PndDpmDirect(Mom,0);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
+		int mode = 0;
+		if (Decfile=="DPM1") mode = 1;
+		if (Decfile=="DPM2") mode = 2;
+		
+		PndDpmDirect *Dpm= new PndDpmDirect(Mom,mode);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
+		// since fastsim doesn't have a transport, let all long-living resonances decay by the generator
 		Dpm->SetUnstable(111);   // pi0
 		Dpm->SetUnstable(310);   // K_S0
-		Dpm->SetStable(3122);  // Lambda
-		Dpm->SetStable(-3122); // anti-Lambda
-		Dpm->SetUnstable(221);   // eta
+		Dpm->SetUnstable(311);   // K0
+		Dpm->SetUnstable(-311);  // K0bar
+		Dpm->SetUnstable(3122);  // Lambda0
+		Dpm->SetUnstable(-3122); // anti-Lambda0
+		Dpm->SetUnstable(221);   // eta*/
+		Dpm->SetUnstable(3222);  // Sigma+
+		Dpm->SetUnstable(-3222); // anti-Sigma-
+		Dpm->SetUnstable(3334);  // Omega-
 		primGen->AddGenerator(Dpm);
 	}
+	
+	if(UseFtf)
+	{
+		bool noelastic = true;
+		if (Decfile=="FTF1") noelastic=false;
+		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", Mom, 0, noelastic); 
+		primGen->AddGenerator(Ftf);
+	}
+
 	if(UseEvtGenDirect)
 	{
 		PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), Mom);
@@ -166,7 +211,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	//-----------------------------
 	if (usePndEventFilter)
 	{
-		primGen->SetFilterMaxTries(100000); // for testing small number, for real produrction set usually to 9999999 or something very big
+/*		primGen->SetFilterMaxTries(100000); // for testing small number, for real produrction set usually to 9999999 or something very big
 		FairEvtFilterOnSingleParticleCounts* lambfilt= new FairEvtFilterOnSingleParticleCounts("PdgFilter");
 		// new FairEvtFilterOnSingleParticleCounts named "PdgFilter"
 		lambfilt->AndMaxPdgCodes(0, 3122, -3122);  // filter out Lambda0
@@ -192,12 +237,6 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		*/
 		
 	}
-/*	else
-	{
-		FairEvtFilterOnCounts* chrgFilter = new FairEvtFilterOnCounts("chrgFilter");
-		chrgFilter->AndMinCharge(-1, FairEvtFilter::kPlus);
-		primGen->AndFilter(chrgFilter);
-	}*/
 	
 	// set event filters
 	//-----------------------------
@@ -216,6 +255,8 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	      //  "pi0" : pi0 candidates ( -> 2 gammas); mass window 0.135 +- 0.03 GeV
 	      //  "eta" : eta candidates ( -> 2 gammas); mass window 0.547 +- 0.04 GeV 
 	      //  "ks"  : K_S candidates ( -> pi+ pi-);  mass window 0.497 +- 0.04 GeV
+
+ 	      //fastSim->SetMultFilter("ks",   1,1000);  // at least 2 trk+
 	      
 // 	      fastSim->SetMultFilter("+",   2,1000);  // at least 2 trk+
 // 	      fastSim->SetMultFilter("-",   2,1000);  // at least 2 trk-
@@ -235,7 +276,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	      // - ("k+ k-", 0.98, 1.1, 2)       : forms K+ K- candidate and requires >=2 in the given window
 	      // - ("ks k+ pi- cc", 2.8, 3.2,1 ) : forms ks k+ pi- / ks k- pi+ cands and req. at least one in window
 	      
-	      fastSim->SetInvMassFilter("e+ e-",2.8,3.3,1);  // look for J/psi -> e+ e- candidate
+	      //fastSim->SetInvMassFilter("e+ e-",2.8,3.3,1);  // look for J/psi -> e+ e- candidate
 	}
 
 	// enable the merging of neutrals if they have similar direction
@@ -353,15 +394,37 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 
 	fRun->AddTask(fastSim);
 	
-	// *****************************
+	
+	// ***********************
+	// *** SoftTriggerTask ***
+	// ***********************
+	
+	if (runST)
+	{	
+		// this file contains the trigger line definitions
+		TString triggercfg   = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";
+		
+		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, mode, run, triggercfg);
+		stTask->SetFastSimDefaults();
+		stTask->SetQAEvent();
+		fRun->AddTask(stTask);
+	}
+	
+	// ***********************
+	// *** SoftTriggerTask ***
+	// ***********************
+
+    
+    // *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
-	
-	// since this is fast sim, there is only one PidAlgo
-	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability");
-	scTask->SetPidAlgo("PidChargedProbability");
-	fRun->AddTask(scTask);
-
+		
+	if (!simonly)
+	{
+		PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run, mode);
+		scTask->SetPidAlgo("PidChargedProbability");
+		fRun->AddTask(scTask);
+	}
 	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************

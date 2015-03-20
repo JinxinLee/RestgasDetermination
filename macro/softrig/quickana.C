@@ -4,25 +4,48 @@
 
 // The parameters are
 // -------------------
-// USAGE:\n";
-// quickana.C+( <pref>, <decay>, [nevt], [parms] )
-//    <pref>     : output file names prefix
-//    <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'
-//    [nevt]     : number of events; default = 0 = all
-//    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+// USAGE
+// quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )
+//    <input>   : input file name with PndPidCandidates
+//    <mom>     : pbar momentum; negative values are interpreted as -E_cm
+//    <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'
+//    [nevt]    : number of events; default: 0 = all
+//    [parms]   : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+//    [fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'
+//    [runST]   : if 'true' runs Software Trigger (default: false)
+//    [runnum]  : integer run number (default: 0)
+// -------------------
 
-void quickana(TString Fname="test", TString anadecay="", int nevts=0, TString anaparms="")
+void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0 )
 {
 	if (Fname=="" || anadecay=="") 
 	{
 		cout << "USAGE:\n";
-		cout << "quickana.C+( <filename>, <decay> ,[nevt], [parms] )\n\n";
-		cout << "   <pref>    : input file name with PndPidCandidates\n";
-		cout << "   <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'\n";
-		cout << "   [nevt]    : number of events; default = 0 = all\n";
-		cout << "   [parms]   : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n\n";
+		cout << "quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )\n\n";
+		cout << "   <input>   : input file name with PndPidCandidates\n";
+		cout << "   <mom>     : pbar momentum; negative values are interpreted as -E_cm\n";
+		cout << "   <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'\n";
+		cout << "   [nevt]    : number of events; default: 0 = all\n";
+		cout << "   [parms]   : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
+		cout << "   [fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'\n";
+        cout << "   [runST]   : if 'true' runs Software Trigger (default: false)\n";
+        cout << "   [runnum]  : integer run number (default: 0)\n\n";
 		return;
 	}
+	
+	// if Mom<0, interprete as -E_cm
+	double mp = 0.938272;
+	
+	// if mom<0, it's -E_cm -> compute mom
+	if (Mom<0)
+	{
+		double X = (Mom*Mom-2*mp*mp)/(2*mp);
+		Mom = sqrt(X*X-mp*mp);
+	}
+	
+	// PID algorithm for the PndSimpleCombinerTask (for Eventshape variables)
+	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts";
+	if (fastsim) pidalgo = "PidChargedProbability";
 	
 	// allow shortcuts
 	anadecay.ReplaceAll("pbp","pbarpSystem");
@@ -54,7 +77,24 @@ void quickana(TString Fname="test", TString anadecay="", int nevts=0, TString an
 	// *** take constant field; needed for PocaVtx
 	RhoCalculationTools::ForceConstantBz(20.0);
 	
-
+	// ***********************
+	// *** SoftTriggerTask ***
+	// ***********************
+	
+	if (runST)
+	{	
+		// this file contains the trigger line definitions
+		TString      triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";       // fullsim trigger definitions 		
+		if (fastsim) triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";  // fastsim trigger definitions	
+		
+		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, 0, run, triggercfg);
+		
+		if (fastsim) stTask->SetFastSimDefaults();
+		else         stTask->SetFullSimDefaults();
+				
+		fRun->AddTask(stTask);
+	}
+	
 	// --------------------------------
 	// *** Analysis Task ***
 	// --------------------------------
@@ -62,9 +102,9 @@ void quickana(TString Fname="test", TString anadecay="", int nevts=0, TString an
 	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
-	
-	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms);
-	scTask->SetPidAlgo("PidChargedProbability");
+	if (fastsim) anaparms+=":algo="+pidalgo;
+	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms, Mom, run);
+	scTask->SetPidAlgo(pidalgo);
 	fRun->AddTask(scTask);
 
 	// *** and run analysis

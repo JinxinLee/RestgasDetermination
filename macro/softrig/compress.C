@@ -47,8 +47,9 @@ void compress(TString ntp, TString fnamein, TString fnameout, TString bnames="",
 	}
 	
 	StrVec toks;
-	SplitString(bnames," ", toks);
-	
+	if (bnames.Index(" ")>=0) SplitString(bnames," ", toks);
+	else SplitString(bnames,"§", toks);
+		
 	TFile *fi = new TFile(fnamein,"READ");
 	TTree *ti = (TTree*) fi->Get(ntp);
 	
@@ -61,7 +62,10 @@ void compress(TString ntp, TString fnamein, TString fnameout, TString bnames="",
 	for (int i=0;i<toks.size();++i)
  	{
  		if (toks[i].BeginsWith("!"))
- 			ti->SetBranchStatus(TString(toks[i](1,100)),0);
+		{
+			TString tmp=toks[i](1,100);
+ 			ti->SetBranchStatus(tmp,0);
+		}
  		else
  			ti->SetBranchStatus(toks[i].Data(),1);
  	}
