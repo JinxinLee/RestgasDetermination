@@ -10,6 +10,8 @@
 
 #include "PndOnlineFilterInfo.h"
 #include "TClass.h"
+#include <iostream>
+#include <stdlib.h>
 
 PndOnlineFilterInfo::PndOnlineFilterInfo() :	
 	fTag(false),
@@ -44,7 +46,11 @@ void PndOnlineFilterInfo::SetNTag(int mode, int tag)
 	}
 	
 	// new mode code
-	if (fNModes>=OFIMAXMODES) return;
+	if (fNModes>=OFIMAXMODES) 
+	{
+		std::cout <<"[PndOnlineFilterInfo] **** Exceeding maximum number of "<<OFIMAXMODES<<" modes!"<<std::endl;
+		exit(1);
+	}
 	
 	fMode[fNModes] = mode;
 	fNTag[fNModes++] = tag;

@@ -14,7 +14,7 @@
 #include "TObject.h"
 #include "TBuffer.h"
 
-#define OFIMAXMODES 50
+#define OFIMAXMODES 65
 
 
 class PndOnlineFilterInfo : public TObject 
@@ -26,7 +26,7 @@ class PndOnlineFilterInfo : public TObject
 	~PndOnlineFilterInfo();
 
 	// *** any tag?
-	bool Tagged() const {return fTag;}
+	bool Tagged() const {return fNTagTotal>0;}
 	
 	// *** total number of tags of all triggers
 	int  GetNTagTotal() const { return fNTagTotal; } 
