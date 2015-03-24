@@ -65,6 +65,7 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 	for (std::map<FairLink, PndTrackCand>::iterator iter = fTrackCandMap.begin(); iter != fTrackCandMap.end(); iter++){
 		PndTrackCand* myTrackCand = new((*fTrackCand)[fTrackCand->GetEntriesFast()]) PndTrackCand(iter->second);
 		myTrackCand->setMcTrackId(iter->first.GetIndex());
+		myTrackCand->AddLink(iter->first);
 		myTrackCand->SetTimeStamp(FairRootManager::Instance()->GetEventTime());
 		//std::cout << myTrackCand->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")) << " : " << std::endl;
 		myTrackCand->Print();
