@@ -68,7 +68,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms, double p, int run, int mode) :
-  FairTask("PndSimpleCombinerTask"), fRun(run), fMode(mode), fRunMult(10000),
+  FairTask("PndSimpleCombinerTask"), fVerbose(0), fEvtCount(0), fRun(run), fMode(mode), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
   fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"),
   fQaMC(false), fQaEventShape(false), fFit4C(false), fFitVtx(false), nmc(0)
@@ -104,13 +104,11 @@ InitStatus PndSimpleCombinerTask::Init()
 {		
 	InitParms();
 	
-	// *** reset the event counter
-	fEvtCount = 0;
-	
 	// *** initialize PndAnalysis object and SimpleCombiner
 	fAnalysis         = new PndAnalysis();
 	fSimpleCombiner   = new PndSimpleCombiner(fAnalysis, fAnaDecay, fAnaParms);
 	
+	fSimpleCombiner->SetVerbose(fVerbose);
 	fSimpleCombiner->Print();
 
 	// *******

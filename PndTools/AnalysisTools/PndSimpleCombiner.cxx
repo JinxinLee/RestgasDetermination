@@ -359,6 +359,8 @@ void PndSimpleCombiner::FillGenericLists()
 {
 	// fill all generic lists, which are used by any of the composites
 	// loop through composites
+	bool filled[11] = {0};  // marker, whether list is already filled
+	
 	int n = fDecayInfoArray.size();
 	for (int i=0;i<n;++i)
 	{
@@ -366,18 +368,33 @@ void PndSimpleCombiner::FillGenericLists()
 		
 		for (int j=0;j<info.ndaug;++j)
 		{
-			int lidx = info.didx[j];
+			int lidx  = info.didx[j];
+			
+			if (lidx>10 || filled[lidx]) continue; // this list is not generic or already filled
+				
+			filled[lidx] = true;                   // mark list as filled
+			int laidx = fPdgIdxMap[AntiPdg(info.dpdg[j])]; 	// index of antiparticle list (only relevant for charged)
+
 			if (lidx<10) // charged lists
 			{
 				fAnalysis->FillList(fList[lidx],fIdxListNameMap[lidx]+fIdxPidCritMap[lidx],fIdxPidAlgoMap[lidx]);
 				if (fPSel) fList[lidx].Select(fPSel);
+				
+				// also fill anti pdg generic list for charged generic ...
+				fAnalysis->FillList(fList[laidx],fIdxListNameMap[laidx]+fIdxPidCritMap[laidx],fIdxPidAlgoMap[laidx]);
+				if (fPSel) fList[laidx].Select(fPSel);
+				filled[laidx] = true;              // ... and mark list as filled              
 			}
 			else if (lidx==10) //neutrals
 			{
 				fAnalysis->FillList(fList[lidx],fIdxListNameMap[lidx]);
 				if (fESel) fList[lidx].Select(fESel);
 			}
-			if (lidx<11 && fVerbose) cout <<"idx:"<<lidx<<" pdg:"<<fIdxPdgMap[lidx]<<" N:"<<fList[lidx].GetLength()<<endl;
+			if (lidx<11 && fVerbose) 
+			{
+				cout <<"idx :"<<lidx<<" pdg:"<<fIdxPdgMap[lidx]<<" N:"<<fList[lidx].GetLength()<<endl;
+				if (lidx<10) cout <<"aidx:"<<laidx<<" pdg:"<<fIdxPdgMap[laidx]<<" N:"<<fList[laidx].GetLength()<<endl;
+			}
 		}
 	}
 }
@@ -433,7 +450,8 @@ void PndSimpleCombiner::Print()
 		cout <<"Decay "<<i<<" : " << fPdg->GetParticle(info.mpdg)->GetName()<<"("<<info.mpdg<<"/"<<info.midx<<") -> ";
 		for (int j=0;j<info.dpdg.size();++j) cout << fPdg->GetParticle(info.dpdg[j])->GetName()<<"("<<info.dpdg[j]<<"/"<<info.didx[j]<<") ";
 		
-		cout <<" mass window:"<<info.mwin;
+		cout <<"  daucc: "<<info.daucc;
+		cout <<"  mass window:"<<info.mwin;
 		cout <<endl;
 	}
 	cout <<endl;

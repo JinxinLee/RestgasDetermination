@@ -62,6 +62,7 @@ class PndSimpleCombinerTask : public FairTask
 	virtual void Finish();
 	
 	void SetPidAlgo(TString algo) { fPidAlgo = algo;}
+	void SetVerbose(int v=1) {fVerbose = v;}   // verbosity level, also passed to PndSimpleCombiner
 	
  protected:
 	
@@ -71,6 +72,7 @@ class PndSimpleCombinerTask : public FairTask
 	int  CountChargedDaughters(RhoCandidate *c);
 	void InitParms();
 	
+	int fVerbose;                     // verbosity level
 	int fEvtCount;                    // event counter
 	int fRun;                         // run number to be stored in ntuple (for unique event ID)
 	int fMode;                        // optional arbitrary mode number
