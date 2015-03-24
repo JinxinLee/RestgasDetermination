@@ -155,8 +155,8 @@ struct qualityNumbers {
 class PndTrackingQualityAnalysisNewLinks : public TObject
 {
 public:
-	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackCandName, Bool_t pndTrackData = kTRUE);
-	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackCandName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
+	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackName, Bool_t pndTrackData = kTRUE);
+	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
 	virtual ~PndTrackingQualityAnalysisNewLinks();
 
 	virtual void Init();
@@ -214,7 +214,7 @@ private:
 	Int_t fNGhosts;
 
 	TString fTrackBranchName;
-	TString fIdealTrackCandName;
+	TString fIdealTrackName;
 	Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
 	PossibleTrackFunctor* fPossibleTrack;
 
@@ -240,6 +240,7 @@ private:
 
 	TClonesArray* fTrack;
 	TClonesArray* fMCTrack;
+	TClonesArray* fIdealTrack;
 	TClonesArray* fIdealTrackCand;
 
 
