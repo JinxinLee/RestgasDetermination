@@ -161,11 +161,11 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	}
 	if(UseDpm)
 	{
-		int mode = 0;
-		if (Decfile=="DPM1") mode = 1;
-		if (Decfile=="DPM2") mode = 2;
+		int dpmmode = 0;
+		if (Decfile=="DPM1") dpmmode = 1;
+		if (Decfile=="DPM2") dpmmode = 2;
 		
-		PndDpmDirect *Dpm= new PndDpmDirect(Mom,mode);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
+		PndDpmDirect *Dpm= new PndDpmDirect(Mom,dpmmode);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
 		Dpm->SetUnstable(111);   // pi0
 		Dpm->SetUnstable(310);   // K_S0
 		Dpm->SetStable(3122);  // Lambda
@@ -179,7 +179,7 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	{
 		bool noelastic = true;
 		if (Decfile=="FTF1") noelastic=false;
-		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", Mom, 0);//, noelastic); 
+		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", Mom, 0, noelastic); 
 		primGen->AddGenerator(Ftf);
 	}
 	if(UseEvtGenDirect)
