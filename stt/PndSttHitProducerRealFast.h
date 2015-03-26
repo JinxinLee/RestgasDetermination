@@ -38,6 +38,7 @@ class PndSttHitProducerRealFast : public FairTask
   virtual void Exec(Option_t* opt);
 
   PndSttHit* AddHit(Int_t detID, Int_t tubeID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge);
+  PndSttHit* AddHit(TClonesArray *hitarray, Int_t detID, Int_t tubeID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge);
 
   PndSttHitInfo* AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake);
 
@@ -50,6 +51,8 @@ class PndSttHitProducerRealFast : public FairTask
   void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
   void SwitchOnOverlap() { fOverlap = kTRUE; }
 
+  void SeparateHits() { fSeparate = kTRUE; }
+
   private: 
 
   virtual void SetParContainers();
@@ -59,7 +62,17 @@ class PndSttHitProducerRealFast : public FairTask
 
   /** Output array of PndSttHits **/
   TClonesArray* fHitArray;  
- TClonesArray* fOverlapHitArray;  
+  TClonesArray* fOverlapHitArray;  
+
+  Bool_t fSeparate;
+
+
+  TClonesArray* fSttParalHitArray;  
+  TClonesArray* fSttParalOverlapHitArray;  
+  TClonesArray* fSttSkewHitArray;  
+  TClonesArray* fSttSkewOverlapHitArray;  
+
+
 
   TObjArray *fVolumeArray;
 

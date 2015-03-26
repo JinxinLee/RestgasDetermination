@@ -39,8 +39,8 @@ using std::endl;
 using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
-PndSttHitProducerRealFast::PndSttHitProducerRealFast() :
-  FairTask("Ideal STT Hit Producer",0), fSttParameters(NULL)  { 
+PndSttHitProducerRealFast::PndSttHitProducerRealFast() : 
+  FairTask("Ideal STT Hit Producer",0), fSttParameters(NULL), fSeparate(kFALSE) { 
   fPersistence = kTRUE;
   fOverlap = kFALSE;
 }
@@ -75,21 +75,43 @@ InitStatus PndSttHitProducerRealFast::Init() {
 
   // Create and register output array
   if(!fOverlap) {
-    // if there is no overlap save in output the regular hits
-    fHitArray = new TClonesArray("PndSttHit");
-    ioman->Register("STTHit","STT",fHitArray, fPersistence);
+    if(fSeparate == kTRUE) {
+      fSttParalHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTParalHit","STT", fSttParalHitArray, fPersistence);
+      fSttSkewHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTSkewHit","STT", fSttSkewHitArray, fPersistence);
+    }
+    else {
+      // if there is no overlap save in output the regular hits
+      fHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTHit","STT",fHitArray, fPersistence);
+    }
   }
   else {
+
     // otherwise, with overlap on, save the overlapped hits in
     // regular output TCA (STTHit) and the "original", non overlapped
     // hits in another TCA (STTOriginalHit)
-    fOverlapHitArray = new TClonesArray("PndSttHit");
-    ioman->Register("STTHit","STT",fOverlapHitArray, fPersistence);
-    fHitArray = new TClonesArray("PndSttHit");
-    ioman->Register("STTOriginalHit","STT",fHitArray, fPersistence);
+    if(fSeparate == kTRUE) {
+      fSttParalOverlapHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTParalHit","STT", fSttParalOverlapHitArray, fPersistence);
+      fSttSkewOverlapHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTSkewHit","STT", fSttSkewOverlapHitArray, fPersistence);
+      fSttParalHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTParalOriginalHit","STT", fSttParalHitArray, fPersistence);
+      fSttSkewHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTSkewOriginalHit","STT", fSttSkewHitArray, fPersistence);
+    }
+    else {
+      fOverlapHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTHit","STT",fOverlapHitArray, fPersistence);
+      fHitArray = new TClonesArray("PndSttHit");
+      ioman->Register("STTOriginalHit","STT",fHitArray, fPersistence);
+    }
+    
   }
   
- // Create and register output array
+  // Create and register output array
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
   ioman->Register("STTHitInfo", "STT", fHitInfoArray, kFALSE);
 
@@ -120,11 +142,23 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
 
   fevtn++;
   
-  // Reset output array
-  if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-  
-  fHitArray->Clear();
-  if(fOverlap)  fOverlapHitArray->Clear();
+  if(fSeparate == kTRUE) {
+    fSttParalHitArray->Clear();
+    fSttSkewHitArray->Clear();
+  }
+  else {
+    if ( ! fHitArray ) Fatal("Exec", "No HitArray");
+     fHitArray->Clear();
+  }
+  if(fOverlap) {
+    if(fSeparate == kTRUE) {
+      fSttParalOverlapHitArray->Clear();
+      fSttSkewOverlapHitArray->Clear();
+    }
+    else {
+      fOverlapHitArray->Clear();
+    }
+  }
   fHitInfoArray->Clear();
 
   Int_t detID = 0;    // detectorID
@@ -227,18 +261,34 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     //    cout << "r: " << radius << " err: " << closestDistanceError << endl;
     //cout<<" radius "<<radius<<endl;
 
-    // create hit
-    AddHit(detID, tubeID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
+   
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
+
+    // create hit
+    if(fSeparate == kTRUE) {
+      if(tube->IsParallel()) AddHit(fSttParalHitArray, detID, tubeID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
+      else  AddHit(fSttSkewHitArray, detID, tubeID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
+    }
+    else  AddHit(detID, tubeID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
+ 
 
   }// Loop over MCPoints
 
   if(fOverlap) {
-    PndSttSignalOverlap *soverlap = new PndSttSignalOverlap(fHitArray);
-    bool overlap = soverlap->OverlapSimultaneousSignals(fOverlapHitArray);
-    // cout << "OVERLAP " << overlap << endl;
-  }
 
+    if(fSeparate == kTRUE) {
+      PndSttSignalOverlap *soverlap2 = new PndSttSignalOverlap(fSttParalHitArray);
+      bool overlap2 = soverlap2->OverlapSimultaneousSignals(fSttParalOverlapHitArray);
+      PndSttSignalOverlap *soverlap3 = new PndSttSignalOverlap(fSttSkewHitArray);
+      bool overlap3 = soverlap3->OverlapSimultaneousSignals(fSttSkewOverlapHitArray);
+    }
+    else {
+      PndSttSignalOverlap *soverlap = new PndSttSignalOverlap(fHitArray);
+      bool overlap = soverlap->OverlapSimultaneousSignals(fOverlapHitArray);
+      // cout << "OVERLAP " << overlap << endl;
+    }
+  }
+  
   // Event summary
   // cout << "-I- PndSttHitProducerRealFast: " << nPoints << " SttPoints, "
   //      << nPoints << " Hits created." << endl;
@@ -271,6 +321,20 @@ PndSttHit* PndSttHitProducerRealFast::AddHit(Int_t detID, Int_t tubeID, Int_t iP
 
 }
 // ----
+
+// -----   Private method AddHit   --------------------------------------------
+PndSttHit* PndSttHitProducerRealFast::AddHit(TClonesArray *hitarray, Int_t detID, Int_t tubeID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge) {
+  // see PndSttHit for hit description
+  TClonesArray& clref = *hitarray;
+  Int_t size = clref.GetEntriesFast();
+ 
+  PndSttHit *hitnew = new(clref[size]) PndSttHit(detID, tubeID, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
+  return hitnew;
+
+}
+// ----
+
+
 
 // -----   Private method AddHitInfo   --------------------------------------------
 PndSttHitInfo* PndSttHitProducerRealFast::AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake){
