@@ -18,7 +18,7 @@ if (!defined $ARGV[0])
     print "USAGE:\n";
     print "submit_fsim.pl <sqrt(s)> [n_evt] [min] [max] [modepref]\n\n";
     print "   <sqrt(s)>  : center of mass energy\n";
-	print "   [n_evt]    : number of events per job (default = 10000) \n";
+	print "   [n_evt]    : number of events per job (default = 10000); 'check' instead checks completeness of output\n";
 	print "   [min]      : minimum job array number (default = 1) \n";
 	print "   [max]      : maximum job array number (default = 1 -> 1 job will be submitted) \n";
     print "   [modepref] : modes with prefix 'modepref'; 'DPM' to produce DPM events\n\n"; 
@@ -129,8 +129,22 @@ my $pmom = sprintf "%.5f", pbarmom($sqs);
           
 if ($pref eq "DPM")
 {
-	print "qsub -t $min-$max job_sof_fsim.sge $sqscode\900 $nevt DPM $pmom\n";
-	if ($nevt>0) {`qsub -t $min-$max job_sof_fsim.sge $sqscode\900 $nevt DPM $pmom`;}
+	if ($nevt eq "check") # checks whether expected output files are there
+	{
+		for (my $i=$min; $i<=$max;++$i)
+		{
+			my $fname = "data/M$sqscode"."900\_$i\_fsim.root";
+			unless (-e $fname)
+			{
+				print "Missing: $fname\n";
+			}
+		}
+	}
+	else
+	{
+		print "qsub -t $min-$max job_sof_fsim.sge $sqscode\900 $nevt DPM $pmom\n";
+		if ($nevt>0) {`qsub -t $min-$max job_sof_fsim.sge $sqscode\900 $nevt DPM $pmom`;}
+	}
 }
 			
 foreach my $mode (@modes)
@@ -146,8 +160,22 @@ foreach my $mode (@modes)
 
 	if ($sqs*100>=$nrg) 
 	{
-		if ($nevt==0) {print "nevt=0 ? ";}
-		print "qsub -t $min-$max job_sof_fsim.sge $sqscode$mmode $nevt decfiles/M$mmode.dec $pmom pbarpSystem0\n";
-		if ($nevt>0) {`qsub -t $min-$max job_sof_fsim.sge $sqscode$mmode $nevt decfiles/M$mmode.dec $pmom pbarpSystem0`;}
+		if ($nevt eq "check") # checks whether expected output files are there
+		{
+			for (my $i=$min; $i<=$max;++$i)
+			{
+				my $fname = "data/M$sqscode$mmode\_$i\_fsim.root";
+				unless (-e $fname)
+				{
+					print "Missing: $fname\n";
+				}
+			}
+		}
+		else
+		{
+			if ($nevt==0) {print "nevt=0 ? ";}
+			print "qsub -t $min-$max job_sof_fsim.sge $sqscode$mmode $nevt decfiles/M$mmode.dec $pmom pbarpSystem0\n";
+			if ($nevt>0) {`qsub -t $min-$max job_sof_fsim.sge $sqscode$mmode $nevt decfiles/M$mmode.dec $pmom pbarpSystem0`;}
+		}
 	}
 }
