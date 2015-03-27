@@ -341,7 +341,7 @@ print "***********************************************\n\n";
 print "my \@modes = qw( ";
 foreach my $name (sort { $thres{$a} <=> $thres{$b} or $a cmp $b } keys %thres) 
 {
-	printf "%03d%s ",$thres{$name}*100,$name;
+	printf "%03d%s ",$thres{$name}*100+1,$name;
 #	printf "%s ",$name;
 	if (++$i%10 == 0) { print "\n                ";}
 	#printf "%03d%s %5.3f %s\n", $thres{$name}*100+1, $name, $thres{$name}, $decay{$name};
