@@ -14,6 +14,7 @@
 //    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
 //    [runST]    : if 'true' runs Software Trigger (default: false)
 //    [runnum]   : integer run number (default: 0)
+//    [mode]     : arbitrary mode number (default: 0)
 // -------------------
 
 
@@ -64,15 +65,8 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
 	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.03,0, "",90000);
 	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.03,0, "",-90000);
-	
-	//-----Evaluate Detector Setup ---------------------------------------
-	bool SwMvdGem  = true;  // Enable MVD and GEM for central tracking in addition to STT
-	bool SwEmcBar  = true;  // Enable EMC barrel for calorimetry (neutral detection and PID component)
-	bool SwDrc     = true;  // Enable Barrel DIRC for PID
-	bool SwDsc     = true;  // Enable Disc DIRC for PID
-	bool SwFwdSpec = true;  // Enable complete Forward Spectrometer (= Fwd Spec. EMC, Fwd Tracking, RICH, Fwd MUO)
-	
-	//----- Switches for Simulation Options ------------------------------
+		
+	//----- Switches for Fast Simulation Options ------------------------------
 	Bool_t enableSplitoff    = true;   // create e.-m. and hadronic split offs
 	Bool_t mergeNeutrals     = true;   // merge neutrals (for merged pi0s)
 	Bool_t electronBrems     = true;   // bremsstrahlung loss for electrons 
@@ -200,8 +194,12 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	PndMultiField *fField= new PndMultiField("AUTO");
 	fRun->SetField(fField);
 
-	// Setup the Fast Simulation Task
-	//-----------------------------
+
+	
+	// **********************************
+	// *** BEGIN Fast Simulation Task ***
+	// **********************************
+	
 	PndFastSim* fastSim = new PndFastSim(persist);
 		
 	// increasing verbosity increases the amount of console output (mainly for debugging)
@@ -211,193 +209,89 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	//-----------------------------
 	if (usePndEventFilter)
 	{
-/*		primGen->SetFilterMaxTries(100000); // for testing small number, for real produrction set usually to 9999999 or something very big
-		FairEvtFilterOnSingleParticleCounts* lambfilt= new FairEvtFilterOnSingleParticleCounts("PdgFilter");
-		// new FairEvtFilterOnSingleParticleCounts named "PdgFilter"
-		lambfilt->AndMaxPdgCodes(0, 3122, -3122);  // filter out Lambda0
-		lambfilt->AndMaxPdgCodes(0, 3222, -3222);  // filter out Sigma+
-		primGen->AndFilter(lambfilt);
-		
-		//primGen->SetVerbose(); // highest commenting level of the FairPrimaryGenerator
-		
-/*		FairEvtFilterOnCounts* chrgFilter = new FairEvtFilterOnCounts("chrgFilter");
-		chrgFilter->AndMinCharge(4, FairEvtFilter::kPlus);
-		primGen->AndFilter(chrgFilter);
-		
-		FairEvtFilterOnCounts* neutFilter = new FairEvtFilterOnCounts("neutFilter");
-		neutFilter->AndMaxCharge(4, FairEvtFilter::kNeutral);
-		primGen->AndFilter(neutFilter);
-		
-		PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
-		//eeInv->SetVerbose();//highest commenting level of the FairEvtFilterOnCounts
-		eeInv->SetPdgCodesToCombine( 11, -11);
-		eeInv->SetMinMaxInvMass( 2.9, 3.2 );
-		eeInv->SetMinMaxCounts(1,10000);
-		primGen->AndFilter(eeInv);  //add filter to fFilterList
-		*/
-		
+		// primGen->SetFilterMaxTries(100000); // for testing small number, for real produrction set usually to 9999999 or something very big
+		// FairEvtFilterOnSingleParticleCounts* lambfilt= new FairEvtFilterOnSingleParticleCounts("PdgFilter");
+		// lambfilt->AndMaxPdgCodes(0, 3122, -3122);  // filter out Lambda0
+		// lambfilt->AndMaxPdgCodes(0, 3222, -3222);  // filter out Sigma+
+		// primGen->AndFilter(lambfilt);		
 	}
 	
 	// set event filters
 	//-----------------------------
 	if (useEventFilter)
 	{
-	      // Filters are:
-	      // -----------
-	      // fastSim->SetMultFilter(type, min, max); 
-	      // requires min <= mult <= max
+	      // fastSim->SetMultFilter(type, min, max); requires min <= mult <= max
+	      // available types are: '+', '-', 'gam', 'pi0' (2 gam, 0.135 +- 0.03 GeV), 'eta' (2 gam, 0.547 +- 0.04 GeV), 'ks' (pi+ pi-, 0.497 +- 0.04 GeV)
 	      
-	      // available types are:
-	      
-	      //  "+"   : positive charged particles
-	      //  "-"   : negative charged particles
-	      //  "gam" : gammas
-	      //  "pi0" : pi0 candidates ( -> 2 gammas); mass window 0.135 +- 0.03 GeV
-	      //  "eta" : eta candidates ( -> 2 gammas); mass window 0.547 +- 0.04 GeV 
-	      //  "ks"  : K_S candidates ( -> pi+ pi-);  mass window 0.497 +- 0.04 GeV
-
- 	      //fastSim->SetMultFilter("ks",   1,1000);  // at least 2 trk+
-	      
-// 	      fastSim->SetMultFilter("+",   2,1000);  // at least 2 trk+
-// 	      fastSim->SetMultFilter("-",   2,1000);  // at least 2 trk-
-// 	      fastSim->SetMultFilter("gam", 0,   4);  // at most 4 gammas
-
-	      // fastSim->SetInvMassFilter(comb, m_min, m_max, mult);
-	      
-	      // requires at least mult combined candidates with m_min < m < m_max
-	      
+	      // fastSim->SetInvMassFilter(comb, m_min, m_max, mult); requires at least mult combined candidates with m_min < m < m_max
 	      // comb is a TString describing the combinatoric
-	      // - particle codes are: e+ e- mu+ mu- pi+ pi- k+ k- p+ p- gam pi0 ks eta
-	      // - codes must be separated with a single blank
-	      // - for charged final states only the mass is set; no pdg code selection is done! 
-	      // - optional a 'cc' added at the end of also takes into account charge conjugation
+	      // - particle codes are: e+ e- mu+ mu- pi+ pi- k+ k- p+ p- gam pi0 ks eta, separated with blank
 	      
 	      // Examples: 
 	      // - ("k+ k-", 0.98, 1.1, 2)       : forms K+ K- candidate and requires >=2 in the given window
 	      // - ("ks k+ pi- cc", 2.8, 3.2,1 ) : forms ks k+ pi- / ks k- pi+ cands and req. at least one in window
-	      
-	      //fastSim->SetInvMassFilter("e+ e-",2.8,3.3,1);  // look for J/psi -> e+ e- candidate
 	}
 
 	// enable the merging of neutrals if they have similar direction
-	//-----------------------------
 	fastSim->MergeNeutralClusters(mergeNeutrals);
 
 	// enable bremsstahlung loss for electrons
-	//-----------------------------
 	fastSim->EnableElectronBremsstrahlung(electronBrems);
 
 	//enable the producting of parametrized neutral (hadronic) split offs
 	// generate electro-magnetic / hadronic split offs in the EMC? switch off when running w/o EMC
+	if (enableSplitoff)	fastSim->EnableSplitoffs(splitpars.Data());
 
-	if (enableSplitoff)
-		fastSim->EnableSplitoffs(splitpars.Data());
-
+	// simulates covariance matrix for fitting
 	fastSim->SetUseFlatCov(true);
+	
 	// -----------------------------------------------------------------------------------
-	//Tracking: Set up in parts of theta coverage. All modelled by PndFsmSimpleTracker.
-	// Mind: Numbers on resolution (pRes,thtRes,phiRes) and efficiency are guessed
+	// Now add the detector components
 	// -----------------------------------------------------------------------------------
-	if (SwMvdGem) // MVD and GEM are enabled; combined tracking available
-	{
-		// - (Full Panda Tracking: STT MVD GEM FTS)
+	
+	// Full Panda Tracking: STT MVD GEM FTS (scanning over theta range from 0° to 160°)
+	fastSim->AddDetector("ScFts",       "thtMin=0.    thtMax=5.    ptmin=0.0 pmin=0.5 pRes=0.05 thtRes=0.002 phiRes=0.002 efficiency=0.80");
+	fastSim->AddDetector("ScMvdGem",    "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03 thtRes=0.001 phiRes=0.001 efficiency=0.60");
+	fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.02 thtRes=0.001 phiRes=0.001 efficiency=0.85");
+	fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pmin=0.0 pRes=0.02 thtRes=0.001 phiRes=0.001 efficiency=0.85");
+	fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.04 thtRes=0.006 phiRes=0.007 efficiency=0.25");
 
-		fastSim->AddDetector("ScSttAlone",  "thtMin=145.  thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.04 thtRes=0.006 phiRes=0.007 efficiency=0.25");
-		fastSim->AddDetector("ScSttMvd",    "thtMin=20.9  thtMax=145.  ptmin=0.1 pmin=0.0 pRes=0.02 thtRes=0.001 phiRes=0.001 efficiency=0.85");
-		fastSim->AddDetector("ScSttMvdGem", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.02 thtRes=0.001 phiRes=0.001 efficiency=0.85");
-		fastSim->AddDetector("ScMvdGem",    "thtMin=5.    thtMax=7.8   ptmin=0.1 pmin=0.0 pRes=0.03 thtRes=0.001 phiRes=0.001 efficiency=0.60");
-	}
-	else // MVD and GEM are disabled; only STT tracking in central region
-	{
-		// - STT alone:
-		fastSim->AddDetector("ScSttAlone",  "thtMin=133.6 thtMax=159.5 ptmin=0.1 pmin=0.0 pRes=0.04 thtRes=0.006 phiRes=0.007 efficiency=0.25");
-		fastSim->AddDetector("ScSttAlone2", "thtMin=20.9  thtMax=133.6 ptmin=0.1 pmin=0.0 pRes=0.04 thtRes=0.006 phiRes=0.007 efficiency=0.80");
-		fastSim->AddDetector("ScSttAlone3", "thtMin=7.8   thtMax=20.9  ptmin=0.1 pmin=0.0 pRes=0.04 thtRes=0.006 phiRes=0.007 efficiency=0.25");
-	}
-
-	if (SwFwdSpec) // Fwd spectrometer enabled -> use Fwd tracking system
-	{
-		fastSim->AddDetector("ScFts",       "thtMin=0.    thtMax=5.    ptmin=0.0 pmin=0.5 pRes=0.05  thtRes=0.002 phiRes=0.002 efficiency=0.80");
-	}
-
-	// -----------------------------------------------------------------------------------
 	// Vertexing
-	// -----------------------------------------------------------------------------------
-	if (SwMvdGem) // MVD and GEM are enabled -> better vertexing in central region
-	{
-		fastSim->AddDetector("ScVtxMvd",   "thtMin=5. thtMax=145. ptmin=0.1 vtxRes=0.005 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
-		fastSim->AddDetector("ScVtxNoMvd", "thtMin=0. thtMax=5.   ptmin=0.0 vtxRes=0.05  efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
-	}
-	else // MVD and GEM are disabled -> no good vertexing at all
-	{
-		fastSim->AddDetector("ScVtxNoMvd", "thtMin=0. thtMax=160. ptmin=0.1 vtxRes=0.1 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
-	}
-	// -----------------------------------------------------------------------------------
+	fastSim->AddDetector("ScVtxNoMvd",  "thtMin=0. thtMax=5.   ptmin=0.0 vtxRes=0.05  efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
+	fastSim->AddDetector("ScVtxMvd",    "thtMin=5. thtMax=145. ptmin=0.1 vtxRes=0.005 efficiency=1."); // efficiency=1: all tracks found in trackers will get a vertex information
+	
 	// EM Calorimeters w/ default parameters
-	// (don't have to be set, just to list the available parameters
-	// -----------------------------------------------------------------------------------
-
-	fastSim->AddDetector("EmcFwCap", "thtMin=10.0 thtMax=22.0 Emin=0.01 dist=2.5");
-	fastSim->AddDetector("EmcBwCap", "thtMin=142.0 thtMax=160.0 Emin=0.01 dist=0.7");
-
-	if (SwEmcBar)
-	{
-		// EmcBarrel also allows to set phiMin and phiMax and can be added multiple times as EmcBarrel1, EmcBarrel2, etc.
-		// Should be made constistent with EmcPidBarrel below
-		fastSim->AddDetector("EmcBarrel","thtMin=22.0 thtMax=142.0 Emin=0.01 barrelRadius=0.5");
-	}
-
-	if (SwFwdSpec) // Fwd spectrometer enabled -> use Fwd EMC
-	{
-		fastSim->AddDetector("EmcFS",    "thtMin=0.05 thtMax=10.0 aPar=0.013 bPar=0.0283 Emin=0.01 dist=8.2");
-	}
-
-	// -----------------------------------------------------------------------------------
-	// PID
-	// -----------------------------------------------------------------------------------
-
-	// PID detectors being always in: STT, MUO Barrel, EMC FwdCap, EMC BwdCap
-	//Note: A dEdX parametrization from 2008
-	fastSim->AddDetector("SttPid","thtMin=7.8 thtMax=159.5 ptmin=0.1 dEdxRes=0.15 efficiency=1.");
-	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0 thtMax=130.0 pmin=0.5 efficiency=0.95 misId=0.01");
+	fastSim->AddDetector("EmcFS",       "thtMin=0.05  thtMax=10.0  aPar=0.013 bPar=0.0283 Emin=0.01 dist=8.2");
+	fastSim->AddDetector("EmcFwCap",    "thtMin=10.0  thtMax=22.0  Emin=0.01 dist=2.5");
+	fastSim->AddDetector("EmcBarrel",   "thtMin=22.0  thtMax=142.0 Emin=0.01 barrelRadius=0.5");
+	fastSim->AddDetector("EmcBwCap",    "thtMin=142.0 thtMax=160.0 Emin=0.01 dist=0.7");
+	
+	// PID Target Spectrometer: STT, MVD, MDT, EMC, Barrel DIRC, Disc DIRC
+	fastSim->AddDetector("MvdPid",         "thtMin=5.    thtMax=133.6 ptmin=0.1 dEdxResMulti=1. efficiency=1.");  // Note: Bethe-Bloch-Landau-Gauss Prametrization from 2008
+	fastSim->AddDetector("SttPid",         "thtMin=7.8   thtMax=159.5 ptmin=0.1 dEdxRes=0.15 efficiency=1.");     // Note: dEdX parametrization from 2008 
+	fastSim->AddDetector("ScMdtPidBarrel", "thtMin=10.0  thtMax=130.0 pmin=0.5 efficiency=0.95 misId=0.01");
 	fastSim->AddDetector("ScEmcPidFwCap",  "thtMin=10.0  thtMax=22.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
-	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
-
-	if (SwMvdGem) // MVD and GEM are enabled -> MVD PID available
-	{
-		//Note: A Bethe-Bloch-Landau-Gauss Prametrization from 2008
-		fastSim->AddDetector("MvdPid","thtMin=5.  thtMax=133.6 ptmin=0.1  dEdxResMulti=1. efficiency=1.");
-	}
-
-	if (SwEmcBar) // EMC Barrel enable -> EMC barrel PID available
-	{
-		fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");
-	}
-
-	if (SwDrc) // Barrel DIRC enabled
-	{
-		fastSim->AddDetector("DrcBarrel","thtMin=22.0 thtMax=140.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
-	}
-
-	if (SwDsc) // Disc DIRC enabled
-	{
-		fastSim->AddDetector("DrcDisc","thtMin=5.0 thtMax=22.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
-	}
-
-	if (SwFwdSpec) // Fwd spectrometer enabled -> use RICH, FwdMUO and EMC FS
-	{
-		fastSim->AddDetector("ScEmcPidFS",     "thtMin=0.5   thtMax=10.0  ptmin=0.0 pmin=0.5 efficiency=1.0");
-		fastSim->AddDetector("Rich","angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
-		fastSim->AddDetector("ScMdtPidForward","thtMin=0.0  thtMax=10.0  pmin=0.5 efficiency=0.95 misId=0.01");
-	}
-
+	fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");
+	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0 ptmin=0.0 pmin=0.0 efficiency=1.0");
+	fastSim->AddDetector("DrcDisc",        "thtMin=5.0   thtMax=22.0  dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
+	fastSim->AddDetector("DrcBarrel",      "thtMin=22.0  thtMax=140.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
+	
+	// PID Fwd spectrometer PID: RICH, FwdMUO and EMC FS
+	fastSim->AddDetector("ScEmcPidFS",      "thtMin=0.5  thtMax=10.0  ptmin=0.0 pmin=0.5 efficiency=1.0");
+	fastSim->AddDetector("ScMdtPidForward", "thtMin=0.0  thtMax=10.0  pmin=0.5 efficiency=0.95 misId=0.01");
+	fastSim->AddDetector("Rich",            "angleXMax=5.0 angleYMax=10.0 dthtc=0.01 nPhotMin=5 effNPhotons=0.075");
+	
 
 	fRun->AddTask(fastSim);
 	
+	// ********************************
+	// *** END Fast Simulation Task ***
+	// ********************************
 	
-	// ***********************
-	// *** SoftTriggerTask ***
-	// ***********************
+	
+	// *****************************
+	// *** BEGIN SoftTriggerTask ***
+	// *****************************
 	
 	if (runST)
 	{	
@@ -406,18 +300,17 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		
 		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, mode, run, triggercfg);
 		stTask->SetFastSimDefaults();
-		stTask->SetQAEvent();
 		fRun->AddTask(stTask);
 	}
 	
-	// ***********************
-	// *** SoftTriggerTask ***
-	// ***********************
+	// ***************************
+	// *** END SoftTriggerTask ***
+	// ***************************
 
     
-    // *****************************
-	// *** PndSimpleCombinerTask ***
-	// *****************************
+    // ***********************************
+	// *** BEGIN PndSimpleCombinerTask ***
+	// ***********************************
 		
 	if (!simonly)
 	{
@@ -425,9 +318,10 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		scTask->SetPidAlgo("PidChargedProbability");
 		fRun->AddTask(scTask);
 	}
-	// *****************************
-	// *** PndSimpleCombinerTask ***
-	// *****************************
+	// *********************************
+	// *** END PndSimpleCombinerTask ***
+	// *********************************
+	
 	
 	//-------------------------  Initialize the RUN  -----------------
 	fRun->Init();
