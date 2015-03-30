@@ -371,9 +371,10 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	double tube_upstream_length = 33.3/2.;
 	double tube_upstream_rad_in = 10.;
 	double tube_upstream_rad_out = tube_upstream_rad_in + 0.2;
+	double tube_dostream_length = 12./2.; // length with flange
 
 	// create a vacuum around the luminosity detector
-	double lmd_total_length = box_size_z + tube_upstream_length;
+	double lmd_total_length = box_size_z + tube_upstream_length + tube_dostream_length;
 
 	double origin[3] = {0.,0., lmd_total_length};
 	TGeoBBox* lmd_box_vac =
@@ -467,6 +468,41 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			0., 0., 2*tube_upstream_length+box_size_z, rot_no);
 	//comb_trans_pipe_upstream->RegisterYourself();
 	lmd_vol_vac->AddNode(lmd_vol_box, 0, comb_trans_lmd_box);
+
+	// pipe downstream of the box
+	double lmd_pipe_box_do[18];
+	lmd_pipe_box_do[0] = 0.;
+	lmd_pipe_box_do[1] = 360.;
+	lmd_pipe_box_do[2] = 4.;
+
+	lmd_pipe_box_do[3] = box_size_z*2.+tube_upstream_length*2.;
+	lmd_pipe_box_do[4] = rad_exit-0.2;
+	lmd_pipe_box_do[5] = rad_exit;
+
+	lmd_pipe_box_do[6] = lmd_pipe_box_do[3]+tube_dostream_length*2. - 4.;
+	lmd_pipe_box_do[7] = lmd_pipe_box_do[4];
+	lmd_pipe_box_do[8] = lmd_pipe_box_do[5];
+
+	lmd_pipe_box_do[9] = lmd_pipe_box_do[6];
+	lmd_pipe_box_do[10] = lmd_pipe_box_do[4];
+	lmd_pipe_box_do[11] = 7.;
+
+	lmd_pipe_box_do[12] = lmd_pipe_box_do[3]+tube_dostream_length*2.;
+	lmd_pipe_box_do[13] = lmd_pipe_box_do[10];
+	lmd_pipe_box_do[14] = lmd_pipe_box_do[11];
+
+	//lmd_pipe_box_do[15] = lmd_pipe_box_do[12];
+	//lmd_pipe_box_do[16] = lmd_pipe_box_do[4];
+	//lmd_pipe_box_do[17] = lmd_pipe_box_do[14];
+
+	TGeoPcon* shape_pipe_box_do = new TGeoPcon(lmd_pipe_box_do);
+	TGeoVolume* vlum_pipe_box_do = new TGeoVolume("vlum_pipe_box_do", shape_pipe_box_do, fgGeoMan->GetMedium("steel"));
+	vlum_pipe_box_do->SetLineColor(kGray);//39);
+	TGeoCombiTrans* lmd_trans_pipe_box_do =
+			new TGeoCombiTrans("lmd_trans_pipe_box_do", 0., 0., 0., rot_no);
+	lmd_trans_pipe_box_do->RegisterYourself();
+	lmd_vol_vac->AddNode(vlum_pipe_box_do, 0, lmd_trans_pipe_box_do);
+	// end of pipe downstream of the box
 
 	//	TGeoTube* lmd_flange_upstr = new TGeoTube(
 	//			"lmd_flange_upstr", 9.2, 25.3/2., 1.2);
@@ -689,7 +725,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	vlum_AlCone->SetLineColor(kGray);//39);
 	lmd_vol_vac->AddNode(vlum_AlCone, 0, lmd_trans_cap_co);//TEST with/without cone!!!
 
-	double lmd_pipe_params[12];
+	double lmd_pipe_params[36];
 	lmd_pipe_params[0] = 0.;
 	lmd_pipe_params[1] = 360.;
 	lmd_pipe_params[2] = 11.;
@@ -732,11 +768,11 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 
 	lmd_pipe_params[30]  = 20.+lmd_pipe_params[9];
 	lmd_pipe_params[31] = 4.2;
-	lmd_pipe_params[32] = 7.;
+	lmd_pipe_params[32] = 4.55;//7.;
 
 	lmd_pipe_params[33]  = 22+lmd_pipe_params[9];
 	lmd_pipe_params[34] = 4.2;
-	lmd_pipe_params[35] = 7.;
+	lmd_pipe_params[35] = 4.55;//7.;
 
 	TGeoPcon* lmd_V2_pipe = new TGeoPcon(lmd_pipe_params);
 	TGeoVolume* vlum_V2_pipe = new TGeoVolume("vlum_V2_pipe", lmd_V2_pipe, fgGeoMan->GetMedium("steel"));
@@ -788,7 +824,6 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	TGeoCombiTrans* rottrans_lmd_in_box = new TGeoCombiTrans("rottrans_lmd_in_box", 0., 0.,
 			pos_plane_0, rot_no);
 	TGeoVolumeAssembly* lmd_vol_ref_sys = new TGeoVolumeAssembly(nav_paths[1].c_str());
-	lmd_vol_vac->AddNode(lmd_vol_ref_sys, 0, rottrans_lmd_in_box);
 	// definition of the retractable luminosity detector halves
 
 	// ****************************** cvd cooling support structure ********************
@@ -1264,6 +1299,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	stringstream nodetitle;
 	nodetitle << "version " << geometry_version << endl;
 	lmd_vol_vac->SetTitle(nodetitle.str().c_str());
+	lmd_vol_vac->AddNode(lmd_vol_ref_sys, 0, rottrans_lmd_in_box);
 	mothervol.AddNode(lmd_vol_vac, geometry_version, lmd_transrot);
 
 	/*
