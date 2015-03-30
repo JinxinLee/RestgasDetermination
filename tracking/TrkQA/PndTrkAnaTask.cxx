@@ -86,18 +86,22 @@ InitStatus PndTrkAnaTask::Init() {
 
   // **** create and setup some histos for QA plots
   //
-  lambdamass = new TH1F("lambdamass","#Lambda cands",1000,0.01,2.5);
-  lambdamassv = new TH1F("lambdamassv","#Lambda cands vertex fit",1000,0.01,2.5);
-  lambdacmass = new TH1F("lambdacmass","clean #Lambda cands",1000,0.01,2.5);
-  lambdabmass = new TH1F("lambdabmass","#bar{#Lambda} cands",1000,0.01,2.5);
-  lbmassv = new TH1F("lbmassv","#bar{#Lambda} cands vertex fit",1000,0.01,2.5);
-  lambdabcmass = new TH1F("lambdabcmass","clean #bar{#Lambda} cands",1000,0.01,2.5);
+  lambdamass = new TH1F("lambdamass","#Lambda cands",500,0.01,2.5);
+  lambdamassv = new TH1F("lambdamassv","#Lambda cands vertex fit",500,0.01,2.5);
+  lambdacmass = new TH1F("lambdacmass","clean #Lambda cands",500,0.01,2.5);
+  lambdabmass = new TH1F("lambdabmass","#bar{#Lambda} cands",500,0.01,2.5);
+
+  lambdamassbkg = new TH1F("lambdamassbkg","bkg #Lambda cands",500,0.01,2.5);
+  lambdabmassbkg = new TH1F("lambdabmassbkg","bkg #bar{#Lambda} cands",500,0.01,2.5);
+
+  lbmassv = new TH1F("lbmassv","#bar{#Lambda} cands vertex fit",500,0.01,2.5);
+  lambdabcmass = new TH1F("lambdabcmass","clean #bar{#Lambda} cands",500,0.01,2.5);
   l4C_chi2  = new TH1F("l4C_chi2","Prob. 4C fit",500,0,500);
-  hmv_lamb = new TH1F("hmv_lamb","#bar{#Lambda} mass, 4C fit",1000,0.01,2.5);
-  hmv_lam = new TH1F("hmv_lam","#Lambda mass, 4C fit",1000,0.01,2.5);
-  //lb4Cmass = new TH1F("lbmass4C","Lambdab cands, 4C fit ",1000,0.01,2.5);
-  //llbmass = new TH1F("llbmass","LLbar mass before fit ",1000,0.01,2.5);
-  //llbar2mass = new TH1F("llbar2mass","LLbar mass, 4Cfit ",1000,0.01,2.5);
+  hmv_lamb = new TH1F("hmv_lamb","#bar{#Lambda} mass, 4C fit",500,0.01,2.5);
+  hmv_lam = new TH1F("hmv_lam","#Lambda mass, 4C fit",500,0.01,2.5);
+  //lb4Cmass = new TH1F("lbmass4C","Lambdab cands, 4C fit ",500,0.01,2.5);
+  //llbmass = new TH1F("llbmass","LLbar mass before fit ",500,0.01,2.5);
+  //llbar2mass = new TH1F("llbar2mass","LLbar mass, 4Cfit ",500,0.01,2.5);
 
   //hjpsim_vf   = new TH1F("hjpsim_vf","J/#psi mass vertex fit",200,0,4);
   hlvpos = new TH2F("hlvpos","(x,y) projection of fitted #Lambda decay vertex",100,-2,2,100,-2,2);
@@ -178,6 +182,12 @@ InitStatus PndTrkAnaTask::Init() {
   fSttTubeArray = mapperStt->FillTubeArray();
   // ----------------------------------------------------  end map
 
+
+  nofcleanpim = 0;
+  nofcleanp = 0;
+  nofcleanpip = 0;
+  nofcleanpbar = 0;
+
   return kSUCCESS;
 
 }
@@ -201,12 +211,15 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
   fAnalysis->GetEvent();
    
   // **** create all the particle lists we'll need for rebuilding the decay tree
-  RhoCandList pip, pim, Kp, Km, pp, pm, lam, lamb, cleanlam, cleanlamb, goodlam, goodlamb, truepip, truepim, truep, truepbar,mclist,llbar; //Omv, Ombv;
+  RhoCandList pip, pim, Kp, Km, pp, pm, lam, lamb, cleanlam, cleanlamb, bkglam, bkglamb, goodlam, goodlamb, truepip, truepim, truep, truepbar,mclist,llbar; //Omv, Ombv;
   RhoCandList mcplist, mcpbarlist, mcpiplist, mcpimlist;
   RhoCandList cleanplist, cleanpbarlist, cleanpiplist, cleanpimlist;
+  RhoCandList bkgplist, bkgpbarlist, bkgpiplist, bkgpimlist;
   
   fAnalysis->FillList(mclist,"McTruth");
-  // cout <<  mclist.GetLength() << endl;
+  //  cout <<  mclist.GetLength() << endl;
+  //  for(int i = 0; i < 7; i++)  cout << i << " " << mclist[i]->M() << " " << mclist[i]->Charge() << " " << mclist[i]->Origin().X() << " " <<  mclist[i]->Origin().Y() << endl;
+  //  cout << endl;
 
   // fwd tracks, theta < 5 deg
   int infw = 0;
@@ -291,7 +304,13 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 // 	cout << "recotrackid " << recotrackid << " " << fRecoTrackInfo->GetEntriesFast() << " " << endl;
 	PndTrkRecoTrackInfo *recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
  	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
- 	if(recoinfo->IsTrue() == kTRUE)   cleanpiplist.Add(truepip[j]);
+	//	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 4 && recoinfo->GetEfficiency() > 0.8) {
+	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 4) {
+	  cleanpiplist.Add(truepip[j]);
+	  nofcleanpip++;
+	}
+	else if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() != 4) bkgpiplist.Add(truepip[j]);
+
 
       }
 
@@ -319,8 +338,13 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 
   	PndTrkRecoTrackInfo* recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
- 	if(recoinfo->IsTrue() == kTRUE)   cleanpimlist.Add(truepim[j]);
-      }
+ // 	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 6 && recoinfo->GetEfficiency() > 0.8)   {
+	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 6) {
+	  cleanpimlist.Add(truepim[j]);
+	  nofcleanpim++;
+	}
+  	else if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() != 6) bkgpimlist.Add(truepim[j]);
+    }
 
     // loop on p
     for (j=0;j<truep.GetLength();++j) 
@@ -352,7 +376,12 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 
 	PndTrkRecoTrackInfo*recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
-	if(recoinfo->IsTrue() == kTRUE)   cleanplist.Add(truep[j]);
+// 	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5 && recoinfo->GetEfficiency() > 0.8) {
+	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5) {
+	  cleanplist.Add(truep[j]);
+	  nofcleanp++;
+	}
+	else if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() != 5) bkgplist.Add(truep[j]);
      }
 
     for (j=0;j<truepbar.GetLength();++j) 
@@ -378,14 +407,43 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 
   	PndTrkRecoTrackInfo*recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
-	if(recoinfo->IsTrue() == kTRUE)   cleanpbarlist.Add(truepbar[j]);
+	// if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 3 && recoinfo->GetEfficiency() > 0.8) {
+	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 3) {
+	  cleanpbarlist.Add(truepbar[j]);
+	  nofcleanpbar++;
+	}
+	else if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() != 3) bkgpbarlist.Add(truepbar[j]);
     }
 		
     lam.Combine(truep,truepim);
     lamb.Combine(truepbar,truepip);
 
+    if(cleanplist.GetLength() == 1 && cleanpimlist.GetLength() == 1) cout << "LAM" << endl;
+    if(cleanpbarlist.GetLength()  == 1 && cleanpiplist.GetLength()  == 1 ) cout << "LAMBAR" << endl;
+
+    if(cleanplist.GetLength() > 1) {
+      cout << "ERROR proton " << cleanplist.GetLength() << endl;
+      for(int k = 0; k < cleanplist.GetLength(); k++) {
+	FairRecoCandidate *cp=cleanplist[k]->GetRecoCandidate();
+	RhoCandidate* mccp = cleanplist[k]->GetMcTruth();
+	cout << "mc proton " << mccp->GetTrackNumber() << endl;
+      }
+    }
+    if(cleanpimlist.GetLength() > 1) {
+      cout << "ERROR pi- " << cleanpimlist.GetLength() << endl;
+    }
+    if(cleanpbarlist.GetLength() > 1) {
+      cout << "ERROR antiproton " << cleanpbarlist.GetLength() << endl;
+    }
+    if(cleanpiplist.GetLength() > 1) {
+      cout << "ERROR pi+ " << cleanpiplist.GetLength() << endl;
+    }
+
     cleanlam.Combine(cleanplist,cleanpimlist);
     cleanlamb.Combine(cleanpbarlist, cleanpiplist);
+
+    bkglam.Combine(bkgplist, bkgpimlist);
+    bkglamb.Combine(bkgpbarlist, bkgpiplist);
 
     // loop over lam
     for (j=0;j<lam.GetLength();++j) 
@@ -420,6 +478,17 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 	lambdabcmass->Fill(cleanlamb[j]->M());
       }
 
+    // loop over bkg lam
+    for (j=0;j< bkglam.GetLength();++j) 
+      {
+	lambdamassbkg->Fill(bkglam[j]->M());
+      }
+
+    // loop over lambar bkg
+    for (j=0;j< bkglamb.GetLength();++j) 
+      {
+	lambdabmassbkg->Fill(bkglamb[j]->M());
+      }
 
 
     // do vertex fit (lambda)	
@@ -609,6 +678,12 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 
 void PndTrkAnaTask::Finish()
 {
+
+  cout << "nof p    " << nofcleanp << endl;
+  cout << "nof pi-  " << nofcleanpim << endl;
+  cout << "nof pbar " << nofcleanpbar << endl;
+  cout << "nof pi+  " << nofcleanpip << endl;
+
   lambdamass->Write();
   lambdabmass->Write();
   lambdamassv->Write();
@@ -616,6 +691,9 @@ void PndTrkAnaTask::Finish()
   
   lambdacmass->Write();
   lambdabcmass->Write();
+ 
+  lambdamassbkg->Write();
+  lambdabmassbkg->Write();
  
   hlbvposz->Write();
   hlvposz->Write();

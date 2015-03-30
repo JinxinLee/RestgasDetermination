@@ -112,8 +112,10 @@ private:
   TH2F *hlvpos, *hlbvpos, *hOvpos, *hObvpos, *hp_pimp, *hp_pibar, *hp_rpimp, *hp_rpibar, *hp_thpip, *hp_thpim, *hp_thp, *hp_thpbar;
  
 
-    TH1F *lambdamass , *lambdamassv, *lambdacmass, *lambdabmass, *lbmassv , *lambdabcmass, *l4C_chi2, *hmv_lamb, *hmv_lam, *hlam_prob_vf, *hlamb_prob_vf, *hlvposz , *hlbvposz, *h0_chi2_vf, *h0b_chi2_vf, *hnfw, *hpip_p , *hpim_p , *hp_p  , *hv_lam_diff, *hv_lam_diff1, *hv_lamb_diff, *hv_lamb_diff1, *hpbar_p , *hlamb_diff, *hlamb_diff_vf, *hlam_diff , *hlam_diff_vf, *hpip_diff , *hpim_diff, *hp_diff, *hpbar_diff, *hp_stt, *hp_sttmvd, *hp_sttmvdgem, *hp_mvdgem, *hpip_diff_vf, *hpim_diff_vf, *hp_diff_vf , *hpbar_diff_vf, *hpip_diff_4c, *hpim_diff_4c, *hp_diff_4c, *hpbar_diff_4c, *hl_cos, *hlb_cos, *hl_cosr , *hlb_cosr;
+  TH1F *lambdamass , *lambdamassv, *lambdacmass, *lambdamassbkg ,*lambdabmass, *lbmassv , *lambdabcmass, *lambdabmassbkg, *l4C_chi2, *hmv_lamb, *hmv_lam, *hlam_prob_vf, *hlamb_prob_vf, *hlvposz , *hlbvposz, *h0_chi2_vf, *h0b_chi2_vf, *hnfw, *hpip_p , *hpim_p , *hp_p  , *hv_lam_diff, *hv_lam_diff1, *hv_lamb_diff, *hv_lamb_diff1, *hpbar_p , *hlamb_diff, *hlamb_diff_vf, *hlam_diff , *hlam_diff_vf, *hpip_diff , *hpim_diff, *hp_diff, *hpbar_diff, *hp_stt, *hp_sttmvd, *hp_sttmvdgem, *hp_mvdgem, *hpip_diff_vf, *hpim_diff_vf, *hp_diff_vf , *hpbar_diff_vf, *hpip_diff_4c, *hpim_diff_4c, *hp_diff_4c, *hpbar_diff_4c, *hl_cos, *hlb_cos, *hl_cosr , *hlb_cosr;
  
+    int nofcleanp, nofcleanpim, nofcleanpbar, nofcleanpip;
+
   ClassDef(PndTrkAnaTask,1);
 };
 
