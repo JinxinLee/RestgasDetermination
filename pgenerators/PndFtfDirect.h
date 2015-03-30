@@ -103,18 +103,18 @@ private:
 
 
 
-  std::ifstream* fin;
-  Test30Material*  fmate;
-  Test30Physics*   fphys;
-  G4ParticleTable* fpartTable;
+  std::ifstream* fin;                       //!
+  Test30Material*  fmate;                   //!
+  Test30Physics*   fphys;                   //!
+  G4ParticleTable* fpartTable;              //!
 
-  CLHEP::RanluxEngine* fdefaultEngine;
+  CLHEP::RanluxEngine* fdefaultEngine;      //! 
 
   G4int     fverbose;
   G4bool    fsaverand;
   G4bool    fNoElastics;
   //
-  G4String  fnamePart;
+  G4String  fnamePart;                      //! 
   G4bool    fionParticle;
   G4double  fPlab;   // VU
   G4double  fenergy;
@@ -122,29 +122,29 @@ private:
   //
   G4int     fionZ, fionA;
   G4int     ftargetA;
-  G4String  fnameMat;
+  G4String  fnameMat;                       //! 
   //
   G4bool    fShen;
-  G4String  fnameGen;
+  G4String  fnameGen;                       //! 
   //
   G4int     fnevt;
   G4int     fmodu;
   //
   G4double ftheStep;
-  G4Material* fmaterial;
+  G4Material* fmaterial;                    //! 
   //
   G4bool fxsbgg;
   //
   //   // Track
-  CLHEP::Hep3Vector* faPosition;
+  CLHEP::Hep3Vector* faPosition;   //!
   G4double      faTime;
-  CLHEP::Hep3Vector* faDirection;
+  CLHEP::Hep3Vector* faDirection;  //!
   G4double fnx, fny, fnz;
 
 
-  G4ExcitationHandler* ftheDeExcitation;
-  G4Evaporation* ftheEvaporation;
-  G4PreCompoundModel* fthePreCompound;
+  G4ExcitationHandler* ftheDeExcitation;   //!
+  G4Evaporation* ftheEvaporation;          //!
+  G4PreCompoundModel* fthePreCompound;     //!
 
   G4double fsigTot;
   G4double fsigEl;
@@ -162,32 +162,32 @@ private:
   //fTree->Branch("Npart",&activeCnt,"Npart/I");
   //fTree->Branch("Particles",&fEvt, 32000,99);
 
-  G4DynamicParticle* dParticle;
-  G4VProcess* proc;
-  G4Step* step;
-  G4Track* gTrack;
-  G4ParticleDefinition* part;
+  G4DynamicParticle* dParticle;     //!
+  G4VProcess* proc;                 //!
+  G4Step* step;                     //!
+  G4Track* gTrack;                  //!
+  G4ParticleDefinition* part;       //!
 
 
   //  static const G4ParticleDefinition* gamma;
-  static const G4ParticleDefinition* electron;
-  static const G4ParticleDefinition* proton;
-  static const G4ParticleDefinition* neutron;
-  static const G4ParticleDefinition* pin;
-  static const G4ParticleDefinition* pip;
+  static const G4ParticleDefinition* electron;     //!
+  static const G4ParticleDefinition* proton;       //!
+  static const G4ParticleDefinition* neutron;      //!
+  static const G4ParticleDefinition* pin;          //!
+  static const G4ParticleDefinition* pip;          //!
   //  static const G4ParticleDefinition* pi0;
-  static const G4ParticleDefinition* deu;
-  static const G4ParticleDefinition* tri;
-  static const G4ParticleDefinition* he3;
-  static const G4ParticleDefinition* alp;
+  static const G4ParticleDefinition* deu;          //!
+  static const G4ParticleDefinition* tri;          //!
+  static const G4ParticleDefinition* he3;          //!
+  static const G4ParticleDefinition* alp;          //!
   //static const G4ParticleDefinition* ion;
 
-  static const G4ParticleDefinition* anti_proton;
-  static const G4ParticleDefinition* anti_neutron;
-  static const G4ParticleDefinition* anti_deuteron;
-  static const G4ParticleDefinition* anti_triton;
-  static const G4ParticleDefinition* anti_He3;
-  static const G4ParticleDefinition* anti_alpha;
+  static const G4ParticleDefinition* anti_proton;  //!
+  static const G4ParticleDefinition* anti_neutron; //!
+  static const G4ParticleDefinition* anti_deuteron;//!
+  static const G4ParticleDefinition* anti_triton;  //!
+  static const G4ParticleDefinition* anti_He3;     //!
+  static const G4ParticleDefinition* anti_alpha;   //!
 
 
 
