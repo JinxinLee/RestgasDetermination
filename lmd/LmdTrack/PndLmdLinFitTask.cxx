@@ -237,7 +237,7 @@ InitStatus PndLmdLinFitTask::Init()
   totRadLenCable +=0.05;//rest
   fsigmaMSa = ScatteredAngle(totRadLenCable);
 
-  if(lmddim!=0 ) lmddim->Cleanup();
+  // if(lmddim!=0 ) lmddim->Cleanup();
   lmddim = PndLmdDim::Instance();
   TString mtx_perfect = "../../../pandaroot/input/trafo_matrices_lmd.dat";
   lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
