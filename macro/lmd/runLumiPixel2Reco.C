@@ -13,14 +13,14 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   parFile += startEvent;
   parFile += ".root";
 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libSds");
-  gSystem->Load("libSdsReco");
-  gSystem->Load("libLmd");
-  gSystem->Load("libLmdReco");
-  gSystem->Load("libLmdTrk");
-  // ------------------------------------------------------------------------
+  // // ----  Load libraries   -------------------------------------------------
+  // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // gSystem->Load("libSds");
+  // gSystem->Load("libSdsReco");
+  // gSystem->Load("libLmd");
+  // gSystem->Load("libLmdReco");
+  // gSystem->Load("libLmdTrk");
+  // // ------------------------------------------------------------------------
   // Output file
     TString outFile = storePath+"/Lumi_reco_";
     outFile += startEvent;

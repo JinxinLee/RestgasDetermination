@@ -32,14 +32,14 @@ void runLumiPixel5BackProp(const int nEvents = 10, const int startEvent = 0,
 	TrkFile += startEvent;
 	TrkFile += ".root";
 
-	// ----  Load libraries   -------------------------------------------------
-	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-	gSystem->Load("libSds");
-	gSystem->Load("libSdsReco");
-	gSystem->Load("libLmd");
-	gSystem->Load("libLmdReco");
-	gSystem->Load("libLmdTrk");
-	// ------------------------------------------------------------------------
+	// // ----  Load libraries   -------------------------------------------------
+	// gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+	// gSystem->Load("libSds");
+	// gSystem->Load("libSdsReco");
+	// gSystem->Load("libLmd");
+	// gSystem->Load("libLmdReco");
+	// gSystem->Load("libLmdTrk");
+	// // ------------------------------------------------------------------------
 
 	// Output file
 	TString outFile = storePath + "/Lumi_Geane_";

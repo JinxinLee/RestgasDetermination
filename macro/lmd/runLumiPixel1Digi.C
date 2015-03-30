@@ -4,12 +4,12 @@ void runLumiPixel1Digi(const int nEvents=10, const int startEvent=0, TString sto
   TStopwatch timer;
   timer.Start();
 
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libSds");
-  gSystem->Load("libSdsReco");
-  gSystem->Load("libLmd");
-  gSystem->Load("libLmdReco");
-  gSystem->Load("libLmdTrk");
+  // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // gSystem->Load("libSds");
+  // gSystem->Load("libSdsReco");
+  // gSystem->Load("libLmd");
+  // gSystem->Load("libLmdReco");
+  // gSystem->Load("libLmdTrk");
 
   // Input file (MC events)
   TString inFile=storePath+"/Lumi_MC_";

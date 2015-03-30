@@ -24,15 +24,15 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
  parOutput +=".root";
 
 
-  //Load basic libraries
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libSds");
-  gSystem->Load("libLmd");
+  // //Load basic libraries
+  // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // gSystem->Load("libSds");
+  // gSystem->Load("libLmd");
   FairRunSim *fRun = new FairRunSim();
   cout<<"All libraries succsesfully loaded!"<<endl;
 
   //set the MC version used
-    fRun->SetName("TGeant4");
+  fRun->SetName("TGeant4");
   //fRun->SetName("TGeant3");//GEANE uses GEANT3!
   
   fRun->SetOutputFile(simOutput);

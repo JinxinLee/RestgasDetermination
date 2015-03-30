@@ -21,14 +21,14 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   parFile += startEvent;
   parFile += ".root";
 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libSds");
-  gSystem->Load("libSdsReco");
-  gSystem->Load("libLmd");
-  gSystem->Load("libLmdReco");
-  gSystem->Load("libLmdTrk");
-  // ------------------------------------------------------------------------
+  // // ----  Load libraries   -------------------------------------------------
+  // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // gSystem->Load("libSds");
+  // gSystem->Load("libSdsReco");
+  // gSystem->Load("libLmd");
+  // gSystem->Load("libLmdReco");
+  // gSystem->Load("libLmdTrk");
+  // // ------------------------------------------------------------------------
   // Output file
     TString outFile = storePath+"/Lumi_TCand_";
     outFile += startEvent;

@@ -37,14 +37,14 @@ void runLumiPixel5bCleanSig(const int nEvents=10, const int startEvent=0, TStrin
   outFile += ".root";
 
 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libSds");
-  gSystem->Load("libSdsReco");
-  gSystem->Load("libLmd");
-  gSystem->Load("libLmdReco");
-  gSystem->Load("libLmdTrk");
-  // ------------------------------------------------------------------------
+  // // ----  Load libraries   -------------------------------------------------
+  // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // gSystem->Load("libSds");
+  // gSystem->Load("libSdsReco");
+  // gSystem->Load("libLmd");
+  // gSystem->Load("libLmdReco");
+  // gSystem->Load("libLmdTrk");
+  // // ------------------------------------------------------------------------
     
     std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
     // std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;

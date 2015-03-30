@@ -20,16 +20,16 @@ void runLumiPixel8DigiQA(const int nEvents=100000, const int startEvent=0, TStri
   DumFile += ".root";
 
  
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-//-lRooFit –lRooFitCore -lMinuit
+  // // ----  Load libraries   -------------------------------------------------
+//   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+// //-lRooFit –lRooFitCore -lMinuit
  
-  gSystem->Load("libSds");
-  gSystem->Load("libSdsReco");
-  gSystem->Load("libLmd");
-  gSystem->Load("libLmdReco");
-  gSystem->Load("libLmdTool"); 
-  // ------------------------------------------------------------------------
+//   gSystem->Load("libSds");
+//   gSystem->Load("libSdsReco");
+//   gSystem->Load("libLmd");
+//   gSystem->Load("libLmdReco");
+//   gSystem->Load("libLmdTool"); 
+//   // ------------------------------------------------------------------------
     
   std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
   std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;

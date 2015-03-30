@@ -54,16 +54,16 @@ void runLumiPixel7QA(const int nEvents=100000, const int startEvent=0, TString s
   parFile += startEvent;
   parFile += ".root";
 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-//-lRooFit –lRooFitCore -lMinuit
-  gSystem->Load("libSds");
-  gSystem->Load("libSdsReco");
-  gSystem->Load("libLmd");
-  gSystem->Load("libLmdReco");
-  gSystem->Load("libLmdTrk");
-  gSystem->Load("libLmdTool");
-  // ------------------------------------------------------------------------
+ //  // ----  Load libraries   -------------------------------------------------
+//   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+// //-lRooFit –lRooFitCore -lMinuit
+//   gSystem->Load("libSds");
+//   gSystem->Load("libSdsReco");
+//   gSystem->Load("libLmd");
+//   gSystem->Load("libLmdReco");
+//   gSystem->Load("libLmdTrk");
+//   gSystem->Load("libLmdTool");
+//   // ------------------------------------------------------------------------
     
   std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
   std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
