@@ -74,7 +74,7 @@ void QAmacro_gem_1()
   cout << " Test passed" << endl;
   cout << " All ok " << endl;  
 
-  delete fRun;
-  exit(0); 
+  //delete fRun;
+  //exit(0); 
 }  
   
