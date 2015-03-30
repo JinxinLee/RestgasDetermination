@@ -17,7 +17,7 @@ int QAmacro_gem_2()
   fRun->SetOutputFile(outFile);
 
   // -----  Parameter database   --------------------------------------------
-  TString allDigiFile = sysFile+"/macro/params/gem_4Stations.digi.par";
+  TString allDigiFile = sysFile+"/macro/params/all.par";
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();

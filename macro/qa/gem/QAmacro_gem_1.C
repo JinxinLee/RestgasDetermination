@@ -4,10 +4,6 @@ void QAmacro_gem_1()
   TString OutputFile    = "tstQA.points.root";
   TString ParOutputFile = "tstQA.param.root";
   
-  // Load basic libraries---------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName("TGeant4");
@@ -42,7 +38,7 @@ void QAmacro_gem_1()
   fRun->AddModule(dipole);
  
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName("gem_4Stations.root");
+  Gem->SetGeometryFileName("gem_3Stations_Tube.root");
   Gem->SetVerboseLevel(0);
   fRun->AddModule(Gem);
   
