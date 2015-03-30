@@ -511,6 +511,11 @@ InitStatus PndTrkTrackFinder::Init() {
   scithitlist = new PndTrkSciTHitList();
   gemhitlist = new PndTrkGemHitList();
 
+  hxy = NULL;
+  huv = NULL;
+  hzphi = NULL;
+
+
   return kSUCCESS;
 
 }
@@ -4895,6 +4900,9 @@ void PndTrkTrackFinder::DrawHits(PndTrkHitList *hitlist) {
 }
 
 void PndTrkTrackFinder::DrawGeometry() {
+
+  cout << "istogramma " << hxy << endl;
+
   if(hxy == NULL)  hxy = new TH2F("hxy", "xy plane", 110, -55, 55, 110, -55, 55);
   else hxy->Reset();
   display->cd(1);
