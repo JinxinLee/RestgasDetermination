@@ -5,12 +5,6 @@ void QAmacro_mdt_1()
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  basiclibs();
  
   gRandom->SetSeed(1235);	
   
@@ -123,9 +117,6 @@ void QAmacro_mdt_1()
 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
-
-
   
 }  
   
