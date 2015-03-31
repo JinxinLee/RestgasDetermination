@@ -22,7 +22,7 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
-class PndPidBremCorrected4Mom : public FairMultiLinkedData
+class PndPidBremCorrected4Mom : public FairMultiLinkedData_Interface
 {
 
  public:

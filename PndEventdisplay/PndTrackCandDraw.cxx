@@ -84,9 +84,9 @@ void PndTrackCandDraw::AddBoxesPndTrackCand(FairBoxSet* set, TObject* obj, Int_t
 	PndTrackCand* pndtc = (PndTrackCand*) obj;
 	std::cout << "Hits in TrackCand: " << std::endl;
 
-	((FairMultiLinkedData*) pndtc)->Print();
+	((FairMultiLinkedData_Interface*) pndtc)->Print();
 	for (Int_t j = 0; j < pndtc->GetNHits(); j++) {
-		TVector3 point = GetVector(pndtc->GetLink(j));
+		TVector3 point = GetVector(pndtc->GetSortedHit(j));
 		set->AddBox(point.X(), point.Y(), point.Z());
 		std::cout << " color: " << i << std::endl;
 		set->DigitValue(i);
@@ -98,8 +98,7 @@ TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId) {
 	FairRootManager* ioman = FairRootManager::Instance();
 	TString branchName = ioman->GetBranchName(detId);
 	TClonesArray* data = (TClonesArray*) (ioman->GetObject(branchName));
-
-	p = (FairHit*) data->At(hitId);
+	p = dynamic_cast<FairHit*>(data->At(hitId));
 	if (p != 0) {
 		std::cout << "Hit in " << branchName << "(" << p->GetX() << "/" << p->GetY() << "/" << p->GetZ() << ")" << std::endl;
 		return (TVector3(p->GetX(), p->GetY(), p->GetZ()));

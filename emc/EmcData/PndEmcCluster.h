@@ -13,7 +13,7 @@
 #define PNDEMCCLUSTER_H
 
 #include "TObject.h"
-#include "FairMultiLinkedData.h"
+#include "FairMultiLinkedData_Interface.h"
 #include "TMatrixD.h"
 #include "TVector3.h"
 #include <vector>
@@ -23,7 +23,7 @@ class PndEmcDigi;
 class PndEmcTwoCoordIndex;
 
 
-class PndEmcCluster : public FairMultiLinkedData 
+class PndEmcCluster : public FairMultiLinkedData_Interface
 {
 
 public:

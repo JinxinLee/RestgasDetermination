@@ -41,19 +41,7 @@ class PndFileNameCreator : public TObject
     std::string GetKalmanFileName(std::string addon = "", bool cut = false);
     std::string GetVertexFileName(std::string addon = "", bool cut = false);
     
-//    std::string GetParFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetSimFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetDigiFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetRecoFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetTrackFindingFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetRiemannFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetCombinedRiemannFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetIdealTrackFindingFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetKalmanFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-//    std::string GetVertexFileName(std::string inputFileName, std::string addon = "", bool cut = false);
-    
     std::string GetCustomFileName(std::string ext, std::string addon = "", bool cut = false);
-//    std::string GetCustomFileName(std::string inputFileName, std::string ext, std::string addon = "", bool cut = false);
     
     std::string GetCustomFileNameInitial(std::string ext);
 

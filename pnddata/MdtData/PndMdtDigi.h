@@ -1,11 +1,11 @@
 #ifndef PNDMDTDIGI_HH
 #define PNDMDTDIGI_HH
 
-#include "FairMultiLinkedData.h"
+#include "FairMultiLinkedData_Interface.h"
 #include "TVector3.h"
 #include <vector>
 
-class PndMdtDigi : public FairMultiLinkedData {
+class PndMdtDigi : public FairMultiLinkedData_Interface {
 
  public:
  

@@ -1,10 +1,10 @@
 #ifndef PNDMDTCLUSTER_HH
 #define PNDMDTCLUSTER_HH
 
-#include "FairMultiLinkedData.h"
+#include "FairMultiLinkedData_Interface.h"
 #include <vector>
 
-class PndMdtCluster : public FairMultiLinkedData {
+class PndMdtCluster : public FairMultiLinkedData_Interface {
 
  public:
  

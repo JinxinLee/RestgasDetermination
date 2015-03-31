@@ -20,12 +20,12 @@
 #include "TArrayI.h"
 #include "TObject.h"
 #include "FairTrackParam.h"
-#include "FairMultiLinkedData.h"
+#include "FairMultiLinkedData_Interface.h"
 #include "TClonesArray.h"
 
 class PndSttHit;
 
-class PndSttTrack : public FairMultiLinkedData
+class PndSttTrack : public FairMultiLinkedData_Interface
 {
  public:
 

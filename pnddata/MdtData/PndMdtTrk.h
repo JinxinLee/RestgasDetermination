@@ -2,7 +2,7 @@
 #define PNDMDTTRK_HH
 
 #include "FairHit.h"
-#include "FairMultiLinkedData.h"
+#include "FairMultiLinkedData_Interface.h"
 #include "PndTrackCand.h"
 #include "PndDetectorList.h"
 #include "TVector3.h"
@@ -12,7 +12,7 @@
 using std::cout;
 using std::endl;
 
-class PndMdtTrk : public FairMultiLinkedData {
+class PndMdtTrk : public FairMultiLinkedData_Interface {
 
  public:
  

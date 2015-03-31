@@ -15,7 +15,7 @@
 
 #include <assert.h>
 
-#include "FairMultiLinkedData.h"
+#include "FairMultiLinkedData_Interface.h"
 #include "TObject.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
@@ -27,7 +27,7 @@
 //  ===== VAbsMicroCandidate - Abstract Class definig the AOD interface  ====
 //  ========================================================================
 
-class FairRecoCandidate : public FairMultiLinkedData
+class FairRecoCandidate : public FairMultiLinkedData_Interface
 {
 
  public:
