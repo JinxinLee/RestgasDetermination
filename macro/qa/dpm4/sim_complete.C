@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant4", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
