@@ -231,7 +231,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 //			std::cout << "EntryNr: ";
 //			tempDigi->GetEntryNr().Print();
 //			std::cout << std::endl;
-			tempCluster->AddInterfaceData(tempDigi);
+//			tempCluster->AddInterfaceData(tempDigi);
 //			std::cout << "Links: " << (FairMultiLinkedData)(*tempCluster) << std::endl;
 		}
     }
