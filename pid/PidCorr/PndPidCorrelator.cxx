@@ -713,17 +713,12 @@ void PndPidCorrelator::ConstructChargedCandidate() {
   if (fMdtMode>0) MdtMapping();
   
   Int_t nTracks = fTrack->GetEntriesFast();
-  std::cout << "PndPidCorrelator::ConstructChargedCandidate nTracks: " << nTracks << std::endl;
   for (Int_t i = 0; i < nTracks; i++) {
     PndTrack* track = (PndTrack*) fTrack->At(i);
     Int_t ierr = 0;
     FairTrackParP par = track->GetParamLast();
-
-    std::cout << i << " : " << par.GetMomentum().Mag() << std::endl;
     if ((par.GetMomentum().Mag()<0.05) || (par.GetMomentum().Mag()>15.) )continue; // cut low and high momenta
-    std::cout << i << " fFlag : " << fFlagCut << " trackFlag: " << track->GetFlag() << " NDF: " << track->GetNDF() << std::endl;
-
- //   if ((fFlagCut) && (track->GetFlag()<=0)) continue; // cut flag<=0
+    if ((fFlagCut) && (track->GetFlag()<=0)) continue; // cut flag<=0
     FairTrackParH *helix = new FairTrackParH(&par, ierr);
     
     PndPidCandidate* pidCand = 	new PndPidCandidate();
@@ -774,8 +769,6 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
 	if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand); 
       }
-    std::cout << i << " nMvdHits: " << pidCand->GetMvdHits() << " " << pidCand->GetMvdDEDX() << std::endl;
-
     AddChargedCandidate(pidCand);
   } 
   
@@ -787,7 +780,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	Int_t ierr = 0;
 	FairTrackParP par = track->GetParamLast();
 	if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>20.) )continue; // cut low and high momenta
-//	if ((fFlagCut) && (track->GetFlag()<=0)) continue; // cut flag<=0
+	if ((fFlagCut) && (track->GetFlag()<=0)) continue; // cut flag<=0
 	FairTrackParH *helix = new FairTrackParH(&par, ierr);
       
 	PndPidCandidate* pidCand =  new PndPidCandidate();
@@ -837,7 +830,6 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	    //if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
 	    if (mapMdtForward.size()>0)  GetFMdtInfo(&par, pidCand);
 	  } // end of fast mode
-    std::cout << i << "TrackBranch2 nMvdHits: " << pidCand->GetMvdHits() << " " << pidCand->GetMvdDEDX() << std::endl;
 	AddChargedCandidate(pidCand);
       }
     }

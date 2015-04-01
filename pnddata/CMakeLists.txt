@@ -9,7 +9,6 @@ ${SIMPATH}/include
 ${CMAKE_SOURCE_DIR}/pnddata 
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/trackbase
-~/PandaSoftware/FairSoft/jul14_build/include
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
