@@ -19,11 +19,15 @@ class PndTrkFitter : public TObject {
   Double_t StraightLineFitWithChi2(Double_t &fitm, Double_t &fitp);
 
   Bool_t ConstrainedStraightLineFit(Double_t x0, Double_t y0, Double_t &fitm, Double_t &fitp);
- void SetVerbose(int ver) { fVerbose = ver; } 
+
+  Bool_t ParabolaFit(Double_t &fita, Double_t &fitb, Double_t &fitc);
+
+
+  void SetVerbose(int ver) { fVerbose = ver; } 
 
  private:
 
-  Double_t fSx, fSy, fSxy, fSxx, fS1;
+  Double_t fSx, fSy, fSxy, fSxx, fSxxy, fSxxx, fSxxxx, fS1;
   std::vector<double> fX, fY, fSigma;
   Int_t fVerbose; 
   ClassDef(PndTrkFitter, 1)

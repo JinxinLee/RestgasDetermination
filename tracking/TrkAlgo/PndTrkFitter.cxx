@@ -11,6 +11,9 @@
 
 #include "PndTrkFitter.h"
 
+#include "TMatrixT.h"
+#include "TMatrixD.h"
+
 #include <iostream>
 
 using namespace std;
@@ -40,6 +43,9 @@ void PndTrkFitter::Reset() {
   fSy = 0;
   fSxy = 0;
   fSxx = 0;
+  fSxxy = 0;
+  fSxxx = 0;
+  fSxxxx = 0;
   fS1 = 0;
   fX.clear();
   fY.clear();
@@ -164,6 +170,85 @@ Bool_t PndTrkFitter::ConstrainedStraightLineFit(Double_t x0, Double_t y0, Double
   Reset();
   return kTRUE;
   
+}
+
+
+
+// FITTING IN X-Y PLANE:
+// v = a + bu + cu^2
+Bool_t PndTrkFitter::ParabolaFit(Double_t &fita, Double_t &fitb, Double_t &fitc) {
+  
+  int nofPoints = fX.size();
+  if(nofPoints == 0) {
+    if(fVerbose > 1) cout << "PndTrkFitter::StraightLineFit: no points to fit! fill the array with PndTrkFitter::SetPointToFit()" << endl;
+    Reset();
+    return kFALSE; // CHECK
+  }
+
+  for(int ipnt = 0; ipnt < nofPoints; ipnt++)  
+    {    
+ 
+      fSx += fX[ipnt]/(fSigma[ipnt] * fSigma[ipnt]); 
+      fSy += fY[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      
+      fSxy += fX[ipnt] * fY[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      fSxx += fX[ipnt]* fX[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      
+      fSxxy += fX[ipnt] * fX[ipnt] * fY[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      fSxxx += fX[ipnt] * fX[ipnt] * fX[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+
+      fSxxx += fX[ipnt] * fX[ipnt] * fX[ipnt] * fX[ipnt]/(fSigma[ipnt] * fSigma[ipnt]);
+      
+      fS1 += 1./(fSigma[ipnt] * fSigma[ipnt]);
+      
+    }
+  
+  TMatrixD matrix(3,3);
+  matrix[0][0] = fS1;
+  matrix[0][1] = fSx;
+  matrix[0][2] = fSxx;
+  
+  matrix[1][0] = fSx;
+  matrix[1][1] = fSxx;
+  matrix[1][2] = fSxxx;
+  
+  matrix[2][0] = fSxx;
+  matrix[2][1] = fSxxx;
+  matrix[2][2] = fSxxxx;
+  
+  Double_t determ;
+  
+  determ = matrix.Determinant();
+  
+  if (determ != 0) {
+    matrix.Invert();
+  }
+  else {
+    return 0;
+    if(fVerbose == 2) cout << "DET 0" << endl;
+  }
+  
+  TMatrixD column(3,1);
+  column[0][0] = fSy;
+  column[1][0] = fSxy;
+  column[2][0] = fSxxy;
+  
+  TMatrixD column2(3,1);
+  column2.Mult(matrix, column);
+  
+  Double_t a, b, c;
+  fita = column2[0][0];
+  fitb = column2[1][0];
+  fitc = column2[2][0];
+  
+  if(fVerbose == 2) {
+    std::cout << "1) parabolic parameters:\n";
+    std::cout << "a = " << fita <<  "\n";
+    std::cout << "b = " << fitb <<  "\n";
+    std::cout << "c = " << fitc <<  "\n";
+  }
+  if(fabs(fita)<0.000001) return 0;
+
 }
 
 ClassImp(PndTrkFitter)
