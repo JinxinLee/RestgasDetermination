@@ -109,13 +109,17 @@ void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits)
  }
 
   if(counter > 2) {
-    for(int k = hits->GetEntriesFast() - 1; k >=0; k--) {
-      PndTrkHit *hit2 = (PndTrkHit*) hits->At(k);
-      hits->Remove(hit2);
-    }
-  } 
-
-  hit2indiv.Add(hit, hits);
+    TObjArray *hits2 = new TObjArray();
+    for(int iobj = 0; iobj < hits->GetEntriesFast(); iobj++) hits2->Add(hits->At(iobj));
+    if(counter > 2) {
+      for(int k = hits2->GetEntriesFast() - 1; k >=0; k--) {
+	PndTrkHit *hit2 = (PndTrkHit*) hits2->At(k);
+	hits2->Remove(hit2);
+      }
+    } 
+    hit2indiv.Add(hit, hits2);
+  }
+  else hit2indiv.Add(hit, hits);
 
   //  cout << "Aset up map " << hit->GetHitID() << " " << hits->GetEntriesFast() << endl; 
   
