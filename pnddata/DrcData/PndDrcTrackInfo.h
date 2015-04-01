@@ -5,7 +5,7 @@
 // Author: R.Dzhygadlo at gsi.de
 // -----------------------------------------
 
-#ifndef PNDDRCTACKINFO_H
+#ifndef PNDDRCTRACKINFO_H
 #define PNDDRCTRACKINFO_H
 
 #include "PndDrcPhotonInfo.h"
@@ -26,7 +26,7 @@ public:
   ~PndDrcTrackInfo ();
 
   // Copy constructor 
-  PndDrcTrackInfo (const PndDrcTrackInfo& val) { *this = val; }  
+  PndDrcTrackInfo (const PndDrcTrackInfo& val): TObject(val)  { *this = val; }  
   
   // Mutators
   void SetMcPdg(Int_t val)              {fMcPdg = val;}
