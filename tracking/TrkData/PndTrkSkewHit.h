@@ -33,6 +33,9 @@ class PndTrkSkewHit : public PndTrkHit
 
   Double_t GetPhi1() { return fPhi1; }
   Double_t GetPhi2() { return fPhi2; }
+  
+  void SetPhi1(Double_t phi1) { fPhi1 = phi1; }
+  void SetPhi2(Double_t phi2) { fPhi2 = phi2; }
 
 
   // info
