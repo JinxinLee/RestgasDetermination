@@ -98,6 +98,7 @@ class PndTrkTrackFinder : public FairTask {
   Int_t ExtractLegendre(Int_t mode, double &theta_max, double &r_max);
 
   void FromConformalToRealTrack(double fitm, double fitp, double &x0, double &y0, double &R);
+  void FromConformalToRealTrackParabola(double fita, double fitb, double fitc, double &x0, double &y0, double &R, double &epsilon);
   void FromRealToConformalTrack(double x0, double y0, double R, double &fitm, double &fitp);
 
   void  SearchSecondaryTracks() { fSecondary = kTRUE; }
@@ -116,7 +117,9 @@ class PndTrkTrackFinder : public FairTask {
 
   Bool_t AnalyticalFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fitm, double &fitq);
   void AnalyticalFit2(PndTrkCluster *cluster, double fitm, double fitp, double &fitm2, double &fip2);
-  void IntersectionFinder(PndTrkHit *hit, double xc, double yc, double R);
+  Bool_t AnalyticalParabolaFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fita, double&fitb, Double_t &fitc, Double_t &epsilon);
+  
+    void IntersectionFinder(PndTrkHit *hit, double xc, double yc, double R);
   void IntersectionFinder(PndTrkConformalHit *chit, double fitm, double fitp);
 
   void FillHitMap();

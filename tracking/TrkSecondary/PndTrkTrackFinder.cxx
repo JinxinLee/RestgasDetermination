@@ -590,8 +590,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fTrackArray->Delete();
   fTrkTrackArray->Delete();
   fTrackCandArray->Delete();
-  //  if(fVerbose > 0) 
-
+  //  if(fVerbose > 0)   fDisplayOn = kTRUE;
   if(fSttHitArray->GetEntriesFast() > 200) {   // CHECK
     fEventCounter++;
     return;
@@ -634,7 +633,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // L     O   O N N N G  GG
   // L     O   O N  NN G   G
   // LLLLL  OOO  N   N  GGG 
-  // L fDisplayOn = kFALSE;
+
+  //  fDisplayOn = kFALSE;
   PndTrkHit *stthit = NULL;
   TObjArray indiv;
   // calculate the indivisible parallel hits and
@@ -1536,12 +1536,26 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     
 
     // ====== REFIT CLUSTER ANALYTICALLY
-    bool fitting = AnalyticalFit(&cluster, xc, yc, R, fitm, fitq);
-    //   bool fitting = MinuitFit(&cluster, fitm2, fitq2, fitm, fitq);
-    if(fitting == kFALSE) continue;
-
     double xc2, yc2, R2;
-    FromConformalToRealTrack(fitm, fitq, xc2, yc2, R2);
+
+    // line or parabola or minuit   
+    if(1 == 1) {
+      bool fitting = AnalyticalFit(&cluster, xc, yc, R, fitm, fitq);
+      if(fitting == kFALSE) continue;
+      FromConformalToRealTrack(fitm, fitq, xc2, yc2, R2);
+    }
+    else if(1 == 0) {
+      double fita, fitb, fitc, epsilon;
+      bool fitting = AnalyticalParabolaFit(&cluster, xc, yc, R, fita, fitb, fitc, epsilon);
+      if(fitting == kFALSE) continue;
+      FromConformalToRealTrackParabola(fita, fitb, fitc, xc2, yc2, R2, epsilon);
+    }
+    else {
+      bool fitting = MinuitFit(&cluster, fitm2, fitq2, fitm, fitq);
+      if(fitting == kFALSE) continue;
+      FromConformalToRealTrack(fitm, fitq, xc2, yc2, R2);
+    }
+
     if(fDisplayOn)  {
       char goOnChar;
       display->cd(1);
@@ -1592,7 +1606,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       
       double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc2, yc2)).Mod();
       double recoiso = fabs(distance_hit_center - R2);
-      if(recoiso < 1.) {
+      if(recoiso < 0.5) {
 	  // dont want two hits on the same sensor
 	  int samesensor = false;
 	  for(int khit = 0; khit < fFinalCluster->GetNofHits(); khit++) {
@@ -1714,11 +1728,22 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
     PndTrkTrack finaltrack(fFinalCluster, xc2, yc2, R2);
 
+
+    //    fDisplayOn = kTRUE;
+    if(fDisplayOn) {
+      Refresh();
+      display->cd(1);
+      fFinalCluster->Draw(kGreen);
+      finaltrack.Draw(kGreen);
+      display->Update();
+      display->Modified();
+    }
+
     // =========================== Z PART ==================================
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // SKEWED ASSOCIATION ********* CHECK *********
     // -------------------------------------------------------
-    //    cout << " %%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+    cout << " %%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
 
     if(fDisplayOn) DrawZGeometry();
     
@@ -1937,6 +1962,163 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
     }
 
+
+ //    if(fDisplayOn) {
+
+//       for(int ihit = 0; ihit < fFinalCluster->GetNofHits(); ihit++) {
+// 	PndTrkHit *hitstt1 = fFinalCluster->GetHit(ihit);
+// 	if(hitstt1->IsStt() == kFALSE) continue;
+// 	PndSttHit *stthit1 = (PndSttHit*) fSttHitArray->At(hitstt1->GetHitID());
+ 
+// 	indiv = fHitMap->GetIndivisiblesToHit(hitstt1);
+// 	for(int jhit = 0; jhit < indiv.GetEntriesFast(); jhit++) {
+// 	  PndTrkHit *hitstt2 = (PndTrkHit*) indiv.At(jhit);
+// 	  PndSttHit *stthit2 =  (PndSttHit*) fSttHitArray->At(hitstt2->GetHitID());
+	  
+// 	  TVector3 poca(0, 0, 0);
+// 	  PndSttGeometryMap geomap;
+// 	  Double_t distancepoca = fMapper->GetGeometryMap()->CalculateStrawPoca(stthit1, stthit2, poca);
+
+// 	  TVector3 pos1, pos2;
+// 	  stthit1->Position(pos1);
+// 	  pos1.Print();
+// 	  stthit2->Position(pos2);
+// 	  pos2.Print();
+// 	  poca.Print();
+
+// 	  TMarker *mrk = new TMarker(poca.X(), poca.Y(), 20);
+// 	  mrk->SetMarkerColor(kOrange);
+// 	  mrk->Draw("SAME");
+// 	  char goOnChar;
+// 	  display->cd(1);
+// 	  cin >> goOnChar;   
+// 	  display->Update();
+// 	  display->Modified();
+	  
+// 	}
+//       }
+
+//       for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) {
+// 	PndTrkHit *hitstt1 = skewhitlist.GetHit(ihit);
+// 	if(hitstt1->IsStt() == kFALSE) continue;
+// 	PndSttHit *stthit1 = (PndSttHit*) fSttHitArray->At(hitstt1->GetHitID());
+ 
+// 	indiv = fHitMap->GetIndivisiblesToHit(hitstt1);
+// 	for(int jhit = 0; jhit < indiv.GetEntriesFast(); jhit++) {
+// 	  PndTrkHit *hitstt2 = (PndTrkHit*) indiv.At(jhit);
+// 	  PndSttHit *stthit2 =  (PndSttHit*) fSttHitArray->At(hitstt2->GetHitID());
+	  
+// 	  TVector3 poca(0, 0, 0);
+// 	  PndSttGeometryMap geomap;
+// 	  Double_t distancepoca = fMapper->GetGeometryMap()->CalculateStrawPoca(stthit1, stthit2, poca);
+
+// 	  TVector3 pos1, pos2;
+// 	  stthit1->Position(pos1);
+// 	  pos1.Print();
+// 	  stthit2->Position(pos2);
+// 	  pos2.Print();
+// 	  poca.Print();
+
+// 	  TMarker *mrk = new TMarker(poca.X(), poca.Y(), 20);
+// 	  mrk->SetMarkerColor(kOrange);
+// 	  mrk->Draw("SAME");
+// 	  char goOnChar;
+// 	  display->cd(1);
+// 	  cin >> goOnChar;   
+// 	  display->Update();
+// 	  display->Modified();
+	  
+// 	}
+//       }
+
+
+
+//     }
+
+
+    // ----------------------------------------------
+    int phisec[2] = {0, 0};
+    for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) 
+      {
+	PndTrkHit *hitj = skewhitlist.GetHit(ihit);
+	if(!hitj) continue;
+	
+	TVector3 fin_intersection21(-999, -999, -999),  fin_intersection22(-999, -999, -999);
+	double phi21 = -999, phi22 = -999;
+	
+	if(hitj->IsStt() == kTRUE) {
+	  PndTrkSkewHit *skewhit2 = (PndTrkSkewHit*) hitj;
+	  
+	  fin_intersection21 = skewhit2->GetIntersection1();
+	  fin_intersection22 = skewhit2->GetIntersection2();
+	  phi21 = skewhit2->GetPhi1();
+	  phi22 = skewhit2->GetPhi2();
+	  
+	  double phimean = 0.5 * (phi21 + phi22);
+	  if(phimean >= 0 && phimean < 180) phisec[0]++;
+	  else  phisec[1]++;
+	  
+	}
+	else {
+	  fin_intersection21 = hitj->GetPosition();
+	  phi21 = hitj->GetPhi();
+	  if(phi21 >= 0 && phi21 < 180) phisec[0]++;
+	  else  phisec[1]++;
+	}
+      }
+    
+    cout << "PHI SECTOR " << phisec[0] << " " << phisec[1] << endl;
+
+    // correction
+    for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) 
+      {
+	PndTrkHit *hitj = skewhitlist.GetHit(ihit);
+	if(!hitj) continue;
+	
+	TVector3 fin_intersection21(-999, -999, -999),  fin_intersection22(-999, -999, -999);
+	double phi21 = -999, phi22 = -999;
+	
+	if(hitj->IsStt() == kTRUE) {
+	  PndTrkSkewHit *skewhit2 = (PndTrkSkewHit*) hitj;
+	  
+	  fin_intersection21 = skewhit2->GetIntersection1();
+	  fin_intersection22 = skewhit2->GetIntersection2();
+	  phi21 = skewhit2->GetPhi1();
+	  phi22 = skewhit2->GetPhi2();
+	  
+	  double phimean = 0.5 * (phi21 + phi22);
+	  // if 1st sec
+	  if((phisec[0] > phisec[1]) && (phimean >= 180)) {
+	    phi21 -= 180.;
+	    phi22 -= 180.;
+	    skewhit2->SetPhi1(phi21);
+	    skewhit2->SetPhi2(phi22);
+	  }
+	  else  if((phisec[0] < phisec[1]) && (phimean < 180)) {  // 2nd sec
+	    phi21 += 180.;
+	    phi22 += 180.;
+	    skewhit2->SetPhi1(phi21);
+	    skewhit2->SetPhi2(phi22);
+	  }
+	}
+	else {
+	  fin_intersection21 = hitj->GetPosition();
+	  phi21 = hitj->GetPhi();
+
+	  // if 1st sec
+	  if((phisec[0] > phisec[1]) && (phi21 >= 180)) {
+	    phi21 -= 180.;
+	    hitj->SetPhi(phi21);
+	  }
+	  else  if((phisec[0] < phisec[1]) && (phi21 < 180)) {  // 2nd sec
+	    phi21 += 180.;
+	    hitj->SetPhi(phi21);
+	  }
+	}
+      }
+
+    // ----------------------------------------------
+
     // ========================================================
     std::vector < int > first, second;
     double fitm3 = 0, fitq3 = 0;
@@ -2079,7 +2261,6 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	    display->Update();
 	    display->Modified();
 	  }
-      
       
 	  for(int jhit = ihit + 1; jhit < skewhitlist.GetNofHits(); jhit++) 
 	    {
@@ -2372,6 +2553,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       hit = fFinalCluster->GetHit(ihit);
     }
 
+    //    fDisplayOn = kFALSE;
+
     // compute charge
     finaltrack.ComputeCharge();
     
@@ -2541,21 +2724,29 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     double R2 = tracki->GetRadius();
     double fitm, fitq;
 
-//     cout << "MINUIT FIT LONG" << endl;
-    bool fitting = AnalyticalFit(&clusteri, xc2, yc2, R2, fitm, fitq);
-    if(fitting == kFALSE) continue;
-//     cout << "fitm " << fitm << " fitq " << fitq << endl;
-
     double xc3, yc3, R3;
-    FromConformalToRealTrack(fitm, fitq, xc3, yc3, R3);
+    // line or parabola    
+    if(1 == 1) {
+      bool fitting = AnalyticalFit(&clusteri, xc2, yc2, R2, fitm, fitq);
+      if(fitting == kFALSE) continue;
+       FromConformalToRealTrack(fitm, fitq, xc3, yc3, R3);
+       if(fDisplayOn)  {
+	 char goOnChar;
+	 display->cd(2);
+	 TLine *line = new TLine(-10, -10 * fitm + fitq, 10, 10 * fitm + fitq);
+	 line->SetLineColor(kMagenta);
+	 line->Draw("SAME");
+       }
+    }
+    else {
+      double  fita, fitb, fitc, epsilon;
+      bool fitting = AnalyticalParabolaFit(&clusteri, xc2, yc2, R2, fita, fitb, fitc, epsilon);
+      if(fitting == kFALSE) continue;
+      FromConformalToRealTrackParabola(fita, fitb, fitc, xc3, yc3, R3, epsilon);
+    }
+    
     if(fDisplayOn)  {
       char goOnChar;
-
-      display->cd(2);
-      TLine *line = new TLine(-10, -10 * fitm + fitq, 10, 10 * fitm + fitq);
-      line->SetLineColor(kMagenta);
-      line->Draw("SAME");
-      
       Refresh();
 
       display->cd(1);
@@ -5416,6 +5607,30 @@ void PndTrkTrackFinder::FromConformalToRealTrack(double fitm, double fitp, doubl
   y0 += fConformalHitList->GetConformalTransform()->GetTranslation().Y();
 }
 
+void PndTrkTrackFinder::FromConformalToRealTrackParabola(double fita, double fitb, double fitc, double &x0, double &y0, double &R, double &epsilon) {
+  // CHECK if this needs to be kept --> change xc0 to xc etc
+  // center and radius
+
+  //  cout << "conformal fit " << fita << " " << fitb << " " << fitc << endl;
+
+  Double_t xcrot0, ycrot0;
+  
+  // center and radius
+  ycrot0 = 1/(2 * fita);
+  xcrot0 = -fitb/(2 * fita);
+  epsilon = -fitc * pow((1+(fitb*fitb)), -3/2);
+  R = epsilon + sqrt((xcrot0 * xcrot0)+(ycrot0 *ycrot0));
+
+ // re-rotation and re-traslation of xc and yc
+  // rotation    
+  x0 = TMath::Cos(fConformalHitList->GetConformalTransform()->GetRotation())*xcrot0 - TMath::Sin(fConformalHitList->GetConformalTransform()->GetRotation())*ycrot0;
+  y0 = TMath::Sin(fConformalHitList->GetConformalTransform()->GetRotation())*xcrot0 + TMath::Cos(fConformalHitList->GetConformalTransform()->GetRotation())*ycrot0;
+  // traslation 
+  x0 += fConformalHitList->GetConformalTransform()->GetTranslation().X();
+  y0 += fConformalHitList->GetConformalTransform()->GetTranslation().Y();
+
+}
+
 void PndTrkTrackFinder::FromRealToConformalTrack(double x0, double y0, double R, double &fitm, double &fitp) {
   // CHECK if this needs to be kept --> change xc0 to xc etc
   Double_t xcrot0, ycrot0;
@@ -6225,10 +6440,10 @@ Bool_t PndTrkTrackFinder::AnalyticalFit(PndTrkCluster *cluster, double xc, doubl
     
       PndTrkConformalHit chit = conform->GetConformalHit(hit);
       PndTrkConformalHit chitstt = conform->GetConformalSttHit(hit);
-      double sigma = 1e-5;
-      if(hit->IsSttParallel()) sigma = chitstt.GetIsochrone(); // 0.1; // CHECK
-      if(hit->IsGem()) sigma = 0.1; // CHECK
-      if(hit->IsSciTil()) sigma = 0.5; // CHECK
+      double sigma = 1e-5 * hit->GetPosition().Perp();
+      if(hit->IsSttParallel()) sigma = chitstt.GetIsochrone() * hit->GetPosition().Perp(); // 0.1; // CHECK
+      if(hit->IsGem()) sigma = 0.1 * hit->GetPosition().Perp(); // CHECK
+      if(hit->IsSciTil()) sigma = 0.5 * hit->GetPosition().Perp(); // CHECK
       //       // if(chit.GetPosition().Mod() > 2) continue; // CHECK THIS OUT!
 
       if(TMath::IsNaN(chit.GetPosition().X())) continue; // prevents the nan of the ref hit
@@ -6356,6 +6571,79 @@ void PndTrkTrackFinder::AnalyticalFit2(PndTrkCluster *cluster, double fitm, doub
 
 
 }
+
+
+
+Bool_t PndTrkTrackFinder::AnalyticalParabolaFit(PndTrkCluster *cluster, double xc, double yc, double R, double &fita, double&fitb, Double_t &fitc, Double_t &epsilon) {
+  
+  
+  // fit with analytical chi2 -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~--
+  fFitter->Reset();
+  if(fDisplayOn) {
+    display->cd(1);
+    Refresh();
+  }
+  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) 
+    {
+      PndTrkHit *hit = cluster->GetHit(ihit);
+      if(hit == fRefHit) continue;
+      if(hit->IsSttSkew()) continue;
+      if(hit->IsSttParallel()) IntersectionFinder(hit, xc, yc, R);
+    
+      PndTrkConformalHit chit = conform->GetConformalHit(hit);
+      PndTrkConformalHit chitstt = conform->GetConformalSttHit(hit);
+      double sigma = 1e-5;
+      if(hit->IsSttParallel()) sigma = chitstt.GetIsochrone(); // 0.1; // CHECK
+      if(hit->IsGem()) sigma = 0.1; // CHECK
+      if(hit->IsSciTil()) sigma = 0.5; // CHECK
+      //       // if(chit.GetPosition().Mod() > 2) continue; // CHECK THIS OUT!
+
+      if(TMath::IsNaN(chit.GetPosition().X())) continue; // prevents the nan of the ref hit
+      fFitter->SetPointToFit(chit.GetPosition().X(), chit.GetPosition().Y(), sigma);
+      //      cout << "set point to fit " << chit.GetHit()->GetHitID() << " " << chit.GetHit()->GetDetectorID() << " " << chit.GetPosition().X() << " " <<  chit.GetPosition().Y() << " " << sigma << endl;
+      if(fDisplayOn) {
+       	display->cd(1);
+       	TMarker *mrk = new TMarker(hit->GetPosition().X(), hit->GetPosition().Y(), 6);
+       	mrk->SetMarkerColor(kRed);
+       	mrk->Draw("SAME");
+
+       	display->cd(2);
+       	TMarker *mrk2 = new TMarker(chit.GetPosition().X(), chit.GetPosition().Y(), 6);
+       	mrk2->SetMarkerColor(kRed);
+       	mrk2->Draw("SAME");
+
+
+       	display->Update();
+       	display->Modified();
+      } 
+    }
+
+  
+  fFitter->ParabolaFit(fita, fitb, fitc);
+
+  // CHECK this 
+  if(fita == 0) return kFALSE;
+
+  FromConformalToRealTrackParabola(fita, fitb, fitc, xc, yc, R, epsilon);
+  // cout << "now " << xc << " " << yc << " " << R << endl;
+
+//   if(fDisplayOn) {
+//     display->cd(2);
+//     cout << "wanna see the line?" << endl;
+//     TLine *line = new TLine(-10.07, fitq + fitm * (-10.07), 10.07, fitq + fitm * (10.07));
+//     line->SetLineColor(2);
+//     line->Draw("SAME");
+//     char goOnChar;
+//     display->Update();
+//     display->Modified();
+//     cin >> goOnChar;
+//   }
+
+  return kTRUE;
+}
+
+
+
 void PndTrkTrackFinder::IntersectionFinder(PndTrkConformalHit *chit, double fitm, double fitp) {
   
   double xi1 = chit->GetU() + fitm * chit->GetIsochrone()/ TMath::Sqrt(fitm * fitm + 1);
