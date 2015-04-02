@@ -503,7 +503,7 @@ InitStatus PndTrkTrackFinder::Init() {
   fConformalHitList = new PndTrkConformalHitList();
 
   // fLineHisto = new TH2F("fLineHisto", "hl", 720, -360, 360, 8000, -400, 400);
-  fLineHisto = new TH2F("fLineHisto", "hl", 360, -360, 360, 1000, -400, 400);
+  fLineHisto = new TH2F("fLineHisto", "hl", 360, -360, 360, 500, -400, 400);
 
   stthitlist = new PndTrkSttHitList(fTubeArray);
   mvdpixhitlist = new PndTrkSdsHitList(MVDPIXEL);
