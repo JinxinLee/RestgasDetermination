@@ -1448,7 +1448,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // if there is at least one: yuppi!
     if(tmphit > -1) {
       hit = scithitlist->GetHit(tmphit);
-      // cluster.AddHit(hit);
+      cluster.AddHit(hit);
       if(fDisplayOn)  {
 	hit->Draw(kOrange);
 	cout << "herh" << endl;
@@ -1462,65 +1462,65 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
 
 
-    // -------------------------- 
-    // if there is a scitil lets use it as seed hit
-    // for the conformal map
-    if(tmphit > -1) {
-      refhit = scithitlist->GetHit(tmphit);
-      fConformalHitList->Reset();
-      ComputeTraAndRot(refhit, delta, trasl);
-      conform->SetOrigin(trasl[0], trasl[1], delta);
-      fConformalHitList->SetConformalTransform(conform);
-      // cout << "conformal hits " << fConformalHitList->GetNofHits() << endl;
+    //    // -------------------------- 
+    //     // if there is a scitil lets use it as seed hit
+    //     // for the conformal map
+    //     if(tmphit > -1) {
+    //       //      refhit = scithitlist->GetHit(tmphit);
+    //       fConformalHitList->Reset();
+    //       ComputeTraAndRot(refhit, delta, trasl);
+    //       conform->SetOrigin(trasl[0], trasl[1], delta);
+    //       fConformalHitList->SetConformalTransform(conform);
+    //       // cout << "conformal hits " << fConformalHitList->GetNofHits() << endl;
    
-      // fill conformal hits
-      nofconfhits = FillConformalHitList(&cluster);
+    //       // fill conformal hits
+    //       nofconfhits = FillConformalHitList(&cluster);
 
-      // compute conformal plane extremities ---------------------------- this must go to a fctn CHECK
-      fUmin =  1000, fVmin =  1000, fRmin =  1000;
-      fUmax = -1000, fVmax = -1000, fRmax = -1000;
-      rc_of_min, rc_of_max;
+    //       // compute conformal plane extremities ---------------------------- this must go to a fctn CHECK
+    //       fUmin =  1000, fVmin =  1000, fRmin =  1000;
+    //       fUmax = -1000, fVmax = -1000, fRmax = -1000;
+    //       rc_of_min, rc_of_max;
     
-      for(int jhit = 0; jhit < fConformalHitList->GetNofHits(); jhit++) {
-	PndTrkConformalHit *chit = fConformalHitList->GetHit(jhit);
-	double u = chit->GetU();
-	double v = chit->GetV();
-	double rc = chit->GetIsochrone();
-	if(rc < 0) rc = 0;
-	// cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
-	u - rc < fUmin ? fUmin = u - rc : fUmin;
-	v - rc < fVmin ? fVmin = v - rc : fVmin;
-	u + rc > fUmax ? fUmax = u + rc : fUmax;
-	v + rc > fVmax ? fVmax = v + rc : fVmax;
+    //       for(int jhit = 0; jhit < fConformalHitList->GetNofHits(); jhit++) {
+    // 	PndTrkConformalHit *chit = fConformalHitList->GetHit(jhit);
+    // 	double u = chit->GetU();
+    // 	double v = chit->GetV();
+    // 	double rc = chit->GetIsochrone();
+    // 	if(rc < 0) rc = 0;
+    // 	// cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
+    // 	u - rc < fUmin ? fUmin = u - rc : fUmin;
+    // 	v - rc < fVmin ? fVmin = v - rc : fVmin;
+    // 	u + rc > fUmax ? fUmax = u + rc : fUmax;
+    // 	v + rc > fVmax ? fVmax = v + rc : fVmax;
       
-	double theta1 = TMath::ATan2(v, u);
-	double theta2 = theta1 + TMath::Pi();
+    // 	double theta1 = TMath::ATan2(v, u);
+    // 	double theta2 = theta1 + TMath::Pi();
       
-	double r1 = u * TMath::Cos(theta1) + v * TMath::Sin(theta1);
-	double r2 = u * TMath::Cos(theta2) + v * TMath::Sin(theta2);
+    // 	double r1 = u * TMath::Cos(theta1) + v * TMath::Sin(theta1);
+    // 	double r2 = u * TMath::Cos(theta2) + v * TMath::Sin(theta2);
       
-	double rimin, rimax;
-	r1 < r2 ? (rimin = r1, rimax = r2) : (rimin = r2, rimax = r1);
+    // 	double rimin, rimax;
+    // 	r1 < r2 ? (rimin = r1, rimax = r2) : (rimin = r2, rimax = r1);
       
-	rimin < fRmin ? (rc_of_min = rc, fRmin = rimin) : fRmin;
-	rimax > fRmax ? (rc_of_max = rc, fRmax = rimax) : fRmax;
-      }
+    // 	rimin < fRmin ? (rc_of_min = rc, fRmin = rimin) : fRmin;
+    // 	rimax > fRmax ? (rc_of_max = rc, fRmax = rimax) : fRmax;
+    //       }
     
-      fRmin -= rc_of_min;
-      fRmax += rc_of_max;
+    //       fRmin -= rc_of_min;
+    //       fRmax += rc_of_max;
     
-      // to square the conformal plane
-      du = fUmax - fUmin;
-      dv = fVmax - fVmin;
-      delt = fabs(dv - du)/2.;
-      du < dv ? (fUmin -= delt, fUmax += delt) : (fVmin -= delt, fVmax += delt);
+    //       // to square the conformal plane
+    //       du = fUmax - fUmin;
+    //       dv = fVmax - fVmin;
+    //       delt = fabs(dv - du)/2.;
+    //       du < dv ? (fUmin -= delt, fUmax += delt) : (fVmin -= delt, fVmax += delt);
  
-    }
-    else {    // otherwise lets refit in the same conf map
-      fConformalHitList->Reset(); // CHECK maybe you can just add hits
-      // fill conformal hits
-      nofconfhits = FillConformalHitList(&cluster);
-    }
+    //     }
+    //     else {    // otherwise lets refit in the same conf map
+    fConformalHitList->Reset(); // CHECK maybe you can just add hits
+    // fill conformal hits
+    nofconfhits = FillConformalHitList(&cluster);
+    //    }
 
     if(fDisplayOn) {
       display->cd(2);
