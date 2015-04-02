@@ -4,7 +4,7 @@ void QAmacro_mvd_1()
   TStopwatch timer;
   timer.Start();
   
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+ // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   
   gDebug=0;
   int verboseLevel = 0;
@@ -13,6 +13,8 @@ void QAmacro_mvd_1()
   //FileNames
   TString simOutput="mvdqasim.root";
   TString parOutput="mvdqapar.root";
+  TString digiFile = "all.par"; //The emc run the hit producer directly
+
   
   FairRunSim *fRun = new FairRunSim();
   
@@ -20,8 +22,23 @@ void QAmacro_mvd_1()
   // Choose the Geant Navigation System
   
   fRun->SetOutputFile(simOutput);
-  
   fRun->SetMaterials("media_pnd.geo");
+
+  //-------Set the parameter output --------------------
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/";
+  allDigiFile += digiFile;
+
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);
+
+  //---------------------Set Parameter output      ----------
+  Bool_t kParameterMerged=kTRUE;
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(parOutput.Data());
+  rtdb->setOutput(output);
   
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
@@ -67,11 +84,11 @@ void QAmacro_mvd_1()
   fRun->Init();
   
   
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parOutput.Data(),"RECREATE");
-  rtdb->setOutput(output);
+//  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+//  Bool_t kParameterMerged=kTRUE;
+//  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+//  output->open(parOutput.Data(),"RECREATE");
+//  rtdb->setOutput(output);
   
   fRun->Run(nEvents);
   
@@ -88,4 +105,3 @@ void QAmacro_mvd_1()
   delete fRun;
   exit(0);
 }
-

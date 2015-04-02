@@ -11,7 +11,7 @@ void QAmacro_mvd_2()
 
   Int_t nEvents = 100;
 
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+//  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
@@ -22,14 +22,13 @@ void QAmacro_mvd_2()
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-  parInput1->open(parFile.Data(),"UPDATE");
+  parInput1->open(parFile.Data());
 
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  rtdb->setOutput(parInput1);
   
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
@@ -42,8 +41,8 @@ void QAmacro_mvd_2()
   fRun->Init();
   fRun->Run(0, nEvents);
 
-  rtdb->saveOutput();
-  rtdb->print();
+//  rtdb->saveOutput();
+//  rtdb->print();
 
   timer.Stop();
   Double_t rtime = timer.RealTime();

@@ -13,7 +13,7 @@ void QAmacro_mvd_ana()
   Bool_t verbose = kTRUE;
   Bool_t isSuccessful = kFALSE;
   Bool_t test1=kTRUE, test2=kTRUE, test3=kTRUE;  
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+//  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   
   gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
   LoadPandaStyle();
@@ -66,7 +66,9 @@ void QAmacro_mvd_ana()
     std::cout<<"No MvdGeoHandling existant. Abort now!"<<std::endl;
     exit(1);
   }
-  
+  fGeoH->FillSensorMap();
+//  fGeoH->PrintSensorNames();
+
 //  FairEventHeader* header = new FairEventHeader();
 //  t->SetBranchAddress("EventHeader.", &header);
 //  t->GetEntry(0);
@@ -347,6 +349,6 @@ void QAmacro_mvd_ana()
     std::cout<<"Test of resolution sigma: "<< ((test2) ? "ok" : "bad") <<std::endl;
   }
   std::cout<<std::endl;
-  exit(0);
+ // exit(0);
    
 }

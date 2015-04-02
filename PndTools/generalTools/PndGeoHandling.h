@@ -153,16 +153,20 @@ public:
   Int_t GetRunId(TString mcFile);
   void GetGeoManager();
   void GetSensorNamePar();
+  void FillSensorMap(){
+	  fSensorNamePar->FillMap();
+  }
   void InitRuntimeDb(TString parFileName);
 
+  PndGeoHandling& operator= (const  PndGeoHandling&) {return *this;}
+
+protected:
   InitStatus Init(){
 	  fSensorNamePar->FillMap();
 	  return kSUCCESS;
   }
 
   virtual InitStatus ReInit() {fGeoMan =0;fGeoMan=gGeoManager;return kSUCCESS;}
- 
-  PndGeoHandling& operator= (const  PndGeoHandling&) {return *this;}
  
  private:
   static PndGeoHandling* fInstance;
