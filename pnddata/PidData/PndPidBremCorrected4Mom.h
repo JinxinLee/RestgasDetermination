@@ -29,33 +29,35 @@ class PndPidBremCorrected4Mom : public FairMultiLinkedData_Interface
 
   PndPidBremCorrected4Mom();
   PndPidBremCorrected4Mom(TLorentzVector &p4);
-  
+
   ~PndPidBremCorrected4Mom();
 
   TVector3  GetMomentum() const { return TVector3(fXmomentum, fYmomentum, fZmomentum); }
   Double_t  GetEnergy()   const { return fEnergy; }
   Int_t GetPidCandIdx() const { return fPidCandIdx; }
-  std::vector<Int_t> GetPhiBumpIdxList() {return fPhiBumpIdx; }
+  const std::vector<Int_t> &GetPhiBumpList() {return fPhiBumpList; }
+  const std::vector<Int_t> &GetSepBumpList() {return fSepBumpList; }
 
   void	SetMomentum(TVector3 &mom) { fXmomentum=mom.X(); fYmomentum=mom.Y(); fZmomentum=mom.Z(); }
   void	SetEnergy(Double_t en)     { fEnergy=(Float_t) en;}
-  void  AddPhiBumpIdxList(Int_t idx) { fPhiBumpIdx.push_back(idx); }
+  void  AddToPhiBumpList(Int_t idx) { fPhiBumpList.push_back(idx); }
+  void  AddToSepBumpList(Int_t idx) { fSepBumpList.push_back(idx); }
   void  SetPidCandIdx(Int_t idx) { fPidCandIdx = idx; }
-  
+
  protected:
 
   Double_t fXmomentum;		// The momentum in x
   Double_t fYmomentum;		// The momentum in y
   Double_t fZmomentum;		// The momentum in z
-  Double_t fEnergy; 
-  
+  Double_t fEnergy;
+
   Int_t fPidCandIdx;
-  std::vector<Int_t> fPhiBumpIdx;
-  
+  std::vector<Int_t> fPhiBumpList;
+  std::vector<Int_t> fSepBumpList;
+
   ClassDef(PndPidBremCorrected4Mom,1)
 
 };
 
 
-#endif                                           
-
+#endif

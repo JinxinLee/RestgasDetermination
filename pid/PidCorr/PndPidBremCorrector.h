@@ -46,8 +46,8 @@ class PndPidBremCorrector: public FairTask
 
         PndPidBremCorrected4Mom* AddBremCorrected4Mom();
 
-        double GetSepPhotonE(PndPidCandidate *);
-        double GetMergPhotonE(PndPidCandidate *);
+        double GetSepPhotonE(PndPidCandidate *, std::vector<Int_t>&);
+        double GetMergPhotonE(PndPidCandidate *, std::vector<Int_t>&);
 
         void GetEmcPhiBumpList(int iClust);
 

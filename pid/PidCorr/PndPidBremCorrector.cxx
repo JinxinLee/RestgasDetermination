@@ -95,6 +95,8 @@ InitStatus PndPidBremCorrector::Init() {
  fBremCorrected4MomArray = new TClonesArray("PndPidBremCorrected4Mom");
   ioman->Register("BremCorrected4Mom","Pid",fBremCorrected4MomArray,fPersistance);
 
+  return kSUCCESS;
+
 }
 
 void PndPidBremCorrector::Exec(Option_t* opt)
@@ -120,8 +122,9 @@ void PndPidBremCorrector::Exec(Option_t* opt)
     //double mass = m4.M();
     double mass = 0.000511; // Electron mass hypothesis (GeV)
 
-    fSepPhotonE = GetSepPhotonE(theChargedCand);
-    fMergPhotonE = GetMergPhotonE(theChargedCand);
+    std::vector<int> sep_bumps, phi_bumps;
+    fSepPhotonE = GetSepPhotonE(theChargedCand, sep_bumps);
+    fMergPhotonE = GetMergPhotonE(theChargedCand, phi_bumps);
     double energy_gamma = fSepPhotonE + fMergPhotonE;
 
     TVector3 momCorr = ((energy_gamma+fRecMomOfEle)/fRecMomOfEle) * mom;
@@ -130,6 +133,8 @@ void PndPidBremCorrector::Exec(Option_t* opt)
     PndPidBremCorrected4Mom *bremCorr = AddBremCorrected4Mom();
     bremCorr->SetMomentum(momCorr);
     bremCorr->SetEnergy(eneCorr);
+    for (int i=0; i < sep_bumps.size(); ++i) bremCorr->AddToSepBumpList(sep_bumps[i]);
+    for (int i=0; i < phi_bumps.size(); ++i) bremCorr->AddToPhiBumpList(phi_bumps[i]);
     bremCorr->SetPidCandIdx(iCand);
 
   }
@@ -142,9 +147,12 @@ PndPidBremCorrected4Mom* PndPidBremCorrector::AddBremCorrected4Mom(){
   return new(clref[size]) PndPidBremCorrected4Mom();
 }
 
-double PndPidBremCorrector::GetSepPhotonE(PndPidCandidate *ChargedCand){
+double PndPidBremCorrector::GetSepPhotonE(PndPidCandidate *ChargedCand, std::vector<int>& sep_bumps){
 
   Float_t PhotonTotEnergySepWtd = 0;
+
+  const int iTrkEmcIdx = ChargedCand->GetEmcIndex();
+  if (iTrkEmcIdx<0) return 0;
 
   const int nBump = fBumpArray->GetEntriesFast();
   for(Int_t iBump = 0; iBump<nBump; ++iBump)
@@ -152,13 +160,13 @@ double PndPidBremCorrector::GetSepPhotonE(PndPidCandidate *ChargedCand){
       PndEmcBump *PhotonBump = (PndEmcBump *) fBumpArray->At(iBump);
       const Float_t PhotonEnergySep = PhotonBump->GetEnergyCorrected();
 
-      const Int_t iSepClust = PhotonBump->GetClusterIndex();
-      if ( PhotonBump->GetClusterIndex() == ChargedCand->GetEmcIndex() ) continue;
-      if ( PhotonEnergySep > 0.9* ChargedCand->GetEnergy() ) continue;
+      const Int_t iSepBump = PhotonBump->GetClusterIndex();
+      if ( iSepBump == iTrkEmcIdx ) continue;
 
-      const double PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
-      const double PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
+      const Double_t PhotonThetaSep = PhotonBump->position().Theta()*TMath::RadToDeg();
+      const Double_t PhotonPhiSep = PhotonBump->position().Phi()*TMath::RadToDeg();
 
+      const Bool_t fwd = fRecThetaOfEle <= 23.;
       const Float_t Pt = fRecMomOfEle*TMath::Sin(fRecThetaOfEle/TMath::RadToDeg());
       const Float_t DeltaPhiBarrel = TMath::ASin(0.12/Pt)*2.*TMath::RadToDeg();
       const Float_t DeltaPhiForward = (0.6*2.0/Pt)*TMath::Tan(fRecThetaOfEle/57.3)*57.3;
@@ -166,19 +174,22 @@ double PndPidBremCorrector::GetSepPhotonE(PndPidCandidate *ChargedCand){
       const Float_t RealDeltaPhi = fCharge<0?PhotonPhiSep-fRecPhiOfEle:fRecPhiOfEle-PhotonPhiSep;
       const Float_t RealDeltaTheta = fCharge<0?PhotonThetaSep-fRecThetaOfEle:fRecThetaOfEle-PhotonThetaSep;
 
-      const Float_t RealDeltaPhiRad = RealDeltaPhi*TMath::DegToRad();
-      const Float_t rad_calc = 100*TMath::Sin(RealDeltaPhiRad/2.)*2*Pt/0.3/2.0; // B=2T
+      const Float_t rad_calc = 100.*TMath::Sin(RealDeltaPhi*TMath::DegToRad()/2.)*2.0*Pt/0.3/2.0; // B=2T
+      const Float_t zed_calc = rad_calc/TMath::Tan(TMath::DegToRad()*fRecThetaOfEle);
 
-      const Float_t wt = 1.0/(1.+TMath::Exp((rad_calc-21.)/5));
+      const Float_t wt = fwd ? 1.0/(1.+TMath::Exp((zed_calc-90.)/25.)) : 1.0/(1.+TMath::Exp((rad_calc-21.)/5.));
       const Float_t ThetaCutUp = 2.;
       const Float_t ThetaCutDown = -2.;
-      const Float_t PhiCutUp = (fRecThetaOfEle <= 23.)?DeltaPhiForward:DeltaPhiBarrel;
+      const Float_t PhiCutUp = fwd ? DeltaPhiForward : DeltaPhiBarrel;
       const Float_t PhiCutDown = -1;
 
       const Bool_t PhiCut = RealDeltaPhi <= PhiCutUp && RealDeltaPhi >= PhiCutDown;
       const Bool_t ThetaCut = RealDeltaTheta <= ThetaCutUp && RealDeltaTheta >= ThetaCutDown;
 
-      if (PhiCut && ThetaCut) PhotonTotEnergySepWtd += wt*PhotonEnergySep;
+      if (PhiCut && ThetaCut) {
+	PhotonTotEnergySepWtd += wt*PhotonEnergySep;
+	sep_bumps.push_back(iSepBump);
+      }
 
     }//loop neutralcand
 
@@ -188,7 +199,7 @@ double PndPidBremCorrector::GetSepPhotonE(PndPidCandidate *ChargedCand){
 
 }
 
-double PndPidBremCorrector::GetMergPhotonE(PndPidCandidate *ChargedCand){
+double PndPidBremCorrector::GetMergPhotonE(PndPidCandidate *ChargedCand, std::vector<int>& phi_bumps){
 
   Double_t PhotonTotEnergyMerg = 0.0;
 
@@ -214,7 +225,10 @@ double PndPidBremCorrector::GetMergPhotonE(PndPidCandidate *ChargedCand){
   }
   Int_t iS = fCharge<0?0:iMax+1;
   Int_t iE = fCharge<0?iMax-1:fEmcPhiBumpList.size()-1;
-  for(Int_t r = iS; r<=iE; r++) PhotonTotEnergyMerg += fEmcPhiBumpList[r]->energy();
+  for(Int_t r = iS; r<=iE; r++) {
+    PhotonTotEnergyMerg += fEmcPhiBumpList[r]->energy();
+    phi_bumps.push_back(r);
+  }
 
   if(PhotonTotEnergyMerg > fRecMomOfEle/100.)  {
     return PhotonTotEnergyMerg;
