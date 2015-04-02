@@ -1743,7 +1743,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // SKEWED ASSOCIATION ********* CHECK *********
     // -------------------------------------------------------
-    cout << " %%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+    //    cout << " %%%%%%%%%%%%%%%%%%%% ZFINDER %%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
 
     if(fDisplayOn) DrawZGeometry();
     
@@ -2067,7 +2067,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	}
       }
     
-    cout << "PHI SECTOR " << phisec[0] << " " << phisec[1] << endl;
+    //    cout << "PHI SECTOR " << phisec[0] << " " << phisec[1] << endl;
 
     // correction
     for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) 
@@ -2153,228 +2153,228 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
       // check neighborings @ layer 8 & 15
       PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
-      if(tube->GetLayerID() == 8) {
-	PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
-	TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
-	//	 cout << thit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
-	for(int j = 0; j < neighs.GetEntriesFast(); j++) {
-	  PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
-	  PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
-	  if(ntube->GetLayerID() == 7) {
-	    //	     cout << "hit close to 7" << endl;
-	    first.push_back(ihit);
-	  }
-	}
-      }
-      if(tube->GetLayerID() == 15) 
-	{
-	  PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
-	  TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
-	  // cout << hit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
-	  for(int j = 0; j < neighs.GetEntriesFast(); j++) {
-	    PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
-	    PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
-	    if(ntube->GetLayerID() == 16) {
-	      //	       cout << "hit close to 16" << endl;
-	      second.push_back(ihit);
-	    }
-	  }
-	}
+      //      if(tube->GetLayerID() == 8) {
+      // 	PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
+      // 	TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
+      // 	//	 cout << thit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
+      // 	for(int j = 0; j < neighs.GetEntriesFast(); j++) {
+      // 	  PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
+      // 	  PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
+      // 	  if(ntube->GetLayerID() == 7) {
+      // 	    //	     cout << "hit close to 7" << endl;
+      // 	    first.push_back(ihit);
+      // 	  }
+      // 	}
+      //       }
+      //       if(tube->GetLayerID() == 15) 
+      // 	{
+      // 	  PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
+      // 	  TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
+      // 	  // cout << hit->GetHitID() << " on layer " << tube->GetLayerID() << " " << neighs.GetEntriesFast() << endl;
+      // 	  for(int j = 0; j < neighs.GetEntriesFast(); j++) {
+      // 	    PndTrkHit *nhit = (PndTrkHit*) neighs.At(j);
+      // 	    PndSttTube *ntube = (PndSttTube*) fTubeArray->At(nhit->GetTubeID());
+      // 	    if(ntube->GetLayerID() == 16) {
+      // 	      //	       cout << "hit close to 16" << endl;
+      // 	      second.push_back(ihit);
+      // 	    }
+      // 	  }
+      // 	}
     }
     
-    if(first.size() != 0 && second.size() != 0) {
+    //    if(first.size() != 0 && second.size() != 0) {
 
-      double zdistance = 1000;
-      int tmpi = -1, tmpj = -1;
-      double tmpiz = -999, tmpjz = -999, tmpiphi = -999, tmpjphi = -999;
+    //       double zdistance = 1000;
+    //       int tmpi = -1, tmpj = -1;
+    //       double tmpiz = -999, tmpjz = -999, tmpiphi = -999, tmpjphi = -999;
       
-      for(int ihit = 0; ihit < first.size(); ihit++) {
-	int hitiskeid = first[ihit];
-	PndTrkSkewHit *skewhiti = (PndTrkSkewHit*) skewhitlist.GetHit(hitiskeid);
-	TVector3 fin_intersectioni = 0.5 * (skewhiti->GetIntersection1() + skewhiti->GetIntersection2());
-	double phii = 0.5 * (skewhiti->GetPhi1() + skewhiti->GetPhi2()) ;
-	for(int jhit = 0; jhit < second.size(); jhit++) {
-	  int hitjskeid = second[jhit];
-	  PndTrkSkewHit *skewhitj = (PndTrkSkewHit*) skewhitlist.GetHit(hitjskeid);
-	  TVector3 fin_intersectionj = 0.5 * (skewhitj->GetIntersection1() + skewhitj->GetIntersection2());
-	  double phij = 0.5 * (skewhitj->GetPhi1() + skewhitj->GetPhi2()) ;
+    //       for(int ihit = 0; ihit < first.size(); ihit++) {
+    // 	int hitiskeid = first[ihit];
+    // 	PndTrkSkewHit *skewhiti = (PndTrkSkewHit*) skewhitlist.GetHit(hitiskeid);
+    // 	TVector3 fin_intersectioni = 0.5 * (skewhiti->GetIntersection1() + skewhiti->GetIntersection2());
+    // 	double phii = 0.5 * (skewhiti->GetPhi1() + skewhiti->GetPhi2()) ;
+    // 	for(int jhit = 0; jhit < second.size(); jhit++) {
+    // 	  int hitjskeid = second[jhit];
+    // 	  PndTrkSkewHit *skewhitj = (PndTrkSkewHit*) skewhitlist.GetHit(hitjskeid);
+    // 	  TVector3 fin_intersectionj = 0.5 * (skewhitj->GetIntersection1() + skewhitj->GetIntersection2());
+    // 	  double phij = 0.5 * (skewhitj->GetPhi1() + skewhitj->GetPhi2()) ;
 	  
-	  double tmpzdistance = fabs(fin_intersectioni.Z() - fin_intersectionj.Z());
-	  if(tmpzdistance < zdistance) {
-	    zdistance = tmpzdistance;
-	    tmpi = hitiskeid;
-	    tmpj = hitjskeid;
-	    tmpiz = fin_intersectioni.Z(); 
-	    tmpjz = fin_intersectionj.Z();
-	    tmpiphi = phii;
-	    tmpjphi = phij;
-	  }
-	}
-      }
+    // 	  double tmpzdistance = fabs(fin_intersectioni.Z() - fin_intersectionj.Z());
+    // 	  if(tmpzdistance < zdistance) {
+    // 	    zdistance = tmpzdistance;
+    // 	    tmpi = hitiskeid;
+    // 	    tmpj = hitjskeid;
+    // 	    tmpiz = fin_intersectioni.Z(); 
+    // 	    tmpjz = fin_intersectionj.Z();
+    // 	    tmpiphi = phii;
+    // 	    tmpjphi = phij;
+    // 	  }
+    // 	}
+    //       }
       
-      fitm3 = (tmpiz - tmpjz) / (tmpiphi - tmpjphi);
-      fitq3 = tmpiz - fitm3 * tmpiphi;
-    }
-    else {
+    //       fitm3 = (tmpiz - tmpjz) / (tmpiphi - tmpjphi);
+    //       fitq3 = tmpiz - fitm3 * tmpiphi;
+    //     }
+    //     else {
 
-      fLineHisto->Reset();
+    fLineHisto->Reset();
       
-      for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) 
-	{
-	  hit = skewhitlist.GetHit(ihit);
-	  if(!hit) continue;
+    for(int ihit = 0; ihit < skewhitlist.GetNofHits(); ihit++) 
+      {
+	hit = skewhitlist.GetHit(ihit);
+	if(!hit) continue;
 
-	  TVector3 fin_intersection11(-999, -999, -999),  fin_intersection12(-999, -999, -999);
-	  double phi11 = -999, phi12 = -999;
+	TVector3 fin_intersection11(-999, -999, -999),  fin_intersection12(-999, -999, -999);
+	double phi11 = -999, phi12 = -999;
  
-	  if(hit->IsStt() == kTRUE) {
-	    PndTrkSkewHit *skewhit1 = (PndTrkSkewHit*) hit;
+	if(hit->IsStt() == kTRUE) {
+	  PndTrkSkewHit *skewhit1 = (PndTrkSkewHit*) hit;
 	  
-	    fin_intersection11 = skewhit1->GetIntersection1();
-	    fin_intersection12 = skewhit1->GetIntersection2();
-	    phi11 = skewhit1->GetPhi1();
-	    phi12 = skewhit1->GetPhi2();
+	  fin_intersection11 = skewhit1->GetIntersection1();
+	  fin_intersection12 = skewhit1->GetIntersection2();
+	  phi11 = skewhit1->GetPhi1();
+	  phi12 = skewhit1->GetPhi2();
+	}
+	else {
+	  fin_intersection11 = hit->GetPosition();
+	  phi11 = hit->GetPhi();
+	}
+
+	if(fDisplayOn) {
+	  display->cd(4);
+	  if(phi12 != -999)  {
+	    TLine *linezphi = new TLine(phi11, fin_intersection11.Z(), phi12, fin_intersection12.Z());
+	    linezphi->SetLineStyle(1);
+	    linezphi->Draw("SAME");
+	    TMarker *mrkzphi1 = new TMarker(phi11, fin_intersection11.Z(), 20);
+	    mrkzphi1->SetMarkerColor(kBlue - 9);
+	    mrkzphi1->Draw("SAME");
+	    TMarker *mrkzphi2 = new TMarker(phi12, fin_intersection12.Z(), 20);
+	    mrkzphi2->SetMarkerColor(kMagenta - 7);
+	    mrkzphi2->Draw("SAME");
 	  }
 	  else {
-	    fin_intersection11 = hit->GetPosition();
-	    phi11 = hit->GetPhi();
+	    TMarker *mrkzphi1 = new TMarker(phi11, fin_intersection11.Z(), 20);
+	    mrkzphi1->SetMarkerColor(kGreen);
+	    mrkzphi1->Draw("SAME");
 	  }
-
-	  if(fDisplayOn) {
-	    display->cd(4);
-	    if(phi12 != -999)  {
-	      TLine *linezphi = new TLine(phi11, fin_intersection11.Z(), phi12, fin_intersection12.Z());
-	      linezphi->SetLineStyle(1);
-	      linezphi->Draw("SAME");
-	      TMarker *mrkzphi1 = new TMarker(phi11, fin_intersection11.Z(), 20);
-	      mrkzphi1->SetMarkerColor(kBlue - 9);
-	      mrkzphi1->Draw("SAME");
-	      TMarker *mrkzphi2 = new TMarker(phi12, fin_intersection12.Z(), 20);
-	      mrkzphi2->SetMarkerColor(kMagenta - 7);
-	      mrkzphi2->Draw("SAME");
+	  display->Update();
+	  display->Modified();
+	}
+      
+	for(int jhit = ihit + 1; jhit < skewhitlist.GetNofHits(); jhit++) 
+	  {
+	    PndTrkHit *hitj = skewhitlist.GetHit(jhit);
+	    if(!hitj) continue;
+	    
+	    TVector3 fin_intersection21(-999, -999, -999),  fin_intersection22(-999, -999, -999);
+	    double phi21 = -999, phi22 = -999;
+	    
+	    if(hitj->IsStt() == kTRUE) {
+	      PndTrkSkewHit *skewhit2 = (PndTrkSkewHit*) hitj;
+	      
+	      fin_intersection21 = skewhit2->GetIntersection1();
+	      fin_intersection22 = skewhit2->GetIntersection2();
+	      phi21 = skewhit2->GetPhi1();
+	      phi22 = skewhit2->GetPhi2();
 	    }
 	    else {
-	      TMarker *mrkzphi1 = new TMarker(phi11, fin_intersection11.Z(), 20);
-	      mrkzphi1->SetMarkerColor(kGreen);
-	      mrkzphi1->Draw("SAME");
+	      fin_intersection21 = hitj->GetPosition();
+	      phi21 = hitj->GetPhi();
 	    }
-	    display->Update();
-	    display->Modified();
-	  }
-      
-	  for(int jhit = ihit + 1; jhit < skewhitlist.GetNofHits(); jhit++) 
-	    {
-	      PndTrkHit *hitj = skewhitlist.GetHit(jhit);
-	      if(!hitj) continue;
-	    
-	      TVector3 fin_intersection21(-999, -999, -999),  fin_intersection22(-999, -999, -999);
-	      double phi21 = -999, phi22 = -999;
-	    
-	      if(hitj->IsStt() == kTRUE) {
-		PndTrkSkewHit *skewhit2 = (PndTrkSkewHit*) hitj;
-	      
-		fin_intersection21 = skewhit2->GetIntersection1();
-		fin_intersection22 = skewhit2->GetIntersection2();
-		phi21 = skewhit2->GetPhi1();
-		phi22 = skewhit2->GetPhi2();
-	      }
-	      else {
-		fin_intersection21 = hitj->GetPosition();
-		phi21 = hitj->GetPhi();
-	      }
 
 	   
-	      // 1 1
-	      double cost = (fin_intersection21.Z() - fin_intersection11.Z()) / TMath::Sqrt((phi11 - phi21) * (phi11 - phi21) + (fin_intersection21.Z() - fin_intersection11.Z()) * (fin_intersection21.Z() - fin_intersection11.Z()));
-	      double theta = TMath::ACos(cost);
-	      double r1 = phi11 * cost + fin_intersection11.Z() * TMath::Sin(theta);
-	      double r2 = phi21 * cost + fin_intersection21.Z() * TMath::Sin(theta);
+	    // 1 1
+	    double cost = (fin_intersection21.Z() - fin_intersection11.Z()) / TMath::Sqrt((phi11 - phi21) * (phi11 - phi21) + (fin_intersection21.Z() - fin_intersection11.Z()) * (fin_intersection21.Z() - fin_intersection11.Z()));
+	    double theta = TMath::ACos(cost);
+	    double r1 = phi11 * cost + fin_intersection11.Z() * TMath::Sin(theta);
+	    double r2 = phi21 * cost + fin_intersection21.Z() * TMath::Sin(theta);
+	    if(fabs(r1 - r2) > 1.e-9) {
+	      theta = -TMath::ACos(cost);
+	      r1 = phi11 * cost + fin_intersection11.Z() * TMath::Sin(theta);
+	    }
+	    fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
+	    double fitm11 =  -TMath::Cos(theta)/TMath::Sin(theta);
+	    double fitq11 = r1/TMath::Sin(theta);
+	    TLine *line11 = new TLine(0, fitq11, 360, 360 * fitm11 + fitq11);
+	    //    line11->Draw("SAME");
+	    // 	    cout << phi11 << " " << phi21 << endl;
+	    
+	    if(phi12 != -999)  {
+	      // 2 1
+	      cost = (fin_intersection21.Z() - fin_intersection12.Z()) / TMath::Sqrt((phi12 - phi21) * (phi12 - phi21) + (fin_intersection21.Z() - fin_intersection12.Z()) * (fin_intersection21.Z() - fin_intersection12.Z()));
+	      theta = TMath::ACos(cost);
+	      r1 = phi12 * cost + fin_intersection12.Z() * TMath::Sin(theta);
+	      r2 = phi21 * cost + fin_intersection21.Z() * TMath::Sin(theta);
 	      if(fabs(r1 - r2) > 1.e-9) {
 		theta = -TMath::ACos(cost);
-		r1 = phi11 * cost + fin_intersection11.Z() * TMath::Sin(theta);
+		r1 = phi12 * cost + fin_intersection12.Z() * TMath::Sin(theta);
 	      }
 	      fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
-	      double fitm11 =  -TMath::Cos(theta)/TMath::Sin(theta);
-	      double fitq11 = r1/TMath::Sin(theta);
-	      TLine *line11 = new TLine(0, fitq11, 360, 360 * fitm11 + fitq11);
-	      //    line11->Draw("SAME");
-	      // 	    cout << phi11 << " " << phi21 << endl;
-	    
-	      if(phi12 != -999)  {
-		// 2 1
-		cost = (fin_intersection21.Z() - fin_intersection12.Z()) / TMath::Sqrt((phi12 - phi21) * (phi12 - phi21) + (fin_intersection21.Z() - fin_intersection12.Z()) * (fin_intersection21.Z() - fin_intersection12.Z()));
-		theta = TMath::ACos(cost);
-		r1 = phi12 * cost + fin_intersection12.Z() * TMath::Sin(theta);
-		r2 = phi21 * cost + fin_intersection21.Z() * TMath::Sin(theta);
-		if(fabs(r1 - r2) > 1.e-9) {
-		  theta = -TMath::ACos(cost);
-		  r1 = phi12 * cost + fin_intersection12.Z() * TMath::Sin(theta);
-		}
-		fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
-		double fitm21 =  -TMath::Cos(theta)/TMath::Sin(theta);
-		double fitq21 = r1/TMath::Sin(theta);
-		TLine *line21 = new TLine(0, fitq21, 360, 360 * fitm21 + fitq21);
-		// 	      line21->Draw("SAME");
-		// 	      cout << phi12 << " " << phi21 << endl;
-	      }
-
-	      if(phi22 != -999)  {
-		// 1 2
-		cost = (fin_intersection11.Z() - fin_intersection22.Z()) / TMath::Sqrt((phi22 - phi11) * (phi22 - phi11) + (fin_intersection11.Z() - fin_intersection22.Z()) * (fin_intersection11.Z() - fin_intersection22.Z()));
-		theta = TMath::ACos(cost);
-		r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
-		r2 = phi11 * cost + fin_intersection11.Z() * TMath::Sin(theta);
-		if(fabs(r1 - r2) > 1.e-9) {
-		  theta = -TMath::ACos(cost);
-		  r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
-		}
-		fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
-		double fitm12 =  -TMath::Cos(theta)/TMath::Sin(theta);
-		double fitq12 = r1/TMath::Sin(theta);
-		TLine *line12 = new TLine(0, fitq12, 360, 360 * fitm12 + fitq12);
-		// 	      line12->Draw("SAME");
-		// 	      cout << phi11<< " " << phi22<< endl;	   
-	      }
-
-	      if(phi12 != -999 && phi22 != -999)  {
-		// 2 2
-		cost = (fin_intersection12.Z() - fin_intersection22.Z()) / TMath::Sqrt((phi22 - phi12) * (phi22 - phi12) + (fin_intersection12.Z() - fin_intersection22.Z()) * (fin_intersection12.Z() - fin_intersection22.Z()));
-		theta = TMath::ACos(cost);
-		r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
-		r2 = phi12 * cost + fin_intersection12.Z() * TMath::Sin(theta);
-		if(fabs(r1 - r2) > 1.e-9) {
-		  theta = -TMath::ACos(cost);
-		  r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
-		}
-		fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
-		double fitm22 =  -TMath::Cos(theta)/TMath::Sin(theta);
-		double fitq22 = r1/TMath::Sin(theta);
-		TLine *line22 = new TLine(0, fitq22, 360, 360 * fitm22 + fitq22);
-		// 	       line22->Draw("SAME");
-		// 	       cout << phi12 << " " << phi22<< endl;
-	      }
+	      double fitm21 =  -TMath::Cos(theta)/TMath::Sin(theta);
+	      double fitq21 = r1/TMath::Sin(theta);
+	      TLine *line21 = new TLine(0, fitq21, 360, 360 * fitm21 + fitq21);
+	      // 	      line21->Draw("SAME");
+	      // 	      cout << phi12 << " " << phi21 << endl;
 	    }
-	}
 
-      if(fDisplayOn) {
-	display->cd(3);
-	fLineHisto->Draw("colz");
-	display->cd(4);
-	display->Update();
-	display->Modified();
-	char goOnChar;
-	cin >> goOnChar;
+	    if(phi22 != -999)  {
+	      // 1 2
+	      cost = (fin_intersection11.Z() - fin_intersection22.Z()) / TMath::Sqrt((phi22 - phi11) * (phi22 - phi11) + (fin_intersection11.Z() - fin_intersection22.Z()) * (fin_intersection11.Z() - fin_intersection22.Z()));
+	      theta = TMath::ACos(cost);
+	      r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
+	      r2 = phi11 * cost + fin_intersection11.Z() * TMath::Sin(theta);
+	      if(fabs(r1 - r2) > 1.e-9) {
+		theta = -TMath::ACos(cost);
+		r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
+	      }
+	      fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
+	      double fitm12 =  -TMath::Cos(theta)/TMath::Sin(theta);
+	      double fitq12 = r1/TMath::Sin(theta);
+	      TLine *line12 = new TLine(0, fitq12, 360, 360 * fitm12 + fitq12);
+	      // 	      line12->Draw("SAME");
+	      // 	      cout << phi11<< " " << phi22<< endl;	   
+	    }
+
+	    if(phi12 != -999 && phi22 != -999)  {
+	      // 2 2
+	      cost = (fin_intersection12.Z() - fin_intersection22.Z()) / TMath::Sqrt((phi22 - phi12) * (phi22 - phi12) + (fin_intersection12.Z() - fin_intersection22.Z()) * (fin_intersection12.Z() - fin_intersection22.Z()));
+	      theta = TMath::ACos(cost);
+	      r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
+	      r2 = phi12 * cost + fin_intersection12.Z() * TMath::Sin(theta);
+	      if(fabs(r1 - r2) > 1.e-9) {
+		theta = -TMath::ACos(cost);
+		r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
+	      }
+	      fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
+	      double fitm22 =  -TMath::Cos(theta)/TMath::Sin(theta);
+	      double fitq22 = r1/TMath::Sin(theta);
+	      TLine *line22 = new TLine(0, fitq22, 360, 360 * fitm22 + fitq22);
+	      // 	       line22->Draw("SAME");
+	      // 	       cout << phi12 << " " << phi22<< endl;
+	    }
+	  }
       }
 
-      int bin = fLineHisto->GetMaximumBin();
-      int binx, biny, binz;
-      fLineHisto->GetBinXYZ(bin, binx, biny, binz);
-      double tpeak = fLineHisto->GetXaxis()->GetBinCenter(binx);
-      double rpeak = fLineHisto->GetYaxis()->GetBinCenter(biny);
-      //  cout << "tpeak " << tpeak << " rpeak " << rpeak << endl;
-      fitm3 = -TMath::Cos(tpeak * TMath::DegToRad())/TMath::Sin(tpeak * TMath::DegToRad());
-      fitq3 = rpeak/TMath::Sin(tpeak * TMath::DegToRad());
+    if(fDisplayOn) {
+      display->cd(3);
+      fLineHisto->Draw("colz");
+      display->cd(4);
+      display->Update();
+      display->Modified();
+      char goOnChar;
+      cin >> goOnChar;
     }
+
+    int bin = fLineHisto->GetMaximumBin();
+    int binx, biny, binz;
+    fLineHisto->GetBinXYZ(bin, binx, biny, binz);
+    double tpeak = fLineHisto->GetXaxis()->GetBinCenter(binx);
+    double rpeak = fLineHisto->GetYaxis()->GetBinCenter(biny);
+    //  cout << "tpeak " << tpeak << " rpeak " << rpeak << endl;
+    fitm3 = -TMath::Cos(tpeak * TMath::DegToRad())/TMath::Sin(tpeak * TMath::DegToRad());
+    fitq3 = rpeak/TMath::Sin(tpeak * TMath::DegToRad());
+    // }
  
 
     if(fDisplayOn) {
