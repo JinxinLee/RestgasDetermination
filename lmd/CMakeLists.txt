@@ -34,7 +34,7 @@ ${CMAKE_SOURCE_DIR}/lmd/LmdFit/ModelFramework
 ${CMAKE_SOURCE_DIR}/lmd
 #${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/recotasks
+#${CMAKE_SOURCE_DIR}/recotasks
 #${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 #${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 #${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
@@ -120,7 +120,7 @@ set(LINKDEF  LmdTrkLinkDef.h)
 set(LIBRARY_NAME LmdTrk)
 
 #set(DEPENDENCIES genfitAdapters RecoHits TrkBase Geane LmdReco TMVA)
-set(DEPENDENCIES RecoHits TrkBase Geane LmdReco TMVA)
+set(DEPENDENCIES TrkBase Geane LmdReco TMVA)
 
 GENERATE_LIBRARY()
 

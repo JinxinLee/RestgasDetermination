@@ -1,4 +1,4 @@
-// $Id: LmdTrkLinkDef.h,v 1.0 M. Michel$
+/ $Id: LmdTrkLinkDef.h,v 1.0 M. Michel$
 
 #ifdef __CINT__
 
@@ -9,7 +9,7 @@
 
 //tracking
 //#pragma link C++ class PndLmdMCPointTrackFinderTask+;
-#pragma link C++ class PndLmdPerformanceTask+;
+//#pragma link C++ class PndLmdPerformanceTask+;
 
 #endif
 

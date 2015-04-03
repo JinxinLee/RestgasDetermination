@@ -152,7 +152,7 @@ MvdTracking/LinFit/TtCracowTask.cxx
 set(LINKDEF  MvdTrkLinkDef.h)
 set(LIBRARY_NAME MvdTrk)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData generalTools RecoHits
+set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
 riemann Geane Sds TrkBase)
 
 GENERATE_LIBRARY()
