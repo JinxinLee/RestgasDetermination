@@ -32,3 +32,21 @@ add_test(check_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/check_complete.sh
 SET_TESTS_PROPERTIES(check_complete3 PROPERTIES TIMEOUT "200")
 SET_TESTS_PROPERTIES(check_complete3 PROPERTIES DEPENDS ana_complete3)
 SET_TESTS_PROPERTIES(check_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/recoideal_complete.C)
+add_test(recoideal_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/recoideal_complete.sh)
+SET_TESTS_PROPERTIES(recoideal_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(recoideal_complete3 PROPERTIES DEPENDS digi_complete3)
+SET_TESTS_PROPERTIES(recoideal_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/pidideal_complete.C)
+add_test(pidideal_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/pidideal_complete.sh)
+SET_TESTS_PROPERTIES(pidideal_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(pidideal_complete3 PROPERTIES DEPENDS recoideal_complete3)
+SET_TESTS_PROPERTIES(pidideal_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/anaideal_complete.C)
+add_test(anaideal_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/anaideal_complete.sh)
+SET_TESTS_PROPERTIES(anaideal_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(anaideal_complete3 PROPERTIES DEPENDS pidideal_complete3)
+SET_TESTS_PROPERTIES(anaideal_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")

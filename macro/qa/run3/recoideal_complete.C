@@ -3,9 +3,6 @@ void recoideal_complete()
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");  
-  rootlogon();
-  
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
   
@@ -19,7 +16,7 @@ void recoideal_complete()
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "reco_complete.root";
+  TString outFile = "recoideal_complete.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -58,19 +55,19 @@ void recoideal_complete()
   trackStt->SetPersistence(kFALSE);
   fRun->AddTask(trackStt);
  
-  /* 
+   
   PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
   trackMC->SetTrackInBranchName("SttMvdGemIdealTrack");
   trackMC->SetTrackOutBranchName("SttMvdGemIdealTrackID");
   fRun->AddTask(trackMC);
-  */
+  
 
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemIdealTrack");
-  //recoKalman->SetTrackInIDBranchName("SttMvdGemIdealTrackID");
+  recoKalman->SetTrackInIDBranchName("SttMvdGemIdealTrackID");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   recoKalman->SetBusyCut(50); // CHECK to be tuned
-  //recoKalman->SetIdealHyp(kTRUE);
+  recoKalman->SetIdealHyp(kTRUE);
   //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
 
@@ -94,10 +91,10 @@ void recoideal_complete()
 
   PndRecoKalmanTask* recoKalmanFwd = new PndRecoKalmanTask();
   recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
-  //recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
+  recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
   recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
   recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
-  //recoKalmanFwd->SetIdealHyp(kTRUE);
+  recoKalmanFwd->SetIdealHyp(kTRUE);
   //recoKalmanFwd->SetNumIterations(3);
   fRun->AddTask(recoKalmanFwd);
 
