@@ -43,8 +43,6 @@ PndRecoKalmanFit.cxx
 PndRecoDafFit.cxx
 PndRecoKalmanTask.cxx
 PndRecoMultiKalmanTask.cxx
-PrimSelector.cxx
-PndGFTrackToPndTrackConvertorTask.cxx
 )
 
 set(LINKDEF  RecoTasksLinkDef.h)
