@@ -1,0 +1,60 @@
+//modified by elisabetta Prencipe 19/05/2014
+
+#ifndef PNDFTSRECOHITPRODUCER2_H
+#define PNDFTSRECOHITPRODUCER2_H
+
+#include <vector>
+#include <map>
+#include <assert.h>
+#include <iostream>
+
+#include "TClonesArray.h"
+#include "Exception.h"
+#include "MeasurementProducer.h"
+#include "WireMeasurement.h"
+#include "TrackCandHit.h"
+
+
+template <class hit_T,class measurement_T>
+class PndFtsRecoHitProducer2 : public genfit::AbsMeasurementProducer<genfit::AbsMeasurement> {
+
+ private:
+  TClonesArray* hitArrayTClones;
+  TClonesArray* tubeArrayTClones;
+
+ public:
+
+  PndFtsRecoHitProducer2(TClonesArray*, TClonesArray*);
+  virtual ~PndFtsRecoHitProducer2();
+
+  virtual genfit::WireMeasurement* produce(int index, const genfit::TrackCandHit* hit);
+};
+
+template <class hit_T,class measurement_T>
+  PndFtsRecoHitProducer2<hit_T,measurement_T>::PndFtsRecoHitProducer2(TClonesArray* theArr, TClonesArray* theTubeArr) {
+  hitArrayTClones = theArr;
+  tubeArrayTClones = theTubeArr;
+}
+
+template <class hit_T,class measurement_T>
+  PndFtsRecoHitProducer2<hit_T,measurement_T>::~PndFtsRecoHitProducer2() {
+}
+
+
+template <class hit_T,class measurement_T>
+  genfit::WireMeasurement* PndFtsRecoHitProducer2<hit_T,measurement_T>::produce(int index, const genfit::TrackCandHit* hit) {
+  assert(hitArrayTClones!=NULL);
+  assert(tubeArrayTClones!=NULL);
+  if(hitArrayTClones->At(index) == 0) {
+    genfit::Exception e("In PndFtsRecoHitProducer2: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
+    e.setFatal();
+    throw e;
+  }
+
+  return ( new measurement_T( (hit_T*) hitArrayTClones->At(index), hit, tubeArrayTClones ) );
+}
+
+
+#endif 
+
+

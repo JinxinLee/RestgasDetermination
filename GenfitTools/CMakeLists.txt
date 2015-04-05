@@ -1,5 +1,7 @@
 add_subdirectory(trackrep)
 add_subdirectory(adapters)
+add_subdirectory(adapters2)
 add_subdirectory(recohits)
+add_subdirectory(recohits2)
 add_subdirectory(recotasks)
-#add_subdirectory(GFRave)
+add_subdirectory(recotasks2)

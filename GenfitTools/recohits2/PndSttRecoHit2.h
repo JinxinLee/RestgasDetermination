@@ -1,0 +1,55 @@
+#ifndef PNDSTTRECOHIT2_HH
+#define PNDSTTRECOHIT2_HH
+
+// Base Class Headers ----------------
+
+#include "WireMeasurement.h"
+#include "TrackCandHit.h"
+#include "PndSttHit.h"
+#include "PndSttHelixHit.h"
+
+#include <TClonesArray.h>
+
+// Collaborating Class Headers -------
+#include <ostream> // remove if you do not need streaming op
+
+// Collaborating Class Declarations --
+class PndSttHit;
+class PndSttHelixHit;
+class TClonesArray;
+
+
+class PndSttRecoHit2 : public genfit::WireMeasurement {
+public:
+
+  // Constructors/Destructors ---------
+  PndSttRecoHit2();
+  PndSttRecoHit2(PndSttHit *currenthit); 
+  PndSttRecoHit2(PndSttHelixHit *currenthit); 
+  PndSttRecoHit2(PndSttHit *currenthit, const genfit::TrackCandHit* hit, TClonesArray *tubeArr);
+  PndSttRecoHit2(PndSttHelixHit *currenthit, const genfit::TrackCandHit* hit, TClonesArray *tubeArr);
+
+  virtual ~PndSttRecoHit2();
+
+  virtual genfit::AbsMeasurement* clone(){return new PndSttRecoHit2(*this);};
+
+
+private:
+
+  // Private Data Members ------------
+ 
+ protected:
+ static const int NparHitRep = 7;
+
+  // Private Methods -----------------
+
+public:
+  ClassDef(PndSttRecoHit2,1)
+
+};
+
+#endif
+
+//--------------------------------------------------------------
+// $Log$
+//--------------------------------------------------------------
