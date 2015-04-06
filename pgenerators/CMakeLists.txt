@@ -2,40 +2,43 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR}
-${PYTHIA8_INCLUDE_DIR}
-${SIMPATH}/include
-${BASE_INCLUDE_DIRECTORIES}
-${GEANT4_INCLUDE_DIR}
-${CMAKE_SOURCE_DIR}/field
-${CMAKE_SOURCE_DIR}/generators
-${CMAKE_SOURCE_DIR}/pgenerators
-${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
-${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
-${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
-${CMAKE_SOURCE_DIR}/base/sim
-${CMAKE_SOURCE_DIR}/pnddata
-${CMAKE_SOURCE_DIR}/rho
-${CMAKE_SOURCE_DIR}/rho/RhoBase
-${CMAKE_SOURCE_DIR}/rho/RhoSelector
-${CMAKE_SOURCE_DIR}/fairtools
-${CMAKE_SOURCE_DIR}/geobase
-${CMAKE_SOURCE_DIR}/parbase
-${CMAKE_SOURCE_DIR}/base
-${CMAKE_SOURCE_DIR}/base/steer
-${CMAKE_SOURCE_DIR}/base/event
-${CMAKE_SOURCE_DIR}/base/field
-${CMAKE_SOURCE_DIR}/base/sim
-${CMAKE_SOURCE_DIR}/base/source
-${CMAKE_SOURCE_DIR}/dbase/dbInterface
-${CMAKE_SOURCE_DIR}/dbase/dbValidation
-${CMAKE_SOURCE_DIR}/dbase/dbUtils
-${CMAKE_SOURCE_DIR}/input/db
-${CMAKE_SOURCE_DIR}/dbase/dbInput
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${PYTHIA8_INCLUDE_DIR}
+  ${BASE_INCLUDE_DIRECTORIES}
+  ${GEANT4_INCLUDE_DIR}
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/field
+  ${CMAKE_SOURCE_DIR}/generators
+  ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
+  ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
+  ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
+  ${CMAKE_SOURCE_DIR}/base/sim
+  ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/rho
+  ${CMAKE_SOURCE_DIR}/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/fairtools
+  ${CMAKE_SOURCE_DIR}/geobase
+  ${CMAKE_SOURCE_DIR}/parbase
+  ${CMAKE_SOURCE_DIR}/base
+  ${CMAKE_SOURCE_DIR}/base/steer
+  ${CMAKE_SOURCE_DIR}/base/event
+  ${CMAKE_SOURCE_DIR}/base/field
+  ${CMAKE_SOURCE_DIR}/base/sim
+  ${CMAKE_SOURCE_DIR}/base/source
+  ${CMAKE_SOURCE_DIR}/dbase/dbInterface
+  ${CMAKE_SOURCE_DIR}/dbase/dbValidation
+  ${CMAKE_SOURCE_DIR}/dbase/dbUtils
+  ${CMAKE_SOURCE_DIR}/input/db
+  ${CMAKE_SOURCE_DIR}/dbase/dbInput
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

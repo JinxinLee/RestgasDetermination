@@ -63,7 +63,6 @@ If(NOT CMAKE_BUILD_TYPE)
 EndIf(NOT CMAKE_BUILD_TYPE)
 Check_Compiler()
 
-SetBasicVariables()
 
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
@@ -127,8 +126,25 @@ find_package(CLHEP)
 find_package(CERNLIB)
 find_package(HEPMC)
 
-find_package(RuleChecker)
-
+Set(Boost_NO_SYSTEM_PATHS TRUE)
+Set(Boost_NO_BOOST_CMAKE TRUE)
+If(${ROOT_LIBRARY_DIR} MATCHES /lib/root)
+  Set(BOOST_ROOT ${SIMPATH})
+Else(${ROOT_LIBRARY_DIR} MATCHES /lib/root)
+  Set(BOOST_ROOT ${SIMPATH}/basics/boost)
+EndIf(${ROOT_LIBRARY_DIR} MATCHES /lib/root)
+Message("-- Looking for Boost ...")
+# If an older version of boost is found both of the variables below are
+# cached and in a second cmake run, a good boost version is found even
+# if the version is to old.
+# To overcome this problem both variables are cleared before checking
+# for boost.
+Unset(Boost_INCLUDE_DIR CACHE)
+Unset(Boost_LIBRARY_DIRS CACHE)
+Find_Package(Boost 1.48) # COMPONENTS program_options thread system timer
+                         # serialization regex)
+SetBasicVariables()
+Message("SYSTEM_DIR1: ${SYSTEM_INCLUDE_DIRECTORIES}")
 
 # Set the library version in the main CMakeLists.txt
 SET(FAIRROOT_MAJOR_VERSION 0)

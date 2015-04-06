@@ -2,17 +2,19 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
-#put here all directories where header files are located
-${BASE_INCLUDE_DIRECTORIES} 
-${SIMPATH}/include
-${PANDAROOT_SOURCE_DIR}/pnddata
-${PANDAROOT_SOURCE_DIR}/pnddata/RichData
-${PANDAROOT_SOURCE_DIR}/rich
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${BASE_INCLUDE_DIRECTORIES} 
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Set(INCLUDE_DIRECTORIES
+  ${PANDAROOT_SOURCE_DIR}/pnddata
+  ${PANDAROOT_SOURCE_DIR}/pnddata/RichData
+  ${PANDAROOT_SOURCE_DIR}/rich
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

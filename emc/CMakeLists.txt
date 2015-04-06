@@ -2,25 +2,28 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR}
-${BASE_INCLUDE_DIRECTORIES} 
-${SIMPATH}/include
-${CMAKE_SOURCE_DIR}/passive
-${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/pnddata 
-${CMAKE_SOURCE_DIR}/emc/EmcData
-${CMAKE_SOURCE_DIR}/emc/EmcDigi
-${CMAKE_SOURCE_DIR}/emc/EmcMC
-${CMAKE_SOURCE_DIR}/emc/EmcReco
-${CMAKE_SOURCE_DIR}/emc/EmcTools
-${CMAKE_SOURCE_DIR}/emc/EmcProtoTools
-${CMAKE_SOURCE_DIR}/emc/EmcCorr
-${CMAKE_SOURCE_DIR}/emc/EmcTimeBased
-${CMAKE_SOURCE_DIR}/emc
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES} 
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/field 
+  ${CMAKE_SOURCE_DIR}/pnddata 
+  ${CMAKE_SOURCE_DIR}/emc/EmcData
+  ${CMAKE_SOURCE_DIR}/emc/EmcDigi
+  ${CMAKE_SOURCE_DIR}/emc/EmcMC
+  ${CMAKE_SOURCE_DIR}/emc/EmcReco
+  ${CMAKE_SOURCE_DIR}/emc/EmcTools
+  ${CMAKE_SOURCE_DIR}/emc/EmcProtoTools
+  ${CMAKE_SOURCE_DIR}/emc/EmcCorr
+  ${CMAKE_SOURCE_DIR}/emc/EmcTimeBased
+  ${CMAKE_SOURCE_DIR}/emc
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

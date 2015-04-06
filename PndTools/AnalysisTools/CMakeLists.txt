@@ -1,28 +1,31 @@
 # Create a library called "AnalysisTools"
 #add_subdirectory (DecayTreeFitter)
 
-set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR}
-${BASE_INCLUDE_DIRECTORIES}
-${SIMPATH}/include
-${CMAKE_SOURCE_DIR}/field
-${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/pnddata
-${CMAKE_SOURCE_DIR}/pnddata/TrackData
-${CMAKE_SOURCE_DIR}/pnddata/PidData
-${CMAKE_SOURCE_DIR}/rho
-${CMAKE_SOURCE_DIR}/rho/RhoBase
-${CMAKE_SOURCE_DIR}/rho/RhoTools
-${CMAKE_SOURCE_DIR}/rho/RhoSelector
-${CMAKE_SOURCE_DIR}/rho/RhoHistogram
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
-${CMAKE_SOURCE_DIR}/softrig
-${GEANT3_INCLUDE_DIR}
-${CMAKE_SOURCE_DIR}/geane
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
+  ${GEANT3_INCLUDE_DIR}
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/field
+  ${CMAKE_SOURCE_DIR}/trackbase
+  ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/pnddata/PidData
+  ${CMAKE_SOURCE_DIR}/rho
+  ${CMAKE_SOURCE_DIR}/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/rho/RhoTools
+  ${CMAKE_SOURCE_DIR}/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/rho/RhoHistogram
+  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
+  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+  ${CMAKE_SOURCE_DIR}/softrig
+  ${CMAKE_SOURCE_DIR}/geane
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

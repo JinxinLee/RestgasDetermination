@@ -2,37 +2,40 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR}
-${GEANT3_INCLUDE_DIR}
-${CLHEP_INCLUDE_DIR}
-${BASE_INCLUDE_DIRECTORIES} 
-${SIMPATH}/include
-${CMAKE_SOURCE_DIR}/field
-${CMAKE_SOURCE_DIR}/passive
-${CMAKE_SOURCE_DIR}/PndTools/generalTools
-${CMAKE_SOURCE_DIR}/pnddata
-${CMAKE_SOURCE_DIR}/mvd/MvdData
-${CMAKE_SOURCE_DIR}/mvd/MvdTools
-${CMAKE_SOURCE_DIR}/pnddata/MvdData
-${CMAKE_SOURCE_DIR}/pnddata/SdsData
-${CMAKE_SOURCE_DIR}/stt
-${CMAKE_SOURCE_DIR}/stt/sttreco
-${CMAKE_SOURCE_DIR}/pnddata/SttData
-${CMAKE_SOURCE_DIR}/gem
-${CMAKE_SOURCE_DIR}/pnddata/GemData
-${CMAKE_SOURCE_DIR}/pnddata/TrackData
-${CMAKE_SOURCE_DIR}/genfit
-${CMAKE_SOURCE_DIR}/recotasks
-${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/recohits
-${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/global
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${GEANT3_INCLUDE_DIR}
+  ${CLHEP_INCLUDE_DIR}
+  ${BASE_INCLUDE_DIRECTORIES} 
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/field
+  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/mvd/MvdData
+  ${CMAKE_SOURCE_DIR}/mvd/MvdTools
+  ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+  ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+  ${CMAKE_SOURCE_DIR}/stt
+  ${CMAKE_SOURCE_DIR}/stt/sttreco
+  ${CMAKE_SOURCE_DIR}/pnddata/SttData
+  ${CMAKE_SOURCE_DIR}/gem
+  ${CMAKE_SOURCE_DIR}/pnddata/GemData
+  ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/genfit
+  ${CMAKE_SOURCE_DIR}/recotasks
+  ${CMAKE_SOURCE_DIR}/trackbase
+  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
+  ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
+  ${CMAKE_SOURCE_DIR}/geane
+  ${CMAKE_SOURCE_DIR}/global
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

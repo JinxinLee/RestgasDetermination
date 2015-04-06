@@ -2,15 +2,19 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
-${CLHEP_INCLUDE_DIR} 
-${BASE_INCLUDE_DIRECTORIES}
-${CMAKE_SOURCE_DIR}/trackbase 
-${CMAKE_SOURCE_DIR}/PndTools/HelixPropagator
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${CLHEP_INCLUDE_DIR} 
+  ${BASE_INCLUDE_DIRECTORIES}
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/trackbase 
+  ${CMAKE_SOURCE_DIR}/PndTools/HelixPropagator
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

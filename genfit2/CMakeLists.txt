@@ -2,16 +2,19 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-set(INCLUDE_DIRECTORIES 
-  ${SIMPATH}/include
+Set(SYSTEM_INCLUDE_DIRECTORIES 
   ${BASE_INCLUDE_DIRECTORIES} 
-  ${ROOT_INCLUDE_DIR} 
+  ${SYSTEM_INCLUDE_DIRECTORIES} 
   ${CLHEP_INCLUDE_DIR} 
+)
+
+Set(INCLUDE_DIRECTORIES 
   ${CMAKE_SOURCE_DIR}/genfit2
   #{CMAKE_SOURCE_DIR}/genfit/test
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

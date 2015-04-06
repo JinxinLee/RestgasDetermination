@@ -1,23 +1,27 @@
 # Create a library called "libfsim"
 
-set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR}
-${BASE_INCLUDE_DIRECTORIES}
-${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/pnddata
-${CMAKE_SOURCE_DIR}/pnddata/PidData
-${CMAKE_SOURCE_DIR}/passive
-${CMAKE_SOURCE_DIR}/tpc
-${CMAKE_SOURCE_DIR}/fsim
-${CMAKE_SOURCE_DIR}/fsim/scrut
-${CMAKE_SOURCE_DIR}/pid
-${CMAKE_SOURCE_DIR}/rho
-${CMAKE_SOURCE_DIR}/rho/RhoBase
-${CMAKE_SOURCE_DIR}/rho/RhoSelector
-${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/trackbase
+  ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/pnddata/PidData
+  ${CMAKE_SOURCE_DIR}/passive
+  ${CMAKE_SOURCE_DIR}/tpc
+  ${CMAKE_SOURCE_DIR}/fsim
+  ${CMAKE_SOURCE_DIR}/fsim/scrut
+  ${CMAKE_SOURCE_DIR}/pid
+  ${CMAKE_SOURCE_DIR}/rho
+  ${CMAKE_SOURCE_DIR}/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}

@@ -2,19 +2,23 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
-set(INCLUDE_DIRECTORIES
-   ${HEPMC_INCLUDE_DIR}
-   ${ROOT_INCLUDE_DIR} 
-   ${BASE_INCLUDE_DIRECTORIES} 
-   ${EVTGEN_INCLUDE_DIR}
-   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${HEPMC_INCLUDE_DIR}
+  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${BASE_INCLUDE_DIRECTORIES} 
+  ${EVTGEN_INCLUDE_DIR}
+)
+
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
 )
 
 if(EVTGEN_EXTERNAL)
    add_definitions("-DEVTGEN_EXTERNAL")
 endif(EVTGEN_EXTERNAL)
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
    ${ROOT_LIBRARY_DIR}

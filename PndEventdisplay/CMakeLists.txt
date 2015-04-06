@@ -1,35 +1,38 @@
 # Create a library called "libPndEventDisplay" 
 # 18.06.09  T.Stockmanns
 
-set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
-${GEANT3_INCLUDE_DIR}
-${BASE_INCLUDE_DIRECTORIES} 
-${SIMPATH}/include
-${CMAKE_SOURCE_DIR}/PndTools/generalTools 
-${CMAKE_SOURCE_DIR}/PndTools/HelixPropagator
-${CMAKE_SOURCE_DIR}/PndMCMatch
-${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/trackbase 
-${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/genfit
-${CMAKE_SOURCE_DIR}/lhetrack
-${CMAKE_SOURCE_DIR}/eventdisplay
-${CMAKE_SOURCE_DIR}/pnddata
-${CMAKE_SOURCE_DIR}/pnddata/DrcData
-${CMAKE_SOURCE_DIR}/pnddata/SttData
-${CMAKE_SOURCE_DIR}/pnddata/TrackData
-${CMAKE_SOURCE_DIR}/pnddata/MvdData
-${CMAKE_SOURCE_DIR}/pnddata/SdsData
-${CMAKE_SOURCE_DIR}/drc
-${CMAKE_SOURCE_DIR}/mvd/MvdDigi
-${CMAKE_SOURCE_DIR}/sds/SdsDigi
-${CMAKE_SOURCE_DIR}/stt
-${CMAKE_SOURCE_DIR}/emc/EmcData
-${CMAKE_SOURCE_DIR}/PndEventdisplay
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${BASE_INCLUDE_DIRECTORIES} 
+  ${GEANT3_INCLUDE_DIR} 
 )
 
-include_directories( ${INCLUDE_DIRECTORIES})
+Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/PndTools/generalTools 
+  ${CMAKE_SOURCE_DIR}/PndTools/HelixPropagator
+  ${CMAKE_SOURCE_DIR}/PndMCMatch
+  ${CMAKE_SOURCE_DIR}/field 
+  ${CMAKE_SOURCE_DIR}/trackbase 
+  ${CMAKE_SOURCE_DIR}/geane
+  ${CMAKE_SOURCE_DIR}/genfit
+  ${CMAKE_SOURCE_DIR}/lhetrack
+  ${CMAKE_SOURCE_DIR}/eventdisplay
+  ${CMAKE_SOURCE_DIR}/pnddata
+  ${CMAKE_SOURCE_DIR}/pnddata/DrcData
+  ${CMAKE_SOURCE_DIR}/pnddata/SttData
+  ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+  ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+  ${CMAKE_SOURCE_DIR}/drc
+  ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
+  ${CMAKE_SOURCE_DIR}/sds/SdsDigi
+  ${CMAKE_SOURCE_DIR}/stt
+  ${CMAKE_SOURCE_DIR}/emc/EmcData
+  ${CMAKE_SOURCE_DIR}/PndEventdisplay
+)
+
+Include_Directories(${INCLUDE_DIRECTORIES})
+Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
