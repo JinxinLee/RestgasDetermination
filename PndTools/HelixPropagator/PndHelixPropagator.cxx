@@ -44,11 +44,51 @@ FairTrackPar PndHelixPropagator::PropagateToZ(Double_t zPos)
 
 	newMomentum.RotateZ(deltaPhi);
 
+	std::cout << "PndHelixPropagator::PropagateToZ " << zPos << std::endl;
 	std::cout << "Origin: "; fOrigin.Print(); std::cout << std::endl;
 	std::cout << "Momentum: "; fMomentum.Print(); std::cout << " Ratio Pt/Pl: " << ratioPtPl << " Radius: " << Radius() << " "; dirRadius.Print(); std::cout << std::endl;
 	std::cout << "circleCenter: "; circleCenter.Print(); std::cout << std::endl;
 	std::cout << "zeroCircle: "; zeroCircle.Print(); std::cout << std::endl;
 	std::cout << "Phi: " << zeroCircle.Phi() << " deltaPhi: " << deltaPhi << " newPhi: " << newPhi << std::endl;
+	std::cout << "NewOrigin: "; newOrigin.Print(); std::cout << std::endl;
+	std::cout << "NewMomentum: "; newMomentum.Print(); std::cout << std::endl;
+
+
+	FairTrackPar result(newOrigin.x(), newOrigin.y(), newOrigin.z(), newMomentum.Px(), newMomentum.Py(), newMomentum.Pz(), fCharge);
+
+	return result;
+}
+
+FairTrackPar  PndHelixPropagator::PropagateToXYPos(TVector2 xyPos)
+{
+	TVector3 magField(0,0,fFieldStrength);
+
+	TVector3 dirRadius = fMomentum.Cross(magField).Unit();
+	TVector3 circleCenter = fOrigin + (fCharge * Radius() * dirRadius);
+	circleCenter.SetZ(0);
+
+	Double_t ratioPtPl = fMomentum.Pt() / fMomentum.z();
+
+	TVector3 zeroCircle = fOrigin - circleCenter;
+
+	TVector3 negCircleCenter = -circleCenter;
+
+	Double_t deltaPhi = negCircleCenter.DeltaPhi(zeroCircle);
+
+	TVector3 newOrigin = negCircleCenter.Unit() * Radius() + circleCenter;
+	Double_t zPos = deltaPhi * Radius() / ratioPtPl - fOrigin.Z();
+	newOrigin.SetZ(zPos);
+
+
+	TVector3 newMomentum = fMomentum;
+	newMomentum.RotateZ(deltaPhi);
+
+	std::cout << "PndHelixPropagator::PropagateToXYPos" << std::endl;
+	std::cout << "Origin: "; fOrigin.Print(); std::cout << std::endl;
+	std::cout << "Momentum: "; fMomentum.Print(); std::cout << " Ratio Pt/Pl: " << ratioPtPl << " Radius: " << Radius() << " "; dirRadius.Print(); std::cout << std::endl;
+	std::cout << "circleCenter: "; circleCenter.Print(); std::cout << " " << circleCenter.Pt() << std::endl;
+	std::cout << "zeroCircle: "; zeroCircle.Print(); std::cout << std::endl;
+	std::cout << "Phi: " << zeroCircle.Phi() << " deltaPhi: " << deltaPhi << std::endl;
 	std::cout << "NewOrigin: "; newOrigin.Print(); std::cout << std::endl;
 	std::cout << "NewMomentum: "; newMomentum.Print(); std::cout << std::endl;
 
@@ -84,6 +124,7 @@ FairTrackPar PndHelixPropagator::PropagateByAngle(Double_t step)
 
 	newMomentum.RotateZ(stepInRad);
 
+	std::cout << "PndHelixPropagator::PropagateByAngle " << step << std::endl;
 	std::cout << "Origin: "; fOrigin.Print(); std::cout << std::endl;
 	std::cout << "Momentum: "; fMomentum.Print(); std::cout << " Ratio Pt/Pl: " << ratioPtPl << " Radius: " << Radius() << " "; dirRadius.Print(); std::cout << std::endl;
 	std::cout << "circleCenter: "; circleCenter.Print(); std::cout << std::endl;
