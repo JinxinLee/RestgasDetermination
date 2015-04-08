@@ -69,7 +69,7 @@
 
 PndRecoKalmanFit2::PndRecoKalmanFit2(): TNamed("Genfit", "Fit Tracks"),
                                       fMvdBranchName(""), fCentralTrackerBranchName(""),
-				      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0)
+				      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPropagateDistance(-1.f), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0)
 {
   PndGeoHandling::Instance();
 }
@@ -141,16 +141,6 @@ Bool_t PndRecoKalmanFit2::Init()
   
   TClonesArray *sttr;  TClonesArray* sthit; 
 
-  if (fCentralTrackerBranchName == "")
-    {
-      sttr=(TClonesArray*) ioman->GetObject("SttHelixHit");
-      if(sttr!=0)
-	{
-	  fTheRecoHitFactory->addProducer(FairRootManager::Instance()->GetBranchId("STTHelixHit"),new PndSttRecoHitProducer2<PndSttHelixHit,PndSttRecoHit2>(sttr, tubeArray));
-	  std::cout << "*** PndRecoKalmanFit2::Init" << "\t" << "SttHelixHit array  found" << std::endl;
-	}
-    }
-  
   if (fCentralTrackerBranchName == "Mix")
     {
       sthit=(TClonesArray*) ioman->GetObject("STTHitMix");
@@ -267,6 +257,31 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG)
           covSeed(5,5) = fRes->GetDPz()*fRes->GetDPz();
         }
     }
+  else if (fPropagateDistance>0.f)
+    { 
+      // Calculating params at fPropagateDistance cm before the first hit
+      FairTrackParP par = tBefore->GetParamFirst();
+      Int_t ierr = 0;
+      FairTrackParH *helix = new FairTrackParH(&par, ierr);
+      FairGeanePro *fPro0 = new FairGeanePro();
+      if (fVerbose==0) fPro0->SetPrintErrors(kFALSE);
+      FairTrackParH *fRes= new FairTrackParH();
+      fPro0->PropagateToLength(-fPropagateDistance);
+      Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
+      if (rc)
+        {
+          StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+          StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
+
+	  covSeed(0,0) = fRes->GetDX()*fRes->GetDX();
+          covSeed(1,1) = fRes->GetDY()*fRes->GetDY();
+          covSeed(2,2) = fRes->GetDZ()*fRes->GetDZ();
+
+          covSeed(3,3) = fRes->GetDPx()*fRes->GetDPx();
+          covSeed(4,4) = fRes->GetDPy()*fRes->GetDPy();
+          covSeed(5,5) = fRes->GetDPz()*fRes->GetDPz();
+	}
+    }
   
   TVector3 plane_v1, plane_v2;
   if (fPerpPlane)
@@ -281,7 +296,7 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG)
     }
 
   if (StartMom.Mag2() == 0) {
-    std::cout<<"*** Momentum seed is ZERO. Cannot fit. ***"<<std::endl;
+    std::cout<<"*** PndRecoKalmanFit2::Fit\tMomentum seed is ZERO. Cannot fit. ***"<<std::endl;
     return tBefore;
   }
 
@@ -290,29 +305,9 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG)
   genfit::AbsTrackRep *rep = new genfit::RKTrackRep(PDGCode);
   genfit::TrackCand* gfCand = PndTrackCand2Genfit2TrackCand(&trackCand); // TODO: link TrackCand to track
   gfCand->setCovSeed(covSeed);
+  gfCand->setPosMomSeedAndPdgCode(StartPos, StartMom, PDGCode);
   
-    gfCand->setPosMomSeedAndPdgCode(StartPos, StartMom, PDGCode);
-  //std::cout<<"StartPOS="<<tBefore->GetParamFirst().GetX()<<std::endl;
-  //std::cout<<"StartMOM="<<tBefore->GetParamFirst().GetPx()<<std::endl;
-  //std::cout<<"TEST 1 Stefano:"<<std::endl;
-  //gfCand->Print();
-
-  /////nuovo elisabetta: 23/11/2014: test
-  /*
-  //double q = trackCand->getQoverPseed() > 0 ? 1 : -1; // assume single charged particle
-  // double p = fabs(gfCand->getQoverPseed()) > 1E-10 ? q/gfCand->getQoverPseed() : q*1E10;
-  double q= 5.;
-  double p = 10.;
-  
-  gfCand->setPosMomSeed(trackCand->getPosSeed(),p,q);
-  */
-  //////
-  //std::cerr << e.what(); 
-  
-  //std::cout<<"TEST 1 Stefano:"<<std::endl;
-  //gfCand->Print();
- 
- genfit::Track* trk= new genfit::Track(*gfCand, *fTheRecoHitFactory, rep);
+  genfit::Track* trk= new genfit::Track(*gfCand, *fTheRecoHitFactory, rep);
  
   // Start Fitter
   try
@@ -321,11 +316,11 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch (genfit::Exception& e)
     {
-      std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
+      std::cout<<"*** PndRecoKalmanFit2::Fit" << "\t" << "FITTER EXCEPTION ***"<<std::endl;
       std::cerr<<e.what();
     }
   if (fVerbose>0) {
-    std::cout<<"SUCCESSFULL FIT!"<<std::endl;
+    std::cout<<"*** PndRecoKalmanFit2::Fit" << "\t" << "SUCCESSFULL FIT!"<<std::endl;
     if  (fVerbose>2)
       trk->getFitStatus()->Print();
   }
@@ -336,13 +331,13 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch (genfit::Exception& e)
     {
-      std::cout<<"*** PndGenfitAdapters2 EXCEPTION ***"<<std::endl;
+      std::cout<<"*** PndGenfitAdapters2::Fit" << "\t" << "CONVERSION EXCEPTION ***"<<std::endl;
       std::cerr<<e.what();
       tAfter = tBefore;
       tAfter->SetFlag(-2); // flag -2: conversion failed
     } 
 
-  if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
+  if (fVerbose>0) std::cout<<"*** PndRecoKalmanFit2::Fit" << "\t" << "Fitting done"<<std::endl;
 
   return tAfter;
 }

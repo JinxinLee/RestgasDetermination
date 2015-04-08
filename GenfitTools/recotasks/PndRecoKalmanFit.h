@@ -65,7 +65,7 @@ private:
   
   Bool_t fUseGeane;     //! Flag to use Geane
   Bool_t fPropagateToIP;//! Flag to propagate to the interaction point 
-  Bool_t fPropagateDistance; //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
+  Float_t fPropagateDistance; //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
   Bool_t fPerpPlane;    //! Flag to use as initial plane the one perpendicular to the track 
   Int_t fNumIt;         //! Number of iterations
   Short_t fTrackRep;    //! (0) GeaneTrackRep, 1 RKTrackRep

@@ -85,7 +85,7 @@ PndTrack* GenfitTrack2PndTrack(const GFTrack* tr){
   }
   catch (GFException& e){
     exc=true;
-    std::cerr<<"could not convert GenfitTrack to PndTrack"<<std::endl;
+    std::cerr<<"*** PndGenfitAdapters::GenfitTrack2PndTrack" << "\t" << "could not convert GenfitTrack to PndTrack"<<std::endl;
     e.what();
   }
 

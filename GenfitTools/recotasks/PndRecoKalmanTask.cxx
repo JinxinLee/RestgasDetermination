@@ -224,8 +224,8 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
     else
       {
 	fitTrack = prefitTrack;
-	fitTrack->SetFlag(22);
-	std::cout << "-I- PndRecoKalmanTask::Exec: Kalman cannot run on this track because of the bad MonteCarlo PDC code" << std::endl;
+	fitTrack->SetFlag(-22);
+	std::cout << "-I- PndRecoKalmanTask::Exec: Kalman cannot run on this track because of the bad MonteCarlo PDG code" << std::endl;
       }
     
     PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),

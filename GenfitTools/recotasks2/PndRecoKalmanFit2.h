@@ -39,6 +39,7 @@ class PndRecoKalmanFit2 : public TNamed
   // Modifiers -----------------------
   void SetGeane(Bool_t opt = kTRUE)              { fUseGeane = opt;     }
   void SetPropagateToIP(Bool_t opt = kTRUE)      { fPropagateToIP = opt;}
+  void SetPropagateDistance(Float_t opt = -1.f)  { fPropagateDistance = opt;}
   void SetPerpPlane(Bool_t opt = kTRUE)          { fPerpPlane = opt;    }
   void SetNumIterations(Int_t num)               { fNumIt    = num;     } 
   void SetVerbose(Int_t verb)                    { fVerbose  = verb;    }
@@ -65,6 +66,7 @@ private:
   
   Bool_t fUseGeane;     //! Flag to use Geane
   Bool_t fPropagateToIP;//! Flag to propagate to the interaction point
+  Float_t fPropagateDistance; //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
   Bool_t fPerpPlane;    //! Flag to use as initial plane the one perpendicular to the track 
   Int_t fNumIt;         //! Number of iterations
   Int_t fVerbose;       //! Verbose level

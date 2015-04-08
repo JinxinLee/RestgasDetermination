@@ -246,7 +246,32 @@ PndTrack* PndRecoDafFit2::Fit(PndTrack *tBefore, Int_t PDG)
           covSeed(5,5) = fRes->GetDPz()*fRes->GetDPz();
         }
     }
-
+  else if (fPropagateDistance>0.f)
+    { 
+      // Calculating params at fPropagateDistance cm before the first hit
+      FairTrackParP par = tBefore->GetParamFirst();
+      Int_t ierr = 0;
+      FairTrackParH *helix = new FairTrackParH(&par, ierr);
+      FairGeanePro *fPro0 = new FairGeanePro();
+      if (fVerbose==0) fPro0->SetPrintErrors(kFALSE);
+      FairTrackParH *fRes= new FairTrackParH();
+      fPro0->PropagateToLength(-fPropagateDistance);
+      Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
+      if (rc)
+        {
+          StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+          StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
+	  
+	  covSeed(0,0) = fRes->GetDX()*fRes->GetDX();
+          covSeed(1,1) = fRes->GetDY()*fRes->GetDY();
+          covSeed(2,2) = fRes->GetDZ()*fRes->GetDZ();
+	  
+          covSeed(3,3) = fRes->GetDPx()*fRes->GetDPx();
+          covSeed(4,4) = fRes->GetDPy()*fRes->GetDPy();
+          covSeed(5,5) = fRes->GetDPz()*fRes->GetDPz();
+	}
+    }
+  
   TVector3 plane_v1, plane_v2;
   if (fPerpPlane)
     {
@@ -274,11 +299,11 @@ PndTrack* PndRecoDafFit2::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch (genfit::Exception& e)
     {
-      std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
+      std::cout<<"*** PndRecoDafFit2::Fit" << "\t" << "FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }
 
-  if (fVerbose>0) std::cout<<"SUCCESSFULL FIT!"<<std::endl;
+  if (fVerbose>0) std::cout<<"** PndRecoDafFit2::Fit" << "\t" << "SUCCESSFULL FIT!"<<std::endl;
   
   try
     { 
@@ -286,13 +311,13 @@ PndTrack* PndRecoDafFit2::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch (genfit::Exception& e)
     {
-      std::cout<<"*** PndGenfitAdapters2 EXCEPTION ***"<<std::endl;
+      std::cout<<"*** PndRecoDafFit2::Fit" << "\t" << "CONVERSION EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
       tAfter = tBefore;
       tAfter->SetFlag(-2); // flag -2: conversion failed
     } 
 
-  if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
+  if (fVerbose>0) std::cout<<"*** PndRecoDafFit2::Fit" << "\t" << "Fitting done"<<std::endl;
 
   return tAfter;
 }

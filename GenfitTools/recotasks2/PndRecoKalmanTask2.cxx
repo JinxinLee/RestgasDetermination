@@ -40,7 +40,7 @@ PndRecoKalmanTask2::PndRecoKalmanTask2(const char* name, Int_t iVerbose)
 fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
 fFitTrackArray(), fFitter(), fDafFitter(), fPDGHyp(-13),
 fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE), fPersistence(kTRUE),
-fPropagateToIP(kTRUE), fPerpPlane(kFALSE),
+fPropagateToIP(kTRUE), fPropagateDistance(-1.f), fPerpPlane(kFALSE),
   fNumIt(1), fBusyCut(20)
 {
   fFitTrackArray = new TClonesArray("PndTrack");  
@@ -65,6 +65,7 @@ PndRecoKalmanTask2::Init()
     {
       fFitter->SetGeane(fUseGeane);
       fFitter->SetPropagateToIP(fPropagateToIP);
+      fFitter->SetPropagateDistance(fPropagateDistance); 
       fFitter->SetPerpPlane(fPerpPlane);
       fFitter->SetNumIterations(fNumIt); 
       fFitter->SetMvdBranchName(fMvdBranchName);
@@ -76,6 +77,7 @@ PndRecoKalmanTask2::Init()
     {
       fDafFitter->SetGeane(fUseGeane);
       fDafFitter->SetPropagateToIP(fPropagateToIP);
+      fDafFitter->SetPropagateDistance(fPropagateDistance); 
       fDafFitter->SetPerpPlane(fPerpPlane);
       fDafFitter->SetMvdBranchName(fMvdBranchName);
       fDafFitter->SetCentralTrackerBranchName(fCentralTrackerBranchName);
@@ -212,8 +214,8 @@ void PndRecoKalmanTask2::Exec(Option_t* opt)
     else
       {
 	fitTrack = prefitTrack;
-	fitTrack->SetFlag(22);
-	std::cout << "-I- PndRecoKalmanTask2::Exec: Kalman cannot run on this track because of the bad MonteCarlo PDC code" << std::endl;
+	fitTrack->SetFlag(-22);
+	std::cout << "-I- PndRecoKalmanTask2::Exec: Kalman cannot run on this track because of the bad MonteCarlo PDG code" << std::endl;
       }
     
     PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),

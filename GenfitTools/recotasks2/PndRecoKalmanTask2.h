@@ -53,6 +53,7 @@ public:
   void SetIdealHyp(Bool_t opt = kTRUE)             { fIdealHyp = opt;            }
   void SetDaf(Bool_t opt = kTRUE)                  { fDaf = opt;                 }
   void SetPropagateToIP(Bool_t opt = kTRUE)        { fPropagateToIP = opt;       }
+  void SetPropagateDistance(Float_t opt = -1.)     { fPropagateDistance = opt;   }
   void SetPerpPlane(Bool_t opt = kTRUE)            { fPerpPlane = opt;           }
   void SetNumIterations(Int_t num)                 { fNumIt = num;               }
   void SetParticleHypo(TString s); 
@@ -79,8 +80,8 @@ protected:
   TString fMvdBranchName;           //! Name of the TCA for MVD
   TString fCentralTrackerBranchName;//! Name of the TCA for central tracker
 
-  PndRecoKalmanFit2 *fFitter; 
-  PndRecoDafFit2 *fDafFitter;
+  PndRecoKalmanFit2 *fFitter;    //! Standard Kalman Filter class
+  PndRecoDafFit2 *fDafFitter;    //! Deterministic Annealing class
   TDatabasePDG *pdg;             //! Particle DB
 
   Bool_t fPersistence;           //! Persistence
@@ -90,6 +91,7 @@ protected:
   Bool_t fIdealHyp;              //! Flag to use MC particle hypothesis
   Bool_t fDaf;                   //! Flag to use Deterministic Annealing
   Bool_t fPropagateToIP;         //! Flag to propagate the parameters to the interaction point (kTRUE)
+  Float_t fPropagateDistance;    //! Distance in [cm] to back-propagate the parameters, negative number means no backpropagation
   Bool_t fPerpPlane;             //! Flag to use as initial plane the one perpendicular to the track (kFALSE)
   Int_t fNumIt;                  //! Number of iterations
   Int_t fPDGHyp;                 //! Hypothesis
