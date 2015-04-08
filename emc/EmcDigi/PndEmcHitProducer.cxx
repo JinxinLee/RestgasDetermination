@@ -266,6 +266,11 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 		DetId = point->GetDetectorID();
 
 		if(point->GetEnergyLoss() == 0 ) continue;
+		if(point->GetModule() == 10 ) 
+		  {
+		    cout << " -I-  PndEmcHitProducer::Exec" << "\t" << "Skipping Module 10 (FscFiber)" << endl;
+		    continue;
+		  }
 		//if(point->GetTrackID() < 0)
 		//	std::cout<<"negative track id #"<<point->GetTrackID()<<std::endl;
 
