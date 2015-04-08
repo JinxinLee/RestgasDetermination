@@ -104,7 +104,7 @@ class PndTrkTrackFinder : public FairTask {
   void  SearchSecondaryTracks() { fSecondary = kTRUE; }
 
   PndTrkClusterList CreateFullClusterization();
-  PndTrkClusterList CreateFullClusterization2();
+  //  PndTrkClusterList CreateFullClusterization2();
 
   Int_t CountTracksInCluster(PndTrkCluster *cluster);
   Int_t CountTracksInSkewSector(PndTrkCluster *cluster);

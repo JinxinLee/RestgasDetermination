@@ -4636,7 +4636,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	if(!hit) continue;
 
 	int solutions = 0;
-	if(hit->IsStt()) solutions == 2;
+	if(hit->IsStt()) solutions = 2;
 	else solutions = 1;
        
 	for(int khit = jhit + 1; khit < skewhitlist2.GetNofHits(); khit++) {
@@ -4644,7 +4644,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	  if(!hitk) continue;
 	 
 	  int ksolutions = 0;
-	  if(hitk->IsStt()) ksolutions == 2;
+	  if(hitk->IsStt()) ksolutions = 2;
 	  else ksolutions = 1;
 	 
 	  for(int jsol = 0; jsol < solutions; jsol++) 
@@ -6029,15 +6029,15 @@ PndTrkClusterList PndTrkTrackFinder::CreateFullClusterization() {
   return clusterlist;
 }
 
-PndTrkClusterList PndTrkTrackFinder::CreateFullClusterization2() {
-  /**
-     PndTrkClusterList clusterlist;
+// PndTrkClusterList PndTrkTrackFinder::CreateFullClusterization2() {
+//   /**
+//      PndTrkClusterList clusterlist;
 
-     // get seeds *********************************************8
-     TObjArray seeds = fHitMap->GetSeeds();
-     neighborings = NULL;
-  **/
-}
+//      // get seeds *********************************************8
+//      TObjArray seeds = fHitMap->GetSeeds();
+//      neighborings = NULL;
+//   **/
+// }
 
 Int_t PndTrkTrackFinder::CountPossibleTracks() {
   // check how many neighboring tubes each skew 
