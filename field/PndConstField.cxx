@@ -199,7 +199,6 @@ void PndConstField::FillParContainer()
 //	cout << "PndConstField::FillParContainer() " << endl;
 	FairRun *fRun=FairRun::Instance();	
 	FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-	Bool_t kParameterMerged=kTRUE;
 	PndConstPar* Par = (PndConstPar*) rtdb->getContainer("PndConstPar");
 	Par->SetParameters(this);
 	Par->setInputVersion(fRun->GetRunId(),1);
