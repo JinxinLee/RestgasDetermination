@@ -445,8 +445,8 @@ void PndFts2::ConstructGeometry()
        }
   }
 
-  std::cout<<"BBBB->"<<fSensNodes->GetEntries()<<std::endl;
-  std::cout<<"cccc->"<<fPassNodes->GetEntries()<<std::endl;
+  //std::cout<<"BBBB->"<<fSensNodes->GetEntries()<<std::endl;
+  //std::cout<<"cccc->"<<fPassNodes->GetEntries()<<std::endl;
 
   fGeoType = 1; // CHECK
   par->SetGeometryType(fGeoType);
