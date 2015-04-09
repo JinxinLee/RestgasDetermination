@@ -32,3 +32,16 @@ add_test(check_complete4 ${PANDAROOT_BINARY_DIR}/macro/qa/run4/check_complete.sh
 SET_TESTS_PROPERTIES(check_complete4 PROPERTIES TIMEOUT "200")
 SET_TESTS_PROPERTIES(check_complete4 PROPERTIES DEPENDS ana_complete4)
 SET_TESTS_PROPERTIES(check_complete4 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run4/plot_pid.C)
+add_test(pidqa_complete4 ${PANDAROOT_BINARY_DIR}/macro/qa/run4/plot_pid.sh)
+SET_TESTS_PROPERTIES(pidqa_complete4 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(pidqa_complete4 PROPERTIES DEPENDS pid_complete4)
+SET_TESTS_PROPERTIES(pidqa_complete4 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run4/check_pid.C)
+add_test(pidcheck_complete4 ${PANDAROOT_BINARY_DIR}/macro/qa/run4/check_pid.sh)
+SET_TESTS_PROPERTIES(pidcheck_complete4 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(pidcheck_complete4 PROPERTIES DEPENDS pidqa_complete4)
+SET_TESTS_PROPERTIES(pidcheck_complete4 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
