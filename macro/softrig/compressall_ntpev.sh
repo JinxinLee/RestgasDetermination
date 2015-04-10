@@ -1,0 +1,7 @@
+root -l -b -q '../compress.C("ntpev","M240_ntpev.root","M240_ntpev_shr.root","tag* ev run mode recmode","")'
+root -l -b -q '../compress.C("ntpev","M300_ntpev.root","M300_ntpev_shr.root","tag* ev run mode recmode","")'
+root -l -b -q '../compress.C("ntpev","M350_ntpev.root","M350_ntpev_shr.root","tag* ev run mode recmode","")'
+root -l -b -q '../compress.C("ntpev","M380_ntpev.root","M380_ntpev_shr.root","tag* ev run mode recmode","")'
+root -l -b -q '../compress.C("ntpev","M450_ntpev.root","M450_ntpev_shr.root","tag* ev run mode recmode","")'
+root -l -b -q '../compress.C("ntpev","M500_ntpev.root","M500_ntpev_shr.root","tag* ev run mode recmode","")'
+root -l -b -q '../compress.C("ntpev","M550_ntpev.root","M550_ntpev_shr.root","tag* ev run mode recmode","")'

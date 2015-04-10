@@ -1,0 +1,7 @@
+root -l -b -q '../merge.C("ntpev","M240_ntpev.root","M240*root")'
+root -l -b -q '../merge.C("ntpev","M300_ntpev.root","M300*root")'
+root -l -b -q '../merge.C("ntpev","M350_ntpev.root","M350*root")'
+root -l -b -q '../merge.C("ntpev","M380_ntpev.root","M380*root")'
+root -l -b -q '../merge.C("ntpev","M450_ntpev.root","M450*root")'
+root -l -b -q '../merge.C("ntpev","M500_ntpev.root","M500*root")'
+root -l -b -q '../merge.C("ntpev","M550_ntpev.root","M550*root")'
