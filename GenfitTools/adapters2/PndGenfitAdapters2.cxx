@@ -21,7 +21,12 @@
 
 #include <cmath>
 
-PndTrackCand* Genfit2TrackCand2PndTrackCand(const genfit::TrackCand* cand){
+PndTrackCand* Genfit2TrackCand2PndTrackCand(const genfit::TrackCand* cand)
+{
+  // Utility to convert from genfit TrackCand to PndTrackCand.
+  // Since PndTrackCand does not store any seed value, those componets
+  // will not be present in the final object. 
+
   PndTrackCand* retVal = new PndTrackCand();
   const unsigned nhits = cand->getNHits();
   int detId,hitId;
@@ -35,7 +40,12 @@ PndTrackCand* Genfit2TrackCand2PndTrackCand(const genfit::TrackCand* cand){
   return retVal;
 }
 
-genfit::TrackCand* PndTrackCand2Genfit2TrackCand(PndTrackCand* cand) {
+genfit::TrackCand* PndTrackCand2Genfit2TrackCand(PndTrackCand* cand) 
+{
+  // Utility to convert from PndTrackCand to genfit TrackCand.
+  // PndTrackCand does not store any Seed, then to create a proper TrackCand you need
+  // to fill the seed afterwards taking the values from the PndTrack 
+ 
   genfit::TrackCand* retVal = new genfit::TrackCand();
   unsigned int nhits = cand->GetNHits();
   for(unsigned int i=0;i<nhits;++i){
@@ -44,11 +54,6 @@ genfit::TrackCand* PndTrackCand2Genfit2TrackCand(PndTrackCand* cand) {
   }
   
   retVal->setMcTrackId(cand->getMcTrackId());
-  //double q = cand->getQoverPseed() > 0 ? 1 : -1; // assume single charged particle
-  //double p = fabs(cand->getQoverPseed()) > 1E-10 ? q/cand->getQoverPseed() : q*1E10;
-  //retVal->setPosMomSeed(cand->getPosSeed(),
-  //			cand->getDirSeed()*p,q);
-  std::cerr << "*** PndGenfitAdapters::PndTrackCand2Genfit2TrackCand" << "\t" << "PndTrackCand does not store any Seed!!! Faulty COnversion***" << std::endl;			
   return retVal;
 }
 

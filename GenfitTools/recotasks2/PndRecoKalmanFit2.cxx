@@ -303,6 +303,8 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG)
   PndTrackCand trackCand = tBefore->GetTrackCand();
 
   genfit::AbsTrackRep *rep = new genfit::RKTrackRep(PDGCode);
+  // PndTrackCand does not store seed, then PndTrackCand2Genfit2TrackCand cannot convert the seed.
+  // You need to set the seed afterwards, taking it from PndTrack (setCovSeed/setPosMomSeedAndPdgCode)
   genfit::TrackCand* gfCand = PndTrackCand2Genfit2TrackCand(&trackCand); // TODO: link TrackCand to track
   gfCand->setCovSeed(covSeed);
   gfCand->setPosMomSeedAndPdgCode(StartPos, StartMom, PDGCode);
