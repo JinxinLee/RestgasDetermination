@@ -1,0 +1,48 @@
+macro/softrig
+--------------
+
+Instructions to perform a QA scan (checking phsp flatness)
+
+**************************
+*** Procedure of usage ***
+**************************
+
+1. create EvtGen decay files with flat phsp (will overwrite all .dec files in macro/softrig/decfiles; so move contents somewhere!!):
+   
+   > ./create_decfiles.pl decays_phsp.txt
+
+
+2. create directory decfiles/phsp and move .dec files there
+
+   > mkdir decfiles/phsp
+   > mv decfiles/*.dec decfiles/phsp
+
+
+3. submit scan (e.g. 100000 events per mode)
+
+   > ./myqafsimscan.pl <#mode/all> 20000 5
+
+
+4. check jobs which failed (will print out all expected output files, which are missing)
+
+   > ./myqafsimscan.pl check[#mode] 20000 5
+
+
+5. after all jobs are finished, resubmit the failed ones with
+
+   > ./myqafsimscan.pl resub[#mode] 20000 5
+
+
+6. repeat (5.) until all jobs are done
+
+
+7. merge outputs
+
+   > ./myqamerge.pl do [#mode]
+
+
+8. create plots; either for one mode or all
+
+   > root -l -b -q 'checkphsp2_2.C+("MI..._ntpX")'
+or
+   > . qaall.sh
