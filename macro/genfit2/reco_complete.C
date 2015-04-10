@@ -86,9 +86,8 @@ void reco_complete()
   recoKalman2->SetTrackInIDBranchName("SttMvdGemTrackID");
   recoKalman2->SetTrackOutBranchName("SttMvdGemGen2Track");
   recoKalman2->SetBusyCut(50); // CHECK to be tuned
-  //recoKalman->SetIdealHyp(kTRUE);
-  //recoKalman->SetNumIterations(3);
-  //recoKalman2->SetTrackRep(0); // 0 Geane (default), 1 RK
+  //recoKalman2->SetIdealHyp(kTRUE);
+  recoKalman2->SetNumIterations(3);
   //recoKalman->SetPropagateToIP(kFALSE);
   fRun->AddTask(recoKalman2);
 
@@ -120,6 +119,16 @@ void reco_complete()
   recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
   //recoKalmanFwd->SetPropagateToIP(kFALSE);
   fRun->AddTask(recoKalmanFwd);
+
+  PndRecoKalmanTask2* recoKalmanFwd2 = new PndRecoKalmanTask2();
+  recoKalmanFwd2->SetTrackInBranchName("FtsIdealTrack");
+  //recoKalmanFwd2->SetTrackInIDBranchName("FtsIdealTrackID");
+  recoKalmanFwd2->SetTrackOutBranchName("FtsIdealGen2Track");
+  recoKalmanFwd2->SetBusyCut(50); // CHECK to be tuned
+  //recoKalmanFwd2->SetIdealHyp(kTRUE);
+  recoKalmanFwd2->SetNumIterations(3);
+  //recoKalmanFwd2->SetPropagateToIP(kFALSE);
+  fRun->AddTask(recoKalmanFwd2);
 
   PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();
   trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
