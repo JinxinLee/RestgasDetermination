@@ -98,7 +98,7 @@ PndGemSensor::PndGemSensor(TString tempName, Int_t detId, Int_t iType,
     fNChannelsBack  = 2*(Int_t)((fOuterRadius-fInnerRadius)/fPitch[1] + 0.5);
   }
   
-  cout << tempName.Data() << " type " << fType << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
+  // cout << tempName.Data() << " type " << fType << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
   
   fSigmaX = fSigmaY = fSigmaXY = 0.;
 }
@@ -170,7 +170,7 @@ PndGemSensor::PndGemSensor(TString tempName, Int_t stationNr, Int_t sectorNr, In
     fNChannelsBack  = 2*(Int_t)((fOuterRadius-fInnerRadius)/fPitch[1] + 0.5);
   }
 
-  cout << tempName.Data() << " type " << fType << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
+  // cout << tempName.Data() << " type " << fType << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
 
   fSigmaX = fSigmaY = fSigmaXY = 0.;
 }
