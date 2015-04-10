@@ -77,19 +77,16 @@ In this directory are several files to run the complete simulation chain + soft-
 	stTask->SetQAMc(false);
     ---
  
-9. merge the ntpev tuples of the output files energy-wise (for now by hand)
+9. merge and compress the ntpev tuples of the output files energy-wise 
 
-   > root -l -b -q '../merge.C("ntpev","M240_ntpev.root","M240*_fsim.root")'
-   ...
-   > root -l -b -q '../merge.C("ntpev","M550_ntpev.root","M550*_fsim.root")'
+   > cd data
+   > . ../mergeall_ntpev.sh
+   > . ../compressall_ntpev.sh
 
 
 10. create file with cross tag histos (each run adds histos to common output 'crosstag_histos.root')
   
-   > rm crosstag_histos.root
-   > root -l -b -q '../crosstag.C("M240_ntpev.root",1,1)'
-   ...
-   > root -l -b -q '../crosstag.C("M550_ntpev.root",1,1)'
+   > ../crosstagall_ntpev.sh
 
 
 11. create evaluation plots
