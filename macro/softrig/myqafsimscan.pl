@@ -80,7 +80,7 @@ sub mystscan
 			{
 				$commandpref = "qsub -t 1-$njobs";
 			}
-			$command  = " job_scan.sge '$wd/$macro(\"MI$mode$ecmstr\",\"$wd/decfiles/M$mode.dec\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\",true,SGE_TASK_ID,$mode)'"; # the analyis
+			$command  = " job_scan.sge '$wd/$macro(\"MI$mode$ecmstr\",\"$wd/decfiles/phsp/M$mode.dec\",".(-$ecm/100.).",\"$decay\",$nevt,\"$res\",\"$parms\",true,SGE_TASK_ID,$mode)'"; # the analyis
 			$command .= " '$wd/$macro2(\"$ntpname\",\"MI$mode$ecmstr"."_SGE_TASK_ID_ana.root\",\"MI$mode$ecmstr"."_SGE_TASK_ID_shr_$ntpname.root\",\"$vars\",\"$precut\")'";                # shrink tuple
 			
 			my $outfilepatt = "data/MI$mode$ecmstr"."_%d_shr_$ntpname.root";
@@ -174,8 +174,13 @@ foreach my $line (@triglines)
 	my $mode   = $fields[0];
 	my $decay  = $fields[2];
 	my $thresh = $fields[9];
-	my $parm   = "mwin=0.3:pid=Loose";
+	my $parm   = "pid=Loose";
 	my $intp   = 0;
+
+	if ($mode<600 || $mode>610) # defaul mass window +-0.15 GeV
+		{$parm .= ":mwin=0.3";}
+	else 
+		{$parm .= ":mwin=1.0";} # for e+ e- NR modes, mass window = +- 0.5 GeV (account for low energy tail)
 
 	if ($decay =~ m/pi0/)  {$decay = "pi0->gamma gamma;".$decay; $parm .= ":mwin(pi0)=0.04:emin=0.1"; ++$intp;}
 	if ($decay =~ m/K_S0/) {$decay = "K_S0->pi+ pi-;".$decay;    $parm .= ":mwin(K_S0)=0.06";++$intp;}
