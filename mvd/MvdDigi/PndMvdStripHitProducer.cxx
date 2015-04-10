@@ -77,11 +77,11 @@ void PndMvdStripHitProducer::SetParContainers()
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   PndMvdContFact* themvdcontfact = (PndMvdContFact*)rtdb->getContFactory("PndMvdContFact");
   TList* theContNames = themvdcontfact->GetDigiParNames();
-  Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
+  if(fVerbose>0) Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
   TIter cfIter(theContNames);
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
-    Info("SetParContainers()","%s",parsetname.Data());
+    if(fVerbose>0) Info("SetParContainers()","%s",parsetname.Data());
     if(parsetname.BeginsWith("MVDStripDigiPar")){
       PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
       if ( ! digipar ) Fatal("SetParContainers","No DIGI parameter found: %s",parsetname.Data());
