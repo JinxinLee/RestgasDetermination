@@ -264,7 +264,7 @@ PndTrack* PndRecoDafFit::Fit(PndTrack *tBefore, Int_t PDG)
     }
   else
     {
-      std::cout << "*** PndRecoDafFit::Exec" << "\t" << "Not existing Track Representation " << fTrackRep << std::endl;
+      std::cout << "*** PndRecoDafFit::Fit" << "\t" << "Not existing Track Representation " << fTrackRep << std::endl;
       return NULL; // any smarted ideas?
     }
   
@@ -281,7 +281,7 @@ PndTrack* PndRecoDafFit::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch(GFException& e)
     {
-      std::cout << "*** PndRecoDafFit::Exec" << "\t" << "Genfit Exception: trk->addHitVector " << e.what() << std::endl;
+      std::cout << "*** PndRecoDafFit::Fit" << "\t" << "Genfit Exception: trk->addHitVector " << e.what() << std::endl;
       //throw e;
     }
   // Start Fitter
@@ -291,11 +291,11 @@ PndTrack* PndRecoDafFit::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch (GFException& e)
     {
-      std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
+      std::cout<<"*** PndRecoDafFit::Fit" << "\t" << "FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }
 
-  if (fVerbose>0) std::cout<<"SUCCESSFULL FIT!"<<std::endl;
+  if (fVerbose>0) std::cout<<"*** PndRecoDafFit::Fit" << "\t" << "SUCCESSFULL FIT!"<<std::endl;
   
   try
     { 
@@ -303,7 +303,7 @@ PndTrack* PndRecoDafFit::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch (GFException e)
     {
-      std::cout<<"*** PndGenfitAdapters EXCEPTION ***"<<std::endl;
+      std::cout<<"*** PndRecoDafFit::Fit" << "\t" << "CONVERSION EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
       tAfter = tBefore;
       tAfter->SetFlag(-2); // flag -2: conversion failed

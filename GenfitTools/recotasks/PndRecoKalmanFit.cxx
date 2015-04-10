@@ -333,7 +333,7 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
     }
   catch (GFException e)
     {
-      std::cout<<"*** PndGenfitAdapters::Fit" << "\t" << "CONVERSION EXCEPTION ***"<<std::endl;
+      std::cout<<"*** PndRecoKalmanFit::Fit" << "\t" << "CONVERSION EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
       tAfter = tBefore;
       tAfter->SetFlag(-2); // flag -2: conversion failed
