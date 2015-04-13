@@ -128,7 +128,7 @@ void PndTrkCTGeometryCalculations::calculateintersections(
   Oxx, Oyy        = abscissa and ordinate of the center of the circular trajectory of
                   the particle;
   Rr             = radius of such trajectory;
-  C0x, C0y, Coz = x, y, z coordinates of a point belonging to the axis of the
+  C0x, C0y, C0z = x, y, z coordinates of a point belonging to the axis of the
                   skewed straw;
   r  = radius of equidrift of such skewed straw;
   vx, vy, vz    =  versor of the direction along which the skewed straw lies.
