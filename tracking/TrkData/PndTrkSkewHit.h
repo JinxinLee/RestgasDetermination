@@ -23,6 +23,9 @@ class PndTrkSkewHit : public PndTrkHit
   PndTrkSkewHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos, Double_t isochrone, Double_t sortvar, Int_t trackID, TVector3 center1, TVector3 intersection1, double phi1, TVector3 center2, TVector3 intersection2, double phi2, double a, double b, int rightone, double beta);
   PndTrkSkewHit(PndTrkHit &hit, Int_t trackID, TVector3 center1, TVector3 intersection1, double phi1, TVector3 center2, TVector3 intersection2, double phi2,  double a, double b, int rightone, double beta);
   PndTrkSkewHit(PndTrkHit &hit);
+  PndTrkSkewHit(const PndTrkSkewHit& hit);
+
+  PndTrkSkewHit& operator=(const PndTrkSkewHit& hit);
 
 
 

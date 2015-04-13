@@ -27,7 +27,29 @@ PndTrkSkewHit::PndTrkSkewHit(PndTrkHit &hit, Int_t trackID, TVector3 center1, TV
 
 PndTrkSkewHit::PndTrkSkewHit(PndTrkHit &hit): PndTrkHit(hit), fTrackID(-1), fCenter1(0., 0., 0.), fCenter2(0., 0., 0.), fa(-1), fb(-1), fIntersection1(0., 0., 0.), fIntersection2(0., 0., 0.), fPhi1(0), fPhi2(0), fRightIntersection(-1), fBeta(0) {}
 
+
+PndTrkSkewHit::PndTrkSkewHit(const PndTrkSkewHit &hit) : PndTrkHit(hit), fTrackID(-1), fCenter1(0., 0., 0.), fCenter2(0., 0., 0.), fa(-1), fb(-1), fIntersection1(0., 0., 0.), fIntersection2(0., 0., 0.), fPhi1(0), fPhi2(0), fRightIntersection(-1), fBeta(0) {
+  *this = hit;
+}
+
 PndTrkSkewHit::~PndTrkSkewHit() {}
+
+
+// operator equals
+PndTrkSkewHit& PndTrkSkewHit::operator=(const PndTrkSkewHit &skewhit) {
+  fTrackID = skewhit.fTrackID;
+  fRightIntersection = skewhit.fRightIntersection;
+  fCenter1 = skewhit.fCenter1;
+  fCenter2 = skewhit.fCenter2;
+  fIntersection1 = skewhit.fIntersection1;
+  fIntersection2 = skewhit.fIntersection2;
+  fa = skewhit.fa;
+  fb = skewhit.fb;
+  fPhi1 = skewhit.fPhi1;
+  fPhi2 = skewhit.fPhi2;
+  fBeta = skewhit.fBeta;
+  return *this;
+}
 
 void PndTrkSkewHit::Draw(Color_t color) {
    Int_t style = 1; 
