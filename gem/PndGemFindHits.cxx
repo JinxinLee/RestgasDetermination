@@ -660,7 +660,6 @@ void PndGemFindHits::ConfirmHits2() {
 					      hitTemp->GetDigiNr(0),hitTemp->GetDigiNr(1), 
 					      hitTemp->GetDr(), hitTemp->GetDp(), 
 					      hitTemp->GetRefIndex(),fromStr);
-	    
 	    if ( fVerbose > 1 ) {
 	      cout << "ihitTemp "<< ihitTemp<<"  xHit yHit zHit " << xHit[0] << yHit[0] << zHit[0] << "  stored... " <<endl;  
 	    }
@@ -927,16 +926,6 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 					(digiF->GetTimeStamp()+digiB->GetTimeStamp())/2.,
 					iDigiF, iDigiB, 
 					dr, dp, refIndex,fromStr);
-
-      PndGemHit* thit = dynamic_cast<PndGemHit*>(fHits->At(nHits));
-      std::cout<<"damn hit has " << thit->GetNLinks() << ":" << std::endl;
-      for ( Int_t ilink = 0 ; ilink < thit->GetNLinks() ; ilink++) {
-	std::cout << " --> " << thit->GetLink(ilink).GetEntry()
-		  << " --> " << thit->GetLink(ilink).GetType()
-		  << " --> " << thit->GetLink(ilink).GetIndex()
-		  << std::endl;
-      }
-
 
       fTNofHits++;
       nHitsInSensor++;

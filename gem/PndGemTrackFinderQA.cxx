@@ -753,11 +753,25 @@ Int_t PndGemTrackFinderQA::FindMatchingPoint(Int_t gemHitIndex) {
   Bool_t printMCMatching = kFALSE;
 
   PndGemHit* gemHit = (PndGemHit*)fGemHitArray->At(gemHitIndex);
-  if ( printMCMatching ) 
+  if ( printMCMatching ) {
     cout << "---> hit " << gemHitIndex << " has " << gemHit->GetNLinks() << " links" << endl;
-
+    for ( Int_t ilink = 0 ; ilink < gemHit->GetNLinks() ; ilink++) {
+      std::cout << " --> " << gemHit->GetLink(ilink).GetEntry()
+		<< " --> " << gemHit->GetLink(ilink).GetType()
+		<< " --> " << gemHit->GetLink(ilink).GetIndex()
+		<< std::endl;
+    }       
+  }
+  
+ 
   Int_t    bestPointIndex = -1;  
   Double_t bestPointValue =  0.;
+
+  for ( Int_t ilink = 0 ; ilink < gemHit->GetNLinks() ; ilink++) {
+    if ( gemHit->GetLink(ilink).GetType() == fGemPointNumber ) {
+      return gemHit->GetLink(ilink).GetIndex();
+    }
+  }
 
   // if ( gemHit->GetNLinks() != 2 ) {
   //   cout << "THERE ARE " << gemHit->GetNLinks() << " FOR HIT " << gemHitIndex << " IN EVENT " << fNofEvents << endl;
