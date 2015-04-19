@@ -1,0 +1,114 @@
+#!/bin/bash
+#
+# Author: J.G. Messchendorp, messchendorp@kvi.nl
+#
+# USAGE: runmpi [arg1] [arg2 (OPT)] [arg3 (OPT)]
+#
+# with
+#
+# [arg1] ($1): job description file
+# [arg2] ($3): number of processes (default=55)
+# [arg3] ($2): machinelist (default=$HOME/bin/machines.dat)
+#
+RETVAL=0
+BOSSWORKERMPI="boss_worker_mpi"
+MPIRUN="mpirun"
+MACHINES=$HOME/bin/machines.dat
+NPROC=17
+
+#
+# Check the command line arguments
+#
+if [ "$#" = "0" ]; then
+   echo
+   echo "<E> Not enough or too many arguments supplied. Provide at least one parameter."
+   echo 
+   echo "    Usage: runmpi [jdl] [nproc=$NPROC] [machinelist=$MACHINES]" 
+   echo
+   RETVAL=1
+   exit $RETVAL
+fi
+
+JDL=$1
+
+if [ "$#" = "2" ]; then
+   NPROC=$2
+fi
+
+if [ "$#" = "3" ]; then
+   NPROC=$2
+   MACHINES=$3
+fi
+
+echo "<I> JDL FILE     =  $JDL"
+echo "<I> MACHINE LIST =  $MACHINES"
+echo "<I> NO PROCESSES =  $NPROC"
+
+#
+# Try to find the MPIRUN program
+#
+MPIRUNPROG=`which $MPIRUN`
+if [ -z "$MPIRUNPROG" ]; then
+    echo "<E> Could not find $MPIRUN, please make sure your PATH is set properly!"
+    RETVAL=1
+    exit $RETVAL
+fi
+#
+# Try to find the MPI program
+#
+BOSSWORKERPROG=`which $BOSSWORKERMPI`
+if [ "$BOSSWORKERPROG" = "" ]; then
+    echo "<E> Could not find $BOSSWORKERMPI, please make sure your PATH is set properly!"
+    RETVAL=1
+    exit $RETVAL
+fi
+#
+# Check whether list of machines exists
+#
+if [ ! -f $MACHINES ]; then
+    echo "<E> The machinelist file $MACHINES does not exist!"
+    RETVAL=1
+    exit $RETVAL
+fi
+#
+# Check whether JDL file  exists
+#
+if [ ! -f $JDL ]; then
+    echo "<E> The JDL file $JDL does not exist!"
+    RETVAL=1
+    exit $RETVAL
+fi
+#
+# Define the logfile
+#
+LOGFILE=/tmp/runmpi_$$.log
+echo "<I> Detailed LOG information can be found in \"$LOGFILE\""
+#
+# Print stuff
+#
+echo "<I> The job description file is \"$JDL\""
+echo "<I> The list of computer nodes are given in \"$MACHINES\""
+#
+# Remove the old logfile and start a new one
+#
+rm $JDL.log > /dev/null 2>&1
+touch $JDL.log
+RETVAL=$?
+if [ $RETVAL != 0 ] ; then
+    echo "<E> Error creating $JDL.log"
+    exit $RETVAL
+fi
+#
+# Start the MPI session in NOHUP-background mode (CTRL-C safe!)
+#
+echo "<I> Starting MPI session in NOHUP and background mode."
+nohup $MPIRUNPROG --hostfile $MACHINES -np $NPROC $BOSSWORKERPROG -j $JDL -v > $LOGFILE 2>&1 &
+#
+# Get the PID of the MPI session (not complete bulletproof, yet)
+#
+echo "<I> You can monitor the output by \"tail -f $JDL.log\"" 
+echo "<I> ...or for more details by     \"tail -f $LOGFILE\""
+#
+# The end.
+#
+exit $RETVAL
