@@ -6,11 +6,11 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 OLD)
 endif(COMMAND cmake_policy)
 
-Set(SYSTEM_INCLUDE_DIRECTORIES
-  ${CLHEP_INCLUDE_DIR}
+Set(SYSTEM_INCLUDE_DIRECTORIES 
   ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${CLHEP_INCLUDE_DIR}
   ${GEANT4_INCLUDE_DIR}
-#  ${BASE_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
 )
 
 Set(INCLUDE_DIRECTORIES
@@ -23,6 +23,7 @@ Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+${FAIRROOT_LIBRARY_DIR}
 ${CLHEP_LIBRARY_DIR}
 ${GEANT4_LIBRARY_DIR}
 ${CMAKE_CURRENT_BINARY_DIR}
@@ -44,7 +45,7 @@ main.cc
 
 add_library(FtfEvtGen SHARED ${FTFEVTGEN_SRCS})
 #target_link_libraries(FtfEvtGen ${ROOT_LIBRARIES})
-target_link_libraries(FtfEvtGen Core RIO Physics Tree G4clhep G4materials G4global G4geometry G4physicslists G4track EG)
+target_link_libraries(FtfEvtGen Base Core RIO Physics Tree G4clhep G4materials G4global G4geometry G4physicslists G4track EG)
 set_target_properties(FtfEvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
@@ -61,17 +62,13 @@ install(TARGETS FtfEvtGen DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS FtfEvtGen_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 
-### FTF DIRECT ###
-#set(FTFGENDIRECT_SRCS PndFtfDirect.cxx)
-#CHANGE_FILE_EXTENSION(*.cxx *.h FTFGENDIRECT_HEADERS "${FTFGENDIRECT_SRCS}")
-#set(FTFGENDIRECT_LINKDEF  FtfLinkDef.h)
-#set(LIBRARY_NAME FtfGenDirect)
-#set(SRCS PndFtfDirect.cxx)
-#set(LINKDEF FtfLinkDef.h)
-#set(HEADERS PndFtfDirect.h)
-#set(DEPENDENCIES G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen)
-#Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1)
-#GENERATE_LIBRARY()
+################ FTF DIRECT ###################
+set(SRCS PndFtfDirect.cxx)
+set(LINKDEF  FtfLinkDef.h)
+set(LIBRARY_NAME FtfGenDirect)
+set(DEPENDENCIES G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen)
+#Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1) # Is it really needed??
+GENERATE_LIBRARY()
 
 
 

@@ -6,35 +6,16 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES}
   ${PYTHIA8_INCLUDE_DIR}
   ${BASE_INCLUDE_DIRECTORIES}
-  ${GEANT4_INCLUDE_DIR}
 )
 
 Set(INCLUDE_DIRECTORIES
-  ${CMAKE_SOURCE_DIR}/field
-  ${CMAKE_SOURCE_DIR}/generators
   ${CMAKE_SOURCE_DIR}/pgenerators
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
-  ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
-  ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
-  ${CMAKE_SOURCE_DIR}/base/sim
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/rho
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/rho/RhoSelector
   ${CMAKE_SOURCE_DIR}/fairtools
-  ${CMAKE_SOURCE_DIR}/geobase
-  ${CMAKE_SOURCE_DIR}/parbase
-  ${CMAKE_SOURCE_DIR}/base
-  ${CMAKE_SOURCE_DIR}/base/steer
-  ${CMAKE_SOURCE_DIR}/base/event
-  ${CMAKE_SOURCE_DIR}/base/field
-  ${CMAKE_SOURCE_DIR}/base/sim
-  ${CMAKE_SOURCE_DIR}/base/source
-  ${CMAKE_SOURCE_DIR}/dbase/dbInterface
-  ${CMAKE_SOURCE_DIR}/dbase/dbValidation
-  ${CMAKE_SOURCE_DIR}/dbase/dbUtils
-  ${CMAKE_SOURCE_DIR}/input/db
-  ${CMAKE_SOURCE_DIR}/dbase/dbInput
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -54,7 +35,6 @@ PndDpmGenerator.cxx
 PndFtfGenerator.cxx
 PndEvtGenGenerator.cxx
 PndDpmDirect.cxx
-PndFtfDirect.cxx
 PndBoxGenerator.cxx
 PndUrqmdSmmGenerator.cxx
 PndJRGenerator.cxx
@@ -79,7 +59,6 @@ eventFilter/PndEvtFilterOnInvMassCounts.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES Base DpmEvtGen FtfEvtGen G4particles G4processes G4clhep G4global G4geometry G4physicslists G4materials G4track EG)
-Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1)
+set(DEPENDENCIES Base DpmEvtGen FtfEvtGen)
 
 GENERATE_LIBRARY()
