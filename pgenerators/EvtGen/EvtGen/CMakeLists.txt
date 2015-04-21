@@ -372,22 +372,22 @@ if(EVTGEN_EXTERNAL)
    set_target_properties(EvtGenExternal PROPERTIES LINK_FLAGS "-fPIC")
 endif(EVTGEN_EXTERNAL)
 
-add_executable(evtgenlhc_test1 ${EVTGEN_EXAMPLE_DIR}/evtgenlhc_test1.cc)
-set_target_properties(evtgenlhc_test1 PROPERTIES OUTPUT_NAME evtgen_lhc_test1)
-set_target_properties(evtgenlhc_test1 PROPERTIES LINK_FLAGS "-fPIC")
-target_link_libraries(evtgenlhc_test1 ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
+#add_executable(evtgenlhc_test1 ${EVTGEN_EXAMPLE_DIR}/evtgenlhc_test1.cc)
+#set_target_properties(evtgenlhc_test1 PROPERTIES OUTPUT_NAME evtgen_lhc_test1)
+#set_target_properties(evtgenlhc_test1 PROPERTIES LINK_FLAGS "-fPIC")
+#target_link_libraries(evtgenlhc_test1 ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 
-add_executable(evt_dalitz ${EVTGEN_EXAMPLE_DIR}/evt_dalitz.cc)
-set_target_properties(evt_dalitz PROPERTIES OUTPUT_NAME evtgen_dalitz)
-set_target_properties(evt_dalitz PROPERTIES LINK_FLAGS "-fPIC")
-target_link_libraries(evt_dalitz ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
+#add_executable(evt_dalitz ${EVTGEN_EXAMPLE_DIR}/evt_dalitz.cc)
+#set_target_properties(evt_dalitz PROPERTIES OUTPUT_NAME evtgen_dalitz)
+#set_target_properties(evt_dalitz PROPERTIES LINK_FLAGS "-fPIC")
+#target_link_libraries(evt_dalitz ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 
-add_executable(example1 ${EVTGEN_EXAMPLE_DIR}/example1.cc)
-set_target_properties(example1 PROPERTIES OUTPUT_NAME evtgen_example1)
-set_target_properties(example1 PROPERTIES LINK_FLAGS "-fPIC")
-target_link_libraries(example1 ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
+#add_executable(example1 ${EVTGEN_EXAMPLE_DIR}/example1.cc)
+#set_target_properties(example1 PROPERTIES OUTPUT_NAME evtgen_example1)
+#set_target_properties(example1 PROPERTIES LINK_FLAGS "-fPIC")
+#target_link_libraries(example1 ${ROOT_LIBRARIES} EvtGen ${EVTGENEXTLIBLIST} ${PHOTOSLIBLIST} ${TAUOLALIBLIST} ${HEPMCLIBLIST} ${PYTHIALIBLIST} ${Fortran_UseLib} )
 
 ################ install ###################
 install(TARGETS EvtGen DESTINATION ${CMAKE_BINARY_DIR}/lib)
