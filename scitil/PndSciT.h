@@ -14,6 +14,7 @@
 #include "PndGeoSciTPar.h"
 #include <string>
 #include <vector>
+#include "PndGeoHandling.h"
 
 class TClonesArray;
 class PndSciTPoint;
@@ -135,7 +136,7 @@ class PndSciT : public FairDetector
   TLorentzVector fPosOut;               //  position
   TLorentzVector fMomOut;               //  momentum
   
-
+  PndGeoHandling* fGeoH;             //! Gives Access to the Path info of a hit
  
   
   Double32_t     fTime;              //   time

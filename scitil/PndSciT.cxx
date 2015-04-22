@@ -57,7 +57,7 @@ PndSciT::PndSciT()
  {
   fSciTCollection        = new TClonesArray("PndSciTPoint");
   fVerboseLevel = 0;
-  
+  fGeoH = PndGeoHandling::Instance();  
   fListOfSensitives.push_back("SciTil");//Root_Test.root
 }
 // -------------------------------------------------------------------------
@@ -68,7 +68,7 @@ PndSciT::PndSciT(const char* name, Bool_t active)
 {
     fSciTCollection        = new TClonesArray("PndSciTPoint");
     fVerboseLevel = 0;
-
+    fGeoH = PndGeoHandling::Instance();
     fListOfSensitives.push_back("SciTil");//Root_Test.root
 }
 // -------------------------------------------------------------------------
