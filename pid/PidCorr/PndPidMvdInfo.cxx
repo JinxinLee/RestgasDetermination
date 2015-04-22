@@ -27,8 +27,11 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
   Float_t mvdPath = 0.;  // total thickness crossed in MVD
   Int_t mvdCounts = 0;
   Float_t SensorThickness=0;
-    
   PndTrackCand trackCand = track->GetTrackCand();
+  FairTrackParP  par = track->GetParamFirst();
+  Int_t ierr = 0;
+  FairTrackParH *helix = new FairTrackParH(&par, ierr); // This will be used for propagation
+  
   for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
       PndSdsHit *mvdHit = NULL;
@@ -56,25 +59,32 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       const Double_t *rotM = matrix->GetRotationMatrix();
       TVector3 zaxis(rotM[2], rotM[5], rotM[8]); // Z axis in the detector frame
       TVector3 momentum(0., 0., 0.);
-      FairTrackParP par = track->GetParamLast();
-      Int_t ierr = 0;
-      FairTrackParH *helix = new FairTrackParH(&par, ierr);
+      
       Double_t cos = 0.;
-      if (fGeanePro) 
-    	{
-	  fGeanePropagator->SetPoint(mvdPos);
-	  fGeanePropagator->PropagateToPCA(1, -1);
-	  FairTrackParH *fRes= new FairTrackParH();
-          Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); // First propagation at module
-          if (rc)
+      if (ii==0) // If the MVD hit is the first, no need of propagation
+	{ 
+	  cos = TMath::Cos(helix->GetMomentum().Angle(zaxis)); 
+	} 
+      else
+	{
+	  if (fGeanePro) 
 	    {
-	      cos = TMath::Cos(fRes->GetMomentum().Angle(zaxis)); 
+	      fGeanePropagator->SetPoint(mvdPos);
+	      fGeanePropagator->PropagateToPCA(1, 1);
+	      FairTrackParH *fRes= new FairTrackParH();
+	      Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); // First propagation at module
+	      if (rc)
+		{
+		  cos = TMath::Cos(fRes->GetMomentum().Angle(zaxis)); 
+		  helix = fRes; //updates of helix params to propagate from the pervious hit to the next one
+		}
+	      else
+		{
+		  cos = 0.;
+		}
 	    }
-	  else
-	    {
-	      cos = 0.;
-	    }
-	}
+	} // end of "if (ii==0) else"
+      
       Float_t thickness = 0.; //projection of the momentum on the zaxis of the detector frame
       
       if (fabs(cos)<0.000001)
