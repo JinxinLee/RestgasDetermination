@@ -34,10 +34,10 @@ PndTrkQualityAssuranceTask::PndTrkQualityAssuranceTask() : FairTask("QualityAssu
   sprintf(fSciTBranch,"SciTHit");
 
   //
-  sprintf(fTrackBranch,"Track");
-  sprintf(fTrackIDBranch,"TrackID");
-  sprintf(fIdealTrackBranch,"IdealTrack");
-  sprintf(fIdealTrackIDBranch,"IdealTrackID");
+  sprintf(fTrackBranch,"SttMvdGemTrack");
+  sprintf(fTrackIDBranch,"SttMvdGemTrackID");
+  sprintf(fIdealTrackBranch,"MyIdealTrack");
+  sprintf(fIdealTrackIDBranch,"MyIdealTrackID");
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -131,10 +131,10 @@ InitStatus PndTrkQualityAssuranceTask::Init() {
   if(fVerbose > 9) cout << "Found Ideal Track ID Array \n";
 
   fMCTrackInfo = new TClonesArray("PndTrkMCTrackInfo");
-  ioman->Register("MCTrackInfo",  "QualityAssurance", fMCTrackInfo, fPersistence); // CHECK
+  ioman->Register("MyMCTrackInfo",  "QualityAssurance", fMCTrackInfo, fPersistence); // CHECK
 
   fRecoTrackInfo = new TClonesArray("PndTrkRecoTrackInfo");
-  ioman->Register("RecoTrackInfo",  "QualityAssurance", fRecoTrackInfo, fPersistence); // CHECK
+  ioman->Register("MyRecoTrackInfo",  "QualityAssurance", fRecoTrackInfo, fPersistence); // CHECK
 
 
   // ----------------------------------------   maps of STT tubes
@@ -523,6 +523,7 @@ PndTrkRecoTrackInfo PndTrkQualityAssuranceTask::GetRecoInfoFromRecoTrack(int rec
     }
   }
 
+  info.SetFlag(track->GetFlag());
   return info;
 }
   
