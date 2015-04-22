@@ -45,7 +45,7 @@ main.cc
 
 add_library(FtfEvtGen SHARED ${FTFEVTGEN_SRCS})
 #target_link_libraries(FtfEvtGen ${ROOT_LIBRARIES})
-target_link_libraries(FtfEvtGen Base Core RIO Physics Tree G4clhep G4materials G4global G4geometry G4physicslists G4track EG)
+target_link_libraries(FtfEvtGen Core RIO Physics Tree G4clhep G4materials G4global G4geometry G4physicslists G4track EG)
 set_target_properties(FtfEvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
