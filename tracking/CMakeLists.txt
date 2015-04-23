@@ -12,7 +12,6 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
   ${CMAKE_SOURCE_DIR}/pnddata/SciTData
-  ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/stt
@@ -43,7 +42,6 @@ Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
-${CMAKE_SOURCE_DIR}/base
 ${FAIRROOT_LIBRARY_DIR}
 )
  
