@@ -38,6 +38,7 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "pgenerators/EvtGen/EvtGen/R01-03-00/"
         "pgenerators/EvtGen/Photos/"
         "genfit/"
+        "genfit2/"
         "/include/HepMC/"
   )
 
