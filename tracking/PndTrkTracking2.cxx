@@ -497,7 +497,112 @@ if(doMcComparison >=1 ){
 }  //  end of if(istampa >=1)
 
 
-// -------------------------
+// ---------------------------------------------------------------------------------------
+//--------------geometry stuff;
+
+// parto dal volume cave
+ TGeoVolume *vcave= gGeoManager->FindVolumeFast("cave");
+// i suoi nodi;
+	// get the TObjArray of the nodes contained in this volume;
+	TObjArray * tobjnodes = vcave->GetNodes();
+	int nodes = tobjnodes->GetEntriesFast();
+	for(int i=0;i<nodes; i++){
+		TGeoNode * geonode = (TGeoNode *) tobjnodes->At(i);
+		// in the following   vol  is the TGeoVolume corresponding to the geonode node;
+		TGeoVolume * vol = geonode->GetVolume();
+		cout<<"sottovolumi del cave : "<<vol->GetName()<<endl;
+	}
+
+
+
+
+  char nomevolume[100]="Mvd-2.1o(Central-Mvd)";
+//  TGeoVolume *v= gGeoManager->FindVolumeFast(nomevolume);
+ TGeoVolume *v= gGeoManager->FindVolumeFast("Mvd-2.1o(Central-Mvd)");
+
+// so gia' che questo e' un sottovolume di   cave  ; allora estraggo la sua matrice di roto-traslazione;
+	vcave->FindMatrixOfDaughterVolume(v);
+	// now get the transformation matrix from MARS to vol;
+	TGeoHMatrix * gmatrix = gGeoManager->GetHMatrix();
+	cout<<"---------- matrice di Mvd-2.1o(Central-Mvd) rispetto a cave :\n";
+	gmatrix->Print();
+	cout<<"--------------------------- fine printout\n";
+
+
+
+  //  v e' il volume Mvd-2.1o(Central-Mvd)
+ Double_t GlobalScal[3]={1.,1.,1.} ,  GlobalTras[3]={0.,0.,0.},
+ GlobalRot[9]={1.,0.,0.,0.,1.,0.,0.,0.,1.};
+ GetVolumeCharacteristics(v, NULL,GlobalScal,GlobalTras,GlobalRot);  // NULL is the pointer to a TGeoHMatrix, the global transformation matrix of the
+ 				     // volume v; it is important only for the volumes at the end of the chain;
+
+//  cout<<"stampa per la geometria -------------------------------------  "<<nomevolume<<endl;
+//----- shape del volume  PixelActiveo5
+
+/*
+ v= gGeoManager->FindVolumeFast("PixelActiveo5");
+ gGeoManager->SetVisLevel(10);
+ shape = v->GetShape();
+// cout<<"il nome della shape del volume :"<< v->GetName() <<" e' "<<shape->GetName()   <<endl;
+// cout<<"questa shape e' assembly?    :"<<shape->IsAssembly()<<endl;
+// cout<<"questa shape e' valid box?    :"<<shape->IsValidBox()<<endl;
+// cout<<"questa shape e' Cyl Type?    :"<<shape->IsCylType()<<endl;
+
+ if(shape->IsValidBox()){
+	// estrazione dei parametri della box
+
+	TGeoBBox * box = (TGeoBBox *) shape;
+
+	Double_t dx;
+	Double_t dy;
+	Double_t dz;
+	const Double_t * origin = box->GetOrigin();
+	dx=0.; dy=0.; dz = 0.;
+	dx = box->GetDX();
+	dy = box->GetDY();
+	dz = box->GetDZ();
+	cout<<"shape e' una Box di semidimensioni : dx = "<<dx<<", dy = "<<dy<<", dz = "<<dz<<endl;
+	cout<<"\te di origine : x = "<<origin[0]<<", y = "<<origin[1]<<", z = "<<origin[2]<<endl;
+
+	// estraggo il mother volume di PixelActiveo5
+	// so che il suo mother volume e'  PixelActiveo5oPartAss
+	TGeoVolume *mother= gGeoManager->FindVolumeFast("PixelActiveo5oPartAss");
+	cout<<"nome del mother volume di PixelActiveo5 :"<<mother->GetName()
+	<<"  ed ha "<< mother->GetNodes()->GetEntriesFast()<<" nodi"  <<endl;
+	// estrazione della matrice relativa a questa shape;
+	cout<<"risultato della ricerca della global matrix di PixelActiveo5 ="
+	<<mother->FindMatrixOfDaughterVolume(v)<<endl;
+//	TGeoMatrix * matrix= ->GetTransform();
+
+ }
+*/
+
+//--- drawings
+
+//--
+  TGeoVolume *vv = gGeoManager->FindVolumeFast("PixelActiveo5");
+//  gGeoManager->SetVisLevel(10);
+ TCanvas * can6 = new  TCanvas("c6","PixelActiveo5");
+ can6->cd();
+//gGeoManager->GetMasterVolume()->Draw();
+gGeoManager->SetTopVisible();
+ vv->SetLineColor(kRed);
+ vv->Draw();
+//--
+
+
+
+//  cout<<"ora disegna il Master Volume  -----\n";
+//  gGeoManager->SetTopVisible();
+//  gGeoManager->GetMasterVolume()->Draw();
+//  TGeoVolume *topvolume = gGeoManager->GetMasterVolume();
+//  cout<<"pointer del master volume "<<topvolume<<endl;
+
+//  TObjArray * lista = gGeoManager->GetListOfPhysicalNodes();
+//  cout<<"print ultimo indice "<<lista->GetLast()<<endl;
+
+//  cout<<"stampa per la geometria , fine-------------------------------------  "<<endl;
+// ---------------------------------------------------------------------------------------
 
 
 
@@ -3398,7 +3503,7 @@ nTotalHits[i]<<", nTotalHits[j] "<<nTotalHits[j]
 	}
 
 
-
+	return true;
 }
 
 //------------------------- end of function  PndTrkTracking2::EliminateClones
@@ -4020,6 +4125,209 @@ void PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane(
 }
 //----------end of function PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane
 
+//---------- begin of function PndTrkTracking2::GetVolumeCharacteristics
+void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatrix *gmat,
+		Double_t GlobalScal[3],  Double_t GlobalTrans[3],  Double_t  GlobalRot[9]  )
+{
+
+	//  tgeovol ==  input TGeoVolume  class;
+	//  gmat   ==   its GLOBAL (from MARS) matrix transformation;
+
+
+	// iterative function;
+
+	Int_t
+		i,
+		ino,
+		j,
+		k,
+		nodes;
+
+	// get the TObjArray of the nodes contained in this volume;
+	TObjArray * tobjnodes = tgeovol->GetNodes();
+
+	if(tobjnodes==0){// null pointer, volume without contained nodes--> therefore without contained volumes;
+		// check if in the name of this volume there are the keyword 'Active'  and 'Strip'
+		// or 'Active'  and 'Pixel';
+
+		if( strstr(tgeovol->GetName(),"Active") == NULL
+				||
+	(strstr(tgeovol->GetName(),"Pixel") == NULL && strstr(tgeovol->GetName(),"Strip") == NULL )
+			) return;	// condition failed; 
+
+
+ cout<<"-----------------------------------------------\n";
+		cout<<" the volume "<<tgeovol->GetName()<<"  is at the end of the chain!"<<endl;
+ 		if (tgeovol->IsActive()) cout<<"volume attivo; "; else cout<<"volume non attivo; ";
+
+		cout<<"\tora il print della matrice da MARS to local 4x4 con la funzione print :\n";
+		gmat->Print();
+		TGeoShape * shape = tgeovol->GetShape();
+ cout<<"nome della shape del volume "<<shape->GetName()   <<endl;
+ cout<<"questa shape e' assembly?    :"<<shape->IsAssembly()<<endl;
+ cout<<"questa shape e' valid box?    :"<<shape->IsValidBox()<<endl;
+ cout<<"questa shape e' Cyl Type?    :"<<shape->IsCylType()<<endl;
+ cout<<"ID di questa shape    :"<<shape->GetId()<<" con codice : "<<shape->GetByteCount()<< endl;
+ 		shape->InspectShape();
+		if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
+			TGeoBBox *p;
+			p = (TGeoBBox *) shape;
+			const Double_t *Or;
+			Or = p->GetOrigin();
+			cout<<"questo e' una box con OriginX "<<Or[0]<<",OriginY "<<Or[1]
+			<<",OriginZ "<<Or[2]<<" e Semilato X (= DX) = "<<p->GetDX()
+			<<", DY "<<p->GetDY()<< ", DZ "<<p->GetDZ()<<endl;
+		}
+ cout<<"-----------------------------------------------\n";
+		const Double_t * Scal = gmat->GetScale();
+		cout<<"\til suo fattore di scala rispetto a Master : X "<<Scal[0]<<", Y "<<Scal[1]
+		<<", Z "<<Scal[2]<<endl;
+		const Double_t * Tras = gmat->GetTranslation();
+		cout<<"\tla sua traslazione rispetto a Master : X "<<Tras[0]<<", Y "<<
+		Tras[1]<<", Z "<<Tras[2]<<endl;
+		const Double_t * Rot = gmat->GetRotationMatrix();
+
+
+
+cout<<"---------- inizio stampa global Scale, Translation e Global matrix del volume calcolata col mio metodo "<<endl;
+		cout<<"\tla sua Scale rispetto a MARS : X "<<GlobalScal[0]<<", Y "<<
+		GlobalScal[1]<<", Z "<<GlobalScal[2]<<endl;
+		cout<<"\tla sua traslazione rispetto a MARS : X "<<GlobalTrans[0]<<", Y "<<
+		GlobalTrans[1]<<", Z "<<GlobalTrans[2]<<endl;
+		cout<<"\tla sua rotazione rispetto a Mars :\n\t"<<GlobalRot[0]<<
+		",\t"<<GlobalRot[1]<<
+		",\t"<<GlobalRot[2]<<
+		",\n\t"<<GlobalRot[3]<<
+		",\t"<<GlobalRot[4]<<
+		",\t"<<GlobalRot[5]<<
+		",\n\t"<<GlobalRot[6]<<
+		",\t"<<GlobalRot[7]<<
+		",\t"<<GlobalRot[8]<<
+		endl;
+cout<<"-------------------------------\n\n";
+
+
+	}else{
+		nodes = tobjnodes->GetEntriesFast();
+		for(ino=0;ino<nodes; ino++){
+			TGeoNode * geonode = (TGeoNode *) tobjnodes->At(ino);
+			// in the following   vol  is the TGeoVolume corresponding to the geonode node;
+			TGeoVolume * vol = geonode->GetVolume();
+			TGeoShape * shape = vol->GetShape();
+cout<<"------------------------------------------- inizio stampa relativa al volume "<<vol->GetName()<<endl;
+			if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
+				TGeoBBox *p =(TGeoBBox *) shape;
+				const Double_t *Or;
+				Or = p->GetOrigin();
+				cout<<"questo e' una box con OriginX "<<Or[0]<<",OriginY "<<Or[1]
+				<<",OriginZ "<<Or[2]<<" e Semilato X (= DX) = "<<p->GetDX()
+				<<", DY "<<p->GetDY()<< ", DZ "<<p->GetDZ()<<endl;
+			}
+
+
+cout<<"---------- inizio stampa local matrix del volume "<<endl;
+TGeoMatrix * lmatrix =  geonode->GetMatrix();
+lmatrix->Print();
+		const Double_t * Scal = lmatrix->GetScale();
+		cout<<"\til suo fattore di scala rispetto a mother volume : X "<<Scal[0]<<", Y "<<Scal[1]
+		<<", Z "<<Scal[2]<<endl;
+		const Double_t * Trans = lmatrix->GetTranslation();
+		cout<<"\tla sua traslazione rispetto a mother volume : X "<<Trans[0]<<", Y "<<
+		Trans[1]<<", Z "<<Trans[2]<<endl;
+		const Double_t * Rot = lmatrix->GetRotationMatrix();
+		cout<<"\tla sua rotazione rispetto a mother volume : M11 "<<Rot[0]<<
+		", M12 "<<Rot[1]<<
+		", M13 "<<Rot[2]<<
+		", M21 "<<Rot[3]<<
+		", M22 "<<Rot[4]<<
+		", M23 "<<Rot[5]<<
+		", M31 "<<Rot[6]<<
+		", M32 "<<Rot[7]<<
+		", M33 "<<Rot[8]<<
+		endl;
+cout<<"-------------------fine\n";
+
+		Double_t newGlobalScal[3],
+			newGlobalTrans[3],
+			newGlobalRot[9];
+		//--------------------------------------------------
+		// calculation of the new GlobalScale vector;
+		for(i=0;i<3;i++){
+			newGlobalScal[i] = GlobalScal[i]*Scal[i]; // new global scale;
+		}
+
+		// calculation of the new Global Traslation vector;
+		//  newGlobalTrans  = oldGlobalTrans + oldGlobalRot  *  localTrans;
+		for(i=0;i<3;i++){
+		   newGlobalTrans[i] = GlobalTrans[i] ; // new Global traslation;
+		  for(k=0;k<3;k++){
+			newGlobalTrans[i] += GlobalRot[i*3+k]*Trans[k]; // new Global traslation;
+		  }
+		}
+		// calculation of the new Rotation matrix;
+		for(i=0;i<3;i++){
+			for(j=0;j<3;j++){
+				newGlobalRot[3*i+j] = 0.;
+				for(k=0;k<3;k++){
+					newGlobalRot[3*i+j] += GlobalRot[3*i+k]*Rot[3*k+j];
+				}
+			}
+		}
+
+
+
+
+
+
+		//--------------------------------------------------
+
+		// the following is a way to obtain the transformation matrix from MARS to this node;
+			// mother volume of the volume   vol; 
+			TGeoVolume * mother = geonode->GetMotherVolume();
+			// the function  FindMatrixOfDaughterVolume(vol) fills the TGeoManager::fHMatrix
+			// with the matrix transforming from MARS to the vol  volume;
+			mother->FindMatrixOfDaughterVolume(vol);
+			// now get the transformation matrix from MARS to vol;
+			TGeoHMatrix * gmatrix = gGeoManager->GetHMatrix();
+cout<<"---------- inizio stampa global matrix del volume "<<endl;
+cout<<"\t\tsuo mother volume e' "<<mother->GetName()<<endl;
+gmatrix->Print();
+cout<<"---- ora stampa il vettore LOCALE (0,0,0)  nel corrispondente GLOBALE usando TGeoMatrix::LocaltoMaster\n";
+const Double_t localv[4]={0.,0.,0.,1.};
+Double_t masterv[4];
+gmatrix->LocalToMaster(localv,masterv);
+cout<<"\til vettore nel MRS e' : X = "<<masterv[0]<<", Y = "<<masterv[1]<<", Z = "<<masterv[2]<<endl;
+//
+
+cout<<"---------- inizio stampa global Translation e Global matrix del volume calcolata col mio metodo "<<endl;
+		cout<<"\tla sua scala rispetto a MARS : X "<<newGlobalScal[0]<<", Y "<<
+		newGlobalScal[1]<<", Z "<<newGlobalScal[2]<<endl;
+		cout<<"\tla sua traslazione rispetto a MARS : X "<<newGlobalTrans[0]<<", Y "<<
+		newGlobalTrans[1]<<", Z "<<newGlobalTrans[2]<<endl;
+		cout<<"\tla sua rotazione rispetto a Mars :\n\t"<<newGlobalRot[0]<<
+		",\t"<<newGlobalRot[1]<<
+		",\t"<<newGlobalRot[2]<<
+		",\n\t"<<newGlobalRot[3]<<
+		",\t"<<newGlobalRot[4]<<
+		",\t"<<newGlobalRot[5]<<
+		",\n\t"<<newGlobalRot[6]<<
+		",\t"<<newGlobalRot[7]<<
+		",\t"<<newGlobalRot[8]<<
+		endl;
+
+cout<<"---------------------------------------------"<<endl<<endl;
+			GetVolumeCharacteristics(vol,gmatrix,newGlobalScal,newGlobalTrans,newGlobalRot);  // here is the iteration that enables to scan
+							// all the list of volume in order to find the
+							// interesting ones, namely those at the end
+							// of the chain;
+		}  // end of  for(ino=0;ino<nodes; ino++;)
+	}	// end of if(nodes==0)
+
+
+	return;
+}
+
+//----------end of function PndTrkTracking2::GetVolumeCharacteristics
 
 //---------- begin of function PndTrkTracking2::InfoXYZParal
 
