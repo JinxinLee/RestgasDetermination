@@ -24,7 +24,7 @@ class Pnd4CFitter : public RhoFitterBase
     virtual ~Pnd4CFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
     Bool_t Fit(); // fits final state particles to initial state, States inbetween are modified.
     Bool_t FitConserveMasses(); // fits final state particles threemomenta to initial state, States inbetween are modified.
-    Bool_t FitAll() {Fatal("Pnd4CFitter::FitAll()","Nit applicable. Please use Fit() or FitConserveMasses().");};
+    Bool_t FitAll() {Fatal("Pnd4CFitter::FitAll()","Not applicable. Please use Fit() or FitConserveMasses()."); return kFALSE;};
     void PrintTree(RhoCandidate* c, int l=0);
     double Chi2Contribution ( const RhoCandidate& ) const {Error("Pnd4CFitter::Chi2Contribution","No chi2 contribution available.");return -9999.;};
 

@@ -338,12 +338,12 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 	}
 	
 	Int_t flag=1; //this flag introducing is not necessary in this class but is also harmless      
-	if (fabs(SubunitRow)<=1 && fabs(SubunitCol)<=3) flag=0;      // empty copyNoSub in the beam-pipe area
-	else if (fabs(SubunitCol)==9 && fabs(SubunitRow)>=3) flag=0; // empty copyNoSub in the residual area
-	else if (fabs(SubunitCol)==8 && fabs(SubunitRow)>=6) flag=0; //  -||-
-	else if (fabs(SubunitCol)==7 && fabs(SubunitRow)>=7) flag=0; //  -||- 
-	else if (fabs(SubunitCol)==6 && fabs(SubunitRow)>=8) flag=0; //  -||- 
-	else if (fabs(SubunitCol)>=4 && fabs(SubunitRow)==9) flag=0; //  -||- 
+	if (std::abs(SubunitRow)<=1 && std::abs(SubunitCol)<=3) flag=0;      // empty copyNoSub in the beam-pipe area
+	else if (std::abs(SubunitCol)==9 && std::abs(SubunitRow)>=3) flag=0; // empty copyNoSub in the residual area
+	else if (std::abs(SubunitCol)==8 && std::abs(SubunitRow)>=6) flag=0; //  -||-
+	else if (std::abs(SubunitCol)==7 && std::abs(SubunitRow)>=7) flag=0; //  -||- 
+	else if (std::abs(SubunitCol)==6 && std::abs(SubunitRow)>=8) flag=0; //  -||- 
+	else if (std::abs(SubunitCol)>=4 && std::abs(SubunitRow)==9) flag=0; //  -||- 
   
 	//determination of CrystalRow and CrystalCol:
 	if (flag && copyNoSub >= 61){//determination of CrystalRow and CrystalCol for the 214 full Subunits

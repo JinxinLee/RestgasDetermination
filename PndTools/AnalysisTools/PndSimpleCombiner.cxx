@@ -304,6 +304,7 @@ bool PndSimpleCombiner::ParseParams(TString params)
 		if (pair[0] == "emin") {fEmin = pair[1].Atof(); fESel = new RhoEnergyParticleSelector("eSel",50.+fEmin,100.);}
 		if (pair[0] == "pmin") {fPmin = pair[1].Atof(); fPSel = new RhoMomentumParticleSelector("pSel",50.+fPmin,100.);}
 	}
+        return kTRUE;
 }
 
 // -------------------------------------------------------------------------

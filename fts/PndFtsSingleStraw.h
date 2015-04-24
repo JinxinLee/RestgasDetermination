@@ -1,5 +1,5 @@
 #ifndef __PNDFTSSINGLESTRAW__
-#define __PNDFtsSINGLESTRAW__
+#define __PNDFTSSINGLESTRAW__
 
 #include "TNamed.h"
 #include "TMatrix.h"

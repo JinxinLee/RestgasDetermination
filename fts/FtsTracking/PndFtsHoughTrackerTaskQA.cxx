@@ -98,7 +98,7 @@ InitStatus PndFtsHoughTrackerTaskQA::Init()
 {
 	if(fVerbose>3) Info("Init","Initilization of PndFtsHoughTrackerTaskQA");
 
-	PndFtsHoughTrackerTask::Init();
+	return PndFtsHoughTrackerTask::Init();
 }
 
 

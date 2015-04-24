@@ -1,7 +1,6 @@
 //*-- AUTHOR  :
 //*-- Created : 20/05/2009
 
-using namespace std;
 #include "PndEmcMapper.h"
 #include "PndEmcGeoPar.h"
 #include "FairParamList.h"

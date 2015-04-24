@@ -5,7 +5,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndGeoSciTPar.h"
 #include "FairParamList.h"
 #include "iostream"

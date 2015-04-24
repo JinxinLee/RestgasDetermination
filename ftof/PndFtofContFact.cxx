@@ -8,7 +8,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndFtofContFact.h"
 #include "FairRuntimeDb.h"
 #include "iostream"

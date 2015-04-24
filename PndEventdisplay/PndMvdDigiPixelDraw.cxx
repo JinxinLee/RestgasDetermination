@@ -38,6 +38,7 @@ InitStatus PndMvdDigiPixelDraw::Init()
 	fRecoHits     = (TClonesArray *)fManager->GetObject("MVDHitsPixel");
 
 	if(fClusterCands != 0 && fRecoHits != 0) fUseCluster = kTRUE;
+        return kSUCCESS;
 }
 
 void PndMvdDigiPixelDraw::Exec(Option_t* option)

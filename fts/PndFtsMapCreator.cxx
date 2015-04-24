@@ -120,7 +120,7 @@ Int_t PndFtsMapCreator::GetChamberIDFromName(TString name){
    //std::cout<<"chamber 6"<<std::endl;
    return 6;
  }
- 
+ return -1; 
 }
 
 Int_t PndFtsMapCreator::GetChamberIDFromPath(TString path){
@@ -149,7 +149,7 @@ if(pathstring.Contains("fts06tube")){
   //std::cout<<"chamber 6"<<std::endl;
     return 6;
   }
-
+  return -1;
 }
 
 

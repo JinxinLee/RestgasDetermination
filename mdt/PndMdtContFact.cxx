@@ -9,15 +9,12 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndMdtContFact.h"
 #include "FairRuntimeDb.h"
 
 #include "PndGeoMdtPar.h"
 #include "PndMdtRecoPar.h"
 
-//#include "FairParRootFileIo.h"
-//#include "FairParAsciiFileIo.h"
 #include <iostream>
 #include <iomanip>
 

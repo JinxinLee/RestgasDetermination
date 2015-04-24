@@ -91,9 +91,6 @@ void PndSttTrackFinderIdeal::Init()
     }
 }
 
-Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackCandArray, TClonesArray* helixHitArray) // CHECK da cancellare
-{}
-
 
 Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray *trackArray, TClonesArray* helixHitArray) 
 {

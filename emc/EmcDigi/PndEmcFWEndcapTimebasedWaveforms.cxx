@@ -239,7 +239,7 @@ InitStatus PndEmcFWEndcapTimebasedWaveforms::Init() {
 
 		fVPTT_MULT = wfSim;
 	}
-
+        return kSUCCESS;
 }
 
 

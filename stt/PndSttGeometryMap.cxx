@@ -72,7 +72,8 @@ void PndSttGeometryMap::GenerateStrawMap(Int_t map) {
 }
 
 Bool_t PndSttGeometryMap::FillGeometryParameters() {
-  if(fGeoType == 1) FillGeometryParametersGeoType1();
+  if(fGeoType == 1) return FillGeometryParametersGeoType1();
+  else return kFALSE;
 }
 
 // ************************ GEO TYPE 1 SPECIFIC ***************************
@@ -113,6 +114,7 @@ Bool_t PndSttGeometryMap::FillGeometryParametersGeoType1() {
     tube->SetNeighborings(FindNeighborings(tube));
     if(!found) cout << "ERROR IN FINDIN NEIGHBORING " << endl;
   }
+  return kTRUE;
 }
 
 TArrayI PndSttGeometryMap::FindNeighborings(PndSttTube *tube) {
@@ -512,6 +514,7 @@ int PndSttGeometryMap::IsSectorBorderStraw(int strawindex) const
 	return -1;
     }
   }
+  return -1000;
 }
 
 bool PndSttGeometryMap::IsAxialRow(int rowindex) const

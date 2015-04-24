@@ -8,7 +8,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndSciTContFact.h"
 #include "FairRuntimeDb.h"
 #include "iostream"

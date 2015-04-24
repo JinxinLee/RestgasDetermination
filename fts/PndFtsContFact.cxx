@@ -6,7 +6,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndFtsContFact.h"
 #include "FairRuntimeDb.h"
 #include "PndGeoFtsPar.h"
@@ -46,7 +45,7 @@ FairParSet* PndFtsContFact::createContainer(FairContainer* c)
    * For an actual context, which is not an empty string and not the default context
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
-  cout << " -I container name " << name << endl;
+  std::cout << " -I container name " << name << std::endl;
   FairParSet* p=0;
 
   if (strcmp(name,"PndGeoFtsPar")==0) {

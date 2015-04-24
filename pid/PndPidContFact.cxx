@@ -8,7 +8,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndPidContFact.h"
 #include "FairRuntimeDb.h"
 #include "PndPidCorrPar.h"
@@ -46,7 +45,7 @@ FairParSet* PndPidContFact::createContainer(FairContainer* c) {
    * For an actual context, which is not an empty string and not the default context
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
-  cout << " -I container name " << name << endl;
+  std::cout << " -I container name " << name << std::endl;
   FairParSet* p=NULL;
   if (strcmp(name,"PndPidCorrPar")==0) {
     p=new PndPidCorrPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());

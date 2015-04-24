@@ -8,7 +8,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndGeoHypPar.h"
 #include "FairParamList.h"
 #include <iostream>

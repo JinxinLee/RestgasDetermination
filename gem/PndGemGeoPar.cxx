@@ -9,7 +9,6 @@
  *  \Storing list of GEM volumes
  **/
 
-using namespace std;
 #include "PndGemGeoPar.h"
 #include "FairParamList.h"
 #include <iostream>

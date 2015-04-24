@@ -560,6 +560,7 @@ Double_t PndGemSensor::GetDistance(Int_t iSide, Double_t chan1, Double_t chan2) 
       return TMath::Abs(chan1-chan2);
     }
   }
+  return -1; // ?ADDED (Stefano)
 }
 // -------------------------------------------------------------------------
 
@@ -641,6 +642,7 @@ Int_t PndGemSensor::GetDistance(Int_t iSide, Int_t chanMin, Int_t chanMax, Int_t
       return TMath::Min(TMath::Abs(chanTest-chanMax),TMath::Abs(chanTest-chanMin));
     }
   }
+  return -1; // ? ADDED (Stefano)
 }
 // -------------------------------------------------------------------------
 
@@ -754,6 +756,7 @@ Double_t PndGemSensor::GetDistance2(Int_t iSide, Double_t chan1, Double_t chan2)
       return TMath::Abs(chan1-chan2);
     }
   }
+  return -1; // ? ADDED (Stefano)
 }
 // -------------------------------------------------------------------------
 
@@ -813,6 +816,7 @@ Double_t PndGemSensor::GetMeanChannel(Int_t iSide, Double_t chan1, Double_t weig
   if ( fType == 3 ) {
     return (chan1*weight1+chan2*weight2)/(weight1+weight2);
   }
+  return -1; // ? ADDED (Stefano)
 }
 // -------------------------------------------------------------------------
 

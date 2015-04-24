@@ -503,7 +503,7 @@ PndDsk::ProcessHitsCerenkov_FLG(FairVolume* vol)
   }
 
   }
-
+  return kTRUE;
 }
 
 // -----   Private method ProcessHitsCerenkov   -------------------------------

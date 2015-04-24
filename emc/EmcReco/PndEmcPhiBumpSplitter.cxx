@@ -129,7 +129,7 @@ InitStatus PndEmcPhiBumpSplitter::Init() {
   ioman->Register("EmcPhiBump","Emc",fPhiBumpArray,fPersistance);
 
   cout << "-I- PndEmcPhiBumpSplitter: Intialization successfull" << endl;
-
+  return kSUCCESS;
 }
 
 void PndEmcPhiBumpSplitter::Exec(Option_t* opt)

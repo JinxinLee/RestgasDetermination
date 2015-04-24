@@ -15,7 +15,7 @@
 
 
 #ifndef PNDDRCHITANA_H
-#define PNDDRCAHITNA_H
+#define PNDDRCHITANA_H
 
 #include "FairTask.h"
 #include "TClonesArray.h"

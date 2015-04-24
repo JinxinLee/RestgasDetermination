@@ -72,6 +72,7 @@ Int_t PndGemMonitor::CreateSensorMonitor(const PndGemSensor &tempSensor) {
 			tempMonitor->GetSensorNr ());
   fSensorMap[a] = fSensorList->GetEntries();
   fSensorList->Add(tempMonitor);
+  return 0; // ADDED, not clear the meaning of this Int_t function (Stefano)
 }
 // -------------------------------------------------------------------------
 

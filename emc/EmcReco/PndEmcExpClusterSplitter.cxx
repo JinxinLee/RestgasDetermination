@@ -156,7 +156,7 @@ InitStatus PndEmcExpClusterSplitter::Init() {
 	HowManyDidis = 0;
 
   cout << "-I- PndEmcExpClusterSplitter: Intialization successfull" << endl;
-
+  return kSUCCESS;
 }
 
 void PndEmcExpClusterSplitter::Exec(Option_t* opt) 

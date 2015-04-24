@@ -10,7 +10,6 @@
 //  inherits from it basic functions e.g. write(...)
 //
 /////////////////////////////////////////////////////////////
-using namespace std;
 #include "PndSttParRootFileIo.h"
 #include "FairParRootFileIo.h"
 #include "FairRuntimeDb.h"
@@ -37,13 +36,15 @@ Bool_t PndSttParRootFileIo::init(FairParSet* pPar,Int_t* set)
   {
       if (!strcmp(name,"SttDigiPar")) return read((PndSttDigiPar*)pPar,set);
   }
-  cerr<<"initialization of "<<name<<" not possible from ROOT file!"<<endl;
+  std::cerr<<"initialization of "<<name<<" not possible from ROOT file!"<<std::endl;
   return kFALSE;
 }
 
 
 Bool_t PndSttParRootFileIo::read(PndSttDigiPar* pPar,Int_t* set) 
 {
-    cout << "-I- PndSttParRootFileIo : reading " << endl;
+  // No params are implemented
+  std::cout << "-I- PndSttParRootFileIo : reading " << std::endl;
+  return kTRUE;
 }
 

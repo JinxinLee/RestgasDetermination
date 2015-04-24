@@ -30,7 +30,7 @@ class PndKinFitter : public RhoFitterBase
     void AddTotMomConstraint(double momentum);
     void AddMassConstraint(double mass);
     Bool_t Fit();
-    Bool_t FitAll() {Fatal("PndKinFitter::FitAll()","Not applicable. Please use Fit().");};
+    Bool_t FitAll() {Fatal("PndKinFitter::FitAll()","Not applicable. Please use Fit()."); return kFALSE;};
 
     double Chi2Diff() {return fChi2Diff;}
     double GetPull() {return fPull;}

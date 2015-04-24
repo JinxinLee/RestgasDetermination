@@ -8,7 +8,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndHypContFact.h"
 #include "FairRuntimeDb.h"
 #include "FairParRootFileIo.h"

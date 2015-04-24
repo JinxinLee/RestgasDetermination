@@ -249,6 +249,7 @@ Int_t PndEmcDigiCalibrator::GetIdxByEnergy(Double_t energy) const
 		if(idx > 16) idx = 16;
 		return idx;
 	}
+        return -1;
 }
 Int_t PndEmcDigiCalibrator::GetIdxByEnergyForBump(Double_t energy) const
 {
@@ -262,4 +263,5 @@ Int_t PndEmcDigiCalibrator::GetIdxByEnergyForBump(Double_t energy) const
 		if(idx > 19) idx = 19;
 		return idx;
 	}
+        return -1;
 }

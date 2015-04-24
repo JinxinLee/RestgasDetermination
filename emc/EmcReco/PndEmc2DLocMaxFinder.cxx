@@ -123,6 +123,7 @@ InitStatus PndEmc2DLocMaxFinder::Init() {
 	//        etc.  
 	
 	cout << "-I- PndEmc2DLocMaxFinder: Intialization successfull" << endl;
+        return kSUCCESS;
 }
 
 void PndEmc2DLocMaxFinder::Exec(Option_t* opt)

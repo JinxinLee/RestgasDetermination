@@ -229,6 +229,8 @@ void PndGemSensorMonitor::CheckNeighbours(Int_t channelNr, Int_t sideId, Int_t e
 
 // -----   Is channel active?   ----------------------------------------------------
 Bool_t PndGemSensorMonitor::ChannelIsActive    (Int_t channelNr, Int_t sideId, Double_t timeNow) {
+  // Empty function!!
+  return kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -275,6 +277,8 @@ Double_t PndGemSensorMonitor::ChannelLastActiveAt(Int_t channelNr, Int_t sideId,
 
 // -----   Last activation data   ----------------------------------------------------
 Bool_t PndGemSensorMonitor::ChannelLastActivation(Int_t channelNr, Int_t sideId, Int_t& eventNr, Int_t& digiNr, Double_t& channelTime, Double_t& channelCharge) {
+  // Empty function
+  return kFALSE;
 }
 // -------------------------------------------------------------------------
 

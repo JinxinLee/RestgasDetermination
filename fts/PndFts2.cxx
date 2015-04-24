@@ -482,7 +482,7 @@ PndFtsPoint* PndFts2::AddHit(Int_t trackID, Int_t detID, Int_t tubeID, Int_t cha
    pointnew->SetChamberID(chamberID);
    pointnew->SetLayerID(layerID);
 
-
+  return pointnew;
 }
 // -------------------------------------------------------------------------
 

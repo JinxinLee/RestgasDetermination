@@ -72,7 +72,7 @@ std::vector< PndHypCluster> PndHypStripClusterBuilder::SearchClusters()
 	   for(Indexpair::iterator itStrip3 = itStrip; itStrip3 != (itSide->second).end(); ++itStrip3)
 	     {
 	       if( !(1==flagmap[itStrip3->second]) ) continue;
-	       if( fabs(itStrip->first - itStrip3->first) > 1) continue;
+	       if( std::abs(itStrip->first - itStrip3->first) > 1) continue;
 
 	       onecluster.push_back(itStrip3->second);
 	       // make a helper to the next element
@@ -99,16 +99,19 @@ PndHypCluster PndHypStripClusterBuilder::GetCluster(Int_t i)
 	{
  	  if(0<=i && fClusters.size() < i)
  	    return fClusters[i];
+          return PndHypCluster();
  	}
- 	PndHypCluster PndHypStripClusterBuilder::GetTopCluster(Int_t i)
+PndHypCluster PndHypStripClusterBuilder::GetTopCluster(Int_t i)
  	{
  	  if(0<=i && fTopclusters.size() < i)
- 	  return fClusters[ (fTopclusters[i]) ];
+ 	    return fClusters[ (fTopclusters[i]) ];
+          return PndHypCluster();
  	}
- 	PndHypCluster PndHypStripClusterBuilder::GetBotCluster(Int_t i)
+ PndHypCluster PndHypStripClusterBuilder::GetBotCluster(Int_t i)
  	{
  	  if(0<=i && fBotclusters.size() < i)
- 	  return fClusters[ (fBotclusters[i]) ];
+ 	    return fClusters[ (fBotclusters[i]) ];
+          return PndHypCluster();
  	}
 
 
