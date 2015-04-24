@@ -158,6 +158,7 @@ if(istampa>1)cout<<"in BadTrack_ParStt, ibad "<<ibad<<", max bad allowed = "<< m
 
 
 
+	return true;
 }
 
 
@@ -567,9 +568,6 @@ bool PndTrkCleanup::GoodTrack(
 					// they are 2, the first corresponding to the minimum Radius, the second
 					// corresponding to the maximum radius;
 	
-	    for(j=0;j<2;j++){	// loop over the two radia (R minimum and R maximum) of the i-th Mvd barrel layer;
-	    			// j = 0 --> minimum Radius; j = 1 --> maximum radius;
-
 		// yes_intersect = 0 --> 2 intersections
 		// otherwise yes_intersect = -1;
 		// I use the method FindIntersectionsOuterCircle that calculates the intersection between
@@ -578,7 +576,7 @@ bool PndTrkCleanup::GoodTrack(
 				Ox,
 				Oy,
 				R,
-				MVD_BARREL_RADIA[j][i],//radius of the i-th Mvd barrel layer; j=0 --> R Min, j=1--> R Max;
+				MVD_BARREL_AVERAGE_RADIUS[i],// AVERAGE radius of the i-th Mvd barrel layer;
 				Xcross,
 				Ycross
 				);
@@ -596,34 +594,38 @@ bool PndTrkCleanup::GoodTrack(
 				FiOrderedList // output;
 			);
 
-
 			// calculate the Z coordinate of the intersection; since kappa is necessarily
 			//  > 1.e-10 by construction, then Z is always well defined;
 			z = (FiOrderedList[0]-fi0)/kappa;
 
-cout<<"cazzo1,barrel, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrderedList[0]<<", Z "
-	<<z<<", R "<< sqrt(Xcross[0]*Xcross[0]+Ycross[0]*Ycross[0]    )<<endl;
+cout<<"cazzo1,barrel,interseca, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrderedList[0]<<", Z "
+	<<z<<", R "<< sqrt(Xcross[0]*Xcross[0]+Ycross[0]*Ycross[0]    )<<
+	", Zup-extra "<<MVD_BARREL_ZLIMITS[1][i]-extra_distance_Z<<
+	", Zlow+extra "<<MVD_BARREL_ZLIMITS[0][i]+extra_distance_Z<<
+	", Zlowbuco "<<MVD_BARREL_NOZONE_Z[0]-extra_distance_Z<<
+	", Zupbuco "<<MVD_BARREL_NOZONE_Z[1]+extra_distance_Z<<
+	endl;
 			// condition for having Mvd hits in the Mvd Barrel layers certainly, namely taking
 			// into account also possible errors in the Z caused by the uncertainty of the
 			// trajectory; such an error is called extra_distance_Z (in cm);
 
 			// condition by which the trajectory surely had to cross the barrel layer;
 			if( z<= MVD_BARREL_ZLIMITS[1][i]-extra_distance_Z && 
-				z>= MVD_BARREL_ZLIMITS[1][i]+extra_distance_Z &&
-
-				(z<=MVD_BARREL_NOZONE_Z[0]-extra_distance_Z ||
-				z>=MVD_BARREL_NOZONE_Z[1]+extra_distance_Z) && // out of the target pipe;
-				 (Xcross[0] <= MVD_BARREL_NOZONE_X[0]-extra_distance ||   // out of the target pipe;
-				  Xcross[0] >= MVD_BARREL_NOZONE_X[1]+extra_distance )
+			    z>= MVD_BARREL_ZLIMITS[0][i]+extra_distance_Z &&
+			   (!(z>MVD_BARREL_NOZONE_Z[0]-extra_distance_Z && // conservative!
+			     z<MVD_BARREL_NOZONE_Z[1]+extra_distance_Z&& // out of the target pipe; conservative!
+			     Xcross[0] > MVD_BARREL_NOZONE_X[0]-extra_distance &&   // out of the target pipe;
+			     Xcross[0] < MVD_BARREL_NOZONE_X[1]+extra_distance))
 			 ){	// case in which there should be Mvd hits;
+cout<<"\t\tcazzo, e' effettivamente fuori dal buco!\n";
 			 	X_barrel[i][n_intersections_barrel[i]] = Xcross[0];
 				Y_barrel[i][n_intersections_barrel[i]] = Ycross[0];
 				Z_barrel[i][n_intersections_barrel[i]] = z;
 		     		n_intersections_barrel[i]++;
-			} 
+			}
+cout<<"cazzo1,barrel,intersecava? n_intersections_barrel["<<i<<"] "<<n_intersections_barrel[i]<<endl;
 		}  // end of if(yes_intersect>0 )
 
-	    };  // end of  for(j=0;j<2;j++)
 
 	};  // end of  for(i=0;i<MVD_BARREL_LAYERS;i++)
 
@@ -632,6 +634,7 @@ cout<<"cazzo1,barrel, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrder
 //------------  check if there are the hits in the barrel in the layer predicted by the previous extrapolation of the track;
 	nFaults = 0;
 	for(i=0;i<MVD_BARREL_LAYERS;i++){
+cout<<"cazzo2, n_intersections_barrel["<<i<<"]  "<<n_intersections_barrel[i]<<endl;
 		if (n_intersections_barrel[i]>0){
 			// loop over all Mvd hits of the track;
 			nFaults++;
@@ -649,12 +652,14 @@ cout<<"cazzo1,barrel, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrder
 			for(j=0;j< nStripHitsinTrack; j++){
 				r2 = XMvdStrip[ ListMvdStripHitsinTrack[j] ]*XMvdStrip[ ListMvdStripHitsinTrack[j] ]+
 				     YMvdStrip[ ListMvdStripHitsinTrack[j] ]*YMvdStrip[ ListMvdStripHitsinTrack[j] ];
-				if( fabs( r2 - MVD_BARREL_RADIASQMean[i]) > MVD_BARREL_RADIASQDifference[i]){
-					nFaults++;
+				if( fabs( r2 - MVD_BARREL_RADIASQMean[i]) <= MVD_BARREL_RADIASQDifference[i]){
+					nFaults--;
+					break;
 				}
 			} // end of for(j=0;j< nStripHitsinTrack; j++)
 			}	// end of   if(GoOn)
 		}  // end of     if (n_intersections_barrel[i]>0)
+cout<<"cazzo3, barrel n. "<<i<<", n_faults "<<nFaults<<endl;
 	};  // end of  for(i=0;i<MVD_BARREL_LAYERS;i++)
 	
 	if(nFaults>1) return false;
@@ -673,6 +678,7 @@ cout<<"cazzo1,barrel, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrder
 		Y_disk = Oy + R* sin(phase) ;
 		Ylow = Y_disk - extra_distance;
 		Yup = Y_disk + extra_distance;
+cout<<"cazzo4, DISCO n. "<<i<<", X "<<X_disk<<", Y "<<Y_disk<<", Z "<<MVD_DISK_Z[i]<<endl;
 
 		// now calculate if the intersection falls in the sensor active region of the Mvd Disk;
 		nXlow = Xlow / MVD_DISK_LAYER_deltaX[i];
@@ -739,6 +745,7 @@ cout<<"cazzo1,barrel, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrder
 //------------  check if there are the hits in the barrel in the layer predicted by the previous extrapolation of the track;
 	nFaults = 0;
 	for(i=0;i<MVD_DISK_LAYERS;i++){
+cout<<"cazzo5, DISCO n. "<<i<<", tipo intersezione "<<type_of_intersection_in_disk[i]<<endl;
 		if (type_of_intersection_in_disk[i]==1){
 			// loop over all Mvd hits of the track;
 			for(j=0;j< nPixelHitsinTrack; j++){
@@ -753,6 +760,8 @@ cout<<"cazzo1,barrel, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrder
 			} // end of for(j=0;j< nStripHitsinTrack; j++)
 
 		}
+cout<<"cazzo6, e quindi nFaults  "<<nFaults<<endl;
+
 	};  // end of  for(i=0;i<MVD_DISKS_LAYERS;i++)
 	
 	if(nFaults>1) return false;
@@ -2581,7 +2590,7 @@ if(istampa>0){ cout<<"from XYCleanup,after ListAxialSectorsCrossedbyTrack_and_Hi
 
 
 
-
+   return true;
 }
 //----------end of function PndTrkCleanup::XYCleanup
 
