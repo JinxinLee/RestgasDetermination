@@ -6,7 +6,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndGemContFact.h"
 #include "FairRuntimeDb.h"
 #include "PndGemGeoPar.h"

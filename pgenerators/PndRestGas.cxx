@@ -53,7 +53,7 @@ Double_t GetDDValue(Double_t *zval, Double_t *p) {
 } 
 
 // .........................................................................
-void* PndRestGas::LoadDD(char DDfname[80])
+void PndRestGas::LoadDD(char DDfname[80])
 {
   
 	// read gas density values from the file

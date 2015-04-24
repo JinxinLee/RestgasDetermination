@@ -40,8 +40,8 @@ class PndRestGas
 	 ** SetzRange: set range of zvalues
 	 ** GetDDFun:  get the DD function
 	 **/
-	void* LoadDD(char DDfname[80]);
-	void* SetzRange(Double_t zmin, Double_t zmax) {
+	void LoadDD(char DDfname[80]);
+	void SetzRange(Double_t zmin, Double_t zmax) {
 	  fzmin = zmin;
 		fzmax = zmax;
 	}

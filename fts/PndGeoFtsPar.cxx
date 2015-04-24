@@ -1,7 +1,6 @@
 //
 //
 
-using namespace std;
 #include "PndGeoFtsPar.h"
 #include "FairParamList.h"
 #include <iostream>

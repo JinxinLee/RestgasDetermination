@@ -1,7 +1,6 @@
 //*-- AUTHOR : Denis Bertini
 //*-- Created : 21/06/2005
 
-using namespace std;
 #include "PndGeoSttPar.h"
 #include "FairParamList.h"
 #include <iostream>

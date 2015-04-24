@@ -9,7 +9,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndFtsDigiPar.h"
 #include "FairRuntimeDb.h"
 #include "FairParIo.h"
@@ -36,10 +35,10 @@ PndFtsDigiPar::~PndFtsDigiPar()
 Bool_t PndFtsDigiPar::init(FairParIo* inp) 
 {
     // intitializes the container from an input
-    cout << "-I- PndFtsDigiPar::init " << endl;
+    std::cout << "-I- PndFtsDigiPar::init " << std::endl;
     
     FairDetParIo* input=inp->getDetParIo("PndFtsParIo");
-    cout << "-I- PndFtsDigiPar::init " << input << endl;
+    std::cout << "-I- PndFtsDigiPar::init " << input << std::endl;
 
     if (input) return (input->init(this));
     return kFALSE;
@@ -83,8 +82,15 @@ Bool_t PndFtsDigiPar::writeline(char *buf, Int_t mod, Int_t strip)
     return kTRUE;
 }
 
-void PndFtsDigiPar::putParams(FairParamList* list){}
+void PndFtsDigiPar::putParams(FairParamList* list)
+{
+  // At present the container is empty
+}
 
-Bool_t PndFtsDigiPar::getParams(FairParamList* list){}
+Bool_t PndFtsDigiPar::getParams(FairParamList* list)
+{
+  // At present the container is empty
+  return kTRUE;
+}
 
 

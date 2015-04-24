@@ -17,7 +17,7 @@
 
 
 #ifndef PNDMAGFIELDMAPDATA_H
-#define PNDMAGFIELDMAPDATA
+#define PNDMAGFIELDMAPDATA_H
 
 
 #include "TNamed.h"

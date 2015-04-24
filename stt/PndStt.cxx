@@ -383,6 +383,7 @@ PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, Int_t tubeID,
 						       momIn, momOut, time, 
 						       length, eLoss, mass);
   pointnew->SetTubeID(tubeID);
+  return pointnew; 
 }
 // -------------------------------------------------------------------------
 

@@ -65,7 +65,7 @@ Bool_t PndFlukaGenerator::Init()
   fInputTree = (TTree*) fInputRootFile->Get("ResultsTree");
   if (!SetBranchAddresses()) 
     Fatal("PndFlukaGenerator","Incompatible ROOT input file!");
-  
+  return kTRUE;  
 }
 
 // ------------------------------------------------------------------------

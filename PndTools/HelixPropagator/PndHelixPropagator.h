@@ -21,7 +21,7 @@ public:
 	{};
 	virtual ~PndHelixPropagator();
 	FairTrackPar PropagateToZ(Double_t zPos);		//< returns position and momentum at requested z-Value [cm]
-	FairTrackPar PropagateToS(Double_t arcLength){};
+	FairTrackPar PropagateToS(Double_t arcLength); 
 	FairTrackPar PropagateByAngle(Double_t step); //< angle step in degrees from start position/momentum
 	FairTrackPar PropagateToXYPos(TVector2 xyPos); //< propagate to closes distance to given xy position
 

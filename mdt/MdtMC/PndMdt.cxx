@@ -194,8 +194,8 @@ Bool_t PndMdt::ProcessHits(FairVolume* vol)
   if (name.Contains("BA")) ProcessHitsRoot(vol);
   else ProcessHitsFast(vol);
   
-  if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
-     return kTRUE;
+  // if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
+  return kTRUE;
 }
 
 // -----   Public method ProcessHitsFast  --------------------------------------

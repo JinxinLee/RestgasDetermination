@@ -1,6 +1,3 @@
-
-using namespace std;
-
 #include "FlukaResults.h"
 #include "iostream"
 

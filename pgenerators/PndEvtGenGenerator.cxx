@@ -113,6 +113,7 @@ Bool_t PndEvtGenGenerator::Init()
     if ((fInputAsciiFile = fopen(fFileName.Data(),"r"))==NULL)
       Fatal("PndEvtGenGenerator","Cannot open ASCII input file.");
   }
+  return kTRUE;
 }
 
 // ------------------------------------------------------------------------
@@ -153,7 +154,7 @@ Bool_t PndEvtGenGenerator::SetBranchAddresses()
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t PndEvtGenGenerator::ReadEvent(FairPrimaryGenerator* primGen) 
 {
-  switch (fFileType)
+  switch ((Int_t)fFileType)
   { 
   // ASCII file
   case 0:

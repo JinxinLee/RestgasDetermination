@@ -9,7 +9,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndSttDigiPar.h"
 #include "FairRuntimeDb.h"
 #include "FairParIo.h"
@@ -36,10 +35,10 @@ PndSttDigiPar::~PndSttDigiPar()
 Bool_t PndSttDigiPar::init(FairParIo* inp) 
 {
     // intitializes the container from an input
-    cout << "-I- PndSttDigiPar::init " << endl;
+    std::cout << "-I- PndSttDigiPar::init " << std::endl;
     
     FairDetParIo* input=inp->getDetParIo("PndSttParIo");
-    cout << "-I- PndSttDigiPar::init " << input << endl;
+    std::cout << "-I- PndSttDigiPar::init " << input << std::endl;
 
     if (input) return (input->init(this));
     return kFALSE;

@@ -98,6 +98,14 @@ FairTrackPar  PndHelixPropagator::PropagateToXYPos(TVector2 xyPos)
 	return result;
 }
 
+FairTrackPar PropagateToS(Double_t arcLength)
+{
+  // Not yet implemented!
+  std::cout << "*** -E- PndHelixPropagator::PropagateToS not yet implemented!" << std::endl;
+  return FairTrackPar();
+}
+
+
 FairTrackPar PndHelixPropagator::PropagateByAngle(Double_t step)
 {
 	TVector3 magField(0,0,fFieldStrength);

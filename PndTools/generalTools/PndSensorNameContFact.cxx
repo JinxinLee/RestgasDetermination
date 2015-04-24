@@ -6,7 +6,6 @@
 //
 /////////////////////////////////////////////////////////////
 
-using namespace std;
 #include "PndSensorNameContFact.h"
 #include "FairRuntimeDb.h"
 #include "PndSensorNamePar.h"

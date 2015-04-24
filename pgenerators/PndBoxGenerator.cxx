@@ -62,6 +62,7 @@ Bool_t PndBoxGenerator::Init()
   TParticlePDG *particle = pdgBase->GetParticle(fPDGType);
   if (! particle) Fatal("PndBoxGenerator","PDG code %d not defined.",fPDGType);
   fPDGMass = particle->Mass();
+  return kTRUE;
 }
 
 // ------------------------------------------------------------------------

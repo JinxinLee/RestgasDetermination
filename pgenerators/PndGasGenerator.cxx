@@ -56,7 +56,7 @@ Bool_t PndGasGenerator::Init()
   // create the density profile histogram used later to get the random 
   // z position
   fDensityProfile = new TF1("Density Profile","exp(-0.5*((x)/4)**2)",fZMin,fZMax);  
-
+  return kTRUE;
 }
 
 // ------------------------------------------------------------------------

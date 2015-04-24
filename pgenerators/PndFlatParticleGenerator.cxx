@@ -73,6 +73,7 @@ Bool_t PndFlatParticleGenerator::Init()
   TParticlePDG *particle = pdgBase->GetParticle(fPDGType);
   if (! particle) Fatal("PndFlatParticleGenerator","PDG code %d not defined.",fPDGType);
   fPDGMass = particle->Mass();
+  return kTRUE;
 }
 
 // ------------------------------------------------------------------------
