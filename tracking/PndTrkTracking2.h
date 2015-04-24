@@ -14,6 +14,7 @@
 #include "PndTrkVectors.h"
 
 #include "TClonesArray.h"
+#include "TGeoVolume.h"
 #include "TStopwatch.h"
 #include "TList.h"
 #include "TH1.h"
@@ -554,6 +555,8 @@ class PndTrkTracking2 : public FairTask
 	Short_t  *OutputListHitsinTrack
 	);
 
+  void GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatrix *mat,
+	Double_t GlobalScal[3],  Double_t GlobalTrans[3],  Double_t  GlobalRot[9]);
 
   void FixDiscontinuitiesFiangleinSZplane(
 	Short_t TemporarynSkewHitsinTrack,
