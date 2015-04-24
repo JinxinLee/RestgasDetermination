@@ -598,13 +598,6 @@ bool PndTrkCleanup::GoodTrack(
 			//  > 1.e-10 by construction, then Z is always well defined;
 			z = (FiOrderedList[0]-fi0)/kappa;
 
-cout<<"cazzo1,barrel,interseca, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered "<<FiOrderedList[0]<<", Z "
-	<<z<<", R "<< sqrt(Xcross[0]*Xcross[0]+Ycross[0]*Ycross[0]    )<<
-	", Zup-extra "<<MVD_BARREL_ZLIMITS[1][i]-extra_distance_Z<<
-	", Zlow+extra "<<MVD_BARREL_ZLIMITS[0][i]+extra_distance_Z<<
-	", Zlowbuco "<<MVD_BARREL_NOZONE_Z[0]-extra_distance_Z<<
-	", Zupbuco "<<MVD_BARREL_NOZONE_Z[1]+extra_distance_Z<<
-	endl;
 			// condition for having Mvd hits in the Mvd Barrel layers certainly, namely taking
 			// into account also possible errors in the Z caused by the uncertainty of the
 			// trajectory; such an error is called extra_distance_Z (in cm);
@@ -617,13 +610,11 @@ cout<<"cazzo1,barrel,interseca, X "<<Xcross[0]<<", Y "<<Ycross[0]<<", Fiordered 
 			     Xcross[0] > MVD_BARREL_NOZONE_X[0]-extra_distance &&   // out of the target pipe;
 			     Xcross[0] < MVD_BARREL_NOZONE_X[1]+extra_distance))
 			 ){	// case in which there should be Mvd hits;
-cout<<"\t\tcazzo, e' effettivamente fuori dal buco!\n";
 			 	X_barrel[i][n_intersections_barrel[i]] = Xcross[0];
 				Y_barrel[i][n_intersections_barrel[i]] = Ycross[0];
 				Z_barrel[i][n_intersections_barrel[i]] = z;
 		     		n_intersections_barrel[i]++;
 			}
-cout<<"cazzo1,barrel,intersecava? n_intersections_barrel["<<i<<"] "<<n_intersections_barrel[i]<<endl;
 		}  // end of if(yes_intersect>0 )
 
 
@@ -634,7 +625,6 @@ cout<<"cazzo1,barrel,intersecava? n_intersections_barrel["<<i<<"] "<<n_intersect
 //------------  check if there are the hits in the barrel in the layer predicted by the previous extrapolation of the track;
 	nFaults = 0;
 	for(i=0;i<MVD_BARREL_LAYERS;i++){
-cout<<"cazzo2, n_intersections_barrel["<<i<<"]  "<<n_intersections_barrel[i]<<endl;
 		if (n_intersections_barrel[i]>0){
 			// loop over all Mvd hits of the track;
 			nFaults++;
@@ -659,7 +649,6 @@ cout<<"cazzo2, n_intersections_barrel["<<i<<"]  "<<n_intersections_barrel[i]<<en
 			} // end of for(j=0;j< nStripHitsinTrack; j++)
 			}	// end of   if(GoOn)
 		}  // end of     if (n_intersections_barrel[i]>0)
-cout<<"cazzo3, barrel n. "<<i<<", n_faults "<<nFaults<<endl;
 	};  // end of  for(i=0;i<MVD_BARREL_LAYERS;i++)
 	
 	if(nFaults>1) return false;
@@ -678,7 +667,6 @@ cout<<"cazzo3, barrel n. "<<i<<", n_faults "<<nFaults<<endl;
 		Y_disk = Oy + R* sin(phase) ;
 		Ylow = Y_disk - extra_distance;
 		Yup = Y_disk + extra_distance;
-cout<<"cazzo4, DISCO n. "<<i<<", X "<<X_disk<<", Y "<<Y_disk<<", Z "<<MVD_DISK_Z[i]<<endl;
 
 		// now calculate if the intersection falls in the sensor active region of the Mvd Disk;
 		nXlow = Xlow / MVD_DISK_LAYER_deltaX[i];
@@ -745,7 +733,6 @@ cout<<"cazzo4, DISCO n. "<<i<<", X "<<X_disk<<", Y "<<Y_disk<<", Z "<<MVD_DISK_Z
 //------------  check if there are the hits in the barrel in the layer predicted by the previous extrapolation of the track;
 	nFaults = 0;
 	for(i=0;i<MVD_DISK_LAYERS;i++){
-cout<<"cazzo5, DISCO n. "<<i<<", tipo intersezione "<<type_of_intersection_in_disk[i]<<endl;
 		if (type_of_intersection_in_disk[i]==1){
 			// loop over all Mvd hits of the track;
 			for(j=0;j< nPixelHitsinTrack; j++){
@@ -760,7 +747,6 @@ cout<<"cazzo5, DISCO n. "<<i<<", tipo intersezione "<<type_of_intersection_in_di
 			} // end of for(j=0;j< nStripHitsinTrack; j++)
 
 		}
-cout<<"cazzo6, e quindi nFaults  "<<nFaults<<endl;
 
 	};  // end of  for(i=0;i<MVD_DISKS_LAYERS;i++)
 	
