@@ -42,20 +42,22 @@ const int
 const int MVD_BARREL_LAYERS= 4;  // number of barrel layers;
 
 // Radia of the Barrel Mvd layers;
-// MVD_BARREL_RADIA[0][i] == Minimum Radius of layer i-th layer;
-// MVD_BARREL_RADIA[1][i] == Maximum Radius of i-th layer;
+// MVD_BARREL_AVERAGE_RADIUS[i] == AVERAGE Radius of i-th layer;
 // MVD_BARREL_ZLIMITS[0][i] = Minimum Z of i-th layer,
 // MVD_BARREL_ZLIMITS[1][i] = Maximum Z of i-th layer,
 // MVD_BARREL_NOZONE_X[0 or 1] = X lower and upper limits of the zone of the beam pipe;
 // MVD_BARREL_NOZONE_X[0 or 1] = Z lower and upper limits of the zone of the beam pipe;
 
 const Double_t
-	MVD_BARREL_RADIA[2][4] = { 2.18,  4.73,  8.972, 12.32,
-				   2.858, 5.282, 9.686, 12.994 },
+	MVD_BARREL_AVERAGE_RADIUS[4] = {
+				(2.18+2.858)/2. ,
+				(4.73+5.282)/2. ,
+				(8.972+9.686)/2. ,
+				(12.32+12.994)/2.},
 	MVD_BARREL_RADIASQMean[4] = { 6.4762, 25.15,  87.15, 160.31 },
 	MVD_BARREL_RADIASQDifference[4] = { 3.5, 5.5, 13.32, 17.06 },
 	MVD_BARREL_NOZONE_X[2] = {-2.,2.},
-	MVD_BARREL_NOZONE_Z[2] = {-1.75,6.98},
+	MVD_BARREL_NOZONE_Z[2] = {-2.,2.},
 	MVD_BARREL_ZLIMITS[2][4] = {-3.98,-7.9,-13.376,-16.917,
 				     13.9,13.9,13.9,13.9};
 //---------------------------------------- MVD Disks
