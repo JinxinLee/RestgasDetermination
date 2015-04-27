@@ -2917,16 +2917,16 @@ Double_t PndSttMvdGemTracking::CalculatePhi(TVector2 v, TVector2 p, double alpha
   double pi2 = 2 * pi;
      
   // Fi = h * (pi2 - h * Fi) // should be correct
-  if((charge > 0 && (Phi0 > 0 && ((alpha > 0 && alpha > Phi0) ||
-				  (alpha < 0 && alpha < Phi0 - pi))
+  if((charge > 0 && ((Phi0 > 0 && ((alpha > 0 && alpha > Phi0) ||
+				   (alpha < 0 && alpha < Phi0 - pi)))
 		     ||
-		     (Phi0 < 0 && ((alpha > 0 && alpha < pi + Phi0) ||
-				   (alpha < 0 && alpha > Phi0))) ))) Fi = - (pi2 + Fi)  ;
-  else if((charge < 0 && (Phi0 > 0 && ((alpha > 0 && alpha < Phi0) ||
-				       (alpha < 0 && alpha > Phi0 - pi))
+		     ((Phi0 < 0 && ((alpha > 0 && alpha < pi + Phi0) ||
+				    (alpha < 0 && alpha > Phi0)))) ))) Fi = - (pi2 + Fi)  ;
+  else if((charge < 0 && ((Phi0 > 0 && ((alpha > 0 && alpha < Phi0) ||
+					(alpha < 0 && alpha > Phi0 - pi)))
 			  ||
-			  (Phi0 < 0 && ((alpha > 0 && alpha > pi + Phi0) ||
-					(alpha < 0 && alpha < Phi0))) ))) Fi = pi2 - Fi  ;
+			  ((Phi0 < 0 && ((alpha > 0 && alpha > pi + Phi0) ||
+					 (alpha < 0 && alpha < Phi0)))) ))) Fi = pi2 - Fi  ;
   
   return Fi;
 }
