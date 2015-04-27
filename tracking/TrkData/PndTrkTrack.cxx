@@ -349,29 +349,65 @@ TVector3 PndTrkTrack::ComputeMomentumAtPosition(TVector3 position, TVector3 &new
 
 Double_t PndTrkTrack::ComputePhi(TVector3 hit) 
 {
-  TVector3 center(fCenterX, fCenterY, 0.);
-  TVector3 fromcentertohit = hit - center;
-  
-  // I want the positive phi angle from x axis
-  // in range [0, 360[.
-  // I use TVector3::Phi() [fromcentertohit.Phi()]:
-  // x   y      Phi        use!
-  // -------------------------
-  // +   +      0/90       phi
-  // -   +     90/180      phi
-  // -   -   -180/-90    phi + 360
-  // +   -    -90/0      phi + 360
-  //  cout << "phi " << hit.X() << " " << hit.Y() << endl;
+  /**
+     TVector3 center(fCenterX, fCenterY, 0.);
+     TVector3 fromcentertohit = hit - center;
+     
+     // I want the positive phi angle from x axis
+     // in range [0, 360[.
+     // I use TVector3::Phi() [fromcentertohit.Phi()]:
+     // x   y      Phi        use!
+     // -------------------------
+     // +   +      0/90       phi
+     // -   +     90/180      phi
+     // -   -   -180/-90    phi + 360
+     // +   -    -90/0      phi + 360
+     //  cout << "phi " << hit.X() << " " << hit.Y() << endl;
+     
+     double phi = fromcentertohit.Phi();
+     if(fromcentertohit.Y() < 0) phi += (2 * TMath::Pi());
+     // cout << "final phi in rad " << phi << endl;
+     return phi * TMath::RadToDeg();
+  **/
 
-  double phi = fromcentertohit.Phi();
-  if(fromcentertohit.Y() < 0) phi += (2 * TMath::Pi());
-  // cout << "final phi in rad " << phi << endl;
-  return phi * TMath::RadToDeg();
+  // x0 y0
+  Double_t d = TMath::Sqrt(fCenterX * fCenterX + fCenterY * fCenterY) - fRadius;
+  Double_t phi =  TMath::ATan2(fCenterY, fCenterX);
+  
+  Double_t x0 = d * TMath::Cos(phi);
+  Double_t y0 = d * TMath::Sin(phi);
+
+  Double_t Phi0 = TMath::ATan2((y0 - fCenterY),(x0 - fCenterX));
+
+  // CHECK :-)GOOD! ...
+  TVector2 v(x0 - fCenterX, y0 - fCenterY); 
+  double alpha = TMath::ATan2(hit.Y() - y0 + fRadius * TMath::Sin(Phi0), hit.X() - x0 + fRadius * TMath::Cos(Phi0));
+  TVector2 p(hit.X() - fCenterX, hit.Y() - fCenterY);
+ 
+  Double_t Fi = - fCharge *  TMath::ACos(v * p / (v.Mod() * p.Mod()));
+  double pi = TMath::Pi();
+  double pi2 = 2 * pi;
+     
+  // Fi = h * (pi2 - h * Fi) // should be correct
+  if((fCharge > 0 && ((Phi0 > 0 && ((alpha > 0 && alpha > Phi0) ||
+				   (alpha < 0 && alpha < Phi0 - pi)))
+		     ||
+		     ((Phi0 < 0 && ((alpha > 0 && alpha < pi + Phi0) ||
+				    (alpha < 0 && alpha > Phi0)))) ))) Fi = - (pi2 + Fi)  ;
+  else if((fCharge < 0 && ((Phi0 > 0 && ((alpha > 0 && alpha < Phi0) ||
+					(alpha < 0 && alpha > Phi0 - pi)))
+			  ||
+			  ((Phi0 < 0 && ((alpha > 0 && alpha > pi + Phi0) ||
+					 (alpha < 0 && alpha < Phi0)))) ))) Fi = pi2 - Fi  ;
+
+ //  cout << "PHI ----------------- " <<  Fi * TMath::RadToDeg() << endl; 
+  
+  return Fi * TMath::RadToDeg();
+
 }
 
 Double_t PndTrkTrack::ComputePhiFrom(TVector3 hit, TVector3 from) 
 {
-
   //  cout << "phi " << hit.X() << " " << hit.Y() << endl;
 
   TVector3 center(fCenterX, fCenterY, 0.);
@@ -397,10 +433,45 @@ Double_t PndTrkTrack::ComputePhiFrom(TVector3 hit, TVector3 from)
   
 
   double phi = trarothit.Phi();
-  if(trarothit.Y() < 0) phi += (2 * TMath::Pi());
+  //  if(trarothit.Y() < 0) phi += (2 * TMath::Pi());
 
   //  cout << "final phi in rad " << phi << endl;
-  return phi * TMath::RadToDeg();
+  //  return phi * TMath::RadToDeg();
+
+   Double_t Phi0 = phi0;
+
+   Double_t x0 = from.X();
+   Double_t y0 = from.Y();
+
+//   Double_t Phi0 = TMath::ATan2((y0 - fCenterY),(x0 - fCenterX));
+
+//   // CHECK :-)GOOD! ...
+//   TVector2 v(x0 - fCenterX, y0 - fCenterY); 
+   double alpha = TMath::ATan2(hit.Y() - y0 + fRadius * TMath::Sin(Phi0), hit.X() - x0 + fRadius * TMath::Cos(Phi0));
+//   TVector2 p(hit.X() - fCenterX, hit.Y() - fCenterY);
+ 
+//   Double_t Fi = - fCharge *  TMath::ACos(v * p / (v.Mod() * p.Mod()));
+   double pi = TMath::Pi();
+   double pi2 = 2 * pi;
+     
+//   // Fi = h * (pi2 - h * Fi) // should be correct
+
+   Double_t Fi = phi;
+   if((fCharge > 0 && ((Phi0 > 0 && ((alpha > 0 && alpha > Phi0) ||
+				    (alpha < 0 && alpha < Phi0 - pi)))
+		      ||
+		      ((Phi0 < 0 && ((alpha > 0 && alpha < pi + Phi0) ||
+				     (alpha < 0 && alpha > Phi0)))) ))) Fi = - (pi2 + Fi)  ;
+  else if((fCharge < 0 && ((Phi0 > 0 && ((alpha > 0 && alpha < Phi0) ||
+					 (alpha < 0 && alpha > Phi0 - pi)))
+			   ||
+			   ((Phi0 < 0 && ((alpha > 0 && alpha > pi + Phi0) ||
+					  (alpha < 0 && alpha < Phi0)))) ))) Fi = pi2 - Fi  ;
+
+  //  cout << "PHI ----------------- " <<  Fi * TMath::RadToDeg() << endl; 
+ 
+  return Fi * TMath::RadToDeg();
+
 
 }
 // =======================================================================================
