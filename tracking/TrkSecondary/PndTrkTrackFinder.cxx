@@ -1727,7 +1727,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     fFinalCluster->Sort();
 
     PndTrkTrack finaltrack(fFinalCluster, xc2, yc2, R2);
-
+    finaltrack.ComputeCharge();
+   
     //
     //    fDisplayOn = kTRUE;
     if(fDisplayOn) {
@@ -3034,7 +3035,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     TClonesArray& clref1 = *fTrackArray;
     Int_t size = clref1.GetEntriesFast();
     PndTrack *outputtrack = new(clref1[size]) PndTrack(theTrack.GetParamFirst(),theTrack.GetParamLast(), theTrack.GetTrackCand());
-    outputtrack->SetFlag(1);
+    outputtrack->SetFlag(111);
 
     TClonesArray& clref2 = *fTrackCandArray;
     size = clref2.GetEntriesFast();
@@ -4287,7 +4288,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
      // CHECK 15/0.006 cm
       if(R6 > 2500) continue;
       PndTrkTrack finaltrack(fFinalCluster, xc6, yc6, R6);
-
+      finaltrack.ComputeCharge();
+ 
       if(fDisplayOn)  {
 	char goOnChar;
 
@@ -4763,7 +4765,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     TClonesArray& clref1 = *fTrackArray;
     Int_t size = clref1.GetEntriesFast();
     PndTrack *outputtrack = new(clref1[size]) PndTrack(theTrack.GetParamFirst(),theTrack.GetParamLast(), theTrack.GetTrackCand());
-    outputtrack->SetFlag(2);
+    outputtrack->SetFlag(222);
     TClonesArray& clref2 = *fTrackCandArray;
     size = clref2.GetEntriesFast();
     PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(theTrack.GetTrackCand());
