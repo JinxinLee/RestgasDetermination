@@ -48,7 +48,7 @@ class PndSttMvdGemTracking : public FairTask {
 	    PndTrackCand *sttmvdCand, PndTrack *sttmvd);
   void SetTimes(Int_t times) {fTimes = times;}
   void SetMaxDistance(Double_t maxdistance) {fMaxDistance = maxdistance;}
-  Bool_t SwitchOnDisplay() {fDisplayOn = true;}
+  void SwitchOnDisplay() {fDisplayOn = true;}
     
   void SetupGEMPlanes();
   void Reset(Int_t nhits, Int_t ntracks);

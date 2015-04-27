@@ -3383,7 +3383,7 @@ Bool_t PndSttMvdGemTracking::ZFind(Int_t nhits, TMatrixT<double> points, Double_
 
     }
 
-     
+  return kTRUE;
 }
 
 void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
