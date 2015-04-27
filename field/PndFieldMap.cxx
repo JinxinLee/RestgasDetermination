@@ -96,6 +96,36 @@ PndFieldMap::PndFieldMap(PndFieldPar* fieldPar)
 }
 // ------------------------------------------------------------------------
 
+// -------------   ----Copy constructor   ---------------------------------
+PndFieldMap::PndFieldMap(const  PndFieldMap& L)
+  : FairField(),
+    fFileName(L.fFileName),
+    fScale(L.fScale),
+    funit(L.fScale),
+    fPosX(L.fPosX), fPosY(L.fPosY), fPosZ(L.fPosZ),
+    fXmin(L.fXmin), fXmax(L.fXmax), fXstep(L.fXstep),
+    fYmin(L.fYmin), fYmax(L.fYmax), fYstep(L.fYstep),
+    fZmin(L.fZmin), fZmax(L.fZmax), fZstep(L.fZstep),
+    fNx(L.fNx),fNy(L.fNy),fNz(L.fNz),
+    fBx(L.fBx), fBy(L.fBy), fBz(L.fBz)   
+{
+  fType = L.fType;
+  for (Int_t ii=0; ii<2; ii++)
+    {
+      fHc[ii] = L.fHc[ii];
+      for (Int_t jj=0; jj<2; jj++)
+	{
+	  fHb[ii][jj] = L.fHb[ii][jj];
+	    for (Int_t kk=0; kk<2; kk++)
+	      {
+		fHa[ii][jj][kk] = L.fHa[ii][jj][kk];
+	      }
+	}
+    }
+  
+}
+// ------------------------------------------------------------------------
+
 
 
 // ------------   Destructor   --------------------------------------------

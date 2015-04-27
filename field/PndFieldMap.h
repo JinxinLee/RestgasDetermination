@@ -124,7 +124,7 @@ public:
   virtual void Print();
 
 private:
-  PndFieldMap(const  PndFieldMap& L){;}
+  PndFieldMap(const  PndFieldMap& L);
   PndFieldMap& operator= (const  PndFieldMap&) {return *this;};
 
 	

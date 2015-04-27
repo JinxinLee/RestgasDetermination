@@ -179,6 +179,13 @@ PndMultiField::PndMultiField(PndMultiFieldPar* fieldPar)
 
 }
 
+// ------------   Copy Constructor ----------------------------------------
+PndMultiField::PndMultiField(const PndMultiField& field) : FairField(), fMaps(field.fMaps), fNoOfMaps(field.fNoOfMaps), fFieldMaps(field.fFieldMaps), fMapIter(field.fMapIter), fBeamMom(field.fBeamMom)
+{
+  fType = field.fType;
+}
+
+
 // ------------   Destructor   --------------------------------------------
 PndMultiField::~PndMultiField() {
 	

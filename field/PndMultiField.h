@@ -57,6 +57,7 @@ public:
    **/
   void GetFieldValue(const Double_t point[3], Double_t* bField);
  private:
+  PndMultiField(const PndMultiField& field);
   PndMultiField& operator= (const  PndMultiField&) {return *this;};
 
  protected:

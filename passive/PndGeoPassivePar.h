@@ -18,11 +18,11 @@ public:
   Bool_t getParams(FairParamList*);
   TObjArray             *GetGeoSensitiveNodes(){return fGeoSensNodes;}
   TObjArray             *GetGeoPassiveNodes(){return fGeoPassNodes;}
-
+  
 private:
-  PndGeoPassivePar(const  PndGeoPassivePar& L){;}
+  PndGeoPassivePar(const  PndGeoPassivePar& L) : FairParGenericSet(L) {};
   PndGeoPassivePar& operator= (const  PndGeoPassivePar&) {return *this;}
-
+  
    ClassDef(PndGeoPassivePar,1)
 };
 
