@@ -1250,6 +1250,7 @@ Bool_t PndTrkQATask::IdealTrackFinding() {
 
     }
 
+  return kTRUE;
 }
 
 
@@ -1335,6 +1336,8 @@ Bool_t PndTrkQATask::IsMcTrackAcceptable(Int_t iMCTrack, Int_t hitMap[][NOFDETEC
     if(fVerbose > 13) cout << "FTS: hitMap[iMCTrack][3]=" << hitMap[iMCTrack][3] << " IsMcTrackAcceptable returns " << !(hitMap[iMCTrack][3] < fMinimumNofFtsHits) << endl;
     return !(hitMap[iMCTrack][3] < fMinimumNofFtsHits);
   }
+
+  return kFALSE;
 }
 
 
