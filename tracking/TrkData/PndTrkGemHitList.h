@@ -9,6 +9,7 @@
 #include "PndTrkHitList.h"
 
 #include "TVector3.h"
+#include "TClonesArray.h"
 #include "PndTrkHit.h"
 #include "PndGemHit.h"
 
@@ -27,7 +28,8 @@ class PndTrkGemHitList : public PndTrkHitList
   PndTrkGemHitList* Instanciate();
   
   void AddHit(Int_t hitid, Int_t detid, FairHit *hit);
- 
+  void AddNonCombiHits(Int_t detID, TClonesArray *array, std::map< int, bool > hitTousable);
+
   void Clear() {
     ClearList();
     fgemInstance = NULL;

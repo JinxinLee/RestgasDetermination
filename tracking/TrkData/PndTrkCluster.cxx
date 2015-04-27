@@ -386,7 +386,7 @@ Bool_t PndTrkCluster::SplitAtHit(PndTrkHit *athit, PndTrkCluster &cluster1, PndT
     }
   }
   
-
+  return kTRUE;
 }
 // CHECK??
 // splits the V shaped cluster at the point athit

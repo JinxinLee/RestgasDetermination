@@ -52,7 +52,13 @@ void PndTrkGemHitList::AddHit(Int_t hitid, Int_t detid, FairHit *hit)
   PndTrkHitList::AddHit(hitid, detid, 0, GEM, layerid, position); // CHECK iregion
 }
 
-
+void PndTrkGemHitList::AddNonCombiHits(Int_t detID, TClonesArray *array, std::map< int, bool > hitTousable) {
+ for(int ihit = 0; ihit < array->GetEntriesFast(); ihit++) {
+    PndGemHit *hit = (PndGemHit*) array->At(ihit);
+    if(hitTousable[ihit] == false) continue;
+    AddHit(ihit, detID, hit);
+ }
+}
 
 ClassImp(PndTrkGemHitList)
  
