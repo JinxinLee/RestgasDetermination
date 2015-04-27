@@ -30,6 +30,7 @@ PndTrkSttHitList* PndTrkSttHitList::Instance()
 PndTrkSttHitList* PndTrkSttHitList::Instanciate() {
   if(fInstance) cout << "you are instanciating a PndTrkSttHitList, but you already did it, what are you doing?" << endl;
   fInstance = this;
+  return fInstance;
 }
 
 PndTrkSttHitList::PndTrkSttHitList() : PndTrkHitList(), fTubeArray(NULL) {

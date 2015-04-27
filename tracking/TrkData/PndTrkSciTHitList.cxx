@@ -25,6 +25,7 @@ PndTrkSciTHitList* PndTrkSciTHitList::Instance()
 
 PndTrkSciTHitList* PndTrkSciTHitList::Instanciate() {
   fscitInstance = this;
+  return fscitInstance;
 }
 
 // ------------------ instance ---------------------------

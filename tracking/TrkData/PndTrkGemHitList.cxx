@@ -25,6 +25,7 @@ PndTrkGemHitList* PndTrkGemHitList::Instance()
 
 PndTrkGemHitList* PndTrkGemHitList::Instanciate() {
   fgemInstance = this;
+  return fgemInstance;
 }
 
 // ------------------ instance ---------------------------

@@ -26,6 +26,7 @@ PndTrkSdsHitList* PndTrkSdsHitList::Instance()
 
 PndTrkSdsHitList* PndTrkSdsHitList::Instanciate() {
   fpixInstance = this;
+  return fpixInstance;
 }
 
 PndTrkSdsHitList* PndTrkSdsHitList::InstancePixel()
@@ -36,7 +37,8 @@ PndTrkSdsHitList* PndTrkSdsHitList::InstancePixel()
 
 PndTrkSdsHitList* PndTrkSdsHitList::InstanciatePixel() {
   if(fpixInstance) cout << "you are instanciating a pixel PndTrkSdsHitList, but you already did it, what are you doing?" << endl;
- fpixInstance = this;
+  fpixInstance = this;
+  return fpixInstance;
 }
 
 PndTrkSdsHitList* PndTrkSdsHitList::InstanceStrip()
@@ -47,7 +49,8 @@ PndTrkSdsHitList* PndTrkSdsHitList::InstanceStrip()
 
 PndTrkSdsHitList* PndTrkSdsHitList::InstanciateStrip() {
   if(fstrInstance) cout << "you are instanciating a strip PndTrkSdsHitList, but you already did it, what are you doing?" << endl;
- fstrInstance = this;
+  fstrInstance = this;
+  return fstrInstance;
 }
 
 // ------------------ instance ---------------------------
