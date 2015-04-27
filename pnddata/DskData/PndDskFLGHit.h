@@ -40,7 +40,7 @@ class PndDskFLGHit : public FairMCPoint
           TVector3 mom_cherenkov_photon, Int_t num_light_guide, Int_t num_pixel);
 
   /** Copy constructor **/
-  PndDskFLGHit(const PndDskFLGHit& particle) { *this = particle; };
+  //PndDskFLGHit(const PndDskFLGHit& particle) { *this = particle; }; // No need
 
   /** Destructor **/
   virtual ~PndDskFLGHit();

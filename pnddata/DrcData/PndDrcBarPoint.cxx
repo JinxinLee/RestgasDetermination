@@ -14,10 +14,10 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndDrcBarPoint::PndDrcBarPoint() 
   :FairMCPoint(), 
-  fPdgCode(0),
-  fBarN(0.),
-  fMass(0.),
+   fPdgCode(0),
    fThetaC(0.),
+   fBarN(0.),
+   fMass(0.),
    fTrackStatus(0.)
 {  
 }
@@ -32,9 +32,9 @@ PndDrcBarPoint::PndDrcBarPoint(Int_t trackID, Int_t detID, TVector3 pos,
    fPdgCode( pdgCode), 
    fThetaC( thetaC),
    fBarN(   barN),
-   fMass(   mass)
+   fMass(   mass),
+   fTrackStatus(0)
 { 
-  fTrackStatus = 0;
 }
 // -------------------------------------------------------------------------
 

@@ -13,7 +13,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcEVPoint::PndDrcEVPoint() 
-:FairMCPoint(), fPdgCode(0),fTimeStart(0.) ,fTimeAtEVEntrance(0.), fVeloPhoton(0.)
+  :FairMCPoint(), fPdgCode(0),fTimeStart(0.) ,fTimeAtEVEntrance(0.), fVeloPhoton(0.), fNormal(TVector3())
 {
 }
 // -------------------------------------------------------------------------

@@ -17,6 +17,7 @@ PndDskParticle::PndDskParticle()
     fPdgCode(-1),
     fPdgName(TString()),
     fEnergy(0.),
+    fMass(0.),
     fMotherTrackID(-1),
     fMotherPdgCode(-1),
     fMotherPdgName(TString()),
@@ -24,9 +25,8 @@ PndDskParticle::PndDskParticle()
     fExitMomentum(TVector3()),
     fExitTime(0.),
     fExitEnergy(0.),
-    fMass(0.),
-    fAngIn(0.),
     fThetaC(0.),
+    fAngIn(0.),
     fNPhot(-1)
 {
 }    
@@ -42,7 +42,8 @@ PndDskParticle::PndDskParticle(Int_t trackID, Int_t detectorID,
   : FairMCPoint(trackID, detectorID, position, momentum, time, 0., 0.),
     fPdgCode(pdgCode),
     fPdgName(pdgName),
-    fEnergy(energy),
+    fEnergy(energy),  
+    fMass(mass),
     fMotherTrackID(motherTrackID),
     fMotherPdgCode(motherPdgCode),
     fMotherPdgName(motherPdgName),
@@ -50,9 +51,8 @@ PndDskParticle::PndDskParticle(Int_t trackID, Int_t detectorID,
     fExitMomentum(TVector3()),
     fExitTime(0.),
     fExitEnergy(0.),
-    fMass(mass),
-    fAngIn(angIn),
     fThetaC(thetaC),
+    fAngIn(angIn),
     fNPhot(nPhot)
 {
 }
@@ -63,6 +63,7 @@ PndDskParticle::PndDskParticle(const PndDskParticle& particle) :
     fPdgCode(particle.fPdgCode),
     fPdgName(particle.fPdgName),
     fEnergy(particle.fEnergy),
+    fMass(particle.fMass),
     fMotherTrackID(particle.fMotherTrackID),
     fMotherPdgCode(particle.fMotherPdgCode),
     fMotherPdgName(particle.fMotherPdgName),
@@ -70,9 +71,8 @@ PndDskParticle::PndDskParticle(const PndDskParticle& particle) :
     fExitMomentum(particle.fExitMomentum),
     fExitTime(particle.fExitTime),
     fExitEnergy(particle.fExitEnergy),
-    fMass(particle.fMass),
-    fAngIn(particle.fAngIn),
     fThetaC(particle.fThetaC),
+    fAngIn(particle.fAngIn),
     fNPhot(particle.fNPhot)
 {
 }

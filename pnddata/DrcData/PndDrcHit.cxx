@@ -14,6 +14,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndDrcHit::PndDrcHit()
   :FairHit(),
+   fSensorId(-999),
    fThetaC(-999.),
    fErrThetaC(-999.)
 { 

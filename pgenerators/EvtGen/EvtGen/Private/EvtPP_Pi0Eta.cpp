@@ -13,9 +13,10 @@
 
 
 
-EvtPP_Pi0Eta::EvtPP_Pi0Eta(const EvtPP_Pi0Eta& orig) {
-  mp=orig.mp; mPi=orig.mPi; mEta=orig.mEta;
-  first_run=orig.first_run;
+EvtPP_Pi0Eta::EvtPP_Pi0Eta(const EvtPP_Pi0Eta& orig) :
+  EvtDecayProb(orig),
+  p1(orig.p1), p2(orig.p2), mp(orig.mp), mPi(orig.mPi), s(orig.s),first_run(orig.first_run)
+{
 }
 
 EvtPP_Pi0Eta::~EvtPP_Pi0Eta() {}

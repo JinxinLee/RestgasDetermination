@@ -50,14 +50,14 @@
 
 Test30VSecondaryGenerator::Test30VSecondaryGenerator(
     G4HadronicInteraction* hadi, const G4Material* mat):
-  hInteraction(hadi),
-  material(mat),
-  generatorName(""),
-  elm(0),
-  targetNucleus(), ///FIXME should we use the default constructor or pass the mat pointer here? Is targetNucleus relevant at all?
-  result(0),
-  targetZ(0),
-  targetA(0)
+   generatorName(""),
+   hInteraction(hadi),
+   material(mat),
+   elm(0),
+   targetNucleus(), ///FIXME should we use the default constructor or pass the mat pointer here? Is targetNucleus relevant at all?
+   result(0),
+   targetZ(0),
+   targetA(0)
 {
   elm = material->GetElement(0);
   targetZ = G4lrint(elm->GetZ());

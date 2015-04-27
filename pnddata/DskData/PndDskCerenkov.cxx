@@ -16,7 +16,9 @@ using std::endl;
 PndDskCerenkov::PndDskCerenkov()
   : FairMCPoint(),
     fEnergy(0.),
-    fWavelength(0.),
+    fWavelength(0.), 
+    fPWay(0.),
+    fLastPos(TVector3()),
     fMotherTrackID(-1),
     fMotherPdgCode(-1),
     fMotherPdgName(TString()),
@@ -24,13 +26,11 @@ PndDskCerenkov::PndDskCerenkov()
     fDetType(-1),
     fDetTime(0.),
     fDetMomentum(TVector3()),
-    fLastPos(TVector3()),
-    fNofReflections(0),
-    f5RefPosition(TVector3()),
-    fTotalRefAngle(0.),
-    fPWay(0.),
+    fNofReflections(0), 
     fPrimaryHitAngle(0.),
-    fPrimaryAngleToCerenkov(0.)
+    fPrimaryAngleToCerenkov(0.),
+    f5RefPosition(TVector3()),
+    fTotalRefAngle(0.)
 {
 }
 // ----------------------------------------------------------------------------
@@ -44,7 +44,9 @@ PndDskCerenkov::PndDskCerenkov(Int_t trackID, Int_t detectorID,
         Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName)
   : FairMCPoint(trackID, detectorID, position, momentum, time, 0., 0.),
     fEnergy(energy),
-    fWavelength(wavelength),
+    fWavelength(wavelength),   
+    fPWay(0.), 
+    fLastPos(position),
     fMotherTrackID(motherTrackID),
     fMotherPdgCode(motherPdgCode),
     fMotherPdgName(motherPdgName),
@@ -52,37 +54,34 @@ PndDskCerenkov::PndDskCerenkov(Int_t trackID, Int_t detectorID,
     fDetType(-1),
     fDetTime(0.),
     fDetMomentum(TVector3()),
-    fLastPos(position),
-    fNofReflections(0),
-    f5RefPosition(TVector3()),
-    fTotalRefAngle(0.),
-    fPWay(0.),
+    fNofReflections(0), 
     fPrimaryHitAngle(0.),
-    fPrimaryAngleToCerenkov(0.)
+    fPrimaryAngleToCerenkov(0.),
+    f5RefPosition(TVector3()),
+    fTotalRefAngle(0.)
 {
 //   cout << "Added Cerenkov with wl = " << fWavelength << endl;
 }
 // ----------------------------------------------------------------------------
 
 PndDskCerenkov::PndDskCerenkov(const PndDskCerenkov& cerenkov) :
-    FairMCPoint(cerenkov.fTrackID, cerenkov.fDetectorID,  TVector3(cerenkov.fX, cerenkov.fY, cerenkov.fZ), TVector3(cerenkov.fPx, cerenkov.fPy, cerenkov.fPz), cerenkov.fTime, cerenkov.fLength, cerenkov.fELoss, cerenkov.fEventId),
-    fEnergy(cerenkov.fEnergy),
-    fWavelength(cerenkov.fWavelength),
-    fMotherTrackID(cerenkov.fMotherTrackID),
-    fMotherPdgCode(cerenkov.fMotherPdgCode),
-    fMotherPdgName(cerenkov.fMotherPdgName),
-    fDetNumber(cerenkov.fDetNumber),
-    fDetType(cerenkov.fDetType),
-    fDetTime(cerenkov.fDetTime),
-    fDetMomentum(cerenkov.fDetMomentum),
-    fLastPos(cerenkov.fLastPos),
-    fNofReflections(cerenkov.fNofReflections),
-    f5RefPosition(cerenkov.f5RefPosition),
-    fTotalRefAngle(cerenkov.fTotalRefAngle),
-    fPWay(cerenkov.fPWay),
-    fPrimaryHitAngle(cerenkov.fPrimaryHitAngle),
-    fPrimaryAngleToCerenkov(cerenkov.fPrimaryAngleToCerenkov)
-
+  FairMCPoint(cerenkov.fTrackID, cerenkov.fDetectorID,  TVector3(cerenkov.fX, cerenkov.fY, cerenkov.fZ), TVector3(cerenkov.fPx, cerenkov.fPy, cerenkov.fPz), cerenkov.fTime, cerenkov.fLength, cerenkov.fELoss, cerenkov.fEventId),
+  fEnergy(cerenkov.fEnergy),
+  fWavelength(cerenkov.fWavelength), 
+  fPWay(cerenkov.fPWay), 
+  fLastPos(cerenkov.fLastPos),
+  fMotherTrackID(cerenkov.fMotherTrackID),
+  fMotherPdgCode(cerenkov.fMotherPdgCode),
+  fMotherPdgName(cerenkov.fMotherPdgName),
+  fDetNumber(cerenkov.fDetNumber),
+  fDetType(cerenkov.fDetType),
+  fDetTime(cerenkov.fDetTime),
+  fDetMomentum(cerenkov.fDetMomentum),
+  fNofReflections(cerenkov.fNofReflections),
+  fPrimaryHitAngle(cerenkov.fPrimaryHitAngle),
+  fPrimaryAngleToCerenkov(cerenkov.fPrimaryAngleToCerenkov),
+  f5RefPosition(cerenkov.f5RefPosition),
+  fTotalRefAngle(cerenkov.fTotalRefAngle)
 {
 }
 

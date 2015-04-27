@@ -27,7 +27,7 @@ public:
     
 
 /** Copy constructor **/
-  PndDrcHit(const PndDrcHit& hit) { *this = hit; };
+  //PndDrcHit(const PndDrcHit& hit) { *this = hit; }; // not needed
 
   /** Destructor **/
   virtual ~PndDrcHit();    

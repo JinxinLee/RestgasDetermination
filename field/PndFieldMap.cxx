@@ -431,7 +431,6 @@ void PndFieldMap::Reset() {
 void PndFieldMap::ReadAsciiFile(const char* fileName) {
 
   Double_t bx=0., by=0., bz=0.;
-  Double_t  xx, yy, zz;
   // Open file
   cout << "-I- PndFieldMap: Reading field map from ASCII file " 
        << fileName << endl;

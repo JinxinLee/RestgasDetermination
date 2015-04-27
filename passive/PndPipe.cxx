@@ -48,7 +48,7 @@ void PndPipe::ConstructGeometry(){
 
     FairRun *fRun = FairRun::Instance();
     FairRuntimeDb *rtdb= fRun->GetRuntimeDb();
-    PndGeoPassivePar* par=(PndGeoPassivePar*)(rtdb->getContainer("PndGeoPassivePar"));
+    //PndGeoPassivePar* par=(PndGeoPassivePar*)(rtdb->getContainer("PndGeoPassivePar"));
   
     FairGeoLoader *loader=FairGeoLoader::Instance();
     FairGeoInterface *GeoInterface =loader->getGeoInterface();
@@ -60,9 +60,9 @@ void PndPipe::ConstructGeometry(){
     FairGeoMedium *medSteel   = Media->getMedium("steel");
     FairGeoMedium *medAlBe    = Media->getMedium("Al+Be");
   
-    Int_t nMedVacuum = geobuild->createMedium(medVacuum);
-    Int_t nMedSteel  = geobuild->createMedium(medSteel);
-    Int_t nMedAlBe   = geobuild->createMedium(medAlBe);
+    //Int_t nMedVacuum = geobuild->createMedium(medVacuum);
+    //Int_t nMedSteel  = geobuild->createMedium(medSteel);
+    //Int_t nMedAlBe   = geobuild->createMedium(medAlBe);
   
     Double_t parPipeLeft[9] = { 0., 360., 2,
     				-200.,  7.9, 8.,

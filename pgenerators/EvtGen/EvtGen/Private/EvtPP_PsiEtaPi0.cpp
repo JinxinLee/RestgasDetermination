@@ -36,7 +36,7 @@ void EvtPP_PsiEtaPi0::init() {
 
 
 double EvtPP_PsiEtaPi0::Matr2_PsiEtaPi0(EvtParticle *root) {
-    const int diag1=1, diag2=1, diag3=1, diag4=1;
+  //const int diag1=1, diag2=1, diag3=1, diag4=1;
     EvtVector4R p=root->getDaug(0)->getP4Lab(), 
             kEta=root->getDaug(1)->getP4Lab(), 
             kPi=root->getDaug(2)->getP4Lab(),

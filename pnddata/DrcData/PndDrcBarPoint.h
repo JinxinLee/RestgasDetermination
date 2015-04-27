@@ -30,7 +30,7 @@ class PndDrcBarPoint : public FairMCPoint
 
 
  /** Copy constructor **/
-  PndDrcBarPoint(const PndDrcBarPoint& point) { *this = point; };
+ // PndDrcBarPoint(const PndDrcBarPoint& point) { *this = point; }; // Not needed
 
 
   /** Destructor **/

@@ -14,8 +14,9 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndDrcPDHit::PndDrcPDHit()
   :FairHit(),
+   fSensorId(-999),
    fTime(-999.),
-   fTimeThreshold(-999.)
+   fTimeThreshold(-999.), fBarID(-999), fBoxID(-999), fTrackID(-999), fTrackIniVertex(TVector3()), fMrID(-999), fMrIDPho(-999), fPdg(-999), fTrackMom(TVector3()), fTimeAtBar(-999), fEvtTim(-999), fEventTim(-999), fPileUp(-999), fEventNo(-999)
 {  
 }
 // -------------------------------------------------------------------------
@@ -31,7 +32,9 @@ PndDrcPDHit::PndDrcPDHit(Int_t detID,
 			 Double_t timeThreshold,
 			 Int_t index)
   :FairHit(detID, pos, dpos, index),fSensorId (sensorId), 
-   fTime (time),fTimeThreshold (timeThreshold){ 
+   fTime (time),fTimeThreshold (timeThreshold),
+   fBarID(), fBoxID(), fTrackID(), fTrackIniVertex(TVector3()), fMrID(), fMrIDPho(), fPdg(), fTrackMom(TVector3()), fTimeAtBar(), fEvtTim(), fEventTim(), fPileUp(), fEventNo()
+{ 
 }
 
 // -----   Destructor   ----------------------------------------------------

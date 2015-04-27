@@ -88,7 +88,27 @@ PndFieldMapData::PndFieldMapData(const char* name,
 }
 // ------------------------------------------------------------------------
 
-
+// -----   Copy Constructor from PndFieldMap   ----------------------------
+PndFieldMapData::PndFieldMapData(const  PndFieldMapData& L) 
+  :TNamed(L),
+  fType( L.GetType()),
+  fXmin( L.GetXmin()),
+  fXmax( L.GetXmax()),
+  fYmin( L.GetYmin()),
+  fYmax( L.GetYmax()),
+  fZmin( L.GetZmin()),
+  fZmax( L.GetZmax()),
+  fUnit( L.fUnit), 
+  fNx(   L.GetNx()),
+  fNy(   L.GetNy()),
+  fNz(   L.GetNz()),
+  fBx( new TArrayF(*(L.GetBx()))),
+  fBy( new TArrayF(*(L.GetBy()))),
+  fBz( new TArrayF(*(L.GetBz())))
+ 
+{
+}
+// ------------------------------------------------------------------------
 
 // ------------   Destructor   --------------------------------------------
 PndFieldMapData::~PndFieldMapData() {

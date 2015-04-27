@@ -64,7 +64,7 @@ PndTransMap::PndTransMap(const char* mapName,
 
 // ------------   Constructor from PndFieldPar   --------------------------
 PndTransMap::PndTransMap(PndTransPar* fieldPar) 
-  : PndFieldMap(), fHemiX(0), fHemiY(0)
+  : PndFieldMap(), fHemiX(0), fHemiY(0),fBeamMom(0)
 {
   fType = 4;
   fPosX  = fPosY  = fPosZ  = 0.;
@@ -213,7 +213,7 @@ void PndTransMap::FillParContainer()
 	//	cout << "PndConstField::FillParContainer() " << endl;
 	FairRun *fRun=FairRun::Instance();	
 	FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-	Bool_t kParameterMerged=kTRUE;
+	//Bool_t kParameterMerged=kTRUE;
 	PndTransPar* Par = (PndTransPar*) rtdb->getContainer("PndTransPar");
 	Par->SetParameters(this);
 	Par->setInputVersion(fRun->GetRunId(),1);

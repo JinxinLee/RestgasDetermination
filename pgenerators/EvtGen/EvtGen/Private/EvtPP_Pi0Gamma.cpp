@@ -14,12 +14,13 @@
 #define diag3 1
 #define diag4 1
 
-EvtPP_Pi0Gamma::EvtPP_Pi0Gamma(const EvtPP_Pi0Gamma& orig) {
-  mp=orig.mp; mPi=orig.mPi;
-  first_run=orig.first_run;  
-};
+EvtPP_Pi0Gamma::EvtPP_Pi0Gamma(const EvtPP_Pi0Gamma& orig) :
+  EvtDecayProb(orig),
+  p1(orig.p1), p2(orig.p2), mp(orig.mp), mPi(orig.mPi), s(orig.s),first_run(orig.first_run)
+{
+}
 
-EvtPP_Pi0Gamma::~EvtPP_Pi0Gamma() {};
+EvtPP_Pi0Gamma::~EvtPP_Pi0Gamma() {}
 
 void EvtPP_Pi0Gamma::decay(EvtParticle* root) {
     root->initializePhaseSpace(getNDaug(), getDaugs());

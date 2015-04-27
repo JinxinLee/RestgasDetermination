@@ -41,6 +41,20 @@ PndFieldCreator::PndFieldCreator()
 	fCreator=this;
  
 }
+
+PndFieldCreator::PndFieldCreator(const  PndFieldCreator& L)
+	:FairFieldFactory(),
+     fFieldPar(L.fFieldPar),
+     fSPar(L.fSPar),
+     fDPar(L.fDPar),
+     fTPar(L.fTPar),
+     fCPar(L.fCPar),
+     fMPar(L.fMPar)
+    
+{
+  fCreator = L.fCreator;
+}
+
 PndFieldCreator::~PndFieldCreator()
 {
 }

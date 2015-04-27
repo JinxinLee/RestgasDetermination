@@ -26,8 +26,8 @@ public:
 	      Int_t index); 
   
   
-/** Copy constructor **/
-  PndDrcPDHit(const PndDrcPDHit& hit) { *this = hit; };
+  /** Copy constructor **/
+  //PndDrcPDHit(const PndDrcPDHit& hit) { *this = hit; }; // not needed
 
   /** Destructor **/
   virtual ~PndDrcPDHit();    

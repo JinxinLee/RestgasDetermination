@@ -93,9 +93,9 @@ void EvtPP_EtacGamma::decay(EvtParticle* root) {
 
 
 EvtPP_EtacGamma::EvtPP_EtacGamma(const EvtPP_EtacGamma& orig) : p1(orig.p1), p2(orig.p2),
-       mp(orig.mp), mPsi(orig.mPsi), wPsi(orig.wPsi), mPsi2S(orig.mPsi2S), wPsi2S(orig.wPsi2S),
-       mHc(orig.mHc), wHc(orig.wHc), mEtaC(orig.mEtaC),
-       first_run(orig.first_run)
+	mp(orig.mp), mPsi(orig.mPsi),  mEtaC(orig.mEtaC),  mPsi2S(orig.mPsi2S), 
+	mHc(orig.mHc), wPsi(orig.wPsi), wPsi2S(orig.wPsi2S), wHc(orig.wHc),
+        first_run(orig.first_run)
 {
 };
 

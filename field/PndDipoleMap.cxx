@@ -56,7 +56,7 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
 
 // ------------   Constructor from PndFieldPar   --------------------------
 PndDipoleMap::PndDipoleMap(PndMapPar* fieldPar) 
-  : PndFieldMap(), fHemiX(0), fHemiY(0), fRegionNo(0)
+  : PndFieldMap(), fRegionNo(0), fHemiX(0), fHemiY(0), fBeamMom(0)
 {
  
   fType = 3;
