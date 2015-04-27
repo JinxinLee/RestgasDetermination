@@ -515,6 +515,7 @@ InitStatus PndTrkTrackFinder::Init() {
   huv = NULL;
   hzphi = NULL;
 
+  fCombiFinder = new PndTrkGemCombinatorial(fGemHitArray, fVerbose);
 
   return kSUCCESS;
 
@@ -566,8 +567,10 @@ void PndTrkTrackFinder::Initialize() {
   }
 
   if(fUseGEM) {
-    gemhitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fGemBranch), fGemHitArray);
-    gemhitlist->Instanciate();
+    // gemhitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fGemBranch), fGemHitArray);
+    std::map< int, bool > hitidTousability = fCombiFinder->CombinatorialSuppression();
+    gemhitlist->AddNonCombiHits(FairRootManager::Instance()->GetBranchId(fGemBranch), fGemHitArray, hitidTousability);
+   gemhitlist->Instanciate();
   }
 
   fConformalHitList->Clear();

@@ -72,6 +72,7 @@ TrkAlgo/PndTrkConformalTransform.cxx
 TrkAlgo/PndTrkTools.cxx
 TrkAlgo/PndTrkClean.cxx
 TrkAlgo/PndTrkFitter.cxx
+TrkAlgo/PndTrkGemCombinatorial.cxx
 #
 TrkData/PndTrkHit.cxx
 TrkData/PndTrkIndivisibleHit.cxx
@@ -92,8 +93,7 @@ TrkData/PndTrkSkewHitList.cxx
 TrkData/PndTrkNeighboringMap.cxx
 #
 TrkSecondary/PndTrkTrackFinder.cxx
-#TrkSecondary/PndTrkGemCombiTask.cxx
-#TrkSecondary/PndTrkGemCombinatorial.cxx
+TrkSecondary/PndTrkGemCombiTask.cxx
 #
 TrkStructure/PndTrkQATask.cxx
 TrkQA/PndTrkQualityAssuranceTask.cxx

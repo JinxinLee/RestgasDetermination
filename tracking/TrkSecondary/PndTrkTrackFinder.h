@@ -24,6 +24,7 @@
 #include "PndTrkSkewHitList.h"
 #include "PndTrkFitter.h"
 #include "PndTrkNeighboringMap.h"
+#include "PndTrkGemCombinatorial.h"
 
 // ROOT
 #include "TH2F.h"
@@ -171,6 +172,7 @@ class PndTrkTrackFinder : public FairTask {
 
   Int_t fEventCounter; // , fVerbose;
 
+  PndTrkGemCombinatorial *fCombiFinder;
 
   PndTrkSttHitList *stthitlist;
   PndTrkSdsHitList *mvdpixhitlist;
