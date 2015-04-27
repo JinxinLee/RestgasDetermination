@@ -22,10 +22,6 @@ run_fast(Int_t nEvents = 1000 )
   Double_t MomMin  = 0.5;  // minimum momentum for box generator
   Double_t MomMax  = 2.0;  // maximum   "       "
   
-  // Load basic libraries---------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  
   TStopwatch timer;
   timer.Start();
   gDebug=0;

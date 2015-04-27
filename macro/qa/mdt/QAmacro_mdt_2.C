@@ -1,9 +1,6 @@
 void QAmacro_mdt_2()
 {
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-
   Bool_t Test=kTRUE;
 
   TFile* f = new TFile("pygen_sim_01_test04_test2.root");

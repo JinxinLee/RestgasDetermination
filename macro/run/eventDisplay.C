@@ -14,15 +14,6 @@ eventDisplay()
   Bool_t enableTrackDraw = kTRUE;
   //------------------------------------------------------------------
 
-
-// Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  gSystem->Load("libEve");
-  gSystem->Load("libEventDisplay");
-  gSystem->Load("libPndEventDisplay");
-
-                                     
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(InputFile.Data());

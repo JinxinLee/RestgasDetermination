@@ -3,9 +3,6 @@ void recoideal_complete()
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");  
-  rootlogon();
-  
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
   

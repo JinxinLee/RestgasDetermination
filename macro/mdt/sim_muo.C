@@ -3,9 +3,6 @@ void sim_muo(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
 
   FairRunSim *fRun = new FairRunSim();
   

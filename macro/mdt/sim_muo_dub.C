@@ -5,10 +5,6 @@ sim_muo_dub(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1, UInt_
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
   
   TString digiFile = "all.par";
   TString parFile = "params_sttcombi.root";

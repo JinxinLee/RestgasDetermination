@@ -2,10 +2,6 @@ sim_muo_P8(Int_t rng=0, Int_t nEvents=20, Float_t momentum = 15.){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
 
   gRandom->SetSeed(rng);
   cout<<"SEED "<<gRandom->GetSeed()<<endl;

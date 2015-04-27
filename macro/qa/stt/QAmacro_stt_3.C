@@ -4,9 +4,6 @@ void QAmacro_stt_3()
   TStopwatch timer;
   timer.Start();
 
-  //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  //   rootlogon();
- 
   Bool_t fTest=kFALSE;
 
   // ------------------------------------------------------------------------

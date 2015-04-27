@@ -20,8 +20,6 @@ void ana_fast_psi2s(TString fname="sim_fast.root", int nevts=0)
     TStopwatch timer;
     timer.Start();
 
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");rootlogon();
-    
     TCanvas *c1=new TCanvas("c1","c1",600,600);
     c1->Divide(2,2);
 

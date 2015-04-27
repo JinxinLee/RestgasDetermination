@@ -20,9 +20,6 @@ rad_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   TStopwatch timer;
   timer.Start();
  
-  // Load basic libraries---------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
   gRandom->SetSeed(); 
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();

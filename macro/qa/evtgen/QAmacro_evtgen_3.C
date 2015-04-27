@@ -146,9 +146,6 @@ void QAmacro_evtgen_3()
   TStopwatch timer;
   timer.Start();
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-
   cout << "-------------------------------------------------"<<endl
 		  << "This macro checks the decay tree stored by QAmacro evtgen_1"<<endl
 		  << "in file qa_evtgen1.root"<<endl

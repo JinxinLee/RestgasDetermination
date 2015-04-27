@@ -115,9 +115,6 @@ void QAmacro_evtgen_4()
   // defined by what is simulated in qa macros 2
   TString shouldbe="#Psi(2S) (#xi_{c1}(1P) (J/#Psi (#Lambda (p #pi^{-} ) #bar{#Lambda} (#bar{n} #pi^{0} (#gamma e^{+} e^{-} ) ) ) #gamma ) #gamma ) ";
 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-
   cout << "-------------------------------------------------"<<endl
 		  << "This macro checks the decay tree stored by QAmacro evtgen_2"<<endl
 		  << "in file qa_evtgen2.root"<<endl

@@ -4,8 +4,6 @@ void QAmacro_mvd_1()
   TStopwatch timer;
   timer.Start();
   
- // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  
   gDebug=0;
   int verboseLevel = 0;
   Int_t nEvents = 100;

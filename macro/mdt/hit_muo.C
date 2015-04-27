@@ -15,11 +15,6 @@
   // Number of events to process
   Int_t nEvents = 0;
  
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  // ------------------------------------------------------------------------
-
   // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
 

@@ -4,9 +4,6 @@
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
   FairRunSim *fRun = new FairRunSim();
   // set the MC version used
   // ------------------------

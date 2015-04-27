@@ -8,9 +8,6 @@ void QAmacro_stt_1()
   TStopwatch timer;
   timer.Start();
 
-  //   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  //   rootlogon();  gRandom->SetSeed();
-
   Bool_t fTest=kFALSE;
 
   FairRunSim *fRun = new FairRunSim();

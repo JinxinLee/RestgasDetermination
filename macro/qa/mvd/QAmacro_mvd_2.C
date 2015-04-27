@@ -11,8 +11,6 @@ void QAmacro_mvd_2()
 
   Int_t nEvents = 100;
 
-//  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);

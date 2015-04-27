@@ -3,7 +3,6 @@ int QAmacro_gem_2()
   Int_t verboseLevel = 0;
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
 
   //FileNames
