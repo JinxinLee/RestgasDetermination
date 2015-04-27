@@ -52,7 +52,7 @@ void PndTrkFitter::Reset() {
   fSigma.clear();
 }
 
-Bool_t PndTrkFitter::SetPointToFit(double x, double y, double sigma) {
+void PndTrkFitter::SetPointToFit(double x, double y, double sigma) {
   fX.push_back(x);
   fY.push_back(y);
   fSigma.push_back(sigma);

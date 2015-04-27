@@ -495,7 +495,7 @@ Bool_t PndTrkClean::SplitAtHit(PndTrkCluster *hitlist, PndTrkHit *athit, PndTrkC
     }
   }
   
-
+  return kTRUE;
 }
 
 // CHECK if it works now

@@ -106,7 +106,7 @@ void PndTrkLegendreTransform::FillLegendreHisto(double x, double y, double radiu
 // }
 
 int PndTrkLegendreTransform::ExtractLegendreMaximum(double &theta_max, double &r_max) {
-  ExtractMaximumFromHisto(fhLegendre, theta_max, r_max);
+  return ExtractMaximumFromHisto(fhLegendre, theta_max, r_max);
 }
 
 void PndTrkLegendreTransform::ExtractLegendreMaxima(int nmaxima, std::vector< double > &theta_max, std::vector< double > &r_max, std::vector < int > &content_max) {
@@ -150,7 +150,7 @@ void PndTrkLegendreTransform::FillZoomHisto(double x, double y, double radius) {
 }
 
 int PndTrkLegendreTransform::ExtractZoomMaximum(double &theta_max, double &r_max) {
-  ExtractMaximumFromHisto(fhLegendreZoom, theta_max, r_max);
+  return ExtractMaximumFromHisto(fhLegendreZoom, theta_max, r_max);
 }
 
 void PndTrkLegendreTransform::ExtractZoomSingleLineParameters(double &slope, double &intercept) {
