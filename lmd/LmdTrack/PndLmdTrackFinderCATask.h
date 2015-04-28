@@ -55,7 +55,6 @@ class PndLmdTrackFinderCATask : public FairTask
    bool SortHitsByDetSimple(std::vector< std::vector< Int_t > > &hitsd, Int_t nStripHits);
    bool SortHitsByDetSimple2(std::vector< std::vector< Int_t > > &hitsd, Int_t nStripHits);//Uses PmdLmdDim class
    bool SortHitsByZ(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
-//    std::vector<Int_t> GetHitPerCluster(PndSdsClusterStrip* clusterCand);
    Double_t GetTrackDip(PndMCTrack* myTrack);
    Double_t GetTrackCurvature(PndMCTrack* myTrack);
 
@@ -73,18 +72,14 @@ class PndLmdTrackFinderCATask : public FairTask
 
      /** Output array of Track-Cand **/
      TClonesArray* fTrackCandArray;
-         //    TClonesArray* fTrackCandArrayTemp; //Template 
+
+     TClonesArray* fCellArray;
+     TClonesArray* fCellArray_tmp;
      void Register();
      void Reset();
      void ProduceHits();
-     /* TH1D *hdist; */
-     /* TNtuple *htthetatphiTrk; */
-     /* TNtuple *htthetatphiCells; */
-     /* TH2D *hthetaphi; */
-     /* TH1D *hcosPSI; */
-     //     TH1D *hcosPSI;
-     //     TH2D *htheta;
-     //     TH2D *htime;
+  
+     TString mtxpath, mtx_perfect;
      PndLmdDim* lmddim;
 
   ClassDef(PndLmdTrackFinderCATask,2);
