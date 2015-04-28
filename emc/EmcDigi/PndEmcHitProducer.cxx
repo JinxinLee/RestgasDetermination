@@ -356,7 +356,8 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 			//}
 			//std::cout<<std::endl;
 			PndEmcHit* myHit = AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first], fTrackMcTruth[(*p).first]);
-			myHit->AddLinks(FairMultiLinkedData("EmcPoint", fPointMatch[p->first]));
+			//myHit->AddLinks(FairMultiLinkedData("EmcPoint", fPointMatch[p->first]));
+			//myHit->AddLinks(FairMultiLinkedData("MCTrack", fTrackMcTruth[(*p).first));
 		}
 	}
 	//check

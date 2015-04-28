@@ -35,7 +35,7 @@ PndSensorNameContFact.cxx
 PndSensorNamePar.cxx
 PndBlackBoxTask.cxx
 PndEventCounterTask.cxx
-PndTrackArrayMerger.cxx
+#PndTrackArrayMerger.cxx
 )
 
 set(LINKDEF  generalToolsLinkDef.h)

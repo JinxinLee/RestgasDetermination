@@ -229,6 +229,7 @@ void PndTrackDraw::PropagateTrackHelix(FairTrackParP& trackPar, Int_t pidHypo, I
 	Double_t charge = trackPar.GetQ();
 
 	PndHelixPropagator prop(2.0, posTrack, momTrack, charge);
+	prop.PropagateToXYPos(TVector2(0,0));
 
 	if (pidHypo == 0){
 		pidHypo = 211;

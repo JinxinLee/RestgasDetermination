@@ -8,6 +8,7 @@
 #include "PndMCIdealTrackFinderNewLinks.h"
 
 #include "FairRootManager.h"
+#include "FairMCPoint.h"
 #include "PndTrackCand.h"
 
 ClassImp(PndMCIdealTrackFinderNewLinks);
@@ -46,6 +47,7 @@ InitStatus PndMCIdealTrackFinderNewLinks::Init()
 	}
 
   	fMCTrack = (TClonesArray*)ioman->GetObject("MCTrack");
+  	ioman->GetObject("MVDPoint");
 
   	 fTrackCand = new TClonesArray("PndTrackCand");
   	 ioman->Register("IdealTrackCand", "MC", fTrackCand, kTRUE);
@@ -80,8 +82,17 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
 		//std::cout << "AddLinks from Branch: " << iter->first << std::endl;
 		for (int i = 0; i < iter->second->GetEntriesFast(); i++){
 			FairMultiLinkedData_Interface* links = (FairMultiLinkedData_Interface*)iter->second->At(i);
-			//std::cout << *links << std::endl;
+			std::cout << *links << std::endl;
 			FairMultiLinkedData mctracks = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
+			FairMultiLinkedData mvdpoints = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MVDPoint"));
+			std::cout << "MvdPoints: " << mvdpoints << std::endl;
+			for (int ipnt = 0; ipnt < mvdpoints.GetNLinks(); ipnt++){
+				FairMCPoint *point = (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(mvdpoints.GetLink(ipnt));
+				if (point != 0)
+					std::cout << "PointFound!" << std::endl;
+				else
+					std::cout << "Point not found!" << std::endl;
+			}
 			for (int trackIndex = 0; trackIndex < mctracks.GetNLinks(); trackIndex++){
 				if (!fTrackCandMap.count(mctracks.GetLink(trackIndex))){
 					fTrackCandMap[mctracks.GetLink(trackIndex)] = PndTrackCand();
@@ -91,6 +102,7 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
 				//std::cout << "CreateTrackCands " << mctracks.GetLink(trackIndex) << " : " << link << std::endl;
 				fTrackCandMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kFALSE);
 				fTrackCandMap[mctracks.GetLink(trackIndex)].AddHit(link, fHitCount++);			//todo Rho is not properly calculated!
+				fTrackCandMap[mctracks.GetLink(trackIndex)].AddLinks(*(links->GetPointerToLinks()));
 			}
 		}
 	}

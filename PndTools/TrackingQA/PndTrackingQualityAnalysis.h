@@ -99,14 +99,15 @@ class CircleHoughTrackFunctor : public PossibleTrackFunctor
 		Int_t nHitsMvdPixel = a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks();
 		Int_t nHitsMvdStrip = a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks();
 		if (nHitsMvdPixel + nHitsMvdStrip > 2) {  // First requirement: more than two MVD hits
-			Int_t nHitsStt = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks();
-			Int_t nHitsGem = a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks();
-			possibleTrack = (nHitsMvdPixel + nHitsMvdStrip + nHitsStt + nHitsGem > 6);  // Second requirement: More than six hits total
+			//Int_t nHitsStt = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks();
+			//Int_t nHitsGem = a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks();
+			possibleTrack = kTRUE;
+			//possibleTrack = (nHitsMvdPixel + nHitsMvdStrip + nHitsStt + nHitsGem > 6);  // Second requirement: More than six hits total
 		}
 		return possibleTrack;
 	}
 	void Print(){
-		std::cout << "CircleHoughTrackFunctor: > 3 Hits in MVD and primary track" << std::endl;
+		std::cout << "CircleHoughTrackFunctor: >= 3 Hits in MVD and primary track" << std::endl;
 	}
 
 };

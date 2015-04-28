@@ -57,6 +57,7 @@ InitStatus PndMCMatchPrintFairLinksObjects::Init()
 			if (branchName->String().Contains("Header")) continue;
 			if (branchName->String().Contains("Info")) continue;
 			if (branchName->String().Contains("ID")) continue;
+			if (branchName->String().Contains("PidAlgo")) continue;
 
 			std::cout << "PndMCMatchPrintFairLinksObjects::Init() branches: " << branchName->String() << std::endl;
 			if ((TClonesArray*)ioman->GetObject(branchName->String()) != 0){

@@ -8,5 +8,8 @@
 #pragma link C++ class PndTrackingQualityData;
 #pragma link C++ class PndTrackingQualityAnalysis;
 #pragma link C++ class PndTrackingQualityTask;
+#pragma link C++ class PndTrackingQualityAnalysisNewLinks;
+#pragma link C++ class PndTrackingQualityTaskNewLinks;
+#pragma link C++ class OnlineDBuilderTask;
 
 #endif

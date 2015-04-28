@@ -32,6 +32,9 @@ set(SRCS
 PndTrackingQualityData.cxx
 PndTrackingQualityAnalysis.cxx
 PndTrackingQualityTask.cxx
+PndTrackingQualityAnalysisNewLinks.cxx
+PndTrackingQualityTaskNewLinks.cxx
+OnlineDBuilderTask.cxx
 )
 
 set(LINKDEF  TrackingQualityAnalysis_LinkDef.h)

@@ -16,6 +16,7 @@
 #pragma link C++ class PndMCTrackAssociator+;
 #pragma link C++ class PndMCTrackEnumAssociator+;
 #pragma link C++ class PndMCDataCrawler+;
+#pragma link C++ class PndMCMatchPrintFairLinksObjects+;
 
 #endif
 

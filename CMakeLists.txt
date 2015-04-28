@@ -256,6 +256,7 @@ add_subdirectory(rho)
 #add_subdirectory(online)
 add_subdirectory(PndTools/SttCellTrackFinder)
 add_subdirectory(PndTools/TrackingQA)
+#add_subdirectory(tracking/online/CircleHough)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
@@ -284,6 +285,7 @@ add_subdirectory (PndTools/HelixPropagator)
 add_subdirectory(lmd)
 add_subdirectory (pid)
 add_subdirectory (PndMCMatch)
+add_subdirectory (PndMCMatchNewLinks)
 add_subdirectory (global)
 
 add_subdirectory (softrig)
