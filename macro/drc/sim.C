@@ -4,19 +4,21 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   timer.Start();
   gDebug=0;
 
+  TString vmcdir=gSystem->Getenv("VMCWORKDIR");
+ 
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName("TGeant4");
   fRun->SetWriteRunInfoFile(kFALSE);
   fRun->SetBeamMom(15);
   fRun->SetOutputFile(outFile);
   fRun->SetMaterials("media_pnd.geo");
+  fRun->SetUserConfig(vmcdir+"/macro/drc/g4Config_Cherenkov.C")
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
   // Set the parameters
   //-------------------------------
-  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
-  allDigiFile += "/macro/params/all.par";
-  
+  TString allDigiFile(vmcdir+"/macro/params/all.par");
+   
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
   rtdb->setFirstInput(parIo1);  

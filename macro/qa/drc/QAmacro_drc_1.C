@@ -8,6 +8,7 @@ int QAmacro_drc_1()
   Int_t pdg=13;
   Double_t theta=130;
   Double_t phi=10.825;
+  TString vmcdir=gSystem->Getenv("VMCWORKDIR");
   
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName("TGeant4");
@@ -15,12 +16,12 @@ int QAmacro_drc_1()
   fRun->SetBeamMom(15);
   fRun->SetOutputFile(outFile);
   fRun->SetMaterials("media_pnd.geo");
+  fRun->SetUserConfig(vmcdir+"/macro/drc/g4Config_Cherenkov.C")
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
   // Set the parameters
   //-------------------------------
-  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
-  allDigiFile += "/macro/params/all.par";
+  TString allDigiFile(vmcdir+"/macro/params/all.par");
   
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
