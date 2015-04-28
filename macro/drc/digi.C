@@ -1,26 +1,22 @@
-void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Double_t eventRate=50, Double_t deadTime=5){
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 3;
-
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  basiclibs();
-
+void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=1, Double_t eventRate=50, Double_t deadTime=5){
+  Int_t verbose = 0;
+  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
  
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
+  fRun->SetWriteRunInfoFile(kFALSE);
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetEventMeanTime(eventRate);
+  if(timeBased) fRun->SetEventMeanTime(eventRate);
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput = new FairParRootFileIo();
-  //parInput->open(parFile.Data());
-  //rtdb->setFirstInput(parInput);
+  parInput->open(parFile.Data());
+  rtdb->setFirstInput(parInput);
 
   if(parFile=="batch"){
     TList* parlist = new TList();
@@ -32,18 +28,18 @@ void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.
   rtdb->setFirstInput(parInput);
  
   // -----    DRC Digitization stage ----------------------------------------
-  PndDrcDigiTask* drcdigi = new PndDrcDigiTask(1);
+  PndDrcDigiTask* drcdigi = new PndDrcDigiTask(0);
   drcdigi->SetChargeSharing(kFALSE);
   drcdigi->SetDeadTime(deadTime); //5 ns
   drcdigi->SetTimeResolution(0.4); //0.4 ns
-  drcdigi->RunTimeBased();
+  if(timeBased) drcdigi->RunTimeBased();
   fRun->AddTask(drcdigi);
 
   // PndDrcDigiSorterTask* digiSorter = new PndDrcDigiSorterTask(1000, 0.4, "DrcDigi", "DrcSortedDigi", "PndDrc");
   // digiSorter->SetVerbose(3);
   // fRun->AddTask(digiSorter);
 
-  // // -----    DRC hit producer   -------------------------------------------- 
+  // // -----    DRC hit producer   ------------------------------------------ 
   // PndDrcHitFinder* hitfind = new PndDrcHitFinder(0);
   // fRun->AddTask(hitfind);
      

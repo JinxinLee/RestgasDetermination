@@ -1,16 +1,8 @@
-void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TString digiFile = "hit.root", TString outid="n")
-{
-  // Load libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  
-  gSystem->Load("libEve");
-  gSystem->Load("libEventDisplay");
-
+void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TString digiFile = "hit.root", TString outid="n"){
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-  fRun->AddFriend(digiFile);
+  //fRun->AddFriend(digiFile);
   fRun->SetOutputFile("tst.root");
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -31,10 +23,17 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   fMan->AddTask(PndPdPoint);
   fMan->AddTask(PndAccuDigi);
 
-  fMan->Init(1,4);  
+  fMan->Init(1,4); 
+  //fMan->Init(); 
 
   TFile* fi = new TFile("vgeo.root","RECREATE");
   TGeoVolume *topvol = gGeoManager->GetVolume("cave");
+  topvol->CheckOverlaps(0.0001, "");
+  gGeoManager->CheckOverlaps(0.00001,""); // [cm]
+  TObjArray *listOfOverlaps = gGeoManager->GetListOfOverlaps();
+  cout<<listOfOverlaps->GetEntries()<<endl;
+  listOfOverlaps->Print(); 
+
   gGeoManager->SetTopVolume(topvol);
   gGeoManager->CloseGeometry();
   topvol->Write();
@@ -46,8 +45,8 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   int b=0;
   Double_t x,y,z;
 
-  Bool_t storPYtracks = false;
-  if(storPYtracks){
+  Bool_t storePYtracks = false;
+  if(storePYtracks){
     TEveElement::List_t ll = eltrack->RefChildren();
     ofstream  file;
     file.open ("trackst.py");

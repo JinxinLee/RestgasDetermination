@@ -1,9 +1,6 @@
 void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString luttab = "lut/lut_16_a.root", TString outFile = "reco.root"){
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0;
+  Int_t verbose = 0;
   gStyle->SetOptStat(0);
-  // TString luttab = "$HOME/pandaroot/macro/drc/lut/lut_16_r1_avr.root";
-  // luttab = "$HOME/pandaroot/macro/drc/lut/lut_16_60_avr.root";
 
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libSpectrum");
@@ -14,6 +11,7 @@ void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
+  fRun->SetWriteRunInfoFile(kFALSE);
   fRun->SetInputFile(digiFile);
   fRun->AddFriend(simFile);
   fRun->AddFriend(hitFile);
@@ -27,7 +25,7 @@ void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par
   rtdb->setFirstInput(parInput1);
 
   // -- Reconstruction using Look-up tables ---------------------------------
-  PndDrcLutReco* lutreco = new PndDrcLutReco(iVerbose+3, luttab);  
+  PndDrcLutReco* lutreco = new PndDrcLutReco(verbose+3, luttab);  
   fRun->AddTask(lutreco);
        
   // -----   Initialize and run  --------------------------------------------

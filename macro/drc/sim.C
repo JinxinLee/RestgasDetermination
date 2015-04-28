@@ -1,17 +1,14 @@
-void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root", Int_t pdg=13, Double_t theta=130, Double_t phi=10.825){
+void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root", Int_t pdg=13, Double_t theta=130, Double_t phi=10.825){
 
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load libraries
-  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  //rootlogon();
 
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName("TGeant4");
   fRun->SetWriteRunInfoFile(kFALSE);
   fRun->SetBeamMom(15);
-  fRun->SetOutputFile(simFile);
+  fRun->SetOutputFile(outFile);
   fRun->SetMaterials("media_pnd.geo");
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
@@ -26,7 +23,7 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
       
   Bool_t kParameterMerged=kTRUE;	
   FairParRootFileIo* output = new FairParRootFileIo(kParameterMerged);
-  output->open(parFile);
+  output->open(parFile.Data());
   rtdb->setOutput(output);
 
   // Create and add detectors
@@ -37,22 +34,24 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
 
   //-----------------------  Pipe  -----------------
   FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
 
-  // //-----------------------  STT   -----------------
-  // FairDetector *Stt= new PndStt("STT", kTRUE);
-  // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  // fRun->AddModule(Stt);
   // //-----------------------  MVD  -----------------
   // FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   // Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   // fRun->AddModule(Mvd);
   
+  // //-----------------------  STT   -----------------
+  // FairDetector *Stt= new PndStt("STT", kTRUE);
+  // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  // fRun->AddModule(Stt);
+  
   //-----------------------  DRC  -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
   Drc->SetMirrorReal(kFALSE);  
-  Drc->StopChargedTrackAfterDIRC(kTRUE); 
+  //Drc->StopChargedTrackAfterDIRC(kTRUE); 
   Drc->StopSecondaries(kFALSE); 
   Drc->SetTransportEffAtProduction(kTRUE);
   Drc->SetDetEffAtProduction(kTRUE);
@@ -63,56 +62,46 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
   Drc->SetOptionForLUT(kFALSE);
   Drc->SetGeometryFileName("dirc_g1_l6.root");
   fRun->AddModule(Drc); 
-
-
- // //-------------------------  STT       -----------------
-  // FairDetector *Stt= new PndStt("STT", kTRUE);
-  // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  // fRun->AddModule(Stt);
- //  //-------------------------  MVD       -----------------
- //  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
- //  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
- //  fRun->AddModule(Mvd);
- //  //-------------------------  GEM       -----------------
- //  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
- //  Gem->SetGeometryFileName("gem_3Stations.root");
- //  fRun->AddModule(Gem);
- //  //-------------------------  EMC       -----------------
- //  PndEmc *Emc = new PndEmc("EMC",kTRUE);
- //  Emc->SetGeometryVersion(1);
- //  Emc->SetStorageOfData(kFALSE);
- //  fRun->AddModule(Emc);
-  // //-------------------------  SCITIL    -----------------
-  // FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  // SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
-  // fRun->AddModule(SciT);
- 
- //  //-------------------------  DISC      -----------------
- //  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
- //  Dsk->SetStoreCerenkovs(kFALSE);
- //  Dsk->SetStoreTrackPoints(kFALSE);
- //  fRun->AddModule(Dsk);
- //  //-------------------------  MDT       -----------------
- //  PndMdt *Muo = new PndMdt("MDT",kTRUE);
- //  Muo->SetBarrel("fast");
- //  Muo->SetEndcap("fast");
- //  Muo->SetMuonFilter("fast");
- //  Muo->SetForward("fast");
- //  Muo->SetMdtMagnet(kTRUE);
- //  Muo->SetMdtMFIron(kTRUE);
- //  fRun->AddModule(Muo);
- //  //-------------------------  FTS       -----------------
- //  FairDetector *Fts= new PndFts("FTS", kTRUE);
- //  Fts->SetGeometryFileName("fts.geo");
- //  fRun->AddModule(Fts); 
- //  //-------------------------  FTOF      -----------------
- //  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
- //  FTof->SetGeometryFileName("ftofwall.root");
- //  fRun->AddModule(FTof);
- //  //-------------------------  RICH       ----------------
- //  FairDetector *Rich= new PndRich("RICH",kFALSE);
- //  Rich->SetGeometryFileName("rich_v2_shift.geo");
- //  fRun->AddModule(Rich);
+  
+  //  //-------------------------  SCITIL    -----------------
+  //  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  //  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  //  fRun->AddModule(SciT);
+  //  //-------------------------  GEM       -----------------
+  //  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  //  Gem->SetGeometryFileName("gem_3Stations.root");
+  //  fRun->AddModule(Gem);
+  //  //-------------------------  EMC       -----------------
+  //  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  //  Emc->SetGeometryVersion(1);
+  //  Emc->SetStorageOfData(kFALSE);
+  //  fRun->AddModule(Emc);
+  //  //-------------------------  DISC      -----------------
+  //  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  //  Dsk->SetStoreCerenkovs(kFALSE);
+  //  Dsk->SetStoreTrackPoints(kFALSE);
+  //  fRun->AddModule(Dsk);
+  //  //-------------------------  MDT       -----------------
+  //  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  //  Muo->SetBarrel("fast");
+  //  Muo->SetEndcap("fast");
+  //  Muo->SetMuonFilter("fast");
+  //  Muo->SetForward("fast");
+  //  Muo->SetMdtMagnet(kTRUE);
+  //  Muo->SetMdtMFIron(kTRUE);
+  //  fRun->AddModule(Muo);
+  //  //-------------------------  FTS       -----------------
+  //  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  //  Fts->SetGeometryFileName("fts.geo");
+  //  fRun->AddModule(Fts); 
+  //  //-------------------------  FTOF      -----------------
+  //  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  //  FTof->SetGeometryFileName("ftofwall.root");
+  //  fRun->AddModule(FTof);
+  //  //-------------------------  RICH       ----------------
+  //  FairDetector *Rich= new PndRich("RICH",kFALSE);
+  //  Rich->SetGeometryFileName("rich_v2_shift.geo");
+  //  fRun->AddModule(Rich);
 
   // Set Random Number seed
   Int_t rndm=0;
@@ -151,8 +140,7 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
 
   // FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   // trajFilter->SetStorePrimaries(kFALSE);
-  // trajFilter->SetStoreSecondaries(kTRUE);
-  
+  // trajFilter->SetStoreSecondaries(kTRUE); 
 
   fRun->Run(nEvents); 
 
@@ -164,6 +152,10 @@ void sim(Int_t nEvents=10, TString simFile="sim.root", TString parFile="par.root
 
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
+  cout << endl << endl;
+  cout << "Macro finished succesfully." << endl;
+  cout << "Output file is "    << outFile << endl;
+  cout << "Parameter file is " << parFile << endl;
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
 }

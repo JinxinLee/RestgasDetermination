@@ -1,21 +1,17 @@
-void hit(Int_t nEvents = 0, TString inFile = "sim.root", TString inDigi = "digi.root", TString parFile="par.root", TString outFile = "hit.root"){
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 3;
-
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  basiclibs();
-
+void hit(Int_t nEvents = 0, TString inFile = "sim.root",  TString parFile="par.root", TString inDigi = "digi.root", TString outFile = "hit.root", Int_t timeBased=1){
+  Int_t verbose = 0;
+  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
  
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
+  fRun->SetWriteRunInfoFile(kFALSE);
   fRun->SetInputFile(inFile);
   fRun->AddFriend(inDigi);
   fRun->SetOutputFile(outFile);
-  fRun->RunWithTimeStamps();
+  if(timeBased) fRun->RunWithTimeStamps();
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -31,7 +27,7 @@ void hit(Int_t nEvents = 0, TString inFile = "sim.root", TString inDigi = "digi.
   rtdb->setFirstInput(parInput);
  
   // -----    DRC hit producer   -------------------------------------------- 
-  PndDrcHitFinder* hitfind = new PndDrcHitFinder(2);
+  PndDrcHitFinder* hitfind = new PndDrcHitFinder(0);
   fRun->AddTask(hitfind);
      
   // -----   Initialize and run   -------------------------------------------
