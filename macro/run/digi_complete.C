@@ -26,7 +26,7 @@ void digi_complete()
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   fRun->SetWriteRunInfoFile(kFALSE);  
-  
+  fRun->SetUseFairLinks(kTRUE); 
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";

@@ -29,7 +29,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
 
   fRun->SetName("TGeant3");
   //fRun->SetName("TGeant4");
-
+  fRun->SetUseFairLinks(kTRUE);
   fRun->SetOutputFile(simOutput);
 
   // Set the parameters

@@ -38,6 +38,8 @@
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   fRun->SetEventMeanTime(50);
+  fRun->SetBeamTime(400, 2000);
+  fRun->SetUseFairLinks(kTRUE);
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -101,7 +103,7 @@
   ftsHitProducer->RunTimeBased();
   //PndFtsHitProducerIdeal* ftsHitProducer = new PndFtsHitProducerIdeal();
   //PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
-  fRun->AddTask(ftsHitProducer);
+//  fRun->AddTask(ftsHitProducer);
 
   PndFtsHitSorterTask* ftsSorter = new PndFtsHitSorterTask(5000, 50, "FTSHit", "FTSSortedHits", "PndFTS");
 //  fRun->AddTask(ftsSorter);

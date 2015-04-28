@@ -51,7 +51,7 @@ eventDisplay()
   if (enablePointDraw) {
 	  FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
 	  FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("MVDPoint",kBlue,  kFullSquare);
-	  FairMCPointDraw *EMCPoints =   new FairMCPointDraw ("EmcHit",kOrange,  kFullSquare);
+	  FairHitDraw *EMCPoints =   new FairHitDraw ("EmcHit");
 	  FairMCPointDraw *TofSciFPoint= new FairMCPointDraw ("SciTPoint",kTeal, kFullSquare);
 	  FairMCPointDraw *MdtPoint =    new FairMCPointDraw ("MdtPoint",kAzure, kFullSquare);
 	  FairMCPointDraw *PndDrcBarPoint = new FairMCPointDraw ("DrcBarPoint",kGreen, kFullSquare);
@@ -93,6 +93,7 @@ eventDisplay()
 	  FairHitDraw *GEMHit = new FairHitDraw("GEMHit");
 	  FairHitDraw *FTSHit = new FairHitDraw("FTSHit");
 	  FairHitDraw *FtofHit = new FairHitDraw("FtofHit");
+	  PndEmcClusterDraw *EmcBump = new PndEmcClusterDraw("EmcBump");
 
 	  fMan->AddTask(MvdRecoHit);
 	  fMan->AddTask(MvdRecoStrip);
@@ -105,6 +106,7 @@ eventDisplay()
 	  fMan->AddTask(GEMHit);
 	  fMan->AddTask(FTSHit);
 	  fMan->AddTask(FtofHit);
+	  fMan->AddTask(EmcBump);
   }
 
   if (enableTrackDraw) {

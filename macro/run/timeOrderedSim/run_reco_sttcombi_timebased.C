@@ -40,6 +40,7 @@
   fRun->AddFriend(MCFile);
   fRun->SetOutputFile(outFile);
   fRun->RunWithTimeStamps();
+  fRun->SetUseFairLinks(kTRUE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
   // ------------------------------------------------------------------------

@@ -11,7 +11,9 @@ void PrintLinks_complete(Int_t nEvents = 0)
 
   TString MCFile = "sim_complete.root";
   TString digiInputFile = "digi_complete.root";
-  
+  TString recoInput = "reco_complete.root";
+  TString pidInput = "pid_complete.root"; 
+ 
 
    TString sysFile = gSystem->Getenv("VMCWORKDIR");
    TString parFile = "simparams.root"; // at the moment you do not need it
@@ -27,6 +29,8 @@ void PrintLinks_complete(Int_t nEvents = 0)
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(MCFile);
   fRun->AddFriend(digiInputFile);
+  fRun->AddFriend(recoInput);
+  fRun->AddFriend(pidInput);
 //  fRun->AddFriend("reco_complete_test.root");
 //  fRun->AddFriend(MCFile);
   fRun->SetOutputFile("TST.root");

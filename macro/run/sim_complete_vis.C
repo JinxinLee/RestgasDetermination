@@ -34,6 +34,7 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->SetOutputFile(OutputFile.Data());
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetMaterials(MediaFile.Data());
+  fRun->SetUseFairLinks(kTRUE);
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   
   // Set the parameters
