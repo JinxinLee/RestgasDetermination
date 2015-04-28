@@ -57,7 +57,7 @@ RhoCandidate* RhoFactory::NewCandidate()
 
 RhoCandidate* RhoFactory::NewCandidate ( const RhoCandidate& c )
 {
-  NewCandidate(&c);
+  return NewCandidate(&c);
 //  if ( fgCandBuffer==0 ) { fgCandBuffer = new TClonesArray ( "RhoCandidate" ); }
 //  int current = fgCandPointer++;
 //  if ( current>fgCandWatermark ) { fgCandWatermark = current; }

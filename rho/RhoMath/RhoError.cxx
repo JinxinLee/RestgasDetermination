@@ -142,7 +142,7 @@ RhoError& RhoError::SimilarityWith ( const RhoError& mat,const TMatrixD& m1 )
   static TMatrixD temp;
   temp.ResizeTo ( m1.GetNrows(),m1.GetNrows() );
   temp.Mult ( m1,mat );
-  register Double_t tmp;
+  Double_t tmp;
 
   for ( int r = 0; r < GetNrows(); r++ ) {
     for ( int c = 0; c <= r; c++ ) {
@@ -261,7 +261,7 @@ RhoError& operator- ( const RhoError& m1, const RhoError& m2 )
 
 Double_t RhoError::Similarity ( TVectorD& m1 )
 {
-  register Double_t mret = 0.0;
+  Double_t mret = 0.0;
   TVectorD temp ( m1 );
   temp*= ( *this );
   // If m1*(*this) has correct dimensions, then so will the m1.T multiplication.
@@ -284,9 +284,9 @@ TMatrixD& RhoError::SimilarityT ( TMatrixD& m1 )
   for ( int r=1; r<=mret.GetNrows(); r++ ) {
     Double_t* m11c = &m1 ( 0,0 );
     for ( int c=1; c<=r; c++ ) {
-      register Double_t tmp = 0.0;
-      register Double_t* tempir = temp1r;
-      register Double_t* m1ic = m11c;
+      Double_t tmp = 0.0;
+      Double_t* tempir = temp1r;
+      Double_t* m1ic = m11c;
       for ( int i=1; i<=m1.GetNrows(); i++ ) {
         tmp+= ( * ( tempir ) ) * ( * ( m1ic ) );
         tempir += n;

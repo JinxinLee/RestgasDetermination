@@ -74,7 +74,7 @@ RhoDoubleErr RhoDoubleErr::operator * ( const RhoDoubleErr& bde )
 
 RhoDoubleErr RhoDoubleErr::operator / ( const RhoDoubleErr& bde )
 {
-  register Double_t bde2 = bde.fValue * bde.fValue;
+  Double_t bde2 = bde.fValue * bde.fValue;
 
   return RhoDoubleErr ( fValue / bde.fValue,
                         fCovariance / bde2 +

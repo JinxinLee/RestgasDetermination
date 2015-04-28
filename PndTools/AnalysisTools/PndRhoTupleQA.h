@@ -11,6 +11,7 @@ class RhoTuple;
 class PndEventShape;
 class PndVtxPoca;
 class PndAnalysis;
+class RhoFitterBase;
 
 class PndRhoTupleQA {
 public:
@@ -66,7 +67,12 @@ public:
 	// *** QA for the full MC list as array.
 	void qaMcList(TString pre, RhoCandList &l, RhoTuple *n, int max=10000);
 	void qaMcList(RhoTuple *n, int max=10000);
+	// *** QA for the MC truth of candidates and the difference of the relevant properties (pos, p4, etc.)
     void qaMcDiff(TString pre, RhoCandidate *c, RhoTuple *n, bool skip=false);
+	void qaMc(TString pre, RhoCandidate *c, RhoTuple *n, bool skip);
+
+
+	void qaFitter(TString pre, RhoFitterBase* fitter, RhoTuple *n, bool skip=false);
 
 private:
 

@@ -88,10 +88,10 @@ class RhoCandidate : public TObject
 
     // added by K Goetzen
     double fPidLH[30];
- 
+
   private:
     Double_t fChi2;
-   
+
     //[ralfk:may2013] changed mc truth access to direct pointers
     //int    fMcIdx;
     RhoCandidate* fMcTruth;//! pointer, objects created by RhoFactory
@@ -182,7 +182,8 @@ class RhoCandidate : public TObject
     Double_t    GetCharge()   const { return fCharge; }
     Double_t    Charge()   const { return fCharge; }
     TVector3    GetPosition()   const { return TVector3 ( fXposition,fYposition,fZposition ); }
-    TVector3    Pos()   const { return GetPosition(); }
+    TVector3    Pos()   const { return GetPosition(); } // Position where the fourmomentum is defined
+    TVector3    GetDecayPos() const { return TVector3(fDecayVtx); } // position of decay (set by vertexing, if applicable)
     TVector3    GetMomentum()   const { return TVector3 ( fXmomentum,fYmomentum,fZmomentum ); }
     TVector3    GetVect()   const { return TVector3 ( fXmomentum,fYmomentum,fZmomentum ); }
     Double_t    Px() const { return fXmomentum; }
@@ -207,6 +208,7 @@ class RhoCandidate : public TObject
     TMatrixD&   Cov7()   const;
     TMatrixD&   XPCov()   const;
     Double_t    Pt()  const { return TMath::Sqrt ( fXmomentum*fXmomentum+fYmomentum*fYmomentum ); }
+    TMatrixD    GetDecayPosCov() const {return TMatrixD(fDecayVtx.CovMatrix());}
 
 
     //  Modifiers

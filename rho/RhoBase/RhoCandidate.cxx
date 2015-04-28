@@ -276,7 +276,7 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err& vp, B
 
 RhoCandidate::~RhoCandidate( )
 {
-  //RemoveAssociations();  
+  //RemoveAssociations();
 }
 
 //--------------
@@ -322,7 +322,7 @@ RhoCandidate::operator = ( const RhoCandidate& o )
   for ( int i=0; i<o.fNDaug; i++ ) {
     fDaughters[i] = o.fDaughters[i];
   }
-  
+
   fNCons = 0;
 //  if (o.nCons > 0) {
 //    for (int i=0;i<o.nCons;i++) AddConstraint(*o.fConstraints[i]);
@@ -670,7 +670,7 @@ RhoCandidate::DropMotherLink()
   if ( fTheMother==0 ) { return; }
 
   // the mother looses this as a daughter
-  for ( int i=0; i<fTheMother->NDaughters(); i++ ) 
+  for ( int i=0; i<fTheMother->NDaughters(); i++ )
   {
     if ( fTheMother->fDaughters[i] == this ) {
       fTheMother->RemoveDaughter(this);
@@ -799,8 +799,8 @@ RhoCandidate::SetType ( int pdgcode )
 {
   fPdgCode=pdgcode;
   TDatabasePDG* pdg = TDatabasePDG::Instance();   // Access particle DB
-  TParticlePDG* pdt;
-  if ( pdt=pdg->GetParticle ( pdgcode ) ) { SetType ( pdt ); }
+  TParticlePDG* pdt=pdg->GetParticle ( pdgcode );
+  if ( pdt ) { SetType ( pdt ); }
   //else Warning("RhoCandidate::SetType","unknown pdg code %i",pdgcode);
 }
 
@@ -808,8 +808,8 @@ void
 RhoCandidate::SetType ( const char* name )
 {
   TDatabasePDG* pdg = TDatabasePDG::Instance();   // Access particle DB
-  TParticlePDG* pdt;
-  if ( pdt=pdg->GetParticle ( name ) ) { SetType ( pdt ); }
+  TParticlePDG* pdt=pdg->GetParticle ( name );
+  if ( pdt ) { SetType ( pdt ); }
   else Warning("RhoCandidate::SetType","unknown particle \"%s\"",name);
 }
 
@@ -905,19 +905,19 @@ RhoCandidate::NDaughters() const
 // RhoCandidate::AddDaughterLink ( const RhoCandidate* cand )
 // {
 //   //assert( cand!=0 );
-// 
+//
 //   // first copy the candidate pointer
 //   RhoCandidate* d = const_cast<RhoCandidate*> ( cand );
-// 
+//
 //   // as soon as there are daughters, the charge is
 //   // given by the sum of the daughter charges
 //   if ( NDaughters()==0 ) { SetCharge ( 0 ); }
 //   SetCharge ( Charge() +cand->Charge() );
-// 
+//
 //   // set the daughter's mother link
 //   // ******** modified K Goetzen
 //   d->SetMotherLink ( this );
-// 
+//
 //   fMarker[0] |= d->GetMarker ( 0 );
 //   fMarker[1] |= d->GetMarker ( 1 );
 //   fMarker[2] |= d->GetMarker ( 2 );
@@ -937,7 +937,7 @@ RhoCandidate::AddDaughterLinkSimple ( const RhoCandidate* cand , bool verbose)
   SetCharge ( Charge() +cand->Charge() );
 
   if (NDaughters()>=MAXDAUG) {
-/*   if(verbose) 
+/*   if(verbose)
    {
 		cerr << "RhoCandidate::AddDaughterLinkSimple: Can not add more than "<<MAXDAUG<<" daughters." << endl;
 		cout <<PdgCode()<<" -> ";
@@ -972,7 +972,7 @@ RhoCandidate::RemoveDaughter ( RhoCandidate* d )
   for(int i=0;i<NDaughters()-1;i++){
     if(fDaughters[i]==d){
       //put last element to a safe place, daughter order is screwed
-      fDaughters[i]=fDaughters[NDaughters()-1]; 
+      fDaughters[i]=fDaughters[NDaughters()-1];
       break;
     }
   }
@@ -1014,7 +1014,7 @@ RhoCandidate::Daughter ( Int_t n )
 //   static RhoCandList emptyList;
 //   static RhoCandListIterator empty ( emptyList );
 //   if ( NDaughters() ==0 ) { return empty; }
-// 
+//
 //   // return an iterator to the daughter list
 //   RhoCandList* l = const_cast<RhoCandList*> ( fDaugList );
 //   if ( l==0 ) { l = new RhoCandList ( "DaugList",NDaughters() ); }
@@ -1083,13 +1083,13 @@ RhoCandidate::Daughter ( Int_t n )
 //   if ( fTheMother!=0 ) { return fTheMother->DecayVtx(); }
 //   else { return 0; }
 // }
-// 
+//
 // const RhoVector3Err*
 // RhoCandidate::DecayVtx() const
 // {
 //   return fDecayVtx;
 // }
-// 
+//
 // RhoVector3Err*
 // RhoCandidate::DecayVtx()
 // {
@@ -1167,7 +1167,7 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   o << " pdg: " <<fPdgCode;
   o << " PID:";
   for ( int k=0; k<5; k++ ) { o << fPidLH[k] <<","; } // take the first 5 pid entries to check charged p,pi,e,mu,K
-  o << "  mc truth pointer: " <<fMcTruth;  
+  o << "  mc truth pointer: " <<fMcTruth;
 }
 
 
@@ -1211,10 +1211,10 @@ void RhoCandidate::SetMarker ( UInt_t n )
 //   fNCons ( 0 )
 // {
 //   fMarker[0] = fMarker[1] = fMarker[2] = fMarker[3] = 0;
-// 
+//
 //   // create the local candidate
 //   //createLocalCand();
-// 
+//
 //   // first set the mother/daughter links
 //   RhoCandidate* dau=0;
 //   iterDau.Rewind();
@@ -1223,12 +1223,12 @@ void RhoCandidate::SetMarker ( UInt_t n )
 //     nDau++;
 //     AddDaughterLink ( dau );
 //   }
-// 
+//
 //   // a composite cand is not supposed not to have a vertex...
 //   if ( nDau==0 ) {
 //     cerr << "A composite cand is supposed to have daughters ! " << endl;
 //   }
-// 
+//
 //   // set the trajector
 //   SetTrajectory ( p4,p4Err, ( Int_t ) Charge(),hypo,&theVertex );
 // }
@@ -1244,23 +1244,23 @@ void RhoCandidate::SetMarker ( UInt_t n )
 //     SetCov7 ( dVtx.CovMatrix(),p4Err );
 //     //BbrPointErr pos(dVtx->point(),dVtx->xxCov());
 //     //_deferCompTrk = true;
-// 
+//
 //     //     HepSymMatrix ppc(3);
 //     //     for(Int_t k=0;k<3;k++)
 //     //       for (Int_t j=k;j<3;j++)
 //     //  ppc[j][k]=p4Err[j][k];
 //     //     BbrVectorErr mom(p4.vect(),ppc);
-// 
+//
 //     //     TrkCompTrk * compTrk=new TrkCompTrk( pos,mom,dVtx->xpCov(),charge,
 //     //                   dVtx->chiSquared(),dVtx->nDof());
 //     //     setTrkCompTrk(compTrk);
-// 
+//
 //     SetDecayVtx ( dVtx );
 //   } else {
 //     SetP4 ( p4 );
 //     SetCovP4 ( p4Err );
 //   }
-// 
+//
 //   if ( hypo ) { SetType ( hypo ); }
 //   if ( Uid() ==0 ) { SetUid(); }
 // }
@@ -1303,7 +1303,7 @@ void RhoCandidate::RemoveAssociations()
 {
   // Clean up asociations to allow new w/ placement
   //if (fTheMother!=0) DropMotherLink(); fTheMother = 0;
-  
+
   fTheMother=0; //make sure to drop associations only here.
   fNDaug=0;
 
@@ -1347,7 +1347,7 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2 )
   cand->AddDaughterLinkSimple(this);
   cand->AddDaughterLinkSimple(c1);
   cand->AddDaughterLinkSimple(c2);
-  
+
   return cand;
 }
 

@@ -271,8 +271,8 @@ Bool_t Pnd4CFitter::Do4CFitWithMassConservation()
   for (i=0; i<4; i++) { chi2+=lam[i][0]*d[i][0]; }
 
   fChiSquare=chi2;
-  //fNDegreesOfFreedom=4*nd+4-3*nd; //(measurement+constraints-adjusted)
-  fNDegreesOfFreedom=nd+4;
+  //fNDegreesOfFreedom=nd+4;
+  fNDegreesOfFreedom=4;
   return kTRUE;
 }
 
