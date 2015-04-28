@@ -304,6 +304,8 @@ InitStatus PndLmdTrackFinderCATask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 {
+
+
   TStopwatch *timer_array = new TStopwatch();
 
   if(fVerbose>0) 
@@ -363,10 +365,14 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     const unsigned int nplanes = nP;
 
   ///Build all cells  
+   // TClonesArray *fCellArray = new TClonesArray("PndSdsCell");
+   // TClonesArray fCellArray_tmp = new TClonesArray("PndSdsCell");
+
   int ncells=0;
   if(fVerbose>2)
   cout<<"Start cell contruction from "<<nPixelHits<<" hits"<<endl;
-  fCellArray->Delete();
+   fCellArray->Delete();
+   fCellArray_tmp->Delete();
   for(unsigned int pl0=0;pl0<(nplanes-1);pl0++){
     for (unsigned int i=0; i<hitsd.at(pl0).size(); i++){
       unsigned int pl1 = pl0+1;// no "missing plane"
@@ -740,11 +746,19 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   // fCellArray_tmp->Clear("C");
   fCellArray->Delete();
   fCellArray_tmp->Delete();
+  // delete fCellArray;
+  // delete fCellArray_tmp;
   delete timer_array;
   delete timer_cook_cells;
   delete timer_neighbors_cells;
   delete timer_build_trk_combinations;
   delete timer_filter_trk_combinations;
+
+  // fTrackCandArray->Delete();//TEST
+ fStripHitArray->Delete();
+ fStripClusterArray->Delete();
+ fStripDigiArray->Delete();
+
 }
 
 Double_t PndLmdTrackFinderCATask::GetTrackCurvature(PndMCTrack* myTrack)
@@ -760,6 +774,9 @@ Double_t PndLmdTrackFinderCATask::GetTrackDip(PndMCTrack* myTrack)
   return (p.Mag()/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));
 }
 void PndLmdTrackFinderCATask::FinishTask(){
+  delete fCellArray;
+  delete fCellArray_tmp;
+
 }
 // -------------------------------------------------------------------------
 ClassImp(PndLmdTrackFinderCATask)
