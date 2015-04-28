@@ -27,7 +27,7 @@ public:
   ~PndDrcPhotonInfo ();
 
   // Copy constructor 
-  PndDrcPhotonInfo (const PndDrcPhotonInfo& val) { *this = val; }  
+  //PndDrcPhotonInfo (const PndDrcPhotonInfo& val) { *this = val; }  // not needed
 
   // Mutators
   void SetHitTime(Double_t val)               {fHitTime = val;}

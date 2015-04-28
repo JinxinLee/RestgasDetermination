@@ -26,7 +26,7 @@ public:
   PndDrcLutNode (Int_t detectorId);
 
   // Copy constructor 
-  PndDrcLutNode (PndDrcLutNode& node) { *this = node; }  
+  PndDrcLutNode (PndDrcLutNode& node): TObject(node), fDetectorId(node.fDetectorId), fSize(node.fSize), fNodePos(node.fNodePos), fNodeArray(node.fNodeArray), fPathIdArray(node.fPathIdArray), fTimeArray(node.fTimeArray)  {}  ;
 
   // Modifiers
   void AddEntry(Int_t nodeId, TVector3 dir, Double_t pathid, Double_t time, TVector3 pos);

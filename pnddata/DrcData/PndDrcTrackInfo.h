@@ -26,7 +26,7 @@ public:
   ~PndDrcTrackInfo ();
 
   // Copy constructor 
-  PndDrcTrackInfo (const PndDrcTrackInfo& val): TObject(val)  { *this = val; }  
+  //PndDrcTrackInfo (const PndDrcTrackInfo& val): TObject(val)  { *this = val; }   // Most probably not needed
   
   // Mutators
   void SetMcPdg(Int_t val)              {fMcPdg = val;}

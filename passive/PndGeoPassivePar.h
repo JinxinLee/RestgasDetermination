@@ -20,7 +20,7 @@ public:
   TObjArray             *GetGeoPassiveNodes(){return fGeoPassNodes;}
   
 private:
-  PndGeoPassivePar(const  PndGeoPassivePar& L) : FairParGenericSet(L) {};
+  PndGeoPassivePar(const  PndGeoPassivePar& L) : FairParGenericSet(L), fGeoSensNodes(L.fGeoSensNodes), fGeoPassNodes(L.fGeoPassNodes) {};
   PndGeoPassivePar& operator= (const  PndGeoPassivePar&) {return *this;}
   
    ClassDef(PndGeoPassivePar,1)

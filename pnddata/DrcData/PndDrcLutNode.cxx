@@ -10,16 +10,15 @@
 ClassImp(PndDrcLutNode)
 
 // -----   Default constructor   -------------------------------------------
-PndDrcLutNode::PndDrcLutNode()
+PndDrcLutNode::PndDrcLutNode(): 
+TObject(), fDetectorId(0), fSize(0), fNodePos(TVector3()), fNodeArray(), fPathIdArray(), fTimeArray()
 { 
-  fSize = 0;
 }
 
 // -----   Standard constructors   -----------------------------------------
-PndDrcLutNode::PndDrcLutNode(Int_t nodeId)
+PndDrcLutNode::PndDrcLutNode(Int_t nodeId): 
+  TObject(), fDetectorId(nodeId), fSize(0), fNodePos(TVector3()), fNodeArray(), fPathIdArray(), fTimeArray()
 { 
-  fDetectorId = nodeId;
-  fSize = 0;
 }
 
 void PndDrcLutNode::AddEntry(Int_t detectorId, TVector3 dir, Double_t pathid, Double_t time, TVector3 pos) {

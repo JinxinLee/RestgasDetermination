@@ -10,12 +10,10 @@
 ClassImp(PndDrcPhotonInfo)
 
 // -----   Default constructor   -------------------------------------------
-PndDrcPhotonInfo::PndDrcPhotonInfo()
+PndDrcPhotonInfo::PndDrcPhotonInfo(): TObject(),
+  fAmbiguitySize(0), fHitTime(0), fReflected(kFALSE), fEvReflections(0), fMcPrimeMomentumInBar(TVector3()), fMcCherenkovInBar(0)
 { 
-  fAmbiguitySize = 0;
-  fHitTime = 0;
-  fReflected = kFALSE;
-  fEvReflections = 0;
+ 
 }
 
 PndDrcPhotonInfo::~PndDrcPhotonInfo()

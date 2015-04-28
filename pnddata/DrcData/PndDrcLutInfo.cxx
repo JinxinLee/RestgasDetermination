@@ -11,21 +11,38 @@
 ClassImp(PndDrcLutInfo)
 
 // -----   Default constructor   -------------------------------------------
-PndDrcLutInfo::PndDrcLutInfo()
+PndDrcLutInfo::PndDrcLutInfo(): TObject(), 
+  fAnglesSize(0), 
+  fPixelSize(0),
+  fTimesSize(0),
+  fLutTimesSize(0),
+  fPathsSize(0),
+  fChDiffsSize(0),
+  fNOfBouncesSize(0),
+  fNOfEVReflectionsSize(0),
+  fLambdasSize(0), 
+  fHitTimesSize(0),  
+  fTruePathsSize(0),
+  fPixelEndArray(), 
+  fTimesArray(), 
+  fLutTimesArray(), 
+  fPathsArray(), 
+  fChDiffsArray(), 
+  fNOfBouncesArray(),
+  fPhotonStartPosition(), 
+  fNOfEVReflectionsArray(), 
+  fLambdaArray(),
+  fHitTimeArray(), 
+  fTruePathArray(),
+  fReflected(), 
+  fLutReflected(),
+  fChPartDir(TVector3()),
+  fChPartDirInBar(TVector3()),
+  fChPartDirInBar2(TVector3()),
+  fChPartPdg(0),    
+  fCherenkovMC(0.),
+  fCherenkovReal(0.)
 { 
-  fAnglesSize = 0;
-  fTimesSize = 0;
-  fLutTimesSize = 0;
-  fPathsSize = 0;
-  fChDiffsSize = 0;
-  fLambdasSize = 0;
-  fTruePathsSize = 0;
-  fHitTimesSize = 0;  
-    
-  fChPartPdg = 0;    
-  fCherenkovMC = 0.;
-  fCherenkovReal = 0.;
-  fPixelSize = 0;
 }
 
 void PndDrcLutInfo::AddAngle(Double_t val) {

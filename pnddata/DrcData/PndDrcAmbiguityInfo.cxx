@@ -10,9 +10,8 @@
 ClassImp(PndDrcAmbiguityInfo)
 
 // -----   Default constructor   -------------------------------------------
-PndDrcAmbiguityInfo::PndDrcAmbiguityInfo()
+PndDrcAmbiguityInfo::PndDrcAmbiguityInfo(): TObject(),
+  fCherenkov(0), fBarTime(0), fEvTime(0)
 { 
-  fCherenkov = 0;
-  fBarTime = 0;
-  fEvTime = 0;
+ 
 }

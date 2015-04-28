@@ -25,7 +25,7 @@ public:
 
 
   // Copy constructor 
-  PndDrcLutInfo (PndDrcLutInfo& node) { *this = node; }  
+  // PndDrcLutInfo (PndDrcLutInfo& node) { *this = node; }  // not needed
 
   // Modifiers
   void AddAngle(Double_t val);
