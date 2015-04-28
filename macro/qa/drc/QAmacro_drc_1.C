@@ -16,7 +16,7 @@ int QAmacro_drc_1()
   fRun->SetBeamMom(15);
   fRun->SetOutputFile(outFile);
   fRun->SetMaterials("media_pnd.geo");
-  fRun->SetUserConfig(vmcdir+"/macro/drc/g4Config_Cherenkov.C")
+  fRun->SetUserConfig(vmcdir+"/macro/drc/g4Config_Cherenkov.C");
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
   // Set the parameters
