@@ -40,12 +40,12 @@ class StandardTrackFunctor : public PossibleTrackFunctor
 	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
-		possibleTrack = possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3);
+		possibleTrack = (possibleTrack | ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
+										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks()) > 3));
 
-		possibleTrack = possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
+		possibleTrack = (possibleTrack | ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
 										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() ) > 5;
+										 a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() ) > 5));
 
 		return possibleTrack;
 	}
@@ -61,7 +61,7 @@ class OnlySttFunctor : public PossibleTrackFunctor
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
 
-		possibleTrack = possibleTrack | a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5;
+		possibleTrack = (possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5));
 
 		return possibleTrack;
 	}

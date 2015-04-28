@@ -237,7 +237,7 @@ void PndMCTestPatternRecoQuality::FillMapTrackQualifikation()
 		if (fIdealTrackData.GetEntry(i).GetNLinks() > 0){
 			Bool_t atLeastOneHit = kFALSE;
 			for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
-				atLeastOneHit = atLeastOneHit | fIdealTrackData.GetEntry(i).GetLinksWithType(ioman->GetBranchId(fBranchNames[branchIndex])).GetNLinks() > 0;
+				atLeastOneHit = (atLeastOneHit | (fIdealTrackData.GetEntry(i).GetLinksWithType(ioman->GetBranchId(fBranchNames[branchIndex])).GetNLinks() > 0));
 			}
 			if (atLeastOneHit)
 			{

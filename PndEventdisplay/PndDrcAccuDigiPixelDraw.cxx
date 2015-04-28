@@ -53,7 +53,7 @@ InitStatus PndDrcAccuDigiPixelDraw::Init()
 
 	TIter next((TObjArray*)gGeoManager->GetListOfVolumes());
 	TGeoVolume *vol;
-	while(vol=(TGeoVolume*)next()){
+	while((vol=(TGeoVolume*)next())){
 	  TString volumename = vol->GetName();
 	  if(volumename(0,4)=="Pipe")  vol->SetVisibility(kFALSE);
 	  if(volumename=="DrcAirBox") vol->SetTransparency(80);
@@ -82,6 +82,8 @@ InitStatus PndDrcAccuDigiPixelDraw::Init()
 	//v->DoDraw();
 
 	fFirstEvent=true;
+
+	return kSUCCESS;
 }
 
 void PndDrcAccuDigiPixelDraw::ReadAllHits(){

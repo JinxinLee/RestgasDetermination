@@ -66,7 +66,7 @@ std::vector< PndSdsClusterStrip* >  PndSdsSimpleStripClusterFinder::SearchCluste
           for(Indexpair::iterator itStrip3 = itStrip; itStrip3 != (itTime->second).end(); ++itStrip3)
           {
             if( !(1==flagmap[itStrip3->second]) ) continue;
-            if( fabs(tempStrip->first - itStrip3->first) > fRadius ) continue;
+            if( std::abs(tempStrip->first - itStrip3->first) > fRadius ) continue;
             onecluster.push_back(itStrip3->second);
             flagmap[itStrip3->second]=-1;//do not reuse this digi
             tempStrip=itStrip3;
