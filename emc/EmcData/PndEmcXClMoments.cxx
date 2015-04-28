@@ -185,7 +185,7 @@ PndEmcXClMoments::Print(const Option_t* opt) const
 		<< phi_axis.z() << ")" << endl;
 	int i=0;
 	
-	for (current!=digiList.begin();current<digiList.end();++current){
+	for (current=digiList.begin();current<digiList.end();++current){
 		clEdep = (*fEnergyDistribution)[i];
 		PndEmcDigi *digi = (PndEmcDigi *) DigiArray()->At(*current);
 		digi->Print();
