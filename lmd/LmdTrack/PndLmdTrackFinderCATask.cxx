@@ -305,13 +305,15 @@ InitStatus PndLmdTrackFinderCATask::Init()
 void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 {
   TStopwatch *timer_array = new TStopwatch();
+
   if(fVerbose>0) 
     timer_array->Start();
 
   // Reset output array
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
-  fTrackCandArray->Clear();
+  fTrackCandArray->Delete();
+
   Int_t nPixelHits = fStripHitArray->GetEntriesFast();
   if(nPixelHits<2){
     if(fVerbose>2) cout << "Evt finsihed: too less hits-----"<<endl<<endl;
@@ -357,13 +359,14 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 
     TStopwatch *timer_cook_cells = new TStopwatch();
     timer_cook_cells->Start();
+
     const unsigned int nplanes = nP;
 
   ///Build all cells  
   int ncells=0;
   if(fVerbose>2)
   cout<<"Start cell contruction from "<<nPixelHits<<" hits"<<endl;
-  fCellArray->Clear();
+  fCellArray->Delete();
   for(unsigned int pl0=0;pl0<(nplanes-1);pl0++){
     for (unsigned int i=0; i<hitsd.at(pl0).size(); i++){
       unsigned int pl1 = pl0+1;// no "missing plane"
@@ -400,6 +403,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   // }
 
   TStopwatch *timer_neighbors_cells = new TStopwatch();
+
   if(fVerbose>0)
   timer_cook_cells->Start();
 
@@ -411,10 +415,12 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     pv_new.push_back(-1);
   bool stop_itter = true;
   for(int itt=0;itt<1000;itt++){ //should be infinite loop! due to small number of layers 1000 is close to infinity ;)
-    fCellArray_tmp->Clear("C");
+    //  fCellArray_tmp->Clear("C");
     int ncells_tmp = 0;
     stop_itter = true;
     TStopwatch *timer_neighbors_itter = new TStopwatch();
+  
+
     if(fVerbose>0)
       timer_neighbors_itter->Start();
     nCells = fCellArray->GetEntries();
@@ -478,8 +484,13 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
       cout<<"One itter with "<<nCells<<" cells: "<<endl;
       timer_neighbors_itter->Stop();
       timer_neighbors_itter->Print();
+      delete timer_neighbors_itter;
     }
+    //    fCellArray->Clear();
+    fCellArray->Delete();
     fCellArray = (TClonesArray*)fCellArray_tmp->Clone();
+    fCellArray_tmp->Delete();
+    //    fCellArray_tmp->Clear();
     if(fVerbose>0 && stop_itter) cout<<"-- CA made "<<itt<<" itterations --"<<endl;
     if(stop_itter) break;
   }
@@ -491,11 +502,14 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   cout<<"neighbors search "<<endl;
   timer_neighbors_cells->Print();
   }
- 
+
+  //  fCellArray_tmp->Clear();
+  fCellArray_tmp->Delete();
   nCells = fCellArray->GetEntriesFast();//final number of cells [could be different from the initial]
 
   //Build track from cells combination -------------------------------- 
   TStopwatch *timer_build_trk_combinations = new TStopwatch();
+
   if(fVerbose>0)
   timer_build_trk_combinations->Start();
 
@@ -588,6 +602,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 
   // filter ----------------------------------------------------
   TStopwatch *timer_filter_trk_combinations = new TStopwatch();
+
   if(fVerbose>0) 
   timer_filter_trk_combinations->Start();
 
@@ -721,8 +736,15 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     cout<< "Evt finsihed--------------"<<endl<<endl;
     cout << endl;
   }
-  fCellArray->Clear("C");
- fCellArray_tmp->Clear("C");
+  // fCellArray->Clear("C");
+  // fCellArray_tmp->Clear("C");
+  fCellArray->Delete();
+  fCellArray_tmp->Delete();
+  delete timer_array;
+  delete timer_cook_cells;
+  delete timer_neighbors_cells;
+  delete timer_build_trk_combinations;
+  delete timer_filter_trk_combinations;
 }
 
 Double_t PndLmdTrackFinderCATask::GetTrackCurvature(PndMCTrack* myTrack)
