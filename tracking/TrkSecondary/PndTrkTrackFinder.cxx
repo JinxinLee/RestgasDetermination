@@ -3236,30 +3236,124 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	cin >> goOnChar;
       }
 	
-      TVector3 stat1(0, 0, 0), stat2(0, 0, 0), stat3(0, 0, 0);
-      int nstat1 = 0, nstat2 = 0, nstat3 = 0;
-      for(int jhit = 0; jhit < cluster.GetNofHits(); jhit++) {
-	hit = cluster.GetHit(jhit);
-	int sensid = hit->GetSensorID();
+      /**
+	 TVector3 stat1(0, 0, 0), stat2(0, 0, 0), stat3(0, 0, 0);
+	 int nstat1 = 0, nstat2 = 0, nstat3 = 0;
+	 for(int jhit = 0; jhit < cluster.GetNofHits(); jhit++) {
+	 hit = cluster.GetHit(jhit);
+	 int sensid = hit->GetSensorID();
 	
-	if(sensid <= 1) { stat1 += hit->GetPosition(); nstat1++; }
-	else if(sensid <= 3) { stat2 += hit->GetPosition(); nstat2++; }
-	else if(sensid <= 5) { stat3 += hit->GetPosition(); nstat3++; }
+	 if(sensid <= 1) { stat1 += hit->GetPosition(); nstat1++; }
+	 else if(sensid <= 3) { stat2 += hit->GetPosition(); nstat2++; }
+	 else if(sensid <= 5) { stat3 += hit->GetPosition(); nstat3++; }
+	 }
+	 if(nstat1 == 0 || nstat2 == 0 || nstat3 == 0) continue;
+      
+	 stat1 *= (1./nstat1);
+	 stat2 *= (1./nstat2);
+	 stat3 *= (1./nstat3);
+      
+	 double alpha = 0.5 * (stat1.X() * stat1.X() - stat2.X() * stat2.X() + stat1.Y() * stat1.Y() - stat2.Y() * stat2.Y()) / (stat1.X() - stat2.X());
+	 double beta = (stat1.Y() - stat2.Y())/(stat1.X() - stat2.X());
+      
+	 double yc0 = (alpha * (stat1.X() - stat3.X()) - 0.5 * (stat1.Y() * stat1.Y() - stat3.Y() * stat3.Y()) - 0.5 * (stat1.X() * stat1.X() - stat3.X() * stat3.X())) / ((stat1.X() - stat3.X()) * beta - (stat1.Y() - stat3.Y()));
+      
+	 double xc0 = alpha - beta * yc0;
+      
+	 double R0 = TMath::Sqrt((stat1.X() - xc0) * (stat1.X() - xc0) + (stat1.Y() - yc0) * (stat1.Y() - yc0));
+      **/
+
+      // ---------------------------------
+      fConformalHitList->Clear("C");
+      Double_t delta = 0, trasl[2] = {0., 0.};
+      PndTrkHit *refhit = NULL;
+
+      int tmpsensid = 1000;
+      for(int jhit = 0; jhit < cluster.GetNofHits(); jhit++) {
+	PndTrkHit * hitj = cluster.GetHit(jhit);
+	if(hitj->GetSensorID() < tmpsensid) {
+	  refhit = hitj;
+	  tmpsensid = hitj->GetSensorID();
+	}
       }
-      if(nstat1 == 0 || nstat2 == 0 || nstat3 == 0) continue;
-      
-      stat1 *= (1./nstat1);
-      stat2 *= (1./nstat2);
-      stat3 *= (1./nstat3);
-      
-      double alpha = 0.5 * (stat1.X() * stat1.X() - stat2.X() * stat2.X() + stat1.Y() * stat1.Y() - stat2.Y() * stat2.Y()) / (stat1.X() - stat2.X());
-      double beta = (stat1.Y() - stat2.Y())/(stat1.X() - stat2.X());
-      
-      double yc0 = (alpha * (stat1.X() - stat3.X()) - 0.5 * (stat1.Y() * stat1.Y() - stat3.Y() * stat3.Y()) - 0.5 * (stat1.X() * stat1.X() - stat3.X() * stat3.X())) / ((stat1.X() - stat3.X()) * beta - (stat1.Y() - stat3.Y()));
-      
-      double xc0 = alpha - beta * yc0;
-      
-      double R0 = TMath::Sqrt((stat1.X() - xc0) * (stat1.X() - xc0) + (stat1.Y() - yc0) * (stat1.Y() - yc0));
+      ComputeTraAndRot(refhit, delta, trasl);
+	
+      conform->SetOrigin(trasl[0], trasl[1], delta);
+      fConformalHitList->SetConformalTransform(conform);
+	
+      // fill conformal hits
+      Int_t nofconfhits = FillConformalHitList(&cluster);
+	
+      // compute conformal plane extremities ----------------------------
+      fUmin =  1000, fVmin =  1000, fRmin =  1000;
+      fUmax = -1000, fVmax = -1000, fRmax = -1000;
+      double rc_of_min, rc_of_max;
+      fFitter->Reset();
+      for(int jhit = 0; jhit < fConformalHitList->GetNofHits(); jhit++) {
+	PndTrkConformalHit *chit = fConformalHitList->GetHit(jhit);
+	double u = chit->GetU();
+	double v = chit->GetV();
+	double rc = chit->GetIsochrone();
+	if(rc < 0) rc = 0;
+
+	double sigma = 1000.;
+	if(hit->IsGem()) sigma = 0.1 * hit->GetPosition().Z(); // CHECK
+	if(TMath::IsNaN(chit->GetPosition().X())) continue; // prevents the nan of the ref hit
+	fFitter->SetPointToFit(chit->GetPosition().X(), chit->GetPosition().Y(), sigma);
+  
+	// cout << "conf hit " << jhit << " u, v " << u << " " << v << " " << rc << endl;
+	u - rc < fUmin ? fUmin = u - rc : fUmin;
+	v - rc < fVmin ? fVmin = v - rc : fVmin;
+	u + rc > fUmax ? fUmax = u + rc : fUmax;
+	v + rc > fVmax ? fVmax = v + rc : fVmax;
+	  
+	double theta1 = TMath::ATan2(v, u);
+	double theta2 = theta1 + TMath::Pi();
+	  
+	double r1 = u * TMath::Cos(theta1) + v * TMath::Sin(theta1);
+	double r2 = u * TMath::Cos(theta2) + v * TMath::Sin(theta2);
+	  
+	double rimin, rimax;
+	r1 < r2 ? (rimin = r1, rimax = r2) : (rimin = r2, rimax = r1);
+	  
+	rimin < fRmin ? (rc_of_min = rc, fRmin = rimin) : fRmin;
+	rimax > fRmax ? (rc_of_max = rc, fRmax = rimax) : fRmax;
+      }
+	
+      fRmin -= rc_of_min;
+      fRmax += rc_of_max;
+	
+      // to square the conformal plane
+      double du = fUmax - fUmin;
+      double dv = fVmax - fVmin;
+      double delt = fabs(dv - du)/2.;
+      du < dv ? (fUmin -= delt, fUmax += delt) : (fVmin -= delt, fVmax += delt);
+	
+      if(fDisplayOn) {
+	DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
+	// ----------------------------------------------------------------------
+	for(int khit = 0; khit < nofconfhits; khit++) {
+	  PndTrkConformalHit *chit = fConformalHitList->GetHit(khit);
+	  chit->Draw(kBlack);
+	}
+      }
+	
+      // ====== REFIT CLUSTER LEGENDRE
+      double fitm, fitq;
+      fFitter->StraightLineFit(fitm, fitq);
+
+      if(fDisplayOn) {
+	RefreshConf();
+	DrawGeometryConf(fUmin, fUmax, fVmin, fVmax);
+      }
+	
+      // from line parameters to center/radius in REAL plane
+      Double_t xc0, yc0, R0;
+      FromConformalToRealTrack(fitm, fitq, xc0, yc0, R0);
+     // ----------------------------------
+
+
+
       if(fDisplayOn)  {
 	char goOnChar;
 	display->cd(1);
@@ -3824,9 +3918,10 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // if there is a scitil lets use it as seed hit
       // for the conformal map
       fConformalHitList->Clear("C");
-      PndTrkHit *refhit = cluster3.GetHit(0); // cluster3.GetNofHits() - 1);
-      double trasl[2] = {0, 0};
-      double delta;
+      refhit = cluster3.GetHit(0); // cluster3.GetNofHits() - 1);
+      trasl[0] = 0; 
+      trasl[1] = 0;
+      delta = 0;
 
 //       cout <<  cluster3.GetNofHits() << " refhit ---> " << refhit << endl;
 
@@ -3834,15 +3929,14 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       conform->SetOrigin(trasl[0], trasl[1], delta);
       fConformalHitList->SetConformalTransform(conform);
 
-      int nofconfhits = FillConformalHitList(&cluster3);
+      nofconfhits = FillConformalHitList(&cluster3);
       
       //      cout << "nofhits1: " << nofconfhits << endl;
 
       // compute conformal plane extremities ---------------------------- this must go to a fctn CHECK
       fUmin =  1000, fVmin =  1000, fRmin =  1000;
       fUmax = -1000, fVmax = -1000, fRmax = -1000;
-      double rc_of_min, rc_of_max;
-    
+          
       for(int jhit = 0; jhit < fConformalHitList->GetNofHits(); jhit++) {
 	PndTrkConformalHit *chit = fConformalHitList->GetHit(jhit);
 	double u = chit->GetU();
@@ -3873,9 +3967,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       fRmax += rc_of_max;
     
       // to square the conformal plane
-      double du = fUmax - fUmin;
-      double dv = fVmax - fVmin;
-      double delt = fabs(dv - du)/2.;
+      du = fUmax - fUmin;
+      dv = fVmax - fVmin;
+      delt = fabs(dv - du)/2.;
       du < dv ? (fUmin -= delt, fUmax += delt) : (fVmin -= delt, fVmax += delt);
       // cout << "min/max " << fUmin << " " << fUmax << " " << fVmin << " " << fVmax << endl;
       if(fDisplayOn) {
@@ -4370,7 +4464,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	// 3. rotate clockwise the tangent/point/(wire, not explicitely)
 	// in order to have the wire parallel to the x axis;
 	// then translate everything to have the wire ON the x axis
-	beta = wireDirection.Phi();
+	double beta = wireDirection.Phi();
 	if(beta < 0) beta += TMath::Pi();
 	// ... rotate the tangent
 	double rtx = TMath::Cos(beta) * tangent.X() + TMath::Sin(beta) * tangent.Y();
@@ -5160,8 +5254,6 @@ void PndTrkTrackFinder::DrawHits(PndTrkHitList *hitlist) {
 }
 
 void PndTrkTrackFinder::DrawGeometry() {
-
-  cout << "istogramma " << hxy << endl;
 
   if(hxy == NULL)  hxy = new TH2F("hxy", "xy plane", 110, -55, 55, 110, -55, 55);
   else hxy->Reset();
