@@ -3348,8 +3348,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
 	
       // from line parameters to center/radius in REAL plane
-      Double_t xc0, yc0, R0;
-      FromConformalToRealTrack(fitm, fitq, xc0, yc0, R0);
+      Double_t xc, yc, R;
+      FromConformalToRealTrack(fitm, fitq, xc, yc, R);
      // ----------------------------------
 
 
@@ -3357,7 +3357,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       if(fDisplayOn)  {
 	char goOnChar;
 	display->cd(1);
-	TArc *arcm = new TArc(xc0, yc0, R0);
+	TArc *arcm = new TArc(xc, yc, R);
 	arcm->SetFillStyle(0);
 	arcm->SetLineColor(3);
 	arcm->Draw("SAME");
@@ -3368,23 +3368,6 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
       newclusterlist.AddCluster(&cluster);
     
- 
-      double xc = xc0;
-      double yc = yc0;
-      double R = R0;
-      if(fDisplayOn)  {
-	char goOnChar;
-	display->cd(1);
-	TArc *arcm = new TArc(xc, yc, R);
-	arcm->SetFillStyle(0);
-	arcm->SetLineColor(5);
-	arcm->Draw("SAME");
-	display->Update();
-	display->Modified();
-	// cin >> goOnChar;
-      }
-
-
       // put in a list the hits you considered and
       // decided do not belong to the track 
       std::vector< std::pair< int, int > > dontuse;
@@ -3699,22 +3682,22 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
       cluster2.Sort();
 
-      // if the track is positive --> add 360 (otherwise is 0 followed by 350, 350...)
-      track2.ComputeCharge();
-      double charge = track2.GetCharge();
-      //      cout << "charge " << charge << endl;
-      if(charge > 0)      cluster2.GetHit(0)->SetPhi(360.) ; // CHECK
+      //       // if the track is positive --> add 360 (otherwise is 0 followed by 350, 350...)
+      //       track2.ComputeCharge();
+      //       double charge = track2.GetCharge();
+      //       //      cout << "charge " << charge << endl;
+      //       if(charge > 0)      cluster2.GetHit(0)->SetPhi(360.) ; // CHECK
 
-      // further check, but maybe nomore necessary CHECK
-      if(cluster2.GetHit(0)->IsGem() && (cluster2.GetHit(cluster2.GetNofHits() - 1)->IsMvdPixel() || cluster2.GetHit(cluster2.GetNofHits() - 1)->IsMvdStrip())) {
-	PndTrkCluster cluster2b;
-	cluster2b.AddHit(cluster2.GetHit(0));
-	cluster2.ReverseSort();
-	for(int jhit = 1; jhit < cluster2.GetNofHits(); jhit++) {
-	  cluster2b.AddHit(cluster2.GetHit(jhit));
-	}
-	cluster2 = cluster2b;
-      }
+      //       // further check, but maybe nomore necessary CHECK
+      //       if(cluster2.GetHit(0)->IsGem() && (cluster2.GetHit(cluster2.GetNofHits() - 1)->IsMvdPixel() || cluster2.GetHit(cluster2.GetNofHits() - 1)->IsMvdStrip())) {
+      // 	PndTrkCluster cluster2b;
+      // 	cluster2b.AddHit(cluster2.GetHit(0));
+      // 	cluster2.ReverseSort();
+      // 	for(int jhit = 1; jhit < cluster2.GetNofHits(); jhit++) {
+      // 	  cluster2b.AddHit(cluster2.GetHit(jhit));
+      // 	}
+      // 	cluster2 = cluster2b;
+      //       }
       // ..........................................
 
 
@@ -3741,7 +3724,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	  else if(hit->IsMvdStrip()) mrkz = new TMarker(phi, position.Z(), 25);
 	  else if(hit->IsStt()) mrkz = new TMarker(phi, position.Z(), 6);
 	  else if(hit->IsGem()) mrkz = new TMarker(phi, position.Z(), 24);
-	  
+	  else if(hit->IsSciTil()) mrkz = new TMarker(phi, position.Z(), 26);
+
 	  mrkz->SetMarkerColor(kBlue);
 	  mrkz->Draw("SAME");
 	  display->Update();
@@ -3754,7 +3738,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	  TVector3 positionk = hitk->GetPosition();
 	  double phik = hitk->GetPhi();
 	  
-	  double cost = (positionk.Z() - position.Z()) / TMath::Sqrt((phi - phik) * (phi - phik) + (positionk.Z() - position.Z()) * (positionk.Z() - position.Z()));
+	  double denom =  (phi - phik) * (phi - phik) + (positionk.Z() - position.Z()) * (positionk.Z() - position.Z());
+	  if(denom == 0) continue;
+	  double cost = (positionk.Z() - position.Z()) / TMath::Sqrt(denom);
 	  double theta = TMath::ACos(cost);
 	  double r1 = phi * cost + position.Z() * TMath::Sin(theta);
 	  double r2 = phik * cost + positionk.Z() * TMath::Sin(theta);
