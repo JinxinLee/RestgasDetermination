@@ -267,7 +267,7 @@ void PndGemFindHits::Exec(Option_t* opt) {
   else {
     ConfirmHits2();//test version ok
   }
-  
+
   if ( fVerbose > 1 ) {
     //    cout << "-I- PndGemFindHits::Exec() Created " << fHits->GetEntriesFast() << " hits from " 
     //<< nDigisF << " front and " << nDigisB << " back digis" << endl;
@@ -322,10 +322,6 @@ InitStatus PndGemFindHits::Init() {
   // Get input array
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
-
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
-  ioman->SetUseFairLinks(kTRUE);
-#endif
 
   if ( fUseClusters ) 
     fDigis = (TClonesArray*) ioman->GetObject("GEMCluster");
@@ -652,7 +648,7 @@ void PndGemFindHits::ConfirmHits2() {
 	    
 	    TString fromStr = "GEMDigi";
 	    if ( fUseClusters ) fromStr = "GEMCluster";
-	    
+
 	    new ((*fHits)[nHits++]) PndGemHit(hitDetId, 
 					      pos, dpos,  
 					      hitTemp->GetCharge(),
@@ -661,7 +657,7 @@ void PndGemFindHits::ConfirmHits2() {
 					      hitTemp->GetDr(), hitTemp->GetDp(), 
 					      hitTemp->GetRefIndex(),fromStr);
 	    if ( fVerbose > 1 ) {
-	      cout << "ihitTemp "<< ihitTemp<<"  xHit yHit zHit " << xHit[0] << yHit[0] << zHit[0] << "  stored... " <<endl;  
+	      cout << "ihitTemp "<< ihitTemp<<"  xHit yHit zHit " << pos.X() << " / " << pos.Y() << " / " << pos.Z() << "  stored as " << nHits << " from " << fromStr.Data() << "." << hitTemp->GetDigiNr(0) << " / " << hitTemp->GetDigiNr(1) << endl;
 	    }
 	    ((PndGemHit*)fHitsTemp->At(ihitTemp))->SetDetectorID(hitDetId);
 	    fTNofHits++;
@@ -688,8 +684,9 @@ void PndGemFindHits::ConfirmHits2() {
 					      hitTemp2->GetDigiNr(0),hitTemp2->GetDigiNr(1), 
 					      hitTemp2->GetDr(), hitTemp2->GetDp(), 
 					      hitTemp2->GetRefIndex(),fromStr);
+
 	    if ( fVerbose > 1 ) {
-	      cout << "ihitTemp2 "<< ihitTemp2 <<"  xHit yHit zHit " << xHit[1] << yHit[1] << zHit[1] << "  stored... " <<endl;  
+	      cout << "ihitTemp2 "<< ihitTemp<<"  xHit yHit zHit " << pos.X() << " / " << pos.Y() << " / " << pos.Z() << "  stored as " << nHits << " from " << fromStr.Data() << "." << hitTemp2->GetDigiNr(0) << " / " << hitTemp2->GetDigiNr(1) << endl;
 	    }
 	    ((PndGemHit*)fHitsTemp->At(ihitTemp2))->SetDetectorID(hitDetId);
 	    fTNofHits++;
@@ -1077,19 +1074,25 @@ Int_t PndGemFindHits::FindHits2(PndGemSensor* sensor,
       // 	   TMath::Abs(digiF->GetTimeStamp()-digiB->GetTimeStamp()) > 5. )
       // 	continue;
       
-	  TString fromStr = "GEMDigi";
-	  if ( fUseClusters ) fromStr = "GEMCluster";
+      TString fromStr = "GEMDigi";
+      Double_t hitTimeStamp = (digiF->GetTimeStamp()+digiB->GetTimeStamp())/2.;
+      Double_t hitCharge    = (digiF->GetCharge()   +digiB->GetCharge()   )/2.;
+      if ( fUseClusters ) {
+	fromStr = "GEMCluster";
+	hitTimeStamp = (clusterF->GetTimeStamp()+clusterB->GetTimeStamp())/2.;
+	hitCharge    = (clusterF->GetCharge()   +clusterB->GetCharge()   )/2.;
+      }
       new ((*fHitsTemp)[nHitsTemp++]) PndGemHit(hitDetId, pos, dpos,  
-						(digiF->GetCharge()+digiB->GetCharge())/2.,
-						(digiF->GetTimeStamp()+digiB->GetTimeStamp())/2.,
+						hitCharge,
+						hitTimeStamp,
 						iDigiF, iDigiB, 
 						sigmaR, sigmaP, refIndex, fromStr);
-
+	  
       fTNofHitsTemp++;
       nHitsInSensor++;
     }
   }
-
+  
   //  return 0;
   return nHitsInSensor;
 }

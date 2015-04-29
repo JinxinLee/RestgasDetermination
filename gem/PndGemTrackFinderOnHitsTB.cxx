@@ -730,7 +730,7 @@ Int_t PndGemTrackFinderOnHitsTB::FindTrackSegments(TClonesArray* hitArray, Int_t
   for(Int_t iHit1 = 0; iHit1 < nGemHits; iHit1++ ) {
     // Get the pointer to Gem hit
     gemHit1 = (PndGemHit*) hitArray->At(iHit1);
-    if ( gemHit1->GetCharge() < 5. ) continue; //RKChange
+    if ( gemHit1->GetCharge() < 1. ) continue; //RKChange
     if ( gemHit1->GetStationNr()-1 != stat1Id ) continue;
     if ( fVerbose > 3 || printInfo )
       cout << "LOOKING FOR TRACK SEGMENTS STARTING AT " << gemHit1->GetX() << " " << gemHit1->GetY() << " " << gemHit1->GetZ() << endl;
@@ -752,7 +752,7 @@ Int_t PndGemTrackFinderOnHitsTB::FindTrackSegments(TClonesArray* hitArray, Int_t
 
     for(Int_t iHit2 = 0; iHit2 < nGemHits; iHit2++){
       gemHit2 = (PndGemHit*) hitArray->At(iHit2);
-      if ( gemHit2->GetCharge() < 5. ) continue; //RKChange
+      if ( gemHit2->GetCharge() < 1. ) continue; //RKChange
       if ( gemHit2->GetStationNr()-1 != stat2Id ) continue;
 
       gemHit2X = gemHit2->GetX();

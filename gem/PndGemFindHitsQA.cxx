@@ -150,7 +150,7 @@ PndGemFindHitsQA::~PndGemFindHitsQA() { }
 
 // -----   Init  -----------------------------------------------------------
 InitStatus PndGemFindHitsQA::Init() {
-  
+
   // Get and check FairRootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if( !ioman ) {
@@ -158,7 +158,7 @@ InitStatus PndGemFindHitsQA::Init() {
 	 << "RootManager not instantised!" << endl;
     return kERROR;
   }
-  
+
   // Get the pointer to the singleton FairRunAna object
   FairRunAna* ana = FairRunAna::Instance();
   if(NULL == ana) {
@@ -309,8 +309,12 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
 	fhHitMultipleRate  [station][sensor]->Fill(pntX,pntY);
       }
     }
+    else {
+      if ( fVerbose ) {
+	cout << "NO MATCHING POINT IN EVENT " << fNofEvents << " FOR POINT ( " << pntX << " , " << pntY << " , " << gemPnt->GetZ() << " ) " << "[" << gemPnt->GetX() << "X" << gemPnt->GetXOut() << "] [" << gemPnt->GetY() << "Y" << gemPnt->GetYOut() << "]" << endl;
+      }
+    }
   }
-
 
   for ( Int_t ihit = 0 ; ihit < nofGemHits ; ihit++ ) {
     gemHit = (PndGemHit*)fGemHitArray->At(ihit);
@@ -352,12 +356,30 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
 
   for ( Int_t ihit = 0 ; ihit < nofGemHits ; ihit++ ) {
     gemHit = (PndGemHit*)fGemHitArray->At(ihit);
-    if ( printMCMatching ) 
+    if ( printMCMatching ) {
       cout << "---> hit " << ihit << " has " << gemHit->GetNLinks() << " links" << endl;
-
-    if ( gemHit->GetNLinks() != 2 ) {
-      cout << "THERE ARE " << gemHit->GetNLinks() << " FOR HIT " << ihit << " IN EVENT " << fNofEvents << endl;
+      for ( Int_t ilink = 0 ; ilink < gemHit->GetNLinks() ; ilink++ ) {
+	cout << " " << ilink << " > " << gemHit->GetLink(ilink).GetType() << " . " << gemHit->GetLink(ilink).GetIndex() << endl;
+      }
     }
+
+    Int_t quickPointIndex = -1;
+    for ( Int_t ilink = 0 ; ilink < gemHit->GetNLinks() ; ilink++) {
+      if ( gemHit->GetLink(ilink).GetType() == fGemPointNumber ) {
+	if ( quickPointIndex != -1 ) // already have found different point index - so it is a ghost
+	  {                          // but what about hits from clusters, if 98% one point, and only 2% other point???
+	    quickPointIndex = -2;
+	    break;
+	  }
+	quickPointIndex = gemHit->GetLink(ilink).GetIndex();
+      }
+    }
+    if ( quickPointIndex >= 0 ) {
+      pair<Int_t, Int_t> a (quickPointIndex,ihit);
+      mcMatchPointHit.push_back(a);
+    }
+
+    if ( quickPointIndex != -1 ) continue; // do not have any links to points
     if ( gemHit->GetNLinks() == 2 ) {
       Int_t maxPnt0 = -1, maxPnt1 = -1;
       std::vector<Int_t> pointVector0;
@@ -410,44 +432,46 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
 		   << " % ) POINT " << ipnt << endl;
 	    pair<Int_t, Int_t> a (ipnt,ihit);
 	    mcMatchPointHit.push_back(a);
-	    
-	    gemPnt = (PndGemMCPoint*)fMCPointArray->At(ipnt);
-	    Double_t pntX    = (gemPnt->GetX()+gemPnt->GetXOut())/2.;
-	    Double_t pntY    = (gemPnt->GetY()+gemPnt->GetYOut())/2.;
-	    
-	    Int_t    station = gemHit->GetStationNr()-1;
-	    Int_t    sensor  = gemHit->GetSensorNr()-1;
-	    fhTrueMatchDiXYPerSt[station][sensor]->Fill(pntX-gemHit->GetX(),
-							pntY-gemHit->GetY());
-	    fhTrueMatchDiXY                      ->Fill(pntX-gemHit->GetX(),
-							pntY-gemHit->GetY());
-	    Double_t tempDist = TMath::Sqrt((pntX-gemHit->GetX())*(pntX-gemHit->GetX())+
-					    (pntY-gemHit->GetY())*(pntY-gemHit->GetY()));
-	    if ( tempDist > 5. ) {
-	      cout << "Event " << fNofEvents << ": point " << ipnt 
-		   << " at ( " << gemPnt->GetX() << "," << gemPnt->GetY() << "," << gemPnt->GetZ() << " )" 
-		   << " to ( " << gemPnt->GetXOut() << "," << gemPnt->GetYOut() << "," << gemPnt->GetZOut() << " )" << endl
-		   << "                hit " << ihit << " at ( " <<  gemHit->GetX() << "," << gemHit->GetY() << "," << gemHit->GetZ() << " )" << endl
-		   << "          ---> dist " << tempDist << " with match value = " << tempMatch << endl;
-	    }
-	    fhTrueMatchDistPerSt[station][sensor]->Fill(tempDist);
-	    fhTrueMatchDist                      ->Fill(tempDist);
-	    fhTrueMatchValue                     ->Fill(tempMatch);
-	    fhTrueMatchDistValue                 ->Fill(tempMatch,tempDist);
 	  }
 	}
       }
-      //   cout << "LINK " << ilink << " -> Entry = " << gemHit->GetLink(ilink).GetEntry() << endl;
-      //   cout << "LINK " << ilink << " -> Type  = " << gemHit->GetLink(ilink).GetType() << endl;
-      //   cout << "LINK " << ilink << " -> Index = " << gemHit->GetLink(ilink).GetIndex() << endl;
     }
   }
+
+  std::vector<std::pair<Int_t,Int_t> >::iterator iter;
+  for ( iter = mcMatchPointHit.begin() ; iter != mcMatchPointHit.end() ; iter++ ) {
+    gemPnt = (PndGemMCPoint*)fMCPointArray->At(iter->first);
+    gemHit = (PndGemHit*)    fGemHitArray ->At(iter->second);
+    
+    Double_t pntX    = (gemPnt->GetX()+gemPnt->GetXOut())/2.;
+    Double_t pntY    = (gemPnt->GetY()+gemPnt->GetYOut())/2.;
+    
+    Int_t    station = gemHit->GetStationNr()-1;
+    Int_t    sensor  = gemHit->GetSensorNr()-1;
+    fhTrueMatchDiXYPerSt[station][sensor]->Fill(pntX-gemHit->GetX(),
+						pntY-gemHit->GetY());
+    fhTrueMatchDiXY                      ->Fill(pntX-gemHit->GetX(),
+						pntY-gemHit->GetY());
+    Double_t tempDist = TMath::Sqrt((pntX-gemHit->GetX())*(pntX-gemHit->GetX())+
+				    (pntY-gemHit->GetY())*(pntY-gemHit->GetY()));
+    if ( tempDist > 5. ) {
+      cout << "Event " << fNofEvents << ": point " << iter->first 
+	   << " at ( " << gemPnt->GetX() << "," << gemPnt->GetY() << "," << gemPnt->GetZ() << " )" 
+	   << " to ( " << gemPnt->GetXOut() << "," << gemPnt->GetYOut() << "," << gemPnt->GetZOut() << " )" << endl
+	   << "                hit " << iter->second << " at ( " <<  gemHit->GetX() << "," << gemHit->GetY() << "," << gemHit->GetZ() << " )" << endl
+	   << "          ---> dist " << tempDist << endl;//" with match value = " << tempMatch << endl;
+    }
+    fhTrueMatchDistPerSt[station][sensor]->Fill(tempDist);
+    fhTrueMatchDist                      ->Fill(tempDist);
+    // fhTrueMatchValue                     ->Fill(tempMatch);
+    // fhTrueMatchDistValue                 ->Fill(tempMatch,tempDist);
+  }
+
   if ( printMCMatching ) 
     cout << "True MC Matches betwen points and hits: " << mcMatchPointHit.size() << endl;
 
   std::vector<Int_t> nofMatchesPerHit  (nofGemHits,0);
   std::vector<Int_t> nofMatchesPerPoint(nofGemPnts,0);
-  std::vector<std::pair<Int_t,Int_t> >::iterator iter;
   for ( iter = mcMatchPointHit.begin() ; iter != mcMatchPointHit.end() ; iter++ ) {
     ++nofMatchesPerPoint[iter->first];
     ++nofMatchesPerHit  [iter->second];
@@ -468,6 +492,7 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
       fhPointRadMatch     [station][sensor]->Fill(TMath::Sqrt(pntX*pntX+pntY*pntY));
     }
     
+      /*
     if ( nofMatchesPerPoint[ipnt] == 0 ) {
       // cout << "POINT " << ipnt << " AT " 
       // 	   << gemPnt->GetX() << "-" << gemPnt->GetXOut() << "   " 
@@ -489,6 +514,7 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
 	}
       }
     }
+      */
   }
 }
 // ------------------------------------------------------------

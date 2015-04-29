@@ -242,10 +242,11 @@ void PndGemDigitize::DigitizeEvent() {
       //      cout << sensor->GetType() << ": for point " << locPosIn[0] << " " << locPosIn[1] << " ---> channel " << channelNumber << endl;
     }
     if ( channelNumber == -1 ) {
+      TVector3 pos;
+      currentPndGemMCPoint->Position(pos);
       if ( fSaveOutsideHits ) {
-	TVector3 pos;
-	currentPndGemMCPoint->Position(pos);
 	TVector3 dposLocal(0.,0.,0.);
+
 
 	Int_t hitDetId = sensorDetId | kGemHit << 21;
       
