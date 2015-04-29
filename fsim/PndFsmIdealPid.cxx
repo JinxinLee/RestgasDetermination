@@ -92,7 +92,7 @@ PndFsmIdealPid::respond(PndFsmTrack *t)
 
   if (wasDetected)
   {
-	int    type   = fabs(t->pdt());
+	int    type   = abs(t->pdt());
 
 	result->setLHElectron(0.);
 	result->setLHMuon(0.);
@@ -100,10 +100,10 @@ PndFsmIdealPid::respond(PndFsmTrack *t)
 	result->setLHKaon(0.);
 	result->setLHProton(0.);
 
-	if (fabs(type)==11) result->setLHElectron(1.);
-	else if (fabs(type)==13) result->setLHMuon(1.);
-	else if (fabs(type)==211) result->setLHPion(1.);
-	else if (fabs(type)==321) result->setLHKaon(1.);
+	if (abs(type)==11) result->setLHElectron(1.);
+	else if (abs(type)==13) result->setLHMuon(1.);
+	else if (abs(type)==211) result->setLHPion(1.);
+	else if (abs(type)==321) result->setLHKaon(1.);
 	else if (type==2212) result->setLHProton(1.);
 	else {
 	  result->setLHElectron(0.2);

@@ -117,10 +117,10 @@ PndFsmEmcPid::respond(PndFsmTrack *t)
 
 	// convert pdg code in type: 0=e+-, 1=mu+-, 2=pi+-, 3=K+-, 4=p, 5=p-bar
 	int idx;
-	if (fabs(type)==11) idx=0;
-	else if (fabs(type)==13) idx=1;
-	else if (fabs(type)==211) idx=2;
-	else if (fabs(type)==321) idx=3;
+	if (abs(type)==11) idx=0;
+	else if (abs(type)==13) idx=1;
+	else if (abs(type)==211) idx=2;
+	else if (abs(type)==321) idx=3;
 	else if (type==2212) idx=4;
 	else idx=5;
 
@@ -179,7 +179,7 @@ PndFsmEmcPid::detected(PndFsmTrack *t) const
     double p=t->p4().Vect().Mag();
     double pt=t->p4().Pt();
     double charge=t->charge();
-    int type=fabs(t->pdt());
+    int type=abs(t->pdt());
 
 	return ( fabs(charge)>1e-6 && theta>=_thtMin && theta<=_thtMax && phi>=_phiMin && phi<=_phiMax && p>_pmin && pt> _ptmin && _rand->Rndm()<=_efficiency);
 }
