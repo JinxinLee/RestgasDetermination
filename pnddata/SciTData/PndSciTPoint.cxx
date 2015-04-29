@@ -1,13 +1,16 @@
 /////////////////////////////////////////////////////////////
 //
-//  CbmSciTPoint
+//  PndSciTPoint
 //
-//  Geant point for Forward tof  detector
+//  MC point for Barrel tof  detector
 //  created by A. Sanchez
-//
+//  modified by D. Steinschaden
+//  last update  04.2015/
 ///////////////////////////////////////////////////////////////
 
 #include "PndSciTPoint.h"
+#include "FairEventHeader.h"
+#include "FairRun.h"
 
 #include <iostream>
 
@@ -16,63 +19,35 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndSciTPoint::PndSciTPoint() : FairMCPoint() {
-  
-  fEventID    = -1;
-  fXin          = fYin  = fZin =  0.;
-  fPxin         = fPyin = fPzin = 0.;
+
   fXout         = fYout  = fZout =  0.;
   fPxout        = fPyout = fPzout = 0.;
- 
-
-
-
- 
- 
-  fVolumeID =  0;
-
  
 }
 // -------------------------------------------------------------------------
 
-
-
 // -----   Standard constructor   ------------------------------------------
-PndSciTPoint::PndSciTPoint(Int_t trackID, Int_t evtID,
-			 Int_t detID, TString detName,
+PndSciTPoint::PndSciTPoint( Int_t eventID, Int_t trackID,
+			 Int_t detectorID, TString detName,
 			 TVector3 posin,
 			 TVector3 momin, 
 			 TVector3 posout, 
 			 TVector3 momout, 
 			 Double_t tof, Double_t length,
 			 Double_t eLoss)
- : FairMCPoint(trackID, detID, posin, momin, tof, length, eLoss) {
+ : FairMCPoint(trackID, detectorID, posin, momin, tof, length, eLoss, (UInt_t) eventID) {
  
-  fEventID    = evtID;
-  fVolumeID   = detID;
-
-
-  fXin          = posin.X();
-  fYin          = posin.Y();
-  fZin          = posin.Z();
-  fPxin         = momin.X();
-  fPyin         = momin.Py();
-  fPzin         = momin.Pz();
-
-  
-  
+  fDetName = detName;
+ 
   fXout          = posout.X();
   fYout          = posout.Y();
   fZout          = posout.Z();
   fPxout         = momout.Px();
   fPyout         = momout.Py();
   fPzout         = momout.Pz();
-  
- 
-  
-  fDetName = detName;
-  
-  
- 
+
+  FairEventHeader* evtHeader = FairRun::Instance()->GetEventHeader();
+  SetLink(FairLink(-1, eventID, "MCTrack", trackID));
 }
 
 

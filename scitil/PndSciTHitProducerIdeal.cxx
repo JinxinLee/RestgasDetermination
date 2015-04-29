@@ -1,38 +1,43 @@
 // -------------------------------------------------------------------------
-// -----                FairSciTProducerIdeal source file             -----
-// -----                  Created by A. Sanchez              -----
+// FairSciTProducerIdeal source file 
+//           
+//  created by A. Sanchez
+//  modified by D. Steinschaden
+//  last update  04.2015
 // -------------------------------------------------------------------------
 
-#include <cmath>
-
-#include "TClonesArray.h"
-#include "TGeoManager.h"
-#include "FairRootManager.h"
 #include "PndSciTHitProducerIdeal.h"
 #include "PndSciTHit.h"
-#include "TGeoBBox.h"
 #include "PndSciTPoint.h"
+
+#include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairGeoVector.h"
-#include "TVector3.h"
 
+#include "TVector3.h"
+#include "TGeoBBox.h"
+#include "TClonesArray.h"
+#include "TGeoManager.h"
+
+#include <cmath>
 
 // -----   Default constructor   -------------------------------------------
 PndSciTHitProducerIdeal::PndSciTHitProducerIdeal() :
-  FairTask("Ideal PndSciT Hit Producer"), fBranchName(""), fdt(0.1) 
+  FairTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(0.1) //auto time resolution 0.1 ns
 {
-	fBranchName 	= "SciTPoint";
+	fInBranchName 	= "SciTPoint";
+	fGeoH =  NULL;
 
 }
 // -------------------------------------------------------------------------
 
 // -----   Default constructor   -------------------------------------------
 PndSciTHitProducerIdeal::PndSciTHitProducerIdeal(Double_t dt) :
-  FairTask("Ideal PndSciT Hit Producer"), fBranchName(""), fdt(dt)
+  FairTask("Ideal PndSciT Hit Producer"), fInBranchName(""), fdt(dt)
 {
-	fBranchName 	= "SciTPoint";
-
+	fInBranchName 	= "SciTPoint";
+	fGeoH =  NULL;
 }
 // -------------------------------------------------------------------------
 
@@ -55,7 +60,7 @@ InitStatus PndSciTHitProducerIdeal::Init()
     }
 
   // Get input array
-  fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  fPointArray = (TClonesArray*) ioman->GetObject(fInBranchName);
 
   if ( ! fPointArray ) 
     {
@@ -63,8 +68,6 @@ InitStatus PndSciTHitProducerIdeal::Init()
 	   << "No SciTPoint array!" << std::endl;
       return kERROR;
   }
-
- 
 
   // Create and register output array
   fHitArray = ioman->Register("SciTHit", "PndSciTHit", "SciT", kTRUE);
@@ -76,10 +79,20 @@ InitStatus PndSciTHitProducerIdeal::Init()
 void PndSciTHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  
+  // FairRun* ana = FairRun::Instance();
+  //FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
+  if ( fGeoH == NULL ){
+    std::cout << "ScitTil fGeoH is loading" << std::endl;
+    fGeoH = PndGeoHandling::Instance();
+  } 
+  else std::cout << "ScitTil fGeoH is already defind but shouldn't" << std::endl;
+  if ( fGeoH == NULL ){
+    std::cout << "ScitTil fGeoH was loaded but is still NULL" << std::endl;
+  }
+  fGeoH->SetParContainers();
+
+  return;
 }
 
 
@@ -94,16 +107,18 @@ void PndSciTHitProducerIdeal::Exec(Option_t* opt)
  
   
   // Declare some variables
-  PndSciTPoint *point = 0;
 
-  Int_t 
-    detID = 0,       // Detector ID
-    trackID = 0;     // Track index
+  PndSciTPoint *point = NULL;
 
+  Int_t detectorID;    // Detector ID /shortID
+  TString detectorName;
+  Double_t time;
+  TVector3 zeroVector(0,0,0);
 
-  Double_t time = 0.;
-Double_t t1 = 0;
-  
+  TVector3 detectorPosition;
+  TVector3 hitPosition;
+  TVector3 sensorDim; // Sensor dimension always in half the lenghts in root!
+  TVector3 dHitPosition;
 
   // Loop over SciTPoints
   Int_t 
@@ -117,56 +132,43 @@ Double_t t1 = 0;
 	continue;
 
       // Detector ID
-      detID = point->GetVolumeID();
-
-      // MCTrack ID
-      trackID = point->GetTrackID();
-
-      FairGeoVector posCInL, posCOut, meanPos, meanPosL;
-     // Position in the middle of the sensor
-      GetLocalHitPoints(point, meanPos);
-
-      
-     
-      
-      TVector3 dpos; 
-
-      dpos.SetXYZ(0.,0.,0.);
-
+      detectorID = point->GetDetectorID();
+      detectorName = point->GetDetName();
   
-      TVector3 position(meanPos.getX(), 
-			meanPos.getY(), 
-			meanPos.getZ());
-     
-//      std::cout<<" x "<<position.x()<<" y "<<position.y()<<" z "<<std::endl;
-      
-      
-      time = point->GetTime();
-      
-      //t1 = fd;//100 ps time resolution
-      smear(time,fdt);
- 
-      // Create new hit
-      new ((*fHitArray)[iPoint]) PndSciTHit(trackID, detID, 
-					   point->GetDetName(),time+FairRootManager::Instance()->GetEventTime(), fdt,
-					   position,dpos,iPoint, 
-					   point->GetEnergyLoss());
+      // HitPosition in the middle of the sensor = Detector Position
 
-      
-      
-      
+      detectorPosition = fGeoH->LocalToMasterShortId(zeroVector, detectorID);
+      hitPosition = detectorPosition;
+
+      // Get the range for the Hit position
+
+      // sensor Dimensions equivalent to the potential error of the hitPosition in the center of the Tile. Attention,in real its no Gaussian shaped distribution but an rectangual!!
+    
+      sensorDim = fGeoH->GetSensorDimensionsShortId(detectorID);
+      dHitPosition = sensorDim;
+
+
+     // produce realistic timestamp
+
+      time = point->GetTime();//Get MCTime
+      smear(time,fdt);// smear with fdt to  creat realistic Time
+
+      // Create new hit
+      new ((*fHitArray)[iPoint]) PndSciTHit(detectorID, detectorName, 
+					    time+FairRootManager::Instance()->GetEventTime(), fdt,
+					    hitPosition,dHitPosition,
+					    iPoint, 
+					    point->GetEnergyLoss()); 
     }   // Loop over MCPoints
 
- 
- 
   fHitArray->Sort();
   // Event summary
   if (fVerbose>1) std::cout << "-I- PndSciTHitProducerIdeal: " << nPoints << " SciTPoints, "
        << nPoints << " Hits created." << std::endl;
-  
-
 }
 // -------------------------------------------------------------------------
+
+
 void PndSciTHitProducerIdeal::smear(Double_t& time, Double_t& dt)
 {
 /// smear a 3d vector
@@ -181,67 +183,5 @@ void PndSciTHitProducerIdeal::smear(Double_t& time, Double_t& dt)
   return;
 }
 
-void PndSciTHitProducerIdeal::GetLocalHitPoints(PndSciTPoint* myPoint, 
-					       FairGeoVector& myHitIn)
-{
- 	 
-  if (fVerbose > 0)
-    std::cout << "GetLocalHitPoints" << std::endl;
-  TGeoHMatrix trans = GetTransformation(myPoint->GetDetName().Data());
-  if (fVerbose > 0) std::cout<<" name "<<myPoint->GetDetName().Data()<<std::endl;
-  
-  
-  Double_t posIn[3];
-  Double_t posOut[3];
-
-  
-
-    for (Int_t i = 0; i < 3; i++){
-      posIn[i] = 0.;
-      posOut[i] = 0.;
-	}
-     if (fVerbose > 0) trans.Print("");
-  
-  trans.LocalToMaster(posIn, posOut);
-
-  
-  if (fVerbose > 0) {
-    for (Int_t i = 0; i < 3; i++){
-      
-      std::cout << "posOut "<< i << ": " << posOut[i] << std::endl;
-    }
-  }
-
-  myHitIn.setVector(posOut);
-  
-
-}
-
-
- 	
- 	
-TGeoHMatrix PndSciTHitProducerIdeal::GetTransformation(std::string detName) const
-{
-  gGeoManager->cd(detName.c_str());
-  TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
-  if (fVerbose > 1)
-    transMat->Print("");
-  return *transMat;
-}
-
-TVector3 PndSciTHitProducerIdeal::GetSensorDimensions(std::string detName) const
-	{
- 	  gGeoManager->cd(detName.c_str());
- 	  TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
- 	  TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
- 	  TVector3 result;
- 	  result.SetX(actBox->GetDX());
- 	  result.SetY(actBox->GetDY());
- 	  result.SetZ(actBox->GetDZ());
- 	 
- 	  //result.Dump();
- 	 
- 	  return result;
- 	}
 
 ClassImp(PndSciTHitProducerIdeal)

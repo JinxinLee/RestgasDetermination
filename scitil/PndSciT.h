@@ -1,7 +1,9 @@
-// -------------------------------------------------------------------------
-// -----                     PndSciT  header file                        -----
-// -----               created by A. Sanchez                  -----
-// -------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+// -----                     PndSciT  header file                 	-----
+// -----                    created by A. Sanchez                  	-----
+// -----                   modified by D. Steinschaden                 	-----
+// -----                   last update    04.2015 		       	-----
+// --------------------------------------------------------------------------
 
 #ifndef PNDSCIT_H
 #define PNDSCIT_H
@@ -109,8 +111,8 @@ class PndSciT : public FairDetector
   //void ConstructASCIIGeometry();
 
 
-  PndSciTPoint* AddHit(Int_t trackID, Int_t evtID, 
-		      Int_t detID, TString detName,
+  PndSciTPoint* AddHit( Int_t eventID, Int_t trackID,
+		      Int_t sensorID, TString detName,
 		      TVector3 posin, 
 		      TVector3 momin,
 		      TVector3 posout, 
@@ -119,46 +121,41 @@ class PndSciT : public FairDetector
 		      Double_t length, 
 		      Double_t eLoss);
 
- 
-
- 
  private:
 
   std::vector<std::string> fListOfSensitives;
   bool CheckIfSensitive(std::string name);
   
-  PndGeoSciTPar *par;//!
-  Int_t          fTrackID;           //  track index
-  Int_t          fVolumeID;          //  volume id
+
   Int_t          fEventID;           //  event id
+  Int_t          fTrackID;           //  track index
+  Int_t 	 fSensorID;	   // used as volume ID/ detector ID coming from PndGeoHandling
+  TString fdetPath;
+
   TLorentzVector fPosIn;               //   position
   TLorentzVector fMomIn;               //  momentum
   TLorentzVector fPosOut;               //  position
   TLorentzVector fMomOut;               //  momentum
   
-  PndGeoHandling* fGeoH;             //! Gives Access to the Path info of a hit
- 
-  
   Double32_t     fTime;              //   time
   Double32_t     fLength;            //   length
-  Double_t     fELoss;             //   energy loss
-  Int_t fPosIndex;      // 
- 
-  Int_t pvId;
+  Double_t       fELoss;             //   energy loss
 
-  
+  PndGeoHandling* fGeoH;             //! Gives Access to the Path info of a hit
+  PndGeoSciTPar *par;		    //! for saving parameters, although not mandatory, may someone can make use out of the stored parameters
+  Int_t fPosIndex;     // Used when Copying the TCloneArrays  
   TClonesArray* fSciTCollection;        // Hit collection
 
   // reset all parameters   
   void ResetParameters();
 
-  ClassDef(PndSciT,3)
+  ClassDef(PndSciT,4)
 
 }; 
 
 
 inline void PndSciT::ResetParameters() {
-  fTrackID = fVolumeID = 0;fEventID = -1;
+  fTrackID = fSensorID = fEventID = -1;
   fPosIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fMomIn.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);

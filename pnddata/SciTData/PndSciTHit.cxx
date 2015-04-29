@@ -1,6 +1,8 @@
 // -------------------------------------------------------------------------
 // -----                    SciTHit source file                -----
-// -----                  Created by A. Sanchez               -----
+//  created by A. Sanchez
+//  modified by D. Steinschaden
+//  last update  04.2015
 // -------------------------------------------------------------------------
 
 
@@ -16,12 +18,14 @@ PndSciTHit::PndSciTHit() {
 
 
 // -----   Standard constructor   ------------------------------------------
-PndSciTHit::PndSciTHit(Int_t trackId, Int_t detID, TString detName,  Double_t time, Double_t dt,
+PndSciTHit::PndSciTHit(Int_t detID, TString detName,  Double_t time, Double_t dt,
 		     TVector3& pos,TVector3& dpos,Int_t index, Double_t charge) 
-: FairHit(detID, pos, dpos, index), fDetName(detName), fTrackID(trackId), fCharge(charge)
+: FairHit(detID, pos, dpos, index), fDetName(detName), fCharge(charge)
 {
 	SetTimeStamp(time);
 	SetTimeStampError(dt);
+
+	SetLink(FairLink(-1, -1, "SciTPoint", index));
 }
 
 

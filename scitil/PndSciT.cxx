@@ -2,14 +2,17 @@
 //
 //  PndSciT
 //
-//
 //  created by A. Sanchez
-//
+//  modified by D. Steinschaden
+//  last update  04.2015
 ///////////////////////////////////////////////////////////////
 
 #include "PndSciT.h"
-
 #include "PndSciTPoint.h"
+//#include "PndGeoSciT.h"
+
+#include "PndStack.h"
+#include "PndDetectorList.h"
 
 #include "FairGeoTransform.h"
 #include "FairGeoInterface.h"
@@ -18,16 +21,12 @@
 #include "FairGeoMedium.h"
 #include "FairGeoInterface.h"
 #include "FairGeoMedia.h"
-
-//#include "PndGeoSciT.h"
+//#include "FairGeoG3Builder.h"
 #include "FairGeoRootBuilder.h"
-#include "PndStack.h"
 #include "FairRootManager.h"
 #include "FairVolume.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
-#include "PndDetectorList.h"
-
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -41,7 +40,6 @@
 #include "TObjArray.h"
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
-//#include "FairGeoG3Builder.h"
 
 #include <string>
 #include <sstream>
@@ -53,23 +51,29 @@ using std::ostringstream;
 
 // -----   Default constructor   -------------------------------------------
 PndSciT::PndSciT()
- : FairDetector(), fSciTCollection(0), fVolumeID(-1), pvId(0)
+ : FairDetector(), fSciTCollection(0)
  {
   fSciTCollection        = new TClonesArray("PndSciTPoint");
   fVerboseLevel = 0;
-  fGeoH = PndGeoHandling::Instance();  
-  fListOfSensitives.push_back("SciTil");//Root_Test.root
+  fGeoH = PndGeoHandling::Instance(); 
+
+  // Volumes containing "SENSOR" in the name will be processed in teh process hit funktion 
+  fListOfSensitives.push_back("SENSOR");
+
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndSciT::PndSciT(const char* name, Bool_t active)
-  : FairDetector(name, active), fSciTCollection(0), fVolumeID(-1), pvId(0)
+  : FairDetector(name, active), fSciTCollection(0)
 {
     fSciTCollection        = new TClonesArray("PndSciTPoint");
     fVerboseLevel = 0;
     fGeoH = PndGeoHandling::Instance();
-    fListOfSensitives.push_back("SciTil");//Root_Test.root
+
+    // Volumes containing "SENSOR" in the name will be processed in teh process hit funktion
+    fListOfSensitives.push_back("SENSOR");
+    
 }
 // -------------------------------------------------------------------------
 
@@ -82,9 +86,6 @@ PndSciT::~PndSciT() {
     delete fSciTCollection;
   }
 
-
- 
-  
 }
 // -------------------------------------------------------------------------
 
@@ -92,27 +93,27 @@ PndSciT::~PndSciT() {
 
 // -----   Public method Intialize   ---------------------------------------
 void PndSciT::Initialize() {
-  // Init function
-  
+
+  std::cout<<" -I- Initializing PndSciT()"<<std::endl;
   FairDetector::Initialize();
+
+  // not mandatory ,but may someone can make use out of the stored parameters
   FairRun* sim = FairRun::Instance();
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   par=(PndGeoSciTPar*)(rtdb->getContainer("PndGeoSciTPar"));
   par->setChanged();
   par->setInputVersion(sim->GetRunId(),1);
- 
-  TGeoMedium *pv= gGeoManager->GetMedium("polyvinyltoluene");
-  pvId=  pv->GetId();
-  
-  std::cout<<" -I- Initializing PndSciT()"<<std::endl;
-  
+  //-----------------------------------------------------------------
+
   if(0==gGeoManager) {
     std::cout<<" -E- No gGeoManager in PndSciT::Initialize()!"<<std::endl;
     abort();
   }
   
-  
-  
+   fGeoH->CreateUniqueSensorId("", fListOfSensitives);
+  if(fVerboseLevel>0) fGeoH->PrintSensorNames();
+ 
+  std::cout<<" -I- Initialized PndSciT()"<<std::endl;
 }
 // -------------------------------------------------------------------------
 void PndSciT::BeginEvent(){
@@ -120,74 +121,67 @@ void PndSciT::BeginEvent(){
   
 }
 
-
-
 // -----   Public method ProcessHits  --------------------------------------
 
 Bool_t PndSciT::ProcessHits(FairVolume* vol) 
 {
-  
-  TString nam2 = gMC->CurrentVolName();   
-  Int_t nSiL = -1;
+    // some of the possible readout parameters:
+  /*
+  Int_t VolCoNo=0;
+  TString nameVol = gMC->CurrentVolName();
+  cout << "Volumsname (MC): "<<nameVol<< endl;
+  cout << "Vol->Realname: "<< vol->getRealName() << endl;
+  cout << "ShortID: " << fGeoH->GetShortID(gMC->CurrentVolPath())<< endl;
+  cout << "VolumePath: "<< gMC->CurrentVolPath()<<endl;
+  cout << "Volume CopyNumber: " << vol->getCopyNo()<<endl;
+  cout << "MCID: " << vol->getMCid()<< endl;
+  cout << "VolumeID: " << vol->getVolumeId()<< endl;
+  cout << "ModuleID: " << vol->getModId()<< endl;
+  cout << "CurrentVolumeID (MC): " << gMC->CurrentVolID(VolCoNo)<<endl;
+  cout << "CurrentVolumeCopyNo: "<< VolCoNo << endl;
+  */
 
-  Double_t beta, gamma;	TString nam;
-  ostringstream FullName,matName;
- 
-  Int_t medId =  gMC->CurrentMedium();
-  TVector3 radt;
   
-  if(medId==pvId){
-    
 
+    if(0==fGeoH) {
+      std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
+      abort();
+    }
+
+  // Set parameters at entrance of volume. Reset ELoss.
     if ( gMC->IsTrackEntering() ) 
       {
 	fELoss  = 0.;
 	fEventID = gMC->CurrentEvent();
 	fTime   = gMC->TrackTime() * 1.0e09;
-	fLength = gMC->TrackLength();
-	
-	
+	fLength = gMC->TrackLength();	
 	gMC->TrackPosition(fPosIn);
 	gMC->TrackMomentum(fMomIn);
-
       }
 
-    // Sum energy loss for all steps in the active volume
-  
+    // Sum energy loss for all steps in the active volume 
     fELoss += gMC->Edep();
 
-    // Set additional parameters at exit of active volume. Create CbmStsPoint.
-   
-    TLorentzVector PL; 
-    gMC->TrackMomentum(PL);
-	 
-	 if ( (gMC->IsTrackExiting()    ||
-	       gMC->IsTrackStop()       ||
-	       gMC->IsTrackDisappeared() ))
+   // Set additional parameters at exit of active volume. 
+   // And create the PndSciTPoint.	 
+    if ( (gMC->IsTrackExiting()    ||
+	  gMC->IsTrackStop()       ||
+	  gMC->IsTrackDisappeared() ))
       {
 	fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	 Int_t cp=-1;
 
+	fdetPath = gMC->CurrentVolPath();
+	fSensorID = fGeoH->GetShortID(gMC->CurrentVolPath());
+
+	//fSensorID = vol->getCopyNo();
 	
-	 fVolumeID = vol->getCopyNo();
-	
+	gMC->TrackPosition(fPosOut);
+	gMC->TrackMomentum(fMomOut);
 	 
-	 FullName <<gMC->CurrentVolPath();
+	//Cut on energy loss to reduce stored data Elos < 100 keV
+	if (fELoss < 0.0001 ) return kFALSE;
 	 
-	 
-	 nam = FullName.str();
-	 
-	 
-	 gMC->TrackPosition(fPosOut);
-	 gMC->TrackMomentum(fMomOut);
-	 
-	 
-	 
-	 if (fELoss == 0. ) return kFALSE;
-	 
-	 
-	 
-	 AddHit(fTrackID, fEventID,fVolumeID, FullName.str(),
+	AddHit(fEventID, fTrackID, fSensorID, fdetPath,
 		TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
 		TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 		TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
@@ -199,15 +193,9 @@ Bool_t PndSciT::ProcessHits(FairVolume* vol)
 	 
 	 ResetParameters();
       }
-	 
-	 
-  }
-  
-  //return kTRUE;
-  
+ 
   return kTRUE;
-  
-  
+   
 }//ProcessHits
 
 // ----------------------------------------------------------------------------
@@ -230,11 +218,10 @@ void PndSciT::Register() {
 
 // -----   Public method GetCollection   --------------------------------------
 TClonesArray* PndSciT::GetCollection(Int_t iColl) const {
-   if (iColl == 0) return fSciTCollection;
-
-  
-
-  return NULL;
+   if (iColl == 0) 
+     return fSciTCollection;
+   else
+     return NULL;
 }
 // ----------------------------------------------------------------------------
 
@@ -305,7 +292,7 @@ bool PndSciT::CheckIfSensitive(std::string name)
 
 // -----   Private method AddHit   --------------------------------------------
 
-PndSciTPoint* PndSciT::AddHit(Int_t trackID, Int_t evtID, Int_t detID, TString detName,
+PndSciTPoint* PndSciT::AddHit(Int_t eventID, Int_t trackID, Int_t sensorID, TString detName,
 			    TVector3 pos, TVector3 mom,
 			    TVector3 posout, 
 			    TVector3 momout,
@@ -314,15 +301,12 @@ PndSciTPoint* PndSciT::AddHit(Int_t trackID, Int_t evtID, Int_t detID, TString d
 			    Double_t eLoss) {
   TClonesArray& clref = *fSciTCollection;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndSciTPoint(trackID, evtID,detID, detName,pos, mom, 
+  return new(clref[size]) PndSciTPoint( eventID, trackID, sensorID, detName,pos, mom, 
 				      posout, momout,
 				      time, length, eLoss);
  }
 
-
-
-
-// ----
+// --------
 
 
 ClassImp(PndSciT)

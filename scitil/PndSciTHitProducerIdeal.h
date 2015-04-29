@@ -1,6 +1,8 @@
 // -------------------------------------------------------------------------
-// -----                 PndSciTHitProducerIdeal  header file             -----
-// -----                  Created by Alicia Sanchez              -----
+// -----                 PndSciTHitProducerIdeal  header file          -----
+// -----                  Created by Alicia Sanchez                    -----
+// -----                   modified by D. Steinschaden                 -----
+// -----                   last update    04.2015 		       -----
 // -------------------------------------------------------------------------
 
 
@@ -17,10 +19,12 @@
 #ifndef PNDSCITHITPRODUCERIDEAL_H
 #define PNDSCITHITPRODUCERIDEAL_H 
 
-#include "FairTask.h"
-#include "PndGeoSciTPar.h"
 #include "PndSciTPoint.h"
+#include "PndGeoHandling.h"
+#include "PndGeoSciTPar.h"
 
+#include "FairTask.h"
+#include "FairMCEventHeader.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
 
@@ -54,7 +58,7 @@ class PndSciTHitProducerIdeal : public FairTask
 
  private:
   
-  TString fBranchName;
+  TString fInBranchName;
 
   /** Input array of PndSciTPoints **/
   TClonesArray* fPointArray;
@@ -64,6 +68,9 @@ class PndSciTHitProducerIdeal : public FairTask
 
   
   PndGeoSciTPar* fGeoPar;
+
+  PndGeoHandling* fGeoH; //For converting sensor ID (shortID) into the Full volume path
+
   Double_t fdt,fdt2;
   
   void Register();
@@ -71,10 +78,8 @@ class PndSciTHitProducerIdeal : public FairTask
   void Reset();
   
   void ProduceHits();
-TGeoHMatrix GetTransformation (std::string detName) const;
-void GetLocalHitPoints(PndSciTPoint* myPoint, FairGeoVector& myHitIn);
-TVector3 GetSensorDimensions(std::string detName) const;
-  ClassDef(PndSciTHitProducerIdeal,1);
+
+  ClassDef(PndSciTHitProducerIdeal,2);
 
 };
 

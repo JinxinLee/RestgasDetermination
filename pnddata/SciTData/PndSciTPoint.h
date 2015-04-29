@@ -1,7 +1,9 @@
-// ------------------------------------------------------------------------
-// -----                     PndSciTpoint header file                  -----
-// -----               Created by A.Sanchez                 -----
-// ------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+// -----                     PndSciTpoint header file                  	-----
+// -----                    created by A. Sanchez                  	-----
+// -----                   modified by D. Steinschaden                 	-----
+// -----                   last update    04.2015 		       	-----
+// --------------------------------------------------------------------------
 
 #ifndef PNDSCITPOINT_H
 #define PNDSCITPOINT_H
@@ -35,8 +37,8 @@ class PndSciTPoint : public FairMCPoint
    *@param eLoss    Energy deposit [GeV]
    **/
   
-  PndSciTPoint(Int_t trackID, Int_t evtID,
-	      Int_t detID,TString detName,
+  PndSciTPoint( Int_t eventID, Int_t trackID,
+	      Int_t detectorID,TString detName,
 	      TVector3 posin, 
 	      TVector3 momin, 
 	      TVector3 posout, 
@@ -44,9 +46,6 @@ class PndSciTPoint : public FairMCPoint
 	      Double_t tof, 
 	      Double_t length, 
 	      Double_t eLoss
-	//      Double_t charge, 
-	  //    Double_t mass, 
-	    //  Int_t pdgCode
 );
   
   /** Copy constructor **/
@@ -56,32 +55,39 @@ class PndSciTPoint : public FairMCPoint
   /** Destructor **/
   virtual ~PndSciTPoint();
   
-
   /** Accessors **/
-  //Int_t    GetTrackID()    const { return fTrackID; }; 
-  Int_t    GetEventID()    const { return fEventID; };
-  Int_t    GetVolumeID() const { return fVolumeID; };
-  Double_t GetXin()          const { return fXin; };
-  Double_t GetYin()          const { return fYin; };
-  Double_t GetZin()          const { return fZin; };
-  Double_t GetPxin()         const { return fPxin; };
-  Double_t GetPyin()         const { return fPyin; };
-  Double_t GetPzin()         const { return fPzin; };
-  
+
+  // -- FairMCPoint --
+  /*
+   UInt_t   GetEventID()    const { return fEventId; }        /// event identifier
+   Int_t    GetTrackID()    const { return fTrackID; }
+   Int_t    GetDetectorID()   const { return fDetectorID;};  // = short sensorID
+
+   Double_t GetX()             const { return fX;};
+   Double_t GetY()             const { return fY; };
+   Double_t GetZ()             const { return fZ; };
+   void Position(TVector3& pos)       const;
+
+   Double_t GetPx()         const { return fPx; }
+   Double_t GetPy()         const { return fPy; }
+   Double_t GetPz()         const { return fPz; }
+   void Momentum(TVector3& mom) { mom.SetXYZ(fPx, fPy, fPz); }
+
+   Double_t GetTime()       const { return fTime; }
+   Double_t GetLength()     const { return fLength; }
+   Double_t GetEnergyLoss() const { return fELoss; }
+  */
+  // --- FairMCPoint end ---
+
+
+  TString GetDetName() const { return fDetName;};
+
   Double_t GetXout()          const { return fXout; };
   Double_t GetYout()          const { return fYout; };
   Double_t GetZout()          const { return fZout; };
   Double_t GetPxout()         const { return fPxout; };
   Double_t GetPyout()         const { return fPyout; };
   Double_t GetPzout()         const { return fPzout; };
- 
-  
-  TString GetDetName() const { return fDetName;};
- // Double_t GetMass() const { return fmass; };
- 
-  
-  void PositionIn(TVector3& pos)   { pos.SetXYZ(fXin, fYin, fZin); };
-  void MomentumIn(TVector3& mom)   { mom.SetXYZ(fPxin, fPyin, fPzin); };
  
   void PositionOut(TVector3& pos)   { pos.SetXYZ(fXout, fYout, fZout); };
   void MomentumOut(TVector3& mom)   { mom.SetXYZ(fPxout, fPyout, fPzout); };
@@ -90,57 +96,45 @@ class PndSciTPoint : public FairMCPoint
  
   
   /** Modifiers **/
-  //void SetTrackID(Int_t id)          { fTrackID    = id; } ;
-  void SetEventID(Int_t id)          { fEventID    = id; };
-  //void SetTime(Double_t tof)        { fTime       = tof; };
-  //void SetLength(Double_t length)    { fLength     = length; };
-  //void SetEnergyLoss(Double_t eLoss) { fELoss      = eLoss; };
-  
-  void SetPositionIn(const TVector3& pos);
-  void SetMomentumIn(const TVector3& mom);
+  // -- FairMCPoint --
+  /*
+    void SetEventID(UInt_t eventId) { fEventId = eventId; }
+    virtual void SetTrackID(Int_t id) { fTrackID = id;}
+    void SetDetectorID(Int_t detID) { fDetectorID = detID; }
+
+    void SetX(Double_t x) { fX = x; }
+    void SetY(Double_t y) { fY = y; }
+    void SetZ(Double_t z) { fZ = z; }
+    void SetXYZ(Double_t x, Double_t y, Double_t z);
+    void SetPosition(const TVector3& pos);
+
+    void SetMomentum(const TVector3& mom);
+
+    void SetTime(Double_t time)        { fTime = time; }
+    void SetLength(Double_t length)    { fLength = length; }
+    void SetEnergyLoss(Double_t eLoss) { fELoss = eLoss; }
+  */
+  // -- FairMCPoint end --
+
   void SetPositionOut(const TVector3& pos);
-  void SetMomentumOut(const TVector3& mom);
-
- 
-
-   
+  void SetMomentumOut(const TVector3& mom);  
    
   /** Output to screen **/
   virtual void Print(const Option_t* opt) const;
 
 
  protected:
-  Int_t fEventID;               // Event ID
- 
- 
-  
-  //Double_t fmass,fcharge;
-  
-  Double_t  fXin, fYin, fZin;
-  Double_t  fPxin,fPyin,fPzin;
+
+  TString fDetName;
+
   Double_t  fXout, fYout, fZout;
   Double_t  fPxout,fPyout,fPzout;
- 
-  TString fDetName;
-  
-  Int_t fVolumeID;
   
   
-  ClassDef(PndSciTPoint,3)
+  ClassDef(PndSciTPoint,4)
 
 };
 
-inline void PndSciTPoint::SetPositionIn(const TVector3& pos) {
-  fXin = pos.X();
-  fYin = pos.Y();
-  fZin = pos.Z();
-}
-
-inline void PndSciTPoint::SetMomentumIn(const TVector3& mom) {
-  fPxin = mom.X();
-  fPyin = mom.Py();
-  fPzin = mom.Pz();
-}
 
 inline void PndSciTPoint::SetPositionOut(const TVector3& pos) {
   fXout = pos.X();
