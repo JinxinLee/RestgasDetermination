@@ -593,7 +593,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fTrackArray->Delete();
   fTrkTrackArray->Delete();
   fTrackCandArray->Delete();
-  //  if(fVerbose > 0)   fDisplayOn = kTRUE;
+  //  if(fVerbose > 0)       fDisplayOn = kTRUE;
   if(fSttHitArray->GetEntriesFast() > 200) {   // CHECK
     fEventCounter++;
     return;
@@ -3012,7 +3012,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     Refresh();
   }
   //
-  //  fDisplayOn = kTRUE;
+  //   fDisplayOn = kTRUE;
   
   //--------------------------------------
   // PndTrkTrack --> PndTrack
@@ -3759,8 +3759,45 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       double tpeak = fLineHisto->GetXaxis()->GetBinCenter(binx);
       double rpeak = fLineHisto->GetYaxis()->GetBinCenter(biny);
       //  cout << "tpeak " << tpeak << " rpeak " << rpeak << endl;
-      double fitm4 = -TMath::Cos(tpeak * TMath::DegToRad())/TMath::Sin(tpeak * TMath::DegToRad());
-      double fitq4 = rpeak/TMath::Sin(tpeak * TMath::DegToRad());
+
+      // .........................................
+      fFitter->Reset();
+      for(int jhit = 0; jhit < cluster2.GetNofHits(); jhit++) {
+      	hit = cluster2.GetHit(jhit);
+  	if(!hit->IsGem()) continue;
+  	TVector3 position = hit->GetPosition();
+  	double phi = hit->GetPhi();
+
+  	if(fDisplayOn) {
+ 	  char goOnChar;
+  	  display->cd(4);
+  	  TMarker *mrkz = NULL;
+  	  if(hit->IsMvdPixel()) mrkz = new TMarker(phi, position.Z(), 21);
+  	  else if(hit->IsMvdStrip()) mrkz = new TMarker(phi, position.Z(), 25);
+  	  else if(hit->IsStt()) mrkz = new TMarker(phi, position.Z(), 6);
+  	  else if(hit->IsGem()) mrkz = new TMarker(phi, position.Z(), 24);
+  	  else if(hit->IsSciTil()) mrkz = new TMarker(phi, position.Z(), 26);
+
+ 	  mrkz->SetMarkerColor(kBlue);
+  	  mrkz->Draw("SAME");
+ 	  display->Update();
+ 	  display->Modified();
+  	  // 	  cin >> goOnChar;   
+  	}
+
+	double sigma = 1e-5 * position.Z();
+ 	fFitter->SetPointToFit(phi, position.Z(), sigma);
+
+      }
+
+      double fitm4, fitq4;
+      fFitter->StraightLineFit(fitm4, fitq4);
+
+
+      // .........................................
+
+      double fitm44 = -TMath::Cos(tpeak * TMath::DegToRad())/TMath::Sin(tpeak * TMath::DegToRad());
+      double fitq44 = rpeak/TMath::Sin(tpeak * TMath::DegToRad());
  
       if(fDisplayOn) {
 	display->cd(3);
@@ -3769,11 +3806,18 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	TLine *line = new TLine(-360, -360 * fitm4 + fitq4, 360, 360 * fitm4 + fitq4);
 	line->SetLineColor(3);
 	line->Draw("SAME");
+
+	TLine *line4 = new TLine(-360, -360 * fitm44 + fitq44, 360, 360 * fitm44 + fitq44);
+	line4->SetLineColor(4);
+	line4->Draw("SAME");
+
 	display->Update();
 	display->Modified();
 	char goOnChar;
 	// cin >> goOnChar;
       }
+
+//       continue;
 
       // retrieve the hits shifted by 360 deg
       for(int jhit = 0; jhit < cluster2.GetNofHits(); jhit++) {
@@ -3853,6 +3897,29 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	  cluster3.AddHit(hit);
 	}
       }
+
+      bool stat[3] = {false, false, false};
+      for(int jhit = 0; jhit < cluster3.GetNofHits(); jhit++) {
+       	hit = cluster3.GetHit(jhit);
+       	if(hit->IsGem() == kFALSE) continue;
+       	switch(hit->GetSensorID()) {
+      	case 0:
+       	case 1:
+       	  stat[0] = true;
+       	  break;
+       	case 2:
+       	case 3:
+       	  stat[1] = true;
+       	  break;
+       	case 4:
+       	case 5:
+       	  stat[2] = true;
+       	  break;
+       	}
+      }
+//       if(stat[0] == false || stat[1] == false || stat[2] == false) continue;
+      if(stat[0] == false && stat[1] == false && stat[2] == false) continue;
+
       cluster3.Sort();
       if(cluster3.GetNofHits() == 0) continue;
 
