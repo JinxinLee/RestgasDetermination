@@ -327,7 +327,7 @@ Int_t PndTrackingQualityAnalysisNewLinks::GetSumOfAllValidMCHits(FairMultiLinked
 Bool_t PndTrackingQualityAnalysisNewLinks::IsCorrectGemHit(FairLink& gemLink)
 {
 	//PndMCEntry linkToGEMPoint = fMCMatch->GetMCInfoSingle(gemLink, "GEMPoint");
-	//return (linkToGEMPoint.GetNLinks() == 1);
+	return (gemLink.Get == 1);
 }
 
 void PndTrackingQualityAnalysisNewLinks::CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo)
@@ -363,11 +363,7 @@ Int_t PndTrackingQualityAnalysisNewLinks::GetNIdealHits(FairMultiLinkedData& tra
 {
 	Int_t numberGemHits = 0;
 	if (branchName == "GEMHit"){
-		FairMultiLinkedData gemHits = track.GetLinksWithType(ioman->GetBranchId("GEMHit"));
-		for (int i = 0; i < gemHits.GetNLinks(); i++){
-			FairLink gemHit = gemHits.GetLink(i);
-			numberGemHits += IsCorrectGemHit(gemHit);
-		}
+		numberGemHits = track.GetLinksWithType(ioman->GetBranchId("GEMPoint"));
 		return numberGemHits;
 	}
 	return track.GetLinksWithType(ioman->GetBranchId(branchName)).GetNLinks();
