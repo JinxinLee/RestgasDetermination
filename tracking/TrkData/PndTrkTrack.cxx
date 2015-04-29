@@ -287,7 +287,6 @@ void PndTrkTrack::ComputeCharge() { // CHECK!!!
 
    **/
  
-
 }
 
 
@@ -402,7 +401,7 @@ Double_t PndTrkTrack::ComputePhi(TVector3 hit)
 
  //  cout << "PHI ----------------- " <<  Fi * TMath::RadToDeg() << endl; 
   
-  return Fi * TMath::RadToDeg();
+  return (Phi0 + Fi) * TMath::RadToDeg();
 
 }
 
@@ -476,23 +475,30 @@ Double_t PndTrkTrack::ComputePhiFrom(TVector3 hit, TVector3 from)
 }
 // =======================================================================================
 void PndTrkTrack::Draw(Color_t color) {
+  cout << "draw" << endl;
+
   if(fCluster.GetNofHits() > 0)    {
     PndTrkHit *hit0 = fCluster.GetHit(0);
     fPhiMin = ComputePhi(hit0->GetPosition());
-    if(fPhiMin > 180) fPhiMin -= 360;
+  //   if(fPhiMin > 180) fPhiMin -= 360;
+    hit0->GetPosition().Print();
     
     PndTrkHit *hitN = fCluster.GetHit(fCluster.GetNofHits() - 1);
     fPhiMax = ComputePhi(hitN->GetPosition());
-    if(fPhiMax > 180) fPhiMax -= 360;
+ //    if(fPhiMax > 180) fPhiMax -= 360;
+    hitN->GetPosition().Print();
 
 
-    if(fCharge > 0 && fPhiMin < fPhiMax) fPhiMin += 360;
-    else if(fCharge < 0 && fPhiMin > fPhiMax) fPhiMax += 360;
+ //    if(fCharge > 0 && fPhiMin < fPhiMax) fPhiMin += 360;
+//     else if(fCharge < 0 && fPhiMin > fPhiMax) fPhiMax += 360;
 
   }
-    TArc *track = new TArc(fCenterX, fCenterY, fRadius, fPhiMin, fPhiMax);
+  TArc *track = new TArc(fCenterX, fCenterY, fRadius, fPhiMin, fPhiMax);
 
-  cout << fCenterX << " " << fCenterY << " " << fRadius << " " << fPhiMin << " " << fPhiMax << endl;
+
+
+
+  cout << fCharge << " " << fCenterX << " " << fCenterY << " " << fRadius << " " << fPhiMin << " " << fPhiMax << endl;
   track->SetFillStyle(0);
   track->SetLineColor(color);
   track->Draw("only SAME");
