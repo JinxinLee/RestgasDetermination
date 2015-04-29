@@ -105,10 +105,27 @@ int main(int argc, char* argv[]){
   //  cout <<"\n****** WARNING: overriding given momentum, setting cms energy to mass of "<<argv[1]<<".\n"<<endl;
   // }
 
+  if (std::string(argv[1])=="pbardSystem" && argc<5)
+  {
+    cout <<"\n******  FATAL EVT_ERROR: <particle> is 'pbardSystem'; MUST give pbar momentum!\n\n"<<endl;
+    return 0;
+  }
+
+  if (std::string(argv[1])=="pbardSystem" && atof(argv[4])<0)
+  {
+    cout <<"\n******  FATAL EVT_ERROR: <particle> is 'pbardSystem'; cms energy doesn't make sense, give the pbar momentum!\n\n"<<endl;
+    return 0;
+  }
+
   double val=-3.0969;
   double P = 0.0;
   double E = 0.0;
-  double mp=0.93827;
+  double mp=0.938272;
+  double md=1.875613;
+  double mtarg;
+
+  if (std::string(argv[1])=="pbarpSystem") mtarg = mp;
+  if (std::string(argv[1])=="pbardSystem") mtarg = md;
 
   if (argc>=5) 
     val=atof(argv[4]);
@@ -118,9 +135,9 @@ int main(int argc, char* argv[]){
   // val is the momentum of the pbar beam
   if (val>0){  
     P = val;
-    E = mp+sqrt(P*P+mp*mp);
+    E = mtarg+sqrt(P*P+mp*mp);
   }
-  else  //val is -E_cm
+  else  //val is -E_cm (for p target only)
   {
     val=-val;
     E = val*val/(2*mp);
