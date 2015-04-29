@@ -357,7 +357,7 @@ Int_t PndTrackingQualityAnalysisNewLinks::GetNIdealHits(FairMultiLinkedData& tra
 {
 	Int_t numberGemHits = 0;
 	if (branchName == "GEMHit"){
-		numberGemHits = track.GetLinksWithType(ioman->GetBranchId("GEMPoint"));
+		numberGemHits = track.GetLinksWithType(ioman->GetBranchId("GEMPoint")).GetNLinks();
 		return numberGemHits;
 	}
 	return track.GetLinksWithType(ioman->GetBranchId(branchName)).GetNLinks();
