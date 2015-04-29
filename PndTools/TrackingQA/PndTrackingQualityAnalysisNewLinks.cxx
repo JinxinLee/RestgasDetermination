@@ -324,12 +324,6 @@ Int_t PndTrackingQualityAnalysisNewLinks::GetSumOfAllValidMCHits(FairMultiLinked
 }
 
 
-Bool_t PndTrackingQualityAnalysisNewLinks::IsCorrectGemHit(FairLink& gemLink)
-{
-	//PndMCEntry linkToGEMPoint = fMCMatch->GetMCInfoSingle(gemLink, "GEMPoint");
-	return (gemLink.Get == 1);
-}
-
 void PndTrackingQualityAnalysisNewLinks::CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo)
 {
 	if (mostProbableTrack < 0) return;

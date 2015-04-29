@@ -207,7 +207,7 @@ private:
 	FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand);
 	std::map<TString, FairMultiLinkedData> AnalyseTrackCand(PndTrackCand* trackCand);
 
-	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);
+//	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);
 
 	Int_t fVerbose;
 	FairRootManager* ioman;
