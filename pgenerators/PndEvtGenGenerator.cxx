@@ -25,34 +25,34 @@ using std::max;
 
 
 // -----   Default constructor   ------------------------------------------
-PndEvtGenGenerator::PndEvtGenGenerator() {
-  iEvent     = 0;
-  fInputRootFile = NULL;
-  fInputAsciiFile = NULL;
-  fInputTree = NULL;
+PndEvtGenGenerator::PndEvtGenGenerator() : 
+  FairGenerator(), iEvent(0), fFileName(""), fInputRootFile(), fInputTree(),
+  fInputAsciiFile(), fRPx(), fRPy(), fRPz(), fRVx(), fRVy(), fRVz(),
+  fRPdg(), fRDF(), fRDL(), fRNTrk(0), fFileType(kFALSE), fGasmode(0), 
+  fRsigma(0.), fDensityFunction()
+					  
+{
 }
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
-PndEvtGenGenerator::PndEvtGenGenerator(const Char_t* fileName) {
-  
-  fFileName  = TString(fileName);
+PndEvtGenGenerator::PndEvtGenGenerator(const Char_t* fileName) : 
+  FairGenerator(), iEvent(0), fFileName(fileName), fInputRootFile(), fInputTree(),
+  fInputAsciiFile(), fRPx(), fRPy(), fRPz(), fRVx(), fRVy(), fRVz(),
+  fRPdg(), fRDF(), fRDL(), fRNTrk(0), fFileType(kFALSE), fGasmode(0), 
+  fRsigma(0.), fDensityFunction()
+{
   Init();
-  
-  fGasmode = 0;
-  fRsigma = 0.;
-  fDensityFunction = 0;
 }
 // ------------------------------------------------------------------------
 
-PndEvtGenGenerator::PndEvtGenGenerator(const Char_t* fileName, Double_t Rsigma, TF1 * DensityFunction) 
+PndEvtGenGenerator::PndEvtGenGenerator(const Char_t* fileName, Double_t Rsigma, TF1 * DensityFunction) : 
+  FairGenerator(), iEvent(0), fFileName(fileName), fInputRootFile(), fInputTree(),
+  fInputAsciiFile(), fRPx(), fRPy(), fRPz(), fRVx(), fRVy(), fRVz(),
+  fRPdg(), fRDF(), fRDL(), fRNTrk(0), fFileType(kFALSE), fGasmode(1), 
+  fRsigma(Rsigma), fDensityFunction(DensityFunction)
 {
-  fFileName  = TString(fileName);
   Init();
-  
-  fGasmode = 1;
-  fRsigma = Rsigma;
-  fDensityFunction = DensityFunction;
 }
 
 
