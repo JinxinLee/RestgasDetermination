@@ -19,7 +19,6 @@
 #include "TStopwatch.h"
 #include "PndLmdDim.h"
 
-#include "PndSdsCell.h"
 // #include "PndSdsPixelCluster.h"
 
 // -----   Default constructor   -------------------------------------------
@@ -292,7 +291,7 @@ InitStatus PndLmdTrackFinderCATask::Init()
   ioman->Register("LMDTrackCand", "PndLmd", fTrackCandArray, kTRUE);
 
   fCellArray = new TClonesArray("PndSdsCell");
-  fCellArray_tmp = new TClonesArray("PndSdsCell");
+ 
 
   std::cout << "-I- PndLmdTrackFinderCATask: Initialisation successfull" << std::endl;
   if(missPlAlgo) std::cout << "-I- PndLmdTrackFinderCATask: missing plane(s) algorithm will be used" << std::endl;
@@ -300,7 +299,221 @@ InitStatus PndLmdTrackFinderCATask::Init()
 }
 // -------------------------------------------------------------------------
 
+bool PndLmdTrackFinderCATask::Neighbor(int& icell0, int& icell1){
+PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(icell0);
+PndSdsCell *cell1 =   (PndSdsCell*)fCellArray->At(icell1);
 
+  if((cell0->GetHitUp())!=(cell1->GetHitDw())) return false;
+  else{
+    //check if cells make straight line
+	  PndSdsHit *hit00=(PndSdsHit*)fStripHitArray->At(cell0->GetHitDw());
+	  PndSdsHit *hit01=(PndSdsHit*)fStripHitArray->At(cell0->GetHitUp());
+	  //	  PndSdsHit *hit10 =(PndSdsHit*)fStripHitArray->At(cell1->GetHitDw());
+	  PndSdsHit *hit11 =(PndSdsHit*)fStripHitArray->At(cell1->GetHitUp());
+	  TVector3 A(hit01->GetX()-hit00->GetX(),hit01->GetY()-hit00->GetY(),hit01->GetZ()-hit00->GetZ());
+	  TVector3 B(hit11->GetX()-hit01->GetX(),hit11->GetY()-hit01->GetY(),hit11->GetZ()-hit01->GetZ());
+	  double ScalAB = A.Dot(B);
+	  double cosPsi = ScalAB/(A.Mag()*B.Mag());
+	  if((1-cosPsi)<rule_max) return true;
+	  else return false;
+  }
+}
+
+//check if cells can build a straight line
+bool PndLmdTrackFinderCATask::Neighbor(PndSdsCell* cell0, PndSdsCell* cell1){
+  //NOTE: it's assumed ((cell0->GetHitUp())==(cell1->GetHitDw())
+  // if((cell0->GetHitUp())!=(cell1->GetHitDw())) return false;
+  // else{
+    //check if cells make straight line
+	  PndSdsHit *hit00=(PndSdsHit*)fStripHitArray->At(cell0->GetHitDw());
+	  PndSdsHit *hit01=(PndSdsHit*)fStripHitArray->At(cell0->GetHitUp());
+	  //	  PndSdsHit *hit10 =(PndSdsHit*)fStripHitArray->At(cell1->GetHitDw());
+	  PndSdsHit *hit11 =(PndSdsHit*)fStripHitArray->At(cell1->GetHitUp());
+	  TVector3 A(hit01->GetX()-hit00->GetX(),hit01->GetY()-hit00->GetY(),hit01->GetZ()-hit00->GetZ());
+	  TVector3 B(hit11->GetX()-hit01->GetX(),hit11->GetY()-hit01->GetY(),hit11->GetZ()-hit01->GetZ());
+	  double ScalAB = A.Dot(B);
+	  double cosPsi = ScalAB/(A.Mag()*B.Mag());
+	  if((1-cosPsi)<rule_max) return true;
+	  else return false;
+	  // }
+}
+
+//update cell status in evolution
+//TODO: smth buggy here, check it
+void PndLmdTrackFinderCATask::Evolution(int& pv0, int& pv1, int& pv0_n, int& pv1_n, bool isstop){
+  isstop = true;
+  if(pv0==pv1){
+    if(pv1<0)
+      pv0_n = 0;
+    else
+      pv0_n = pv0;
+    pv1_n = pv1+1;
+    isstop = false;
+    if(fVerbose>2)
+      cout<<"pv 0 = "<< pv0_n<<" pv 1 = "<< pv1_n<<endl;
+  }
+}
+
+TClonesArray* PndLmdTrackFinderCATask::ForwardEvolution(TClonesArray *tCellArray, int niter){
+ TClonesArray* fCellArray_tmp = new TClonesArray("PndSdsCell");
+//Find neighbors between cells
+  /// Set counters values -----
+  std::vector<int> pv_new;
+  Int_t nCells = tCellArray->GetEntries();
+  for(unsigned int icv=0;icv<nCells;icv++)
+    pv_new.push_back(-1);
+  bool stop_itter = true;
+  //for(int itt=0;itt<1000;itt++){ //should be infinite loop! due to small number of layers 1000 is close to infinity ;)
+  for(int itt=0;itt<niter;itt++){ //should be infinite loop! due to small number of layers 1000 is close to infinity ;)
+    fCellArray_tmp->Clear("C");
+    int ncells_tmp = 0;
+    stop_itter = true;
+    TStopwatch *timer_neighbors_itter = new TStopwatch();
+    if(fVerbose>0)
+      timer_neighbors_itter->Start();
+    nCells = tCellArray->GetEntries();
+    if(fVerbose>0)
+      cout<<" === ITTER === "<<itt<<" with "<<nCells<<" cells"<<endl;
+    for(int ic=0; ic<nCells; ic++){
+      PndSdsCell *cell0 =   (PndSdsCell*)tCellArray->At(ic);
+      for(int jc=ic+1; jc<nCells; jc++){
+	PndSdsCell *cell1 =   (PndSdsCell*)tCellArray->At(jc);
+	if((cell0->GetHitUp())!=(cell1->GetHitDw())) continue;
+	bool isNeighbor = Neighbor(cell0,cell1);
+	if(isNeighbor){
+	  if(itt>0){
+	    if((cell0->GetPV())==(cell1->GetPV())){
+	      if((cell1->GetPV())<0)
+		pv_new[ic] = 0;
+	      else
+		pv_new[ic] = cell0->GetPV();
+	      pv_new[jc] = cell1->GetPV()+1;
+	      stop_itter = false;
+	      if(fVerbose>2)
+		cout<<"pv 0 = "<< pv_new[ic]<<" pv 1 = "<< pv_new[jc]<<endl;
+	    }
+	  }
+	  else{
+	    pv_new[ic] = 0;
+	    pv_new[jc] = 0;
+	    stop_itter=false;
+	  }
+	}
+      }
+    }
+    
+    int fnCells = tCellArray->GetEntriesFast();
+    for(int icv=0;icv<fnCells;icv++){
+      if(pv_new[icv]<0){ //clean not used cells
+	//TODO: celaning via RemoveAt doesn't work :( -> tmp solution: create new array with good cells
+      }
+      else{
+	PndSdsCell *cell = (PndSdsCell*)tCellArray->At(icv);
+	if(fVerbose>2)
+	cout<<"cell with hitDw = "<<cell->GetHitDw()<<" and hitUp = "<<cell->GetHitUp()<<" gets new PV = "<<pv_new[icv]<<endl;
+	cell->SetPV(pv_new[icv]);
+	new((*fCellArray_tmp)[ncells_tmp]) PndSdsCell(*(cell)); //save Track
+	delete cell;
+	ncells_tmp++;
+      }
+    }
+    
+    if(fVerbose>0){
+      cout<<"One itter with "<<nCells<<" cells: "<<endl;
+      timer_neighbors_itter->Stop();
+      timer_neighbors_itter->Print();
+      delete timer_neighbors_itter;
+    }
+    //    fCellArray->Clear();
+    tCellArray->Delete();
+    tCellArray = (TClonesArray*)fCellArray_tmp->Clone();
+    fCellArray_tmp->Delete();
+    //    fCellArray_tmp->Clear();
+    if(fVerbose>0 && stop_itter) cout<<"-- CA made "<<itt<<" itterations --"<<endl;
+    if(stop_itter) break;
+  }
+  ///--------------------------
+  return tCellArray;
+}
+/*
+//create cells between all planes at once
+TClonesArray* PndLmdTrackFinderCATask::CookAllCells(std::vector< std::vector<Int_t> > hitsd){
+  TClonesArray* tCellArray = new TClonesArray("PndSdsCell");
+  int ncells=0;
+  if(fVerbose>2){
+    int nPixelHits = fStripHitArray->GetEntriesFast();
+    cout<<"Start cell contruction from "<<nPixelHits<<" hits"<<endl;
+  }
+  //   tCellArray_tmp->Delete();
+  for(unsigned int pl0=0;pl0<(4-1);pl0++){
+    for (unsigned int i=0; i<hitsd.at(pl0).size(); i++){
+      unsigned int pl1 = pl0+1;// no "missing plane"
+      for (unsigned int j=0; j<hitsd.at(pl1).size(); j++){
+	if(fVerbose>2)
+	cout<<"new cell with hits #"<<hitsd.at(pl0).at(i)<<" and "<<hitsd.at(pl1).at(j)<<endl;
+	PndSdsCell *cell = new PndSdsCell(hitsd.at(pl1).at(j), hitsd.at(pl0).at(i));
+	new((*tCellArray)[ncells]) PndSdsCell(*(cell)); //save Track
+	delete cell;//TEST
+	ncells++;
+      }
+      if(missPlAlgo && pl0<4-2){
+	pl1 = pl0+2;// with "missing plane"
+	for (unsigned int k=0; k<hitsd.at(pl1).size(); k++){
+	  PndSdsCell *cell = new PndSdsCell(hitsd.at(pl1).at(k), hitsd.at(pl0).at(i));
+	  if(fVerbose>2)
+	  cout<<"new cell with hits #"<<hitsd.at(pl0).at(i)<<" and "<<hitsd.at(pl1).at(k)<<endl;
+	  new((*tCellArray)[ncells]) PndSdsCell(*(cell)); //save Track
+	  delete cell;//TEST
+	  ncells++;
+	}
+      }
+    }
+  }
+  return tCellArray;
+}
+*/
+
+//create cells between all planes at once
+TClonesArray* PndLmdTrackFinderCATask::CookAllCells(std::vector< std::vector<Int_t> > hitsd){
+  TClonesArray* tCellArray = new TClonesArray("PndSdsCell");
+  int ncells=0;
+  if(fVerbose>2){
+    int nPixelHits = fStripHitArray->GetEntriesFast();
+    cout<<"Start cell contruction from "<<nPixelHits<<" hits"<<endl;
+  }
+  for(int pl0=0;pl0<(4-1);pl0++){
+    int pl1 = pl0+1;// no "missing plane"
+    tCellArray = CookCells(hitsd, pl0, pl1,tCellArray);
+    if(missPlAlgo && pl0<4-2){
+      pl1 = pl0+2;// with "missing plane"
+      tCellArray = CookCells(hitsd, pl0, pl1,tCellArray);
+    }
+  }
+  return tCellArray;
+}
+
+//create cells between particular planes
+TClonesArray* PndLmdTrackFinderCATask::CookCells(std::vector< std::vector<Int_t> > hitsd, int& pl0, int& pl1, TClonesArray* tCellArray){
+  // TClonesArray* tCellArray = new TClonesArray("PndSdsCell");
+  //int ncells=0;
+  int ncells=tCellArray->GetEntries();
+  if(fVerbose>2){
+    int nPixelHits = fStripHitArray->GetEntriesFast();
+    cout<<"Start cell contruction from "<<nPixelHits<<" hits"<<endl;
+  }
+    for (unsigned int i=0; i<hitsd.at(pl0).size(); i++){
+      for (unsigned int j=0; j<hitsd.at(pl1).size(); j++){
+	if(fVerbose>2)
+	cout<<"new cell with hits #"<<hitsd.at(pl0).at(i)<<" and "<<hitsd.at(pl1).at(j)<<endl;
+	PndSdsCell *cell = new PndSdsCell(hitsd.at(pl1).at(j), hitsd.at(pl0).at(i));
+	new((*tCellArray)[ncells]) PndSdsCell(*(cell)); //save Track
+	delete cell;//TEST
+	ncells++;
+      }
+    }
+    return tCellArray;
+}
+ 
 // -----   Public method Exec   --------------------------------------------
 void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 {
@@ -359,161 +572,97 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   }
     //
 
-    TStopwatch *timer_cook_cells = new TStopwatch();
+  //Build  cells  
+ const unsigned int nplanes = nP;
+  TStopwatch *timer_cook_cells = new TStopwatch();
+  if(fVerbose>0)
     timer_cook_cells->Start();
 
-    const unsigned int nplanes = nP;
+  /*
+  //CA2: all cells at once
+  fCellArray = CookAllCells(hitsd);
+  */
 
-  ///Build all cells  
-   // TClonesArray *fCellArray = new TClonesArray("PndSdsCell");
-   // TClonesArray fCellArray_tmp = new TClonesArray("PndSdsCell");
-
-  int ncells=0;
-  if(fVerbose>2)
-  cout<<"Start cell contruction from "<<nPixelHits<<" hits"<<endl;
-   fCellArray->Delete();
-   fCellArray_tmp->Delete();
-  for(unsigned int pl0=0;pl0<(nplanes-1);pl0++){
-    for (unsigned int i=0; i<hitsd.at(pl0).size(); i++){
-      unsigned int pl1 = pl0+1;// no "missing plane"
-      for (unsigned int j=0; j<hitsd.at(pl1).size(); j++){
-	if(fVerbose>2)
-	cout<<"new cell with hits #"<<hitsd.at(pl0).at(i)<<" and "<<hitsd.at(pl1).at(j)<<endl;
-	PndSdsCell *cell = new PndSdsCell(hitsd.at(pl1).at(j), hitsd.at(pl0).at(i));
-	new((*fCellArray)[ncells]) PndSdsCell(*(cell)); //save Track
-	delete cell;//TEST
-	ncells++;
-      }
-      if(missPlAlgo && pl0<nplanes-2){
-	pl1 = pl0+2;// with "missing plane"
-	for (unsigned int k=0; k<hitsd.at(pl1).size(); k++){
-	  PndSdsCell *cell = new PndSdsCell(hitsd.at(pl1).at(k), hitsd.at(pl0).at(i));
-	  if(fVerbose>2)
-	  cout<<"new cell with hits #"<<hitsd.at(pl0).at(i)<<" and "<<hitsd.at(pl1).at(k)<<endl;
-	  new((*fCellArray)[ncells]) PndSdsCell(*(cell)); //save Track
-	  delete cell;//TEST
-	  ncells++;
-	}
-      }
-    }
+  //CA3: build cells between 2 pairs of layers 
+    //ATTENTION: the detector is assumed to have exactly 4 planes!
+    //TODO: generalize to nplanes>4
+    //PART1: build cells only between first 3 layers ----------------------------
+  for(int pl0=0;pl0<2;pl0++){
+    int pl1 = pl0+1;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
   }
+
+  // if(missPlAlgo){
+  //   int pl0 = 1; int pl1 = 3;
+  //   fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+  // }
+
+  fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
+  int pvd= -1;
+  for (int icell0 = 0; icell0 < fCellArray->GetEntries() ; icell0++){ 
+	  PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(icell0);
+	  cell0->SetPV(pvd);
+ }
+    //[END] PART1 ------------------------------------------------------------------
+
+    //PART2: build cells only between last 3 layers ----------------------------
+  for(int pl0=1;pl0<3;pl0++){
+    int pl1 = pl0+1;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+  }
+
+  // if(missPlAlgo){
+  //   int pl0 = 0; int pl1 = 2;
+  //   fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+  // }
+
+  fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
+  for (int icell0 = 0; icell0 < fCellArray->GetEntries() ; icell0++){ 
+	  PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(icell0);
+	  cell0->SetPV(pvd);
+ }
+    //[END] PART2 ------------------------------------------------------------------
+
+//PART3: add combinations for missing planes ---------------------------------
+if(missPlAlgo){
+  //0-2-3
+  int pl0 = 0; int pl1 = 2;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+    pl0 = 2; pl1 = 3;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+    fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
+    for (int icell0 = 0; icell0 < fCellArray->GetEntries() ; icell0++){ 
+	  PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(icell0);
+	  cell0->SetPV(pvd);
+    }
+    //0-1-3
+    pl0 = 1; pl1 = 3;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+    pl0 = 0; pl1 = 1;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+    fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
+    for (int icell0 = 0; icell0 < fCellArray->GetEntries() ; icell0++){ 
+	  PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(icell0);
+	  cell0->SetPV(pvd);
+    }
+ }
+//[END] PART3 -----------------------------------------------------------------------
 
   if(fVerbose>0){
   cout<<"Cells cooking:"<<endl;
   timer_cook_cells->Stop();
   timer_cook_cells->Print();
   }
-  //   Double_t rtime_cook_cells = timer_cook_cells->RealTime();
-  //   Double_t ctime_cook_cells = timer_cook_cells->CpuTime();
-  //   cout << "Real time for Cells cooking:" << rtime_cook_cells << " s, CPU time " << ctime_cook_cells << " s" << endl;
-  // }
-
+ 
   TStopwatch *timer_neighbors_cells = new TStopwatch();
-
   if(fVerbose>0)
   timer_cook_cells->Start();
 
   //Find neighbors between cells
-  /// Set counters values -----
-  std::vector<int> pv_new;
-  Int_t nCells = fCellArray->GetEntries();
-  for(unsigned int icv=0;icv<nCells;icv++)
-    pv_new.push_back(-1);
-  bool stop_itter = true;
-  for(int itt=0;itt<1000;itt++){ //should be infinite loop! due to small number of layers 1000 is close to infinity ;)
-    //  fCellArray_tmp->Clear("C");
-    int ncells_tmp = 0;
-    stop_itter = true;
-    TStopwatch *timer_neighbors_itter = new TStopwatch();
-  
-
-    if(fVerbose>0)
-      timer_neighbors_itter->Start();
-    nCells = fCellArray->GetEntries();
-    if(fVerbose>2)
-      cout<<" === ITTER === "<<itt<<" with "<<nCells<<" cells"<<endl;
-    for(int ic=0; ic<nCells; ic++){
-      PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(ic);
-      if(fVerbose>2)
-      cout<<"cell0 with hitDw = "<<cell0->GetHitDw()<<" and hitUp = "<<cell0->GetHitUp()<<" and PV = "<<cell0->GetPV()<<endl;
-      for(int jc=ic+1; jc<nCells; jc++){
-	//	if (pv_new[ic]!=(cell0->GetHitUp()) && pv_new[ic]>1) continue;
-	PndSdsCell *cell1 =   (PndSdsCell*)fCellArray->At(jc);
-	if((cell0->GetHitUp())!=(cell1->GetHitDw())) continue;
-	//	if((cell0->GetHitUp())==(cell1->GetHitDw())){ //cells have common point
-       else { //cells have common point
-	if(fVerbose>2)
-	  cout<<"cell1 with hitDw = "<<cell1->GetHitDw()<<" and hitUp = "<<cell1->GetHitUp()<<" and PV = "<<cell1->GetPV()<<endl;
-
-	  //check if cells make straight line
-	  PndSdsHit *hit00=(PndSdsHit*)fStripHitArray->At(cell0->GetHitDw());
-	  PndSdsHit *hit01=(PndSdsHit*)fStripHitArray->At(cell0->GetHitUp());
-	  PndSdsHit *hit10 =(PndSdsHit*)fStripHitArray->At(cell1->GetHitDw());
-	  PndSdsHit *hit11 =(PndSdsHit*)fStripHitArray->At(cell1->GetHitUp());
-	  TVector3 A(hit01->GetX()-hit00->GetX(),hit01->GetY()-hit00->GetY(),hit01->GetZ()-hit00->GetZ());
-	  TVector3 B(hit11->GetX()-hit10->GetX(),hit11->GetY()-hit10->GetY(),hit11->GetZ()-hit10->GetZ());
-	  double ScalAB = A.Dot(B);
-	  double cosPsi = ScalAB/(A.Mag()*B.Mag());
-	  if((1-cosPsi)<rule_max){//rule for the straight line
-	    if((cell0->GetPV())==(cell1->GetPV())){
-	      if((cell1->GetPV())<0)
-		pv_new[ic] = 0;
-	      else
-		pv_new[ic] = cell0->GetPV();
-	      pv_new[jc] = cell1->GetPV()+1;
-	      stop_itter = false;
-	      if(fVerbose>2)
-	      cout<<"pv 0 = "<< pv_new[ic]<<" pv 1 = "<< pv_new[jc]<<endl;
-	    }
-	  }
-	}
-      }
-    }
-    
-    int fnCells = fCellArray->GetEntriesFast();
-    for(int icv=0;icv<fnCells;icv++){
-      if(pv_new[icv]<0){ //clean not used cells
-	//TODO: celaning via RemoveAt doesn't work :( -> tmp solution: create new array with good cells
-      }
-      else{
-	PndSdsCell *cell = (PndSdsCell*)fCellArray->At(icv);
-	if(fVerbose>2)
-	cout<<"cell with hitDw = "<<cell->GetHitDw()<<" and hitUp = "<<cell->GetHitUp()<<" gets new PV = "<<pv_new[icv]<<endl;
-	cell->SetPV(pv_new[icv]);
-	new((*fCellArray_tmp)[ncells_tmp]) PndSdsCell(*(cell)); //save Track
-	delete cell;
-	ncells_tmp++;
-      }
-    }
-    
-    if(fVerbose>0){
-      cout<<"One itter with "<<nCells<<" cells: "<<endl;
-      timer_neighbors_itter->Stop();
-      timer_neighbors_itter->Print();
-      delete timer_neighbors_itter;
-    }
-    //    fCellArray->Clear();
-    fCellArray->Delete();
-    fCellArray = (TClonesArray*)fCellArray_tmp->Clone();
-    fCellArray_tmp->Delete();
-    //    fCellArray_tmp->Clear();
-    if(fVerbose>0 && stop_itter) cout<<"-- CA made "<<itt<<" itterations --"<<endl;
-    if(stop_itter) break;
-  }
-  ///--------------------------
-
-  //  }
-  if(fVerbose>0){
-  timer_neighbors_cells->Stop();
-  cout<<"neighbors search "<<endl;
-  timer_neighbors_cells->Print();
-  }
-
-  //  fCellArray_tmp->Clear();
-  fCellArray_tmp->Delete();
-  nCells = fCellArray->GetEntriesFast();//final number of cells [could be different from the initial]
-
-  //Build track from cells combination -------------------------------- 
+  fCellArray = ForwardEvolution(fCellArray,100);
+  int nCells = fCellArray->GetEntriesFast();//final number of cells [could be different from the initial]
+ 
+  //Build tracks from cells combination -------------------------------- 
   TStopwatch *timer_build_trk_combinations = new TStopwatch();
 
   if(fVerbose>0)
@@ -529,6 +678,8 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   if(fVerbose>4) cout<<"track can contain "<<pcmax<<"+1 cells"<<endl;
   const unsigned int trk_arr_size = pcmax+1;
   std::vector< std::vector<int> > trk_cells(trk_arr_size);
+
+
   int trk_count=-1;
   for(unsigned int newpcmax=pcmax;newpcmax>0;newpcmax--){// loop over possible number of cells in trk
     unsigned int cur_max_tag = newpcmax;
@@ -540,30 +691,16 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 	    for (int icell1 = 0; icell1 < nCells; icell1++){
 	      PndSdsCell *cell1 =   (PndSdsCell*)fCellArray->At(icell1);
 	      if( (cell0->GetPV()-cell1->GetPV())==1 && ((cell1->GetHitUp())==(cell0->GetHitDw()))){ //cells have common point
-		//check if cells make straight line
-		PndSdsHit *hit00=(PndSdsHit*)fStripHitArray->At(cell0->GetHitDw());
-		PndSdsHit *hit01=(PndSdsHit*)fStripHitArray->At(cell0->GetHitUp());
-		PndSdsHit *hit10 =(PndSdsHit*)fStripHitArray->At(cell1->GetHitDw());
-		PndSdsHit *hit11 =(PndSdsHit*)fStripHitArray->At(cell1->GetHitUp());
-		TVector3 A(hit01->GetX()-hit00->GetX(),hit01->GetY()-hit00->GetY(),hit01->GetZ()-hit00->GetZ());
-		TVector3 B(hit11->GetX()-hit10->GetX(),hit11->GetY()-hit10->GetY(),hit11->GetZ()-hit10->GetZ());
-		double ScalAB = A.Dot(B);
-		double cosPsi = ScalAB/(A.Mag()*B.Mag());
-		if((1-cosPsi)<rule_max){//rule for the straight line
+		bool isNeighbor = Neighbor(cell1,cell0);
+		if(isNeighbor){
 		  if(fVerbose>2)
 		    cout<<"trk #"<<trk_count<<" "<<cell0->GetPV()<<", "<<cell1->GetPV()<<"; ";
 		  if(cell1->GetPV()>0){ //search for the last connected cell; TODO: this works only for number of planes = 4!!! extend it to infinite number of planes?
 		    for (int icell2 = 0; icell2 < nCells; icell2++){
 		      PndSdsCell *cell2 =   (PndSdsCell*)fCellArray->At(icell2);
 		      if((cell1->GetPV()-cell2->GetPV())==1 && (cell2->GetHitUp())==(cell1->GetHitDw())){ //cells have common point
-			//check if cells make straight line
-			PndSdsHit *hit20=(PndSdsHit*)fStripHitArray->At(cell2->GetHitDw());
-			PndSdsHit *hit21=(PndSdsHit*)fStripHitArray->At(cell2->GetHitUp());
-			TVector3 A1(hit11->GetX()-hit10->GetX(),hit11->GetY()-hit10->GetY(),hit11->GetZ()-hit10->GetZ());
-			TVector3 B1(hit21->GetX()-hit20->GetX(),hit21->GetY()-hit20->GetY(),hit21->GetZ()-hit20->GetZ());
-			double ScalAB1 = A1.Dot(B1);
-			double cosPsi1 = ScalAB1/(A1.Mag()*B1.Mag());
-			if((1-cosPsi1)<rule_max){//rule for the straight line
+			bool isNeighbor2 = Neighbor(cell2,cell1);
+			if(isNeighbor2){
 			  trk_count++;
 			  trk_cells.at(cell0->GetPV()).push_back(icell0);
 			  trk_cells.at(cell1->GetPV()).push_back(icell1);
@@ -745,7 +882,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
   // fCellArray->Clear("C");
   // fCellArray_tmp->Clear("C");
   fCellArray->Delete();
-  fCellArray_tmp->Delete();
+  //fCellArray_tmp->Delete();
   // delete fCellArray;
   // delete fCellArray_tmp;
   delete timer_array;
@@ -775,7 +912,7 @@ Double_t PndLmdTrackFinderCATask::GetTrackDip(PndMCTrack* myTrack)
 }
 void PndLmdTrackFinderCATask::FinishTask(){
   delete fCellArray;
-  delete fCellArray_tmp;
+  // delete fCellArray_tmp;
 
 }
 // -------------------------------------------------------------------------

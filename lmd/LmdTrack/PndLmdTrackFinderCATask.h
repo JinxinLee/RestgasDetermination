@@ -18,6 +18,7 @@
 #include <vector>
 #include "TH2.h"
 #include "TNtuple.h"
+#include "PndSdsCell.h"
 class TClonesArray;
 
 class PndLmdTrackFinderCATask : public FairTask
@@ -46,6 +47,8 @@ class PndLmdTrackFinderCATask : public FairTask
     void SetSensPixelFlag(bool fS){ flagPixelSens = fS; }; 
     void SetTrkCandCutsFlag(bool fS){ flagTrkCandCuts = fS;};
     void FinishTask();
+
+   
  private:
    Double_t dXY;
    double rule_max;
@@ -57,7 +60,12 @@ class PndLmdTrackFinderCATask : public FairTask
    bool SortHitsByZ(std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits);
    Double_t GetTrackDip(PndMCTrack* myTrack);
    Double_t GetTrackCurvature(PndMCTrack* myTrack);
-
+   bool Neighbor(int& icell0, int& icell1);
+    bool Neighbor(PndSdsCell* cell0, PndSdsCell* cell1);
+    void Evolution(int& pv0, int& pv1, int& pv0_n, int& pv1_n, bool isch);
+    TClonesArray* ForwardEvolution(TClonesArray *fCellArray, int niter=100);
+    TClonesArray* CookAllCells(std::vector< std::vector<Int_t> > hitsd);
+    TClonesArray* CookCells(std::vector< std::vector<Int_t> > hitsd, int& pl0, int& pl1, TClonesArray* tCellArray);
    TString fHitBranchStrip;
    TString fClusterBranchStrip;
    TString fDigiBranchStrip;
@@ -74,7 +82,7 @@ class PndLmdTrackFinderCATask : public FairTask
      TClonesArray* fTrackCandArray;
 
      TClonesArray* fCellArray;
-     TClonesArray* fCellArray_tmp;
+     // TClonesArray* fCellArray_tmp;
      void Register();
      void Reset();
      void ProduceHits();
