@@ -28,6 +28,7 @@ void recoideal_complete()
   fRun->AddFriend("digi_complete.root");
   fRun->SetOutputFile(outFile);
   fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetUseFairLinks(kTRUE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 

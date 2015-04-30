@@ -29,6 +29,7 @@ void pidideal_complete()
   fRun->AddFriend("recoideal_complete.root");
   fRun->SetOutputFile(outFile);
   fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetUseFairLinks(kTRUE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 
