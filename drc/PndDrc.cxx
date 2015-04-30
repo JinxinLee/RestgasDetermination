@@ -266,8 +266,6 @@ PndDrc::~PndDrc() {
     delete fDrcBarCollection;
   }
     
-  if (fGeoH) delete fGeoH;
-  
   if (fGeo) delete fGeo;
   
 }
