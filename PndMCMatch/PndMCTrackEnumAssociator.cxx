@@ -6,7 +6,6 @@
 #include "FairRunAna.h"
 #include "PndSttPoint.h"
 #include "PndSttHit.h"
-#include "PndSttHelixHit.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsHit.h"
 #include "PndSdsCluster.h"
