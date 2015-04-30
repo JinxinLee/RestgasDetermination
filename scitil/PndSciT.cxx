@@ -125,23 +125,6 @@ void PndSciT::BeginEvent(){
 
 Bool_t PndSciT::ProcessHits(FairVolume* vol) 
 {
-    // some of the possible readout parameters:
-  /*
-  Int_t VolCoNo=0;
-  TString nameVol = gMC->CurrentVolName();
-  cout << "Volumsname (MC): "<<nameVol<< endl;
-  cout << "Vol->Realname: "<< vol->getRealName() << endl;
-  cout << "ShortID: " << fGeoH->GetShortID(gMC->CurrentVolPath())<< endl;
-  cout << "VolumePath: "<< gMC->CurrentVolPath()<<endl;
-  cout << "Volume CopyNumber: " << vol->getCopyNo()<<endl;
-  cout << "MCID: " << vol->getMCid()<< endl;
-  cout << "VolumeID: " << vol->getVolumeId()<< endl;
-  cout << "ModuleID: " << vol->getModId()<< endl;
-  cout << "CurrentVolumeID (MC): " << gMC->CurrentVolID(VolCoNo)<<endl;
-  cout << "CurrentVolumeCopyNo: "<< VolCoNo << endl;
-  */
-
-  
 
     if(0==fGeoH) {
       std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
