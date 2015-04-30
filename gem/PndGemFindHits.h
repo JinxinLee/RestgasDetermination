@@ -100,6 +100,7 @@ class PndGemFindHits : public FairTask
   Double_t fAllTime;
   Double_t fHitWindow;
 
+  Int_t  fMCPointBranchId;
   Bool_t fUseClusters;
   Bool_t fTimeOrderedDigi;
 

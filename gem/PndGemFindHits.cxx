@@ -56,6 +56,7 @@ PndGemFindHits::PndGemFindHits() :
   fDigis  (NULL),
   fHits   (NULL),
   fHitsTemp   (NULL),
+  fMCPointBranchId(-1),
   fUseClusters(kFALSE),
   fTimeOrderedDigi(kFALSE),
   fPrepTime(0.),
@@ -83,6 +84,7 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
   fDigis  (NULL),
   fHits   (NULL),
   fHitsTemp   (NULL),
+  fMCPointBranchId(-1),
   fUseClusters(kFALSE),
   fTimeOrderedDigi(kFALSE),
   fPrepTime(0.),
@@ -110,6 +112,7 @@ PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose)
   fDigis  (NULL),
   fHits   (NULL),
   fHitsTemp   (NULL),
+  fMCPointBranchId(-1),
   fUseClusters(kFALSE),
   fTimeOrderedDigi(kFALSE),
   fPrepTime(0.),
@@ -327,6 +330,8 @@ InitStatus PndGemFindHits::Init() {
     fDigis = (TClonesArray*) ioman->GetObject("GEMCluster");
   else
     fDigis = (TClonesArray*) ioman->GetObject("GEMDigi");
+
+  fMCPointBranchId = ioman->GetBranchId("GEMPoint");
 
   // Register output array
   fHits = new TClonesArray("PndGemHit", 1000);
@@ -896,10 +901,14 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
       //      if ( TMath::Abs(xHit) < 2. ) continue;
       
       Int_t refIndex = -1;
-      for ( Int_t irf1 = digiF->GetNIndices()-1 ; irf1 >= 0 ; irf1-- ) 
-	for ( Int_t irf2 = digiB->GetNIndices()-1 ; irf2 >= 0 ; irf2-- ) 
+      for ( Int_t irf1 = digiF->GetNIndices()-1 ; irf1 >= 0 ; irf1-- ) {
+	if ( digiF->GetLink(irf1).GetType() != fMCPointBranchId ) continue;
+	for ( Int_t irf2 = digiB->GetNIndices()-1 ; irf2 >= 0 ; irf2-- ) {
+	  if ( digiB->GetLink(irf2).GetType() != fMCPointBranchId ) continue;
 	  if ( digiF->GetIndex(irf1) == digiB->GetIndex(irf2) )
 	    refIndex = digiF->GetIndex(irf1);
+	}
+      }
 
       Int_t hitDetId = sensorDetId | kGemHit << 21;
 
@@ -940,7 +949,7 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 //carry information of cluster width to dpos..
 Int_t PndGemFindHits::FindHits2(PndGemSensor* sensor, 
 				set<Int_t>& fSet, set<Int_t>& bSet) {
-  if ( fVerbose > 0 ) cout << "-I- PndGemFindHits::FindHits2()" << endl; 
+  if ( fVerbose > 0 ) cout << "-I- PndGemFindHits::FindHits2(). Station " << sensor->GetStationNr() << " sensor " << sensor->GetSensorNr() << endl; 
 
   Int_t    iType  = sensor->GetType();
  
@@ -1059,10 +1068,14 @@ Int_t PndGemFindHits::FindHits2(PndGemSensor* sensor,
 
       
       Int_t refIndex = -1;
-      for ( Int_t irf1 = digiF->GetNIndices()-1 ; irf1 >= 0 ; irf1-- ) 
-	for ( Int_t irf2 = digiB->GetNIndices()-1 ; irf2 >= 0 ; irf2-- ) 
+      for ( Int_t irf1 = digiF->GetNIndices()-1 ; irf1 >= 0 ; irf1-- ) {
+	if ( digiF->GetLink(irf1).GetType() != fMCPointBranchId ) continue;
+	for ( Int_t irf2 = digiB->GetNIndices()-1 ; irf2 >= 0 ; irf2-- ) {
+	  if ( digiB->GetLink(irf2).GetType() != fMCPointBranchId ) continue;
 	  if ( digiF->GetIndex(irf1) == digiB->GetIndex(irf2) )
 	    refIndex = digiF->GetIndex(irf1);
+	}
+      }
       
       // Hit bit kGemHit will be put when the Hit matches on both sensor.. or problem?
       Int_t hitDetId = sensorDetId;
