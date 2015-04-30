@@ -247,8 +247,9 @@ Bool_t PndTrkFitter::ParabolaFit(Double_t &fita, Double_t &fitb, Double_t &fitc)
     std::cout << "b = " << fitb <<  "\n";
     std::cout << "c = " << fitc <<  "\n";
   }
-  if(TMath::Abs(fita)<0.000001) return 0;
+  if(TMath::Abs(fita)<0.000001) return kFALSE;
 
+  return kTRUE;
 }
 
 ClassImp(PndTrkFitter)

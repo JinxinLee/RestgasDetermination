@@ -10,7 +10,6 @@
 
 #include "TVector3.h"
 #include "PndTrkHit.h"
-#include "PndSciTHit.h"
 
 #define MAXNOFSCITHITS 1000  // CHECK consistency
 

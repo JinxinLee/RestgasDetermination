@@ -391,6 +391,9 @@ std::map< int, bool > PndTrkGemCombinatorial::CombinatorialSuppression()
      cout << "wrongly NOT assiged over the totally un-assigned " << 100. * ndontusewrong/(ndontusecorrect + ndontusewrong)  << "%" << endl;
    }
  }
+
+
+ return hitTousability;
 }
 
 void PndTrkGemCombinatorial::DrawGeometry() {
