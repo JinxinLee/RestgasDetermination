@@ -5,7 +5,6 @@
 #include "GFRecoHitIfc.h"
 #include "GFWireHitPolicy.h"
 #include "PndSttHit.h"
-#include "PndSttHelixHit.h"
 #include "TClonesArray.h"
 
 // Collaborating Class Headers -------
@@ -13,7 +12,6 @@
 
 // Collaborating Class Declarations --
 class PndSttHit;
-class PndSttHelixHit;
 class TClonesArray;
 
 typedef GFRecoHitIfc<GFWireHitPolicy> WireHitRecoHit;
@@ -24,9 +22,7 @@ public:
   // Constructors/Destructors ---------
   PndSttRecoHit();
   PndSttRecoHit(PndSttHit *currenthit); 
-  PndSttRecoHit(PndSttHelixHit *currenthit); 
   PndSttRecoHit(PndSttHit *currenthit, TClonesArray *tubeArr); 
-  PndSttRecoHit(PndSttHelixHit *currenthit, TClonesArray *tubeArr); 
 
   virtual ~PndSttRecoHit();
 

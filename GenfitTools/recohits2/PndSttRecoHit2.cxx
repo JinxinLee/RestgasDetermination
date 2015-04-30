@@ -22,7 +22,6 @@
 
 // Collaborating Class Headers --------
 #include "PndSttHit.h"
-#include "PndSttHelixHit.h"
 #include "PndSttTube.h"
 #include "PndSttMapCreator.h"
 #include "PndGeoSttPar.h"
@@ -83,43 +82,6 @@ PndSttRecoHit2::PndSttRecoHit2(PndSttHit *currenthit) : genfit::WireMeasurement(
   setMaxDistance(0.5);
 }
 
-PndSttRecoHit2::PndSttRecoHit2(PndSttHelixHit *currenthit) : genfit::WireMeasurement(NparHitRep){
-
-  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
-  PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
-  Int_t tubeID = currenthit->GetTubeID();
-  PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
-  PndSttTube *tube = (PndSttTube*) mapper->GetTubeFromTubeID(tubeID);
-
-  // wire1(3), wire2(3), rdrift
-  TVector3 wiredirection = tube->GetWireDirection();
-  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;
-  TVector3 cenposition = tube->GetPosition();
-  TVector3 wire1, wire2;
-  wire1 = cenposition - wiredirection2;
-  wire2 = cenposition + wiredirection2;
-  //   cout << "Wiredirection, wire1, wire2 " << endl;
-  //   wiredirection.Print();
-  //   wire1.Print();
-  //   wire2.Print();
-  rawHitCoords_[0] = wire1.X();
-  rawHitCoords_[1] = wire1.Y();
-  rawHitCoords_[2] = wire1.Z();
-  rawHitCoords_[3] = wire2.X();
-  rawHitCoords_[4] = wire2.Y();
-  rawHitCoords_[5] = wire2.Z();
-  rawHitCoords_[6] = currenthit->GetIsochrone();
-
-  // errors on drift radius 
-  for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) rawHitCov_[i][j] = 0.;
-  //   rawHitCov_[6][6] = 0.0100 * 0.0100;
-  rawHitCov_[6][6] = pow(currenthit->GetIsochroneError(), 2);
-
-  // cut on distance
-  setMaxDistance(0.5);
-
-}
-
 // TO BE CHANGED TO USE TUBE ARRAY
 PndSttRecoHit2::PndSttRecoHit2(PndSttHit *currenthit, const genfit::TrackCandHit* hit, TClonesArray *tubeArray) : genfit::WireMeasurement(NparHitRep){
 
@@ -155,41 +117,4 @@ PndSttRecoHit2::PndSttRecoHit2(PndSttHit *currenthit, const genfit::TrackCandHit
 
   // cut on distance
   setMaxDistance(0.5);
-}
-
-PndSttRecoHit2::PndSttRecoHit2(PndSttHelixHit *currenthit, const genfit::TrackCandHit* hit, TClonesArray *tubeArray) : genfit::WireMeasurement(NparHitRep){
-
-  setDetId(hit->getDetId());
-  setHitId(hit->getHitId());
-
-  Int_t tubeID = currenthit->GetTubeID();
-  PndSttTube *tube = (PndSttTube *) tubeArray->At(tubeID);
-
-  // wire1(3), wire2(3), rdrift
-  TVector3 wiredirection = tube->GetWireDirection();
-  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;  
-  TVector3 cenposition = tube->GetPosition(); 
-  TVector3 wire1, wire2;
-  wire1 = cenposition - wiredirection2;
-  wire2 = cenposition + wiredirection2;
-  //   cout << "Wiredirection, wire1, wire2 " << endl;
-  //   wiredirection.Print();
-  //   wire1.Print();
-  //   wire2.Print();
-  rawHitCoords_[0] = wire1.X();
-  rawHitCoords_[1] = wire1.Y();
-  rawHitCoords_[2] = wire1.Z();
-  rawHitCoords_[3] = wire2.X();
-  rawHitCoords_[4] = wire2.Y();
-  rawHitCoords_[5] = wire2.Z();
-  rawHitCoords_[6] = currenthit->GetIsochrone();
-
-  // errors on drift radius 
-  for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) rawHitCov_[i][j] = 0.;
-  //   rawHitCov_[6][6] = 0.0100 * 0.0100;
-  rawHitCov_[6][6] = pow(currenthit->GetIsochroneError(), 2);
-
-  // cut on distance
-  setMaxDistance(0.5);
-
 }

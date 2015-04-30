@@ -6,7 +6,6 @@
 #include "WireMeasurement.h"
 #include "TrackCandHit.h"
 #include "PndSttHit.h"
-#include "PndSttHelixHit.h"
 
 #include <TClonesArray.h>
 
@@ -15,7 +14,6 @@
 
 // Collaborating Class Declarations --
 class PndSttHit;
-class PndSttHelixHit;
 class TClonesArray;
 
 
@@ -25,9 +23,7 @@ public:
   // Constructors/Destructors ---------
   PndSttRecoHit2();
   PndSttRecoHit2(PndSttHit *currenthit); 
-  PndSttRecoHit2(PndSttHelixHit *currenthit); 
   PndSttRecoHit2(PndSttHit *currenthit, const genfit::TrackCandHit* hit, TClonesArray *tubeArr);
-  PndSttRecoHit2(PndSttHelixHit *currenthit, const genfit::TrackCandHit* hit, TClonesArray *tubeArr);
 
   virtual ~PndSttRecoHit2();
 
