@@ -243,7 +243,7 @@ void PndMultiField::FillParContainer() {
 //  }
   FairRun *fRun=FairRun::Instance();	
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
+  //Bool_t kParameterMerged=kTRUE;
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   Par->SetParameters(this);
   Par->setInputVersion(fRun->GetRunId(),1);

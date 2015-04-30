@@ -154,36 +154,25 @@ Bool_t PndEvtGenGenerator::SetBranchAddresses()
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t PndEvtGenGenerator::ReadEvent(FairPrimaryGenerator* primGen) 
 {
-  switch ((Int_t)fFileType)
+  if (fFileType==0) // fFileType is boolean
   { 
-  // ASCII file
-  case 0:
-    // Check for input ASCII file
     if ( !fInputAsciiFile ) {
       cout << "-E PndEvtGenGenerator: Input ASCII file not open!" << endl;
       return kFALSE;
     }
-    
     return ReadAsciiEvent(primGen);
-    
-    break;
-    
-  case 1:
-    if ( ! fInputRootFile ) {
-      cout << "-E PndEvtGenGenerator: Input ROOT file not open!" << endl;
-      return kFALSE;
-    }
-    
-    return ReadRootEvent(primGen);
-    
-    break;
-    
-  default:
-    cout << "-E PndEvtGenGenerator: Unknown file type!" << endl;
-    return kFALSE;
-    
-    break;
   }
+  else 
+    {
+      if ( ! fInputRootFile ) {
+	cout << "-E PndEvtGenGenerator: Input ROOT file not open!" << endl;
+	return kFALSE;
+      }
+      return ReadRootEvent(primGen);
+    }
+  
+  return kFALSE; // It cannot happen
+  
 }
   
   
@@ -333,31 +322,30 @@ Bool_t PndEvtGenGenerator::ReadAsciiEvent(FairPrimaryGenerator* primGen)
 
 
 // -----   Private method CloseInput   ------------------------------------
-void PndEvtGenGenerator::CloseInput() {
-  switch (fFileType) {
-  case 0:
-    if (fInputAsciiFile) 
+void PndEvtGenGenerator::CloseInput() 
+{
+  if (fFileType==0) // fFileType is boolean
     {
-      cout << "-I PndEvtGenGenerator: Closing ASCII input file " << fFileName.Data() << endl;
-      
-      fclose(fInputAsciiFile);
-      delete fInputAsciiFile;
-      fInputAsciiFile = NULL;
+      if (fInputAsciiFile) 
+	{
+	  cout << "-I PndEvtGenGenerator: Closing ASCII input file " << fFileName.Data() << endl;
+	  
+	  fclose(fInputAsciiFile);
+	  delete fInputAsciiFile;
+	  fInputAsciiFile = NULL;
+	}
     }
-    break;
-    
-  case 1:
-    if (fInputRootFile) 
+  else
     {
-      cout << "-I PndEvtGenGenerator: Closing ROOT input file " << fFileName.Data() << endl;
-      fInputRootFile->Close();
-      delete fInputRootFile;
-      fInputRootFile = NULL;
+      if (fInputRootFile) 
+	{
+	  cout << "-I PndEvtGenGenerator: Closing ROOT input file " << fFileName.Data() << endl;
+	  fInputRootFile->Close();
+	  delete fInputRootFile;
+	  fInputRootFile = NULL;
+	}
     }
-    break;
-    
-  default: break;  
-  }
+  
 }
 // ------------------------------------------------------------------------
 
