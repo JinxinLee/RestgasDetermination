@@ -1312,9 +1312,9 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonLeft2(
 //	|  |   
 //	|  |   
 //	|  |   
-//	\  \   
-//	 \  \  
-//	  \  \ 
+//	\  \
+//	 \  \
+//	  \  \
 //	   \  \
 //	    \  |
 //	     \ |
