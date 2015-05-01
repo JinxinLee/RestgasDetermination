@@ -96,6 +96,7 @@ PndDskCerenkov::~PndDskCerenkov()
 // -----   Public method Print   ----------------------------------------------
 void
 PndDskCerenkov::Print(const Option_t* opt) const {
+  (void)opt; // to remove "unused" warnings
   cout << "-I- PndDskCerenkov: track" << fTrackID 
        << " created in detector " << fDetectorID << endl;
   cout << "    at Position (" << fX << ", " << fY << ", " << fZ

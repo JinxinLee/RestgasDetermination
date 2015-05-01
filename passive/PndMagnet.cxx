@@ -38,7 +38,8 @@ void PndMagnet::ConstructGeometry(){
 
 Bool_t PndMagnet::CheckIfSensitive(std::string name){
 	// just to get rid of the warrning during run, not need this is a passive element! 
-	return kFALSE;
+	(void)name; // get rid of "unused" warning
+        return kFALSE;
 }
 
 void PndMagnet::ConstructASCIIGeometry(){

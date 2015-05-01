@@ -44,6 +44,7 @@ PndDrcPDHit::~PndDrcPDHit(){}
 
 // -----   Public method Print   -------------------------------------------
 void PndDrcPDHit::Print(const Option_t* opt) const {
+  (void)opt; // to remove "unused" warnings
   cout << "DIRC Photon hit: Time = " << fTime << endl;
 }
 // -------------------------------------------------------------------------

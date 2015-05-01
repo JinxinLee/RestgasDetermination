@@ -88,6 +88,7 @@ PndDskParticle::~PndDskParticle()
 // -----   Public method Print   ----------------------------------------------
 void
 PndDskParticle::Print(const Option_t* opt) const {
+  (void)opt; // to remove "unused" warnings
   cout << "-I- PndDskParticle: track" << fTrackID 
        << " created in detector " << fDetectorID << endl;
   cout << "    at Position (" << fX << ", " << fY << ", " << fZ

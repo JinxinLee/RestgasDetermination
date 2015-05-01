@@ -97,6 +97,7 @@ PndDskFLGHit::~PndDskFLGHit()
 // -----   Public method Print   ----------------------------------------------
 void
 PndDskFLGHit::Print(const Option_t* opt) const {
+  (void)opt; // to remove "unused" warnings
   cout << "-I- PndDskFLGHit: track" << fTrackID 
        << " created in detector " << fDetectorID << endl;
   cout << "    at Position (" << fX << ", " << fY << ", " << fZ

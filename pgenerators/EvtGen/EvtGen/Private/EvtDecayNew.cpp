@@ -34,7 +34,7 @@ EvtDecayNew::EvtDecayNew() : EvtDecayBase(), _prob(0.), _weight(0.)
 
 void EvtDecayNew::makeDecay(EvtParticle* p, bool recursive)
 {
-  
+  (void)recursive; // to remove "unused" warnings 
   int ntimes=10000;
   double dummy;
   

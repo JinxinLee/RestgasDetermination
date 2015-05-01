@@ -38,6 +38,7 @@ PndDskTrackPoint::~PndDskTrackPoint()
 // -----   Public method Print   ----------------------------------------------
 void
 PndDskTrackPoint::Print(const Option_t* opt) const {
+  (void)opt; // to remove "unused" warnings
   cout << "-I- PndDskTrackPoint: track" << fTrackID
        << " created in detector " << fDetectorID << endl;
   cout << "    at Position (" << fX << ", " << fY << ", " << fZ

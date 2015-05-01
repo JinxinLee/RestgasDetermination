@@ -39,6 +39,7 @@ PndDrcPDPoint::~PndDrcPDPoint() { }
 
 
 void PndDrcPDPoint::Print(const Option_t* opt) const {
+  (void)opt; // to remove "unused" warnings
   cout << "-I- PndDrcPDPoint: DRC Point for trackID---> " << fTrackID 
        << " in detector " << fDetectorID << endl;
 

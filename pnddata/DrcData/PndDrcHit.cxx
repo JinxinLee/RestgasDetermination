@@ -45,6 +45,7 @@ PndDrcHit::~PndDrcHit(){}
 
 // -----   Public method Print   -------------------------------------------
 void PndDrcHit::Print(const Option_t* opt) const {
+  (void)opt; // to remove "unused" warnings
   cout << "DIRC hit: ThetaC = " << fThetaC << endl;
 }
 // -------------------------------------------------------------------------

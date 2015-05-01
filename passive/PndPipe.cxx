@@ -31,6 +31,7 @@ PndPipe::PndPipe(const char * name, const char * title)
 
 Bool_t PndPipe::CheckIfSensitive(std::string name){
         // just to get rid of the warrning during run, not need this is a passive element!
+        (void)name; // to remove "unused" warnings
         return kFALSE;
 }
 
