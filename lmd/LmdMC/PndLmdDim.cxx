@@ -10,18 +10,21 @@
 #include <PndLmdDim.h>
 #include<TGeoMatrix.h>
 #include <stdlib.h>
+#include <TGeoPhysicalNode.h>
 // //work with DB
 // #include<PndLmdContFact.h>
 // #include<TList.h>
 // #include<PndLmdAlignPar.h>
 PndLmdDim* PndLmdDim::pinstance = 0;
 
-int PndLmdDim::geometry_version = 2;
+// version 3: navigation path names changed
+int PndLmdDim::geometry_version = 3;
 
 
 #include <TROOT.h>
 PndLmdDim::PndLmdDim()
 {
+	sensIDoffset = 0;
 	double test_mult_fact = 1.; //100.; // should be 1 when not debugging code
 	// pi
 	pi = 3.141592654;
@@ -192,23 +195,23 @@ PndLmdDim::PndLmdDim()
 	nav_paths.push_back("lmd_vol_ref_sys");
 	// luminosity detector halfs with the
 	// number 0 for top and 1 for bottom
-	nav_paths.push_back("lmd_vol_half_");
+	nav_paths.push_back("lmd_vol_half");
 	// luminosity detector plane 0 to 3
-	nav_paths.push_back("lmd_vol_plane_");
+	nav_paths.push_back("lmd_vol_plane");
 	// luminosity detector module 0 to 5
 	// clockwise around direction upstream (z)
-	nav_paths.push_back("lmd_vol_module_");
+	nav_paths.push_back("lmd_vol_module");
 	// luminosity detector front side (upstream = 0)
 	// and backside (downstream = 1)
-	nav_paths.push_back("lmd_vol_side_");
+	nav_paths.push_back("lmd_vol_side");
 	// luminosity detector die
 	// ( 0 for the 1x3 sensors and 1 for the 1x2 sensors )
-	nav_paths.push_back("lmd_vol_die_");
+	nav_paths.push_back("lmd_vol_die");
 	// luminosity detector sensor
 	//nav_paths.push_back("lmd_vol_sensor_"); misalignment of individual sensors is not supportet yet
 	// luminosity detector active sensor
 	// 0 is the most inner sensor
-	nav_paths.push_back("LumActivePixelRect_");
+	nav_paths.push_back("LumActivePixelRect"); // the _ comes automatically with the copy number
 
 	fgGeoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 	if (!fgGeoMan) cout << "Error: could not find the geometry manager!" << endl;
@@ -514,67 +517,6 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	//	TGeoCombiTrans* lmd_trans_co_fl_up = new TGeoCombiTrans("lmd_trans_co_fl_up", 0., 0., -1.5+50.-delta, r1);
 	//	lmd_trans_co_fl_up->RegisterYourself();
 
-
-	//********************************************* old beam pipe construct **************************
-	/*
-	// for testing purposes, one may shift the cone downstream
-	// and reduce the length of the inner beam pipe respectively
-	double cone_offset = 8.;
-
-	// 20 mu thick kapton foil cone
-	double cone_height = 32./2.;
-	double cone_r_in_upstream = 24.4/2.;
-	double cone_r_in_downstream = 7./2.;
-	double cone_thickness = 0.002;
-	TGeoCone* lmd_capton_cone = new TGeoCone("lmd_capton_cone",
-			cone_height, cone_r_in_upstream,
-			cone_r_in_upstream+cone_thickness/2.,
-			cone_r_in_downstream, cone_r_in_downstream+cone_thickness/2.);
-	TGeoCombiTrans* lmd_trans_cap_co = new TGeoCombiTrans("lmd_trans_cap_co", 0., 0., 2*tube_upstream_length+box_thickness + cone_height + cone_offset, rot_no);
-	lmd_trans_cap_co->RegisterYourself();
-	TGeoVolume *vlum_CaptonCone = new TGeoVolume("vlum_CaptonCone", lmd_capton_cone,
-			fgGeoMan->GetMedium("kapton"));
-	vlum_CaptonCone->SetLineColor(kRed);//39);
-	lmd_vol_vac->AddNode(vlum_CaptonCone, 0, lmd_trans_cap_co);//TEST with/without cone!!!
-	// 10 mu thick kapton foil aluminum coating
-	cone_r_in_upstream = cone_r_in_upstream+cone_thickness;
-	cone_r_in_downstream = cone_r_in_downstream+cone_thickness;
-	cone_thickness = 0.001;
-	TGeoCone* lmd_al_cone = new TGeoCone("lmd_al_cone",
-			cone_height, cone_r_in_upstream,
-			cone_r_in_upstream+cone_thickness/2.,
-			cone_r_in_downstream, cone_r_in_downstream+cone_thickness/2.);
-	//TGeoCombiTrans* lmd_trans_cap_co = new TGeoCombiTrans("lmd_trans_cap_co", 0., 0., 2*tube_upstream_length+box_thickness + cone_height, rot_no);
-	//lmd_trans_cap_co->RegisterYourself();
-	TGeoVolume *vlum_AlCone = new TGeoVolume("vlum_AlCone", lmd_al_cone,
-			fgGeoMan->GetMedium("Aluminum"));
-	vlum_AlCone->SetLineColor(kGray);//39);
-	lmd_vol_vac->AddNode(vlum_AlCone, 0, lmd_trans_cap_co);//TEST with/without cone!!!
-	// beam pipe to shield the sensors
-	double pipe_inner_r_in = 7./2.;
-	double pipe_inner_length = (50.-cone_offset)/2.;
-	//double pipe_thickness = 0.1;
-	TGeoTube* lmd_beam_pipe = new TGeoTube("lmd_beam_pipe", pipe_inner_r_in, pipe_inner_r_in + pipe_thickness, pipe_inner_length);
-	TGeoCombiTrans* lmd_trans_p = new TGeoCombiTrans("lmd_trans_p", 0., 0., 2*tube_upstream_length+box_thickness + 2*cone_height + pipe_inner_length + cone_offset, rot_no);
-	lmd_trans_p->RegisterYourself();
-	TGeoVolume *vlum_trans_p = new TGeoVolume("vlum_trans_p", lmd_beam_pipe,
-				fgGeoMan->GetMedium("steel"));
-	lmd_vol_vac->AddNode(vlum_trans_p, 0, lmd_trans_p);
-	// beam pipe cone downstream
-	double cone_p_height = 10./2.;
-	double cone_p_r_in_upstream = pipe_inner_r_in;
-	double cone_p_r_in_downstream = 9./2.;
-	double cone_p_thickness = 0.2;
-	TGeoCone* lmd_cone_downstr = new TGeoCone("lmd_cone_downstr", cone_p_height, cone_p_r_in_upstream,
-			cone_p_r_in_upstream+cone_p_thickness/2.,
-			cone_p_r_in_downstream, cone_p_r_in_downstream+cone_p_thickness/2.);
-	TGeoCombiTrans* lmd_trans_co_do = new TGeoCombiTrans("lmd_trans_co_do", 0., 0.,
-			2*tube_upstream_length+box_thickness + 2*cone_height + 2*pipe_inner_length + cone_p_height + cone_offset, rot_no);
-	lmd_trans_co_do->RegisterYourself();
-	TGeoVolume *vlum_pipe_inner_cone = new TGeoVolume("vlum_pipe_inner_cone", lmd_cone_downstr,
-				fgGeoMan->GetMedium("steel"));
-	lmd_vol_vac->AddNode(vlum_pipe_inner_cone, 0, lmd_trans_co_do); */
-	// ***************************** end old beam pipe construct *********************
 
 	// ********************* enhanced beam pipe construct in the box ********************
 
@@ -1052,7 +994,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 
 	TGeoVolume* _vol_passive =
 			new TGeoVolume(
-					"LumPassiveRect_",
+					"LumPassiveRect",
 					shape_maps_passive,
 					fgGeoMan->GetMedium("silicon"));
 	_vol_passive->SetLineColor(30);
@@ -1077,16 +1019,16 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 		// in order do be able to displace the detector halves those are introduced as
 		// separate volume assemblies
 		name.str("");
-		name << nav_paths[2] << ihalf;
+		name << nav_paths[2];// << ihalf;
 		uniqueid.str("");
-		uniqueid << "_" << ihalf;
+		//uniqueid << "_" << ihalf;
 		TGeoVolumeAssembly* lmd_vol_half_ = new TGeoVolumeAssembly(name.str().c_str());
 		//mothervol.AddNode(lmd_vol_half_, 0, rottrans_no);
 		for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
 			name.str("");
-			name << nav_paths[3] << iplane;
+			name << nav_paths[3];// << iplane;
 			uniqueid.str("");
-			uniqueid << "_" << ihalf << iplane;
+			//uniqueid << "_" << ihalf << iplane;
 			TGeoVolumeAssembly* lmd_vol_plane_ = new TGeoVolumeAssembly((name.str()+uniqueid.str()).c_str());
 			// move to the position of the corresponding plane
 			TGeoMatrix* rottrans_plane = new TGeoCombiTrans(0., 0.,
@@ -1103,9 +1045,9 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			}
 			for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
 				name.str("");
-				name << nav_paths[4] << imodule;
+				name << nav_paths[4];// << imodule;
 				uniqueid.str("");
-				uniqueid << "_" << ihalf << iplane << imodule;
+				//uniqueid << "_" << ihalf << iplane << imodule;
 				TGeoVolumeAssembly* lmd_vol_module_ = new TGeoVolumeAssembly((name.str()+uniqueid.str()).c_str());
 				double angle = delta_phi/2.+ihalf*pi+imodule*delta_phi;
 				double add_z = cvd_disc_even_odd_offset;
@@ -1144,9 +1086,9 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 				module_id++;
 				for (unsigned int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
 					name.str("");
-					name << nav_paths[5] << iside;
+					name << nav_paths[5];// << iside;
 					uniqueid.str("");
-					uniqueid << "_" << ihalf << iplane << imodule << iside;
+					//uniqueid << "_" << ihalf << iplane << imodule << iside;
 					TGeoVolumeAssembly* lmd_vol_side_ = new TGeoVolumeAssembly((name.str()+uniqueid.str()).c_str());
 					// rotation around the y axis for the upstream side
 					// side 0 is downstream! what may be not so obvious
@@ -1169,9 +1111,9 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 						// it seems we will have only 2 sensors on a die and only a few of them
 						// -> term die will stay as it is, but may be different from the reality
 						name.str("");
-						name << nav_paths[6] << idie;
+						name << nav_paths[6];// << idie;
 						uniqueid.str("");
-						uniqueid << "_" << ihalf << iplane << imodule << iside << idie;
+						//uniqueid << "_" << ihalf << iplane << imodule << iside << idie;
 						TGeoVolumeAssembly* lmd_vol_die_ = new TGeoVolumeAssembly((name.str()+uniqueid.str()).c_str());
 						// rotation to the cut side of the cvd_disc
 						// the origin is the inner edge
@@ -1241,9 +1183,10 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							}
 							lmd_vol_die_->AddNode(_vol_active, sensor_id, rottrans_sensor);
 							lmd_vol_die_->AddNode(_vol_passive, sensor_id, rottrans_sensor);
+							//cout << sensor_id << " " << _vol_active->GetName() << endl << endl;
 							// save the transformation from the cvd_side reference frame
 							// into the local frame of the sensors
-							transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, idie, isensor)] =
+							transformation_matrices[Tkey(ihalf, iplane, imodule, iside, idie, isensor)] =
 									new TGeoHMatrix((*rottrans_die) * (*rottrans_sensor));
 
 							if (0) { // some tests for debugging
@@ -1262,7 +1205,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							}
 							sensor_id++;
 						} // loop over sensors
-						lmd_vol_side_->AddNode(lmd_vol_die_, 0, rottrans_die);
+						lmd_vol_side_->AddNode(lmd_vol_die_, idie, rottrans_die);
 					} // loop over dies
 					_x = 0;
 					_y = 0;
@@ -1270,30 +1213,30 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					_rotphi = 0.; _rottheta = 0.; _rotpsi = 0.; // rotate to the cut edge
 					TGeoRotation* rot_kapton = new TGeoRotation("rot_kapton", _rotphi, _rottheta, _rotpsi);
 					TGeoCombiTrans* rottrans_kapton = new TGeoCombiTrans(_x, _y, _z, rot_kapton);
-					lmd_vol_side_->AddNode(lmd_vol_kapton_disc, 0, rottrans_kapton); // Generate_keynumber(ihalf,iplane, imodule, iside)
-					lmd_vol_module_->AddNode(lmd_vol_side_, 0, rottrans_side);
+					lmd_vol_side_->AddNode(lmd_vol_kapton_disc, 0, rottrans_kapton); // GGenerate_Tkeyumber(ihalf,iplane, imodule, iside)
+					lmd_vol_module_->AddNode(lmd_vol_side_, iside, rottrans_side);
 					// save the transformation from the lumi reference frame
 					// into the local cvd side reference frame
-					transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+					transformation_matrices[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
 							new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
 				} // loop over the two sides of the modules
-				lmd_vol_plane_->AddNode(lmd_vol_module_, 0, rottrans_module);
-				// transformation_matrices[Generate_key(ihalf, iplane, imodule, -1, -1, -1)] =
+				lmd_vol_plane_->AddNode(lmd_vol_module_, imodule, rottrans_module);
+				// transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, -1, -1, -1)] =
 				//   new TGeoHMatrix((*rottrans_plane) * (*rottrans_module));
 			} // loop over modules
 			if (ihalf == 0)
-				lmd_vol_plane_->AddNode(lmd_vol_cool_sup_up, 0, rottrans_no);
+				lmd_vol_plane_->AddNode(lmd_vol_cool_sup_up, iplane, rottrans_no);
 			else
-				lmd_vol_plane_->AddNode(lmd_vol_cool_sup_down, 0, rottrans_no);
-			lmd_vol_half_->AddNode(lmd_vol_plane_, 0, rottrans_plane);
+				lmd_vol_plane_->AddNode(lmd_vol_cool_sup_down, iplane, rottrans_no);
+			lmd_vol_half_->AddNode(lmd_vol_plane_, iplane, rottrans_plane);
 			// // save the transformation from the lumi reference frame
 			// // into the plane reference frame
-			// transformation_matrices[Generate_key(ihalf, iplane, -1, -1, -1, -1)] =
+			// transformation_matrices[Generate_Tkey(ihalf, iplane, -1, -1, -1, -1)] =
 			//   new TGeoHMatrix((*rottrans_plane));
 		} // loop over planes
-		lmd_vol_ref_sys->AddNode(lmd_vol_half_, 0, rottrans_no);
+		lmd_vol_ref_sys->AddNode(lmd_vol_half_, ihalf, rottrans_no);
 		// save the transformation into the lumi reference frame
-		transformation_matrices[Generate_key(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
+		transformation_matrices[Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
 	} // loop over detector halves
 	// code geometry version in the node title
 	stringstream nodetitle;
@@ -1414,19 +1357,19 @@ void PndLmdDim::reCreate_transformation_matrices(){
 	    // rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
 	    // save the transformation from the lumi reference frame
 	    // into the local cvd side reference frame
-	  transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+	  transformation_matrices[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
 	    new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
-	  // transformation_matrices_aligned[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+	  // transformation_matrices_aligned[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
 	  //  new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side)); //TEST
 
 
 	} // loop over the two sides of the modules
-	// transformation_matrices[Generate_key(ihalf, iplane, imodule, -1, -1, -1)] =
+	// transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, -1, -1, -1)] =
 	//       new TGeoHMatrix((*rottrans_plane) * (*rottrans_module));
       } // loop over modules
     } // loop over planes
     // // save the transformation into the lumi reference frame
-    // transformation_matrices[Generate_key(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
+    // transformation_matrices[Generate_Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
   } // loop over detector halves
 }
 
@@ -1486,24 +1429,24 @@ void PndLmdDim::Correct_transformation_matrices(){
 
 			  // // save the transformation from the lumi reference frame
 			  // // into the local cvd side reference frame
-			  // transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+			  // transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
 			  //   new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
 
 			  // save the transformation from the lumi reference frame
 			  // into the local cvd side reference frame
-			  // transformation_matrices[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+			  // transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
 			  //   new TGeoHMatrix((*rottrans_side)); //TODO: ????
-			  transformation_matrices_aligned[Generate_key(ihalf, iplane, imodule, iside, -1, -1)] =
+			  transformation_matrices_aligned[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
 			    new TGeoHMatrix((*rottrans_side)); //TEST
 
 
 			} // loop over the two sides of the modules
-	      // transformation_matrices[Generate_key(ihalf, iplane, imodule, -1, -1, -1)] =
+	      // transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, -1, -1, -1)] =
 	      // 	new TGeoHMatrix((*rottrans_plane) * (*rottrans_module)); //TODO: ????
 	    } // loop over modules
 	  } // loop over planes
 	  // // save the transformation into the lumi reference frame
-	  // transformation_matrices[Generate_key(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
+	  // transformation_matrices[Generate_Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
 	} // loop over detector halves
 }
 
@@ -1513,7 +1456,7 @@ void PndLmdDim::Correct_transformation_matrices(){
 
 void PndLmdDim::Read_transformation_matrices(string filename, bool aligned, int version_number){
 	Retrieve_version_number();
-	map<string, TGeoMatrix* >* matrices = NULL;
+	map<Tkey, TGeoMatrix* >* matrices = NULL;
 	if (aligned){
 		matrices = &transformation_matrices_aligned;
 	} else {
@@ -1574,7 +1517,7 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned, int 
 				rot->SetMatrix(rotation);
 				TGeoCombiTrans* rottrans =
 						new TGeoCombiTrans(translation[0], translation[1], translation[2], rot);
-				(*matrices)[key] = rottrans;
+				(*matrices)[Tkey(key)] = rottrans;
 				matrices_counter++;
 			} else {
 				file.close();
@@ -1588,10 +1531,509 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned, int 
 	}
 }
 
+TGeoHMatrix* PndLmdDim::Get_matrix(string path, bool aligned,
+		int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
+	TGeoHMatrix* result = NULL;
+	if (!gGeoManager->CheckPath(path.c_str())){
+		cout << " Error in PndLmdDim::Get_matrix: path " << path << " is not valid " << endl;
+		return result;
+	}
+	if (!aligned){ // try to obtain the original matrix, if available
+		TGeoPNEntry *pne;
+		//TGeoHMatrix *ide;  // ideal
+		//TGeoHMatrix *mis;  // misaligned
+		string uname = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
+		pne = gGeoManager->GetAlignableEntry(uname.c_str());
+		if (pne){
+			TGeoPhysicalNode *node = pne->GetPhysicalNode();// new TGeoPhysicalNode(path.c_str());//
+			if (node){
+				result = new TGeoHMatrix(*node->GetOriginalMatrix());
+				//if (aligned) result = new TGeoHMatrix(*node->GetNode(node->GetLevel())->GetMatrix());
+				return result;
+			} else {
+				cout << " no node found in pn entry at " << path << endl;
+				cout << " obtaining default matrix " << endl;
+			}
+		} else {
+			cout << " no pn entry (alignable node) found in " << path << endl;
+			cout << " obtaining default matrix " << endl;
+		}
+	}
+	// I don't care if it was aligned or not, use the last one
+	gGeoManager->cd(path.c_str());
+	TGeoMatrix* matrix = gGeoManager->GetCurrentNode()->GetMatrix();
+	if (!matrix)
+		return NULL;
+	result = new TGeoHMatrix(*(matrix));
+	//result->Print();
+	//if (result){
+	//	cout << " found a transformation matrix for " << path << endl;
+	//	result->Print();
+	//	return result;
+	//}
+
+	//
+	//if (!pne){
+	//	cout << " no pn entry found in " << path << endl;
+	//	return 0;
+	//}
+	//TGeoPhysicalNode *node = new TGeoPhysicalNode(path.c_str());//pne->GetPhysicalNode();
+	//if (!node){
+	//	cout << " no node found in pn entry at " << path << endl;
+	//	return 0;
+	//}
+	//result = new TGeoHMatrix(*node->GetOriginalMatrix());
+	//if (aligned) result = new TGeoHMatrix(*node->GetNode(node->GetLevel())->GetMatrix());
+	//else result = new TGeoHMatrix(*node->GetOriginalMatrix());
+	//if (!result){
+	//	cout << " warning: no matrix found for the path " << path << endl;
+	//}
+	//delete node;
+	return result;
+}
+
+bool PndLmdDim::Set_matrix(string path, TGeoHMatrix* matrix,
+		int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
+	if (!matrix) return false;
+	if (!gGeoManager->CheckPath(path.c_str())){
+		cout << " Error in PndLmdDim::Set_matrix: path " << path << " is not valid " << endl;
+		return false;
+	}
+	TGeoPNEntry *pne;
+	TGeoPhysicalNode *node;
+	string uname = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
+	pne = gGeoManager->GetAlignableEntry(uname.c_str());
+	if (!pne){
+		cout << " creating alignable entry for " << path << endl;
+		if (isensor > 0){
+			int sensID = Get_sensor_id(ihalf, iplane, imodule, iside, idie, isensor);
+			pne = gGeoManager->SetAlignableEntry(uname.c_str(), path.c_str(), sensID);
+		} else {
+			pne = gGeoManager->SetAlignableEntry(uname.c_str(), path.c_str());
+		}
+		if (pne){
+			node = new TGeoPhysicalNode(path.c_str());
+			pne->SetPhysicalNode(node);
+		}
+	}
+	if (!pne) {
+		cout << " Error: no pn entry (alignable node) at " << path << " created " << endl;
+		return false;
+	}
+	node = pne->GetPhysicalNode();
+	if (!node) {
+		cout << " no node found for pn entry (alignable node) at " << path << endl;
+		return false;
+	}
+	return node->Align(matrix);  //GetNode(node->GetLevel())->Align();
+	//cout << " matrix at " << path << " successfully aligned " << endl;
+	/*
+			if (aligned) return new TGeoHMatrix(*node->GetNode(node->GetLevel())->GetMatrix());
+	else return new TGeoHMatrix(*node->GetOriginalMatrix());	*/
+	//return true;
+}
+
+bool PndLmdDim::Read_transformation_matrices_from_geometry(bool aligned){
+	if (!Retrieve_version_number()){
+		return false;
+	}
+	if (geometry_version < 3){
+		cout << " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:" << endl;
+		cout << " geometry version " << geometry_version << " is not compatible with this method! " << endl;
+		return false;
+	}
+	bool result = false;
+	//FairRootManager* ioman = FairRootManager::Instance();
+	TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
+	if (!gGeoMan){
+		cout << " Info: no FAIRGeom found, using gGeoManager " << endl;
+		gGeoMan = gGeoManager;
+	}
+	if (gGeoMan){
+		vector <string> list_of_sensors;
+		string path_to_top = Get_List_of_Sensors(list_of_sensors);
+		int offset;
+		if (!Test_List_of_Sensors(list_of_sensors, offset)){
+			cout << " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:" << endl;
+			cout << " could not retrieve list of sensors from geometry " << endl;
+			return false;
+		}
+
+		map<Tkey, TGeoMatrix* >* matrices = NULL;
+		if (aligned){
+			matrices = &transformation_matrices_aligned;
+		} else {
+			matrices = &transformation_matrices;
+		}
+		// kill existing matrices
+		for (it_transformation_matrices = matrices->begin(); it_transformation_matrices != matrices->end(); it_transformation_matrices++){
+			delete(it_transformation_matrices->second);
+		}
+		matrices->clear();
+
+		int matrices_counter(0);
+		TGeoHMatrix* matrix;
+
+		TGeoVolume* vol = gGeoMan->FindVolumeFast(nav_paths[0].c_str());
+		if (vol){ // check only the existence of the top node, everything else will be not checked, so earlier simulations will fail here
+			/*
+			string sversion = vol->GetTitle();
+			if (sversion.compare(0,8,"version ")!=0){
+				cout << " Warning from PndLmdDim::Retrieve_version_number: no version number encoded in the node title. Setting it to 0. " << endl;
+				geometry_version = 0;
+			} else {
+				// take the number behind "version " string
+				geometry_version = atoi(&(vol->GetTitle()[8]));
+			}
+			cout << " Info from PndLmdDim::Retrieve_version_number: The geometry version was set to " << geometry_version << endl;
+			//cout << vol->GetName() << endl;*/
+			int sensor_id = offset;
+			stringstream path_to_ref;
+			path_to_ref << path_to_top << "/" << nav_paths[1] << "_0";
+			gGeoMan->cd(path_to_ref.str().c_str());
+			TGeoHMatrix* top_matrix = new TGeoHMatrix(*gGeoMan->GetCurrentMatrix());
+			//top_matrix->Print();
+			if (top_matrix) (*matrices)[Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix(*top_matrix);
+			for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+				stringstream path_to_half;
+				path_to_half << path_to_ref.str() << "/" << nav_paths[2] << "_" << ihalf;
+				//gGeoMan->cd(path_to_half.str().c_str());
+				TGeoHMatrix* half_matrix = Get_matrix(path_to_half.str(),aligned,
+						ihalf, -1, -1, -1, -1, -1);//gGeoMan->GetCurrentNode()->GetMatrix();
+				// here is some mess, sorry for that!
+				//if (half_matrix && top_matrix) (*matrices)[Tkey(-1, -1, -1, -1, -1, -1)] =
+				//		new TGeoHMatrix(*half_matrix * *top_matrix);
+				for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+					stringstream path_to_plane;
+					path_to_plane << path_to_half.str() << "/" << nav_paths[3] << "_" << iplane;
+					//gGeoMan->cd(path_to_plane.str().c_str());
+					TGeoHMatrix* plane_matrix = Get_matrix(path_to_plane.str(),aligned,
+							ihalf, iplane, -1, -1, -1, -1);
+					//if (matrix) (*matrices)[Tkey(ihalf, iplane, imodule, iside, idie, isensor)] = new TGeoHMatrix(*matrix);
+					for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+						stringstream path_to_module;
+						path_to_module << path_to_plane.str() << "/" << nav_paths[4] << "_" << imodule;
+						//gGeoMan->cd(path_to_module.str().c_str());
+						TGeoHMatrix* module_matrix = Get_matrix(path_to_module.str(), aligned,
+								ihalf, iplane, imodule, -1, -1, -1);
+						//if (matrix) (*matrices)[Tkey(ihalf, iplane, imodule, iside, idie, isensor)] = new TGeoHMatrix(*matrix);
+						for (unsigned int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
+							stringstream path_to_side;
+							path_to_side << path_to_module.str() << "/" << nav_paths[5] << "_" << iside;
+							//gGeoMan->cd(path_to_side.str().c_str());
+							TGeoHMatrix* side_matrix = Get_matrix(path_to_side.str(),aligned,
+									ihalf, iplane, imodule, iside, -1, -1);//gGeoMan->GetCurrentNode()->GetMatrix();
+							if (plane_matrix && module_matrix && side_matrix)
+								(*matrices)[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
+										new TGeoHMatrix(*plane_matrix * *module_matrix * *side_matrix);
+							for (unsigned int idie = 0; idie < 2; idie++){ // loop over dies
+								stringstream path_to_die;
+								path_to_die <<  path_to_side.str() << "/" << nav_paths[6] << "_" << idie;
+								TGeoHMatrix* die_matrix = Get_matrix(path_to_die.str(),aligned,
+										ihalf, iplane, imodule, iside, idie, -1);
+								for (unsigned int isensor = 0; isensor < 3; isensor++){ // loop over sensors
+									if (idie == 1){
+										if (isensor == 0) continue;
+									}
+									stringstream path_to_sensor;
+									path_to_sensor << path_to_die.str() << "/" << nav_paths[7] << "_" << sensor_id;
+									TGeoHMatrix* sensor_matrix = Get_matrix(path_to_sensor.str(),aligned,
+											ihalf, iplane, imodule, iside, idie, isensor);//gGeoMan->GetCurrentNode()->GetMatrix();
+									if (sensor_matrix && die_matrix)
+										(*matrices)[Tkey(ihalf, iplane, imodule, iside, idie, isensor)] =
+												new TGeoHMatrix(*die_matrix * *sensor_matrix); // do I have to delete it, or should I copy it?
+											//new TGeoHMatrix((*rottrans_die) * (*rottrans_sensor));
+									sensor_id++;
+									delete sensor_matrix;
+								} // loop over sensors
+								delete die_matrix;
+							} // loop over dies
+							delete side_matrix;
+						} // loop over the two sides of the modules
+						delete module_matrix;
+					} // loop over modules
+					delete plane_matrix;
+				} // loop over planes
+				delete half_matrix;
+			} // loop over detector halves
+			delete top_matrix;
+			gGeoManager->RefreshPhysicalNodes(false);
+			cout << " read " << (*matrices).size() << " matrices from root geometry " << endl;
+			result = true;
+		} else {
+			cout << " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:" << endl;
+			cout << " Could not find the top volume " << nav_paths[0].c_str() << " to retrieve the transformation matrix for the luminosity detector! Is the geometry already loaded? " << endl;
+		}
+	} else {
+		cout << " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:" << endl;
+		cout << " Could not find a GeoManager to load the luminosity detector matrices from it! " << endl;
+	}
+	return result;
+}
+
+bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned){
+	if (!Retrieve_version_number()){
+		return false;
+	}
+	if (geometry_version < 3){
+		cout << " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:" << endl;
+		cout << " geometry version " << geometry_version << " is not compatible with this method! " << endl;
+		return false;
+	}
+	bool result = false;
+	//FairRootManager* ioman = FairRootManager::Instance();
+	TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
+	if (!gGeoMan){
+		cout << " Info: no FAIRGeom found, using gGeoManager " << endl;
+		gGeoMan = gGeoManager;
+	}
+	if (gGeoMan){
+		vector <string> list_of_sensors;
+		string path_to_top = Get_List_of_Sensors(list_of_sensors);
+		int offset;
+		if (!Test_List_of_Sensors(list_of_sensors, offset)){
+			cout << " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:" << endl;
+			cout << " could not retrieve list of sensors from geometry " << endl;
+			return false;
+		}
+
+		map<Tkey, TGeoMatrix* >* matrices = NULL;
+		if (aligned){
+			matrices = &transformation_matrices_aligned;
+		} else {
+			matrices = &transformation_matrices;
+		}
+		// check matrix existence
+		if (matrices->size() == 0){
+			cout << " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:" << endl;
+			cout << " no matrices to apply to the geometry! " << endl;
+			return false;
+		}
+
+		int matrices_counter(0);
+		TGeoHMatrix* matrix;
+		TGeoHMatrix* matrix_mother;
+
+		TGeoVolume* vol = gGeoMan->FindVolumeFast(nav_paths[0].c_str());
+		if (vol){ // check only the existence of the top node, everything else will be not checked, so earlier simulations will fail here
+			/*
+			string sversion = vol->GetTitle();
+			if (sversion.compare(0,8,"version ")!=0){
+				cout << " Warning from PndLmdDim::Retrieve_version_number: no version number encoded in the node title. Setting it to 0. " << endl;
+				geometry_version = 0;
+			} else {
+				// take the number behind "version " string
+				geometry_version = atoi(&(vol->GetTitle()[8]));
+			}
+			cout << " Info from PndLmdDim::Retrieve_version_number: The geometry version was set to " << geometry_version << endl;
+			//cout << vol->GetName() << endl;*/
+			int sensor_id = offset;
+			stringstream path_to_ref;
+			path_to_ref << path_to_top << "/" << nav_paths[1] << "_0";
+			matrix = (TGeoHMatrix*) Get_matrix(-1,-1,-1,-1,-1,-1, aligned);
+			// obtain matrix up to the mother volume to subtract it
+			// from the total one in the search tree
+			gGeoMan->cd(path_to_top.c_str());
+			matrix_mother = (TGeoHMatrix*) gGeoMan->GetCurrentMatrix();
+			if (matrix && matrix_mother) {
+				TGeoHMatrix* _matrix = new TGeoHMatrix(matrix_mother->Inverse() * *matrix);
+				Set_matrix(path_to_ref.str(), _matrix,
+						-1, -1, -1, -1, -1, -1);
+			}
+			for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+				stringstream path_to_half;
+				path_to_half << path_to_ref.str() << "/" << nav_paths[2] << "_" << ihalf;
+				gGeoMan->cd(path_to_half.str().c_str());
+				// get the original matrix to subtract it
+				// I'm not sure if it is always correct
+				TGeoHMatrix* half_matrix = Get_matrix(path_to_half.str(),false,
+						ihalf, -1, -1, -1, -1, -1);
+				//matrix = (TGeoHMatrix*) Get_matrix(ihalf,-1,-1,-1,-1,-1, aligned);
+				//if (matrix) Set_matrix(path_to_half.str(), matrix,
+				//		ihalf, -1, -1, -1, -1, -1);
+				for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+					stringstream path_to_plane;
+					path_to_plane << path_to_half.str() << "/" << nav_paths[3] << "_" << iplane;
+					//gGeoMan->cd(path_to_plane.str().c_str());
+					TGeoHMatrix* plane_matrix = Get_matrix(path_to_plane.str(),false,
+												ihalf, iplane, -1, -1, -1, -1);
+					//matrix = (TGeoHMatrix*) Get_matrix(ihalf,iplane,-1,-1,-1,-1, aligned);
+					//if (matrix) Set_matrix(path_to_plane.str(), matrix,
+					//		ihalf, iplane, -1, -1, -1, -1);
+					for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+						stringstream path_to_module;
+						path_to_module << path_to_plane.str() << "/" << nav_paths[4] << "_" << imodule;
+						TGeoHMatrix* module_matrix = Get_matrix(path_to_module.str(), false,
+								ihalf, iplane, imodule, -1, -1, -1);
+						//gGeoMan->cd(path_to_module.str().c_str());
+						//matrix = (TGeoHMatrix*) Get_matrix(ihalf,iplane,imodule,-1,-1,-1, aligned);
+						//if (matrix) Set_matrix(path_to_module.str(), matrix,
+						//		ihalf, iplane, imodule, -1, -1, -1);
+						for (unsigned int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
+							stringstream path_to_side;
+							path_to_side << path_to_module.str() << "/" << nav_paths[5] << "_" << iside;
+							//gGeoMan->cd(path_to_side.str().c_str());
+							TGeoHMatrix* side_matrix = Get_matrix(path_to_side.str(),false,
+									ihalf, iplane, imodule, iside, -1, -1);
+							matrix = (TGeoHMatrix*) Get_matrix(ihalf,iplane,imodule,iside,-1,-1, aligned);
+							if (matrix && plane_matrix && module_matrix && side_matrix){
+								TGeoHMatrix* _matrix = new TGeoHMatrix((*plane_matrix * *module_matrix).Inverse() * *matrix);
+								Set_matrix(path_to_side.str(), _matrix,
+										ihalf, iplane, imodule, iside, -1, -1);
+							}
+							for (unsigned int idie = 0; idie < 2; idie++){ // loop over dies
+								stringstream path_to_die;
+								path_to_die <<  path_to_side.str() << "/" << nav_paths[6] << "_" << idie;
+								//gGeoMan->cd(path_to_die.str().c_str());
+								//matrix = (TGeoHMatrix*) Get_matrix(ihalf,iplane,imodule,iside,idie,-1, aligned);
+								TGeoHMatrix* die_matrix = Get_matrix(path_to_die.str(),aligned,
+										ihalf, iplane, imodule, iside, idie, -1);
+								//if (matrix) Set_matrix(path_to_die.str(), matrix,
+								//		ihalf, iplane, imodule, iside, idie, -1);
+								for (unsigned int isensor = 0; isensor < 3; isensor++){ // loop over sensors
+									if (idie == 1){
+										if (isensor == 0) continue;
+									}
+									stringstream path_to_sensor;
+									stringstream path_to_sensor_passive;
+									path_to_sensor << path_to_die.str() << "/" << nav_paths[7] << "_" << sensor_id;
+									// here the passive part of the sensor must be also shifted
+									// this was not reflected in the original idea to store the path in the nav_paths
+									path_to_sensor_passive << path_to_die.str() << "/" << "LumPassiveRect" << "_" << sensor_id-sensIDoffset;
+									//gGeoMan->cd(path_to_sensor.str().c_str());
+									TGeoHMatrix* sensor_matrix = Get_matrix(path_to_sensor.str(),aligned,
+										ihalf, iplane, imodule, iside, idie, isensor);
+									matrix = (TGeoHMatrix*) Get_matrix(ihalf,iplane,imodule,iside,idie,isensor, aligned);
+									if (sensor_matrix && die_matrix && matrix) {
+										TGeoHMatrix* _matrix = new TGeoHMatrix(die_matrix->Inverse() * *matrix);
+										//TGeoHMatrix* _matrix_passive = new TGeoHMatrix(die_matrix->Inverse() * *matrix);
+										Set_matrix(path_to_sensor.str(), _matrix,
+												ihalf, iplane, imodule, iside, idie, isensor);
+										Set_matrix(path_to_sensor_passive.str(), _matrix, ihalf, iplane, imodule, iside, idie, isensor+1000);
+									}
+									sensor_id++;
+								} // loop over sensors
+								//lmd_vol_side_->AddNode(lmd_vol_die_, 0, rottrans_die);
+							} // loop over dies
+						} // loop over the two sides of the modules
+						//lmd_vol_plane_->AddNode(lmd_vol_module_, 0, rottrans_module);
+					} // loop over modules
+				} // loop over planes
+				//lmd_vol_ref_sys->AddNode(lmd_vol_half_, 0, rottrans_no);
+				//transformation_matrices[Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
+			} // loop over detector halves
+			cout << " set " << (*matrices).size() << " matrices to root geometry " << endl;
+			result = true;
+		} else {
+			cout << " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:" << endl;
+			cout << " Could not find the top volume " << nav_paths[0].c_str() << " to retrieve the transformation matrix for the luminosity detector! Is the geometry already loaded? " << endl;
+		}
+		gGeoMan->RefreshPhysicalNodes();
+	} else {
+		cout << " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:" << endl;
+		cout << " Could not find a GeoManager to load the luminosity detector matrices from it! " << endl;
+	}
+
+	return result;
+}
+
+string PndLmdDim::Get_List_of_Sensors(vector <string>& list_of_sensors, bool found_lmd, bool first_call){
+	string result("");
+	if (first_call){
+		gGeoManager->CdTop();
+		first_call = false;
+	}
+	//cout << gGeoManager->GetPath() << " ";
+	string nodename(gGeoManager->GetCurrentNavigator()->GetCurrentNode()->GetName());
+	//cout << "current node is " << nodename << endl;
+	if (nodename.compare(0, nav_paths[7].size(), nav_paths[7]) == 0){
+		//cout << " found a sensor " << nav_paths[7] << endl;
+		list_of_sensors.push_back(gGeoManager->GetPath());
+	}
+	int nnodes = gGeoManager->GetCurrentNode()->GetNdaughters();
+	for (int i = 0; i < nnodes; i++){
+		//cout << " navigating into node " << i << endl;
+		gGeoManager->CdDown(i);
+			result = Get_List_of_Sensors(list_of_sensors, found_lmd, first_call);
+		if (nodename == nav_paths[1] || found_lmd){
+			cout << " found the lmd node! Aborting recursive search. " << endl;
+			gGeoManager->CdUp();
+			break;
+		}
+		gGeoManager->CdUp();
+	}
+	if (nodename.compare(0, nav_paths[0].size(), nav_paths[0]) == 0){
+		result = gGeoManager->GetPath();
+		cout << " top volume is " << result << endl;
+	}
+	return result;
+}
+
+bool PndLmdDim::Test_List_of_Sensors(vector <string> list_of_sensors, int& offset){
+	bool result = true;
+	offset = 0;
+	int nsensorstotal = n_sensors*2*nmodules*2*n_planes;
+	int max_sensID = nsensorstotal-1;
+	int checksum = 0;
+	int sumtocheck = 0;
+	if (list_of_sensors.size() != nsensorstotal){
+		cout << " PndLmdDim::Test_List_of_Sensors: number of sensors is wrong " << list_of_sensors.size() <<  " != " <<  nsensorstotal << endl;
+		return false;
+	}
+	for (unsigned isensor = 0; isensor < nsensorstotal; isensor++){
+		gGeoManager->cd(list_of_sensors[isensor].c_str());
+		string path(gGeoManager->GetCurrentNavigator()->GetPath());
+		if (path != list_of_sensors[isensor]){
+			cout << " PndLmdDim::Test_List_of_Sensors: Could not navigate to " << list_of_sensors[isensor] << endl;
+			return false;
+		}
+		// strip the copy number in the path
+		char sensID_char[5] = {'0','0','0','\0'};
+		sensID_char[4] = '\0';
+		for (unsigned ichar = 3; ichar > 0; ichar--){//path.size()-1; ichar > path.size()-5; ichar--){
+			char digit = path[path.size()-4+ichar];
+			if (digit == '_') break;
+			sensID_char[ichar] = digit;
+		}
+		int sensID = atoi(sensID_char);
+		if (sensID > max_sensID){
+			max_sensID = sensID;
+		}
+		checksum += isensor;
+		sumtocheck += sensID;
+	}
+	offset = max_sensID - (nsensorstotal - 1);
+	if (offset != 0){
+		cout << " PndLmdDim::Test_List_of_Sensors: Found an offset in the sensorIDs of " << offset << endl;
+		checksum+=(nsensorstotal*offset);
+	}
+	if (checksum != sumtocheck){
+		cout << " PndLmdDim::Test_List_of_Sensors: check sum of sensor id's does not match " << checksum << " != " << sumtocheck << endl;
+		return false;
+	}
+	return result;
+}
+
+bool PndLmdDim::Set_sensIDoffset(int offset){
+	if (offset >= 0){
+		sensIDoffset = (int) offset;
+		return true;
+	}
+	vector <string> sensors;
+	Get_List_of_Sensors(sensors);
+	if (Test_List_of_Sensors(sensors, offset)){
+		sensIDoffset = offset;
+		return true;
+	} else {
+		cout << " Could not set sensIDoffset from root geometry " << endl;
+		return false;
+	}
+ }
+
 #include <iomanip>
 
 void PndLmdDim::Write_transformation_matrices(string filename, bool aligned, int version_number){
-	map<string, TGeoMatrix* >* matrices = NULL;
+	map<Tkey, TGeoMatrix* >* matrices = NULL;
 	if (aligned){
 		matrices = &transformation_matrices_aligned;
 	} else {
@@ -1606,7 +2048,8 @@ void PndLmdDim::Write_transformation_matrices(string filename, bool aligned, int
 		file << "version " << version_number << "\n";
 		for (it_transformation_matrices = matrices->begin(); it_transformation_matrices != matrices->end(); it_transformation_matrices++){
 			// write the key
-			file << it_transformation_matrices->first << '\n';
+			Tkey key = it_transformation_matrices->first;
+			file << Generate_key(key.half, key.plane, key.module, key.side, key.die, key.sensor) << '\n';
 			const double * translation = it_transformation_matrices->second->GetTranslation();
 			const double * rotation = it_transformation_matrices->second->GetRotationMatrix();
 			// write the numbers for the translation
@@ -1687,7 +2130,7 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
   for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
     for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
       for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
-	string key = Generate_key(ihalf, iplane, imodule, -1, -1, -1);
+	Tkey key(ihalf, iplane, imodule, -1, -1, -1);
 	int ikey = (ihalf*n_planes*nmodules)+(iplane*nmodules)+imodule;
 	//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
 	offsets[key].push_back(fShiftX[ikey]);
@@ -1697,7 +2140,7 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
 	offsets[key].push_back(fRotateY[ikey]);
 	offsets[key].push_back(fRotateZ[ikey]);
 
-	string key2 = Generate_key(ihalf, iplane, imodule, 0, -1, -1);//top side
+	Tkey key2(ihalf, iplane, imodule, 0, -1, -1);//top side
 	//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
 	offsets[key2].push_back(fShiftX[ikey]);
 	offsets[key2].push_back(fShiftY[ikey]);
@@ -1707,7 +2150,7 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
 	offsets[key2].push_back(fRotateZ[ikey]);
 
 	// //TODO: is it correct???
-	string key3 = Generate_key(ihalf, iplane, imodule, 1, -1, -1);// bottom side
+	Tkey key3(ihalf, iplane, imodule, 1, -1, -1);// bottom side
 	offsets[key3].push_back(fShiftX[ikey]);
 	offsets[key3].push_back(fShiftY[ikey]);
 	offsets[key3].push_back(fShiftZ[ikey]);
@@ -1722,7 +2165,7 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
 void PndLmdDim::Set_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
 		double x, double y, double z,
 		double rotphi, double rottheta, double rotpsi){
-	string key = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
+	Tkey key = Tkey(ihalf, iplane, imodule, iside, idie, isensor);
 	itoffset = offsets.find(key);
 	if (itoffset != offsets.end()) {
 		cout << " **** Warning in PndLmdDim::Set_offset: offset exists already! Replacing it! *** " << endl;
@@ -1741,7 +2184,7 @@ void PndLmdDim::Set_offset(int ihalf, int iplane, int imodule, int iside, int id
 void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
 		double& x, double& y, double& z,
 		double& rotphi, double& rottheta, double& rotpsi, bool random){
-	string key = Generate_key(ihalf, iplane, imodule, iside, idie, isensor);
+	Tkey key = Tkey(ihalf, iplane, imodule, iside, idie, isensor);
 	//cout<<"setting Offset for: "<<ihalf<<", "<<iplane<<", "<<imodule<<", "<<iside<<", "<<idie<<", "<<isensor<<endl;
 	itoffset = offsets.find(key);
 	if (itoffset != offsets.end()) {
@@ -1807,8 +2250,8 @@ void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int id
 				x = gRandom->Gaus(0, side_offset_x);
 				y = gRandom->Gaus(0, side_offset_y);
 				z = gRandom->Gaus(0, side_offset_z);
-				rottheta = gRandom->Gaus(0, side_tilt_phi);
-				rotphi = gRandom->Gaus(0, side_tilt_theta);
+				rottheta = gRandom->Gaus(0, side_tilt_theta);
+				rotphi = gRandom->Gaus(0, side_tilt_phi);
 				rotpsi = gRandom->Gaus(0, side_tilt_psi);
 			}
 			// the precision of cvd discs is requested
@@ -1838,8 +2281,8 @@ void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int id
 				x = gRandom->Gaus(0, plane_half_offset_x);
 				y = gRandom->Gaus(0, plane_half_offset_y);
 				z = gRandom->Gaus(0, plane_half_offset_z);
-				rottheta = gRandom->Gaus(0, plane_half_tilt_phi);
-				rotphi = gRandom->Gaus(0, plane_half_tilt_theta);
+				rottheta = gRandom->Gaus(0, plane_half_tilt_theta);
+				rotphi = gRandom->Gaus(0, plane_half_tilt_phi);
 				rotpsi = gRandom->Gaus(0, plane_half_tilt_psi);
 			}
 			// the precision of halves of planes is requested
@@ -1850,8 +2293,9 @@ void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int id
 				x = gRandom->Gaus(0, half_offset_x);
 				y = gRandom->Gaus(0, half_offset_y);
 				z = gRandom->Gaus(0, half_offset_z);
-				rottheta = gRandom->Gaus(0, half_tilt_phi);
-				rotphi = gRandom->Gaus(0, half_tilt_theta);
+				rottheta = gRandom->Gaus(0, half_tilt_theta);
+				cout << " wtf ? "<< half_tilt_phi << endl;
+				rotphi = gRandom->Gaus(0, half_tilt_phi);
 				rotpsi = gRandom->Gaus(0, half_tilt_psi);
 			}
 			// 	// the precision of the luminosity detector is requested
@@ -2049,8 +2493,8 @@ void PndLmdDim::Transform_global_to_lmd_local_vect(double& x, double& y, double&
 	//cout << x << " " << y << " " << z << endl << endl;
 }
 
-map<string, TGeoMatrix* >* PndLmdDim::Get_matrices(bool aligned){
-	map<string, TGeoMatrix* >* matrices = NULL;
+map<Tkey, TGeoMatrix* >* PndLmdDim::Get_matrices(bool aligned){
+	map<Tkey, TGeoMatrix* >* matrices = NULL;
 	if (aligned){
 		matrices = &transformation_matrices_aligned;
 	} else {
@@ -2059,16 +2503,16 @@ map<string, TGeoMatrix* >* PndLmdDim::Get_matrices(bool aligned){
 	if (matrices->size() == 0) {
 		cout << " Warning in PndLmdDim::Get_matrices: No transformation matrices loaded! => trying to load default ones. " << endl;
 		Read_transformation_matrices("", aligned);
-	}
+	} 
 	return matrices;
 }
 
 TGeoMatrix* PndLmdDim::Get_matrix(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned){
-	map<string, TGeoMatrix* >* matrices = Get_matrices(aligned);
+	map<Tkey, TGeoMatrix* >* matrices = Get_matrices(aligned);
 	if (!matrices) return NULL;
-	it_transformation_matrices = matrices->find(Generate_key(ihalf, iplane, imodule, iside, idie, isensor));
+	it_transformation_matrices = matrices->find(Tkey(ihalf, iplane, imodule, iside, idie, isensor));
 	if (it_transformation_matrices == matrices->end()) {
-		cout << " Error in PndLmdDim::Get_matrix: Transformation matrix not existent! " << endl;
+		//cout << " Warning in PndLmdDim::Get_matrix: Transformation matrix not existent! " << endl;
 		//cout << ihalf << " " << iplane << " " << imodule << " " << iside << " " << idie << " " << isensor << endl;
 		return NULL;
 	} else {
@@ -2086,17 +2530,21 @@ bool PndLmdDim::Get_matrix_difference(int ihalf, int iplane, int imodule, int is
 	if (!matrix || !matrix_aligned) return false;
 	TGeoCombiTrans combi_trans_matrix(*matrix);
 	TGeoCombiTrans combi_trans_matrix_aligned(*matrix_aligned);
-	const double* pos = combi_trans_matrix.GetTranslation();
-	const double* pos_aligned = combi_trans_matrix_aligned.GetTranslation();
-	double rot[3], rot_aligned[3];
-	combi_trans_matrix.GetRotation()->GetAngles(rot[0], rot[1], rot[2]);
-	combi_trans_matrix_aligned.GetRotation()->GetAngles(rot_aligned[0], rot_aligned[1], rot_aligned[2]);
-	dx = pos[0]-pos_aligned[0];
-	dy = pos[1]-pos_aligned[1];
-	dz = pos[2]-pos_aligned[2];
-	dphi = rot[0]-rot_aligned[0];
-	dtheta = rot[1]-rot_aligned[1];
-	dpsi = rot[2]-rot_aligned[2];
+	if (combi_trans_matrix.IsTranslation() && combi_trans_matrix_aligned.IsTranslation()){
+		const double* pos = combi_trans_matrix.GetTranslation();
+		const double* pos_aligned = combi_trans_matrix_aligned.GetTranslation();
+		dx = pos[0]-pos_aligned[0];
+		dy = pos[1]-pos_aligned[1];
+		dz = pos[2]-pos_aligned[2];
+	}
+	if (combi_trans_matrix.IsRotation() && combi_trans_matrix_aligned.IsRotation()){
+		double rot[3], rot_aligned[3];
+		combi_trans_matrix.GetRotation()->GetAngles(rot[0], rot[1], rot[2]);
+		combi_trans_matrix_aligned.GetRotation()->GetAngles(rot_aligned[0], rot_aligned[1], rot_aligned[2]);
+		dphi = rot[0]-rot_aligned[0];
+		dtheta = rot[1]-rot_aligned[1];
+		dpsi = rot[2]-rot_aligned[2];
+	}
 	/*if (ihalf==-1){
 		dx = pos[0];
 		dy = pos[1];
