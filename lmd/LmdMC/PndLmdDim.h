@@ -35,6 +35,8 @@
 #include <TMultiGraph.h>
 #include <TGraph.h>
 #include <stdlib.h>
+#include <cctype>
+
 //work with DB
 /* #include<PndLmdContFact.h> */
 /* #include<TList.h> */
@@ -117,11 +119,11 @@ public:
 	}
 	// transform the position and momentum at the IP
 	// to a position and momentum at the first plane of the LMD
-	void Propagate(TVector3& pos, TVector3& mom){
+	void Propagate(TVector3& pos, TVector3& momdir){
 		//TVector3 dir = mom.Unit();
-		double mommag = mom.Mag();
+		double mommag = momdir.Mag();
 		// position transformation was evaluated for meter and angles * 10.
-		double xip[7] = {pos.X()/100., pos.Y()/100., pos.Z()/100., 1, mom.X()/mom.Z()*10., mom.Y()/mom.Z()*10., 1};
+		double xip[7] = {pos.X()/100., pos.Y()/100., pos.Z()/100., 1, momdir.X()/momdir.Z()*10., momdir.Y()/momdir.Z()*10., 1};
 		double xlmd[7] = {0,0,0,0,0,0,0};
 		for (int i = 0; i < 7; i++){
 			for (int j = 0; j < 7; j++){
@@ -129,8 +131,86 @@ public:
 			}
 		}
 		pos.SetXYZ(xlmd[0]*100., xlmd[1]*100., xlmd[2]*100.);
-		mom.SetXYZ(xlmd[4]/10., xlmd[5]/10., 1.); // not an exact calculation ;)
-		mom = mom.Unit()*mommag;
+		momdir.SetXYZ(xlmd[4]/10., xlmd[5]/10., 1.); // not an exact calculation ;)
+		momdir = momdir.Unit()*mommag;
+	}
+};
+
+class Tkey {
+public:
+	signed char half;
+	signed char plane;
+	signed char module;
+	signed char side;
+	signed char die;
+	signed char sensor;
+	bool operator < (const Tkey & comp) const{
+		if (half < comp.half) return true;
+		if (half > comp.half) return false;
+		if (plane < comp.plane) return true;
+		if (plane > comp.plane) return false;
+		if (module < comp.module) return true;
+		if (module > comp.module) return false;
+		if (side < comp.side) return true;
+		if (side > comp.side) return false;
+		if	(die < comp.die) return true;
+		if	(die > comp.die) return false;
+		if	(sensor < comp.sensor) return true;
+		if	(sensor >= comp.sensor) return false;
+	}
+
+	bool operator == (const Tkey & comp) const{
+		return (half == comp.half) &&
+			(plane == comp.plane) &&
+			(module == comp.module) &&
+			(side == comp.side) &&
+			(die == comp.die) &&
+			(sensor == comp.sensor);
+	}
+
+	Tkey (const Tkey& copy){
+			half = copy.half;
+			plane = copy.plane;
+			module = copy.module;
+			side = copy.side;
+			die = copy.die;
+			sensor = copy.sensor;
+	}
+
+	Tkey (int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
+		half = ihalf;
+		plane = iplane;
+		module = imodule;
+		side = iside;
+		die = idie;
+		sensor = isensor;
+	}
+
+	Tkey (string key){
+		int sign (1);
+		int ikey(0); // 0,1,2,3,4,5 = ihalf, iplane, imodule, iside, idie, isensor
+		int number;
+		for (unsigned int ichar = 0; ichar < key.size(); ichar++){
+			if (key[ichar] == '-'){
+				sign = -1;
+			}
+			if (isdigit(key[ichar])){
+				number = (key[ichar]-'0')*sign;
+				sign = 1;
+				if (ikey == 0) half = number;
+				if (ikey == 1) plane = number;
+				if (ikey == 2) module = number;
+				if (ikey == 3) side = number;
+				if (ikey == 4) die = number;
+				if (ikey == 5) sensor = number;
+				ikey++;
+			}
+		}
+		if (ikey != 6) cout << " Error in Generate_Tkey: key string " << key << " is not valid " << endl;
+	}
+
+	Tkey (){
+		;
 	}
 };
 
@@ -156,6 +236,20 @@ private:
 public:
 	static PndLmdDim& Get_instance();
 	static PndLmdDim* Instance();
+
+	// this offset in the sensor id is introduced by
+	// pandaroot when assembling several detector components
+	// the lmd alone would have a sensor id range between 0 and n total sensors
+	// A detector loaded before the lmd will introduce an offset in
+	// that ID which can be determined from a loaded root geometry by calling
+	// Set_sensIDoffset(-1);
+	// to do: add everywhere that sensID offset
+	unsigned int sensIDoffset;
+
+	// set the sensIDoffset
+	// in case offset is < 0 the offset is
+	// tried to be determined from a possibly loaded root geometry
+	bool Set_sensIDoffset(int offset = -1);
 
 	//	FairRun* ana;
 	//	FairRuntimeDb* rtdb;
@@ -422,12 +516,12 @@ public:
 	int Get_sensor_id(int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
 		if (idie == 1) isensor += 2; // the parallel sensor to sensor 0 is not there!
 		int result = isensor + (iside + (imodule + (iplane + ihalf * n_planes) * nmodules) * 2 ) * n_sensors;
-		return result;
+		return result + sensIDoffset;
 	}
 
 	// get the sensor position by it's id in terms of plane module and side
 	void Get_sensor_by_id(const int sensor_id, int& ihalf, int& iplane, int& imodule, int& iside, int& idie, int& isensor){
-		int _sensor_id = sensor_id;
+		int _sensor_id = sensor_id - sensIDoffset;
 		isensor = _sensor_id % n_sensors;
 		idie = 0;
 		if (isensor > 2) {
@@ -458,12 +552,57 @@ public:
 	// as the sensors sitting on the diamond it self
 	// the storage is realized by a map
 	// the vector contains offsets in x, y, z, rotphi, rottheta, rotpsi;
-	map<string, vector<double> > offsets;
-	map<string, vector<double> >::iterator itoffset;
+	map<Tkey, vector<double> > offsets;
+	map<Tkey, vector<double> >::iterator itoffset;
+	/* replaced by an ugly but faster version below
 	string Generate_key(int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
 		stringstream keystream;
 		keystream << ihalf << iplane << imodule << iside << idie << isensor;
 		return keystream.str();
+	}*/
+
+	/**
+		 * C++ version 0.4 char* style "itoa":
+		 * Written by Lukás Chmela
+		 * Released under GPLv3.
+		 */
+	char* itoa(int value, char* result, int base) {
+		// check that the base if valid
+		char* last_char;
+		if (base < 2 || base > 36) { *result = '\0'; return result; }
+		char* ptr = result, *ptr1 = result, tmp_char;
+		int tmp_value;
+		do {
+			tmp_value = value;
+			value /= base;
+			*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
+		} while ( value );
+		// Apply negative sign
+		if (tmp_value < 0) *ptr++ = '-';
+		last_char = ptr;
+		*ptr-- = '\0';
+		//cout << last_char << endl;
+		while(ptr1 < ptr) {
+			tmp_char = *ptr;
+			*ptr--= *ptr1;
+			*ptr1++ = tmp_char;
+		}
+		return last_char;
+	}
+
+	string Generate_key(int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
+		char key[100];
+		char* ptr;
+		ptr = itoa(ihalf, key, 10);
+		ptr = itoa(iplane, ptr, 10);
+		ptr = itoa(imodule, ptr, 10);
+		ptr = itoa(iside, ptr, 10);
+		ptr = itoa(idie, ptr, 10);
+		ptr = itoa(isensor, ptr, 10);
+	    string result(key);
+		//stringstream keystream;
+		//keystream << ihalf << iplane << imodule << iside << idie << isensor;
+		return result;
 	}
 
 	// generate a unique integer key not same as the string above since there negative numbers are allowed
@@ -486,9 +625,13 @@ public:
 	//   key: ihalf >=0 iplane >= 0 imodule >=0 iside = -1 idie = -1 isensor = -1
 	// local side on cvd disc -> local sensor
 	//   key: all variable
-	map<string, TGeoMatrix* > transformation_matrices;
-	map<string, TGeoMatrix* > transformation_matrices_aligned; // alternative aligned detector description
-	map<string, TGeoMatrix* >::iterator it_transformation_matrices;
+	//map<string, TGeoMatrix* > transformation_matrices;
+	//map<string, TGeoMatrix* > transformation_matrices_aligned; // alternative aligned detector description
+	//map<string, TGeoMatrix* >::iterator it_transformation_matrices;
+	// to increase the performance by a factor of 5-6 a struct is used for the key now
+	map<Tkey, TGeoMatrix* > transformation_matrices;
+	map<Tkey, TGeoMatrix* > transformation_matrices_aligned; // alternative aligned detector description
+	map<Tkey, TGeoMatrix* >::iterator it_transformation_matrices;
 
 	// cleanup some maps containing only references
 	void Cleanup();
@@ -510,6 +653,43 @@ public:
 	// VMCWORKDIR/geometry folder is used if no filename (e.g. "") is specified
 	// warning overwrites existing trafo_matrices_lmd.dat!
 	void Write_transformation_matrices(string filename, bool aligned = true, int version_number = geometry_version);
+
+	// read transformation matrices from a loaded geometry
+	// aligned and not aligned are two separate maps
+	// containing the description of the detector positions
+	// the geometry must be loaded otherwise matrices cannot be read
+	// version number will be set according to the geometry version number
+	// To Do: multiply also matrices on the way to the key matrices
+	//        in case those are not unity matrices
+	bool Read_transformation_matrices_from_geometry(bool aligned = true);
+
+	// apply transformation matrices to a loaded geometry
+	// aligned and not aligned are two separate maps
+	// containing the description of the detector positions
+	// the geometry must be loaded otherwise matrices cannot be read
+	// version number will be set according to the geometry version number
+	// IMPORTANT: you may choose which PndLmdDim matrices you want to use
+	// but a ROOT Geometry can always be only aligned. The original
+	// matrix stays untouched!
+	// To Do: multiply also matrices on the way to the key matrices
+	//        in case those are not unity matrices
+	// To Do: Find out how to store the aligned geometry as a default
+	//        one to pandaroot parameter files
+	bool Write_transformation_matrices_to_geometry(bool aligned = true);
+
+	// get a list of sensor paths in the geometry navigation model
+	// returns the path to the lmd top volume
+	// It is a recursive search, call it once with the default found_lmd variable
+	// in case first_call then gGeoManager->CdTop(); is executed to get to the top node
+	// of a geometry
+	// The geometry must be loaded
+	string Get_List_of_Sensors(vector <string>& list_of_sensors, bool found_lmd = false, bool first_call = true);
+
+	// check a list of sensor paths for validity
+	// result is true if tests were sucessful
+	// offset is the offset in the sensor number which may be
+	// not 0 if the geometry was not created in the first place
+	bool Test_List_of_Sensors(vector <string> list_of_sensors, int& offset);
 
 	// Get an offset for a volume, if not existent and random
 	// a random offset is generated and stored
@@ -800,13 +980,34 @@ public:
 	// get a pointer to the requested matrices with checks
 	// returns NULL if no matrices available
 	// do not delete!
-	map<string, TGeoMatrix* >* Get_matrices(bool aligned = true);
+	map<Tkey, TGeoMatrix* >* Get_matrices(bool aligned = true);
 
 	// get a pointer to the requested matrix with checks
 	// returns NULL if no matrix available
 	// do not delete or modify unless you know why you want to
 	// load the two files for matrices first
 	TGeoMatrix* Get_matrix(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned = true);
+
+	// get the transformation matrix for an path in an existing root geometry
+	// no checks are performed in advance
+	// result may be 0!
+	// if (aligned) the matrix after a possible alignment is returned
+	// in that case details to the matrix must be provided in form
+	// of ihalf ... isensor
+	// to do: get rid of path and do it only on the basis of ihalf ... isensor
+	// if (!aligned) the original matrix is returned
+	TGeoHMatrix* Get_matrix(string path, bool aligned = true,
+			int ihalf = -1, int iplane= -1, int imodule = -1, int iside = -1, int idie = -1, int isensor = -1);
+
+	// set the transformation matrix for an path in an existing root geometry
+	// A matrix can be only aligned,
+	// therefore by default original matrices are not touched!
+	// since a key must be created for a node
+	// details to it must be provided in form of
+	// ihalf ... isensor
+	// to do: get rid of path and do it only on the basis of ihalf ... isensor
+	bool Set_matrix(string path, TGeoHMatrix* matrix,
+			int ihalf = -1, int iplane= -1, int imodule = -1, int iside = -1, int idie = -1, int isensor = -1);//, bool aligned = true);
 
 	// get the difference between two matrices of the aligned and misaligned branch
 	// in terms of displacement and euler angles
