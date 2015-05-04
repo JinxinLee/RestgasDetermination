@@ -40,6 +40,6 @@ PndSciTHitProducerIdeal.cxx
 set(LINKDEF  SciTLinkDef.h)
 set(LIBRARY_NAME SciT)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData AnalysisTools)
+set(DEPENDENCIES Base GeoBase ParBase PndData AnalysisTools generalTools)
 
 GENERATE_LIBRARY()

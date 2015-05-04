@@ -57,7 +57,7 @@ PndSciT::PndSciT()
   fVerboseLevel = 0;
   fGeoH = PndGeoHandling::Instance(); 
 
-  // Volumes containing "SENSOR" in the name will be processed in teh process hit funktion 
+  // Volumes containing "SENSOR" in the name will be processed in the process hit funktion 
   fListOfSensitives.push_back("SENSOR");
 
 }
@@ -69,9 +69,15 @@ PndSciT::PndSciT(const char* name, Bool_t active)
 {
     fSciTCollection        = new TClonesArray("PndSciTPoint");
     fVerboseLevel = 0;
-    fGeoH = PndGeoHandling::Instance();
 
-    // Volumes containing "SENSOR" in the name will be processed in teh process hit funktion
+    fGeoH = NULL;
+    std::cout << "ScitTil fGeoH is loading" << std::endl;
+    fGeoH = PndGeoHandling::Instance(); 
+  if ( fGeoH == NULL ){
+    std::cout << "ScitTil fGeoH was loaded but is still NULL" << std::endl;
+  }
+
+    // Volumes containing "SENSOR" in the name will be processed in the process hit funktion
     fListOfSensitives.push_back("SENSOR");
     
 }
