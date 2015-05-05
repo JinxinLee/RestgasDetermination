@@ -157,6 +157,7 @@ public:
 		if	(die > comp.die) return false;
 		if	(sensor < comp.sensor) return true;
 		if	(sensor >= comp.sensor) return false;
+		return false;
 	}
 
 	bool operator == (const Tkey & comp) const{
