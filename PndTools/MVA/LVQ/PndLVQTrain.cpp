@@ -1080,7 +1080,7 @@ void PndLVQTrain::SetNumberOfProto(std::map<std::string, size_t> const& labelMap
 void PndLVQTrain::EvalClassifierError()
 {
   std::cout << "\t<-I-> Evaluating LVQ.\n";
-  EvalClassifierError(std::numeric_limits<size_t>::max());
+  EvalClassifierError(std::numeric_limits<unsigned int>::max());
 }
 
 /**
