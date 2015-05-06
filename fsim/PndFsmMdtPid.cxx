@@ -185,7 +185,7 @@ PndFsmMdtPid::detected(PndFsmTrack *t) const
     double charge=t->charge();
     int type=abs(t->pdt());
 
-	if (_useFlat) return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p>_pmin && (type==13 && _rand->Rndm()<=_efficiency) || (type==211 && _rand->Rndm()<=_misId));
+	if (_useFlat) return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p>_pmin && ((type==13 && _rand->Rndm()<=_efficiency) || (type==211 && _rand->Rndm()<=_misId)) );
 	
 	return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p>_pmin );
 }

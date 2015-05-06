@@ -26,7 +26,7 @@ struct FsmDetEnum {
     static const std::string& name(unsigned int t)
     {
       static std::string detName[FsmDetEnum::numSystems+1]={"Mvd","Mvd2","Tpc","Stt", "Tof", "Drc","EmcBarrel","EmcBwCap","EmcFwCap","EmcFS","Muo","Dch1","Dch2","Dch3","Dch4","Dch5","Dch6","Dch7","Dch8","FwkRch","CmpDet","unknown"};
-      if (t<0 || t>=FsmDetEnum::numSystems) t=FsmDetEnum::numSystems;
+      if (t>=FsmDetEnum::numSystems) t=FsmDetEnum::numSystems;
       return detName[t];
     }
   };

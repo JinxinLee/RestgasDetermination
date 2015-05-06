@@ -980,7 +980,7 @@ bool PndFastSim::smearTrack(PndFsmTrack *t, int chcandsize )
     {
       TClonesArray* myPidarray = pidit->second;
       if (!myPidarray) Error("PndFastSim::smearTrack","Missing PidProb Array: \"%s\"",pidit->first.Data());
-      if (! myPidarray->GetEntriesFast() == chcandsize ) Warning("PndFastSim::smearTrack","unequal array sizes: cand array:%i  prob array \"%s\" :%i",chcandsize,pidit->first.Data(),myPidarray->GetEntriesFast());
+      if (myPidarray->GetEntriesFast() != chcandsize ) Warning("PndFastSim::smearTrack","unequal array sizes: cand array:%i  prob array \"%s\" :%i",chcandsize,pidit->first.Data(),myPidarray->GetEntriesFast());
       PndPidProbability *apidProb=new((*myPidarray)[chcandsize]) PndPidProbability();
       apidProb->SetIndex(chcandsize);
     }

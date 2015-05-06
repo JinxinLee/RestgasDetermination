@@ -58,7 +58,7 @@ class PndFastSim : public FairTask
   bool AddDetector(PndFsmAbsDet* det);
   void SetVerbosity(int vb) {fVb=vb;}
   bool EnableSplitoffs(std::string fname="splitpars.dat");
-  bool MergeNeutralClusters(bool merge=true, double par=0.389) {fMergeNeutralClusters=merge; fMergeProbPar=par;}
+  bool MergeNeutralClusters(bool merge=true, double par=0.389) {fMergeNeutralClusters=merge; fMergeProbPar=par; return true;}
   void EnableElectronBremsstrahlung(bool brems=true){fElectronBrems=brems;}
   void EnablePropagation(bool propagate=true, bool tostartvtx=true, bool usecovmatrix=true, double tolerance=0.0);
   void SetUseFlatCov(bool v=true) {fUseFlatCovMatrix=v;};
