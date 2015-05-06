@@ -59,7 +59,7 @@ InitStatus PndMvdReadInTBDataTask::Init()
     }
 
   for (int i = 0; i < fFileNames.size(); i++) {
-    std::cout << "PndMvdReadInTBDataTask::Init FileName: " << fFileNames[i] << std::endl;
+    std::cout << "PndMvdReadInTBDataTask::Init FileName: " << fFileNames[i][0] << std::endl;
 	  fReader.push_back(new PndMvdReadInTBData());
 	  fEndOfFile.push_back(kFALSE);
 	  fReader[i]->SetFileName(fFileNames[i]);
@@ -71,7 +71,8 @@ InitStatus PndMvdReadInTBDataTask::Init()
   }
 
   fDigiArray = ioman->Register("ToPix4Hits", "PndSdsDigiTopix4", "MVD", kTRUE);
-  // fFrameHeaderArray = ioman->Register("ToPix4FrameHeader","frameHeader","MVD", kTRUE);
+  fFrameHeaderArray = ioman->Register("ToPix4FrameHeader","PndSdsDigiTopix4Header","MVD", kTRUE);
+  fAllFrameHeaderArray = ioman->Register("AllToPix4FrameHeader","PndSdsDigiTopix4Header","MVD", kTRUE);
 
   std::cout << "-I- PndMvdReadInTBDataTask: Initialisation successfull" << std::endl;
   fInitDone = kTRUE;
@@ -88,7 +89,7 @@ void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 
 	for(int i = 0; i < fReader.size(); i++){
 		if (fEndOfFile[i] != kTRUE){
-			fEndOfFile[i] = fReader[i]->ReadInData(fDigiArray);
+		  fEndOfFile[i] = fReader[i]->ReadInData(fDigiArray, fFrameHeaderArray, fAllFrameHeaderArray);
 		}
 	}
 	Bool_t endOfFiles = kTRUE;
@@ -100,10 +101,24 @@ void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 		for(int i = 0; i < fReader.size(); i++){
 			UInt_t nonSequential = fReader[i]->GetNonSequenctialFC();
 			std::cout << i << " : " << nonSequential
-					<< " double header " << fReader[i]->GetDoubleHeader()
-					<< " double trailer " << fReader[i]->GetDoubleTrailer() << std::endl;
-			std::cout << i << "SuperFrameCount: " << fReader[i]->GetSuperFrameCount() << std::endl;
-			std::cout << i << "WrongHammingCount: " << fReader[i]->GetWrongHammingCodeCount() << std::endl;
+					<< " double header: " << fReader[i]->GetDoubleHeader()
+					<< " double trailer: " << fReader[i]->GetDoubleTrailer() << std::endl;
+			std::cout << i << " SuperFrameCount: " << fReader[i]->GetSuperFrameCount() << std::endl;
+
+			std::cout << i << " Total Header Count : " << fReader[i]->GetTotalHeaderCount() << std::endl;
+			std::cout << i << " Total Trailer Count : " << fReader[i]->GetTotalTrailerCount() << std::endl;
+
+			std::cout << i << " Total (build) Frames : " << fReader[i]->GetTotalFrameCount() << std::endl;
+			std::cout << i << " Hamming Loss Frame Count: " << fReader[i]->GetHammingLossFrameCount() << std::endl;
+			std::cout << i << " CRC Loss Frame Count: " << fReader[i]->GetCRCLossFrameCount() << std::endl;
+			std::cout << i << " Correct Frame Count: " << fReader[i]->GetCorrectFrameCount() << std::endl;
+			
+			std::cout << i << " Total Hits : " << fReader[i]->GetTotalHitCount() << std::endl;
+			std::cout << i << " Pre Frame Loss Hit Count : " << fReader[i]->GetPreFrameLossHitCount() << std::endl;
+			std::cout << i << " Hamming Loss Hit Count : " << fReader[i]->GetHammingLossHitCount() << std::endl;
+			std::cout << i << " CRC Loss Hit Count : " << fReader[i]->GetCRCLossHitCount() << std::endl;
+			std::cout << i << " Correct Hit Count : " << fReader[i]->GetCorrectHitCount() << std::endl;
+
 		}
 		FairRootManager::Instance()->SetFinishRun(kTRUE);
 	}
@@ -113,7 +128,17 @@ void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 void PndMvdReadInTBDataTask::FinishEvent()
 {
 	fDigiArray->Delete();
-	//fFrameHeaderArray->Delete();
+	fFrameHeaderArray->Delete();
+	fAllFrameHeaderArray->Delete();
+}
+
+void PndMvdReadInTBDataTask::SetNumberOfFrontEnds(Int_t numberfrontends)
+{
+  for(int i=0; i< numberfrontends; i++)
+    {
+      std::vector<TString> vector;
+      fFileNames.push_back(vector);
+    }
 }
 
 ClassImp(PndMvdReadInTBDataTask);

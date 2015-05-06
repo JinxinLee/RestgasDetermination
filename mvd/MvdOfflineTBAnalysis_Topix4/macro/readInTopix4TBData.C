@@ -72,7 +72,7 @@ void readInTopix4TBData(TString inFileName, Double_t clockFrequency = 50.)
   readTask->SetVerbose(2);
   fRun->AddTask(readTask);
 
-  PndMvdTopix4RingSorterTask* sorterTask = new PndMvdTopix4RingSorterTask(100000, 1000000, "ToPix4Hits", "ToPix4HitsSorted","Mvd");
+  PndMvdTopix4RingSorterTask* sorterTask = new PndMvdTopix4RingSorterTask(1000000, 1, "ToPix4Hits", "ToPix4HitsSorted","Mvd");
 //  fRun->AddTask(sorterTask);
 
 

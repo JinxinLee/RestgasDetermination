@@ -26,14 +26,17 @@ public:
     virtual void FinishEvent();
 
     void SetFrequency(Double_t val) {fClockFrequency = val;}
+    void SetNumberOfFrontEnds(Int_t numberfe);
 
-    virtual void AddFile(TString fileName){
-    	fFileNames.push_back(fileName);
+    virtual void AddFile(Int_t asic,TString fileName){
+      std::cout << "File Added to asic " << asic-1 << " fileName " << fileName << std::endl;
+      fFileNames[asic-1].push_back(fileName);
     };
 
 private:
+    std::vector<std::vector<TString> > fFileNames;
 
-    std::vector<TString> fFileNames;
+    //std::vector<TString> fFileNames;
     std::vector<std::ifstream*> fFileHandles;
     std::vector<PndMvdReadInTBData*> fReader;
     std::vector<Bool_t> fEndOfFile;
@@ -41,7 +44,8 @@ private:
     UInt_t fEvent;
 
     TClonesArray* fDigiArray;
-    //   TClonesArray* fFrameHeaderArray;
+    TClonesArray* fFrameHeaderArray;
+    TClonesArray* fAllFrameHeaderArray;
 
 	Bool_t fInitDone;
 	Double_t fClockFrequency; //in MHz

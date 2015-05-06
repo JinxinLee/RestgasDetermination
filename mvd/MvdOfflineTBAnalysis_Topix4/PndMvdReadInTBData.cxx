@@ -15,55 +15,47 @@
 #include <boost/archive/archive_exception.hpp>
 
 PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0), fSuperFrameCount(0),
-					   fOldFrameCount(0), fFirstHeader(kTRUE), fFE(-1),
-					   fNonSequentialFC(0), fWrongHammingCodeCount(0),fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fDataLostCount(0), fVerbose(0),order(16), polynom(0x8005), direct(1), crcinit(0x0000), crcxor(0x0000), refin(0), refout(0) {
+					   fOldFrameCount(0), fOldAllHeaderCount(0), fFirstHeader(kTRUE), fFE(-1),
+					   fNonSequentialFC(0), fHammingLossFrameCount(0), fCRCLossFrameCount(0), fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),  fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(0),fOrder(16), fPolynom(0x8005), fCRCXor(0x0000), fRefIn(0), fRefOut(0), fCRCInit_direct(0), fDataCount(0), fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0) {
 	// TODO Auto-generated constructor stub
-  	crcmask = ((((unsigned long)1<<(order-1))-1)<<1)|1;
-	crchighbit = (unsigned long)1<<(order-1);
+  	fCRCMask = ((((unsigned long)1<<(fOrder-1))-1)<<1)|1;
+	fCRCHighBit = (unsigned long)1<<(fOrder-1);
 
 	GenerateCRCTable();
 }
 
 PndMvdReadInTBData::~PndMvdReadInTBData() {
-//	for (int i = 0; i < fFileHandle.size(); i++){
-		  fFileHandle->close();
-		  delete(fFileHandle);
-//	}
+  fFileHandle->close();
+  delete(fFileHandle);
 }
 
 void PndMvdReadInTBData::GenerateCRCTable() {
-
   // make CRC lookup table used by table algorithms
-
 	ULong64_t bit, crc;
-
 	for (int i=0; i<256; i++) {
-
 		crc=(ULong64_t)i;
-		if (refin) 
+		if (fRefIn) 
 		  {
 		    crc=ReflectBitsStream(crc, 8);
 		  }
-		crc<<= order-8;
+		crc<<= fOrder-8;
 
 		for (int j=0; j<8; j++) 
 		  {
-			bit = crc & crchighbit;
+			bit = crc & fCRCHighBit;
 			crc<<= 1;
 			if (bit) 
 			  {
-			    crc^= polynom;
+			    crc^= fPolynom;
 			  }
-		  }			
-		
-		if (refin) 
+		  }				
+		if (fRefIn) 
 		  {
-		    crc = ReflectBitsStream(crc, order);
+		    crc = ReflectBitsStream(crc, fOrder);
 		  }
-		crc&= crcmask;
-		crctab[i]= crc;
+		crc&= fCRCMask;
+		fCRCTab[i]= crc;
 	}
-
 }
 
 UShort_t PndMvdReadInTBData::CheckHammingCode(ULong64_t dataword, int dataword_length)
@@ -129,58 +121,72 @@ ULong64_t PndMvdReadInTBData::ConvertToPix4HammingToStandardHamming(ULong64_t to
 void PndMvdReadInTBData::Init(){
 	//std::cout << "PndMvdReadInTBData::Init called" << std::endl;
 //	for (int i = 0; i < fFileName.size(); i++){
-	 std::ifstream* ifs = new std::ifstream(fFileName.Data(), std::ios::binary);
-	 std::cout << "File: " << fFileName << " is good: " << ifs->good() << std::endl;
+	 std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
+	 std::cout << "File: " << fFileNames[fFileCounter] << " is good: " << ifs->good() << std::endl;
+	 fFileCounter++;
 	 fFileHandle=ifs;
 //	}
-	fChipIdMap[0] = 0;
-	fChipIdMap[1] = 1;
-	fChipIdMap[2] = 2;
-	fChipIdMap[3] = 3;
-
 }
 
-Bool_t PndMvdReadInTBData::ReadInData(TClonesArray* sdsDigiContainer){
+Bool_t PndMvdReadInTBData::ReadInData(TClonesArray* sdsDigiContainer, TClonesArray* headerContainer, TClonesArray* allheaderContainer){
 	TMrfData_8b* tempdata;
 	tempdata = new TMrfData_8b;
 	ULong_t dataword=0;
 	Bool_t endOfFile = kFALSE;
 
 	fOutputArray = sdsDigiContainer;
-	//	for (int k = 0; k < fFileHandle.size(); k++){
-	std::vector<ULong_t> rawArray;
+	fOutputArrayHeader = headerContainer;
+	fOutputArrayAllHeader = allheaderContainer;
+	std::vector<ULong64_t> rawArray;
 	endOfFile |= ReadInRawData(fFileHandle, rawArray);
-	//		SetFE(k);
 	AnalyzeData(rawArray, fClockFrequency);
-
-	//	}
 	return endOfFile;
 }
 
-Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<ULong_t>& rawData){
+Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData){
 	TMrfData_8b* tempdata;
 	tempdata = new TMrfData_8b;
 	ULong_t dataword=0;
 	Bool_t endOfFile = kFALSE;
-	if (fileHandle->good()){
-	  if (fVerbose > 2) 
-	    {
+	if(fileHandle->good())
+	  {
+	    if (fVerbose > 2) 
+	      {
 	      std::cout << std::endl;
 	      std::cout << "PndMvdReadInTBData::ReadInRawData reading file " << std::endl;
 	    }
-		try{
-			boost::archive::binary_iarchive iar(*fileHandle); 	//this line causes an "Invalid Signature Error" at the end of the file but the file is still good
-			iar >> tempdata;
-		}
+		try
+		  {
+		    boost::archive::binary_iarchive iar(*fileHandle); 	//this line causes an "Invalid Signature Error" at the end of the file but the file is still good
+		    iar >> tempdata;
+		  }
 		catch (boost::archive::archive_exception& exception){
-			if (fVerbose > 1) std::cout << "PndMvdReadInTBData::ReadInRawData: Error found in reading file " << " : " << fileHandle->good() << " " << fileHandle->eof() << " Exception: " << exception.code << std::endl;
-			if (fVerbose > 1) std::cout << exception.what() << std::endl;
-			if (exception.code == 3){
-				endOfFile = kTRUE;
-				return endOfFile;
-			} else {
-				return endOfFile;
+		  if (fVerbose > 1)
+		    {
+		      std::cout << "PndMvdReadInTBData::ReadInRawData: Error found in reading file " << " : " << fileHandle->good() << " " << fileHandle->eof() << " Exception: " << exception.code << std::endl;
+		    }
+		  if (fVerbose > 1)
+		    {
+		      std::cout << exception.what() << std::endl;
+		    }
+		  if (exception.code == 3)
+		    {
+		      if(fFileCounter < fFileNames.size())
+			{
+			  std::cout <<fFE <<  " open new file " << fFileNames[fFileCounter] << std::endl; 
+			  fileHandle->close();
+			  delete(fFileHandle);
+			  std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
+			  fFileCounter++;
+			  return endOfFile;
 			}
+		      else
+			{			  
+			  std::cout <<fFE <<  " All files read! Finishing FE " <<  std::endl; 
+			  endOfFile = kTRUE;
+			  return endOfFile;
+			}
+		    }
 		}
 		if (fVerbose > 2) std::cout << fFE << " PndMvdReadInTBData::ReadInRawData: NWords: " << tempdata->getNumWords() << std::endl;
 		for (UInt_t i=0;i < tempdata->getNumWords();i+=5)
@@ -197,10 +203,18 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 			if (fVerbose > 2)  std::cout << std::dec << "dataword No "<< i/5<< "/"<< tempdata->getNumWords()/5 << ": "<<std::hex << dataword << " " << std::dec << frameCount << std::endl;
 		
 		}
-	} else {
-		endOfFile = kTRUE;
-	}
-	return endOfFile;
+	  } 
+	else
+	  {
+	    std::cout << fFE << " An error occured " << std::endl;
+	    std::cout << fFE << " fileHandle->good() " << fileHandle->good() << std::endl;
+	    std::cout << fFE << " fileHandle->eof()  " << fileHandle->eof() << std::endl;
+	    std::cout << fFE << " fileHandle->fail() " << fileHandle->fail() << std::endl;
+	    std::cout << fFE << " fileHandle->bad()  " << fileHandle->bad() << std::endl;
+
+	    endOfFile = kFALSE ; 
+	    return endOfFile;
+	  }
 }
 
 ULong64_t PndMvdReadInTBData::CalculateCRCTableFast(std::vector<char> p, ULong64_t len) {
@@ -208,20 +222,20 @@ ULong64_t PndMvdReadInTBData::CalculateCRCTableFast(std::vector<char> p, ULong64
 	// fast lookup table algorithm without augmented zero bytes, e.g. used in pkzip.
 	// only usable with polynom orders of 8, 16, 24 or 32.
 
-	ULong64_t crc = crcinit_direct;
+	ULong64_t crc = fCRCInit_direct;
 
 	std::vector<char>::iterator it=p.begin(); 
 
-	if (refin) 
+	if (fRefIn) 
 	  {
-	    crc = ReflectBitsStream(crc, order);
+	    crc = ReflectBitsStream(crc, fOrder);
 	  }
 
-	if (!refin)
+	if (!fRefIn)
 	  {
 	    while (len--) 
 		      {
-			crc = (crc << 8) ^ crctab[ ((crc >> (order-8)) & 0xff) ^ (*it & 0xff)];
+			crc = (crc << 8) ^ fCRCTab[ ((crc >> (fOrder-8)) & 0xff) ^ (*it & 0xff)];
 			it++;
 		      }
 	  }
@@ -229,16 +243,16 @@ ULong64_t PndMvdReadInTBData::CalculateCRCTableFast(std::vector<char> p, ULong64
 	  {
 	    while (len--) 
 	      {
-		crc = (crc >> 8) ^ crctab[ (crc & 0xff) ^ (*it & 0xff)];
+		crc = (crc >> 8) ^ fCRCTab[ (crc & 0xff) ^ (*it & 0xff)];
 		it++;
 	      }
 	  }
-	if (refout^refin)
+	if (fRefOut^fRefIn)
 	  {
-	    crc = ReflectBitsStream(crc, order);
+	    crc = ReflectBitsStream(crc, fOrder);
 	  }
-	crc^= crcxor;
-	crc&= crcmask;
+	crc^= fCRCXor;
+	crc&= fCRCMask;
 
 	return(crc);
 }
@@ -266,6 +280,32 @@ void PndMvdReadInTBData::AnalyzeToPixFrame(Double_t clockFrequency)
     {
       std::cout << fFE << " PndMvdReadInTBData::AnalyzeToPixFrame: fToPixFrame size: " << std::dec << fToPixFrame.size() << " header " << std::hex << fToPixFrame[0] <<  std::endl;
     }	
+
+
+  ULong_t hammingcheck = CheckHammingCode(ConvertToPix4HammingToStandardHamming(fToPixFrame[0]),40);
+  if(hammingcheck!=0)
+    {
+      if (fVerbose > 1)  
+	{
+	  std::cout << "Wrong Hamming Code found! (Header) : " << std::hex<< fToPixFrame[0] << " Parity bits "<< hammingcheck << std::endl;
+	}
+      fHammingLossFrameCount++;
+      fHammingLossHitCount+= fToPixFrame.size()-2;
+      return;
+    }
+  
+  hammingcheck = CheckHammingCode(ConvertToPix4HammingToStandardHamming(fToPixFrame[fToPixFrame.size()-1]),40);
+  if(hammingcheck!=0)
+    {
+      if (fVerbose > 1)  
+	{
+	  std::cout << "Wrong Hamming Code found! (Trailer): " << std::hex<< fToPixFrame[0] << " Parity bits "<< hammingcheck << std::endl;
+	}
+      fHammingLossFrameCount++;
+      fHammingLossHitCount+= fToPixFrame.size()-2;
+      return;
+    }
+  
   PndSdsDigiTopix4 recentPixel;
 
   std::vector<char> topix_data; // vector necessary to do crc check
@@ -289,6 +329,8 @@ void PndMvdReadInTBData::AnalyzeToPixFrame(Double_t clockFrequency)
   
   if(crc_calculated != ((fToPixFrame.back()>>6) & 0xffff))
     {
+      fCRCLossFrameCount++;
+      fCRCLossHitCount += fToPixFrame.size()-2;
       if(fVerbose == -1)
 	{
 	  std::cout << fFE << " CRC WRONG! Frame will be deleted. Calculated CRC: " <<std::hex <<  crc_calculated << " topix CRC: "<< ((fToPixFrame.back()>>6) & 0xffff) <<  std::endl;
@@ -313,62 +355,72 @@ void PndMvdReadInTBData::AnalyzeToPixFrame(Double_t clockFrequency)
   for (int i=0; i < fToPixFrame.size(); i++)
     { 
       ULong64_t header = (fToPixFrame[i] & 0xC000000000) >> 38;
-      //header = header >> 38;
 
       switch (header) {
-      case 1 : fRecentFrameHeader = BitAnalyzeHeader(fToPixFrame[i]);
-	
-	if (fVerbose > 2)   std::cout << fFE << " FrameHeader: rawData: " << std::hex << fToPixFrame[i]  << " chip " << std::dec << fRecentFrameHeader.fChipAddress << " framecount " << fRecentFrameHeader.fFrameCount << std::endl;
-	
-	if (fOldFrameCount + 1 != fRecentFrameHeader.fFrameCount){
-	  if (!(fOldFrameCount == 255 & fRecentFrameHeader.fFrameCount == 0)){
-	    if (fVerbose > 1) std::cout << fFE << "-E- non sequential FC: " << fOldFrameCount << " " << fRecentFrameHeader.fFrameCount << std::endl;
-	    fNonSequentialFC++;
+      case 1 :
+	{
+	  fRecentFrameHeader = BitAnalyzeHeader(fToPixFrame[i]);
+	  
+	  if (fVerbose > 2)   std::cout << fFE << " FrameHeader: rawData: " << std::hex << fToPixFrame[i]  << " chip " << std::dec << fRecentFrameHeader.fChipAddress << " framecount " << fRecentFrameHeader.fFrameCount << std::endl;
+	  
+	  if (fOldFrameCount + 1 != fRecentFrameHeader.fFrameCount){
+	    if (!(fOldFrameCount == 255 & fRecentFrameHeader.fFrameCount == 0)){
+	      if (fVerbose > 1) std::cout << fFE << "-E- non sequential FC: " << fOldFrameCount << " " << fRecentFrameHeader.fFrameCount << std::endl;
+	      fNonSequentialFC++;
+	    }
 	  }
+	  
+	  if (fOldFrameCount > fRecentFrameHeader.fFrameCount){
+	    fSuperFrameCount++;
+	    if (fVerbose > 1) std::cout << fFE << " SuperFrameCount increased: " << std::dec<<  fSuperFrameCount << " oldFC " << fOldFrameCount << " recent FC " << fRecentFrameHeader.fFrameCount << std::endl;
+	  }
+	  //fOldFrameCount = fRecentFrameHeader.fFrameCount;
+	  
+	  new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, fFE, fRecentFrameHeader.fChipAddress, fRecentFrameHeader.fECC, fTotalFrameCount,((int)(fRecentFrameHeader.fFrameCount - fOldFrameCount)<0 ?((fRecentFrameHeader.fFrameCount - fOldFrameCount)+256) : (fRecentFrameHeader.fFrameCount - fOldFrameCount)), 0, fToPixFrame.size()-2 );
+	  
+	  fOldFrameCount = fRecentFrameHeader.fFrameCount;
 	}
-	
-	if (fOldFrameCount > fRecentFrameHeader.fFrameCount){
-	  fSuperFrameCount++;
-	  if (fVerbose > 1) std::cout << fFE << " SuperFrameCount increased: " << std::dec<<  fSuperFrameCount << " oldFC " << fOldFrameCount << " recent FC " << fRecentFrameHeader.fFrameCount << std::endl;
-	}
-	fOldFrameCount = fRecentFrameHeader.fFrameCount;
-
-	//new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) frameHeader(fRecentFrameHeader);
-
 	break;
 
-      case 2 : fRecentFrameTrailer = BitAnalyzeTrailer(fToPixFrame[i]);
-	if (fRecentFrameTrailer.fFrameCRC !=0 && (fToPixFrame.size() < 20))
-	  {
-	    // std::cout << fFE << " Frame counter " << fRecentFrameHeader.fFrameCount << std::endl;
-	    if(fVerbose ==0)
-	      {
-		for(int y=0; y< fToPixFrame.size(); y++)
-		  {
-		    if(y==0)
-		      {
-			std::cout <<fFE << " " << std::hex << fToPixFrame[y] << " - FCount " <<  fRecentFrameHeader.fFrameCount <<  std::endl;
-		      }
-		    else
-		      {
-			std::cout <<fFE << " " << std::hex << fToPixFrame[y] << std::endl;
-		      }
-		  }
-		std::cout << std::endl;
-	      }
-	  }
-	if (fVerbose > 2) std::cout <<  fFE <<" FrameTrailer: nEvents " << fRecentFrameTrailer.fNEvents << " frame CRC: " << fRecentFrameTrailer.fFrameCRC << std::endl;
+      case 2 : 
+	{
+	  fRecentFrameTrailer = BitAnalyzeTrailer(fToPixFrame[i]);
+	  if (fRecentFrameTrailer.fFrameCRC !=0 && (fToPixFrame.size() < 20))
+	    {
+	      // std::cout << fFE << " Frame counter " << fRecentFrameHeader.fFrameCount << std::endl;
+	      if(fVerbose ==-1)
+		{
+		  for(int y=0; y< fToPixFrame.size(); y++)
+		    {
+		      if(y==0)
+			{
+			  std::cout <<fFE << " " << std::hex << fToPixFrame[y] << " - FCount " <<  fRecentFrameHeader.fFrameCount <<  std::endl;
+			}
+		      else
+			{
+			  std::cout <<fFE << " " << std::hex << fToPixFrame[y] << std::endl;
+			}
+		    }
+		  std::cout << std::endl;
+		}
+	    }
+	  if (fVerbose > 2) std::cout <<  fFE <<" FrameTrailer: nEvents " << fRecentFrameTrailer.fNEvents << " frame CRC: " << fRecentFrameTrailer.fFrameCRC << std::endl;
+	  
+	  PndSdsDigiTopix4Header * header_trailer =(PndSdsDigiTopix4Header*)(fOutputArrayHeader->Last());
+	  header_trailer->SetNumberOfEvents(fRecentFrameTrailer.fNEvents);
+	}
 	break;
 
       case 3 : recentPixel = ProcessData(fToPixFrame[i], fRecentFrameHeader, clockFrequency);
 		if (fVerbose > 2) std::cout << fFE << " Pixel: " << recentPixel << std::endl;
 	new ((*fOutputArray)[fOutputArray->GetEntriesFast()]) PndSdsDigiTopix4(recentPixel);
+	fCorrectHitCount++;
 	break;
       }
     } 
 }
 
-void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clockFrequency)
+void PndMvdReadInTBData::AnalyzeData(std::vector<ULong64_t>& rawData, Double_t clockFrequency)
 {
 	if (fVerbose > 2) std::cout << "PndMvdReadInTBData::AnalyzeData rawData.size(): " << rawData.size() << std::endl;
 	for (int i = 0; i < rawData.size(); i++){
@@ -381,23 +433,17 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clo
 				continue;
 			}
 		}
-
-	       	if(header==1 or header==2)
-		  {
-		    ULong_t hammingcheck = CheckHammingCode(ConvertToPix4HammingToStandardHamming(rawData[i]),40);
-		    if(hammingcheck!=0)
-		      {
-			if (fVerbose > 1)  
-			  {
-			    std::cout << "Wrong Hamming Code found!: " << std::hex<< rawData[i] << " Parity bits "<< hammingcheck << std::endl;
-			  }
-			fWrongHammingCodeCount++;
-			continue;
-		      }
-		  }
 		
 		if (header == 1) // header word found 
 		  {
+		    fTotalHeaderCount++;
+
+		    fRecentAllFrameHeader = BitAnalyzeHeader(rawData.at(i));
+
+		    new ((*fOutputArrayAllHeader)[fOutputArrayAllHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentAllFrameHeader.fFrameCount, fFE, fRecentAllFrameHeader.fChipAddress, fRecentAllFrameHeader.fECC, fTotalHeaderCount,((int)(fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount)<0 ?((fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount)+256) : (fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount)), 0, 0 );
+
+		    fOldAllHeaderCount= fRecentAllFrameHeader.fFrameCount;
+
 		    if(fHeaderPresent==kTRUE)
 		      {
 			// double header found, cant check previous data without trailer, clear vector
@@ -407,7 +453,9 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clo
 			  {
 			    std::cout << "Double Header Found! count: " << fDoubleHeader << "| FE: " << fFE << std::hex << " last ToPixFrame element: "<< fToPixFrame.back()<< " new frame header " << rawData[i] << std::endl;
 			  }
+			fPreFrameLossHitCount += fToPixFrame.size() -1;
 			fToPixFrame.clear();
+			// load new header into vector
 			fToPixFrame.push_back(rawData[i]);
 		      }
 		    else
@@ -421,9 +469,11 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clo
 		
 		else if(header == 2) // trailer word found 
 		  {
+		    fTotalTrailerCount++;
 		    if(fTrailerPresent==kTRUE)
 		      {
 			// double trailer found, cant give the hits a valid timestamp without the header, clear vector
+			
 			fToPixFrame.clear();
 			fDoubleTrailer++;
 			if (fVerbose > 1)  
@@ -443,6 +493,8 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clo
 			    //  {
 			    //	std::cout << "ToPix Frame found! Go and analyze this amont of data: " << fToPixFrame.size() << std::endl;
 			    //}
+			  
+			    fTotalFrameCount++;
 			    AnalyzeToPixFrame(clockFrequency);
 			    fToPixFrame.clear();
 			  }
@@ -454,6 +506,7 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clo
 			      }
 			    // trailer without header, can happen at the beginning of the file or the header was not detected correctly
 			    // this case is in principle impossible to enter
+			    fPreFrameLossHitCount += fToPixFrame.size()-1 ;
 			    fDoubleTrailer++;
 			    fToPixFrame.clear();
 			    continue;
@@ -462,15 +515,18 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong_t>& rawData, Double_t clo
 		  }
 		else if(header==3) // data word found 
 		  {
+		    fTotalHitCount++;
 		    if(fHeaderPresent==kTRUE)
 		      {
 			// found data while a active header is present, go and save the data
 			fToPixFrame.push_back(rawData[i]);
+		     
 		      }
 		    else
 		      {
 			// found data without a valid header, may happen at the beginning of the file or the header was detected
-			fDataLostCount++;
+			fPreFrameLossHitCount++;
+			continue;
 		      }
 		  }
 		else
@@ -538,10 +594,10 @@ PndSdsDigiTopix4 PndMvdReadInTBData::ProcessData(ULong64_t& data, frameHeader& h
 	pixel pixelData = BitAnalyzePixelData(data);
 	std::pair<UInt_t, UInt_t> pixelAddress = PixeladdressToMatrixAddress(pixelData.fPixelAddress);
 	Double_t timestamp = ((Double_t)fSuperFrameCount * 256. * 4096. + (Double_t)header.fFrameCount * 4096. + (Double_t)pixelData.fLeadingEdge)/clockFrequency * 1000.;
-//	if (fVerbose > 1) std::cout << "PndMvdReadInTBData::ProcessData timestamp: FE " << fFE << " SFC " << fSuperFrameCount << " FC " << header.fFrameCount << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge << " TS "  << timestamp <<std::endl;
-//	if (fVerbose > 1) std::cout << "RawAddress: " << pixelData.fPixelAddress << " " << pixelAddress.first << "/" << pixelAddress.second << " LE " << pixelData.fLeadingEdge << " TE " << pixelData.fTrailingEdge  << std::endl;
+	Double_t timestamp_independent = ((Double_t) fTotalHeaderCount * 4096. + (Double_t)pixelData.fLeadingEdge)/clockFrequency * 1000.;
+
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel
-	return PndSdsDigiTopix4(indices, 0, 0, fFE, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp);
+	return PndSdsDigiTopix4(indices, 0, 0, fFE, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
 
 }
 
