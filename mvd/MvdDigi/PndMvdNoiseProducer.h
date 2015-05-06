@@ -55,7 +55,7 @@ class PndMvdNoiseProducer : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
   virtual void FinishEvent();
-  
+
   Double_t CalcDistFraction(Double_t spread, Double_t threshold);
 //   Int_t CalcChanWhite(Int_t chanleft, Double_t frac);
   Int_t CalcChargeAboveThreshold(Double_t spread, Double_t threshold);
@@ -70,7 +70,7 @@ class PndMvdNoiseProducer : public FairTask
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
 
- private:
+ protected:
   Bool_t fPersistance;
 
   Bool_t fTimeOrderedDigi; ///< parameter to switch to time ordered simulation
@@ -93,7 +93,7 @@ class PndMvdNoiseProducer : public FairTask
   PndSdsTotDigiPar* fTotDigiParPix;
 
   PndGeoHandling* fGeoH;      //! Geometry name handling
-  FairMCEventHeader* fMCEventheader; 
+  FairMCEventHeader* fMCEventheader;
 
   std::vector<Int_t> fPixelIds2;
   std::vector<Int_t> fPixelIds4;
