@@ -25,16 +25,16 @@ class PndSdsCell : public TObject
   /** Default constructor (not for use) **/
   PndSdsCell();
 
-  PndSdsCell(int hitUp, int hitDw);
+  PndSdsCell(unsigned int hitUp, unsigned int hitDw);
 
   /** Destructor **/
-  virtual ~PndSdsCell();
+  ~PndSdsCell();
 
 
   /** Accessors **/
   
-  void SetHitUp(int &ih){fhit_upstream = ih;}
-  void SetHitDw(int &ih){fhit_downstream = ih;}
+  void SetHitUp(unsigned int &ih){fhit_upstream = ih;}
+  void SetHitDw(unsigned int &ih){fhit_downstream = ih;}
   void SetPV(int &ipv){fpv = ipv;}
   int GetHitUp(){ return fhit_upstream; }
   int GetHitDw(){ return fhit_downstream; }
@@ -42,8 +42,8 @@ class PndSdsCell : public TObject
 
  private:
 
-  int fhit_upstream;     // hit upstream
-  int fhit_downstream; // hit downstream
+  unsigned int fhit_upstream;     // hit upstream
+  unsigned int fhit_downstream; // hit downstream
   int fpv;// cell position in evolution
 
   /* Int_t fsecMC; ///< unique sensor ID */

@@ -17,7 +17,7 @@ PndSdsCell::PndSdsCell() {
 
 
 // -----   Standard constructor   ------------------------------------------
-PndSdsCell::PndSdsCell(int hitUp, int hitDw){
+PndSdsCell::PndSdsCell(unsigned int hitUp, unsigned int hitDw){
   fhit_upstream = hitUp;
   fhit_downstream = hitDw;
   fpv = -1;
