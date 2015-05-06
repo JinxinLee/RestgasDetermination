@@ -585,6 +585,7 @@ bool PndSoftTriggerTask::ReadTriggerLines()
 		cout << it->second->GetName()<<" ";
 	cout <<endl;
 	
+	return true;
 }
 
 
@@ -780,7 +781,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 			}
 		}
 	}
-	
+	return true;
 }
 
 // -------------------------------------------------------------------------

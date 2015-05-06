@@ -116,6 +116,8 @@ bool PndSoftTriggerLine::ParseDecayString()
 		}
 		if (flag) {fPdgList.push_back(-98); flag = false;} // auxiliary resonance list ends
 	}
+	
+	return true;
 }
 
 
