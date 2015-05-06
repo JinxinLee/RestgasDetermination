@@ -32,7 +32,7 @@ void PndMvdAnaRadDam::AnalyzeFiles()
 			TIter iter(l);
 			TObject* ob;
 			fCountGoodFiles++;
-			while(ob = iter()){
+			while( (ob = iter()) ){
 				if (TString(ob->GetName()).Contains("ocave_1oMvd-2.1")){
 					TString newName = ob->GetName();
 					newName.Append("_sum");
