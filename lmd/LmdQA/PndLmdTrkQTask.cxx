@@ -661,6 +661,15 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       // }
 	int MCidforREC = RECtrkMCid[iN];
 	//	if(!goodTrk[iN]) continue;
+	//cout<<" MCidforREC = "<<MCidforREC<<endl;
+	if(MCidforREC>9998){
+	  glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
+	  glXmcLMD = -9999; glYmcLMD =-9999; glZmcLMD = -9999; glThetamcLMD =-9999; glPhimcLMD = -9999; glMommcLMD = -9999;
+	  glNumMChits = -9999;  glNumDoubleMChits  = -9999; //	glEvTime = -9999; 
+	  trkMCStatus = -9999;
+	  glPDG = -9999;
+	}
+	else{
 	PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(MCidforREC);
 	glPDG = mctrk->GetPdgCode();
 	//	glEvTime = mctrk->GetStartTime(); //this gives start time of trk, doesn't matter since all el. pbar start in IP
@@ -698,7 +707,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
 	glXmcLMD = PosMClmd.X();      glYmcLMD = PosMClmd.Y();      glZmcLMD = PosMClmd.Z();
 	glThetamcLMD = MomMClmd.Theta();  glPhimcLMD = MomMClmd.Phi();  glMommcLMD = MomMClmd.Mag();
-	//      }
+	}
       //    tRECMCtrks->Fill();
       TClonesArray& clref = *fTrackQ;
       Int_t size = clref.GetEntriesFast();
@@ -730,6 +739,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       trkqlmd->SetModule(glModule);
       trkqlmd->SetHalf(glHalf);
       //(end) Fill tree with rec vs. mc trk info ---------------------------------------
+	
     }
     ///END GHOST--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
