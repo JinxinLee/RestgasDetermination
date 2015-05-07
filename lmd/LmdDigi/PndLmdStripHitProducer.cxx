@@ -92,7 +92,7 @@ void PndLmdStripHitProducer::SetParContainers()
   TIter cfIter(theContNames);
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
-    Info("SetParContainers()",parsetname.Data());
+    Info("SetParContainers()","%s",parsetname.Data());
     if(parsetname.BeginsWith("SDSStripDigiPar")){
       PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
       fDigiParameterList->Add(digipar);
