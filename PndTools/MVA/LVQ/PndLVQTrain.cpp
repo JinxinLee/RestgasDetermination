@@ -917,7 +917,7 @@ void PndLVQTrain::EvalClassifierError(unsigned int stp)
   float tsEr = (TsError * 100.00) / static_cast<float>(NumTsTrEvt);
  
   // Number of train examples
-  NumTsTrEvt = abs( events.size() - m_testSet_indices.size() );
+  NumTsTrEvt = ( events.size() - m_testSet_indices.size() );
   NumTsTrEvt = (NumTsTrEvt > 0)? NumTsTrEvt : -1;
 
   // Train error in %.
