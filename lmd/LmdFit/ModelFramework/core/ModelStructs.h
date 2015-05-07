@@ -13,6 +13,10 @@
 
 namespace ModelStructs {
 
+enum InterpolationType {
+	CONSTANT, LINEAR, SPLINE
+};
+
 /**
  * Small structure defining the comparison operator used in the map
  * #model_par_map. Will return true only if this model parameter is equal to
