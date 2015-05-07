@@ -107,7 +107,7 @@ PndLmdPlotter::~PndLmdPlotter() {
  c->cd(2);
  leg->Draw();
 
- /*if (nominal_lumi) {
+ if (nominal_lumi) {
  std::cout << "nominal luminosity: " << nominal_lumi << std::endl;
  TLine *line = new TLine(mg->GetXaxis()->GetXmin(), nominal_lumi,
  mg->GetXaxis()->GetXmax(), nominal_lumi);
@@ -2310,7 +2310,7 @@ NeatPlotting::Booky PndLmdPlotter::createResolutionParameterizationOverviewPlot(
 
  return mean_fit_range_dependency_graph_data;
 
- /*std::vector<std::pair<TGraphErrors*, TString> > fit_range_dependency;
+ std::vector<std::pair<TGraphErrors*, TString> > fit_range_dependency;
 
  std::map<double,
  std::map<LumiFit::PndLmdFitModelOptions,
