@@ -948,7 +948,7 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 
   case 15:
     SetGeometryFileName("emc_module5_fsc.root");
-	MapperVersion =5;
+	MapperVersion =1;
     break;
 
   case 16:

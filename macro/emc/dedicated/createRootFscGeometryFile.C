@@ -37,15 +37,15 @@
   Double_t  thickness      = cell_thickness*EMCnumlayers + 2.*crystalspace;
   Double_t  holder_thickness = cell_thickness*EMCnumlayers;
 
-  Double_t     hole_xsize    =  4.*cellxsize;
-  Double_t     hole_ysize    =  4.*cellysize;
+  Double_t     hole_xsize    =  6.*cellxsize;
+  Double_t     hole_ysize    =  6.*cellysize;
   //position of the hole means - coordinate of its center
-  Double_t     hole_xpos     = 3.0*cellxsize; //Must be left to the beam line (check??)
-  Double_t     hole_ypos     =  0.0;
+  Double_t     hole_xpos     = 2.0*cellxsize; //Must be left to the beam line (check??)
+  Double_t     hole_ypos     =  1.0*cellxsize;
 
 
   //--------------------------------------------------------------------
-   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+ //  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
    // Load this example libraries
    gSystem->Load("libGeoBase");
@@ -54,12 +54,14 @@
    gSystem->Load("libPndData");
    gSystem->Load("libPassive");
 
-   TString outfile= "../../../geometry/emc_module5_fsc.root";
+   TString outfile= "emc_module5_fsc.root";
    TFile* fi = new TFile(outfile,"RECREATE");
 
    FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
    FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-   geoFace->setMediaFile("../../../geometry/media_pnd.geo");
+//   geoFace->setMediaFile("../../../geometry/media_pnd.geo");
+//   geoFace->setMediaFile("$VMCWORKDIR/geometry/media_pnd.geo");
+   geoFace->setMediaFile("/home/freez/fairsoft_mar15/pandaroot/geometry/media_pnd.geo");
    geoFace->readMedia();
    geoFace->print();
 
@@ -159,7 +161,8 @@
    //Building and placing Fibers inside FscModule Volume
    //Holes for fibers Bottom right corner is (ix = 1, iy = 1)
    name = "FscFibHoleSHape";
-   TGeoShape* FiberHoleShape = new TGeoTube(name, 0., fiber_hole_r, (thickness-crystalspace)/2.);
+//   TGeoShape* FiberHoleShape = new TGeoTube(name, 0., fiber_hole_r, (thickness-crystalspace)/2.);
+   TGeoShape* FiberHoleShape = new TGeoTube(name, 0., fiber_hole_r, (holder_thickness)/2.);
    name = "FscFibHoleVolume";
    medium = "air";
    TGeoVolume* FiberHoleVolume = new TGeoVolume(name, FiberHoleShape, gGeoMan->GetMedium(medium));
@@ -169,18 +172,23 @@
 	   {
 		   x = -Absorb_xsize/2. + (Absorb_xsize/(Double_t)numfibers)*(ix - 0.5);
 		   y = -Absorb_ysize/2. + (Absorb_ysize/(Double_t)numfibers)*(iy - 0.5);
-		   iCombTrans = new TGeoCombiTrans(x,y,crystalspace, new TGeoRotation(rot));
+//		   iCombTrans = new TGeoCombiTrans(x,y,crystalspace, new TGeoRotation(rot));
+		   iCombTrans = new TGeoCombiTrans(x,y,0, new TGeoRotation(rot));
 		   name = "FscFibHoleVolume";
 		   name+=iCopy;
 		   iCombTrans->SetName(name);
 		   iCombTrans->RegisterYourself();
-		   ModuleVolume->AddNode(FiberHoleVolume,iCopy,iCombTrans);
+//		   ModuleVolume->AddNode(FiberHoleVolume,iCopy,iCombTrans);
+//		   ModuleVolume->AddNodeOverlap(FiberHoleVolume,iCopy,iCombTrans);
+		   TyvekVolume->AddNodeOverlap(FiberHoleVolume,iCopy,iCombTrans);  //!!NO OVERLAPS
+//		   TyvekVolume->AddNode(FiberHoleVolume,iCopy,iCombTrans);
 		   iCopy++;
 	   }
    }
    //FIbers itself inside holes
    name = "FscFiberShape";
-   TGeoShape* FiberShape = new TGeoTube(name, 0., fiber_r, (thickness-crystalspace)/2.);
+//   TGeoShape* FiberShape = new TGeoTube(name, 0., fiber_r, (thickness-crystalspace)/2.);
+   TGeoShape* FiberShape = new TGeoTube(name, 0., fiber_r, (holder_thickness)/2.);
    name = "FscFiberVolume";
    medium = "FscFiber";
    TGeoVolume* FiberVolume = new TGeoVolume(name, FiberShape, gGeoMan->GetMedium(medium));
