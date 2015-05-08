@@ -39,6 +39,7 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "pgenerators/EvtGen/Photos/"
         "genfit/"
         "genfit2/"
+        "lmd/G__LmdFitDict.cxx"
         "/include/HepMC/"
   )
 
