@@ -43,14 +43,14 @@ private:
   //TClonesArray *nameArr;
   //std::vector <TString> name;
 
-  std::map< Int_t , Int_t > box;
-  std::map< Int_t , Int_t > fCh;
-  std::map< Int_t , Int_t > lCh;
+  std::map< Int_t , Int_t > box; //!
+  std::map< Int_t , Int_t > fCh; //!
+  std::map< Int_t , Int_t > lCh; //!
 
-  std::map< Int_t , TString > fMap;
+  std::map< Int_t , TString > fMap; //!
   
-  TString fFileName;
-  Int_t nLines;
+  TString fFileName; //!
+  Int_t nLines;      //!
 
   ClassDef(PndMvdBoxMap,1);
 };

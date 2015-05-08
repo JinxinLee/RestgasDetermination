@@ -49,7 +49,7 @@ private:
   // helper
   Bool_t SelectSensorParams(TString detname);
   void WriteExpandNode();
-  std::map<Double_t, std::vector<Map_Entry> > fSortedMapping;
+  std::map<Double_t, std::vector<Map_Entry> > fSortedMapping;  //!
   //TString FindNodePath(TGeoNode* node);
   //void DiveDownToNode(TGeoNode* node);
   
