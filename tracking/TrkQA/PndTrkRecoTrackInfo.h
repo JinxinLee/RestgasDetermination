@@ -24,25 +24,25 @@ class PndTrkRecoTrackInfo : public TObject
     fMCTrackInfo = *info; 
   }
 
-  double GetPurity() { return (double) GetNofRecoTrueHits()/GetNofRecoHits(); }
-  double GetSttParalPurity() { return (double) GetNofSttParalTrueHits()/GetNofSttParalHits(); }
-  double GetSttSkewPurity() { return (double) GetNofSttSkewTrueHits()/GetNofSttSkewHits(); }
-  double GetSttPurity() { return (double) GetNofSttTrueHits()/GetNofSttHits(); }
-  double GetMvdPixPurity() { return (double) GetNofMvdPixTrueHits()/GetNofMvdPixHits(); }
-  double GetMvdStrPurity() { return (double) GetNofMvdStrTrueHits()/GetNofMvdStrHits(); }
-  double GetMvdPurity() { return (double) GetNofMvdTrueHits()/GetNofMvdHits(); }
-  double GetGemPurity() { return (double) GetNofGemTrueHits()/GetNofGemHits(); }
-  double GetSciTilPurity() { return (double) GetNofSciTilTrueHits()/GetNofSciTilHits(); }
+  double GetPurity(); 
+  double GetSttParalPurity();
+  double GetSttSkewPurity(); 
+  double GetSttPurity(); 
+  double GetMvdPixPurity();
+  double GetMvdStrPurity();
+  double GetMvdPurity(); 
+  double GetGemPurity(); 
+  double GetSciTilPurity();
 
-  double GetContamination() { return (double) GetNofRecoFakeHits()/GetNofRecoHits(); }
-  double GetSttParalContamination() { return (double) GetNofSttParalFakeHits()/GetNofSttParalHits(); }
-  double GetSttSkewContamination() { return (double) GetNofSttSkewFakeHits()/GetNofSttSkewHits(); }
-  double GetSttContamination() { return (double) GetNofSttFakeHits()/GetNofSttHits(); }
-  double GetMvdPixContamination() { return (double) GetNofMvdPixFakeHits()/GetNofMvdPixHits(); }
-  double GetMvdStrContamination() { return (double) GetNofMvdStrFakeHits()/GetNofMvdStrHits(); }
-  double GetMvdContamination() { return (double) GetNofMvdFakeHits()/GetNofMvdHits(); }
-  double GetGemContamination() { return (double) GetNofGemFakeHits()/GetNofGemHits(); }
-  double GetSciTilContamination() { return (double) GetNofSciTilFakeHits()/GetNofSciTilHits(); }
+  double GetContamination();
+  double GetSttParalContamination();
+  double GetSttSkewContamination(); 
+  double GetSttContamination(); 
+  double GetMvdPixContamination();
+  double GetMvdStrContamination();
+  double GetMvdContamination(); 
+  double GetGemContamination(); 
+  double GetSciTilContamination();
 
   double GetEfficiency();
   double GetMvdPixEfficiency();

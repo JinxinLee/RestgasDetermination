@@ -65,6 +65,80 @@ double PndTrkRecoTrackInfo::GetSciTilEfficiency() {
 }
 
 
+double PndTrkRecoTrackInfo::GetPurity() { 
+  if(GetNofRecoHits() == 0) return -1;  // CHECK
+  return (double) GetNofRecoTrueHits()/GetNofRecoHits(); 
+}
+double PndTrkRecoTrackInfo::GetSttParalPurity() { 
+  if(GetNofSttParalHits() == 0) return -1;  // CHECK
+  return (double) GetNofSttParalTrueHits()/GetNofSttParalHits(); 
+}
+double PndTrkRecoTrackInfo::GetSttSkewPurity() { 
+  if(GetNofSttSkewHits() == 0) return -1;  // CHECK
+  return (double) GetNofSttSkewTrueHits()/GetNofSttSkewHits(); 
+}
+double PndTrkRecoTrackInfo::GetSttPurity() { 
+  if(GetNofSttHits() == 0) return -1;  // CHECK
+  return (double) GetNofSttTrueHits()/GetNofSttHits(); 
+}
+double PndTrkRecoTrackInfo::GetMvdPixPurity() { 
+  if(GetNofMvdPixHits() == 0) return -1;  // CHECK
+  return (double) GetNofMvdPixTrueHits()/GetNofMvdPixHits(); 
+}
+double PndTrkRecoTrackInfo::GetMvdStrPurity() { 
+  if(GetNofMvdStrHits() == 0) return -1;  // CHECK
+  return (double) GetNofMvdStrTrueHits()/GetNofMvdStrHits(); 
+}
+double PndTrkRecoTrackInfo::GetMvdPurity() { 
+  if(GetNofMvdHits() == 0) return -1;  // CHECK
+  return (double) GetNofMvdTrueHits()/GetNofMvdHits(); 
+}
+double PndTrkRecoTrackInfo::GetGemPurity() { 
+  if(GetNofGemHits() == 0) return -1;  // CHECK
+  return (double) GetNofGemTrueHits()/GetNofGemHits();
+}
+double PndTrkRecoTrackInfo::GetSciTilPurity() { 
+  if(GetNofSciTilHits() == 0) return -1;  // CHECK
+  return (double) GetNofSciTilTrueHits()/GetNofSciTilHits();
+}
+
+double PndTrkRecoTrackInfo::GetContamination() { 
+ if(GetNofRecoHits() == 0) return -1;  // CHECK
+ return (double) GetNofRecoFakeHits()/GetNofRecoHits(); 
+}
+double PndTrkRecoTrackInfo::GetSttParalContamination() { 
+  if(GetNofSttParalHits() == 0) return -1;  // CHECK
+  return (double) GetNofSttParalFakeHits()/GetNofSttParalHits(); 
+}
+double PndTrkRecoTrackInfo::GetSttSkewContamination() { 
+  if(GetNofSttSkewHits() == 0) return -1;  // CHECK
+  return (double) GetNofSttSkewFakeHits()/GetNofSttSkewHits(); 
+}
+double PndTrkRecoTrackInfo::GetSttContamination() { 
+  if(GetNofSttHits() == 0) return -1;  // CHECK
+  return (double) GetNofSttFakeHits()/GetNofSttHits(); 
+}
+double PndTrkRecoTrackInfo::GetMvdPixContamination() { 
+  if(GetNofMvdPixHits() == 0) return -1;  // CHECK
+  return (double) GetNofMvdPixFakeHits()/GetNofMvdPixHits(); 
+}
+double PndTrkRecoTrackInfo::GetMvdStrContamination() { 
+  if(GetNofMvdStrHits() == 0) return -1;  // CHECK
+  return (double) GetNofMvdStrFakeHits()/GetNofMvdStrHits(); 
+}
+double PndTrkRecoTrackInfo::GetMvdContamination() { 
+  if(GetNofMvdHits() == 0) return -1;  // CHECK
+  return (double) GetNofMvdFakeHits()/GetNofMvdHits(); 
+}
+double PndTrkRecoTrackInfo::GetGemContamination() { 
+  if(GetNofGemHits() == 0) return -1;  // CHECK
+  return (double) GetNofGemFakeHits()/GetNofGemHits();
+}
+double PndTrkRecoTrackInfo::GetSciTilContamination() { 
+  if(GetNofSciTilHits() == 0) return -1;  // CHECK
+  return (double) GetNofSciTilFakeHits()/GetNofSciTilHits(); 
+}
+
 double PndTrkRecoTrackInfo::GetInefficiency() { 
   if(fMCTrackInfo.GetNofMCPoints() == 0) return -1;  // CHECK
   return (double) GetNofMissingHits()/fMCTrackInfo.GetNofMCPoints(); 
