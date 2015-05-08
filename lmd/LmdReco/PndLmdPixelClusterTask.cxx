@@ -113,7 +113,7 @@ void PndLmdPixelClusterTask::SetParContainers()
 	TIter cfAlIter(theAlignLMDContNames);
 	while (TObjString* contname = (TObjString*)cfAlIter()) {
 	  TString parsetname = contname->String();
-	  Info("SetParContainers()",parsetname.Data());
+	  Info("SetParContainers()","%s",parsetname.Data());
 	  PndLmdAlignPar *lmdalignpar = (PndLmdAlignPar*)(rtdb->getContainer(parsetname.Data()));
 	  if(!lmdalignpar) Fatal("SetParContainers","No ALIGN parameter found: %s",parsetname.Data());
 	  fAlignParamList->Add(lmdalignpar); 

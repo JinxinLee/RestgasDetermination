@@ -124,7 +124,7 @@ void PndLmdStripClusterTask::SetParContainers()
   TIter cfIter(theContNames);
   while (TObjString* contname = (TObjString*)cfIter()) {
     TString parsetname = contname->String();
-    Info("SetParContainers()",parsetname.Data());
+    Info("SetParContainers()","%s",parsetname.Data());
     if(parsetname.BeginsWith("SDSStripDigiPar")){
       PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
       if ( ! digipar ) Fatal("SetParContainers","No DIGI parameter found: %s",parsetname.Data());
