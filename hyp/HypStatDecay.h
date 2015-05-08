@@ -88,8 +88,8 @@ class HypStatDecay
   std::vector<int>Z;
   std::vector<int>H;
 
-  TLorentzVector GetPgCMSLab(float mass,float& Delta,TVector3& PL,TRandom& r);
-  TLorentzVector GetPNuCMSLab(float mass,float& Delta,TVector3& PL,TRandom& r);
+  TLorentzVector GetPgCMSLab(float mass,float& Delta,TVector3& PL,TRandom& rd);
+  TLorentzVector GetPNuCMSLab(float mass,float& Delta,TVector3& PL,TRandom& rd);
   Double_t GetEtot(Float_t mass,TVector3 P);
 
   /** Private method CloseInput. Just for convenience. Closes the 

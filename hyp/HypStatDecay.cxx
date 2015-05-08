@@ -9,7 +9,7 @@
 #include "TFile.h"
 #include "TLorentzVector.h"
 #include "TTree.h"
-#include "TRandom.h"
+//#include "TRandom.h"
 #include "TVector3.h"
 //#include "THParticle.h"
 #include "HypStatDecay.h"
@@ -257,7 +257,7 @@ if(ion==22){AI=0;ZI=0;L=0;}
 
 
 
-TLorentzVector HypStatDecay::GetPgCMSLab(float mass,float &Delta,TVector3 &PL,TRandom& r)
+TLorentzVector HypStatDecay::GetPgCMSLab(float mass,float &Delta,TVector3 &PL,TRandom& rd)
 { 
   Double_t Mex,Pgam,Xgam,Ygam,Zgam,EL,PLmag, MC;
   Double_t theta,phi;
@@ -277,7 +277,7 @@ TLorentzVector HypStatDecay::GetPgCMSLab(float mass,float &Delta,TVector3 &PL,TR
   Xgam= Ygam = Zgam = 0.;
   
   //isotropically distributed
-  r.Sphere(Xgam,Ygam,Zgam,Pgam);
+  rd.Sphere(Xgam,Ygam,Zgam,Pgam);
   //theta = acos(r->Uniform(cos(0.* TMath::DegToRad()),cos(180.* TMath::DegToRad())));
   //phi = r->Uniform(0,360) * TMath::DegToRad();
   
@@ -306,7 +306,7 @@ TLorentzVector HypStatDecay::GetPgCMSLab(float mass,float &Delta,TVector3 &PL,TR
   
 }
 
-TLorentzVector HypStatDecay::GetPNuCMSLab(float mass,float &Delta,TVector3 &PL,TRandom& r)
+TLorentzVector HypStatDecay::GetPNuCMSLab(float mass,float &Delta,TVector3 &PL,TRandom& rd)
 { 
   Double_t Mex,Pgam,Xgam,Ygam,Zgam,EL,PLmag, MC;
   TLorentzVector result,PNlab,resLab;Double_t theta,phi;
@@ -323,10 +323,10 @@ TLorentzVector HypStatDecay::GetPNuCMSLab(float mass,float &Delta,TVector3 &PL,T
   //cout<<"pgamCM "<<Pgam<<" "<<endl;
    Xgam= Ygam = Zgam = 0.;
   //isotropically distributed
-  r.Sphere(Xgam,Ygam,Zgam,-Pgam);
+  rd.Sphere(Xgam,Ygam,Zgam,-Pgam);
   
-  theta = acos(r.Uniform(cos(0.* TMath::DegToRad()),cos(180.* TMath::DegToRad())));
-  phi = r.Uniform(0,360) * TMath::DegToRad();
+  theta = acos(rd.Uniform(cos(0.* TMath::DegToRad()),cos(180.* TMath::DegToRad())));
+  phi = rd.Uniform(0,360) * TMath::DegToRad();
    /*Xgam = -Pgam*TMath::Sin(theta)*TMath::Cos(phi);
   Ygam = -Pgam*TMath::Sin(theta)*TMath::Sin(phi);
   Zgam = -Pgam*TMath::Cos(theta);*/
