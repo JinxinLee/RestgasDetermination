@@ -270,7 +270,7 @@ Bool_t PndMCTestPatternRecoQuality::PossibleTrack(FairMultiLinkedData& mcForward
 
 		}
 		if (fBranchNames[i] == "STTHit"){
-			possibleTrack = possibleTrack | mcForward.GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5;
+			possibleTrack = possibleTrack | (mcForward.GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5);
 		}
 	}
 
