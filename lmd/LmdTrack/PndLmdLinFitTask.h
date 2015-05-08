@@ -24,7 +24,7 @@
 #include "TMatrixTSym.h"
 #include "TMatrixDSym.h"
 #include "PndGeoHandling.h"
-#include "PndLmdDim.h"
+//#include "PndLmdDim.h"
 
 // Collaborating Class Declarations --
 class TClonesArray;
@@ -119,11 +119,13 @@ protected:
   double fPDGCode;
   int fCharge;
   PndGeoHandling* fGeoH;
-  TTree *ttal;//for check new FCN function: LocalFCN_MS
-  /** static pointer to this*/
+    /** static pointer to this*/
   static PndLmdLinFitTask* fInstance;
   TVirtualFitter *fmin;
-  PndLmdDim* lmddim;
+
+  /* TString mtxpath, mtx_perfect; */
+  /* PndLmdDim* lmddim; */
+
  double ftotRadLen;//X/X0
   ClassDef(PndLmdLinFitTask,1);
 

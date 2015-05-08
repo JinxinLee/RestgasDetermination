@@ -64,7 +64,7 @@ PndLmdTrackFinderCATask::PndLmdTrackFinderCATask(const bool missPl, const double
   flagPixelSens = true;//default
 
 //TODO: flexiable matrix path&name!
-  mtxpath = "../../input/";
+  mtxpath = "../../geometry/";
   mtx_perfect =   mtxpath+"trafo_matrices_lmd.dat";
 }
 
@@ -256,7 +256,8 @@ InitStatus PndLmdTrackFinderCATask::Init()
 {
 
   lmddim = PndLmdDim::Instance();
-  lmddim -> Read_transformation_matrices(mtx_perfect.Data(),false);
+  lmddim -> Read_transformation_matrices(mtx_perfect.Data(),false); 
+  // lmddim -> Read_transformation_matrices_from_geometry(); //TODO: take alignment into account
 
 
   FairRootManager* ioman = FairRootManager::Instance();

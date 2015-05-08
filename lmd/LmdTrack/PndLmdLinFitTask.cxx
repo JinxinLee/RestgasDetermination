@@ -78,43 +78,11 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   ftotRadLen = 0;
   PndGeoHandling::Instance();
   fInstance=this;
-  //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:alx3:aly0:aly1:aly2:aly3:npoints") ;
-  //  ttal = new TNtuple("ttal","kink angles","alx0:alx1:alx2:aly0:aly1:aly2:erralx1:erralx2:erraly1:erraly2:npoints") ;
-  ttal = new TTree("ttal","kink angles");
-  ttal->Branch("alx0a",& falx0a);
-  ttal->Branch("alx0b",& falx0b);
-  ttal->Branch("alx1a",& falx1a);
-  ttal->Branch("alx1b",& falx1b);
-  ttal->Branch("alx2a",& falx2a);
-  ttal->Branch("alx2b",& falx2b);
-  ttal->Branch("alx3a",& falx3a);
-  ttal->Branch("alx3b",& falx3b);
-  ttal->Branch("aly0a",& faly0a);
-  ttal->Branch("aly0b",& faly0b);
-  ttal->Branch("aly1a",& faly1a);
-  ttal->Branch("aly1b",& faly1b);
-  ttal->Branch("aly2a",& faly2a);
-  ttal->Branch("aly2b",& faly2b);
-  ttal->Branch("aly3a",& faly3a);
-  ttal->Branch("aly3b",& faly3b);
- ttal->Branch("erralx0a",& ferralx0a);
-  ttal->Branch("erralx0b",& ferralx0b);
-  ttal->Branch("erralx1a",& ferralx1a);
-  ttal->Branch("erralx1b",& ferralx1b);
-  ttal->Branch("erralx2a",& ferralx2a);
-  ttal->Branch("erralx2b",& ferralx2b);
-  ttal->Branch("erralx3a",& ferralx3a);
-  ttal->Branch("erralx3b",& ferralx3b);
-  ttal->Branch("erraly0a",& ferraly0a);
-  ttal->Branch("erraly0b",& ferraly0b);
-  ttal->Branch("erraly1a",& ferraly1a);
-  ttal->Branch("erraly1b",& ferraly1b);
-  ttal->Branch("erraly2a",& ferraly2a);
-  ttal->Branch("erraly2b",& ferraly2b);
-  ttal->Branch("erraly3a",& ferraly3a);
-  ttal->Branch("erraly3b",& ferraly3b);
-  ttal->Branch("npoints",& fnpoints);
-  ttal->Branch("chi2",& fchi2);
+
+  // //TODO: flexiable matrix path&name!
+  // mtxpath = "../../geometry/";
+  // mtx_perfect =   mtxpath+"trafo_matrices_lmd.dat";
+
  TVirtualFitter::SetDefaultFitter("Minuit2");
   fmin = TVirtualFitter::Fitter(0,25);
   for(int ih=0;ih<4;ih++)
@@ -134,42 +102,10 @@ PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranch
   fsigmaMSb = 0;
   PndGeoHandling::Instance();
   fInstance=this;
-  ttal = new TTree("ttal","kink angles");
-  ttal->Branch("alx0a",& falx0a);
-  ttal->Branch("alx0b",& falx0b);
-  ttal->Branch("alx1a",& falx1a);
-  ttal->Branch("alx1b",& falx1b);
-  ttal->Branch("alx2a",& falx2a);
-  ttal->Branch("alx2b",& falx2b);
-  ttal->Branch("alx3a",& falx3a);
-  ttal->Branch("alx3b",& falx3b);
-  ttal->Branch("aly0a",& faly0a);
-  ttal->Branch("aly0b",& faly0b);
-  ttal->Branch("aly1a",& faly1a);
-  ttal->Branch("aly1b",& faly1b);
-  ttal->Branch("aly2a",& faly2a);
-  ttal->Branch("aly2b",& faly2b);
-  ttal->Branch("aly3a",& faly3a);
-  ttal->Branch("aly3b",& faly3b);
- ttal->Branch("erralx0a",& ferralx0a);
-  ttal->Branch("erralx0b",& ferralx0b);
-  ttal->Branch("erralx1a",& ferralx1a);
-  ttal->Branch("erralx1b",& ferralx1b);
-  ttal->Branch("erralx2a",& ferralx2a);
-  ttal->Branch("erralx2b",& ferralx2b);
-  ttal->Branch("erralx3a",& ferralx3a);
-  ttal->Branch("erralx3b",& ferralx3b);
-  ttal->Branch("erraly0a",& ferraly0a);
-  ttal->Branch("erraly0b",& ferraly0b);
-  ttal->Branch("erraly1a",& ferraly1a);
-  ttal->Branch("erraly1b",& ferraly1b);
-  ttal->Branch("erraly2a",& ferraly2a);
-  ttal->Branch("erraly2b",& ferraly2b);
-  ttal->Branch("erraly3a",& ferraly3a);
-  ttal->Branch("erraly3b",& ferraly3b);
-  ttal->Branch("npoints",& fnpoints);
- ttal->Branch("chi2",& fchi2);
- ttal->Branch("zhit0",&fzhit0);
+
+  // //TODO: flexiable matrix path&name!
+  // mtxpath = "../../geometry/";
+  // mtx_perfect =   mtxpath+"trafo_matrices_lmd.dat";
 
   TVirtualFitter::SetDefaultFitter("Minuit2");
   fmin = TVirtualFitter::Fitter(0,25);
@@ -237,10 +173,10 @@ InitStatus PndLmdLinFitTask::Init()
   totRadLenCable +=0.05;//rest
   fsigmaMSa = ScatteredAngle(totRadLenCable);
 
-  // if(lmddim!=0 ) lmddim->Cleanup();
-  lmddim = PndLmdDim::Instance();
-  TString mtx_perfect = "../../../pandaroot/input/trafo_matrices_lmd.dat";
-  lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
+  // // if(lmddim!=0 ) lmddim->Cleanup();
+  // lmddim = PndLmdDim::Instance();
+  // // TString mtx_perfect = "../../../pandaroot/geometry/trafo_matrices_lmd.dat";
+  // lmddim -> Read_transformation_matrices(mtx_perfect.Data(), false);
   std::cout << "-I- PndLmdLinFitTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -355,7 +291,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     	COVmatrixPosMom[km][mk] = (*COVmatrix)(ij,ji);
       }
     }
-
+    delete COVmatrix;
     //Read info about 1st plane(sensor)
     PndTrackCandHit theHit = trcnd->GetSortedHit(0); //get 1st hit
     Int_t hitID = theHit.GetHitId();
@@ -815,46 +751,7 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
 
    Double_t chi2 = amin/(2.*Npoint-4);
    ///-------------------------------------------------------------
-   if(fVerbose>2){
-     falx0a = fitpar[6];
-     ferralx0a = fitparerr[6];
-     falx1a = fitpar[8];
-     ferralx1a = fitparerr[8];
-     falx2a = fitpar[10];
-     ferralx2a = fitparerr[10];
-     falx3a = fitpar[12];
-     ferralx3a = fitparerr[12];
-     faly0a = fitpar[14];
-     ferraly0a = fitparerr[14];
-     faly1a = fitpar[16];
-     ferraly1a = fitparerr[16];
-     faly2a = fitpar[18];
-     ferraly2a = fitparerr[18];
-     faly3a = fitpar[20];
-     ferraly3a = fitparerr[20];
-     falx0b = fitpar[7];
-     ferralx0b = fitparerr[7];
-     falx1b = fitpar[9];
-     ferralx1b = fitparerr[9];
-     falx2b = fitpar[11];
-     ferralx2b = fitparerr[11];
-     falx3b = fitpar[13];
-     ferralx3b = fitparerr[13];
-     faly0b = fitpar[15];
-     ferraly0b = fitparerr[15];
-     faly1b = fitpar[17];
-     ferraly1b = fitparerr[17];
-     faly2b = fitpar[19];
-     ferraly2b = fitparerr[19];
-     faly3b = fitpar[21]; 
-     ferraly3b = fitparerr[21];
-
-     fnpoints = Npoint;
-     fchi2 =  chi2;
-     fzhit0 = (gr->GetZ())[0];
-     ttal->Fill();
-   }
-
+ 
    fmin->Clear();
    //delete min;
    return chi2; 
@@ -862,10 +759,6 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
 
 void PndLmdLinFitTask::Finish()
 {
-  if(fVerbose>2){
-    TTree *nout1 = ttal->CloneTree();
-    nout1->Write();
-  }
 }
 
 ClassImp(PndLmdLinFitTask);
