@@ -42,7 +42,7 @@ class PndPidListMaker
     RhoSimpleKaonSelector*     kSel;
     RhoSimpleProtonSelector*   pSel;
 
-    std::vector<std::string>   fListNames;
+    std::vector<std::string>   fListNames; //!
 
     ClassDef(PndPidListMaker,1);
 };

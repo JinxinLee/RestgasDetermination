@@ -73,9 +73,9 @@ private:
 	double Eps(const TVector3 v1, const TVector3 v2) {return (v1*v2)>0. ? 1. : -1.;}  // aux for Thrust
 	double Legendre( int l, double x );		// Legendre function; auxilliary for Fox Wolfram moments
 	
-	std::vector<TLorentzVector> fLabList;	// List of 4-vectors in lab frame
-	std::vector<TLorentzVector> fCmsList;	// List of 4-vectors in cms frame
-	std::vector<int>			fCharge;	// List of charges of particles
+	std::vector<TLorentzVector> fLabList;	//!<! List of 4-vectors in lab frame
+	std::vector<TLorentzVector> fCmsList;	//!<! List of 4-vectors in cms frame
+	std::vector<int>			fCharge;	//!<! List of charges of particles
 	
 	int    fnChrg;				// number of charged particles
 	int    fnNeut;				// number of neutral particles

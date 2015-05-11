@@ -66,7 +66,7 @@ class RhoFitterBase: public TObject // TOperatorBase
     void InsertChi2 ( const RhoCandidate* bc,const double chi2 ) {fChi2Map[ bc->Uid()] = chi2;}
     
     //Helpers for final state fitting
-    std::vector<RhoCandidate*>   fDaughters;
+    std::vector<RhoCandidate*>   fDaughters;  //!
     void SetDaugthersFromComposite(RhoCandidate* cand);
     void FindAndAddFinalStateDaughters(RhoCandidate* cand);
     void SetFourMomentumByDaughters(RhoCandidate* composite);
@@ -77,7 +77,7 @@ class RhoFitterBase: public TObject // TOperatorBase
 
   private:
     // helper function
-    std::map<Int_t,Double_t> fChi2Map; //each particle's contribution to the chi^2
+    std::map<Int_t,Double_t> fChi2Map; //!<! each particle's contribution to the chi^2
     Bool_t IterateAndFit(RhoCandidate* b);  // iterate the decay tree and fit each node recoursively
 
     
