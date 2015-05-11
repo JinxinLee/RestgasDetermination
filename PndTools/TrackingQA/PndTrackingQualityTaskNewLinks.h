@@ -84,11 +84,11 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   void InitializeHistograms();
   void LabelQualyHistogram(TH1 *);
   void ColorHistogram();
-  std::vector<TString> fBranchNames;
+  std::vector<TString> fBranchNames;                     //!
 
-  std::map<TString, FairMultiLinkedData> fMapLinkData;
+  std::map<TString, FairMultiLinkedData> fMapLinkData;   //!
 //  std::map<TString, Double_t> fPossibleTrackParameter;
-  std::map<TString, TH2*> fMapEfficiencies;
+  std::map<TString, TH2*> fMapEfficiencies;              //!
 
   Int_t fNGhosts;
 
@@ -99,7 +99,7 @@ class PndTrackingQualityTaskNewLinks : public FairTask
 
   FairRootManager* ioman;
 
-  std::map<Int_t, Int_t> fMapTrackQualifikation;
+  std::map<Int_t, Int_t> fMapTrackQualifikation; //!
 
   TString fTrackBranchName;
   TString fIdealTrackBranchName;

@@ -83,7 +83,7 @@ protected:
   FairGeanePro *fPro;
  // FairRootManager* fManager;
   PndTrackCandDraw* fTrackCandDraw;
-  std::vector<TEveArrow*> fArrows;
+  std::vector<TEveArrow*> fArrows; //!
   Bool_t fDoPropagation;
 
   TEveElementList* fListOfTracks;

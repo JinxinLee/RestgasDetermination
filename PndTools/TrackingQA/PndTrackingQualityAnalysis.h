@@ -214,21 +214,21 @@ private:
 
 	Bool_t fUseCorrectedSkewedHits;
 
-	std::vector<TString> fBranchNames;
-	std::map<Int_t, Int_t> fTrackIdMCId;				//< map between track id and most probable MC track id
-	std::map<Int_t, Int_t> fMCIdTrackId;				//< map between MC id and track id
-	std::map<Int_t, Int_t> fMCTrackFound;				//< How often was a MC Track (key) found
+	std::vector<TString> fBranchNames;                              //!<!
+	std::map<Int_t, Int_t> fTrackIdMCId;				//!<! map between track id and most probable MC track id
+	std::map<Int_t, Int_t> fMCIdTrackId;				//!<! map between MC id and track id
+	std::map<Int_t, Int_t> fMCTrackFound;				//!<! How often was a MC Track (key) found
 	PndMCResult fIdealTracksData;
 
-	std::map<Int_t, Int_t> fMapTrackMCStatus;			//< TrackId vs TrackStatus from MC
-	std::map<Int_t, Int_t> fMapTrackQualification;		//< TrackId vs TrackStatus after analysis of track finding
-	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;  //< MostProbable TrackId, BranchName, Efficiency, #FoundHits / #MCHits, #MCHits
-	std::map<Int_t, Double_t> fMapPResolution;
-	std::map<Int_t, TVector3> fMapP;
-	std::map<Int_t, Double_t> fMapPtResolution;
-	std::map<Int_t, Double_t> fMapPt;
-	std::map<Int_t, Double_t> fMapPResolutionRel;
-	std::map<Int_t, Double_t> fMapPtResolutionRel;
+	std::map<Int_t, Int_t> fMapTrackMCStatus;			//!<! TrackId vs TrackStatus from MC
+	std::map<Int_t, Int_t> fMapTrackQualification;		        //!<! TrackId vs TrackStatus after analysis of track finding
+	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;  //!<! MostProbable TrackId, BranchName, Efficiency, #FoundHits / #MCHits, #MCHits
+	std::map<Int_t, Double_t> fMapPResolution;                      //!<!
+	std::map<Int_t, TVector3> fMapP;                                //!<!
+	std::map<Int_t, Double_t> fMapPtResolution;                     //!<!
+	std::map<Int_t, Double_t> fMapPt;                               //!<!
+	std::map<Int_t, Double_t> fMapPResolutionRel;                   //!<!
+	std::map<Int_t, Double_t> fMapPtResolutionRel;                  //!<!
 
 
 	PndMCMatch* fMCMatch;

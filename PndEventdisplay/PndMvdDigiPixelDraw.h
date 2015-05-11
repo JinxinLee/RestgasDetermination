@@ -39,7 +39,7 @@ protected:
 	void SortDigis(TClonesArray* digis);
 	TEveBoxSet* CreateNewBoxSet(TString& name);
 
-	std::map<Int_t, TEveBoxSet* > fModules;
+	std::map<Int_t, TEveBoxSet* > fModules; //!
 	PndGeoHandling* fGeoH;
 	TClonesArray* fClusterCands;
 	TClonesArray* fRecoHits;

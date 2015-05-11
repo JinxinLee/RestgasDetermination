@@ -41,8 +41,8 @@ protected:
 	void SortDigis(TClonesArray* digis);
 	TEveBoxSet* CreateNewBoxSet(TString& name);
 
-	std::map<Int_t, TEveBoxSet* > fHitsArr;
-	std::map<Int_t, Int_t > fHitsN;
+	std::map<Int_t, TEveBoxSet* > fHitsArr; //!
+	std::map<Int_t, Int_t > fHitsN;         //!
 	PndGeoHandling* fGeoH;
 	TClonesArray* fClusterCands;
 	TClonesArray* fRecoHits;
