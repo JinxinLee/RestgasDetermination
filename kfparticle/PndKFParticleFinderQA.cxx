@@ -221,7 +221,9 @@ static int Nghosts = 0;
       if(iTr<fChargedTrackArray->GetEntriesFast() && TMath::Abs(pndMCTrack->GetPdgCode()) > 2500)
         continue;
       //Correct linking between EMC clusters and MC tracks
-      float rMC[3] = { pndMCTrack->GetStartVertex().X(), pndMCTrack->GetStartVertex().Y(), pndMCTrack->GetStartVertex().Z() };
+      float rMC[3] = { static_cast<float>(pndMCTrack->GetStartVertex().X()), 
+                       static_cast<float>(pndMCTrack->GetStartVertex().Y()), 
+                       static_cast<float>(pndMCTrack->GetStartVertex().Z()) };
       float R = TMath::Sqrt(rMC[0]*rMC[0] + rMC[1]*rMC[1] + rMC[2]*rMC[2]);
   
       //if cluster points to some mother or grandmother of the gamma
@@ -233,7 +235,9 @@ static int Nghosts = 0;
         
         int iBump = inTrack->GetEmcIndex();
         PndEmcBump *inBump = (PndEmcBump*) fEmcBumps->At(iBump);
-        float rReco[3] = { inBump->x(), inBump->y(), inBump->z() };
+        float rReco[3] = { static_cast<float>(inBump->x()), 
+                           static_cast<float>(inBump->y()), 
+                           static_cast<float>(inBump->z()) };
         FindClosestMCTrackToBump(trId, closestTrack, drMin, rReco, mcDaughters);
         FindEmcClusterMother(closestTrack, iMother);
         
@@ -351,7 +355,9 @@ void PndKFParticleFinderQA::FindClosestMCTrackToBump(const int trackId, int& clo
   {
     int daughterIndex = mcDaughters[trackId][iDaughter];
     PndMCTrack* daughter = (PndMCTrack*)fMCTrackArray->At( daughterIndex );
-    float rMC[3] = { daughter->GetStartVertex().X(), daughter->GetStartVertex().Y(), daughter->GetStartVertex().Z() };
+    float rMC[3] = { static_cast<float>(daughter->GetStartVertex().X()), 
+                     static_cast<float>(daughter->GetStartVertex().Y()), 
+                     static_cast<float>(daughter->GetStartVertex().Z()) };
     
     float dx = rReco[0] - rMC[0];
     float dy = rReco[1] - rMC[1];
@@ -371,7 +377,9 @@ void PndKFParticleFinderQA::FindClosestMCTrackToBump(const int trackId, int& clo
 void PndKFParticleFinderQA::FindEmcClusterMother(const int iDaughter, int& iMother)
 {
   PndMCTrack* daughter = (PndMCTrack*)fMCTrackArray->At( iDaughter );
-  float rMC[3] = { daughter->GetStartVertex().X(), daughter->GetStartVertex().Y(), daughter->GetStartVertex().Z() };
+  float rMC[3] = { static_cast<float>(daughter->GetStartVertex().X()), 
+                   static_cast<float>(daughter->GetStartVertex().Y()), 
+                   static_cast<float>(daughter->GetStartVertex().Z()) };
   float R = TMath::Sqrt(rMC[0]*rMC[0] + rMC[1]*rMC[1] + rMC[2]*rMC[2]);
   
 //   while( !(R<80. && daughter->GetPdgCode() == 22) )
