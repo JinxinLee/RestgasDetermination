@@ -11,9 +11,11 @@
 
 // framework includes
 #include "FairTask.h"
+#include "FairMCPoint.h"
 #include "PndTrackCand.h"
 
 #include "TClonesArray.h"
+#include "TDatabasePDG.h"
 
 class PndMCIdealTrackFinderNewLinks : public FairTask {
 public:
@@ -35,10 +37,16 @@ protected:
 
 private:
 	  TClonesArray* fTrackCand;
+	  TClonesArray* fTrack;
 	  TClonesArray* fMCTrack;
 	  std::map<TString, TClonesArray*> fBranchMap;
 	  std::vector<TString> fBranchNames;
 	  std::map<FairLink, PndTrackCand> fTrackCandMap;
+	  std::map<FairLink, FairMCPoint > fFirstPointMap;
+	  std::map<FairLink, FairMCPoint > fLastPointMap;
+
+	  TDatabasePDG *fPdg;            //! Particle DB
+
 	  Int_t fHitCount;
 
 	  ClassDef(PndMCIdealTrackFinderNewLinks,1);
