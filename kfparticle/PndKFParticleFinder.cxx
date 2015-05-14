@@ -88,12 +88,12 @@ void PndKFParticleFinder::Exec(Option_t* opt)
     PndPidCandidate *inTrack = (PndPidCandidate*)fChargedTrackArray->At(iTr);
   
     bool ok = 1;
-    ok = ok && finite(inTrack->GetPosition().x());
-    ok = ok && finite(inTrack->GetPosition().y());
-    ok = ok && finite(inTrack->GetPosition().z());
-    ok = ok && finite(inTrack->GetMomentum().x());
-    ok = ok && finite(inTrack->GetMomentum().y());
-    ok = ok && finite(inTrack->GetMomentum().z());
+    ok = ok && isfinite(inTrack->GetPosition().x());
+    ok = ok && isfinite(inTrack->GetPosition().y());
+    ok = ok && isfinite(inTrack->GetPosition().z());
+    ok = ok && isfinite(inTrack->GetMomentum().x());
+    ok = ok && isfinite(inTrack->GetMomentum().y());
+    ok = ok && isfinite(inTrack->GetMomentum().z());
     
     float cov[21];
     cov[ 0] = inTrack->GetErrorP7()[0];
@@ -120,7 +120,7 @@ void PndKFParticleFinder::Exec(Option_t* opt)
     
       
     for(unsigned short iC=0; iC<21; iC++)
-      ok = ok && finite(cov[iC]);
+      ok = ok && isfinite(cov[iC]);
 //     ok = ok && (cov[0] < 100. && cov[0] > 0.)
 //             && (cov[2] < 100. && cov[2] > 0.)
 //             && (cov[5] < 100. && cov[5] > 0.)

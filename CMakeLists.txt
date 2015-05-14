@@ -289,6 +289,7 @@ add_subdirectory (PndMCMatchNewLinks)
 add_subdirectory (global)
 
 add_subdirectory (softrig)
+add_subdirectory (kfparticle)
 
 if(RULE_CHECKER_FOUND)
 

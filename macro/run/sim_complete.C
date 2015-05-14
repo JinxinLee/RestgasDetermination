@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 1.)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -14,10 +14,10 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly
                                        // choose your event generator
-  Bool_t UseEvtGenDirect      =kTRUE;
+  Bool_t UseEvtGenDirect      =kFALSE;
   Bool_t UseDpm 	      =kFALSE;
   Bool_t UseFtf 	      =kFALSE;
-  Bool_t UseBoxGenerator      =kFALSE;
+  Bool_t UseBoxGenerator      =kTRUE;
   
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
   if (UseBoxGenerator)
@@ -143,10 +143,10 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   fRun->SetGenerator(primGen);
 	 
   if(UseBoxGenerator){	// Box Generator
-    FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
+    FairBoxGenerator* boxGen = new FairBoxGenerator(22, 1); // 13 = muon; 1 = multipl.
     boxGen->SetPRange(mom,mom); // GeV/c
     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-    boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
+    boxGen->SetThetaRange(10., 100.); // Polar angle in lab system range [degree]
     boxGen->SetXYZ(0., 0., 0.); // cm
     primGen->AddGenerator(boxGen);
   }
