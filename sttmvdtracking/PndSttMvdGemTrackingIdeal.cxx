@@ -151,7 +151,6 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
   std::map<Int_t, FairMCPoint*> lastPoint;
   std::map<Int_t, PndTrackCand*> candlist;
   Double_t rho=0., rho2;
-  //  Int_t multDet[4] = {0, 0, 0, 0};
   std::map< int, int > track_to_sttnofhits;
   for(Int_t iDet=0;iDet<4;iDet++){
     if (kFALSE == fBranchActive[iDet]) continue; //skip manually switched off detector
@@ -189,20 +188,21 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
       if(fVerbose>5) Info("Exec","add the hit %i to trackcand %i",ih,trackID);
       rho=myPoint->GetTime();
 
-      // if ( (iDet!=0) || (iDet==0 &&  multDet[iDet]<=25) ) cand->AddHit(fBranchIDs[iDet],ih,rho);
-      // multDet[iDet]++;
-      if (iDet==0) {
-	if(track_to_sttnofhits.count(trackID) == 0) {
-	  track_to_sttnofhits[trackID] = 1;
-	  cand->AddHit(fBranchIDs[iDet],ih,rho);
-	}
-	else {
-	  if (track_to_sttnofhits[trackID] <= 25)  cand->AddHit(fBranchIDs[iDet],ih,rho);
-	  track_to_sttnofhits[trackID]++;
-	}
-      }
-      else cand->AddHit(fBranchIDs[iDet],ih,rho);
-
+      // // This selection of max stt hits <=25 is for the moment removed
+      // if (iDet==0) {
+      // 	if(track_to_sttnofhits.count(trackID) == 0) {
+      // 	  track_to_sttnofhits[trackID] = 1;
+      // 	  cand->AddHit(fBranchIDs[iDet],ih,rho);
+      // 	}
+      // 	else {
+      // 	  if (track_to_sttnofhits[trackID] <= 25)  cand->AddHit(fBranchIDs[iDet],ih,rho);
+      // 	  track_to_sttnofhits[trackID]++;
+      // 	}
+      // }
+      // else cand->AddHit(fBranchIDs[iDet],ih,rho);
+      
+      cand->AddHit(fBranchIDs[iDet],ih,rho);
+      
       if(!firstHit[trackID]){
         firstHit[trackID]=ghit;
         firstPoint[trackID]=myPoint;
