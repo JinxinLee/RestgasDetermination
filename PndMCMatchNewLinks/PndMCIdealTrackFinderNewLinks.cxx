@@ -142,6 +142,7 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
             // MC point is associated to a hit, there is a good chance for false assignments
             // leading to wrong tracks. For the moment, skip hits with more than 1 GEM point.
             if (gempoints.GetNLinks() > 1) continue;
+            if ((*iter).first == "MVDHitsStrip" && mvdpoints.GetNLinks() > 1) continue;
 
             FairMultiLinkedData array;
 			if(mvdpoints.GetNLinks() > 0) array = mvdpoints;

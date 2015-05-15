@@ -66,7 +66,7 @@ InitStatus PndTrackingQualityTaskNewLinks::Init() {
 		AddHitsBranchName("MVDHitsPixel");
 		AddHitsBranchName("MVDHitsStrip");
 		AddHitsBranchName("STTHit");
-//		AddHitsBranchName("GEMHit");
+		AddHitsBranchName("GEMHit");
 	//	std::cout << "PndTrackingQualityAnalysis::Init() CorrectedSkewedHits present: " << FairRootManager::Instance()->GetBranchId("CorrectedSkewedHits") << " ";
 	//	if (FairRootManager::Instance()->GetBranchId("CorrectedSkewedHits")  > 0){
 	//		std::cout << "kTRUE";
