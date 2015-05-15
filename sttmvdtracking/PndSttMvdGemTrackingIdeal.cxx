@@ -201,6 +201,7 @@ void PndSttMvdGemTrackingIdeal::Exec(Option_t * option)
 	  track_to_sttnofhits[trackID]++;
 	}
       }
+      else cand->AddHit(fBranchIDs[iDet],ih,rho);
 
       if(!firstHit[trackID]){
         firstHit[trackID]=ghit;
