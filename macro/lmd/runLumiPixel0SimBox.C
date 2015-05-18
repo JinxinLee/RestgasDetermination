@@ -144,11 +144,11 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   FairBoxGenerator *fBox = new FairBoxGenerator(particle, trkNum);
   fBox->SetPRange(mom,mom);
   //  fBox->SetThetaRange(0.52,0.63); // 9 ... 11 mrad
-    fBox->SetThetaRange(0.12,0.7); // 2... 12 mrad
-  //  fBox->SetThetaRange(0.,1.4); // 0... 24 mrad
+  //  fBox->SetThetaRange(0.12,0.7); // 2... 12 mrad
+  //  fBox->SetThetaRange(1.3,1.4); // mrad outside of the detector geometry by purpose
   //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
   //fBox->SetThetaRange(0.12,0.65); // 2... 11 mrad
-  //  fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
+    fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   // //  fBox->SetThetaRange(0.229183,0.31512);//4..5.5 mrad
   // //fBox->SetThetaRange(0.229,0.229);//4..mrad
   // //  fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad

@@ -38,6 +38,24 @@ const bool show_beam_pipe_dummy = true;
 
 const bool include_box = false;
 
+void Navigate_into(int depth = 0){
+	//for (int idepth = 0; idepth < depth; idepth++){
+	//	cout << "        ";
+	//}
+	cout << gGeoManager->GetPath() << " ";
+	cout << "current node is " << gGeoManager->GetCurrentNavigator()->GetCurrentNode()->GetName() << endl;
+	int nnodes = gGeoManager->GetCurrentNode()->GetNdaughters();
+	for (int i = 0; i < nnodes; i++){
+		cout << " navigating into node " << i << endl;
+		gGeoManager->CdDown(i);
+		Navigate_into(depth+1);
+		gGeoManager->CdUp();
+	}
+}
+
+#include <sstream>
+#include <vector>
+
 void create_HV_MAPS(bool misalign = false) {
 	/*
 	// ****************************** Parameters of Detector ************************
@@ -174,6 +192,7 @@ void create_HV_MAPS(bool misalign = false) {
 	  // **********************************************
 	  lmddim.Generate_rootgeom(*top, misalign);
 	  //lmddim.Write_transformation_matrices("matrices.txt", false);
+
 	  if (!misalign)
 		  lmddim.Write_transformation_matrices("",false); // create default matrices
 	  else
@@ -193,6 +212,7 @@ void create_HV_MAPS(bool misalign = false) {
 	  //lmddim.Write_transformation_matrices(dir+"geometry/matrices_aligned.txt", true);
 
 	  gGeoMan->CloseGeometry();
+
 	  gGeoMan->CheckOverlaps(0.001); // [cm]
 	  //gGeoManager->CheckGeometryFull();
 	  gGeoMan->PrintOverlaps();
@@ -200,8 +220,110 @@ void create_HV_MAPS(bool misalign = false) {
 	  fi->Close();
 	  //gGeoManager->Export(outfile);
 	  gGeoMan->SetVisLevel(20);
-	  lmddim.Retrieve_version_number();
+	  //lmddim.Retrieve_version_number();
 	  top->Draw("ogl");
+
+	  cout << " found " << gGeoManager->GetListOfPhysicalNodes()->GetEntries() << " entries " << endl;
+
+	  if (!misalign){
+		  cout << " trying to navigate through the geometry " << endl;
+		  vector<string> list_of_sensors;
+		  cout << lmddim.Get_List_of_Sensors(list_of_sensors) << endl;
+
+		  int offset;
+
+		  if (lmddim.Test_List_of_Sensors(list_of_sensors, offset)) cout << " testing of sensors was fine and gave an offset of " << offset << endl;
+
+		  //cout << " found " << list_of_sensors.size() << " sensors " << endl;
+
+		  //for (int isensor = 0; isensor < list_of_sensors.size() ; isensor++){
+		//	  cout << list_of_sensors[isensor] << endl;
+		  //}
+
+		  if (1){ // consistency checks
+			  cout << " reading matrices from file into the aligned map " << endl;
+			  lmddim.Read_transformation_matrices(dir+"/geometry/trafo_matrices_lmd_misaligned.dat", true);
+			  cout << " loading transformation matrices from geometry into not aligned map " << endl;
+			  lmddim.Read_transformation_matrices_from_geometry(false);
+			  cout << " writing matrices from aligned map to geometry" << endl;
+			  lmddim.Write_transformation_matrices_to_geometry(true);
+			  cout << " reading transformation matrices from geometry once again " << endl;
+			  lmddim.Read_transformation_matrices_from_geometry(true);
+			  //cout << " testing matrices " << endl;
+			  //lmddim.Calc_matrix_offsets();
+		  }
+
+		  if (0){ // test setting individual matrices
+			  TGeoHMatrix* matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", false, 1,-1,-1,-1,-1,-1);
+			  matrix->Print();
+			  matrix->RotateX(90.);
+			  matrix->Print();
+			  lmddim.Set_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", matrix, 1,-1,-1,-1,-1,-1);
+
+			  cout << " the original matrix is " << endl;
+			  matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", false, 1,-1,-1,-1,-1,-1);
+			  matrix->Print();
+
+			  cout << " the aligned matrix is " << endl;
+			  matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", true, 1,-1,-1,-1,-1,-1);
+			  matrix->Print();
+		  }
+		  cout << " testing matrices " << endl;
+		  lmddim.Calc_matrix_offsets();
+
+		  gGeoMan->RefreshPhysicalNodes(); // should be called but is not a must
+		  //gGeoMan->CloseGeometry();
+		  top->Draw("ogl"); // an already drawn geometry will be not updated according to changes in the matrices
+
+	  }
+	  //gGeoManager->CdTop();
+	  //Navigate_into();
+
+	  /*
+	  gGeoManager->cd("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/"
+		"lmd_vol_half_1/lmd_vol_plane_3/lmd_vol_module_4/"
+		"lmd_vol_side_1/lmd_vol_die_1/LumActivePixelRect_398");
+	  gGeoManager->GetCurrentNode()->GetMatrix();
+
+//gGeoManager->cd("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0");
+	  //cout << gGeoManager->GetPath() << " " << gGeoManager->GetCurrentNode()->GetName() << endl;
+	  //gGeoManager->GetCurrentNode()->GetMatrix()->Print();
+	  //gGeoManager->GetCurrentMatrix()->Print();
+
+
+	  gGeoManager->cd("/lum_1/lmd_vol_vac_3");
+	  TGeoVolume* topvol = gGeoManager->GetCurrentNode()->GetVolume();
+	  if (topvol){
+	  gGeoManager->SetTopVolume(topvol);
+	  gGeoManager->cd("/lmd_vol_ref_sys_0");
+	  cout << gGeoManager->GetPath() << " " << gGeoManager->GetCurrentNode()->GetName() << endl;
+	  gGeoManager->GetCurrentNode()->GetMatrix()->Print();
+	  gGeoManager->GetCurrentMatrix()->Print();
+	  */
+
+	  // according to http://personalpages.to.infn.it/~puccio/htmldoc/src/AliTRDalignment.cxx.html
+/*
+	  TGeoPNEntry *pne;
+	  TGeoMatrix* ideSm[400];
+	  TGeoMatrix* misSm[400];
+	  for (int isensor = 0; isensor < 399; isensor++){
+		  stringstream path;
+		  path << "/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1/lmd_vol_plane_3/lmd_vol_module_4/lmd_vol_side_1/lmd_vol_die_1/LumActivePixelRect_" << isensor;
+		  gGeoManager->cd(path.str().c_str());
+		  cout << gGeoManager->GetCurrentNode()->GetName() << endl;
+		  pne = gGeoManager->GetAlignableEntry(path.str().c_str());
+		  if (pne){
+			  TGeoPhysicalNode* node = pne->GetPhysicalNode();
+			  if (!node) {
+				  cout << "physical node entry has no physical node " << path.str() << endl;
+				  continue;
+			  }
+			  misSm[isensor] = new TGeoHMatrix(*node->GetNode(node->GetLevel())->GetMatrix());
+			  ideSm[isensor] = new TGeoHMatrix(*node->GetOriginalMatrix());
+		  } else {
+			  cout << " sorry could not get alignable entry from sensor " << isensor << endl;
+		  }
+	  }*/
 
 	//   gGeoManager->Export(outfile);
 	//gGeoMan->SetVisLevel(20);

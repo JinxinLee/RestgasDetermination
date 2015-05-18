@@ -56,7 +56,7 @@ int main(int nargs, char** args) {
 		if (nargs > 2)
 			cout << " Error: too many arguments! " << endl;
 	}
-	TString startEvent = "";
+	TString startEvent = "_0";
 	// ========================================================================
 	// Input file (MC events)
 	TString MCFile = storePath + "/Lumi_MC";

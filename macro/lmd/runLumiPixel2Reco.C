@@ -5,7 +5,7 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   TString MCFile = storePath+"/Lumi_MC_";
   MCFile += startEvent;
   MCFile += ".root";
-  TString DigiFile = storePath+"/Lumi_digi_";
+  TString DigiFile = storePath+"/Lumi_digi_";//"/Lumi_digi_noise_";//"/Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
   // Parameter file

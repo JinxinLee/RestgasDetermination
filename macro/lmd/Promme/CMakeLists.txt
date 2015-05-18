@@ -56,24 +56,24 @@ link_directories( ${LINK_DIRECTORIES})
 
 ################################## install #####################################
 # install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
-#add_executable(resolution_and_acceptance Resolution_and_acceptance.cxx)
+add_executable(resolution_and_acceptance Resolution_and_acceptance.cxx)
 # loading of libraries in the correct order is important!
 # (-lSts -lGen -lRich -lTrd -lTof -lMvd -lGlobal -lKF -lDilept
 #-lMuch -lBase -lField -lMCStack -lPassive -lGeoBase
 #-lParBase)
-#target_link_libraries(resolution_and_acceptance ${ROOT_LIBRARIES} LmdTool)
+target_link_libraries(resolution_and_acceptance ${ROOT_LIBRARIES} MathMore LmdTrk)
 
 #add_executable(radiation radiation.cxx)
 #target_link_libraries(radiation ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
 add_executable(scattered_particles scattered_particles.cxx)
-target_link_libraries(scattered_particles ${ROOT_LIBRARIES} Lmd MathMore MbsAPI generalTools Base GeoBase FairDB ParBase)
+target_link_libraries(scattered_particles ${ROOT_LIBRARIES} Lmd MathMore ) # MbsAPI generalTools Base GeoBase FairDB ParBase)
 
 #add_executable(roman_crosscheck roman_crosscheck.cxx)
 #target_link_libraries(roman_crosscheck ${ROOT_LIBRARIES} Lmd MathMore MbsAPI generalTools Base GeoBase FairDB ParBase)
 
 add_executable(check_particle_path Check_particle_path.C)
-target_link_libraries(check_particle_path ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+target_link_libraries(check_particle_path ${ROOT_LIBRARIES} Lmd Sds MathMore) # Geane Geom Proof  TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
 add_executable(lmd_rad_dose_studies rad_dose_studies.C)
 target_link_libraries(lmd_rad_dose_studies ${ROOT_LIBRARIES} MathMore Lmd Sds) # Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
@@ -81,14 +81,17 @@ target_link_libraries(lmd_rad_dose_studies ${ROOT_LIBRARIES} MathMore Lmd Sds) #
 add_executable(lmd_time_based_studies time_based_studies.C)
 target_link_libraries(lmd_time_based_studies ${ROOT_LIBRARIES} MathMore Lmd Sds) # Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
-add_executable(lmd_online_monitoring_studies online_monitoring_studies.C)
-target_link_libraries(lmd_online_monitoring_studies ${ROOT_LIBRARIES} MathMore Lmd Sds) # Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+add_executable(lmd_hit_noise_studies hit_noise_studies.C)
+target_link_libraries(lmd_hit_noise_studies ${ROOT_LIBRARIES} MathMore Lmd Sds) # Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
-add_executable(lmd_trafo_matrix_fit trafo_matrix_fit.C)
-target_link_libraries(lmd_trafo_matrix_fit ${ROOT_LIBRARIES} MathMore Lmd Sds) # Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+#add_executable(lmd_online_monitoring_studies online_monitoring_studies.C)
+#target_link_libraries(lmd_online_monitoring_studies ${ROOT_LIBRARIES} MathMore Lmd Sds) # Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+
+#add_executable(lmd_trafo_matrix_fit trafo_matrix_fit.C)
+#target_link_libraries(lmd_trafo_matrix_fit ${ROOT_LIBRARIES} MathMore Lmd Sds) # Geane Geom Proof TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
 add_executable(sandbox_promme sandbox.C)
-target_link_libraries(sandbox_promme ${ROOT_LIBRARIES} Lmd Sds Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
+target_link_libraries(sandbox_promme ${ROOT_LIBRARIES} Lmd Sds MathMore) # Geane Geom Proof MathMore TrkBase FairTools PndData VMC EG GeomPainter generalTools Base GeoBase FairDB ParBase)
 
 add_executable(createRootGeometry_beampipe createRootGeometry_beampipe.C)
 # loading of libraries in the correct order is important!

@@ -2,10 +2,10 @@
 set(CMAKE_MODULE_PATH "$ENV{VMCWORKDIR}/cmake/modules")
 Set(CheckSrcDir "$ENV{SIMPATH}/share/fairbase/cmake/checks")
 set(CheckSrcDir "$ENV{VMCWORKDIR}/cmake/checks")
-include(CheckCXX11Features)
-IF(HAS_CXX11_SHAREDPOINTER)
+#include(CheckCXX11Features)
+#IF(HAS_CXX11_SHAREDPOINTER)
   Add_Definitions(-DHAS_SHAREDPOINTER)
-ENDIF(HAS_CXX11_SHAREDPOINTER)
+#ENDIF(HAS_CXX11_SHAREDPOINTER)
 
 add_definitions(${CXX11_COMPILER_FLAGS})
 
