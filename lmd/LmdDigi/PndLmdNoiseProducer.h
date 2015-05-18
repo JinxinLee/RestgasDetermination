@@ -1,12 +1,12 @@
 // -------------------------------------------------------------------------
-// -----                PndLmdNoiseProducer source file                -----
-// -----                  Created 04/02/10  by M.Michel                -----
-// -----              Based on PndMvdNoiseProducer by R.Kliemt         -----
+// -----                PndMvdNoiseProducer header file                -----
+// -----                  Created 01.07.08  by R.Kliemt                -----
 // -------------------------------------------------------------------------
 
 
 /** PndLmdNoiseProducer.h
- *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
+ * based on PndMvdNoiseProducer with adaptation to lmd specific calls
+ *original @author R.Kliemt <r.kliemt@physik.tu-dresden.de>
  **
  ** The Noise Producer adds fake hits to silicon sensor channels (strips and
  ** Pixels)
@@ -16,29 +16,27 @@
 #ifndef PNDLMDNOISEPRODUCER_H
 #define PNDLMDNOISEPRODUCER_H
 
-#include "PndSdsNoiseProducer.h"
+#include "PndMvdNoiseProducer.h"
+//#include "FairTask.h"
 
-class TClonesArray;
-
-class PndLmdNoiseProducer : public PndSdsNoiseProducer
+class PndLmdNoiseProducer : public PndMvdNoiseProducer
 {
  public:
+	PndLmdNoiseProducer():PndMvdNoiseProducer(){};
 
-  /** Default constructor **/
-  PndLmdNoiseProducer();
+  virtual InitStatus Init();
 
+  void FillSensorLists();
 
-  /** Destructor **/
-  virtual ~PndLmdNoiseProducer();
+  void SetParContainers();
 
-  /** Virtual method SetBranchNames **/
-  virtual void SetBranchNames(TString inBranchNameStrip, TString inBranchNamePixel, TString folderName);
-  virtual void SetBranchNames();
+  void Exec(Option_t* opt);
 
-  //This method shall be defined by usr
-  virtual void SetMCPointType();
+ private:
 
-  ClassDef(PndLmdNoiseProducer,2);
+  std::vector<Int_t> fPixelIds;
+
+  ClassDef(PndLmdNoiseProducer,1);
 
 };
 
