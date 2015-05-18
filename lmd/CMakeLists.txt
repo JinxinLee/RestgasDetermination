@@ -34,6 +34,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/lmd/LmdFit/LumiImpl
   ${CMAKE_SOURCE_DIR}/lmd/LmdFit/ModelFramework
   ${CMAKE_SOURCE_DIR}/lmd
+  ${CMAKE_SOURCE_DIR}/mvd/MvdDigi # to do: get rid of that dependency!
 #${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/trackbase
 #${CMAKE_SOURCE_DIR}/recotasks
@@ -78,7 +79,7 @@ LmdMC/PndLmdGeo.cxx
 set(LINKDEF  LmdLinkDef.h)
 set(LIBRARY_NAME Lmd)
 
-set(DEPENDENCIES Base ParBase GeoBase TrkBase Sds PndData)
+set(DEPENDENCIES Base ParBase GeoBase TrkBase Sds Mvd PndData) # to do: Get rid of the Mvd dependency which is only due to the noise producer. It is not derived from SDS!
 
 GENERATE_LIBRARY()
 
