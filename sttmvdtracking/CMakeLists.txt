@@ -12,7 +12,6 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata 
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
-  ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
@@ -43,14 +42,12 @@ set(SRCS
 PndSttMvdGemTracking.cxx
 PndSttMvdGemTrackingIdeal.cxx
 PndMixBackgroundEvents.cxx
-#  PndSecondaryTrackFinder.cxx
-PndLambdaIM.cxx
 PndMvdSttGemRiemannTrackFinder.cxx
 )
 
 set(LINKDEF  SttMvdTrackingLinkDef.h)
 set(LIBRARY_NAME SttMvdTracking)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane Gem Stt riemann)
+set(DEPENDENCIES Base GeoBase ParBase PndData Geane Gem Stt riemann)
 
 GENERATE_LIBRARY()

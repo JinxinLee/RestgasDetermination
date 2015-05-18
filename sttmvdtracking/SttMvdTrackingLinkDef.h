@@ -6,8 +6,6 @@
 #pragma link C++ class PndSttMvdGemTracking+;
 #pragma link C++ class PndSttMvdGemTrackingIdeal+;
 #pragma link C++ class PndMixBackgroundEvents+;           
-//  #pragma link C++ class PndSecondaryTrackFinder+;
-#pragma link C++ class PndLambdaIM+;
 
 #pragma link C++ class PndMvdSttGemRiemannTrackFinder+;
 
