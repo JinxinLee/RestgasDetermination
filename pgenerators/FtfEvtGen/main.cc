@@ -65,7 +65,14 @@
 
 int main(int argc, char** argv)
 {
-  CLHEP::RanluxEngine defaultEngine( 1234567, 4 );
+	  CLHEP::RanluxEngine defaultEngine( 1234567, 4 );
+		long seed = 0;
+	if (argc > 2){
+		seed = atol(argv[2]);
+	} else {
+		seed = 1234567;
+	}
+	defaultEngine.setSeed(seed, 4);
   CLHEP::HepRandom::setTheEngine( &defaultEngine );
   G4cout << "========================================================" << G4endl;
   G4cout << "======              FTF Test Start              ========" << G4endl;
