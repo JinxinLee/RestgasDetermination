@@ -305,7 +305,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 	PndTrkRecoTrackInfo *recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
  	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
 	//	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 4 && recoinfo->GetEfficiency() > 0.8) {
-	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 4) {
+	if(recoinfo->GetFlag() > 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 4) {
 	  cleanpiplist.Add(truepip[j]);
 	  nofcleanpip++;
 	}
@@ -339,7 +339,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
   	PndTrkRecoTrackInfo* recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
  // 	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 6 && recoinfo->GetEfficiency() > 0.8)   {
-	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 6) {
+	if(recoinfo->GetFlag() > 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 6) {
 	  cleanpimlist.Add(truepim[j]);
 	  nofcleanpim++;
 	}
@@ -377,7 +377,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 	PndTrkRecoTrackInfo*recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
 // 	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5 && recoinfo->GetEfficiency() > 0.8) {
-	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5) {
+	if(recoinfo->GetFlag() > 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5) {
 	  cleanplist.Add(truep[j]);
 	  nofcleanp++;
 	}
@@ -408,7 +408,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
   	PndTrkRecoTrackInfo*recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
 	// if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 3 && recoinfo->GetEfficiency() > 0.8) {
-	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 3) {
+	if(recoinfo->GetFlag() > 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 3) {
 	  cleanpbarlist.Add(truepbar[j]);
 	  nofcleanpbar++;
 	}
