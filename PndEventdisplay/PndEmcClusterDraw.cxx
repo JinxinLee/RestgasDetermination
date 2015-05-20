@@ -15,6 +15,11 @@ TVector3 PndEmcClusterDraw::GetVector(TObject* obj)
 }
 
 
+Int_t PndEmcClusterDraw::GetValue(TObject* obj, Int_t i)
+{
+	PndEmcCluster* Cluster = (PndEmcCluster*)obj;
+	return (Cluster->energy() * 1000); //< Energy in MeV
+}
+
+
 ClassImp(PndEmcClusterDraw)
-
-

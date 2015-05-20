@@ -16,6 +16,8 @@
 
 
 #include "FairBoxSetDraw.h"
+#include "FairBoxSet.h"
+
 
 
 class PndEmcClusterDraw : public FairBoxSetDraw {
@@ -37,6 +39,7 @@ class PndEmcClusterDraw : public FairBoxSetDraw {
 
 protected:
 	virtual TVector3 GetVector(TObject* obj);
+	virtual Int_t GetValue(TObject* obj, Int_t i);
   ClassDef(PndEmcClusterDraw,3);
 
 };
