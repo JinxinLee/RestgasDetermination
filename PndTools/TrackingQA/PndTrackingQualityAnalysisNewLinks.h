@@ -12,6 +12,7 @@
 #include "FairRootManager.h"
 
 #include "PndTrackCand.h"
+#include "PndTrackingQualityRecoInfo.h"
 
 #include <TObject.h>
 #include <TString.h>
@@ -166,7 +167,7 @@ public:
 	void AddHitsBranchName(TString name){ fBranchNames.push_back(name);}
 	void SetHitsBranchNames(std::vector<TString> names){ fBranchNames = names;}
 
-	void AnalyseEvent();
+	void AnalyseEvent(TClonesArray *recoTrackInfo);
 
 //	Int_t GetNIdealHits(Int_t trackId, TString branchName);
 	Int_t GetNIdealHits(FairMultiLinkedData& track, TString branchName);
@@ -194,6 +195,13 @@ public:
 	void PrintTrackMCStatusMap();
 	void PrintTrackInfo(std::map<TString, FairMultiLinkedData> info);
 
+	Int_t GetIdealTrackIdFromMCTrackId(int mctrackid) { return fMCIdIdealTrackId[mctrackid]; }
+	Int_t GetIdealTrackIdFromRecoTrackId(int trackid) { 
+	  int mctrackid = fTrackIdMCId[trackid];
+	  return fMCIdIdealTrackId[mctrackid];
+	}
+	
+	PndTrackingQualityRecoInfo GetRecoInfoFromRecoTrack(Int_t trackId, Int_t mctrackId);
 
 private:
 
@@ -228,8 +236,9 @@ private:
 	std::map<Int_t, Int_t> fMCTrackFound;				//!<! How often was a MC Track (key) found
 
 
+
 	std::map<Int_t, Int_t> fMapTrackMCStatus;			//!<! TrackId vs TrackStatus from MC
-	std::map<Int_t, Int_t> fMapTrackQualification;		        //!<! TrackId vs TrackStatus after analysis of track finding
+	std::map<Int_t, Int_t> fMapTrackQualification;    		//!<! TrackId vs TrackStatus after analysis of track finding
 	std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > > fMapEfficiencies;  //!<! MostProbable TrackId, BranchName, Efficiency, #FoundHits / #MCHits, #MCHits
 	std::map<Int_t, Double_t> fMapPResolution;                      //!
 	std::map<Int_t, TVector3> fMapP;                                //!

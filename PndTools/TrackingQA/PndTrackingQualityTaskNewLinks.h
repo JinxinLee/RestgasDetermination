@@ -19,6 +19,8 @@
 #include "FairTask.h"
 #include "PndDetectorList.h"
 #include "PndTrackCand.h"
+#include "PndTrackingQualityMCInfo.h"
+#include "PndGeoSttPar.h"
 #include "TH2.h"
 #include "THStack.h"
 #include "RhoHistogram/RhoTuple.h"
@@ -81,6 +83,8 @@ class PndTrackingQualityTaskNewLinks : public FairTask
 
   virtual Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 
+  PndTrackingQualityMCInfo GetMCInfoFromIdealTrack(PndTrack *idealtrack);
+
   void InitializeHistograms();
   void LabelQualyHistogram(TH1 *);
   void ColorHistogram();
@@ -95,7 +99,12 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   TClonesArray* fTrack;
   TClonesArray* fMCTrack;
   TClonesArray* fTrackCand;
-  TClonesArray* fIdealTrackCand;
+  //  TClonesArray* fIdealTrackCand;
+  TClonesArray *fSttHitArray;
+  TClonesArray* fMCTrackInfo;
+  TClonesArray* fRecoTrackInfo;
+  TClonesArray* fIdealTrack;
+  TClonesArray* fSttTubeArray;
 
   FairRootManager* ioman;
 
@@ -104,6 +113,7 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   TString fTrackBranchName;
   TString fIdealTrackBranchName;
   Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
+  PndGeoSttPar *fSttParameters;
 
   RhoTuple * fTuple;
 

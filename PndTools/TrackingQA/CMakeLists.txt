@@ -8,8 +8,10 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 
 Set(INCLUDE_DIRECTORIES
+  ${CMAKE_SOURCE_DIR}/stt
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/trackrep
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/PndMCMatch 
@@ -34,6 +36,8 @@ PndTrackingQualityAnalysis.cxx
 PndTrackingQualityTask.cxx
 PndTrackingQualityAnalysisNewLinks.cxx
 PndTrackingQualityTaskNewLinks.cxx
+PndTrackingQualityMCInfo.cxx
+PndTrackingQualityRecoInfo.cxx
 OnlineDBuilderTask.cxx
 )
 

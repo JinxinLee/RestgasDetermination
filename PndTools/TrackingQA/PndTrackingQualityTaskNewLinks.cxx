@@ -27,6 +27,9 @@
 #include "PndMCTrack.h"
 #include "PndTrack.h"
 #include "PndMCEntry.h"
+#include "PndSttHit.h"
+#include "PndSttTube.h"
+#include "PndSttMapCreator.h"
 #include "RhoHistogram/RhoTuple.h"
 
 // Class includes
@@ -58,7 +61,15 @@ InitStatus PndTrackingQualityTaskNewLinks::Init() {
 
 	fTrack = (TClonesArray*) ioman->GetObject(fTrackBranchName);
 	fMCTrack = (TClonesArray*) ioman->GetObject("MCTrack");
-	fIdealTrackCand = (TClonesArray*) ioman->GetObject(fIdealTrackBranchName);
+	//	fIdealTrackCand = (TClonesArray*) ioman->GetObject(fIdealTrackBranchName);
+	fIdealTrack = (TClonesArray*) ioman->GetObject(fIdealTrackBranchName);
+	fSttHitArray = (TClonesArray*) ioman->GetObject("STTHit");
+
+	// MC info for quality
+	fMCTrackInfo = new TClonesArray("PndTrackingQualityMCInfo");
+	ioman->Register("MCTrackInfo",  "QualityAssurance", fMCTrackInfo, kTRUE); // CHECK
+	fRecoTrackInfo = new TClonesArray("PndTrackingQualityRecoInfo");
+	ioman->Register("RecoTrackInfo",  "QualityAssurance", fRecoTrackInfo, kTRUE); // CHECK
 
 	fTuple = new RhoTuple("qaTuple", "QA Rho");
 
@@ -80,6 +91,11 @@ InitStatus PndTrackingQualityTaskNewLinks::Init() {
 		fMapEfficiencies[fBranchNames[i]] = new TH2D(fBranchNames[i], fBranchNames[i], 100, 0., 100., 50, 0, 1.1);
 		fMapEfficiencies[fBranchNames[i]]->SetDrawOption("COLz");
 	}
+
+	// ----------------------------------------   maps of STT tubes
+	PndSttMapCreator *mapperStt = new PndSttMapCreator(fSttParameters);
+	fSttTubeArray = mapperStt->FillTubeArray();
+	// ----------------------------------------------------  end map
 
 	std::cout
 			<< "-I- PndTrackingQualityTaskNewLinks::Init: Initialization successfull"
@@ -135,10 +151,14 @@ void PndTrackingQualityTaskNewLinks::LabelQualyHistogram(TH1 * hist) {
 
 // -------------------------------------------------------------------------
 void PndTrackingQualityTaskNewLinks::SetParContainers() {
+  FairRuntimeDb* rtdb = FairRun::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
 // -----   Public method Exec   --------------------------------------------
 void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
+  fMCTrackInfo->Delete();
+  fRecoTrackInfo->Delete();
 
 	std::cout << "----- Event " << fEventNr << " ------" << std::endl;
 
@@ -147,7 +167,7 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 	qaAna.SetVerbose(fVerbose);
 	qaAna.SetHitsBranchNames(fBranchNames);
 	qaAna.Init();
-	qaAna.AnalyseEvent();
+	qaAna.AnalyseEvent(fRecoTrackInfo);
 
 	std::map<Int_t, Int_t> qualiMap = qaAna.GetTrackQualification();
 	std::map<Int_t, Int_t> mcStatusMap = qaAna.GetTrackMCStatus();
@@ -162,6 +182,37 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 	MapToHist(qaAna.GetPResolutionRel(), fPRelHisto);
 	MapToHist(qaAna.GetPtResolution(), fPtHisto);
 	MapToHist(qaAna.GetPtResolutionRel(), fPtRelHisto);
+
+	// fill MC Track Info ......................................
+	for (std::map<Int_t, Int_t>::iterator iter = qualiMap.begin(); iter != qualiMap.end(); iter++) {
+	  Int_t mcTrackId = iter->first;
+	  Int_t idealTrackId = qaAna.GetIdealTrackIdFromMCTrackId(mcTrackId);
+	  Int_t trackQuality = iter->second;
+			  
+	  PndTrack *idealtrack = (PndTrack*) fIdealTrack->At(idealTrackId);
+	  
+	  PndMCTrack * myMcTrack = (PndMCTrack *) fMCTrack->At(mcTrackId);
+	  Int_t pdgId = myMcTrack->GetPdgCode();
+
+	  int size = fMCTrackInfo->GetEntriesFast();
+	  PndTrackingQualityMCInfo mctrackinfo = GetMCInfoFromIdealTrack(idealtrack);
+	  mctrackinfo.SetMCTrackID(mcTrackId);
+	  mctrackinfo.SetQuality(trackQuality);
+	  mctrackinfo.SetPDGCode(pdgId);
+	  //  mctrackinfo.SetReconstructabilityStatus();
+	  
+	  if(mctrackinfo.GetNofMCPoints() > 0) new((*fMCTrackInfo)[size]) PndTrackingQualityMCInfo(mctrackinfo);
+	  //     cout << "MCTRack " << mctrackinfo.GetMCTrackID() << endl;
+	}
+	// ............................................................
+
+	// loop over reco track info and associate the mc track info
+	for(int itrk = 0; itrk < fRecoTrackInfo->GetEntriesFast(); itrk++) {
+	  PndTrackingQualityRecoInfo *recoinfo = (PndTrackingQualityRecoInfo *) fRecoTrackInfo->At(itrk);
+	  Int_t idealTrackId = qaAna.GetIdealTrackIdFromRecoTrackId(recoinfo->GetRecoTrackID());
+	  PndTrackingQualityMCInfo *mctrackinfo = (PndTrackingQualityMCInfo *) fMCTrackInfo->At(idealTrackId);
+	  recoinfo->SetMCTrackInfo(mctrackinfo);
+	}
 
 	// Save the Tree (/RhoTuple) for some possible additional analysis
 	for (std::map<Int_t, Int_t>::iterator iter = qualiMap.begin(); iter != qualiMap.end(); iter++) {
@@ -343,5 +394,218 @@ void PndTrackingQualityTaskNewLinks::ColorHistogram() {
 	fQualyHisto_mc->SetLineColor(kBlue);
 
 }
+
+PndTrackingQualityMCInfo PndTrackingQualityTaskNewLinks::GetMCInfoFromIdealTrack(PndTrack *idealtrack) {
+  
+  PndTrackCand *idealtrkcand = idealtrack->GetTrackCandPtr();
+    
+  Int_t nofsttpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("STTHit"));
+  Int_t nofmvdpixpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"));
+  Int_t nofmvdstrpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"));
+  Int_t nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint;
+  Int_t nofgempoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("GEMHit"));
+  
+  int nofsttskewpoint = 0, nofsttparalpoint = 0;    
+  // this loop counts skewed (--> parallel) STT/FTS hits
+  for(Int_t ihit = 0; ihit < idealtrkcand->GetNHits(); ihit++) {
+    PndTrackCandHit idealcandhit = idealtrkcand->GetSortedHit(ihit);
+    Int_t hitID = idealcandhit.GetHitId();
+    Int_t detID = idealcandhit.GetDetId();
+      
+    if(detID != FairRootManager::Instance()->GetBranchId("STTHit")) continue; 
+    PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitID);
+    Int_t tubeID = stthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fSttTubeArray->At(tubeID);
+    if(tube->IsSkew()) nofsttskewpoint++;
+    else nofsttparalpoint++;
+  }
+
+  PndTrackingQualityMCInfo info(nofmvdpixpoint, nofmvdstrpoint, nofsttparalpoint, nofsttskewpoint, nofgempoint);
+
+  // CHECK
+  // Bool_t isreco = Reconstructability(nofmvdpixpoint, nofmvdstrpoint, nofsttparalpoint, nofsttskewpoint, nofgempoint, nofscitilpoint);
+  //  info.SetReconstructability(isreco);
+
+
+  info.SetPositionFirst(idealtrack->GetParamFirst().GetPosition());
+  info.SetMomentumFirst(idealtrack->GetParamFirst().GetMomentum());
+  info.SetPositionLast(idealtrack->GetParamLast().GetPosition());
+  info.SetMomentumLast(idealtrack->GetParamLast().GetMomentum());
+  info.SetCharge(idealtrack->GetParamFirst().GetQ());
+
+ 
+  return info;
+
+}
+/**  
+PndTrackingQualityRecoInfo PndTrackingQualityTaskNewLinks::GetRecoInfoFromRecoTrack(int recotrackid, PndTrack *track) {
+  
+  PndTrackCand *trkcand = track->GetTrackCandPtr();
+    
+  Int_t nofsttpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("STTHit"));
+  Int_t nofmvdpixpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"));
+  Int_t nofmvdstrpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"));
+  int nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint;
+  Int_t nofgempoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("GEMHit"));
+
+  int nofsttskewpoint = 0, nofsttparalpoint = 0;    
+  // this loop counts skewed (--> parallel) STT/FTS hits
+  for(Int_t ihit = 0; ihit < trkcand->GetNHits(); ihit++) {
+    PndTrackCandHit candhit = trkcand->GetSortedHit(ihit);
+    Int_t hitID = candhit.GetHitId();
+    Int_t detID = candhit.GetDetId();
+      
+    if(detID != FairRootManager::Instance()->GetBranchId("STTHit") continue;
+    PndSttHit *stthit = (PndSttHit*) fSttHitArray->At(hitID);
+    Int_t tubeID = stthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fSttTubeArray->At(tubeID);
+    if(tube->IsSkew()) nofsttskewpoint++;
+    else nofsttparalpoint++;
+  }
+
+  // -------------------------------------------------------
+  int mctrackid = trackid->GetCorrTrackID();
+  int noftruehits = trackid->GetMultTrackID();
+
+  int nofassomctracks = trackid->GetNCorrTrackId();
+  int noffakehits = 0;
+  for(int itrk = 1; itrk <  nofassomctracks; itrk++) {
+    int noffake = trackid->GetMultTrackID(itrk);
+    noffakehits += noffake;
+  }
+
+  //:...................:
+  int noftruemvdpixhits = 0, noftruemvdstrhits = 0, noftruesttparalhits = 0, noftruesttskewhits = 0, noftruegemhits = 0, noftruescitilhits = 0;
+  int noffakemvdpixhits = 0, noffakemvdstrhits = 0, noffakesttparalhits = 0, noffakesttskewhits = 0, noffakegemhits = 0, noffakescitilhits = 0;
+
+  FairHit *hit = NULL;
+  FairMCPoint *point = NULL;
+  for(Int_t ihit = 0; ihit < trkcand->GetNHits(); ihit++) {
+    PndTrackCandHit candhit = trkcand->GetSortedHit(ihit);
+    Int_t hitID1 = candhit.GetHitId();
+    Int_t detID1 = candhit.GetDetId();
+  
+    if(detID1 == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) {
+      hit = (FairHit*) fMvdPixelHitArray->At(hitID1);
+      int refindex = hit->GetRefIndex();
+      if(refindex == -1) noffakemvdpixhits++;
+      else {
+	point = (FairMCPoint*) fMvdPointArray->At(refindex);
+	int reftrackid = point->GetTrackID();
+	if(reftrackid != mctrackid) noffakemvdpixhits++;
+	else noftruemvdpixhits++;
+      }
+    }
+    else if(detID1 == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) {
+      hit = (FairHit*) fMvdStripHitArray->At(hitID1);
+      int refindex = hit->GetRefIndex();
+      if(refindex == -1) noffakemvdstrhits++;
+      else {
+	point = (FairMCPoint*) fMvdPointArray->At(refindex);
+	int reftrackid = point->GetTrackID();
+	if(reftrackid != mctrackid) noffakemvdstrhits++;
+	else noftruemvdstrhits++;
+      }
+    }
+    if(detID1 == FairRootManager::Instance()->GetBranchId(fSttBranch)) {
+      hit = (FairHit*) fSttHitArray->At(hitID1);
+
+      Int_t tubeID = ((PndSttHit*) hit)->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fSttTubeArray->At(tubeID);
+      int refindex = hit->GetRefIndex();
+      if(refindex == -1) {
+	if(tube->IsSkew()) noffakesttskewhits++;
+	else noffakesttparalhits++;
+      }
+      else {
+	point = (FairMCPoint*) fSttPointArray->At(refindex);
+	int reftrackid = point->GetTrackID();
+	if(reftrackid != mctrackid) {
+	  if(tube->IsSkew()) noffakesttskewhits++;
+	  else noffakesttparalhits++;
+	}
+	else {
+	  if(tube->IsSkew()) noftruesttskewhits++;
+	  else noftruesttparalhits++;
+	}
+      }
+    }
+    else if(detID1 == FairRootManager::Instance()->GetBranchId(fGemBranch)) {
+      hit = (FairHit*) fGemHitArray->At(hitID1);
+      int refindex = hit->GetRefIndex();
+      if(refindex == -1) noffakegemhits++;
+      else {
+	point = (FairMCPoint*) fGemPointArray->At(refindex);
+	{
+	  int reftrackid = point->GetTrackID();
+	  if(reftrackid != mctrackid) noffakegemhits++;
+	  else noftruegemhits++;
+	}
+      }
+    }
+    else if(detID1 == FairRootManager::Instance()->GetBranchId(fSciTBranch)) {
+      hit = (FairHit*) fSciTilHitArray->At(hitID1);
+      int refindex = hit->GetRefIndex();
+      if(refindex == -1) noffakescitilhits++;
+      else {
+	point = (FairMCPoint*) fSciTilPointArray->At(refindex);
+	int reftrackid = point->GetTrackID();
+	if(reftrackid != mctrackid) noffakescitilhits++;
+	else noftruescitilhits++;
+      }
+    }
+    // ----------------------------------------------------
+  }
+
+  PndTrkRecoTrackInfo info(recotrackid);
+  info.SetNofMvdPixTrueHits(noftruemvdpixhits);
+  info.SetNofMvdStrTrueHits(noftruemvdstrhits);
+  info.SetNofSttParalTrueHits(noftruesttparalhits);
+  info.SetNofSttSkewTrueHits(noftruesttskewhits);
+  info.SetNofGemTrueHits(noftruegemhits);
+  info.SetNofSciTilTrueHits(noftruescitilhits);
+  info.SetNofMvdPixFakeHits(noffakemvdpixhits);
+  info.SetNofMvdStrFakeHits(noffakemvdstrhits);
+  info.SetNofSttParalFakeHits(noffakesttparalhits);
+  info.SetNofSttSkewFakeHits(noffakesttskewhits);
+  info.SetNofGemFakeHits(noffakegemhits);
+  info.SetNofSciTilFakeHits(noffakescitilhits);
+  
+  info.SetMCTrackID(mctrackid);
+  
+  info.SetPositionFirst(track->GetParamFirst().GetPosition());
+  info.SetMomentumFirst(track->GetParamFirst().GetMomentum());
+  
+  info.SetPositionLast(track->GetParamLast().GetPosition());
+  info.SetMomentumLast(track->GetParamLast().GetMomentum());
+  
+  info.SetCharge(track->GetParamFirst().GetQ());
+  
+  
+  for(int jtrk = 0; jtrk < fMCTrackInfo->GetEntriesFast(); jtrk++) {
+    PndTrkMCTrackInfo *mcinfo = (PndTrkMCTrackInfo*) fMCTrackInfo->At(jtrk);
+    int mcinfotrackid = mcinfo->GetMCTrackID();
+    //        cout << "mcinfotrackid " << mcinfo->GetMCTrackID() << " " << info.GetMCTrackID() << endl;
+    if(mcinfotrackid == mctrackid) {
+      
+      info.SetNofMvdPixMissingHits(mcinfo->GetNofMvdPixPoints() - noftruemvdpixhits);
+      info.SetNofMvdStrMissingHits(mcinfo->GetNofMvdStrPoints() - noftruemvdstrhits);
+      info.SetNofSttParalMissingHits(mcinfo->GetNofSttParalPoints() - noftruesttparalhits);
+      info.SetNofSttSkewMissingHits(mcinfo->GetNofSttSkewPoints() - noftruesttskewhits);
+      info.SetNofGemMissingHits(mcinfo->GetNofGemPoints() - noftruegemhits);
+      info.SetNofSciTilMissingHits(mcinfo->GetNofSciTilPoints() - noftruescitilhits);
+      
+
+//       cout << "good mcinfotrackid " << mcinfo->GetMCTrackID() << " " << info.GetMCTrackID() << endl;
+      info.SetMCTrackInfo(mcinfo);
+      break;
+    }
+  }
+
+  return info;
+}
+  
+ 
+**/
 
 ClassImp( PndTrackingQualityTaskNewLinks);
