@@ -121,7 +121,7 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t GetNofSttMissingHits() {return fNofSttMissingHits; } // fNofSttParalMissingHits + fNofSttSkewMissingHits ;}
   Int_t GetNofGemMissingHits() {return fNofGemMissingHits; }
   /*  Int_t GetNofSciTilMissingHits() {return fNofSciTilMissingHits; } */
-  Int_t GetNofMissingHits() {return  fNofMvdPixelMissingHits + fNofMvdStripMissingHits + fNofSttMissingHits + fNofGemMissingHits; } //ù + fNofSttParalMissingHits + fNofSttSkewMissingHits + fNofSciTilMissingHits; }
+  Int_t GetNofMissingHits() {return  fNofMvdPixelMissingHits + fNofMvdStripMissingHits + fNofSttMissingHits + fNofGemMissingHits; } // + fNofSttParalMissingHits + fNofSttSkewMissingHits + fNofSciTilMissingHits; }
 
   void SetNofMvdPixelMissingHits(int nofpix) { fNofMvdPixelMissingHits = nofpix; }
   void SetNofMvdStripMissingHits(int nofstr) { fNofMvdStripMissingHits = nofstr; }
