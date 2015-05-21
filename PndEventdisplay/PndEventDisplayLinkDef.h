@@ -11,6 +11,10 @@
 #pragma link C++ class  PndMvdDigiPixelDraw;
 #pragma link C++ class  PndSttIsochroneDraw;
 #pragma link C++ class  PndEmcClusterDraw;
+#pragma link C++ class  PndEmcHitDraw;
+#pragma link C++ class  PndEmcHitCaloDraw;
+#pragma link C++ class  PndEmcDigiCaloDraw;
+#pragma link C++ class  PndCaloDraw;
 
 
 #endif
