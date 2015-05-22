@@ -12,11 +12,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/HelixPropagator
   ${CMAKE_SOURCE_DIR}/PndMCMatch
   ${CMAKE_SOURCE_DIR}/field 
-  ${CMAKE_SOURCE_DIR}/trackbase 
   ${CMAKE_SOURCE_DIR}/geane
   ${CMAKE_SOURCE_DIR}/genfit
-  ${CMAKE_SOURCE_DIR}/lhetrack
-  ${CMAKE_SOURCE_DIR}/eventdisplay
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/DrcData
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
@@ -28,6 +25,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/sds/SdsDigi
   ${CMAKE_SOURCE_DIR}/stt
   ${CMAKE_SOURCE_DIR}/emc/EmcData
+  ${CMAKE_SOURCE_DIR}/emc/EmcTools
   ${CMAKE_SOURCE_DIR}/PndEventdisplay
 )
 
