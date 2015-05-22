@@ -65,11 +65,8 @@ void PndTrkNeighboringMap::Clear() {
 void PndTrkNeighboringMap::AddNeighboringsToHit(PndTrkHit *hit, TObjArray *hits) {
 
   //  hit->DrawTube(kGreen); // CHECK
-
- 
-
-
-  hit2neigh.Add(hit, hits);
+  TObjArray *neighs = new TObjArray(*hits);
+  hit2neigh.Add(hit, neighs);
   int tubeID = hit->GetTubeID();
   PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
   
@@ -241,9 +238,21 @@ void PndTrkNeighboringMap::PrintIndivisibleMap() {
 
 // Returns 0 if not found.
 TObjArray  PndTrkNeighboringMap::GetNeighboringsToHit(PndTrkHit *hit) {
-  TObjArray *neighs = (TObjArray*) hit2neigh.GetValue(hit);
-  if(neighs == NULL) return 0;
-  return *(neighs);
+//   TObjArray *neighs = (TObjArray*) hit2neigh.GetValue(hit);
+//   if(neighs == NULL) return 0;
+//   return *(neighs);
+
+  TMapIter *it2 = (TMapIter*) hit2neigh.MakeIterator();
+  while(PndTrkHit *hit2 = (PndTrkHit*) it2->Next()) {
+    if(hit->GetHitID() == hit2->GetHitID() && hit->GetDetectorID() == hit2->GetDetectorID()) {
+      if(((TObjArray*) hit2neigh.GetValue(hit2))->GetEntriesFast() == 0) return TObjArray(0);
+      return *((TObjArray*) hit2neigh.GetValue(hit2));
+    }
+  }
+  return TObjArray(0);
+
+
+
 }
 
 TMapIter *PndTrkNeighboringMap::GetIterator() {
