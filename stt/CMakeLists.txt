@@ -62,6 +62,7 @@ PndSttHitWriteoutBuffer.cxx
 PndSttHitRingSorter.cxx
 PndSttHitSorterTask.cxx
 PndSttStrawMap.cxx
+PndSttFullTCAProducer.cxx
 )
 
 set(LINKDEF  SttLinkDef.h)

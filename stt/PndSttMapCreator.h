@@ -32,8 +32,9 @@ class PndSttMapCreator : public TObject
   TString GetPathFromTubeID(Int_t tubeid, Bool_t isCopy);
   TString GetNameFromPath(TString path);
   Int_t GetTubeIDFromPath(TString path);
-    PndSttTube * GetTubeFromTubeID(Int_t tubeid);
-
+  PndSttTube * GetTubeFromTubeID(Int_t tubeid);
+  
+  PndSttGeometryMap *GetGeometryMap() { return fMap; }
  private:
  
   Int_t fGeoType;

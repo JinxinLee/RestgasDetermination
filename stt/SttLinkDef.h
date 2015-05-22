@@ -36,7 +36,7 @@
 #pragma link C++ class PndSttHitSorterTask+;
 #pragma link C++ class PndSttStrawMap+;
 #pragma link C++ class PndSttGeometryMap+;
-
+#pragma link C++ class PndSttFullTCAProducer+;
 
 #endif
 
