@@ -92,7 +92,7 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 ### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
 ### NB: CA can use merged or single(not merged) hits, Trk-Following can't
 #     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
-     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",5,"\"Follow\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"Follow\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
 #track fit: 
 ### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
 ### radLen = average effective thickness X/X0[%]

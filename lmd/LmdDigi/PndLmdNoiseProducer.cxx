@@ -200,7 +200,7 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
     std::cout << "error! :" << fe << " " << did << " " << col << " " << row << " " << charge << std::endl;
     lmd_dim.Get_sensor_by_id(fe, ihalf, iplane, imodule, iside, idie, isensor);
     //if (imodule != 0 || ihalf != 0) continue;
-    AddDigiPixel(nNoisyPixels,-1,fe,did,col,row,charge);
+    AddDigiPixel(nNoisyPixels,-1,fe,0,col,row,charge); // fe is abused here for sensID and real fe is set to 0
   }
 
   fPreviousTime = FairRootManager::Instance()->GetEventTime();
