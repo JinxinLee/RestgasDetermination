@@ -54,7 +54,10 @@ void PndTrkLegendreTransform::SetUpLegendreHisto(double thetaNofBin, double thet
   fRNofBin     = rNofBin;
   fRMin        = rMin;
   fRMax        = rMax;
-  if(fhLegendre) ResetLegendreHisto();
+  if(fhLegendre) {
+    fhLegendre->SetBins(fThetaNofBin, fThetaMin, fThetaMax, fRNofBin, fRMin, fRMax);
+    ResetLegendreHisto();
+  }
   else SetUpLegendreHisto();
 }
 
