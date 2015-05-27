@@ -494,12 +494,19 @@ PndTrackingQualityRecoInfo PndTrackingQualityAnalysisNewLinks::GetRecoInfoFromRe
       FairMultiLinkedData mclinks = hitlink.GetLinksWithType(ioman->GetBranchId("MCTrack"));
       //  	  std::cout << "hit " << ihit  << " belongs to " << mclinks.GetNLinks() << " mc tracks" << std::endl;
       Bool_t isgood = kFALSE;
-      for (int imctrk = 0; imctrk < mclinks.GetNLinks(); imctrk++) {
-	FairLink mclink = mclinks.GetLink(imctrk);
-	assomctrack = mclink.GetIndex();
-	// 	    std::cout << "imctrk " << imctrk << " " << mclink.GetIndex() << " " << mclink.GetType() << " " << mclink.GetWeight() << std::endl;
-	std::cout << "ihit " << ihit << " (hitid " << link.GetIndex() << ") belongs to MC track " << assomctrack << std::endl;
-	if(assomctrack == mctrackId) isgood = kTRUE;
+      FairMultiLinkedData mvdstrhits = links.GetLinksWithType(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"));
+      FairMultiLinkedData gemhits = links.GetLinksWithType(FairRootManager::Instance()->GetBranchId("GEMHits"));
+      if ((gemhits.GetNLinks() > 0 || mvdstrhits.GetNLinks() > 0) && mclinks.GetNLinks() > 1) {
+	isgood = kFALSE;
+      }
+      else {
+	for (int imctrk = 0; imctrk < mclinks.GetNLinks(); imctrk++) {
+	  FairLink mclink = mclinks.GetLink(imctrk);
+	  assomctrack = mclink.GetIndex();
+	  // 	     std::cout << "imctrk " << imctrk << " " << mclink.GetIndex() << " " << mclink.GetType() << " " << mclink.GetWeight() << std::endl;
+	  std::cout << "ihit " << ihit << " (hitid " << link.GetIndex() << ") belongs to MC track " << assomctrack << std::endl;
+	  if(assomctrack == mctrackId) isgood = kTRUE;
+	}
       }
 
 	// if true
