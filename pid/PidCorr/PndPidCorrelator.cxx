@@ -818,7 +818,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	}
 	pidCand->SetTrackIndex(i);
         pidCand->SetTrackBranch(FairRootManager::Instance()->GetBranchId(fTrackBranch2));
-	pidCand->AddLink(FairLink("PndTrack", i));
+	pidCand->AddLink(FairLink(fTrackBranch2, i));
 	if (!GetTrackInfo(track, pidCand)) continue;
 	if ( (fMvdMode==2) && ((fMvdHitsStrip->GetEntriesFast()+fMvdHitsPixel->GetEntriesFast())>0) ) GetMvdInfo(track, pidCand); 
 	if ( (fFtsMode == 2) && (fFtsHit    ->GetEntriesFast()>0) ) GetFtsInfo(track, pidCand); 
