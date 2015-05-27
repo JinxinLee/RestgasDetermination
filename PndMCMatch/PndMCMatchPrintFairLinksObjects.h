@@ -38,8 +38,12 @@ class PndMCMatchPrintFairLinksObjects : public FairTask
 
   /** Virtual method Init **/
   virtual void SetParContainers();
-  void SetPersistance(Bool_t pers){fPersistance = pers;}
-  Bool_t GetPersistance(){return fPersistance;}
+
+  virtual void AddBranchName(const TString& name){
+	  fSelectedBranches->AddLast(new TObjString(name.Data()));
+  }
+
+  virtual void PrintBranchNameList(TList* branches);
 
   virtual InitStatus Init();
 
@@ -49,19 +53,14 @@ class PndMCMatchPrintFairLinksObjects : public FairTask
 
   virtual void Finish();
 
+ protected:
+  void InitBranchList(TList* branches);
+
 
 
  private:
-  InitStatus InitBranches();
   std::map<Int_t, TClonesArray*> fBranches;
-  Bool_t fPersistance;
-  Int_t fEvent;
-  Bool_t fPrintOnce;
-
-  TClonesArray* fMCLink;//->
-
-  int fEventNr;
-  PndMCMatch* fMCMatch;
+  TList* fSelectedBranches;
 
   void Register();
 

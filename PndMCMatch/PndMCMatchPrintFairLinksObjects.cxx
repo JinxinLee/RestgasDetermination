@@ -25,7 +25,7 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndMCMatchPrintFairLinksObjects::PndMCMatchPrintFairLinksObjects() : FairTask("Creates PndMCMatch"), fEventNr(0), fPersistance(kTRUE), fPrintOnce(kFALSE)
+PndMCMatchPrintFairLinksObjects::PndMCMatchPrintFairLinksObjects() : FairTask("Creates PndMCMatch"), fSelectedBranches(new TList())
 {
 }
 // -------------------------------------------------------------------------
@@ -39,38 +39,61 @@ PndMCMatchPrintFairLinksObjects::~PndMCMatchPrintFairLinksObjects()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMCMatchPrintFairLinksObjects::Init()
 {
-
-
 	  FairRootManager* ioman = FairRootManager::Instance();
 	  	if (!ioman) {
 	  		std::cout << "-E- PndMCMatchPrintFairLinksObjects::Init: "
 	  				<< "RootManager not instantiated!" << std::endl;
 	  		return kFATAL;
 	  	}
-	  	TList* branchNames = ioman->GetBranchNameList();
-	  	for (int i = 0; i < branchNames->GetEntries(); i++) {
-			TObjString* branchName = (TObjString*) branchNames->At(i);
-			if (branchName->String().Contains("_link")) continue;
-			if (branchName->String().Contains("MCTrack")) continue;
-			if (branchName->String().Contains(".")) continue;
-			if (branchName->String().Contains("GeoTracks")) continue;
-			if (branchName->String().Contains("Header")) continue;
-			if (branchName->String().Contains("Info")) continue;
-			if (branchName->String().Contains("ID")) continue;
-			if (branchName->String().Contains("PidAlgo")) continue;
 
-			std::cout << "PndMCMatchPrintFairLinksObjects::Init() branches: " << branchName->String() << std::endl;
-			if ((TClonesArray*)ioman->GetObject(branchName->String()) != 0){
-				fBranches[ioman->GetBranchId(branchName->String())] = (TClonesArray*)ioman->GetObject(branchName->String());
-			}
-		}
+	  	TList* branchNames;
+	  	if (fSelectedBranches->GetEntries() > 0){
+	  		branchNames = fSelectedBranches;
+	  	} else {
+	  		branchNames = ioman->GetBranchNameList();
+	  	}
 
+	  	InitBranchList(branchNames);
 
-
-//		if (fVerbose > 0) std::cout << "PndMCMatchPrintFairLinksObjects: BranchNames: " << branchName->GetString().Data() << std::endl;
-
+	  	PrintBranchNameList(ioman->GetBranchNameList());
 
   return kSUCCESS;
+}
+
+
+void PndMCMatchPrintFairLinksObjects::InitBranchList(TList* branches)
+{
+	FairRootManager* ioman = FairRootManager::Instance();
+	for (int i = 0; i < branches->GetEntries(); i++) {
+		TObjString* branchName = (TObjString*) branches->At(i);
+		if (branchName->String().Contains("_link")) continue;
+		if (branchName->String().Contains("MCTrack")) continue;
+		if (branchName->String().Contains(".")) continue;
+		if (branchName->String().Contains("GeoTracks")) continue;
+		if (branchName->String().Contains("Header")) continue;
+		if (branchName->String().Contains("Info")) continue;
+		if (branchName->String().Contains("ID")) continue;
+		if (branchName->String().Contains("PidAlgo")) continue;
+
+		std::cout << "PndMCMatchPrintFairLinksObjects::Init() branches: " << branchName->String() << std::endl;
+		if ((TClonesArray*)ioman->GetObject(branchName->String()) != 0){
+			fBranches[ioman->GetBranchId(branchName->String())] = (TClonesArray*)ioman->GetObject(branchName->String());
+		} else {
+			std::cout << "-E- PndMCMatchPrintFairLinksObjects " << branchName->String().Data() << " is not a valid branch name!" << std::endl;
+		}
+	}
+}
+
+
+void PndMCMatchPrintFairLinksObjects::PrintBranchNameList(TList* branches)
+{
+	std::cout << "-I- PndMCMatchPrintFairLinksObjects Branches:" << std::endl;
+
+	for (int i = 0; i < branches->GetEntries(); i++) {
+		TObjString* branchName = (TObjString*) branches->At(i);
+		std::cout << i << " : " << branchName->String().Data() << std::endl;
+	}
+	std::cout << std::endl;
 }
 
 // -------------------------------------------------------------------------
@@ -92,7 +115,7 @@ void PndMCMatchPrintFairLinksObjects::Exec(Option_t* opt)
 		std::cout << std::endl << iter->first << " : " << FairRootManager::Instance()->GetBranchName(iter->first) << " Entries: " << iter->second->GetEntriesFast() << std::endl;
 		for (int i = 0; i < iter->second->GetEntriesFast(); i++){
 			FairMultiLinkedData_Interface* myLinks = (FairMultiLinkedData_Interface*)iter->second->At(i);
-			if (myLinks != 0){
+			if (myLinks->GetPointerToLinks() != 0){
 				std::cout << i << " : " << *myLinks << std::endl << std::endl;
 			}
 		}
