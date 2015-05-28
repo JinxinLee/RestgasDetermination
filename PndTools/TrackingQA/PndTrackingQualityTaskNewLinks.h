@@ -84,6 +84,7 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   virtual Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 
   PndTrackingQualityMCInfo GetMCInfoFromIdealTrack(PndTrack *idealtrack);
+  Int_t GetMCInfoIdFromIdealTrackId(int idealtrackid) { return fMCInfoIdIdealId[idealtrackid]; }
 
   void InitializeHistograms();
   void LabelQualyHistogram(TH1 *);
@@ -93,6 +94,8 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   std::map<TString, FairMultiLinkedData> fMapLinkData;   //!
 //  std::map<TString, Double_t> fPossibleTrackParameter;
   std::map<TString, TH2*> fMapEfficiencies;              //!
+
+  std::map< int, int > fMCInfoIdIdealId; //!
 
   Int_t fNGhosts;
 

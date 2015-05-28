@@ -201,7 +201,10 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 	  mctrackinfo.SetPDGCode(pdgId);
 	  //  mctrackinfo.SetReconstructabilityStatus();
 	  
-	  if(mctrackinfo.GetNofMCPoints() > 0) new((*fMCTrackInfo)[size]) PndTrackingQualityMCInfo(mctrackinfo);
+	  if(mctrackinfo.GetNofMCPoints() > 0) {
+	    new((*fMCTrackInfo)[size]) PndTrackingQualityMCInfo(mctrackinfo);
+	    fMCInfoIdIdealId[idealTrackId] = size;
+	  }
 	  //     cout << "MCTRack " << mctrackinfo.GetMCTrackID() << endl;
 	}
 	// ............................................................
@@ -210,9 +213,8 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 	for(int itrk = 0; itrk < fRecoTrackInfo->GetEntriesFast(); itrk++) {
 	  PndTrackingQualityRecoInfo *recoinfo = (PndTrackingQualityRecoInfo *) fRecoTrackInfo->At(itrk);
 	  Int_t idealTrackId = qaAna.GetIdealTrackIdFromRecoTrackId(recoinfo->GetRecoTrackID());
-	  PndTrack *idealtrack = (PndTrack*) fIdealTrack->At(idealTrackId);
-	  PndTrackingQualityMCInfo mctrackinfo = GetMCInfoFromIdealTrack(idealtrack);
-	  recoinfo->SetMCTrackInfo(&mctrackinfo);
+	  PndTrackingQualityMCInfo *mctrackinfo = (PndTrackingQualityMCInfo*) fMCTrackInfo->At(GetMCInfoIdFromIdealTrackId(idealTrackId));
+	  recoinfo->SetMCTrackInfo(mctrackinfo);
 	}
 
 	// Save the Tree (/RhoTuple) for some possible additional analysis
