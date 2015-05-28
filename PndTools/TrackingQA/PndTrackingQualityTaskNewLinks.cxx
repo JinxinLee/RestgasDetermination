@@ -210,8 +210,9 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 	for(int itrk = 0; itrk < fRecoTrackInfo->GetEntriesFast(); itrk++) {
 	  PndTrackingQualityRecoInfo *recoinfo = (PndTrackingQualityRecoInfo *) fRecoTrackInfo->At(itrk);
 	  Int_t idealTrackId = qaAna.GetIdealTrackIdFromRecoTrackId(recoinfo->GetRecoTrackID());
-	  PndTrackingQualityMCInfo *mctrackinfo = (PndTrackingQualityMCInfo *) fMCTrackInfo->At(idealTrackId);
-	  recoinfo->SetMCTrackInfo(mctrackinfo);
+	  PndTrack *idealtrack = (PndTrack*) fIdealTrack->At(idealTrackId);
+	  PndTrackingQualityMCInfo mctrackinfo = GetMCInfoFromIdealTrack(idealtrack);
+	  recoinfo->SetMCTrackInfo(&mctrackinfo);
 	}
 
 	// Save the Tree (/RhoTuple) for some possible additional analysis
