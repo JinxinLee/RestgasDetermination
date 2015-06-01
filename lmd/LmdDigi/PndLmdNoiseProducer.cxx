@@ -145,8 +145,10 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
 
   // get the mean number of pixels fired
   xfrac = CalcDistFraction(fDigiParPix->GetNoise(),fDigiParPix->GetThreshold());
+  if(fVerbose>1){
   std::cout << " with a noise of " << fDigiParPix->GetNoise() << " e and a threshold of " << fDigiParPix->GetThreshold()
 		  << " e " << xfrac*100 << " % pixels should have fired " << std::endl;
+  }
   cycles = CalcReadoutCycles(fDigiParPix->GetFeBusClock());
   chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
   //std::cout << " cycles " << cycles << " chanwhite " << chanwhite << std::endl;
