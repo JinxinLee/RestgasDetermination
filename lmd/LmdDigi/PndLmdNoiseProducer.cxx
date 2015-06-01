@@ -140,12 +140,12 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
   Int_t pixx=fPixelIds.size();
   nrFE = pixx;
   chanmax = nrCh * nrFE;
-
-  std::cout << " found " << nrFE << " sensors " << " with in total " << chanmax << " pixels " << std::endl;
-
+  if(fVerbose>2) {
+	  std::cout << " found " << nrFE << " sensors " << " with in total " << chanmax << " pixels " << std::endl;
+  }
   // get the mean number of pixels fired
   xfrac = CalcDistFraction(fDigiParPix->GetNoise(),fDigiParPix->GetThreshold());
-  if(fVerbose>1){
+  if(fVerbose>2){
   std::cout << " with a noise of " << fDigiParPix->GetNoise() << " e and a threshold of " << fDigiParPix->GetThreshold()
 		  << " e " << xfrac*100 << " % pixels should have fired " << std::endl;
   }
