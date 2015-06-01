@@ -15,7 +15,7 @@ pbeam=$mom
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 
 #number of trks per event (should not be changed)
-numTrks=0
+numTrks=1
 #number of events
 numEv=10000
 
@@ -50,8 +50,8 @@ CombFilt=false
 WrAllMC=true
 ##############
 
-# #simulation with Box generator
-root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+# #simulation with Box generator cheating with neutrons, since "no tracks" gave problems
+root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,2112,${pbeam},${numTrks},3562\) 
 
 # # #simulation with DPM
 #  modeDPM=0 #inel
