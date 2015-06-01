@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+sim_scit(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_scit.root";

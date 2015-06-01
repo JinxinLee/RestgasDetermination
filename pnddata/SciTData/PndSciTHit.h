@@ -2,15 +2,17 @@
 // -----                    Forward tof header file                	-----
 // -----                    created by A. Sanchez                  	-----
 // -----                   modified by D. Steinschaden                 	-----
-// -----                   last update    04.2015 		       	-----
+// -----                   last update    05.2015 		       	-----
 // --------------------------------------------------------------------------
 
 
 /** PndSciTHit.h
- *@author A. Sanchez <a.sanchez@gsi.de>
+ *@author D. Steinschaden <dominik.steinschaden@oeaw.ac.at>
  **
  ** A hit in a tof wall station of SciT. In addition to the base class
- ** FairHit, it holds the number of the reconstructed hits (column and row).
+ ** FairHit, it holds the energy deposit in one detector tile.
+ ** All coordinates are in the LAB frame.
+ ** The Errors are the corresponding tile size
  **/
 
 #ifndef PNDSCITHIT_H
@@ -21,9 +23,12 @@
 #include "TString.h"
 #include "FairHit.h"
 
+#include <stdio.h>
+#include <iostream>
 
 class PndSciTHit : public FairHit
 {
+
 
  public:
 
@@ -50,13 +55,21 @@ class PndSciTHit : public FairHit
   Double_t 	GetTime()	{return GetTimeStamp();};
   Double_t 	GetDt()		{return GetTimeStampError();};
   TVector3 GetPosition()	const { return TVector3(fX, fY, fZ);}
-//-------------------------------------------------------------------------------
 
   /** Modifiers **/
 
   void SetDetName(TString name){fDetName = name;};
   void SetCharge(Double_t charge){fCharge = charge;};
-   
+
+  //** Operator overload**/
+
+  friend std::ostream& operator<< (std::ostream& out, PndSciTHit& hit);
+       
+  virtual bool operator< (const PndSciTHit& right) const; 
+  virtual bool operator> (const PndSciTHit& right) const;
+
+  virtual bool equal(FairTimeStamp* data);
+
 
   /** Screen output **/
   virtual void Print(const Option_t* opt = 0) const;
@@ -67,7 +80,7 @@ class PndSciTHit : public FairHit
   TString fDetName;  // Detector name
   Double_t fCharge;//,ftime,fdt; TS
 
-  ClassDef(PndSciTHit,2);
+  ClassDef(PndSciTHit,3);
 
 };
 

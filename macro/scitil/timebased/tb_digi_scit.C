@@ -1,22 +1,23 @@
-void digi_scit()
+void tb_digi_scit()
 {
-  // Macro created 20/09/2006 by S.Spataro
-  // It loads a simulation file and digitize hits 
+  // -----------   User Settings: -------------------------------
 
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
-  
-  // Input file (MC events)
+  Int_t iVerbose = 0;
+
+  Bool_t timebased = kTRUE;
+  //Bool_t timebased = kFALSE;
+  Double_t eventrate = 20.0; // in MHz
+
+  // ---------- SciTHit parameters: ------------------
+  Double_t SciTDeadtime = 1000;
+  Double_t SciTdt = 0.1;
+  // ------------------------
+
   TString inFile = "sim_scit.root";
-  
-  // Parameter file
   TString parFile = "sim_scit_params.root"; // at the moment you do not need it
-  
-  // Digitisation file (ascii)
   TString digiFile = "all.par";
-  
-  // Output file
-  TString outFile = "digi_scit.root";
+  TString outFile = "tb_digi_scit.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -26,8 +27,9 @@ void digi_scit()
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   fRun->SetWriteRunInfoFile(kFALSE);
-  //fRun->SetEventMeanTime(50);
-  
+  //fRun->SetEventMeanTime(50); //in ns
+  if (timebased) fRun->SetEventMeanTime(1/(eventrate * 10e6)*10e9); //in n
+ 
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
@@ -51,7 +53,7 @@ void digi_scit()
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);
-
+ 
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
@@ -74,9 +76,12 @@ void digi_scit()
   //fRun->AddTask(emcHdrFiller); // ECM header
   */
   // -----   SciT hit producers   ---------------------------
-  PndSciTHitProducerIdeal* tofhit = new PndSciTHitProducerIdeal();
-  tofhit->SetVerbose(iVerbose);
-  fRun->AddTask(tofhit);
+  PndSciTDigiTask* SciTDigi = new PndSciTDigiTask();
+  SciTDigi->SetVerbose(iVerbose);
+  SciTDigi->SetDeadTime(SciTDeadtime);
+  SciTDigi->SetTimeResolution(SciTdt);
+  if(timebased) SciTDigi->RunTimeBased();
+  fRun->AddTask(SciTDigi);
   /*
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();

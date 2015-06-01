@@ -1,4 +1,4 @@
-void digi_scit()
+void tb_digi_complete()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits 
@@ -7,16 +7,16 @@ void digi_scit()
   Int_t iVerbose = 0; // just forget about it, for the moment
   
   // Input file (MC events)
-  TString inFile = "sim_scit.root";
+  TString inFile = "sim_complete.root";
   
   // Parameter file
-  TString parFile = "sim_scit_params.root"; // at the moment you do not need it
+  TString parFile = "sim_complete_params.root"; // at the moment you do not need it
   
   // Digitisation file (ascii)
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "digi_scit.root";
+  TString outFile = "tb_digi_complete.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -25,9 +25,9 @@ void digi_scit()
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
-  //fRun->SetEventMeanTime(50);
-  
+  fRun->SetWriteRunInfoFile(kFALSE);  
+  fRun->SetEventMeanTime(50);//for mean time differenc per event for time based simulation
+
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
@@ -42,7 +42,7 @@ void digi_scit()
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  /*
+  
   // -----   STT digi producers   ---------------------------------
   PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
@@ -50,6 +50,7 @@ void digi_scit()
   // -----   MDV digi producers   ---------------------------------
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
+  mvddigi->RunTimeBased();
   fRun->AddTask(mvddigi);
 
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
@@ -72,12 +73,14 @@ void digi_scit()
 
   //PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   //fRun->AddTask(emcHdrFiller); // ECM header
-  */
+
   // -----   SciT hit producers   ---------------------------
-  PndSciTHitProducerIdeal* tofhit = new PndSciTHitProducerIdeal();
-  tofhit->SetVerbose(iVerbose);
-  fRun->AddTask(tofhit);
-  /*
+  
+PndSciTDigiTask* SciTDigi = new PndSciTDigiTask();
+  SciTDigi->SetVerbose(iVerbose);
+  SciTDigi->RunTimeBased();
+  fRun->AddTask(SciTDigi);
+  
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
   mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
@@ -107,7 +110,7 @@ void digi_scit()
   PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();
   ftofhit->SetVerbose(iVerbose);
   fRun->AddTask(ftofhit);
-  */
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 

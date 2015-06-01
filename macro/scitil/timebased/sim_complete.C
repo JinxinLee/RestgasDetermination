@@ -5,11 +5,11 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
-  TString  OutputFile     ="sim_scit.root";
-  TString  ParOutputfile  ="sim_scit_params.root";
+  TString  OutputFile     ="sim_complete.root";
+  TString  ParOutputfile  ="sim_complete_params.root";
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly
@@ -82,39 +82,32 @@ sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.2
   FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
-  /*
   //-------------------------  STT       -----------------
   FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   fRun->AddModule(Stt);
-  
   //-------------------------  MVD       -----------------
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
-  
-//-------------------------  GEM       -----------------
+  //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations_Tube.root");
   fRun->AddModule(Gem);
-  
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
-  */
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
   SciT->SetGeometryFileName("SciTil_201504.root");
   fRun->AddModule(SciT);
-  /*
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc);
-  
   //-------------------------  DISC      -----------------
   PndDsk* Dsk = new PndDsk("DSK", kTRUE);
   Dsk->SetStoreCerenkovs(kFALSE);
@@ -142,8 +135,7 @@ sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.2
   FairDetector *Rich= new PndRich("RICH",kFALSE);
   Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
-  */
-
+  
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
@@ -180,12 +172,11 @@ sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.2
   PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
   
-  /*
   // EMC Hit producer
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
-  */
+  
   //-------------------------  Initialize the RUN  -----------------
   fRun->Init();
   //-------------------------  Run the Simulation  -----------------

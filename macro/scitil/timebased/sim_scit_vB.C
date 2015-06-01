@@ -5,11 +5,11 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+sim_scit_vB(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
-  TString  OutputFile     ="sim_scit.root";
-  TString  ParOutputfile  ="sim_scit_params.root";
+  TString  OutputFile     ="sim_scit_vB.root";
+  TString  ParOutputfile  ="sim_scit_params_vB.root";
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly
@@ -106,7 +106,7 @@ sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.2
   */
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_201504.root");
+  SciT->SetGeometryFileName("SciTil_varB_201505.root");
   fRun->AddModule(SciT);
   /*
   //-------------------------  DRC       -----------------

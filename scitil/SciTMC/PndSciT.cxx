@@ -4,13 +4,12 @@
 //
 //  created by A. Sanchez
 //  modified by D. Steinschaden
-//  last update  04.2015
+//  last update  06.2015
 ///////////////////////////////////////////////////////////////
 
 #include "PndSciT.h"
 #include "PndSciTPoint.h"
 //#include "PndGeoSciT.h"
-
 #include "PndStack.h"
 #include "PndDetectorList.h"
 
@@ -55,6 +54,8 @@ PndSciT::PndSciT()
  {
   fSciTCollection        = new TClonesArray("PndSciTPoint");
   fVerboseLevel = 0;
+  fThreshold = 0.0001; // Standard Threshold set to 100 eV
+  fGeoH = NULL;
   fGeoH = PndGeoHandling::Instance(); 
 
   // Volumes containing "SENSOR" in the name will be processed in the process hit funktion 
@@ -69,6 +70,7 @@ PndSciT::PndSciT(const char* name, Bool_t active)
 {
     fSciTCollection        = new TClonesArray("PndSciTPoint");
     fVerboseLevel = 0;
+    fThreshold = 0.0001; // Standard Threshold set to 100 eV
 
     fGeoH = NULL;
     std::cout << "ScitTil fGeoH is loading" << std::endl;
@@ -102,7 +104,7 @@ void PndSciT::Initialize() {
 
   std::cout<<" -I- Initializing PndSciT()"<<std::endl;
   FairDetector::Initialize();
-
+  std::cout<<" Fairdetector geht"<<std::endl;
   // not mandatory ,but may someone can make use out of the stored parameters
   FairRun* sim = FairRun::Instance();
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
@@ -168,7 +170,7 @@ Bool_t PndSciT::ProcessHits(FairVolume* vol)
 	gMC->TrackMomentum(fMomOut);
 	 
 	//Cut on energy loss to reduce stored data Elos < 100 keV
-	if (fELoss < 0.0001 ) return kFALSE;
+	if (fELoss < fThreshold) return kFALSE;
 	 
 	AddHit(fEventID, fTrackID, fSensorID, fdetPath,
 		TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),

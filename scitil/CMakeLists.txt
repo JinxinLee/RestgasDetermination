@@ -15,6 +15,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata 
   ${CMAKE_SOURCE_DIR}/pnddata/SciTData
   ${CMAKE_SOURCE_DIR}/scitil
+  ${CMAKE_SOURCE_DIR}/scitil/SciTMC
+  ${CMAKE_SOURCE_DIR}/scitil/SciTDigi
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -28,11 +30,15 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-PndGeoSciT.cxx 
-PndSciT.cxx 
-PndGeoSciTPar.cxx 
+SciTMC/PndGeoSciT.cxx 
+SciTMC/PndSciT.cxx 
+SciTMC/PndGeoSciTPar.cxx 
 PndSciTContFact.cxx
-PndSciTHitProducerIdeal.cxx  
+SciTDigi/PndSciTHitProducerIdeal.cxx
+SciTDigi/PndSciTDigiTask.cxx
+SciTDigi/PndSciTHitWriteoutBuffer.cxx
+SciTDigi/PndSciTHitSorterTask.cxx
+SciTDigi/PndSciTHitRingSorter.cxx
 #PndSciTAnaIdeal.cxx
 #PndSciTMassTrig.cxx
 )

@@ -2,21 +2,24 @@
 // -----                     PndSciT  header file                 	-----
 // -----                    created by A. Sanchez                  	-----
 // -----                   modified by D. Steinschaden                 	-----
-// -----                   last update    04.2015 		       	-----
+// -----                   last update    06.2015 		       	-----
 // --------------------------------------------------------------------------
 
 #ifndef PNDSCIT_H
 #define PNDSCIT_H
 
 
+#include "PndGeoSciTPar.h"
+#include "PndGeoHandling.h"
+
+#include "FairDetector.h"
+
 //#include "TClonesArray.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
-#include "FairDetector.h"
-#include "PndGeoSciTPar.h"
+
 #include <string>
 #include <vector>
-#include "PndGeoHandling.h"
 
 class TClonesArray;
 class PndSciTPoint;
@@ -110,6 +113,9 @@ class PndSciT : public FairDetector
 
   //void ConstructASCIIGeometry();
 
+  void SetThreshold(Double_t val) {fThreshold = val;}; //default value is 0.0001 MeV
+
+
 
   PndSciTPoint* AddHit( Int_t eventID, Int_t trackID,
 		      Int_t sensorID, TString detName,
@@ -140,6 +146,7 @@ class PndSciT : public FairDetector
   Double32_t     fTime;              //   time
   Double32_t     fLength;            //   length
   Double_t       fELoss;             //   energy loss
+  Double_t 	 fThreshold;	     // energy loss threshold
 
   PndGeoHandling* fGeoH;             //! Gives Access to the Path info of a hit
   PndGeoSciTPar *par;		    //! for saving parameters, although not mandatory, may someone can make use out of the stored parameters
