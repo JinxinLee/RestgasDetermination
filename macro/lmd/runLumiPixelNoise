@@ -1,0 +1,109 @@
+#!/bin/bash 
+################################################################
+## script for running sim&rec for LMD with BOX dummy generator
+## for random pixel noise studies
+## [with pixels sensors set-up!]
+## 01/06/2015 more or less final version
+## P.Jasinski based on A.Karavdina's work
+################################################################
+echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
+read mom
+echo "Beam mometum is: $mom!"
+cd ${VMCWORKDIR}/macro/lmd/
+pbeam=$mom
+
+momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+
+#number of trks per event (should not be changed)
+numTrks=0
+#number of events
+numEv=10000
+
+path=${VMCWORKDIR}/macro/lmd/test/mom_${momStr}/
+mkdir -p ${path}
+##############
+# set flags
+
+##merge hits on sensors from different sides. true=yes
+mergedHits=true
+
+##Skip kinematic filter (before back-propagation)
+SkipFilt=false
+### if SkipFilt=false (XThetaCut or YPhiCut) or BoxCut should be true:
+### X-Theta kinematic cut before back-propagation, add constant shift dX[cm] if beam is shifted
+XThetaCut=true
+dX=0.
+### Y-Phi kinematic cut before back-propagation, add constant shift dY[cm] if beam is shifted
+YPhiCut=true
+dY=0.
+### BOX cut before back-propagation
+BoxCut=false
+
+## Clean after back-propagation (M-cut: momentum or MVA cut)
+CleanSig=true
+
+## Combined filter (X&Y and M-cut)
+CombFilt=false
+
+
+## Write all MC info in TrkQA array
+WrAllMC=true
+##############
+
+# #simulation with Box generator
+root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},${numTrks},3562\) 
+
+# # #simulation with DPM
+#  modeDPM=0 #inel
+# #    modeDPM=1 #el+inel
+# #    modeDPM=2 #el
+#  root -l -b -q runLumiPixel0SimDPMDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162,$modeDPM,0.12\)
+
+
+# # simulation with FTF
+# # Attention! For inelastic events only add "#noElastics" /pgenerators/FtfEvtGen/PbarP.mac !
+# #root -l -b -q runLumiPixel0SimFTFDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162\)
+
+# #digi
+#     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
+# #generate noise
+     root -l -b -q runLumiPixel1bDigiNoise.C\(${numEv},0,"\"${path}\"",0\)
+#exit
+# #hit reconstruction
+     root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\) 
+
+# ##merge hits
+     root -l -b -q runLumiPixel2bHitMerge.C\(${numEv},0,"\"${path}\""\)
+#switch on "missing plane" search algorithm
+	 misspl=true
+#use cuts during trk seacrh with "CA". Should be 'false' if sensors missaligned!
+	 trkcut=true
+### change "CA" --> "Follow" if you want to use Trk-Following as trk-search algorithm
+### NB: CA can use merged or single(not merged) hits, Trk-Following can't
+#     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"CA\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+     root -l -b -q runLumiPixel3Finder.C\(${numEv},0,"\"${path}\"",0,"\"Follow\"",${misspl},${mergedHits},${trkcut},${pbeam}\)
+#track fit: 
+### Possible options: "Minuit", "KalmanGeane", "KalmanRK"
+### radLen = average effective thickness X/X0[%]
+       radLen=0.32
+       root -l -b -q runLumiPixel4Fitter.C\(${numEv},0,"\"${path}\"",0,"\"Minuit\"",${mergedHits},${radLen}\)
+
+#track filter (on number of hits and chi2)
+     root -l -b -q runLumiPixel4aFilter.C\(${numEv},0,"\"${path}\"",0,${mergedHits},${SkipFilt},${XThetaCut},${YPhiCut},${BoxCut},${dX},${dY}\) 
+
+#save filtered results as standart Track array
+     mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
+     cp ${path}/Lumi_TrackFiltered_0.root ${path}/Lumi_Track_0.root
+
+#back-propgation GEANE
+### Possible options: "Geane", "RK"
+     root -l -b -q runLumiPixel5BackProp.C\(${numEv},0,"\"${path}\"",0,"\"Geane\"",${mergedHits},${pbeam}\)
+
+#clean signal from background (momentum cut or MVA cut)
+	 if [ $CleanSig == "true" ]; then 
+	     root -l -b -q runLumiPixel5bCleanSig.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
+	 fi
+	 #combined filter (X&Y and M cuts)
+	 if [ $CombFilt == "true" ]; then 
+	     root -l -b -q runLumiPixel5cCombFilt.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
+	 fi
