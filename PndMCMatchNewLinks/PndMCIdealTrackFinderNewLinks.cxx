@@ -17,7 +17,9 @@
 
 ClassImp(PndMCIdealTrackFinderNewLinks);
 
-PndMCIdealTrackFinderNewLinks::PndMCIdealTrackFinderNewLinks() {
+PndMCIdealTrackFinderNewLinks::PndMCIdealTrackFinderNewLinks() :
+    fOutBranchName("IdealTrack")
+{
 	// TODO Auto-generated constructor stub
 
 }
@@ -60,9 +62,9 @@ InitStatus PndMCIdealTrackFinderNewLinks::Init()
     ioman->GetObject("FTSPoint");
 
 	fTrackCand = new TClonesArray("PndTrackCand");
- 	ioman->Register("IdealTrackCand", "MC", fTrackCand, kTRUE);
+ 	ioman->Register(fOutBranchName + "Cand", "MC", fTrackCand, kTRUE);
 	fTrack = new TClonesArray("PndTrack");
-	ioman->Register("IdealTrack", "MC", fTrack, kTRUE);
+	ioman->Register(fOutBranchName, "MC", fTrack, kTRUE);
  
 	fPdg = new TDatabasePDG();
 
@@ -150,29 +152,34 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
             else if(gempoints.GetNLinks() > 0) array = gempoints;
             else if(ftspoints.GetNLinks() > 0) array = ftspoints;
 			
+			double tof = 0;
+			FairMCPoint *firstpoint = NULL, *lastpoint = NULL;
+			for (int ipnt = 0; ipnt < array.GetNLinks(); ipnt++){
+			  FairMCPoint *point = (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(array.GetLink(ipnt));
+			  tof += point->GetTime();
+			  //  std::cout << ipnt << " " << tof << std::endl;
+			  if(firstpoint == NULL || point->GetTime() < firstpoint->GetTime()) firstpoint = point;
+			  if(lastpoint == NULL || point->GetTime() > lastpoint->GetTime()) lastpoint = point;
+			}
+			tof /= array.GetNLinks();
+			// std::cout << i << " " << tof << std::endl;
 			// .............................................
 			FairMultiLinkedData mctracks = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
 			for (int trackIndex = 0; trackIndex < mctracks.GetNLinks(); trackIndex++){
 				if (!fTrackCandMap.count(mctracks.GetLink(trackIndex))){
 					fTrackCandMap[mctracks.GetLink(trackIndex)] = PndTrackCand();
 					fTrackCandMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);
-					fFirstPointMap[mctracks.GetLink(trackIndex)] = FairMCPoint();
+					fFirstPointMap[mctracks.GetLink(trackIndex)] = *firstpoint;
 					// fFirstPointMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);
-					fLastPointMap[mctracks.GetLink(trackIndex)] = FairMCPoint();
+					fLastPointMap[mctracks.GetLink(trackIndex)] = *lastpoint;
 					// fLastPointMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);
 				}
-			
-				// the first and the last point map are filled here:
-				for (int ipnt = 0; ipnt < array.GetNLinks(); ipnt++){
-				  FairMCPoint *point = (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(array.GetLink(ipnt));
-				  int trackID = point->GetTrackID();
-				  if(trackID != mctracks.GetLink(trackIndex).GetIndex()) continue;
-				  if(fFirstPointMap[mctracks.GetLink(trackIndex)].GetTime() == 0 || point->GetTime() < fFirstPointMap[mctracks.GetLink(trackIndex)].GetTime()) fFirstPointMap[mctracks.GetLink(trackIndex)] = *point;
-				  if(fLastPointMap[mctracks.GetLink(trackIndex)].GetTime() == 0 || point->GetTime() > fLastPointMap[mctracks.GetLink(trackIndex)].GetTime()) fLastPointMap[mctracks.GetLink(trackIndex)] = *point;
+				else {
+				  FairMCPoint tmpfirstpoint = fFirstPointMap[mctracks.GetLink(trackIndex)];
+				  if(firstpoint->GetTime() < tmpfirstpoint.GetTime()) fFirstPointMap[mctracks.GetLink(trackIndex)] = *firstpoint;
+				  FairMCPoint tmplastpoint = fLastPointMap[mctracks.GetLink(trackIndex)];
+				  if(lastpoint->GetTime() > tmplastpoint.GetTime()) fLastPointMap[mctracks.GetLink(trackIndex)] = *lastpoint;
 				}
-				// the time is the time of the first point
-				double tof = fFirstPointMap[mctracks.GetLink(trackIndex)].GetTime();
-				
 				FairLink link(-1, FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(iter->first),i);
 				//std::cout << "CreateTrackCands " << mctracks.GetLink(trackIndex) << " : " << link << std::endl;
 				fTrackCandMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);

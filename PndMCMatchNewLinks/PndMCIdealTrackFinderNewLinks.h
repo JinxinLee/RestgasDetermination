@@ -26,7 +26,7 @@ public:
 //	  virtual void SetParContainers();
 	  virtual InitStatus Init();
 	  virtual void AddBranchName(TString name){ fBranchNames.push_back(name);}
-
+	  virtual void SetOutputBranchName(TString name){ fOutBranchName = name; };
 
 	  /** Virtual method Exec **/
 	  virtual void Exec(Option_t* opt);
@@ -36,6 +36,7 @@ protected:
 	  virtual void CreateTrackCands();
 
 private:
+	  TString fOutBranchName;
 	  TClonesArray* fTrackCand;
 	  TClonesArray* fTrack;
 	  TClonesArray* fMCTrack;
