@@ -444,6 +444,7 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t senso
 		PndSdsDigiStrip* tempStrip = new PndSdsDigiStrip(indices,detID,sensorID,fe,chan,fCurrentChargeConv->ChargeToDigiValue(charge), FairRootManager::Instance()->GetEventTime()) ;
 		noisies++;
 		fDigiStripBuffer->FillNewData(tempStrip, FairRootManager::Instance()->GetEventTime(), FairRootManager::Instance()->GetEventTime() + 10);
+		delete(tempStrip);
 //  }
 }
 // -------------------------------------------------------------------------
@@ -453,15 +454,17 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
   //Bool_t found = kFALSE;
   Int_t detID = -1; //no source mc branch
 
-	  std::vector<Int_t> indices;
-	  indices.push_back(iPoint);
-	  PndSdsDigiPixel* tempPixel = new PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), fPixChargeConv->GetTimeStamp(0, charge,FairRootManager::Instance()->GetEventTime()));//FairRootManager::Instance()->GetEventTime()) ;
-	  if (fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()) < 1E5){
-	  		tempPixel->SetTimeStamp(tempPixel->GetTimeStamp() - fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()));
-	  		tempPixel->SetTimeStampError(fPixChargeConv->GetTimeStampErrorAfterCorrection());
-	  }
-	  fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime(), FairRootManager::Instance()->GetEventTime());
-	//  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
+  std::vector<Int_t> indices;
+  indices.push_back(iPoint);
+  PndSdsDigiPixel* tempPixel = new PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), fPixChargeConv->GetTimeStamp(0, charge,FairRootManager::Instance()->GetEventTime()));//FairRootManager::Instance()->GetEventTime()) ;
+  if (fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()) < 1E5){
+		tempPixel->SetTimeStamp(tempPixel->GetTimeStamp() - fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()));
+		tempPixel->SetTimeStampError(fPixChargeConv->GetTimeStampErrorAfterCorrection());
+  }
+  fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime(), FairRootManager::Instance()->GetEventTime());
+
+  delete(tempPixel);
+  //  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
 }
 
 void PndMvdNoiseProducer::FinishEvent()
