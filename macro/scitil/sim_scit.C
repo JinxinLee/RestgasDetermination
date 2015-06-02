@@ -106,7 +106,7 @@ sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.2
   */
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_201504.root");
+  SciT->SetGeometryFileName("SciTil_main.root");
   fRun->AddModule(SciT);
   /*
   //-------------------------  DRC       -----------------
