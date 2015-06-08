@@ -290,6 +290,7 @@ add_subdirectory (global)
 
 add_subdirectory (softrig)
 #add_subdirectory (kfparticle)
+add_subdirectory (catracking)
 
 if(RULE_CHECKER_FOUND)
 
