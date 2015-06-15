@@ -25,28 +25,34 @@
 class PndSdsDigiTopix4 : public PndSdsDigiPixel
   {
     friend std::ostream& operator<< (std::ostream& out, PndSdsDigiTopix4& digi){
-      out << "PndSdsDigiTopix4 in: " << digi.GetSensorID() << " FE: "
+      out << "PndSdsDigiTopix4 in Sensor: " << digi.GetSensorID() << " FE: "
       << digi.GetFE() << " Col/Row " << digi.GetPixelColumn() << "/" << digi.GetPixelRow()
       << " charge " << digi.GetCharge() << " e"
       << " timestamp "<< digi.GetTimeStamp()
       << " leadingEdge " << digi.GetLeadingEdge() << " trailingEdge " << digi.GetTrailingEdge()
       << " frameCount " << digi.GetFrameCount() << std::endl;
 
-      out << std::endl;
+      //out << std::endl;
       
       return out;
     }
     
     public : PndSdsDigiTopix4();
-    PndSdsDigiTopix4(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, UInt_t leadingEdge, UInt_t trailingEdge, UInt_t frameCount, Double_t timeStamp);
+    PndSdsDigiTopix4(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, UInt_t leadingEdge, UInt_t trailingEdge, UInt_t frameCount, Double_t timeStamp, UInt_t hitcountcorrect, UInt_t hitCounterIndependent, Double_t timeStampIndependent);
 
     UInt_t GetLeadingEdge() const  { return fLeadingEdge;}
     UInt_t GetTrailingEdge() const { return fTrailingEdge;}
     UInt_t GetFrameCount() const   { return fFrameCount;}
+    Double_t GetTimeStampIndependent() const { return fTimeStampIndependent;}
+    UInt_t GetHitCountIndependent() const {return fHitCountIndependent;}
+    UInt_t GetHitCountCorrect() const {return fHitCountCorrect;}
     
     void SetLeadingEdge(UInt_t le)  { fLeadingEdge = le;}
     void SetTrailingEdge(UInt_t te) { fTrailingEdge = te;}
     void SetFrameCount(UInt_t fc)   { fFrameCount = fc;}
+    void SetHitCountIndependent(UInt_t hci) { fHitCountIndependent = hci;}
+    void SetTimeStampIndependent(Double_t tsi) {fTimeStampIndependent = tsi;}
+    void SetHitCountCorrect(UInt_t hcc) { fHitCountCorrect = hcc;}
 
 		~PndSdsDigiTopix4(){};
     
@@ -62,6 +68,9 @@ class PndSdsDigiTopix4 : public PndSdsDigiPixel
 	        SetLeadingEdge(pix.GetLeadingEdge());
 	        SetTrailingEdge(pix.GetTrailingEdge());
 	        SetFrameCount(pix.GetFrameCount());
+		SetHitCountIndependent(pix.GetHitCountIndependent());
+		SetTimeStampIndependent(pix.GetTimeStampIndependent());
+		SetHitCountCorrect(pix.GetHitCountCorrect());
 		return *this;
 	}
     
@@ -69,6 +78,9 @@ class PndSdsDigiTopix4 : public PndSdsDigiPixel
 	UInt_t fLeadingEdge;
 	UInt_t fTrailingEdge;
 	UInt_t fFrameCount;
+	UInt_t fHitCountIndependent;
+	UInt_t fHitCountCorrect;
+	Double_t fTimeStampIndependent;
     
     ClassDef(PndSdsDigiTopix4,3);
   };
