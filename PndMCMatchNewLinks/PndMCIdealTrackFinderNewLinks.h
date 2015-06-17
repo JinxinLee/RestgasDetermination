@@ -31,9 +31,29 @@ public:
 	  /** Virtual method Exec **/
 	  virtual void Exec(Option_t* opt);
 
-	//  virtual void Finish();
+	  //  virtual void Finish();
+
+	  // taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h
+	  void SetMomentumSmearing(Double_t sigmax = -1.,Double_t sigmay = -1.,Double_t sigmaz = -1.) { 
+	    fMomSigma.SetXYZ(fabs(sigmax),fabs(sigmay),fabs(sigmaz)); 
+	    fRelative=kFALSE; 
+	  }; // in GeV
+	  void SetRelativeMomentumSmearing(Double_t dpop = -1.) { 
+	    fDPoP=fabs(dpop); 
+	    fRelative=kTRUE;
+	  }; // in GeV
+	  void SetVertexSmearing(Double_t sigmax = -1.,Double_t sigmay = -1.,Double_t sigmaz = -1.) { 
+	    fVtxSigma.SetXYZ(fabs(sigmax),fabs(sigmay),fabs(sigmaz)); 
+	  }; // in cm
+	  void SetTrackingEfficiency(Double_t eff = 1.) { 
+	    fEfficiency=eff; 
+	  };
+
+
 protected:
 	  virtual void CreateTrackCands();
+	  // taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h
+	  void SmearVector(TVector3 &vec, const TVector3 &sigma);
 
 private:
 	  TString fOutBranchName;
@@ -46,11 +66,19 @@ private:
 	  std::map<FairLink, FairMCPoint > fFirstPointMap;
 	  std::map<FairLink, FairMCPoint > fLastPointMap;
 
-	  TDatabasePDG *fPdg;            //! Particle DB
+	  TDatabasePDG *fPdg;            //!<! Particle DB
 
 	  Int_t fHitCount;
 
-	  ClassDef(PndMCIdealTrackFinderNewLinks,1);
+	  // Parameters for fake tracking taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h
+	  TVector3 fMomSigma;          ///< Momentum smearing sigma [GeV]
+	  Double_t fDPoP;              ///< Relative momentum Smearing
+	  Bool_t fRelative;            ///< flag
+	  TVector3 fVtxSigma;          ///< Vertex smearing sigma [cm]
+	  Double_t fEfficiency;        ///< Tracking efficiency - if (0 <= e < 1), some tracks will be discarded
+
+
+	  ClassDef(PndMCIdealTrackFinderNewLinks,2);
 };
 
 #endif /* PndMCIdealTrackFinderNewLinks_H_ */

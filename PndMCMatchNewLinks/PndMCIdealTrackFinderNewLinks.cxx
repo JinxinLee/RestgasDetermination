@@ -15,10 +15,11 @@
 #include "PndTrack.h"
 #include "PndMCTrack.h"
 
+#include "TRandom.h"
 ClassImp(PndMCIdealTrackFinderNewLinks);
 
 PndMCIdealTrackFinderNewLinks::PndMCIdealTrackFinderNewLinks() :
-    fOutBranchName("IdealTrack")
+  fOutBranchName("IdealTrack"), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
 {
 	// TODO Auto-generated constructor stub
 
@@ -97,25 +98,34 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 		if (mc->GetPdgCode()<100000000) charge = (Int_t)TMath::Sign(1.0, ((TParticlePDG*) fPdg->GetParticle(mc->GetPdgCode()))->Charge());
 		else charge = 1;
 
+
+		if(0 < fEfficiency && fEfficiency < 1){
+		  if(gRandom->Rndm() > fEfficiency) continue;
+		}
+
 		// first
 		FairMCPoint firstpoint = fFirstPointMap[iter->first];
 		TVector3 firstpos(0, 0, 0), firstmom(0, 0, 0);
 		firstpoint.Position(firstpos);
+		SmearVector(firstpos, fVtxSigma);
 		firstpoint.Momentum(firstmom);
+		if (fRelative) fMomSigma.SetXYZ(fDPoP*firstmom.Mag(),fDPoP*firstmom.Mag(),fDPoP*firstmom.Mag());
+		SmearVector(firstmom, fMomSigma);
 		FairTrackParP* firstPar=new FairTrackParP(firstpos, firstmom,
-							  TVector3(0., 0., 0.), TVector3(0., 0., 0.), 
+							  fVtxSigma, fMomSigma,
 							  charge, firstpos,
 							  TVector3(1.,0.,0.), TVector3(0.,1.,0.));					 
-		
 		// last
 		FairMCPoint lastpoint = fLastPointMap[iter->first];
 		TVector3 lastpos(0, 0, 0), lastmom(0, 0, 0);
 		lastpoint.Position(lastpos);
+		SmearVector(lastpos, fVtxSigma);
 		lastpoint.Momentum(lastmom);
+		SmearVector(lastmom, fMomSigma);
 		FairTrackParP* lastPar=new FairTrackParP(lastpos, lastmom,
-							  TVector3(0., 0., 0.), TVector3(0., 0., 0.), 
-							  charge, lastpos,
-							  TVector3(1.,0.,0.), TVector3(0.,1.,0.));					 
+							 fVtxSigma, fMomSigma,
+							 charge, lastpos,
+							 TVector3(1.,0.,0.), TVector3(0.,1.,0.));					 
 
 		PndTrack* myTrack = new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(*firstPar, *lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), trackcounter,FairRootManager::Instance()->GetBranchId("MCTrack")); // CHECK trackcounter is correct??
 
@@ -188,4 +198,20 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
 			}
 		}
 	}
+}
+
+void PndMCIdealTrackFinderNewLinks::SmearVector(TVector3 &vec, const TVector3 &sigma)
+{
+  // gaussian smearing
+  Double_t rannn=0.;
+  rannn = gRandom->Gaus(vec.X(),sigma.X());
+  vec.SetX(rannn);
+  
+  rannn = gRandom->Gaus(vec.Y(),sigma.Y());
+  vec.SetY(rannn);
+  
+  rannn = gRandom->Gaus(vec.Z(),sigma.Z());
+  vec.SetZ(rannn);
+  
+  return;
 }
