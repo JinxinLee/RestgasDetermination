@@ -492,7 +492,8 @@ void PndCATracking::Exec(Option_t* opt)
     h.SetErr2R( closestDistanceError*closestDistanceError );
     h.SetIRow(iSta);
     h.SetID( iHit);
-    h.SetPndDetID(currenthit->GetDetectorID());
+ //   h.SetPndDetID(currenthit->GetDetectorID());
+    h.SetPndDetID(FairRootManager::Instance()->GetBranchId(fSttHitsBranchName));
     h.SetPndHitID( iHStt );
     h.SetAngle( -A );
 
@@ -1040,7 +1041,10 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
     h.SetErr2R( closestDistanceError*closestDistanceError );
     h.SetIRow(iSta);
     h.SetID( iHit );
-    h.SetPndDetID( currenthit->GetDetectorID() );
+    if (isPixel)
+    	h.SetPndDetID( FairRootManager::Instance()->GetBranchId(fMvdPixelHitsBranchName) );
+    else
+    	h.SetPndDetID( FairRootManager::Instance()->GetBranchId(fMvdStripHitsBranchName) );
     h.SetPndHitID( iHMvd );
     h.SetAngle( -A );
 
