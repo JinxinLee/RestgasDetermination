@@ -93,13 +93,18 @@ MvdDAQ/PndMvdConvertApv.cxx
 MvdDAQ/PndMvdBoxMap.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
 MvdDAQ/PndMvdCreateDefaultApvMap.cxx
+
+MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.cxx
+MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBDataTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndMapSorterTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndMapSorter.cxx
 )
 
 set(LINKDEF  MvdLinkDef.h)
 set(LIBRARY_NAME Mvd)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
-Geane Sds TrkBase)
+Geane Sds TrkBase boost_serialization)
 
 GENERATE_LIBRARY()
 

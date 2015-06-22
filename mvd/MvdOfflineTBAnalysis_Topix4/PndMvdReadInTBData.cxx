@@ -16,7 +16,11 @@
 
 PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0), fSuperFrameCount(0),
 					   fOldFrameCount(0), fOldAllHeaderCount(0), fFirstHeader(kTRUE), fFE(-1),
-					   fNonSequentialFC(0), fHammingLossFrameCount(0), fCRCLossFrameCount(0), fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),  fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(0),fOrder(16), fPolynom(0x8005), fCRCXor(0x0000), fRefIn(0), fRefOut(0), fCRCInit_direct(0), fDataCount(0), fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0) {
+					   fNonSequentialFC(0), fHammingLossFrameCount(0), fCRCLossFrameCount(0),
+					   fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),
+					   fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(3),
+					   fOrder(16), fPolynom(0x8005), fCRCXor(0x0000), fRefIn(0), fRefOut(0), fCRCInit_direct(0), fDataCount(0),
+					   fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0) {
 	// TODO Auto-generated constructor stub
   	fCRCMask = ((((unsigned long)1<<(fOrder-1))-1)<<1)|1;
 	fCRCHighBit = (unsigned long)1<<(fOrder-1);
@@ -375,9 +379,9 @@ void PndMvdReadInTBData::AnalyzeToPixFrame(Double_t clockFrequency)
 	    if (fVerbose > 1) std::cout << fFE << " SuperFrameCount increased: " << std::dec<<  fSuperFrameCount << " oldFC " << fOldFrameCount << " recent FC " << fRecentFrameHeader.fFrameCount << std::endl;
 	  }
 	  //fOldFrameCount = fRecentFrameHeader.fFrameCount;
-	  
-	  new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, fFE, fRecentFrameHeader.fChipAddress, fRecentFrameHeader.fECC, fTotalFrameCount,((int)(fRecentFrameHeader.fFrameCount - fOldFrameCount)<0 ?((fRecentFrameHeader.fFrameCount - fOldFrameCount)+256) : (fRecentFrameHeader.fFrameCount - fOldFrameCount)), 0, fToPixFrame.size()-2 );
-	  
+	  Int_t deltaFrameCount = ((int)(fRecentFrameHeader.fFrameCount - fOldFrameCount)<0 ?((fRecentFrameHeader.fFrameCount - fOldFrameCount)+256) : (fRecentFrameHeader.fFrameCount - fOldFrameCount));
+	  new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, fFE, fRecentFrameHeader.fChipAddress, fRecentFrameHeader.fECC, fTotalFrameCount,deltaFrameCount, 0, fToPixFrame.size()-2 );
+	  if (deltaFrameCount > 1) std::cout << "-W- OutputArrayHeader deltaFrameCount > 1 " << deltaFrameCount << std::endl;
 	  fOldFrameCount = fRecentFrameHeader.fFrameCount;
 	}
 	break;
@@ -440,8 +444,9 @@ void PndMvdReadInTBData::AnalyzeData(std::vector<ULong64_t>& rawData, Double_t c
 
 		    fRecentAllFrameHeader = BitAnalyzeHeader(rawData.at(i));
 
-		    new ((*fOutputArrayAllHeader)[fOutputArrayAllHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentAllFrameHeader.fFrameCount, fFE, fRecentAllFrameHeader.fChipAddress, fRecentAllFrameHeader.fECC, fTotalHeaderCount,((int)(fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount)<0 ?((fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount)+256) : (fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount)), 0, 0 );
-
+		    Int_t deltaAllFrameCount = ((int)(fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount)<0 ?((fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount)+256) : (fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount));
+		    new ((*fOutputArrayAllHeader)[fOutputArrayAllHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentAllFrameHeader.fFrameCount, fFE, fRecentAllFrameHeader.fChipAddress, fRecentAllFrameHeader.fECC, fTotalHeaderCount, deltaAllFrameCount, 0, 0 );
+		    if (deltaAllFrameCount > 1) std::cout << "-W- deltaAllFrameCount > 1: " << deltaAllFrameCount << std::endl;
 		    fOldAllHeaderCount= fRecentAllFrameHeader.fFrameCount;
 
 		    if(fHeaderPresent==kTRUE)
