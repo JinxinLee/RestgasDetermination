@@ -94,10 +94,10 @@ MvdDAQ/PndMvdBoxMap.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
 MvdDAQ/PndMvdCreateDefaultApvMap.cxx
 
-MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.cxx
-MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBDataTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndMapSorterTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndMapSorter.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBDataTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMapSorterTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMapSorter.cxx
 )
 
 set(LINKDEF  MvdLinkDef.h)

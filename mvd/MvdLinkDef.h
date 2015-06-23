@@ -63,10 +63,10 @@
 #pragma link C++ class PndMvdConvertApvTask+;
 #pragma link C++ class PndMvdCreateDefaultApvMap;
 
-#pragma link C++ class PndMvdReadInTBData;
-#pragma link C++ class PndMvdReadInTBDataTask;
-#pragma link C++ class PndMapSorterTask;
-#pragma link C++ class PndMapSorter;
+//#pragma link C++ class PndMvdReadInTBData;
+//#pragma link C++ class PndMvdReadInTBDataTask;
+//#pragma link C++ class PndMapSorterTask;
+//#pragma link C++ class PndMapSorter;
 
 #endif
 
