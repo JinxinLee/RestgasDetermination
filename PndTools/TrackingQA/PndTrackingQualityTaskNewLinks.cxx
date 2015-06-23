@@ -38,8 +38,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndTrackingQualityTaskNewLinks::PndTrackingQualityTaskNewLinks(TString trackBranchName, TString idealBranchName, Bool_t pndTrackData) :
-	FairTask("Creates PndMC test"), fEventNr(0), fTrackBranchName(trackBranchName), fIdealTrackBranchName(idealBranchName), fPndTrackOrTrackCand(pndTrackData)
-{
+  FairTask("Creates PndMC test"), fEventNr(0), fTrackBranchName(trackBranchName), fIdealTrackBranchName(idealBranchName), fPndTrackOrTrackCand(pndTrackData), fMCInfoBranchName("MCTrackInfo"), fRecoInfoBranchName("RecoTrackInfo") {
 }
 // -------------------------------------------------------------------------
 
@@ -67,9 +66,9 @@ InitStatus PndTrackingQualityTaskNewLinks::Init() {
 
 	// MC info for quality
 	fMCTrackInfo = new TClonesArray("PndTrackingQualityMCInfo");
-	ioman->Register("MCTrackInfo",  "QualityAssurance", fMCTrackInfo, kTRUE); // CHECK
+	ioman->Register(fMCInfoBranchName,  "QualityAssurance", fMCTrackInfo, kTRUE); // CHECK
 	fRecoTrackInfo = new TClonesArray("PndTrackingQualityRecoInfo");
-	ioman->Register("RecoTrackInfo",  "QualityAssurance", fRecoTrackInfo, kTRUE); // CHECK
+	ioman->Register(fRecoInfoBranchName,  "QualityAssurance", fRecoTrackInfo, kTRUE); // CHECK
 
 	fTuple = new RhoTuple("qaTuple", "QA Rho");
 

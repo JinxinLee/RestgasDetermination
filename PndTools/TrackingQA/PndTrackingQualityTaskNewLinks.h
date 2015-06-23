@@ -61,6 +61,8 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   //! Adds branch names of detector data which should be taken into account in the analysis
   void AddHitsBranchName(TString name){ fBranchNames.push_back(name);}
 
+  void SetOutputMCInfoBranchName(TString name) { fMCInfoBranchName = name; }
+  void SetOutputRecoInfoBranchName(TString name) { fRecoInfoBranchName = name; }
 
  private:
 //
@@ -90,6 +92,7 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   void LabelQualyHistogram(TH1 *);
   void ColorHistogram();
   std::vector<TString> fBranchNames;                     //!
+  TString fMCInfoBranchName, fRecoInfoBranchName;        //!
 
   std::map<TString, FairMultiLinkedData> fMapLinkData;   //!
 //  std::map<TString, Double_t> fPossibleTrackParameter;
