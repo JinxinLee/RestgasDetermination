@@ -585,7 +585,7 @@ void PndFtfDirect::Setup()
     if(part) fenergy=std::sqrt(sqr(fPlab)+sqr(part->GetPDGMass()))-
       part->GetPDGMass();
   } else {
-    part = (G4ParticleTable::GetParticleTable())->GetIon(fionZ, fionA, 0.);
+    part = (G4IonTable::GetIonTable())->GetIon(fionZ, fionA, 0.);
     if(part) fenergy=std::sqrt(sqr(fPlab)+sqr(940.*MeV))-940.*MeV;
   }
   if (!part) {
