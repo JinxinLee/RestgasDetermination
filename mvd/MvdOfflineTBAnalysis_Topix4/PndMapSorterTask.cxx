@@ -44,6 +44,8 @@ InitStatus PndMapSorterTask::Init()
   if(fVerbose>1) { Info("Init","Registering this branch: %s/%s",fFolder.Data(),fOutputBranch.Data()); }
   fOutputArray = ioman->Register(fOutputBranch, fInputArray->GetClass()->GetName(), fFolder, fPersistance);
 
+  fSorter = new PndMapSorter();
+
 
   return kSUCCESS;
 }
@@ -57,6 +59,7 @@ void PndMapSorterTask::Exec(Option_t* opt)
   if (fVerbose > 1) {
     std::cout << "-I- PndMapSorterTask: Size PixelArray: " << fInputArray->GetEntriesFast() << std::endl;
   }
+  Double_t timeOfLast = 0;
   for (int i = 0; i < fInputArray->GetEntriesFast(); i++) {
     FairTimeStamp* myData = (FairTimeStamp*)fInputArray->At(i);
     myData->SetEntryNr(FairLink(0, fEntryNr, fInputBranch, i));
@@ -66,14 +69,16 @@ void PndMapSorterTask::Exec(Option_t* opt)
       std::cout<< std::endl;
     }
     fSorter->AddElement(myData, myData->GetTimeStamp());
+    timeOfLast = myData->GetTimeStamp();
   }
   if (fVerbose > 2) { fSorter->Print(); }
 
-  fSorter->WriteOutData(FairRootManager::Instance()->GetEventTime());
+  fSorter->WriteOutData(timeOfLast);
   std::vector<FairTimeStamp*> sortedData = fSorter->GetOutputData();
 
 
-  fOutputArray = FairRootManager::Instance()->GetEmptyTClonesArray(fOutputBranch);
+ // fOutputArray = FairRootManager::Instance()->GetEmptyTClonesArray(fOutputBranch);
+  std::cout << "SortedData size: " << sortedData.size() << std::endl;
   for (int i = 0; i < sortedData.size(); i++) {
     AddNewDataToTClonesArray(sortedData[i]);
   }
@@ -84,9 +89,9 @@ void PndMapSorterTask::Exec(Option_t* opt)
 
 void PndMapSorterTask::AddNewDataToTClonesArray(FairTimeStamp* data)
 {
-	FairRootManager* ioman = FairRootManager::Instance();
-	TClonesArray* myArray = ioman->GetTClonesArray(fOutputBranch);
-	(*myArray)[myArray->GetEntries()] = data->Clone();
+	//FairRootManager* ioman = FairRootManager::Instance();
+	//TClonesArray* myArray = ioman->GetTClonesArray(fOutputBranch);
+	(*fOutputArray)[fOutputArray->GetEntries()] = data->Clone();
 	delete(data);
 }
 
@@ -109,8 +114,8 @@ void PndMapSorterTask::FinishTask()
   fSorter->WriteOutAll();
   std::vector<FairTimeStamp*> sortedData = fSorter->GetOutputData();
 
-  FairRootManager* ioman = FairRootManager::Instance();
-  fOutputArray = ioman->GetEmptyTClonesArray(fOutputBranch);
+  std::cout << "PndMapSorterTask::FinishTask sortedData.size(): " << sortedData.size() << std::endl;
+
   for (int i = 0; i < sortedData.size(); i++) {
     if (fVerbose > 2) {
       std::cout << i << " FinishTask : ";
@@ -124,7 +129,7 @@ void PndMapSorterTask::FinishTask()
   if (fVerbose > 1) {
     fSorter->Print();
   }
-  ioman->SetLastFill();
+  FairRootManager::Instance()->SetLastFill();
 }
 
 ClassImp(PndMapSorterTask);

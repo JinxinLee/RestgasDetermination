@@ -22,17 +22,20 @@ FairTimeStamp* PndMapSorter::CreateElement(FairTimeStamp* data)
 
 void PndMapSorter::AddElement(FairTimeStamp* digi, double timestamp)
 {
+	std::cout << "PndMapSorter::AddElement " << timestamp << std::endl;
 	fMapBuffer.insert(std::pair<double,FairTimeStamp*>(timestamp, CreateElement(digi)));
 }
 
 void PndMapSorter::WriteOutData(double time)
 {
+	std::cout << "PndMapSorter::WriteOutData for time " << time << std::endl;
 	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.lower_bound(time - fTimeOffset); itr++)
 		fOutputData.push_back(itr->second);
 	fMapBuffer.erase(fMapBuffer.begin(), fMapBuffer.lower_bound(time - fTimeOffset));
 }
 
 void PndMapSorter::WriteOutAll(){
+	std::cout << "PndMapSorter::WriteOutAll called!" << std::endl;
 	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.end(); itr++)
 		fOutputData.push_back(itr->second);
 }

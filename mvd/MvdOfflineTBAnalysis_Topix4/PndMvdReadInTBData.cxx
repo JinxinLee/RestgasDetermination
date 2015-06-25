@@ -174,7 +174,7 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 		      std::cout << exception.what() << std::endl;
 		    }
 		  if (exception.code == 3)
-		    {
+		  {
 		      if(fFileCounter < fFileNames.size())
 			{
 			  std::cout <<fFE <<  " open new file " << fFileNames[fFileCounter] << std::endl; 
@@ -190,7 +190,7 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 			  endOfFile = kTRUE;
 			  return endOfFile;
 			}
-		    }
+		  }
 		}
 		if (fVerbose > 2) std::cout << fFE << " PndMvdReadInTBData::ReadInRawData: NWords: " << tempdata->getNumWords() << std::endl;
 		for (UInt_t i=0;i < tempdata->getNumWords();i+=5)
@@ -216,9 +216,10 @@ Bool_t PndMvdReadInTBData::ReadInRawData(std::ifstream* fileHandle, std::vector<
 	    std::cout << fFE << " fileHandle->fail() " << fileHandle->fail() << std::endl;
 	    std::cout << fFE << " fileHandle->bad()  " << fileHandle->bad() << std::endl;
 
-	    endOfFile = kFALSE ; 
+	    endOfFile = kFALSE;
 	    return endOfFile;
 	  }
+	return endOfFile;
 }
 
 ULong64_t PndMvdReadInTBData::CalculateCRCTableFast(std::vector<char> p, ULong64_t len) {

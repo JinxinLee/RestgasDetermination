@@ -30,6 +30,9 @@ public:
 
     virtual void AddFile(Int_t asic,TString fileName){
       std::cout << "File Added to asic " << asic-1 << " fileName " << fileName << std::endl;
+      if (fFileNames.size() < asic){
+    	  fFileNames.resize(asic);
+      }
       fFileNames[asic-1].push_back(fileName);
     };
 

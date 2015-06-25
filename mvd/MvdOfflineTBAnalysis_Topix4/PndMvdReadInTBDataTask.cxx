@@ -10,6 +10,7 @@
 #include "TClonesArray.h"
 #include "TParticlePDG.h"
 #include "PndSdsDigiTopix4.h"
+#include "PndSdsDigiTopix4Header.h"
 
 // framework includes
 #include "FairRootManager.h"
