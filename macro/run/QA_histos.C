@@ -37,6 +37,8 @@ void QA_histos() {
   cbmsim->Draw("RecoTrackInfo.GetSttEfficiency() >> eff_stt", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetGemEfficiency() >> eff_gem", cut, "goff");
 
+  TH1F *eff_glo = new TH1F("eff_glo", "global efficiency", 100, effmin, effmax);
+  cbmsim->Draw("RecoTrackInfo.GetEfficiency() >> eff_glo", cut, "goff");
 
   /**
      7 histos: Global Purity (#true hits/#hits), for all the primary tracks, for all the detectors:
@@ -59,6 +61,10 @@ void QA_histos() {
   cbmsim->Draw("RecoTrackInfo.GetMvdStripPurity() >> pur_mvdstr", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetSttPurity() >> pur_stt", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetGemPurity() >> pur_gem", cut, "goff");
+
+ 
+  TH1F *pur_glo = new TH1F("pur_glo", "global purity", 100, purmin, purmax);
+  cbmsim->Draw("RecoTrackInfo.GetPurity() >> pur_glo", cut, "goff");
 
   /**
      2 histos: 
@@ -167,11 +173,13 @@ void QA_histos() {
   eff_mvdstr->Write();
   eff_stt->Write();
   eff_gem->Write();
+  eff_glo->Write();
 
   pur_mvdpix->Write();
   pur_mvdstr->Write();
   pur_stt->Write();
   pur_gem->Write();
+  pur_glo->Write();
 
   hdelta_p_first->Write();
   hdelta_pz_first->Write();
