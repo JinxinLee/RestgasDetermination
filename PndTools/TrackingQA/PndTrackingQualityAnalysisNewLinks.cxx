@@ -14,7 +14,7 @@
 ClassImp(PndTrackingQualityAnalysisNewLinks);
 
 PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString trackBranchName, TString idealTrackName, Bool_t pndTrackData):
-	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
+       fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -111,6 +111,8 @@ void PndTrackingQualityAnalysisNewLinks::AnalyseEvent(TClonesArray *recoTrackInf
 		fMCTrackFound[mostProbableTrack]++;
 
 		PndTrackingQualityRecoInfo recoinfo = GetRecoInfoFromRecoTrack(i, mostProbableTrack);
+		int nof_asso_mctracks = trackInfo["AllHits"].GetNLinks();
+		recoinfo.SetNofMCTracks(nof_asso_mctracks);
 		int size = recoTrackInfo->GetEntriesFast();
 		new((*recoTrackInfo)[size]) PndTrackingQualityRecoInfo(recoinfo);
 	}

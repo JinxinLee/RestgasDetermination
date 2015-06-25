@@ -23,6 +23,8 @@ class PndTrackingQualityRecoInfo : public TObject
   void SetMCTrackInfo(PndTrackingQualityMCInfo *info) { 
     fMCTrackInfo = *info;
   }
+  void SetNofMCTracks(Int_t nofmctracks) { fNofMCTracks = nofmctracks; }
+  Int_t GetNofMCTracks() { return fNofMCTracks; }
 
   double GetPurity();
   /*  double GetSttParalPurity() { return (double) GetNofSttParalTrueHits()/GetNofSttParalHits(); } */
@@ -177,6 +179,7 @@ class PndTrackingQualityRecoInfo : public TObject
  
   PndTrackingQualityMCInfo fMCTrackInfo; 
 
+  Int_t fNofMCTracks;
   Int_t fNofMvdPixelTrueHits,  fNofMvdStripTrueHits,  fNofSttTrueHits, fNofGemTrueHits;
   Int_t fNofMvdPixelFakeHits,  fNofMvdStripFakeHits,  fNofSttFakeHits, fNofGemFakeHits;
   Int_t fNofMvdPixelMissingHits,  fNofMvdStripMissingHits,  fNofSttMissingHits, fNofGemMissingHits;

@@ -13,9 +13,9 @@
 
 using namespace std;
 
-PndTrackingQualityRecoInfo::PndTrackingQualityRecoInfo() : fNofMvdPixelTrueHits(0), fNofMvdStripTrueHits(0), fNofSttTrueHits(0), fNofGemTrueHits(0), fNofMvdPixelFakeHits(0), fNofMvdStripFakeHits(0), fNofSttFakeHits(0), fNofGemFakeHits(0), fNofMvdPixelMissingHits(0), fNofMvdStripMissingHits(0), fNofSttMissingHits(0), fNofGemMissingHits(0), fRecoTrackID(-1), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fMCTrackInfo(PndTrackingQualityMCInfo()), fFlag(-1) {}
+PndTrackingQualityRecoInfo::PndTrackingQualityRecoInfo() : fNofMvdPixelTrueHits(0), fNofMvdStripTrueHits(0), fNofSttTrueHits(0), fNofGemTrueHits(0), fNofMvdPixelFakeHits(0), fNofMvdStripFakeHits(0), fNofSttFakeHits(0), fNofGemFakeHits(0), fNofMvdPixelMissingHits(0), fNofMvdStripMissingHits(0), fNofSttMissingHits(0), fNofGemMissingHits(0), fRecoTrackID(-1), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fMCTrackInfo(PndTrackingQualityMCInfo()), fFlag(-1), fNofMCTracks(0) {}
 
-PndTrackingQualityRecoInfo::PndTrackingQualityRecoInfo(int recotrackid) : fNofMvdPixelTrueHits(0),  fNofMvdStripTrueHits(0), fNofSttTrueHits(0), fNofGemTrueHits(0),  fNofMvdPixelFakeHits(0),  fNofMvdStripFakeHits(0), fNofSttFakeHits(0), fNofGemFakeHits(0), fNofMvdPixelMissingHits(0),  fNofMvdStripMissingHits(0), fNofSttMissingHits(0), fNofGemMissingHits(0), fRecoTrackID(recotrackid), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)),  fMCTrackInfo(PndTrackingQualityMCInfo()), fFlag(-1) {}
+PndTrackingQualityRecoInfo::PndTrackingQualityRecoInfo(int recotrackid) : fNofMvdPixelTrueHits(0),  fNofMvdStripTrueHits(0), fNofSttTrueHits(0), fNofGemTrueHits(0),  fNofMvdPixelFakeHits(0),  fNofMvdStripFakeHits(0), fNofSttFakeHits(0), fNofGemFakeHits(0), fNofMvdPixelMissingHits(0),  fNofMvdStripMissingHits(0), fNofSttMissingHits(0), fNofGemMissingHits(0), fRecoTrackID(recotrackid), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)),  fMCTrackInfo(PndTrackingQualityMCInfo()), fFlag(-1), fNofMCTracks(0) {}
 
 PndTrackingQualityRecoInfo::~PndTrackingQualityRecoInfo() {}
 
