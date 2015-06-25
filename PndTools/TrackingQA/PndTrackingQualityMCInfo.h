@@ -47,6 +47,7 @@ class PndTrackingQualityMCInfo : public TObject
   Int_t GetRecoTrackID(Int_t i=0) const { 
     if(GetNofRecoTracks() == 0) return -1;
     return fRecoTrackIDs[i]; }
+  Int_t GetAssoRecoTrackID() const { return fAssoRecoTrackID; }
 
   TVector3 GetPositionFirst() { return fPosFirst; }
   TVector3 GetMomentumFirst() { return fMomFirst; }
@@ -68,6 +69,7 @@ class PndTrackingQualityMCInfo : public TObject
     fRecoTrackIDs.Set(size + 1);
     fRecoTrackIDs[size] = recotrkid; 
   }
+  void SetAssoRecoTrackID(int asso) { fAssoRecoTrackID = asso; }
   Bool_t IsReconstructed() { return GetNofRecoTracks() > 0;}
 
   void SetQuality(int quality) { fQuality = quality; }
@@ -75,6 +77,7 @@ class PndTrackingQualityMCInfo : public TObject
 
  protected:
  
+  Int_t fAssoRecoTrackID;
   Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints;
   Bool_t fReconstructabilityStatus;
   Int_t fMCTrackID;

@@ -216,6 +216,10 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 	  recoinfo->SetMCTrackInfo(mctrackinfo);
 	}
 
+	// associate reconstructed and mc tracks
+	AssociateRecoTracksToMCTracks();
+
+
 	// Save the Tree (/RhoTuple) for some possible additional analysis
 	for (std::map<Int_t, Int_t>::iterator iter = qualiMap.begin(); iter != qualiMap.end(); iter++) {
 		Int_t mcTrackId = iter->first;
@@ -609,5 +613,43 @@ PndTrackingQualityRecoInfo PndTrackingQualityTaskNewLinks::GetRecoInfoFromRecoTr
   
  
 **/
+
+void PndTrackingQualityTaskNewLinks::AssociateRecoTracksToMCTracks() {
+  // loop over mc track infos
+  for(int imctrk = 0; imctrk < fMCTrackInfo->GetEntriesFast(); imctrk++) {
+    PndTrackingQualityMCInfo *mcinfo = (PndTrackingQualityMCInfo *) fMCTrackInfo->At(imctrk);
+    int mctrackid0 = mcinfo->GetMCTrackID();
+    if(mcinfo->GetAssoRecoTrackID() != -1) continue;
+    double tmpeff = 0., tmppur =  0.;
+    int tmptruerecotrackid = -1;
+    
+    // loop over reco track infos
+    PndTrackingQualityRecoInfo *tmprecoinfo = NULL;
+    for(int itrk = 0; itrk < fRecoTrackInfo->GetEntriesFast(); itrk++) {
+      PndTrackingQualityRecoInfo *recoinfo = (PndTrackingQualityRecoInfo *) fRecoTrackInfo->At(itrk);
+      int mctrackid = recoinfo->GetMCTrackID();
+      if(mctrackid != mctrackid0) continue;
+      mcinfo->SetRecoTrackID(recoinfo->GetRecoTrackID());
+      recoinfo->SetClone();
+      // it must have either the higher efficiency ...
+      if(recoinfo->GetEfficiency() < tmpeff) continue;
+      // ... or, if they are even, the highest purity
+      if(recoinfo->GetEfficiency() == tmpeff && recoinfo->GetPurity() < tmppur) continue;
+
+      tmpeff = recoinfo->GetEfficiency();
+      tmppur =  recoinfo->GetPurity();
+      tmptruerecotrackid = recoinfo->GetRecoTrackID();
+      tmprecoinfo = recoinfo;
+    }
+    if(tmprecoinfo == NULL) continue;  
+
+    tmprecoinfo->SetTrue();
+    mcinfo->SetAssoRecoTrackID(tmptruerecotrackid);
+    
+  }
+}
+
+
+
 
 ClassImp( PndTrackingQualityTaskNewLinks);

@@ -85,6 +85,10 @@ class PndTrackingQualityTaskNewLinks : public FairTask
 
   virtual Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 
+
+  void AssociateRecoTracksToMCTracks();
+
+
   PndTrackingQualityMCInfo GetMCInfoFromIdealTrack(PndTrack *idealtrack);
   Int_t GetMCInfoIdFromIdealTrackId(int idealtrackid) { return fMCInfoIdIdealId[idealtrackid]; }
 

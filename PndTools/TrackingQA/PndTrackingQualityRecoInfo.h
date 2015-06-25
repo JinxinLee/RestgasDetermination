@@ -161,9 +161,9 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t GetCharge() { return fCharge; }
 
   PndTrackingQualityMCInfo GetMCTrackInfo() { return fMCTrackInfo; }
-  /*   void SetMCTrackID(int mctrackid) { fMCTrackID = mctrackid; } */
-  Int_t GetMCTrackID() { return fMCTrackInfo.GetMCTrackID(); }
-
+  void SetMCTrackID(int mctrackid) { fMCTrackID = mctrackid; } 
+  Int_t GetMCTrackID() { return fMCTrackID; }
+ 
   void SetTrue() { fTrue = 1; }
   Bool_t IsTrue() { return fTrue == 1; }
 
@@ -179,7 +179,7 @@ class PndTrackingQualityRecoInfo : public TObject
  
   PndTrackingQualityMCInfo fMCTrackInfo; 
 
-  Int_t fNofMCTracks;
+  Int_t fNofMCTracks, fMCTrackID;
   Int_t fNofMvdPixelTrueHits,  fNofMvdStripTrueHits,  fNofSttTrueHits, fNofGemTrueHits;
   Int_t fNofMvdPixelFakeHits,  fNofMvdStripFakeHits,  fNofSttFakeHits, fNofGemFakeHits;
   Int_t fNofMvdPixelMissingHits,  fNofMvdStripMissingHits,  fNofSttMissingHits, fNofGemMissingHits;

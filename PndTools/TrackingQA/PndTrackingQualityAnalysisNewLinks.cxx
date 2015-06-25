@@ -563,6 +563,8 @@ PndTrackingQualityRecoInfo PndTrackingQualityAnalysisNewLinks::GetRecoInfoFromRe
     }
 
   }
+
+  recoinfo.SetMCTrackID(mctrackId);
   return recoinfo;
 }
 
