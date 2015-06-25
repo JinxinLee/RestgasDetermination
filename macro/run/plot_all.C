@@ -12,7 +12,7 @@ using std::endl;
 bool plot_all(TString fn="QA_histograms.root")
 {
   TCanvas *c1 = new TCanvas();
-  c1->Divide(6,5);
+  c1->Divide(6,6);
   
   TFile *f=new TFile(fn,"READ");
   if (!f->IsZombie())
