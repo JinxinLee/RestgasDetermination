@@ -79,6 +79,8 @@ void tb_digi_complete()
 PndSciTDigiTask* SciTDigi = new PndSciTDigiTask();
   SciTDigi->SetVerbose(iVerbose);
   SciTDigi->RunTimeBased();
+  //SciTDigi->SetDeadTime(1000);//in ns
+  //SciTDigi->SetTimeResolution(0.1); // in ns
   fRun->AddTask(SciTDigi);
   
   // -----   MDT hit producers   ---------------------------------

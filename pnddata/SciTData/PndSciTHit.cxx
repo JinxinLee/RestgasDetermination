@@ -47,8 +47,11 @@ PndSciTHit::PndSciTHit() {
 
 // -----   Standard constructor   ------------------------------------------
 PndSciTHit::PndSciTHit(Int_t detID, TString detName,  Double_t time, Double_t dt,
+		       Double_t sipm1, Double_t dsipm1,Double_t sipm2, Double_t dsipm2,
 		     TVector3& pos,TVector3& dpos,Int_t index, Double_t charge) 
-: FairHit(detID, pos, dpos, index), fDetName(detName), fCharge(charge)
+  : FairHit(detID, pos, dpos, index), 
+    fDetName(detName), fCharge(charge),
+    fSiPm1(sipm1), fDSiPm1(dsipm1), fSiPm2(sipm2), fDSiPm2(dsipm2)
 {
 	SetTimeStamp(time);
 	SetTimeStampError(dt);

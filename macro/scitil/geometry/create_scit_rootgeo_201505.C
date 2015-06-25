@@ -1,4 +1,4 @@
-void create_scit_rootgeo_201504(Double_t distance = 750){
+void create_scit_rootgeo_201505(Double_t distance = 750){
   // Forward tof geometry parameters
   //-----------------------------
   //-- macro created by Alicia S. based on step file
@@ -17,7 +17,7 @@ void create_scit_rootgeo_201504(Double_t distance = 750){
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   
-  TString outfile= "../../../geometry/SciTil_201504.root";
+  TString outfile= "../../../geometry/SciTil_201505.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");

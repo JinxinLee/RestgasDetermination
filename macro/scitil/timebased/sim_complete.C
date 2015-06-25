@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -83,38 +83,41 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.
   Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
   //-------------------------  STT       -----------------
-  FairDetector *Stt= new PndStt("STT", kTRUE);
+  FairDetector *Stt= new PndStt("STT", kFALSE);
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   fRun->AddModule(Stt);
   //-------------------------  MVD       -----------------
-  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   fRun->AddModule(Mvd);
   //-------------------------  GEM       -----------------
-  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
   Gem->SetGeometryFileName("gem_3Stations_Tube.root");
   fRun->AddModule(Gem);
   //-------------------------  EMC       -----------------
-  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  PndEmc *Emc = new PndEmc("EMC",kFALSE);
   Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
-  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_201504.root");
+  PndSciT *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("SciTil_20150601.root");
+  //SciT->SetGeometryFileName("SciTil_201505.root");
+  //SciT->SetGeometryFileName("SciTil_latest.root");
+  //SciT->SetThreshold(0.0001);
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
-  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+  PndDrc *Drc = new PndDrc("DIRC", kFALSE);
+  Drc->SetGeometryFileName("dirc_g1_l6.root");
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc);
   //-------------------------  DISC      -----------------
-  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  PndDsk* Dsk = new PndDsk("DSK", kFALSE);
   Dsk->SetStoreCerenkovs(kFALSE);
   Dsk->SetStoreTrackPoints(kFALSE);
   fRun->AddModule(Dsk);
   //-------------------------  MDT       -----------------
-  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  PndMdt *Muo = new PndMdt("MDT",kFALSE);
   Muo->SetBarrel("fast");
   Muo->SetEndcap("fast");
   Muo->SetMuonFilter("fast");
@@ -124,11 +127,11 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
   //-------------------------  FTS       -----------------
-  FairDetector *Fts= new PndFts("FTS", kTRUE);
+  FairDetector *Fts= new PndFts("FTS", kFALSE);
   Fts->SetGeometryFileName("fts.geo");
   fRun->AddModule(Fts);
   //-------------------------  FTOF      -----------------
-  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FairDetector *FTof = new PndFtof("FTOF",kFALSE);
   FTof->SetGeometryFileName("ftofwall.root");
   fRun->AddModule(FTof);
   //-------------------------  RICH       ----------------
@@ -174,8 +177,8 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.
   
   // EMC Hit producer
   //-------------------------------
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd);
+  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  //fRun->AddTask(emcHitProd);
   
   //-------------------------  Initialize the RUN  -----------------
   fRun->Init();

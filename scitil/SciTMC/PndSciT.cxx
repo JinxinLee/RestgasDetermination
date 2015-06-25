@@ -54,7 +54,7 @@ PndSciT::PndSciT()
  {
   fSciTCollection        = new TClonesArray("PndSciTPoint");
   fVerboseLevel = 0;
-  fThreshold = 0.0001; // Standard Threshold set to 100 eV
+  fThreshold = 0.0001; // Standard Threshold set to 100 keV
   fGeoH = NULL;
   fGeoH = PndGeoHandling::Instance(); 
 
@@ -70,7 +70,7 @@ PndSciT::PndSciT(const char* name, Bool_t active)
 {
     fSciTCollection        = new TClonesArray("PndSciTPoint");
     fVerboseLevel = 0;
-    fThreshold = 0.0001; // Standard Threshold set to 100 eV
+    fThreshold = 0.0001; // Standard Threshold set to 100 keV
 
     fGeoH = NULL;
     std::cout << "ScitTil fGeoH is loading" << std::endl;

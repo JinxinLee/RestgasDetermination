@@ -156,6 +156,7 @@ void PndSciTHitProducerIdeal::Exec(Option_t* opt)
       // Create new hit
       new ((*fHitArray)[iPoint]) PndSciTHit(detectorID, detectorName, 
 					    time+FairRootManager::Instance()->GetEventTime(), fdt,
+					    0,0,0,0,
 					    hitPosition,dHitPosition,
 					    iPoint, 
 					    point->GetEnergyLoss()); 

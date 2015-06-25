@@ -140,22 +140,32 @@ void PndSciTDigiTask::Exec(Option_t* opt)
     Fatal("Exec", "No HitArray");
 
   //fHitArray->Clear();
- 
   
   // Declare some variables
 
   PndSciTPoint *point = NULL;
 
+  Double_t nBC408 = 1.58;
+
+
   Int_t detectorID;    // Detector ID /shortID
   TString detectorName;
   Double_t mcTime,eventTime,hitTime,detectingTime;
+  Double_t sipm1 , sipm2, dSiPm;
 
   TVector3 zeroVector(0,0,0);
 
   TVector3 detectorPosition;
+  TVector3 mcPosition;
+  Double_t xSiPm1, xSiPm2;
   TVector3 hitPosition;
   TVector3 sensorDim; // Sensor dimension always in half the lenghts in root!
   TVector3 dHitPosition;
+
+  //calculate invariant values out of the loop:
+
+  dSiPm = sqrt(2) * fdt; // time resolution of a single (row of) SiPm
+  Double_t cBC408 = 299792458.0/nBC408*(100/(1.0e9)); // Light in BC408 Scintillator in [cm/ns]
 
   // Loop over SciTPoints
   Int_t 
@@ -172,26 +182,45 @@ void PndSciTDigiTask::Exec(Option_t* opt)
       detectorID = point->GetDetectorID();
       detectorName = point->GetDetName();
   
-      // HitPosition in the middle of the sensor = Detector Position
+      point->Position(mcPosition);
+      mcPosition = fGeoH->MasterToLocalShortId(mcPosition, detectorID);
 
-      detectorPosition = fGeoH->LocalToMasterShortId(zeroVector, detectorID);
-      hitPosition = detectorPosition;
-
-      // Get the range for the Hit position
-
-      // sensor Dimensions equivalent to the potential error of the hitPosition in the center of the Tile. Attention,in real its no Gaussian shaped distribution but an rectangual!!
-    
       sensorDim = fGeoH->GetSensorDimensionsShortId(detectorID);
-      dHitPosition = sensorDim;
-
-
+   
+      xSiPm1=sensorDim(0)+mcPosition(0);
+      xSiPm2=sensorDim(0)-mcPosition(0);	
+      
      // produce realistic timestamp
 
       mcTime = point->GetTime();//Get MCTime
       eventTime = FairRootManager::Instance()->GetEventTime();
       hitTime = mcTime + eventTime;
-      detectingTime = hitTime;
-      smear(detectingTime,fdt);// smear with fdt to  creat realistic Time
+      
+      sipm1 = hitTime + xSiPm1/cBC408;
+      sipm2 = hitTime + xSiPm2/cBC408;
+      
+      smear(sipm1,dSiPm);// smear with fdt to  creat realistic Time
+      smear(sipm2,dSiPm);// smear with fdt to  creat realistic Time
+
+      detectingTime = (sipm1+sipm2)/2.0-sensorDim(0)/cBC408;
+
+      // HitPosition in the middle of the sensor = Detector Position
+
+      detectorPosition = fGeoH->LocalToMasterShortId(zeroVector, detectorID);
+
+      if (sensorDim(0) > 1.5)	hitPosition.SetXYZ((sipm1-sipm2)/2*cBC408,0.,0.);     
+      else  hitPosition.SetXYZ(0.,0.,0.);
+  
+      hitPosition = fGeoH->LocalToMasterShortId(hitPosition, detectorID);
+
+      // sensor Dimensions equivalent to the potential error of the hitPosition in the center of the Tile. Attention,in real its no Gaussian shaped distribution but an rectangual!!
+
+      dHitPosition =(1/sqrt(12))*2*sensorDim; //without x position by time difference
+
+      if (sensorDim(0) > 1.5){
+	dHitPosition.SetX(fdt*cBC408);
+      }
+      
 
       // Create new hit
       // new ((*fHitArray)[iPoint]) PndSciTHit(detectorID, detectorName, 
@@ -202,6 +231,7 @@ void PndSciTDigiTask::Exec(Option_t* opt)
 
       PndSciTHit *tempHit = new PndSciTHit(detectorID, detectorName, 
 					   detectingTime, fdt,
+					   sipm1, dSiPm, sipm2, dSiPm,
 					   hitPosition,dHitPosition,
 					   iPoint, 
 					   point->GetEnergyLoss());
