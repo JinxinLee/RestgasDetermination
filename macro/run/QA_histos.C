@@ -71,6 +71,11 @@ void QA_histos() {
      Number of reco tracks correlated to MC track, for primaries (>1 -> clones) 
      Number of MC tracks correlated to reco tracks for primaries (>1 -> broken tracks
   **/
+  TH1F *hnofrecotracks = new TH1F("hnofrecotracks", "# of reco tracks associated to the same MC track", 20, 0, 20);
+  cbmsim->Draw("MCTrackInfo.GetNofRecoTracks() >> hnofrecotracks", cut, "goff");
+
+  TH1F *hnofMCtracks = new TH1F("hnofMCtracks", "# of MC tracks associated to the same reco track", 20, 0, 20);
+  cbmsim->Draw("RecoTrackInfo.GetNofMCTracks() >> hnofMCtracks", cut, "goff");
 
   /**
      7 histos: Resolution at the first point:
@@ -180,6 +185,9 @@ void QA_histos() {
   pur_stt->Write();
   pur_gem->Write();
   pur_glo->Write();
+
+  hnofrecotracks->Write();
+  hnofMCtracks->Write();
 
   hdelta_p_first->Write();
   hdelta_pz_first->Write();
