@@ -121,10 +121,10 @@ void PndTrackingQualityTaskNewLinks::InitializeHistograms() {
 	fQualyHisto->SetDrawOption("TEXT HIST");
 	LabelQualyHistogram(fQualyHisto);
 
-	fQualyHisto_all = new TH1I("fQualyHisto_pos", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
+	fQualyHisto_all = new TH1I("fQualyHisto_all", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
 	fQualyHisto_pos = new TH1I("fQualyHisto_pos", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
-	fQualyHisto_neg = new TH1I("fQualyHisto_pos", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
-	fQualyHisto_mc = new TH1I("fQualyHisto_pos", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
+	fQualyHisto_neg = new TH1I("fQualyHisto_neg", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
+	fQualyHisto_mc = new TH1I("fQualyHisto_mc", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
 	fQualyStack = new THStack();
 }
 
