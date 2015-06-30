@@ -631,9 +631,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fTrackArray->Delete();
   fTrkTrackArray->Delete();
   fTrackCandArray->Delete();
-  //  if(fVerbose > 0)       fDisplayOn = kTRUE;
-  cout << "*********************** " << fEventCounter << " ***********************" << endl;
-
+  if(fVerbose > 0) cout << "PndTrkTrackFinder:: *********************** " << fEventCounter << " ***********************" << endl;
+  // fDisplayOn = kTRUE;
   fEventCounter++;
   // initialize -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~
   Initialize();

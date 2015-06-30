@@ -85,7 +85,7 @@ void PndTrkAddTCA::Exec(Option_t* opt)  {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
 
-  cout << "*********************** " << fEventCounter << " ***********************" << endl;
+  if(fVerbose) cout << "PndTrkAddTCA:: *********************** " << fEventCounter << " ***********************" << endl;
   fEventCounter++;
 
   PndTrack *track = NULL;
