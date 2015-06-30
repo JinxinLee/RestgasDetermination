@@ -11,7 +11,8 @@ void QA_histos() {
 
   TFile fileqa("recoqa_complete.root");
   TTree *cbmsim = (TTree*) fileqa.Get("cbmsim");
-  
+  cbmsim->AddFriend("cbmsim", "sim_complete.root");
+
   TCut cut = "";
 
   /**
@@ -168,6 +169,74 @@ void QA_histos() {
   TH1F *hdelta_charge = new TH1F("hdelta_charge", "#Delta #charge", ncharge, chargemin, chargemax);
   cbmsim->Draw("RecoTrackInfo.GetCharge() - RecoTrackInfo.GetMCTrackInfo().GetCharge() >> hdelta_charge", cut, "goff");
 
+  /** 
+      efficiency vs theta
+  **/
+  TH1F *hthetagen = new TH1F("hthetagen", "mc theta dist", 180, 0, 180);
+  TH1F *heffintheta = new TH1F("heffintheta", "efficiency vs #{theta}", 180, 0, 180);
+
+  TCut cut_mc = "";
+  TCut cut_rec = cut_mc && "MCTrackInfo.GetRecoTrackID() != -1";
+  cut_rec = cut_rec && "RecoTrackInfo[MCTrackInfo.GetRecoTrackID()].GetEfficiency() > 0.8";
+  cut_rec = cut_rec && "RecoTrackInfo[MCTrackInfo.GetRecoTrackID()].IsClone() == 0";
+
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Theta() * TMath::RadToDeg() >> hthetagen", cut_mc, "goff");
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Theta() * TMath::RadToDeg() >> heffintheta", cut_rec, "goff");
+  
+  hthetagen->Sumw2();
+  heffintheta->Sumw2();
+  heffintheta->Divide(hthetagen);
+
+
+  /** 
+      efficiency vs phi
+  **/
+  TH1F *hphigen = new TH1F("hphigen", "mc phi dist", 180, 0, 180);
+  TH1F *heffinphi = new TH1F("heffinphi", "efficiency vs #{phi}", 180, 0, 180);
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Phi() * TMath::RadToDeg() >> hphigen", cut_mc, "goff");
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Phi() * TMath::RadToDeg() >> heffinphi", cut_rec, "goff");
+  
+  hphigen->Sumw2();
+  heffinphi->Sumw2();
+  heffinphi->Divide(hphigen);
+
+  /** 
+      efficiency vs mom
+  **/
+  TH1F *hmomgen = new TH1F("hmomgen", "mc mom dist", 100, 0, 3);
+  TH1F *heffinmom = new TH1F("heffinmom", "efficiency vs mom", 100, 0, 3);
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Mag() >> hmomgen", cut_mc, "goff");
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Mag() >> heffinmom", cut_rec, "goff");
+  
+  hmomgen->Sumw2();
+  heffinmom->Sumw2();
+  heffinmom->Divide(hmomgen);
+
+  /** 
+      efficiency vs pt
+  **/
+  TH1F *hptgen = new TH1F("hptgen", "mc pt dist", 100, 0, 3);
+  TH1F *heffinpt = new TH1F("heffinpt", "efficiency vs pt", 100, 0, 3);
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> hptgen", cut_mc, "goff");
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> heffinpt", cut_rec, "goff");
+  
+  hptgen->Sumw2();
+  heffinpt->Sumw2();
+  heffinpt->Divide(hptgen);
+
+  /** 
+      efficiency vs pl
+  **/
+  TH1F *hplgen = new TH1F("hplgen", "mc pl dist", 100, 0, 3);
+  TH1F *heffinpl = new TH1F("heffinpl", "efficiency vs pl", 100, 0, 3);
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Z() >> hplgen", cut_mc, "goff");
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Z() >> heffinpl", cut_rec, "goff");
+  
+  hplgen->Sumw2();
+  heffinpl->Sumw2();
+  heffinpl->Divide(hplgen);
+
+
 
   /**
      Write to output
@@ -212,7 +281,11 @@ void QA_histos() {
 
   hdelta_charge->Write();
 
-  
+  heffintheta->Write();
+  heffinphi->Write();
+  heffinmom->Write();
+  heffinpt->Write();
+  heffinpl->Write();
 
 
 }
