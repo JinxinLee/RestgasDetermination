@@ -172,7 +172,7 @@ void PndTrkQualityAssuranceTask::Exec(Option_t* opt) {
   fMCTrackInfo->Delete();
   fRecoTrackInfo->Delete();
 
-  cout << "--------------------> " << fEventCounter << endl;
+  //  cout << "--------------------> " << fEventCounter << endl;
   fEventCounter++;
   
 //   for(int ihit = 0; ihit < fGemHitArray->GetEntriesFast(); ihit++) {
@@ -219,7 +219,7 @@ void PndTrkQualityAssuranceTask::Exec(Option_t* opt) {
     PndTrkRecoTrackInfo *info = (PndTrkRecoTrackInfo *) fRecoTrackInfo->At(itrk);
     PndTrkMCTrackInfo mcinfo = info->GetMCTrackInfo();
 
-    //    if(fVerbose > 0) 
+    if(fVerbose > 0) 
     {
       cout << "track " << info->GetRecoTrackID() << " , with " << info->GetNofRecoHits() << " reco hits, corresponds to mc " << info->GetMCTrackID() << " , with " << mcinfo.GetNofMCPoints() << " mc points " << endl;
       cout << "efficiency " << info->GetEfficiency() << " purity " << info->GetPurity() << endl;
@@ -261,7 +261,7 @@ void PndTrkQualityAssuranceTask::Exec(Option_t* opt) {
     }
 
     if(recolist.size() > 0 && tmpcandidate == -1) cout << "ERRORRRRRRRRRR " << endl;
-    cout << "recolist " << recolist.size() << endl;
+    //    cout << "recolist " << recolist.size() << endl;
     //     if(recolist.size() == 0) mcinfo->SetRecoTrackID(-1);
     if(recolist.size() >= 1) {
       PndTrkRecoTrackInfo *info = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(tmpcandidate);

@@ -370,10 +370,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 
 	PndTrkRecoTrackInfo*recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
-// 	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5 && recoinfo->GetEfficiency() > 0.8) {
-
-	cout << "check cleanp (>0, 1, 5) " << recoinfo->GetFlag() << " " << recoinfo->IsTrue() << " " << recoinfo->GetMCTrackID() << endl;
-
+	// 	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5 && recoinfo->GetEfficiency() > 0.8) {
 	if(recoinfo->GetFlag() >= 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5) {
 	  cleanplist.Add(truep[j]);
 	  nofcleanp++;
@@ -415,17 +412,14 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
     lam.Combine(truep,truepim);
     lamb.Combine(truepbar,truepip);
    
-    cout << "......................" << endl;
-    if(cleanplist.GetLength() == 1) cout << "PROTON" << endl;
-    if(cleanpimlist.GetLength() == 1) cout << "PI-" << endl;
-    if(cleanpbarlist.GetLength()  == 1)  cout << "PBAR" << endl;
-    if(cleanpiplist.GetLength()  == 1 ) cout << "PI+" << endl;
-
-
-
-    if(cleanplist.GetLength() == 1 && cleanpimlist.GetLength() == 1) cout << "LAM" << endl;
-    if(cleanpbarlist.GetLength()  == 1 && cleanpiplist.GetLength()  == 1 ) cout << "LAMBAR" << endl;
-
+    //     cout << "......................" << endl;
+    //     if(cleanplist.GetLength() == 1) cout << "PROTON" << endl;
+    //     if(cleanpimlist.GetLength() == 1) cout << "PI-" << endl;
+    //     if(cleanpbarlist.GetLength()  == 1)  cout << "PBAR" << endl;
+    //     if(cleanpiplist.GetLength()  == 1 ) cout << "PI+" << endl;
+    //     if(cleanplist.GetLength() == 1 && cleanpimlist.GetLength() == 1) cout << "LAM" << endl;
+    //     if(cleanpbarlist.GetLength()  == 1 && cleanpiplist.GetLength()  == 1 ) cout << "LAMBAR" << endl;
+    
     if(cleanplist.GetLength() > 1) {
       cout << "ERROR proton " << cleanplist.GetLength() << endl;
       for(int k = 0; k < cleanplist.GetLength(); k++) {
