@@ -137,7 +137,7 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	// --------------------------------
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 	fRun->SetUserConfig(BaseDir+"/macro/softrig/g3ConfigNoMC.C"); // this prevents storing the MCTracks array
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);

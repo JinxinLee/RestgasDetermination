@@ -42,7 +42,7 @@ void ana_task_mult(TString outpre="test", int from=1, int to=1, double pbarmom =
 	// *** initialization
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 	fRun->SetOutputFile(OutDummy);
 
 	// *** take constant field; needed for PocaVtx

@@ -25,7 +25,7 @@ void trackingQANewLinks(Int_t nEvents = 0)
   fRun->AddFriend("digi_complete.root");
   fRun->AddFriend("sim_complete.root");
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 

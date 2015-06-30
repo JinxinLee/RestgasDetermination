@@ -34,7 +34,7 @@ void PrintLinks_complete(Int_t nEvents = 0)
 //  fRun->AddFriend("reco_complete_test.root");
 //  fRun->AddFriend(MCFile);
   fRun->SetOutputFile("TST.root");
-  fRun->SetWriteRunInfoFile(kTRUE);
+  fRun->SetGenerateRunInfo(kTRUE);
   fRun->SetUseFairLinks(kTRUE);
   //fRun->RunWithTimeStamps();
   FairGeane *Geane = new FairGeane();

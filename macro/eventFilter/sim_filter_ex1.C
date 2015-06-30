@@ -35,7 +35,7 @@ sim_filter_ex1(Int_t nEvents = 5, TString  SimEngine ="TGeant3", Float_t mom = 6
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetName(SimEngine.Data() );
 	fRun->SetOutputFile(OutputFile.Data());
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 	fRun->SetBeamMom(BeamMomentum);
 	fRun->SetMaterials(MediaFile.Data());
 	FairRuntimeDb *rtdb=fRun->GetRuntimeDb();

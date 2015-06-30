@@ -32,7 +32,7 @@ void clonemc()
   fRun->SetInputFile(simFile);
   fRun->AddFriend(pidFile);
   fRun->SetOutputFile(cloneFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
  
   // -----  Parameter database   --------------------------------------------
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");

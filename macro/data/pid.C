@@ -30,7 +30,7 @@ void pid()
   fRun->AddFriend(digiFile);
   fRun->AddFriend(recoFile);
   fRun->SetOutputFile(pidFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 

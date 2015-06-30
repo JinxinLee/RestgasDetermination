@@ -70,7 +70,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
 	FairRunAna* fRun = new FairRunAna();
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 	fRun->SetInputFile(InFile);
 	fRun->SetOutputFile(OutFile);
 

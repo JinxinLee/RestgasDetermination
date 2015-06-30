@@ -13,7 +13,7 @@ void ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.2
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	
 	FairRunAna* fRun = new FairRunAna();
-    fRun->SetWriteRunInfoFile(kFALSE);
+    fRun->SetGenerateRunInfo(kFALSE);
 	fRun->SetInputFile(InFile);
 	fRun->SetOutputFile(OutFile); // only dummy; the real output is 
 	

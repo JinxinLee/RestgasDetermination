@@ -29,7 +29,7 @@ QAmacro_fastsim_1(Int_t nEvents = 1000 )
   FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile("sim_fast.root");
   fRun->SetBeamMom(MomDpm);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetMaterials("media_pnd.geo");
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;

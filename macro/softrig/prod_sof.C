@@ -16,7 +16,7 @@ void prod_sof(TString outpre="", Float_t Mom=15.15, int mode=9999, int run=-1, i
 	FairRunAna *fRun= new FairRunAna();
 	fRun->SetInputFile(outpre+"_pid.root");
 	fRun->SetOutputFile(outFile);
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 		
 	// *** initialization
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();

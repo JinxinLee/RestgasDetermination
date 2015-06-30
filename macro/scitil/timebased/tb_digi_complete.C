@@ -25,7 +25,7 @@ void tb_digi_complete()
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);  
+  fRun->SetGenerateRunInfo(kFALSE);  
   fRun->SetEventMeanTime(50);//for mean time differenc per event for time based simulation
 
   // -----  Parameter database   --------------------------------------------

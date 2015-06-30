@@ -103,7 +103,7 @@ void runLumiPixel7QA(const int nEvents=100000, const int startEvent=0, TString s
  }
   lmdqa->SetVerbose(verboseLevel);
   fRun->AddTask(lmdqa);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   //rtdb->setOutput(parInput1);
   //  rtdb->print();
 

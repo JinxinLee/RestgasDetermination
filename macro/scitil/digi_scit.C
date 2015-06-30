@@ -25,7 +25,7 @@ void digi_scit()
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   //fRun->SetEventMeanTime(50);
   
   // -----  Parameter database   --------------------------------------------

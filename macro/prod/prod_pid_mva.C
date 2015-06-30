@@ -28,7 +28,7 @@ void prod_pid_mva(TString outpre="", int ev=0)
   fRun->AddFriend(outpre+"_dig.root");
   fRun->AddFriend(outpre+"_rec.root");
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 

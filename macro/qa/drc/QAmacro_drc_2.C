@@ -18,7 +18,7 @@ int QAmacro_drc_2()
  
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   if(timeBased) fRun->SetEventMeanTime(eventRate);

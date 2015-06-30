@@ -8,7 +8,7 @@ void ana_triple_task(TString Fname="test", int mode, int nevts=0, double pbarmom
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
 	FairRunAna* fRun = new FairRunAna();
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 	fRun->SetInputFile(InFile);
 	fRun->SetOutputFile(Fname+"_dummy.root");
 

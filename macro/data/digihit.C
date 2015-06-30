@@ -25,7 +25,7 @@ void digihit()
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(simFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);  
+  fRun->SetGenerateRunInfo(kFALSE);  
   
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");

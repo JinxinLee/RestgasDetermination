@@ -12,7 +12,7 @@ int QAmacro_drc_1()
   
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName("TGeant4");
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetBeamMom(15);
   fRun->SetOutputFile(outFile);
   fRun->SetMaterials("media_pnd.geo");

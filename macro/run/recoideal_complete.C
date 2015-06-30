@@ -28,7 +28,7 @@ void recoideal_complete()
   fRun->SetInputFile("sim_complete.root");
   fRun->AddFriend("digi_complete.root");
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 

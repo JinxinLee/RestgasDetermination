@@ -11,7 +11,7 @@ void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetInputFile(digiFile);
   fRun->AddFriend(simFile);
   fRun->AddFriend(hitFile);

@@ -12,7 +12,7 @@ void ana_jpsi_task(TString Fname="test", int nevts=0, double pbarmom = 6.232069)
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
 	FairRunAna* fRun = new FairRunAna();
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 	fRun->SetInputFile(InFile);
 	fRun->SetOutputFile(OutFile+"_dummy.root");
 

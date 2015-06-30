@@ -131,7 +131,7 @@ void prod_fsim(TString Prefix="", Int_t nEvents = 1000, TString Decfile="", Floa
 	// --------------------------------
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 

@@ -27,7 +27,7 @@ void reco()
   fRun->SetInputFile(simFile);
   fRun->AddFriend(digiFile);
   fRun->SetOutputFile(recoFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 

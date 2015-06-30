@@ -27,7 +27,7 @@ void prod_rec(TString outpre="")
   fRun->SetInputFile(outpre+"_sim.root");
   fRun->AddFriend(outpre+"_dig.root");
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 

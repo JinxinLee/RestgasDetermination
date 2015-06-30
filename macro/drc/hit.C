@@ -7,7 +7,7 @@ void hit(Int_t nEvents = 0, TString inFile = "sim.root",  TString parFile="par.r
  
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetInputFile(inFile);
   fRun->AddFriend(inDigi);
   fRun->SetOutputFile(outFile);

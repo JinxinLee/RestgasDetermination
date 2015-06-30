@@ -30,7 +30,7 @@ void readInTopix4TBData(TString inFileName, Double_t clockFrequency = 50.)
   FairRunAna *fRun= new FairRunAna();
  // fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetWriteRunInfoFile(kFALSE);  
+  fRun->SetGenerateRunInfo(kFALSE);  
   
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");

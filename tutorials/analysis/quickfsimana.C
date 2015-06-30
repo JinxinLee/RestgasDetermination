@@ -133,7 +133,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	// --------------------------------
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 	if (!simonly) fRun->SetUserConfig(BaseDir+"/tutorials/analysis/g3ConfigNoMC.C");
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);

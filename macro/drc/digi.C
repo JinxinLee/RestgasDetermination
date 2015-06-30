@@ -7,7 +7,7 @@ void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.
  
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   if(timeBased) fRun->SetEventMeanTime(eventRate);

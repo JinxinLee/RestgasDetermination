@@ -16,7 +16,7 @@ int QAmacro_drc_4()
     
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetWriteRunInfoFile(kFALSE);
+  fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetInputFile(digiFile);
   fRun->AddFriend(simFile);
   fRun->AddFriend(hitFile);

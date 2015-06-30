@@ -32,7 +32,7 @@ simExclusive(Int_t nEvents = 100, TString SimEngine = "TGeant3", UInt_t seed = 1
     FairRunSim *fRun = new FairRunSim();
     fRun->SetName(SimEngine.Data());
     fRun->SetOutputFile(OutputFile.Data());
-    fRun->SetWriteRunInfoFile(kFALSE);
+    fRun->SetGenerateRunInfo(kFALSE);
     fRun->SetBeamMom(BeamMomentum);
     fRun->SetMaterials(MediaFile.Data());
     FairRuntimeDb *rtdb = fRun->GetRuntimeDb();

@@ -54,7 +54,7 @@ void simfast(TString Prefix="test", TString Decfile="psi2s_Jpsi2pi_Jpsi_mumu.dec
 	// --------------------------------
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
-	fRun->SetWriteRunInfoFile(kFALSE);
+	fRun->SetGenerateRunInfo(kFALSE);
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
