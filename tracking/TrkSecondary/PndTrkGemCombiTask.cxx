@@ -4,7 +4,7 @@
 // 
 // Class for GEM combinatorial suppression
 //
-// authors: Lia Lavezzi - University of Torino (2014)
+// authors: Lia Lavezzi - University of Torino (2015)
 //                                   
 ////////////////////////////////////////////////////////////
 

@@ -39,6 +39,7 @@
 #pragma link C++ class PndTrkTrackList+;
 #pragma link C++ class PndTrkLegendreTransform+;
 #pragma link C++ class PndTrkTrackFinder+;
+#pragma link C++ class PndTrkAddTCA+;
 #pragma link C++ class PndTrkGemCombiTask+;
 #pragma link C++ class PndTrkGemCombinatorial+;
 #pragma link C++ class PndTrkConformalTransform+;

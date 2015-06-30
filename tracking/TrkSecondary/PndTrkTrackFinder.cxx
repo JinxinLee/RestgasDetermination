@@ -4,7 +4,7 @@
 // 
 // Class for secondary track pattern recognition
 //
-// authors: Lia Lavezzi - University of Torino (2014)
+// authors: Lia Lavezzi - University of Torino (2015)
 //                                   
 ////////////////////////////////////////////////////////////
 
@@ -88,7 +88,7 @@ void Chi2Calculation(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int
 void Chi2Calculation2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) 
 {
 
- TMatrixT<Double_t> *objtofit = (TMatrixT<Double_t> *) gMinuit->GetObjectFit();
+  TMatrixT<Double_t> *objtofit = (TMatrixT<Double_t> *) gMinuit->GetObjectFit();
   
   Double_t chi2 = 0;
   Int_t hitcounter = objtofit->GetNrows();
@@ -331,7 +331,7 @@ Bool_t PndTrkTrackFinder::MinuitFit2(PndTrkCluster *cluster, double xstart, doub
 }
 
 // -----   Default constructor   -------------------------------------------
-PndTrkTrackFinder::PndTrkTrackFinder() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL) {
+PndTrkTrackFinder::PndTrkTrackFinder() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL), fDelPrim(kFALSE), fNofPrimaries(0) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -340,7 +340,7 @@ PndTrkTrackFinder::PndTrkTrackFinder() : FairTask("secondary track finder", 0), 
   PndGeoHandling::Instance();
 }
 
-PndTrkTrackFinder::PndTrkTrackFinder(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL) {
+PndTrkTrackFinder::PndTrkTrackFinder(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL), fDelPrim(kFALSE), fNofPrimaries(0) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -464,7 +464,9 @@ InitStatus PndTrkTrackFinder::Init() {
     std::cout << "-W- PndTrkTrackFinder::Init: " << "No GEM hitArray, return!" << std::endl;
     return kERROR;
   }
-  
+
+  if(fDelPrim == kTRUE)  fPrimaryTrackArray =  (TClonesArray*) ioman->GetObject("SttMvdGemTrack");
+
   fTrackArray = new TClonesArray("PndTrack");
   fTrkTrackArray = new TClonesArray("PndTrkTrack");
   fTrackCandArray = new TClonesArray("PndTrackCand");
@@ -545,24 +547,53 @@ void PndTrkTrackFinder::Initialize() {
 //  gemhitlist->Clear();
 //   scithitlist->Clear();
 
+  std::map< int, std::vector< int > > det_to_hitids;
+  if(fDelPrim) {
+    fNofPrimaries = RecreateHitArrays(det_to_hitids);
+    cout << fNofPrimaries << " --->" << det_to_hitids.size() << endl; 
+  }
 
   if(fUseSTT) { 
     stthitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fSttBranch), fSttHitArray);
+    std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fSttBranch), det_to_hitids);
+    for(int ihit = 0; ihit < primaries.size(); ihit++) {
+      if(primaries[ihit] == true) continue;
+      PndTrkHit *hit = stthitlist->GetHitByID(ihit);
+      stthitlist->RemoveHit(hit);
+    }
     stthitlist->Instanciate();
   }
 
   if(fUseMVDPix) {
     mvdpixhitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), fMvdPixelHitArray);
+    std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), det_to_hitids);
+    for(int ihit = 0; ihit < primaries.size(); ihit++) {
+      if(primaries[ihit] == true) continue;
+      PndTrkHit *hit = mvdpixhitlist->GetHitByID(ihit);
+      mvdpixhitlist->RemoveHit(hit);
+    }
     mvdpixhitlist->InstanciatePixel();
   }
 
   if(fUseMVDStr) {
     mvdstrhitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fMvdStripBranch), fMvdStripHitArray);
+    std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fMvdStripBranch), det_to_hitids);
+    for(int ihit = 0; ihit < primaries.size(); ihit++) {
+      if(primaries[ihit] == true) continue;
+      PndTrkHit *hit = mvdstrhitlist->GetHitByID(ihit);
+      mvdstrhitlist->RemoveHit(hit);
+    }
     mvdstrhitlist->InstanciateStrip();
   }
 
   if(fUseSCIT) {
     scithitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fSciTBranch), fSciTHitArray);
+//     std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fSciTBranch), det_to_hitids);
+//     for(int ihit = 0; ihit < primaries.size(); ihit++) {
+//       if(primaries[ihit] == true) continue;
+//       PndTrkHit *hit = scithitlist->GetHitByID(ihit);
+//       scithitlist->RemoveHit(hit);
+//     }
     scithitlist->Instanciate();
   }
 
@@ -570,7 +601,14 @@ void PndTrkTrackFinder::Initialize() {
     // gemhitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fGemBranch), fGemHitArray);
     std::map< int, bool > hitidTousability = fCombiFinder->CombinatorialSuppression();
     gemhitlist->AddNonCombiHits(FairRootManager::Instance()->GetBranchId(fGemBranch), fGemHitArray, hitidTousability);
-   gemhitlist->Instanciate();
+   
+    std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fGemBranch), det_to_hitids);
+    for(int ihit = 0; ihit < primaries.size(); ihit++) {
+      if(primaries[ihit] == true) continue;
+      PndTrkHit *hit = gemhitlist->GetHitByID(ihit);
+      if(hit) gemhitlist->RemoveHit(hit);
+    }
+    gemhitlist->Instanciate();
   }
 
   fConformalHitList->Clear();
@@ -579,12 +617,12 @@ void PndTrkTrackFinder::Initialize() {
   fInitDone = kTRUE;
   //  stthitlist->PrintSectors();
 
-//   cout << "number of stt    hits " << stthitlist->GetNofHits() << endl;
-//   cout << "number of mvdpix hits " << mvdpixhitlist->GetNofHits()  << endl;
-//   cout << "number of mvdstr hits " << mvdstrhitlist->GetNofHits()  << endl;
-//   cout << "number of scit   hits " << scithitlist->GetNofHits()  << endl;
-//   cout << "number of gem    hits " << gemhitlist->GetNofHits()  << endl;
-   
+  //   cout << "number of stt    hits " << stthitlist->GetNofHits() << endl;
+  //   cout << "number of mvdpix hits " << mvdpixhitlist->GetNofHits()  << endl;
+  //   cout << "number of mvdstr hits " << mvdstrhitlist->GetNofHits()  << endl;
+  //   cout << "number of scit   hits " << scithitlist->GetNofHits()  << endl;
+  //   cout << "number of gem    hits " << gemhitlist->GetNofHits()  << endl;
+  
 }
 
 
@@ -594,12 +632,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   fTrkTrackArray->Delete();
   fTrackCandArray->Delete();
   //  if(fVerbose > 0)       fDisplayOn = kTRUE;
-  if(fSttHitArray->GetEntriesFast() > 200) {   // CHECK
-    fEventCounter++;
-    return;
-  }
-
   cout << "*********************** " << fEventCounter << " ***********************" << endl;
+
   fEventCounter++;
   // initialize -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~
   Initialize();
@@ -611,6 +645,16 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       cout << "number of scit   hits " << fSciTHitArray->GetEntriesFast() << endl;
       cout << "number of gem    hits " << fGemHitArray->GetEntriesFast() << endl;
     }
+
+
+  if(fSttHitArray->GetEntriesFast() > 200) {                         // CHECK
+    fEventCounter++;
+    cout << "STT hits " << fSttHitArray->GetEntriesFast() << endl;
+    Reset();
+    return;
+  }
+
+
   // initialize display -----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-----~~~~~-
   if(fDisplayOn)  {
     Refresh();
@@ -3093,7 +3137,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   //  fDisplayOn = kFALSE;
   //   fDisplayOn = kTRUE;
   // set unusable the hits assigned to long tracks ....................................
-  for(int itrk = 0; itrk < fTrackArray->GetEntriesFast(); itrk++) {
+  for(int itrk = fNofPrimaries; itrk < fTrackArray->GetEntriesFast(); itrk++) {
     PndTrack *trk = (PndTrack*) fTrackArray->At(itrk);
     PndTrackCand *cand = trk->GetTrackCandPtr();
     if(!cand) 
@@ -3101,7 +3145,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	cout << "ERROR track " << itrk << " has no candidate association" << endl; 
 	continue;
       }
-
+    //    cout << fNofPrimaries << " track " << trk << " cand " << cand << endl;
     for (Int_t ihit = 0; ihit < cand->GetNHits(); ihit++) {
       PndTrackCandHit candhit = cand->GetSortedHit(ihit);
       Int_t hitId = candhit.GetHitId();
@@ -3127,7 +3171,6 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	hit = gemhitlist->GetHitByID(hitId);
       }
       hit->SetUsedFlag(true);
-
     } 
     
   }
@@ -4966,6 +5009,14 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     display->Update();
     display->Modified();
   }
+
+
+  //   cout << "HOW MANY TRACKS? " <<  fTrackArray->GetEntriesFast() << endl;
+  //   for(int itrk = 0; itrk < fTrackArray->GetEntriesFast(); itrk++) {
+  //     PndTrack *trk = (PndTrack*) fTrackArray->At(itrk);
+  //     cout << "TRACK " << itrk << " HAS FLAG " << trk->GetFlag() << endl;  
+  //   }
+
 
   
   Reset();
@@ -7359,6 +7410,75 @@ void PndTrkTrackFinder::DrawZGeometry(double phimin, double phimax, double zmin,
   
 }
 
+
+Int_t PndTrkTrackFinder::RecreateHitArrays( std::map< int, std::vector< int > > &det_to_hitids) {
+  
+  int counter = 0;
+  //  std::map< int, std::vector< int > > det_to_hitids;
+  for(int itrk = 0; itrk < fPrimaryTrackArray->GetEntriesFast(); itrk++) {
+    PndTrack *pritrack = (PndTrack*) fPrimaryTrackArray->At(itrk);
+
+//     if(pritrack->GetParamFirst().GetPosition().Perp() > 5) continue;
+//     if(pritrack->GetParamFirst().GetPosition().Z() > 5) continue;
+// //     if(pritrack->GetParamFirst().GetMomentum().Theta() * TMath::RadToDeg() < 10) continue;
+
+
+    PndTrackCand *pricand = pritrack->GetTrackCandPtr();
+    for (Int_t ihit = 0; ihit < pricand->GetNHits(); ihit++) {
+      PndTrackCandHit candhit = pricand->GetSortedHit(ihit);
+      Int_t hitId = candhit.GetHitId();
+      Int_t detId = candhit.GetDetId();
+
+      std::vector< int > hitids = det_to_hitids[detId];
+      if(std::find(hitids.begin(), hitids.end(), hitId) == hitids.end()) hitids.push_back(hitId);
+      det_to_hitids[detId] = hitids;
+   }
+
+
+    // copy the track
+    TClonesArray& clref1 = *fTrackArray;
+    Int_t size = clref1.GetEntriesFast();
+    PndTrack *outputtrack = new(clref1[size]) PndTrack(pritrack->GetParamFirst(), pritrack->GetParamLast(), pritrack->GetTrackCand());
+    outputtrack->SetFlag(333);
+
+    TClonesArray& clref2 = *fTrackCandArray;
+    size = clref2.GetEntriesFast();
+    PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(pritrack->GetTrackCand());
+    counter++;
+  }
+  
+  cout << "MAPPA DEGLI INCANDIDABILLI " << det_to_hitids.size() << endl;
+   std::map< int, std::vector< int > >::iterator it = det_to_hitids.begin();
+    while(it != det_to_hitids.end()) {
+      int detid = (*it).first;
+      std::vector< int > hits = (*it).second;
+      cout << "DET " << detid << " has " <<  hits.size() << " hits: ";
+      for(int ihit = 0; ihit < hits.size(); ihit++) cout << " " << hits[ihit];
+      cout << endl;
+      it++;
+    }
+
+  return counter;
+}
+
+
+std::map< int, bool > PndTrkTrackFinder::PrimaryCheck(Int_t detid, std::map< int, std::vector< int > > &det_to_hitids )
+{
+  std::map< int, bool > hitidTousability;
+  std::vector< int > hits = det_to_hitids[detid];
+  
+  TClonesArray *array = NULL;
+  if(detid == FairRootManager::Instance()->GetBranchId(fSttBranch)) array = fSttHitArray;
+  else if(detid == FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)) array = fMvdPixelHitArray;
+  else if(detid == FairRootManager::Instance()->GetBranchId(fMvdStripBranch)) array = fMvdStripHitArray;
+  else if(detid == FairRootManager::Instance()->GetBranchId(fGemBranch)) array = fGemHitArray;
+
+  for(int ihit = 0; ihit < array->GetEntriesFast(); ihit++) {
+    hitidTousability[ihit] = true;
+    if(find(hits.begin(), hits.end(), ihit) != hits.end()) hitidTousability[ihit] = false;
+  }
+  return hitidTousability;
+}
 
 
 ClassImp(PndTrkTrackFinder)

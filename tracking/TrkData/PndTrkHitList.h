@@ -41,6 +41,11 @@ class PndTrkHitList : public TObject
   PndTrkHit *GetHitByID(int id);
 
   inline Int_t  GetNofHits() { return hitlist.size(); }
+
+  void RemoveHit(PndTrkHit *hit) {
+    std::vector<PndTrkHit>::iterator it = find(hitlist.begin(), hitlist.end(), *hit);
+    if(it != hitlist.end()) hitlist.erase(it);
+  }
   
   void Print();
   void Draw(Color_t color = kBlack);

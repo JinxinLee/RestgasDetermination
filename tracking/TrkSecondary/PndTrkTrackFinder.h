@@ -133,13 +133,18 @@ class PndTrkTrackFinder : public FairTask {
   Bool_t MinuitFit(PndTrkCluster *cluster, double mstart, double qstart, double &fitm, double&fitq);
   Bool_t MinuitFit2(PndTrkCluster *cluster, double xstart, double ystart, double rstart, double &xc, double&yc, double &R, double &sign);
 
+  void DeletePrimaryHits() { fDelPrim = kTRUE; }
+  Int_t RecreateHitArrays( std::map< int, std::vector< int > > &det_to_hitids);
+  std::map< int, bool > PrimaryCheck(Int_t detid, std::map< int, std::vector< int > > &det_to_hitids );
+
 
  private:
 
+  Int_t fNofPrimaries;
 
   Int_t fNofMvdPixHits, fNofMvdStrHits, fNofSttHits, fNofTriplets, fNofHits, fNofSciTHits, fNofGemHits;
  
-
+  Bool_t fDelPrim;
    /** Input array of PndSttPoints **/
   TClonesArray* fSttPointArray;
   /** Input array of PndSttHit **/
@@ -156,7 +161,7 @@ class PndTrkTrackFinder : public FairTask {
   /** Input array of GemHitArray **/
   TClonesArray* fGemHitArray;
 
-  TClonesArray* fTrackArray, * fTrackCandArray, * fTrkTrackArray;
+  TClonesArray* fTrackArray, * fTrackCandArray, * fTrkTrackArray, * fPrimaryTrackArray;
 
   TClonesArray* fTubeArray;
 

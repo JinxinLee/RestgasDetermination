@@ -34,12 +34,6 @@ PndTrkAnaTask::PndTrkAnaTask() : FairTask("QualityAssurance", 0), fPersistence(k
   sprintf(fMvdStripBranch,"MVDHitsStrip");
   sprintf(fGemBranch,"GEMHit");
   sprintf(fSciTBranch,"SciTHit");
-
-  //
-  sprintf(fTrackBranch,"Track");
-  sprintf(fTrackIDBranch,"TrackID");
-  sprintf(fIdealTrackBranch,"IdealTrack");
-  sprintf(fIdealTrackIDBranch,"IdealTrackID");
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -76,7 +70,7 @@ InitStatus PndTrkAnaTask::Init() {
 
 
   // TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",3.07744,kFALSE,0.1,0,"",88888);
-  double pbarmom=1.64;
+  double pbarmom=4; // 1.64;
   // *** the lorentz vector of the initial pbarp
   double m0_p    = TDatabasePDG::Instance()->GetParticle("proton")->Mass();   // Get nominal PDG mass of the proton
   // cms
@@ -305,7 +299,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 	PndTrkRecoTrackInfo *recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
  	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
 	//	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 4 && recoinfo->GetEfficiency() > 0.8) {
-	if(recoinfo->GetFlag() > 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 4) {
+	if(recoinfo->GetFlag() >= 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 4) {
 	  cleanpiplist.Add(truepip[j]);
 	  nofcleanpip++;
 	}
@@ -339,7 +333,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
   	PndTrkRecoTrackInfo* recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
  // 	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 6 && recoinfo->GetEfficiency() > 0.8)   {
-	if(recoinfo->GetFlag() > 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 6) {
+	if(recoinfo->GetFlag() >= 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 6) {
 	  cleanpimlist.Add(truepim[j]);
 	  nofcleanpim++;
 	}
@@ -377,7 +371,10 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 	PndTrkRecoTrackInfo*recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
 // 	if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5 && recoinfo->GetEfficiency() > 0.8) {
-	if(recoinfo->GetFlag() > 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5) {
+
+	cout << "check cleanp (>0, 1, 5) " << recoinfo->GetFlag() << " " << recoinfo->IsTrue() << " " << recoinfo->GetMCTrackID() << endl;
+
+	if(recoinfo->GetFlag() >= 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 5) {
 	  cleanplist.Add(truep[j]);
 	  nofcleanp++;
 	}
@@ -408,7 +405,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
   	PndTrkRecoTrackInfo*recoinfo = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recotrackid);
 	if(recoinfo->GetRecoTrackID() != recotrackid) cout << "EEEEEEEEEERRRRRRRRRRROOOOOOOOOOOOORRRRRRRRR" << endl;
 	// if(recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 3 && recoinfo->GetEfficiency() > 0.8) {
-	if(recoinfo->GetFlag() > 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 3) {
+	if(recoinfo->GetFlag() >= 0 && recoinfo->IsTrue() == kTRUE && recoinfo->GetMCTrackID() == 3) {
 	  cleanpbarlist.Add(truepbar[j]);
 	  nofcleanpbar++;
 	}
@@ -417,6 +414,14 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
 		
     lam.Combine(truep,truepim);
     lamb.Combine(truepbar,truepip);
+   
+    cout << "......................" << endl;
+    if(cleanplist.GetLength() == 1) cout << "PROTON" << endl;
+    if(cleanpimlist.GetLength() == 1) cout << "PI-" << endl;
+    if(cleanpbarlist.GetLength()  == 1)  cout << "PBAR" << endl;
+    if(cleanpiplist.GetLength()  == 1 ) cout << "PI+" << endl;
+
+
 
     if(cleanplist.GetLength() == 1 && cleanpimlist.GetLength() == 1) cout << "LAM" << endl;
     if(cleanpbarlist.GetLength()  == 1 && cleanpiplist.GetLength()  == 1 ) cout << "LAMBAR" << endl;

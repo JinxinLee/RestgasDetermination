@@ -34,8 +34,8 @@ PndTrkQualityAssuranceTask::PndTrkQualityAssuranceTask() : FairTask("QualityAssu
   sprintf(fSciTBranch,"SciTHit");
 
   //
-  sprintf(fTrackBranch,"Track");
-  sprintf(fTrackIDBranch,"TrackID");
+  sprintf(fTrackBranch,"CombiTrack");
+  sprintf(fTrackIDBranch,"CombiTrackID");
   sprintf(fIdealTrackBranch,"IdealTrack");
   sprintf(fIdealTrackIDBranch,"IdealTrackID");
 }
