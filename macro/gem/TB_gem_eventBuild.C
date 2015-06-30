@@ -8,8 +8,6 @@ Int_t TB_gem_eventBuild  (Int_t nEvents = 1000, Int_t anaEv = 1000, Int_t nofC =
     return;
   }
 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
 
   // Input file (MC events)

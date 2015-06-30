@@ -5,12 +5,6 @@ void anaGemPointrate(int nEvents = 10, bool verbose = false)
 {
 //  int  nEvents = 1000;
 //  bool verbose = false;
-  // -----  Load libraries   ------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
-  gSystem->Load("Helper_C.so");
-  gROOT->LoadMacro("../mvd/Tools.C");
-  LoadPandaStyle();
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();

@@ -8,8 +8,6 @@ Int_t gem_hits(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
     return;
   }
 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
 
   // Input file (MC events)

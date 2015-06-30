@@ -8,8 +8,6 @@ Int_t gem_idealTracks(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 
     return;
   }
 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
 
   // Input file (MC events)

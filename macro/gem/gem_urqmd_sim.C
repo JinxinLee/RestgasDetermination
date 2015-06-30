@@ -12,10 +12,6 @@ void gem_urqmd_sim(Int_t nEvents = 100, TString urqmdString = "pbarC_15_GeV", in
   simOutput+=".root";
   parOutput+="_par.root";
   
-
-  // Load basic libraries
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
   FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used

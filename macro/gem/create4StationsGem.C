@@ -83,15 +83,7 @@ void create4StationsGem()
   cout << "first layer offset is " << firstLayerOffset << endl;
 
   //--------------------------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString vmcWorkdir = getenv("VMCWORKDIR");
-  
-  // Load this libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libPassive");
   
   TString outfile= "../../geometry/gem_4Stations.root";
   TFile* fi = new TFile(outfile,"RECREATE");  

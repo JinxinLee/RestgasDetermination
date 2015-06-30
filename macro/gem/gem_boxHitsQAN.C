@@ -5,8 +5,6 @@ Int_t gem_boxHitsQAN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Double
     return;
   }
 
-  // ----  Load libraries   -------------------------------------------------
-  // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
 
   // Input file (MC events)

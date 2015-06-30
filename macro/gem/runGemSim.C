@@ -14,10 +14,6 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
 //  TString simOutput="Mvd_DPMfixed_4GeV_10000.root";
   TString parOutput="GemParams.root";
 
-  // Load basic libraries
-//   gROOT->Macro("Libs.C");
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
   FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used

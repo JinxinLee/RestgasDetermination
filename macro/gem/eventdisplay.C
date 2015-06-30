@@ -1,10 +1,5 @@
 eventdisplay()
 {
- gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-//   gROOT->Macro("$VMCWORKDIR/macro/mvd/Libs.C");
-  gSystem->Load("libGem");
-  gSystem->Load("libEve");
-  gSystem->Load("libEventDisplay");
 
   // -----   Reconstruction run   -------------------------------------------
   TString parFile = "GemParams.root";

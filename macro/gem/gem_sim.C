@@ -8,9 +8,6 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
 
   //FileNames
   TString OutputFile;
@@ -27,10 +24,6 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
 
   TStopwatch timer;
   timer.Start();
- 
-  // Load basic libraries---------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
   
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
