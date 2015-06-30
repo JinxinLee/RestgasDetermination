@@ -191,8 +191,8 @@ void QA_histos() {
   /** 
       efficiency vs phi
   **/
-  TH1F *hphigen = new TH1F("hphigen", "mc phi dist", 180, 0, 180);
-  TH1F *heffinphi = new TH1F("heffinphi", "efficiency vs #phi", 180, 0, 180);
+  TH1F *hphigen = new TH1F("hphigen", "mc phi dist", 180, -180, 180);
+  TH1F *heffinphi = new TH1F("heffinphi", "efficiency vs #phi", 180, -180, 180);
   cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Phi() * TMath::RadToDeg() >> hphigen", cut_mc, "goff");
   cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Phi() * TMath::RadToDeg() >> heffinphi", cut_rec, "goff");
   
