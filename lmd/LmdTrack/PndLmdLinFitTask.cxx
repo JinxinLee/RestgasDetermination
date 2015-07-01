@@ -40,7 +40,6 @@
 #include <TF2.h>
 #include <TH1.h>
 #include <TVirtualFitter.h>
-#include <TFitterMinuit.h>
 #include <TPolyLine3D.h>
 #include <Math/Vector3D.h>
 #include <TMatrixTSym.h>
@@ -638,7 +637,6 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   arglist[0] = 1;
   //  fmin->ExecuteCommand("SET PRINT",arglist,10);//output
   //  fmin->ExecuteCommand("SET PRINT",arglist,0);//no output
-  ((TFitterMinuit*)fmin->GetFitter())->SetPrintLevel(fVerbose);
   if(fVerbose>5){
     cout<<"Number of hits = "<<Npoint<<endl;
     cout<<"posSeed:"<<endl;
