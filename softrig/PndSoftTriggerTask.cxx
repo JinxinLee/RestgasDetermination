@@ -529,7 +529,7 @@ int PndSoftTriggerTask::MultPidProb(RhoCandList &l, int pididx, double prob)
 // defaults are in $VMCWORKDIR/softrig/triggerlines.cfg
 bool PndSoftTriggerTask::ReadTriggerLines()
 {
-	ifstream file(fTriggerFileName.Data());
+        std::ifstream file(fTriggerFileName.Data());
 	if (!file.is_open()) 
 	{
 		cout <<"[PndSoftTriggerTask] **** Unable to open trigger file "<<fTriggerFileName.Data()<<endl;
@@ -598,7 +598,7 @@ bool PndSoftTriggerTask::ReadConfiguration()
 {
 	for (int i=0;i<fSTNEvVars;++i) fSTVarmap[fSTenames[i]] = i;
 
-	ifstream file(fCfgFileName.Data());
+	std::ifstream file(fCfgFileName.Data());
 	
 	if (!file.is_open()) 
 	{

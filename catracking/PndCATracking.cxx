@@ -279,10 +279,10 @@ void PndCATracking::Exec(Option_t* opt)
   static TFile* perfHistoFile = 0;
 
   fadata_name += iEvent;
-  fstream outH;
-  fstream outHL;
-  fstream outMCT;
-  fstream outMCP;
+  std::fstream outH;
+  std::fstream outHL;
+  std::fstream outMCT;
+  std::fstream outMCP;
 
   if( fDoPerformance ){
     if( !perfHistoFile ){
@@ -292,10 +292,10 @@ void PndCATracking::Exec(Option_t* opt)
 	perfHistoFile = new TFile( (filePrefix + "CATrackerPerformance.root").data(), "RECREATE" ); 
       }
     }
-    outH.open ( fadata_name + "_hits.data", fstream::out);
-    outHL.open( fadata_name + "_hitLabels.data", fstream::out);
-    outMCT.open( fadata_name + "_MCTracks.data", fstream::out);
-    outMCP.open( fadata_name + "_MCPoints.data", fstream::out);
+    outH.open ( fadata_name + "_hits.data", std::fstream::out);
+    outHL.open( fadata_name + "_hitLabels.data", std::fstream::out);
+    outMCT.open( fadata_name + "_MCTracks.data", std::fstream::out);
+    outMCP.open( fadata_name + "_MCPoints.data", std::fstream::out);
   }
 
   int nMvdhits=0;
@@ -904,7 +904,7 @@ void PndCATracking::Exec(Option_t* opt)
 }
 
 void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
-				    fstream &outH, fstream &outHL, fstream &outMCT, fstream &outMCP, int &iHit, map<int, unsigned int> &nHitsInMCTrack, bool isPixel)
+				    std::fstream &outH, std::fstream &outHL, std::fstream &outMCT, std::fstream &outMCP, int &iHit, map<int, unsigned int> &nHitsInMCTrack, bool isPixel)
 {  
   TClonesArray *mvdHitsArray;
   if(isPixel) mvdHitsArray = fMvdPixelHitsArray;

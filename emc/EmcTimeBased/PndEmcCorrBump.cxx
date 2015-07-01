@@ -64,7 +64,7 @@ Int_t PndEmcCorrBump::fEventCounter=0;
 //	     2.3, 1.8, 1.3,  0.9, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.25,0.25, 0.25, 0.25, 0.25, 0.25, 0.25/*mod=5*/
 //};
 
-ostream& operator<<(ostream& os, const TVector3& pos)
+std::ostream& operator<<(std::ostream& os, const TVector3& pos)
 {
 	os<<"("<<pos[0]<<','<<pos[1]<<','<<pos[2]<<")";
 	return os;

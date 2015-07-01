@@ -20,7 +20,7 @@ using std::endl;
 
 ClassImp(PndSttParAsciiFileIo)
 
-PndSttParAsciiFileIo::PndSttParAsciiFileIo(fstream* f) : FairDetParAsciiFileIo(f) 
+PndSttParAsciiFileIo::PndSttParAsciiFileIo(std::fstream* f) : FairDetParAsciiFileIo(f) 
 {
   // constructor calls the base class constructor
   fName="PndSttParIo";

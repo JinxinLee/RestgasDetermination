@@ -30,7 +30,7 @@ PndPidDiscAssociatorTask::PndPidDiscAssociatorTask(const char *name, const char 
 //___________________________________________________________
 InitStatus PndPidDiscAssociatorTask::Init() {
   
-  cout << "InitStatus PndPidDiscAssociatorTask::Init()" << endl;
+  std::cout << "InitStatus PndPidDiscAssociatorTask::Init()" << std::endl;
   
   FairRootManager *fManager =FairRootManager::Instance();	
 

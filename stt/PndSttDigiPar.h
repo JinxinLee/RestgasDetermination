@@ -20,7 +20,7 @@ class PndSttDigiPar : public FairParSet
     void clear();
     void printParam();
     void readline(const char*, Int_t*);
-    void readline(const char*,Int_t*,fstream *);
+    void readline(const char*,Int_t*,std::fstream *);
     void putAsciiHeader(TString&);
     Bool_t writeline(char*, Int_t, Int_t);
     ClassDef(PndSttDigiPar,1) // Container for the Stt Digitisation parameters

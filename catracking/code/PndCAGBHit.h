@@ -129,8 +129,8 @@ class PndCAGBHit
   bool IsUsed() const { return fIsUsed;}
   void SetAsUsed() { fIsUsed=true; }
 
-  friend ostream& operator<<(ostream& out, const PndCAGBHit &a);
-  friend istream& operator>>(istream& in, PndCAGBHit &a);
+  friend std::ostream& operator<<(std::ostream& out, const PndCAGBHit &a);
+  friend std::istream& operator>>(std::istream& in, PndCAGBHit &a);
 
   protected:
   

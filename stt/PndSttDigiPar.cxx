@@ -65,7 +65,7 @@ void PndSttDigiPar::printParam()
     // to be done
 }
 
-void PndSttDigiPar::readline(const char *buf, Int_t *set, fstream *f) 
+void PndSttDigiPar::readline(const char *buf, Int_t *set, std::fstream *f) 
 {
 }
 

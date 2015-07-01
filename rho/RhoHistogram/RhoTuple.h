@@ -195,7 +195,7 @@ class RhoTuple : public TNamed
     const char* Label ( Int_t ) const ;
 
     // Print info about ntuple:
-    virtual void PrintOn ( ostream& ) const;
+    virtual void PrintOn ( std::ostream& ) const;
 
     RhoTuple& operator= ( const RhoTuple& v ) {
       return *this;

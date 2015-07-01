@@ -72,7 +72,7 @@ class PndCATracking : public FairTask {
 
   bool fDoPerformance;
   void WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
-		       fstream &outH, fstream &outHL, fstream &outMCT, fstream &outMCP, int &iHit, map<int, unsigned int> &nHitsInMCTrack, bool isPixel);
+		       std::fstream &outH, std::fstream &outHL, std::fstream &outMCT, std::fstream &outMCP, int &iHit, map<int, unsigned int> &nHitsInMCTrack, bool isPixel);
 
   static void CATrackParToFairTrackParP( FairTrackParP *fairParam, const PndCATrackParam* caParam );
 

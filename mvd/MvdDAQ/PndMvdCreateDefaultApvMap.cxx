@@ -70,7 +70,7 @@ InitStatus PndMvdCreateDefaultApvMap::Init()
 Bool_t PndMvdCreateDefaultApvMap::CreateFile(TString outFileName)
 {
   Info("CreateFile","Output file name is %s",outFileName.Data());
-  std::ofstream outfile(outFileName.Data(),ofstream::out);
+  std::ofstream outfile(outFileName.Data(),std::ofstream::out);
   
   TString oldpath = gGeoManager->GetPath();
   gGeoManager->CdTop();

@@ -11,7 +11,7 @@ class FairParSet;
 
 class PndSttParAsciiFileIo : public FairDetParAsciiFileIo {
 public:
-  PndSttParAsciiFileIo(fstream*);
+  PndSttParAsciiFileIo(std::fstream*);
   ~PndSttParAsciiFileIo() {}
   Bool_t init(FairParSet*);
   Int_t write(FairParSet*);

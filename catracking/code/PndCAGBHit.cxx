@@ -33,7 +33,7 @@ void PndCAGBHit::GetLocalX0X1X2( float& x0, float& x1, float &x2 ) const {
 }
 
 
-ostream& operator<<(ostream& out, const PndCAGBHit &a)
+std::ostream& operator<<(std::ostream& out, const PndCAGBHit &a)
 {
   double tmp=0;
   out << a.fX << " " << a.fY << " " << a.fZ << " " << a.fR << std::endl;
@@ -48,7 +48,7 @@ ostream& operator<<(ostream& out, const PndCAGBHit &a)
   return out;
 }
 
-istream& operator>>(istream& in, PndCAGBHit &a)
+std::istream& operator>>(std::istream& in, PndCAGBHit &a)
 {
   double tmp;
   UNUSED_PARAM1(tmp);

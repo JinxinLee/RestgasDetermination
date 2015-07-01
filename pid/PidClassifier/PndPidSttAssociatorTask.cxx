@@ -43,13 +43,13 @@ PndPidSttAssociatorTask::PndPidSttAssociatorTask(const char *name, const char *t
 //___________________________________________________________
 InitStatus PndPidSttAssociatorTask::Init() {
   
-  if(fVerbose > 0) cout << "PndPidSttAssociatorTask::Init()" << endl;
+  if(fVerbose > 0) std::cout << "PndPidSttAssociatorTask::Init()" << std::endl;
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
-    cout << "-E- PndPidSttAssociatorTask::Init: "
-	 << "RootManager not instantiated!" << endl;
+    std::cout << "-E- PndPidSttAssociatorTask::Init: "
+	      << "RootManager not instantiated!" << std::endl;
     return kFATAL;
   }
   

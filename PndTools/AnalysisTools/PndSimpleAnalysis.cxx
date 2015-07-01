@@ -1033,7 +1033,7 @@ void PndSimpleAnalysis::FillGenericLists()
 bool PndSimpleAnalysis::SetupAnalysis()
 {
   cout<<"setupAnalysis"<<endl;
-  ifstream cfgFile(fCfgFileName.c_str(),ios::in);
+  std::ifstream cfgFile(fCfgFileName.c_str(),ios::in);
 
   int nLists=fListDefiners.size();
 
