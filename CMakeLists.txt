@@ -126,7 +126,7 @@ CHECK_EXTERNAL_PACKAGE_INSTALL_DIR()
 # mandatory
 
 find_package(ROOT 5.32.00 REQUIRED)
-find_package(PLUTO REQUIRED)
+#find_package(PLUTO REQUIRED)
 #find_package(glpk REQUIRED)
 find_package(Pythia8 REQUIRED)
 find_package(GENERATORS REQUIRED)
