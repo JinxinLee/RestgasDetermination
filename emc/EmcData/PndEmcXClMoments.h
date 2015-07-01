@@ -15,7 +15,7 @@
 // Dima Melnichuk, adaption for pandaroot
 //
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCXCLMOMENTS_H
 #define PNDEMCXCLMOMENTS_H
 

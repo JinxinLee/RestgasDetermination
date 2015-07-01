@@ -8,7 +8,7 @@
 //	Stephen Gowdy           University of Edinburgh
 //
 //-----------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCLUSTER_H
 #define PNDEMCCLUSTER_H
 

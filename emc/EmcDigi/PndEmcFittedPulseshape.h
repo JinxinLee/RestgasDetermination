@@ -3,7 +3,7 @@
 //      Experimentally derived Pulseshape of the form:
 //	f(x) = A * (t')^ N * exp(-N t')
 //-----------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCFITTEDPULSESHAPE_H
 #define PNDEMCFITTEDPULSESHAPE_H
 

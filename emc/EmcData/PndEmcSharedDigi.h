@@ -17,7 +17,7 @@
 //      S.J. Gowdy    19June96 - Created to inherit from EmcCluster
 //
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCSHAREDDIGI_H
 #define PNDEMCSHAREDDIGI_H
 

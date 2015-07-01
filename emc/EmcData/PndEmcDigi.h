@@ -18,7 +18,7 @@
 //	Copyright (C) 1994	Lawrence Livermore National Lab
 //
 /////////////////////////////////////////////////////////////// 
-#pragma once
+//#pragma once
 #ifndef PNDEMCDIGI_H
 #define PNDEMCDIGI_H
 

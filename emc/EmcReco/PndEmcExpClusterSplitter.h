@@ -21,7 +21,7 @@
 // Modified:
 // M. Babai
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCEXPCLUSTERSPLITTER_H
 #define PNDEMCEXPCLUSTERSPLITTER_H
 

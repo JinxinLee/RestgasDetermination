@@ -6,7 +6,7 @@
 //
 /////////////////////////////////////////////////////////////// 
 
-#pragma once
+//#pragma once
 #ifndef PNDEMCMAPPER_H
 #define PNDEMCMAPPER_H
 

@@ -17,7 +17,7 @@
 //
 // Dima Melnichuk, adaption for pandaroot
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCLUSTERENERGYSUMS_H
 #define PNDEMCCLUSTERENERGYSUMS_H
 

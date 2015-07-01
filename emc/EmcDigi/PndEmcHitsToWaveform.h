@@ -15,7 +15,7 @@
 // Copyright Information:
 //      Copyright (C) 1996             Imperial College
 //----------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PndEmcHitsToWaveform_H
 #define PndEmcHitsToWaveform_H
 

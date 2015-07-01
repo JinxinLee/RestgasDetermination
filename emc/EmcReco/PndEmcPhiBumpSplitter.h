@@ -17,7 +17,7 @@
 // Modified:
 // 
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCPHIBUMPSPLITTER_H
 #define PNDEMCPHIBUMPSPLITTER_H
 

@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDEMCWAVEFORMDIGITIZER_H_
 #define PNDEMCWAVEFORMDIGITIZER_H_
 

@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDEMCFpgaPAR_H
 #define PNDEMCFpgaPAR_H
 

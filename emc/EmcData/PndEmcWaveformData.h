@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDEMCWAVEFORMDATA_H
 #define PNDEMCWAVEFORMDATA_H
 

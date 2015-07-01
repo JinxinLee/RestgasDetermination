@@ -8,7 +8,7 @@
 //	Stephen Gowdy           University of Edinburgh
 //
 //-----------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCLUSTERPROPERTIES_H
 #define PNDEMCCLUSTERPROPERTIES_H
 

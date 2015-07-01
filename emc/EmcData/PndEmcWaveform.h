@@ -33,7 +33,7 @@
 // 	P.D.Strother 	Imperial College
 // Dima Melnichuk - adaption for PANDA		
 //=======================================================================
-#pragma once
+//#pragma once
 #ifndef PNDEMCWAVEFORM_H
 #define PNDEMCWAVEFORM_H
 

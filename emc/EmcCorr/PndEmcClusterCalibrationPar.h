@@ -29,7 +29,7 @@
 // 3 - forward endcap, 4 -backward endcap, 5 - shashlyk 
 /////////////////////////////////////////////////////////////
 
-#pragma once
+//#pragma once
 #ifndef PNDEMCCLUSTERCALIBRATIONPAR_H
 #define PNDEMCCLUSTERCALIBRATIONPAR_H
 

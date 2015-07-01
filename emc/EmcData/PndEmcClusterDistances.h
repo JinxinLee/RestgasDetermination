@@ -15,7 +15,7 @@
 //
 // Dima Melnichuk, adaption for pandaroot
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCLUSTERDISTANCES_H
 #define PNDEMCCLUSTERDISTANCES_H
 

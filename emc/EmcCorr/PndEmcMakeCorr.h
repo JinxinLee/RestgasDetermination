@@ -11,7 +11,7 @@
 //      A. Biegun
 //      M. Babai
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCMAKECORR_H
 #define PNDEMCMAKECORR_H
 

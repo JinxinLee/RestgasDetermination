@@ -8,7 +8,7 @@
 //      Sebastian Neubert    TUM            (original author)
 //
 //-----------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCRRCPULSESHAPE_H
 #define PNDEMCCRRCPULSESHAPE_H
 

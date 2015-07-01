@@ -19,7 +19,7 @@
 // Modified:
 // M. Babai
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMC2DLOCALMAXFINDER_H
 #define PNDEMC2DLOCALMAXFINDER_H
 

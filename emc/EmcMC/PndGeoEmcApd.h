@@ -2,7 +2,7 @@
 // -----                     PndGeoEmcApd header file                     -----
 // -----               Created 07/04/08  by S.Spataro                  -----
 // -------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDGEOEMCAPD_H
 #define PNDGEOEMCAPD_H
 

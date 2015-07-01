@@ -2,7 +2,7 @@
 // Description:
 //      Exponential Pulseshape
 //-----------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PndEmcExpPulseshape_H
 #define PndEmcExpPulseshape_H
 

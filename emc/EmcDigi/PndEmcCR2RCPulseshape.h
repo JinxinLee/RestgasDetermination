@@ -6,7 +6,7 @@
 //      Pulseshape from an CR2RC-Shaper
 //
 //-----------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCR2RCPULSESHAPE_H
 #define PNDEMCCR2RCPULSESHAPE_H
 

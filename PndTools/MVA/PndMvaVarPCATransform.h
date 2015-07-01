@@ -10,7 +10,7 @@
 /*
  * This code is directly based on the Cern Root implementation of PCA.
 */
-#pragma once
+//#pragma once
 #ifndef PND_MVA_VAR_PCA_TRANSFORM_H
 #define PND_MVA_VAR_PCA_TRANSFORM_H
 

@@ -9,7 +9,7 @@
  ** Hits in EMC APD
  **/
 
-#pragma once
+//#pragma once
 #ifndef PNDEMCAPDHIT_H
 #define PNDEMCAPDHIT_H
 

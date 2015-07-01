@@ -2,7 +2,7 @@
 // Description:
 //       Class PndEmcStructure
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCSTRUCTURE_H
 #define PNDEMCSTRUCTURE_H
 

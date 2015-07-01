@@ -10,7 +10,7 @@
 // Author List:
 //      A. Biegun      
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCORRECTION_H
 #define PNDEMCCORRECTION_H
 

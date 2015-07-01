@@ -2,7 +2,7 @@
 // -----                  PndEmcApdPoint header file                  -----
 // -----               Created 07/04/08  by S.Spataro                 -----
 // ------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCAPDPOINT_H
 #define PNDEMCAPDPOINT_H
 

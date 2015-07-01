@@ -9,7 +9,7 @@
  ** Header of the EMC (multiplicity and total energy inside the calorimeter per event)
  **/
 
-#pragma once
+//#pragma once
 #ifndef PNDEMCHEADER_H
 #define PNDEMCHEADER_H
 

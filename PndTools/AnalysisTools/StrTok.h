@@ -5,7 +5,7 @@
 #define STRTOK_H
 
 #if _MSC_VER > 1000
-#pragma once
+//#pragma once
 #endif // _MSC_VER > 1000
 
 class CStrTok

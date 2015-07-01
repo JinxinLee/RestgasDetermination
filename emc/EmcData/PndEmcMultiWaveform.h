@@ -8,7 +8,7 @@
 //
 //=============================================================================
 
-#pragma once
+//#pragma once
 #ifndef PNDEMCMULTIWAVEFORM_H
 #define PNDEMCMULTIWAVEFORM_H
 

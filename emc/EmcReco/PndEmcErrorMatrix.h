@@ -6,7 +6,7 @@
 //
 //------------------------------------------------------------------------
 
-#pragma once
+//#pragma once
 #ifndef PNDEMCERRORMATRIX_H
 #define PNDEMCERRORMATRIX_H
 

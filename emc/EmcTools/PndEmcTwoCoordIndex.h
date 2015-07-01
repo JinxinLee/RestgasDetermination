@@ -18,7 +18,7 @@
 // Dima Melnichuk - adaption for PANDA							
 // 
 //======================================================================
-#pragma once
+//#pragma once
 #ifndef PNDEMCTWOCOORDINDEX_H
 #define PNDEMCTWOCOORDINDEX_H
 

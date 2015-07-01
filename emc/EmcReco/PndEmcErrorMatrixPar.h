@@ -13,7 +13,7 @@
 // fwd endcap, bwd endcap, shashlyk)
 /////////////////////////////////////////////////////////////
 
-#pragma once
+//#pragma once
 #ifndef PNDEMCERRORMATRIXPAR_H
 #define PNDEMCERRORMATRIXPAR_H
 

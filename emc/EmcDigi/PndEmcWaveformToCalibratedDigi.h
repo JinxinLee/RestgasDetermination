@@ -17,7 +17,7 @@
 //      Copyright (C) 1996             Imperial College
 //
 //----------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PndEmcWaveformToCalibratedDigi_H
 #define PndEmcWaveformToCalibratedDigi_H
 

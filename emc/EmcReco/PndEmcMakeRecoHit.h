@@ -3,7 +3,7 @@
 // $Id: $
 // Software developed for the PANDA Detector at GSI.		
 //---------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCMAKERECOHIT_H
 #define PNDEMCMAKERECOHIT_H
 

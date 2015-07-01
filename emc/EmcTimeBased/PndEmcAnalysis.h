@@ -16,7 +16,7 @@
 //      Copyright (C) 1996             Imperial College
 //
 //----------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PndEmcAnalysis_H
 #define PndEmcAnalysis_H
 

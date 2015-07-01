@@ -2,7 +2,7 @@
 // -----                     PndEmc header file                        -----
 // -----               Created 14/08/06  by S.Spataro                  -----
 // -------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMC_H
 #define PNDEMC_H
 

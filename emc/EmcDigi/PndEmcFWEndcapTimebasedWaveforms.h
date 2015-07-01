@@ -5,7 +5,7 @@
 // 	Philippp Mahlberg		- integrtion in timebased simulation concept
 //----------------------------------------------------------------------
 
-#pragma once
+//#pragma once
 #ifndef PndEmcFWEndcapTimebasedWaveforms_H
 #define PndEmcFWEndcapTimebasedWaveforms_H
 

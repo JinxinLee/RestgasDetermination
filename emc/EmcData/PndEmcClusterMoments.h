@@ -16,7 +16,7 @@
 //
 // Dima Melnichuk, adaption for pandaroot
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCLUSTERMOMENTS_H
 #define PNDEMCCLUSTERMOMENTS_H
 

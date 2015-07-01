@@ -17,7 +17,7 @@
 //	Copyright (C) 1996		Lawrence Berkeley Laboratory
 //	Copyright (C) 1996	       CEA - Centre d'Etude de Saclay
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCXTAL_H
 #define PNDEMCXTAL_H
 

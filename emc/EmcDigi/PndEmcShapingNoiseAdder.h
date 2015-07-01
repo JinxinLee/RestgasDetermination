@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDEMCSHAPINGNOISEADDER_H_
 #define PNDEMCSHAPINGNOISEADDER_H_
 

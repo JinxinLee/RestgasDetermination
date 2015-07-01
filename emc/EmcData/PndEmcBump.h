@@ -17,7 +17,7 @@
 //
 // Dima Melnychuk, adaption for PANDA
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCBUMP_H
 #define PNDEMCBUMP_H
 

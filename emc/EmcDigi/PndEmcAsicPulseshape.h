@@ -8,7 +8,7 @@
 //      response of the circuit  
 //
 //-----------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCASICPULSESHAPE_H
 #define PNDEMCASICPULSESHAPE_H
 

@@ -5,7 +5,7 @@
 // Author List:
 //	Jan Zhong            
 //---------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCMAKECLUSTER_H
 #define PNDEMCMAKECLUSTER_H
 

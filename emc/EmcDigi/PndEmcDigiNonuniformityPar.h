@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDEMCDIGINONUNIFORMITYPAR_H
 #define PNDEMCDIGINONUNIFORMITYPAR_H
 

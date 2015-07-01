@@ -2,7 +2,7 @@
 // -----                 PndEmcHdrFiller header file                 -----
 // -----                 Created 21/04/07  by S.Spataro                -----
 // -------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCHDRFILLER_H
 #define PNDEMCHDRFILLER_H
 

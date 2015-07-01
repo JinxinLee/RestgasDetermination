@@ -5,7 +5,7 @@
 // Author List:
 //	Jan Zhong            
 //---------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCORRBUMP_H
 #define PNDEMCCORRBUMP_H
 

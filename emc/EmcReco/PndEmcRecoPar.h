@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDEMCRECOPAR_H
 #define PNDEMCRECOPAR_H
 

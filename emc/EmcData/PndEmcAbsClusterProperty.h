@@ -15,7 +15,7 @@
 //	Copyright (C) 1998	University of Edinburgh
 //
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCABSCLUSTERPROPERTY_H
 #define PNDEMCABSCLUSTERPROPERTY_H
 

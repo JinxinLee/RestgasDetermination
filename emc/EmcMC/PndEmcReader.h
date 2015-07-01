@@ -2,7 +2,7 @@
 // -----                     PndEmcReader header file                  -----
 // -----               Created 14/08/06  by S.Spataro                  -----
 // -------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCREADER_H
 #define PNDEMCREADER_H
 

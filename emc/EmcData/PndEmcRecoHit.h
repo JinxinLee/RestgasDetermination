@@ -5,7 +5,7 @@
 // Description:
 //	Software developed for the PANDA Detector at GSI.
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCRECOHIT_H
 #define PNDEMCRECOHIT_H
 

@@ -13,7 +13,7 @@
 //      (A. Biegun, M. Babai)
 //      PndEmcClusterSimpleCalibrator class is based on EmcPhotonSimpleCalib class in Babar framework (Jan Zhong)
 //------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCCLUSTERCALIBRATOR_H
 #define PNDEMCCLUSTERCALIBRATOR_H
 

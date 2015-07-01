@@ -2,7 +2,7 @@
 // -----                 PndEmcApdHitProducer header file                 -----
 // -----                 Created 07/04/08  by S.Spataro                -----
 // -------------------------------------------------------------------------
-#pragma once
+//#pragma once
 #ifndef PNDEMCAPDHITPRODUCER_H
 #define PNDEMCAPDHITPRODUCER_H
 

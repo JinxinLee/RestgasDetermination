@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDEMCDIGIPAR_H
 #define PNDEMCDIGIPAR_H
 
