@@ -6,7 +6,7 @@
  * Modified:                          *
  *                                    *
  * ************************************/
-#pragma once
+//#pragma once
 #ifndef PND_KNN_CLASSIFY_H
 #define PND_KNN_CLASSIFY_H
 

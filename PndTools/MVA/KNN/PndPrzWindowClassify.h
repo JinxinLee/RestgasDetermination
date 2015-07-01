@@ -9,7 +9,7 @@
  * Based on the straight parzen window algorithm Using a linear search
  * data structure.
  */
-#pragma once
+//#pragma once
 #ifndef PND_PRZ_WINDOW_CLASSIFY_H
 #define PND_PRZ_WINDOW_CLASSIFY_H
 

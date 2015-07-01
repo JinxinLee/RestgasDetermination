@@ -5,7 +5,7 @@
  * LICENSE:                               *
  * ****************************************
  */
-#pragma once
+//#pragma once
 #ifndef PND_SOM_TRAINER_H
 #define PND_SOM_TRAINER_H
 

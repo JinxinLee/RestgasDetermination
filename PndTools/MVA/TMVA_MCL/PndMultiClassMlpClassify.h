@@ -14,7 +14,7 @@
  ******* VERY IMORTANT ****
  * You NEED TMVA version > 4.1.X before this works.
  */
-#pragma once
+//#pragma once
 #ifndef PND_MULTICLASS_MLP_CLASSIFY_H
 #define PND_MULTICLASS_MLP_CLASSIFY_H
 

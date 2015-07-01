@@ -7,7 +7,7 @@
  * License:                              *
  * ***************************************
  */
-#pragma once
+//#pragma once
 #ifndef PND_LVQ_CLASSIFY_H
 #define PND_LVQ_CLASSIFY_H
 

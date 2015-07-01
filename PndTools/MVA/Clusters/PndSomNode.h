@@ -5,7 +5,7 @@
  * LICENSE:                       *
  * ********************************
  */
-#pragma once
+//#pragma once
 #ifndef PND_SOM_NODE_H
 #define PND_SOM_NODE_H
 
