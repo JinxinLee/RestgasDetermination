@@ -1424,8 +1424,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksWithTSpectrum2(co
 	// 4th parameter: threshold: (default=0.05)  peaks with amplitude less than threshold*highest_peak are discarded.  0<threshold<1
 	//		Int_t nfound = s.Search(houghspace, 2,"nobackground,nomarkov",0.5); // works ok for line and for parabola, kind of...
 	Int_t nfound = s.Search(this, 2,"",0.5); // TODO: does this work for my derived class?!?
-	Float_t *xpeaks = s.GetPositionX();
-	Float_t *ypeaks = s.GetPositionY();
+	Double_t *xpeaks = (Double_t*)s.GetPositionX();
+	Double_t *ypeaks = (Double_t*)s.GetPositionY();
 	s.Print();
 
 	// for output

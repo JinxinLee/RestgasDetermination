@@ -323,7 +323,7 @@ Double_t PndDrcLutReco::FindPeak(){
   if(fHist->GetEntries()>20 ){
     TCanvas* c = new TCanvas("c","c",0,0,800,600);
     Int_t nfound = fSpect->Search(fHist,1,"",0.6);
-    Float_t *xpeaks = fSpect->GetPositionX();
+    Double_t *xpeaks = (Double_t*)fSpect->GetPositionX();
     if(nfound>0) cherenkovreco = xpeaks[0];
     fFit->SetParameter(1,cherenkovreco);   // peak
     fFit->SetParameter(2,0.01); // width
