@@ -13,8 +13,8 @@
 #include <string>
 #include <list>
 #include "TString.h"
+#include "TClonesArray.h"
 
-class TClonesArray;
 class TObjectArray;
 class PndFsmTrack;
 class TRandom3;

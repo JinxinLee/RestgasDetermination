@@ -8,6 +8,20 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 )
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata 
+  ${CMAKE_SOURCE_DIR}/pnddata/DrcData
+  ${CMAKE_SOURCE_DIR}/pnddata/DskData
+  ${CMAKE_SOURCE_DIR}/pnddata/FtsData
+  ${CMAKE_SOURCE_DIR}/pnddata/GemData
+  ${CMAKE_SOURCE_DIR}/pnddata/HypData
+  ${CMAKE_SOURCE_DIR}/pnddata/HypGData
+  ${CMAKE_SOURCE_DIR}/pnddata/MdtData
+  ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+  ${CMAKE_SOURCE_DIR}/pnddata/PidData
+  ${CMAKE_SOURCE_DIR}/pnddata/RichData
+  ${CMAKE_SOURCE_DIR}/pnddata/SciTData
+  ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+  ${CMAKE_SOURCE_DIR}/pnddata/SttData
+  ${CMAKE_SOURCE_DIR}/pnddata/scitil
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/trackbase
 )

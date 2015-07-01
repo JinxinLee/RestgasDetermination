@@ -31,6 +31,8 @@
 #include "PndFsmDetFactory.h"
 #include <map>
 
+#include "TParameter.h"
+
 //--------------------------------------------
 // Collaborating class forward declarations --
 // -------------------------------------------

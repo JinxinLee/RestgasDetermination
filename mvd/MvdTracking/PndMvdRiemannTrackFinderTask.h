@@ -3,6 +3,7 @@
 
 #include "FairTask.h"
 //#include "PndSdsHit.h"
+#include "TClonesArray.h"
 #include "TH2F.h"
 #include "PndGeoHandling.h"
 #include "PndGeoSttPar.h"

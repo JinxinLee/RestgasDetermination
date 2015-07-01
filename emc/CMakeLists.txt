@@ -13,6 +13,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata 
   ${CMAKE_SOURCE_DIR}/emc/EmcData
   ${CMAKE_SOURCE_DIR}/emc/EmcDigi
+  ${CMAKE_SOURCE_DIR}/emc/EmcDigi/PndEmcPSAFPGA
   ${CMAKE_SOURCE_DIR}/emc/EmcMC
   ${CMAKE_SOURCE_DIR}/emc/EmcReco
   ${CMAKE_SOURCE_DIR}/emc/EmcTools
