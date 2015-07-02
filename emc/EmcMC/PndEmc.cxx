@@ -112,44 +112,52 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   
 
   TString nam = gMC->CurrentVolName();
- /* 
-  if(gMC->IsTrackEntering()||gMC->IsTrackExiting()){
-	  printf("\n###################\n");
-	  if(gMC->IsTrackEntering()){
-		  printf("track is entering volume %s\n",nam.Data());
-	  }
-	  if(gMC->IsTrackExiting()){
-		  printf("track is exiting volume %s\n",nam.Data());
-	  }
-	  if(gMC->IsTrackInside()){
-		  printf("track is inside volume %s\n",nam.Data());
-	  }
-	  TLorentzVector trackmomentum;
-	  TLorentzVector trackposition;
-	  gMC->TrackPosition(trackposition);
-	  gMC->TrackMomentum(trackmomentum);
-	  printf("Track is at x: %e, y: %e, z: %e, t: %e\n",trackposition.X(),trackposition.Y(),trackposition.Z(),trackposition.T());
-	  printf("Momentum is: px: %e, py: %e, pz: %e, E: %e\n",trackmomentum.Px(),trackmomentum.Py(),trackmomentum.Pz(),trackmomentum.E());
-	  printf("Steplength is: %e\n",gMC->TrackStep());
-	  printf("Deposited Energy: %e\n",gMC->Edep());
-	 //  CurrentBoundaryNormal is not implemented.
-	 // Double_t x,y,z;
-	 // if(gMC->CurrentBoundaryNormal(x,y,z)){
-	//	  printf("track is at boundary with normal x: %e, y: %e, z: %e\n",x,y,z);
-	//	  printf("track is at an angle of %e to normal\n",trackposition.Angle(TVector3(x,y,z))*TMath::RadToDeg());
-	//  }
-	
-	  printf("current Volume form gGeoManager is: %s\n",gGeoManager->GetCurrentVolume()->GetName());
-	  printf("step from gGeoManager is: %e\n",gGeoManager->GetStep());
-	  printf("###################\n");
-  }
-  */
+
+//  if(gMC->IsTrackEntering()||gMC->IsTrackExiting()){
+//	  printf("\n###################\n");
+//	  if(gMC->IsTrackEntering()){
+//		  printf("track is entering volume %s\n",nam.Data());
+//	  }
+//	  if(gMC->IsTrackExiting()){
+//		  printf("track is exiting volume %s\n",nam.Data());
+//	  }
+//	  if(gMC->IsTrackInside()){
+//		  printf("track is inside volume %s\n",nam.Data());
+//	  }
+//	  if (gMC->IsNewTrack()){
+//		  printf("track is a new track %s\n", nam.Data());
+//	  }
+//	  TLorentzVector trackmomentum;
+//	  TLorentzVector trackposition;
+//	  gMC->TrackPosition(trackposition);
+//	  gMC->TrackMomentum(trackmomentum);
+//	  printf("Track is at x: %e, y: %e, z: %e, t: %e\n",trackposition.X(),trackposition.Y(),trackposition.Z(),trackposition.T());
+//	  printf("Momentum is: px: %e, py: %e, pz: %e, E: %e\n",trackmomentum.Px(),trackmomentum.Py(),trackmomentum.Pz(),trackmomentum.E());
+//	  printf("Steplength is: %e\n",gMC->TrackStep());
+//	  printf("Deposited Energy: %e\n",gMC->Edep());
+//	  printf("Particle Type: %i\n", gMC->TrackPid());
+//	  printf("TrackID: %i\n", gMC->GetStack()->GetCurrentTrackNumber());
+//	  printf("MotherID: %i\n", gMC->GetStack()->GetCurrentParentTrackNumber());
+//
+//	 //  CurrentBoundaryNormal is not implemented.
+//	 // Double_t x,y,z;
+//	 // if(gMC->CurrentBoundaryNormal(x,y,z)){
+//	//	  printf("track is at boundary with normal x: %e, y: %e, z: %e\n",x,y,z);
+//	//	  printf("track is at an angle of %e to normal\n",trackposition.Angle(TVector3(x,y,z))*TMath::RadToDeg());
+//	//  }
+//
+//	  printf("current Volume form gGeoManager is: %s\n",gGeoManager->GetCurrentVolume()->GetName());
+//	  printf("step from gGeoManager is: %e\n",gGeoManager->GetStep());
+//	  printf("###################\n");
+//  }
+
   if (gMC->Edep()<=0){
 	  // skip all the points which have no energy loss (i.e. Entering)
 	  // problem for MC truth!
 	  // ((Idea: Check if particle was produced inside crystal or outside))
 	  // ANY particle ENTERING and not being a NEW TRACK the crystal produces a hit
-	  if ( gMC->IsNewTrack() || !gMC->IsTrackEntering()) return kTRUE;
+	  if (gMC->IsNewTrack()) return kTRUE;
+	  if (!gMC->IsTrackEntering() && !gMC->IsTrackExiting()) return kTRUE;
   }
   
 
@@ -773,7 +781,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   AddHit(fTrackID, fVolumeID, fEventID,
 	 TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
 	 TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
-	 fTime, fLength, fELoss, nMod, nRow, nCrys, copyNo);
+	 fTime, fLength, fELoss, nMod, nRow, nCrys, copyNo, gMC->IsTrackEntering() && !gMC->IsNewTrack(), gMC->IsTrackExiting());
 
    // Increment number of emc points for TParticle
   //if (gMC->IsTrackEntering()) 
@@ -1541,15 +1549,16 @@ void PndEmc::ConstructASCIIGeometry() {
 }
 
 // -----   Private method AddHit   --------------------------------------------
-PndEmcPoint* PndEmc::AddHit(Int_t trackID, Int_t detID, Int_t evtID, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Double_t eLoss, Short_t mod, Short_t row, Short_t crys, Short_t copy) {
+PndEmcPoint* PndEmc::AddHit(Int_t trackID, Int_t detID, Int_t evtID, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Double_t eLoss, Short_t mod, Short_t row, Short_t crys, Short_t copy, Bool_t entering, Bool_t exiting) {
   TClonesArray& clref = *fEmcCollection;
   Int_t size = clref.GetEntriesFast();
-   if (fVerboseLevel>1) 
+  if (fVerboseLevel>1)
      cout << "-I- PndEmc: Adding Point at IN (" << pos.X() << ", " << pos.Y() 
       << ", " << pos.Z() << ") cm, detector " << detID << ", evt " << evtID << ", track "
-      << trackID <<", energy loss " << eLoss*1e06 << " keV, module " << mod << " row " << row << " crystal " <<  crys << " copy " << copy << endl;
+      << trackID <<", energy loss " << eLoss*1e06 << " keV, module " << mod << " row " << row << " crystal " <<  crys << " copy " << copy
+      << ", entering " << entering << ", exiting " << exiting << endl;
   
- 	PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss, mod, row, crys, copy); 
+ 	PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss, mod, row, crys, copy, entering, exiting);
 	// myPoint->SetLink(FairLink("MCTrack", trackID)); // 14.09.10 Stefano FIX
 	return myPoint;
 }

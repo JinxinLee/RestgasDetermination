@@ -55,7 +55,9 @@ PndEmcCluster::PndEmcCluster()  :
 	fNbumps(0),
 	fZ20(0),
 	fZ53(0),
-	fLatMom(0)
+	fLatMom(0),
+	fTrackEntering(),
+	fTrackExiting()
 {
 	fDigiList.clear();
 	fMcList.clear();
@@ -160,6 +162,7 @@ PndEmcCluster::addDigi(const TClonesArray *digiArray, Int_t iDigi)
 	//std::cout<<"digi belongs to track #"<<digi->GetTrackId()<<std::endl;
 	++fMcMap[digi->GetTrackId()];
 	invalidateCache(kFALSE);
+	AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EmcDigi", iDigi));
 }
 	void
 PndEmcCluster::removeDigi(const TClonesArray *digiArray, Int_t iDigi)
@@ -195,6 +198,7 @@ PndEmcCluster::addCluster(PndEmcCluster* cluster, const TClonesArray *digiArray)
 	{
 		addDigi(digiArray, *digi_iter);
 	}
+	AddTracksEnteringExiting(cluster->GetTrackEntering(), cluster->GetTrackExiting());
 	AddLinks(cluster->GetLinks()); 
 }
 
@@ -296,8 +300,13 @@ struct Ascend
 };
 const std::vector<Int_t>& PndEmcCluster::GetMcList() const {
 	std::vector< map_ele > sortedVec;
-	std::map<Int_t,Int_t>::iterator it = fMcMap.begin();
-	std::map<Int_t,Int_t>::iterator end = fMcMap.end();
+	std::map<Int_t, Int_t> linkMap;
+	FairMultiLinkedData mcLinks = GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
+	for (int i = 0; i < mcLinks.GetNLinks(); i++){
+		linkMap[mcLinks.GetLink(i).GetIndex()] = mcLinks.GetLink(i).GetWeight();
+	}
+	std::map<Int_t,Int_t>::iterator it = linkMap.begin();
+	std::map<Int_t,Int_t>::iterator end = linkMap.end();
 	//std::cout<<"fMCTruthMap #"<<fMcMap.size()<<std::endl;
 	for(; it != end; ++it){
 		//std::cout<<"track #"<<(*it).first<<endl;
@@ -337,6 +346,8 @@ PndEmcCluster::Print(const Option_t* opt) const
 {
 	std::cout<<"*********************************"<< endl;
 	std::cout<<"total energy of cluster: "<< energy() << endl;
+	std::cout <<"TrackEntering: " << fTrackEntering << std::endl;
+	std::cout <<"TrackExiting: " << fTrackExiting << std::endl;
 }
 
 
@@ -494,6 +505,59 @@ PndEmcCluster::GetEnergyCorrected() const
 	else 
 		return eout2;
 
+}
+
+void PndEmcCluster::AddTracksEnteringExiting(const FairMultiLinkedData& tracksEntering, const FairMultiLinkedData& tracksExiting)
+{
+	std::map<FairLink, LinkScoreBoard> scoreBoard;
+	std::set<FairLink> entering, exiting;
+
+//	std::cout << "tracksEntering " << tracksEntering << std::endl;
+//	std::cout << "tracksExiting " << tracksExiting << std::endl;
+//	std::cout << "exitingEntering " << fTrackEntering << std::endl;
+//	std::cout << "existingExiting " << fTrackExiting << std::endl;
+
+	FillScoreBoard(tracksEntering, scoreBoard, 3);
+	FillScoreBoard(tracksExiting, scoreBoard, 2);
+	FillScoreBoard(fTrackEntering, scoreBoard, 1);
+	FillScoreBoard(fTrackExiting, scoreBoard, 0);
+
+	for (std::map<FairLink, LinkScoreBoard>::iterator iter = scoreBoard.begin(); iter != scoreBoard.end(); iter++){
+		//std::cout << iter->first << " " << iter->second.score << std::endl;
+		switch (iter->second.score){
+			case 15: entering.insert(iter->first); exiting.insert(iter->first); break;
+			case 14: entering.insert(iter->first); break;
+			case 13: exiting.insert(iter->first); break;
+			case 12: entering.insert(iter->first); exiting.insert(iter->first); break;
+			case 11: entering.insert(iter->first); break;
+			case 10: std::cout << "-E- PndEmcCluster::AddTracksEnteringExiting Same particle entering twice!" << std::endl; break;
+			case 9: break;
+			case 8: entering.insert(iter->first); break;
+			case 7: exiting.insert(iter->first); break;
+			case 6: break;
+			case 5: std::cout << "-E- PndEmcCluster::AddTracksEnteringExiting Same particle exiting twice!" << std::endl; break;
+			case 4: exiting.insert(iter->first); break;
+			case 3: entering.insert(iter->first); exiting.insert(iter->first); break;
+			case 2: entering.insert(iter->first);  break;
+			case 1: exiting.insert(iter->first); break;
+			case 0: break;
+			default: std::cout << "-E- PndEmcCluster::AddTracksEnteringExiting wrong score " << iter->second.score << std::endl; break;
+		}
+	}
+	fTrackEntering.SetLinks(entering);
+	fTrackExiting.SetLinks(exiting);
+
+//	std::cout << "Entering after merge " << fTrackEntering << std::endl;
+//	std::cout << "Exiting after merge " << fTrackExiting << std::endl;
+}
+
+
+void PndEmcCluster::FillScoreBoard(FairMultiLinkedData tracks, std::map<FairLink, LinkScoreBoard>& scoreBoard, Int_t shift)
+{
+	std::set<FairLink> links = tracks.GetLinks();
+	for (std::set<FairLink>::iterator linkIter = links.begin(); linkIter != links.end(); linkIter++){
+		scoreBoard[*linkIter].SetValShift(kTRUE, shift);
+	}
 }
 
 ClassImp(PndEmcCluster)

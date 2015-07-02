@@ -16,7 +16,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcHit::PndEmcHit()
-  :FairHit(), fTime(0), fEnergy(0), fMcList(0),  fPointList(0)
+  :FairHit(), fTime(0), fEnergy(0), fMcList(0),  fPointList(0), fTrackEntering(), fTrackExiting()
 {
   fMcList.clear();
   fPointList.clear();
@@ -25,7 +25,7 @@ PndEmcHit::PndEmcHit()
 
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z)
-  :FairHit(), fTime(time), fEnergy(energy), fMcList(0),  fPointList(0)
+  :FairHit(), fTime(time), fEnergy(energy), fMcList(0),  fPointList(0), fTrackEntering(), fTrackExiting()
 {
   fRefIndex = trackid;
   fDetectorID = id;
@@ -35,18 +35,19 @@ PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Floa
   fPointList.clear();
 }
 // -----   Constructor           -------------------------------------------
-PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<Int_t> McList)
-  :FairHit(), fTime(time), fEnergy(energy), fMcList(McList),  fPointList(0)
+PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<Int_t> McList, FairMultiLinkedData enteringTracks, FairMultiLinkedData exitingTracks)
+  :FairHit(), fTime(time), fEnergy(energy), fMcList(McList),  fPointList(0), fTrackEntering(enteringTracks), fTrackExiting(exitingTracks)
 {
   fRefIndex = trackid;
   fDetectorID = id;
   fX = X;  fY = Y;  fZ = Z;
   fDx = 0.;  fDy = 0.;  fDz = 0.;
-  SetLinks(FairMultiLinkedData("MCTrack", McList));
+  //SetLinks(FairMultiLinkedData("MCTrack", McList));
+  //SetLinks(enteringTracks);
 }
 // -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcPoint*> PointList)
-  :FairHit(), fTime(time), fEnergy(energy), fMcList(0),  fPointList(PointList)
+  :FairHit(), fTime(time), fEnergy(energy), fMcList(0),  fPointList(PointList), fTrackEntering(), fTrackExiting()
 {
   fRefIndex = trackid;
   fDetectorID = id;
@@ -56,7 +57,7 @@ PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Floa
 
 //Copy
 PndEmcHit::PndEmcHit(const PndEmcHit &copy):
-  fEnergy(copy.fEnergy), fTime(copy.fTime), fMcList(0),  fPointList(0)
+  fEnergy(copy.fEnergy), fTime(copy.fTime), fMcList(0),  fPointList(0), fTrackEntering(copy.fTrackEntering), fTrackExiting(copy.fTrackExiting)
 {
   fRefIndex=copy.fRefIndex;
   fDetectorID=copy.fDetectorID;
@@ -73,7 +74,9 @@ PndEmcHit::~PndEmcHit() {}
 // -----   Public method Print   -------------------------------------------
 void PndEmcHit::Print(const Option_t* opt) const {
   cout << "EMC hit: cellid=" << GetDetectorID() << ", Energy=" << fEnergy;
-  if (fRefIndex>0) cout << ", TrackID= " << fRefIndex;
+  if (fRefIndex>0) cout << ", TrackID= " << fRefIndex << std::endl;
+  cout << " TrackEntering: " << fTrackEntering << std::endl;
+  cout << "TrackExiting: " << fTrackExiting << std::endl;
 //  cout << ", x=" << GetX() << ", y=" << GetY() << endl << flush; 
 }
 // -------------------------------------------------------------------------

@@ -229,6 +229,8 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 	fTrackTime.clear();
 	fTrackMcTruth.clear();
 	fPointMatch.clear();
+	fTrackEntering.clear();
+	fTrackExiting.clear();
 
 	map<Int_t, Float_t>::const_iterator p;
 
@@ -265,6 +267,12 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 		PndEmcPoint* point  = (PndEmcPoint*) fPointArray->At(iPoint);
 		DetId = point->GetDetectorID();
 
+		if (point->GetEntering()){
+			fTrackEntering[DetId].AddLinks(point->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")));
+		}
+		if (point->GetExiting()){
+			fTrackExiting[DetId].AddLinks(point->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")));
+		}
 		if(point->GetEnergyLoss() == 0 ) continue;
 		if(point->GetModule() == 10 ) 
 		  {
@@ -355,7 +363,7 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 			//	}
 			//}
 			//std::cout<<std::endl;
-			PndEmcHit* myHit = AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first], fTrackMcTruth[(*p).first]);
+			PndEmcHit* myHit = AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first], fTrackMcTruth[(*p).first], fTrackEntering[(*p).first], fTrackExiting[(*p).first]);
 			//myHit->AddLinks(FairMultiLinkedData("EmcPoint", fPointMatch[p->first]));
 			//myHit->AddLinks(FairMultiLinkedData("MCTrack", fTrackMcTruth[(*p).first));
 		}
@@ -375,7 +383,7 @@ void PndEmcHitProducer::Exec(Option_t* opt)
 // -------------------------------------------------------------------------
 // -----   Private method AddDigi   --------------------------------------------
 PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy,
-		Float_t time, std::vector <Int_t> &mctruth)
+		Float_t time, std::vector <Int_t> &mctruth, FairMultiLinkedData entering, FairMultiLinkedData exiting)
 {
 	// It fills the PndEmcHit category
 
@@ -384,8 +392,10 @@ PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy,
 	//" << box << " tube " << tub << endl;
 	TClonesArray& clref = *fHitArray;
 	Int_t size = clref.GetEntriesFast();
-	return new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID], 
-			emcY[detID], emcZ[detID], mctruth);
+	PndEmcHit* hit = new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID],
+			emcY[detID], emcZ[detID], mctruth, entering, exiting);
+	//hit->Print();
+	return  hit;
 }
 // ----
 

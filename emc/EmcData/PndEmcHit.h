@@ -31,7 +31,7 @@ class PndEmcHit : public FairHit
 
   PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcPoint*> PointList);
 
-  PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<Int_t> McTruth);
+  PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<Int_t> McTruth, FairMultiLinkedData enteringTrack, FairMultiLinkedData exitingTrack);
 
   /** Copy **/
   PndEmcHit(const PndEmcHit &);
@@ -58,6 +58,8 @@ class PndEmcHit : public FairHit
  
   Short_t GetXPad()        const;
   Short_t GetYPad()        const;
+  FairMultiLinkedData GetTrackEntering() const { return fTrackEntering;}
+  FairMultiLinkedData GetTrackExiting()  const { return fTrackExiting;}
   
   std::vector<PndEmcPoint*> &GetPointList() {return fPointList;}
   const std::vector<Int_t> &GetMcList() {return fMcList;}
@@ -69,6 +71,8 @@ class PndEmcHit : public FairHit
 
   std::vector<PndEmcPoint*> fPointList; //  points contributed to hit
   std::vector<Int_t> fMcList; //  Mc TrackIndex contributed to hit
+  FairMultiLinkedData fTrackEntering; // Links to tracks entering the crystal
+  FairMultiLinkedData fTrackExiting;  // Links to tracks exiting the crystal
 
   ClassDef(PndEmcHit,2)
 };

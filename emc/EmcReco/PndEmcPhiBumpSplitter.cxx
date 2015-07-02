@@ -247,7 +247,10 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     for (int i_phibump=0; i_phibump<enePhiBump.size(); ++i_phibump) {
       PndEmcBump* theNewPhiBump = AddPhiBump();
       theNewPhiBump->MadeFrom(iCluster);
+      theNewPhiBump->SetInsertHistory(kFALSE);
       theNewPhiBump->SetLink(FairLink("EmcCluster", iCluster));
+      PndEmcCluster* myCluster = (PndEmcCluster*)fClusterArray->At(iCluster);
+      theNewPhiBump->AddLinks(myCluster->GetTrackEntering());
       theNewPhiBump->SetEnergy(enePhiBump.at(i_phibump));
       TVector3 posPhiBump;
       posPhiBump.SetMagThetaPhi(posClust.Mag(),posClust.Theta(),phiPhiBump.at(i_phibump));

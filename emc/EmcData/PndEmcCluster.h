@@ -22,6 +22,17 @@
 class PndEmcDigi;
 class PndEmcTwoCoordIndex;
 
+struct LinkScoreBoard{
+	Short_t score;
+
+	void SetValShift(Bool_t val, Int_t shift){
+		if (shift < 4)
+			score |= val << shift;
+	}
+
+	Bool_t GetValShift(Int_t shift){ return score >> shift & 0x1;}
+};
+
 
 class PndEmcCluster : public FairMultiLinkedData_Interface
 {
@@ -99,18 +110,29 @@ public:
 	void SetZ20(Double_t z20){fZ20=z20;}
 	void SetZ53(Double_t z53){fZ53=z53;}
 	void SetLatMom(Double_t latMom){fLatMom=latMom;}
+	void SetTrackEntering(const FairMultiLinkedData& tracks){fTrackEntering = tracks;}
+	void SetTrackExiting(const FairMultiLinkedData& tracks){fTrackExiting = tracks;}
+
+
+	void AddTracksEnteringExiting(const FairMultiLinkedData& tracksEntering, const FairMultiLinkedData& tracksExiting);
+
 		
 	Double_t GetEnergyCorrected() const;
 
 	const std::vector<Int_t> &GetMcList() const;
 	Int_t GetMcSize()                     { return fMcList.size(); }
 	Int_t GetMcIndex(Int_t i = 0)         { return fMcList[i]; }
+	FairMultiLinkedData GetTrackEntering() const { return fTrackEntering;}
+	FairMultiLinkedData GetTrackExiting() const { return fTrackExiting;}
+
 
 private:
 	friend class PndEmcMakeCluster;
 	void invalidateCache(bool );
 
 protected:
+
+	void FillScoreBoard(FairMultiLinkedData tracks, std::map<FairLink, LinkScoreBoard>& scoreBoard, Int_t shift);
 
 	std::vector<Int_t> fDigiList;
 	mutable std::vector<Int_t> fMcList;
@@ -126,6 +148,9 @@ protected:
 	Double_t fZ20; // Zernike moment (2,0)
 	Double_t fZ53; // Zernike moment (5,3)
 	Double_t fLatMom; // Lateral energy deposition within the cluster
+
+	FairMultiLinkedData fTrackEntering;
+	FairMultiLinkedData fTrackExiting;
 
 	ClassDef(PndEmcCluster,2)
 };

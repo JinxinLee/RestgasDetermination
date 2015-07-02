@@ -158,7 +158,8 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 	for (Int_t iDigi=0; iDigi<nDigis; iDigi++)
 	{
 		PndEmcDigi* theDigi = (PndEmcDigi*) fDigiArray->At(iDigi);
-
+	//	std::cout << std::endl << "DigiArray: " << iDigi  << std::endl;
+	//	theDigi->Print(); std::cout << std::endl;
 		Int_t module=theDigi->GetModule();
 
 		// In the following lines there is separate threshold for forward endcup
@@ -176,6 +177,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 
 		for(Int_t i=0;i<clustLength;i++)
 		{
+		//	std::cout << "Clusterarray: " << i << std::endl;
 			PndEmcCluster* cluster=(PndEmcCluster*) fClusterArray->At(i);
 			if(cluster->isInCluster(theDigi, fDigiArray))
 			{
@@ -184,7 +186,13 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 					clustmarker=i;
 					isAdded=true;
 					cluster->addDigi(fDigiArray, iDigi);
-					cluster->AddLink(FairLink("EmcDigi", iDigi));
+					//cluster->AddLink(FairLink("EmcDigi", iDigi));
+					FairMultiLinkedData hitLinks = theDigi->GetLinksWithType(FairRootManager::Instance()->GetBranchId("EmcHit"));
+					for (Int_t j = 0; j < hitLinks.GetNLinks(); j++){
+						PndEmcHit* hit = (PndEmcHit*)fHitArray->At(hitLinks.GetLink(j).GetIndex());
+					//	std::cout << "Hit: " << hit->GetDetectorID() << std::endl;
+						cluster->AddTracksEnteringExiting(hit->GetTrackEntering(), hit->GetTrackExiting());
+					}
 				}
 				else
 				{
@@ -203,7 +211,16 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 		{
 			PndEmcCluster* newcluster = new((*fClusterArray)[clustLength]) PndEmcCluster();
 			newcluster->addDigi(fDigiArray, iDigi);
-			newcluster->SetLink(FairLink("EmcDigi", iDigi));
+
+			FairMultiLinkedData hitLinks = theDigi->GetLinksWithType(FairRootManager::Instance()->GetBranchId("EmcHit"));
+		//	std::cout << "HitLinks isNotAdded:  " << hitLinks << std::endl;
+		//	theDigi->Print(); std::cout << std::endl;
+			for (Int_t i = 0; i < hitLinks.GetNLinks(); i++){
+				PndEmcHit* hit = (PndEmcHit*)fHitArray->At(hitLinks.GetLink(i).GetIndex());
+				newcluster->SetTrackEntering(hit->GetTrackEntering());
+				newcluster->SetTrackExiting(hit->GetTrackExiting());
+			}
+			//newcluster->SetLink(FairLink("EmcDigi", iDigi));
 		}
 
 		totalDigiEnergy+=theDigi->GetEnergy();
@@ -224,6 +241,9 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 		tmpclust->SetZ20(xClMoments.AbsZernikeMoment(2, 0, 15));
 		tmpclust->SetZ53(xClMoments.AbsZernikeMoment(5, 3, 15));
 		tmpclust->SetLatMom(xClMoments.Lat());
+		tmpclust->SetLinks(tmpclust->GetTrackEntering());
+	//	std::cout << "ClusterOutput: " << std::endl;
+	//	tmpclust->Print();
 		//const std::vector<Int_t>& MCTruth = tmpclust->GetMcList();
 		//std::cout<<"The cluster #"<<i<<" produced by MC Track #";
 		//for(Int_t j=0;j<MCTruth.size();++j)

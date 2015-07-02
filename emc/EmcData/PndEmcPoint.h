@@ -31,11 +31,13 @@ class PndEmcPoint : public FairMCPoint
    *@param tof      Time since event start [ns]
    *@param length   Track length since creation [cm]
    *@param eLoss    Energy deposit [GeV]
+   *@param entering	Existing particle entering the crystal (needed for MC match)
+   *@param exiting	Particle leaving the crystal (needed for MC match)
    **/
   
   PndEmcPoint(Int_t trackID, Int_t detID, Int_t evtID, TVector3 pos, TVector3 mom,
 	      Double_t tof, Double_t length, Double_t eLoss, 
-	      Short_t mod, Short_t row, Short_t crys, Short_t copy);
+	      Short_t mod, Short_t row, Short_t crys, Short_t copy, Bool_t entering = kFALSE, Bool_t exiting=kFALSE);
   
   /** Copy constructor **/
   PndEmcPoint(const PndEmcPoint& point);
@@ -55,6 +57,8 @@ class PndEmcPoint : public FairMCPoint
   Short_t GetRow()         const { return ((fDetectorID/1000000)%100);};
   Short_t GetCrystal()     const { return (fDetectorID%10000);};
   Short_t GetCopy()        const { return ((fDetectorID/10000)%100);};
+  Bool_t  GetEntering()	   const { return fEntering;}
+  Bool_t  GetExiting()     const { return fExiting;}
   /** Modifiers **/
 
   void SetModule(Short_t mod)        { nModule     = mod;};
@@ -71,6 +75,8 @@ class PndEmcPoint : public FairMCPoint
   Short_t nRow;                 // Row number
   Short_t nCrystal;             // Crystal number
   Short_t nCopy;                // Copy number
+  Bool_t fEntering;				//< Is particle entering into crystal
+  Bool_t fExiting;				//< Is particle exiting the crystal
     
   ClassDef(PndEmcPoint,1)
 

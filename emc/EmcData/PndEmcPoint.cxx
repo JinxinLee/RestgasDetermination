@@ -17,7 +17,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcPoint::PndEmcPoint() : FairMCPoint(),
-			     nModule(-1), nRow(-1),  nCrystal(-1), nCopy(-1)
+			     nModule(-1), nRow(-1),  nCrystal(-1), nCopy(-1), fEntering(kFALSE), fExiting(kFALSE)
 {
 }
 // -------------------------------------------------------------------------
@@ -27,9 +27,9 @@ PndEmcPoint::PndEmcPoint() : FairMCPoint(),
 // -----   Standard constructor   ------------------------------------------
 PndEmcPoint::PndEmcPoint(Int_t trackID, Int_t detID, Int_t evtID, TVector3 pos,
                         TVector3 mom, Double_t tof, Double_t length,
-			 Double_t eLoss, Short_t mod, Short_t row, Short_t crys, Short_t copy)
+			 Double_t eLoss, Short_t mod, Short_t row, Short_t crys, Short_t copy, Bool_t entering, Bool_t exiting)
   : FairMCPoint(trackID, detID, pos, mom, tof, length, eLoss, evtID),
-    nModule(mod), nRow(row), nCrystal(crys), nCopy(copy)
+    nModule(mod), nRow(row), nCrystal(crys), nCopy(copy), fEntering(entering), fExiting(exiting)
 {
   SetLink(FairLink("MCTrack", trackID));
 }
@@ -39,7 +39,7 @@ PndEmcPoint::PndEmcPoint(Int_t trackID, Int_t detID, Int_t evtID, TVector3 pos,
 PndEmcPoint::PndEmcPoint(const PndEmcPoint& point)
   :FairMCPoint(point.fTrackID, point.fDetectorID, TVector3(point.fX, point.fY, point.fZ), TVector3(point.fPx, point.fPy, point.fPz), 
 	       point.fTime, point.fLength, point.fELoss, point.fEventId),
-   nModule(point.nModule), nRow(point.nRow), nCrystal(point.nCrystal), nCopy(point.nCopy)
+   nModule(point.nModule), nRow(point.nRow), nCrystal(point.nCrystal), nCopy(point.nCopy), fEntering(point.fEntering), fExiting(point.fExiting)
 
 { 
   SetLinks(point.GetLinks());
@@ -60,6 +60,12 @@ void PndEmcPoint::Print(const Option_t* opt) const {
        << ") GeV" << endl;
   cout << "    Time " << fTime << " ns,  Length " << fLength 
        << " cm,  Energy loss " << fELoss*1.0e06 << " keV" << endl;
+  if (GetEntering() == kTRUE){
+	  cout << " Particle entering the crystal!" << std::endl;
+  }
+  if (GetExiting() == kFALSE){
+	  cout << " Particle exiting the crystal!" << std::endl;
+  }
 }
 // -------------------------------------------------------------------------
 

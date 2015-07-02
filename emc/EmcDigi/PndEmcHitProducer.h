@@ -52,7 +52,7 @@ class PndEmcHitProducer : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
   
-  PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector <Int_t> &mctruth);
+  PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector <Int_t> &mctruth, FairMultiLinkedData entering, FairMultiLinkedData exiting);
 
   //PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcPoint*> pointList);
   // not implemented
@@ -107,7 +107,7 @@ class PndEmcHitProducer : public FairTask
 	map<Int_t, Float_t> fTrackTime;  //time of first point
 	map<Int_t, std::vector <Int_t> > fTrackMcTruth;  //McTruth
 	map<Int_t, std::vector <Int_t> > fPointMatch; //DetId , PointIds with same DetId
-
-
+	map<Int_t, FairMultiLinkedData> fTrackEntering; //DetId, link to tracks entering same DetId
+	map<Int_t, FairMultiLinkedData> fTrackExiting; //DetId, link to track exiting same DetId
 };
 #endif

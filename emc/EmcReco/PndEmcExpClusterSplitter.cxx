@@ -424,7 +424,10 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 				PndEmcBump* theNextBump = new((*fBumpArray)[size_ba]) PndEmcBump(*(theBump));
 				if (fVerbose>0)
 					std::cout << "Bump Created!" << std::endl;
+				theNextBump->SetInsertHistory(kFALSE);
 				theNextBump->SetLink(FairLink("EmcCluster", iCluster));
+				PndEmcCluster* myCluster = (PndEmcCluster*)fClusterArray->At(iCluster);
+				theNextBump->AddLinks(myCluster->GetTrackEntering());
 			}
 
 			std::map<PndEmcTwoCoordIndex*,TVector3*>::iterator theGrimReaper = theMaximaPoints.begin();

@@ -131,7 +131,8 @@ class PndEmc : public FairDetector
 
   PndEmcPoint* AddHit(Int_t trackID, Int_t detID,  Int_t evtID, TVector3 pos, TVector3 mom,
 		      Double_t tof, Double_t length, Double_t eLoss,
-		      Short_t mod, Short_t row, Short_t crys, Short_t copy);
+		      Short_t mod, Short_t row, Short_t crys, Short_t copy,
+		      Bool_t enterning, Bool_t exiting);
 
   void SetStorageOfData(Bool_t val); // Method to specify whether points are stored or not.
   
