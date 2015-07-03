@@ -60,8 +60,8 @@ PndFtsTube::PndFtsTube(Double_t x, Double_t y, Double_t z,
 }
 
 PndFtsTube::~PndFtsTube(){
-  fCenPosition.Delete();
-  fRotationMatrix.Delete();
+//  fCenPosition.Delete();
+//  fRotationMatrix.Delete();
 }
 
 TVector3 PndFtsTube::GetPosition() const {

@@ -79,8 +79,8 @@ PndSttTube::PndSttTube(PndSttTubeParameters *parms,
 
 
 PndSttTube::~PndSttTube(){
-  fCenPosition.Delete();
-  fRotationMatrix.Delete();
+//  fCenPosition.Delete();
+//  fRotationMatrix.Delete();
 }
 
 TVector3 PndSttTube::GetPosition(){

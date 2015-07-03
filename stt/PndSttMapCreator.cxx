@@ -40,13 +40,13 @@
 
 using namespace std;
 
-PndSttMapCreator::PndSttMapCreator() :  fGeoType(-1), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0) {
-  copy_map.clear();
+PndSttMapCreator::PndSttMapCreator() :  fGeoType(-1), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), fSttTube(0), copy_map() {
+  //copy_map.clear();
 }
 
 // to use in PndStt
-PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0) {
-  copy_map.clear();
+PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), fSttTube(0), copy_map() {
+  //copy_map.clear();
 
   if(fGeoType != 1) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
  
@@ -57,7 +57,7 @@ PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParam
 }
 
 // crete geometry from parameters file
-PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar): fGeoType(-1), fSttParameters(sttPar), fTubeInRad(0), fTubeOutRad(0) {
+PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar): fGeoType(-1), fSttParameters(sttPar), fTubeInRad(0), fTubeOutRad(0), fSttTube(0) {
 
   if(!gGeoManager) cout << "-E- PndSttMapCreator: no geo manager " << endl; // CHECK
   
@@ -247,10 +247,13 @@ TClonesArray* PndSttMapCreator::FillTubeArrayGeoType1() {
   for(int i = 1; i < pararray->GetEntries(); i++) {
     PndSttTubeParameters *parms = (PndSttTubeParameters*) pararray->At(i);
     int tubeID = parms->GetTubeID();
+
     fSttTube = GetTubeFromParametersToFillGeoType1(parms);
     if(!fSttTube) continue;
     // correspondance position in TCA <-> tubeID
     new((*fTubeArray)[tubeID]) PndSttTube(*fSttTube);
+
+    delete (fSttTube);
   }
 
   fMap = new PndSttGeometryMap(fTubeArray, fGeoType);

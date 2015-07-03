@@ -46,7 +46,7 @@ class PndFtsMapCreator : public TObject
   Double_t fTubeInRad, fTubeOutRad;
 
   // fGeoType1
-  std::map<int, int> copy_map;
+  //std::map<int, int> fCopy_Map;
 
   PndFtsMapCreator(const  PndFtsMapCreator& L);
   PndFtsMapCreator& operator= (const  PndFtsMapCreator&) {return *this;}

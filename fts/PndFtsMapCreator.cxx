@@ -31,9 +31,9 @@
 using namespace std;
 
 PndFtsMapCreator::PndFtsMapCreator()
-  : fGeoType(0), fFtsParameters(new PndGeoFtsPar()), fTubeInRad(0), fTubeOutRad(0), copy_map()
+  : fGeoType(0), fFtsParameters(new PndGeoFtsPar()), fTubeInRad(0), fTubeOutRad(0)//, fCopy_Map()
 {
-  copy_map.clear();
+  //fCopy_Map.clear();
   // Geometry loading                                                                    
   FairRootManager* ioman = FairRootManager::Instance();
   TFile *infile = ioman->GetInFile();
@@ -44,17 +44,17 @@ PndFtsMapCreator::PndFtsMapCreator()
 //PndFtsMapCreator::PndFtsMapCreator(){}
 	// to use in PndFts
 PndFtsMapCreator::PndFtsMapCreator(Int_t geoType)
-  : fGeoType(geoType), fFtsParameters(new PndGeoFtsPar()), fTubeInRad(0), fTubeOutRad(0) , copy_map()
+  : fGeoType(geoType), fFtsParameters(new PndGeoFtsPar()), fTubeInRad(0), fTubeOutRad(0)//, fCopy_Map()
 {
-  copy_map.clear();
+  //fCopy_Map.clear();
   if(fGeoType != 1) Info("PndFtsMapCreator","Geometry %i not supported by map", fGeoType); // CHECK
 }
 
 // crete geometry from parameters file
 PndFtsMapCreator::PndFtsMapCreator(PndGeoFtsPar *ftsPar) 
-  : fGeoType(0), fFtsParameters(ftsPar), fTubeInRad(0), fTubeOutRad(0), copy_map() 
+  : fGeoType(0), fFtsParameters(ftsPar), fTubeInRad(0), fTubeOutRad(0)//, fCopy_Map()
 {
-  copy_map.clear();
+  //fCopy_Map.clear();
   // set general par
   SetGeneralParameters();
   // choose geometry type
@@ -532,7 +532,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
   Double_t halflength = tube->GetDz(); // in cm
   // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
   //  copy_map[key] = alloc
-  copy_map[tubeid] = isCopy;
+ // fCopy_Map[tubeid] = isCopy;
 
   return new PndFtsTube((float)x,(float)y,(float)z,
 			r[0][0],r[0][1],r[0][2],
@@ -582,7 +582,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename, I
   Double_t halflength = tube->GetDz(); // in cm
   // sets up the correspondence int (tubeID) <--> int (1 = copy/0 = solo)
   //  copy_map[key] = alloc
-  copy_map[tubeid] = isCopy;
+  //fCopy_Map[tubeid] = isCopy;
 
   return new PndFtsTube((float)x,(float)y,(float)z,
 			r[0][0],r[0][1],r[0][2],
@@ -624,6 +624,8 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
     Int_t totTubeID = GetTubeIDTot(tempChamber, tempLayer, tubeID, tubename );
     PndFtsTube *ftstube = GetTubeFromNameToFillGeoType1(tubename,totTubeID,tempLayer);
     new((*tubeArray)[totTubeID]) PndFtsTube(*ftstube);
+
+    delete (ftstube);
     //myfile <<  tubename << " " << totTubeID << " "<<tempLayer<<endl;
 
     
