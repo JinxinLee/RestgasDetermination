@@ -31,11 +31,11 @@ PndMvdStripHitProducer::~PndMvdStripHitProducer()
 }
 
 // -------------------------------------------------------------------------
-void PndMvdStripHitProducer::SetBranchNames()
+void PndMvdStripHitProducer::SetBranchNames(TString inBranchName, TString outBranchName, TString folderName)
 {
-  fInBranchName = "MVDPoint";
-  fOutBranchName = "MVDStripDigis";
-  fFolderName = "PndMvd";
+  fInBranchName = inBranchName;
+  fOutBranchName = outBranchName;
+  fFolderName = folderName;
   SetInBranchId();
 }
 // -------------------------------------------------------------------------
