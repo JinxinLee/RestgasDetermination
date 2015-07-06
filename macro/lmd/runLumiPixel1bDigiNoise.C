@@ -1,8 +1,10 @@
-void runLumiPixel1bDigiNoise(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int pitch=1)
+void runLumiPixel1bDigiNoise(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int pitch=1, const unsigned int seed = 0 )
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
+
+	gRandom->SetSeed(seed);
 
   // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   // gSystem->Load("libSds");

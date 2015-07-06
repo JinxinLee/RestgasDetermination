@@ -31,8 +31,6 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
   ${CMAKE_SOURCE_DIR}/lmd/LmdTools
   ${CMAKE_SOURCE_DIR}/lmd/LmdQA
-  ${CMAKE_SOURCE_DIR}/lmd/LmdFit/LumiImpl
-  ${CMAKE_SOURCE_DIR}/lmd/LmdFit/ModelFramework
   ${CMAKE_SOURCE_DIR}/lmd
   ${CMAKE_SOURCE_DIR}/mvd/MvdDigi # to do: get rid of that dependency!
 #${CMAKE_SOURCE_DIR}/genfit
@@ -143,53 +141,5 @@ set(LINKDEF  LmdToolLinkDef.h)
 set(LIBRARY_NAME LmdTool)
 
 set(DEPENDENCIES Sds LmdTrk)
-
-GENERATE_LIBRARY()
-
-
-########################### create libModel  ##################################
-# modeling framework (completely independent of ROOT)
-
-include_directories(/usr/X11R6/include/)
-include_directories(/opt/X11/include/)
-link_directories(/usr/X11R6/lib)
-SET(EXTRA_LIBS GL X11 GLU gsl gslcblas)
-
-FILE(GLOB_RECURSE MODEL_SRCS LmdFit/ModelFramework/*.cxx)
-
-add_definitions(${CXX11_COMPILER_FLAGS})
-add_library(Model SHARED ${MODEL_SRCS})
-
-TARGET_LINK_LIBRARIES(Model ${EXTRA_LIBS} boost_filesystem boost_system)
-
-
-########################### create libLmdFit ##################################
-
-FILE(GLOB_RECURSE LMDFIT_SRCS  LmdFit/LumiImpl/*.cxx)
-
-set(SRCS ${LMDFIT_SRCS})
-
-set(HEADERS
-LmdFit/ModelFramework/fit/ModelFitResult.h
-LmdFit/ModelFramework/fit/EstimatorOptions.h
-LmdFit/LumiImpl/fit/PndLmdLumiFitResult.h
-LmdFit/LumiImpl/fit/PndLmdLumiFitOptions.h 
-LmdFit/LumiImpl/data/PndLmdFitStorage.h
-LmdFit/LumiImpl/data/PndLmdAbstractData.h
-LmdFit/LumiImpl/data/PndLmdHistogramData.h
-LmdFit/LumiImpl/data/PndLmdAngularData.h
-LmdFit/LumiImpl/data/PndLmdVertexData.h
-LmdFit/LumiImpl/data/PndLmdAcceptance.h
-LmdFit/LumiImpl/PndLmdLumiHelper.h 
-LmdFit/LumiImpl/PndLmdPlotter.h
-LmdFit/LumiImpl/ROOTPlotHelper.hpp
-LmdFit/LumiImpl/LumiFitStructs.h
-LmdFit/LumiImpl/LumiModelOptions.h
-)
-
-set(LINKDEF  LmdFitLinkDef.h)
-set(LIBRARY_NAME LmdFit)
-
-set(DEPENDENCIES MathMore PndData LmdTool Model boost_filesystem boost_regex)
 
 GENERATE_LIBRARY()

@@ -13,7 +13,7 @@ using namespace std;
 int main(){
   double mom = 15;
   //  std::vector<PndLmdLumiFitOptions*> fit_options_vec;
-  PndLmdLumiFitOptions *temp_fit_opt = new PndLmdLumiFitOptions();
+  PndLmdFitOptions *temp_fit_opt = new PndLmdFitOptions();
   LumiFit::LmdBinaryFitOptions bit_fit_opt(0);
   bit_fit_opt.setFitAsRaw(false);// will calc cross-section as a func from (theta), theta in rad
   //  bit_fit_opt.setFitAsRaw(true);// will calc cross-section as a func from (t)

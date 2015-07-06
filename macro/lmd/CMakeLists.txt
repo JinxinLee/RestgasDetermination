@@ -38,8 +38,7 @@ ${CMAKE_SOURCE_DIR}/lmd/LmdReco
 ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
 ${CMAKE_SOURCE_DIR}/lmd/LmdTools
 ${CMAKE_SOURCE_DIR}/lmd
-${CMAKE_SOURCE_DIR}/lmd/LmdFit/ModelFramework
-${CMAKE_SOURCE_DIR}/lmd/LmdFit/LumiImpl
+${CMAKE_SOURCE_DIR}/mvd/MvdDigi
 
 #${CMAKE_SOURCE_DIR}/genfit
 #${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
@@ -63,8 +62,6 @@ ${GLPK_LIB_DIR}
 
 link_directories( ${LINK_DIRECTORIES})
 
-add_definitions(${CXX11_COMPILER_FLAGS})
-
 ################################## install #####################################
 #add_executable(calc_cs Anastasia/tests/ModelUncert/CrossSecLim.C)
 #target_link_libraries(calc_cs LmdFit)
@@ -77,7 +74,5 @@ target_link_libraries(createRootGeometry_lmd_HV_MAPS -lrt ${ROOT_LIBRARIES} LmdT
 #add_executable(simple_mc_rec_match simpleMCandRECmatch.C)
 #target_link_libraries(simple_mc_rec_match -lrt ${ROOT_LIBRARIES} LmdTool MathMore)
 #add_subdirectory(LMD_alignment)
-#add_subdirectory(Anastasia/test_macros)
-
-#add_subdirectory(LMD_fit)
-add_subdirectory(Promme)
+add_subdirectory(Anastasia/test_macros)
+#add_subdirectory(Promme)
