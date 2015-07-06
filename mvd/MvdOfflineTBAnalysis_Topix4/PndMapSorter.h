@@ -32,7 +32,7 @@ class PndMapSorter : public TObject
 {
   public:
     PndMapSorter(double timeOffset = 1000000)
-      : TObject(), fOutputData(), fVerbose(0), fTimeOffset(timeOffset) {
+      : TObject(), fOutputData(), fVerbose(0), fTimeOffset(timeOffset), fOldTS(0) {
     }
 
     virtual ~PndMapSorter() {};
@@ -55,6 +55,7 @@ class PndMapSorter : public TObject
   private:
     std::multimap<double, FairTimeStamp*> fMapBuffer;
     std::vector<FairTimeStamp*> fOutputData;
+    double fOldTS;
     double fTimeOffset;
     int fVerbose;
 

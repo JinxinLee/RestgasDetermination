@@ -22,20 +22,29 @@ FairTimeStamp* PndMapSorter::CreateElement(FairTimeStamp* data)
 
 void PndMapSorter::AddElement(FairTimeStamp* digi, double timestamp)
 {
-	std::cout << "PndMapSorter::AddElement " << timestamp << std::endl;
+	if (fVerbose > 0)
+		std::cout << "PndMapSorter::AddElement " << timestamp << std::endl;
 	fMapBuffer.insert(std::pair<double,FairTimeStamp*>(timestamp, CreateElement(digi)));
 }
 
 void PndMapSorter::WriteOutData(double time)
 {
-	std::cout << "PndMapSorter::WriteOutData for time " << time << std::endl;
-	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.lower_bound(time - fTimeOffset); itr++)
+	if (fVerbose > 0)
+		std::cout << "PndMapSorter::WriteOutData for time " << time << std::endl;
+	double oldTS = 0;
+	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.lower_bound(time - fTimeOffset); itr++){
 		fOutputData.push_back(itr->second);
+		if (fVerbose > 1){
+			std::cout << "TS: " << itr->first << " " << itr->second->GetTimeStamp() << " diff " <<  itr->first - fOldTS << std::endl;
+			fOldTS = itr->first;
+		}
+	}
 	fMapBuffer.erase(fMapBuffer.begin(), fMapBuffer.lower_bound(time - fTimeOffset));
 }
 
 void PndMapSorter::WriteOutAll(){
-	std::cout << "PndMapSorter::WriteOutAll called!" << std::endl;
+	if (fVerbose > 0)
+		std::cout << "PndMapSorter::WriteOutAll called!" << std::endl;
 	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.end(); itr++)
 		fOutputData.push_back(itr->second);
 }
