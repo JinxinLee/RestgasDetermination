@@ -31,7 +31,6 @@ void PndMapSorter::WriteOutData(double time)
 {
 	if (fVerbose > 0)
 		std::cout << "PndMapSorter::WriteOutData for time " << time << std::endl;
-	double oldTS = 0;
 	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.lower_bound(time - fTimeOffset); itr++){
 		fOutputData.push_back(itr->second);
 		if (fVerbose > 1){
