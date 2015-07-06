@@ -83,7 +83,7 @@ PndMultiField::PndMultiField(TString Map, Double_t BeamMom)
     		PndSolenoidMap *map_s3;
     		PndSolenoidMap *map_s4;
 
-    		if(fBeamMom > 3.0) {
+    		if(fBeamMom >= 3.0) {
       		    map_t= new PndTransMap("TransMap", "R", fBeamMom);
       		    map_s1= new PndSolenoidMap("SolenoidMap1", "R");
       		    map_s2= new PndSolenoidMap("SolenoidMap2", "R");
