@@ -38,7 +38,9 @@ class PndMapSorterTask : public FairTask
       fOutputBranch(),
       fFolder(),
       fOutputArray(0),
-      fEntryNr(0) {
+      fEntryNr(0),
+	  fTimeOffset(1000000)
+	  {
       SetVerbose(0);
     }
 
@@ -53,7 +55,9 @@ class PndMapSorterTask : public FairTask
       fOutputBranch(),
       fFolder(),
       fOutputArray(0),
-      fEntryNr(0) {
+      fEntryNr(0),
+	  fTimeOffset(1000000)
+    {
       SetVerbose(0);
     }
 
@@ -67,7 +71,9 @@ class PndMapSorterTask : public FairTask
       fOutputBranch(outputBranch),
       fFolder(folderName),
       fOutputArray(0),
-      fEntryNr(0) {
+      fEntryNr(0),
+	  fTimeOffset(1000000)
+    {
       SetVerbose(0);
     }
 
@@ -90,6 +96,8 @@ class PndMapSorterTask : public FairTask
     void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
     Bool_t GetPersistance() {return fPersistance;};
 
+    void SetTimeOffset(Double_t val) {fTimeOffset = val;}
+
     virtual void AddNewDataToTClonesArray(FairTimeStamp* data);
 //    virtual FairRingSorter* InitSorter(Int_t numberOfCells, Double_t widthOfCells) const;
 
@@ -108,6 +116,7 @@ class PndMapSorterTask : public FairTask
     TString fFolder;
     TClonesArray* fOutputArray;
     Int_t fEntryNr;
+    Double_t fTimeOffset;
     PndMapSorterTask(const PndMapSorterTask&);
     PndMapSorterTask& operator=(const PndMapSorterTask&);
 

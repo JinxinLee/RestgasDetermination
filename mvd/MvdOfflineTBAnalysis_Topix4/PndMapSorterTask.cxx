@@ -44,7 +44,7 @@ InitStatus PndMapSorterTask::Init()
   if(fVerbose>1) { Info("Init","Registering this branch: %s/%s",fFolder.Data(),fOutputBranch.Data()); }
   fOutputArray = ioman->Register(fOutputBranch, fInputArray->GetClass()->GetName(), fFolder, fPersistance);
 
-  fSorter = new PndMapSorter();
+  fSorter = new PndMapSorter(fTimeOffset);
 
 
   return kSUCCESS;
