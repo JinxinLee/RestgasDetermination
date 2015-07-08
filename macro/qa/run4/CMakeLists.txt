@@ -15,6 +15,18 @@ SET_TESTS_PROPERTIES(reco_complete4 PROPERTIES TIMEOUT "200")
 SET_TESTS_PROPERTIES(reco_complete4 PROPERTIES DEPENDS digi_complete4)
 SET_TESTS_PROPERTIES(reco_complete4 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
 
+Generate_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run4/recoqa_complete.C)
+add_test(recoqa_complete4 ${PANDAROOT_BINARY_DIR}/macro/qa/run4/recoqa_complete.sh)
+SET_TESTS_PROPERTIES(recoqa_complete4 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(recoqa_complete4 PROPERTIES DEPENDS reco_complete4)
+SET_TESTS_PROPERTIES(recoqa_complete4 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+Generate_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run4/QA_histos.C)
+add_test(qahistos_complete4 ${PANDAROOT_BINARY_DIR}/macro/qa/run4/QA_histos.sh)
+SET_TESTS_PROPERTIES(qahistos_complete4 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(qahistos_complete4 PROPERTIES DEPENDS recoqa_complete4)
+SET_TESTS_PROPERTIES(qahistos_complete4 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run4/pid_complete.C)
 add_test(pid_complete4 ${PANDAROOT_BINARY_DIR}/macro/qa/run4/pid_complete.sh)
 SET_TESTS_PROPERTIES(pid_complete4 PROPERTIES TIMEOUT "200")
