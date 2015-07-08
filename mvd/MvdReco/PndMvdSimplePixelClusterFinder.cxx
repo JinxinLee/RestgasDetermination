@@ -5,12 +5,13 @@
 #include "PndSdsTotDigiPar.h"
 #include "PndSdsTotChargeConversion.h"
 
-PndMvdSimplePixelClusterFinder::PndMvdSimplePixelClusterFinder(Int_t verbose):PndSdsSimplePixelClusterFinder(){
+PndMvdSimplePixelClusterFinder::PndMvdSimplePixelClusterFinder(TString parName, TString totParName, Int_t verbose):PndSdsSimplePixelClusterFinder(),
+fParName(parName), fTotParName(totParName){
 	fVerbose = verbose;
 	FairRun* ana = FairRun::Instance();
 	FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-	PndSdsPixelDigiPar* fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
-	PndSdsTotDigiPar* fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer("MVDPixelTotDigiPar"));
+	PndSdsPixelDigiPar* fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer(fParName.Data()));
+	PndSdsTotDigiPar* fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer(fTotParName.Data()));
 	if (fDigiPar->GetChargeConvMethod() == 0){
 		if(fVerbose>0) std::cout<<"Info in <PndMvdSimplePixelClusterFinder>: ideal charge conversion"<<std::endl;
 		fChargeConverter = new PndSdsIdealChargeConversion(fDigiPar->GetNoise());

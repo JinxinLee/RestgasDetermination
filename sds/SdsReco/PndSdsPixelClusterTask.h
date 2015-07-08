@@ -116,7 +116,7 @@ class PndSdsPixelClusterTask : public PndSdsTask
     void Reset();  
     void ProduceHits();
     
-  PndSdsPixelClusterFinder* fClusterFinder;
+  PndSdsPixelClusterFinder* fClusterFinder; //!
   PndSdsPixelBackMapping* fBackMapping; //!
   
 //   TGeoHMatrix GetTransformation (std::string detName);

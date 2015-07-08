@@ -381,7 +381,8 @@ void PndMvdReadInTBData::AnalyzeToPixFrame(Double_t clockFrequency)
 	  }
 	  //fOldFrameCount = fRecentFrameHeader.fFrameCount;
 	  Int_t deltaFrameCount = ((int)(fRecentFrameHeader.fFrameCount - fOldFrameCount)<0 ?((fRecentFrameHeader.fFrameCount - fOldFrameCount)+256) : (fRecentFrameHeader.fFrameCount - fOldFrameCount));
-	  new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, fFE, fRecentFrameHeader.fChipAddress, fRecentFrameHeader.fECC, fTotalFrameCount,deltaFrameCount, 0, fToPixFrame.size()-2 );
+	//  new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, fFE, fRecentFrameHeader.fChipAddress, fRecentFrameHeader.fECC, fTotalFrameCount,deltaFrameCount, 0, fToPixFrame.size()-2 );
+	  new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, 0, fFE, fRecentFrameHeader.fECC, fTotalFrameCount,deltaFrameCount, 0, fToPixFrame.size()-2 );
 	  if (deltaFrameCount > 1) std::cout << "-W- OutputArrayHeader deltaFrameCount > 1 " << deltaFrameCount << std::endl;
 	  fOldFrameCount = fRecentFrameHeader.fFrameCount;
 	}
@@ -603,7 +604,8 @@ PndSdsDigiTopix4 PndMvdReadInTBData::ProcessData(ULong64_t& data, frameHeader& h
 	Double_t timestamp_independent = ((Double_t) fTotalHeaderCount * 4096. + (Double_t)pixelData.fLeadingEdge)/clockFrequency * 1000.;
 
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel
-	return PndSdsDigiTopix4(indices, 0, 0, fFE, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
+//	return PndSdsDigiTopix4(indices, 0, 0, fFE, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
+	return PndSdsDigiTopix4(indices, 0, fFE, 0, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
 
 }
 

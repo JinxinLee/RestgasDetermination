@@ -15,6 +15,12 @@
 class PndMvdSimplePixelClusterFinder : public PndSdsSimplePixelClusterFinder
 {
 	public :
-			PndMvdSimplePixelClusterFinder(Int_t verbose = 0);
+			PndMvdSimplePixelClusterFinder(TString parName = "MVDPixelDigiPar", TString totParName = "MVDPixelTotDigiPar", Int_t verbose = 0);
+			void SetParName(TString val){fParName = val;}
+			void SetTotParName(TString val){fTotParName = val;}
+
+	private:
+			TString fParName;
+			TString fTotParName;
 };
 #endif

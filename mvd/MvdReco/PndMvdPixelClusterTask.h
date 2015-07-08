@@ -15,7 +15,7 @@ class PndMvdPixelClusterTask : public PndSdsPixelClusterTask
  public:
 
     /** Default constructor **/  
-    PndMvdPixelClusterTask();
+    PndMvdPixelClusterTask(TString parName = "MVDPixelDigiPar", TString totParName = "MVDPixelTotDigiPar");
   
     /** Destructor **/
     virtual ~PndMvdPixelClusterTask();
@@ -26,6 +26,9 @@ class PndMvdPixelClusterTask : public PndSdsPixelClusterTask
     virtual void SetBackMapping();
     virtual void SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName);
 
+ private:
+    TString fParName;
+    TString fTotParName;
   ClassDef(PndMvdPixelClusterTask,3);
 };
 

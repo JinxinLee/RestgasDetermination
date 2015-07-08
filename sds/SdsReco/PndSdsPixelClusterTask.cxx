@@ -178,7 +178,8 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 
   Double_t EventTime = FairRootManager::Instance()->GetEventTime();
 
-   if(fVerbose>0) std::cout << "-I- PndSdsPixelClusterTask::Exec EventTime: " << EventTime << std::endl;
+   if(fVerbose>0)
+	   std::cout << "-I- PndSdsPixelClusterTask::Exec EventNumber: " << fEventNr << " EventTime: " <<  EventTime << std::endl;
 
     if (FairRunAna::Instance()->IsTimeStamp()){
     	if(fVerbose>0)  std::cout << "TimeStepPixel: " << fDigiPar->GetTimeStep();
@@ -188,7 +189,8 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
 
   Int_t nPoints = fDigiArray->GetEntriesFast();
-  //std::cout << "Points in DigiArray: " << nPoints << std::endl;
+  if (fVerbose > 1)
+	  std::cout << "Points in DigiArray: " << nPoints << std::endl;
   // convert from TClonesArray to a std::vector
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
     PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(fDigiArray->At(iPoint));
@@ -196,7 +198,8 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   }
   // Retrieve the calculated clusters with the chosen clusterfinder
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
-  if(fVerbose>1)  std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
+  if(fVerbose>1)
+	  std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
 
   // Get rid of noise hits with a single digi in cluster and minimum charge
   if (fUseNoiseSuppression) {

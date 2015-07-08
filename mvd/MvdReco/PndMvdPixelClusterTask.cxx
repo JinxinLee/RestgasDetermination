@@ -8,8 +8,8 @@
 #include "FairRunAna.h"
 #include "PndSdsPixelDigiPar.h"
 // -----   Default constructor   -------------------------------------------
-PndMvdPixelClusterTask::PndMvdPixelClusterTask() :
-PndSdsPixelClusterTask("MVD Clustertisation Task")
+PndMvdPixelClusterTask::PndMvdPixelClusterTask(TString parName, TString totParName) :
+PndSdsPixelClusterTask("MVD Clustertisation Task"), fParName(parName), fTotParName(totParName)
 {
   fPersistance = kTRUE;
 }
@@ -27,8 +27,8 @@ void PndMvdPixelClusterTask::SetParContainers()
   // Get Base Container
 	FairRun* ana = FairRun::Instance();
 	FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
-	rtdb->getContainer("MVDPixelTotDigiPar");
+	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer(fParName.Data()));
+	rtdb->getContainer(fTotParName.Data());
 	PndSdsPixelClusterTask::SetParContainers();
 }
 
@@ -40,7 +40,7 @@ void PndMvdPixelClusterTask::SetBackMapping()
 
 void PndMvdPixelClusterTask::SetClusterFinder()
 {
-	fClusterFinder = new PndMvdSimplePixelClusterFinder(fVerbose);
+	fClusterFinder = new PndMvdSimplePixelClusterFinder(fParName, fTotParName, fVerbose);
 }
 
 // -----   Manula I/O folders/branches   ----------------------------------------------------
@@ -55,13 +55,18 @@ void PndMvdPixelClusterTask::SetBranchNames(TString inBranchname, TString outHit
 // -----   Default I/O folder/branches   ----------------------------------------------------
 void PndMvdPixelClusterTask::SetBranchNames()
 {
-	if (FairRunAna::Instance()->IsTimeStamp())
-		fInBranchName = "MVDSortedPixelDigis";
-	else
-		fInBranchName = "MVDPixelDigis";
-  fOutBranchName = "MVDHitsPixel";
-  fClustBranchName = "MVDPixelClusterCand";
-  fFolderName = "PndMvd";
+	if (fInBranchName.Length() == 0){
+		if (FairRunAna::Instance()->IsTimeStamp())
+			fInBranchName = "MVDSortedPixelDigis";
+		else
+			fInBranchName = "MVDPixelDigis";
+	}
+	if (fOutBranchName.Length() == 0)
+		fOutBranchName = "MVDHitsPixel";
+	if (fClustBranchName.Length() == 0)
+		fClustBranchName = "MVDPixelClusterCand";
+	if (fFolderName.Length() == 0)
+		fFolderName = "PndMvd";
 }
 
 ClassImp(PndMvdPixelClusterTask);

@@ -28,6 +28,7 @@ void PndMvdDetector::SetDefaultSensorNames(){
   fListOfSensitives.push_back("TestHCal");//tracking station
   fListOfSensitives.push_back("StripSensorActiveSmallTrap");//LambdaDisks
   fListOfSensitives.push_back("StripSensorActiveLargeTrap");//LambdaDisks
+  fListOfSensitives.push_back("EpiSensorVolume");//MVD TB
 
   if (fVerboseLevel>0) {
     std::cout<<"- I - PndMvdDetector: fListOfSensitives contains:";
