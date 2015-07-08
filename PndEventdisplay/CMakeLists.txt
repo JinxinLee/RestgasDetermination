@@ -57,6 +57,6 @@ set(LINKDEF PndEventDisplayLinkDef.h)
 set(LIBRARY_NAME PndEventDisplay)
 
 set(DEPENDENCIES Base EventDisplay generalTools MCMatch Geane
-ParBase PndData Sds Stt helixpropagator)
+ParBase PndData Sds Stt Drc helixpropagator)
 
 GENERATE_LIBRARY()
