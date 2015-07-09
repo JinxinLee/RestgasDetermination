@@ -14,6 +14,8 @@
 #include "PndTrackCand.h"
 #include "PndTrack.h"
 #include "PndMCTrack.h"
+#include "PndGemMCPoint.h"
+#include "PndGemHit.h"
 
 #include "TRandom.h"
 ClassImp(PndMCIdealTrackFinderNewLinks);
@@ -106,7 +108,19 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 		// first
 		FairMCPoint firstpoint = fFirstPointMap[iter->first];
 		TVector3 firstpos(0, 0, 0), firstmom(0, 0, 0);
-		firstpoint.Position(firstpos);
+		if(myTrackCand->GetSortedHit(0).GetDetId() == FairRootManager::Instance()->GetBranchId("GEMHit")) {
+		  TClonesArray *gemhitarray = fBranchMap["GEMHit"];
+		  Int_t hitid = myTrackCand->GetSortedHit(0).GetHitId();
+		  PndGemHit *gemhit = (PndGemHit*) gemhitarray->At(hitid);
+		  FairMultiLinkedData gemhitlink = gemhit->GetLinksWithType(FairRootManager::Instance()->GetBranchId("GEMPoint"));
+		  PndGemMCPoint *gempoint = (PndGemMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(gemhitlink.GetLink(0));
+
+		  TVector3 posin(0, 0, 0), posout(0, 0, 0);
+		  gempoint->Position(posin);
+		  gempoint->PositionOut(posout);
+		  firstpos = 0.5 * (posin + posout);
+		}
+		else firstpoint.Position(firstpos);
 		SmearVector(firstpos, fVtxSigma);
 		firstpoint.Momentum(firstmom);
 		if (fRelative) fMomSigma.SetXYZ(fDPoP*firstmom.Mag(),fDPoP*firstmom.Mag(),fDPoP*firstmom.Mag());
@@ -118,7 +132,19 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 		// last
 		FairMCPoint lastpoint = fLastPointMap[iter->first];
 		TVector3 lastpos(0, 0, 0), lastmom(0, 0, 0);
-		lastpoint.Position(lastpos);
+		if(myTrackCand->GetSortedHit(myTrackCand->GetNHits() - 1).GetDetId() == FairRootManager::Instance()->GetBranchId("GEMHit")) {
+		  TClonesArray *gemhitarray = fBranchMap["GEMHit"];
+		  Int_t hitid = myTrackCand->GetSortedHit(myTrackCand->GetNHits() - 1).GetHitId();
+		  PndGemHit *gemhit = (PndGemHit*) gemhitarray->At(hitid);
+		  FairMultiLinkedData gemhitlink = gemhit->GetLinksWithType(FairRootManager::Instance()->GetBranchId("GEMPoint"));
+		  PndGemMCPoint *gempoint = (PndGemMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(gemhitlink.GetLink(0));
+
+		  TVector3 posin(0, 0, 0), posout(0, 0, 0);
+		  gempoint->Position(posin);
+		  gempoint->PositionOut(posout);
+		  lastpos = 0.5 * (posin + posout);
+		}
+		else lastpoint.Position(lastpos);
 		SmearVector(lastpos, fVtxSigma);
 		lastpoint.Momentum(lastmom);
 		SmearVector(lastmom, fMomSigma);
