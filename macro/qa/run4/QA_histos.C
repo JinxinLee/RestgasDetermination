@@ -110,15 +110,15 @@ void QA_histos() {
   cbmsim->Draw("(RecoTrackInfo.GetMomentumFirst().Phi() - RecoTrackInfo.GetMCTrackInfo().GetMomentumFirst().Phi()) * TMath::RadToDeg() >> hdelta_phi_first", cut, "goff");
 
 
-  double xmin = -0.25;
-  double xmax = 0.25;
+  double xmin = -0.2;
+  double xmax = 0.2;
   TH1F *hdelta_x_first = new TH1F("hdelta_x_first", "#Delta x @ first hit", 100, xmin, xmax);
   TH1F *hdelta_y_first = new TH1F("hdelta_y_first", "#Delta y @ first hit", 100, xmin, xmax);
   cbmsim->Draw("RecoTrackInfo.GetPositionFirst().X() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().X() >> hdelta_x_first", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetPositionFirst().Y() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().Y() >> hdelta_y_first", cut, "goff");
 
-  double zmin = -0.25;
-  double zmax = 0.25;
+  double zmin = -0.2;
+  double zmax = 0.2;
   TH1F *hdelta_z_first = new TH1F("hdelta_z_first", "#Delta z @ first hit", 100, zmin, zmax);
   cbmsim->Draw("RecoTrackInfo.GetPositionFirst().Z() - RecoTrackInfo.GetMCTrackInfo().GetPositionFirst().Z() >> hdelta_z_first", cut, "goff");
 
@@ -153,8 +153,10 @@ void QA_histos() {
   TH1F *hdelta_y_last = new TH1F("hdelta_y_last", "#Delta y @ last hit", 100, xmin, xmax);
   cbmsim->Draw("RecoTrackInfo.GetPositionLast().X() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().X() >> hdelta_x_last", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetPositionLast().Y() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().Y() >> hdelta_y_last", cut, "goff");
-
-  TH1F *hdelta_z_last = new TH1F("hdelta_z_last", "#Delta z @ last hit", 100, zmin, zmax);
+  
+  double zminlast = -0.6;
+  double zmaxlast = 0.6;
+  TH1F *hdelta_z_last = new TH1F("hdelta_z_last", "#Delta z @ last hit", 100, zminlast, zmaxlast);
   cbmsim->Draw("RecoTrackInfo.GetPositionLast().Z() - RecoTrackInfo.GetMCTrackInfo().GetPositionLast().Z() >> hdelta_z_last", cut, "goff");
 
   TH1F *hdelta_r_last = new TH1F("hdelta_r_last", "#Delta r @ last hit", 100, -rmax, rmax);
