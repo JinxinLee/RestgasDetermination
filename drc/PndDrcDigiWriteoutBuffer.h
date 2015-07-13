@@ -19,24 +19,25 @@ class FairTimeStamp;
 class PndDrcDigiWriteoutBuffer : public FairWriteoutBuffer{
 
 public:
-	PndDrcDigiWriteoutBuffer();
-	PndDrcDigiWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance);
+  PndDrcDigiWriteoutBuffer();
+  PndDrcDigiWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance);
 
-	virtual ~PndDrcDigiWriteoutBuffer();
+  virtual ~PndDrcDigiWriteoutBuffer();
 
-	void AddNewDataToTClonesArray(FairTimeStamp*);
+  void AddNewDataToTClonesArray(FairTimeStamp*);
 
-	virtual double FindTimeForData(FairTimeStamp* data) ;
-	virtual void FillDataMap(FairTimeStamp* data, double activeTime) ;
-	virtual void EraseDataFromDataMap(FairTimeStamp* data);
-	virtual std::vector<std::pair<double, FairTimeStamp*> > Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData);
-        virtual void FillNewData(FairTimeStamp* data, double startTime, double activeTime);
-    virtual void FillDataToDeadTimeMap(FairTimeStamp* data, double activeTime);
+  virtual double FindTimeForData(FairTimeStamp* data) ;
+  virtual void FillDataMap(FairTimeStamp* data, double activeTime) ;
+  virtual void EraseDataFromDataMap(FairTimeStamp* data);
+  virtual std::vector<std::pair<double, FairTimeStamp*> > Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData);
+
+  virtual Int_t GetNData() {return fStartTime_map.size();}
+
 protected:	
 
-	std::map<PndDrcDigi, double> fData_map;
+  std::map<PndDrcDigi, double> fData_map;
 	
-	ClassDef(PndDrcDigiWriteoutBuffer, 1);
+  ClassDef(PndDrcDigiWriteoutBuffer, 1);
 };
 
 #endif /* PNDDrcDigiWRITEOUTBUFFER_H_ */

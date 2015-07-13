@@ -169,7 +169,7 @@ void PndDrcLutReco::LoopOverMcTracks(){
     trackinfo.SetMcMomentumInBar(momInBar);
     trackinfo.SetMcPositionInBar(posInBar);
     trackinfo.SetMcTimeInBar(fBarPoint->GetTime());
-
+    
     if(fVerbose<2) gROOT->SetBatch(kTRUE);
     DetermineCherenkov(&trackinfo,mcBoxId);
     if(fVerbose<2) gROOT->SetBatch(kFALSE);
@@ -184,13 +184,14 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
 
   TVector3 momInBar = trackinfo->GetMcMomentumInBar();
   TVector3 posInBar = trackinfo->GetMcPositionInBar();
-
+  Double_t barHitTime = trackinfo->GetMcTimeInBar();
   Double_t cangle, boxPhi, bartime, lutboxPhi=10.825, window1, window2, angdiv;
   Int_t lutboxId(3), barId(-1), evpointcount(0);
   Bool_t reflected;
   Int_t boxId1;
 
   DetermineBarId(posInBar.Phi(),boxPhi, boxId1, barId); 
+  
   if(barId<0) return;
   momInBar.RotateZ(-boxPhi/180.*TMath::Pi());
   
@@ -208,7 +209,7 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
     Double_t pdHitTime = fPDHit->GetTime();	
     Int_t pointID = fPDHit->GetLink(1).GetIndex();
     Int_t eventID =  fPDHit->GetLink(1).GetEntry();
-
+    
     if(eventID != nevents) continue;
     if( fPDPointArray->GetEntriesFast()<= pointID ){
       std::cout<<" name    "<< FairRootManager::Instance()->GetBranchName(fPDHit->GetLink(1).GetType()) <<std::endl;
@@ -240,7 +241,7 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
     photoninfo.SetHitTime(pdHitTime);
     photoninfo.SetReflected(reflected);
     photoninfo.SetEvReflections(evpointcount);
-    FillAmbiguities(&photoninfo, barId, recalculatedSensorId, posInBar.Z()+119);
+    FillAmbiguities(&photoninfo, barId, recalculatedSensorId, posInBar.Z()+119, barHitTime);
     trackinfo->AddPhoton(photoninfo);
   }
 
@@ -251,18 +252,19 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
   trackinfo->SetCherenkov(cherenkovreco);
 }
 
-void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  Int_t recalculatedSensorId, Double_t directz){
+void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  Int_t recalculatedSensorId, Double_t directz, Double_t barHitTime){
   TVector3 dird, dir,
-    fnX1 = TVector3 (1,0,0),   
-    fnY1 = TVector3( 0,1,0),
+    fnX1 = TVector3(1,0,0),   
+    fnY1 = TVector3(0,1,0),
     momInBar = photoninfo->GetMcPrimeMomentumInBar();
   
   Double_t evtime, bartime, luttheta, tangle;
   Double_t reflected = photoninfo->GetReflected();
+  Double_t pdHitTime = photoninfo->GetHitTime();
 
   PndDrcLutNode *node = (PndDrcLutNode*) fLut[barId]->At(recalculatedSensorId);
   Int_t size = node->Entries();
- 
+
   for(int i=0; i<size; i++){
     dird = node->GetEntry(i);
   
@@ -285,7 +287,7 @@ void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  
       if(!reflected) bartime = directz/cos(luttheta)/19.8; 
       else bartime = ((240 - directz)*2 + directz)/cos(luttheta)/19.8; 
 	
-      // if(fabs((bartime + evtime)-(pdHitTime-barHitTime))>2) continue;
+      if(fabs((bartime + evtime)-(pdHitTime-barHitTime))>2) continue;
 
       tangle = momInBar.Angle(dir);
       if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
@@ -294,7 +296,7 @@ void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  
       ambinfo.SetBarTime(bartime);
       ambinfo.SetEvTime(evtime);
       ambinfo.SetCherencov(tangle);
-
+      
       photoninfo->AddAmbiguity(ambinfo);
       if(tangle > 0.35 && tangle < 0.85) fHist->Fill(tangle);
     }

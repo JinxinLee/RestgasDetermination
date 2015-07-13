@@ -151,14 +151,17 @@ void PndDrcLutFill::ProcessPhotonHit()
 
   // Loop over PndDrcPDHits
   for(Int_t k=0; k<fPDHitArray->GetEntriesFast(); k++) {
-   
+    std::cout<<"k  "<<k <<std::endl;
     fPDHit = (PndDrcPDHit*)fPDHitArray->At(k);
-
-    Int_t digiID= fPDHit->GetRefIndex();
-    fDigi = (PndDrcDigi*) fDigiArray->At(digiID);
-
-    Int_t pointID= fDigi->GetIndex(0);
+    Int_t pointID = fPDHit->GetLink(1).GetIndex();
+    Int_t sensorId = fPDHit->GetSensorId();
+    if(pointID==-1) continue;
     
+    // Int_t digiID= fPDHit->GetRefIndex();
+    // fDigi = (PndDrcDigi*) fDigiArray->At(digiID);
+    // Int_t sensorId = fDigi->GetSensorId();
+    // Int_t pointID= fDigi->GetIndex(0);
+     
     fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
     fBarPoint= (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
     Int_t barId = fBarPoint->GetBarId();
@@ -184,7 +187,6 @@ void PndDrcLutFill::ProcessPhotonHit()
     dir =  fMCTrack->GetMomentum().Unit();
     dir.RotateZ(-lutboxPhi/180.*TMath::Pi());
 
-    Int_t sensorId = fDigi->GetSensorId();
     // sensorId =  (sensorId/100 + lutboxId*17)*100 + sensorId%100; 
  
     if(sensorId>30000 || sensorId<0) {
@@ -224,7 +226,7 @@ void PndDrcLutFill::ProcessPhotonHit()
     // }
     // //======================
     
-    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(fDigi->GetDetectorId(), dir,pathid,time,fPDHit->GetPosition());
+    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(sensorId, dir,pathid,time,fPDHit->GetPosition()); //fDigi->GetDetectorId()
   }
 }
 

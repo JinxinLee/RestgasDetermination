@@ -58,7 +58,7 @@ public:
 private:
 
   void  LoopOverMcTracks();
-  void FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId, Int_t recalculatedSensorId, Double_t directz);
+  void FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId, Int_t recalculatedSensorId, Double_t directz, Double_t barHitTime);
   void DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t boxId);
   void DetermineBarId(Double_t phi,  Double_t &boxPhi, Int_t &boxId, Int_t &barId);
   Double_t FindPeak();
