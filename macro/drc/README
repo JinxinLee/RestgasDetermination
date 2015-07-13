@@ -1,12 +1,15 @@
-27/05/10-- Diapnwita Dutta
+simulation     : sim.C
+digitization   : digi.C
+hit finder     : hit.C
+reconstruction : reco.C
+event display  : eventDisplay.C
 
-Simulation macro: 
-       with box gen: sim_dirc.C 
-       with evtgen: sim_dirc_evtgen.C 
-       with DPM gen: sim_dirc_dpm.C 
+Reconstruction requires valid Look-Up Table (different for different DIRC geometries). 
+in lut/ folder:
+LUT simulation : simLut.C
+LUT creation   : fillLut.C
 
-Hit Production macro:
-       only hits in bar:                     hit_dirc.C
-       both hits in bar and in photon detector
-       (with det. eff. and pixelisation):    hit_dirc_real.C
 
+Example of simulation:
+
+root -q sim.C && root -q digi.C && root -q hit.C && root eventDisplay.C
