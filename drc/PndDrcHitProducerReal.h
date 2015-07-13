@@ -12,7 +12,6 @@
 
  **/
 
-
 #ifndef PNDDRCHITPRODUCERREAL_H
 #define PNDDRCHITPRODUCERREAL_H
 
@@ -36,7 +35,6 @@
 #include "TDatabasePDG.h"
 #endif
 
-
 class PndDrcHitProducerReal : public FairTask {
 
 public:
@@ -47,7 +45,7 @@ public:
   /** Constructor with verbosity **/
   PndDrcHitProducerReal(Int_t verbose, Int_t det_type);
 
-   /** Destructor **/
+  /** Destructor **/
   virtual ~PndDrcHitProducerReal();
 
   /** Initialization of the task **/  
@@ -77,34 +75,34 @@ public:
    ** Adds a DrcPDHit to the HitCollection
    **/
   PndDrcPDHit* AddPDHit(Int_t detID, 
-		    TVector3 posPDHit, 
-		    TVector3 dPosPDHit, 
-		    Double_t time,
-		    Double_t timeThreshold,
-		    Int_t index1);
+			TVector3 posPDHit, 
+			TVector3 dPosPDHit, 
+			Double_t time,
+			Double_t timeThreshold,
+			Int_t index1);
 
   /** method: FindDrcHitPosition-> finds hit position in PMT plane **/
   void FindDrcHitPosition(Double_t xPoint, Double_t yPoint,
-		                          Double_t& xHit, Double_t& yHit, Int_t & pmtID);
+			  Double_t& xHit, Double_t& yHit, Int_t & pmtID);
   void FindDrcHitPositionTilt(Double_t xPoint, Double_t yPoint,
-		                          Double_t& xHit, Double_t& yHit, Int_t & pmtID);					  
+			      Double_t& xHit, Double_t& yHit, Int_t & pmtID);					  
 
- /**  Set Photon Detector Parameter **/
+  /**  Set Photon Detector Parameter **/
   void SetPhotonDetEff(Double_t& lambda_min, Double_t& lambda_max,
-                                         Double_t& lambda_step, Double_t efficiency[]);
+		       Double_t& lambda_step, Double_t efficiency[]);
   void SetFakeDetEff(Double_t& lambda_min, Double_t& lambda_max,
-                                         Double_t& lambda_step, Double_t efficiency[]);			
+		     Double_t& lambda_step, Double_t efficiency[]);			
   void SetPhotonDetEffOld(Double_t& lambda_min, Double_t& lambda_max,
-                                         Double_t& lambda_step, Double_t efficiency[]);
+			  Double_t& lambda_step, Double_t efficiency[]);
   void SetPhotonDetEffNew(Double_t& lambda_min, Double_t& lambda_max,
-                                         Double_t& lambda_step, Double_t efficiency[]);
+			  Double_t& lambda_step, Double_t efficiency[]);
 					 
- /** Set Photon Transport Efficiency **/
+  /** Set Photon Transport Efficiency **/
   void SetPhotonTransportEff(Double_t&, Double_t&, Double_t&, Double_t&, Int_t& , Double_t fEfficiency[]);
- /** Auxiliraly functions **/
- void NumberOfBounces(TVector3, TVector3, Int_t *, Int_t *, Double_t *, Double_t *);
- Double_t FindPhiRot(Double_t, Double_t);
- Double_t FindOutPoint(Double_t, Double_t, Double_t, Double_t*, Bool_t);
+  /** Auxiliraly functions **/
+  void NumberOfBounces(TVector3, TVector3, Int_t *, Int_t *, Double_t *, Double_t *);
+  Double_t FindPhiRot(Double_t, Double_t);
+  Double_t FindOutPoint(Double_t, Double_t, Double_t, Double_t*, Bool_t);
 
   void SetIsDetEfficiency(Bool_t isDetEff){fisDetEff=isDetEff;}
   void SetIsPixelization(Bool_t isPixel){fisPixel=isPixel;}
@@ -116,11 +114,11 @@ public:
   
   void DrawDetEfficiency(Bool_t dr=kFALSE){fDrawing = dr;}
      
- protected:
+protected:
   
- private:
+private:
   
- /**   Process MC Points **/
+  /**   Process MC Points **/
   void ProcessPhotonPoint();
   void ProcessBarPoint();
   void Smear(Double_t& time, Double_t sigt);
@@ -161,10 +159,7 @@ public:
   TClonesArray* fPDHitArray; // DRC Photon Detectorhits
   TClonesArray* fMCArray; // DRC Hits in the photon detector
   
-  TH2F* detEffLam;
-  
-
- // TObjArray *fVolumeArray;
+  // TObjArray *fVolumeArray;
   // TClonesArray* fListStack;     // Tracks
   
   PndGeoDrcPar *fPar;           
