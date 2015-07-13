@@ -50,7 +50,5 @@ void Config()
   Text_t buffer[50];
   sprintf(buffer,"/random/setSeeds %i  %i ",gRandom->GetSeed(), gRandom->GetSeed());
   geant4->ProcessGeantCommand(buffer);
- 
-  geant4->ProcessGeantMacro(configm1.Data());
 
 }

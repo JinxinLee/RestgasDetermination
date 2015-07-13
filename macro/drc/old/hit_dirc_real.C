@@ -69,10 +69,10 @@
   //FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   //TString stsDigiFile = gSystem->Getenv("VMCWORKDIR");
   //stsDigiFile += "/parameters/sts/sts_digi_new_standard.par";
-  //parInput2->open(stsDigiFile.Data(),"in");
+  //parInput2->open(stsDigiFile.Data(),"in");es
   rtdb->setFirstInput(parInput1);
   //rtdb->setSecondInput(parInput2);
-  fRun->LoadGeometry();
+  //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
 

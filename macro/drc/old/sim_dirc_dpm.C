@@ -1,4 +1,4 @@
-sim_dirc_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1)
+sim_dirc_dpm(Int_t nEvents=5, Float_t mom = 5., Int_t mode =1)
 {
 
   TStopwatch timer;
@@ -20,8 +20,8 @@ sim_dirc_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1)
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
-  //fRun->SetName("TGeant4");
+  //fRun->SetName("TGeant3");
+  fRun->SetName("TGeant4");
 
   fRun->SetOutputFile("testrun1.root");
  
@@ -94,7 +94,8 @@ sim_dirc_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1)
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
-  //Drc->SetGeometryFileName("dirc.geo"); 
+  Drc->SetGeometryFileName("dirc_l0_p0_Mcp2a.root"); // dirc_l0_p0.root
+  //Drc->SetGeometryFileName("dirc_l0_p0.root");
   fRun->AddModule(Drc);
   
   // Create and Set Event Generator
@@ -102,20 +103,13 @@ sim_dirc_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1)
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-
-  FairBoxGenerator* boxGen = new FairBoxGenerator(50000050, 1000); // 50000050 = Cherenkov photon; 1 = multipl.
-
-   boxGen->SetPRange(3.5e-9,3.5e-9); // GeV/c
-
-   boxGen->SetPhiRange(-78.5, 101.5); // Azimuth angle range [degree]
-
-   boxGen->SetThetaRange(134.9999, 135.0001); // Polar angle in lab system range [degree] 120 - 180
-   
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 50000050 = Cherenkov photon; 1 = multipl.
+   boxGen->SetPRange(3.,3.); // GeV/c
+   boxGen->SetPhiRange(8., 8.); // Azimuth angle range [degree]
+   boxGen->SetThetaRange(90, 90); // Polar angle in lab system range [degree] 120 - 180
    //boxGen->SetCosTheta();
-
-   boxGen->SetXYZ(48.7, 11.2, -119.8); // mm o cm ??
+   boxGen->SetXYZ(0, 0, 0); // mm o cm ??
    //boxGen->SetBoxXYZ();
-   
    primGen->AddGenerator(boxGen); 
 
  // PndDpmDirect *dpmGen = new PndDpmDirect(mom,mode);

@@ -1,8 +1,7 @@
 void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString luttab = "lut/lut_16_a.root", TString outFile = "reco.root"){
   Int_t verbose = 0;
   gStyle->SetOptStat(0);
-
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  
   gSystem->Load("libSpectrum");
 
   // -----   Timer   --------------------------------------------------------

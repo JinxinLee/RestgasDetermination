@@ -1,3 +1,4 @@
+sim_dirc()
 {
   TStopwatch timer;
   timer.Start();
@@ -8,10 +9,12 @@
   // Load basic libraries
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
+  gRandom->SetSeed();
 
   
   TString digiFile = "all.par";
-  TString parFile = "params_testrun1.root";
+//  TString parFile = "params_testrun1.root";
+  TString parFile = "par.root";
   
   FairRunSim *fRun = new FairRunSim();
 
@@ -20,7 +23,8 @@
   //fRun->SetName("TGeant3");
   fRun->SetName("TGeant4");
 
-  fRun->SetOutputFile("testrun1.root");
+  TString outfile = "sim.root";
+  fRun->SetOutputFile(outfile);
  
   // Set the parameters
   //-------------------------------
@@ -57,8 +61,8 @@
   //Dipole->SetGeometryFileName("dipole.geo");
   //fRun->AddModule(Dipole);
 
-  FairModule *Pipe= new PndPipe("PIPE");
-  fRun->AddModule(Pipe);
+  //FairModule *Pipe= new PndPipe("PIPE");
+  //fRun->AddModule(Pipe);
 
   //FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   //Tpc->SetGeometryFileName("tpc.geo");
@@ -94,12 +98,14 @@
   // set reflectivity for the mirror at the bar end, in case of kFALSE reflectivity = 1 = const.
   Drc->SetMirrorReal(kTRUE);  
   Drc->SetDetEffAtProduction(kTRUE);
-  //Drc->SetStopTime(200.); 
+  Drc->StopSecondaries(kTRUE);
+  Drc->SetStopTime(200.); 
   Drc->SetVerboseLevel(0);
   Drc->SetOnlyDirectPho(kFALSE);
   // put the geometry file you want into the next line:  
-  //Drc->SetGeometryFileName("dirc_l0_p0.root"); 
-  Drc->SetGeometryFileName("dirc_l0_p0_Mcp2a.root");
+  TString geomname = "dirc_plate.root";
+  //TString geomname = "dirc_g2_l4.root";
+  Drc->SetGeometryFileName(geomname);
   fRun->AddModule(Drc);
   
   // Create and Set Event Generator
@@ -109,12 +115,15 @@
   fRun->SetGenerator(primGen);
 
    // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(321, 1); // 321 = kaon; 1 = multipl.
-  boxGen->SetPRange(3.,3.); // GeV/c
-  boxGen->SetPhiRange(10.8, 10.8); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(70., 70.); // Polar angle in lab system range [degree]
-  //boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
-  boxGen->SetXYZ(53., 10.1, -40.);
+  Int_t mult = 1;
+  Int_t pdg = 211;	// 13 = muon; 321 = kaon; 211 = pion; 2212 = proton; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pdg, mult); 
+  Double_t mom_min = 1.0;
+  Double_t mom_max = 1.0;
+  boxGen->SetPRange(mom_min,mom_max); // GeV/c
+  boxGen->SetPhiRange(15., 15.); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(22., 22.); // Polar angle in lab system range [degree]
+  boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen); 
 
   fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
@@ -122,7 +131,7 @@
   // Create and Set Magnetic Field
   //-------------------------------
   fRun->SetBeamMom(15);
-  //PndMultiField *fField= new PndMultiField("FULL");
+  PndMultiField *fField= new PndMultiField("FULL");
   //fRun->SetField(fField);
 
   // EMC Hit producer
@@ -134,16 +143,16 @@
   fRun->Init();
     
   // Only if Geant4
-   if ( gMC->GetName() == TString("TGeant4") ) {
+/*   if ( gMC->GetName() == TString("TGeant4") ) {
      gROOT->LoadMacro("$VMCWORKDIR/gconfig/g4Config2.C");
      Config2();
    }
-  
+*/  
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
 
-  Int_t   nEvents=10; 
+  Int_t   nEvents=10;
 
   // Transport nEvents
   // -----------------

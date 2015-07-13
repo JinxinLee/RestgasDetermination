@@ -28,7 +28,7 @@ double getX(TVector3 corner1, TVector3 corner2, double yy);
 int findSectorIn(double y, double dphi, double radius, double EVdrop, double hthick);
 int findSectorOut(double y, double dphi_rad, double radiusCornerOut);
 
-void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 3, Bool_t fprizm = kFALSE){ 
+void createRootGeometry_DIRC(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
   
   const Double_t pi = 3.1415926535;
 
@@ -821,7 +821,7 @@ void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 3, Bool_t
   top->CheckOverlaps(0.0001, "");
   gGeoManager->CheckOverlaps(0.00001,""); // [cm]
   //gGeoManager->CheckGeometryFull();
-
+  gGeoManager->SetVisLevel(4);
   top->Write();
   fi->Close(); 
   top->Draw("ogl");
