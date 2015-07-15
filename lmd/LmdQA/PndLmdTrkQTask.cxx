@@ -599,7 +599,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       FairTrackParH *fRes = (FairTrackParH*)fRecBPTracks->At(iN);
       Double_t lyambda = fRes->GetLambda();
       if(lyambda==0)
-	trkType=-10;
+	trkType=-100; //Trk was not back-propagated!
 	//	cout<<"GEANE didn't propagate "<<iN<<" trk!"<<endl;
       Double_t thetaBP = TMath::Pi()/2. - lyambda;
       Double_t phiBP = fRes->GetPhi();
