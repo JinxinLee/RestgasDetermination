@@ -24,7 +24,7 @@ PndSdsPixelClusterTask("LMD Clustertisation Task")
   //flagMS = true;
   //  mtxpath = "../../../pandaroot/input/";
   //  mtxpath = "";
-  mtxpath = "../../input/";
+  mtxpath = "../../geometry/";
   lmddim = NULL;
 }
 // -------------------------------------------------------------------------

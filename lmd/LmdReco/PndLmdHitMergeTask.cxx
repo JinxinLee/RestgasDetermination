@@ -24,7 +24,7 @@ FairTask("LMD Hit Merging Task")
   fHitBranchName = "LMDHitsPixel";
   hdxdy = new TH2D("hdxdy","; #deltax, #mum; #deltay, #mum",4e2,-100,100,4e2,-100,100);
   hdz = new TH1D("hdz",";#deltaz, #mum",2e3,-1000,1000);
-  mtxpath = "../../input/";
+  mtxpath = "../../geometry/";
   readAlign = true;
 }
 
