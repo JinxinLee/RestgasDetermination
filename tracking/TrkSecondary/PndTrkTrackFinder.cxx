@@ -1826,7 +1826,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       
       if(nofintersections == 0) continue;
       if(nofintersections >= 2) {
-	cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
+	if(fVerbose) cout << "ERROR: MORE THAN 1 INTERSECTION!!" << endl;
 	continue; // CHECK
       }
 
