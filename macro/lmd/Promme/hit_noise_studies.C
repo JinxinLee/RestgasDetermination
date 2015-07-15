@@ -123,7 +123,8 @@ void hit_noise_studies(){
 	TH2D* hist_track_dir_filt = new TH2D("hist_track_dir_filt", "track dir filtered", 500, -200, 200, 500, -200, 200);
 	TH2D* hist_track_dir_prop = new TH2D("hist_track_dir_prop", "track dir propagated", 50, -20, 20, 50, -20, 20);
 	TH1D* hist_track_theta = new TH1D("hist_track_theta", "#theta distr", 50, 0, 15);
-	TH2D* hist_hit_mult = new TH2D("hist_hit_mult", "hit multiplicity", 100, 0, 100, 4, 0, 4);
+	//	TH2D* hist_hit_mult = new TH2D("hist_hit_mult", "hit multiplicity", 100, 0, 100, 4, 0, 4);
+	TH2D* hist_hit_mult = new TH2D("hist_hit_mult", "hit multiplicity", 1000, 0, 1000, 4, 0, 4);
 	TH1D* hist_trk_mult = new TH1D("hist_trk_mult", "track multiplicity", 100, 0, 100);
 	TH2D* hist_hit_distr = new TH2D("hist_hit_distr", "hit distribution", 100, -10, 10, 100, -10, 10);
 	// read events and analyze
@@ -186,12 +187,14 @@ void hit_noise_studies(){
 		for (auto iTrack = 0; iTrack < nTracks; iTrack++){
 			FairTrackParH* track = (FairTrackParH*) tracks_prop->At(iTrack);
 			if (track){
-				ntrackstotal_prop++;
-				double pxpz = track->GetPx()/track->GetPz()*1e3;
-				double pypz = track->GetPy()/track->GetPz()*1e3;
-				hist_track_dir_prop->Fill(pxpz, pypz);
-				double theta = sqrt(pxpz*pxpz+pypz*pypz);
-				hist_track_theta->Fill(theta);
+			  if(track->GetLambda()!=0){ //ignore not propagated tracks
+			    ntrackstotal_prop++;
+			    double pxpz = track->GetPx()/track->GetPz()*1e3;
+			    double pypz = track->GetPy()/track->GetPz()*1e3;
+			    hist_track_dir_prop->Fill(pxpz, pypz);
+			    double theta = sqrt(pxpz*pxpz+pypz*pypz);
+			    hist_track_theta->Fill(theta);
+			  }
 			}
 		}
 
