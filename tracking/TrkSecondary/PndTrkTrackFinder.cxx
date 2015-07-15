@@ -4927,7 +4927,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	if(fFinalCluster->GetHit(1)->GetPosition().Z() < fFinalCluster->GetHit(0)->GetPosition().Z()) fFinalCluster->ReverseSort();
       }
 
-      cout << endl;
+      //       cout << endl;
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
 	//	cout << "final hit " << hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSortVariable() << endl;
