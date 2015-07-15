@@ -648,7 +648,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
   if(fSttHitArray->GetEntriesFast() > 200) {                         // CHECK
     fEventCounter++;
-    cout << "STT hits " << fSttHitArray->GetEntriesFast() << endl;
+    // cout << "STT hits " << fSttHitArray->GetEntriesFast() << endl;
     Reset();
     return;
   }
