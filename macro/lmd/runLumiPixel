@@ -12,15 +12,6 @@ read mom
 echo "Beam mometum is: $mom!"
 cd ${VMCWORKDIR}/macro/lmd/
 pbeam=$mom
-# ### pick up half solenoid maps for 1.5 GeV/c [tmp, should be removed one day!] ###
-# solsw=3 #GeV, switch between half and full solenoid: below half of solenoid
-# if [[ $(echo "if (${pbeam} > ${solsw}) 1 else 0" | bc) -eq 1 ]]; then
-#     echo "FULL solenoid field maps"
-#     ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_fc/* ${VMCWORKDIR}/input/.
-# else
-#     echo "HALF solenoid field maps"
-#     ln -sf ${VMCWORKDIR}/macro/lmd/Anastasia/solenoid_hc/* ${VMCWORKDIR}/input/.
-# fi
 # ######################################################
 
 momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
@@ -28,7 +19,7 @@ momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 #number of trks per event
 numTrks=1
 #number of events
-numEv=100000
+numEv=1000
 
 path=${VMCWORKDIR}/macro/lmd/test/mom_${momStr}/
 mkdir -p ${path}
@@ -76,9 +67,9 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 # #root -l -b -q runLumiPixel0SimFTFDirect.C\(${numEv},0,${pbeam},"\"${path}\"",0,35162\)
 
 # #digi
-#     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
+     root -l -b -q runLumiPixel1Digi.C\(${numEv},0,"\"${path}\"",0\) 
 # #generate noise
-     root -l -b -q runLumiPixel1bDigiNoise.C\(${numEv},0,"\"${path}\"",0\)
+#     root -l -b -q runLumiPixel1bDigiNoise.C\(${numEv},0,"\"${path}\"",0\)
 #exit
 # #hit reconstruction
      root -l -b -q runLumiPixel2Reco.C\(${numEv},0,"\"${path}\"",0,false\) 
@@ -118,8 +109,6 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
 	 if [ $CombFilt == "true" ]; then 
 	     root -l -b -q runLumiPixel5cCombFilt.C\(${numEv},0,"\"${path}\"",0,${pbeam},${dX},${dY}\)
 	 fi
-
-exit
 
 # # Quality assurance task(s)
 	 if [ $CombFilt == "true" ]; then 
