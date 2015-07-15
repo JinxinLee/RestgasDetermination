@@ -7446,16 +7446,18 @@ Int_t PndTrkTrackFinder::RecreateHitArrays( std::map< int, std::vector< int > > 
     counter++;
   }
   
-  cout << "MAPPA DEGLI INCANDIDABILLI " << det_to_hitids.size() << endl;
-   std::map< int, std::vector< int > >::iterator it = det_to_hitids.begin();
-    while(it != det_to_hitids.end()) {
-      int detid = (*it).first;
-      std::vector< int > hits = (*it).second;
-      cout << "DET " << detid << " has " <<  hits.size() << " hits: ";
-      for(int ihit = 0; ihit < hits.size(); ihit++) cout << " " << hits[ihit];
-      cout << endl;
-      it++;
-    }
+  /**
+     cout << "WRONG CANDIDATES MAP " << det_to_hitids.size() << endl;
+     std::map< int, std::vector< int > >::iterator it = det_to_hitids.begin();
+     while(it != det_to_hitids.end()) {
+     int detid = (*it).first;
+     std::vector< int > hits = (*it).second;
+     cout << "DET " << detid << " has " <<  hits.size() << " hits: ";
+     for(int ihit = 0; ihit < hits.size(); ihit++) cout << " " << hits[ihit];
+     cout << endl;
+     it++;
+     }
+  **/
 
   return counter;
 }
