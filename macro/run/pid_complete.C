@@ -30,7 +30,6 @@ void pid_complete()
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetUseFairLinks(kTRUE);
-
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 
@@ -61,6 +60,9 @@ void pid_complete()
   //corr->SetFast(kTRUE);
   //corr->SetBackPropagate(kFALSE);
   fRun->AddTask(corr);
+
+  PndPidBremCorrector *bremCorr = new PndPidBremCorrector();
+  fRun->AddTask(bremCorr);
 
   PndMcCloner *clone = new PndMcCloner();
   fRun->AddTask(clone);

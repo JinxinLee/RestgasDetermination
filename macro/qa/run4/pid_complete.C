@@ -61,6 +61,9 @@ void pid_complete()
   //corr->SetBackPropagate(kFALSE);
   fRun->AddTask(corr);
 
+  PndPidBremCorrector *bremCorr = new PndPidBremCorrector();
+  fRun->AddTask(bremCorr);
+
   PndMcCloner *clone = new PndMcCloner();
   fRun->AddTask(clone);
  
