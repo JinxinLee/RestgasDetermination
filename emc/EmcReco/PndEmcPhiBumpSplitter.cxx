@@ -129,7 +129,9 @@ InitStatus PndEmcPhiBumpSplitter::Init() {
   ioman->Register("EmcPhiBump","Emc",fPhiBumpArray,fPersistance);
 
   cout << "-I- PndEmcPhiBumpSplitter: Intialization successfull" << endl;
+
   return kSUCCESS;
+
 }
 
 void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
@@ -173,7 +175,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
       Double_t BinValue = phi_bump.at(i_phi);
       if (BinValue != 0)
 	{
-	  vPhiList.push_back(-180. + (160.*(0.5+i_phi)/360.));
+	  vPhiList.push_back(-180. + ((0.5+i_phi)*360./TotNumOfHitPhi));
 	  vDepoEnergyList.push_back(BinValue);
 	  vGapSizeList.push_back(i_phi - i_phi_prev );
 	  i_phi_prev = i_phi;
@@ -198,23 +200,25 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     vPhiList.push_back(0);
     std::rotate(vPhiList.begin(),vPhiList.begin()+(vPhiList.size()-1),vPhiList.end());
 
-
-    // Loop through deposited energy vector and classify bins
-    std::vector<int> Type;
+    // Loop through deposited energy vector and identify "valley" type bins => -_- and calculate wieghts to split energy
+    std::vector<int> ValleyType;
     std::vector<double> Weight;
+    double _Weight = 0;
     Weight.push_back(0);
-    Type.push_back(-3);
+    ValleyType.push_back(0);
     for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       {
-	if (vDepoEnergyList.at(n_sel-1) < vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) Type.push_back(1);
-	else if(vDepoEnergyList.at(n_sel-1) < vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) > vDepoEnergyList.at(n_sel+1) )
-	  {
-	    Type.push_back(0);
-	    Weight.push_back(vDepoEnergyList.at(n_sel));
-	  }
-	else if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) > vDepoEnergyList.at(n_sel+1) ) Type.push_back(-1);
-	else if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) && vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) Type.push_back(-2);
+	if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) &&
+	   vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) {
+	  ValleyType.push_back(1);
+	  Weight.push_back(_Weight);
+	  _Weight = 0;
+	} else {
+	  _Weight += vDepoEnergyList.at(n_sel);
+	  ValleyType.push_back(0);
+	}
       }
+    Weight.push_back(_Weight);
     Weight.push_back(0);
 
     std::vector<double> enePhiBump, phiPhiBump;
@@ -222,7 +226,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     int iWeight = 0;
     for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       {
-	if (Type.at(n_sel) == -2 || n_sel == vDepoEnergyList.size()-2)
+	if (ValleyType.at(n_sel) == 1 || n_sel == vDepoEnergyList.size()-2)
 	  {
 	    iWeight++;
 
@@ -247,13 +251,10 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     for (int i_phibump=0; i_phibump<enePhiBump.size(); ++i_phibump) {
       PndEmcBump* theNewPhiBump = AddPhiBump();
       theNewPhiBump->MadeFrom(iCluster);
-      theNewPhiBump->SetInsertHistory(kFALSE);
       theNewPhiBump->SetLink(FairLink("EmcCluster", iCluster));
-      PndEmcCluster* myCluster = (PndEmcCluster*)fClusterArray->At(iCluster);
-      theNewPhiBump->AddLinks(myCluster->GetTrackEntering());
       theNewPhiBump->SetEnergy(enePhiBump.at(i_phibump));
       TVector3 posPhiBump;
-      posPhiBump.SetMagThetaPhi(posClust.Mag(),posClust.Theta(),phiPhiBump.at(i_phibump));
+      posPhiBump.SetMagThetaPhi(posClust.Mag(),posClust.Theta(),phiPhiBump.at(i_phibump)*TMath::DegToRad());
       theNewPhiBump->SetPosition(posPhiBump);
     }
 
