@@ -104,7 +104,7 @@ void PndLmdPixelClusterTask::SetParContainers()
 	ana = FairRun::Instance();
 	rtdb=ana->GetRuntimeDb();
 	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
-	rtdb->getContainer("SDSPixelTotDigiPar");
+	//	rtdb->getContainer("SDSPixelTotDigiPar");
 	
 	PndLmdContFact* themvdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
 	//read params for lumi alignment
