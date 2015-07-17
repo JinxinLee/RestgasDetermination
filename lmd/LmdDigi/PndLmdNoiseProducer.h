@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
-// -----                PndMvdNoiseProducer header file                -----
-// -----                  Created 01.07.08  by R.Kliemt                -----
+// -----                PndLmdNoiseProducer header file                -----
+// -----                  Created 05.2015  by P. Jasinski                   -----
 // -------------------------------------------------------------------------
 
 
@@ -10,6 +10,7 @@
  **
  ** The Noise Producer adds fake hits to silicon sensor channels (strips and
  ** Pixels)
+ ** updated: 17/07/2015 by A.Karavdina
  **/
 
 
@@ -32,6 +33,8 @@ class PndLmdNoiseProducer : public PndMvdNoiseProducer
 
   void Exec(Option_t* opt);
 
+  //Double_t CalcReadoutCycles(Double_t clock);
+  void AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge);
  private:
 
   std::vector<Int_t> fPixelIds;

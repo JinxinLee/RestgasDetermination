@@ -1,6 +1,7 @@
 // -------------------------------------------------------------------------
-// -----                PndMvdNoiseProducer source file                -----
-// -----                  Created 01.07.08  by R.Kliemt                -----
+// -----                PndLmdNoiseProducer source file                -----
+// -----                  Created 05.2015  by P. Jasinski                  -----
+//-----                  updated 17/07/2015 by A.Karavdina         -----
 // -------------------------------------------------------------------------
 
 //#include <cmath>
@@ -27,28 +28,103 @@
 #include "PndLmdNoiseProducer.h"
 #include "PndStringSeparator.h"
 #include "PndLmdDim.h"
+#include "PndSdsIdealChargeConversion.h"
+#include "PndSdsTotChargeConversion.h"
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndLmdNoiseProducer::Init()
 {
+
+// Get RootManager
+  FairRootManager* ioman = FairRootManager::Instance();
+  
+  if ( ! ioman )
+  {
+	std::cout << " -E- PndMvdNoiseProducer::Init: RootManager not instantiated!" << std::endl;
+	return kFATAL;
+  }
 	// call prior to base call the overloaded FillSensorMethod() to find sensors from geometry;
 	FillSensorLists();
   // call the base implementation
-	if ( PndMvdNoiseProducer::Init() == kFATAL ) return kFATAL;
+	//	if ( PndMvdNoiseProducer::Init() == kFATAL ) return kFATAL;
 	// override some lmd specific stuff
 
   // Get input array
 
-	delete fDigiStripBuffer;
-	fDigiStripBuffer = (PndSdsDigiStripWriteoutBuffer*)FairRootManager::Instance()->
-			RegisterWriteoutBuffer("LMDStripDigis", new PndSdsDigiStripWriteoutBuffer("LMDStripDigis", "LMD", kTRUE));
+	// fDigiStripBuffer = (PndSdsDigiStripWriteoutBuffer*)FairRootManager::Instance()->
+	// 		RegisterWriteoutBuffer("LMDStripDigis", new PndSdsDigiStripWriteoutBuffer("LMDStripDigis", "LMD", kTRUE));
 
-	delete fDigiPixelBuffer;
 	fDigiPixelBuffer = new PndSdsDigiPixelWriteoutBuffer("LMDPixelDigis", "LMD", kTRUE);
 	fDigiPixelBuffer = (PndSdsDigiPixelWriteoutBuffer*)FairRootManager::Instance()->
-			RegisterWriteoutBuffer("LMDPixelDigis", fDigiPixelBuffer);
+	  RegisterWriteoutBuffer("LMDPixelDigis", fDigiPixelBuffer);
 	fDigiPixelBuffer->ActivateBuffering(fTimeOrderedDigi);
 
+
+fMCEventheader = (FairMCEventHeader*) ioman->GetObject("MCEventHeader.");
+  if ( ! fMCEventheader ){
+	Warning("Init","Did not find the MC event header, assume 50ns of noise clockticks per call of Exec().");
+  }
+  fPreviousTime=0.;
+  
+  //FillSensorLists();
+  
+//  fFEModel = new PndSdsFESimple();
+
+  if(fVerbose>0)
+  {
+	std::cout <<" -I- PndLmdNoiseProducer: Registered Sensors: "
+	<<fStripRectLIds.size()+fStripRectSIds.size()<<"xStripRect "
+	<<fStripTrapIds.size()<<"xStripTrap "
+	<<fPixelIds2.size()<<"xPixel"
+	<<std::endl;
+  }
+  std::cout << " -I- PndMvdNoiseProducer: Intialisation successfull" << std::endl;
+  
+  // if (fDigiParRect->GetChargeConvMethod() == 0){
+  // 	if(fVerbose>0) Info("Init()","ideal charge conversion for rect. strips");
+  // 	fStripRectChargeConv = new PndSdsIdealChargeConversion(fDigiParRect->GetNoise());
+  // }
+  // else if (fDigiParRect->GetChargeConvMethod() == 1){
+  // 	if(fVerbose>0) Info("Init()","use TOT charge conversion for rect. strips");
+  // 	fStripRectChargeConv = new PndSdsTotChargeConversion(
+  // 							     fTotDigiParRect->GetChargingTime(),
+  // 							     fTotDigiParRect->GetConstCurrent(),
+  // 							     fDigiParRect->GetThreshold(),
+  // 							     fTotDigiParRect->GetClockFrequency(),
+  // 							     fVerbose);
+  // }
+  // else Fatal ("Init()","rect. strips: charge conversion method not defined!");
+  
+  // if (fDigiParTrap->GetChargeConvMethod() == 0){
+  //   if(fVerbose>0) Info("Init()","ideal charge conversion for trap. strips");
+  //   fStripTrapChargeConv = new PndSdsIdealChargeConversion(fDigiParTrap->GetNoise());
+  // }
+  // else if (fDigiParTrap->GetChargeConvMethod() == 1){
+  //   if(fVerbose>0) Info("Init()","use TOT charge conversion for trap. strips");
+  //   fStripTrapChargeConv = new PndSdsTotChargeConversion(
+  // 							 fTotDigiParTrap->GetChargingTime(),
+  // 							 fTotDigiParTrap->GetConstCurrent(),
+  // 							 fDigiParTrap->GetThreshold(),
+  // 							 fTotDigiParTrap->GetClockFrequency(),
+  // 							 fVerbose);
+  // }
+  // else Fatal ("Init()","trap. strips: charge conversion method not defined!");
+  
+  if (fDigiParPix->GetChargeConvMethod() == 0){
+	if(fVerbose>0) Info("Init()","ideal charge conversion for pixel part");
+	fPixChargeConv = new PndSdsIdealChargeConversion(fDigiParPix->GetNoise());
+  }
+  else if (fDigiParPix->GetChargeConvMethod() == 1){
+    if(fVerbose>0) Info("Init()","use TOT charge conversion for pixel part");
+    fPixChargeConv = new PndSdsTotChargeConversion(
+						   fTotDigiParPix->GetChargingTime(),
+						   fTotDigiParPix->GetConstCurrent(),
+						   fDigiParPix->GetThreshold(),
+						   fTotDigiParPix->GetClockFrequency(),
+						   fVerbose);
+  }
+  else Fatal ("Init()","pixel part: charge conversion method not defined!");
+  
 	return kSUCCESS;
 }
 
@@ -69,7 +145,7 @@ void PndLmdNoiseProducer::FillSensorLists()
 		if(volname.Contains("Active"))
 			//std::cout << " found sensor " << volname << std::endl;
 		{
-			if(volname.Contains("Trap")) {fStripTrapIds.push_back(i); if(fVerbose>2)std::cout << " \tAdded to StripTrap" << std::endl;}
+		  //	if(volname.Contains("Trap")) {fStripTrapIds.push_back(i); if(fVerbose>2)std::cout << " \tAdded to StripTrap" << std::endl;}
 			if(volname.Contains("Pixel")) {fPixelIds.push_back(i); if(fVerbose>2)std::cout << " \tAdded to Pixel" << std::endl;}
 		}
 	}
@@ -77,20 +153,22 @@ void PndLmdNoiseProducer::FillSensorLists()
 
 void PndLmdNoiseProducer::SetParContainers()
 {
-  if ( fGeoH == NULL ) {
+ 
+  // Get Base Container
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  // fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("SDSStripDigiParRect"));
+  // fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("SDSStripDigiParTrap"));
+  fDigiParPix  = (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
+  // fTotDigiParRect = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSStripTotDigiParRect"));
+  // fTotDigiParTrap = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSStripTotDigiParTrap"));
+  fTotDigiParPix  = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSPixelTotDigiPar"));
+
+ if ( fGeoH == NULL ) {
     fGeoH = PndGeoHandling::Instance();
   }
 
   fGeoH->SetParContainers();
-  // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fDigiParRect = (PndSdsStripDigiPar*)(rtdb->getContainer("SDSStripDigiParRect"));
-  fDigiParTrap = (PndSdsStripDigiPar*)(rtdb->getContainer("SDSStripDigiParTrap"));
-  fDigiParPix  = (PndSdsPixelDigiPar*)(rtdb->getContainer("SDSPixelDigiPar"));
-  fTotDigiParRect = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSStripTotDigiParRect"));
-  fTotDigiParTrap = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSStripTotDigiParTrap"));
-  fTotDigiParPix  = (PndSdsTotDigiPar*)(rtdb->getContainer("SDSPixelTotDigiPar"));
 }
 
 void PndLmdNoiseProducer::Exec(Option_t* opt)
@@ -110,31 +188,32 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
   Int_t did=-1;
 
 
-  // *** Strip Trapezoids ***
-  nrCh = fDigiParTrap->GetNrFECh();
-  nrFE = fDigiParTrap->GetNrBotFE() + fDigiParTrap->GetNrTopFE();
-  nrSensors = fStripTrapIds.size();
-  chanmax = nrCh * nrFE * nrSensors;
-  xfrac = CalcDistFraction(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
-  cycles = CalcReadoutCycles(fDigiParTrap->GetFeBusClock());
-  chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
-  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: TRAP <N> = " << xfrac*cycles*chanmax
-    << " leading to " << chanwhite << " noisy digis of " << chanmax
-    << " total channels" << std::endl;
-  PndLmdDim& lmd_dim = PndLmdDim::Get_instance();
-  for(Int_t i = 0;i < chanwhite;i++)
-  {
-    rnd = gRandom->Integer(chanmax);
-    sens = rnd/(nrFE*nrCh);
-    rnd = rnd % (nrFE*nrCh);
-    fe = rnd/nrCh;
-    chan = rnd % nrCh;
-    charge = fDigiParTrap->GetThreshold()*6;//CalcChargeAboveThreshold(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
-    did = fStripTrapIds[sens];
-    fCurrentChargeConv = fStripTrapChargeConv;
-    AddDigiStrip(nNoisyStripTraps,-1,did,fe,chan,charge);
-  }
+  // // *** Strip Trapezoids ***
+  // nrCh = fDigiParTrap->GetNrFECh();
+  // nrFE = fDigiParTrap->GetNrBotFE() + fDigiParTrap->GetNrTopFE();
+  // nrSensors = fStripTrapIds.size();
+  // chanmax = nrCh * nrFE * nrSensors;
+  // xfrac = CalcDistFraction(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
+  // cycles = CalcReadoutCycles(fDigiParTrap->GetFeBusClock());
+  // chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
+  // if(fVerbose>1) std::cout << " -I- PndLmdNoiseProducer: TRAP <N> = " << xfrac*cycles*chanmax
+  //   << " leading to " << chanwhite << " noisy digis of " << chanmax
+  //   << " total channels" << std::endl;
+  
+  // for(Int_t i = 0;i < chanwhite;i++)
+  // {
+  //   rnd = gRandom->Integer(chanmax);
+  //   sens = rnd/(nrFE*nrCh);
+  //   rnd = rnd % (nrFE*nrCh);
+  //   fe = rnd/nrCh;
+  //   chan = rnd % nrCh;
+  //   charge = fDigiParTrap->GetThreshold()*6;//CalcChargeAboveThreshold(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
+  //   did = fStripTrapIds[sens];
+  //   fCurrentChargeConv = fStripTrapChargeConv;
+  //   AddDigiStrip(nNoisyStripTraps,-1,did,fe,chan,charge);
+  // }
 
+  PndLmdDim& lmd_dim = PndLmdDim::Get_instance();
   // *** Pixel Sensors ***
   nrCh = fDigiParPix->GetFECols()*fDigiParPix->GetFERows();
   Int_t pixx=fPixelIds.size();
@@ -152,7 +231,7 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
   cycles = CalcReadoutCycles(fDigiParPix->GetFeBusClock());
   chanwhite = gRandom->Poisson(xfrac*cycles*chanmax);
   //std::cout << " cycles " << cycles << " chanwhite " << chanwhite << std::endl;
-  if(fVerbose>1) std::cout << " -I- PndMvdNoiseProducer: PIXEL <N> = " << xfrac*cycles*chanmax
+  if(fVerbose>1) std::cout << " -I- PndLmdNoiseProducer: PIXEL <N> = " << xfrac*cycles*chanmax
     << " leading to " << chanwhite << " noisy digis of " << chanmax
     << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
@@ -210,11 +289,57 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
   // *** The End ***
   if(fVerbose>0)
   {
-    std::cout <<" -I- PndMvdNoiseProducer: Noise produced\t"
+    std::cout <<" -I- PndLmdNoiseProducer: Noise produced\t"
     <<nNoisyStripRects <<"xStripRect\t"
     <<nNoisyStripTraps <<"xStripTrap\t"
     <<nNoisyPixels <<"xPixels"<<std::endl;
   }
+}
+
+// Double_t PndLmdNoiseProducer::CalcReadoutCycles(Double_t clock)
+// { // time [ns], clock [MHz]
+//   Double_t cycles=1.;
+//   Double_t timewindow=0.;
+//   if (clock > 0){
+//     if (fMCEventheader!=0) {
+//       timewindow = FairRootManager::Instance()->GetEventTime();
+//       cout<<"timewindow = "<<timewindow<<endl;
+//       timewindow -= fPreviousTime;
+//       cout<<"timewindow = "<<timewindow<<endl;
+//     } else {
+//       timewindow = 25.; // LMD read-out
+//     }
+//   }
+//   if(fVerbose>1) printf(" -I- PndLmdNoiseProducer::CalcReadoutCycles(): %g cycles (%gMHz,%gns)\n",cycles,clock,timewindow);
+//   return cycles;
+// }
+
+
+// -------------------------------------------------------------------------
+void PndLmdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge)
+{
+  //Double_t tempcharge = 0.;
+  //Bool_t found = kFALSE;
+  Int_t detID = -1; //no source mc branch
+
+  std::vector<Int_t> indices;
+  indices.push_back(iPoint);
+  PndSdsDigiPixel* tempPixel = new PndSdsDigiPixel(indices,detID,sensorID,fe,col,row,fPixChargeConv->ChargeToDigiValue(charge), fPixChargeConv->GetTimeStamp(0, charge,FairRootManager::Instance()->GetEventTime()));//FairRootManager::Instance()->GetEventTime()) ;
+ 
+  if (fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()) < 1E5){
+		tempPixel->SetTimeStamp(tempPixel->GetTimeStamp() - fPixChargeConv->GetTimeWalk((Int_t)tempPixel->GetCharge()));
+		tempPixel->SetTimeStampError(fPixChargeConv->GetTimeStampErrorAfterCorrection());
+  }
+
+  if(tempPixel->GetTimeStamp()<0){   //ideal charge converter has fixed time stamp = -1 ns =/
+    int timeSt = gRandom->Integer(CalcReadoutCycles(fDigiParPix->GetFeBusClock())*1000./fDigiParPix->GetFeBusClock());
+    tempPixel->SetTimeStamp(timeSt);
+  }
+
+  fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime(), FairRootManager::Instance()->GetEventTime());
+
+  delete(tempPixel);
+  //  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
 }
 
 ClassImp(PndLmdNoiseProducer)
