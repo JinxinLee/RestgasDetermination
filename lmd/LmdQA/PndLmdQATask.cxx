@@ -944,7 +944,7 @@ void PndLmdQATask::ResoAndPulls()
 
       
       /// Comporision between MC tracks, reconstructed tracks near LMD  and back propagated tracks -------------
-
+      if(MCid<0) continue;
 	/// Read MC track parameters near IP ------------------------------------
 	PndMCTrack *mctrk =(PndMCTrack*) fmcTrkArray->At(MCid);
 	Int_t mcID = mctrk->GetPdgCode();

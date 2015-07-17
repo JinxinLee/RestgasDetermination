@@ -452,7 +452,13 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       /// Set track quality: good or ghost? and assign MC id to rec trk ---------
       if(diffIDs<2){
 	RECtrkMCid[iN] = MCtrkID[0];
-	goodTrk[iN] = true;
+	//	cout<<"MCtrkID[0] = "<<MCtrkID[0]<<endl;
+	if(MCtrkID[0]<9999)
+	  goodTrk[iN] = true;
+	else{
+	  goodTrk[iN] = false;
+	  ghostTrk[iN] = true;
+	}
       }
       else{
 	vector<int> countMC_IDs(diffIDs);
@@ -463,7 +469,13 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	prevID = MCtrkID[0];
 	int diffCount=0;
 	for(Int_t n=0; n<Ntrkcandhits; n++) {
-	  if(MCtrkID[n]>9998) break;
+	  //	  cout<<"MCtrkID[n] = "<<MCtrkID[n]<<endl;
+	  if(MCtrkID[n]>9998){ //Trk from noise hits
+	    goodTrk[iN] = false;
+	    ghostTrk[iN] = true;
+	    //	    break;
+	  }
+
 	  if(prevID<MCtrkID[n]){
 	    diffCount++;
 	    prevID=MCtrkID[n];
@@ -691,22 +703,38 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 
 	int mcrefbot = myHit->GetSecondMCHit();
 	int mcreftop = myHit->GetRefIndex();
+	if(fVerbose>0){
+	  cout<<"mcrefbot = "<<mcrefbot<<" mcreftop = "<<mcreftop<<endl;
+	}
 	PndSdsMCPoint* MCPointHit;
 	if(mcreftop>=0){
 	  MCPointHit = (PndSdsMCPoint*)(fMCHits->At(mcreftop));
 	}
 	else{
-	  MCPointHit = (PndSdsMCPoint*)(fMCHits->At(mcrefbot));
+	  if(mcrefbot>=0)
+	    MCPointHit = (PndSdsMCPoint*)(fMCHits->At(mcrefbot));
+	  else 
+	    MCPointHit = NULL;
 	}
+	if(MCPointHit!=NULL){
+	  TVector3 PosMClmd =  MCPointHit->GetPosition();
 
-	TVector3 PosMClmd =  MCPointHit->GetPosition();
-
-	double pxTrue =  MCPointHit->GetPx();
-	double pyTrue =  MCPointHit->GetPy();
-	double pzTrue =  MCPointHit->GetPz();
-	TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
-	glXmcLMD = PosMClmd.X();      glYmcLMD = PosMClmd.Y();      glZmcLMD = PosMClmd.Z();
-	glThetamcLMD = MomMClmd.Theta();  glPhimcLMD = MomMClmd.Phi();  glMommcLMD = MomMClmd.Mag();
+	  double pxTrue =  MCPointHit->GetPx();
+	  double pyTrue =  MCPointHit->GetPy();
+	  double pzTrue =  MCPointHit->GetPz();
+	  TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
+	  glXmcLMD = PosMClmd.X();      glYmcLMD = PosMClmd.Y();      glZmcLMD = PosMClmd.Z();
+	  glThetamcLMD = MomMClmd.Theta();  glPhimcLMD = MomMClmd.Phi();  glMommcLMD = MomMClmd.Mag();
+	}
+	else{// Noise MC hit
+	  // glXmcLMD = -9999;      glYmcLMD = -9999;      glZmcLMD = -9999;
+	  // glThetamcLMD = -9999;  glPhimcLMD = -9999;  glMommcLMD = -9999;
+	  glXmc= -9999; glYmc =-9999; glZmc = -9999; glThetamc =-9999; glPhimc = -9999; glMommc = -9999;
+	  glXmcLMD = -9999; glYmcLMD =-9999; glZmcLMD = -9999; glThetamcLMD =-9999; glPhimcLMD = -9999; glMommcLMD = -9999;
+	  glNumMChits = -9999;  glNumDoubleMChits  = -9999; //	glEvTime = -9999; 
+	  trkMCStatus = -99;//1st rec hit = Noise MC hit TODO: check if all hits of this rec.trk are noise ones
+	  glPDG = -99;//1st rec hit = Noise MC hit
+	}
 	}
       //    tRECMCtrks->Fill();
       TClonesArray& clref = *fTrackQ;
@@ -786,7 +814,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	      trkQ=-2;
 	      if(fVerbose>7) cout<<" --- MCtrk#"<<imc<<" was defined as MISSED due to little amount of hits (#MChits="
 				     <<MCtksREChits[imc]<<" with limit>"<<minHits<<")"<<endl;
-	      int hitArr;
+	      int hitArr=-1;
 	      //     cout<<"nMCHits = "<<nMCHits<<endl;
 	      for(int imhc=0;imhc<nMCHits;imhc++){//find corresponding MC hit for this MC trk
 		PndSdsMCPoint* MCPoint = (PndSdsMCPoint*)(fMCHits->At(imhc));
@@ -797,6 +825,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 		  break;
 		}
 	      }
+	      if(hitArr>0){
 	      PndSdsMCPoint* MCPointHit = (PndSdsMCPoint*)(fMCHits->At(hitArr));
 	      TVector3 PosMClmd =  MCPointHit->GetPosition();
 	      double pxTrue =  MCPointHit->GetPx();
@@ -805,6 +834,12 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	      TVector3 MomMClmd(pxTrue,pyTrue,pzTrue);
 	      glXmcLMD = PosMClmd.X();      glYmcLMD = PosMClmd.Y();      glZmcLMD = PosMClmd.Z();
 	      glThetamcLMD = MomMClmd.Theta();  glPhimcLMD = MomMClmd.Phi();  glMommcLMD = MomMClmd.Mag();
+	      }
+	      else{
+		trkQ=-3;
+		glXmcLMD = -9999;      glYmcLMD = -9999;      glZmcLMD = -9999;
+		glThetamcLMD = -9999;  glPhimcLMD = -9999;  glMommcLMD = -9999;
+	      }
 	    }
 	    else{
 	      trkQ=-3;
