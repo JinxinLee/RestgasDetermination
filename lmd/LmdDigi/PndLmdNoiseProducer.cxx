@@ -296,23 +296,25 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
   }
 }
 
-// Double_t PndLmdNoiseProducer::CalcReadoutCycles(Double_t clock)
-// { // time [ns], clock [MHz]
-//   Double_t cycles=1.;
-//   Double_t timewindow=0.;
-//   if (clock > 0){
-//     if (fMCEventheader!=0) {
-//       timewindow = FairRootManager::Instance()->GetEventTime();
-//       cout<<"timewindow = "<<timewindow<<endl;
-//       timewindow -= fPreviousTime;
-//       cout<<"timewindow = "<<timewindow<<endl;
-//     } else {
-//       timewindow = 25.; // LMD read-out
-//     }
-//   }
-//   if(fVerbose>1) printf(" -I- PndLmdNoiseProducer::CalcReadoutCycles(): %g cycles (%gMHz,%gns)\n",cycles,clock,timewindow);
-//   return cycles;
-// }
+Double_t PndLmdNoiseProducer::CalcReadoutCycles(Double_t clock)
+{ // time [ns], clock [MHz]
+  Double_t cycles=1.;
+  Double_t timewindow=0.;
+  if (clock > 0){
+    if (fMCEventheader!=0) {
+      timewindow = FairRootManager::Instance()->GetEventTime();
+      //  cout<<"ev time = "<<FairRootManager::Instance()->GetEventTime()<<" prev.ev time = "<<fPreviousTime<<endl;
+      timewindow -= fPreviousTime;
+      //   cout<<"timewindow = "<<timewindow<<endl;
+    } else {
+      timewindow = 50.; // 20 MHz
+    }
+  }
+  //cycles = timewindow*clock/1000.;//CORRECT!
+  cycles = 3;// for event-based reconstruction we assume minimum 3 readout cycles are used in event construction
+  if(fVerbose>10) printf(" -I- PndLmdNoiseProducer::CalcReadoutCycles(): %g cycles (%gMHz,%gns)\n",cycles,clock,timewindow);
+  return cycles;
+}
 
 
 // -------------------------------------------------------------------------

@@ -33,7 +33,7 @@ class PndLmdNoiseProducer : public PndMvdNoiseProducer
 
   void Exec(Option_t* opt);
 
-  //Double_t CalcReadoutCycles(Double_t clock);
+  Double_t CalcReadoutCycles(Double_t clock);
   void AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge);
  private:
 
