@@ -92,7 +92,7 @@ void runLumiPixel5bCleanSig(const int nEvents=10, const int startEvent=0, TStrin
   // ======                 Cleaning                                                                                                                  ======
   // =========================================================================
   Double_t fpBeam = mom;
-  TString dir = "TMVAweights/";
+  TString dir = "TMVAweights/";//trained on samples with elastic and inelastic events
   PndLmdSigCleanTask* lmdclean = new PndLmdSigCleanTask(fpBeam, dir);
   lmdclean->SetVerbose(verboseLevel);
   lmdclean->SetDX(dX);
