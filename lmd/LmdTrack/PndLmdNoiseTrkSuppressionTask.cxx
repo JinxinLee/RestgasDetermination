@@ -107,6 +107,8 @@ void PndLmdNoiseTrkSuppressionTask::SetParContainers()
 // -----   Public method Exec   --------------------------------------------
 void PndLmdNoiseTrkSuppressionTask::Exec(Option_t* opt)
 {
+
+fTrkOutArray->Delete();
 if(fVerbose>2){
 std::cout<<" ---- Info: "<<  fEventNr<<std::endl;
   }
