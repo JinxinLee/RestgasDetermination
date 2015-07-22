@@ -229,7 +229,10 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
     ///------------------------------------------------------------------------------
 
     /// Chech how many REC hits has MC trk ----------------------------
+
     int MCtksREChits[nParticles];
+    // const int nSize = 2e4;
+    // int MCtksREChits[nSize];//add arbitrary number of fake trks due to noise hits
     for(int imctrk=0;imctrk<nParticles;imctrk++){
       MCtksREChits[imctrk]=0;
     }
@@ -243,7 +246,11 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	if(mcrefbot>0){
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(fMCHits->At(mcrefbot));
 	  int MCtrkid = MCPointBot->GetTrackID();
-	  if(MCtrkid<0) fMCnegative=true;//TODO: how it is possible???
+	  if(MCtrkid<0){
+	    fMCnegative=true;
+	    //MCtrkid = fabs(MCtrkid)+1e4;
+	    MCtrkid = MCtrkid;
+	  }
 	  MCtksREChits[MCtrkid]++;
 	  MCtrkidbot=MCtrkid;
 	  if(fVerbose>7)
@@ -253,7 +260,11 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	if(mcreftop>0){
 	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(fMCHits->At(mcreftop));
 	  int MCtrkid = MCPointTop->GetTrackID();
-	  if(MCtrkid<0) fMCnegative=true;//TODO: how it is possible???
+	  if(MCtrkid<0){
+	    fMCnegative=true;//TODO: how it is possible???
+	    //	    MCtrkid = fabs(MCtrkid)+1e4;
+	    MCtrkid = MCtrkid;
+	  }
 	  MCtksREChits[MCtrkid]++;
 	  MCtrkidtop=MCtrkid;  
 	  if(fVerbose>7)
@@ -267,8 +278,8 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	    if(fVerbose>7)  cout<<"  REChit No."<<irec<<"contain MCid: "<<MCtrkidtop<<", "<<MCtrkidbot<<" !"<<endl;
 	  }
 	}
-	if(fVerbose>7)
-	  cout<<" "<<endl;//next hit content
+	// if(fVerbose>7)
+	//   cout<<" "<<endl;//next hit content
     }
     // if(fMCnegative){
     //   if(fVerbose>7) cout<<"bad event, skip it!"<<endl;
@@ -298,6 +309,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       MomRecLMD *=fPbeam/MomRecLMD.Mag();
 
       int candID = trkpnd->GetRefIndex();
+      //      cout<<"candID = "<<candID<<endl;
       PndTrackCand *trkcand = (PndTrackCand*)fRecCandTracks->At(candID);    
   /// Obtain first approximation
       const int numPts = trkcand->GetNHits(); //read how many points in this track
