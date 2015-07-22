@@ -7,7 +7,7 @@ void runLumiPixel4bNoiseTrkFilter(const int nEvents=100000, const int startEvent
   TrkFile += ".root";
 
   // Output file
-  TString outFile = storePath+"/Lumi_TrackFiltered_";
+  TString outFile = storePath+"/Lumi_TrackNoiseSuppressed_";
   outFile += startEvent;
   outFile += ".root";
 
@@ -37,7 +37,7 @@ void runLumiPixel4bNoiseTrkFilter(const int nEvents=100000, const int startEvent
   fRun->AddTask(lmdfilt);
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(startEvent,nEvents);
+  fRun->Run(0,nEvents);
   cout<<"fRun->Run(0, "<<nEvents<<") was done!"<<endl;
   // ------------------------------------------------------------------------
 }
