@@ -34,8 +34,11 @@ void runLumiPixel1cDigiSigNoise(const int nEvents=10, const int startEvent=0, TS
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->SetEventMeanTime(50);//[ns] 50= interaction rate 20 MHz; 
-  // example: cross-section(DPM el+inlel, 1.5 GeV/c)= 125 mb, L=2*10^32 -> interaction rate 12.5 MHz
+  // fRun->SetEventMeanTime(50);//[ns] 50= interaction rate 20 MHz; 
+  fRun->SetEventMeanTime(80);//[ns] 80= interaction rate 12.5 MHz; 
+  // example: cross-section(DPM el+inlel, 1.5 GeV/c)= 125 mb, L=10^32 -> interaction rate 12.5 MHz
+  //fRun->SetEventMeanTime(2000);//[ns] 200= interaction rate 5 MHz; //15 GeV
+
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
