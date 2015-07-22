@@ -24,6 +24,7 @@
 //#pragma link C++ class PndLmdKalmanTask+;
 //#pragma link C++ class PndLmdBPRungeKuttaTask+;
 #pragma link C++ class PndLmdTrksFilterTask+;
+#pragma link C++ class PndLmdNoiseTrkSuppressionTask+;
 
 #endif
 

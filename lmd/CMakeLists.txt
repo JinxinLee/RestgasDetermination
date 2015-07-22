@@ -117,6 +117,7 @@ LmdTrack/PndLmdBPtestTask.cxx
 #LmdTrack/PndLmdBPRungeKuttaTask.cxx	
 LmdTrack/PndLmdTrksFilterTask.cxx
 LmdTrack/PndLmdSigCleanTask.cxx
+LmdTrack/PndLmdNoiseTrkSuppressionTask.cxx
 )
 
 set(LINKDEF  LmdTrkLinkDef.h)
