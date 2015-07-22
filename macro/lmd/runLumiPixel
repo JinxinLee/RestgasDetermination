@@ -100,7 +100,7 @@ root -l -b -q runLumiPixel0SimBox.C\(${numEv},0,"\"${path}\"",0,-2212,${pbeam},$
      cp ${path}/Lumi_TrackFiltered_0.root ${path}/Lumi_Track_0.root
 
 # #noise tracks suppression (NTS)
-#      root -l -b -q runLumiPixel4bNoiseTrkFilter.C\(${numEv},0,"\"${path}\"",0\) 
+#      root -l -b -q runLumiPixel4bNoiseTrkFilter.C\(${numEv},0,"\"${path}\"",0,${pbeam}\) 
 # #save filtered results as standart Track array
 #      mv ${path}/Lumi_Track_0.root ${path}/Lumi_TrackNotFiltered_0.root 
 #      cp ${path}/Lumi_TrackFiltered_0.root ${path}/Lumi_Track_0.root
