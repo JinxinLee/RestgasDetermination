@@ -296,6 +296,7 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
   }
 }
 
+//TODO: for time-based simulation number of cycles should be calculated (e.g like in //CORRECT calculation!) and not fixed
 Double_t PndLmdNoiseProducer::CalcReadoutCycles(Double_t clock)
 { // time [ns], clock [MHz]
   Double_t cycles=1.;
@@ -310,7 +311,7 @@ Double_t PndLmdNoiseProducer::CalcReadoutCycles(Double_t clock)
       timewindow = 50.; // 20 MHz
     }
   }
-  //cycles = timewindow*clock/1000.;//CORRECT!
+  //cycles = timewindow*clock/1000.;//CORRECT calculation!
   cycles = 3;// for event-based reconstruction we assume minimum 3 readout cycles are used in event construction
   if(fVerbose>10) printf(" -I- PndLmdNoiseProducer::CalcReadoutCycles(): %g cycles (%gMHz,%gns)\n",cycles,clock,timewindow);
   return cycles;
