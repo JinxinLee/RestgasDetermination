@@ -1,0 +1,146 @@
+// -------------------------------------------------------------------------
+// -----      PndLmdNoiseTrkSuppressionTask source file    -----
+// -----                  Created 21/07/15  by A.Karavdina            -----
+// -------------------------------------------------------------------------
+
+ // libc includes
+#include <iostream>
+#include <vector>
+#include <map>
+
+// Root includes
+#include "TROOT.h"
+#include "TClonesArray.h"
+#include "TVector3.h"
+#include "TTree.h"
+#include <TMatrixDSym.h>
+
+// framework includes
+#include "PndLmdNoiseTrkSuppressionTask.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "PndTrack.h"
+#include "FairTrackParH.h"
+#include "FairTrackParP.h"
+// -----   Default constructor   -------------------------------------------
+PndLmdNoiseTrkSuppressionTask::PndLmdNoiseTrkSuppressionTask() : FairTask("Cleaning Tracks from noise hits Task for PANDA Lmd"), fEventNr(0)
+{
+  //tprop = new TNtuple();
+}
+// -------------------------------------------------------------------------
+
+PndLmdNoiseTrkSuppressionTask::PndLmdNoiseTrkSuppressionTask(Double_t pBeam, TString dir): FairTask("Cleaning Tracks from noise hits Task for PANDA Lmd"), fEventNr(0)
+{
+  fdir = dir;
+  fPbeam = pBeam;
+std::cout<<"Beam Momentum in this run is "<<fPbeam<<std::endl;
+}
+
+// -----   Destructor   ----------------------------------------------------
+PndLmdNoiseTrkSuppressionTask::~PndLmdNoiseTrkSuppressionTask()
+{
+}
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndLmdNoiseTrkSuppressionTask::Init()
+{
+// Get RootManager
+FairRootManager* ioman = FairRootManager::Instance();
+if ( !ioman){
+std::cout << "-E- PndLmdNoiseTrkSuppressionTask::Init: "<< "RootManager not instantiated!" << std::endl;
+return kFATAL;
+}
+
+fTrkInArray = (TClonesArray*) ioman->GetObject("LMDPndTrack");
+if(! fTrkInArray){
+std::cout << "-W- PndLmdNoiseTrkSuppressionTask::Init: "<< "No LMDPndTrack"<<" array!" << std::endl;
+return kERROR;
+}
+
+fTrkOutArray = new TClonesArray("PndTrack");
+ioman->Register("LMDPndTrack","PndLmd", fTrkOutArray, kTRUE);
+
+//fGeoH = PndGeoHandling::Instance();
+FairRun* fRun = FairRun::Instance();
+FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+
+  //TMVA -----------------------------------------------------
+  // This loads the library
+// if(fabs(fPbeam-1.5)<1e-1 || fabs(fPbeam-15)<1e-1){
+    TMVA::Tools::Instance();
+ 
+    //   TMVA::Reader *
+    reader = new TMVA::Reader( "!Color:!Silent" );    
+    
+    // Create a set of variables and declare them to the reader
+    // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
+    
+reader->AddVariable( "LMDTrackQ.fXrecLMD", &axrec);
+reader->AddVariable( "LMDTrackQ.fYrecLMD", &ayrec);
+reader->AddVariable( "LMDTrackQ.fThetarecLMD", &athrec);
+reader->AddVariable( "LMDTrackQ.fPhirecLMD", &aphrec);
+    
+//  TString dir    = "weights/";
+TString prefix = "TMVAClassification";
+fmethodName = "BDT method";
+TString weightfile =  fdir + prefix + TString("_BDT") + TString(".weights.xml");
+reader->BookMVA( fmethodName, weightfile ); 
+// }
+//   else{
+// std::cout << "-W- PndLmdNoiseTrkSuppressionTask::Init: "<< "This method was not trained for momentum"<< fPbeam << std::endl;
+// return kERROR;
+// }
+  //------------------------------------------------------
+  return kSUCCESS;
+}
+// -------------------------------------------------------------------------
+void PndLmdNoiseTrkSuppressionTask::SetParContainers()
+{
+  // Get Base Container
+ /// FairRun* ana = FairRun::Instance();
+ // FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+
+}
+
+// -----   Public method Exec   --------------------------------------------
+void PndLmdNoiseTrkSuppressionTask::Exec(Option_t* opt)
+{
+if(fVerbose>2){
+std::cout<<" ---- Info: "<<  fEventNr<<std::endl;
+  }
+ 
+
+//go through all tracks
+const int nTrks = fTrkInArray->GetEntriesFast();
+int rec_trk=0;
+for (Int_t iN=0; iN<nTrks; iN++){// loop over all reconstructed trks
+PndTrack* trkpnd = (PndTrack*)(fTrkInArray->At(iN));
+FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
+
+//check the track 
+axrec = fFittedTrkP.GetX();
+ayrec  = fFittedTrkP.GetY();
+TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
+MomRecLMD *=1./MomRecLMD.Mag();
+athrec = MomRecLMD.Theta();
+aphrec = MomRecLMD.Phi();
+double mva_response =  reader->EvaluateMVA(fmethodName);
+bool isSigTrk;
+if(mva_response<0)
+  isSigTrk = false;
+ else
+   isSigTrk = true;
+if(isSigTrk){
+//save good trks
+new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
+rec_trk++;
+}
+}
+ fEventNr++;
+}
+
+
+
+ClassImp(PndLmdNoiseTrkSuppressionTask);
