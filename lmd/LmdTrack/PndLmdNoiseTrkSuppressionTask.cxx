@@ -27,17 +27,18 @@
 // -----   Default constructor   -------------------------------------------
 PndLmdNoiseTrkSuppressionTask::PndLmdNoiseTrkSuppressionTask() : FairTask("Cleaning Tracks from noise hits Task for PANDA Lmd"), fEventNr(0)
 {
-  //tprop = new TNtuple();
+//tprop = new TNtuple();
+//fEventNr = 0;
 }
-// -------------------------------------------------------------------------
-
+  // -------------------------------------------------------------------------
+  
 PndLmdNoiseTrkSuppressionTask::PndLmdNoiseTrkSuppressionTask(Double_t pBeam, TString dir): FairTask("Cleaning Tracks from noise hits Task for PANDA Lmd"), fEventNr(0)
 {
-  fdir = dir;
-  fPbeam = pBeam;
+fdir = dir;
+fPbeam = pBeam;
 std::cout<<"Beam Momentum in this run is "<<fPbeam<<std::endl;
 }
-
+						    
 // -----   Destructor   ----------------------------------------------------
 PndLmdNoiseTrkSuppressionTask::~PndLmdNoiseTrkSuppressionTask()
 {
@@ -112,7 +113,7 @@ std::cout<<" ---- Info: "<<  fEventNr<<std::endl;
  
 
 //go through all tracks
-const int nTrks = fTrkInArray->GetEntriesFast();
+const int nTrks = fTrkInArray->GetEntries();
 int rec_trk=0;
 for (Int_t iN=0; iN<nTrks; iN++){// loop over all reconstructed trks
 PndTrack* trkpnd = (PndTrack*)(fTrkInArray->At(iN));
@@ -126,6 +127,7 @@ MomRecLMD *=1./MomRecLMD.Mag();
 athrec = MomRecLMD.Theta();
 aphrec = MomRecLMD.Phi();
 double mva_response =  reader->EvaluateMVA(fmethodName);
+if(fVerbose>2) std::cout<<"mva_response  = "<<mva_response <<std::endl;
 bool isSigTrk;
 if(mva_response<0)
   isSigTrk = false;
@@ -137,6 +139,7 @@ new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
 rec_trk++;
 }
 }
+if(fVerbose>2) std::cout<<"Ev#"<<fEventNr<<": "<<rec_trk<<" trks saved out of "<<nTrks<<std::endl;
  fEventNr++;
 }
 
