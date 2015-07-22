@@ -20,15 +20,16 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
   TString parOutput=storePath+"/Lumi_Params_";
   parOutput += startEvent;
   parOutput += ".root";
-  //Load basic libraries
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libSds");
-  gSystem->Load("libLmd");
+  // //Load basic libraries
+  // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // gSystem->Load("libSds");
+  // gSystem->Load("libLmd");
   FairRunSim *fRun = new FairRunSim();
-  cout<<"All libraries succsesfully loaded!"<<endl;
+  //cout<<"All libraries succsesfully loaded!"<<endl;
 
   //set the MC version used
   fRun->SetName("TGeant4");
+  //fRun->SetName("TGeant3");
   
   fRun->SetOutputFile(simOutput);
 
@@ -40,13 +41,14 @@ void runLumiPixel0SimDPMDirect(const int nEvents=10, const int startEvent=0, con
 // // //-------------------------  CAVE      -----------------
 
   FairModule *Cave= new PndCave("CAVE");
-  //  Cave->SetGeometryFileName("pndcave.geo");
-  Cave->SetGeometryFileName("pndcaveVAC.geo"); //vac cave is not really necessary 
+  Cave->SetGeometryFileName("pndcave.geo");
+  //Cave->SetGeometryFileName("pndcaveVAC.geo"); //vac cave is not really necessary 
   //Cave->SetGeometryFileName("../macro/lmd/geo/pndcaveVAC.geo"); //LMD is working in vacuum!
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+  // Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+ Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   fRun->AddModule(Magnet);
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
