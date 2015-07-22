@@ -76,11 +76,10 @@ FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
     
     // Create a set of variables and declare them to the reader
     // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
-    
+reader->AddVariable( "LMDTrackQ.fThetarecLMD", &athrec);
+reader->AddVariable( "LMDTrackQ.fPhirecLMD", &aphrec);    
 reader->AddVariable( "LMDTrackQ.fXrecLMD", &axrec);
 reader->AddVariable( "LMDTrackQ.fYrecLMD", &ayrec);
-reader->AddVariable( "LMDTrackQ.fThetarecLMD", &athrec);
-reader->AddVariable( "LMDTrackQ.fPhirecLMD", &aphrec);
     
 //  TString dir    = "weights/";
 TString prefix = "TMVAClassification";
