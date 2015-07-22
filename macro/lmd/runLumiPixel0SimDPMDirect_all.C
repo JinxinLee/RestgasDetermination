@@ -56,12 +56,7 @@ void runLumiPixel0SimDPMDirect_all(const int nEvents=10, const int startEvent=0,
   Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
 
-  PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
-  Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
-  //  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
-  Lum->SetGeometryFileName("Luminosity-Detector.root");
-  Lum->SetVerboseLevel(verboseLevel);
-  fRun->AddModule(Lum);
+ 
 
   //Other PANDA systems ----
  // //-------------------------  STT       -----------------
@@ -172,7 +167,13 @@ void runLumiPixel0SimDPMDirect_all(const int nEvents=10, const int startEvent=0,
   Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
   //[END] Other PANDA systems ---
- 
+
+  PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
+  Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
+  //  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
+  Lum->SetGeometryFileName("Luminosity-Detector.root");
+  Lum->SetVerboseLevel(verboseLevel);
+  fRun->AddModule(Lum);
 
   //particle generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
