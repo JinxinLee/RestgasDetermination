@@ -1,4 +1,4 @@
-void runLumiPixel4aFilter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
+void runLumiPixel4bNoiseTrkFilter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double mom=1.5)
 {
 // ========================================================================
 // Input Track file
@@ -26,9 +26,9 @@ void runLumiPixel4aFilter(const int nEvents=100000, const int startEvent=0, TStr
   Double_t fpBeam = mom;
  //  TString dir = "TMVAweights_noise_hits/weights_";//trained on samples where noise produced in 1 readout frame
   TString dir = "TMVAweights_noise_hits/weights_3fr_mom";//trained on samples where noise produced in 3 readout frames
-  if(fabs(fpBeam-1.5)<0.1) dir+="_1_5";
+  if(fabs(fpBeam-1.5)<0.1) dir+="_1_5/";
   else
-    if(fabs(fpBeam-15)<0.1) dir+="_15";
+    if(fabs(fpBeam-15)<0.1) dir+="_15/";
     else
       cout<<"!! Attention! There is no trained TMVA method for momentum "<<mom<<end;
   
