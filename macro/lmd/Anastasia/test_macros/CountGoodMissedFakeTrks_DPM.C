@@ -40,14 +40,14 @@ void CountGoodMissedFakeTrks_DPM(TString path="/panda/pandaroot/macro/lmd/testPi
       double thMC = trkcur->GetMCtheta();
       double thREC = trkcur->GetIPtheta();
       //      if(trkPDG==-2212 && evSumPDG==4424){ //signal event
-      if(trkPDG==-2212 && evSumPDG==4424 &&fabs(thMC-thREC)>=3.*7.46691e-04 ){//@ 1.5 GeV/c
-      //    if(trkPDG==-2212 && evSumPDG==4424 &&fabs(thMC-thREC)>=3.*1.01792e-04){//@ 15 GeV/c
+      // if(trkPDG==-2212 && evSumPDG==4424 &&fabs(thMC-thREC)>=3.*7.46691e-04 ){//@ 1.5 GeV/c
+      if(trkPDG==-2212 && evSumPDG==4424 &&fabs(thMC-thREC)>=3.*1.01792e-04){//@ 15 GeV/c
 	if(trkStat<0)
 	  Nmiss++;
       }
 
-      if(trkPDG==-2212 && evSumPDG==4424 && fabs(thMC-thREC)<3.*7.46691e-04){ //signal event @ 1.5 GeV/c
-      //if(trkPDG==-2212 && evSumPDG==4424 && fabs(thMC-thREC)<3.*1.01792e-04){ //signal event @ 15 GeV/c
+      //if(trkPDG==-2212 && evSumPDG==4424 && fabs(thMC-thREC)<3.*7.46691e-04){ //signal event @ 1.5 GeV/c
+      if(trkPDG==-2212 && evSumPDG==4424 && fabs(thMC-thREC)<3.*1.01792e-04){ //signal event @ 15 GeV/c
 	if(trkStat<0)
 	  Nmiss++;
 	else
