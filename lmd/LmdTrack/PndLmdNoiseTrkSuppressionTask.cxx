@@ -54,14 +54,14 @@ std::cout << "-E- PndLmdNoiseTrkSuppressionTask::Init: "<< "RootManager not inst
 return kFATAL;
 }
 
-fTrkInArray = (TClonesArray*) ioman->GetObject("LMDPndTrack");
+fTrkInArray = (TClonesArray*) ioman->GetObject("LMDPndTrackFilt");
 if(! fTrkInArray){
 std::cout << "-W- PndLmdNoiseTrkSuppressionTask::Init: "<< "No LMDPndTrack"<<" array!" << std::endl;
 return kERROR;
 }
 
 fTrkOutArray = new TClonesArray("PndTrack");
-ioman->Register("LMDPndTrack","PndLmd", fTrkOutArray, kTRUE);
+ioman->Register("LMDPndTrackFilt","PndLmd", fTrkOutArray, kTRUE);
 
 //fGeoH = PndGeoHandling::Instance();
 FairRun* fRun = FairRun::Instance();

@@ -557,10 +557,10 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
   }
 
-  if(missPlAlgo){
-    int pl0 = 1; int pl1 = 3;
-    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
-  }
+  // if(missPlAlgo){
+  //   int pl0 = 1; int pl1 = 3;
+  //   fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+  // }
 
   fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
   // int prev_st_size = fCellArray->GetEntriesFast() - 1;
@@ -574,10 +574,10 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     //[END] PART1 ------------------------------------------------------------------
 
     //PART2: build cells only between last 3 layers ----------------------------
-  if(missPlAlgo){
-    int pl0 = 0; int pl1 = 2;
-    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
-  }
+  // if(missPlAlgo){
+  //   int pl0 = 0; int pl1 = 2;
+  //   fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+  // }
 
   for(int pl0=1;pl0<3;pl0++){
     int pl1 = pl0+1;
@@ -592,25 +592,25 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
     //[END] PART2 ------------------------------------------------------------------
 
 // //PART3: add combinations for missing planes ---------------------------------
-// if(missPlAlgo){
-//   //0-2-3
-//   int pl0 = 0; int pl1 = 2;
-//     fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
-//     pl0 = 2; pl1 = 3;
-//     fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
-//     fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
-//     // for (int icell0 = 0; icell0 < fCellArray->GetEntries() ; icell0++){ 
-//     // 	  PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(icell0);
-//     // 	  cell0->SetPV(pvd);
-//     // }
-//     //0-1-3
-//     pl0 = 1; pl1 = 3;
-//     fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
-//     pl0 = 0; pl1 = 1;
-//     fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
-//     fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
+if(missPlAlgo){
+  //0-2-3
+  int pl0 = 0; int pl1 = 2;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+    pl0 = 2; pl1 = 3;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+    fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
+    // for (int icell0 = 0; icell0 < fCellArray->GetEntries() ; icell0++){ 
+    // 	  PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(icell0);
+    // 	  cell0->SetPV(pvd);
+    // }
+    //0-1-3
+    pl0 = 1; pl1 = 3;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+    pl0 = 0; pl1 = 1;
+    fCellArray = CookCells(hitsd, pl0, pl1, fCellArray);
+    fCellArray = ForwardEvolution(fCellArray,2);//clean cells without neigbors
     
-//  }
+ }
 // //[END] PART3 -----------------------------------------------------------------------
 
 

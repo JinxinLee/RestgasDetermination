@@ -84,7 +84,7 @@ InitStatus PndLmdSigCleanTask::Init()
     return kERROR;
   }
 
-  fTrkArray = (TClonesArray*) ioman->GetObject("LMDPndTrack");
+  fTrkArray = (TClonesArray*) ioman->GetObject("LMDPndTrackFilt");
   if ( !fTrkArray)	{
     std::cout << "-W- PndLmdTrkQTask::Init: "<< "No Track"<<" array!" << std::endl;
     return kERROR;

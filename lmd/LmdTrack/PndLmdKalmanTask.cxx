@@ -136,7 +136,7 @@ PndLmdKalmanTask::Init()
   // ioman->Register("LMDTrack", "PndLmd", fTrackTmpArray, kTRUE);
   fTrackTmpArray = new TClonesArray("PndTrack");
   fTrkOutArray = new TClonesArray("PndTrack");
-  ioman->Register("LMDPndTrack", "PndLmd", fTrkOutArray, kTRUE);
+  ioman->Register("LMDPndTrackFilt", "PndLmd", fTrkOutArray, kTRUE);
 
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();

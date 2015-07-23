@@ -90,7 +90,7 @@ InitStatus PndLmdBPRungeKuttaTask::Init()
   }
 
   //  fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
-  fTracks = (TClonesArray*) ioman->GetObject("LMDPndTrack");
+  fTracks = (TClonesArray*) ioman->GetObject("LMDPndTrackFilt");
   if (!fTracks){
     std::cout << "-W- PndLmdBPRungeKuttaTask::Init: "<< "No Track" << " array!" << std::endl;
     return kERROR;

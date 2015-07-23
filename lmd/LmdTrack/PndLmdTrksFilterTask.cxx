@@ -49,7 +49,7 @@ PndLmdTrksFilterTask::PndLmdTrksFilterTask() : FairTask("Tracks filtering Task f
   //  fDigiName = digiBrunch;
   fTrkCandName = "LMDTrackCand";
   fTrkName="LMDPndTrack";
-  fTrkOutName="LMDPndTrack";
+  fTrkOutName="LMDPndTrackFilt";
 }
 
 
@@ -101,7 +101,7 @@ InitStatus PndLmdTrksFilterTask::Init()
     }
 
   fTrkOutArray = new TClonesArray("PndTrack");
-  ioman->Register("LMDPndTrack", "PndLmd", fTrkOutArray,kTRUE);
+  ioman->Register("LMDPndTrackFilt", "PndLmd", fTrkOutArray,kTRUE);
 
   // fClusterArray=(TClonesArray*) ioman->GetObject(fClusterName);
   // if(fClusterArray==0)
