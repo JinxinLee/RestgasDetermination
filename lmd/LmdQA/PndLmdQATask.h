@@ -30,7 +30,7 @@ class PndLmdQATask :public FairTask{
 public:
 
   // Constructors/Destructors ---------
-  PndLmdQATask(TString mcHitBranch="LMDPoint", TString mcTrkBranch="MCTrack", TString clusterBranch="LMDPixelClusterCand", TString digiBrunch="LMDPixelDigis", TString hitBranch="LmdHits", TString TrkCandBranch="LMDTrackCand", TString trackBranch="LMDTrack", TString geaneBranch="GeaneTrackFinal", TString outFile="tmpOutput/QA.root", double Plab = 0);
+  PndLmdQATask(TString mcHitBranch="LMDPoint", TString mcTrkBranch="MCTrack", TString clusterBranch="LMDPixelClusterCand", TString digiBrunch="LMDPixelDigis", TString hitBranch="LmdHits", TString TrkCandBranch="LMDTrackCand", TString trackBranch="LMDTrack", TString geaneBranch="GeaneTrackFinal", TString outFile="tmpOutput/QA.root");
   PndLmdQATask(const PndLmdQATask& o){};
   PndLmdQATask& operator=(const PndLmdQATask& o) { return *this;};
   virtual ~PndLmdQATask();
@@ -44,7 +44,7 @@ public:
 
 protected:
   int verboseLevel;
-  double fPlab;
+  //  double fPlab;
   // Input Data------------
   TClonesArray* fmcHitArray;
   TClonesArray* fmcTrkArray;

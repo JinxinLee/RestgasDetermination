@@ -120,9 +120,9 @@ InitStatus PndLmdTrkQTask::Init()
     return kERROR;
   }
   //Get rec.tracks before back propagation
-  fRecTracks = (TClonesArray*) ioman->GetObject("LMDPndTrack");
+  fRecTracks = (TClonesArray*) ioman->GetObject("LMDPndTrackFilt");
   if (!fRecTracks){
-    std::cout << "-W- PndLmdTrkQTask::Init: "<< "No LMDPndTrack" << " array!" << std::endl;
+    std::cout << "-W- PndLmdTrkQTask::Init: "<< "No LMDPndTrackFilt" << " array!" << std::endl;
     return kERROR;
   }
 
