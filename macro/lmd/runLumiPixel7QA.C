@@ -96,10 +96,10 @@ void runLumiPixel7QA(const int nEvents=100000, const int startEvent=0, TString s
 
   PndLmdQATask* lmdqa;
  if(isClean){
-    lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LMDPixelClusterCand","LMDPixelDigis","LMDHitsMerged","LMDTrackCand","LMDPndTrack","LMDCleanTrack",OutFile,Plab);
+    lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LMDPixelClusterCand","LMDPixelDigis","LMDHitsMerged","LMDTrackCand","LMDPndTrackFilt","LMDCleanTrack",OutFile);
  }
  else{
- lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LMDPixelClusterCand","LMDPixelDigis","LMDHitsMerged","LMDTrackCand","LMDPndTrack","GeaneTrackFinal",OutFile,Plab);
+ lmdqa = new PndLmdQATask("LMDPoint","MCTrack","LMDPixelClusterCand","LMDPixelDigis","LMDHitsMerged","LMDTrackCand","LMDPndTrackFilt","GeaneTrackFinal",OutFile);
  }
   lmdqa->SetVerbose(verboseLevel);
   fRun->AddTask(lmdqa);
