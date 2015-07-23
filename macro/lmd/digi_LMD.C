@@ -1,17 +1,17 @@
 // digi macro for lmd
 // created 23/07/2015 by A.Karavdina
-void digi_LMD(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0)
+void digi_LMD(const int nEvents=2000, const int startEvent=0, TString storePath="", const int verboseLevel=0)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
 
   // Input file (MC events)
-  TString inFile=storePath+"/Lumi_MC_";
+  TString inFile=storePath+"Lumi_MC_";
   inFile += startEvent;
   inFile += ".root";
   // Parameter file
-  TString parFile=storePath+"/Lumi_Params_";
+  TString parFile=storePath+"Lumi_Params_";
   parFile += startEvent;
   parFile += ".root";
 
@@ -21,7 +21,7 @@ void digi_LMD(const int nEvents=10, const int startEvent=0, TString storePath="t
   // In general, the following parts need not be touched
   // ========================================================================
   // Output file
-  TString outFile = storePath+"/Lumi_digi_";
+  TString outFile = storePath+"Lumi_digi_";
   outFile += startEvent;
   outFile += ".root";
   std::cout << "DigiFileName: " << outFile.Data() << std::endl;

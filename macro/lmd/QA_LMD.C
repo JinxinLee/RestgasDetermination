@@ -1,33 +1,33 @@
 // QA macro for lmd
 // created 23/07/2015 by A.Karavdina
 
-void QA_LMD(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5)
+void QA_LMD(const int nEvents=2000, const int startEvent=0, TString storePath="", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (MC events)
-  TString MCFile = storePath+"/Lumi_MC_";
+  TString MCFile = storePath+"Lumi_MC_";
   MCFile += startEvent;
   MCFile += ".root";
-  TString DigiFile = storePath+"/Lumi_digi_";
+  TString DigiFile = storePath+"Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
   
   // Reco file
-  TString GeaFile = storePath+"/Lumi_Geane_";
+  TString GeaFile = storePath+"Lumi_Geane_";
   GeaFile += startEvent;
   GeaFile += ".root";
   
 
   // Dummy file
-  TString DumFile = storePath+"/Lumi_IGNORE_";
+  TString DumFile = storePath+"Lumi_IGNORE_";
   DumFile += startEvent;
   DumFile += ".root";
   // Output file
-  TString OutFile = storePath+"/Lumi_QA_";
+  TString OutFile = storePath+"Lumi_QA_";
   OutFile += startEvent;
   OutFile += ".root";
   // Par file
-  TString parFile = storePath+"/Lumi_Params_";
+  TString parFile = storePath+"Lumi_Params_";
   parFile += startEvent;
   parFile += ".root";
 

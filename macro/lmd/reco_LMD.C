@@ -7,7 +7,7 @@
 // back-propagation with GEANE
 // created 23/07/2015 by A.Karavdina
 
-void reco_LMD(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double mom=1.5)
+void reco_LMD(const int nEvents=2000, const int startEvent=0, TString storePath="", const int verboseLevel=0, const double mom=1.5)
 {
   // parameters ================================================================
   bool misalign=false; //no misalignment is expected: important for hit reco and track search
@@ -25,19 +25,19 @@ void reco_LMD(const int nEvents=10, const int startEvent=0, TString storePath="t
 
   // ========================================================================
   // Input file (MC events)
-  TString MCFile = storePath+"/Lumi_MC_";
+  TString MCFile = storePath+"Lumi_MC_";
   MCFile += startEvent;
   MCFile += ".root";
-  TString DigiFile = storePath+"/Lumi_digi_";
+  TString DigiFile = storePath+"Lumi_digi_";
   DigiFile += startEvent;
   DigiFile += ".root";
   // Parameter file
-  TString parFile = storePath+"/Lumi_Params_";
+  TString parFile = storePath+"Lumi_Params_";
   parFile += startEvent;
   parFile += ".root";
 
   // Output file
-  TString outFile = storePath + "/Lumi_Geane_";
+  TString outFile = storePath + "Lumi_Geane_";
   outFile += startEvent;
   outFile += ".root";
 

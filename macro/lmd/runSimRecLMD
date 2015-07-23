@@ -6,25 +6,31 @@
 ## A.Karavdina
 ################################################################
 
-# set the beam momentum
-echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
-read mom
-echo "Beam mometum is: $mom!"
-cd ${VMCWORKDIR}/macro/lmd/
-pbeam=$mom
-momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
+# # set the beam momentum
+# echo Enter momentum from "1.5, 4.06, 8.9, 11.91, 15 [GeV/c]":
+# read mom
+# echo "Beam mometum is: $mom!"
+# cd ${VMCWORKDIR}/macro/lmd/
+# pbeam=$mom
+# momStr=`echo $pbeam | sed -e '{ s/\./_/g; }'`
 
-path=${VMCWORKDIR}/macro/lmd/testDefault/mom_${momStr}/
-mkdir -p ${path}
-################################################################
+# path=${VMCWORKDIR}/macro/lmd/testDefault/mom_${momStr}/
+# mkdir -p ${path}
+# ################################################################
 
-#number of events
-numEv=2000
-################################################################
+# #number of events
+# numEv=2000
+# ################################################################
 
-# # #simulation with DPM with mode 1 (el+inel) by default
-root -l -b -q sim_LMD.C\(${numEv},0,${pbeam},"\"${path}\""\)
-root -l -b -q digi_LMD.C\(${numEv},0,"\"${path}\""\)
-root -l -b -q reco_LMD.C\(${numEv},0,"\"${path}\"",0,$mom\)
-root -l -b -q QA_LMD.C\(${numEv},0,"\"${path}\"",0\)
+# # # #simulation with DPM with mode 1 (el+inel) by default
+# root -l -b -q sim_LMD.C\(${numEv},0,${pbeam},"\"${path}\""\)
+# root -l -b -q digi_LMD.C\(${numEv},0,"\"${path}\""\)
+# root -l -b -q reco_LMD.C\(${numEv},0,"\"${path}\"",0,$mom\)
+# root -l -b -q QA_LMD.C\(${numEv},0,"\"${path}\"",0\)
+
+# default simulation with DPM with mode 1 (el+inel) 
+root -l -b -q sim_LMD.C
+root -l -b -q digi_LMD.C
+root -l -b -q reco_LMD.C
+root -l -b -q QA_LMD.C
 exit
