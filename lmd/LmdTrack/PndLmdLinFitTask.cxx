@@ -409,7 +409,8 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
 // calculate distance line-point in local coordinates
 double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,double erry,double errz, double *p, double *zpr) { 
   double THfunc[8] = {1,1,1,1,1,1,1,1};
-  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
+  //Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
+  Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+sqrt(1-p[1]*p[1]-p[3]*p[3])*(z-p[4]);
   for(int iz=0;iz<8;iz++)
     if(((p[4]+t_min)-zpr[iz])<=0) THfunc[iz]=0;
 
@@ -679,6 +680,11 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->SetParameter(21,"al3y_b",pStart[21],1e-4*fsigmaMSb,0,0);
 
 
+  fmin->FixParameter(4);
+  fmin->FixParameter(5);
+
+  fmin->FixParameter(6);
+  fmin->FixParameter(7);
   fmin->FixParameter(8);
   fmin->FixParameter(10);
   fmin->FixParameter(12);
@@ -687,6 +693,8 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->FixParameter(20);
 
   fmin->FixParameter(13);
+  fmin->FixParameter(14);
+  fmin->FixParameter(15);
   fmin->FixParameter(21);
   if(Npoint<4){
   fmin->FixParameter(11);
