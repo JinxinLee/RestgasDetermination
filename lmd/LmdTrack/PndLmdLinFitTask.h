@@ -52,7 +52,7 @@ public:
      */
     static PndLmdLinFitTask* Instance();
 
-  void SetRadLen(double x){ftotRadLen = x;} //rad.length X/X0
+  void SetRadLen(double x){ftotRadLen = 1e-2*x;} //rad.length X/X0 [%]
  
 
 protected:
