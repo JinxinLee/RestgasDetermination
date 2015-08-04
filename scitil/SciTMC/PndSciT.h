@@ -113,7 +113,7 @@ class PndSciT : public FairDetector
 
   //void ConstructASCIIGeometry();
 
-  void SetThreshold(Double_t val) {fThreshold = val;}; //default value is 0.0001 MeV
+  void SetThreshold(Double_t val) {fThreshold = val;}; //default value is 0.0001 GeV
 
 
 

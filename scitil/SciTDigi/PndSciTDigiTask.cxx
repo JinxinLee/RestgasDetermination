@@ -14,6 +14,7 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairGeoVector.h"
+#include "FairEventHeader.h"
 
 #include "TVector3.h"
 #include "TGeoBBox.h"
@@ -234,7 +235,14 @@ void PndSciTDigiTask::Exec(Option_t* opt)
 					   sipm1, dSiPm, sipm2, dSiPm,
 					   hitPosition,dHitPosition,
 					   iPoint, 
-					   point->GetEnergyLoss());
+					   point->GetEnergyLoss());  
+      if (fTimeOrderedDigi){
+	tempHit->ResetLinks();
+	FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
+	tempHit->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchName, iPoint));
+		
+	tempHit->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EventHeader.", -1));
+    }
 
       fDataBuffer->FillNewData(tempHit, 
 			       hitTime, 
