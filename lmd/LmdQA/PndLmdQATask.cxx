@@ -176,6 +176,11 @@ void PndLmdQATask::WriteHists(){
   hhits->Write();
   hResLumiTrkMom->Write();
   hResLumiTrkTheta->Write();
+
+  hResLumiTrkTheta2D->Write();
+  hMCLumiTrkTheta2D->Write();
+  hRecLumiTrkTheta2D->Write();
+
   hResLumiTrkPhi->Write();
   hResLumiTrkPointX->Write();
   hResLumiTrkPointY->Write();
@@ -733,6 +738,11 @@ hPullLikeTh_Ymc = new TH2D("hPullLikeTh_Ymc",";Y_{MC}, cm;#theta_{REC}/#sigma_{#
    hchi2 = new TH1F("hchi2","#chi^2 for reconstructed tracks;#chi^2;",1.5e2,-1,15.);
    hResLumiTrkMom = new TH1F("hResLumiTrkMom","P_{MC}-P_{REC}(near Lumi);#deltaP,GeV/c",1e3,-6e-7,6e-7);
    hResLumiTrkTheta = new TH1F("hResLumiTrkTheta","#theta_{MC}-#theta_{REC}(near Lumi);#delta#theta,rad",1e3,-6e-3,6e-3);
+   hResLumiTrkTheta2D = new TH2D("hResLumiTrkTheta2D", ";#Delta#theta_{x}(near Lumi);#Delta#theta_{y},rad", 1e3,-0.0005, 0.0005, 1e3,-0.0005, 0.0005);
+   hMCLumiTrkTheta2D = new TH2D("hMCLumiTrkTheta2D", ";#theta_{x}(MC near Lumi);#theta_{y},rad", 1e3, 0.030, 0.050, 1e3,-0.012, 0.012);
+   hRecLumiTrkTheta2D = new TH2D("hRecLumiTrkTheta2D", ";theta_{x}(Rec near Lumi);#theta_{y},rad", 1e3, 0.030, 0.050, 1e3,-0.012, 0.012);
+
+
    hResLumiTrkPhi = new TH1F("hResLumiTrkPhi","#phi_{MC}-#phi_{REC}(near Lumi);#delta#phi,rad",2e3,-1e-1,1e-1);
    hResLumiTrkPointX = new TH1F("hResLumiTrkPointX","X_{MC}-X_{REC}(near Lumi);#deltaX,cm",1e2,-0.02,0.02);
    hResLumiTrkPointY = new TH1F("hResLumiTrkPointY","Y_{MC}-Y_{REC}(near Lumi);#deltaY,cm",1e2,-0.02,0.02);
@@ -1110,6 +1120,13 @@ void PndLmdQATask::ResoAndPulls()
 	hResLumiTrkPointPxPull->Fill((MomMClmd.X()-MomRecLMD.X())/errMomRecLMD.X());
 	hResLumiTrkPointPyPull->Fill((MomMClmd.Y()-MomRecLMD.Y())/errMomRecLMD.Y());
 	hResLumiTrkPointPzPull->Fill((MomMClmd.Z()-MomRecLMD.Z())/errMomRecLMD.Z());
+
+
+	hResLumiTrkTheta2D->Fill((MomMClmd.X()/MomMClmd.Z()-MomRecLMD.X()/MomRecLMD.Z()), (MomMClmd.Y()/MomMClmd.Z()-MomRecLMD.Y()/MomRecLMD.Z()));
+	hMCLumiTrkTheta2D->Fill(MomMClmd.X()/MomMClmd.Z(), MomMClmd.Y()/MomMClmd.Z());
+	hRecLumiTrkTheta2D->Fill(MomRecLMD.X()/MomRecLMD.Z(), MomRecLMD.Y()/MomRecLMD.Z());
+
+
 	hResLumiTrkTheta->Fill(MomMClmd.Theta()-MomRecLMD.Theta());
 	hResLumiTrkPhi->Fill(MomMClmd.Phi()-MomRecLMD.Phi());
 	hResLumiTrkThetaPull->Fill((MomMClmd.Theta()-MomRecLMD.Theta())/err_lyambdaLMD);
