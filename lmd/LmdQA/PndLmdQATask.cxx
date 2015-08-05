@@ -964,6 +964,8 @@ void PndLmdQATask::ResoAndPulls()
 	Double_t thetaMC = MomMCpca.Theta();
 	Double_t phiMC = MomMCpca.Phi();
 	///------------------------------------------------------------------------------------
+
+	MomRecPCA *= MomMCpca.Mag()/MomRecPCA.Mag();
 	hResPointPx->Fill(MomMCpca.X()-MomRecPCA.X());
 	hResPointPy->Fill(MomMCpca.Y()-MomRecPCA.Y());
 	hResPointPz->Fill(MomMCpca.Z()-MomRecPCA.Z());
@@ -1095,7 +1097,8 @@ void PndLmdQATask::ResoAndPulls()
 	double yneu=PosMClmd.Y()+dirMClmd.Y()*deltaZ;
 	double zneu = PosMClmd.Z()+deltaZ;
 	PosMClmd.SetXYZ(xneu,yneu,zneu);
-	MomMClmd = dirMClmd*MomMClmd.Mag();
+	//	MomMClmd = dirMClmd*MomMClmd.Mag();
+	MomMClmd = dirMClmd*MomRecLMD.Mag();
 	//	hResLumiTrkPointP->Fill((MomMClmd.Mag()-MomRecLMD.Mag()));
 	//	hResLumiTrkPointPmcPrec->Fill(MomRecLMD.Mag(),MomMClmd.Mag());
 
@@ -1104,7 +1107,7 @@ void PndLmdQATask::ResoAndPulls()
 	// MomRecLMD *=1./MomRecLMD.Mag();//TEST
 	// errMomRecLMD *=1./MomRecLMD.Mag();//TEST
 
-	// cout<<"MomMClmd.Mag() = "<<MomMClmd.Mag()<<" MomRecLMD.Mag() = "<<MomRecLMD.Mag()<<endl;
+	//cout<<"MomMClmd.Mag() = "<<MomMClmd.Mag()<<" MomRecLMD.Mag() = "<<MomRecLMD.Mag()<<endl;
 	// cout<<" MC - REC = "<<1e3*(MomMClmd.Mag()-MomRecLMD.Mag())<<" MeV"<<endl;
 	///------------------------------------------------------------------------------------
 	hResLumiTrkPointX->Fill(PosMClmd.X()-PosRecLMD.X());
