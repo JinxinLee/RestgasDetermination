@@ -242,13 +242,15 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
       TVector3 addPos = addHit->GetPosition();
       double xhit = addPos.X();       double yhit = addPos.Y();       double zhit = addPos.Z();
       //      lmddim->Transform_global_to_lmd_local(xhit,yhit,zhit,false);
-      TVector3 addPos2(xhit,yhit,zhit);
+      // TVector3 addPos2(xhit,yhit,zhit);
       if(ihit==0){
          firstHit=index;
-	 hit0 = addPos2;
+	 hit0 = addPos;
       }
       else{
-	if(ihit==2) 	  hit1 = addPos2;
+	if(ihit==2) 	  hit1 = addPos;
+	//	if(ihit==1) 	  hit1 = addPos;
+	//	if(ihit==numPts-1) 	  hit1 = addPos;
 	if(ihit==numPts-1){
           lastHit=index;
 	  //	  hit1 = addPos2;
@@ -409,8 +411,12 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
 // calculate distance line-point in local coordinates
 double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,double erry,double errz, double *p, double *zpr) { 
   double THfunc[8] = {1,1,1,1,1,1,1,1};
+  //  p[5] = sqrt(1-p[1]*p[1]-p[3]*p[3]);
   //Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
+  //  Double_t t_min = p[5]*(z-p[4]);
+  //Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2]);
   Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+sqrt(1-p[1]*p[1]-p[3]*p[3])*(z-p[4]);
+  //  Double_t t_min = (z-p[4]);//TEST
   for(int iz=0;iz<8;iz++)
     if(((p[4]+t_min)-zpr[iz])<=0) THfunc[iz]=0;
 
@@ -660,6 +666,8 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
 
   fmin->SetParameter(4,"z0",pStart[4],0,0,0);
   fmin->SetParameter(5,"Az",pStart[5],0,0,0);
+
+  //  fmin->SetParameter(5,"Az",pStart[5],pStartErr[1],0,0);//TEST
   
   fmin->SetParameter(6,"al0x_a",pStart[6],1e-4*fsigmaMSa,0,0);
   fmin->SetParameter(7,"al0x_b",pStart[7],1e-4*fsigmaMSb,0,0);
@@ -680,11 +688,9 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->SetParameter(21,"al3y_b",pStart[21],1e-4*fsigmaMSb,0,0);
 
 
-  fmin->FixParameter(4);
-  fmin->FixParameter(5);
+  
 
-  fmin->FixParameter(6);
-  fmin->FixParameter(7);
+  
   fmin->FixParameter(8);
   fmin->FixParameter(10);
   fmin->FixParameter(12);
@@ -692,10 +698,13 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->FixParameter(18);
   fmin->FixParameter(20);
 
-  fmin->FixParameter(13);
-  fmin->FixParameter(14);
+  fmin->FixParameter(6);
+  fmin->FixParameter(7);
+  //fmin->FixParameter(13);
+   fmin->FixParameter(14);
   fmin->FixParameter(15);
-  fmin->FixParameter(21);
+  //fmin->FixParameter(21);
+
   if(Npoint<4){
   fmin->FixParameter(11);
   fmin->FixParameter(19);
@@ -703,7 +712,8 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
 
   double recpres = 1e-7;
   // Now ready for minimization step
-   arglist[0] = 5000;
+  // arglist[0] = 5000;
+  arglist[0] = 50000;
   //  arglist[0] = 2;
   arglist[1] = recpres;
   fmin->ExecuteCommand("MIGRAD", arglist,3);
@@ -736,16 +746,18 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
      }
    }
 
-   if((fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3])<1.){
-   fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
-   }
-   else{
-     fitpar[5]=0;
-     amin=1e9;
-   }
   
    //!!!!!!!!!!!!!!!!!! z0, dz weren't fitted
    (*covmatrix)(4,4) =  (gr->GetErrorZ(0)*gr->GetErrorZ(0))/12.;
+
+ // if((fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3])<1.){
+ //   fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
+ //   }
+ //   else{
+ //     fitpar[5]=0;
+ //     amin=1e9;
+ //   }
+   fitpar[5]=sqrt(1-fitpar[1]*fitpar[1]-fitpar[3]*fitpar[3]);
    double dp5_dp1 = fitpar[1]/fitpar[5];
    double dp5_dp3 = fitpar[3]/fitpar[5];
    double errdz2 = pow(dp5_dp1,2)*(*covmatrix)(1,1) + pow(dp5_dp3,2)*(*covmatrix)(3,3) + 
@@ -756,6 +768,13 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   
 
    Double_t chi2 = amin/(2.*Npoint-4);
+
+if(fVerbose>2){
+  cout<<" chi2 = "<<chi2<<endl;
+  cout<<"[AFTER FIT] start.point: ("<<fitpar[0]<<", "<<fitpar[2]<<", "<<fitpar[4]<<")"<<endl;
+  cout<<"[AFTER FIT] dir: ("<<fitpar[1]<<", "<<fitpar[3]<<", "<<fitpar[5]<<")"<<" sqrt(p1^2+p3^2+p5^2) = "<<sqrt(fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3]+fitpar[5]*fitpar[5])<<endl;
+
+ }
    ///-------------------------------------------------------------
  
    fmin->Clear();
