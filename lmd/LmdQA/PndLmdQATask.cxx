@@ -172,6 +172,9 @@ void PndLmdQATask::WriteHists(){
   f->mkdir("NearLMD");
   f->cd("NearLMD");
   //Near 1st LMD plane
+  hResHitX->Write();
+  hResHitY->Write();
+  hResHitZ->Write();
   hchi2->Write();
   hhits->Write();
   hResLumiTrkMom->Write();
@@ -608,7 +611,7 @@ InitStatus PndLmdQATask::Init()
       return kERROR;
     }
   //  double thetarange[2]={0.001,0.01};
-  double thetam = 10.;
+  double thetam = 3.;
   // double thetarange[2]={1.5,10.};
   // double thetam =  thetarange[0];
   // if(fPlab<4) thetam =  thetarange[1];
@@ -617,7 +620,7 @@ InitStatus PndLmdQATask::Init()
   //  hErrMom = new TH1F("hErrMom","#sigma_{P};#sigmaP,GeV/c",1e3,0,1e-3);
   //  hPullMom = new TH1F("hPullMom","(P_{MC}-P_{REC})/#sigma_{P};",1e3,-1e1,1e1);
   hResTheta = new TH1F("hResTheta","#theta_{MC}-#theta_{REC};#delta#theta,mrad",1e2,-thetam,thetam);//TEST
-  hResTheta_th = new TH2F("hResTheta_th","#theta_{MC}-#theta_{REC};#theta_{MC}, mrad; #delta#theta,mrad",2e2,0,20,2e2,-thetam,thetam);//TEST
+  hResTheta_th = new TH2F("hResTheta_th","#theta_{MC}-#theta_{REC};#theta_{MC}, mrad; #delta#theta,mrad",2e2,0,10,6e2,-thetam,thetam);//TEST
   hResTheta_ph = new TH2F("hResTheta_ph","#theta_{MC}-#theta_{REC};#phi_{MC}, rad; #delta#theta,mrad",2e2,-TMath::Pi(),TMath::Pi(),2e2,-thetam,thetam);//TEST
   hErrTheta = new TH1F("hErrTheta","#sigma(#theta_{REC});#sigma,rad",1e3,0,10*thetam);
    hPullTheta = new TH1F("hPullTheta","(#theta_{MC}-#theta_{REC})/#sigma_{#theta};",1e2,-10,10);
@@ -644,94 +647,94 @@ InitStatus PndLmdQATask::Init()
    hResPointZ = new TH1F("hResPointZ","Z_{MC}-Z_{REC};#deltaZ,cm",1e3,-0.15,0.15);
    hPullPointZ = new TH1F("hPullPointZ","(Z_{MC}-Z_{REC})/#sigma_{Z};(Z_{MC}-Z_{REC})/#sigma_{Z}",1e2,-10,10);
 
-   //back-propagation QA candidates
- hPullLikePointX = new TH1F("hPullLikePointX","X_{REC}/#sigma_{X};X_{REC}/#sigma_{X}",1e2,-10,10);
- hPullLikePointY = new TH1F("hPullLikePointY","Y_{REC}/#sigma_{Y};Y_{REC}/#sigma_{Y}",1e2,-10,10);
- hPullLikePointZ = new TH1F("hPullLikePointZ","Z_{REC}/#sigma_{Z};Z_{REC}/#sigma_{Z}",1e2,-10,10);
- hPullLikeX_Zmc = new TH2D("hPullLikeX_Zmc",";Z_{MC}, cm;X_{REC}/#sigma_{X}",1e3,-60,60,1e3,-10,10);
- hPullLikeY_Zmc = new TH2D("hPullLikeY_Zmc",";Z_{MC}, cm;Y_{REC}/#sigma_{Y}",1e3,-60,60,1e2,-10,10);
- hPullLikeZ_Zmc = new TH2D("hPullLikeZ_Zmc",";Z_{MC}, cm;Z_{REC}/#sigma_{Z}",1e3,-60,60,1e2,-10,10);
-hPullLikeTh_Zmc = new TH2D("hPullLikeTh_Zmc",";Z_{MC}, cm;#theta_{REC}/#sigma_{#theta}",1e3,-60,60,2e3,-1000,1000);
- hPullLikePh_Zmc = new TH2D("hPullLikePh_Zmc",";Z_{MC}, cm;#phi_{REC}/#sigma_{#phi}",1e3,-60,60,2e3,-1000,1000);
- hPullLikeP_Zmc = new TH2D("hPullLikeP_Zmc",";Z_{MC}, cm;P_{REC}/P_{#phi}",1e3,-60,60,2e3,0,2e4);
- hXrecZmc = new TH2D("hXrecZmc","; Z_{MC}, cm; X_{REC}, cm",1e3,-60,60,1e3,-5,5);
- hYrecZmc = new TH2D("hYrecZmc","; Z_{MC}, cm; Y_{REC}, cm",1e3,-60,60,1e3,-5,5);
- // hZrecZmc = new TH2D("hZrecZmc","; Z_{MC}, cm; Z_{REC}, cm",1e3,-60,60,2e3,-110.,110.); //LINE
- hZrecZmc = new TH2D("hZrecZmc","; Z_{MC}, cm; Z_{REC}, cm",1e3,-60,60,2e3,-1.,1.);//PCA
- hThrecZmc = new TH2D("hThrecZmc","; Z_{MC}, cm; #theta_{REC}, mrad",1e3,-60,60,1e3,0,20);
- hPhrecZmc = new TH2D("hPhrecZmc","; Z_{MC}, cm; #phi_{REC}, rad",1e3,-60,60,1e3,-3.15,3.15);
- hPrecZmc = new TH2D("hPrecZmc","; Z_{MC}, cm; P_{REC}, GeV/c",1e3,-60,60,1e3,0,2);
- hResXrecZmc = new TH2D("hResXrecZmc","; Z_{MC}, cm; X_{MC}-X_{REC}, cm",3e2,-60,60,1e3,-5,5);
- hResYrecZmc = new TH2D("hResYrecZmc","; Z_{MC}, cm; Y_{MC}-Y_{REC}, cm",3e2,-60,60,1e3,-5,5);
- hResZrecZmc = new TH2D("hResZrecZmc","; Z_{MC}, cm; Z_{MC}-Z_{REC}, cm",3e2,-60,60,2e3,-200,200);
- hResThrecZmc = new TH2D("hResThrecZmc","; Z_{MC}, cm; #theta_{MC}-#theta_{REC}, mrad",3e2,-60,60,1e3,-3,3);
- hResPhrecZmc = new TH2D("hResPhrecZmc","; Z_{MC}, cm; #phi_{MC}-#phi_{REC}, rad",3e2,-60,60,1e3,-2.,2.);
- hResPrecZmc = new TH2D("hResPrecZmc","; Z_{MC}, cm; P_{MC}-P_{REC}, GeV/c",3e2,-60,60,1e3,-10.,10.);
+  //  //back-propagation QA candidates
+//  hPullLikePointX = new TH1F("hPullLikePointX","X_{REC}/#sigma_{X};X_{REC}/#sigma_{X}",1e2,-10,10);
+//  hPullLikePointY = new TH1F("hPullLikePointY","Y_{REC}/#sigma_{Y};Y_{REC}/#sigma_{Y}",1e2,-10,10);
+//  hPullLikePointZ = new TH1F("hPullLikePointZ","Z_{REC}/#sigma_{Z};Z_{REC}/#sigma_{Z}",1e2,-10,10);
+//  hPullLikeX_Zmc = new TH2D("hPullLikeX_Zmc",";Z_{MC}, cm;X_{REC}/#sigma_{X}",1e3,-60,60,1e3,-10,10);
+//  hPullLikeY_Zmc = new TH2D("hPullLikeY_Zmc",";Z_{MC}, cm;Y_{REC}/#sigma_{Y}",1e3,-60,60,1e2,-10,10);
+//  hPullLikeZ_Zmc = new TH2D("hPullLikeZ_Zmc",";Z_{MC}, cm;Z_{REC}/#sigma_{Z}",1e3,-60,60,1e2,-10,10);
+// hPullLikeTh_Zmc = new TH2D("hPullLikeTh_Zmc",";Z_{MC}, cm;#theta_{REC}/#sigma_{#theta}",1e3,-60,60,2e3,-1000,1000);
+//  hPullLikePh_Zmc = new TH2D("hPullLikePh_Zmc",";Z_{MC}, cm;#phi_{REC}/#sigma_{#phi}",1e3,-60,60,2e3,-1000,1000);
+//  hPullLikeP_Zmc = new TH2D("hPullLikeP_Zmc",";Z_{MC}, cm;P_{REC}/P_{#phi}",1e3,-60,60,2e3,0,2e4);
+//  hXrecZmc = new TH2D("hXrecZmc","; Z_{MC}, cm; X_{REC}, cm",1e3,-60,60,1e3,-5,5);
+//  hYrecZmc = new TH2D("hYrecZmc","; Z_{MC}, cm; Y_{REC}, cm",1e3,-60,60,1e3,-5,5);
+//  // hZrecZmc = new TH2D("hZrecZmc","; Z_{MC}, cm; Z_{REC}, cm",1e3,-60,60,2e3,-110.,110.); //LINE
+//  hZrecZmc = new TH2D("hZrecZmc","; Z_{MC}, cm; Z_{REC}, cm",1e3,-60,60,2e3,-1.,1.);//PCA
+//  hThrecZmc = new TH2D("hThrecZmc","; Z_{MC}, cm; #theta_{REC}, mrad",1e3,-60,60,1e3,0,20);
+//  hPhrecZmc = new TH2D("hPhrecZmc","; Z_{MC}, cm; #phi_{REC}, rad",1e3,-60,60,1e3,-3.15,3.15);
+//  hPrecZmc = new TH2D("hPrecZmc","; Z_{MC}, cm; P_{REC}, GeV/c",1e3,-60,60,1e3,0,2);
+//  hResXrecZmc = new TH2D("hResXrecZmc","; Z_{MC}, cm; X_{MC}-X_{REC}, cm",3e2,-60,60,1e3,-5,5);
+//  hResYrecZmc = new TH2D("hResYrecZmc","; Z_{MC}, cm; Y_{MC}-Y_{REC}, cm",3e2,-60,60,1e3,-5,5);
+//  hResZrecZmc = new TH2D("hResZrecZmc","; Z_{MC}, cm; Z_{MC}-Z_{REC}, cm",3e2,-60,60,2e3,-200,200);
+//  hResThrecZmc = new TH2D("hResThrecZmc","; Z_{MC}, cm; #theta_{MC}-#theta_{REC}, mrad",3e2,-60,60,1e3,-3,3);
+//  hResPhrecZmc = new TH2D("hResPhrecZmc","; Z_{MC}, cm; #phi_{MC}-#phi_{REC}, rad",3e2,-60,60,1e3,-2.,2.);
+//  hResPrecZmc = new TH2D("hResPrecZmc","; Z_{MC}, cm; P_{MC}-P_{REC}, GeV/c",3e2,-60,60,1e3,-10.,10.);
 
- herrXrecZmc = new TH2D("herrXrecZmc","; Z_{MC}, cm; #sigma(X_{REC}), cm",1e3,-60,60,1e3,0,2);
- herrYrecZmc = new TH2D("herrYrecZmc","; Z_{MC}, cm; #sigma(Y_{REC}), cm",1e3,-60,60,1e3,0,2);
- herrZrecZmc = new TH2D("herrZrecZmc","; Z_{MC}, cm; #sigma(Z_{REC}), cm",1e3,-60,60,1e3,0,0.1);
- herrThrecZmc = new TH2D("herrThrecZmc","; Z_{MC}, cm; #sigma(#theta_{REC}), mrad",1e3,-60,60,1e3,0,2.);
- herrPhrecZmc = new TH2D("herrPhrecZmc","; Z_{MC}, cm; #sigma(#phi_{REC}), rad",1e3,-60,60,1e3,0,1.);
- herrPrecZmc = new TH2D("herrPrecZmc","; Z_{MC}, cm; #sigma(P_{REC}), GeV/c",1e3,-60,60,1e3,0,0.1);
-
-
- hPullLikeX_Xmc = new TH2D("hPullLikeX_Xmc",";X_{MC}, cm;X_{REC}/#sigma_{X}",1e3,-2,2,1e3,-10,10);
- hPullLikeY_Xmc = new TH2D("hPullLikeY_Xmc",";X_{MC}, cm;Y_{REC}/#sigma_{Y}",1e3,-2,2,1e2,-10,10);
- hPullLikeZ_Xmc = new TH2D("hPullLikeZ_Xmc",";X_{MC}, cm;Z_{REC}/#sigma_{Z}",1e3,-2,2,1e2,-10,10);
-hPullLikeTh_Xmc = new TH2D("hPullLikeTh_Xmc",";X_{MC}, cm;#theta_{REC}/#sigma_{#theta}",1e3,-2,2,2e3,-1000,1000);
- hPullLikePh_Xmc = new TH2D("hPullLikePh_Xmc",";X_{MC}, cm;#phi_{REC}/#sigma_{#phi}",1e3,-2,2,2e3,-1000,1000);
- hPullLikeP_Xmc = new TH2D("hPullLikeP_Xmc",";X_{MC}, cm;P_{REC}/P_{#phi}",1e3,-2,2,2e3,0,2e4);
- hXrecXmc = new TH2D("hXrecXmc","; X_{MC}, cm; X_{REC}, cm",1e3,-2,2,1e3,-5,5);
- hYrecXmc = new TH2D("hYrecXmc","; X_{MC}, cm; Y_{REC}, cm",1e3,-2,2,1e3,-5,5);
- // hZrecXmc = new TH2D("hZrecXmc","; X_{MC}, cm; Z_{REC}, cm",1e3,-2,2,2e3,-110.,110.);//LINE
- hZrecXmc = new TH2D("hZrecXmc","; X_{MC}, cm; Z_{REC}, cm",1e3,-2,2,2e3,-1.,1.);//PCA
- hThrecXmc = new TH2D("hThrecXmc","; X_{MC}, cm; #theta_{REC}, mrad",1e3,-2,2,1e3,0,20);
- hPhrecXmc = new TH2D("hPhrecXmc","; X_{MC}, cm; #phi_{REC}, rad",1e3,-2,2,1e3,-3.15,3.15);
- hPrecXmc = new TH2D("hPrecXmc","; X_{MC}, cm; P_{REC}, GeV/c",1e3,-2,2,1e3,0,2);
- hResXrecXmc = new TH2D("hResXrecXmc","; X_{MC}, cm; X_{MC}-X_{REC}, cm",3e2,-2,2,1e3,-5,5);
- hResYrecXmc = new TH2D("hResYrecXmc","; X_{MC}, cm; Y_{MC}-Y_{REC}, cm",3e2,-2,2,1e3,-5,5);
- hResZrecXmc = new TH2D("hResZrecXmc","; X_{MC}, cm; Z_{MC}-Z_{REC}, cm",3e2,-2,2,2e3,-200,200);
- hResThrecXmc = new TH2D("hResThrecXmc","; X_{MC}, cm; #theta_{MC}-#theta_{REC}, mrad",3e2,-2,2,1e3,-3,3);
- hResPhrecXmc = new TH2D("hResPhrecXmc","; X_{MC}, cm; #phi_{MC}-#phi_{REC}, rad",3e2,-2,2,1e3,-2.,2.);
- hResPrecXmc = new TH2D("hResPrecXmc","; X_{MC}, cm; P_{MC}-P_{REC}, GeV/c",3e2,-2,2,1e3,-10.,10.);
-
- herrXrecXmc = new TH2D("herrXrecXmc","; X_{MC}, cm; #sigma(X_{REC}), cm",1e3,-2,2,1e3,0,2);
- herrYrecXmc = new TH2D("herrYrecXmc","; X_{MC}, cm; #sigma(Y_{REC}), cm",1e3,-2,2,1e3,0,2);
- herrZrecXmc = new TH2D("herrZrecXmc","; X_{MC}, cm; #sigma(Z_{REC}), cm",1e3,-2,2,1e3,0,0.1);
- herrThrecXmc = new TH2D("herrThrecXmc","; X_{MC}, cm; #sigma(#theta_{REC}), mrad",1e3,-2,2,1e3,0,2.);
- herrPhrecXmc = new TH2D("herrPhrecXmc","; X_{MC}, cm; #sigma(#phi_{REC}), rad",1e3,-2,2,1e3,0,1.);
- herrPrecXmc = new TH2D("herrPrecXmc","; X_{MC}, cm; #sigma(P_{REC}), GeV/c",1e3,-2,2,1e3,0,0.1);
+//  herrXrecZmc = new TH2D("herrXrecZmc","; Z_{MC}, cm; #sigma(X_{REC}), cm",1e3,-60,60,1e3,0,2);
+//  herrYrecZmc = new TH2D("herrYrecZmc","; Z_{MC}, cm; #sigma(Y_{REC}), cm",1e3,-60,60,1e3,0,2);
+//  herrZrecZmc = new TH2D("herrZrecZmc","; Z_{MC}, cm; #sigma(Z_{REC}), cm",1e3,-60,60,1e3,0,0.1);
+//  herrThrecZmc = new TH2D("herrThrecZmc","; Z_{MC}, cm; #sigma(#theta_{REC}), mrad",1e3,-60,60,1e3,0,2.);
+//  herrPhrecZmc = new TH2D("herrPhrecZmc","; Z_{MC}, cm; #sigma(#phi_{REC}), rad",1e3,-60,60,1e3,0,1.);
+//  herrPrecZmc = new TH2D("herrPrecZmc","; Z_{MC}, cm; #sigma(P_{REC}), GeV/c",1e3,-60,60,1e3,0,0.1);
 
 
- ////////////
+//  hPullLikeX_Xmc = new TH2D("hPullLikeX_Xmc",";X_{MC}, cm;X_{REC}/#sigma_{X}",1e3,-2,2,1e3,-10,10);
+//  hPullLikeY_Xmc = new TH2D("hPullLikeY_Xmc",";X_{MC}, cm;Y_{REC}/#sigma_{Y}",1e3,-2,2,1e2,-10,10);
+//  hPullLikeZ_Xmc = new TH2D("hPullLikeZ_Xmc",";X_{MC}, cm;Z_{REC}/#sigma_{Z}",1e3,-2,2,1e2,-10,10);
+// hPullLikeTh_Xmc = new TH2D("hPullLikeTh_Xmc",";X_{MC}, cm;#theta_{REC}/#sigma_{#theta}",1e3,-2,2,2e3,-1000,1000);
+//  hPullLikePh_Xmc = new TH2D("hPullLikePh_Xmc",";X_{MC}, cm;#phi_{REC}/#sigma_{#phi}",1e3,-2,2,2e3,-1000,1000);
+//  hPullLikeP_Xmc = new TH2D("hPullLikeP_Xmc",";X_{MC}, cm;P_{REC}/P_{#phi}",1e3,-2,2,2e3,0,2e4);
+//  hXrecXmc = new TH2D("hXrecXmc","; X_{MC}, cm; X_{REC}, cm",1e3,-2,2,1e3,-5,5);
+//  hYrecXmc = new TH2D("hYrecXmc","; X_{MC}, cm; Y_{REC}, cm",1e3,-2,2,1e3,-5,5);
+//  // hZrecXmc = new TH2D("hZrecXmc","; X_{MC}, cm; Z_{REC}, cm",1e3,-2,2,2e3,-110.,110.);//LINE
+//  hZrecXmc = new TH2D("hZrecXmc","; X_{MC}, cm; Z_{REC}, cm",1e3,-2,2,2e3,-1.,1.);//PCA
+//  hThrecXmc = new TH2D("hThrecXmc","; X_{MC}, cm; #theta_{REC}, mrad",1e3,-2,2,1e3,0,20);
+//  hPhrecXmc = new TH2D("hPhrecXmc","; X_{MC}, cm; #phi_{REC}, rad",1e3,-2,2,1e3,-3.15,3.15);
+//  hPrecXmc = new TH2D("hPrecXmc","; X_{MC}, cm; P_{REC}, GeV/c",1e3,-2,2,1e3,0,2);
+//  hResXrecXmc = new TH2D("hResXrecXmc","; X_{MC}, cm; X_{MC}-X_{REC}, cm",3e2,-2,2,1e3,-5,5);
+//  hResYrecXmc = new TH2D("hResYrecXmc","; X_{MC}, cm; Y_{MC}-Y_{REC}, cm",3e2,-2,2,1e3,-5,5);
+//  hResZrecXmc = new TH2D("hResZrecXmc","; X_{MC}, cm; Z_{MC}-Z_{REC}, cm",3e2,-2,2,2e3,-200,200);
+//  hResThrecXmc = new TH2D("hResThrecXmc","; X_{MC}, cm; #theta_{MC}-#theta_{REC}, mrad",3e2,-2,2,1e3,-3,3);
+//  hResPhrecXmc = new TH2D("hResPhrecXmc","; X_{MC}, cm; #phi_{MC}-#phi_{REC}, rad",3e2,-2,2,1e3,-2.,2.);
+//  hResPrecXmc = new TH2D("hResPrecXmc","; X_{MC}, cm; P_{MC}-P_{REC}, GeV/c",3e2,-2,2,1e3,-10.,10.);
 
- hPullLikeX_Ymc = new TH2D("hPullLikeX_Ymc",";Y_{MC}, cm;X_{REC}/#sigma_{X}",1e3,-2,2,1e3,-10,10);
- hPullLikeY_Ymc = new TH2D("hPullLikeY_Ymc",";Y_{MC}, cm;Y_{REC}/#sigma_{Y}",1e3,-2,2,1e2,-10,10);
- hPullLikeZ_Ymc = new TH2D("hPullLikeZ_Ymc",";Y_{MC}, cm;Z_{REC}/#sigma_{Z}",1e3,-2,2,1e2,-10,10);
-hPullLikeTh_Ymc = new TH2D("hPullLikeTh_Ymc",";Y_{MC}, cm;#theta_{REC}/#sigma_{#theta}",1e3,-2,2,2e3,-1000,1000);
- hPullLikePh_Ymc = new TH2D("hPullLikePh_Ymc",";Y_{MC}, cm;#phi_{REC}/#sigma_{#phi}",1e3,-2,2,2e3,-1000,1000);
- hPullLikeP_Ymc = new TH2D("hPullLikeP_Ymc",";Y_{MC}, cm;P_{REC}/P_{#phi}",1e3,-2,2,2e3,0,2e4);
- hXrecYmc = new TH2D("hXrecYmc","; Y_{MC}, cm; X_{REC}, cm",1e3,-2,2,1e3,-5,5);
- hYrecYmc = new TH2D("hYrecYmc","; Y_{MC}, cm; Y_{REC}, cm",1e3,-2,2,1e3,-5,5);
- // hZrecYmc = new TH2D("hZrecYmc","; X_{MC}, cm; Z_{REC}, cm",1e3,-2,2,2e3,-110.,110.);//LINE
- hZrecYmc = new TH2D("hZrecYmc","; Y_{MC}, cm; Z_{REC}, cm",1e3,-2,2,2e3,-1.,1.);//PCA
- hThrecYmc = new TH2D("hThrecYmc","; Y_{MC}, cm; #theta_{REC}, mrad",1e3,-2,2,1e3,0,20);
- hPhrecYmc = new TH2D("hPhrecYmc","; Y_{MC}, cm; #phi_{REC}, rad",1e3,-2,2,1e3,-3.15,3.15);
- hPrecYmc = new TH2D("hPrecYmc","; Y_{MC}, cm; P_{REC}, GeV/c",1e3,-2,2,1e3,0,2);
- hResXrecYmc = new TH2D("hResXrecYmc","; Y_{MC}, cm; X_{MC}-X_{REC}, cm",3e2,-2,2,1e3,-5,5);
- hResYrecYmc = new TH2D("hResYrecYmc","; Y_{MC}, cm; Y_{MC}-Y_{REC}, cm",3e2,-2,2,1e3,-5,5);
- hResZrecYmc = new TH2D("hResZrecYmc","; Y_{MC}, cm; Z_{MC}-Z_{REC}, cm",3e2,-2,2,2e3,-200,200);
- hResThrecYmc = new TH2D("hResThrecYmc","; Y_{MC}, cm; #theta_{MC}-#theta_{REC}, mrad",3e2,-2,2,1e3,-3,3);
- hResPhrecYmc = new TH2D("hResPhrecYmc","; Y_{MC}, cm; #phi_{MC}-#phi_{REC}, rad",3e2,-2,2,1e3,-2.,2.);
- hResPrecYmc = new TH2D("hResPrecYmc","; Y_{MC}, cm; P_{MC}-P_{REC}, GeV/c",3e2,-2,2,1e3,-10.,10.);
+//  herrXrecXmc = new TH2D("herrXrecXmc","; X_{MC}, cm; #sigma(X_{REC}), cm",1e3,-2,2,1e3,0,2);
+//  herrYrecXmc = new TH2D("herrYrecXmc","; X_{MC}, cm; #sigma(Y_{REC}), cm",1e3,-2,2,1e3,0,2);
+//  herrZrecXmc = new TH2D("herrZrecXmc","; X_{MC}, cm; #sigma(Z_{REC}), cm",1e3,-2,2,1e3,0,0.1);
+//  herrThrecXmc = new TH2D("herrThrecXmc","; X_{MC}, cm; #sigma(#theta_{REC}), mrad",1e3,-2,2,1e3,0,2.);
+//  herrPhrecXmc = new TH2D("herrPhrecXmc","; X_{MC}, cm; #sigma(#phi_{REC}), rad",1e3,-2,2,1e3,0,1.);
+//  herrPrecXmc = new TH2D("herrPrecXmc","; X_{MC}, cm; #sigma(P_{REC}), GeV/c",1e3,-2,2,1e3,0,0.1);
 
- herrXrecYmc = new TH2D("herrXrecYmc","; Y_{MC}, cm; #sigma(X_{REC}), cm",1e3,-2,2,1e3,0,2);
- herrYrecYmc = new TH2D("herrYrecYmc","; Y_{MC}, cm; #sigma(Y_{REC}), cm",1e3,-2,2,1e3,0,2);
- herrZrecYmc = new TH2D("herrZrecYmc","; Y_{MC}, cm; #sigma(Z_{REC}), cm",1e3,-2,2,1e3,0,0.1);
- herrThrecYmc = new TH2D("herrThrecYmc","; Y_{MC}, cm; #sigma(#theta_{REC}), mrad",1e3,-2,2,1e3,0,2.);
- herrPhrecYmc = new TH2D("herrPhrecYmc","; Y_{MC}, cm; #sigma(#phi_{REC}), rad",1e3,-2,2,1e3,0,1.);
- herrPrecYmc = new TH2D("herrPrecYmc","; Y_{MC}, cm; #sigma(P_{REC}), GeV/c",1e3,-2,2,1e3,0,0.1);
+
+//  ////////////
+
+//  hPullLikeX_Ymc = new TH2D("hPullLikeX_Ymc",";Y_{MC}, cm;X_{REC}/#sigma_{X}",1e3,-2,2,1e3,-10,10);
+//  hPullLikeY_Ymc = new TH2D("hPullLikeY_Ymc",";Y_{MC}, cm;Y_{REC}/#sigma_{Y}",1e3,-2,2,1e2,-10,10);
+//  hPullLikeZ_Ymc = new TH2D("hPullLikeZ_Ymc",";Y_{MC}, cm;Z_{REC}/#sigma_{Z}",1e3,-2,2,1e2,-10,10);
+// hPullLikeTh_Ymc = new TH2D("hPullLikeTh_Ymc",";Y_{MC}, cm;#theta_{REC}/#sigma_{#theta}",1e3,-2,2,2e3,-1000,1000);
+//  hPullLikePh_Ymc = new TH2D("hPullLikePh_Ymc",";Y_{MC}, cm;#phi_{REC}/#sigma_{#phi}",1e3,-2,2,2e3,-1000,1000);
+//  hPullLikeP_Ymc = new TH2D("hPullLikeP_Ymc",";Y_{MC}, cm;P_{REC}/P_{#phi}",1e3,-2,2,2e3,0,2e4);
+//  hXrecYmc = new TH2D("hXrecYmc","; Y_{MC}, cm; X_{REC}, cm",1e3,-2,2,1e3,-5,5);
+//  hYrecYmc = new TH2D("hYrecYmc","; Y_{MC}, cm; Y_{REC}, cm",1e3,-2,2,1e3,-5,5);
+//  // hZrecYmc = new TH2D("hZrecYmc","; X_{MC}, cm; Z_{REC}, cm",1e3,-2,2,2e3,-110.,110.);//LINE
+//  hZrecYmc = new TH2D("hZrecYmc","; Y_{MC}, cm; Z_{REC}, cm",1e3,-2,2,2e3,-1.,1.);//PCA
+//  hThrecYmc = new TH2D("hThrecYmc","; Y_{MC}, cm; #theta_{REC}, mrad",1e3,-2,2,1e3,0,20);
+//  hPhrecYmc = new TH2D("hPhrecYmc","; Y_{MC}, cm; #phi_{REC}, rad",1e3,-2,2,1e3,-3.15,3.15);
+//  hPrecYmc = new TH2D("hPrecYmc","; Y_{MC}, cm; P_{REC}, GeV/c",1e3,-2,2,1e3,0,2);
+//  hResXrecYmc = new TH2D("hResXrecYmc","; Y_{MC}, cm; X_{MC}-X_{REC}, cm",3e2,-2,2,1e3,-5,5);
+//  hResYrecYmc = new TH2D("hResYrecYmc","; Y_{MC}, cm; Y_{MC}-Y_{REC}, cm",3e2,-2,2,1e3,-5,5);
+//  hResZrecYmc = new TH2D("hResZrecYmc","; Y_{MC}, cm; Z_{MC}-Z_{REC}, cm",3e2,-2,2,2e3,-200,200);
+//  hResThrecYmc = new TH2D("hResThrecYmc","; Y_{MC}, cm; #theta_{MC}-#theta_{REC}, mrad",3e2,-2,2,1e3,-3,3);
+//  hResPhrecYmc = new TH2D("hResPhrecYmc","; Y_{MC}, cm; #phi_{MC}-#phi_{REC}, rad",3e2,-2,2,1e3,-2.,2.);
+//  hResPrecYmc = new TH2D("hResPrecYmc","; Y_{MC}, cm; P_{MC}-P_{REC}, GeV/c",3e2,-2,2,1e3,-10.,10.);
+
+//  herrXrecYmc = new TH2D("herrXrecYmc","; Y_{MC}, cm; #sigma(X_{REC}), cm",1e3,-2,2,1e3,0,2);
+//  herrYrecYmc = new TH2D("herrYrecYmc","; Y_{MC}, cm; #sigma(Y_{REC}), cm",1e3,-2,2,1e3,0,2);
+//  herrZrecYmc = new TH2D("herrZrecYmc","; Y_{MC}, cm; #sigma(Z_{REC}), cm",1e3,-2,2,1e3,0,0.1);
+//  herrThrecYmc = new TH2D("herrThrecYmc","; Y_{MC}, cm; #sigma(#theta_{REC}), mrad",1e3,-2,2,1e3,0,2.);
+//  herrPhrecYmc = new TH2D("herrPhrecYmc","; Y_{MC}, cm; #sigma(#phi_{REC}), rad",1e3,-2,2,1e3,0,1.);
+//  herrPrecYmc = new TH2D("herrPrecYmc","; Y_{MC}, cm; #sigma(P_{REC}), GeV/c",1e3,-2,2,1e3,0,0.1);
 
   //Near 1st LMD plane
    hhits = new TH1I("hhits","number of hits in trk",7,0,7);
@@ -740,7 +743,7 @@ hPullLikeTh_Ymc = new TH2D("hPullLikeTh_Ymc",";Y_{MC}, cm;#theta_{REC}/#sigma_{#
    hResLumiTrkTheta = new TH1F("hResLumiTrkTheta","#theta_{MC}-#theta_{REC}(near Lumi);#delta#theta,rad",1e3,-6e-3,6e-3);
    hResLumiTrkTheta2D = new TH2D("hResLumiTrkTheta2D", ";#Delta#theta_{x}(near Lumi);#Delta#theta_{y},rad", 1e3,-0.0005, 0.0005, 1e3,-0.0005, 0.0005);
    hMCLumiTrkTheta2D = new TH2D("hMCLumiTrkTheta2D", ";#theta_{x}(MC near Lumi);#theta_{y},rad", 1e3, 0.030, 0.050, 1e3,-0.012, 0.012);
-   hRecLumiTrkTheta2D = new TH2D("hRecLumiTrkTheta2D", ";theta_{x}(Rec near Lumi);#theta_{y},rad", 1e3, 0.030, 0.050, 1e3,-0.012, 0.012);
+   hRecLumiTrkTheta2D = new TH2D("hRecLumiTrkTheta2D", ";#theta_{x}(Rec near Lumi);#theta_{y},rad", 1e3, 0.030, 0.050, 1e3,-0.012, 0.012);
 
 
    hResLumiTrkPhi = new TH1F("hResLumiTrkPhi","#phi_{MC}-#phi_{REC}(near Lumi);#delta#phi,rad",2e3,-1e-1,1e-1);
@@ -770,56 +773,90 @@ hPullLikeTh_Ymc = new TH2D("hPullLikeTh_Ymc",";Y_{MC}, cm;#theta_{REC}/#sigma_{#
    hResLumiTrkPhiPull = new TH1F("hResLumiTrkPhiPull","(#phi_{MC}-#phi_{REC})/#sigma (near Lumi);#delta#phi, rad",1e2,-10,10);
 
 
+   //info about hits
+   hResHitX = new TH1F("hResPointX","X_{MC}-X_{rec};#deltaX,cm",2e3,-0.5,0.5);
+   hResHitY = new TH1F("hResPointY","Y_{MC}-Y_{rec};#deltaY,cm",2e3,-0.5,0.5);
+   hResHitZ = new TH1F("hResPointZ","Z_{MC}-Z_{rec};#deltaZ,cm",2e2,-3e-2,3e-2);
+
+
   std::cout << "-I- PndLmdQATask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
 
 void PndLmdQATask::Exec(Option_t* opt)
 {
+fEvent++;
   //  std::cout<<"PndLmdQATask::Exec"<<std::endl;
+  bool isPr = HitReco();
+  if(isPr) ResoAndPulls();
 
-  ResoAndPulls();
-  // HitReco();
   return;
 }
 
-void PndLmdQATask::HitReco()
+bool PndLmdQATask::HitReco()
 {
-    // const int nMCHits = fmcHitArray->GetEntriesFast();
-    // const int nRecHits = fHitArray->GetEntriesFast();
+  bool isProblem = true;
+    const int nMCHits = fmcHitArray->GetEntriesFast();
+    const int nRecHits = fHitArray->GetEntriesFast();
 
-    // for (Int_t i=0; i<nRecHits; i++){
-    //   PndSdsHit *hit = (PndSdsHit*) fHitArray->At(i);
-    //   if(hit->GetRefIndex()<0) continue;
-    //   PndSdsMCPoint *mc = (PndSdsMCPoint*) fmcHitArray->At(hit->GetRefIndex());
-    //   if(!mc) continue;
+    for (Int_t i=0; i<nRecHits; i++){
 
-    //   TVector3 recovec(hit->GetX(),hit->GetY(),hit->GetZ());
-    //   TVector3 mcvec(mc->GetX()+mc->GetXOut(),mc->GetY()+mc->GetYOut(),mc->GetZ()+mc->GetZOut()); mcvec*=0.5;
-    //   TVector3 dvec(recovec-mcvec);
+      PndSdsHit* hit = (PndSdsHit*)(fHitArray->At(i));
+      //for pixel design
+	PndSdsClusterPixel* myCluster = (PndSdsClusterPixel*)(fClusterArray->At(hit->GetClusterIndex()));
+	PndSdsDigiPixel* astripdigi = (PndSdsDigiPixel*)(fDigiArray->At(myCluster->GetDigiIndex(0)));
+	if (astripdigi->GetIndex(0) == -1)
+	  continue;
+	PndSdsMCPoint* mc = (PndSdsMCPoint*)(fmcHitArray->At(astripdigi->GetIndex(0)));
+	int MCidTOP = mc->GetTrackID();
+      // PndSdsHit *hit = (PndSdsHit*) fHitArray->At(i);
+      // if(hit->GetRefIndex()<0) continue;
+      // PndSdsMCPoint *mc = (PndSdsMCPoint*) fmcHitArray->At(hit->GetRefIndex());
+      // if(!mc) continue;
 
-    //   if(hit->GetZ()<1135.) //Acc of first plane
-    // 	h2dPnts->Fill(mc->GetX(),mc->GetY());  // = new TH2D("h2dPnts", "xy reconstructed points, cm",2e2,-20.,20., 2e2,-20.,20.);
+      TVector3 recovec(hit->GetX(),hit->GetY(),hit->GetZ());
+      TVector3 mcvec(mc->GetX()+mc->GetXOut(),mc->GetY()+mc->GetYOut(),mc->GetZ()+mc->GetZOut()); mcvec*=0.5;
+     
+      //      TVector3 mcvec(mc->GetXOut(),mc->GetYOut(),mc->GetZOut());
+      TVector3 dvec(recovec-mcvec);
+      // if(1e4*(mc->GetZOut()-mc->GetZ())<0) 
+      // 	cout<<"For MCtrk#"<<MCidTOP<<" mc.Z() = "<<0.5*(mc->GetZ()+mc->GetZOut())<<" diff rec- mc [mkm] (x,y,z)  = ("<<1e4*dvec.X()<<", "<<1e4*dvec.Y()<<", "<<1e4*dvec.Z()<<")"<<endl;
+
+      // if(hit->GetZ()<1135.) //Acc of first plane
+      // 	h2dPnts->Fill(mc->GetX(),mc->GetY());  // = new TH2D("h2dPnts", "xy reconstructed points, cm",2e2,-20.,20., 2e2,-20.,20.);
   
-    //   hResHitX->Fill(dvec.X());  // = new TH1F("hResPointX","X_{MC}-X_{rec};#deltaX,cm",2e2,-1.5,1.5);
-    //   hResHitY->Fill(dvec.Y());  // = new TH1F("hResPointY","Y_{MC}-Y_{rec};#deltaY,cm",2e2,-1.5,1.5);
-    //   hResHitZ->Fill(dvec.Z());  // = new TH1F("hResPointZ","Z_{MC}-Z_{rec};#deltaZ,cm",2e2,-3e-2,3e-2);
-    //   //TODO
-    //   hErrHitX->Fill(0);  // = new TH1F("hErrPointX","#sigma_{X};#sigmaX,cm",1e2,0,5e-1);
-    //   hErrHitY->Fill(0);  // = new TH1F("hErrPointY","#sigma_{Y};#sigmaY,cm",1e2,0,5e-1);
-    //   hErrHitZ->Fill(0);  // = new TH1F("hErrPointZ","#sigma_{Z};#sigmaZ,cm",1e2,0,5e-3);
-    //   hPullHitX->Fill(0);  // = new TH1F("hPullPointX","(X_{MC}-X_{rec})/#sigma_{X};",1e2,-10,10);
-    //   hPullHitY->Fill(0);  // = new TH1F("hPullPointY","(Y_{MC}-Y_{rec})/#sigma_{Y};",1e2,-10,10);
-    //   hPullHitZ->Fill(0);  // = new TH1F("hPullPointZ","(Z_{MC}-Z_{rec})/#sigma_{Z};",1e2,-10,10);
+      
+      //   if(fabs(dvec.X())<2*0.0015 && fabs(dvec.Y())<2*0.0015){
+      //    if(1e4*(mc->GetZOut()-mc->GetZ())<0){// secondary!
+      //if(1e4*(mc->GetZOut()-mc->GetZ())>0 && abs(dvec.Z())>0.0100){// primary & merged hits!@15 GeV/c
+      //if(1e4*(mc->GetZOut()-mc->GetZ())>0 && abs(dvec.Z())<0.0100){// primary & not-merged (single) hits!@15 GeV/c
+      if(1e4*(mc->GetZOut()-mc->GetZ())>0){// primary
+	hResHitX->Fill(dvec.X());  // = new TH1F("hResPointX","X_{MC}-X_{rec};#deltaX,cm",2e2,-1.5,1.5);
+	hResHitY->Fill(dvec.Y());  // = new TH1F("hResPointY","Y_{MC}-Y_{rec};#deltaY,cm",2e2,-1.5,1.5);
+	hResHitZ->Fill(dvec.Z());  // = new TH1F("hResPointZ","Z_{MC}-Z_{rec};#deltaZ,cm",2e2,-3e-2,3e-2);
+	isProblem=true;
+	//	cout<<"NOW!!!"<<endl;
+      }
+      else
+	isProblem=false;
+	//	cout<<"Event #"<<fEvent<<endl;
+   
+      // //TODO
+      // hErrHitX->Fill(0);  // = new TH1F("hErrPointX","#sigma_{X};#sigmaX,cm",1e2,0,5e-1);
+      // hErrHitY->Fill(0);  // = new TH1F("hErrPointY","#sigma_{Y};#sigmaY,cm",1e2,0,5e-1);
+      // hErrHitZ->Fill(0);  // = new TH1F("hErrPointZ","#sigma_{Z};#sigmaZ,cm",1e2,0,5e-3);
+      // hPullHitX->Fill(0);  // = new TH1F("hPullPointX","(X_{MC}-X_{rec})/#sigma_{X};",1e2,-10,10);
+      // hPullHitY->Fill(0);  // = new TH1F("hPullPointY","(Y_{MC}-Y_{rec})/#sigma_{Y};",1e2,-10,10);
+      // hPullHitZ->Fill(0);  // = new TH1F("hPullPointZ","(Z_{MC}-Z_{rec})/#sigma_{Z};",1e2,-10,10);
 
-    // }
+    }
     // //----------------------------------------------------------------------------------
-    return;
+    return isProblem;
 }
 
 void PndLmdQATask::ResoAndPulls()
 {
-    fEvent++;
+    
     // Read GEANE & MC info -----------------------------------------------------------------
     const int nGeaneTrks = fGeaneArray->GetEntriesFast();
     const int nParticles = fmcTrkArray->GetEntriesFast();
@@ -982,96 +1019,96 @@ void PndLmdQATask::ResoAndPulls()
 	hPullPointY->Fill((PosMCpca.Y()-PosRecPCA.Y())/errPosRecPCA.Y());
 	hPullPointZ->Fill((PosMCpca.Z()-PosRecPCA.Z())/errPosRecPCA.Z());
 
-	hPullLikePointX->Fill(PosRecPCA.X()/errPosRecPCA.X());
-	hPullLikePointY->Fill(PosRecPCA.Y()/errPosRecPCA.Y());
-	hPullLikePointZ->Fill(PosRecPCA.Z()/errPosRecPCA.Z());
+	// hPullLikePointX->Fill(PosRecPCA.X()/errPosRecPCA.X());
+	// hPullLikePointY->Fill(PosRecPCA.Y()/errPosRecPCA.Y());
+	// hPullLikePointZ->Fill(PosRecPCA.Z()/errPosRecPCA.Z());
 
-	hXrecZmc->Fill(PosMCpca.Z(),PosRecPCA.X());
-	hYrecZmc->Fill(PosMCpca.Z(),PosRecPCA.Y());
-	hZrecZmc->Fill(PosMCpca.Z(),PosRecPCA.Z());
-	hThrecZmc->Fill(PosMCpca.Z(),1e3*MomRecPCA.Theta());
-	hPhrecZmc->Fill(PosMCpca.Z(),MomRecPCA.Phi());
-	hPrecZmc->Fill(PosMCpca.Z(),MomRecPCA.Mag());
+	// hXrecZmc->Fill(PosMCpca.Z(),PosRecPCA.X());
+	// hYrecZmc->Fill(PosMCpca.Z(),PosRecPCA.Y());
+	// hZrecZmc->Fill(PosMCpca.Z(),PosRecPCA.Z());
+	// hThrecZmc->Fill(PosMCpca.Z(),1e3*MomRecPCA.Theta());
+	// hPhrecZmc->Fill(PosMCpca.Z(),MomRecPCA.Phi());
+	// hPrecZmc->Fill(PosMCpca.Z(),MomRecPCA.Mag());
 
-	hResXrecZmc->Fill(PosMCpca.Z(),PosMCpca.X()-PosRecPCA.X());
-	hResYrecZmc->Fill(PosMCpca.Z(),PosMCpca.Y()-PosRecPCA.Y());
-	hResZrecZmc->Fill(PosMCpca.Z(),PosMCpca.Z()-PosRecPCA.Z());
-	hResThrecZmc->Fill(PosMCpca.Z(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
-	hResPhrecZmc->Fill(PosMCpca.Z(),MomMCpca.Phi()-MomRecPCA.Phi());
-	hResPrecZmc->Fill(PosMCpca.Z(),MomMCpca.Mag()-MomRecPCA.Mag());
+	// hResXrecZmc->Fill(PosMCpca.Z(),PosMCpca.X()-PosRecPCA.X());
+	// hResYrecZmc->Fill(PosMCpca.Z(),PosMCpca.Y()-PosRecPCA.Y());
+	// hResZrecZmc->Fill(PosMCpca.Z(),PosMCpca.Z()-PosRecPCA.Z());
+	// hResThrecZmc->Fill(PosMCpca.Z(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
+	// hResPhrecZmc->Fill(PosMCpca.Z(),MomMCpca.Phi()-MomRecPCA.Phi());
+	// hResPrecZmc->Fill(PosMCpca.Z(),MomMCpca.Mag()-MomRecPCA.Mag());
 
-	herrXrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.X());
-	herrYrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.Y());
-	herrZrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.Z());
-	herrThrecZmc->Fill(PosMCpca.Z(),1e3*err_lyambda);
-	herrPhrecZmc->Fill(PosMCpca.Z(),err_phi);
-	herrPrecZmc->Fill(PosMCpca.Z(),errMomRecPCA.Mag());
+	// herrXrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.X());
+	// herrYrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.Y());
+	// herrZrecZmc->Fill(PosMCpca.Z(),errPosRecPCA.Z());
+	// herrThrecZmc->Fill(PosMCpca.Z(),1e3*err_lyambda);
+	// herrPhrecZmc->Fill(PosMCpca.Z(),err_phi);
+	// herrPrecZmc->Fill(PosMCpca.Z(),errMomRecPCA.Mag());
 
-	hPullLikeX_Zmc->Fill(PosMCpca.Z(),PosRecPCA.X()/errPosRecPCA.X());
-	hPullLikeY_Zmc->Fill(PosMCpca.Z(),PosRecPCA.Y()/errPosRecPCA.Y());
-	hPullLikeZ_Zmc->Fill(PosMCpca.Z(),PosRecPCA.Z()/errPosRecPCA.Z());
-	hPullLikeTh_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Theta()/err_lyambda);
-	hPullLikePh_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Phi()/err_phi);
-	hPullLikeP_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Mag()/errMomRecPCA.Mag());
-
-
-	hXrecXmc->Fill(PosMCpca.X(),PosRecPCA.X());
-	hYrecXmc->Fill(PosMCpca.X(),PosRecPCA.Y());
-	hZrecXmc->Fill(PosMCpca.X(),PosRecPCA.Z());
-	hThrecXmc->Fill(PosMCpca.X(),1e3*MomRecPCA.Theta());
-	hPhrecXmc->Fill(PosMCpca.X(),MomRecPCA.Phi());
-	hPrecXmc->Fill(PosMCpca.X(),MomRecPCA.Mag());
-
-	hResXrecXmc->Fill(PosMCpca.X(),PosMCpca.X()-PosRecPCA.X());
-	hResYrecXmc->Fill(PosMCpca.X(),PosMCpca.Y()-PosRecPCA.Y());
-	hResZrecXmc->Fill(PosMCpca.X(),PosMCpca.Z()-PosRecPCA.Z());
-	hResThrecXmc->Fill(PosMCpca.X(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
-	hResPhrecXmc->Fill(PosMCpca.X(),MomMCpca.Phi()-MomRecPCA.Phi());
-	hResPrecXmc->Fill(PosMCpca.X(),MomMCpca.Mag()-MomRecPCA.Mag());
-
-	herrXrecXmc->Fill(PosMCpca.X(),errPosRecPCA.X());
-	herrYrecXmc->Fill(PosMCpca.X(),errPosRecPCA.Y());
-	herrZrecXmc->Fill(PosMCpca.X(),errPosRecPCA.Z());
-	herrThrecXmc->Fill(PosMCpca.X(),1e3*err_lyambda);
-	herrPhrecXmc->Fill(PosMCpca.X(),err_phi);
-	herrPrecXmc->Fill(PosMCpca.X(),errMomRecPCA.Mag());
-
-	hPullLikeX_Xmc->Fill(PosMCpca.X(),PosRecPCA.X()/errPosRecPCA.X());
-	hPullLikeY_Xmc->Fill(PosMCpca.X(),PosRecPCA.Y()/errPosRecPCA.Y());
-	hPullLikeZ_Xmc->Fill(PosMCpca.X(),PosRecPCA.Z()/errPosRecPCA.Z());
-	hPullLikeTh_Xmc->Fill(PosMCpca.X(),MomRecPCA.Theta()/err_lyambda);
-	hPullLikePh_Xmc->Fill(PosMCpca.X(),MomRecPCA.Phi()/err_phi);
-	hPullLikeP_Xmc->Fill(PosMCpca.X(),MomRecPCA.Mag()/errMomRecPCA.Mag());
+	// hPullLikeX_Zmc->Fill(PosMCpca.Z(),PosRecPCA.X()/errPosRecPCA.X());
+	// hPullLikeY_Zmc->Fill(PosMCpca.Z(),PosRecPCA.Y()/errPosRecPCA.Y());
+	// hPullLikeZ_Zmc->Fill(PosMCpca.Z(),PosRecPCA.Z()/errPosRecPCA.Z());
+	// hPullLikeTh_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Theta()/err_lyambda);
+	// hPullLikePh_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Phi()/err_phi);
+	// hPullLikeP_Zmc->Fill(PosMCpca.Z(),MomRecPCA.Mag()/errMomRecPCA.Mag());
 
 
-	///////
-	hXrecYmc->Fill(PosMCpca.Y(),PosRecPCA.X());
-	hYrecYmc->Fill(PosMCpca.Y(),PosRecPCA.Y());
-	hZrecYmc->Fill(PosMCpca.Y(),PosRecPCA.Z());
-	hThrecYmc->Fill(PosMCpca.Y(),1e3*MomRecPCA.Theta());
-	hPhrecYmc->Fill(PosMCpca.Y(),MomRecPCA.Phi());
-	hPrecYmc->Fill(PosMCpca.Y(),MomRecPCA.Mag());
+	// hXrecXmc->Fill(PosMCpca.X(),PosRecPCA.X());
+	// hYrecXmc->Fill(PosMCpca.X(),PosRecPCA.Y());
+	// hZrecXmc->Fill(PosMCpca.X(),PosRecPCA.Z());
+	// hThrecXmc->Fill(PosMCpca.X(),1e3*MomRecPCA.Theta());
+	// hPhrecXmc->Fill(PosMCpca.X(),MomRecPCA.Phi());
+	// hPrecXmc->Fill(PosMCpca.X(),MomRecPCA.Mag());
 
-	hResXrecYmc->Fill(PosMCpca.Y(),PosMCpca.X()-PosRecPCA.X());
-	hResYrecYmc->Fill(PosMCpca.Y(),PosMCpca.Y()-PosRecPCA.Y());
-	hResZrecYmc->Fill(PosMCpca.Y(),PosMCpca.Z()-PosRecPCA.Z());
-	hResThrecYmc->Fill(PosMCpca.Y(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
-	hResPhrecYmc->Fill(PosMCpca.Y(),MomMCpca.Phi()-MomRecPCA.Phi());
-	hResPrecYmc->Fill(PosMCpca.Y(),MomMCpca.Mag()-MomRecPCA.Mag());
+	// hResXrecXmc->Fill(PosMCpca.X(),PosMCpca.X()-PosRecPCA.X());
+	// hResYrecXmc->Fill(PosMCpca.X(),PosMCpca.Y()-PosRecPCA.Y());
+	// hResZrecXmc->Fill(PosMCpca.X(),PosMCpca.Z()-PosRecPCA.Z());
+	// hResThrecXmc->Fill(PosMCpca.X(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
+	// hResPhrecXmc->Fill(PosMCpca.X(),MomMCpca.Phi()-MomRecPCA.Phi());
+	// hResPrecXmc->Fill(PosMCpca.X(),MomMCpca.Mag()-MomRecPCA.Mag());
 
-	herrXrecYmc->Fill(PosMCpca.Y(),errPosRecPCA.X());
-	herrYrecYmc->Fill(PosMCpca.Y(),errPosRecPCA.Y());
-	herrZrecYmc->Fill(PosMCpca.Y(),errPosRecPCA.Z());
-	herrThrecYmc->Fill(PosMCpca.Y(),1e3*err_lyambda);
-	herrPhrecYmc->Fill(PosMCpca.Y(),err_phi);
-	herrPrecYmc->Fill(PosMCpca.Y(),errMomRecPCA.Mag());
+	// herrXrecXmc->Fill(PosMCpca.X(),errPosRecPCA.X());
+	// herrYrecXmc->Fill(PosMCpca.X(),errPosRecPCA.Y());
+	// herrZrecXmc->Fill(PosMCpca.X(),errPosRecPCA.Z());
+	// herrThrecXmc->Fill(PosMCpca.X(),1e3*err_lyambda);
+	// herrPhrecXmc->Fill(PosMCpca.X(),err_phi);
+	// herrPrecXmc->Fill(PosMCpca.X(),errMomRecPCA.Mag());
 
-	hPullLikeX_Ymc->Fill(PosMCpca.Y(),PosRecPCA.X()/errPosRecPCA.X());
-	hPullLikeY_Ymc->Fill(PosMCpca.Y(),PosRecPCA.Y()/errPosRecPCA.Y());
-	hPullLikeZ_Ymc->Fill(PosMCpca.Y(),PosRecPCA.Z()/errPosRecPCA.Z());
-	hPullLikeTh_Ymc->Fill(PosMCpca.Y(),MomRecPCA.Theta()/err_lyambda);
-	hPullLikePh_Ymc->Fill(PosMCpca.Y(),MomRecPCA.Phi()/err_phi);
-	hPullLikeP_Ymc->Fill(PosMCpca.Y(),MomRecPCA.Mag()/errMomRecPCA.Mag());
+	// hPullLikeX_Xmc->Fill(PosMCpca.X(),PosRecPCA.X()/errPosRecPCA.X());
+	// hPullLikeY_Xmc->Fill(PosMCpca.X(),PosRecPCA.Y()/errPosRecPCA.Y());
+	// hPullLikeZ_Xmc->Fill(PosMCpca.X(),PosRecPCA.Z()/errPosRecPCA.Z());
+	// hPullLikeTh_Xmc->Fill(PosMCpca.X(),MomRecPCA.Theta()/err_lyambda);
+	// hPullLikePh_Xmc->Fill(PosMCpca.X(),MomRecPCA.Phi()/err_phi);
+	// hPullLikeP_Xmc->Fill(PosMCpca.X(),MomRecPCA.Mag()/errMomRecPCA.Mag());
+
+
+	// ///////
+	// hXrecYmc->Fill(PosMCpca.Y(),PosRecPCA.X());
+	// hYrecYmc->Fill(PosMCpca.Y(),PosRecPCA.Y());
+	// hZrecYmc->Fill(PosMCpca.Y(),PosRecPCA.Z());
+	// hThrecYmc->Fill(PosMCpca.Y(),1e3*MomRecPCA.Theta());
+	// hPhrecYmc->Fill(PosMCpca.Y(),MomRecPCA.Phi());
+	// hPrecYmc->Fill(PosMCpca.Y(),MomRecPCA.Mag());
+
+	// hResXrecYmc->Fill(PosMCpca.Y(),PosMCpca.X()-PosRecPCA.X());
+	// hResYrecYmc->Fill(PosMCpca.Y(),PosMCpca.Y()-PosRecPCA.Y());
+	// hResZrecYmc->Fill(PosMCpca.Y(),PosMCpca.Z()-PosRecPCA.Z());
+	// hResThrecYmc->Fill(PosMCpca.Y(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
+	// hResPhrecYmc->Fill(PosMCpca.Y(),MomMCpca.Phi()-MomRecPCA.Phi());
+	// hResPrecYmc->Fill(PosMCpca.Y(),MomMCpca.Mag()-MomRecPCA.Mag());
+
+	// herrXrecYmc->Fill(PosMCpca.Y(),errPosRecPCA.X());
+	// herrYrecYmc->Fill(PosMCpca.Y(),errPosRecPCA.Y());
+	// herrZrecYmc->Fill(PosMCpca.Y(),errPosRecPCA.Z());
+	// herrThrecYmc->Fill(PosMCpca.Y(),1e3*err_lyambda);
+	// herrPhrecYmc->Fill(PosMCpca.Y(),err_phi);
+	// herrPrecYmc->Fill(PosMCpca.Y(),errMomRecPCA.Mag());
+
+	// hPullLikeX_Ymc->Fill(PosMCpca.Y(),PosRecPCA.X()/errPosRecPCA.X());
+	// hPullLikeY_Ymc->Fill(PosMCpca.Y(),PosRecPCA.Y()/errPosRecPCA.Y());
+	// hPullLikeZ_Ymc->Fill(PosMCpca.Y(),PosRecPCA.Z()/errPosRecPCA.Z());
+	// hPullLikeTh_Ymc->Fill(PosMCpca.Y(),MomRecPCA.Theta()/err_lyambda);
+	// hPullLikePh_Ymc->Fill(PosMCpca.Y(),MomRecPCA.Phi()/err_phi);
+	// hPullLikeP_Ymc->Fill(PosMCpca.Y(),MomRecPCA.Mag()/errMomRecPCA.Mag());
 
 	hResTheta->Fill(1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));
 	hResTheta_th->Fill(1e3*MomMCpca.Theta(),1e3*(MomMCpca.Theta()-MomRecPCA.Theta()));

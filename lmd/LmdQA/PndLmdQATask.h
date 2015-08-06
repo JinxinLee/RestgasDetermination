@@ -73,7 +73,7 @@ protected:
 
   // Analysis Functions
   void ResoAndPulls();
-  void HitReco();
+  bool HitReco();
  // void Acceptance(); TODO
 
   //histos ResoAndPulls
@@ -108,86 +108,89 @@ protected:
   TH1 *hResPointZ;
   TH1 *hPullPointZ;
 
-  //QA candidates
- TH1 *hPullLikePointX;
- TH1 *hPullLikePointY;
- TH1 *hPullLikePointZ;
- TH2 *hPullLikeX_Zmc;
- TH2 *hPullLikeY_Zmc;
- TH2 *hPullLikeZ_Zmc;
- TH2 *hPullLikeTh_Zmc;
- TH2 *hPullLikePh_Zmc;
- TH2 *hPullLikeP_Zmc;
- TH2 *hXrecZmc;
- TH2 *hYrecZmc;
- TH2 *hZrecZmc;
- TH2 *hThrecZmc;
- TH2 *hPhrecZmc;
- TH2 *hPrecZmc;
-TH2 *hResXrecZmc;
- TH2 *hResYrecZmc;
- TH2 *hResZrecZmc;
- TH2 *hResThrecZmc;
- TH2 *hResPhrecZmc;
- TH2 *hResPrecZmc;
- TH2 *herrXrecZmc;
- TH2 *herrYrecZmc;
- TH2 *herrZrecZmc;
- TH2 *herrThrecZmc;
- TH2 *herrPhrecZmc;
- TH2 *herrPrecZmc;
+/*   //QA candidates */
+/*  TH1 *hPullLikePointX; */
+/*  TH1 *hPullLikePointY; */
+/*  TH1 *hPullLikePointZ; */
+/*  TH2 *hPullLikeX_Zmc; */
+/*  TH2 *hPullLikeY_Zmc; */
+/*  TH2 *hPullLikeZ_Zmc; */
+/*  TH2 *hPullLikeTh_Zmc; */
+/*  TH2 *hPullLikePh_Zmc; */
+/*  TH2 *hPullLikeP_Zmc; */
+/*  TH2 *hXrecZmc; */
+/*  TH2 *hYrecZmc; */
+/*  TH2 *hZrecZmc; */
+/*  TH2 *hThrecZmc; */
+/*  TH2 *hPhrecZmc; */
+/*  TH2 *hPrecZmc; */
+/* TH2 *hResXrecZmc; */
+/*  TH2 *hResYrecZmc; */
+/*  TH2 *hResZrecZmc; */
+/*  TH2 *hResThrecZmc; */
+/*  TH2 *hResPhrecZmc; */
+/*  TH2 *hResPrecZmc; */
+/*  TH2 *herrXrecZmc; */
+/*  TH2 *herrYrecZmc; */
+/*  TH2 *herrZrecZmc; */
+/*  TH2 *herrThrecZmc; */
+/*  TH2 *herrPhrecZmc; */
+/*  TH2 *herrPrecZmc; */
 
- TH2 *hPullLikeX_Xmc;
- TH2 *hPullLikeY_Xmc;
- TH2 *hPullLikeZ_Xmc;
- TH2 *hPullLikeTh_Xmc;
- TH2 *hPullLikePh_Xmc;
- TH2 *hPullLikeP_Xmc;
- TH2 *hXrecXmc;
- TH2 *hYrecXmc;
- TH2 *hZrecXmc;
- TH2 *hThrecXmc;
- TH2 *hPhrecXmc;
- TH2 *hPrecXmc;
-TH2 *hResXrecXmc;
- TH2 *hResYrecXmc;
- TH2 *hResZrecXmc;
- TH2 *hResThrecXmc;
- TH2 *hResPhrecXmc;
- TH2 *hResPrecXmc;
- TH2 *herrXrecXmc;
- TH2 *herrYrecXmc;
- TH2 *herrZrecXmc;
- TH2 *herrThrecXmc;
- TH2 *herrPhrecXmc;
- TH2 *herrPrecXmc;
+/*  TH2 *hPullLikeX_Xmc; */
+/*  TH2 *hPullLikeY_Xmc; */
+/*  TH2 *hPullLikeZ_Xmc; */
+/*  TH2 *hPullLikeTh_Xmc; */
+/*  TH2 *hPullLikePh_Xmc; */
+/*  TH2 *hPullLikeP_Xmc; */
+/*  TH2 *hXrecXmc; */
+/*  TH2 *hYrecXmc; */
+/*  TH2 *hZrecXmc; */
+/*  TH2 *hThrecXmc; */
+/*  TH2 *hPhrecXmc; */
+/*  TH2 *hPrecXmc; */
+/* TH2 *hResXrecXmc; */
+/*  TH2 *hResYrecXmc; */
+/*  TH2 *hResZrecXmc; */
+/*  TH2 *hResThrecXmc; */
+/*  TH2 *hResPhrecXmc; */
+/*  TH2 *hResPrecXmc; */
+/*  TH2 *herrXrecXmc; */
+/*  TH2 *herrYrecXmc; */
+/*  TH2 *herrZrecXmc; */
+/*  TH2 *herrThrecXmc; */
+/*  TH2 *herrPhrecXmc; */
+/*  TH2 *herrPrecXmc; */
 
-TH2 *hPullLikeX_Ymc;
- TH2 *hPullLikeY_Ymc;
- TH2 *hPullLikeZ_Ymc;
- TH2 *hPullLikeTh_Ymc;
- TH2 *hPullLikePh_Ymc;
- TH2 *hPullLikeP_Ymc;
- TH2 *hXrecYmc;
- TH2 *hYrecYmc;
- TH2 *hZrecYmc;
- TH2 *hThrecYmc;
- TH2 *hPhrecYmc;
- TH2 *hPrecYmc;
-TH2 *hResXrecYmc;
- TH2 *hResYrecYmc;
- TH2 *hResZrecYmc;
- TH2 *hResThrecYmc;
- TH2 *hResPhrecYmc;
- TH2 *hResPrecYmc;
- TH2 *herrXrecYmc;
- TH2 *herrYrecYmc;
- TH2 *herrZrecYmc;
- TH2 *herrThrecYmc;
- TH2 *herrPhrecYmc;
- TH2 *herrPrecYmc;
+/* TH2 *hPullLikeX_Ymc; */
+/*  TH2 *hPullLikeY_Ymc; */
+/*  TH2 *hPullLikeZ_Ymc; */
+/*  TH2 *hPullLikeTh_Ymc; */
+/*  TH2 *hPullLikePh_Ymc; */
+/*  TH2 *hPullLikeP_Ymc; */
+/*  TH2 *hXrecYmc; */
+/*  TH2 *hYrecYmc; */
+/*  TH2 *hZrecYmc; */
+/*  TH2 *hThrecYmc; */
+/*  TH2 *hPhrecYmc; */
+/*  TH2 *hPrecYmc; */
+/* TH2 *hResXrecYmc; */
+/*  TH2 *hResYrecYmc; */
+/*  TH2 *hResZrecYmc; */
+/*  TH2 *hResThrecYmc; */
+/*  TH2 *hResPhrecYmc; */
+/*  TH2 *hResPrecYmc; */
+/*  TH2 *herrXrecYmc; */
+/*  TH2 *herrYrecYmc; */
+/*  TH2 *herrZrecYmc; */
+/*  TH2 *herrThrecYmc; */
+/*  TH2 *herrPhrecYmc; */
+/*  TH2 *herrPrecYmc; */
 
   //Near 1st LMD plane
+ TH1 *hResHitX; 
+ TH1 *hResHitY;
+ TH1 *hResHitZ;
   TH1 *hhits;
   TH1 *hchi2;
   TH1 *hResLumiTrkMom;
