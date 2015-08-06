@@ -259,6 +259,8 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
       double errxhit = addHit->GetDx();       double erryhit = addHit->GetDy();       double errzhit = addHit->GetDz();
       fitme.SetPoint(ihit, xhit,yhit,zhit);
       fitme.SetPointError(ihit, errxhit,erryhit,errzhit);
+      // fitme.SetPointError(ihit, 0.5*errxhit,0.5*erryhit,0.5*errzhit);
+      cout<<"errxhit = "<<errxhit<<endl;
     }//end of Hits in TCand
 
     TVector3 dirSeed =  hit1 - hit0;
@@ -273,7 +275,8 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     
     //save as PndTrack
     TVector3 FitPoint(parFit[0], parFit[2], parFit[4]);
-    TVector3 FitDir(parFit[1], parFit[3], parFit[5]);
+     TVector3 FitDir(parFit[1], parFit[3], parFit[5]);
+    //  TVector3 FitDir(parFit[1]+parFit[9], parFit[3]+parFit[17], sqrt(1-(parFit[1]+parFit[9])*(parFit[1]+parFit[9])-(parFit[3]+parFit[17])*(parFit[3]+parFit[17])));//TEST
     TVector3 FitMom = FitDir*fPbeam;
     Double_t COVmatrixPosMom[6][6];
     
@@ -698,12 +701,19 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   fmin->FixParameter(18);
   fmin->FixParameter(20);
 
-  fmin->FixParameter(6);
-  fmin->FixParameter(7);
-  //fmin->FixParameter(13);
-   fmin->FixParameter(14);
-  fmin->FixParameter(15);
-  //fmin->FixParameter(21);
+  // fmin->FixParameter(6);
+  // fmin->FixParameter(7);
+  fmin->FixParameter(13);
+  //  fmin->FixParameter(14);
+  // fmin->FixParameter(15);
+  fmin->FixParameter(21);
+
+  // fmin->FixParameter(6);
+  // fmin->FixParameter(7);
+  // //fmin->FixParameter(13);
+  //  fmin->FixParameter(14);
+  // fmin->FixParameter(15);
+  // //fmin->FixParameter(21);
 
   if(Npoint<4){
   fmin->FixParameter(11);
@@ -714,7 +724,7 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   // Now ready for minimization step
   // arglist[0] = 5000;
   arglist[0] = 50000;
-  //  arglist[0] = 2;
+  //arglist[0] = 2;
   arglist[1] = recpres;
   fmin->ExecuteCommand("MIGRAD", arglist,3);
   fmin->ExecuteCommand("SET PRI", arglist,5);
