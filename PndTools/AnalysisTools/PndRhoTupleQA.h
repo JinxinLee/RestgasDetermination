@@ -74,6 +74,10 @@ public:
 
 	void qaFitter(TString pre, RhoFitterBase* fitter, RhoTuple *n, bool skip=false);
 
+	// *** Setters and getters
+	void SetIniP4(TLorentzVector _ini) {fIniP4 = _ini;}
+	TLorentzVector GetIniP4() {return fIniP4;}
+
 private:
 
 	PndVtxPoca  *fVtxPoca;
