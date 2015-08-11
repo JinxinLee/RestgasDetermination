@@ -27,6 +27,7 @@ void tb_digi_scit()
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);
+  fRun->SetUseFairLinks(kTRUE);
   //fRun->SetEventMeanTime(50); //in ns
   if (timebased) fRun->SetEventMeanTime(1/(eventrate * 10e6)*10e9); //in n
  

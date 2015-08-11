@@ -26,6 +26,7 @@ void tb_digi_complete()
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);  
+  fRun->SetUseFairLinks(kTRUE);
   fRun->SetEventMeanTime(50);//for mean time differenc per event for time based simulation
 
   // -----  Parameter database   --------------------------------------------
