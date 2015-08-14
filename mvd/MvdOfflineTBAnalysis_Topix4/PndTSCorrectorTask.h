@@ -6,12 +6,12 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-/** PndMapSorterTask.h
+/** PndTSCorrectorTask.h
  **
  **/
 
-#ifndef PndMapSorterTask_H
-#define PndMapSorterTask_H
+#ifndef PndTSCorrectorTask_H
+#define PndTSCorrectorTask_H
 
 #include "FairTask.h"                   // for FairTask, InitStatus
 
@@ -23,63 +23,53 @@
 class FairTimeStamp;
 class TClonesArray;
 
-class PndMapSorterTask : public FairTask
+class PndTSCorrectorTask : public FairTask
 {
   public:
 
     /** Default constructor **/
-    PndMapSorterTask():
+    PndTSCorrectorTask():
       FairTask("SorterTask"),
-      fSorter(0),
       fPersistance(kTRUE),
-      fDigiPixelMCInfo(kFALSE),
-      fInputBranch(),
+      fInputBranch("MVDHitsPixel"),
       fInputArray(0),
-      fOutputBranch(),
+      fOutputBranch("MVDHitsPixelCorrected"),
       fFolder(),
       fOutputArray(0),
-      fEntryNr(0),
-	  fTimeOffset(1000000000)
+      fEntryNr(0)
 	  {
-      SetVerbose(0);
+      SetVerbose(2);
     }
 
     /** Named constructor **/
-    PndMapSorterTask(const char* name):
+    PndTSCorrectorTask(const char* name):
       FairTask(name),
-      fSorter(0),
       fPersistance(kTRUE),
-      fDigiPixelMCInfo(kFALSE),
       fInputBranch(),
       fInputArray(0),
       fOutputBranch(),
       fFolder(),
       fOutputArray(0),
-      fEntryNr(0),
-	  fTimeOffset(1000000)
+      fEntryNr(0)
     {
-      SetVerbose(0);
+      SetVerbose(2);
     }
 
-    PndMapSorterTask(TString inputBranch, TString outputBranch, TString folderName):
-      FairTask("Sorter"),
-      fSorter(0),
+    PndTSCorrectorTask(TString inputBranch, TString outputBranch, TString folderName):
+      FairTask("Corrector"),
       fPersistance(kTRUE),
-      fDigiPixelMCInfo(kFALSE),
       fInputBranch(inputBranch),
       fInputArray(0),
       fOutputBranch(outputBranch),
       fFolder(folderName),
       fOutputArray(0),
-      fEntryNr(0),
-	  fTimeOffset(1000000)
+      fEntryNr(0)
     {
-      SetVerbose(0);
+      SetVerbose(2);
     }
 
     /** Destructor **/
-    virtual ~PndMapSorterTask() {
-      if (fSorter!= 0) { delete fSorter; }
+    virtual ~PndTSCorrectorTask() {
     }
 
     /** Virtual method Init **/
@@ -91,23 +81,20 @@ class PndMapSorterTask : public FairTask
     virtual void FinishEvent();
     virtual void FinishTask();
 
+    void SetCorrectionValue(Int_t sensorId, Int_t value){
+    	fTSCorrectionMap[sensorId] = value;
+    }
+
     virtual void SetParContainers() {};
 
     void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
     Bool_t GetPersistance() {return fPersistance;};
 
-    void SetTimeOffset(Double_t val) {fTimeOffset = val;}
-
-    virtual void AddNewDataToTClonesArray(FairTimeStamp* data);
-//    virtual FairRingSorter* InitSorter(Int_t numberOfCells, Double_t widthOfCells) const;
 
   protected:
 
-    PndMapSorter* fSorter;
     /** switch to turn on/off storing the arrays to a file*/
     Bool_t fPersistance;
-    /** switch to turn on/off storing additional MC Info of Digis*/
-    Bool_t fDigiPixelMCInfo;
     /** Input array of PndSdsPixelDigis **/
     TString fInputBranch;
     TClonesArray* fInputArray;
@@ -116,11 +103,11 @@ class PndMapSorterTask : public FairTask
     TString fFolder;
     TClonesArray* fOutputArray;
     Int_t fEntryNr;
-    Double_t fTimeOffset;
-    PndMapSorterTask(const PndMapSorterTask&);
-    PndMapSorterTask& operator=(const PndMapSorterTask&);
+    std::map<Int_t, Int_t> fTSCorrectionMap; //< first value is sensor ID, second parameter is correction value which is added to the time stamps
+    PndTSCorrectorTask(const PndTSCorrectorTask&);
+    PndTSCorrectorTask& operator=(const PndTSCorrectorTask&);
 
-    ClassDef(PndMapSorterTask,2);
+    ClassDef(PndTSCorrectorTask,2);
 
 };
 

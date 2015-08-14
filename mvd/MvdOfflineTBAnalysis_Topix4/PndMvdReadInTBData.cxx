@@ -18,7 +18,7 @@ PndMvdReadInTBData::PndMvdReadInTBData() : fDigiArray(0), fClockFrequency(0), fS
 					   fOldFrameCount(0), fOldAllHeaderCount(0), fFirstHeader(kTRUE), fFE(-1),
 					   fNonSequentialFC(0), fHammingLossFrameCount(0), fCRCLossFrameCount(0),
 					   fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),
-					   fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(3),
+					   fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(0),
 					   fOrder(16), fPolynom(0x8005), fCRCXor(0x0000), fRefIn(0), fRefOut(0), fCRCInit_direct(0), fDataCount(0),
 					   fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0) {
 	// TODO Auto-generated constructor stub
@@ -605,7 +605,7 @@ PndSdsDigiTopix4 PndMvdReadInTBData::ProcessData(ULong64_t& data, frameHeader& h
 
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel
 //	return PndSdsDigiTopix4(indices, 0, 0, fFE, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
-	return PndSdsDigiTopix4(indices, 0, fFE, 0, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
+	return PndSdsDigiTopix4(indices, 0, fFE - 1, 0, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
 
 }
 

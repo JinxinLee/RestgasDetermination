@@ -29,16 +29,24 @@ void PndMapSorter::AddElement(FairTimeStamp* digi, double timestamp)
 
 void PndMapSorter::WriteOutData(double time)
 {
-	if (fVerbose > 0)
-		std::cout << "PndMapSorter::WriteOutData for time " << time << std::endl;
-	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.lower_bound(time - fTimeOffset); itr++){
-		fOutputData.push_back(itr->second);
-		if (fVerbose > 1){
-			std::cout << "TS: " << itr->first << " " << itr->second->GetTimeStamp() << " diff " <<  itr->first - fOldTS << std::endl;
+	if (time > fTimeOffset){
+		if (fVerbose > 0)
+			std::cout << "PndMapSorter::WriteOutData for time " << time << std::endl;
+	//	std::cout << "PrintMap before!" << std::endl;
+	//	PrintMap();
+		for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.lower_bound(time - fTimeOffset); itr++){
+			fOutputData.push_back(itr->second);
+			if (fVerbose > 1){
+				std::cout << "TS: " << itr->first << " " << itr->second->GetTimeStamp() << " diff " <<  itr->first - fOldTS << std::endl;
+			}
+			if (itr->first - fOldTS < 0)
+				std::cout << "*** Error *** PndMapSorter::WriteOutData negative difference " << itr->first << " - " << fOldTS << std::endl;
 			fOldTS = itr->first;
 		}
+		fMapBuffer.erase(fMapBuffer.begin(), fMapBuffer.lower_bound(time - fTimeOffset));
+//		std::cout << "PrintMap after!" << std::endl;
+//		PrintMap();
 	}
-	fMapBuffer.erase(fMapBuffer.begin(), fMapBuffer.lower_bound(time - fTimeOffset));
 }
 
 void PndMapSorter::WriteOutAll(){

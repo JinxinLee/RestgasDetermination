@@ -6,16 +6,17 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-/** PndMapSorterTask.h
+/** PndTimeOffsetFinderTask.h
  **
  **/
 
-#ifndef PndMapSorterTask_H
-#define PndMapSorterTask_H
+#ifndef PndTimeOffsetFinderTask_H
+#define PndTimeOffsetFinderTask_H
 
 #include "FairTask.h"                   // for FairTask, InitStatus
+#include "FairTSBufferFunctional.h"
 
-#include "PndMapSorter.h"
+#include "TH1.h"
 
 #include "Rtypes.h"                     // for Bool_t, Int_t, kTRUE, etc
 #include "TString.h"                    // for TString
@@ -23,63 +24,71 @@
 class FairTimeStamp;
 class TClonesArray;
 
-class PndMapSorterTask : public FairTask
+class PndTimeOffsetFinderTask : public FairTask
 {
   public:
 
     /** Default constructor **/
-    PndMapSorterTask():
-      FairTask("SorterTask"),
-      fSorter(0),
+    PndTimeOffsetFinderTask():
+      FairTask("TimeOffsetFinderTask"),
       fPersistance(kTRUE),
-      fDigiPixelMCInfo(kFALSE),
-      fInputBranch(),
+      fInputBranch("MVDHitsPixel"),
       fInputArray(0),
       fOutputBranch(),
       fFolder(),
       fOutputArray(0),
       fEntryNr(0),
-	  fTimeOffset(1000000000)
+	  fFunctor(new StopTime()),
+	  fLastTimeStamp(0),
+	  fTimeOffset(100000000),
+	  fTerminateTime(0),
+	  fFirstExecute(kTRUE),
+	  fStartIndex(0)
 	  {
       SetVerbose(0);
     }
 
     /** Named constructor **/
-    PndMapSorterTask(const char* name):
+    PndTimeOffsetFinderTask(const char* name):
       FairTask(name),
-      fSorter(0),
       fPersistance(kTRUE),
-      fDigiPixelMCInfo(kFALSE),
-      fInputBranch(),
+      fInputBranch("MVDHitsPixel"),
       fInputArray(0),
       fOutputBranch(),
       fFolder(),
       fOutputArray(0),
       fEntryNr(0),
-	  fTimeOffset(1000000)
+	  fFunctor(new StopTime()),
+	  fLastTimeStamp(0),
+	  fTimeOffset(100000000),
+	  fTerminateTime(0),
+	  fFirstExecute(kTRUE),
+	  fStartIndex(0)
     {
       SetVerbose(0);
     }
 
-    PndMapSorterTask(TString inputBranch, TString outputBranch, TString folderName):
+    PndTimeOffsetFinderTask(TString inputBranch, TString outputBranch, TString folderName):
       FairTask("Sorter"),
-      fSorter(0),
       fPersistance(kTRUE),
-      fDigiPixelMCInfo(kFALSE),
       fInputBranch(inputBranch),
       fInputArray(0),
       fOutputBranch(outputBranch),
       fFolder(folderName),
       fOutputArray(0),
       fEntryNr(0),
-	  fTimeOffset(1000000)
+	  fFunctor(new StopTime()),
+	  fLastTimeStamp(0),
+	  fTimeOffset(100000000),
+	  fTerminateTime(0),
+	  fFirstExecute(kTRUE),
+	  fStartIndex(0)
     {
       SetVerbose(0);
     }
 
     /** Destructor **/
-    virtual ~PndMapSorterTask() {
-      if (fSorter!= 0) { delete fSorter; }
+    virtual ~PndTimeOffsetFinderTask() {
     }
 
     /** Virtual method Init **/
@@ -92,22 +101,22 @@ class PndMapSorterTask : public FairTask
     virtual void FinishTask();
 
     virtual void SetParContainers() {};
+    void SetStartTime(Double_t val){ fLastTimeStamp = val;}
+    void SetTerminateTime(Double_t val){ fTerminateTime = val;}
+    void SetInputBranch(TString val){fInputBranch = val;}
+
+    void SetStartIndex(Int_t val){ fStartIndex = val;}
 
     void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
     Bool_t GetPersistance() {return fPersistance;};
 
-    void SetTimeOffset(Double_t val) {fTimeOffset = val;}
 
-    virtual void AddNewDataToTClonesArray(FairTimeStamp* data);
-//    virtual FairRingSorter* InitSorter(Int_t numberOfCells, Double_t widthOfCells) const;
+
 
   protected:
 
-    PndMapSorter* fSorter;
     /** switch to turn on/off storing the arrays to a file*/
     Bool_t fPersistance;
-    /** switch to turn on/off storing additional MC Info of Digis*/
-    Bool_t fDigiPixelMCInfo;
     /** Input array of PndSdsPixelDigis **/
     TString fInputBranch;
     TClonesArray* fInputArray;
@@ -116,11 +125,22 @@ class PndMapSorterTask : public FairTask
     TString fFolder;
     TClonesArray* fOutputArray;
     Int_t fEntryNr;
+    BinaryFunctor* fFunctor;
+    Double_t fLastTimeStamp;
     Double_t fTimeOffset;
-    PndMapSorterTask(const PndMapSorterTask&);
-    PndMapSorterTask& operator=(const PndMapSorterTask&);
 
-    ClassDef(PndMapSorterTask,2);
+    Double_t fTerminateTime;
+    Bool_t fFirstExecute;
+    Int_t fStartIndex;
+
+    TH1D* fHc0c1;
+    TH1D* fHc0c2;
+    TH1D* fHc0c3;
+    TH1D* fHc1c2;
+    TH1D* fHc1c3;
+    TH1D* fHc2c3;
+
+    ClassDef(PndTimeOffsetFinderTask,2);
 
 };
 

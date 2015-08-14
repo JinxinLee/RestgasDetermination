@@ -39,12 +39,17 @@ InitStatus PndMapSorterTask::Init()
   }
 
   // Create and register output array
-  fInputArray = FairRootManager::Instance()->GetTClonesArray(fInputBranch);
+  fInputArray = (TClonesArray*)FairRootManager::Instance()->GetObject(fInputBranch);
+  if (fInputArray == 0){
+	  std::cout << "InputBranch " << fInputBranch << " not available!" << std::endl;
+  }
 
   if(fVerbose>1) { Info("Init","Registering this branch: %s/%s",fFolder.Data(),fOutputBranch.Data()); }
   fOutputArray = ioman->Register(fOutputBranch, fInputArray->GetClass()->GetName(), fFolder, fPersistance);
 
   fSorter = new PndMapSorter(fTimeOffset);
+
+  SetVerbose(2);
 
 
   return kSUCCESS;
@@ -55,15 +60,15 @@ InitStatus PndMapSorterTask::Init()
 void PndMapSorterTask::Exec(Option_t* opt)
 {
 
-  fInputArray = FairRootManager::Instance()->GetTClonesArray(fInputBranch);
-  if (fVerbose > 1) {
-    std::cout << "-I- PndMapSorterTask: Size PixelArray: " << fInputArray->GetEntriesFast() << std::endl;
+ // fInputArray = FairRootManager::Instance()->GetTClonesArray(fInputBranch);
+  if (fVerbose > 1 && fEntryNr % 1000 == 0 ) {
+    std::cout << "-I- PndMapSorterTask: " << fEntryNr << " Size PixelArray: " << fInputArray->GetEntriesFast() << std::endl;
   }
   Double_t timeOfLast = 0;
   for (int i = 0; i < fInputArray->GetEntriesFast(); i++) {
     FairTimeStamp* myData = (FairTimeStamp*)fInputArray->At(i);
     myData->SetEntryNr(FairLink(0, fEntryNr, fInputBranch, i));
-    if (fVerbose > 1) {
+    if (fVerbose > 2) {
       std::cout << "Sorter filled with: ";
       myData->Print();
       std::cout<< std::endl;
@@ -78,7 +83,7 @@ void PndMapSorterTask::Exec(Option_t* opt)
 
 
  // fOutputArray = FairRootManager::Instance()->GetEmptyTClonesArray(fOutputBranch);
-  std::cout << "SortedData size: " << sortedData.size() << std::endl;
+ // std::cout << "SortedData size: " << sortedData.size() << std::endl;
   for (int i = 0; i < sortedData.size(); i++) {
     AddNewDataToTClonesArray(sortedData[i]);
   }
@@ -104,7 +109,7 @@ void PndMapSorterTask::FinishEvent()
 
 void PndMapSorterTask::FinishTask()
 {
-  fInputArray = FairRootManager::Instance()->GetTClonesArray(fInputBranch);
+  //fInputArray = FairRootManager::Instance()->GetTClonesArray(fInputBranch);
   if (fVerbose > 2) { std::cout << "-I- PndMapSorterTaskT::FinishTask Size InputArray: " << fInputArray->GetEntriesFast() << std::endl; }
   for (int i = 0; i < fInputArray->GetEntriesFast(); i++) {
     FairTimeStamp* myDigi = (FairTimeStamp*) fInputArray->At(i);
@@ -126,7 +131,7 @@ void PndMapSorterTask::FinishTask()
     AddNewDataToTClonesArray(sortedData[i]);
   }
   fSorter->DeleteOutputData();
-  if (fVerbose > 1) {
+  if (fVerbose > 2) {
     fSorter->Print();
   }
   FairRootManager::Instance()->SetLastFill();

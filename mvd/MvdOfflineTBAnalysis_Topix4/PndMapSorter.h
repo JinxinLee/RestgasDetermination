@@ -26,7 +26,7 @@
 #include <utility>                      // for pair
 #include <vector>                       // for vector
 
-class FairTimeStamp;
+#include "FairTimeStamp.h"
 
 class PndMapSorter : public TObject
 {
@@ -49,6 +49,15 @@ class PndMapSorter : public TObject
     virtual void DeleteOutputData() {fOutputData.clear(); }
 
     virtual void print(std::ostream& out = std::cout) {
+    }
+
+    virtual void PrintMap(std::ostream& out = std::cout){
+    	int i = 0;
+    	out << "PndMapsSorter Print Map: " << std::endl;
+    	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.end(); itr++){
+    		out << i++ << " : " << itr->first << std::endl;
+    	}
+    	out << std::endl;
     }
 
 
