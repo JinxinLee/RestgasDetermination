@@ -38,6 +38,7 @@ template <class hit_T,class measurement_T>
 
 template <class hit_T,class measurement_T>
   PndFtsRecoHitProducer2<hit_T,measurement_T>::~PndFtsRecoHitProducer2() {
+	delete(tubeArrayTClones);
 }
 
 
