@@ -1,0 +1,46 @@
+/////////////////////////////////////////////////////////////
+//
+//  PndEmcHeader
+//
+//  Header of Emc informations
+//
+//  Created 21/04/07  by S.Spataro
+//
+/////////////////////////////////////////////////////////////// 
+
+#include "PndEmcHeader.h"
+#include <iostream>
+
+using namespace std;
+
+// -----   Default constructor   -------------------------------------------
+PndEmcHeader::PndEmcHeader():
+fPx(0), fPy(0), fPz(0), fHitEnergy(0), fCluEnergy(0), nHitMult(0), nDigiMult(0), nCluMult(0)
+{
+}
+// -------------------------------------------------------------------------
+
+// -----   Default constructor   -------------------------------------------
+PndEmcHeader::PndEmcHeader(Double32_t ene_hit, Int_t mult_hit, Int_t mult_digi, Double32_t ene_clu, Int_t mult_clu, TVector3 p_clu):
+fPx(p_clu.X()), fPy(p_clu.Y()), fPz(p_clu.Z()), fHitEnergy(ene_hit), fCluEnergy(ene_clu), nHitMult(mult_hit), nDigiMult(mult_digi), nCluMult(mult_clu)
+{
+}
+// -------------------------------------------------------------------------
+
+//Copy
+PndEmcHeader::PndEmcHeader(const PndEmcHeader &copy):
+fPx(copy.fPx), fPy(copy.fPy), fPz(copy.fPz), fHitEnergy(copy.fHitEnergy), fCluEnergy(copy.fCluEnergy), nHitMult(copy.nHitMult), nCluMult(copy.nCluMult), nDigiMult(copy.nDigiMult)
+{
+}
+// -----   Destructor   ----------------------------------------------------
+PndEmcHeader::~PndEmcHeader() {}
+// -------------------------------------------------------------------------
+
+
+// -----   Public method Print   -------------------------------------------
+void PndEmcHeader::Print(const Option_t* opt) const {
+  cout << "EMC header: fired crystals= " << GetHitMult() << ", digi= " << GetDigiMult() << ", Total energy= " << GetHitEnergy() << " [GeV], Reconstructed clusters= " << GetCluMult() << ", Total energy in clusters= " << GetCluEnergy() << " [GeV]" << endl;
+}
+// -------------------------------------------------------------------------
+
+ClassImp(PndEmcHeader)
