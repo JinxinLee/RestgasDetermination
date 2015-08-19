@@ -1,0 +1,144 @@
+#################################################################
+# Digitisation and reconstruction parameters for EMC
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# PndEmcDigiPar
+# Description of parameters
+# EnergyHitThreshold - energy threshold used in PndEmcHitProducer.cxx, with following full digitization should be 0.
+# EnergyDigiThreshold - treshold for EmcDigi energy in PndEmcWaveformToDigi.cxx
+# EmcClusterPosMethod: lilo, linear
+# UseDigiEffectiveSmearing: 0 - energy of hit is copied to digi, 1 - smear energy as sigma/E= sqrt((a/sqrt(E))^2 + (E_noise/E)^2), where a=sqrt(F/N_p.e.)
+#################################################################
+[PndEmcDigiPar]
+EnergyHitThreshold:Double_t 0.000001
+NBits:Int_t 16
+DetectedPhotonsPerMeV:Double_t 500
+DetectedPhotonsPerMeV_PMT:Double_t 21
+SensitiveAreaAPD:Double_t 200
+SensitiveAreaVPT:Double_t 200
+QuantumEfficiencyAPD:Double_t 0.7
+QuantumEfficiencyVPT:Double_t 0.22
+QuantumEfficiencyPMT:Double_t 0.24
+ExcessNoiseFactorAPD:Double_t 1.7
+ExcessNoiseFactorPMT:Double_t 1.3
+ExcessNoiseFactorVPT:Double_t 2.2
+Incoherent_elec_noise_width_GeV_APD:Double_t 1.5e-3	### optimized based on the results of proto60 experiment
+Incoherent_elec_noise_width_GeV_VPT:Double_t 1.5e-3
+EnergyRange:Double_t 15
+EnergyRangeBW:Double_t 3
+FirstSamplePhase:Double_t 0
+Number_of_samples_in_waveform:Int_t 120
+Number_of_samples_in_waveform_pmt:Int_t 60
+Number_of_samples_in_waveform_fwd:Int_t 60
+ASIC_Shaping_int_time:Double_t 70e-9
+PMT_Shaping_int_time:Double_t 5e-9
+PMT_Shaping_diff_time:Double_t 20e-9
+FWD_Shaping_int_time:Double_t 8e-9
+FWD_time_constant:Double_t 25e-6
+Crystal_time_constant:Double_t 12e-9
+Shashlyk_time_constant:Double_t 15e-9
+ShashlykSamplingFactor:Double_t 3.0144
+SampleRate:Double_t 80e6
+SampleRate_PMT:Double_t 180e6
+SampleRate_FWD:Double_t 100e6
+Use_shaped_noise:Int_t 0
+Use_photon_statistic:Int_t 1
+EnergyDigiThreshold:Double_t 2.0e-3
+UseDigiEffectiveSmearing:Int_t 0                
+NoiseAllChannels:Int_t 0
+Use_nonuniformity:Int_t 1
+#################################################################
+#################################################################
+[PndEmcFWEndcapDigiPar]
+TimeBeforeHit:Double_t 250
+TimeAfterHit:Double_t 250
+SampleRate:Double_t 0.08
+WfCutOffEnergy:Double_t 0.001
+PsaParLow: Double_t \
+  0 12 4 1 0 0 3 6 2 3 2 2 0 -2.8
+PsaParHigh: Double_t \
+  0 113 4 1 0 0 3 6 2 3 2 2 0 -2.4
+PsaTypeLow:Text_t PSAFPGAPileupAnalyser
+PsaTypeHigh:Text_t PSAFPGAPileupAnalyser
+RValueParaLow:Text_t 5.73863*(1+TMath::Power(x/86.2343,-0.00639301));11.2405*(1-TMath::Power(x/2.52322,-0.907184))
+RValueParaHigh:Text_t 11.2629*(1+TMath::Power(x/85.9291,-0.883797));11.23*(1-TMath::Power(x/72.9636,-1.23786))
+SignalOverflowHigh:Double_t 8192
+Use_photon_statistic:Int_t 1
+QuantumEfficiencyAPD:Double_t 0.7
+ExcessNoiseFactorAPD:Double_t 1.7
+DetectedPhotonsPerMeV:Double_t 500
+SensitiveAreaAPD:Double_t 200
+NBits:Int_t 14
+PulseshapeTau:Double_t 68.7
+PulseshapeN:Double_t 1.667
+EnergyRangeLow:Double_t 15
+EnergyRangeHigh:Double_t 1
+NoiseWidthLow:Double_t 0.0035
+NoiseWidthHigh:Double_t 0.0023
+EnergyDigiThreshold:Double_t 2.0e-3
+CalibHigh:Double_t 1.63477377485476773e+04
+CalibLow:Double_t 1.08992058638224739e+03
+#################################################################
+# Reconstruction parameter for EMC
+# PndEmcRecoPar
+#################################################################
+[PndEmcRecoPar]
+EnergyThresholdBarrel:Double_t 1.0e-2
+EnergyThresholdFWD:Double_t 1.0e-2
+EnergyThresholdBWD:Double_t 1.0e-2
+EnergyThresholdShashlyk:Double_t 1.0e-2
+EmcClusterPosMethod:Text_t lilo
+OffsetParmA:Double_t 4.071
+OffsetParmB:Double_t 0.678
+OffsetParmC:Double_t 1.
+EmcDigiPositionDepthPWO:Double_t 6.2
+EmcDigiPositionDepthShashlyk:Double_t 20.9
+MaxECut:Double_t 0.02
+NeighbourECut:Double_t 0.002
+CutSlope:Double_t 0.5
+CutOffset:Double_t 2.5
+ERatioCorr:Double_t 0.0
+TheNeighbourLevel:Int_t 0
+MoliereRadius:Double_t 2.0
+MoliereRadiusShashlyk:Double_t 5.9
+ExponentialConstant:Double_t 2.5
+MaxIterations:Int_t 10
+CentroidShift:Double_t 0.1
+MaxBumps:Int_t 8
+MinDigiEnergy:Double_t 20.e-6
+ClusterActiveTime:Double_t 2.0e-8
+#################################################################
+#################################################################
+# FPGA parameter for EMC
+# PndEmcFpgaPar
+# pulse threshold indicates a ratio of noise level of 1MeV
+#################################################################
+[PndEmcFpgaPar]
+BarrelMAFilterLength:Int_t 8
+BarrelCFFilterLength:Int_t 10
+BarrelCFFilterRatio:Double_t 0.4
+BarrelCFDelayLength:Int_t 2
+BarrelCFFitterLength:Int_t 6
+BarrelMWDFilterUsed:Int_t 0
+BarrelMWDFilterLength:Int_t 10
+BarrelMWDFilterLifeT:Double_t 25.e3
+BarrelPulseThreshold:Double_t 3
+ForwardMAFilterLength:Int_t 8
+ForwardCFFilterLength:Int_t 8
+ForwardCFFilterRatio:Double_t 0.4
+ForwardCFDelayLength:Int_t 2
+ForwardCFFitterLength:Int_t 6
+ForwardMWDFilterUsed:Int_t 1
+ForwardMWDFilterLength:Int_t 10
+ForwardMWDFilterLifeT:Double_t 25.e3
+ForwardPulseThreshold:Double_t 3
+ShashylikMAFilterLength:Int_t 4
+ShashylikCFFilterLength:Int_t 8
+ShashylikCFFilterRatio:Double_t 0.4
+ShashylikCFFitterLength:Int_t 6
+ShashylikCFDelayLength:Int_t 2
+ShashylikMWDFilterUsed:Int_t 0
+ShashylikMWDFilterLength:Int_t 10
+ShashylikMWDFilterLifeT:Double_t 25.e3
+ShashylikPulseThreshold:Double_t 3
+#################################################################
