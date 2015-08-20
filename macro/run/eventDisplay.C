@@ -52,6 +52,9 @@ eventDisplay()
 	  FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
 	  FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("MVDPoint",kBlue,  kFullSquare);
 	  FairHitDraw *EMCPoints =   new FairHitDraw ("EmcHit");
+	  PndEmcHitDraw *EMCPoints2 = new PndEmcHitDraw("EmcHit");
+		EMCPoints->SetBoxDimensions(2.,2.,2.);
+		EMCPoints2->SetBoxDimensions(2.,2.,2.);
 	  FairMCPointDraw *TofSciFPoint= new FairMCPointDraw ("SciTPoint",kTeal, kFullSquare);
 	  FairMCPointDraw *MdtPoint =    new FairMCPointDraw ("MdtPoint",kAzure, kFullSquare);
 	  FairMCPointDraw *PndDrcBarPoint = new FairMCPointDraw ("DrcBarPoint",kGreen, kFullSquare);
@@ -63,9 +66,12 @@ eventDisplay()
 	  FairMCPointDraw *PndFTSPoint = new FairMCPointDraw ("FTSPoint",kMagenta, kFullSquare);
 	  FairMCPointDraw *PndFtofPoint = new FairMCPointDraw ("FtofPoint",kGreen, kFullSquare);
 
+	  PndEmcHitCaloDraw *EmcHitCalo = new PndEmcHitCaloDraw("EmcHit");
+
 	  fMan->AddTask(Track);
 	  fMan->AddTask(MvdPoints);
 	  fMan->AddTask(EMCPoints);
+		fMan->AddTask(EMCPoints2);
 	  fMan->AddTask( TofSciFPoint);
 	  fMan->AddTask( MdtPoint);
 	  fMan->AddTask( PndDrcBarPoint);
@@ -76,6 +82,8 @@ eventDisplay()
 	  fMan->AddTask( PndGEMPoint);
 	  fMan->AddTask( PndFTSPoint);
 	  fMan->AddTask( PndFtofPoint);
+	  fMan->AddTask(EmcHitCalo);
+
   }
 
   //--------------- Hits ----------------------
@@ -94,11 +102,11 @@ eventDisplay()
 	  FairHitDraw *FTSHit = new FairHitDraw("FTSHit");
 	  FairHitDraw *FtofHit = new FairHitDraw("FtofHit");
 	  PndEmcClusterDraw *EmcBump = new PndEmcClusterDraw("EmcBump");
-
+	  EmcBump->SetBoxDimensions(4.0,4.0,4.0);
 	  fMan->AddTask(MvdRecoHit);
 	  fMan->AddTask(MvdRecoStrip);
 	  fMan->AddTask(STTHits);
-	//  fMan->AddTask(STTIsochrone);
+	  fMan->AddTask(STTIsochrone);
 	  fMan->AddTask(SciTHit);
 	  fMan->AddTask(MdtHit);
 	  fMan->AddTask(DrcHit);
@@ -111,9 +119,9 @@ eventDisplay()
 
   if (enableTrackDraw) {
 	  PndTrackDraw* SttMvdTrack = new PndTrackDraw("SttMvdTrack");
-	  PndTrackDraw* SttMvdGemTrack = new PndTrackDraw("SttMvdGemTrack");
+	  PndTrackDraw* SttMvdGemTrack = new PndTrackDraw("SttMvdGemTrack", kTRUE);
 	  PndTrackDraw* FtsIdealTrack = new PndTrackDraw("FtsIdealTrack");
-      PndTrackDraw* SttMvdGemGenTrack = new PndTrackDraw("SttMvdGemGenTrack");
+      PndTrackDraw* SttMvdGemGenTrack = new PndTrackDraw("SttMvdGemGenTrack", kTRUE);
 
 	  fMan->AddTask(SttMvdTrack);
 	  fMan->AddTask(SttMvdGemTrack);
