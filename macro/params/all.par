@@ -247,6 +247,7 @@ DetectedPhotonsPerMeV:Double_t 500
 DetectedPhotonsPerMeV_PMT:Double_t 21
 SensitiveAreaAPD:Double_t 200
 SensitiveAreaVPT:Double_t 200
+EmcClusterPosMethod:Text_t lilo
 QuantumEfficiencyAPD:Double_t 0.7
 QuantumEfficiencyVPT:Double_t 0.22
 QuantumEfficiencyPMT:Double_t 0.24
@@ -290,6 +291,7 @@ PsaParHigh: Double_t \
   0 113 4 1 0 0 3 6 2 3 2 2 0 -2.4
 PsaTypeLow:Text_t PSAFPGAPileupAnalyser
 PsaTypeHigh:Text_t PSAFPGAPileupAnalyser
+EmcClusterPosMethod:Text_t lilo
 RValueParaLow:Text_t 5.73863*(1+TMath::Power(x/86.2343,-0.00639301));11.2405*(1-TMath::Power(x/2.52322,-0.907184))
 RValueParaHigh:Text_t 11.2629*(1+TMath::Power(x/85.9291,-0.883797));11.23*(1-TMath::Power(x/72.9636,-1.23786))
 SignalOverflowHigh:Double_t 8192
@@ -336,6 +338,7 @@ MaxIterations:Int_t 10
 CentroidShift:Double_t 0.1
 MaxBumps:Int_t 8
 MinDigiEnergy:Double_t 20.e-6
+ClusterActiveTime:Double_t 2.0e-8
 #################################################################
 #################################################################
 # FPGA parameter for EMC
