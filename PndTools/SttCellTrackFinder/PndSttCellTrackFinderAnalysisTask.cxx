@@ -329,10 +329,10 @@ void PndSttCellTrackFinderAnalysisTask::CheckFirstTracklets() {
 	// store errcorCounter of this event in histogram
 	fHistoNumberOfErrors1->Fill(errorCounter);
 
-	// plot STTHits + Riemann-circle for the first 100 events
-	if (eventNumber < 100) {
-		DrawFirstRiemannPlots(eventNumber);
-	}
+//	// plot STTHits + Riemann-circle for the first 100 events
+//	if (eventNumber < 100) {
+//		DrawFirstRiemannPlots(eventNumber);
+//	}
 }
 
 void PndSttCellTrackFinderAnalysisTask::CheckTrackletCombinations() {
@@ -424,10 +424,10 @@ void PndSttCellTrackFinderAnalysisTask::CheckTrackletCombinations() {
 	// store errorCounter ot this event in histogramm
 	fHistoNumberOfErrors2->Fill(errorCounter);
 
-	// draw STTHits + Riemann-circle for the first 100 events
-	if (eventNumber < 100) {
-		DrawCombiRiemannPlots(eventNumber);
-	}
+//	// draw STTHits + Riemann-circle for the first 100 events
+//	if (eventNumber < 100) {
+//		DrawCombiRiemannPlots(eventNumber);
+//	}
 }
 
 int PndSttCellTrackFinderAnalysisTask::GetNumLinksOfHits(
@@ -1182,7 +1182,7 @@ void PndSttCellTrackFinderAnalysisTask::TestRecoQualityCombi() {
 
 			}
 
-			// get number of hits of skewed tubes ob trackCand
+			// get number of hits of skewed tubes of trackCand
 			for (int j = 0; j < hitLinks.GetNLinks(); ++j) {
 
 				// Get HitIndex -> get Tube -> check if skewed

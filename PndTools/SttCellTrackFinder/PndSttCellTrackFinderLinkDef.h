@@ -8,6 +8,9 @@
 
 #pragma link C++ class PndSttCellTrackFinderTask+;
 #pragma link C++ class PndSttCellTrackFinder+;
+#pragma link C++ class PndSttCellTrackFinderData+;
+#pragma link C++ class PndSttCellTrackletGenerator+;
+#pragma link C++ class PndSttHitCorrector+;
 #pragma link C++ class PndSttCellTrackFinderAnalysisTask+;
 #pragma link C++ class PndSttSkewedCombineTask+;
 

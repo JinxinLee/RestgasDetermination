@@ -7,16 +7,20 @@
 #include "PndSttStrawMap.h"
 #include "PndSttCellTrackFinder.h"
 
-
 #include <vector>
 
 class PndSttCellTrackFinderTask: public FairTask {
 public:
 
-	PndSttCellTrackFinderTask() :FairTask("Stt Cell Track Finder"), fVerbose(0), fPersistence(
-					kTRUE), fAnalyseSteps(kFALSE) {};
+	PndSttCellTrackFinderTask() :
+			FairTask("Stt Cell Track Finder"), fVerbose(0), fPersistence(kTRUE), fAnalyseSteps(
+					kFALSE) {
+	}
+	;
 
-	virtual ~PndSttCellTrackFinderTask() {};
+	virtual ~PndSttCellTrackFinderTask() {
+	}
+	;
 
 	/** Virtual method Init **/
 	virtual void SetParContainers();
@@ -25,7 +29,10 @@ public:
 
 	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);
+
 	virtual void FinishEvent();
+
+	virtual void FinishTask();
 
 	//void AddHitBranch(TString branchName);//Has to be called before Init() is used otherwise the default names are taken!
 
@@ -61,8 +68,9 @@ private:
 	TClonesArray* fCombiRiemannTrackArray;
 	TClonesArray* fCombiTrackArray;
 	TClonesArray* fCorrectedIsochronesArray;
-
-	//Bool_t fInitDone;
+	TClonesArray* fCorrectedCombiTrackCandArray;
+	TClonesArray* fCorrectedCombiRiemannTrackArray;
+	TClonesArray* fCorrectedCombiTrackArray;
 
 	Int_t fVerbose;
 	Bool_t fPersistence; // safe data?
@@ -72,15 +80,13 @@ private:
 	TClonesArray *fTubeArray;		// needed for SttStrawMap
 
 	PndSttGeometryMap *fSttGeometryMap;
-	PndSttStrawMap    *fSttStrawMap;
+	PndSttStrawMap *fSttStrawMap;
 	PndSttCellTrackFinder fTrackFinder;
 
 	TClonesArray* fEventHeader;
-	//PndGeoHandling* fGeoH;
 
-//	void Register();
-//	void Reset();
-//	void ProduceHits();
+	//for runtime analysis: numHits, numHitsWithoutDouble, numUnambiguousHits
+	std::vector<std::vector<int> >  fNumHitsPerEvent;
 
 ClassDef(PndSttCellTrackFinderTask,1)
 	;

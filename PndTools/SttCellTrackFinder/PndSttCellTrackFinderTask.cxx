@@ -1,6 +1,7 @@
 #include "PndSttCellTrackFinderTask.h"
 
 #include <iostream>
+#include <stdio.h>
 
 // Root includes
 #include "TROOT.h"
@@ -24,20 +25,16 @@
 using std::cout;
 using std::endl;
 
-ClassImp(PndSttCellTrackFinderTask)
-;
+//Macro for printing the calculation times into files called calcTimesCPU*.txt
+#define PRINT_CALC_TIMES
+
+ClassImp(PndSttCellTrackFinderTask);
 
 void PndSttCellTrackFinderTask::SetParContainers() {
 	FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
 	fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
-//InitStatus PndSttCellTrackFinderTask::ReInit() {
-//	InitStatus stat = kSUCCESS;
-//	return stat;
-//}
-
-// -----   Public method Init   --------------------------------------------
 InitStatus PndSttCellTrackFinderTask::Init() {
 	FairRootManager* ioman = FairRootManager::Instance();
 
@@ -50,18 +47,11 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 	fEventHeader = (TClonesArray*) ioman->GetObject("EventHeader.");
 	if (!fEventHeader) {
 		cout
-				<< "-W-  PndJetteAnalysisTask::Init: No EventHeader array! Needed for EventNumber"
+				<< "-W-  PndSttCellTrackFinderTask::Init: No EventHeader array! Needed for EventNumber"
 				<< endl;
 		return kERROR;
 	}
 
-	// Get input array
-//  if (FairRunAna::Instance()->IsTimeStamp()){
-//	  if (fTimeBasedHitBranch.size() == 0){
-//		  std::cout << "-W- PndSttCellTrackFinderTask::Init: " << "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!" << std::endl;
-//		  fTimeBasedHitBranch.push_back(FairTSBufferParameters("MVDHitsPixel", new TimeGap(), 10));
-//	  }
-//  }
 	if (fHitBranch.size() == 0) {
 		std::cout << "-W- PndSttCellTrackFinderTask::Init: "
 				<< "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!"
@@ -76,25 +66,35 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 
 	PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
 	fTubeArray = mapper->FillTubeArray();
-
-//	fSttStrawMap = new PndSttStrawMap();
-//	fSttStrawMap->GenerateStrawMap(fTubeArray);
-//	fSttGeometryMap = new PndSttGeometryMap(fTubeArray, 1);
-
 	fTrackFinder.SetSttTubeArray(fTubeArray);
 	fTrackFinder.SetCalcFirstTrackletInf(fAnalyseSteps);
 	fTrackFinder.SetVerbose(fVerbose);
 
-	fFirstTrackCandArray = 		ioman->Register("FirstTrackCand", "PndTrackCand", "STT", fPersistence);
-	fFirstRiemannTrackArray =	ioman->Register("FirstRiemannTrack", "PndRiemannTrack", "STT", fPersistence);
+	fFirstTrackCandArray = ioman->Register("FirstTrackCand", "PndTrackCand",
+			"STT", fPersistence);
+	fFirstRiemannTrackArray = ioman->Register("FirstRiemannTrack",
+			"PndRiemannTrack", "STT", fPersistence);
 
-	fCombiTrackCandArray = 		ioman->Register("SttCellTrackCand", "PndTrackCand", "STT", fPersistence);
-	fCombiTrackArray = 			ioman->Register("SttCellTrack", "PndTrack", "STT", fPersistence);
+	fCombiTrackCandArray = ioman->Register("CombiTrackCand", "PndTrackCand",
+			"STT", fPersistence);
+	fCombiTrackArray = ioman->Register("CombiTrack", "PndTrack", "STT",
+			fPersistence);
+	fCombiRiemannTrackArray = ioman->Register("CombiRiemannTrack",
+			"PndRiemannTrack", "STT", fPersistence);
 
-	fCombiRiemannTrackArray = 	ioman->Register("CombiRiemannTrack", "PndRiemannTrack", "STT", fPersistence);
-	fCorrectedIsochronesArray = ioman->Register("CorrectedIsochrones", "FairHit", "STT", fPersistence);
+	fCorrectedIsochronesArray = ioman->Register("CorrectedIsochrones",
+			"FairHit", "STT", fPersistence);
 
-	std::cout << "-I- PndSttCellTrackFinderTask: Initialisation successfull" << std::endl;
+	fCorrectedCombiTrackCandArray = ioman->Register("CombiTrackCandCorrected",
+			"PndTrackCand", "STT", fPersistence);
+	fCorrectedCombiTrackArray = ioman->Register("CombiTrackCorrected",
+			"PndTrack", "STT", fPersistence);
+	fCorrectedCombiRiemannTrackArray = ioman->Register(
+			"CombiRiemannTrackCorrected", "PndRiemannTrack", "STT",
+			fPersistence);
+
+	std::cout << "-I- PndSttCellTrackFinderTask: Initialisation successfull"
+			<< std::endl;
 	//fInitDone = kTRUE;
 	return kSUCCESS;
 }
@@ -105,41 +105,39 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 	FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader;
 	int eventNumber = myEventHeader->GetMCEntryNumber();
 
-//	if (fVerbose > 0) {
+	if (fVerbose > 0) {
 		cout
 				<< "====================Begin PndSttCellTrackFinderTask::Exec======================="
 				<< endl;
 
-		cout << "Event #" << eventNumber << endl;
-//	}
+	}
+	cout << "Event #" << eventNumber << endl;
 
-	// Reset output array
+// Reset output array
 	if (!fFirstTrackCandArray)
 		Fatal("Exec", "No trackCandArray");
 
-//	PndSttCellTrackFinder trackFinder;
-//	trackFinder.SetStrawMap(fSttStrawMap);
-//	trackFinder.SetGeometryMap(fSttGeometryMap);
-//	trackFinder.SetSttTubeArray(fTubeArray);
-//	trackFinder.SetVerbose(fVerbose);
-//	trackFinder.SetCalcFirstTrackletInf(fAnalyseSteps);
-//	trackFinder.SetStrawMap(fSttStrawMap);
-//	trackFinder.SetGeometryMap(fSttGeometryMap);
-//	trackFinder.SetSttTubeArray(fTubeArray);
 	fTrackFinder.Reset();
 
-	//FillHitArray();
-
 	FairRootManager *ioman = FairRootManager::Instance();
-
-	// std::cout << std::endl;
-//  std::cout << "------------- event " << fEventNr << "----------------" << std::endl;
 
 	for (int i = 0; i < (int) fHitBranch.size(); i++) {
 		fTrackFinder.AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
 	}
 
 	fTrackFinder.FindTracks();
+	std::map<int, FairHit*> correctedIsochrones =
+			fTrackFinder.GetCorrectedIsochrones();
+
+	int indexCounter = 0;
+	for (std::map<int, FairHit*>::iterator iter = correctedIsochrones.begin();
+			iter != correctedIsochrones.end(); iter++) {
+		//std::cout << "Corrected Isochrone for TubeId: " << iter->first << " : "<< *iter->second << std::endl;
+		FairHit* myCorrectedHit =
+				new (
+						(*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(
+						*iter->second);
+	}
 
 	if (fAnalyseSteps) {
 		for (int i = 0; i < fTrackFinder.NumFirstTrackCands(); i++) {
@@ -148,42 +146,50 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 							fTrackFinder.GetFirstTrackCand(i));
 		}
 
-//		for (int i = 0; i < fTrackFinder.NumFirstRiemannTracks(); ++i) {
-//			PndRiemannTrack* myTrack =
-//					new ((*fFirstRiemannTrackArray)[i]) PndRiemannTrack(
-//							fTrackFinder.GetFirstRiemannTrack(i));
-//		}
+		for (int i = 0; i < fTrackFinder.NumFirstRiemannTracks(); ++i) {
+			PndRiemannTrack* myTrack =
+					new ((*fFirstRiemannTrackArray)[i]) PndRiemannTrack(
+							fTrackFinder.GetFirstRiemannTrack(i));
+		}
 	}
 
 	for (int i = 0; i < fTrackFinder.NumCombinedTracks(); ++i) {
-		PndTrackCand* myCand = new ((*fCombiTrackCandArray)[i]) PndTrackCand(fTrackFinder.GetCombiTrackCand(i));
-		PndTrack* myTrack = new ((*fCombiTrackArray)[i]) PndTrack(fTrackFinder.GetCombiTrack(i));
+		PndTrackCand* myCand = new ((*fCombiTrackCandArray)[i]) PndTrackCand(
+				fTrackFinder.GetCombiTrackCand(i));
+		PndTrack* myTrack = new ((*fCombiTrackArray)[i]) PndTrack(
+				fTrackFinder.GetCombiTrack(i));
+
+		PndTrackCand* myCandCorrected = new (
+				(*fCorrectedCombiTrackCandArray)[i]) PndTrackCand(
+				fTrackFinder.GetCorrectedCombiTrackCand(i));
+		PndTrack* myTrackCorrected =
+				new ((*fCorrectedCombiTrackArray)[i]) PndTrack(
+						fTrackFinder.GetCorrectedCombiTrack(i));
+
 		myTrack->SetTrackCandRef(myCand);
 		myTrack->SetTrackCand(*myCand);
+
+		myTrackCorrected->SetTrackCandRef(myCandCorrected);
+		myTrackCorrected->SetTrackCand(*myCandCorrected);
 	}
 
-	std::map<int, FairHit> correctedIsochrones = fTrackFinder.GetCorrectedIsochrones();
 
-	for (std::map<int, FairHit>::iterator iter = correctedIsochrones.begin(); iter != correctedIsochrones.end(); iter++){
-		std::cout << "Corrected Isochrone for TubeId: " << iter->first << " : " << iter->second << std::endl;
-		FairHit* myCorrectedHit = new ((*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(iter->second);
+	for (int i = 0; i < fTrackFinder.NumCombinedRiemannTracks(); ++i) {
+
+		PndRiemannTrack* myRiemannTrack =
+				new ((*fCombiRiemannTrackArray)[i]) PndRiemannTrack(
+						fTrackFinder.GetCombiRiemannTrack(i));
 	}
-
-//	for (int i = 0; i < fTrackFinder.NumCombinedRiemannTracks(); ++i) {
-//
-//		PndRiemannTrack* myRiemannTrack =
-//				new ((*fCombiRiemannTrackArray)[i]) PndRiemannTrack(
-//						fTrackFinder.GetCombiRiemannTrack(i));
-//	}
 
 	if (fVerbose > 0)
 		cout << "#FirstTracklets: " << fTrackFinder.NumFirstTrackCands()
 				<< ", #CombinedTracklets: " << fTrackFinder.NumCombinedTracks()
 				<< endl;
 
-	fFirstTrackCandArray->Sort();
 	fCombiTrackCandArray->Sort();
 	fCombiTrackArray->Sort();
+	fCorrectedCombiTrackCandArray->Sort();
+	fCorrectedCombiTrackArray->Sort();
 
 }
 
@@ -194,6 +200,50 @@ void PndSttCellTrackFinderTask::FinishEvent() {
 	fCombiTrackArray->Delete();
 	fCombiRiemannTrackArray->Delete();
 	fCorrectedIsochronesArray->Delete();
+	fCorrectedCombiTrackCandArray->Delete();
+	fCorrectedCombiTrackArray->Delete();
+	fCorrectedCombiRiemannTrackArray->Delete();
+
+	vector<int> numHits;
+	numHits.push_back(fTrackFinder.NumHits());
+	numHits.push_back(fTrackFinder.NumHitsWithoutDouble());
+	numHits.push_back(fTrackFinder.NumUnambiguousNeighbors());
+	fNumHitsPerEvent.push_back(numHits);
+
+}
+
+void PndSttCellTrackFinderTask::FinishTask() {
+
+#ifdef PRINT_CALC_TIMES
+	// write calculation times, calcTimesTrackletGen.size()=#Events, calcTimesTrackletGen[i].size()=#measured times for Event #i
+	vector<vector<Double_t> > calcTimesTrackletGen =
+			fTrackFinder.GetTimeStampsTrackletGen();
+	vector<vector<Double_t> > calcTimesNeighborhood = fTrackFinder.GetTimeStampsGenerateNeighborhoodData();
+
+	FILE* fp = fopen("calcTimesCPU.txt", "w");
+	fprintf(fp,
+			"%3s \t %3s \t %3s \t %3s \t %10s \t %10s \t %10s \t %10s \t %10s \t %10s \t %10s \t %10s \t %10s \t %10s \t %10s \n",
+			"#E", "#H", "#HWD", "#UHWD", "EvaluateState()", "InitStartTracklets()",
+			"EvaluateMultiState()", "GenerateTracklets()",
+			"CombineTrackletsMultiStages()", "AssignAmbiguousHits()",
+			"SplitData()", "AddMissingHits()", "CreatePndTrackCands()",
+			"FindTracks()", "CalcNeighborData");
+	for (int i = 0; i < calcTimesTrackletGen.size(); ++i) {
+		fprintf(fp, "%3i \t %3i \t %3i \t %3i", i, fNumHitsPerEvent.at(i).at(0),  fNumHitsPerEvent.at(i).at(1),  fNumHitsPerEvent.at(i).at(2));
+		//trackletGen data
+		for (int j = 0; j < calcTimesTrackletGen[i].size(); j += 2) {
+			fprintf(fp, "\t %.15f",
+					(calcTimesTrackletGen[i].at(j + 1) - calcTimesTrackletGen[i].at(j)) * 1000);
+		}
+		//neighborhood data
+		fprintf(fp, "\t %.15f",
+							(calcTimesNeighborhood[i].at(1) - calcTimesNeighborhood[i].at(0)) * 1000);
+
+		fprintf(fp, "\n");
+	}
+
+	fclose(fp);
+#endif
 
 }
 
@@ -207,31 +257,4 @@ void PndSttCellTrackFinderTask::InitHitArray(TString branchName) {
 	}
 	fHitArray.push_back(tempArray);
 }
-
-//void PndSttCellTrackFinderTask::FillHitArray() {
-//	Double_t eventTime = -1;
-//	if (FairRunAna::Instance()->IsTimeStamp()){
-//		fHitArray[0]->Delete();
-//		fHitArray[1]->Delete();
-//
-//		fHitArray[0] = FairRootManager::Instance()->GetData("MVDHitsPixel", fTimeGapFunctor, 10); //FairRootManager::Instance()->GetEventTime() +
-//		std::cout << "PixelHits: " << fHitArray[0]->GetEntriesFast() << std::endl;
-//		if (fHitArray[0]->GetEntriesFast() > 1){
-//			FairTimeStamp* data = (FairTimeStamp*)fHitArray[0]->At(1);
-//			eventTime = data->GetTimeStamp();
-//			std::cout << "EventTime: " << eventTime << std::endl;
-//			fHitArray[1] = FairRootManager::Instance()->GetData("MVDHitsStrip", fStopFunctor, eventTime - 10, fStopFunctor, eventTime + 10);
-//			std::cout << "StripHits: " << fHitArray[1]->GetEntriesFast() << std::endl;
-//		}
-//	}
-//}
-
-//void PndSttCellTrackFinderTask::AddHitBranch(TString branchName) {
-//	if (fInitDone == kFALSE)
-//		fHitBranch.push_back(branchName);
-//	else
-//		std::cout
-//				<< "-W- AddHitBranch has to be called before the Init() of the task!"
-//				<< std::endl;
-//}
 

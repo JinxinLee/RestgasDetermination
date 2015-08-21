@@ -1,58 +1,44 @@
+/*
+* PndSttCellTrackFinder.h
+*
+*  Created on: May 20, 2014
+*      Author: schumann
+*/
+
 #ifndef PndSttCellTrackFinder_H_
 #define PndSttCellTrackFinder_H_
 
-#include "TClonesArray.h"
-#include "PndSttStrawMap.h"
 #include "PndTrackCand.h"
 #include "PndRiemannTrack.h"
 #include "PndTrack.h"
+#include "FairLink.h"
+#include "PndSttCellTrackFinderData.h"
+#include "PndSttCellTrackletGenerator.h"
+#include "PndSttHitCorrector.h"
 #include "PndSttSkewedHit.h"
 
-#include <vector>
-#include <map>
-#include <fstream>
-
-class FairHit;
-class PndSttGeometryMap;
-
-struct TrackletInf_t {
-
-	TrackletInf_t():numSkewed(0), startID(0), endID(0), maxID(0), straight(false), error(0.0), numErrHits(0){};
-	std::vector<int> hitIDs; // vector<hit-indices of STTHits of the tracklet>
-	int numSkewed;					// number of skewed tubes
-	int startID;					// tube-ID of the first tube of the tracklet
-	int endID;						// tube-ID of the final tube of the tracklet
-	int maxID;						// max tube-ID of all hits of the tracklet
-	bool straight;// indicates whether the tracklet runs straight from the center to border of the STT
-	PndRiemannTrack riemannTrack;	// riemannTrack of the tracklet
-	double error;					// sum of squared error
-	int numErrHits;	// number of hits that deviate from circle by more than radius of a straw tube
-
-	void Print() {
-		std::cout << "startId: " << startID << ", endId: " << endID<< ", maxId: " << maxID << ", straight: " << straight
-				<< ", numSkewed: " << numSkewed;
-
-		if (riemannTrack.getNumHits() != 0) {
-			std::cout << ", RiemannTrack created error: " << error
-					<< ", #wrong hits: " << numErrHits << " ";
-			std::cout << riemannTrack << std::endl;
-		}
-		std::cout << std::endl;
-	};
-};
-
-struct Combination_t {
-	std::set<int> tracklets; 			// status of combined tracklets
-	TrackletInf_t trackletInf;		// information about the resulting tracklet
-};
+class TClonesArray;
 
 class PndSttCellTrackFinder {
 public:
 	PndSttCellTrackFinder() :
-			fVerbose(0), fCalcFirstTrackletInf(kFALSE) {
-	};
+		fVerbose(0), fCalcFirstTrackletInf(kFALSE) {
+	}
+	;
 	virtual ~PndSttCellTrackFinder() {
-	};
+		delete fTrackFinderData;
+		delete fHitCorrector;
+		//delete fTrackletGenerator;
+		for (int i = 0; i < fHits.size(); ++i) {
+			delete fHits.at(i);
+		}
+		for (std::multimap<int, PndSttSkewedHit*>::iterator it =
+				fCombinedSkewedHits.begin(); it != fCombinedSkewedHits.end();
+				++it) {
+			delete (*it).second;
+		}
+
+	}
 
 	void FindTracks();
 
@@ -60,194 +46,179 @@ public:
 
 	void SetSttTubeArray(TClonesArray* sttTubeArray);
 
-	void SetStrawMap(PndSttStrawMap* map){fStrawMap = *map;}
-	void SetGeometryMap(PndSttGeometryMap* map){fGeometryMap = map;}
+	std::map<Int_t, FairHit*> GetCorrectedIsochrones() {
+		return fHitCorrector->GetCorrectedHits();
+	}
 
+	// Get TrackCands of start-tracklets before combination
 	PndTrackCand GetFirstTrackCand(int i) {
 		return fFirstTrackCand[i];
-	};
+	}
+	;
 
+	// Get RiemannTracks before combination of tracklets
 	PndRiemannTrack GetFirstRiemannTrack(int i) {
 		return fFirstRiemannTrack[i];
-	};
+	}
+	;
 
+	// Get TrackCands of combinated tracklets
 	PndTrackCand GetCombiTrackCand(int i) {
 		return fCombiTrackCand[i];
-	};
+	}
+	;
 
+	// Get PndTrack of combinated tracklets
 	PndTrack GetCombiTrack(int i) {
 		return fCombiTrack[i];
-	};
+	}
+	;
 
 	PndRiemannTrack GetCombiRiemannTrack(int i) {
-		return fCombinedData[i].trackletInf.riemannTrack;
+		return fCombiRiemannTrack[i];
+	}
+	;
+
+	PndTrackCand GetCorrectedCombiTrackCand(int i) {
+		return fCorrectedCombiTrackCand[i];
+	}
+	;
+
+	PndTrack GetCorrectedCombiTrack(int i) {
+		return fCorrectedCombiTrack[i];
+	}
+	;
+
+	PndRiemannTrack GetCorrectedCombiRiemannTrack(int i) {
+		return fCorrectedCombiRiemannTrack[i];
+	}
+	;
+
+	std::vector<std::vector<Double_t> > GetTimeStampsTrackletGen() {
+		return fTimeStampsTrackletGen;
 	};
 
-	std::map<Int_t, FairHit> GetCorrectedIsochrones() {
-		return fCorrectedIsochrones;
-	}
+	std::vector<std::vector<Double_t> > GetTimeStampsGenerateNeighborhoodData() {
+			return fTimeStampsGenerateNeighborhoodData;
+		};
 
 	int NumFirstTrackCands() {
 		return fFirstTrackCand.size();
-	};
+	}
+	;
 
 	int NumFirstRiemannTracks() {
 		return fFirstRiemannTrack.size();
-	};
+	}
+	;
 
 	int NumCombinedTracks() {
 		return fCombiTrackCand.size();
-	};
+	}
+	;
 
 	int NumCombinedRiemannTracks() {
-		return fCombinedData.size();
-	};
+		return fCombiRiemannTrack.size();
+	}
+	;
+
+	int NumHits(){
+			return fTrackFinderData->GetNumHits();
+	}
+
+	int NumHitsWithoutDouble(){
+
+		return fTrackFinderData->GetNumHitsWithoutDouble();
+	}
+
+	int NumUnambiguousNeighbors(){
+		return fTrackFinderData->GetSeparations()[1].size()+fTrackFinderData->GetSeparations()[2].size();
+	}
 
 	void SetCalcFirstTrackletInf(Bool_t val) {
 		fCalcFirstTrackletInf = val;
-	};
+	}
+	;
 
 	void SetVerbose(Int_t val) {
 		fVerbose = val;
+	}
+	;
+
+	void StoreTrackData(){
+		fFirstTrackCand=fTrackletGenerator->GetFirstTrackCands();
+		if(fCalcFirstTrackletInf)
+			fFirstRiemannTrack=fTrackletGenerator->GetFirstRiemannTracks();
+
+		if(!fTrackletGenerator->CalcWithCorrectedHits()){
+
+			fCombiTrackCand=fTrackletGenerator->GetCombiTrackCands();
+			fCombiRiemannTrack=fTrackletGenerator->GetCombiRiemannTracks();
+			fCombiTrack=fTrackletGenerator->GetCombiTracks();
+		} else {
+			fCorrectedCombiTrackCand=fTrackletGenerator->GetCombiTrackCands();
+			fCorrectedCombiRiemannTrack=fTrackletGenerator->GetCombiRiemannTracks();
+			fCorrectedCombiTrack=fTrackletGenerator->GetCombiTracks();
+
+		}
+
+
 	};
 
-	void Reset(){
-			fHits.clear();
-			fMapHitToFairLink.clear();
-			fMapTubeIdToHit.clear();
+	void Reset() {
+		fHits.clear();
+		fTrackFinderData->clear();
 
-			fFirstTrackCand.clear();
-			fFirstRiemannTrack.clear();
-			fStates.clear();
-			fMultiStates.clear();
-			fHitNeighbors.clear();
-			fSeparations.clear(); // check if clear is sufficient to delete vector in vector
-			fStartTracklets.clear();
-			fShortTracklets.clear();
-			fCombinedData.clear();
-			fTrackletsWithoutCombi.clear();
-			fCombiTrackCand.clear();
-			fStateCombinations.clear();
-			fCombiTrack.clear();
-			fCorrectedIsochrones.clear();
-		}
+		fFirstTrackCand.clear();
+		fFirstRiemannTrack.clear();
+
+		fCombiTrackCand.clear();
+		fCombiTrack.clear();
+		fCombiRiemannTrack.clear();
+
+		fCorrectedCombiTrackCand.clear();
+		fCorrectedCombiTrack.clear();
+		fCorrectedCombiRiemannTrack.clear();
+
+		if(fHitCorrector!=0)	delete fHitCorrector;
+		if(fTrackletGenerator!=0) delete fTrackletGenerator;
+
+	}
+
+
+
 
 private:
 
-	/* Method creates the first tracklets by the means of a cellular automaton.*/
-	void GenerateTracklets();
-
-	/* Method searchs for hit-neighbors of each cell.*/
-	void FindHitNeighbors();
-
-	/* Method grades the active cells according to the number of hit-neighbors.*/
-	void SeparateNeighbors();
-
-	/* Method update the states of each until no state change anymore.*/
-	void EvaluateState();
-
-	/* Method update the states of tubes with more than two neighbors until no state changes anymore. */
-	void EvaluateMultiState();
-
-	/* Method initialzises fStartTracklets with the states and trackletInf
-	 * of the generated tracklets.*/
-	void InitStartTracklets();
-
-	/* Method combines the tracklets generated by the first step.
-	 * Only tracklets with more than 2 hits of tubes that are not skewed were combined.*/
-//	void CombineTracklets();
-
-	std::set<std::pair<int, int> > CreatePairCombis(int firstState, std::set<int> values);
-//	void CombineTrackletsMultiStagesOld();
-	void CombineTrackletsMultiStages();
-	void CombineTrackletsMultiStagesRecursive(int stateToCombine, std::set<int> currentCombi);
-	void InsertCombination(std::set<int> combination);
-
-	/* Method search for the start-tracklets that were not combined.*/
-	void FindTrackletsWithoutCombi();
-
-	/* Method creates combination of 3 tracklets based on two-part-combinations.*/
-//	void CreateFurtherCombinations();
-
-	void AssignAmbiguousHits();
-
-	/* Method adds the unassigned hits and trackCands with 1 and 2 hits to an
-	 * appropriate combination (if possible).*/
-	void AddMissingHits();
-
-	/* Methods adds the uncared hits with 3 and 4 hit-neighbors to the best combination
-	 * of tracklets. If the nearest riemann-circle is found and the distance is
-	 * smaller than the radius of a tube, the hit is added.*/
-	bool AddHitToBestCombi(int hitID);
-
-	/* This Method creates PndTrackCands out of the entries in fCombinedData and
-	 *  the not combined tracklets with more than 2 hits.*/
-	void CreatePndTrackCands();
-
-	/* Method for calculating the trackletInf for a combination of tracklets.*/
-	TrackletInf_t GetTrackletInf(std::set<int> tracklets);
-
-	/* Method checks if a tubeID belongs to the end-tube of a tracklet.*/
-	bool IsEndTubeOfTracklet(int tubeID);
-
-	/* Method for creating a riemannTrack out of hits.
-	 * Hits of skewed tubes were ignored.*/
-	PndRiemannTrack CreateRiemannTrack(std::vector<int> hitIDs);
-
-	/* Method calculates the mean squared deviation of the hits from the riemann-circle.*/
-	double CalcDeviationOfRiemannTrack(PndRiemannTrack& track);
-
-	/* Method calculates the deviation of the hit from the riemann-circle.*/
-	double CalcDeviation(PndRiemannTrack& track, int hitID);
-
-	/* Method counts the hits of the riemannTrack, that had a distance of more
-	 * than r (radius of a straw tube) to the riemann-circle.*/
-	int GetDeviationCount(PndRiemannTrack& track);
-
-	void CorrectIsochrones();
-
-	std::vector<double> CalculateTangentAngles(PndSttHit* tube1, PndSttHit* tube2);
-
-	std::vector<std::vector<double> > CalcClassification(std::vector<std::vector<std::vector<double> > > differences);
-
+	std::vector<std::vector<Double_t> > fTimeStampsTrackletGen;
+	std::vector<std::vector<Double_t> > fTimeStampsGenerateNeighborhoodData;
 
 	Int_t fVerbose;
-	Bool_t fCalcFirstTrackletInf;// if true, calculate riemannTracks for start-tracklets
-
+	Bool_t fCalcFirstTrackletInf; // if true, calculate riemannTracks for start-tracklets
 	std::vector<FairHit*> fHits;	// vector with all hits of the current event
-	PndSttStrawMap fStrawMap;	// for getting more information about the tubes
-	PndSttGeometryMap* fGeometryMap;// for initializing the neighbors of each tube
+	std::multimap<int, PndSttSkewedHit*> fCombinedSkewedHits; //<(inner) Tube-ID of combined stt hits of skewed layers, corresponding hit>
 
-	map<int, FairLink> fMapHitToFairLink; // map< index of hit in fHit, FairLink of SttHit>
-	map<int, int> fMapTubeIdToHit; // map< id of straw tube, index of hit in fHit>
+	std::map<int, FairLink> fMapHitToFairLink; // map< index of hit in fHit, FairLink of SttHit>
 
-	map<int, TVector3> fMapTubeIdToPos;	// map<straw id, position of the center of the tube>
+	PndSttCellTrackFinderData* fTrackFinderData;
+	PndSttCellTrackletGenerator* fTrackletGenerator=0;
+	PndSttHitCorrector* fHitCorrector=0;
 
 	// for first step of trackfinding
-	std::vector<PndTrackCand> fFirstTrackCand;// for saving trackCands after the use of cellular automaton
-	std::vector<PndRiemannTrack> fFirstRiemannTrack;//	for saving + plotting the riemann-tracks after the first step
-
-	map<int, int> fStates; 					// map<straw id, state id>
-	map<int, std::set<int> > fMultiStates;	// map<straw id, set of neighboring state ids for straws with more than two neighbors
-
-	map<int, vector<int> > fHitNeighbors; // map<straw id, vector<ids of hit-neighbors>>
-	map<int, vector<int> > fSeparations; // map<#active neighbors, vector<straw ids>>
-
-	map<int, TrackletInf_t> fStartTracklets; // map<state of start-tracklets (with more than 2 hits) generated by cellular automaton, TrackletInf>
-	map<int, TrackletInf_t> fShortTracklets; // set<state of tracklets with less than 3 hits>
-
-	std::multimap<int, PndSttSkewedHit*> fCombinedSkewedHits; //<(inner) Tube-ID of combined stt hits of skewed layers, corresponding hit>
-	std::map<int, FairHit> fCorrectedIsochrones;  //< Tube-ID, corrected hit position>
-
-	// for second step of trackfinding
-	std::vector<std::set<int> > fStateCombinations; // vector< set<state of start-tracklets that should be combined> >
-	std::vector<Combination_t> fCombinedData; // for storing combination of start-tracklets
-	std::vector<int> fTrackletsWithoutCombi; // state of tracklets that were not combined
+	std::vector<PndTrackCand> fFirstTrackCand; // for saving trackCands after the use of cellular automaton
+	std::vector<PndRiemannTrack> fFirstRiemannTrack; //	for saving + plotting the riemann-tracks after the first step
 
 	std::vector<PndTrackCand> fCombiTrackCand; // resulting tracks of combined tracklets
 	std::vector<PndTrack> fCombiTrack; // resulting PndTrack
+	std::vector<PndRiemannTrack> fCombiRiemannTrack;
 
-	ClassDef(PndSttCellTrackFinder,1);
+	std::vector<PndTrackCand> fCorrectedCombiTrackCand;
+	std::vector<PndTrack> fCorrectedCombiTrack;
+	std::vector<PndRiemannTrack> fCorrectedCombiRiemannTrack;
+
+	ClassDef(PndSttCellTrackFinder,1)
+	;
+
 };
 
-#endif /*PndSttCellTrackFinder_H_*/
+#endif /* PndSttCellTrackFinder_H_ */
