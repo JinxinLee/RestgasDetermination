@@ -251,7 +251,7 @@ void PndSttCellTrackFinderData::PrintInfo() {
 	}
 
 	cout << "fHitNeighbors: " << endl;
-	for (map<int, vector<int>>::iterator it = fHitNeighbors.begin();
+	for (map<int, vector<int> >::iterator it = fHitNeighbors.begin();
 			it != fHitNeighbors.end(); ++it) {
 		cout << it->first << ": ";
 		for (int i = 0; i < it->second.size(); ++i) {

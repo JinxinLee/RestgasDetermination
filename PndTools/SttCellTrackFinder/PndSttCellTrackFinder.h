@@ -22,7 +22,7 @@ class TClonesArray;
 class PndSttCellTrackFinder {
 public:
 	PndSttCellTrackFinder() :
-		fVerbose(0), fCalcFirstTrackletInf(kFALSE) {
+		fVerbose(0), fCalcFirstTrackletInf(kFALSE),fTrackletGenerator(0),fHitCorrector(0) {
 	}
 	;
 	virtual ~PndSttCellTrackFinder() {
@@ -201,8 +201,8 @@ private:
 	std::map<int, FairLink> fMapHitToFairLink; // map< index of hit in fHit, FairLink of SttHit>
 
 	PndSttCellTrackFinderData* fTrackFinderData;
-	PndSttCellTrackletGenerator* fTrackletGenerator=0;
-	PndSttHitCorrector* fHitCorrector=0;
+	PndSttCellTrackletGenerator* fTrackletGenerator;
+	PndSttHitCorrector* fHitCorrector;
 
 	// for first step of trackfinding
 	std::vector<PndTrackCand> fFirstTrackCand; // for saving trackCands after the use of cellular automaton
