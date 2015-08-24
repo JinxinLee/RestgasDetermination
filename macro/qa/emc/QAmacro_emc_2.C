@@ -17,7 +17,7 @@ int QAmacro_emc_2()
 	TString parFile = "simparams.root"; // at the moment you do not need it
   
 	// Digitisation file (ascii)
-	TString digiFile = "emc.par";
+	TString digiFile = "all.par";
   
 	// Output file
 	TString outFile = "full_emc.root";
