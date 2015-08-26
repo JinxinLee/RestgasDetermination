@@ -39,6 +39,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName(SimEngine.Data() );
+  fRun->SetUseFairLinks(kTRUE);
   fRun->SetOutputFile(OutputFile.Data());
   fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetBeamMom(BeamMomentum);
@@ -101,7 +102,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_201504.root");
+  SciT->SetGeometryFileName("SciTil_20150801.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);

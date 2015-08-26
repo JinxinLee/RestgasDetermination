@@ -40,6 +40,7 @@ sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.2
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName(SimEngine.Data() );
   fRun->SetOutputFile(OutputFile.Data());
+  fRun->SetUseFairLinks(kTRUE);
   fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetMaterials(MediaFile.Data());
@@ -106,7 +107,7 @@ sim_scit(Int_t nEvents = 10000, TString  SimEngine ="TGeant3", Float_t mom = 6.2
   */
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_main.root");
+  SciT->SetGeometryFileName("SciTil_20150801.root");
   fRun->AddModule(SciT);
   /*
   //-------------------------  DRC       -----------------

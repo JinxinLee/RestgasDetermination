@@ -62,11 +62,11 @@ void create_scit_rootgeo_20150601(Double_t distance = 750){
   SiPmVol->SetLineColor(kRed);
 
   TGeoBBox* CardShape= new TGeoBBox("Card_logicCard",0.075,0.25,1.4);
-   TGeoVolume* CardVol= new TGeoVolume("Card",CardShape, gGeoMan->GetMedium("pcbmvd"));
+   TGeoVolume* CardVol= new TGeoVolume("SciTil_Card",CardShape, gGeoMan->GetMedium("pcbmvd"));
    CardVol->SetLineColor(kYellow);
 
   TGeoBBox* CardOutShape= new TGeoBBox("CardOut_logicCard",0.5,0.075,90.);
-   TGeoVolume* CardOutVol= new TGeoVolume("CardOut",CardOutShape, gGeoMan->GetMedium("pcbmvd"));
+   TGeoVolume* CardOutVol= new TGeoVolume("SciTil_CardOut",CardOutShape, gGeoMan->GetMedium("pcbmvd"));
    CardOutVol->SetLineColor(kGreen);
   
 

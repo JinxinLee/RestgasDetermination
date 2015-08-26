@@ -1,10 +1,10 @@
-void create_scit_rootgeo(Double_t distance = 750){
+void create_scit_rootgeo_20150801(Double_t distance = 750){
   // Forward tof geometry parameters
   //-----------------------------
   //-- macro created by Alicia S. based on step file
   //-- barrel-SciTil_18122012
   //-- edited by D. Steinschaden 
-  //-- last update 04.2015
+  //-- last update 05.2015
 
 
  //--------------------------------------------------------------------
@@ -17,7 +17,7 @@ void create_scit_rootgeo(Double_t distance = 750){
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   
-  TString outfile= "../../../geometry/SciTil_Copy.root";
+  TString outfile= "../../../geometry/SciTil_20150801.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -51,7 +51,7 @@ void create_scit_rootgeo(Double_t distance = 750){
   //check PndSciT.h and PndSciT.cxx and the listofsensitives 
 
   TGeoBBox* TileShape;
-  TileShape = new TGeoBBox("SciTil_logicTile", 1.425, 0.25, 1.425);// dimension is always given from the mid to the end e.g. only the half length
+  TileShape = new TGeoBBox("SciTil_logicTile", 4.2425, 0.25, 1.425);// dimension is always given from the mid to the end e.g. only the half length
 
   TGeoVolume* TileVol;
   TileVol = new TGeoVolume("SciTil_SENSOR",TileShape, gGeoMan->GetMedium("polyvinyltoluene"));
@@ -61,55 +61,62 @@ void create_scit_rootgeo(Double_t distance = 750){
    TGeoVolume* SiPmVol= new TGeoVolume("SiPm",SiPmShape, gGeoMan->GetMedium("silicon"));
   SiPmVol->SetLineColor(kRed);
 
-  TGeoBBox* CardShape= new TGeoBBox("SciTil_logicCard",2.,0.075,2.);
-   TGeoVolume* CardVol= new TGeoVolume("Card",CardShape, gGeoMan->GetMedium("pcbmvd"));
-   CardVol->SetLineColor(kGreen);
+  TGeoBBox* CardShape= new TGeoBBox("Card_logicCard",0.075,0.25,1.4);
+   TGeoVolume* CardVol= new TGeoVolume("SciTil_Card",CardShape, gGeoMan->GetMedium("pcbmvd"));
+   CardVol->SetLineColor(kYellow);
+
+  TGeoBBox* CardOutShape= new TGeoBBox("CardOut_logicCard",0.5,0.075,90.);
+   TGeoVolume* CardOutVol= new TGeoVolume("SciTil_CardOut",CardOutShape, gGeoMan->GetMedium("pcbmvd"));
+   CardOutVol->SetLineColor(kGreen);
   
 
-  // --------------creating module (Quad)-------------
+  // --------------creating module (Line)-------------
   
-  TGeoVolumeAssembly* QuadAssVol = new TGeoVolumeAssembly("SciTil_quad");// 4 tiles + 8 SiPm
-          
+  TGeoVolumeAssembly* LineAssVol = new TGeoVolumeAssembly("SciTil_Line");// 2 tiles + 16 SiPm + 3 connection cards
 
   TGeoRotation* rot_SiPm = new TGeoRotation;
-  TGeoRotation* rot_SiPm2 = new TGeoRotation;
-  QuadAssVol->AddNode(TileVol,0,new TGeoCombiTrans(1.5, 0.,1.5 , new TGeoRotation (0)));
-  QuadAssVol->AddNode(SiPmVol,0,new TGeoCombiTrans(2.2125, 0.,0.0025 , new TGeoRotation (0)));
-  rot_SiPm.SetAngles(90.,90.,90.);
-  QuadAssVol->AddNode(SiPmVol,1,new TGeoCombiTrans(0.0025., 0.,0.7875 , rot_SiPm) );
+ LineAssVol->AddNode(TileVol,0,new TGeoCombiTrans(4.4625, 0., 0., new TGeoRotation (0)));
+ LineAssVol->AddNode(TileVol,1,new TGeoCombiTrans(-4.4625, 0., 0., new TGeoRotation (0))); 
 
-  QuadAssVol->AddNode(TileVol,1,new TGeoCombiTrans(1.5, 0.,-1.5, new TGeoRotation (0)) );
-  QuadAssVol->AddNode(SiPmVol,2,new TGeoCombiTrans(0.0025, 0.,-2.2125 , rot_SiPm) );
-  QuadAssVol->AddNode(SiPmVol,3,new TGeoCombiTrans(0.7875, 0.,-0.0025 , new TGeoRotation (0)));
+ rot_SiPm.SetAngles(90.,90.,90.);
+ LineAssVol->AddNode(SiPmVol,0,new TGeoCombiTrans(8.7775, 0., 1.06875, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,1,new TGeoCombiTrans(8.7775, 0., 0.35625, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,2,new TGeoCombiTrans(8.7775, 0., -0.35625, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,3,new TGeoCombiTrans(8.7775, 0., -1.06875, rot_SiPm)); 
 
-  QuadAssVol->AddNode(TileVol,2,new TGeoCombiTrans(-1.5, 0.,-1.5, new TGeoRotation (0)));
-  QuadAssVol->AddNode(SiPmVol,4,new TGeoCombiTrans(-2.2125, 0.,-0.0025 ,new TGeoRotation (0)));
-  QuadAssVol->AddNode(SiPmVol,5,new TGeoCombiTrans(-0.0025, 0.,-0.7875 , rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,4,new TGeoCombiTrans(0.1475, 0., 1.06875, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,5,new TGeoCombiTrans(0.1475, 0., 0.35625, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,6,new TGeoCombiTrans(0.1475, 0., -0.35625, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,7,new TGeoCombiTrans(0.1475, 0., -1.06875, rot_SiPm)); 
+ 
+ LineAssVol->AddNode(SiPmVol,8,new TGeoCombiTrans(-0.1475, 0., 1.06875, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,9,new TGeoCombiTrans(-0.1475, 0., 0.35625, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,10,new TGeoCombiTrans(-0.1475, 0., -0.35625, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,11,new TGeoCombiTrans(-0.1475, 0., -1.06875, rot_SiPm));
 
-  QuadAssVol->AddNode(TileVol,3,new TGeoCombiTrans(-1.5, 0.,1.5 , new TGeoRotation (0)) );
-  QuadAssVol->AddNode(SiPmVol,6,new TGeoCombiTrans(-0.0025, 0.,2.2125 , rot_SiPm));
-  QuadAssVol->AddNode(SiPmVol,7,new TGeoCombiTrans(-0.7875, 0.,0.0025 , new TGeoRotation (0)));
+ LineAssVol->AddNode(SiPmVol,12,new TGeoCombiTrans(-8.7775, 0., 1.06875, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,13,new TGeoCombiTrans(-8.7775, 0., 0.35625, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,14,new TGeoCombiTrans(-8.7775, 0., -0.35625, rot_SiPm));
+ LineAssVol->AddNode(SiPmVol,15,new TGeoCombiTrans(-8.7775, 0., -1.06875, rot_SiPm)); 
 
-  QuadAssVol->AddNode(CardVol,1,new TGeoCombiTrans(0.,0.325,0., new TGeoRotation (0)));
-
+ LineAssVol->AddNode(CardVol,0,new TGeoCombiTrans(8.925, 0., 0., new TGeoRotation (0)));
+ LineAssVol->AddNode(CardVol,1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
+ LineAssVol->AddNode(CardVol,2,new TGeoCombiTrans(-8.925, 0., 0., new TGeoRotation (0)));
   
   //-----------------creating Super-Module----------------
 
-  TGeoVolumeAssembly* SModAssVol = new TGeoVolumeAssembly("SciTil_mod");//90 quads 
-  Double_t dx, dz;
-
-  dx=0.;
-  dz=0.;
-  for(int j=0;j<30;j++){
-    for(int l=0;l<3;l++){
-      dz = -90+3+j*6;
-      dx = -9+3+l*6; 
-
-      SModAssVol->AddNode(QuadAssVol,j*3+l,new TGeoCombiTrans(dx, 0.,dz, new TGeoRotation (0)));
-
-    }
+  TGeoVolumeAssembly* SModAssVol = new TGeoVolumeAssembly("SciTil_Mod");//60 Lines
+ 
+  Double_t  dz=0;
+  for(int j=0;j<60;j++){ 
+      dz = -90+1.5+j*3;
+      SModAssVol->AddNode(LineAssVol, j, new TGeoCombiTrans(0., 0., dz, new TGeoRotation (0)));  
   }
-  
+  SModAssVol->AddNode(CardOutVol, 0, new TGeoCombiTrans(8.925, 0.325, 0., new TGeoRotation (0)));
+  SModAssVol->AddNode(CardOutVol, 1, new TGeoCombiTrans(0., 0.325, 0., new TGeoRotation (0)));
+  SModAssVol->AddNode(CardOutVol, 2, new TGeoCombiTrans(-8.925, 0.325, 0., new TGeoRotation (0)));
+
+
   // -----------------creating Barrel --------------------------------------------
   TGeoVolumeAssembly* BarrelAssVol = new TGeoVolumeAssembly("SciTil_barrel");
   
@@ -128,7 +135,7 @@ void create_scit_rootgeo(Double_t distance = 750){
 //taking angles from dirc geometry 
 	  Double_t dx_bbox, dy_bbox, dz_bbox, phi_curr;   
 	     
-	  for(Int_t m = 0; m < bbnum; m ++){       
+	  for(Int_t m = 0; m < bbnum; m ++){
 	    phi_curr = (90. - phi0 - dphi*m)/180.*pi;   
 	    if(m > bbnum/2-1){ phi_curr = (90. - phi0 - dphi*m - 2.*pipehAngle)/180.*pi; }
 	    dx_bbox = radius * cos(phi_curr);
@@ -136,13 +143,14 @@ void create_scit_rootgeo(Double_t distance = 750){
 	    
 	    TGeoRotation rot_bbox;   
 	    rot_bbox.RotateZ( -phi0 - m*dphi - (TMath::Floor(2.*m/bbnum))*(2.*pipehAngle));   
-	    BarrelAssVol->AddNode(SModAssVol, m+1, new TGeoCombiTrans(dx_bbox, dy_bbox, 0, new TGeoRotation(rot_bbox)));   
+	    BarrelAssVol->AddNode(SModAssVol, m, new TGeoCombiTrans(dx_bbox, dy_bbox, 0, new TGeoRotation(rot_bbox)));   
 	  }
   	
   
 	  top->AddNode(BarrelAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
-	  //top->AddNode(QuadAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
-	  
+	  //top->AddNode(SModAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
+	  //top->AddNode(LineAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
+
   gGeoMan->SetVisLevel(5);
 	  gGeoMan->CloseGeometry();
 	  top->Write();
