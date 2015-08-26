@@ -14,7 +14,7 @@ public:
 
 	PndSttCellTrackFinderTask() :
 			FairTask("Stt Cell Track Finder"), fVerbose(0), fPersistence(kTRUE), fAnalyseSteps(
-					kFALSE) {
+					kFALSE) , fTrackFinder(0){
 	}
 	;
 
@@ -81,7 +81,7 @@ private:
 
 	PndSttGeometryMap *fSttGeometryMap;
 	PndSttStrawMap *fSttStrawMap;
-	PndSttCellTrackFinder fTrackFinder;
+	PndSttCellTrackFinder* fTrackFinder;
 
 	TClonesArray* fEventHeader;
 

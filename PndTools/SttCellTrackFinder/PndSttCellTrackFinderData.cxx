@@ -76,13 +76,16 @@ void PndSttCellTrackFinderData::GenerateNeighborhoodData(vector<FairHit*> hits,
 	int tubeId;
 	set<int> sttHits;
 	vector<FairHit*> hitsWithoutDouble;
+	//cout<<"STTHits: "<<hits.size()<<" :";
 	for(int i=0; i<hits.size(); ++i){
 		tubeId=((PndSttHit*) hits[i])->GetTubeID();
+		//cout<<" "<<tubeId;
 		if(sttHits.find(tubeId)==sttHits.end()){
 			sttHits.insert(tubeId);
 			hitsWithoutDouble.push_back(hits[i]);
 		}
 	}
+	//cout<<endl;
 
 	fNumHits=hits.size();
 	fNumHitsWithoutDouble=sttHits.size();

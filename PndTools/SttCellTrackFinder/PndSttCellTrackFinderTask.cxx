@@ -26,7 +26,7 @@ using std::cout;
 using std::endl;
 
 //Macro for printing the calculation times into files called calcTimesCPU*.txt
-#define PRINT_CALC_TIMES
+//#define PRINT_CALC_TIMES
 
 ClassImp(PndSttCellTrackFinderTask);
 
@@ -65,10 +65,11 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 	}
 
 	PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+	fTrackFinder= new PndSttCellTrackFinder();
 	fTubeArray = mapper->FillTubeArray();
-	fTrackFinder.SetSttTubeArray(fTubeArray);
-	fTrackFinder.SetCalcFirstTrackletInf(fAnalyseSteps);
-	fTrackFinder.SetVerbose(fVerbose);
+	fTrackFinder->SetSttTubeArray(fTubeArray);
+	fTrackFinder->SetCalcFirstTrackletInf(fAnalyseSteps);
+	fTrackFinder->SetVerbose(fVerbose);
 
 	fFirstTrackCandArray = ioman->Register("FirstTrackCand", "PndTrackCand",
 			"STT", fPersistence);
@@ -117,22 +118,21 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 	if (!fFirstTrackCandArray)
 		Fatal("Exec", "No trackCandArray");
 
-	fTrackFinder.Reset();
+	fTrackFinder->Reset();
 
 	FairRootManager *ioman = FairRootManager::Instance();
 
 	for (int i = 0; i < (int) fHitBranch.size(); i++) {
-		fTrackFinder.AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
+		fTrackFinder->AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
 	}
 
-	fTrackFinder.FindTracks();
+	fTrackFinder->FindTracks();
 	std::map<int, FairHit*> correctedIsochrones =
-			fTrackFinder.GetCorrectedIsochrones();
+			fTrackFinder->GetCorrectedIsochrones();
 
 	int indexCounter = 0;
 	for (std::map<int, FairHit*>::iterator iter = correctedIsochrones.begin();
 			iter != correctedIsochrones.end(); iter++) {
-		//std::cout << "Corrected Isochrone for TubeId: " << iter->first << " : "<< *iter->second << std::endl;
 		FairHit* myCorrectedHit =
 				new (
 						(*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(
@@ -140,31 +140,31 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 	}
 
 	if (fAnalyseSteps) {
-		for (int i = 0; i < fTrackFinder.NumFirstTrackCands(); i++) {
+		for (int i = 0; i < fTrackFinder->NumFirstTrackCands(); i++) {
 			PndTrackCand* myCand =
 					new ((*fFirstTrackCandArray)[i]) PndTrackCand(
-							fTrackFinder.GetFirstTrackCand(i));
+							fTrackFinder->GetFirstTrackCand(i));
 		}
 
-		for (int i = 0; i < fTrackFinder.NumFirstRiemannTracks(); ++i) {
+		for (int i = 0; i < fTrackFinder->NumFirstRiemannTracks(); ++i) {
 			PndRiemannTrack* myTrack =
 					new ((*fFirstRiemannTrackArray)[i]) PndRiemannTrack(
-							fTrackFinder.GetFirstRiemannTrack(i));
+							fTrackFinder->GetFirstRiemannTrack(i));
 		}
 	}
 
-	for (int i = 0; i < fTrackFinder.NumCombinedTracks(); ++i) {
+	for (int i = 0; i < fTrackFinder->NumCombinedTracks(); ++i) {
 		PndTrackCand* myCand = new ((*fCombiTrackCandArray)[i]) PndTrackCand(
-				fTrackFinder.GetCombiTrackCand(i));
+				fTrackFinder->GetCombiTrackCand(i));
 		PndTrack* myTrack = new ((*fCombiTrackArray)[i]) PndTrack(
-				fTrackFinder.GetCombiTrack(i));
+				fTrackFinder->GetCombiTrack(i));
 
 		PndTrackCand* myCandCorrected = new (
 				(*fCorrectedCombiTrackCandArray)[i]) PndTrackCand(
-				fTrackFinder.GetCorrectedCombiTrackCand(i));
+				fTrackFinder->GetCorrectedCombiTrackCand(i));
 		PndTrack* myTrackCorrected =
 				new ((*fCorrectedCombiTrackArray)[i]) PndTrack(
-						fTrackFinder.GetCorrectedCombiTrack(i));
+						fTrackFinder->GetCorrectedCombiTrack(i));
 
 		myTrack->SetTrackCandRef(myCand);
 		myTrack->SetTrackCand(*myCand);
@@ -174,16 +174,16 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 	}
 
 
-	for (int i = 0; i < fTrackFinder.NumCombinedRiemannTracks(); ++i) {
+	for (int i = 0; i < fTrackFinder->NumCombinedRiemannTracks(); ++i) {
 
 		PndRiemannTrack* myRiemannTrack =
 				new ((*fCombiRiemannTrackArray)[i]) PndRiemannTrack(
-						fTrackFinder.GetCombiRiemannTrack(i));
+						fTrackFinder->GetCombiRiemannTrack(i));
 	}
 
 	if (fVerbose > 0)
-		cout << "#FirstTracklets: " << fTrackFinder.NumFirstTrackCands()
-				<< ", #CombinedTracklets: " << fTrackFinder.NumCombinedTracks()
+		cout << "#FirstTracklets: " << fTrackFinder->NumFirstTrackCands()
+				<< ", #CombinedTracklets: " << fTrackFinder->NumCombinedTracks()
 				<< endl;
 
 	fCombiTrackCandArray->Sort();
@@ -205,9 +205,9 @@ void PndSttCellTrackFinderTask::FinishEvent() {
 	fCorrectedCombiRiemannTrackArray->Delete();
 
 	vector<int> numHits;
-	numHits.push_back(fTrackFinder.NumHits());
-	numHits.push_back(fTrackFinder.NumHitsWithoutDouble());
-	numHits.push_back(fTrackFinder.NumUnambiguousNeighbors());
+	numHits.push_back(fTrackFinder->NumHits());
+	numHits.push_back(fTrackFinder->NumHitsWithoutDouble());
+	numHits.push_back(fTrackFinder->NumUnambiguousNeighbors());
 	fNumHitsPerEvent.push_back(numHits);
 
 }
@@ -217,8 +217,8 @@ void PndSttCellTrackFinderTask::FinishTask() {
 #ifdef PRINT_CALC_TIMES
 	// write calculation times, calcTimesTrackletGen.size()=#Events, calcTimesTrackletGen[i].size()=#measured times for Event #i
 	vector<vector<Double_t> > calcTimesTrackletGen =
-			fTrackFinder.GetTimeStampsTrackletGen();
-	vector<vector<Double_t> > calcTimesNeighborhood = fTrackFinder.GetTimeStampsGenerateNeighborhoodData();
+			fTrackFinder->GetTimeStampsTrackletGen();
+	vector<vector<Double_t> > calcTimesNeighborhood = fTrackFinder->GetTimeStampsGenerateNeighborhoodData();
 
 	FILE* fp = fopen("calcTimesCPU.txt", "w");
 	fprintf(fp,

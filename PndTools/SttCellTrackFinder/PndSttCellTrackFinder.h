@@ -22,13 +22,14 @@ class TClonesArray;
 class PndSttCellTrackFinder {
 public:
 	PndSttCellTrackFinder() :
-		fVerbose(0), fCalcFirstTrackletInf(kFALSE),fTrackletGenerator(0),fHitCorrector(0) {
+		fVerbose(0), fCalcFirstTrackletInf(kFALSE),fTrackletGenerator(0),fHitCorrector(0), fTrackFinderData(0) {
 	}
 	;
 	virtual ~PndSttCellTrackFinder() {
 		delete fTrackFinderData;
 		delete fHitCorrector;
-		//delete fTrackletGenerator;
+		delete fTrackletGenerator;
+		
 		for (int i = 0; i < fHits.size(); ++i) {
 			delete fHits.at(i);
 		}
@@ -180,8 +181,8 @@ public:
 		fCorrectedCombiTrack.clear();
 		fCorrectedCombiRiemannTrack.clear();
 
-		if(fHitCorrector!=0)	delete fHitCorrector;
-		if(fTrackletGenerator!=0) delete fTrackletGenerator;
+		delete fHitCorrector;
+		delete fTrackletGenerator;
 
 	}
 
