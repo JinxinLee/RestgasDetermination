@@ -21,14 +21,6 @@
 QAmacro_hyp_1(Int_t nEvents = 500, TString  SimEngine ="TGeant4", Bool_t HYP_File= false,Bool_t gam = false)
 {
 
-gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-
-  
-  gSystem->Load("libtrackrep");
-
-  gSystem->Load("librazhyp");
-  gSystem->Load("libHyp");
-
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="hypqasim.root";
   TString  ParOutputfile  ="hypqapar.root";

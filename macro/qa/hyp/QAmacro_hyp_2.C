@@ -2,12 +2,6 @@ void QAmacro_hyp_2()
 {
 	  cout << "QA module for the MVD Digitization and Hit Reconstruction." << endl;
 
- gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
- //rootlogon();
-gSystem->Load("libtrackrep");
- gSystem->Load("librazhyp");
- gSystem->Load("libHyp");
-
   TStopwatch timer;
   timer.Start();
   Int_t iVerbose = 0;
