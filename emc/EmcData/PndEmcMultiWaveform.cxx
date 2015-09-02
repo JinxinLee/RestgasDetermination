@@ -18,7 +18,7 @@ PndEmcMultiWaveform::PndEmcMultiWaveform(int trackId, long detId, long waveform_
 	fActiveWaveform(1)
 {
 	if(FairRootManager::Instance()!=NULL) {
-		SetLink(FairLink("EmcHit", hitIndex));
+		SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EmcHit", hitIndex));
 	}
 }
 

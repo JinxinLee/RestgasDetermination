@@ -38,6 +38,9 @@ void PndEmcWaveformBuffer::FillNewData(PndEmcWaveformData* wfData) {
 	wfData->SetTimeStamp(startTime);
 	wfData->SetTimeOfLastSample(activeTime);
 
+//	std::cout << "-I- PndEmcWaveformBuffer::FillNewData startTime: " << startTime << " TimeBeforeFirstHit " <<
+//			wfData->GetWaveformSimulator()->GetTimeBeforeFirstHit(wfData) << std::endl;
+
 	startTime = startTime<ioman->GetEventTime() ? ioman->GetEventTime() : startTime; //shifting startTime towards greater times
 	activeTime += wfData->GetWaveformSimulator()->GetTimeBeforeFirstHit(wfData); // maximal shift in previous step is wfSimulator->GetTimeBeforeFirstHit(), avoid overlapping of generated waves in absolute time domain
 
@@ -49,6 +52,7 @@ void PndEmcWaveformBuffer::FillNewData(PndEmcWaveformData* wfData) {
 void PndEmcWaveformBuffer::StoreWaveformData(TString branchName, TString folderName, bool persistance) {
 	FairRootManager*  ioman = FairRootManager::Instance();
 	fStoreWaveformData = kTRUE;
+	fWfDataBranchName = branchName;
 	ioman->Register(branchName, "PndEmcWaveformData", folderName, persistance);
 	fWfDataArray = 	ioman->GetTClonesArray(branchName);
 }
@@ -61,13 +65,15 @@ void PndEmcWaveformBuffer::AddNewDataToTClonesArray(FairTimeStamp* data) {
 	TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
 
 	PndEmcWaveformData* wfData = dynamic_cast<PndEmcWaveformData*>(data);
+	if (fStoreWaveformData)
+		wfData->SetEntryNr(FairLink(-1,ioman->GetEntryNr(), fWfDataBranchName, fWfDataArray->GetEntries()));
 	PndEmcWaveform* wave = wfData->GetWaveformSimulator()->Simulate(wfData, myArray);
 
 	if (fVerbose > 1) {
 		if(wave) {
 			std::cout << "Data Inserted: "  <<  *wave << std::endl;
 		} else {
-			std::cout << "-E in PndEmcWaveformBuffer::AddNewDatatoTClonesArray" <<std::endl;
+			std::cout << "-E in PndEmcWaveformBuffer::AddNewDataToTClonesArray" <<std::endl;
 		}
 	}
 

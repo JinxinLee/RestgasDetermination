@@ -126,6 +126,7 @@ InitStatus PndEmcMakeCluster::Init() {
 	cout<<"PndEmcMakeCluster::fDigiEnergyTresholdBWD: "<<fDigiEnergyTresholdBWD<<endl;
 	cout<<"PndEmcMakeCluster::fDigiEnergyTresholdShashlyk: "<<fDigiEnergyTresholdShashlyk<<endl;
 	cout<<"PndEmcMakeCluster::fClusterActiveTime in ns(!): "<<fClusterActiveTime<<endl;
+	cout<<"PndEmcMakeCluster::ClusterPosMethod(): " << fRecoPar->GetEmcClusterPosMethod() << std::endl;
 
 	if (!strcmp(fRecoPar->GetEmcClusterPosMethod(),"lilo"))
 	{
@@ -153,6 +154,8 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 	if ( ! fClusterArray ) Fatal("Exec", "No Cluster Array");
 
 	fWriteOutArray->Delete();
+
+//	std::cout << "------ Event " << FairRootManager::Instance()->GetEntryNr() << " ------" << std::endl;
 
 	if(FairRunAna::Instance()->IsTimeStamp()) {
 		fDigiArray->Delete();
@@ -194,7 +197,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 				i--;
 				continue;
 			} else {
-				//	std::cout << "Clusterarray: " << i << std::endl;
+					//std::cout << "Clusterarray: " << i << std::endl;
 			}
 
 			if(cluster->isInCluster(theDigi, fDigiArray))
@@ -206,12 +209,19 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 					//cluster->AddLink(FairLink("EmcDigi", iDigi));
 					FairMultiLinkedData hitLinks = theDigi->GetLinksWithType(FairRootManager::Instance()->GetBranchId("EmcHit"));
 					for (Int_t j = 0; j < hitLinks.GetNLinks(); j++){
-						PndEmcHit* hit = (PndEmcHit*)fHitArray->At(hitLinks.GetLink(j).GetIndex());
+						PndEmcHit* hit = (PndEmcHit*)FairRootManager::Instance()->GetCloneOfLinkData(hitLinks.GetLink(j));
 					//	std::cout << "Hit: " << hit->GetDetectorID() << std::endl;
 						if(hit) {
+							//std::cout << "Cluster : " << clustmarker << " Hit Added: " << hitLinks.GetLink(j) << std::endl;
 							cluster->AddTracksEnteringExiting(hit->GetTrackEntering(), hit->GetTrackExiting());
+//							std::cout << "EnteringExiting for Hit: " << hitLinks.GetLink(j) << std::endl;
+//							std::cout << "TrackEntering: " << hit->GetTrackEntering() << std::endl;
+//							std::cout << "TrackExiting: " << hit->GetTrackExiting() << std::endl;
+//							std::cout << "Resulting Enter: " << cluster->GetTrackEntering() << std::endl;
+//							std::cout << "Resulting Exit: " << cluster->GetTrackExiting() << std::endl;
+
 						} else {
-							std::cout << "-E in PndEmcMakeCluster::Exec FairLink " << hitLinks.GetLink(i) << "to EmcHit delivers null" << std::endl;
+							std::cout << "-E in PndEmcMakeCluster::Exec FairLink " << hitLinks.GetLink(j) << "to EmcHit delivers null" << std::endl;
 						}
 					}
 				}
@@ -237,8 +247,9 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 			//std::cout << "HitLinks isNotAdded:  " << hitLinks << std::endl;
 		//	theDigi->Print(); std::cout << std::endl;
 			for (Int_t i = 0; i < hitLinks.GetNLinks(); i++){
-				PndEmcHit* hit = (PndEmcHit*)fHitArray->At(hitLinks.GetLink(i).GetIndex());
+				PndEmcHit* hit = (PndEmcHit*)FairRootManager::Instance()->GetCloneOfLinkData(hitLinks.GetLink(i));
 				if(hit) {
+					//std::cout << "NewCluster : " << clustLength << " Hit Added: " << hitLinks.GetLink(i) << std::endl;
 					newcluster->SetTrackEntering(hit->GetTrackEntering());
 					newcluster->SetTrackExiting(hit->GetTrackExiting());
 				} else {
@@ -248,6 +259,12 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 			//newcluster->SetLink(FairLink("EmcDigi", iDigi));
 		}
 	}
+//	for (int k = 0; k < fClusterArray->GetEntriesFast(); k++){
+//		PndEmcCluster* myCluster = (PndEmcCluster*)fClusterArray->At(k);
+//		std::cout << k << " : Entering: " << myCluster->GetTrackEntering() << std::endl;
+//		std::cout << k << " : Exiting: " << myCluster->GetTrackExiting() << std::endl;
+//	}
+//	std::cout << std::endl;
 
 	fWriteOutArray->AbsorbObjects(fClusterArray);
 }

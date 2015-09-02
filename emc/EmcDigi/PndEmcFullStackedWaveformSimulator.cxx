@@ -158,10 +158,11 @@ PndEmcWaveform* PndEmcFullStackedWaveformSimulator::MakeWaveform(PndEmcWaveformD
 	PndEmcWaveform* wave;	
 	if(arrayToStore) {
 		wave = new ((*arrayToStore)[arrayToStore->GetEntriesFast()]) PndEmcWaveform(-1, wfData->GetDetectorId(), signal, hitIndex);
+		wave->ResetLinks();
 	} else {
 		wave = new PndEmcWaveform(-1, wfData->GetDetectorId(), signal, hitIndex);
 	}
-
+	wave->SetLinks(wfData->GetLinksWithType(FairRootManager::Instance()->GetBranchId("EmcHit")));
 	wave->AddInterfaceData(wfData);
 
 	Double_t timeStamp = wfData->GetTimeStamp();

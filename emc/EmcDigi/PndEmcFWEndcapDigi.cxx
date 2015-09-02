@@ -243,9 +243,15 @@ void PndEmcFWEndcapDigi::Exec(Option_t* opt)
 			
 			if (energy>fEnergyDigiThreshold) {
 				Double_t timestamp=theWaveform->GetTimeStamp() + digi_time;
+				//std::cout << "PndEmcFWEndcapDigi::Exec Waveform TS: " << theWaveform->GetTimeStamp() << " digiTime: " << digi_time << std::endl;
 
 				PndEmcDigi* myDigi = new((*fDigiArray)[fDigiArray->GetEntriesFast()]) PndEmcDigi(trackId,detId, energy, timestamp, hitIndex);
-				myDigi->AddLink(FairLink("EmcWaveform", iWaveform));
+				myDigi->ResetLinks();
+				myDigi->AddLinks(theWaveform->GetLinksWithType(FairRootManager::Instance()->GetBranchId("EmcHit")));
+
+				//std::cout << "-I- PndEmcFWEndcapDigi Links MyDigi: " << *myDigi->GetPointerToLinks() << std::endl;
+				//std::cout << "Waveform: " << *theWaveform->GetPointerToLinks() << std::endl;
+				//myDigi->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EmcWaveform", iWaveform));
 				//std::cout << "\t accepted" << std::endl;
 				//std::cout << "digi at:" << fDigiArray->GetEntriesFast()-1 << " links to: " << myDigi->GetLink(0).GetIndex() << " iwaveform: " << iWaveform << " number of links: " << myDigi->GetNLinks() << std::endl;
 				//std::cout << "#0: " << myDigi->GetLink(0) << "\n#1:" << myDigi->GetLink(1) << std::endl;

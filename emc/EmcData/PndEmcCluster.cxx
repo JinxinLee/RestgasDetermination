@@ -525,7 +525,7 @@ void PndEmcCluster::AddTracksEnteringExiting(const FairMultiLinkedData& tracksEn
 
 //	std::cout << "tracksEntering " << tracksEntering << std::endl;
 //	std::cout << "tracksExiting " << tracksExiting << std::endl;
-//	std::cout << "exitingEntering " << fTrackEntering << std::endl;
+//	std::cout << "existingEntering " << fTrackEntering << std::endl;
 //	std::cout << "existingExiting " << fTrackExiting << std::endl;
 
 	FillScoreBoard(tracksEntering, scoreBoard, 3);

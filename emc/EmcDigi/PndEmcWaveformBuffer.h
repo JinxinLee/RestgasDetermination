@@ -39,6 +39,7 @@ protected:
 
 	bool fStoreWaveformData;
 	TClonesArray* fWfDataArray;
+	TString fWfDataBranchName;
 };
 
 #endif /* PNDEMCWAVEFORMBUFFER_H*/

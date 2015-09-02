@@ -147,7 +147,7 @@ TVector3 PndEmcClusterProperties::Where(TString method, std::vector<Double_t> pa
 	}
 	else
 	{
-		std::cout<<"Incorrect cluster position method"<<std::endl;
+		std::cout<<"Incorrect cluster position method: " << method.Data() <<std::endl;
 		abort();
 	}
 	return pos;

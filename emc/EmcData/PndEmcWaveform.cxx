@@ -67,7 +67,7 @@ PndEmcWaveform::PndEmcWaveform(int trackId, long detId, Double_t sampleRate, lon
 	, fBaselineValue(0.)
 	,FairTimeStamp(time)
 {
-  if(hitIndex>=0) SetLink(FairLink("EmcHit", hitIndex));
+  if(hitIndex>=0) SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EmcHit", hitIndex));
 }
 
 PndEmcWaveform::PndEmcWaveform(int trackId, long detId, const std::vector<Double_t>& signal, Int_t hitIndex) : 
@@ -77,7 +77,7 @@ PndEmcWaveform::PndEmcWaveform(int trackId, long detId, const std::vector<Double
 	fSignal(signal),
 	fHitIndex(hitIndex)
 {
-  if(hitIndex>=0) SetLink(FairLink("EmcHit", hitIndex));
+  if(hitIndex>=0) SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EmcHit", hitIndex));
 }
 
 PndEmcWaveform::PndEmcWaveform(long detId, const std::vector<Double_t>& signal, const FairMultiLinkedData& links) :

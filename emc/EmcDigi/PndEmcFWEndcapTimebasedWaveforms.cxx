@@ -196,6 +196,7 @@ void PndEmcFWEndcapTimebasedWaveforms::Exec(Option_t* opt) {
 
 		//register hit...timebased framework uses ns, whereas emc deals with seconds as time unit
 		FairLink linkToHit(-1, ioman->GetEntryNr(), "EmcHit", iHit, 1.0);
+	//	std::cout << "-I- PndEmcFWEndcapTimebasedWaveforms::Exec eventTIme: " << ioman->GetEventTime() << " hit Time: " << theHit->GetTime()*1.0e9 << std::endl;
 		wfData.AddHit(linkToHit, ioman->GetEventTime() + theHit->GetTime()*1.0e9, theHit->GetEnergy());
 
 		fWaveformBuffer->FillNewData(&wfData);	
