@@ -165,11 +165,13 @@ PndEmcCluster::addDigi(const TClonesArray *digiArray, Int_t iDigi)
 	//std::cout<<"digi belongs to track #"<<digi->GetTrackId()<<std::endl;
 	++fMcMap[digi->GetTrackId()];
 	invalidateCache(kFALSE);
+	SetInsertHistory(kFALSE);
 	if(FairRunAna::Instance()->IsTimeStamp()) {
 		AddLink((static_cast<PndEmcDigi*>(digiArray->At(iDigi))->GetEntryNr()));
 	} else {
 		AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EmcDigi", iDigi));
 	}
+	SetInsertHistory(kTRUE);
 }
 	void
 PndEmcCluster::removeDigi(const TClonesArray *digiArray, Int_t iDigi)

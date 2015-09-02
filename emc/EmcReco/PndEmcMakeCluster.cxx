@@ -174,8 +174,10 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 
 
 		PndEmcDigi* theDigi = (PndEmcDigi*) fDigiArray->At(iDigi);
-	//	std::cout << std::endl << "DigiArray: " << iDigi  << std::endl;
-	//	theDigi->Print(); std::cout << std::endl;
+//		std::cout << std::endl << "DigiArray: " << iDigi  << std::endl;
+//		theDigi->Print();
+//		std::cout << *theDigi->GetPointerToLinks() << std::endl;
+//		std::cout << std::endl;
 		Int_t module=theDigi->GetModule();
 
 		// In the following lines there is separate threshold for forward endcup
@@ -197,7 +199,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 				i--;
 				continue;
 			} else {
-					//std::cout << "Clusterarray: " << i << std::endl;
+//					std::cout << "Clusterarray: " << i << std::endl;
 			}
 
 			if(cluster->isInCluster(theDigi, fDigiArray))
@@ -210,15 +212,21 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 					FairMultiLinkedData hitLinks = theDigi->GetLinksWithType(FairRootManager::Instance()->GetBranchId("EmcHit"));
 					for (Int_t j = 0; j < hitLinks.GetNLinks(); j++){
 						PndEmcHit* hit = (PndEmcHit*)FairRootManager::Instance()->GetCloneOfLinkData(hitLinks.GetLink(j));
-					//	std::cout << "Hit: " << hit->GetDetectorID() << std::endl;
+						//std::cout << "Hit: " << hit->GetDetectorID() << std::endl;
 						if(hit) {
-							//std::cout << "Cluster : " << clustmarker << " Hit Added: " << hitLinks.GetLink(j) << std::endl;
-							cluster->AddTracksEnteringExiting(hit->GetTrackEntering(), hit->GetTrackExiting());
-//							std::cout << "EnteringExiting for Hit: " << hitLinks.GetLink(j) << std::endl;
-//							std::cout << "TrackEntering: " << hit->GetTrackEntering() << std::endl;
-//							std::cout << "TrackExiting: " << hit->GetTrackExiting() << std::endl;
-//							std::cout << "Resulting Enter: " << cluster->GetTrackEntering() << std::endl;
-//							std::cout << "Resulting Exit: " << cluster->GetTrackExiting() << std::endl;
+//							std::cout << "Cluster : " << clustmarker << " Hit to add: " << hitLinks.GetLink(j) << std::endl;
+							if (cluster->GetLinks().count(hitLinks.GetLink(j)) == 0){
+								cluster->AddTracksEnteringExiting(hit->GetTrackEntering(), hit->GetTrackExiting());
+								cluster->AddLink(hitLinks.GetLink(j));
+//								std::cout << "Links in Cluster: " << *cluster->GetPointerToLinks() << std::endl;
+//								std::cout << "EnteringExiting for Hit: " << hitLinks.GetLink(j) << std::endl;
+//								std::cout << "TrackEntering: " << hit->GetTrackEntering() << std::endl;
+//								std::cout << "TrackExiting: " << hit->GetTrackExiting() << std::endl;
+//								std::cout << "Resulting Enter: " << cluster->GetTrackEntering() << std::endl;
+//								std::cout << "Resulting Exit: " << cluster->GetTrackExiting() << std::endl;
+							} else {
+								//std::cout << "Hit Already exists!" << std::endl;
+							}
 
 						} else {
 							std::cout << "-E in PndEmcMakeCluster::Exec FairLink " << hitLinks.GetLink(j) << "to EmcHit delivers null" << std::endl;
@@ -249,9 +257,16 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 			for (Int_t i = 0; i < hitLinks.GetNLinks(); i++){
 				PndEmcHit* hit = (PndEmcHit*)FairRootManager::Instance()->GetCloneOfLinkData(hitLinks.GetLink(i));
 				if(hit) {
-					//std::cout << "NewCluster : " << clustLength << " Hit Added: " << hitLinks.GetLink(i) << std::endl;
+//					std::cout << "NewCluster : " << clustLength << " Hit Added: " << hitLinks.GetLink(i) << std::endl;
+//					std::cout << "TrackEntering: " << hit->GetTrackEntering() << std::endl;
+//					std::cout << "TrackExiting: " << hit->GetTrackExiting() << std::endl;
 					newcluster->SetTrackEntering(hit->GetTrackEntering());
 					newcluster->SetTrackExiting(hit->GetTrackExiting());
+					newcluster->SetInsertHistory(kFALSE);
+					newcluster->AddLink(hitLinks.GetLink(i));
+//					std::cout << "Resulting Enter: " << newcluster->GetTrackEntering() << std::endl;
+//					std::cout << "Resulting Exit: " << newcluster->GetTrackExiting() << std::endl;
+//					std::cout << "Links in Cluster: " << *newcluster->GetPointerToLinks() << std::endl;
 				} else {
 					std::cout << "-E in PndEmcMakeCluster::Exec FairLink " << hitLinks.GetLink(i) << "to EmcHit delivers null" << std::endl;
 				}
