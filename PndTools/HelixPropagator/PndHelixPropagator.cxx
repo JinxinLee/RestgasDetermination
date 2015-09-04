@@ -33,7 +33,7 @@ FairTrackPar PndHelixPropagator::PropagateToZ(Double_t zPos)
 
 	Double_t zLength = zPos - fOrigin.z();
 	Double_t arcLength = ratioPtPl * zLength;
-	Double_t deltaPhi = -arcLength / Radius();
+	Double_t deltaPhi = arcLength / Radius();
 	Double_t newPhi = deltaPhi + zeroCircle.Phi();
 
 	TVector3 newOrigin = zeroCircle;
