@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 
 // Root includes
 #include "TROOT.h"
@@ -65,16 +66,82 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 	}
 
 	PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-	fTrackFinder= new PndSttCellTrackFinder();
-	fTubeArray = mapper->FillTubeArray();
-	fTrackFinder->SetSttTubeArray(fTubeArray);
-	fTrackFinder->SetCalcFirstTrackletInf(fAnalyseSteps);
-	fTrackFinder->SetVerbose(fVerbose);
 
-	fFirstTrackCandArray = ioman->Register("FirstTrackCand", "PndTrackCand",
-			"STT", fPersistence);
-	fFirstRiemannTrackArray = ioman->Register("FirstRiemannTrack",
-			"PndRiemannTrack", "STT", fPersistence);
+	fTubeArray = mapper->FillTubeArray();
+	fTrackFinder = new PndSttCellTrackFinder(fTubeArray);
+
+	fTrackFinder->SetCalcFirstTrackletInf(fAnalyseSteps);
+	fTrackFinder->SetUseGPU(fUseGPU);
+	fTrackFinder->SetVerbose(fVerbose);
+	fTrackFinder->SetCalcWithCorrectedIsochrones(fCalcWithCorrectedIsochrones);
+
+	if (fUseGPU) {
+		//Copy static data to device
+
+		//Macros were defined in PndSttCellTrackletGenerator.h
+		int numElements = NUM_SKEWED_STRAWS * MAX_SKEWED_NEIGHBORS
+				+ NUM_UNSKEWED_STRAWS * MAX_UNSKEWED_NEIGHBORS;
+		//allocate cpu memory, initialize with 0 (important for gpu algorithm)
+		int *tubeNeighborings = (int*) calloc(numElements, sizeof(int));
+
+		PndSttGeometryMap* tmpGeometryMap =
+				fTrackFinder->GetTrackFinderDataObject()->GetGeometryMap();
+
+		PndSttTube* tube;
+		TVector3 pos;
+		TArrayI neighbors;
+		int tubeID;
+		int skewedOffset = NUM_UNSKEWED_STRAWS * MAX_UNSKEWED_NEIGHBORS;
+
+		//fill array with neighborhood data
+		for (int i = 1; i < fTubeArray->GetEntriesFast(); ++i) {
+			tube = (PndSttTube*) fTubeArray->At(i);
+			tubeID = tube->GetTubeID();
+			neighbors = tmpGeometryMap->GetNeighboringsByMap(tubeID);
+
+			//store at first data of unskewed tubes in array, at the end of the array: skewed tubes neighborings
+			if (tubeID >= START_TUBE_ID_SKEWED && tubeID <= END_TUBE_ID_SKEWED) {
+				//inner unskewed tube
+				for (int j = 0; j < neighbors.GetSize(); ++j) {
+					tubeNeighborings[skewedOffset + j * NUM_SKEWED_STRAWS
+							+ (tubeID - START_TUBE_ID_SKEWED)] = neighbors[j];
+
+				}
+
+			} else if (tubeID < START_TUBE_ID_SKEWED) {
+				//middle skewed tube
+				for (int j = 0; j < neighbors.GetSize(); ++j) {
+					tubeNeighborings[j * NUM_UNSKEWED_STRAWS + (tubeID - 1)] =
+							neighbors[j];
+				}
+			} else if (tubeID > END_TUBE_ID_SKEWED) {
+				//outer unskewed tube
+				for (int j = 0; j < neighbors.GetSize(); ++j) {
+					tubeNeighborings[j * NUM_UNSKEWED_STRAWS
+							+ (tubeID
+									- (END_TUBE_ID_SKEWED - START_TUBE_ID_SKEWED
+											+ 1) - 1)] = neighbors[j];
+				}
+			}
+		}
+
+		fDev_tubeNeighborings = AllocateStaticData(tubeNeighborings,
+				numElements);
+		fTrackFinder->SetDevTubeNeighboringsPointer(fDev_tubeNeighborings);
+		free(tubeNeighborings);
+
+	}
+
+	if (fAnalyseSteps) {
+		//store information of primary tracklets
+		fFirstTrackCandArray = ioman->Register("FirstTrackCand", "PndTrackCand",
+				"STT", fPersistence);
+		fFirstTrackArray = ioman->Register("FirstTrack", "PndTrack", "STT",
+				fPersistence);
+		fFirstRiemannTrackArray = ioman->Register("FirstRiemannTrack",
+				"PndRiemannTrack", "STT", fPersistence);
+
+	}
 
 	fCombiTrackCandArray = ioman->Register("CombiTrackCand", "PndTrackCand",
 			"STT", fPersistence);
@@ -83,19 +150,15 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 	fCombiRiemannTrackArray = ioman->Register("CombiRiemannTrack",
 			"PndRiemannTrack", "STT", fPersistence);
 
-	fCorrectedIsochronesArray = ioman->Register("CorrectedIsochrones",
-			"FairHit", "STT", fPersistence);
+	if (fCalcWithCorrectedIsochrones) {
 
-	fCorrectedCombiTrackCandArray = ioman->Register("CombiTrackCandCorrected",
-			"PndTrackCand", "STT", fPersistence);
-	fCorrectedCombiTrackArray = ioman->Register("CombiTrackCorrected",
-			"PndTrack", "STT", fPersistence);
-	fCorrectedCombiRiemannTrackArray = ioman->Register(
-			"CombiRiemannTrackCorrected", "PndRiemannTrack", "STT",
-			fPersistence);
+		fCorrectedIsochronesArray = ioman->Register("CorrectedIsochrones",
+				"FairHit", "STT", fPersistence);
+	}
 
 	std::cout << "-I- PndSttCellTrackFinderTask: Initialisation successfull"
 			<< std::endl;
+
 	//fInitDone = kTRUE;
 	return kSUCCESS;
 }
@@ -112,7 +175,7 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 				<< endl;
 
 	}
-	cout << "Event #" << eventNumber << endl;
+	//cout << "Event #" << eventNumber << endl;
 
 // Reset output array
 	if (!fFirstTrackCandArray)
@@ -127,17 +190,6 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 	}
 
 	fTrackFinder->FindTracks();
-	std::map<int, FairHit*> correctedIsochrones =
-			fTrackFinder->GetCorrectedIsochrones();
-
-	int indexCounter = 0;
-	for (std::map<int, FairHit*>::iterator iter = correctedIsochrones.begin();
-			iter != correctedIsochrones.end(); iter++) {
-		FairHit* myCorrectedHit =
-				new (
-						(*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(
-						*iter->second);
-	}
 
 	if (fAnalyseSteps) {
 		for (int i = 0; i < fTrackFinder->NumFirstTrackCands(); i++) {
@@ -158,51 +210,52 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 				fTrackFinder->GetCombiTrackCand(i));
 		PndTrack* myTrack = new ((*fCombiTrackArray)[i]) PndTrack(
 				fTrackFinder->GetCombiTrack(i));
-
-		PndTrackCand* myCandCorrected = new (
-				(*fCorrectedCombiTrackCandArray)[i]) PndTrackCand(
-				fTrackFinder->GetCorrectedCombiTrackCand(i));
-		PndTrack* myTrackCorrected =
-				new ((*fCorrectedCombiTrackArray)[i]) PndTrack(
-						fTrackFinder->GetCorrectedCombiTrack(i));
-
 		myTrack->SetTrackCandRef(myCand);
 		myTrack->SetTrackCand(*myCand);
 
-		myTrackCorrected->SetTrackCandRef(myCandCorrected);
-		myTrackCorrected->SetTrackCand(*myCandCorrected);
 	}
 
-
 	for (int i = 0; i < fTrackFinder->NumCombinedRiemannTracks(); ++i) {
-
 		PndRiemannTrack* myRiemannTrack =
 				new ((*fCombiRiemannTrackArray)[i]) PndRiemannTrack(
 						fTrackFinder->GetCombiRiemannTrack(i));
 	}
 
+	if (fCalcWithCorrectedIsochrones) {
+		std::map<int, FairHit*> correctedIsochrones =
+				fTrackFinder->GetCorrectedIsochrones();
+
+		int indexCounter = 0;
+		for (std::map<int, FairHit*>::iterator iter =
+				correctedIsochrones.begin(); iter != correctedIsochrones.end();
+				iter++) {
+			FairHit* myCorrectedHit =
+					new (
+							(*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(
+							*iter->second);
+		}
+	}
+
 	if (fVerbose > 0)
-		cout << "#FirstTracklets: " << fTrackFinder->NumFirstTrackCands()
+		cout << "#FirstTracklets: " << fTrackFinder->GetNumPrimaryTracklets()
 				<< ", #CombinedTracklets: " << fTrackFinder->NumCombinedTracks()
 				<< endl;
 
 	fCombiTrackCandArray->Sort();
 	fCombiTrackArray->Sort();
-	fCorrectedCombiTrackCandArray->Sort();
-	fCorrectedCombiTrackArray->Sort();
 
 }
 
 void PndSttCellTrackFinderTask::FinishEvent() {
-	fFirstTrackCandArray->Delete();
-	fFirstRiemannTrackArray->Delete();
+	if (fAnalyseSteps) {
+		fFirstTrackCandArray->Delete();
+		fFirstRiemannTrackArray->Delete();
+	}
 	fCombiTrackCandArray->Delete();
 	fCombiTrackArray->Delete();
 	fCombiRiemannTrackArray->Delete();
-	fCorrectedIsochronesArray->Delete();
-	fCorrectedCombiTrackCandArray->Delete();
-	fCorrectedCombiTrackArray->Delete();
-	fCorrectedCombiRiemannTrackArray->Delete();
+	if (fCalcWithCorrectedIsochrones)
+		fCorrectedIsochronesArray->Delete();
 
 	vector<int> numHits;
 	numHits.push_back(fTrackFinder->NumHits());
@@ -214,10 +267,14 @@ void PndSttCellTrackFinderTask::FinishEvent() {
 
 void PndSttCellTrackFinderTask::FinishTask() {
 
+	if (fUseGPU) {
+		FreeStaticData(fDev_tubeNeighborings);
+	}
+
 #ifdef PRINT_CALC_TIMES
 	// write calculation times, calcTimesTrackletGen.size()=#Events, calcTimesTrackletGen[i].size()=#measured times for Event #i
 	vector<vector<Double_t> > calcTimesTrackletGen =
-			fTrackFinder->GetTimeStampsTrackletGen();
+	fTrackFinder->GetTimeStampsTrackletGen();
 	vector<vector<Double_t> > calcTimesNeighborhood = fTrackFinder->GetTimeStampsGenerateNeighborhoodData();
 
 	FILE* fp = fopen("calcTimesCPU.txt", "w");
@@ -229,7 +286,7 @@ void PndSttCellTrackFinderTask::FinishTask() {
 			"SplitData()", "AddMissingHits()", "CreatePndTrackCands()",
 			"FindTracks()", "CalcNeighborData");
 	for (int i = 0; i < calcTimesTrackletGen.size(); ++i) {
-		fprintf(fp, "%3i \t %3i \t %3i \t %3i", i, fNumHitsPerEvent.at(i).at(0),  fNumHitsPerEvent.at(i).at(1),  fNumHitsPerEvent.at(i).at(2));
+		fprintf(fp, "%3i \t %3i \t %3i \t %3i", i, fNumHitsPerEvent.at(i).at(0), fNumHitsPerEvent.at(i).at(1), fNumHitsPerEvent.at(i).at(2));
 		//trackletGen data
 		for (int j = 0; j < calcTimesTrackletGen[i].size(); j += 2) {
 			fprintf(fp, "\t %.15f",
@@ -237,7 +294,7 @@ void PndSttCellTrackFinderTask::FinishTask() {
 		}
 		//neighborhood data
 		fprintf(fp, "\t %.15f",
-							(calcTimesNeighborhood[i].at(1) - calcTimesNeighborhood[i].at(0)) * 1000);
+				(calcTimesNeighborhood[i].at(1) - calcTimesNeighborhood[i].at(0)) * 1000);
 
 		fprintf(fp, "\n");
 	}

@@ -163,9 +163,13 @@ void PndSttCellTrackletGenerator::FindTracks() {
 		cout << "PndSttCellTrackletGenerator::FindTracks()" << endl;
 	}
 
-	fTimeStamps[6] = TTimeStamp();
-	GenerateTracklets();
-	fTimeStamps[7] = TTimeStamp();
+	if (fUseGPU) {
+		GenerateTrackletsGPU();
+	} else {
+		fTimeStamps[6] = TTimeStamp();
+		GenerateTracklets();
+		fTimeStamps[7] = TTimeStamp();
+	}
 
 	fTimeStamps[8] = fTimeStamps[7];
 	CombineTrackletsMultiStages();
@@ -195,6 +199,7 @@ void PndSttCellTrackletGenerator::FindTracks() {
 
 	//ending time of FindTracks()
 	fTimeStamps[19] = fTimeStamps[17];
+
 }
 
 void PndSttCellTrackletGenerator::CreatePndTrackCands() {
@@ -211,14 +216,14 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 		//add all hits of combined tracklets to trackCand
 		for (int j = 0; j < fCombinedData[i].trackletInf.hitIDs.size(); ++j) {
 
-			int tubeID = fCombinedData[i].trackletInf.hitIDs.at(j);
+			int hitIndex = fCombinedData[i].trackletInf.hitIDs.at(j);
 
 			if (fCalcWithCorrectedHits
-					&& (fCorrectedHits.find(tubeID) != fCorrectedHits.end())) {
+					&& (fCorrectedHits.find(hitIndex) != fCorrectedHits.end())) {
 
-				trackCand.AddHit(fCorrectedHits[tubeID]->GetEntryNr(), j);
+				trackCand.AddHit(fCorrectedHits[hitIndex]->GetEntryNr(), j);
 			} else {
-				trackCand.AddHit(fMapHitToFairLink[tubeID], j);
+				trackCand.AddHit(fMapHitToFairLink[hitIndex], j);
 			}
 		}
 
@@ -247,14 +252,14 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 
 			for (int j = 0; j < numHits; ++j) {
 
-				int tubeID =
+				int hitIndex =
 						fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs[j];
 
 				if (fCalcWithCorrectedHits
-						&& (fCorrectedHits.find(tubeID) != fCorrectedHits.end())) {
-					trackCand.AddHit(fCorrectedHits[tubeID]->GetEntryNr(), j);
+						&& (fCorrectedHits.find(hitIndex) != fCorrectedHits.end())) {
+					trackCand.AddHit(fCorrectedHits[hitIndex]->GetEntryNr(), j);
 				} else {
-					trackCand.AddHit(fMapHitToFairLink[tubeID], j);
+					trackCand.AddHit(fMapHitToFairLink[hitIndex], j);
 				}
 
 			}
@@ -263,6 +268,7 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 					fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs);
 
 			fCombiTrackCand.push_back(trackCand);
+			fCombiRiemannTrack.push_back(trackRefit);
 			fCombiTrack.push_back(trackRefit.getPndTrack(2.0));
 
 			if (fVerbose > 2) {
@@ -275,6 +281,136 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 			}
 		}
 	}
+}
+void PndSttCellTrackletGenerator::GenerateTrackletsGPU() {
+
+	//initialize hits with 0, means no hit for that tube
+	int *sttHits = (int*) calloc(NUM_STRAWS, sizeof(int));
+	int *hitIndices = (int*) malloc((NUM_STRAWS + 1) * sizeof(int));
+	//initialize hitIndices with -1 to signal there's no hit
+	//
+	for (int i = 0; i < NUM_STRAWS + 1; ++i) {
+		hitIndices[i] = -1;
+	}
+
+	//form hits into necessary data structure
+	set<int> skewedHits;
+	set<int> unskewedHits;
+	PndSttHit* sttHit;
+	int tubeID;
+
+	//fill sets with hits of skewed and unskewed tubes --> no more multiple hits per tube
+	for (int i = 0; i < fHits.size(); ++i) {
+		sttHit = (PndSttHit*) fHits[i];
+		tubeID = sttHit->GetTubeID();
+
+		if (tubeID >= START_TUBE_ID_SKEWED && tubeID <= END_TUBE_ID_SKEWED) {
+			skewedHits.insert(tubeID);
+		} else {
+			unskewedHits.insert(tubeID);
+		}
+	}
+
+	//fill sttHits at first with unskewed hits, set hitIndices
+	int indexCounter = 0;
+	for (set<int>::iterator it = unskewedHits.begin(); it != unskewedHits.end();
+			++it) {
+		sttHits[indexCounter] = *it;
+		hitIndices[*it] = indexCounter;
+		++indexCounter;
+	}
+
+	for (set<int>::iterator it = skewedHits.begin(); it != skewedHits.end();
+			++it) {
+		sttHits[indexCounter] = *it;
+		hitIndices[*it] = indexCounter;
+		++indexCounter;
+	}
+
+	int* states = EvaluateAllStates(fDev_tubeNeighborings, sttHits,
+			unskewedHits.size(), skewedHits.size(), hitIndices);
+
+	//extract result of gpu and store it in fStates and fMultiStates
+	int numSttHits = unskewedHits.size() + skewedHits.size();
+
+	for (int i = 0; i < numSttHits; ++i) {
+		if (states[i] != NUM_STRAWS + 1) {
+			fStates[sttHits[i]] = states[i];
+		}
+	}
+
+	InitStartTracklets();
+
+	if (fVerbose > 1) {
+
+		cout << "#Start-Tracklets: " << fStartTracklets.size() << endl;
+
+		cout << "Tracklet-Information: " << endl;
+		for (map<int, TrackletInf_t>::iterator it = fStartTracklets.begin();
+				it != fStartTracklets.end(); ++it) {
+			int state = it->first;
+			TrackletInf_t inf = it->second;
+
+			cout << "State: " << state << " ";
+			inf.Print();
+			cout << endl;
+		}
+
+		cout << "#Short-Tracklets: " << fShortTracklets.size() << endl;
+
+		cout << "Tracklet-Information: " << endl;
+		for (map<int, TrackletInf_t>::iterator it = fShortTracklets.begin();
+				it != fShortTracklets.end(); ++it) {
+			int state = it->first;
+			TrackletInf_t inf = it->second;
+
+			cout << "State: " << state << " ";
+			inf.Print();
+			cout << endl;
+		}
+	}
+
+	int multiStateOffset = numSttHits;
+	int multiStateTubeID;
+
+	for (int i = 0; i < numSttHits; ++i) {
+
+		if (states[i] == NUM_STRAWS + 1) {
+
+			set<int> multiStates;
+			for (int j = 0; j < MAX_MULTISTATE_NUM; ++j) {
+				if (states[multiStateOffset + j * numSttHits + i] != 0) {
+					//insert state not tubeID!
+					multiStateTubeID=sttHits[states[multiStateOffset + j * numSttHits + i]];
+					multiStates.insert(fStates[multiStateTubeID]);
+				} else {
+					break;
+				}
+			}
+			if(multiStates.size()!=0)
+				fMultiStates[sttHits[i]] = multiStates;
+		}
+
+	}
+
+	if (fVerbose > 2) {
+		cout << "MultiStates: " << endl;
+		for (map<int, set<int> >::iterator iter = fMultiStates.begin();
+				iter != fMultiStates.end(); iter++) {
+			cout << iter->first << " : ";
+			for (set<int>::iterator iter2 = iter->second.begin();
+					iter2 != iter->second.end(); iter2++) {
+				cout << *iter2 << " ";
+			}
+			cout << endl;
+		}
+	}
+
+	//free memory
+	free(sttHits);
+	free(hitIndices);
+	free(states);
+
 }
 
 void PndSttCellTrackletGenerator::GenerateTracklets() {
@@ -532,7 +668,7 @@ void PndSttCellTrackletGenerator::EvaluateMultiState() {
 				cout << endl;
 
 			// keep new one
-			if (newState.size() > tmpStates[(*it)].size())
+			if (newState.size() > 0 && newState.size() > tmpStates[(*it)].size())
 				tmpStates[(*it)] = newState;
 
 			if (fVerbose > 3)

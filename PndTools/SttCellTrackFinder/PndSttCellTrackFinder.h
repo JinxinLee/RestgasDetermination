@@ -1,9 +1,9 @@
 /*
-* PndSttCellTrackFinder.h
-*
-*  Created on: May 20, 2014
-*      Author: schumann
-*/
+ * PndSttCellTrackFinder.h
+ *
+ *  Created on: May 20, 2014
+ *      Author: schumann
+ */
 
 #ifndef PndSttCellTrackFinder_H_
 #define PndSttCellTrackFinder_H_
@@ -21,15 +21,21 @@ class TClonesArray;
 
 class PndSttCellTrackFinder {
 public:
-	PndSttCellTrackFinder() :
-		fVerbose(0), fCalcFirstTrackletInf(kFALSE),fTrackletGenerator(0),fHitCorrector(0), fTrackFinderData(0) {
-	}
-	;
+	PndSttCellTrackFinder(TClonesArray *tubeArray) :
+			fVerbose(0), fCalcFirstTrackletInf(kFALSE), fTrackletGenerator(0), fHitCorrector(
+					0), fTrackFinderData(0), fUseGPU(kFALSE), fDev_tubeNeighborings(
+					0), fCalcWithCorrectedIsochrones(kFALSE) {
+
+		//Generate TrackFinderData-Object
+		fTrackFinderData= new PndSttCellTrackFinderData(tubeArray);
+
+	};
+
 	virtual ~PndSttCellTrackFinder() {
 		delete fTrackFinderData;
 		delete fHitCorrector;
 		delete fTrackletGenerator;
-		
+
 		for (int i = 0; i < fHits.size(); ++i) {
 			delete fHits.at(i);
 		}
@@ -45,10 +51,28 @@ public:
 
 	void AddHits(TClonesArray* hits, Int_t branchId);
 
-	void SetSttTubeArray(TClonesArray* sttTubeArray);
+	void SetUseGPU(Bool_t val) {
+		fUseGPU = val;
+	}
+
+	void SetDevTubeNeighboringsPointer(int* dev_pointer) {
+		fDev_tubeNeighborings = dev_pointer;
+	}
+
+	void SetCalcWithCorrectedIsochrones(Bool_t val) {
+		fCalcWithCorrectedIsochrones = val;
+	}
+
+	PndSttCellTrackFinderData* GetTrackFinderDataObject() {
+		return fTrackFinderData;
+	}
 
 	std::map<Int_t, FairHit*> GetCorrectedIsochrones() {
 		return fHitCorrector->GetCorrectedHits();
+	}
+
+	int GetNumPrimaryTracklets(){
+		return fTrackletGenerator->GetNumPrimaryTracklets();
 	}
 
 	// Get TrackCands of start-tracklets before combination
@@ -80,28 +104,15 @@ public:
 	}
 	;
 
-	PndTrackCand GetCorrectedCombiTrackCand(int i) {
-		return fCorrectedCombiTrackCand[i];
-	}
-	;
-
-	PndTrack GetCorrectedCombiTrack(int i) {
-		return fCorrectedCombiTrack[i];
-	}
-	;
-
-	PndRiemannTrack GetCorrectedCombiRiemannTrack(int i) {
-		return fCorrectedCombiRiemannTrack[i];
-	}
-	;
-
 	std::vector<std::vector<Double_t> > GetTimeStampsTrackletGen() {
 		return fTimeStampsTrackletGen;
-	};
+	}
+	;
 
 	std::vector<std::vector<Double_t> > GetTimeStampsGenerateNeighborhoodData() {
-			return fTimeStampsGenerateNeighborhoodData;
-		};
+		return fTimeStampsGenerateNeighborhoodData;
+	}
+	;
 
 	int NumFirstTrackCands() {
 		return fFirstTrackCand.size();
@@ -123,17 +134,18 @@ public:
 	}
 	;
 
-	int NumHits(){
-			return fTrackFinderData->GetNumHits();
+	int NumHits() {
+		return fTrackFinderData->GetNumHits();
 	}
 
-	int NumHitsWithoutDouble(){
+	int NumHitsWithoutDouble() {
 
 		return fTrackFinderData->GetNumHitsWithoutDouble();
 	}
 
-	int NumUnambiguousNeighbors(){
-		return fTrackFinderData->GetSeparations()[1].size()+fTrackFinderData->GetSeparations()[2].size();
+	int NumUnambiguousNeighbors() {
+		return fTrackFinderData->GetSeparations()[1].size()
+				+ fTrackFinderData->GetSeparations()[2].size();
 	}
 
 	void SetCalcFirstTrackletInf(Bool_t val) {
@@ -146,25 +158,18 @@ public:
 	}
 	;
 
-	void StoreTrackData(){
-		fFirstTrackCand=fTrackletGenerator->GetFirstTrackCands();
-		if(fCalcFirstTrackletInf)
-			fFirstRiemannTrack=fTrackletGenerator->GetFirstRiemannTracks();
+	void StoreTrackData() {
+		fFirstTrackCand = fTrackletGenerator->GetFirstTrackCands();
 
-		if(!fTrackletGenerator->CalcWithCorrectedHits()){
+		if (fCalcFirstTrackletInf)
+			fFirstRiemannTrack = fTrackletGenerator->GetFirstRiemannTracks();
 
-			fCombiTrackCand=fTrackletGenerator->GetCombiTrackCands();
-			fCombiRiemannTrack=fTrackletGenerator->GetCombiRiemannTracks();
-			fCombiTrack=fTrackletGenerator->GetCombiTracks();
-		} else {
-			fCorrectedCombiTrackCand=fTrackletGenerator->GetCombiTrackCands();
-			fCorrectedCombiRiemannTrack=fTrackletGenerator->GetCombiRiemannTracks();
-			fCorrectedCombiTrack=fTrackletGenerator->GetCombiTracks();
+		fCombiTrackCand = fTrackletGenerator->GetCombiTrackCands();
+		fCombiRiemannTrack = fTrackletGenerator->GetCombiRiemannTracks();
+		fCombiTrack = fTrackletGenerator->GetCombiTracks();
 
-		}
-
-
-	};
+	}
+	;
 
 	void Reset() {
 		fHits.clear();
@@ -177,17 +182,10 @@ public:
 		fCombiTrack.clear();
 		fCombiRiemannTrack.clear();
 
-		fCorrectedCombiTrackCand.clear();
-		fCorrectedCombiTrack.clear();
-		fCorrectedCombiRiemannTrack.clear();
-
 		delete fHitCorrector;
 		delete fTrackletGenerator;
 
 	}
-
-
-
 
 private:
 
@@ -195,6 +193,12 @@ private:
 	std::vector<std::vector<Double_t> > fTimeStampsGenerateNeighborhoodData;
 
 	Int_t fVerbose;
+
+	Bool_t fUseGPU;
+	int* fDev_tubeNeighborings;
+
+	Bool_t fCalcWithCorrectedIsochrones;
+
 	Bool_t fCalcFirstTrackletInf; // if true, calculate riemannTracks for start-tracklets
 	std::vector<FairHit*> fHits;	// vector with all hits of the current event
 	std::multimap<int, PndSttSkewedHit*> fCombinedSkewedHits; //<(inner) Tube-ID of combined stt hits of skewed layers, corresponding hit>
@@ -213,11 +217,7 @@ private:
 	std::vector<PndTrack> fCombiTrack; // resulting PndTrack
 	std::vector<PndRiemannTrack> fCombiRiemannTrack;
 
-	std::vector<PndTrackCand> fCorrectedCombiTrackCand;
-	std::vector<PndTrack> fCorrectedCombiTrack;
-	std::vector<PndRiemannTrack> fCorrectedCombiRiemannTrack;
-
-	ClassDef(PndSttCellTrackFinder,1)
+ClassDef(PndSttCellTrackFinder,1)
 	;
 
 };

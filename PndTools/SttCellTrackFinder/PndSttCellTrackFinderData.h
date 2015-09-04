@@ -24,22 +24,29 @@ class PndSttCellTrackFinderData {
 public:
 
 	PndSttCellTrackFinderData(TClonesArray* fTubeArray);
+
 	virtual ~PndSttCellTrackFinderData() {
 		delete fStrawMap;
 		delete fGeometryMap;
 		for (int i = 0; i < fHits.size(); ++i)
 			delete fHits.at(i);
+		for (int i = 0; i < fHitsOrig.size(); ++i)
+			delete fHitsOrig.at(i);
 
 	}
 
-	void GenerateNeighborhoodData(std::vector<FairHit*> hits,
-			std::multimap<int, PndSttSkewedHit*> combinedSkewedHits, bool allowDoubleHits=true);
+	void AddHits(TClonesArray* hits, Int_t branchId);
+
+	void GenerateNeighborhoodData();
 
 	void clear() {
 		fHits.clear();
+		fHitsOrig.clear();
+		fMapHitToFairLink.clear();
 		fMapTubeIdToHit.clear();
 		fHitNeighbors.clear();
 		fSeparations.clear();
+		fCombinedSkewedHits.clear();
 		fHitNeighborsWithoutEdges.clear();
 		fSeparationsWithoutEdges.clear();
 		fHitNeighborsWithoutSkewed.clear();
@@ -47,6 +54,14 @@ public:
 	}
 
 	void PrintInfo();
+
+	void SetAllowDoubleHits(Bool_t value){
+		fAllowDoubleHits=value;
+	}
+
+	Bool_t GetAllowDoubleHits(){
+			return fAllowDoubleHits;
+		}
 
 	std::vector<FairHit*> GetHits() const {
 		return fHits;
@@ -56,12 +71,16 @@ public:
 		return fCombinedSkewedHits;
 	}
 
-	const PndSttStrawMap* GetStrawMap() const {
+	PndSttStrawMap* GetStrawMap() const {
 		return fStrawMap;
 	}
 
-	const PndSttGeometryMap* GetGeometryMap() const {
+	PndSttGeometryMap* GetGeometryMap() const {
 		return fGeometryMap;
+	}
+
+	std::map<int,FairLink> GetMapHitToFairLink() const{
+		return fMapHitToFairLink;
 	}
 
 	std::map<int, int> GetMapTubeIdToHit() const {
@@ -96,20 +115,23 @@ public:
 		return fSeparationsWithoutSkewed;
 	}
 
-	int GetNumHits(){
+	int GetNumHits() {
 		return fNumHits;
 	}
 
-	int GetNumHitsWithoutDouble(){
+	int GetNumHitsWithoutDouble() {
 		return fNumHitsWithoutDouble;
 	}
 
 private:
 
-	std::vector<FairHit*> fHits;		//vector with all hits of the an event
+	std::map<int, FairLink> fMapHitToFairLink; // map< index of hit in fHit, FairLink of SttHit>
+	std::map<int, FairLink> fMapHitToFairLinkOrig; // map< index of hit in fHitOrig, FairLink of SttHit>
+	std::vector<FairHit*> fHits;		//vector with selected hits of an event
+	std::vector<FairHit*> fHitsOrig;//vector with all originally hits of an event
 	std::multimap<int, PndSttSkewedHit*> fCombinedSkewedHits; //<(inner) Tube-ID of combined stt hits of skewed layers, corresponding hit>
 
-	bool fAllowDoubleHits;
+	Bool_t fAllowDoubleHits;
 	int fNumHits;
 	int fNumHitsWithoutDouble;
 

@@ -13,10 +13,13 @@
 #include "PndRiemannTrack.h"
 #include "PndTrack.h"
 #include "FairLink.h"
+#include "MacrosForGPUComputing.h"
 
 class PndSttStrawMap;
 class FairHit;
 class PndSttSkewedHit;
+
+extern "C" int* EvaluateAllStates(int*, int*, int, int, int*);
 
 struct TrackletInf_t {
 
@@ -68,35 +71,46 @@ struct Combination_t {
 
 class PndSttCellTrackletGenerator {
 public:
-	PndSttCellTrackletGenerator(const PndSttCellTrackFinderData* data,
-			std::map<int, FairLink> mapHitToFairLink) :
+	PndSttCellTrackletGenerator(const PndSttCellTrackFinderData* data) :
 			fVerbose(0), fCalcFirstTrackletInf(false), fCalcWithCorrectedHits(
 					false), fHits(data->GetHits()), fCombinedSkewedHits(
 					data->GetCombinedSkewedHits()), fStrawMap(
 					data->GetStrawMap()), fMapTubeIdToHit(
 					data->GetMapTubeIdToHit()), fMapTubeIdToPos(
-					data->GetMapTubeIdToPos()), fHitNeighbors(
-					data->GetHitNeighborsWithoutEdges()), fSeparations(
-					data->GetSeparationsWithoutEdges()), fTimeStamps(20) {
-		fMapHitToFairLink = mapHitToFairLink;
-		fTUBE_RADIUS = 0.5005;
-		//store timestamps (start and stop) for 10 functions
-		//fTimeStamps.reserve(20);
+					data->GetMapTubeIdToPos()), fMapHitToFairLink(
+					data->GetMapHitToFairLink()), fHitNeighbors(
+					data->GetHitNeighbors()), fSeparations(
+					data->GetSeparations()), fTimeStamps(20), fUseGPU(false), fDev_tubeNeighborings(
+					0), fTUBE_RADIUS(0.5005) {
+
 	}
 
 	virtual ~PndSttCellTrackletGenerator() {
+	}
+
+	void SetUseGPU(Bool_t val) {
+		fUseGPU = val;
+	}
+
+	void SetDevTubeNeighboringsPointer(int* dev_pointer) {
+		fDev_tubeNeighborings = dev_pointer;
 	}
 
 	void FindTracks();
 
 	void SetCorrectedHits(std::map<int, FairHit*> correctedHits);
 
+	/* For refitting all RiemanTracks with correctedHits (if available)*/
 	void RefitTracks();
 
 	void PrintInfo();
 
 	void SetCalcWithCorrectedHits(bool calcWithCorrectedHits) {
 		fCalcWithCorrectedHits = true;
+	}
+
+	int GetNumPrimaryTracklets() {
+		return fStartTracklets.size();
 	}
 
 	/* Get TrackCands of start-tracklets (before combination)*/
@@ -122,7 +136,7 @@ public:
 	}
 	;
 
-	bool CalcWithCorrectedHits(){
+	bool CalcWithCorrectedHits() {
 		return fCalcWithCorrectedHits;
 	}
 
@@ -142,9 +156,10 @@ public:
 	}
 	;
 
-	std::vector<Double_t> GetTimeStamps(){
+	std::vector<Double_t> GetTimeStamps() {
 		return fTimeStamps;
-	};
+	}
+	;
 
 private:
 
@@ -154,6 +169,9 @@ private:
 	bool fCalcFirstTrackletInf;
 	bool fCalcWithCorrectedHits;
 	double fTUBE_RADIUS;
+
+	bool fUseGPU;
+	int* fDev_tubeNeighborings;
 
 	std::vector<FairHit*> fHits;
 	std::multimap<int, PndSttSkewedHit*> fCombinedSkewedHits; //<(inner) Tube-ID of combined stt hits of skewed layers, corresponding hit>
@@ -191,8 +209,11 @@ private:
 	 *  the not combined tracklets with more than 2 hits.*/
 	void CreatePndTrackCands();
 
-	/* Method creates the first tracklets by the means of a cellular automaton.*/
+	/* Method creates the tracklets by the means of a cellular automaton.*/
 	void GenerateTracklets();
+
+	/* Method creates the tracklets by the means of a cellular automaton on the GPU.*/
+	void GenerateTrackletsGPU();
 
 	/* Method update the states of each until no state change anymore.*/
 	void EvaluateState();

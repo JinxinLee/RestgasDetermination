@@ -1001,7 +1001,6 @@ void PndSttHitCorrector::CorrectIsochrones() {
 
 			fCorrectedIsochrones[fMapTubeIdToHit[actualTubeId]]->SetLink(
 					FairLink("STTHit", fMapTubeIdToHit[actualTubeId]));
-
 		} else {
 			if (fVerbose > 2)
 				cout << "[warning: ambiguous tangent angles for tube "

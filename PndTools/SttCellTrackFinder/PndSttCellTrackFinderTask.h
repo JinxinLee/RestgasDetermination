@@ -9,12 +9,15 @@
 
 #include <vector>
 
+extern "C" int* AllocateStaticData(int*, int);
+extern "C" void FreeStaticData(int*);
+
 class PndSttCellTrackFinderTask: public FairTask {
 public:
 
 	PndSttCellTrackFinderTask() :
 			FairTask("Stt Cell Track Finder"), fVerbose(0), fPersistence(kTRUE), fAnalyseSteps(
-					kFALSE) , fTrackFinder(0){
+					kFALSE) , fTrackFinder(0), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fCalcWithCorrectedIsochrones(kFALSE){
 	}
 	;
 
@@ -48,12 +51,24 @@ public:
 		fAnalyseSteps = val;
 	}
 	;
-	//  void SetGeoH(PndGeoHandling geoH){ fGeoH=geoH;};
+	void SetUseGPU(Bool_t val){
+		fUseGPU=val;
+	};
 
-	//void FillHitArray();
+	void SetCalcWithCorrectedIsochrones(Bool_t val){
+		fCalcWithCorrectedIsochrones=val;
+	}
+
 	void InitHitArray(TString branchName);
 
 private:
+
+	//for GPU computing
+	Bool_t fUseGPU;
+	int* fDev_tubeNeighborings;
+
+	Bool_t fCalcWithCorrectedIsochrones;
+
 	std::vector<TString> fHitBranch;
 	//TString fTrackBranch;
 
@@ -61,6 +76,7 @@ private:
 
 	// first step of trackfinding
 	TClonesArray* fFirstTrackCandArray;
+	TClonesArray* fFirstTrackArray;
 	TClonesArray* fFirstRiemannTrackArray;
 
 	// second step of trackfinding
@@ -68,9 +84,6 @@ private:
 	TClonesArray* fCombiRiemannTrackArray;
 	TClonesArray* fCombiTrackArray;
 	TClonesArray* fCorrectedIsochronesArray;
-	TClonesArray* fCorrectedCombiTrackCandArray;
-	TClonesArray* fCorrectedCombiRiemannTrackArray;
-	TClonesArray* fCorrectedCombiTrackArray;
 
 	Int_t fVerbose;
 	Bool_t fPersistence; // safe data?

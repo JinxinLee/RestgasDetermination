@@ -10,6 +10,7 @@
 #include "PndSttGeometryMap.h"
 #include "PndSttTube.h"
 #include "PndSttHit.h"
+#include "PndSttSkewedHit.h"
 #include <stdio.h>
 
 //macro for printing tubes + neighbors to a file called tubeNeighborings.txt
@@ -20,7 +21,7 @@ using namespace std;
 ClassImp(PndSttCellTrackFinderData);
 
 PndSttCellTrackFinderData::PndSttCellTrackFinderData(
-		TClonesArray* sttTubeArray) {
+		TClonesArray* sttTubeArray):fNumHits(0),fNumHitsWithoutDouble(0),fAllowDoubleHits(kFALSE) {
 
 	// Generate information of Straw- and GeometryMap.
 	// It is always the same data for all events.
@@ -68,36 +69,82 @@ PndSttCellTrackFinderData::PndSttCellTrackFinderData(
 
 }
 
-void PndSttCellTrackFinderData::GenerateNeighborhoodData(vector<FairHit*> hits,
-		multimap<int, PndSttSkewedHit*> combinedSkewedHits,
-		bool allowDoubleHits) {
+void PndSttCellTrackFinderData::AddHits(TClonesArray* hits, Int_t branchId) {
+
+	PndSttHit* myHit;
+	FairLink myID;
+
+	if (branchId == FairRootManager::Instance()->GetBranchId("STTHit")) {
+
+		fMapHitToFairLinkOrig.clear();
+		fHitsOrig.clear();
+
+		for (int i = 0; i < hits->GetEntries(); i++) {
+			myHit = (PndSttHit*) (hits->At(i));
+
+			if (myHit->GetEntryNr().GetIndex() < 0) {
+				myID = FairLink(branchId, i);
+				myHit->SetEntryNr(FairLink(branchId, i));
+			} else
+				myID = myHit->GetEntryNr();
+			myHit->SetDxyz(myHit->GetIsochrone(), myHit->GetIsochrone(), 100);
+			fMapHitToFairLinkOrig[i] = myID;
+			fHitsOrig.push_back((FairHit*) myHit);
+
+		}
+
+	} else if (branchId
+			== FairRootManager::Instance()->GetBranchId(
+					"STTCombinedSkewedHits")) {
+
+		fCombinedSkewedHits.clear();
+
+		for (int i = 0; i < hits->GetEntries(); i++) {
+			PndSttSkewedHit* skewedHit = (PndSttSkewedHit*) (hits->At(i));
+			int tubeId = skewedHit->GetTubeIDs().first;
+			fCombinedSkewedHits.insert(
+					std::pair<int, PndSttSkewedHit*>(tubeId, skewedHit));
+			if (skewedHit->GetEntryNr().GetIndex() < 0) {
+				myID = FairLink(branchId, i);
+				skewedHit->SetEntryNr(FairLink(branchId, i));
+			} else
+				myID = skewedHit->GetEntryNr();
+		}
+	}
+
+}
+
+void PndSttCellTrackFinderData::GenerateNeighborhoodData() {
 
 	//fill set with tubeIDs to remove double hits
 	int tubeId;
 	set<int> sttHits;
 	vector<FairHit*> hitsWithoutDouble;
-	//cout<<"STTHits: "<<hits.size()<<" :";
-	for(int i=0; i<hits.size(); ++i){
-		tubeId=((PndSttHit*) hits[i])->GetTubeID();
-		//cout<<" "<<tubeId;
+	map<int, FairLink> mapWithoutDouble;
+	int hitIndex=0;
+
+	for(int i=0; i<fHitsOrig.size(); ++i){
+		tubeId=((PndSttHit*) fHitsOrig[i])->GetTubeID();
+
 		if(sttHits.find(tubeId)==sttHits.end()){
 			sttHits.insert(tubeId);
-			hitsWithoutDouble.push_back(hits[i]);
+			hitsWithoutDouble.push_back(fHitsOrig[i]);
+			mapWithoutDouble[hitIndex]=fMapHitToFairLinkOrig[i];
+			++hitIndex;
 		}
 	}
-	//cout<<endl;
 
-	fNumHits=hits.size();
+	fNumHits=fHitsOrig.size();
 	fNumHitsWithoutDouble=sttHits.size();
 
-	if (!allowDoubleHits) {
+	if (!fAllowDoubleHits) {
 		fHits = hitsWithoutDouble;
+		fMapHitToFairLink=mapWithoutDouble;
 
 	} else {
-		fHits = hits;
+		fHits = fHitsOrig;
+		fMapHitToFairLink=fMapHitToFairLinkOrig;
 	}
-
-	fCombinedSkewedHits = combinedSkewedHits;
 
 	PndSttHit* sttHit;
 	for (int i = 0; i < fHits.size(); ++i) {
@@ -160,7 +207,7 @@ void PndSttCellTrackFinderData::FindHitNeighbors() {
 				== fHitNeighborsWithoutEdges.end()) {
 			//no hitNeighbor was found
 			vector<int> tmp;
-			fHitNeighbors[tubeId] = tmp;
+			fHitNeighborsWithoutEdges[tubeId] = tmp;
 		}
 
 		if (!fStrawMap->IsSkewedStraw(tubeId)) {
