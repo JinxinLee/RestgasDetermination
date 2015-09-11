@@ -774,9 +774,9 @@ InitStatus PndLmdQATask::Init()
 
 
    //info about hits
-   hResHitX = new TH1F("hResPointX","X_{MC}-X_{rec};#deltaX,cm",2e3,-0.5,0.5);
-   hResHitY = new TH1F("hResPointY","Y_{MC}-Y_{rec};#deltaY,cm",2e3,-0.5,0.5);
-   hResHitZ = new TH1F("hResPointZ","Z_{MC}-Z_{rec};#deltaZ,cm",2e2,-3e-2,3e-2);
+   hResHitX = new TH1F("hResHitX","X_{MC}-X_{rec};#deltaX,cm",2e3,-0.5,0.5);
+   hResHitY = new TH1F("hResHitY","Y_{MC}-Y_{rec};#deltaY,cm",2e3,-0.5,0.5);
+   hResHitZ = new TH1F("hResHitZ","Z_{MC}-Z_{rec};#deltaZ,cm",2e2,-3e-2,3e-2);
 
 
   std::cout << "-I- PndLmdQATask: Initialisation successfull" << std::endl;
