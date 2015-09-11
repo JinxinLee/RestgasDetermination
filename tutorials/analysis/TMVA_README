@@ -1,0 +1,36 @@
+README for TMVATrainer/TMVATester
+---------------------------------
+This README file explains how a TMVA training can be performed on a TTree containing signal and background
+events with a simple set of two macros. The TMVATester macro shows the performance as well as writes
+a file containing a TNtuple with the network output, which can be added as a friend to the original TTree.
+
+
+When using some root-file 'input.root' with a ttree 'ntp' containing signal and background, 
+you can train a BDT (boosted decision tree) TMVA with
+
+root [0] .x TMVATrainer.C+("input.root", "ntp",
+                           <signal cut>,
+                           <variables>,
+                           [precut]) 
+
+where <signal cut> is the cut separating good from bad candidates, and <variables> is a blank 
+separated list of the variables which should be used for the training. Also an opional precut can be applied.
+
+To test and write out a friend tree 'tf' to a file 'input_tmvaout.root' with the network output, execute:
+
+root [0] .x TMVATester.C+("input.root", "ntp",
+                           <signal cut>,
+                           <weights file>,
+                           [precut]) 
+
+Here, <weights file> is the output of the training process, in our example in the new created subfolder weights/ 
+named input_ntp_BDT.weights.xml. If a precut was used for training, the same should be applied here. The tester
+shows the network output for signal and background and a ROC curve.
+
+It can be used interactively by this commands:
+
+root [0] TFile f("input.root")
+root [1] ntp.AddFriend("input_tmvaout.root")
+root [2] ntp.Draw(<your variable>,"tmvaout>0");
+
+
