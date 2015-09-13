@@ -7,7 +7,7 @@
 // back-propagation with GEANE
 // created 23/07/2015 by A.Karavdina
 
-void reco_LMD(const int nEvents=2000, const int startEvent=0, TString storePath="", const int verboseLevel=0, const double mom=1.5)
+void reco_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="", const int verboseLevel=0, const double mom=1.5)
 {
   // parameters ================================================================
   bool misalign=false; //no misalignment is expected: important for hit reco and track search
