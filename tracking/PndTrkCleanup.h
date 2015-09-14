@@ -65,14 +65,44 @@ class PndTrkCleanup : public TObject
 		);
 
 
+ bool IsThereMvdHitInBarrel(
+		Double_t Xintersect,	// input, X position of the point of crossing as calculated from the track trajectory;
+		Double_t Yintersect,	// input, Y position of the point of crossing as calculated from the track trajectory;
+		Double_t Zintersect,	// input, Z position of the point of crossing as calculated from the track trajectory;
 
- Short_t Is_Contained_in_Mvd_Vertical_Strip(
-	Short_t iLayer,	// index of the Mvd Disk Layer under scrutiny here;
- 	Short_t nXlow, //  index of the strip containing Xlow;
-	Short_t nXup, //  index of the strip containing Xlow;
-	Double_t tmpYlow, // Ylow (abs of it if it is the case);
-	Double_t tmpYup // Yup (abs of it if it is the case);
-					);
+		Short_t nPixelHitsinTrack,  // number of Mvd Pixel hits in this track;
+		Short_t * ListMvdPixelHitsinTrack, // ... and their list;	
+		Double_t* XMvdPixel,  // list of the X positions of ALL Mvd hits of the event;
+		Double_t* YMvdPixel,  // list of the Y positions of ALL Mvd hits of the event;
+		Double_t* ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
+		Short_t nStripHitsinTrack,  // number of Mvd Strip hits in this track;
+		Short_t * ListMvdStripHitsinTrack, // ... and their list;
+		Double_t* XMvdStrip,  // list of the X positions of ALL Mvd hits of the event;
+		Double_t* YMvdStrip,  // list of the Y positions of ALL Mvd hits of the event;
+		Double_t* ZMvdStrip  // list of the Z positions of ALL Mvd hits of the event;
+ 		);
+
+
+ bool IsThereHitInMvdMiniDisk(
+		Double_t ZLayerBegin,	// Z of the beginning of the layer (end of layer = + 0.02);
+		Short_t nPixelHitsinTrack,  // number of Mvd Pixel hits in this track;
+		Short_t * ListMvdPixelHitsinTrack, // ... and their list;	
+		Double_t * XMvdPixel,
+		Double_t * YMvdPixel,
+		Double_t * ZMvdPixel,
+
+
+		Short_t nStripHitsinTrack,  // number of Mvd Strip hits in this track;
+		Short_t * ListMvdStripHitsinTrack, // ... and their list;
+		Double_t * XMvdStrip,
+		Double_t * YMvdStrip,
+		Double_t * ZMvdStrip,
+
+		PndTrkCTGeometryCalculations * GeometryCalculator	// pointer to
+				// the class doing the geometrical calculations;
+		
+ 		);
+
 
  bool MvdCleanup(
 	Double_t Ox,
@@ -108,8 +138,6 @@ class PndTrkCleanup : public TObject
 	Short_t nMvdHits,
 	PndTrkCTGeometryCalculations* GeomCalculator	
 		);
-
-
 
  void SeparateInnerOuterParallel(
 
@@ -229,6 +257,91 @@ bool SttSkewCleanup(
 	Double_t RStrawDetMin,
 	Double_t Start[3],
 	Double_t Strawradius
+	);
+
+
+
+
+
+ bool Track_Crosses_MvdBarrelFullAzimuthalCoverage(
+		Double_t Ox,		// track trajectory center;
+		Double_t Oy,		// track trajectory center;
+		Double_t R,		// track trajectory radius;
+		Double_t fi0, 		// FI0 of the Helix of the particle trajectory;
+		Double_t kappa,		// KAPPA of the Helix of the particle trajectory;
+		Double_t charge,	// charge of the particle;
+		
+		const Double_t Zlow,		// Z low limit of this barrel;
+		const Double_t Zup,		// Z upper limit of this barrel;
+		Double_t RBarrel,	// R of this barrel at which the intersection of the particle
+					// trajectory is calculated;
+		PndTrkCTGeometryCalculations * GeometryCalculator,	// pointer
+		Double_t extra_distance_Z,	// in cm; extra distance allowed during decision
+						// if there should be an hit in a Mvd sensitive layer;
+		Double_t &Xintersect,	// output, X position of the point of crossing;
+		Double_t &Yintersect,	// output, Y position of the point of crossing;
+		Double_t &Zintersect	// output, Z position of the point of crossing;
+					);
+
+
+ bool Track_Crosses_MvdBarrelPartialAzimuthalCoverage(
+
+// in this function it is assumed to deal with an Mvd Barrel section composed of an Inner Barrel with
+// RMin radius and an Outer Barrel with RMax radius.
+// Both the Inner and Outer Barrel have their own azimuthal (partial) coverage defined by a number of
+// azimuthal gaps ( ngapInner and ngapOuter respectively, maximum 4 gaps) with a certain range in Fi
+// defined in the arrays   :    gap_lowInner - gap_upInner  and   gap_lowOuter - gap_upOuter respectively;
+
+		Double_t Ox,		// track trajectory center;
+		Double_t Oy,		// track trajectory center;
+		Double_t R,		// track trajectory radius;
+		Double_t fi0, 		// FI0 of the Helix of the particle trajectory;
+		Double_t kappa,		// KAPPA of the Helix of the particle trajectory;
+		Double_t charge,	// charge of the particle;
+		
+		Double_t Zlow,		// Z low limit of this barrel;
+		Double_t Zup,		// Z upper limit of this barrel;
+
+
+
+		Double_t RInnerBarrel,	// R Minimum of this barrel at which the intersection of the particle
+					// trajectory is calculated;
+		int ngapInner,		// number of gaps in the azimuthal coverage;
+		const Double_t * gap_lowInner,	// array of low limits of the range of the azimuthal gaps (radians);
+		const Double_t * gap_upInner,	// array of upper limits of the range of the azimuthal gaps (radians);
+
+		Double_t ROuterBarrel,	// R Minimum of this barrel at which the intersection of the particle
+					// trajectory is calculated;
+		int ngapOuter,		// number of gaps in the azimuthal coverage;
+		const Double_t * gap_lowOuter,	// array of low limits of the range of the azimuthal gaps (radians);
+		const Double_t * gap_upOuter,	// array of upper limits of the range of the azimuthal gaps (radians);
+
+		PndTrkCTGeometryCalculations * GeometryCalculator,	// pointer
+		Double_t extra_distance_Z,	// in cm; extra distance allowed during decision
+						// if there should be an hit in a Mvd sensitive layer;
+
+		Double_t *Xintersect,	// output, X position of the point of crossing track-Inner Barrel
+					// and track-Outer Barrel;
+		Double_t *Yintersect,	// output, Y position of the point of crossing;
+		Double_t *Zintersect	// output, Z position of the point of crossing;
+					);
+
+
+
+ bool Track_Crosses_MvdMiniDisk_withMargin(
+	Double_t ZLayerBegin,	// Z of the beginning of the layer (end of layer = + 0.02);
+ 	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin,	//  safety margin in Y coordinate;
+
+	Double_t Ox,		// track trajectory center;
+	Double_t Oy,		// track trajectory center;
+	Double_t R,		// track trajectory radius;
+	Double_t fi0, 		// FI0 of the Helix of the particle trajectory;
+	Double_t kappa,		// KAPPA of the Helix of the particle trajectory;
+	Double_t charge,		// charge of the particle;
+
+	PndTrkCTGeometryCalculations * GeometryCalculator	// pointer to
+				// the class doing the geometrical calculations;
 	);
 
  bool XYCleanup(
