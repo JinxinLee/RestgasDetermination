@@ -444,6 +444,170 @@ void  FindingParallelTrackAngularRange2(
 	);
 
 
+  bool IsInMvdMiniDisk1_97to1_99(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk1_97to1_99withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+  bool IsInMvdMiniDisk2_41to2_43(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk2_41to2_43withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+
+  bool IsInMvdMiniDisk3_97to3_99(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk3_97to3_99withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+
+
+  bool IsInMvdMiniDisk4_41to4_43(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk4_41to4_43withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+
+  bool IsInMvdMiniDisk6_97to6_99(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk6_97to6_99withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+
+
+  bool IsInMvdMiniDisk7_41to7_43(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk7_41to7_43withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+
+  bool IsInMvdMiniDisk9_97to9_99(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk9_97to9_99withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+  bool IsInMvdMiniDisk10_41to10_43(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk10_41to10_43withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+  bool IsInMvdMiniDisk14_77to14_79(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk14_77to14_79withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+  bool IsInMvdMiniDisk15_21to15_23(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk15_21to15_23withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+  bool IsInMvdMiniDisk21_77to21_79(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk21_77to21_79withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+  bool IsInMvdMiniDisk22_21to22_23(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	);
+
+  bool IsInMvdMiniDisk22_21to22_23withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	);
+
+
+
   bool IsInTargetPipe(
 	Double_t Oxx,
 	Double_t Oyy,
