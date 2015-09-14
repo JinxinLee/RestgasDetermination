@@ -494,11 +494,84 @@ if(doMcComparison >=1 ){
 //  ---------------
 
 
-}  //  end of if(istampa >=1)
+}  //  end of if(doMcComparison >=1 )
 
 
 // ---------------------------------------------------------------------------------------
 //--------------geometry stuff;
+
+/*
+
+// parto dal volume cave
+ TGeoVolume *vcave= gGeoManager->FindVolumeFast("cave");
+// i suoi nodi;
+	// get the TObjArray of the nodes contained in this volume;
+	TObjArray * tobjnodes = vcave->GetNodes();
+	int nodes = tobjnodes->GetEntriesFast();
+	for(int i=0;i<nodes; i++){
+		TGeoNode * geonode = (TGeoNode *) tobjnodes->At(i);
+		// in the following   vol  is the TGeoVolume corresponding to the geonode node;
+		TGeoVolume * vol = geonode->GetVolume();
+		cout<<"sottovolumi del cave : "<<vol->GetName()<<endl;
+	}
+
+
+
+
+  char nomevolume[100]="Mvd-2.1o(Central-Mvd)";
+//  TGeoVolume *v= gGeoManager->FindVolumeFast(nomevolume);
+ TGeoVolume *v= gGeoManager->FindVolumeFast("Mvd-2.1o(Central-Mvd)");
+
+// so gia' che questo e' un sottovolume di   cave  ; allora estraggo la sua matrice di roto-traslazione;
+	vcave->FindMatrixOfDaughterVolume(v);
+	// now get the transformation matrix from MARS to vol;
+	TGeoHMatrix * gmatrix = gGeoManager->GetHMatrix();
+	cout<<"---------- matrice di Mvd-2.1o(Central-Mvd) rispetto a cave :\n";
+	gmatrix->Print();
+	cout<<"--------------------------- fine printout\n";
+
+
+
+  //  v e' il volume Mvd-2.1o(Central-Mvd)
+ Double_t GlobalScal[3]={1.,1.,1.} ,  GlobalTras[3]={0.,0.,0.},
+ GlobalRot[9]={1.,0.,0.,0.,1.,0.,0.,0.,1.};
+ GetVolumeCharacteristics(v, NULL,GlobalScal,GlobalTras,GlobalRot);  // NULL is the pointer to a TGeoHMatrix, the global transformation matrix of the
+ 				     // volume v; it is important only for the volumes at the end of the chain;
+
+//  cout<<"stampa per la geometria -------------------------------------  "<<nomevolume<<endl;
+//----- shape del volume  PixelActiveo5
+
+
+//--- drawings
+
+//--
+  TGeoVolume *vv = gGeoManager->FindVolumeFast("PixelActiveo5");
+//  gGeoManager->SetVisLevel(10);
+ TCanvas * can6 = new  TCanvas("c6","PixelActiveo5");
+ can6->cd();
+//gGeoManager->GetMasterVolume()->Draw();
+gGeoManager->SetTopVisible();
+ vv->SetLineColor(kRed);
+ vv->Draw();
+//--
+
+
+
+//  cout<<"ora disegna il Master Volume  -----\n";
+//  gGeoManager->SetTopVisible();
+//  gGeoManager->GetMasterVolume()->Draw();
+//  TGeoVolume *topvolume = gGeoManager->GetMasterVolume();
+//  cout<<"pointer del master volume "<<topvolume<<endl;
+
+//  TObjArray * lista = gGeoManager->GetListOfPhysicalNodes();
+//  cout<<"print ultimo indice "<<lista->GetLast()<<endl;
+
+//  cout<<"stampa per la geometria , fine-------------------------------------  "<<endl;
+
+
+*/
+
+//--------------end of the geometry stuff;
 // ---------------------------------------------------------------------------------------
 
 
@@ -754,6 +827,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
 
  bool
+	accepted,
 	flag,
 	intersect,
 	outcome,
@@ -805,29 +879,12 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	nSkewHitsInMCTrack(tnSkewHitsInMCTrack, MAXTRACKSPEREVENT,"nSkewHitsInMCTrack"),
 	nSpuriParinTrack(tnSpuriParinTrack, MAXTRACKSPEREVENT,"nSpuriParinTrack"),
 	nSpuriSkewinTrack(tnSpuriSkewinTrack, MAXTRACKSPEREVENT,"nSpuriSkewinTrack"),
-	//  given a Hit number it gives its radial box number
-
-//	RConformalIndex(tRConformalIndex, MAXSTTHITS,"RConformalIndex"),
-
-	//  given a Hit number it gives its azimuthal box number
-
-//	FiConformalIndex(tFiConformalIndex, MAXSTTHITS,"FiConformalIndex"),
-//	tempore(ttempore, MAXSTTHITS,"tempore"),
-	// nBoxConformal,  first index -> radial divisions,
-	// 2nd index -> azimuthal divisions; n. of hits falling in this cell.
-//	nBoxConformal(tnBoxConformal, NRDIVCONFORMAL*NFIDIVCONFORMAL,"nBoxConformal"),
 	ParalCommonList(tParalCommonList, MAXTRACKSPEREVENT*MAXSTTHITSINTRACK,"ParalCommonList"),
 	ParSpuriList(tParSpuriList, MAXTRACKSPEREVENT*MAXSTTHITSINTRACK,"ParSpuriList"),
 	SkewCommonList(tSkewCommonList, MAXTRACKSPEREVENT*MAXSTTHITSINTRACK,"SkewCommonList"),
 	SkewSpuriList(tSkewSpuriList, MAXTRACKSPEREVENT*MAXSTTHITSINTRACK,"SkewSpuriList"),
-//	HitsinBoxConformal(tHitsinBoxConformal, MAXHITSINCELL*NRDIVCONFORMAL*NFIDIVCONFORMAL,"HitsinBoxConformal"),
-
-//	Charge(tCharge,MAXTRACKSPEREVENT,"Charge"),
 
 	daTrackFoundaTrackMC(tdaTrackFoundaTrackMC,MAXTRACKSPEREVENT,"daTrackFoundaTrackMC");
-//	resultFitSZagain(tresultFitSZagain,MAXTRACKSPEREVENT,"resultFitSZagain"),
-//	SttStrawOn(tSttStrawOn,NUMBER_STRAWS,"SttStrawOn");  //  SttStrawOn[i] >= 0 --> it is the Stt hit number corresponding to Stt
-							// i-th Tube ID; SttStrawOn[i] == -1 --> i-th Stt straw NOT hit;
 
  memset(SttStrawOn,-1,sizeof(SttStrawOn));
 
@@ -951,11 +1008,6 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	Start[3],
 
 	S_Skew[MAXSTTHITS],
-//	CandidateSkewS[2*MAXSTTHITS],
-//	CandidateSkewZ[2*MAXSTTHITS],
-//	CandidateSkewZDrift[2*MAXSTTHITS],
-//	CandidateSkewZError[2*MAXSTTHITS],
-
 	temporeZError[MAXSTTHITSINTRACK],
 	temporeS[MAXSTTHITSINTRACK],
 	temporeZ[MAXSTTHITSINTRACK],
@@ -1061,19 +1113,6 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
  IVOLTE++;
 
-
-
-
-
-//    temporaneamente per studio
-
-
-/*
-	if(
-		IVOLTE == 820
-	) { istampa =1 ; iplotta = true;} else { istampa=0; iplotta = false;}
-
-*/
 
  if(istampa>=1)
 	cout<<endl<<"Entering in PndTrkTracking2 : evt (starting from 0)  n. "<<IVOLTE<<endl;
@@ -1537,7 +1576,7 @@ if(istampa>0){
  		);
 
 //------------------------------------- stampe;
-if(istampa>=1){
+if(istampa>=2){
 	cout<<"from PndTrkTracking2, evt "<<IVOLTE<<";  number of clusters found : "<<nFoundClusters<<" and their list :\n";
 	for(int ic=0;ic<nFoundClusters;ic++){
 		cout<<"cluster n. "<<ic<<" is composed by "<<nHitsinCluster[ic]<<" hits;"<<endl;
@@ -1713,7 +1752,7 @@ int iconta=0;
 
 
 //---------------------------------------------
-// parte da togliere;
+// part to be eliminated;
 	// outputs from the FindTrackInXYProjection class are stored here;
 	InOut.Fi_final_helix_referenceframe = &Fi_final_helix_referenceframe[nSttTrackCand];
 	InOut.Fi_initial_helix_referenceframe = &Fi_initial_helix_referenceframe[nSttTrackCand];
@@ -1760,15 +1799,6 @@ int iconta=0;
 
 
 
-/*
-	for(j=0; j<fnSttParHitsinTrack[nSttTrackCand]; j++){
-		fInclusionListStt[fListSttParHitsinTrack[nSttTrackCand][j]] = false;
-	}
-*/
-
-
-
-
 
 	keepit[nSttTrackCand]=true;
 	nSttTrackCand++;
@@ -1801,7 +1831,7 @@ int iconta=0;
 
 
 //-------------- stampa
- if(istampa>=1){
+ if(istampa>=2){
 cout<<"\tstampa dopo FindTrackInXYProjection di tutte le trackCand rimaste :\n";
 //fPrint.stampetta(IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],
 fPrint.stampetta(IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],
@@ -1985,28 +2015,6 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 			Charge[ncand]	// this remains unchanged.
 					);
 
-//-------------- stampa
- if(istampa>=2){
-	cout<<"\tstampa prima del primo FitSZspace_Chi2_AnnealingtheMvdOnly, della sola traccia "<<ncand<<endl;
-
-cout<<"\tFI0 "<<FI0[ncand]<<", charge "<<Charge[ncand]<<", lista degli S :\n";
-	for(int hh=0;hh<nhitsinfit;hh++){
-		cout<<"\tS (deg.) "<<S[hh]*180./PI<<", S (rad) "<< S[hh]<<", Z = "<<ZED[hh];
-		if(DriftRadius[hh]==-1.) cout<<" ed e' una Mvd "<<endl; else if(DriftRadius[hh]< -1.5)
-			 cout<<" ed e' un SciTil ;\n"; else cout<<" ed e' una Skew;\n"; 
-	}
-
-	fPrint.stampetta(
-// IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-
- }
-//-------------- fine stampa
-
 
 
 //---------------------   here do the fit again in the SZ space if there are Mvd hits.
@@ -2044,42 +2052,16 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 		} else {
 			keepit[ncand]=false;
 			GoodSkewFit[ncand] = false;
+			continue;
 		}
 
 
 	}  else {  // continuation of  if(nhitsinfit>0)
 		keepit[ncand]=false;
 		GoodSkewFit[ncand] = false;
+		continue;
 	}   // end of  if(nhitsinfit>0)
 
-
-//-------------- stampa
- if(istampa>=2){
-	cout<<"stampa dopo il primo FitSZspace_Chi2_AnnealingtheMvdOnly, SttTrackCand n. "<<ncand<<", result (1 va bene) = "
-	<<resultFitSZagain[ncand]<<endl;
-
-
-
-cout<<"\tFI0 "<<FI0[ncand]<<", charge "<<Charge[ncand]<<", lista degli S :\n";
-	for(int hh=0;hh<nhitsinfit;hh++){
-		cout<<"\tS (deg.) "<<S[hh]*180./PI<<", S (rad) "<< S[hh]<<", Z = "<<ZED[hh];
-		if(DriftRadius[hh]==-1.) cout<<" ed e' una Mvd "<<endl; else if(DriftRadius[hh]< -1.5)
-			 cout<<" ed e' un SciTil ;\n"; else cout<<" ed e' una Skew;\n"; 
-	}
-
-
-
-
-
-	fPrint.stampetta(
-//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-	}
-//---------------------------------------------------------------------------
 
 //-------------------------------------------
 
@@ -2093,7 +2075,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 	// the following calculation is not precise (i.e. is much wider) for the little Skew Straws;
-	  if(keepit[ncand]){
 	    signPz = -Charge[ncand]*KAPPA[ncand];
 	    if(fR[ncand] < RSTRAWDETECTORMAX/2.){
 		if(signPz>0.){	// this means Pz>0.
@@ -2111,7 +2092,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 		MaxTurns=0;
 	    }
 
-if(istampa>=2) {cout <<"Prima del primo EliminateSpuriousSZ_bis : MaxTurns = "<<MaxTurns<<endl; }
 	    EliminateSpuriousSZ_bis(
 	    	ncand,
 		MaxTurns,	// input;
@@ -2147,22 +2127,10 @@ if(istampa>=2) {cout <<"Prima del primo EliminateSpuriousSZ_bis : MaxTurns = "<<
 
 
 
-//-------------- stampa
- if(istampa>=2){
-	cout<<"stampa dopo il primo EliminateSpuriousSZ_bis, SttTrackCand n. "<<ncand<<endl;
-	fPrint.stampetta(
-//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,ncand,MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-	}
-//---------------------------------------------------------------------------
 
 	  // eliminate those tracks that does not have any hit giving information on Pz :
 	  if( fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+fnSttSkewHitsinTrack[ncand]==0)
-	  		keepit[ncand]=false;
+	  		{ keepit[ncand]=false; continue; }
 
 
 	  // in case some hits were eliminated by EliminateSpuriousSZ redo the SZ fit;
@@ -2200,14 +2168,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 			&FI0[ncand],	// this remains unchanged.
 			Charge[ncand]	// this remains unchanged.
 					);
-//--------------
-if(istampa>=2){
-	cout<<"prima del secondo  FitSZspace_Chi2_AnnealingtheMvdOnly : nhitsinfit "<<nhitsinfit<<endl;
-		for(int gg=0;gg<nhitsinfit;gg++){ cout<<"\tZED "<<ZED[gg]<<", S "<<S[gg]<<", drift "
-		<<DriftRadius[gg]<<", error "<<ErrorDriftRadius[gg]<<endl;
-		}
-}
-//----------------
 
 //-------------------------------------------------------- second SZ fit -------------------------------------------------------
 //-------------------------------------------------------- second SZ fit -------------------------------------------------------
@@ -2239,6 +2199,7 @@ if(istampa>=2){
 		} else {
 			keepit[ncand]=false;
 			GoodSkewFit[ncand] = false;
+			continue;
 		}
 
 	// ricalculate the sign of Pz (since KAPPA may have changed);
@@ -2247,22 +2208,6 @@ if(istampa>=2){
 
 		//------------------------------------------- end of the refit;
 
-//-------------- stampa
- if(istampa>=2){
-	cout<<"stampa dopo il secondo FitSZspace_Chi2_AnnealingtheMvdOnly, SttTrackCand n. "<<ncand<<endl;
-	fPrint.stampetta(
-//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,
-ncand,
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-	}
-
-
-//---------------------------------------------------------------------------
 //                                    LAST ITERATION
 
 	// here redo the last iteration exploiting the better known SZ parameters of the track;
@@ -2285,21 +2230,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 		fListSttSkewHitsinTrackSolution[ncand][i]=save_ListSttSkewHitsinTrackSolution[i];
 	}
 
-
-//-------------- stampa
- if(istampa>=2){
-	cout<<"stampa in Last Iteration, dopo la ricarica di Skew ed Mvd hits; SttTrackCand n. "<<ncand<<endl;
-	fPrint.stampetta(
-//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,
-ncand,
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-	}
-//---------------------------------------------------------------------------
 
 	EliminateSpuriousSZ_bis(
 		ncand,
@@ -2326,29 +2256,9 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //---------------------------------------------------------------------------
 
 
-//-------------- stampa
- if(istampa>=2){
-	cout<<"stampa dopo il secondo EliminateSpuriousSZ (e' ter), SttTrackCand n. "<<ncand<<endl;
-	fPrint.stampetta(
-//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,
-ncand,
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-	}
-
-
-//---------------------------------------------------------------------------
-
-
-
 	  }  // end of    if(   fnMvdPixelHitsinTrack[ncand].....
 
 
-	}  // end of  if(keepit[ncand])
 
 //--------------------------------------------------------------------------
 
@@ -2359,16 +2269,31 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
 
 //	First cleanup based on the absence of Mvd hits
-fYesCleanMvd=false;
 	if(fYesCleanMvd ){
 
 		// reject the candidate if it is NOT contained in the pipe and
 		// therefore it should have at least 1 Mvd hit but it has none.
 
+//------------------------------------------------------------------------------
+if(istampa>1){
+cout<<"--------------------------Before Mvd cleaner, n. total candidates "<<nTotalCandidates<<
+", this is ncand = "<<ncand ;
+if(!keepit[ncand]){ cout<<" , its keepit is false therefore no printout;\n";}
+else{ cout<<" , its keepit is true so now print it out :\n";
+	fPrint.stampetta(
+//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
+&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
+fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
+fnSciTilHitsinTrack,nSttTrackCand,
+ncand,
+MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
+MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
+	}
+}  // end of if(istampa>1)
+//------------------------------------------
 
-
-		if(
-		    !Cleaner.MvdCleanup(
+		    accepted = Cleaner.MvdCleanup(
 			fOx[ncand],
 			fOy[ncand],
 			fR[ncand],
@@ -2388,33 +2313,13 @@ fYesCleanMvd=false;
 			0.1,	// uncertainty allowed in the X and Y position of the crossing point of the found
 				// trajectory on a disk sensor (cm) allowed because of the uncertainty on the found
 				// trajectory parameters;
-			2.,	// uncertainty in the Z of the crossing point of the found trajectory; (cm) allowed because
+			0.5,	// uncertainty in the Z of the crossing point of the found trajectory; (cm) allowed because
 				// of the uncertainty on the found trajectory parameters;
 			&GeomCalculator
-					)
-		)keepit[ncand]=false;
+					);
 
 
-
-
-/*
-		if( !Cleaner.MvdCleanup_prova(
-			fOx[ncand],
-			fOy[ncand],
-			fR[ncand],
-			FI0[ncand],
-			KAPPA[ncand],
-			Charge[ncand],
-			VERTICALGAP/2.,
-			fnMvdStripHitsinTrack[ncand]+fnMvdPixelHitsinTrack[ncand],
-			&GeomCalculator
-					) )
-			keepit[ncand]=false;
-
-
-*/
-
-
+		if( !accepted ) {keepit[ncand]=false; continue;}
 
 	}  // end of  (fYesCleanMvd)
 
@@ -2432,7 +2337,7 @@ fYesCleanMvd=false;
 
 //-------------- stampa
  if(istampa>=1){
-	cout<<"stampa dopo Mvd cleanup e prima di EliminateClones di tutte le "<<nTotalCandidates<<" found tracks:"<<endl;
+	cout<<"printout after Mvd cleanup e before EliminateClones of all the "<<nTotalCandidates<<" found tracks:"<<endl;
 	fPrint.stampetta(
 IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
 &fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
@@ -2497,8 +2402,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 	}
 
 	if(fYesCleanStt ){
-		if(istampa>1) cout<<"PndTrkTracking2, entra in TrackCleanup "<<
-			"tracce normali, IVOLTE "<<IVOLTE<<" e track cand. "<<ncand<<endl;
 		if ( !Cleaner.TrackCleanup(
 		APOTEMAMAXINNERPARSTRAW,
 		APOTEMAMAXSKEWSTRAW,
@@ -2536,36 +2439,6 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
     }	//  end of for(ncand=0; ncand< nTotalCandidates; ncand++)
 
 //---------------------------------------------------------- end of the cleanup section;
-
-
-// -------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------
-
-
-//--------------------------
-int ncand_effettivo =-1;
- if(istampa>=1){
-	for(ncand=0; ncand< nTotalCandidates; ncand++){
-		cout<<"evento n. "<<IVOLTE<<",  prima di LoadPndTrack_TrackCand, candidato TEORICO n. "
-		<<ncand<<", suo keepit "<<keepit[ncand]<<endl;
-		if(keepit[ncand]) {  ncand_effettivo ++; cout<<"\t candidato EFFETTIVO n. "<<ncand_effettivo<<
-		" ma nella stampa che segue ci sara' scritto :  candidate n. "<<ncand<<   endl;
-			fPrint.stampetta(
-//IVOLTE,tkeepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-IVOLTE,keepit,&fListMvdPixelHitsinTrack[0][0],&fListMvdStripHitsinTrack[0][0],
-&fListSttParHitsinTrack[0][0],&fListSttSkewHitsinTrack[0][0],&fListSciTilHitsinTrack[0][0],
-fnMvdPixelHitsinTrack,fnMvdStripHitsinTrack,fnSttParHitsinTrack,fnSttSkewHitsinTrack,
-fnSciTilHitsinTrack,nSttTrackCand,
-ncand,
-MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,
-MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
-}
-
-
-	} // end of   for(ncand=nSttTrackCand; ncand< nTotalCandidates; ncand++)
-}
-//--------------------------
 
 
 //---------------
@@ -3380,7 +3253,7 @@ bool PndTrkTracking2::EliminateClones(
 		for(j=i+1; j<nTotalCandidates;j++){
 			if( ! keepit[j]  ) continue;
 			nCommon = CompareTracks(i,j);	// calculates the total number of Mvd+Stt common hits;
-if(istampa>0) { cout<<"from Eliminateclones, traccia i = "<<i<<", j = "<<j<<", nTotalHits[i] "<<
+if(istampa>=2) { cout<<"from Eliminateclones, traccia i = "<<i<<", j = "<<j<<", nTotalHits[i] "<<
 nTotalHits[i]<<", nTotalHits[j] "<<nTotalHits[j]
 	<<", nCommon "<<nCommon<<endl;}
 			// criterion for declaring two tracks clones :
@@ -4054,18 +3927,19 @@ void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatri
 
 
  cout<<"-----------------------------------------------\n";
-		cout<<" the volume "<<tgeovol->GetName()<<"  is at the end of the chain!"<<endl;
- 		if (tgeovol->IsActive()) cout<<"volume attivo; "; else cout<<"volume non attivo; ";
+		cout<<" the volume "<<tgeovol->GetName()<<"  is at the end of the chain!";
+ 		if (tgeovol->IsActive()) cout<<"volume attivo;\n"; else cout<<"volume non attivo;\n";
 
-		cout<<"\tora il print della matrice da MARS to local 4x4 con la funzione print :\n";
-		gmat->Print();
+//		cout<<"\tora il print della matrice da MARS to local 4x4 con la funzione print :\n";
+//		gmat->Print();
 		TGeoShape * shape = tgeovol->GetShape();
+/*
  cout<<"nome della shape del volume "<<shape->GetName()   <<endl;
  cout<<"questa shape e' assembly?    :"<<shape->IsAssembly()<<endl;
  cout<<"questa shape e' valid box?    :"<<shape->IsValidBox()<<endl;
  cout<<"questa shape e' Cyl Type?    :"<<shape->IsCylType()<<endl;
  cout<<"ID di questa shape    :"<<shape->GetId()<<" con codice : "<<shape->GetByteCount()<< endl;
- 		shape->InspectShape();
+*/
 		if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
 			TGeoBBox *p;
 			p = (TGeoBBox *) shape;
@@ -4074,14 +3948,19 @@ void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatri
 			cout<<"questo e' una box con OriginX "<<Or[0]<<",OriginY "<<Or[1]
 			<<",OriginZ "<<Or[2]<<" e Semilato X (= DX) = "<<p->GetDX()
 			<<", DY "<<p->GetDY()<< ", DZ "<<p->GetDZ()<<endl;
+		} else if (shape->GetByteCount()== 100) {  // this is a  TGeoArb8 shape;
+			cout<<"questo e' una TGeoArb8"<<endl;
+ 			shape->InspectShape();
+		} else {
+			cout<<"anomalous case, not a box nor a TGeoArb8 !\n";
 		}
- cout<<"-----------------------------------------------\n";
+// cout<<"-----------------------------------------------\n";
 		const Double_t * Scal = gmat->GetScale();
-		cout<<"\til suo fattore di scala rispetto a Master : X "<<Scal[0]<<", Y "<<Scal[1]
-		<<", Z "<<Scal[2]<<endl;
+//		cout<<"\til suo fattore di scala rispetto a Master : X "<<Scal[0]<<", Y "<<Scal[1]
+//		<<", Z "<<Scal[2]<<endl;
 		const Double_t * Tras = gmat->GetTranslation();
-		cout<<"\tla sua traslazione rispetto a Master : X "<<Tras[0]<<", Y "<<
-		Tras[1]<<", Z "<<Tras[2]<<endl;
+//		cout<<"\tla sua traslazione rispetto a Master : X "<<Tras[0]<<", Y "<<
+//		Tras[1]<<", Z "<<Tras[2]<<endl;
 		const Double_t * Rot = gmat->GetRotationMatrix();
 
 
@@ -4089,17 +3968,17 @@ void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatri
 cout<<"---------- inizio stampa global Scale, Translation e Global matrix del volume calcolata col mio metodo "<<endl;
 		cout<<"\tla sua Scale rispetto a MARS : X "<<GlobalScal[0]<<", Y "<<
 		GlobalScal[1]<<", Z "<<GlobalScal[2]<<endl;
-		cout<<"\tla sua traslazione rispetto a MARS : X "<<GlobalTrans[0]<<", Y "<<
-		GlobalTrans[1]<<", Z "<<GlobalTrans[2]<<endl;
-		cout<<"\tla sua rotazione rispetto a Mars :\n\t"<<GlobalRot[0]<<
-		",\t"<<GlobalRot[1]<<
-		",\t"<<GlobalRot[2]<<
-		",\n\t"<<GlobalRot[3]<<
-		",\t"<<GlobalRot[4]<<
-		",\t"<<GlobalRot[5]<<
-		",\n\t"<<GlobalRot[6]<<
-		",\t"<<GlobalRot[7]<<
-		",\t"<<GlobalRot[8]<<
+		cout<<"\tla sua traslazione rispetto a MARS : X "<<GlobalTrans[0]<<" Y "<<
+		GlobalTrans[1]<<" Z "<<GlobalTrans[2]<<endl;
+		cout<<"\tla sua rotazione rispetto a Mars :\n"<<GlobalRot[0]<<
+		"  "<<GlobalRot[1]<<
+		"  "<<GlobalRot[2]<<
+		" ,\n"<<GlobalRot[3]<<
+		"  "<<GlobalRot[4]<<
+		"  "<<GlobalRot[5]<<
+		" ,\n"<<GlobalRot[6]<<
+		"  "<<GlobalRot[7]<<
+		"  "<<GlobalRot[8]<<" ;"<<
 		endl;
 cout<<"-------------------------------\n\n";
 
@@ -4111,27 +3990,29 @@ cout<<"-------------------------------\n\n";
 			// in the following   vol  is the TGeoVolume corresponding to the geonode node;
 			TGeoVolume * vol = geonode->GetVolume();
 			TGeoShape * shape = vol->GetShape();
-cout<<"------------------------------------------- inizio stampa relativa al volume "<<vol->GetName()<<endl;
+
+//cout<<"------------------------------------------- inizio stampa relativa al volume "<<vol->GetName()<<endl;
 			if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
 				TGeoBBox *p =(TGeoBBox *) shape;
 				const Double_t *Or;
 				Or = p->GetOrigin();
-				cout<<"questo e' una box con OriginX "<<Or[0]<<",OriginY "<<Or[1]
-				<<",OriginZ "<<Or[2]<<" e Semilato X (= DX) = "<<p->GetDX()
-				<<", DY "<<p->GetDY()<< ", DZ "<<p->GetDZ()<<endl;
+//				cout<<"questo e' una box con OriginX "<<Or[0]<<",OriginY "<<Or[1]
+//				<<",OriginZ "<<Or[2]<<" e Semilato X (= DX) = "<<p->GetDX()
+//				<<", DY "<<p->GetDY()<< ", DZ "<<p->GetDZ()<<endl;
 			}
 
-
-cout<<"---------- inizio stampa local matrix del volume "<<endl;
+//cout<<"---------- inizio stampa local matrix del volume "<<endl;
 TGeoMatrix * lmatrix =  geonode->GetMatrix();
-lmatrix->Print();
+//lmatrix->Print();
 		const Double_t * Scal = lmatrix->GetScale();
-		cout<<"\til suo fattore di scala rispetto a mother volume : X "<<Scal[0]<<", Y "<<Scal[1]
-		<<", Z "<<Scal[2]<<endl;
+//		cout<<"\til suo fattore di scala rispetto a mother volume : X "<<Scal[0]<<", Y "<<Scal[1]
+//		<<", Z "<<Scal[2]<<endl;
 		const Double_t * Trans = lmatrix->GetTranslation();
-		cout<<"\tla sua traslazione rispetto a mother volume : X "<<Trans[0]<<", Y "<<
-		Trans[1]<<", Z "<<Trans[2]<<endl;
+//		cout<<"\tla sua traslazione rispetto a mother volume : X "<<Trans[0]<<", Y "<<
+//		Trans[1]<<", Z "<<Trans[2]<<endl;
 		const Double_t * Rot = lmatrix->GetRotationMatrix();
+
+/*
 		cout<<"\tla sua rotazione rispetto a mother volume : M11 "<<Rot[0]<<
 		", M12 "<<Rot[1]<<
 		", M13 "<<Rot[2]<<
@@ -4143,6 +4024,8 @@ lmatrix->Print();
 		", M33 "<<Rot[8]<<
 		endl;
 cout<<"-------------------fine\n";
+*/
+
 
 		Double_t newGlobalScal[3],
 			newGlobalTrans[3],
@@ -4172,10 +4055,6 @@ cout<<"-------------------fine\n";
 		}
 
 
-
-
-
-
 		//--------------------------------------------------
 
 		// the following is a way to obtain the transformation matrix from MARS to this node;
@@ -4186,6 +4065,7 @@ cout<<"-------------------fine\n";
 			mother->FindMatrixOfDaughterVolume(vol);
 			// now get the transformation matrix from MARS to vol;
 			TGeoHMatrix * gmatrix = gGeoManager->GetHMatrix();
+/*
 cout<<"---------- inizio stampa global matrix del volume "<<endl;
 cout<<"\t\tsuo mother volume e' "<<mother->GetName()<<endl;
 gmatrix->Print();
@@ -4213,6 +4093,7 @@ cout<<"---------- inizio stampa global Translation e Global matrix del volume ca
 		endl;
 
 cout<<"---------------------------------------------"<<endl<<endl;
+*/
 			GetVolumeCharacteristics(vol,gmatrix,newGlobalScal,newGlobalTrans,newGlobalRot);  // here is the iteration that enables to scan
 							// all the list of volume in order to find the
 							// interesting ones, namely those at the end
