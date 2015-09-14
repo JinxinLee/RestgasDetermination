@@ -1312,9 +1312,9 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonLeft2(
 //	|  |   
 //	|  |   
 //	|  |   
-//	\  \
-//	 \  \
-//	  \  \
+//	\  \   
+//	 \  \  
+//	  \  \ 
 //	   \  \
 //	    \  |
 //	     \ |
@@ -3007,6 +3007,848 @@ bool PndTrkCTGeometryCalculations::IsInsideArc(
 }
 
 //----------end of function PndTrkCTGeometryCalculations::IsInsideCircle
+
+
+
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk1_97to1_99
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk1_97to1_99(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 1.97 and 1.99 in Z;
+//	look at Gianluigi's logbook on page 193 for the geometry detail;
+
+	if(
+	   (X > -2.33 && X < -1.17 && Y > -2.26 && Y < 2.26 )
+			||
+	   (X >  0.   && X <  1.21 && fabs(Y) < 3.43 && fabs(Y) > 1.19)
+			||
+	   (X >  2.32 && X <  3.48 && fabs(Y) < 1.12)
+	) return true;
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk1_97to1_99
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk1_97to1_99withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk1_97to1_99withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 1.97 and 1.99 in Z;
+//	look at Gianluigi's logbook on page 193 for the geometry detail;
+
+	if(
+	   (X > -2.33 + xmargin && X < -1.17 - xmargin && Y > -2.26 + ymargin && Y < 2.26 - ymargin )
+			||
+	   (X >  0.   + xmargin && X <  1.21 - xmargin && fabs(Y) < 3.43 && fabs(Y) > 1.19)
+			||
+	   (X >  2.32 + xmargin && X <  3.48 - xmargin && fabs(Y) < 1.12 - ymargin)
+	) return true;
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk1_97to1_99withMargin
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk2_41to2_43
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk2_41to2_43(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 2.41 and 2.43 in Z;
+//	look at Gianluigi's logbook on page 194 for the geometry detail;
+
+
+	if(
+	   ( X > 1.17 && X < 2.33 && Y > -2.26 && Y < 2.26 )
+			||
+	   ( X <  0.   && X >  -1.21 && fabs(Y) < 3.43 && fabs(Y) > 1.19)
+			||
+	   ( X <  -2.32 && X >  -3.48 && fabs(Y) < 1.12)
+	) return true;
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk2_41to2_43
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk2_41to2_43withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk2_41to2_43withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 2.41 and 2.43 in Z;
+//	look at Gianluigi's logbook on page 194 for the geometry detail;
+
+	if(
+	   ( X > 1.17 + xmargin  && X < 2.33 - xmargin  && Y > -2.26 + ymargin  && Y < 2.26 - ymargin  )
+			||
+	   ( X <  0. - xmargin   && X >  -1.21 + xmargin  && fabs(Y) < 3.43 - ymargin  && fabs(Y) > 1.19 + ymargin )
+			||
+	   ( X <  -2.32 - xmargin  && X >  -3.48 + xmargin  && fabs(Y) < 1.12 - ymargin )
+	) return true;
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk2_41to2_43withMargin
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk3_97to3_99
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk3_97to3_99(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 3.97 and 3.99 in Z;
+//	look at Gianluigi's logbook on page 195 for the geometry detail;
+
+
+	if(
+	   ( X > 1.17 && X < 2.33 && Y > -2.26 && Y < 2.26 )
+			||
+	   ( X <  0.   && X >  -1.21 && fabs(Y) < 3.43 && fabs(Y) > 1.19)
+			||
+	   ( X <  -2.32 && X >  -3.48 && fabs(Y) < 1.12)
+	) return true;
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk3_97to3_99
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk3_97to3_99withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk3_97to3_99withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 3.97 and 3.99 in Z;
+//	look at Gianluigi's logbook on page 193 for the geometry detail;
+
+	if(
+	   ( X > 1.17 + xmargin  && X < 2.33 - xmargin  && Y > -2.26 + ymargin  && Y < 2.26 - ymargin  )
+			||
+	   ( X <  0. - xmargin   && X >  -1.21 + xmargin  && fabs(Y) < 3.43 - ymargin  && fabs(Y) > 1.19 + ymargin )
+			||
+	   ( X <  -2.32 - xmargin  && X >  -3.48 + xmargin  && fabs(Y) < 1.12 - ymargin )
+	) return true;
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk3_97to3_99withMargin
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk4_41to4_43
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk4_41to4_43(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 4.41 and 4.43 in Z;
+//	look at Gianluigi's logbook on page 195 for the geometry detail;
+
+	if(
+	   (X > -2.33 && X < -1.17 && Y > -2.26 && Y < 2.26 )
+			||
+	   (X >  0.   && X <  1.21 && fabs(Y) < 3.43 && fabs(Y) > 1.19)
+			||
+	   (X >  2.32 && X <  3.48 && fabs(Y) < 1.12)
+	) return true;
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk4_41to4_43
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk4_41to4_43withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk4_41to4_43withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 4.41 and 4.43 in Z;
+//	look at Gianluigi's logbook on page 195 for the geometry detail;
+
+	if(
+	   (X > -2.33 + xmargin && X < -1.17 - xmargin && Y > -2.26 + ymargin && Y < 2.26 - ymargin )
+			||
+	   (X >  0.   + xmargin && X <  1.21 - xmargin && fabs(Y) < 3.43 && fabs(Y) > 1.19)
+			||
+	   (X >  2.32 + xmargin && X <  3.48 - xmargin && fabs(Y) < 1.12 - ymargin)
+	) return true;
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk4_41to4_43withMargin
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk6_97to6_99
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk6_97to6_99(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 6.97 and 6.99 in Z;
+//	look at Gianluigi's logbook on page 195 for the geometry detail;
+
+	if(
+	   (X >  -6.96   && X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (X >  -4.64 && X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (X >  -2.33 && X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (X >  0. && X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (X >  2.3 && X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (X >  4.64 && X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk6_97to6_99
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk6_97to6_99withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk6_97to6_99withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 6.97 and 6.99 in Z;
+//	look at Gianluigi's logbook on page 195 for the geometry detail;
+
+
+	if(
+	   (X >  -6.96 + xmargin && X < -5.8 - xmargin && fabs(Y) < 2.31 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  -4.64 + xmargin && X <  -3.48 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  -2.33 + xmargin && X <  -1.17 - xmargin && fabs(Y) < 6.87 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  0. + xmargin && X <  1.16 - xmargin && fabs(Y) < 6.85 - ymargin && fabs(Y) > 1.19 + ymargin)
+			||
+	   (X >  2.3 + xmargin && X < 3.46 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  4.64 + xmargin && X < 5.8 - xmargin && fabs(Y) < 4.59 - ymargin && fabs(Y) > 0.07 + ymargin)
+	) return true;
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk6_97to6_99withMargin
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk7_41to7_43
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk7_41to7_43(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 7.41 and 7.43 in Z;
+//	look at Gianluigi's logbook on page 196 for the geometry detail;
+
+// this geometry is the mirror-reflected with respect of Y axis of the Z=6.97_6.99 geometry;
+
+	if(
+	   (-X >  -6.96   && -X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (-X >  -4.64 && -X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  -2.33 && -X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (-X >  0. && -X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (-X >  2.3 && -X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  4.64 && -X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk7_41to7_43
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk7_41to7_43withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk7_41to7_43withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 7.41 and 7.43 in Z;
+//	look at Gianluigi's logbook on page 196 for the geometry detail;
+
+// this geometry is the mirror-reflected with respect of Y axis of the Z=6.97_6.99 geometry;
+
+
+	if(
+	   (-X >  -6.96 + xmargin && -X < -5.8 - xmargin && fabs(Y) < 2.31 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  -4.64 + xmargin && -X <  -3.48 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  -2.33 + xmargin && -X <  -1.17 - xmargin && fabs(Y) < 6.87 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  0. + xmargin && -X <  1.16 - xmargin && fabs(Y) < 6.85 - ymargin && fabs(Y) > 1.19 + ymargin)
+			||
+	   (-X >  2.3 + xmargin && -X < 3.46 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  4.64 + xmargin && -X < 5.8 - xmargin && fabs(Y) < 4.59 - ymargin && fabs(Y) > 0.07 + ymargin)
+	) return true;
+
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk7_41to7_43withMargin
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk9_97to9_99
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk9_97to9_99(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 9.97 and 9.99 in Z;
+//	look at Gianluigi's logbook on page 197 for the geometry detail;
+
+// this geometry is the mirror-reflected with respect of Y axis of the Z=6.97_6.99 geometry;
+
+	if(
+	   (-X >  -6.96   && -X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (-X >  -4.64 && -X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  -2.33 && -X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (-X >  0. && -X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (-X >  2.3 && -X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  4.64 && -X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk9_97to9_99
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk9_97to9_99withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk9_97to9_99withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 9.97 and 9.99 in Z;
+//	look at Gianluigi's logbook on page 197 for the geometry detail;
+
+// this geometry is the mirror-reflected with respect of Y axis of the Z=6.97_6.99 geometry;
+
+
+	if(
+	   (-X >  -6.96 + xmargin && -X < -5.8 - xmargin && fabs(Y) < 2.31 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  -4.64 + xmargin && -X <  -3.48 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  -2.33 + xmargin && -X <  -1.17 - xmargin && fabs(Y) < 6.87 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  0. + xmargin && -X <  1.16 - xmargin && fabs(Y) < 6.85 - ymargin && fabs(Y) > 1.19 + ymargin)
+			||
+	   (-X >  2.3 + xmargin && -X < 3.46 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  4.64 + xmargin && -X < 5.8 - xmargin && fabs(Y) < 4.59 - ymargin && fabs(Y) > 0.07 + ymargin)
+	) return true;
+
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk9_97to9_99withMargin
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk10_41to10_43
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk10_41to10_43(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 10.41 and 10.43 in Z;
+//	look at Gianluigi's logbook on page 197 for the geometry detail;
+
+// this geometry is the same as the Z=6.97_6.99 geometry;
+
+	if(
+	   (X >  -6.96   && X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (X >  -4.64 && X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (X >  -2.33 && X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (X >  0. && X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (X >  2.3 && X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (X >  4.64 && X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk10_41to10_43
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk10_41to10_43withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk10_41to10_43withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 10.41 and 10.43 in Z;
+//	look at Gianluigi's logbook on page 197 for the geometry detail;
+
+// this geometry is the same as the Z=6.97_6.99 geometry;
+
+	if(
+	   (X >  -6.96 + xmargin && X < -5.8 - xmargin && fabs(Y) < 2.31 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  -4.64 + xmargin && X <  -3.48 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  -2.33 + xmargin && X <  -1.17 - xmargin && fabs(Y) < 6.87 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  0. + xmargin && X <  1.16 - xmargin && fabs(Y) < 6.85 - ymargin && fabs(Y) > 1.19 + ymargin)
+			||
+	   (X >  2.3 + xmargin && X < 3.46 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  4.64 + xmargin && X < 5.8 - xmargin && fabs(Y) < 4.59 - ymargin && fabs(Y) > 0.07 + ymargin)
+	) return true;
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk10_41to10_43withMargin
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk14_77to14_79
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk14_77to14_79(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 14.77 and 14.79 in Z;
+//	look at Gianluigi's logbook on page 198 for the geometry detail;
+
+// this geometry is the same as the Z=6.97_6.99 geometry;
+
+	if(
+	   (X >  -6.96   && X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (X >  -4.64 && X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (X >  -2.33 && X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (X >  0. && X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (X >  2.3 && X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (X >  4.64 && X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk14_77to14_79
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk14_77to14_79withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk14_77to14_79withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 14.77 and 14.79 in Z;
+//	look at Gianluigi's logbook on page 198 for the geometry detail;
+
+// this geometry is the same as the Z=6.97_6.99 geometry;
+
+	if(
+	   (X >  -6.96 + xmargin && X < -5.8 - xmargin && fabs(Y) < 2.31 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  -4.64 + xmargin && X <  -3.48 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  -2.33 + xmargin && X <  -1.17 - xmargin && fabs(Y) < 6.87 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  0. + xmargin && X <  1.16 - xmargin && fabs(Y) < 6.85 - ymargin && fabs(Y) > 1.19 + ymargin)
+			||
+	   (X >  2.3 + xmargin && X < 3.46 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  4.64 + xmargin && X < 5.8 - xmargin && fabs(Y) < 4.59 - ymargin && fabs(Y) > 0.07 + ymargin)
+	) return true;
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk14_77to14_79withMargin
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk15_21to15_23
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk15_21to15_23(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 15.21 and 15.23 in Z;
+//	look at Gianluigi's logbook on page 198 for the geometry detail;
+
+// this geometry is the same as the Z=7.41_7.43 geometry;
+
+	if(
+	   (-X >  -6.96   && -X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (-X >  -4.64 && -X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  -2.33 && -X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (-X >  0. && -X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (-X >  2.3 && -X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  4.64 && -X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk15_21to15_23
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk15_21to15_23withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk15_21to15_23withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 15.21 and 15.23 in Z;
+//	look at Gianluigi's logbook on page 198 for the geometry detail;
+
+// this geometry is the same as the Z=7.41_7.43 geometry;
+
+	if(
+	   (-X >  -6.96 + xmargin && -X < -5.8 - xmargin && fabs(Y) < 2.31 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  -4.64 + xmargin && -X <  -3.48 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  -2.33 + xmargin && -X <  -1.17 - xmargin && fabs(Y) < 6.87 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  0. + xmargin && -X <  1.16 - xmargin && fabs(Y) < 6.85 - ymargin && fabs(Y) > 1.19 + ymargin)
+			||
+	   (-X >  2.3 + xmargin && -X < 3.46 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (-X >  4.64 + xmargin && -X < 5.8 - xmargin && fabs(Y) < 4.59 - ymargin && fabs(Y) > 0.07 + ymargin)
+	) return true;
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk15_21to15_23withMargin
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 21.77 and 21.79 in Z;
+//	look at Gianluigi's logbook on page 198 for the geometry detail;
+
+// this geometry is the same as the Z=7.41_7.43 geometry;
+
+
+	if(
+	   (-X >  -6.96   && -X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (-X >  -4.64 && -X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  -2.33 && -X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (-X >  0. && -X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (-X >  2.3 && -X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  4.64 && -X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 21.77 and 21.79 in Z;
+//	look at Gianluigi's logbook on page 198 for the geometry detail;
+
+
+// this geometry is the same as the Z=7.41_7.43 geometry;
+
+
+	if(
+	   (-X >  -6.96   && -X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (-X >  -4.64 && -X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  -2.33 && -X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (-X >  0. && -X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (-X >  2.3 && -X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (-X >  4.64 && -X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79withMargin
+
+
+
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk22_21to22_23
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk22_21to22_23(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y		//  Y coordinate of point;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 22.21 and 22.23 in Z;
+//	look at Gianluigi's logbook on page 193 for the geometry detail;
+
+
+	if(
+	   (X >  -6.96   && X < -5.8 && fabs(Y) < 2.31 && fabs(Y) > 0.07)
+			||
+	   (X >  -4.64 && X <  -3.48 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (X >  -2.33 && X <  -1.17 && fabs(Y) < 6.87 && fabs(Y) > 0.07)
+			||
+	   (X >  0. && X <  1.16 && fabs(Y) < 6.85 && fabs(Y) > 1.19)
+			||
+	   (X >  2.3 && X < 3.46 && fabs(Y) < 5.73 && fabs(Y) > 0.07)
+			||
+	   (X >  4.64 && X < 5.8 && fabs(Y) < 4.59 && fabs(Y) > 0.07)
+	) return true;
+
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk22_21to22_23
+
+
+
+//----------begin of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk22_21to22_23withMargin
+
+  bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk22_21to22_23withMargin(
+	Double_t X,		//  X coordinate of point;
+	Double_t Y,		//  Y coordinate of point;
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin	//  safety margin in Y coordinate;
+	)
+{
+//	this is a set of sensors placed vertically perpendicularly to the Z direction;
+//	they are placed between 22.21 and 22.23 in Z;
+//	look at Gianluigi's logbook on page 193 for the geometry detail;
+
+
+	if(
+	   (X >  -6.96 + xmargin && X < -5.8 - xmargin && fabs(Y) < 2.31 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  -4.64 + xmargin && X <  -3.48 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  -2.33 + xmargin && X <  -1.17 - xmargin && fabs(Y) < 6.87 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  0. + xmargin && X <  1.16 - xmargin && fabs(Y) < 6.85 - ymargin && fabs(Y) > 1.19 + ymargin)
+			||
+	   (X >  2.3 + xmargin && X < 3.46 - xmargin && fabs(Y) < 5.73 - ymargin && fabs(Y) > 0.07 + ymargin)
+			||
+	   (X >  4.64 + xmargin && X < 5.8 - xmargin && fabs(Y) < 4.59 - ymargin && fabs(Y) > 0.07 + ymargin)
+	) return true;
+
+
+
+
+	return false;
+}
+
+//----------end of function PndTrkCTGeometryCalculations::IsInMvdMiniDisk22_21to22_23withMargin
 
 
 
