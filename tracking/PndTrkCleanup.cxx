@@ -55,7 +55,8 @@ bool PndTrkCleanup::BadTrack_ParStt(
 	Xprevious=Xcross[0];
 	Yprevious=Ycross[0];
 
-	length= GeometryCalculator.CalculateArcLength(Oxx,
+	length= GeometryCalculator.CalculateArcLength(
+				Oxx,
 				Oyy,
 				Rr,
 				Charge,
@@ -376,105 +377,546 @@ bool PndTrkCleanup::GoodTrack(
 
 //----------end of function PndTrkCleanup::GoodTrack
 
-//----------begin of function PndTrkCleanup::Is_Contained_in_Mvd_Vertical_Strip
+//----------begin of function PndTrkCleanup::IsThereMvdHitInBarrel
 
- Short_t PndTrkCleanup::Is_Contained_in_Mvd_Vertical_Strip(
-				Short_t iLayer,	// index of the Mvd Disk Layer under scrutiny here;
- 				Short_t nXlow, //  index of the strip containing Xlow;
-				Short_t nXup, //  index of the strip containing Xlow;
-				Double_t Ylow,
-				Double_t Yup
-					)
+ bool PndTrkCleanup::IsThereMvdHitInBarrel(
+		Double_t Xintersect,	// input, X position of the point of crossing as calculated from the track trajectory;
+		Double_t Yintersect,	// input, Y position of the point of crossing as calculated from the track trajectory;
+		Double_t Zintersect,	// input, Z position of the point of crossing as calculated from the track trajectory;
+
+		Short_t nPixelHitsinTrack,  // number of Mvd Pixel hits in this track;
+		Short_t * ListMvdPixelHitsinTrack, // ... and their list;	
+		Double_t* XMvdPixel,  // list of the X positions of ALL Mvd hits of the event;
+		Double_t* YMvdPixel,  // list of the Y positions of ALL Mvd hits of the event;
+		Double_t* ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
+		Short_t nStripHitsinTrack,  // number of Mvd Strip hits in this track;
+		Short_t * ListMvdStripHitsinTrack, // ... and their list;
+		Double_t* XMvdStrip,  // list of the X positions of ALL Mvd hits of the event;
+		Double_t* YMvdStrip,  // list of the Y positions of ALL Mvd hits of the event;
+		Double_t* ZMvdStrip  // list of the Z positions of ALL Mvd hits of the event;
+			)
 {
+	bool	at_least_one_good_hit;
 
-	Short_t
-		j,
-		strip_index,
-		sum_intersections_types;
+	Short_t	i,
+		j;
 
-	Double_t
-		tmpYlow,
-		tmpYup;
+	const Double_t	Ximprecision=1. ,
+			Yimprecision=1. ,
+			Zimprecision=1.5 ;
 
-	// nXlow == 0 --> X position >=0; the first 'negative X' strip has index -1;
-
-
-
-	sum_intersections_types = 0;
+	
+		for(j=0;j<nPixelHitsinTrack;j++){
 
 
-	if( Ylow < 0.  &&  Yup > 0.){
-		for(j=nXlow;j<= nXup;j++){ // loop over the active regions of the i-th Mvd Disk;
-			if(j<0) strip_index = -j -1; else strip_index=j; // this fixes the case with negative index;
+			if(
+			      fabs(XMvdPixel[ ListMvdPixelHitsinTrack[j] ]-Xintersect) < Ximprecision 
+			   && fabs(YMvdPixel[ ListMvdPixelHitsinTrack[j] ]-Yintersect) < Yimprecision 
+			   && fabs(ZMvdPixel[ ListMvdPixelHitsinTrack[j] ] - Zintersect) < Zimprecision
+			) return true;
+		}	// end of for(j=0;j<nPixelHitsinTrack;j++)
 
-			if(MVD_DISK_LAYER_YMIN[iLayer][j] == 0. ){ // case in which the sensor is continuous in Y;
-					if( -Ylow <= MVD_DISK_LAYER_YMAX[iLayer][j] && Yup <= MVD_DISK_LAYER_YMAX[iLayer][j])
-					{
-						sum_intersections_types++;  // hit contained in this sensor;
-					}  // if the if condition is not satisfied the hit is only partially contained
-					   // within errors and therefore sum_intersections_types is not incremented nor
-					   // decremented;
-			} else {	// case in which there is a gap in Y in the sensor;
+		for(j=0;j<nStripHitsinTrack;j++){
 
-					if( -Ylow< MVD_DISK_LAYER_YMIN[iLayer][j] && Yup < MVD_DISK_LAYER_YMIN[iLayer][j])
-					{
-						sum_intersections_types-- ;  // case in which the hit is NOT contained
-							// within errors in the sensor because there is the Y gap in the
-							// sensor; 
-					};
-					// in all other cases the hit is PARTIALLY contained within errors and therefore
-					// sum_intersections_types is not incremented nor decremented;
+			if(
+			      fabs(XMvdStrip[ ListMvdStripHitsinTrack[j] ]-Xintersect) < Ximprecision 
+			   && fabs(YMvdStrip[ ListMvdStripHitsinTrack[j] ]-Yintersect) < Yimprecision 
+			   && fabs(ZMvdStrip[ ListMvdStripHitsinTrack[j] ] - Zintersect) < Zimprecision
+			) return true;
+		}	// end of for(j=0;j<nStripHitsinTrack;j++)
 
-			} // end of if(MVD_DISK_LAYER_YMIN[iLayer][j]
-		}	//  end of for(j=nXlow;j<= nXup;j++)
-		// final result :
-		if( sum_intersections_types == 1 + nXup - nXlow) { // hit was in all strips;
-				return 1;
-		} else if ( sum_intersections_types == -(1 + nXup - nXlow) ) {  // hit was out in all strips;
-				return -1;
-		} else {  // sometimes was in, sometimes was out;
-				return 0;
-		}
-
-
-	} else if( Ylow >=0.){  // continuation of if( Ylow < 0.  &&  Yup > 0.)
-			tmpYlow = Ylow;
-			tmpYup = Yup;
-	} else {  // here it is the case when Yup <=0.;
-			tmpYup = -Ylow;
-			tmpYlow = -Yup;
-	}
-
-	for(j=nXlow;j<= nXup;j++){ // loop over the active regions of the i-th Mvd Disk;
-			if(j<0) strip_index = -j -1; else strip_index=j; // this fixes the case with negative index;
-			if ( tmpYlow > MVD_DISK_LAYER_YMAX[iLayer][strip_index] ||
-			     tmpYup < MVD_DISK_LAYER_YMIN[iLayer][strip_index]){
-				sum_intersections_types--; //  +1 --> track completely in the sensors;
-							   //  + 0 --> uncertain;  -1 --> out of the sensor;
-			} else if ( tmpYlow < MVD_DISK_LAYER_YMIN[iLayer][strip_index]){
-				;
-			} else {	// here is the case YMIN<= Ylow <= YMAX;
-				if(tmpYup <= MVD_DISK_LAYER_YMAX[iLayer][strip_index]){
-				sum_intersections_types++; //  +1 --> track completely in the sensors;
-							   //  + 0 --> uncertain;  -1 --> out of the sensor;
-				}
-				// in the remaining case the hit is uncertain that it hit the sensor;
-				// therefore sum_intersections_types remains unchanged;
-			}
-	}	//  end of for(j=nXlow;j<= nXup;j++)
-
-
-	if( sum_intersections_types == 1 + nXup - nXlow) { // hit was in in all strips;
-			return 1;
-	} else if ( sum_intersections_types == -(1 + nXup - nXlow) ) {  // hit was out in all strips;
-			return -1;
-	} else {  // sometimes was in, sometimes was out;
-			return  0;
-	}
+		return false;
 
 
 }
-//----------end of function PndTrkCleanup::Is_Contained_in_Mvd_Vertical_Strip
+
+
+//----------end of function PndTrkCleanup::IsThereMvdHitInBarrel
+
+
+
+
+//----------begin of function PndTrkCleanup::IsThereMvdHitMiniDisk1_97to1_99
+
+bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
+		Double_t ZLayerBegin,	// Z of the beginning of the layer (end of layer = + 0.02);
+		Short_t nPixelHitsinTrack,  // number of Mvd Pixel hits in this track;
+		Short_t * ListMvdPixelHitsinTrack, // ... and their list;	
+		Double_t * XMvdPixel,
+		Double_t * YMvdPixel,
+		Double_t * ZMvdPixel,
+
+		Short_t nStripHitsinTrack,  // number of Mvd Strip hits in this track;
+		Short_t * ListMvdStripHitsinTrack, // ... and their list;
+		Double_t * XMvdStrip,
+		Double_t * YMvdStrip,
+		Double_t * ZMvdStrip,
+
+		PndTrkCTGeometryCalculations * GeometryCalculator	// pointer to
+				// the class doing the geometrical calculations;
+ 		)
+{
+
+   int	i;
+
+
+	// all the MvdMiniDisks sensitive layers begin at Z position ZLayerBegin and ends at ZLayerBegin+0.02;
+
+
+
+
+   if( ZLayerBegin ==  1.97){
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk1_97to1_99(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk1_97to1_99(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  2.41) {
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk2_41to2_43(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk2_41to2_43(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+   } else if( ZLayerBegin ==  3.97) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk3_97to3_99(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk3_97to3_99(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  4.41) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk4_41to4_43(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk4_41to4_43(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  6.97) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk6_97to6_99(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk6_97to6_99(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+   } else if( ZLayerBegin ==  7.41) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk7_41to7_43(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk7_41to7_43(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  9.97) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk9_97to9_99(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk9_97to9_99(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  10.41) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk10_41to10_43(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk10_41to10_43(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  14.77) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk14_77to14_79(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk14_77to14_79(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  15.21) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk15_21to15_23(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk15_21to15_23(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  21.77) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk21_77to21_79(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk21_77to21_79(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else if( ZLayerBegin ==  22.21) {
+
+
+	// first the Mvd Pixel hits;
+
+	for(i=0;i<nPixelHitsinTrack;i++){
+		if(  ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdPixel[ ListMvdPixelHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk22_21to22_23(
+					XMvdPixel[ListMvdPixelHitsinTrack[i]],
+					YMvdPixel[ListMvdPixelHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	// then the Mvd Strip hits;
+
+	for(i=0;i<nStripHitsinTrack;i++){
+		if(  ZMvdStrip[ ListMvdStripHitsinTrack[i] ] <= ZLayerBegin+0.02
+		  && ZMvdStrip[ ListMvdStripHitsinTrack[i] ] >= ZLayerBegin){
+
+			if(
+			   GeometryCalculator->IsInMvdMiniDisk22_21to22_23(
+					XMvdStrip[ListMvdStripHitsinTrack[i]],
+					YMvdStrip[ListMvdStripHitsinTrack[i]]
+					)
+			) return true;
+		}
+	}	// end of  for(i=0;i<nPixelHitsinTrack;i++)
+
+	return false;
+
+
+
+   } else {
+	  cout<<"PndTrkCleanup.cxx::IsThereHitInMvdMiniDisk    WARNING, this Mvd MiniDisk apparently"<<
+	  " is not in the list of known Mvd MiniDisks !";
+   }
+
+
+}
+
+//----------end of function PndTrkCleanup::IsThereMvdHitInMiniDisk1_97to1_99
+
+
+
 
 
 
@@ -513,145 +955,285 @@ bool PndTrkCleanup::GoodTrack(
 	Double_t charge -->  charge of the particle;
 	Double_t semiverticalgap -->  half dimension of the gap between the two STT sectors;
 	Short_t nMvdHits -->  number of Mvd hits in this track;
-	Double_t extra_distance --> in cm; extra distance allowed during the process to decide whether there
+	Double_t extra_distance --> in cm; extra distance (in X and Y) allowed during the process to decide whether there
+				should be an hit in a Mvd sensitive layer;
+	Double_t extra_distance_Z --> in cm; extra distance in Z allowed during the process to decide whether there
 				should be an hit in a Mvd sensitive layer;
 	PndTrkCTGeometryCalculations* GeomCalculator  -->  class that makes the geometrical calculations;
 */
 
 	bool
-		GoOn;
+		yes_hit;
 
 	Short_t
 		i,
-		type_of_intersection_in_disk[MVD_DISK_LAYERS],	// = +1 --> track completely in the sensors;
-							//  = 0 --> uncertain; = -1 --> out of the sensor;
 		j,
 		nFaults,
-		n_intersections_barrel[MVD_BARREL_LAYERS],
-		nXlow,
-		nXup,
-		strip_index,
-		sum_intersections_types,
+		n_forseen_hits,
+		n_present_hits,
+		type_of_intersection_in_disk[MVD_DISK_LAYERS],	// = +1 --> track completely in the sensors;
+							//  = 0 --> uncertain; = -1 --> out of the sensor;
 		yes_intersect
 		;
 	Double_t
-		absYlow,
-		absYup,
 		FiOrderedList[2],
 		phase,
+		r,
+		rmax,
+		rmin,
 		r2,
-		tmpYlow,
-		tmpYup,
 		Xcross[2],
-		Ycross[2],
-		X_barrel[MVD_BARREL_LAYERS][2],
+		X_disk,
+		Xintersect[2],
 		Xlow,
 		Xup,
-		Y_barrel[MVD_BARREL_LAYERS][2],
+		Ycross[2],
+		Y_disk,
+		Yintersect[2],
 		Ylow,
 		Yup,
-		Z_barrel[MVD_BARREL_LAYERS][2],
-		X_disk,
-		Y_disk,
 		Z_disk,
-		z;
+		Zintersect[2];
 
 	PndTrkCTGeometryCalculations  GeometryCalculator;
 
 
+
+	// total Mvd hits that are supposed to be in this track (if the paramenter of the track were totally right);
+	n_forseen_hits = 0;
+	// number of 'right' hits that are present in this track (belonging to the predicted Mvd layers);
+	n_present_hits = 0;
+
 //------------------------------------------------------- MVD BARREL ----------------------------------------------------------
 
-	// loop over the number of barrel Mvd layers;
-	// calculate if trajectory intersects the Mvd barrel layers;
-	for(i=0;i<MVD_BARREL_LAYERS;i++){
-		n_intersections_barrel[i] = 0; // number of intersections of the present Mvd Barrel layer; in general
-					// they are 2, the first corresponding to the minimum Radius, the second
-					// corresponding to the maximum radius;
+	//  check of the barrels with full azimuthal coverage ; ----------------------------------------------------
+
+	// loop over the number of barrel Mvd layers with full azimuthal coverage;
+	// calculate if trajectory intersects such Mvd barrel layers;
+	for(i=0;i<MVD_BARREL_LAYERS_FULL_AZIMUTH;i++){
+
+
+
+
+
+
+	// yes_hit = true --> at least one Mvd hit from this barrel; yes_hit = false --> no Mvd hits from this barrel;
 	
-		// yes_intersect = 0 --> 2 intersections
-		// otherwise yes_intersect = -1;
-		// I use the method FindIntersectionsOuterCircle that calculates the intersection between
-		// two circles;
-		yes_intersect = GeometryCalculator.FindIntersectionsOuterCircle(
-				Ox,
-				Oy,
-				R,
-				MVD_BARREL_AVERAGE_RADIUS[i],// AVERAGE radius of the i-th Mvd barrel layer;
-				Xcross,
-				Ycross
-				);
-		if(yes_intersect==0 ) {   // there are 2 intersections of the trajectory with this barrel;
-			// calculate the entrance point based on the rotation direction of the particle
-			// (positive --> clockwise);
-			GeometryCalculator.ChooseEntranceExit3(
-				Ox,
-				Oy,
-				charge,
-				fi0,
-				2,
-				Xcross, // input and output;
-				Ycross, // input and output;
-				FiOrderedList // output;
+		yes_hit = Track_Crosses_MvdBarrelFullAzimuthalCoverage(
+					Ox,		// track trajectory center;
+					Oy,		// track trajectory center;
+					R,		// track trajectory radius;
+					fi0,		// track trajectory starting FI;
+					kappa,		// track trajectory Kappa parameter;
+					charge,		// track charge;
+
+					MVD_BARREL_FULL_AZIMUTH_Z_LOW[i],	// Z low limit of this barrel;
+					MVD_BARREL_FULL_AZIMUTH_Z_UP[i],	// Z upper limit of this barrel;
+					MVD_BARREL_FULL_AZIMUTH_MAX_RADIUS[i],	// R maximum of this barrel;
+					GeomCalculator,	// pointer to the class making useful geometry
+								// calculation;
+					extra_distance_Z,// in cm; extra distance allowed during decision
+						// if there should be an hit in a Mvd sensitive layer;
+					Xintersect[0],	// output, X position of the point of crossing;
+					Yintersect[0],	// output, Y position of the point of crossing;
+					Zintersect[0]	// output, Z position of the point of crossing;
+
+						);
+		// verify if actually there is a hit in this MVD barrel;
+
+
+
+		if( yes_hit){
+			n_forseen_hits++;
+			if( IsThereMvdHitInBarrel(
+				Xintersect[0],
+				Yintersect[0],
+				Zintersect[0],
+
+				nPixelHitsinTrack,
+				ListMvdPixelHitsinTrack,	
+				ZMvdPixel,  // list of the X positions of ALL Mvd hits of the event;
+				YMvdPixel,  // list of the Y positions of ALL Mvd hits of the event;
+				ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
+				nStripHitsinTrack,  // number of Mvd Strip hits in this track;
+				ListMvdStripHitsinTrack,
+				XMvdStrip,  // list of the X positions of ALL Mvd hits of the event;
+				YMvdStrip,  // list of the Y positions of ALL Mvd hits of the event;
+				ZMvdStrip  // list of the Z positions of ALL Mvd hits of the event;
+						)
+			) n_present_hits ++;
+
+
+
+		}  // end of if( yes_hit)
+
+	}  // end of  for(i=0;i<MVD_BARREL_LAYERS_FULL_AZIMUTH;i++)
+
+	// check on the Barrel Mvd sector; allow only for one hit mismatch;
+	nFaults = n_forseen_hits - n_present_hits;
+	if( nFaults > 1 ) return false;
+
+
+	//  end of check of the barrels with full azimuthal coverage ; ---------------------------------------------
+
+
+
+
+	//-------------------------------------------start the check of the barrels with partial azimuthal coverage ;
+
+
+	// loop over the number of barrel Mvd layers with partial azimuthal coverage;
+	// calculate if trajectory intersects such Mvd barrel layers;
+	for(i=0;i<MVD_BARREL_LAYERS_PARTIAL_AZIMUTH;i++){
+
+
+
+	// yes_hit = true --> at least one Mvd hit from this barrel; yes_hit = false --> no Mvd hits from this barrel;
+		yes_hit = Track_Crosses_MvdBarrelPartialAzimuthalCoverage(
+				Ox,		// track trajectory center;
+				Oy,		// track trajectory center;
+				R,		// track trajectory radius;
+				fi0,		// track trajectory starting FI;
+				kappa,		// track trajectory Kappa parameter;
+				charge,		// track charge;
+
+				MVD_BARREL_PARTIAL_AZIMUTH_Z_LOW[i],	// Z low limit of this barrel;
+				MVD_BARREL_PARTIAL_AZIMUTH_Z_UP[i],	// Z upper limit of this barrel;
+
+				MVD_BARREL_PARTIAL_AZIMUTH_RADIUS_INNER[i],	// R of this barrel;
+				MVD_BARREL_PARTIAL_AZIMUTH_NGAP[i][0],	// number of gaps in azimuthal angle coverage of INNER;
+				&MVD_BARREL_PARTIAL_AZIMUTH_GAP_LOW_INNER[i][0], // low limit of the azimuthal gap range;
+				&MVD_BARREL_PARTIAL_AZIMUTH_GAP_UP_INNER[i][0],  // upper limit of the azimuthal gap range;
+
+				MVD_BARREL_PARTIAL_AZIMUTH_RADIUS_OUTER[i],	// R of this barrel;
+				MVD_BARREL_PARTIAL_AZIMUTH_NGAP[i][1],	// number of gaps in azimuthal angle coverage og OUTER;
+				&MVD_BARREL_PARTIAL_AZIMUTH_GAP_LOW_OUTER[i][0], // low limit of the azimuthal gap range;
+				&MVD_BARREL_PARTIAL_AZIMUTH_GAP_UP_OUTER[i][0],  // upper limit of the azimuthal gap range;
+
+				GeomCalculator,	// pointer to the class making useful geometry
+							// calculation;
+				extra_distance_Z,// in cm; extra distance allowed during decision
+						// if there should be an hit in a Mvd sensitive layer;
+				Xintersect,	// output, X position of the point of crossing track-Inner Barrel
+						// and track-Outer Barrel;
+				Yintersect,	// output, Y position of the point of crossing;
+				Zintersect	// output, Z position of the point of crossing;
+						);
+
+
+
+		if(yes_hit){
+			// loop over the at most 2 intersections (one with the Inner Barrel, one with the Outer Barrel);
+			for(j=0; j<2; j++){
+
+				// when there is no intersection between track an Barrel
+				// Xintersect[j] is set at -99999. ;
+				if(Xintersect[j] < -99998.) continue ;
+
+
+				// there was intersection between this track and this Barrel;
+				n_forseen_hits++;
+				// check if there is actually a hit in this Mvd Barrel (Inner or Outer);
+				if(
+			    		IsThereMvdHitInBarrel(
+					Xintersect[j],
+					Yintersect[j],
+					Zintersect[j],
+
+					nPixelHitsinTrack,
+					ListMvdPixelHitsinTrack,	
+					XMvdPixel,  // list of the X positions of ALL Mvd hits of the event;
+					YMvdPixel,  // list of the Y positions of ALL Mvd hits of the event;
+					ZMvdPixel,  // list of the Z positions of ALL Mvd hits of the event;
+					nStripHitsinTrack,  // number of Mvd Strip hits in this track;
+					ListMvdStripHitsinTrack,
+					XMvdStrip,  // list of the X positions of ALL Mvd hits of the event;
+					YMvdStrip,  // list of the Y positions of ALL Mvd hits of the event;
+					ZMvdStrip  // list of the Z positions of ALL Mvd hits of the event;
+							)
+				) n_present_hits ++;
+
+
+			}   //   end of for(j=0; j<2; j++)
+
+
+
+
+		}	// end of if(yes_hit){
+
+	}  // end of  for(i=0;i<MVD_BARREL_LAYERS_PARTIAL_AZIMUTH;i++)
+	
+
+
+	// check on the Barrel Mvd sector; allow only for one hit mismatch;
+	nFaults = n_forseen_hits - n_present_hits;
+	if( nFaults > 1 ) return false;
+
+//------------------------------------------------------- END OF MVD BARREL --------------------------------------------------
+
+
+//------------------------------------------------------- MVD MINIDISK LAYERS ------------------------------------------------
+
+	//  loop over all Mvd Minidisks ;
+
+   for(i=0;i<MVD_MINIDISK_LAYERS;i++){
+
+
+
+	if( Track_Crosses_MvdMiniDisk_withMargin (
+			MVD_Z_LAYER_BEGIN[i],	// Z of the beginning of the layer (end of layer = + 0.02);
+			0.5,	// xmargin;
+			0.5,	// ymargin;
+			Ox,	// track trajectory center;
+			Oy,	// track trajectory center;
+			R,	// track trajectory radius;
+			fi0, 	// FI0 of the Helix of the particle trajectory;
+			kappa,	// KAPPA of the Helix of the particle trajectory;
+			charge,	// charge of the particle;
+			GeomCalculator	// pointer to the class making useful geometry
+							// calculation;
+		)
+	){
+
+
+
+
+		yes_hit = IsThereHitInMvdMiniDisk(
+			MVD_Z_LAYER_BEGIN[i],	// Z of the beginning of the layer (end of layer = + 0.02);
+			nPixelHitsinTrack,
+			ListMvdPixelHitsinTrack,
+			XMvdPixel,
+			YMvdPixel,
+			ZMvdPixel,
+
+			nStripHitsinTrack,
+			ListMvdStripHitsinTrack,
+			XMvdStrip,
+			YMvdStrip,
+			ZMvdStrip,
+
+			GeomCalculator
 			);
 
-			// calculate the Z coordinate of the intersection; since kappa is necessarily
-			//  > 1.e-10 by construction, then Z is always well defined;
-			z = (FiOrderedList[0]-fi0)/kappa;
-
-			// condition for having Mvd hits in the Mvd Barrel layers certainly, namely taking
-			// into account also possible errors in the Z caused by the uncertainty of the
-			// trajectory; such an error is called extra_distance_Z (in cm);
-
-			// condition by which the trajectory surely had to cross the barrel layer;
-			if( z<= MVD_BARREL_ZLIMITS[1][i]-extra_distance_Z && 
-			    z>= MVD_BARREL_ZLIMITS[0][i]+extra_distance_Z &&
-			   (!(z>MVD_BARREL_NOZONE_Z[0]-extra_distance_Z && // conservative!
-			     z<MVD_BARREL_NOZONE_Z[1]+extra_distance_Z&& // out of the target pipe; conservative!
-			     Xcross[0] > MVD_BARREL_NOZONE_X[0]-extra_distance &&   // out of the target pipe;
-			     Xcross[0] < MVD_BARREL_NOZONE_X[1]+extra_distance))
-			 ){	// case in which there should be Mvd hits;
-			 	X_barrel[i][n_intersections_barrel[i]] = Xcross[0];
-				Y_barrel[i][n_intersections_barrel[i]] = Ycross[0];
-				Z_barrel[i][n_intersections_barrel[i]] = z;
-		     		n_intersections_barrel[i]++;
-			}
-		}  // end of if(yes_intersect>0 )
 
 
-	};  // end of  for(i=0;i<MVD_BARREL_LAYERS;i++)
-
-
-
-//------------  check if there are the hits in the barrel in the layer predicted by the previous extrapolation of the track;
-	nFaults = 0;
-	for(i=0;i<MVD_BARREL_LAYERS;i++){
-		if (n_intersections_barrel[i]>0){
-			// loop over all Mvd hits of the track;
+		if (!yes_hit ) {
 			nFaults++;
-			GoOn=true;
-			for(j=0;j< nPixelHitsinTrack; j++){
-				r2 = XMvdPixel[ ListMvdPixelHitsinTrack[j] ]*XMvdPixel[ ListMvdPixelHitsinTrack[j] ]+
-				     YMvdPixel[ ListMvdPixelHitsinTrack[j] ]*YMvdPixel[ ListMvdPixelHitsinTrack[j] ];
-				if( fabs( r2 - MVD_BARREL_RADIASQMean[i]) <= MVD_BARREL_RADIASQDifference[i]){
-					nFaults--;
-					GoOn = false;
-					break;
-				}
-			} // end of for(j=0;j< nPixelHitsinTrack; j++)
-			if(GoOn){
-			for(j=0;j< nStripHitsinTrack; j++){
-				r2 = XMvdStrip[ ListMvdStripHitsinTrack[j] ]*XMvdStrip[ ListMvdStripHitsinTrack[j] ]+
-				     YMvdStrip[ ListMvdStripHitsinTrack[j] ]*YMvdStrip[ ListMvdStripHitsinTrack[j] ];
-				if( fabs( r2 - MVD_BARREL_RADIASQMean[i]) <= MVD_BARREL_RADIASQDifference[i]){
-					nFaults--;
-					break;
-				}
-			} // end of for(j=0;j< nStripHitsinTrack; j++)
-			}	// end of   if(GoOn)
-		}  // end of     if (n_intersections_barrel[i]>0)
-	};  // end of  for(i=0;i<MVD_BARREL_LAYERS;i++)
-	
-	if(nFaults>1) return false;
+
+		}
+
+
+
+
+	}
+	if( nFaults > 1 ) return false;
+
+
+   }   // end of  for(i=0;i<MVD_MINIDISK_LAYERS;i++)
+
+
+
+//------------------------------------------------------- END OF MVD MINIDISK LAYERS -----------------------------------------
 
 //------------------------------------------------------- MVD DISKS ----------------------------------------------------------
 
@@ -659,6 +1241,7 @@ bool PndTrkCleanup::GoodTrack(
 	// loop over the number of Disks Mvd;
 	// calculate if trajectory intersects the Mvd Disk layers;
 	for(i=0;i<MVD_DISK_LAYERS;i++){
+
 		// calculate the intersections on the Mvd Disks;
 		phase = fi0 + kappa *  MVD_DISK_Z[i];	
 		X_disk = Ox + R* cos(phase) ;
@@ -669,88 +1252,65 @@ bool PndTrkCleanup::GoodTrack(
 		Yup = Y_disk + extra_distance;
 
 		// now calculate if the intersection falls in the sensor active region of the Mvd Disk;
-		nXlow = Xlow / MVD_DISK_LAYER_deltaX[i];
-		if( nXlow < 0 ) nXlow --;
-		nXup  = Xup  / MVD_DISK_LAYER_deltaX[i];
-		if( nXup < 0 ) nXup --;  // this is because the first strip at negative X cannot have
-					// index 0 but it must start from -1;
+		// theoretical radius**2 of the intersection point;
+		r = sqrt(X_disk*X_disk + Y_disk*Y_disk);
+		// conservative maximum possible radius**2 of the intersection point;
+		rmax = r + extra_distance;
+		// conservative minimum possible radius**2 of the intersection point;
+		rmin = r - extra_distance;
+		if(rmin<0.) rmin=0.;
 
-		if(nXlow< - MVD_DISK_PIECES[i])	// Xlow is out of the sensors;
-		{
-			if(nXup <= - MVD_DISK_PIECES[i]) {
-				type_of_intersection_in_disk[i]=-1;	// out of the sensors;
-				continue;
-			} else {
-				// if Y is out of the sensor --> type_of_intersection_in_disk[i]= -1;
-				// if Y is in the sensor --> type_of_intersection_in_disk[i]= 0;
-
-				type_of_intersection_in_disk[i] = Is_Contained_in_Mvd_Vertical_Strip(
-					i,	// index of the Mvd Disk Layer under scrutiny here;
- 					- MVD_DISK_PIECES[i], //  minimum possible index;
-					nXup, //  index of the strip containing Xup;
-					Ylow, // Ylow (abs of it if it is the case);
-					Yup // Yup (abs of it if it is the case);
-				);
-				if(type_of_intersection_in_disk[i]== 1) type_of_intersection_in_disk[i]= 0; // because
-					// Xlow was outside already of the boundary;
-				continue;
-			}
-		} else if ( nXlow >= MVD_DISK_PIECES[i] )	// Xlow is out of the sensors;
-		{
-			type_of_intersection_in_disk[i]=-1;	// out of the sensors
-			continue;
+		if(rmax < MVD_DISK_MAX_RADIUS[i] && rmin > MVD_DISK_MIN_RADIUS[i]) {	// certainly in;
+			type_of_intersection_in_disk[i]=1;
+		} else if (rmin>MVD_DISK_MAX_RADIUS[i] || rmax < MVD_DISK_MIN_RADIUS[i]){
+			type_of_intersection_in_disk[i]= -1;	// certainly out;
+		} else {
+			type_of_intersection_in_disk[i]= 0;	// partly in;
 		}
 
-		if( nXup >= MVD_DISK_PIECES[i] ) // at this point here Xlow is inside the sensors but Xup is not;
-		{
-			// check if Y is in the sensor --> type_of_intersection_in_disk[i]= 0, OR
-			// Y is out of the sensor --> type_of_intersection_in_disk[i]= -1;
 
-			type_of_intersection_in_disk[i] = Is_Contained_in_Mvd_Vertical_Strip(
-				i,	// index of the Mvd Disk Layer under scrutiny here;
- 				nXlow, //  index of the strip containing Xlow;
-				MVD_DISK_PIECES[i]-1, //  maximum possible index;
-				Ylow, // Ylow (abs of it if it is the case);
-				Yup // Yup (abs of it if it is the case);
-										);
-			if(type_of_intersection_in_disk[i]== 1) type_of_intersection_in_disk[i]= 0; // because
-					// nXup was outside already of the boundary;
-			continue;
-		} // end of   if( nXup >= MVD_DISK_PIECES[i] )
 
-		// here both Xlow and Xup are IN the sensors;
-		type_of_intersection_in_disk[i] = Is_Contained_in_Mvd_Vertical_Strip(
-				i,	// index of the Mvd Disk Layer under scrutiny here;
- 				nXlow, //  index of the strip containing Xlow;
-				nXup, //  index of the strip containing Xup;
-				Ylow, // Ylow (abs of it if it is the case);
-				Yup // Yup (abs of it if it is the case);
-										);
+
+
 	};  // end of  for(i=0;i<MVD_DISKS_LAYERS;i++)
 
 
+	//  check if there are the hits in the layer predicted by the previous extrapolation of the track;
+	// nFaults can be 0 or 1, depending on the analysis of the Barrel layers and Minidisk layers;
 
-//------------  check if there are the hits in the barrel in the layer predicted by the previous extrapolation of the track;
-	nFaults = 0;
 	for(i=0;i<MVD_DISK_LAYERS;i++){
 		if (type_of_intersection_in_disk[i]==1){
+
+			yes_hit = false;
+
 			// loop over all Mvd hits of the track;
 			for(j=0;j< nPixelHitsinTrack; j++){
-				if( fabs( ZMvdPixel[ ListMvdPixelHitsinTrack[j] ]-MVD_DISK_Z[i]) > 1.)
+				if( fabs( ZMvdPixel[ ListMvdPixelHitsinTrack[j] ]-MVD_DISK_Z[i]) < 1.)
 				{
-					nFaults++;
+					yes_hit = true;
+					break;
 				}
 			} // end of for(j=0;j< nPixelHitsinTrack; j++)
 
-			for(j=0;j< nStripHitsinTrack; j++){
-				if( fabs( ZMvdStrip[ ListMvdStripHitsinTrack[j] ]-MVD_DISK_Z[i]) > 1.) nFaults++;
-			} // end of for(j=0;j< nStripHitsinTrack; j++)
+			if(!yes_hit){
+				for(j=0;j< nStripHitsinTrack; j++){
+					if( fabs( ZMvdStrip[ ListMvdStripHitsinTrack[j] ]-MVD_DISK_Z[i]) < 1.)
+					{
+						yes_hit = true;
+						break;
+					}
+				} // end of for(j=0;j< nStripHitsinTrack; j++)
+			}  // end of if(!yes_hit)
 
-		}
+			if(!yes_hit){
+				nFaults++;
+				if(nFaults>1) return false;
+			}
+
+		}  // end of if (type_of_intersection_in_disk[i]==1)
 
 	};  // end of  for(i=0;i<MVD_DISKS_LAYERS;i++)
 	
-	if(nFaults>1) return false;
 
 
 	return true;
@@ -790,12 +1350,6 @@ bool PndTrkCleanup::GoodTrack(
 
 }
 //----------end of function PndTrkCleanup::MvdCleanup_prova
-
-
-
-
-
-
 
 
 //----------begin of function PndTrkCleanup::SeparateInnerOuterParallel
@@ -2327,6 +2881,437 @@ if(istampa>1) cout<<"uscito da SttSkewCleanup true\n";
 
 
 //----------end of function PndTrkCleanup::TrackCleanup
+
+
+
+//----------begin of function PndTrkCleanup::Track_Crosses_MvdBarrelFullAzimuthalCoverage
+
+ bool PndTrkCleanup::Track_Crosses_MvdBarrelFullAzimuthalCoverage(
+		Double_t Ox,		// track trajectory center;
+		Double_t Oy,		// track trajectory center;
+		Double_t R,		// track trajectory radius;
+		Double_t fi0, 		// FI0 of the Helix of the particle trajectory;
+		Double_t kappa,		// KAPPA of the Helix of the particle trajectory;
+		Double_t charge,	// charge of the particle;
+		
+		const Double_t Zlow,	// Z low limit of this barrel;
+		const Double_t Zup,	// Z upper limit of this barrel;
+		Double_t RBarrel,	// R of this barrel at which the intersection of the particle
+					// trajectory is calculated;
+		PndTrkCTGeometryCalculations * GeometryCalculator,	// pointer
+					// to the class making useful geometry calculations;
+		Double_t extra_distance_Z,	// in cm; extra distance allowed during decision
+						// if there should be an hit in a Mvd sensitive layer;
+		Double_t &Xintersect,	// output, X position of the point of crossing;
+		Double_t &Yintersect,	// output, Y position of the point of crossing;
+		Double_t &Zintersect	// output, Z position of the point of crossing;
+					)
+{
+	Short_t	yes_intersect;
+
+	Double_t
+		FiOrderedList[2],
+		Xcross[2],
+		Ycross[2];
+
+
+	// since Pz of the track is given by  -charge*0.003*BField/kappa, the sign of
+	// Pz is the opposite of   charge/kappa;
+	// the first check is the check that Pz of the track is consistent with the Z limits of
+	// this Mvd Barrel;
+
+
+
+
+	// yes_intersect = 0 --> 2 intersections
+	// otherwise yes_intersect = -1;
+	// I use the method FindIntersectionsOuterCircle that calculates the intersection between
+	// two circles;
+	yes_intersect = GeometryCalculator->FindIntersectionsOuterCircle(
+			Ox,
+			Oy,
+			R,
+			RBarrel, //  AVERAGE radius of the i-th Mvd barrel layer;
+			Xcross,
+			Ycross
+			);
+	if(yes_intersect==0 ) {   // there are 2 intersections of the trajectory with this barrel;
+		// calculate the entrance point based on the rotation direction of the particle
+		// (positive --> clockwise);
+		GeometryCalculator->ChooseEntranceExit3(
+			Ox,
+			Oy,
+			charge,
+			fi0,
+			2,
+			Xcross, // input and output;
+			Ycross, // input and output;
+			FiOrderedList // output; Fi in the Helix reference frame;
+		);
+
+
+		Xintersect = Xcross[0];
+		Yintersect = Ycross[0];
+		// calculate the Z coordinate of the intersection; since kappa is necessarily
+		//  > 1.e-10 by construction, then Z is always well defined;
+		Zintersect = (FiOrderedList[0]-fi0)/kappa;
+
+		// condition for having Mvd hits in the Mvd Barrel layers certainly, namely taking
+		// into account also possible errors in the Z caused by the uncertainty of the
+		// trajectory; such an error is called extra_distance_Z (in cm);
+
+		// condition by which the trajectory surely had to cross the barrel layer;
+		if( Zintersect<= Zup - extra_distance_Z && 
+		    Zintersect>= Zlow + extra_distance_Z
+		 ){	// case in which there should be Mvd hits;
+			return true;
+		}
+	}  // end of if(yes_intersect>0 )
+
+	return false;
+}
+
+//----------end of function PndTrkCleanup::Track_Crosses_MvdBarrelFullAzimuthalCoverage
+
+
+
+
+
+//----------begin of function PndTrkCleanup::Track_Crosses_MvdBarrelPartialAzimuthalCoverage
+
+ bool PndTrkCleanup::Track_Crosses_MvdBarrelPartialAzimuthalCoverage(
+
+// in this function it is assumed to deal with an Mvd Barrel section composed of an Inner Barrel with
+// RMin radius and an Outer Barrel with RMax radius.
+// Both the Inner and Outer Barrel have their own azimuthal (partial) coverage defined by a number of
+// azimuthal gaps ( ngapInner and ngapOuter respectively, maximum 4 gaps) with a certain range in Fi
+// defined in the arrays   :    gap_lowInner - gap_upInner  and   gap_lowOuter - gap_upOuter respectively;
+
+		Double_t Ox,		// track trajectory center;
+		Double_t Oy,		// track trajectory center;
+		Double_t R,		// track trajectory radius;
+		Double_t fi0, 		// FI0 of the Helix of the particle trajectory;
+		Double_t kappa,		// KAPPA of the Helix of the particle trajectory;
+		Double_t charge,	// charge of the particle;
+		
+		const Double_t Zlow,		// Z low limit of this barrel;
+		const Double_t Zup,		// Z upper limit of this barrel;
+
+		Double_t RInnerBarrel,	// R Minimum of this barrel at which the intersection of the particle
+					// trajectory is calculated;
+		int ngapInner,		// number of gaps in the azimuthal coverage;
+		const Double_t * gap_lowInner,	// array of low limits of the range of the azimuthal gaps (radians);
+		const Double_t * gap_upInner,	// array of upper limits of the range of the azimuthal gaps (radians);
+
+		Double_t ROuterBarrel,	// R Minimum of this barrel at which the intersection of the particle
+					// trajectory is calculated;
+		int ngapOuter,		// number of gaps in the azimuthal coverage;
+		const Double_t * gap_lowOuter,	// array of low limits of the range of the azimuthal gaps (radians);
+		const Double_t * gap_upOuter,	// array of upper limits of the range of the azimuthal gaps (radians);
+
+		PndTrkCTGeometryCalculations * GeometryCalculator,	// pointer
+					// to the class making useful geometry calculations;
+		Double_t extra_distance_Z,	// in cm; extra distance allowed during decision
+						// if there should be an hit in a Mvd sensitive layer;
+		Double_t *Xintersect,	// output, X position of the point of crossing track-Inner Barrel
+					// and track-Outer Barrel;
+		Double_t *Yintersect,	// output, Y position of the point of crossing;
+		Double_t *Zintersect	// output, Z position of the point of crossing;
+					)
+{
+	bool	cross;
+
+	Short_t	i,
+		yes_intersect;
+
+	Double_t
+		fi,
+		FiOrderedList[2],
+		Xcross[2],
+		Ycross[2];
+
+	// yes_intersect = 0 --> 2 intersections
+	// otherwise yes_intersect = -1;
+	// I use the method FindIntersectionsOuterCircle that calculates the intersection between
+	// two circles;
+
+	cross = false;	// at the end, if there is a crossing point in this Inner or Outer Barrel then
+			// cross will be true, otherwise it will be false;
+
+
+	// first check if the trajectory crosses this Inner Barrel;
+
+
+	yes_intersect = GeometryCalculator->FindIntersectionsOuterCircle(
+			Ox,
+			Oy,
+			R,
+			RInnerBarrel, //  radius of this Inner Mvd Barrel layer;
+			Xcross,
+			Ycross
+			);
+	if(yes_intersect==0 ) {   // there are 2 intersections of the trajectory with this barrel;
+		// calculate the entrance point based on the rotation direction of the particle
+		// (positive --> clockwise);
+		GeometryCalculator->ChooseEntranceExit3(
+			Ox,
+			Oy,
+			charge,
+			fi0,
+			2,
+			Xcross, // input and output;
+			Ycross, // input and output;
+			FiOrderedList // output; Fi of the intersections in the Helix frame;
+		);
+
+		// calculate the Z coordinate of the intersection; since kappa is necessarily
+		//  > 1.e-10 by construction, so Z is always well defined;
+		Zintersect[0] = (FiOrderedList[0]-fi0)/kappa;
+
+
+		// condition for having Mvd hits in the Mvd Barrel layers certainly, namely taking
+		// into account also possible errors in the Z caused by the uncertainty of the
+		// trajectory; such an error is called extra_distance_Z (in cm);
+
+		// condition by which the trajectory surely had to cross the barrel layer;
+		if( Zintersect[0]<= Zup - extra_distance_Z && 
+		    Zintersect[0]>= Zlow + extra_distance_Z
+		 ){	// case in which there should be Mvd hits;
+			// loop to check that the track doesn't fall in the gap region; fi must be between 0. and 2Pi;
+			fi = atan2(Ycross[0],Xcross[0]);
+			if(fi<0.) fi += TWO_PI;
+			if(fi<0.) fi = 0.;
+			if(fi> TWO_PI) fi = TWO_PI;
+
+			cross = true;
+			for(i=0; i<ngapInner; i++){
+				if( fi <gap_upInner[i] &&  fi > gap_lowInner[i] ) {
+					cross = false;
+					break;
+				}
+			}	// end of  for(i=0; i<ngapInner; i++)
+		}  //  end of  if( Zintersect[0]<= Zup - extra_distance...
+	}  // end of if(yes_intersect==0 )
+
+
+	// in case the trajectory crosses the Inner Barrel then there must be a hit in this Barrel section ;
+	// now check this Mvd Outer Barrel; at any rate if now cross is true it will remain so no matter the result
+	// of the nalysis of the Outer Barrel;
+
+	// if there was no intersection Xintersect[0] is conventionally set at -99999.
+	if(cross)
+	{
+		Xintersect[0] = Xcross[0];
+		Yintersect[0] = Ycross[0];
+	} else {
+		Xintersect[0] = -99999. ;
+	}
+
+	// then check if the trajectory crosses this Outer Barrel;
+	// first of all check if there is an Outer Barrel; if it doesn't its radius is conventionally set at -1.;
+
+	if(ROuterBarrel < 0. ){
+		// since there was no intersection Xintersect[1] is conventionally set at -99999.
+		Xintersect[1] = -99999. ;
+		//  at this point cross can be either true or false;
+		return cross;
+	}
+
+
+	yes_intersect = GeometryCalculator->FindIntersectionsOuterCircle(
+			Ox,
+			Oy,
+			R,
+			ROuterBarrel, //  radius of this Outer Mvd Barrel layer;
+			Xcross,
+			Ycross
+			);
+
+	if(yes_intersect==0 ) {   // there are 2 intersections of the trajectory with this barrel;
+		// calculate the entrance point based on the rotation direction of the particle
+		// (positive --> clockwise);
+		GeometryCalculator->ChooseEntranceExit3(
+			Ox,
+			Oy,
+			charge,
+			fi0,
+			2,
+			Xcross, // input and output;
+			Ycross, // input and output;
+			FiOrderedList // output; Fi of the intersections in the Helix frame;
+		);
+
+		// calculate the Z coordinate of the intersection; since kappa is necessarily
+		//  > 1.e-10 by construction, then Z is always well defined;
+		Zintersect[1] = (FiOrderedList[0]-fi0)/kappa;
+
+
+
+
+		// condition for having Mvd hits in the Mvd Barrel layers certainly, namely taking
+		// into account also possible errors in the Z caused by the uncertainty of the
+		// trajectory; such an error is called extra_distance_Z (in cm);
+
+		// condition by which the trajectory surely had to cross the barrel layer;
+		if( Zintersect[1]<= Zup - extra_distance_Z && 
+		    Zintersect[1]>= Zlow + extra_distance_Z
+		 ){	// case in which there should be Mvd hits;
+			// loop to check that the track doesn't fall in the gap region; fi must be between 0. and 2Pi;
+			fi = atan2(Ycross[0],Xcross[0]);
+			if(fi<0.) fi += TWO_PI;
+			if(fi<0.) fi = 0.;
+			if(fi> TWO_PI) fi = TWO_PI;
+
+
+			Xintersect[1] = Xcross[0];
+			for(i=0; i<ngapOuter; i++){
+				if( fi <gap_upOuter[i] &&  fi > gap_lowOuter[i] ) {
+					Xintersect[1] = -99999.;
+					break;
+				}
+			}	// end of  for(i=0; i<ngapOuter; i++)
+		} else {
+			Xintersect[1] = -99999.;
+		}  //  end of if( Zintersect[1]<= Zup - extra....
+	} else  { // continuation of if(yes_intersect==0 )
+
+		Xintersect[1] = -99999.;
+
+	} // end of if(yes_intersect==0 )
+
+	if( Xintersect[1] > -99998. )	// in this case there was intersection between this track and the Barrel;
+	{
+		Yintersect[1] = Ycross[0];
+		return true;  // because there is at least one intersection : the one with the Outer Barrel;
+	} else {
+		return cross;  // this is the result of the analysis of the Inner Barrel;
+	}
+
+}
+
+//----------end of function PndTrkCleanup::Track_Crosses_MvdBarrelPartialAzimuthalCoverage
+
+
+
+
+//----------begin of function PndTrkCleanup::Track_Crosses_MvdMiniDisk_withMargin
+
+bool PndTrkCleanup::Track_Crosses_MvdMiniDisk_withMargin(
+	Double_t ZLayerBegin,	// Z of the beginning of the layer (end of layer = + 0.02);
+	Double_t xmargin,	//  safety margin in X coordinate;
+	Double_t ymargin,	//  safety margin in Y coordinate;
+
+	Double_t Ox,		// track trajectory center;
+	Double_t Oy,		// track trajectory center;
+	Double_t R,		// track trajectory radius;
+	Double_t fi0, 		// FI0 of the Helix of the particle trajectory;
+	Double_t kappa,		// KAPPA of the Helix of the particle trajectory;
+	Double_t charge,		// charge of the particle;
+
+	PndTrkCTGeometryCalculations * GeometryCalculator	// pointer to
+				// the class doing the geometrical calculations;
+	)
+{
+
+	Double_t	angle,
+			X,
+			Y;
+
+	// since Pz of the track is given by  -charge*0.003*BField/kappa, the sign of
+	// Pz is the opposite of   charge/kappa (or charge*kappa) ;
+	// so when the sign of Pz is > 0, ZLayerBegin must be positive otherwise
+	// return false; viceversa when Pz is negative;
+
+	if( -charge*kappa * ZLayerBegin <= 0. ) {
+		// this is a track travelling in the Z direction opposite to where the
+		// ZLayerBegin is, consequently it cannot cross this MiniDisk;
+
+		return false;
+	}
+
+	angle = fi0 + ZLayerBegin* kappa;
+
+	X =  Ox + R*cos( angle );	// X position reached by the track at Z = 1.98, the
+					// middle of this MiniDisk;
+
+	Y =  Oy + R*sin( angle );	// Y position reached by the track at Z = 1.98, the
+					// middle of this MiniDisk;
+
+
+	// the list of Mvd MiniDisks, listed according to the Z position of the silicon sensitive layer;
+	if ( ZLayerBegin ==  1.97){
+
+			if(GeometryCalculator->IsInMvdMiniDisk1_97to1_99withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false;
+
+	} else if( ZLayerBegin ==  2.41) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk2_41to2_43withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  3.97) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk3_97to3_99withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  4.41) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk4_41to4_43withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  6.97) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk6_97to6_99withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  7.41) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk7_41to7_43withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  9.97) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk9_97to9_99withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  10.41) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk10_41to10_43withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  14.77) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk14_77to14_79withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  15.21) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk15_21to15_23withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  21.77) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk21_77to21_79withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else if( ZLayerBegin ==  22.21) {
+
+			if(GeometryCalculator->IsInMvdMiniDisk22_21to22_23withMargin(X,Y,xmargin,ymargin)
+			) return true ; else return false; 
+
+	} else {
+		cout<<"PndTrkCleanup.cxx::Track_Crosses_MvdMiniDisk_withMargin WARNING, this Mvd MiniDisk apparently"<<
+			" is not in the list of known Mvd MiniDisks !";
+
+	}
+
+}
+
+//----------end of function PndTrkCleanup::Track_Crosses_MvdMiniDisk_withMargin
+
+
+
+
 
 //----------begin of function PndTrkCleanup::XYCleanup
 bool PndTrkCleanup::XYCleanup(
