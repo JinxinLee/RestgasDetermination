@@ -598,7 +598,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -656,7 +656,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -814,7 +814,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 //-------------- stampa
 
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -1037,7 +1037,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 
 //-------------- stampa
-if (istampa>=1){
+if (istampa>=2){
 bool tkeepit[10];
 tkeepit[0] = true;
 Short_t nSttSkewHitsinTrack[10],
@@ -1097,7 +1097,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 		posizSciTil	// input, info on all the SciTil position;
 			)
  ){
-	if(istampa>0){ cout<<"\tthis track candidate passes the stt parallel cleanup; here is the printout :\n";
+	if(istampa>=2){ cout<<"\tthis track candidate passes the stt parallel cleanup; here is the printout :\n";
 			bool tkeepit[10];
 			tkeepit[0] = true;
 			Short_t nSttSkewHitsinTrack[10],
@@ -1123,7 +1123,7 @@ InOut->Fi_initial_helix_referenceframe,KAPPA);
 
 	return true;
  } else {
-	if(istampa>0){ cout<<"\tthis track candidate DOES NOT pass the stt parallel cleanup.\n";}
+	if(istampa>=2){ cout<<"\tthis track candidate DOES NOT pass the stt parallel cleanup.\n";}
 	return false;
 
  }
