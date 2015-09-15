@@ -40,6 +40,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 PndMCIdealTrackFinderNewLinks.cxx
+PndMCTruthMatch.cxx
 )
 
 set(LINKDEF  PndMCMatchNewLinksLinkDef.h)

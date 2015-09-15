@@ -5,6 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class PndMCIdealTrackFinderNewLinks+;
+#pragma link C++ class PndMCTruthMatch+;
 
 #endif
 
