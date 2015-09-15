@@ -23,6 +23,8 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
+#include <iostream>
+
 #ifndef ROOT_TParticlePDG
 #include "TParticlePDG.h"
 #endif
@@ -59,7 +61,12 @@ class PndMCTrack : public TObject
 
 
   /**  Output to screen  **/
-  void Print(Int_t iTrack) const;
+  void Print(Int_t iTrack = 0) const;
+
+  friend std::ostream& operator<< (std::ostream& out, PndMCTrack& track) {
+	track.Print();
+	return out;
+  }
 
 
   /**  Accessors  **/

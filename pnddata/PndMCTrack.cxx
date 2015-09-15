@@ -94,8 +94,8 @@ PndMCTrack::~PndMCTrack() { }
 // -----   Public method Print   -------------------------------------------
 void PndMCTrack::Print(Int_t trackID) const {
   cout << "Track " << trackID << ", mother : " << fMotherID <<", secondmother : " << fSecondMotherID << ", Type "
-       << fPdgCode << ", momentum (" << fPx << ", " << fPy << ", " << fPz<< ", " << fE
-       << ") GeV" << " , Generatorflags: "<<fGeneratorFlags<<endl;
+       << fPdgCode << ", momentum (" << fPx << "/" << fPy << "/" << fPz<< "/" << fE
+       << ") GeV" << ", position (" << fStartX << "/" << fStartY << "/" << fStartZ << "/" << fStartT << ") cm,s, Generatorflags: "<<fGeneratorFlags<<endl;
 }
 // -------------------------------------------------------------------------
 
