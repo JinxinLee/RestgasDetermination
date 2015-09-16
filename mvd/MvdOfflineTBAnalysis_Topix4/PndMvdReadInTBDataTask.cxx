@@ -61,7 +61,7 @@ InitStatus PndMvdReadInTBDataTask::Init()
 
   for (int i = 0; i < fFileNames.size(); i++) {
     std::cout << "PndMvdReadInTBDataTask::Init FileName: " << fFileNames[i][0] << std::endl;
-	  fReader.push_back(new PndMvdReadInTBData());
+	  fReader.push_back(new PndMvdReadInToPix4TBData());
 	  fEndOfFile.push_back(kFALSE);
 	  fReader[i]->SetFileName(fFileNames[i]);
 	  fReader[i]->SetClockFrequency(fClockFrequency);

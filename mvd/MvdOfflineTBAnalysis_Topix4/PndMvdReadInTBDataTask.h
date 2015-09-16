@@ -3,7 +3,7 @@
 
 #include "FairTask.h"
 #include "PndGeoHandling.h"
-#include "PndMvdReadInTBData.h"
+#include "PndMvdReadInToPix4TBData.h"
 
 #include "TString.h"
 
@@ -41,7 +41,7 @@ private:
 
     //std::vector<TString> fFileNames;
     std::vector<std::ifstream*> fFileHandles;
-    std::vector<PndMvdReadInTBData*> fReader;
+    std::vector<PndMvdReadInToPix4TBData*> fReader;
     std::vector<Bool_t> fEndOfFile;
 
     UInt_t fEvent;

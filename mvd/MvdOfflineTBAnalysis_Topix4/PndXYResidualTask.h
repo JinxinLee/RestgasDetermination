@@ -36,6 +36,8 @@ class PndXYResidualTask : public FairTask
       fPersistance(kTRUE),
       fTrackArray(0),
 	  fHitArray(0),
+	  fMissingHitArray(0),
+	  fProjectedHitArray(0),
       fEntryNr(0),
 	  fBranchName("MVDHitsPixelCorrectedSorted_event")
     {
@@ -48,6 +50,8 @@ class PndXYResidualTask : public FairTask
       fPersistance(kTRUE),
       fTrackArray(0),
 	  fHitArray(0),
+	  fMissingHitArray(0),
+	  fProjectedHitArray(0),
       fEntryNr(0),
 	  fBranchName("MVDHitsPixelCorrectedSorted_event")
     {
@@ -89,6 +93,10 @@ class PndXYResidualTask : public FairTask
     TClonesArray* fTrackArray;
     TClonesArray* fHitArray;
 
+    TClonesArray* fMissingHitArray;
+    TClonesArray* fProjectedHitArray;
+    TClonesArray* fGoodHitArray;
+
     TString fBranchName;
 
     Int_t fEntryNr;
@@ -97,6 +105,12 @@ class PndXYResidualTask : public FairTask
     TH2D* fHc0c1;
     TH2D* fHc0c2;
     TH2D* fHc0c3;
+    TH2D* fHc0c0cut;
+    TH2D* fHc0c1cut;
+    TH2D* fHc0c2cut;
+    TH2D* fHc0c3cut;
+
+    TH1D* fHMissingHits;
 
     ClassDef(PndXYResidualTask,2);
 
