@@ -100,10 +100,10 @@ void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 		endOfFiles &= fEndOfFile[j];
 	}
 	if (endOfFiles == kTRUE){
-		std::cout << "Number of non sequential frame counters: " << std::endl;
+		std::cout << "Number of: " << std::endl;
 		for(int i = 0; i < fReader.size(); i++){
 			UInt_t nonSequential = fReader[i]->GetNonSequenctialFC();
-			std::cout << i << " : " << nonSequential
+			std::cout << i << " : non sequential header " << nonSequential
 					<< " double header: " << fReader[i]->GetDoubleHeader()
 					<< " double trailer: " << fReader[i]->GetDoubleTrailer() << std::endl;
 			std::cout << i << " SuperFrameCount: " << fReader[i]->GetSuperFrameCount() << std::endl;

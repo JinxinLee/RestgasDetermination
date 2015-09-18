@@ -127,6 +127,17 @@ Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::v
 	return endOfFile;
 }
 
+void PndMvdReadInToPix4TBData::AnalyzeData(std::vector<ULong64_t>& rawData,	Double_t clockFrequency) {
+	if (fVerbose > 2)
+		std::cout << "PndMvdReadInToPix4TBData::AnalyzeData rawData.size(): " << rawData.size() << std::endl;
+	for (int i = 0; i < rawData.size(); i++) {
+		if (BuildFrame(rawData[i]) == true){		//a frame was found
+			AnalyzeToPixFrame(clockFrequency);
+			fToPixFrame.clear();
+		}
+	}
+}
+
 bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 {
 	int header = fTopix.GetHeader(rawData);
@@ -196,7 +207,6 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 
 				fTotalFrameCount++;
 				//AnalyzeToPixFrame(clockFrequency);
-				fToPixFrame.clear();
 				return true;
 			} else {
 				if (fVerbose > 1) {
@@ -219,107 +229,6 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 		}
 	}
 	return false;
-}
-
-void PndMvdReadInToPix4TBData::AnalyzeData(std::vector<ULong64_t>& rawData,	Double_t clockFrequency) {
-	if (fVerbose > 2)
-		std::cout << "PndMvdReadInToPix4TBData::AnalyzeData rawData.size(): " << rawData.size() << std::endl;
-	for (int i = 0; i < rawData.size(); i++) {
-		int header = fTopix.GetHeader(rawData[i]);
-		if (fFirstHeader) {	// if datastream does not start with a header all data is thrown away until a header is present
-			if (header == 1) {
-				fFirstHeader = kFALSE;
-			} else {
-				continue;
-			}
-		}
-
-		if (header == 1) // header word found
-		{
-			fTotalHeaderCount++;
-			fRecentAllFrameHeader = fTopix.BitAnalyzeHeader(rawData.at(i));
-
-			Int_t deltaAllFrameCount = ((int) (fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount) < 0 ?
-							((fRecentAllFrameHeader.fFrameCount	- fOldAllHeaderCount) + 256) :
-							(fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount));
-			new ((*fOutputArrayAllHeader)[fOutputArrayAllHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentAllFrameHeader.fFrameCount, fFE,
-					fRecentAllFrameHeader.fChipAddress, fRecentAllFrameHeader.fECC, fTotalHeaderCount, deltaAllFrameCount, 0, 0);
-			if (deltaAllFrameCount > 1)
-				std::cout << "-W- deltaAllFrameCount > 1: "	<< deltaAllFrameCount << std::endl;
-			fOldAllHeaderCount = fRecentAllFrameHeader.fFrameCount;
-
-			if (fHeaderPresent == kTRUE) {
-				// double header found, cannot check previous data without trailer, clear vector
-				fDoubleHeader++;
-
-				if (fVerbose > 1) {
-					std::cout << "Double Header Found! count: " << fDoubleHeader
-							<< "| FE: " << fFE << std::hex << " last ToPixFrame element: "
-							<< fToPixFrame.back() << " new frame header " << rawData[i] << std::endl;
-				}
-				fPreFrameLossHitCount += fToPixFrame.size() - 1;
-				fToPixFrame.clear();
-				// load new header into vector
-				fToPixFrame.push_back(rawData[i]);
-			} else {
-				// header found, start recording topix frame
-				fTrailerPresent = kFALSE;
-				fHeaderPresent = kTRUE;
-				fToPixFrame.push_back(rawData[i]);
-			}
-		}
-
-		else if (header == 2) // trailer word found
-		{
-			fTotalTrailerCount++;
-			if (fTrailerPresent == kTRUE) {
-				// double trailer found, cannot give the hits a valid timestamp without the header, clear vector
-
-				fToPixFrame.clear();
-				fDoubleTrailer++;
-				if (fVerbose > 1) {
-					std::cout << "Double Trailer Found! Double header counter: "
-							<< fDoubleTrailer << std::endl;
-				}
-			} else {
-				if (fHeaderPresent == kTRUE) {
-					// one topix frame found! Go and analyze the vector...
-					fHeaderPresent = kFALSE;
-					fTrailerPresent = kTRUE;
-					fToPixFrame.push_back(rawData[i]);
-					//  if (fVerbose > 1)
-					//  {
-					//	std::cout << "ToPix Frame found! Go and analyze this amount of data: " << fToPixFrame.size() << std::endl;
-					//}
-
-					fTotalFrameCount++;
-					AnalyzeToPixFrame(clockFrequency);
-					fToPixFrame.clear();
-				} else {
-					if (fVerbose > 1) {
-						std::cout
-								<< "Trailer without header found! Double header counter: "
-								<< fDoubleHeader << std::endl;
-					}
-					// trailer without header, can happen at the beginning of the file or the header was not detected correctly
-					// this case is in principle impossible to enter
-					fPreFrameLossHitCount += fToPixFrame.size() - 1;
-					fDoubleTrailer++;
-					fToPixFrame.clear();
-					continue;
-				}
-			}
-		} else if (header == 3) // data word found
-				{
-			fTotalHitCount++;
-			if (fHeaderPresent == kTRUE) { // found data while a active header is present, go and save the data
-				fToPixFrame.push_back(rawData[i]);
-			} else { // found data without a valid header, may happen at the beginning of the file or the header was detected
-				fPreFrameLossHitCount++;
-				continue;
-			}
-		}
-	}
 }
 
 
@@ -411,10 +320,10 @@ void PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double_t clockFrequency) {
 
 bool PndMvdReadInToPix4TBData::CheckDataIntegrity(std::vector<ULong64_t> topix4Frame)
 {
-	ULong_t hammingcheck = fHamming.CheckHammingCode(fTopix.ConvertToPix4HammingToStandardHamming(fToPixFrame[0]), 40); // check hamming of header
+	ULong_t hammingcheck = fHamming.CheckHammingCode(fTopix.ConvertToPix4HammingToStandardHamming(topix4Frame[0]), 40); // check hamming of header
 	if (hammingcheck != 0) {
 		if (fVerbose > 1) {
-			std::cout << "Wrong Hamming Code found! (Header) : " << std::hex<< fToPixFrame[0] << " Parity bits " << hammingcheck << std::endl;
+			std::cout << "Wrong Hamming Code found! (Header) : " << std::hex<< topix4Frame[0] << " Parity bits " << hammingcheck << std::endl;
 		}
 		fHammingLossFrameCount++;
 		fHammingLossHitCount += topix4Frame.size() - 2;
