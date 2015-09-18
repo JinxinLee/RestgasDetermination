@@ -90,6 +90,8 @@ void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 
 	for(int i = 0; i < fReader.size(); i++){
 		if (fEndOfFile[i] != kTRUE){
+			if (fVerbose > 1)
+				std::cout << std::endl << "Reader: " << i << " running " << std::endl;
 		  fEndOfFile[i] = fReader[i]->ReadInData(fDigiArray, fFrameHeaderArray, fAllFrameHeaderArray);
 		}
 	}

@@ -43,9 +43,11 @@ public:
 	Bool_t ReadInData(TClonesArray* sdsDigiContainer, TClonesArray* headerContainer, TClonesArray* allheaderContainer);
 	Bool_t ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData);//<input is fileHandle, output vector of raw data, output is end of file
 	void AnalyzeData(std::vector<ULong64_t>& rawData, Double_t clockFrequency);
+	bool BuildFrame(ULong64_t& rawData);
 
 	PndSdsDigiTopix4 ProcessData(ULong64_t& data, ToPix4::frameHeader& header, Double_t& clockFrequency);
 	void AnalyzeToPixFrame(Double_t clockFrequency);
+	bool CheckDataIntegrity(std::vector<ULong64_t> topix4Frame);
 
 	void SetClockFrequency(Double_t val) {fClockFrequency = val;}
 	void SetFE(Int_t val){fFE = val;}

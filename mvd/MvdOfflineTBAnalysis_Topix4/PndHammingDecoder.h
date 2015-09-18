@@ -18,6 +18,7 @@ public:
 	UShort_t CheckHammingCode(ULong64_t dataword, int dataword_length);
 	ULong64_t CalculateCRCTableFast(std::vector<char> p, ULong64_t len);
 	ULong64_t ReflectBitsStream(ULong64_t crc, int bitnum);
+	std::vector<char> ConvertData(std::vector<ULong64_t> topixFrame);
 
 protected:
 	void GenerateCRCTable();

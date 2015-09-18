@@ -20,6 +20,18 @@ PndTopix4::~PndTopix4() {
 	// TODO Auto-generated destructor stub
 }
 
+int PndTopix4::GetHeader(ULong64_t data){
+	ULong_t header = data & 0xC000000000;
+	header = header >> 38;
+	return (int)header;
+}
+
+int PndTopix4::GetFrameCount(ULong64_t data){
+	ULong_t frame = data & 0x3FC0000;
+	frame = frame >> 18;
+	return (int)frame;
+}
+
 ToPix4::frameHeader PndTopix4::BitAnalyzeHeader(ULong64_t& header)
 {
 	ToPix4::frameHeader tempHeader;
@@ -209,4 +221,28 @@ std::pair<UInt_t, UInt_t> PndTopix4::PixeladdressToMatrixAddress(UInt_t pixelglo
     return std::pair<UInt_t, UInt_t>(matrix_column, matrix_row);
 }
 
+ULong64_t PndTopix4::ConvertToPix4HammingToStandardHamming(ULong64_t topixhamming)
+{
+ 	// The ToPix header and trailer data word consists of 34 data bits and 6 hamming bits.
+	//								       bit no:	39    38   37   36   35         9    8    7    6    5    4    3    2    1    0
+	// In a ToPix4 dataword the hamming bits are at the end of the word:           (d34)(d33)(d32)(d31)(d30) ... (d04)(d03)(d02)(d01)(H 6)(H 5)(H 4)(H 3)(H 2)(H 1)
+	// At the standard hamming encoding the hamming bits are at the 2^i positions  (d34)(d33)(d32)(d31)(d30) ... (d07)(d06)(d05)(d04)(H 3)(d03)(d02)(d01)(H 2)(H 1)
+        // This function expects a ToPix4 encoded dataword and moves the hamming bits at the end to the defined positions.
 
+  ULong64_t standard_hamming = 0;
+
+	standard_hamming  = ( topixhamming & 0xff00000000);
+	standard_hamming += ((topixhamming & 0x00fffe0000) >>  1 );
+	standard_hamming += ((topixhamming & 0x000001fc00) >>  2 );
+	standard_hamming += ((topixhamming & 0x0000000380) >>  3 );
+	standard_hamming += ((topixhamming & 0x0000000040) >>  4 );
+
+	standard_hamming += ((topixhamming & 0x0000000020) << 26 );
+	standard_hamming += ((topixhamming & 0x0000000010) << 11 );
+	standard_hamming += ((topixhamming & 0x0000000008) <<  4 );
+	standard_hamming += ((topixhamming & 0x0000000004) <<  1 );
+	standard_hamming += ( topixhamming & 0x0000000002);
+	standard_hamming += ( topixhamming & 0x0000000001);
+
+	return standard_hamming;
+}
