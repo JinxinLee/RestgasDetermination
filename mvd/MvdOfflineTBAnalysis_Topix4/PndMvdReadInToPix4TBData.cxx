@@ -61,7 +61,7 @@ Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::v
 	tempdata = new TMrfData_8b;
 	ULong_t dataword = 0;
 	Bool_t endOfFile = kFALSE;
-	fVerbose = 3;
+	//fVerbose = 3;
 	if (fileHandle->good()) {
 		if (fVerbose > 2) {
 			std::cout << std::endl;

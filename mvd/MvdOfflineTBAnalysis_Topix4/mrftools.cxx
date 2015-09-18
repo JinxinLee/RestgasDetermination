@@ -72,13 +72,20 @@ unsigned int getIteratorItemCount(const std::map<std::string,std::map<std::strin
 
 UInt_t grayToBin(UInt_t gray)
 {
-        UInt_t result = 0;
-        setIntBit(31, result, getIntBit(31, gray));
-        for (unsigned int i = 30; i > 0; --i) {
-                setIntBit(i, result, (getIntBit(i+1, result) && !(getIntBit(i, gray))) || (!(getIntBit(i+1, result)) && getIntBit(i, gray)));
-        }
-        setIntBit(0, result, (getIntBit(1, result) && !(getIntBit(0, gray))) || (!(getIntBit(1, result)) && getIntBit(0, gray)));
-        return result;
+        //UInt_t result = 0;
+        //setIntBit(31, result, getIntBit(31, gray));
+        //for (unsigned int i = 30; i > 0; --i) {
+        //        setIntBit(i, result, (getIntBit(i+1, result) && !(getIntBit(i, gray))) || (!(getIntBit(i+1, result)) && getIntBit(i, gray)));
+        //}
+        //setIntBit(0, result, (getIntBit(1, result) && !(getIntBit(0, gray))) || (!(getIntBit(1, result)) && getIntBit(0, gray)));
+
+    //return result;
+
+	for (UInt_t bit = 1U << 31; bit > 1; bit >>= 1)
+	{
+		if (gray & bit) gray ^= bit >> 1;
+	}
+	return gray;
 }
 
 }
