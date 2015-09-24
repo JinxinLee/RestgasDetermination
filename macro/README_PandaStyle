@@ -1,0 +1,33 @@
+Using PANDA Style
+-------------------
+
+There are two macros which allow you to create plots with a certain standard style agreed on for PANDA
+
+1. setPandaStyle.C   : This just needs to be executed in the ROOT prompt (.x setPandaStyle.C) to set the style. Should be executed before doing anything else. 
+                       >>> NOTE: If you are setting gStyle options in your rootlogon.C or elsewhere, their might be interferences.
+
+2. PandaSmartLabel.C : This macro prints the PANDA label and possible other text on the current canvas.
+   
+   PandaSmartLabel("option", xpos, ypos, scale1, "text", scale2)
+     "option"  : controls alignment. "R" = right align, "L" = left align, +"prel" = prints large 'PRELIMINARY' across plot, +"front" = prints the 'PRELIMINARY' over the histogram (e.g. for 2D plots) 
+      xpos     : x position the bottom left ("L") or bottom right ("R") corner of 'PANDA'; "str" will be aligned according to its top left or right corner
+      ypos     : y position the bottom left ("L") or bottom right ("R") corner of 'PANDA'; "str" will be aligned according to its top left or right corner
+      scale1   : scale of PANDA label text relativ to text size 0.07; default = 0.9
+      "text"   : optional text of the second line underneath 'PANDA'; aligned according to its top left/right corner 
+      scale2   : scale of the optional text relativ to text size 0.08; default = 0.45
+
+     parameters values -1/"-1" lead to default values
+
+
+EXAMPLES:
+------ 
+Interactive ROOT session
+
+root [0] .x setPandaStyle.C
+root [1] ... draw your histogram
+
+root [2] .x PandaSmartLabel.C                                         // Label 'PANDA/MC simulation' in top right corner
+root [2] .x PandaSmartLabel.C("Lprel")                                // Label 'PANDA/MC simulation' in top left corner with large 'PRELIMINARY' across plot (printed behind histograms)
+root [2] .x PandaSmartLabel.C("prelfront")                            // Label 'PANDA/MC simulation' in top right corner with large 'PRELIMINARY' across plot (printed over histograms)
+root [2] .x PandaSmartLabel.C("R",-1,0.2,0.5,"")                      // Smaller label 'PANDA' w/o second text line in bottom right corner
+root [2] .x PandaSmartLabel.C("L",0.45,0.25,1.2,"preliminary",0.75)   // Larger label 'PANDA//preliminary' (text align left) in the bottom center
