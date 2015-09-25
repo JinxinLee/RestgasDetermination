@@ -26,6 +26,7 @@
 #include "RhoBase/RhoCandList.h"
 #include "FairRecoCandidate.h"
 #include "RhoMath/RhoLorentzVectorErr.h"
+#include "FairMultiLinkedData_Interface.h"
 
 //class VAbsVertex;
 //class VAbsTruth;
@@ -40,7 +41,7 @@ class RhoCandListIterator;
 //      ---------------------
 //      -- Class Interface --
 //      ---------------------
-class RhoCandidate : public TObject
+class RhoCandidate : public FairMultiLinkedData_Interface
 {
 
    protected:
