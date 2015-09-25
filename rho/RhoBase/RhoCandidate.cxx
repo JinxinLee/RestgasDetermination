@@ -120,7 +120,7 @@ RhoCandidate::RhoCandidate ( const TVector3& v, const TParticlePDG* pdt, RhoVect
 }
 
 
-RhoCandidate::RhoCandidate ( const RhoCandidate& o )
+RhoCandidate::RhoCandidate ( const RhoCandidate& o ) : FairMultiLinkedData_Interface(o)
 {
   fFastMode = o.fFastMode;
   fLocked = kFALSE;
@@ -168,6 +168,8 @@ RhoCandidate::RhoCandidate ( const RhoCandidate& o )
   }
 
   fMcTruth=o.fMcTruth;
+  SetInsertHistory(kFALSE);
+  AddLinks(o.GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")));
 
   //FIXME Do we want to carry these status flags?
   fChi2 = 0 ;
@@ -211,6 +213,8 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n) :
   }
 
   SetUid ( n );
+  SetInsertHistory(kFALSE);
+  AddLinks(a.GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")));
 
   SetPidInfo ( 0 );
   SetPidInfo ( 0,a.GetElectronPidLH() );
@@ -218,7 +222,6 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n) :
   SetPidInfo ( 2,a.GetPionPidLH() );
   SetPidInfo ( 3,a.GetKaonPidLH() );
   SetPidInfo ( 4,a.GetProtonPidLH() );
-
 //  SetMcTruth ( a.GetMcTruth() ); // set the MCTuth object when building the mc list
 }
 
@@ -257,6 +260,8 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err& vp, B
   }
 
   SetUid ( n );
+  SetInsertHistory(kFALSE);
+  AddLinks(a.GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")));
 
   SetPidInfo ( 0 );
   SetPidInfo ( 0,a.GetElectronPidLH() );
@@ -287,6 +292,7 @@ RhoCandidate::~RhoCandidate( )
 RhoCandidate&
 RhoCandidate::operator = ( const RhoCandidate& o )
 {
+  FairMultiLinkedData_Interface::operator=(o);
   fFastMode = o.fFastMode;
   fLocked = kFALSE;
   fTheMother = 0;
@@ -1168,6 +1174,7 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   o << " PID:";
   for ( int k=0; k<5; k++ ) { o << fPidLH[k] <<","; } // take the first 5 pid entries to check charged p,pi,e,mu,K
   o << "  mc truth pointer: " <<fMcTruth;
+  FairMultiLinkedData_Interface::Print(o);
 }
 
 
