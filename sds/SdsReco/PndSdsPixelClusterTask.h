@@ -115,6 +115,7 @@ class PndSdsPixelClusterTask : public PndSdsTask
     void Register();
     void Reset();  
     void ProduceHits();
+    virtual std::vector<PndSdsDigiPixel> ConvertAndFilter(TClonesArray* digidata); ///< convert TClonesArray into std::vector and remove corrupted data (for test beam analysis)
     
   PndSdsPixelClusterFinder* fClusterFinder; //!
   PndSdsPixelBackMapping* fBackMapping; //!
@@ -124,7 +125,7 @@ class PndSdsPixelClusterTask : public PndSdsTask
 //   PndSdsHit CalcGlobalPoint(std::vector<PndSdsPixel> pixels);
 //   TVector3 GetSensorDimensions(std::string detName);  
         
-    ClassDef(PndSdsPixelClusterTask,3);
+    ClassDef(PndSdsPixelClusterTask,4);
     
   };
 

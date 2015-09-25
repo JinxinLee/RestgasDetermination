@@ -192,10 +192,9 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   if (fVerbose > 1)
 	  std::cout << "Points in DigiArray: " << nPoints << std::endl;
   // convert from TClonesArray to a std::vector
-  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){
-    PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(fDigiArray->At(iPoint));
-    DigiPixelArray.push_back(myDigi);
-  }
+
+  DigiPixelArray = ConvertAndFilter(fDigiArray);
+
   // Retrieve the calculated clusters with the chosen clusterfinder
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
   if(fVerbose>1)
@@ -274,6 +273,16 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   fHitArray->Sort();
   return;
   
+}
+
+std::vector<PndSdsDigiPixel> PndSdsPixelClusterTask::ConvertAndFilter(TClonesArray* digidata)
+{
+	std::vector<PndSdsDigiPixel> result;
+	for (Int_t iPoint = 0; iPoint < digidata->GetEntriesFast(); iPoint++){				// Just conversion
+		PndSdsDigiPixel myDigi = *(PndSdsDigiPixel*)(digidata->At(iPoint));
+		result.push_back(myDigi);
+	}
+	return result;
 }
 
 void PndSdsPixelClusterTask::FinishEvent(){
