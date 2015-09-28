@@ -480,6 +480,7 @@ void PndAnalysis::BuildMcCands()
     pmc->SetType(part->GetPdgCode()); //this overwrites our generator's mass information
     pmc->SetP4(p4);
     pmc->SetTrackNumber(i);
+    pmc->SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), FairRootManager::Instance()->GetBranchId("MCTrack"), i));
   }
 
   //write correctly assigned copy of mc truth candidates
