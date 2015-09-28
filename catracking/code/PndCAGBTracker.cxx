@@ -48,6 +48,9 @@ using namespace std;
 #include "PndCAMCPoint.h"
 #include "PndCAPerformanceBase.h"
 
+#ifdef CATRACKER_DISPLAY
+#include "PndCADisplay.h"
+#endif
 
 struct TrackHitRecord{
   int fPrevHit; // index of previous TrackHitRecord of same track in an array of records
@@ -79,7 +82,7 @@ PndCANPlets::PndCANPlets( const PndCANPletsV& p ):PndCAStationArray<PndCANPlet>(
 	nPlet.fIHit.resize(nHits);
 	for( int i=nHits-1; i>=0; i--){
 	  if( irec<0 ){
-	    cout<<"something wrong with hit links!!!"<<endl;
+	    cout<<"CA tracker: something wrong with hit links!!!"<<endl;
 	    exit(0);
 	    break;
 	  }
@@ -223,6 +226,16 @@ void PndCAGBTracker::FindTracks()
   fStatNEvents++;
 
   // cout << " NHits = " << fNHits << endl;
+#ifdef CATRACKER_DISPLAY
+  PndCADisplay &disp = PndCADisplay::Instance();
+  disp.Init();
+  disp.SetTPC( fParameters );
+  disp.SetGB( this );
+  disp.DrawTPC();
+  disp.DrawGBHits( *this );
+  disp.Update();
+  disp.Ask();
+#endif
 
   TStopwatch timer1;
   TStopwatch timer2;
@@ -291,7 +304,13 @@ void PndCAGBTracker::FindTracks()
   L1CATFIterTimerInfo tmp_gti = fStatGTi/0.001/stat_N; // ms
   tmp_gti.PrintReal( 1 );
 #endif
-  
+
+#ifdef CATRACKER_DISPLAY
+  for( int i=0; i<fNTracks; i++ ){
+    disp.DrawRecoTrack(i);
+  }
+  disp.Ask();
+#endif
 }
 
 void PndCAGBTracker::WriteSettings( std::ostream &out ) const
@@ -384,7 +403,7 @@ void PndCAGBTracker::SetHits( std::vector<PndCAGBHit> &hits)
       continue; // skip forward detectors
     }
     if( l.IRow() >= PndCAParameters::MaxNStations ){
-      cout<<"wrong hit station number: "<<(int) l.IRow()<<" out of "<<PndCAParameters::MaxNStations<<endl;
+      cout<<"CA tracker: wrong hit station number: "<<(int) l.IRow()<<" out of "<<PndCAParameters::MaxNStations<<endl;
       l.SetIRow( PndCAParameters::MaxNStations-1);      
       continue;
     }
@@ -430,7 +449,7 @@ bool PndCAGBTracker::ReadHitsFromFile(string prefix)
       continue; // skip forward detectors
     }
     if( l.IRow() >= PndCAParameters::MaxNStations ){
-      cout<<"wrong hit station number: "<<(int) l.IRow()<<" out of "<<PndCAParameters::MaxNStations<<endl;
+      cout<<"CA tracker: wrong hit station number: "<<(int) l.IRow()<<" out of "<<PndCAParameters::MaxNStations<<endl;
       l.SetIRow( PndCAParameters::MaxNStations-1);      
       continue;
     }
@@ -534,7 +553,7 @@ void PndCAGBTracker::CATrackFinder()
 	//if( fabs(hit.fAngle - (p12+p6*hit.fISec) )>.001 ) exit(0);
       }
       if( hit.fISec<0 || hit.fISec>=6 ){
-	cout<<"Wrong hit sector "<<hit.fISec<<endl;
+	cout<<"CA tracker: Wrong hit sector "<<hit.fISec<<endl;
 	exit(0);
       }
     }

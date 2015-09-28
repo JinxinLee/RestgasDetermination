@@ -310,6 +310,12 @@ void PndCATracking::Exec(Option_t* opt)
     //    if(fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 ) continue;
     nMvdhits++;
   }
+
+  /*
+  cout<<"\n\nCA pixel detector: "<< FairRootManager::Instance()->GetBranchId(fMvdPixelHitsBranchName)<<endl;
+  cout<<"CA strip detector: "<< FairRootManager::Instance()->GetBranchId(fMvdStripHitsBranchName)<<endl;
+  cout<<"N of MVD Pixels: "<<nMvdhits<<endl;
+  */
   for(int iHMvdS=0; iHMvdS<fMvdStripHitsArray->GetEntriesFast(); iHMvdS++)
   {
     //PndSdsHit* currenthit = (PndSdsHit*) fMvdStripHitsArray->At(iHMvdS);
@@ -320,6 +326,7 @@ void PndCATracking::Exec(Option_t* opt)
     //    if( fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 ) continue;
     nMvdhits++;
   }
+  //cout<<"nTotal N of MVD hits: "<<nMvdhits<<endl;
 
   const Int_t nHits = fSttHitsArray->GetEntriesFast() + nMvdhits;
 
@@ -469,13 +476,13 @@ void PndCATracking::Exec(Option_t* opt)
       int iPoint = links.GetLink(0).GetIndex();
       PndSttPoint* point = (PndSttPoint*) fSttPointsArray->At(iPoint);
       if( !point ){
-	cout<<"wrong index of Stt point: "<<iPoint<<" of "<<fSttPointsArray->GetEntriesFast()<<endl;
+	cout<<"CA tracker: wrong index of Stt point: "<<iPoint<<" of "<<fSttPointsArray->GetEntriesFast()<<endl;
 	exit(0); //SG!!
       } else {
 	trackID = point->GetTrackID();
       }
     } else {
-      cout<<"stt hit has no link to stt point"<<endl;
+      cout<<"CA tracker: stt hit has no link to stt point"<<endl;
       exit(0); //SG!!
     }
     //cout<<"hit, sta "<<iSta<<" trackid "<<trackID<<" tubeID "<<tubeID<<" radius "<<radius<<endl;
@@ -547,9 +554,9 @@ void PndCATracking::Exec(Option_t* opt)
             if ( part )
               q = part->Charge()/3.f;
           }
-          else { cout << " Bad MCTracks2" << endl; }
+          else { cout << "CA tracker: Bad MCTracks2" << endl; }
         }
-        else { cout << " Bad MCTracks" << endl; }
+        else { cout << "CA traker: Bad MCTracks" << endl; }
       }
 
       Double_t x = point->GetX(), y = point->GetY();
@@ -603,9 +610,9 @@ void PndCATracking::Exec(Option_t* opt)
             if ( part )
               q = part->Charge()/3.f;
           }
-          else { cout << " Bad MCTracks2" << endl; }
+          else { cout << "CA tracker: Bad MCTracks2" << endl; }
         }
-        else { cout << " Bad MCTracks" << endl; }
+        else { cout << "CA tracker: Bad MCTracks" << endl; }
       }
 
       int tubeID = point->GetTubeID();
@@ -784,7 +791,7 @@ void PndCATracking::Exec(Option_t* opt)
     sprintf( buf, "%d", kEvents );
     const string fileName = filePrefix + "event" + string(buf) + "_";
     
-    std::cout << "Loading Event " << kEvents << "..." << std::endl;
+    // std::cout << "CA tracker: Loading Event " << kEvents << "..." << std::endl;
     tracker->SetHits( vHits );
     /*
     if (!tracker->ReadHitsFromFile(fileName)) {
@@ -792,7 +799,7 @@ void PndCATracking::Exec(Option_t* opt)
       break;
     }
     */
-    std::cout << "Event " << kEvents << " CPU reconstruction..." << std::endl;
+    //std::cout << "Event " << kEvents << " CPU reconstruction..." << std::endl;
     
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
     // cout<<"Filename "<<fileName<<endl;
@@ -809,7 +816,7 @@ void PndCATracking::Exec(Option_t* opt)
     }
 #endif
 
-    cout<<"Run trackfinder .. "<<endl;
+    // cout<<"Run trackfinder .. "<<endl;
 
     tracker->FindTracks();
     
@@ -818,11 +825,12 @@ void PndCATracking::Exec(Option_t* opt)
       int nOutTracks=0;
       for( int itr=0; itr<tracker->NTracks(); itr++){
 	const PndCAGBTrack &tr = tracker->Track( itr );
-	
+	//cout<<"Output track:"<<endl;
 	PndTrackCand outCand;
 	for( int ih=0; ih<tr.NHits(); ih++ ){
 	  int hitIndex = tracker->TrackHit( tr.FirstHitRef() + ih );
 	  const PndCAGBHit &hit = tracker->Hit( hitIndex );	  	  
+	  if( hit.PndDetID()==24 ) cout<<hit.PndDetID()<<" "<<hit.PndHitID()<<endl;
 	  outCand.AddHit( hit.PndDetID(), hit.PndHitID(), hit.IRow() );
 	}
 	outCand.setMcTrackId(-1);
@@ -858,39 +866,41 @@ void PndCATracking::Exec(Option_t* opt)
     }
 #endif
 
-    const bool ifAvarageTime = 1;
-    if (!ifAvarageTime){        
-      std::cout << "Reconstruction Time"
-		<< " Real = " << std::setw( 10 ) << (trackerConst->SliceTrackerTime() + trackerConst->StatTime( 9 )) * 1.e3 << " ms,"
-		<< " CPU = " << std::setw( 10 ) << (trackerConst->SliceTrackerCpuTime() + trackerConst->StatTime( 10 )) * 1.e3 << " ms"
-		<< std::endl;
-    }
-    else{
-      const int NTimers = trackerConst->NTimers();
-      static int statIEvent = 0;
-      static double *statTime = new double[NTimers];
-      static double statTime_SliceTrackerTime = 0;
-      static double statTime_SliceTrackerCpuTime = 0;
-      
-      if (!statIEvent){
-        for (int i = 0; i < NTimers; i++){
-          statTime[i] = 0;
-        }
+    if (fVerbose>0){
+
+      const bool ifAvarageTime = 1;
+      if (!ifAvarageTime){        
+	std::cout << "Reconstruction Time"
+		  << " Real = " << std::setw( 10 ) << (trackerConst->SliceTrackerTime() + trackerConst->StatTime( 9 )) * 1.e3 << " ms,"
+		  << " CPU = " << std::setw( 10 ) << (trackerConst->SliceTrackerCpuTime() + trackerConst->StatTime( 10 )) * 1.e3 << " ms"
+		  << std::endl;
       }
+      else{
+	const int NTimers = trackerConst->NTimers();
+	static int statIEvent = 0;
+	static double *statTime = new double[NTimers];
+	static double statTime_SliceTrackerTime = 0;
+	static double statTime_SliceTrackerCpuTime = 0;
+	
+	if (!statIEvent){
+	  for (int i = 0; i < NTimers; i++){
+	    statTime[i] = 0;
+	  }
+	}
       
-      statIEvent++;
-      for (int i = 0; i < NTimers; i++){
-        statTime[i] += trackerConst->StatTime( i );
+	statIEvent++;
+	for (int i = 0; i < NTimers; i++){
+	  statTime[i] += trackerConst->StatTime( i );
+	}
+	statTime_SliceTrackerTime += trackerConst->SliceTrackerTime();
+	statTime_SliceTrackerCpuTime += trackerConst->SliceTrackerCpuTime();      
+      
+	std::cout << "Reconstruction Time"
+		  << " Real = " << std::setw( 10 ) << 1./statIEvent*(statTime_SliceTrackerTime+statTime[ 9 ]) * 1.e3 << " ms,"
+		  << " CPU = " << std::setw( 10 ) << 1./statIEvent*(statTime_SliceTrackerCpuTime+statTime[ 10 ]) * 1.e3 << " ms,"
+		  << std::endl;
       }
-      statTime_SliceTrackerTime += trackerConst->SliceTrackerTime();
-      statTime_SliceTrackerCpuTime += trackerConst->SliceTrackerCpuTime();
-      
-      
-      std::cout << "Reconstruction Time"
-		<< " Real = " << std::setw( 10 ) << 1./statIEvent*(statTime_SliceTrackerTime+statTime[ 9 ]) * 1.e3 << " ms,"
-		<< " CPU = " << std::setw( 10 ) << 1./statIEvent*(statTime_SliceTrackerCpuTime+statTime[ 10 ]) * 1.e3 << " ms,"
-		<< std::endl;
-    }
+    } // fVerbose>0
 
   } while(0);
             
@@ -909,23 +919,29 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
   TClonesArray *mvdHitsArray;
   if(isPixel) mvdHitsArray = fMvdPixelHitsArray;
   else mvdHitsArray = fMvdStripHitsArray;
-
   for(int iHMvd=0; iHMvd<mvdHitsArray->GetEntriesFast(); iHMvd++)
   {
     PndSdsHit* currenthit = (PndSdsHit*) mvdHitsArray->At(iHMvd);
 
     Int_t sensorID = currenthit->GetSensorID();
-    gGeoManager->cd(PndGeoHandling::Instance()->GetPath(sensorID));
+     gGeoManager->cd(PndGeoHandling::Instance()->GetPath(sensorID));
     TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
     Double_t *mmm = transMat->GetRotationMatrix();
-    
+    /*
+    if( isPixel ){
+      cout<<"sensor "<<sensorID<<endl;
+      cout<<"     "<<mmm[0]<<" "<<mmm[1]<<" "<<mmm[2]<<endl;
+      cout<<"     "<<mmm[3]<<" "<<mmm[4]<<" "<<mmm[5]<<endl;
+      cout<<"     "<<mmm[6]<<" "<<mmm[7]<<" "<<mmm[8]<<endl;
+    }
+    */
     Double_t A = 0;
 
     TVector3 position = currenthit->GetPosition();
     Double_t x = position.X();
     Double_t y = position.Y();
     Double_t z = position.Z();
-
+    //cout<<x<<" "<<y<<" "<<z<<endl;
     Double_t r = TMath::Sqrt(x*x + y*y);
     int iSta = -1;
     /*    
@@ -944,6 +960,7 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
     // get station angle A and station index iSta
 
     if( fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 ){ // forward detector, perpendicular to beam axis Z
+      //cout<<"forward detector!!??"<<endl;
       //Double_t sinA = mmm[2];
       //cout << "angle "<<TMath::ASin(sinA)<<endl;
       A=1234;
@@ -954,6 +971,7 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
       if( (z>12.0) && (z<18.5) ) iSta = 4;
       if( (z>18.5) && (z<24.5) ) iSta = 5;
     } else {
+      //cout<<" phi detector"<<endl;
       if( fabs(mmm[6]) > 0.999 ){
 	if( currenthit->GetPosition().Y()>=0 ){
 	  Double_t sinA = mmm[2];
@@ -1027,7 +1045,10 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
 
       }
     }
+    // cout<<" is pixel "<<isPixel<<" sta "<<iSta<<" r "<<r<<endl;
 
+    //bool fwd = ( fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 );
+    //if( isPixel ) cout<<"bla "<< fwd<<", "<<x<<", "<<y<<", "<<z<<", "<<r<<","<<endl;
     PndCAGBHit h;
     h.SetGlobalX( x );
     h.SetGlobalY( y );
@@ -1047,7 +1068,6 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
     	h.SetPndDetID( FairRootManager::Instance()->GetBranchId(fMvdStripHitsBranchName) );
     h.SetPndHitID( iHMvd );
     h.SetAngle( -A );
-
     h.SetTubeR( 0. );
     h.SetTubeHalfLength( 0. );
 

@@ -59,9 +59,9 @@ class PndCAGBTracker
       cout<<"error hit index ind "<<index<<" size "<<fHits.size()<<" nHits "<<fNHits<<endl;
       exit(0);
     }
+    return fHits[index]; 
+  }
 
-return fHits[index]; 
-}
   int NHits() const { return fNHits; }
   double Time() const { return fTime; }
   double StatTime( int iTimer ) const { return fStatTime[iTimer]; }

@@ -28,9 +28,8 @@ ${FAIRROOT_LIBRARY_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES} )
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pragmas  -DDO_TPCCATRACKER_EFF_PERFORMANCE -DINCLUDE_LR_EFF -DUSE_TIMERS -DPANDA_STT -O3")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DDO_TPCCATRACKER_EFF_PERFORMANCE")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DDO_TPCCATRACKER_EFF_PERFORMANCE -DCATRACKER_DISPLAY -DCATRACKER_TIMING")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
 
 
 set(HEADERS
@@ -56,6 +55,7 @@ code/Performance/PndCAMCTrack.cxx
 code/Performance/PndCAMCVertex.cxx           
 code/Performance/PndCATrackMCPointContainer.cxx 
 code/Performance/PndCATrackPerformanceBase.cxx
+code/Performance/PndCADisplay.cxx
 )
 
 set(LINKDEF  CATrackingLinkDef.h)
