@@ -1,0 +1,51 @@
+//-------------------------------------------------------------------------
+// Author:      Oliver Merle (Oliver.Merle@exp2.physik.uni-giessen.de)
+// Changes:     Mustafa Schmidt (Mustafa.A.Schmidt@physik.uni-giessen.de)
+// Date:        30.11.2015
+// Description: Information of photons
+//-------------------------------------------------------------------------
+
+#include "PndDiscSensorMCPoint.h"
+
+
+
+ClassImp(PndDiscSensorMCPoint)
+
+
+
+PndDiscSensorMCPoint::PndDiscSensorMCPoint() : FairMCPoint()
+{
+}
+
+
+PndDiscSensorMCPoint::PndDiscSensorMCPoint(Int_t track_id_, Int_t det_id_,
+                       Int_t volume_id_, Double_t const & internal_reflection_angle_, TVector3 const &  pos_in_,
+                       TVector3 const &  mom_in_,
+                       Double_t const & total_tof_, Double_t const & total_length_, Double_t const & energy_loss_,
+                       Double_t const & track_start_time_)
+
+    : FairMCPoint(track_id_, det_id_, pos_in_, mom_in_, total_tof_, total_length_, energy_loss_),
+      volume_id(volume_id_), internal_reflection_angle(internal_reflection_angle_),
+      track_start_time(track_start_time_)
+{
+    my_track_id = track_id_;
+}
+
+
+PndDiscSensorMCPoint::~PndDiscSensorMCPoint() {}
+
+
+void PndDiscSensorMCPoint::Print(const Option_t *opt) const {
+    // Logger or cout ? There should be only one target !
+    std::cout << "-I- PndDiscSensorMCPoint"
+              << "  fTrackID      " << fTrackID << std::endl
+              << "  fDetectorID   " << fDetectorID << std::endl
+              << "  Position      " << fX  << "; " << fY  << "; " << fZ  << std::endl
+              << "  Momentum      " << fPx << "; " << fPy << "; " << fPz << std::endl
+              << "  fTime         " << fTime            << std::endl
+              << "  Length        " << fLength          << std::endl
+              << "  fELoss        " << fELoss           << std::endl
+              << "  volume_id     " << volume_id        << std::endl
+              << "  irefl. angle  " << internal_reflection_angle << std::endl
+            ;
+}

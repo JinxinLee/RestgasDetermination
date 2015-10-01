@@ -1,0 +1,46 @@
+//-------------------------------------------------------------------------
+// Author:      Oliver Merle (Oliver.Merle@exp2.physik.uni-giessen.de)
+// Changes:     Mustafa Schmidt (Mustafa.A.Schmidt@physik.uni-giessen.de)
+// Date:        30.11.2015
+// Description: Digitizing hits from Monte Carlo simulations
+//-------------------------------------------------------------------------
+
+#include "PndDiscDigitizedHit.h"
+
+
+ClassImp(PndDiscDigitizedHit)
+
+
+PndDiscDigitizedHit::PndDiscDigitizedHit() {
+}
+
+
+PndDiscDigitizedHit::PndDiscDigitizedHit(FairLink const & fairln_mc_point,
+                                             const Int_t & detector_id_,  const Int_t & readout_id_,
+                                             const Int_t & sensor_id_,    const Int_t & dead_time_entity_,
+                                             const Int_t & pixel_number_, const Double_t & pixel_pos_,
+                                             const Double_t & tdc_time_,  const Double_t & panda_timestamp,
+                                             const Int_t classifier_)
+    : detector_id(detector_id_), readout_id(readout_id_),
+      sensor_id(sensor_id_), dead_time_entity(dead_time_entity_),
+      pixel_number(pixel_number_), pixel_pos(pixel_pos_),
+      tdc_time(tdc_time_), digit_classifier(classifier_),
+      FairTimeStamp(panda_timestamp)
+{
+    AddLink(fairln_mc_point);
+}
+
+
+void PndDiscDigitizedHit::Print(std::ostream& out) {
+    out << "PndDiscDigitizedHit in\n"
+        << "  detector          " << detector_id      << std::endl
+        << "  ROE               " << readout_id       << std::endl
+        << "  sensor            " << sensor_id        << std::endl
+        << "  dead_time_entity  " << dead_time_entity << std::endl
+        << "  pixel             " << pixel_number     << std::endl
+        << "  with tdc time     " << tdc_time         << std::endl
+        << "  at fairtime       " << fTimeStamp       << std::endl
+        << "  classified as     " << digit_classifier << std::endl
+        ;
+        
+}
