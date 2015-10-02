@@ -10,6 +10,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata 
   ${CMAKE_SOURCE_DIR}/pnddata/DrcData
   ${CMAKE_SOURCE_DIR}/pnddata/DskData
+  ${CMAKE_SOURCE_DIR}/pnddata/DiscData
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/HypData
@@ -44,6 +45,18 @@ DskData/PndDskCerenkov.cxx
 DskData/PndDskParticle.cxx
 DskData/PndDskTrackPoint.cxx
 DskData/PndDskFLGHit.cxx
+
+DiscData/PndDiscDigitizedHit.cxx
+DiscData/PndDiscParticleMCPoint.cxx
+DiscData/PndDiscSensorMCPoint.cxx
+DiscData/PndDiscReconResult.cxx
+DiscData/PndDiscPID.cxx
+
+DiscData/PndDiscDigitizedHit.h
+DiscData/PndDiscParticleMCPoint.h
+DiscData/PndDiscSensorMCPoint.h
+DiscData/PndDiscReconResult.h
+DiscData/PndDiscPID.h
 
 DrcData/PndDrcEVPoint.cxx
 DrcData/PndDrcPDPoint.cxx 

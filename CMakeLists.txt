@@ -292,6 +292,7 @@ ENDIF(NOT FAIRROOT_FOUND)
 EndIf(TEvePath)
 
 add_subdirectory (dsk)
+add_subdirectory (disc)
 add_subdirectory (PndTools/riemannfit)
 add_subdirectory (PndTools/AnalysisTools)
 add_subdirectory (PndTools/MVA)
