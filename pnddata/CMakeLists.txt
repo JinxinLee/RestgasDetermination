@@ -52,11 +52,11 @@ DiscData/PndDiscSensorMCPoint.cxx
 DiscData/PndDiscReconResult.cxx
 DiscData/PndDiscPID.cxx
 
-DiscData/PndDiscDigitizedHit.h
-DiscData/PndDiscParticleMCPoint.h
-DiscData/PndDiscSensorMCPoint.h
-DiscData/PndDiscReconResult.h
-DiscData/PndDiscPID.h
+DiscData/PndDiscDigitizedHit.cxx
+DiscData/PndDiscParticleMCPoint.cxx
+DiscData/PndDiscSensorMCPoint.cxx
+DiscData/PndDiscReconResult.cxx
+DiscData/PndDiscPID.cxx
 
 DrcData/PndDrcEVPoint.cxx
 DrcData/PndDrcPDPoint.cxx 
@@ -146,6 +146,12 @@ DskData/PndDskCerenkov.h
 DskData/PndDskParticle.h
 DskData/PndDskTrackPoint.h
 DskData/PndDskFLGHit.h
+
+DiscData/PndDiscDigitizedHit.h
+DiscData/PndDiscParticleMCPoint.h
+DiscData/PndDiscSensorMCPoint.h
+DiscData/PndDiscReconResult.h
+DiscData/PndDiscPID.h
 
 DrcData/PndDrcEVPoint.h 
 DrcData/PndDrcPDPoint.h 

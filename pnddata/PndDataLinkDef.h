@@ -15,6 +15,12 @@
 #pragma link C++ class PndDskTrackPoint+;
 #pragma link C++ class PndDskFLGHit+;
 
+#pragma link C++ class PndDiscDigitizedHit+;
+#pragma link C++ class PndDiscParticleMCPoint+;
+#pragma link C++ class PndDiscSensorMCPoint+;
+#pragma link C++ class PndDiscReconResult+;
+#pragma link C++ class PndDiscPID+;
+
 #pragma link C++ class PndDrcEVPoint+;
 #pragma link C++ class PndDrcPDPoint+;
 #pragma link C++ class PndDrcBarPoint+;
@@ -26,9 +32,6 @@
 #pragma link C++ class PndDrcTrackInfo+;
 #pragma link C++ class PndDrcPhotonInfo+;
 #pragma link C++ class PndDrcAmbiguityInfo+;
-
-//#pragma link C++ class PndDrpcPoint+;
-//#pragma link C++ class PndDrpcPointLite+;
 
 #pragma link C++ class PndGemMCPoint+;
 #pragma link C++ class PndGemDigi+;
@@ -48,12 +51,6 @@
 #pragma link C++ class  PndSttHitInfo+;
 #pragma link C++ class  PndSttPoint+;
 #pragma link C++ class  PndSttTrack+;
-
-//#pragma link C++ class  PndTofHit+;
-//#pragma link C++ class  PndTofPoint+;
-
-//#pragma link C++ class  PndRpcPoint+;
-//#pragma link C++ class  PndRpcHit+;
 
 #pragma link C++ class  PndFtsPoint+;
 #pragma link C++ class  PndFtsHit+;
