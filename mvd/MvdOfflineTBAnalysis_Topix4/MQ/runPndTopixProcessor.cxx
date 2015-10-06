@@ -21,6 +21,7 @@
 #include "FairMQParser.h"
 #include "FairMQProgOptions.h"
 #include "FairMQProcessor.h"
+#include "FairMQDevice.h"
 
 #ifdef NANOMSG
 #include "FairMQTransportFactoryNN.h"
@@ -51,7 +52,11 @@ int main(int argc, char** argv)
 
         processor.fChannels = config.GetFairMQMap();
 
+
         LOG(INFO) << "PID: " << getpid();
+        LOG(INFO) << "ID: " << id ;
+        LOG(INFO) << "Processor::Id Kes: " << FairMQDevice::Id;
+        processor.ListProperties();
 
 #ifdef NANOMSG
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryNN();
@@ -61,7 +66,7 @@ int main(int argc, char** argv)
 
         processor.SetTransport(transportFactory);
 
-        processor.SetProperty(FairMQProcessor::Id, id);
+        processor.SetProperty(FairMQDevice::Id, id);
 
         PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
         processor.SetTask(task);

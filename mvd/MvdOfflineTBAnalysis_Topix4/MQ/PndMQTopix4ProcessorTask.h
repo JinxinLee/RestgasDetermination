@@ -15,9 +15,12 @@
 #ifndef PNDMQTOPIX4PROCESSORTASK_H_
 #define PNDMQTOPIX4PROCESSORTASK_H_
 
-#include "FairMQDevice.h"
+//#include "FairMQDevice.h"
 #include "FairMQProcessorTask.h"
 #include "PndMvdReadInToPix4TBData.h"
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/vector.hpp>
 
 class PndMQTopix4ProcessorTask : public FairMQProcessorTask
 {
@@ -29,7 +32,18 @@ class PndMQTopix4ProcessorTask : public FairMQProcessorTask
 
     virtual void Exec(Option_t* opt = "0");
 
+    template <class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+    	ar& fPndSdsDigiTopix4Vector;
+	}
+
   private:
+	#ifndef __CINT__ // for BOOST serialization
+    	friend class boost::serialization::access;
+	#endif // for BOOST serialization
+    std::vector<PndSdsDigiTopix4> fPndSdsDigiTopix4Vector;
+
     bool fHasBoostSerialization;
 
     PndMvdReadInToPix4TBData fTopixDataReader;

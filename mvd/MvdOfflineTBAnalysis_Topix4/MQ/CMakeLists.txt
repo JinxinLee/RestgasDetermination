@@ -10,7 +10,7 @@ configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/ex1-sample
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/ex2-sampler-processor-sink.json ${CMAKE_BINARY_DIR}/bin/config/ex2-sampler-processor-sink.json)
 
 Set(INCLUDE_DIRECTORIES
- # ${BASE_INCLUDE_DIRECTORIES}
+  ${BASE_INCLUDE_DIRECTORIES}
   ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
   ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ
   ${CMAKE_CURRENT_BINARY_DIR}

@@ -45,7 +45,8 @@ void PndMQTopix4ProcessorTask::Exec(Option_t* opt)
 	if (frames.size() > 0 && frames.front().size() > 0){
 		ostringstream obuffer;
 		boost::archive::binary_oarchive OutputArchive(obuffer);
-		OutputArchive << frames.front();
+		fPndSdsDigiTopix4Vector = frames.front();
+		OutputArchive << fPndSdsDigiTopix4Vector;
 		int outputSize = obuffer.str().length();
 		fPayload->Rebuild(outputSize);
 		memcpy(fPayload->GetData(), obuffer.str().c_str(), outputSize);

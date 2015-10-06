@@ -113,14 +113,14 @@ MvdOfflineTBAnalysis_Topix4/PndStraightLineTrackFinderTask.cxx
 MvdOfflineTBAnalysis_Topix4/PndXYResidualTask.cxx
 MvdOfflineTBAnalysis_Topix4/PndPosCorrectorTask.cxx
 MvdOfflineTBAnalysis_Topix4/PndHammingDecoder.cxx
-MvdOfflineTBAnalysis_Topix4/PndToPix4.cxx
+MvdOfflineTBAnalysis_Topix4/PndTopix4.cxx
 )
 
 set(LINKDEF  MvdLinkDef.h)
 set(LIBRARY_NAME Mvd)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
-Geane Sds TrkBase boost_serialization boost_thread
+Geane Sds TrkBase boost_serialization boost_thread MathCore MathMore
   fairmq_logger
   boost_timer
   boost_system
@@ -157,7 +157,7 @@ set(LINKDEF  MvdRecoLinkDef.h)
 set(LIBRARY_NAME MvdReco)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools 
-Geane Sds SdsReco TrkBase)
+Geane Sds SdsReco TrkBase MathCore MathMore)
 
 GENERATE_LIBRARY()
 
@@ -187,6 +187,6 @@ set(LINKDEF  MvdTrkLinkDef.h)
 set(LIBRARY_NAME MvdTrk)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
-riemann Geane Sds TrkBase)
+riemann Geane Sds TrkBase MathCore MathMore)
 
 GENERATE_LIBRARY()
