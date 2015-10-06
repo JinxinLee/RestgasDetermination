@@ -84,8 +84,22 @@ class PndSdsDigi : public FairTimeStamp
 		virtual void Print() {
 			std::cout << *this;
 		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & boost::serialization::base_object<FairTimeStamp>(*this);
+			ar & fDetID;
+			ar & fSensorID;
+			ar & fFE;
+			ar & fCharge;
+		}
     
   protected:
+	#ifndef __CINT__ // for BOOST serialization
+		friend class boost::serialization::access;
+
+	#endif // for BOOST serialization
 		std::vector<Int_t> fIndex;   // indice of mc points contributing to this digi
 		Int_t fDetID;                // branch ID of mc point array
 		Int_t fSensorID;             // Geometry ID for sensor volume

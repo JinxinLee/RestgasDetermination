@@ -73,8 +73,21 @@ class PndSdsDigiTopix4 : public PndSdsDigiPixel
 		SetHitCountCorrect(pix.GetHitCountCorrect());
 		return *this;
 	}
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<PndSdsDigiPixel>(*this);
+		ar & fLeadingEdge;
+		ar & fTrailingEdge;
+		ar & fFrameCount;
+	}
     
     private :
+	#ifndef __CINT__ // for BOOST serialization
+		friend class boost::serialization::access;
+
+	#endif // for BOOST serialization
 	UInt_t fLeadingEdge;
 	UInt_t fTrailingEdge;
 	UInt_t fFrameCount;

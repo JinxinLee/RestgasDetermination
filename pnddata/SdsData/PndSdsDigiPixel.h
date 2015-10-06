@@ -102,8 +102,19 @@ class PndSdsDigiPixel : public PndSdsDigi
 	        }
 		return *this;
 	}
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<PndSdsDigi>(*this);
+		ar & fCol;
+		ar & fRow;
+	}
     
     private :
+	#ifndef __CINT__ // for BOOST serialization
+		friend class boost::serialization::access;
+
+	#endif // for BOOST serialization
 		Int_t fCol, fRow;
     
     ClassDef(PndSdsDigiPixel,8);
