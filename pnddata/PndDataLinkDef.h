@@ -71,6 +71,7 @@
 #pragma link C++ class  PndSdsDigi+;
 #pragma link C++ class  PndSdsDigiPixel+;
 #pragma link C++ class  PndSdsDigiTopix4+;
+#pragma link C++ class  PndSdsDigiTopix4Header+;
 #pragma link C++ class  PndSdsDigiStrip+;
 #pragma link C++ class  PndSdsCluster+;
 #pragma link C++ class  PndSdsClusterPixel+;

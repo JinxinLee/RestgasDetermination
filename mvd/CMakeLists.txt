@@ -7,6 +7,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${GEANT3_INCLUDE_DIR}
   ${CLHEP_INCLUDE_DIR}
   ${BASE_INCLUDE_DIRECTORIES} 
+  ${Boost_INCLUDE_DIR}
 )
 
 Set(INCLUDE_DIRECTORIES
@@ -33,6 +34,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/mvd/MvdTracking/LinFit
   ${CMAKE_SOURCE_DIR}/mvd/transport
   ${CMAKE_SOURCE_DIR}/mvd
+  ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
   ${CMAKE_SOURCE_DIR}/sds/SdsMC
   ${CMAKE_SOURCE_DIR}/sds/SdsTools
   ${CMAKE_SOURCE_DIR}/sds/SdsDigi
@@ -95,17 +97,38 @@ MvdDAQ/PndMvdBoxMap.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
 MvdDAQ/PndMvdCreateDefaultApvMap.cxx
 
-#MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBDataTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMapSorterTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMapSorter.cxx
+MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.cxx
+MvdOfflineTBAnalysis_Topix4/PndMvdReadInToPix4TBData.cxx
+MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBDataTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndMapSorterTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndMapSorter.cxx
+MvdOfflineTBAnalysis_Topix4/PndMvdTopix4RingSorterTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndMvdTopix4RingSorter.cxx
+MvdOfflineTBAnalysis_Topix4/mrftools.cxx
+MvdOfflineTBAnalysis_Topix4/mrf_confitem.cxx
+MvdOfflineTBAnalysis_Topix4/mrfdata_8b.cxx
+MvdOfflineTBAnalysis_Topix4/PndTimeOffsetFinderTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndTSCorrectorTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndStraightLineTrackFinderTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndXYResidualTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndPosCorrectorTask.cxx
+MvdOfflineTBAnalysis_Topix4/PndHammingDecoder.cxx
+MvdOfflineTBAnalysis_Topix4/PndToPix4.cxx
 )
 
 set(LINKDEF  MvdLinkDef.h)
 set(LIBRARY_NAME Mvd)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
-Geane Sds TrkBase boost_serialization)
+Geane Sds TrkBase boost_serialization boost_thread
+  fairmq_logger
+  boost_timer
+  boost_system
+  boost_filesystem
+  boost_program_options
+  boost_random
+  boost_chrono
+  boost_exception)
 
 GENERATE_LIBRARY()
 
@@ -117,6 +140,8 @@ MvdReco/PndMvdIdealClusterTask.cxx
 MvdReco/PndMvdStripClusterTask.cxx
 MvdReco/PndMvdIdealRecoTask.cxx
 MvdReco/PndMvdTimeWalkCorrTask.cxx
+
+MvdOfflineTBAnalysis_Topix4/PndMvdToPix4ClusterTask.cxx
 
 
 MvdReco/PndMvdChargeWeightedPixelMapping.cxx
