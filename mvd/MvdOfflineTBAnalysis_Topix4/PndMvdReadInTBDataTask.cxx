@@ -73,7 +73,7 @@ InitStatus PndMvdReadInTBDataTask::Init()
 
   fDigiArray = ioman->Register("ToPix4Hits", "PndSdsDigiTopix4", "MVD", kTRUE);
   fFrameHeaderArray = ioman->Register("ToPix4FrameHeader","PndSdsDigiTopix4Header","MVD", kTRUE);
-  fAllFrameHeaderArray = ioman->Register("AllToPix4FrameHeader","PndSdsDigiTopix4Header","MVD", kTRUE);
+ // fAllFrameHeaderArray = ioman->Register("AllToPix4FrameHeader","PndSdsDigiTopix4Header","MVD", kTRUE);
 
   std::cout << "-I- PndMvdReadInTBDataTask: Initialisation successfull" << std::endl;
   fInitDone = kTRUE;
@@ -132,7 +132,7 @@ void PndMvdReadInTBDataTask::FinishEvent()
 {
 	fDigiArray->Delete();
 	fFrameHeaderArray->Delete();
-	fAllFrameHeaderArray->Delete();
+//	fAllFrameHeaderArray->Delete();
 }
 
 void PndMvdReadInTBDataTask::SetNumberOfFrontEnds(Int_t numberfrontends)

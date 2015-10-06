@@ -5,7 +5,7 @@
  *      Author: Stockmanns
  */
 
-#include <MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.h>
+#include <PndMvdReadInTBData.h>
 
 #include "mrfdata_8b.h"
 #include "mrftools.h"

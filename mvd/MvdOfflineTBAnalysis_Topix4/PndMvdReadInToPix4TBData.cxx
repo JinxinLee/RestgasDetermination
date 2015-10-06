@@ -13,6 +13,8 @@
 #include "boost/archive/binary_iarchive.hpp"
 #include "boost/serialization/binary_object.hpp"
 #include <boost/archive/archive_exception.hpp>
+#include "FairMQLogger.h"
+
 
 using namespace ToPix4;
 
@@ -21,13 +23,16 @@ PndMvdReadInToPix4TBData::PndMvdReadInToPix4TBData() : fDigiArray(0), fClockFreq
 					   fNonSequentialFC(0), fHammingLossFrameCount(0), fCRCLossFrameCount(0),
 					   fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),
 					   fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(0),
-					   fDataCount(0), fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0) {
+					   fDataCount(0), fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0), fFileHandle(0) {
 
 }
 
-PndMvdReadInToPix4TBData::~PndMvdReadInToPix4TBData() {
-  fFileHandle->close();
-  delete(fFileHandle);
+PndMvdReadInToPix4TBData::~PndMvdReadInToPix4TBData()
+{
+  if (fFileHandle != 0){
+	  fFileHandle->close();
+	  delete(fFileHandle);
+  }
 }
 
 
@@ -35,67 +40,137 @@ void PndMvdReadInToPix4TBData::Init(){
 	//std::cout << "PndMvdReadInToPix4TBData::Init called" << std::endl;
 //	for (int i = 0; i < fFileName.size(); i++){
 	 std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
-	 std::cout << "File: " << fFileNames[fFileCounter] << " is good: " << ifs->good() << std::endl;
+	 if (ifs->good() == kFALSE)
+		 LOG(ERROR) << "File: " << fFileNames[fFileCounter] << " is good: " << ifs->good();
 	 fFileCounter++;
 	 fFileHandle=ifs;
 //	}
 }
 
 Bool_t PndMvdReadInToPix4TBData::ReadInData(TClonesArray* sdsDigiContainer, TClonesArray* headerContainer, TClonesArray* allheaderContainer){
-	TMrfData_8b* tempdata;
-	tempdata = new TMrfData_8b;
 	ULong_t dataword=0;
 	Bool_t endOfFile = kFALSE;
 
 	fOutputArray = sdsDigiContainer;
 	fOutputArrayHeader = headerContainer;
-	fOutputArrayAllHeader = allheaderContainer;
+//	fOutputArrayAllHeader = allheaderContainer;
 	std::vector<ULong64_t> rawArray;
-	endOfFile |= ReadInRawData(fFileHandle, rawArray);
-	AnalyzeData(rawArray, fClockFrequency);
+	TMrfData_8b* mrfData = 0;
+	endOfFile |= ReadInDataFromFile(mrfData);
+	if (mrfData != 0){
+		rawArray = GetRawData(mrfData);
+		delete(mrfData);
+	}
+//	endOfFile |= ReadInRawData(fFileHandle, rawArray);
+	std::vector<std::vector<PndSdsDigiTopix4> > data = AnalyzeData(rawArray, fClockFrequency);
+	WriteoutToPix4Frames(data);
 	return endOfFile;
+}
+
+Bool_t PndMvdReadInToPix4TBData::ReadInDataFromFile(TMrfData_8b*& data)
+{
+	Bool_t endOfFile = kFALSE;
+
+	if (fFileHandle->good()) {
+		if (fVerbose > 1)
+			LOG(DEBUG) << "PndMvdReadInToPix4TBData::ReadInRawData reading file ";
+		try {
+			boost::archive::binary_iarchive iar(*fFileHandle); //this line causes an "Invalid Signature Error" at the end of the file but the file is still good
+			iar >> data;
+		} catch (boost::archive::archive_exception& exception) {
+			LOG(WARN) << "PndMvdReadInToPix4TBData::ReadInRawData: Error found in reading file "
+						<< " : " << fFileHandle->good() << " " << fFileHandle->eof() << " Exception: "
+						<< exception.code << " " << exception.what();
+
+			if (exception.code == 3) {
+				if (fFileCounter < fFileNames.size()) {
+					LOG(INFO) << fFE << " open new file " << fFileNames[fFileCounter];
+					fFileHandle->close();
+					delete (fFileHandle);
+					std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
+					fFileCounter++;
+					return endOfFile;
+				} else {
+					LOG(INFO) << fFE << " All files read! Finishing FE ";
+					endOfFile = kTRUE;
+					return endOfFile;
+				}
+			}
+			return kTRUE;
+		}
+	} else {
+		LOG(ERROR) << fFE << " An error occured ";
+		LOG(ERROR) << fFE << " fFileHandle->good() " << fFileHandle->good() << std::endl;
+		LOG(ERROR) << fFE << " fFileHandle->eof()  " << fFileHandle->eof()	<< std::endl;
+		LOG(ERROR) << fFE << " fFileHandle->fail() " << fFileHandle->fail() << std::endl;
+		LOG(ERROR) << fFE << " fFileHandle->bad()  " << fFileHandle->bad()	<< std::endl;
+
+		endOfFile = kTRUE;
+		return endOfFile;
+	}
+	return endOfFile;
+}
+
+std::vector<ULong64_t> PndMvdReadInToPix4TBData::GetRawData(TMrfData_8b* data)
+{
+	std::vector<ULong64_t> rawData;
+	for (UInt_t i = 0; i < data->getNumWords(); i += 5) {
+		ULong_t dataword = 0;
+		for (uint j = 0; j < 5; j++) {
+			dataword = dataword << 8;
+			dataword += data->getWord(i + j);
+		}
+		rawData.push_back(dataword);
+
+		if (fVerbose > 2) {
+			ULong_t frameCount = -1;
+			ULong64_t header = fTopix.GetHeader(dataword);
+			if (header == 1)
+				frameCount = fTopix.GetFrameCount(dataword);
+
+			LOG(INFO) << std::dec << "dataword No " << i / 5 << "/"	<< data->getNumWords() / 5 << ": " << std::hex
+					<< dataword << " ";
+		}
+	}
+	return rawData;
 }
 
 Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData) {
 	TMrfData_8b* tempdata;
-	tempdata = new TMrfData_8b;
+	//tempdata = new TMrfData_8b;
 	ULong_t dataword = 0;
 	Bool_t endOfFile = kFALSE;
 	//fVerbose = 3;
 	if (fileHandle->good()) {
-		if (fVerbose > 2) {
-			std::cout << std::endl;
-			std::cout << "PndMvdReadInToPix4TBData::ReadInRawData reading file "
-					<< std::endl;
-		}
+		if (fVerbose > 2)
+			LOG(DEBUG) << "PndMvdReadInToPix4TBData::ReadInRawData reading file ";
+
 		try {
 			boost::archive::binary_iarchive iar(*fileHandle); //this line causes an "Invalid Signature Error" at the end of the file but the file is still good
 			iar >> tempdata;
 		} catch (boost::archive::archive_exception& exception) {
-			if (fVerbose > 1) {
-				std::cout << "PndMvdReadInToPix4TBData::ReadInRawData: Error found in reading file "
-						<< " : " << fileHandle->good() << " "
-						<< fileHandle->eof() << " Exception: " << exception.code << " " << exception.what()
-						<< std::endl;
-			}
+			LOG(WARN) << "PndMvdReadInToPix4TBData::ReadInRawData: Error found in reading file "
+						<< " : " << fileHandle->good() << " " << fileHandle->eof() << " Exception: "
+						<< exception.code << " " << exception.what();
 
 			if (exception.code == 3) {
 				if (fFileCounter < fFileNames.size()) {
-					std::cout << fFE << " open new file " << fFileNames[fFileCounter] << std::endl;
+					LOG(INFO) << fFE << " open new file " << fFileNames[fFileCounter] << std::endl;
 					fileHandle->close();
 					delete (fFileHandle);
 					std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
 					fFileCounter++;
 					return endOfFile;
 				} else {
-					std::cout << fFE << " All files read! Finishing FE " << std::endl;
+					LOG(INFO) << fFE << " All files read! Finishing FE " << std::endl;
 					endOfFile = kTRUE;
 					return endOfFile;
 				}
 			}
+			return kTRUE;
 		}
 		if (fVerbose > 2)
-			std::cout << fFE << " PndMvdReadInToPix4TBData::ReadInRawData: NWords: " << tempdata->getNumWords() << std::endl;
+			LOG(DEBUG) << fFE << " PndMvdReadInToPix4TBData::ReadInRawData: NWords: " << tempdata->getNumWords();
 		for (UInt_t i = 0; i < tempdata->getNumWords(); i += 5) {
 			dataword = 0;
 			for (uint j = 0; j < 5; j++) {
@@ -110,16 +185,17 @@ Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::v
 				if (header == 1)
 					frameCount = fTopix.GetFrameCount(dataword);
 
-				std::cout << std::dec << "dataword No " << i / 5 << "/"	<< tempdata->getNumWords() / 5 << ": " << std::hex
+				LOG(DEBUG) << std::dec << "dataword No " << i / 5 << "/"	<< tempdata->getNumWords() / 5 << ": " << std::hex
 						<< dataword << " " << std::dec << header << " : " << frameCount << std::endl;
 			}
 		}
+		delete(tempdata);
 	} else {
-		std::cout << fFE << " An error occured " << std::endl;
-		std::cout << fFE << " fileHandle->good() " << fileHandle->good() << std::endl;
-		std::cout << fFE << " fileHandle->eof()  " << fileHandle->eof()	<< std::endl;
-		std::cout << fFE << " fileHandle->fail() " << fileHandle->fail() << std::endl;
-		std::cout << fFE << " fileHandle->bad()  " << fileHandle->bad()	<< std::endl;
+		LOG(ERROR)<< fFE << " An error occured " << std::endl;
+		LOG(ERROR) << fFE << " fileHandle->good() " << fileHandle->good() << std::endl;
+		LOG(ERROR) << fFE << " fileHandle->eof()  " << fileHandle->eof()	<< std::endl;
+		LOG(ERROR) << fFE << " fileHandle->fail() " << fileHandle->fail() << std::endl;
+		LOG(ERROR) << fFE << " fileHandle->bad()  " << fileHandle->bad()	<< std::endl;
 
 		endOfFile = kFALSE;
 		return endOfFile;
@@ -127,15 +203,19 @@ Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::v
 	return endOfFile;
 }
 
-void PndMvdReadInToPix4TBData::AnalyzeData(std::vector<ULong64_t>& rawData,	Double_t clockFrequency) {
+std::vector<std::vector<PndSdsDigiTopix4> > PndMvdReadInToPix4TBData::AnalyzeData(std::vector<ULong64_t>& rawData,	Double_t clockFrequency) {
+	std::vector<std::vector<PndSdsDigiTopix4> > result;
 	if (fVerbose > 2)
-		std::cout << "PndMvdReadInToPix4TBData::AnalyzeData rawData.size(): " << rawData.size() << std::endl;
+		LOG(DEBUG) << "PndMvdReadInToPix4TBData::AnalyzeData rawData.size(): " << rawData.size() << std::endl;
 	for (int i = 0; i < rawData.size(); i++) {
 		if (BuildFrame(rawData[i]) == true){		//a frame was found
-			AnalyzeToPixFrame(clockFrequency);
+			std::vector<PndSdsDigiTopix4> hitList = AnalyzeToPixFrame(clockFrequency);
+			//LOG(INFO) << "TestData: " << hitList.front() << std::endl;
+			result.push_back(hitList);
 			fToPixFrame.clear();
 		}
 	}
+	return result;
 }
 
 bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
@@ -157,9 +237,9 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 		Int_t deltaAllFrameCount = ((int) (fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount) < 0 ?
 						((fRecentAllFrameHeader.fFrameCount	- fOldAllHeaderCount) + 256) :
 						(fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount));
-		new ((*fOutputArrayAllHeader)[fOutputArrayAllHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentAllFrameHeader.fFrameCount, fFE,
-				fRecentAllFrameHeader.fChipAddress, fRecentAllFrameHeader.fECC, fTotalHeaderCount, deltaAllFrameCount, 0, 0);
-		if (deltaAllFrameCount > 1)
+//		new ((*fOutputArrayAllHeader)[fOutputArrayAllHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentAllFrameHeader.fFrameCount, fFE,
+//				fRecentAllFrameHeader.fChipAddress, fRecentAllFrameHeader.fECC, fTotalHeaderCount, deltaAllFrameCount, 0, 0);
+		if (deltaAllFrameCount > 1 && fVerbose > 0)
 			std::cout << "-W- deltaAllFrameCount > 1: "	<< deltaAllFrameCount << std::endl;
 		fOldAllHeaderCount = fRecentAllFrameHeader.fFrameCount;
 
@@ -232,7 +312,8 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 }
 
 
-void PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double_t clockFrequency) {
+std::vector<PndSdsDigiTopix4> PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double_t clockFrequency) {
+	std::vector<PndSdsDigiTopix4> hitList;
 	if (fVerbose > 2) {
 		std::cout << fFE << " PndMvdReadInToPix4TBData::AnalyzeToPixFrame: fToPixFrame size: "
 				<< std::dec << fToPixFrame.size() << " header " << std::hex << fToPixFrame[0] << std::endl;
@@ -240,7 +321,7 @@ void PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double_t clockFrequency) {
 
 	if (CheckDataIntegrity(fToPixFrame) != true){
 		fToPixFrame.clear();
-		return;
+		return hitList;
 	}
 
 	for (int i = 0; i < fToPixFrame.size(); i++) {
@@ -256,12 +337,11 @@ void PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double_t clockFrequency) {
 						<< fRecentFrameHeader.fChipAddress << " framecount "
 						<< fRecentFrameHeader.fFrameCount << std::endl;
 
-			if (fOldFrameCount + 1 != fRecentFrameHeader.fFrameCount) {
-				if (!(fOldFrameCount == 255 & fRecentFrameHeader.fFrameCount == 0)) {
-					if (fVerbose > 1)
-						std::cout << fFE << "-E- non sequential FC: " << fOldFrameCount << " " << fRecentFrameHeader.fFrameCount << std::endl;
-					fNonSequentialFC++;
-				}
+			Int_t deltaFrameCount = GetDeltaFrameCount();
+			if (deltaFrameCount > 1){
+				if (fVerbose > 1)
+					std::cout << fFE << "-E- non sequential FC: " << fOldFrameCount << " " << fRecentFrameHeader.fFrameCount << std::endl;
+				fNonSequentialFC++;
 			}
 
 			if (fOldFrameCount > fRecentFrameHeader.fFrameCount) {
@@ -271,14 +351,11 @@ void PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double_t clockFrequency) {
 							<< fOldFrameCount << " recent FC " << fRecentFrameHeader.fFrameCount << std::endl;
 			}
 			//fOldFrameCount = fRecentFrameHeader.fFrameCount;
-			Int_t deltaFrameCount = ((int) (fRecentFrameHeader.fFrameCount - fOldFrameCount) < 0 ?
-							((fRecentFrameHeader.fFrameCount - fOldFrameCount) + 256) :
-							(fRecentFrameHeader.fFrameCount - fOldFrameCount));
+
 			//  new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, fFE, fRecentFrameHeader.fChipAddress, fRecentFrameHeader.fECC, fTotalFrameCount,deltaFrameCount, 0, fToPixFrame.size()-2 );
-			new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, 0, fFE,
-					fRecentFrameHeader.fECC, fTotalFrameCount, deltaFrameCount, 0, fToPixFrame.size() - 2);
-			if (deltaFrameCount > 1)
-				std::cout << "-W- OutputArrayHeader deltaFrameCount > 1 " << deltaFrameCount << std::endl;
+			//new ((*fOutputArrayHeader)[fOutputArrayHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentFrameHeader.fFrameCount, 0, fFE,
+			//		fRecentFrameHeader.fECC, fTotalFrameCount, deltaFrameCount, 0, fToPixFrame.size() - 2);
+
 			fOldFrameCount = fRecentFrameHeader.fFrameCount;
 		}
 			break;
@@ -302,18 +379,43 @@ void PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double_t clockFrequency) {
 				std::cout << fFE << " FrameTrailer: nEvents " << fRecentFrameTrailer.fNEvents << " frame CRC: "
 						<< fRecentFrameTrailer.fFrameCRC << std::endl;
 
-			PndSdsDigiTopix4Header * header_trailer = (PndSdsDigiTopix4Header*) (fOutputArrayHeader->Last());
-			header_trailer->SetNumberOfEvents(fRecentFrameTrailer.fNEvents);
+			//PndSdsDigiTopix4Header * header_trailer = (PndSdsDigiTopix4Header*) (fOutputArrayHeader->Last());
+			//header_trailer->SetNumberOfEvents(fRecentFrameTrailer.fNEvents);
 		}
 			break;
 
 		case 3:
 			PndSdsDigiTopix4 recentPixel = ProcessData(fToPixFrame[i], fRecentFrameHeader, clockFrequency);
+			if (fVerbose > 1)
+				LOG(INFO) << "RecentPixel: " << recentPixel << std::endl;
+			hitList.push_back(recentPixel);
 			if (fVerbose > 2)
 				std::cout << fFE << " Pixel: " << recentPixel << std::endl;
-			new ((*fOutputArray)[fOutputArray->GetEntriesFast()]) PndSdsDigiTopix4(recentPixel);
+			//WriteoutToPix4Digi(recentPixel);
 			fCorrectHitCount++;
 			break;
+		}
+	}
+	return hitList;
+}
+
+Int_t PndMvdReadInToPix4TBData::GetDeltaFrameCount()
+{
+	return ((int) (fRecentFrameHeader.fFrameCount - fOldFrameCount) < 0 ?
+				((fRecentFrameHeader.fFrameCount - fOldFrameCount) + 256) :
+				(fRecentFrameHeader.fFrameCount - fOldFrameCount));
+}
+
+void PndMvdReadInToPix4TBData::WriteoutToPix4Digi(PndSdsDigiTopix4& data)
+{
+	new ((*fOutputArray)[fOutputArray->GetEntriesFast()]) PndSdsDigiTopix4(data);
+}
+
+void  PndMvdReadInToPix4TBData::WriteoutToPix4Frames(std::vector<std::vector<PndSdsDigiTopix4> > &frames)
+{
+	for (auto it1 : frames){
+		for(auto it2 : it1) {
+			WriteoutToPix4Digi(it2);
 		}
 	}
 }
@@ -371,7 +473,14 @@ PndSdsDigiTopix4 PndMvdReadInToPix4TBData::ProcessData(ULong64_t& data, ToPix4::
 	if (fVerbose > 1) std::cout  << "PndMvdReadInToPix4TBData::ProcessData raw Data: " << data << std::endl;
 	pixel pixelData = fTopix.BitAnalyzePixelData(data);
 	std::pair<UInt_t, UInt_t> pixelAddress = fTopix.PixeladdressToMatrixAddress(pixelData.fPixelAddress);
-	Double_t timestamp = ((Double_t)fSuperFrameCount * 256. * 4096. + (Double_t)header.fFrameCount * 4096. + (Double_t)pixelData.fLeadingEdge)/clockFrequency * 1000.;
+
+	Int_t frameCountHeader = header.fFrameCount;
+	if (pixelData.fLeadingEdge > pixelData.fTrailingEdge){
+		frameCountHeader--;
+		//std::cout << "PndMvdReadInToPix4TBData::ProcessData frameCount corrected" << std::endl;
+	}
+	Double_t timestamp = ((Double_t)fSuperFrameCount * 256. * 4096. + (Double_t)frameCountHeader * 4096. + (Double_t)pixelData.fLeadingEdge)/clockFrequency * 1000.;
+
 	Double_t timestamp_independent = ((Double_t) fTotalHeaderCount * 4096. + (Double_t)pixelData.fLeadingEdge)/clockFrequency * 1000.;
 
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel

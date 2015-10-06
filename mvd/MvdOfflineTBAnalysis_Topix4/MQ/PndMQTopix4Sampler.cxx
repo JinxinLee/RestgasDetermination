@@ -1,0 +1,115 @@
+/********************************************************************************
+ *    Copyright (C) 2014 GSI Helmholtzzentrum fuer Schwerionenforschung GmbH    *
+ *                                                                              *
+ *              This software is distributed under the terms of the             *
+ *         GNU Lesser General Public Licence version 3 (LGPL) version 3,        *
+ *                  copied verbatim in the file "LICENSE"                       *
+ ********************************************************************************/
+/**
+ * PndMQTopix4Sampler.cpp
+ *
+ * @since 2014-10-10
+ * @author A. Rybalchenko
+ */
+
+#include <memory> // unique_ptr
+
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+#include <PndMQTopix4Sampler.h>
+
+#include "FairMQLogger.h"
+#include "mrfdata_8b.h"
+
+using namespace std;
+
+PndMQTopix4Sampler::PndMQTopix4Sampler()
+    : fFileName()
+{
+}
+
+void PndMQTopix4Sampler::CustomCleanup(void *data, void *object)
+{
+    delete (TMrfData_8b*)object;
+}
+
+void PndMQTopix4Sampler::Init()
+{
+    fTopixDataReader.Init();
+}
+
+void PndMQTopix4Sampler::Run()
+{
+	bool stop = false;
+
+    while (CheckCurrentState(RUNNING) && stop == false)
+    {
+        //boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+
+        TMrfData_8b* data = 0;
+        stop = fTopixDataReader.ReadInDataFromFile(data);
+        if (stop == true)
+        	continue;
+
+        unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(reinterpret_cast<u_int8_t*>(&data->regdata[0]),data->getNumWords(),CustomCleanup,data));
+
+ //       LOG(INFO) << "Sending Words\"" << data->getNumWords() << "\"" << " Bits: " << data->getNumBits();
+
+        fChannels.at("data-out").at(0).Send(msg);
+    }
+}
+
+PndMQTopix4Sampler::~PndMQTopix4Sampler()
+{
+}
+
+void PndMQTopix4Sampler::SetProperty(const int key, const string& value)
+{
+    switch (key)
+    {
+        case FileName:
+            fFileName = value;
+            fTopixDataReader.SetFileName(fFileName);
+            break;
+        default:
+            FairMQDevice::SetProperty(key, value);
+            break;
+    }
+}
+
+string PndMQTopix4Sampler::GetProperty(const int key, const string& default_ /*= ""*/)
+{
+    switch (key)
+    {
+        case FileName:
+            return fFileName;
+            break;
+        default:
+            return FairMQDevice::GetProperty(key, default_);
+    }
+}
+
+void PndMQTopix4Sampler::SetProperty(const int key, const int value)
+{
+    switch (key)
+    {
+    case FE:
+    	fFE = value;
+    	fTopixDataReader.SetFE(fFE);
+    	break;
+	default:
+		FairMQDevice::SetProperty(key, value);
+		break;
+    }
+}
+
+int PndMQTopix4Sampler::GetProperty(const int key, const int default_ /*= 0*/)
+{
+    switch (key)
+    {
+    case FE:
+        	return fFE;
+        default:
+            return FairMQDevice::GetProperty(key, default_);
+    }
+}

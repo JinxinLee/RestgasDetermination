@@ -23,6 +23,12 @@
 #include <utility>
 #include <vector>
 
+//#include <unordered_map>
+
+//#include "FairMQDevice.h
+
+class TMrfData_8b;
+
 
 class PndMvdReadInToPix4TBData {
 public:
@@ -38,15 +44,29 @@ public:
 	  fFileNames= fileName;
 	}
 
+	void SetFileName(TString fileName){
+		std::vector<TString> names;
+		names.push_back(fileName);
+		SetFileName(names);
+	}
+
 	void Init();
 
 	Bool_t ReadInData(TClonesArray* sdsDigiContainer, TClonesArray* headerContainer, TClonesArray* allheaderContainer);
 	Bool_t ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData);//<input is fileHandle, output vector of raw data, output is end of file
-	void AnalyzeData(std::vector<ULong64_t>& rawData, Double_t clockFrequency);
+	virtual Bool_t ReadInDataFromFile(TMrfData_8b*& data);
+	std::vector<ULong64_t> GetRawData(TMrfData_8b* data);
+	std::vector<std::vector<PndSdsDigiTopix4> > AnalyzeData(std::vector<ULong64_t>& rawData, Double_t clockFrequency);
 	bool BuildFrame(ULong64_t& rawData);
 
+	Int_t GetDeltaFrameCount();
+
+
+	virtual void WriteoutToPix4Digi(PndSdsDigiTopix4& data);
+	virtual void WriteoutToPix4Frames(std::vector<std::vector<PndSdsDigiTopix4> > &frames);
+
 	PndSdsDigiTopix4 ProcessData(ULong64_t& data, ToPix4::frameHeader& header, Double_t& clockFrequency);
-	void AnalyzeToPixFrame(Double_t clockFrequency);
+	std::vector<PndSdsDigiTopix4> AnalyzeToPixFrame(Double_t clockFrequency);
 	bool CheckDataIntegrity(std::vector<ULong64_t> topix4Frame);
 
 	void SetClockFrequency(Double_t val) {fClockFrequency = val;}
