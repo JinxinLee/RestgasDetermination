@@ -118,6 +118,8 @@ int SensorGridPhotodetector::GenerateNoise(double const & time_start_ns, double 
     noisegen_current_hit    = 0;
     noisegen_time_start_ns  = time_start_ns;
     noisegen_time_window_ns = time_window_ns;
+
+    return noisegen_n_hits;
 }
 
 

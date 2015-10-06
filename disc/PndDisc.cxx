@@ -533,6 +533,8 @@ Bool_t DiscDIRC_Detector::ProcessHits(FairVolume* v)
             }
         }
     }
+
+    return kTRUE;
 }
 
 

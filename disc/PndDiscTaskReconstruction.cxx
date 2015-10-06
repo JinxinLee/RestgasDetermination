@@ -368,9 +368,9 @@ double E0[3] = {134.976, 493.677, 938.272};
 
 //---------------------------------------------------------------------------
 
-double DiscDIRC_TaskReconstruction::gauss(int x, double mean, double rms)
+double DiscDIRC_TaskReconstruction::gauss(int x, double mean_value, double rms)
 {
-    return 1/sqrt(2*TMath::Pi()*rms*rms)*exp(-0.5*((x-mean)/rms)*((x-mean)/rms));
+    return 1/sqrt(2*TMath::Pi()*rms*rms)*exp(-0.5*((x-mean_value)/rms)*((x-mean_value)/rms));
 }
 
 //---------------------------------------------------------------------------
@@ -390,13 +390,13 @@ double DiscDIRC_TaskReconstruction::mean(std::vector<double> values)
 
 //---------------------------------------------------------------------------
 
-double DiscDIRC_TaskReconstruction::deviation(double mean, std::vector<double> values)
+double DiscDIRC_TaskReconstruction::deviation(double mean_value, std::vector<double> values)
 {
     double average = 0;
 
     for(int i = 0; i < values.size(); i++)
     {
-        average += (values[i]-mean)*(values[i]-mean);
+        average += (values[i]-mean_value)*(values[i]-mean_value);
     }
 
     average = sqrt(1/(double(values.size())-1)*average);

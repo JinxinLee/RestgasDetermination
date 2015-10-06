@@ -51,6 +51,10 @@ protected:
     //FairMCEventHeader * fMcEventHeader;     //!
     Bool_t is_time_based;                   ///< Time based buffering on/off
 
+    double gauss(int x, double mean, double rms);
+    double mean(std::vector<double> values);
+    double deviation(double mean, std::vector<double> values);
+
 
     ClassDef(PndDiscTaskPID, 1)
 };

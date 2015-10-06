@@ -24,12 +24,15 @@ public:
     DiscDIRC_Photodetector();
     DiscDIRC_Photodetector(DesignID id);
 
-    void SetPDE(int n_entries, const double * wavelength_nm, const double * pde) {
+    void SetPDE(int n_entries, const double * wavelength_nm, const double * pde)
+    {
         //pde_interpolator.SetData(n_entries, wavelength_nm, pde);
     }
 
-    virtual double GetPDE(const double &wavelength_nm) const {
+    virtual double GetPDE(const double &wavelength_nm) const 
+    {
         //return pde_interpolator.Eval(wavelength_nm);
+        return wavelength_nm;
     }
 
 protected:
