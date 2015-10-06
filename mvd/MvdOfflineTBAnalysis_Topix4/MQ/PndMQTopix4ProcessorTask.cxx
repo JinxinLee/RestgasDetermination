@@ -18,6 +18,8 @@
 #include <PndMQTopix4ProcessorTask.h>
 #include <queue>
 
+#include "baseMQtools.h"
+
 #include "FairMQLogger.h"
 #include "mrfdata_8b.h"
 #include "PndSdsDigiTopix4.h"
@@ -25,8 +27,20 @@
 
 using namespace std;
 
-PndMQTopix4ProcessorTask::PndMQTopix4ProcessorTask()
+PndMQTopix4ProcessorTask::PndMQTopix4ProcessorTask() : fHasBoostSerialization(false)
 {
+	using namespace baseMQ::tools::resolve;
+	bool checkOutputClass = false;
+
+	if (is_same<boost::archive::binary_oarchive, boost::archive::binary_oarchive>::value)
+	{
+		if (has_BoostSerialization<PndSdsDigiTopix4, void(boost::archive::binary_oarchive&, const unsigned int)>::value == 1)
+		{
+			checkOutputClass = true;
+			fHasBoostSerialization = true;
+		}
+	}
+	LOG(INFO) << "HasBoostSerialization: " << fHasBoostSerialization;
 }
 
 
@@ -42,7 +56,10 @@ void PndMQTopix4ProcessorTask::Exec(Option_t* opt)
 	rawArray = fTopixDataReader.GetRawData(message);
 	std::vector<std::vector<PndSdsDigiTopix4> > frames = fTopixDataReader.AnalyzeData(rawArray, 50);
 
-	if (frames.size() > 0 && frames.front().size() > 0){
+	LOG(INFO) << "Frames.size " << frames.size();
+	if (frames.size() > 0)
+		LOG(INFO) << "Frames.front().size() " << frames.front().size();
+	if (frames.size() > 0){
 		ostringstream obuffer;
 		boost::archive::binary_oarchive OutputArchive(obuffer);
 		fPndSdsDigiTopix4Vector = frames.front();

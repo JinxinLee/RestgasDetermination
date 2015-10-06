@@ -65,6 +65,7 @@ set(SRCS
   "PndMQExample1Sink.cxx"
   "PndMQTopix4Sampler.cxx"
   "PndMQTopix4ProcessorTask.cxx"
+  "PndMQTopix4Processor.cxx"
   "PndMQTopix4Sink.cxx"
 )
 

@@ -12,7 +12,8 @@
  * @author D. Klein, A. Rybalchenko
  */
 
-#include <PndMQTopix4ProcessorTask.h>
+//#include <PndMQTopix4ProcessorTask.h>
+#include <PndMQTopix4Processor.h>
 #include <iostream>
 
 #include "boost/program_options.hpp"
@@ -33,7 +34,7 @@ using namespace boost::program_options;
 
 int main(int argc, char** argv)
 {
-    FairMQProcessor processor;
+	PndMQTopix4Processor processor;
     processor.CatchSignals();
 
     FairMQProgOptions config;
@@ -68,8 +69,8 @@ int main(int argc, char** argv)
 
         processor.SetProperty(FairMQDevice::Id, id);
 
-        PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
-        processor.SetTask(task);
+        //PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
+        //processor.SetTask(task);
 
         processor.ChangeState("INIT_DEVICE");
         processor.WaitForEndOfState("INIT_DEVICE");

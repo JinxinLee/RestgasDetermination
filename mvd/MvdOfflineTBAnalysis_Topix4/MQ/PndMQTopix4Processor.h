@@ -12,42 +12,39 @@
  * @author A. Rybalchenko
  */
 
-#ifndef PNDMQTOPIX4SINK_H_
-#define PNDMQTOPIX4SINK_H_
+#ifndef PndMQTopix4Processor_H_
+#define PndMQTopix4Processor_H_
 
+//#include "FairMQDevice.h"
 #include "FairMQDevice.h"
 #include "PndMvdReadInToPix4TBData.h"
 
-#include "PndSdsDigiTopix4.h"
-
 #include <boost/serialization/access.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
-class PndMQTopix4Sink : public FairMQDevice
+class PndMQTopix4Processor : public FairMQDevice
 {
   public:
-    PndMQTopix4Sink();
-    virtual ~PndMQTopix4Sink();
+    PndMQTopix4Processor();
+    virtual ~PndMQTopix4Processor();
 
-//    static void CustomCleanup(void *data, void *object);
+    static void CustomCleanup(void* data, void* hint);
 
     template <class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar& fTopixData;
+    	ar& fPndSdsDigiTopix4Vector;
 	}
 
   protected:
     virtual void Run();
-
+  private:
 	#ifndef __CINT__ // for BOOST serialization
-		friend class boost::serialization::access;
-		bool fHasBoostSerialization;
+    	friend class boost::serialization::access;
 	#endif // for BOOST serialization
+    std::vector<PndSdsDigiTopix4> fPndSdsDigiTopix4Vector;
 
-    std::vector<PndSdsDigiTopix4> fTopixData;
+    bool fHasBoostSerialization;
 
     PndMvdReadInToPix4TBData fTopixDataReader;
 };

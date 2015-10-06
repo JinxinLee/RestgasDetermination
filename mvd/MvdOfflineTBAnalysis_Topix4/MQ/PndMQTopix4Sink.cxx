@@ -18,6 +18,8 @@
 #include <PndMQTopix4Sink.h>
 #include <queue>
 
+#include "baseMQtools.h"
+
 #include "FairMQLogger.h"
 #include "mrfdata_8b.h"
 #include "PndSdsDigiTopix4.h"
@@ -25,26 +27,37 @@
 
 using namespace std;
 
-PndMQTopix4Sink::PndMQTopix4Sink()
+PndMQTopix4Sink::PndMQTopix4Sink() : fHasBoostSerialization(false)
 {
+	//gSystem->ResetSignal(kSigInterrupt);
+	//gSystem->ResetSignal(kSigTermination);
+
+	using namespace baseMQ::tools::resolve;
+	// coverity[pointless_expression]: suppress coverity warnings on apparant if(const).
+	if (has_BoostSerialization<PndSdsDigiTopix4, void(boost::archive::binary_iarchive&, const unsigned int)>::value == 1)
+		fHasBoostSerialization = true;
 }
 
-void PndMQTopix4Sink::CustomCleanup(void *data, void *object)
-{
-    delete (string*)object;
-}
+//void PndMQTopix4Sink::CustomCleanup(void *data, void *object)
+//{
+//    delete (string*)object;
+//}
 
 void PndMQTopix4Sink::Run()
 {
+	LOG(INFO) << "Boost Serialization "<< fHasBoostSerialization;
 	FairMQChannel& dataInChannel = fChannels.at("data-in").at(0);
-
+	int receivedMsgs = 0;
     while (CheckCurrentState(RUNNING))
     {
     	FairMQMessage* msg = fTransportFactory->CreateMessage();
 
 		if (dataInChannel.Receive(msg) > 0)
 		{
-			//receivedMsgs++;
+			LOG(INFO) << "Received Message: ";
+			LOG(INFO) << receivedMsgs++;
+			LOG(INFO) << msg->GetSize();
+
 			string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
 			istringstream ibuffer(msgStr);
 
@@ -57,6 +70,8 @@ void PndMQTopix4Sink::Run()
 			{
 				LOG(ERROR) << e.what();
 			}
+
+			LOG(INFO) << "TopixData: " << fTopixData.size();
 
             if (fTopixData.size() > 0){
 //            	ostringstream obuffer;
