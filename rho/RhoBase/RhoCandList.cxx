@@ -340,8 +340,10 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2 )
       c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ),3 );
 
       c.SetInsertHistory(kFALSE);
-      c.AddLinks(*l1[i1]->GetPointerToLinks());
-      c.AddLinks(*l2[i2]->GetPointerToLinks());
+      if(l1[i1]->GetPointerToLinks() != 0)
+          c.AddLinks(*l1[i1]->GetPointerToLinks());
+      if(l2[i2]->GetPointerToLinks() != 0)
+         c.AddLinks(*l2[i2]->GetPointerToLinks());
 
       Put ( &c );
       // after putting (does a copy and drops daughter links)
@@ -391,9 +393,12 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
         c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ) |l3[i3]->GetMarker ( 3 ),3 );
 
         c.SetInsertHistory(kFALSE);
-        c.AddLinks(*l1[i1]->GetPointerToLinks());
-        c.AddLinks(*l2[i2]->GetPointerToLinks());
-        c.AddLinks(*l3[i3]->GetPointerToLinks());
+        if(l1[i1]->GetPointerToLinks() != 0)
+        	c.AddLinks(*l1[i1]->GetPointerToLinks());
+        if(l2[i2]->GetPointerToLinks() != 0)
+        	c.AddLinks(*l2[i2]->GetPointerToLinks());
+        if(l3[i3]->GetPointerToLinks() != 0)
+        	c.AddLinks(*l3[i3]->GetPointerToLinks());
 
         Put ( &c );
         // after putting (does a copy and drops daughter links)
@@ -453,10 +458,14 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
           c.SetMarker ( l1[i1]->GetMarker ( 3 ) |l2[i2]->GetMarker ( 3 ) |l3[i3]->GetMarker ( 3 ) |l4[i4]->GetMarker ( 3 ),3 );
 
           c.SetInsertHistory(kFALSE);
-          c.AddLinks(*l1[i1]->GetPointerToLinks());
-          c.AddLinks(*l2[i2]->GetPointerToLinks());
-          c.AddLinks(*l3[i3]->GetPointerToLinks());
-          c.AddLinks(*l4[i4]->GetPointerToLinks());
+          if(l1[i1]->GetPointerToLinks() != 0)
+        	  c.AddLinks(*l1[i1]->GetPointerToLinks());
+          if(l2[i2]->GetPointerToLinks() != 0)
+        	  c.AddLinks(*l2[i2]->GetPointerToLinks());
+          if(l3[i3]->GetPointerToLinks() != 0)
+        	  c.AddLinks(*l3[i3]->GetPointerToLinks());
+          if(l4[i4]->GetPointerToLinks() != 0)
+        	  c.AddLinks(*l4[i4]->GetPointerToLinks());
 
           Put ( &c );
           // after putting (does a copy and drops daughter links)
@@ -533,11 +542,16 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandLi
                           |l3[i3]->GetMarker ( 3 ) |l4[i4]->GetMarker ( 3 ) |l5[i5]->GetMarker ( 3 ),3 );
 
             c.SetInsertHistory(kFALSE);
-            c.AddLinks(*l1[i1]->GetPointerToLinks());
-            c.AddLinks(*l2[i2]->GetPointerToLinks());
-            c.AddLinks(*l3[i3]->GetPointerToLinks());
-            c.AddLinks(*l4[i4]->GetPointerToLinks());
-            c.AddLinks(*l5[i5]->GetPointerToLinks());
+            if(l1[i1]->GetPointerToLinks() != 0)
+            	c.AddLinks(*l1[i1]->GetPointerToLinks());
+            if(l2[i2]->GetPointerToLinks() != 0)
+            	c.AddLinks(*l2[i2]->GetPointerToLinks());
+            if(l3[i3]->GetPointerToLinks() != 0)
+            	c.AddLinks(*l3[i3]->GetPointerToLinks());
+            if(l4[i4]->GetPointerToLinks() != 0)
+            	c.AddLinks(*l4[i4]->GetPointerToLinks());
+            if(l5[i5]->GetPointerToLinks() != 0)
+            	c.AddLinks(*l5[i5]->GetPointerToLinks());
 
 
             Put ( &c );
