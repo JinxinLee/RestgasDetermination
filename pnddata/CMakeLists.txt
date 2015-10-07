@@ -105,6 +105,7 @@ SdsData/PndSdsDigi.cxx
 SdsData/PndSdsPixel.cxx
 SdsData/PndSdsDigiPixel.cxx
 SdsData/PndSdsDigiTopix4.cxx
+SdsData/PndSdsDigiTopix4Header.cxx
 SdsData/PndSdsStrip.cxx
 SdsData/PndSdsDigiStrip.cxx
 SdsData/PndSdsCluster.cxx
@@ -201,6 +202,7 @@ SdsData/PndSdsDigi.h
 SdsData/PndSdsPixel.h
 SdsData/PndSdsDigiPixel.h
 SdsData/PndSdsDigiTopix4.h
+SdsData/PndSdsDigiTopix4Header.h
 SdsData/PndSdsStrip.h
 SdsData/PndSdsDigiStrip.h
 SdsData/PndSdsCluster.h
