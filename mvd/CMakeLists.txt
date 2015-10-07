@@ -54,6 +54,7 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
 ${SIMPATH}/lib
+#${Boost_LIBRARY_DIRS}
 )
 
 link_directories( ${LINK_DIRECTORIES})
@@ -97,23 +98,24 @@ MvdDAQ/PndMvdBoxMap.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
 MvdDAQ/PndMvdCreateDefaultApvMap.cxx
 
-MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.cxx
-MvdOfflineTBAnalysis_Topix4/PndMvdReadInToPix4TBData.cxx
-MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBDataTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndMapSorterTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndMapSorter.cxx
-MvdOfflineTBAnalysis_Topix4/PndMvdTopix4RingSorterTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndMvdTopix4RingSorter.cxx
-MvdOfflineTBAnalysis_Topix4/mrftools.cxx
-MvdOfflineTBAnalysis_Topix4/mrf_confitem.cxx
-MvdOfflineTBAnalysis_Topix4/mrfdata_8b.cxx
-MvdOfflineTBAnalysis_Topix4/PndTimeOffsetFinderTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndTSCorrectorTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndStraightLineTrackFinderTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndXYResidualTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndPosCorrectorTask.cxx
-MvdOfflineTBAnalysis_Topix4/PndHammingDecoder.cxx
-MvdOfflineTBAnalysis_Topix4/PndTopix4.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMvdReadInToPix4TBData.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBDataTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMapSorterTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMapSorter.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMapSorterTpl.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMvdTopix4RingSorterTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndMvdTopix4RingSorter.cxx
+#MvdOfflineTBAnalysis_Topix4/mrftools.cxx
+#MvdOfflineTBAnalysis_Topix4/mrf_confitem.cxx
+#MvdOfflineTBAnalysis_Topix4/mrfdata_8b.cxx
+#MvdOfflineTBAnalysis_Topix4/PndTimeOffsetFinderTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndTSCorrectorTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndStraightLineTrackFinderTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndXYResidualTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndPosCorrectorTask.cxx
+#MvdOfflineTBAnalysis_Topix4/PndHammingDecoder.cxx
+#MvdOfflineTBAnalysis_Topix4/PndTopix4.cxx
 )
 
 set(LINKDEF  MvdLinkDef.h)
@@ -127,8 +129,7 @@ Geane Sds TrkBase boost_serialization boost_thread MathCore MathMore
   boost_filesystem
   boost_program_options
   boost_random
-  boost_chrono
-  boost_exception)
+  boost_chrono)
 
 GENERATE_LIBRARY()
 

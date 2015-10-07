@@ -63,17 +63,17 @@
 #pragma link C++ class PndMvdConvertApvTask+;
 #pragma link C++ class PndMvdCreateDefaultApvMap;
 
-#pragma link C++ class PndMvdReadInTBData;
-#pragma link C++ class PndMvdReadInTBDataTask;
-#pragma link C++ class PndMapSorterTask;
-#pragma link C++ class PndMapSorter;
-#pragma link C++ class PndMvdTopix4RingSorterTask;
-#pragma link C++ class PndMvdTopix4RingSorter;
-#pragma link C++ class PndTimeOffsetFinderTask;
-#pragma link C++ class PndTSCorrectorTask;
-#pragma link C++ class PndStraightLineTrackFinderTask;
-#pragma link C++ class PndXYResidualTask;
-#pragma link C++ class PndPosCorrectorTask;
+//#pragma link C++ class PndMvdReadInTBData;
+//#pragma link C++ class PndMvdReadInTBDataTask;
+//#pragma link C++ class PndMapSorterTask;
+//#pragma link C++ class PndMapSorter;
+//#pragma link C++ class PndMvdTopix4RingSorterTask;
+//#pragma link C++ class PndMvdTopix4RingSorter;
+//#pragma link C++ class PndTimeOffsetFinderTask;
+//#pragma link C++ class PndTSCorrectorTask;
+//#pragma link C++ class PndStraightLineTrackFinderTask;
+//#pragma link C++ class PndXYResidualTask;
+//#pragma link C++ class PndPosCorrectorTask;
 
 #endif
 

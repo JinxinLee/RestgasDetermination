@@ -215,7 +215,12 @@ IF(HAS_CXX11_SHAREDPOINTER)
   Add_Definitions(-DHAS_SHAREDPOINTER)
 ENDIF(HAS_CXX11_SHAREDPOINTER)
 
-
+string(FIND " ${CMAKE_CXX_FLAGS} " "-std=c++11" POS_C++11)
+  if(POS_C++11)
+    Message(STATUS "C++11 support found.")
+  else()
+    Message(STATUS "C++11 not supported.")
+  endif()
 
 # Recurse into the given subdirectories.  This does not actually
 # cause another cmake executable to run.  The same process will walk through
@@ -270,7 +275,9 @@ add_subdirectory(rho)
 #add_subdirectory(online)
 add_subdirectory(PndTools/SttCellTrackFinder)
 add_subdirectory(PndTools/TrackingQA)
+add_subdirectory(PndTools/TimeBasedTools)
 #add_subdirectory(tracking/online/CircleHough)
+#add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4/MQ)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
