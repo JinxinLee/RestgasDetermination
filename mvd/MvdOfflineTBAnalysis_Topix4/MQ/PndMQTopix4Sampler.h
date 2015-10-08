@@ -26,7 +26,6 @@ class PndMQTopix4Sampler : public FairMQDevice
     enum
     {
         FileName = FairMQDevice::Last,
-		FE,
         Last
     };
     PndMQTopix4Sampler();

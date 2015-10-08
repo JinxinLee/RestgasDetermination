@@ -16,7 +16,6 @@
 #include <boost/bind.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <PndMQTopix4Processor.h>
-#include <queue>
 
 #include "baseMQtools.h"
 
@@ -41,6 +40,10 @@ PndMQTopix4Processor::PndMQTopix4Processor() : fHasBoostSerialization(false)
 		}
 	}
 	LOG(INFO) << "HasBoostSerialization: " << fHasBoostSerialization;
+}
+
+PndMQTopix4Processor::~PndMQTopix4Processor()
+{
 }
 
 
@@ -83,6 +86,48 @@ void PndMQTopix4Processor::Run()
 	}
 }
 
-PndMQTopix4Processor::~PndMQTopix4Processor()
+void PndMQTopix4Processor::SetProperty(const int key, const string& value)
 {
+    switch (key)
+    {
+        default:
+            FairMQDevice::SetProperty(key, value);
+            break;
+    }
 }
+
+string PndMQTopix4Processor::GetProperty(const int key, const string& default_ /*= ""*/)
+{
+    switch (key)
+    {
+        default:
+            return FairMQDevice::GetProperty(key, default_);
+    }
+}
+
+void PndMQTopix4Processor::SetProperty(const int key, const int value)
+{
+    switch (key)
+    {
+    case FE:
+    	fFE = value;
+    	fTopixDataReader.SetFE(fFE);
+    	break;
+	default:
+		FairMQDevice::SetProperty(key, value);
+		break;
+    }
+}
+
+int PndMQTopix4Processor::GetProperty(const int key, const int default_ /*= 0*/)
+{
+    switch (key)
+    {
+    case FE:
+        	return fFE;
+        default:
+            return FairMQDevice::GetProperty(key, default_);
+    }
+}
+
+

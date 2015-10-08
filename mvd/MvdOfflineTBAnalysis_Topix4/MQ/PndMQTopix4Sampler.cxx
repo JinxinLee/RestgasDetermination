@@ -93,10 +93,6 @@ void PndMQTopix4Sampler::SetProperty(const int key, const int value)
 {
     switch (key)
     {
-    case FE:
-    	fFE = value;
-    	fTopixDataReader.SetFE(fFE);
-    	break;
 	default:
 		FairMQDevice::SetProperty(key, value);
 		break;
@@ -107,8 +103,6 @@ int PndMQTopix4Sampler::GetProperty(const int key, const int default_ /*= 0*/)
 {
     switch (key)
     {
-    case FE:
-        	return fFE;
         default:
             return FairMQDevice::GetProperty(key, default_);
     }

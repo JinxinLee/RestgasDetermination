@@ -13,7 +13,7 @@
  */
 
 //#include <PndMQTopix4ProcessorTask.h>
-#include <PndMQTopix4Processor.h>
+#include <PndMQSorterDistributor.h>
 #include <iostream>
 
 #include "boost/program_options.hpp"
@@ -34,7 +34,7 @@ using namespace boost::program_options;
 
 int main(int argc, char** argv)
 {
-	PndMQTopix4Processor processor;
+	PndMQSorterDistributor processor;
     processor.CatchSignals();
 
     FairMQProgOptions config;
@@ -77,7 +77,6 @@ int main(int argc, char** argv)
         processor.SetTransport(transportFactory);
 
         processor.SetProperty(FairMQDevice::Id, id);
-        processor.SetProperty(PndMQTopix4Processor::FE, fe);
 
         //PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
         //processor.SetTask(task);

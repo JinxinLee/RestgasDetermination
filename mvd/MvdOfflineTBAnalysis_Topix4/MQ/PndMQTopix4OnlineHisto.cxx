@@ -6,7 +6,7 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /**
- * PndMQTopix4Sink.cxx
+ * PndMQTopix4OnlineHisto.cxx
  *
  * @since 2014-10-10
  * @author A. Rybalchenko
@@ -15,7 +15,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include <PndMQTopix4Sink.h>
+#include <PndMQTopix4OnlineHisto.h>
 
 #include "baseMQtools.h"
 
@@ -29,7 +29,7 @@
 
 using namespace std;
 
-PndMQTopix4Sink::PndMQTopix4Sink() : fHasBoostSerialization(false)
+PndMQTopix4OnlineHisto::PndMQTopix4OnlineHisto() : fHasBoostSerialization(false)
 {
 	//gSystem->ResetSignal(kSigInterrupt);
 	//gSystem->ResetSignal(kSigTermination);
@@ -40,18 +40,20 @@ PndMQTopix4Sink::PndMQTopix4Sink() : fHasBoostSerialization(false)
 		fHasBoostSerialization = true;
 }
 
-//void PndMQTopix4Sink::CustomCleanup(void *data, void *object)
+//void PndMQTopix4OnlineHisto::CustomCleanup(void *data, void *object)
 //{
 //    delete (string*)object;
 //}
 
-void PndMQTopix4Sink::Run()
+void PndMQTopix4OnlineHisto::Run()
 {
 	LOG(INFO) << "Boost Serialization "<< fHasBoostSerialization;
 	if (fHasBoostSerialization){
 		FairMQChannel& dataInChannel = fChannels.at("data-in").at(0);
 		int receivedMsgs = 0;
 
+		TH2* h2 = new TH2D("h2","h2", 21, -0.5, 20.5, 33, -0.5, 32.5);
+		TCanvas *c1 = new TCanvas("c1", "Dynamic Filling Example", 500, 100, 700, 500);
 		while (CheckCurrentState(RUNNING))
 		{
 			FairMQMessage* msg = fTransportFactory->CreateMessage();
@@ -85,9 +87,16 @@ void PndMQTopix4Sink::Run()
 	//            	unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
 	//            	fChannels.at("data-out").at(0).Send(msg);
 					LOG(INFO) << "Data: " << fTopixData.size() << " " << fTopixData.front() <<  std::endl;
+					h2->Fill(fTopixData.front().GetPixelColumn(), fTopixData.front().GetPixelRow());
 				}
 				delete(msg);
 
+				const int kUPDATE = 1000;
+				if (receivedMsgs && (receivedMsgs%kUPDATE) == 0){
+					if (receivedMsgs == kUPDATE) h2->Draw("colz");
+					c1->Modified();
+					c1->Update();
+				}
 
 				if (fTopixData.size() > 0)
 					fTopixData.clear();
@@ -96,6 +105,6 @@ void PndMQTopix4Sink::Run()
 	}
 }
 
-PndMQTopix4Sink::~PndMQTopix4Sink()
+PndMQTopix4OnlineHisto::~PndMQTopix4OnlineHisto()
 {
 }

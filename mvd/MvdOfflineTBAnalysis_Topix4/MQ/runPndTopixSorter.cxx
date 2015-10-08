@@ -6,23 +6,21 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /**
- * runExample1Sink.cxx
+ * runExample1sorter.cxx
  *
  * @since 2013-04-23
  * @author D. Klein, A. Rybalchenko
  */
 
-//#include <PndMQTopix4ProcessorTask.h>
-#include <PndMQTopix4Processor.h>
+#include <PndMQTopix4Sorter.h>
 #include <iostream>
+#include <TApplication.h>
 
 #include "boost/program_options.hpp"
 
 #include "FairMQLogger.h"
 #include "FairMQParser.h"
 #include "FairMQProgOptions.h"
-#include "FairMQProcessor.h"
-#include "FairMQDevice.h"
 
 #ifdef NANOMSG
 #include "FairMQTransportFactoryNN.h"
@@ -34,18 +32,10 @@ using namespace boost::program_options;
 
 int main(int argc, char** argv)
 {
-	PndMQTopix4Processor processor;
-    processor.CatchSignals();
+    PndMQTopix4Sorter sorter;
+    sorter.CatchSignals();
 
     FairMQProgOptions config;
-
-    int fe;
-
-    options_description samplerOptions("Sampler options");
-	samplerOptions.add_options()
-		("FE", value<int>(&fe)->default_value(-1), "Front-End ID");
-
-	config.AddToCmdLineOptions(samplerOptions);
 
     try
     {
@@ -57,16 +47,11 @@ int main(int argc, char** argv)
         std::string filename = config.GetValue<std::string>("config-json-file");
         std::string id = config.GetValue<std::string>("id");
 
-
         config.UserParser<FairMQParser::JSON>(filename, id);
 
-        processor.fChannels = config.GetFairMQMap();
+        sorter.fChannels = config.GetFairMQMap();
 
         LOG(INFO) << "PID: " << getpid();
-        LOG(INFO) << "ID: " << id ;
-        LOG(INFO) << "FE: " << fe;
-        LOG(INFO) << "Processor::Id Kes: " << FairMQDevice::Id;
-        processor.ListProperties();
 
 #ifdef NANOMSG
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryNN();
@@ -74,22 +59,19 @@ int main(int argc, char** argv)
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryZMQ();
 #endif
 
-        processor.SetTransport(transportFactory);
+        sorter.SetTransport(transportFactory);
 
-        processor.SetProperty(FairMQDevice::Id, id);
-        processor.SetProperty(PndMQTopix4Processor::FE, fe);
+        sorter.SetProperty(PndMQTopix4Sorter::Id, id);
 
-        //PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
-        //processor.SetTask(task);
+        sorter.ChangeState("INIT_DEVICE");
+        sorter.WaitForEndOfState("INIT_DEVICE");
 
-        processor.ChangeState("INIT_DEVICE");
-        processor.WaitForEndOfState("INIT_DEVICE");
+        sorter.ChangeState("INIT_TASK");
+        sorter.WaitForEndOfState("INIT_TASK");
 
-        processor.ChangeState("INIT_TASK");
-        processor.WaitForEndOfState("INIT_TASK");
+        sorter.ChangeState("RUN");
+        sorter.InteractiveStateLoop();
 
-        processor.ChangeState("RUN");
-        processor.InteractiveStateLoop();
     }
     catch (std::exception& e)
     {

@@ -6,7 +6,7 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /**
- * PndMQTopix4Sink.cxx
+ * PndMQTopix4Sorter.cxx
  *
  * @since 2014-10-10
  * @author A. Rybalchenko
@@ -15,12 +15,12 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include <PndMQTopix4Sink.h>
+#include <PndMapSorterTpl.h>
+#include "PndMQTopix4Sorter.h"
 
 #include "baseMQtools.h"
 
 #include "FairMQLogger.h"
-#include "mrfdata_8b.h"
 #include "PndSdsDigiTopix4.h"
 
 #include <TH2.h>
@@ -29,7 +29,7 @@
 
 using namespace std;
 
-PndMQTopix4Sink::PndMQTopix4Sink() : fHasBoostSerialization(false)
+PndMQTopix4Sorter::PndMQTopix4Sorter() : fHasBoostSerialization(false)
 {
 	//gSystem->ResetSignal(kSigInterrupt);
 	//gSystem->ResetSignal(kSigTermination);
@@ -40,17 +40,21 @@ PndMQTopix4Sink::PndMQTopix4Sink() : fHasBoostSerialization(false)
 		fHasBoostSerialization = true;
 }
 
-//void PndMQTopix4Sink::CustomCleanup(void *data, void *object)
+//void PndMQTopix4Sorter::CustomCleanup(void *data, void *object)
 //{
 //    delete (string*)object;
 //}
 
-void PndMQTopix4Sink::Run()
+void PndMQTopix4Sorter::Run()
 {
 	LOG(INFO) << "Boost Serialization "<< fHasBoostSerialization;
 	if (fHasBoostSerialization){
 		FairMQChannel& dataInChannel = fChannels.at("data-in").at(0);
+		FairMQChannel& dataOutChannel = fChannels.at("data-out").at(0);
+
 		int receivedMsgs = 0;
+		PndMapSorterTpl<PndSdsDigiTopix4> sorter;
+
 
 		while (CheckCurrentState(RUNNING))
 		{
@@ -58,9 +62,7 @@ void PndMQTopix4Sink::Run()
 
 			if (dataInChannel.Receive(msg) > 0)
 			{
-				LOG(INFO) << "Received Message: ";
-				LOG(INFO) << receivedMsgs++;
-				LOG(INFO) << msg->GetSize();
+				LOG(INFO) << "Received Message: " << receivedMsgs++ << " Size: " << msg->GetSize();
 
 				string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
 				istringstream ibuffer(msgStr);
@@ -76,26 +78,59 @@ void PndMQTopix4Sink::Run()
 				}
 
 				LOG(INFO) << "TopixData: " << fTopixData.size();
+				for (auto iter : fTopixData){
+					LOG(INFO) << iter.GetTimeStamp();
+				}
 
+				bool endSorting = false;
+				double timeOfLast = 0;
 				if (fTopixData.size() > 0){
-	//            	ostringstream obuffer;
-	//            	boost::archive::binary_oarchive OutputArchive(obuffer);
-	//            	OutputArchive << frames.front();
-	//            	int outputSize = obuffer.str().length();
-	//            	unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
-	//            	fChannels.at("data-out").at(0).Send(msg);
-					LOG(INFO) << "Data: " << fTopixData.size() << " " << fTopixData.front() <<  std::endl;
+					for (auto iter : fTopixData){
+						if (iter.GetTimeStamp() > 0){
+							sorter.AddElement(iter, iter.GetTimeStamp());
+							timeOfLast = iter.GetTimeStamp();
+						}
+						else {
+							endSorting = true;
+							LOG(INFO) << "---END SORTING---";
+						}
+					}
+					if (endSorting == false){
+						sorter.WriteOutData(timeOfLast);
+						fOutputData = sorter.GetOutputData();
+						sorter.DeleteOutputData();
+					}
+					else {
+						sorter.WriteOutAll();
+						fOutputData = sorter.GetOutputData();
+						fOutputData.push_back(PndSdsDigiTopix4());
+						sorter.DeleteOutputData();
+						endSorting = false;
+					}
+
+					std::ostringstream obuffer;
+					boost::archive::binary_oarchive OutputArchive(obuffer);
+					OutputArchive << fOutputData;
+					int outputSize = obuffer.str().length();
+					unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
+					memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
+					dataOutChannel.Send(msg2);
+
+					//LOG(INFO) << "Data: " << fTopixData.size() << " " << timeOfLast;
+					LOG(INFO) << "Output: " << fOutputData.size() << " timeOfLast: " << timeOfLast;
+					for(auto itr : fOutputData)
+						LOG(INFO) << itr.GetTimeStamp();
+
+					fTopixData.clear();
+					fOutputData.clear();
 				}
 				delete(msg);
 
-
-				if (fTopixData.size() > 0)
-					fTopixData.clear();
 			}
 		}
 	}
 }
 
-PndMQTopix4Sink::~PndMQTopix4Sink()
+PndMQTopix4Sorter::~PndMQTopix4Sorter()
 {
 }

@@ -14,6 +14,7 @@
 
 #include <PndMQTopix4Sink.h>
 #include <iostream>
+#include <TApplication.h>
 
 #include "boost/program_options.hpp"
 

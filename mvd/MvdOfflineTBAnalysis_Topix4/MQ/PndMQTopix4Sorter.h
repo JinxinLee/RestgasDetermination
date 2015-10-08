@@ -6,57 +6,50 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /**
- * PndMQTopix4Sink.h
+ * PndMQTopix4Sorter.h
  *
  * @since 2014-10-10
  * @author A. Rybalchenko
  */
 
-#ifndef PndMQTopix4Processor_H_
-#define PndMQTopix4Processor_H_
+#ifndef PndMQTopix4Sorter_H_
+#define PndMQTopix4Sorter_H_
 
-//#include "FairMQDevice.h"
 #include "FairMQDevice.h"
-#include "PndMvdReadInToPix4TBData.h"
+
+#include "PndSdsDigiTopix4.h"
 
 #include <boost/serialization/access.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
-class PndMQTopix4Processor : public FairMQDevice
+class PndMQTopix4Sorter : public FairMQDevice
 {
   public:
-    enum
-    {
-        FE = FairMQDevice::Last,
-        Last
-    };
+    PndMQTopix4Sorter();
+    virtual ~PndMQTopix4Sorter();
 
-    PndMQTopix4Processor();
-    virtual ~PndMQTopix4Processor();
-
-    virtual void SetProperty(const int key, const std::string& value);
-	virtual std::string GetProperty(const int key, const std::string& default_ = "");
-	virtual void SetProperty(const int key, const int value);
-	virtual int GetProperty(const int key, const int default_ = 0);
+//    static void CustomCleanup(void *data, void *object);
 
     template <class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-    	ar& fPndSdsDigiTopix4Vector;
+		ar& fTopixData;
+		ar& fOutputData;
 	}
 
   protected:
     virtual void Run();
-  private:
+
 	#ifndef __CINT__ // for BOOST serialization
-    	friend class boost::serialization::access;
+		friend class boost::serialization::access;
+		bool fHasBoostSerialization;
 	#endif // for BOOST serialization
-    std::vector<PndSdsDigiTopix4> fPndSdsDigiTopix4Vector;
 
-    bool fHasBoostSerialization;
-    int fFE;
-
-    PndMvdReadInToPix4TBData fTopixDataReader;
+    std::vector<PndSdsDigiTopix4> fTopixData;
+    std::vector<PndSdsDigiTopix4> fOutputData;
 };
 
 #endif /* FAIRMQEXAMPLE1SINK_H_ */

@@ -8,6 +8,7 @@
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/ex1-sampler-sink.json ${CMAKE_BINARY_DIR}/bin/config/ex1-sampler-sink.json)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/ex2-sampler-processor-sink.json ${CMAKE_BINARY_DIR}/bin/config/ex2-sampler-processor-sink.json)
+configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/TopixChain.json ${CMAKE_BINARY_DIR}/bin/config/TopixChain.json)
 
 Set(INCLUDE_DIRECTORIES
   ${BASE_INCLUDE_DIRECTORIES}
@@ -67,6 +68,9 @@ set(SRCS
   "PndMQTopix4ProcessorTask.cxx"
   "PndMQTopix4Processor.cxx"
   "PndMQTopix4Sink.cxx"
+  "PndMQSorterDistributor.cxx"
+  "PndMQTopix4Sorter.cxx"
+  "PndMQSorterMerger.cxx"
 )
 
 
@@ -106,6 +110,9 @@ set(Exe_Names
   Topix4-sampler
   Topix4-processor
   Topix4-sink
+  Topix4-distributor
+  Topix4-sorter
+  Topix4-merger
 )
 
 
@@ -117,6 +124,9 @@ set(Exe_Source
   runPndTopixSampler.cxx
   runPndTopixProcessor.cxx
   runPndTopixSink.cxx
+  runPndTopixSorterDistributor.cxx
+  runPndTopixSorter.cxx
+  runPndTopixSorterMerger.cxx
 )
 
 list(LENGTH Exe_Names _length)
