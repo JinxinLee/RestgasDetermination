@@ -6,20 +6,18 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /*
- * PndMapSorter.h
+ * PndMapSorterTpl.h
  *
  *  Created on: Jul 15, 2010
  *      Author: stockman
  */
 
-#ifndef PndMapSorter_H_
-#define PndMapSorter_H_
+#ifndef PndMapSorterTpl_H_
+#define PndMapSorterTpl_H_
 
 
-#include "TObject.h"                    // for TObject
-
-#include "Riosfwd.h"                    // for ostream
-#include "Rtypes.h"                     // for PndMapSorter::Class, etc
+//#include "Riosfwd.h"                    // for ostream
+//#include "Rtypes.h"                     // for PndMapSorterTpl::Class, etc
 
 #include <iostream>                     // for operator<<, ostream, etc
 #include <map>                          // for multimap
@@ -27,28 +25,28 @@
 #include <vector>                       // for vector
 
 #include "FairTimeStamp.h"
+#include "PndSdsDigiTopix4.h"
 
-class PndMapSorter : public TObject
+template< typename TData >
+class PndMapSorterTpl
 {
   public:
-    PndMapSorter(double timeOffset = 1000000)
-      : TObject(), fOutputData(), fVerbose(0), fTimeOffset(timeOffset), fOldTS(0) {
+    PndMapSorterTpl(double timeOffset = 1000000)
+      : fOutputData(), fVerbose(0), fTimeOffset(timeOffset), fOldTS(0) {
     }
 
-    virtual ~PndMapSorter() {};
+    virtual ~PndMapSorterTpl() {};
 
-    virtual FairTimeStamp* CreateElement(FairTimeStamp* data);
+ //   virtual FairTimeStamp* CreateElement(FairTimeStamp* data);
 
-    virtual void AddElement(FairTimeStamp* digi, double timestamp);
+    virtual void AddElement(TData digi, double timestamp);
     virtual void WriteOutAll();
     virtual void WriteOutData(double time);
-    virtual std::vector<FairTimeStamp*> GetOutputData() {
+    virtual std::vector<TData> GetOutputData() {
       return fOutputData;
     }
 
     virtual void DeleteOutputData() {
-    	for (auto itr : fOutputData)
-    		delete(itr);
     	fOutputData.clear();
     }
 
@@ -57,23 +55,23 @@ class PndMapSorter : public TObject
 
     virtual void PrintMap(std::ostream& out = std::cout){
     	int i = 0;
-    	out << "PndMapsSorter Print Map: " << std::endl;
-    	for (std::multimap<double, FairTimeStamp*>::iterator itr = fMapBuffer.begin(); itr != fMapBuffer.end(); itr++){
-    		out << i++ << " : " << itr->first << std::endl;
+    	out << "PndMapSorter Print Map: " << std::endl;
+    	for (auto itr : fMapBuffer){
+    		out << i++ << " : " << itr.first << std::endl;
     	}
     	out << std::endl;
     }
 
 
   private:
-    std::multimap<double, FairTimeStamp*> fMapBuffer;
-    std::vector<FairTimeStamp*> fOutputData;
+    std::multimap<double, TData> fMapBuffer;
+    std::vector<TData> fOutputData;
     double fOldTS;
     double fTimeOffset;
     int fVerbose;
 
-    ClassDef(PndMapSorter,1)
-
 };
 
-#endif /* PndMapSorter_H_ */
+#include "PndMapSorterTpl.tpl"
+
+#endif /* PndMapSorterTpl_H_ */
