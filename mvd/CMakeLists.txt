@@ -123,7 +123,7 @@ set(LIBRARY_NAME Mvd)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
 Geane Sds TrkBase boost_serialization boost_thread MathCore MathMore
-  fairmq_logger
+  # fairmq_logger
   boost_timer
   boost_system
   boost_filesystem
