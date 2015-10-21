@@ -69,12 +69,13 @@ void FCPrintInfo()
 {
 	cout <<"\nfindcuts: Tool to find good selection for signal vs bkg. Ranks variables according to maximum (S*ws)^2/(S*ws+B*wb) on optionally normalised distributions.\n";
 	cout <<"          Double click on a pad applies corresponding cut and re-iterates.\n\n";
-	cout <<"USAGE:\nfindcuts(TTree *t, TString ctlvar, TString sigcut, TString bnames, TString precut, int numvars, double ws, double wb, int norm, int bins)\n"; 
+	cout <<"USAGE:\nfindcuts(TTree *t, TString ctlvar, TString sigcut, TString bnames, TString precut, int numvars, double qaopt, double ws, double wb, int norm, int bins)\n"; 
 	cout <<"  t       : tree containing signal and background; if given as only argument, list of available branches are printed.\n";
 	cout <<"  ctlvar  : control variable to check signal quality (e.g. invariant mass); displayed in upper left pad; excluded from branch list.\n";
 	cout <<"  sigcut  : cut to isolate signal; background is selected with !(sigcut).\n";
 	cout <<"  bnames  : blank separated list of branch/alias variable names to be considered; can make use of name* / *name /*name*; !(*)name(*) excludes variables (default = \"*\").\n";
 	cout <<"  precut  : cut to be applied before variable ranking is done (default = \"\").\n";
+	cout <<"  qaopt   : optimisation mode; qaopt=0 : best S/sqrt(S+B); -1<qaopt<0 : best signal eff for fixed bkg reduction; 0<qaopt<1 : best bkg reduction for fixed signal eff. (default = 0).\n";
 	cout <<"  numvars : number of variables to be displayed (default = 9).\n";
 	cout <<"  ws, wb  : weight factors for signal & background (default = 1.0); are applied to spectra and calculations after optional normalisation.\n";
 	cout <<"  norm    : normalisation of distributions before ranking (-> pdf) (default = 1); double click in control variable pad toggles 'norm' and reruns.\n";
@@ -243,7 +244,7 @@ double FCSfc(double S, double B)
 // -------------------------------------------
 // The QA routine. It finds the best value ws*ws*S*S/(ws*S +wb*B) for cuts from left and right
 // It stores the found cut strings in the qamap
-double FCQaVar(TString var)
+double FCQaVar(TString var, double qaopt=0)
 {
 	double xmin, xmax;
 	
@@ -262,15 +263,15 @@ double FCQaVar(TString var)
 		t->SetEventList(elb);
 		t->Draw(var+">>h2","","goff");
 		
-		// normalize histograms
-		if (normalize)
+		// normalize histograms (if not significance optimisation, do anyways!)
+		if (normalize || fabs(qaopt)>0.0001)
 		{
 			h1.Scale(1./h1.GetEntries());
 			h2.Scale(1./h2.GetEntries());
 		}
 		
-		// multiply histos with weights
-		h1.Scale(Wsig); h2.Scale(Wbkg);
+		// multiply histos with weights (only for significance optimisation)
+		if (fabs(qaopt)<0.0001) {h1.Scale(Wsig); h2.Scale(Wbkg);}
 		double h1ent = h1.Integral(), h2ent = h2.Integral();
 		
 		// some vars to store the best efficiencies, cuts, partial sums, etc
@@ -288,9 +289,25 @@ double FCQaVar(TString var)
 			rsums+=h1.GetBinContent(BINS-i+1);  // signal
 			rsumb+=h2.GetBinContent(BINS-i+1);  // background
 			
+			double Sl=0, Sr=0;
 			// compute the significances; weights are already taken into account by scaling the histograms
-			double Sl = FCSfc(lsums,lsumb);
-			double Sr = FCSfc(rsums,rsumb);
+			if (abs(qaopt)<1e-8) 
+			{
+				Sl = FCSfc(lsums,lsumb);
+				Sr = FCSfc(rsums,rsumb);
+			}
+			// compute the signal efficiency for a certain background suppression
+			else if (qaopt<0)
+			{
+				if (lsumb<=(1.+qaopt)) Sl = lsums;
+				if (rsumb<=(1.+qaopt)) Sr = rsums;
+			}
+			// compute the signal efficiency for a certain background suppression
+			else
+			{
+				if (lsums>=qaopt) Sl = 1.-lsumb;
+				if (rsumb>=qaopt) Sr = 1.-rsumb;
+			}
 			
 			// find the best ones
 			if (Sl>bestSl) {bestSl=Sl; besteffsl=lsums/h1ent; besteffbl=lsumb/h2ent; bestCutl=h1.GetBinLowEdge(i+1);}
@@ -479,11 +496,19 @@ void FCDrawVariable(TString var, int numpad, int norm=1, TString cut="")
 // -------------------------------------------
 // The main function
 // -------------------------------------------
-void findcuts(TTree *theTree=0, TString ctlvar="", TString sigcut="", TString bnames="", TString precut="", int numvars=9, double ws=1., double wb=1., int norm=1, int bins=500)
+void findcuts(TTree *theTree=0, TString ctlvar="", TString sigcut="", TString bnames="", TString precut="", int numvars=9, double qaopt=0., double ws=1., double wb=1., int norm=1, int bins=500)
 {
 	// if no argument given, print usage information
 	if (theTree==0) {FCPrintInfo();return;} 
 	t=theTree;
+	
+	// check for reasonable qaopt parameter -1<qaopt<1
+	if (qaopt<-1) qaopt=-1;
+	if (qaopt>1)  qaopt=1;
+	cout <<"\nOptimising for ";
+	if (qaopt<0) cout <<"best signal effciency for given background reduction of "<<fabs(qaopt)<<endl;
+	if (qaopt>0) cout <<"best background reduction for given signal efficiency of "<<qaopt<<endl;
+	else cout <<"best significance S/sqrt(S+B)"<<endl;
 	
 	// set defaults for some parameters
 	if (numvars==0) numvars = 9;
@@ -494,12 +519,12 @@ void findcuts(TTree *theTree=0, TString ctlvar="", TString sigcut="", TString bn
 	cout<< (t->GetListOfAliases() ? t->GetListOfAliases()->GetSize() : 0) <<endl;
 	
 	// the current command string; will be printed at the end
-	comcurrent = TString::Format("findcuts(%s,\"%s\",\"%s\",\"%s\",\"%s\",%d,%.1f,%.1f,%%d,%d)",
-										 tname.Data(),ctlvar.Data(), sigcut.Data(),bnames.Data(),precut.Data(),numvars, ws, wb, bins);
+	comcurrent = TString::Format("findcuts(%s,\"%s\",\"%s\",\"%s\",\"%s\",%d,%.3f,%.3f,%.3f,%%d,%d)",
+										 tname.Data(),ctlvar.Data(), sigcut.Data(),bnames.Data(),precut.Data(),numvars, qaopt, ws, wb, bins);
 	
 	// The template string for pasting the new cut in
-	comtemplate = TString::Format("findcuts(%s,\"%s\",\"%s\",\"%s\",\"%s%sNEWCUT\",%d,%.1f,%.1f,%d,%d)",
-								tname.Data(), ctlvar.Data(), sigcut.Data(),bnames.Data(),precut.Data(),precut==""?"":"&&",numvars, ws, wb, norm, bins);
+	comtemplate = TString::Format("findcuts(%s,\"%s\",\"%s\",\"%s\",\"%s%sNEWCUT\",%d,%.3f,%.3f,%.3f,%d,%d)",
+								tname.Data(), ctlvar.Data(), sigcut.Data(),bnames.Data(),precut.Data(),precut==""?"":"&&",numvars, qaopt, ws, wb, norm, bins);
 	
 	// catch some special cases
 	// if no sigcut is provided, only the list of branches is printed out
@@ -562,7 +587,7 @@ void findcuts(TTree *theTree=0, TString ctlvar="", TString sigcut="", TString bn
 		// **** do the actual ranking procedure by analysing all variables
 		for (uint i=0;i<bnam.size();++i) 
 		{
-			if (bnam[i]!=ctlvar) FCQaVar(bnam[i]);
+			if (bnam[i]!=ctlvar) FCQaVar(bnam[i], qaopt);
 			// print progress bar
 			while ((double)i/(double)bnam.size()>ticks/25.) { cout <<"#"<<flush; ticks++; }
 		}
@@ -600,7 +625,7 @@ void findcuts(TTree *theTree=0, TString ctlvar="", TString sigcut="", TString bn
 	double effs = (double)Ns/N0s, effb = (double)Nb/N0b;
 	double qa  = normalize ? FCSfc(ws*effs, wb*effb) : FCSfc(ws*Ns, wb*Nb);
 	double pur = normalize ? ws*effs/(ws*effs+wb*effb) : ws*Ns/(ws*Ns+wb*Nb);
-	printf("\nEFF_S = %5.3f (%d/%d)   EFF_B = %5.3f (%d/%d)   PUR = %5.3f   QA = %6.3f\n",effs, Ns, N0s, effb, Nb, N0b, pur, qa);
+	printf("\nEFF_S = %5.3f (%d/%d)   EFF_B = %5.3f (%d/%d)   PUR = %5.3f   S/sqrt(S+B) %s= %6.3f\n",effs, Ns, N0s, effb, Nb, N0b, pur, normalize?"norm'd ":"", qa);
 	
 	c1->cd(); c1->Update();
 }
