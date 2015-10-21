@@ -238,6 +238,8 @@ bool PndSimpleCombiner::ParseParams(TString params)
 		
 		// ****
 		// global mass window setting
+		// can be either : mwin(part)=0.5        -> cut +- 0.25 around nominal mass of part
+		// or            : mwin(part)=0.25|0.75  -> cut 0.25 < mpart < 0.75
 		// ****
 		if (pair[0]=="mwin")
 		{
@@ -264,7 +266,21 @@ bool PndSimpleCombiner::ParseParams(TString params)
 			int pdg = fPdg->GetParticle(pair[0])->PdgCode();
 			if (fPdgIdxMap.find(pdg) == fPdgIdxMap.end()) {cout <<"[PndSimpleCombiner] **** WARNING : Unknown particle list '"<<pair[0]<<"'"<<endl;continue;}
 			
-			double window = pair[1].Atof();
+			// set default mean and window
+			double mean = fPdg->GetParticle(pdg)->Mass(), window = 0;
+			
+			// range setting like 1.2|1.6 ?
+			if (pair[1].Contains("|"))
+			{
+				double lower = TString((pair[1])(0,pair[1].Index("|"))).Atof();
+				double upper = TString((pair[1])(pair[1].Index("|")+1,1000)).Atof();
+				
+				mean   = (upper+lower)/2.;
+				window = upper-lower;
+				
+				if (mean<0 || window <=0) {cout <<"[PndSimpleCombiner] **** WARNING : Invalid mass window defintion '"<<parm[i]<<"'"<<endl;continue;}
+			}
+			else window = pair[1].Atof();
 			
 			for (int j=0;j<fDecayInfoArray.size();++j)
 			{
@@ -274,7 +290,7 @@ bool PndSimpleCombiner::ParseParams(TString params)
 				{
 					if (info.msel) delete info.msel;
 					info.mwin = window;
-					info.msel = new RhoMassParticleSelector("msel",fPdg->GetParticle(info.mpdg)->Mass(),window);
+					info.msel = new RhoMassParticleSelector("msel",mean,window);
 				}
 			}	
 		}

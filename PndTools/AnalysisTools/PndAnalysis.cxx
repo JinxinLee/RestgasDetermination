@@ -152,7 +152,8 @@ void PndAnalysis::Init()
     fBuildMcCands = true;
   }
 
-  fChainEntries = ( fRootManager->GetInChain() )->GetEntries();
+  //fChainEntries = ( fRootManager->GetInChain() )->GetEntries();
+  fChainEntries = fRootManager->CheckMaxEventNo();
 
   //TODO default constructor here?
   fPidCombiner = new PndAnaPidCombiner();

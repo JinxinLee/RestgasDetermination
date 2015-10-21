@@ -10,10 +10,11 @@
 //                  This string is handed over to PndSimpleCombiner
 //
 // - params       : configuration parameters, e.g. "fit4c:qamc". The string contains also parameters handled by PndSimpleCombiner; those handled by this task are:
-//   - fit4c      : perform 4C fit on last resonance
-//   - fitvtx     : perform vertex fit on all resonances when possible (at least two daughters)
+//   - fit4c[<x]  : perform 4C fit on last resonance; optional argument [<x] cuts on chi2 < x
+//   - fitvtx[<x] : perform vertex fit on all resonances when possible (at least two daughters); optional argument [<x] cuts on chi2 < x
 //   - qamc       : stored MC information
 //   - qaevtshape : store event shape information
+//   - !ntpX      : skips dump of TTree for X-th resonance; e.g. in "phi -> K+ K-; D_s+ -> phi pi+", '!ntp0' would skip dump of TTree for phi->KK
 //
 // K.Goetzen 1/2015
 //
@@ -71,7 +72,7 @@ PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms,
   FairTask("PndSimpleCombinerTask"), fVerbose(0), fEvtCount(0), fRun(run), fMode(mode), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
   fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"),
-  fQaMC(false), fQaEventShape(false), fFit4C(false), fFitVtx(false), nmc(0)
+  fQaMC(false), fQaEventShape(false), fFit4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), fNodump(0), nmc(0)
 { 
 	fIni.SetXYZT(0,0,0,0);
 	double mp = 0.938272;
@@ -90,10 +91,44 @@ PndSimpleCombinerTask::~PndSimpleCombinerTask()
 void PndSimpleCombinerTask::InitParms()
 {
 	fAnaParms.ReplaceAll(" ","");
-	if (fAnaParms.Contains("fit4c"))      { fFit4C        = true; fAnaParms.ReplaceAll("fit4c",""); }
-	if (fAnaParms.Contains("fitvtx"))     { fFitVtx       = true; fAnaParms.ReplaceAll("fitvtx",""); }
-	if (fAnaParms.Contains("qamc"))       { fQaMC         = true; fAnaParms.ReplaceAll("qamc",""); }
-	if (fAnaParms.Contains("qaevtshape")) { fQaEventShape = true; fAnaParms.ReplaceAll("qaevtshape",""); }
+	
+	StringList pars;
+	SplitString(fAnaParms,":",pars);
+	
+	// loop over all parameters
+	for (unsigned int i=0;i<pars.size();++i)
+	{
+		// is this a parameter handled by task or by combiner? If yes, it will be deleted later from the list
+		bool taskparm = false;
+		
+		// simple parameter flag
+		if (pars[i]=="qamc")            {fQaMC         = true; taskparm = true;} // write mc information
+		if (pars[i]=="qaevtshape")      {fQaEventShape = true; taskparm = true;} // write event shape info
+		if (pars[i].Contains("fit4c"))  {fFit4C        = true; taskparm = true;} // perform 4c fit for last particle (usually pbarpSystemX)
+		if (pars[i].Contains("fitvtx")) {fFitVtx       = true; taskparm = true;} // perform vertex fit if possible (not cascaded)
+		
+		if (pars[i].BeginsWith("!ntp"))                                          // !ntpX avoids dump of ntuple of X-th resonance to save disc space (for e.g. subresonances of decay tree)
+		{
+			int ntpnum = ((TString)(pars[i](4,100))).Atoi();
+			if (ntpnum>=0 && ntpnum<32) fNodump |= (1<<ntpnum);                  // this is a bit marker; if i-th bit set, dump of ntpi is skipped
+			taskparm = true;
+		}
+			
+		// parameter pair for chi2 cut from fit?
+		if (pars[i].Contains("<"))
+		{
+			// extract the value
+			double cut = TString((pars[i])(pars[i].Index("<")+1,1000)).Atof();
+			if (cut<=0) { cout <<"[PndSimpleCombinerTask] **** ERROR : Invalid parameter setting '"<<pars[i]<<"'"<<endl;continue; }
+			
+			// set the cut for the corresponding fitter
+			if (pars[i].Contains("fit4c"))  fFit4CChiCut=cut;
+			if (pars[i].Contains("fitvtx")) fFitVtxChiCut=cut;	
+		}
+		
+		// delete parameter from list for PndSimpleCombiner
+		if (taskparm) fAnaParms.ReplaceAll(pars[i],"");
+	}	
 }
 
 // -------------------------------------------------------------------------
@@ -111,6 +146,7 @@ InitStatus PndSimpleCombinerTask::Init()
 	fSimpleCombiner->SetVerbose(fVerbose);
 	fSimpleCombiner->Print();
 
+	
 	// *******
 	// ******* PREPARE/CREATE THE STUFF YOU NEED
 	// *******
@@ -131,8 +167,12 @@ InitStatus PndSimpleCombinerTask::Init()
 	// *** create some ntuples
 	for (int i=0;i<fNntp;++i)
 	{
-		RhoTuple *n = new RhoTuple(TString::Format("ntp%d",i), toks[i]);
-		n->GetInternalTree()->SetDirectory(gDirectory);
+		RhoTuple *n = 0;
+		if (!(fNodump & (1<<i))) // do we write this ntuple?
+		{				  
+			n = new RhoTuple(TString::Format("ntp%d",i), toks[i]);
+			n->GetInternalTree()->SetDirectory(gDirectory);
+		}
 		vntp.push_back(n);
 		
 		TString pname = toks[i](0,toks[i].Index("->"));
@@ -149,6 +189,20 @@ InitStatus PndSimpleCombinerTask::Init()
 	
 	// *** Connect to the Online Filter Info
 	fOnlineFilterInfo = ( TClonesArray* ) FairRootManager::Instance()->GetObject ( "OnlineFilterInfo" );	
+	
+	
+		// ****** Print out some info from PndSimpleCombinerTask
+	cout <<endl<<"[PndSimpleCombinerTask] **** Configuration"<<endl<<"---------------------------"<<endl;
+	cout <<"Fitting       : ";
+	if (fFit4C)  cout <<"4-C ( chi^2 < "<<fFit4CChiCut<<")";
+	if (fFitVtx) cout <<"  Vertex ( chi^2 < "<<fFitVtxChiCut<<")";
+	cout <<endl;
+	
+	cout <<"Ntuple output : ";
+	if (fQaMC) cout <<"nmc  ";
+	for (int i=0;i<fNntp;++i) if (!(fNodump & (1<<i))) cout <<"ntp"<<i<<"("<<fPdg->GetParticle(vmpdg[i])->GetName()<<")  ";
+	cout <<endl<<endl;
+
 	
 	return kSUCCESS;
 }
@@ -255,6 +309,8 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 	// ntuple dump
 	for (i=0;i<fNntp;++i)
 	{
+		if (fNodump & (1<<i)) continue; // if dump of ntuple 'ntpi' is skipped continue
+						  
 		int pdg  = vmpdg[i];
 		int apdg = 0;
 		if (fPdg->GetParticle(pdg)->AntiParticle()) apdg = fPdg->GetParticle(pdg)->AntiParticle()->PdgCode();
@@ -307,6 +363,9 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 			if (truth) lv = truth->P4();
 			qa.qaP4("trx", lv, vntp[i]);
 			
+			// flag whether the fit is accepted
+			bool fitaccept = true;
+			
 			// for the last list we perform a 4C fit
 			if (fFit4C && i==fNntp-1)
 			{
@@ -326,7 +385,15 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 				{
 					RhoCandidate *d0fit = cfit->Daughter(k);
 					qa.qaP4(TString::Format("f4cxd%d",k),d0fit->P4(),vntp[i]);
+					
+					for (int k2=0;k2<d0fit->NDaughters();++k2)
+					{
+						RhoCandidate *ddfit = d0fit->Daughter(k);
+						qa.qaP4(TString::Format("f4cxd%dd%d",k,k2),ddfit->P4(),vntp[i]);
+					}
 				}
+				
+				if (chi2_4c>=fFit4CChiCut) fitaccept = false;
 			}
 			
 			// shall we do a vertex fit?
@@ -341,9 +408,11 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 				qa.qaP4("fvxx", cfit->P4(), vntp[i]);
 				double chi2_vtx = vtxfitter.GetChi2();     // *** and the chi^2 of the fit
 				vntp[i]->Column("chi2vx", (Float_t) chi2_vtx);
+				
+				if (chi2_vtx>=fFitVtxChiCut) fitaccept = false;
 			}	
 	
-			vntp[i]->DumpData();
+			if (fitaccept) vntp[i]->DumpData();
 		}
 	}
 	
@@ -355,7 +424,7 @@ void PndSimpleCombinerTask::Finish()
 {
 	if (nmc) nmc->GetInternalTree()->Write();
 	
-	for (int i=0;i<fNntp;++i) vntp[i]->GetInternalTree()->Write();
+	for (int i=0;i<fNntp;++i) if (!(fNodump & (1<<i))) vntp[i]->GetInternalTree()->Write();
 }
 
 ClassImp(PndSimpleCombinerTask)

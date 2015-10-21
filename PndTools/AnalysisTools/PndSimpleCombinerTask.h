@@ -87,6 +87,8 @@ class PndSimpleCombinerTask : public FairTask
 	bool           fQaEventShape;     // flag to store event shape variables
 	bool           fFit4C;            // flag to perform 4C fit
 	bool           fFitVtx;           // flag to perform vtx fit
+	double         fFit4CChiCut;      // cut on chi2 from 4C fitter
+	double         fFitVtxChiCut;     // cut on chi2 from vtx fitter
 	
 	// *** object instances needed
 	PndAnalysis       *fAnalysis;
@@ -95,6 +97,7 @@ class PndSimpleCombinerTask : public FairTask
 		
 	std::vector<int> vmpdg;        // pdg code of the composites
 	std::vector<RhoTuple*> vntp;   // ntuples for the composites
+	unsigned int fNodump;          // bit marker for ntuples not to be dumped (to save disc space); e.g. 101 -> don't dump ntp0 & ntp2
 	RhoTuple *nmc;                 // MC ntuple
 		
 	TClonesArray *fOnlineFilterInfo;	
