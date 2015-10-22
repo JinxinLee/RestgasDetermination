@@ -30,7 +30,7 @@ shows the network output for signal and background and a ROC curve.
 It can be used interactively by this commands:
 
 root [0] TFile f("input.root")
-root [1] ntp.AddFriend("input_tmvaout.root")
+root [1] ntp.AddFriend("tf","input_tmvaout.root")
 root [2] ntp.Draw(<your variable>,"tmvaout>0");
 
 
