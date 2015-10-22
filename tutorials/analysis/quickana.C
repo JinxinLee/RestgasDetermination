@@ -16,7 +16,7 @@
 //    [runnum]  : integer run number (default: 0)
 // -------------------
 
-void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0 )
+void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0, int runmode=0)
 {
 	if (Fname=="" || anadecay=="") 
 	{
@@ -28,8 +28,9 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 		cout << "   [nevt]    : number of events; default: 0 = all\n";
 		cout << "   [parms]   : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
 		cout << "   [fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'\n";
-        cout << "   [runST]   : if 'true' runs Software Trigger (default: false)\n";
-        cout << "   [runnum]  : integer run number (default: 0)\n\n";
+		cout << "   [runST]   : if 'true' runs Software Trigger (default: false)\n";
+		cout << "   [runnum]  : integer run number (default: 0)\n";
+		cout << "   [mode]    : arbitrary mode number (default: 0)\n\n";
 		return;
 	}
 	
@@ -103,7 +104,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	// *** PndSimpleCombinerTask ***
 	// *****************************
 	if (fastsim) anaparms+=":algo="+pidalgo;
-	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms, Mom, run);
+	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms, Mom, run, runmode);
 	scTask->SetPidAlgo(pidalgo);
 	fRun->AddTask(scTask);
 
