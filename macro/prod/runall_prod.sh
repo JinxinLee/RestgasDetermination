@@ -47,7 +47,9 @@ fi
 
 outprefix="data/"$prefix
 
-root -l -q -b -w prod_sim.C\(\"$outprefix\",$nEvts,\"$dec\",$mom,\"$res\"\) &> $outprefix"_sim.log"
+root -l -q -b -w prod_sim.C\(\"$outprefix\",$nEvts,\"$dec\",$mom,\"$res\"\) &> $outprefix"_sim.log" 
+NUMEV=`grep 'Generated Events' $outprefix"_sim.log"`
 root -l -b -q -w prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
 root -l -b -q -w prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
 root -l -b -q -w prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
+echo $NUMEV >> $outprefix"_pid.log"

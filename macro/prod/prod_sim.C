@@ -7,15 +7,15 @@
 
 prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom = 0., TString Resonance="pbarpSystem0" )
 {
-	if (Prefix=="" || Decfile=="" || Mom==0.) 
+	if (outpre=="" || Decfile=="" || mom==0.) 
 	{
 		cout << "USAGE:\n";
 		cout << "prod_sim.C+( <pref>,  <nevt>, <decfile>, <mom>, [res] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <nevt>     : number of events\n";
-		cout << "   <decfile>  : decfile; 'DPM' uses DPM generator instead\n";
-		cout << "   <mom>      : pbar momentum\n";
-		cout << "   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'\n\n";
+		cout << "   <decfile>  : decfile; keywords DPM[1/2], FTF[1], BOX use according generator instead \n";
+		cout << "   <mom>      : pbar momentum; for BOX generator defines single particle momentum range [0.1 < p < mom] GeV/c\n";
+		cout << "   [res]      : resonance (ignored when running other generator); default = 'pbarpSystem0'\n\n";
 		return;
 	}
 	
@@ -32,38 +32,60 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom
 	if (Resonance=="pbp")  Resonance = "pbarpSystem";
 	if (Resonance=="pbp0") Resonance = "pbarpSystem0";
 
-  //-----User Settings:-----------------------------------------------
-  TString  SimEngine      ="TGeant3";
-  TString  Workdir        =gSystem->Getenv("VMCWORKDIR");
-  //TString  Decfile        =Workdir+"/tutorials/apr13/psi2s_jpsi2pi.dec";
-  //TString  Resonance      ="psi(2S)";
-  
-  TString  OutputFile     = outpre+"_sim.root";
-  TString  ParOutputfile  = outpre+"_par.root";
-  Double_t BeamMomentum   = 15.0; // beam momentum ONLY for the scaling of the dipole field. For the generator use "mom"
-  TString  MediaFile      = "media_pnd.geo";
-  gDebug                  = 0;
-  TString digiFile        = "all.par"; //The emc run the hit producer directly 
-  // choose your event generator 
-  Bool_t UseEvtGen	      = kFALSE; 
-  Bool_t UseEvtGenDirect  = kFALSE;     
-  Bool_t UseDpm 	      = kFALSE;
-  Bool_t UseBoxGenerator  = kFALSE;
-  
-  
-  // DPM or EvtGen?
-  if (Decfile=="DPM") UseDpm=kTRUE;
-  else UseEvtGenDirect=kTRUE;
+	//-----User Settings:-----------------------------------------------
+	TString  SimEngine      ="TGeant3";
+	TString  Workdir        =gSystem->Getenv("VMCWORKDIR");
+	//TString  Decfile        =Workdir+"/tutorials/apr13/psi2s_jpsi2pi.dec";
+	//TString  Resonance      ="psi(2S)";
 
-  if (!UseBoxGenerator) BeamMomentum = mom;
+	TString  OutputFile     = outpre+"_sim.root";
+	TString  ParOutputfile  = outpre+"_par.root";
+	Double_t BeamMomentum   = 15.0; // beam momentum ONLY for the scaling of the dipole field. For the generator use "mom"
+	TString  MediaFile      = "media_pnd.geo";
+	gDebug                  = 0;
+	TString digiFile        = "all.par"; //The emc run the hit producer directly 
 
-  //------------------------------------------------------------------
-  TLorentzVector fIni(0, 0, mom, sqrt(mom*mom+9.3827203e-01*9.3827203e-01)+9.3827203e-01);  
-  TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888); 
-  //------------------------------------------------------------------
+	// choose your event generator
+	Bool_t UseEvtGenDirect  = kTRUE;
+	Bool_t UseFtf           = kFALSE;
+	Bool_t UseDpm           = kFALSE;
+	Bool_t UseBoxGenerator  = kFALSE;
+	
+	Bool_t usePndEventFilter = false;  // enable Panda event filter. *** Needs configuration (see below) *** 
+
+	// use DPM generator; default: inelastic @ pbarmom = mom
+	if (Decfile.BeginsWith("DPM"))
+	{
+		UseEvtGenDirect = kFALSE;
+		UseDpm 	      = kTRUE;
+	}
+
+	// use FTF generator; 
+	if (Decfile.BeginsWith("FTF"))
+	{
+		UseEvtGenDirect = kFALSE;
+		UseFtf 	        = kTRUE;
+	}
+
+	// use BOX generator; default: single mu-, 0<tht<180, 0<phi<360, 0.1<p<mom
+	if (Decfile=="BOX")
+	{
+		UseEvtGenDirect = kFALSE;
+		UseBoxGenerator = kTRUE;
+	}
+
+	BeamMomentum = 15.0;
+	if (!UseBoxGenerator) BeamMomentum = mom;
+
+	//------------------------------------------------------------------
+	TLorentzVector fIni(0, 0, mom, sqrt(mom*mom+9.3827203e-01*9.3827203e-01)+9.3827203e-01);  
+	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888); 
+	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880); 
+	//------------------------------------------------------------------
+
   TStopwatch timer;
   timer.Start();
-  gRandom->SetSeed(); 
+  gRandom->SetSeed(12767); 
 
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
@@ -130,7 +152,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  SciT->SetGeometryFileName("SciTil_201504.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
@@ -165,29 +187,75 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom
   Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
 
-  // Create and Set Event Generator
-  //-------------------------------
-  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
-  fRun->SetGenerator(primGen);
-  
-  if(UseBoxGenerator){	// Box Generator
-     FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
-     boxGen->SetPRange(mom,mom); // GeV/c
-     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-     boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
-     boxGen->SetXYZ(0., 0., 0.); // cm
-     primGen->AddGenerator(boxGen);
-  }
-  if(UseDpm){
-  	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
-	  primGen->AddGenerator(Dpm);
-  }
-  if(UseEvtGenDirect){
-      PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), mom);
-	  EvtGen->SetStoreTree(kTRUE);
-	  primGen->AddGenerator(EvtGen);
-  }	
-	 
+	
+	// Create and Set Event Generator
+	// -------------------------------
+	FairFilteredPrimaryGenerator* primGen = new FairFilteredPrimaryGenerator();
+	if (!usePndEventFilter) primGen->SetVerbose(0);
+	//FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
+	fRun->SetGenerator(primGen);
+
+	if(UseBoxGenerator)
+	{  // Box Generator
+		Double_t MomMin  = 0.1;  // minimum momentum for box generator
+		Double_t MomMax  = mom;  // maximum   "       "
+	
+		int Pdgcode = TDatabasePDG::Instance()->GetParticle(Resonance)->PdgCode();
+		FairBoxGenerator* boxGen = new FairBoxGenerator(Pdgcode, 1); // 211 = pion; 1 = multipl.
+		boxGen->SetPRange(MomMin,MomMax); // GeV/c
+		boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+		boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
+		boxGen->SetXYZ(0., 0., 0.); //cm
+		primGen->AddGenerator(boxGen);
+	}
+	
+	if(UseDpm)
+	{
+		int mode = 0;
+		if (Decfile=="DPM1") mode = 1;
+		if (Decfile=="DPM2") mode = 2;
+		
+		PndDpmDirect *Dpm= new PndDpmDirect(mom,mode);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
+		primGen->AddGenerator(Dpm);
+	}
+	
+	if(UseFtf)
+	{
+		bool noelastic = true;
+		if (Decfile=="FTF1") noelastic=false;
+		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", mom, 0, noelastic); 
+		primGen->AddGenerator(Ftf);
+	}
+
+	if(UseEvtGenDirect)
+	{
+		PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), mom);
+		EvtGen->SetStoreTree(kTRUE);
+		primGen->AddGenerator(EvtGen);
+	}
+
+	// set PANDA event filters
+	//-----------------------------
+	if (usePndEventFilter)
+	{
+		cout <<"Using FairEventFilter"<<endl;
+		primGen->SetFilterMaxTries(100000); // for testing small number, for real produrction set usually to 9999999 or something very big
+		
+		// multiplicity filter for charged
+		FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
+		chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
+		primGen->AndFilter(chrgFilter);
+			
+		// invariant mass filter for J/psi candidates
+		PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
+		eeInv->SetPdgCodesToCombine( 11, -11);
+		eeInv->SetMinMaxInvMass( 2.8, 3.3 );
+		eeInv->SetMinMaxCounts(1,10000);
+		primGen->AndFilter(eeInv);  //add filter to fFilterList
+		
+	}
+
+	
  //---------------------Create and Set the Field(s)---------- 
   PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
@@ -203,7 +271,11 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom
   fRun->Run(nEvents);
  //-------------------------  Save the parameters ----------------- 
   rtdb->saveOutput();
- //------------------------Print some info and exit----------------     
+
+	//-------------------------  Write Filter Info to File -----------
+	if (usePndEventFilter) primGen->WriteEvtFilterStatsToRootFile(); 
+  
+  //------------------------Print some info and exit----------------     
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
