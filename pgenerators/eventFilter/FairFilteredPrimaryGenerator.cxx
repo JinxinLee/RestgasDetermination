@@ -14,6 +14,7 @@
 #include "TParticlePDG.h"               // for TParticlePDG
 #include "TRandom.h"                    // for TRandom, gRandom
 #include "TString.h"                    // for TString
+#include "RhoFactory.h"
 
 #include <stddef.h>                     // for NULL
 #include <iostream>                     // for operator<<, basic_ostream, etc
@@ -98,6 +99,7 @@ FairFilteredPrimaryGenerator::~FairFilteredPrimaryGenerator()
 // -----   Public method GenerateEvent   -----------------------------------
 Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 {
+	RhoFactory::Instance()->Reset();
 
 	Int_t iTry=0; // number of attempts to find the next event that suits your filter
 	Bool_t acceptEvent = kFALSE; // is kTRUE if the event is finally accepted
