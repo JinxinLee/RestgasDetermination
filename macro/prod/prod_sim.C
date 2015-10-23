@@ -94,6 +94,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom
   fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetMaterials(MediaFile.Data());
+  fRun->SetUseFairLinks(kTRUE);
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   
   // Set the parameters 

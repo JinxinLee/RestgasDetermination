@@ -28,6 +28,7 @@ void prod_rec(TString outpre="")
   fRun->AddFriend(outpre+"_dig.root");
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);
+  fRun->SetUseFairLinks(kTRUE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 
