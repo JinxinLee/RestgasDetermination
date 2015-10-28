@@ -51,7 +51,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom
 	Bool_t UseDpm           = kFALSE;
 	Bool_t UseBoxGenerator  = kFALSE;
 	
-	Bool_t usePndEventFilter = false;  // enable Panda event filter. *** Needs configuration (see below) *** 
+	Bool_t usePndEventFilter = kFALSE;  // enable Panda event filter. *** Needs configuration (see below) *** 
 
 	// use DPM generator; default: inelastic @ pbarmom = mom
 	if (Decfile.BeginsWith("DPM"))
@@ -85,7 +85,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom
 
   TStopwatch timer;
   timer.Start();
-  gRandom->SetSeed(12767); 
+  gRandom->SetSeed(); 
 
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
