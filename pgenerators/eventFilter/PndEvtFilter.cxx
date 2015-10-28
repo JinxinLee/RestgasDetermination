@@ -48,6 +48,8 @@ Bool_t PndEvtFilter::FillList ( RhoCandList& rhoOutList, Int_t inPdgCode, Double
 
 		// get charge for particle
 		TParticlePDG*  pdt = particle->GetPDG();
+		if (0==pdt) continue; // unknown particle type (KG, 10/2015)
+
 		Double_t pCharge = pdt->Charge()/3.; // TParticlePDG contains charge in units of |e|/3
 
 		if ( pdgCodeCharge != pCharge ){ continue; } // skip all particles with different charge
