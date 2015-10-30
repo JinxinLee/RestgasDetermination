@@ -12,13 +12,12 @@ double fSigVz=0.005; //[cm]
 double fSigPx=0.01; //[GeV/c]
 double fSigPy=0.01; //[GeV/c]
 double fSigPz=0.01; //[GeV/c]
-double fCharge=1.;
 double fDtheta = 1.; //0.3 [pi]
 int    fPID=211;
+bool   fAlternate=true;
 TParticlePDG* fPDG = 0;
 int    fNumTrk=6;
 int    niter=1;
-int    fNDF = fNumTrk*(5-3)-3;
 int fSeedPrefix=936650;//
 TVector3 fVertex(0.,0.,0.);
 
@@ -411,51 +410,58 @@ void poormantracks(int nevt=250, int laut=0, int seed=-1)
     hVtxPullPocaZ->Fill(vertexDiff.Z()/dist);
 
     // ********** FAST FIT
-    PndVtxPRG vFastter(combiCand);
+    PndKalmanVtxFitter vFastter(combiCand);
     vFastter.SetSilent();
     //vFastter.SetDebug();
     if(fVerbose>0) cout<<"prg "<<flush;
     vertexFast=nullpunkt; //seed
-    double chiq = vFastter.FitVertexFast(vertexFast,covV);
+    double checkfast = vFastter.FitVertexFast(vertexFast,covV);
+    double chiq=vFastter.GetChi2();
+    int ndf = vFastter.GetNdf();
+    double prob = vFastter.GetProb();
     if(fVerbose>0) cout<<" - chiq = "<<chiq<<"  \t";if(fVerbose>1)cout<<endl;
+    if(checkfast>0.)
+    {
+      hVtxChi2Fast->Fill(chiq);
+      hVtxChiProbFast->Fill(prob);
 
-    hVtxChi2Fast->Fill(chiq/fNDF);
-    hVtxChiProbFast->Fill(TMath::Prob(chiq,fNDF));
+      vertexDiffFast=vertexMC - vertexFast;
+      if(fVerbose>1) vertexMC.Print();
+      if(fVerbose>1) vertexFast.Print();
+      if(fVerbose>0) vertexDiffFast.Print();
 
-    vertexDiffFast=vertexMC - vertexFast;
-    if(fVerbose>1) vertexMC.Print();
-    if(fVerbose>1) vertexFast.Print();
-    if(fVerbose>0) vertexDiffFast.Print();
+      hVtxFastX->Fill(vertexDiffFast.X());
+      hVtxFastY->Fill(vertexDiffFast.Y());
+      hVtxFastZ->Fill(vertexDiffFast.Z());
+      hVtxFastXY->Fill(vertexDiffFast.X(),vertexDiffFast.Y());
+      hVtxFastRZ->Fill(vertexDiffFast.Z(),vertexMC.Perp()-vertexFast.Perp());
 
-    hVtxFastX->Fill(vertexDiffFast.X());
-    hVtxFastY->Fill(vertexDiffFast.Y());
-    hVtxFastZ->Fill(vertexDiffFast.Z());
-    hVtxFastXY->Fill(vertexDiffFast.X(),vertexDiffFast.Y());
-    hVtxFastRZ->Fill(vertexDiffFast.Z(),vertexMC.Perp()-vertexFast.Perp());
-
-    hVtxErrFastX->Fill(sqrt(covV[0][0]));
-    hVtxErrFastY->Fill(sqrt(covV[1][1]));
-    hVtxErrFastZ->Fill(sqrt(covV[2][2]));
-    hVtxPullFastX->Fill(vertexDiffFast.X()/sqrt(covV[0][0]));
-    hVtxPullFastY->Fill(vertexDiffFast.Y()/sqrt(covV[1][1]));
-    hVtxPullFastZ->Fill(vertexDiffFast.Z()/sqrt(covV[2][2]));
-
+      hVtxErrFastX->Fill(sqrt(covV[0][0]));
+      hVtxErrFastY->Fill(sqrt(covV[1][1]));
+      hVtxErrFastZ->Fill(sqrt(covV[2][2]));
+      hVtxPullFastX->Fill(vertexDiffFast.X()/sqrt(covV[0][0]));
+      hVtxPullFastY->Fill(vertexDiffFast.Y()/sqrt(covV[1][1]));
+      hVtxPullFastZ->Fill(vertexDiffFast.Z()/sqrt(covV[2][2]));
+    }
     // ********** FULL FIT
-    PndVtxPRG vFitter(combiCand1);
+    PndKalmanVtxFitter vFitter(combiCand1);
     vFitter.SetSilent();
     //PndAnalysisCalcTools::SetVerbose(5);
     //if(laut)vFitter.SetDebug(true);
     vertexFit=nullpunkt; //seed
     if(fVerbose>0)  cout<<"prg  "<<flush;
     //if(laut>0)  PndAnalysisCalcTools::SetVerbose(3);
-    double chiqfit = vFitter.Fit();
+    bool check = vFitter.Fit();
+    double chiqfit = vFitter.GetChi2();
+    int ndffit = vFitter.GetNdf();
+    double probfit = vFitter.GetProb();
     //if(laut>0)  PndAnalysisCalcTools::SetVerbose(0);
     if(fVerbose>0)  cout<<" - chiq = "<<chiqfit<<"  \t"<<flush;if(fVerbose>1)cout<<endl;
-    if (chiqfit>0)
+    if (check)
     {
       //PndAnalysisCalcTools::SetVerbose(0);
-      hVtxChi2Fit->Fill(chiqfit/fNDF);
-      hVtxChiProbFit->Fill(TMath::Prob(chiqfit,fNDF));
+      hVtxChi2Fit->Fill(chiqfit);
+      hVtxChiProbFit->Fill(probfit);
 
       vertexFit=combiCand1->GetFit()->DecayVtx();
       covVfit=combiCand1->GetFit()->DecayVtx().CovMatrix();
@@ -505,17 +511,19 @@ void poormantracks(int nevt=250, int laut=0, int seed=-1)
     PndKinVtxFitter kFitter(combiCand2);
     vertexFit=nullpunkt; //seed
     if(fVerbose>0)  cout<<"kin  "<<flush;
-    kFitter.Fit();
+    bool test = kFitter.Fit();
     double chiqkin = kFitter.GetChi2();
+    int ndfkin = kFitter.GetNdf();
+    double probkin = kFitter.GetProb();
     //if(laut>0)  PndAnalysisCalcTools::SetVerbose(0);
-    if(fVerbose>0)  cout<<" - chiq = "<<chiqfit<<"  \t"<<flush;if(fVerbose>1)cout<<endl;
-    if (chiqkin>0)
+    if(fVerbose>0)  cout<<" - chiq = "<<chiqkin<<"  \t"<<flush;if(fVerbose>1)cout<<endl;
+    if (test)
     {
       //PndAnalysisCalcTools::SetVerbose(0);
       vertexKin=combiCand2->GetFit()->DecayVtx();
       aposcov=combiCand2->GetFit()->DecayVtx().CovMatrix();
-      hVtxChi2Kin->Fill(chiqkin/fNDF);
-      hVtxChiProbKin->Fill(TMath::Prob(chiqkin,fNDF));
+      hVtxChi2Kin->Fill(chiqkin);
+      hVtxChiProbKin->Fill(probkin);
 
       vertexDiffKin=vertexMC - vertexKin;
       if(fVerbose>1) vertexMC.Print();
@@ -698,8 +706,7 @@ void PoorManTracks()//TVector3& vtx=fVertex
     // print helix parameters and cov together with RhoCandidate V-P4 and cov7
 
     // alternate particle type
-    fCharge*=-1;
-    fPID*=-1;
+    if(fAlternate) fPID*=-1;
   }
   // iterate again to set mother relations
   //  for (int i=0;i<fMcCands->GetEntriesFast();i++)
