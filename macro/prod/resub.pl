@@ -21,32 +21,38 @@ $cmd =~ m/(\d+)-(\d+)\s+([\.\w]+)\s+(\w+)\s+(.*)/;
 
 defined($4) or die("qsub string seems wrongly formatted: \"$cmd\"\n");
 
-print "Checking for files \"data/$4_<run>_pid.root\" for runs $1 - $2 (cmd opt:\"$1-$2 $3 $4 $5\")\n"; 
+print "Checking for files \"data/$4_<run>_pid.root\" for runs $1 - $2 (cmd opt:\"$1-$2 $3 $4 $5\")\n\n"; 
 
 my $min     = $1;
 my $max     = $2;
 my $pref    = $4;
 
-my @broken;
+my @broken, @nexist, @small;
 
 for (my $i=$min; $i<=$max; $i++)
 {
 	my $fname = "data/M".$pref."_".$i."_pid.root";
 	if (!-e $fname) 
 	{
-		print $fname.": doesn't exist\n";
 		push(@broken,$i);
+		push(@nexist, $i);
 	}
 	else
 	{
 		my $filesize = -s $fname;
 		if ($filesize<10000)
 		{
-			print $fname.": small filesize\n";
 			push(@broken,$i);
+			push(@small,$i);
 		}
 	}
 } 
+
+print "Not existing : ";
+foreach my $run (@nexist) {print "$run ";}
+print "\nSmall file   : ";
+foreach my $run (@small) {print "$run ";}
+print "\n\n";
 
 if ($check) {print "Would ";}
 print "Re-submit : \n";

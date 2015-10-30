@@ -29,10 +29,11 @@ my $maxfound=0;
 if (!defined($min) || !defined($max))
 {
 	print "Searching for files with name data/$pref\_<run>_pid.root...\n";
-	my @dir = `ls data/$pref_*_pid.root`;
+	my @dir = `ls data/$pref\_*_pid.root`;
+
 	foreach my $fname (@dir)
 	{
-		if ($fname =~ m/$pref_(\d+)_pid.root/)
+		if ($fname =~ m/$pref\_(\d+)_pid.root/)
 		{
 			if ($minfound>$1) {$minfound=$1;}
 			if ($maxfound<$1) {$maxfound=$1;}

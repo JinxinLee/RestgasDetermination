@@ -26,7 +26,7 @@ Simulation
 - prod_pid.C
 - prod_pid_mva.C
 
-Analysis example (multiple files)
+Analysis example for multiple files using PndSimpleCombiner(Task)
 - prod_ana.C
 
 Example decay file for EvtGen
@@ -36,12 +36,14 @@ Scripts to run all at automatically
 - runall_prod_pgun.sh
 - runall_prod.sh
 
-Scripts to submit jobs to Prometheus
+Scripts to (re-)submit jobs to Prometheus
 - job_prod_pgun.sge
 - job_prod.sge
+- resub.pl
 
 Script to submit analysis job for many input files
 - job_ana.sge 
+- anasub.pl
 
 
 ####################
@@ -223,6 +225,41 @@ Result 2:
 data/MDPM10GeV_1_par.root, data/MDPM10GeV_1_pid.root, ... , data/MDPM10GeV_20_pid.root 
 
 
+
+---------------------
+---------------------
+RESUBMISSION OF JOBS
+---------------------
+---------------------
+
+When submitting many jobs/job arrays, it happens quite often that some of the jobs randomly fail. Usually resubmitting the same jobs
+again leads to success. In order to automatically resubmit only the failed jobs the perl script 'resub.pl' can be used.
+
+It looks for missing output files and output files being too small (size < 10kB) to contain reasonable output and resubmits exactly 
+the according jobs.
+
+NOTE: In case some jobs got stuck in the queue, delete them with 'qdel' before using resub.pl.
+
+-> ./resub.pl "<cmd>" [check]
+
+Parameters:
+
+  "<cmd>"  : full qsub command line in quotes. 
+  [check]  : optional parameter for only printing the resubmitted jobs for checking.
+  
+
+Example 1:
+./resub.pl "qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0 summy saveall" check
+
+Result 1: prints out all run numbers found to be failed and prints submit commands.
+
+Example 2:
+./resub.pl "qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0"
+
+Result 2: prints out all run numbers found to be failed and re-submits the according jobs. 
+
+
+
 ####################
 ANALYSING RESULTS
 ####################
@@ -265,4 +302,45 @@ qsub job_ana.sge MDPM10GeV 1 10
 
 Result: 
 data/MDPM10GeV_ana_1_10.root
+
+
+-------------------------------
+SPLIT TO MULTIPLE ANALYSIS JOBS
+-------------------------------
+
+In case a large number of output files have to be analysed, so that it is reasonable to split that into several jobs,
+the perl script 'anasub.pl' is useful.
+
+
+-> ./anasub.pl <pref> [num] [min] [max]
+
+Parameters:
+  <pref>  : prefix of output filenames of pattern 'data/<pref>_<run>_pid.root; if 'check_' is prepended only prints commands
+  [num]   : number of runs per job to be analysed; default: 50
+  [min]   : first run number; if omitted all found files are considered
+  [max]   : last run number; if omitted, all runs starting from [min] are considered
+  
+ 
+Example 1:
+./anasub.pl check_MDPM10GeV 
+
+Result 1: Searches for all output files data/MDPM10GeV_<run>_pid.root and only prints submission commands for analysis jobs in packages of 50 runs.
+
+Example 2:
+./anasub.pl MDPM10GeV 20
+
+Result 2: Searches for all output files and submits analysis jobs in packages of 20 runs, i.e. 1..20, 21..40, 41..60, ...
+
+Example 3:
+./anasub.pl MDPM10GeV 25 201 400 
+
+Result 3: Submits analysis jobs for runs 200 to 400 in packages of 20 runs.
+
+
+
+
+
+
+
+
 

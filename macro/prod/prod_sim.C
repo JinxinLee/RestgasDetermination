@@ -10,7 +10,7 @@ prod_sim(TString outpre="", Int_t nEvents = 100, TString Decfile="", Float_t mom
 	if (outpre=="" || Decfile=="" || mom==0.) 
 	{
 		cout << "USAGE:\n";
-		cout << "prod_sim.C+( <pref>,  <nevt>, <decfile>, <mom>, [res] )\n\n";
+		cout << "prod_sim.C( <pref>,  <nevt>, <decfile>, <mom>, [res] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <nevt>     : number of events\n";
 		cout << "   <decfile>  : decfile; keywords DPM[1/2], FTF[1], BOX use according generator instead \n";
