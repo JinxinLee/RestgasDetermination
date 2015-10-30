@@ -1,0 +1,57 @@
+#!/usr/bin/env perl
+
+my $pref  = $ARGV[0];
+my $num   = $ARGV[1];
+my $min   = $ARGV[2];
+my $max   = $ARGV[3];
+
+my $check = 0;
+
+if (!defined($pref))
+{
+	print "\nSubmits analysis jobs over multiple files.\n\n";
+    print "USAGE:\n";
+    print "anasub.pl <pref> [num] [min] [max]\n";
+    print "  <pref>  : prefix of files with names data/pref_<run>_pid.root; if 'check_' added in front, commands are only printed\n";
+	print "  [num]   : number of files to be analysed per analysis job; default:50\n";
+	print "  [min]   : first run; if not given, all files found are analysed)\n";
+	print "  [max]   : last run;  if not given, all files starting from [min] are analysed)\n\n";
+    exit(0);
+}
+
+if ($pref=~s/^check_//) { $check = 1;}
+
+if (!defined($num)) {$num=50;}
+
+my $minfound=100000;
+my $maxfound=0;
+
+if (!defined($min) || !defined($max))
+{
+	print "Searching for files with name data/$pref\_<run>_pid.root...\n";
+	my @dir = `ls data/$pref_*_pid.root`;
+	foreach my $fname (@dir)
+	{
+		if ($fname =~ m/$pref_(\d+)_pid.root/)
+		{
+			if ($minfound>$1) {$minfound=$1;}
+			if ($maxfound<$1) {$maxfound=$1;}
+		}
+	}
+}
+
+if (!defined($min)) {$min=$minfound;}
+if (!defined($max)) {$max=$maxfound;}
+
+my $curr = $min;
+
+while ($curr<$max)
+{
+	my $up = $curr+$num-1;
+	if ($up>$max) {$up=$max;}
+	my $cmd = "qsub job_ana.sge $pref $curr $up";
+	print "$cmd\n";
+	$curr+=$num;
+	if (!$check) {system($cmd);}
+}
+
