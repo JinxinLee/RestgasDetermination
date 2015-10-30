@@ -4,7 +4,7 @@
 
 // The parameters are
 // -------------------
-// quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )
+// quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms], [runST], [runnum], [mode] )
 //    <pref>     : output file names prefix
 //    <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or box generator instead
 //    <mom>      : pbar momentum; negative values are interpreted as -E_cm
@@ -14,11 +14,12 @@
 //    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
 //    [runST]    : if 'true' runs Software Trigger (default: false)
 //    [runnum]   : integer run number (default: 0)
+//    [mode]     : arbitrary mode number (default: 0)
 // -------------------
 
 
 void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
-				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 , int mode=0)
+				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 , int runmode=0)
 {
 	if (Prefix=="" || Decfile=="" || Mom==0. ) 
 	{
@@ -31,9 +32,9 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		cout << "   [nevt]     : number of events; default = 1000\n";
 		cout << "   [res]      : resonance/particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'\n";
 		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
-        cout << "   [runST]    : if 'true' runs Software Trigger (default: false)\n";
-        cout << "   [runnum]   : integer run number (default: 0)\n";
-        cout << "   [mode]     : arbitrary mode number (default: 0)\n\n";
+		cout << "   [runST]    : if 'true' runs Software Trigger (default: false)\n";
+		cout << "   [runnum]   : integer run number (default: 0)\n";
+		cout << "   [mode]     : arbitrary mode number (default: 0)\n\n";
 		return;
 	}
 	
@@ -51,19 +52,15 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		Mom = sqrt(X*X-mp*mp);
 	}
 	
-	// Allow shortcut for resonance
-	if (Resonance=="pbp")  Resonance = "pbarpSystem";
-	if (Resonance=="pbp0") Resonance = "pbarpSystem0";
-
-	anadecay.ReplaceAll("pbp","pbarpSystem");
-	anadecay.ReplaceAll("pbp0","pbarpSystem0");
+	// Allow shortcut for resonance pbarpSystem
+	Resonance.ReplaceAll("pbp","pbarpSystem");
+	anadecay.ReplaceAll("pbp", "pbarpSystem");
 
 	// Prevent generator from throwing a lot of warnings
 	TLorentzVector fIni(0,0,Mom,mp+sqrt(Mom*Mom+mp*mp));
-	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
-	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
-	TDatabasePDG::Instance()->AddParticle("Z(3900)+","Z+",3.900,kFALSE,0.03,0, "",90000);
-	TDatabasePDG::Instance()->AddParticle("Z(3900)-","Z-",3.900,kFALSE,0.03,0, "",-90000);
+	TDatabasePDG *pdg=TDatabasePDG::Instance();
+	pdg->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
+	pdg->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
 	
 	//-----Evaluate Detector Setup ---------------------------------------
 	bool SwMvdGem  = true;  // Enable MVD and GEM for central tracking in addition to STT
@@ -77,7 +74,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	Bool_t mergeNeutrals     = true;   // merge neutrals (for merged pi0s)
 	Bool_t electronBrems     = true;   // bremsstrahlung loss for electrons 
 	Bool_t useEventFilter    = false;  // enable Fast Sim event filter. *** Needs configuration (see below) *** 
-	Bool_t usePndEventFilter = false;  // enable Panda event filter. *** Needs configuration (see below) *** 
+	Bool_t usePndEventFilter = false;  // enable Panda event filter.    *** Needs configuration (see below) *** 
 	
 	//----- Presist simulation output ------------------------------
 	Bool_t persist           = simonly;  // if analysis is running, fsim output not needed
@@ -120,7 +117,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		UseBoxGenerator = kTRUE;
 	}
 
-	usePndEventFilter=UseDpm;
+// 	usePndEventFilter=UseDpm;
 
 	Double_t MomMin  = 0.1;  // minimum momentum for box generator
 	Double_t MomMax  = Mom;  // maximum   "       "
@@ -142,6 +139,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	// Create and Set Event Generator
 	// -------------------------------
 	FairFilteredPrimaryGenerator* primGen = new FairFilteredPrimaryGenerator();
+	if (!usePndEventFilter) primGen->SetVerbose(0);
 	//FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 	fRun->SetGenerator(primGen);
 	fRun->SetName("TGeant3");
@@ -211,31 +209,23 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	//-----------------------------
 	if (usePndEventFilter)
 	{
-/*		primGen->SetFilterMaxTries(100000); // for testing small number, for real produrction set usually to 9999999 or something very big
-		FairEvtFilterOnSingleParticleCounts* lambfilt= new FairEvtFilterOnSingleParticleCounts("PdgFilter");
-		// new FairEvtFilterOnSingleParticleCounts named "PdgFilter"
-		lambfilt->AndMaxPdgCodes(0, 3122, -3122);  // filter out Lambda0
-		lambfilt->AndMaxPdgCodes(0, 3222, -3222);  // filter out Sigma+
-		primGen->AndFilter(lambfilt);
+		cout <<"Using FairEventFilter"<<endl;
+		primGen->SetFilterMaxTries(100000);
 		
-		//primGen->SetVerbose(); // highest commenting level of the FairPrimaryGenerator
-		
-/*		FairEvtFilterOnCounts* chrgFilter = new FairEvtFilterOnCounts("chrgFilter");
-		chrgFilter->AndMinCharge(4, FairEvtFilter::kPlus);
+		FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
+		chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
 		primGen->AndFilter(chrgFilter);
 		
-		FairEvtFilterOnCounts* neutFilter = new FairEvtFilterOnCounts("neutFilter");
-		neutFilter->AndMaxCharge(4, FairEvtFilter::kNeutral);
-		primGen->AndFilter(neutFilter);
+		//FairEvtFilterOnCounts* neutFilter = new FairEvtFilterOnCounts("neutFilter");
+		//neutFilter->AndMaxCharge(4, FairEvtFilter::kNeutral);
+		//primGen->AndFilter(neutFilter);
 		
 		PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
 		//eeInv->SetVerbose();//highest commenting level of the FairEvtFilterOnCounts
 		eeInv->SetPdgCodesToCombine( 11, -11);
-		eeInv->SetMinMaxInvMass( 2.9, 3.2 );
+		eeInv->SetMinMaxInvMass( 2.8, 3.3 );
 		eeInv->SetMinMaxCounts(1,10000);
-		primGen->AndFilter(eeInv);  //add filter to fFilterList
-		*/
-		
+ 		primGen->AndFilter(eeInv);  //add filter to fFilterList		
 	}
 	
 	// set event filters
@@ -256,7 +246,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	      //  "eta" : eta candidates ( -> 2 gammas); mass window 0.547 +- 0.04 GeV 
 	      //  "ks"  : K_S candidates ( -> pi+ pi-);  mass window 0.497 +- 0.04 GeV
 
- 	      //fastSim->SetMultFilter("ks",   1,1000);  // at least 2 trk+
+ 	      //fastSim->SetMultFilter("ks",   1,1000);  // at least 1 KS
 	      
 // 	      fastSim->SetMultFilter("+",   2,1000);  // at least 2 trk+
 // 	      fastSim->SetMultFilter("-",   2,1000);  // at least 2 trk-
@@ -421,7 +411,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		
 	if (!simonly)
 	{
-		PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run, mode);
+		PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run, runmode);
 		scTask->SetPidAlgo("PidChargedProbability");
 		fRun->AddTask(scTask);
 	}
