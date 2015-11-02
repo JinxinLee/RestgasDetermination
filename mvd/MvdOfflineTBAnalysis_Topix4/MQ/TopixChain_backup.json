@@ -78,8 +78,36 @@
 	                "sndBufSize": "1000",
 	                "rcvBufSize": "1000",
 	                "rateLogging": "0"
-	            }
+	            },
+	    
+ 	            "socket":
+ 	            {
+ 	                "type": "push",
+ 	                "method": "connect",
+ 	                "address": "tcp://localhost:5601",
+ 	                "sndBufSize": "1000",
+ 	                "rcvBufSize": "1000",
+ 	                "rateLogging": "0"
+ 	            }
 	    	}
+        },
+        
+        "device":
+        {
+        	"id": "online1",
+        	"channel":
+        	{
+        		"name": "data-in",
+        		"socket":
+        		{
+		        	"type": "pull",
+		            "method": "bind",
+		            "address": "tcp://*:5601",
+		            "sndBufSize": "1000",
+		            "rcvBufSize": "1000",
+		            "rateLogging": "0"
+        		}
+        	}
         },
         
         "device":
@@ -95,7 +123,7 @@
 		            "address": "tcp://*:5600",
 		            "sndBufSize": "1000",
 		            "rcvBufSize": "1000",
-		            "rateLogging": "1"
+		            "rateLogging": "0"
         		}
         	},
         	
@@ -109,7 +137,7 @@
 	                "address": "tcp://localhost:5557",
 	                "sndBufSize": "1000",
 	                "rcvBufSize": "1000",
-	                "rateLogging": "1"
+	                "rateLogging": "0"
 	            },
 	    
  	            "socket":
@@ -119,7 +147,7 @@
  	                "address": "tcp://localhost:5558",
  	                "sndBufSize": "1000",
  	                "rcvBufSize": "1000",
- 	                "rateLogging": "1"
+ 	                "rateLogging": "0"
  	            },
  	    	
 	            "socket":
@@ -129,7 +157,7 @@
 	                "address": "tcp://localhost:5559",
 	                "sndBufSize": "1000",
 	                "rcvBufSize": "1000",
-	                "rateLogging": "1"
+	                "rateLogging": "0"
 	            }
 	    	}
         },
@@ -147,7 +175,7 @@
 		            "address": "tcp://*:5557",
 		            "sndBufSize": "1000",
 		            "rcvBufSize": "1000",
-		            "rateLogging": "1"
+		            "rateLogging": "0"
         		}
         	},
         	
@@ -179,7 +207,7 @@
 		            "address": "tcp://*:5558",
 		            "sndBufSize": "1000",
 		            "rcvBufSize": "1000",
-		            "rateLogging": "1"
+		            "rateLogging": "0"
         		}
         	},
         	
@@ -211,7 +239,7 @@
 		            "address": "tcp://*:5559",
 		            "sndBufSize": "1000",
 		            "rcvBufSize": "1000",
-		            "rateLogging": "1"
+		            "rateLogging": "0"
         		}
         	},
         	
@@ -282,10 +310,10 @@
         		}
         	}
         },
-        
+
         "device":
         {
-            "id": "digitohit1",
+            "id": "filesink1",
             "channel":
             {
                 "name": "data-in",
@@ -294,38 +322,6 @@
                     "type": "pull",
                     "method": "bind",
                     "address": "tcp://*:5563",
-                    "sndBufSize": "1000",
-                    "rcvBufSize": "1000",
-                    "rateLogging": "0"
-                }
-            },
-            
-            "channel":
-            {   
-                "name": "data-out",
-        		"socket":
-        		{
-		        	"type": "push",
-		            "method": "connect",
-		            "address": "tcp://localhost:5564",
-		            "sndBufSize": "1000",
-		            "rcvBufSize": "1000",
-		            "rateLogging": "0"
-        		}
-            }
-        },
-        
-        "device":
-        {
-            "id": "filesinkhits1",
-            "channel":
-            {
-                "name": "data-in",
-                "socket":
-                {
-                    "type": "pull",
-                    "method": "bind",
-                    "address": "tcp://*:5564",
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
                     "rateLogging": "0"

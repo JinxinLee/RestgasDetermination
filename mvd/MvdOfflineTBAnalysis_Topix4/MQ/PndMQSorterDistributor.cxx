@@ -71,7 +71,7 @@ void PndMQSorterDistributor::Run()
 				LOG(ERROR) << e.what();
 			}
 
-			LOG(INFO) << "TopixData: " << fTopixData.size();
+//			LOG(INFO) << "TopixData: " << fTopixData.size();
 
 			bool switchChannels = false;
 			for (auto itr : fTopixData){
@@ -80,7 +80,7 @@ void PndMQSorterDistributor::Run()
 				else {
 					fNextOutput.push_back(itr);
 					if(itr.GetTimeStamp() > currentOffset){
-						LOG(INFO) << "Switch Channels: " << itr.GetTimeStamp() << " > " << currentOffset;
+//						LOG(INFO) << "Switch Channels: " << itr.GetTimeStamp() << " > " << currentOffset;
 						switchChannels = true;
 					}
 				}
@@ -100,10 +100,10 @@ void PndMQSorterDistributor::Run()
 				memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
 				//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
 				dataOutChannels[direction]->Send(msg2);
-				LOG(INFO) << "CurrentOutput send to " << direction << " size: " << fCurrentOutput.size();
-				for (auto itr : fCurrentOutput){
-					LOG(INFO) << itr.GetTimeStamp();
-				}
+				// LOG(INFO) << "CurrentOutput send to " << direction << " size: " << fCurrentOutput.size();
+//				for (auto itr : fCurrentOutput){
+//					LOG(INFO) << itr.GetTimeStamp();
+//				}
 				fCurrentOutput.clear();
 			}
 			if (fNextOutput.size() > 0){
@@ -119,12 +119,12 @@ void PndMQSorterDistributor::Run()
 				if (nextOutput >= numOutputs)
 					nextOutput = 0;
 				dataOutChannels[nextOutput]->Send(msg3);
-				LOG(INFO) << "NextOutput send to " << nextOutput << " size " << fNextOutput.size();
+				// LOG(INFO) << "NextOutput send to " << nextOutput << " size " << fNextOutput.size();
 				fNextOutput.clear();
 			}
 
 			if (switchChannels == true){
-				LOG(INFO) << "Switch channels old threshold " << currentThreshold << " old offset "<< currentOffset;
+				// LOG(INFO) << "Switch channels old threshold " << currentThreshold << " old offset "<< currentOffset;
 				direction++;
 				if (direction >= numOutputs)
 				{

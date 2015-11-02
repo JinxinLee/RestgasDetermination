@@ -40,12 +40,15 @@ int main(int argc, char** argv)
     {
         std::string text;
         int fe;
+        double timecorr;
 
         options_description samplerOptions("Sampler options");
         samplerOptions.add_options()
             ("FileName", value<std::string>(&text)->default_value("/Users/Stockmanns/PandaSoftware/pandaRoot/pandaRoot_ActualTrunk/macro/mvd/TestBeam/2014-10-27-00-06-02--101-data--1.txt"),
             		"FileName of data to send out")
-					("Front-End Number", value<int>(&fe)->default_value(1));
+					("FE", value<int>(&fe)->default_value(1), "Front-End Number")
+					("TimeCorrection", value<double>(&timecorr)->default_value(0.0),"Time offset between FE chips");
+
 
         config.AddToCmdLineOptions(samplerOptions);
 

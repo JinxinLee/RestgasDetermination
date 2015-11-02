@@ -62,7 +62,7 @@ void PndMQTopix4Sorter::Run()
 
 			if (dataInChannel.Receive(msg) > 0)
 			{
-				LOG(INFO) << "Received Message: " << receivedMsgs++ << " Size: " << msg->GetSize();
+				// LOG(INFO) << "Received Message: " << receivedMsgs++ << " Size: " << msg->GetSize();
 
 				string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
 				istringstream ibuffer(msgStr);
@@ -77,10 +77,10 @@ void PndMQTopix4Sorter::Run()
 					LOG(ERROR) << e.what();
 				}
 
-				LOG(INFO) << "TopixData: " << fTopixData.size();
-				for (auto iter : fTopixData){
-					LOG(INFO) << iter.GetTimeStamp();
-				}
+				// LOG(INFO) << "TopixData: " << fTopixData.size();
+//				for (auto iter : fTopixData){
+					// LOG(INFO) << iter.GetTimeStamp();
+//				}
 
 				bool endSorting = false;
 				double timeOfLast = 0;
@@ -92,7 +92,7 @@ void PndMQTopix4Sorter::Run()
 						}
 						else {
 							endSorting = true;
-							LOG(INFO) << "---END SORTING---";
+							// LOG(INFO) << "---END SORTING---";
 						}
 					}
 					if (endSorting == false){
@@ -117,9 +117,9 @@ void PndMQTopix4Sorter::Run()
 					dataOutChannel.Send(msg2);
 
 					//LOG(INFO) << "Data: " << fTopixData.size() << " " << timeOfLast;
-					LOG(INFO) << "Output: " << fOutputData.size() << " timeOfLast: " << timeOfLast;
-					for(auto itr : fOutputData)
-						LOG(INFO) << itr.GetTimeStamp();
+					// LOG(INFO) << "Output: " << fOutputData.size() << " timeOfLast: " << timeOfLast;
+//					for(auto itr : fOutputData)
+						// LOG(INFO) << itr.GetTimeStamp();
 
 					fTopixData.clear();
 					fOutputData.clear();

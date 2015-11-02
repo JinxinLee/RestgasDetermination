@@ -70,6 +70,7 @@ public:
 	bool CheckDataIntegrity(std::vector<ULong64_t> topix4Frame);
 
 	void SetClockFrequency(Double_t val) {fClockFrequency = val;}
+	void SetTimeStampCorrection(Double_t val) {fTimeStampCorrection = val;}
 	void SetFE(Int_t val){fFE = val;}
 	UInt_t GetNonSequenctialFC() const {return fNonSequentialFC;}
 	UInt_t GetDoubleHeader() const {return fDoubleHeader;}
@@ -98,6 +99,7 @@ private:
 	std::vector<TString> fFileNames;
 	std::ifstream* fFileHandle;
 	Double_t fClockFrequency;
+	Double_t fTimeStampCorrection;
 	TClonesArray* fOutputArray;
 	TClonesArray* fOutputArrayHeader;
 	TClonesArray* fOutputArrayAllHeader;

@@ -41,7 +41,7 @@ void PndMQSorterMerger::Run()
     int numInputs = fChannels.at("data-in").size();
 
     // store the channel references to avoid traversing the map on every loop iteration
-//    const FairMQChannel& dataOutChannel = fChannels.at("data-out").at(0);
+    const FairMQChannel& dataOutChannel = fChannels.at("data-out").at(0);
     FairMQChannel* dataInChannels[fChannels.at("data-in").size()];
     LOG(INFO) << "Number of Input Channels: " << numInputs;
     for (int i = 0; i < numInputs; ++i)
@@ -59,6 +59,7 @@ void PndMQSorterMerger::Run()
     while (CheckCurrentState(RUNNING))
     {
         for (int channelNr = 0; channelNr < numInputs; channelNr++){
+ //       	LOG(INFO) << "---- Reading channel " << channelNr << " ----";
         	std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
         	if (dataInChannels[channelNr]->Receive(msg) > 0){
         		std::string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
@@ -73,18 +74,16 @@ void PndMQSorterMerger::Run()
 				{
 					LOG(ERROR) << e.what();
 				}
-				if (channelSwitched == false){
-					fData[channelNr].insert(fData[channelNr].end(), fInputData.begin(), fInputData.end() );
 
-				} else {
-					channelSwitched = false;
-				}
+				fData[channelNr].insert(fData[channelNr].end(), fInputData.begin(), fInputData.end() );
+
 	        	fInputData.clear();
-	        	msg->Rebuild();
-				LOG(INFO) << "fData size for channel " << channelNr << " is " << fData[channelNr].size();
-				for (auto data : fData[channelNr])
-					LOG(INFO) << data.GetTimeStamp();
+
+//				LOG(INFO) << "fData size for channel " << channelNr << " is " << fData[channelNr].size();
+//				for (auto data : fData[channelNr])
+//					LOG(INFO) << data.GetTimeStamp();
 				if (activeChannel == channelNr){
+//					LOG(INFO) << "--- Writing channel " << activeChannel << " ---";
 					if (fData[channelNr].size() > 0){
 						for (std::vector<PndSdsDigiTopix4>::iterator data = fData[channelNr].begin(); data != fData[channelNr].end(); data++){
 							if (data->GetTimeStamp() < 0){
@@ -92,7 +91,7 @@ void PndMQSorterMerger::Run()
 								switchChannel = true;
 								channelSwitched = true;
 								fData[channelNr].erase(fData[channelNr].begin(), ++data);
-								LOG(INFO) << "Negative TS in " << channelNr << " new Data size " << fData[channelNr].size();
+//								LOG(INFO) << "Negative TS in " << channelNr << " new Data size " << fData[channelNr].size();
 								break;
 							}
 						}
@@ -101,16 +100,16 @@ void PndMQSorterMerger::Run()
 							fData[channelNr].clear();
 						}
 
-//						std::ostringstream obuffer;
-//						boost::archive::binary_oarchive OutputArchive(obuffer);
-//						OutputArchive << fOutputData;
-//						int outputSize = obuffer.str().length();
-//						unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
-//						memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
-//						dataOutChannel.Send(msg2);
-						LOG(INFO) << "fOutputData.size: " << fOutputData.size();
+						std::ostringstream obuffer;
+						boost::archive::binary_oarchive OutputArchive(obuffer);
+						OutputArchive << fOutputData;
+						int outputSize = obuffer.str().length();
+						unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
+						memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
+						dataOutChannel.Send(msg2);
+//						LOG(INFO) << "fOutputData.size: " << fOutputData.size();
 						for (auto info : fOutputData){
-							LOG(INFO) << info.GetTimeStamp();
+//							LOG(INFO) << info.GetTimeStamp();
 							if (info.GetTimeStamp() > 0 && oldTS > info.GetTimeStamp()){
 								LOG(INFO) << "++++ SortingError ++++ " << oldTS << " > " << info.GetTimeStamp();
 							}
@@ -123,7 +122,7 @@ void PndMQSorterMerger::Run()
 							{
 								activeChannel = 0;
 							}
-							LOG(INFO) << "Switch active channel to " << activeChannel;
+//							LOG(INFO) << "Switch active channel to " << activeChannel;
 							switchChannel = false;
 						}
 					}

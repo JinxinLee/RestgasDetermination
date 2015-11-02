@@ -6,22 +6,22 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /**
- * runExample1Sink.cxx
+ * runExample1processor.cxx
  *
  * @since 2013-04-23
  * @author D. Klein, A. Rybalchenko
  */
 
-//#include <PndMQTopix4ProcessorTask.h>
-#include <PndMQTopix4Processor.h>
+#include <PndMQTopix4DigiToHit.h>
+//#include "PndMQFileSink.h"
 #include <iostream>
+#include <TApplication.h>
 
 #include "boost/program_options.hpp"
 
 #include "FairMQLogger.h"
 #include "FairMQParser.h"
 #include "FairMQProgOptions.h"
-#include "FairMQProcessor.h"
 #include "FairMQDevice.h"
 
 #ifdef NANOMSG
@@ -34,19 +34,12 @@ using namespace boost::program_options;
 
 int main(int argc, char** argv)
 {
-	PndMQTopix4Processor processor;
+    PndMQTopix4DigiToHit processor;
+//	PndMQFileSink processor;
+
     processor.CatchSignals();
 
     FairMQProgOptions config;
-
-    int fe;
-    std::string timeCorr;
-    options_description samplerOptions("Sampler options");
-	samplerOptions.add_options()
-		("FE", value<int>(&fe)->default_value(-1), "Front-End ID")
-		("TIMECORR", value<std::string>(&timeCorr)->default_value("0.0"), "Correction of time offset");
-
-	config.AddToCmdLineOptions(samplerOptions);
 
     try
     {
@@ -63,11 +56,7 @@ int main(int argc, char** argv)
         processor.fChannels = config.GetFairMQMap();
 
         LOG(INFO) << "PID: " << getpid();
-        LOG(INFO) << "ID: " << id ;
-        LOG(INFO) << "FE: " << fe;
-        LOG(INFO) << "TimeCorr: "  << timeCorr;
-        LOG(INFO) << "Processor::Id Kes: " << FairMQDevice::Id;
-        processor.ListProperties();
+        LOG(INFO) << "ID: " << id;
 
 #ifdef NANOMSG
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryNN();
@@ -78,11 +67,6 @@ int main(int argc, char** argv)
         processor.SetTransport(transportFactory);
 
         processor.SetProperty(FairMQDevice::Id, id);
-        processor.SetProperty(PndMQTopix4Processor::FE, fe);
-        processor.SetProperty(PndMQTopix4Processor::TimeCorr, timeCorr);
-
-        //PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
-        //processor.SetTask(task);
 
         processor.ChangeState("INIT_DEVICE");
         processor.WaitForEndOfState("INIT_DEVICE");
@@ -92,6 +76,7 @@ int main(int argc, char** argv)
 
         processor.ChangeState("RUN");
         processor.InteractiveStateLoop();
+
     }
     catch (std::exception& e)
     {

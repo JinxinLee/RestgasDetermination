@@ -49,6 +49,7 @@ PndMQTopix4Processor::~PndMQTopix4Processor()
 
 void PndMQTopix4Processor::Run()
 {
+	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
 	while (CheckCurrentState(RUNNING))
 	{
 		unique_ptr<FairMQMessage> input(fTransportFactory->CreateMessage());
@@ -80,7 +81,7 @@ void PndMQTopix4Processor::Run()
 				memcpy(msg->GetData(), obuffer.str().c_str(), outputSize);
 				//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
 				fChannels.at("data-out").at(0).Send(msg);
-				LOG(INFO) << "Data: " << frames.front().size() << std::endl;
+//				LOG(INFO) << "Data: " << frames.front().size() << std::endl;
 			}
 		}
 	}
@@ -90,6 +91,11 @@ void PndMQTopix4Processor::SetProperty(const int key, const string& value)
 {
     switch (key)
     {
+    case TimeCorr:
+    	fTimeCorrStr = value;
+    	fTimeStampCorrection = std::stod(fTimeCorrStr);
+    	fTopixDataReader.SetTimeStampCorrection(fTimeStampCorrection);
+    	break;
         default:
             FairMQDevice::SetProperty(key, value);
             break;
@@ -100,6 +106,9 @@ string PndMQTopix4Processor::GetProperty(const int key, const string& default_ /
 {
     switch (key)
     {
+		case TimeCorr:
+			return fTimeCorrStr;
+			break;
         default:
             return FairMQDevice::GetProperty(key, default_);
     }

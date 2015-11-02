@@ -12,38 +12,30 @@
  * @author A. Rybalchenko
  */
 
-#ifndef PndMQTopix4Processor_H_
-#define PndMQTopix4Processor_H_
+#ifndef PndMQTopix4DigiToHit_H_
+#define PndMQTopix4DigiToHit_H_
 
 //#include "FairMQDevice.h"
 #include "FairMQDevice.h"
-#include "PndMvdReadInToPix4TBData.h"
-
+#include "PndMQGapEventBuilder.h"
+#include "PndMvdTopixClusterFinder.h"
+#include "PndMvdTopixHitProducer.h"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
+#include <PndMQTopixHitProducer.h>
 
-class PndMQTopix4Processor : public FairMQDevice
+class PndMQTopix4DigiToHit : public FairMQDevice
 {
-  public:
-    enum
-    {
-        FE = FairMQDevice::Last,
-		TimeCorr,
-        Last
-    };
-
-    PndMQTopix4Processor();
-    virtual ~PndMQTopix4Processor();
-
-    virtual void SetProperty(const int key, const std::string& value);
-	virtual std::string GetProperty(const int key, const std::string& default_ = "");
-	virtual void SetProperty(const int key, const int value);
-	virtual int GetProperty(const int key, const int default_ = 0);
+   public:
+	PndMQTopix4DigiToHit();
+	virtual ~PndMQTopix4DigiToHit();
 
     template <class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-    	ar& fPndSdsDigiTopix4Vector;
+    	ar& fTopixDigis;
+    	ar& fTopixHitsEvent;
 	}
 
   protected:
@@ -52,14 +44,14 @@ class PndMQTopix4Processor : public FairMQDevice
 	#ifndef __CINT__ // for BOOST serialization
     	friend class boost::serialization::access;
 	#endif // for BOOST serialization
-    std::vector<PndSdsDigiTopix4> fPndSdsDigiTopix4Vector;
+    std::vector<PndSdsDigiTopix4> fTopixDigis;
+    std::deque<std::vector<PndSdsHit> > fTopixHitsEvent;
 
     bool fHasBoostSerialization;
-    int fFE;
-    double fTimeStampCorrection;
-    std::string fTimeCorrStr;
-
-    PndMvdReadInToPix4TBData fTopixDataReader;
+    PndMQGapEventBuilder fEventBuilder;
+    PndMvdTopixClusterFinder fClusterFinder;
+ //   PndMvdTopixHitProducer fHitProducer;
+    PndMQTopixHitProducer fHitProducer;
 };
 
 #endif /* FAIRMQEXAMPLE1SINK_H_ */

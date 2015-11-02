@@ -69,7 +69,7 @@ void PndMQTopix4ProcessorTask::Exec(Option_t* opt)
 		memcpy(fPayload->GetData(), obuffer.str().c_str(), outputSize);
 		//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
 		//fChannels.at("data-out").at(0).Send(msg);
-		LOG(INFO) << "Data: " << frames.front().size() << std::endl;
+		LOG(INFO) << "Data: " << frames.front().size();
 	}
 }
 

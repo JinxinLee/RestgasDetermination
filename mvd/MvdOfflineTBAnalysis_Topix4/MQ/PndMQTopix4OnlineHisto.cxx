@@ -22,6 +22,7 @@
 #include "FairMQLogger.h"
 #include "mrfdata_8b.h"
 #include "PndSdsDigiTopix4.h"
+#include "TSystem.h"
 
 #include <TH2.h>
 #include <TCanvas.h>
@@ -31,8 +32,8 @@ using namespace std;
 
 PndMQTopix4OnlineHisto::PndMQTopix4OnlineHisto() : fHasBoostSerialization(false)
 {
-	//gSystem->ResetSignal(kSigInterrupt);
-	//gSystem->ResetSignal(kSigTermination);
+	gSystem->ResetSignal(kSigInterrupt);
+	gSystem->ResetSignal(kSigTermination);
 
 	using namespace baseMQ::tools::resolve;
 	// coverity[pointless_expression]: suppress coverity warnings on apparant if(const).
@@ -54,6 +55,7 @@ void PndMQTopix4OnlineHisto::Run()
 
 		TH2* h2 = new TH2D("h2","h2", 21, -0.5, 20.5, 33, -0.5, 32.5);
 		TCanvas *c1 = new TCanvas("c1", "Dynamic Filling Example", 500, 100, 700, 500);
+		c1->Show();
 		while (CheckCurrentState(RUNNING))
 		{
 			FairMQMessage* msg = fTransportFactory->CreateMessage();
@@ -80,19 +82,14 @@ void PndMQTopix4OnlineHisto::Run()
 				LOG(INFO) << "TopixData: " << fTopixData.size();
 
 				if (fTopixData.size() > 0){
-	//            	ostringstream obuffer;
-	//            	boost::archive::binary_oarchive OutputArchive(obuffer);
-	//            	OutputArchive << frames.front();
-	//            	int outputSize = obuffer.str().length();
-	//            	unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
-	//            	fChannels.at("data-out").at(0).Send(msg);
-					LOG(INFO) << "Data: " << fTopixData.size() << " " << fTopixData.front() <<  std::endl;
-					h2->Fill(fTopixData.front().GetPixelColumn(), fTopixData.front().GetPixelRow());
+					for (auto itr : fTopixData){
+						h2->Fill(itr.GetPixelColumn(), itr.GetPixelRow());
+					}
 				}
 				delete(msg);
 
-				const int kUPDATE = 1000;
-				if (receivedMsgs && (receivedMsgs%kUPDATE) == 0){
+				const int kUPDATE = 100;
+				if (receivedMsgs){
 					if (receivedMsgs == kUPDATE) h2->Draw("colz");
 					c1->Modified();
 					c1->Update();

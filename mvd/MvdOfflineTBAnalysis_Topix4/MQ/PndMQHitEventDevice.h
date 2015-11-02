@@ -12,28 +12,25 @@
  * @author A. Rybalchenko
  */
 
-#ifndef PndMQTopix4Processor_H_
-#define PndMQTopix4Processor_H_
+#ifndef PndMQHitEventDevice_H_
+#define PndMQHitEventDevice_H_
 
 //#include "FairMQDevice.h"
 #include "FairMQDevice.h"
 #include "PndMvdReadInToPix4TBData.h"
+#include "PndMQHitsEventBuilder.h"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
 
-class PndMQTopix4Processor : public FairMQDevice
+class PndMQHitEventDevice : public FairMQDevice
 {
   public:
-    enum
-    {
-        FE = FairMQDevice::Last,
-		TimeCorr,
-        Last
-    };
 
-    PndMQTopix4Processor();
-    virtual ~PndMQTopix4Processor();
+
+    PndMQHitEventDevice();
+    virtual ~PndMQHitEventDevice();
 
     virtual void SetProperty(const int key, const std::string& value);
 	virtual std::string GetProperty(const int key, const std::string& default_ = "");
@@ -43,7 +40,7 @@ class PndMQTopix4Processor : public FairMQDevice
     template <class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-    	ar& fPndSdsDigiTopix4Vector;
+    	ar& fHitData;
 	}
 
   protected:
@@ -52,14 +49,11 @@ class PndMQTopix4Processor : public FairMQDevice
 	#ifndef __CINT__ // for BOOST serialization
     	friend class boost::serialization::access;
 	#endif // for BOOST serialization
-    std::vector<PndSdsDigiTopix4> fPndSdsDigiTopix4Vector;
+    std::vector<PndSdsHit> fHitData;
+    std::vector<std::vector<std::vector<PndSdsHit> > > fDataFromChannels;
 
     bool fHasBoostSerialization;
-    int fFE;
-    double fTimeStampCorrection;
-    std::string fTimeCorrStr;
-
-    PndMvdReadInToPix4TBData fTopixDataReader;
+    PndMQHitsEventBuilder fBuilder;
 };
 
 #endif /* FAIRMQEXAMPLE1SINK_H_ */

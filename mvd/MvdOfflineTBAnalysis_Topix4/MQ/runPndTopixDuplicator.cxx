@@ -13,7 +13,7 @@
  */
 
 //#include <PndMQTopix4ProcessorTask.h>
-#include <PndMQTopix4Processor.h>
+#include <PndMQDataDuplicator.h>
 #include <iostream>
 
 #include "boost/program_options.hpp"
@@ -34,19 +34,11 @@ using namespace boost::program_options;
 
 int main(int argc, char** argv)
 {
-	PndMQTopix4Processor processor;
+	PndMQDataDuplicator processor;
     processor.CatchSignals();
 
     FairMQProgOptions config;
 
-    int fe;
-    std::string timeCorr;
-    options_description samplerOptions("Sampler options");
-	samplerOptions.add_options()
-		("FE", value<int>(&fe)->default_value(-1), "Front-End ID")
-		("TIMECORR", value<std::string>(&timeCorr)->default_value("0.0"), "Correction of time offset");
-
-	config.AddToCmdLineOptions(samplerOptions);
 
     try
     {
@@ -58,16 +50,13 @@ int main(int argc, char** argv)
         std::string filename = config.GetValue<std::string>("config-json-file");
         std::string id = config.GetValue<std::string>("id");
 
+
         config.UserParser<FairMQParser::JSON>(filename, id);
 
         processor.fChannels = config.GetFairMQMap();
 
         LOG(INFO) << "PID: " << getpid();
         LOG(INFO) << "ID: " << id ;
-        LOG(INFO) << "FE: " << fe;
-        LOG(INFO) << "TimeCorr: "  << timeCorr;
-        LOG(INFO) << "Processor::Id Kes: " << FairMQDevice::Id;
-        processor.ListProperties();
 
 #ifdef NANOMSG
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryNN();
@@ -78,8 +67,6 @@ int main(int argc, char** argv)
         processor.SetTransport(transportFactory);
 
         processor.SetProperty(FairMQDevice::Id, id);
-        processor.SetProperty(PndMQTopix4Processor::FE, fe);
-        processor.SetProperty(PndMQTopix4Processor::TimeCorr, timeCorr);
 
         //PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
         //processor.SetTask(task);

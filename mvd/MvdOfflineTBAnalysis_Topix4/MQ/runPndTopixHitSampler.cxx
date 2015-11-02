@@ -6,14 +6,12 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 /**
- * runExample1Sink.cxx
+ * runExample1Sampler.cxx
  *
  * @since 2013-04-23
  * @author D. Klein, A. Rybalchenko
  */
 
-//#include <PndMQTopix4ProcessorTask.h>
-#include <PndMQTopix4Processor.h>
 #include <iostream>
 
 #include "boost/program_options.hpp"
@@ -21,8 +19,7 @@
 #include "FairMQLogger.h"
 #include "FairMQParser.h"
 #include "FairMQProgOptions.h"
-#include "FairMQProcessor.h"
-#include "FairMQDevice.h"
+#include "PndMQFileSamplerHits.h"
 
 #ifdef NANOMSG
 #include "FairMQTransportFactoryNN.h"
@@ -34,22 +31,24 @@ using namespace boost::program_options;
 
 int main(int argc, char** argv)
 {
-	PndMQTopix4Processor processor;
-    processor.CatchSignals();
+    PndMQFileSamplerHits sampler;
+    sampler.CatchSignals();
 
     FairMQProgOptions config;
 
-    int fe;
-    std::string timeCorr;
-    options_description samplerOptions("Sampler options");
-	samplerOptions.add_options()
-		("FE", value<int>(&fe)->default_value(-1), "Front-End ID")
-		("TIMECORR", value<std::string>(&timeCorr)->default_value("0.0"), "Correction of time offset");
-
-	config.AddToCmdLineOptions(samplerOptions);
-
     try
     {
+        std::string text;
+        int fe;
+        double timecorr;
+
+        options_description samplerOptions("Sampler options");
+        samplerOptions.add_options()
+            ("InputFile", value<std::string>(&text)->default_value("HitsFE1.root"), "FileName of data to read");
+
+
+        config.AddToCmdLineOptions(samplerOptions);
+
         if (config.ParseAll(argc, argv))
         {
             return 0;
@@ -60,14 +59,9 @@ int main(int argc, char** argv)
 
         config.UserParser<FairMQParser::JSON>(filename, id);
 
-        processor.fChannels = config.GetFairMQMap();
+        sampler.fChannels = config.GetFairMQMap();
 
         LOG(INFO) << "PID: " << getpid();
-        LOG(INFO) << "ID: " << id ;
-        LOG(INFO) << "FE: " << fe;
-        LOG(INFO) << "TimeCorr: "  << timeCorr;
-        LOG(INFO) << "Processor::Id Kes: " << FairMQDevice::Id;
-        processor.ListProperties();
 
 #ifdef NANOMSG
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryNN();
@@ -75,23 +69,18 @@ int main(int argc, char** argv)
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryZMQ();
 #endif
 
-        processor.SetTransport(transportFactory);
+        sampler.SetTransport(transportFactory);
 
-        processor.SetProperty(FairMQDevice::Id, id);
-        processor.SetProperty(PndMQTopix4Processor::FE, fe);
-        processor.SetProperty(PndMQTopix4Processor::TimeCorr, timeCorr);
+        sampler.SetProperty(PndMQFileSamplerHits::InputFile, text);
 
-        //PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
-        //processor.SetTask(task);
+        sampler.ChangeState("INIT_DEVICE");
+        sampler.WaitForEndOfState("INIT_DEVICE");
 
-        processor.ChangeState("INIT_DEVICE");
-        processor.WaitForEndOfState("INIT_DEVICE");
+        sampler.ChangeState("INIT_TASK");
+        sampler.WaitForEndOfState("INIT_TASK");
 
-        processor.ChangeState("INIT_TASK");
-        processor.WaitForEndOfState("INIT_TASK");
-
-        processor.ChangeState("RUN");
-        processor.InteractiveStateLoop();
+        sampler.ChangeState("RUN");
+        sampler.InteractiveStateLoop();
     }
     catch (std::exception& e)
     {

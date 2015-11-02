@@ -23,7 +23,9 @@ PndMvdReadInToPix4TBData::PndMvdReadInToPix4TBData() : fDigiArray(0), fClockFreq
 					   fNonSequentialFC(0), fHammingLossFrameCount(0), fCRCLossFrameCount(0),
 					   fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),
 					   fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(0),
-					   fDataCount(0), fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0), fFileHandle(0) {
+					   fDataCount(0), fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0), fFileHandle(0),
+					   fTimeStampCorrection(0.0)
+{
 
 }
 
@@ -100,10 +102,10 @@ Bool_t PndMvdReadInToPix4TBData::ReadInDataFromFile(TMrfData_8b*& data)
 		}
 	} else {
 		LOG(ERROR) << fFE << " An error occured ";
-		LOG(ERROR) << fFE << " fFileHandle->good() " << fFileHandle->good() << std::endl;
-		LOG(ERROR) << fFE << " fFileHandle->eof()  " << fFileHandle->eof()	<< std::endl;
-		LOG(ERROR) << fFE << " fFileHandle->fail() " << fFileHandle->fail() << std::endl;
-		LOG(ERROR) << fFE << " fFileHandle->bad()  " << fFileHandle->bad()	<< std::endl;
+		LOG(ERROR) << fFE << " fFileHandle->good() " << fFileHandle->good();
+		LOG(ERROR) << fFE << " fFileHandle->eof()  " << fFileHandle->eof();
+		LOG(ERROR) << fFE << " fFileHandle->fail() " << fFileHandle->fail();
+		LOG(ERROR) << fFE << " fFileHandle->bad()  " << fFileHandle->bad();
 
 		endOfFile = kTRUE;
 		return endOfFile;
@@ -480,11 +482,13 @@ PndSdsDigiTopix4 PndMvdReadInToPix4TBData::ProcessData(ULong64_t& data, ToPix4::
 		//std::cout << "PndMvdReadInToPix4TBData::ProcessData frameCount corrected" << std::endl;
 	}
 	Double_t timestamp = ((Double_t)fSuperFrameCount * 256. * 4096. + (Double_t)frameCountHeader * 4096. + (Double_t)pixelData.fLeadingEdge)/clockFrequency * 1000.;
-
+	timestamp += fTimeStampCorrection;
 	Double_t timestamp_independent = ((Double_t) fTotalHeaderCount * 4096. + (Double_t)pixelData.fLeadingEdge)/clockFrequency * 1000.;
 
 	std::vector<Int_t> indices; // just for compatibility with PndSdsDigiPixel
 //	return PndSdsDigiTopix4(indices, 0, 0, fFE, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
-	return PndSdsDigiTopix4(indices, 0, fFE - 1, 0, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
+	PndSdsDigiTopix4 result(indices, 0, fFE - 1, 0, pixelAddress.first, pixelAddress.second, pixelData.fLeadingEdge, pixelData.fTrailingEdge, header.fFrameCount, timestamp, fCorrectHitCount,fTotalHitCount, timestamp_independent);
+	result.SetTimeStampError(1/clockFrequency * 1000);  ///todo: check if sqrt(12) has to be added
+	return result;
 
 }

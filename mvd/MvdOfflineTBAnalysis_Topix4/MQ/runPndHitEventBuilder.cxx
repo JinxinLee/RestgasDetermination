@@ -13,7 +13,7 @@
  */
 
 //#include <PndMQTopix4ProcessorTask.h>
-#include <PndMQTopix4Processor.h>
+#include "PndMQHitEventDevice.h"
 #include <iostream>
 
 #include "boost/program_options.hpp"
@@ -34,19 +34,10 @@ using namespace boost::program_options;
 
 int main(int argc, char** argv)
 {
-	PndMQTopix4Processor processor;
-    processor.CatchSignals();
+	PndMQHitEventDevice builder;
+    builder.CatchSignals();
 
     FairMQProgOptions config;
-
-    int fe;
-    std::string timeCorr;
-    options_description samplerOptions("Sampler options");
-	samplerOptions.add_options()
-		("FE", value<int>(&fe)->default_value(-1), "Front-End ID")
-		("TIMECORR", value<std::string>(&timeCorr)->default_value("0.0"), "Correction of time offset");
-
-	config.AddToCmdLineOptions(samplerOptions);
 
     try
     {
@@ -58,16 +49,14 @@ int main(int argc, char** argv)
         std::string filename = config.GetValue<std::string>("config-json-file");
         std::string id = config.GetValue<std::string>("id");
 
+
         config.UserParser<FairMQParser::JSON>(filename, id);
 
-        processor.fChannels = config.GetFairMQMap();
+        builder.fChannels = config.GetFairMQMap();
 
         LOG(INFO) << "PID: " << getpid();
         LOG(INFO) << "ID: " << id ;
-        LOG(INFO) << "FE: " << fe;
-        LOG(INFO) << "TimeCorr: "  << timeCorr;
-        LOG(INFO) << "Processor::Id Kes: " << FairMQDevice::Id;
-        processor.ListProperties();
+        builder.ListProperties();
 
 #ifdef NANOMSG
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryNN();
@@ -75,23 +64,21 @@ int main(int argc, char** argv)
         FairMQTransportFactory* transportFactory = new FairMQTransportFactoryZMQ();
 #endif
 
-        processor.SetTransport(transportFactory);
+        builder.SetTransport(transportFactory);
 
-        processor.SetProperty(FairMQDevice::Id, id);
-        processor.SetProperty(PndMQTopix4Processor::FE, fe);
-        processor.SetProperty(PndMQTopix4Processor::TimeCorr, timeCorr);
+        builder.SetProperty(FairMQDevice::Id, id);
 
         //PndMQTopix4ProcessorTask* task = new PndMQTopix4ProcessorTask();
-        //processor.SetTask(task);
+        //builder.SetTask(task);
 
-        processor.ChangeState("INIT_DEVICE");
-        processor.WaitForEndOfState("INIT_DEVICE");
+        builder.ChangeState("INIT_DEVICE");
+        builder.WaitForEndOfState("INIT_DEVICE");
 
-        processor.ChangeState("INIT_TASK");
-        processor.WaitForEndOfState("INIT_TASK");
+        builder.ChangeState("INIT_TASK");
+        builder.WaitForEndOfState("INIT_TASK");
 
-        processor.ChangeState("RUN");
-        processor.InteractiveStateLoop();
+        builder.ChangeState("RUN");
+        builder.InteractiveStateLoop();
     }
     catch (std::exception& e)
     {
