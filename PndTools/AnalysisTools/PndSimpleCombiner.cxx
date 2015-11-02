@@ -231,6 +231,13 @@ bool PndSimpleCombiner::ParseParams(TString params)
 	
 	for (int i=0;i<parm.size();++i)
 	{
+		if (parm[i]=="ebrem") 
+		{
+			fIdxListNameMap[0]="ElectronMinusBrem";
+			fIdxListNameMap[1]="ElectronPlusBrem";
+			continue;
+		}
+		
 		StringList pair;
 		SplitString(parm[i],"=",pair);
 		
