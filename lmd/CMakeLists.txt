@@ -27,6 +27,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/sds
   ${CMAKE_SOURCE_DIR}/lmd/LmdMC
   ${CMAKE_SOURCE_DIR}/lmd/LmdDigi
+  ${CMAKE_SOURCE_DIR}/lmd/LmdSensorAlignment
+  ${CMAKE_SOURCE_DIR}/lmd/LmdSensorAlignment/icp
+  #${CMAKE_SOURCE_DIR}/lmd/LmdSensorAlignment/SensorAligner
   ${CMAKE_SOURCE_DIR}/lmd/LmdReco
   ${CMAKE_SOURCE_DIR}/lmd/LmdTrack
   ${CMAKE_SOURCE_DIR}/lmd/LmdTools

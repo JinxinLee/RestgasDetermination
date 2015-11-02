@@ -6,7 +6,7 @@
  *
  * Global comments:
  *
- * to do
+ * TODO
  *
  *
  *  Created on: Oct 5, 2012
@@ -14,6 +14,8 @@
  *
  *      To use transformation functions you have to call Read_Transformation_matrices
  *
+ *		as of 2015 maintained by Roman Klasen, klasen@kph.uni-mainz.de 
+
  */
 
 #ifndef PNDLMDDIM_H_
@@ -102,8 +104,8 @@ public:
 						2.376e-06, 	-0.0003806, 	-2.583e-07, 	-3.862e-07, 	-1.647e-05, 	-1.871e-05, 	1
 				};
 				Set(matrix_init);
-			} else { // unitity matrix
-				cout << " Warning in PndLmdDimPropMat: loading unitiy matrix only " << endl;
+			} else { // identity matrix
+				cout << " Warning in PndLmdDimPropMat: loading identity matrix only " << endl;
 				double matrix_init[49] = {
 						1, 0, 0, 0, 0, 0, 0,
 						0, 1, 0, 0, 0, 0, 0,
@@ -162,20 +164,20 @@ public:
 
 	bool operator == (const Tkey & comp) const{
 		return (half == comp.half) &&
-			(plane == comp.plane) &&
-			(module == comp.module) &&
-			(side == comp.side) &&
-			(die == comp.die) &&
-			(sensor == comp.sensor);
+				(plane == comp.plane) &&
+				(module == comp.module) &&
+				(side == comp.side) &&
+				(die == comp.die) &&
+				(sensor == comp.sensor);
 	}
 
 	Tkey (const Tkey& copy){
-			half = copy.half;
-			plane = copy.plane;
-			module = copy.module;
-			side = copy.side;
-			die = copy.die;
-			sensor = copy.sensor;
+		half = copy.half;
+		plane = copy.plane;
+		module = copy.module;
+		side = copy.side;
+		die = copy.die;
+		sensor = copy.sensor;
 	}
 
 	Tkey (int ihalf, int iplane, int imodule, int iside, int idie, int isensor){
@@ -225,7 +227,7 @@ private:
 	static PndLmdDim* pinstance;
 	TGeoManager* fgGeoMan;
 	PndLmdDim();
-	PndLmdDim(const PndLmdDim& instance);
+	PndLmdDim(const PndLmdDim &instance);
 	PndLmdDim& operator=(const PndLmdDim& instance){
 		this->box_size_x = instance.box_size_x; // to get rid from pedantic warnings
 		return *this;
@@ -244,7 +246,7 @@ public:
 	// A detector loaded before the lmd will introduce an offset in
 	// that ID which can be determined from a loaded root geometry by calling
 	// Set_sensIDoffset(-1);
-	// to do: add everywhere that sensID offset
+	// TODO: add everywhere that sensID offset
 	unsigned int sensIDoffset;
 
 	// set the sensIDoffset
@@ -563,10 +565,10 @@ public:
 	}*/
 
 	/**
-		 * C++ version 0.4 char* style "itoa":
-		 * Written by Lukás Chmela
-		 * Released under GPLv3.
-		 */
+	 * C++ version 0.4 char* style "itoa":
+	 * Written by Lukás Chmela
+	 * Released under GPLv3.
+	 */
 	char* itoa(int value, char* result, int base) {
 		// check that the base if valid
 		char* last_char;
@@ -600,7 +602,7 @@ public:
 		ptr = itoa(iside, ptr, 10);
 		ptr = itoa(idie, ptr, 10);
 		ptr = itoa(isensor, ptr, 10);
-	    string result(key);
+		string result(key);
 		//stringstream keystream;
 		//keystream << ihalf << iplane << imodule << iside << idie << isensor;
 		return result;
@@ -644,6 +646,7 @@ public:
 	// VMCWORKDIR/input/matrices.txt
 	// you may overwrite the version number if necessary
 	// VMCWORKDIR/geometry folder is used if no filename is specified
+	// ATTENTION! aligned matrices means perfect geometry, set to false if using misaligned geometry
 	void Read_transformation_matrices(string filename = "", bool aligned = true, int version_number = geometry_version);
 
 	// write transformation matrices from a given file
@@ -660,7 +663,7 @@ public:
 	// containing the description of the detector positions
 	// the geometry must be loaded otherwise matrices cannot be read
 	// version number will be set according to the geometry version number
-	// To Do: multiply also matrices on the way to the key matrices
+	// ToDo: multiply also matrices on the way to the key matrices
 	//        in case those are not unity matrices
 	bool Read_transformation_matrices_from_geometry(bool aligned = true);
 
@@ -672,9 +675,9 @@ public:
 	// IMPORTANT: you may choose which PndLmdDim matrices you want to use
 	// but a ROOT Geometry can always be only aligned. The original
 	// matrix stays untouched!
-	// To Do: multiply also matrices on the way to the key matrices
+	// TODO: multiply also matrices on the way to the key matrices
 	//        in case those are not unity matrices
-	// To Do: Find out how to store the aligned geometry as a default
+	// TODO: Find out how to store the aligned geometry as a default
 	//        one to pandaroot parameter files
 	bool Write_transformation_matrices_to_geometry(bool aligned = true);
 
@@ -740,7 +743,7 @@ public:
 	// needs transformation matrices to determine the position
 	// column and row can be also the mean from a cluster and therefore
 	// not an integer
-	TVector3 Decode_hit(const int sensorID, const double column, const double row, const bool aligned = true);
+	TVector3 Decode_hit(const int sensorID, const double column, const double row, const bool aligned = true, bool newVersion=false);
 
 	// matrices for a fast prediction of a particle track to the lmd
 	// depending on the momentum setting of the hesr which is the key
@@ -750,7 +753,7 @@ public:
 	// the propagation is based on a transformation matrix which was
 	// fit to GEANT4 propagated data from January 2015
 	// only 1.5 GeV/c and 15 GeV/c are implemented properly
-	// to do: interpolation between matrices
+	// TODO: interpolation between matrices
 	// back propagation not implemented yet since
 	// Mathematica inverted matrices did not work
 	void Propagate_fast_ip_to_lmd(TVector3& pos, TVector3& mom, double pbeam);
@@ -995,7 +998,7 @@ public:
 	// if (aligned) the matrix after a possible alignment is returned
 	// in that case details to the matrix must be provided in form
 	// of ihalf ... isensor
-	// to do: get rid of path and do it only on the basis of ihalf ... isensor
+	// TODO: get rid of path and do it only on the basis of ihalf ... isensor
 	// if (!aligned) the original matrix is returned
 	TGeoHMatrix* Get_matrix(string path, bool aligned = true,
 			int ihalf = -1, int iplane= -1, int imodule = -1, int iside = -1, int idie = -1, int isensor = -1);
@@ -1006,7 +1009,7 @@ public:
 	// since a key must be created for a node
 	// details to it must be provided in form of
 	// ihalf ... isensor
-	// to do: get rid of path and do it only on the basis of ihalf ... isensor
+	// TODO: get rid of path and do it only on the basis of ihalf ... isensor
 	bool Set_matrix(string path, TGeoHMatrix* matrix,
 			int ihalf = -1, int iplane= -1, int imodule = -1, int iside = -1, int idie = -1, int isensor = -1);//, bool aligned = true);
 
@@ -1123,9 +1126,44 @@ public:
 	// Please rename it if you intend to call the function
 	// several times with same parameters
 	TH2Poly* Get_histogram_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true);
+
+	// get ModuleID as a char*, returns a NEW char. use ONLY for PndLmdSensorAligner
+	const char* makeModuleIDchar(int ihalf, int iplane, int imodule){
+		char* result = new char[3];
+		int intermediateId=makeModuleID(ihalf, iplane, imodule);
+		result = itoa(intermediateId, result, 10);
+		return result;
+	}
+
+	// and this is the same is int, use ONLY for SensorAligner
+	int makeModuleID(int ihalf, int iplane, int imodule) {
+		return 100*ihalf+10*iplane+imodule;
+	}
+
+	// and this is the same is int, use ONLY for SensorAligner
+	int makeModuleID(int firstSensorId, int secondSensorId) {
+
+		int fhalf, fplane, fmodule, fside, fdie, fsensor;
+		int bhalf, bplane, bmodule, bside, bdie, bsensor;
+
+		Get_sensor_by_id(firstSensorId, fhalf, fplane, fmodule, fside, fdie, fsensor);
+		Get_sensor_by_id(secondSensorId, bhalf, bplane, bmodule, bside, bdie, bsensor);
+
+		//the necessities for overlapping, must be on same half, plane, module and other side
+		if(bhalf != fhalf){
+			return -1;
+		}
+		if(bplane != fplane){
+			return -1;
+		}
+		if(bmodule != fmodule){
+			return -1;
+		}
+		return makeModuleID(fhalf, fplane, fmodule);
+	}
+
+	int makeOverlapID(int firstSensorId, int secondSensorId);
+
 };
-
-
-
 
 #endif /* PNDLMDDIM_H_ */

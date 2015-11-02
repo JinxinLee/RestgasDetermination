@@ -5,6 +5,7 @@
  *
  *  Created on: Oct 5, 2012
  *      Author: promme
+ *		as of 2015 maintained by Roman Klasen, klasen@kph.uni-mainz.de
  */
 
 #include <PndLmdDim.h>
@@ -59,10 +60,10 @@ PndLmdDim::PndLmdDim()
 	side_tilt_phi = 0.; // do not use! -> clashing volumes
 	side_tilt_theta = 0.;
 	side_tilt_psi = 0.; // do not use! -> clashing volumes
-	sensor_offset_x = 1e-4*test_mult_fact;
-	sensor_offset_y = 1e-4*test_mult_fact;
+	sensor_offset_x = 100e-4*test_mult_fact; // 100 mum
+	sensor_offset_y = 100e-4*test_mult_fact; // 100 mum
 	sensor_offset_z = 0.; // do not use! -> clashing volumes
-	sensor_tilt_phi = 1e-6*test_mult_fact;
+	sensor_tilt_phi = 150e-6*test_mult_fact; // 150 murad
 	sensor_tilt_theta = 0.; // do not use! -> clashing volumes
 	sensor_tilt_psi = 0.; // do not use! -> clashing volumes
 	// cvd_diamond is cut out of 79.5 mm discs of 200 micron thickness
@@ -90,7 +91,7 @@ PndLmdDim::PndLmdDim()
 	// the inner ring at an angle of 0 and delta_phi
 	// this defines the distance to the center according to pythagoras
 	cvd_disc_dist = pol_side_dist_min + sqrt(
-		cvd_disc_rad * cvd_disc_rad - pol_side_lg_half * pol_side_lg_half);
+			cvd_disc_rad * cvd_disc_rad - pol_side_lg_half * pol_side_lg_half);
 
 	kapton_disc_thick_half = 0.004454/2.; // Using aluminum in equivalent thickness to cover flex cable and gluing at once
 
@@ -366,7 +367,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	TGeoRotation* rot_no = new TGeoRotation("rot_no", 0., 0., 0.); // no rotation
 	TGeoTranslation* trans_no = new TGeoTranslation("trans_no", 0., 0., 0.); // no translation
 	TGeoCombiTrans* rottrans_no = new TGeoCombiTrans("rottrans_no", 0., 0.,
-				0., rot_no);
+			0., rot_no);
 	rottrans_no->RegisterYourself();
 
 	// ************ create the luminosity monitor box ***********
@@ -386,7 +387,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 					box_size_y,
 					lmd_total_length, origin);
 	TGeoVolume *lmd_vol_vac = new TGeoVolume(nav_paths[0].c_str(), lmd_box_vac,
-					fgGeoMan->GetMedium("vacuum7"));
+			fgGeoMan->GetMedium("vacuum7"));
 	//lmd_vol_vac->SetTransparency(20);
 	lmd_vol_vac->SetLineColor(3);
 	double x, y, z, rottheta, rotphi, rotpsi;
@@ -410,15 +411,15 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	lmd_vol_vac->AddNode(lmd_vol_pipe_up, 0, comb_trans_pipe_upstream);
 	// the lmd box
 	TGeoBBox* lmd_box_outer
-		= new TGeoBBox("lmd_box_outer",
-				box_size_x , box_size_y  , box_size_z );
+	= new TGeoBBox("lmd_box_outer",
+			box_size_x , box_size_y  , box_size_z );
 	TGeoBBox* lmd_box_inner
-		= new TGeoBBox("lmd_box_inner",
-				box_size_x - box_thickness,
-				box_size_y - box_thickness,
-				box_size_z - box_thickness);
+	= new TGeoBBox("lmd_box_inner",
+			box_size_x - box_thickness,
+			box_size_y - box_thickness,
+			box_size_z - box_thickness);
 	TGeoBBox* lmd_box_rib
-		= new TGeoBBox("lmd_box_rib",
+	= new TGeoBBox("lmd_box_rib",
 			box_size_x - box_thickness,
 			box_size_y - box_thickness,
 			box_thickness / 2.);
@@ -429,14 +430,14 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			0., 0., -box_size_z+box_thickness/2., rot_no);
 	comb_trans_cut_pipe_upstream->RegisterYourself();
 	TGeoTube* box_hole_downstream =
-				new TGeoTube("box_hole_downstream", 0.0, rad_exit, box_thickness);
+			new TGeoTube("box_hole_downstream", 0.0, rad_exit, box_thickness);
 	// move the cut pipe downstream
 	TGeoCombiTrans* comb_trans_cut_pipe_downstream = new TGeoCombiTrans("comb_trans_cut_pipe_downstream",
-				0., 0., +box_size_z-box_thickness/2., rot_no);
+			0., 0., +box_size_z-box_thickness/2., rot_no);
 	comb_trans_cut_pipe_downstream->RegisterYourself();
 	// move rib upstream
 	TGeoCombiTrans* comb_trans_rib = new TGeoCombiTrans("comb_trans_rib",
-				0., 0., -box_size_z+pos_rib, rot_no);
+			0., 0., -box_size_z+pos_rib, rot_no);
 	comb_trans_rib->RegisterYourself();
 	// inner clash protection rods
 	double clash_rod_x = 3.;
@@ -444,14 +445,14 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	double clash_rod_z = 29.75;
 	double origin_left[3] = {-box_size_x+clash_rod_x+box_thickness, 0., 18.15};
 	TGeoBBox* lmd_box_clash_rod_left
-		= new TGeoBBox("lmd_box_clash_rod_left",
+	= new TGeoBBox("lmd_box_clash_rod_left",
 			clash_rod_x,
 			clash_rod_y,
 			clash_rod_z,
 			origin_left);
 	double origin_right[3] = {+box_size_x-clash_rod_x-box_thickness, 0., 18.15};
 	TGeoBBox* lmd_box_clash_rod_right
-		= new TGeoBBox("lmd_box_clash_rod_right",
+	= new TGeoBBox("lmd_box_clash_rod_right",
 			clash_rod_x,
 			clash_rod_y,
 			clash_rod_z,
@@ -463,7 +464,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			"-box_hole_downstream:comb_trans_cut_pipe_downstream"
 			"+lmd_box_clash_rod_left+lmd_box_clash_rod_right");
 	TGeoVolume *lmd_vol_box = new TGeoVolume("lmd_vol_box", shape_lmd_box,
-				fgGeoMan->GetMedium("steel"));
+			fgGeoMan->GetMedium("steel"));
 	lmd_vol_box->SetLineColor(11);
 	//lmd_vol_box->SetVisibility(false);//TEST
 	//lmd_vol_box->SetTransparency(20);
@@ -511,7 +512,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	//			"lmd_flange_upstr", 9.2, 25.3/2., 1.2);
 	//	TGeoCombiTrans* lmd_trans_fl_up = new TGeoCombiTrans("lmd_trans_fl_up", 0., 0., 1.2+delta, r1);
 	//	lmd_trans_fl_up->RegisterYourself();
-		// upstream flange holding the kapton cone
+	// upstream flange holding the kapton cone
 	//	TGeoTube* lmd_cone_flange_upstr = new TGeoTube(
 	//			"lmd_cone_flange_upstr", 9.2, 25.3/2., 1.5);
 	//	TGeoCombiTrans* lmd_trans_co_fl_up = new TGeoCombiTrans("lmd_trans_co_fl_up", 0., 0., -1.5+50.-delta, r1);
@@ -650,8 +651,8 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	double tA2doy = tA2uoy;
 
 	TGeoCone* lmd_capton_cone = new TGeoCone("lmd_capton_cone",
-				(cpoldoz-cpoluoz)/2., cpoluiy, cpoluoy,
-				cpoldiy, cpoldoy);
+			(cpoldoz-cpoluoz)/2., cpoluiy, cpoluoy,
+			cpoldiy, cpoldoy);
 	TGeoCombiTrans* lmd_trans_cap_co = new TGeoCombiTrans("lmd_trans_cap_co", 0., 0., box_inner_up_z + (cpoldoz-cpoluoz)/2.+cpoluoz, rot_no);
 	lmd_trans_cap_co->RegisterYourself();
 	TGeoVolume *vlum_CaptonCone = new TGeoVolume("vlum_CaptonCone", lmd_capton_cone,
@@ -748,15 +749,15 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			new TGeoCombiTrans("lmd_trans_lmd_cond_ring", 0., 0., box_inner_up_z, rot_no);
 	lmd_trans_lmd_cond_ring->RegisterYourself();
 	lmd_vol_vac->AddNode(vlum_cond_ring, 0, lmd_trans_lmd_cond_ring);
-		// beam pipe to shield the sensors
+	// beam pipe to shield the sensors
 	//	TGeoTube* lmd_beam_pipe = new TGeoTube("lmd_beam_pipe", 3.5, 3.6, 50./2.);
 	//	TGeoCombiTrans* lmd_trans_p = new TGeoCombiTrans("lmd_trans_p", 0., 0., 50.+23.386+50./2., r1);
 	//	lmd_trans_p->RegisterYourself();
-		// beam pipe cone downstream
+	// beam pipe cone downstream
 	//	TGeoCone* lmd_cone_downstr = new TGeoCone("lmd_cone_downstr", 20./2., 3.5, 3.7, 9./2., 9.2/2.);
 	//	TGeoCombiTrans* lmd_trans_co_do = new TGeoCombiTrans("lmd_trans_co_do", 0., 0., 50.+23.386+50.+20./2., r1);
 	//	lmd_trans_co_do->RegisterYourself();
-		// beam pipe downstream
+	// beam pipe downstream
 	//	TGeoTube* lmd_beam_pipe_downstream = new TGeoTube("lmd_beam_pipe_downstream", 9./2., 9.2/2., 56./2.);
 	//	TGeoCombiTrans* lmd_trans_p_down = new TGeoCombiTrans("lmd_trans_p_down", 0., 0., 50.+23.386+50.+20.+56./2., r1);
 	//	lmd_trans_p_down->RegisterYourself();*/
@@ -830,18 +831,18 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 
 	// construct the support from basic shape and it's cut outs
 	TGeoCompositeShape *shape_cool_sup_up =
-						new TGeoCompositeShape("shape_cool_sup_up",
-								"shape_cool_sup_tube-shape_cool_sup_cut:combtrans_shape_cool_sup_cut_low"
-								"-shape_module_cutout:rottrans_cutout_0"
-								"-shape_module_cutout:rottrans_cutout_1"
-								"-shape_module_cutout:rottrans_cutout_2"
-								"-shape_module_cutout:rottrans_cutout_3"
-								"-shape_module_cutout:rottrans_cutout_4"
-								"-shape_cool_sup_cut:cutshape_0"
-								"-shape_cool_sup_cut:cutshape_1"
-								"-shape_cool_sup_cut:cutshape_2"
-								"-shape_cool_sup_cut:cutshape_3"
-								"-shape_cool_sup_cut:cutshape_4");
+			new TGeoCompositeShape("shape_cool_sup_up",
+					"shape_cool_sup_tube-shape_cool_sup_cut:combtrans_shape_cool_sup_cut_low"
+					"-shape_module_cutout:rottrans_cutout_0"
+					"-shape_module_cutout:rottrans_cutout_1"
+					"-shape_module_cutout:rottrans_cutout_2"
+					"-shape_module_cutout:rottrans_cutout_3"
+					"-shape_module_cutout:rottrans_cutout_4"
+					"-shape_cool_sup_cut:cutshape_0"
+					"-shape_cool_sup_cut:cutshape_1"
+					"-shape_cool_sup_cut:cutshape_2"
+					"-shape_cool_sup_cut:cutshape_3"
+					"-shape_cool_sup_cut:cutshape_4");
 
 	TGeoVolume* lmd_vol_cool_sup_up = new TGeoVolume("lmd_vol_cool_sup_up",
 			shape_cool_sup_up, fgGeoMan->GetMedium("Aluminum"));
@@ -855,18 +856,18 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	combtrans_shape_cool_sup_down->RegisterYourself();
 	// construct the support from basic shape and it's cut outs
 	TGeoCompositeShape *shape_cool_sup_down =
-						new TGeoCompositeShape("shape_cool_sup_down",
-								"shape_cool_sup_tube-shape_cool_sup_cut:combtrans_shape_cool_sup_cut_high"
-								"-shape_module_cutout:rottrans_cutout_5"
-								"-shape_module_cutout:rottrans_cutout_6"
-								"-shape_module_cutout:rottrans_cutout_7"
-								"-shape_module_cutout:rottrans_cutout_8"
-								"-shape_module_cutout:rottrans_cutout_9"
-								"-shape_cool_sup_cut:cutshape_5"
-								"-shape_cool_sup_cut:cutshape_6"
-								"-shape_cool_sup_cut:cutshape_7"
-								"-shape_cool_sup_cut:cutshape_8"
-								"-shape_cool_sup_cut:cutshape_9");
+			new TGeoCompositeShape("shape_cool_sup_down",
+					"shape_cool_sup_tube-shape_cool_sup_cut:combtrans_shape_cool_sup_cut_high"
+					"-shape_module_cutout:rottrans_cutout_5"
+					"-shape_module_cutout:rottrans_cutout_6"
+					"-shape_module_cutout:rottrans_cutout_7"
+					"-shape_module_cutout:rottrans_cutout_8"
+					"-shape_module_cutout:rottrans_cutout_9"
+					"-shape_cool_sup_cut:cutshape_5"
+					"-shape_cool_sup_cut:cutshape_6"
+					"-shape_cool_sup_cut:cutshape_7"
+					"-shape_cool_sup_cut:cutshape_8"
+					"-shape_cool_sup_cut:cutshape_9");
 
 	TGeoVolume* lmd_vol_cool_sup_down = new TGeoVolume("lmd_vol_cool_sup_down",
 			shape_cool_sup_down, fgGeoMan->GetMedium("Aluminum"));
@@ -895,13 +896,13 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	cvd_combtrans->SetName("cvd_combtrans");
 	cvd_combtrans->RegisterYourself();
 	TGeoCompositeShape
-			*shape_cvd_support =
-					new TGeoCompositeShape(
-							"shape_cvd_support",
-							"(shape_cvd_disc-shape_cvd_cutout_inner:cvd_combtrans-shape_cvd_disc_cut_side:cvd_combtrans)");
+	*shape_cvd_support =
+			new TGeoCompositeShape(
+					"shape_cvd_support",
+					"(shape_cvd_disc-shape_cvd_cutout_inner:cvd_combtrans-shape_cvd_disc_cut_side:cvd_combtrans)");
 
 	TGeoVolume* lmd_vol_cvd_disc = new TGeoVolume("lmd_vol_cvd_disc",
-							shape_cvd_support, fgGeoMan->GetMedium("HYPdiamond"));
+			shape_cvd_support, fgGeoMan->GetMedium("HYPdiamond"));
 	lmd_vol_cvd_disc->SetLineColor(9);
 	// ****************************** kapton flexible circuits to the sensors ************************
 	// the cvd disc shape
@@ -926,16 +927,16 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	kapton_combtrans->SetName("kapton_combtrans");
 	kapton_combtrans->RegisterYourself();
 	TGeoCompositeShape
-			*shape_kapton_support =
-					new TGeoCompositeShape(
-							"shape_kapton_support",
-							"(shape_kapton_disc-shape_kapton_cutout_inner:kapton_combtrans-shape_kapton_disc_cut_side:kapton_combtrans)");
+	*shape_kapton_support =
+			new TGeoCompositeShape(
+					"shape_kapton_support",
+					"(shape_kapton_disc-shape_kapton_cutout_inner:kapton_combtrans-shape_kapton_disc_cut_side:kapton_combtrans)");
 
 	TGeoVolume* lmd_vol_kapton_disc = new TGeoVolume("lmd_vol_kapton_disc",
-							shape_kapton_support, fgGeoMan->GetMedium("Aluminum"));//kapton")); // changed to equivalent for glue/flex cable etc.
+			shape_kapton_support, fgGeoMan->GetMedium("Aluminum"));//kapton")); // changed to equivalent for glue/flex cable etc.
 	lmd_vol_kapton_disc->SetLineColor(kRed);
 	//lmd_vol_kapton_disc->SetTransparency(50);
-		lmd_vol_kapton_disc->SetVisibility(false);
+	lmd_vol_kapton_disc->SetVisibility(false);
 	// *********************************** HV-MAPS *************************************
 
 	// create basic shapes and their positions
@@ -945,9 +946,9 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	TGeoCombiTrans* combtrans_maps_active = new TGeoCombiTrans(
 			"combtrans_maps_active",
 			-maps_width + maps_passive_left * 2.
-					+ maps_active_width,
+			+ maps_active_width,
 			-maps_height + maps_passive_bottom * 2.
-					+ maps_active_height, 0., rot_no);
+			+ maps_active_height, 0., rot_no);
 	combtrans_maps_active->RegisterYourself();
 	TGeoBBox *shape_maps_passive_left = new TGeoBBox("shape_maps_passive_left",
 			maps_passive_left, maps_height,
@@ -982,15 +983,15 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 		cout << " pedantic compiler together with root geometries sucks " << endl;
 
 	TGeoCompositeShape
-			*shape_maps_passive =
-					new TGeoCompositeShape(
-							"shape_maps_passive",
-							"(shape_maps_passive_top:combtrans_maps_passive_top+shape_maps_passive_right:combtrans_maps_passive_right+shape_maps_passive_bottom:combtrans_maps_passive_bottom+shape_maps_passive_left:combtrans_maps_passive_left)");
+	*shape_maps_passive =
+			new TGeoCompositeShape(
+					"shape_maps_passive",
+					"(shape_maps_passive_top:combtrans_maps_passive_top+shape_maps_passive_right:combtrans_maps_passive_right+shape_maps_passive_bottom:combtrans_maps_passive_bottom+shape_maps_passive_left:combtrans_maps_passive_left)");
 
 	TGeoCompositeShape
-			*shape_maps_active =
-					new TGeoCompositeShape("shape_maps_active",
-							"(shape_maps_active_centered:combtrans_maps_active-shape_maps_passive)");
+	*shape_maps_active =
+			new TGeoCompositeShape("shape_maps_active",
+					"(shape_maps_active_centered:combtrans_maps_active-shape_maps_passive)");
 
 	TGeoVolume* _vol_passive =
 			new TGeoVolume(
@@ -1012,7 +1013,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 	stringstream uniqueid; // seems pandaroot has problems when volumes are not uniquely named
 	double _x(0), _y(0), _z(0), _rotphi(0), _rottheta(0), _rotpsi(0);
 	double _offset_x(0), _offset_y(0), _offset_z(0),
-		_offset_phi(0), _offset_theta(0), _offset_psi(0);
+			_offset_phi(0), _offset_theta(0), _offset_psi(0);
 	unsigned int sensor_id(0);
 	unsigned int module_id(0);
 	for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
@@ -1146,7 +1147,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 							} else {
 								_rotphi = 0.;
 							}
-							 _rottheta = 0.; _rotpsi = 0.;
+							_rottheta = 0.; _rotpsi = 0.;
 							//"LumActiveRect" is the keyword for digitization of hits
 							/*
 							name.str("");
@@ -1159,7 +1160,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 											shape_maps_active,
 											fgGeoMan->GetMedium("silicon"));
 							_vol_active->SetLineColor(36);
-							*/
+							 */
 							/*
 							name.str("");
 							name << "LumPassiveRect_" << isensor;
@@ -1169,7 +1170,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 											shape_maps_passive,
 											fgGeoMan->GetMedium("silicon"));
 							_vol_passive->SetLineColor(30);
-							*/
+							 */
 							TGeoRotation* rot_sensor = new TGeoRotation("rot_sensor", _rotphi, _rottheta, _rotpsi);
 							TGeoMatrix* rottrans_sensor = new TGeoCombiTrans(_x, _y, _z, rot_sensor);
 							if (misaligned){
@@ -1272,7 +1273,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned){
 			matrix -> Print();
 		}
 		//gGeoMan->Set
-*/
+	 */
 }
 
 
@@ -1284,169 +1285,169 @@ void PndLmdDim::reCreate_transformation_matrices(){
 	//TGeoCombiTrans* rottrans_no = new TGeoCombiTrans("rottrans_no", 0., 0.,
 	//			0., rot_no);
 
-  double _x(0), _y(0), _z(0), _rotphi(0), _rottheta(0), _rotpsi(0);
-  double _offset_x(0), _offset_y(0), _offset_z(0),
-    _offset_phi(0), _offset_theta(0), _offset_psi(0);
+	double _x(0), _y(0), _z(0), _rotphi(0), _rottheta(0), _rotpsi(0);
+	double _offset_x(0), _offset_y(0), _offset_z(0),
+			_offset_phi(0), _offset_theta(0), _offset_psi(0);
 
-  for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
-    for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
-      // move to the position of the corresponding plane
-      TGeoMatrix* rottrans_plane = new TGeoCombiTrans(0., 0.,plane_pos_z[iplane], rot_no);
-      
-	// Get_offset(ihalf, iplane, -1, -1, -1, -1,
-	// 	   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-	// TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
-	// 						  _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
-	// TGeoCombiTrans* rottrans_plane_offset =
-	//   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
-	// //	rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
-	// rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
-      
-      for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
-	double angle = delta_phi/2.+ihalf*pi+imodule*delta_phi;
-	double add_z = cvd_disc_even_odd_offset;
-	// the offset of the modules in the upper and lower halfs
-	// are opposite
-	if (((imodule+ihalf)%2)==0) add_z = -add_z;
-	_x = cos(angle)*cvd_disc_dist;
-	_y = sin(angle)*cvd_disc_dist;
-	_z = add_z;
-	_rotphi = 0.;
-	_rottheta = 0.;
-	_rotpsi = angle/pi*180.;
-	TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi, _rottheta, _rotpsi);
-	TGeoMatrix* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
-	// Set_offset(ihalf, iplane, imodule, -1, -1, -1,
-	// 	   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-	Get_offset(ihalf, iplane, imodule, -1, -1, -1,
-		   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-	// TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
-	// 						   _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
-	//	cout<<"_offset_x: "<<_offset_x<<" cm"<<endl;
-	TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",0,0,0);
-	// // ///TEST
-	// rot_module_offset->RotateZ(-_offset_psi/pi*180.);
-	// rot_module_offset->RotateY(_offset_theta/pi*180.);
-	// rot_module_offset->RotateX(-_offset_phi/pi*180.);
+	for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+		for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+			// move to the position of the corresponding plane
+			TGeoMatrix* rottrans_plane = new TGeoCombiTrans(0., 0.,plane_pos_z[iplane], rot_no);
 
-	rot_module_offset->RotateZ(_offset_psi/pi*180.);
-	rot_module_offset->RotateY(_offset_theta/pi*180.);
-	rot_module_offset->RotateX(_offset_phi/pi*180.);
-	//	rot_module_offset->Print();
+			// Get_offset(ihalf, iplane, -1, -1, -1, -1,
+			// 	   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+			// TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
+			// 						  _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+			// TGeoCombiTrans* rottrans_plane_offset =
+			//   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
+			// //	rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
+			// rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
 
+			for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+				double angle = delta_phi/2.+ihalf*pi+imodule*delta_phi;
+				double add_z = cvd_disc_even_odd_offset;
+				// the offset of the modules in the upper and lower halfs
+				// are opposite
+				if (((imodule+ihalf)%2)==0) add_z = -add_z;
+				_x = cos(angle)*cvd_disc_dist;
+				_y = sin(angle)*cvd_disc_dist;
+				_z = add_z;
+				_rotphi = 0.;
+				_rottheta = 0.;
+				_rotpsi = angle/pi*180.;
+				TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi, _rottheta, _rotpsi);
+				TGeoMatrix* rottrans_module = new TGeoCombiTrans(_x, _y, _z, rot_module);
+				// Set_offset(ihalf, iplane, imodule, -1, -1, -1,
+				// 	   _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+				Get_offset(ihalf, iplane, imodule, -1, -1, -1,
+						_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+				// TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
+				// 						   _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+				//	cout<<"_offset_x: "<<_offset_x<<" cm"<<endl;
+				TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",0,0,0);
+				// // ///TEST
+				// rot_module_offset->RotateZ(-_offset_psi/pi*180.);
+				// rot_module_offset->RotateY(_offset_theta/pi*180.);
+				// rot_module_offset->RotateX(-_offset_phi/pi*180.);
 
-	//	cout<<"_rot_x_theta: "<<_offset_phi/pi*180.<<" degree"<<endl;
-	TGeoCombiTrans* rottrans_module_offset =
-	  new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
-	//	rottrans_module = new TGeoHMatrix(*rottrans_module_offset * *rottrans_module);
-	rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
-	for (int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
-	  // rotation around the y axis for the downstream side
-	  _x = 0.; _y = 0.; _z = 0.;
-	  if (iside == 0) {_rotphi = 0.; _rottheta = 0.; _rotpsi = 0.;}
-	  else {_rotphi = 0.; _rottheta = 180.; _rotpsi = 0.;}
-	  TGeoRotation* rot_side = new TGeoRotation("rot_side", _rotphi, _rottheta, _rotpsi);
-	  TGeoMatrix* rottrans_side = new TGeoCombiTrans(_x, _y, _z, rot_side);
-	  
-	    // Get_offset(ihalf, iplane, imodule, iside, -1, -1,
-	    // 	       _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-	    // TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
-	    // 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
-	    // TGeoCombiTrans* rottrans_side_offset =
-	    //   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_side_offset);
-	    // rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
-	    // save the transformation from the lumi reference frame
-	    // into the local cvd side reference frame
-	  transformation_matrices[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
-	    new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
-	  // transformation_matrices_aligned[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
-	  //  new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side)); //TEST
+				rot_module_offset->RotateZ(_offset_psi/pi*180.);
+				rot_module_offset->RotateY(_offset_theta/pi*180.);
+				rot_module_offset->RotateX(_offset_phi/pi*180.);
+				//	rot_module_offset->Print();
 
 
-	} // loop over the two sides of the modules
-	// transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, -1, -1, -1)] =
-	//       new TGeoHMatrix((*rottrans_plane) * (*rottrans_module));
-      } // loop over modules
-    } // loop over planes
-    // // save the transformation into the lumi reference frame
-    // transformation_matrices[Generate_Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
-  } // loop over detector halves
+				//	cout<<"_rot_x_theta: "<<_offset_phi/pi*180.<<" degree"<<endl;
+				TGeoCombiTrans* rottrans_module_offset =
+						new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
+				//	rottrans_module = new TGeoHMatrix(*rottrans_module_offset * *rottrans_module);
+				rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
+				for (int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
+					// rotation around the y axis for the downstream side
+					_x = 0.; _y = 0.; _z = 0.;
+					if (iside == 0) {_rotphi = 0.; _rottheta = 0.; _rotpsi = 0.;}
+					else {_rotphi = 0.; _rottheta = 180.; _rotpsi = 0.;}
+					TGeoRotation* rot_side = new TGeoRotation("rot_side", _rotphi, _rottheta, _rotpsi);
+					TGeoMatrix* rottrans_side = new TGeoCombiTrans(_x, _y, _z, rot_side);
+
+					// Get_offset(ihalf, iplane, imodule, iside, -1, -1,
+					// 	       _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+					// TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
+					// 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+					// TGeoCombiTrans* rottrans_side_offset =
+					//   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_side_offset);
+					// rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
+					// save the transformation from the lumi reference frame
+					// into the local cvd side reference frame
+					transformation_matrices[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
+							new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
+					// transformation_matrices_aligned[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
+					//  new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side)); //TEST
+
+
+				} // loop over the two sides of the modules
+				// transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, -1, -1, -1)] =
+				//       new TGeoHMatrix((*rottrans_plane) * (*rottrans_module));
+			} // loop over modules
+		} // loop over planes
+		// // save the transformation into the lumi reference frame
+		// transformation_matrices[Generate_Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
+	} // loop over detector halves
 }
 
 void PndLmdDim::Correct_transformation_matrices(){
-  // Read_transformation_matrices(filename_in,true);//read initial matrices
+	// Read_transformation_matrices(filename_in,true);//read initial matrices
 
 	// ****************************** loops in the luminosity detector ************************
 	double _offset_x(0), _offset_y(0), _offset_z(0),
-	  _offset_phi(0), _offset_theta(0), _offset_psi(0);
+			_offset_phi(0), _offset_theta(0), _offset_psi(0);
 	for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
-	  //TODO: "Transformation matrix not existent!" =
-	  // TGeoMatrix* rottrans_half = Get_matrix(ihalf, -1, -1 , -1, -1, -1,  false);
-	  // Get_offset(ihalf, -1, -1, -1, -1, -1,
-	  // 	     _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-	  // TGeoRotation* rot_half_offset = new TGeoRotation("rot_half_offset",
-	  // 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
-	  // TGeoCombiTrans* rottrans_half_offset =
-	  //   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_half_offset);
-	  // rottrans_half = new TGeoHMatrix(*rottrans_half_offset * *rottrans_half);
-	  
-	  for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
-	    // TODO: "Transformation matrix not existent!" =
-	    //   cout<<"Correct matrix plane #"<<iplane<<endl;
-	    //   TGeoMatrix* rottrans_plane = Get_matrix(ihalf, iplane, -1 , -1, -1, -1,  false);
-	    // Get_offset(ihalf, iplane, -1, -1, -1, -1,
-	    // 	       _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-	    // TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
-	    // 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
-	    // TGeoCombiTrans* rottrans_plane_offset =
-	    //   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
-	    // rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
-	    
-	    for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
-	      //TODO: "Transformation matrix not existent!" =
-	      // cout<<"Correct matrix module #"<<imodule<<" "<<ihalf<<iplane<<imodule<<"-1-1-1"<<endl;
-	      //TGeoMatrix* rottrans_module = Get_matrix(ihalf, iplane, imodule, -1, -1, -1,  false);
-	      // Get_offset(ihalf, iplane, imodule, -1, -1, -1,
-	      // 		 _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-	      // cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
-	      // TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
-	      // 							 _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
-	      // TGeoCombiTrans* rottrans_module_offset =
-	      // 	new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
-	      // rottrans_module = new TGeoHMatrix(*rottrans_module_offset * *rottrans_module);
-	      // //   rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
-	      	     	for (unsigned int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
-			  TGeoMatrix* rottrans_side =  Get_matrix(ihalf, iplane, imodule , iside, -1, -1,  false);
-			  Get_offset(ihalf, iplane, imodule, iside, -1, -1,
-				     _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
-			  //cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
-			  TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
-								 _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
-			  TGeoCombiTrans* rottrans_side_offset =
-			    new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_side_offset);
-			  rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
-			  //	  rottrans_side = new TGeoHMatrix(*rottrans_side * *rottrans_side_offset);
+		//TODO: "Transformation matrix not existent!" =
+		// TGeoMatrix* rottrans_half = Get_matrix(ihalf, -1, -1 , -1, -1, -1,  false);
+		// Get_offset(ihalf, -1, -1, -1, -1, -1,
+		// 	     _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+		// TGeoRotation* rot_half_offset = new TGeoRotation("rot_half_offset",
+		// 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+		// TGeoCombiTrans* rottrans_half_offset =
+		//   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_half_offset);
+		// rottrans_half = new TGeoHMatrix(*rottrans_half_offset * *rottrans_half);
 
-			  // // save the transformation from the lumi reference frame
-			  // // into the local cvd side reference frame
-			  // transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
-			  //   new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
+		for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+			// TODO: "Transformation matrix not existent!" =
+			//   cout<<"Correct matrix plane #"<<iplane<<endl;
+			//   TGeoMatrix* rottrans_plane = Get_matrix(ihalf, iplane, -1 , -1, -1, -1,  false);
+			// Get_offset(ihalf, iplane, -1, -1, -1, -1,
+			// 	       _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+			// TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
+			// 						     _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+			// TGeoCombiTrans* rottrans_plane_offset =
+			//   new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_plane_offset);
+			// rottrans_plane = new TGeoHMatrix(*rottrans_plane_offset * *rottrans_plane);
 
-			  // save the transformation from the lumi reference frame
-			  // into the local cvd side reference frame
-			  // transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
-			  //   new TGeoHMatrix((*rottrans_side)); //TODO: ????
-			  transformation_matrices_aligned[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
-			    new TGeoHMatrix((*rottrans_side)); //TEST
+			for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+				//TODO: "Transformation matrix not existent!" =
+				// cout<<"Correct matrix module #"<<imodule<<" "<<ihalf<<iplane<<imodule<<"-1-1-1"<<endl;
+				//TGeoMatrix* rottrans_module = Get_matrix(ihalf, iplane, imodule, -1, -1, -1,  false);
+				// Get_offset(ihalf, iplane, imodule, -1, -1, -1,
+				// 		 _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+				// cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
+				// TGeoRotation* rot_module_offset = new TGeoRotation("rot_module_offset",
+				// 							 _offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+				// TGeoCombiTrans* rottrans_module_offset =
+				// 	new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_module_offset);
+				// rottrans_module = new TGeoHMatrix(*rottrans_module_offset * *rottrans_module);
+				// //   rottrans_module = new TGeoHMatrix(*rottrans_module * *rottrans_module_offset);
+				for (unsigned int iside = 0; iside < 2; iside++){ // loop over the two sides of the modules
+					TGeoMatrix* rottrans_side =  Get_matrix(ihalf, iplane, imodule , iside, -1, -1,  false);
+					Get_offset(ihalf, iplane, imodule, iside, -1, -1,
+							_offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi);
+					//cout<<"offsets:"<<_offset_x<<" "<<_offset_y<<" "<<_offset_z<<" "<<_offset_phi<<" "<<_offset_theta<<" "<<_offset_psi<<endl;
+					TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
+							_offset_phi/pi*180., _offset_theta/pi*180., _offset_psi/pi*180.);
+					TGeoCombiTrans* rottrans_side_offset =
+							new TGeoCombiTrans(_offset_x, _offset_y, _offset_z, rot_side_offset);
+					rottrans_side = new TGeoHMatrix(*rottrans_side_offset * *rottrans_side);
+					//	  rottrans_side = new TGeoHMatrix(*rottrans_side * *rottrans_side_offset);
+
+					// // save the transformation from the lumi reference frame
+					// // into the local cvd side reference frame
+					// transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
+					//   new TGeoHMatrix((*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
+
+					// save the transformation from the lumi reference frame
+					// into the local cvd side reference frame
+					// transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
+					//   new TGeoHMatrix((*rottrans_side)); //TODO: ????
+					transformation_matrices_aligned[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
+							new TGeoHMatrix((*rottrans_side)); //TEST
 
 
-			} // loop over the two sides of the modules
-	      // transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, -1, -1, -1)] =
-	      // 	new TGeoHMatrix((*rottrans_plane) * (*rottrans_module)); //TODO: ????
-	    } // loop over modules
-	  } // loop over planes
-	  // // save the transformation into the lumi reference frame
-	  // transformation_matrices[Generate_Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
+				} // loop over the two sides of the modules
+				// transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, -1, -1, -1)] =
+				// 	new TGeoHMatrix((*rottrans_plane) * (*rottrans_module)); //TODO: ????
+			} // loop over modules
+		} // loop over planes
+		// // save the transformation into the lumi reference frame
+		// transformation_matrices[Generate_Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix((*lmd_transrot) * (*rottrans_lmd_in_box));
 	} // loop over detector halves
 }
 
@@ -1469,6 +1470,7 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned, int 
 	matrices->clear();
 	string dir = getenv("VMCWORKDIR");
 	if (filename == "") filename = dir+"/geometry/trafo_matrices_lmd.dat";
+	else filename = dir + filename;
 	ifstream file(filename.c_str());
 	int matrices_counter(0);
 	if (file.is_open()){
@@ -1625,7 +1627,7 @@ bool PndLmdDim::Set_matrix(string path, TGeoHMatrix* matrix,
 		cout << " no node found for pn entry (alignable node) at " << path << endl;
 		return false;
 	}
-	return node->Align(matrix);  //GetNode(node->GetLevel())->Align();
+	node->Align(matrix);  //GetNode(node->GetLevel())->Align();
 	//cout << " matrix at " << path << " successfully aligned " << endl;
 	/*
 			if (aligned) return new TGeoHMatrix(*node->GetNode(node->GetLevel())->GetMatrix());
@@ -1742,7 +1744,7 @@ bool PndLmdDim::Read_transformation_matrices_from_geometry(bool aligned){
 									if (sensor_matrix && die_matrix)
 										(*matrices)[Tkey(ihalf, iplane, imodule, iside, idie, isensor)] =
 												new TGeoHMatrix(*die_matrix * *sensor_matrix); // do I have to delete it, or should I copy it?
-											//new TGeoHMatrix((*rottrans_die) * (*rottrans_sensor));
+									//new TGeoHMatrix((*rottrans_die) * (*rottrans_sensor));
 									sensor_id++;
 									delete sensor_matrix;
 								} // loop over sensors
@@ -1856,7 +1858,7 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned){
 					path_to_plane << path_to_half.str() << "/" << nav_paths[3] << "_" << iplane;
 					//gGeoMan->cd(path_to_plane.str().c_str());
 					TGeoHMatrix* plane_matrix = Get_matrix(path_to_plane.str(),false,
-												ihalf, iplane, -1, -1, -1, -1);
+							ihalf, iplane, -1, -1, -1, -1);
 					//matrix = (TGeoHMatrix*) Get_matrix(ihalf,iplane,-1,-1,-1,-1, aligned);
 					//if (matrix) Set_matrix(path_to_plane.str(), matrix,
 					//		ihalf, iplane, -1, -1, -1, -1);
@@ -1902,7 +1904,7 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned){
 									path_to_sensor_passive << path_to_die.str() << "/" << "LumPassiveRect" << "_" << sensor_id-sensIDoffset;
 									//gGeoMan->cd(path_to_sensor.str().c_str());
 									TGeoHMatrix* sensor_matrix = Get_matrix(path_to_sensor.str(),aligned,
-										ihalf, iplane, imodule, iside, idie, isensor);
+											ihalf, iplane, imodule, iside, idie, isensor);
 									matrix = (TGeoHMatrix*) Get_matrix(ihalf,iplane,imodule,iside,idie,isensor, aligned);
 									if (sensor_matrix && die_matrix && matrix) {
 										TGeoHMatrix* _matrix = new TGeoHMatrix(die_matrix->Inverse() * *matrix);
@@ -1954,7 +1956,7 @@ string PndLmdDim::Get_List_of_Sensors(vector <string>& list_of_sensors, bool fou
 	for (int i = 0; i < nnodes; i++){
 		//cout << " navigating into node " << i << endl;
 		gGeoManager->CdDown(i);
-			result = Get_List_of_Sensors(list_of_sensors, found_lmd, first_call);
+		result = Get_List_of_Sensors(list_of_sensors, found_lmd, first_call);
 		if (nodename == nav_paths[1] || found_lmd){
 			cout << " found the lmd node! Aborting recursive search. " << endl;
 			gGeoManager->CdUp();
@@ -2028,7 +2030,7 @@ bool PndLmdDim::Set_sensIDoffset(int offset){
 		cout << " Could not set sensIDoffset from root geometry " << endl;
 		return false;
 	}
- }
+}
 
 #include <iomanip>
 
@@ -2082,84 +2084,84 @@ void PndLmdDim::Cleanup(){
 }
 
 void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar){
-  // ana = FairRun::Instance();
-  // rtdb=ana->GetRuntimeDb();
-  // TList* fAlignParamList = new TList();// alignment params fom DB
-  double fShiftX[40],fShiftY[40],fShiftZ[40];
-  double fRotateX[40],fRotateY[40],fRotateZ[40];
-  // //read params for lumi alignment
-  // PndLmdContFact* thelmdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
-  // TList* theAlignLMDContNames = thelmdcontfact->GetAlignParNames();
-  // Info("SetParContainers()","AlignLMD The container names list contains %i entries",theAlignLMDContNames->GetEntries());
-  // TIter cfAlIter(theAlignLMDContNames);
-  // while (TObjString* contname = (TObjString*)cfAlIter()) {
-  //   TString parsetname = contname->String();
-  //   Info("SetParContainers()",parsetname.Data());
-  //   PndLmdAlignPar *lmdalignpar = (PndLmdAlignPar*)(rtdb->getContainer(parsetname.Data()));
-  //   if(!lmdalignpar) Fatal("SetParContainers","No ALIGN parameter found: %s",parsetname.Data());
-  //   fAlignParamList->Add(lmdalignpar); 
-  // }
+	// ana = FairRun::Instance();
+	// rtdb=ana->GetRuntimeDb();
+	// TList* fAlignParamList = new TList();// alignment params fom DB
+	double fShiftX[40],fShiftY[40],fShiftZ[40];
+	double fRotateX[40],fRotateY[40],fRotateZ[40];
+	// //read params for lumi alignment
+	// PndLmdContFact* thelmdcontfact = (PndLmdContFact*)rtdb->getContFactory("PndLmdContFact");
+	// TList* theAlignLMDContNames = thelmdcontfact->GetAlignParNames();
+	// Info("SetParContainers()","AlignLMD The container names list contains %i entries",theAlignLMDContNames->GetEntries());
+	// TIter cfAlIter(theAlignLMDContNames);
+	// while (TObjString* contname = (TObjString*)cfAlIter()) {
+	//   TString parsetname = contname->String();
+	//   Info("SetParContainers()",parsetname.Data());
+	//   PndLmdAlignPar *lmdalignpar = (PndLmdAlignPar*)(rtdb->getContainer(parsetname.Data()));
+	//   if(!lmdalignpar) Fatal("SetParContainers","No ALIGN parameter found: %s",parsetname.Data());
+	//   fAlignParamList->Add(lmdalignpar);
+	// }
 
-  // TIter alignparams(fAlignParamList); 
-  // PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
-  // //  lmdalignpar->getParams(alignparams);
-  //  lmdalignpar->Print();
-  if(0==lmdalignpar) { 
-    Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
-  } 
-  else{
-    // cout<<"&&&&& it's from LmdDim &&&&&"<<endl;
-    // lmdalignpar->Print();
-    for(int ik=0;ik<40;ik++){
-      //      cout<<"ik = "<<ik<<endl;
-      fShiftX[ik] = lmdalignpar->GetShiftX(ik);
-      //   cout<<"fShiftX[ik] = "<<fShiftX[ik]<<endl;
-      fShiftY[ik] = lmdalignpar->GetShiftY(ik);
-      fShiftZ[ik] = lmdalignpar->GetShiftZ(ik);
-      fRotateX[ik] = lmdalignpar->GetRotateX(ik);
-      fRotateY[ik] = lmdalignpar->GetRotateY(ik);
-      fRotateZ[ik] = lmdalignpar->GetRotateZ(ik);
-      //      if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
-      //		    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
-    }
-  }
-  //  lmdalignpar->Print();
+	// TIter alignparams(fAlignParamList);
+	// PndLmdAlignPar* lmdalignpar=(PndLmdAlignPar*)alignparams();
+	// //  lmdalignpar->getParams(alignparams);
+	//  lmdalignpar->Print();
+	if(0==lmdalignpar) {
+		Error("PndLmdStripClusterTask::SetCalculators()","A ALIGN Parameter Set does not exist properly.");
+	}
+	else{
+		// cout<<"&&&&& it's from LmdDim &&&&&"<<endl;
+		// lmdalignpar->Print();
+		for(int ik=0;ik<40;ik++){
+			//      cout<<"ik = "<<ik<<endl;
+			fShiftX[ik] = lmdalignpar->GetShiftX(ik);
+			//   cout<<"fShiftX[ik] = "<<fShiftX[ik]<<endl;
+			fShiftY[ik] = lmdalignpar->GetShiftY(ik);
+			fShiftZ[ik] = lmdalignpar->GetShiftZ(ik);
+			fRotateX[ik] = lmdalignpar->GetRotateX(ik);
+			fRotateY[ik] = lmdalignpar->GetRotateY(ik);
+			fRotateZ[ik] = lmdalignpar->GetRotateZ(ik);
+			//      if (fVerbose > 2) cout<<"fShiftX["<<ik<<"]="<<fShiftX[ik]<<" fRotateX["<<ik<<"]="<<fRotateX[ik]
+			//		    <<" fRotateY["<<ik<<"]="<<fRotateY[ik]<<" fRotateZ["<<ik<<"]="<<fRotateZ[ik]<<endl;
+		}
+	}
+	//  lmdalignpar->Print();
 
-  //so far for modules alignment only
-  //TODO: individual sensor and\or die alignment???
-  for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
-    for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
-      for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
-	Tkey key(ihalf, iplane, imodule, -1, -1, -1);
-	int ikey = (ihalf*n_planes*nmodules)+(iplane*nmodules)+imodule;
-	//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
-	offsets[key].push_back(fShiftX[ikey]);
-	offsets[key].push_back(fShiftY[ikey]);
-	offsets[key].push_back(fShiftZ[ikey]);
-	offsets[key].push_back(fRotateX[ikey]);
-	offsets[key].push_back(fRotateY[ikey]);
-	offsets[key].push_back(fRotateZ[ikey]);
+	//so far for modules alignment only
+	//TODO: individual sensor and\or die alignment???
+	for (unsigned int ihalf = 0; ihalf < 2; ihalf++){ // loop over detector halves
+		for (unsigned int iplane = 0; iplane < n_planes; iplane++){ // loop over planes
+			for (unsigned int imodule = 0; imodule < nmodules; imodule++){ // loop over modules
+				Tkey key(ihalf, iplane, imodule, -1, -1, -1);
+				int ikey = (ihalf*n_planes*nmodules)+(iplane*nmodules)+imodule;
+				//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
+				offsets[key].push_back(fShiftX[ikey]);
+				offsets[key].push_back(fShiftY[ikey]);
+				offsets[key].push_back(fShiftZ[ikey]);
+				offsets[key].push_back(fRotateX[ikey]);
+				offsets[key].push_back(fRotateY[ikey]);
+				offsets[key].push_back(fRotateZ[ikey]);
 
-	Tkey key2(ihalf, iplane, imodule, 0, -1, -1);//top side
-	//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
-	offsets[key2].push_back(fShiftX[ikey]);
-	offsets[key2].push_back(fShiftY[ikey]);
-	offsets[key2].push_back(fShiftZ[ikey]);
-	offsets[key2].push_back(fRotateX[ikey]);
-	offsets[key2].push_back(fRotateY[ikey]);
-	offsets[key2].push_back(fRotateZ[ikey]);
+				Tkey key2(ihalf, iplane, imodule, 0, -1, -1);//top side
+				//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
+				offsets[key2].push_back(fShiftX[ikey]);
+				offsets[key2].push_back(fShiftY[ikey]);
+				offsets[key2].push_back(fShiftZ[ikey]);
+				offsets[key2].push_back(fRotateX[ikey]);
+				offsets[key2].push_back(fRotateY[ikey]);
+				offsets[key2].push_back(fRotateZ[ikey]);
 
-	// //TODO: is it correct???
-	Tkey key3(ihalf, iplane, imodule, 1, -1, -1);// bottom side
-	offsets[key3].push_back(fShiftX[ikey]);
-	offsets[key3].push_back(fShiftY[ikey]);
-	offsets[key3].push_back(fShiftZ[ikey]);
-	offsets[key3].push_back(fRotateX[ikey]);
-	offsets[key3].push_back(fRotateY[ikey]);
-	offsets[key3].push_back(fRotateZ[ikey]);
-      }
-    }
-  }
+				// //TODO: is it correct???
+				Tkey key3(ihalf, iplane, imodule, 1, -1, -1);// bottom side
+				offsets[key3].push_back(fShiftX[ikey]);
+				offsets[key3].push_back(fShiftY[ikey]);
+				offsets[key3].push_back(fShiftZ[ikey]);
+				offsets[key3].push_back(fRotateX[ikey]);
+				offsets[key3].push_back(fRotateY[ikey]);
+				offsets[key3].push_back(fRotateZ[ikey]);
+			}
+		}
+	}
 }
 
 void PndLmdDim::Set_offset(int ihalf, int iplane, int imodule, int iside, int idie, int isensor,
@@ -2329,17 +2331,41 @@ void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside, int id
 		offsets[key].push_back(rottheta);
 		offsets[key].push_back(rotpsi);
 	}
-//	  cout<<"x,y,z,rotphi,rottheta,rotpsi: "<<x<<", "<<y<<", "<<z<<", "<<rotphi<<", "<<rottheta<<", "<<rotpsi<<endl;
+	//	  cout<<"x,y,z,rotphi,rottheta,rotpsi: "<<x<<", "<<y<<", "<<z<<", "<<rotphi<<", "<<rottheta<<", "<<rotpsi<<endl;
 }
 
-TVector3 PndLmdDim::Decode_hit(const int sensorID,
-		const double column, const double row, const bool aligned){
+TVector3 PndLmdDim::Decode_hit(const int sensorID, const double column, const double row, const bool aligned, bool newVersion){
+
+	if(newVersion){
+
+		double x, y;
+		x = column;
+		y = row;
+
+		//correct for pixel corner to center
+		x += 0.5;
+		y += 0.5;
+
+		//shift from corner to center (this considers inactive area!)
+		x -= (247.5/2.0);
+		y -= (242.5/2.0);
+
+		//scale for pixel size
+		x *= 80e-4;
+		y *= 80e-4;
+
+		TVector3 hit(x, y, 0.);
+		int ihalf, iplane, imodule, iside, idie, isensor;
+		Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
+		return Transform_sensor_to_global(hit, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+	}
+
 
 	// an additional offset of about 0.5 pixels in x and 2 pixels in y
 	// seems to appear during digitization via SDS class
 	// this is taken here into account
 	double x = (column - 250./2. + .5) *  maps_active_pixel_size + maps_passive_left * 2. ;
-	double y = (row - 250./2. - 2.) * maps_active_pixel_size + maps_passive_bottom * 2.;
+	double y = (row - 250./2. + 0.5 - 2.5) * maps_active_pixel_size + maps_passive_bottom * 2.;
 	TVector3 hit(x, y, 0.);
 	int ihalf, iplane, imodule, iside, idie, isensor;
 	Get_sensor_by_id(sensorID, ihalf, iplane, imodule, iside, idie, isensor);
@@ -2588,85 +2614,85 @@ void PndLmdDim::Calc_matrix_offsets(){
 		outfile.setf (std::ios::fixed, std::ios::floatfield );                // floatfield not set
 		outfile.precision(7);
 
-	if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
-		outfile << " coordinate offset of the lmd reference system \n";
-		outfile << " \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
-		outfile << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
-		outfile << endl;
-	}
-	for (ihalf = 0; ihalf < 2; ihalf++){
-		iplane = -1; imodule = -1; iside = -1; idie = -1; isensor = -1;
 		if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
-			outfile << "\t coordinate offset of the lmd half " << ihalf << " \n";
-			outfile << "\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
-			outfile << "\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+			outfile << " coordinate offset of the lmd reference system \n";
+			outfile << " \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+			outfile << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 			outfile << endl;
 		}
-		for (iplane = 0; iplane < n_planes; iplane++){
-			imodule = -1; iside = -1; idie = -1; isensor = -1;
+		for (ihalf = 0; ihalf < 2; ihalf++){
+			iplane = -1; imodule = -1; iside = -1; idie = -1; isensor = -1;
 			if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
-				outfile << "\t\t coordinate offset of the lmd plane " << iplane << " \n";
-				outfile << "\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
-				outfile << "\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+				outfile << "\t coordinate offset of the lmd half " << ihalf << " \n";
+				outfile << "\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+				outfile << "\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 				outfile << endl;
 			}
-			for (imodule = 0; imodule < n_cvd_discs/2; imodule++){
-				iside = -1; idie = -1; isensor = -1;
+			for (iplane = 0; iplane < n_planes; iplane++){
+				imodule = -1; iside = -1; idie = -1; isensor = -1;
 				if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
-					outfile << "\t\t\t coordinate offset of the lmd module " << imodule << " \n";
-					outfile << "\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
-					outfile << "\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+					outfile << "\t\t coordinate offset of the lmd plane " << iplane << " \n";
+					outfile << "\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+					outfile << "\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 					outfile << endl;
 				}
-				for (iside = 0; iside < 2; iside++){
-					idie = -1; isensor = -1;
+				for (imodule = 0; imodule < n_cvd_discs/2; imodule++){
+					iside = -1; idie = -1; isensor = -1;
 					if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
-						outfile << "\t\t\t\t coordinate offset of the lmd module side " << iside << " \n";
-						outfile << "\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
-						outfile << "\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+						outfile << "\t\t\t coordinate offset of the lmd module " << imodule << " \n";
+						outfile << "\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+						outfile << "\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 						outfile << endl;
 					}
-					for (idie = 0; idie < 2; idie++){
-						isensor = -1;
+					for (iside = 0; iside < 2; iside++){
+						idie = -1; isensor = -1;
 						if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
-							outfile << "\t\t\t\t\t coordinate offset of the lmd die " << idie << " \n";
-							outfile << "\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
-							outfile << "\t\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+							outfile << "\t\t\t\t coordinate offset of the lmd module side " << iside << " \n";
+							outfile << "\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+							outfile << "\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 							outfile << endl;
 						}
-						for (isensor = 0; isensor < 3; isensor++){
+						for (idie = 0; idie < 2; idie++){
+							isensor = -1;
 							if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
-								outfile << "\t\t\t\t\t\t coordinate offset of the lmd sensor " << isensor << " \n";
-								outfile << "\t\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
-								outfile << "\t\t\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+								outfile << "\t\t\t\t\t coordinate offset of the lmd die " << idie << " \n";
+								outfile << "\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+								outfile << "\t\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 								outfile << endl;
-								hist_dx_sensors_local.Fill(dx);
-								hist_dy_sensors_local.Fill(dy);
-								hist_dz_sensors_local.Fill(dz);
-								hist_dphi_sensors_local.Fill(dphi);
-								hist_dtheta_sensors_local.Fill(dtheta);
-								hist_dpsi_sensors_local.Fill(dpsi);
 							}
-						} // loop over the sensor of one die
-					} // loop over the die of one side module
-				} // loop over the sides of one module
-			} // loop over the modules of one plane half
-		} // loop over the planes of the detector
-	} // loop over the halves of the detector
-	outfile.close();
-	TCanvas outcanvas("canvas", "canvas", 600, 600);
-	hist_dx_sensors_local.Draw();
-	outcanvas.Print("offsets.pdf(");
-	hist_dy_sensors_local.Draw();
-	outcanvas.Print("offsets.pdf(");
-	hist_dz_sensors_local.Draw();
-	outcanvas.Print("offsets.pdf(");
-	hist_dphi_sensors_local.Draw();
-	outcanvas.Print("offsets.pdf(");
-	hist_dtheta_sensors_local.Draw();
-	outcanvas.Print("offsets.pdf(");
-	hist_dpsi_sensors_local.Draw();
-	outcanvas.Print("offsets.pdf)");
+							for (isensor = 0; isensor < 3; isensor++){
+								if (Get_matrix_difference(ihalf, iplane, imodule, iside, idie, isensor, dx, dy, dz, dphi, dtheta, dpsi)){
+									outfile << "\t\t\t\t\t\t coordinate offset of the lmd sensor " << isensor << " \n";
+									outfile << "\t\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+									outfile << "\t\t\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
+									outfile << endl;
+									hist_dx_sensors_local.Fill(dx);
+									hist_dy_sensors_local.Fill(dy);
+									hist_dz_sensors_local.Fill(dz);
+									hist_dphi_sensors_local.Fill(dphi);
+									hist_dtheta_sensors_local.Fill(dtheta);
+									hist_dpsi_sensors_local.Fill(dpsi);
+								}
+							} // loop over the sensor of one die
+						} // loop over the die of one side module
+					} // loop over the sides of one module
+				} // loop over the modules of one plane half
+			} // loop over the planes of the detector
+		} // loop over the halves of the detector
+		outfile.close();
+		TCanvas outcanvas("canvas", "canvas", 600, 600);
+		hist_dx_sensors_local.Draw();
+		outcanvas.Print("offsets.pdf(");
+		hist_dy_sensors_local.Draw();
+		outcanvas.Print("offsets.pdf(");
+		hist_dz_sensors_local.Draw();
+		outcanvas.Print("offsets.pdf(");
+		hist_dphi_sensors_local.Draw();
+		outcanvas.Print("offsets.pdf(");
+		hist_dtheta_sensors_local.Draw();
+		outcanvas.Print("offsets.pdf(");
+		hist_dpsi_sensors_local.Draw();
+		outcanvas.Print("offsets.pdf)");
 	} else {
 		cout << " sorry, could not write file into the current directory. " << endl;
 		// if file is open
@@ -2718,7 +2744,8 @@ TGeoHMatrix PndLmdDim::Get_transformation_global_to_sensor(
 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
 	if (!matrix1 || !matrix2 || !matrix3) return TGeoHMatrix();
-	return TGeoHMatrix(((*matrix1) * (*matrix2)) * (*matrix3));
+	//return TGeoHMatrix(((*matrix1) * (*matrix2)) * (*matrix3));  //FIXME: I removed that line
+	return TGeoHMatrix((*matrix1) * (*matrix2) * (*matrix3));
 }
 
 TGeoHMatrix PndLmdDim::Get_transformation_lmd_local_to_sensor(
@@ -2757,15 +2784,17 @@ TGeoHMatrix PndLmdDim::Get_transformation_sensor_to_global(
 	TGeoMatrix* matrix1 = Get_matrix(-1, -1, -1, -1, -1, -1, aligned);
 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
-	if (!matrix1 || !matrix2 || !matrix3) TGeoHMatrix();
+	if (!matrix1 || !matrix2 || !matrix3) return TGeoHMatrix();
 	return TGeoHMatrix(((*matrix1) * (*matrix2) * (*matrix3)).Inverse());
 }
+
+//FIXME: above and below a return is missing and was added;
 
 TGeoHMatrix PndLmdDim::Get_transformation_sensor_to_lmd_local(
 		int ihalf, int iplane, int imodule, int iside, int idie, int isensor,  bool aligned){
 	TGeoMatrix* matrix2 = Get_matrix(ihalf, iplane, imodule, iside, -1, -1, aligned);
 	TGeoMatrix* matrix3 = Get_matrix(ihalf, iplane, imodule, iside, idie, isensor, aligned);
-	if (!matrix2 || !matrix3) TGeoHMatrix();
+	if (!matrix2 || !matrix3) return TGeoHMatrix();
 	return TGeoHMatrix(((*matrix2) * (*matrix3)).Inverse());
 }
 
@@ -2830,14 +2859,14 @@ TVector3 PndLmdDim::Transform_global_to_sensor(const TVector3& point,
 
 
 TVector3 PndLmdDim::Transform_lmd_local_to_global(const TVector3& point, bool isvector, bool aligned){
-  // I think Local to Master calculation is faster than the getter of the inverse matrix
-  const TGeoHMatrix& matrix = Get_transformation_global_to_lmd_local(aligned);
-  double local[3];
-  point.GetXYZ(local);
-  double master[3];
-  if (isvector) matrix.LocalToMasterVect(local, master);
-  else matrix.LocalToMaster(local, master);
-  return TVector3(master);
+	// I think Local to Master calculation is faster than the getter of the inverse matrix
+	const TGeoHMatrix& matrix = Get_transformation_global_to_lmd_local(aligned);
+	double local[3];
+	point.GetXYZ(local);
+	double master[3];
+	if (isvector) matrix.LocalToMasterVect(local, master);
+	else matrix.LocalToMaster(local, master);
+	return TVector3(master);
 }
 
 TVector3 PndLmdDim::Transform_lmd_local_to_sensor(const TVector3& point,
@@ -2936,8 +2965,7 @@ TVector3 PndLmdDim::Transform_sensor_to_sensor(const TVector3& point,
 }
 
 TMatrixD PndLmdDim::Transform_global_to_lmd_local(const TMatrixD& matrix, bool aligned){
-	TMatrixD rotmatrix(3,3,
-			Get_transformation_global_to_lmd_local(aligned).GetRotationMatrix());
+	TMatrixD rotmatrix(3,3,	Get_transformation_global_to_lmd_local(aligned).GetRotationMatrix());
 	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
@@ -3030,7 +3058,7 @@ TMatrixD PndLmdDim::Transform_sensor_to_sensor(const TMatrixD& matrix,
 		int ihalf_to, int iplane_to, int imodule_to, int iside_to, int idie_to, int isensor_to, bool aligned){
 	TMatrixD rotmatrix(3,3,
 			(Get_transformation_sensor_to_lmd_local(ihalf_from, iplane_from, imodule_from, iside_from, idie_from, isensor_from, aligned)*
-			Get_transformation_lmd_local_to_sensor(ihalf_to, iplane_to, imodule_to, iside_to, idie_to, isensor_to, aligned)).GetRotationMatrix());
+					Get_transformation_lmd_local_to_sensor(ihalf_to, iplane_to, imodule_to, iside_to, idie_to, isensor_to, aligned)).GetRotationMatrix());
 	return TMatrixD(rotmatrix*TMatrixD(matrix,TMatrixD::kMultTranspose,rotmatrix));
 }
 
@@ -3055,71 +3083,71 @@ void PndLmdDim::Test_matrices(){
 
 void PndLmdDim::Draw_Sensors(int iplane, bool aligned, bool lmd_frame, int glside){
 
-  for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
-    //for (unsigned int iplane = 0; iplane < n_planes; iplane++)
-    for (unsigned int imodule = 0; imodule < nmodules; imodule++){
-      if(glside>1){//default
-	for (unsigned int iside = 0; iside < 2; iside++){
-	  for (unsigned int idie = 0; idie < 2; idie++){
-	  for (unsigned int isensor = 0; isensor < 3; isensor++)
-	    //for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
-	    {
-	      //cout << " sensID " << sensorID << endl;
-	      //int ihalf, _iplane, imodule, iside, idie, isensor;
-	      //Get_sensor_by_id(sensorID, ihalf, _iplane, imodule, iside, idie, isensor);
-	      //cout /*<< sensorID*/ << " " << ihalf << " " << iplane << " " << imodule << " " << iside << " " << idie << " " << isensor << endl;
-	      //if (iplane != _iplane) continue;
-	      //cout << " " << ihalf << " " << iplane << endl;
-	      if (idie == 1 && isensor == 0) continue;
-	      TPolyLine* sensor_shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
-	      if (iside == 1) sensor_shape->SetLineColor(17); else sensor_shape->SetLineColor(13);
-	      sensor_shape->Draw();
-	    }
-	  }
-	}
-      }//default
-      else{
-	int iside=glside;
-	  for (unsigned int idie = 0; idie < 2; idie++){
-	    for (unsigned int isensor = 0; isensor < 3; isensor++){
-	      if (idie == 1 && isensor == 0) continue;
-	      TPolyLine* sensor_shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
-	      if (iside == 1) sensor_shape->SetLineColor(17); else sensor_shape->SetLineColor(13);
-	      sensor_shape->Draw();
-	    }
-	  }
-      }
-    }
-		  
+	for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
+		//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
+		for (unsigned int imodule = 0; imodule < nmodules; imodule++){
+			if(glside>1){//default
+				for (unsigned int iside = 0; iside < 2; iside++){
+					for (unsigned int idie = 0; idie < 2; idie++){
+						for (unsigned int isensor = 0; isensor < 3; isensor++)
+							//for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
+						{
+							//cout << " sensID " << sensorID << endl;
+							//int ihalf, _iplane, imodule, iside, idie, isensor;
+							//Get_sensor_by_id(sensorID, ihalf, _iplane, imodule, iside, idie, isensor);
+							//cout /*<< sensorID*/ << " " << ihalf << " " << iplane << " " << imodule << " " << iside << " " << idie << " " << isensor << endl;
+							//if (iplane != _iplane) continue;
+							//cout << " " << ihalf << " " << iplane << endl;
+							if (idie == 1 && isensor == 0) continue;
+							TPolyLine* sensor_shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
+							if (iside == 1) sensor_shape->SetLineColor(17); else sensor_shape->SetLineColor(13);
+							sensor_shape->Draw();
+						}
+					}
+				}
+			}//default
+			else{
+				int iside=glside;
+				for (unsigned int idie = 0; idie < 2; idie++){
+					for (unsigned int isensor = 0; isensor < 3; isensor++){
+						if (idie == 1 && isensor == 0) continue;
+						TPolyLine* sensor_shape = Get_Sensor_Shape(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame);
+						if (iside == 1) sensor_shape->SetLineColor(17); else sensor_shape->SetLineColor(13);
+						sensor_shape->Draw();
+					}
+				}
+			}
+		}
+
 }
 
 
 TPolyLine* PndLmdDim::Get_Sensor_Shape(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame){
-	   Double_t x[5] = {-maps_width+2*maps_passive_left,
-			   maps_width-2*maps_passive_right,maps_width-2*maps_passive_right,
-			   -maps_width+2*maps_passive_left,-maps_width+2*maps_passive_right};
-	   Double_t y[5] = {-maps_height+2*maps_passive_bottom,-maps_height+2*maps_passive_bottom,
-			   maps_height-2*maps_passive_top,maps_height-2*maps_passive_top,
-			   -maps_height+2*maps_passive_bottom};
-	   for (unsigned int ipoint = 0; ipoint < 5; ipoint++){
-		   TVector3 point(x[ipoint], y[ipoint], 0);
-		   TVector3 point_master;
-		   if (lmd_frame){
-			   point_master = Transform_sensor_to_lmd_local(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
-		   } else {
-			   point_master = Transform_sensor_to_global(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
-		   }
-		   x[ipoint] = point_master.X();
-		   y[ipoint] = point_master.Y();
-	   }
-	   TPolyLine* pline = new TPolyLine(5,x,y);
-	   //pline->SetFillColor(38);
-	   pline->SetLineColor(2);
-	   pline->SetLineWidth(1);
-	   //pline->Draw("f");
-	   //pline->Draw();
-	   //gPad->Update();
-	   return pline;
+	Double_t x[5] = {-maps_width+2*maps_passive_left,
+			maps_width-2*maps_passive_right,maps_width-2*maps_passive_right,
+			-maps_width+2*maps_passive_left,-maps_width+2*maps_passive_right};
+	Double_t y[5] = {-maps_height+2*maps_passive_bottom,-maps_height+2*maps_passive_bottom,
+			maps_height-2*maps_passive_top,maps_height-2*maps_passive_top,
+			-maps_height+2*maps_passive_bottom};
+	for (unsigned int ipoint = 0; ipoint < 5; ipoint++){
+		TVector3 point(x[ipoint], y[ipoint], 0);
+		TVector3 point_master;
+		if (lmd_frame){
+			point_master = Transform_sensor_to_lmd_local(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+		} else {
+			point_master = Transform_sensor_to_global(point, ihalf, iplane, imodule, iside, idie, isensor, false, aligned);
+		}
+		x[ipoint] = point_master.X();
+		y[ipoint] = point_master.Y();
+	}
+	TPolyLine* pline = new TPolyLine(5,x,y);
+	//pline->SetFillColor(38);
+	pline->SetLineColor(2);
+	pline->SetLineWidth(1);
+	//pline->Draw("f");
+	//pline->Draw();
+	//gPad->Update();
+	return pline;
 }
 
 vector<TGraph*> PndLmdDim::Get_Sensor_Graph(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned, bool lmd_frame, bool pixel_subdivision){
@@ -3234,19 +3262,19 @@ TH2Poly* PndLmdDim::Get_histogram_Plane(int iplane, int iside, bool aligned, boo
 	result->SetYTitle("y [cm]");
 
 	for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
-	//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
+		//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
 		for (unsigned int imodule = 0; imodule < nmodules; imodule++)
 			//for (unsigned int iside = 0; iside < 2; iside++)
-				for (unsigned int idie = 0; idie < 2; idie++)
-					for (unsigned int isensor = 0; isensor < 3; isensor++)
-	{
-		if (idie == 1 && isensor == 0) continue;
-		vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame, pixel_subdivision);
-		for (int igraph = 0; igraph < sensor_graph.size(); igraph++){
-			result->AddBin(sensor_graph[igraph]);
-			//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
-		}
-	}
+			for (unsigned int idie = 0; idie < 2; idie++)
+				for (unsigned int isensor = 0; isensor < 3; isensor++)
+				{
+					if (idie == 1 && isensor == 0) continue;
+					vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame, pixel_subdivision);
+					for (int igraph = 0; igraph < sensor_graph.size(); igraph++){
+						result->AddBin(sensor_graph[igraph]);
+						//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
+					}
+				}
 	return result;
 }
 
@@ -3264,19 +3292,19 @@ TH2Poly* PndLmdDim::Get_histogram_Moduleside(int ihalf, int iplane, int imodule,
 
 	//for (unsigned int ihalf = 0; ihalf < 2; ihalf++)
 	//for (unsigned int iplane = 0; iplane < n_planes; iplane++)
-		//for (unsigned int imodule = 0; imodule < nmodules; imodule++)
-			//for (unsigned int iside = 0; iside < 2; iside++)
-				for (unsigned int idie = 0; idie < 2; idie++)
-					for (unsigned int isensor = 0; isensor < 3; isensor++)
-	{
-		if (idie == 1 && isensor == 0) continue;
-		vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame, pixel_subdivision);
-		for (int igraph = 0; igraph < sensor_graph.size(); igraph++){
-			result->AddBin(sensor_graph[igraph]);
-			//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
+	//for (unsigned int imodule = 0; imodule < nmodules; imodule++)
+	//for (unsigned int iside = 0; iside < 2; iside++)
+	for (unsigned int idie = 0; idie < 2; idie++)
+		for (unsigned int isensor = 0; isensor < 3; isensor++)
+		{
+			if (idie == 1 && isensor == 0) continue;
+			vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule, iside, idie, isensor, aligned, lmd_frame, pixel_subdivision);
+			for (int igraph = 0; igraph < sensor_graph.size(); igraph++){
+				result->AddBin(sensor_graph[igraph]);
+				//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
+			}
 		}
-	}
-	return result;
+return result;
 }
 
 
@@ -3300,5 +3328,78 @@ TH2Poly* PndLmdDim::Get_histogram_Sensor(int ihalf, int iplane, int imodule, int
 	return result;
 }
 
+int PndLmdDim::makeOverlapID(int firstSensorId, int secondSensorId) {
+
+	int fhalf, fplane, fmodule, fside, fdie, fsensor;
+	int bhalf, bplane, bmodule, bside, bdie, bsensor;
+
+	int smalloverlap=0;
+
+	Get_sensor_by_id(firstSensorId, fhalf, fplane, fmodule, fside, fdie, fsensor);
+	Get_sensor_by_id(secondSensorId, bhalf, bplane, bmodule, bside, bdie, bsensor);
+
+	if(fside==bside){
+		return -1;
+	}
+
+	//should return the same id for (id1, id2) as for (id2, id1)
+	if(bside < fside){
+		std::swap(firstSensorId, secondSensorId);
+		Get_sensor_by_id(firstSensorId, fhalf, fplane, fmodule, fside, fdie, fsensor);
+		Get_sensor_by_id(secondSensorId, bhalf, bplane, bmodule, bside, bdie, bsensor);
+	}
+
+	if(bhalf != fhalf){
+		return -1;
+	}
+	if(bplane != fplane){
+		return -1;
+	}
+	if(bmodule != fmodule){
+		return -1;
+	}
+
+	//0to5
+	if(fdie == 0 && fsensor == 0 && bdie == 0 && bsensor == 0){
+		smalloverlap=0;
+	}
+	//3to8
+	else if(fdie == 1 && fsensor == 1 && bdie == 1 && bsensor == 1){
+		smalloverlap=1;
+	}
+	//4to9
+	else if(fdie == 1 && fsensor == 2 && bdie == 1 && bsensor == 2){
+		smalloverlap=2;
+	}
+	//3to6
+	else if(fdie == 1 && fsensor == 1 && bdie == 0 && bsensor == 1){
+		smalloverlap=3;
+	}
+	//1to8
+	else if(fdie == 0 && fsensor == 1 && bdie == 1 && bsensor == 1){
+		smalloverlap=4;
+	}
+	//2to8
+	else if(fdie == 0 && fsensor == 2 && bdie == 1 && bsensor == 1){
+		smalloverlap=5;
+	}
+	//2to9
+	else if(fdie == 0 && fsensor == 2 && bdie == 1 && bsensor == 2){
+		smalloverlap=6;
+	}
+	//3to7
+	else if(fdie == 1 && fsensor == 1 && bdie == 0 && bsensor == 2){
+		smalloverlap=7;
+	}
+	//4to7
+	else if(fdie == 1 && fsensor == 2 && bdie == 0 && bsensor == 2){
+		smalloverlap=8;
+	}
+	else{
+		//all other checks are negative? then the sensors don't overlap!
+		return -1;
+	}
+	return 1000*fhalf+100*fplane+10*fmodule+smalloverlap;
+}
 //
 
