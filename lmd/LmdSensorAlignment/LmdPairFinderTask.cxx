@@ -188,10 +188,12 @@ InitStatus LmdPairFinderTask::Init() {
 	sortByModule=false;
 
 	noOfGoodPairs=0;
-	noOfEvents=0;
-	hitsClustered=0;
-	hitsSinglePixel=0;
-	unsuitable=0;
+	noOfEvents=noOfCombos=0;
+	hitsClustered=distanceTooHigh=0;
+	hitsSinglePixel=hitsSinglePixel=0;
+	unsuitable=sumOfPixelHits=0;
+	eventMissedAllPlanes=noOverlap=0;
+	plane0=plane1=plane2=plane3=0;
 	fInBranchName = "LMDPixelDigis";
 	fOutBranchName = "LMDPixelPairs";
 	fFolderName = "cbmsim";
@@ -531,14 +533,14 @@ void LmdPairFinderTask::FinishTask() {
 
 	Int_t sumOfEvents;
 	Int_t sumOfAllPlanes=plane0+plane1+plane2+plane3;
-	Float16_t plane0Percent = ((float)plane0/noOfGoodPairs)*100;
-	Float16_t plane1Percent = ((float)plane1/noOfGoodPairs)*100;
-	Float16_t plane2Percent = ((float)plane2/noOfGoodPairs)*100;
-	Float16_t plane3Percent = ((float)plane3/noOfGoodPairs)*100;
-	Float16_t allPlanesPercent = ((float)sumOfAllPlanes/noOfGoodPairs)*100;
-	Float16_t clusterRatio = ((float)hitsClustered/(float)(hitsSinglePixel+hitsClustered))*100;
-	Float16_t pixelsPerEvent = (float)sumOfPixelHits/(float)noOfEvents;
-	Float16_t goodPairsPerEvent = (float)noOfGoodPairs/(float)noOfEvents;
+	double plane0Percent = ((double)plane0/noOfGoodPairs)*100;
+	double plane1Percent = ((double)plane1/noOfGoodPairs)*100;
+	double plane2Percent = ((double)plane2/noOfGoodPairs)*100;
+	double plane3Percent = ((double)plane3/noOfGoodPairs)*100;
+	double allPlanesPercent = ((double)sumOfAllPlanes/noOfGoodPairs)*100;
+	double clusterRatio = ((double)hitsClustered/(double)(hitsSinglePixel+hitsClustered))*100;
+	double pixelsPerEvent = (double)sumOfPixelHits/(double)noOfEvents;
+	double goodPairsPerEvent = (double)noOfGoodPairs/(double)noOfEvents;
 
 	cout << endl;
 	cout << "*************************************************************" << endl;
@@ -550,7 +552,7 @@ void LmdPairFinderTask::FinishTask() {
 	printf("total events: %d \n", noOfEvents);
 	printf("events that missed all sensors: %d \n", eventMissedAllPlanes);
 	printf("total pixel hits: %d \n", sumOfPixelHits);
-	printf("cluster ratio: %.2f \% \n", clusterRatio);
+	printf("cluster ratio: %.2f %% \n", clusterRatio);
 	printf("pixel hits per event: %.2f \n", pixelsPerEvent);
 	printf("----------------------------\n");
 	printf("possible hit pair combinations: %d \n", noOfCombos);
@@ -561,11 +563,11 @@ void LmdPairFinderTask::FinishTask() {
 	printf("good pairs per event: %.2f \n", goodPairsPerEvent);
 	//printf("good pairs per event and plane (indicator for track multiplicity): %.2f \n", goodPairsPerEvent/4);
 	printf("----------------------------\n");
-	printf("hits on plane 0: %.2f \% \n", plane0Percent);
-	printf("hits on plane 1: %.2f \%\n", plane1Percent);
-	printf("hits on plane 2: %.2f \%\n", plane2Percent);
-	printf("hits on plane 3: %.2f \%\n", plane3Percent);
-	printf("hits on all planes: %.2f \% \n", allPlanesPercent);
+	printf("hits on plane 0: %.2f %% \n", plane0Percent);
+	printf("hits on plane 1: %.2f %%\n", plane1Percent);
+	printf("hits on plane 2: %.2f %%\n", plane2Percent);
+	printf("hits on plane 3: %.2f %%\n", plane3Percent);
+	printf("hits on all planes: %.2f %% \n", allPlanesPercent);
 	cout << endl;
 	cout << "*************************************************************" << endl;
 }
