@@ -15,23 +15,30 @@
 #include "PndLmdHitPair.h"
 
 #include <string>
-
-#include <PndLmdSensorAligner.h>
+	#ifndef __CINT__
+	#include <PndLmdSensorAligner.h>
+	#endif
 #include <PndLmdDim.h>
 
 class PndLmdAlignManager {
-
+	#ifndef __CINT__
 	typedef std::map<int, PndLmdSensorAligner>::iterator mapIt;
-
+	#endif
 private:
+
+	#ifndef __CINT__
 	std::map<int, PndLmdSensorAligner> _aligners;
+	#endif
+	
 	PndLmdDim *dimension;
 	bool _allFilesAdded, _pretend;
 	std::vector<std::string> _fileNames;
 	bool _useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix;
 	std::string outFilename, _matrixOutDir;
 
+#ifndef __CINT__
 	Matrix helperMatrix;
+#endif
 
 public:
 
@@ -65,7 +72,10 @@ public:
 		_useSimpleStorage = useSimpleStorage;
 	}
 
+#ifndef __CINT__
 	static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
+
+
 	void transformGlobalToLmd(Matrix &matrix);
 
 	//returns a Matrix(4,4)
@@ -73,23 +83,36 @@ public:
 
 	//returns a Matrix(4,1) to use with homogenous matrices
 	static Matrix castTVector3toMatrix(const TVector3 &vec);
-
-	//returns a TVector3 from a Matrix(3,1) or Matrix(4,1)
-	static TVector3 castMatrixToTVector3(const Matrix &vec);
-
 	Matrix getMatrixOfficialGeometry(int fromSensor, int toSensor, bool misaligned);
 	Matrix getMatrixOfficialGeometryGlobal(int fromSensor, int toSensor, bool misaligned);
 	Matrix getCorrectionMatrix(int id);
 	Matrix getCorrectionMatrix(int id1, int id2);
-
-	TVector3 transformMeasuredToTrue(const TVector3 &hit, int sensorID);
-
-	Matrix getMatrixGlobalToLmd(){
+Matrix getMatrixGlobalToLmd(){
 		return castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true))));
 	}
 	Matrix getMatrixLmdToGlobal(){
 		return Matrix::inv(castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true)))));
 	}
+static TVector3 castMatrixToTVector3(const Matrix &vec);
+static Matrix readMatrix(std::string filename);
+	bool writeMatrix(Matrix &mat, std::string filename);
+
+static Matrix homogenizeMatrix(const Matrix &input);
+
+	const Matrix& getHelperMatrix() const {
+		return helperMatrix;
+	}
+
+#endif
+
+	//returns a TVector3 from a Matrix(3,1) or Matrix(4,1)
+	
+
+	
+
+	TVector3 transformMeasuredToTrue(const TVector3 &hit, int sensorID);
+
+	
 
 	void setSingleAligner(bool singleAligner) {
 		_singleAligner = singleAligner;
@@ -111,8 +134,7 @@ public:
 
 	static std::stringstream* readFile(std::string filename);
 	static std::vector<std::vector<double> > readFromCSVFile(std::string filename);
-	static Matrix readMatrix(std::string filename);
-	bool writeMatrix(Matrix &mat, std::string filename);
+	
 
 	/*
 	 * recursively searches files by extension in curr_directory and adds to list
@@ -140,12 +162,6 @@ public:
 	void setInCentimeters(bool inCentimeters);
 
 	void enableHelperMatrix(bool enable);
-
-	static Matrix homogenizeMatrix(const Matrix &input);
-
-	const Matrix& getHelperMatrix() const {
-		return helperMatrix;
-	}
 
 	void readTrafoMatrix(std::string filename, bool aligned){
 		dimension->Read_transformation_matrices(filename, aligned);

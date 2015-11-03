@@ -593,7 +593,6 @@ void LmdPairFinderTask::transformToLMDlocal(PndLmdHitPair &pair) {
 	//dont't store in lmd local
 	const TVector3 frontInLMD = dimension->Transform_global_to_lmd_local(frontHit, false, true);
 	const TVector3 backInLMD = dimension->Transform_global_to_lmd_local(backHit, false, true);
-
 	pair.setHit1(frontHit);
 	pair.setHit2(backHit);
 

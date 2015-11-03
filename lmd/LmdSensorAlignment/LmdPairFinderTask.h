@@ -51,7 +51,6 @@ public:
 
 	virtual void FinishEvent();
 	virtual void FinishTask();
-
 	void storeSorted(Bool_t value){
 		sortByModule = value;
 	}

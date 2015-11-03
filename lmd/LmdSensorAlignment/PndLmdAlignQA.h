@@ -33,9 +33,7 @@ private:
 	void histDeltaCorrection(int id1, int id2, std::vector<std::vector<double> > &vec);
 	int noOfPairs(int id1, int id2);
 
-
 	Matrix getdeltaCorrectionMatrix(int id1, int id2);
-
 	int _signerrors;
 
 public:

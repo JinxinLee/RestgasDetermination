@@ -7,9 +7,9 @@
 #pragma link off all functions;
 
 //pair Finder Tools
-#pragma link C++ class PndLmdSensorAligner+;
+//#pragma link C++ class PndLmdSensorAligner+;
 #pragma link C++ class PndLmdAlignManager+;
-#pragma link C++ class PndLmdAlignQA+;
+//#pragma link C++ class PndLmdAlignQA+;
 
 #endif
 

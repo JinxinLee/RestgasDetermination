@@ -131,17 +131,40 @@ LmdSensorAlignment/PndLmdAlignQA.cxx
 )
 
 set(HEADERS
-LmdSensorAlignment/PndLmdSensorAligner.h
-LmdSensorAlignment/PndLmdAlignManager.h
-LmdSensorAlignment/PndLmdAlignQA.h
+##LmdSensorAlignment/PndLmdSensorAligner.h
+##LmdSensorAlignment/PndLmdAlignManager.h
+##LmdSensorAlignment/PndLmdAlignQA.h
 )
 
-set(LINKDEF  LmdSensorAlignerLinkDef.h)
+##set(LINKDEF  LmdSensorAlignerLinkDef.h)
 set(LIBRARY_NAME LmdSensorAligner)
 
 set(DEPENDENCIES Base Sds LmdSensorAlignerTools boost_filesystem)
 
-add_library(LmdSensorAlignerTools SHARED LmdSensorAlignment/icp/matrix.cpp LmdSensorAlignment/icp/kdtree.cpp LmdSensorAlignment/icp/icpPointToPoint.cpp LmdSensorAlignment/icp/icp.cpp)
+##add_library(LmdSensorAlignerTools SHARED LmdSensorAlignment/icp/matrix.cpp LmdSensorAlignment/icp/kdtree.cpp LmdSensorAlignment/icp/icpPointToPoint.cpp LmdSensorAlignment/icp/icp.cpp)
+
+GENERATE_LIBRARY()
+
+########################### create PndLmdSensorAlignerTools ######################################
+
+set(SRCS
+LmdSensorAlignment/icp/matrix.cpp
+LmdSensorAlignment/icp/kdtree.cpp
+LmdSensorAlignment/icp/icpPointToPoint.cpp
+LmdSensorAlignment/icp/icp.cpp
+)
+
+set(HEADERS
+LmdSensorAlignment/icp/matrix.h
+LmdSensorAlignment/icp/kdtree.h
+LmdSensorAlignment/icp/icpPointToPoint.h
+LmdSensorAlignment/icp/icp.h
+)
+
+##set(LINKDEF  LmdSensorAlignerLinkDef.h)
+set(LIBRARY_NAME LmdSensorAlignerTools)
+
+set(DEPENDENCIES boost_filesystem)
 
 GENERATE_LIBRARY()
 
