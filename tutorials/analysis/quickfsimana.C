@@ -24,7 +24,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	if (Prefix=="" || Decfile=="" || Mom==0. ) 
 	{
 		cout << "USAGE:\n";
-		cout << "quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )\n\n";
+		cout << "quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms], [runST], [runnum], [mode] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or box generator instead\n";
 		cout << "   <mom>      : pbar momentum; negative values are interpreted as -E_cm\n";
