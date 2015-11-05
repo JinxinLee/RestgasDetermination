@@ -17,6 +17,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <PndMapSorterTpl.h>
 #include "PndMQTopix4Sorter.h"
+#include "PndMQStatus.h"
 
 #include "baseMQtools.h"
 
@@ -58,55 +59,97 @@ void PndMQTopix4Sorter::Run()
 
 		while (CheckCurrentState(RUNNING))
 		{
+			FairMQMessage* header = fTransportFactory->CreateMessage();
 			FairMQMessage* msg = fTransportFactory->CreateMessage();
 
-			if (dataInChannel.Receive(msg) > 0)
+			if (dataInChannel.Receive(header) > 0)
 			{
-				// LOG(INFO) << "Received Message: " << receivedMsgs++ << " Size: " << msg->GetSize();
+				int status = *(static_cast<int*>(header->GetData()));
 
-				string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
-				istringstream ibuffer(msgStr);
-
-				boost::archive::binary_iarchive InputArchive(ibuffer);
-
-				try {
-					InputArchive >> fTopixData;
-				}
-				catch (boost::archive::archive_exception& e)
+				if (dataInChannel.ExpectsAnotherPart())
 				{
-					LOG(ERROR) << e.what();
+					if (dataInChannel.Receive(msg)){
+						string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
+						istringstream ibuffer(msgStr);
+
+						boost::archive::binary_iarchive InputArchive(ibuffer);
+
+						try {
+							InputArchive >> fTopixData;
+						}
+						catch (boost::archive::archive_exception& e)
+						{
+							LOG(ERROR) << e.what();
+						}
+
+						// LOG(INFO) << "TopixData: " << fTopixData.size();
+		//				for (auto iter : fTopixData){
+							// LOG(INFO) << iter.GetTimeStamp();
+		//				}
+
+						bool endSorting = false;
+						double timeOfLast = 0;
+						if (fTopixData.size() > 0){
+							for (auto iter : fTopixData){
+								if (iter.GetTimeStamp() > 0){
+									sorter.AddElement(iter, iter.GetTimeStamp());
+									timeOfLast = iter.GetTimeStamp();
+								}
+								else {
+									endSorting = true;
+									// LOG(INFO) << "---END SORTING---";
+								}
+							}
+							if (endSorting == false){
+								sorter.WriteOutData(timeOfLast);
+								fOutputData = sorter.GetOutputData();
+								sorter.DeleteOutputData();
+							}
+							else if (endSorting == true || status == PndMQStatus::STOP){
+								LOG(INFO) << "EndSorting or STOP-Status " << status;
+								sorter.WriteOutAll();
+								fOutputData = sorter.GetOutputData();
+								fOutputData.push_back(PndSdsDigiTopix4());
+								sorter.DeleteOutputData();
+								endSorting = false;
+							}
+
+							unique_ptr<FairMQMessage> headerCpy(fTransportFactory->CreateMessage(sizeof(int)));
+							headerCpy->Copy(header);
+							dataOutChannel.SendPart(headerCpy);
+
+
+							std::ostringstream obuffer;
+							boost::archive::binary_oarchive OutputArchive(obuffer);
+							OutputArchive << fOutputData;
+							int outputSize = obuffer.str().length();
+							unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
+							memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
+							dataOutChannel.Send(msg2);
+
+							//LOG(INFO) << "Data: " << fTopixData.size() << " " << timeOfLast;
+							// LOG(INFO) << "Output: " << fOutputData.size() << " timeOfLast: " << timeOfLast;
+		//					for(auto itr : fOutputData)
+								// LOG(INFO) << itr.GetTimeStamp();
+
+							fTopixData.clear();
+							fOutputData.clear();
+						}
+						delete(msg);
+						delete (header);
+					}
 				}
+				// LOG(INFO) << "Received Message: " << receivedMsgs++ << " Size: " << msg->GetSize();
+				if (status == PndMQStatus::STOP){
+					LOG(INFO) << "STOP-Signal Received!";
+					sorter.WriteOutAll();
+					fOutputData = sorter.GetOutputData();
+					fOutputData.push_back(PndSdsDigiTopix4());
+					sorter.DeleteOutputData();
 
-				// LOG(INFO) << "TopixData: " << fTopixData.size();
-//				for (auto iter : fTopixData){
-					// LOG(INFO) << iter.GetTimeStamp();
-//				}
-
-				bool endSorting = false;
-				double timeOfLast = 0;
-				if (fTopixData.size() > 0){
-					for (auto iter : fTopixData){
-						if (iter.GetTimeStamp() > 0){
-							sorter.AddElement(iter, iter.GetTimeStamp());
-							timeOfLast = iter.GetTimeStamp();
-						}
-						else {
-							endSorting = true;
-							// LOG(INFO) << "---END SORTING---";
-						}
-					}
-					if (endSorting == false){
-						sorter.WriteOutData(timeOfLast);
-						fOutputData = sorter.GetOutputData();
-						sorter.DeleteOutputData();
-					}
-					else {
-						sorter.WriteOutAll();
-						fOutputData = sorter.GetOutputData();
-						fOutputData.push_back(PndSdsDigiTopix4());
-						sorter.DeleteOutputData();
-						endSorting = false;
-					}
+					unique_ptr<FairMQMessage> headerCpy(fTransportFactory->CreateMessage(sizeof(int)));
+					headerCpy->Copy(header);
+					dataOutChannel.SendPart(headerCpy);
 
 					std::ostringstream obuffer;
 					boost::archive::binary_oarchive OutputArchive(obuffer);
@@ -115,16 +158,8 @@ void PndMQTopix4Sorter::Run()
 					unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
 					memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
 					dataOutChannel.Send(msg2);
-
-					//LOG(INFO) << "Data: " << fTopixData.size() << " " << timeOfLast;
-					// LOG(INFO) << "Output: " << fOutputData.size() << " timeOfLast: " << timeOfLast;
-//					for(auto itr : fOutputData)
-						// LOG(INFO) << itr.GetTimeStamp();
-
-					fTopixData.clear();
-					fOutputData.clear();
 				}
-				delete(msg);
+
 
 			}
 		}

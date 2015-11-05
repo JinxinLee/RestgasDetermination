@@ -41,6 +41,7 @@ class PndMQHitEventDevice : public FairMQDevice
 	void serialize(Archive& ar, const unsigned int version)
 	{
     	ar& fHitData;
+    	ar& fEventData;
 	}
 
   protected:
@@ -50,7 +51,10 @@ class PndMQHitEventDevice : public FairMQDevice
     	friend class boost::serialization::access;
 	#endif // for BOOST serialization
     std::vector<PndSdsHit> fHitData;
+    std::vector<std::vector<PndSdsHit> > fEventData;
     std::vector<std::vector<std::vector<PndSdsHit> > > fDataFromChannels;
+    std::vector<bool> fRunningStatus;
+    bool fGlobalRunningStatus;
 
     bool fHasBoostSerialization;
     PndMQHitsEventBuilder fBuilder;

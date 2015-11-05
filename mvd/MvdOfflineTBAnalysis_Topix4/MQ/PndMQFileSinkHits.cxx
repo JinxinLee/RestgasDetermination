@@ -7,6 +7,7 @@
 
 // Implementation of PndMQFileSinkHits::Run() with Boost transport data format
 #include "PndMQFileSinkHits.h"
+#include "PndMQStatus.h"
 
 void PndMQFileSinkHits::Run()
 {
@@ -19,51 +20,58 @@ void PndMQFileSinkHits::Run()
 
         while (CheckCurrentState(RUNNING))
         {
-            FairMQMessage* msg = fTransportFactory->CreateMessage();
+        	std::unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage());
+			std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
+			if (dataInChannel.Receive(header) > 0)
+			{
+				int status = *(static_cast<int*>(header->GetData()));
 
-            if (dataInChannel.Receive(msg) > 0)
-            {
-                receivedMsgs++;
-                string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
-                istringstream ibuffer(msgStr);
-                boost::archive::binary_iarchive InputArchive(ibuffer);
-                LOG(INFO) << "Received Message: " << receivedMsgs;
-                try
-                {
-                    InputArchive >> fHitVector;
-                }
-                catch (boost::archive::archive_exception& e)
-                {
-                    LOG(ERROR) << e.what();
-                }
-
-
-
-                bool dataAboveTimeThreshold = false;
-                double timeStampThreshold = 30000000000;
-                for (auto eventIter : fHitVector){
-                	fOutput->Delete();
-                	int numInput = eventIter.size();
-					for (Int_t i = 0; i < numInput; ++i)
-					{
-						if (eventIter.at(i).GetTimeStamp() > timeStampThreshold){
-							new ((*fOutput)[i]) PndSdsHit(eventIter.at(i));
-							dataAboveTimeThreshold = true;
-						}
-	 //                   LOG(INFO) << "Data: " << i << " " << fHitVector.at(i).GetTimeStamp();
-					}
-					if (dataAboveTimeThreshold){
-						if (fOutput->IsEmpty())
+				if (dataInChannel.ExpectsAnotherPart())
+				{
+                //receivedMsgs++;
+					if (dataInChannel.Receive(msg)) {
+						string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
+						istringstream ibuffer(msgStr);
+						boost::archive::binary_iarchive InputArchive(ibuffer);
+						//LOG(INFO) << "Received Message: " << receivedMsgs;
+						try
 						{
-							LOG(ERROR) << "PndMQFileSinkHits::Run(): No Output array!";
+							InputArchive >> fHitVector;
+						}
+						catch (boost::archive::archive_exception& e)
+						{
+							LOG(ERROR) << e.what();
 						}
 
-						fTree->Fill();
-					}
-                }
-            }
 
-            delete msg;
+
+						bool dataAboveTimeThreshold = false;
+						double timeStampThreshold = 30000000000;
+						for (auto eventIter : fHitVector){
+							fOutput->Delete();
+							int numInput = eventIter.size();
+							for (Int_t i = 0; i < numInput; ++i)
+							{
+								if (eventIter.at(i).GetTimeStamp() > timeStampThreshold){
+									new ((*fOutput)[i]) PndSdsHit(eventIter.at(i));
+									dataAboveTimeThreshold = true;
+								}
+			 //                   LOG(INFO) << "Data: " << i << " " << fHitVector.at(i).GetTimeStamp();
+							}
+							if (dataAboveTimeThreshold){
+								if (fOutput->IsEmpty())
+								{
+									LOG(ERROR) << "PndMQFileSinkHits::Run(): No Output array!";
+								}
+
+								fTree->Fill();
+							}
+						}
+					}
+				}
+				if (status == PndMQStatus::STOP)
+					LOG(INFO) << "STOP-Signal Received!";
+            }
 
             if (fHitVector.size() > 0)
             {

@@ -18,7 +18,7 @@ PndMQHitsEventBuilder::~PndMQHitsEventBuilder() {
 	// TODO Auto-generated destructor stub
 }
 
-void PndMQHitsEventBuilder::AddData(vector<vector<vector<PndSdsHit> > > data)
+void PndMQHitsEventBuilder::AddData(vector<vector<vector<PndSdsHit> > >& data)
 {
 	for (int channelNr = 0; channelNr < data.size(); channelNr++){
 		//LOG(INFO) << "PndMQHitsEventBuilder::AddData from Channel " << channelNr << " size " << data[channelNr].size();
@@ -51,20 +51,20 @@ bool PndMQHitsEventBuilder::HasData()
 vector<PndSdsHit> PndMQHitsEventBuilder::GetNextEvent()
 {
 	vector<PndSdsHit> result;
-	if (fEventCounter % 1 == 0){
-		LOG(INFO) << fEventCounter;
+//	if (fEventCounter % 1000 == 0){
+//		LOG(INFO) << fEventCounter;
 //		for (int channelNr = 0; channelNr < fNChannels; channelNr++){
 //			LOG(INFO) << channelNr << " : " << fInputData[channelNr].size();
 //		}
-	}
-	fEventCounter++;
-	LOG(INFO) << "Data in channels";
-	for (auto channelIter: fInputData){
-		LOG(INFO) << "Channel size: " << channelIter.size();
+//	}
+//	fEventCounter++;
+//	LOG(INFO) << "Data in channels";
+//	for (auto channelIter: fInputData){
+//		LOG(INFO) << "Channel size: " << channelIter.size();
 //		for (auto eventIter : channelIter)
 //			for (auto dataIter : eventIter)
 //				LOG(INFO) << dataIter.GetSensorID() << " " << dataIter.GetTimeStamp();
-	}
+//	}
 
 	vector<vector<PndSdsHit> > firstDataInChannels;
 	firstDataInChannels.resize(fNChannels);
@@ -76,30 +76,30 @@ vector<PndSdsHit> PndMQHitsEventBuilder::GetNextEvent()
 				return result;
 		}
 	}
-	LOG(INFO) << "FirstDataInChannel:";
-	for (int channel = 0; channel < firstDataInChannels.size(); channel++){
-		//LOG(INFO) << "Channel: " << channel << " : ";
-		for (auto data : firstDataInChannels[channel]){
-			LOG(INFO) << channel << " : " << TString::Format("%12.0f", data.GetTimeStamp()).Data();
-		}
-	}
+//	LOG(INFO) << "FirstDataInChannel:";
+//	for (int channel = 0; channel < firstDataInChannels.size(); channel++){
+//		//LOG(INFO) << "Channel: " << channel << " : ";
+//		for (auto data : firstDataInChannels[channel]){
+//			LOG(INFO) << channel << " : " << TString::Format("%12.0f", data.GetTimeStamp()).Data();
+//		}
+//	}
 	vector<bool> channelInEvent = GetChannelsInEvent(firstDataInChannels);
 
-	int nChannelsInEvent = 0;
-	LOG(INFO) << "ChannelMatch:";
-	for (auto inEvent : channelInEvent){
-		LOG(INFO) << inEvent;
-		nChannelsInEvent += inEvent;
-	}
+//	int nChannelsInEvent = 0;
+//	LOG(INFO) << "ChannelMatch:";
+//	for (auto inEvent : channelInEvent){
+//		LOG(INFO) << inEvent;
+//		nChannelsInEvent += inEvent;
+//	}
 
-	LOG(INFO) << "channelInEvent.size " << channelInEvent.size();
+//	LOG(INFO) << "channelInEvent.size " << channelInEvent.size();
 	for(int channelNr = 0; channelNr < fNChannels; channelNr++){
 		if (channelInEvent[channelNr] == true){
 			//LOG(INFO) << "Add Data to result from: " << channelNr;
 			result.insert(result.end(), firstDataInChannels[channelNr].begin(), firstDataInChannels[channelNr].end());
 			//LOG(INFO) << "DataInserted: " << result.size();
 			fInputData[channelNr].erase(fInputData[channelNr].begin());
-			LOG(INFO) << "Delete data from InputData " << channelNr << " " << fInputData[channelNr].size();
+//			LOG(INFO) << "Delete data from InputData " << channelNr << " " << fInputData[channelNr].size();
 		}
 	}
 	//if (nChannelsInEvent > 2){
@@ -110,7 +110,7 @@ vector<PndSdsHit> PndMQHitsEventBuilder::GetNextEvent()
 	return result;
 }
 
-vector<bool> PndMQHitsEventBuilder::GetChannelsInEvent(vector<vector<PndSdsHit> > eventData)
+vector<bool> PndMQHitsEventBuilder::GetChannelsInEvent(vector<vector<PndSdsHit> >& eventData)
 {
 	double offset = 50;
 	vector<bool> result(fNChannels, false);
@@ -141,7 +141,7 @@ vector<bool> PndMQHitsEventBuilder::GetChannelsInEvent(vector<vector<PndSdsHit> 
 	return result;
 }
 
-int PndMQHitsEventBuilder::FindFirstChannel(vector<vector<PndSdsHit> > eventData)
+int PndMQHitsEventBuilder::FindFirstChannel(vector<vector<PndSdsHit> >& eventData)
 {
 	int result = -1;
 	double oldTimeStamp = -1;

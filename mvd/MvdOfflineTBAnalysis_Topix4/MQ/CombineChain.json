@@ -145,7 +145,7 @@
                     "address": "tcp://localhost:5559",
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
-                    "rateLogging": "0"
+                    "rateLogging": "1"
                 }
             }
         }

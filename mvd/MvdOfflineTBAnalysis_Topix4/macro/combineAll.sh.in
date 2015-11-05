@@ -24,14 +24,14 @@ SAMPLER4+=" --InputFile ~/PandaSoftware/pandaRoot/build_pandaRoot_ActualTrunk/bi
 SAMPLER4+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
 xterm -geometry 80x23+0+500 -e @CMAKE_BINARY_DIR@/bin/$SAMPLER4 &
 
-#BUILDER="Topix4-hiteventbuilder"
-#BUILDER+=" --id builder1"
-#BUILDER+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
-#xterm -geometry 80x23+500+500 -e @CMAKE_BINARY_DIR@/bin/$BUILDER >log.txt 2>&1 &
+BUILDER="Topix4-hiteventbuilder"
+BUILDER+=" --id builder1"
+BUILDER+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
+xterm -geometry 80x23+500+500 -e @CMAKE_BINARY_DIR@/bin/$BUILDER >log.txt 2>&1 &
 
-#FILESINK="Topix4-filesink"
-#FILESINK+=" --id filesink1"
-#FILESINK+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
-#xterm -geometry 80x23+500+850 -e @CMAKE_BINARY_DIR@/bin/$FILESINK &
+FILESINK="Topix4-filesinkhits"
+FILESINK+=" --id filesink1"
+FILESINK+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
+xterm -geometry 80x23+1000+500 -e @CMAKE_BINARY_DIR@/bin/$FILESINK &
 
 wait

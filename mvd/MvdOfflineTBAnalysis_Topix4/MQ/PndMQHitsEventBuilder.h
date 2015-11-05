@@ -20,7 +20,7 @@ public:
 	PndMQHitsEventBuilder(int nChannels = 4);
 	virtual ~PndMQHitsEventBuilder();
 
-	void AddData(vector<vector<vector<PndSdsHit> > > data);
+	void AddData(vector<vector<vector<PndSdsHit> > >& data);
 	vector<vector<PndSdsHit> > GetEvents();
 	std::vector<int> GetInputDataLevel(){
 		std::vector<int> result;
@@ -31,8 +31,8 @@ public:
 	}
 
 protected:
-	vector<bool> GetChannelsInEvent(vector<vector<PndSdsHit> > eventData);
-	int FindFirstChannel(vector<vector<PndSdsHit> > eventData);  ///< channel which has the oldest data
+	vector<bool> GetChannelsInEvent(vector<vector<PndSdsHit> >& eventData);
+	int FindFirstChannel(vector<vector<PndSdsHit> >& eventData);  ///< channel which has the oldest data
 	vector<PndSdsHit> GetNextEvent();
 
 

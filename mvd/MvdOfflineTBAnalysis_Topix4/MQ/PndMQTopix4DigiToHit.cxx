@@ -18,6 +18,8 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <PndMQTopix4DigiToHit.h>
 
+#include "PndMQStatus.h"
+
 #include "baseMQtools.h"
 
 #include "FairMQLogger.h"
@@ -57,20 +59,29 @@ void PndMQTopix4DigiToHit::Run()
 
 		while (CheckCurrentState(RUNNING))
 		{
-			FairMQMessage* msg = fTransportFactory->CreateMessage();
-			if (dataInChannel.Receive(msg) > 0)
+			std::unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage());
+			std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
+			int status = PndMQStatus::UNDEFINED;
+			if (dataInChannel.Receive(header) > 0)
 			{
-				string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
-				istringstream ibuffer(msgStr);
+				status = *(static_cast<int*>(header->GetData()));
 
-				boost::archive::binary_iarchive InputArchive(ibuffer);
-
-				try {
-					InputArchive >> fTopixDigis;
-				}
-				catch (boost::archive::archive_exception& e)
+				if (dataInChannel.ExpectsAnotherPart())
 				{
-					LOG(ERROR) << e.what();
+					if (dataInChannel.Receive(msg) > 0) {
+						string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
+						istringstream ibuffer(msgStr);
+
+						boost::archive::binary_iarchive InputArchive(ibuffer);
+
+						try {
+							InputArchive >> fTopixDigis;
+						}
+						catch (boost::archive::archive_exception& e)
+						{
+							LOG(ERROR) << e.what();
+						}
+					}
 				}
 			}
 //			LOG(INFO) << "InputData: ";
@@ -104,6 +115,14 @@ void PndMQTopix4DigiToHit::Run()
 				}
 				fTopixHitsEvent.push_back(hits);
 			}
+
+			if (status == PndMQStatus::STOP){
+				LOG(INFO) << "Received STOP-Signal!" << std::endl;
+			}
+
+			unique_ptr<FairMQMessage> headerOut(fTransportFactory->CreateMessage(sizeof(int)));
+			memcpy(headerOut->GetData(), &status, sizeof(int));
+			dataOutChannel.SendPart(headerOut);
 
 			std::ostringstream obuffer;
 			boost::archive::binary_oarchive OutputArchive(obuffer);

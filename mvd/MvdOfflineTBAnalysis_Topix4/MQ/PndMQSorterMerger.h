@@ -50,6 +50,7 @@ class PndMQSorterMerger : public FairMQDevice
 		std::vector<PndSdsDigiTopix4> fTopixData;
 		std::vector<PndSdsDigiTopix4> fCurrentOutput;
 		std::vector<PndSdsDigiTopix4> fNextOutput;
+		std::vector<bool> fRunningStatus;
 };
 
 #endif /* PndMQSorterMerger_H_ */

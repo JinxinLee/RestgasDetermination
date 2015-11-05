@@ -25,11 +25,12 @@
 #include "FairMQLogger.h"
 #include "mrfdata_8b.h"
 #include "PndSdsDigiTopix4.h"
+#include "PndMQStatus.h"
 
 
 using namespace std;
 
-PndMQHitEventDevice::PndMQHitEventDevice() : fHasBoostSerialization(false)
+PndMQHitEventDevice::PndMQHitEventDevice() : fHasBoostSerialization(false), fGlobalRunningStatus(true)
 {
 	using namespace baseMQ::tools::resolve;
 	bool checkOutputClass = false;
@@ -63,50 +64,110 @@ void PndMQHitEventDevice::Run()
 		dataInChannels[i] = &(fChannels.at("data-in").at(i));
 	}
 	fDataFromChannels.resize(numInputs);
+	fRunningStatus.resize(numInputs);
+	for(int channel = 0; channel < fRunningStatus.size(); channel++)
+		fRunningStatus[channel] = true;
 
 //	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 
 	std::vector<int> fillLevel(numInputs,0);
 
+	int eventCounter = 0;
+	bool stopMessageOnce = true;
+
 	while (CheckCurrentState(RUNNING))
 	{
-		for (int channelNr = 0; channelNr < numInputs; channelNr++){
-//			boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-//        	LOG(INFO) << "---- Reading channel " << channelNr << " ----";
-			if (fillLevel[channelNr] == 0){
-				std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
-				if (dataInChannels[channelNr]->Receive(msg) > 0){
-					std::string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
-					std::istringstream ibuffer(msgStr);
+		if ( fGlobalRunningStatus == true){
+			for (int channelNr = 0; channelNr < numInputs; channelNr++){
+	//        	LOG(INFO) << "---- Reading channel " << channelNr << " ----";
+				if (fillLevel[channelNr] == 0){
 
-					boost::archive::binary_iarchive InputArchive(ibuffer);
+					std::unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage());
+					std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
 
-					try {
-						InputArchive >> fHitData;
-					}
-					catch (boost::archive::archive_exception& e)
+					if (dataInChannels[channelNr]->Receive(header) > 0)
 					{
-						LOG(ERROR) << e.what();
+						int status = *(static_cast<int*>(header->GetData()));
+						if (status == PndMQStatus::RUNNING)
+							fRunningStatus[channelNr] = true;
+						else if (status == PndMQStatus::STOP){
+							fRunningStatus[channelNr] = false;
+							fGlobalRunningStatus = false;
+							LOG(INFO) << "STOP-Status received for channel: " << channelNr;
+						}
+						if (dataInChannels[channelNr]->ExpectsAnotherPart())
+						{
+
+							if (dataInChannels[channelNr]->Receive(msg) > 0){
+								std::string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
+								std::istringstream ibuffer(msgStr);
+
+								boost::archive::binary_iarchive InputArchive(ibuffer);
+
+								try {
+									InputArchive >> fHitData;
+								}
+								catch (boost::archive::archive_exception& e)
+								{
+									LOG(ERROR) << e.what();
+								}
+								fDataFromChannels[channelNr].push_back(fHitData);
+								//LOG(INFO) << "Data in channel " << fDataFromChannels[channelNr].size();
+								fHitData.clear();
+							}
+						}
 					}
-					fDataFromChannels[channelNr].push_back(fHitData);
-					//LOG(INFO) << "Data in channel " << fDataFromChannels[channelNr].size();
-					fHitData.clear();
 				}
 			}
-		}
-		fBuilder.AddData(fDataFromChannels);
-		std::vector<std::vector<PndSdsHit> > eventData = fBuilder.GetEvents();
-		fillLevel = fBuilder.GetInputDataLevel();
-//		LOG(INFO) << "EventData.size() " << eventData.size();
-//		for (auto eventIter : eventData){
-//			LOG(INFO) << "Event";
-//			for (auto dataIter : eventIter){
-//				LOG(INFO) << dataIter.GetSensorID() << " " << dataIter.GetTimeStamp();
-//			}
-//		}
+			fBuilder.AddData(fDataFromChannels);
+			fEventData = fBuilder.GetEvents();
 
-		for (int channelNr = 0; channelNr < fDataFromChannels.size(); channelNr++){
-			fDataFromChannels[channelNr].clear();
+			if (eventCounter++ % 1000 == 0){
+				LOG(INFO) << eventCounter << " nEvents: " << fEventData.size() << " hits in Event " << fEventData.front().size()
+						<< " timeStamp: " << TString::Format("%12.0f",fEventData.front().front().GetTimeStamp()).Data()
+						<< " sensorID " << fEventData.front().front().GetSensorID();
+			}
+
+			std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage(sizeof(int)));
+			int flag = PndMQStatus::RUNNING;
+			memcpy(headerCopy->GetData(), &flag, sizeof(int));
+			dataOutChannel.SendPart(headerCopy);
+
+			std::ostringstream obuffer;
+			boost::archive::binary_oarchive OutputArchive(obuffer);
+			//fPndSdsDigiTopix4Vector = frames.front();
+			OutputArchive << fEventData;
+			int outputSize = obuffer.str().length();
+			unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
+			memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
+			//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
+			dataOutChannel.Send(msg2);
+
+			fillLevel = fBuilder.GetInputDataLevel();
+	//		LOG(INFO) << "EventData.size() " << eventData.size();
+	//		for (auto eventIter : eventData){
+	//			LOG(INFO) << "Event";
+	//			for (auto dataIter : eventIter){
+	//				LOG(INFO) << dataIter.GetSensorID() << " " << dataIter.GetTimeStamp();
+	//			}
+	//		}
+
+			for (int channelNr = 0; channelNr < fDataFromChannels.size(); channelNr++){
+				fDataFromChannels[channelNr].clear();
+			}
+		}
+		bool allStop = true;
+		for (auto state : fRunningStatus){
+			if (state == true)
+				allStop = false;
+		}
+		if (fGlobalRunningStatus == false && stopMessageOnce == true){
+			LOG(INFO) << "STOP-Signal received for one input";
+			std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage(sizeof(int)));
+			int flag = PndMQStatus::STOP;
+			memcpy(headerCopy->GetData(), &flag, sizeof(int));
+			dataOutChannel.Send(headerCopy);
+			stopMessageOnce = false;
 		}
 	}
 }

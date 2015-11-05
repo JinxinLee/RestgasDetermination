@@ -19,6 +19,7 @@
 
 #include "PndMQDataDuplicator.h"
 #include "FairMQLogger.h"
+#include "PndMQStatus.h"
 
 PndMQDataDuplicator::PndMQDataDuplicator()
 {
@@ -34,45 +35,59 @@ void PndMQDataDuplicator::Run()
 
     while (CheckCurrentState(RUNNING))
     {
-    	std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
-
-		if (dataInChannel.Receive(msg) > 0)
+    	std::unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage());
+		std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
+		int status = PndMQStatus::UNDEFINED;
+		if (dataInChannel.Receive(header) > 0)
 		{
-			counter++;
-			//LOG(INFO) << "Counter: " << counter;
-			std::string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
-			std::istringstream ibuffer(msgStr);
+			status = *(static_cast<int*>(header->GetData()));
 
-			boost::archive::binary_iarchive InputArchive(ibuffer);
-
-			try {
-				InputArchive >> fTopixData;
-			}
-			catch (boost::archive::archive_exception& e)
+			if (dataInChannel.ExpectsAnotherPart())
 			{
-				LOG(ERROR) << e.what();
-			}
-
-			if (fChannels.at("data-out").size() > 1)
-			{
-				for (int i = 1; i < fChannels.at("data-out").size(); ++i)
+				if (dataInChannel.Receive(msg) > 0)
 				{
-					if (i < fRates.size()){
-						//LOG(INFO) << "Channel: " << i;
-						if ( counter%fRates[i] == 0 ){
-							//LOG(INFO) << "SendMessage";
-							std::unique_ptr<FairMQMessage> msgCopy(fTransportFactory->CreateMessage());
-							msgCopy->Copy(msg);
-							fChannels.at("data-out").at(i).Send(msgCopy);
+					counter++;
+					if (fChannels.at("data-out").size() > 1)
+					{
+						for (int i = 1; i < fChannels.at("data-out").size(); ++i)
+						{
+							if (i < fRates.size()){
+								//LOG(INFO) << "Channel: " << i;
+								if ( counter%fRates[i] == 0 ){
+									//LOG(INFO) << "SendMessage";
+									std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage());
+									headerCopy->Copy(header);
+									fChannels.at("data-out").at(i).SendPart(headerCopy);
+									std::unique_ptr<FairMQMessage> msgCopy(fTransportFactory->CreateMessage());
+									msgCopy->Copy(msg);
+									fChannels.at("data-out").at(i).Send(msgCopy);
+								}
+							}
 						}
+						std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage());
+						headerCopy->Copy(header);
+						fChannels.at("data-out").at(0).SendPart(headerCopy);
+						std::unique_ptr<FairMQMessage> msgCopy(fTransportFactory->CreateMessage());
+						msgCopy->Copy(msg);
+						fChannels.at("data-out").at(0).Send(msgCopy);
+					}
+					else
+					{
+						std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage());
+						headerCopy->Copy(header);
+						fChannels.at("data-out").at(0).SendPart(headerCopy);
+						std::unique_ptr<FairMQMessage> msgCopy(fTransportFactory->CreateMessage());
+						msgCopy->Copy(msg);
+						fChannels.at("data-out").at(0).Send(msgCopy);
 					}
 				}
-				fChannels.at("data-out").at(0).Send(msg);
+			} else {
+				std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage());
+				headerCopy->Copy(header);
+				fChannels.at("data-out").at(0).Send(headerCopy);
 			}
-			else
-			{
-				fChannels.at("data-out").at(0).Send(msg);
-			}
+			if (status == PndMQStatus::STOP)
+				LOG(INFO) << "STOP-Signal Received!";
 		}
     }
 }

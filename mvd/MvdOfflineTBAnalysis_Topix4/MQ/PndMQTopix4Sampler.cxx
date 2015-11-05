@@ -20,6 +20,7 @@
 
 #include "FairMQLogger.h"
 #include "mrfdata_8b.h"
+#include "PndMQStatus.h"
 
 using namespace std;
 
@@ -48,14 +49,24 @@ void PndMQTopix4Sampler::Run()
 
         TMrfData_8b* data = 0;
         stop = fTopixDataReader.ReadInDataFromFile(data);
-        if (stop == true)
-        	continue;
 
-        unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(reinterpret_cast<u_int8_t*>(&data->regdata[0]),data->getNumWords(),CustomCleanup,data));
+        unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage(sizeof(int)));
 
- //       LOG(INFO) << "Sending Words\"" << data->getNumWords() << "\"" << " Bits: " << data->getNumBits();
-
-        fChannels.at("data-out").at(0).Send(msg);
+        int flag = -1;
+        if (stop == false){
+        	flag = PndMQStatus::RUNNING;
+			memcpy(header->GetData(), &flag, sizeof(int));
+			unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(reinterpret_cast<u_int8_t*>(&data->regdata[0]),data->getNumWords(),CustomCleanup,data));
+	 //       LOG(INFO) << "Sending Words\"" << data->getNumWords() << "\"" << " Bits: " << data->getNumBits();
+			fChannels.at("data-out").at(0).SendPart(header);
+			fChannels.at("data-out").at(0).Send(msg);
+        }
+        else
+        {
+        	flag = PndMQStatus::STOP;
+        	memcpy(header->GetData(), &flag, sizeof(int));
+        	fChannels.at("data-out").at(0).Send(header);
+        }
     }
 }
 

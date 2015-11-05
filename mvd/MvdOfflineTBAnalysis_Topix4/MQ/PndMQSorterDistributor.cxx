@@ -20,6 +20,7 @@
 
 #include "FairMQLogger.h"
 #include "PndMQSorterDistributor.h"
+#include "PndMQStatus.h"
 
 using namespace std;
 
@@ -55,85 +56,118 @@ void PndMQSorterDistributor::Run()
     while (CheckCurrentState(RUNNING))
     {
         std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
+        std::unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage());
 
-        if (dataInChannel.Receive(msg) > 0)
+        if (dataInChannel.Receive(header) > 0)
         {
-			std::string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
-			std::istringstream ibuffer(msgStr);
+        	int status = *(static_cast<int*>(header->GetData()));
 
-			boost::archive::binary_iarchive InputArchive(ibuffer);
+        	if (status != PndMQStatus::RUNNING){
+        		LOG(INFO) << "WrongStatus: " << status;
+        	}
 
-			try {
-				InputArchive >> fTopixData;
-			}
-			catch (boost::archive::archive_exception& e)
-			{
-				LOG(ERROR) << e.what();
-			}
-
-//			LOG(INFO) << "TopixData: " << fTopixData.size();
-
-			bool switchChannels = false;
-			for (auto itr : fTopixData){
-				if (itr.GetTimeStamp() < currentThreshold)
-					fCurrentOutput.push_back(itr);
-				else {
-					fNextOutput.push_back(itr);
-					if(itr.GetTimeStamp() > currentOffset){
-//						LOG(INFO) << "Switch Channels: " << itr.GetTimeStamp() << " > " << currentOffset;
-						switchChannels = true;
+        	if (dataInChannel.ExpectsAnotherPart())
+        	{
+        		if (dataInChannel.Receive(msg) > 0)
+        		{
+					std::string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
+					std::istringstream ibuffer(msgStr);
+					boost::archive::binary_iarchive InputArchive(ibuffer);
+					try {
+						InputArchive >> fTopixData;
 					}
-				}
-			}
-			fTopixData.clear();
-			if (switchChannels == true){
-				fCurrentOutput.push_back(PndSdsDigiTopix4()); //empty data to signal switch of channels
-			}
+					catch (boost::archive::archive_exception& e)
+					{
+						LOG(ERROR) << e.what();
+					}
 
-			if (fCurrentOutput.size() > 0){
-				std::ostringstream obuffer;
-				boost::archive::binary_oarchive OutputArchive(obuffer);
-				//fPndSdsDigiTopix4Vector = frames.front();
-				OutputArchive << fCurrentOutput;
-				int outputSize = obuffer.str().length();
-				unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
-				memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
-				//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
-				dataOutChannels[direction]->Send(msg2);
-				// LOG(INFO) << "CurrentOutput send to " << direction << " size: " << fCurrentOutput.size();
-//				for (auto itr : fCurrentOutput){
-//					LOG(INFO) << itr.GetTimeStamp();
-//				}
-				fCurrentOutput.clear();
-			}
-			if (fNextOutput.size() > 0){
-				std::ostringstream obuffer;
-				boost::archive::binary_oarchive OutputArchive(obuffer);
-				//fPndSdsDigiTopix4Vector = frames.front();
-				OutputArchive << fNextOutput;
-				int outputSize = obuffer.str().length();
-				unique_ptr<FairMQMessage> msg3(fTransportFactory->CreateMessage(outputSize));
-				memcpy(msg3->GetData(), obuffer.str().c_str(), outputSize);
-				//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
-				int nextOutput = direction + 1;
-				if (nextOutput >= numOutputs)
-					nextOutput = 0;
-				dataOutChannels[nextOutput]->Send(msg3);
-				// LOG(INFO) << "NextOutput send to " << nextOutput << " size " << fNextOutput.size();
-				fNextOutput.clear();
-			}
+		//			LOG(INFO) << "TopixData: " << fTopixData.size();
 
-			if (switchChannels == true){
-				// LOG(INFO) << "Switch channels old threshold " << currentThreshold << " old offset "<< currentOffset;
-				direction++;
-				if (direction >= numOutputs)
+					bool switchChannels = false;
+					for (auto itr : fTopixData){
+						if (itr.GetTimeStamp() < currentThreshold)
+							fCurrentOutput.push_back(itr);
+						else {
+							fNextOutput.push_back(itr);
+							if(itr.GetTimeStamp() > currentOffset){
+		//						LOG(INFO) << "Switch Channels: " << itr.GetTimeStamp() << " > " << currentOffset;
+								switchChannels = true;
+							}
+						}
+					}
+					fTopixData.clear();
+					if (switchChannels == true){
+						fCurrentOutput.push_back(PndSdsDigiTopix4()); //empty data to signal switch of channels
+					}
+
+					if (fCurrentOutput.size() > 0){
+
+						std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage(sizeof(int)));
+						int flag = PndMQStatus::RUNNING;
+						memcpy(headerCopy->GetData(), &flag, sizeof(int));
+						dataOutChannels[direction]->SendPart(headerCopy);
+
+						std::ostringstream obuffer;
+						boost::archive::binary_oarchive OutputArchive(obuffer);
+						//fPndSdsDigiTopix4Vector = frames.front();
+						OutputArchive << fCurrentOutput;
+						int outputSize = obuffer.str().length();
+						unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
+						memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
+						//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
+						dataOutChannels[direction]->Send(msg2);
+						// LOG(INFO) << "CurrentOutput send to " << direction << " size: " << fCurrentOutput.size();
+		//				for (auto itr : fCurrentOutput){
+		//					LOG(INFO) << itr.GetTimeStamp();
+		//				}
+						fCurrentOutput.clear();
+					}
+					if (fNextOutput.size() > 0){
+
+						int nextOutput = direction + 1;
+						if (nextOutput >= numOutputs)
+							nextOutput = 0;
+
+						std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage(sizeof(int)));
+						int flag = PndMQStatus::RUNNING;
+						memcpy(headerCopy->GetData(), &flag, sizeof(int));
+						dataOutChannels[nextOutput]->SendPart(headerCopy);
+
+						std::ostringstream obuffer;
+						boost::archive::binary_oarchive OutputArchive(obuffer);
+						//fPndSdsDigiTopix4Vector = frames.front();
+						OutputArchive << fNextOutput;
+						int outputSize = obuffer.str().length();
+						unique_ptr<FairMQMessage> msg3(fTransportFactory->CreateMessage(outputSize));
+						memcpy(msg3->GetData(), obuffer.str().c_str(), outputSize);
+						//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
+						dataOutChannels[nextOutput]->Send(msg3);
+						// LOG(INFO) << "NextOutput send to " << nextOutput << " size " << fNextOutput.size();
+						fNextOutput.clear();
+					}
+
+					if (switchChannels == true){
+						// LOG(INFO) << "Switch channels old threshold " << currentThreshold << " old offset "<< currentOffset;
+						direction++;
+						if (direction >= numOutputs)
+						{
+							direction = 0;
+						}
+						currentThreshold += fThreshold;
+						currentOffset += fThreshold;
+						switchChannels = false;
+					}
+        		}
+        	}
+        	if (status == PndMQStatus::STOP){
+        		LOG(INFO) << "STOP-Status Received: " << status;
+				for (int i = 0; i < numOutputs; ++i)
 				{
-					direction = 0;
+					std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage());
+					headerCopy->Copy(header);
+					dataOutChannels[i]->Send(headerCopy);
 				}
-				currentThreshold += fThreshold;
-				currentOffset += fThreshold;
-				switchChannels = false;
-			}
+        	}
         }
     }
 }
