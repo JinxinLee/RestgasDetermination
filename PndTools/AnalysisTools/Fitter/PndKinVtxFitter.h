@@ -27,7 +27,6 @@ class PndKinVtxFitter : public RhoFitterBase
     void AddMassConstraint(double mass);
     //void AddPointingConstraint(TVector3 pVtx);
     double GetPull() {return fPull;}
-    Float_t GetPocaVtx(TVector3& vertex, RhoCandidate* a, RhoCandidate* b);
 
     void SetNMaxIterations(int nit=20){fNMaxIterations=nit;fIterateExact=false;};
     void SetNIterationsExact(int nit=2){fNMaxIterations=nit;fIterateExact=true;};
@@ -46,11 +45,10 @@ class PndKinVtxFitter : public RhoFitterBase
     //void ReadPointingKinMatrix(RhoCandidate* head);
 
 
-    Bool_t Compute();
+    Bool_t Compute(RhoCandidate* c);
     void SetOutput(RhoCandidate* head);
 
     void TransportToVertex(TMatrixD&, TMatrixD&, TMatrixD&, TMatrixD&, TMatrixD&);
-    void GetStartVtx(TVector3& vertex);
     void GetCovariance(TMatrixD& a_cov0, TMatrixD& cov_al_x, TMatrixD& V_vtx, TMatrixD& covS);
 
 
@@ -82,6 +80,7 @@ class PndKinVtxFitter : public RhoFitterBase
     int            niter;
     double         fChi2Diff;
     double         fPull;
+
 
     // VtxVertex                   _vertex;
     TMatrixD vtx_ex;

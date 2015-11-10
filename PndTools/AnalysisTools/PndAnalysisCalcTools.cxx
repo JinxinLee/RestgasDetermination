@@ -279,138 +279,211 @@ Bool_t PndAnalysisCalcTools::P7toPRG(const TVector3& pos, const TLorentzVector& 
   const double pz = p4.Pz(); // reconstructed momentum
   const double p2 = px*px+py*py+pz*pz;
   const double p2i = (p2==0.)?0.:1./p2;
+  const double pti = 1/pt;
+
   if(fVerbose>1) { printf("P7toPRG: x is [%8g,%8g,%8g] cm \n",xp,yp,zp); }
   if(fVerbose>1) { printf("P7toPRG: p is [%8g,%8g,%8g] GeV/c \n",px,py,pz); }
   // phi_p
   const double phip = p4.Phi();
   if(fVerbose>1) { printf("P7toPRG: phi is %g \n",phip); }
 
-  // get rho & R0
-  const double pti = 1/pt;
-  const double rho = qBc*pti;
-  const double R0 = 1./rho; // signed radius
-  if(fVerbose>1) { printf("P7toPRG: rho is %g cm^-1\n",rho); }
-  if(fVerbose>1) { printf("P7toPRG: P_t is %g GeV/c\n",pt); }
-  if(fVerbose>1) { printf("P7toPRG: P_t^-1 is %g c/GeV\n",pti); }
-  if(fVerbose>1) { printf("P7toPRG: R0 = rho^-1 is %g cm\n",R0); }
 
-  // get theta
-  const double theta=p4.Theta();
-  if(fVerbose>1) { printf("P7toPRG: theta is %g \n",theta); }
-  //const double tanDip = TMath::Tan(0.5*TMath::Pi() - theta); //unused?
 
-  //circle center in x-y projection
-  const double xc = xp - py/qBc;
-  const double yc = yp + px/qBc;
-  const double RCsq = xc*xc + yc*yc;
-  const double RC = TMath::Sqrt(RCsq);
+  //check if daughter is charged or neutral
+  if(fabs(Q)<1e-6){
 
-  //get epsilon
-  //epsilon is the distance of closest approach with its sign defined as being positive
-  //if the origin lays at the lefthand side of the moving particle
-  const double epsilon = Q*(RC - TMath::Abs(R0));
-  if(fVerbose>1) { printf("P7toPRG: epsilon is %g cm\n",epsilon); }
+	  /*
+	   * edited by J. Puetz
+	   * reference for the helixparameters for neutral particles
+	   * "Vertex reconstruction by means of the method of Kalman filtering" from Rolf Luchsinger and Christoph Grab
+	   * doi:10.1016/0010-4655(93)90055-H
+	   */
 
-  //get phi0 at doca
-  const double direction = TMath::Sign(1.,Q);
-  double phi0 = TMath::ATan2(yc,xc);
-  if (yc < 0) { phi0 += TMath::Pi(); }
-  else { phi0 -= TMath::Pi(); }
-  phi0 -= direction*0.5*TMath::Pi();
-  //get phi0 into [-pi,pi]
-  if (phi0 < -TMath::Pi()) { phi0 += TMath::TwoPi(); }
-  else if (phi0 > TMath::Pi()) { phi0 -= TMath::TwoPi(); }
+	  double r = TMath::Sqrt(xp*xp+yp*yp);
+	  double eta = phip - TMath::ACos(xp/r);
+	  double tht = p4.Theta();
 
-  if(fVerbose>1) { printf("P7toPRG: phi0 = %.4g, \tphiP = %.4g, \tDeltaPhi = %.4g \tepsilon=%.4g, \tQ=%g\n",phi0,phip,phip-phi0, epsilon, Q); }
-  if(fVerbose>1) {
-    double xnew=epsilon*sin(phi0);
-    double ynew=-epsilon*cos(phi0);
-    printf("P7toPRG: xnew = %.4g, \tynew = %.4g, \t(x^2+y^2) = %.4g \tepsilon^2=%.4g\n",xnew,ynew,xnew*xnew+ynew*ynew, epsilon*epsilon);
-  }
+	  helixparams[0] = r*sin(eta);
+	  helixparams[1] = zp - r*cos(eta)/tan(tht);
+	  helixparams[2] = tht;
+	  helixparams[3] = phip;
+	  helixparams[4] = TMath::Sqrt(p2);
 
-  //get z0
-  const double z0 = zp - pz*(phip-phi0)/qBc;
-  //const double z0 = zp - tanDip*R0*(phip-phi0);
-  if(fVerbose>1) { printf("P7toPRG: z0 is %g cm from zp=%.3g cm\n",z0,zp); }
 
-  helixparams[0]=epsilon;
-  helixparams[1]=z0;
-  helixparams[2]=theta;
-  helixparams[3]=phi0;
-  helixparams[4]=rho;
-  if(fVerbose>0 && skipcov) {
-    for(int ai=0; ai<5; ai++) {
-      std::cout<<"helixparams["<<ai<<"]="<<helixparams[ai]<<std::endl;
-    }
-  }
+	  if(!skipcov){
 
-  if(!skipcov) {
-    //TMatrixD jacobian(5,7);
+		  jacobian[0][0] = xp*sin(eta)/r + TMath::Sqrt(1-xp*xp/(r*r)) * cos(eta);			//d(r*sin(eta))/dxp
+		  jacobian[0][1] = yp*sin(eta)/r - xp*yp*cos(eta)/(r*r*TMath::Sqrt(1-xp*xp/(r*r)));	//d(r*sin(eta))/dyp
+		  jacobian[0][2] = 0.;																//d(r*sin(eta))/dzp
+		  jacobian[0][3] = 0.;																//d(r*sin(eta))/dpx
+		  jacobian[0][4] = 0.;																//d(r*sin(eta))/dpy
+		  jacobian[0][5] = 0.;																//d(r*sin(eta))/dpz
+		  jacobian[0][6] = 0.;																//d(r*sin(eta))/dE
 
-    jacobian[0][0] = Q*xc/RC; // dEpsilon  / dvx
-    jacobian[0][1] = Q*yc/RC; // dEpsilon   /dvy
-    jacobian[0][2] = 0.; // dEpsilon   /dvz
-    jacobian[0][3] = Q*(yc/(qBc*RC)-TMath::Sign(pti,R0)*px/qBc); // dEpsilon   /dpx
-    jacobian[0][4] = Q*(-xc/(qBc*RC)-TMath::Sign(pti,R0)*py/qBc); // dEpsilon   /dpy
-    jacobian[0][5] = 0.; // dEpsilon   /dpz
-    jacobian[0][6] = 0.; // dEpsilon   /de
+		  jacobian[1][0] = TMath::Sqrt(1-xp*xp/(r*r))*sin(eta)/tan(tht) - xp/r * cos(eta)/tan(tht); 			//d(helixparam[1])/dxp
+		  jacobian[1][1] = -(yp/r*cos(eta)/tan(tht)+xp*yp/(r*r)*sin(eta)/tan(tht)/TMath::Sqrt(1-xp*xp/(r*r))); 	//d(helixparam[1])/dyp
+		  jacobian[1][2] = 1.;																					//d(helixparam[1])/dzp
+		  jacobian[1][3] = 0.;																					//d(helixparam[1])/dpx
+		  jacobian[1][4] = 0.;																					//d(helixparam[1])/dpy
+		  jacobian[1][5] = 0.;																					//d(helixparam[1])/dpz
+		  jacobian[1][6] = 0.;																					//d(helixparam[1])/dE
 
-    jacobian[1][0] = -pz*yc/(RCsq*qBc); // dZ0   /dvx
-    jacobian[1][1] = pz*xc/(RCsq*qBc); // dZ0   /dvy
-    jacobian[1][2] = 1.; // dZ0   /dvz
-    jacobian[1][3] = (py*pti*pti + xc/(qBc*RCsq))*pz/qBc; // dZ0   /dpx
-    jacobian[1][4] = -(px*pti*pti - yc/(qBc*RCsq))*pz/qBc; // dZ0   /dpy
-    jacobian[1][5] = -(phip-phi0)/qBc; // dZ0   /dpz
-    jacobian[1][6] = 0.; // dZ0   /de
-    // ok
+		  jacobian[2][0] = 0.; 				// dTheta /dxp
+		  jacobian[2][1] = 0.; 				// dTheta /dyp
+		  jacobian[2][2] = 0.; 				// dTheta /dzp
+		  jacobian[2][3] = px*pz*pti*p2i; 	// dTheta /dpx
+		  jacobian[2][4] = py*pz*pti*p2i; 	// dTheta /dpy
+		  jacobian[2][5] = -pt*p2i; 		// dTheta /dpz
+		  jacobian[2][6] = 0.;				 // dTheta /dE
 
-    jacobian[2][0] = 0.; // dTheta /dvx
-    jacobian[2][1] = 0.; // dTheta /dvy
-    jacobian[2][2] = 0.; // dTheta /dvz
-    jacobian[2][3] = px*pz*pti*p2i; // dTheta /dpx
-    jacobian[2][4] = py*pz*pti*p2i; // dTheta /dpy
-    jacobian[2][5] = -pt*p2i; // dTheta /dpz
-    jacobian[2][6] = 0.; // dTheta /de
-    //ok
+		  jacobian[3][0] = 0.; 				// dPhi /dxp
+		  jacobian[3][1] = 0.; 				// dPhi /dyp
+		  jacobian[3][2] = 0.; 				// dPhi /dzp
+		  jacobian[3][3] = -py*pti;		 	// dPhi /dpx
+		  jacobian[3][4] = px*pti; 			// dPhi /dpy
+		  jacobian[3][5] = 0.;		 		// dPhi /dpz
+		  jacobian[3][6] = 0.;				// dPhi /dE
 
-    jacobian[3][0] = -yc/(RCsq); // dPhi0 /dvx
-    jacobian[3][1] = xc/(RCsq); // dPhi0 /dvy
-    jacobian[3][2] = 0.; // dPhi0 /dvz
-    jacobian[3][3] = xc/(RCsq*qBc); // dPhi0 /dpx
-    jacobian[3][4] = yc/(RCsq*qBc); // dPhi0 /dpy
-    jacobian[3][5] = 0.; // dPhi0 /dpz
-    jacobian[3][6] = 0.; // dPhi0 /de
+		  jacobian[4][0] = 0.; 					// dp /dxp
+		  jacobian[4][1] = 0.; 					// dp /dyp
+		  jacobian[4][4] = 0.; 					// dp /dzp
+		  jacobian[4][3] =px*TMath::Sqrt(p2i); 	// dp /dpx
+		  jacobian[4][4] =py*TMath::Sqrt(p2i);; // dp /dpy
+		  jacobian[4][5] =pz*TMath::Sqrt(p2i);; // dp /dpz
+		  jacobian[4][6] = 0.;				 	// dp /dE
+	  }
+  	} //end neutral particle
 
-    jacobian[4][0] = 0.; // drho  /dvx
-    jacobian[4][1] = 0.; // drho  /dvy
-    jacobian[4][2] = 0.; // drho  /dvz
-    jacobian[4][3] = -rho*px*pti*pti; // drho  /dpx
-    jacobian[4][4] = -rho*py*pti*pti; // drho  /dpy
-    jacobian[4][5] = 0.; // drho  /dpz
-    jacobian[4][6] = 0.; // drho  /de
-    //ok
+  	else{
+	  // get rho & R0
 
-    TMatrixD tempmat(jacobian,TMatrixD::kMult,cov77);
-    TMatrixD covrho(tempmat,TMatrixD::kMultTranspose,jacobian);
-    helixCov=covrho;
+	  const double rho = qBc*pti;
+	  const double R0 = 1./rho; // signed radius
+	  if(fVerbose>1) { printf("P7toPRG: rho is %g cm^-1\n",rho); }
+	  if(fVerbose>1) { printf("P7toPRG: P_t is %g GeV/c\n",pt); }
+	  if(fVerbose>1) { printf("P7toPRG: P_t^-1 is %g c/GeV\n",pti); }
+	  if(fVerbose>1) { printf("P7toPRG: R0 = rho^-1 is %g cm\n",R0); }
 
-    if (fVerbose>2) {
-      std::cout<<"cov77: ";
-      cov77.Print();
-      //std::cout<<"sigmas: "; sigmas.Print();
-      std::cout<<"jacobian: ";
-      jacobian.Print();
-    }
-    if (fVerbose>0) {
-      std::cout<<"covrho (epsilon,Z0,Theta,Phi0,rho): ";
-      covrho.Print();
-      std::cout<<"helixparams[0] = epsilon\t= ("<<helixparams[0]<<" \t+- "<<sqrt(helixCov[0][0])<<") cm"<<std::endl;
-      std::cout<<"helixparams[1] = Z0 \t= ("<<helixparams[1]<<" \t+- "<<sqrt(helixCov[1][1])<<") cm"<<std::endl;
-      std::cout<<"helixparams[2] = Theta \t= ("<<helixparams[2]<<" \t+- "<<sqrt(helixCov[2][2])<<") rad"<<std::endl;
-      std::cout<<"helixparams[3] = Phi0 \t= ("<<helixparams[3]<<" \t+- "<<sqrt(helixCov[3][3])<<") rad"<<std::endl;
-      std::cout<<"helixparams[4] = rho\t= ("<<helixparams[4]<<" \t+- "<<sqrt(helixCov[4][4])<<") 1/cm"<<std::endl;
-    }
-  } // skip cov or not
+	  // get theta
+	  const double theta=p4.Theta();
+	  if(fVerbose>1) { printf("P7toPRG: theta is %g \n",theta); }
+	  //const double tanDip = TMath::Tan(0.5*TMath::Pi() - theta); //unused?
+
+	  //circle center in x-y projection
+	  const double xc = xp - py/qBc;
+	  const double yc = yp + px/qBc;
+	  const double RCsq = xc*xc + yc*yc;
+	  const double RC = TMath::Sqrt(RCsq);
+
+	  //get epsilon
+	  //epsilon is the distance of closest approach with its sign defined as being positive
+	  //if the origin lays at the lefthand side of the moving particle
+	  const double epsilon = Q*(RC - TMath::Abs(R0));
+	  if(fVerbose>1) { printf("P7toPRG: epsilon is %g cm\n",epsilon); }
+
+	  //get phi0 at doca
+	  const double direction = TMath::Sign(1.,Q);
+	  double phi0 = TMath::ATan2(yc,xc);
+	  if (yc < 0) { phi0 += TMath::Pi(); }
+	  else { phi0 -= TMath::Pi(); }
+	  phi0 -= direction*0.5*TMath::Pi();
+	  //get phi0 into [-pi,pi]
+	  if (phi0 < -TMath::Pi()) { phi0 += TMath::TwoPi(); }
+	  else if (phi0 > TMath::Pi()) { phi0 -= TMath::TwoPi(); }
+
+	  if(fVerbose>1) { printf("P7toPRG: phi0 = %.4g, \tphiP = %.4g, \tDeltaPhi = %.4g \tepsilon=%.4g, \tQ=%g\n",phi0,phip,phip-phi0, epsilon, Q); }
+	  if(fVerbose>1) {
+		double xnew=epsilon*sin(phi0);
+		double ynew=-epsilon*cos(phi0);
+		printf("P7toPRG: xnew = %.4g, \tynew = %.4g, \t(x^2+y^2) = %.4g \tepsilon^2=%.4g\n",xnew,ynew,xnew*xnew+ynew*ynew, epsilon*epsilon);
+	  }
+
+	  //get z0
+	  const double z0 = zp - pz*(phip-phi0)/qBc;
+	  //const double z0 = zp - tanDip*R0*(phip-phi0);
+	  if(fVerbose>1) { printf("P7toPRG: z0 is %g cm from zp=%.3g cm\n",z0,zp); }
+
+	  helixparams[0]=epsilon;
+	  helixparams[1]=z0;
+	  helixparams[2]=theta;
+	  helixparams[3]=phi0;
+	  helixparams[4]=rho;
+	  if(fVerbose>0 && skipcov) {
+		for(int ai=0; ai<5; ai++) {
+		  std::cout<<"helixparams["<<ai<<"]="<<helixparams[ai]<<std::endl;
+		}
+	  }
+
+	  if(!skipcov) {
+		//TMatrixD jacobian(5,7);
+
+		jacobian[0][0] = Q*xc/RC; // dEpsilon  / dvx
+		jacobian[0][1] = Q*yc/RC; // dEpsilon   /dvy
+		jacobian[0][2] = 0.; // dEpsilon   /dvz
+		jacobian[0][3] = Q*(yc/(qBc*RC)-TMath::Sign(pti,R0)*px/qBc); // dEpsilon   /dpx
+		jacobian[0][4] = Q*(-xc/(qBc*RC)-TMath::Sign(pti,R0)*py/qBc); // dEpsilon   /dpy
+		jacobian[0][5] = 0.; // dEpsilon   /dpz
+		jacobian[0][6] = 0.; // dEpsilon   /de
+
+		jacobian[1][0] = -pz*yc/(RCsq*qBc); // dZ0   /dvx
+		jacobian[1][1] = pz*xc/(RCsq*qBc); // dZ0   /dvy
+		jacobian[1][2] = 1.; // dZ0   /dvz
+		jacobian[1][3] = (py*pti*pti + xc/(qBc*RCsq))*pz/qBc; // dZ0   /dpx
+		jacobian[1][4] = -(px*pti*pti - yc/(qBc*RCsq))*pz/qBc; // dZ0   /dpy
+		jacobian[1][5] = -(phip-phi0)/qBc; // dZ0   /dpz
+		jacobian[1][6] = 0.; // dZ0   /de
+		// ok
+
+		jacobian[2][0] = 0.; // dTheta /dvx
+		jacobian[2][1] = 0.; // dTheta /dvy
+		jacobian[2][2] = 0.; // dTheta /dvz
+		jacobian[2][3] = px*pz*pti*p2i; // dTheta /dpx
+		jacobian[2][4] = py*pz*pti*p2i; // dTheta /dpy
+		jacobian[2][5] = -pt*p2i; // dTheta /dpz
+		jacobian[2][6] = 0.; // dTheta /de
+		//ok
+
+		jacobian[3][0] = -yc/(RCsq); // dPhi0 /dvx
+		jacobian[3][1] = xc/(RCsq); // dPhi0 /dvy
+		jacobian[3][2] = 0.; // dPhi0 /dvz
+		jacobian[3][3] = xc/(RCsq*qBc); // dPhi0 /dpx
+		jacobian[3][4] = yc/(RCsq*qBc); // dPhi0 /dpy
+		jacobian[3][5] = 0.; // dPhi0 /dpz
+		jacobian[3][6] = 0.; // dPhi0 /de
+
+		jacobian[4][0] = 0.; // drho  /dvx
+		jacobian[4][1] = 0.; // drho  /dvy
+		jacobian[4][2] = 0.; // drho  /dvz
+		jacobian[4][3] = -rho*px*pti*pti; // drho  /dpx
+		jacobian[4][4] = -rho*py*pti*pti; // drho  /dpy
+		jacobian[4][5] = 0.; // drho  /dpz
+		jacobian[4][6] = 0.; // drho  /de
+		//ok
+	  }
+  	}//end charged particle
+
+  	if(!skipcov) {
+		TMatrixD tempmat(jacobian,TMatrixD::kMult,cov77);
+		TMatrixD covrho(tempmat,TMatrixD::kMultTranspose,jacobian);
+		helixCov=covrho;
+
+		if (fVerbose>2) {
+		  std::cout<<"cov77: ";
+		  cov77.Print();
+		  //std::cout<<"sigmas: "; sigmas.Print();
+		  std::cout<<"jacobian: ";
+		  jacobian.Print();
+		}
+		if (fVerbose>0) {
+		  std::cout<<"covrho (epsilon,Z0,Theta,Phi0,rho): ";
+		  covrho.Print();
+		  std::cout<<"helixparams[0] = epsilon\t= ("<<helixparams[0]<<" \t+- "<<sqrt(helixCov[0][0])<<") cm"<<std::endl;
+		  std::cout<<"helixparams[1] = Z0 \t= ("<<helixparams[1]<<" \t+- "<<sqrt(helixCov[1][1])<<") cm"<<std::endl;
+		  std::cout<<"helixparams[2] = Theta \t= ("<<helixparams[2]<<" \t+- "<<sqrt(helixCov[2][2])<<") rad"<<std::endl;
+		  std::cout<<"helixparams[3] = Phi0 \t= ("<<helixparams[3]<<" \t+- "<<sqrt(helixCov[3][3])<<") rad"<<std::endl;
+		  std::cout<<"helixparams[4] = rho\t= ("<<helixparams[4]<<" \t+- "<<sqrt(helixCov[4][4])<<") 1/cm"<<std::endl;
+		}
+  	}// skip cov or not
   return kTRUE;
 }
 

@@ -143,13 +143,13 @@ void PndAnalysis::Init()
 
     if ( ! fMcTracks && fVerbose ) {
       std::cout << "-W- PndAnalysis::Init(): No \"MCTrack\" array found. No MC info available." << std::endl;
-    }
+    } else {
+      fBuildMcCands = true;
+      fMcCands = new TClonesArray ( "RhoCandidate" );
+      // next line commented by KG, 07/2012
+      fRootManager->Register ( "PndMcTracks","PndMcTracksFolder", fMcCands, kFALSE );
+	}
 
-    fMcCands =new TClonesArray ( "RhoCandidate" );
-
-    // next line commented by KG, 07/2012
-    fRootManager->Register ( "PndMcTracks","PndMcTracksFolder", fMcCands, kFALSE );
-    fBuildMcCands = true;
   }
 
   //fChainEntries = ( fRootManager->GetInChain() )->GetEntries();
@@ -441,18 +441,17 @@ void PndAnalysis::BuildMcCands()
 {
   int i;
   // Make Monte-carlo truth candidates by the reconstructed particles up to the initial state (if available)
-  if ( !fMcCands ){
-    Warning("PndAnalysis::BuildMcCands","No array to store candidates...");
-    return;
-  }
   if ( !fBuildMcCands ) {
     if(fVerbose) Info("PndAnalysis::BuildMcCands","No mc to build...");
+    return;
+  }
+  if ( !fMcCands ){
+    Warning("PndAnalysis::BuildMcCands","No array to store candidates...");
     return;
   }
   if ( fMcCands->GetEntriesFast() != 0 ) {
     fMcCands->Delete();
   }
-
   if ( fMcTracks == 0 ) {
     Error ( "BuildMcCands","MC track Array does not exist." );
     return;

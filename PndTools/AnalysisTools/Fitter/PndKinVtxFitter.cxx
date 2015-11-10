@@ -31,6 +31,7 @@ PndKinVtxFitter::PndKinVtxFitter( RhoCandidate* b) :
   fNMaxIterations=20;
   fIterateExact=false;
 
+
 }
 
 PndKinVtxFitter::~PndKinVtxFitter()
@@ -53,7 +54,7 @@ void PndKinVtxFitter::AddMassConstraint(double mass)
 Bool_t PndKinVtxFitter::FitNode(RhoCandidate *cand)
 {
   SetDaugthersFromComposite(cand);
-  Bool_t check=Compute();
+  Bool_t check=Compute(cand);
   SetOutput(cand);
   return check;
 }
@@ -96,8 +97,9 @@ void PndKinVtxFitter::ResetMatrices()
 
 
 
-Bool_t PndKinVtxFitter::Compute()
+Bool_t PndKinVtxFitter::Compute(RhoCandidate* c)
 {
+
   // int nd=fDaughters.size();
   int nd=fDaughters.size();
   NumCon=2*nd;
@@ -119,18 +121,21 @@ Bool_t PndKinVtxFitter::Compute()
   TMatrixD cov_al_x(7*nd,3);
 
   TVector3 startVtx;
+  //Getting point of closed approach as start vertex point
+  PndVtxPoca poca;				//changed from internal method to class PndVtxPoca by J.Puetz
+  poca.GetPocaVtx(startVtx, c);
 
-  GetStartVtx(startVtx);
   vtx_st[0][0]=startVtx.X();
   vtx_st[1][0]=startVtx.Y();
   vtx_st[2][0]=startVtx.Z();
-  // vtx_st[0][0]=0.0;vtx_st[1][0]=0.0;vtx_st[2][0]=0.0;
+
   vtx_ex=vtx_st;
   if(fVerbose) { cout<<"Initial vertex Position is "<<vtx_ex[0][0]<<" "<<vtx_ex[1][0]<<" "<<vtx_ex[2][0]<<endl; }
 
   // al1=al0;
   // V_al1=V_al0;
   TransportToVertex(al0,V_al0,al1,V_al1,vtx_ex);
+
 
   al0=al1;
   V_al0=V_al1;
@@ -148,6 +153,8 @@ Bool_t PndKinVtxFitter::Compute()
   //double tmp_chiSq = 999;
 
   for(Int_t j1=0; j1<fNMaxIterations; ++j1) {
+
+
     fNc=0;
     if(fMassConstraint >0) {
       ReadMassKinMatrix();
@@ -158,7 +165,7 @@ Bool_t PndKinVtxFitter::Compute()
     TMatrixD mD_t=mD;
     mD_t.T();
     // mD_t=mD_t.Transpose(mD);
-    // mD_t.Print();
+
 
     TMatrixD Vd_inv = mD*V_al0*mD_t;
     if(Vd_inv==0) { continue; }
@@ -170,12 +177,16 @@ Bool_t PndKinVtxFitter::Compute()
     //  return 0;}
     //  Vd.Print();
 
+
     TMatrixD del_al = al0 - al1;
 
+
     // Lagrange multiplier
+
     //TMatrixD lam0=Vd*md;
     TMatrixD lam0 = Vd* ( mD*del_al + md);
     //    if(fVerbose) cout << " lam0 calculated" << endl;
+
 
     //  Position Derivative matrix ...............
     TMatrixD mE_t=mE;
@@ -193,14 +204,21 @@ Bool_t PndKinVtxFitter::Compute()
     // New vertex and covariance ........
     TMatrixD V_vtx_new(3,3);
     TMatrixD vtx_new(vtx_ex);
+
+
+
     vtx_new -= Vx*mE_t*lam0;
-    //     if(fVerbose) cout << " New vtx calculated" << endl;
-    // vtx_new.Print();
+//    cout << " New vtx calculated" << endl;
+//    vtx_new.Print();
     V_vtx_new = Vx;
+
+
 
     // Final Lagarange multiplier ........
     TMatrixD lam = lam0 + (Vd * mE) * (vtx_new - vtx_ex);
     //  if(fVerbose) cout << " New lam calculated" << endl;
+
+
 
     // New track parameters.............
     TMatrixD al_new(al0);
@@ -215,17 +233,20 @@ Bool_t PndKinVtxFitter::Compute()
     // TMatrixD chi2_new = lam_t* md;
     //TMatrixD chi2_new = lam_t*(mD*(al0 - al_new) );
     TMatrixD chi2_new = lam_t*(mD*(al0 - al_new)  + md);
-//    TMatrixD chi2_new = lam_t*(mD*(al0 - al_new) + mE*(vtx_st-vtx_ex) + md);
+    //TMatrixD chi2_new = lam_t*(mD*(al0 - al_new) + mE*(vtx_st-vtx_ex) + md);
+
 
 
     // New Covariance Matrix................
     //   TMatrixD V_al_new(V_al0);
     //  V_al_new-=V_al0*mD_t*Vd*mD*V_al0_t;
 
+
     // protect against errors. RK: is that safe to do?
     if(TMath::IsNaN(chi2_new[0][0])) continue;
-    
+
     double deltaChi=chi2_new[0][0]-chi2[0][0];
+
     //  Check chi^2. If better yes update the values ..............................
     if (deltaChi>0.1*chi2[0][0]) {continue;}
     if( chi2_new[0][0] < chi2[0][0] ) {
@@ -259,13 +280,13 @@ Bool_t PndKinVtxFitter::Compute()
       V_al0 = V_al_new;
       V_vtx = V_vtx_new;
       if(fVerbose) { cout <<"iteration Number " << " " << j1 <<" final." <<endl; }
-      if(fVerbose) { cout <<" chi2 in iterartion" << " " << chi2[0][0] << " pull="<<fPull<< endl; }
+      if(fVerbose) { cout <<" chi2 in iteration" << " " << chi2[0][0] << " pull="<<fPull<< endl; }
       break; // that was the final iteration, stop the loop
     }
     chi2 = chi2_new;
     if(fVerbose) { cout << "iteration Number " << " " << j1 << endl; }
     if(fVerbose) { cout <<" vertex Position is "<<vtx_new[0][0]<<" "<<vtx_new[1][0]<<" "<<vtx_new[2][0]<<endl; }
-    if(fVerbose) { cout << " chi2 in iterartion" << " " << chi2[0][0] << endl; }
+    if(fVerbose) { cout << " chi2 in iteration" << " " << chi2[0][0] << endl; }
   } // end of iteration-loop
 
   // tell that the fit failed if we have no updated chi2
@@ -295,6 +316,7 @@ Bool_t PndKinVtxFitter::Compute()
 //  V_al0=Va_new_vtx;
   fChiSquare=chi2[0][0];
   // fChi2Diff=chi2_1[0][0]-chi2[0][0];
+
   return kTRUE;
 }
 
@@ -306,12 +328,16 @@ Bool_t PndKinVtxFitter::Compute()
 //Write output
 void PndKinVtxFitter::SetOutput(RhoCandidate* head)
 {
+
   int nd=fDaughters.size();
   TMatrixD m(nd,1);
+
 
   double  sumA=0;
   double a;
   for (int k=0; k<nd; k++) {
+
+
     //skip locked daughters
     if(fDaughters[k]->IsLocked()) continue;
     Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
@@ -319,7 +345,8 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
     sumA += a;
     TVector3 pos(al0[k*7+4][0],al0[k*7+5][0],al0[k*7+6][0]);
 //std::cout<<" --"<<k<<"-- ("<<pos.x()<<";"<<pos.y()<<";"<<pos.z()<<")"<<std::endl;
-    TLorentzVector mom4(al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0],al0[k*7+3][0]);
+    TLorentzVector mom4(al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0], al0[k*7+3][0]);
+
 //better to put daugthers with mass hypothesis .......?? VJ
     TLorentzVector momM;
     double fM=fDaughters[k]->Mass();
@@ -327,6 +354,7 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
 //    momM.SetP4(fM,al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0]);
     fDaughters[k]->SetP7(pos,mom4);
 //    fDaughters[k]->SetP7(pos,momM);
+
 
     //Extend matrix for energy for each candidates if daughters from mass hypothesis 6x6 covariance
     TMatrixD p1Cov(7,7);
@@ -338,6 +366,7 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
         p1Cov[i][j]= V_al0[k*7+i][k*7+j];
       }
     }
+
 
     //Change from px,py,pz,E,x,y,z
     //         to x,y,z,px,py,pz,E
@@ -376,6 +405,7 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
     //cout<<"p2Cov"; p2Cov.Print();
 
   }
+
 
 ///[ralfk:28.5.2013] Use flat Fourmomentum sum from RhoFitterBase
 //
@@ -422,8 +452,8 @@ void PndKinVtxFitter::ReadMatrix()
   for (int k=0; k<nd; k++) {
     int kN=k*7;
     //px,py,pz,E,x,y,z
-    TLorentzVector p1=fDaughters[k]->P4();
-    TVector3 p2=fDaughters[k]->Pos();
+    TLorentzVector p1=fDaughters[k]->P4(); //4-momentum of the daughter
+    TVector3 p2=fDaughters[k]->Pos(); // position of the daughter
     al0[kN+0][0]=p1.X();
     al0[kN+1][0]=p1.Y();
     al0[kN+2][0]=p1.Z();
@@ -480,12 +510,15 @@ void PndKinVtxFitter::ReadMatrix()
 //unsigned PndKinVtxFitter:: ReadKinMatrix( TMatrixD & mD,  TMatrixD & mE, TMatrixD & md)
 void PndKinVtxFitter::ReadKinMatrix()
 {
+
   int  nd=fDaughters.size();
   fNc=0;
   mD.ResizeTo(fNcon,fNpar);
   mE.ResizeTo(fNcon,3);
   md.ResizeTo(fNcon,1);
   for (int k=0; k<nd; k++) {
+
+
     int kN=k*7;
     int k2=k*2;
     double delX = vtx_ex[0][0] - al1[kN+4][0];
@@ -538,7 +571,7 @@ void PndKinVtxFitter::ReadKinMatrix()
       mD[fNc+0+k2][kN+6]  = 0. ;
 
       mD[fNc+1+k2][kN+0] = 2*(delX*px+delY*py)*px*pz/(pT_2*pT_2) - pz*delX/(pT_2);
-      mD[fNc+1+k2][kN+1] = 2*(delX*px+delY*py)*px*pz/(pT_2*pT_2) - pz*delY/(pT_2);
+      mD[fNc+1+k2][kN+1] = 2*(delX*px+delY*py)*py*pz/(pT_2*pT_2) - pz*delY/(pT_2);
       mD[fNc+1+k2][kN+2] =-(delX*px+delY*py)/(pT_2);
       mD[fNc+1+k2][kN+3] = 0.;
       mD[fNc+1+k2][kN+4] = px*pz/pT_2;
@@ -569,8 +602,13 @@ void PndKinVtxFitter::ReadKinMatrix()
       md[fNc+0+k2][0] = delY*px - delX*py;
       md[fNc+1+k2][0] = delZ - pz*(delX * px + delY * py)/(pT_2);
     }
+
   }
   fNc +=2*nd;
+
+
+
+
 }
 
 
@@ -666,6 +704,9 @@ void PndKinVtxFitter::ReadMassKinMatrix()
     double pz = al1p[kN+2][0];
     //    double E = al1p[kN+3][0];
     double E = TMath::Sqrt(px*px+py*py+pz*pz+m[k][0]*m[k][0]);
+
+    //here there should be implemented the algorithm for neutral particles
+
     Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
     a = -0.00299792458*bField*fDaughters[k]->GetCharge();//TODO BField
     sumA += a;
@@ -679,6 +720,8 @@ void PndKinVtxFitter::ReadMassKinMatrix()
     mD[fNc+0][kN+5] = 2.*(Etot*al1p[kN+0][0]*invE-Px)*a;
     mD[fNc+0][kN+6] = 0.;
   }
+  cout << "Sum A: " << sumA << endl;
+
 
   mE[fNc+0][0] = 2*sumA*Px;
   mE[fNc+0][1] = -2*sumA*Py;
@@ -767,229 +810,135 @@ void PndKinVtxFitter::ReadMassKinMatrix()
  }
  */
 
-void PndKinVtxFitter::GetStartVtx(TVector3& vertex)
-{
-  vertex.SetXYZ(0.,0.,0.);
-  int nd=fDaughters.size();
-  if ( nd <  2 ) { vertex.SetXYZ(0.,0.,0.); return;}
-  if ( nd == 2 ) { GetPocaVtx(vertex,fDaughters[0],fDaughters[1]); return;}
-
-  std::vector<Double_t> distances;
-  std::vector<TVector3> results;
-  // loop over daughters, take the mean value of all "best" positions
-  // TODO do this smarter by using already found vertices ?
-  TVector3 theVertex(0.,0.,0.);
-  Double_t actualDoca=0.;
-  for(Int_t daug1 =0; daug1<nd; daug1++) {
-    RhoCandidate* a=fDaughters[daug1];
-    for(Int_t daug2=daug1+1; daug2<nd; daug2++) {
-      RhoCandidate* b=fDaughters[daug2];
-      actualDoca = GetPocaVtx(theVertex,a,b);
-      distances.push_back(actualDoca);
-      results.push_back(theVertex);
-    }//daug2
-  }//daug1
-  //TODO invent a smart procedure to get the correct 2-Track doca and something reasonable for many tracks
-  // --> Mean = Sum(x/(sigmax^2)) / Sum(Sigmax^2)
-  // Averaging vertex results from each track pair how to do that? "geometric" or arithmetic mean?
-  std::vector<Double_t>::iterator iterDoca;
-  std::vector<TVector3>::iterator iterVtx;
-  Double_t docaweight=0,sumdocaweigts=0;
-  TVector3 vertexK;
-  for(iterVtx=results.begin(), iterDoca=distances.begin(); iterVtx!=results.end()&&iterDoca!=distances.end(); ++iterVtx,++iterDoca) {
-    docaweight=1/(*iterDoca);
-    //docaweight *= docaweight;
-    vertexK=*iterVtx;
-    if (docaweight == 0) { docaweight = 1; } // right so?
-    vertexK *= docaweight;
-    vertex+=vertexK;
-    sumdocaweigts+=docaweight;
-  }
-  if (sumdocaweigts == 0) { sumdocaweigts=1; }
-  vertex*=1./sumdocaweigts;
-  //sumdocaweigts = sqrt(sumdocaweigts);
-//  return fHeadOfTree->NDaughters()/sumdocaweigts;
-}
 
 
-
-
-
-Float_t PndKinVtxFitter::GetPocaVtx(TVector3& vertex, RhoCandidate* a, RhoCandidate* b)
-{
-  //Double_t d=1.0, Double_t a=3.14159265358979323846, Double_t r1=0.0, Double_t r2=1.E8
-  //Taken from the TVertexSelector .
-
-//  if ( fDaughters.size() != 2 ) SVtx->SetXYZ(0.,0.,0.);
-
-  //  RhoCandidate a=fDaughters[0];
-  //  RhoCandidate b=fDaughters[1];
-  //  SVtx->SetXYZ( 0.5, 0.5, 1.0 );
-//  SVtx->SetXYZ( 0.0, 0.0, 0.0 );
-  // Position vectors
-  TVector3 position1 = a->GetPosition();
-  TVector3 position2 = b->GetPosition();
-
-  // Momentum vectors
-  TVector3 ap3 = a->P3();
-  Double_t pPerp1 = ap3.Perp();
-  TVector3 d1 = ap3;
-  d1.SetZ(0);
-  d1*=1.0/pPerp1;
-
-  TVector3 bp3 = b->P3();
-  Double_t pPerp2 = bp3.Perp();
-  TVector3 d2 = bp3;
-  d2.SetZ(0);
-  d2*=1.0/pPerp2;
-
-  Double_t bField1 = 0.1*RhoCalculationTools::GetBz(position1); // T, assume field in z only
-  TVector3 dB(0,0,1.0);
-  // Radius and center
-  Double_t rho1 = pPerp1/(0.0029979246*bField1); // Radius in cm
-  TVector3 r1=d1.Cross(dB);
-  r1 *= -a->Charge()*rho1;
-  TVector3 center1 = position1 - r1;
-  center1.SetZ(0);
-
-  Double_t bField2 = 0.1*RhoCalculationTools::GetBz(position2); // T, assume field in z only
-  Double_t rho2 =  pPerp2/(0.0029979246*bField2); // Radius in cm
-  TVector3 r2=d2.Cross(dB);
-  r2 *= -b->Charge()*rho2;
-  TVector3 center2 = position2 - r2;
-  center2.SetZ(0);
-
-  // distance and angle of the axis between the two centers
-  TVector3 ab = center2 - center1;
-  Double_t dab = ab.Perp();
-  Double_t cosTheAB = ab.X()/dab;
-  Double_t sinTheAB = ab.Y()/dab;
-
-
-  // x value of intersect at reduced system
-  Double_t x = dab/2 + ( rho1*rho1 - rho2*rho2 )/(2*dab);
-
-  // y*y value of intersect at reduced system for helix A
-  Double_t y2 = (rho1+x)*(rho1-x);
-
-  // both circles do not intersect (only one solution)
-  Int_t nSolMax=1;
-  Double_t y=0;
-  if (y2 > 0) {
-    nSolMax=2;
-    y = sqrt(y2);
-  }
-  // now we compute the solution(s)
-  TVector3 newapos[2];
-  TVector3 newbpos[2];
-  Int_t best=0;
-  double fActualDoca=1.E8;
-  //    fActualDoca=0.99999999;
-  for (Int_t ns=0; ns<nSolMax; ns++) {     // loop on the solutions
-    // radius vector of intersection point
-    Double_t sign = ns ? 1.0 : -1.0;
-    TVector3 rs1( cosTheAB*x - sinTheAB*y * sign, sinTheAB*x + cosTheAB*y * sign, 0);
-    TVector3 rs2( rs1-ab );
-
-    // are we moving forward or backward?
-    Double_t adir=(rs1-r1).Dot(ap3)>0 ? 1.0 : -1.0;
-    Double_t aangle=adir * r1.Angle(rs1);
-    // intersection point
-    Double_t newaz=position1.Z() + rho1*aangle/pPerp1 * ap3.Z();
-    newapos[ns].SetX( center1.X() + rs1.X() );
-    newapos[ns].SetY( center1.Y() + rs1.Y() );
-    newapos[ns].SetZ( newaz );
-
-    // same for b
-    Double_t bdir=(rs2-r2).Dot(bp3)>0 ? 1.0 : -1.0;
-    Double_t bangle=bdir * r2.Angle(rs2);
-    Double_t newbz=position2.Z() + rho2*bangle/pPerp2 * bp3.Z();
-    newbpos[ns].SetX( center2.X() + rs2.X());   // ==newapos[ns].X()
-    newbpos[ns].SetY( center2.Y() + rs2.Y());   // ==newapos[ns].Y()
-    newbpos[ns].SetZ( newbz );
-
-    Double_t delta = (newapos[ns]-newbpos[ns]).Mag();
-
-    // take the solution of minimal deltaZ
-    if ( delta < fActualDoca ) {
-      best=ns;
-      fActualDoca  = delta;
-    }
-  }
-
-//  TVector3 fVertex=0.5*(newapos[best]+newbpos[best]);
-//  SVtx->SetXYZ( fVertex.X(), fVertex.Y(), fVertex.Z());
-  vertex=0.5*(newapos[best]+newbpos[best]);
-  return fActualDoca;
-}
 
 void PndKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMatrixD& a_out, TMatrixD& a_cov_out, TMatrixD& xref)
 {
+	//edited by J.Puetz
+	//added parametrization for neutral daughter particles
 
-  int fNDau=fDaughters.size();
-  int nd=fNDau;
-  TMatrixD U(7*nd,7*nd);
-  int kN=0;
-  for(int k=0; k<nd; k++) {
-    kN=7*k;
+	///Correct one helix and/or track(s) to vertex point for charged and/or neutral particles
+	int fNDau=fDaughters.size();
+	int nd=fNDau;
+	TMatrixD U(7*nd,7*nd);
+	int kN=0;
+	for(int k=0; k<nd; k++) {
+		kN=7*k;
 
-    Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
-    double a = -0.00299792458*bField*fDaughters[k]->GetCharge();
-    //   if(fVerbose) cout << "a" << a << endl;
+		double m = fDaughters[k]->Mass();
+		//check, if daughter particle is either neutral or charged
+		if (fabs(fDaughters[k]->GetCharge())<1e-6){//begin neutral
 
-    double px=a_in[kN+0][0];
-    double py=a_in[kN+1][0];
-    double pz=a_in[kN+2][0];
-    double x=a_in[kN+4][0];
-    double y=a_in[kN+5][0];
-    double z=a_in[kN+6][0];
+			//Get position, energy and momentum for the daughter particle
+			double px=a_in[kN+0][0];
+			double py=a_in[kN+1][0];
+			double pz=a_in[kN+2][0];
+			double p2=px*px+py*py+pz*pz;
+			double E= sqrt(m*m+p2);
+			double x=a_in[kN+4][0];
+			double y=a_in[kN+5][0];
+			double z=a_in[kN+6][0];
 
-    double ptot = sqrt(px*px + py*py + pz*pz);
-    double rho  = a/ptot;
-    double A1 = 1 - pow(pz/ptot,2) - ( (x-xref[0][0])*py - (y-xref[1][0])*px )*rho/ptot ;
-    double A2 = (x-xref[0][0])*px + (y-xref[1][0])*py;
-    A2 = A2/ptot;
+			//correct particle position to vertex, keep momentum and energy
+			a_out[kN+0][0] = px;
+			a_out[kN+1][0] = py;
+			a_out[kN+2][0] = pz;
+			a_out[kN+3][0] = a_in[kN+3][0];
+			a_out[kN+4][0] = x+px;
+			a_out[kN+5][0] = y+py;
+			a_out[kN+6][0] = z+pz;
 
-    double det  = sqrt(A1*A1+rho*rho*A2*A2);
-    double cos_rho_s  =      A1/det;
-    double sin_rho_s  = -rho*A2/det;
+			//matrix U corrects the covariant matrix a_cov_in to a_cov_out= U * a_cov_in * U^T
+		    U[kN+0][kN+0] = 1.;
+		    U[kN+1][kN+1] = 1.;
+		    U[kN+2][kN+2] = 1.;
+		    U[3+kN][3+kN] = 1.;
 
-    //double s = atan2(sin_rho_s,cos_rho_s);
-    double s = atan2(sin_rho_s,cos_rho_s)/rho ;
-    a_out[kN+0][0] = px*cos_rho_s-py*sin_rho_s;
-    a_out[kN+1][0] = py*cos_rho_s+px*sin_rho_s;
-    a_out[kN+2][0] = pz;
-    a_out[kN+3][0] = a_in[kN+3][0];
-    a_out[kN+4][0] = x + (px*sin_rho_s - py*(1-cos_rho_s))/a;
-    a_out[kN+5][0] = y + (py*sin_rho_s + px*(1-cos_rho_s))/a;
-    a_out[kN+6][0] = z + (pz/ptot)*s;
+		    U[4+kN][4+kN] = 1.;
+		    U[4+kN][0+kN] = 1.;
 
-    U[kN+0][kN+0] =  cos_rho_s;
-    U[kN+0][kN+1] = -sin_rho_s;
+		    U[5+kN][5+kN] = 1.;
+		    U[5+kN][1+kN] = 1.;
 
-    U[kN+1][kN+0] = sin_rho_s;
-    U[kN+1][kN+1] = cos_rho_s;
+		    U[6+kN][6+kN] = 1.;
+		    U[6+kN][2+kN] = 1.;
 
-    U[kN+2][kN+2] = 1.;
-    U[3+kN][3+kN] = 1.;
 
-    U[4+kN][0+kN] = sin_rho_s/a;
-    U[4+kN][1+kN] = (1.-cos_rho_s)/a;
-    U[4+kN][4+kN] = 1.;
+		}//end neutral
 
-    U[5+kN][0+kN] = (1.-cos_rho_s)/a;
-    U[5+kN][1+kN] = sin_rho_s/a;
-    U[5+kN][5+kN] = 1.;
+		else{ // if particle is charged
 
-    U[6+kN][2+kN] = s/ptot;
-    U[6+kN][6+kN] = 1.;
+			Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
+			double a = -0.00299792458*bField*fDaughters[k]->GetCharge();
+
+			//   if(fVerbose)cout << "a " << a << endl;
+
+			//Get position, energy and momentum for the daughter particle
+
+			double px=a_in[kN+0][0];
+			double py=a_in[kN+1][0];
+			double pz=a_in[kN+2][0];
+			double x=a_in[kN+4][0];
+			double y=a_in[kN+5][0];
+			double z=a_in[kN+6][0];
+
+			double ptot = sqrt(px*px + py*py + pz*pz);
+			double E=sqrt(m*m+ptot*ptot);
+			double rho  = a/ptot; //1/R with R: the radius of the trajectory
+			double A1 = 1 - pow(pz/ptot,2) - ( (x-xref[0][0])*py - (y-xref[1][0])*px )*rho/ptot ;
+			double A2 = (x-xref[0][0])*px + (y-xref[1][0])*py;
+			A2 = A2/ptot;
+
+
+			double det  = sqrt(A1*A1+rho*rho*A2*A2);
+			double cos_rho_s  =      A1/det;
+			double sin_rho_s  = -rho*A2/det;
+
+
+
+			//double s = atan2(sin_rho_s,cos_rho_s);
+			double s = atan2(sin_rho_s,cos_rho_s)/rho ;
+			a_out[kN+0][0] = px*cos_rho_s-py*sin_rho_s;
+			a_out[kN+1][0] = py*cos_rho_s+px*sin_rho_s;
+			a_out[kN+2][0] = pz;
+			a_out[kN+3][0] = a_in[kN+3][0];
+			a_out[kN+4][0] = x + (px*sin_rho_s - py*(1-cos_rho_s))/a;
+			a_out[kN+5][0] = y + (py*sin_rho_s + px*(1-cos_rho_s))/a;
+			a_out[kN+6][0] = z + (pz/ptot)*s;
+
+
+			//matrix to calculate the corrected covariance matrix
+			U[kN+0][kN+0] =  cos_rho_s;
+			U[kN+0][kN+1] = -sin_rho_s;
+
+			U[kN+1][kN+0] = sin_rho_s;
+			U[kN+1][kN+1] = cos_rho_s;
+
+			U[kN+2][kN+2] = 1.;
+			U[3+kN][3+kN] = 1.;
+
+			U[4+kN][0+kN] = sin_rho_s/a;
+			U[4+kN][1+kN] = (1.-cos_rho_s)/a;
+			U[4+kN][4+kN] = 1.;
+
+			U[5+kN][0+kN] = (1.-cos_rho_s)/a;
+			U[5+kN][1+kN] = sin_rho_s/a;
+			U[5+kN][5+kN] = 1.;
+
+			U[6+kN][2+kN] = s/ptot;
+			U[6+kN][6+kN] = 1.;
+
+
+		}// end charged
+
+	}//end k
 
     TMatrixD U_t=U;
     U_t=U_t.T();
     a_cov_out = U*a_cov_in*U_t;
-  }
-}
 
+}
 
 void PndKinVtxFitter::GetCovariance(TMatrixD& a_cov0, TMatrixD& cov_al_x, TMatrixD& V_vtx, TMatrixD& covS)
 //The covariance for the vitual particle ( a bit complicated)

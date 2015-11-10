@@ -348,8 +348,9 @@ Double_t PndVtxPoca::GetPocaTwoNeutral(TVector3& vertex,RhoCandidate* canda, Rho
      tc = (b>c ? d/b : e/c);    // use the largest denominator
    }
    else {
-     sc = (b*e - c*d) / D;
-     tc = (a*e - b*d) / D;
+       sc = (b*e - c*d) / D; //determination of s in g: x1 = av + s*ap
+       tc = (a*e - b*d) / D; //determination of t in h: x2 = bv + t*bp
+       	  	  	  	  	  	//using (x1-x2)*u = 0 and (x1-x2)*v = 0
    }
    
    // get the difference of the two closest points
