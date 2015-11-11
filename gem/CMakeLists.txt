@@ -16,14 +16,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/gem
-  ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/recotasks
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
   ${CMAKE_SOURCE_DIR}/PndMCMatch
-  ${CMAKE_SOURCE_DIR}/geane
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -75,6 +70,6 @@ PndGemTrackFinderQA.cxx
 set(LINKDEF  GemLinkDef.h)
 set(LIBRARY_NAME Gem)
 
-set(DEPENDENCIES Base ParBase PndData TrkBase Geane)
+set(DEPENDENCIES Base ParBase PndData TrkBase)
 
 GENERATE_LIBRARY()

@@ -68,6 +68,6 @@ PndSttFullTCAProducer.cxx
 set(LINKDEF  SttLinkDef.h)
 set(LIBRARY_NAME Stt)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Geane Minuit)
+set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Minuit)
 
 GENERATE_LIBRARY()
