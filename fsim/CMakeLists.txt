@@ -10,7 +10,6 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/passive
-  ${CMAKE_SOURCE_DIR}/tpc
   ${CMAKE_SOURCE_DIR}/fsim
   ${CMAKE_SOURCE_DIR}/fsim/scrut
   ${CMAKE_SOURCE_DIR}/pid
