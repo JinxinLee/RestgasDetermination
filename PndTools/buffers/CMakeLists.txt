@@ -22,13 +22,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/sds/SdsTools
   ${CMAKE_SOURCE_DIR}/sds/SdsDigi
   ${CMAKE_SOURCE_DIR}/sds
-  ${CMAKE_SOURCE_DIR}/genfit
-  ${CMAKE_SOURCE_DIR}/recotasks
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-  ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
-  ${CMAKE_SOURCE_DIR}/geane
-  ${CMAKE_SOURCE_DIR}/tpc
   ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/buffers
 )
