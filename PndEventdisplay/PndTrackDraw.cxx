@@ -52,7 +52,7 @@ PndTrackDraw::PndTrackDraw(const char* name, Bool_t propagate, Int_t iVerbose)
 // -------------------------------------------------------------------------
 InitStatus PndTrackDraw::Init()
 {
-	fPro = new FairGeanePro();
+	//fPro = new FairGeanePro();
    if (fVerbose > 1)
 		cout << "PndTrackDraw::Init()" << endl;
    if (fPndTrackList == 0){
@@ -277,91 +277,91 @@ void PndTrackDraw::PropagateTrackHelix(FairTrackParP& trackPar, Int_t pidHypo, I
 
 void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t color, TEveElement* group)
 {
-	TVector3 posTrack = trackPar.GetPosition();
-	TVector3 momTrack = trackPar.GetMomentum();
-	Double_t charge = trackPar.GetQ();
-
-	if (pidHypo == 0){
-		pidHypo = 211;
-		if (charge < 0)
-			pidHypo *= -1;
-	}
-
-	if (color < 0) color = fEventManager->Color(pidHypo);
-
-	Int_t Np = 100;
-
-	TVector3 startU(1., 0., 0.);
-	TVector3 startV(0., 1., 0.);
-	fPro->PropagateFromPlane(startU, startV);
-
-	TVector3 stopTrack(0., 0., posTrack.z() - Np);
-	fPro->PropagateToPlane(stopTrack, startU, startV);
-	FairTrackParP parResult;
-	fPro->setBackProp();
-	fPro->Propagate(&trackPar, &parResult, pidHypo);
-
-	TVector3 posStart = parResult.GetPosition();
-	TVector3 momStart = parResult.GetMomentum();
-
-	if (fVerbose > 1)
-		std::cout << "PosStart: " << posStart.X() << " " << posStart.Y() << " "
-			<< posStart.Z() << std::endl;
-
-	TParticle *P = new TParticle(pidHypo, 0, -1, -1, -1, -1, TLorentzVector(
-			momStart, 10), TLorentzVector(posStart, 0));
-
-	fTrList = GetTrGroup(pidHypo);
-	TEveTrack *track = new TEveTrack(P, pidHypo, fTrPr);
-	track->SetLineColor(color);
-
-	fPro->PropagateFromPlane(startU, startV);
-
-
-	Int_t index = 0;
-	for (Int_t n = -Np; n < Np; n++) {
-		if (n == 0)
-			continue;
-		TVector3 stopO(0., 0., posTrack.z() + (0.1) * n);
-		fPro->PropagateToPlane(stopO, startU, startV);
-		//FairTrackParP parResult;
-		if (n * momTrack.Z() < 0)
-			fPro->setBackProp();
-		fPro->Propagate(&trackPar, &parResult, pidHypo);
-
-		if (fVerbose > 2)
-			std::cout << "ParResult " << n << ": " << parResult.GetX() << " "
-				<< parResult.GetY() << " " << parResult.GetZ() << std::endl;
-
-		track->SetPoint(index++, parResult.GetX(), parResult.GetY(),
-				parResult.GetZ());
-		TEveVector pos = TEveVector(parResult.GetX(), parResult.GetY(),
-				parResult.GetZ());
-		TEvePathMark *path = new TEvePathMark();
-		path->fV = pos;
-		path->fTime = n;
-		if (n == 0) {
-			TEveVector mom = TEveVector(parResult.GetPx(), parResult.GetPy(),
-					parResult.GetPz());
-			path->fP = mom;
-			track->SetPoint(index++, posTrack.X(), posTrack.Y(), posTrack.Z());
-		}
-		if (fVerbose > 3)
-			cout << "Path marker added " << path << endl;
-#if ROOT_VERSION_CODE <= ROOT_VERSION(5,18,0)
-		track->AddPathMark(path);
-#else
-		track->AddPathMark(*path);
-#endif
-		if (fVerbose > 3)
-			cout << "Path marker added " << path << endl;
-	}
-	if (group != 0)
-		group->AddElement(track);
-	else
-		fTrList->AddElement(track);
-	if (fVerbose > 3)
-		cout << "track added " << track->GetName() << endl;
+//	TVector3 posTrack = trackPar.GetPosition();
+//	TVector3 momTrack = trackPar.GetMomentum();
+//	Double_t charge = trackPar.GetQ();
+//
+//	if (pidHypo == 0){
+//		pidHypo = 211;
+//		if (charge < 0)
+//			pidHypo *= -1;
+//	}
+//
+//	if (color < 0) color = fEventManager->Color(pidHypo);
+//
+//	Int_t Np = 100;
+//
+//	TVector3 startU(1., 0., 0.);
+//	TVector3 startV(0., 1., 0.);
+//	fPro->PropagateFromPlane(startU, startV);
+//
+//	TVector3 stopTrack(0., 0., posTrack.z() - Np);
+//	fPro->PropagateToPlane(stopTrack, startU, startV);
+//	FairTrackParP parResult;
+//	fPro->setBackProp();
+//	fPro->Propagate(&trackPar, &parResult, pidHypo);
+//
+//	TVector3 posStart = parResult.GetPosition();
+//	TVector3 momStart = parResult.GetMomentum();
+//
+//	if (fVerbose > 1)
+//		std::cout << "PosStart: " << posStart.X() << " " << posStart.Y() << " "
+//			<< posStart.Z() << std::endl;
+//
+//	TParticle *P = new TParticle(pidHypo, 0, -1, -1, -1, -1, TLorentzVector(
+//			momStart, 10), TLorentzVector(posStart, 0));
+//
+//	fTrList = GetTrGroup(pidHypo);
+//	TEveTrack *track = new TEveTrack(P, pidHypo, fTrPr);
+//	track->SetLineColor(color);
+//
+//	fPro->PropagateFromPlane(startU, startV);
+//
+//
+//	Int_t index = 0;
+//	for (Int_t n = -Np; n < Np; n++) {
+//		if (n == 0)
+//			continue;
+//		TVector3 stopO(0., 0., posTrack.z() + (0.1) * n);
+//		fPro->PropagateToPlane(stopO, startU, startV);
+//		//FairTrackParP parResult;
+//		if (n * momTrack.Z() < 0)
+//			fPro->setBackProp();
+//		fPro->Propagate(&trackPar, &parResult, pidHypo);
+//
+//		if (fVerbose > 2)
+//			std::cout << "ParResult " << n << ": " << parResult.GetX() << " "
+//				<< parResult.GetY() << " " << parResult.GetZ() << std::endl;
+//
+//		track->SetPoint(index++, parResult.GetX(), parResult.GetY(),
+//				parResult.GetZ());
+//		TEveVector pos = TEveVector(parResult.GetX(), parResult.GetY(),
+//				parResult.GetZ());
+//		TEvePathMark *path = new TEvePathMark();
+//		path->fV = pos;
+//		path->fTime = n;
+//		if (n == 0) {
+//			TEveVector mom = TEveVector(parResult.GetPx(), parResult.GetPy(),
+//					parResult.GetPz());
+//			path->fP = mom;
+//			track->SetPoint(index++, posTrack.X(), posTrack.Y(), posTrack.Z());
+//		}
+//		if (fVerbose > 3)
+//			cout << "Path marker added " << path << endl;
+//#if ROOT_VERSION_CODE <= ROOT_VERSION(5,18,0)
+//		track->AddPathMark(path);
+//#else
+//		track->AddPathMark(*path);
+//#endif
+//		if (fVerbose > 3)
+//			cout << "Path marker added " << path << endl;
+//	}
+//	if (group != 0)
+//		group->AddElement(track);
+//	else
+//		fTrList->AddElement(track);
+//	if (fVerbose > 3)
+//		cout << "track added " << track->GetName() << endl;
 }
 
 
