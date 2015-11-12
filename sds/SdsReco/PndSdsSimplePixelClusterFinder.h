@@ -21,7 +21,7 @@
 class PndSdsSimplePixelClusterFinder : public PndSdsPixelClusterFinder
   {
     public :
-    PndSdsSimplePixelClusterFinder():PndSdsPixelClusterFinder(){};
+    PndSdsSimplePixelClusterFinder():PndSdsPixelClusterFinder(), frows(0), fcols(0), fradius(-1.0){};
     //PndSdsSimplePixelClusterFinder(std::vector<PndSdsDigiPixel> hits):
     //	PndSdsPixelClusterFinder(hits){
     //	if(fVerbose>0)std::cout << "Hits in array: " << fHits.size() << std::endl;
@@ -32,6 +32,10 @@ class PndSdsSimplePixelClusterFinder : public PndSdsPixelClusterFinder
     ///It returns a matrix of ints where a column corresponds to a cluster and an integer to a hit in the DigiArray
     std::vector< std::vector< Int_t> > GetClusters(std::vector<PndSdsDigiPixel> hits);
     
+    virtual void SetMaxCols(Int_t col){ fcols = col; }
+    virtual void SetMaxRows(Int_t row){ frows = row; }
+    virtual void SetRadius(Double_t rad) { fradius = rad; }
+
     protected :
     Int_t fcols;
     Int_t frows;
