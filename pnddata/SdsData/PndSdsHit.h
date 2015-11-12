@@ -111,14 +111,27 @@ class PndSdsHit : public FairHit
 //   Double_t GetDz() {return GetD(2);};
 //   void PositionError(TVector3& dpos);
 
-
-
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version)
+  	{
+  		ar & boost::serialization::base_object<FairHit>(*this);
+  		ar & fSensorID;
+  		ar & fCharge;
+  		ar & fNDigiHits;
+  		ar & fClusterIndex;
+  		ar & fBotIndex;
+  		//ar & fCov;
+  	}
 
   /** Screen output **/
   virtual void Print(const Option_t* opt = 0) const;
 
  private:
 //   Double_t GetD(Int_t i);
+#ifndef __CINT__ // for BOOST serialization
+		friend class boost::serialization::access;
+
+	#endif // for BOOST serialization
 
   //TString fDetName;  // Detector name
   Int_t fSensorID; ///< unique sensor ID
