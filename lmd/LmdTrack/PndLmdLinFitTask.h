@@ -36,7 +36,7 @@ public:
 
   // Constructors/Destructors ---------
   PndLmdLinFitTask();
-  PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName);
+  PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName, TString tOutputBranchName = "LMDPndTrack", TString tOutputFolder = "PndLmd");
   PndLmdLinFitTask(const PndLmdLinFitTask& o){};
   PndLmdLinFitTask& operator=(const PndLmdLinFitTask& o) { return *this;};
   virtual ~PndLmdLinFitTask();
@@ -81,6 +81,8 @@ protected:
   TString fTCandBranchName;
   TString fRecoBranchName;
   TString fTruePointBranch;
+  TString fOutputBranchName;
+  TString fOutputFolder;
   // Output Data----------
   TClonesArray* fTrackArray;
 

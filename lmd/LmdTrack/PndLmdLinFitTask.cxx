@@ -68,7 +68,10 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   // fRecoBranchName = "LMDHitsStrip";
   fRecoBranchName = "LMDHitsPixel";
   //  fRecoBranchName = "LmdHits";
+  fOutputBranchName = "LMDPndTrack";
+  fOutputFolder ="PndLmd";
   fTruePointBranch = "LMDPoint";  //True Points only for drawing!
+
   fPbeam = 0;
   fPDGCode = -2212; //barp
   fCharge = -1;//barp
@@ -87,11 +90,13 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   for(int ih=0;ih<4;ih++)
     hitMergedfl[ih] = false;
 }
-PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName)
+PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName, TString tOutputBranchName, TString tOutputFolder)
   : FairTask("3D-Straight-Line-Fit")
 {
   fTCandBranchName = tTCandBranchName;
   fRecoBranchName = tRecoBranchName;
+  fOutputBranchName = tOutputBranchName;
+  fOutputFolder = tOutputFolder;
   fTruePointBranch = "LMDPoint";  //True Points only for drawing!
   fPbeam = 0;
   fPDGCode = -2212; //barp
@@ -148,7 +153,7 @@ InitStatus PndLmdLinFitTask::Init()
     }
 
   fTrackArray = new TClonesArray("PndTrack");
-  ioman->Register("LMDPndTrack", "PndLmd", fTrackArray, kTRUE);
+  ioman->Register(fOutputBranchName, fOutputFolder, fTrackArray, kTRUE);
 
 
   //read beam momentum from base
