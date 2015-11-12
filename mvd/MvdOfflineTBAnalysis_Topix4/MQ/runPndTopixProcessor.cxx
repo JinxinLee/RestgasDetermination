@@ -35,6 +35,7 @@ using namespace boost::program_options;
 int main(int argc, char** argv)
 {
 	PndMQTopix4Processor processor;
+	processor.SetFilter(false);
     processor.CatchSignals();
 
     FairMQProgOptions config;

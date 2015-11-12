@@ -28,7 +28,7 @@ void PndMQFileSinkHits::Run()
 
 				if (dataInChannel.ExpectsAnotherPart())
 				{
-                //receivedMsgs++;
+					receivedMsgs++;
 					if (dataInChannel.Receive(msg)) {
 						string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
 						istringstream ibuffer(msgStr);
@@ -44,16 +44,16 @@ void PndMQFileSinkHits::Run()
 						}
 
 
-
+						PndSdsHit* myHit = 0;
 						bool dataAboveTimeThreshold = false;
-						double timeStampThreshold = 30000000000;
-						for (auto eventIter : fHitVector){
+						double timeStampThreshold = 0;
+						for (auto& eventIter : fHitVector){
 							fOutput->Delete();
-							int numInput = eventIter.size();
-							for (Int_t i = 0; i < numInput; ++i)
+							int numData = eventIter.size();
+							for (Int_t i = 0; i < numData; ++i)
 							{
-								if (eventIter.at(i).GetTimeStamp() > timeStampThreshold){
-									new ((*fOutput)[i]) PndSdsHit(eventIter.at(i));
+								if (eventIter[i].GetTimeStamp() > timeStampThreshold){
+									myHit = new ((*fOutput)[fOutput->GetEntriesFast()]) PndSdsHit(eventIter[i]);
 									dataAboveTimeThreshold = true;
 								}
 			 //                   LOG(INFO) << "Data: " << i << " " << fHitVector.at(i).GetTimeStamp();
@@ -62,15 +62,25 @@ void PndMQFileSinkHits::Run()
 								if (fOutput->IsEmpty())
 								{
 									LOG(ERROR) << "PndMQFileSinkHits::Run(): No Output array!";
-								}
+								} else {
 
-								fTree->Fill();
+									fTree->Fill();
+								}
 							}
+						}
+						if (receivedMsgs % 1000 == 0 && myHit != 0){
+							LOG(INFO) << receivedMsgs << " : " << myHit->GetTimeStamp();
 						}
 					}
 				}
-				if (status == PndMQStatus::STOP)
+				if (status == PndMQStatus::STOP){
 					LOG(INFO) << "STOP-Signal Received!";
+					fTree->AutoSave();
+				    LOG(INFO) << "AutoSave called!";
+					fTree->Write();
+					fOutFile->Close();
+				}
+
             }
 
             if (fHitVector.size() > 0)

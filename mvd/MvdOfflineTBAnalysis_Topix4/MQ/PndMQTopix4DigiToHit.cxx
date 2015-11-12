@@ -16,7 +16,7 @@
 #include <boost/bind.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
-#include <PndMQTopix4DigiToHit.h>
+#include "PndMQTopix4DigiToHit.h"
 
 #include "PndMQStatus.h"
 
@@ -30,7 +30,8 @@
 
 using namespace std;
 
-PndMQTopix4DigiToHit::PndMQTopix4DigiToHit() : fHasBoostSerialization(false), fClusterFinder(20, 32, 1.8), fHitProducer(0.01, 0.01, 20, 32), fEventBuilder(50)
+PndMQTopix4DigiToHit::PndMQTopix4DigiToHit() : fHasBoostSerialization(false),
+		fClusterFinder(20, 32, 1.8), fHitProducer(0.01, 0.01, 20, 32), fEventBuilder(50), fClusterSize(11), fStatusOutput(true)
 {
 	using namespace baseMQ::tools::resolve;
 	bool checkOutputClass = false;
@@ -56,6 +57,17 @@ void PndMQTopix4DigiToHit::Run()
 	if(fHasBoostSerialization){
 		FairMQChannel& dataInChannel = fChannels.at("data-in").at(0);
 		FairMQChannel& dataOutChannel = fChannels.at("data-out").at(0);
+		bool statusChannelPresent = false;
+
+		if (fStatusOutput){
+			try {
+				(fChannels.at("status-out"));
+			}
+			catch (...){
+				fStatusOutput = false;
+				LOG(INFO) << "No Status-Out channel!";
+			}
+		}
 
 		while (CheckCurrentState(RUNNING))
 		{
@@ -106,6 +118,11 @@ void PndMQTopix4DigiToHit::Run()
 						}
 						//PndSdsHit myHit = fDummy.GetHit(clusterDigis);
 						//fHitProducer.GetHit(clusterDigis);
+						if (clusterDigis.size() < fClusterSize.size() - 1)		//counts the sizes of clusters. All above fClusterSize.size() -1 are added to last bin
+							fClusterSize[clusterDigis.size()]++;
+						else
+							fClusterSize[fClusterSize.size() - 1]++;
+
 						hits.push_back(fHitProducer.GetHit(clusterDigis));
 					}
 				} else {
@@ -131,6 +148,20 @@ void PndMQTopix4DigiToHit::Run()
 			unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
 			memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
 			dataOutChannel.Send(msg2);
+
+			if (fStatusOutput == true){
+				unique_ptr<FairMQMessage> headerOut2(fTransportFactory->CreateMessage(sizeof(int)));
+				memcpy(headerOut->GetData(), &status, sizeof(int));
+				fChannels.at("status-out").at(0).SendPart(headerOut2);
+
+				std::ostringstream obuffer2;
+				boost::archive::binary_oarchive OutputArchive2(obuffer2);
+				OutputArchive2 << fClusterSize;
+				int outputSize2 = obuffer2.str().length();
+				unique_ptr<FairMQMessage> msg3(fTransportFactory->CreateMessage(outputSize2));
+				memcpy(msg3->GetData(), obuffer2.str().c_str(), outputSize2);
+				fChannels.at("status-out").at(0).Send(msg3);
+			}
 
 //			LOG(INFO) << "OutputEventBuilding: ";
 //			for (auto outerIter : fTopixHitsEvent){

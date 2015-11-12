@@ -82,8 +82,8 @@ class PndMQFileSinkHits : public FairMQDevice
     virtual ~PndMQFileSinkHits()
     {
     	fBranchNameList->Write("BranchList", TObject::kSingleKey);
-        fTree->Write();
-        fOutFile->Close();
+        //fTree->Write();
+        //fOutFile->Close();
         if (fHitVector.size() > 0)
         {
             fHitVector.clear();
@@ -99,7 +99,12 @@ class PndMQFileSinkHits : public FairMQDevice
     {
         fOutput = new TClonesArray("PndSdsHit");
 
-        fOutFile = new TFile(fOutputFileName.c_str(), "recreate");
+        std::stringstream ss;
+      //  ss << "/Volumes/RAMDisk/";
+        ss << fOutputFileName.c_str();
+
+
+        fOutFile = new TFile(ss.str().c_str(), "recreate");
         fTree = new TTree("cbmsim", "Test output");
         fTree->Branch("Output", "TClonesArray", &fOutput, 64000, 99);
         fBranchNameList = new TList();

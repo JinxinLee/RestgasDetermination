@@ -24,7 +24,7 @@ PndMvdReadInToPix4TBData::PndMvdReadInToPix4TBData() : fDigiArray(0), fClockFreq
 					   fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),
 					   fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(0),
 					   fDataCount(0), fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0), fFileHandle(0),
-					   fTimeStampCorrection(0.0)
+					   fTimeStampCorrection(0.0), fFilter(kFALSE), fNFilteredHits(0)
 {
 
 }
@@ -390,6 +390,12 @@ std::vector<PndSdsDigiTopix4> PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double
 			PndSdsDigiTopix4 recentPixel = ProcessData(fToPixFrame[i], fRecentFrameHeader, clockFrequency);
 			if (fVerbose > 1)
 				LOG(INFO) << "RecentPixel: " << recentPixel << std::endl;
+			if (fFilter){
+				if (HitToFilter(recentPixel) == true){
+					fNFilteredHits++;
+					break;
+				}
+			}
 			hitList.push_back(recentPixel);
 			if (fVerbose > 2)
 				std::cout << fFE << " Pixel: " << recentPixel << std::endl;
@@ -399,6 +405,17 @@ std::vector<PndSdsDigiTopix4> PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double
 		}
 	}
 	return hitList;
+}
+
+Bool_t PndMvdReadInToPix4TBData::HitToFilter(PndSdsDigiTopix4& hit)
+{
+	int leadingEdge = hit.GetLeadingEdge();
+	int trailingEdge = hit.GetTrailingEdge();
+	if (leadingEdge == 2729 || leadingEdge == 2730)
+		return true;
+	if (trailingEdge == 2730 || trailingEdge == 2731)
+		return true;
+	return false;
 }
 
 Int_t PndMvdReadInToPix4TBData::GetDeltaFrameCount()

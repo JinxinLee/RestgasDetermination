@@ -54,9 +54,9 @@ FILESINKHITS+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/TopixChain.json
 FILESINKHITS+=" --fileName HitsFE2.root"
 xterm -geometry 80x23+1000+850 -e @CMAKE_BINARY_DIR@/bin/$FILESINKHITS &
 
-ONLINE="Topix4-onlineHisto"
-ONLINE+=" --id online1"
-ONLINE+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/TopixChain.json"
-xterm -geometry 80x23+0+200 -e @CMAKE_BINARY_DIR@/bin/$ONLINE &
+#ONLINE="Topix4-onlineHisto"
+#ONLINE+=" --id online1"
+#ONLINE+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/TopixChain.json"
+#xterm -geometry 80x23+0+200 -e @CMAKE_BINARY_DIR@/bin/$ONLINE &
 
 wait

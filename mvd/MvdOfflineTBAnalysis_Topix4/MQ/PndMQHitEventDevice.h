@@ -42,6 +42,7 @@ class PndMQHitEventDevice : public FairMQDevice
 	{
     	ar& fHitData;
     	ar& fEventData;
+    	ar& fSensorsInEvent;
 	}
 
   protected:
@@ -55,6 +56,7 @@ class PndMQHitEventDevice : public FairMQDevice
     std::vector<std::vector<std::vector<PndSdsHit> > > fDataFromChannels;
     std::vector<bool> fRunningStatus;
     bool fGlobalRunningStatus;
+    std::vector<int> fSensorsInEvent;
 
     bool fHasBoostSerialization;
     PndMQHitsEventBuilder fBuilder;

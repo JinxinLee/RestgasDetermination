@@ -40,6 +40,8 @@ class PndMQTopix4Processor : public FairMQDevice
 	virtual void SetProperty(const int key, const int value);
 	virtual int GetProperty(const int key, const int default_ = 0);
 
+	void SetFilter(bool val){ fTopixDataReader.SetFilter(val);}
+
     template <class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{

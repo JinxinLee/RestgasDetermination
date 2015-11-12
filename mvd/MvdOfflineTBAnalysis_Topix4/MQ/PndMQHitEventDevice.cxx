@@ -57,6 +57,7 @@ void PndMQHitEventDevice::Run()
 
 	// store the channel references to avoid traversing the map on every loop iteration
 	const FairMQChannel& dataOutChannel = fChannels.at("data-out").at(0);
+	const FairMQChannel& statusChannel  = fChannels.at("status-out").at(0);
 	FairMQChannel* dataInChannels[fChannels.at("data-in").size()];
 	LOG(INFO) << "Number of Input Channels: " << numInputs;
 	for (int i = 0; i < numInputs; ++i)
@@ -126,6 +127,26 @@ void PndMQHitEventDevice::Run()
 				LOG(INFO) << eventCounter << " nEvents: " << fEventData.size() << " hits in Event " << fEventData.front().size()
 						<< " timeStamp: " << TString::Format("%12.0f",fEventData.front().front().GetTimeStamp()).Data()
 						<< " sensorID " << fEventData.front().front().GetSensorID();
+				fSensorsInEvent = fBuilder.GetSensorsInEvent();
+				LOG(INFO) << "ChannelsInEvent: ";
+				for (auto data : fSensorsInEvent)
+					LOG(INFO) << data;
+
+				std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage(sizeof(int)));
+				int flag = PndMQStatus::RUNNING;
+				memcpy(headerCopy->GetData(), &flag, sizeof(int));
+				statusChannel.SendPart(headerCopy);
+
+				std::ostringstream obuffer;
+				boost::archive::binary_oarchive OutputArchive(obuffer);
+				//fPndSdsDigiTopix4Vector = frames.front();
+				OutputArchive << fSensorsInEvent;
+				int outputSize = obuffer.str().length();
+				unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(outputSize));
+				memcpy(msg->GetData(), obuffer.str().c_str(), outputSize);
+				//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
+				statusChannel.Send(msg);
+
 			}
 
 			std::unique_ptr<FairMQMessage> headerCopy(fTransportFactory->CreateMessage(sizeof(int)));

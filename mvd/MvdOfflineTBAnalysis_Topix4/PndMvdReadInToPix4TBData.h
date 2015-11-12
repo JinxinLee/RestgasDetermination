@@ -92,6 +92,10 @@ public:
 	UInt_t GetTotalHeaderCount() const {return fTotalHeaderCount;}
 	UInt_t GetTotalTrailerCount() const {return fTotalTrailerCount;}
 	
+	Int_t GetNFilteredHits(){ return fNFilteredHits;}
+	Bool_t HitToFilter(PndSdsDigiTopix4& hit);
+	void SetFilter(Bool_t val){ fFilter = val;}
+
 
 	void SetVerbose(Int_t val){fVerbose = val;}
 
@@ -109,6 +113,9 @@ private:
 	UInt_t fNonSequentialFC;
 	UInt_t fHammingLossFrameCount;
 	UInt_t fCRCLossFrameCount;
+
+	Bool_t fFilter;
+	Int_t fNFilteredHits;
 
 	UInt_t fTotalHitCount;
 	UInt_t fPreFrameLossHitCount;

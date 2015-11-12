@@ -36,7 +36,10 @@ class PndMQTopix4DigiToHit : public FairMQDevice
 	{
     	ar& fTopixDigis;
     	ar& fTopixHitsEvent;
+    	ar& fClusterSize;
 	}
+
+    std::vector<int> GetClusterSize() {return fClusterSize;}
 
   protected:
     virtual void Run();
@@ -46,12 +49,14 @@ class PndMQTopix4DigiToHit : public FairMQDevice
 	#endif // for BOOST serialization
     std::vector<PndSdsDigiTopix4> fTopixDigis;
     std::deque<std::vector<PndSdsHit> > fTopixHitsEvent;
+    std::vector<int> fClusterSize;
 
     bool fHasBoostSerialization;
     PndMQGapEventBuilder fEventBuilder;
     PndMvdTopixClusterFinder fClusterFinder;
  //   PndMvdTopixHitProducer fHitProducer;
     PndMQTopixHitProducer fHitProducer;
+    bool fStatusOutput;
 };
 
 #endif /* FAIRMQEXAMPLE1SINK_H_ */

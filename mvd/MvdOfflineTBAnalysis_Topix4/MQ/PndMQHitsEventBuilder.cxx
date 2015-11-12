@@ -9,7 +9,7 @@
 
 #include "FairMQLogger.h"
 
-PndMQHitsEventBuilder::PndMQHitsEventBuilder(int nChannels) : fNChannels(nChannels), fEventCounter(0) {
+PndMQHitsEventBuilder::PndMQHitsEventBuilder(int nChannels) : fNChannels(nChannels), fEventCounter(0), fSensorsInEvent(nChannels, 0) {
 	 fInputData.resize(nChannels);
 
 }
@@ -85,12 +85,15 @@ vector<PndSdsHit> PndMQHitsEventBuilder::GetNextEvent()
 //	}
 	vector<bool> channelInEvent = GetChannelsInEvent(firstDataInChannels);
 
-//	int nChannelsInEvent = 0;
+	int nSensorsInEvent = 0;
 //	LOG(INFO) << "ChannelMatch:";
-//	for (auto inEvent : channelInEvent){
-//		LOG(INFO) << inEvent;
-//		nChannelsInEvent += inEvent;
-//	}
+	for (auto inEvent : channelInEvent){
+		//LOG(INFO) << inEvent;
+		nSensorsInEvent += inEvent;
+	}
+
+	if (nSensorsInEvent > 0)
+		fSensorsInEvent[nSensorsInEvent - 1]++;
 
 //	LOG(INFO) << "channelInEvent.size " << channelInEvent.size();
 	for(int channelNr = 0; channelNr < fNChannels; channelNr++){

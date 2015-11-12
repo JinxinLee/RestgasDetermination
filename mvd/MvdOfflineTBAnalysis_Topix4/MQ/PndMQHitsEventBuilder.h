@@ -22,6 +22,7 @@ public:
 
 	void AddData(vector<vector<vector<PndSdsHit> > >& data);
 	vector<vector<PndSdsHit> > GetEvents();
+	vector<int> GetSensorsInEvent(){ return fSensorsInEvent;}
 	std::vector<int> GetInputDataLevel(){
 		std::vector<int> result;
 		for (auto& channelIter : fInputData){
@@ -34,6 +35,7 @@ protected:
 	vector<bool> GetChannelsInEvent(vector<vector<PndSdsHit> >& eventData);
 	int FindFirstChannel(vector<vector<PndSdsHit> >& eventData);  ///< channel which has the oldest data
 	vector<PndSdsHit> GetNextEvent();
+	vector<int> fSensorsInEvent;
 
 
 	bool HasData();

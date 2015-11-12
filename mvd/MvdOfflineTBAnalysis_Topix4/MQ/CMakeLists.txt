@@ -43,6 +43,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/sds/SdsDigi
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 
