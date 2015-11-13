@@ -88,7 +88,7 @@ void PndMdtHitProducerIdeal::Exec(Option_t* opt) {
   // Reset output array
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   
-  fHitArray->Clear();
+  fHitArray->Delete();
   
   // Loop over MdtPoints
   Int_t nPoints = fPointArray->GetEntriesFast();

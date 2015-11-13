@@ -1325,9 +1325,12 @@ void PndDrcHitProducerReal::SetPhotonTransportEff(Double_t& fLambdaMin,
   
     for(int iang=0; iang<21; iang++){ // lambda range, 38 points, step = (0.65-0.28)/37 = 0.01 = 10 nm    
       for(int ilam=0; ilam< 38; ilam++){ // angle range, 21 points, step = pi/2/20      
-	fEfficiency[iang * 38 + ilam] = d3->Eval(fLambdaMin/1000.+ilam*0.01, iang*fpi/2./20.);
+	      fEfficiency[iang * 38 + ilam] = d3->Eval(fLambdaMin/1000.+ilam*0.01, iang*fpi/2./20.);
       }
     }
+
+    delete(d1);
+    delete(d3);
     //cout<<"-I- SetPhotonTransportEff: reflection coef = "<<d3->Eval(lambda, angle)<<endl;
   
     //d3->Eval(lambda, angle);

@@ -227,6 +227,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 							} else {
 								//std::cout << "Hit Already exists!" << std::endl;
 							}
+							delete(hit);
 
 						} else {
 							std::cout << "-E in PndEmcMakeCluster::Exec FairLink " << hitLinks.GetLink(j) << "to EmcHit delivers null" << std::endl;
@@ -267,6 +268,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 //					std::cout << "Resulting Enter: " << newcluster->GetTrackEntering() << std::endl;
 //					std::cout << "Resulting Exit: " << newcluster->GetTrackExiting() << std::endl;
 //					std::cout << "Links in Cluster: " << *newcluster->GetPointerToLinks() << std::endl;
+					delete(hit);
 				} else {
 					std::cout << "-E in PndEmcMakeCluster::Exec FairLink " << hitLinks.GetLink(i) << "to EmcHit delivers null" << std::endl;
 				}

@@ -138,9 +138,9 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
   // Reset output array
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   
-  fHitArray->Clear();
+  fHitArray->Delete();
   fHitInfoArray->Clear();
-  if(fOverlap) fOverlapHitArray->Clear();
+  if(fOverlap) fOverlapHitArray->Delete();
 
   Int_t detID = 0;    // detectorID
   TVector3 pos, dpos; // position and error vectors

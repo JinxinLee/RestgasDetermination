@@ -139,7 +139,7 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
   if ( fSaveOutsideHits ) {
     if ( ! fHitOutsideArray ) Fatal("Exec", "No fHitOutsideArray");
-    fHitOutsideArray->Clear();
+    fHitOutsideArray->Delete();
   }
 
   Reset();
@@ -616,14 +616,14 @@ InitStatus PndGemDigitize::ReInit() {
 void PndGemDigitize::Reset() {
   fNPoints = fNFailed = fNOutside = fNMulti = fNDigis = 0;
   fChannelMap.clear();
-  if ( fDigis ) fDigis->Clear();
+  if ( fDigis ) fDigis->Delete();
   if ( fDigiMatches ) fDigiMatches->Clear();
 }
 // -------------------------------------------------------------------------
 
 // -----   Public method Finish   ------------------------------------------
 void PndGemDigitize::Finish() {
-  if ( fDigis ) fDigis->Clear();
+  if ( fDigis ) fDigis->Delete();
 
   cout << "-------------------- " << fName.Data() << " : Summary ------------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;

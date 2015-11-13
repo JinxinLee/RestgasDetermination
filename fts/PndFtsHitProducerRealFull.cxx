@@ -113,7 +113,7 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
   // Reset output array
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   
-  fHitArray->Clear();
+  fHitArray->Delete();
   fHitInfoArray->Clear();
 
   Int_t detID = 0;    // detectorID

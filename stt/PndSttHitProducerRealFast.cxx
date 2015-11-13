@@ -143,20 +143,20 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
   fevtn++;
   
   if(fSeparate == kTRUE) {
-    fSttParalHitArray->Clear();
-    fSttSkewHitArray->Clear();
+    fSttParalHitArray->Delete();
+    fSttSkewHitArray->Delete();
   }
   else {
     if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-     fHitArray->Clear();
+     fHitArray->Delete();
   }
   if(fOverlap) {
     if(fSeparate == kTRUE) {
-      fSttParalOverlapHitArray->Clear();
-      fSttSkewOverlapHitArray->Clear();
+      fSttParalOverlapHitArray->Delete();
+      fSttSkewOverlapHitArray->Delete();
     }
     else {
-      fOverlapHitArray->Clear();
+      fOverlapHitArray->Delete();
     }
   }
   fHitInfoArray->Clear();

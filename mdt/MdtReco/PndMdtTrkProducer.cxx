@@ -425,7 +425,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	  mdtTrk->SetIronDist(ironDist);
 	  mdtTrk->SetMaxLayer(maxLayer);
 	  mdtTrk->SetLayerCount(layerCount);
-	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
+	  AddTrk(mdtTrk); // storing the PndMdtTrk object
+	  delete(mdtTrk);
 	} // end of layer0 loop
     }
   
@@ -510,7 +511,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	  mdtTrk->SetIronDist(ironDist);
 	  mdtTrk->SetMaxLayer(maxLayer);
 	  mdtTrk->SetLayerCount(layerCount);
-	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
+	  AddTrk(mdtTrk); // storing the PndMdtTrk object
+	  delete(mdtTrk);
 	} // end of layer0 loop
     } // end of endcap block
   
@@ -594,7 +596,8 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	  
 	  mdtTrk->SetMaxLayer(maxLayer);
 	  mdtTrk->SetLayerCount(layerCount); 
-	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
+	  AddTrk(mdtTrk); // storing the PndMdtTrk object
+	  delete(mdtTrk);
 	} // end of layer0 loop
     } // end of Forward block  
 }

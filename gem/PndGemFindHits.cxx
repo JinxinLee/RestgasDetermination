@@ -159,8 +159,8 @@ void PndGemFindHits::Exec(Option_t* opt) {
   Bool_t warn = kFALSE;
 
   // Clear output array
-  fHits->Clear();
-  fHitsTemp->Clear();
+  fHits->Delete();
+  fHitsTemp->Delete();
 
   fPrepTime+=fTimer.RealTime(); // preparation time
   fTimer.Continue();

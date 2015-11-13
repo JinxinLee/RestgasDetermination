@@ -330,8 +330,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     // Fill the ClonesArray for output TODO: do this better, don't copy objects around
     // save array size before we fill
     clusterOffset = fClusterArray->GetEntriesFast();
-    for(std::vector< PndSdsClusterStrip* >::iterator clit= clusters.begin();
-        clit!=clusters.end(); ++clit)
+    for(std::vector< PndSdsClusterStrip* >::iterator clit= clusters.begin(); clit!=clusters.end(); ++clit)
     {
       clindex = fClusterArray->GetEntriesFast();
       PndSdsClusterStrip* myCluster = new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
@@ -476,6 +475,10 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           if (fVerbose > 2) std::cout<<"Strip charge contents too different"<<std::endl;
       }// loop bot clusters
     }// loop top clusters
+    for (int i = 0; i < clusters.size(); i++){
+    	delete (clusters[i]);
+    }
+    clusters.clear();
   }//loop finders
   fHitArray->Sort();
   if (fVerbose > 1)

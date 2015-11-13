@@ -103,7 +103,7 @@ void PndSciTHitProducerIdeal::Exec(Option_t* opt)
   if ( ! fHitArray ) 
     Fatal("Exec", "No HitArray");
   
-  fHitArray->Clear();
+  fHitArray->Delete();
  
   
   // Declare some variables
