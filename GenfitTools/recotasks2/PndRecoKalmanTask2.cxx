@@ -205,7 +205,7 @@ void PndRecoKalmanTask2::Exec(Option_t* opt)
 	PDGCode = fPDGHyp*fCharge;
       }
     
-    PndTrack *fitTrack = new PndTrack();
+    PndTrack *fitTrack = 0;
     if (PDGCode!=0)
       {
 	if (fDaf) fitTrack = fDafFitter->Fit(prefitTrack, PDGCode);
@@ -220,6 +220,7 @@ void PndRecoKalmanTask2::Exec(Option_t* opt)
     
     PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
                                                     fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
+    //if (fitTrack != 0) delete(fitTrack);
   }
   
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;

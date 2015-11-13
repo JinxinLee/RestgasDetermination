@@ -310,6 +310,7 @@ PndTrack* PndRecoKalmanFit2::Fit(PndTrack *tBefore, Int_t PDG)
   gfCand->setPosMomSeedAndPdgCode(StartPos, StartMom, PDGCode);
   
   genfit::Track* trk= new genfit::Track(*gfCand, *fTheRecoHitFactory, rep);
+  delete(gfCand);
  
   // Start Fitter
   try

@@ -412,6 +412,9 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 
 		PndTrackCand* pndTrackCand = new(pndtrackcands[size]) PndTrackCand(*tcand);
 		PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *tcand,0,0,1,mc->GetPdgCode(),trackID,FairRootManager::Instance()->GetBranchId("MCTrack"));
+		//delete(tcand);
+		delete(firstPar);
+		delete(lastPar);
 	}
 
 	if(fVerbose>3) Info("Exec","End eventloop.");
@@ -426,8 +429,8 @@ void PndFtsTrackerIdeal::Finish()
 //________________________________________________________________
 void PndFtsTrackerIdeal::Reset() {
 	//---
-	if (fTracks->GetEntriesFast() != 0)  fTracks->Clear();
-	if (fTrackCands->GetEntriesFast() != 0)  fTrackCands->Clear();
+	if (fTracks->GetEntriesFast() != 0)  fTracks->Delete();
+	if (fTrackCands->GetEntriesFast() != 0)  fTrackCands->Delete();
 }
 
 
