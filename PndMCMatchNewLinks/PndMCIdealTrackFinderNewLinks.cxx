@@ -125,7 +125,7 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 		firstpoint.Momentum(firstmom);
 		if (fRelative) fMomSigma.SetXYZ(fDPoP*firstmom.Mag(),fDPoP*firstmom.Mag(),fDPoP*firstmom.Mag());
 		SmearVector(firstmom, fMomSigma);
-		FairTrackParP* firstPar=new FairTrackParP(firstpos, firstmom,
+		FairTrackParP firstPar(firstpos, firstmom,
 							  fVtxSigma, fMomSigma,
 							  charge, firstpos,
 							  TVector3(1.,0.,0.), TVector3(0.,1.,0.));					 
@@ -148,12 +148,12 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 		SmearVector(lastpos, fVtxSigma);
 		lastpoint.Momentum(lastmom);
 		SmearVector(lastmom, fMomSigma);
-		FairTrackParP* lastPar=new FairTrackParP(lastpos, lastmom,
+		FairTrackParP lastPar(lastpos, lastmom,
 							 fVtxSigma, fMomSigma,
 							 charge, lastpos,
 							 TVector3(1.,0.,0.), TVector3(0.,1.,0.));					 
 
-		PndTrack* myTrack = new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(*firstPar, *lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), trackcounter,FairRootManager::Instance()->GetBranchId("MCTrack")); // CHECK trackcounter is correct??
+		PndTrack* myTrack = new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(firstPar, lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), trackcounter,FairRootManager::Instance()->GetBranchId("MCTrack")); // CHECK trackcounter is correct??
 
 		trackcounter++;
 		// .............
@@ -189,13 +189,23 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
             else if(ftspoints.GetNLinks() > 0) array = ftspoints;
 			
 			double tof = 0;
-			FairMCPoint *firstpoint = NULL, *lastpoint = NULL;
-			for (int ipnt = 0; ipnt < array.GetNLinks(); ipnt++){
-			  FairMCPoint *point = (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(array.GetLink(ipnt));
+			if (array.GetNLinks() == 0)
+				continue;
+			FairMCPoint *point;
+			point = (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(array.GetLink(0));
+			FairMCPoint firstpoint = *point;
+			FairMCPoint lastpoint = *point;
+
+			tof = point->GetTime();
+			delete(point);
+
+			for (int ipnt = 1; ipnt < array.GetNLinks(); ipnt++){
+			  point = (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(array.GetLink(ipnt));
 			  tof += point->GetTime();
 			  //  std::cout << ipnt << " " << tof << std::endl;
-			  if(firstpoint == NULL || point->GetTime() < firstpoint->GetTime()) firstpoint = point;
-			  if(lastpoint == NULL || point->GetTime() > lastpoint->GetTime()) lastpoint = point;
+			  if( point->GetTime() < firstpoint.GetTime()) firstpoint = *point;
+			  if( point->GetTime() > lastpoint.GetTime()) lastpoint = *point;
+			  delete(point);
 			}
 			tof /= array.GetNLinks();
 			// std::cout << i << " " << tof << std::endl;
@@ -205,16 +215,16 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
 				if (!fTrackCandMap.count(mctracks.GetLink(trackIndex))){
 					fTrackCandMap[mctracks.GetLink(trackIndex)] = PndTrackCand();
 					fTrackCandMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);
-					fFirstPointMap[mctracks.GetLink(trackIndex)] = *firstpoint;
+					fFirstPointMap[mctracks.GetLink(trackIndex)] = firstpoint;
 					// fFirstPointMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);
-					fLastPointMap[mctracks.GetLink(trackIndex)] = *lastpoint;
+					fLastPointMap[mctracks.GetLink(trackIndex)] = lastpoint;
 					// fLastPointMap[mctracks.GetLink(trackIndex)].SetInsertHistory(kTRUE);
 				}
 				else {
 				  FairMCPoint tmpfirstpoint = fFirstPointMap[mctracks.GetLink(trackIndex)];
-				  if(firstpoint->GetTime() < tmpfirstpoint.GetTime()) fFirstPointMap[mctracks.GetLink(trackIndex)] = *firstpoint;
+				  if(firstpoint.GetTime() < tmpfirstpoint.GetTime()) fFirstPointMap[mctracks.GetLink(trackIndex)] = firstpoint;
 				  FairMCPoint tmplastpoint = fLastPointMap[mctracks.GetLink(trackIndex)];
-				  if(lastpoint->GetTime() > tmplastpoint.GetTime()) fLastPointMap[mctracks.GetLink(trackIndex)] = *lastpoint;
+				  if(lastpoint.GetTime() > tmplastpoint.GetTime()) fLastPointMap[mctracks.GetLink(trackIndex)] = lastpoint;
 				}
 				FairLink link(-1, FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId(iter->first),i);
 				//std::cout << "CreateTrackCands " << mctracks.GetLink(trackIndex) << " : " << link << std::endl;

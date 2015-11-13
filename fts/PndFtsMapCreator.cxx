@@ -598,7 +598,7 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
   //ofstream myfile("testNumber.txt");
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
   TClonesArray *tubeArray = new TClonesArray("PndFtsTube");
-  tubeArray->Delete();
+//  tubeArray->Delete();
   int mytest=0;
   //std::cout << "TA: entries: " <<  geoPassNodes->GetEntriesFast() << std::endl;
   for(int i = 0; i < geoPassNodes->GetEntriesFast(); i++) {

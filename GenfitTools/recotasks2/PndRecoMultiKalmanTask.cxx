@@ -118,72 +118,88 @@ void PndRecoMultiKalmanTask::Exec(Option_t* opt)
     }
   
   
-  for(Int_t itr=0;itr<ntracks;++itr)
-    {
-      if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
-      PndTrack *prefitTrack = (PndTrack*)fTrackArray->At(itr);
-      Int_t  fCharge= prefitTrack->GetParamFirst().GetQ();
-   
-      { // Electron
-	Int_t PDGCode = -11*fCharge;
-	PndTrack *fitTrack = new PndTrack();
-	fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-	
-	TClonesArray& trkRef = *fFitTrackArrayElectron;
-	Int_t size = trkRef.GetEntriesFast();
-	PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
-      } // end of electron
-      
-      { // Muon	
-	Int_t PDGCode = -13*fCharge;
-	PndTrack *fitTrack = new PndTrack();
-	fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-	
-	TClonesArray& trkRef = *fFitTrackArrayMuon;
-	Int_t size = trkRef.GetEntriesFast();
-	PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
-      } // end of Muon
-      
-      { // Pion
-	Int_t PDGCode = 211*fCharge;
-	PndTrack *fitTrack = new PndTrack();
-	fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-	
-	TClonesArray& trkRef = *fFitTrackArrayPion;
-	Int_t size = trkRef.GetEntriesFast();
-	PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
-      } // end of Pion
-      
-      { // Kaon	
-	Int_t PDGCode = 321*fCharge;
-	PndTrack *fitTrack = new PndTrack();
-	fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-	
-	TClonesArray& trkRef = *fFitTrackArrayKaon;
-	Int_t size = trkRef.GetEntriesFast();
-	PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
-      } // end of Kaon
-      
-      { // Proton
-	Int_t PDGCode = 2212*fCharge;
-	PndTrack *fitTrack = new PndTrack();
-	fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-	
-	TClonesArray& trkRef = *fFitTrackArrayProton;
-	Int_t size = trkRef.GetEntriesFast();
-	PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
-      } // end of Proton
-      
-    } // end of track loop
-  
-  if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
-  
-  return;
+  for (Int_t itr = 0; itr < ntracks; ++itr) {
+		if (fVerbose > 1)
+			std::cout << "starting track" << itr << std::endl;
+		PndTrack *prefitTrack = (PndTrack*) fTrackArray->At(itr);
+		Int_t fCharge = prefitTrack->GetParamFirst().GetQ();
+
+		{ // Electron
+			Int_t PDGCode = -11 * fCharge;
+			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+
+			TClonesArray& trkRef = *fFitTrackArrayElectron;
+			Int_t size = trkRef.GetEntriesFast();
+			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
+					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
+					fitTrack->GetChi2(), fitTrack->GetNDF(),
+					fitTrack->GetPidHypo(), itr, kLheTrack);
+			delete(fitTrack);
+		} // end of electron
+
+		{ // Muon
+			Int_t PDGCode = -13 * fCharge;
+			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+
+			TClonesArray& trkRef = *fFitTrackArrayMuon;
+			Int_t size = trkRef.GetEntriesFast();
+			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
+					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
+					fitTrack->GetChi2(), fitTrack->GetNDF(),
+					fitTrack->GetPidHypo(), itr, kLheTrack);
+			delete(fitTrack);
+		} // end of Muon
+
+		{ // Pion
+			Int_t PDGCode = 211 * fCharge;
+			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+
+			TClonesArray& trkRef = *fFitTrackArrayPion;
+			Int_t size = trkRef.GetEntriesFast();
+			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
+					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
+					fitTrack->GetChi2(), fitTrack->GetNDF(),
+					fitTrack->GetPidHypo(), itr, kLheTrack);
+			delete(fitTrack);
+		} // end of Pion
+
+		{ // Kaon
+			Int_t PDGCode = 321 * fCharge;
+			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+
+			TClonesArray& trkRef = *fFitTrackArrayKaon;
+			Int_t size = trkRef.GetEntriesFast();
+			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
+					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
+					fitTrack->GetChi2(), fitTrack->GetNDF(),
+					fitTrack->GetPidHypo(), itr, kLheTrack);
+			delete(fitTrack);
+		} // end of Kaon
+
+		{ // Proton
+			Int_t PDGCode = 2212 * fCharge;
+			PndTrack *fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+
+			TClonesArray& trkRef = *fFitTrackArrayProton;
+			Int_t size = trkRef.GetEntriesFast();
+			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+					fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
+					fitTrack->GetTrackCand(), fitTrack->GetFlag(),
+					fitTrack->GetChi2(), fitTrack->GetNDF(),
+					fitTrack->GetPidHypo(), itr, kLheTrack);
+			delete(fitTrack);
+		} // end of Proton
+
+	} // end of track loop
+
+	if (fVerbose > 0)
+		std::cout << "Fitting done" << std::endl;
+
+	return;
 }
 
 ClassImp(PndRecoMultiKalmanTask);

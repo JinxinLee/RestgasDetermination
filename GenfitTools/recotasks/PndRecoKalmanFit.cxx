@@ -89,15 +89,15 @@ Bool_t PndRecoKalmanFit::Init()
   PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
   TClonesArray *tubeArray = NULL;
   if(sttParameters->GetGeometryType() != -1) {
-    PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
-    tubeArray = mapper->FillTubeArray();
+    PndSttMapCreator mapper(sttParameters);
+    tubeArray = mapper.FillTubeArray();
   }
   // FTS map loading
   PndGeoFtsPar *ftsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
   TClonesArray *ftsTubeArray = NULL;
   if(ftsParameters->GetGeometryType() != -1) {
-    PndFtsMapCreator *ftsMapper = new PndFtsMapCreator(ftsParameters);
-    ftsTubeArray = ftsMapper->FillTubeArray(); 
+    PndFtsMapCreator ftsMapper(ftsParameters);
+    ftsTubeArray = ftsMapper.FillTubeArray();
   }
 
 
@@ -202,7 +202,9 @@ Bool_t PndRecoKalmanFit::Init()
 }
 
 
-PndRecoKalmanFit::~PndRecoKalmanFit() { }
+PndRecoKalmanFit::~PndRecoKalmanFit() {
+	delete(fPro);
+}
 
 PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
 {
@@ -229,19 +231,19 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
       // Calculating params at PCA to Origin
       FairTrackParP par = tBefore->GetParamFirst();
       Int_t ierr = 0;
-      FairTrackParH *helix = new FairTrackParH(&par, ierr);
-      FairGeanePro *fPro0 = new FairGeanePro();
-      if (fVerbose==0) fPro0->SetPrintErrors(kFALSE);
-      FairTrackParH *fRes= new FairTrackParH();
-      fPro0->SetPoint(TVector3(0,0,0));
-      fPro0->PropagateToPCA(1, -1);
-      Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
+      FairTrackParH helix(&par, ierr);
+      FairGeanePro fPro0;
+      if (fVerbose==0) fPro0.SetPrintErrors(kFALSE);
+      FairTrackParH fRes;
+      fPro0.SetPoint(TVector3(0,0,0));
+      fPro0.PropagateToPCA(1, -1);
+      Bool_t rc =  fPro0.Propagate(&helix, &fRes, PDGCode);
       if (rc)
         {
-          StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-          StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
-          StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
-          StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
+          StartPos.SetXYZ(fRes.GetX(), fRes.GetY(), fRes.GetZ());
+          StartMom.SetXYZ(fRes.GetPx(), fRes.GetPy(), fRes.GetPz());
+          StartPosErr.SetXYZ(fRes.GetDX(), fRes.GetDY(), fRes.GetDZ());
+          StartMomErr.SetXYZ(fRes.GetDPx(), fRes.GetDPy(), fRes.GetDPz());
         }
     }
   else if (fPropagateDistance>0.f)
@@ -249,18 +251,18 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
       // Calculating params at fPropagateDistance cm before the first hit
       FairTrackParP par = tBefore->GetParamFirst();
       Int_t ierr = 0;
-      FairTrackParH *helix = new FairTrackParH(&par, ierr);
-      FairGeanePro *fPro0 = new FairGeanePro();
-      if (fVerbose==0) fPro0->SetPrintErrors(kFALSE);
-      FairTrackParH *fRes= new FairTrackParH();
-      fPro0->PropagateToLength(-fPropagateDistance);
-      Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
+      FairTrackParH helix(&par, ierr);
+      FairGeanePro fPro0;
+      if (fVerbose==0) fPro0.SetPrintErrors(kFALSE);
+      FairTrackParH fRes;
+      fPro0.PropagateToLength(-fPropagateDistance);
+      Bool_t rc =  fPro0.Propagate(&helix, &fRes, PDGCode);
       if (rc)
         {
-          StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-          StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
-          StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
-          StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
+          StartPos.SetXYZ(fRes.GetX(), fRes.GetY(), fRes.GetZ());
+          StartMom.SetXYZ(fRes.GetPx(), fRes.GetPy(), fRes.GetPz());
+          StartPosErr.SetXYZ(fRes.GetDX(), fRes.GetDY(), fRes.GetDZ());
+          StartMomErr.SetXYZ(fRes.GetDPx(), fRes.GetDPy(), fRes.GetDPz());
         }
     }
   
@@ -340,6 +342,8 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
     } 
 
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
+
+  delete(trk);
 
   return tAfter;
 }

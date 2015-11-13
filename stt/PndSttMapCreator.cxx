@@ -40,12 +40,12 @@
 
 using namespace std;
 
-PndSttMapCreator::PndSttMapCreator() :  fGeoType(-1), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), fSttTube(0), copy_map() {
+PndSttMapCreator::PndSttMapCreator() :  fGeoType(-1), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), fSttTube(0), copy_map(), fMap(0) {
   //copy_map.clear();
 }
 
 // to use in PndStt
-PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), fSttTube(0), copy_map() {
+PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), fSttTube(0), copy_map(), fMap(0) {
   //copy_map.clear();
 
   if(fGeoType != 1) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK
@@ -69,7 +69,9 @@ PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar): fGeoType(-1), fSttPara
   SetGeneralParameters();
 }
 
-PndSttMapCreator::~PndSttMapCreator(){}
+PndSttMapCreator::~PndSttMapCreator(){
+	if (fMap > 0) delete(fMap);
+}
 
 void PndSttMapCreator::SetGeneralParameters() {   //  CHECK whether it depends on geometry or not
   if(fGeoType == 1) {
@@ -242,7 +244,7 @@ TClonesArray* PndSttMapCreator::FillTubeArrayGeoType1() {
   TObjArray *pararray = fSttParameters->GetTubeParameters();
   
   fTubeArray = new TClonesArray("PndSttTube");
-  fTubeArray->Delete();
+  //fTubeArray->Delete();
 
   for(int i = 1; i < pararray->GetEntries(); i++) {
     PndSttTubeParameters *parms = (PndSttTubeParameters*) pararray->At(i);
