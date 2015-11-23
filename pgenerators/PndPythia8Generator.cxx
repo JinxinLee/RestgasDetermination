@@ -32,7 +32,20 @@ Bool_t PndPythia8Generator::Init()
     cout<<"fPythia.readString(\""<<fParams[jj]<<"\")"<<endl;
   }
   cout<<"Beam Momentum "<<fMom<<endl;
-  fPythia.init(-2212, 2212, 0., 0., fMom, 0., 0., 0.);
+
+  // fPythia.init(-2212, 2212, 0., 0., fMom, 0., 0., 0.);
+  // Settings according to the obsolete init function
+  fPythia.settings.mode("Beams:idA",  -2212);
+  fPythia.settings.mode("Beams:idB",   2212);
+  fPythia.settings.mode("Beams:frameType",  3);
+  fPythia.settings.parm("Beams:pxA",    0.);
+  fPythia.settings.parm("Beams:pyA",    0.);
+  fPythia.settings.parm("Beams:pzA",    fMom);
+  fPythia.settings.parm("Beams:pxB",    0.);
+  fPythia.settings.parm("Beams:pyB",    0.);
+  fPythia.settings.parm("Beams:pzB",    0.);
+  fPythia.init();
+
   return kTRUE;
 }
 // -------------------------------------------------------------------------

@@ -58,9 +58,9 @@ sim_muo_P8(Int_t rng=0, Int_t nEvents=20, Float_t momentum = 15.){
   FairModule *Pipe= new PndPipe("PIPE");
   //fRun->AddModule(Pipe);
 
-   FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
-  Tpc->SetGeometryFileName("tpc.geo");
-  fRun->AddModule(Tpc);
+  FairDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  fRun->AddModule(Stt);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root"); // new mvd

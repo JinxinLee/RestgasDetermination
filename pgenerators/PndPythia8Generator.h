@@ -3,6 +3,12 @@
 
 #include "TROOT.h"
 #include "FairGenerator.h"
+
+#ifdef __CINT__
+#define _DLFCN_H_
+#define _DLFCN_H
+#endif
+
 #include "Pythia.h"
 #include "TRandom1.h"
 #include "TRandom3.h"

@@ -35,7 +35,7 @@ endif(EVTGEN_TAUOLA)
 if(EVTGEN_PYTHIA)
    add_definitions("-DEVTGEN_PYTHIA")
    set(EVTGEN_EXTERNAL 1)
-   set(PYTHIALIBLIST pythia8 lhapdfdummy)
+   set(PYTHIALIBLIST pythia8)
 endif(EVTGEN_PYTHIA)
 
 if(EVTGEN_EXTERNAL)

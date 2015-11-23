@@ -59,6 +59,6 @@ eventFilter/PndEvtFilterOnInvMassCounts.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES Base DpmEvtGen FtfEvtGen)
+set(DEPENDENCIES Base DpmEvtGen FtfEvtGen pythia8)
 
 GENERATE_LIBRARY()
