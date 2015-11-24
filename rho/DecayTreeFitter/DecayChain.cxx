@@ -31,7 +31,8 @@ DecayTreeFitter::DecayChain::DecayChain(RhoCandidate* bc, const Configuration& c
 : m_dim(0),m_mother(0),m_isOwner(true)
 {
   //std::cout<<"DecayTreeFitter::DecayChain::DecayChain(RhoCandidate* bc="<<bc<<")"<<std::endl;
-  m_mother = ParticleBase::createParticle(bc,0,config) ;
+  m_mother = (ParticleBase*) new InteractionPoint(bc,config) ;
+  //m_mother = ParticleBase::createParticle(bc,0,config) ;
   //std::cout<<"DecayTreeFitter::DecayChain::DecayChain(RhoCandidate*) - updateIndex() now"<<std::endl;
   m_mother->updateIndex(m_dim) ;
   //std::cout<<"DecayTreeFitter::DecayChain::DecayChain(RhoCandidate*) - locate() now"<<std::endl;
@@ -184,9 +185,7 @@ DecayTreeFitter::DecayChain::filter(FitParams* par, bool firstpass)
     }
   }
 
-  if(vtxverbose>=3) {std::cout << "VtkDecayChain::filter: status = "; status.Print(std::cout); std::cout<< std::endl ;}
-
-  if(vtxverbose>5){std::cout<<"DecayChain::filter(): - finished "; status.Print(std::cout); std::cout<<std::endl;}
+  if(vtxverbose>=3) {std::cout << "DecayChain::filter: status = "; status.Print(std::cout); std::cout<< std::endl ;}
   return status ;
 }
 

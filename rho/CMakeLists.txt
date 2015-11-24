@@ -1,6 +1,8 @@
 # Create a library called "Rho" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
+add_subdirectory(DecayTreeFitter)
+add_subdirectory(RhoFitter)
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES} 
@@ -13,6 +15,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/PidData # CAUTION we have a PANDA specific access: RhoGoodPhotonSelector auses PndPidCandidate
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/rho/RhoMath
+  ${CMAKE_SOURCE_DIR}/rho/RhoFitter
   ${CMAKE_SOURCE_DIR}/rho/RhoSelector
   ${CMAKE_SOURCE_DIR}/rho/RhoConstraints
   ${CMAKE_SOURCE_DIR}/rho/RhoTools
@@ -79,6 +82,14 @@ RhoHistogram/RhoColumn.cxx
 RhoHistogram/RhoTuple.cxx
 
 RhoBase/RhoConstraint.cxx 
+
+#RhoFitter/Rho4CFitter.cxx
+#RhoFitter/RhoDecayTreeFitter.cxx
+#RhoFitter/RhoKinVtxFitter.cxx
+#RhoFitter/RhoKinFitter.cxx
+#RhoFitter/RhoVtxPoca.cxx
+#RhoFitter/RhoKalmanVtxFitter.cxx
+
 )
 
 set(LINKDEF  Rho_LinkDef.h)

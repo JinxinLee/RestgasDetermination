@@ -10,6 +10,7 @@
 #include "RecoComposite.h"
 #include "FitParams.h"
 #include "TMatrixD.h"
+#include "RhoCalculationTools.h"
 
 using namespace DecayTreeFitter;
 ClassImp(RecoComposite);
@@ -107,9 +108,9 @@ DecayTreeFitter::RecoComposite::projectRecoComposite(const FitParams* fitparams,
   }
   if(vtxverbose>6){
     std::cout<<"RecoComposite::projectRecoComposite(): projection is:"<<posindex<<std::endl;
-    p.r().Print();
-    p.V().Print();
-    p.H().Print();
+    std::cout<<"r "; p.r().Print();
+    std::cout<<"V "; p.V().Print();
+    std::cout<<"H "; RhoCalculationTools::PrintMatrix(p.H());
     }
 
   return ErrCode::success ;

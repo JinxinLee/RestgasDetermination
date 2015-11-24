@@ -7,17 +7,54 @@
 // ******************************************************
 #include "FitParams.h"
 #include "InteractionPoint.h"
+#include "RecoTrack.h"
 //#include "Event/Particle.h"
 //#include "Event/VertexBase.h"
 #include <assert.h>
+//#include <vector>
 #include "TVector3.h"
 #include "TMath.h"
 #include "RhoVector3Err.h"
+#include "RhoCalculationTools.h"
+#include "SortTool.h"
 
 using namespace DecayTreeFitter;
 
 extern int vtxverbose ;
 ClassImp(InteractionPoint);
+
+DecayTreeFitter::InteractionPoint::InteractionPoint(RhoCandidate* cand,
+                                   const Configuration& config)
+: ParticleBase("IP"), m_ipPosCov(3), m_ipPosCovInv(3), m_ipMomCov(4), m_ipMomCovInv(4), m_haspos(false), m_hasmom(false)
+{
+  if(vtxverbose>=2) std::cout << "InteractionPoint: start"<<std::endl;
+  addDaughter( cand, config ) ;
+  if(vtxverbose>=2) std::cout << "InteractionPoint: daughters done"<<std::endl;
+ 
+  m_hasmomcov = false;
+  m_hasposcov = false;
+ 
+  if (particle())
+  {
+    RhoVector3Err vtx = particle()->PosWCov();
+    if(vtx.Mag()>0){
+      if(vtxverbose>=3)    std::cout << "InteractionPoint: Found a vertex in RhoCandidate"<<std::endl;
+      m_ipPos(0) = vtx.x() ;
+      m_ipPos(1) = vtx.y() ;
+      m_ipPos(2) = vtx.z() ;
+      m_haspos=true;
+      for(int ii=0;ii<3;ii++) for(int jj=0;jj<3;jj++){
+        m_ipPosCov(ii,jj) = vtx.CovMatrix()(ii,jj);
+      }
+      m_hasposcov = (0!=m_ipPosCov.NonZeros()); // a zero protection flag
+    }
+  }
+
+  if(vtxverbose>=2) {
+    std::cout << "InteractionPoint: without initial beam spot" <<std::endl ;
+    std::cout << "daughter: " << daughters().front()->name() << std::endl ;
+  }
+}
 
 DecayTreeFitter::InteractionPoint::InteractionPoint(const RhoVector3Err& ipvertex,
                                    RhoCandidate* cand,
@@ -40,11 +77,15 @@ DecayTreeFitter::InteractionPoint::InteractionPoint(const RhoVector3Err& ipverte
   {
     double ierr;
     if(vtxverbose>=2) std::cout << "InteractionPoint: inverting matrix"<<std::endl;
-    m_ipPosCovInv = m_ipPosCov.Invert(&ierr) ;
+    m_ipPosCovInv = m_ipPosCov ;
+    m_ipPosCovInv.Invert(&ierr) ;
   }
   if(vtxverbose>=2) {
     std::cout << "InteractionPoint: initial beam spot = ("
     <<m_ipPos(0) << "," << m_ipPos(1) << "," << m_ipPos(2) << ")       " <<std::endl ;
+    if(vtxverbose>=5){
+      std::cout<<"m_ipPosCov"; RhoCalculationTools::PrintMatrix(m_ipPosCov);
+    }
     std::cout << "daughter: " << daughters().front()->name() << std::endl ;
   }
 }
@@ -72,10 +113,31 @@ DecayTreeFitter::InteractionPoint::InteractionPoint(const RhoLorentzVectorErr& i
   {
     double ierr;
     if(vtxverbose>=2) std::cout << "InteractionPoint: inverting matrix"<<std::endl;
-    m_ipMomCovInv = m_ipMomCov.Invert(&ierr) ;
+    m_ipMomCovInv = m_ipMomCov ;
+    m_ipMomCovInv.Invert(&ierr) ;
   }
+
+  if (particle())
+  {
+    RhoVector3Err vtx = particle()->PosWCov();
+    if(vtx.Mag()>0){
+      if(vtxverbose>=3)    std::cout << "InteractionPoint: Found a vertex in RhoCandidate"<<std::endl;
+      m_ipPos(0) = vtx.x() ;
+      m_ipPos(1) = vtx.y() ;
+      m_ipPos(2) = vtx.z() ;
+      m_haspos=true;
+      for(int ii=0;ii<3;ii++) for(int jj=0;jj<3;jj++){
+        m_ipPosCov(ii,jj) = vtx.CovMatrix()(ii,jj);
+      }
+      m_hasposcov = (0!=m_ipPosCov.NonZeros()); // a zero protection flag
+    }
+  }
+
   if(vtxverbose>=2) {
     std::cout << "InteractionPoint: initial mom = (" <<m_ipMom(0) << "," << m_ipMom(1) << "," << m_ipMom(2)<< "," << m_ipMom(3) << ")" <<std::endl ;
+    if(vtxverbose>=5){
+      std::cout<<"m_ipMomCov"; RhoCalculationTools::PrintMatrix(m_ipMomCov);
+    }
     std::cout << "daughter: " << daughters().front()->name() << std::endl ;
   }
 }
@@ -110,19 +172,25 @@ DecayTreeFitter::InteractionPoint::InteractionPoint(const RhoLorentzVectorErr& i
   {
     double ierr;
     if(vtxverbose>=2) std::cout << "InteractionPoint: inverting matrix"<<std::endl;
-    m_ipPosCovInv = m_ipPosCov.Invert(&ierr) ;
+    m_ipPosCovInv = m_ipPosCov ;
+    m_ipPosCovInv.Invert(&ierr) ;
   }
   m_hasmomcov = (0!=m_ipMomCov.NonZeros()); // a zero protection flag
   if(m_hasmomcov)
   {
     double ierr;
     if(vtxverbose>=2) std::cout << "InteractionPoint: inverting matrix"<<std::endl;
-    m_ipMomCovInv = m_ipMomCov.Invert(&ierr) ;
+    m_ipMomCovInv = m_ipMomCov ;
+    m_ipMomCovInv.Invert(&ierr) ;
   }
   if(vtxverbose>=2) {
     std::cout << "InteractionPoint: initial beam spot = ("
     <<m_ipPos(0) << "," << m_ipPos(1) << "," << m_ipPos(2) << ")       " 
     << "mom = (" <<m_ipMom(0) << "," << m_ipMom(1) << "," << m_ipMom(2)<< "," << m_ipMom(3) << ")" <<std::endl ;
+    if(vtxverbose>=5){
+      std::cout<<"m_ipPosCov"; RhoCalculationTools::PrintMatrix(m_ipPosCov);
+      std::cout<<"m_ipMomCov"; RhoCalculationTools::PrintMatrix(m_ipMomCov);
+    }
     std::cout << "daughter: " << daughters().front()->name() << std::endl ;
   }
 }
@@ -133,20 +201,85 @@ DecayTreeFitter::InteractionPoint::initPar1(FitParams* fitparams)
   ErrCode status ;
   if(vtxverbose>5){std::cout<<"InteractionPoint::initPar1: - start"<<std::endl;}
 
-  // initialize our IP measurement
-  if(m_haspos)
-  {
-    int posindex = posIndex() ;
-    for(int row=0; row<3; row++)
-      fitparams->par()(posindex+row) = m_ipPos(row) ;
-  }
   
   // Initialize Daugters and the whole tree
   for(daucontainer::iterator idau = daughters().begin() ;
-      idau != daughters().end(); ++idau ) {
-  if(vtxverbose>5){std::cout<<"InteractionPoint::initPar1: - calling daughter initPar1"<<std::endl;}
+      idau != daughters().end(); ++idau ) 
+  {
+    if(vtxverbose>5){std::cout<<"InteractionPoint::initPar1: - calling daughter initPar1"<<std::endl;}
     status |= (*idau)->initPar1(fitparams) ;
-  if(vtxverbose>5){std::cout<<"InteractionPoint::initPar1: - calling daughter initPar2"<<std::endl;}
+  }
+  // Step 2: initialize the vertex. 
+  // initialize our IP measurement if there
+  int posindex = posIndex() ;
+  if(m_haspos)
+  {
+    for(int row=0; row<3; row++)
+      fitparams->par()(posindex+row) = m_ipPos(row) ;
+  } else if( fitparams->par()(posindex+0)==0 && fitparams->par()(posindex+1)==0 && fitparams->par()(posindex+2)==0 ) 
+  {
+    // if we are lucky, we had a 'resonant' daughter, and we are already done.
+    if(vtxverbose>=3) std::cout << "InteractionPoint::initPar1: B"<<std::endl;
+    // Case B: the hard way ... use the daughters to estimate the
+    // vertex. First we check if there are sufficient tracks
+    // attached to this vertex. If so, estimate the poca of the
+    // two tracks with the highest momentum. This will work for
+    // the majority of the cases. If there are not sufficient
+    // tracks, add the composites and take the two with the best
+    // doca.
+
+    // create a vector with all daughters that constitute a
+    // 'trajectory' (ie tracks, composites and daughters of
+    // resonances.)
+    daucontainer alldaughters ;
+    collectVertexDaughters( alldaughters, posindex ) ;
+    if(vtxverbose>=3)    std::cout << "InteractionPoint::initPar1(): number of daughters for initializing vertex: "
+                                   << name() << " " << alldaughters.size() << std::endl ;
+    // select daughters that are either charged, or have an initialized vertex
+    daucontainer vtxdaughters ;
+    std::vector<RecoTrack*> trkdaughters ;
+    for(daucontainer::const_iterator it = alldaughters.begin() ;
+      it != alldaughters.end() ; ++it) {
+      if( (*it)->type()==ParticleBase::kRecoTrack ) {
+        trkdaughters.push_back( static_cast<RecoTrack*>(*it) )  ;
+      } else if( (*it)->hasPosition() && fitparams->par((*it)->posIndex()+0)!=0 ) {
+        vtxdaughters.push_back( *it ) ;
+      }
+    }
+    if( trkdaughters.size() >=2 ) {
+      if(vtxverbose>=3)    std::cout << "InteractionPoint::initPar1(): B -a?"<<std::endl;
+      // sort in pT. not very efficient, but it works.
+      if( trkdaughters.size()>2 )
+        std::sort(trkdaughters.begin(),trkdaughters.end(),compTrkTransverseMomentum) ;
+      // now, just take the first two ...
+      RecoTrack* dau1 = trkdaughters[0] ;
+      RecoTrack* dau2 = trkdaughters[1] ;
+
+      // get the poca of the two statevectors
+      const DecayTreeFitter::State& state1 = dau1->state() ;
+      const DecayTreeFitter::State& state2 = dau2->state() ;
+      DecayTreeFitter::Line line1(state1.position(),state1.slopes()) ;
+      DecayTreeFitter::Line line2(state2.position(),state2.slopes()) ;
+      double mu1(0),mu2(0) ;
+      DecayTreeFitter::closestPointParams(line1,line2,mu1,mu2) ;
+      TVector3 p1 = line1.position(mu1) ;
+      TVector3 p2 = line2.position(mu2) ;
+      fitparams->par()(posindex+0) = 0.5*(p1.x()+p2.x()) ;
+      fitparams->par()(posindex+1) = 0.5*(p1.y()+p2.y()) ;
+      fitparams->par()(posindex+2) = 0.5*(p1.z()+p2.z()) ;
+      dau1->setFlightLength( mu1 ) ;
+      dau2->setFlightLength( mu2 ) ;
+
+    }
+  }
+  if(vtxverbose>=3)
+    std::cout << "InteractionPoint::initPar1(): big code chunk passed"<<std::endl;
+
+  // step 3: do the post initialization step of all daughters
+  for(daucontainer::iterator idau = daughters().begin() ;
+      idau != daughters().end(); ++idau ) 
+  {
+    if(vtxverbose>5){std::cout<<"InteractionPoint::initPar1: - calling daughter initPar2"<<std::endl;}
     status |= (*idau)->initPar2(fitparams) ;
   }
 
@@ -170,13 +303,13 @@ DecayTreeFitter::InteractionPoint::initCov(FitParams* fitpar) const
   int posindex = posIndex() ;
   for(int row=0; row<3; row++)
   {
-    if(m_hasposcov) fitpar->cov()(posindex+row,posindex+row) = 1000*m_ipPosCov(row,row) ;
+    if(m_hasposcov) 
+    { // when we know an external IP we put it here as initial values
+      for(int col=0;col<3;col++) 
+        fitpar->cov()(posindex+row,posindex+col) = m_ipPosCov(row,col) ;
+    }
     else fitpar->cov()(posindex+row,posindex+row) = 1.; //1cm default?
   }
-
-  //int momindex = momIndex() ; 
-  //if(m_hasmomcov) for(int row=0; row<4; row++)
-    //fitpar->cov()(momindex+row,momindex+row) = 1000*m_ipMomCov(row,row) ;
 
   for(daucontainer::const_iterator it = daughters().begin() ;
       it != daughters().end() ; ++it)
@@ -184,29 +317,29 @@ DecayTreeFitter::InteractionPoint::initCov(FitParams* fitpar) const
   return status ;
 }
 
-ErrCode
-DecayTreeFitter::InteractionPoint::projectIPConstraint(const FitParams* fitparams,
-                                      Projection& p) const
-{
-  int posindex = posIndex() ;
-  if(vtxverbose>6){std::cout<<"InteractionPoint::projectIPConstraint(): posindex="<<posindex<<std::endl;}
-  if(m_haspos){
-    for(int row=0; row<3; ++row) {
-      p.r(row) =  fitparams->par()(posindex+row) - m_ipPos(row); 
-      p.H(row,posindex+row) = 1 ;
-      //if(m_hasposcov)
-        for(int col=0; col<3; ++col)
-          p.Vfast(row,col) = m_ipPosCov(row,col) ;
-    }
-  }
-  if(vtxverbose>6){
-    std::cout<<"InteractionPoint::projectIPConstraint(): projection is:"<<posindex<<std::endl;
-    p.r().Print();
-    p.V().Print();
-    p.H().Print();
-    }
-  return ErrCode::success ;
-}
+//ErrCode
+//DecayTreeFitter::InteractionPoint::projectIPConstraint(const FitParams* fitparams,
+                                      //Projection& p) const
+//{
+  //int posindex = posIndex() ;
+  //if(vtxverbose>6){std::cout<<"InteractionPoint::projectIPConstraint(): posindex="<<posindex<<std::endl;}
+  //if(m_haspos){
+    //for(int row=0; row<3; ++row) {
+      //p.r(row) =  fitparams->par()(posindex+row) - m_ipPos(row); 
+      //p.H(row,posindex+row) = 1 ;
+      ////if(m_hasposcov)
+        //for(int col=0; col<3; ++col)
+          //p.Vfast(row,col) = m_ipPosCov(row,col) ;
+    //}
+  //}
+  //if(vtxverbose>6){
+    //std::cout<<"InteractionPoint::projectIPConstraint(): projection is:"<<posindex<<std::endl;
+    //std::cout<<"r "; p.r().Print();
+    //std::cout<<"V "; p.V().Print();
+    //std::cout<<"H "; RhoCalculationTools::PrintMatrix(p.H());
+    //}
+  //return ErrCode::success ;
+//}
 
 ErrCode
 DecayTreeFitter::InteractionPoint::projectBeamConstraint(const FitParams* fitparams,
@@ -225,9 +358,9 @@ DecayTreeFitter::InteractionPoint::projectBeamConstraint(const FitParams* fitpar
   }
   if(vtxverbose>6){
     std::cout<<"InteractionPoint::projectBeamConstraint(): projection is:"<<momindex<<std::endl;
-    p.r().Print();
-    p.V().Print();
-    p.H().Print();
+    std::cout<<"r "; p.r().Print();
+    std::cout<<"V "; p.V().Print();
+    std::cout<<"H "; RhoCalculationTools::PrintMatrix(p.H());
     }
   return ErrCode::success ;
 }
@@ -240,7 +373,7 @@ DecayTreeFitter::InteractionPoint::projectConstraint(Constraint::Type aType,
   ErrCode status ;
   switch(aType) {
     case Constraint::beamspot:
-      status |= projectIPConstraint(fitparams,p) ;
+      //status |= projectIPConstraint(fitparams,p) ;
       break ;
     case Constraint::beamenergy:
       status |= projectBeamConstraint(fitparams,p) ;
@@ -254,28 +387,48 @@ DecayTreeFitter::InteractionPoint::projectConstraint(Constraint::Type aType,
 double
 DecayTreeFitter::InteractionPoint::chiSquare(const FitParams* fitparams) const
 {
+  std::cout<<" Marke 2" <<std::endl;
   double chisq=0.;
-  if(m_haspos&&m_hasposcov) 
-  { // no covariance, no chi2 contribution!
-    int posindex = posIndex() ;
-    TVectorD residualpos(3) ;
-    for(int row=0; row<3; ++row)
-      residualpos(row) = fitparams->par()(posindex+row) - m_ipPos(row) ;
-    chisq += m_ipPosCovInv.Similarity(residualpos);
-  }
+  //if(m_haspos&&m_hasposcov) 
+  //{ // no covariance, no chi2 contribution!
+    //Projection pPos(fitparams->dim(),3) ;
+    //projectIPConstraint(fitparams,pPos) ;
+    //chisq+=pPos.chiSquare(); 
+  //}
   if(m_hasmom&&m_hasmomcov) 
   { // no covariance, no chi2 contribution!
-    int momindex = momIndex() ;
-    TVectorD residualmom(4) ;
-    for(int row=0; row<4; ++row)
-      residualmom(row) = m_ipMom(row) - fitparams->par()(momindex+row) ;
-    chisq += m_ipMomCovInv.Similarity(residualmom);
+    Projection pMom(fitparams->dim(),4) ;
+    projectBeamConstraint(fitparams,pMom) ;
+    chisq+=pMom.chiSquare(); 
   }
-  // add the daughters' chi2
-  chisq += ParticleBase::chiSquareD(fitparams) ;
-
   return chisq ;
 }
+
+//double
+//DecayTreeFitter::InteractionPoint::chiSquare(const FitParams* fitparams) const
+//{
+  //double chisq=0.;
+  //if(m_haspos&&m_hasposcov) 
+  //{ // no covariance, no chi2 contribution!
+    //int posindex = posIndex() ;
+    //TVectorD residualpos(3) ;
+    //for(int row=0; row<3; ++row)
+      //residualpos(row) = fitparams->par()(posindex+row) - m_ipPos(row) ;
+    //chisq += m_ipPosCovInv.Similarity(residualpos);
+  //}
+  //if(m_hasmom&&m_hasmomcov) 
+  //{ // no covariance, no chi2 contribution!
+    //int momindex = momIndex() ;
+    //TVectorD residualmom(4) ;
+    //for(int row=0; row<4; ++row)
+      //residualmom(row) = m_ipMom(row) - fitparams->par()(momindex+row) ;
+    //chisq += m_ipMomCovInv.Similarity(residualmom);
+  //}
+  //// add the daughters' chi2
+  //chisq += ParticleBase::chiSquareD(fitparams) ;
+
+  //return chisq ;
+//}
 
 void DecayTreeFitter::InteractionPoint::addToConstraintList(constraintlist& alist, int depth) const
 {
@@ -285,7 +438,7 @@ void DecayTreeFitter::InteractionPoint::addToConstraintList(constraintlist& alis
     (*it)->addToConstraintList(alist,depth-1) ;
 
   // then the beamspot
-  if(m_haspos) alist.push_back(Constraint(this,Constraint::beamspot,depth,3)) ;
+  //if(m_haspos) alist.push_back(Constraint(this,Constraint::beamspot,depth,3)) ;
   if(m_hasmom) alist.push_back(Constraint(this,Constraint::beamenergy,depth,4)) ;
 }
 

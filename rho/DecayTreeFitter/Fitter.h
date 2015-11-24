@@ -69,42 +69,42 @@ namespace DecayTreeFitter
     /// constructor from the particle (decay head)
     Fitter ( RhoCandidate*   bc                  ,
             const bool              forceFitAll  = true ,
-            const RecoTrackStateProvider* extrapolator = 0    ) ;
+            RecoTrackStateProvider* extrapolator = 0    ) ;
     /// constructor from the particle (decay head)
     Fitter ( RhoCandidate*   bc                  ,
-            const RecoTrackStateProvider* extrapolator        ,
+            RecoTrackStateProvider* extrapolator        ,
             const bool              forceFitAll  = true ) ;
     /// constructor from the particle (decay head) and primary vertex
     Fitter ( RhoCandidate*   bc                  ,
             const RhoVector3Err& pv                  ,
             const bool              forceFitAll  = true ,
-            const RecoTrackStateProvider* extrapolator = 0    ) ;
+            RecoTrackStateProvider* extrapolator = 0    ) ;
     /// constructor from the particle (decay head) and primary vertex
     Fitter ( RhoCandidate*   bc                  ,
             const RhoVector3Err& pv                  ,
-            const RecoTrackStateProvider* extrapolator        ,
+            RecoTrackStateProvider* extrapolator        ,
             const bool              forceFitAll  = true ) ;
     /// constructor from the particle (decay head) and pbeam
     Fitter ( RhoCandidate*   bc                  ,
             const RhoLorentzVectorErr& lv                  ,
             const bool              forceFitAll  = true ,
-            const RecoTrackStateProvider* extrapolator = 0    ) ;
+            RecoTrackStateProvider* extrapolator = 0    ) ;
     /// constructor from the particle (decay head) and pbeam
     Fitter ( RhoCandidate*   bc                  ,
             const RhoLorentzVectorErr& lv                  ,
-            const RecoTrackStateProvider* extrapolator        ,
+            RecoTrackStateProvider* extrapolator        ,
             const bool              forceFitAll  = true ) ;
     /// constructor from the particle (decay head), pbeam and primary vertex
     Fitter ( RhoCandidate*   bc                  ,
             const RhoLorentzVectorErr& lv                  ,
             const RhoVector3Err& pv                  ,
             const bool              forceFitAll  = true ,
-            const RecoTrackStateProvider* extrapolator = 0    ) ;
+            RecoTrackStateProvider* extrapolator = 0    ) ;
     /// constructor from the particle (decay head), pbeam and primary vertex
     Fitter ( RhoCandidate*   bc                  ,
             const RhoLorentzVectorErr& lv                  ,
             const RhoVector3Err& pv                  ,
-            const RecoTrackStateProvider* extrapolator        ,
+            RecoTrackStateProvider* extrapolator        ,
             const bool              forceFitAll  = true ) ;
     /// destructor
     ~Fitter() ;                                                   // destructor
@@ -140,7 +140,8 @@ namespace DecayTreeFitter
      */
     RhoCandidate* fitParams ( RhoCandidate* p = 0 ) const {return p->GetFit();};
     /// Total chisquare
-    double     chiSquare () const { return m_chiSquare ; }
+    //double     chiSquare () const { return m_chiSquare ; }
+    double     chiSquare () const { return fChiSquare ; }
     /// Total number of DOFs
     int        nDof      () const ;
     /// Status of fit
@@ -177,6 +178,7 @@ namespace DecayTreeFitter
     int  errCode  () { return m_errCode ; }
     /// set the verbosity level (for debugging only)
     void setVerbose(int i) ;
+    void SetToleranceZ(double z) {if(m_extrapolator) m_extrapolator->SetToleranceZ(z);};
 
 
 	//FIXME ######@^$E&$#%#^!#@&*(#######  REMOVE!
@@ -187,9 +189,9 @@ namespace DecayTreeFitter
   public:
     // ========================================================================
     /// get the extrapolator
-    const RecoTrackStateProvider* extrapolator() const { return m_extrapolator ; }
+    RecoTrackStateProvider* extrapolator() { return m_extrapolator ; }
     /// set the track extrapolator
-    void setStateProvider ( const RecoTrackStateProvider* extrapolator ) ;
+    void setStateProvider ( RecoTrackStateProvider* extrapolator ) ;
     // ========================================================================
   protected:
     // ========================================================================
@@ -240,7 +242,7 @@ namespace DecayTreeFitter
     DecayChain*           m_decaychain ;
     FitParams*            m_fitparams  ;
     FitStatus             m_status     ;
-    double                m_chiSquare  ;
+    //double                m_chiSquare  ;
     int                   m_niter      ;
     int                   m_errCode    ;
     // ========================================================================
@@ -248,6 +250,7 @@ namespace DecayTreeFitter
     //    typedef std::map<RhoCandidate*, Gaudi::Math::ParticleParams> Map ;
     //    mutable Map m_map ;
     // ========================================================================
+  protected:
     /// track extrapolator (if needed)
     RecoTrackStateProvider* m_extrapolator ; // track extrapolator
                                              // ========================================================================

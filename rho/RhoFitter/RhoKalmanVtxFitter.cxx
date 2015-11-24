@@ -1,19 +1,19 @@
 #include <iostream>
-#include "PndKalmanVtxFitter.h"
+#include "RhoKalmanVtxFitter.h"
 #include "RhoBase/RhoCandListIterator.h"
 #include "RhoBase/RhoFactory.h"
 #include "TMatrixT.h"
-#include "PndAnalysisCalcTools.h"
+#include "RhoCalculationTools.h"
 
-ClassImp(PndKalmanVtxFitter)
+ClassImp(RhoKalmanVtxFitter)
 
-TBuffer& operator>>(TBuffer& buf, PndKalmanVtxFitter *&obj)
+TBuffer& operator>>(TBuffer& buf, RhoKalmanVtxFitter *&obj)
 {
-  obj = (PndKalmanVtxFitter*) buf.ReadObject(PndKalmanVtxFitter::Class());
+  obj = (RhoKalmanVtxFitter*) buf.ReadObject(RhoKalmanVtxFitter::Class());
   return buf;
 }
 
-PndKalmanVtxFitter::PndKalmanVtxFitter( RhoCandidate* b) :
+RhoKalmanVtxFitter::RhoKalmanVtxFitter( RhoCandidate* b) :
   RhoFitterBase(b),
   fDebug(false),
   fNIterations(2),
@@ -25,12 +25,12 @@ PndKalmanVtxFitter::PndKalmanVtxFitter( RhoCandidate* b) :
   fCurrentHead=fHeadOfTree;
 }
 
-PndKalmanVtxFitter::~PndKalmanVtxFitter()
+RhoKalmanVtxFitter::~RhoKalmanVtxFitter()
 {
 }
 
 
-Bool_t PndKalmanVtxFitter::CalcPrgParams(RhoCandidate* tcand, TVector3 expansionpoint)
+Bool_t RhoKalmanVtxFitter::CalcPrgParams(RhoCandidate* tcand, TVector3 expansionpoint)
 {
   // calculate helix and its covariance in the preigee representation
 
@@ -38,24 +38,24 @@ Bool_t PndKalmanVtxFitter::CalcPrgParams(RhoCandidate* tcand, TVector3 expansion
   TVector3 pos= tcand->GetPosition();
   Double_t charge = tcand->GetCharge();
   TMatrixD cov77 = tcand->Cov7();
-  Bool_t test = PndAnalysisCalcTools::P7toPRG(pos, mom, charge, cov77, expansionpoint, fPrgParams, fPrgCov, fJacobian, false);
+  Bool_t test = RhoCalculationTools::P7toPRG(pos, mom, charge, cov77, expansionpoint, fPrgParams, fPrgCov, fJacobian, false);
   return test;
 }
 
 
-Bool_t PndKalmanVtxFitter::FitNode(RhoCandidate* b)
+Bool_t RhoKalmanVtxFitter::FitNode(RhoCandidate* b)
 {
   fCurrentHead=b;
   Bool_t check = Calculate();
   if(check == kFALSE) {
     fChiSquare=-22222;
-    Error("PndKalmanVtxFitter::FitNode()","Fit failed for composite %p. Set chisquare to %f.",b,fChiSquare);
+    Error("RhoKalmanVtxFitter::FitNode()","Fit failed for composite %p. Set chisquare to %f.",b,fChiSquare);
   }
   return check;
 }
 
 
-// Double_t PndKalmanVtxFitter::FitVertexFull(TVector3& vtx, TMatrixD& cov)
+// Double_t RhoKalmanVtxFitter::FitVertexFull(TVector3& vtx, TMatrixD& cov)
 // {
 //   // Calculate the Vertex in the full scheme and pass vertexing information directly
 //   FitNode(fCurrentHead);
@@ -72,7 +72,7 @@ Bool_t PndKalmanVtxFitter::FitNode(RhoCandidate* b)
 
 
 
-Double_t PndKalmanVtxFitter::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov, int niter)
+Double_t RhoKalmanVtxFitter::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool skipcov, int niter)
 {
   // Calculate a vertex of n tracks without considering the changes in momentum vector
   // the variables vtx & cov (3x3) are written and the Chi^2 is returned.
@@ -133,7 +133,7 @@ Double_t PndKalmanVtxFitter::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool sk
         TMatrixD Wi(COVi);
         Wi.InvertFast(&determinant);
         if (determinant == 0.) {
-          std::cout<<"PndKalmanVtxFitter: COVi Inversion failed, abort fit -888"<<std::endl;
+          std::cout<<"RhoKalmanVtxFitter: COVi Inversion failed, abort fit -888"<<std::endl;
           return -888;
         }
         //TMatrixD Wi(TMatrixD::kInverted,COVi); // no determinant returned -> No check possible
@@ -153,7 +153,7 @@ Double_t PndKalmanVtxFitter::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool sk
     TMatrixD cV(sumw);
     cV.InvertFast(&determinant);
     if (determinant==0) {
-      std::cout<<"PndKalmanVtxFitter: sumw Inversion failed, retunring -777"<<std::endl;
+      std::cout<<"RhoKalmanVtxFitter: sumw Inversion failed, retunring -777"<<std::endl;
       return -777;
     }
     //TMatrixD cV(TMatrixD::kInverted,sumw); // no determinant returned -> No check possible
@@ -189,7 +189,7 @@ Double_t PndKalmanVtxFitter::FitVertexFast(TVector3& vtx, TMatrixD& cov, bool sk
 
 
 
-Bool_t PndKalmanVtxFitter::Calculate()
+Bool_t RhoKalmanVtxFitter::Calculate()
 {
   // We'll do a vertex finding and Fitting in empty space at a constant magnetic field along z-direction
   // We don't dive into the particle tree, it's just the daughters of this candidate
@@ -345,7 +345,7 @@ Bool_t PndKalmanVtxFitter::Calculate()
       determinant=0.;
       Wi.InvertFast(&determinant);
       if (determinant==0) {
-        std::cout<<"PndKalmanVtxFitter: COVi Inversion failed, abort fit."<<std::endl;
+        std::cout<<"RhoKalmanVtxFitter: COVi Inversion failed, abort fit."<<std::endl;
         return kFALSE;
       }
       W.push_back(Wi);
@@ -380,7 +380,7 @@ Bool_t PndKalmanVtxFitter::Calculate()
       determinant=0.;
       GIi.InvertFast(&determinant);
       if (determinant==0) {
-        std::cout<<"PndKalmanVtxFitter: GIi Inversion failed, abort fit."<<std::endl;
+        std::cout<<"RhoKalmanVtxFitter: GIi Inversion failed, abort fit."<<std::endl;
         return kFALSE;
       }
       GI.push_back(GIi);
@@ -424,7 +424,7 @@ Bool_t PndKalmanVtxFitter::Calculate()
     CovVV.InvertFast(&determinant);
     //CovVV*=1e9;//catch numerics back
     if (determinant==0) {
-      std::cout<<"PndKalmanVtxFitter: WV Inversion failed, abort fit."<<std::endl;
+      std::cout<<"RhoKalmanVtxFitter: WV Inversion failed, abort fit."<<std::endl;
       return kFALSE;
     }
     if(fDebug) {std::cout<<" #$# Fit #$# WV= "; WV.Print();}

@@ -42,7 +42,7 @@
 
 // Forward declarations
 
-namespace Dummy
+namespace DecayTreeFitter
 {
 
   class State
@@ -57,7 +57,7 @@ namespace Dummy
     m_covariance(5)
     {};
 
-    //State(const Dummy::StateVector& stateVec) : m_flags(0),
+    //State(const DecayTreeFitter::StateVector& stateVec) : m_flags(0),
     //m_stateVector(stateVec.parameters()),
     //m_covariance() {};
 
@@ -127,7 +127,7 @@ namespace Dummy
     //    inline virtual double errQOverPperp2() const;
     //    inline virtual State* clone() const;
 
-    //void setState(const Dummy::StateVector& state) {
+    //void setState(const DecayTreeFitter::StateVector& state) {
     //  m_stateVector = state.parameters() ;
     //};
 
@@ -148,7 +148,7 @@ namespace Dummy
     //inline virtual void setErrQOverP2(double value) {};
     //inline void linearTransportTo(double az) {};
 
-    inline virtual std::ostream& fillStream(std::ostream& os) const {os<<"Dummy::State::fillStream() not implemented";return os;};
+    inline virtual std::ostream& fillStream(std::ostream& os) const {os<<"DecayTreeFitter::State::fillStream() not implemented";return os;};
 
     inline unsigned int flags() const { return m_flags;};
     inline void setFlags(unsigned int value) { m_flags = value;};
@@ -176,14 +176,14 @@ namespace Dummy
     return obj.fillStream(str);
   }
 
-} // namespace Dummy;
+} // namespace 
 
 // -----------------------------------------------------------------------------
 // end of class
 // -----------------------------------------------------------------------------
 
 
-//inline Dummy::State::State(const Dummy::StateVector& stateVec,
+//inline DecayTreeFitter::State::State(const DecayTreeFitter::StateVector& stateVec,
 //                           const TMatrixDSym& cov,
 //                           double z) : m_flags(0),
 //m_stateVector(stateVec),
@@ -193,7 +193,7 @@ namespace Dummy
 //
 //}
 //
-//inline Dummy::State::State(const Dummy::StateVector& stateVec,
+//inline DecayTreeFitter::State::State(const DecayTreeFitter::StateVector& stateVec,
 //                           double z) : m_flags(0),
 //m_stateVector(stateVec),
 //m_covariance(),

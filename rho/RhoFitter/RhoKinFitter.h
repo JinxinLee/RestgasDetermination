@@ -1,8 +1,8 @@
-#ifndef PndKinFitter_H
-#define PndKinFitter_H
+#ifndef RhoKinFitter_H
+#define RhoKinFitter_H
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// PndKinFitter                 //
+// RhoKinFitter                 //
 //                                                                      //
 // V. Jha 2010  FZ Juelich                                              //
 //                                                                      //
@@ -18,11 +18,11 @@
 
 class RhoCandidate;
 
-class PndKinFitter : public RhoFitterBase
+class RhoKinFitter : public RhoFitterBase
 {
   public:
-    PndKinFitter( RhoCandidate* b) ;
-    virtual ~PndKinFitter();
+    RhoKinFitter( RhoCandidate* b) ;
+    virtual ~RhoKinFitter();
 
     void Add4MomConstraint(TLorentzVector lv);
     void AddMomConstraint(TVector3 v);
@@ -30,11 +30,11 @@ class PndKinFitter : public RhoFitterBase
     void AddTotMomConstraint(double momentum);
     void AddMassConstraint(double mass);
     Bool_t Fit();
-    Bool_t FitAll() {Fatal("PndKinFitter::FitAll()","Not applicable. Please use Fit()."); return kFALSE;};
+    Bool_t FitAll() {Fatal("RhoKinFitter::FitAll()","Not applicable. Please use Fit()."); return kFALSE;};
 
     double Chi2Diff() {return fChi2Diff;}
     double GetPull() {return fPull;}
-    double Chi2Contribution ( const RhoCandidate& ) const {Error("PndKinFitter::Chi2Contribution","No chi2 contribution available.");return -9999.;};
+    double Chi2Contribution ( const RhoCandidate& ) const {Error("RhoKinFitter::Chi2Contribution","No chi2 contribution available.");return -9999.;};
 
   private:
     void SetMatrices();
@@ -83,7 +83,7 @@ class PndKinFitter : public RhoFitterBase
     double         fPull;
 
 
-    ClassDef(PndKinFitter,1)
+    ClassDef(RhoKinFitter,1)
 };
 
 #endif

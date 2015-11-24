@@ -17,14 +17,6 @@
 
 #include "RhoCandidate.h"
 
-//namespace LHCb
-//{
-//  class Particle ;
-//  class ParticleID ;
-//  class ParticleProperty ;
-//  class Trajectory ;
-//}
-
 namespace DecayTreeFitter
 {
   class FitParams ;
@@ -163,6 +155,5 @@ namespace DecayTreeFitter
   } ;
 
 }
-
 
 #endif

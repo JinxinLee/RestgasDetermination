@@ -154,8 +154,8 @@ void PndParticleQATask::SetParContainers()
 void PndParticleQATask::Exec(Option_t* opt)
 {
 	// *** some variables
-	int i=0,j=0, k=0, l=0;
-	
+	//int i=0,j=0, k=0, l=0;
+	int j=0;
 	TLorentzVector dummy;
 	
 	// necessary to read the next event

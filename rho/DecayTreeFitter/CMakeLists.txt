@@ -35,10 +35,11 @@ ChiSquare.cxx
 Configuration.cxx
 Constraint.cxx
 DecayChain.cxx
-DummyHeader.cxx
+LineTool.cxx
+SortTool.cxx
 FitParams.cxx
 Fitter.cxx
-HelixUtils.cxx
+#HelixUtils.cxx
 InteractionPoint.cxx
 InternalParticle.cxx
 KalmanCalculator.cxx
@@ -53,7 +54,6 @@ RecoResonance.cxx
 RecoTrack.cxx
 RecoTrackStateProvider.cxx
 Resonance.cxx
-#StateVector.cxx
 State.cxx
 )
 

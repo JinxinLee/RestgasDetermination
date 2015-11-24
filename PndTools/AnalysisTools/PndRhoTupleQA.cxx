@@ -191,7 +191,7 @@ void PndRhoTupleQA::qaEventShapeShort(TString pre, PndEventShape *evsh, RhoTuple
 {
   if (n==0) return;
   // *** vars for PID multiplicity
-  int ne, nmu, npi, nk, np;
+  //int ne, nmu, npi, nk, np;
 
   // basic multiplicities
   qaESMult(pre,  evsh, n);
@@ -275,7 +275,7 @@ void PndRhoTupleQA::qaPRG(TString pre, RhoCandidate *c, RhoTuple *n)
 // -------------------------------------------------------------------------
 // *** store QA for composite particles
 
-void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
+void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool pulls)
 {
   if (n==0) return;
 
@@ -318,6 +318,7 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n)
   // store cand info in lab and cms
   qaCand(pre,	c,	n);
   qaP4Cms(pre, c->P4(), n);
+  if(pulls) qaPull(pre,c,n, (0==truth));
   n->Column(pre+"mct",  (Float_t) mct, 0.0f);
 
   // for mass difference e.g. D* -> D pi decays
@@ -524,21 +525,21 @@ void PndRhoTupleQA::qaP4Cov(TString pre, RhoCandidate *c, RhoTuple *n, bool skip
     n->Column(pre+"covpypz", (Float_t) cov(1,2), 0.0f);
     n->Column(pre+"covpye", (Float_t) cov(1,3), 0.0f);
     n->Column(pre+"covpzpz", (Float_t) cov(2,2), 0.0f);
-    n->Column(pre+"covpzee", (Float_t) cov(2,3), 0.0f);
+    n->Column(pre+"covpze", (Float_t) cov(2,3), 0.0f);
     n->Column(pre+"covee", (Float_t) cov(3,3), 0.0f);
   }
   else
   {
-    n->Column(pre+"cov:px-px", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:px-py", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:px-pz", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:px-ee", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:py-py", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:py-pz", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:py-ee", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:pz-pz", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:pz-ee", (Float_t) -999., 0.0f);
-    n->Column(pre+"cov:ee-ee", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpxpx", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpxpy", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpxpz", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpxe", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpypy", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpypz", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpyee", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpzpz", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpze", (Float_t) -999., 0.0f);
+    n->Column(pre+"covee", (Float_t) -999., 0.0f);
   }
 }
 
@@ -554,23 +555,72 @@ void PndRhoTupleQA::qaCand(TString pre, RhoCandidate *cc, RhoTuple *n, bool skip
     TVector3       p=cc->Pos();
 
     qaP4(pre, c, n);
+    qaPos(pre, p, n);
     n->Column(pre+"chg", (Float_t) cc->Charge(), 	0.0f );
-    n->Column(pre+"x",   (Float_t) p.X(),     		0.0f );
-    n->Column(pre+"y",   (Float_t) p.Y(),			0.0f );
-    n->Column(pre+"z",   (Float_t) p.Z(),			0.0f );
-    n->Column(pre+"l",   (Float_t) p.Mag(),			0.0f );
     n->Column(pre+"pdg", (Float_t) cc->PdgCode(),	0.0f );
   }
   else
   {
     TLorentzVector dummy;
+    TVector3 dummypos;
     qaP4(pre, dummy, n, true);
+    qaPos(pre, dummypos, n, true);
     n->Column(pre+"chg", (Float_t) -999., 			0.0f );
+    n->Column(pre+"pdg", (Float_t) -999.,			0.0f );
+  }
+}
+// -------------------------------------------------------------------------
+
+void PndRhoTupleQA::qaPos(TString pre, TVector3 p, RhoTuple *n, bool skip)
+{
+  if (n==0) return;
+
+  if (!skip)
+  {
+    n->Column(pre+"x",   (Float_t) p.X(),    	0.0f );
+    n->Column(pre+"y",   (Float_t) p.Y(),			0.0f );
+    n->Column(pre+"z",   (Float_t) p.Z(),			0.0f );
+    n->Column(pre+"l",   (Float_t) p.Mag(),		0.0f );
+  }
+  else
+  {
     n->Column(pre+"x",   (Float_t) -999.,  			0.0f );
     n->Column(pre+"y",   (Float_t) -999.,  			0.0f );
     n->Column(pre+"z",   (Float_t) -999.,  			0.0f );
     n->Column(pre+"l",   (Float_t) -999.,  			0.0f );
-    n->Column(pre+"pdg", (Float_t) -999.,			0.0f );
+  }
+}
+// -------------------------------------------------------------------------
+
+void PndRhoTupleQA::qaPull(TString pre, RhoCandidate *c, RhoTuple *n, bool skip)
+{
+  if (!skip)
+  {
+    RhoCandidate *mct = c->GetMcTruth();
+    if(mct) {
+      TLorentzVector difp4  = c->P4()  - mct->P4();
+      TVector3       difpos = c->Pos() - mct->Pos();
+      RhoError       covp4  = c->P4Cov();
+      RhoError       covpos = c->PosCov();
+      n->Column(pre+"pullpx",   (Float_t) (difp4.Px()/sqrt(covp4(0,0))),    	0.0f );
+      n->Column(pre+"pullpy",   (Float_t) (difp4.Py()/sqrt(covp4(1,1))),    	0.0f );
+      n->Column(pre+"pullpz",   (Float_t) (difp4.Pz()/sqrt(covp4(2,2))),    	0.0f );
+      n->Column(pre+"pulle",    (Float_t) (difp4.E()/sqrt(covp4(3,3))),     	0.0f );
+      n->Column(pre+"pullx",    (Float_t) (difpos.X()/sqrt(covpos(0,0))),    	0.0f );
+      n->Column(pre+"pully",    (Float_t) (difpos.Y()/sqrt(covpos(1,1))),    	0.0f );
+      n->Column(pre+"pullz",    (Float_t) (difpos.Z()/sqrt(covpos(2,2))),    	0.0f );
+    } else {skip=true;}
+  }
+  
+  if (skip)
+  {
+      n->Column(pre+"pullpx",   (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullpy",   (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullpz",   (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pulle",    (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullx",    (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pully",    (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullz",    (Float_t) -999.,    	0.0f );
   }
 }
 // -------------------------------------------------------------------------

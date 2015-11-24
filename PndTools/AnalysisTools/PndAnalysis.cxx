@@ -37,8 +37,8 @@ using std::endl;
 #include "PndAnaPidSelector.h"
 #include "PndAnaPidCombiner.h"
 #include "PndMCTrack.h"
-#include "PndAnaCovTool.h" // using a cov matrix tool
-#include "PndAnalysisCalcTools.h"
+//#include "PndAnaCovTool.h" // using a cov matrix tool
+#include "RhoCalculationTools.h"
 #include "PndPidBremCorrected4Mom.h"
 
 ClassImp ( PndAnalysis );
@@ -634,9 +634,7 @@ Bool_t PndAnalysis::ResetCandidate ( RhoCandidate* cand )
   //if(fVerbose>2){ std::cout<<"MARS cov (px,py,pz,E,x,y,z): ";err.Print();}
   TLorentzVector lv = cand->P4();
 
-  static PndAnaCovTool covTool; // external tool to convert from a 6x6 (p3,v) cov matrix to the 7x7(p4,v) cov matrix
-
-  TMatrixD covPosMom = covTool.GetConverted7 ( covTool.GetFitError ( lv, err ) );
+  TMatrixD covPosMom = RhoCalculationTools::GetConverted7 ( RhoCalculationTools::GetFitError ( lv, err ) );
 
   //if(fVerbose>2){ std::cout<<"covPosMom (x,y,z,px,py,pz,E): ";covPosMom.Print();}
 
@@ -658,7 +656,6 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
   //TODO: implement a real cov matrix
 
   Bool_t rc = kFALSE;
-  static PndAnaCovTool covTool; // external tool to convert from a 6x6 (p3,v) cov matrix to the 7x7(p4,v) cov matrix
   FairGeanePro* geaneProp = new FairGeanePro();
   Int_t pdgcode = cand->PdgCode();
 
@@ -763,7 +760,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
 
     TLorentzVector lv = cand->P4();
 
-    TMatrixD covPosMom = covTool.GetConverted7 ( covTool.GetFitError ( lv, err ) );
+    TMatrixD covPosMom = RhoCalculationTools::GetConverted7 ( RhoCalculationTools::GetFitError ( lv, err ) );
 
     if ( fVerbose>2 ) {
       std::cout<<"covPosMom (x,y,z,px,py,pz,E): "; covPosMom.Print();
@@ -771,7 +768,7 @@ Bool_t PndAnalysis::Propagator ( int mode, FairTrackParP& tStart, RhoCandidate* 
 
     cand->SetCov7 ( covPosMom );
   }
-//  rc = PndAnalysisCalcTools::FillHelixParams(cand,skipcov);
+//  rc = RhoCalculationTools::FillHelixParams(cand,skipcov);
 //  if (!rc) {Warning("Propagator()","P7toHelix failed"); return kFALSE;}
 
   if ( fVerbose>2 ) {

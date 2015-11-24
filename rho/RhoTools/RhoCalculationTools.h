@@ -12,7 +12,12 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+#include "RhoCandidate.h"
+
 #include "TVector3.h"
+#include "TLorentzVector.h"
+#include "TMatrixD.h"
+#include "TMatrixDSym.h"
 
 class RhoCalculationTools
 {
@@ -38,7 +43,48 @@ class RhoCalculationTools
     };
 
 
+/**********************************************************
+ Description: Class PndAnaCovTool
+ Taken from Base class for particles used for Vertex fitting
+ Authors: Dipak K. Mishra
+          R. Kliemt (taking away the cov converters)
+***********************************************************/
+    static TMatrixDSym       GetConverted6(TMatrixDSym) ;
+    static TMatrixD          GetConverted6(TMatrixD) ;
+    static TMatrixD          GetConverted7(TMatrixD) ;
+    static TMatrixDSym       GetCovMat(TMatrixD) ;
+    static TMatrixDSym       GetCovMat1(TMatrixD) ;
+    static TMatrixDSym       GetFitError(TMatrixDSym) ;
+    static TMatrixD          GetFitError(TLorentzVector, TMatrixD) ;
+
+
+
+    /// Calculator functions
+//    static Bool_t FillHelixParams(RhoCandidate* cand, Bool_t skipcov=kFALSE);
+    static Bool_t P7toHelix(const TVector3& pos, const TLorentzVector& p4, const Double_t Q,
+                            const TMatrixD& cov77, Float_t* helixparams, TMatrixD& helixCov, Bool_t skipcov=kFALSE);
+    static Bool_t P7toPRG(const TVector3& pos, const TLorentzVector& p4, const Double_t Q, const TMatrixD& cov77,
+                          const TVector3& expPoint, Float_t* helixparams, TMatrixD& helixCov, TMatrixD& jacobian, Bool_t skipcov=kFALSE);
+//    static Bool_t SDtoHelix(FairTrackParH* par, RhoCandidate* cand, Bool_t skipcov=kFALSE);
+    static Bool_t P6FromTrajectory( TVectorD& mom6, TMatrixDSym& cov6, RhoCandidate* cand, double z, double ztolerance);
+    static Double_t StateFromTrajectory( TVectorD& state, TMatrixDSym& cov, RhoCandidate* track, double vx, double vy, double vz, double ztolerance );
+
+    static void TransportToZ(RhoCandidate* cand, Double_t z=0);
+    static void PrintMatrix(TMatrixT<double> m);
+    static void PrintMatrix(TMatrixTSym<double> m);
+
   private:
+    
+    static std::ostream& bold_on(std::ostream& os)
+    {
+      return os << "\e[1m";
+    }
+
+    static std::ostream& bold_off(std::ostream& os)
+    { 
+      return os << "\e[0m"; 
+    }
+
     RhoCalculationTools();
     ~RhoCalculationTools();
 

@@ -12,7 +12,7 @@
 #include "RecoParticle.h"
 #include "Configuration.h"
 #include "TVector3.h"
-#include "DummyHeader.h"
+#include "LineTool.h"
 #include "State.h"
 #include "Rtypes.h"
 
@@ -36,7 +36,6 @@ namespace DecayTreeFitter
 
     virtual ErrCode initPar2(FitParams*) ;
     virtual ErrCode initCov(FitParams*) ;
-    //virtual int dimM() const { return 7 ; } //FIXME [R.K.'14] go back to Helix, soon
     virtual int dimM() const { return 5 ; }
     virtual int type() const { return kRecoTrack ; }
 
@@ -54,8 +53,8 @@ namespace DecayTreeFitter
     void setFlightLength(double flt) { m_flt = flt ; }
     //    const PndTrack& track() const { return *m_track ; }
     //FIXME state needed?
-    const Dummy::State& state() const { return m_state ; }
-    const Dummy::State& closestCachedState( double z ) ;
+    const DecayTreeFitter::State& state() const { return m_state ; }
+    const DecayTreeFitter::State& closestCachedState( double z ) ;
   private:
     const TVector3 m_bfield ;
 	  const RhoCandidate* m_candidate;
@@ -65,8 +64,8 @@ namespace DecayTreeFitter
     //    const LHCb::TrackTraj* m_tracktraj ;
     bool m_cached ;
     double m_flt ;
-    Dummy::State m_state ;
-	  std::vector<Dummy::State> m_StateCache;
+    DecayTreeFitter::State m_state ;
+	  std::vector<DecayTreeFitter::State> m_StateCache;
     //    double m_bremEnergy ;
     //    double m_bremEnergyCov ;
     ClassDef ( RecoTrack,1 )

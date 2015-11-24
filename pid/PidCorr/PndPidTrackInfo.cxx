@@ -2,12 +2,11 @@
 #include "PndPidCandidate.h"
 #include "PndTrack.h"
 #include "FairTrackParH.h"
-#include "PndAnaCovTool.h"
 #include "FairRun.h"
 #include "FairRunSim.h"
 #include "FairRunAna.h"
 #include "FairField.h"
-
+#include "RhoCalculationTools.h"
 #include "TVector3.h"
 #include "TDatabasePDG.h"
 #include <cmath>
@@ -15,8 +14,6 @@
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
 {
-  static PndAnaCovTool covTool;
-
   Int_t charge =   TMath::Sign(1, track->GetParamFirst().GetQ());
   pidCand->SetCharge(charge);
 
@@ -84,7 +81,7 @@ Bool_t PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
   TLorentzVector lv;
   lv.SetVectM(momentum, TDatabasePDG::Instance()->GetParticle(fPidHyp)->Mass()); // set mass hypothesis
   Float_t energy = lv.E();
-  TMatrixD mat = covTool.GetConverted7(covTool.GetFitError(lv, err));
+  TMatrixD mat = RhoCalculationTools::GetConverted7(RhoCalculationTools::GetFitError(lv, err));
 
   pidCand->SetPosition(startpos);
   pidCand->SetMomentum(momentum);

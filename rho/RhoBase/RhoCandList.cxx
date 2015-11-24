@@ -65,7 +65,7 @@ void RhoCandList::Cleanup( )
 
 void RhoCandList::SetNumberOfTracks ( Int_t n )
 {
-  cerr << "RhoCandList::SetNumberOfTracks is deprecated" << endl;
+  cerr << "RhoCandList::SetNumberOfTracks is deprecated. n="<<n << endl;
 }
 
 Int_t RhoCandList::GetNumberOfTracks() const

@@ -9,6 +9,7 @@
 #include "TLorentzVector.h"
 #include "RhoCandList.h"
 #include "TDatabasePDG.h"
+#include "PndVtxPoca.h"
 
 class TClonesArray;
 class TObjectArray;
@@ -22,7 +23,6 @@ class PndAnalysis;
 class RhoCandList;
 class RhoTuple;
 class RhoCandidate;
-class PndVtxPoca;
 class PndEventShape;
 class TDatabasePDG;
 class PndRhoTupleQA;

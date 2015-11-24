@@ -72,8 +72,8 @@ namespace DecayTreeFitter
     double chiSquare() const {
       TMatrixDSym W=m_matrixV ;
       double det=0;
-      TMatrixDSym Winv = W.InvertFast(&det);
-      return Winv.Similarity(m_r) ;
+      W.InvertFast(&det);
+      return W.Similarity(m_r) ;
     }
 
     void incrementOffset(unsigned int i) { m_offset+=i ; }

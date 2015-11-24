@@ -1,8 +1,8 @@
-#ifndef Pnd4CFitter_H
-#define Pnd4CFitter_H
+#ifndef Rho4CFitter_H
+#define Rho4CFitter_H
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// Pnd4CFitter                  //
+// Rho4CFitter                  //
 //                                                                      //
 // Author: K. Goetzen, GSI, 2008                //
 //                                                                      //
@@ -17,16 +17,16 @@
 
 class RhoCandidate;
 
-class Pnd4CFitter : public RhoFitterBase
+class Rho4CFitter : public RhoFitterBase
 {
   public:
-    Pnd4CFitter( RhoCandidate* b , TLorentzVector lv) ;
-    virtual ~Pnd4CFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
+    Rho4CFitter( RhoCandidate* b , TLorentzVector lv) ;
+    virtual ~Rho4CFitter();// {if(fHeadOfTree) delete fHeadOfTree;}
     Bool_t Fit(); // fits final state particles to initial state, States inbetween are modified.
     Bool_t FitConserveMasses(); // fits final state particles threemomenta to initial state, States inbetween are modified.
-    Bool_t FitAll() {Fatal("Pnd4CFitter::FitAll()","Not applicable. Please use Fit() or FitConserveMasses()."); return kFALSE;};
+    Bool_t FitAll() {Fatal("Rho4CFitter::FitAll()","Not applicable. Please use Fit() or FitConserveMasses()."); return kFALSE;};
     void PrintTree(RhoCandidate* c, int l=0);
-    double Chi2Contribution ( const RhoCandidate& ) const {Error("Pnd4CFitter::Chi2Contribution","No chi2 contribution available.");return -9999.;};
+    double Chi2Contribution ( const RhoCandidate& ) const {Error("Rho4CFitter::Chi2Contribution","No chi2 contribution available.");return -9999.;};
 
   private:
 
@@ -37,7 +37,7 @@ class Pnd4CFitter : public RhoFitterBase
     int            fNDau;
     double         fConserveDaughterMasses; //true = energy of daughters cannot be modified by fit
 
-    ClassDef(Pnd4CFitter,1) //A 4c fitter
+    ClassDef(Rho4CFitter,1) //A 4c fitter
 };
 
 #endif

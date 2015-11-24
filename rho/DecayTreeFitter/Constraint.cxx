@@ -181,7 +181,7 @@ std::string DecayTreeFitter::Constraint::name() const
   std::string rc = "unknown constraint!" ;
   switch(m_type)
   {
-    case beamspot:     rc = "beamspot" ; break ;
+    //case beamspot:     rc = "beamspot" ; break ;
     case beamenergy:   rc = "beamenergy" ; break ;
     case composite:    rc = "composite" ; break ;
     case resonance:    rc = "resonance" ; break ;

@@ -1,27 +1,27 @@
 
 #include <iostream>
-#include "PndKinVtxFitter.h"
+#include "RhoKinVtxFitter.h"
 #include "RhoBase/RhoCandListIterator.h"
 #include "RhoBase/RhoFactory.h"
 #include "RhoCalculationTools.h"
 #include "TDecompLU.h"
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
-#include "PndVtxPoca.h"
+#include "RhoVtxPoca.h"
 
 using namespace std;
 
 
-ClassImp(PndKinVtxFitter)
+ClassImp(RhoKinVtxFitter)
 
-TBuffer& operator>>(TBuffer& buf, PndKinVtxFitter *&obj)
+TBuffer& operator>>(TBuffer& buf, RhoKinVtxFitter *&obj)
 {
-  obj = (PndKinVtxFitter*) buf.ReadObject(PndKinVtxFitter::Class());
+  obj = (RhoKinVtxFitter*) buf.ReadObject(RhoKinVtxFitter::Class());
   return buf;
 }
 
 //Include only those constraint which need vertex Info....
-PndKinVtxFitter::PndKinVtxFitter( RhoCandidate* b) :
+RhoKinVtxFitter::RhoKinVtxFitter( RhoCandidate* b) :
   RhoFitterBase( b )
 {
   fMassConstraint =-1;
@@ -34,24 +34,24 @@ PndKinVtxFitter::PndKinVtxFitter( RhoCandidate* b) :
 
 }
 
-PndKinVtxFitter::~PndKinVtxFitter()
+RhoKinVtxFitter::~RhoKinVtxFitter()
 {
 }
 
-void PndKinVtxFitter::AddMassConstraint(double mass)
+void RhoKinVtxFitter::AddMassConstraint(double mass)
 {
   fMassConstraint = 1;
   fMass=mass;
 }
 
-// void PndKinVtxFitter::AddPointingConstraint(TVector3 pVtx)
+// void RhoKinVtxFitter::AddPointingConstraint(TVector3 pVtx)
 // {
 //   fPointConstraint = 1;
 //   fpVtx=pVtx;
 // }
 //
 
-Bool_t PndKinVtxFitter::FitNode(RhoCandidate *cand)
+Bool_t RhoKinVtxFitter::FitNode(RhoCandidate *cand)
 {
   SetDaugthersFromComposite(cand);
   Bool_t check=Compute(cand);
@@ -60,7 +60,7 @@ Bool_t PndKinVtxFitter::FitNode(RhoCandidate *cand)
 }
 
 
-void PndKinVtxFitter::SetMatrices()
+void RhoKinVtxFitter::SetMatrices()
 {
   int nd=fDaughters.size();
 
@@ -83,7 +83,7 @@ void PndKinVtxFitter::SetMatrices()
 }
 
 
-void PndKinVtxFitter::ResetMatrices()
+void RhoKinVtxFitter::ResetMatrices()
 {
   al0.Zero();
   V_al0.Zero();
@@ -97,7 +97,7 @@ void PndKinVtxFitter::ResetMatrices()
 
 
 
-Bool_t PndKinVtxFitter::Compute(RhoCandidate* c)
+Bool_t RhoKinVtxFitter::Compute(RhoCandidate* c)
 {
 
   // int nd=fDaughters.size();
@@ -122,7 +122,7 @@ Bool_t PndKinVtxFitter::Compute(RhoCandidate* c)
 
   TVector3 startVtx;
   //Getting point of closed approach as start vertex point
-  PndVtxPoca poca;				//changed from internal method to class PndVtxPoca by J.Puetz
+  RhoVtxPoca poca;				//changed from internal method to class RhoVtxPoca by J.Puetz
   poca.GetPocaVtx(startVtx, c);
 
   vtx_st[0][0]=startVtx.X();
@@ -326,7 +326,7 @@ Bool_t PndKinVtxFitter::Compute(RhoCandidate* c)
 
 
 //Write output
-void PndKinVtxFitter::SetOutput(RhoCandidate* head)
+void RhoKinVtxFitter::SetOutput(RhoCandidate* head)
 {
 
   int nd=fDaughters.size();
@@ -445,7 +445,7 @@ void PndKinVtxFitter::SetOutput(RhoCandidate* head)
 
 
 //Read the input vector
-void PndKinVtxFitter::ReadMatrix()
+void RhoKinVtxFitter::ReadMatrix()
 {
   int nd =fDaughters.size();
   TMatrixD m(nd,1);
@@ -507,8 +507,8 @@ void PndKinVtxFitter::ReadMatrix()
 
 
 //Read Constraint Matrices ... D, E and d
-//unsigned PndKinVtxFitter:: ReadKinMatrix( TMatrixD & mD,  TMatrixD & mE, TMatrixD & md)
-void PndKinVtxFitter::ReadKinMatrix()
+//unsigned RhoKinVtxFitter:: ReadKinMatrix( TMatrixD & mD,  TMatrixD & mE, TMatrixD & md)
+void RhoKinVtxFitter::ReadKinMatrix()
 {
 
   int  nd=fDaughters.size();
@@ -612,8 +612,8 @@ void PndKinVtxFitter::ReadKinMatrix()
 }
 
 
-void PndKinVtxFitter::ReadMassKinMatrix()
-// unsigned PndKinVtxFitter:: ReadMassKinMatrix( TMatrixD & mD,  TMatrixD & mE,  TMatrixD & md)
+void RhoKinVtxFitter::ReadMassKinMatrix()
+// unsigned RhoKinVtxFitter:: ReadMassKinMatrix( TMatrixD & mD,  TMatrixD & mE,  TMatrixD & md)
 {
   // if(m_fitIncludingVertex == 0)
   //{
@@ -730,7 +730,7 @@ void PndKinVtxFitter::ReadMassKinMatrix()
 }
 
 // not used yet?
-// void PndKinVtxFitter::ReadPointingKinMatrix(RhoCandidate* head)
+// void RhoKinVtxFitter::ReadPointingKinMatrix(RhoCandidate* head)
 // {
 //   //Pass the vertex point
 //   // To be applied on the composite particle
@@ -813,7 +813,7 @@ void PndKinVtxFitter::ReadMassKinMatrix()
 
 
 
-void PndKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMatrixD& a_out, TMatrixD& a_cov_out, TMatrixD& xref)
+void RhoKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMatrixD& a_out, TMatrixD& a_cov_out, TMatrixD& xref)
 {
 	//edited by J.Puetz
 	//added parametrization for neutral daughter particles
@@ -835,7 +835,7 @@ void PndKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
 			double py=a_in[kN+1][0];
 			double pz=a_in[kN+2][0];
 			double p2=px*px+py*py+pz*pz;
-			double E= sqrt(m*m+p2);
+			//double E= sqrt(m*m+p2);
 			double x=a_in[kN+4][0];
 			double y=a_in[kN+5][0];
 			double z=a_in[kN+6][0];
@@ -884,7 +884,7 @@ void PndKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
 			double z=a_in[kN+6][0];
 
 			double ptot = sqrt(px*px + py*py + pz*pz);
-			double E=sqrt(m*m+ptot*ptot);
+			//double E=sqrt(m*m+ptot*ptot);
 			double rho  = a/ptot; //1/R with R: the radius of the trajectory
 			double A1 = 1 - pow(pz/ptot,2) - ( (x-xref[0][0])*py - (y-xref[1][0])*px )*rho/ptot ;
 			double A2 = (x-xref[0][0])*px + (y-xref[1][0])*py;
@@ -940,7 +940,7 @@ void PndKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
 
 }
 
-void PndKinVtxFitter::GetCovariance(TMatrixD& a_cov0, TMatrixD& cov_al_x, TMatrixD& V_vtx, TMatrixD& covS)
+void RhoKinVtxFitter::GetCovariance(TMatrixD& a_cov0, TMatrixD& cov_al_x, TMatrixD& V_vtx, TMatrixD& covS)
 //The covariance for the vitual particle ( a bit complicated)
 {
   int fNDau=fDaughters.size();

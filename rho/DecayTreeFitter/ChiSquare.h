@@ -8,6 +8,7 @@
 #ifndef DECAYTREEFITTER_ChiSquare_H
 #define DECAYTREEFITTER_ChiSquare_H 1
 #include "Rtypes.h"
+#include "TMath.h"
 
 namespace DecayTreeFitter
 {
@@ -46,6 +47,10 @@ namespace DecayTreeFitter
 
     /// Retrieve const  number of degrees of freedom
     int nDoF() const { return m_nDoF ; }
+ 
+    /// Get Cofidence level
+    double prob() const { return TMath::Prob(m_chi2,m_nDoF) ; }
+
 
   protected:
 

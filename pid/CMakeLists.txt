@@ -12,7 +12,6 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
   ${CMAKE_SOURCE_DIR}/emc/EmcMC
   ${CMAKE_SOURCE_DIR}/emc/EmcData
   ${CMAKE_SOURCE_DIR}/emc/EmcReco
@@ -39,6 +38,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackrep
   ${CMAKE_SOURCE_DIR}/rho
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
+  ${CMAKE_SOURCE_DIR}/rho/RhoTools
   ${CMAKE_SOURCE_DIR}/pid
   ${CMAKE_SOURCE_DIR}/pid/PidData
   ${CMAKE_SOURCE_DIR}/pid/PidCorr
@@ -122,6 +122,6 @@ set(LINKDEF PidLinkDef.h)
 set(LIBRARY_NAME Pid)
 
 set(DEPENDENCIES Base GeoBase ParBase RecoTasks generalTools Mva Emc
-Ftof Fts Geane PndData Stt TrkBase AnalysisTools)
+Ftof Fts Geane PndData Stt TrkBase Rho)
 
 GENERATE_LIBRARY()

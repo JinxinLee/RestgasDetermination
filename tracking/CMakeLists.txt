@@ -23,10 +23,11 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/GemData 
   ${CMAKE_SOURCE_DIR}/geane 
   ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+  ${CMAKE_SOURCE_DIR}/PndTools/PndParticleFitters 
   ${CMAKE_SOURCE_DIR}/rho
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/rho/RhoMath
+  ${CMAKE_SOURCE_DIR}/rho/RhoFitter
   ${CMAKE_SOURCE_DIR}/tracking
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
   ${CMAKE_SOURCE_DIR}/tracking/TrkSecondary
@@ -107,6 +108,6 @@ TrkQA/PndTrkAnaTask.cxx
 set(LINKDEF  TrackingLinkDef.h)
 set(LIBRARY_NAME Tracking)
 
-set(DEPENDENCIES Base ParBase PndData Stt Fts TrkBase)
+set(DEPENDENCIES Base ParBase PndData Stt Fts TrkBase ParticleFitters)
 
 GENERATE_LIBRARY()

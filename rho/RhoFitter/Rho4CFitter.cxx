@@ -1,28 +1,28 @@
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// Pnd4CFitter                                                          //
+// Rho4CFitter                                                          //
 //                                                                      //
 // Author: K. Goetzen, GSI, 2008                                        //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include "Pnd4CFitter.h"
+#include "Rho4CFitter.h"
 #include "RhoBase/RhoCandListIterator.h"
 
 #include "RhoBase/RhoFactory.h"
 
 using namespace std;
 
-ClassImp(Pnd4CFitter)
+ClassImp(Rho4CFitter)
 
-TBuffer& operator>>(TBuffer& buf, Pnd4CFitter *&obj)
+TBuffer& operator>>(TBuffer& buf, Rho4CFitter *&obj)
 {
-  obj = (Pnd4CFitter*) buf.ReadObject(Pnd4CFitter::Class());
+  obj = (Rho4CFitter*) buf.ReadObject(Rho4CFitter::Class());
   return buf;
 }
 
-Pnd4CFitter::Pnd4CFitter( RhoCandidate* b , TLorentzVector lv) :
+Rho4CFitter::Rho4CFitter( RhoCandidate* b , TLorentzVector lv) :
   RhoFitterBase( b ),
   fLv4C(lv),
   fNDau(0),
@@ -32,11 +32,11 @@ Pnd4CFitter::Pnd4CFitter( RhoCandidate* b , TLorentzVector lv) :
 }
 
 
-Pnd4CFitter::~Pnd4CFitter()
+Rho4CFitter::~Rho4CFitter()
 {
 }
 
-void Pnd4CFitter::PrintTree(RhoCandidate* c, int l)
+void Rho4CFitter::PrintTree(RhoCandidate* c, int l)
 {
   for (int i=0; i<l; i++) { std::cout <<"          "; }
   if (c) {
@@ -50,7 +50,7 @@ void Pnd4CFitter::PrintTree(RhoCandidate* c, int l)
   }
 }
 
-Bool_t Pnd4CFitter::Fit()
+Bool_t Rho4CFitter::Fit()
 {
   fDaughters.clear();
   FindAndAddFinalStateDaughters(fHeadOfTree); //add all leaves as deep as they are unlocked in fit status!
@@ -61,7 +61,7 @@ Bool_t Pnd4CFitter::Fit()
 }
 
 
-Bool_t Pnd4CFitter::FitConserveMasses()
+Bool_t Rho4CFitter::FitConserveMasses()
 {
   fDaughters.clear();
   FindAndAddFinalStateDaughters(fHeadOfTree);
@@ -74,7 +74,7 @@ Bool_t Pnd4CFitter::FitConserveMasses()
 
 
 
-Bool_t Pnd4CFitter::Do4CFit()
+Bool_t Rho4CFitter::Do4CFit()
 {
   int nd=fNDau;
 
@@ -176,7 +176,7 @@ Bool_t Pnd4CFitter::Do4CFit()
 
 //Fit conserves the daughter masses (only 3 params per track...)
 
-Bool_t Pnd4CFitter::Do4CFitWithMassConservation()
+Bool_t Rho4CFitter::Do4CFitWithMassConservation()
 {
   int nd=fDaughters.size();
 

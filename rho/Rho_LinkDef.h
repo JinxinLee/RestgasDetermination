@@ -92,6 +92,13 @@
 
 #pragma link C++ class RhoFitterBase;
 
+//#pragma link C++ class RhoKinVtxFitter;
+//#pragma link C++ class RhoKinFitter;
+//#pragma link C++ class RhoDecayTreeFitter;
+//#pragma link C++ class RhoVtxPoca;
+//#pragma link C++ class RhoKalmanVtxFitter;
+//#pragma link C++ class Rho4CFitter;
+
 //#################### RhoSelector #######################
 #pragma link C++ class RhoChargedParticleSelector;
 #pragma link C++ class RhoNeutralParticleSelector;

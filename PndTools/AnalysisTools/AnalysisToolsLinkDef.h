@@ -9,16 +9,16 @@
 
 #pragma link C++ class PndEventInfo;
 #pragma link C++ function operator << ( ostream &, const PndEventInfo & );
-#pragma link C++ class PndKinVtxFitter;
-#pragma link C++ class PndKinFitter;
-//#pragma link C++ class PndVtxFitter;
-#pragma link C++ class PndVtxPoca;
-#pragma link C++ class PndVtxPRG;
-#pragma link C++ class Pnd4CFitter;
-//#pragma link C++ class PndVtxFitterParticle;
+//#pragma link C++ class PndKinVtxFitter;
+//#pragma link C++ class PndKinFitter;
+//#pragma link C++ class PndDecayTreeFitter;
+//#pragma link C++ class PndVtxPoca;
+//#pragma link C++ class PndKalmanVtxFitter;
+//#pragma link C++ class PndVtxPRG;
+//#pragma link C++ class Pnd4CFitter;
 #pragma link C++ class PndPidListMaker;
 #pragma link C++ class PndAnalysis+;
-#pragma link C++ class PndAnalysisCalcTools+;
+//#pragma link C++ class PndAnalysisCalcTools+;
 #pragma link C++ class PndSimpleAnalysis+;
 #pragma link C++ class PndAnalysisTask+;
 #pragma link C++ class PndMyAnalysisTask+;
@@ -32,7 +32,7 @@
 #pragma link C++ class PndAnaSelectorPar+;
 #pragma link C++ class PndGoodTrackSelector+;
 #pragma link C++ class PndEventShape+;
-#pragma link C++ class PndAnaCovTool+;
+//#pragma link C++ class PndAnaCovTool+;
 #pragma link C++ class PndRhoTupleQA+;
 #pragma link C++ class PndParticleQATask+;
 #pragma link C++ class PndSimpleCombiner+;

@@ -5,11 +5,11 @@
 #include "TVector3.h"
 #include "TString.h"
 #include "RhoCandList.h"
+#include "PndVtxPoca.h"
 
 class RhoCandidate;
 class RhoTuple;
 class PndEventShape;
-class PndVtxPoca;
 class PndAnalysis;
 class RhoFitterBase;
 
@@ -24,9 +24,11 @@ public:
 	void qaP4(TString pre, TLorentzVector c, RhoTuple *n, bool skip=false);
 	void qaP4Cms(TString pre, TLorentzVector c, RhoTuple *n, bool skip=false);
 	void qaP4Cov(TString pre, RhoCandidate *c, RhoTuple *n, bool skip=false);
+	void qaPos(TString pre, TVector3 p, RhoTuple *n, bool skip=false);
+	void qaPull(TString pre, RhoCandidate *c, RhoTuple *n, bool skip=false);
 
 	// *** QA for 2-prong
-	void qaComp(TString pre, RhoCandidate *c, RhoTuple *n);
+	void qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool pulls=false);
 	void qaKs0(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaPi0(TString pre, RhoCandidate *c, RhoTuple *n);
 
@@ -70,7 +72,6 @@ public:
 	// *** QA for the MC truth of candidates and the difference of the relevant properties (pos, p4, etc.)
     void qaMcDiff(TString pre, RhoCandidate *c, RhoTuple *n, bool skip=false);
 	void qaMc(TString pre, RhoCandidate *c, RhoTuple *n, bool skip);
-
 
 	void qaFitter(TString pre, RhoFitterBase* fitter, RhoTuple *n, bool skip=false);
 

@@ -36,16 +36,16 @@ extern int vtxverbose ;
 DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate* bc           ,
  const bool            forceFitAll  ,
- const RecoTrackStateProvider*   aExtrapolator )
+ RecoTrackStateProvider*   aExtrapolator )
 : RhoFitterBase(bc)
 , m_particle   (bc)
 , m_decaychain (0)
 , m_fitparams  (0)
 , m_status     (UnFitted)
-, m_chiSquare  (-1)
+//, m_chiSquare  (-1)
 , m_niter      (-1)
 , m_errCode    (0)
-, m_extrapolator( const_cast<RecoTrackStateProvider*>(aExtrapolator) )
+, m_extrapolator( aExtrapolator) 
 {
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") A - config"<<std::endl;
   Configuration config(forceFitAll,aExtrapolator) ;
@@ -62,17 +62,17 @@ DecayTreeFitter::Fitter::Fitter
 // ==========================================================================
 DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate* bc           ,
- const RecoTrackStateProvider*   aExtrapolator ,
+ RecoTrackStateProvider*   aExtrapolator ,
  const bool            forceFitAll  )
 : RhoFitterBase(bc)
 , m_particle   (bc)
 , m_decaychain (0)
 , m_fitparams  (0)
 , m_status     (UnFitted)
-, m_chiSquare  (-1)
+//, m_chiSquare  (-1)
 , m_niter      (-1)
 , m_errCode    (0)
-, m_extrapolator ( const_cast<RecoTrackStateProvider*>(aExtrapolator) )
+, m_extrapolator ( aExtrapolator) 
 {
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") B - config"<<std::endl;
   Configuration config(forceFitAll,aExtrapolator) ;
@@ -93,17 +93,17 @@ DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate*   bc           ,
  const RhoVector3Err& pv           ,
  const bool              forceFitAll  ,
- const RecoTrackStateProvider*     aExtrapolator )
+ RecoTrackStateProvider*     aExtrapolator )
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
 , m_fitparams  ( 0   )
 , m_status     ( UnFitted )
-, m_chiSquare  ( -1  )
+//, m_chiSquare  ( -1  )
 , m_niter      ( -1  )
 , m_errCode    (  0  )
 //
-, m_extrapolator ( const_cast<RecoTrackStateProvider*>(aExtrapolator) )
+, m_extrapolator ( aExtrapolator) 
 //
 {
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - config"<<std::endl;
@@ -120,18 +120,18 @@ DecayTreeFitter::Fitter::Fitter
 DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate*   bc           ,
  const RhoVector3Err& pv           ,
- const RecoTrackStateProvider* aExtrapolator ,
+ RecoTrackStateProvider* aExtrapolator ,
  const bool              forceFitAll  )
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
 , m_fitparams  ( 0   )
 , m_status     ( UnFitted )
-, m_chiSquare  ( -1  )
+//, m_chiSquare  ( -1  )
 , m_niter      ( -1  )
 , m_errCode    (  0  )
 //
-, m_extrapolator ( const_cast<RecoTrackStateProvider*>(aExtrapolator) )
+, m_extrapolator ( aExtrapolator) 
 //
 {
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - config"<<std::endl;
@@ -149,17 +149,17 @@ DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate*   bc           ,
  const RhoLorentzVectorErr& lv           ,
  const bool              forceFitAll  ,
- const RecoTrackStateProvider*     aExtrapolator )
+RecoTrackStateProvider*     aExtrapolator )
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
 , m_fitparams  ( 0   )
 , m_status     ( UnFitted )
-, m_chiSquare  ( -1  )
+//, m_chiSquare  ( -1  )
 , m_niter      ( -1  )
 , m_errCode    (  0  )
 //
-, m_extrapolator ( const_cast<RecoTrackStateProvider*>(aExtrapolator) )
+, m_extrapolator ( aExtrapolator) 
 //
 {
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - config"<<std::endl;
@@ -176,18 +176,18 @@ DecayTreeFitter::Fitter::Fitter
 DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate*   bc           ,
  const RhoLorentzVectorErr& lv           ,
- const RecoTrackStateProvider* aExtrapolator ,
+ RecoTrackStateProvider* aExtrapolator ,
  const bool              forceFitAll  )
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
 , m_fitparams  ( 0   )
 , m_status     ( UnFitted )
-, m_chiSquare  ( -1  )
+//, m_chiSquare  ( -1  )
 , m_niter      ( -1  )
 , m_errCode    (  0  )
 //
-, m_extrapolator ( const_cast<RecoTrackStateProvider*>(aExtrapolator) )
+, m_extrapolator ( aExtrapolator) 
 //
 {
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - config"<<std::endl;
@@ -206,17 +206,17 @@ DecayTreeFitter::Fitter::Fitter
  const RhoLorentzVectorErr& lv           ,
  const RhoVector3Err& pv           ,
  const bool              forceFitAll  ,
- const RecoTrackStateProvider*     aExtrapolator )
+ RecoTrackStateProvider*     aExtrapolator )
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
 , m_fitparams  ( 0   )
 , m_status     ( UnFitted )
-, m_chiSquare  ( -1  )
+//, m_chiSquare  ( -1  )
 , m_niter      ( -1  )
 , m_errCode    (  0  )
 //
-, m_extrapolator ( const_cast<RecoTrackStateProvider*>(aExtrapolator) )
+, m_extrapolator ( aExtrapolator) 
 //
 {
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - config"<<std::endl;
@@ -234,18 +234,18 @@ DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate*   bc           ,
  const RhoLorentzVectorErr& lv           ,
  const RhoVector3Err& pv           ,
- const RecoTrackStateProvider* aExtrapolator ,
+ RecoTrackStateProvider* aExtrapolator ,
  const bool              forceFitAll  )
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
 , m_fitparams  ( 0   )
 , m_status     ( UnFitted )
-, m_chiSquare  ( -1  )
+//, m_chiSquare  ( -1  )
 , m_niter      ( -1  )
 , m_errCode    (  0  )
 //
-, m_extrapolator ( const_cast<RecoTrackStateProvider*>(aExtrapolator) )
+, m_extrapolator ( aExtrapolator) 
 //
 {
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - config"<<std::endl;
@@ -259,8 +259,8 @@ DecayTreeFitter::Fitter::Fitter
 // ==========================================================================
 // set the track extrapolator
 // ==========================================================================
-void DecayTreeFitter::Fitter::setStateProvider ( const RecoTrackStateProvider* aExtrapolator )
-{ m_extrapolator = const_cast<RecoTrackStateProvider*>(aExtrapolator) ; }
+void DecayTreeFitter::Fitter::setStateProvider ( RecoTrackStateProvider* aExtrapolator )
+{ m_extrapolator = aExtrapolator; }
 
 
 void DecayTreeFitter::Fitter::setVerbose(int i) { vtxverbose = i ; }
@@ -285,7 +285,7 @@ if(vtxverbose>5){std::cout<<"Fitter::fit(): - start"<<std::endl;}
   //const double dChisqQuit = nDof() ; // if chi2 increases by more than this --> fit failed
 
   // initialize
-  m_chiSquare = -1 ;
+  fChiSquare = -1 ;
   // m_errCode.reset() ;
   m_errCode = 0 ;
 
@@ -316,9 +316,9 @@ if(vtxverbose>5){std::cout<<"Fitter::fit(): - start"<<std::endl;}
       m_errCode = m_decaychain->filter(m_fitparams,firstpass).flag() ;
       if(vtxverbose>5){std::cout<<"Fitter::fit(): - filtering done"<<std::endl;}
       double chisq = m_fitparams->chiSquare() ;
-      double deltachisq = chisq - m_chiSquare ;
+      double deltachisq = chisq - fChiSquare ;
       // if chi2 increases by more than this --> fit failed
-      const double dChisqQuit = std::max(double(2*nDof()),2*m_chiSquare) ;
+      const double dChisqQuit = std::max(double(2*nDof()),2*fChiSquare) ;
 
       // if(m_errCode.failure()) {
       if( 0 != m_errCode ) {
@@ -328,7 +328,7 @@ if(vtxverbose>5){std::cout<<"Fitter::fit(): - start"<<std::endl;}
       } else {
         if( m_niter>0 ) {
           if( fabs( deltachisq ) < dChisqConv ) {
-            m_chiSquare = chisq ;
+            fChiSquare = chisq ;
             m_status = Success ;
             finished = true ;
             if(vtxverbose>5){std::cout<<"Fitter::fit(): - yay! we filtered successfully"<<std::endl;}
@@ -353,8 +353,9 @@ if(vtxverbose>5){std::cout<<"Fitter::fit(): - start"<<std::endl;}
           }
         }
         if ( deltachisq < 0 ) ndiverging=0 ; // start over with counting
-        if(!finished) m_chiSquare = chisq ;
+        if(!finished) fChiSquare = chisq ;
       }
+      fNDegreesOfFreedom = m_fitparams->nDof();
 
       if(vtxverbose>=1) {
         std::cout << "Fitter::fit(): step, stat, errcode, ndf (ncon, dim) , chiSquare, dchisq: "
@@ -402,9 +403,10 @@ DecayTreeFitter::Fitter::fitOneStep()
   bool firstpass = m_status==UnFitted ;
   if( firstpass ) m_decaychain->init(m_fitparams) ;
   m_decaychain->filter(m_fitparams,firstpass) ;
-  m_chiSquare = m_fitparams->chiSquare() ;
+  fChiSquare = m_fitparams->chiSquare() ;
+  fNDegreesOfFreedom = m_fitparams->nDof();
   if(vtxverbose>=1)
-    std::cout << "In VtkFitter::fitOneStep(): " << m_status << " " << firstpass << " " << m_chiSquare << std::endl ;
+    std::cout << "In Fitter::fitOneStep(): " << m_status << " " << firstpass << " " << fChiSquare << " " << fNDegreesOfFreedom << std::endl ;
   m_status = Success ;
 }
 
@@ -422,7 +424,7 @@ DecayTreeFitter::Fitter::print() const
 
 int
 DecayTreeFitter::Fitter::nDof() const {
-  return m_fitparams->nDof() ;
+  return fNDegreesOfFreedom;
 }
 
 
@@ -459,7 +461,7 @@ std::cout<<"Fitter::add(RhoCandidate*) - constrains"<<std::endl;
       estatus |= it->filter(m_fitparams) ;
 
     deltachisq = m_fitparams->chiSquare() - chisq ;
-    m_chiSquare = m_fitparams->chiSquare() ;
+    fChiSquare = m_fitparams->chiSquare() ;
 
 std::cout<<"Fitter::add(RhoCandidate*) - init dchain"<<std::endl;
     // we want this somewhere else, but too much work now

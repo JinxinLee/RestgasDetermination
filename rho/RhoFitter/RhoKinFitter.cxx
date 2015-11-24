@@ -1,5 +1,5 @@
 #include <iostream>
-#include "PndKinFitter.h"
+#include "RhoKinFitter.h"
 #include "RhoBase/RhoCandListIterator.h"
 #include "RhoBase/RhoFactory.h"
 #include "TDecompLU.h"
@@ -8,15 +8,15 @@
 #include "RhoTools/RhoCalculationTools.h"
 using namespace std;
 
-ClassImp(PndKinFitter)
+ClassImp(RhoKinFitter)
 
-TBuffer& operator>>(TBuffer& buf, PndKinFitter *&obj)
+TBuffer& operator>>(TBuffer& buf, RhoKinFitter *&obj)
 {
-  obj = (PndKinFitter*) buf.ReadObject(PndKinFitter::Class());
+  obj = (RhoKinFitter*) buf.ReadObject(RhoKinFitter::Class());
   return buf;
 }
 
-PndKinFitter::PndKinFitter( RhoCandidate* b) :
+RhoKinFitter::RhoKinFitter( RhoCandidate* b) :
   RhoFitterBase( b )
 {
   f4MomConstraint=-1;
@@ -26,40 +26,40 @@ PndKinFitter::PndKinFitter( RhoCandidate* b) :
   fTotEConstraint=-1;
 }
 
-PndKinFitter::~PndKinFitter()
+RhoKinFitter::~RhoKinFitter()
 {
 }
 
 
-void PndKinFitter::Add4MomConstraint(TLorentzVector lv)
+void RhoKinFitter::Add4MomConstraint(TLorentzVector lv)
 {
   f4MomConstraint = 1;
   flmm=lv;
 }
 
-void PndKinFitter::AddMomConstraint(TVector3 v)
+void RhoKinFitter::AddMomConstraint(TVector3 v)
 {
   fMomConstraint = 1;
   fmm=v;
 }
 
-void PndKinFitter::AddTotEConstraint(double energy)
+void RhoKinFitter::AddTotEConstraint(double energy)
 {
   fTotEConstraint = 1;
   fEc=energy;
 }
-void PndKinFitter::AddTotMomConstraint(double momentum)
+void RhoKinFitter::AddTotMomConstraint(double momentum)
 {
   fTotMomConstraint = 1;
   fMom=momentum;
 }
-void PndKinFitter::AddMassConstraint(double mass)
+void RhoKinFitter::AddMassConstraint(double mass)
 {
   fMassConstraint = 1;
   fMass=mass;
 }
 
-Bool_t PndKinFitter::Fit()
+Bool_t RhoKinFitter::Fit()
 {
   fDaughters.clear();
   FindAndAddFinalStateDaughters(fHeadOfTree);
@@ -94,7 +94,7 @@ Bool_t PndKinFitter::Fit()
   return check;
 }
 
-void PndKinFitter::SetMatrices()
+void RhoKinFitter::SetMatrices()
 {
   int nd=fDaughters.size();
 
@@ -116,7 +116,7 @@ void PndKinFitter::SetMatrices()
 }
 
 
-void PndKinFitter::ZeroMatrices()
+void RhoKinFitter::ZeroMatrices()
 {
   fAl0.Zero();
   fV_al0.Zero();
@@ -129,7 +129,7 @@ void PndKinFitter::ZeroMatrices()
 }
 
 
-Bool_t PndKinFitter::Solve()
+Bool_t RhoKinFitter::Solve()
 {
   //int nd=fDaughters.size(); //unused?
   double ierr; // used to check inversions
@@ -170,7 +170,7 @@ Bool_t PndKinFitter::Solve()
 
 //Write output
 //Write output
-void PndKinFitter::SetOutput()
+void RhoKinFitter::SetOutput()
 {
   int nd=fDaughters.size();
   TMatrixD m(nd,1);
@@ -227,7 +227,7 @@ void PndKinFitter::SetOutput()
 
 
 //Read the input vector
-void PndKinFitter::ReadMatrix()
+void RhoKinFitter::ReadMatrix()
 {
   int nd =fDaughters.size();
   for (int k=0; k<nd; k++) {
@@ -293,7 +293,7 @@ void PndKinFitter::ReadMatrix()
 }
 
 
-void PndKinFitter::ReadMassKinMatrix()
+void RhoKinFitter::ReadMassKinMatrix()
 {
   int nd=fDaughters.size();
 
@@ -334,7 +334,7 @@ void PndKinFitter::ReadMassKinMatrix()
     double E = TMath::Sqrt(px*px+py*py+pz*pz+m[k][0]*m[k][0]);
     Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
     a = -0.00299792458*bField*fDaughters[k]->GetCharge();
-    Double_t invE = 1./E;
+    //Double_t invE = 1./E;
 
 //....................................................
 // V.J. - force head mass to constraint mass
@@ -375,7 +375,7 @@ fmD[fNc+0][kN+6] = 0.0;
   fNc += 1;
 }
 
-void PndKinFitter::Read4MomKinMatrix()
+void RhoKinFitter::Read4MomKinMatrix()
 {
   int nd=fDaughters.size();
   TMatrixD alp(fAl1);
@@ -407,7 +407,7 @@ void PndKinFitter::Read4MomKinMatrix()
 }
 
 
-void PndKinFitter::ReadMomKinMatrix()
+void RhoKinFitter::ReadMomKinMatrix()
 {
   int nd=fDaughters.size();
   TMatrixD alp(fAl1);
@@ -429,7 +429,7 @@ void PndKinFitter::ReadMomKinMatrix()
 }
 
 
-void PndKinFitter::ReadTotEKinMatrix()
+void RhoKinFitter::ReadTotEKinMatrix()
 {
   int nd=fDaughters.size();
   TMatrixD alp(fAl1);
@@ -453,7 +453,7 @@ void PndKinFitter::ReadTotEKinMatrix()
   fNc +=1;
 }
 
-void PndKinFitter::ReadTotMomKinMatrix()
+void RhoKinFitter::ReadTotMomKinMatrix()
 {
   int nd=fDaughters.size();
   TMatrixD alp(fAl1);
@@ -474,7 +474,7 @@ void PndKinFitter::ReadTotMomKinMatrix()
 }
 
 /*
-void PndKinFitter::ReadEqMassKinMatrix()
+void RhoKinFitter::ReadEqMassKinMatrix()
 {int nd=fDaughters.size();
  TMatrixD alp(al1);
  TMatrixD m(nd,1);

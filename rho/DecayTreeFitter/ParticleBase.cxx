@@ -25,6 +25,7 @@
 #include "TParticlePDG.h"
 #include "TVectorD.h"
 #include "TMatrixDSym.h"
+#include "RhoCalculationTools.h"
 
 #include "PndPidCandidate.h"
 
@@ -447,9 +448,9 @@ ErrCode DecayTreeFitter::ParticleBase::projectGeoConstraint(const FitParams* fit
   p.setParticle( *mother() ) ;
   if(vtxverbose>6){
     std::cout<<"ParticleBase::projectConstraint(): projection is:"<<std::endl;
-    p.r().Print();
-    p.V().Print();
-    p.H().Print();
+    std::cout<<"r "; p.r().Print();
+    std::cout<<"V "; p.V().Print();
+    std::cout<<"H "; RhoCalculationTools::PrintMatrix(p.H());
     }
   return ErrCode::success ;
 }

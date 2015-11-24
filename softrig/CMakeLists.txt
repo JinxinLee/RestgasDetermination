@@ -17,9 +17,10 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/rho/RhoSelector
   ${CMAKE_SOURCE_DIR}/rho/RhoConstraints
   ${CMAKE_SOURCE_DIR}/rho/RhoTools
+  ${CMAKE_SOURCE_DIR}/rho/RhoFitter
   ${CMAKE_SOURCE_DIR}/rho/RhoHistogram
   ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+  ${CMAKE_SOURCE_DIR}/PndTools/PndParticleFitters
   ${CMAKE_SOURCE_DIR}/rho
   ${CMAKE_SOURCE_DIR}/softrig
 )

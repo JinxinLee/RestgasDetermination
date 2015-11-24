@@ -1,8 +1,8 @@
-#ifndef PNDKALMANVTXFITTER_H
-#define PNDKALMANVTXFITTER_H
+#ifndef RHOKALMANVTXFITTER_H
+#define RHOKALMANVTXFITTER_H
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// PndKalmanVtxFitter                                                   //
+// RhoKalmanVtxFitter                                                   //
 //                                                                      //
 // Author: R. Kliemt 2010                                               //
 // Vertex finder & fitter using track separation and the perigee helix  //
@@ -18,11 +18,11 @@
 
 class RhoCandidate;
 
-class PndKalmanVtxFitter : public RhoFitterBase
+class RhoKalmanVtxFitter : public RhoFitterBase
 {
   public:
-    PndKalmanVtxFitter( RhoCandidate* b) ;
-    virtual ~PndKalmanVtxFitter();
+    RhoKalmanVtxFitter( RhoCandidate* b) ;
+    virtual ~RhoKalmanVtxFitter();
     void SetExpansionPoint(TVector3 P) {fExpansionPoint=P;}
     void SetNIterations(int i) {fNIterations=i;};
 
@@ -46,7 +46,7 @@ class PndKalmanVtxFitter : public RhoFitterBase
     TMatrixD fPrgCov; // Covariance matrix 5x5 of each track
     TMatrixD fJacobian; // Jacobian 5x7
     //TClonesArray* fTrackArray;
-    ClassDef(PndKalmanVtxFitter,1)
+    ClassDef(RhoKalmanVtxFitter,1)
 };
 
 #endif

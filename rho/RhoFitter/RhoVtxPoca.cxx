@@ -1,30 +1,30 @@
 
 #include <iostream>
-#include "PndVtxPoca.h"
-#include "PndAnalysisCalcTools.h"
+#include "RhoVtxPoca.h"
+#include "RhoCalculationTools.h"
 #include "RhoCandidate.h"
 #include "RhoCandList.h"
 
 using namespace std;
 
-ClassImp(PndVtxPoca)
+ClassImp(RhoVtxPoca)
 
-TBuffer& operator>>(TBuffer& buf, PndVtxPoca *&obj)
+TBuffer& operator>>(TBuffer& buf, RhoVtxPoca *&obj)
 {
-  obj = (PndVtxPoca*) buf.ReadObject(PndVtxPoca::Class());
+  obj = (RhoVtxPoca*) buf.ReadObject(RhoVtxPoca::Class());
   return buf;
 }
 
 //Include only those constraint which need vertex Info....
-PndVtxPoca::PndVtxPoca()
+RhoVtxPoca::RhoVtxPoca()
 {
 }
 
-PndVtxPoca::~PndVtxPoca()
+RhoVtxPoca::~RhoVtxPoca()
 {
 }
 
-Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
+Double_t RhoVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
 {
 	RhoCandList cands;
 
@@ -33,7 +33,7 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandidate* composite)
 	return GetPocaVtx(vertex, cands); 
 }
 
-Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandList  &cands)
+Double_t RhoVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandList  &cands)
 {
 	vertex.SetXYZ(0.,0.,0.);
 	if ( cands.GetLength() <  2 ) { return -99999.; }
@@ -57,7 +57,7 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandList  &cands)
 			actualDoca = GetPoca(theVertex,a,b);
 			if(actualDoca < 0) 
 			{
-				printf("PndVtxPoca - Error with getting a POCA. \"Distance\" is %g. SKIPPING Candidate pair now!",actualDoca);
+				printf("RhoVtxPoca - Error with getting a POCA. \"Distance\" is %g. SKIPPING Candidate pair now!",actualDoca);
 				continue;
 			}
 			distances.push_back(actualDoca);
@@ -87,7 +87,7 @@ Double_t PndVtxPoca::GetPocaVtx(TVector3& vertex, RhoCandList  &cands)
 		
 }
 
-Double_t PndVtxPoca::GetPoca(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
+Double_t RhoVtxPoca::GetPoca(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
 {
   // Decide which POCA algorithm to use
   
@@ -97,7 +97,7 @@ Double_t PndVtxPoca::GetPoca(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
   else return -99999.;
 }
 
-Double_t PndVtxPoca::GetPocaTwoCharged(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
+Double_t RhoVtxPoca::GetPocaTwoCharged(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
 {
   // Calculate an approximate POCA for two helices.
   // First in 2D (x-y projection), then select best solution by minimum z distance
@@ -203,7 +203,7 @@ Double_t PndVtxPoca::GetPocaTwoCharged(TVector3& vertex,RhoCandidate* a, RhoCand
   return actualDoca;
 }
 
-Double_t PndVtxPoca::GetPocaChargedToNeutral(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
+Double_t RhoVtxPoca::GetPocaChargedToNeutral(TVector3& vertex,RhoCandidate* a, RhoCandidate* b)
 {
   // POCA Approxiamtion for a helix with a line
   // Fist mtching in x-y projection, then choose one solution in z
@@ -318,7 +318,7 @@ Double_t PndVtxPoca::GetPocaChargedToNeutral(TVector3& vertex,RhoCandidate* a, R
   return actualDoca;
 }
 
-Double_t PndVtxPoca::GetPocaTwoNeutral(TVector3& vertex,RhoCandidate* canda, RhoCandidate* candb)
+Double_t RhoVtxPoca::GetPocaTwoNeutral(TVector3& vertex,RhoCandidate* canda, RhoCandidate* candb)
  {
    // This is the exact(!) skewed line POCA
    //

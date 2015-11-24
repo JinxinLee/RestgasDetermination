@@ -15,39 +15,17 @@
 #include "FitParams.h"
 #include "RecoTrack.h"
 
-#include "DummyHeader.h"
+#include "LineTool.h"
 //#include "StateVector.h"
 #include "State.h"
 #include <assert.h>
+#include "RhoCalculationTools.h"
+#include "SortTool.h"
 
 using namespace DecayTreeFitter;
 
 extern int vtxverbose ;
 ClassImp(InternalParticle);
-
-namespace DecayTreeFitter
-{
-  inline bool sortByType(const ParticleBase* lhs, const ParticleBase* rhs)
-  {
-    int lhstype = lhs->type() ;
-    int rhstype = rhs->type() ;
-    bool rc = false ;
-    if( lhstype == rhstype  &&
-       lhstype == ParticleBase::kRecoTrack )
-      rc =  lhs->particle()->Pt() > rhs->particle()->Pt() ;
-    else if( lhs->particle()->NDaughters()>0 &&
-            rhs->particle()->NDaughters()>0 )
-      rc = lhs->nFinalChargedCandidates() >
-      rhs->nFinalChargedCandidates() ;
-    else
-      rc = lhstype < rhstype ;
-    return rc ;
-  }
-  bool compTrkTransverseMomentum(const RecoTrack* lhs, const RecoTrack* rhs)
-  {
-    return lhs->particle()->Pt() > rhs->particle()->Pt() ;
-  }
-}
 
 DecayTreeFitter::InternalParticle::InternalParticle(RhoCandidate* bc, const ParticleBase* aMother, const Configuration& config)
 : ParticleBase(bc,aMother),m_lifetimeconstraint(false)
@@ -132,7 +110,7 @@ DecayTreeFitter::InternalParticle::initPar1(FitParams* fitparams)
       // resonances.)
       daucontainer alldaughters ;
       collectVertexDaughters( alldaughters, posindex ) ;
-      std::cout << "InternalParticle::initPar1(): number of daughters for initializing vertex: "
+      if(vtxverbose>=3)    std::cout << "InternalParticle::initPar1(): number of daughters for initializing vertex: "
       << name() << " " << alldaughters.size() << std::endl ;
 
       if(vtxverbose>=3)    std::cout << "InternalParticle::initPar1(): B - r?"<<std::endl;
@@ -159,12 +137,12 @@ DecayTreeFitter::InternalParticle::initPar1(FitParams* fitparams)
         RecoTrack* dau2 = trkdaughters[1] ;
 
         // get the poca of the two statevectors
-        const Dummy::State& state1 = dau1->state() ;
-        const Dummy::State& state2 = dau2->state() ;
-        Dummy::Line line1(state1.position(),state1.slopes()) ;
-        Dummy::Line line2(state2.position(),state2.slopes()) ;
+        const DecayTreeFitter::State& state1 = dau1->state() ;
+        const DecayTreeFitter::State& state2 = dau2->state() ;
+        DecayTreeFitter::Line line1(state1.position(),state1.slopes()) ;
+        DecayTreeFitter::Line line2(state2.position(),state2.slopes()) ;
         double mu1(0),mu2(0) ;
-        Dummy::closestPointParams(line1,line2,mu1,mu2) ;
+        DecayTreeFitter::closestPointParams(line1,line2,mu1,mu2) ;
         TVector3 p1 = line1.position(mu1) ;
         TVector3 p2 = line2.position(mu2) ;
         fitparams->par()(posindex+0) = 0.5*(p1.x()+p2.x()) ;
@@ -175,7 +153,7 @@ DecayTreeFitter::InternalParticle::initPar1(FitParams* fitparams)
 
       } else if(trkdaughters.size()+vtxdaughters.size()>=2)  {
         if(vtxverbose>=3)    std::cout << "InternalParticle::initPar1(): B -b?"<<std::endl;
-        std::cout << "InternalParticle::initPar1(): VtkInternalParticle: Not yet done!!"<< std::endl ;
+        std::cout << "InternalParticle::initPar1(): InternalParticle: Not yet done!!"<< std::endl ;
         /*
 
          // that's unfortunate: no enough charged tracks from this
@@ -469,9 +447,9 @@ DecayTreeFitter::InternalParticle::projectConstraint(Constraint::Type aType,
   }
   if(vtxverbose>6){
     std::cout<<"InternalParticle::projectConstraint(): projection is:"<<std::endl;
-    p.r().Print();
-    p.V().Print();
-    p.H().Print();
+    std::cout<<"r "; p.r().Print();
+    std::cout<<"V "; p.V().Print();
+    std::cout<<"H "; RhoCalculationTools::PrintMatrix(p.H());
     }
   return aStatus ;
 }

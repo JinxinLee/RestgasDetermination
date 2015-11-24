@@ -13,7 +13,6 @@
 
 #pragma link C++ nestedclass;
 #pragma link C++ namespace     DecayTreeFitter;
-#pragma link C++ namespace     Dummy;
 
 #pragma link C++ class DecayTreeFitter::Fitter+;
 
@@ -38,10 +37,9 @@
 #pragma link C++ class DecayTreeFitter::RecoTrack+;
 #pragma link C++ class DecayTreeFitter::RecoTrackStateProvider+;
 #pragma link C++ class DecayTreeFitter::Resonance+;
-#pragma link C++ class DecayTreeFitter::VtkHelixUtils+;
-#pragma link C++ class Dummy::Line+;
-#pragma link C++ class Dummy::State+;
-//#pragma link C++ class Dummy::StateVector+;
+//#pragma link C++ class DecayTreeFitter::VtkHelixUtils+;
+#pragma link C++ class DecayTreeFitter::Line+;
+#pragma link C++ class DecayTreeFitter::State+;
 
 //#pragma link C++ function  DecayTreeFitter::operator<<(ostream&, DecayTreeFitter::ErrCode&) ;
 

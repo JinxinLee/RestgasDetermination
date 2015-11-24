@@ -9,6 +9,7 @@
 #define DECAYTREEFITTER_INTERACTIONPOINT_H 1
 
 #include "ParticleBase.h"
+//#include "RecoParticle.h"
 //#include "GaudiKernel/GenericVectorTypes.h"
 //#include "GaudiKernel/SymmetricMatrixTypes.h"
 #include "TMatrixD.h"
@@ -26,11 +27,13 @@ namespace DecayTreeFitter
   class InteractionPoint : public ParticleBase
   {
   public:
+    InteractionPoint(RhoCandidate* daughter, const Configuration& config) ;
     InteractionPoint(const RhoVector3Err& ipvertex, RhoCandidate* daughter, const Configuration& config) ;
     InteractionPoint(const RhoLorentzVectorErr& ipmom, RhoCandidate* daughter, const Configuration& config) ;
     InteractionPoint(const RhoLorentzVectorErr& ipmom, const RhoVector3Err& ipvertex, RhoCandidate* daughter, const Configuration& config) ;
 
-    virtual int dim() const { return (m_haspos ? 3 : 0); } // (x,y,z are the parameters here, beam moemntum is modifying the daughter) 
+    virtual int dim() const { return 3; } // (x,y,z are the parameters here, beam moemntum is modifying the daughter) 
+    //virtual int dimM() const { return (m_haspos ? 3 : 0); }
     virtual ErrCode initPar1(FitParams*) ;
     virtual ErrCode initPar2(FitParams*) ;
     virtual ErrCode initCov(FitParams*) const ;
@@ -41,7 +44,7 @@ namespace DecayTreeFitter
 
     virtual double chiSquare(const FitParams* par) const ;
 
-    ErrCode projectIPConstraint(const FitParams* fitpar, Projection&) const ;
+    //ErrCode projectIPConstraint(const FitParams* fitpar, Projection&) const ;
     ErrCode projectBeamConstraint(const FitParams* fitpar, Projection&) const ;
     virtual ErrCode projectConstraint(Constraint::Type, const FitParams*, Projection&) const ;
 

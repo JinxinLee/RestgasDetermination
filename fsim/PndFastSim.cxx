@@ -891,6 +891,15 @@ void PndFastSim::Exec(Option_t* opt)
 		  }
         }
 
+  		if (pidProb)
+	  	{
+			  pidProb->SetElectronPdf(ft->detResponse()->LHElectron());
+			  pidProb->SetMuonPdf(ft->detResponse()->LHMuon());
+			  pidProb->SetPionPdf(ft->detResponse()->LHPion());
+			  pidProb->SetKaonPdf(ft->detResponse()->LHKaon());
+			  pidProb->SetProtonPdf(ft->detResponse()->LHProton());
+			  pidProb->SetIndex(chcandsize);
+      }
 		if (pidCand)
 		{
 			pidCand->SetMcIndex(iTrack);
@@ -912,13 +921,6 @@ void PndFastSim::Exec(Option_t* opt)
 			pidCand->SetRichNumberOfPhotons(0);
 			pidCand->SetEmcCalEnergy(ft->detResponse()->EmcEcal() );
 			pidCand->SetMuoIron(ft->detResponse()->MuoIron() );
-			pidProb->SetElectronPdf(ft->detResponse()->LHElectron());
-			pidProb->SetMuonPdf(ft->detResponse()->LHMuon());
-			pidProb->SetPionPdf(ft->detResponse()->LHPion());
-			pidProb->SetKaonPdf(ft->detResponse()->LHKaon());
-			pidProb->SetProtonPdf(ft->detResponse()->LHProton());
-			pidProb->SetIndex(chcandsize);
-
 			RhoCandidate tcand(ft->p4(),ft->charge(),svtx);
 			tcand.SetTrackNumber(chcandsize);
 

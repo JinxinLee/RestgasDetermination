@@ -6,25 +6,23 @@
 // Adaptation & Development for PANDA: Ralf Kliemt (2015)
 // ******************************************************
 //
-//  DummyHeader.h
+//  LineTool.h
 //  TreeFitter
 //
 //  Created by Ralf Kliemt on 26/01/15.
 //  Copyright (c) 2015 Ralf Kliemt. All rights reserved.
 //
 
-#ifndef TreeFitter_DummyHeader_h
-#define TreeFitter_DummyHeader_h 1
+#ifndef TreeFitter_LineTool_h
+#define TreeFitter_LineTool_h 1
 
 #include "TVector3.h"
 #include <iostream>
 #include <cmath>
 #include "Rtypes.h"
 
-namespace Dummy
+namespace DecayTreeFitter
 {
-
-
   // ==========================================================================
   class Line
   {
@@ -60,8 +58,6 @@ namespace Dummy
   {
     return rhs.fillStream(os);
   }
-
-
 
   // ==========================================================================
   // ==========================================================================
@@ -108,10 +104,8 @@ namespace Dummy
     return OK ;
   }
 
-
   // ==========================================================================
   // ==========================================================================
 
-
-} // Dummy
+} // 
 #endif

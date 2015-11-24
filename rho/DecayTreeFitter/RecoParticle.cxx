@@ -49,6 +49,7 @@ DecayTreeFitter::RecoParticle::projectConstraint(Constraint::Type aType,
 
 double DecayTreeFitter::RecoParticle::chiSquare(const FitParams* fitparams) const
 {
+  std::cout<<" Marke 3" <<std::endl;
   // project
   Projection p(fitparams->dim(),dimM()) ;
   projectRecoConstraint(fitparams,p) ;

@@ -13,6 +13,7 @@
 #include "RecoPhoton.h"
 #include "FitParams.h"
 #include "TVector3.h"
+#include "RhoCalculationTools.h"
 
 using namespace DecayTreeFitter;
 ClassImp(RecoPhoton);
@@ -182,9 +183,9 @@ DecayTreeFitter::RecoPhoton::projectRecoConstraint(const FitParams* fitparams, P
       p.Vfast(irow,icol) = m_V(irow,icol) ;
   if(vtxverbose>6){
     std::cout<<"RecoPhoton::projectRecoConstraint(): projection is:"<<posindex<<std::endl;
-    p.r().Print();
-    p.V().Print();
-    p.H().Print();
+    std::cout<<"r "; p.r().Print();
+    std::cout<<"V "; p.V().Print();
+    std::cout<<"H "; RhoCalculationTools::PrintMatrix(p.H());
     }
 
   return status ;

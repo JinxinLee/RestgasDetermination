@@ -12,7 +12,7 @@
 //#include "TrackKernel/TrackTraj.h"
 //FIXME Make a Panda state provider...
 #include "RhoCalculationTools.h"
-//#include "DummyHeader.h"
+//#include "LineTool.h"
 #include "State.h"
 #include "Rtypes.h"
 #include "RhoCandidate.h"
@@ -31,14 +31,15 @@ namespace DecayTreeFitter
     RecoTrackStateProvider()
     : m_ztolerance(0) {};
 
-    void state( Dummy::State& aState, RhoCandidate* track) const
+    void state( DecayTreeFitter::State& aState, RhoCandidate* track) const
     {
       return state(aState, track, track->Pos().x(), track->Pos().y(), track->Pos().z());
   	};
     
     double ToleranceZ() const {return m_ztolerance;};
-    
-    void state( Dummy::State& aState, RhoCandidate* track, double vx, double vy, double vz) const
+    void SetToleranceZ(double z) {m_ztolerance=z;};
+
+    void state( DecayTreeFitter::State& aState, RhoCandidate* track, double vx, double vy, double vz) const
     {
       TVectorD statevec = aState.stateVector();
       TMatrixDSym statecov = aState.covariance();

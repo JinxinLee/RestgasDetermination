@@ -34,7 +34,7 @@ RhoMassParticleSelector::RhoMassParticleSelector ( const char* name, Double_t cv
 
 Bool_t RhoMassParticleSelector::Accept ( RhoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
+  if ( b == 0 ) { return kFALSE; }
   SetTypeAndMass ( b );
   return ( fabs ( b->GetMass()-fCentralValue ) <fWindow );
 }

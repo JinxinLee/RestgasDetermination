@@ -5,5 +5,4 @@
 // http://arxiv.org/abs/physics/0503191v1 (2005)
 // Adaptation & Development for PANDA: Ralf Kliemt (2015)
 // ******************************************************
-#include "State.h"
-ClassImp(DecayTreeFitter::State);
+#include "SortTool.h"

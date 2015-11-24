@@ -114,8 +114,8 @@ class RhoEventSelectorBase : public TNamed
   protected:
     Bool_t fTight;
     Int_t fNTracksMin, fNTracksMax, fTotChar;
-    Double_t fETotLow, fETotHigh, fPTotLow, fPTotHigh;
     Double_t fDocaMax, fZMin, fZMax;
+    Double_t fETotLow, fETotHigh, fPTotLow, fPTotHigh;
     Double_t fELow, fEHigh, fEmcLow, fEmcHigh, fPLow, fPHigh, fPtLow, fPtHigh;
     Double_t fThetaLow, fThetaHigh, fPhiLow, fPhiHigh;
 

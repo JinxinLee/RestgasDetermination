@@ -36,7 +36,7 @@ RhoSimplePionSelector::RhoSimplePionSelector ( const char* name, const char* typ
 
 Bool_t RhoSimplePionSelector::Accept ( RhoCandidate* b )
 {
-  if ( &b == 0 ) { return kFALSE; }
+  if ( b == 0 ) { return kFALSE; }
 
   SetTypeAndMass ( b );
 

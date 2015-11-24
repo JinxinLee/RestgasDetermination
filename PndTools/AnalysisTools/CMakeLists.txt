@@ -1,5 +1,4 @@
 # Create a library called "AnalysisTools"
-#add_subdirectory (DecayTreeFitter)
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES}
@@ -17,9 +16,14 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/rho/RhoTools
   ${CMAKE_SOURCE_DIR}/rho/RhoSelector
+  ${CMAKE_SOURCE_DIR}/rho/RhoMath
   ${CMAKE_SOURCE_DIR}/rho/RhoHistogram
+  ${CMAKE_SOURCE_DIR}/rho/RhoFitter
+  ${CMAKE_SOURCE_DIR}/rho/DecayTreeFitter
+  ${CMAKE_SOURCE_DIR}/PndTools/PndParticleFitters
   ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
-  ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+  #${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
+  #${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/DecayTreeFitter
   ${CMAKE_SOURCE_DIR}/softrig
   ${CMAKE_SOURCE_DIR}/geane
 )
@@ -42,7 +46,7 @@ PndEventInfo.cxx
 #PndEventReader.cxx
 PndPidListMaker.cxx
 PndAnalysis.cxx
-PndAnalysisCalcTools.cxx
+#PndAnalysisCalcTools.cxx
 PndSimpleAnalysis.cxx
 PndAnalysisTask.cxx
 PndMyAnalysisTask.cxx
@@ -57,27 +61,28 @@ PndAnaSelectorPar.cxx
 #PndMcTruthMatch.cxx
 PndGoodTrackSelector.cxx
 PndEventShape.cxx
-PndAnaCovTool.cxx
+#PndAnaCovTool.cxx
 PndRhoTupleQA.cxx
 PndParticleQATask.cxx
 PndSimpleCombiner.cxx
 PndSimpleCombinerTask.cxx
-#Fitter/PndVtxFitterParticle.cxx
-#Fitter/PndVtxFitter_Init.cxx
-#Fitter/PndVtxFitterError.cxx
-#Fitter/PndVtxFitter.cxx
-Fitter/Pnd4CFitter.cxx
-Fitter/PndKinVtxFitter.cxx
-Fitter/PndKinFitter.cxx
-Fitter/PndVtxPoca.cxx
-Fitter/PndVtxPRG.cxx
-Fitter/PndKalmanVtxFitter.cxx
+##Fitter/PndVtxFitterParticle.cxx
+##Fitter/PndVtxFitter_Init.cxx
+##Fitter/PndVtxFitterError.cxx
+##Fitter/PndVtxFitter.cxx
+#Fitter/Pnd4CFitter.cxx
+#Fitter/PndDecayTreeFitter.cxx
+#Fitter/PndKinVtxFitter.cxx
+#Fitter/PndKinFitter.cxx
+#Fitter/PndVtxPoca.cxx
+#Fitter/PndVtxPRG.cxx
+#Fitter/PndKalmanVtxFitter.cxx
 StrTok.cxx
 )
 
 set(LINKDEF AnalysisToolsLinkDef.h)
 set(LIBRARY_NAME AnalysisTools)
 
-set(DEPENDENCIES Base PndData Rho TrkBase Geane)
+set(DEPENDENCIES Base PndData Rho RhoFitter ParticleFitters TrkBase Geane)
 
 GENERATE_LIBRARY()

@@ -282,7 +282,7 @@ void PndMyAnalysisTask::Exec(Option_t* opt)
     double chi2_4c=fitter.GetChi2();
     hpsi_chi2_4c->Fill(chi2_4c);
 
-    const RhoCandidate* jfit = (psi2s[j]->Daughter(0))->GetFit();
+    //const RhoCandidate* jfit = (psi2s[j]->Daughter(0))->GetFit();
 
     const RhoCandidate* epfit = (psi2s[j]->Daughter(0)->Daughter(0))->GetFit();
     const RhoCandidate* emfit = (psi2s[j]->Daughter(0)->Daughter(1))->GetFit();
@@ -407,7 +407,7 @@ int PndMyAnalysisTask::SelectPdgCode(RhoCandList& mct, RhoCandList& l)
 {
   int removed = 0;
   int pdgcode=0;
-  int nmct = mct.GetLength();
+  //int nmct = mct.GetLength();
 
   //PndMcTruthMatch mcm;
 

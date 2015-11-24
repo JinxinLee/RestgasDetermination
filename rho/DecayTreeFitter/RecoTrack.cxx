@@ -15,7 +15,8 @@
 #include "TVector3.h"
 #include <assert.h>
 #include <cmath>
-#include "DummyHeader.h"
+#include "LineTool.h"
+#include "RhoCalculationTools.h"
 
 
 //[R.Kliemt, Dec.2014]
@@ -128,56 +129,51 @@ DecayTreeFitter::RecoTrack::updCache(const FitParams* fitparams)
   //return rc;  // Somewhat dirty
   
   // declare some constants
-  const double ztolerance = 0.05; //*Gaudi::Units::cm ;
+  const double ztolerance = m_stateprovider->ToleranceZ();//0.05; //*Gaudi::Units::cm ;
   //const double ztolerance = m_stateprovider->ToleranceZ(); 
   const double maxR = 0.05; //* Gaudi::Units::cm ; Beampipe radius in PANDA is 2cm
 
 	//A don't do anything if too few of a change
 	//B try cache
 	//C ask stateprovider
-// TODO really from Rhocand?
+  // TODO really from Rhocand?
   ////double prevstatez = particle()->Pos().Z() ;
   if(vtxverbose>5){std::cout<<"RecoTrack::updCache() - ask for fitparam z at posindex+2 = "<<mother()->posIndex()+2<<std::endl;}
-  double z = fitparams->par()(mother()->posIndex() + 2 ) ;
-  double dz = z - m_state.z() ;
-  if(vtxverbose>5){std::cout<<"RecoTrack::updCache() - z="<<z<<"  current state z="<<m_state.z()<<"  dz="<<dz<<"  ztolerance="<<ztolerance<<std::endl;}
+  double vx = fitparams->par()(mother()->posIndex()+0) ;
+  double vy = fitparams->par()(mother()->posIndex()+1) ;
+  double vz = fitparams->par()(mother()->posIndex()+2) ;
+  double dz = vz - m_state.z() ;
+  double x = m_state.x() + dz * m_state.tx() ;
+  double y = m_state.y() + dz * m_state.ty() ;
+  double r = std::sqrt( x*x + y*y ) ;
+  if(vtxverbose>5){std::cout<<"RecoTrack::updCache() - fitpar z="<<vz<<"  current state z="<<m_state.z()<<"  dz="<<dz<<"  ztolerance="<<ztolerance<<std::endl;}
   // If we stay close to the existing state, don't change anything.
   if( std::abs( dz ) > ztolerance )
   {
-	// first just look for the closest cached state
+	  // first just look for the closest cached state
     if(vtxverbose>5){std::cout<<"RecoTrack::updCache() - find cached state"<<std::endl;}
-    const Dummy::State& aState = closestCachedState ( z ) ;
-    if( std::abs( aState.z() - z ) < std::abs( dz ) )
+    const DecayTreeFitter::State& aState = closestCachedState ( vz ) ;
+    if( std::abs( aState.z() - vz ) < std::abs( dz ) )
 	  {
-	    //std::cout << "Found a closer state! "  << name() << " " << z << " "  << m_state.z() << " " << m_state.location() << " "  << state.z() << " " << state.location() << std::endl ;
+	    if(vtxverbose>5)std::cout << "RecoTrack::updCache(): Found a closer state! "  << name() << " fitpar z=" << vz << "  current state z="  << m_state.z() << "  better state z="  << aState.z()  << std::endl ;
 	    m_state = aState ;
-	    dz = z - m_state.z() ;
+	    dz = vz - m_state.z() ;
 	  }
   }
 
-  if( std::abs( dz ) > ztolerance )
+  if( std::abs( dz ) > ztolerance || r > maxR )
   {
-	  // if the existing state is inside the beampipe, then don't change anything as well.
-	  double x = m_state.x() + dz * m_state.tx() ;
-	  double y = m_state.y() + dz * m_state.ty() ;
-	  double r = std::sqrt( x*x + y*y ) ;
-	  if( r > maxR )
-	  {
-	    // we're quite off the beam axis
-	    // now that there is no cached state closeby, we'll fetch one
-	    if( !m_stateprovider ) {
-		    std::cerr<<"ERROR: DecayTreeFitter::RecoTrack::updCache() has no StateProvider"<<std::endl;
-		    m_cached=false;
-		    rc = ErrCode::badsetup;
-		    return rc;
-	    }
-      if(vtxverbose>5){std::cout<<"RecoTrack::updCache() - call stateprovider"<<std::endl;}
-      double vx = fitparams->par()(mother()->posIndex()+0) ;
-      double vy = fitparams->par()(mother()->posIndex()+1) ;
-      double vz = fitparams->par()(mother()->posIndex()+2) ;
-	    m_stateprovider->state(m_state,const_cast<RhoCandidate*>(m_candidate),vx,vy,vz) ;
-		  m_StateCache.push_back(m_state);
+	  if(vtxverbose>5)std::cout << "RecoTrack::updCache(): calculate a new state."<< std::endl ;
+	  // now that there is no cached state closeby, we'll fetch one
+	  if( !m_stateprovider ) {
+	   std::cerr<<"ERROR: DecayTreeFitter::RecoTrack::updCache() has no StateProvider"<<std::endl;
+	   m_cached=false;
+	   rc = ErrCode::badsetup;
+	   return rc;
 	  }
+    if(vtxverbose>5){std::cout<<"RecoTrack::updCache() - call stateprovider"<<std::endl;}
+	  m_stateprovider->state(m_state,const_cast<RhoCandidate*>(m_candidate),vx,vy,vz) ;
+	  m_StateCache.push_back(m_state);
   }
 
   if(vtxverbose>5){std::cout<<"RecoTrack::updCache() - done"<<std::endl;}
@@ -203,7 +199,7 @@ DecayTreeFitter::RecoTrack::updCache(const FitParams* fitparams)
 //    double dz = z - m_state.z() ;
 //    if( std::abs( dz ) > ztolerance ) {
 //      // first just look for the closest state on the track
-//      const Dummy::State& state = m_track->closestState ( z ) ;
+//      const DecayTreeFitter::State& state = m_track->closestState ( z ) ;
 //      if( std::abs( state.z() - z ) < std::abs( dz ) ) {
 // 	//std::cout << "Found a closer state! "
 // 	//	  << name() << " " << z << " "
@@ -254,7 +250,7 @@ DecayTreeFitter::RecoTrack::updCache(const FitParams* fitparams)
 //   return rc ;
 //}
 
-const Dummy::State&
+const DecayTreeFitter::State&
 DecayTreeFitter::RecoTrack::closestCachedState( double z )
 {
 	// give the state with the best matching z coordinate, for an empty cache vector, we'll return the "current state"
@@ -370,9 +366,9 @@ DecayTreeFitter::RecoTrack::projectRecoConstraint(const FitParams* fitparams, Pr
 
   if(vtxverbose>6){
     std::cout<<"RecoTrack::projectRecoConstraint(): projection is:"<<posindex<<std::endl;
-    std::cout<<"p.r()"<<std::endl;p.r().Print();
-    std::cout<<"p.V()"<<std::endl;p.V().Print();
-    std::cout<<"p.H()"<<std::endl;p.H().Print();
+    std::cout<<"r "; p.r().Print();
+    std::cout<<"V "; p.V().Print();
+    std::cout<<"H "; RhoCalculationTools::PrintMatrix(p.H());
     }
   if(vtxverbose>=5)std::cout<<"RecoTrack::projectRecoConstraint() finished"<<std::endl;
   return status ;

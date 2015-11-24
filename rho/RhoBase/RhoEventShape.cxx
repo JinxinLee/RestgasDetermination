@@ -29,7 +29,7 @@ RhoEventShape::RhoEventShape(RhoCandList& l)
 {
   fTot4Mom = TLorentzVector(0.,0.,0.,0.);
   fTotAbsMom = 0;
-  Double_t fw2n = 0;
+  //Double_t fw2n = 0;
   Int_t nl = l.GetNumberOfTracks();
   for (Int_t i=0; i<nl; ++i) {
     RhoCandidate* c1 = l.Get(i);

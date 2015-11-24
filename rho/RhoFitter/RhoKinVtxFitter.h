@@ -1,8 +1,8 @@
-#ifndef PndKinVtxFitter_H
-#define PndKinVtxFitter_H
+#ifndef RhoKinVtxFitter_H
+#define RhoKinVtxFitter_H
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// PndKinVtxFitter                  //
+// RhoKinVtxFitter                  //
 //                                                                      //
 // Author: V. Jha 2010                //
 //                                                                      //
@@ -19,11 +19,11 @@
 
 class RhoCandidate;
 
-class PndKinVtxFitter : public RhoFitterBase
+class RhoKinVtxFitter : public RhoFitterBase
 {
   public:
-    PndKinVtxFitter( RhoCandidate* b) ;
-    virtual ~PndKinVtxFitter();
+    RhoKinVtxFitter( RhoCandidate* b) ;
+    virtual ~RhoKinVtxFitter();
     void AddMassConstraint(double mass);
     //void AddPointingConstraint(TVector3 pVtx);
     double GetPull() {return fPull;}
@@ -102,7 +102,7 @@ class PndKinVtxFitter : public RhoFitterBase
     int                         fnDof;
     double                      fchiSquare;
 
-    ClassDef(PndKinVtxFitter,1) //A Kinematic Vertex Fitter
+    ClassDef(RhoKinVtxFitter,1) //A Kinematic Vertex Fitter
 };
 
 #endif

@@ -1,11 +1,10 @@
-#ifndef PNDVTXPOCA_H
-#define PNDVTXPOCA_H
+#ifndef RHOVTXPOCA_H
+#define RHOVTXPOCA_H
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// PndVtxPoca                                                           //
+// RhoVtxPoca                                                           //
 //                                                                      //
 // Author: R. Kliemt 2010                                               //
-// idea taken from PndKinVtxFitter::GetStartVtx()                            //
 // extended for multiple tracks                                         //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
@@ -15,11 +14,11 @@
 class RhoCandidate;
 class RhoCandList;
 
-class PndVtxPoca
+class RhoVtxPoca
 {
   public:
-    PndVtxPoca() ;
-    virtual ~PndVtxPoca();
+    RhoVtxPoca() ;
+    virtual ~RhoVtxPoca();
     Double_t GetPocaVtx(TVector3& vertex, RhoCandidate* composite);
     Double_t GetPocaVtx(TVector3& vertex, RhoCandList  &cands);     // KG 11/2014
   private:
@@ -28,7 +27,7 @@ class PndVtxPoca
     Double_t GetPocaChargedToNeutral(TVector3& vertex,RhoCandidate* a, RhoCandidate* b);
     Double_t GetPocaTwoNeutral(TVector3& vertex,RhoCandidate* a, RhoCandidate* b);
 
-    ClassDef(PndVtxPoca,1) //A poca Vertex Finder
+    ClassDef(RhoVtxPoca,1) //A poca Vertex Finder
 };
 
 #endif
