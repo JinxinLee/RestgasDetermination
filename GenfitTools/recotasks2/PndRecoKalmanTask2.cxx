@@ -130,102 +130,122 @@ void PndRecoKalmanTask2::SetParContainers() {
   rtdb->getContainer("PndGeoFtsPar");
 }
 
-void PndRecoKalmanTask2::Exec(Option_t* opt)
-{
-  if (fVerbose>0) std::cout<<"PndRecoKalmanTask2::Exec"<<std::endl;
-  
-  fFitTrackArray->Delete();
-  
-  Int_t ntracks=fTrackArray->GetEntriesFast();
-  
-  // Detailed output
-  if (fVerbose>1) std::cout << " -I- PndRecoKalmanTask2: contains " << ntracks << " Tracks."<< std::endl;
-  
-  // Cut too busy events TODO
-  if(ntracks>fBusyCut)
-  {
-    std::cout<<" -I- PndRecoKalmanTask2::Exec: ntracks=" << ntracks << " Evil Event! skipping" << std::endl;
-    return;
-  }
-  
-  
-  for(Int_t itr=0;itr<ntracks;++itr)
-  {
-    if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
-    
-    TClonesArray& trkRef = *fFitTrackArray;
-    Int_t size = trkRef.GetEntriesFast();
-    
-    PndTrack *prefitTrack = (PndTrack*)fTrackArray->At(itr);
-    Int_t  fCharge= prefitTrack->GetParamFirst().GetQ();
-    Int_t PDGCode = 0;
-    if (fIdealHyp)
-      {
-	PndTrackID *prefitTrackID = (PndTrackID*)fTrackIDArray->At(itr);
-	if (prefitTrackID->GetNCorrTrackId()>0)
-          {
-	    Int_t mcTrackId = prefitTrackID->GetCorrTrackID();
-	    if (mcTrackId!=-1)
-	      {
-		PndMCTrack *mcTrack = (PndMCTrack*)fMCTrackArray->At(mcTrackId);
-		if (!mcTrack)
-		   {
-                    PDGCode = 211*fCharge;
-                    std::cout << "-I- PndRecoKalmanTask2::Exec: MCTrack #" << mcTrackId << " is not existing!! Trying with pion hyp" << std::endl;
-                  }
-		else
-		  {
-		    PDGCode = mcTrack->GetPdgCode();
-		  }
-                if (PDGCode>=100000000)
-                  {
-                    PDGCode = 211*fCharge;
-                    std::cout << "-I- PndRecoKalmanTask2::Exec: Track is an ion (PDGCode>100000000)! Trying with pion hyp" << std::endl;
-                  }
-                else if ((((TParticlePDG*)pdg->GetParticle(PDGCode))->Charge())==0)
-		  {
-		    PDGCode = 211*fCharge;
-		    std::cout << "-E- PndRecoKalmanTask2::Exec: Track MC charge is 0!!!! Trying with pion hyp" << std::endl;
-		  }
-	      } // end of MCTrack ID != -1
-	    else
-	      {
-		PDGCode = 211*fCharge;
-		std::cout << "-E- PndRecoKalmanTask2::Exec: No MCTrack index in PndTrackID!! Trying with pion hyp" << std::endl;
-	      }
-	  } // end of "at least one correlated mc index"
-	else
-	  {
-	    PDGCode = 211*fCharge;
-	    std::cout << "-E- PndRecoKalmanTask2::Exec: No Correlated MCTrack id in PndTrackID!! Trying with pion hyp" << std::endl;
-	  }
-      } // end of ideal hyp condition
-    else
-      {
-	PDGCode = fPDGHyp*fCharge;
-      }
-    
-    PndTrack *fitTrack = 0;
-    if (PDGCode!=0)
-      {
-	if (fDaf) fitTrack = fDafFitter->Fit(prefitTrack, PDGCode);
-	else fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-      }
-    else
-      {
-	fitTrack = prefitTrack;
-	fitTrack->SetFlag(-22);
-	std::cout << "-I- PndRecoKalmanTask2::Exec: Kalman cannot run on this track because of the bad MonteCarlo PDG code" << std::endl;
-      }
-    
-    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-                                                    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
-    //if (fitTrack != 0) delete(fitTrack);
-  }
-  
-  if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
-  
-  return;
+void PndRecoKalmanTask2::Exec(Option_t* opt) {
+	//if (fVerbose > 0)
+		std::cout << "PndRecoKalmanTask2::Exec " << FairRootManager::Instance()->GetEntryNr() << std::endl;
+
+	fFitTrackArray->Delete();
+
+	Int_t ntracks = fTrackArray->GetEntriesFast();
+
+	// Detailed output
+	if (fVerbose > 1)
+		std::cout << " -I- PndRecoKalmanTask2: contains " << ntracks
+				<< " Tracks." << std::endl;
+
+	// Cut too busy events TODO
+	if (ntracks > fBusyCut) {
+		std::cout << " -I- PndRecoKalmanTask2::Exec: ntracks=" << ntracks
+				<< " Evil Event! skipping" << std::endl;
+		return;
+	}
+
+	for (Int_t itr = 0; itr < ntracks; ++itr) {
+		if (fVerbose > 1)
+			std::cout << "starting track" << itr << std::endl;
+
+		TClonesArray& trkRef = *fFitTrackArray;
+		Int_t size = trkRef.GetEntriesFast();
+
+		PndTrack *prefitTrack = (PndTrack*) fTrackArray->At(itr);
+		Int_t fCharge = prefitTrack->GetParamFirst().GetQ();
+		Int_t PDGCode = 0;
+		if (fIdealHyp) {
+			PndTrackID *prefitTrackID = (PndTrackID*) fTrackIDArray->At(itr);
+			if (prefitTrackID->GetNCorrTrackId() > 0) {
+				Int_t mcTrackId = prefitTrackID->GetCorrTrackID();
+				if (mcTrackId != -1) {
+					PndMCTrack *mcTrack = (PndMCTrack*) fMCTrackArray->At(
+							mcTrackId);
+					if (!mcTrack) {
+						PDGCode = 211 * fCharge;
+						std::cout << "-I- PndRecoKalmanTask2::Exec: MCTrack #"
+								<< mcTrackId
+								<< " is not existing!! Trying with pion hyp"
+								<< std::endl;
+					} else {
+						PDGCode = mcTrack->GetPdgCode();
+					}
+					if (PDGCode >= 100000000) {
+						PDGCode = 211 * fCharge;
+						std::cout
+								<< "-I- PndRecoKalmanTask2::Exec: Track is an ion (PDGCode>100000000)! Trying with pion hyp"
+								<< std::endl;
+					} else if ((((TParticlePDG*) pdg->GetParticle(PDGCode))->Charge())
+							== 0) {
+						PDGCode = 211 * fCharge;
+						std::cout
+								<< "-E- PndRecoKalmanTask2::Exec: Track MC charge is 0!!!! Trying with pion hyp"
+								<< std::endl;
+					}
+				} // end of MCTrack ID != -1
+				else {
+					PDGCode = 211 * fCharge;
+					std::cout
+							<< "-E- PndRecoKalmanTask2::Exec: No MCTrack index in PndTrackID!! Trying with pion hyp"
+							<< std::endl;
+				}
+			} // end of "at least one correlated mc index"
+			else {
+				PDGCode = 211 * fCharge;
+				std::cout
+						<< "-E- PndRecoKalmanTask2::Exec: No Correlated MCTrack id in PndTrackID!! Trying with pion hyp"
+						<< std::endl;
+			}
+		} // end of ideal hyp condition
+		else {
+			PDGCode = fPDGHyp * fCharge;
+		}
+
+		PndTrack fitTrack;
+		PndTrack* fitTrackPointer = 0;
+		bool usePrefit = false;
+		if (PDGCode != 0) {
+			if (fDaf){
+				fitTrackPointer = (fDafFitter->Fit(prefitTrack, PDGCode));
+				fitTrack = *fitTrackPointer;
+			}
+			else{
+				fitTrackPointer = (fFitter->Fit(prefitTrack, PDGCode));
+				fitTrack = *fitTrackPointer;
+			}
+		} else {
+			fitTrack = *prefitTrack;
+			fitTrack.SetFlag(-22);
+			usePrefit = true;
+			std::cout
+					<< "-I- PndRecoKalmanTask2::Exec: Kalman cannot run on this track because of the bad MonteCarlo PDG code"
+					<< std::endl;
+		}
+
+//		if (fitTrack){
+
+			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+				fitTrack.GetParamFirst(), fitTrack.GetParamLast(),
+				fitTrack.GetTrackCand(), fitTrack.GetFlag(),
+				fitTrack.GetChi2(), fitTrack.GetNDF(), fitTrack.GetPidHypo(),
+				itr,
+				FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
+		//	delete (fitTrack);
+//		}
+		//	if (fitTrackPointer > 0)
+		//		delete (fitTrackPointer);
+	}
+
+	if (fVerbose > 0)
+		std::cout << "Fitting done" << std::endl;
+
+	return;
 }
 
 void PndRecoKalmanTask2::SetParticleHypo(TString h)
