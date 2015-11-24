@@ -8,6 +8,23 @@
 #include "EvtGenModels/EvtPP_X_PsiOmega_amp.hh"
 
 EvtPP_X_PsiOmega_amp::EvtPP_X_PsiOmega_amp() {
+    fRho=0.0070;
+    fOmega=0.036; 
+    g=0.3;
+    ef=-11.0e-3;
+// masses
+    mPsi=3.097;
+    mRho=775e-3;
+    mOmega=782e-3;
+    mD0=1864.84e-3; 
+    mD0star=2006.96e-3;
+    mDch=1869.61e-3;
+    mDchstar=2010.26e-3;
+    mPi=0.140;
+    mp=0.938;
+// widths
+    gRho=147.8e-3;
+    gOmega=8.5e-3;
     M0=mD0+mD0star;
     delta=mDch+mDchstar-mD0-mD0star;
     mu1=1/(1/mD0+1/mD0star); 
@@ -16,6 +33,23 @@ EvtPP_X_PsiOmega_amp::EvtPP_X_PsiOmega_amp() {
 }
 
 EvtPP_X_PsiOmega_amp::EvtPP_X_PsiOmega_amp(const EvtPP_X_PsiOmega_amp& orig) {
+    fRho=0.0070;
+    fOmega=0.036;
+    g=0.3;
+    ef=-11.0e-3;
+// masses
+    mPsi=3.097;
+    mRho=775e-3;
+    mOmega=782e-3;
+    mD0=1864.84e-3;
+    mD0star=2006.96e-3;
+    mDch=1869.61e-3;
+    mDchstar=2010.26e-3;
+    mPi=0.140;
+    mp=0.938;
+// widths
+    gRho=147.8e-3;
+    gOmega=8.5e-3;
     M0=mD0+mD0star;
     delta=mDch+mDchstar-mD0-mD0star;
     mu1=1/(1/mD0+1/mD0star); 

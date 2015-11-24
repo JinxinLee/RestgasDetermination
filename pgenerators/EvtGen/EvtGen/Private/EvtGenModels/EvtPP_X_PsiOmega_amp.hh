@@ -52,14 +52,12 @@ public:
 
 private:
 // parameters
-    static const double fRho=0.0070, fOmega=0.036, g=0.3, ef=-11.0e-3;
+    double fRho,fOmega,g,ef;
 // masses
-    static const double mPsi=3.097, mRho=775e-3, mOmega=782e-3,
-    mD0=1864.84e-3, mD0star=2006.96e-3, mDch=1869.61e-3, mDchstar=2010.26e-3,
-    mPi=0.140, mp=0.938;
+    double mPsi,mRho,mOmega,mD0,mD0star,mDch,mDchstar,mPi,mp;
     double M0,delta,mu1,mu2,mX3872;
 // widths
-    static const double gRho=147.8e-3, gOmega=8.5e-3;
+    double gRho,gOmega;
 
     EvtComplex GammaRho(double e);
     EvtComplex GammaOmega(double e);
