@@ -8,8 +8,8 @@
 //initial.conf
 //#saverand
 //             what event to print?
-//#print
-//10
+#print
+10
 //
 //     proton  pi-  pi+  kaon+  kaon-  anti_proton  anti_deuteron  anti_alpha
 #particle
@@ -25,7 +25,7 @@ G4_H
 ftfp
 //
 #events
-1000                               
+10                               
 //
 //             Plab for proj. hadron, or per nucleon for AA-collisions
 #Plab(GeV/c)

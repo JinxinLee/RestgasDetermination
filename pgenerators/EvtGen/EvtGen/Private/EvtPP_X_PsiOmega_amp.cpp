@@ -8,9 +8,19 @@
 #include "EvtGenModels/EvtPP_X_PsiOmega_amp.hh"
 
 EvtPP_X_PsiOmega_amp::EvtPP_X_PsiOmega_amp() {
+    M0=mD0+mD0star;
+    delta=mDch+mDchstar-mD0-mD0star;
+    mu1=1/(1/mD0+1/mD0star); 
+    mu2=1/(1/mDch+1/mDchstar);
+    mX3872=M0+ef;
 }
 
 EvtPP_X_PsiOmega_amp::EvtPP_X_PsiOmega_amp(const EvtPP_X_PsiOmega_amp& orig) {
+    M0=mD0+mD0star;
+    delta=mDch+mDchstar-mD0-mD0star;
+    mu1=1/(1/mD0+1/mD0star); 
+    mu2=1/(1/mDch+1/mDchstar);
+    mX3872=M0+ef;
 }
 
 EvtPP_X_PsiOmega_amp::~EvtPP_X_PsiOmega_amp() {
