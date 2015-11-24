@@ -131,7 +131,7 @@ void PndRecoKalmanTask2::SetParContainers() {
 }
 
 void PndRecoKalmanTask2::Exec(Option_t* opt) {
-	//if (fVerbose > 0)
+	if (fVerbose > 0)
 		std::cout << "PndRecoKalmanTask2::Exec " << FairRootManager::Instance()->GetEntryNr() << std::endl;
 
 	fFitTrackArray->Delete();
@@ -228,7 +228,6 @@ void PndRecoKalmanTask2::Exec(Option_t* opt) {
 					<< std::endl;
 		}
 
-//		if (fitTrack){
 
 			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
 				fitTrack.GetParamFirst(), fitTrack.GetParamLast(),
@@ -236,10 +235,7 @@ void PndRecoKalmanTask2::Exec(Option_t* opt) {
 				fitTrack.GetChi2(), fitTrack.GetNDF(), fitTrack.GetPidHypo(),
 				itr,
 				FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
-		//	delete (fitTrack);
-//		}
-		//	if (fitTrackPointer > 0)
-		//		delete (fitTrackPointer);
+
 	}
 
 	if (fVerbose > 0)
