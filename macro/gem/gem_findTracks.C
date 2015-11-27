@@ -5,7 +5,7 @@ Int_t gem_findTracks(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1
 { 
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
-    return;
+    return 0;
   }
 
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
@@ -76,5 +76,6 @@ Int_t gem_findTracks(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
 
+  return 1;
 }
 

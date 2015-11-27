@@ -2,7 +2,7 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
 { 
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
-    return;
+    return 0;
   }
 
   TStopwatch timer;
@@ -22,9 +22,6 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
   gDebug                  =  0;
   //------------------------------------------------------------------
 
-  TStopwatch timer;
-  timer.Start();
-  
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName(SimEngine.Data() );
@@ -59,7 +56,7 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
   fRun->AddModule(dipole);
  
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName(Form("gem_%dStations.root",nStations));
+  Gem->SetGeometryFileName(Form("gem_%dStations_Tube.root",nStations));
   Gem->SetVerboseLevel(0);
   fRun->AddModule(Gem);
   

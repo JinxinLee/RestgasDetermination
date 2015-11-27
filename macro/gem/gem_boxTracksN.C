@@ -2,7 +2,7 @@ Int_t gem_boxTracksN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Int_t 
 { 
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
-    return;
+    return 0;
   }
 
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
@@ -104,4 +104,5 @@ Int_t gem_boxTracksN(Int_t nStations, Int_t nparts, Int_t nEvents = 1000, Int_t 
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
 
+  return 1;
 }
