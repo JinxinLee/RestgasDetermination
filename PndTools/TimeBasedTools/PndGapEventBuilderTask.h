@@ -1,6 +1,7 @@
 #ifndef PndGapEventBuilderTask_H_
 #define PndGapEventBuilderTask_H_
 
+#include "TClonesArray.h"
 #include "FairTask.h"
 //#include "PndSdsHit.h"
 

@@ -8,6 +8,7 @@
 #include "PndSttGeometryMap.h"
 
 #include <vector>
+class TClonesArray;
 
 class PndSttSkewedCombineTask: public FairTask {
 public:

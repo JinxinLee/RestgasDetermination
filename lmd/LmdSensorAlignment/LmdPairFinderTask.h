@@ -8,6 +8,8 @@
 #ifndef LMDPAIRFINDERTASK_H_
 #define LMDPAIRFINDERTASK_H_
 
+#include "TClonesArray.h"
+
 #include "PndSdsTask.h"
 #include "PndLmdDim.h"
 #include <PndLmdHitPair.h>
