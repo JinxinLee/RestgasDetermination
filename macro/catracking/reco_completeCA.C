@@ -16,7 +16,7 @@ void reco_completeCA()
   TString digiFile = "all.par";
   
   // Output file
-  TString outFile = "reco_CA.root";
+  TString outFile = "reco_ca.root";
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;

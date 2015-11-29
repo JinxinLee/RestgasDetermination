@@ -17,6 +17,10 @@ ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
 ${CMAKE_SOURCE_DIR}/catracking
 ${CMAKE_SOURCE_DIR}/catracking/code
 ${CMAKE_SOURCE_DIR}/catracking/code/Performance
+${CMAKE_SOURCE_DIR}/PndMCMatch 
+${CMAKE_SOURCE_DIR}/PndTools/TrackingQA
+${CMAKE_SOURCE_DIR}/rho
+${CMAKE_SOURCE_DIR}/rho/RhoBase
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -29,7 +33,8 @@ ${FAIRROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES} )
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DDO_TPCCATRACKER_EFF_PERFORMANCE -DCATRACKER_DISPLAY -DCATRACKER_TIMING")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DDO_TPCCATRACKER_EFF_PERFORMANCE -DCATRACKER_TIMING")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
 
 
 set(HEADERS
@@ -56,6 +61,8 @@ code/Performance/PndCAMCVertex.cxx
 code/Performance/PndCATrackMCPointContainer.cxx 
 code/Performance/PndCATrackPerformanceBase.cxx
 code/Performance/PndCADisplay.cxx
+PndTrackingQualityBarrelTaskNewLinks
+PndTrackingQualityBarrelAnalysisNewLinks
 )
 
 set(LINKDEF  CATrackingLinkDef.h)
