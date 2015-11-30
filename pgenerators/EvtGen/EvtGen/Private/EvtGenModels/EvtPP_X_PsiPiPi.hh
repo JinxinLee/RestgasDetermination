@@ -1,12 +1,12 @@
 /* 
- * File:   EvtPP_X_PsiOmega_amp.hh
+ * File:   EvtPP_X_PsiRho_amp_amp.hh
  * Author: luchinsky
  *
- * Created on November 20, 2015, 12:25 PM
+ * Created on November 20, 2015, 9:49 AM
  */
 
-#ifndef EVTPP_X_PSIOMEGA_AMP_HH
-#define	EVTPP_X_PSIOMEGA_AMP_HH
+#ifndef EVTPP_X_PSIPIPI
+#define	EVTPP_X_PSIPIPI
 
 #include "EvtGenBase/EvtDecayProb.hh"
 #include "EvtGenBase/EvtVector4R.hh"
@@ -35,11 +35,11 @@
 class EvtParticle;
 
 
-class EvtPP_X_PsiOmega_amp: public EvtDecayAmp  {
+class EvtPP_X_PsiPiPi: public EvtDecayAmp  {
 public:
-    EvtPP_X_PsiOmega_amp();
-    EvtPP_X_PsiOmega_amp(const EvtPP_X_PsiOmega_amp& orig);
-    virtual ~EvtPP_X_PsiOmega_amp();
+    EvtPP_X_PsiPiPi();
+    EvtPP_X_PsiPiPi(const EvtPP_X_PsiPiPi& orig);
+    virtual ~EvtPP_X_PsiPiPi();
     virtual std::string getName();
     virtual EvtDecayBase* clone();
 
@@ -58,6 +58,9 @@ private:
     double M0,delta,mu1,mu2,mX3872;
 // widths
     double gRho,gOmega;
+    double maxAmp;
+    bool first_run;
+    
 
     EvtComplex GammaRho(double e);
     EvtComplex GammaOmega(double e);
@@ -68,5 +71,5 @@ private:
 
 };
 
-#endif	/* EVTPP_X_PSIOMEGA_AMP_HH */
+#endif	/* EVTPP_X_PSIPIPI */
 

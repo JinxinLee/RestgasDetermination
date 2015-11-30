@@ -170,8 +170,8 @@
 #include "EvtGenModels/EvtPP_PsiEtaPi0.hh" // [A.L.29.010.2014]
 #include "EvtGenModels/EvtPP_Pi0Gamma.hh" // [A.L.02.011.2014]
 #include "EvtGenModels/EvtPP_Pi0Eta.hh" // [A.L.09.011.2014]
-#include "EvtGenModels/EvtPP_X_PsiRho_amp.hh" // [A.L. 11.020.2015]
-#include "EvtGenModels/EvtPP_X_PsiOmega_amp.hh" // [A.L. 11.020.2015]
+#include "EvtGenModels/EvtPP_X_PsiPiPi.hh" // [A.L. 11.020.2015]
+#include "EvtGenModels/EvtPP_X_PsiPiPiPi.hh" // [A.L. 11.020.2015]
 /// Private Panda Models end
 
 #include "EvtGenModels/EvtModelReg.hh"
@@ -208,8 +208,8 @@ EvtModelReg::EvtModelReg(const std::list<EvtDecayBase*>* extraModels)
     modelist.registerModel(new EvtPP_PsiEtaPi0); //[A.L.29.010.2014]
     modelist.registerModel(new EvtPP_Pi0Gamma); //[A.L.02.011.2014]
     modelist.registerModel(new EvtPP_Pi0Eta); //[A.L.09.011.2014]
-    modelist.registerModel(new EvtPP_X_PsiRho_amp); // [A.L.11.020.2015]
-    modelist.registerModel(new EvtPP_X_PsiOmega_amp); // [A.L.11.020.2015]
+    modelist.registerModel(new EvtPP_X_PsiPiPi); // [A.L.11.020.2015]
+    modelist.registerModel(new EvtPP_X_PsiPiPiPi); // [A.L.11.020.2015]
     /// private Panda Models end
 
     modelist.registerModel(new EvtBBScalar);

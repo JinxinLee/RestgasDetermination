@@ -1,12 +1,12 @@
 /* 
- * File:   EvtPP_X_PsiRho_amp_amp.hh
+ * File:   EvtPP_X_PsiOmega_amp.hh
  * Author: luchinsky
  *
- * Created on November 20, 2015, 9:49 AM
+ * Created on November 20, 2015, 12:25 PM
  */
 
-#ifndef EVTPP_X_PSIRHO_AMP_HH
-#define	EVTPP_X_PSIRHO_AMP_HH
+#ifndef EVTPP_X_PSIPIPIPI
+#define	EVTPP_X_PSIPIPIPI
 
 #include "EvtGenBase/EvtDecayProb.hh"
 #include "EvtGenBase/EvtVector4R.hh"
@@ -30,16 +30,15 @@
 #include <fstream>
 
 
-//double const _ECM=3.518;
 
 class EvtParticle;
 
 
-class EvtPP_X_PsiRho_amp: public EvtDecayAmp  {
+class EvtPP_X_PsiPiPiPi: public EvtDecayAmp  {
 public:
-    EvtPP_X_PsiRho_amp();
-    EvtPP_X_PsiRho_amp(const EvtPP_X_PsiRho_amp& orig);
-    virtual ~EvtPP_X_PsiRho_amp();
+    EvtPP_X_PsiPiPiPi();
+    EvtPP_X_PsiPiPiPi(const EvtPP_X_PsiPiPiPi& orig);
+    virtual ~EvtPP_X_PsiPiPiPi();
     virtual std::string getName();
     virtual EvtDecayBase* clone();
 
@@ -58,6 +57,9 @@ private:
     double M0,delta,mu1,mu2,mX3872;
 // widths
     double gRho,gOmega;
+    
+    bool first_run;
+    double maxAmp;
 
     EvtComplex GammaRho(double e);
     EvtComplex GammaOmega(double e);
@@ -68,5 +70,5 @@ private:
 
 };
 
-#endif	/* EVTPP_X_PSIRHO_AMP_HH */
+#endif	/* EVTPP_X_PSIPIPIPI */
 
