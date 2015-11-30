@@ -3,6 +3,10 @@
 # The extension is already found.  Any number of sources could be listed here.
 
 
+Set(SYSTEM_INCLUDE_DIRECTORIES
+  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${BASE_INCLUDE_DIRECTORIES}
+)
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
@@ -17,6 +21,8 @@ ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
 ${CMAKE_SOURCE_DIR}/catracking
 ${CMAKE_SOURCE_DIR}/catracking/code
 ${CMAKE_SOURCE_DIR}/catracking/code/Performance
+${CMAKE_SOURCE_DIR}/trackrep
+${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/PndMCMatch 
 ${CMAKE_SOURCE_DIR}/PndTools/TrackingQA
 ${CMAKE_SOURCE_DIR}/rho
@@ -40,6 +46,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DDO_TPCCATRACKER_EFF_PERFORMA
 set(HEADERS
 code/Performance/PndCATrackMCPointContainer.h
 PndCATracking.h
+PndTrackingQualityBarrelTaskNewLinks.h
+PndTrackingQualityBarrelAnalysisNewLinks.h
 )
 
 set(SRCS
@@ -61,13 +69,13 @@ code/Performance/PndCAMCVertex.cxx
 code/Performance/PndCATrackMCPointContainer.cxx 
 code/Performance/PndCATrackPerformanceBase.cxx
 code/Performance/PndCADisplay.cxx
-PndTrackingQualityBarrelTaskNewLinks
-PndTrackingQualityBarrelAnalysisNewLinks
+PndTrackingQualityBarrelTaskNewLinks.cxx
+PndTrackingQualityBarrelAnalysisNewLinks.cxx
 )
 
 set(LINKDEF  CATrackingLinkDef.h)
 set(LIBRARY_NAME CATracking)
 
-set(DEPENDENCIES PndData Stt Vc.a)
+set(DEPENDENCIES PndData Stt Vc.a Base MCMatch Rho TrackingQA)
 
 GENERATE_LIBRARY()

@@ -30,6 +30,7 @@
 #include <map>
 
 class TClonesArray;
+class PndTrack;
 
 class PndTrackingQualityBarrelTaskNewLinks : public FairTask
 {

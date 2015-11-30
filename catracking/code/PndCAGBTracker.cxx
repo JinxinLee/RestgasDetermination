@@ -232,8 +232,10 @@ void PndCAGBTracker::FindTracks()
   disp.SetTPC( fParameters );
   disp.SetGB( this );
   disp.DrawTPC();
+  disp.DrawGBPoints();
+  disp.Ask();
   disp.DrawGBHits( *this );
-  disp.Update();
+  //disp.Update();
   disp.Ask();
 #endif
 
@@ -396,8 +398,10 @@ void PndCAGBTracker::SetHits( std::vector<PndCAGBHit> &hits)
   fNHits = 0;
   fHits.resize(0);
   fHits.reserve(NHits2);
+  //cout<<"Z min, max: "<<fParameters.MinZ()<<" "<<fParameters.MaxZ()<<endl;
   for (int iH = 0; iH < NHits2; iH++){
     PndCAGBHit l = hits[iH]; 
+    //cout<<"hit z: "<<l.Z()<<" r: "<<l.R()<<endl;
     if( fabs(l.Angle())>10 ){
       //cout<<"read angle "<<l.Angle()<<" station "<<(int) l.IRow()<<endl;
       continue; // skip forward detectors
