@@ -108,7 +108,7 @@ void digi_complete()
   fRun->AddTask(ftofhit);
 
   // -----   Disc DIRC hit producers   ---------------------------
-  DiscDIRC_TaskDigitization* ddirc_digitization =  new DiscDIRC_TaskDigitization();
+  PndDiscTaskDigitization* ddirc_digitization =  new PndDiscTaskDigitization();
   ddirc_digitization->RunTimeBased(kTRUE);          // Run time based
   //ddirc_digitization->SetRunMixed(kTRUE);         // Run with mixed input
   fRun->AddTask(ddirc_digitization);

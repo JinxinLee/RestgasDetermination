@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom = 6.231552)
+sim_complete(Int_t nEvents = 2, TString  SimEngine ="TGeant4", Float_t mom = 6.231552)
 {
 
   //-----User Settings:-----------------------------------------------
@@ -139,7 +139,7 @@ sim_complete(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom = 6.2
   Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
   //------------------------- Disc DIRC       ------------
-  DiscDIRC_Detector * disc_dirc = new DiscDIRC_Detector("DiscDIRC", kTRUE);
+  PndDisc * disc_dirc = new PndDisc("DISC", kTRUE);
   disc_dirc->SetVerboseLevel(2);
   disc_dirc->SetGeometryFileName("DIRC_GEO_SIO2.root");
   disc_dirc->SetFilterInterval(200., 800.);

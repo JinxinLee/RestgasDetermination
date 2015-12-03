@@ -20,7 +20,7 @@
 
 
 
-DiscDIRC_NoiseGeneration::DiscDIRC_NoiseGeneration() 
+PndDiscNoiseGeneration::PndDiscNoiseGeneration() 
     : current_index(0), n_detectors(0), n_readout_modules(0), n_sensors(0),
       n_sensor_tiles_x(1), n_sensor_tiles_y(1),
       half_sensor_width(1.0), half_sensor_height(1.0),
@@ -31,12 +31,12 @@ DiscDIRC_NoiseGeneration::DiscDIRC_NoiseGeneration()
 }
 
 
-DiscDIRC_NoiseGeneration::~DiscDIRC_NoiseGeneration() {
+PndDiscNoiseGeneration::~PndDiscNoiseGeneration() {
     if(noise_digits != NULL) delete noise_digits;
 }
 
 
-void DiscDIRC_NoiseGeneration::SetNumberOfSensors(int n_detectors_, int n_readout_modules_, int n_sensors_) {
+void PndDiscNoiseGeneration::SetNumberOfSensors(int n_detectors_, int n_readout_modules_, int n_sensors_) {
         // note: a sensor can also be tiled - this is actually the sensitive area at a focusing element.
         n_detectors = n_detectors_;
         n_readout_modules = n_readout_modules_;
@@ -44,7 +44,7 @@ void DiscDIRC_NoiseGeneration::SetNumberOfSensors(int n_detectors_, int n_readou
 }
 
 
-void DiscDIRC_NoiseGeneration::SetSensorGrid( double sensor_width_, double sensor_height_, 
+void PndDiscNoiseGeneration::SetSensorGrid( double sensor_width_, double sensor_height_, 
                                                 int n_pixel_x_, int n_pixel_y_) 
 {
     half_sensor_width  = 0.5*sensor_width_;
@@ -60,13 +60,13 @@ void DiscDIRC_NoiseGeneration::SetSensorGrid( double sensor_width_, double senso
 }
 
 
-void DiscDIRC_NoiseGeneration::SetSensorTiling(int sensor_tiles_x, int sensor_tiles_y) {
+void PndDiscNoiseGeneration::SetSensorTiling(int sensor_tiles_x, int sensor_tiles_y) {
     n_sensor_tiles_x = sensor_tiles_x;
     n_sensor_tiles_y = sensor_tiles_y;
 }
 
 
-bool DiscDIRC_NoiseGeneration::GetPixelPosition(int n_pixel, double & pos_x, double & pos_y) {
+bool PndDiscNoiseGeneration::GetPixelPosition(int n_pixel, double & pos_x, double & pos_y) {
     if(n_pixel >= n_pixel_total) return false;
     pos_x = -half_sensor_width  + (double(n_pixel % n_pixel_x)+0.5) * pitch_x;
     pos_y = -half_sensor_height + (double(n_pixel / n_pixel_x)+0.5) * pitch_y;
@@ -74,7 +74,7 @@ bool DiscDIRC_NoiseGeneration::GetPixelPosition(int n_pixel, double & pos_x, dou
 }
 
 
-int DiscDIRC_NoiseGeneration::GenerateNoise(double t_start_ns, double t_end_ns) {
+int PndDiscNoiseGeneration::GenerateNoise(double t_start_ns, double t_end_ns) {
     Clear(); // clear buffer and reset the counter
 
     // fill buffer with new noise digits
@@ -116,7 +116,7 @@ int DiscDIRC_NoiseGeneration::GenerateNoise(double t_start_ns, double t_end_ns) 
 }
 
 
-PndDiscDigitizedHit * DiscDIRC_NoiseGeneration::GetNextNoiseDigit() {
+PndDiscDigitizedHit * PndDiscNoiseGeneration::GetNextNoiseDigit() {
     if(current_index < noise_digits->GetEntries()) 
         return (PndDiscDigitizedHit*)(*noise_digits)[current_index++];
     else
@@ -124,12 +124,12 @@ PndDiscDigitizedHit * DiscDIRC_NoiseGeneration::GetNextNoiseDigit() {
 }
 
 
-void DiscDIRC_NoiseGeneration::Clear() {
+void PndDiscNoiseGeneration::Clear() {
     noise_digits->Clear();
     current_index = 0;
 }
 
 
 
-ClassImp(DiscDIRC_NoiseGeneration);
+ClassImp(PndDiscNoiseGeneration);
 

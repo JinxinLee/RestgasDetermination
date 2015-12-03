@@ -5,8 +5,8 @@
 // Description: Class to emulate noise for the readout electronics
 //------------------------------------------------------------------------
 
-#ifndef DiscDIRC_NoiseGeneration_HH_
-#define DiscDIRC_NoiseGeneration_HH_
+#ifndef PNDDISCNOISEGENERATION_H
+#define PNDDISCNOISEGENERATION_H
 
 
 #include "TClonesArray.h"
@@ -16,11 +16,11 @@ class PndDiscDigitizedHit;
 
 
 
-class DiscDIRC_NoiseGeneration
+class PndDiscNoiseGeneration
 {
 public:
-    DiscDIRC_NoiseGeneration();
-    ~DiscDIRC_NoiseGeneration();
+    PndDiscNoiseGeneration();
+    ~PndDiscNoiseGeneration();
     
     // Initialization:
 
@@ -62,4 +62,4 @@ protected:
     double dcr_per_pixel; // pixel means a single SPAD here - unit: dark counts / ns
 };
 
-#endif // DiscDIRC_NoiseGeneration_HH_
+#endif // PNDDISCNOISEGENERATION_HH_

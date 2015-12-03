@@ -368,14 +368,14 @@ double E0[3] = {134.976, 493.677, 938.272};
 
 //---------------------------------------------------------------------------
 
-double DiscDIRC_TaskReconstruction::gauss(int x, double mean_value, double rms)
+double PndDiscTaskReconstruction::gauss(int x, double mean_value, double rms)
 {
     return 1/sqrt(2*TMath::Pi()*rms*rms)*exp(-0.5*((x-mean_value)/rms)*((x-mean_value)/rms));
 }
 
 //---------------------------------------------------------------------------
 
-double DiscDIRC_TaskReconstruction::mean(std::vector<double> values)
+double PndDiscTaskReconstruction::mean(std::vector<double> values)
 {
     double average = 0;
 
@@ -390,7 +390,7 @@ double DiscDIRC_TaskReconstruction::mean(std::vector<double> values)
 
 //---------------------------------------------------------------------------
 
-double DiscDIRC_TaskReconstruction::deviation(double mean_value, std::vector<double> values)
+double PndDiscTaskReconstruction::deviation(double mean_value, std::vector<double> values)
 {
     double average = 0;
 
@@ -407,7 +407,7 @@ double DiscDIRC_TaskReconstruction::deviation(double mean_value, std::vector<dou
 
 //---------------------------------------------------------------------------
 
-DiscDIRC_TaskReconstruction::DiscDIRC_TaskReconstruction() : FairTask("DiscDIRC_TaskReconstruction"), tclarr_digits(NULL), tclarr_particles(NULL), tclarr_tracks(NULL), is_time_based(kTRUE), flag_export_patterns(kFALSE), average_wl(420.), minimum_wl(385.)
+PndDiscTaskReconstruction::PndDiscTaskReconstruction() : FairTask("DiscDircTaskReconstruction"), tclarr_digits(NULL), tclarr_particles(NULL), tclarr_tracks(NULL), is_time_based(kTRUE), flag_export_patterns(kFALSE), average_wl(420.), minimum_wl(385.)
 {
     branch_name_digits    = "DiscDigit";
     folder_name_digits    = "DiscDIRC";
@@ -415,7 +415,7 @@ DiscDIRC_TaskReconstruction::DiscDIRC_TaskReconstruction() : FairTask("DiscDIRC_
 
 //---------------------------------------------------------------------------
 
-DiscDIRC_TaskReconstruction::~DiscDIRC_TaskReconstruction()
+PndDiscTaskReconstruction::~PndDiscTaskReconstruction()
 {
 }
 
@@ -423,18 +423,18 @@ DiscDIRC_TaskReconstruction::~DiscDIRC_TaskReconstruction()
 //--------------------------------------------------------------------------
 
 
-InitStatus DiscDIRC_TaskReconstruction::ReInit()
+InitStatus PndDiscTaskReconstruction::ReInit()
 {
-    fLogger->Info(MESSAGE_ORIGIN, "DiscDIRC_TaskReconstruction::ReInit()");
+    fLogger->Info(MESSAGE_ORIGIN, "DiscDircTaskReconstruction::ReInit()");
     return kSUCCESS;
 }
 
 //--------------------------------------------------------------------------
 
 
-InitStatus DiscDIRC_TaskReconstruction::Init()
+InitStatus PndDiscTaskReconstruction::Init()
 {
-    fLogger->Info(MESSAGE_ORIGIN, "DiscDIRC_TaskReconstruction::Init()");
+    fLogger->Info(MESSAGE_ORIGIN, "PndDiscTaskReconstruction::Init()");
     
     // Get IO manager instance:
     FairRootManager* io_manager = FairRootManager::Instance();
@@ -464,9 +464,9 @@ InitStatus DiscDIRC_TaskReconstruction::Init()
     tclarr_digits_out = new TClonesArray("PndDiscDigitizedHit");
     tclarr_particles_out = new TClonesArray("PndDiscParticleMCPoint");
 
-    io_manager->Register("DiscPatternPrediction", "DiscDIRC_Detector", tclarr_recon_results, true);
-    io_manager->Register("DiscDigitizedHit","DiscDIRC_Detector", tclarr_digits_out, true);
-    io_manager->Register("DiscRealTracks","DiscDIRC_Detector", tclarr_particles_out, true);
+    io_manager->Register("DiscPatternPrediction", "DiscDircDetector", tclarr_recon_results, true);
+    io_manager->Register("DiscDigitizedHit","DiscDircDetector", tclarr_digits_out, true);
+    io_manager->Register("DiscRealTracks","DiscDircDetector", tclarr_particles_out, true);
 
 
 
@@ -483,7 +483,7 @@ InitStatus DiscDIRC_TaskReconstruction::Init()
 
 /// Use particle track array as driving quantity
 /// and retrieve pattern digits by using time-based-simulation.
-void DiscDIRC_TaskReconstruction::Exec(Option_t* opt)
+void PndDiscTaskReconstruction::Exec(Option_t* opt)
 {
     //Reading out entries
     int particles = tclarr_particles->GetEntries();
@@ -683,7 +683,7 @@ void DiscDIRC_TaskReconstruction::Exec(Option_t* opt)
 }
 
 
-void DiscDIRC_TaskReconstruction::FinishEvent()
+void PndDiscTaskReconstruction::FinishEvent()
 {
     // called after all Tasks did their Exec() and the data is copied to the file
     if(tclarr_recon_results != NULL) tclarr_recon_results->Clear();
@@ -694,10 +694,10 @@ void DiscDIRC_TaskReconstruction::FinishEvent()
 }
 
 
-void DiscDIRC_TaskReconstruction::FinishTask()
+void PndDiscTaskReconstruction::FinishTask()
 {
 }
 
 
-ClassImp(DiscDIRC_TaskReconstruction)
+ClassImp(PndDiscTaskReconstruction)
 

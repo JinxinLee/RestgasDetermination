@@ -4,11 +4,11 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class DiscDIRC_Detector+;
-#pragma link C++ class DiscDIRC_TaskDigitization+;
-#pragma link C++ class DiscDIRC_WriteoutBuffer+;
-#pragma link C++ class DiscDIRC_NoiseGeneration+;
-#pragma link C++ class DiscDIRC_TaskReconstruction+;
+#pragma link C++ class PndDisc+;
+#pragma link C++ class PndDiscTaskDigitization+;
+#pragma link C++ class PndDiscWriteoutBuffer+;
+#pragma link C++ class PndDiscNoiseGeneration+;
+#pragma link C++ class PndDiscTaskReconstruction+;
 #pragma link C++ class PndDiscTaskPID+;
 
 #endif

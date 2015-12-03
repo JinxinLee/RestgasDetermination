@@ -6,8 +6,8 @@
 //-------------------------------------------------------------------------
 
 
-#ifndef DiscDIRC_Detector_HH
-#define DiscDIRC_Detector_HH
+#ifndef PNDDISC_HH
+#define PNDDISC_HH
 
 
 // Subdetector specific
@@ -32,13 +32,13 @@ class FairMCEventHeader;
 
 
 
-class DiscDIRC_Detector : public FairDetector
+class PndDisc : public FairDetector
 {
 public:
     // ctor / dtor
-    DiscDIRC_Detector();
-    DiscDIRC_Detector(const char * name, Bool_t active, Int_t det_id=0);
-    ~DiscDIRC_Detector();
+    PndDisc();
+    PndDisc(const char * name, Bool_t active, Int_t det_id=0);
+    ~PndDisc();
 
     // interface - initialization
     virtual void   Initialize();                        //* detector initialization
@@ -98,9 +98,9 @@ private:
     Double_t wl_min_nm;
     Double_t wl_max_nm;
 
-    ClassDef(DiscDIRC_Detector, 1)
+    ClassDef(PndDisc, 1)
 };
 
 
 
-#endif // DiscDIRC_Detector_HH
+#endif // PNDDISC_HH

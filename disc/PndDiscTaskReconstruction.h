@@ -5,8 +5,8 @@
 // Description: Track Reconstruction
 //-------------------------------------------------------------------------
 
-#ifndef DiscDIRC_TaskReconstruction_H
-#define DiscDIRC_TaskReconstruction_H
+#ifndef PNDDISCTASKRECONSTRUCTION_H
+#define PNDDISCTASKRECONSTRUCTION_H
 
 
 #include "FairTask.h"
@@ -20,12 +20,12 @@ class TClonesArray;
 
 
 
-class DiscDIRC_TaskReconstruction : public FairTask
+class PndDiscTaskReconstruction : public FairTask
 {
 public:
-    DiscDIRC_TaskReconstruction();
-    DiscDIRC_TaskReconstruction(const char* name);
-    virtual ~DiscDIRC_TaskReconstruction();
+    PndDiscTaskReconstruction();
+    PndDiscTaskReconstruction(const char* name);
+    virtual ~PndDiscTaskReconstruction();
 
     // Implement FairTask interface:
     virtual InitStatus Init();
@@ -69,7 +69,7 @@ protected:
     Double_t average_wl;
     Double_t minimum_wl;
 
-    ClassDef(DiscDIRC_TaskReconstruction, 1)
+    ClassDef(PndDiscTaskReconstruction, 1)
 };
 
-#endif // DiscDIRC_TaskReconstruction_H
+#endif // PNDDISCTASKRECONSTRUCTION_H

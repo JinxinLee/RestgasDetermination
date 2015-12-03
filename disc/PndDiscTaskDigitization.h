@@ -5,8 +5,8 @@
 // Description: Digitization of Monte Carlo hits
 //-------------------------------------------------------------------------
 
-#ifndef DiscDIRC_TaskDigitization_H
-#define DiscDIRC_TaskDigitization_H
+#ifndef PNDDISCTASKDIGITIZATION_H
+#define PNDDISCTASKDIGITIZATION_H
 
 #define USESENSORGRID
 
@@ -33,12 +33,12 @@
 
 
 
-class DiscDIRC_TaskDigitization : public FairTask
+class PndDiscTaskDigitization : public FairTask
 {
 public:
-    DiscDIRC_TaskDigitization();
-    DiscDIRC_TaskDigitization(const char* name);
-    virtual ~DiscDIRC_TaskDigitization();
+    PndDiscTaskDigitization();
+    PndDiscTaskDigitization(const char* name);
+    virtual ~PndDiscTaskDigitization();
 
     // Implement FairTask interface:
     virtual InitStatus Init();
@@ -82,7 +82,7 @@ protected:
     DiscDIRC_NoiseGeneration noise_generator;   //!
 #endif
     
-    ClassDef(DiscDIRC_TaskDigitization, 1)
+    ClassDef(PndDiscTaskDigitization, 1)
 };
 
-#endif // DiscDIRC_TaskDigitization_H
+#endif // PNDDISCTASKDIGITIZATION_H

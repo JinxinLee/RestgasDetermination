@@ -14,10 +14,10 @@
 #include <stdexcept>
 
 
-ClassImp(DiscDIRC_WriteoutBuffer);
+ClassImp(PndDiscWriteoutBuffer);
 
 
-DiscDIRC_WriteoutBuffer::DiscDIRC_WriteoutBuffer()
+PndDiscWriteoutBuffer::PndDiscWriteoutBuffer()
     : FairWriteoutBuffer() 
 {
 #ifdef RRTTI
@@ -27,7 +27,7 @@ DiscDIRC_WriteoutBuffer::DiscDIRC_WriteoutBuffer()
 }
 
 
-DiscDIRC_WriteoutBuffer::DiscDIRC_WriteoutBuffer(TString branchName, TString folderName, Bool_t persistance)
+PndDiscWriteoutBuffer::PndDiscWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance)
     : FairWriteoutBuffer(branchName, "PndDiscDigitizedHit", folderName, persistance) 
 { 
 #ifdef RRTTI
@@ -37,7 +37,7 @@ DiscDIRC_WriteoutBuffer::DiscDIRC_WriteoutBuffer(TString branchName, TString fol
 }
 
 
-DiscDIRC_WriteoutBuffer::~DiscDIRC_WriteoutBuffer() {
+PndDiscWriteoutBuffer::~PndDiscWriteoutBuffer() {
 #ifdef RRTTI
     delete buffer;
 #endif
@@ -45,7 +45,7 @@ DiscDIRC_WriteoutBuffer::~DiscDIRC_WriteoutBuffer() {
 
 
 // TODO: move this to functor
-std::vector<std::pair<double, FairTimeStamp*> > DiscDIRC_WriteoutBuffer::Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData)
+std::vector<std::pair<double, FairTimeStamp*> > PndDiscWriteoutBuffer::Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData)
 {
     std::vector<std::pair<double, FairTimeStamp*> > result;
     if( oldData.first >= newData.second->GetTimeStamp() ) {
@@ -63,7 +63,7 @@ std::vector<std::pair<double, FairTimeStamp*> > DiscDIRC_WriteoutBuffer::Modify(
 #ifdef FWB_USE_INHERITANCE
 // The interface is not needed anymore and can go back to
 // FairWriteoutBuffer:
-void DiscDIRC_WriteoutBuffer::AddNewDataToTClonesArray(FairTimeStamp* data)
+void PndDiscWriteoutBuffer::AddNewDataToTClonesArray(FairTimeStamp* data)
 {
     FairRootManager* ioman = FairRootManager::Instance();
     TClonesArray* myArray = ioman->GetTClonesArray(fBranchName);
@@ -110,7 +110,7 @@ void DiscDIRC_WriteoutBuffer::AddNewDataToTClonesArray(FairTimeStamp* data)
 }
 
 
-double DiscDIRC_WriteoutBuffer::FindTimeForData(FairTimeStamp* data)
+double PndDiscWriteoutBuffer::FindTimeForData(FairTimeStamp* data)
 {
 #ifndef RRTTI
     std::map<PndDiscDigitizedHit, double>::iterator it;
@@ -130,7 +130,7 @@ double DiscDIRC_WriteoutBuffer::FindTimeForData(FairTimeStamp* data)
 }
 
 
-void DiscDIRC_WriteoutBuffer::FillDataMap(FairTimeStamp* data, double activeTime)
+void PndDiscWriteoutBuffer::FillDataMap(FairTimeStamp* data, double activeTime)
 {
 #ifndef RRTTI
     PndDiscDigitizedHit myData = *(PndDiscDigitizedHit*)data;
@@ -141,7 +141,7 @@ void DiscDIRC_WriteoutBuffer::FillDataMap(FairTimeStamp* data, double activeTime
 }
 
 
-void DiscDIRC_WriteoutBuffer::EraseDataFromDataMap(FairTimeStamp* data)
+void PndDiscWriteoutBuffer::EraseDataFromDataMap(FairTimeStamp* data)
 {
 #ifndef RRTTI
     PndDiscDigitizedHit myData = *(PndDiscDigitizedHit*)data;

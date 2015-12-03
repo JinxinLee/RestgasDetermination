@@ -40,7 +40,7 @@ Double_t n_phase_sellmeier(Double_t * coeff,Double_t lambda_um)
 
 
 
-DiscDIRC_TaskDigitization::DiscDIRC_TaskDigitization() : FairTask("DiscDIRC_TaskDigitization"), mc_point_branch_id(0), tclarr_mc_points(NULL), writeout_buffer(NULL), fMcEventHeader(NULL), is_time_based(kTRUE), is_persistent(kTRUE)
+PndDiscTaskDigitization::PndDiscTaskDigitization() : FairTask("PndDiscTaskDigitization"), mc_point_branch_id(0), tclarr_mc_points(NULL), writeout_buffer(NULL), fMcEventHeader(NULL), is_time_based(kTRUE), is_persistent(kTRUE)
 #ifndef USESENSORGRID
     //,pde_interpolator(0, ROOT::Math::Interpolation::kLINEAR)
 #endif
@@ -60,7 +60,7 @@ DiscDIRC_TaskDigitization::DiscDIRC_TaskDigitization() : FairTask("DiscDIRC_Task
 
 
 
-DiscDIRC_TaskDigitization::~DiscDIRC_TaskDigitization()
+PndDiscTaskDigitization::~PndDiscTaskDigitization()
 {
     if(writeout_buffer != NULL) delete writeout_buffer;
 }
@@ -68,7 +68,7 @@ DiscDIRC_TaskDigitization::~DiscDIRC_TaskDigitization()
 
 
 
-InitStatus DiscDIRC_TaskDigitization::ReInit()
+InitStatus PndDiscTaskDigitization::ReInit()
 {
     return kSUCCESS;
 }
@@ -76,7 +76,7 @@ InitStatus DiscDIRC_TaskDigitization::ReInit()
 
 
 
-InitStatus DiscDIRC_TaskDigitization::Init()
+InitStatus PndDiscTaskDigitization::Init()
 {
     // Get IO manager instance:
     FairRootManager* io_manager = FairRootManager::Instance();
@@ -116,7 +116,7 @@ InitStatus DiscDIRC_TaskDigitization::Init()
 
         // create output branch for particle tracks
         //tclarr_particle_tracks_out = new TClonesArray("DiscParticleMCPoint");
-        FairRootManager::Instance()->Register("DiscMCTruthTracks","DiscDIRC_Detector", tclarr_particle_tracks_out, true);
+        FairRootManager::Instance()->Register("DiscMCTruthTracks","DiscDIRC", tclarr_particle_tracks_out, true);
         FairRootManager::Instance()->Register("DiscDigit","DiscDIRC", array, true);
     }
 
@@ -291,7 +291,7 @@ InitStatus DiscDIRC_TaskDigitization::Init()
 }
 
 
-void DiscDIRC_TaskDigitization::Exec(Option_t* opt)
+void PndDiscTaskDigitization::Exec(Option_t* opt)
 {
     PndDiscSensorMCPoint * mc_point = NULL;
     Int_t i = 0, n_mc_points = tclarr_mc_points->GetEntriesFast();
@@ -383,23 +383,23 @@ void DiscDIRC_TaskDigitization::Exec(Option_t* opt)
 }
 
 
-void DiscDIRC_TaskDigitization::FinishEvent()
+void PndDiscTaskDigitization::FinishEvent()
 {
   tclarr_particle_tracks_out->Clear();
   FinishEvents();
 }
 
 
-void DiscDIRC_TaskDigitization::FinishTask()
+void PndDiscTaskDigitization::FinishTask()
 {
 }
 
 
-void DiscDIRC_TaskDigitization::FilterParticleSpecies(Int_t pdg_code)
+void PndDiscTaskDigitization::FilterParticleSpecies(Int_t pdg_code)
 {
     particle_types.insert(abs(pdg_code));
 }
 
 
-ClassImp(DiscDIRC_TaskDigitization)
+ClassImp(PndDiscTaskDigitization)
 

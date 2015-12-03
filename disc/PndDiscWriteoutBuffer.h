@@ -6,8 +6,8 @@
 //              for time-based simulations
 //-------------------------------------------------------------------------
 
-#ifndef DISCDIRC_WRITEOUTBUFFER_HH
-#define DISCDIRC_WRITEOUTBUFFER_HH
+#ifndef DISCDIRCWRITEOUTBUFFER_H
+#define DISCDIRCWRITEOUTBUFFER_H
 
 // ---------------------------
 // vanilla PROOT
@@ -22,7 +22,7 @@
 #include <iostream>
 
 
-class DiscDIRC_WriteoutBuffer : public FairWriteoutBuffer {
+class PndDiscWriteoutBuffer : public FairWriteoutBuffer {
 public:
 
 #ifdef RRTTI
@@ -34,9 +34,9 @@ struct CompareDigits {
 #endif
 
 public:
-    DiscDIRC_WriteoutBuffer();
-    DiscDIRC_WriteoutBuffer(TString branchName, TString folderName, Bool_t persistance);
-    virtual ~DiscDIRC_WriteoutBuffer();
+    PndDiscWriteoutBuffer();
+    PndDiscWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance);
+    virtual ~PndDiscWriteoutBuffer();
 
     // the following should become a functor:
     virtual std::vector<std::pair<double, FairTimeStamp*> > Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData);
@@ -61,7 +61,7 @@ protected:
     TBuffer * buffer;
 #endif
 
-    ClassDef(DiscDIRC_WriteoutBuffer, 1);
+    ClassDef(PndDiscWriteoutBuffer, 1);
 };
 
-#endif //DISCDIRC_WRITEOUTBUFFER_HH
+#endif //DISCDIRCWRITEOUTBUFFER_H

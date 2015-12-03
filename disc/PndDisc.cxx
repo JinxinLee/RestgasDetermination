@@ -46,7 +46,7 @@ namespace
 // ctor / dtor
 ///////////////////////////////////
 
-DiscDIRC_Detector::DiscDIRC_Detector() : FairDetector(), clarr_sensor_hits(NULL), clarr_particle_tracks(NULL),
+PndDisc::PndDisc() : FairDetector(), clarr_sensor_hits(NULL), clarr_particle_tracks(NULL),
     nextid_clarr_sensor_hits(0), nextid_clarr_particle_tracks(0),
     ev_header(NULL), design_id(0), wl_min_nm(385.0), wl_max_nm(430.0)
 {
@@ -54,7 +54,7 @@ DiscDIRC_Detector::DiscDIRC_Detector() : FairDetector(), clarr_sensor_hits(NULL)
 
 
 
-DiscDIRC_Detector::DiscDIRC_Detector(const char* name, Bool_t active, Int_t det_id)
+PndDisc::PndDisc(const char* name, Bool_t active, Int_t det_id)
     : FairDetector(name, active, det_id), store_photon_tracks(kFALSE),
       clarr_sensor_hits(NULL), clarr_particle_tracks(NULL),
       nextid_clarr_sensor_hits(0), nextid_clarr_particle_tracks(0),
@@ -64,7 +64,7 @@ DiscDIRC_Detector::DiscDIRC_Detector(const char* name, Bool_t active, Int_t det_
 
 
 
-DiscDIRC_Detector::~DiscDIRC_Detector() {
+PndDisc::~PndDisc() {
     if(clarr_sensor_hits!=NULL) {
         clarr_sensor_hits->Delete();
         delete clarr_sensor_hits;
@@ -83,7 +83,7 @@ DiscDIRC_Detector::~DiscDIRC_Detector() {
 
 /// Initialize will be called after the Geometry is created
 
-void DiscDIRC_Detector::Initialize()
+void PndDisc::Initialize()
 {
     // create collections (Register is called after Initialize)
     clarr_sensor_hits     = new TClonesArray("PndDiscSensorMCPoint");
@@ -99,7 +99,7 @@ void DiscDIRC_Detector::Initialize()
 // interface geometry
 //------------------------------------------------
 
-void DiscDIRC_Detector::ConstructGeometry()
+void PndDisc::ConstructGeometry()
 {
 
     TString fname = GetGeometryFileName();
@@ -132,7 +132,7 @@ void DiscDIRC_Detector::ConstructGeometry()
 
 
 
-void DiscDIRC_Detector::ConstructOpGeometry()
+void PndDisc::ConstructOpGeometry()
 {
     int i=0;
     char str_name[100];
@@ -245,7 +245,7 @@ void DiscDIRC_Detector::ConstructOpGeometry()
 // interface transport
 //-------------------------------------------------------
 
-void DiscDIRC_Detector::PreTrack()
+void PndDisc::PreTrack()
 {
 #ifdef DISC_DIRC_VERBOSE
     fLogger->GetLogger()->Info(MESSAGE_ORIGIN,
@@ -255,7 +255,7 @@ void DiscDIRC_Detector::PreTrack()
 
 
 
-void DiscDIRC_Detector::PostTrack()
+void PndDisc::PostTrack()
 {
 #ifdef DISC_DIRC_VERBOSE
     fLogger->GetLogger()->Info(MESSAGE_ORIGIN,
@@ -265,7 +265,7 @@ void DiscDIRC_Detector::PostTrack()
 
 
 
-Bool_t DiscDIRC_Detector::ProcessHits(FairVolume* v)
+Bool_t PndDisc::ProcessHits(FairVolume* v)
 {
     static TVector3 pos_in, mom_in;
     static Double_t integrated_energy_deposit;
@@ -539,7 +539,7 @@ Bool_t DiscDIRC_Detector::ProcessHits(FairVolume* v)
 
 
 
-void DiscDIRC_Detector::BeginEvent()
+void PndDisc::BeginEvent()
 {
     ev_header = FairMCApplication::Instance()->GetGenerator()->GetEvent();
     internal_reflection_angle_of_photons.clear();
@@ -551,7 +551,7 @@ void DiscDIRC_Detector::BeginEvent()
 
 /// Interface implementation - EndofEvent
 
-void DiscDIRC_Detector::EndOfEvent()
+void PndDisc::EndOfEvent()
 {
     int n_entries = clarr_particle_tracks->GetEntries();
     for(int i=0; i<n_entries; i++)
@@ -564,7 +564,7 @@ void DiscDIRC_Detector::EndOfEvent()
 
 /// Interface implementation - Register the data collections in FairRootManager.
 
-void DiscDIRC_Detector::Register()
+void PndDisc::Register()
 {
     Bool_t serialized=kTRUE; // write arrays to file?
     FairRootManager::Instance()->Register("DiscSensorMCPoint","DiscPoint", clarr_sensor_hits, serialized);
@@ -578,7 +578,7 @@ void DiscDIRC_Detector::Register()
 /// \param iColl
 /// \returns pointer to TClonesArray or NULL if iColl out of range.
 
-TClonesArray* DiscDIRC_Detector::GetCollection(Int_t iColl) const
+TClonesArray* PndDisc::GetCollection(Int_t iColl) const
 {
     switch(iColl)
     {
@@ -596,7 +596,7 @@ TClonesArray* DiscDIRC_Detector::GetCollection(Int_t iColl) const
 /// by the underlying framework as one would expect. The user has
 /// to call it explicitly.
 
-void DiscDIRC_Detector::Reset()
+void PndDisc::Reset()
 {
     if(clarr_sensor_hits     != NULL) clarr_sensor_hits->Clear();
     if(clarr_particle_tracks != NULL) clarr_particle_tracks->Clear();
@@ -613,7 +613,7 @@ void DiscDIRC_Detector::Reset()
 /// For simplicity, copy numbers are neglected and all instances ('copys') of a
 /// specific volume will be flagged sensitive/insensitive.
 
-bool DiscDIRC_Detector::CheckIfSensitive(std::string name)
+bool PndDisc::CheckIfSensitive(std::string name)
 {
     return (names_of_sensitive_volumes.count(name)!=0);
 }
@@ -626,7 +626,7 @@ bool DiscDIRC_Detector::CheckIfSensitive(std::string name)
 /// created anyway, but it will not be filled if
 /// store_photon_tracks == false.
 
-void DiscDIRC_Detector::StorePhotonTracks(Bool_t bval)
+void PndDisc::StorePhotonTracks(Bool_t bval)
 {
     store_photon_tracks=bval;
 }
@@ -634,11 +634,11 @@ void DiscDIRC_Detector::StorePhotonTracks(Bool_t bval)
 
 /// Set the wavelength range of the bandpass filters.
 
-void DiscDIRC_Detector::SetFilterInterval(Double_t const & wl_min_nm_, Double_t const & wl_max_nm_)
+void PndDisc::SetFilterInterval(Double_t const & wl_min_nm_, Double_t const & wl_max_nm_)
 {
     wl_min_nm = wl_min_nm_;
     wl_max_nm = wl_max_nm_;
 }
 
-ClassImp(DiscDIRC_Detector)
+ClassImp(PndDisc)
 

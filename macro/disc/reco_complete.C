@@ -116,7 +116,7 @@ void reco_complete()
   trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
   fRun->AddTask(trackMC3);
 
-  DiscDIRC_TaskReconstruction *disc_dirc = new DiscDIRC_TaskReconstruction();
+  PndDiscTaskReconstruction *disc_dirc = new PndDiscTaskReconstruction();
   fRun->AddTask(disc_dirc);
 
   // -----   Intialise and run   --------------------------------------------
