@@ -1021,3 +1021,51 @@ void RhoCalculationTools::PrintMatrix(TMatrixTSym<double> m)
    }
   std::cout<<std::endl;
 }
+//______________________________________________________________________________
+void RhoCalculationTools::PrintMatrix(RhoError m)
+{
+   if (!m.IsValid()) {
+     Error("Print","Matrix is invalid");
+     return;
+  }
+  const Int_t ncols  = m.GetNcols();
+  const Int_t nrows  = m.GetNrows();
+  const Int_t collwb = m.GetColLwb();
+  const Int_t rowlwb = m.GetRowLwb();
+  const Int_t nelems = m.GetNoElements();
+  //build format
+  const char *format = "%11.4g ";
+  //if (option) {
+  //   const char *f = strstr(option,"f=");
+  //   if (f) format = f+2;
+  //}
+  char topbar[500];
+  snprintf(topbar,500,format,123.456789);
+  Int_t nch = strlen(topbar);//+1;
+  if (nch > 18) nch = 18;
+  if (nch < 7)  nch = 7;
+  const char *ftopbar=Form(" %s%dd   |","%",nch-5);
+  std::cout<<std::endl<<nrows<<"x"<<ncols<<" matrix is as follows"<<std::endl;
+  Int_t nk = 5+nch*ncols;
+  for (Int_t i = 0; i < nk; i++) topbar[i] = '-';
+  topbar[nk] = 0;
+  
+  std::cout<<std::endl<<std::endl<<" RHO |"<<std::flush;
+  for (Int_t j = 1; j <= ncols; j++) 
+  {
+    std::cout<<Form(ftopbar,j+collwb-1)<<std::flush;
+  }
+  std::cout<<std::endl<<topbar<<std::endl;
+  if (nelems <= 0) return;
+  for (Int_t i = 1; i <= nrows; i++) 
+  {
+    std::cout<<Form("%4d |",i+rowlwb-1)<<std::flush;
+    for (Int_t j = 1; j <= ncols; j++) 
+    {
+      //std::cout<<Form(format,m(i+rowlwb-1,j+collwb-1))<<std::flush;
+      std::cout<< (i==j ? "\e[1m" : "\e[0m") <<Form(format,m(i+rowlwb-1,j+collwb-1))<<"\e[0m"<<std::flush;
+    }
+    std::cout<<std::endl;
+   }
+  std::cout<<std::endl;
+}

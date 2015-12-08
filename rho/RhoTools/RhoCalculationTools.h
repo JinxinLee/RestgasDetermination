@@ -18,6 +18,7 @@
 #include "TLorentzVector.h"
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
+#include "RhoMath/RhoError.h"
 
 class RhoCalculationTools
 {
@@ -72,6 +73,7 @@ class RhoCalculationTools
     static void TransportToZ(RhoCandidate* cand, Double_t z=0);
     static void PrintMatrix(TMatrixT<double> m);
     static void PrintMatrix(TMatrixTSym<double> m);
+    static void PrintMatrix(RhoError m);
 
   private:
     

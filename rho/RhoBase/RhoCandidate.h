@@ -191,13 +191,13 @@ class RhoCandidate : public FairMultiLinkedData_Interface
     Double_t    Py() const { return fYmomentum; }
     Double_t    Pz() const { return fZmomentum; }
     RhoVector3Err   PosWCov()   const;
-    RhoError&   PosCov()   const;
+    RhoError   PosCov()   const;
     TLorentzVector   P4()   const { return TLorentzVector ( fXmomentum,fYmomentum,fZmomentum,fEnergy ); }
-    RhoError&   P4Cov()   const;
-    RhoError&   P4Err()   const { return P4Cov(); }
+    RhoError   P4Cov()   const;
+    RhoError   P4Err()   const { return P4Cov(); }
     RhoLorentzVectorErr P4WErr()  const;
     TVector3    P3()   const { return GetMomentum(); }
-    RhoError&   P3Cov()   const;
+    RhoError   P3Cov()   const;
     RhoVector3Err  P3WErr()  const;
     Double_t    E()   const { return fEnergy; }
     Double_t    Energy() const  { return fEnergy; }
@@ -206,8 +206,8 @@ class RhoCandidate : public FairMultiLinkedData_Interface
     Double_t    EVar()   const;
     Double_t    M()   const;
     Double_t    P()   const;
-    TMatrixD&   Cov7()   const;
-    TMatrixD&   XPCov()   const;
+    TMatrixD   Cov7()   const;
+    TMatrixD   XPCov()   const;
     Double_t    Pt()  const { return TMath::Sqrt ( fXmomentum*fXmomentum+fYmomentum*fYmomentum ); }
     TMatrixD    GetDecayPosCov() const {return TMatrixD(fDecayVtx.CovMatrix());}
 

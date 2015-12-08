@@ -32,7 +32,7 @@ RhoLorentzVectorErr::RhoLorentzVectorErr ( const RhoVector3Err& p3,
   fCovMatrix = new RhoError ( 4 );
   // The 3-vector part of the error, initialized as a 0-matrix, then copied
   // from p3:
-  static TMatrixD p4Err ( 4,4 );
+  TMatrixD p4Err ( 4,4 );
   for ( i = 0; i < 3; ++i ) {
     for ( j = i; j < 3; ++j ) { // start from j=i, since (i,j) = (j,i)
       p4Err ( i,j ) = p3.CovMatrix() ( i,j );
@@ -127,7 +127,7 @@ RhoLorentzVectorErr& RhoLorentzVectorErr::operator -= ( const RhoLorentzVectorEr
 Double_t
 RhoLorentzVectorErr::DetermineChisq ( const TLorentzVector& refVector )
 {
-  static TVectorD temp ( 4 );
+  TVectorD temp ( 4 );
   temp ( 0 ) = refVector.X()-this->X();
   temp ( 1 ) = refVector.Y()-this->Y();
   temp ( 2 ) = refVector.Z()-this->Z();
@@ -151,7 +151,7 @@ RhoLorentzVectorErr&
 RhoLorentzVectorErr::Transform ( const TRotation& rot )
 {
   TLorentzVector::Transform ( rot );
-  static TMatrixD tempRot ( 4,4 );
+  TMatrixD tempRot ( 4,4 );
 
   // Fill a 4x4 matrix from the 3x3 TRotation. Note that they use different
   // indexing schemes (!?@#$&^*&#$@#):

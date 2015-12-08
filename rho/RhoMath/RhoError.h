@@ -83,30 +83,30 @@ class RhoError : public TMatrixD
     //TError& Similarity(const TError& E);
     // implement E * covMatrix * E
 
-    RhoError& Similarity ( const TMatrixD& m1 ) const;
+    RhoError Similarity ( const TMatrixD& m1 ) const;
 
     RhoError& SimilarityWith ( const RhoError& m, const TMatrixD& m1 );
 
-    RhoError& Similarity ( const TRotation& rot ) const;
-    RhoError& Similarity ( const TLorentzRotation& rot ) const;
+    RhoError Similarity ( const TRotation& rot ) const;
+    RhoError Similarity ( const TLorentzRotation& rot ) const;
     // When feasible implement R * covMatrix * R_transpose (= R^-1)
 
     Double_t Similarity ( TVectorD& m1 );
-    TMatrixD& SimilarityT ( TMatrixD& m1 );
+    TMatrixD SimilarityT ( TMatrixD& m1 );
 
   private:
 
-    friend RhoError& operator* ( Double_t t, const RhoError& m1 );
+    friend RhoError operator* ( Double_t t, const RhoError& m1 );
 
-    friend RhoError& operator* ( const RhoError& m1, Double_t t );
+    friend RhoError operator* ( const RhoError& m1, Double_t t );
     /*
     friend TError& operator/(Double_t t, const TError& m1);
 
     friend TError& operator/(const TError& m1, Double_t t);
     */
-    friend RhoError& operator+ ( const RhoError& m1, const RhoError& m2 );
+    friend RhoError operator+ ( const RhoError& m1, const RhoError& m2 );
 
-    friend RhoError& operator- ( const RhoError& m1, const RhoError& m2 );
+    friend RhoError operator- ( const RhoError& m1, const RhoError& m2 );
 
     friend std::ostream& operator<< ( std::ostream& out, const RhoError& mat );
     friend std::istream& operator>> ( std::istream& in, RhoError& mat );

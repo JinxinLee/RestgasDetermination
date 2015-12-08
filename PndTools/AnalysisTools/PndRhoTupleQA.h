@@ -28,7 +28,7 @@ public:
 	void qaPull(TString pre, RhoCandidate *c, RhoTuple *n, bool skip=false);
 
 	// *** QA for 2-prong
-	void qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool pulls=false);
+	void qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool covs=false, bool pulls=false);
 	void qaKs0(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaPi0(TString pre, RhoCandidate *c, RhoTuple *n);
 

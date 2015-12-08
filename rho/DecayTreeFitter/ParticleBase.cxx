@@ -202,6 +202,7 @@ DecayTreeFitter::ParticleBase::isAResonance(const TParticlePDG* prop) {
   const int pidgamma  = 22 ;
   const int pideplus  = 11 ;
   const int pideminus = -11 ;
+  const int pidks = 310 ;
   bool rc = false ;
   switch(prop->PdgCode()) {
     case pidgamma: // conversions are not treated as a resonance
@@ -211,6 +212,9 @@ DecayTreeFitter::ParticleBase::isAResonance(const TParticlePDG* prop) {
     case pideminus:
       rc = true ;
       break ;
+    case pidks: // K shorts count as "stable" in PDT Table
+      rc = false;
+      break;
     default: // this should take care of the pi0
       rc = 100.*TMath::C()*prop->Lifetime() < 0.01; //[cm]
                                                     //rc = prop.ctau() < 0.001*Gaudi::Units::mm ;

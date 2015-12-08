@@ -601,7 +601,7 @@ RhoCandidate::Set ( Double_t mass,
   SetP4 ( mass, p3Err );
 
   // compute the jacobian, assuming that mass is a well defined quantity
-  static TMatrixD jacobian ( 4, 3 );
+  TMatrixD jacobian ( 4, 3 );
   jacobian ( 0,0 ) = 1.0;
   jacobian ( 0,1 ) = 0.0;
   jacobian ( 0,2 ) = 0.0;
@@ -614,7 +614,7 @@ RhoCandidate::Set ( Double_t mass,
   jacobian ( 3,0 ) = fXmomentum/fEnergy;
   jacobian ( 3,1 ) = fYmomentum/fEnergy;
   jacobian ( 3,2 ) = fZmomentum/fEnergy;
-  static TMatrixD xp4Cov ( 3,4 );
+  TMatrixD xp4Cov ( 3,4 );
   for ( int i=0; i<3; i++ ) {
     xp4Cov ( i,3 ) = 0;
     for ( int j=0; j<3; j++ ) {
@@ -1410,10 +1410,10 @@ void RhoCandidate::SetMarker ( UInt_t l,UInt_t m )
 }
 
 
-RhoError&
+RhoError
 RhoCandidate::PosCov()   const
 {
-  static RhoError covPos ( 3 );
+  RhoError covPos ( 3 );
   covPos ( 0,0 ) = fErrP7[0];
   covPos ( 1,0 ) = covPos ( 0,1 ) = fErrP7[1];
   covPos ( 1,1 ) = fErrP7[2];
@@ -1430,10 +1430,10 @@ RhoCandidate::PosWCov()   const
 }
 
 
-RhoError&
+RhoError
 RhoCandidate::P4Cov()   const
 {
-  static RhoError covP4 ( 4 );
+  RhoError covP4 ( 4 );
   covP4 ( 0,0 ) = fErrP7[18];
   covP4 ( 1,0 ) = covP4 ( 0,1 ) = fErrP7[19];
   covP4 ( 1,1 ) = fErrP7[20];
@@ -1447,10 +1447,10 @@ RhoCandidate::P4Cov()   const
   return covP4;
 }
 
-RhoError&
+RhoError
 RhoCandidate::P3Cov()   const
 {
-  static RhoError covP3 ( 3 );
+  RhoError covP3 ( 3 );
   covP3 ( 0,0 ) = fErrP7[18];
   covP3 ( 1,0 ) = covP3 ( 0,1 ) = fErrP7[19];
   covP3 ( 1,1 ) = fErrP7[20];
@@ -1494,10 +1494,10 @@ RhoCandidate::M()   const
 }
 
 
-TMatrixD&
+TMatrixD
 RhoCandidate::Cov7()   const
 {
-  static TMatrixD cov ( 7,7 );
+  TMatrixD cov ( 7,7 );
 
   // position error
 
@@ -1544,10 +1544,10 @@ RhoCandidate::Cov7()   const
   return cov;
 }
 
-TMatrixD&
+TMatrixD
 RhoCandidate::XPCov()   const
 {
-  static TMatrixD covPosP4 ( 4,3 );
+  TMatrixD covPosP4 ( 4,3 );
 
   // position-momentum covariance
 

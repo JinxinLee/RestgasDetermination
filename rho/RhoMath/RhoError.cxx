@@ -84,9 +84,9 @@ RhoError& RhoError::operator - ()
 // does nothing -- covariance Matrices have never negative entries on the
 // main diagonal
 
-RhoError& RhoError::Similarity ( const TRotation& rot ) const
+RhoError RhoError::Similarity ( const TRotation& rot ) const
 {
-  static TMatrixD mat ( 3,3 );
+  TMatrixD mat ( 3,3 );
   mat ( 0,0 ) =rot.XX();
   mat ( 0,1 ) =rot.XY();
   mat ( 0,2 ) =rot.XZ();
@@ -100,17 +100,17 @@ RhoError& RhoError::Similarity ( const TRotation& rot ) const
   return Similarity ( mat );
 }
 
-RhoError& RhoError::Similarity ( const TMatrixD& m1 ) const
+RhoError RhoError::Similarity ( const TMatrixD& m1 ) const
 {
-  static RhoError mret ( m1.GetNrows() );
+  RhoError mret ( m1.GetNrows() );
   mret.ResizeTo ( m1.GetNrows(),m1.GetNrows() );
   mret.SimilarityWith ( *this, m1 );
   return mret;
 }
 
-RhoError& RhoError::Similarity ( const TLorentzRotation& rot ) const
+RhoError RhoError::Similarity ( const TLorentzRotation& rot ) const
 {
-  static TMatrixD mat ( 4,4 );
+  TMatrixD mat ( 4,4 );
   mat ( 0,0 ) =rot.XX();
   mat ( 0,1 ) =rot.XY();
   mat ( 0,2 ) =rot.XZ();
@@ -139,7 +139,7 @@ TError& TError::Similarity(const TError& E)
 RhoError& RhoError::SimilarityWith ( const RhoError& mat,const TMatrixD& m1 )
 {
   assert ( GetNrows() == m1.GetNrows() );
-  static TMatrixD temp;
+  TMatrixD temp;
   temp.ResizeTo ( m1.GetNrows(),m1.GetNrows() );
   temp.Mult ( m1,mat );
   Double_t tmp;
@@ -209,20 +209,20 @@ std::istream& operator>> ( std::istream& in, RhoError& mat )
 }
 
 
-RhoError& operator* ( Double_t t, const RhoError& m1 )
+RhoError operator* ( Double_t t, const RhoError& m1 )
 {
-  static RhoError mret ( m1 );
-  mret.ResizeTo ( m1 );
-  mret = m1;
+  RhoError mret ( m1 );
+  //mret.ResizeTo ( m1 );
+  //mret = m1;
   mret *= t;
   return mret;
 }
 
-RhoError& operator* ( const RhoError& m1, Double_t t )
+RhoError operator* ( const RhoError& m1, Double_t t )
 {
-  static RhoError mret ( m1 );
-  mret.ResizeTo ( m1 );
-  mret = m1;
+  RhoError mret ( m1 );
+  //mret.ResizeTo ( m1 );
+  //mret = m1;
   mret *= t;
   return mret;
 }
@@ -241,19 +241,20 @@ mret /= t;
 return mret;
 }
 */
-RhoError& operator+ ( const RhoError& m1, const RhoError& m2 )
+RhoError operator+ ( const RhoError& m1, const RhoError& m2 )
 {
-  static RhoError mret ( m1 );
-  mret.ResizeTo ( m1 );
-  mret = m1;
+  RhoError mret ( m1 );
+  //mret.ResizeTo ( m1 );
+  //mret = m1;
   mret += m2;
+  //std::cout<<" -- Adding two matrices: -- m1:"<<&m1<<"  m2:"<<&m2<<std::endl;
   return mret;
 }
 
-RhoError& operator- ( const RhoError& m1, const RhoError& m2 )
+RhoError operator- ( const RhoError& m1, const RhoError& m2 )
 {
-  static RhoError mret ( m1 );
-  mret.ResizeTo ( m1 );
+  RhoError mret ( m1 );
+  //mret.ResizeTo ( m1 );
   mret -= m2;
   return mret;
 }
@@ -273,9 +274,9 @@ Double_t RhoError::Similarity ( TVectorD& m1 )
   return mret;
 }
 
-TMatrixD& RhoError::SimilarityT ( TMatrixD& m1 )
+TMatrixD RhoError::SimilarityT ( TMatrixD& m1 )
 {
-  static TMatrixD mret;
+  TMatrixD mret;
   mret.ResizeTo ( m1 );
   TMatrixD::Mult ( *this,m1 );
   int n = m1.GetNcols();

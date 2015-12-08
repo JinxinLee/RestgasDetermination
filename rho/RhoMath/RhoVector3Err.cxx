@@ -114,7 +114,7 @@ return covMatrix().Similarity(pars.jacobian());
 */
 Double_t RhoVector3Err::DetermineChisq ( const TVector3& refVector )
 {
-  static TVectorD temp ( 3 );
+  TVectorD temp ( 3 );
   temp ( 0 ) = refVector.X()-this->X();
   temp ( 1 ) = refVector.Y()-this->Y();
   temp ( 2 ) = refVector.Z()-this->Z();

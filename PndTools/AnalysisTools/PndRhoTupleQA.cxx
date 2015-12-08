@@ -275,7 +275,7 @@ void PndRhoTupleQA::qaPRG(TString pre, RhoCandidate *c, RhoTuple *n)
 // -------------------------------------------------------------------------
 // *** store QA for composite particles
 
-void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool pulls)
+void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool covs, bool pulls)
 {
   if (n==0) return;
 
@@ -284,17 +284,17 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool pulls
 
   // special composite particle?
   // pi0 or eta?
-  if (pdg == 111 || pdg == 221)
-  {
-    qaPi0(pre, c, n);
-    return;
-  }
-  // K_S?
-  if (pdg == 310)
-  {
-    qaKs0(pre, c, n);
-    return;
-  }
+  //if (pdg == 111 || pdg == 221)
+  //{
+    //qaPi0(pre, c, n);
+    //return;
+  //}
+  //// K_S?
+  //if (pdg == 310)
+  //{
+    //qaKs0(pre, c, n);
+    //return;
+  //}
 
   // how many daughters?
   int nd = c->NDaughters();
@@ -318,6 +318,7 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool pulls
   // store cand info in lab and cms
   qaCand(pre,	c,	n);
   qaP4Cms(pre, c->P4(), n);
+  if(covs)qaP4Cov(pre,	c,	n);
   if(pulls) qaPull(pre,c,n, (0==truth));
   n->Column(pre+"mct",  (Float_t) mct, 0.0f);
 
@@ -355,7 +356,7 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool pulls
       if (dau->NDaughters()==0 && fabs(dau->Charge())>0.01) nchrgfs++;
 
       // recursive call of qaComp
-      qaComp(name, dau, n);
+      qaComp(name, dau, n, covs, pulls);
     }
     // only charged final state daughters -> Vtx info with PndVtxPoca
     if (nchrgfs > 1)
@@ -520,26 +521,26 @@ void PndRhoTupleQA::qaP4Cov(TString pre, RhoCandidate *c, RhoTuple *n, bool skip
     n->Column(pre+"covpxpx", (Float_t) cov(0,0), 0.0f);
     n->Column(pre+"covpxpy", (Float_t) cov(0,1), 0.0f);
     n->Column(pre+"covpxpz", (Float_t) cov(0,2), 0.0f);
-    n->Column(pre+"covpxe", (Float_t) cov(0,3), 0.0f);
+    n->Column(pre+"covpxe",  (Float_t) cov(0,3), 0.0f);
     n->Column(pre+"covpypy", (Float_t) cov(1,1), 0.0f);
     n->Column(pre+"covpypz", (Float_t) cov(1,2), 0.0f);
-    n->Column(pre+"covpye", (Float_t) cov(1,3), 0.0f);
+    n->Column(pre+"covpye",  (Float_t) cov(1,3), 0.0f);
     n->Column(pre+"covpzpz", (Float_t) cov(2,2), 0.0f);
-    n->Column(pre+"covpze", (Float_t) cov(2,3), 0.0f);
-    n->Column(pre+"covee", (Float_t) cov(3,3), 0.0f);
+    n->Column(pre+"covpze",  (Float_t) cov(2,3), 0.0f);
+    n->Column(pre+"covee",   (Float_t) cov(3,3), 0.0f);
   }
   else
   {
     n->Column(pre+"covpxpx", (Float_t) -999., 0.0f);
     n->Column(pre+"covpxpy", (Float_t) -999., 0.0f);
     n->Column(pre+"covpxpz", (Float_t) -999., 0.0f);
-    n->Column(pre+"covpxe", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpxe",  (Float_t) -999., 0.0f);
     n->Column(pre+"covpypy", (Float_t) -999., 0.0f);
     n->Column(pre+"covpypz", (Float_t) -999., 0.0f);
     n->Column(pre+"covpyee", (Float_t) -999., 0.0f);
     n->Column(pre+"covpzpz", (Float_t) -999., 0.0f);
-    n->Column(pre+"covpze", (Float_t) -999., 0.0f);
-    n->Column(pre+"covee", (Float_t) -999., 0.0f);
+    n->Column(pre+"covpze",  (Float_t) -999., 0.0f);
+    n->Column(pre+"covee",   (Float_t) -999., 0.0f);
   }
 }
 

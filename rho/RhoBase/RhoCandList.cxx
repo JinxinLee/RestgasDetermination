@@ -18,6 +18,7 @@
 #include "RhoBase/RhoCandidate.h"
 #include "RhoBase/RhoParticleSelectorBase.h"
 #include "RhoBase/RhoVertexSelectorBase.h"
+#include "RhoTools/RhoCalculationTools.h"
 
 ClassImp ( RhoCandList )
 
@@ -333,6 +334,14 @@ void RhoCandList::CombineAndAppend ( RhoCandList& l1, RhoCandList& l2 )
 
       RhoCandidate c ( vl,charge );
       c.SetCovP4 ( l1[i1]->P4Cov() +l2[i2]->P4Cov() );
+//std::cout<<"  -- Combining 2 Cov Matrices from candidates  c1:"<<&(l1[i1]->P4Cov())<<"   c2:"<<&(l2[i2]->P4Cov())<<std::endl;
+//RhoCalculationTools::PrintMatrix(l1[i1]->P4Cov());
+//RhoCalculationTools::PrintMatrix(l2[i2]->P4Cov());
+//std::cout<<"  -- result"<<std::endl;
+////RhoCalculationTools::PrintMatrix(c.P4Cov());
+//RhoCalculationTools::PrintMatrix( l1[i1]->P4Cov() + l2[i2]->P4Cov() );
+//RhoCalculationTools::PrintMatrix( ((RhoError)l1[i1]->P4Cov()) +((RhoError)l2[i2]->P4Cov()));
+//RhoCalculationTools::PrintMatrix( ((TMatrixD)l1[i1]->P4Cov()) +((TMatrixD)l2[i2]->P4Cov()));
 
       c.SetMarker ( l1[i1]->GetMarker ( 0 ) |l2[i2]->GetMarker ( 0 ),0 );
       c.SetMarker ( l1[i1]->GetMarker ( 1 ) |l2[i2]->GetMarker ( 1 ),1 );
