@@ -2,11 +2,14 @@
 #define PNDRICH_H
 
 #include "FairDetector.h"
+#include "PndGeoHandling.h"
+#include "PndRichGeo.h"
 
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
-class PndRichPoint;
+class PndRichPDPoint;
+class PndRichBarPoint;
 class FairVolume;
 class TClonesArray;
 
@@ -46,16 +49,26 @@ class PndRich: public FairDetector
 
     /**      Create the detector geometry        */
     void ConstructGeometry();
-
+    void ConstructOpGeometry();
+    
+    std::vector<std::string> fListOfSensitives;  
+    bool CheckIfSensitive(std::string name);
+    
+    Double_t lhcbaerindex(Double_t n400,Double_t wl);
 
 
     /**      This method is an example of how to add your own point
      *       of type PndRichPoint to the clones array
     */
-    PndRichPoint* AddHit(Int_t trackID, Int_t detID,
-                             TVector3 pos, TVector3 mom,
-                             Double_t time, Double_t length,
-                             Double_t eLoss);
+    PndRichPDPoint* AddPDPoint(Int_t trackID, Int_t detID,
+                               TVector3 pos, TVector3 mom,
+                               Double_t time, Double_t length,
+                               Double_t eLoss, UInt_t EventId=0);
+    PndRichBarPoint* AddBarPoint(Int_t trackID, Int_t detID,
+                                 TVector3 pos, TVector3 mom,
+                                 Double_t time, Double_t length,
+                                 Int_t pdgCode, Double_t thetaC,
+                                 Int_t eventID, Double_t mass);
 
     /** The following methods can be implemented if you need to make
      *  any optional action in your detector during the transport.
@@ -82,17 +95,26 @@ class PndRich: public FairDetector
     Int_t          fVolumeID;          //!  volume id
     TLorentzVector fPos;               //!  position at entrance
     TLorentzVector fMom;               //!  momentum at entrance
-    Double32_t     fTime;              //!  time
-    Double32_t     fLength;            //!  length
-    Double32_t     fELoss;             //!  energy loss
+    Double_t     fTime;              //!  time
+    Double_t     fLength;            //!  length
+    Double_t     fELoss;             //!  energy loss
 
+    PndRichGeo*  fGeo;
+    PndGeoHandling* fGeoH; 	//! ///< converter for detector names
+ 
     /** container for data points */
 
-    TClonesArray*  fPndRichPointCollection;
+    TClonesArray*  fPndRichPDPointCollection;
+    TClonesArray*  fPndRichBarPointCollection;
 
     PndRich(const PndRich&);
     PndRich& operator=(const PndRich&);
 
+    std::map <Int_t,Int_t>   trackid;
+    
+    Double_t fnOpt;
+    Double_t fZabar;
+    
     ClassDef(PndRich,1)
 };
 
