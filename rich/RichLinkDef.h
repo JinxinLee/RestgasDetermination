@@ -8,5 +8,8 @@
 #pragma link C++ class PndRichGeo;
 #pragma link C++ class PndRichGeoPar;
 #pragma link C++ class PndRich+;
+#pragma link C++ class PndRichHitProducer+;
+#pragma link C++ class PndRichReco+;
+#pragma link C++ class PndRichResolution+;
 
 #endif
