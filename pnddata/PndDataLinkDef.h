@@ -64,7 +64,11 @@
 #pragma link C++ class  PndHypPoint+;
 #pragma link C++ class  PndHypStrip+;
 
-#pragma link C++ class  PndRichPoint+;
+#pragma link C++ class  PndRichPhoton+;
+#pragma link C++ class  PndRichPDPoint+;
+#pragma link C++ class  PndRichBarPoint+;
+#pragma link C++ class  PndRichHit+;
+#pragma link C++ class  PndRichPDHit+;
 
 //#pragma link C++ class  PndSdsApvHit+;
 #pragma link C++ class  PndSdsMCPoint+;

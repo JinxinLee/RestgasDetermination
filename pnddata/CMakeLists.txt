@@ -117,7 +117,11 @@ SdsData/PndSdsPidCand.cxx
 SdsData/PndSdsRadDamHit.cxx
 SdsData/PndSdsDigiPixelMCInfo.cxx
 
-RichData/PndRichPoint.cxx
+RichData/PndRichPhoton.cxx
+RichData/PndRichPDPoint.cxx
+RichData/PndRichBarPoint.cxx
+RichData/PndRichHit.cxx
+RichData/PndRichPDHit.cxx
  
 MvdData/PndMvdApvHit.cxx
 MvdData/PndMvdPidCand.cxx
@@ -214,7 +218,11 @@ SdsData/PndSdsPidCand.h
 SdsData/PndSdsRadDamHit.h
 SdsData/PndSdsDigiPixelMCInfo.h
 
-RichData/PndRichPoint.h
+RichData/PndRichPhoton.h
+RichData/PndRichPDPoint.h
+RichData/PndRichBarPoint.h
+RichData/PndRichHit.h
+RichData/PndRichPDHit.h
  
 MvdData/PndMvdApvHit.h
 MvdData/PndMvdPidCand.h
