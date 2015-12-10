@@ -18,6 +18,7 @@ void create_scit_rootgeo_20150801(Double_t distance = 750){
   gSystem->Load("libPassive");
   
   TString outfile= "../../../geometry/SciTil_20150801.root";
+  //TString outfile= "../../../geometry/SciTil_test.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -147,8 +148,8 @@ void create_scit_rootgeo_20150801(Double_t distance = 750){
 	  }
   	
   
-	  top->AddNode(BarrelAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
-	  //top->AddNode(SModAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
+	  //top->AddNode(BarrelAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
+	  top->AddNode(SModAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
 	  //top->AddNode(LineAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
 
   gGeoMan->SetVisLevel(5);
