@@ -239,7 +239,7 @@ void PndSciTDigiTask::Exec(Option_t* opt)
       if (fTimeOrderedDigi){
 	tempHit->ResetLinks();
 	FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-	tempHit->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchName, iPoint));
+	tempHit->AddLink(FairLink(evtHeader->GetInputFileId(),  FairRootManager::Instance()->GetEntryNr(),  fInBranchName, iPoint));
 		
 	tempHit->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EventHeader.", -1));
     }
