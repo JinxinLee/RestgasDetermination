@@ -1,10 +1,10 @@
-void create_scit_rootgeo_20150801(Double_t distance = 750){
+void create_scit_rootgeo_201508(Double_t distance = 750){
   // Forward tof geometry parameters
   //-----------------------------
   //-- macro created by Alicia S. based on step file
   //-- barrel-SciTil_18122012
   //-- edited by D. Steinschaden 
-  //-- last update 05.2015
+  //-- last update 08.2015
 
 
  //--------------------------------------------------------------------
@@ -17,7 +17,7 @@ void create_scit_rootgeo_20150801(Double_t distance = 750){
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   
-  TString outfile= "../../../geometry/SciTil_20150801.root";
+  TString outfile= "../../../geometry/SciTil_201508.root";
   //TString outfile= "../../../geometry/SciTil_test.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
@@ -148,8 +148,8 @@ void create_scit_rootgeo_20150801(Double_t distance = 750){
 	  }
   	
   
-	  //top->AddNode(BarrelAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
-	  top->AddNode(SModAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
+	  top->AddNode(BarrelAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
+	  //top->AddNode(SModAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
 	  //top->AddNode(LineAssVol,0, new TGeoCombiTrans(0.,0.,32.,new TGeoRotation()));
 
   gGeoMan->SetVisLevel(5);
