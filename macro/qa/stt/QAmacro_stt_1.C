@@ -65,7 +65,7 @@ void QAmacro_stt_1()
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kFALSE);
-  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  SciT->SetGeometryFileName("SciTil_201504.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kFALSE);
