@@ -32,8 +32,27 @@ class TMrfData_8b;
 
 class PndMvdReadInToPix4TBData {
 public:
+	enum {
+		SuperFrameCount = 0,
+		NonSequentialFC,
+		HammingLossFrameCount,
+		CRCLossFrameCount,
+		TotalHitCount,
+		PreFrameLossHitCount,
+		HammingLossHitCount,
+		CRCLossHitCount,
+		CorrectHitCount,
+		DoubleHeader,
+		DoubleTrailer,
+		TotalHeaderCount,
+		TotalTrailerCount,
+		TotalFrameCount,
+		NFilteredHits,
+		Last
+	};
 	PndMvdReadInToPix4TBData();
 	virtual ~PndMvdReadInToPix4TBData();
+
 	void SetFileName(std::vector<TString> fileName){
 	  
 	  std::cout << "number of entires " << fileName.size() << std::endl;
@@ -92,6 +111,8 @@ public:
 	UInt_t GetTotalHeaderCount() const {return fTotalHeaderCount;}
 	UInt_t GetTotalTrailerCount() const {return fTotalTrailerCount;}
 	
+	std::vector<int> GetStatusValues() const {return fStatusValues;}
+
 	Int_t GetNFilteredHits(){ return fNFilteredHits;}
 	Bool_t HitToFilter(PndSdsDigiTopix4& hit);
 	void SetFilter(Bool_t val){ fFilter = val;}
@@ -107,15 +128,16 @@ private:
 	TClonesArray* fOutputArray;
 	TClonesArray* fOutputArrayHeader;
 	TClonesArray* fOutputArrayAllHeader;
-	UInt_t fSuperFrameCount;
+
+	std::vector<int> fStatusValues;
+
 	UInt_t fOldFrameCount;
 	UInt_t fOldAllHeaderCount;
+
+	UInt_t fSuperFrameCount;
 	UInt_t fNonSequentialFC;
 	UInt_t fHammingLossFrameCount;
 	UInt_t fCRCLossFrameCount;
-
-	Bool_t fFilter;
-	Int_t fNFilteredHits;
 
 	UInt_t fTotalHitCount;
 	UInt_t fPreFrameLossHitCount;
@@ -123,24 +145,29 @@ private:
 	UInt_t fCRCLossHitCount;
 	UInt_t fCorrectHitCount;
 
+	Bool_t fFilter;
+	UInt_t fNFilteredHits;
+
 	ToPix4::frameHeader fRecentFrameHeader;
 	ToPix4::frameHeader fRecentAllFrameHeader;
 	ToPix4::frameTrailer fRecentFrameTrailer;
 	Bool_t fFirstHeader;
 	Bool_t fHeaderPresent;
 	Bool_t fTrailerPresent;
+
 	UInt_t fDoubleHeader;
 	UInt_t fDoubleTrailer;
 
 	UInt_t fTotalHeaderCount;
 	UInt_t fTotalTrailerCount;
 
+	UInt_t fTotalFrameCount;
+	UInt_t fCorrectFrameCount;
+
 	Int_t fVerbose; // fVerbose==5 gives all detected errors from ToPix build in error detection
 	Int_t fFE;
 	Int_t fFileCounter;
-	UInt_t fDataCount;
-	UInt_t fTotalFrameCount;
-	UInt_t fCorrectFrameCount;
+
 	std::vector<ULong64_t> fToPixFrame;
 	PndTopix4 fTopix;
 	PndHammingDecoder fHamming;

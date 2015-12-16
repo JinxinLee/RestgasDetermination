@@ -23,10 +23,10 @@ PndMvdReadInToPix4TBData::PndMvdReadInToPix4TBData() : fDigiArray(0), fClockFreq
 					   fNonSequentialFC(0), fHammingLossFrameCount(0), fCRCLossFrameCount(0),
 					   fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),
 					   fHeaderPresent(kFALSE), fTrailerPresent(kFALSE), fDoubleHeader(0), fDoubleTrailer(0), fVerbose(0),
-					   fDataCount(0), fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0), fFileHandle(0),
+					   fFileCounter(0), fTotalFrameCount(0), fTotalHeaderCount(0), fTotalTrailerCount(0), fFileHandle(0),
 					   fTimeStampCorrection(0.0), fFilter(kFALSE), fNFilteredHits(0)
 {
-
+	fStatusValues.resize(Last, 0);
 }
 
 PndMvdReadInToPix4TBData::~PndMvdReadInToPix4TBData()
@@ -157,14 +157,14 @@ Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::v
 
 			if (exception.code == 3) {
 				if (fFileCounter < fFileNames.size()) {
-					LOG(INFO) << fFE << " open new file " << fFileNames[fFileCounter] << std::endl;
+					LOG(INFO) << fFE << " open new file " << fFileNames[fFileCounter];
 					fileHandle->close();
 					delete (fFileHandle);
 					std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
 					fFileCounter++;
 					return endOfFile;
 				} else {
-					LOG(INFO) << fFE << " All files read! Finishing FE " << std::endl;
+					LOG(INFO) << fFE << " All files read! Finishing FE ";
 					endOfFile = kTRUE;
 					return endOfFile;
 				}
@@ -188,16 +188,16 @@ Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::v
 					frameCount = fTopix.GetFrameCount(dataword);
 
 				LOG(DEBUG) << std::dec << "dataword No " << i / 5 << "/"	<< tempdata->getNumWords() / 5 << ": " << std::hex
-						<< dataword << " " << std::dec << header << " : " << frameCount << std::endl;
+						<< dataword << " " << std::dec << header << " : " << frameCount;
 			}
 		}
 		delete(tempdata);
 	} else {
-		LOG(ERROR)<< fFE << " An error occured " << std::endl;
-		LOG(ERROR) << fFE << " fileHandle->good() " << fileHandle->good() << std::endl;
-		LOG(ERROR) << fFE << " fileHandle->eof()  " << fileHandle->eof()	<< std::endl;
-		LOG(ERROR) << fFE << " fileHandle->fail() " << fileHandle->fail() << std::endl;
-		LOG(ERROR) << fFE << " fileHandle->bad()  " << fileHandle->bad()	<< std::endl;
+		LOG(ERROR)<< fFE << " An error occured ";
+		LOG(ERROR) << fFE << " fileHandle->good() " << fileHandle->good();
+		LOG(ERROR) << fFE << " fileHandle->eof()  " << fileHandle->eof();
+		LOG(ERROR) << fFE << " fileHandle->fail() " << fileHandle->fail();
+		LOG(ERROR) << fFE << " fileHandle->bad()  " << fileHandle->bad();
 
 		endOfFile = kFALSE;
 		return endOfFile;
@@ -208,7 +208,7 @@ Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::v
 std::vector<std::vector<PndSdsDigiTopix4> > PndMvdReadInToPix4TBData::AnalyzeData(std::vector<ULong64_t>& rawData,	Double_t clockFrequency) {
 	std::vector<std::vector<PndSdsDigiTopix4> > result;
 	if (fVerbose > 2)
-		LOG(DEBUG) << "PndMvdReadInToPix4TBData::AnalyzeData rawData.size(): " << rawData.size() << std::endl;
+		LOG(DEBUG) << "PndMvdReadInToPix4TBData::AnalyzeData rawData.size(): " << rawData.size();
 	for (int i = 0; i < rawData.size(); i++) {
 		if (BuildFrame(rawData[i]) == true){		//a frame was found
 			std::vector<PndSdsDigiTopix4> hitList = AnalyzeToPixFrame(clockFrequency);
@@ -234,6 +234,9 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 	if (header == 1) // header word found
 	{
 		fTotalHeaderCount++;
+
+		fStatusValues[TotalHeaderCount]++;
+
 		fRecentAllFrameHeader = fTopix.BitAnalyzeHeader(rawData);
 
 		Int_t deltaAllFrameCount = ((int) (fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount) < 0 ?
@@ -248,6 +251,7 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 		if (fHeaderPresent == kTRUE) {
 			// double header found, cannot check previous data without trailer, clear vector
 			fDoubleHeader++;
+			fStatusValues[DoubleHeader]++;
 
 			if (fVerbose > 1) {
 				std::cout << "Double Header Found! count: " << fDoubleHeader << "| FE: " << fFE << std::hex << " last ToPixFrame element: "
@@ -268,11 +272,14 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 	else if (header == 2) // trailer word found
 	{
 		fTotalTrailerCount++;
+		fStatusValues[TotalTrailerCount]++;
 		if (fTrailerPresent == kTRUE) {
 			// double trailer found, cannot give the hits a valid timestamp without the header, clear vector
 
 			fToPixFrame.clear();
 			fDoubleTrailer++;
+			fStatusValues[DoubleTrailer]++;
+
 			if (fVerbose > 1) {
 				std::cout << "Double Trailer Found! Double header counter: " << fDoubleTrailer << std::endl;
 			}
@@ -288,6 +295,7 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 				//}
 
 				fTotalFrameCount++;
+				fStatusValues[TotalFrameCount]++;
 				//AnalyzeToPixFrame(clockFrequency);
 				return true;
 			} else {
@@ -304,10 +312,12 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 	} else if (header == 3) // data word found
 			{
 		fTotalHitCount++;
+		fStatusValues[TotalHitCount]++;
 		if (fHeaderPresent == kTRUE) { // found data while a active header is present, go and save the data
 			fToPixFrame.push_back(rawData);
 		} else { // found data without a valid header, may happen at the beginning of the file or the header was detected
 			fPreFrameLossHitCount++;
+			fStatusValues[PreFrameLossHitCount]++;
 		}
 	}
 	return false;
@@ -344,10 +354,12 @@ std::vector<PndSdsDigiTopix4> PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double
 				if (fVerbose > 1)
 					std::cout << fFE << "-E- non sequential FC: " << fOldFrameCount << " " << fRecentFrameHeader.fFrameCount << std::endl;
 				fNonSequentialFC++;
+				fStatusValues[NonSequentialFC]++;
 			}
 
 			if (fOldFrameCount > fRecentFrameHeader.fFrameCount) {
 				fSuperFrameCount++;
+				fStatusValues[SuperFrameCount]++;
 				if (fVerbose > 1)
 					std::cout << fFE << " SuperFrameCount increased: " << std::dec << fSuperFrameCount << " oldFC "
 							<< fOldFrameCount << " recent FC " << fRecentFrameHeader.fFrameCount << std::endl;
@@ -389,10 +401,12 @@ std::vector<PndSdsDigiTopix4> PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double
 		case 3:
 			PndSdsDigiTopix4 recentPixel = ProcessData(fToPixFrame[i], fRecentFrameHeader, clockFrequency);
 			if (fVerbose > 1)
-				LOG(INFO) << "RecentPixel: " << recentPixel << std::endl;
-			if (fFilter){
+				LOG(INFO) << "RecentPixel: " << recentPixel;
+			if (fFilter == kTRUE){
 				if (HitToFilter(recentPixel) == true){
+					//LOG(INFO) << "Hit to Filter found!";
 					fNFilteredHits++;
+					fStatusValues[NFilteredHits]++;
 					break;
 				}
 			}
@@ -401,6 +415,7 @@ std::vector<PndSdsDigiTopix4> PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double
 				std::cout << fFE << " Pixel: " << recentPixel << std::endl;
 			//WriteoutToPix4Digi(recentPixel);
 			fCorrectHitCount++;
+			fStatusValues[CorrectHitCount]++;
 			break;
 		}
 	}
@@ -447,7 +462,9 @@ bool PndMvdReadInToPix4TBData::CheckDataIntegrity(std::vector<ULong64_t> topix4F
 			std::cout << "Wrong Hamming Code found! (Header) : " << std::hex<< topix4Frame[0] << " Parity bits " << hammingcheck << std::endl;
 		}
 		fHammingLossFrameCount++;
+		fStatusValues[HammingLossFrameCount]++;
 		fHammingLossHitCount += topix4Frame.size() - 2;
+		fStatusValues[HammingLossHitCount] += topix4Frame.size() - 2;
 		return false;
 	}
 
@@ -457,7 +474,9 @@ bool PndMvdReadInToPix4TBData::CheckDataIntegrity(std::vector<ULong64_t> topix4F
 			std::cout << "Wrong Hamming Code found! (Trailer): " << std::hex << topix4Frame[0] << " Parity bits " << hammingcheck << std::endl;
 		}
 		fHammingLossFrameCount++;
+		fStatusValues[HammingLossFrameCount]++;
 		fHammingLossHitCount += topix4Frame.size() - 2;
+		fStatusValues[HammingLossHitCount] += topix4Frame.size() - 2;
 		return false;
 	}
 
@@ -466,7 +485,9 @@ bool PndMvdReadInToPix4TBData::CheckDataIntegrity(std::vector<ULong64_t> topix4F
 
 	if (crc_calculated != ((topix4Frame.back() >> 6) & 0xffff)) {
 		fCRCLossFrameCount++;
+		fStatusValues[CRCLossFrameCount]++;
 		fCRCLossHitCount += topix4Frame.size() - 2;
+		fStatusValues[CRCLossHitCount] += topix4Frame.size() - 2;
 		if (fVerbose == -1) {
 			std::cout << fFE << " CRC WRONG! Frame will be deleted. Calculated CRC: " << std::hex << crc_calculated <<
 					" topix CRC: " << ((topix4Frame.back() >> 6) & 0xffff) << std::endl;
