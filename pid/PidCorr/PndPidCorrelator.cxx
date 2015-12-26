@@ -20,11 +20,18 @@
 #include "PndDrcBarPoint.h"
 #include "PndDrcHit.h"
 #include "PndDskParticle.h"
+#include "PndRichGeo.h"
+#include "PndRichPhoton.h"
+#include "PndRichHit.h"
+#include "PndRichPDPoint.h"
+#include "PndRichPDHit.h"
 #include "FairTrackParH.h"
 #include "FairMCApplication.h"
 #include "FairRunAna.h"
 #include "FairRootManager.h"
 #include "FairRuntimeDb.h"
+
+#include "PndRichReco.h"
 
 #include "TObjArray.h"
 #include "TVector3.h"
@@ -48,7 +55,7 @@ PndPidCorrelator::~PndPidCorrelator()
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator() : 
-  FairTask(), fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0),
+  FairTask(), fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichBarPoint(0), fRichPDHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
@@ -62,6 +69,7 @@ PndPidCorrelator::PndPidCorrelator() :
   fMdtMode(-1), 
   fDrcMode(-1),
   fDskMode(-1),
+  fRichMode(-1),
   fMixMode(kFALSE),
   fPidHyp(0),
   fIdealHyp(kFALSE), 
@@ -76,6 +84,7 @@ PndPidCorrelator::PndPidCorrelator() :
   fscCorr(0),
   drcCorr(0),
   dskCorr(0),
+  richCorr(0),
   fTrackBranch(""),
   fTrackIDBranch(""),
   fTrackBranch2(""),
@@ -89,7 +98,8 @@ PndPidCorrelator::PndPidCorrelator() :
   mapMdtBarrel(),
   mapMdtEndcap(),
   mapMdtForward(),
-  fGeanePropagator(NULL)
+  fGeanePropagator(NULL),
+  fRichResolution(new PndRichResolution())
 {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -112,7 +122,7 @@ PndPidCorrelator::PndPidCorrelator() :
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   FairTask(name),
-  fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), 
+  fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichBarPoint(0), fRichPDHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
@@ -126,6 +136,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   fMdtMode(-1), 
   fDrcMode(-1),
   fDskMode(-1),
+  fRichMode(-1),
   fMixMode(kFALSE),
   fPidHyp(0),
   fIdealHyp(kFALSE), 
@@ -140,6 +151,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   fscCorr(0),
   drcCorr(0),
   dskCorr(0),
+  richCorr(0),
   fTrackBranch(""),
   fTrackIDBranch(""),
   fTrackBranch2(""),
@@ -153,7 +165,8 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   mapMdtBarrel(),
   mapMdtEndcap(),
   mapMdtForward(),
-  fGeanePropagator(NULL)
+  fGeanePropagator(NULL),
+  fRichResolution(new PndRichResolution())
 {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -467,6 +480,23 @@ InitStatus PndPidCorrelator::Init() {
 	}
     }
   
+  // *** RICH ***
+  if (fRichMode)
+    {
+      fRichReco = new PndRichReco();
+      fRichPDHit = dynamic_cast<TClonesArray *> (fManager->GetObject("RichPDHit"));
+      if ( ! fRichPDHit ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No RichPDHit array!" << endl;
+	  fRichMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using RichPDHit" << endl;
+	  fRichMode = 2;
+	}
+    }
+  
   if (fIdeal)
     {
       cout << "-I- PndPidCorrelator::Init: Using MonteCarlo correlation" << endl;
@@ -499,6 +529,17 @@ InitStatus PndPidCorrelator::Init() {
       else  
 	{
 	  cout << "-I- PndPidCorrelator::Init: Using MdtPoint" << endl;
+	}
+      fRichBarPoint = dynamic_cast<TClonesArray *> (fManager->GetObject("RichBarPoint"));
+      if ( ! fRichBarPoint ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No RichBarPoint array!" << endl;
+	  fRichMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using RichBarPoint" << endl;
+          fRichMode = 1;
 	}
     }
   
@@ -609,6 +650,8 @@ InitStatus PndPidCorrelator::Init() {
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen:flag");
       dskCorr = new TNtuple("dskCorr","TRACK-DSK Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:dsk_x:dsk_y:dsk_z:dsk_phi:chi2:dsk_thetac:dsk_nphot:dphi:glen:track_lx:track_ly:track_lz:track_xp:flag");
+      richCorr = new TNtuple("richCorr","TRACK-RICH Correlation",
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:rich_x:rich_y:rich_phi:chi2:rich_thetac:rich_nphot:dphi:glen:flag");
       cout << "-I- PndPidCorrelator::Init: Filling Debug histograms" << endl;
     
     }
@@ -767,7 +810,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	if ( (fEmcMode>0)  && (fEmcClstCount>0) ) GetEmcInfo(helix, pidCand);
 	if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);  
 	if ( (fDrcMode>0)  && (fDrcHit    ->GetEntriesFast()>0) ) GetDrcInfo(helix, pidCand);
-	if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand); 
+	if ( (fDskMode>0)  && (fDskParticle->GetEntriesFast()>0)) GetDskInfo(helix, pidCand);
       }
     AddChargedCandidate(pidCand);
   } 
@@ -829,6 +872,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	    if ( (fEmcMode>0)  && (fFscClstCount>0) ) GetFscInfo(helix, pidCand);
 	    //if ( (fMdtMode>0)  && (fMdtHit    ->GetEntriesFast()>0) ) GetMdtInfo(track, pidCand);
 	    if (mapMdtForward.size()>0)  GetFMdtInfo(&par, pidCand);
+            if ( (fRichMode>0) ) GetRichInfo(helix, pidCand);
 	  } // end of fast mode
 	AddChargedCandidate(pidCand);
       }

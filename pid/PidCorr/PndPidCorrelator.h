@@ -34,6 +34,8 @@
 #include "PndEmcErrorMatrixPar.h"
 #include "PndGeoSttPar.h"
 #include "PndGeoFtsPar.h"
+#include "PndRichReco.h"
+#include "PndRichResolution.h"
 
 using std::map;
 using std::vector;
@@ -69,6 +71,8 @@ protected:
   TClonesArray* fDskParticle;       //! PndDskParticle TCA  //need to change to PndDskHit in future
   TClonesArray* fSttHit;            //! PndSttHit TCA  
   TClonesArray* fFtsHit;            //! PndFtsHit TCA  
+  TClonesArray* fRichBarPoint;      //! PndRichBarPoint TCA
+  TClonesArray* fRichPDHit;         //! PndRichPDHit TCA
  
   PndPidCorrPar* fCorrPar;          //! Correlation parameters
   PndEmcGeoPar* fEmcGeoPar;         //! EMC geometry parameters
@@ -88,6 +92,7 @@ protected:
   Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 
   Short_t fDrcMode;                 // DRC Mode: 0 no DRC, 1 -empty-,  (2) DrcHit
   Short_t fDskMode;                 // DSK Mode: 0 no DSK, 1 -empty-,  (2) DskParticle
+  Short_t fRichMode;                // RICH Mode: 0 no RICH, 1 -empty-,  (2) RichHit
  
   Int_t fEmcClstCount;              // Number of EMC clusters
   Int_t fFscClstCount;		    // Number of FSC clusters
@@ -132,6 +137,7 @@ protected:
   TNtuple *mdtCorr;                  // Debug ntuple for mdt correlation 
   TNtuple *drcCorr;                  // Debug ntuple for drc correlation
   TNtuple *dskCorr;                  // Debug ntuple for dsk correlation
+  TNtuple *richCorr;                 // Debug ntuple for rich correlation
 
   TString sDir;                      // Ntuple output directory
   TString sFile;                     // Ntuple output file
@@ -147,7 +153,7 @@ protected:
   Bool_t GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
   Bool_t GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
   Bool_t GetFtsInfo  (PndTrack* track, PndPidCandidate* pid); 
-  Bool_t GetGemInfo  (PndTrack* track, PndPidCandidate* pid);  
+  Bool_t GetGemInfo  (PndTrack* track, PndPidCandidate* pid);
   Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid);  
   Bool_t GetFtofInfo (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid);
@@ -155,12 +161,16 @@ protected:
   Bool_t GetMdtInfo  (PndTrack* track, PndPidCandidate* pid);   
   Bool_t GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   Bool_t GetDskInfo  (FairTrackParH* helix, PndPidCandidate* pid);
-  Bool_t GetMdt2Info (FairTrackParH* helix, PndPidCandidate* pid); 
+  Bool_t GetMdt2Info (FairTrackParH* helix, PndPidCandidate* pid);
   Bool_t GetFMdtInfo (FairTrackParP* helix, PndPidCandidate* pid);
+  Bool_t GetRichInfo (FairTrackParH* helix, PndPidCandidate* pid);  
 
   Bool_t MdtMapping();  // Mapping of MDT hits
   Bool_t MdtGeometry(); // Mapping of MDT geometry
 
+  PndRichReco* fRichReco;
+  PndRichResolution* fRichResolution;
+    
 public:
 
   virtual void Exec(Option_t * option);
@@ -208,7 +218,7 @@ public:
   virtual void SetParContainers();
   virtual void Finish();
 
-ClassDef(PndPidCorrelator,2)   // PndPidCorrelator
+ClassDef(PndPidCorrelator,3)   // PndPidCorrelator
 
 };
 

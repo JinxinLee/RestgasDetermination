@@ -26,6 +26,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/MdtData
   ${CMAKE_SOURCE_DIR}/pnddata/DrcData
   ${CMAKE_SOURCE_DIR}/pnddata/DskData
+  ${CMAKE_SOURCE_DIR}/pnddata/RichData
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
@@ -50,6 +51,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
   ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_MCL
 # ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_PDE_FOAM
+  ${CMAKE_SOURCE_DIR}/rich
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -75,6 +77,7 @@ PidCorr/PndPidFtofInfo.cxx
 PidCorr/PndPidMdtInfo.cxx
 PidCorr/PndPidDskInfo.cxx
 PidCorr/PndPidDrcInfo.cxx
+PidCorr/PndPidRichInfo.cxx
 PidCorr/PndPidEmcInfo.cxx
 PidCorr/PndPidTofInfo.cxx
 PidCorr/PndPidBremCorrector.cxx
@@ -86,6 +89,7 @@ PidClassifier/PndPidIdealFwdOnlyAssociatorTask.cxx
 PidClassifier/PndPidMvdAssociatorTask.cxx
 PidClassifier/PndPidDrcAssociatorTask.cxx
 PidClassifier/PndPidDiscAssociatorTask.cxx
+PidClassifier/PndPidRichAssociatorTask.cxx
 PidClassifier/PndPidMdtHCAssociatorTask.cxx
 PidClassifier/PndPidMvaAssociatorTask.cxx
 PidClassifier/PndPidEmcAssociatorTask.cxx
@@ -108,6 +112,7 @@ PidClassifier/PndPidIdealFwdOnlyAssociatorTask.h
 PidClassifier/PndPidMvdAssociatorTask.h
 PidClassifier/PndPidDrcAssociatorTask.h
 PidClassifier/PndPidDiscAssociatorTask.h
+PidClassifier/PndPidRichAssociatorTask.h
 PidClassifier/PndPidMdtHCAssociatorTask.h
 PidClassifier/PndPidMvaAssociatorTask.h
 PidClassifier/PndPidEmcAssociatorTask.h
