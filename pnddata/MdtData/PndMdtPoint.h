@@ -6,7 +6,7 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 #include "TMath.h"
-
+#include "PndMdtID.h"
 #include "FairMCPoint.h"
 
 class PndMdtPoint : public FairMCPoint 
@@ -21,7 +21,7 @@ class PndMdtPoint : public FairMCPoint
   /** Constructor with arguments
    *@param Int_t fEventID		The ID of the event
    *@param Int_t fTrackID		The ID of the track
-   *@param Int_t fDetectorID		The ID of the detector
+   *@param Int_t fDetectorID    	The ID of the detector
    *@param TLorentzVector fPosIn        The position of the hit [cm] at the exitentrance point
    *@param TLorentzVector fMomIn	The momentum of the particle giving the hit [GeV] at the exitentrance point
    *@param TLorentzVector fPos		The position of the hit [cm] at the exit point
@@ -44,17 +44,17 @@ class PndMdtPoint : public FairMCPoint
   
 
   /** Accessors **/
- 
-  inline TVector3 GetPosIn()            const { return fPosIn;                          };
-  inline TVector3 GetMomIn()            const { return fMomIn;                          }; 
-  inline TVector3 GetPosOut()           const { return TVector3(fX, fY, fZ);            };
-  inline TVector3 GetMomOut()           const { return TVector3(fPx, fPy, fPz);         };
+  inline TVector3 GetPosIn()            const { return fPosIn;                          }
+  inline TVector3 GetMomIn()            const { return fMomIn;                          } 
+  inline TVector3 GetPosOut()           const { return TVector3(fX, fY, fZ);            }
+  inline TVector3 GetMomOut()           const { return TVector3(fPx, fPy, fPz);         }
   
-  Short_t GetModule()      const { return (fDetectorID/1000000);};
-  Short_t GetSector()      const { return ((fDetectorID/100000)%10);};
-  Short_t GetLayerID()     const { return ((fDetectorID/1000)%100);};
-  Short_t GetBox()         const { return ((fDetectorID/10)%100);};
-  Short_t GetWire()        const { return (fDetectorID%10);};
+  
+  Short_t GetModule()       const { return PndMdtID::Module(GetDetectorID());}
+  Short_t GetSector()       const { return PndMdtID::Sector(GetDetectorID());}
+  Short_t GetLayerID()      const { return PndMdtID::Layer(GetDetectorID());}
+  Short_t GetBox()          const { return PndMdtID::Box(GetDetectorID());}
+  Short_t GetWire()         const { return PndMdtID::Wire(GetDetectorID());}
   
   /** Modifiers **/
   

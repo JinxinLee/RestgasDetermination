@@ -15,7 +15,9 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/mdt/MdtMC
   ${CMAKE_SOURCE_DIR}/pnddata/MdtData 
   ${CMAKE_SOURCE_DIR}/mdt/MdtDigi
+  ${CMAKE_SOURCE_DIR}/mdt/MdtTool
   ${CMAKE_SOURCE_DIR}/mdt/MdtReco
+  ${CMAKE_SOURCE_DIR}/mdt/MdtTimebased
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/geane
@@ -45,9 +47,18 @@ MdtDigi/PndMdtHitProducerIdeal.cxx
 MdtDigi/PndMdtHitProducer.cxx
 MdtDigi/PndMdtDigiProducer.cxx
 MdtDigi/PndMdtClusterTask.cxx
+MdtDigi/PndMdtParamDigi.cxx
+MdtTool/PndMdtIGeometry.cxx
+MdtDigi/PndMdtPointsToWaveform.cxx
+MdtDigi/PndMdtDigitization.cxx
 MdtReco/PndMdtTrkProducerIdeal.cxx
 MdtReco/PndMdtTrkProducer.cxx
+MdtReco/PndMdtTrkFinder.cxx
 MdtReco/PndMdtRecoPar.cxx
+MdtTimebased/PndMdtWaveformWriteoutBuffer.cxx
+MdtTimebased/PndMdtDigiSorterTask.cxx
+MdtTimebased/PndMdtDigiRingSorter.cxx
+MdtTimebased/PndMdtWaveform.cxx
 PndMdtContFact.cxx
 )
 

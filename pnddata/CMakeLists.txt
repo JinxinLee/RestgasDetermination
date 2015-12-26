@@ -80,6 +80,7 @@ MdtData/PndMdtDigi.cxx
 MdtData/PndMdtCluster.cxx
 MdtData/PndMdtHit.cxx
 MdtData/PndMdtTrk.cxx
+MdtData/PndMdtID.cxx
 
 SttData/PndSttGeomPoint.cxx
 SttData/PndSttHelixHit.cxx
@@ -180,6 +181,7 @@ MdtData/PndMdtDigi.h
 MdtData/PndMdtCluster.h
 MdtData/PndMdtHit.h
 MdtData/PndMdtTrk.h
+MdtData/PndMdtID.h
 
 SttData/PndSttGeomPoint.h
 SttData/PndSttHelixHit.h

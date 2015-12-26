@@ -1,23 +1,28 @@
 #ifndef PNDMDTDIGI_HH
 #define PNDMDTDIGI_HH
 
-#include "FairMultiLinkedData_Interface.h"
+//#include "FairMultiLinkedData.h"
+#include "FairTimeStamp.h"
 #include "TVector3.h"
 #include <vector>
+#include "PndMdtID.h"
 
-class PndMdtDigi : public FairMultiLinkedData_Interface {
+class PndMdtDigi : public FairTimeStamp
+{
 
  public:
  
   PndMdtDigi();
   
   PndMdtDigi (Int_t detID, TVector3& pos, std::vector<Int_t> pointList);
+  PndMdtDigi (Int_t detID, TVector3& pos, Int_t evtNo);
   
   virtual ~PndMdtDigi();
   
   /** Output to screen (not yet implemented) **/
   virtual void Print(const Option_t* opt = 0) const {;}
   
+  bool operator < (const PndMdtDigi& ) const;
   
   /** Public method Clear
    ** Resets the flag to -1
@@ -27,25 +32,36 @@ class PndMdtDigi : public FairMultiLinkedData_Interface {
   /** Accessors **/
   void SetPosition(const TVector3& pos) { fLabPos = pos; };
 
-  TVector3 GetLabPosition() const { return fLabPos; };
-  Int_t GetDetectorID()     const { return fDetectorID; };  
-  Short_t GetModule()       const { return (fDetectorID/1000000);};
-  Short_t GetSector()       const { return ((fDetectorID/100000)%10);};
-  Short_t GetLayerID()      const { return ((fDetectorID/1000)%100);};
-  Short_t GetBox()          const { return ((fDetectorID/10)%100);};
-  Short_t GetWire()         const { return (fDetectorID%10);};
-  Short_t GetStrip()        const { return (fDetectorID%1000);};
+  const Double_t X() const { return fLabPos.X(); }
+  const Double_t Y() const { return fLabPos.Y(); }
+  const Double_t Z() const { return fLabPos.Z(); }
+  const Int_t GetEvtNumber() const { return fEvtNo; }
+  TVector3 GetLabPosition() const { return fLabPos; }
+  Int_t GetDetectorID()     const { return fDetectorID; }  
+  Short_t GetModule()       const { return PndMdtID::Module(GetDetectorID());}
+  Short_t GetSector()       const { return PndMdtID::Sector(GetDetectorID());}
+  Short_t GetLayer()      const { return PndMdtID::Layer(GetDetectorID());}
+  Short_t GetLayerID()      const { return PndMdtID::Layer(GetDetectorID());}
+  Short_t GetBox()          const { return PndMdtID::Box(GetDetectorID());}
+  Short_t GetWire()         const { return PndMdtID::Wire(GetDetectorID());}
+  Short_t GetStrip()        const { return PndMdtID::Strip(GetDetectorID());}
+  Bool_t  isWire() const { return PndMdtID::isWire(GetDetectorID()); }
 
   Short_t GetNPoints()      const { return fPointList.size(); }
   const std::vector<Int_t> &GetPointList() {return fPointList; }
+
+  //time-based simulation support
+  PndMdtDigi(const PndMdtDigi&);
  
  private:
   
   Int_t fDetectorID;                // Detectior ID
   TVector3 fLabPos;                 // Position in the la frame
   std::vector<Int_t> fPointList;    // List of MdtPoint indices
+  Double_t fSignalWidth;
+  Int_t fEvtNo;
   
-  ClassDef(PndMdtDigi,1);
+  ClassDef(PndMdtDigi,2);
 };
 
 

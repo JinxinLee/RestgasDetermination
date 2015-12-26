@@ -43,6 +43,7 @@
 #pragma link C++ class  PndMdtDigi+;
 #pragma link C++ class  PndMdtCluster+;
 #pragma link C++ class  PndMdtHit+;
+#pragma link C++ class  PndMdtID+;
 
 #pragma link C++ class  PndSttGeomPoint+;
 #pragma link C++ class  PndSttHelixHit+;

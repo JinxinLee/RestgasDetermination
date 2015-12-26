@@ -23,6 +23,8 @@
 #include "PndStack.h"
 
 #include "PndMdt.h"
+#include "PndMdtID.h"
+#include "PndMdtPoint.h"
 
 
 using namespace std;
@@ -99,6 +101,9 @@ void PndMdt::ConstructGeometry()
       else if (fBarrel.EndsWith(".root"))
 	{
 	  SetGeometryFileName(fBarrel);
+	  std::cout<<"=======  MDT::  ConstructGeometry()  ========"<<endl;
+	  std::cout<<"File name, "<<fBarrel<<endl;
+	  std::cout<<"============================================="<<endl;
 	  ConstructRootGeometry();
 	}
       else
@@ -191,7 +196,7 @@ void PndMdt::BeginEvent()
 Bool_t PndMdt::ProcessHits(FairVolume* vol) 
 {
   TString name = gMC->CurrentVolOffName(1);
-  if (name.Contains("BA")) ProcessHitsRoot(vol);
+  if (name.Contains("BA") || name.Contains("Cell")) ProcessHitsRoot(vol);
   else ProcessHitsFast(vol);
   
   // if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
@@ -231,7 +236,7 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
 	  Int_t iWire;
 	  sscanf(name,"MDT%is%il%ib%iw%i", &iMod, &iOct, &iLayer, &iBox, &iWire);
 	  
-	  Int_t detectorId = iWire + 10*iBox + 1000*iLayer + 100000*iOct + 1000000*iMod; 
+	  Int_t detectorId = PndMdtID::Identifier(iMod, iOct, iLayer, iBox, iWire);
 	  gMC->TrackPosition(lPos); // cm
 	  gMC->TrackMomentum(lMom); // GeV
 	  TClonesArray& clref = *fMdtCollection;
@@ -270,58 +275,60 @@ Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol)
   
   fELoss += gMC->Edep();
   
-  if (fVerboseLevel) cout << "pdg: " <<  gMC->TrackPid() << "\teloss: " << fELoss << endl;
-  
+  if (fVerboseLevel) cout << "pdg: " <<  gMC->TrackPid() << "\teloss: " << fELoss 
+    <<", name"<<gMC->ParticleName(gMC->TrackPid())<< endl;
+
   if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
+  {
+    Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
+    Int_t pdg= gMC->TrackPid();
+    if ( (TrNo == fTrkIn) && (fELoss >0.) )
     {
-      Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
-      Int_t pdg= gMC->TrackPid();
-      if ( (TrNo == fTrkIn) && (fELoss >0.) )
-	{
-	  TLorentzVector lPos, lMom;
-	  Int_t iMod = -1;
-	  Int_t iOct;
-	  Int_t iLayer;
-	  Int_t iBox;
-	  Int_t iWire;
-	  gMC->CurrentVolID(iWire);
-	  gMC->CurrentVolOffID(2,iBox);
-	  gMC->CurrentVolOffID(3,iLayer);
-	  gMC->CurrentVolOffID(4,iOct);
-	  if (path.Contains("Barrel")) iMod = 1;
-	  if (path.Contains("Endcap")) iMod = 2;
-	  if (path.Contains("MF"))     iMod = 3; 
-	  if (path.Contains("Forward")) iMod = 4;
-	  
-	  if (fVerboseLevel) cout << iMod << "\t" <<  iOct << "\t" << iLayer << "\t" << iBox << "\t" << iWire;
-	  Int_t detectorId = iWire + 10*iBox + 1000*iLayer + 100000*iOct + 1000000*iMod;
-	  if (fVerboseLevel) cout << "\t" << detectorId << endl;
-	  gMC->TrackPosition(lPos); // cm
-	  gMC->TrackMomentum(lMom); // GeV
-	  TClonesArray& clref = *fMdtCollection;
-	  Int_t size = fMdtCollection->GetEntriesFast();
-	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), fTime,
-							gMC->TrackLength(), fELoss, 
-							fPos_In.Vect(), fMom_In.Vect());
-	  /**if you add a point then tell the stack! here*/
-	  PndStack* stack = (PndStack*) gMC->GetStack();
-	  stack->AddPoint(kMDT);
-	};
-      
-      ResetParameters();
+      TLorentzVector lPos, lMom;
+      Int_t iMod = -1;
+      Int_t iOct;
+      Int_t iLayer;
+      Int_t iBox;
+      Int_t iWire;
+      gMC->CurrentVolID(iWire);
+      gMC->CurrentVolOffID(2,iBox);
+      gMC->CurrentVolOffID(3,iLayer);
+      gMC->CurrentVolOffID(4,iOct);
+      if (path.Contains("Barrel") ) iMod = 1;
+      if (path.Contains("Endcap")) iMod = 2;
+      if (path.Contains("MF"))     iMod = 3; 
+      if (path.Contains("Forward")) iMod = 4;
+
+      if (fVerboseLevel) cout << iMod << "\t" <<  iOct << "\t" << iLayer << "\t" << iBox << "\t" << iWire;
+      Int_t detectorId = PndMdtID::Identifier(iMod, iOct, iLayer, iBox, iWire);
+
+      if (fVerboseLevel) cout << "\t" << detectorId << endl;
+      gMC->TrackPosition(lPos); // cm
+      gMC->TrackMomentum(lMom); // GeV
+      TClonesArray& clref = *fMdtCollection;
+      Int_t size = fMdtCollection->GetEntriesFast();
+      PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), fTime,
+	  gMC->TrackLength(), fELoss, 
+	  fPos_In.Vect(), fMom_In.Vect());
+      /**if you add a point then tell the stack! here*/
+      PndStack* stack = (PndStack*) gMC->GetStack();
+      stack->AddPoint(kMDT);
     };
-  
+
+    ResetParameters();
+  };
+
   return kTRUE;
 }
 
 // -------------------------------------------------------------------------
 Bool_t PndMdt::CheckIfSensitive(std::string name)
 {
-  if (name.find("MDT") != std::string::npos)
-    {
-      return kTRUE;
-    }
-  
+  if ((name.find("MDT") != std::string::npos) || name.find("GasCell") != std::string::npos)
+  {
+    return kTRUE;
+  }
+
   return kFALSE;
 }
 
@@ -331,11 +338,21 @@ TClonesArray* PndMdt::GetCollection(Int_t iColl) const
 { 
 
   if(iColl==0) {
-           return fMdtCollection; 
+    return fMdtCollection; 
   }else{ 
-     return NULL; 
+    return NULL; 
   }
 
+}
+Int_t PndMdt::PdgToIndex(Int_t pdg)
+{
+  Int_t abspdg = abs(pdg);
+  if(abspdg == 11) return 0;
+  else if(abspdg == 211) return 2;
+  else if(abspdg == 13) return 1;
+  else if(abspdg == 2212) return 4;
+  else if(abspdg == 321) return 3;
+  else return 1;
 }
 
 

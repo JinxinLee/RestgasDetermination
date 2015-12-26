@@ -4,8 +4,10 @@
 #include "FairTask.h"
 #include "PndMdtHit.h"
 #include "TVector3.h"
+#include "FairTSBufferFunctional.h"
 
 class TClonesArray;
+class PndMdtDigi;
 
 using std::map;
 using std::vector;
@@ -27,6 +29,8 @@ class PndMdtHitProducer : public FairTask
   virtual InitStatus Init();
 
 
+  virtual void RunTimeBased() { fTimeOrderedDigi = kTRUE; }
+  virtual void FinishTask();
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
@@ -36,23 +40,61 @@ class PndMdtHitProducer : public FairTask
   //void Reset();        // reset maps
 
  private: 
+  virtual void Exec_old(Option_t* opt);
   
   /** Input array of PndMdtDigi **/
   TClonesArray* fBoxArray;
   TClonesArray* fStripArray;
+  TClonesArray* fDigiArray;
   
+  TClonesArray* fBoxClusterArray;
+  TClonesArray* fStripClusterArray;
   /** Output array of PndMdtHit **/
   TClonesArray* fHitArray;  
   
+  Int_t  fNumofBoxDigis;
+  Int_t  fNumofStripDigis;
+  Int_t  fNumofHits;
+  Int_t  fNumofGroupedBoxDigis;
+  Int_t  fNumofGroupedStripDigis;
 /*   map<Int_t, vector<Int_t> >mapBoxBarrel; */
 /*   map<Int_t, vector<Int_t> >mapBoxEndcap; */
 /*   map<Int_t, vector<Int_t> >mapBoxForward; */
 /*   map<Int_t, vector<Int_t> >mapStripBarrel; */
 /*   map<Int_t, vector<Int_t> >mapStripEndcap; */
 /*   map<Int_t, vector<Int_t> >mapStripForward; */
-  
+  std::map<Int_t, Int_t> fMatchMap;
+  //statistics record
+  std::map<Int_t, Int_t> fBoxHitMapofLayer;
+  std::map<Int_t, Int_t> fStripHitMapofLayer;
+
+  typedef std::vector<std::vector<PndMdtDigi*> > ClustersCollection;
+  typedef ClustersCollection::iterator ClustersColIter;
+  typedef std::vector<PndMdtDigi*> SingleCluster;
+  typedef SingleCluster::iterator SingleDigiIter;
+
+  typedef std::vector<std::vector<PndMdtDigi*> > TrackletCollection;
+  typedef TrackletCollection::iterator TrackletColIter;
+  typedef std::vector<PndMdtDigi*> Tracklet;
+  typedef Tracklet::iterator TrackletDigiIter;
+
+  typedef std::vector<PndMdtDigi*> VecDigi;
+  typedef VecDigi::iterator VecDigiIter;
+
+
+  Bool_t fTimeOrderedDigi;
+  BinaryFunctor* fFunctor;
+  Int_t fEventCounter;
+  Double_t fTimeWindow;
+
+  struct PndMdtDigiLess
+  {
+    bool operator() (const PndMdtDigi* lv, const PndMdtDigi* rv) const;
+  };
+
   ClassDef(PndMdtHitProducer,1);
 
 };
+
 
 #endif

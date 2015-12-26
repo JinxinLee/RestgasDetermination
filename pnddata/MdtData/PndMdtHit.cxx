@@ -24,6 +24,14 @@ PndMdtHit::PndMdtHit(Int_t detID, Int_t stripID, TVector3& pos, TVector3& dpos, 
         SetLink(FairLink("MdtDigiStrip", sIndex));
 }
 
+PndMdtHit::PndMdtHit(Int_t detID, Int_t detID1, TVector3& pos, TVector3& dpos, Int_t bIndex)
+  : FairHit(detID, pos, dpos, bIndex), fDetID1(detID1)
+{
+        fStripID = GetStrip1();
+        SetLink(FairLink("MdtDigiBox", bIndex));
+        //SetLink(FairLink("MdtDigiStrip", sIndex));
+}
+
 
 /** Destructor **/
 PndMdtHit::~PndMdtHit() 

@@ -15,7 +15,7 @@
 #include "FairVolume.h"
 
 #include "PndGeoMdtPar.h"
-#include "PndMdtPoint.h"
+//#include "PndMdtPoint.h"
 
 class PndMdt : public FairDetector
 {
@@ -56,6 +56,7 @@ public:
 private:
 
     Bool_t CheckIfSensitive(std::string name);
+    Int_t PdgToIndex(Int_t pdg);
 
     void PndMdtMagnet(); //!
     void PndMdtMuonFilter(); //!
