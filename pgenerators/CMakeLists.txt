@@ -4,12 +4,16 @@
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
   ${SYSTEM_INCLUDE_DIRECTORIES}
+  ${CLHEP_INCLUDE_DIR}
+  ${GEANT4_INCLUDE_DIR}
   ${PYTHIA8_INCLUDE_DIR}
   ${BASE_INCLUDE_DIRECTORIES}
 )
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen
+  ${CMAKE_SOURCE_DIR}/pgenerators/FtfEvtGen/include
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/rho
@@ -35,6 +39,7 @@ PndDpmGenerator.cxx
 PndFtfGenerator.cxx
 PndEvtGenGenerator.cxx
 PndDpmDirect.cxx
+PndFtfDirect.cxx
 PndBoxGenerator.cxx
 PndUrqmdSmmGenerator.cxx
 PndJRGenerator.cxx
