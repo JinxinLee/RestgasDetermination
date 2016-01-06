@@ -11,6 +11,8 @@
 
 using namespace ToPix4;
 
+ClassImp(PndTopix4)
+
 PndTopix4::PndTopix4() {
 	// TODO Auto-generated constructor stub
 
@@ -84,141 +86,199 @@ ToPix4::pixel PndTopix4::BitAnalyzePixelData(ULong64_t& data)
 
 }
 
-std::pair<UInt_t, UInt_t> PndTopix4::PixeladdressToMatrixAddress(UInt_t pixelglobaladdress)
+std::pair<UInt_t, UInt_t> PndTopix4::PixelGlobalAddressToMatrixAddress(UInt_t pixelglobaladdress)
 {
     // Matrix: 32 columns x 20 rows
 
-    UInt_t double_column_address =0;
-    UInt_t double_column_side=0;
-    UInt_t pixel_address=0;
+	ToPix4::pixelAddress address;
 
-    UInt_t matrix_column, matrix_row;
+
+//    UInt_t matrix_column, matrix_row;
 
     UInt_t temp = pixelglobaladdress;
 
-    pixel_address= temp & 0x7f; //todo check if this conversion is correct!
+    address.fRow= temp & 0x7f; //todo check if this conversion is correct!
     temp = temp >> 7;
-    double_column_side= temp & 0x1;
+    address.fSide= temp & 0x1;
     temp = temp >> 1;
-    double_column_address= temp & 0x3f;
+    address.fCol = temp & 0x3f;
     temp = temp >> 6;
 
-    UInt_t sel = (double_column_address<<1) | (double_column_side);
+    return PixelAddressToMatrixAddress(address);
 
-    if(sel == 0)
-    {
-        matrix_row = pixel_address;
-        matrix_column = 1;
-    }
-    else if(sel ==1)
-    {
-        matrix_row = pixel_address;
-        matrix_column = 0;
-    }
-    else if(sel == 6)
-    {
-        matrix_row = pixel_address;
-        matrix_column = 19;
-    }
-    else if(sel == 7)
-    {
-        matrix_row = pixel_address;
-        matrix_column = 18;
-    }
-    else if (sel==2)
-    {
-        if (pixel_address <32)
-        {
-            matrix_row = pixel_address;
-            matrix_column = 3;
-        }
-        else if (pixel_address < 64)
-        {
-            matrix_row = 31 - (pixel_address-32);
-            matrix_column = 4;
-        }
-        else if (pixel_address < 96)
-        {
-            matrix_row = (pixel_address-64);
-            matrix_column = 7;
-        }
-        else if (pixel_address < 128)
-        {
-            matrix_row = 31 - (pixel_address-96);
-            matrix_column = 8;
-        }
-    }
-    else if (sel==3)
-    {
-        if (pixel_address <32)
-        {
-            matrix_row = pixel_address;
-            matrix_column = 2;
-        }
-        else if (pixel_address < 64)
-        {
-            matrix_row = 31 - (pixel_address-32);
-            matrix_column = 5;
-        }
-        else if (pixel_address < 96)
-        {
-            matrix_row = (pixel_address-64);
-            matrix_column = 6;
-        }
-        else if (pixel_address < 128)
-        {
-            matrix_row = 31 - (pixel_address-96);
-            matrix_column = 9;
-        }
-    }
-    else if (sel==4)
-    {
-        if (pixel_address < 32)
-        {
-            matrix_row = pixel_address;
-            matrix_column = 10;
-        }
-        else if (pixel_address < 64)
-        {
-            matrix_row = 31 - (pixel_address-32);
-            matrix_column = 13;
-        }
-        else if (pixel_address < 96)
-        {
-            matrix_row = (pixel_address-64);
-            matrix_column = 14;
-        }
-        else if (pixel_address < 128)
-        {
-            matrix_row = 31 - (pixel_address-96);
-            matrix_column = 17;
-        }
-    }
-    else if (sel==5)
-    {
-        if (pixel_address < 32)
-        {
-            matrix_row = pixel_address;
-            matrix_column = 11;
-        }
-        else if (pixel_address < 64)
-        {
-            matrix_row = 31 - (pixel_address-32);
-            matrix_column = 12;
-        }
-        else if (pixel_address < 96)
-        {
-            matrix_row = (pixel_address-64);
-            matrix_column = 15;
-        }
-        else if (pixel_address < 128)
-        {
-            matrix_row = 31 - (pixel_address-96);
-            matrix_column = 16;
-        }
-    }
 
-    return std::pair<UInt_t, UInt_t>(matrix_column, matrix_row);
+//    UInt_t sel = (double_column_address<<1) | (double_column_side);
+//
+//    if(sel == 0)
+//    {
+//        matrix_row = pixel_address;
+//        matrix_column = 1;
+//    }
+//    else if(sel ==1)
+//    {
+//        matrix_row = pixel_address;
+//        matrix_column = 0;
+//    }
+//    else if(sel == 6)
+//    {
+//        matrix_row = pixel_address;
+//        matrix_column = 19;
+//    }
+//    else if(sel == 7)
+//    {
+//        matrix_row = pixel_address;
+//        matrix_column = 18;
+//    }
+//    else if (sel==2)
+//    {
+//        if (pixel_address <32)
+//        {
+//            matrix_row = pixel_address;
+//            matrix_column = 3;
+//        }
+//        else if (pixel_address < 64)
+//        {
+//            matrix_row = 31 - (pixel_address-32);
+//            matrix_column = 4;
+//        }
+//        else if (pixel_address < 96)
+//        {
+//            matrix_row = (pixel_address-64);
+//            matrix_column = 7;
+//        }
+//        else if (pixel_address < 128)
+//        {
+//            matrix_row = 31 - (pixel_address-96);
+//            matrix_column = 8;
+//        }
+//    }
+//    else if (sel==3)
+//    {
+//        if (pixel_address <32)
+//        {
+//            matrix_row = pixel_address;
+//            matrix_column = 2;
+//        }
+//        else if (pixel_address < 64)
+//        {
+//            matrix_row = 31 - (pixel_address-32);
+//            matrix_column = 5;
+//        }
+//        else if (pixel_address < 96)
+//        {
+//            matrix_row = (pixel_address-64);
+//            matrix_column = 6;
+//        }
+//        else if (pixel_address < 128)
+//        {
+//            matrix_row = 31 - (pixel_address-96);
+//            matrix_column = 9;
+//        }
+//    }
+//    else if (sel==4)
+//    {
+//        if (pixel_address < 32)
+//        {
+//            matrix_row = pixel_address;
+//            matrix_column = 10;
+//        }
+//        else if (pixel_address < 64)
+//        {
+//            matrix_row = 31 - (pixel_address-32);
+//            matrix_column = 13;
+//        }
+//        else if (pixel_address < 96)
+//        {
+//            matrix_row = (pixel_address-64);
+//            matrix_column = 14;
+//        }
+//        else if (pixel_address < 128)
+//        {
+//            matrix_row = 31 - (pixel_address-96);
+//            matrix_column = 17;
+//        }
+//    }
+//    else if (sel==5)
+//    {
+//        if (pixel_address < 32)
+//        {
+//            matrix_row = pixel_address;
+//            matrix_column = 11;
+//        }
+//        else if (pixel_address < 64)
+//        {
+//            matrix_row = 31 - (pixel_address-32);
+//            matrix_column = 12;
+//        }
+//        else if (pixel_address < 96)
+//        {
+//            matrix_row = (pixel_address-64);
+//            matrix_column = 15;
+//        }
+//        else if (pixel_address < 128)
+//        {
+//            matrix_row = 31 - (pixel_address-96);
+//            matrix_column = 16;
+//        }
+//    }
+
+//    return std::pair<UInt_t, UInt_t>(matrix_column, matrix_row);
+}
+
+std::pair<UInt_t, UInt_t> PndTopix4::PixelAddressToMatrixAddress(ToPix4::pixelAddress address)
+{
+	UInt_t matrix_row = 0;
+	UInt_t matrix_col = 0;
+
+	if (address.fCol == 0 || address.fCol == 3){
+		matrix_row = address.fRow;
+		matrix_col = address.fCol * 6 + !(address.fSide);
+	}
+
+	else {
+		matrix_col = (address.fRow / 32) * 2 + 2 + ((address.fCol - 1) * 8);
+		if ( (address.fRow/32) % 2 == 0 ){
+			matrix_row = address.fRow % 32;
+			matrix_col += !(address.fSide);
+		}
+		else {
+			matrix_row = 31 - address.fRow % 32;
+			matrix_col += address.fSide;
+		}
+	}
+	//std::cout << address.fRow << "/" << address.fCol << "/" << address.fSide << " --> " << matrix_row << "/" << matrix_col << std::endl;
+	return std::pair<UInt_t, UInt_t>(matrix_col, matrix_row);
+}
+
+std::pair<UInt_t, UInt_t> PndTopix4::PixelAddressToMatrixAddress(UInt_t row, UInt_t col, Bool_t side){
+	ToPix4::pixelAddress address(row, col, side);
+	return PixelAddressToMatrixAddress(address);
+}
+
+ToPix4::pixelAddress PndTopix4::MatrixAddressToPixelAddress(std::pair<UInt_t, UInt_t> matrixAddress)
+{
+	UInt_t matrix_col = matrixAddress.first;
+	UInt_t matrix_row = matrixAddress.second;
+
+	ToPix4::pixelAddress address;
+	if (matrix_col < 2 || matrix_col > 17){
+		address.fSide = !(matrix_col%2);
+		address.fCol = matrix_col/2;
+		address.fRow = matrix_row;
+	} else {
+		address.fCol = (matrix_col - 2) / 8 + 1;
+		if ( ((matrix_col - 2) / 2) % 2 == 0) {
+			address.fRow = (matrix_col - 2) / 2 * 32 + matrix_row;
+			address.fSide = !((matrix_col - 2) % 2);
+		} else {
+			address.fRow = ((((matrix_col - 2) % 8) / 2) + 1) * 32 - (matrix_row + 1);
+			address.fSide = ((matrix_col - 2) % 2);
+		}
+	}
+
+	//std::cout << matrix_row << "/" << matrix_col << "-->" << address.fRow << "/" << address.fCol << "/" << address.fSide << std::endl;
+
+	return address;
 }
 
 ULong64_t PndTopix4::ConvertToPix4HammingToStandardHamming(ULong64_t topixhamming)

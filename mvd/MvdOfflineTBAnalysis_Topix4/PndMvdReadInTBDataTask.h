@@ -5,8 +5,7 @@
 #include "PndGeoHandling.h"
 #include "PndMvdReadInToPix4TBData.h"
 
-#include "TString.h"
-
+#include <string>
 #include <fstream>
 #include <vector>
 
@@ -28,7 +27,7 @@ public:
     void SetFrequency(Double_t val) {fClockFrequency = val;}
     void SetNumberOfFrontEnds(Int_t numberfe);
 
-    virtual void AddFile(Int_t asic,TString fileName){
+    virtual void AddFile(Int_t asic,std::string fileName){
       std::cout << "File Added to asic " << asic-1 << " fileName " << fileName << std::endl;
       if (fFileNames.size() < asic){
     	  fFileNames.resize(asic);
@@ -36,8 +35,12 @@ public:
       fFileNames[asic-1].push_back(fileName);
     };
 
+protected:
+    void WriteoutToPix4Digi(PndSdsDigiTopix4& data);
+    void WriteoutToPix4Frames(std::vector<std::vector<PndSdsDigiTopix4> > &frames);
+
 private:
-    std::vector<std::vector<TString> > fFileNames;
+    std::vector<std::vector<std::string> > fFileNames;
 
     //std::vector<TString> fFileNames;
     std::vector<std::ifstream*> fFileHandles;

@@ -35,6 +35,14 @@ namespace ToPix4{
 		UInt_t fLeadingEdge;
 		UInt_t fTrailingEdge;
 	};
+
+	struct pixelAddress{
+		pixelAddress():fRow(0), fCol(0), fSide(0){};
+		pixelAddress(UInt_t row, UInt_t col, Bool_t side):fRow(row), fCol(col), fSide(side){};
+		UInt_t fRow;
+		UInt_t fCol;
+		Bool_t fSide;
+	};
 }
 
 class PndTopix4 {
@@ -50,9 +58,18 @@ public:
 	ToPix4::frameHeader BitAnalyzeHeader(ULong64_t& header);
 	ToPix4::frameTrailer BitAnalyzeTrailer(ULong64_t& trailer);
 
-	std::pair<UInt_t, UInt_t> PixeladdressToMatrixAddress(UInt_t pixelglobaladdress);
+	std::pair<UInt_t, UInt_t> PixelGlobalAddressToMatrixAddress(UInt_t pixelglobaladdress);
+	std::pair<UInt_t, UInt_t> PixelAddressToMatrixAddress(ToPix4::pixelAddress address);
+	std::pair<UInt_t, UInt_t> PixelAddressToMatrixAddress(UInt_t row, UInt_t col, Bool_t side);
 
 
+	ToPix4::pixelAddress MatrixAddressToPixelAddress(std::pair<UInt_t, UInt_t> matrixAddress);
+	ToPix4::pixelAddress MatrixAddressToPixelAddress(UInt_t matrix_col, UInt_t matrix_row){
+		return MatrixAddressToPixelAddress(std::make_pair(matrix_col, matrix_row));
+	};
+
+
+	ClassDef(PndTopix4, 1);
 };
 
 #endif /* MVD_MVDOFFLINETBANALYSIS_TOPIX4_PNDTOPIX4_H_ */

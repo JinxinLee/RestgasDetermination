@@ -9,8 +9,7 @@
 #define PNDMVDREADINTOPIX4TBDATA_H_
 
 #include "Rtypes.h"
-#include "TClonesArray.h"
-#include "TString.h"
+//#include "TString.h"
 
 #include "PndSdsDigiTopix4.h"
 #include "PndSdsDigiTopix4Header.h"
@@ -22,6 +21,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <string>
 
 //#include <unordered_map>
 
@@ -53,7 +53,7 @@ public:
 	PndMvdReadInToPix4TBData();
 	virtual ~PndMvdReadInToPix4TBData();
 
-	void SetFileName(std::vector<TString> fileName){
+	void SetFileName(std::vector<std::string> fileName){
 	  
 	  std::cout << "number of entires " << fileName.size() << std::endl;
 	  for(int i=0; i < fileName.size();i++)
@@ -63,16 +63,16 @@ public:
 	  fFileNames= fileName;
 	}
 
-	void SetFileName(TString fileName){
-		std::vector<TString> names;
+	void SetFileName(std::string fileName){
+		std::vector<std::string> names;
 		names.push_back(fileName);
 		SetFileName(names);
 	}
 
 	void Init();
 
-	Bool_t ReadInData(TClonesArray* sdsDigiContainer, TClonesArray* headerContainer, TClonesArray* allheaderContainer);
-	Bool_t ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData);//<input is fileHandle, output vector of raw data, output is end of file
+	Bool_t ReadInData(std::vector<std::vector<PndSdsDigiTopix4> >& data);
+//	Bool_t ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData);//<input is fileHandle, output vector of raw data, output is end of file
 	virtual Bool_t ReadInDataFromFile(TMrfData_8b*& data);
 	std::vector<ULong64_t> GetRawData(TMrfData_8b* data);
 	std::vector<std::vector<PndSdsDigiTopix4> > AnalyzeData(std::vector<ULong64_t>& rawData, Double_t clockFrequency);
@@ -81,8 +81,8 @@ public:
 	Int_t GetDeltaFrameCount();
 
 
-	virtual void WriteoutToPix4Digi(PndSdsDigiTopix4& data);
-	virtual void WriteoutToPix4Frames(std::vector<std::vector<PndSdsDigiTopix4> > &frames);
+//	virtual void WriteoutToPix4Digi(PndSdsDigiTopix4& data);
+//	virtual void WriteoutToPix4Frames(std::vector<std::vector<PndSdsDigiTopix4> > &frames);
 
 	PndSdsDigiTopix4 ProcessData(ULong64_t& data, ToPix4::frameHeader& header, Double_t& clockFrequency);
 	std::vector<PndSdsDigiTopix4> AnalyzeToPixFrame(Double_t clockFrequency);
@@ -121,13 +121,10 @@ public:
 	void SetVerbose(Int_t val){fVerbose = val;}
 
 private:
-	std::vector<TString> fFileNames;
+	std::vector<std::string> fFileNames;
 	std::ifstream* fFileHandle;
 	Double_t fClockFrequency;
 	Double_t fTimeStampCorrection;
-	TClonesArray* fOutputArray;
-	TClonesArray* fOutputArrayHeader;
-	TClonesArray* fOutputArrayAllHeader;
 
 	std::vector<int> fStatusValues;
 
@@ -172,7 +169,6 @@ private:
 	PndTopix4 fTopix;
 	PndHammingDecoder fHamming;
 
-	TClonesArray* fDigiArray;
 
 };
 

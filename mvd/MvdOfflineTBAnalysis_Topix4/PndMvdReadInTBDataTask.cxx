@@ -92,7 +92,9 @@ void PndMvdReadInTBDataTask::Exec(Option_t* opt)
 		if (fEndOfFile[i] != kTRUE){
 			if (fVerbose > 1)
 				std::cout << std::endl << "Reader: " << i << " running " << std::endl;
-		  fEndOfFile[i] = fReader[i]->ReadInData(fDigiArray, fFrameHeaderArray, fAllFrameHeaderArray);
+			std::vector<std::vector<PndSdsDigiTopix4> > data;
+		  fEndOfFile[i] = fReader[i]->ReadInData(data);
+		  WriteoutToPix4Frames(data);
 		}
 	}
 	Bool_t endOfFiles = kTRUE;
@@ -139,9 +141,23 @@ void PndMvdReadInTBDataTask::SetNumberOfFrontEnds(Int_t numberfrontends)
 {
   for(int i=0; i< numberfrontends; i++)
     {
-      std::vector<TString> vector;
+      std::vector<std::string> vector;
       fFileNames.push_back(vector);
     }
+}
+
+void PndMvdReadInTBDataTask::WriteoutToPix4Digi(PndSdsDigiTopix4& data)
+{
+	new ((*fDigiArray)[fDigiArray->GetEntriesFast()]) PndSdsDigiTopix4(data);
+}
+
+void  PndMvdReadInTBDataTask::WriteoutToPix4Frames(std::vector<std::vector<PndSdsDigiTopix4> > &frames)
+{
+	for (auto it1 : frames){
+		for(auto it2 : it1) {
+			WriteoutToPix4Digi(it2);
+		}
+	}
 }
 
 ClassImp(PndMvdReadInTBDataTask);

@@ -49,12 +49,10 @@ void PndMvdReadInToPix4TBData::Init(){
 //	}
 }
 
-Bool_t PndMvdReadInToPix4TBData::ReadInData(TClonesArray* sdsDigiContainer, TClonesArray* headerContainer, TClonesArray* allheaderContainer){
+Bool_t PndMvdReadInToPix4TBData::ReadInData(std::vector<std::vector<PndSdsDigiTopix4> >& data){
 	ULong_t dataword=0;
 	Bool_t endOfFile = kFALSE;
 
-	fOutputArray = sdsDigiContainer;
-	fOutputArrayHeader = headerContainer;
 //	fOutputArrayAllHeader = allheaderContainer;
 	std::vector<ULong64_t> rawArray;
 	TMrfData_8b* mrfData = 0;
@@ -64,8 +62,7 @@ Bool_t PndMvdReadInToPix4TBData::ReadInData(TClonesArray* sdsDigiContainer, TClo
 		delete(mrfData);
 	}
 //	endOfFile |= ReadInRawData(fFileHandle, rawArray);
-	std::vector<std::vector<PndSdsDigiTopix4> > data = AnalyzeData(rawArray, fClockFrequency);
-	WriteoutToPix4Frames(data);
+	data = AnalyzeData(rawArray, fClockFrequency);
 	return endOfFile;
 }
 
@@ -90,6 +87,7 @@ Bool_t PndMvdReadInToPix4TBData::ReadInDataFromFile(TMrfData_8b*& data)
 					fFileHandle->close();
 					delete (fFileHandle);
 					std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
+					fFileHandle = ifs;
 					fFileCounter++;
 					return endOfFile;
 				} else {
@@ -137,73 +135,73 @@ std::vector<ULong64_t> PndMvdReadInToPix4TBData::GetRawData(TMrfData_8b* data)
 	return rawData;
 }
 
-Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData) {
-	TMrfData_8b* tempdata;
-	//tempdata = new TMrfData_8b;
-	ULong_t dataword = 0;
-	Bool_t endOfFile = kFALSE;
-	//fVerbose = 3;
-	if (fileHandle->good()) {
-		if (fVerbose > 2)
-			LOG(DEBUG) << "PndMvdReadInToPix4TBData::ReadInRawData reading file ";
-
-		try {
-			boost::archive::binary_iarchive iar(*fileHandle); //this line causes an "Invalid Signature Error" at the end of the file but the file is still good
-			iar >> tempdata;
-		} catch (boost::archive::archive_exception& exception) {
-			LOG(WARN) << "PndMvdReadInToPix4TBData::ReadInRawData: Error found in reading file "
-						<< " : " << fileHandle->good() << " " << fileHandle->eof() << " Exception: "
-						<< exception.code << " " << exception.what();
-
-			if (exception.code == 3) {
-				if (fFileCounter < fFileNames.size()) {
-					LOG(INFO) << fFE << " open new file " << fFileNames[fFileCounter];
-					fileHandle->close();
-					delete (fFileHandle);
-					std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
-					fFileCounter++;
-					return endOfFile;
-				} else {
-					LOG(INFO) << fFE << " All files read! Finishing FE ";
-					endOfFile = kTRUE;
-					return endOfFile;
-				}
-			}
-			return kTRUE;
-		}
-		if (fVerbose > 2)
-			LOG(DEBUG) << fFE << " PndMvdReadInToPix4TBData::ReadInRawData: NWords: " << tempdata->getNumWords();
-		for (UInt_t i = 0; i < tempdata->getNumWords(); i += 5) {
-			dataword = 0;
-			for (uint j = 0; j < 5; j++) {
-				dataword = dataword << 8;
-				dataword += tempdata->getWord(i + j);
-			}
-			rawData.push_back(dataword);
-
-			if (fVerbose > 2) {
-				ULong_t frameCount = -1;
-				ULong64_t header = fTopix.GetHeader(dataword);
-				if (header == 1)
-					frameCount = fTopix.GetFrameCount(dataword);
-
-				LOG(DEBUG) << std::dec << "dataword No " << i / 5 << "/"	<< tempdata->getNumWords() / 5 << ": " << std::hex
-						<< dataword << " " << std::dec << header << " : " << frameCount;
-			}
-		}
-		delete(tempdata);
-	} else {
-		LOG(ERROR)<< fFE << " An error occured ";
-		LOG(ERROR) << fFE << " fileHandle->good() " << fileHandle->good();
-		LOG(ERROR) << fFE << " fileHandle->eof()  " << fileHandle->eof();
-		LOG(ERROR) << fFE << " fileHandle->fail() " << fileHandle->fail();
-		LOG(ERROR) << fFE << " fileHandle->bad()  " << fileHandle->bad();
-
-		endOfFile = kFALSE;
-		return endOfFile;
-	}
-	return endOfFile;
-}
+//Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData) {
+//	TMrfData_8b* tempdata;
+//	//tempdata = new TMrfData_8b;
+//	ULong_t dataword = 0;
+//	Bool_t endOfFile = kFALSE;
+//	//fVerbose = 3;
+//	if (fileHandle->good()) {
+//		if (fVerbose > 2)
+//			LOG(DEBUG) << "PndMvdReadInToPix4TBData::ReadInRawData reading file ";
+//
+//		try {
+//			boost::archive::binary_iarchive iar(*fileHandle); //this line causes an "Invalid Signature Error" at the end of the file but the file is still good
+//			iar >> tempdata;
+//		} catch (boost::archive::archive_exception& exception) {
+//			LOG(WARN) << "PndMvdReadInToPix4TBData::ReadInRawData: Error found in reading file "
+//						<< " : " << fileHandle->good() << " " << fileHandle->eof() << " Exception: "
+//						<< exception.code << " " << exception.what();
+//
+//			if (exception.code == 3) {
+//				if (fFileCounter < fFileNames.size()) {
+//					LOG(INFO) << fFE << " open new file " << fFileNames[fFileCounter];
+//					fileHandle->close();
+//					delete (fFileHandle);
+//					std::ifstream* ifs = new std::ifstream(fFileNames[fFileCounter], std::ios::binary);
+//					fFileCounter++;
+//					return endOfFile;
+//				} else {
+//					LOG(INFO) << fFE << " All files read! Finishing FE ";
+//					endOfFile = kTRUE;
+//					return endOfFile;
+//				}
+//			}
+//			return kTRUE;
+//		}
+//		if (fVerbose > 2)
+//			LOG(DEBUG) << fFE << " PndMvdReadInToPix4TBData::ReadInRawData: NWords: " << tempdata->getNumWords();
+//		for (UInt_t i = 0; i < tempdata->getNumWords(); i += 5) {
+//			dataword = 0;
+//			for (uint j = 0; j < 5; j++) {
+//				dataword = dataword << 8;
+//				dataword += tempdata->getWord(i + j);
+//			}
+//			rawData.push_back(dataword);
+//
+//			if (fVerbose > 2) {
+//				ULong_t frameCount = -1;
+//				ULong64_t header = fTopix.GetHeader(dataword);
+//				if (header == 1)
+//					frameCount = fTopix.GetFrameCount(dataword);
+//
+//				LOG(DEBUG) << std::dec << "dataword No " << i / 5 << "/"	<< tempdata->getNumWords() / 5 << ": " << std::hex
+//						<< dataword << " " << std::dec << header << " : " << frameCount;
+//			}
+//		}
+//		delete(tempdata);
+//	} else {
+//		LOG(ERROR)<< fFE << " An error occured ";
+//		LOG(ERROR) << fFE << " fileHandle->good() " << fileHandle->good();
+//		LOG(ERROR) << fFE << " fileHandle->eof()  " << fileHandle->eof();
+//		LOG(ERROR) << fFE << " fileHandle->fail() " << fileHandle->fail();
+//		LOG(ERROR) << fFE << " fileHandle->bad()  " << fileHandle->bad();
+//
+//		endOfFile = kFALSE;
+//		return endOfFile;
+//	}
+//	return endOfFile;
+//}
 
 std::vector<std::vector<PndSdsDigiTopix4> > PndMvdReadInToPix4TBData::AnalyzeData(std::vector<ULong64_t>& rawData,	Double_t clockFrequency) {
 	std::vector<std::vector<PndSdsDigiTopix4> > result;
@@ -440,20 +438,6 @@ Int_t PndMvdReadInToPix4TBData::GetDeltaFrameCount()
 				(fRecentFrameHeader.fFrameCount - fOldFrameCount));
 }
 
-void PndMvdReadInToPix4TBData::WriteoutToPix4Digi(PndSdsDigiTopix4& data)
-{
-	new ((*fOutputArray)[fOutputArray->GetEntriesFast()]) PndSdsDigiTopix4(data);
-}
-
-void  PndMvdReadInToPix4TBData::WriteoutToPix4Frames(std::vector<std::vector<PndSdsDigiTopix4> > &frames)
-{
-	for (auto it1 : frames){
-		for(auto it2 : it1) {
-			WriteoutToPix4Digi(it2);
-		}
-	}
-}
-
 bool PndMvdReadInToPix4TBData::CheckDataIntegrity(std::vector<ULong64_t> topix4Frame)
 {
 	ULong_t hammingcheck = fHamming.CheckHammingCode(fTopix.ConvertToPix4HammingToStandardHamming(topix4Frame[0]), 40); // check hamming of header
@@ -512,7 +496,7 @@ PndSdsDigiTopix4 PndMvdReadInToPix4TBData::ProcessData(ULong64_t& data, ToPix4::
 {
 	if (fVerbose > 1) std::cout  << "PndMvdReadInToPix4TBData::ProcessData raw Data: " << data << std::endl;
 	pixel pixelData = fTopix.BitAnalyzePixelData(data);
-	std::pair<UInt_t, UInt_t> pixelAddress = fTopix.PixeladdressToMatrixAddress(pixelData.fPixelAddress);
+	std::pair<UInt_t, UInt_t> pixelAddress = fTopix.PixelGlobalAddressToMatrixAddress(pixelData.fPixelAddress);
 
 	Int_t frameCountHeader = header.fFrameCount;
 	if (pixelData.fLeadingEdge > pixelData.fTrailingEdge){
