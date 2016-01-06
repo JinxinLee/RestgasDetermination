@@ -47,6 +47,19 @@
                     "rcvBufSize": "1000",
                     "rateLogging": "1"
                 }
+            },
+            "channel":
+            {
+            	"name": "status-out",
+            	"socket":
+            	{
+	            	"type": "pub",
+		            "method": "connect",
+		            "address": "tcp://localhost:5810",
+		            "sndBufSize": "1000",
+		            "rcvBufSize": "1000",
+		            "rateLogging": "0"
+            	}
             }
         },
         
@@ -316,7 +329,7 @@
             	{
 	            	"type": "pub",
 		            "method": "connect",
-		            "address": "tcp://localhost:5564",
+		            "address": "tcp://localhost:5710",
 		            "sndBufSize": "1000",
 		            "rcvBufSize": "1000",
 		            "rateLogging": "0"
@@ -367,6 +380,40 @@
                     "type": "sub",
                     "method": "bind",
                     "address": "tcp://*:5700",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            }
+        },
+        "device":
+        {
+            "id": "monitor2",
+            "channel":
+            {
+                "name": "status-in",
+                "socket":
+                {
+                    "type": "sub",
+                    "method": "bind",
+                    "address": "tcp://*:5710",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            }
+        },
+        "device":
+        {
+            "id": "monitor3",
+            "channel":
+            {
+                "name": "status-in",
+                "socket":
+                {
+                    "type": "sub",
+                    "method": "bind",
+                    "address": "tcp://*:5810",
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
                     "rateLogging": "0"

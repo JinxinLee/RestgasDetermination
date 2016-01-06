@@ -46,6 +46,7 @@ class PndMQTopix4Processor : public FairMQDevice
 	void serialize(Archive& ar, const unsigned int version)
 	{
     	ar& fPndSdsDigiTopix4Vector;
+    	ar& fStatusValues;
 	}
 
   protected:
@@ -55,6 +56,7 @@ class PndMQTopix4Processor : public FairMQDevice
     	friend class boost::serialization::access;
 	#endif // for BOOST serialization
     std::vector<PndSdsDigiTopix4> fPndSdsDigiTopix4Vector;
+    std::vector<int> fStatusValues;
 
     bool fHasBoostSerialization;
     int fFE;

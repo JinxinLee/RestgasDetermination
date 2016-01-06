@@ -32,6 +32,7 @@ PndMQTopix4Processor::PndMQTopix4Processor() : fHasBoostSerialization(false)
 	using namespace baseMQ::tools::resolve;
 	bool checkOutputClass = false;
 
+
 	if (is_same<boost::archive::binary_oarchive, boost::archive::binary_oarchive>::value)
 	{
 		if (has_BoostSerialization<PndSdsDigiTopix4, void(boost::archive::binary_oarchive&, const unsigned int)>::value == 1)
@@ -50,7 +51,8 @@ PndMQTopix4Processor::~PndMQTopix4Processor()
 
 void PndMQTopix4Processor::Run()
 {
-	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
+	int eventCounter = 0;
+	fTopixDataReader.SetFilter(kTRUE);
 	while (CheckCurrentState(RUNNING))
 	{
 		unique_ptr<FairMQMessage> input(fTransportFactory->CreateMessage());
@@ -87,15 +89,32 @@ void PndMQTopix4Processor::Run()
 
 						ostringstream obuffer;
 						boost::archive::binary_oarchive OutputArchive(obuffer);
-						//fPndSdsDigiTopix4Vector = frames.front();
 						OutputArchive << fPndSdsDigiTopix4Vector;
 						int outputSize = obuffer.str().length();
 						unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(outputSize));
 						memcpy(msg->GetData(), obuffer.str().c_str(), outputSize);
-						//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
 						fChannels.at("data-out").at(0).Send(msg);
 		//				LOG(INFO) << "Data: " << frames.front().size() << std::endl;
 					}
+
+					if (eventCounter%10000 == 0){
+						fStatusValues = fTopixDataReader.GetStatusValues();
+						LOG(INFO) << "StatusValues taken: "  << fStatusValues.size();
+
+						unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage(sizeof(int)));
+						memcpy(header->GetData(), &status, sizeof(int));
+						fChannels.at("status-out").at(0).SendPart(header);
+
+						ostringstream obuffer;
+						boost::archive::binary_oarchive OutputArchive(obuffer);
+						OutputArchive << fStatusValues;
+						int outputSize = obuffer.str().length();
+						unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(outputSize));
+						memcpy(msg->GetData(), obuffer.str().c_str(), outputSize);
+						fChannels.at("status-out").at(0).Send(msg);
+					}
+
+					eventCounter++;
 				}
 			} else if (status == PndMQStatus::STOP){
 				LOG(INFO) << "Catched STOP signal!";

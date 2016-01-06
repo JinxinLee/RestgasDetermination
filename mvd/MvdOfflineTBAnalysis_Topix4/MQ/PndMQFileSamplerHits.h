@@ -152,7 +152,8 @@ class PndMQFileSamplerHits : public FairMQDevice
 
 #ifndef __CINT__ // for BOOST serialization
     friend class boost::serialization::access;
-    vector<PndSdsHit> fHitVector;
+//    vector<PndSdsHit> fHitVector;
+    vector<vector<PndSdsHit> > fHitVector;
     bool fHasBoostSerialization;
 #endif // for BOOST serialization
 

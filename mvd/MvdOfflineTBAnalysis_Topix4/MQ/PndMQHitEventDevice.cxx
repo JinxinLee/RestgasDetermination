@@ -30,7 +30,7 @@
 
 using namespace std;
 
-PndMQHitEventDevice::PndMQHitEventDevice() : fHasBoostSerialization(false), fGlobalRunningStatus(true)
+PndMQHitEventDevice::PndMQHitEventDevice() : fHasBoostSerialization(false), fGlobalRunningStatus(true), fBuilder(0)
 {
 	using namespace baseMQ::tools::resolve;
 	bool checkOutputClass = false;
@@ -48,6 +48,7 @@ PndMQHitEventDevice::PndMQHitEventDevice() : fHasBoostSerialization(false), fGlo
 
 PndMQHitEventDevice::~PndMQHitEventDevice()
 {
+	delete(fBuilder);
 }
 
 
@@ -60,6 +61,7 @@ void PndMQHitEventDevice::Run()
 	const FairMQChannel& statusChannel  = fChannels.at("status-out").at(0);
 	FairMQChannel* dataInChannels[fChannels.at("data-in").size()];
 	LOG(INFO) << "Number of Input Channels: " << numInputs;
+	fBuilder = new PndMQHitsEventBuilder(numInputs);
 	for (int i = 0; i < numInputs; ++i)
 	{
 		dataInChannels[i] = &(fChannels.at("data-in").at(i));
@@ -81,7 +83,7 @@ void PndMQHitEventDevice::Run()
 		if ( fGlobalRunningStatus == true){
 			for (int channelNr = 0; channelNr < numInputs; channelNr++){
 	//        	LOG(INFO) << "---- Reading channel " << channelNr << " ----";
-				if (fillLevel[channelNr] == 0){
+				if (fillLevel[channelNr] == 0 && fRunningStatus[channelNr] == true){
 
 					std::unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage());
 					std::unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage());
@@ -93,7 +95,6 @@ void PndMQHitEventDevice::Run()
 							fRunningStatus[channelNr] = true;
 						else if (status == PndMQStatus::STOP){
 							fRunningStatus[channelNr] = false;
-							fGlobalRunningStatus = false;
 							LOG(INFO) << "STOP-Status received for channel: " << channelNr;
 						}
 						if (dataInChannels[channelNr]->ExpectsAnotherPart())
@@ -112,22 +113,28 @@ void PndMQHitEventDevice::Run()
 								{
 									LOG(ERROR) << e.what();
 								}
-								fDataFromChannels[channelNr].push_back(fHitData);
+								//fDataFromChannels[channelNr].push_back(fHitData);
+								fDataFromChannels[channelNr].insert(fDataFromChannels[channelNr].end(), fHitData.begin(), fHitData.end());
 								//LOG(INFO) << "Data in channel " << fDataFromChannels[channelNr].size();
 								fHitData.clear();
 							}
 						}
 					}
+					if (fillLevel[channelNr] == 0 && fRunningStatus[channelNr] == false)
+					{
+						fGlobalRunningStatus = false;
+						LOG(INFO) << "GlobarRunningStatus set to false for channel " << channelNr;
+					}
 				}
 			}
-			fBuilder.AddData(fDataFromChannels);
-			fEventData = fBuilder.GetEvents();
+			fBuilder->AddData(fDataFromChannels);
+			fEventData = fBuilder->GetEvents();
 
-			if (eventCounter++ % 1000 == 0){
+			if (eventCounter++ % 100 == 0){
 				LOG(INFO) << eventCounter << " nEvents: " << fEventData.size() << " hits in Event " << fEventData.front().size()
 						<< " timeStamp: " << TString::Format("%12.0f",fEventData.front().front().GetTimeStamp()).Data()
 						<< " sensorID " << fEventData.front().front().GetSensorID();
-				fSensorsInEvent = fBuilder.GetSensorsInEvent();
+				fSensorsInEvent = fBuilder->GetSensorsInEvent();
 				LOG(INFO) << "ChannelsInEvent: ";
 				for (auto data : fSensorsInEvent)
 					LOG(INFO) << data;
@@ -164,7 +171,7 @@ void PndMQHitEventDevice::Run()
 			//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
 			dataOutChannel.Send(msg2);
 
-			fillLevel = fBuilder.GetInputDataLevel();
+			fillLevel = fBuilder->GetInputDataLevel();
 	//		LOG(INFO) << "EventData.size() " << eventData.size();
 	//		for (auto eventIter : eventData){
 	//			LOG(INFO) << "Event";

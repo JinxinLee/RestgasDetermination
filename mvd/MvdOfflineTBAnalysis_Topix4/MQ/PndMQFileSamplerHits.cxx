@@ -27,34 +27,64 @@ void PndMQFileSamplerHits::Run()
         	if (firstRun == true){
         		LOG(INFO) << "Number of events: " << nEvents;
 				for (int eventNr = 0; eventNr < nEvents; eventNr++){
+					std::vector<PndSdsHit> tempVector;
 					fTree->GetEntry(eventNr);
 					for (int i = 0; i < fInput->GetEntriesFast(); i++){
 						PndSdsHit* hit = static_cast<PndSdsHit*>(fInput->At(i));
 						if (!hit)
 							continue;
-						fHitVector.push_back(*hit);
+						tempVector.push_back(*hit);
 					}
 
-					unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage(sizeof(int)));
-					int status = PndMQStatus::RUNNING;
-					memcpy(header->GetData(), &status, sizeof(int));
-					dataOutChannel.SendPart(header);
+					fHitVector.push_back(tempVector);
 
-					std::ostringstream obuffer;
-					boost::archive::binary_oarchive OutputArchive(obuffer);
-					OutputArchive << fHitVector;
-					int outputSize = obuffer.str().length();
-					unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
-					memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
-					dataOutChannel.Send(msg2);
+					if (eventNr % 1000 == 0){
+
+						unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage(sizeof(int)));
+						int status = PndMQStatus::RUNNING;
+						memcpy(header->GetData(), &status, sizeof(int));
+						dataOutChannel.SendPart(header);
+
+						std::ostringstream obuffer;
+						boost::archive::binary_oarchive OutputArchive(obuffer);
+						OutputArchive << fHitVector;
+						int outputSize = obuffer.str().length();
+						unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
+						memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
+						dataOutChannel.Send(msg2);
 
 
-					if (fHitVector.size() > 0)
-						fHitVector.clear();
+						if (fHitVector.size() > 0)
+							fHitVector.clear();
 
-					if (!CheckCurrentState(RUNNING))
-					{
-						break;
+						if (!CheckCurrentState(RUNNING))
+						{
+							break;
+						}
+					}
+
+					if (eventNr + 1 == nEvents){
+						unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage(sizeof(int)));
+						int status = PndMQStatus::RUNNING;
+						memcpy(header->GetData(), &status, sizeof(int));
+						dataOutChannel.SendPart(header);
+
+						std::ostringstream obuffer;
+						boost::archive::binary_oarchive OutputArchive(obuffer);
+						OutputArchive << fHitVector;
+						int outputSize = obuffer.str().length();
+						unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
+						memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
+						dataOutChannel.Send(msg2);
+
+
+						if (fHitVector.size() > 0)
+							fHitVector.clear();
+
+						if (!CheckCurrentState(RUNNING))
+						{
+							break;
+						}
 					}
 
 				}

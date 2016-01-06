@@ -51,7 +51,8 @@ class PndMQHitEventDevice : public FairMQDevice
 	#ifndef __CINT__ // for BOOST serialization
     	friend class boost::serialization::access;
 	#endif // for BOOST serialization
-    std::vector<PndSdsHit> fHitData;
+    std::vector< std::vector<PndSdsHit> > fHitData;
+   // std::vector<PndSdsHit> fHitData;
     std::vector<std::vector<PndSdsHit> > fEventData;
     std::vector<std::vector<std::vector<PndSdsHit> > > fDataFromChannels;
     std::vector<bool> fRunningStatus;
@@ -59,7 +60,7 @@ class PndMQHitEventDevice : public FairMQDevice
     std::vector<int> fSensorsInEvent;
 
     bool fHasBoostSerialization;
-    PndMQHitsEventBuilder fBuilder;
+    PndMQHitsEventBuilder* fBuilder;
 };
 
 #endif /* FAIRMQEXAMPLE1SINK_H_ */
