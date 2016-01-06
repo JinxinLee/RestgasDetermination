@@ -18,7 +18,7 @@
 
 using namespace ToPix4;
 
-PndMvdReadInToPix4TBData::PndMvdReadInToPix4TBData() : fDigiArray(0), fClockFrequency(0), fSuperFrameCount(0),
+PndMvdReadInToPix4TBData::PndMvdReadInToPix4TBData() : fClockFrequency(0), fSuperFrameCount(0),
 					   fOldFrameCount(0), fOldAllHeaderCount(0), fFirstHeader(kTRUE), fFE(-1),
 					   fNonSequentialFC(0), fHammingLossFrameCount(0), fCRCLossFrameCount(0),
 					   fTotalHitCount(0),fPreFrameLossHitCount(0), fHammingLossHitCount(0), fCRCLossHitCount(0), fCorrectHitCount(0),
