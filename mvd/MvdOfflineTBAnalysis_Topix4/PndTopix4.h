@@ -9,6 +9,7 @@
 #define MVD_MVDOFFLINETBANALYSIS_TOPIX4_PNDTOPIX4_H_
 
 #include "Rtypes.h"
+#include "mrfdata_8b.h"
 
 namespace ToPix4{
 	struct frameHeader{
@@ -57,6 +58,8 @@ public:
 	ToPix4::pixel BitAnalyzePixelData(ULong64_t& data);
 	ToPix4::frameHeader BitAnalyzeHeader(ULong64_t& header);
 	ToPix4::frameTrailer BitAnalyzeTrailer(ULong64_t& trailer);
+
+	std::vector<ULong64_t> GetRawData(TMrfData_8b* data);
 
 	std::pair<UInt_t, UInt_t> PixelGlobalAddressToMatrixAddress(UInt_t pixelglobaladdress);
 	std::pair<UInt_t, UInt_t> PixelAddressToMatrixAddress(ToPix4::pixelAddress address);

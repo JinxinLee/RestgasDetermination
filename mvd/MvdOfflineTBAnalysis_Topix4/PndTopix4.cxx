@@ -6,7 +6,7 @@
  */
 
 #include <MvdOfflineTBAnalysis_Topix4/PndTopix4.h>
-#include "mrfdata_8b.h"
+
 #include "mrftools.h"
 
 using namespace ToPix4;
@@ -20,6 +20,30 @@ PndTopix4::PndTopix4() {
 
 PndTopix4::~PndTopix4() {
 	// TODO Auto-generated destructor stub
+}
+
+std::vector<ULong64_t> PndTopix4::GetRawData(TMrfData_8b* data)
+{
+	std::vector<ULong64_t> rawData;
+	for (UInt_t i = 0; i < data->getNumWords(); i += 5) {
+		ULong_t dataword = 0;
+		for (uint j = 0; j < 5; j++) {
+			dataword = dataword << 8;
+			dataword += data->getWord(i + j);
+		}
+		rawData.push_back(dataword);
+
+//		if (fVerbose > 2) {
+			ULong_t frameCount = -1;
+			ULong64_t header = GetHeader(dataword);
+			if (header == 1)
+				frameCount = GetFrameCount(dataword);
+
+			LOG(INFO) << std::dec << "dataword No " << i / 5 << "/"	<< data->getNumWords() / 5 << ": " << std::hex
+					<< dataword << " ";
+//		}
+	}
+	return rawData;
 }
 
 int PndTopix4::GetHeader(ULong64_t data){
