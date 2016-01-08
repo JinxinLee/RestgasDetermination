@@ -39,7 +39,7 @@ PndDpmGenerator.cxx
 PndFtfGenerator.cxx
 PndEvtGenGenerator.cxx
 PndDpmDirect.cxx
-PndFtfDirect.cxx
+#PndFtfDirect.cxx
 PndBoxGenerator.cxx
 PndUrqmdSmmGenerator.cxx
 PndJRGenerator.cxx
@@ -64,6 +64,16 @@ eventFilter/PndEvtFilterOnInvMassCounts.cxx
 set(LINKDEF  PGenLinkDef.h)
 set(LIBRARY_NAME PGen)
 
-set(DEPENDENCIES Base DpmEvtGen FtfEvtGen pythia8)
+set(DEPENDENCIES Base DpmEvtGen pythia8)
 
 GENERATE_LIBRARY()
+
+
+
+################ FTF DIRECT ################### 
+	 	set(SRCS PndFtfDirect.cxx) 
+	 	set(LINKDEF  FtfLinkDef.h) 
+	 	set(LIBRARY_NAME FtfGenDirect) 
+	 	set(DEPENDENCIES G4clhep G4global G4geometry G4physicslists G4materials EG FtfEvtGen) 
+	 	#Set(DEFINITIONS G4GLOB_ALLOC_EXPORT=1) # Is it really needed?? 
+	 	GENERATE_LIBRARY() 
