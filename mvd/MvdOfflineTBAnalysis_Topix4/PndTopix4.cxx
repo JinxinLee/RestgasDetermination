@@ -35,7 +35,7 @@ std::vector<ULong64_t> PndTopix4::GetRawData(TMrfData_8b* data)
 
 //		if (fVerbose > 2) {
 			ULong_t frameCount = -1;
-			ULong64_t header = GetHeader(dataword);
+			ULong64_t header = GetType(dataword);
 			if (header == 1)
 				frameCount = GetFrameCount(dataword);
 
@@ -46,7 +46,7 @@ std::vector<ULong64_t> PndTopix4::GetRawData(TMrfData_8b* data)
 	return rawData;
 }
 
-int PndTopix4::GetHeader(ULong64_t data){
+int PndTopix4::GetType(ULong64_t data){
 	ULong_t header = data & 0xC000000000;
 	header = header >> 38;
 	return (int)header;

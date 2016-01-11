@@ -220,7 +220,7 @@ std::vector<std::vector<PndSdsDigiTopix4> > PndMvdReadInToPix4TBData::AnalyzeDat
 
 bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 {
-	int header = fTopix.GetHeader(rawData);
+	int header = fTopix.GetType(rawData);
 	if (fFirstHeader) {	// if data stream does not start with a header all data is thrown away until a header is present
 		if (header == 1) {
 			fFirstHeader = kFALSE;
@@ -335,7 +335,7 @@ std::vector<PndSdsDigiTopix4> PndMvdReadInToPix4TBData::AnalyzeToPixFrame(Double
 	}
 
 	for (int i = 0; i < fToPixFrame.size(); i++) {
-		ULong64_t header = fTopix.GetHeader(fToPixFrame[i]);
+		ULong64_t header = fTopix.GetType(fToPixFrame[i]);
 
 		switch (header) {
 		case 1: {

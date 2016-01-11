@@ -53,7 +53,7 @@ public:
 
 	ULong64_t ConvertToPix4HammingToStandardHamming(ULong64_t topixhamming);
 
-	int GetHeader(ULong64_t data);
+	int GetType(ULong64_t data);
 	int GetFrameCount(ULong64_t data);
 	ToPix4::pixel BitAnalyzePixelData(ULong64_t& data);
 	ToPix4::frameHeader BitAnalyzeHeader(ULong64_t& header);
