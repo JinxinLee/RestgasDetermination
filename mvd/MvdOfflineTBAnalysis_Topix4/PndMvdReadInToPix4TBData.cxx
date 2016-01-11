@@ -58,7 +58,7 @@ Bool_t PndMvdReadInToPix4TBData::ReadInData(std::vector<std::vector<PndSdsDigiTo
 	TMrfData_8b* mrfData = 0;
 	endOfFile |= ReadInDataFromFile(mrfData);
 	if (mrfData != 0){
-		rawArray = GetRawData(mrfData);
+		rawArray = fTopix.GetRawData(mrfData);
 		delete(mrfData);
 	}
 //	endOfFile |= ReadInRawData(fFileHandle, rawArray);
@@ -111,29 +111,29 @@ Bool_t PndMvdReadInToPix4TBData::ReadInDataFromFile(TMrfData_8b*& data)
 	return endOfFile;
 }
 
-std::vector<ULong64_t> PndMvdReadInToPix4TBData::GetRawData(TMrfData_8b* data)
-{
-	std::vector<ULong64_t> rawData;
-	for (UInt_t i = 0; i < data->getNumWords(); i += 5) {
-		ULong_t dataword = 0;
-		for (uint j = 0; j < 5; j++) {
-			dataword = dataword << 8;
-			dataword += data->getWord(i + j);
-		}
-		rawData.push_back(dataword);
-
-		if (fVerbose > 2) {
-			ULong_t frameCount = -1;
-			ULong64_t header = fTopix.GetHeader(dataword);
-			if (header == 1)
-				frameCount = fTopix.GetFrameCount(dataword);
-
-			LOG(INFO) << std::dec << "dataword No " << i / 5 << "/"	<< data->getNumWords() / 5 << ": " << std::hex
-					<< dataword << " ";
-		}
-	}
-	return rawData;
-}
+//std::vector<ULong64_t> PndMvdReadInToPix4TBData::GetRawData(TMrfData_8b* data)
+//{
+//	std::vector<ULong64_t> rawData;
+//	for (UInt_t i = 0; i < data->getNumWords(); i += 5) {
+//		ULong_t dataword = 0;
+//		for (uint j = 0; j < 5; j++) {
+//			dataword = dataword << 8;
+//			dataword += data->getWord(i + j);
+//		}
+//		rawData.push_back(dataword);
+//
+//		if (fVerbose > 2) {
+//			ULong_t frameCount = -1;
+//			ULong64_t header = fTopix.GetHeader(dataword);
+//			if (header == 1)
+//				frameCount = fTopix.GetFrameCount(dataword);
+//
+//			LOG(INFO) << std::dec << "dataword No " << i / 5 << "/"	<< data->getNumWords() / 5 << ": " << std::hex
+//					<< dataword << " ";
+//		}
+//	}
+//	return rawData;
+//}
 
 //Bool_t PndMvdReadInToPix4TBData::ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData) {
 //	TMrfData_8b* tempdata;
@@ -496,7 +496,7 @@ PndSdsDigiTopix4 PndMvdReadInToPix4TBData::ProcessData(ULong64_t& data, ToPix4::
 {
 	if (fVerbose > 1) std::cout  << "PndMvdReadInToPix4TBData::ProcessData raw Data: " << data << std::endl;
 	pixel pixelData = fTopix.BitAnalyzePixelData(data);
-	std::pair<UInt_t, UInt_t> pixelAddress = fTopix.PixelGlobalAddressToMatrixAddress(pixelData.fPixelAddress);
+	std::pair<UInt_t, UInt_t> pixelAddress = fTopix.PixelNumberToMatrixAddress(pixelData.fPixelNumber);
 
 	Int_t frameCountHeader = header.fFrameCount;
 	if (pixelData.fLeadingEdge > pixelData.fTrailingEdge){

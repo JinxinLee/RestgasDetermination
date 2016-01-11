@@ -30,9 +30,9 @@ namespace ToPix4{
 	};
 
 	struct pixel{
-		pixel():fPixelAddress(0), fLeadingEdge(0), fTrailingEdge(0){};
+		pixel():fPixelNumber(0), fLeadingEdge(0), fTrailingEdge(0){};
 
-		UInt_t fPixelAddress;
+		UInt_t fPixelNumber;
 		UInt_t fLeadingEdge;
 		UInt_t fTrailingEdge;
 	};
@@ -61,7 +61,9 @@ public:
 
 	std::vector<ULong64_t> GetRawData(TMrfData_8b* data);
 
-	std::pair<UInt_t, UInt_t> PixelGlobalAddressToMatrixAddress(UInt_t pixelglobaladdress);
+	ToPix4::pixelAddress PixelNumberToPixelAddress(UInt_t pixelnumber);
+
+	std::pair<UInt_t, UInt_t> PixelNumberToMatrixAddress(UInt_t pixelnumber);
 	std::pair<UInt_t, UInt_t> PixelAddressToMatrixAddress(ToPix4::pixelAddress address);
 	std::pair<UInt_t, UInt_t> PixelAddressToMatrixAddress(UInt_t row, UInt_t col, Bool_t side);
 
@@ -72,7 +74,7 @@ public:
 	};
 
 
-	ClassDef(PndTopix4, 1);
+//	ClassDef(PndTopix4, 1);
 };
 
 #endif /* MVD_MVDOFFLINETBANALYSIS_TOPIX4_PNDTOPIX4_H_ */

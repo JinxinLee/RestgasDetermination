@@ -74,7 +74,7 @@ public:
 	Bool_t ReadInData(std::vector<std::vector<PndSdsDigiTopix4> >& data);
 //	Bool_t ReadInRawData(std::ifstream* fileHandle, std::vector<ULong64_t>& rawData);//<input is fileHandle, output vector of raw data, output is end of file
 	virtual Bool_t ReadInDataFromFile(TMrfData_8b*& data);
-	std::vector<ULong64_t> GetRawData(TMrfData_8b* data);
+//	std::vector<ULong64_t> GetRawData(TMrfData_8b* data);
 	std::vector<std::vector<PndSdsDigiTopix4> > AnalyzeData(std::vector<ULong64_t>& rawData, Double_t clockFrequency);
 	bool BuildFrame(ULong64_t& rawData);
 

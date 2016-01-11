@@ -11,7 +11,7 @@
 
 using namespace ToPix4;
 
-ClassImp(PndTopix4)
+//ClassImp(PndTopix4)
 
 PndTopix4::PndTopix4() {
 	// TODO Auto-generated constructor stub
@@ -39,8 +39,8 @@ std::vector<ULong64_t> PndTopix4::GetRawData(TMrfData_8b* data)
 			if (header == 1)
 				frameCount = GetFrameCount(dataword);
 
-			LOG(INFO) << std::dec << "dataword No " << i / 5 << "/"	<< data->getNumWords() / 5 << ": " << std::hex
-					<< dataword << " ";
+//			LOG(INFO) << std::dec << "dataword No " << i / 5 << "/"	<< data->getNumWords() / 5 << ": " << std::hex
+//					<< dataword << " ";
 //		}
 	}
 	return rawData;
@@ -102,31 +102,37 @@ ToPix4::pixel PndTopix4::BitAnalyzePixelData(ULong64_t& data)
 	tempPixel.fLeadingEdge = mrftools::grayToBin(temp & 0X0000000000000FFF);
 
 	temp = temp >> 12;
-	tempPixel.fPixelAddress = temp & 0X00000000000003FFF;
+	tempPixel.fPixelNumber = temp & 0X00000000000003FFF;
 
 //	if (fVerbose > 1) std::cout << "BitAnalyzePixelData: " << std::hex << data << " pixel " << std::dec << tempPixel.fPixelAddress << " " << tempPixel.fLeadingEdge << " " << tempPixel.fTrailingEdge << std::endl;
 
 	return tempPixel;
-
 }
 
-std::pair<UInt_t, UInt_t> PndTopix4::PixelGlobalAddressToMatrixAddress(UInt_t pixelglobaladdress)
+ToPix4::pixelAddress PndTopix4::PixelNumberToPixelAddress(UInt_t pixelnumber)
+{
+	ToPix4::pixelAddress address;
+
+	UInt_t temp = pixelnumber;
+
+	address.fRow= temp & 0x7f; //todo check if this conversion is correct!
+	temp = temp >> 7;
+	address.fSide= temp & 0x1;
+	temp = temp >> 1;
+	address.fCol = temp & 0x3f;
+//	temp = temp >> 6;
+
+	return address;
+}
+
+std::pair<UInt_t, UInt_t> PndTopix4::PixelNumberToMatrixAddress(UInt_t pixelnumber)
 {
     // Matrix: 32 columns x 20 rows
 
 	ToPix4::pixelAddress address;
 
-
+	address = PixelNumberToPixelAddress(pixelnumber);
 //    UInt_t matrix_column, matrix_row;
-
-    UInt_t temp = pixelglobaladdress;
-
-    address.fRow= temp & 0x7f; //todo check if this conversion is correct!
-    temp = temp >> 7;
-    address.fSide= temp & 0x1;
-    temp = temp >> 1;
-    address.fCol = temp & 0x3f;
-    temp = temp >> 6;
 
     return PixelAddressToMatrixAddress(address);
 
