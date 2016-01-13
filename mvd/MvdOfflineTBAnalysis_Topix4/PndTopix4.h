@@ -39,7 +39,11 @@ namespace ToPix4{
 
 	struct pixelAddress{
 		pixelAddress():fRow(0), fCol(0), fSide(0){};
-		pixelAddress(UInt_t row, UInt_t col, Bool_t side):fRow(row), fCol(col), fSide(side){};
+		pixelAddress(UInt_t row, UInt_t dcol, Bool_t side):fRow(row), fCol(dcol), fSide(side){}; //row 0-31 or 0-127; dcol 0-3; side 0-1
+		pixelAddress(UInt_t row, UInt_t col):fRow(row){											 //row 0-31 or 0-127; col 0-7 (needed to translate pixel configuration data into matrix
+			fCol = col / 2;
+			fSide = !(col % 2);
+		};
 		UInt_t fRow;
 		UInt_t fCol;
 		Bool_t fSide;
@@ -53,7 +57,7 @@ public:
 
 	ULong64_t ConvertToPix4HammingToStandardHamming(ULong64_t topixhamming);
 
-	int GetType(ULong64_t data);
+	int GetType(ULong64_t data);		///< returns if the data word is a header (0b01), trailer (0b10) or data (0b11)
 	int GetFrameCount(ULong64_t data);
 	ToPix4::pixel BitAnalyzePixelData(ULong64_t& data);
 	ToPix4::frameHeader BitAnalyzeHeader(ULong64_t& header);
@@ -63,9 +67,10 @@ public:
 
 	ToPix4::pixelAddress PixelNumberToPixelAddress(UInt_t pixelnumber);
 
-	std::pair<UInt_t, UInt_t> PixelNumberToMatrixAddress(UInt_t pixelnumber);
 	std::pair<UInt_t, UInt_t> PixelAddressToMatrixAddress(ToPix4::pixelAddress address);
 	std::pair<UInt_t, UInt_t> PixelAddressToMatrixAddress(UInt_t row, UInt_t col, Bool_t side);
+
+	std::pair<UInt_t, UInt_t> PixelNumberToMatrixAddress(UInt_t pixelnumber);
 
 
 	ToPix4::pixelAddress MatrixAddressToPixelAddress(std::pair<UInt_t, UInt_t> matrixAddress);
