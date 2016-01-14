@@ -101,7 +101,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 0
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  SciT->SetGeometryFileName("SciTil_201508.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
