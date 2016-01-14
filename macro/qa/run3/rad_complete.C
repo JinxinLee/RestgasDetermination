@@ -79,7 +79,7 @@ rad_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kFALSE);
-  SciT->SetGeometryFileName("barrel-SciTil_18122012.root");
+  SciT->SetGeometryFileName("SciTil_201508.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kFALSE);
