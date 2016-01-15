@@ -107,8 +107,7 @@ tb_sim_scit(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.
   */
   //-------------------------  SCITIL    -----------------
   PndSciT *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_20150801.root");
-  //SciT->SetGeometryFileName("SciTil_latest.root");
+  SciT->SetGeometryFileName("SciTil_201508.root");
   //SciT->SetThreshold(0.0001);
   fRun->AddModule(SciT);
   /*

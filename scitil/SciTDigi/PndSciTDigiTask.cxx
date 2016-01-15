@@ -32,12 +32,14 @@ PndSciTDigiTask::PndSciTDigiTask() :
 	fSortedOutBranchName = "SciTSortedHit";
 
 	fTimeOrderedDigi = kFALSE;
+	fActivateBuffering = kTRUE;
 	fPersistance = kTRUE;
 
 	fGeoH =  NULL;
 
 	fdt = 0.1;  //auto time resolution 0.1 ns
 	fDeadtime = 1000.0; // Tile dead time after a hit in ns
+	fPileupTime = 10.0; // Time of possible Pile up after a Hit in ns
 
 }
 // -------------------------------------------------------------------------
@@ -51,12 +53,14 @@ PndSciTDigiTask::PndSciTDigiTask(Double_t dt, Double_t deadtime) :
 	fSortedOutBranchName = "SciTSortedHit";
 
 	fTimeOrderedDigi = kFALSE;
+	fActivateBuffering = kTRUE;
 	fPersistance = kTRUE;
 
 	fGeoH =  NULL;
 
 	fdt = dt;
 	fDeadtime = deadtime;
+	fPileupTime = 10.0; 
 }
 // -------------------------------------------------------------------------
 
@@ -96,7 +100,7 @@ InitStatus PndSciTDigiTask::Init()
   // fDataBuffer = new PndSciTHitWriteoutBuffer(fOutBranchName, fFolderName", fPersistance);
   fDataBuffer = new PndSciTHitWriteoutBuffer(fOutBranchName, "SciT", fPersistance);
   fDataBuffer = (PndSciTHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
-  fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
+  fDataBuffer->ActivateBuffering(fActivateBuffering);// Buffering always activated to handle the Pile up in Event and Time based Version
 
   std::cout << "-I- PndSciTDigiTask: Intialisation successfull" << std::endl;
   return kSUCCESS;
@@ -256,6 +260,10 @@ void PndSciTDigiTask::Exec(Option_t* opt)
   // Event summary
   if (fVerbose>1) std::cout << "-I- PndSciTDigiTask: " << nPoints << " SciTPoints, "
        << nPoints << " Hits created." << std::endl;
+
+  //---------- Write Out ALL Data in after every Event in EventBased Version only -------
+  
+  if (fTimeOrderedDigi==kFALSE && fActivateBuffering==kTRUE) fDataBuffer->WriteOutAllData();
 
 
 }

@@ -102,8 +102,7 @@ tb_sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom 
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   PndSciT *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_20150801.root");
-  //SciT->SetGeometryFileName("SciTil_latest.root");
+  SciT->SetGeometryFileName("SciTil_201508.root");
   //SciT->SetThreshold(0.0001);
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------

@@ -53,6 +53,9 @@ class PndSciTDigiTask : public FairTask
 
   void SetDeadTime(Double_t deadtime) {fDeadtime = deadtime;};//in ns  default val = 1000
   void SetTimeResolution(Double_t dt) {fdt = dt;}; // in ns  default val = 0.1
+  void SetPileupTime(Double_t pileuptime) {fPileupTime = pileuptime;}; // in ns  default val = 0.1
+  
+  void SetBuffering(Bool_t B) {fActivateBuffering=B;};
   
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;}; 
@@ -78,9 +81,10 @@ class PndSciTDigiTask : public FairTask
   PndGeoSciTPar* fGeoPar;
   PndGeoHandling* fGeoH; //For converting sensor ID (shortID) into the Full volume path
 
-  Double_t fdt,fDeadtime;
+  Double_t fdt,fDeadtime,fPileupTime;
 
   Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
+  Bool_t fActivateBuffering;       // set to kFALSE to deaktivate Buffering and PileUP
   Bool_t fPersistance;
 
   void Register(); 
