@@ -78,6 +78,14 @@ public:
 		return MatrixAddressToPixelAddress(std::make_pair(matrix_col, matrix_row));
 	};
 
+	std::pair<UInt_t, UInt_t> MatrixAddressToPixelAddressConf(UInt_t matrix_col, UInt_t matrix_row){	//converts a matrix address (0-20, 0-31) into a ToPix configuration address col 0-7, row 0-31 / 0-127
+		ToPix4::pixelAddress address = MatrixAddressToPixelAddress(matrix_col, matrix_row);
+		UInt_t col = address.fCol * 2;
+		col += !(address.fSide);
+		UInt_t row = address.fRow;
+		return std::make_pair(col, row);
+	}
+
 
 //	ClassDef(PndTopix4, 1);
 };
