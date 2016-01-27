@@ -2,80 +2,287 @@
 
 void create3StationsGem()
 {
-  // Gem disk geometry parameters
-  //-----------------------------
-  const Int_t     kNofDisks = 3;
+  // Gem disk geometry parameters (R.karabowicz) 
+  //----------------------------------------------------------------------------------------------------------------------------------------------
+  // Done Some Changes By Nazila Divani-Veis ( since  May 2015 ) 
+  //----------------------------------------------------------------------------------------------------------------------------------------------
+  // Try to get close to the CAD Geometry ( After could not use CadConverter ) //Some parameters from DL.
+  //----------------------------------------------------------------------------------------------------------------------------------------------
+  // Units are in [cm]
+  //---------------------------------------------------------------------------------------------------------------------------------------------
 
-//   const Double_t  kDiskInnerRadius[kNofDisks]    = {   5.0,   5.0,   5.0};
-//   const Double_t  kDiskOuterRadius[kNofDisks]    = {  42.0,  66.0,  90.0};
-//   const Double_t  kDiskZPosition  [kNofDisks]    = { 120.0, 150.0, 180.0};
-//   const Double_t  kDiskInnerRadius[kNofDisks]    = {  2.5,  2.5,  2.5};
-//   const Double_t  kDiskOuterRadius[kNofDisks]    = { 45.0, 56.0, 74.0};
-//   const Double_t  kDiskZPosition  [kNofDisks]    = {117.0,153.0,189.0};
-//   const Double_t  kDiskInnerRadius[kNofDisks]    = {  4.5,  4.5,  4.5};//CAD V1312
-//   const Double_t  kDiskOuterRadius[kNofDisks]    = { 37.9, 46.4, 64.4};//CAD V1312
+    const Int_t     kNofDisks = 3;   //number of GEM stations in form of disk
 
-  const Double_t  kDiskInnerRadius[kNofDisks]    = {  4.52,  4.52,  4.52};//Adjusted for XY strips
-  const Double_t  kDiskOuterRadius[kNofDisks]    = { 37.92, 46.4, 64.4};//Adjusted for XY strips
-  const Double_t  kDiskZPosition  [kNofDisks]    = {119.6,143.1,175.6};//CAD V1312
-  const Int_t     kDiskNFoils     [kNofDisks]    = {  2  ,  2  ,  4  };
-  const Double_t  kMiddleROBarHfTh[kNofDisks]    = {  4.3,  4.3,  4.3};
+    const Double_t  kDiskVolInnerRadius[kNofDisks]    = { 4.50,  4.50,  4.50  };   // InnerRadius for 3 Stations in form of disk
+    const Double_t  kDiskVolOuterRadius[kNofDisks]    = { 45.00, 56.00, 74.0  };   // OuterRadius for 3 Stations in form of disk
+    const Double_t  kDiskZPosition  [kNofDisks]    = { 119.40, 155.40, 188.50 };   // ZPosition   for 3 Stations in form of disk           
+ 
 
-  const Double_t kHalfStationThickness = 3.00;
+    const Int_t     kDiskNFoils     [kNofDisks]    = {  2  ,  2  ,  4  };   // For modifying misalignment
+    const Double_t  kMiddleROBarHfTh[kNofDisks]    = {  2.70,  2.70,  2.70 };
+    const Double_t  kHalfStationThickness = 7.4;
 
-  const Int_t    kNofLayers = 39;
-  const TString  kLayerName [kNofLayers] = {"WindowF_kapton","WindowF_aluminium",
-					    "space",
-					    "CathodeF_kapton","CathodeF_aluminium",
-					    "Gem1_Sensor_GEMmixture",
-					    "Gem1F_copper","Gem1_kapton","Gem1B_copper",
-					    "space",
-					    "Gem2F_copper","Gem2_kapton","Gem2B_copper",
-					    "space",
-					    "Gem3F_copper","Gem3_kapton","Gem3B_copper",
-					    "space",
-					    "PadF_copper","Pad_kapton","Pad_copper",
-					    "space",
-					    "Gem4F_copper","Gem4_kapton","Gem4B_copper",
-					    "space",
-					    "Gem5F_copper","Gem5_kapton","Gem5B_copper",
-					    "space",
-					    "Gem6F_copper","Gem6_kapton","Gem6B_copper",
-					    "Gem6_Sensor_GEMmixture",
-					    "CathodeB_aluminium","CathodeB_kapton",
-					    "space",
-					    "WindowB_aluminium","WindowB_kapton"};
-  const Double_t kLayerThick[kNofLayers] = {  0.0007,  0.0001,          //     2 window
-					      1.0010,                   // +1= 3 space
-					      0.0007,  0.0001,          // +2= 5 cathode
-					      1.0020,                   // +1= 6 active space
-					      0.0002,  0.0050,  0.0002, // +3= 9 gemfoil
-					      0.2010,                   // +1=10 space
-					      0.0002,  0.0050,  0.0002, // +3=13 gemfoil
-					      0.2010,                   // +1=14 space
-					      0.0002,  0.0050,  0.0002, // +3=17 gemfoil
-					      0.2010,                   // +1=18 space
-					      0.0012,  0.0050,  0.0012, // +3=21 padplane
-					      0.2010,                   // +1=22 space
-					      0.0002,  0.0050,  0.0002, // +3=25 gemfoil
-					      0.2010,                   // +1=26 space
-					      0.0002,  0.0050,  0.0002, // +3=29 gemfoil
-					      0.2010,                   // +1=30 space
-					      0.0002,  0.0050,  0.0002, // +3=33 gemfoil
-					      1.0020,                   // +1=34 active space
-					      0.0001,  0.0007,          // +2=36 cathode
-					      1.0010,                   // +1=37 space
-					      0.0001,  0.0007};         // +2=39 window
+    const Double_t carbonRingInnerRadius[kNofDisks]    = { 40.0, 51.0, 69.0 };
+    const Double_t carbonRingOuterRadius[kNofDisks]    = { 40.2, 51.2, 69.2 };
+    const Double_t carbonRingHalfThickness = 1.5;
 
+    const Double_t copperRingInnerRadius[kNofDisks]    = { 39.9, 50.9, 68.9 };
+    const Double_t copperRingOuterRadius[kNofDisks]    = { 40.1, 51.1, 69.1 };
+    const Double_t copperRingHalfThickness = 3.75;
 
-// type 0: r,phi  strips
-// type 1: tilted strips
-// type 2: x,y    strips
-// type 3: r_tree,phi strips
-  const Int_t    kSensorStripType [2]    = {  3   ,         2   };  
+    const Double_t AlRingInnerRadius[kNofDisks]    = { 40.1, 51.1, 69.1 };
+    const Double_t AlRingOuterRadius[kNofDisks]    = { 44.7, 55.7, 73.7 };
+    const Double_t AlRingHalfThickness = 3.75;
+
+    const Double_t  SegmentHalfThickness = 0.25; 
+    const Int_t     NofSegments = 24;
+    const Double_t  SegmentDeltaAngle = 360./(Double_t(NofSegments));
+    const Double_t  FirstSegmentAngle = 7.5;
+    const TString   newsegment [NofSegments] = { "seg1" ,"seg2" ,"seg3" ,"seg4" ,"seg5" ,"seg6" ,"seg7" ,"seg8" ,
+                                                 "seg9" ,"seg10","seg11","seg12","seg13","seg14","seg15","seg16",
+                                                 "seg17","seg18","seg19","seg20","seg21","seg22","seg23","seg24"  };
+
+    const Double_t moduleRingInnerRadius[kNofDisks]    = { 40.15, 51.15, 69.15 };
+    const Double_t moduleRingOuterRadius[kNofDisks]    = { 44.65, 55.65, 73.65 };
+    const Double_t moduleRingHalfThickness = 3.75;
+
+    const Double_t  moduleSegmentHalfThickness = 1.30; 
+    const Int_t     NofmoduleSegments = 24;
+    const Double_t  moduleSegmentDeltaAngle = 360./(Double_t(NofmoduleSegments));
+    const Double_t  FirstmoduleSegmentAngle = 0.0 ;
+    const TString   newmodulesegment [NofmoduleSegments] = { "moduleseg1" ,"moduleseg2" ,"moduleseg3" ,"moduleseg4" ,"moduleseg5" ,"moduleseg6" ,"moduleseg7" ,"moduleseg8" ,
+                                                             "moduleseg9" ,"moduleseg10","moduleseg11","moduleseg12","moduleseg13","moduleseg14","moduleseg15","moduleseg16",
+                                                             "moduleseg17","moduleseg18","moduleseg19","moduleseg20","moduleseg21","moduleseg22","moduleseg23","moduleseg24"  };
+
+    const Double_t AlumiRingInnerRadius[kNofDisks]    = { 44.7, 55.7, 73.7 };
+    const Double_t AlumiRingOuterRadius[kNofDisks]    = { 45.0, 56.0, 74.0 };
+    const Double_t AlumiRingHalfThickness = 3.75;
+    
+    const Double_t coverRingInnerRadius[kNofDisks]    = { 39.9, 50.9, 68.9 };
+    const Double_t coverRingOuterRadius[kNofDisks]    = { 45.0, 56.0, 74.0 };
+    const Double_t coverRingHalfThickness = 0.2;
+
+    const Double_t rcopperbarx    = 5.00;   ////// right copper bar for cables
+    const Double_t rcopperbary    = 1.40;
+    const Double_t rcopperbarHalfThickness = 17.0;
+
+    const Double_t lcopperbarx    = 5.00;   ////// left copper bar for cables
+    const Double_t lcopperbary    = 1.00;
+    const Double_t lcopperbarHalfThickness = 16.0;
+ 
+  //------------------------------------------------------------ main layers in shape of Disk----------------------------------------------------------------------
+    const Int_t     kNofLayers = 47;
+    const TString   kLayerName [kNofLayers] = { "window_foil_out_aluminium","WindowF_kapton",               
+    					        "space",                                           // these "spaces" belong to holding structure layers
+                                                "WindowF_aluminium","CathodeF_kapton","CathodeF_aluminium", 
+                                                "space",
+    					        "Gem1_Sensor_GEMmixture",      // sensitive layer
+    					        "space",
+                                                "Gem1F_copper","Gem1_kapton","Gem1B_copper",             
+    					        "space",
+    					        "Gem2F_copper","Gem2_kapton","Gem2B_copper",                                   
+    					        "space",
+    					        "Gem3F_copper","Gem3_kapton","Gem3B_copper",                                   
+    					        "space",
+					        "space",
+    					        "PadF_copper","Pad_kapton","PadB_copper", 
+    					        "space",
+					        "space",
+    					        "Gem4F_copper","Gem4_kapton","Gem4B_copper",             
+    					        "space",
+    					        "Gem5F_copper","Gem5_kapton","Gem5B_copper",                                  
+    					        "space",
+    					        "Gem6F_copper","Gem6_kapton","Gem6B_copper", 
+					        "space",                                 
+    					        "Gem6_Sensor_GEMmixture",    // sensitive layer
+					        "space",
+					        "CathodeB_aluminium","CathodeB_kapton","WindowB_aluminium",                                   
+    					        "space",
+    					        "WindowB_kapton","window_foil_in_aluminium" };               
+    const Double_t kLayerThick[kNofLayers] = {  0.0001,   0.0007,                                                              //  2 = 2  window
+					        1.00,                       // windowF_ring_carbon=holding structure           // +1 = 3  space
+                                                0.0001,   0.0007,   0.0001,                                                    // +3 = 6  window + cathode
+    					        0.80,                       // cathodeF_ring_GlassFiber=holding structure      // +1 = 7  space
+    					        1.0020,                                                                        // +1 = 8  SENSOR
+					        0.0050,                     // gem_ring1_GlassFiber=holding structure          // +1 = 9  space
+                                                0.0005,   0.0050,   0.0005,                                                    // +3 = 12 GEM Foil
+    					        0.0050,                     // gem_ring2_GlassFiber=holding structure          // +1 = 13 space                
+    					        0.0005,   0.0050,   0.0005,                                                    // +3 = 16 GEM Foil
+                                                0.0050,                     // gem_ring3_GlassFiber=holding structure          // +1 = 17 space             
+    					        0.0005,   0.0050,   0.0005,                                                    // +3 = 20 GEM Foil
+                                                0.0050,                     // gem_ring4_GlassFiber=holding structure          // +1 = 21 space
+                                                0.10,                       // padplaneF_support_GlassFiber=holding structure  // +1 = 22 space
+                                                0.001,    0.001,    0.001,                                                     // +3 = 25 PAD plane
+					        0.10,                       // padplaneB_support_GlassFiber=holding structure  // +1 = 26 space
+    					        0.0050,                     // gem_ring5_GlassFiber=holding structure          // +1 = 27 space
+                                                0.0005,   0.0050,   0.0005,                                                    // +3 = 30 GEM Foil
+                                                0.0050,                     // gem_ring6_GlassFiber=holding structure          // +1 = 31 space
+                                                0.0005,   0.0050,   0.0005,                                                    // +3 = 34 GEM Foil
+    					        0.0050,                     // gem_ring7_GlassFiber=holding structure          // +1 = 35 space
+                                                0.0005,   0.0050,   0.0005,                                                    // +3 = 38 GEM Foil
+                                                0.0050,                     // gem_ring8_GlassFiber=holding structure          // +1 = 39 space
+                                                1.0020,                                                                        // +1 = 40 SENSOR
+                                                0.80,                       // cathodeB_ring_GlassFiber=holding structure      // +1 = 41 space
+                                                0.0001,   0.0007,  0.0001,                                                     // +3 = 44 cathode + window
+                                                1.00,                       // windowB_ring_carbon=holding structure           // +1 = 45 space 
+                                                0.0007,   0.0001 };                                                            // +2 = 47 window
+   const Double_t kDiskOuterRadius[kNofLayers][kNofDisks] = {  38.95,  49.95,  67.95,      39.40,  50.40,  68.40,
+							       39.90,  50.90,  68.90,
+							       38.45,  49.45,  67.45,      39.40,  50.40,  68.40,     38.45, 49.45, 67.45,
+							       39.40,  50.40,  68.40,
+							       39.40,  50.40,  68.40,
+							       39.05,  50.40,  68.40,
+							       38.10,  49.45,  67.45,      39.05,  50.40,  68.40,     38.10,  49.45, 67.45,
+							       39.05,  50.40,  68.40,
+							       38.10,  49.45,  67.45,      39.05,  50.40,  68.40,     38.10,  49.45, 67.45,
+							       39.05,  50.40,  68.40,
+							       38.10,  49.45,  67.45,      39.05,  50.40,  68.40,     38.10,  49.45, 67.45,
+							       39.05,  50.40,  68.40,                                                   
+							       45.00,  56.00,  74.00,
+							       44.90,  55.90,  73.90,      44.90,  55.90,  73.90,    44.90,  55.90, 73.90,
+							       45.00,  56.00,  74.00,
+							       39.05,  50.40,  68.40,
+							       38.10,  49.45,  67.45,      39.05,  50.40,  68.40,    38.10,  49.45, 67.45,
+							       39.05,  50.40,  68.40,
+							       38.10,  49.45,  67.45,      39.05,  50.40,  68.40,    38.10,  49.45, 67.45,
+							       39.05,  50.40,  68.40,
+							       38.10,  49.45,  67.45,      39.05,  50.40,  68.40,    38.10,  49.45, 67.45,
+							       39.05,  50.40,  68.40,                                                        
+							       39.40,  50.40,  68.40,
+							       39.40,  50.40,  64.40,
+							       38.45,  49.45,  67.45,      39.40,  50.40,  68.40,    38.45,  49.45, 67.45,
+							       39.40,  50.40,  68.40,
+							       39.40,  50.40,  68.40,      38.95, 49.45, 67.95  };
+   const Double_t kDiskInnerRadius[kNofLayers][kNofDisks] = {  4.50,   4.50,   4.50,       4.50,  4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+     							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+     							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,                                                   
+      							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+     							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+     							       4.50,   4.50,   4.50,
+     							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,                                                        
+     							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,
+     							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50,      4.50,   4.50,   4.50,
+     							       4.50,   4.50,   4.50,
+      							       4.50,   4.50,   4.50,       4.50,  4.50,   4.50  };
+
+  const Double_t  HoleTZ = 0.0;         // (top and down) holes Translation parameters
+  const Double_t  HoleTX = 0.0;
+  const Double_t  HoleTY = 33.50; 
+
+//----------------------- holding structure layers ------------------------------------------------------------------------------------------------
+    const Int_t     NofHLayers = 14;
+    const TString   HLayersName [NofHLayers] = {  "windowF_ring_carbon",             
+   					          "cathodeF_ring_GlassFiber",         
+    					          "gem_ring1_GlassFiber",
+                                                  "gem_ring2_GlassFiber",           
+   					          "gem_ring3_GlassFiber",    
+    					          "gem_ring4_GlassFiber",                 
+    					          "padplaneF_support_GlassFiber",
+                                                  "padplaneB_support_GlassFiber",
+    					          "gem_ring5_GlassFiber",
+                                                  "gem_ring6_GlassFiber",           
+    					          "gem_ring7_GlassFiber",                                  
+   					          "gem_ring8_GlassFiber",                                   
+   					          "cathodeB_ring_GlassFiber",                                 
+    					          "windowB_ring_carbon"  };               
+    const Double_t HLayersThick[NofHLayers] =  {    1.00,                                               
+    					            0.80,                                                       
+    					            0.0050,                                     
+    					            0.0050,                                             
+    					            0.0050,         
+    					            0.0050,                                   
+    					            0.10,     
+    					            0.10,                                   
+    					            0.0050,  
+    					            0.0050,                                   
+    				                    0.0050,           
+    					            0.0050,                                                                      
+    					            0.80,                                                     
+    					            1.00    }; 
+    const Double_t  HZPosition[NofHLayers][kNofDisks] = {  -1.9426,   -1.9426,   -1.9426,  
+                                                           -1.5417,   -1.5417,   -1.5417,
+                                                           -0.1372,   -0.1372,   -0.1372,
+                                                           -0.1262,   -0.1262,   -0.1262,
+                                                           -0.1152,   -0.1152,   -0.1152,
+                                                           -0.1042,   -0.1042,   -0.1042,
+                                                           -0.0517,   -0.0517,   -0.0517,
+                                                            0.0517,    0.0517,    0.0517, 
+                                                            0.1042,    0.1042,    0.1042,
+                                                            0.1152,    0.1152,    0.1152,
+                                                            0.1262,    0.1262,    0.1262,
+                                                            0.1372,    0.1372,    0.1372,
+                                                            1.5417,    1.5417,    1.5417,
+                                                            1.9426,    1.9426,    1.9426  }; 
+   const Double_t HOuterRadius[NofHLayers][kNofDisks] = {  39.90,     50.90,      68.90,
+                                                           39.40,     50.40,      68.40,
+                                                           39.05,     50.05,      68.05,
+                                                           39.05,     50.05,      68.05,
+                                                           39.05,     50.05,      68.05,
+                                                           39.05,     50.05,      68.05,
+                                                           45.00,     56.00,      74.00,
+                                                           45.00,     56.00,      74.00,
+                                                           39.05,     50.05,      68.05,
+                                                           39.05,     50.05,      68.05,
+                                                           39.05,     50.05,      68.05,
+                                                           39.05,     50.05,      68.05,
+                                                           39.40,     50.40,      68.40,
+                                                           39.90,     50.90,      68.90  };
+    const Double_t HInnerRadius[NofHLayers][kNofDisks] = { 39.65,     50.65,      68.65,
+                                                           38.50,     49.50,      67.50,
+                                                           38.05,     49.05,      67.05,
+                                                           38.05,     49.05,      67.05,
+                                                           38.05,     49.05,      67.05,
+                                                           38.05,     49.05,      67.05,
+                                                           38.50,     49.50,      67.50,
+                                                           38.50,     49.50,      67.50,
+                                                           38.05,     49.05,      67.05,
+                                                           38.05,     49.05,      67.05,
+                                                           38.05,     49.05,      67.05,
+                                                           38.05,     49.05,      67.05,
+                                                           38.50,     49.50,      67.50,
+                                                           39.65,     50.65,      68.65   };
+ 
+   const Double_t  HXBoxWidth = 2.30;         // Using to define holding structure layers holes
+   const Double_t  HXPlateWidth = 1.90;
+   const Double_t  HYPlateWidth = 10.0;
+
+   const Double_t  HTZ = 0.0;         // Translation parameters for vertical holes
+   const Double_t  HTX = 0.0,;    
+   const Double_t  HTY[NofHLayers][kNofDisks] = { 25.0, 45.0, 65.0,   
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0,      
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 60.0,
+                                                  25.0, 45.0, 65.0,
+                                                  25.0, 45.0, 65.0 };
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+  const Int_t    kSensorStripType [2]    = {  3  ,  2   };  
   
   const Double_t kSensorStripAngle[2][2] = {  0.  ,  0.  ,  0.  ,  0.  };
-  const Double_t kSensorStripPitch[2][2] = {  0.04,  0.04,  0.04,  0.04};
+  const Double_t kSensorStripPitch[2][2] = {  0.04,  0.04,  0.04,  0.04}; ///////////////////////
 
   Double_t firstLayerOffset = 0.;
 
@@ -88,11 +295,13 @@ void create3StationsGem()
   firstLayerOffset = firstLayerOffset/2.;
   firstLayerOffset = -0.001*(TMath::Floor(1000.*firstLayerOffset));
   cout << "first layer offset is " << firstLayerOffset << endl;
+  //-----------------------------------------------------------------------------------------------
 
-  //--------------------------------------------------------------------
   TString vmcWorkdir = getenv("VMCWORKDIR");
   
-  TString outfile= "../../geometry/gem_3Stations.root";
+  TString outfile= "../../geometry/gem_3Stations_realistic_v1.root";
+  // TString outfile= "../../geometry/gem_3Stations.root";
+
   TFile* fi = new TFile(outfile,"RECREATE");  
   
   cout << "created output file" << endl;
@@ -115,7 +324,9 @@ void create3StationsGem()
   FairGeoMedium *CbmMediumAluminium = Media->getMedium("aluminium");
   FairGeoMedium *CbmMediumCopper    = Media->getMedium("copper");
   FairGeoMedium *CbmMediumKapton    = Media->getMedium("kapton");
-  FairGeoMedium *CbmMediumArCO2     = Media->getMedium("GEMmixture");
+  FairGeoMedium *CbmMediumArCO2     = Media->getMedium("GEMmixture"); 
+  FairGeoMedium *CbmMediumUranium   = Media->getMedium("uranium");
+  FairGeoMedium *CbmMediumGlassFiber= Media->getMedium("GlassFiber");
 
   Int_t nmed=geobuild->createMedium(CbmMediumAir);
   nmed=geobuild->createMedium(CbmMediumPWO);
@@ -124,6 +335,9 @@ void create3StationsGem()
   nmed=geobuild->createMedium(CbmMediumCopper);
   nmed=geobuild->createMedium(CbmMediumKapton);
   nmed=geobuild->createMedium(CbmMediumArCO2);
+  nmed=geobuild->createMedium(CbmMediumUranium);
+  nmed=geobuild->createMedium(CbmMediumGlassFiber);
+
 
   TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
@@ -145,20 +359,121 @@ void create3StationsGem()
 
   TGeoVolumeAssembly* SubunitVol = new TGeoVolumeAssembly("Gem_Disks");
 
-  TGeoShape        *DiskShape[kNofDisks];
-  TGeoVolume       *DiskVol  [kNofDisks];
-  TGeoTranslation  *DiskTrans[kNofDisks];
-  TGeoCombiTrans   *DiskCombi[kNofDisks];
-
-  TGeoShape        *DiskLayersShapeA[kNofDisks][kNofLayers][4];
-  TGeoShape        *DiskLayersShapeB[kNofDisks][kNofLayers][4];
-  TGeoSubtraction  *DiskLayersSubtr [kNofDisks][kNofLayers][4];
-  TGeoShape        *DiskLayersShapeC[kNofDisks][kNofLayers][4]; // final, C = A-B
-  TGeoVolume       *DiskLayersVol  [kNofDisks][kNofLayers][4];
-  TGeoTranslation  *DiskLayersTrans[kNofDisks][kNofLayers][4];
-  TGeoCombiTrans   *DiskLayersCombi[kNofDisks][kNofLayers][4];
-
-  TString outParFileName = Form("%s/macro/params/gem_3Stations.digi.par",vmcWorkdir.Data());
+  //----------------------------------------------------------------------------------------
+   TGeoShape          *DiskShape[kNofDisks];
+   TGeoVolume         *DiskVol  [kNofDisks];
+   TGeoTranslation    *DiskTrans[kNofDisks];
+   TGeoCombiTrans     *DiskCombi[kNofDisks];
+  //--------------------------------------------------------------------------------------------
+   TGeoShape          *carbonRingShape[kNofDisks];
+   TGeoVolume         *carbonRingVol  [kNofDisks];  
+   TGeoTranslation    *carbonRingTrans[kNofDisks];
+   TGeoCombiTrans     *carbonRingCombi[kNofDisks];
+  //------------------------------------------------------------------------------------------
+   TGeoShape          *copperRingShape[kNofDisks];
+   TGeoVolume         *copperRingVol  [kNofDisks];  
+   TGeoTranslation    *copperRingTrans[kNofDisks];
+   TGeoCombiTrans     *copperRingCombi[kNofDisks];
+  //-----------------------------------------------------------------------------------------
+   TGeoShape          *coverRingShape[kNofDisks];
+   TGeoVolume         *coverRingVol  [kNofDisks];  
+   TGeoTranslation    *coverRingTrans[kNofDisks];
+   TGeoCombiTrans     *coverRingCombi[kNofDisks];
+  //-------------------------------------------------------------------------------------------
+   TGeoShape          *tAcopperbarShape;
+   TGeoVolume         *tAcopperbarVol  ;  
+   TGeoTranslation    *tAcopperbarTrans;
+   TGeoRotation       *tAcopperbarRot;
+   TGeoCombiTrans     *tAcopperbarCombi;
+  //-----------------------------------------------------------------------------------------
+   TGeoShape          *tBcopperbarShape;
+   TGeoVolume         *tBcopperbarVol  ;  
+   TGeoTranslation    *tBcopperbarTrans;
+   TGeoRotation       *tBcopperbarRot;
+   TGeoCombiTrans     *tBcopperbarCombi;
+  //-----------------------------------------------------------------------------------------
+   TGeoShape          *dAcopperbarShape;
+   TGeoVolume         *dAcopperbarVol  ;  
+   TGeoTranslation    *dAcopperbarTrans;
+   TGeoRotation       *dAcopperbarRot;
+   TGeoCombiTrans     *dAcopperbarCombi;
+ //-----------------------------------------------------------------------------------------
+   TGeoShape          *dBcopperbarShape;
+   TGeoVolume         *dBcopperbarVol  ;  
+   TGeoTranslation    *dBcopperbarTrans;
+   TGeoRotation       *dBcopperbarRot;
+   TGeoCombiTrans     *dBcopperbarCombi;
+  //-----------------------------------------------------------------------------------------
+   TGeoShape          *AlRingShape[kNofDisks][NofSegments];
+   TGeoVolume         *AlRingVol  [kNofDisks][NofSegments];  
+   TGeoTranslation    *AlRingTrans[kNofDisks][NofSegments];
+   TGeoCombiTrans     *AlRingCombi[kNofDisks][NofSegments];
+  //-----------------------------------------------------------------------------------------
+   TGeoShape          *moduleRingShape[kNofDisks][NofmoduleSegments];
+   TGeoVolume         *moduleRingVol  [kNofDisks][NofmoduleSegments];  
+   TGeoTranslation    *moduleRingTrans[kNofDisks][NofmoduleSegments];
+   TGeoCombiTrans     *moduleRingCombi[kNofDisks][NofmoduleSegments];
+  //-----------------------------------------------------------------------------------------
+   TGeoShape          *AlumiRingShape[kNofDisks];
+   TGeoVolume         *AlumiRingVol  [kNofDisks];  
+   TGeoTranslation    *AlumiRingTrans[kNofDisks];
+   TGeoCombiTrans     *AlumiRingCombi[kNofDisks];
+ //----------------------------------------------------------------------------------------------
+   TGeoShape          *DiskLayersShapeA     [kNofLayers][kNofDisks][4]; // 4 is number of seg
+   TGeoShape          *DiskLayersShapeB     [kNofLayers][kNofDisks][4];
+   TGeoSubtraction    *DiskLayersSubtr      [kNofLayers][kNofDisks][4];
+   TGeoShape          *DiskLayersShapeC     [kNofLayers][kNofDisks][4]; // final, C = A-B
+   TGeoShape          *DiskLayersShapeHole  [kNofLayers][kNofDisks][4];
+   TGeoCompositeShape *DiskLayersShapecompos[kNofLayers][kNofDisks][4];
+   TGeoVolume         *DiskLayersVol        [kNofLayers][kNofDisks][4];
+   TGeoTranslation    *DiskLayersTranshA    [kNofLayers][kNofDisks][4];
+   TGeoTranslation    *DiskLayersTranshB    [kNofLayers][kNofDisks][4];
+   TGeoTranslation    *DiskLayersTrans      [kNofLayers][kNofDisks][4];
+   TGeoCombiTrans     *DiskLayersCombi      [kNofLayers][kNofDisks][4];
+ //------------------------------------------------------------------------------------------------
+   TGeoShape            *HLayersShapeTube  [NofHLayers][kNofDisks];
+   TGeoShape            *HLayersShapeBox   [NofHLayers][kNofDisks];
+   TGeoShape            *HLayersShapePlate [NofHLayers][kNofDisks];  
+   TGeoShape            *HLayersShapeHT    [NofHLayers][kNofDisks];  
+   TGeoShape            *HLayersShapeHTM   [NofHLayers][kNofDisks];  
+   TGeoShape            *HLayersShapeHTD   [NofHLayers][kNofDisks]; 
+   TGeoCompositeShape   *HLayersShapecompos[NofHLayers][kNofDisks]; 
+   TGeoVolume           *HLayersVolcomp    [NofHLayers][kNofDisks];
+   TGeoTranslation      *HLayersTranstA    [NofHLayers][kNofDisks];
+   TGeoTranslation      *HLayersTranstB    [NofHLayers][kNofDisks];  
+   TGeoTranslation      *HLayersTranstC    [NofHLayers][kNofDisks];  
+   TGeoTranslation      *HLayersTranstD    [NofHLayers][kNofDisks];  
+   TGeoTranslation      *HLayersTranstE    [NofHLayers][kNofDisks];  
+   TGeoTranslation      *HLayersTranstF    [NofHLayers][kNofDisks];  
+   TGeoRotation         *HLayersRotrA      [NofHLayers][kNofDisks];
+   TGeoShape            *HLayersShape      [NofHLayers][kNofDisks];
+   TGeoVolume           *HLayersVol        [NofHLayers][kNofDisks];
+   TGeoTranslation      *HLayersTrans      [NofHLayers][kNofDisks];
+   TGeoCombiTrans       *HLayersCombi      [NofHLayers][kNofDisks];
+ //------------------------------------------------------------------------------------------------
+   TGeoShape            *RiddleShapeTubeA ; 
+   TGeoShape            *RiddleShapeTubeB ; 
+   TGeoShape            *RiddleShapeCone  ; 
+   TGeoShape            *RiddleShapeTubeC ; 
+   TGeoShape            *RiddleShapeTubeD ; 
+   TGeoShape            *RiddleShapeTubeE ; 
+   TGeoShape            *RiddleShapeTubeF ; 
+   TGeoSubtraction      *RiddleSubtr      ;
+   TGeoCompositeShape   *RiddleShapecompos;
+   TGeoVolume           *RiddleVolcomp    ;
+   TGeoTranslation      *RiddleTrans      ;
+   TGeoTranslation      *RiddleTransTubeA ;
+   TGeoTranslation      *RiddleTransCone  ;
+   TGeoTranslation      *RiddleTransTubeC ;
+   TGeoTranslation      *RiddleTransTubeD ;
+   TGeoTranslation      *RiddleTransTubeE ;
+   TGeoCombiTrans       *RiddleCombi      ;
+   TGeoTranslation      *RiddleTransTubeF[4][100] ;
+   TGeoCombiTrans       *RiddleCombiTranshole[4][100] ;
+   TGeoRotation         *RiddleRothole[4][100] ;
+ //----------------------------------------------------------------------------------------------
+  TString outParFileName = Form("%s/macro/params/gem_3Stations_realistic_v1.digi.par",vmcWorkdir.Data());
+  //TString outParFileName = Form("%s/macro/params/gem_3Stations.digi.par",vmcWorkdir.Data());
   
   cout << "parameter file = \"" << outParFileName.Data() << "\"" << endl;
 
@@ -169,9 +484,9 @@ void create3StationsGem()
   pout << "# Digitization parameters for GEM                                " << endl;
   pout << "# with 3 Stations                                                " << endl;
   pout << "# Format:                                                        " << endl;
-  pout << "#Description of parameters:                                      " << endl;
-  pout << "#[PndGemDetectors]                                            " << endl;
-  pout << "#parameters:d station_number, ZPos, rotation_angle, number_of_sensors, \\" << endl;
+  pout << "# Description of parameters:                                     " << endl;
+  pout << "# [PndGemDetectors]                                              " << endl;
+  pout << "# parameters:d station_number, ZPos, rotation_angle, number_of_sensors, \\" << endl;
   pout << "#                 sensor_number, sensor_type, pos_x, pos_y, pos_z, rotAngle, inn_rad, out_rad, thick, str_ang_0, str_ang_1, barWidth, pitch_0, pitch_1, \\" << endl;
   pout << "#                 sensor_number, ...." << endl;
   pout << "#             station_number, ..." << endl;
@@ -182,80 +497,250 @@ void create3StationsGem()
 
   for ( Int_t istat = 0 ; istat < kNofDisks ; istat++ ) {
 
-    pout << "                    " << istat+1 << ",  "
+    pout << "                   " << istat+1 << ",  "
 	 << setw(9) << kDiskZPosition[istat]
 	 << ",  0.0, " << 2 << ", \\" << endl;
-    
-    DiskShape[istat] = new TGeoTube  (Form("disk%dshape",istat+1),kDiskInnerRadius[istat],kDiskOuterRadius[istat],kHalfStationThickness);
+    //-----------------------------------GEM Disk------------------------------------------------------------------------------------------------------
+    DiskShape[istat] = new TGeoTube  (Form("disk%dshape",istat+1),kDiskVolInnerRadius[istat],kDiskVolOuterRadius[istat],kHalfStationThickness);
     DiskVol  [istat] = new TGeoVolume(Form("Gem_Disk%d_Volume",istat+1),DiskShape[istat],gGeoMan->GetMedium("GEMmixture"));
     DiskTrans[istat] = new TGeoTranslation(0.,0.,kDiskZPosition[istat]);
-    cout << "station " << kDiskInnerRadius[istat] << " " << kDiskOuterRadius[istat] << " at " << kDiskZPosition[istat] << endl;
+    cout << "station " << kDiskVolInnerRadius[istat] << " " << kDiskVolOuterRadius[istat] << " at " << kDiskZPosition[istat] << endl;
     DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*dummyrot); 
     DiskCombi[istat]->SetName(Form("Gem_Disk%d_Volume",istat+1));
     DiskCombi[istat]->RegisterYourself();
+    DiskVol[istat]->SetLineColor(kYellow);
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    //------------------------- Gas container Ring Bottom -------------------------------------------------------------------------------------
+    carbonRingShape[istat] = new TGeoTube  (Form("carbonRing%dshape",istat+1),carbonRingInnerRadius[istat],carbonRingOuterRadius[istat],carbonRingHalfThickness);
+    carbonRingVol  [istat] = new TGeoVolume(Form("Gem_carbonRing%d_Volume",istat+1),carbonRingShape[istat],gGeoMan->GetMedium("carbon"));
+    carbonRingTrans[istat] = new TGeoTranslation(0.,0.,-1.5);
+    cout << "carbonRing " << carbonRingInnerRadius[istat] << " " << carbonRingOuterRadius[istat] << endl;
+    carbonRingCombi[istat] = new TGeoCombiTrans(*carbonRingTrans[istat],*dummyrot); 
+    carbonRingCombi[istat]->SetName(Form("Gem_carbonRing%d_Volume",istat+1));
+    carbonRingCombi[istat]->RegisterYourself();
+    carbonRingVol[istat]->SetLineColor(kMagenta);
+    //----------------------------------------------------------------------------------------------------------------------------------------
+    DiskVol[istat]->AddNode(carbonRingVol  [istat],0,carbonRingCombi[istat]);
+    //------------------------------------------------------------------------------------------------------------------------------------------
+    //------------------------- Gas container Ring top -----------------------------------------------------------------------------------------
+    copperRingShape[istat] = new TGeoTube  (Form("copperRing%dshape",istat+1),copperRingInnerRadius[istat],copperRingOuterRadius[istat],copperRingHalfThickness);
+    copperRingVol  [istat] = new TGeoVolume(Form("Gem_copperRing%d_Volume",istat+1),copperRingShape[istat],gGeoMan->GetMedium("copper"));
+    copperRingTrans[istat] = new TGeoTranslation(0.,0.,3.75);
+    cout << "copperRing " << copperRingInnerRadius[istat] << " " << copperRingOuterRadius[istat] << endl;
+    copperRingCombi[istat] = new TGeoCombiTrans(*copperRingTrans[istat],*dummyrot); 
+    copperRingCombi[istat]->SetName(Form("Gem_copperRing%d_Volume",istat+1));
+    copperRingCombi[istat]->RegisterYourself();
+    copperRingVol[istat]->SetLineColor(kYellow-5);
+    //----------------------------------------------------------------------------------------------------------------------------------------
+    DiskVol[istat]->AddNode(copperRingVol  [istat],0,copperRingCombi[istat]);
+    //----------------------------------------------------------------------------------------------------------------------------------------
+    //----------------------segments for electronics --------------------------------------------------------------------------------------------------------
+      Double_t segmentAngularSize = SegmentHalfThickness/AlRingInnerRadius[istat]*360.;
+           for ( Int_t isegm = 0 ; isegm < NofSegments ; isegm++ ) {
+      		 cout << " Segment " << isegm << " with name " << newsegment[isegm] << " will be put at " << FirstSegmentAngle+isegm*SegmentDeltaAngle << " (in fact from " << FirstSegmentAngle+isegm*SegmentDeltaAngle-segmentAngularSize/2. << " to " << FirstSegmentAngle+isegm*SegmentDeltaAngle+segmentAngularSize/2. << ")" << endl;
+      	   AlRingShape[istat][isegm] = new TGeoTubeSeg (Form("AlRing%dshape",istat+1,isegm+1),AlRingInnerRadius[istat],AlRingOuterRadius[istat],AlRingHalfThickness,FirstSegmentAngle+isegm*SegmentDeltaAngle-segmentAngularSize/2.,FirstSegmentAngle+isegm*SegmentDeltaAngle+segmentAngularSize/2. );
+      	   AlRingVol[istat][isegm]   = new TGeoVolume (Form("Gem_AlRing%d_Volume",istat+1,isegm+1),AlRingShape[istat][isegm],gGeoMan->GetMedium("aluminium")); 
+           AlRingTrans[istat][isegm] = new TGeoTranslation (0.,0.,3.75);
+            cout << "AlRing " << AlRingInnerRadius[istat] << " " << AlRingOuterRadius[istat] << endl;
+           AlRingCombi[istat][isegm] = new TGeoCombiTrans (*AlRingTrans[istat][isegm],*dummyrot);
+           AlRingCombi[istat][isegm]->SetName(Form("Gem_AlRing%d_Volume",istat+1,isegm+1));
+           AlRingCombi[istat][isegm]->RegisterYourself(); 
+           AlRingVol[istat][isegm]->SetLineColor(kCyan-9);
+       //-----------------------------------------------------------------------------------------------------------------------------------------
+	   DiskVol[istat]->AddNode(AlRingVol[istat][isegm],0,AlRingCombi[istat][isegm]);
+       //------------------------------------------------------------------------------------------------------------------------------------------      
+       }
+    //----------------------------------------------------------------------------------------------------------------------------------------
+    //---------------------- electronic module  --------------------------------------------------------------------------------------------------------
+      Double_t modulesegmentAngularSize = moduleSegmentHalfThickness/moduleRingInnerRadius[istat]*360.;
+           for ( Int_t imodulesegm = 0 ; imodulesegm < NofmoduleSegments ; imodulesegm++ ) {
+      		 cout << " moduleSegment " << imodulesegm << " with name " << newmodulesegment[imodulesegm] << " will be put at " << FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle << " (in fact from " << FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle-modulesegmentAngularSize/2. << " to " << FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle+modulesegmentAngularSize/2. << ")" << endl;
+      	  moduleRingShape[istat][imodulesegm] = new TGeoTubeSeg (Form("moduleRing%dshape",istat+1,imodulesegm+1),moduleRingInnerRadius[istat],moduleRingOuterRadius[istat],moduleRingHalfThickness,FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle-modulesegmentAngularSize/2.,FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle+modulesegmentAngularSize/2. );
+      	  moduleRingVol[istat][imodulesegm]   = new TGeoVolume (Form("Gem_moduleRing%d_Volume",istat+1,imodulesegm+1),moduleRingShape[istat][imodulesegm],gGeoMan->GetMedium("copper")); 
+          moduleRingTrans[istat][imodulesegm] = new TGeoTranslation (0.,0.,3.65);
+            cout << "moduleRing " << moduleRingInnerRadius[istat] << " " << moduleRingOuterRadius[istat] << endl;
+          moduleRingCombi[istat][imodulesegm] = new TGeoCombiTrans (*moduleRingTrans[istat][imodulesegm],*dummyrot);
+          moduleRingCombi[istat][imodulesegm]->SetName(Form("Gem_moduleRing%d_Volume",istat+1,imodulesegm+1));
+          moduleRingCombi[istat][imodulesegm]->RegisterYourself(); 
+          moduleRingVol[istat][imodulesegm]->SetLineColor(kGreen);
+       //-----------------------------------------------------------------------------------------------------------------------------------------
+	  DiskVol[istat]->AddNode(moduleRingVol[istat][imodulesegm],0,moduleRingCombi[istat][imodulesegm]);
+       //------------------------------------------------------------------------------------------------------------------------------------------      
+       }
+   //---------------------------------Cooling Ring-------------------------------------------------------------------------------------------------------------
+     AlumiRingShape[istat] = new TGeoTube  (Form("AlumiRing%dshape",istat+1),AlumiRingInnerRadius[istat],AlumiRingOuterRadius[istat],AlumiRingHalfThickness);
+     AlumiRingVol  [istat] = new TGeoVolume(Form("Gem_AlumiRing%d_Volume",istat+1),AlumiRingShape[istat],gGeoMan->GetMedium("aluminium"));
+     AlumiRingTrans[istat] = new TGeoTranslation(0.,0.,3.75);
+     cout << "AlumiRing " << AlumiRingInnerRadius[istat] << " " << AlumiRingOuterRadius[istat] << endl;
+     AlumiRingCombi[istat] = new TGeoCombiTrans(*AlumiRingTrans[istat],*dummyrot); 
+     AlumiRingCombi[istat]->SetName(Form("Gem_AlumiRing%d_Volume",istat+1));
+     AlumiRingCombi[istat]->RegisterYourself();
+     AlumiRingVol[istat]->SetLineColor(kCyan-9);
+   //----------------------------------------------------------------------------------------------------------------------------------------
+     DiskVol[istat]->AddNode(AlumiRingVol[istat],0,AlumiRingCombi[istat]);
+   //----------------------------------------------------------------------------------------------------------------------------------------
+ //------------------------- GEM tracker cover electronic module  -----------------------------------------------------------------------------------------
+    coverRingShape[istat] = new TGeoTube  (Form("coverRing%dshape",istat+1),coverRingInnerRadius[istat],coverRingOuterRadius[istat],coverRingHalfThickness);
+    coverRingVol  [istat] = new TGeoVolume(Form("Gem_coverRing%d_Volume",istat+1),coverRingShape[istat],gGeoMan->GetMedium("GlassFiber"));
+    coverRingTrans[istat] = new TGeoTranslation(0.,0.,7.75);
+    cout << "coverRing " << coverRingInnerRadius[istat] << " " << coverRingOuterRadius[istat] << endl;
+    coverRingCombi[istat] = new TGeoCombiTrans(*coverRingTrans[istat],*dummyrot); 
+    coverRingCombi[istat]->SetName(Form("Gem_coverRing%d_Volume",istat+1));
+    coverRingCombi[istat]->RegisterYourself();
+    coverRingVol[istat]->SetLineColor(kGreen+3);
+    //----------------------------------------------------------------------------------------------------------------------------------------
+    DiskVol[istat]->AddNode(coverRingVol  [istat],0,coverRingCombi[istat]);
+    //----------------------------------------------------------------------------------------------------------------------------------------        
+  ///////////////////////////////////////////////holding structure layers////////////////////////////////////////////////////////////////////////////////////////////////
+    for ( Int_t jlay = 0 ; jlay < NofHLayers ; jlay++ ) {
+    //    for ( Int_t jlay = 7 ; jlay < 8 ; jlay++ ) {
+    cout << "doing Hlayers " << jlay << endl;
+
+    HLayersShapeTube[jlay][istat] = new TGeoTube  (Form("T%dT%s",istat+1,HLayersName[jlay].Data()),HInnerRadius[jlay][istat],HOuterRadius[jlay][istat],HLayersThick[jlay]);
+    HLayersShapeHT[jlay][istat]   = new TGeoTube  (Form("H%dH%s",istat+1,HLayersName[jlay].Data()),0.0,5.00,HLayersThick[jlay]);
+    HLayersShapeHTM[jlay][istat]  = new TGeoTube  (Form("HTM%dHTM%s",istat+1,HLayersName[jlay].Data()),0.0,4.50,HLayersThick[jlay]+0.0001);
+    HLayersShapeHTD[jlay][istat]  = new TGeoTube  (Form("HTD%dHTD%s",istat+1,HLayersName[jlay].Data()),0.0,1.90,HLayersThick[jlay]+0.0001);
+	       cout << "Tube name is " << HLayersShapeTube[jlay][istat]->GetName() << endl;
+	       //	       cout << "TubeHTM name is " << HLayersShapeHTM[jlay][istat]->GetName() << endl;
+    HLayersShapeBox[jlay][istat]   = new TGeoBBox(Form("B%dB%s",istat+1,HLayersName[jlay].Data()),HXBoxWidth[jlay][istat],HOuterRadius[jlay][istat],HLayersThick[jlay]);
+    HLayersShapePlate[jlay][istat] = new TGeoBBox(Form("P%dP%s",istat+1,HLayersName[jlay].Data()),HXPlateWidth[jlay][istat],HYPlateWidth[jlay][istat],HLayersThick[jlay]+0.0001);
+
+    HLayersTranstA[jlay][istat] = new TGeoTranslation("tA",HTX,HTY[jlay][istat],HTZ);
+     HLayersTranstA[jlay][istat] ->RegisterYourself();
+    HLayersTranstB[jlay][istat] = new TGeoTranslation("tB",HTX,-HTY[jlay][istat],HTZ);
+     HLayersTranstB[jlay][istat] ->RegisterYourself();
+    HLayersTranstC[jlay][istat] = new TGeoTranslation("tC",HTX,HTY[jlay][istat]+9.0,HTZ);
+     HLayersTranstC[jlay][istat] ->RegisterYourself();
+    HLayersTranstD[jlay][istat] = new TGeoTranslation("tD",HTX,HTY[jlay][istat]-9.0,HTZ);
+     HLayersTranstD[jlay][istat] ->RegisterYourself();
+    HLayersTranstE[jlay][istat] = new TGeoTranslation("tE",HTX,-HTY[jlay][istat]+9.0,HTZ);
+     HLayersTranstE[jlay][istat] ->RegisterYourself();
+    HLayersTranstF[jlay][istat] = new TGeoTranslation("tF",HTX,-HTY[jlay][istat]-9.0,HTZ);
+     HLayersTranstF[jlay][istat] ->RegisterYourself();
+
+    HLayersShapecompos[jlay][istat] = new TGeoCompositeShape(Form("compos%dcompos%s",istat+1,HLayersName[jlay].Data()),
+							     Form("T%dT%s+B%dB%s+H%dH%s-HTM%dHTM%s-(P%dP%s:tA)-(HTD%dHTD%s:tC)-(HTD%dHTD%s:tD)-(P%dP%s:tB)-(HTD%dHTD%s:tE)-(HTD%dHTD%s:tF)",
+							   	  istat+1,HLayersName[jlay].Data(),istat+1,HLayersName[jlay].Data(),istat+1,HLayersName[jlay].Data(),istat+1,HLayersName[jlay].Data(),
+                                                                  istat+1,HLayersName[jlay].Data(),istat+1,HLayersName[jlay].Data(),istat+1,HLayersName[jlay].Data(),istat+1,HLayersName[jlay].Data(),
+							     	  istat+1,HLayersName[jlay].Data(),istat+1,HLayersName[jlay].Data()));
+							   
+      cout << "composite name is " <<  HLayersShapecompos[jlay][istat] -> GetName() << endl;
+
+    	TString HlayersMaterial = HLayersName[jlay].Data();
+    	HlayersMaterial.Remove(0,HlayersMaterial.Last('_')+1);
+    		cout << "THE HMATERIAL IS \"" << HlayersMaterial.Data() << "\"" << endl;
+		HLayersVolcomp[jlay][istat] = new TGeoVolume(Form("GEMHLayersCOMP%dGEMHLayersCOMP%s",istat+1,HLayersName[jlay].Data()),HLayersShapecompos[jlay][istat],gGeoMan->GetMedium(HlayersMaterial.Data()));
+		cout << "COMP name is " <<  HLayersVolcomp[jlay][istat]  -> GetName() << endl;
+     	cout << "Hlayersmaterial = " << HlayersMaterial.Data() << endl;
+
+          if ( HlayersMaterial.Contains("carbon" ) )
+        	  HLayersVolcomp[jlay][istat]->SetLineColor(kPink);
+         	if ( HlayersMaterial.Contains("GlassFiber" ) )
+        	  HLayersVolcomp[jlay][istat]->SetLineColor(kGreen+3);
+
+		cout << "STATION " << istat << " LAYER " << jlay << " POSITION " << HZPosition[jlay][istat] << endl;
+
+		HLayersTrans[jlay][istat] = new TGeoTranslation(0.0,0.0,HZPosition[jlay][istat]);
+          HLayersCombi[jlay][istat] = new TGeoCombiTrans(*HLayersTrans[jlay][istat],*dummyrot); 
+          HLayersCombi[jlay][istat]->SetName(Form("GEMHLayersCOMP%dGEMHLayersCOMP%s",istat+1,HLayersName[jlay].Data()));
+          HLayersCombi[jlay][istat]->RegisterYourself();
+	  DiskVol[istat]->AddNode( HLayersVolcomp[jlay][istat],0,HLayersCombi[jlay][istat] );
+		  } 
+   ///////////////////////////////////////////////////////main layers////////////////////////////////////////////////////////////////////////////////////////////////
 
     Double_t layerPosition = firstLayerOffset;//-kLayerThick[0]/2.;
 
     Int_t sensorNumber = 0;
     
     for ( Int_t ilay = 0 ; ilay < kNofLayers ; ilay++ ) {
+      cout << "doing layer " << ilay << endl;
       layerPosition += kLayerThick[ilay]/2.;
+	if ( kLayerName[ilay].Contains("space") && kLayerThick[ilay] > 0.7 ) {
+	  cout << "***** THE THICK SPACE LAYER IS AT " << layerPosition << endl;
+	}
       if ( kLayerName[ilay].Contains("space") && kLayerName[ilay].Length() == 5 ) {
 	layerPosition += kLayerThick[ilay]/2.;
 	continue;
       }
-      //      cout << " HAHA, got layer " << kLayerName[ilay].Data() << endl;
+
+                 cout << " HAHA, got layer " << kLayerName[ilay].Data() << endl;
 
       Double_t segPhiSpan = 360./(Double_t(kDiskNFoils[istat]));
       Double_t segBegin   =  90.;
-      for ( Int_t iseg = 0 ; iseg < kDiskNFoils[istat] ; iseg++ ) {
-	DiskLayersShapeA[istat][ilay][iseg] = new TGeoTubeSeg(Form("disk%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
-							     kDiskInnerRadius[istat],kDiskOuterRadius[istat],
-							     kLayerThick[ilay]/2.,
-							     segBegin,segBegin+segPhiSpan);
-	DiskLayersShapeB[istat][ilay][iseg] = new TGeoBBox   (Form("robo%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
+      cout << "will do loop over segments" << endl;
+      for ( Int_t iseg = 0 ; iseg < 1 ; iseg++ ) {
+	cout << "segment " << iseg << endl;
+	DiskLayersShapeA[ilay][istat][iseg] = new TGeoTube(Form("disk%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
+							   kDiskInnerRadius[ilay][istat],kDiskOuterRadius[ilay][istat],
+							   kLayerThick[ilay]/2.);
+	DiskLayersShapeB[ilay][istat][iseg] = new TGeoBBox   (Form("robo%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
 							      kMiddleROBarHfTh[istat]/2.,
-							      kDiskOuterRadius[istat],
+							      kDiskOuterRadius[ilay][istat],
 							      kLayerThick[ilay]);
-	DiskLayersSubtr [istat][ilay][iseg] = new TGeoSubtraction(DiskLayersShapeA[istat][ilay][iseg],
-								  DiskLayersShapeB[istat][ilay][iseg]);
-	DiskLayersShapeC[istat][ilay][iseg] = new TGeoCompositeShape(Form("comp%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
-								     DiskLayersSubtr[istat][ilay][iseg]);
+	DiskLayersSubtr[ilay][istat][iseg] = new TGeoSubtraction(DiskLayersShapeA[ilay][istat][iseg],
+								  DiskLayersShapeB[ilay][istat][iseg]);
+       
+
+	DiskLayersShapeC[ilay][istat][iseg] = new TGeoCompositeShape(Form("comp%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
+								     DiskLayersSubtr[ilay][istat][iseg]);
 	segBegin += segPhiSpan;
-	
+	cout << " segBegin " << segBegin << endl;
+
+        DiskLayersShapeHole[ilay][istat][iseg] = new TGeoTube(Form("Hole%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),0.0,3.80,kLayerThick[ilay]+0.001);
+
+	 DiskLayersTranshA[ilay][istat][iseg] = new TGeoTranslation("hA",HoleTX,HoleTY,HoleTZ);
+	   DiskLayersTranshA[ilay][istat][iseg] ->RegisterYourself();
+	 DiskLayersTranshB[ilay][istat][iseg] = new TGeoTranslation("hB",HoleTX,-HoleTY,HoleTZ);
+	   DiskLayersTranshB[ilay][istat][iseg] ->RegisterYourself();
+
+        DiskLayersShapecompos[ilay][istat][iseg] = new TGeoCompositeShape(Form("compos%dseg%d%sshape",istat+1,iseg+1,kLayerName[ilay].Data()),
+							                  Form("comp%dseg%d%sshape-(Hole%dseg%d%sshape:hA)-(Hole%dseg%d%sshape:hB)",
+									       istat+1,iseg+1,kLayerName[ilay].Data(),istat+1,iseg+1,kLayerName[ilay].Data(),istat+1,iseg+1,kLayerName[ilay].Data()));
+
+    
 	TString layerMaterial = kLayerName[ilay].Data();
 	layerMaterial.Remove(0,layerMaterial.Last('_')+1);
-	//	cout << "THE MATERIAL IS \"" << layerMaterial.Data() << "\"" << endl;
-	DiskLayersVol  [istat][ilay][iseg] = new TGeoVolume(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,kLayerName[ilay].Data()),
-							    DiskLayersShapeC[istat][ilay][iseg],
+		cout << "THE MATERIAL IS \"" << layerMaterial.Data() << "\"" << endl;
+	DiskLayersVol[ilay][istat][iseg] = new TGeoVolume(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,kLayerName[ilay].Data()),
+							    DiskLayersShapecompos[ilay][istat][iseg],
 							    gGeoMan->GetMedium(layerMaterial.Data()));
-	
-	//      cout << "layer material = " << layerMaterial.Data() << endl;
-	if ( layerMaterial.Contains("copper" ) )
-	  DiskLayersVol[istat][ilay][iseg]->SetLineColor(2);
-	if ( layerMaterial.Contains("kapton" ) )
-	  DiskLayersVol[istat][ilay][iseg]->SetLineColor(3);
-	if ( layerMaterial.Contains("aluminium" ) )
-	  DiskLayersVol[istat][ilay][iseg]->SetLineColor(4);
-	DiskLayersTrans[istat][ilay][iseg] = new TGeoTranslation(0.,0.,layerPosition);
-	DiskLayersCombi[istat][ilay][iseg] = new TGeoCombiTrans(*DiskLayersTrans[istat][ilay][iseg],*dummyrot);
-	DiskLayersCombi[istat][ilay][iseg]->SetName(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,kLayerName[ilay].Data()));
-	DiskLayersCombi[istat][ilay][iseg]->RegisterYourself();
-	DiskVol[istat]->AddNode(DiskLayersVol  [istat][ilay][iseg],0,DiskLayersCombi[istat][ilay][iseg]);
-	
-      }
 
+      
+	cout << "layer material = " << layerMaterial.Data() << endl;
+	if ( layerMaterial.Contains("air" ) )
+	  DiskLayersVol[ilay][istat][iseg]->SetLineColor(kGray+1);
+	if ( layerMaterial.Contains("copper" ) )
+	  DiskLayersVol[ilay][istat][iseg]->SetLineColor(kOrange+1);
+	if ( layerMaterial.Contains("kapton" ) )
+	  DiskLayersVol[ilay][istat][iseg]->SetLineColor(kOrange+2);
+	if ( layerMaterial.Contains("aluminium" ) )
+	  DiskLayersVol[ilay][istat][iseg]->SetLineColor(kCyan-9);
+	if ( layerMaterial.Contains("GEMmixture" ) )
+	  DiskLayersVol[ilay][istat][iseg]->SetLineColor(kYellow);
+        if ( layerMaterial.Contains("carbon" ) )
+       	  DiskLayersVol[jlay][istat][iseg]->SetLineColor(kPink);
+       	if ( layerMaterial.Contains("GlassFiber" ) )
+       	  DiskLayersVol[jlay][istat][iseg]->SetLineColor(kGreen+3);
+
+	DiskLayersTrans[ilay][istat][iseg] = new TGeoTranslation(0.,0.,layerPosition);
+	DiskLayersCombi[ilay][istat][iseg] = new TGeoCombiTrans(*DiskLayersTrans[ilay][istat][iseg],*dummyrot);
+	DiskLayersCombi[ilay][istat][iseg]->SetName(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,kLayerName[ilay].Data()));
+	DiskLayersCombi[ilay][istat][iseg]->RegisterYourself();
+	DiskVol[istat]->AddNode(DiskLayersVol[ilay][istat][iseg],0,DiskLayersCombi[ilay][istat][iseg]);       
+
+      }
+   //-------------------------------------------------------------------------------------------------------------------------------
       cout << "volume " << kLayerName[ilay] << " from " 
 	   << setprecision(10) << kDiskZPosition[istat]+layerPosition-kLayerThick[ilay]/2. << " to "
 	   << setprecision(10) << kDiskZPosition[istat]+layerPosition+kLayerThick[ilay]/2. << endl;
       
       if ( kLayerName[ilay].Contains("Gem") && kLayerName[ilay].Contains("Sensor") ) {
-	Double_t newRadius = kDiskInnerRadius[istat];
+	Double_t newRadius = kDiskInnerRadius[ilay][istat];
 	Double_t nofStrips = 0;
 
-	cout << "rad = " << kDiskInnerRadius[istat] << " pitch = " << kSensorStripPitch[sensorNumber][0] << " for sensor " << sensorNumber << endl;
-	if ( kSensorStripType[sensorNumber] != 2 ) {
-	  nofStrips = TMath::Ceil(2.*TMath::Pi()*kDiskInnerRadius[istat]/kSensorStripPitch[sensorNumber][0]);
+	cout << "rad = " << kDiskInnerRadius[ilay][istat] << " pitch = " << kSensorStripPitch[sensorNumber][0] << " for sensor " << sensorNumber << endl;
+	if (  kSensorStripType[sensorNumber] != 2 ) {
+	  nofStrips = TMath::Ceil(2.*TMath::Pi()*kDiskInnerRadius[ilay][istat]/kSensorStripPitch[sensorNumber][0]);
 	  newRadius = nofStrips*kSensorStripPitch[sensorNumber][0]/2./TMath::Pi();
 	}
 	cout << "!!!! " << istat << " " << ilay << " > there shall be " << nofStrips << " strips here so the radius should be " << newRadius << endl;
@@ -265,10 +750,10 @@ void create3StationsGem()
 	     << setw(9) << kDiskZPosition[istat]+layerPosition << ",  "
 	     << setw(9) << 0. << ",  "
 	     << setw(9) << newRadius << ",  "
-	     << setw(9) << kDiskOuterRadius[istat] << ",  "
+	     << setw(9) << kDiskOuterRadius[ilay][istat] << ",  "
 	     << setw(9) << kLayerThick[ilay] << ",  "
 	     << setw(9) << kSensorStripAngle[sensorNumber][0] << ",  "
-	  //	     << setw(9) << kSensorStripAngle[sensorNumber][1] << ",  "
+	  // << setw(9) << kSensorStripAngle[sensorNumber][1] << ",  "
 	     << setw(9) << kMiddleROBarHfTh[istat] << ",  "
 	     << setw(9) << kSensorStripPitch[sensorNumber][0] << ",  "
 	     << setw(9) << kSensorStripPitch[sensorNumber][1] << ((istat==kNofDisks-1&&sensorNumber==1)?"":", \\") 
@@ -278,11 +763,14 @@ void create3StationsGem()
 
 	layerPosition += kLayerThick[ilay]/2.;
     }
+
     SubunitVol->AddNode(DiskVol[istat],0,DiskCombi[istat]);
-  }
-  pout << "TrackFinderOnHits_ParThetaA: Double_t 59.4" << endl
+    
+    }
+  
+  pout << "TrackFinderOnHits_ParThetaA: Double_t  59.4" << endl
        << "TrackFinderOnHits_ParThetaB: Double_t -0.02" << endl
-       << "TrackFinderOnHits_ParTheta0: Double_t 56.1372" << endl
+       << "TrackFinderOnHits_ParTheta0: Double_t  56.1372" << endl
        << "TrackFinderOnHits_ParTheta1: Double_t -0.000564362" << endl
        << "TrackFinderOnHits_ParTheta2: Double_t -0.181828" << endl
        << "TrackFinderOnHits_ParTheta3: Double_t  0.284289" << endl
@@ -293,15 +781,151 @@ void create3StationsGem()
        << "TrackFinderOnHits_ParMat1:   Double_t \\" << endl
        << "                                      -7.46844e-10,   -6.6696e-7,    0.000736672" << endl
        << "##########################################################################################" << flush;
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // ----------------------- Riddle shell -------------------------------------------------------------------------------------------------------------------------------
+  RiddleShapeTubeA = new TGeoTube  ("TubeA" , 42.0, 45.5, 0.5 );
+  RiddleShapeTubeB = new TGeoTube  ("TubeB" , 45.5, 46.0, 10.0 );
+  RiddleShapeCone  = new TGeoCone  ("Cone"  , 20.0, 45.5, 46.0,  69.0,  69.5 );
+  RiddleShapeTubeC = new TGeoTube  ("TubeC" , 69.0, 74.5, 0.5 );
+  RiddleShapeTubeD = new TGeoTube  ("TubeD" , 74.5, 75.0, 10.1 );
+  RiddleShapeTubeE = new TGeoTube  ("TubeE" , 71.5, 75.0, 0.5 );
+  RiddleShapeTubeF = new TGeoTube  ("TubeF" , 0.0,  8.0,  2.0 );
+   
+  RiddleTransTubeA = new TGeoTranslation("trA",0.0,0.0,9.50);
+     RiddleTransTubeA ->RegisterYourself();
+  RiddleTransCone = new  TGeoTranslation("trB",0.0,0.0,39.50);
+    RiddleTransCone ->RegisterYourself();
+  RiddleTransTubeC = new TGeoTranslation("trC",0.0,0.0,60.0);
+     RiddleTransTubeC ->RegisterYourself();
+  RiddleTransTubeD = new TGeoTranslation("trD",0.0,0.0,69.50);
+     RiddleTransTubeD ->RegisterYourself();
+  RiddleTransTubeE = new TGeoTranslation("trE",0.0,0.0,79.50);
+     RiddleTransTubeE ->RegisterYourself();
+
+     //RiddleShapecompos = new TGeoCompositeShape("riddle", "TubeA+(TubeB:trA)+(Cone:trB)+(TubeC:trC)+(TubeD:trD)+(TubeE:trE)" );
+
+     // ---------putting holes on Riddle--------------------------------------
+
+      const Int_t  NofHoles = 16.0;
+      const Double_t  rotDeltaAngle = 360.0/(Double_t(NofHoles));
+      const Int_t NofHolesRows = 4;
+
+      Double_t holePosR[4] = {46,51,62,75}; // holes X position
+      Double_t holePosD[4] = {90,-60,-60,90}; // holes angles
+      Double_t holePosZ[4] = {10,30,50,70}; // holes Z position
+
+      TString RiddleshapeFormula = "TubeA+(TubeB:trA)+(Cone:trB)+(TubeC:trC)+(TubeD:trD)+(TubeE:trE)" ;
+
+
+      for ( Int_t irow = 0 ; irow < NofHolesRows ; irow++ ) {
+	for ( Int_t ihole= 0 ; ihole < NofHoles ; ihole++ ) {
+	  
+	  Double_t holePosA = ihole*rotDeltaAngle;
+	  Double_t holePosX = holePosR[irow]*TMath::Cos(holePosA*TMath::DegToRad());
+	  Double_t holePosY = holePosR[irow]*TMath::Sin(holePosA*TMath::DegToRad());
+
+	  RiddleTransTubeF[irow][ihole] = new TGeoTranslation(Form("trF%d_%d",irow+1, ihole+1) , holePosX, holePosY,holePosZ[irow]);
+	  RiddleTransTubeF[irow][ihole] ->RegisterYourself();
+
+	  RiddleRothole[irow][ihole] = new TGeoRotation(Form("ro%d_%d" , irow+1, ihole+1) ,holePosA+90, holePosD[irow],20);
+	  RiddleRothole[irow][ihole] ->RegisterYourself();
+		  
+	  RiddleCombiTranshole[irow][ihole] = new TGeoCombiTrans( *RiddleTransTubeF[irow][ihole] , *RiddleRothole[irow][ihole] );
+	  
+	  RiddleCombiTranshole[irow][ihole] ->SetName(Form("TR%d_%d",irow+1, ihole+1));
+	  RiddleCombiTranshole[irow][ihole] ->RegisterYourself();
+	  
+	  RiddleshapeFormula += Form("-(TubeF:TR%d_%d)" , irow+1,ihole+1 );
+	  
+	}
+      }
+	cout<< " RiddleshapeFormula = \"" <<RiddleshapeFormula.Data()<< "\""<< endl;
+	
+        RiddleShapecompos = new TGeoCompositeShape("riddle", RiddleshapeFormula ); 
+	
+      ////
+
+  RiddleVolcomp = new TGeoVolume("GEMriddleCOMP", RiddleShapecompos,gGeoMan->GetMedium("carbon"));
+
+
+  RiddleTrans = new TGeoTranslation(0.0,0.0,117.0);
+          RiddleCombi = new TGeoCombiTrans(*RiddleTrans,*dummyrot); 
+          RiddleCombi->SetName("GEMriddleCOMP");
+          RiddleCombi->RegisterYourself();
+	  RiddleVolcomp->SetLineColor(kGray+1);
+	  SubunitVol->AddNode(RiddleVolcomp,0,RiddleCombi);
+	  //---------------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------ cables top 1 --------------------------------------------------------------------------------------------------------------------------
+     tAcopperbarShape = new TGeoBBox  ("tAcopperbarshape",lcopperbarx,lcopperbary,lcopperbarHalfThickness);
+     tAcopperbarVol   = new TGeoVolume("Gem_tAcopperbarVolume",tAcopperbarShape,gGeoMan->GetMedium("copper"));
+     tAcopperbarTrans = new TGeoTranslation(0.,46.2,141.);
+     tAcopperbarRot   = new TGeoRotation("tAcopperbarrot",0.0,-25.0,0.0);
+     tAcopperbarRot ->RegisterYourself();
+     tAcopperbarCombi = new TGeoCombiTrans(*tAcopperbarTrans,*tAcopperbarRot); 
+     tAcopperbarCombi->SetName("Gem_tAcopperbar_Volume");
+     tAcopperbarCombi->RegisterYourself();
+     tAcopperbarVol->SetLineColor(kOrange+1);
+     SubunitVol->AddNode(tAcopperbarVol,0,tAcopperbarCombi);
+ //------------------------ cables top 2 -------------------------------------------------------------------------------------------------------------------------
+     tBcopperbarShape = new TGeoBBox  ("tBcopperbarshape",rcopperbarx,rcopperbary,rcopperbarHalfThickness);
+     tBcopperbarVol   = new TGeoVolume("Gem_tBcopperbarVolume",tBcopperbarShape,gGeoMan->GetMedium("copper"));
+     tBcopperbarTrans = new TGeoTranslation(0.,62.5,175.);
+     tBcopperbarRot   = new TGeoRotation("tBcopperbarrot",0.0,-35.0,0.0);
+     tBcopperbarRot ->RegisterYourself();
+     tBcopperbarCombi = new TGeoCombiTrans(*tBcopperbarTrans,*tBcopperbarRot); 
+     tBcopperbarCombi->SetName("Gem_tBcopperbar_Volume");
+     tBcopperbarCombi->RegisterYourself();
+     tBcopperbarVol->SetLineColor(kOrange+1);
+     SubunitVol->AddNode(tBcopperbarVol,0,tBcopperbarCombi);
+ //------------------ cables down 1 --------------------------------------------------------------------------------------------------------------------------
+     dAcopperbarShape = new TGeoBBox  ("dAcopperbarshape",lcopperbarx,lcopperbary,lcopperbarHalfThickness);
+     dAcopperbarVol   = new TGeoVolume("Gem_dAcopperbarVolume",dAcopperbarShape,gGeoMan->GetMedium("copper"));
+     dAcopperbarTrans = new TGeoTranslation(0.,-46.2,141.);
+     dAcopperbarRot   = new TGeoRotation("dAcopperbarrot",0.0,25.0,0.0);
+     dAcopperbarRot ->RegisterYourself();
+     dAcopperbarCombi = new TGeoCombiTrans(*dAcopperbarTrans,*dAcopperbarRot); 
+     dAcopperbarCombi->SetName("Gem_dAcopperbar_Volume");
+     dAcopperbarCombi->RegisterYourself();
+     dAcopperbarVol->SetLineColor(kOrange+1);
+     SubunitVol->AddNode(dAcopperbarVol,0,dAcopperbarCombi);
+ //------------------------ cables down 2 -------------------------------------------------------------------------------------------------------------------------
+     dBcopperbarShape = new TGeoBBox  ("dBcopperbarshape",rcopperbarx,rcopperbary,rcopperbarHalfThickness);
+     dBcopperbarVol   = new TGeoVolume("Gem_dBcopperbarVolume",dBcopperbarShape,gGeoMan->GetMedium("copper"));
+     dBcopperbarTrans = new TGeoTranslation(0.,-62.5,175.);
+     dBcopperbarRot   = new TGeoRotation("dBcopperbarrot",0.0,35.0,0.0);
+     dBcopperbarRot ->RegisterYourself();
+     dBcopperbarCombi = new TGeoCombiTrans(*dBcopperbarTrans,*dBcopperbarRot); 
+     dBcopperbarCombi->SetName("Gem_dBcopperbar_Volume");
+     dBcopperbarCombi->RegisterYourself();
+     dBcopperbarVol->SetLineColor(kOrange+1);
+     SubunitVol->AddNode(dBcopperbarVol,0,dBcopperbarCombi);
+   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   top->AddNode(SubunitVol,0,new TGeoCombiTrans());
+  
+   // top->CheckOverlaps(0.0001, "");
+   // gGeoManager->CheckOverlaps(0.0001,""); // [cm]
+   // gGeoManager->CheckGeometryFull();
+  
+   // TObjArray *listOfOverlaps = gGeoManager->GetListOfOverlaps();
+   // cout << "************************************************" << endl;
+   // cout<<listOfOverlaps->GetEntries()<<endl;
+   // listOfOverlaps->Print();
+   // cout << "************************************************" << endl;
+
+   // gGeoManager->CheckOverlaps();
+   // gGeoManager->PrintOverlaps();
   
   gGeoMan->CloseGeometry();
   top->Write();
   fi->Close();
-  //   gGeoManager->Export(outfile);
+  //gGeoManager->Export(outfile);
+
+  //top->Raytrace();
   top->Draw("ogl");
+  //top->Draw();
 
   pout.close();
 
-}  
+}
+
