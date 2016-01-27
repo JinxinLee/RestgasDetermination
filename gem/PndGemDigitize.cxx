@@ -139,7 +139,7 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
   if ( fSaveOutsideHits ) {
     if ( ! fHitOutsideArray ) Fatal("Exec", "No fHitOutsideArray");
-    fHitOutsideArray->Delete();
+    fHitOutsideArray->Clear();
   }
 
   Reset();
@@ -242,9 +242,9 @@ void PndGemDigitize::DigitizeEvent() {
       //      cout << sensor->GetType() << ": for point " << locPosIn[0] << " " << locPosIn[1] << " ---> channel " << channelNumber << endl;
     }
     if ( channelNumber == -1 ) {
-      TVector3 pos;
-      currentPndGemMCPoint->Position(pos);
       if ( fSaveOutsideHits ) {
+	TVector3 pos;
+	currentPndGemMCPoint->Position(pos);
 	TVector3 dposLocal(0.,0.,0.);
 
 
@@ -565,10 +565,6 @@ InitStatus PndGemDigitize::Init() {
   // Get input array 
   FairRootManager* ioman = FairRootManager::Instance();
 
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,34,10))
-  ioman->SetUseFairLinks(kTRUE);
-#endif
-
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   fPoints = (TClonesArray*) ioman->GetObject("GEMPoint");
 
@@ -616,7 +612,7 @@ InitStatus PndGemDigitize::ReInit() {
 void PndGemDigitize::Reset() {
   fNPoints = fNFailed = fNOutside = fNMulti = fNDigis = 0;
   fChannelMap.clear();
-  if ( fDigis ) fDigis->Delete();
+  if ( fDigis ) fDigis->Clear();
   if ( fDigiMatches ) fDigiMatches->Clear();
 }
 // -------------------------------------------------------------------------

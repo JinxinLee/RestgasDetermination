@@ -1239,7 +1239,7 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
   if ( iFStrip <  fNChannelsFront/2 && iBStrip >= fNChannelsBack/2 ) return -1;
   if ( iFStrip >= fNChannelsFront/2 && iBStrip <  fNChannelsBack/2 ) return -1;
   Double_t bs = iBStrip;
-  if ( bs > fNChannelsBack/2 ) bs -= fNChannelsBack/2;
+  if ( bs >= fNChannelsBack/2 ) bs -= fNChannelsBack/2;
   if ( fType == 0 ) { // r phi strips
     Double_t phi    = fPitch[0]*((Double_t)iFStrip-0.5) / fInnerRadius; // the angle is counted from Y axis
     Double_t radius = fPitch[1]*((Double_t) bs    -0.5) + fInnerRadius;

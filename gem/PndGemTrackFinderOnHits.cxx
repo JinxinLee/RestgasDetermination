@@ -824,8 +824,10 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
       cout << "     -> with theta of " << theta << " (radius = " << radius << " and phi angle = " << pangle*TMath::RadToDeg() << ")" << endl;
     for(Int_t iHit2 = 0; iHit2 < nGemHits; iHit2++){
       gemHit2 = (PndGemHit*) hitArray->At(iHit2);
-      if ( TMath::Abs(gemHit2->GetZ()-(zStation2-1.)) > 0.3 ) { // where the second hit is..., but i think does not have to check this
-	// 	cout << "not good Z" << endl; 
+      if ( fVerbose > 3 || printInfo )
+	cout << "gemhit2.z = " << gemHit2->GetZ() << " /// gemhit1.z = " << gemHit->GetZ() << " /// station2z = " << zStation2 << endl;
+      if ( TMath::Abs(gemHit2->GetZ()-(zStation2-1.)) > 0.4 ) { // where the second hit is..., but i think does not have to check this
+	if ( fVerbose > 3 || printInfo )        cout << "not good Z" << endl; 
  	continue;
       }
       if ( gemHit2->GetNDigiHits() < 0 ) continue;
