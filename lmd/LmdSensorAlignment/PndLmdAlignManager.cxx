@@ -18,7 +18,6 @@
 #include <vector>
 
 #include <PndLmdDim.h>
-
 #include <PndLmdSensorAligner.h>
 #include <PndLmdHitPair.h>
 #include <TChain.h>
@@ -30,8 +29,70 @@ using std::vector;
 using std::string;
 
 PndLmdAlignManager::PndLmdAlignManager() {
-	reinitialize();
+	init();
 }
+
+void PndLmdAlignManager::init(){
+
+	dimension = PndLmdDim::Instance();
+
+	//FIXME: do this from calling makro, not hard coded
+	//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat", true);
+	//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat", false);
+
+	_zIsTimestamp=true;
+	_allFilesAdded=false;
+	_useSimpleStorage=false;
+	_singleAligner=true;
+	_pretend=false;
+	_inCentimeters=false;
+	_enableHelperMatrix=false;
+
+	int overlapId=-1;
+	_aligners.clear();
+	_fileNames.clear();
+
+	//hackjob, do this right!
+	Matrix matrix1 = Matrix::rotMatX(M_PI/16);
+	Matrix matrix2 = Matrix::rotMatY(M_PI/16);
+	Matrix matrix3 = Matrix::rotMatZ(M_PI/16);
+	Matrix hmatrix1 = matrix3 * matrix2 * matrix1;
+	//Matrix hmatrix1 = Matrix::eye(4);
+
+	Matrix hmatrix2(3,1);
+	hmatrix2.val[0][0] = -26.85;
+	hmatrix2.val[1][0] = 0.0;
+	hmatrix2.val[2][0] = -1147.0;
+
+	hmatrix1 = homogenizeMatrix(hmatrix1);
+	hmatrix2 = homogenizeMatrix(hmatrix2);
+
+	helperMatrix = hmatrix2 * hmatrix1;
+
+	//make map<moduleid, SensorAligner> with 40 entries
+
+	//FIXME: do this in PndLmdDim, so that if something changes, only one place must be corrected
+	for(int iHalf=0; iHalf<2; iHalf++){
+		for(int iPlane=0; iPlane<4; iPlane++){
+			for(int iModule=0; iModule<5; iModule++){
+				for(int iOverlap=0; iOverlap<9;iOverlap++){
+					overlapId = 10* (dimension->makeModuleID(iHalf, iPlane, iModule))+iOverlap;
+					PndLmdSensorAligner tempAligner;
+					tempAligner.setOverlapId(overlapId);
+					tempAligner.setModuleID(dimension->makeModuleID(iHalf, iPlane, iModule));
+					tempAligner.setHelperMatrix(helperMatrix);
+					tempAligner.setZasTimetamp(_zIsTimestamp);
+					_aligners[overlapId]=tempAligner;
+				}
+			}
+		}
+	}
+
+	outFilename="";
+	_firstInitDone=true;
+	std::cout << "PndLmdAlignManager::Init(): Initialization successful." << std::endl;
+}
+
 
 PndLmdAlignManager::~PndLmdAlignManager() {
 }
@@ -81,6 +142,10 @@ bool PndLmdAlignManager::addFile(std::string filename) {
 
 void PndLmdAlignManager::readFiles(){
 
+	if(!_firstInitDone){
+		init();
+	}
+
 	if(_pretend){
 		cout << "pretending to read files...\n";
 		return;
@@ -106,7 +171,7 @@ void PndLmdAlignManager::readFiles(){
 	int totalPairs=0;
 	for(int i_event=0; i_event<nEntries; i_event++ ){
 
-		loadBar(i_event, nEntries, 1000,30);
+		loadBar(i_event, nEntries, 1000,60);
 		chainPairs->GetEntry(i_event);
 		int nPairs = hitPairs->GetEntries();
 		//loop over hitPairs per Event
@@ -147,11 +212,11 @@ void PndLmdAlignManager::alignAllSensors() {
 
 	stringstream info;
 	info << "info for aligned areas\n";
-
+	cout << "starting aligners...\n";
 	//maybe do this multithreaded?
 	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
 
-		loadBar(cur++, tot, 1000, 30);
+		loadBar(cur++, tot, 1000, 60);
 		it->second.calculateMatrix();
 		if(it->second.successful()){
 			int id1, id2;
@@ -190,6 +255,7 @@ void PndLmdAlignManager::alignAllSensors() {
 	of.open(( _matrixOutDir + "info.txt").c_str());
 	of << info.str();
 	of.close();
+	cout << "all aligners done.\n";
 
 }
 
@@ -512,62 +578,6 @@ void PndLmdAlignManager::loadBar(int i, int n, int r, int w, std::string message
 
 }
 
-void PndLmdAlignManager::reinitialize(){
-
-	dimension = PndLmdDim::Instance();
-
-	//FIXME: do this from calling makro, not hard coded
-	//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat", true);
-	//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat", false);
-
-	int overlapId=-1;
-	_aligners.clear();
-	_fileNames.clear();
-
-
-	//hackjob, do this right!
-	Matrix matrix1 = Matrix::rotMatX(M_PI/16);
-	Matrix matrix2 = Matrix::rotMatY(M_PI/16);
-	Matrix matrix3 = Matrix::rotMatZ(M_PI/16);
-	Matrix hmatrix1 = matrix3 * matrix2 * matrix1;
-	//Matrix hmatrix1 = Matrix::eye(4);
-
-	Matrix hmatrix2(3,1);
-	hmatrix2.val[0][0] = -26.85;
-	hmatrix2.val[1][0] = 0.0;
-	hmatrix2.val[2][0] = -1147.0;
-
-	hmatrix1 = homogenizeMatrix(hmatrix1);
-	hmatrix2 = homogenizeMatrix(hmatrix2);
-
-	helperMatrix = hmatrix2 * hmatrix1;
-
-	//make map<moduleid, SensorAligner> with 40 entries
-
-	//FIXME: do this in PndLmdDim, so that if something changes, only one place must be corrected
-	for(int iHalf=0; iHalf<2; iHalf++){
-		for(int iPlane=0; iPlane<4; iPlane++){
-			for(int iModule=0; iModule<5; iModule++){
-				for(int iOverlap=0; iOverlap<9;iOverlap++){
-					overlapId = 10* (dimension->makeModuleID(iHalf, iPlane, iModule))+iOverlap;
-					PndLmdSensorAligner tempAligner;
-					tempAligner.setOverlapId(overlapId);
-					tempAligner.setModuleID(dimension->makeModuleID(iHalf, iPlane, iModule));
-					tempAligner.setHelperMatrix(helperMatrix);
-					_aligners[overlapId]=tempAligner;
-				}
-			}
-		}
-	}
-	_allFilesAdded=false;
-	_useSimpleStorage=true;
-	outFilename="";
-	_singleAligner=true;
-	_pretend=false;
-
-	std::cout << "PndLmdAlignManager::Init(): Initialization successful." << std::endl;
-}
-
 void PndLmdAlignManager::checkIOpaths() {
 
 	//ensure input file exists
@@ -809,6 +819,13 @@ void PndLmdAlignManager::setInCentimeters(bool inCentimeters) {
 	_inCentimeters = inCentimeters;
 	for(mapIt it = _aligners.begin();  it != _aligners.end(); it++){
 		it->second.setInCentimeters(_inCentimeters);
+	}
+}
+
+void PndLmdAlignManager::setZasTimestamp(bool timestamp) {
+	_zIsTimestamp = timestamp;
+	for(mapIt it = _aligners.begin();  it != _aligners.end(); it++){
+		it->second.setZasTimetamp(_zIsTimestamp);
 	}
 }
 

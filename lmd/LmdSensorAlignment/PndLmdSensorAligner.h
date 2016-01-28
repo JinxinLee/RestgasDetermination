@@ -25,18 +25,17 @@
 class PndLmdSensorAligner{
 
 private:
-
 	bool _forceInstant;
 	int _maxNoOfPairs;
 	std::string _inputFilename;
 	int _moduleID, overlapID;
-	int nonSanePairs, skippedPairs, swappedPairs;
+	int nonSanePairs, skippedPairs, swappedPairs, _verbose=0;
 	int ID1, ID2;
 
 	std::vector<PndLmdHitPair> pairs;
 	std::vector<std::pair<double, double> > simplePairsSensorOne;
 	std::vector<std::pair<double, double> > simplePairsSensorTwo;
-	bool _pairsNormal, _pairsSimple, _inCentimeters, _success, _numericCorrection;
+	bool _pairsNormal, _pairsSimple, _inCentimeters, _success, _numericCorrection, _zIsTimestamp;
 
 	Matrix resultMatrix, _helperMatrix;
 
@@ -45,6 +44,9 @@ public:
 	PndLmdSensorAligner();
 	PndLmdSensorAligner(const PndLmdSensorAligner &other);
 	virtual ~PndLmdSensorAligner();
+
+	//every constructor should call this, also resets aligner (even though that never happens in normale use)
+	void init();
 
 	// add pair, make to vector
 	void addPair(PndLmdHitPair &pair);
@@ -99,6 +101,9 @@ public:
 	const Matrix& getResultMatrix() const {
 		return resultMatrix;
 	}
+	void setHelperMatrix(const Matrix& helperMatrix) {
+		_helperMatrix = helperMatrix;
+	}
 
 	//true in cm, false in pixels
 	//FIXME: only works with non-simplified pairs, fix this!
@@ -124,8 +129,8 @@ public:
 		_numericCorrection = numericCorrection;
 	}
 
-	void setHelperMatrix(const Matrix& helperMatrix) {
-		_helperMatrix = helperMatrix;
+	void setZasTimetamp(bool value){
+		_zIsTimestamp=value;
 	}
 };
 

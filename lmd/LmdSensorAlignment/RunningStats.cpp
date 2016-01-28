@@ -1,3 +1,10 @@
+/*
+ * this implementation file and its header are provided by John D. Cook
+ * please visit: http://www.johndcook.com/blog/skewness_kurtosis/ for more information.
+ * unfortunately, he does not provide any copyright information, just this code.
+ */
+
+
 #include "RunningStats.h"
 #include <cmath>
 #include <vector>

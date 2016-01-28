@@ -13,36 +13,34 @@
 #define LMD_LMDSENSORALIGNMENT_PNDLMDALIGNMANAGER_H_
 
 #include "PndLmdHitPair.h"
-
+#include <matrix.h>
 #include <string>
-#ifndef __CINT__
 #include <PndLmdSensorAligner.h>
-#endif
 #include <PndLmdDim.h>
 
 class PndLmdAlignManager {
 
-	// cint can't see these, it will crash
-#ifndef __CINT__
 	typedef std::map<int, PndLmdSensorAligner>::iterator mapIt;
-#endif
 
 private:
 
-	// cint can't see these, it will crash
-#ifndef __CINT__
 	std::map<int, PndLmdSensorAligner> _aligners;
 	Matrix helperMatrix;
-#endif
-
 	PndLmdDim *dimension;
 	bool _allFilesAdded, _pretend;
 	std::vector<std::string> _fileNames;
-	bool _useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix;
+	bool _useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp;
 	std::string outFilename, _matrixOutDir;
+
+	bool _firstInitDone=false;
+
+	void init();
 
 public:
 
+	/*
+	 * An empty AlignManager will use standart values. If you change any value, you must call init() again!
+	 */
 	PndLmdAlignManager();
 	virtual ~PndLmdAlignManager();
 
@@ -73,8 +71,6 @@ public:
 		_useSimpleStorage = useSimpleStorage;
 	}
 
-	// cint can't see these, it will crash
-#ifndef __CINT__
 	static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
 	void transformGlobalToLmd(Matrix &matrix);
 
@@ -103,8 +99,6 @@ public:
 		return helperMatrix;
 	}
 
-#endif
-
 	//returns a TVector3 from a Matrix(3,1) or Matrix(4,1)
 	TVector3 transformMeasuredToTrue(const TVector3 &hit, int sensorID);
 
@@ -116,8 +110,6 @@ public:
 		outFilename = filename;
 		checkIOpaths();
 	}
-
-	void reinitialize();
 
 	void checkIOpaths();
 
@@ -150,10 +142,10 @@ public:
 	 * and all calculations will be done in cm. Misalginment matrices are close to identity matrix, which could introduce
 	 * numerical errors.
 	 * If inCentimeters==false, then the ICP will work directly on row/col values and matrix will be in pixels. AlignManager
-	 * converts matrix to cm, but the resultant matrix is the product of musalignment*ideal!
+	 * converts matrix to cm, but the resultant matrix is the product of misalignment*ideal!
 	 */
 	void setInCentimeters(bool inCentimeters);
-
+	void setZasTimestamp(bool timestamp);
 	void enableHelperMatrix(bool enable);
 
 	void readTrafoMatrix(std::string filename, bool aligned){

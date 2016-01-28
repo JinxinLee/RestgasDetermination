@@ -47,7 +47,6 @@ Icp::Icp (double *M,const int32_t M_num,const int32_t dimension) :
 	for (int32_t m=0; m<M_num; m++)
 		for (int32_t n=0; n<dimension; n++)
 			M_data[m][n] = (double)M[m*dimension+n];
-
 	// build a kd tree from the model point cloud
 	M_tree = new kdtree::KDTree(M_data);
 
@@ -63,7 +62,6 @@ Icp::~Icp () {
 double Icp::fit (double *T,const int32_t T_number,Matrix &R,Matrix &t,const double indist) {
 
 	vector<int32_t> active;
-
 	this->T_num = T_number;
 
 	// make sure we have a model tree
@@ -77,7 +75,6 @@ double Icp::fit (double *T,const int32_t T_number,Matrix &R,Matrix &t,const doub
 		cout << "ERROR: Icp works only with at least 5 template points" << endl;
 		return 1;
 	}
-
 	if(instantForce){
 		active.clear();
 		for (int32_t i=0; i<T_number; i++)
@@ -89,7 +86,6 @@ double Icp::fit (double *T,const int32_t T_number,Matrix &R,Matrix &t,const doub
 		euclidean_fitness = computeFitnessRMSE(T,R,t);
 		return current_delta;
 	}
-
 	// coarse matching
 	active.clear();
 	for (int32_t i=0; i<T_number; i+=sub_step)
@@ -100,9 +96,7 @@ double Icp::fit (double *T,const int32_t T_number,Matrix &R,Matrix &t,const doub
 		//cout << "coarse matching failed" << endl;
 		return 0;
 	}
-
 	// fine matching
-	//cout << "fine matching..." << endl;
 	if (indist<=0) {
 		active.clear();
 		for (int32_t i=0; i<T_number; i++)
@@ -111,7 +105,6 @@ double Icp::fit (double *T,const int32_t T_number,Matrix &R,Matrix &t,const doub
 		active = getInliers(T,T_number,R,t,indist);
 	}
 	fitIterate(T,T_number,R,t,active);
-
 	return current_delta;
 }
 

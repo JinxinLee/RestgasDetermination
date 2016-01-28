@@ -25,7 +25,7 @@ using std::cout;
 using std::make_pair;
 
 
-PndLmdSensorAligner::PndLmdSensorAligner() {
+void PndLmdSensorAligner::init(){
 	_maxNoOfPairs=3e5;
 	_forceInstant=true;
 	_moduleID=-1;
@@ -39,29 +39,22 @@ PndLmdSensorAligner::PndLmdSensorAligner() {
 	overlapID=-1;
 	_inCentimeters=true;
 	_success=false;
+	_zIsTimestamp=true;
 	_helperMatrix = Matrix::eye(3);
-	//std::cout << "PndLmdSensorAligner::Init(): Initialization successful." << std::"\n";
-
+	//cout << "PndLmdSensorAligner::Init(): Initialization successful.\n";
 }
 
-PndLmdSensorAligner::~PndLmdSensorAligner() {
+PndLmdSensorAligner::PndLmdSensorAligner(){
+	init();
+}
 
+PndLmdSensorAligner::~PndLmdSensorAligner(){
+	//destroy everything. leave nothing standing.
 }
 
 PndLmdSensorAligner::PndLmdSensorAligner(const PndLmdSensorAligner& other) {
-	std::cout << "PndLmdSensorAligner::Warning! Unnecessary copy construction." << "\n";
-	_maxNoOfPairs=3e5;
-	_forceInstant=true;
-	_moduleID=-1;
-	nonSanePairs=0;
-	skippedPairs=0;
-	swappedPairs=0;
-	ID1=-1;
-	ID2=-1;
-	_pairsNormal=false;
-	_pairsSimple=false;
-	overlapID=-1;
-	_success=false;
+	std::cout << "PndLmdSensorAligner::Warning! Unnecessary copy-construction." << "\n";
+	init();
 }
 
 void PndLmdSensorAligner::calculateMatrix() {
@@ -117,7 +110,10 @@ void PndLmdSensorAligner::calculateMatrix() {
 	double* Model = new double[dim*nPairs];
 	double* Template = new double[dim*nPairs];
 
-	//loop over all available pairs, decide later what to use
+	if(_verbose==3)
+		cout << "arranging pairs...\n";
+
+	//loop over all available pairs and sort them to arrays
 	for(int ipair=0; ipair<nPairs; ipair++){
 		if(_pairsNormal && !_pairsSimple){
 			if(_inCentimeters){
@@ -127,47 +123,62 @@ void PndLmdSensorAligner::calculateMatrix() {
 				Template[ipair*3+0] = pairs[ipair].getHit2().x();
 				Template[ipair*3+1] = pairs[ipair].getHit2().y();
 				Template[ipair*3+2] = pairs[ipair].getHit2().z();
-
-				/*
-				cout << "mx: " << Model[ipair*3+0];
-				cout << ", my: " << Model[ipair*3+1];
-				cout << ", mz: " << Model[ipair*3+2] << "\n";
-
-				cout << "tx: " << Template[ipair*3+0];
-				cout << ", ty: " << Template[ipair*3+1];
-				cout << ", tz: " << Template[ipair*3+2] << "\n";
-
-				if(ipair>100) exit(0);
-				*/
-
 			}
 			else{
 				Model[ipair*3+0] = pairs[ipair].getCol1();
 				Model[ipair*3+1] = pairs[ipair].getRow1();
+				Model[ipair*3+2] = ipair;
 				Template[ipair*3+0] = pairs[ipair].getCol2();
 				Template[ipair*3+1] = pairs[ipair].getRow2();
+				Template[ipair*3+2] = ipair;
 			}
 		}
 		else if(!_pairsNormal && _pairsSimple){
 			Model[ipair*3+0] = simplePairsSensorOne[ipair].first;
 			Model[ipair*3+1] = simplePairsSensorOne[ipair].second;
+			Model[ipair*3+2] = ipair;
 			Template[ipair*3+0] = simplePairsSensorTwo[ipair].first;
 			Template[ipair*3+1] = simplePairsSensorTwo[ipair].second;
+			Template[ipair*3+2] = ipair;
 		}
 		else{
 			cout << "Fatal: inconsistent storage options in ICP model and template generation.\n This should never happen. \n";
 			cout << "pairsNormal: " << _pairsNormal << ", pairsSimple: " << _pairsSimple << "\n";
 			exit(1);
 		}
+	}
 
-		//if(!_inCentimeters){
-			//artificial z component
-			//Model[ipair*3+2] = (2.0*ipair/(double)nPairs -1.0)*12.0;
-			//Template[ipair*3+2] = (2.0*ipair/(double)nPairs -1.0)*12.0;
-		//}
+	//artificial z component, only really relevant if using cm coordinate system
+	if(_zIsTimestamp){
+
+		if(_verbose==3)
+			cout << "applying z coordinate...\n";
+
+		//determine maximum in every direction
+		double dmin=0.0, dmax=0.0;
+		for(int ipair=0; ipair<3*nPairs; ipair++){
+			dmin = min(dmin, Model[ipair]);
+			dmin = min(dmin, Template[ipair]);
+			dmax = max(dmax, Model[ipair]);
+			dmax = max(dmax, Template[ipair]);
+		}
+		double distance=dmax-dmin;
+
+		/*
+		 * set z coordinate to "timestamp"
+		 * this is equallay distributed from (-0.5 to 0.5)*distance
+		 */
+		for(int ipair=0; ipair<nPairs; ipair++){
+			Model[ipair*3+2] = (ipair/(double)nPairs -0.5)*distance;
+			Template[ipair*3+2] = (ipair/(double)nPairs -0.5)*distance;
+		}
 	}
 
 	if(_numericCorrection){
+
+		if(_verbose==3)
+			cout << "applying numeric correction matrix...\n";
+
 		//rotation matrix for numerical stability
 		for(int ipairs=0; ipairs<nPairs; ipairs++){
 			Matrix vec(4,1);
@@ -186,7 +197,17 @@ void PndLmdSensorAligner::calculateMatrix() {
 	int modxinv=0, modyinv=0, modzinv=0;
 	int temxinv=0, temyinv=0, temzinv=0;
 
+	/*
+	 * zero factor had to be introduced because a bug in earlier versions led to many entries
+	 * being filled with zeros. it shouldn't be needed anymore, but it doesn't cost much and
+	 * could still be useful.
+	 */
+
+	if(_verbose==3)
+		cout << "checking for zero values...\n";
+
 	for(int iCheck=0; iCheck<dim*nPairs; iCheck++){
+
 		double val1 = abs(Model[iCheck]);
 		double val2 = abs(Template[iCheck]);
 
@@ -204,8 +225,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 				//cout << "model zval invalid\n";
 				modzinv++;
 			}
-
-
 			zeroVals++;
 			//cout << val1 << "\n";
 		}
@@ -228,6 +247,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 			//cout << val2 << "\n";
 		}
 	}
+
 	// 3 dimension and 2 arrays = 6
 	double zeroFactor = zeroVals/((double)nPairs*6.0);
 	if(zeroFactor > 0.1 && zeroFactor < 0.3){
@@ -258,6 +278,9 @@ void PndLmdSensorAligner::calculateMatrix() {
 		exit(1);
 	}
 
+	if(_verbose==3)
+		cout << "creating ICP...\n";
+
 	// start with identity as initial transformation
 	// in practice you might want to use some kind of prediction here
 	Matrix Rotation = Matrix::eye(3);
@@ -266,11 +289,18 @@ void PndLmdSensorAligner::calculateMatrix() {
 	//perform ICP and store quality parameters
 	//attention! dim * nPairs must equal size of model!
 	IcpPointToPoint icp(Model,nPairs,dim);
+
+	if(_verbose==3)
+		cout << "ICP and model created...\n";
+
 	icp.forceInstantResult(_forceInstant);
 	//icp.setMaxIterations(75);
 	//icp.setMinDeltaParam(minDelta);
 	//icp.setEventTimeCheck(eventTimeCheck);
 	icp.fit(Template,nPairs,Rotation,translation,-1);
+
+	if(_verbose==3)
+		cout << "ICP fit step done.\n";
 
 	/*
 	// results
@@ -356,6 +386,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 		alignlog << "====================================================\n";
 		alignlog << "grepLine: " << ID1 << "to" << ID2 << ": \t efs=" << icp.getFitnessScore() << " \t nPairs=" << nPairs << "\n";
 		alignlog << "====================================================\n";
+		if(_verbose==3)
+			cout << "ICP convergence ok.\n";
 	}
 	else{
 		alignlog << "\n";
@@ -364,19 +396,18 @@ void PndLmdSensorAligner::calculateMatrix() {
 		alignlog << "no convergence for sensors " << ID1 << " to " << ID2 << "."<< "\n";
 		alignlog << "====================================================\n";
 		alignlog << "\n";
+		if(_verbose==3)
+			cout << "ICP did not converge!\n";
 		_success=false;
 	}
-
-	//cout << alignlog.str();
+	if(_verbose==3)
+		cout << alignlog.str();
 
 	delete[] Model;
 	delete[] Template;
 	delete tempR;
 	delete tempT;
 	delete finalMatrix;
-
-	// Matrix result is final result. Compare with PndLmdDim
-	//cout << resultMatrix << "\n";
 
 	return;
 }
