@@ -139,7 +139,7 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
   if ( fSaveOutsideHits ) {
     if ( ! fHitOutsideArray ) Fatal("Exec", "No fHitOutsideArray");
-    fHitOutsideArray->Clear();
+    fHitOutsideArray->Delete();
   }
 
   Reset();
@@ -612,7 +612,7 @@ InitStatus PndGemDigitize::ReInit() {
 void PndGemDigitize::Reset() {
   fNPoints = fNFailed = fNOutside = fNMulti = fNDigis = 0;
   fChannelMap.clear();
-  if ( fDigis ) fDigis->Clear();
+  if ( fDigis ) fDigis->Delete();
   if ( fDigiMatches ) fDigiMatches->Clear();
 }
 // -------------------------------------------------------------------------
