@@ -87,6 +87,12 @@ void PndPidMdtHCAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
       mom_min = 0.2;
       mom_max = 0.8;
     }
+  else if (pidcand->GetMuoModule()==4)
+    {
+      iron_thr = 95.;
+      mom_min = 1.5;
+      mom_max = 1.5;
+    }
   else
     {
       return;
@@ -94,7 +100,7 @@ void PndPidMdtHCAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
   
   if (pidcand->GetMuoMomentumIn() < mom_min) return;
   
-  if (pidcand->GetMuoMomentumIn() > mom_max)
+  if (pidcand->GetMuoMomentumIn() >= mom_max)
     {
       if (pidcand->GetMuoIron()>iron_thr)
 	{
