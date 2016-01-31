@@ -73,9 +73,9 @@ class PndTrkTracking2 : public FairTask
   };
 
   void SetInputBranchName(
-	char* string1,
-	char* string2,
-	char* string3
+	const char* string1,
+	const char* string2,
+	const char* string3
 	)
   {
 	sprintf(fSttBranch,"%s", string1);
