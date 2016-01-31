@@ -23,6 +23,7 @@
 #include "PndStack.h"
 #include "FairBaseParSet.h"
 #include "PndGeoDrcPar.h"
+#include "PndGeoDrc.h"
 #include "TString.h"
 #include <string>
 #include "TH1.h"
