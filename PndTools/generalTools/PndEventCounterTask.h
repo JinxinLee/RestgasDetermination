@@ -13,7 +13,7 @@ class PndEventCounterTask : public FairTask
     PndEventCounterTask(const char* name = "Event Counter", Int_t nev=1, Int_t talk=1);
     virtual ~PndEventCounterTask();
     virtual void SetParContainers() {return;}
-    virtual InitStatus Init(){return kSUCCESS;}
+    virtual InitStatus Init();
     virtual InitStatus ReInit(){return kSUCCESS;}
     virtual void Exec(Option_t* opt);
     void SetVerbose(Int_t iVerbose) {fVerbose=iVerbose;}

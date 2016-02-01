@@ -4,6 +4,10 @@
 // -------------------------------------------------------------------------
 
 #include "PndEventCounterTask.h"
+
+#include "FairRootManager.h"
+#include "FairFileSource.h"
+
 #include <iostream>
 
 PndEventCounterTask::PndEventCounterTask(const char* name, Int_t nev, Int_t talk) :
@@ -22,6 +26,19 @@ fTimer()
 // -----   Destructor   ----------------------------------------------------
 PndEventCounterTask::~PndEventCounterTask()
 {
+}
+// -------------------------------------------------------------------------
+
+// -----   Init         ----------------------------------------------------
+InitStatus PndEventCounterTask::Init()
+{
+  if (fNEvts==0)
+    {
+      FairFileSource *source = (FairFileSource*)FairRootManager::Instance()->GetSource();
+      fNEvts = source->GetEntries();
+    }
+  
+  return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
