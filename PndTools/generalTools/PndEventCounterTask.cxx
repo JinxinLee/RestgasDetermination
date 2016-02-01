@@ -6,7 +6,6 @@
 #include "PndEventCounterTask.h"
 
 #include "FairRootManager.h"
-#include "FairFileSource.h"
 
 #include <iostream>
 
@@ -34,8 +33,7 @@ InitStatus PndEventCounterTask::Init()
 {
   if (fNEvts==0)
     {
-      FairFileSource *source = (FairFileSource*)FairRootManager::Instance()->GetSource();
-      fNEvts = source->GetEntries();
+      fNEvts = FairRootManager::Instance()->CheckMaxEventNo(0);
     }
   
   return kSUCCESS;
