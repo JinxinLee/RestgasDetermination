@@ -1,5 +1,7 @@
 #include "PndMasterTask.h"
 
+#include <iostream>
+
 // -----   Default constructor   -------------------------------------------
 PndMasterTask::PndMasterTask() :
   PndBlackBoxTask("Master  Task")
