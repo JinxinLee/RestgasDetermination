@@ -202,6 +202,7 @@ PndEmcDigi* PndEmcMakeDigi::AddDigi(Int_t trackID,Int_t detID, Float_t energy, F
   Int_t size = clref.GetEntriesFast();
   PndEmcDigi* newDigi = new(clref[size]) PndEmcDigi(trackID, detID, energy, time, hitIndex);
   newDigi->SetTimeStamp(FairRootManager::Instance()->GetEventTime() + time*1.e9);
+  return newDigi;
 }
 
 void PndEmcMakeDigi::SetParContainers() {
