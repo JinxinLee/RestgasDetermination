@@ -29,7 +29,7 @@ private:
 	int _maxNoOfPairs;
 	std::string _inputFilename;
 	int _moduleID, overlapID;
-	int nonSanePairs, skippedPairs, swappedPairs, _verbose=0;
+	int nonSanePairs, skippedPairs, swappedPairs, _verbose;
 	int ID1, ID2;
 
 	std::vector<PndLmdHitPair> pairs;

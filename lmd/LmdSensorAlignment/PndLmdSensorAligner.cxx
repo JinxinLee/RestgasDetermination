@@ -15,7 +15,6 @@
 #include <icpPointToPoint.h>
 #include <matrix.h>
 #include <PndLmdAlignManager.h>
-//using namespace std;
 
 //do NOT delete this, or else abs() is a C style macro that casts a double to an int!!
 using std::abs;
@@ -34,6 +33,7 @@ void PndLmdSensorAligner::init(){
 	swappedPairs=0;
 	ID1=-1;
 	ID2=-1;
+	_verbose=0;
 	_pairsNormal=false;
 	_pairsSimple=false;
 	overlapID=-1;

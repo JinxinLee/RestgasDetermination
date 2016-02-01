@@ -31,10 +31,7 @@ private:
 	std::vector<std::string> _fileNames;
 	bool _useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp;
 	std::string outFilename, _matrixOutDir;
-
-	bool _firstInitDone=false;
-
-	void init();
+	bool _firstInitDone;
 
 public:
 
@@ -43,6 +40,9 @@ public:
 	 */
 	PndLmdAlignManager();
 	virtual ~PndLmdAlignManager();
+
+	// initializes Manager on construction or RESETS every value to default
+	void init();
 
 	//check ID and sort pair to appropriate SensorAligner
 	/* FIXME: observe memory, maybe 40 Aligners with 300k Pairs is too large for memory
@@ -57,6 +57,11 @@ public:
 	//add filename, so the aligner adds the pair itself
 	bool addFile(std::string filename);
 	void readFiles();
+
+	//add all pair files that can be found in directory, up to a maximum of maxFiles
+	//returns number of files found (including 0 for no files) or -1 if "pretend" option is set
+	//set maxFiles=0 for all available files
+	int addFilesFromDirectory(std::string directory, int maxFiles=10);
 
 	void validate();
 
@@ -153,6 +158,9 @@ public:
 	}
 
 	void xOption(int option);
+
+	void execMT(int counter);
+	void testThreadpool();
 
 };
 

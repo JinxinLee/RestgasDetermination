@@ -11,6 +11,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
+#include <boost/bind.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/thread.hpp>
+#include <functional>
+
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -28,7 +33,10 @@
 using std::vector;
 using std::string;
 
+using namespace boost;
+
 PndLmdAlignManager::PndLmdAlignManager() {
+	_firstInitDone=false;
 	init();
 }
 
@@ -52,7 +60,7 @@ void PndLmdAlignManager::init(){
 	_aligners.clear();
 	_fileNames.clear();
 
-	//hackjob, do this right!
+	//TODO: hackjob, do this right!
 	Matrix matrix1 = Matrix::rotMatX(M_PI/16);
 	Matrix matrix2 = Matrix::rotMatY(M_PI/16);
 	Matrix matrix3 = Matrix::rotMatZ(M_PI/16);
@@ -182,7 +190,6 @@ void PndLmdAlignManager::readFiles(){
 		}
 	}
 
-	//TODO: remove
 	cout << "=========================\n";
 	cout << "total Pairs: " << totalPairs << endl;
 	cout << "All done. Running Align Manager.\n";
@@ -213,6 +220,7 @@ void PndLmdAlignManager::alignAllSensors() {
 	stringstream info;
 	info << "info for aligned areas\n";
 	cout << "starting aligners...\n";
+
 	//maybe do this multithreaded?
 	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
 
@@ -1041,7 +1049,29 @@ TVector3 PndLmdAlignManager::castMatrixToTVector3(const Matrix& vec) {
 
 TVector3 PndLmdAlignManager::transformMeasuredToTrue(const TVector3& hit1measured, int sensorID) {
 
+}
 
+int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFiles) {
+
+	if(_pretend){
+		return -1;
+	}
+
+	if(_allFilesAdded){
+		return _fileNames.size();
+	}
+	else{
+		std::vector<string> list;
+		searchFiles(directory, list, ".root", false);
+		for(int i=0;i<list.size();i++){
+			_fileNames.push_back(list[i]);
+			if(i==maxFiles-1){
+				break;
+			}
+		}
+		_allFilesAdded=true;
+		return _fileNames.size();
+	}
 }
 
 void PndLmdAlignManager::xOption(int option) {
@@ -1128,5 +1158,13 @@ void PndLmdAlignManager::xOption(int option) {
 		cout << "invalid selection\n";
 		exit(0);
 	}
+
+}
+
+void PndLmdAlignManager::execMT(int counter){
+	cout << "this is a thread, reporting " << counter << "\n";
+}
+
+void PndLmdAlignManager::testThreadpool() {
 
 }
