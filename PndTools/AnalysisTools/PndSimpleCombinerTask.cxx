@@ -151,8 +151,6 @@ InitStatus PndSimpleCombinerTask::Init()
 	// ******* PREPARE/CREATE THE STUFF YOU NEED
 	// *******
 	
-	fPdg = TDatabasePDG::Instance();
-
 	// ***
 	// *** Prepare RhoTuple output  
 	// ***
@@ -177,7 +175,7 @@ InitStatus PndSimpleCombinerTask::Init()
 		
 		TString pname = toks[i](0,toks[i].Index("->"));
 		pname.ReplaceAll(" ","");
-		if (fPdg->GetParticle(pname)) {vmpdg.push_back(fPdg->GetParticle(pname)->PdgCode());}
+		if (TDatabasePDG::Instance()->GetParticle(pname)) {vmpdg.push_back(TDatabasePDG::Instance()->GetParticle(pname)->PdgCode());}
 	}
 	
 	// *** create MC ntuples
@@ -200,7 +198,7 @@ InitStatus PndSimpleCombinerTask::Init()
 	
 	cout <<"Ntuple output : ";
 	if (fQaMC) cout <<"nmc  ";
-	for (int i=0;i<fNntp;++i) if (!(fNodump & (1<<i))) cout <<"ntp"<<i<<"("<<fPdg->GetParticle(vmpdg[i])->GetName()<<")  ";
+	for (int i=0;i<fNntp;++i) if (!(fNodump & (1<<i))) cout <<"ntp"<<i<<"("<<TDatabasePDG::Instance()->GetParticle(vmpdg[i])->GetName()<<")  ";
 	cout <<endl<<endl;
 
 	
@@ -313,7 +311,7 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 						  
 		int pdg  = vmpdg[i];
 		int apdg = 0;
-		if (fPdg->GetParticle(pdg)->AntiParticle()) apdg = fPdg->GetParticle(pdg)->AntiParticle()->PdgCode();
+		if (TDatabasePDG::Instance()->GetParticle(pdg)->AntiParticle()) apdg = TDatabasePDG::Instance()->GetParticle(pdg)->AntiParticle()->PdgCode();
 		
 		// check whether there is an own ntuple connected to the anti-particle pdg; if yes, reset apdg
 		for (j=0; j<fNntp; ++j) if (vmpdg[j]==apdg) {apdg=0; j=fNntp+1;}
@@ -322,7 +320,7 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 		fSimpleCombiner->GetList(l1, pdg);
 		if (apdg!=0 && fSimpleCombiner->GetList(l2, apdg)) l1.Append(l2);
 
-		//RhoMassParticleSelector msel("msel",fPdg->GetParticle(pdg)->Mass(),0.2);
+		//RhoMassParticleSelector msel("msel",TDatabasePDG::Instance()->GetParticle(pdg)->Mass(),0.2);
 		//l1.Select(&msel);
 		
 		// number of charged daughters for vtx fit

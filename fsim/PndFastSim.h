@@ -91,6 +91,7 @@ class PndFastSim : public FairTask
   void smearTpcdEdx(PndFsmTrack *t, double dedx);
   void smearSttdEdx(PndFsmTrack *t, double dedx);
   void SetFlatCovMatrix(PndFsmTrack *t, double dp=0., double dtheta=0., double dphi=0., double dE=0., double dx=0., double dy=0., double dz=0.);
+  void UpdateGammaHit(PndFsmTrack *t);
 
   /** Output array of Candidates **/
   TClonesArray* fMcCandidates;

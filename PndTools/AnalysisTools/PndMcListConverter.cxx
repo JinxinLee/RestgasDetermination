@@ -79,8 +79,6 @@ InitStatus PndMcListConverter::Init()
   // Create and register output array
   cout << "-I- PndMcListConverter: Intialization successfull" << endl;
 
-  fPdg = TDatabasePDG::Instance();
-
   return kSUCCESS;
 
 }
@@ -115,7 +113,7 @@ void PndMcListConverter::Exec(Option_t* opt)
     TLorentzVector p4 = part->Get4Momentum();
     TVector3    stvtx = part->GetStartVertex();
 
-    TParticlePDG* ppdg = fPdg->GetParticle(part->GetPdgCode());
+    TParticlePDG* ppdg = TDatabasePDG::Instance()->GetParticle(part->GetPdgCode());
 
     double charge=0.0;
 

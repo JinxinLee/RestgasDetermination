@@ -102,6 +102,11 @@ PndFsmEmcFwCap::respond(PndFsmTrack *t)
     result->setdE(dE(t));
     result->setdphi(dphi(t));
     result->setdtheta(dtheta(t));
+    double zscale = t->p4().Pz()/_dist;
+    double x = t->p4().Px()/zscale;
+    double y = t->p4().Py()/zscale;
+    TVector3 hitpos(x,y,_dist);
+    t->setStopVtx(hitpos);
   }
   else
   {

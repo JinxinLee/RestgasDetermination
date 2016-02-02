@@ -26,16 +26,16 @@ class RhoDecayTreeFitter : public DecayTreeFitter::Fitter
   public:
   
     /// constructor from the particle (decay head)
-    RhoDecayTreeFitter ( RhoCandidate*   bc) ;
+    RhoDecayTreeFitter ( RhoCandidate*   bc, int verbosity = 0) ;
 
     /// constructor from the particle (decay head) and primary vertex
-    RhoDecayTreeFitter ( RhoCandidate*   bc, const RhoVector3Err& pv) ;
+    RhoDecayTreeFitter ( RhoCandidate*   bc, const RhoVector3Err& pv, int verbosity = 0) ;
 
     /// constructor from the particle (decay head) and pbeam
-    RhoDecayTreeFitter ( RhoCandidate*   bc, const RhoLorentzVectorErr& lv) ;
+    RhoDecayTreeFitter ( RhoCandidate*   bc, const RhoLorentzVectorErr& lv, int verbosity = 0) ;
 
     /// constructor from the particle (decay head), pbeam and primary vertex
-    RhoDecayTreeFitter ( RhoCandidate*   bc, const RhoLorentzVectorErr& lv, const RhoVector3Err& pv) ;
+    RhoDecayTreeFitter ( RhoCandidate*   bc, const RhoLorentzVectorErr& lv, const RhoVector3Err& pv, int verbosity = 0) ;
     
     /// destructor
     ~RhoDecayTreeFitter ();

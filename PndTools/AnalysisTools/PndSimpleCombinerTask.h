@@ -92,7 +92,6 @@ class PndSimpleCombinerTask : public FairTask
 	
 	// *** object instances needed
 	PndAnalysis       *fAnalysis;
-	TDatabasePDG      *fPdg;
 	PndSimpleCombiner *fSimpleCombiner;
 		
 	std::vector<int> vmpdg;        // pdg code of the composites

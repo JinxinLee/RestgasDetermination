@@ -102,7 +102,6 @@ private:
 	RhoEnergyParticleSelector   *fESel;
 	RhoMomentumParticleSelector *fPSel;
 	
-	TDatabasePDG *fPdg;
 	std::map<int,int>     fPdgIdxMap;
 	std::map<int,int>     fIdxPdgMap;
 	

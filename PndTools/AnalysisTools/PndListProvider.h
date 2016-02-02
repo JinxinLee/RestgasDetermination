@@ -130,8 +130,6 @@ class PndListProvider
     bool             fCandsUptodate;
     bool             fHistoFilled;
 
-    TDatabasePDG*    fdbPdg;
-
 };
 
 #endif

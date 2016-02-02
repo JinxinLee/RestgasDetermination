@@ -826,27 +826,22 @@ RhoCandidate::SetType ( const TParticlePDG* pdt )
   fPdtEntry = pdt;
   fPdgCode = pdt->PdgCode();
 
-  //
   // by default :
-  //   if the proper lifetime multiplied by light velocity is less
-  //    than a nanometer, the candidate is considered a resonance
-  //      (a state that does not fly)
-  //
+  //   if the proper lifetime multiplied by light velocity is less than a nanometer, 
+  //   the candidate is considered a resonance (a state that does not fly)
   fIsAResonance=kFALSE;
   if ( fPdtEntry->Width() >1E-15 /*Lifetime()<1e-08*/ ) { fIsAResonance=kTRUE; }
 
+  double pdgcharge=fPdtEntry->Charge(); 
+  if(fabs(pdgcharge)>2) pdgcharge/=3.;// TParticlePDG contains charge in units of |e|/3
   if ( !IsComposite() ) {
-
-    // the mass has changed since the type has changed
-    //SetMass ( Mass() );
-    SetMass(fPdtEntry->Mass());
-    // set the charge
-    SetCharge ( pdt->Charge()/3. ); // TParticlePDG contains charge in units of |e|/3
+    SetMass(fPdtEntry->Mass());// the mass has changed since the type has changed
+    SetCharge ( pdgcharge ); // set the charge
   } else {
-    if ( Charge() !=pdt->Charge()/3. ) {
-      cerr
+    if ( Charge() !=pdgcharge ) {
+    cerr
           << "ERROR: attempt to call RhoCandidate::SetType(\""
-          << pdt->GetName()<<" | "<<pdt->ParticleClass() <<" | Q=" << pdt->Charge()/3.<< "\") for a composite" << endl
+          << fPdtEntry->GetName()<<" | "<<fPdtEntry->ParticleClass() <<" | Q=" << fPdtEntry->Charge()/3.<< "\") for a composite" << endl
           << "       RhoCandidate whose daughters have total charge "
           << Charge() << endl;
       //assert( Charge()==pdt->Charge() );

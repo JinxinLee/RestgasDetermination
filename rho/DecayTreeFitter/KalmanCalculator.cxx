@@ -33,7 +33,7 @@ DecayTreeFitter::KalmanCalculator::init(const TVectorD& value, const TMatrixD& G
                                         int weight)
 {
   ErrCode status ;
-  if(vtxverbose>=5) { std::cout << "KalmanCalculator::init()"<<std::endl;}
+  if(vtxverbose>=6) { std::cout << "KalmanCalculator::init()"<<std::endl;}
   m_nconstraints = value.GetNrows() ;  // dimension of the constraint
   m_nparameters  = fitparams->dim() ; // dimension of the state
 
@@ -47,7 +47,7 @@ DecayTreeFitter::KalmanCalculator::init(const TVectorD& value, const TMatrixD& G
   m_value = &value ;
   m_matrixG     = &G ;
   TMatrixDSym C(fitparams->cov());
-  if(vtxverbose>=5) { printf("KalmanCalculator::init() G.GetNrows()/G.GetNcols() = %i/%i \t valdim/statdim = %i/%i \t V.GetNrows()/C.GetNrows() = %i/%i  V.GetNcols()/C.GetNcols() = %i/%i \n",G.GetNrows(),G.GetNcols(),valdim,statdim,V.GetNrows(),C.GetNrows(),V.GetNcols(),C.GetNcols());}
+  if(vtxverbose>=6) { printf("KalmanCalculator::init() G.GetNrows()/G.GetNcols() = %i/%i \t valdim/statdim = %i/%i \t V.GetNrows()/C.GetNrows() = %i/%i  V.GetNcols()/C.GetNcols() = %i/%i \n",G.GetNrows(),G.GetNcols(),valdim,statdim,V.GetNrows(),C.GetNrows(),V.GetNcols(),C.GetNcols());}
 
   // calculate C*G.T()
 #ifdef SLOWBUTSAFE
@@ -70,7 +70,7 @@ DecayTreeFitter::KalmanCalculator::init(const TVectorD& value, const TMatrixD& G
           m_matrixCGT(row,col) += C(row,k) * tmp ;
       }
 #endif
-  if(vtxverbose>=5) { std::cout << "KalmanCalculator::init() calc R = G*C*GT + V"<<std::endl;}
+  if(vtxverbose>=6) { std::cout << "KalmanCalculator::init() calc R = G*C*GT + V"<<std::endl;}
 
   // calculate the error in the predicted residual R = G*C*GT + V
   // slow:
@@ -81,7 +81,7 @@ DecayTreeFitter::KalmanCalculator::init(const TVectorD& value, const TMatrixD& G
   TMatrixDSym theV(V);
   theV *= weight;
   m_matrixRinv += theV; 
-  if(vtxverbose>=5) { std::cout << "KalmanCalculator::init() V"<<std::endl;}
+  if(vtxverbose>=6) { std::cout << "KalmanCalculator::init() V"<<std::endl;}
   if(vtxverbose>=7) { theV.Print();}
 #else
   m_matrixRinv = V ;
@@ -97,10 +97,10 @@ DecayTreeFitter::KalmanCalculator::init(const TVectorD& value, const TMatrixD& G
       m_matrixRinv(col,row) = m_matrixRinv(row,col)
   }
 #endif
-  if(vtxverbose>=5) { std::cout << "KalmanCalculator::init() G*C*GT"<<std::endl;}
+  if(vtxverbose>=6) { std::cout << "KalmanCalculator::init() G*C*GT"<<std::endl;}
   if(vtxverbose>=7) { Rinv.Print();}
 
-  if(vtxverbose>=5) { std::cout << "KalmanCalculator::init() invert R"<<std::endl;}
+  if(vtxverbose>=6) { std::cout << "KalmanCalculator::init() invert R"<<std::endl;}
   m_matrixR.ResizeTo(m_matrixRinv);
   m_matrixR = m_matrixRinv ;
   double det=0;
@@ -111,7 +111,7 @@ DecayTreeFitter::KalmanCalculator::init(const TVectorD& value, const TMatrixD& G
   }
   if(vtxverbose>=7) { m_matrixRinv.Print();}
 
-  if(vtxverbose>=5) { std::cout << "KalmanCalculator::init() calculate gain"<<std::endl;}
+  if(vtxverbose>=6) { std::cout << "KalmanCalculator::init() calculate gain"<<std::endl;}
   // calculate the gain matrix
   TMatrixD K(m_matrixCGT,TMatrixD::kMult,m_matrixRinv);
   m_matrixK.ResizeTo(K) ;
@@ -126,7 +126,7 @@ DecayTreeFitter::KalmanCalculator::init(const TVectorD& value, const TMatrixD& G
   //     if(V) Rs += (*V) ;
   //     Rs.invert(m_ierr) ;
   //     VtkSparseMatrix Ks = CGT*Rs ;
-  if(vtxverbose>=5) { std::cout << "KalmanCalculator::init() done"<<std::endl;}
+  if(vtxverbose>=6) { std::cout << "KalmanCalculator::init() done"<<std::endl;}
   return status ;
 }
 

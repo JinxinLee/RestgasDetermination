@@ -39,8 +39,6 @@ class PndMcListConverter : public FairTask
     TClonesArray* fMcCandidates;
     TClonesArray* fMcTracks;
 
-    TDatabasePDG* fPdg;
-
     /** Geo file to use **/
 
     /** Get parameter containers **/

@@ -50,8 +50,6 @@ using std::endl;
 
 PndListProvider::PndListProvider(std::string name,std::string pdgType)
 {
-  fdbPdg=TDatabasePDG::Instance();
-
   fName=name;
   fNDaughters=0;
   fIsGeneric=false;
@@ -71,7 +69,7 @@ PndListProvider::PndListProvider(std::string name,std::string pdgType)
   fMassSel  = 0;
 
   if (pdgType!="") {
-    fParticlePDG=fdbPdg->GetParticle(pdgType.c_str());
+    fParticlePDG=TDatabasePDG::Instance()->GetParticle(pdgType.c_str());
   } else {
     fParticlePDG=0;
   }
@@ -81,8 +79,6 @@ PndListProvider::PndListProvider(std::string name,std::string pdgType)
 
 PndListProvider::PndListProvider(std::string name,int pdgcode)
 {
-  fdbPdg=TDatabasePDG::Instance();
-
   fName=name;
   fNDaughters=0;
   fIsGeneric=false;
@@ -102,7 +98,7 @@ PndListProvider::PndListProvider(std::string name,int pdgcode)
   fMassSel  = 0;
 
   if (pdgcode!=0) {
-    fParticlePDG=fdbPdg->GetParticle(pdgcode);
+    fParticlePDG=TDatabasePDG::Instance()->GetParticle(pdgcode);
   } else {
     fParticlePDG=0;
   }
@@ -123,28 +119,28 @@ PndListProvider::~PndListProvider()
 
 void PndListProvider::SetType(std::string pdgType)
 {
-  fParticlePDG=fdbPdg->GetParticle(pdgType.c_str());
+  fParticlePDG=TDatabasePDG::Instance()->GetParticle(pdgType.c_str());
 }
 
 // -------------------------------------------------------------------------
 
 void PndListProvider::SetType(int pdgcode)
 {
-  fParticlePDG=fdbPdg->GetParticle(pdgcode);
+  fParticlePDG=TDatabasePDG::Instance()->GetParticle(pdgcode);
 }
 
 // -------------------------------------------------------------------------
 
 void PndListProvider::AddDaughterType(std::string dtype)
 {
-  fDaughterPDG.push_back(fdbPdg->GetParticle(dtype.c_str()));
+  fDaughterPDG.push_back(TDatabasePDG::Instance()->GetParticle(dtype.c_str()));
 }
 
 // -------------------------------------------------------------------------
 
 void PndListProvider::AddDaughterType(int pdgcode)
 {
-  fDaughterPDG.push_back(fdbPdg->GetParticle(pdgcode));
+  fDaughterPDG.push_back(TDatabasePDG::Instance()->GetParticle(pdgcode));
 }
 
 // -------------------------------------------------------------------------

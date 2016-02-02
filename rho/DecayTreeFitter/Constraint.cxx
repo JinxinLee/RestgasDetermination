@@ -158,7 +158,7 @@ DecayTreeFitter::Constraint::filter(FitParams* fitpar, const FitParams* referenc
     kalman.updatePar( fitpar ) ;
     kalman.updateCov( fitpar ) ;
     fitpar->addChiSquare( kalman.chisq(), m_dim, p.particle() ) ;
-    if(vtxverbose>=3) { std::cout << "Constraint::filter(FitParams*,FitParams*): \""<<name()<<"\" Chisquare contribution:"  <<kalman.chisq()<<" with "<<m_dim<<" dimensions from particle "<<p.particle()->name()<<std::endl;}
+    if(vtxverbose>=3) { std::cout << "Constraint::filter(FitParams*,FitParams*): \""<<name()<<"\" Chisquare contribution: "  <<kalman.chisq()<<" with "<<m_dim<<" dimensions from particle "<<p.particle()->name()<<std::endl;}
     if(vtxverbose>=5) { std::cout << "Constraint::filter(FitParams*,FitParams*): done"<<std::endl;}
   }
   if( status.failure()){
@@ -181,7 +181,7 @@ std::string DecayTreeFitter::Constraint::name() const
   std::string rc = "unknown constraint!" ;
   switch(m_type)
   {
-    //case beamspot:     rc = "beamspot" ; break ;
+    case beamspot:     rc = "beamspot" ; break ;
     case beamenergy:   rc = "beamenergy" ; break ;
     case composite:    rc = "composite" ; break ;
     case resonance:    rc = "resonance" ; break ;

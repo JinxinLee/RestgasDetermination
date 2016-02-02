@@ -28,8 +28,12 @@ TDatabasePDG* RhoPdtLoader::ReadPDGTable(const char *filename, bool force)
 {
     TDatabasePDG* pdgtable = TDatabasePDG::Instance();
     if(force) {
-      delete pdgtable;
+      //cout<<"RhoPdtLoader: old pdg "<<pdgtable<<endl;
+      pdgtable->~TDatabasePDG();
+      //cout<<"RhoPdtLoader: deleted pdg "<<pdgtable<<endl;
       pdgtable = TDatabasePDG::Instance();
+      //pdgtable = new TDatabasePDG();
+      //cout<<"RhoPdtLoader: new pdg "<<pdgtable<<endl;
       Info("RhoPdtLoader","Forcing an empty PDG table start.");
       pdgtable->ReadPDGTable("/dev/null"); // ensure to have a total empty table
     }
@@ -83,7 +87,7 @@ TDatabasePDG* RhoPdtLoader::ReadPDGTable(const char *filename, bool force)
                 linestr >> mass >> width >> cut >> charge;
                 linestr >> spin >> lifetime;
 
-                charge /= 3.0;
+                //charge /= 3.0;
                 if (classname != "Meson")
                     spin /= 2.0;
 

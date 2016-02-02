@@ -40,8 +40,7 @@ namespace DecayTreeFitter
     ErrCode projectLifeTimeConstraint(const FitParams*, Projection&) const ;
     ErrCode projectConversionConstraint(const FitParams*,Projection& p) const ;
     ErrCode projectMassConstraintTwoBody(const FitParams* fitparams,Projection& p) const ;
-    virtual ErrCode projectConstraint(Constraint::Type type,
-                                      const FitParams* fitparams,Projection& p) const ;
+    virtual ErrCode projectConstraint(Constraint::Type type, const FitParams* fitparams,Projection& p) const ;
 
     // some of that other stuff
     virtual void addToConstraintList(constraintlist& alist, int depth) const ;

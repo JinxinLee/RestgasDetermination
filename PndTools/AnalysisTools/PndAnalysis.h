@@ -43,6 +43,7 @@ class PndAnalysis
     //void SetPidNeutralName(TString s) {fNeutralPidName = s;}
     //void SetTracksName(TString s) {fTracksName = s;}
     //void SetTracksName2(TString s) {fTracksName2 = s;}
+    
     Bool_t PropagateToIp(RhoCandidate* cand);
     Bool_t PropagateToZAxis(RhoCandidate* cand);
     Bool_t PropagateToPoint(RhoCandidate* cand, TVector3 mypoint);
@@ -90,8 +91,6 @@ class PndAnalysis
     Double_t           fPhotosThresh;
 
     std::map<int,RhoCandidate*> fMcPresenceMap;
-
-    TDatabasePDG* fPdg;
 
     TClonesArray* fChargedCands;
     TClonesArray* fBremCorr;

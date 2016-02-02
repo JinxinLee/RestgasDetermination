@@ -24,6 +24,7 @@ using std::endl;
 #include "RhoFactory.h"
 #include "RhoCandidate.h"
 #include "RhoCandList.h"
+#include "RhoPdtLoader.h"
 
 #include "FairTrackParP.h"
 #include "FairTrackParH.h"
@@ -159,9 +160,8 @@ void PndAnalysis::Init()
   fPidCombiner = new PndAnaPidCombiner();
   fPidSelector = new PndAnaPidSelector();
 
-  fPdg = TDatabasePDG::Instance();
-
 }
+
 
 void PndAnalysis::Rewind()
 {
@@ -185,6 +185,10 @@ void PndAnalysis::ReadCandidates()
   BuildMcCands();
   // now fill carged and neutral lists.
   // MC association to reconstructed particles done at this point and copying is ok
+  //std::cout<<"Marke: PndAnalysis::ReadCandidates "<<__LINE__
+    //<< "  fAllCandList.GetLength()="<<fAllCandList.GetLength()
+    //<< "  fNeutralCandList.GetLength()="<<fNeutralCandList.GetLength()
+    //<< "  fChargedCandList.GetLength()="<<fChargedCandList.GetLength()<<std::endl;
   for(int ik=0;ik<fAllCandList.GetLength();ik++)
   {
     if(fAllCandList[ik]->GetCharge()==0){
@@ -193,6 +197,11 @@ void PndAnalysis::ReadCandidates()
       fChargedCandList.Add ( fAllCandList[ik] );
     }
   }
+  //std::cout<<"Marke: PndAnalysis::ReadCandidates "<<__LINE__
+    //<< "  fAllCandList.GetLength()="<<fAllCandList.GetLength()
+    //<< "  fNeutralCandList.GetLength()="<<fNeutralCandList.GetLength()
+    //<< "  fChargedCandList.GetLength()="<<fChargedCandList.GetLength()<<std::endl;
+
   return;
 }
 
@@ -220,7 +229,6 @@ Int_t PndAnalysis::GetEvent ( Int_t n )
     return 0;
   }
   fRootManager->ReadEvent ( fEvtCount-1 );
-
   ReadCandidates();
 
   if(fVerbose) Info("PndAnalysis::GetEvent()","Finished loading event fEvtCount=%i.",fEvtCount);
@@ -291,24 +299,24 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
 
     if ( doBremCorr ) {
       if (fBremCorr==0) {
-	if(fVerbose)
-	  Warning("PndAnalysis::FillList","Brem requested but no PndPidBremCorrected4Mom found on input file. Brem Correction can't be done.");
+      	if(fVerbose) Warning("PndAnalysis::FillList","Brem requested but no PndPidBremCorrected4Mom found on input file. Brem Correction can't be done.");
       } else {
-    	for (int j=0; j<fChargedCandList.GetLength(); ++j) {
-    	  int trk_id = fChargedCandList[j]->GetTrackNumber();
-    	  int nBremCorr = fBremCorr->GetEntriesFast();
-    	  if (nBremCorr!=fChargedCandList.GetLength())
-	    if(fVerbose) Warning("PndAnalysis::FillList","Warning: BermCorr list size diff. from chargeCandList");
-    	  PndPidBremCorrected4Mom *bremCorr = (PndPidBremCorrected4Mom*) fBremCorr->At(trk_id);
-    	  fChargedCandList[j]->SetP3(bremCorr->GetMomentum());
-    	}
+    	  for (int j=0; j<fChargedCandList.GetLength(); ++j) 
+        {
+      	  int trk_id = fChargedCandList[j]->GetTrackNumber();
+      	  int nBremCorr = fBremCorr->GetEntriesFast();
+      	  if (nBremCorr!=fChargedCandList.GetLength())
+            if(fVerbose) 
+              Warning("PndAnalysis::FillList","Warning: BermCorr list size diff. from chargeCandList");
+      	  PndPidBremCorrected4Mom *bremCorr = (PndPidBremCorrected4Mom*) fBremCorr->At(trk_id);
+      	  fChargedCandList[j]->SetP3(bremCorr->GetMomentum());
+      	}
       }
     }
 
     l=fChargedCandList;
     fPidCombiner->Apply ( l );
     l.Select(fPidSelector);
-    //fPidSelector->Select ( fChargedCandList,l );
     return kTRUE;
   }
 
@@ -358,7 +366,7 @@ Bool_t PndAnalysis::GetMcCandList(RhoCandList& l)
   // And now we have to rapair the charges, because delta electrons are inside the MC list, but not the inons
   for (int k=0;k<l.GetLength();k++)
   {
-    TParticlePDG* ppdg = fPdg->GetParticle(l[k]->PdgCode());
+    TParticlePDG* ppdg = TDatabasePDG::Instance()->GetParticle(l[k]->PdgCode());
     double charge=0.0;
     if ( ppdg ) {
        charge=ppdg->Charge();
@@ -395,7 +403,7 @@ void PndAnalysis::ReadRecoCandidates()
         _uid++; // uid will start from 1
         RhoCandidate tc ( *mic,_uid );
         tc.SetTrackNumber ( -1 );//(i1);
-	tc.SetType( 22 );     // default PDG code for neutrals is gamma = 22
+        tc.SetType( 22 );     // default PDG code for neutrals is gamma = 22
         // TODO: Do we want to set something here? It is neutrals anyway.
 
         if ( 0!=fNeutralProbability && i1<fNeutralProbability->GetEntriesFast() ) {
@@ -405,7 +413,6 @@ void PndAnalysis::ReadRecoCandidates()
             Error ( "FillList", "Neutral PID Probability object not found, skip setting pid for candidate %i.",i1 );
             continue;
           }
-
           // numbering see PndPidListMaker
           tc.SetPidInfo ( 0,neuProb->GetElectronPidProb() );
           tc.SetPidInfo ( 1,neuProb->GetMuonPidProb() );
@@ -425,7 +432,7 @@ void PndAnalysis::ReadRecoCandidates()
         FairRecoCandidate* mic = ( FairRecoCandidate* ) fChargedCands->At ( i2 );
         RhoCandidate tc ( *mic,_uid );
         tc.SetTrackNumber ( i2 );
-	tc.SetType( tc.Charge()*211 );  // default PDG code for charged is pi = +-211
+        tc.SetType( tc.Charge()*211 );  // default PDG code for charged is pi = +-211
         // TODO: Check that no i+1 is requested anymore elsewhere!!!
         fAllCandList.Add ( &tc );
       }
@@ -434,8 +441,6 @@ void PndAnalysis::ReadRecoCandidates()
     }
   return;
 }
-
-
 
 void PndAnalysis::BuildMcCands()
 {
@@ -464,7 +469,7 @@ void PndAnalysis::BuildMcCands()
     PndMCTrack* part = (PndMCTrack*) fMcTracks->At(i);
     TLorentzVector p4 = part->Get4Momentum();
     TVector3    stvtx = part->GetStartVertex();
-    TParticlePDG* ppdg = fPdg->GetParticle(part->GetPdgCode());
+    TParticlePDG* ppdg = TDatabasePDG::Instance()->GetParticle(part->GetPdgCode());
     double charge=0.0;
     if ( ppdg ) {
        charge=ppdg->Charge();

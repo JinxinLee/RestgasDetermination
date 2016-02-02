@@ -118,8 +118,6 @@ class PndSimpleAnalysis : public FairTask
 
     TClonesArray* fMicroArray;
 
-    TDatabasePDG* fdbPdg;
-
     RhoCandList chargedCands;
     RhoCandList neutralCands;
     RhoCandList mcCands;

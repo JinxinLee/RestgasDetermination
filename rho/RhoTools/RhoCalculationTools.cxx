@@ -19,9 +19,6 @@ Double_t RhoCalculationTools::fBz=0.;
 Int_t RhoCalculationTools::fVerbose=0;
 Bool_t RhoCalculationTools::fBzSet=kFALSE;
 
-
-
-
 Double_t RhoCalculationTools::GetBz ( const TVector3& pos )
 {
   // If field was forced, we return that.
@@ -41,6 +38,10 @@ Double_t RhoCalculationTools::GetBz ( const TVector3& pos )
 
   return Bf[2];
 }
+
+
+
+
 
 
 /*
@@ -943,23 +944,30 @@ void RhoCalculationTools::PrintMatrix(TMatrixT<double> m)
   //   const char *f = strstr(option,"f=");
   //   if (f) format = f+2;
   //}
-  char topbar[500];
-  snprintf(topbar,500,format,123.456789);
+  char topbar[25];
+  const char *topbarstart="-----";
+  
+  snprintf(topbar,25,format,123.456789);
   Int_t nch = strlen(topbar);//+1;
   if (nch > 18) nch = 18;
 
   const char *ftopbar=Form(" %s%dd   |","%",nch-5);
   std::cout<<std::endl<<nrows<<"x"<<ncols<<" matrix is as follows"<<std::endl;
-  Int_t nk = 5+nch*ncols;
-  for (Int_t i = 0; i < nk; i++) topbar[i] = '-';
-  topbar[nk] = 0;
+  //Int_t nk = 5+nch*ncols;
+  //for (Int_t i = 0; i < nk; i++) topbar[i] = '-';
+  //topbar[nk] = 0;
+  for (Int_t i = 0; i < nch; i++) topbar[i] = '-';
+  topbar[nch] = 0;
 
   std::cout<<std::endl<<std::endl<<"     |"<<std::flush;
   for (Int_t j = 1; j <= ncols; j++) 
   {
     std::cout<<Form(ftopbar,j+collwb-1)<<std::flush;
   }
-  std::cout<<std::endl<<topbar<<std::endl;
+  std::cout<<std::endl<<topbarstart;
+  for (Int_t j = 1; j <= ncols; j++) std::cout<<topbar;
+  std::cout<<std::endl;
+  
   if (nelems <= 0) return;
   for (Int_t i = 1; i <= nrows; i++) 
   {
@@ -991,23 +999,26 @@ void RhoCalculationTools::PrintMatrix(TMatrixTSym<double> m)
   //   const char *f = strstr(option,"f=");
   //   if (f) format = f+2;
   //}
-  char topbar[500];
-  snprintf(topbar,500,format,123.456789);
+  char topbar[25];
+  const char *topbarstart="-----";
+  snprintf(topbar,25,format,123.456789);
   Int_t nch = strlen(topbar);//+1;
   if (nch > 18) nch = 18;
   if (nch < 7)  nch = 7;
   const char *ftopbar=Form(" %s%dd   |","%",nch-5);
   std::cout<<std::endl<<nrows<<"x"<<ncols<<" matrix is as follows"<<std::endl;
-  Int_t nk = 5+nch*ncols;
-  for (Int_t i = 0; i < nk; i++) topbar[i] = '-';
-  topbar[nk] = 0;
+  for (Int_t i = 0; i < nch; i++) topbar[i] = '-';
+  topbar[nch] = 0;
   
   std::cout<<std::endl<<std::endl<<" SYM |"<<std::flush;
   for (Int_t j = 1; j <= ncols; j++) 
   {
     std::cout<<Form(ftopbar,j+collwb-1)<<std::flush;
   }
-  std::cout<<std::endl<<topbar<<std::endl;
+  std::cout<<std::endl<<topbarstart;
+  for (Int_t j = 1; j <= ncols; j++) std::cout<<topbar;
+  std::cout<<std::endl;
+  
   if (nelems <= 0) return;
   for (Int_t i = 1; i <= nrows; i++) 
   {
@@ -1039,23 +1050,26 @@ void RhoCalculationTools::PrintMatrix(RhoError m)
   //   const char *f = strstr(option,"f=");
   //   if (f) format = f+2;
   //}
-  char topbar[500];
-  snprintf(topbar,500,format,123.456789);
+  char topbar[25];
+  const char *topbarstart ="-----";
+  snprintf(topbar,25,format,123.456789);
   Int_t nch = strlen(topbar);//+1;
   if (nch > 18) nch = 18;
   if (nch < 7)  nch = 7;
   const char *ftopbar=Form(" %s%dd   |","%",nch-5);
   std::cout<<std::endl<<nrows<<"x"<<ncols<<" matrix is as follows"<<std::endl;
-  Int_t nk = 5+nch*ncols;
-  for (Int_t i = 0; i < nk; i++) topbar[i] = '-';
-  topbar[nk] = 0;
+  for (Int_t i = 0; i < nch; i++) topbar[i] = '-';
+  topbar[nch] = 0;
   
   std::cout<<std::endl<<std::endl<<" RHO |"<<std::flush;
   for (Int_t j = 1; j <= ncols; j++) 
   {
     std::cout<<Form(ftopbar,j+collwb-1)<<std::flush;
   }
-  std::cout<<std::endl<<topbar<<std::endl;
+  std::cout<<std::endl<<topbarstart;
+  for (Int_t j = 1; j <= ncols; j++) std::cout<<topbar;
+  std::cout<<std::endl;
+
   if (nelems <= 0) return;
   for (Int_t i = 1; i <= nrows; i++) 
   {

@@ -35,8 +35,8 @@ extern int vtxverbose ;
 // ==========================================================================
 DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate* bc           ,
- const bool            forceFitAll  ,
- RecoTrackStateProvider*   aExtrapolator )
+ RecoTrackStateProvider*   aExtrapolator     ,
+ int verbosity)
 : RhoFitterBase(bc)
 , m_particle   (bc)
 , m_decaychain (0)
@@ -47,8 +47,9 @@ DecayTreeFitter::Fitter::Fitter
 , m_errCode    (0)
 , m_extrapolator( aExtrapolator) 
 {
+  vtxverbose = verbosity;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") A - config"<<std::endl;
-  Configuration config(forceFitAll,aExtrapolator) ;
+  Configuration config(aExtrapolator) ;
   // build the tree
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") A - tree"<<std::endl;
   m_decaychain = new DecayChain(bc,config) ;
@@ -57,63 +58,7 @@ DecayTreeFitter::Fitter::Fitter
   m_fitparams  = new FitParams(m_decaychain->dim()) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") A - done"<<std::endl;
 }
-// ==========================================================================
-// constructor from the particle (decay head)
-// ==========================================================================
-DecayTreeFitter::Fitter::Fitter
-( RhoCandidate* bc           ,
- RecoTrackStateProvider*   aExtrapolator ,
- const bool            forceFitAll  )
-: RhoFitterBase(bc)
-, m_particle   (bc)
-, m_decaychain (0)
-, m_fitparams  (0)
-, m_status     (UnFitted)
-//, m_chiSquare  (-1)
-, m_niter      (-1)
-, m_errCode    (0)
-, m_extrapolator ( aExtrapolator) 
-{
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") B - config"<<std::endl;
-  Configuration config(forceFitAll,aExtrapolator) ;
-  // build the tree
-  m_decaychain = new DecayChain(bc,config) ;
-  // allocate the fit parameters
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") B - tree  "<<std::flush;
-  if(vtxverbose>5) std::cout<<m_decaychain<<std::endl;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") B - fitparams  "<<std::flush;
-  m_fitparams  = new FitParams(m_decaychain->dim()) ;
-  if(vtxverbose>5) std::cout<<m_fitparams<<std::endl;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") B - done"<<std::endl;
-}
-// ==========================================================================
-// constructor from the particle (decay head) and primary vertex
-// ==========================================================================
-DecayTreeFitter::Fitter::Fitter
-( RhoCandidate*   bc           ,
- const RhoVector3Err& pv           ,
- const bool              forceFitAll  ,
- RecoTrackStateProvider*     aExtrapolator )
-: RhoFitterBase(bc)
-, m_particle   ( bc )
-, m_decaychain ( 0   )
-, m_fitparams  ( 0   )
-, m_status     ( UnFitted )
-//, m_chiSquare  ( -1  )
-, m_niter      ( -1  )
-, m_errCode    (  0  )
-//
-, m_extrapolator ( aExtrapolator) 
-//
-{
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - config"<<std::endl;
-  Configuration config(forceFitAll,aExtrapolator) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - tree  "<<std::flush;
-  m_decaychain = new DecayChain(bc,pv,config) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - fitparams  "<<std::flush;
- m_fitparams  = new FitParams(m_decaychain->dim()) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - done"<<std::endl;
-}
+
 // ==========================================================================
 // constructor from the particle (decay head) and primary vertex
 // ==========================================================================
@@ -121,7 +66,7 @@ DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate*   bc           ,
  const RhoVector3Err& pv           ,
  RecoTrackStateProvider* aExtrapolator ,
- const bool              forceFitAll  )
+ int verbosity)
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
@@ -134,41 +79,14 @@ DecayTreeFitter::Fitter::Fitter
 , m_extrapolator ( aExtrapolator) 
 //
 {
+  vtxverbose = verbosity;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - config"<<std::endl;
-  Configuration config(forceFitAll,aExtrapolator) ;
+  Configuration config(aExtrapolator) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - tree  "<<std::flush;
   m_decaychain = new DecayChain(bc,pv,config) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - fitparams  "<<std::flush;
   m_fitparams  = new FitParams(m_decaychain->dim()) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - done"<<std::endl;
-}
-// ==========================================================================
-// constructor from the particle (decay head) and beam
-// ==========================================================================
-DecayTreeFitter::Fitter::Fitter
-( RhoCandidate*   bc           ,
- const RhoLorentzVectorErr& lv           ,
- const bool              forceFitAll  ,
-RecoTrackStateProvider*     aExtrapolator )
-: RhoFitterBase(bc)
-, m_particle   ( bc )
-, m_decaychain ( 0   )
-, m_fitparams  ( 0   )
-, m_status     ( UnFitted )
-//, m_chiSquare  ( -1  )
-, m_niter      ( -1  )
-, m_errCode    (  0  )
-//
-, m_extrapolator ( aExtrapolator) 
-//
-{
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - config"<<std::endl;
-  Configuration config(forceFitAll,aExtrapolator) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - tree  "<<std::flush;
-  m_decaychain = new DecayChain(bc,lv,config) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - fitparams  "<<std::flush;
-  m_fitparams  = new FitParams(m_decaychain->dim()) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - done"<<std::endl;
 }
 // ==========================================================================
 // constructor from the particle (decay head) and beam 
@@ -177,7 +95,7 @@ DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate*   bc           ,
  const RhoLorentzVectorErr& lv           ,
  RecoTrackStateProvider* aExtrapolator ,
- const bool              forceFitAll  )
+ int verbosity)
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
@@ -190,8 +108,9 @@ DecayTreeFitter::Fitter::Fitter
 , m_extrapolator ( aExtrapolator) 
 //
 {
+  vtxverbose = verbosity;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - config"<<std::endl;
-  Configuration config(forceFitAll,aExtrapolator) ;
+  Configuration config(aExtrapolator) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - tree  "<<std::flush;
   m_decaychain = new DecayChain(bc,lv,config) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - fitparams  "<<std::flush;
@@ -205,8 +124,8 @@ DecayTreeFitter::Fitter::Fitter
 ( RhoCandidate*   bc           ,
  const RhoLorentzVectorErr& lv           ,
  const RhoVector3Err& pv           ,
- const bool              forceFitAll  ,
- RecoTrackStateProvider*     aExtrapolator )
+ RecoTrackStateProvider*     aExtrapolator  ,
+ int verbosity)
 : RhoFitterBase(bc)
 , m_particle   ( bc )
 , m_decaychain ( 0   )
@@ -219,43 +138,16 @@ DecayTreeFitter::Fitter::Fitter
 , m_extrapolator ( aExtrapolator) 
 //
 {
+  vtxverbose = verbosity;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - config"<<std::endl;
-  Configuration config(forceFitAll,aExtrapolator) ;
+  Configuration config(aExtrapolator) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - tree  "<<std::flush;
   m_decaychain = new DecayChain(bc,lv,pv,config) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - fitparams  "<<std::flush;
  m_fitparams  = new FitParams(m_decaychain->dim()) ;
   if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") C - done"<<std::endl;
 }
-// ==========================================================================
-// constructor from the particle (decay head), beam and primary vertex
-// ==========================================================================
-DecayTreeFitter::Fitter::Fitter
-( RhoCandidate*   bc           ,
- const RhoLorentzVectorErr& lv           ,
- const RhoVector3Err& pv           ,
- RecoTrackStateProvider* aExtrapolator ,
- const bool              forceFitAll  )
-: RhoFitterBase(bc)
-, m_particle   ( bc )
-, m_decaychain ( 0   )
-, m_fitparams  ( 0   )
-, m_status     ( UnFitted )
-//, m_chiSquare  ( -1  )
-, m_niter      ( -1  )
-, m_errCode    (  0  )
-//
-, m_extrapolator ( aExtrapolator) 
-//
-{
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - config"<<std::endl;
-  Configuration config(forceFitAll,aExtrapolator) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - tree  "<<std::flush;
-  m_decaychain = new DecayChain(bc,lv,pv,config) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - fitparams  "<<std::flush;
-  m_fitparams  = new FitParams(m_decaychain->dim()) ;
-  if(vtxverbose>5) std::cout<<"Fitter::Fitter() ("<<this<<") D - done"<<std::endl;
-}
+
 // ==========================================================================
 // set the track extrapolator
 // ==========================================================================
@@ -840,16 +732,15 @@ DecayTreeFitter::Fitter::name(RhoCandidate* cand) const
 //      cand.setTrajectory(vtxpar,vtx) ;
 //}
 
-
-
-
 void DecayTreeFitter::Fitter::updateCand(const ParticleBase& pb, RhoCandidate* aParticle) const
 {
   // Update the FittedCand of the RhoCandidate
   // This replaces the previous updateCand() as well as fitParams() functions
-  int posindex = pb.posIndex() ;
-  // hack: for tracks and photons, use the production vertex
-  if(posindex<0 && pb.mother()) posindex = pb.mother()->posIndex() ;
+  ////int posindex = pb.posIndex() ;
+  ////// hack: for tracks and photons, use the production vertex
+  ////if(posindex<0 && pb.mother()) posindex = pb.mother()->posIndex() ;
+  int posindex = ( pb.mother() ? pb.mother()->posIndex() : pb.posIndex() ) ;
+  if(posindex<0) posindex = pb.posIndex() ;
   int momindex = pb.momIndex() ;
   int lenindex = pb.lenIndex() ;
   TVector3 pos(m_fitparams->par()(posindex+0),
@@ -979,7 +870,6 @@ void DecayTreeFitter::Fitter::updateCand(const ParticleBase& pb, RhoCandidate* a
 //    return Gaudi::Math::ParticleParams ( pos , p4 , decaylength , cov8 ) ;
 //////////////////////////////////////
 
-
 bool
 DecayTreeFitter::Fitter::updateCand(RhoCandidate* aParticle) const
 {
@@ -1022,8 +912,6 @@ ChiSquare DecayTreeFitter::Fitter::chiSquare( RhoCandidate* aParticle ) const
 {
   return m_decaychain->chiSquare(aParticle, m_fitparams) ;
 }
-
-
 
 // ============================================================================
 // The END

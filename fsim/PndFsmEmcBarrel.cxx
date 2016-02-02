@@ -109,6 +109,16 @@ PndFsmEmcBarrel::respond(PndFsmTrack *t)
     result->setdE(dE(t));
     result->setdphi(dphi(t));
     result->setdtheta(dtheta(t));
+ 
+    if(fabs(t->p4().Perp()) > 1e-9) 
+    {
+      double perpscale = _barrelRadius/t->p4().Perp();
+      double x = t->p4().Px()*perpscale;
+      double y = t->p4().Py()*perpscale;
+      //z = 0; // convention for Fsim to see if we have a barrel!
+      TVector3 hitpos(x,y,0.);
+      t->setStopVtx(hitpos); 
+    }
   }
   else
   {

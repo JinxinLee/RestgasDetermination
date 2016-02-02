@@ -131,7 +131,8 @@ namespace DecayTreeFitter
     static double pdtCLifeTime(RhoCandidate* bc)  ;
     //static bool isAResonance(RhoCandidate* bc) ;
     static bool isAResonance(const TParticlePDG* bc) ;// TODO
-    static double bFieldOverC() { return 0 ; } //FIXME: Is that an issue???   // Bz/c
+    //static double bFieldOverC() { return RhoCalculationTools::GetBz ( TVector3(0.,0.,0.) ) / TMath::C() ; } //FIXME: Is that an issue???   // Bz/c
+    static double bFieldOverC() ; //FIXME: Is that an issue???   // Bz/c
     ErrCode initTau(FitParams* par) const ;
     void makeName(RhoCandidate* bc)  ;
     daucontainer& daughters() { return m_daughters ; }

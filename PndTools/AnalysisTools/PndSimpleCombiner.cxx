@@ -55,9 +55,7 @@ using std::endl;
 PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params) : 
 	fAnalysis(fAna), fDecay(decay), fGlobParams(params), fNLists(11), fVerbose(0), 
 	fEmin(0.), fPmin(0.), fESel(0), fPSel(0)		
-{
-	fPdg = TDatabasePDG::Instance();
-	
+{	
 	// initialize mapping pdg -> list index and list name
 	int pdgcodes[] = {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22};
 	TString pdgnames[] = {"ElectronMinus", "ElectronPlus", "MuonMinus", "MuonPlus", "PionPlus", "PionMinus", "KaonPlus", "KaonMinus", "ProtonPlus", "ProtonMinus", "Neutral"};
@@ -138,7 +136,7 @@ bool PndSimpleCombiner::ParseDecay(TString decay)
 		subdec[i].ReplaceAll("->",">");
 		SplitString(subdec[i],">",dectoks);
 				
-		if ( dectoks.size()!=2 || !fPdg->GetParticle(dectoks[0]) ) {cout <<"[PndSimpleCombiner] **** ERROR : Invalid decay pattern '"<<subdec[i].Data()<<"'"<<endl; return false;}
+		if ( dectoks.size()!=2 || !TDatabasePDG::Instance()->GetParticle(dectoks[0]) ) {cout <<"[PndSimpleCombiner] **** ERROR : Invalid decay pattern '"<<subdec[i].Data()<<"'"<<endl; return false;}
 		
 		// split string again; first token is supposed to be the decaying resonance
 		TString curstr = dectoks[0]+" "+dectoks[1];
@@ -148,7 +146,7 @@ bool PndSimpleCombiner::ParseDecay(TString decay)
 		if (dectoks.size()>6) {cout <<"[PndSimpleCombiner] **** ERROR : Exceeding max number of daughters (5): '"<<subdec[i].Data()<<"'"<<endl; return false;}
 		
 		SCDecayInfo info;
-		InitDecayInfo(info, fPdg->GetParticle(dectoks[0])->PdgCode(), fNLists++);
+		InitDecayInfo(info, TDatabasePDG::Instance()->GetParticle(dectoks[0])->PdgCode(), fNLists++);
 		
 		fPdgIdxMap[info.mpdg]  = info.midx;                     // add new list to the pdg <-> list index maps
 		fIdxPdgMap[info.midx]  = info.mpdg;
@@ -160,10 +158,10 @@ bool PndSimpleCombiner::ParseDecay(TString decay)
 		{
 			if (dectoks[j]=="nocc") { cc = false; continue; }
 			
-			if (!fPdg->GetParticle(dectoks[j])) {cout <<"[PndSimpleCombiner] **** ERROR : Unknown particle '"<<dectoks[j].Data()<<"'"<<endl; return false;}
+			if (!TDatabasePDG::Instance()->GetParticle(dectoks[j])) {cout <<"[PndSimpleCombiner] **** ERROR : Unknown particle '"<<dectoks[j].Data()<<"'"<<endl; return false;}
 			
 			// pdg code of daughter
-			int dpdg = fPdg->GetParticle(dectoks[j])->PdgCode();
+			int dpdg = TDatabasePDG::Instance()->GetParticle(dectoks[j])->PdgCode();
 			// add corresponding index if exists
 			if ( fPdgIdxMap.find(dpdg) == fPdgIdxMap.end() ) {cout <<"[PndSimpleCombiner] **** ERROR : Undefined list '"<<dectoks[j].Data()<<"'"<<endl; return false;}
 			if ( dpdg == info.mpdg ) {cout <<"[PndSimpleCombiner] **** ERROR : Invalid recursion in '"<<subdec[i].Data()<<"'"<<endl; return false;}
@@ -257,7 +255,7 @@ bool PndSimpleCombiner::ParseParams(TString params)
 				SCDecayInfo &info = fDecayInfoArray[j];
 				if (info.msel) delete info.msel;
 				info.mwin = window;
-				info.msel = new RhoMassParticleSelector("msel",fPdg->GetParticle(info.mpdg)->Mass(),window);
+				info.msel = new RhoMassParticleSelector("msel",TDatabasePDG::Instance()->GetParticle(info.mpdg)->Mass(),window);
 			}
 		}
 		// ****
@@ -268,13 +266,13 @@ bool PndSimpleCombiner::ParseParams(TString params)
 			// extract particle name from string 'mwin(D0)'
 			pair[0] = pair[0](5,pair[0].Length()-6);
 			
-			if (!fPdg->GetParticle(pair[0])) {cout <<"[PndSimpleCombiner] **** WARNING : Unknown particle type '"<<pair[0]<<"'"<<endl;continue;}
+			if (!TDatabasePDG::Instance()->GetParticle(pair[0])) {cout <<"[PndSimpleCombiner] **** WARNING : Unknown particle type '"<<pair[0]<<"'"<<endl;continue;}
 			
-			int pdg = fPdg->GetParticle(pair[0])->PdgCode();
+			int pdg = TDatabasePDG::Instance()->GetParticle(pair[0])->PdgCode();
 			if (fPdgIdxMap.find(pdg) == fPdgIdxMap.end()) {cout <<"[PndSimpleCombiner] **** WARNING : Unknown particle list '"<<pair[0]<<"'"<<endl;continue;}
 			
 			// set default mean and window
-			double mean = fPdg->GetParticle(pdg)->Mass(), window = 0;
+			double mean = TDatabasePDG::Instance()->GetParticle(pdg)->Mass(), window = 0;
 			
 			// range setting like 1.2|1.6 ?
 			if (pair[1].Contains("|"))
@@ -447,10 +445,10 @@ bool PndSimpleCombiner::CCInvariant(std::vector<int> &vpdg)
 // Returns pdg code of anti-particle 
 int  PndSimpleCombiner::AntiPdg(int pdg)
 {
-	if (fPdg->GetParticle(pdg))
+	if (TDatabasePDG::Instance()->GetParticle(pdg))
 	{
-		if (!fPdg->GetParticle(pdg)->AntiParticle()) return pdg;
-		else return fPdg->GetParticle(pdg)->AntiParticle()->PdgCode();
+		if (!TDatabasePDG::Instance()->GetParticle(pdg)->AntiParticle()) return pdg;
+		else return TDatabasePDG::Instance()->GetParticle(pdg)->AntiParticle()->PdgCode();
 	}
 	return -999999;
 } 
@@ -471,8 +469,8 @@ void PndSimpleCombiner::Print()
 	for (int i=0;i<n;++i)
 	{
 		SCDecayInfo info = fDecayInfoArray[i];
-		cout <<"Decay "<<i<<" : " << fPdg->GetParticle(info.mpdg)->GetName()<<"("<<info.mpdg<<"/"<<info.midx<<") -> ";
-		for (int j=0;j<info.dpdg.size();++j) cout << fPdg->GetParticle(info.dpdg[j])->GetName()<<"("<<info.dpdg[j]<<"/"<<info.didx[j]<<") ";
+		cout <<"Decay "<<i<<" : " << TDatabasePDG::Instance()->GetParticle(info.mpdg)->GetName()<<"("<<info.mpdg<<"/"<<info.midx<<") -> ";
+		for (int j=0;j<info.dpdg.size();++j) cout << TDatabasePDG::Instance()->GetParticle(info.dpdg[j])->GetName()<<"("<<info.dpdg[j]<<"/"<<info.didx[j]<<") ";
 		
 		cout <<"  daucc: "<<info.daucc;
 		cout <<"  mass window:"<<info.mwin;
@@ -547,9 +545,9 @@ int PndSimpleCombiner::CombineList(RhoCandList &l, int mpdg, std::vector<int> &i
 
 bool PndSimpleCombiner::GetList(RhoCandList &l, TString comp)
 {
-	if (!fPdg->GetParticle(comp)) return false;
+	if (!TDatabasePDG::Instance()->GetParticle(comp)) return false;
 	
-	return GetList(l, fPdg->GetParticle(comp)->PdgCode());
+	return GetList(l, TDatabasePDG::Instance()->GetParticle(comp)->PdgCode());
 }
 
 // -------------------------------------------------------------------------

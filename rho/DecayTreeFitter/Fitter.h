@@ -68,44 +68,24 @@ namespace DecayTreeFitter
     // ========================================================================
     /// constructor from the particle (decay head)
     Fitter ( RhoCandidate*   bc                  ,
-            const bool              forceFitAll  = true ,
-            RecoTrackStateProvider* extrapolator = 0    ) ;
-    /// constructor from the particle (decay head)
-    Fitter ( RhoCandidate*   bc                  ,
             RecoTrackStateProvider* extrapolator        ,
-            const bool              forceFitAll  = true ) ;
+            int verbosity = 0) ;
     /// constructor from the particle (decay head) and primary vertex
     Fitter ( RhoCandidate*   bc                  ,
             const RhoVector3Err& pv                  ,
-            const bool              forceFitAll  = true ,
-            RecoTrackStateProvider* extrapolator = 0    ) ;
-    /// constructor from the particle (decay head) and primary vertex
-    Fitter ( RhoCandidate*   bc                  ,
-            const RhoVector3Err& pv                  ,
-            RecoTrackStateProvider* extrapolator        ,
-            const bool              forceFitAll  = true ) ;
-    /// constructor from the particle (decay head) and pbeam
-    Fitter ( RhoCandidate*   bc                  ,
-            const RhoLorentzVectorErr& lv                  ,
-            const bool              forceFitAll  = true ,
-            RecoTrackStateProvider* extrapolator = 0    ) ;
+            RecoTrackStateProvider* extrapolator = 0        ,
+            int verbosity = 0) ;
     /// constructor from the particle (decay head) and pbeam
     Fitter ( RhoCandidate*   bc                  ,
             const RhoLorentzVectorErr& lv                  ,
             RecoTrackStateProvider* extrapolator        ,
-            const bool              forceFitAll  = true ) ;
+            int verbosity = 0) ;
     /// constructor from the particle (decay head), pbeam and primary vertex
     Fitter ( RhoCandidate*   bc                  ,
             const RhoLorentzVectorErr& lv                  ,
             const RhoVector3Err& pv                  ,
-            const bool              forceFitAll  = true ,
-            RecoTrackStateProvider* extrapolator = 0    ) ;
-    /// constructor from the particle (decay head), pbeam and primary vertex
-    Fitter ( RhoCandidate*   bc                  ,
-            const RhoLorentzVectorErr& lv                  ,
-            const RhoVector3Err& pv                  ,
-            RecoTrackStateProvider* extrapolator        ,
-            const bool              forceFitAll  = true ) ;
+            RecoTrackStateProvider* extrapolator = 0        ,
+            int verbosity = 0) ;
     /// destructor
     ~Fitter() ;                                                   // destructor
     // ========================================================================

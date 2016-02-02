@@ -23,7 +23,7 @@ extern int vtxverbose ;
 DecayTreeFitter::RecoPhoton::RecoPhoton(RhoCandidate* bc, const ParticleBase* aMother)
 : RecoParticle(bc,aMother), m_V(3)
 {
-  updCache() ;
+  updCache() ; // read from candidate
 }
 
 DecayTreeFitter::RecoPhoton::~RecoPhoton() {}
@@ -98,6 +98,7 @@ DecayTreeFitter::RecoPhoton::updCache()
   m_m(1) = rec->GetLastHit().Y(); // y
   m_z    = rec->GetLastHit().Z(); // z
   m_m(2) = rec->GetEnergy(); // E
+  if(vtxverbose>4) std::cout<<"RecoPhoton::updCache() l."<<__LINE__ <<" m_m(0) = "<<m_m(0) <<" cm; m_m(1) = "<<m_m(1) <<" cm; m_z = "<<m_z <<"cm; m_M(2) = "<<m_m(2)<<" GeV" <<std::endl;
   TMatrixD cov7 = rec->Cov7(); //error matrix for
   m_V[0][0]=cov7[0][0]; // x-x
   m_V[0][1]=cov7[0][1]; // x-y

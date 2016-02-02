@@ -63,17 +63,13 @@ using std::ios;
 PndSimpleAnalysis::PndSimpleAnalysis() :
   FairTask("Panda Analysis Task")
 {
-  //fdbPdg=TDatabasePDG::Instance();
-  fdbPdg = TDatabasePDG::Instance();
-}
+ }
 
 // -------------------------------------------------------------------------
 
 PndSimpleAnalysis::PndSimpleAnalysis(std::string filename) :
   FairTask("Panda Analysis Task")
 {
-  //fdbPdg=TDatabasePDG::Instance();
-  fdbPdg = TDatabasePDG::Instance();
   SetConfigFile(filename);
 }
 
@@ -1174,7 +1170,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
             break;
           }
 
-        float charge=fdbPdg->GetParticle(daupdgs[daulistcnt])->Charge();
+        float charge=TDatabasePDG::Instance()->GetParticle(daupdgs[daulistcnt])->Charge();
         if (charge<-0.1) { dName+="M"; }
         else if (charge>0.1) { dName+="P"; }
         currentList->fDauIdx.push_back(fListMap[dName]);
@@ -1445,7 +1441,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
       double mass=1.0;
 
       if (currentList->fPdgCode) {
-        mass=fdbPdg->GetParticle(currentList->fPdgCode)->Mass();
+        mass=TDatabasePDG::Instance()->GetParticle(currentList->fPdgCode)->Mass();
       }
 
       if (tokenVec.size()==2) {
@@ -1481,7 +1477,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
           return ErrorMessage(500,linecnt, currentList->fName);
         }
 
-        double mean=fdbPdg->GetParticle(currentList->fPdgCode)->Mass();
+        double mean=TDatabasePDG::Instance()->GetParticle(currentList->fPdgCode)->Mass();
         double width=0.1;
 
         // parameter specifies width around nominal mass
@@ -1608,8 +1604,8 @@ void PndSimpleAnalysis::Finish()
 int PndSimpleAnalysis::GetPdgCode(std::string name)
 {
   int code=0;
-  if (fdbPdg->GetParticle(name.c_str())) {
-    code=fdbPdg->GetParticle(name.c_str())->PdgCode();
+  if (TDatabasePDG::Instance()->GetParticle(name.c_str())) {
+    code=TDatabasePDG::Instance()->GetParticle(name.c_str())->PdgCode();
   }
 
   //cout <<name<<" "<<code<<endl;
@@ -1622,9 +1618,9 @@ int PndSimpleAnalysis::GetPdgCode(std::string name)
 int PndSimpleAnalysis::GetAntiPdgCode(std::string name)
 {
   int code=0, pdgcode=0;
-  if (fdbPdg->GetParticle(name.c_str())) {
-    pdgcode=fdbPdg->GetParticle(name.c_str())->PdgCode();
-    if (fdbPdg->GetParticle(pdgcode)->AntiParticle()) {
+  if (TDatabasePDG::Instance()->GetParticle(name.c_str())) {
+    pdgcode=TDatabasePDG::Instance()->GetParticle(name.c_str())->PdgCode();
+    if (TDatabasePDG::Instance()->GetParticle(pdgcode)->AntiParticle()) {
       code=-pdgcode;
     } else {
       code=pdgcode;
@@ -1641,8 +1637,8 @@ int PndSimpleAnalysis::GetAntiPdgCode(std::string name)
 int PndSimpleAnalysis::GetAntiPdgCode(int pdgcode)
 {
   int code=0;
-  if (fdbPdg->GetParticle(pdgcode)) {
-    if (fdbPdg->GetParticle(pdgcode)->AntiParticle()) {
+  if (TDatabasePDG::Instance()->GetParticle(pdgcode)) {
+    if (TDatabasePDG::Instance()->GetParticle(pdgcode)->AntiParticle()) {
       code=-pdgcode;
     } else {
       code=pdgcode;

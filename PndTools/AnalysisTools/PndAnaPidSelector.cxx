@@ -102,35 +102,50 @@ Bool_t PndAnaPidSelector::SetSelection ( TString& crit )
 
   fTypeMinus=0;
 
-  TDatabasePDG* pdg = TDatabasePDG::Instance();
-
   // Name convention for TDatabsePDG found at $ROOTSYS/etc/pdg_table.txt
   fPidSelect=99;// some silly number here
 
   if ( crit.Contains ( "Proton" ) ) {
-    fTypePlus=pdg->GetParticle ( "p+" );
+    fTypePlus=TDatabasePDG::Instance()->GetParticle ( "p+" );
     if ( 0==fTypePlus ) {
-      fTypePlus=pdg->GetParticle ( "proton" );
+      fTypePlus=TDatabasePDG::Instance()->GetParticle ( "proton" );
+    }
+    if ( 0==fTypePlus ) {
+      fTypePlus=TDatabasePDG::Instance()->GetParticle (2212);
     }
     fPidSelect=4;
     critcopy.ReplaceAll("Proton","");
   } else if ( crit.Contains ( "Kaon" ) ) {
-    fTypePlus=pdg->GetParticle ( "K+" );
+    fTypePlus=TDatabasePDG::Instance()->GetParticle ( "K+" );
+    if ( 0==fTypePlus ) {
+      fTypePlus=TDatabasePDG::Instance()->GetParticle (321);
+    }
     fPidSelect=3;
     critcopy.ReplaceAll("Kaon","");
   } else if ( crit.Contains ( "Pion" ) ) {
-    fTypePlus=pdg->GetParticle ( "pi+" );
+    fTypePlus=TDatabasePDG::Instance()->GetParticle ( "pi+" );
+    if ( 0==fTypePlus ) {
+      fTypePlus=TDatabasePDG::Instance()->GetParticle (211);
+    }
     fPidSelect=2;
     critcopy.ReplaceAll("Pion","");
   } else if ( crit.Contains ( "Muon" ) ) {
-    fTypePlus=pdg->GetParticle ( "mu+" );
+    fTypePlus=TDatabasePDG::Instance()->GetParticle ( "mu+" );
+    if ( 0==fTypePlus ) {
+      fTypePlus=TDatabasePDG::Instance()->GetParticle (-13);
+    }
     fPidSelect=1;
     critcopy.ReplaceAll("Muon","");
   } else if ( crit.Contains ( "Electron" ) ) {
-    fTypePlus=pdg->GetParticle ( "e+" );
+    fTypePlus=TDatabasePDG::Instance()->GetParticle ( "e+" );
+    if ( 0==fTypePlus ) {
+      fTypePlus=TDatabasePDG::Instance()->GetParticle (-11);
+    }
     fPidSelect=0;
     critcopy.ReplaceAll("Electron","");
   }
+
+//std::cout<<"PndAnaPidSelector: fPidSelect="<<fPidSelect<<std::endl;
 
   if ( fTypePlus!=0 ) {
     fTypeMinus = CPConjugate ( fTypePlus );
