@@ -40,6 +40,7 @@ void PndLmdSensorAligner::init(){
 	_inCentimeters=true;
 	_success=false;
 	_zIsTimestamp=true;
+	_numericCorrection=false;
 	_helperMatrix = Matrix::eye(3);
 	//cout << "PndLmdSensorAligner::Init(): Initialization successful.\n";
 }
@@ -146,6 +147,11 @@ void PndLmdSensorAligner::calculateMatrix() {
 			cout << "pairsNormal: " << _pairsNormal << ", pairsSimple: " << _pairsSimple << "\n";
 			exit(1);
 		}
+	}
+
+	//if we are in px coordinates, always use time stamp as z!
+	if(!_inCentimeters){
+		_zIsTimestamp=true;
 	}
 
 	//artificial z component, only really relevant if using cm coordinate system

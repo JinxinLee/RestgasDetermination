@@ -44,7 +44,7 @@ void PndLmdAlignManager::init(){
 
 	dimension = PndLmdDim::Instance();
 
-	//FIXME: do this from calling makro, not hard coded
+	//FIXME: do this from calling macro, not hard coded
 	//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat", true);
 	//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat", false);
 
@@ -60,7 +60,7 @@ void PndLmdAlignManager::init(){
 	_aligners.clear();
 	_fileNames.clear();
 
-	//TODO: hackjob, do this right!
+	//TODO: hack job, do this right!
 	Matrix matrix1 = Matrix::rotMatX(M_PI/16);
 	Matrix matrix2 = Matrix::rotMatY(M_PI/16);
 	Matrix matrix3 = Matrix::rotMatZ(M_PI/16);
@@ -90,6 +90,8 @@ void PndLmdAlignManager::init(){
 					tempAligner.setModuleID(dimension->makeModuleID(iHalf, iPlane, iModule));
 					tempAligner.setHelperMatrix(helperMatrix);
 					tempAligner.setZasTimetamp(_zIsTimestamp);
+					tempAligner.setNumericCorrection(_enableHelperMatrix);
+					tempAligner.setInCentimeters(_inCentimeters);
 					_aligners[overlapId]=tempAligner;
 				}
 			}
@@ -430,11 +432,11 @@ Matrix PndLmdAlignManager::getMatrixOfficialGeometry(int fromSensor, int toSenso
 	dimension->Get_sensor_by_id(fromSensor, fhalf, fplane, fmodule, fside, fdie, fsensor);
 	dimension->Get_sensor_by_id(toSensor, bhalf, bplane, bmodule, bside, bdie, bsensor);
 
-	//const TGeoHMatrix& matrix_from = dimension->Get_transformation_sensor_to_lmd_local(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
-	//const TGeoHMatrix& matrix_to   = dimension->Get_transformation_lmd_local_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
+	const TGeoHMatrix& matrix_from = dimension->Get_transformation_sensor_to_lmd_local(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
+	const TGeoHMatrix& matrix_to   = dimension->Get_transformation_lmd_local_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
 
-	const TGeoHMatrix& matrix_from = dimension->Get_transformation_sensor_to_global(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
-	const TGeoHMatrix& matrix_to   = dimension->Get_transformation_global_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
+	//const TGeoHMatrix& matrix_from = dimension->Get_transformation_sensor_to_global(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
+	//const TGeoHMatrix& matrix_to   = dimension->Get_transformation_global_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
 
 
 	TGeoMatrix* matrix = &(matrix_from*matrix_to);
@@ -442,14 +444,6 @@ Matrix PndLmdAlignManager::getMatrixOfficialGeometry(int fromSensor, int toSenso
 	double* homogenousMatrix = new double[16];
 	double* finalMatrix = new double[16];
 	matrix->GetHomogenousMatrix(homogenousMatrix);
-
-	/*
-	cout << "intermission: teh matrix\n";
-
-	for(int i=0; i<16; i++){
-		cout << "entry " << i << ": " << homogenousMatrix[i] << "\n";
-	}
-	 */
 
 	//root documentation differs from actual implementation
 	finalMatrix[0] = homogenousMatrix[0];
@@ -505,14 +499,6 @@ Matrix PndLmdAlignManager::getMatrixOfficialGeometryGlobal(int fromSensor, int t
 	double* homogenousMatrix = new double[16];
 	double* finalMatrix = new double[16];
 	matrix->GetHomogenousMatrix(homogenousMatrix);
-
-	/*
-	cout << "intermission: teh matrix\n";
-
-	for(int i=0; i<16; i++){
-		cout << "entry " << i << ": " << homogenousMatrix[i] << "\n";
-	}
-	 */
 
 	//root documentation differs from actual implementation
 	finalMatrix[0] = homogenousMatrix[0];
@@ -973,27 +959,16 @@ Matrix PndLmdAlignManager::getCorrectionMatrix(int id) {
 	return castTGeoHMatrixToMatrix(combined);
 }
 
-//FIXME: warning, probably wrong
+//FIXME: test this, this is a new version!
 Matrix PndLmdAlignManager::getCorrectionMatrix(int id1, int id2) {
 
-	int fhalf, fplane, fmodule, fside, fdie, fsensor;
-	int bhalf, bplane, bmodule, bside, bdie, bsensor;
+	Matrix corrId1 = getCorrectionMatrix(id1);
+	Matrix corrId2 = getCorrectionMatrix(id2);
 
-	dimension->Get_sensor_by_id(id1, fhalf, fplane, fmodule, fside, fdie, fsensor);
-	dimension->Get_sensor_by_id(id2, bhalf, bplane, bmodule, bside, bdie, bsensor);
+	return corrId1.inv(corrId1) * corrId2;
 
-	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_global(fhalf, fplane, fmodule, fside, fdie, fsensor, true);
-	TGeoHMatrix lmdToSensor = dimension->Get_transformation_global_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, true);
-
-	TGeoHMatrix matrixAligned = lmdToSensor * sensorToLmd;
-
-	sensorToLmd = dimension->Get_transformation_sensor_to_global(fhalf, fplane, fmodule, fside, fdie, fsensor, false);
-	lmdToSensor = dimension->Get_transformation_global_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, false);
-
-	TGeoHMatrix matrixMisalignedInverse = (lmdToSensor * sensorToLmd).Inverse();
-	TGeoHMatrix combined = matrixMisalignedInverse * matrixAligned;
-
-	return castTGeoHMatrixToMatrix(combined);
+	//MAYBE it's this way round, maybe it doesn't even matter
+	//return corrId2 * corrId1.inv(corrId1);
 
 }
 
@@ -1089,19 +1064,23 @@ void PndLmdAlignManager::xOption(int option) {
 		cout << getMatrixOfficialGeometry(0,5,true) - getMatrixOfficialGeometryGlobal(0,5,true) << "\n";
 	}
 
-	if(option==2){
+	else if(option==2){
 		int id1=0;
 		int id2=5;
+
+		//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat", true);
+		//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat", false);
 
 		//this is no mistake, I want the inverted matrix of (id1,id2)
 		Matrix idealInv = getMatrixOfficialGeometry(id2,id1,true);
 		Matrix real = getMatrixOfficialGeometry(id1,id2,false);
 		Matrix correction = real * idealInv;
+		//correction = transformMatrixFromPixelsToCm(correction);
 		cout << correction << "\n";
 
 	}
 
-	if(option==3){
+	else if(option==3){
 		Matrix result1 = castTGeoHMatrixToMatrix(dimension->Get_transformation_lmd_local_to_global(true));
 		cout << result1 << "\n";
 		Matrix result2 = castTGeoHMatrixToMatrix(dimension->Get_transformation_global_to_lmd_local(true));
@@ -1113,45 +1092,31 @@ void PndLmdAlignManager::xOption(int option) {
 		cout << result2 * corr * result1 << "\n";
 	}
 
-	if(option==5){
+	else if(option==4){
+		Matrix icpMatrix = readMatrix("/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/timestampTest/matrices-ts0-ss0-pxWorks-cmDoesnt/m0to5cm.mat");
+		cout << "icp matrix:\n";
 
-		TChain* chainPairs = new TChain("cbmsim");
-		for(int i=0; i<_fileNames.size(); i++){
-			//cout << files[i] << endl;
-			if( _fileNames[i].find("Lumi_Pairs") != std::string::npos ){
-				chainPairs->Add(_fileNames[i].c_str());
-			}
-		}
+		cout << icpMatrix << "\n";
 
-		//pairs of sensors in LMD coordinates
-		TClonesArray* hitPairs = new TClonesArray("PndLmdHitPair");
-		chainPairs->SetBranchAddress("PndLmdHitPair", &hitPairs);
-		int nEntries = chainPairs->GetEntries();
-		cout << "HitPairs no of entries: " << nEntries << endl;
+		Matrix corr0 = getCorrectionMatrix(0);
+		Matrix corr5 = getCorrectionMatrix(5);
 
-		cout << "Sorting Pairs to Manager...\n";
-		int totalPairs=0;
-		for(int i_event=0; i_event<nEntries; i_event++ ){
+		Matrix corr0to5 = corr0.inv(corr0) * corr5;
 
-			loadBar(i_event, nEntries, 1000,30);
-			chainPairs->GetEntry(i_event);
-			int nPairs = hitPairs->GetEntries();
-			//loop over hitPairs per Event
-			for(int i_Pair=0; i_Pair<nPairs;i_Pair++){
-				PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs->At(i_Pair);
+		cout << "----------- corr 0 to 5:\n";
+		cout << corr0to5 << "\n";
 
-				//get hits 1 and 2 and transform 2 via matrix. compare hits!
+		cout << "dif:\n";
+		cout << icpMatrix - corr0to5 << "\n";
 
-			}
-		}
+	}
 
-		//TODO: remove
-		cout << "=========================\n";
-		cout << "total Pairs: " << totalPairs << endl;
-		cout << "All done. Running Align Manager.\n";
-		cout << "=========================\n";
+	else if(option==5){
 
-		delete chainPairs, hitPairs;
+		Matrix c1 = getMatrixOfficialGeometry(0,5,false);
+		Matrix c2 = getMatrixOfficialGeometryGlobal(0,5,false);
+
+		cout << c1 -c2 << "\n";
 	}
 
 	else{

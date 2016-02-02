@@ -61,7 +61,7 @@ public:
 	//add all pair files that can be found in directory, up to a maximum of maxFiles
 	//returns number of files found (including 0 for no files) or -1 if "pretend" option is set
 	//set maxFiles=0 for all available files
-	int addFilesFromDirectory(std::string directory, int maxFiles=10);
+	int addFilesFromDirectory(std::string directory, int maxFiles=0);
 
 	void validate();
 

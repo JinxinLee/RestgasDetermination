@@ -40,14 +40,26 @@ using std::vector;
 
 
 PndLmdAlignQA::PndLmdAlignQA(){
-	// TODO Auto-generated constructor stub
-	//FIXME: path is hard coded and therefore wrong
-	manager.readTrafoMatrix("/macro/lmd/testPixel/countTest/FullRun/geometry/trafo_matrices_lmd.dat", true);
-	manager.readTrafoMatrix("/macro/lmd/testPixel/countTest/FullRun/geometry/trafo_matrices_lmd_misaligned.dat", false);
+	init();
 }
 
 PndLmdAlignQA::~PndLmdAlignQA() {
 	// TODO Auto-generated destructor stub
+}
+
+void PndLmdAlignQA::init() {
+	infoMomentum = -1;
+	infoAbsolute = false;
+	infoRelative = false;
+	byPlane = false;
+	_inCentimeters = false;
+	_enableHelperMatrix = false;
+	curPlane = -1;
+	_signerrors = -1;
+
+	//FIXME: maybe don't do this hard-coded
+	manager.readTrafoMatrix("/geometry/trafo_matrices_lmd.dat", true);
+	manager.readTrafoMatrix("/geometry/trafo_matrices_lmd_misaligned.dat", false);
 }
 
 void PndLmdAlignQA::plotErrorsAbsolute(std::string inputFile, string outputPath){
@@ -467,6 +479,12 @@ void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vecto
 
 	std::vector<double> result;
 	Matrix thisMat = getdeltaCorrectionMatrix(id1, id2);
+
+	//FIXME: this excludes ICP Matrices for badly converged ICPs. Fix that correctly!
+	if(thisMat.val[2][3] > 10){
+		return;
+	}
+
 	result.push_back(id1);
 	result.push_back(id2);
 	result.push_back(thisMat.val[0][1]);
@@ -480,90 +498,108 @@ Matrix PndLmdAlignQA::getdeltaCorrectionMatrix(int id1, int id2) {
 
 	if(_inCentimeters){
 
-		stringstream matrixName;
-		//FIXME: this won't work forever
-		matrixName << _matrixDir << "/m";
-		matrixName << id1 << "to" << id2 << "cm";
-		if(_enableHelperMatrix){
-			matrixName << "C";
-		}
-		matrixName << ".mat";
-		Matrix icpMatrix = manager.readMatrix(matrixName.str());
+		if(false){
+			stringstream matrixName;
+			//FIXME: this won't work forever
+			matrixName << _matrixDir << "/m";
+			matrixName << id1 << "to" << id2 << "cm";
+			if(_enableHelperMatrix){
+				matrixName << "C";
+			}
+			matrixName << ".mat";
+			Matrix icpMatrix = manager.readMatrix(matrixName.str());
 
-		//second new setup
-		//Matrix corr = manager.getCorrectionMatrix(id1,id2);
-		//return corr-icpMatrix;
+			//old setup
 
-		//old setup
+			//this is no mistake, I want the inverted matrix of (id1,id2)
+			Matrix idealInv = manager.getMatrixOfficialGeometry(id2,id1,true);
+			Matrix real = manager.getMatrixOfficialGeometry(id1,id2,false);
+			Matrix correction;
 
-		//this is no mistake, I want the inverted matrix of (id1,id2)
-		Matrix idealInv = manager.getMatrixOfficialGeometry(id2,id1,true);
-		Matrix real = manager.getMatrixOfficialGeometry(id1,id2,false);
-		Matrix correction;
+			if(_enableHelperMatrix){
+				Matrix helper = PndLmdAlignManager::homogenizeMatrix(manager.getHelperMatrix());
+				helper.inv();
+				correction = real * idealInv * helper;
+			}
+			else{
+				correction = real * idealInv;
+			}
 
-		//idealInv.val[2][3]=0;
-		//real.val[2][3]=0;
+			//correction = manager.transformMatrixFromPixelsToCm(correction);
 
-		if(_enableHelperMatrix){
-			Matrix helper = PndLmdAlignManager::homogenizeMatrix(manager.getHelperMatrix());
-			helper.inv();
-			correction = real * idealInv * helper;
+			//transform ICP matrix here
+			Matrix lmdToGlobal = manager.getMatrixLmdToGlobal();
+			Matrix GlobalToLmd = manager.getMatrixGlobalToLmd();
+			//correction = lmdToGlobal * correction * GlobalToLmd;
+			//correction = GlobalToLmd * correction * lmdToGlobal;
+
+
+			cout << "==========================\n";
+			cout << "correction before:\n";
+			cout << correction << "\n";
+
+			//transform correction matrix here!
+			//manager.transformGlobalToLmd(correction);
+
+			cout << "correction after:\n";
+			cout << correction << "\n";
+			cout << "icp matrix:\n";
+
+			cout << icpMatrix << "\n";
+			cout << "==========================\n";
+
+			stringstream newdir;
+			newdir << _matrixDir << "/mathematica/";
+
+
+			//manager.writeMatrix(correction, "");
+			//manager.writeMatrix(icpMatrix, "");
+
+			cout << "=================== TEST =======================\n";
+			cout << "ideal inv from pndlmddim:\n";
+			cout << idealInv << endl;
+			cout << "real from pndlmddim:\n";
+			cout << real << endl;
+			cout << "correction:\n";
+			cout << real * idealInv << endl;
+			cout << "from icp:\n";
+			cout << icpMatrix << endl;
+			cout << "difference:\n";
+			cout << correction - icpMatrix << endl;
+			cout << "=================== END =======================\n";
+
+			//cout << icpMatrix << "\n";
+			//cout << "det dif: " << correction.det() - icpMatrix.det() << " (is " << correction.det() << " - " << icpMatrix.det() << ")\n";
+
+			//return correction;
+			return correction-icpMatrix;
+
+			//TODO: implement other way for comparison
 		}
 		else{
-			correction = real * idealInv;
+
+			stringstream matrixName;
+			//FIXME: this won't work forever
+			matrixName << _matrixDir << "/m";
+			matrixName << id1 << "to" << id2 << "cm";
+			if(_enableHelperMatrix){
+				matrixName << "C";
+			}
+			matrixName << ".mat";
+			Matrix icpMatrix = manager.readMatrix(matrixName.str());
+
+			/*
+			Matrix corrId1 = manager.getCorrectionMatrix(id1);
+			Matrix corrId2 = manager.getCorrectionMatrix(id2);
+			Matrix corr0to5 = corrId1.inv(corrId1) * corrId2;
+			*/
+			Matrix corr0to5 = manager.getCorrectionMatrix(id1, id2);
+
+			return icpMatrix - corr0to5;
 		}
 
-		//transform ICP matrix here
-		//Matrix lmdToGlobal = manager.getMatrixLmdToGlobal();
-		//Matrix GlobalToLmd = manager.getMatrixGlobalToLmd();
-		//correction = lmdToGlobal * correction * GlobalToLmd;
-		//correction = GlobalToLmd * correction * lmdToGlobal;
-		/*
 
-		cout << "==========================\n";
-		cout << "correction before:\n";
-		cout << correction << "\n";
 
-		//transform correction matrix here!
-		//manager.transformGlobalToLmd(correction);
-
-		cout << "correction after:\n";
-		cout << correction << "\n";
-		cout << "icp matrix:\n";
-
-		cout << icpMatrix << "\n";
-		cout << "==========================\n";
-
-		stringstream newdir;
-		newdir << _matrixDir << "/mathematica/";
-		 */
-
-		//manager.writeMatrix(correction, "");
-		//manager.writeMatrix(icpMatrix, "");
-
-		/*
-
-		cout << "=================== TEST =======================\n";
-		cout << "ideal inv from pndlmddim:\n";
-		cout << idealInv << endl;
-		cout << "real from pndlmddim:\n";
-		cout << real << endl;
-		cout << "correction:\n";
-		cout << real * idealInv << endl;
-		cout << "from icp:\n";
-		cout << icpMatrix << endl;
-		cout << "difference:\n";
-		cout << correction - icpMatrix << endl;
-		cout << "=================== END =======================\n";
-
-		 */
-		//cout << icpMatrix << "\n";
-		//cout << "det dif: " << correction.det() - icpMatrix.det() << " (is " << correction.det() << " - " << icpMatrix.det() << ")\n";
-
-		//return correction;
-		return correction-icpMatrix;
-
-		//TODO: implement other way for comparison
 	}
 
 	// in pixels, lmd local frame of reference

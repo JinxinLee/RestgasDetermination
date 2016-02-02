@@ -42,6 +42,7 @@ public:
 
 	PndLmdAlignQA();
 	virtual ~PndLmdAlignQA();
+	void init();
 
 	//tales absolute matrix, in perfect alignment means identity matrix
 	void plotErrorsAbsolute(std::string filename, std::string outputPath);

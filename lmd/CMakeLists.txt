@@ -119,29 +119,27 @@ LmdSensorAlignment/PndLmdHitPair.h
 set(LINKDEF  LmdPairFinderLinkDef.h)
 set(LIBRARY_NAME LmdPairFinder)
 
-set(DEPENDENCIES Base Sds )
+set(DEPENDENCIES Base Sds Lmd boost_filesystem)
 
 GENERATE_LIBRARY()
 
 ########################### create PndLmdSensorAligner ######################################
 set(SRCS
-LmdSensorAlignment/PndLmdSensorAligner.cxx
 LmdSensorAlignment/PndLmdAlignManager.cxx
+LmdSensorAlignment/PndLmdSensorAligner.cxx
 LmdSensorAlignment/PndLmdAlignQA.cxx
 )
 
 set(HEADERS
-##LmdSensorAlignment/PndLmdSensorAligner.h
-##LmdSensorAlignment/PndLmdAlignManager.h
-##LmdSensorAlignment/PndLmdAlignQA.h
+LmdSensorAlignment/PndLmdAlignManager.h
+LmdSensorAlignment/PndLmdSensorAligner.h
+LmdSensorAlignment/PndLmdAlignQA.h
 )
 
-##set(LINKDEF  LmdSensorAlignerLinkDef.h)
+set(LINKDEF  LmdSensorAlignerLinkDef.h)
 set(LIBRARY_NAME LmdSensorAligner)
 
-set(DEPENDENCIES Base Sds LmdSensorAlignerTools boost_filesystem)
-
-##add_library(LmdSensorAlignerTools SHARED LmdSensorAlignment/icp/matrix.cpp LmdSensorAlignment/icp/kdtree.cpp LmdSensorAlignment/icp/icpPointToPoint.cpp LmdSensorAlignment/icp/icp.cpp)
+set(DEPENDENCIES Base Sds Lmd boost_system boost_thread boost_regex boost_filesystem LmdPairFinder LmdSensorAlignerTools)
 
 GENERATE_LIBRARY()
 
