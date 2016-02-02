@@ -30,8 +30,6 @@ void pid_complete()
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetUseFairLinks(kTRUE);
-  FairGeane *Geane = new FairGeane();
-  fRun->AddTask(Geane);
 
   // -----  Parameter database   --------------------------------------------
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
@@ -49,45 +47,10 @@ void pid_complete()
   rtdb->setSecondInput(parIo1);
 
   // ------------------------------------------------------------------------
-
-  PndPidCorrelator* corr = new PndPidCorrelator();
-  //corr->SetVerbose();
-  corr->SetInputBranch("SttMvdGemGenTrack");
-  corr->SetInputIDBranch("SttMvdGemGenTrackID");
-  corr->SetInputBranch2("FtsIdealGenTrack");
-  corr->SetInputIDBranch2("FtsIdealGenTrackID");
-  //corr->SetDebugMode(kTRUE);
-  //corr->SetFast(kTRUE);
-  //corr->SetBackPropagate(kFALSE);
-  fRun->AddTask(corr);
-
-  PndPidBremCorrector *bremCorr = new PndPidBremCorrector();
-  fRun->AddTask(bremCorr);
-
-  PndMcCloner *clone = new PndMcCloner();
-  fRun->AddTask(clone);
- 
-  PndPidIdealAssociatorTask *assMC= new PndPidIdealAssociatorTask();
-  fRun->AddTask(assMC);
-
-  PndPidMvdAssociatorTask *assMvd= new PndPidMvdAssociatorTask();
-  fRun->AddTask(assMvd);
-
-  PndPidMdtHCAssociatorTask *assMdt= new PndPidMdtHCAssociatorTask();
-  fRun->AddTask(assMdt);
-
-  PndPidDrcAssociatorTask *assDrc= new PndPidDrcAssociatorTask();
-  fRun->AddTask(assDrc);
-
-  PndPidDiscAssociatorTask *assDisc= new PndPidDiscAssociatorTask();
-  fRun->AddTask(assDisc);
-
-  PndPidSttAssociatorTask *assStt= new PndPidSttAssociatorTask();
-  fRun->AddTask(assStt);
-
-  PndPidEmcBayesAssociatorTask *assEMC= new PndPidEmcBayesAssociatorTask();
-  fRun->AddTask(assEMC);
-
+  PndMasterPidTask* pid = new PndMasterPidTask();
+  pid->SetVerbose(iVerbose);
+  fRun->AddTask(pid); 
+	
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   cout << "fRun->Init()" << endl;
