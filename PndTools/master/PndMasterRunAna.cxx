@@ -9,7 +9,7 @@
 #include "FairParAsciiFileIo.h"
 #include "FairRuntimeDb.h"
 #include "FairSystemInfo.h"
-
+#include "FairLogger.h"
 
 using std::cout;
 using std::endl;
@@ -76,7 +76,7 @@ void PndMasterRunAna::AddPidTasks()
 // -----   Finish   ---------------------------------------------------------
 void PndMasterRunAna::Finish()
 {
-  cout << endl << endl;
+  cout << endl;
   
   // Extract the maximal used memory an add is as Dart measurement
   // This line is filtered by CTest and the value send to CDash
@@ -95,16 +95,16 @@ void PndMasterRunAna::Finish()
   cout << cpuUsage;
   cout << "</DartMeasurement>" << endl;
   
-  cout << endl << endl;
-  cout << "Output file is "    << fOutname << endl;
-  cout << "Parameter ROOT file is " << fParamRootFile << endl;
-  cout << "Parameter ASCII file is " << fParamAsciiFile << endl << endl;;
-  cout << "Real time " << rtime << " s, CPU time " << ctime
-       << "s" << endl << endl;
-  cout << "CPU usage " << cpuUsage*100. << "%" << endl;
-  cout << "Max Memory " << maxMemory << " MB" << endl << endl;
+  cout << endl;
+  LOG(INFO) << "Output file is "    << fOutname << FairLogger::endl;
+  LOG(INFO) << "Parameter ROOT file is " << fParamRootFile << FairLogger::endl;
+  LOG(INFO) << "Parameter ASCII file is " << fParamAsciiFile << FairLogger::endl << FairLogger::endl;;
+  LOG(INFO) << "Real time " << rtime << " s, CPU time " << ctime
+       << "s" << FairLogger::endl << FairLogger::endl;
+  LOG(INFO) << "CPU usage " << cpuUsage*100. << "%" << FairLogger::endl;
+  LOG(INFO) << "Max Memory " << maxMemory << " MB" << FairLogger::endl << FairLogger::endl;
    
-  cout << "Macro finished successfully." << endl;
+  LOG(INFO) << "Macro finished successfully." << FairLogger::endl;
   
 }
 

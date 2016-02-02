@@ -1,9 +1,8 @@
 /**
  * @class PndMasterRunAna
- * @brief Abstract class for all the master task list classes
- * @details # Master task Class
- * This class is the basic for all the master task classes, digi, reco, pid and so on.
- * It provides basic functionalities, such as the possibility to set the Verbosity for each task separately or for all the tasks together, the possibility to getretrieve a Task in order to use some setter, and a print of all the included tasks 
+ * @brief Class for the master reconstruction chain
+ * @details # Master Tasks Class
+ * This class is the basic for all the reconstruction steps, digi, reco, pid and so on.
  * @author Stefano Spataro <spataro@to.infn.it>, Torino University
  * @version 1.0
  * @date Feb 1, 2016
@@ -103,4 +102,4 @@ class PndMasterRunAna : public FairRunAna
 
 };
 
-#endif /* PNDMASTERTASK_H */
+#endif /* PNDMASTERRUNANA_H */

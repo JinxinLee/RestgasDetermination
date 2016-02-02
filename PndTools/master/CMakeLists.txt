@@ -12,7 +12,13 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/master
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00	
+  ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
+  ${CMAKE_SOURCE_DIR}/pgenerators/Direct
   ${CMAKE_SOURCE_DIR}/stt
+  ${CMAKE_SOURCE_DIR}/sds/SdsMC
+  ${CMAKE_SOURCE_DIR}/mvd/MvdMC
   ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
   ${CMAKE_SOURCE_DIR}/mvd/MvdReco
   ${CMAKE_SOURCE_DIR}/emc/EmcMC	
@@ -23,20 +29,26 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/emc/EmcCorr
   ${CMAKE_SOURCE_DIR}/scitil/SciTMC		
   ${CMAKE_SOURCE_DIR}/scitil/SciTDigi
+  ${CMAKE_SOURCE_DIR}/mdt/MdtMC
   ${CMAKE_SOURCE_DIR}/mdt/MdtDigi
   ${CMAKE_SOURCE_DIR}/mdt/MdtReco
   ${CMAKE_SOURCE_DIR}/drc
+  ${CMAKE_SOURCE_DIR}/dsk/DskMC
   ${CMAKE_SOURCE_DIR}/gem
   ${CMAKE_SOURCE_DIR}/fts
   ${CMAKE_SOURCE_DIR}/ftof
   ${CMAKE_SOURCE_DIR}/rich
+  ${CMAKE_SOURCE_DIR}/field
+  ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/SciTData
   ${CMAKE_SOURCE_DIR}/pnddata/MdtData	
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/pnddata/DrcData
+  ${CMAKE_SOURCE_DIR}/pnddata/DskData
   ${CMAKE_SOURCE_DIR}/pnddata/GemData
   ${CMAKE_SOURCE_DIR}/pnddata/SttData
+  ${CMAKE_SOURCE_DIR}/pnddata/FtsData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/pnddata/RichData
   ${CMAKE_SOURCE_DIR}/tracking
@@ -66,12 +78,13 @@ PndMasterTask.cxx
 PndMasterDigiTask.cxx
 PndMasterRecoTask.cxx
 PndMasterPidTask.cxx
+PndMasterRunSim.cxx
 PndMasterRunAna.cxx
 )
 
 set(LINKDEF  MasterLinkDef.h)
 set(LIBRARY_NAME Master)
 
-set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid)
+set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen FtfGenDirect EvtGenDirect)
 
-GENERATE_LIBRARY()
+GENERATE_LIBRARY() 
