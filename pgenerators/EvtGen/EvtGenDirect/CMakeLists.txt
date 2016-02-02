@@ -21,9 +21,10 @@ Include_Directories(${INCLUDE_DIRECTORIES})
 Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
-   ${ROOT_LIBRARY_DIR}
-   ${HEPMC_LIB_DIR}
-   ${FORTRAN_LIBDIR}
+${ROOT_LIBRARY_DIR}
+${FAIRROOT_LIBRARY_DIR}
+${HEPMC_LIB_DIR}
+${FORTRAN_LIBDIR}
 )
 
 link_directories( ${LINK_DIRECTORIES})
@@ -35,7 +36,7 @@ set(SRCS
 set(LINKDEF  EvtGenDirectLinkDef.h)
 set(LIBRARY_NAME EvtGenDirect)
 
-set(DEPENDENCIES EvtGen EvtGenExternal)
+set(DEPENDENCIES Base EvtGen EvtGenExternal)
 
 GENERATE_LIBRARY()
 
