@@ -66,6 +66,7 @@ PndMasterTask.cxx
 PndMasterDigiTask.cxx
 PndMasterRecoTask.cxx
 PndMasterPidTask.cxx
+PndMasterRunAna.cxx
 )
 
 set(LINKDEF  MasterLinkDef.h)
