@@ -28,7 +28,8 @@ Street, Fifth Floor, Boston, MA 02110-1301, USA
 #include <vector>
 
 #ifndef _MSC_VER
-  #include <stdint.h>
+  //#include <stdint.h>
+  typedef int int32_t;
 #else
   typedef __int8            int8_t;
   typedef __int16           int16_t;
