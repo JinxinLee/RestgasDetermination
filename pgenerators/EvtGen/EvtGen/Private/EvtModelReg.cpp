@@ -160,6 +160,7 @@
 #include "EvtGenModels/EvtPpbarPi0Gamma.hh"
 #include "EvtGenModels/EvtElectronPositron.hh"
 #include "EvtGenModels/EvtDeuteronSpectator.hh"
+#include "EvtGenModels/EvtDeuteronResonance.hh"  // [A.Blinov.26.12.2015]
 //#include "EvtGenModels/EvtPpbarPi0Pi0.hh"
 #include "EvtGenModels/EvtPpbarEtacGamma.hh"
 #include "EvtGenModels/EvtDsDalitz.hh"

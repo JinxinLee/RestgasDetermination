@@ -43,6 +43,7 @@ set(EVTGEN_SRCS
    ${EVTGEN_PRIVATE_DIR}/EvtPpbarPi0Gamma.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtElectronPositron.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtDeuteronSpectator.cpp
+   ${EVTGEN_PRIVATE_DIR}/EvtDeuteronResonance.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtPpbarEtacGamma.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBar.cpp
    ${EVTGEN_PRIVATE_DIR}/EvtLambdaLambdaBarPol.cpp
