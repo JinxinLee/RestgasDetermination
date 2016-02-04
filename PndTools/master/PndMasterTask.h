@@ -3,7 +3,7 @@
  * @brief Abstract class for all the master task list classes
  * @details # Master task Class
  * This class is the basic for all the master task classes, digi, reco, pid and so on.
- * It provides basic functionalities, such as the possibility to set the Verbosity for each task separately or for all the tasks together, the possibility to getretrieve a Task in order to use some setter, and a print of all the included tasks 
+ * It provides basic functionalities, such as the possibility to set the Verbosity for each task separately or for all the tasks together, the possibility to getretrieve a Task in order to use some setter, and a print of all the included tasks.
  * @author Stefano Spataro <spataro@to.infn.it>, Torino University
  * @version 1.0
  * @date Feb 1, 2016
@@ -22,22 +22,33 @@ class PndMasterTask : public PndBlackBoxTask
 {
  public:
 
-    /** Default constructor **/
+    /** 
+     * @brief Default constructor
+     */
     PndMasterTask();
     
-    /** Proper Constructor **/
+    /**
+     * @brief Proper Constructor 
+     */
     PndMasterTask(const char* name);
 
-    /** Destructor **/
+    /**
+     * @brief Destructor 
+     */
     virtual ~PndMasterTask();
-
-    /** It prints the list of tasks **/
+    
+    /**
+     * @brief It prints the list of tasks 
+     */
     void PrintTaskList();
 
-    /** Set the Verbosity to all the tasks **/
+    /** 
+     * @brief Set the Verbosity to all the tasks 
+     * @param iVerbose Verbosity level: 0 no messages, the higher more messages
+     */
     void SetVerbose(Int_t iVerbose = 1);
 
-    /*
+    /**
      * @brief Set the Verbosity to a single task
      * @details This function has to be used when you want to change the verbosity to a single task
      * 
@@ -46,11 +57,12 @@ class PndMasterTask : public PndBlackBoxTask
      */
     void SetVerbose(Int_t nTask, Int_t iVerbose);
 
-     /*
+    /**
      * @brief Return the pointer to a single task
      * @details This function allows to retrieve the pointer of a task inside the task list, when you want to use some particular setter or change someting in the task.
      * 
      * @param nTask Index of the task you want to modify. Instead of the integer you can use the enum "k" + task name (i.e. kMvdDigiTask, kSttHitProducerRealFast, etc...)
+     * @result A pointer to the corresponding task
      */   
     FairTask* GetTask(Int_t nTask);
     

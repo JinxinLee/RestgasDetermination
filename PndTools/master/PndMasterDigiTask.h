@@ -21,34 +21,38 @@ class PndMasterDigiTask : public PndMasterTask
 {
  public:
 
-    /** Default constructor **/
-    PndMasterDigiTask();
-
-    /** Destructor **/
-    virtual ~PndMasterDigiTask();
-
+  /**
+   * @brief Default constructor 
+   */
+  PndMasterDigiTask();
+  
+  /** 
+   * @brief Destructor 
+   */
+  virtual ~PndMasterDigiTask();
+  
  private:
-
-    /**
- * @brief enum of the task list
- * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndMvdDigiTask" for the class PndMvdDigiTask. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number
- **/
-    enum digiTaskList {
-      kPndSttHitProducerRealFast,
-      kPndMvdDigiTask, kPndMvdClusterTask,
-      kPndEmcHitsToWaveform, kPndEmcWaveformToDigi, kPndEmcMakeCluster, kPndEmcMakeBump,
-      kPndSciTHitProducerIdeal,
-      kPndMdtHitProducerIdeal, kPndMdtTrkProducer,
-      kPndDrcHitProducerReal,
-      kPndGemDigitize, kPndGemFindHits,
-      kPndFtsHitProducerRealFast,
-      kPndFtofHitProducerIdeal,
-      kPndEventCounterTask
-    };
-    
-    /** @cond CLASSIMP */
-    ClassDef(PndMasterDigiTask,1);
-    /** @endcond */
+  
+  /**
+   * @brief enum of the task list
+   * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndMvdDigiTask" for the class PndMvdDigiTask. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number
+   */
+  enum digiTaskList {
+    kPndSttHitProducerRealFast,
+    kPndMvdDigiTask, kPndMvdClusterTask,
+    kPndEmcHitsToWaveform, kPndEmcWaveformToDigi, kPndEmcMakeCluster, kPndEmcMakeBump,
+    kPndSciTHitProducerIdeal,
+    kPndMdtHitProducerIdeal, kPndMdtTrkProducer,
+    kPndDrcHitProducerReal,
+    kPndGemDigitize, kPndGemFindHits,
+    kPndFtsHitProducerRealFast,
+    kPndFtofHitProducerIdeal,
+    kPndEventCounterTask
+  };
+  
+  /** @cond CLASSIMP */
+  ClassDef(PndMasterDigiTask,1);
+  /** @endcond */
 };
 
 #endif /* PNDMASTERDIGITASK_H */

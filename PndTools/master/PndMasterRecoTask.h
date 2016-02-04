@@ -21,36 +21,40 @@ class PndMasterRecoTask : public PndMasterTask
 {
  public:
 
-    /** Default constructor **/
-    PndMasterRecoTask();
-
-    /** Destructor **/
-    virtual ~PndMasterRecoTask();
-
+  /**
+   * @brief Default constructor 
+   */
+  PndMasterRecoTask();
+  
+  /**
+   * @brief Destructor 
+   */
+  virtual ~PndMasterRecoTask();
+  
  private:
 
-    /**
-     * @brief enum of the task list
-     * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndTrkTracking2" for the class PndTracking2. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
-     * @remarks There are 4 kPndMCTrackAssociatorTask  and 2 kPndRecoKalmanTask, called kPndMCTrackAssociator1 kPndMCTrackAssociator2 etc...
-     **/
-    enum recoTaskList {
-      kFairGeane,
-      kPndTrkTracking2,
-      kPndSttMvdGemTracking,
-      kPndMCTrackAssociator1,
-      kPndRecoKalmanTask1,
-      kPndMCTrackAssociator2,
-      kPndFtsTrackerIdeal,
-      kPndMCTrackAssociator3,
-      kPndRecoKalmanTask2,
-      kPndMCTrackAssociator4,
-      kPndEventCounterTask
-    };
-    
-    /** @cond CLASSIMP */
-    ClassDef(PndMasterRecoTask,1);
-    /** @endcond */
+  /**
+   * @brief enum of the task list
+   * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndTrkTracking2" for the class PndTracking2. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
+   * @remarks There are 4 kPndMCTrackAssociatorTask  and 2 kPndRecoKalmanTask, called kPndMCTrackAssociator1 kPndMCTrackAssociator2 etc...
+   */
+  enum recoTaskList {
+    kFairGeane,
+    kPndTrkTracking2,
+    kPndSttMvdGemTracking,
+    kPndMCTrackAssociator1,
+    kPndRecoKalmanTask1,
+    kPndMCTrackAssociator2,
+    kPndFtsTrackerIdeal,
+    kPndMCTrackAssociator3,
+    kPndRecoKalmanTask2,
+    kPndMCTrackAssociator4,
+    kPndEventCounterTask
+  };
+  
+  /** @cond CLASSIMP */
+  ClassDef(PndMasterRecoTask,1);
+  /** @endcond */
 };
 
 #endif /* PNDMASTERRECOTASK_H */

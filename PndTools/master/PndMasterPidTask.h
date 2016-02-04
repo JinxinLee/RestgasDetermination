@@ -21,36 +21,40 @@ class PndMasterPidTask : public PndMasterTask
 {
  public:
 
-    /** Default constructor **/
-    PndMasterPidTask();
-
-    /** Destructor **/
-    virtual ~PndMasterPidTask();
-
+  /** 
+   * @brief Default constructor 
+   */
+  PndMasterPidTask();
+  
+  /**
+   * @brief Destructor
+   */
+  virtual ~PndMasterPidTask();
+  
  private:
-
-    /**
-     * @brief enum of the task list
-     * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndPidCorrelator" for the class PndPidCorrelator. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
-     **/
-    enum pidTaskList {
-      kFairGeane,
-      kPndPidCorrelator,
-      kPndPidBremCorrector,
-      kPndMcCloner,
-      kPndPidIdealAssociatorTask,
-      kPndPidMvdAssociatorTask,
-      kPndPidMdtHCAssociatorTask,
-      kPndPidDrcAssociatorTask,
-      kPndPidDiscAssociatorTask,
-      kPndPidSttAssociatorTask,
-      kPndPidEmcBayesAssociatorTask,
-      kPndEventCounterTask
-    };
-    
-    /** @cond CLASSIMP */
-    ClassDef(PndMasterPidTask,1);
-    /** @endcond */
+  
+  /**
+   * @brief enum of the task list
+   * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndPidCorrelator" for the class PndPidCorrelator. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
+   */
+  enum pidTaskList {
+    kFairGeane,
+    kPndPidCorrelator,
+    kPndPidBremCorrector,
+    kPndMcCloner,
+    kPndPidIdealAssociatorTask,
+    kPndPidMvdAssociatorTask,
+    kPndPidMdtHCAssociatorTask,
+    kPndPidDrcAssociatorTask,
+    kPndPidDiscAssociatorTask,
+    kPndPidSttAssociatorTask,
+    kPndPidEmcBayesAssociatorTask,
+    kPndEventCounterTask
+  };
+  
+  /** @cond CLASSIMP */
+  ClassDef(PndMasterPidTask,1);
+  /** @endcond */
 };
 
 #endif /* PNDMASTERPIDTASK_H */
