@@ -222,6 +222,24 @@ string(FIND " ${CMAKE_CXX_FLAGS} " "-std=c++11" POS_C++11)
     Message(STATUS "C++11 not supported.")
   endif()
 
+#Test if FairMultiLinkData has the old (2015) version
+#of Print(), or is the new (2016->) PrintLinkInfo implemented
+Message(STATUS "Checking for FairMultiLinkedData::PrintLinkInfo() function")
+Execute_process(COMMAND ${CMAKE_CXX_COMPILER} -c 
+                ${CMAKE_SOURCE_DIR}/PndTools/test/testFairMultiLinkedData.cpp
+        	-I${ROOT_INCLUDE_DIR} -I${FAIRROOTPATH}/include
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                RESULT_VARIABLE NO_PrintLinkInfo
+                ERROR_QUIET
+                )
+If(NO_PrintLinkInfo)
+Message(STATUS "FairMultiLinkedData has Print()")
+Else(NO_PrintLinkInfo)
+Add_Definitions(-D_HavePrintLinkInfo)
+Set(DEFINITIONS ${DEFINITIONS} _HavePrintLinkInfo)
+Message(STATUS "FairMultiLinkedData has PrintLinkInfo()")
+EndIf(NO_PrintLinkInfo)
+
 # Recurse into the given subdirectories.  This does not actually
 # cause another cmake executable to run.  The same process will walk through
 # the project's entire directory structure.

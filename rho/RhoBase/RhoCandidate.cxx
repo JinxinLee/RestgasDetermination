@@ -1168,8 +1168,12 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
   o << " pdg: " <<fPdgCode;
   o << " PID:";
   for ( int k=0; k<5; k++ ) { o << fPidLH[k] <<","; } // take the first 5 pid entries to check charged p,pi,e,mu,K
-  o << "  mc truth pointer: " << fMcTruth << " ";
+  o << "  mc truth pointer: " << fMcTruth << " "; 
+#ifdef _HavePrintLinkInfo
+  FairMultiLinkedData_Interface::PrintLinkInfo(o);
+#else
   FairMultiLinkedData_Interface::Print(o);
+#endif
 }
 
 
