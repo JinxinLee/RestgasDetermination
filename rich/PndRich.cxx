@@ -306,7 +306,7 @@ void PndRich::ConstructOpGeometry() {
 // https://www.slac.stanford.edu/grp/eg/minos/dist/dist_aux4/geant4_vmc/examples/E06/src/Ex06DetectorConstruction.cxx
   //gMC->SetCerenkov(gMC->MediumId("FusedSil"),npoints_i, ephoton_i,abs_i , reflectivity0_i, refractiveIndex);
   for(size_t i=0;i<nOpt.size();i++) {
-     TString richAerogelMedia = Form("RichAerogel%d",i);
+     TString richAerogelMedia = Form("RichAerogel%zd",i);
      //refractiveIndex[0] = nOpt[i];
      //refractiveIndex[1] = nOpt[i];
      cout<<i<<" "<<richAerogelMedia<<" "<<gMC->MediumId(richAerogelMedia)<<endl;
