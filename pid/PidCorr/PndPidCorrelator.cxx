@@ -495,6 +495,17 @@ InitStatus PndPidCorrelator::Init() {
 	  cout << "-I- PndPidCorrelator::Init: Using RichPDHit" << endl;
 	  fRichMode = 2;
 	}
+      fRichBarPoint = dynamic_cast<TClonesArray *> (fManager->GetObject("RichBarPoint"));
+      if ( ! fRichBarPoint ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No RichBarPoint array!" << endl;
+	  fRichMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using RichBarPoint" << endl;
+          fRichMode = 3;
+	}
     }
   
   if (fIdeal)
@@ -539,7 +550,6 @@ InitStatus PndPidCorrelator::Init() {
       else  
 	{
 	  cout << "-I- PndPidCorrelator::Init: Using RichBarPoint" << endl;
-          fRichMode = 1;
 	}
     }
   

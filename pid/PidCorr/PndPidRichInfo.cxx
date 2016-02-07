@@ -62,8 +62,8 @@ Bool_t PndPidCorrelator::GetRichInfo(FairTrackParH* helix, PndPidCandidate* pidC
       vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ()); 
       momentum.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
    }
-
-   if (fIdeal) // without reconstruction, from simulated track parameters
+   
+   if ( fIdeal || (fRichMode==3) ) // without reconstruction, from simulated track parameters
    {
       PndRichBarPoint *richHit = NULL;
       Int_t richEntries = fRichBarPoint->GetEntriesFast();
@@ -106,7 +106,7 @@ Bool_t PndPidCorrelator::GetRichInfo(FairTrackParH* helix, PndPidCandidate* pidC
       }
       richQuality = std::sqrt(richQuality);
    }
-   else // full reconstruction
+   if ( fRichMode == 2 ) // full reconstruction
    {
       // reconstruction returns value of beta and sigma of beta
       // richQuality   - chi2
@@ -114,14 +114,15 @@ Bool_t PndPidCorrelator::GetRichInfo(FairTrackParH* helix, PndPidCandidate* pidC
       // richThetaCErr - sigma of beta
       // richPhot      - number of cherenkov photons
       //fRichReco = new PndRichReco();
-      fRichReco->RichFullReconstruction(vertex,momentum.Unit(),
+      Float_t ts = 21.8; // time of hit to the aerogel [ns]
+      fRichReco->RichFullReconstruction(vertex,momentum.Unit(),ts,
                                         richQuality,richThetaC,richThetaCErr,richPhot);
       richThetaCErr = fRichResolution->Sigma(pidCand);
       richThetaC += fRichResolution->Shift(pidCand);
       richIndex = 1;
    }
    
-  if (((richPhot>=3) || (fIdeal)) && (richIndex!=-1))
+  if (((richPhot>=3) || (fIdeal) || (fRichMode==3)) && (richIndex!=-1))
     {
       pidCand->SetRichQuality(richQuality);
       pidCand->SetRichThetaC(richThetaC);
