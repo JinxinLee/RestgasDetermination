@@ -23,7 +23,12 @@ class  PndRichReco //: public FairGeoSet
     TClonesArray* fRichPDHit;         //! PndRichPDHit TCA
     
     PndRichGeo* fGeo;
+    UInt_t fEvent;
     UInt_t fGeoVersion;
+    UInt_t fParticleID;
+    Double_t fMirrorLength;
+    TVector3 fTrackPosition;
+    TVector3 fTrackDirection;
     // flat mirror parametrs
     UInt_t fNumberOfFlatMirrorSegments;
     std::vector<TVector3> fMiddleFlatMirrorPoint;
@@ -35,13 +40,16 @@ class  PndRichReco //: public FairGeoSet
  protected:
     
   public:
+    PndRichReco(UInt_t version,UInt_t pid,TVector3 position,TVector3 direction);
     PndRichReco();
     ~PndRichReco();
 
+    void Init();
     void Register();
 
     void SetGeoVersion(UInt_t version) { fGeoVersion = version; };
-    void RichFullReconstruction(TVector3 pos, TVector3 dir, Float_t &chi2, Float_t &chTh, Float_t &dChTh, Int_t &nph );
+    void RichFullReconstruction(TVector3 pos, TVector3 dir, Float_t ts, Float_t &chi2, Float_t &chTh, Float_t &dChTh, Int_t &nph );
+    std::vector<double> GetDThetas();
     std::vector<PndRichPhoton> CherenkovPhotonListFlat( TVector3 pos, TVector3 dir, Double_t time );
     double BetaPeakFinding(std::vector<PndRichPhoton> photons, Double_t nopt, Double_t nnz);
     void HitSelection(std::vector<double> &ph, std::vector<double> &th,

@@ -15,9 +15,9 @@ PndRichGeo::PndRichGeo()
   maxModules=10;
    
   fRichOffset = TVector3( 0, 0, 700-35-10/*+50*/ ); //-70
-  fAlBoxSize = TVector3( 300, 300, 100 );
+  fAlBoxSize = TVector3( 600, 600, 100 );
   fAlBoxWallThickness = 0.05;
-  fAerogelSize = TVector3( 290, 120, 4 );
+  fAerogelSize = TVector3( 0*590+1*290, 0*590+1*120, 4 );
   fAerogelOffset = TVector3( 0, 0, 1 );
   fnOpt = std::vector<Double_t>(1,1.05);
   fAerogelLayers = std::vector<Double_t>(1,1);

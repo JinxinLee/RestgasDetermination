@@ -51,6 +51,7 @@ PndRichGeoPar.cxx
 PndRichReco.cxx
 PndRichHitProducer.cxx
 PndRichResolution.cxx
+PndRichRecoTask.cxx
 )
 
 set(LINKDEF RichLinkDef.h)

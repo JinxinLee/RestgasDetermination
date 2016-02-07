@@ -136,7 +136,7 @@ Bool_t  PndRich::ProcessHits(FairVolume* vol)
   gMC->TrackMomentum(fMom);
    
   // Create PndRichPoint at exit of active volume
-   if ( fPdgCode == 50000050 && nam.BeginsWith("RichPhDet") && gMC->IsTrackEntering()==1 ){
+   if ( fPdgCode == 50000050 && nam.BeginsWith("RichPhDetSi") && gMC->IsTrackEntering()==1 ){
      fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
      fVolumeID = vol->getMCid();
      AddPDPoint(fTrackID, fVolumeID, fPos.Vect(), fMom.Vect(),
@@ -317,6 +317,10 @@ void PndRich::ConstructOpGeometry() {
   gMC->SetMaterialProperty("RichMirrSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
   gMC->SetBorderSurface("BarRichMirrorSurface", "RichMirror", 1, "RichAlBoxAir", 1, "RichMirrSurface");
   gMC->SetSkinSurface("RichAirMirrorSurface", "RichMirror", "RichMirrSurface");
+  gMC->SetBorderSurface("BarRichMirrorLeftSurface", "RichMirrorLeft", 1, "RichAlBoxAir", 1, "RichMirrSurface");
+  gMC->SetSkinSurface("RichAirMirrorLeftSurface", "RichMirrorLeft", "RichMirrSurface");
+  gMC->SetBorderSurface("BarRichMirrorRightSurface", "RichMirrorRight", 1, "RichAlBoxAir", 1, "RichMirrSurface");
+  gMC->SetSkinSurface("RichAirMirrorRightSurface", "RichMirrorRight", "RichMirrSurface");
 
   cout<<" =======  RICH::ConstructOpGeometry -> Finished! ====== "<< endl;     
    

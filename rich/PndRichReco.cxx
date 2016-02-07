@@ -146,7 +146,7 @@ namespace {
        double Chi2_ = 0;
        size_t n = fi.size();
        for(size_t i=0;i<n;i++) {
-          double chi = (ti.at(i) - thc(fi.at(i),nopt,beta,nnz))/0.001;
+          double chi = (ti.at(i) - thc(fi.at(i),nopt,beta,nnz))/0.0025;
           Chi2_ += chi*chi;
        }
        return Chi2_;
@@ -216,7 +216,31 @@ PndRichReco::PndRichReco()
   : fRichPDHit(0)
 {
    fGeoVersion = 13;
-   FairRootManager *fManager =FairRootManager::Instance();
+   Init(); // init geometry parameters
+   Register();
+   
+//-----------------------------------------------------   
+}
+
+PndRichReco::PndRichReco(UInt_t version = 0,
+                         UInt_t pid = 0,
+                         TVector3 position = TVector3(0,0,0),
+                         TVector3 direction = TVector3(0,0,1))
+  : fRichPDHit(0)
+{
+   fGeoVersion = version;
+   fParticleID = pid;
+   fTrackPosition = position;
+   fTrackDirection = direction.Unit();
+   Init(); // init geometry parameters
+   Register();
+   
+//-----------------------------------------------------   
+}
+
+void PndRichReco::Init()
+{
+   FairRootManager *fManager = FairRootManager::Instance();
    fGeo = new PndRichGeo();
    fGeo->init(fGeoVersion);
    fRichPDHit = dynamic_cast<TClonesArray *> (fManager->GetObject("RichPDHit"));
@@ -225,13 +249,14 @@ PndRichReco::PndRichReco()
    TVector3 aerogelOffset = fGeo->aerogelOffset();
    TVector3 aerogelSize = fGeo->aerogelSize();
    Double_t zain = richOffset.Z() + aerogelOffset.Z();
-   fZamid = zain + aerogelSize.Z()/2;
+   fZamid = zain + 0.5*aerogelSize.Z(); // midle position of the point of cherenkov photons emission
+   //fZamid = zain + 0.69075*aerogelSize.Z(); // optimal position of the point of cherenkov photons emission
    //
    fPhDetAngle = fGeo->phDetAngle();
    std::vector<Double_t> flatMirrorY  = fGeo->flatMirrorYGlob();
    std::vector<Double_t> flatMirrorZ  = fGeo->flatMirrorZGlob();
    //
-   Double_t mirrorLength = fGeo->mirrorLength();
+   fMirrorLength = fGeo->mirrorLength();
    fNumberOfFlatMirrorSegments = flatMirrorY.size()-1;
    for(UInt_t i=0; i<fNumberOfFlatMirrorSegments; i++) {
       // middle point on the mirror segment
@@ -240,7 +265,7 @@ PndRichReco::PndRichReco()
       Double_t zm = (flatMirrorZ[i+1]+flatMirrorZ[i])/2;
       fMiddleFlatMirrorPoint.push_back(TVector3(xm,ym,zm));
       // size of the flat mirror segment 
-      Double_t dxm = mirrorLength/2;
+      Double_t dxm = 3*fMirrorLength/2;
       Double_t dym = std::fabs(flatMirrorY[i+1]-flatMirrorY[i])/2;
       Double_t dzm = std::fabs(flatMirrorZ[i+1]-flatMirrorZ[i])/2;
       fSizeOfFlatMirror.push_back(TVector3(dxm,dym,dzm));
@@ -257,7 +282,7 @@ PndRichReco::PndRichReco()
       Double_t zm = (flatMirrorZ[i+1]+flatMirrorZ[i])/2;
       fMiddleFlatMirrorPoint.push_back(TVector3(xm,ym,zm));
       // size of the flat mirror segment 
-      Double_t dxm = mirrorLength/2;
+      Double_t dxm = 3*fMirrorLength/2;
       Double_t dym = std::fabs(flatMirrorY[i+1]-flatMirrorY[i])/2;
       Double_t dzm = std::fabs(flatMirrorZ[i+1]-flatMirrorZ[i])/2;
       fSizeOfFlatMirror.push_back(TVector3(dxm,dym,dzm));
@@ -268,14 +293,11 @@ PndRichReco::PndRichReco()
       fNormalOfFlatMirror.push_back(norm);
    }
    fNumberOfFlatMirrorSegments *= 2;
-
-   Register();
-   
-//-----------------------------------------------------   
+   fEvent = 0;
 }
 
 //______________________________________________________
-void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir,
+void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir, Float_t ts,
                                          Float_t &chi2, Float_t &chTh, Float_t &dChTh, Int_t &nph ) {
    
    if ( fRichPDHit->GetEntriesFast()==0 ) return;
@@ -286,11 +308,10 @@ void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir,
 
    // flat mirror
    if (fGeoVersion==13) {
-      std::vector< std::vector<PndRichPhoton> > photonsx;
       std::vector<PndRichPhoton> photons;
       beta_ = 1;
       dbeta_ = 0;
-      photons = CherenkovPhotonListFlat(pos,dir,21.8);
+      photons = CherenkovPhotonListFlat(pos,dir,ts);
       if (photons.size()) {
          Double_t nnz = dir.Z();
          Double_t nopt = 1.05;
@@ -310,6 +331,15 @@ void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir,
       dChTh = dbeta_;
       nph = fi.size();
    }
+   fEvent++;
+}
+
+std::vector<double> PndRichReco::GetDThetas() {
+   size_t n = fi.size();
+   std::vector<double> dth(n);
+   for(size_t i=0;i<n;i++)
+      dth.at(i) = ti.at(i) - thc(fi.at(i),nopt_,beta_,nnz_);
+   return dth;
 }
 
 double PndRichReco::BetaPeakFinding(std::vector<PndRichPhoton> photons,
@@ -325,6 +355,7 @@ double PndRichReco::BetaPeakFinding(std::vector<PndRichPhoton> photons,
    Double_t thcmax = std::acos(bmin);
    Double_t bim = 0;
    Int_t ibm = -1;
+   Double_t dtm = 0.5;
    int nph = 0;
    for(size_t j=0; j<2; j++) {
       std::vector<Double_t> bi(nch,0);
@@ -338,7 +369,7 @@ double PndRichReco::BetaPeakFinding(std::vector<PndRichPhoton> photons,
          Double_t b = bmin+thcc*(beta-bmin)/thcm;
          Int_t ib = (b-bmin)/(bmax-bmin)*nch;
          Double_t dt = photons.at(i).GetTime()-0.1;
-         if ((ib>=0)&&(ib<nch)&&std::fabs(dt)<0.5) {
+         if ((ib>=0)&&(ib<nch)&&std::fabs(dt)<dtm) {
             nph++;
             bi.at(ib)++;
             if (bim<bi.at(ib)) {
@@ -365,11 +396,12 @@ void PndRichReco::HitSelection(std::vector<double> &ph, std::vector<double> &th,
    Double_t dthc = 0.03;
    Double_t dt = 0;
    Int_t ind = 0;
+   Double_t dtm = 0.5;
    for(UInt_t i=0; i<photons.size(); i++) {
       TVector3 hit = photons.at(i).GetHitPos();
       if (((hit.X()!=hitx)||(hit.Y()!=hity))&&(hity!=10)) {
          Double_t thcm = thc(phccc,nopt,beta,nnz);
-         if (std::fabs(thccc-thcm)<dthc && std::fabs(dt)<0.5) {
+         if (std::fabs(thccc-thcm)<dthc && std::fabs(dt)<dtm) {
             th.at(ind) = thccc;
             ph.at(ind) = phccc;
             ind++;
@@ -390,7 +422,7 @@ void PndRichReco::HitSelection(std::vector<double> &ph, std::vector<double> &th,
       hity = hit.Y();
    }      
    Double_t thcm = thc(phccc,nopt,beta,nnz);
-   if (std::fabs(thccc-thcm)<dthc && std::fabs(dt)<0.5) {
+   if (std::fabs(thccc-thcm)<dthc && std::fabs(dt)<dtm) {
       th.at(ind) = thccc;
       ph.at(ind) = phccc;
       ind++;
@@ -432,24 +464,71 @@ std::vector<PndRichPhoton> PndRichReco::CherenkovPhotonListFlat( TVector3 pos, T
    for(size_t ih=0; ih<nHits; ih++ ) {
       richPDHit = (PndRichPDHit*) fRichPDHit->At(ih);
       TVector3 hit = richPDHit->GetPosition();
-      std::vector<TVector3> pi = FlatMirrorReflections(pos,hit);
-      for(size_t ir=0; ir<pi.size(); ir++ ) {
-         if (pi[ir].Z()) {
-            ph.at(ind).SetMirror(ir);
-            ph.at(ind).SetLength((pos-pi[ir]).Mag()+(hit-pi[ir]).Mag());
-            ph.at(ind).SetHitPos(hit);
-            ph.at(ind).SetMirrRefPos(pi[ir]);
-            ph.at(ind).SetTheta(0);
-            ph.at(ind).SetPhi(0);
-            TVector3 nf = (pi[ir]-pos).Unit();
-            ph.at(ind).SetTheta(acos(dir*nf));
-            TVector3 nfT = (nf-dir*(dir*nf)).Unit();
-            ph.at(ind).SetPhi(atan2(axisTy*nfT,axisTx*nfT));
-            double length = (hit-pi[ir]).Mag() + (pi[ir]-pos).Mag();
-            ph.at(ind).SetTime( richPDHit->GetTime() - length/30 - time );
-            ind++;
+      {
+         std::vector<TVector3> pi = FlatMirrorReflections(pos,hit);
+         for(size_t ir=0; ir<pi.size(); ir++ ) {
+            if (pi[ir].Z()) {
+               ph.at(ind).SetMirror(ir);
+               ph.at(ind).SetLength((pos-pi[ir]).Mag()+(hit-pi[ir]).Mag());
+               ph.at(ind).SetHitPos(hit);
+               ph.at(ind).SetMirrRefPos(pi[ir]);
+               ph.at(ind).SetTheta(0);
+               ph.at(ind).SetPhi(0);
+               TVector3 nf = (pi[ir]-pos).Unit();
+               ph.at(ind).SetTheta(acos(dir*nf));
+               TVector3 nfT = (nf-dir*(dir*nf)).Unit();
+               ph.at(ind).SetPhi(atan2(axisTy*nfT,axisTx*nfT));
+               double length = (hit-pi[ir]).Mag() + (pi[ir]-pos).Mag();
+               ph.at(ind).SetTime( richPDHit->GetTime() - length/30 - time );
+               ind++;
+            }
          }
       }
+/*      Double_t x_hit = hit.X();
+      {
+         // left mirror
+         hit.SetX(fMirrorLength - x_hit);
+         std::vector<TVector3> pi = FlatMirrorReflections(pos,hit);
+         for(size_t ir=0; ir<pi.size(); ir++ ) {
+            if (pi[ir].Z()) {
+               ph.at(ind).SetMirror(ir);
+               ph.at(ind).SetLength((pos-pi[ir]).Mag()+(hit-pi[ir]).Mag());
+               ph.at(ind).SetHitPos(hit);
+               ph.at(ind).SetMirrRefPos(pi[ir]);
+               ph.at(ind).SetTheta(0);
+               ph.at(ind).SetPhi(0);
+               TVector3 nf = (pi[ir]-pos).Unit();
+               ph.at(ind).SetTheta(acos(dir*nf));
+               TVector3 nfT = (nf-dir*(dir*nf)).Unit();
+               ph.at(ind).SetPhi(atan2(axisTy*nfT,axisTx*nfT));
+               double length = (hit-pi[ir]).Mag() + (pi[ir]-pos).Mag();
+               ph.at(ind).SetTime( richPDHit->GetTime() - length/30 - time );
+               ind++;
+            }
+         }
+      }
+      {
+         // right mirror
+         hit.SetX(-fMirrorLength - x_hit);
+         std::vector<TVector3> pi = FlatMirrorReflections(pos,hit);
+         for(size_t ir=0; ir<pi.size(); ir++ ) {
+            if (pi[ir].Z()) {
+               ph.at(ind).SetMirror(ir);
+               ph.at(ind).SetLength((pos-pi[ir]).Mag()+(hit-pi[ir]).Mag());
+               ph.at(ind).SetHitPos(hit);
+               ph.at(ind).SetMirrRefPos(pi[ir]);
+               ph.at(ind).SetTheta(0);
+               ph.at(ind).SetPhi(0);
+               TVector3 nf = (pi[ir]-pos).Unit();
+               ph.at(ind).SetTheta(acos(dir*nf));
+               TVector3 nfT = (nf-dir*(dir*nf)).Unit();
+               ph.at(ind).SetPhi(atan2(axisTy*nfT,axisTx*nfT));
+               double length = (hit-pi[ir]).Mag() + (pi[ir]-pos).Mag();
+               ph.at(ind).SetTime( richPDHit->GetTime() - length/30 - time );
+               ind++;
+            }
+         }
+      }*/
    }
    ph.resize(ind);
    return ph;

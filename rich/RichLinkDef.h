@@ -11,5 +11,6 @@
 #pragma link C++ class PndRichHitProducer+;
 #pragma link C++ class PndRichReco+;
 #pragma link C++ class PndRichResolution+;
+#pragma link C++ class PndRichRecoTask+;
 
 #endif
