@@ -222,22 +222,6 @@ PndRichReco::PndRichReco()
 //-----------------------------------------------------   
 }
 
-PndRichReco::PndRichReco(UInt_t version = 0,
-                         UInt_t pid = 0,
-                         TVector3 position = TVector3(0,0,0),
-                         TVector3 direction = TVector3(0,0,1))
-  : fRichPDHit(0)
-{
-   fGeoVersion = version;
-   fParticleID = pid;
-   fTrackPosition = position;
-   fTrackDirection = direction.Unit();
-   Init(); // init geometry parameters
-   Register();
-   
-//-----------------------------------------------------   
-}
-
 void PndRichReco::Init()
 {
    FairRootManager *fManager = FairRootManager::Instance();

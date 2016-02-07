@@ -40,7 +40,6 @@ class  PndRichReco //: public FairGeoSet
  protected:
     
   public:
-    PndRichReco(UInt_t version,UInt_t pid,TVector3 position,TVector3 direction);
     PndRichReco();
     ~PndRichReco();
 
