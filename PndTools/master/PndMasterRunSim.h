@@ -58,16 +58,28 @@ class PndMasterRunSim : public FairRunSim
    * It adds all the standard simulation tasks
    */
   void AddSimTasks();
+
+  /** 
+   * @brief Set the event generator
+   * @details # Master event generator
+   * This call set the event generator according to the input name. If the input name
+   * contains "dpm" it uses dpm, if it contains "ftf" then ftf, if ".dec" it runs evtgen
+   * using the input name as namefile of the .dec file. 
+   */
+  void SetGenerator();
+
+   /** 
+   * @brief Set the DPM flag
+   * @param Mode = 0. - DPM - No elastic scattering, only inelastic
+   * @param Mode = 1. - DPM - Elastic and inelastic interactions (default)
+   * @param Mode = 2. - DPM - Only elastic scattering, no inelastic one
+   */
+  void SetDpmFlag(Int_t Mode)   { fDpmFlag = Mode; };
   
   /** 
    * @brief Use DPM as event generator
-   * @details # DPM event generator
-   * This call set DPM as event generator.
-   *  @param Mode = 0. - No elastic scattering, only inelastic
-   *  @param Mode = 1. - Elastic and inelastic interactions (default)
-   *  @param Mode = 2. - Only elastic scattering, no inelastic one
    */
-  void UseDpmGenerator(Int_t Mode = 1);
+  void UseDpmGenerator();
   
   /** 
    * @brief Use FTF as event generator
@@ -85,11 +97,15 @@ class PndMasterRunSim : public FairRunSim
    * @param fEvtGenFile Filename of the .dec file
    */
   void UseEvtGenGenerator(TString fEvtGenFile);
-  
-  /** 
-   * @brief Setter of the input root file 
-   */
-  //void SetInputFile(TString par)      { fInputFile      = par;}
+
+  /**
+   * @brief Input of the simulation
+   * @detail This string can be:
+   * a) the name of the dec file for EvtGen, w/ or w/o .dec
+   * b) "dpm" if you want to use dpm
+   * c) "ftf" if you want to use ftf
+   */  
+  void SetInput(TString par)          { fInput          = par;}
   
   /**
    * @brief  Setter of the parameter root file 
@@ -101,12 +117,26 @@ class PndMasterRunSim : public FairRunSim
    */
   void SetParamAsciiFile(TString par) { fParamAsciiFile = par;}
   
- private:
+  /** 
+   * @brief Setter of the number of events
+   */
+  void SetNumberOfEvents(Int_t par) { fNEvents = par;}
+
+  /** 
+   * @brief Setter of the event counter rate
+   */
+  void SetEventCounterRate(Int_t par) { fEventCounterRate = par;}
   
-  //TString fInputFile;        //< Name of the input root file
+ private:
+
+  TString fInput;            ///< Name of the input for the simulation
+  TString fOutFile;          ///< Name of the output file
   TString fParamRootFile;    ///< Name of the parameter root file
   TString fParamAsciiFile;   ///< Name of the parameter ascii file
-  
+
+  Int_t fDpmFlag;            ///< Flag for DPM event generator
+  Int_t fNEvents;            ///< Number of events
+  Int_t fEventCounterRate;   ///< After how many events the counter will print
   FairRuntimeDb *fRtdb;      ///< Runtime DB
   TStopwatch fTimer;         ///< Timer 
   

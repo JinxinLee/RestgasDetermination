@@ -75,6 +75,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 PndMasterTask.cxx
+PndMasterSimTask.cxx
 PndMasterDigiTask.cxx
 PndMasterRecoTask.cxx
 PndMasterPidTask.cxx

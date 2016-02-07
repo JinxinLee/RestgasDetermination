@@ -19,7 +19,9 @@
 #include "PndDpmDirect.h"
 #include "PndFtfDirect.h"
 #include "PndEvtGenDirect.h"
+#include "PndMasterSimTask.h"
 #include "PndEventCounterTask.h"
+#include "PndFileNameCreator.h"
 
 #include "FairFileSource.h"
 #include "FairParRootFileIo.h"
@@ -39,7 +41,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunSim::PndMasterRunSim() :
-  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fRtdb(), fTimer() //, fInputFile()
+  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fRtdb(), fTimer(), fInput(), fOutFile(), fDpmFlag(1), fNEvents(0), fEventCounterRate(100)
 {
   fTimer.Start();
   gRandom->SetSeed();
@@ -48,13 +50,19 @@ PndMasterRunSim::PndMasterRunSim() :
 // -----   Setup   ---------------------------------------------------------
 Bool_t PndMasterRunSim::Setup()
 {
-  //FairFileSource *fFileSource = new FairFileSource(fInputFile);
-  //this->SetSource(fFileSource);
   
-  this->SetMaterials("media_pnd.geo");
-  this->SetGenerateRunInfo(kFALSE);  
-  this->SetUseFairLinks(kTRUE);
+  TString inputName = fInput;
+  inputName.ToLower();
+  if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   
+  PndFileNameCreator creator(inputName.Data());
+  SetOutputFile(creator.GetSimFileName().data());
+  fOutFile = creator.GetSimFileName().data();
+  SetParamRootFile(creator.GetParFileName().data());
+  SetMaterials("media_pnd.geo");
+  SetGenerateRunInfo(kFALSE);  
+  SetUseFairLinks(kTRUE);
+
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
@@ -63,7 +71,7 @@ Bool_t PndMasterRunSim::Setup()
   fRtdb = this->GetRuntimeDb();
   Bool_t kParameterMerged=kFALSE; // No use until now
   FairParRootFileIo* parOutput = new FairParRootFileIo(kParameterMerged);
-  parOutput->open(fParamRootFile.Data(),"RECREATE");
+  parOutput->open(fParamRootFile,"RECREATE");
   
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
@@ -73,18 +81,15 @@ Bool_t PndMasterRunSim::Setup()
 
   // -----  Create and Set the Field(s) ------------------------------------
   PndMultiField *fField= new PndMultiField("AUTO");
-  this->SetField(fField);
+  SetField(fField);
 
   // ---- Defining PANDA particles -----------------------------------------
-  Double_t mom = this->GetBeamMom();
+  Double_t mom = GetBeamMom();
   TLorentzVector fIni(0, 0, mom, sqrt(mom*mom+9.3827203e-01*9.3827203e-01)+9.3827203e-01);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem" ,"pbarpSystem",  fIni.M(), kFALSE, 0.1, 0, "", 88888);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0", fIni.M(), kFALSE, 0.1, 0, "", 88880);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem1","pbarpSystem1", fIni.M(), kFALSE, 0.1, 0, "", 88881);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem2","pbarpSystem2", fIni.M(), kFALSE, 0.1, 0, "", 88882);
-
-// ---- Initialization of primary generator --------------------------------
-  fGen = new FairPrimaryGenerator();
 
   return kTRUE;
 }
@@ -95,50 +100,50 @@ void PndMasterRunSim::CreateGeometry()
   //-------------------------  CAVE      -----------------
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
-  this->AddModule(Cave);
+  AddModule(Cave);
   //-------------------------  Magnet   -----------------
   //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
-  //this->AddModule(Magnet);
+  //AddModule(Magnet);
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
-  this->AddModule(Dipole);
+  AddModule(Dipole);
   //-------------------------  Pipe     -----------------
   FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("beampipe_201309.root");
-  this->AddModule(Pipe);
+  AddModule(Pipe);
   //-------------------------  STT       -----------------
   FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  this->AddModule(Stt);
+  AddModule(Stt);
   //-------------------------  MVD       -----------------
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-  this->AddModule(Mvd);
+  AddModule(Mvd);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations_Tube.root");
-  this->AddModule(Gem);
+  AddModule(Gem);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kFALSE);
-  this->AddModule(Emc);
+  AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
   SciT->SetGeometryFileName("SciTil_201504.root");
-  this->AddModule(SciT);
+  AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
   Drc->SetRunCherenkov(kFALSE);
-  this->AddModule(Drc);
+  AddModule(Drc);
   //-------------------------  DISC      -----------------
   PndDsk* Dsk = new PndDsk("DSK", kTRUE);
   Dsk->SetStoreCerenkovs(kFALSE);
   Dsk->SetStoreTrackPoints(kFALSE);
-  this->AddModule(Dsk);
+  AddModule(Dsk);
   //-------------------------  MDT       -----------------
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("fast");
@@ -148,34 +153,62 @@ void PndMasterRunSim::CreateGeometry()
   Muo->SetMdtMagnet(kTRUE);
   Muo->SetMdtCoil(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
-  this->AddModule(Muo);
+  AddModule(Muo);
   //-------------------------  FTS       -----------------
   FairDetector *Fts= new PndFts("FTS", kTRUE);
   Fts->SetGeometryFileName("fts.geo");
-  this->AddModule(Fts);
+  AddModule(Fts);
   //-------------------------  FTOF      -----------------
   FairDetector *FTof = new PndFtof("FTOF",kTRUE);
   FTof->SetGeometryFileName("ftofwall.root");
-  this->AddModule(FTof);
+  AddModule(FTof);
   //-------------------------  RICH       ----------------
   FairDetector *Rich= new PndRich("RICH",kFALSE);
   Rich->SetGeometryFileName("rich_v2_shift.geo");
-  this->AddModule(Rich);
+  AddModule(Rich);
 }
 
 // -----   AddSimTasks   ---------------------------------------------------
 void PndMasterRunSim::AddSimTasks()
 {
-  // -----   EMC hit producers   ---------------------------------
-  this->AddTask(new PndEmcHitProducer());
+  PndMasterSimTask *sim = new PndMasterSimTask();
+  AddTask(sim);
   // -----   Event Counter   --------------------------------
-  this->AddTask(new PndEventCounterTask("Event Counter", 0, 100));
+  AddTask(new PndEventCounterTask("Event Counter", fNEvents, fEventCounterRate));
 }
 
-// -----   UseDpmGenerator   -- --------------------------------------------
-void PndMasterRunSim::UseDpmGenerator(Int_t Mode)
+// -----   SetGenerator   --------------------------------------------------
+void PndMasterRunSim::SetGenerator()
 {
-  PndDpmDirect *Dpm= new PndDpmDirect(this->GetBeamMom(), Mode);
+  fGen = new FairPrimaryGenerator();
+  
+  TString input = fInput;
+  input.ToLower();
+  if ( (input.Contains("dpm") + input.Contains("ftf") + input.Contains(".dec")) !=1 )
+    {
+      LOG(FATAL)<< "I am not able to understand the event generator from the provided input!!" <<  FairLogger::endl;
+    }
+  else
+    {
+      if (input.Contains("dpm"))
+	{
+	  UseDpmGenerator();
+	}
+      if (input.Contains("ftf"))
+	{
+	  UseFtfGenerator();
+	}
+      if (input.Contains(".dec")) 
+	{
+	  UseEvtGenGenerator(fInput);
+	}
+    }
+}
+
+// -----   UseDpmGenerator   -----------------------------------------------
+void PndMasterRunSim::UseDpmGenerator()
+{
+  PndDpmDirect *Dpm= new PndDpmDirect(GetBeamMom(), fDpmFlag);
   fGen->AddGenerator(Dpm);
 }
  
@@ -183,7 +216,7 @@ void PndMasterRunSim::UseDpmGenerator(Int_t Mode)
 void PndMasterRunSim::UseFtfGenerator()
 {
   if ( strncmp(fName,"TGeant4",7 ) == 0 ) LOG(FATAL) << "FTF does not run with Geant4 !!!"  << FairLogger::endl;
-  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", this->GetBeamMom(), 123456);
+  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed());
   fGen->AddGenerator(Ftf);
 }
 
@@ -211,7 +244,7 @@ void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
   
     //   TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
   //   EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(particle, fEvtGenFile.Data(), this->GetBeamMom());
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(particle, fEvtGenFile.Data(), GetBeamMom());
   EvtGen->SetStoreTree(kTRUE);
   fGen->AddGenerator(EvtGen);
 }
@@ -241,13 +274,13 @@ void PndMasterRunSim::Finish()
   cout << "</DartMeasurement>" << endl;
   
   cout << endl;
-  LOG(INFO) << "Output file is "    << fOutname << FairLogger::endl;
-  LOG(INFO) << "Parameter ROOT file is " << fParamRootFile << FairLogger::endl;
-  LOG(INFO) << "Parameter ASCII file is " << fParamAsciiFile << FairLogger::endl << FairLogger::endl;;
+  LOG(INFO) << "Output file is\t\t"    << fOutFile << FairLogger::endl;
+  LOG(INFO) << "Parameter ROOT file is\t" << fParamRootFile << FairLogger::endl;
+  LOG(INFO) << "Parameter ASCII file is\t" << fParamAsciiFile << FairLogger::endl;
   LOG(INFO) << "Real time " << rtime << " s, CPU time " << ctime
-       << "s" << FairLogger::endl << FairLogger::endl;
+	    << "s" << FairLogger::endl;
   LOG(INFO) << "CPU usage " << cpuUsage*100. << "%" << FairLogger::endl;
-  LOG(INFO) << "Max Memory " << maxMemory << " MB" << FairLogger::endl << FairLogger::endl;
+  LOG(INFO) << "Max Memory " << maxMemory << " MB" << FairLogger::endl;
    
   LOG(INFO) << "Macro finished successfully." << FairLogger::endl;
   

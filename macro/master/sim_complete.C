@@ -8,28 +8,28 @@
 sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
 {
   //-----User Settings:------------------------------------------------------
-  TString  outputFile     = "sim_complete.root";
-  TString  parRootFile    = "simparams.root";
   TString  parAsciiFile   = "all.par";
-  TString  evtgenFile     = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  // TString inputGenerator = 
+  // EvtGen -> "xxxxxxxx.dec"
+  // DPM    -> "dpm_xxxxx"
+  // FTF    -> "ftf_xxxxx"
+  TString  inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   //-------------------------------------------------------------------------
   // -----   Create the Simulation run manager ------------------------------
   PndMasterRunSim *fRun = new PndMasterRunSim();
+  fRun->SetInput(inputGenerator);
   fRun->SetName(SimEngine);
-  fRun->SetOutputFile(outputFile);
   fRun->SetParamAsciiFile(parAsciiFile);
-  fRun->SetParamRootFile(parRootFile);
+  fRun->SetNumberOfEvents(nEvents);
   fRun->SetBeamMom(BeamMomentum);
+  // -----  Initialization   ------------------------------------------------
   fRun->Setup();
+  // -----   Geometry   -----------------------------------------------------
   fRun->CreateGeometry();
+  // -----   Event generator   ----------------------------------------------
+  fRun->SetGenerator();
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddSimTasks();
-  
-  // -----   Set the Event Generator ----------------------------------------
-  //fRun->UseDpmGenerator();
-  //fRun->UseFtfGenerator();
-  fRun->UseEvtGenGenerator(evtgenFile);
-
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(nEvents); 
