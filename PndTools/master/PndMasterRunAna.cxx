@@ -17,7 +17,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
-  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fTimer() //, fInputFile()
+  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fTimer()
 {
   fTimer.Start();
 }
@@ -29,28 +29,28 @@ Bool_t PndMasterRunAna::Setup()
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   
   PndFileNameCreator creator(inputName.Data());
-  FairFileSource *fFileSource = new FairFileSource(creator.GetSimFileName().data());
+  FairFileSource *fileSource = new FairFileSource(creator.GetSimFileName().data());
   if (fFriendFile1!="")
     {
       fFriendFile1 = creator.GetCustomFileName(fFriendFile1.Data());
-      fFileSource->AddFriend(fFriendFile1.Data());
+      fileSource->AddFriend(fFriendFile1.Data());
     }
   if (fFriendFile2!="")
     {
       fFriendFile2 = creator.GetCustomFileName(fFriendFile2.Data());
-      fFileSource->AddFriend(fFriendFile2.Data());
+      fileSource->AddFriend(fFriendFile2.Data());
     }
   if (fFriendFile3!="")
     {
       fFriendFile3 = creator.GetCustomFileName(fFriendFile3.Data());
-      fFileSource->AddFriend(fFriendFile3.Data());
+      fileSource->AddFriend(fFriendFile3.Data());
     }
   if (fFriendFile4!="")
     {
       fFriendFile4 = creator.GetCustomFileName(fFriendFile4.Data());
-      fFileSource->AddFriend(fFriendFile4.Data());
+      fileSource->AddFriend(fFriendFile4.Data());
     }
-  SetSource(fFileSource);
+  SetSource(fileSource);
 
   // This set the output file name
   SetOutputFile(creator.GetCustomFileName(fOutFile.Data()).data());
