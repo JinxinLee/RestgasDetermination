@@ -15,7 +15,7 @@ class  PndRichGeo : public FairGeoSet
    TVector3 fAerogelSize;                    //!< Aerogel size [cm]
    TVector3 fAerogelOffset;                  //!< Aerogel offset [cm]
    std::vector<Double_t> fnOpt;              //!< refraction index of the aerogel
-   std::vector<Double_t> fAerogelLayers;
+   std::vector<Double_t> fAerogelLayers;     //!< No idea (SS)
    
    double fAngleExtansionInner;              //!< Angle extansion for cherenkov light 
                                              //!< for inner part of the mirror 
@@ -45,14 +45,14 @@ class  PndRichGeo : public FairGeoSet
    TVector3 fMirrorAxisGlob;
 
    /*! Flat mirrors parameters */
-    std::vector<Double_t> fFlatMirrorZ;
-    std::vector<Double_t> fFlatMirrorY;
-    std::vector<Double_t> fFlatMirrorZGlob;
-    std::vector<Double_t> fFlatMirrorYGlob;
+    std::vector<Double_t> fFlatMirrorZ;       //!< No idea (SS)
+    std::vector<Double_t> fFlatMirrorY;       //!< No idea (SS)
+    std::vector<Double_t> fFlatMirrorZGlob;   //!< No idea (SS)
+    std::vector<Double_t> fFlatMirrorYGlob;   //!< No idea (SS)
     
    /*! PhotoDet parameters */
-    std::vector<Double_t> fPhDetZ;
-    std::vector<Double_t> fPhDetY;
+    std::vector<Double_t> fPhDetZ;            //!< No idea (SS)
+    std::vector<Double_t> fPhDetY;            //!< No idea (SS)
     Double_t fPhDetAngle;
     TVector3 fPhDetP0U, fPhDetNxU, fPhDetNyU, fPhDetNzU;
     TVector3 fPhDetP0D, fPhDetNxD, fPhDetNyD, fPhDetNzD;
