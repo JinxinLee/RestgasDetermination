@@ -3,6 +3,7 @@
 #include "PndMasterDigiTask.h"
 #include "PndMasterRecoTask.h"
 #include "PndMasterPidTask.h"
+#include "PndFileNameCreator.h"
 
 #include "FairFileSource.h"
 #include "FairParRootFileIo.h"
@@ -16,7 +17,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
-  FairRunAna(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fTimer() //, fInputFile()
+  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fTimer() //, fInputFile()
 {
   fTimer.Start();
 }
@@ -24,22 +25,46 @@ PndMasterRunAna::PndMasterRunAna() :
 // -----   Setup   ---------------------------------------------------------
 Bool_t PndMasterRunAna::Setup()
 {
-  //FairFileSource *fFileSource = new FairFileSource(fInputFile);
-  //this->SetSource(fFileSource);
-
-  if (fFriendFile1!="") this->AddFriend(fFriendFile1);
-  if (fFriendFile2!="") this->AddFriend(fFriendFile2);
-  if (fFriendFile3!="") this->AddFriend(fFriendFile3);
-  if (fFriendFile4!="") this->AddFriend(fFriendFile4);
+  TString inputName = fInput; 
+  if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   
-  this->SetGenerateRunInfo(kFALSE);  
-  this->SetUseFairLinks(kTRUE); 
+  PndFileNameCreator creator(inputName.Data());
+  FairFileSource *fFileSource = new FairFileSource(creator.GetSimFileName().data());
+  if (fFriendFile1!="")
+    {
+      fFriendFile1 = creator.GetCustomFileName(fFriendFile1.Data());
+      fFileSource->AddFriend(fFriendFile1.Data());
+    }
+  if (fFriendFile2!="")
+    {
+      fFriendFile2 = creator.GetCustomFileName(fFriendFile2.Data());
+      fFileSource->AddFriend(fFriendFile2.Data());
+    }
+  if (fFriendFile3!="")
+    {
+      fFriendFile3 = creator.GetCustomFileName(fFriendFile3.Data());
+      fFileSource->AddFriend(fFriendFile3.Data());
+    }
+  if (fFriendFile4!="")
+    {
+      fFriendFile4 = creator.GetCustomFileName(fFriendFile4.Data());
+      fFileSource->AddFriend(fFriendFile4.Data());
+    }
+  SetSource(fFileSource);
+
+  // This set the output file name
+  SetOutputFile(creator.GetCustomFileName(fOutFile.Data()).data());
+  // This set the string for the output file name, used by Finish()
+  SetOutput(creator.GetCustomFileName(fOutFile.Data()));
+  SetParamRootFile(creator.GetParFileName().data()); 
+  SetGenerateRunInfo(kFALSE);  
+  SetUseFairLinks(kTRUE); 
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
   allDigiFile += fParamAsciiFile;
   
-  FairRuntimeDb* rtdb = this->GetRuntimeDb();
+  FairRuntimeDb* rtdb = GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(fParamRootFile.Data());
   
@@ -56,21 +81,21 @@ Bool_t PndMasterRunAna::Setup()
 void PndMasterRunAna::AddDigiTasks()
 {
   PndMasterDigiTask *digi = new PndMasterDigiTask();
-  this->AddTask(digi);
+  AddTask(digi);
 }
 
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoTasks()
 {
   PndMasterRecoTask *reco = new PndMasterRecoTask();
-  this->AddTask(reco);
+  AddTask(reco);
 }
 
 // -----   AddPidTasks   ----------------------------------------------------
 void PndMasterRunAna::AddPidTasks()
 {
   PndMasterPidTask *pid = new PndMasterPidTask();
-  this->AddTask(pid);
+  AddTask(pid);
 }
 
 // -----   Finish   ---------------------------------------------------------
@@ -96,13 +121,18 @@ void PndMasterRunAna::Finish()
   cout << "</DartMeasurement>" << endl;
   
   cout << endl;
-  LOG(INFO) << "Output file is "    << fOutname << FairLogger::endl;
-  LOG(INFO) << "Parameter ROOT file is " << fParamRootFile << FairLogger::endl;
-  LOG(INFO) << "Parameter ASCII file is " << fParamAsciiFile << FairLogger::endl << FairLogger::endl;;
+  LOG(INFO) << "Output file is\t\t"    << fOutFile << FairLogger::endl;
+  if (fFriendFile1!="") LOG(INFO) << "Friend file is\t\t"    << fFriendFile1 << FairLogger::endl;
+  if (fFriendFile2!="") LOG(INFO) << "Friend file is\t\t"    << fFriendFile2 << FairLogger::endl;
+  if (fFriendFile3!="") LOG(INFO) << "Friend file is\t\t"    << fFriendFile3 << FairLogger::endl;
+  if (fFriendFile4!="") LOG(INFO) << "Friend file is\t\t"    << fFriendFile4 << FairLogger::endl;
+  
+  LOG(INFO) << "Parameter ROOT file is\t" << fParamRootFile << FairLogger::endl;
+  LOG(INFO) << "Parameter ASCII file is\t" << fParamAsciiFile << FairLogger::endl;
   LOG(INFO) << "Real time " << rtime << " s, CPU time " << ctime
-       << "s" << FairLogger::endl << FairLogger::endl;
+       << "s" << FairLogger::endl;
   LOG(INFO) << "CPU usage " << cpuUsage*100. << "%" << FairLogger::endl;
-  LOG(INFO) << "Max Memory " << maxMemory << " MB" << FairLogger::endl << FairLogger::endl;
+  LOG(INFO) << "Max Memory " << maxMemory << " MB" << FairLogger::endl;
    
   LOG(INFO) << "Macro finished successfully." << FairLogger::endl;
   

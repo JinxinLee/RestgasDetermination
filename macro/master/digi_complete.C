@@ -1,31 +1,25 @@
-void digi_complete()
+// Macro for running Panda digitization tasks
+// to run the macro:
+// root  digi_complete.C  or in root session root>.x  digi_complete.C
+void digi_complete(Int_t nEvents = 0)
 {
-  // Macro created 03/02/2016 by S.Spataro
-  // It loads a simulation file and digitize hits 
-
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
-
-  // Number of events to process
-  Int_t nEvents = 0;  // if 0 all the events will be processed
+  //-----User Settings:------------------------------------------------------
+  TString  parAsciiFile   = "all.par";
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  output         = "digi";
+  TString  friend1        = "";
+  TString  friend2        = "";
+  TString  friend3        = "";
+  TString  friend4        = "";
   
-  // Input file (MC events)
-  TString simFile = "sim_complete.root";
-  
-  // Parameter file (root)
-  TString parRootFile = "simparams.root"; // at the moment you do not need it
-  
-  // Parameter file (ascii)
-  TString parAsciiFile = "all.par";
-  
-  // Output file
-  TString outFile = "digi_complete.root";
-
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
-  fRun->SetInputFile(simFile);
-  fRun->SetOutputFile(outFile);
-  fRun->SetParamRootFile(parRootFile);
+  fRun->SetInput(input);
+  fRun->SetOutput(output);
+  fRun->SetFriend1(friend1);
+  fRun->SetFriend2(friend2);
+  fRun->SetFriend3(friend3);
+  fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup();
 

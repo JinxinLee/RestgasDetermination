@@ -64,11 +64,16 @@ class PndMasterRunAna : public FairRunAna
    */
   void AddPidTasks();
   
-  ///**
-  // * @brief Setter of the input root file 
-  // */									\
-  //void SetInputFile(TString par)      { fInputFile      = par;}
+  /**
+   * @brief Input of the macro
+   */  
+  void SetInput(TString par)          { fInput          = par;}
 
+  /**
+   * @brief Tag of the output file of the macro
+   */  
+  void SetOutput(TString par)         { fOutFile        = par;}
+  
   /**
    * @brief Setter of the parameter root file
    */
@@ -82,26 +87,27 @@ class PndMasterRunAna : public FairRunAna
   /**
    * @brief Setter of the first friend root file
    */
-  void SetFriendFile1(TString par)    { fFriendFile1    = par;}
+  void SetFriend1(TString par)        { fFriendFile1    = par;}
 
   /**
    * @brief Setter of the 2nd friend root file
    */
-  void SetFriendFile2(TString par)    { fFriendFile2    = par;}
+  void SetFriend2(TString par)        { fFriendFile2    = par;}
   
   /**
    * @brief Setter of the 3rd friend root file 
    */
-  void SetFriendFile3(TString par)    { fFriendFile3    = par;}
+  void SetFriend3(TString par)        { fFriendFile3    = par;}
   
   /**
    * @brief Setter of the 4th friend root file 
    */
-  void SetFriendFile4(TString par)    { fFriendFile4    = par;}
+  void SetFriend4(TString par)        { fFriendFile4    = par;}
   
  private:
   
-  //TString fInputFile;        ///< Name of the input root file
+  TString fInput;            ///< Name of the input for the simulation
+  TString fOutFile;          ///< Name of the output file
   TString fParamRootFile;    ///< Name of the parameter root file
   TString fParamAsciiFile;   ///< Name of the parameter ascii file
   TString fFriendFile1;      ///< Name of the 1st friend root file

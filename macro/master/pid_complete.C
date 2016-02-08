@@ -1,39 +1,25 @@
-void pid_complete()
+// Macro for running Panda pid tasks
+// to run the macro:
+// root  pid_complete.C  or in root session root>.x  pid_complete.C
+void pid_complete(Int_t nEvents = 0)
 {
-  // Macro created 03/02/2016 by S.Spataro
-  // It loads a reconstruction file and compute PID informations
-
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
-  
-  // Number of events to process
-  Int_t nEvents = 0;  // if 0 all the vents will be processed
-  
-  // Parameter file (root)
-  TString parRootFile = "simparams.root"; // at the moment you do not need it
-  
-  // Paramter file (ascii)
-  TString parAsciiFile = "all.par";
-
-  // MC file
-  TString simFile  = "sim_complete.root";
-  
-  // Digi file
-  TString digiFile = "digi_complete.root";
-  
-  // Reco file
-  TString recoFile = "reco_complete.root";
-  
-  // Output file
-  TString outFile  = "pid_complete.root";
+  //-----User Settings:------------------------------------------------------
+  TString  parAsciiFile   = "all.par";
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  output         = "pid";
+  TString  friend1        = "digi";
+  TString  friend2        = "reco";
+  TString  friend3        = "";
+  TString  friend4        = "";
   
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
-  fRun->SetInputFile(simFile);
-  fRun->AddFriend(digiFile);
-  fRun->AddFriend(recoFile);
-  fRun->SetOutputFile(outFile);
-  fRun->SetParamRootFile(parRootFile);
+  fRun->SetInput(input);
+  fRun->SetOutput(output);
+  fRun->SetFriend1(friend1);
+  fRun->SetFriend2(friend2);
+  fRun->SetFriend3(friend3);
+  fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup();
   
