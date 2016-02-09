@@ -26,7 +26,8 @@ PndMasterRunAna::PndMasterRunAna() :
 // -----   Setup   ---------------------------------------------------------
 Bool_t PndMasterRunAna::Setup()
 {
-  TString inputName = fInput; 
+  TString inputName = fInput;
+  inputName.ToLower();
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   
   PndFileNameCreator creator(inputName.Data());
