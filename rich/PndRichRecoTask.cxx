@@ -13,6 +13,8 @@
 #include <iostream>
 #include <cmath>
 
+#include <db_cxx.h>
+
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
@@ -45,7 +47,7 @@ InitStatus PndRichRecoTask::Init() {
    vnhits.reserve(fNumberOfEvents);
    vmean.reserve(fNumberOfEvents);
    vsigma.reserve(fNumberOfEvents);
-   
+
   cout << "-I- PndRichRecoTask: Intialisation successfull " << endl;
   return kSUCCESS;
 }
