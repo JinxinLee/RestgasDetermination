@@ -13,8 +13,6 @@
 #include <iostream>
 #include <cmath>
 
-#include <db_cxx.h>
-
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
