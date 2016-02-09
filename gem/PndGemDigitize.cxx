@@ -582,7 +582,7 @@ InitStatus PndGemDigitize::Init() {
   ioman->Register("GEMDigiNormal", "Digital response in GEM", fDigis, kFALSE);
 
   // Register output buffer
-  fDataBuffer = new PndGemDigiWriteoutBuffer("GEMDigi", "GEM", kTRUE);
+  fDataBuffer = new PndGemDigiWriteoutBuffer("GEMDigi", "GEM", fPersistency);
   fDataBuffer = (PndGemDigiWriteoutBuffer*)ioman->RegisterWriteoutBuffer("GEMDigi", fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
 
