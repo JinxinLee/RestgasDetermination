@@ -30,12 +30,19 @@ class PndMdtHitProducerIdeal : public FairTask
 
   PndMdtHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index);
 
+  /** 
+   * @brief Set the smearing of the PndMdtHit position
+   * @param res Resolution in [cm]
+   */
   void SetPositionSmearing(Float_t res) { fPosResolution = res; };
   
+  /** Set the Persistency of PndMdtHit **/
+  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
 
  private: 
  
-  Float_t fPosResolution;                    // Position smearing [cm]
+  Float_t fPosResolution;                    ///< Position smearing [cm]
+  Bool_t fPersistency;                       ///< Persistency flag
   
   /** Input array of PndMdtPoint **/
   TClonesArray* fPointArray;

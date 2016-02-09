@@ -28,8 +28,8 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtHitProducerIdeal::PndMdtHitProducerIdeal() :
-  FairTask("Ideal MDT Hit Producer") { 
-  fPosResolution = -1.;
+  FairTask("Ideal MDT Hit Producer"), fPosResolution(-1.), fPersistency(kTRUE)
+{  
 }
 // -------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ InitStatus PndMdtHitProducerIdeal::Init() {
   // Create and register output array
   fHitArray = new TClonesArray("PndMdtHit");
   
-  ioman->Register("MdtHit","Mdt",fHitArray,kTRUE);
+  ioman->Register("MdtHit","Mdt",fHitArray, fPersistency);
  
   if (fPosResolution>0.)
      cout << "-I- PndMdtHitProducerIdeal::Init: "

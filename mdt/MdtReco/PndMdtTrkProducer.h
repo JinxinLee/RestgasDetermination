@@ -40,8 +40,15 @@ class PndMdtTrkProducer : public FairTask
  
   virtual void AlgorithmWithLheGenTrack();
 
-  void SetRecMethod(Int_t rec_method) {fRec_method = rec_method;} 
- private: 
+  void SetRecMethod(Int_t rec_method) {fRec_method = rec_method;}
+
+  /** Set the Persistency of PndMdtHit **/
+  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
+  
+ private:
+
+  Bool_t fPersistency;                       ///< Persistency flag
+  
   Int_t fRec_method; //0; previous method, use mdt info only; 1; use lhetrack as seed
   
   PndMdtTrk* AddTrk(PndMdtTrk* track);
