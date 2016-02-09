@@ -69,7 +69,8 @@ PndGemFindHits::PndGemFindHits() :
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
-  fTNofHitsTemp  (0)
+  fTNofHitsTemp  (0),
+  fPersistency(kTRUE)
 {
 }
 // -------------------------------------------------------------------------
@@ -97,7 +98,8 @@ PndGemFindHits::PndGemFindHits(Int_t iVerbose)
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
-  fTNofHitsTemp  (0)
+  fTNofHitsTemp  (0),
+  fPersistency(kTRUE)
 {
 }
 // -------------------------------------------------------------------------
@@ -125,7 +127,8 @@ PndGemFindHits::PndGemFindHits(const char* name, Int_t iVerbose)
   fTNofEvents(0),
   fTNofDigis (0),
   fTNofHits  (0),
-  fTNofHitsTemp  (0)
+  fTNofHitsTemp  (0),
+  fPersistency(kTRUE)
 {
 }
 // -------------------------------------------------------------------------
@@ -335,7 +338,7 @@ InitStatus PndGemFindHits::Init() {
 
   // Register output array
   fHits = new TClonesArray("PndGemHit", 1000);
-  ioman->Register("GEMHit", "Hit in GEM", fHits, kTRUE);
+  ioman->Register("GEMHit", "Hit in GEM", fHits, fPersistency);
 
   // Test Register output array
   fHitsTemp = new TClonesArray("PndGemHit", 1000);

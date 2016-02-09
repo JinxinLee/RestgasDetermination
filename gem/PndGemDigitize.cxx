@@ -62,7 +62,8 @@ PndGemDigitize::PndGemDigitize()
     fTNofDigis(0),
     fRand(new TRandom2()),
     fDataBuffer(0),
-    fTimeOrderedDigi(kFALSE) {
+    fTimeOrderedDigi(kFALSE),
+    fPersistency(kTRUE) {
   
   Reset();
 }
@@ -86,7 +87,8 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
     fTNofDigis(0),
     fRand(new TRandom2()),
     fDataBuffer(0),
-    fTimeOrderedDigi(kFALSE) {
+    fTimeOrderedDigi(kFALSE),
+    fPersistency(kTRUE) {
   
   Reset();
 }
@@ -110,7 +112,8 @@ PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose)
     fTNofDigis(0),
     fRand(new TRandom2()),
     fDataBuffer(0),
-    fTimeOrderedDigi(kFALSE) {
+    fTimeOrderedDigi(kFALSE),
+    fPersistency(kTRUE) {
 
   Reset();
 }
@@ -571,7 +574,7 @@ InitStatus PndGemDigitize::Init() {
   if ( fSaveOutsideHits ) {
     fHitOutsideArray = new TClonesArray("PndGemHit");
     ioman->Register("GEMOutsideHit", "PndGem Hits in inactive region",
-		    fHitOutsideArray, kTRUE);
+		    fHitOutsideArray, fPersistency);
   }
 
   // Register output array StsDigi

@@ -54,10 +54,14 @@ class PndFtofHitProducerIdeal : public FairTask
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
 
+  /** Set the Persistency of PndFtofHit **/
+  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
+  
  private:
   
   TString fBranchName;
-
+  Bool_t fPersistency;                       ///< Persistency flag
+  
   /** Input array of PndFtofPoints **/
   TClonesArray* fPointArray;
  

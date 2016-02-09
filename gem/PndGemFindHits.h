@@ -75,6 +75,9 @@ class PndGemFindHits : public FairTask
 
   void SetHitWindow(Double_t dd=1.5) {fHitWindow = dd;}
 
+  /** Set the Persistency of PndMdtHit **/
+  void SetPersistency(Bool_t pers = kTRUE) { fPersistency = pers; };
+  
  private:
 
   PndGemMonitor*    fMonitor;  //!   /** GEM monitor **/
@@ -103,7 +106,8 @@ class PndGemFindHits : public FairTask
   Int_t  fMCPointBranchId;
   Bool_t fUseClusters;
   Bool_t fTimeOrderedDigi;
-
+  Bool_t fPersistency;                       ///< Persistency flag
+  
   /** Get parameter containers **/
   virtual void SetParContainers();
 
