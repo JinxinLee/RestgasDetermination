@@ -46,23 +46,26 @@ class PndMasterRunAna : public FairRunAna
   /**
    * @brief Add digitization tasks
    * @details # Add Master digi tasks
+   * @param pers Persistency of the TCAs, used only to switch OFF
    * It calls PndMasterDigiTask, adding all the standard digitization tasks
    */
-  void AddDigiTasks();
+  void AddDigiTasks(Bool_t pers = kTRUE);
   
   /**
    * @brief Add reconstruction tasks
    * @details # Add Master reco tasks
+   * @param pers Persistency of the TCAs, used only to switch OFF
    * It calls PndMasterRecoTask, adding all the standard reconstruction tasks
    */
-  void AddRecoTasks();
+  void AddRecoTasks(Bool_t pers = kTRUE);
 
   /**
    * @brief Add pid tasks
    * @details # Add Master pid tasks
+   * @param pers Persistency of the TCAs, used only to switch OFF
    * It calls PndMasterPidTask, adding all the standard pid tasks
    */
-  void AddPidTasks();
+  void AddPidTasks(Bool_t pers = kTRUE);
   
   /**
    * @brief Input of the macro
@@ -103,6 +106,11 @@ class PndMasterRunAna : public FairRunAna
    * @brief Setter of the 4th friend root file 
    */
   void SetFriend4(TString par)        { fFriendFile4    = par;}
+
+  /** 
+   * @brief Setter of the event counter rate
+   */
+  void SetEventCounterRate(Int_t par) { fEventCounterRate = par;}
   
  private:
   
@@ -114,7 +122,9 @@ class PndMasterRunAna : public FairRunAna
   TString fFriendFile2;      ///< Name of the 2nd friend root file
   TString fFriendFile3;      ///< Name of the 3rd friend root file
   TString fFriendFile4;      ///< Name of the 4th friend root file 
-  
+
+  Int_t fEventCounterRate;   ///< After how many events the counter will print
+
   TStopwatch fTimer;         ///< Timer 
   
   /** @cond CLASSIMP */

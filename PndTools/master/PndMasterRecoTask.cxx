@@ -14,7 +14,6 @@
 #include "PndMCTrackAssociator.h"
 #include "PndRecoKalmanTask.h"
 #include "PndFtsTrackerIdeal.h"
-#include "PndEventCounterTask.h"
 
 /**
  * @brief Default Constructor
@@ -116,14 +115,44 @@ PndMasterRecoTask::PndMasterRecoTask() :
   if ((this->GetListOfTasks()->GetSize()-1) != kPndMCTrackAssociator4) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
   trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
-  
-  // -----   Event Counter   --------------------------------
-  this->Add(new PndEventCounterTask("Event Counter", 0, 100)); // 10
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndEventCounterTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
+ 
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------
+
+/** Set the Persistency of all the tasks in the same way **/
+void PndMasterRecoTask::SetPersistency(Bool_t pers)
+{
+    // -----  MVD + STT Pattern Recognition -----------------------------------
+  ((PndTrkTracking2*)GetListOfTasks()->At(kPndTrkTracking2))->SetPersistence(pers);
+
+  // ----- MVD + STT + GEM Pattern Recognition --------------
+  ((PndSttMvdGemTracking*)GetListOfTasks()->At(kPndSttMvdGemTracking))->SetPersistence(pers);
+  
+  // ----- MC Association #1 ---------------------------------
+  ((PndMCTrackAssociator*)GetListOfTasks()->At(kPndMCTrackAssociator1))->SetPersistence(pers);
+  
+  // ----- Barrel Kalman Task     ----------------------------
+  ((PndRecoKalmanTask*)GetListOfTasks()->At(kPndRecoKalmanTask1))->SetPersistence(pers);
+  
+  // ----- MC Association #2 ---------------------------------
+  ((PndMCTrackAssociator*)GetListOfTasks()->At(kPndMCTrackAssociator2))->SetPersistence(pers);
+  
+  // -----  FTS Ideal Tracking    ----------------------------
+  ((PndFtsTrackerIdeal*)GetListOfTasks()->At(kPndFtsTrackerIdeal))->SetPersistence(pers);
+
+  // ----- MC Association #3 ---------------------------------
+  ((PndMCTrackAssociator*)GetListOfTasks()->At(kPndMCTrackAssociator3))->SetPersistence(pers);
+
+  // ----- Forward Kalman Task     ---------------------------
+  ((PndRecoKalmanTask*)GetListOfTasks()->At(kPndRecoKalmanTask2))->SetPersistence(pers);
+
+  // ----- MC Association #4 ---------------------------------
+  ((PndMCTrackAssociator*)GetListOfTasks()->At(kPndMCTrackAssociator4))->SetPersistence(pers);
+
+  return;
+}
+
 
 // -----   Destructor   ----------------------------------------------------
 PndMasterRecoTask::~PndMasterRecoTask()

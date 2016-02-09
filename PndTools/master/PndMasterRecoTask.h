@@ -30,6 +30,12 @@ class PndMasterRecoTask : public PndMasterTask
    * @brief Destructor 
    */
   virtual ~PndMasterRecoTask();
+
+  /** 
+   * @brief Set the persistency of all the tasks 
+   * @param pers Persistency level: 0 no TCA, 1 all TCA
+   */
+  virtual void SetPersistency(Bool_t pers = kTRUE);
   
  private:
 
@@ -48,8 +54,7 @@ class PndMasterRecoTask : public PndMasterTask
     kPndFtsTrackerIdeal,
     kPndMCTrackAssociator3,
     kPndRecoKalmanTask2,
-    kPndMCTrackAssociator4,
-    kPndEventCounterTask
+    kPndMCTrackAssociator4
   };
   
   /** @cond CLASSIMP */

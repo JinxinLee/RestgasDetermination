@@ -4,6 +4,7 @@
 #include "PndMasterRecoTask.h"
 #include "PndMasterPidTask.h"
 #include "PndFileNameCreator.h"
+#include "PndEventCounterTask.h"
 
 #include "FairFileSource.h"
 #include "FairParRootFileIo.h"
@@ -17,7 +18,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
-  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fTimer()
+  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fTimer(), fEventCounterRate(100)
 {
   fTimer.Start();
 }
@@ -74,27 +75,33 @@ Bool_t PndMasterRunAna::Setup()
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
 
+  // -----   Event Counter   --------------------------------
+  AddTask(new PndEventCounterTask("Event Counter", 0, fEventCounterRate));
+  
   return kTRUE;
 }
 
 // -----   AddDigiTasks   ---------------------------------------------------
-void PndMasterRunAna::AddDigiTasks()
+void PndMasterRunAna::AddDigiTasks(Bool_t pers)
 {
   PndMasterDigiTask *digi = new PndMasterDigiTask();
+  if (!pers) digi->SetPersistency(kFALSE);
   AddTask(digi);
 }
 
 // -----   AddRecoTasks   ---------------------------------------------------
-void PndMasterRunAna::AddRecoTasks()
+void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 {
   PndMasterRecoTask *reco = new PndMasterRecoTask();
+  if (!pers) reco->SetPersistency(kFALSE);
   AddTask(reco);
 }
 
 // -----   AddPidTasks   ----------------------------------------------------
-void PndMasterRunAna::AddPidTasks()
+void PndMasterRunAna::AddPidTasks(Bool_t pers)
 {
   PndMasterPidTask *pid = new PndMasterPidTask();
+  if (!pers) pid->SetPersistency(kFALSE);
   AddTask(pid);
 }
 

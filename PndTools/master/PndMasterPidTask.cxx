@@ -19,7 +19,6 @@
 #include "PndPidDiscAssociatorTask.h"
 #include "PndPidSttAssociatorTask.h"
 #include "PndPidEmcBayesAssociatorTask.h"
-#include "PndEventCounterTask.h"
 
 
 /**
@@ -81,13 +80,18 @@ PndMasterPidTask::PndMasterPidTask() :
    this->Add(new PndPidEmcBayesAssociatorTask()); // 10
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidEmcBayesAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   
-  // -----   Event Counter   --------------------------------
-  this->Add(new PndEventCounterTask("Event Counter", 0, 100)); // 11
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndEventCounterTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------
+
+/** Set the Persistency of all the tasks in the same way **/
+void PndMasterPidTask::SetPersistency(Bool_t pers)
+{
+  if (!pers) LOG(INFO) << "It makes no sense to have pid persistency switched OFF!" << FairLogger::endl;
+  if (!pers) LOG(INFO) << "Or, if you prefer... this functionality has not been implemented yet" << FairLogger::endl;
+
+  return;
+}
 
 // -----   Destructor   ----------------------------------------------------
 PndMasterPidTask::~PndMasterPidTask()

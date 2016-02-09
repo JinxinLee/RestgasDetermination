@@ -171,10 +171,13 @@ void PndMasterRunSim::CreateGeometry()
 // -----   AddSimTasks   ---------------------------------------------------
 void PndMasterRunSim::AddSimTasks()
 {
-  PndMasterSimTask *sim = new PndMasterSimTask();
-  AddTask(sim);
   // -----   Event Counter   --------------------------------
   AddTask(new PndEventCounterTask("Event Counter", fNEvents, fEventCounterRate));
+  
+  PndMasterSimTask *sim = new PndMasterSimTask();
+  AddTask(sim);
+  
+  return;
 }
 
 // -----   SetGenerator   --------------------------------------------------

@@ -30,6 +30,12 @@ class PndMasterPidTask : public PndMasterTask
    * @brief Destructor
    */
   virtual ~PndMasterPidTask();
+
+  /** 
+   * @brief Set the persistency of all the tasks 
+   * @param pers Persistency level: 0 no TCA, 1 all TCA
+   */
+  virtual void SetPersistency(Bool_t pers = kTRUE);
   
  private:
   
@@ -48,8 +54,7 @@ class PndMasterPidTask : public PndMasterTask
     kPndPidDrcAssociatorTask,
     kPndPidDiscAssociatorTask,
     kPndPidSttAssociatorTask,
-    kPndPidEmcBayesAssociatorTask,
-    kPndEventCounterTask
+    kPndPidEmcBayesAssociatorTask
   };
   
   /** @cond CLASSIMP */

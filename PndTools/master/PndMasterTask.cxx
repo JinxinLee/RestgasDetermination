@@ -61,6 +61,12 @@ void PndMasterTask::SetVerbose(Int_t nTask, Int_t iVerbose)
   return;
 }
 
+/** Set the Persistency of all the tasks in the same way **/
+void PndMasterTask::SetPersistency(Bool_t pers)
+{
+  return;
+}
+
 /** Retrieve the pointer to a Task in the list **/
 FairTask* PndMasterTask::GetTask(Int_t nTask)
 {

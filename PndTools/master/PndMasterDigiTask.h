@@ -30,6 +30,12 @@ class PndMasterDigiTask : public PndMasterTask
    * @brief Destructor 
    */
   virtual ~PndMasterDigiTask();
+
+  /** 
+   * @brief Set the persistency of all the tasks 
+   * @param pers Persistency level: 0 no TCA, 1 all TCA
+   */
+  virtual void SetPersistency(Bool_t pers = kTRUE);
   
  private:
   
@@ -46,8 +52,7 @@ class PndMasterDigiTask : public PndMasterTask
     kPndDrcHitProducerReal,
     kPndGemDigitize, kPndGemFindHits,
     kPndFtsHitProducerRealFast,
-    kPndFtofHitProducerIdeal,
-    kPndEventCounterTask
+    kPndFtofHitProducerIdeal
   };
   
   /** @cond CLASSIMP */

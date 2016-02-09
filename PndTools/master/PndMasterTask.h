@@ -43,6 +43,15 @@ class PndMasterTask : public PndBlackBoxTask
     void PrintTaskList();
 
     /** 
+     * @brief Set the persistency of all the tasks 
+     * @detail This function has to be implemented for each master task, since
+     * different tasks use different functions to change the persistency of
+     * the output TClonesArrays
+     * @param fPersistency Persistency level: 0 no TCA, 1 all TCA
+     */
+    virtual void SetPersistency(Bool_t pers = kTRUE);
+
+    /** 
      * @brief Set the Verbosity to all the tasks 
      * @param iVerbose Verbosity level: 0 no messages, the higher more messages
      */
