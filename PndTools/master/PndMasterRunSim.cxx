@@ -80,8 +80,8 @@ Bool_t PndMasterRunSim::Setup()
   fRtdb->setOutput(parOutput);
 
   // -----  Create and Set the Field(s) ------------------------------------
-  PndMultiField *fField= new PndMultiField("AUTO");
-  SetField(fField);
+  PndMultiField *field= new PndMultiField("AUTO");
+  SetField(field);
 
   // ---- Defining PANDA particles -----------------------------------------
   Double_t mom = GetBeamMom();

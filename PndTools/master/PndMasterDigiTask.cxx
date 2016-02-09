@@ -115,7 +115,7 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   // ((PndDrcProducerReal*)GetListOfTasks()->At(kPndDrcHitProducerReal))->SetPersistency(pers);
   
   // -----   GEM hit producers   ---------------------------------
-  ((PndGemDigitizer*)GetListOfTasks()->At(kPndGemDigitize))->SetPersistency(pers);
+  ((PndGemDigitize*)GetListOfTasks()->At(kPndGemDigitize))->SetPersistency(pers);
   ((PndGemFindHits*)GetListOfTasks()->At(kPndGemFindHits))->SetPersistency(pers);
   
   // -----   FTS hit producers   ---------------------------------
