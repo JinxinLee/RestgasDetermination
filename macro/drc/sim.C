@@ -1,4 +1,4 @@
-void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root", Int_t pdg=13, Double_t theta=130, Double_t phi=10.825){
+void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root", Int_t bars=5 ,Int_t pdg=13, Double_t theta=90, Double_t phi=10.825){
 
   TStopwatch timer;
   timer.Start();
@@ -12,7 +12,9 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   fRun->SetBeamMom(15);
   fRun->SetOutputFile(outFile);
   fRun->SetMaterials("media_pnd.geo");
+  fRun->SetUseFairLinks(kTRUE);
   fRun->SetUserConfig(vmcdir+"/macro/drc/g4Config_Cherenkov.C");
+  fRun->SetUserCuts(vmcdir+"/macro/drc/g4Cuts.C");
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
   // Set the parameters
@@ -53,7 +55,7 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
   Drc->SetMirrorReal(kFALSE);  
-  //Drc->StopChargedTrackAfterDIRC(kTRUE); 
+  Drc->StopChargedTrackAfterDIRC(kTRUE); 
   Drc->StopSecondaries(kFALSE); 
   Drc->SetTransportEffAtProduction(kTRUE);
   Drc->SetDetEffAtProduction(kTRUE);
@@ -62,7 +64,8 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   Drc->SetOnlyDirectPho(kFALSE);
   Drc->SetBlackLensSides(kTRUE);
   Drc->SetOptionForLUT(kFALSE);
-  Drc->SetGeometryFileName("dirc_g1_l6.root");
+  //Drc->SetGeometryFileName("dirc_g1_l6.root");
+  Drc->SetGeometryFileName(Form("dirc_e3_b%d_l6.root",bars));
   fRun->AddModule(Drc); 
   
   //  //-------------------------  SCITIL    -----------------
@@ -122,13 +125,13 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdg, 1);// 211 = pion, 321 = kaon; 13 = muon-; 1 = multipl.
 
   // boxGen->SetPRange(0,4);
-  // boxGen->SetPhiRange(0, 180);
-  // boxGen->SetThetaRange(22,140);
+  //  boxGen->SetPhiRange(3.84, 3.84);
+  // boxGen->SetPhiRange(3.84, 3.84);
+  // boxGen->SetThetaRange(131.53,131.53);
 
-  boxGen->SetPRange(3,3);
+  boxGen->SetPRange(3.5,3.5);
   boxGen->SetPhiRange(phi, phi);      // Azimuth angle range [degree]
-  boxGen->SetThetaRange(theta,theta); // Polar a1ngle in lab system range [degree]  
-  boxGen->SetXYZ(0.,0.,0.);
+  boxGen->SetThetaRange(theta,theta); // Polar a1ngle in lab system range [degree]
   primGen->AddGenerator(boxGen);
 
   fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
@@ -136,7 +139,7 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   // Create and Set Magnetic Field
   //-------------------------------
   PndMultiField *fField= new PndMultiField("FULL");
-  fRun->SetField(fField);
+  //fRun->SetField(fField);
 
   fRun->Init();
 

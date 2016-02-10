@@ -2,7 +2,7 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-  //fRun->AddFriend(digiFile);
+  fRun->AddFriend(digiFile);
   fRun->SetOutputFile("tst.root");
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -15,7 +15,7 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   FairMCPointDraw *PndBarPoint = new FairMCPointDraw ("DrcBarPoint",kViolet, kFullSquare);
   FairMCPointDraw *PndEVPoint = new FairMCPointDraw ("DrcEVPoint",kViolet, kFullSquare);
   FairMCPointDraw *PndPdPoint = new FairMCPointDraw ("DrcPDPoint",kBlue, kFullSquare);
-  PndDrcAccuDigiPixelDraw *PndAccuDigi = new PndDrcAccuDigiPixelDraw ("DrcPDHit",digiFile,7.); //7. //3
+  PndDrcAccuDigiPixelDraw *PndAccuDigi = new PndDrcAccuDigiPixelDraw ("DrcPDHit",digiFile,0.5); //7. //3
   
   fMan->AddTask(Track);
   fMan->AddTask(PndBarPoint);
@@ -24,8 +24,26 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   fMan->AddTask(PndAccuDigi);
 
   fMan->Init(1,4); 
-  //fMan->Init(); 
 
+  gGeoManager->SetNsegments(1000);
+  TIter next((TObjArray*)gGeoManager->GetListOfVolumes());
+  TGeoVolume *vol;
+  while((vol=(TGeoVolume*)next())){
+    TString volumename = vol->GetName();
+    if(!volumename.Contains("Drc")) vol->SetVisibility(kFALSE);
+    if(volumename.Contains("DrcBarSupport")) vol->SetVisibility(kFALSE);
+    if(volumename.Contains("DrcAirBox")) vol->SetTransparency(80);
+    if(volumename.Contains("DrcEVSensor")) vol->SetTransparency(80);
+    if(volumename.Contains("DrcBarSensor")) vol->SetTransparency(80);
+    if(volumename.Contains("DrcLENS")) vol->SetTransparency(90);
+    if(volumename.Contains("DrcMirr")) vol->SetTransparency(50);
+    if(volumename.Contains("DrcEVgrease")) vol->SetTransparency(90);
+	  
+    //vol->SetTransparency(0);
+    // vol->SetLineColor(17);
+  }
+	
+  
   TFile* fi = new TFile("vgeo.root","RECREATE");
   TGeoVolume *topvol = gGeoManager->GetVolume("cave");
   topvol->CheckOverlaps(0.0001, "");
@@ -73,9 +91,11 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   // el->Destroy();
 
   TGLViewer *v = gEve->GetDefaultGLViewer();
-  // v->SetClearColor(0);
+  //v->SetClearColor(0);
   v->SetIgnoreSizesOnUpdate(kTRUE);
   v->UpdateScene(kTRUE);
+  //v->GetLightSet()->SetSpecularPower(0.6);  
+  v->GetLightSet()->SetFrontPower(0.8);
   TGLSAViewer *sav = (TGLSAViewer *)v;
   sav->SetDrawCameraCenter(false);
 
@@ -85,7 +105,7 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   // cam.Configure(16.5,1,c,-0.3,1.8);
   // cam.SetExternalCenter(false);
 
-  TGLCamera & cam=(TGLOrthoCamera &)v->CurrentCamera();
+  // TGLCamera & cam=(TGLOrthoCamera &)v->CurrentCamera();
 
   // Double_t c[] = {180, 0, -200}; // for hits 
   // cam.Configure(13,1,c,-0.2,1.3); // for hits

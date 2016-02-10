@@ -11,6 +11,7 @@ void hit(Int_t nEvents = 0, TString inFile = "sim.root",  TString parFile="par.r
   fRun->SetInputFile(inFile);
   fRun->AddFriend(inDigi);
   fRun->SetOutputFile(outFile);
+  fRun->SetUseFairLinks(kTRUE);
   if(timeBased) fRun->RunWithTimeStamps();
 
   // -----  Parameter database   --------------------------------------------

@@ -1,8 +1,6 @@
 TClonesArray *fLutSum[5];
 
-void lutaddbar(TString inFile = "lut_one_*.root", TString outFile = "lut_all.root")
-{
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+void lutaddbar(TString inFile = "lut_one_*.root", TString outFile = "lut_all.root"){
 
   TTree *fTreeNew = new TTree("dircsim","Look-up table for DIRC");
   for(Int_t l=0; l<5; l++){

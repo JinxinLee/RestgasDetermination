@@ -1,4 +1,4 @@
-void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString luttab = "lut/lut_16_a.root", TString outFile = "reco.root"){
+void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString luttab = "lut/lut_e3_b5_l6_avr.root", TString outFile = "reco.root"){
   Int_t verbose = 0;
   gStyle->SetOptStat(0);
   

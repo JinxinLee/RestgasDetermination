@@ -1,6 +1,5 @@
 void lutmean(TString baseFile = "lut_all")
 {
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gInterpreter->GenerateDictionary("vector<TVector3>","TVector3.h"); 
   
   TString inFile =baseFile+".root";
@@ -39,8 +38,8 @@ void lutmean(TString baseFile = "lut_all")
   // TH1F * hDir = new TH1F("hDir","X component",1000,-1,1);
 
 
-  std::vector<TVector3> vArray[100];
-  std::vector<Double_t> tArray[100];
+  std::vector<TVector3> vArray[200];
+  std::vector<Double_t> tArray[200];
   std::vector<Double_t> pArray;
   
   TVector3 dir, dir2, sum;
@@ -64,13 +63,13 @@ void lutmean(TString baseFile = "lut_all")
 
 	bool newid = true;
 	for(int j=0; j<pArray.size(); j++){
-	  if(pathid == pArray[j]){
+	  if(pathid == pArray[j]){	    
 	    vArray[j].push_back(dir);
 	    tArray[j].push_back(time);
 	    newid= false;
 	  }
 	}
-	if(newid) {
+	if(newid){
 	  vArray[pArray.size()].push_back(dir);
 	  tArray[pArray.size()].push_back(time);
 	  pArray.push_back(pathid);

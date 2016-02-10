@@ -9,8 +9,10 @@ void fillLut(Int_t nEvents = 0, TString inFile = "simlut.root", TString parFile1
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-  fRun->SetOutputFile(inFile+"_out");
-
+  //fRun->SetOutputFile(inFile+"_out");
+  fRun->SetOutputFile(inFile+"_digi.root");
+  fRun->SetUseFairLinks(kTRUE);
+ 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();

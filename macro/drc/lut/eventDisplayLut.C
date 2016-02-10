@@ -1,8 +1,5 @@
 void eventDisplayLut()
 {
-  // Load libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-
   gSystem->Load("libEve");
   gSystem->Load("libEventDisplay");
   //gSystem->Load("libPndEventDisplay");
@@ -23,7 +20,7 @@ void eventDisplayLut()
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
   FairMCPointDraw *PndBarPoint = new FairMCPointDraw ("DrcBarPoint",kViolet, kFullSquare);
   FairMCPointDraw *PndPdPoint = new FairMCPointDraw ("DrcPDPoint",kBlue, kFullSquare);
-  PndDrcAccuDigiPixelDraw *PndAccuDigi = new PndDrcAccuDigiPixelDraw ("DrcPDHit",digifile,10.); //0.05
+  PndDrcAccuDigiPixelDraw *PndAccuDigi = new PndDrcAccuDigiPixelDraw ("DrcPDHit",digifile,5.); //0.05
   
   fMan->AddTask(Track);
   fMan->AddTask(PndBarPoint);

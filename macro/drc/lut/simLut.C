@@ -1,4 +1,4 @@
-void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TString parFile="parlut.root"){
+void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TString parFile="parlut.root", Int_t bars=5){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -12,6 +12,7 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetOutputFile(simFile);
   fRun->SetMaterials("media_pnd.geo");
+  fRun->SetUseFairLinks(kTRUE);
   fRun->SetUserConfig(vmcdir+"/macro/drc/g4Config_Cherenkov.C");
  
   // Set the parameters
@@ -29,10 +30,6 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   FairParRootFileIo* output = new FairParRootFileIo(kParameterMerged);
   output->open(parFile);
   rtdb->setOutput(output);
-  
-  // Set Material file Name
-  //-----------------------
-  fRun->SetMaterials("media_pnd.geo");
 
   // Create and add detectors
   //-------------------------
@@ -50,7 +47,7 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   Drc->SetOnlyDirectPho(kFALSE);
   Drc->SetBlackLensSides(kTRUE);
   Drc->SetOptionForLUT(kTRUE);
-  Drc->SetGeometryFileName("dirc_g1_l6.root");
+  Drc->SetGeometryFileName(Form("dirc_e3_b%d_l6.root",bars));
   fRun->AddModule(Drc);  
 
   // Set Random Number seed
@@ -66,8 +63,11 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  Double_t x[] = { 45.543481, 46.148229, 46.752977, 47.357725, 47.962473 };
-  Double_t y[] = { 15.265154, 12.102453,  8.939751,  5.777050,  2.614349 };
+  Double_t x5[] = { 45.543481, 46.148229, 46.752977, 47.357725, 47.962473 };
+  Double_t y5[] = { 15.265154, 12.102453,  8.939751,  5.777050,  2.614349 };
+
+  Double_t x3[] = {45.748, 46.752977,47.775 };
+  Double_t y3[] = {14.26, 8.939751, 3.591 };
 
   FairBoxGenerator* boxGen = new FairBoxGenerator(50000050, 1000);
   boxGen->SetPRange(3.18e-9,3.18e-9); // GeV/c //3.18eV <==> 390nm
@@ -77,7 +77,8 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   boxGen->SetCosTheta();
   //boxGen->SetBoxXYZ(46.3 ,7.4, 47.3,10.4, -118.9+0.01+60);
   // boxGen->SetXYZ(46.8,8.9,-119+0.01); 
-  boxGen->SetXYZ(x[barId],y[barId],-119+0.0001);
+  if(bars==3)  boxGen->SetXYZ(x3[barId],y3[barId],-119+0.0001);
+  if(bars==5)  boxGen->SetXYZ(x5[barId],y5[barId],-119+0.0001);
   primGen->AddGenerator(boxGen);
   
   // // Box Generator
@@ -87,7 +88,6 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   // boxGen->SetThetaRange(87.5,87.5);  // Polar a1ngle in lab system range [degree]
   // boxGen->SetXYZ(0.,0.,0.);
   // primGen->AddGenerator(boxGen);
-
 
   fRun->SetStoreTraj(kTRUE);
 

@@ -1,4 +1,4 @@
-void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=1, Double_t eventRate=50, Double_t deadTime=5){
+void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=1, Double_t eventRate=50, Double_t deadTime=5){
   Int_t verbose = 0;
   
   // -----   Timer   --------------------------------------------------------
@@ -10,6 +10,7 @@ void digi(Int_t nEvents = 10, TString inFile = "sim.root", TString parFile="par.
   fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
+  fRun->SetUseFairLinks(kTRUE); 
   if(timeBased) fRun->SetEventMeanTime(eventRate);
 
   // -----  Parameter database   --------------------------------------------

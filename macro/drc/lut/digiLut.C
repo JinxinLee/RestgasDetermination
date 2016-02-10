@@ -10,7 +10,8 @@ void digiLut(Int_t nEvents = 0, TString inFile = "simlut.root", TString outFile 
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-
+  fRun->SetUseFairLinks(kTRUE);
+ 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
