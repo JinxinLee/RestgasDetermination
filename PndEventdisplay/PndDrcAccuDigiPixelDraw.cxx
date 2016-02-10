@@ -47,43 +47,42 @@ PndDrcAccuDigiPixelDraw::~PndDrcAccuDigiPixelDraw()
 
 InitStatus PndDrcAccuDigiPixelDraw::Init()
 {
-	FairBoxSetDraw::Init();
-	fGeoH = PndGeoHandling::Instance();
-	fRecoHits     = (TClonesArray *)fManager->GetObject("DrcPDHit"); 
-
-	TIter next((TObjArray*)gGeoManager->GetListOfVolumes());
-	TGeoVolume *vol;
-	while((vol=(TGeoVolume*)next())){
-	  TString volumename = vol->GetName();
-	  if(volumename(0,4)=="Pipe")  vol->SetVisibility(kFALSE);
-	  if(volumename=="DrcAirBox") vol->SetTransparency(80);
-	  if(volumename=="DrcEVSensor") vol->SetTransparency(80);
-	  if(volumename=="DrcBarSensor") vol->SetTransparency(80);
-	  if(volumename=="DrcBarSensor") vol->SetTransparency(80);
-	  if(volumename.Contains("DrcLENS")) vol->SetTransparency(30);
-
-	  //vol->SetTransparency(80);
-	  // vol->SetLineColor(17);
-	  if(volumename.Contains("DrcMcpGreaseSensor")) vol->SetLineColor(13);
-	}
+  FairBoxSetDraw::Init();
+  fGeoH = PndGeoHandling::Instance();
 	
-	gGeoManager->SetNsegments(400);
+  TIter next((TObjArray*)gGeoManager->GetListOfVolumes());
+  TGeoVolume *vol;
+  while((vol=(TGeoVolume*)next())){
+    TString volumename = vol->GetName();
+    if(!volumename.Contains("Drc")) vol->SetVisibility(kFALSE);
+    if(volumename.Contains("DrcBarSupport")) vol->SetVisibility(kFALSE);
+    if(volumename.Contains("DrcAirBox")) vol->SetTransparency(80);
+    if(volumename.Contains("DrcEV")) vol->SetTransparency(80);
+    if(volumename.Contains("DrcBarSensor")) vol->SetTransparency(80);
+    if(volumename.Contains("DrcLENS")) vol->SetTransparency(95);
+    if(volumename.Contains("DrcMirr")) vol->SetTransparency(50);
+    if(volumename.Contains("DrcEVgrease")) vol->SetTransparency(60);
+	  
+    //vol->SetTransparency(80);
+    // vol->SetLineColor(17);
+  }
+	
+  gGeoManager->SetNsegments(400);
 
-	TGLViewer *v = gEve->GetDefaultGLViewer();
-	//v->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-	TGLSAViewer *sav = (TGLSAViewer *)v;
-	sav->SetDrawCameraCenter(true);
-	TGLCamera & cam=(TGLOrthoCamera &)v->CurrentCamera();
-	cam.SetExternalCenter(true);
-	cam.SetCenterVec(46.8, 8.9, -120.);
+  TGLViewer *v = gEve->GetDefaultGLViewer();
+  //v->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+  TGLSAViewer *sav = (TGLSAViewer *)v;
+  sav->SetDrawCameraCenter(true);
+  TGLCamera & cam=(TGLOrthoCamera &)v->CurrentCamera();
+  cam.SetExternalCenter(true);
+  cam.SetCenterVec(46.8, 8.9, -120.);
 
-	//Double_t c[] = {46.8, 8.9, -120.};
-	//cam.Configure(1.3,1,c,-0.4,2.);
-	//v->DoDraw();
+  //Double_t c[] = {46.8, 8.9, -120.};
+  //cam.Configure(1.3,1,c,-0.4,2.);
+  //v->DoDraw();
 
-	fFirstEvent=true;
-
-	return kSUCCESS;
+  fFirstEvent=true;
+  return kSUCCESS;
 }
 
 void PndDrcAccuDigiPixelDraw::ReadAllHits(){
@@ -95,32 +94,31 @@ void PndDrcAccuDigiPixelDraw::ReadAllHits(){
   TEveBoxSet* bs;
   TGeoHMatrix testMatrix;
   t->SetBranchAddress("DrcPDHit",&hit_array);
-  for (Int_t j=0; (j<fNdigiEvents || fNdigiEvents==0) && j<t->GetEntriesFast(); j++)
-    {
-      t->GetEntry(j);
-      if(j%100==0) cout<<"Event No "<<j<<"  #entries "<<hit_array->GetEntriesFast()<<endl;
-      for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
-	{
-	  hit=(PndDrcPDHit*)hit_array->At(i);
-	  hit->Position(recoVector);
-	  Int_t detId = hit->GetDetectorID();
-	  Int_t sensorId = detId/100;
+  for (Int_t j=0; (j<fNdigiEvents || fNdigiEvents==0) && j<t->GetEntriesFast(); j++){
+    t->GetEntry(j);
+    if(j%1==0) cout<<"Event No "<<j<<"  #entries "<<hit_array->GetEntriesFast()<<endl;
+    for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
+      {
+	hit=(PndDrcPDHit*)hit_array->At(i);
+	hit->Position(recoVector);
+	Int_t detId = hit->GetDetectorID();
+	Int_t sensorId = detId/100;
 
-	  recoLocal = fGeoH->MasterToLocalShortId(recoVector, sensorId);
+	recoLocal = fGeoH->MasterToLocalShortId(recoVector, sensorId);
 	   
-	  TString detName = Form("pix %d", detId);
-	  bs = CreateNewBoxSet(detName); 
-	  Float_t pixSize=fGeo->PixelSize();	
-	  bs->AddBox(recoLocal.X()-pixSize/2., recoLocal.Y()-pixSize/2., -0.1);
-	  bs->SetDefWidth(pixSize);
-	  bs->SetDefHeight(pixSize);	  
-	  testMatrix = *(fGeoH->GetMatrixShortId(sensorId));
-	  TEveTrans& et = bs->RefMainTrans();
-	  et.SetFrom(testMatrix);
-	  fHitsArr[detId] = bs;
-	  fHitsN[detId] ++;
-	}
-    }
+	TString detName = Form("pix %d", detId);
+	bs = CreateNewBoxSet(detName);
+	Float_t pixSize=fGeo->PixelSize();
+	bs->SetDefWidth(pixSize);
+	bs->SetDefHeight(pixSize);
+	bs->AddBox(recoLocal.X()-pixSize/2., recoLocal.Y()-pixSize/2., -0.01);
+	testMatrix = *(fGeoH->GetMatrixShortId(sensorId));
+	TEveTrans& et = bs->RefMainTrans();
+	et.SetFrom(testMatrix);
+	fHitsArr[detId] = bs;
+	fHitsN[detId] ++;
+      }
+  }
 }
 
 void PndDrcAccuDigiPixelDraw::Exec(Option_t* option)
@@ -128,44 +126,28 @@ void PndDrcAccuDigiPixelDraw::Exec(Option_t* option)
   if(fFirstEvent) ReadAllHits();
   
   gStyle->SetPalette(1);
-  Int_t colnums = 30;
+  Int_t colnums = 256;
   TEveRGBAPalette* pal = new TEveRGBAPalette(0, colnums);
   TEveElement* man = (TEveElement*)fEventManager;
-  if(false){ 
-    for (int i = 0; i < fRecoHits->GetEntriesFast(); i++){
-      PndDrcPDHit *hit=(PndDrcPDHit*)fRecoHits->At(i);
-
-      TVector3 recoVector;
-      hit->Position(recoVector);
-      Int_t sensorId = hit->GetDetectorID()/100;
-
-      TVector3 recoLocal = fGeoH->MasterToLocalShortId(recoVector, sensorId);
-      TString detName = Form("pix %d", hit->GetDetectorID());
-      TEveBoxSet* bs = CreateNewBoxSet(detName);
-      Float_t pixSize=fGeo->PixelSize();	
-      bs->AddBox(recoLocal.X()-pixSize/2., recoLocal.Y()-pixSize/2., -0.005);
-      bs->SetDefWidth(pixSize);
-      bs->SetDefHeight(pixSize);	  
-      TGeoHMatrix testMatrix = *(fGeoH->GetMatrixShortId(sensorId));
-      TEveTrans& t = bs->RefMainTrans();
-      t.SetFrom(testMatrix); 
-
-      gEve->AddElement(bs, man);
-
-    }
-  }else if(fFirstEvent){
-    Int_t max = 0;
+  if(fFirstEvent){
+    Double_t max = 0;
     for (IntIter it = fHitsN.begin(); it != fHitsN.end(); it++){
       if(it->second > max) max = it->second;
     }
-    max -= 0.1*max;
-    Float_t hstep =  fBoxHeight/(Float_t)max;
+    max -= 0.2*max;
+    Double_t hstep =  fBoxHeight/max;
     TEveBoxSet* topbs = new TEveBoxSet("DrcAccuDigiPixel");
     for (boxSetMapIter it = fHitsArr.begin(); it != fHitsArr.end(); it++){
-      if(hstep*fHitsN[it->first]<0.3) continue;
+      //if(hstep*fHitsN[it->first]<0.3) continue;
       it->second->SetPalette(pal);
-      it->second->DigitValue(fHitsN[it->first]*colnums/(Float_t)max);
-      it->second->SetDefDepth(-0.05-hstep*fHitsN[it->first]); //-0.005
+      Int_t color = fHitsN[it->first]*colnums/max;
+      if(color<1) color =1;
+      it->second->DigitValue(color);
+      Double_t s = 0.01+hstep*fHitsN[it->first];
+      it->second->SetDefDepth(s); //-0.005
+      TEveTrans& et = it->second->RefMainTrans();
+      TVector3 pos = et.GetPos();
+      et.SetPos(pos.X(),pos.Y(),pos.Z()-s);
       topbs->AddElement(it->second);
     }
     gEve->AddElement(topbs, man);
@@ -177,9 +159,9 @@ void PndDrcAccuDigiPixelDraw::Exec(Option_t* option)
 
 TEveBoxSet* PndDrcAccuDigiPixelDraw::CreateNewBoxSet(TString& name)
 {
-	TEveBoxSet* bs = new TEveBoxSet(name);
-	bs->Reset(TEveBoxSet::kBT_AABoxFixedDim, kFALSE, 32);
-	return bs;
+  TEveBoxSet* bs = new TEveBoxSet(name);
+  bs->Reset(TEveBoxSet::kBT_AABoxFixedDim, kFALSE, 64);
+  return bs;
 }
 
 ClassImp(PndDrcAccuDigiPixelDraw);
