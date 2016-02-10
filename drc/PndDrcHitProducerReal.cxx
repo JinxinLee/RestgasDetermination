@@ -43,13 +43,13 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitProducerReal::PndDrcHitProducerReal() 
-  :FairTask("PndDrcHitProducerReal"),fGeo(new PndGeoDrc()),fisDetEff(kTRUE),fisPixel(kTRUE),fDetType(1){
+  :FairTask("PndDrcHitProducerReal"),fGeo(new PndGeoDrc()),fisDetEff(kTRUE),fisPixel(kTRUE),fDetType(1),fPersistency(kTRUE),fVerbose(0){
   SetParameters();
 }
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
 PndDrcHitProducerReal::PndDrcHitProducerReal(Int_t verbose, Int_t det_type) 
-  :FairTask("PndDrcHitProducerReal"),fGeo(new PndGeoDrc()),fisDetEff(kTRUE),fisPixel(kTRUE),fDetType(det_type),fVerbose(verbose){
+  :FairTask("PndDrcHitProducerReal"),fGeo(new PndGeoDrc()),fisDetEff(kTRUE),fisPixel(kTRUE),fDetType(det_type),fPersistency(kTRUE),fVerbose(verbose){
   SetParameters();
 }
 
@@ -58,7 +58,6 @@ void PndDrcHitProducerReal::SetParameters(){
   fPixelDim=0.65;        //3.1 Pixel Dimension of photocathode is 6.5mm 
   nRefrac=fGeo->nEV();   //1.467;  //Refractive index of SOB   
   fSigmat=0.05;          //Time Resolution is 50 ps ############################
-  fVerbose=0;
   fCollectionEff=0.65;   //Collection Efficiency 
   fPackingFraction=0.80; //Packing Efficiency 
   fRoughness = 0.001;    // 10 A
@@ -122,11 +121,11 @@ InitStatus PndDrcHitProducerReal::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndDrcHit");
-  ioman->Register("DrcHit","Drc",fHitArray, kTRUE);
+  ioman->Register("DrcHit","Drc",fHitArray, fPersistency);
   
   // Create and register output array
   fPDHitArray = new TClonesArray("PndDrcPDHit");
-  ioman->Register("DrcPDHit","Drc",fPDHitArray, kTRUE);
+  ioman->Register("DrcPDHit","Drc",fPDHitArray, fPersistency);
     
   cout << "-I- PndDrcHitProducerReal: Intialization successfull" << endl;
   

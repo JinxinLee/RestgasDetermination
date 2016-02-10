@@ -114,6 +114,7 @@ public:
   //########################################
   
   void DrawDetEfficiency(Bool_t dr=kFALSE){fDrawing = dr;}
+  void SetPersistency(Bool_t v = kTRUE) { fPersistency = v; }
      
 protected:
   
@@ -153,6 +154,7 @@ private:
   Double_t fTime, fTimeThreshold;
   Int_t fRefIndex;
   Int_t fPDRefIndex;
+  Bool_t fPersistency;
   
   TClonesArray* fBarPointArray; // DRC MC points in the bars
   TClonesArray* fPDPointArray; // DRC MC points in the photon plane

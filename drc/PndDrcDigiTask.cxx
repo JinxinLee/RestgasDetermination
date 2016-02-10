@@ -147,13 +147,13 @@ void PndDrcDigiTask::Exec(Option_t* option){
 void PndDrcDigiTask::ProcessPhotonPoint(){
   //Loop over PndDrcPDPoints
   for(Int_t k=0; k < fPDPointArray->GetEntriesFast(); k++) {
-  
+ 
     fPpt = (PndDrcPDPoint*)fPDPointArray->At(k);
    
     Int_t trID= fPpt->GetTrackID();
     if(trID<0) continue;
     fMCtrk = (PndMCTrack*)fMCArray->At(trID);  
-            
+    
     // transform to local sensor system... (mc point has the ID not the path to the volume)
     TVector3 PptPosition;
     fPpt->Position(PptPosition);
@@ -271,10 +271,10 @@ void PndDrcDigiTask::ActivatePixel(Int_t detectorId, Int_t sensorId, Double_t si
   else digi->SetTimeStampError(0);
 
   FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
+  
   digi->SetLink(pdp->GetLink(0)); // MCTrack
   digi->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "DrcPDPoint", k));
   
-  //  ((FairMultiLinkedData*)digi)->Print(); std::cout<<std::endl;
   fDataBuffer->FillNewData(digi, timeStamp, timeStamp + fDeadTime);
 
   // if ( fPixelMap.find(sensorId) == fPixelMap.end() ){

@@ -12,7 +12,6 @@
 
  **/
 
-
 #ifndef PNDDRCHITPRODUCERIDEAL_H
 #define PNDDRCHITPRODUCERIDEAL_H
 
@@ -32,7 +31,6 @@
 #ifndef ROOT_TDatabasePDG
 #include "TDatabasePDG.h"
 #endif
-
 
 class PndDrcHitProducerIdeal : public FairTask {
 
@@ -69,9 +67,8 @@ public:
 		    Double_t errThetaC,
 		    Int_t index);
 
+  void SetPersistency(Bool_t v = kTRUE) { fPersistency = v; }
 
- protected:
-  
  private:
   
   Int_t fDetectorID;
@@ -79,17 +76,14 @@ public:
   TVector3 fDPosHit;
   Double_t fThetaC, fErrThetaC;
   Int_t fRefIndex;
+  Bool_t fPersistency;
 
   TClonesArray* fBarPointArray; // DRC MC points in the bars
-  TClonesArray* fHitArray; // DRC hits
-  // TObjArray *fVolumeArray;
-  // TClonesArray* fListStack;     // Tracks
+  TClonesArray* fHitArray;      // DRC hits
   
-  PndGeoDrcPar *fPar;       //!    
+  PndGeoDrcPar *fPar;
+  PndGeoDrc* fGeo;              // Basic geometry data of barrel DRC.
 
-  PndGeoDrc* fGeo;                 //!< Basic geometry data of barrel DRC.
-
-  /** Set the parameters to the default values. **/
   void SetDefaultParameters();
 
   Int_t nevents;

@@ -66,77 +66,78 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrc::PndDrc() 
-: FairDetector("PndDrcDefault",kTRUE),
-  fpi(TMath::Pi()),			//!
-  fzup(-999.),		//!
-  fzdown(-999.),
-  fradius(-999.),
-  fhthick(-999.),
-  fpipehAngle(-999.),
-  fbbGap(-999.),
-  fbbnum(-999.),
-  fbarnum(-999.),
-  fphi0(-999.),
-  fdphi(-999.),
-  flside(-999.),
-  fbarwidth(-999.),
+  : FairDetector("PndDrcDefault",kTRUE),
+    fpi(TMath::Pi()),			//!
+    fzup(-999.),		//!
+    fzdown(-999.),
+    fradius(-999.),
+    fhthick(-999.),
+    fpipehAngle(-999.),
+    fbbGap(-999.),
+    fbbnum(-999.),
+    fbarnum(-999.),
+    fphi0(-999.),
+    fdphi(-999.),
+    flside(-999.),
+    fbarwidth(-999.),
   
-  fGeoH(NULL),
+    fGeoH(NULL),
     
-  fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
-  fTrackID(-1),         //!  track index
-  fPos(TLorentzVector(0,0,0,0)),             //!  position
-  fMom(TLorentzVector(0,0,0,0)),             //!  momentum
-  fTime(-1),           //!  time
-  fLength(-1),          //!  length 
-  fAngIn(0),
-  fNBar(0),
-  fPosIndex(-1),                 //! 
-  volDetector(0),               //!  MC volume ID of drc
-  fMass(-1),
-  fMom1(TLorentzVector(0,0,0,0)), 
-  fMom2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
-  fPos2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
-  fBarEnd(0),
-  fMirrorGap(0),
+    fRunCherenkov(kTRUE),            //!  Switch ON/OFF Cherenkov propagation
+    fTrackID(-1),         //!  track index
+    fPos(TLorentzVector(0,0,0,0)),             //!  position
+    fMom(TLorentzVector(0,0,0,0)),             //!  momentum
+    fTime(-1),           //!  time
+    fLength(-1),          //!  length 
+    fAngIn(0),
+    fNBar(0),
+    fPosIndex(-1),                 //! 
+    volDetector(0),               //!  MC volume ID of drc
+    fMass(-1),
+    fMom1(TLorentzVector(0,0,0,0)), 
+    fMom2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
+    fPos2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
+    fBarEnd(0),
+    fMirrorGap(0),
     
-// used in ProcessHits function:
-  fbarID(0),	   //!  ID number of DrcBarSensors
-  fpdID(0),		   //!  ID number of DrcPdSensor
-  flens3ID(0),	   //!  ID number of third lenses
-  flens2ID(0),
-  flens1ID(0),
-  fbboxID(0),      	   //!  ID number of DrcBarBoxes
-  fevID(0),		   //!  ID number of Expansion Volume
+    // used in ProcessHits function:
+    fbarID(0),	   //!  ID number of DrcBarSensors
+    fpdID(0),		   //!  ID number of DrcPdSensor
+    flens3ID(0),	   //!  ID number of third lenses
+    flens2ID(0),
+    flens1ID(0),
+    fbboxID(0),      	   //!  ID number of DrcBarBoxes
+    fevID(0),		   //!  ID number of Expansion Volume
   
-  fDetEff(0x0),          //!  Detector Efficiency as a function of photon wavelength
-  fDetEffAtProduction(kFALSE),
-  fTransportEffAtProduction(kFALSE),
-  frand(),
-  fLastTrackID(-1),
-  fCollectionEff(-1),//Collection Efficiency 
+    fDetEff(0x0),          //!  Detector Efficiency as a function of photon wavelength
+    fDetEffAtProduction(kFALSE),
+    fTransportEffAtProduction(kFALSE),
+    frand(),
+    fLastTrackID(-1),
+    fCollectionEff(-1),//Collection Efficiency 
  
-  fStopTime(kFALSE),
-  fPhoMaxTime(-1),
-  fTakeDirect(kFALSE), 
-  fTakeReflected(kFALSE),     
+    fStopTime(kFALSE),
+    fPhoMaxTime(-1),
+    fTakeDirect(kFALSE), 
+    fTakeReflected(kFALSE),     
 
-  fFocusing(-1), 
-  fTakeRealReflectivity(kFALSE),
-  fStopSecondaries(kFALSE),
-  fStopChargedTrackAfterDIRC(kFALSE),
-  fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
+    fFocusing(-1), 
+    fTakeRealReflectivity(kFALSE),
+    fStopSecondaries(kFALSE),
+    fStopChargedTrackAfterDIRC(kFALSE),
+    fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
+    fPersistency(kTRUE),
+    
+    fPdgCode(-1),
+    fThetaC(-1.),
 
-  fPdgCode(-1),
-  fThetaC(-1.),
-
-  fDrcPDCollection(new TClonesArray("PndDrcPDPoint")),        //! Hit collection
-  fDrcEVCollection(new TClonesArray("PndDrcEVPoint")),
-  fDrcBarCollection (new TClonesArray("PndDrcBarPoint")),        //! Hit collection in the bar   
-  fEventID(0),    
-  fSenId1(0), 
-  fSenId2(0), 
-  fSenIdBar(0)
+    fDrcPDCollection(new TClonesArray("PndDrcPDPoint")),        //! Hit collection
+    fDrcEVCollection(new TClonesArray("PndDrcEVPoint")),
+    fDrcBarCollection (new TClonesArray("PndDrcBarPoint")),        //! Hit collection in the bar   
+    fEventID(0),    
+    fSenId1(0), 
+    fSenId2(0), 
+    fSenIdBar(0)
 {
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
@@ -146,13 +147,7 @@ PndDrc::PndDrc()
     std::cout<<std::endl;
   } 
   
-  for(Int_t i=0; i<1000; i++){
-    fLambda[i] = 0.;
-    fEfficiency[i] = 0.;
-    fEfficiencyR[i] = 0.;
-  }
-  if ( fGeoH == NULL )
-    fGeoH = PndGeoHandling::Instance();
+  if(fGeoH == NULL) fGeoH = PndGeoHandling::Instance();
 }
 
 // -----   Standard constructor   ------------------------------------------
@@ -178,57 +173,58 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fTrackID(-1),         //!  track index
     fPos(TLorentzVector(0,0,0,0)),             //!  position
     fMom(TLorentzVector(0,0,0,0)),             //!  momentu
-	       fTime(-1),           //!  time
-	       fLength(-1),          //!  length 
-	       fAngIn(0),
-	       fNBar(0),
-	       fPosIndex(-1),                 //! 
-	       volDetector(0),               //!  MC volume ID of drc
-	       fMass(-1),
-	       fMom1(TLorentzVector(0,0,0,0)), 
-	       fMom2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
-	       fPos2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
-	       fBarEnd(0),
-	       fMirrorGap(0),
+    fTime(-1),           //!  time
+    fLength(-1),          //!  length 
+    fAngIn(0),
+    fNBar(0),
+    fPosIndex(-1),                 //! 
+    volDetector(0),               //!  MC volume ID of drc
+    fMass(-1),
+    fMom1(TLorentzVector(0,0,0,0)), 
+    fMom2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
+    fPos2(TLorentzVector(0,0,0,0)),  //! for transport efficiency calculation
+    fBarEnd(0),
+    fMirrorGap(0),
  
-	       // used in ProcessHits function:
-	       fbarID(0),	   //!  ID number of DrcBarSensors
-	       fpdID(0),		   //!  ID number of DrcPdSensor
-	       flens3ID(0),	   //!  ID number of third lenses
-	       flens2ID(0),
-	       flens1ID(0),
-	       fbboxID(0),      	   //!  ID number of DrcBarBoxes
-	       fevID(0),		   //!  ID number of Expansion Volume
+    // used in ProcessHits function:
+    fbarID(0),	   //!  ID number of DrcBarSensors
+    fpdID(0),		   //!  ID number of DrcPdSensor
+    flens3ID(0),	   //!  ID number of third lenses
+    flens2ID(0),
+    flens1ID(0),
+    fbboxID(0),      	   //!  ID number of DrcBarBoxes
+    fevID(0),		   //!  ID number of Expansion Volume
   
-	       fDetEff(0x0),          //!  Detector Efficiency as a function of photon wavelength
-	       fDetEffAtProduction(kFALSE),
-	       fTransportEffAtProduction(kFALSE),
-	       frand(),
-	       fLastTrackID(-1),
-	       fCollectionEff(-1),//Collection Efficiency 
+    fDetEff(0x0),          //!  Detector Efficiency as a function of photon wavelength
+    fDetEffAtProduction(kFALSE),
+    fTransportEffAtProduction(kFALSE),
+    frand(),
+    fLastTrackID(-1),
+    fCollectionEff(-1),//Collection Efficiency 
  
-	       fStopTime(kFALSE),
-	       fPhoMaxTime(-1),
-	       fTakeDirect(kFALSE), 
-	       fTakeReflected(kFALSE),     
+    fStopTime(kFALSE),
+    fPhoMaxTime(-1),
+    fTakeDirect(kFALSE), 
+    fTakeReflected(kFALSE),     
 
-	       fFocusing(-1), 
-	       fTakeRealReflectivity(kFALSE),
-	       fStopSecondaries(kFALSE),
+    fFocusing(-1), 
+    fTakeRealReflectivity(kFALSE),
+    fStopSecondaries(kFALSE),
 
-	       fStopChargedTrackAfterDIRC(kFALSE),
-	       fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
+    fStopChargedTrackAfterDIRC(kFALSE),
+    fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
+    fPersistency(kTRUE),
+    
+    fPdgCode(-1),
+    fThetaC(-1.),
 
-	       fPdgCode(-1),
-	       fThetaC(-1.),
-
-	       fDrcPDCollection(new TClonesArray("PndDrcPDPoint")),        //! Hit collection
-	       fDrcEVCollection(new TClonesArray("PndDrcEVPoint")),        //! Hit collection
-	       fDrcBarCollection (new TClonesArray("PndDrcBarPoint")),        //! Hit collection in the bar   
-	       fEventID(0),    
-	       fSenId1(0), 
-	       fSenId2(0), 
-	       fSenIdBar(0)      
+    fDrcPDCollection(new TClonesArray("PndDrcPDPoint")),        //! Hit collection
+    fDrcEVCollection(new TClonesArray("PndDrcEVPoint")),        //! Hit collection
+    fDrcBarCollection (new TClonesArray("PndDrcBarPoint")),        //! Hit collection in the bar   
+    fEventID(0),    
+    fSenId1(0), 
+    fSenId2(0), 
+    fSenIdBar(0)      
 {
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
@@ -237,15 +233,8 @@ PndDrc::PndDrc(const char* name, Bool_t active)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   }
-    
-  for(Int_t i=0; i<1000; i++){
-    fLambda[i] = 0.;
-    fEfficiency[i] = 0.;
-    fEfficiencyR[i] = 0.;
-  }
-  
-  if ( fGeoH == NULL )
-    fGeoH = PndGeoHandling::Instance();
+      
+  if(fGeoH == NULL) fGeoH = PndGeoHandling::Instance();
   
 }
 
@@ -358,536 +347,29 @@ void PndDrc::Initialize() {
     // first value is at 200 nm, last at 700 nm
     // credible range start around 250nm, >= 280nm to be safe
 
-    Float_t credibleLimit=280.;
+    Int_t credibleLimit=280;   
+    Double_t efficiency[501] = {231.84,615.36,657.4,258.78,9839.92,44.67,67.87,51.01,41.49,5.36,49.4,2.13,35.49,8.66,5.03,7.51,13.27,18.71,3.92,3.66,8.2,0.56,7.68,2.87,10.06,3.47,3.39,6.99,6.01,4.92,6.25,5.97,6.92,8.29,10.45,8.68,8.6,9.79,11.76,9.53,10.98,9.9,10.97,11.31,10.88,10.78,12.16,12.38,12.37,13.04,12.36,13.18,13.7,13.85,13.66,13.98,14.55,14.93,14.82,14.97,14.98,15.14,15.35,15.37,15.43,15.49,15.59,15.84,15.84,15.92,16.01,16.22,16.41,16.42,16.52,16.86,17.1,17.17,17.22,17.46,17.79,17.99,18.13,18.33,18.34,18.53,18.72,18.95,19.02,19.15,19.28,19.45,19.66,19.69,19.77,19.73,19.95,19.98,20.17,20.29,20.33,20.37,20.47,20.48,20.57,20.75,20.8,20.84,20.86,20.88,21.0,21.06,21.0,21.06,21.06,21.04,21.1,21.14,21.08,21.17,21.3,21.38,21.49,21.58,21.69,21.77,21.87,22.02,22.13,22.29,22.35,22.45,22.53,22.55,22.64,22.67,22.73,22.74,22.71,22.79,22.76,22.77,22.76,22.75,22.78,22.7,22.68,22.72,22.66,22.64,22.7,22.67,22.71,22.67,22.75,22.77,22.83,22.84,22.93,22.97,23.0,23.08,23.16,23.27,23.25,23.37,23.44,23.49,23.55,23.52,23.58,23.64,23.63,23.58,23.64,23.63,23.62,23.64,23.63,23.66,23.59,23.59,23.56,23.58,23.63,23.57,23.66,23.62,23.67,23.64,23.54,23.57,23.51,23.53,23.45,23.3,23.41,23.25,23.21,23.08,23.01,22.92,22.9,22.76,22.76,22.61,22.53,22.48,22.39,22.29,22.24,22.2,22.12,22.07,21.96,21.89,21.87,21.76,21.74,21.58,21.49,21.48,21.37,21.29,21.2,21.17,21.03,20.98,20.92,20.85,20.76,20.69,20.58,20.56,20.47,20.37,20.32,20.24,20.13,20.08,19.9,19.84,19.77,19.69,19.63,19.51,19.41,19.27,19.06,19.01,18.87,18.7,18.49,18.41,18.17,17.98,17.84,17.69,17.5,17.25,17.15,16.98,16.79,16.66,16.48,16.32,16.19,16.02,15.88,15.77,15.67,15.5,15.39,15.23,15.09,15.04,14.92,14.75,14.7,14.5,14.45,14.34,14.25,14.16,14.13,14.0,13.92,13.84,13.76,13.73,13.61,13.54,13.52,13.45,13.41,13.39,13.31,13.22,13.17,13.13,13.06,13.2,13.09,12.97,12.92,12.73,12.65,12.4,12.22,12.02,11.79,11.59,11.33,11.03,10.68,10.46,10.14,9.88,9.62,9.36,9.14,8.87,8.63,8.51,8.24,8.07,7.88,7.77,7.65,7.52,7.35,7.27,7.21,7.1,6.92,6.89,6.79,6.74,6.56,6.54,6.5,6.39,6.33,6.25,6.27,6.14,6.06,6.04,6.01,5.91,5.89,5.79,5.75,5.75,5.67,5.61,5.51,5.52,5.43,5.43,5.34,5.31,5.35,5.23,5.2,5.14,5.11,5.11,5.01,4.98,4.93,4.99,4.89,4.82,4.87,4.8,4.7,4.65,4.65,4.61,4.49,4.56,4.44,4.42,4.44,4.35,4.35,4.27,4.29,4.19,4.13,4.08,4.02,4.07,3.92,3.95,3.88,3.82,3.86,3.74,3.71,3.66,3.72,3.62,3.55,3.56,3.57,3.45,3.38,3.36,3.36,3.28,3.25,3.19,3.26,3.13,3.17,3.15,3.04,2.98,2.93,2.98,2.9,2.89,2.9,2.81,2.74,2.81,2.68,2.73,2.7,2.57,2.58,2.55,2.55,2.37,2.39,2.39,2.44,2.37,2.26,2.27,2.27,2.23,2.26,2.14,2.08,2.15,2.06,2.09,2.04,2.0,1.95,2.02,1.87,1.9,1.8,1.87,1.85,1.87,1.81,1.86,1.74,1.74,1.63,1.59,1.5,1.5,1.44,1.47,1.32,1.24,1.28,1.19,1.21,1.21,1.1,1.1,1.05,1.06,0.94,0.92,0.87,0.92,0.81,0.86,0.78,0.77,0.8,0.67,0.7,0.81,0.61,0.64,0.71,0.66,0.67,0.68,0.69,0.68,0.73};
 
-    fEfficiency[0]=  231.84;
-    fEfficiency[1]=  615.36;
-    fEfficiency[2]=  657.4;
-    fEfficiency[3]=  258.78;
-    fEfficiency[4]=  9839.92;
-    fEfficiency[5]=  44.67;
-    fEfficiency[6]=  67.87;
-    fEfficiency[7]=  51.01;
-    fEfficiency[8]=  41.49;
-    fEfficiency[9]=  5.36;
-    fEfficiency[10]= 49.4;
-    fEfficiency[11]= 2.13;
-    fEfficiency[12]= 35.49;
-    fEfficiency[13]= 8.66;
-    fEfficiency[14]= 5.03;
-    fEfficiency[15]= 7.51;
-    fEfficiency[16]= 13.27;
-    fEfficiency[17]= 18.71;
-    fEfficiency[18]= 3.92;
-    fEfficiency[19]= 3.66;
-    fEfficiency[20]= 8.2;
-    fEfficiency[21]= 0.56;
-    fEfficiency[22]= 7.68;
-    fEfficiency[23]= 2.87;
-    fEfficiency[24]= 10.06;
-    fEfficiency[25]= 3.47;
-    fEfficiency[26]= 3.39;
-    fEfficiency[27]= 6.99;
-    fEfficiency[28]= 6.01;
-    fEfficiency[29]= 4.92;
-    fEfficiency[30]= 6.25;
-    fEfficiency[31]= 5.97;
-    fEfficiency[32]= 6.92;
-    fEfficiency[33]= 8.29;
-    fEfficiency[34]= 10.45;
-    fEfficiency[35]= 8.68;
-    fEfficiency[36]= 8.6;
-    fEfficiency[37]= 9.79;
-    fEfficiency[38]= 11.76;
-    fEfficiency[39]= 9.53;
-    fEfficiency[40]= 10.98;
-    fEfficiency[41]= 9.9;
-    fEfficiency[42]= 10.97;
-    fEfficiency[43]= 11.31;
-    fEfficiency[44]= 10.88;
-    fEfficiency[45]= 10.78;
-    fEfficiency[46]= 12.16;
-    fEfficiency[47]= 12.38;
-    fEfficiency[48]= 12.37;
-    fEfficiency[49]= 13.04;
-    fEfficiency[50]= 12.36;
-    fEfficiency[51]= 13.18;
-    fEfficiency[52]= 13.7;
-    fEfficiency[53]= 13.85;
-    fEfficiency[54]= 13.66;
-    fEfficiency[55]= 13.98;
-    fEfficiency[56]= 14.55;
-    fEfficiency[57]= 14.93;
-    fEfficiency[58]= 14.82;
-    fEfficiency[59]= 14.97;
-    fEfficiency[60]= 14.98;
-    fEfficiency[61]= 15.14;
-    fEfficiency[62]= 15.35;
-    fEfficiency[63]= 15.37;
-    fEfficiency[64]= 15.43;
-    fEfficiency[65]= 15.49;
-    fEfficiency[66]= 15.59;
-    fEfficiency[67]= 15.84;
-    fEfficiency[68]= 15.84;
-    fEfficiency[69]= 15.92;
-    fEfficiency[70]= 16.01;
-    fEfficiency[71]= 16.22;
-    fEfficiency[72]= 16.41;
-    fEfficiency[73]= 16.42;
-    fEfficiency[74]= 16.52;
-    fEfficiency[75]= 16.86;
-    fEfficiency[76]= 17.1;
-    fEfficiency[77]= 17.17;
-    fEfficiency[78]= 17.22;
-    fEfficiency[79]= 17.46;
-    fEfficiency[80]= 17.79;
-    fEfficiency[81]= 17.99;
-    fEfficiency[82]= 18.13;
-    fEfficiency[83]= 18.33;
-    fEfficiency[84]= 18.34;
-    fEfficiency[85]= 18.53;
-    fEfficiency[86]= 18.72;
-    fEfficiency[87]= 18.95;
-    fEfficiency[88]= 19.02;
-    fEfficiency[89]= 19.15;
-    fEfficiency[90]= 19.28;
-    fEfficiency[91]= 19.45;
-    fEfficiency[92]= 19.66;
-    fEfficiency[93]= 19.69;
-    fEfficiency[94]= 19.77;
-    fEfficiency[95]= 19.73;
-    fEfficiency[96]= 19.95;
-    fEfficiency[97]= 19.98;
-    fEfficiency[98]= 20.17;
-    fEfficiency[99]= 20.29;
-    fEfficiency[100]=20.33;
-    fEfficiency[101]=20.37;
-    fEfficiency[102]=20.47;
-    fEfficiency[103]=20.48;
-    fEfficiency[104]=20.57;
-    fEfficiency[105]=20.75;
-    fEfficiency[106]=20.8;
-    fEfficiency[107]=20.84;
-    fEfficiency[108]=20.86;
-    fEfficiency[109]=20.88;
-    fEfficiency[110]=21.0;
-    fEfficiency[111]=21.06;
-    fEfficiency[112]=21.0;
-    fEfficiency[113]=21.06;
-    fEfficiency[114]=21.06;
-    fEfficiency[115]=21.04;
-    fEfficiency[116]=21.1;
-    fEfficiency[117]=21.14;
-    fEfficiency[118]=21.08;
-    fEfficiency[119]=21.17;
-    fEfficiency[120]=21.3;
-    fEfficiency[121]=21.38;
-    fEfficiency[122]=21.49;
-    fEfficiency[123]=21.58;
-    fEfficiency[124]=21.69;
-    fEfficiency[125]=21.77;
-    fEfficiency[126]=21.87;
-    fEfficiency[127]=22.02;
-    fEfficiency[128]=22.13;
-    fEfficiency[129]=22.29;
-    fEfficiency[130]=22.35;
-    fEfficiency[131]=22.45;
-    fEfficiency[132]=22.53;
-    fEfficiency[133]=22.55;
-    fEfficiency[134]=22.64;
-    fEfficiency[135]=22.67;
-    fEfficiency[136]=22.73;
-    fEfficiency[137]=22.74;
-    fEfficiency[138]=22.71;
-    fEfficiency[139]=22.79;
-    fEfficiency[140]=22.76;
-    fEfficiency[141]=22.77;
-    fEfficiency[142]=22.76;
-    fEfficiency[143]=22.75;
-    fEfficiency[144]=22.78;
-    fEfficiency[145]=22.7;
-    fEfficiency[146]=22.68;
-    fEfficiency[147]=22.72;
-    fEfficiency[148]=22.66;
-    fEfficiency[149]=22.64;
-    fEfficiency[150]=22.7;
-    fEfficiency[151]=22.67;
-    fEfficiency[152]=22.71;
-    fEfficiency[153]=22.67;
-    fEfficiency[154]=22.75;
-    fEfficiency[155]=22.77;
-    fEfficiency[156]=22.83;
-    fEfficiency[157]=22.84;
-    fEfficiency[158]=22.93;
-    fEfficiency[159]=22.97;
-    fEfficiency[160]=23.0;
-    fEfficiency[161]=23.08;
-    fEfficiency[162]=23.16;
-    fEfficiency[163]=23.27;
-    fEfficiency[164]=23.25;
-    fEfficiency[165]=23.37;
-    fEfficiency[166]=23.44;
-    fEfficiency[167]=23.49;
-    fEfficiency[168]=23.55;
-    fEfficiency[169]=23.52;
-    fEfficiency[170]=23.58;
-    fEfficiency[171]=23.64;
-    fEfficiency[172]=23.63;
-    fEfficiency[173]=23.58;
-    fEfficiency[174]=23.64;
-    fEfficiency[175]=23.63;
-    fEfficiency[176]=23.62;
-    fEfficiency[177]=23.64;
-    fEfficiency[178]=23.63;
-    fEfficiency[179]=23.66;
-    fEfficiency[180]=23.59;
-    fEfficiency[181]=23.59;
-    fEfficiency[182]=23.56;
-    fEfficiency[183]=23.58;
-    fEfficiency[184]=23.63;
-    fEfficiency[185]=23.57;
-    fEfficiency[186]=23.66;
-    fEfficiency[187]=23.62;
-    fEfficiency[188]=23.67;
-    fEfficiency[189]=23.64;
-    fEfficiency[190]=23.54;
-    fEfficiency[191]=23.57;
-    fEfficiency[192]=23.51;
-    fEfficiency[193]=23.53;
-    fEfficiency[194]=23.45;
-    fEfficiency[195]=23.3;
-    fEfficiency[196]=23.41;
-    fEfficiency[197]=23.25;
-    fEfficiency[198]=23.21;
-    fEfficiency[199]=23.08;
-    fEfficiency[200]=23.01;
-    fEfficiency[201]=22.92;
-    fEfficiency[202]=22.9;
-    fEfficiency[203]=22.76;
-    fEfficiency[204]=22.76;
-    fEfficiency[205]=22.61;
-    fEfficiency[206]=22.53;
-    fEfficiency[207]=22.48;
-    fEfficiency[208]=22.39;
-    fEfficiency[209]=22.29;
-    fEfficiency[210]=22.24;
-    fEfficiency[211]=22.2;
-    fEfficiency[212]=22.12;
-    fEfficiency[213]=22.07;
-    fEfficiency[214]=21.96;
-    fEfficiency[215]=21.89;
-    fEfficiency[216]=21.87;
-    fEfficiency[217]=21.76;
-    fEfficiency[218]=21.74;
-    fEfficiency[219]=21.58;
-    fEfficiency[220]=21.49;
-    fEfficiency[221]=21.48;
-    fEfficiency[222]=21.37;
-    fEfficiency[223]=21.29;
-    fEfficiency[224]=21.2;
-    fEfficiency[225]=21.17;
-    fEfficiency[226]=21.03;
-    fEfficiency[227]=20.98;
-    fEfficiency[228]=20.92;
-    fEfficiency[229]=20.85;
-    fEfficiency[230]=20.76;
-    fEfficiency[231]=20.69;
-    fEfficiency[232]=20.58;
-    fEfficiency[233]=20.56;
-    fEfficiency[234]=20.47;
-    fEfficiency[235]=20.37;
-    fEfficiency[236]=20.32;
-    fEfficiency[237]=20.24;
-    fEfficiency[238]=20.13;
-    fEfficiency[239]=20.08;
-    fEfficiency[240]=19.9;
-    fEfficiency[241]=19.84;
-    fEfficiency[242]=19.77;
-    fEfficiency[243]=19.69;
-    fEfficiency[244]=19.63;
-    fEfficiency[245]=19.51;
-    fEfficiency[246]=19.41;
-    fEfficiency[247]=19.27;
-    fEfficiency[248]=19.06;
-    fEfficiency[249]=19.01;
-    fEfficiency[250]=18.87;
-    fEfficiency[251]=18.7;
-    fEfficiency[252]=18.49;
-    fEfficiency[253]=18.41;
-    fEfficiency[254]=18.17;
-    fEfficiency[255]=17.98;
-    fEfficiency[256]=17.84;
-    fEfficiency[257]=17.69;
-    fEfficiency[258]=17.5;
-    fEfficiency[259]=17.25;
-    fEfficiency[260]=17.15;
-    fEfficiency[261]=16.98;
-    fEfficiency[262]=16.79;
-    fEfficiency[263]=16.66;
-    fEfficiency[264]=16.48;
-    fEfficiency[265]=16.32;
-    fEfficiency[266]=16.19;
-    fEfficiency[267]=16.02;
-    fEfficiency[268]=15.88;
-    fEfficiency[269]=15.77;
-    fEfficiency[270]=15.67;
-    fEfficiency[271]=15.5;
-    fEfficiency[272]=15.39;
-    fEfficiency[273]=15.23;
-    fEfficiency[274]=15.09;
-    fEfficiency[275]=15.04;
-    fEfficiency[276]=14.92;
-    fEfficiency[277]=14.75;
-    fEfficiency[278]=14.7;
-    fEfficiency[279]=14.5;
-    fEfficiency[280]=14.45;
-    fEfficiency[281]=14.34;
-    fEfficiency[282]=14.25;
-    fEfficiency[283]=14.16;
-    fEfficiency[284]=14.13;
-    fEfficiency[285]=14.0;
-    fEfficiency[286]=13.92;
-    fEfficiency[287]=13.84;
-    fEfficiency[288]=13.76;
-    fEfficiency[289]=13.73;
-    fEfficiency[290]=13.61;
-    fEfficiency[291]=13.54;
-    fEfficiency[292]=13.52;
-    fEfficiency[293]=13.45;
-    fEfficiency[294]=13.41;
-    fEfficiency[295]=13.39;
-    fEfficiency[296]=13.31;
-    fEfficiency[297]=13.22;
-    fEfficiency[298]=13.17;
-    fEfficiency[299]=13.13;
-    fEfficiency[300]=13.06;
-    fEfficiency[301]=13.2;
-    fEfficiency[302]=13.09;
-    fEfficiency[303]=12.97;
-    fEfficiency[304]=12.92;
-    fEfficiency[305]=12.73;
-    fEfficiency[306]=12.65;
-    fEfficiency[307]=12.4;
-    fEfficiency[308]=12.22;
-    fEfficiency[309]=12.02;
-    fEfficiency[310]=11.79;
-    fEfficiency[311]=11.59;
-    fEfficiency[312]=11.33;
-    fEfficiency[313]=11.03;
-    fEfficiency[314]=10.68;
-    fEfficiency[315]=10.46;
-    fEfficiency[316]=10.14;
-    fEfficiency[317]=9.88;
-    fEfficiency[318]=9.62;
-    fEfficiency[319]=9.36;
-    fEfficiency[320]=9.14;
-    fEfficiency[321]=8.87;
-    fEfficiency[322]=8.63;
-    fEfficiency[323]=8.51;
-    fEfficiency[324]=8.24;
-    fEfficiency[325]=8.07;
-    fEfficiency[326]=7.88;
-    fEfficiency[327]=7.77;
-    fEfficiency[328]=7.65;
-    fEfficiency[329]=7.52;
-    fEfficiency[330]=7.35;
-    fEfficiency[331]=7.27;
-    fEfficiency[332]=7.21;
-    fEfficiency[333]=7.1;
-    fEfficiency[334]=6.92;
-    fEfficiency[335]=6.89;
-    fEfficiency[336]=6.79;
-    fEfficiency[337]=6.74;
-    fEfficiency[338]=6.56;
-    fEfficiency[339]=6.54;
-    fEfficiency[340]=6.5;
-    fEfficiency[341]=6.39;
-    fEfficiency[342]=6.33;
-    fEfficiency[343]=6.25;
-    fEfficiency[344]=6.27;
-    fEfficiency[345]=6.14;
-    fEfficiency[346]=6.06;
-    fEfficiency[347]=6.04;
-    fEfficiency[348]=6.01;
-    fEfficiency[349]=5.91;
-    fEfficiency[350]=5.89;
-    fEfficiency[351]=5.79;
-    fEfficiency[352]=5.75;
-    fEfficiency[353]=5.75;
-    fEfficiency[354]=5.67;
-    fEfficiency[355]=5.61;
-    fEfficiency[356]=5.51;
-    fEfficiency[357]=5.52;
-    fEfficiency[358]=5.43;
-    fEfficiency[359]=5.43;
-    fEfficiency[360]=5.34;
-    fEfficiency[361]=5.31;
-    fEfficiency[362]=5.35;
-    fEfficiency[363]=5.23;
-    fEfficiency[364]=5.2;
-    fEfficiency[365]=5.14;
-    fEfficiency[366]=5.11;
-    fEfficiency[367]=5.11;
-    fEfficiency[368]=5.01;
-    fEfficiency[369]=4.98;
-    fEfficiency[370]=4.93;
-    fEfficiency[371]=4.99;
-    fEfficiency[372]=4.89;
-    fEfficiency[373]=4.82;
-    fEfficiency[374]=4.87;
-    fEfficiency[375]=4.8;
-    fEfficiency[376]=4.7;
-    fEfficiency[377]=4.65;
-    fEfficiency[378]=4.65;
-    fEfficiency[379]=4.61;
-    fEfficiency[380]=4.49;
-    fEfficiency[381]=4.56;
-    fEfficiency[382]=4.44;
-    fEfficiency[383]=4.42;
-    fEfficiency[384]=4.44;
-    fEfficiency[385]=4.35;
-    fEfficiency[386]=4.35;
-    fEfficiency[387]=4.27;
-    fEfficiency[388]=4.29;
-    fEfficiency[389]=4.19;
-    fEfficiency[390]=4.13;
-    fEfficiency[391]=4.08;
-    fEfficiency[392]=4.02;
-    fEfficiency[393]=4.07;
-    fEfficiency[394]=3.92;
-    fEfficiency[395]=3.95;
-    fEfficiency[396]=3.88;
-    fEfficiency[397]=3.82;
-    fEfficiency[398]=3.86;
-    fEfficiency[399]=3.74;
-    fEfficiency[400]=3.71;
-    fEfficiency[401]=3.66;
-    fEfficiency[402]=3.72;
-    fEfficiency[403]=3.62;
-    fEfficiency[404]=3.55;
-    fEfficiency[405]=3.56;
-    fEfficiency[406]=3.57;
-    fEfficiency[407]=3.45;
-    fEfficiency[408]=3.38;
-    fEfficiency[409]=3.36;
-    fEfficiency[410]=3.36;
-    fEfficiency[411]=3.28;
-    fEfficiency[412]=3.25;
-    fEfficiency[413]=3.19;
-    fEfficiency[414]=3.26;
-    fEfficiency[415]=3.13;
-    fEfficiency[416]=3.17;
-    fEfficiency[417]=3.15;
-    fEfficiency[418]=3.04;
-    fEfficiency[419]=2.98;
-    fEfficiency[420]=2.93;
-    fEfficiency[421]=2.98;
-    fEfficiency[422]=2.9;
-    fEfficiency[423]=2.89;
-    fEfficiency[424]=2.9;
-    fEfficiency[425]=2.81;
-    fEfficiency[426]=2.74;
-    fEfficiency[427]=2.81;
-    fEfficiency[428]=2.68;
-    fEfficiency[429]=2.73;
-    fEfficiency[430]=2.7;
-    fEfficiency[431]=2.57;
-    fEfficiency[432]=2.58;
-    fEfficiency[433]=2.55;
-    fEfficiency[434]=2.55;
-    fEfficiency[435]=2.37;
-    fEfficiency[436]=2.39;
-    fEfficiency[437]=2.39;
-    fEfficiency[438]=2.44;
-    fEfficiency[439]=2.37;
-    fEfficiency[440]=2.26;
-    fEfficiency[441]=2.27;
-    fEfficiency[442]=2.27;
-    fEfficiency[443]=2.23;
-    fEfficiency[444]=2.26;
-    fEfficiency[445]=2.14;
-    fEfficiency[446]=2.08;
-    fEfficiency[447]=2.15;
-    fEfficiency[448]=2.06;
-    fEfficiency[449]=2.09;
-    fEfficiency[450]=2.04;
-    fEfficiency[451]=2.0;
-    fEfficiency[452]=1.95;
-    fEfficiency[453]=2.02;
-    fEfficiency[454]=1.87;
-    fEfficiency[455]=1.9;
-    fEfficiency[456]=1.8;
-    fEfficiency[457]=1.87;
-    fEfficiency[458]=1.85;
-    fEfficiency[459]=1.87;
-    fEfficiency[460]=1.81;
-    fEfficiency[461]=1.86;
-    fEfficiency[462]=1.74;
-    fEfficiency[463]=1.74;
-    fEfficiency[464]=1.63;
-    fEfficiency[465]=1.59;
-    fEfficiency[466]=1.5;
-    fEfficiency[467]=1.5;
-    fEfficiency[468]=1.44;
-    fEfficiency[469]=1.47;
-    fEfficiency[470]=1.32;
-    fEfficiency[471]=1.24;
-    fEfficiency[472]=1.28;
-    fEfficiency[473]=1.19;
-    fEfficiency[474]=1.21;
-    fEfficiency[475]=1.21;
-    fEfficiency[476]=1.1;
-    fEfficiency[477]=1.1;
-    fEfficiency[478]=1.05;
-    fEfficiency[479]=1.06;
-    fEfficiency[480]=0.94;
-    fEfficiency[481]=0.92;
-    fEfficiency[482]=0.87;
-    fEfficiency[483]=0.92;
-    fEfficiency[484]=0.81;
-    fEfficiency[485]=0.86;
-    fEfficiency[486]=0.78;
-    fEfficiency[487]=0.77;
-    fEfficiency[488]=0.8;
-    fEfficiency[489]=0.67;
-    fEfficiency[490]=0.7;
-    fEfficiency[491]=0.81;
-    fEfficiency[492]=0.61;
-    fEfficiency[493]=0.64;
-    fEfficiency[494]=0.71;
-    fEfficiency[495]=0.66;
-    fEfficiency[496]=0.67;
-    fEfficiency[497]=0.68;
-    fEfficiency[498]=0.69;
-    fEfficiency[499]=0.68;
-    fEfficiency[500]=0.73;
-    
-    for(Int_t i=0; i<1000; i++){
-      fLambda[i] = i;
-    }
+    Double_t lambda[1000];
+    for(Int_t i=0; i<1000; i++) lambda[i] = i;
     
     // still need to convert from percent and cut values below credible limit
-    for (Int_t iBin=0;iBin<1000;iBin++) 
-      {
-        if (iBin<(Int_t)(credibleLimit) || iBin > 700)
-	  {
-	    fEfficiencyR[iBin]=0.;
-	  } 
-        else
-	  {
-	    // total detector efficiency
-	    fEfficiencyR[iBin]=fEfficiency[iBin-200]/100.*fCollectionEff;
-	  }
-      }   
-  
-    fDetEff = new TGraph(1000, fLambda,fEfficiencyR);  
+    for (Int_t iBin=0;iBin<1000;iBin++){
+      if (iBin<credibleLimit || iBin > 700){
+	fEfficiencyR[iBin]=0.;
+      }else{
+	// total detector efficiency
+	fEfficiencyR[iBin]=efficiency[iBin-200]/100.*fCollectionEff;
+      }
+    }   
+    
+    fDetEff = new TGraph(1000, lambda,fEfficiencyR);  
 
     fLastTrackID = -2;
   } 
   
   cout << " -I- PndDrc: Intialization successfull" << endl;
   fBarTrackStatus = 0;
-  fbLab = false;
 }
 
 // -------------------------------------------------------------------------
@@ -907,16 +389,16 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   fTrackID = gMC->GetStack()->GetCurrentTrackNumber();	  
   fTime    = gMC->TrackTime() * 1.0e09;
   fLength  = gMC->TrackLength();
+  gMC->TrackPosition(fPos);
+  gMC->TrackMomentum(fMom);
 
   bool stop = true;
   if(gMC->GetStack()->GetCurrentParentTrackNumber()==0 && fPdgCode == 11){
-    //std::cout<<"E fPdgCode  "<<fPdgCode <<std::endl;  
     stop = false;
   }
 
   if(gMC->GetStack()->GetCurrentParentTrackNumber()==1 && fPdgCode == 50000050){
-    //std::cout<<"P fPdgCode  "<<fPdgCode <<std::endl;
-     stop = false;
+    stop = false;
   }
   
   // // print out info about the charged particle:
@@ -929,10 +411,6 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   // }
   
   //if(stop) gMC->StopTrack();
-
-
-  gMC->TrackPosition(fPos);
-  gMC->TrackMomentum(fMom);
  
   //stop secondaries so that they do not produce Cherenkov photons
   if(fStopSecondaries){
@@ -954,27 +432,25 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     if(nam.BeginsWith("DrcEVSensor") && gMC->IsTrackExiting()&&fMom.Z() > 0.) gMC->StopTrack();
 
   }
-
   
   if (fPdgCode == 50000050){
     if (fRunCherenkov==kFALSE ) { //|| fabs(fMom.Vect().Mag()*1.0E9-3.18)>0.2
-      gMC->StopTrack();
       if (fVerboseLevel >0) cout<< "Photon killed" << endl;
+      gMC->StopTrack();
     }  
           
     // apply detector efficiency at the production stage:    
     if(fDetEffAtProduction && fLastTrackID != fTrackID){
       Double_t lambda = 197.0*2.0*fpi/(fMom.Vect().Mag()*1.0E9);          
       Double_t ra = frand.Uniform(0., 1.);
-      //if(ra > fEfficiencyR[(int)lambda]){ 
-      if(ra > fDetEff->Eval(lambda)){ 
+      if(ra > fDetEff->Eval(lambda)){  //if(ra > fEfficiencyR[(int)lambda]){ 
         gMC->StopTrack();	
       }else{
         nphotons = nphotons + 1;
       }
     }
     
-    //if the photon goes backward through the lens, stop it  
+    //if the photon goes backward through the lens, stop it
     if(fOptionForLUT){
       if(gMC->IsTrackExiting() == 1){
 	if(nam.Contains("LENS")){
@@ -1001,15 +477,11 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       NumberOfBounces(fPos2.Vect(), PphoInitBar, barId, &NbouncesX, &NbouncesY, &angleX, &angleY);
       // calculate the bounce probability
       Double_t n_quartz = sqrt(1. + (0.696*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.068,2))) + (0.407*lam_tr*lam_tr/(lam_tr*lam_tr-pow(0.116,2))) + 0.897*lam_tr*lam_tr/(lam_tr*lam_tr-pow(9.896,2)));
-      //cout<<"n_quartz = "<<n_quartz<<endl;
       Double_t bounce_probX = 1. - pow(4.*fpi*cos(angleX)*fGeo->Roughness()*n_quartz/lam_tr,2); 
       Double_t bounce_probY = 1. - pow(4.*fpi*cos(angleY)*fGeo->Roughness()*n_quartz/lam_tr,2);
       Double_t TotalTrProb = pow(bounce_probX, (Int_t)NbouncesX)*pow(bounce_probY, (Int_t)NbouncesY);
-      //cout<<"tr eff X = "<<bounce_probX<<", tr eff Y = "<<bounce_probY<<", total = "<<TotalTrProb<<endl;
       Double_t ra_tr = frand.Uniform(0., 1.);
-      if(ra_tr > TotalTrProb){               
-        gMC->StopTrack();	
-      }
+      if(ra_tr > TotalTrProb) gMC->StopTrack();   
     }
         		
     // // counting photons:
@@ -1020,7 +492,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     // //if(gMC->IsTrackExiting()==1 && num == fevID && fPos.Z() < -150.){ //check how many photons reach the back side of the EV     
     // //if(nam.BeginsWith("DrcMcpGrease") && fPos.Z() < -150.05){ // check how many photons are in the middle of grease    
     // //if(nam.BeginsWith("DrcPDwindow") && fPos.Z() < -150.15){  // check how many photons are in the middle of the window   
-    // //if(nam.BeginsWith("DrcPhCathodeSensor")){ // check how many photons are entering the photocathode   
+    // //if(nam.BeginsWith("DrcCathodeSensor")){ // check how many photons are entering the photocathode   
     // //if(gMC->IsTrackEntering()==1 && num == fpdID){ // check how many photons get detected
     //  nphotons = nphotons + 1;	
     //  cout<<"photon number "<<nphotons<<" is produced!!! from track "<<gMC->GetStack()->GetCurrentTrackNumber()<<endl;
@@ -1142,7 +614,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     } 
    
     if (gMC->IsTrackEntering()==1){         
-      if (nam.BeginsWith("DrcPDSensor")){ 
+      if (nam.BeginsWith("DrcCathodeSensor")){ 
 	if(0==fGeoH) {
 	  std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
 	  abort();
@@ -1161,12 +633,6 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
       PndStack* stack = (PndStack*) gMC->GetStack();
       stack->AddPoint(kDRC);
     } 
-
-    //Lab
-    if (fbLab && gMC->IsTrackExiting()){
-      AddBarHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
-    		fTime, fLength, fPdgCode, fThetaC, fNBar, fEventID, fMass);
-    }
   }
   
   if(gMC->TrackCharge()!=0 || fOptionForLUT){
@@ -1218,105 +684,11 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 }
 
 void PndDrc::FinishPrimary(){
-
   if(fBarTrackStatus == 1){
     for(Int_t ibarp=0; ibarp<fDrcBarCollection->GetEntriesFast(); ibarp++){
       ((PndDrcBarPoint*)fDrcBarCollection->At(ibarp))->SetTrackStatus(1);
     }
   }
-  
-  //Lab 
-  if(fbLab){
-    gGeoManager->cd("/cave_1/AirBoxSensor_0/AirSensor_1/GlassSensor_1/AquaSensor_1/DrcLENS1Sensor_1");
-    const Double_t *tr = gGeoManager->GetCurrentMatrix()->GetRotationMatrix();
-    TGeoRotation *rm = new TGeoRotation();
-    rm->SetMatrix(tr);
-    Double_t aa1,aaPhi,aa3;
-    rm->GetAngles(aa1,aaPhi,aa3);
-    Int_t barcolsize = fDrcBarCollection->GetEntriesFast();
-    if (barcolsize!=16) return;
-
-    TVector3 ttmom, ttpos;
-    ((PndDrcBarPoint*)fDrcBarCollection->At(4))->Momentum(ttmom); 
-    ((PndDrcBarPoint*)fDrcBarCollection->At(4))->Position(ttpos);
-    ttmom = ttmom.Unit();
-    TVector3 head0 = ttpos;
-    TVector3 tail0 = head0 + 10.*ttmom;
-
-    ((PndDrcBarPoint*)fDrcBarCollection->At(12))->Momentum(ttmom); 
-    ((PndDrcBarPoint*)fDrcBarCollection->At(12))->Position(ttpos);
-    ttmom = ttmom.Unit();
-    TVector3 head1 = ttpos;
-    TVector3 tail1 = head1 + 10.*ttmom;
-
-    TVector3 dir0 = head0 - tail0;
-    TVector3 dir1 = head1 - tail1;
-    TVector3 diff = tail0 - tail1;
-
-    Double_t a = dir0.Dot(dir0);   //always >= 0
-    Double_t b = dir0.Dot(dir1);
-    Double_t c = dir1.Dot(dir1);   //always >= 0
-    Double_t d = dir0.Dot(diff);
-    Double_t e = dir1.Dot(diff);
-    Double_t f = a * c - b * b;    //always >= 0
-
-    Double_t sc,tc;
-
-    if(f<0.000001){                //The lines are almost parallel
-      sc = 0.;
-      tc = b > c ? d / b : e / c;  //Use the largest denominator
-    }else{
-      sc = (b * e - c * d) / f;
-      tc = (a * e - b * d) / f;
-    }
-
-    TVector3 point0 = tail0 + dir0 * sc;
-    TVector3 point1 = tail1 + dir1 * tc;
-    TVector3 point = 0.5*(point1+point1);
-    point.Print();
-    if(point.Z()>-15){
-      AddHit(0, 0, 0, point,  TVector3(0,0,0), TVector3(0,0,0),aaPhi, 0, 0, 0, 0); 
-    }else{
-      ((PndDrcBarPoint*)fDrcBarCollection->At(6))->Momentum(ttmom); 
-      ((PndDrcBarPoint*)fDrcBarCollection->At(6))->Position(ttpos);
-      ttmom = ttmom.Unit();
-      head0 = ttpos;
-      tail0 = head0 + 10.*ttmom;
-
-      ((PndDrcBarPoint*)fDrcBarCollection->At(14))->Momentum(ttmom); 
-      ((PndDrcBarPoint*)fDrcBarCollection->At(14))->Position(ttpos);
-      ttmom = ttmom.Unit();
-      head1 = ttpos;
-      tail1 = head1 + 10.*ttmom;
-
-      dir0 = head0 - tail0;
-      dir1 = head1 - tail1;
-      diff = tail0 - tail1;
-
-      a = dir0.Dot(dir0);   //always >= 0
-      b = dir0.Dot(dir1);
-      c = dir1.Dot(dir1);   //always >= 0
-      d = dir0.Dot(diff);
-      e = dir1.Dot(diff);
-      f = a * c - b * b;    //always >= 0
-
-     
-
-      if(f<0.000001){                //The lines are almost parallel
-	sc = 0.;
-	tc = b > c ? d / b : e / c;  //Use the largest denominator
-      }else{
-	sc = (b * e - c * d) / f;
-	tc = (a * e - b * d) / f;
-      }
-
-      point0 = tail0 + dir0 * sc;
-      point1 = tail1 + dir1 * tc;
-      point = 0.5*(point1+point1);
-      AddHit(0, 0, 0, point,  TVector3(0,0,0), TVector3(0,0,0),aaPhi, 0, 0, 0, 0); 
-    }
-  }
-
 }
 
 //------   Find Nubmer of Bounces     -----------------------------------------
@@ -1412,9 +784,9 @@ void PndDrc::FinishRun(){}
 
 // -----   Public method Register   -------------------------------------------
 void PndDrc::Register() {
-  FairRootManager::Instance()->Register("DrcBarPoint","Drc", fDrcBarCollection, kTRUE);
-  FairRootManager::Instance()->Register("DrcEVPoint","Drc", fDrcEVCollection, kTRUE);
-  FairRootManager::Instance()->Register("DrcPDPoint","Drc", fDrcPDCollection, kTRUE);
+  FairRootManager::Instance()->Register("DrcBarPoint","Drc", fDrcBarCollection, fPersistency);
+  FairRootManager::Instance()->Register("DrcEVPoint","Drc", fDrcEVCollection, fPersistency);
+  FairRootManager::Instance()->Register("DrcPDPoint","Drc", fDrcPDCollection, fPersistency);
 }
 
 // -----   Public method GetCollection   --------------------------------------

@@ -40,9 +40,8 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal() 
-:FairTask("PndDrcHitProducerIdeal")
+  :FairTask("PndDrcHitProducerIdeal"),fGeo(new PndGeoDrc()),fPersistency(kTRUE)
 {
-  fGeo = new PndGeoDrc();
   fVerbose=0;
 }
 // -------------------------------------------------------------------------
@@ -50,10 +49,9 @@ PndDrcHitProducerIdeal::PndDrcHitProducerIdeal()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose)
-  :FairTask("PndDrcHitProducerIdeal")
+  :FairTask("PndDrcHitProducerIdeal"),fGeo(new PndGeoDrc()),fPersistency(kTRUE)
 {
-  fVerbose = verbose;  
-  fGeo = new PndGeoDrc();
+  fVerbose=verbose;
 }
 // -------------------------------------------------------------------------
 
@@ -62,7 +60,6 @@ PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose)
 PndDrcHitProducerIdeal::~PndDrcHitProducerIdeal()
 {
   if (fGeo) delete fGeo;
-  
 }
 // -------------------------------------------------------------------------
 
@@ -91,7 +88,7 @@ InitStatus PndDrcHitProducerIdeal::Init()
 
    // Create and register output array
    fHitArray = new TClonesArray("PndDrcHit");
-   ioman->Register("DrcHit","Drc",fHitArray, kTRUE);
+   ioman->Register("DrcHit","Drc",fHitArray, fPersistency);
     
    cout << "-I- PndDrcHitProducerIdeal: Intialization successfull" << endl;
 

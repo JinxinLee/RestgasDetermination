@@ -123,7 +123,7 @@ class PndDrc : public FairDetector
   void SetOptionForLUT(Bool_t oplu=kFALSE){fOptionForLUT = oplu;}
      
   virtual void Initialize();
-
+  void SetPersistency(Bool_t v = kTRUE) { fPersistency = v; }
 
   /** Virtual method ProcessHits
    **
@@ -240,7 +240,8 @@ class PndDrc : public FairDetector
   //$$$$$$$$$$$$$$$$$$$$
   Int_t nphotons;
   //$$$$$$$$$$$$$$$$$$$$
-
+  
+  Bool_t fPersistency;
  
   // basic parameters of DIRC
   Double_t fpi;			//!
@@ -286,8 +287,6 @@ class PndDrc : public FairDetector
   Double_t       fVeloPhoton;
   
   // from Initialisation:
-  Double_t       fLambda[1000];
-  Double_t       fEfficiency[1000];
   Double_t       fEfficiencyR[1000]; 
   Int_t          fEVreflections;
   Int_t          fBarTrackStatus;
@@ -318,7 +317,6 @@ class PndDrc : public FairDetector
   Bool_t  	 fStopChargedTrackAfterDIRC;
   Bool_t	 fSetBlackLens; 
   Bool_t 	 fOptionForLUT;	
-  Bool_t         fbLab;
    
   TArrayI        fProc;
 
