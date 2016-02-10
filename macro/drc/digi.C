@@ -1,4 +1,4 @@
-void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=1, Double_t eventRate=50, Double_t deadTime=5){
+void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=0, Double_t eventRate=50, Double_t deadTime=5){
   Int_t verbose = 0;
   
   // -----   Timer   --------------------------------------------------------
@@ -29,7 +29,7 @@ void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.r
   rtdb->setFirstInput(parInput);
  
   // -----    DRC Digitization stage ----------------------------------------
-  PndDrcDigiTask* drcdigi = new PndDrcDigiTask(0);
+  PndDrcDigiTask* drcdigi = new PndDrcDigiTask(verbose);
   drcdigi->SetChargeSharing(kFALSE);
   drcdigi->SetDeadTime(deadTime); //5 ns
   drcdigi->SetTimeResolution(0.4); //0.4 ns
