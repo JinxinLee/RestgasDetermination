@@ -62,17 +62,19 @@ void PndSciTHitWriteoutBuffer::EraseDataFromDataMap(FairTimeStamp* data)
     fData_map.erase(fData_map.find(myData));
 }
 
-// Modify methode überschreiben falls Hits in der recovery time nich einfach ignoriert werden sollen sondern zu einem pile up etc. führen.
 
-/*
-std::vector<std::pair<double, FairTimeStamp*> > PndSdsDigiPixelWriteoutBuffer::Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData)
+
+std::vector<std::pair<double, FairTimeStamp*> > PndSciTHitWriteoutBuffer::Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData)
 {
   std::vector<std::pair<double, FairTimeStamp*> > result;
   std::pair<double, FairTimeStamp*> singleResult;
-  if (newData.first > 0)
-    singleResult.first = newData.first;
+
+  singleResult.first = oldData.first;
   singleResult.second = oldData.second;
-  ((PndSdsDigiPixel*)singleResult.second)->AddCharge(((PndSdsDigiPixel*)newData.second)->GetCharge());
+  ((PndSciTHit*)singleResult.second)->AddCharge(((PndSciTHit*)newData.second)->GetCharge());
+
+
+
   if (fVerbose > 0){
     std::cout << "Modify hit" << std::endl;
     std::cout << "OldData: " << oldData.first << " : " << oldData.second << " NewData: " << newData.first << " : " << newData.second << std::endl;
@@ -82,4 +84,4 @@ std::vector<std::pair<double, FairTimeStamp*> > PndSdsDigiPixelWriteoutBuffer::M
   result.push_back(singleResult);
   return result;
 }
-*/
+

@@ -28,6 +28,7 @@ PndSciTHitProducerIdeal::PndSciTHitProducerIdeal() :
 {
 	fInBranchName 	= "SciTPoint";
 	fGeoH =  NULL;
+	fPersistence = kTRUE;
 
 }
 // -------------------------------------------------------------------------
@@ -38,6 +39,7 @@ PndSciTHitProducerIdeal::PndSciTHitProducerIdeal(Double_t dt) :
 {
 	fInBranchName 	= "SciTPoint";
 	fGeoH =  NULL;
+	fPersistence = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -70,7 +72,7 @@ InitStatus PndSciTHitProducerIdeal::Init()
   }
 
   // Create and register output array
-  fHitArray = ioman->Register("SciTHit", "PndSciTHit", "SciT", kTRUE);
+  fHitArray = ioman->Register("SciTHit", "PndSciTHit", "SciT", fPersistence);
 
   std::cout << "-I- PndSciTHitProducerIdeal: Intialisation successfull" << std::endl;
   return kSUCCESS;

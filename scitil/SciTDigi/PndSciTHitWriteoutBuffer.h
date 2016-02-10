@@ -31,9 +31,8 @@ public:
 
 	virtual void EraseDataFromDataMap(FairTimeStamp* data);
 
-//	virtual std::vector<std::pair<double, FairTimeStamp*> > Modify(std::pair<double,        	FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData);
+	virtual std::vector<std::pair<double, FairTimeStamp*> > Modify(std::pair<double,        	FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData);
 
-// Modify methode überschreiben falls Hits in der recovery time nich einfach ignoriert werden sollen sondern zu einem pile up etc. führen.
 
 protected:	
 

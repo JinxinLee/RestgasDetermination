@@ -51,7 +51,7 @@ void create_scit_rootgeo_noGaps(Double_t distance = 750){
   //check PndSciT.h and PndSciT.cxx and the listofsensitives 
 
   TGeoTube* TileShape;
-  TileShape = new TGeoTube("SciTil_logicTile", 50.3, 50.8, 89.925.);// dimension is always given from the mid to the end e.g. only the half length
+  TileShape = new TGeoTube("SciTil_logicTile", 50.3, 50.8, 90.);// dimension is always given from the mid to the end e.g. only the half length
 
   TGeoVolume* TileVol;
   TileVol = new TGeoVolume("SciTil_SENSOR",TileShape, gGeoMan->GetMedium("polyvinyltoluene"));

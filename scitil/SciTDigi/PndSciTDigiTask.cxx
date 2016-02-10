@@ -33,7 +33,7 @@ PndSciTDigiTask::PndSciTDigiTask() :
 
 	fTimeOrderedDigi = kFALSE;
 	fActivateBuffering = kTRUE;
-	fPersistance = kTRUE;
+	fPersistence = kTRUE;
 
 	fGeoH =  NULL;
 
@@ -54,7 +54,7 @@ PndSciTDigiTask::PndSciTDigiTask(Double_t dt, Double_t deadtime) :
 
 	fTimeOrderedDigi = kFALSE;
 	fActivateBuffering = kTRUE;
-	fPersistance = kTRUE;
+	fPersistence = kTRUE;
 
 	fGeoH =  NULL;
 
@@ -98,7 +98,7 @@ InitStatus PndSciTDigiTask::Init()
 
   //time and event based simulation:
   // fDataBuffer = new PndSciTHitWriteoutBuffer(fOutBranchName, fFolderName", fPersistance);
-  fDataBuffer = new PndSciTHitWriteoutBuffer(fOutBranchName, "SciT", fPersistance);
+  fDataBuffer = new PndSciTHitWriteoutBuffer(fOutBranchName, "SciT", fPersistence);
   fDataBuffer = (PndSciTHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer(fOutBranchName, fDataBuffer);
   fDataBuffer->ActivateBuffering(fActivateBuffering);// Buffering always activated to handle the Pile up in Event and Time based Version
 

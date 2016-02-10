@@ -57,8 +57,8 @@ class PndSciTDigiTask : public FairTask
   
   void SetBuffering(Bool_t B) {fActivateBuffering=B;};
   
-  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
-  Bool_t GetPersistance() {return fPersistance;}; 
+  void SetPersistence(Bool_t p = kTRUE) {fPersistence=p;};
+  Bool_t GetPersistence() {return fPersistence;}; 
 
 
   /** Virtual method Exec **/
@@ -85,7 +85,7 @@ class PndSciTDigiTask : public FairTask
 
   Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
   Bool_t fActivateBuffering;       // set to kFALSE to deaktivate Buffering and PileUP
-  Bool_t fPersistance;
+  Bool_t fPersistence;
 
   void Register(); 
   void Reset();

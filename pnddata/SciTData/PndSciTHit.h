@@ -67,6 +67,7 @@ class PndSciTHit : public FairHit
 
   void SetDetName(TString name){fDetName = name;};
   void SetCharge(Double_t charge){fCharge = charge;};
+  void AddCharge(double charge){fCharge += charge;}
 
   void SetSiPm1(Double_t sipm1){fSiPm1 = sipm1;};
   void SetDSiPm1(Double_t dsipm1){fDSiPm1 = dsipm1;};
