@@ -337,8 +337,8 @@ Int_t PndGemTrackFinderOnHitsTB::CreateTracks(TClonesArray* hitArray,
     meanPhi[itr] = meanPhi[itr]/nofTS[itr];
     meanThe[itr] = meanThe[itr]/nofTS[itr];
 
-    gemTrackCand = new PndTrackCand();
-
+    gemTrackCand = new((*trackCandArray)[nofCreatedTracks]) PndTrackCand();
+    
     //    cout << "TRACK----------------------------------" << endl;
 
     Double_t sumZ   = 0.;
@@ -388,34 +388,26 @@ Int_t PndGemTrackFinderOnHitsTB::CreateTracks(TClonesArray* hitArray,
       mom.SetY(-mom.Y());
     }
 
-    FairTrackParP*	    firstPar = new FairTrackParP(pos,mom,
-							 TVector3(0.5, 0.5, 0.5),
-							 0.1*mom,
-							 charge,
-							 pos,
-							 TVector3(1.,0.,0.),
-							 TVector3(0.,1.,0.));					 
-    FairTrackParP*	    lastPar = new FairTrackParP(pos,mom,
-							TVector3(0.5,0.5,0.5),//tempMom[0],tempMom[1],tempMom[2]),
-							 0.1*mom,
-							 charge,
-							 pos,
-							 TVector3(1.,0.,0.),
-							 TVector3(0.,1.,0.));					 
+    FairTrackParP	    firstPar(pos,mom,
+				     TVector3(0.5, 0.5, 0.5),
+				     0.1*mom,
+				     charge,
+				     pos,
+				     TVector3(1.,0.,0.),
+				     TVector3(0.,1.,0.));					 
+    FairTrackParP	    lastPar (pos,mom,
+				     TVector3(0.5,0.5,0.5),//tempMom[0],tempMom[1],tempMom[2]),
+				     0.1*mom,
+				     charge,
+				     pos,
+				     TVector3(1.,0.,0.),
+				     TVector3(0.,1.,0.));					 
     //    cout << "q = " << firstPar->GetQ() << endl;
 //      TClonesArray &pndtracks = *trackArray;
 //      Int_t size = pndtracks.GetEntriesFast();
 //      PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
-    new((*trackArray)[nofCreatedTracks]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
+    new((*trackArray)[nofCreatedTracks]) PndTrack(firstPar, lastPar, *gemTrackCand);
     
-    PndTrackCand* trackCand = new((*trackCandArray)[nofCreatedTracks]) PndTrackCand();
-    for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
-      tcHit = gemTrackCand->GetSortedHit(ihit);  
-      trackCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),
-			tcHit.GetHitId(),tcHit.GetRho());
-      //      trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
-    }
-
     /*    PndTrack* checkTrack = (PndTrack*) trackArray->At(nofCreatedTracks);
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;

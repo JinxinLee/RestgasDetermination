@@ -1296,26 +1296,26 @@ Int_t  PndBarrelTrackFinder::WriteTracks() {
 //     }
 //     cout << endl;
 
-    FairTrackParP*	    firstPar = new FairTrackParP(trackPosition,trackMomentum,
-							 TVector3(0.5, 0.5, 0.5),
-							 0.1*trackMomentum,
-							 calcChg,
-							 trackPosition,
-							 TVector3(1.,0.,0.),
-							 TVector3(0.,1.,0.));					 
+    FairTrackParP	    firstPar(trackPosition,trackMomentum,
+				     TVector3(0.5, 0.5, 0.5),
+				     0.1*trackMomentum,
+				     calcChg,
+				     trackPosition,
+				     TVector3(1.,0.,0.),
+				     TVector3(0.,1.,0.));					 
     TVector3 tempVect1(trackHitsPerDet[0],trackHitsPerDet[1],trackHitsPerDet[2]);
     TVector3 tempVect2(trackHitsPerDet[3],-1.,-1.); 
-
-    //    FairTrackParP*	    lastPar = new FairTrackParP(trackPosition,trackMomentum,
-    FairTrackParP*	    lastPar = new FairTrackParP(tempVect1,tempVect2,
-							TVector3(0.5, 0.5, 0.5),
-							0.1*trackMomentum,
-							calcChg,
-							trackPosition,
-							TVector3(1.,0.,0.),
-							TVector3(0.,1.,0.));					 
     
-    new((*fBarrelTrackArray)[nofCreatedTracks]) PndTrack(*firstPar,*lastPar,*trackCand);
+    //    FairTrackParP*	    lastPar = new FairTrackParP(trackPosition,trackMomentum,
+    FairTrackParP	    lastPar (tempVect1,tempVect2,
+				     TVector3(0.5, 0.5, 0.5),
+				     0.1*trackMomentum,
+				     calcChg,
+				     trackPosition,
+				     TVector3(1.,0.,0.),
+				     TVector3(0.,1.,0.));					 
+    
+    new((*fBarrelTrackArray)[nofCreatedTracks]) PndTrack(firstPar,lastPar,*trackCand);
 
     nofCreatedTracks++;
 

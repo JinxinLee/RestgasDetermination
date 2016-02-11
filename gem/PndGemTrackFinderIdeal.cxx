@@ -236,7 +236,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     }
     if ( !hitMap[iMCTrack] ) continue;
 
-    gemTrackCand = new PndTrackCand();//(PndTrackCand*) trackArray->At(nofCreatedTracks);
+    gemTrackCand = new((*trackCandArray)[nTracks]) PndTrackCand();
 
     // Loop over hits. Get corresponding MCPoint and MCTrack index
     for(Int_t iHit = 0; iHit < nGemHits; iHit++) {
@@ -300,32 +300,22 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
 
 //     gemTrackCand->setMcTrackId(iMCTrack);
 
-    FairTrackParP*	    firstPar = new FairTrackParP(pos,mom,
-							 TVector3(0.5, 0.5, 0.5),
-							 0.1*mom,
-							 (Int_t)charge,
-							 pos,
-							 TVector3(1.,0.,0.),
-							 TVector3(0.,1.,0.));					 
-    FairTrackParP*	    lastPar = new FairTrackParP(pos,mom,
-							 TVector3(0.5, 0.5, 0.5),
-							 0.1*mom,
-							 (Int_t)charge,
-							 pos,
-							 TVector3(1.,0.,0.),
-							 TVector3(0.,1.,0.));					 
-
-    new((*trackArray)[nTracks]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
-
-    PndTrackCand* trackCand = new((*trackCandArray)[nTracks]) PndTrackCand();
-    for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) {
-      tcHit = gemTrackCand->GetSortedHit(ihit);  
-      trackCand->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),
-			tcHit.GetHitId(),tcHit.GetRho());
-//       trackCand->setMcTrackId(gemTrackCand->getMcTrackId());
-    }
-
-    gemTrack = (PndTrack*) trackArray->At(nTracks);
+    FairTrackParP	    firstPar(pos,mom,
+				     TVector3(0.5, 0.5, 0.5),
+				     0.1*mom,
+				     (Int_t)charge,
+				     pos,
+				     TVector3(1.,0.,0.),
+				     TVector3(0.,1.,0.));					 
+    FairTrackParP	    lastPar (pos,mom,
+				     TVector3(0.5, 0.5, 0.5),
+				     0.1*mom,
+				     (Int_t)charge,
+				     pos,
+				     TVector3(1.,0.,0.),
+				     TVector3(0.,1.,0.));					 
+    
+    gemTrack = new((*trackArray)[nTracks]) PndTrack(firstPar, lastPar, *gemTrackCand);
     
     gemTrack->SetRefIndex(iMCTrack);
 
