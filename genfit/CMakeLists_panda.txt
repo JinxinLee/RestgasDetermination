@@ -17,7 +17,7 @@ ${ROOT_LIBRARY_DIR}
 
 link_directories( ${LINK_DIRECTORIES})
 
-set(GENFIT_SRCS GFAbsRecoHit.cxx GFAbsTrackRep.cxx GFBookkeeping.cxx
+Set(SRCS GFAbsRecoHit.cxx GFAbsTrackRep.cxx GFBookkeeping.cxx
 GFDetPlane.cxx GFException.cxx GFKalman.cxx GFPlanarHitPolicy.cxx
 GFRecoHitFactory.cxx GFRecoHitProducer.cxx GFSpacepointHitPolicy.cxx
 GFTools.cxx GFTrackCand.cxx GFTrack.cxx GFWireHitPolicy.cxx
@@ -26,25 +26,11 @@ GFAbsFinitePlane.cxx GFRectFinitePlane.cxx
 GFDaf.cxx GFDafHit.cxx
 GFMaterialEffects.cxx GFTrackProximity.cxx)
 
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${GENFIT_SRCS}" "${INCLUDE_DIRECTORIES}" GENFIT_RULES)
-endif(RULE_CHECKER_FOUND)
+CHANGE_FILE_EXTENSION(*.cxx *.h HEADERS "${SRCS}")
 
-# fill list of header files from list of source files
-# by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h GENFIT_HEADERS "${GENFIT_SRCS}")
+Set(LINKDEF  genfitLinkDef.h)
+Set(LIBRARY_NAME genfit)
 
-set(GENFIT_LINKDEF  genfitLinkDef.h)
-set(GENFIT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/genfitDict.cxx) 
+Set(HEADERS GFRecoHitIfc.h ${HEADERS})
 
-SET(GENFIT_HEADERS GFRecoHitIfc.h ${GENFIT_HEADERS})
-
-ROOT_GENERATE_DICTIONARY("${GENFIT_HEADERS}" "${GENFIT_LINKDEF}" "${GENFIT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-
-SET(GENFIT_SRCS ${GENFIT_SRCS} ${GENFIT_DICTIONARY})
-
-add_library(genfit SHARED ${GENFIT_SRCS})
-target_link_libraries(genfit ${ROOT_LIBRARIES})
-set_target_properties(genfit PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-################ install ###################
-install(TARGETS genfit DESTINATION ${CMAKE_BINARY_DIR}/lib)
+GENERATE_LIBRARY()

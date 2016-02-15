@@ -10,7 +10,8 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES 
   ${CMAKE_SOURCE_DIR}/genfit2
-  #{CMAKE_SOURCE_DIR}/genfit/test
+  ${CMAKE_SOURCE_DIR}/genfit2/core/include
+  ${CMAKE_SOURCE_DIR}/genfit2/fitters/include
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -195,9 +196,6 @@ set(GENFIT_HEADERS
   ./fields/include/ConstField.h
 )
 
-#set(GENFIT_LINKDEF  genfitLinkDef.h)
-#set(GENFIT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/genfitDict.cxx) 
-
 
 SET(CORE_DICTIONARY_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/core/include/AbsFinitePlane.h
@@ -221,29 +219,27 @@ SET(CORE_DICTIONARY_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/finitePlanes/include/RectangularFinitePlane.h
 )
 
-
-
-#SET(GENFIT_SRCS ${GENFIT_SRCS} ${GENFIT_DICTIONARY} ${INCLUDE_DIRECTORIES} )
 SET(GENFIT_SRCS ${GENFIT_SRCS} ${INCLUDE_DIRECTORIES} )
 
-ROOT_GENERATE_DICTIONARY("${CORE_DICTIONARY_SOURCES}"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/core/src/coreLinkDef.h"
-                         "${CMAKE_CURRENT_BINARY_DIR}/coreRootDict.cxx"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/core/include"
-)
-                         
+Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/core/src/coreLinkDef.h)
+Set(HDRS ${CORE_DICTIONARY_SOURCES})
+Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/coreRootDict.cxx)
+
+ROOT_GENERATE_DICTIONARY()
+
 SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/coreRootDict.cxx" "${library_sources}")
 
 
 SET(EVENTDISPLAY_DICTIONARY_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/include/EventDisplay.h
 )
-ROOT_GENERATE_DICTIONARY("${EVENTDISPLAY_DICTIONARY_SOURCES}"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/src/eventDisplayLinkDef.h"
-                         "${CMAKE_CURRENT_BINARY_DIR}/eventDisplayRootDict.cxx"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/fitters/include;${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/include"
-)
-                        
+
+Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/src/eventDisplayLinkDef.h)
+Set(HDRS ${EVENTDISPLAY_DICTIONARY_SOURCES})
+Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/eventDisplayRootDict.cxx)
+
+ROOT_GENERATE_DICTIONARY()
+
 SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/eventDisplayRootDict.cxx" "${library_sources}")
 
 
@@ -260,12 +256,12 @@ SET(FITTERS_DICTIONARY_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/DAF.h
 )
 
+Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/fitters/src/fittersLinkDef.h)
+Set(HDRS ${FITTERS_DICTIONARY_SOURCES})
+Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/fittersRootDict.cxx)
 
-ROOT_GENERATE_DICTIONARY("${FITTERS_DICTIONARY_SOURCES}"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/fitters/src/fittersLinkDef.h"
-                         "${CMAKE_CURRENT_BINARY_DIR}/fittersRootDict.cxx"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/fitters/include"
-)
+ROOT_GENERATE_DICTIONARY()
+
 SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/fittersRootDict.cxx" "${library_sources}")
 
 
@@ -285,59 +281,29 @@ SET(MEASUREMENTS_DICTIONARY_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/WirePointMeasurement.h
   ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/WireTrackCandHit.h
 )
-ROOT_GENERATE_DICTIONARY("${MEASUREMENTS_DICTIONARY_SOURCES}"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/measurements/src/measurementsLinkDef.h"
-                         "${CMAKE_CURRENT_BINARY_DIR}/measurementsRootDict.cxx"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/measurements/include"
-)
+
+Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/measurements/src/measurementsLinkDef.h)
+Set(HDRS ${MEASUREMENTS_DICTIONARY_SOURCES})
+Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/measurementsRootDict.cxx)
+
+ROOT_GENERATE_DICTIONARY()
+
 SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/measurementsRootDict.cxx" "${library_sources}")
 
 SET(TRACKREPS_DICTIONARY_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/trackReps/include/RKTrackRep.h
 )
 
+Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/trackReps/src/trackRepsLinkDef.h)
+Set(HDRS ${TRACKREPS_DICTIONARY_SOURCES})
+Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/trackRepsRootDict.cxx)
 
-ROOT_GENERATE_DICTIONARY("${TRACKREPS_DICTIONARY_SOURCES}"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/trackReps/src/trackRepsLinkDef.h"
-                         "${CMAKE_CURRENT_BINARY_DIR}/trackRepsRootDict.cxx"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/trackReps/include"
-)
+ROOT_GENERATE_DICTIONARY()
+
 SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/trackRepsRootDict.cxx" "${library_sources}")
-
-
-#SET(UTILITIES_DICTIONARY_SOURCES
-#  ${CMAKE_CURRENT_SOURCE_DIR}/utilities/include/HelixTrackModel.h
-#  ${CMAKE_CURRENT_SOURCE_DIR}/utilities/include/MeasurementCreator.h
-#  ${CMAKE_CURRENT_SOURCE_DIR}/utilities/include/mySpacepointDetectorHit.h
-#  ${CMAKE_CURRENT_SOURCE_DIR}/utilities/include/mySpacepointMeasurement.h
-#)
-#ROOT_GENERATE_DICTIONARY("${UTILITIES_DICTIONARY_SOURCES}"
-#                         "${CMAKE_CURRENT_SOURCE_DIR}/core/include;${CMAKE_CURRENT_SOURCE_DIR}/utilities/include;${CMAKE_CURRENT_SOURCE_DIR}/measurements/include"
-#                         "${CMAKE_CURRENT_SOURCE_DIR}/utilities/src/utilitiesLinkDef.h"
-#                         "${CMAKE_CURRENT_BINARY_DIR}/utilitiesRootDict.cxx")
-#SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/utilitiesRootDict.cxx" "${library_sources}")
 
 set(DEPENDENCIES  ${ROOT_LIBS})
 
-#set(LIBRARY_NAME genfit2)
-
-#GENERATE_LIBRARY()
-#MESSAGE(${library_sources})
-#MESSAGE(${GENFIT_SRCS})
 add_library(genfit2 SHARED ${library_sources} ${GENFIT_SRCS})
 target_link_libraries(genfit2 ${ROOT_LIBRARIES} -lEve)
 set_target_properties(genfit2 PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES} LINKER_LANGUAGE CXX)
-
-#add_library(genfit SHARED ${GENFIT_SRCS})
-#TARGET_LINK_LIBRARIES(genfit ${ROOT_LIBRARIES})
-#set_target_properties(genfit PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
-
-#install(TARGETS genfit DESTINATION ${CMAKE_BINARY_DIR}/lib)
-#INSTALL( TARGETS ${PROJECT_NAME} DESTINATION lib )
-#ADD_CUSTOM_TARGET( tests )
-
-#MACRO( ADD_GENFIT_TEST _testname )
- #  ADD_EXECUTABLE( ${_testname} EXCLUDE_FROM_ALL ${ARGN} )
- #  ADD_DEPENDENCIES( tests  ${_testname} )
-#   TARGET_LINK_LIBRARIES( ${_testname} ${PROJECT_NAME}  )
-
