@@ -32,10 +32,13 @@ void Config()
    TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
    cout << "Geant4 has been created." << endl;
 
+  geant4->ProcessGeantCommand("/optics_engine/selectOpProcess Cerenkov");
+  geant4->ProcessGeantCommand("/optics_engine/setTrackSecondariesFirst false");
+
 /// create the Specific stack
    PndStack *stack = new PndStack(1000); 
    stack->StoreSecondaries(kTRUE);
-   stack->SetMinPoints(1);
+   stack->SetMinPoints(2);
    geant4->SetStack(stack);
 
    if(FairRunSim::Instance()->IsExtDecayer()){
