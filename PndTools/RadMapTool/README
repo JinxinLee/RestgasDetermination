@@ -1,0 +1,75 @@
+#Karoly Makonyi 12/20/14
+
+sim_radmap.exe   - full simulation of p-p-bar event with DPM event generator
+                   usage: [path-to-the-executable]/sim_rad.exe -o [name of the outout file [blablabla.root]]\
+                                                               -n [number of events to simulate [2]]\
+                                                               -t [used tracker [Geant4]]
+                   It have to be compiled via 'make all' or 'make sim_radmap.exe'
+
+Mesh             - The class that is used to make the maps.
+                   For examples, how to use it, see the plot_radmap.C file
+                   It also have to be compiled together with the plot_radmap.exe.
+
+plot_radmap.exe  - The code that demonstrates the abilities of the Mesh class.
+                   It produces the 'RadMap_Out.root' file where the required histos are stored.
+                   It have to be compiled via 'make plot_radmap.exe'
+histodivider.C   - It calculates the quantities for the one year nominal run (rescales the histos)
+                   and removes the low-statistic bins.
+                   The output of this code is 'figures.pdf'.
+                   This is a root-interpreted file
+                   (runs from root-prompt via
+                   .L histodivider.C;
+                   main();)
+Makefile         - The Makefile produces the executables
+                   'make all' or 'make sim_radmap.exe' makes the simulation code.
+                   'make plot_radmap.exe' produces the plotter code
+Makefile.Panda   - contains header and lib directories (supposed to be correct
+                   but it may require some hand-pimping).
+dirmaker.sh      - produces 10x10x10 disrectories (this is the
+                   directory-structure that I used
+                   [see /hera/panda/makonyi/Work/FieldSimu/SimulationMacros/Geant[3,4].15GeV])
+job_submit.sh    - Sends the jobs (sinulation or plot_radmap.exe)to the cluster.
+                   Presently this script is pretty dumb and can only process
+                   the files in a directory structure which was created by the
+                   dirmaker.sh. But it                   
+                   - runs the simulation  in every directory
+                   or
+                   - runs the plot_radmap.exe in every directory
+                   - 'hadd's the resulting files
+
+
+Workflow:
+---------------------------- This have to be made once ----------------
+- Edit the Makefile.Panda, set the correct 
+    PANDADIR (where the PandaROOT source can be found), the 
+    FAIRPATH (where the FairROOT includes can be found) and the 
+    PANDAPATH (where the compiled PandaROOT can be found.
+- Make a directory
+       where the data will be stored, for example
+  'mkdir Data'.
+- Go to this directory:
+  'cd Data'.
+- Copy the 'dirmaker.sh'
+       to this directory:
+  'cp ../dirmaker.sh .'
+- Run it:
+  './dirmaker.sh'
+  -> This will take some time, but finally the director structures (1000
+     directories) will be produced
+- go up by directory:
+  'cd ..'
+- run the simulation
+  'job_submit.sh -s -b Data -n 100'
+       this will run 100 events in one job, and will run a separated job
+       for every directory (1000) in the 'Data' (produced by the 'dirmaked')
+       parallel, using the cluster ... some output will be produced
+
+---------------------------- This can be made several times ----------------
+- run the 'plot_radmap.exe'
+  'job_submit.sh -a -b Data'
+       this will run 'plot_radmap.exe' on every simulated files in the 'Data'
+       directory parallel, using the cluster ... some output will be produced.
+       If every simulated files are processed the results will be added into
+       one file (RadMap_Out_Final_Geant4.15GeV.root).
+- rescale the results to one nominal year operation
+  run the histodivider.C
