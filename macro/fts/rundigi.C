@@ -56,6 +56,7 @@
   std::cout<<"AAAAAAAAAAAAAA "<<std::endl;
   fRun->Init();
   std::cout<<"AAAAAAAAAAAAAA "<<std::endl;
+  nEvents=1;
   fRun->Run(0, nEvents);
   // ------------------------------------------------------------------------
 

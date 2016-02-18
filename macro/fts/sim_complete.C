@@ -83,49 +83,49 @@ sim_complete(Int_t nEvents = 1000, TString  SimEngine ="TGeant3", Float_t mom = 
   Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
   //-------------------------  STT       -----------------
-  FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  fRun->AddModule(Stt);
-  //-------------------------  MVD       -----------------
-  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-  fRun->AddModule(Mvd);
+  //FairDetector *Stt= new PndStt("STT", kTRUE);
+  //Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  //fRun->AddModule(Stt);
+   //-------------------------  MVD       -----------------
+  //FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  //Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+  //fRun->AddModule(Mvd);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations_Tube.root");
   fRun->AddModule(Gem);
   //-------------------------  EMC       -----------------
-  PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryVersion(1);
-  Emc->SetStorageOfData(kFALSE);
-  fRun->AddModule(Emc);
+  //PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  //Emc->SetGeometryVersion(1);
+  //Emc->SetStorageOfData(kFALSE);
+  //fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
-  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
-  fRun->AddModule(SciT);
+  //FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  //SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  //fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
-  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
-  Drc->SetRunCherenkov(kFALSE);
-  fRun->AddModule(Drc); 
+  //PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  //Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
+  //Drc->SetRunCherenkov(kFALSE);
+  //fRun->AddModule(Drc); 
   //-------------------------  DISC      -----------------
-  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
-  Dsk->SetStoreCerenkovs(kFALSE);
-  Dsk->SetStoreTrackPoints(kFALSE);
-  fRun->AddModule(Dsk);
+  //PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  //Dsk->SetStoreCerenkovs(kFALSE);
+  //Dsk->SetStoreTrackPoints(kFALSE);
+  //fRun->AddModule(Dsk);
   //-------------------------  MDT       -----------------
-  PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetBarrel("fast");
-  Muo->SetEndcap("fast");
-  Muo->SetMuonFilter("fast");
-  Muo->SetForward("fast");
-  Muo->SetMdtMagnet(kTRUE);
-  Muo->SetMdtCoil(kTRUE);
-  Muo->SetMdtMFIron(kTRUE);
-  fRun->AddModule(Muo);
+  //PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  //Muo->SetBarrel("fast");
+  //Muo->SetEndcap("fast");
+  //Muo->SetMuonFilter("fast");
+  //Muo->SetForward("fast");
+  //Muo->SetMdtMagnet(kTRUE);
+  //Muo->SetMdtCoil(kTRUE);
+  //Muo->SetMdtMFIron(kTRUE);
+  //fRun->AddModule(Muo);
   //-------------------------  FTS       -----------------
   FairDetector *Fts= new PndFts("FTS", kTRUE);
-  Fts->SetGeometryFileName("fts.geo");
+  Fts->SetGeometryFileName("fts_reduced.geo");
   fRun->AddModule(Fts); 
   //-------------------------  FTOF      -----------------
   FairDetector *FTof = new PndFtof("FTOF",kTRUE);
@@ -188,8 +188,8 @@ sim_complete(Int_t nEvents = 1000, TString  SimEngine ="TGeant3", Float_t mom = 
 
  // EMC Hit producer
   //-------------------------------
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd);
+  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  //fRun->AddTask(emcHitProd);
  
   //-------------------------- switch on the vis manager-----------
   fRun->SetStoreTraj(kTRUE);

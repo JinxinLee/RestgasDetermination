@@ -1,4 +1,4 @@
-run_sim(Int_t nEvents=100, Int_t pid=13, Float_t p1=5.0, Float_t p2=-1){
+run_sim(Int_t nEvents=3, Int_t pid=13, Float_t p1=5.0, Float_t p2=-1){
   //2212 proton                                        
   TStopwatch timer;
   timer.Start();
@@ -37,7 +37,7 @@ run_sim(Int_t nEvents=100, Int_t pid=13, Float_t p1=5.0, Float_t p2=-1){
   fRun->AddModule(Cave);
 
   FairDetector *Fts= new PndFts("FTS", kTRUE);
-  Fts->SetGeometryFileName("fts.geo");
+  Fts->SetGeometryFileName("fts_reduced.geo");
   fRun->AddModule(Fts);
 
  // Create and Set Event Generator
