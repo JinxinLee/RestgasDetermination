@@ -1,11 +1,10 @@
-#ifndef __MESH_HH__
-#define __MESH_HH__ 
+#ifndef __PndRadMapMESH_HH__
+#define __PndRadMapMESH_HH__ 1
 #include <TH2D.h>
 #include <TROOT.h>
 #include <TFormula.h>
 #include <TMatrixD.h>
-/* #include <TVector4.h> */
-#include <FairRadMapPoint.h>
+#include "FairRadMapPoint.h"
 
 
 enum axis{Xx=1, Yy=2, Zz=3}; 
@@ -17,44 +16,24 @@ struct Corner{
   TVector3 corner2;
   TVector3 corner3;
 };
+void InvMatVecProd(TMatrixD mat, TVector3 vec, TVector3& res);
 
-class Plane {
- private:
-  TVector3 normal;
-  TVector3 corner1;
-  TVector3 corner2;
-  TVector3 corner3;
-  double distance;
+
+class PndRadMapBoxMesh{
  public:
-  Plane(TVector3 _corner1, TVector3 _corner2, TVector3 _corner3, double dist = 0);
-  Plane();
-  TVector3 LineIntersection(TVector3 begline, TVector3 endline);
-  void SetNormal(TVector3 n){normal = n;};
-  void SetDistance(double d){distance = d;};
-  TVector3 GetCorner(int i);
-  TVector3 Corner1(){return corner1;};
-  TVector3 Corner2(){return corner2;};
-  TVector3 Corner3(){return corner3;};
-  TVector3 Distance(){return distance;};
-  TVector3 Normal(){return normal;};
-};
-
-
-class BoxMesh{
- public:
-  BoxMesh();
-  BoxMesh(BoxMesh& m);//copy cons
-  BoxMesh(const char* Name,
+  PndRadMapBoxMesh(){};
+  PndRadMapBoxMesh(PndRadMapBoxMesh& m);//copy cons
+  PndRadMapBoxMesh(const char* Name,
           int Xbins, Double_t Xlow, Double_t Xhigh,
           int Ybins, Double_t Ylow, Double_t Yhigh,
           int Zbins, Double_t Zlow, Double_t Zhigh);
-  BoxMesh(const char* name,
+  PndRadMapBoxMesh(const char* name,
           int xbins, Double_t xlow, Double_t xhigh,
           int ybins, Double_t ylow, Double_t yhigh,
           Double_t zlow, Double_t zhigh,
           orientation plane = ZX,
           quantity Quantity=Edep);
-  ~BoxMesh();
+  ~PndRadMapBoxMesh();
 
 
   void SetFilter(const char* filter);
@@ -107,6 +86,7 @@ class BoxMesh{
   /* UInt_t    oldId; */
   /* Double_t _Xold, _Yold, _Zold; */
   TFormula _filter;
+  //ClassDef(PndRadMapBoxMesh,1); // Class for PndSds
 };
 
 
@@ -158,6 +138,5 @@ class BoxMesh{
 /*        int Phibins, Double_t Philow, Double_t Phihigh);//going from 0 to 2pi */
 /*   //default values World mins, and maxs */
 /* }; */
-void InvMatVecProd(TMatrixD mat, TVector3 vec, TVector3& res);
 
 #endif

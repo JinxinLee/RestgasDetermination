@@ -18,10 +18,10 @@
 #include <cmath>
 
 //for the units
-#include <G4PhysicalConstants.hh>
-#include <G4SystemOfUnits.hh>
+//#include <G4PhysicalConstants.hh>
+//#include <G4SystemOfUnits.hh>
 
-#include "Mesh.h"
+#include "PndRadMapBoxMesh.h"
 
 #endif
 using namespace std;
@@ -365,10 +365,10 @@ void plot_radmap(Long64_t nevreq,
   // EnergyFPXY->SetQuantity(Edep);
   // EnergyFPXY->SetOrientation(XY);
 
-  BoxMesh* fluence = new BoxMesh("fluence",
-                                 10, 0.,10.,
-                                 14, 16, 30,
-                                 1,208.5,209.5);
+  PndRadMapBoxMesh* fluence = new PndRadMapBoxMesh("fluence",
+						   10, 0.,10.,
+						   14, 16, 30,
+						   1,208.5,209.5);
   fluence->SetQuantity(Fluence);
   // fluence->SetFilter("(Pid==2212)");
   fluence->SetFilter("(Pid==1)");

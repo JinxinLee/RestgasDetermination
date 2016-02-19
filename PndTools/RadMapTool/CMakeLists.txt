@@ -1,3 +1,4 @@
+
 # Create a library called "libRadMapTool" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
@@ -9,7 +10,7 @@
 Set(SYSTEM_INCLUDE_DIRECTORIES 
   ${SYSTEM_INCLUDE_DIRECTORIES}
   ${CLHEP_INCLUDE_DIR}
-  ${GEANT4_INCLUDE_DIR}
+  #${GEANT4_INCLUDE_DIR}
   ${BASE_INCLUDE_DIRECTORIES}
   )
 
@@ -67,17 +68,20 @@ Include_Directories(SYSTEM ${SYSTEM_INCLUDE_DIRECTORIES})
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
+${SIMPATH}/lib
 ${CLHEP_LIBRARY_DIR}
-${GEANT4_LIBRARY_DIR}
+#${GEANT4_LIBRARY_DIR}
 ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 link_directories( ${LINK_DIRECTORIES})
 
-set(RADMAP_SRCS
- Mesh.cpp
+set(SRCS
+ #Mesh.cpp
+ PndRadMapPlane.cxx
+ PndRadMapBoxMesh.cxx
 )
-set(LINKDEF  RadMapLinkDef.h)
+set(LINKDEF RadMapLinkDef.h)
 set(LIBRARY_NAME RadMapTool)
 
 set(DEPENDENCIES Base GeoBase ParBase MathCore MathMore)
@@ -85,17 +89,21 @@ set(DEPENDENCIES Base GeoBase ParBase MathCore MathMore)
 
 GENERATE_LIBRARY()
 
-set(RADMAP_EXE_SRCS
- sim_radmap.C
-)
+set(MYG4LIBS G4materials G4particles G4processes G4clhep G4global G4geometry G4physicslists G4track EG )
+set(MYPNDLIBS FtfEvtGen DpmEvtGen RadMapTool Base ParBase  Field  Emc Stt Mdt Gem Dsk Drc Fts Sds Lmd Mvd SciT Ftof Rich Gen PGen generalTools PndData Passive)
 
+add_executable(RadMapToolSim_exe sim_radmap.C)
+add_executable(RadMapToolPlot_exe plot_radmap.C)
 
-add_executable(RadMapTool_exe ${RADMAP_EXE_SRCS})
-target_link_libraries(RadMapTool_exe ${ROOT_LIBRARIES} G4materials G4particles G4processes G4clhep G4global G4geometry G4physicslists G4track EG FtfEvtGen DpmEvtGen RadMapTool Base ParBase  Field  Emc Stt Mdt Gem Dsk Drc Fts Sds Lmd Mvd SciT Ftof Rich Gen PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect PGen generalTools PndData Passive)
-set_target_properties(RadMapTool_exe PROPERTIES OUTPUT_NAME sim_radmap)
+target_link_libraries(RadMapToolSim_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect )
+target_link_libraries(RadMapToolPlot_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect )
 
-################ install ###################
-install(TARGETS RadMapTool_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
+set_target_properties(RadMapToolSim_exe PROPERTIES OUTPUT_NAME sim_radmap)
+set_target_properties(RadMapToolPlot_exe PROPERTIES OUTPUT_NAME plot_radmap)
+
+################# install ###################
+install(TARGETS RadMapToolSim_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
+install(TARGETS RadMapToolPlot_exe DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 
 

@@ -5,8 +5,8 @@
 #pragma link off all functions;
 
 
-//#pragma link C++ class Plane+;
-//#pragma link C++ class BoxMesh+;
+//#pragma link C++ class PndRadMapPlane;
+//#pragma link C++ class PndRadMapBoxMesh;
 
 
 #endif
