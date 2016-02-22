@@ -57,6 +57,7 @@ private:
 		     const double amp, 
 		     const double toffset) const; 
 
+  ClassDef(PndEmcCRRCPulseshape,1)
 };
 
 #endif

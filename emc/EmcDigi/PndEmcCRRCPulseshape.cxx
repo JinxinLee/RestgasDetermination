@@ -69,3 +69,5 @@ PndEmcCRRCPulseshape::degenerate_solution(const double t,  // for Tdif=Tint
   term3*=term3;
   return amp*fTint/term3*(term1+term2);
 }
+
+ClassImp(PndEmcCRRCPulseshape);
