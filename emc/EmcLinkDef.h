@@ -42,6 +42,7 @@
 #pragma link C++ class  PndEmcAsicPulseshape+;
 #pragma link C++ class  PndEmcAbsPulseshape+;
 #pragma link C++ class  PndEmcFittedPulseshape+;
+#pragma link C++ class  PndEmcCRRCPulseshape+;
 #pragma link C++ class  PndEmcFullDigiTask+;
 #pragma link C++ class  PndEmcDigiPar+;
 #pragma link C++ class 	PndEmcFWEndcapDigiPar+;
