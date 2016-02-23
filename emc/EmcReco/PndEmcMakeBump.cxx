@@ -4,13 +4,15 @@
 //
 // Description:
 //      This module takes Clusters (Connected Regions) and slits them
-//      up into Bumps. There are defined by local maxima
+//      up into Bumps. They are defined by local maxima
 //
 // Environment:
 //	Software developed for the BaBar Detector at the SLAC B-Factory.
 // Adapted for the PANDA experiment at GSI
 //
 // Author List:
+//	Xiaorong Shi            Lawrence Livermore National Lab
+//	Steve Playfer           University of Edinburgh
 //	Stephen J. Gowdy           University of Edinburgh
 //      Phil Strother              Imperial College 
 // 
@@ -89,11 +91,25 @@ PndEmcMakeBump::~PndEmcMakeBump()
 {
 }
 
-// -----   Public method Init   -------------------------------
-InitStatus PndEmcMakeBump::Init() {
+/**
+ * @brief Init Task
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
+InitStatus PndEmcMakeBump::Init() 
+{
   return kSUCCESS;
 }
 
+/**
+ * @brief Runs the task.
+ * 
+ * Simply outputs the event counter. The subtasks that do the real work are automatically called.
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmcMakeBump::Exec(Option_t* opt) 
 {
 	if (fVerbose>0)
@@ -103,6 +119,8 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 	return;
 }
 
-void PndEmcMakeBump::SetParContainers() {}
+void PndEmcMakeBump::SetParContainers() 
+{
+}
 
 ClassImp(PndEmcMakeBump)

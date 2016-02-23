@@ -16,7 +16,7 @@
 #define PndEmcMakeDigi_H
 
 #include "FairTask.h"
-#include <string>		
+#include <string>
 
 class PndEmcTwoCoordIndex;
 class PndEmcHit;
@@ -27,35 +27,33 @@ class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
+/**
+ * @brief Task to create PndEmcDigi from PndEmcHit.
+ * 
+ * This task creates digis directly from hits, bypassing the creation and 
+ * analysis of waveforms.
+ * 
+ */
 class PndEmcMakeDigi : public FairTask
 {
-
 public:
-
   // Constructors
-
   PndEmcMakeDigi(Bool_t storedigis=kTRUE);
-
   // Destructor
-
   virtual ~PndEmcMakeDigi();
 
-  /** Virtual method Init **/
   virtual InitStatus Init();
-
-
-  /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-  
-  PndEmcDigi* AddDigi(Int_t trackID,Int_t detID, Float_t energy, Float_t time, Int_t hitIndex);
 
-  void SetStorageOfData(Bool_t val); // Method to specify whether digis are stored or not.
+protected:  
+  PndEmcDigi* AddDigi(Int_t trackID,Int_t detID, Float_t energy, Float_t time, Int_t hitIndex);
+  void SetStorageOfData(Bool_t val); //!< Method to specify whether digis are stored or not.
+	/** Get parameter containers **/
+	virtual void SetParContainers();
   
 private:
-
 	/** Input array of EmcWaveforms **/
 	TClonesArray* fHitArray;  
-	
 	/** output array of EmcDigis **/
 	TClonesArray* fDigiArray;  
 	
@@ -80,26 +78,15 @@ private:
 	Double_t fIncoherent_elec_noise_width_GeV_APD; //GeV
 	Double_t fIncoherent_elec_noise_width_GeV_VPT; //GeV
 
-	
 	Int_t fMapVersion;
 
-	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
-	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
-	/** Get parameter containers **/
-	virtual void SetParContainers();
+	PndEmcGeoPar*     fGeoPar;       //!< Geometry parameter container
+	PndEmcDigiPar*    fDigiPar;      //!< Digitisation parameter container
+	PndEmcRecoPar*    fRecoPar;      //!< Reconstruction parameter container
 	
 	Bool_t fStoreDigis;
-
-        PndEmcMakeDigi(const  PndEmcMakeDigi& L);
-        PndEmcMakeDigi& operator= (const  PndEmcMakeDigi&) {return *this;};
 
 	ClassDef(PndEmcMakeDigi,1);
 };
 
 #endif
-
-
-
-
-

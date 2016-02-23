@@ -19,9 +19,9 @@
 #include "PndEmcMapper.h"
 #include "PndEmcWaveform.h"
 #include "PndEmcDigi.h"
-#include "PndEmcDigiPar.h"		
-#include "PndEmcRecoPar.h"				
-#include "PndEmcFpgaPar.h"				
+#include "PndEmcDigiPar.h"
+#include "PndEmcRecoPar.h"
+#include "PndEmcFpgaPar.h"
 #include "PndEmcAsicPulseshape.h"
 #include "PndEmcPSAParabolic.h"
 #include "PndEmcPSAMatchedDigiFilter.h"
@@ -32,7 +32,7 @@
 #include "PndEmcPSAFPGA/PndEmcPSAFPGADigitalFilterAnalyser.h"
 #include "TClonesArray.h"
 #include "TStopwatch.h"
-#include "PndEmcStructure.h"		
+#include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
 #include "PndMCTrack.h"
 #include <iostream>
@@ -73,6 +73,16 @@ PndEmcWaveformToDigi::~PndEmcWaveformToDigi()
 }
 
 
+/**
+ * @brief Init Task
+ * 
+ * Prepares the TClonesArrays of PndEmcWaveform or PndEmcSortedWaveform for reading 
+ * and of PndEmcDigi for writing. Also reads the EMC parameters and prepares the pulseshapes
+ * (PndEmcAbsPulseshape) and pulse shape analyser (PndEmcAbsPSA).
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
 InitStatus PndEmcWaveformToDigi::Init()
 {
 	// Get RootManager
@@ -281,6 +291,15 @@ InitStatus PndEmcWaveformToDigi::Init()
 	return kSUCCESS;
 }
 
+/**
+ * @brief Runs the task.
+ * 
+ * The task loops over the waveforms and uses the pulse shape analyser (PndEmcAbsPSA) to
+ * extract signal height and timing. From this the PndEmcDigi are created.
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmcWaveformToDigi::Exec(Option_t* opt)
 {
 	TStopwatch timer;
@@ -453,6 +472,14 @@ void PndEmcWaveformToDigi::SetStorageOfData(Bool_t val)
 	fStoreDigis = val;
 	return;
 }
+
+/**
+ * @brief Called at end of task.
+ * 
+ * Outputs some statistics.
+ * 
+ * @return void
+ */
 void PndEmcWaveformToDigi::FinishTask()
 {
 

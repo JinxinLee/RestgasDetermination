@@ -87,13 +87,19 @@ PndEmcPhiBumpSplitter::~PndEmcPhiBumpSplitter()
 {
 }
 
-InitStatus PndEmcPhiBumpSplitter::Init() {
-
+/**
+ * @brief Init Task
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
+InitStatus PndEmcPhiBumpSplitter::Init() 
+{
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ){
-    cout << "-E- PndEmcMakeBump::Init: "
-	 << "RootManager not instantiated!" << endl;
+    cout << "-E- PndEmcPhiBumpSplitter::Init: "
+         << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
 
@@ -104,26 +110,25 @@ InitStatus PndEmcPhiBumpSplitter::Init() {
   // Get input array
   fDigiArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcDigi"));
   if ( ! fDigiArray ) {
-    cout << "-W- PndEmcMakeCluster::Init: "
-	 << "No PndEmcDigi array!" << endl;
+    cout << "-W- PndEmcPhiBumpSplitter::Init: "
+         << "No PndEmcDigi array!" << endl;
     return kERROR;
   }
 
   fClusterArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcCluster"));
   if ( ! fClusterArray ) {
-    cout << "-W- PndEmcMakeBump::Init: "
-	 << "No PndEmcCluster array!" << endl;
+    cout << "-W- PndEmcPhiBumpSplitter::Init: "
+         << "No PndEmcCluster array!" << endl;
     return kERROR;
   }
 
   // Set minimum SharedDigi energy to 20keV.
-  if (!strcmp(fRecoPar->GetEmcClusterPosMethod(),"lilo"))
-    {
-      cout<<"Lilo cluster position method"<<endl;
-      fClusterPosParam.push_back(fRecoPar->GetOffsetParmA());
-      fClusterPosParam.push_back(fRecoPar->GetOffsetParmB());
-      fClusterPosParam.push_back(fRecoPar->GetOffsetParmC());
-    }
+  if (!strcmp(fRecoPar->GetEmcClusterPosMethod(),"lilo")) {
+    cout<<"Lilo cluster position method"<<endl;
+    fClusterPosParam.push_back(fRecoPar->GetOffsetParmA());
+    fClusterPosParam.push_back(fRecoPar->GetOffsetParmB());
+    fClusterPosParam.push_back(fRecoPar->GetOffsetParmC());
+  }
 
   // Create and register output array
   fPhiBumpArray = new TClonesArray("PndEmcBump");
@@ -132,12 +137,16 @@ InitStatus PndEmcPhiBumpSplitter::Init() {
   cout << "-I- PndEmcPhiBumpSplitter: Intialization successfull" << endl;
 
   return kSUCCESS;
-
 }
 
+/**
+ * @brief Runs the task
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 {
-
   PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
 
   // Reset output array
@@ -263,12 +272,23 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 
 }
 
-PndEmcBump* PndEmcPhiBumpSplitter::AddPhiBump(){
+/**
+ * @brief Adds a new PndEmcBump to fPhiBumpArray and returns it.
+ * 
+ * @return PndEmcBump*
+ */
+PndEmcBump* PndEmcPhiBumpSplitter::AddPhiBump()
+{
   TClonesArray& clref = *fPhiBumpArray;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndEmcBump();
 }
 
+/**
+ * @brief Called at end of task.
+ * 
+ * @return void
+ */
 void PndEmcPhiBumpSplitter::FinishTask()
 {
   cout<<"================================================="<<endl;

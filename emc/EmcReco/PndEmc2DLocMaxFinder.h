@@ -34,37 +34,34 @@ class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
+/**
+ * @brief Searches for local maxima in a cluster
+ * 
+ */
 class PndEmc2DLocMaxFinder: public FairTask
 {
-  
-  
- public:
-  
+public:
   // Constructors
   PndEmc2DLocMaxFinder(Int_t verbose=0);
-  
   // Destructor
   virtual ~PndEmc2DLocMaxFinder();
   
-  /** Virtual method Init **/
   virtual InitStatus Init();
-
-  /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
   
   void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
   
- protected:
-  
-  // Helper functions
+protected:
+  /** Get parameter containers **/
+  virtual void SetParContainers();
+  /** Test to see whether the given Digi is a local maximum, within the set of
+   * crystals given in "amongstTheseNeighbours".  Note that this set need
+   * all be crystals that actually were within the cluster. */
   virtual bool isALocalMax( const PndEmcDigi *const, const PndEmcCluster * const, 
 			    const PndEmcCoordIndexSet &amongstTheseNeighbours ) const;
   
-  // Test to see whether the given Digi is a local maxima, within the set of
-  // crystals given in "amongstTheseNeighbours".  Note that this set need
-  // all be crystals that actually were within the cluster.
   
- private:
+private:
   // Methods
   void getNeighbourDigis( PndEmcCoordIndexSet &, PndEmcCoordIndexSet &, int,
 			  std::map<Int_t, Int_t>) const;
@@ -74,11 +71,9 @@ class PndEmc2DLocMaxFinder: public FairTask
   /** Input array of PndEmcDigis **/
   TClonesArray* fDigiArray;
   
-  PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
-  PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-  PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
-  /** Get parameter containers **/
-  virtual void SetParContainers();
+  PndEmcGeoPar*     fGeoPar;       //!< Geometry parameter container
+  PndEmcDigiPar*    fDigiPar;      //!< Digitisation parameter container
+  PndEmcRecoPar*    fRecoPar;      //!< Reconstruction parameter container
   
   Bool_t fPersistance;
   
@@ -90,11 +85,8 @@ class PndEmc2DLocMaxFinder: public FairTask
   Double_t fERatioCorr;
   Int_t fTheNeighbourLevel;
 
-  /** Verbosity level **/
+  /* Verbosity level */
   // Int_t fVerbose;	//do not shadow FairTask::fVerbose
- 
-  PndEmc2DLocMaxFinder(const  PndEmc2DLocMaxFinder& L);
-  PndEmc2DLocMaxFinder& operator= (const  PndEmc2DLocMaxFinder&) {return *this;};
  
   ClassDef(PndEmc2DLocMaxFinder,2);
 };

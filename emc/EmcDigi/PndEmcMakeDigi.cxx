@@ -8,12 +8,12 @@
 // disturbance from digitization
 //----------------------------------------------------------------------
 
-#include "PndEmcMakeDigi.h"		
+#include "PndEmcMakeDigi.h"
 
 #include "PndEmcDigi.h"
 #include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"
-#include "PndEmcRecoPar.h"				
+#include "PndEmcRecoPar.h"
 #include "PndEmcMapper.h"
 #include "PndEmcStructure.h"
 
@@ -42,12 +42,20 @@ PndEmcMakeDigi::PndEmcMakeDigi(Bool_t storedigis):
 //--------------
 // Destructor --
 //--------------
-
 PndEmcMakeDigi::~PndEmcMakeDigi()
 {
 }
 
 
+/**
+ * @brief Init Task
+ * 
+ * Prepares the TClonesArray of PndEmcHit for reading and PndEmcDigi for writing.
+ * Also reads the paramters for the EMC.
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
 InitStatus PndEmcMakeDigi::Init()
 {
 	// Get RootManager
@@ -68,9 +76,9 @@ InitStatus PndEmcMakeDigi::Init()
 	}
 	
 	// Create and register output array
-	fDigiArray = new TClonesArray("PndEmcDigi");
-
-	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
+/*	fDigiArray = new TClonesArray("PndEmcDigi");
+	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);*/
+	fDigiArray = ioman->Register("EmcDigi", "PndEmcDigi", "Emc", fStoreDigis);
 	
 	fEmcDigiPositionDepthPWO=fRecoPar->GetEmcDigiPositionDepthPWO();
 	fEmcDigiPositionDepthShashlyk=fRecoPar->GetEmcDigiPositionDepthShashlyk();
@@ -121,6 +129,14 @@ InitStatus PndEmcMakeDigi::Init()
 	return kSUCCESS;
 }
 
+/**
+ * @brief Runs the task
+ * 
+ * Creates digis from the hits and adds noise.
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmcMakeDigi::Exec(Option_t* opt)
 {
 	// Reset output array
@@ -197,7 +213,18 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 
 }
 
-PndEmcDigi* PndEmcMakeDigi::AddDigi(Int_t trackID,Int_t detID, Float_t energy, Float_t time, Int_t hitIndex){
+/**
+ * @brief Adds a PndEmcDigi to to fDigiArray and returns it.
+ * 
+ * @param trackID ID of track which created the digi
+ * @param detID Detector ID for digi (c.f. PndEmcMapper)
+ * @param energy Deposited energy (including noise)
+ * @param time Timestamp of the hit
+ * @param hitIndex Index of the hit in the TClonesArray
+ * @return PndEmcDigi*
+ */
+PndEmcDigi* PndEmcMakeDigi::AddDigi(Int_t trackID, Int_t detID, Float_t energy, Float_t time, Int_t hitIndex)
+{
   TClonesArray& clref = *fDigiArray;
   Int_t size = clref.GetEntriesFast();
   PndEmcDigi* newDigi = new(clref[size]) PndEmcDigi(trackID, detID, energy, time, hitIndex);
@@ -205,8 +232,8 @@ PndEmcDigi* PndEmcMakeDigi::AddDigi(Int_t trackID,Int_t detID, Float_t energy, F
   return newDigi;
 }
 
-void PndEmcMakeDigi::SetParContainers() {
-
+void PndEmcMakeDigi::SetParContainers() 
+{
   // Get run and runtime database
   FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");

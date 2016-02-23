@@ -2,8 +2,7 @@
 //      $Id: Exp $
 //
 // Description:
-//      Class PndEmcWaveformToDigi. Module to take the hit list for the 
-//      calorimeter and make ADC waveforms from them.
+//      Class PndEmcWaveformToDigi. Module to take the ADC waveforms and produces digi.
 //
 //	 Software developed for the BaBar Detector at the SLAC B-Factory.
 // Adapted for the PANDA experiment at GSI		
@@ -44,33 +43,28 @@ class PndEmcAbsPulseshape;
 class PndEmcAbsCrystalCalibrator;
 
 
+/**
+ * @brief Takes list of PndEmcWaveform and creates PndEmcDigi
+ * 
+ */
 class PndEmcWaveformToDigi : public FairTask
 {
-
 public:
+	// Constructors
+	PndEmcWaveformToDigi(Int_t verbose=0, Bool_t storedigis=kTRUE);
+	// Destructor
+	virtual ~PndEmcWaveformToDigi();
 
-  // Constructors
+	virtual InitStatus Init();
+	virtual void Exec(Option_t* opt);
 
-  PndEmcWaveformToDigi(Int_t verbose=0, Bool_t storedigis=kTRUE);
-
-  // Destructor
-
-  virtual ~PndEmcWaveformToDigi();
-
-  /** Virtual method Init **/
-  virtual InitStatus Init();
-
-
-  /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt);
-
-  void SetStorageOfData(Bool_t val); // Method to specify whether digis are stored or not.
-  void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
+	void SetStorageOfData(Bool_t val); // Method to specify whether digis are stored or not.
+	void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
 
 	void UseDigitizationVersion2() { fDigitizationVersion2 = kTRUE;}
 
 	/**
-	 * @brief Set PSA Algorithm to be used for Barrel and Forward Endcap
+	 * @brief Set PSA Algorithm to be used for Barrel and Backward Endcap
 	 *
 	 * @param psa  The psa to be used
 	 *
@@ -102,8 +96,10 @@ public:
 
 	virtual void FinishTask();
 
-	bool isUseCalibartion ;
-	bool isUsePileupAna;
+protected:
+	/** Get parameter containers **/
+	virtual void SetParContainers();
+
 private:
 	//Double_t GetEventTimebyDigiTime(Double_t digiT, Double_t digiE, Int_t detID, bool PrintOut=false) const;
 	//Int_t GetIdxByEnergy(Double_t energy) const;
@@ -149,8 +145,6 @@ private:
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
 	PndEmcFpgaPar*    fFpgaPar;      /** FPGA parameter container **/
-	/** Get parameter containers **/
-	virtual void SetParContainers();
 
 	//PndEmcDigiWriteoutBuffer* fDataBuffer;
 
@@ -162,11 +156,6 @@ private:
 	Double_t fWfNormalisation; // Waveform normalisation constant
 	Double_t fWfNormalisation_fwd; // Waveform normalisation constant
 	Double_t fWfNormalisation_pmt;
-
-	PndEmcWaveformToDigi(const  PndEmcWaveformToDigi& L);
-	PndEmcWaveformToDigi& operator= (const  PndEmcWaveformToDigi&) {return *this;};
-
-	ClassDef(PndEmcWaveformToDigi,1);
 
 	BinaryFunctor* fFunctor;
 
@@ -188,6 +177,7 @@ private:
 	Bool_t fDigitizationVersion2;
 	//
 
+	ClassDef(PndEmcWaveformToDigi,1);
 };
 
 #endif

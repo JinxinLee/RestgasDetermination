@@ -36,29 +36,19 @@ class BinaryFunctor;
 
 class PndEmcMakeCluster : public FairTask
 {
-
-
 public:
-
   // Constructors
-
   PndEmcMakeCluster(Int_t verbose=0, Bool_t storeclusters=kTRUE);
-
   // Destructor
-
   virtual ~PndEmcMakeCluster( );
 
-  /** Virtual method Init **/
   virtual InitStatus Init();
-
-
-  /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  //Finish clusters after subtasks have been executed
-  virtual void ExecuteTasks(Option_t* option) {		
-	FairTask::ExecuteTasks(option);
-	FinishClusters();
+  /// Finish clusters after subtasks have been executed
+  virtual void ExecuteTasks(Option_t* option) {
+		FairTask::ExecuteTasks(option);
+		FinishClusters();
   }
 
   void SetStorageOfData(Bool_t val); 	//!< Method to specify whether clusters are stored or not.
@@ -69,13 +59,23 @@ public:
    *	Restoring digis makes only sense if reconstruction is done timebased	
    */
   void StoreClusterBaseDigis(Bool_t val = kTRUE) { fStoreClusterBase = kTRUE; }
-
-
  
   void SetClusterActiveTime(Double_t time) { fClusterActiveTime = time; } //!<  Override EmcRecoPar cluster active time parameter ..to be set in ns!!! 
   
 protected:
+	/** Get parameter containers **/
+	virtual void SetParContainers();
+	virtual void FinishClusters();
 
+private:
+	/*! 
+	 * \brief Assign final parameters to cluster
+	 *
+	 * Assign final parameters to cluster. Subtasks might introduce changes in cluster composition. To keep track of them, function is called after subtasks have been executed
+	 */
+	void FinishCluster(PndEmcCluster* tmpcluster);
+	bool HasExpired(PndEmcDigi* latestDigi, PndEmcCluster* theCluster, Int_t clusterIdx);
+	void cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray);
   
 private:
 	/** Input array of CbmDigis **/
@@ -107,29 +107,11 @@ private:
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
 
-	/** Get parameter containers **/
-	virtual void SetParContainers();
-	
 	/** Verbosity level **/
 	Int_t fVerbose;
 
 	Bool_t fStoreClusters;
 	Bool_t fStoreClusterBase; 	//restore digis in case of a timebased run
-
-	void cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray);
-
-	virtual void FinishClusters();
-
-	/*! 
-	 * \brief Assign final parameters to cluster
-	 *
-	 * Assign final parameters to cluster. Subtasks might introduce changes in cluster composition. To keep track of them, function is called after subtasks have been executed
-	 */
-	void FinishCluster(PndEmcCluster* tmpcluster);
-	bool HasExpired(PndEmcDigi* latestDigi, PndEmcCluster* theCluster, Int_t clusterIdx);
-
-        PndEmcMakeCluster(const  PndEmcMakeCluster& L);
-        PndEmcMakeCluster& operator= (const  PndEmcMakeCluster&) {return *this;};
 
 	TStopwatch fTimer;
 

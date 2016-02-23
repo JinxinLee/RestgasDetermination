@@ -70,6 +70,17 @@ PndEmcHitsToWaveform::~PndEmcHitsToWaveform()
 }
 
 
+/**
+ * @brief Init Task
+ * 
+ * Prepares the TClonesArrays of PndEmcHit for reading and of PndEmcWaveform for writing.
+ * Also reads all relevant EMC parameters and initializes the mapper (PndEmcMapper).
+ * Prepares the pulseshapes (PndEmcAbsPulseshape) for the different parts of the EMC and 
+ * calculates their normalization.
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
 InitStatus PndEmcHitsToWaveform::Init()
 {
 	// Get RootManager
@@ -231,6 +242,16 @@ InitStatus PndEmcHitsToWaveform::Init()
 	return kSUCCESS;
 }
 
+/**
+ * @brief Runs the task.
+ * 
+ * The tasks consists of using the PndEmcHit to create PndEmcWaveform by using the pulseshape 
+ * generators (PndEmcAbsPulseshape derived) for the different parts of the EMC. Also the 
+ * noise is added to the pulseshape here.
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmcHitsToWaveform::Exec(Option_t* opt)
 {
 	TStopwatch timer;
@@ -557,6 +578,17 @@ void PndEmcHitsToWaveform::SetParContainers() {
 	Int_t size = clref.GetEntriesFast();
 	return new(clref[size]) PndEmcWaveform(0,detID,numOfSamples,iHit);
 	}*/
+/**
+ * @brief Create a new PndEmcWaveform from the passed parameters
+ * 
+ * @param detID Detector ID
+ * @param iHit Index of PndEmcHit in hit TClonesArray
+ * @param numOfSamples Number of samples in waveform
+ * @param timeStamp Timestamp from the hit
+ * @param sampleRate Sample rate (in Hz)
+ * @param MCTrackID MC track ID if available, else -1
+ * @return PndEmcWaveform* The created waveform object
+ */
 PndEmcWaveform* PndEmcHitsToWaveform::AddWaveform(Int_t detID, 
 		Int_t iHit,
 		Int_t numOfSamples, 
@@ -581,6 +613,14 @@ void PndEmcHitsToWaveform::SetStorageOfData(Bool_t val)
 	fStoreWaves = val;
 	return;
 }
+/**
+ * @brief Called at end of task.
+ * 
+ * Outputs statistics and writes PndEmcWaveformWriteoutBuffer.
+ * 
+ * @return void
+ */
+
 void PndEmcHitsToWaveform::FinishTask()
 {
 	std::cout<<"==================================================="<<std::endl;

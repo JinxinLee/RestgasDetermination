@@ -1,7 +1,9 @@
 //--------------------------------------------------------------------------
 // Description:
 //	Class Emc2DLocMaxMaxFinder.
-//      Searches for local maxima in a cluster.
+//      Searches for local maxima in a cluster based on the ratio
+//      between the energy of the maxima crystal and that of 
+//      its neighbours 
 //
 // Environment:
 //	Software developed for the BaBar Detector at the SLAC B-Factory.
@@ -61,9 +63,16 @@ PndEmc2DLocMaxFinder::~PndEmc2DLocMaxFinder()
 //   delete fRecoPar;
 }
 
-// -----   Public method Init   -------------------------------
-InitStatus PndEmc2DLocMaxFinder::Init() {
-  
+/**
+ * @brief Init Task
+ * 
+ * Prepares the TClonesArray of PndEmcDigi and PndEmcCluster for reading. 
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
+InitStatus PndEmc2DLocMaxFinder::Init() 
+{
 	// Get RootManager
 	FairRootManager* ioman = FairRootManager::Instance();
 	if ( ! ioman ){
@@ -130,6 +139,14 @@ InitStatus PndEmc2DLocMaxFinder::Init() {
         return kSUCCESS;
 }
 
+/**
+ * @brief Runs the task
+ * 
+ * For each cluster the local maxima digis are determined and added to the cluster.
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmc2DLocMaxFinder::Exec(Option_t* opt)
 {
 	int nClusters = fClusterArray->GetEntriesFast();
@@ -185,8 +202,22 @@ void PndEmc2DLocMaxFinder::Exec(Option_t* opt)
 	
 }
 
+/**
+ * @brief Check if digi is a local maximum in its cluster.
+ * 
+ * Determines if @p theDigi is a local maximum amongst its neigbors given in 
+ * @p amongstTheseNeighbours. The digi not only needs to have a higher energy than the 
+ * neighbors, but has to also be above PndEmcRecoPar::GetMaxECut() and conditions for 
+ * the ratio of digi energy and neighbor energies have to be fullfilled (see graph/comment in Init()).
+ * 
+ * @param theDigi Digi to check
+ * @param theCluster Cluster of the digi
+ * @param amongstTheseNeighbours Neighbors of the digi
+ * @return bool
+ * @retval true Digi fullfills conditions to be considered a local maximum.
+ */
 bool PndEmc2DLocMaxFinder::isALocalMax( const PndEmcDigi *const theDigi, const PndEmcCluster * const theCluster, 
-const PndEmcCoordIndexSet &amongstTheseNeighbours ) const
+                                        const PndEmcCoordIndexSet &amongstTheseNeighbours ) const
 {
   // Loop over all our neighbours and check to see if the one in hand is a local max
   
@@ -214,11 +245,11 @@ const PndEmcCoordIndexSet &amongstTheseNeighbours ) const
 				PndEmcDigi *digi = (PndEmcDigi *) fDigiArray->At(position->second);
 				double digiE(digi->GetEnergy());
 				if(digiE>theDigiEnergy)
-				result=false;
+					result=false;
 				if(digiE>=neighbourMaxE)
-				neighbourMaxE=digiE;
+					neighbourMaxE=digiE;
 				if(digiE>fNeighbourECut)
-				numberOFneighbours+=1.0;
+					numberOFneighbours+=1.0;
 			}
 			++theNeighbourIterator;
 		}
@@ -247,10 +278,15 @@ const PndEmcCoordIndexSet &amongstTheseNeighbours ) const
 	return result;
 }
 
-//		-----------------------------------------
-// 		-- Private Function Member Definitions --
-//		-----------------------------------------
-
+/**
+ * @brief Get the TCIs of neighbor digis
+ * 
+ * @param[out] allDigiNeighbours TCIs of the neighbors
+ * @param[in,out] currentDigiNeighbours TCI of the digi for which the neighbors are to be found. Gets cleared.
+ * @param neighbourLevel ignored
+ * @param theClusterDigis std::map of detector IDs and digi index in TClonesArray, as returned by PndEmcCluster::MemberDigiMap().
+ * @return void
+ */
 void PndEmc2DLocMaxFinder::getNeighbourDigis( PndEmcCoordIndexSet &allDigiNeighbours, 
 					      PndEmcCoordIndexSet &currentDigiNeighbours, 
 					      int neighbourLevel,

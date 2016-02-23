@@ -34,118 +34,110 @@ class PndEmcGeoPar;
 class PndEmcWaveformWriteoutBuffer;
 class PndEmcAbsPulseshape;
 
+/**
+ * @brief Takes list of PndEmcHits and creates PndEmcWaveform
+ * 
+ */
 class PndEmcHitsToWaveform : public FairTask
 {
+public:
+	// Constructors
+	PndEmcHitsToWaveform(Int_t verbose=0, Bool_t storewaves=kTRUE);
+	// Destructor
+	virtual ~PndEmcHitsToWaveform();
 
-	public:
+	virtual InitStatus Init();
+	virtual void Exec(Option_t* opt);
 
-		// Constructors
+	//PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex,Int_t numOfSamples);
+	PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex,Int_t numOfSamples, Double_t timeStamp, Double_t sampleRate, Int_t MCTrackID);
 
-		PndEmcHitsToWaveform(Int_t verbose=0, Bool_t storewaves=kTRUE);
+	void SetStorageOfData(Bool_t val); // Method to specify whether waveforms are stored or not.
 
-		// Destructor
+	void RunTimeBased(){ fTimeOrderedWaveform = kTRUE;}
 
-		virtual ~PndEmcHitsToWaveform();
+	void FinishTask();
+protected:
+	/** Get parameter containers **/
+	virtual void SetParContainers();
 
-		/** Virtual method Init **/
-		virtual InitStatus Init();
+private:
+	/** Input array of PndEmcHits **/
+	TClonesArray* fHitArray;
 
+	/** Output array of PndEmcWaveforms **/
+	TClonesArray* fWaveformArray;  
+	PndEmcWaveformWriteoutBuffer* fDataBuffer;
+	Bool_t                        fTimeOrderedWaveform;
 
-		/** Virtual method Exec **/
-		virtual void Exec(Option_t* opt);
+	Double_t fOneBitResolution;
+	Double_t fOneBitResolutionBW;
+	Double_t fOneBitResolutionPMT;
+	Double_t fOneBitResolutionFWD;
 
-		//PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex,Int_t numOfSamples);
-		PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex,Int_t numOfSamples, Double_t timeStamp, Double_t sampleRate, Int_t MCTrackID);
+	Int_t fNBits;
+	Double_t fDetectedPhotonsPerMeV;
+	Double_t fDetectedPhotonsPerMeV_PMT;
+	Double_t fNPhotoElectronsPerMeVAPDBarrel;
+	Double_t fNPhotoElectronsPerMeVAPDBWD;
+	Double_t fNPhotoElectronsPerMeVVPT;
+	Double_t fNPhotoElectronsPerMeVPMT;
+	Double_t fSensitiveAreaAPD; //mm^2
+	Double_t fSensitiveAreaVPT; //mm^2
+	Double_t fQuantumEfficiencyAPD;
+	Double_t fQuantumEfficiencyVPT;
+	Double_t fQuantumEfficiencyPMT;
+	Double_t fExcessNoiseFactorAPD;
+	Double_t fExcessNoiseFactorVPT;
+	Double_t fExcessNoiseFactorPMT;
+	Double_t fIncoherent_elec_noise_width_GeV_APD; //GeV
+	Double_t fIncoherent_elec_noise_width_GeV_VPT; //GeV
+	Double_t fEnergyRange; //GeV
+	Double_t fEnergyRangeBW; //GeV
+	Double_t fFirstSamplePhase;
+	Int_t fNumber_of_samples_in_waveform;
+	Int_t fNumber_of_samples_in_waveform_pmt;
+	Int_t fNumber_of_samples_in_waveform_fwd;
+	Double_t fASIC_Shaping_int_time;      //s
+	Double_t fPMT_Shaping_int_time;      //s
+	Double_t fPMT_Shaping_diff_time;      //s
+	Double_t fFWD_Shaping_int_time;      //s
+	Double_t fFWD_time_constant;  //s
+	Double_t fCrystal_time_constant;  //s
+	Double_t fShashlyk_time_constant;  //s
+	Double_t fShashlykSamplingFactor;
+	Double_t fSampleRate;
+	Double_t fSampleRate_PMT;
+	Double_t fSampleRate_FWD;
+	Int_t fUse_shaped_noise;
+	Int_t fUse_photon_statistic;
+	Int_t fNoiseAllChannels;
+	Int_t fMapVersion;
 
-		void SetStorageOfData(Bool_t val); // Method to specify whether waveforms are stored or not.
+	Double_t fFirstADCBinTime;
 
-		void RunTimeBased(){ fTimeOrderedWaveform = kTRUE;}
+	Double_t fGevPeakAnalogue;
+	Double_t fGevPeakAnalogue_PMT;
+	Double_t fGevPeakAnalogue_FWD;
 
-		void FinishTask();
-	private:
+	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
+	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
 
-		/** Input array of PndEmcHits **/
-		TClonesArray* fHitArray;
+	/** Verbosity level **/
+	Int_t fVerbose;
+	Bool_t fStoreWaves;
 
-		/** Output array of PndEmcWaveforms **/
-		TClonesArray* fWaveformArray;  
-		PndEmcWaveformWriteoutBuffer* fDataBuffer;
-		Bool_t                        fTimeOrderedWaveform;
+	//counters for task
+	Int_t HowManyHit;
+	Int_t nWaveformProduced;
+	Int_t HowManyEventPileup;
 
-		Double_t fOneBitResolution;
-		Double_t fOneBitResolutionBW;
-		Double_t fOneBitResolutionPMT;
-		Double_t fOneBitResolutionFWD;
+	//pulse shapes
+	PndEmcAbsPulseshape* pulseshape1;
+	PndEmcAbsPulseshape* pulseshape2;
+	PndEmcAbsPulseshape* pulseshape3;
 
-		Int_t fNBits;
-		Double_t fDetectedPhotonsPerMeV;
-		Double_t fDetectedPhotonsPerMeV_PMT;
-		Double_t fNPhotoElectronsPerMeVAPDBarrel;
-		Double_t fNPhotoElectronsPerMeVAPDBWD;
-		Double_t fNPhotoElectronsPerMeVVPT;
-		Double_t fNPhotoElectronsPerMeVPMT;
-		Double_t fSensitiveAreaAPD; //mm^2
-		Double_t fSensitiveAreaVPT; //mm^2
-		Double_t fQuantumEfficiencyAPD;
-		Double_t fQuantumEfficiencyVPT;
-		Double_t fQuantumEfficiencyPMT;
-		Double_t fExcessNoiseFactorAPD;
-		Double_t fExcessNoiseFactorVPT;
-		Double_t fExcessNoiseFactorPMT;
-		Double_t fIncoherent_elec_noise_width_GeV_APD; //GeV
-		Double_t fIncoherent_elec_noise_width_GeV_VPT; //GeV
-		Double_t fEnergyRange; //GeV
-		Double_t fEnergyRangeBW; //GeV
-		Double_t fFirstSamplePhase;
-		Int_t fNumber_of_samples_in_waveform;
-		Int_t fNumber_of_samples_in_waveform_pmt;
-		Int_t fNumber_of_samples_in_waveform_fwd;
-		Double_t fASIC_Shaping_int_time;      //s
-		Double_t fPMT_Shaping_int_time;      //s
-		Double_t fPMT_Shaping_diff_time;      //s
-		Double_t fFWD_Shaping_int_time;      //s
-		Double_t fFWD_time_constant;  //s
-		Double_t fCrystal_time_constant;  //s
-		Double_t fShashlyk_time_constant;  //s
-		Double_t fShashlykSamplingFactor;
-		Double_t fSampleRate;
-		Double_t fSampleRate_PMT;
-		Double_t fSampleRate_FWD;
-		Int_t fUse_shaped_noise;
-		Int_t fUse_photon_statistic;
-		Int_t fNoiseAllChannels;
-		Int_t fMapVersion;
-
-		Double_t fFirstADCBinTime;
-
-		Double_t fGevPeakAnalogue;
-		Double_t fGevPeakAnalogue_PMT;
-		Double_t fGevPeakAnalogue_FWD;
-
-		PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-		PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
-		/** Get parameter containers **/
-		virtual void SetParContainers();
-
-		/** Verbosity level **/
-		Int_t fVerbose;
-		Bool_t fStoreWaves;
-
-		PndEmcHitsToWaveform(const  PndEmcHitsToWaveform& L);
-		PndEmcHitsToWaveform& operator= (const  PndEmcHitsToWaveform&) {return *this;}
-
-
-		ClassDef(PndEmcHitsToWaveform,2);
-
-		//counters for task
-		Int_t HowManyHit;
-		Int_t nWaveformProduced;
-		Int_t HowManyEventPileup;
-
-		//pulse shapes
-		PndEmcAbsPulseshape* pulseshape1;
-		PndEmcAbsPulseshape* pulseshape2;
-		PndEmcAbsPulseshape* pulseshape3;
+	ClassDef(PndEmcHitsToWaveform,2);
 };
 
 #endif

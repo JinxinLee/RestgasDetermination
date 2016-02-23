@@ -3,7 +3,8 @@
 // 	$Id:$
 //
 // Description:
-//	Class Template
+//      This module takes Clusters (Connected Regions) and slits them
+//      up into Bumps. They are defined by local maxima
 //
 // Environment:
 //	Software developed for the BaBar Detector at the SLAC B-Factory.
@@ -33,39 +34,34 @@ class PndEmcSharedDigi;
 class PndEmcBump;
 class PndEmcTwoCoordIndex;
 
+/**
+ * @brief Takes clusters and slits them up into bumps
+ * 
+ * Consists of the subtasks PndEmc2DLocMaxFinder, PndEmcExpClusterSplitter and PndEmcPhiBumpSplitter.
+ * This task is mostly empty and just calls the subtasks.
+ * 
+ */
 class PndEmcMakeBump  : public FairTask
 {
-	
-	
 public:
-
   // Constructors
   PndEmcMakeBump(Int_t verbose=0, Bool_t storebumps=kTRUE);
-
   // Destructor
   virtual ~PndEmcMakeBump( );
-  
-  /** Virtual method Init **/
-  virtual InitStatus Init();
-  
 
-  /** Virtual method Exec **/
+  virtual InitStatus Init();
   virtual void Exec(Option_t* opt);
   
-  void SetStorageOfData(Bool_t val); // Method to specify whether bumps are stored or not.
+  void SetStorageOfData(Bool_t val); //!< Method to specify whether bumps are stored or not.
   
- protected:
-  
- private:
-	
+protected:
   /** Get parameter containers **/
   virtual void SetParContainers();
-  
+
+private:
   /** Verbosity level **/
   Int_t fVerbose;
-  
   Bool_t fPersistance;
-  
   static Int_t fEventCounter;
   
   ClassDef(PndEmcMakeBump,1);

@@ -85,6 +85,12 @@ PndEmcExpClusterSplitter::~PndEmcExpClusterSplitter()
 // 	delete fRecoPar;
 }
 
+/**
+ * @brief Init Task
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
 InitStatus PndEmcExpClusterSplitter::Init() {
   
   // Get RootManager
@@ -163,6 +169,22 @@ InitStatus PndEmcExpClusterSplitter::Init() {
   return kSUCCESS;
 }
 
+/**
+ * @brief Runs the task
+ * 
+ * The algorithm is as follows: We will index each bump by its
+ * maximum digi's PndEmcTwoCoordIndex.  We will set up a list of
+ * bump centroids which to start with will be synonymous with the
+ * location of the maxima.  We then apportion a weight to each
+ * digi, according to its distance from the centroids.  We then
+ * construct the bumps according to these weights, which will
+ * presumably give a different set of centroids.  This is repeated
+ * until the centroids are static within tolerance, or we reach
+ * the maximum number of iterations.
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmcExpClusterSplitter::Exec(Option_t* opt) 
 {
 
@@ -533,18 +555,38 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 
 }
 
-PndEmcBump* PndEmcExpClusterSplitter::AddBump(){
+/**
+ * @brief Adds a new PndEmcBump to fBumpArray and returns it.
+ * 
+ * @return PndEmcBump*
+ */
+PndEmcBump* PndEmcExpClusterSplitter::AddBump()
+{
 	TClonesArray& clref = *fBumpArray;
 	Int_t size = clref.GetEntriesFast();
 	return new(clref[size]) PndEmcBump();
 }
 
+/**
+ * @brief Adds a new PndEmcSharedDigi to fSharedDigiArray and returns it.
+ * 
+ * @param digi Digi which is shared
+ * @param weight Weight of digi in this shared digi
+ * @return PndEmcSharedDigi*
+ */
 PndEmcSharedDigi* PndEmcExpClusterSplitter::AddSharedDigi(PndEmcDigi* digi, Double_t weight){
 	TClonesArray& clref = *fSharedDigiArray;
 	Int_t size = clref.GetEntriesFast();
 	return new(clref[size]) PndEmcSharedDigi(*digi, weight);
 }
 
+/**
+ * @brief Called at end of task.
+ * 
+ * Outputs the number of digis read.
+ * 
+ * @return void
+ */
 void PndEmcExpClusterSplitter::FinishTask()
 {
 	cout<<"================================================="<<endl;

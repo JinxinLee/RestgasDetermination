@@ -49,47 +49,44 @@ class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
-//		---------------------
-// 		-- Class Interface --
-//		---------------------
 
+/**
+ * @brief splits clusters on the basis of exponential distance from the bump centroid
+ * 
+ */
 class PndEmcExpClusterSplitter: public FairTask
 {
-  
- public:
-  
+public:
+	// Constructor
 	PndEmcExpClusterSplitter(Int_t verbose=0);
-	
 	// Destructor
 	virtual ~PndEmcExpClusterSplitter( );
 	
 	// Methods
-	/** Virtual method Init **/
 	virtual InitStatus Init();
-	
-	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);
+	virtual void FinishTask();
 	
 	void SetStorageOfData(Bool_t p = kTRUE) {fPersistance=p;};
 	PndEmcBump* AddBump();
 	PndEmcSharedDigi* AddSharedDigi(PndEmcDigi*, Double_t weight);
-	
-	virtual void FinishTask();
-  
- private:
-	/** Input array of PndEmcClusters **/
+
+protected:
+	/** Get parameter containers **/
+	virtual void SetParContainers();
+
+private:
+	/** Input array of PndEmcCluster%s **/
 	TClonesArray* fDigiArray;
 	TClonesArray* fClusterArray;
 	
-	/** Output array of PndEmcBumps **/
+	/** Output array of PndEmcBump%s **/
 	TClonesArray* fBumpArray;
 	TClonesArray* fSharedDigiArray;
 
-	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
-	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
-	/** Get parameter containers **/
-	virtual void SetParContainers();
+	PndEmcGeoPar*     fGeoPar;       //!< Geometry parameter container
+	PndEmcDigiPar*    fDigiPar;      //!< Digitisation parameter container
+	PndEmcRecoPar*    fRecoPar;      //!< Reconstruction parameter container
 	
 	std::vector<Double_t> fClusterPosParam;
 	
@@ -103,18 +100,13 @@ class PndEmcExpClusterSplitter: public FairTask
 	Int_t fMaxBumps;
 	Double_t fMinDigiEnergy;
 	
-	/** Verbosity level **/
+	/* Verbosity level */
 	// Int_t fVerbose;	//do not shadow FairTask::fVerbose
-
-        PndEmcExpClusterSplitter(const  PndEmcExpClusterSplitter& L);
-        PndEmcExpClusterSplitter& operator= (const  PndEmcExpClusterSplitter&) {return *this;};
 	
-	ClassDef(PndEmcExpClusterSplitter,2);
-
-//added for time information
-
+	//added for time information
 	PndEmcDigiCalibrator digiCalibrator;
 	Int_t HowManyDidis;
 
+	ClassDef(PndEmcExpClusterSplitter,2);
 };
 #endif // EMCABSCLUSTERSPLITTER_HH

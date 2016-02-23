@@ -57,13 +57,21 @@ fDigiArray(NULL), fHitArray(NULL), fMCTrackArray(NULL), fClusterArray(NULL), fWr
 //--------------
 // Destructor --
 //--------------
-
 PndEmcMakeCluster::~PndEmcMakeCluster()
 { 
 }
 
-// -----   Public method Init   -------------------------------
-InitStatus PndEmcMakeCluster::Init() {
+/**
+ * @brief Init Task
+ * 
+ * Prepares the TClonesArray of PndEmcDigi for reading 
+ * and of PndEmcCluster for writing. 
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
+InitStatus PndEmcMakeCluster::Init() 
+{
 
 	// Get RootManager
 	FairRootManager* ioman = FairRootManager::Instance();
@@ -140,10 +148,15 @@ InitStatus PndEmcMakeCluster::Init() {
 	return kSUCCESS;
 }
 
-
-
-
-
+/**
+ * @brief Runs the task.
+ * 
+ * The task loops over the digis and adds neighboring digis (PndEmcTwoCoordIndex::IsNeighbour())
+ * to clusters.
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmcMakeCluster::Exec(Option_t* opt) 
 {
 
@@ -171,8 +184,6 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 	//loop to build Cluster
 	for (Int_t iDigi=0; iDigi<nDigis; iDigi++)
 	{
-
-
 		PndEmcDigi* theDigi = (PndEmcDigi*) fDigiArray->At(iDigi);
 //		std::cout << std::endl << "DigiArray: " << iDigi  << std::endl;
 //		theDigi->Print();
@@ -180,8 +191,8 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 //		std::cout << std::endl;
 		Int_t module=theDigi->GetModule();
 
-		// In the following lines there is separate threshold for forward endcup
-		// and the same for barrel and" backward and shashlyk EMC, but for last 2 threshold probably should be different 
+		// In the following lines there is separate threshold for forward endcap
+		// and the same for barrel and backward and shashlyk EMC, but for last 2 threshold probably should be different 
 		if ((module==1||module==2)&&(theDigi->GetEnergy()< fDigiEnergyTresholdBarrel)) continue;
 		if ((module==3)&&(theDigi->GetEnergy()< fDigiEnergyTresholdFWD)) continue;
 		if ((module==4)&&(theDigi->GetEnergy()< fDigiEnergyTresholdBWD)) continue;
@@ -287,10 +298,16 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 }
 
 
-
-
-void PndEmcMakeCluster::FinishCluster(PndEmcCluster* tmpclust) {
-
+/**
+ * @brief Calculates properties of the cluster and sets them.
+ * 
+ * The calculated properties include the energy, position, timestamp and Zernike moments.
+ * 
+ * @param tmpclust The cluster to work on
+ * @return void
+ */
+void PndEmcMakeCluster::FinishCluster(PndEmcCluster* tmpclust) 
+{
 	using namespace std;
 
 	//cout << "\tfinalizing cluster: ";
@@ -350,8 +367,13 @@ void PndEmcMakeCluster::FinishCluster(PndEmcCluster* tmpclust) {
 }
 
 
-void PndEmcMakeCluster::FinishClusters() {
-
+/**
+ * @brief Calls FinishCluster() for each cluster
+ * 
+ * @return void
+ */
+void PndEmcMakeCluster::FinishClusters() 
+{
 	Int_t nCluster = fWriteOutArray->GetEntriesFast();
 	for (Int_t i=0; i<nCluster; i++) {
 		FinishCluster((PndEmcCluster*) (fWriteOutArray->At(i)));
@@ -370,7 +392,21 @@ void PndEmcMakeCluster::FinishClusters() {
 	}	
 }
 
-bool PndEmcMakeCluster::HasExpired(PndEmcDigi* latestDigi, PndEmcCluster* theCluster, Int_t clusterIdx) {
+/**
+ * @brief Finishes clusters in timebased analysis
+ * 
+ * Checks if the timestamp of @p latestDigi is later than the active time of @p theCluster. If yes,
+ * the cluster is written and true is returned.
+ * 
+ * @param latestDigi Current digi to check timestamp of.
+ * @param theCluster Current cluster for which the expiration is checked.
+ * @param clusterIdx Index of @p theCluster in the cluster TClonesArray.
+ * @return bool
+ * @retval true Cluster has expired and was written.
+ * @retval false Cluster not expired.
+ */
+bool PndEmcMakeCluster::HasExpired(PndEmcDigi* latestDigi, PndEmcCluster* theCluster, Int_t clusterIdx) 
+{
 	if(!FairRunAna::Instance()->IsTimeStamp()) return false;
 
 	if(latestDigi->GetTimeStamp() > theCluster->GetTimeStamp() + fClusterActiveTime) {
@@ -383,13 +419,21 @@ bool PndEmcMakeCluster::HasExpired(PndEmcDigi* latestDigi, PndEmcCluster* theClu
 }
 
 
-// Helper function, does not depend on class, identical to the one in PndEmcHitProducer
+/**
+ * @brief Helper function, does not depend on class, identical to the one in PndEmcHitProducer
+ * 
+ * Currently not used.
+ * 
+ * @param newlist ...
+ * @param mcTrackArray ...
+ * @return void
+ */
 void PndEmcMakeCluster::cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray)
 {
 	std::vector <Int_t> tmplist;
 	// Sort list...
 	std::sort( newlist.begin(), newlist.end());
-	// and copy every id only once (even so it might be in the list several times)
+	// and copy every id only once (even though it might be in the list several times)
 	std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
 
 	// Now check if mother or (grand)^x-mother are already in the list
