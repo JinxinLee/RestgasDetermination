@@ -19,7 +19,7 @@
 #include "TClonesArray.h"
 #include "TStopwatch.h"
 #include "TF1.h"
-		
+
 #include <iostream>
 #include <vector>
 #include <utility>
@@ -35,20 +35,22 @@ PndEmcFWEndcapDigi::PndEmcFWEndcapDigi(Int_t verbose, Bool_t storedigis):
 //--------------
 // Destructor --
 //--------------
-
 PndEmcFWEndcapDigi::~PndEmcFWEndcapDigi()
 {
 	if (fDigiArray!= 0) delete fDigiArray;
 }
 
-
-//#define DEBUG2020
-
-#ifdef DEBUG2020
-#include "PndEmcWaveformData.h"
-static TClonesArray* fWfDataArray;
-#endif
-
+/**
+ * @brief Init Task
+ * 
+ * Prepares the TClonesArray of PndEmcMultiWaveform for reading and PndEmcDigi for writing.
+ * Also reads the EMC parameters and prepares the pulseshapes
+ * (PndEmcAbsPulseshape) and pulse shape analyser (PndEmcAbsPSA) as well as the
+ * calibrator (PndEmcSimCrystalCalibrator).
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
 InitStatus PndEmcFWEndcapDigi::Init()
 {
 	// Get RootManager
@@ -73,10 +75,6 @@ InitStatus PndEmcFWEndcapDigi::Init()
 
 	}
 	
-#ifdef DEBUG2020
-	fWfDataArray = (TClonesArray*) ioman->GetObject("EmcWaveformData");
-#endif
-
 	if(!fDigiPar) {
 		cout << "-E- PndEmcFWEndcapTimebasedWaveforms::Init: "
 			<< "no DigiPar containter found" << endl;
@@ -180,6 +178,17 @@ InitStatus PndEmcFWEndcapDigi::Init()
 	return kSUCCESS;
 }
 
+/**
+ * @brief Runs the task.
+ * 
+ * The task loops over the waveforms and uses the pulse shape analyser (PndEmcAbsPSA) to
+ * extract signal height and timing. The calibrator (PndEmcAbsCrystalCalibrator) is then
+ * used to calculate the energy. If the energy is above the threshold (@ref fEnergyDigiThreshold),
+ * a PndEmcDigi is created.
+ * 
+ * @param opt unused
+ * @return void
+ */
 void PndEmcFWEndcapDigi::Exec(Option_t* opt)
 {
 	TStopwatch timer;
@@ -207,23 +216,7 @@ void PndEmcFWEndcapDigi::Exec(Option_t* opt)
 
 		Double_t timeshift; // how maximum is shifted
 
-		#ifdef DEBUG2020
-
-		if(theWaveform->GetDetectorId() != 320000020) continue;
-
-		//(dynamic_cast<PndEmcPSAFPGAPileupAnalyser*>(fLowgainPSA))->SetVerbose(5);
-		//(dynamic_cast<PndEmcPSAFPGAPileupAnalyser*>(fHighgainPSA))->SetVerbose(5);
-		fHighLowPSA.SetVerbose(5);
-
 		nHits = fHighLowPSA.Process(theWaveform);	
-
-		std::cout << "\nhits in waveform data\n" << *((PndEmcWaveformData*) fWfDataArray->UncheckedAt(iWaveform)) << std::endl;
-		cout << "--------------------------------\nfeature extraction found " << nHits << " hits" << endl;
-
-		#else 
-		nHits = fHighLowPSA.Process(theWaveform);	
-		#endif
-
 
 		for(Int_t iHit=0; iHit<nHits; ++iHit) {
 			fHighLowPSA.GetHit(iHit, energy, digi_time);	
@@ -237,10 +230,6 @@ void PndEmcFWEndcapDigi::Exec(Option_t* opt)
 			digi_time/=sampleRate;
 			digi_time*=1e9;		//ns
 
-			#ifdef DEBUG2020
-			std::cout << "\t#" << iHit <<"\ttime: " << digi_time+theWaveform->GetTimeStamp() << "\tenergy: " << energy << "\t\t digi time: " << digi_time << std::endl;
-			#endif
-			
 			if (energy>fEnergyDigiThreshold) {
 				Double_t timestamp=theWaveform->GetTimeStamp() + digi_time;
 				//std::cout << "PndEmcFWEndcapDigi::Exec Waveform TS: " << theWaveform->GetTimeStamp() << " digiTime: " << digi_time << std::endl;
@@ -259,13 +248,6 @@ void PndEmcFWEndcapDigi::Exec(Option_t* opt)
 			}
 				
 		}
-
-		#ifdef DEBUG2020
-		getchar();
-		(dynamic_cast<PndEmcPSAFPGAPileupAnalyser*>(fLowgainPSA))->SetVerbose(0);
-		(dynamic_cast<PndEmcPSAFPGAPileupAnalyser*>(fHighgainPSA))->SetVerbose(0);
-		fHighLowPSA.SetVerbose(0);
-		#endif
 	}
 
 	if (fVerbose>2) {
@@ -276,8 +258,8 @@ void PndEmcFWEndcapDigi::Exec(Option_t* opt)
 	}
 }
 
-void PndEmcFWEndcapDigi::SetParContainers() {
-
+void PndEmcFWEndcapDigi::SetParContainers() 
+{
   // Get run and runtime database
   FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
@@ -293,7 +275,6 @@ void PndEmcFWEndcapDigi::SetParContainers() {
 
   // Get Emc geometry parameter container
   fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
- 
 }
 
 void PndEmcFWEndcapDigi::SetStorageOfData(Bool_t val)
