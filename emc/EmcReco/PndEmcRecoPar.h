@@ -5,6 +5,10 @@
 #include "FairParGenericSet.h"
 #include "FairParamList.h"
 
+/**
+ * @brief Parameter set for Emc Reco
+ * @ingroup PndEmc
+ */
 class PndEmcRecoPar : public FairParGenericSet
 {
 	public :

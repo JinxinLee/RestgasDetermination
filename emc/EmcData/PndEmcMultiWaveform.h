@@ -15,6 +15,11 @@
 #include "PndEmcWaveform.h"
 
 
+/**
+ * @brief Class to hold multiple waveforms from one Emc Hit / ADC readout
+ * @author Ch. Hammann <chammann@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
 class PndEmcMultiWaveform: public PndEmcWaveform
 {
 

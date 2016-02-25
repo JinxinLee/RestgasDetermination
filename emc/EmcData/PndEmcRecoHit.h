@@ -16,6 +16,10 @@
 #include "TObject.h"
 #include "TVector3.h"
 
+/**
+ * @brief represents the reconstructed hit in the emc
+ * @ingroup PndEmc
+ */
 class PndEmcRecoHit: public FairMultiLinkedData
 {
 

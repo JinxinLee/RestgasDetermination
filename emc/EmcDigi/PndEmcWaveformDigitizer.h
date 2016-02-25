@@ -2,7 +2,13 @@
 #ifndef PNDEMCWAVEFORMDIGITIZER_H_
 #define PNDEMCWAVEFORMDIGITIZER_H_
 
-class PndEmcWaveformDigitizer : public PndEmcAbsWaveformModifier {
+/**
+ * @brief waveform digitzer
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
+class PndEmcWaveformDigitizer : public PndEmcAbsWaveformModifier 
+{
 	public:
 		PndEmcWaveformDigitizer();	
 		PndEmcWaveformDigitizer(Int_t nBits, Double_t energyRange, Double_t inputScale);
@@ -20,6 +26,6 @@ class PndEmcWaveformDigitizer : public PndEmcAbsWaveformModifier {
 		Double_t fOneBitResolution;
 
 		ClassDef(PndEmcWaveformDigitizer, 0)
- };
+};
 
 #endif

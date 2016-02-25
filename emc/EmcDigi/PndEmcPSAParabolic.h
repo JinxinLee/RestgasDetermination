@@ -16,6 +16,13 @@
 
 class PndEmcWaveform;
 
+/**
+ * @brief Pulseshape analysis for ADC waveforms
+ * 
+ * Amplitude and time are determined from the simple parabolic fit
+ * by three points (maximum bin and its left and right neigbours)
+ * @ingroup PndEmc
+ */
 class PndEmcPSAParabolic: public PndEmcAbsPSA {
 public:
 

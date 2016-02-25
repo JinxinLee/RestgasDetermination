@@ -36,7 +36,7 @@ class PndEmcAbsPulseshape;
 
 /**
  * @brief Takes list of PndEmcHits and creates PndEmcWaveform
- * 
+ * @ingroup PndEmc
  */
 class PndEmcHitsToWaveform : public FairTask
 {
@@ -60,6 +60,10 @@ public:
 protected:
 	/** Get parameter containers **/
 	virtual void SetParContainers();
+private:
+	// don't allow copying (-Weffc++)
+	PndEmcHitsToWaveform(const PndEmcHitsToWaveform&);	// no implementation
+	PndEmcHitsToWaveform& operator= (const PndEmcHitsToWaveform&);	// no implementation
 
 private:
 	/** Input array of PndEmcHits **/

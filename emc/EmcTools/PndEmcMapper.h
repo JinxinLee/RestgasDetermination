@@ -14,7 +14,11 @@
 #include "TObject.h"
 #include "TString.h"
 #include <map>
-	 
+
+/**
+ * @brief Emc geometry mapper
+ * @ingroup PndEmc
+ */
 class PndEmcMapper: public TObject
 {
 

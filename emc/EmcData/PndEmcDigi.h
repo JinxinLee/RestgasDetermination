@@ -33,6 +33,10 @@ class TVector3;
 class PndEmcXtal;
 class PndEmcSharedDigi;
 
+/**
+ * @brief represents the reconstructed hit of one emc crystal
+ * @ingroup PndEmc
+ */
 class PndEmcDigi : public FairTimeStamp
 {
 

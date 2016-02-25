@@ -32,8 +32,8 @@ class BinaryFunctor;
  * Task to cluster PndEmcDigis. In the eventbased version clusters are built within one event, all adjacent digis go in one cluster.
  * The timebased version assigns an active time to every cluster. Once expired, no digis can be added any more to cluster. 
  * The spatial cluster condition remains the same as in the eventbased reconstruction
+ * @ingroup PndEmc
  */
-
 class PndEmcMakeCluster : public FairTask
 {
 public:
@@ -76,6 +76,9 @@ private:
 	void FinishCluster(PndEmcCluster* tmpcluster);
 	bool HasExpired(PndEmcDigi* latestDigi, PndEmcCluster* theCluster, Int_t clusterIdx);
 	void cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray);
+	// don't allow copying (-Weffc++)
+	PndEmcMakeCluster(const PndEmcMakeCluster&);	// no implementation
+	PndEmcMakeCluster& operator= (const PndEmcMakeCluster&);	// no implementation
   
 private:
 	/** Input array of CbmDigis **/

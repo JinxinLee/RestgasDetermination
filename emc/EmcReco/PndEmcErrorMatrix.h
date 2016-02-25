@@ -18,6 +18,11 @@
 class PndEmcErrorMatrixPar;
 class PndEmcErrorMatrixParObject;
 
+/**
+ * @brief Calculate Error Matrix for the given EmcCluster with parametrization defined by the given parameter PndEmcErrorMatrixPar
+ * 
+ * @ingroup PndEmc 
+ */
 class PndEmcErrorMatrix 
 {
 	public:

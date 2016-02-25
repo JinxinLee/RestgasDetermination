@@ -14,6 +14,10 @@
 
 class PndEmcWaveform;
 
+/**
+ * @brief Pulseshape analysis for ADC waveforms
+ * @ingroup PndEmc
+ */
 class PndEmcPSATrapDigiFilter: public PndEmcAbsPSA {
 public:
 

@@ -18,10 +18,14 @@ class PndEmcPoint;
 class FairVolume; 
 class TGeoNode;
 
+/**
+ * @brief Simulation of EMC
+ * 
+ * @ingroup PndEmc
+ */
 class PndEmc : public FairDetector 
 {
-
- public:
+public:
 
   /** Default constructor **/
   PndEmc();
@@ -140,7 +144,7 @@ class PndEmc : public FairDetector
   virtual void SetSpecialPhysicsCuts();
 
 
- private:
+private:
   
   Int_t          fTrackID;           //!  track index
   Int_t          fVolumeID;          //!  volume id
@@ -172,7 +176,6 @@ class PndEmc : public FairDetector
   PndEmc& operator= (const  PndEmc&) {return *this;};
   
   ClassDef(PndEmc,1)
-
 }; 
 
 

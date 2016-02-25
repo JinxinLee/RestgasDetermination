@@ -33,6 +33,10 @@ class TClonesArray;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
+/**
+ * @brief currently not used, not in CMakeLists.txt
+ * @ingroup PndEmc
+ */
 class PndEmcTmpWaveformToDigi : public FairTask
 {
 

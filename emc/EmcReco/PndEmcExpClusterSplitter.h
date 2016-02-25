@@ -52,7 +52,7 @@ class PndEmcRecoPar;
 
 /**
  * @brief splits clusters on the basis of exponential distance from the bump centroid
- * 
+ * @ingroup PndEmc
  */
 class PndEmcExpClusterSplitter: public FairTask
 {
@@ -74,6 +74,11 @@ public:
 protected:
 	/** Get parameter containers **/
 	virtual void SetParContainers();
+
+private:
+	// don't allow copying (-Weffc++)
+	PndEmcExpClusterSplitter(const PndEmcExpClusterSplitter&);	// no implementation
+	PndEmcExpClusterSplitter& operator= (const PndEmcExpClusterSplitter&);	// no implementation
 
 private:
 	/** Input array of PndEmcCluster%s **/

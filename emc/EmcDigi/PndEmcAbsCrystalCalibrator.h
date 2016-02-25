@@ -14,7 +14,8 @@
 /**
  * @brief Abstract interface for a emc calibrator
  *
- * @return 
+ * @author Ch. Hammann <chammann@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
  **/
 class PndEmcAbsCrystalCalibrator { 
 	public:

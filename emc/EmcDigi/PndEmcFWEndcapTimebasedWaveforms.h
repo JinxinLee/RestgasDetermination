@@ -23,36 +23,40 @@ class TClonesArray;
 
 #define MULTI
 
+/**
+ * @brief Taks to create waveforms from hits.
+ * 
+ * This is an alternative to PndEmcHitsToWaveform, which despite its name could be 
+ * used for all the EMC, not just FwEndcap.
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
 class PndEmcFWEndcapTimebasedWaveforms : public FairTask
 {
-
 public:
-
   // Constructors
   PndEmcFWEndcapTimebasedWaveforms(Int_t verbose=0, Bool_t storewaves=kFALSE);
-
   // Destructor
   virtual ~PndEmcFWEndcapTimebasedWaveforms();
 
-  /** Virtual method Init **/
   virtual InitStatus Init();
-
-  void RunTimebased(Bool_t timebased = kTRUE) { fActivateBuffering = timebased; };
-
-  /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
+  void RunTimebased(Bool_t timebased = kTRUE) { fActivateBuffering = timebased; };
   void SetExternalSimulator(PndEmcAbsWaveformSimulator* simulator) { fExternalSimulator = simulator; }
-  void SetStorageOfData(Bool_t storeWaves = kTRUE) {fStoreWaves = storeWaves;} ; // Method to specify whether waveforms are stored or not.
+  void SetStorageOfData(Bool_t storeWaves = kTRUE) {fStoreWaves = storeWaves;} ; //!< Method to specify whether waveforms are stored or not.
   void StoreDataClass(Bool_t storeData = kTRUE) { fStoreDataClass = storeData; };
-  
-private:
 
-  PndEmcFWEndcapTimebasedWaveforms(const  PndEmcFWEndcapTimebasedWaveforms& L);
-  PndEmcFWEndcapTimebasedWaveforms& operator= (const  PndEmcFWEndcapTimebasedWaveforms&) {return *this;}
-
+protected:  
   /** Get parameter containers **/
   virtual void SetParContainers();
+
+private:
+   // don't allow copying (-Weffc++)
+   PndEmcFWEndcapTimebasedWaveforms(const PndEmcFWEndcapTimebasedWaveforms&);	// no implementation
+   PndEmcFWEndcapTimebasedWaveforms& operator= (const PndEmcFWEndcapTimebasedWaveforms&);	// no implementation
+
+private:
 
   /** Input array of PndEmcHits **/
   TClonesArray* fHitArray;
@@ -64,8 +68,8 @@ private:
   Bool_t fStoreDataClass;
   Bool_t fActivateBuffering;
 
-  PndEmcFWEndcapDigiPar*    fDigiPar; 	/** Digitisation parameter container **/
-  PndEmcGeoPar*     fGeoPar;       	/** Geometry parameter container **/
+  PndEmcFWEndcapDigiPar*    fDigiPar; 	//!< Digitisation parameter container
+  PndEmcGeoPar*     fGeoPar;       	//!< Geometry parameter container
 
   Bool_t fUse_photon_statistic; 
   Double_t fNPhotoElectronsPerMeV;
@@ -74,9 +78,7 @@ private:
   PndEmcAbsWaveformSimulator* fExternalSimulator;
   PndEmcMultiWaveformSimulator* fAPD_LOWHIGH;
 
-
   ClassDef(PndEmcFWEndcapTimebasedWaveforms, 2);
-
 };
 
 #endif

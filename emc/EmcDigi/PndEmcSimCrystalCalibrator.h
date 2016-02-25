@@ -16,8 +16,8 @@
 
 /**
  * @brief Class to simulate a Calibration
- *
- * @return 
+ * @author Ch. Hammann <chammann@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
  **/
 class PndEmcSimCrystalCalibrator: public PndEmcAbsCrystalCalibrator{
 	public:

@@ -16,10 +16,12 @@ class TObjectArray;
 class PndEmcBump;
 class PndEmcRecoPar;
 
+/**
+ * @brief Create PndEmcRecoHit from PndEmcBump
+ * @ingroup PndEmc
+ */
 class PndEmcMakeRecoHit : public FairTask
 {
-
-
 public:
 
   // Constructors

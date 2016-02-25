@@ -15,6 +15,10 @@
 class PndEmcWaveform;
 class PndEmcAbsPulseshape;
 
+/**
+ * @brief Pulseshape analysis for ADC waveforms
+ * @ingroup PndEmc
+ */
 class PndEmcPSAMatchedDigiFilter: public PndEmcAbsPSA {
 public:
 

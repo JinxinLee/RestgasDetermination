@@ -15,6 +15,11 @@
 
 class PndEmcWaveform;
 
+/**
+ * @brief represents a simulated waveform in an emc crystal, used by PndEmcFWEndcapTimebasedWaveforms
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
 class PndEmcWaveformData : public FairTimeStamp {
 
 	public:

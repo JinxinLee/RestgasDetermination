@@ -18,6 +18,10 @@
 
 // Collaborating Class Declarations --
 
+/**
+ * @brief pulseshape interface
+ * @ingroup PndEmc
+ */
 class PndEmcAbsPulseshape : public TObject
 {
 public:

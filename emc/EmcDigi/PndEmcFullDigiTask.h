@@ -8,10 +8,12 @@
 
 #include "FairTask.h"
 
+/**
+ * @brief combines the tasks PndEmcHitsToWaveform and PndEmcWaveformToDigi
+ * @ingroup PndEmc
+ */
 class PndEmcFullDigiTask  : public FairTask
 {
-	
-	
 public:
 
   // Constructors

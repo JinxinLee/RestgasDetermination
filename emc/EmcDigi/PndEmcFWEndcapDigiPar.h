@@ -8,6 +8,11 @@
 #include "FairParamList.h"
 #include "TArrayD.h"
 
+/**
+ * @brief parameter set for the FWEndcap variant of waveform simulation
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
 class PndEmcFWEndcapDigiPar : public FairParGenericSet {
 
 	public:

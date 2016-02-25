@@ -12,6 +12,10 @@
 #include "FairMCPoint.h"
 #include "PndDetectorList.h"
 
+/**
+ * @brief represents a mc hit in an emc crystal
+ * @ingroup PndEmc
+ */
 class PndEmcPoint : public FairMCPoint 
 {
 

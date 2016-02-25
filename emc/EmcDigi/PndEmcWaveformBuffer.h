@@ -12,15 +12,20 @@ class PndEmcWaveformData;
 
 class TClonesArray;
 
-class PndEmcWaveformBuffer : public FairWriteoutBuffer {
-
+/**
+ * @brief buffer for waveforms, used by PndEmcFWEndcapTimebasedWaveforms
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
+class PndEmcWaveformBuffer : public FairWriteoutBuffer 
+{
 public:
 	PndEmcWaveformBuffer();
 	PndEmcWaveformBuffer(TString branchName, TString className, TString folderName, Bool_t persistance);
-	void AddNewDataToTClonesArray(FairTimeStamp*);
 
 	virtual ~PndEmcWaveformBuffer();
 
+	virtual void AddNewDataToTClonesArray(FairTimeStamp*);
 	virtual double FindTimeForData(FairTimeStamp* data) ;
 	virtual void FillDataMap(FairTimeStamp* data, double activeTime) ;
 	virtual void EraseDataFromDataMap(FairTimeStamp* data);
@@ -29,6 +34,11 @@ public:
 	virtual void StoreWaveformData(TString branchName, TString folderName, bool persistance);
 
 	virtual void FillNewData(PndEmcWaveformData*);
+
+private:
+	// don't allow copying (-Weffc++)
+	PndEmcWaveformBuffer(const PndEmcWaveformBuffer&);	// no implementation
+	PndEmcWaveformBuffer& operator= (const PndEmcWaveformBuffer&);	// no implementation
 
 protected:	
 

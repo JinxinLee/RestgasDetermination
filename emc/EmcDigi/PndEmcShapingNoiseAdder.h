@@ -7,8 +7,13 @@
 class PndEmcWaveform;
 class PndEmcAbsWaveformSimulator;
 
-class PndEmcShapingNoiseAdder : public PndEmcAbsWaveformModifier {
-	
+/**
+ * @brief waveform modifier to add noise to waveform
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
+class PndEmcShapingNoiseAdder : public PndEmcAbsWaveformModifier 
+{
 	public:
 		PndEmcShapingNoiseAdder();
 		PndEmcShapingNoiseAdder(Double_t fShapingTime, Double_t sampleRate, Double_t noiseWidth, Double_t inputScale);

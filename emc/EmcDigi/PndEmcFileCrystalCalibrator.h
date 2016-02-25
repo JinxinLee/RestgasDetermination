@@ -16,8 +16,8 @@
 
 /**
  * @brief Class to use a textfile for Calibration
- *
- * @return 
+ * @author Ch. Hammann <chammann@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
  **/
 class PndEmcFileCrystalCalibrator: public PndEmcAbsCrystalCalibrator{
 	public:

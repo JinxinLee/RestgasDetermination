@@ -34,6 +34,10 @@
 using std::cout;
 using std::endl;
 
+/**
+ * @brief stores crystal index coordinates (x,y) or (theta,phi)
+ * @ingroup PndEmc
+ */
 class PndEmcTwoCoordIndex: public TObject
 {
 public:

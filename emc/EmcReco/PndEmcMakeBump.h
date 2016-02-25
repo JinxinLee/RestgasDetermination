@@ -39,7 +39,7 @@ class PndEmcTwoCoordIndex;
  * 
  * Consists of the subtasks PndEmc2DLocMaxFinder, PndEmcExpClusterSplitter and PndEmcPhiBumpSplitter.
  * This task is mostly empty and just calls the subtasks.
- * 
+ * @ingroup PndEmc
  */
 class PndEmcMakeBump  : public FairTask
 {

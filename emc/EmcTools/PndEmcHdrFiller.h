@@ -15,6 +15,10 @@
 class TClonesArray;
 class PndEmcHeader;
 
+/**
+ * @brief Task to create Emc header
+ * @ingroup PndEmc
+ */
 class PndEmcHdrFiller : public FairTask
 {
 

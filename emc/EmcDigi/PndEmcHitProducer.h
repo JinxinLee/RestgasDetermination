@@ -30,6 +30,10 @@ using std::cout;
 using std::endl;
 using std::map;
 
+/**
+ * @brief creates PndEmcHit%s from PndEmcPoint%s
+ * @ingroup PndEmc
+ */
 class PndEmcHitProducer : public FairTask
 {
   

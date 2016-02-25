@@ -18,6 +18,10 @@ class TGeoManager;
 
 using std::string;
 
+/**
+ * @brief geometry helper class
+ * @ingroup PndEmc
+ */
 class PndEmcStructure: public TObject
 {
 	

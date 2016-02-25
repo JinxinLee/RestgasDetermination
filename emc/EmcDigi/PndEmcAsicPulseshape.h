@@ -18,6 +18,16 @@
 // Collaborating Class Headers -------
 //#include <ostream> 
 
+/**
+ * @brief Pulseshape from an APFEL ASIC preamplifier shaper
+ * 
+ * Circuit is described in EMC TDR and consists of charge-sensitive preamplifier,
+ * with the following pole-zero cancelation of its feedback ad 3rd order integrator.
+ * The pulseshape is determined by the integration time of single intagrator stage 
+ * and scintillation time of the crystal, with exponential input convoluted with
+ * response of the circuit
+ * @ingroup PndEmc
+ */
 class PndEmcAsicPulseshape  : public PndEmcAbsPulseshape
 {
 public:

@@ -13,14 +13,15 @@ class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
-
-/*! 
+/**
+ * @brief Task to remove duplicate crystals
+ * 
  * In timebased cluster reconstruction, same detectorId might appear multiple times in the same cluster, 
  * which could cause undefined behavior in classical (eventbased) routines.
  * The class provides a workaround, adding up the energies of all digis with the same origin (=crystal, detectorId). 
  * (One could also think off dumping the second hit, etc...)
+ * @ingroup PndEmc
  */
-
 class PndEmcClusterRemoveDuplCrys : public FairTask
 {
 
@@ -39,7 +40,10 @@ class PndEmcClusterRemoveDuplCrys : public FairTask
 		/** Virtual method Exec **/
 		virtual void Exec(Option_t* opt);
 
-	protected:
+private:
+  // don't allow copying (-Weffc++)
+  PndEmcClusterRemoveDuplCrys(const PndEmcClusterRemoveDuplCrys&);	// no implementation
+  PndEmcClusterRemoveDuplCrys& operator= (const PndEmcClusterRemoveDuplCrys&);	// no implementation
 
 
 	private:

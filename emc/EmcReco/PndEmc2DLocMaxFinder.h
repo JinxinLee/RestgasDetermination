@@ -36,7 +36,7 @@ class PndEmcRecoPar;
 
 /**
  * @brief Searches for local maxima in a cluster
- * 
+ * @ingroup PndEmc
  */
 class PndEmc2DLocMaxFinder: public FairTask
 {
@@ -65,6 +65,9 @@ private:
   // Methods
   void getNeighbourDigis( PndEmcCoordIndexSet &, PndEmcCoordIndexSet &, int,
 			  std::map<Int_t, Int_t>) const;
+  // don't allow copying (-Weffc++)
+  PndEmc2DLocMaxFinder(const PndEmc2DLocMaxFinder&);	// no implementation
+  PndEmc2DLocMaxFinder& operator= (const PndEmc2DLocMaxFinder&);	// no implementation
   
   /** Input array of PndEmcClusters **/
   TClonesArray* fClusterArray;

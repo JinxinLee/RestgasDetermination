@@ -23,6 +23,18 @@
 #include <map>
 #include <vector>
 
+/**
+ * @brief Container class for EMC error matrix parameter class is inherited from FairParGenericSet
+ * 
+ * Parametrization of EMC error matrix
+ * functions used for parameterization
+ * Energy: Delta(E)/E = (a^2/E^power) + const^2 + (quadr/E)^2
+ * position: Delta(x)=(a*a/E^power) + const^2
+ * There are 10 parameters (engParA, engPower, engConst, engQuadr, pos1ParA, pos1Power,
+ * pos1Const, pos2ParA, pos2Power, pos2Const) for each component of EMC (barrel,
+ * fwd endcap, bwd endcap, shashlyk)
+ * @ingroup PndEmc
+ */
 class PndEmcErrorMatrixParObject: public TObject
 {
 	public:

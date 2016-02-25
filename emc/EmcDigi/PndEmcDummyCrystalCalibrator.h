@@ -12,6 +12,11 @@
 
 #include "PndEmcAbsCrystalCalibrator.h"
 
+/**
+ * @brief Dummy Calibrator for Emc Crystals
+ * @author Ch. Hammann <chammann@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
 class PndEmcDummyCrystalCalibrator: public PndEmcAbsCrystalCalibrator{
 	public:
 		PndEmcDummyCrystalCalibrator():PndEmcAbsCrystalCalibrator(){};

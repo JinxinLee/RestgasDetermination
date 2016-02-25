@@ -16,8 +16,14 @@ class PndEmcWaveformData;
 #include "TROOT.h"
 #include "TClonesArray.h"
 
-class PndEmcAbsWaveformSimulator : public TObject {
-
+/**
+ * @brief Abstract base class for waveform simulator
+ * 
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
+class PndEmcAbsWaveformSimulator : public TObject 
+{
 	public:
 		/*! Simulate Waveform based on wfData object
 		 *
@@ -61,9 +67,7 @@ class PndEmcAbsWaveformSimulator : public TObject {
 
 		virtual void AddModifier(PndEmcAbsWaveformModifier* wfModifier) { fListOfWaveformModifiers.Add(wfModifier); }
 
-
 	protected:
-
 		PndEmcAbsWaveformSimulator() : fSampleRate(0) {};
 		PndEmcAbsWaveformSimulator(Double_t sampleRate) : fSampleRate(sampleRate) {};
 
@@ -85,7 +89,6 @@ class PndEmcAbsWaveformSimulator : public TObject {
 
 		TList fListOfWaveformModifiers;
 		Double_t fSampleRate;  //!< sampling rate of SADC. In 1/ns
-
 
 	ClassDef(PndEmcAbsWaveformSimulator, 3);
 };

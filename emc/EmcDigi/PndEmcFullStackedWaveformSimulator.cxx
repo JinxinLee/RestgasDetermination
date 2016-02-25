@@ -15,19 +15,31 @@
 
 using namespace std;
 
-PndEmcFullStackedWaveformSimulator::PndEmcFullStackedWaveformSimulator() : PndEmcAbsWaveformSimulator(0.), fSamplingBeforeFirstPulse(0), fSamplingAfterLastPulse(0), fCutoff(0), fPulseshape(NULL), fScale(0.), f1GeVWaveform(NULL), fPulseRiseTime(0), fActiveTimeIncrement(0) {
+PndEmcFullStackedWaveformSimulator::PndEmcFullStackedWaveformSimulator() : PndEmcAbsWaveformSimulator(0.), fSamplingBeforeFirstPulse(0), fSamplingAfterLastPulse(0), fCutoff(0), fPulseshape(NULL), fScale(0.), f1GeVWaveform(NULL), fPulseRiseTime(0), fActiveTimeIncrement(0) 
+{
 }
 
-PndEmcFullStackedWaveformSimulator::PndEmcFullStackedWaveformSimulator(Double_t sampleRate, PndEmcAbsPulseshape* pulseshape) : PndEmcAbsWaveformSimulator(sampleRate), fSamplingBeforeFirstPulse(0), fSamplingAfterLastPulse(0), fCutoff(0), fPulseshape(pulseshape), fScale(0.), f1GeVWaveform(NULL), fPulseRiseTime(0), fActiveTimeIncrement(0) {
+PndEmcFullStackedWaveformSimulator::PndEmcFullStackedWaveformSimulator(Double_t sampleRate, PndEmcAbsPulseshape* pulseshape) : PndEmcAbsWaveformSimulator(sampleRate), fSamplingBeforeFirstPulse(0), fSamplingAfterLastPulse(0), fCutoff(0), fPulseshape(pulseshape), fScale(0.), f1GeVWaveform(NULL), fPulseRiseTime(0), fActiveTimeIncrement(0) 
+{
 }
 
 
-PndEmcFullStackedWaveformSimulator::~PndEmcFullStackedWaveformSimulator() {
+PndEmcFullStackedWaveformSimulator::~PndEmcFullStackedWaveformSimulator() 
+{
 	delete f1GeVWaveform;
 }
 
-void PndEmcFullStackedWaveformSimulator::Init(Double_t samplingBeforeFirstPulse, Double_t samplingAfterLastPulse, Double_t cutoff, Double_t activeTimeIncrement) {
-
+/**
+ * @brief Init the simulator
+ * 
+ * @param samplingBeforeFirstPulse Time to start sampling before first pulse, in ns
+ * @param samplingAfterLastPulse Time to stop sampling after last pulse, in ns
+ * @param cutoff Threshold under which signal is considered to have stopped, in GeV
+ * @param activeTimeIncrement Increment when checking if pulse is over cutoff, in ns
+ * @return void
+ */
+void PndEmcFullStackedWaveformSimulator::Init(Double_t samplingBeforeFirstPulse, Double_t samplingAfterLastPulse, Double_t cutoff, Double_t activeTimeIncrement) 
+{
 	fSamplingBeforeFirstPulse = samplingBeforeFirstPulse;
 	fSamplingAfterLastPulse = samplingAfterLastPulse;
 	fCutoff = cutoff;
@@ -99,13 +111,20 @@ void PndEmcFullStackedWaveformSimulator::Init(Double_t samplingBeforeFirstPulse,
 	f1GeVWaveform = MakeSingleWaveform(1.0, 0.);
 
 	std::cerr << "finishing init" << std::endl;
-
 }
 
 
 
-void PndEmcFullStackedWaveformSimulator::GetAbsoluteTimeInterval(PndEmcWaveformData* wfData, Double_t& startTime, Double_t& activeTime) {
-
+/**
+ * @brief Get time interval for which the signal is above the cutoff
+ * 
+ * @param wfData Waveform
+ * @param[out] startTime Start time of waveform (adjusted by fSamplingBeforeFirstPulse)
+ * @param[out] activeTime Active time of waveform(s)
+ * @return void
+ */
+void PndEmcFullStackedWaveformSimulator::GetAbsoluteTimeInterval(PndEmcWaveformData* wfData, Double_t& startTime, Double_t& activeTime) 
+{
 	const std::map<Double_t, Double_t>& hitMap = wfData->GetHitMap();
 	startTime = hitMap.begin()->first - fSamplingBeforeFirstPulse;
 	
@@ -120,11 +139,30 @@ void PndEmcFullStackedWaveformSimulator::GetAbsoluteTimeInterval(PndEmcWaveformD
 	SyncWithADCClock(activeTime);
 }
 
-Double_t PndEmcFullStackedWaveformSimulator::CalcSingleWaveForTime(Double_t absoluteTime, Double_t energy, Double_t pulseTime) {
+/**
+ * @brief Return pulse at given time and for given energy.
+ * 
+ * Time in the pulse is @p absoluteTime-@p pulseTime
+ * 
+ * @param absoluteTime Time for which to calculate value.
+ * @param energy Energy of the pulse.
+ * @param pulseTime Time when the pulse starts.
+ * @return Double_t Pulse value.
+ */
+Double_t PndEmcFullStackedWaveformSimulator::CalcSingleWaveForTime(Double_t absoluteTime, Double_t energy, Double_t pulseTime) 
+{
 	return fPulseshape->value(absoluteTime, energy, pulseTime);
 }
 
-Double_t PndEmcFullStackedWaveformSimulator::CalcWaveForTime(Double_t absoluteTime, PndEmcWaveformData* wfData) {
+/**
+ * @brief Calculate pulse value at given time.
+ * 
+ * @param absoluteTime Time for which to calculate value.
+ * @param wfData Waveform including the hit map.
+ * @return Double_t Pulse value.
+ */
+Double_t PndEmcFullStackedWaveformSimulator::CalcWaveForTime(Double_t absoluteTime, PndEmcWaveformData* wfData) 
+{
 	Double_t returnValue = 0;
 
 	for(std::map<Double_t, Double_t>::const_iterator it = wfData->GetHitMap().begin(); it!=wfData->GetHitMap().end(); ++it) {
@@ -136,9 +174,15 @@ Double_t PndEmcFullStackedWaveformSimulator::CalcWaveForTime(Double_t absoluteTi
 	return returnValue;
 }
 
-PndEmcWaveform* PndEmcFullStackedWaveformSimulator::MakeWaveform(PndEmcWaveformData* wfData, TClonesArray* arrayToStore) {
-
-
+/**
+ * @brief Create PndEmcWaveform
+ * 
+ * @param wfData PndEmcWaveformData containing the hits.
+ * @param arrayToStore If not null, the new PndEmcWaveform is created in this TClonesArray.
+ * @return PndEmcWaveform*
+ */
+PndEmcWaveform* PndEmcFullStackedWaveformSimulator::MakeWaveform(PndEmcWaveformData* wfData, TClonesArray* arrayToStore)
+{
 	Int_t nSamples = static_cast<Int_t>((wfData->GetTimeOfLastSample()-wfData->GetTimeStamp())*GetSampleRate() + 0.5);
 	//cout << "TimeOfLastSample: " << wfData->GetTimeOfLastSample() << endl;
 	//cout << "Timestamp: " << wfData->GetTimeStamp() << endl;
@@ -172,9 +216,20 @@ PndEmcWaveform* PndEmcFullStackedWaveformSimulator::MakeWaveform(PndEmcWaveformD
 	return wave;
 
 }
-				
-PndEmcWaveform* PndEmcFullStackedWaveformSimulator::MakeSingleWaveform(Double_t hitEnergy, Double_t hitTime, TClonesArray* arrayToStore, Int_t detId, Int_t trackId, Int_t hitIndex) {
 
+/**
+ * @brief Create a PndEmcWaveform from the given parameters of a single hit.
+ * 
+ * @param hitEnergy ...
+ * @param hitTime ...
+ * @param arrayToStore ...
+ * @param detId ...
+ * @param trackId ...
+ * @param hitIndex ...
+ * @return PndEmcWaveform*
+ */
+PndEmcWaveform* PndEmcFullStackedWaveformSimulator::MakeSingleWaveform(Double_t hitEnergy, Double_t hitTime, TClonesArray* arrayToStore, Int_t detId, Int_t trackId, Int_t hitIndex) 
+{
 	std::vector<Double_t> signal;
 
 	Double_t startTime = hitTime - fSamplingBeforeFirstPulse;

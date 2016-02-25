@@ -76,7 +76,7 @@ PndEmcWaveformToDigi::~PndEmcWaveformToDigi()
 /**
  * @brief Init Task
  * 
- * Prepares the TClonesArrays of PndEmcWaveform or PndEmcSortedWaveform for reading 
+ * Prepares the TClonesArrays of PndEmcWaveform for reading 
  * and of PndEmcDigi for writing. Also reads the EMC parameters and prepares the pulseshapes
  * (PndEmcAbsPulseshape) and pulse shape analyser (PndEmcAbsPSA).
  * 

@@ -27,10 +27,10 @@
 #include "PndEmcDigi.h"
 
 
-//		---------------------
-// 		-- Class Interface --
-//		---------------------
-
+/**
+ * @brief used to share PndEmcDigi%s between bumps
+ * @ingroup PndEmc
+ */
 class PndEmcSharedDigi : public PndEmcDigi
 {
 

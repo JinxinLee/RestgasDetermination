@@ -18,6 +18,10 @@
 // Collaborating Class Headers -------
 //#include <ostream> 
 
+/**
+ * @brief Pulseshape from an CRRC-Shaper
+ * 
+ */
 class PndEmcCRRCPulseshape  : public PndEmcAbsPulseshape
 {
 public:

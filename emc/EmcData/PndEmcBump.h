@@ -27,6 +27,10 @@
 #include "PndEmcCluster.h"
 #include "TObject.h"
 
+/**
+ * @brief represents a reconstructed (splitted) emc cluster
+ * @ingroup PndEmc
+ */
 class PndEmcBump: public PndEmcCluster
 {
 

@@ -5,6 +5,10 @@
 #include "FairParGenericSet.h"
 #include "FairParamList.h"
 
+/**
+ * @brief parameter set of Emc digitisation
+ * @ingroup PndEmc
+ */
 class PndEmcDigiPar : public FairParGenericSet
 {
 	public:

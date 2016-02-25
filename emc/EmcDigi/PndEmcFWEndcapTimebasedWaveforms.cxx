@@ -46,19 +46,29 @@ using std::fstream;
 
 PndEmcFWEndcapTimebasedWaveforms::PndEmcFWEndcapTimebasedWaveforms(Int_t verbose, Bool_t storewaves) :
 	FairTask("PndEmcFWEndcapTimebasedWaveforms", verbose),	
-	fHitArray(NULL), fWaveformBuffer(NULL), fStoreWaves(storewaves), fStoreDataClass(kFALSE), fActivateBuffering(kFALSE), fDigiPar(NULL), fGeoPar(NULL), fUse_photon_statistic(kFALSE), fNPhotoElectronsPerMeV(0), fExcessNoiseFactor(0.), fExternalSimulator(NULL), fAPD_LOWHIGH(NULL) {
-	}
+	fHitArray(NULL), fWaveformBuffer(NULL), fStoreWaves(storewaves), fStoreDataClass(kFALSE), fActivateBuffering(kFALSE), fDigiPar(NULL), fGeoPar(NULL), fUse_photon_statistic(kFALSE), fNPhotoElectronsPerMeV(0), fExcessNoiseFactor(0.), fExternalSimulator(NULL), fAPD_LOWHIGH(NULL) 
+{
+}
 
 //--------------
 // Destructor --
 //--------------
-
-PndEmcFWEndcapTimebasedWaveforms::~PndEmcFWEndcapTimebasedWaveforms() {
+PndEmcFWEndcapTimebasedWaveforms::~PndEmcFWEndcapTimebasedWaveforms() 
+{
 }
 
 
-InitStatus PndEmcFWEndcapTimebasedWaveforms::Init() {
-
+/**
+ * @brief Init Task
+ * 
+ * Prepares the TClonesArray of PndEmcHit for reading and PndEmcMultiWaveform for writing.
+ * Also reads the EMC parameters and prepares the waveform simulator (PndEmcMultiWaveformSimulator).
+ * 
+ * @return InitStatus
+ * @retval kSUCCESS success
+ */
+InitStatus PndEmcFWEndcapTimebasedWaveforms::Init()
+{
 	// Get RootManager
 	FairRootManager* ioman = FairRootManager::Instance();
 	if (!ioman) {
@@ -140,7 +150,17 @@ InitStatus PndEmcFWEndcapTimebasedWaveforms::Init() {
 }
 
 
-void PndEmcFWEndcapTimebasedWaveforms::Exec(Option_t* opt) {
+/**
+ * @brief Runs the task.
+ * 
+ * Uses the waveform simulator (PndEmcAbsWaveformSimulator) to generate a waveform
+ * from the hit and fill the buffer (PndEmcWaveformBuffer).
+ * 
+ * @param opt unused
+ * @return void
+ */
+void PndEmcFWEndcapTimebasedWaveforms::Exec(Option_t* opt) 
+{
 	FairRootManager* ioman = FairRootManager::Instance();
 
 	TStopwatch timer;
@@ -210,8 +230,8 @@ void PndEmcFWEndcapTimebasedWaveforms::Exec(Option_t* opt) {
 	}
 }
 
-void PndEmcFWEndcapTimebasedWaveforms::SetParContainers() {
-
+void PndEmcFWEndcapTimebasedWaveforms::SetParContainers() 
+{
 	// Get run and runtime database
 	FairRun* run = FairRun::Instance();
 	if ( ! run ) Fatal("SetParContainers", "No analysis run");

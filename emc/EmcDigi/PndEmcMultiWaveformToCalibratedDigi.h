@@ -38,6 +38,12 @@ class PndEmcRecoPar;
 class PndEmcAbsPSA;
 class PndEmcAbsPulseshape;
 
+/**
+ * @brief Module to take the hit list for the 
+ *      calorimeter and make ADC waveforms from them.
+ * @ingroup PndEmc
+ * @author Ch. Hammann <chammann@hiskp.uni-bonn.de>
+ */
 class PndEmcMultiWaveformToCalibratedDigi : public FairTask
 {
 

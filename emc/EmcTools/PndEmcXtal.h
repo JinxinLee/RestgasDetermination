@@ -29,10 +29,10 @@
 class PndEmcTwoCoordIndex;
 
 
-//		---------------------
-// 		-- Class Interface --
-//		---------------------
-
+/**
+ * @brief represents coordinates of one crystal
+ * @ingroup PndEmc
+ */
 class PndEmcXtal:public TObject
 {
 

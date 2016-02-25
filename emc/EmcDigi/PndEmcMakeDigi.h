@@ -32,7 +32,7 @@ class PndEmcRecoPar;
  * 
  * This task creates digis directly from hits, bypassing the creation and 
  * analysis of waveforms.
- * 
+ * @ingroup PndEmc
  */
 class PndEmcMakeDigi : public FairTask
 {
@@ -50,6 +50,10 @@ protected:
   void SetStorageOfData(Bool_t val); //!< Method to specify whether digis are stored or not.
 	/** Get parameter containers **/
 	virtual void SetParContainers();
+private:
+	// don't allow copying (-Weffc++)
+	PndEmcMakeDigi(const PndEmcMakeDigi&);	// no implementation
+	PndEmcMakeDigi& operator= (const PndEmcMakeDigi&);	// no implementation
   
 private:
 	/** Input array of EmcWaveforms **/

@@ -45,7 +45,7 @@ class PndEmcAbsCrystalCalibrator;
 
 /**
  * @brief Takes list of PndEmcWaveform and creates PndEmcDigi
- * 
+ * @ingroup PndEmc
  */
 class PndEmcWaveformToDigi : public FairTask
 {
@@ -99,11 +99,15 @@ public:
 protected:
 	/** Get parameter containers **/
 	virtual void SetParContainers();
-
 private:
+	// don't allow copying (-Weffc++)
+	PndEmcWaveformToDigi(const PndEmcWaveformToDigi&);	// no implementation
+	PndEmcWaveformToDigi& operator= (const PndEmcWaveformToDigi&);	// no implementation
+
 	//Double_t GetEventTimebyDigiTime(Double_t digiT, Double_t digiE, Int_t detID, bool PrintOut=false) const;
 	//Int_t GetIdxByEnergy(Double_t energy) const;
 
+private:
 	/** Input array of PndEmcWaveforms **/
 	TClonesArray* fWaveformArray;  
 	//TClonesArray* fMcTrackArray;  

@@ -19,6 +19,10 @@
 
 class PndEmcPoint;
 
+/**
+ * @brief represents the deposited energy of one emc crystal from simulation
+ * @ingroup PndEmc
+ */
 class PndEmcHit : public FairHit
 {
  public:    

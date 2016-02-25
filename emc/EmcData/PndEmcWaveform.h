@@ -49,6 +49,10 @@
 
 class PndEmcHit;
 
+/**
+ * @brief represents a simulated waveform in an emc crystal
+ * @ingroup PndEmc
+ */
 class PndEmcWaveform: public FairTimeStamp
 {
 

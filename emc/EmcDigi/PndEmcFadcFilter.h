@@ -14,6 +14,10 @@
 
 class PndEmcAbsPulseshape;
 
+/**
+ * @brief FADC FIR (finite impulse response) filter
+ * @ingroup PndEmc
+ */
 class PndEmcFadcFilter : public TObject {
 
 public:

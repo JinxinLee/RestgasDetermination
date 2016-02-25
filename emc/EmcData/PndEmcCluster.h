@@ -34,6 +34,10 @@ struct LinkScoreBoard{
 };
 
 
+/**
+ * @brief a cluster (group of neighboring crystals) of hit emc crystals
+ * @ingroup PndEmc
+ */
 class PndEmcCluster : public FairTimeStamp
 {
 

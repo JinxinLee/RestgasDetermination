@@ -15,10 +15,15 @@
 class PndEmcPSAFPGASampleAnalyser;
 
 
-class PndEmcHighLowPSA : public PndEmcAbsPSA {
-
+/**
+ * @brief Wrapping class to manage two independent PSAs for high, resp. low gain
+ * 
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
+class PndEmcHighLowPSA : public PndEmcAbsPSA 
+{
 	public:
-
 		PndEmcHighLowPSA(Int_t verbose=0);
 		virtual void Init(PndEmcPSAFPGASampleAnalyser* highgainPSA, PndEmcPSAFPGASampleAnalyser* lowgainPSA, Double_t overflowThreshold, Int_t highgainWfIndex=0, Int_t lowgainWfIndex=1);
 		virtual ~PndEmcHighLowPSA(){}
@@ -30,7 +35,6 @@ class PndEmcHighLowPSA : public PndEmcAbsPSA {
 		virtual Int_t GetWaveformIdx(Int_t i);
 
 	private:
-
 		PndEmcPSAFPGASampleAnalyser* fHighgainPSA;
 		PndEmcPSAFPGASampleAnalyser* fLowgainPSA;
 		
@@ -46,6 +50,3 @@ class PndEmcHighLowPSA : public PndEmcAbsPSA {
 };
 
 #endif
-
-
-

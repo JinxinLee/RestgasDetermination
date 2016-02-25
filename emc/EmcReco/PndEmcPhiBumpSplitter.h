@@ -56,7 +56,7 @@ class PndEmcSharedDigi;
 /**
  * @brief splits clusters based on local maxima in the Phi 
  * direction for use with Bremstrahlung correction.
- * 
+ * @ingroup PndEmc
  */
 class PndEmcPhiBumpSplitter: public FairTask
 {
@@ -78,6 +78,11 @@ public:
 protected:
 	/** Get parameter containers **/
 	virtual void SetParContainers();
+
+private:
+	// don't allow copying (-Weffc++)
+	PndEmcPhiBumpSplitter(const PndEmcPhiBumpSplitter&);	// no implementation
+	PndEmcPhiBumpSplitter& operator= (const PndEmcPhiBumpSplitter&);	// no implementation
 
 private:
 	/** Input array of PndEmcDigi%s **/

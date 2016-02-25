@@ -16,7 +16,7 @@ class PndEmcWaveform;
 /**
  * @brief Baseclass for pulseshapeanalysis ( featureextraction )
  *
- * @return 
+ * @ingroup PndEmc
  **/
 class PndEmcAbsPSA {
 public:

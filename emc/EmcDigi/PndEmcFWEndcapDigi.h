@@ -10,8 +10,7 @@
 
 #include "FairTask.h"
 
-#include <string>		
-
+#include <string>
 //#include <vector>
 
 class PndEmcHit;
@@ -25,24 +24,23 @@ class PndEmcGeoPar;
 class PndEmcAbsPSA;
 class PndEmcAbsPulseshape;
 
+/**
+ * @brief Task to create digis from waveforms.
+ * 
+ * This is an alternative to PndEmcWaveformToDigi, which despite its name could be 
+ * used for all the EMC, not just FwEndcap.
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
 class PndEmcFWEndcapDigi : public FairTask
 {
-
 public:
-
   // Constructors
-
   PndEmcFWEndcapDigi(Int_t verbose=0, Bool_t storedigis=kTRUE);
-
   // Destructor
-
   virtual ~PndEmcFWEndcapDigi();
 
-  /** Virtual method Init **/
   virtual InitStatus Init();
-
-
-  /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
   void SetStorageOfData(Bool_t val); // Method to specify whether digis are stored or not.
@@ -63,6 +61,13 @@ public:
 	  	std::cerr << "-E- in PndEmcFWEndcapDigi::SetCrystalCalibrator: Calibrator must be a PndEmcSimCrystalCalibrator. External Calibrator setting has no effect" << std::endl;
 	  }
   };
+protected:
+	/** Get parameter containers **/
+	virtual void SetParContainers();
+private:
+	// don't allow copying (-Weffc++)
+	PndEmcFWEndcapDigi(const PndEmcFWEndcapDigi&);	// no implementation
+	PndEmcFWEndcapDigi& operator= (const PndEmcFWEndcapDigi&);	// no implementation
 
 private:
 
@@ -84,31 +89,17 @@ private:
 
 	PndEmcSimCrystalCalibrator *fCalibrator;
 
-	PndEmcFWEndcapDigiPar*    fDigiPar;      /** Digitisation parameter container **/
-	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
-	PndEmcGeoPar*    fGeoPar;      /** Digitisation parameter container **/
+	PndEmcFWEndcapDigiPar*    fDigiPar;      //!< Digitisation parameter container
+	PndEmcRecoPar*    fRecoPar;      //!< Reconstruction parameter container
+	PndEmcGeoPar*    fGeoPar;      //!< Digitisation parameter container
 
-	/** Get parameter containers **/
-	virtual void SetParContainers();
-	
 	/** Verbosity level **/
 	Int_t fVerbose;
 
 	Bool_t fStoreDigis;
 	Bool_t fTimeOrderedDigi; ///<set to kTRUE to use the time ordering of the output data.
-	
-
-	PndEmcFWEndcapDigi(const PndEmcFWEndcapDigi & L);
-	PndEmcFWEndcapDigi& operator= (const PndEmcFWEndcapDigi &) {return *this;};
 
 	ClassDef(PndEmcFWEndcapDigi,1);
-	
-	
 };
 
 #endif
-
-
-
-
-

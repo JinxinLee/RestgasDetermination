@@ -9,6 +9,12 @@
 
 #include "PndEmcAbsPulseshape.h"
 
+/**
+ * @brief Experimentally derived Pulseshape 
+ * 
+ * of the form f(x) = A * (t')^ N * exp(-N t')
+ * @ingroup PndEmc
+ */
 class PndEmcFittedPulseshape  : public PndEmcAbsPulseshape {
 
 	public:

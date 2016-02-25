@@ -9,6 +9,11 @@ class PndEmcAbsWaveformSimulator;
 
 
 
+/**
+ * @brief waveform rescaler
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
 class PndEmcWfRescaler : public PndEmcAbsWaveformModifier {
 	
 	public:

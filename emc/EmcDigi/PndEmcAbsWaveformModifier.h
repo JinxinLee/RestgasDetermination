@@ -7,6 +7,12 @@
 
 #include "TObject.h"
 
+/**
+ * @brief interface for waveform modifiers
+ *
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
+ * @ingroup PndEmc
+ */
 class PndEmcAbsWaveformModifier : public TObject {
 	public: 
 		virtual void Modify(PndEmcWaveform* wf) = 0;

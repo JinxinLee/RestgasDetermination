@@ -11,14 +11,17 @@
 #include <vector>
 
 
-PndEmcMultiWaveformSimulator::PndEmcMultiWaveformSimulator() : PndEmcFullStackedWaveformSimulator(), fWfMultiplicity(0) {
+PndEmcMultiWaveformSimulator::PndEmcMultiWaveformSimulator() : PndEmcFullStackedWaveformSimulator(), fWfMultiplicity(0) 
+{
 }
 
-PndEmcMultiWaveformSimulator::PndEmcMultiWaveformSimulator(Double_t sampleRate, PndEmcAbsPulseshape* pulseshape, Int_t wfMultiplicity) : PndEmcFullStackedWaveformSimulator(sampleRate, pulseshape), fWfMultiplicity(wfMultiplicity) {
+PndEmcMultiWaveformSimulator::PndEmcMultiWaveformSimulator(Double_t sampleRate, PndEmcAbsPulseshape* pulseshape, Int_t wfMultiplicity) : PndEmcFullStackedWaveformSimulator(sampleRate, pulseshape), fWfMultiplicity(wfMultiplicity) 
+{
 }
 
 
-PndEmcWaveform* PndEmcMultiWaveformSimulator::MakeWaveform(PndEmcWaveformData* wfData, TClonesArray* arrayToStore) {
+PndEmcWaveform* PndEmcMultiWaveformSimulator::MakeWaveform(PndEmcWaveformData* wfData, TClonesArray* arrayToStore) 
+{
 	PndEmcWaveform* singleWaveform = PndEmcFullStackedWaveformSimulator::MakeWaveform(wfData, NULL);
 	PndEmcMultiWaveform* multiWaveform = MultiplyWaveform(singleWaveform, arrayToStore);
 
@@ -27,7 +30,8 @@ PndEmcWaveform* PndEmcMultiWaveformSimulator::MakeWaveform(PndEmcWaveformData* w
 }
 
 
-PndEmcWaveform* PndEmcMultiWaveformSimulator::MakeSingleWaveform(Double_t hitEnergy, Double_t hitTime, TClonesArray* arrayToStore, Int_t detId, Int_t trackId, Int_t hitIndex) {
+PndEmcWaveform* PndEmcMultiWaveformSimulator::MakeSingleWaveform(Double_t hitEnergy, Double_t hitTime, TClonesArray* arrayToStore, Int_t detId, Int_t trackId, Int_t hitIndex) 
+{
 	PndEmcWaveform* singleWaveform = PndEmcFullStackedWaveformSimulator::MakeSingleWaveform(hitEnergy, hitTime, NULL, detId, trackId, hitIndex);
 	PndEmcMultiWaveform* multiWaveform = MultiplyWaveform(singleWaveform, arrayToStore);
 	
@@ -35,14 +39,30 @@ PndEmcWaveform* PndEmcMultiWaveformSimulator::MakeSingleWaveform(Double_t hitEne
 	return multiWaveform;
 }
 
-//pass wfIndex Modifier shall work on as second parameter
-void PndEmcMultiWaveformSimulator::AddModifier(PndEmcAbsWaveformModifier* wfModifier, Int_t wfIndex) {
+
+/**
+ * @brief Add a modifier (PndEmcAbsWaveformModifier)
+ * 
+ * pass wfIndex Modifier shall work on as second parameter
+ * 
+ * @param wfModifier 
+ * @param wfIndex 
+ * @return void
+ */
+void PndEmcMultiWaveformSimulator::AddModifier(PndEmcAbsWaveformModifier* wfModifier, Int_t wfIndex) 
+{
 	fIndexList.push_back(wfIndex);
 	PndEmcFullStackedWaveformSimulator::AddModifier(wfModifier);
 }
 
-PndEmcWaveform* PndEmcMultiWaveformSimulator::CallModifiers(PndEmcWaveform* wf) {
-
+/**
+ * @brief Call modifiers on waveform @p wf
+ * 
+ * @param wf waveform
+ * @return PndEmcWaveform* @p wf
+ */
+PndEmcWaveform* PndEmcMultiWaveformSimulator::CallModifiers(PndEmcWaveform* wf) 
+{
 	PndEmcMultiWaveform* multiWaveform = dynamic_cast<PndEmcMultiWaveform*>(wf);
 	Int_t count = 0;
 	TIter iterModifiers(&fListOfWaveformModifiers);
@@ -57,9 +77,14 @@ PndEmcWaveform* PndEmcMultiWaveformSimulator::CallModifiers(PndEmcWaveform* wf) 
 	return wf;
 }
 
-
-Double_t PndEmcMultiWaveformSimulator::GetTotalScale(Int_t wfIndex) {
-
+/**
+ * @brief Return scale after all modifiers
+ * 
+ * @param wfIndex Waveform index.
+ * @return Double_t The Scale.
+ */
+Double_t PndEmcMultiWaveformSimulator::GetTotalScale(Int_t wfIndex) 
+{
 	Double_t totalScale = GetScale();
 
 	TIter iterModifiers(&fListOfWaveformModifiers);
@@ -75,8 +100,15 @@ Double_t PndEmcMultiWaveformSimulator::GetTotalScale(Int_t wfIndex) {
 }
 
 
-PndEmcMultiWaveform* PndEmcMultiWaveformSimulator::MultiplyWaveform(const PndEmcWaveform* singleWaveform, TClonesArray* arrayToStore) {
-
+/**
+ * @brief Creates a PndEmcMultiWaveform from a PndEmcWaveform
+ * 
+ * @param singleWaveform The single waveform from which to create the multi-waveform.
+ * @param arrayToStore If not null, the new PndEmcMultiWaveform is created in this TClonesArray.
+ * @return PndEmcMultiWaveform*
+ */
+PndEmcMultiWaveform* PndEmcMultiWaveformSimulator::MultiplyWaveform(const PndEmcWaveform* singleWaveform, TClonesArray* arrayToStore) 
+{
 	const std::vector<Double_t>& signal = singleWaveform->GetSignal();
 
 	PndEmcMultiWaveform* multiWaveform = NULL;
@@ -97,4 +129,3 @@ PndEmcMultiWaveform* PndEmcMultiWaveformSimulator::MultiplyWaveform(const PndEmc
 
 	return multiWaveform;
 }
-

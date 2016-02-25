@@ -12,6 +12,10 @@
 // Collaborating Class Headers -------
 //#include <ostream> 
 
+/**
+ * @brief Exponential Pulseshape
+ * @ingroup PndEmc
+ */
 class PndEmcExpPulseshape  : public PndEmcAbsPulseshape
 {
 public:
