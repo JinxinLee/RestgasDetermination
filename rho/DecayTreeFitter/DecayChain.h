@@ -53,7 +53,7 @@ namespace DecayTreeFitter {
     int momIndex(RhoCandidate* bc) const ;
     int lenIndex(RhoCandidate* bc) const ;
     void setOwner(bool b) { m_isOwner=b ;}
-    int momIndex() const ;
+    //int momIndex() const ;
 
     void printConstraints(std::ostream& os=std::cout) const ;
     void setMassConstraint( RhoCandidate* bc, bool add=true) ;

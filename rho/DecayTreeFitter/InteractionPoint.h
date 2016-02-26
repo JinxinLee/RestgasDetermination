@@ -35,7 +35,7 @@ namespace DecayTreeFitter
     virtual int dim() const { return 7; } // (fix to the "first" internal particle ) 
     virtual ErrCode initPar1(FitParams*) ;
     virtual ErrCode initCov(FitParams*) const ;
-    ErrCode initMom( FitParams* fitparams ) const ;
+    //ErrCode initMom( FitParams* fitparams ) const ;
 
     virtual int type() const { return kInteractionPoint ; }
 
