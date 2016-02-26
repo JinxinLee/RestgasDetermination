@@ -13,6 +13,8 @@
 #include "FairSystemInfo.h"
 #include "FairLogger.h"
 
+#include <iostream>
+
 using std::cout;
 using std::endl;
 

@@ -105,14 +105,14 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   ((PndEmcMakeBump*)GetListOfTasks()->At(kPndEmcMakeBump))->SetStorageOfData(kFALSE);
   
   // -----   SciT hit producers   -------------------------------
-  // ((PndSciTHitProducerIdeal*)GetListOfTasks()->At(kPndSciTHitProducerIdeal))->SetPersistency(pers);
+  ((PndSciTHitProducerIdeal*)GetListOfTasks()->At(kPndSciTHitProducerIdeal))->SetPersistence(pers);
   
   // -----   MDT hit producers   ---------------------------------
   ((PndMdtHitProducerIdeal*)GetListOfTasks()->At(kPndMdtHitProducerIdeal))->SetPersistency(pers);
   ((PndMdtTrkProducer*)GetListOfTasks()->At(kPndMdtTrkProducer))->SetPersistency(pers);
  
   // -----   DRC hit producers   ---------------------------------
-  // ((PndDrcProducerReal*)GetListOfTasks()->At(kPndDrcHitProducerReal))->SetPersistency(pers);
+  ((PndDrcHitProducerReal*)GetListOfTasks()->At(kPndDrcHitProducerReal))->SetPersistency(pers);
   
   // -----   GEM hit producers   ---------------------------------
   ((PndGemDigitize*)GetListOfTasks()->At(kPndGemDigitize))->SetPersistency(pers);
