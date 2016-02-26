@@ -18,6 +18,7 @@ PndFileNameCreator::PndFileNameCreator(std::string fileName):
 	fExtRiemann("riemann"),fExtCombinedRiemann("combRiemann"),fExtVertex("vertex"),
 	fVerbose(0)
 {
+	std::cout << "PndFileNameCreator::fFileName " << fileName << " " << fileName.size() << std::endl;
 }
 
 
@@ -184,21 +185,25 @@ std::string PndFileNameCreator::GetPath()
 	if(fVerbose>1) pathAna.Print();
 	if (fFileName.find("/") == 0)
 		result << "./";
-	for (UInt_t i = 0; i < resString.size()-1; i++){
-		result << resString[i] << "/";
+	std::cout << "resString.size() " << resString.size() << std::endl;
+	if (resString.size() > 0){
+		for (int i = 0; i < resString.size()-1; i++){
+			result << resString[i] << "/";
+		}
 	}
 	return result.str();
 }
 
 std::string PndFileNameCreator::GetFileName()
 {
-	std::stringstream result;
+	std::string result;
 	std::vector<std::string> resString;
 
 	PndStringSeparator pathAna(fFileName,"/");
 	resString = pathAna.GetStringVector();
-
-	return resString[resString.size()-1];
+	if (resString.size() > 0)
+		result = resString[resString.size()-1];
+	return result;
 }
 
 std::string PndFileNameCreator::TruncateFileName(bool cut)
@@ -221,18 +226,19 @@ std::string PndFileNameCreator::TruncateFileName(bool cut)
 	if (cut == true)
 		cutLast = 2;
 	else cutLast = 1;
-  
-	if (resString[resString.size()-1] != "root")
-		cutLast--;
-  
-	if (resString.size() - cutLast <= 0)
-		return "";
-  
-	result << path;
-	for (UInt_t i = 0; i < resString.size()-1 - cutLast; i++){
-		result << resString[i] << "_";
+	if (resString.size() > 0){
+		if (resString[resString.size()-1] != "root")
+			cutLast--;
+
+		if (resString.size() - cutLast <= 0)
+			return "";
+
+		result << path;
+		for (UInt_t i = 0; i < resString.size()-1 - cutLast; i++){
+			result << resString[i] << "_";
+		}
+		result << resString[resString.size()-1 - cutLast];
 	}
-	result << resString[resString.size()-1 - cutLast];
 	return result.str();
 }
 
@@ -247,9 +253,10 @@ std::string PndFileNameCreator::TruncateInitial()
 
 	PndStringSeparator stringAna(name, "._");
 	resString = stringAna.GetStringVector();
-
-	for (UInt_t i = 1; i < resString.size() - 1; i++){
-		result << "_" << resString[i];
+	if (resString.size() > 0){
+		for (UInt_t i = 1; i < resString.size() - 1; i++){
+			result << "_" << resString[i];
+		}
 	}
 	result << ".root";
 	return result.str();
