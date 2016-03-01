@@ -1,27 +1,51 @@
 #ifndef __PndRadMapMESH_HH__
-#define __PndRadMapMESH_HH__ 1
+#define __PndRadmapMESH_HH__ 
 #include <TH2D.h>
 #include <TROOT.h>
 #include <TFormula.h>
 #include <TMatrixD.h>
-#include "FairRadMapPoint.h"
+#include <FairRadMapPoint.h>
 
 
 enum axis{Xx=1, Yy=2, Zz=3}; 
 enum orientation{XY=1, YX=2, XZ=3, ZX=4, YZ=5, ZY=6}; 
-enum quantity{Edep=1, Dose=2, Fluence=3, EnergyFluence=4, Flux=5, Kerma=6, Density=7, Mass=8, SimpleFluence=9}; 
+enum quantity{Edep=1, Dose=2, Fluence=3, EnergyFluence=4, Flux=5, Kerma=6, Density=7, Mass=8, SimpleFluence=9, Twos=10}; 
 
 struct Corner{
   TVector3 corner1;
   TVector3 corner2;
   TVector3 corner3;
 };
-void InvMatVecProd(TMatrixD mat, TVector3 vec, TVector3& res);
+
+class PndRadMapPlane {
+ private:
+  TVector3 normal;
+  TVector3 corner1;
+  TVector3 corner2;
+  TVector3 corner3;
+  double distance;
+ public:
+  PndRadMapPlane(TVector3 _corner1,
+        TVector3 _corner2,
+        TVector3 _corner3,
+        double dist = 0);
+  PndRadMapPlane();
+  TVector3 LineIntersection(TVector3 begline,
+                            TVector3 endline);
+  void SetNormal(TVector3 n){normal = n;};
+  void SetDistance(double d){distance = d;};
+  TVector3 GetCorner(int i);
+  TVector3 Corner1(){return corner1;};
+  TVector3 Corner2(){return corner2;};
+  TVector3 Corner3(){return corner3;};
+  double Distance(){return distance;};
+  TVector3 Normal(){return normal;};
+};
 
 
 class PndRadMapBoxMesh{
  public:
-  PndRadMapBoxMesh(){};
+  PndRadMapBoxMesh();
   PndRadMapBoxMesh(PndRadMapBoxMesh& m);//copy cons
   PndRadMapBoxMesh(const char* Name,
           int Xbins, Double_t Xlow, Double_t Xhigh,
@@ -86,11 +110,10 @@ class PndRadMapBoxMesh{
   /* UInt_t    oldId; */
   /* Double_t _Xold, _Yold, _Zold; */
   TFormula _filter;
-  //ClassDef(PndRadMapBoxMesh,1); // Class for PndSds
 };
 
 
-/* class BoxMesh : public Mesh{   */
+/* class PndRadMapBoxMesh : public Mesh{   */
 
 /*  public: */
 /*   Mesh(int Xbins, Double_t Xlow, Double_t Xhigh, */
@@ -138,5 +161,6 @@ class PndRadMapBoxMesh{
 /*        int Phibins, Double_t Philow, Double_t Phihigh);//going from 0 to 2pi */
 /*   //default values World mins, and maxs */
 /* }; */
+void InvMatVecProd(TMatrixD mat, TVector3 vec, TVector3& res);
 
 #endif

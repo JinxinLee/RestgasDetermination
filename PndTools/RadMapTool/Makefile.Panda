@@ -5,8 +5,8 @@
 
 #------------------------------------------------------------------------------
 
-#PANDADIR     := $(VMCWORKDIR)
-PANDADIR     := /d/pndint02/carsten/fairsoft_mar15/pandaroot
+PANDADIR     := $(VMCWORKDIR)
+#PANDADIR     := /d/pndint02/carsten/fairsoft_mar15/pandaroot
 
 # Add include directories for the PandaRoot header files.
 INCLUDE       = -I$(PANDADIR)/base \
@@ -212,7 +212,7 @@ INCLUDE        += -I$(FAIRPATH)/include \
 		  -I$(FAIRPATH)/include/XmlVGM
 #PANDAPATH	= /usr/local/src/GSISOFT/PandaRoot/BuildPanda
 #PANDAPATH	= $(PANDADIR)/../built
-PANDAPATH	= /d/pndint02/carsten/fairsoft_mar15/pandaroot/buildPanda
+PANDAPATH	= $(PANDADIR)/buildPanda
 #FAIRLIBS        = -L$(FAIRPATH)/lib/root -L$(FAIRPATH)/lib 
 FAIRLIBS        = -L$(FAIRPATH)/lib 
 PNDLIBS         = -L$(PANDAPATH)/lib 

@@ -1,0 +1,25 @@
+MEDIA:     media_pnd.geo
+CAVE:      pndcave.geo
+SOLENOID:  FullSolenoid_V842.root
+DIPOLE:    dipole.geo
+PIPE:      beampipe_201309.root
+
+STT:       straws_skewed_blocks_35cm_pipe.geo
+MVD:       Mvd-2.1_FullVersion.root
+GEM:       gem_3Stations_Tube.root
+#SciTile:   SciTil_latest.root
+SciTile:   barrel-SciTil_07022013.root
+#DRC:       dirc_l4_p0_R2.root
+DRC:       dirc_l0_p0_updated.root
+
+DSK:       dsk.root
+MUONBAR:   muon_TS_barrel_strip_v1_noGeo.root
+MOUNENDC:  muon_TS_endcap_strip_v1_noGeo.root
+MOUNFOR:   muon_Forward_strip_v1_noGeo.root
+MUONFILT:  muon_MuonFilter_strip_v1_noGeo.root
+
+FTS:       fts.geo
+FTOF:      ftofwall.root
+RICH:      rich_v2_shift.geo
+
+#SciTile:   barrel-SciTil_07022013.root

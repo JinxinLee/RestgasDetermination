@@ -1,6 +1,4 @@
-
 #include "PndRadMapBoxMesh.h"
-#include "PndRadMapPlane.h"
 #include <TMath.h>
 #include <TFile.h>
 
@@ -8,7 +6,7 @@
 #include <iomanip>
 #include <utility>
 
-//#include "G4UnitsTable.hh"
+#include "G4UnitsTable.hh"
 
 #define verbose true
 
@@ -19,6 +17,72 @@ bool momentumfilter(TVector3 mom, TVector3 diff){
   for(int i = 0; i < 3; i++) if(mom(i)*diff(i) < 0) back = false;
   return back;
 }
+
+PndRadMapPlane::PndRadMapPlane(){
+  SetNormal(TVector3(0, 0, 0));
+  SetDistance(0);
+  corner1 = TVector3(0, 0, 0);
+  corner2 = TVector3(0, 0, 0);
+  corner3 = TVector3(0, 0, 0);
+}
+
+PndRadMapPlane::PndRadMapPlane(TVector3 _corner1, TVector3 _corner2, TVector3 _corner3,
+             double dist){
+  corner1 = _corner1;
+  corner2 = _corner2;
+  corner3 = _corner3;
+  TVector3 dpv1 = corner2-corner1;
+  TVector3 dpv2 = corner3-corner1;
+  TVector3 n = (dpv1.Cross(dpv2)).Unit();
+  SetNormal(n);
+  SetDistance(dist);
+
+  // std::cout << "p1: " << corner1.X() << ' ' << corner1.Y() << ' ' << corner1.Z() << std::endl;
+  // std::cout << "p2: " << corner2.X() << ' ' << corner2.Y() << ' ' << corner2.Z() << std::endl;
+  // std::cout << "p3: " << corner3.X() << ' ' << corner3.Y() << ' ' << corner3.Z() << std::endl;
+  // std::cout << "dp1: " << dpv1.X() << ' ' << dpv1.Y() << ' ' << dpv1.Z() << std::endl;
+  // std::cout << "dp2: " << dpv2.X() << ' ' << dpv2.Y() << ' ' << dpv2.Z() << std::endl;
+  // std::cout << "normal: " << n.X() << ' ' << n.Y() << ' ' << n.Z() << std::endl;
+}
+
+TVector3 PndRadMapPlane::GetCorner(int i){
+  switch(i){
+  case 1:
+    return Corner1();
+  case 2:
+    return Corner2();
+  case 3:
+    return Corner3();
+  default:
+    return TVector3(0, 0, 0);
+  }
+}
+
+
+
+TVector3 PndRadMapPlane::LineIntersection(TVector3 begline, TVector3 endline){
+  // plane: (p-corner1)*n = 0
+  //    line: p=t*(end-beg)+beg
+  //    (t*(end-beg) + beg - corner1)*n=0
+  //    t*(end-beg)*n+(beg-corner1)*n=0
+  //    n*(corner1-beg)/(n*(end-beg))=t
+
+
+  TVector3 diffl = endline-begline;
+  float nDotBeg = normal*(corner1-begline);
+  float nDotDiff = normal*diffl;
+  float tt = nDotBeg/nDotDiff;
+
+  TVector3 ixp = begline + tt*diffl;
+
+  // std::cout << diffl.X() << ' ' << diffl.Y() << ' ' << diffl.Z() << "   "
+  //           << normal.X() << ' ' << normal.Y() << ' ' << normal.Z() << "   "
+  //           << nDotBeg << ' ' << nDotDiff << ' ' << tt << std::endl;
+  return ixp;
+
+}
+
+
 
 
 
@@ -194,7 +258,7 @@ void PndRadMapBoxMesh::SetOrientation(Double_t rotate,
   _axis = Ax;
   _rotate = (rotate == 99999) ? 0 : rotate;
 
-  char C[32];
+  // char C[32];
   switch (_orientation){
   case XY:
     makeHisto("XY", _rotate,
@@ -243,14 +307,21 @@ void PndRadMapBoxMesh::SetOrientation(Double_t rotate,
 }
 // void PndRadMapBoxMesh::transform(Double_t Vh, Double_t Vv){
 void PndRadMapBoxMesh::Transform(Double_t X, Double_t Y, Double_t Z){
+  // std::cout << "void PndRadMapBoxMesh::Transform(Double_t X, Double_t Y, Double_t Z)\n";
+
   _X = X; _Y = Y; _Z = Z;
   Transform(  X,  Y,  Z,
-             _X, _Y, _Z);
+              _X, _Y, _Z);
+  // std::cout << X << ' ' << Y << ' ' << Z << std::endl;
+  // std::cout << _X << ' ' << _Y << ' ' << _Z << std::endl;
+
 }
 
 void PndRadMapBoxMesh::Transform(Double_t  X,  Double_t  Y,  Double_t  Z,
                         Double_t& X0, Double_t& Y0, Double_t& Z0){
 
+  // std::cout << "void PndRadMapBoxMesh::Transform(Double_t  X,  Double_t  Y,  Double_t  Z,\n";
+  // std::cout << "                        Double_t& X0, Double_t& Y0, Double_t& Z0)\n";
   if(_rotate == 99999) _rotate = 0;
   if((_rotate == 0)){
     X0 = X; Y0 = Y; Z0 = Z; 
@@ -349,10 +420,13 @@ void PndRadMapBoxMesh::Transform(Double_t  X,  Double_t  Y,  Double_t  Z,
       break;
     };
   }
+  // std::cout << X << ' ' << Y << ' ' << Z << std::endl;
+  // std::cout << X0 << ' ' << Y0 << ' ' << Z0 << std::endl;
 }
 
 void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
-
+  // std::cout << "void PndRadMapBoxMesh::Fill(FairRadMapPoint *p)\n";
+  
   Int_t pid = p->GetPdg();
   Int_t cha = 0;// to be implemented
   Double_t mom = TMath::Sqrt((p->GetPx()*p->GetPx()) +
@@ -361,118 +435,151 @@ void PndRadMapBoxMesh::Fill(FairRadMapPoint *p){
   if(_filter.Eval(pid, cha, mom)){
 
     Double_t val = 0;
-    Double_t edep;
-    Double_t dens;
-
-    
-    Int_t oldBinX, oldBinY, oldBinZ;
-    Int_t newBinX, newBinY, newBinZ;
-    Int_t oldBin;
-    Int_t newBin;
-    Double_t dx;
-    Double_t dy;
-    Double_t dz;
 
     TVector3 vstart, vend, vcent, bcorner;
+
+    Double_t edep = p->GetEnergyLoss()*1.60217657*1e-10;//GeV->Joule
+    Double_t dens = p->GetDensity();
+    dens *= 0.001;//g/cm3 -> kg/cm3
+    Double_t mass = p->GetMass();
+    
     switch (_quantity){
 
     case Edep:
-      val = p->GetEnergyLoss()*1.60217657*1e-10;
-      if(!std::isnan(val) && val !=0)
+      val = edep;
+      if(!isnan(val) && val !=0)
         Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
       break;
 
-    case Dose:
-      edep = p->GetEnergyLoss()*1.60217657*1e-10;//GeV->Joule
-      dens = p->GetDensity();
-      dens *= 0.001;//g/cm3 -> kg/cm3
-      
-      val = edep/(dens*_volume);//mass=density*vol,dens[kg/cm^3],vol[cm^3]!
-      if(!std::isnan(val) && val !=0){
+    case Dose:      
+      // val = edep/(dens*_volume);//mass=density*vol,dens[kg/cm^3],vol[cm^3]!
+      val = edep/mass;//mass=density*vol,dens[kg/cm^3],vol[cm^3]!
+      if(!isnan(val) && val !=0){
         Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
       }
       break;
 
     case Fluence:    
       val = CalcFluence(p);
-      if(!std::isnan(val) && val !=0){
+      if(!isnan(val) && val !=0){
         Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
       }
       break;
 
     case Density:
       val = dens;
-      if(!std::isnan(val) && val !=0){
+      // std::cout << "density: (" << p->GetXOut() << ", " << p->GetYOut() << ", " << p->GetZOut() << ") -> " << val << std::endl;
+      if(!isnan(val) && val !=0){
         Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
       }
       break;
 
     case Mass:
-      val = (dens*_volume);
-      if(!std::isnan(val) && val !=0){
+      val = p->GetMass();
+      // val = (dens*_volume);
+      // std::cout << "Mass   : (" << p->GetXOut() << ", " << p->GetYOut() << ", " << p->GetZOut() << ") -> " << val << " [" << (dens*_volume) << "]" << std::endl;
+      if(!isnan(val) && val !=0){
         Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
       }
       break;
 
-    case SimpleFluence:
+    case SimpleFluence:{
       TVector3 poststepv   = TVector3(p->GetXOut(), p->GetYOut(), p->GetZOut());
       TVector3 prestepv    = TVector3(p->GetX(), p->GetY(), p->GetZ());
       val = (poststepv-prestepv).Mag();
-      if(!std::isnan(val) && val !=0){
+      if(!isnan(val) && val !=0){
         Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
       }
+    }break;
+      
+    case Twos:
+      val = 2;
+      if(!isnan(val) && val !=0){
+        Fill(p->GetXOut(), p->GetYOut(), p->GetZOut(), val);  
+        // Fill(-5.45, -24.5, 222.5, val);  
+        // Fill(-5.55, -24.5, 222.5, val);  
+        // Fill(-5.25, -24.25, 222.5, val);  
+      }
       break;
-
-    // default:
-    //   val = 0;
+      // default:
+      //   val = 0;
+    case EnergyFluence:
+      break;
+    case Flux:
+      break;
+    case Kerma:
+      break;
     }
   }
 }
 
 // void PndRadMapBoxMesh::Fill(FairRadMapPoint *p, Double_t we){
 void PndRadMapBoxMesh::Fill(Int_t gBin, Double_t val){
+  // std::cout << "void PndRadMapBoxMesh::Fill(Int_t gBin, Double_t val)\n";
+
+
   Int_t binX, binY, binZ;
   _MeshHisto->GetBinXYZ(gBin, binX, binY, binZ);
   Fill(binX, binY, binZ, val);
 }
 
+  // std::cout << "11 - ["
+  //           << X << ", " << Y << ", " << Z
+  //           << "] " << std::endl << std::endl;
+  // std::cout << "12 - ["
+  //           << _X << ", " << _Y << ", " << _Z
+  //           << "] " << std::endl << std::endl;
+  // std::cout << "21 - ["
+  //           << X << ", " << Y << ", " << Z
+  //           << "] " << std::endl << std::endl;
+  // std::cout << "22 - ["
+  //           << _X << ", " << _Y << ", " << _Z
+  //           << "] " << std::endl << std::endl;
 void PndRadMapBoxMesh::Fill(Double_t X, Double_t Y, Double_t Z, Double_t we){
-  Transform(X, Y, Z);
-  if(IsInside(_tX, _tY, _tZ)){
+  // std::cout << "void PndRadMapBoxMesh::Fill(Double_t X, Double_t Y, Double_t Z, Double_t we)\n";
 
+  Transform(X, Y, Z);
+
+  // if(IsInside(_X, _Y, Z)){
+  if(IsInside(_X, _Y, _Z)){
+    // std::cout << X << ' ' << Y << ' ' << Z << " -> ";
+    // std::cout << _X << ' ' << _Y << ' ' << _Z << '\n';
+  
     switch (_orientation){
+      
     case XY:
-      _MeshHisto->Fill(_tX, _tY, we);
-      _StatHisto->Fill(_tX, _tY);
+      _MeshHisto->Fill(_X, _Y, we);
+      _StatHisto->Fill(_X, _Y);
+      // std::cout << "density: " << we << std::endl;
       break;
     case YX:
-      _MeshHisto->Fill(_tY, _tX, we);
-      _StatHisto->Fill(_tY, _tX);
+      _MeshHisto->Fill(_Y, _X, we);
+      _StatHisto->Fill(_Y, _X);
       break;
 
     case XZ:
-      _MeshHisto->Fill(_tX, _tZ, we);
-      _StatHisto->Fill(_tX, _tZ);
+      _MeshHisto->Fill(_X, _Z, we);
+      _StatHisto->Fill(_X, _Z);
       break;
     case ZX:
-      _MeshHisto->Fill(_tZ, _tX, we);
-      _StatHisto->Fill(_tZ, _tX);
+      _MeshHisto->Fill(_Z, _X, we);
+      _StatHisto->Fill(_Z, _X);
       break;
 
     case YZ:
-      _MeshHisto->Fill(_tY, _tZ, we);
-      _StatHisto->Fill(_tY, _tZ);
+      _MeshHisto->Fill(_Y, _Z, we);
+      _StatHisto->Fill(_Y, _Z);
       break;
     case ZY:
-      _MeshHisto->Fill(_tZ, _tY, we);
-      _StatHisto->Fill(_tZ, _tY);
+      _MeshHisto->Fill(_Z, _Y, we);
+      _StatHisto->Fill(_Z, _Y);
       break;
     };
   }
 }
 
 void PndRadMapBoxMesh::Scale(Double_t sca){
-  // std::cout << _MeshHisto << std::endl;
+  // std::cout << "void PndRadMapBoxMesh::Scale(Double_t sca)" << std::endl;
   _MeshHisto->Scale(sca);
 }
 
@@ -494,15 +601,23 @@ void PndRadMapBoxMesh::Save(){
 }
 
 bool PndRadMapBoxMesh::IsInside(Double_t X, Double_t Y, Double_t Z){
+  // std::cout << "bool PndRadMapBoxMesh::IsInside(Double_t X, Double_t Y, Double_t Z)\n";
+
   bool ok = false;
-  if(((_Xlow <= X) && (X <= _Xhigh)) &&
-     ((_Ylow <= Y) && (Y <= _Yhigh)) &&
-     ((_Zlow <= Z) && (Z <= _Zhigh)))
+
+  // if(((_Xlow <= X) && (X <= _Xhigh)) &&
+  //    ((_Ylow <= Y) && (Y <= _Yhigh)) &&
+  //    ((_Zlow <= Z) && (Z <= _Zhigh)))
+  if(((_Xlow <= _X) && (_X <= _Xhigh)) &&
+     ((_Ylow <= _Y) && (_Y <= _Yhigh)) &&
+     ((_Zlow <= _Z) && (_Z <= _Zhigh)))
     ok = true;
   return ok;
 }
 
 bool PndRadMapBoxMesh::IsInside(FairRadMapPoint *p){
+  // std::cout << "bool PndRadMapBoxMesh::IsInside(FairRadMapPoint *p)\n";
+
   bool ok = false;
   double xin, yin, zin, xout, yout, zout;
   Transform(p->GetX(), p->GetY(), p->GetZ(),
@@ -530,6 +645,8 @@ bool PndRadMapBoxMesh::IsInside(FairRadMapPoint *p){
 void PndRadMapBoxMesh::makeHisto(const char* Orient, Double_t rotate,
                         int Hbins, Double_t Hlow, Double_t Hhigh,
                         int Vbins, Double_t Vlow, Double_t Vhigh){
+  // std::cout << Hbins << ' ' << Hlow << ' ' << Hhigh << ' ';
+  // std::cout << Vbins << ' ' << Vlow << ' ' << Vhigh << ' ';
   char C[32];
   sprintf(C, "%s_Histo_%s_%g", _Name.Data(), Orient, _rotate);
   _MeshHisto = new TH2D(C, C,
@@ -546,14 +663,14 @@ Double_t PndRadMapBoxMesh::CalcFluence(FairRadMapPoint *p){
 
   // if(verbose) std::cout << "PndRadMapBoxMesh::CalcFluence - 0" << std::endl;
   Double_t xx, yy, zz, dx = 0, dy = 0, dz =0;
-  float eff;
+  // float eff;
   std::vector<Corner> CV;
   std::vector<PndRadMapPlane> PV;
   //The Z should be between zlow and zhigh!!
   Transform(p->GetXOut(), p->GetYOut(), p->GetZOut(),
             xx, yy, zz);
   std::pair<int, double> minp;
-  bool OK, OK2;
+  bool OK, OK2 = true;
 
   if(IsInside(p)){
     OK = false;

@@ -78,7 +78,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
  #Mesh.cpp
- PndRadMapPlane.cxx
+ #PndRadMapPlane.cxx
  PndRadMapBoxMesh.cxx
 )
 set(LINKDEF RadMapLinkDef.h)
@@ -95,8 +95,8 @@ set(MYPNDLIBS FtfEvtGen DpmEvtGen RadMapTool Base ParBase  Field  Emc Stt Mdt Ge
 add_executable(RadMapToolSim_exe sim_radmap.C)
 add_executable(RadMapToolPlot_exe plot_radmap.C)
 
-target_link_libraries(RadMapToolSim_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect )
-target_link_libraries(RadMapToolPlot_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect )
+target_link_libraries(RadMapToolSim_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect DecayTreeFitter)
+target_link_libraries(RadMapToolPlot_exe ${ROOT_LIBRARIES} ${MYG4LIBS} ${MYPNDLIBS} PhotosCxxInterface PhotosFortran EvtGen EvtGenDirect DecayTreeFitter)
 
 set_target_properties(RadMapToolSim_exe PROPERTIES OUTPUT_NAME sim_radmap)
 set_target_properties(RadMapToolPlot_exe PROPERTIES OUTPUT_NAME plot_radmap)

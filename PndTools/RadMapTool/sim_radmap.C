@@ -1,49 +1,50 @@
 
 #ifndef __CINT__
-#include "iostream"
+#include <iostream>
+#include <fstream>
 
-#include "stdio.h"
+#include <stdio.h>
 #include <getopt.h>
 
-#include "TStopwatch.h"
-#include "TString.h"
-#include "TRandom.h"
+#include <TStopwatch.h>
+#include <TString.h>
+#include <TRandom.h>
 
-#include "FairRunSim.h"
-#include "FairRuntimeDb.h"
-#include "FairParAsciiFileIo.h"
-#include "FairParRootFileIo.h"
-#include "FairModule.h"
+#include <FairRunSim.h>
+#include <FairRuntimeDb.h>
+#include <FairParAsciiFileIo.h>
+#include <FairParRootFileIo.h>
+#include <FairModule.h>
 
-#include "PndCave.h"
-#include "PndMagnet.h"
-#include "PndPipe.h"
-#include "PndStt.h"
-#include "PndMvdDetector.h"
-#include "PndEmc.h"
-#include "PndMdt.h"
-#include "PndGemDetector.h"
-#include "PndDsk.h"
-#include "PndDrc.h"
-#include "PndFts.h"
-#include "PndSciT.h"
-#include "PndFtof.h"
-#include "PndRich.h"
+#include <PndCave.h>
+#include <PndMagnet.h>
+#include <PndPipe.h>
+#include <PndStt.h>
+#include <PndMvdDetector.h>
+#include <PndEmc.h>
+#include <PndMdt.h>
+#include <PndGemDetector.h>
+#include <PndDsk.h>
+#include <PndDrc.h>
+#include <PndFts.h>
+#include <PndSciT.h>
+#include <PndFtof.h>
+#include <PndRich.h>
 
-#include "FairEvtGenGenerator.h"
-#include "PndDpmDirect.h"
-#include "FairPrimaryGenerator.h"
-#include "FairBoxGenerator.h"
-#include "PndEvtGenDirect.h"
-#include "PndDpmDirect.h"
+#include <FairEvtGenGenerator.h>
+#include <PndDpmDirect.h>
+#include <FairPrimaryGenerator.h>
+#include <FairBoxGenerator.h>
+#include <PndEvtGenDirect.h>
+#include <PndDpmDirect.h>
 
 
-#include "PndMultiField.h"
-#include "PndMultiFieldPar.h"
+#include <PndMultiField.h>
+#include <PndMultiFieldPar.h>
 
-#include "PndEmcHitProducer.h"
+#include <PndEmcHitProducer.h>
 
-#include "TMemStat.h"
+#include <TMemStat.h>
 
 
 #endif
@@ -56,11 +57,18 @@
 
 #define DEVURANDOM "/dev/urandom"
 
+
+void ReadFiles(string geomfile,
+               std::vector<std::string>& geometryfiles);
+
+
+
 const char * help_str(){
   return "Usage: [executable] [parameters]\n\n"
     "\033[0;31m  -o\t--output  [name]\t\tName of the [o]utput file\033[0m\n"
     "\033[0;31m  -n\t--number  [#]\t\tnumber of events to simulate\033[0m\n"
     "\033[0;31m  -t\t--tracker  [tracker]\t\tWhich tracker will be used [Geant3, Geant4]\033[0m\n"
+    "\033[0;31m  -g\t--geofile  [geofile]\t\tFile that store the name of the geometry files of the detectors\033[0m\n"
     //    "\n-----------------------------------------------------------------\n"
     ;
 }
@@ -70,6 +78,7 @@ void sim(TString output,
          // TString input, 
          Int_t nEvents,  
          const char* TransportModel, 
+         std::vector<std::string> geometryfiles,
          UInt_t seed);
 
 unsigned int GetRandomSeed(){
@@ -87,9 +96,11 @@ int main(int argc, char ** argv){
   int c;
   unsigned nevt = 2;
   string out = "RadMap_Out_Sim.root";
-  string tra = "TGeant3";
-
-  while ((c = getopt(argc, argv, "n:o:h")) != -1)
+  string tra = "TGeant4";
+  string geofile = "/lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/PndTools/RadMapTool/detectors.dat";
+  // std::vector<std::pair<std::string, std::string> > geometryfiles;
+  std::vector<std::string> geometryfiles;
+  while ((c = getopt(argc, argv, "n:o:t:g:h")) != -1)
     switch (c) {
     case 'n': 
       nevt = atoi(optarg);
@@ -103,6 +114,10 @@ int main(int argc, char ** argv){
       tra = optarg;
       break;
     
+    case 'g': 
+      geofile = optarg;
+      break;
+    
     case 'h': 
       printf("%s\n", help_str()); 
       break;
@@ -112,7 +127,9 @@ int main(int argc, char ** argv){
       abort ();
     }
 
-
+  std::cout<<" using detectors from "<<geofile.c_str()<<std::endl;
+  
+  ReadFiles(geofile, geometryfiles);
   
   int RandN = GetRandomSeed();
   std::cout << "***************************\n";
@@ -120,17 +137,16 @@ int main(int argc, char ** argv){
   std::cout << "***************************\n";
 
   // sim("blablabla2.root", 1000, "TGeant3", RandN);
-  sim(TString(out.c_str()), nevt, tra.c_str(), RandN);
+  sim(TString(out.c_str()), nevt, tra.c_str(), geometryfiles, RandN);
 }
 
 // Macro sim_radmap
 // It creates a geant simulation file with the RadMap branch
-
 void sim(TString output, 
          Int_t nEvents,  
          const char* TransportModel, 
+         std::vector<std::string> geometryfiles,
          UInt_t seed){
-
   //   activate TMemStat info file (ROOT >=5.28)
   //   TMemStat mm("gnubuiltin");
   
@@ -148,45 +164,54 @@ void sim(TString output,
   fRun->SetOutputFile(output);
   //  fRun->GetOutputFile()->SetCompressionSettings(ROOT::CompressionSettings(ROOT::kLZMA, 1));
   // fRun->GetOutputFile()->SetCompressionLevel(9);
-  
-  fRun->SetMaterials("media_pnd.geo");
+
+  // fRun->SetMaterials("media_pnd.geo");
+  fRun->SetMaterials(geometryfiles.at(0).c_str());
   
 
   // Create and add detectors
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
-  Cave->SetGeometryFileName("pndcave.geo");
+  // Cave->SetGeometryFileName("pndcave.geo");
+  Cave->SetGeometryFileName(geometryfiles.at(1).c_str());
   fRun->AddModule(Cave); 
 
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  // Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  Magnet->SetGeometryFileName(geometryfiles.at(2).c_str());
   // Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
 
   FairModule *Dipole= new PndMagnet("MAGNET");
-  Dipole->SetGeometryFileName("dipole.geo");
+  // Dipole->SetGeometryFileName("dipole.geo");
+  Dipole->SetGeometryFileName(geometryfiles.at(3).c_str());
   fRun->AddModule(Dipole);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("beampipe_201112.root");
+  // Pipe->SetGeometryFileName("beampipe_201112.root");
+  Pipe->SetGeometryFileName(geometryfiles.at(4).c_str());
   // Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
 
   FairDetector *Stt= new PndStt("STT", kFALSE);
   // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe_electronics.geo");
-  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  Stt->SetGeometryFileName(geometryfiles.at(5).c_str());
   fRun->AddModule(Stt);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
-  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+  Mvd->SetGeometryFileName(geometryfiles.at(6).c_str());
+  // Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
   // Mvd->SetGeometryFileName("Mvd-2.1_AddDisks_FullVersion.root");
   fRun->AddModule(Mvd);
 
   FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
   // Gem->SetGeometryFileName("gem_3Stations.root");
-  Gem->SetGeometryFileName("gem_4Stations.root");
+  // Gem->SetGeometryFileName("gem_4Stations.root");
+  Gem->SetGeometryFileName(geometryfiles.at(7).c_str());
   fRun->AddModule(Gem);
-  
+
+
   PndEmc *Emc = new PndEmc("EMC",kFALSE);
   Emc->SetGeometryVersion(1);
   Emc->SetStorageOfData(kFALSE);
@@ -198,20 +223,21 @@ void sim(TString output,
   
   // including forward detectors
     
-  FairModule* SciT = new PndSciT("SCIT",kTRUE);
-  //SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
-  SciT->SetGeometryFileName("SciTil_201508.root");
-  fRun->AddModule(SciT);
+  /////
+  // FairModule* SciT = new PndSciT("SCIT",kTRUE);
+  // SciT->SetGeometryFileName("SciTil_latest.root");
+  // // SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  // // SciT->SetGeometryFileName(geometryfiles.at(8).c_str());
+  // fRun->AddModule(SciT);
 
   PndDrc *Drc = new PndDrc("DIRC", kFALSE);
-  Drc->SetGeometryFileName("dirc_l4_p0_R2.root"); 
-  // Drc->SetGeometryFileName("dirc_l0_p0_updated.root"); 
-    // Drc->SetGeometryFileName("dirc_l0_p0.root");
+  Drc->SetGeometryFileName(geometryfiles.at(9).c_str()); 
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
 
   PndDsk* Dsk = new PndDsk("DSK", kFALSE);
-  Dsk->SetGeometryFileName("dsk.root");
+  // Dsk->SetGeometryFileName("dsk.root");
+  // Dsk->SetGeometryFileName(geometryfiles.at(10).c_str());
   Dsk->SetStoreCerenkovs(kFALSE);
   Dsk->SetStoreTrackPoints(kFALSE);
   fRun->AddModule(Dsk);
@@ -222,28 +248,38 @@ void sim(TString output,
   // fRun->AddModule(Dsk);
  
   PndMdt *Muo = new PndMdt("MDT",kFALSE);
+  // Muo->SetMdtMagnet(kTRUE);
+  // Muo->SetBarrel(geometryfiles.at(10).c_str());
+  // Muo->SetEndcap(geometryfiles.at(11).c_str());
+  // Muo->SetForward(geometryfiles.at(12).c_str());
+  // Muo->SetMuonFilter(geometryfiles.at(13).c_str());
+  // fRun->AddModule(Muo);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
   Muo->SetMdtMagnet(kTRUE);
-  Muo->SetBarrel("muon_TS_barrel_strip_v1_noGeo.root");
-  Muo->SetEndcap("muon_TS_endcap_strip_v1_noGeo.root");
-  Muo->SetForward("muon_Forward_strip_v1_noGeo.root");
-  Muo->SetMuonFilter("muon_MuonFilter_strip_v1_noGeo.root");
+  Muo->SetMdtCoil(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
 
   //-------------------------  FTS       -----------------
   FairDetector *Fts= new PndFts("FTS", kFALSE);
-  Fts->SetGeometryFileName("fts.geo");
+  Fts->SetGeometryFileName(geometryfiles.at(14).c_str());
+  // Fts->SetGeometryFileName("fts.geo");
   fRun->AddModule(Fts);
 
   //---------------------------  FTOF      -----------------
   FairDetector *FTof = new PndFtof("FTOF",kFALSE);
-  FTof->SetGeometryFileName("ftofwall.root"); // not default
+  // FTof->SetGeometryFileName("ftofwall.root"); // not default
+  FTof->SetGeometryFileName(geometryfiles.at(15).c_str()); // not default
   fRun->AddModule(FTof);
 
 
   FairModule* Rich= new PndRich("RICH",kFALSE);
-  Rich->SetGeometryFileName("rich_v2.geo");
+  // Rich->SetGeometryFileName("rich_v2.geo");
+  Rich->SetGeometryFileName(geometryfiles.at(16).c_str());
   fRun->AddModule(Rich);
-
   // Create and Set Event Generator
   //-------------------------------
   
@@ -262,36 +298,27 @@ void sim(TString output,
   primGen->AddGenerator(dpmGen);
 
  
-  std::cout << "111111111111111111\n";
   fRun->GetListOfModules()->Print();
-  std::cout << "222222222222222222\n";
   fRun->SetStoreTraj(kFALSE); // to store particle trajectories 
   fRun->SetRadMapRegister(kTRUE); // radiation map manager
-    
-  std::cout << "333333333333333333\n";
   fRun->SetBeamMom(P);
   // fRun->SetBeamMom(15.0);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
-  std::cout << "444444444444444444\n";
-
 
   timer.Stop();
   
   Double_t preinitrtime = timer.RealTime();
-  Double_t preinitctime = timer.CpuTime();
-  std::cout << "555555555555555555\n";
+  // Double_t preinitctime = timer.CpuTime();
 
   timer.Continue();
 
-  std::cout << "666666666666666666\n";
   fRun->Init();
-  std::cout << "777777777777777777\n";
 
   timer.Stop();
   
   Double_t postinitrtime = timer.RealTime();
-  Double_t postinitctime = timer.CpuTime();
+  // Double_t postinitctime = timer.CpuTime();
 
   timer.Continue();
 
@@ -302,8 +329,97 @@ void sim(TString output,
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("Preinit: %f seconds, Postinit: %f seconds; RealTime=%f seconds, CpuTime=%f seconds\n", preinitrtime, postinitrtime, rtime, ctime);
-
-  
-  
 }  
  
+void ReadFiles(string geomfile,
+               std::vector<std::string>& geometryfiles){
+  //  enum _files {MEDIA   ,
+  //               CAVE    , SOLENOID , DIPOLE  , PIPE     , STT ,
+  //               MVD     , GEM      , SciTile , DRC      , DSK ,
+  //               MUONBAR , MOUNENDC , MOUNFOR , MUONFILT , FTS ,
+  //               FTOF    , RICH};
+
+  for(int i = 0; i < 18; i++) geometryfiles.push_back(std::string(""));
+  
+  TObjArray *tokens;
+  std::ifstream ifile(geomfile.c_str());
+
+  
+  if(ifile.is_open()){
+    TString Line, help0, help1;
+    std::string line;
+    while (1) {
+      getline (ifile,line);
+      if(!ifile.good()) break;
+      Line = TString(line);
+      if(Line[0] != '#'){
+        tokens = Line.Tokenize(":");
+        if(tokens->GetEntries() == 2){
+          help0 = ((TObjString*)(tokens->At(0)))->GetString().Remove(TString::kBoth, ' ');
+          help1 = ((TObjString*)(tokens->At(1)))->GetString().Remove(TString::kBoth, ' ');
+          cout << "\"" << ((TObjString*)(tokens->At(1)))->GetString() << "\" -> \"" << help1 << "\"" << endl;
+          help0.ToUpper();
+          if(help0.Contains("MEDIA")){
+            geometryfiles.at(0) = help1;
+          }
+          if(help0.Contains("CAVE")){
+            geometryfiles.at(1) = help1;
+          }
+          if(help0.Contains("SOLENOID")){
+            geometryfiles.at(2) = help1;
+          }
+          if(help0.Contains("DIPOLE")){
+            geometryfiles.at(3) = help1;
+          }
+          if(help0.Contains("PIPE")){
+            geometryfiles.at(4) = help1;
+          }
+
+          if(help0.Contains("STT")){
+            geometryfiles.at(5) = help1;
+          }
+          if(help0.Contains("MVD")){
+            geometryfiles.at(6) = help1;
+          }
+          if(help0.Contains("GEM")){
+            geometryfiles.at(7) = help1;
+          }
+          if(help0.Contains("SCITILE")){
+            geometryfiles.at(8) = help1;
+          }
+          if(help0.Contains("DRC")){
+            geometryfiles.at(9) = help1;
+          }
+
+
+          if(help0.Contains("DSK")){
+            geometryfiles.at(10) = help1;
+          }
+          if(help0.Contains("MUONBAR")){
+            geometryfiles.at(11) = help1;
+          }
+          if(help0.Contains("MUONENDC")){
+            geometryfiles.at(12) = help1;
+          }
+          if(help0.Contains("MUONFOR")){
+            geometryfiles.at(13) = help1;
+          }
+          if(help0.Contains("MUONFILT")){
+            geometryfiles.at(14) = help1;
+          }
+
+          if(help0.Contains("FTS")){
+            geometryfiles.at(15) = help1;
+          }
+          if(help0.Contains("FTOF")){
+            geometryfiles.at(16) = help1;
+          }
+          if(help0.Contains("RICH")){
+            geometryfiles.at(17) = help1;
+          }
+        }
+      }
+    }
+  }
+}
+        
