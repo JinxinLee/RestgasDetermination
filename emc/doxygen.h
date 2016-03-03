@@ -28,8 +28,32 @@
  * for barrel, FwEndcap and BwEndcap and PndEmcCRRCPulseshape for the shashlyk. The task PndEmcWaveformToDigi
  * then uses PndEmcPSAMatchedDigiFilter for the pulse shape analysis of barrel, FwEndcap and BwEndcap and
  * PndEmcPSAParabolic for the shashlyk.
- * @subsection Alternative
- * An alternative way to generate waveforms is PndEmcFWEndcapTimebasedWaveforms, which was developed 
- * for the FwEndcap, but can be used for all of the EMC.
+ * @subsection tbwf Time-based waveforms
+ * There are two ways running the waveform generation and pulse shape analysis in time-based simulation.
+ * One was implemented inside the PndEmcHitsToWaveform and PndEmcWaveformToDigi classes, the other one uses
+ * its own classes prefixed (in parts) with PndEmcFWEndcap. This does not mean that they are only for the
+ * FwEndcap, but they were developed for the FwEndcap first and can now be used for the whole EMC.
+ * 
+ * @subsubsection tbwfA Variant A
+ * The variant using PndEmcWaveformToDigi creates the waveforms in the same way as for event-based 
+ * simulation, but uses a different buffer PndEmcWaveformWriteoutBuffer. In 
+ * PndEmcWaveformWriteoutBuffer::Modify() the waveforms are added in the case of pileup via the newly
+ * implemented operator PndEmcWaveform::operator+=(). As the noise is generated for the individual 
+ * waveforms, the noise adds up quadratically in this case. The waveforms have to be sorted before 
+ * digitisation (PndEmcWaveformSorterTask).
+ * 
+ * Pulse shape analysis is done in PndEmcWaveformToDigi, using the branch EmcSortedWaveform instead
+ * of EmcWaveform.
+ * 
+ * @subsubsection tbwfB Variant B
+ * The variant using PndEmcFWEndcapTimebasedWaveforms uses a more modular approach with a simulator
+ * (inheriting PndEmcAbsWaveformSimulator) and modifier (inheriting PndEmcAbsWaveformModifier) to
+ * create waveforms. In case of pileup, the waveforms are first joined and afterwards the noise is 
+ * added (by waveform modifier PndEmcShapingNoiseAdder). This variant also uses a custom writeout buffer
+ * (PndEmcWaveformBuffer).
+ * 
+ * Pulse shape analysis is done in PndEmcFWEndcapDigi. The digis have to be sorted by PndEmcDigiSorterTask.
+ * Due to limitations in PndEmcMakeCluster, the task PndEmcClusterRemoveDuplCrys is needed to remove
+ * double hits in one crystal for one event.
  * 
  */

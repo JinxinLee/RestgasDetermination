@@ -20,6 +20,7 @@ class PndEmcRecoPar;
  * which could cause undefined behavior in classical (eventbased) routines.
  * The class provides a workaround, adding up the energies of all digis with the same origin (=crystal, detectorId). 
  * (One could also think off dumping the second hit, etc...)
+ * @author Ph. Mahlberg <mahlberg@hiskp.uni-bonn.de>
  * @ingroup PndEmc
  */
 class PndEmcClusterRemoveDuplCrys : public FairTask
