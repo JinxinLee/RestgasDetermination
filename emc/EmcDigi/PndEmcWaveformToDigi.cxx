@@ -315,7 +315,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 
 	fDigiArray->Delete();
 
-	Double_t fevtTime = ((FairFileSource*)FairRootManager::Instance()->GetSource())->GetEventTime();
+	Double_t fevtTime = FairRootManager::Instance()->GetEventTime();
 
 	if(fVerbose>0){
 		cout<<endl;
