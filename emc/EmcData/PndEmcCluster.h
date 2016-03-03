@@ -22,18 +22,6 @@
 class PndEmcDigi;
 class PndEmcTwoCoordIndex;
 
-struct LinkScoreBoard{
-	Short_t score;
-
-	void SetValShift(Bool_t val, Int_t shift){
-		if (shift < 4)
-			score |= val << shift;
-	}
-
-	Bool_t GetValShift(Int_t shift){ return score >> shift & 0x1;}
-};
-
-
 /**
  * @brief a cluster (group of neighboring crystals) of hit emc crystals
  * @ingroup PndEmc
@@ -135,6 +123,17 @@ private:
 	void invalidateCache(bool );
 
 protected:
+	class LinkScoreBoard{
+	public:
+		Short_t score;
+
+		void SetValShift(Bool_t val, Int_t shift){
+			if (shift < 4)
+				score |= val << shift;
+		}
+
+		Bool_t GetValShift(Int_t shift){ return score >> shift & 0x1;}
+	};
 
 	void FillScoreBoard(FairMultiLinkedData tracks, std::map<FairLink, LinkScoreBoard>& scoreBoard, Int_t shift);
 

@@ -520,6 +520,19 @@ PndEmcCluster::GetEnergyCorrected() const
 
 }
 
+/**
+ * @brief Updates the links to entering and exiting tracks
+ * 
+ * For each track a bitmask is created which contains the information if the track enters or exits
+ * the cluster (bit 1 and 0 for tracks already in the cluster, bit 3 and 2 for the ones added here).
+ * Afterwards, the bitmask is checked for each track and the lists of entering and exiting tracks is
+ * updated. Tracks which entered before and exit now or vice versa (bitmask=6 or 9) are removed 
+ * from the list as they only cross between crystals in the same cluster. 
+ * 
+ * @param tracksEntering Additional tracks entering the cluster (e.g. from adding digi or merging clusters)
+ * @param tracksExiting Additional tracks exiting the cluster
+ * @return void
+ */
 void PndEmcCluster::AddTracksEnteringExiting(const FairMultiLinkedData& tracksEntering, const FairMultiLinkedData& tracksExiting)
 {
 	std::map<FairLink, LinkScoreBoard> scoreBoard;
