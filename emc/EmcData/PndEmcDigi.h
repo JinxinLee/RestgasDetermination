@@ -50,7 +50,7 @@ class PndEmcDigi : public FairTimeStamp
 	public:    
 	//for time based simulation
 	static TClonesArray* fDigiArrayTBD;
-
+	static void InitDigiArrayTBD();
 
 	/** Default constructor **/
 	PndEmcDigi();
