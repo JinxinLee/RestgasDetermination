@@ -35,7 +35,7 @@
 #include "Riostream.h"
 
 using namespace std;
-TClonesArray* PndEmcDigi::fDigiArrayTBD = new TClonesArray("PndEmcDigi");
+TClonesArray* PndEmcDigi::fDigiArrayTBD = NULL;//new TClonesArray("PndEmcDigi");
 // -----   Default constructor   -----------------------------------
 PndEmcDigi::PndEmcDigi():FairTimeStamp(0),fEnergy(0),fTrackId(-1),fDetectorId(-1),fHitIndex(-1),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0), fEvtNo(-1)
 {
@@ -86,6 +86,11 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
 	fPhi = fWhere.Phi();
 }
 
+void PndEmcDigi::InitDigiArrayTBD()
+{
+	if (fDigiArrayTBD==NULL)
+		fDigiArrayTBD = new TClonesArray("PndEmcDigi");
+}
 
 void PndEmcDigi::SetDetectorId(Int_t id)
 {

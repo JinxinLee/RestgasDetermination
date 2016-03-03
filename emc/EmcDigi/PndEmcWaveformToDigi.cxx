@@ -27,6 +27,7 @@
 #include "PndEmcPSAMatchedDigiFilter.h"
 #include "FairEventHeader.h"
 #include "FairRootManager.h"
+#include "FairFileSource.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "PndEmcPSAFPGA/PndEmcPSAFPGADigitalFilterAnalyser.h"
@@ -85,6 +86,7 @@ PndEmcWaveformToDigi::~PndEmcWaveformToDigi()
  */
 InitStatus PndEmcWaveformToDigi::Init()
 {
+	PndEmcDigi::InitDigiArrayTBD();
 	// Get RootManager
 	FairRootManager* ioman = FairRootManager::Instance();
 	if ( ! ioman )
@@ -97,6 +99,10 @@ InitStatus PndEmcWaveformToDigi::Init()
 	// Get input array
 	if(fTimeOrderedDigi){
 		fWaveformArray = dynamic_cast<TClonesArray *>( ioman->GetObject("EmcSortedWaveform"));
+		if (!FairRunAna::Instance()->IsTimeStamp()) {
+			cout << "-W- PndEmcWaveformToDigi::Init: "
+				  << "Task running timebased, but run not running timebased" << endl;
+		}
 	}else{
 		fWaveformArray =dynamic_cast<TClonesArray *> (ioman->GetObject("EmcWaveform"));
 	}
@@ -309,7 +315,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 
 	fDigiArray->Delete();
 
-	Double_t fevtTime = FairRootManager::Instance()->GetEventTime();
+	Double_t fevtTime = ((FairFileSource*)FairRootManager::Instance()->GetSource())->GetEventTime();
 
 	if(fVerbose>0){
 		cout<<endl;
@@ -317,14 +323,14 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		std::cout<<"Event NO. #"<<fEventNo<<", event time # "<<fevtTime <<std::endl;
 	}
 	if(fTimeOrderedDigi){
-		fWaveformArray->Delete();
-		Double_t time_length = 40.;//99.98%
-		if(fVerbose >0)
-			cout<<"--I-- time-based simulation, read data to later #"<<time_length<<" ns"<<endl;
 		if(FairRunAna::Instance()->IsTimeStamp()){
+			fWaveformArray->Delete();
+			Double_t time_length = 40.;//99.98%
+			if(fVerbose >0)
+				cout<<"--I-- time-based simulation, read data to later #"<<time_length<<" ns"<<endl;
 			fWaveformArray  = FairRootManager::Instance()->GetData("EmcSortedWaveform"
 					, fFunctor
-					, FairRootManager::Instance()->GetEventTime() + time_length);
+					, fevtTime + time_length);
 		}
 		if(fVerbose>0)
 			std::cout<<"fDigiArrayTBD size #"<<PndEmcDigi::fDigiArrayTBD->GetEntriesFast()<<std::endl;

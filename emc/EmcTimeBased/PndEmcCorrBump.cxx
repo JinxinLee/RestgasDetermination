@@ -84,8 +84,9 @@ PndEmcCorrBump::~PndEmcCorrBump()
 }
 
 // -----   Public method Init   -------------------------------
-InitStatus PndEmcCorrBump::Init() {
-	
+InitStatus PndEmcCorrBump::Init() 
+{
+	PndEmcDigi::InitDigiArrayTBD();
   	// Get RootManager
 	FairRootManager* ioman = FairRootManager::Instance();
 	if ( ! ioman )
