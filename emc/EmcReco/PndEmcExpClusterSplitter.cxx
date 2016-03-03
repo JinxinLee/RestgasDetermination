@@ -96,7 +96,7 @@ InitStatus PndEmcExpClusterSplitter::Init() {
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ){
-    cout << "-E- PndEmcMakeBump::Init: "
+    cout << "-E- PndEmcExpClusterSplitter::Init: "
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
@@ -112,14 +112,14 @@ InitStatus PndEmcExpClusterSplitter::Init() {
 		fDigiArray = (TClonesArray*) ioman->GetObject("EmcDigi");
 	}
 	if ( ! fDigiArray ) {
-		cout << "-W- PndEmcMakeCluster::Init: "
+		cout << "-W- PndEmcExpClusterSplitter::Init: "
 		<< "No PndEmcDigi array!" << endl;
 		return kERROR;
 	}
   
   fClusterArray = dynamic_cast<TClonesArray *> (ioman->GetObject("EmcCluster"));
   if ( ! fClusterArray ) {
-    cout << "-W- PndEmcMakeBump::Init: "
+    cout << "-W- PndEmcExpClusterSplitter::Init: "
 	 << "No PndEmcCluster array!" << endl;
     return kERROR;
   }

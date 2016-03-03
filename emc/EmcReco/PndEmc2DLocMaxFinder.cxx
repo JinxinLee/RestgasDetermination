@@ -92,14 +92,14 @@ InitStatus PndEmc2DLocMaxFinder::Init()
 		fDigiArray = (TClonesArray*) ioman->GetObject("EmcDigi");
 	}
 	if ( ! fDigiArray ) {
-		cout << "-W- PndEmcMakeCluster::Init: "
+		cout << "-W- PndEmc2DLocMaxFinder::Init: "
 		<< "No PndEmcDigi array!" << endl;
 		return kERROR;
 	}
 	
 	fClusterArray = (TClonesArray*) ioman->GetObject("EmcCluster");
 	if ( ! fClusterArray ) {
-		cout << "-W- PndEmcMakeBump::Init: "
+		cout << "-W- PndEmc2DLocMaxFinder::Init: "
 		<< "No PndEmcCluster array!" << endl;
 		return kERROR;
 	}

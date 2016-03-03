@@ -93,7 +93,9 @@ std::vector<std::pair<double, FairTimeStamp*> > PndEmcWaveformWriteoutBuffer::Mo
 	PndEmcWaveform* oldWave = (PndEmcWaveform*) (oldData.second);
 	PndEmcWaveform* newWave = (PndEmcWaveform*) (newData.second);
 	//(*newWave) += (*oldWave);
-	cout<<"PndEmcWaveformWriteoutBuffer::Modify called #"<<oldWave->GetDetectorId()<<", #"<<newWave->GetDetectorId()<<endl;
+	if (fVerbose>1) {
+		cout<<"PndEmcWaveformWriteoutBuffer::Modify called #"<<oldWave->GetDetectorId()<<", #"<<newWave->GetDetectorId()<<endl;
+	}
 
 	if(oldWave->GetTimeStamp() < newWave->GetTimeStamp()){
 		(*oldWave) += (*newWave);

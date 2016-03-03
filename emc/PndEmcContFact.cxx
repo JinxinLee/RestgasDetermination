@@ -71,7 +71,7 @@ void PndEmcContFact::setAllContainers() {
 	FairContainer* p7= new FairContainer("PndEmcFWEndcapDigiPar",
 													 "Emc Parameters for forward endcap",
 													 "TestDefaultContext");
-	p6->addContext("TestNonDefaultContext");
+	p7->addContext("TestNonDefaultContext");
 
 	containers->Add(p1);
 	containers->Add(p2);
