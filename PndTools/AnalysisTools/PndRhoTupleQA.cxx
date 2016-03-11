@@ -245,6 +245,9 @@ void PndRhoTupleQA::qaPoca(TString pre, RhoCandidate *c, RhoTuple *n)
   n->Column(pre+"pocvx",  (Float_t) vtx.X(),   0.0f);
   n->Column(pre+"pocvy",  (Float_t) vtx.Y(),   0.0f);
   n->Column(pre+"pocvz",  (Float_t) vtx.Z(),   0.0f);
+  n->Column(pre+"altvx",  (Float_t) altvtx.X(),0.0f);
+  n->Column(pre+"altvy",  (Float_t) altvtx.Y(),0.0f);
+  n->Column(pre+"altvz",  (Float_t) altvtx.Z(),0.0f);
   n->Column(pre+"pocmag", (Float_t) vtx.Mag(), 0.0f);
   n->Column(pre+"pocqa",  (Float_t) qavtx,     0.0f);
   n->Column(pre+"pocdist",(Float_t) dist,      0.0f);

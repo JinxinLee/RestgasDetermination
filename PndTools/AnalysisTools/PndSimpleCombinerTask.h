@@ -86,6 +86,7 @@ class PndSimpleCombinerTask : public FairTask
 	bool           fQaMC;             // flag to store MC list
 	bool           fQaEventShape;     // flag to store event shape variables
 	bool           fFit4C;            // flag to perform 4C fit
+	bool           fBest4C;           // flag to only store best 4C fitted candidate
 	bool           fFitVtx;           // flag to perform vtx fit
 	double         fFit4CChiCut;      // cut on chi2 from 4C fitter
 	double         fFitVtxChiCut;     // cut on chi2 from vtx fitter

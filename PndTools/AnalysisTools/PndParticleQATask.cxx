@@ -1,11 +1,9 @@
 // ************************************************************************
 //
-// psi(2S) -> J/psi (-> mu+ mu-) pi+ pi- Analysis Example Task
+// QA Task for single particles
 // 
-// for the Rho Tutorial, see
-// http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootRhoTutorial
-//
 // K.Goetzen 7/2013
+// last change: K.Goetzen 3/2016
 // ************************************************************************
 
 
@@ -13,37 +11,18 @@
 #include "PndParticleQATask.h"
 
 // C++ headers
-#include <string>
-#include <iostream>
 
 // FAIR headers
-#include "FairRootManager.h"
-#include "FairRunAna.h"
-#include "FairRuntimeDb.h"
-#include "FairRun.h"
-#include "FairRuntimeDb.h"
 
 // ROOT headers
-#include "TClonesArray.h"
-#include "TVector3.h"
-#include "TH1F.h"
-#include "TH2F.h"
 #include "TString.h"
 
 // RHO headers
 #include "RhoCandidate.h"
-#include "RhoHistogram/RhoTuple.h"
-#include "RhoFactory.h"
-#include "RhoMassParticleSelector.h"
 #include "RhoTuple.h"
 
 // Analysis headers
 #include "PndAnalysis.h"
-#include "Pnd4CFitter.h"
-#include "PndKinVtxFitter.h"
-#include "PndKinFitter.h"
-#include "PndVtxPoca.h"
-#include "PndPidCandidate.h"
 #include "PndRhoTupleQA.h"		
 		
 		
@@ -100,12 +79,21 @@ InitStatus PndParticleQATask::Init()
 	if (fFastSim)
 	{
 		// individual detectors/ algos
+		//fPid[1] = "ScEmcPidBarrelProbability;ScEmcPidFwCapProbability;ScEmcPidBwCapProbability"; 
+		//fPid[5] = "DrcBarrelProbability";	
+		//fPid[6] = "DrcDiscProbability";	
+		//fPid[4] = "MvdPidProbability";		
+		//fPid[2] = "ScMdtPidBarrelProbability;ScMdtPidForwardProbability";							
+		//fPid[3] = "SttPidProbability";	
+		
+		// KG 03/2016: Changed ordering like in FullSim (don't know why it was ordered differently by me beforehand...)
+		
 		fPid[1] = "ScEmcPidBarrelProbability;ScEmcPidFwCapProbability;ScEmcPidBwCapProbability"; 
-		fPid[5] = "DrcBarrelProbability";	
-		fPid[3] = "SttPidProbability";	
+		fPid[2] = "DrcBarrelProbability";	
+		fPid[3] = "DrcDiscProbability";	
 		fPid[4] = "MvdPidProbability";		
-		fPid[2] = "ScMdtPidBarrelProbability;ScMdtPidForwardProbability";							
-		fPid[6] = "DrcDiscProbability";	
+		fPid[5] = "ScMdtPidBarrelProbability;ScMdtPidForwardProbability";							
+		fPid[6] = "SttPidProbability";	
 		fPid[7] = "RichProbability";
 		
 		fPid[9] = "IdealPidProbability";
@@ -143,8 +131,8 @@ InitStatus PndParticleQATask::Init()
 void PndParticleQATask::SetParContainers() 
 {
   // Get run and runtime database
-  FairRun* run = FairRun::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+  //FairRun* run = FairRun::Instance();
+  //if ( ! run ) Fatal("SetParContainers", "No analysis run");
 }
 
 // -------------------------------------------------------------------------
@@ -159,13 +147,14 @@ void PndParticleQATask::Exec(Option_t* opt)
 	TLorentzVector dummy;
 	
 	// necessary to read the next event
-	fAnalysis->GetEvent();
+	fAnalysis->GetEventInTask();
 	
-	if (!(++fEvtCount%100)) cout << "evt "<<fEvtCount<<endl;
+	if (!(++fEvtCount%100)) cout << "[PndParticleQATask] evt "<<fEvtCount<<endl;
 	
 	// *** RhoCandLists for the analysis
 	RhoCandList chr, chr1emc, chr2drc, chr3dsc, chr4mvd, chr5mdt, chr6stt, chr7rch, chr8chk, chr9idl;
-	RhoCandList chr16, chr126, chr1256, chr12356, chr1236, chr26, chr123456, chr1234567;
+	RhoCandList chr1nemc, chr2ndrc, chr3ndsc, chr4nmvd, chr5nmdt, chr6nstt, chr7nrch;
+	//RhoCandList chr16, chr126, chr1256, chr12356, chr1236, chr26, chr123456, chr1234567;
 	RhoCandList neut, mclist;
 	
 	PndRhoTupleQA qa(fAnalysis,15.0);
@@ -180,27 +169,52 @@ void PndParticleQATask::Exec(Option_t* opt)
 	fAnalysis->FillList( neut,    "Neutral" );
 	
 	// *** charged lists with different PID algo combinations
+	// *** the individual PID probs
 	fAnalysis->FillList( chr,     "Charged" , fPid[0]);		// total pid
+	
 	fAnalysis->FillList( chr1emc, "Charged" , fPid[1]);		// emc = algo 1
 	fAnalysis->FillList( chr2drc, "Charged" , fPid[2]);		// drc = algo 2
 	fAnalysis->FillList( chr3dsc, "Charged" , fPid[3]);		// dsc = algo 3
 	fAnalysis->FillList( chr4mvd, "Charged" , fPid[4]);		// mvd = algo 4
 	fAnalysis->FillList( chr5mdt, "Charged" , fPid[5]); 	// mdt = algo 5
 	fAnalysis->FillList( chr6stt, "Charged" , fPid[6]);		// stt = algo 6
-	if (fFastSim) 
-		fAnalysis->FillList( chr7rch, "Charged" , fPid[6]);		// rich = algo 7
+	if (fFastSim) fAnalysis->FillList( chr7rch, "Charged" , fPid[7]);		// rich = algo 7
+	
 	fAnalysis->FillList( chr8chk, "Charged" , fPid[8]);		// check for total PID (only useful for FastSim)
 	fAnalysis->FillList( chr9idl, "Charged" , fPid[9]);		// idl = ideal PID
+
+	
+	
+	// *** combinations without a certain PID algo
+	if (fFastSim)
+	{
+		fAnalysis->FillList( chr1nemc, "Charged" , fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]+";"+fPid[7]);		// w/o emc = no algo 1
+		fAnalysis->FillList( chr2ndrc, "Charged" , fPid[1]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]+";"+fPid[7]);		// w/o drc = no algo 2
+		fAnalysis->FillList( chr3ndsc, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]+";"+fPid[7]);		// w/o dsc = no algo 3
+		fAnalysis->FillList( chr4nmvd, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[5]+";"+fPid[6]+";"+fPid[7]);		// w/o mvd = no algo 4
+		fAnalysis->FillList( chr5nmdt, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[6]+";"+fPid[7]); 	// w/o mdt = no algo 5
+		fAnalysis->FillList( chr6nstt, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[7]);		// w/o stt = no algo 6
+		fAnalysis->FillList( chr7nrch, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]);		// w/o rich = no algo 7
+	}
+	else
+	{
+		fAnalysis->FillList( chr1nemc, "Charged" , fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]);	// w/o emc = no algo 1
+		fAnalysis->FillList( chr2ndrc, "Charged" , fPid[1]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]);	// w/o drc = no algo 2
+		fAnalysis->FillList( chr3ndsc, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]);	// w/o dsc = no algo 3
+		fAnalysis->FillList( chr4nmvd, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[5]+";"+fPid[6]);	// w/o mvd = no algo 4
+		fAnalysis->FillList( chr5nmdt, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[6]); 	// w/o mdt = no algo 5
+		fAnalysis->FillList( chr6nstt, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]);	// w/o stt = no algo 6
+	}
 	
 	
 	// now the combination of numbers define the algo-combination
-	fAnalysis->FillList( chr16,     "Charged" , fPid[1]+";"+fPid[6] );
-	fAnalysis->FillList( chr126,    "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[6] );
-	fAnalysis->FillList( chr1236,   "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[6] );
-	fAnalysis->FillList( chr1256,   "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[5]+";"+fPid[6]);
-	fAnalysis->FillList( chr12356,  "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[5]+";"+fPid[6]);
-	fAnalysis->FillList( chr123456, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]);
-	fAnalysis->FillList( chr26,     "Charged" , fPid[2]+";"+fPid[6]);
+	//fAnalysis->FillList( chr16,     "Charged" , fPid[1]+";"+fPid[6] );
+	//fAnalysis->FillList( chr126,    "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[6] );
+	//fAnalysis->FillList( chr1236,   "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[6] );
+	//fAnalysis->FillList( chr1256,   "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[5]+";"+fPid[6]);
+	//fAnalysis->FillList( chr12356,  "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[5]+";"+fPid[6]);
+	//fAnalysis->FillList( chr123456, "Charged" , fPid[1]+";"+fPid[2]+";"+fPid[3]+";"+fPid[4]+";"+fPid[5]+";"+fPid[6]);
+	//fAnalysis->FillList( chr26,     "Charged" , fPid[2]+";"+fPid[6]);
 	//fAnalysis->FillList( chrmva, "Charged" ,"TMVABDTMvaProb");
 	
 	int ntrk = chr.GetLength();
@@ -219,26 +233,38 @@ void PndParticleQATask::Exec(Option_t* opt)
 		
 		qa.qaP4(  "",		chr[j]->P4(),		ntp);
 			   
-		qa.qaPid( "pid",		chr[j], 		ntp);
+		qa.qaPid( "pid",	chr[j], 		ntp);
+		
 		qa.qaPid( "pid1",	chr1emc[j], 		ntp); 
 		qa.qaPid( "pid2", 	chr2drc[j], 		ntp); 
 		qa.qaPid( "pid3", 	chr3dsc[j], 		ntp); 
 		qa.qaPid( "pid4", 	chr4mvd[j], 		ntp); 
 		qa.qaPid( "pid5", 	chr5mdt[j], 		ntp); 
 		qa.qaPid( "pid6", 	chr6stt[j], 		ntp); 
-		if (fFastSim)
-			qa.qaPid( "pid7", 	chr7rch[j], 		ntp); 
-		qa.qaPid( "pid8", 	chr8chk[j], 		ntp); 
-		qa.qaPid( "pid9", 	chr9idl[j], 		ntp); 
+		if (fFastSim) 
+		  qa.qaPid( "pid7", 	chr7rch[j], 		ntp); 
+		
+		qa.qaPid( "pidchk",	chr8chk[j], 		ntp); 
+		qa.qaPid( "pidid", 	chr9idl[j], 		ntp); 
+		
+		qa.qaPid( "pidn1",	chr1nemc[j], 		ntp); 
+		qa.qaPid( "pidn2", 	chr2ndrc[j], 		ntp); 
+		qa.qaPid( "pidn3", 	chr3ndsc[j], 		ntp); 
+		qa.qaPid( "pidn4", 	chr4nmvd[j], 		ntp); 
+		qa.qaPid( "pidn5", 	chr5nmdt[j], 		ntp); 
+		qa.qaPid( "pidn6", 	chr6nstt[j], 		ntp); 
+		if (fFastSim) 
+		  qa.qaPid( "pidn7", 	chr7nrch[j], 		ntp); 
+		
 		//qa.qaPid( "algmva", 	chrmva[j], 		ntp); 
 		
-		qa.qaPid( "pid16", 	chr16[j], 		ntp); 
-		qa.qaPid( "pid126", 	chr126[j], 		ntp); 
-		qa.qaPid( "pid1236", 	chr1236[j], 		ntp); 
-		qa.qaPid( "pid1256", 	chr1256[j], 		ntp); 
-		qa.qaPid( "pid12356", 	chr12356[j], 		ntp); 
-		qa.qaPid( "pid123456", chr123456[j], 		ntp); 
-		qa.qaPid( "pid26", 	chr26[j], 		ntp); 
+		//qa.qaPid( "pid16", 	chr16[j], 		ntp); 
+		//qa.qaPid( "pid126", 	chr126[j], 		ntp); 
+		//qa.qaPid( "pid1236", 	chr1236[j], 		ntp); 
+		//qa.qaPid( "pid1256", 	chr1256[j], 		ntp); 
+		//qa.qaPid( "pid12356", 	chr12356[j], 		ntp); 
+		//qa.qaPid( "pid123456", chr123456[j], 		ntp); 
+		//qa.qaPid( "pid26", 	chr26[j], 		ntp); 
 		
 		qa.qaEmc( "",		chr[j], 		ntp);
 		qa.qaMvd( "",		chr[j], 		ntp);

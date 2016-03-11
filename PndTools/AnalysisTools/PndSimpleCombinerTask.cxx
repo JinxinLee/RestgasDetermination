@@ -72,7 +72,7 @@ PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms,
   FairTask("PndSimpleCombinerTask"), fVerbose(0), fEvtCount(0), fRun(run), fMode(mode), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
   fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"),
-  fQaMC(false), fQaEventShape(false), fFit4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), fNodump(0), nmc(0)
+  fQaMC(false), fQaEventShape(false), fFit4C(false), fBest4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), fNodump(0), nmc(0)
 { 
 	fIni.SetXYZT(0,0,0,0);
 	double mp = 0.938272;
@@ -102,15 +102,16 @@ void PndSimpleCombinerTask::InitParms()
 		bool taskparm = false;
 		
 		// simple parameter flag
-		if (pars[i]=="qamc")            {fQaMC         = true; taskparm = true;} // write mc information
-		if (pars[i]=="qaevtshape")      {fQaEventShape = true; taskparm = true;} // write event shape info
-		if (pars[i].Contains("fit4c"))  {fFit4C        = true; taskparm = true;} // perform 4c fit for last particle (usually pbarpSystemX)
-		if (pars[i].Contains("fitvtx")) {fFitVtx       = true; taskparm = true;} // perform vertex fit if possible (not cascaded)
+		if (pars[i]=="qamc")               { fQaMC         = true; taskparm = true; } // write mc information
+		if (pars[i]=="qaevtshape")         { fQaEventShape = true; taskparm = true; } // write event shape info
+		if (pars[i].Contains("fit4c"))     { fFit4C        = true; taskparm = true; } // perform 4c fit for last particle (usually pbarpSystemX)
+		if (pars[i].Contains("fit4cbest")) { fBest4C       = true; taskparm = true; } // only store best 4C fitted candidate
+		if (pars[i].Contains("fitvtx"))    { fFitVtx       = true; taskparm = true; } // perform vertex fit if possible (not cascaded)
 		
-		if (pars[i].BeginsWith("!ntp"))                                          // !ntpX avoids dump of ntuple of X-th resonance to save disc space (for e.g. subresonances of decay tree)
+		if (pars[i].BeginsWith("!ntp"))                                               // !ntpX avoids dump of ntuple of X-th resonance to save disc space (for e.g. subresonances of decay tree)
 		{
 			int ntpnum = ((TString)(pars[i](4,100))).Atoi();
-			if (ntpnum>=0 && ntpnum<32) fNodump |= (1<<ntpnum);                  // this is a bit marker; if i-th bit set, dump of ntpi is skipped
+			if (ntpnum>=0 && ntpnum<32) fNodump |= (1<<ntpnum);                       // this is a bit marker; if i-th bit set, dump of ntpi is skipped
 			taskparm = true;
 		}
 			
@@ -303,7 +304,6 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 	
 	fSimpleCombiner->Combine();
 	
-	
 	// ntuple dump
 	for (i=0;i<fNntp;++i)
 	{
@@ -326,19 +326,61 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 		// number of charged daughters for vtx fit
 		int ncdau = -1;
 		
+		// determine the best chi2 from 4C fit in case we only want to store the best candidate
+		double best4cChi2 = 1e10;
+	
 		for (j=0;j<l1.GetLength();++j) 
 		{
 			if (ncdau<0) ncdau = CountChargedDaughters(l1[j]);
 				
 			Float_t mmiss = (fIni-(l1[j]->P4())).M();
+			Float_t msum  = l1[j]->M() + mmiss;
+			
+			// in case we do 4C fit, we need to do determine first, whether the candidate is the best one
+			// flag whether the fit is accepted
+			bool fitaccept = true;
+			
+			// for the last list we perform a 4C fit
+			if (fFit4C && i==fNntp-1)
+			{
+				PndKinFitter fit4c(l1[j]);
+				fit4c.Add4MomConstraint(fIni);
+				fit4c.Fit();
+				
+				double chi2_4c = fit4c.GetChi2();   
+				
+				if (chi2_4c>=fFit4CChiCut) fitaccept = false;
+				if (chi2_4c>best4cChi2 || !fitaccept) continue;
+				
+				best4cChi2 = chi2_4c;
+
+				RhoCandidate *cfit   = l1[j]->GetFit();
+				
+				vntp[i]->Column("chi24c", (Float_t) chi2_4c);
+				qa.qaP4("f4cx", cfit->P4(), vntp[i]);
+				
+				for (int k=0;k<cfit->NDaughters();++k)
+				{
+					RhoCandidate *d0fit = cfit->Daughter(k);
+					qa.qaP4(TString::Format("f4cxd%d",k),d0fit->P4(),vntp[i]);
+					
+					for (int k2=0;k2<d0fit->NDaughters();++k2)
+					{
+						RhoCandidate *ddfit = d0fit->Daughter(k);
+						qa.qaP4(TString::Format("f4cxd%dd%d",k,k2),ddfit->P4(),vntp[i]);
+					}
+				}
+			}
 
 			vntp[i]->Column("ev",		(Int_t) fEvtCount);
 			vntp[i]->Column("cand",	    (Int_t) j);
 			vntp[i]->Column("ncand",    (Int_t) l1.GetLength());
-			vntp[i]->Column("mmiss",	(Float_t) mmiss);
 			vntp[i]->Column("run",      (Int_t) fRun);
 			vntp[i]->Column("uid",      (Int_t) fRun*fRunMult+fEvtCount);
 			vntp[i]->Column("mode",     (Int_t) fMode);
+
+			vntp[i]->Column("mmiss",	(Float_t) mmiss);
+			vntp[i]->Column("msum",	    (Float_t) msum);
 			
 			qa.qaP4("beam", fIni, vntp[i]);
 			
@@ -361,38 +403,6 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 			if (truth) lv = truth->P4();
 			qa.qaP4("trx", lv, vntp[i]);
 			
-			// flag whether the fit is accepted
-			bool fitaccept = true;
-			
-			// for the last list we perform a 4C fit
-			if (fFit4C && i==fNntp-1)
-			{
-/*				Pnd4CFitter fit4c(l1[j],fIni);
-				fit4c.FitConserveMasses();*/
-				PndKinFitter fit4c(l1[j]);
-				fit4c.Add4MomConstraint(fIni);
-				fit4c.Fit();
-				
-				double chi2_4c = fit4c.GetChi2();   
-				RhoCandidate *cfit   = l1[j]->GetFit();
-				
-				vntp[i]->Column("chi24c", (Float_t) chi2_4c);
-				qa.qaP4("f4cx", cfit->P4(), vntp[i]);
-				
-				for (int k=0;k<cfit->NDaughters();++k)
-				{
-					RhoCandidate *d0fit = cfit->Daughter(k);
-					qa.qaP4(TString::Format("f4cxd%d",k),d0fit->P4(),vntp[i]);
-					
-					for (int k2=0;k2<d0fit->NDaughters();++k2)
-					{
-						RhoCandidate *ddfit = d0fit->Daughter(k);
-						qa.qaP4(TString::Format("f4cxd%dd%d",k,k2),ddfit->P4(),vntp[i]);
-					}
-				}
-				
-				if (chi2_4c>=fFit4CChiCut) fitaccept = false;
-			}
 			
 			// shall we do a vertex fit?
 			if (fFitVtx && ncdau>1)
@@ -410,8 +420,10 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 				if (chi2_vtx>=fFitVtxChiCut) fitaccept = false;
 			}	
 	
-			if (fitaccept) vntp[i]->DumpData();
+			if (fitaccept && ((i<fNntp-1) || !fBest4C )) vntp[i]->DumpData();
 		}
+		
+		if (fBest4C && i==fNntp-1 && best4cChi2<1e10) { vntp[i]->DumpData();}
 	}
 	
 	delete evsh;
