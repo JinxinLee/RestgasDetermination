@@ -7,11 +7,11 @@
 // quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms], [runST], [runnum], [mode] )
 //    <pref>     : output file names prefix
 //    <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or box generator instead
-//    <mom>      : pbar momentum; negative values are interpreted as -E_cm
+//    <mom>      : EvtGen, DPM, FTF: pbar momentum (negative values are interpreted as -E_cm); BOX generator: maximum particle momentum
 //    [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; emtpy string: only fast sim will be run
 //    [nevt]     : number of events; default = 1000
-//    [res]      : resonance/particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'
-//    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+//    [res]      : initial resonance or particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'
+//    [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'; 'qapart' runs PndParticleQATask
 //    [runST]    : if 'true' runs Software Trigger (default: false)
 //    [runnum]   : integer run number (default: 0)
 //    [mode]     : arbitrary mode number (default: 0)
@@ -27,11 +27,11 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		cout << "quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms], [runST], [runnum], [mode] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or box generator instead\n";
-		cout << "   <mom>      : pbar momentum; negative values are interpreted as -E_cm\n";
-		cout << "   [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; emtpy string: only fast sim will be run\n";
+		cout << "   <mom>      : EvtGen, DPM, FTF: pbar momentum (negative values are interpreted as -E_cm); BOX generator: maximum particle momentum\n";
+		cout << "   [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; '': only fast sim w/o reco will be run\n";
 		cout << "   [nevt]     : number of events; default = 1000\n";
-		cout << "   [res]      : resonance/particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'\n";
-		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'\n";
+		cout << "   [res]      : initial resonance or particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'\n";
+		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'; 'qapart' runs PndParticleQATask\n";
 		cout << "   [runST]    : if 'true' runs Software Trigger (default: false)\n";
 		cout << "   [runnum]   : integer run number (default: 0)\n";
 		cout << "   [mode]     : arbitrary mode number (default: 0)\n\n";
@@ -39,7 +39,14 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	}
 	
 	// only run fast sim without analysis
-	bool simonly = (anadecay=="");
+	bool simonly = (anadecay == "" && anaparms == "");
+	bool partQA  = (anaparms.Contains("qapart"));
+	
+	if (partQA) // partQA already stores a NTuple names 'nmc'
+	{
+		anaparms.ReplaceAll("qamc","");
+		anaparms.ReplaceAll("::",":");
+	}
 	
 	// for submission to queue all blanks in decay string were replaced by '§'; now we replace again the other way around
 	anadecay.ReplaceAll("§"," ");
@@ -61,7 +68,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	TDatabasePDG *pdg=TDatabasePDG::Instance();
 	pdg->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
 	pdg->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
-	
+
 	//-----Evaluate Detector Setup ---------------------------------------
 	bool SwMvdGem  = true;  // Enable MVD and GEM for central tracking in addition to STT
 	bool SwEmcBar  = true;  // Enable EMC barrel for calorimetry (neutral detection and PID component)
@@ -215,7 +222,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
 		chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
 		primGen->AndFilter(chrgFilter);
-		
+		 		 		
 		//FairEvtFilterOnCounts* neutFilter = new FairEvtFilterOnCounts("neutFilter");
 		//neutFilter->AndMaxCharge(4, FairEvtFilter::kNeutral);
 		//primGen->AndFilter(neutFilter);
@@ -405,7 +412,8 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	// ***********************
 
     
-    // *****************************
+    
+	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
 		
@@ -415,9 +423,27 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		scTask->SetPidAlgo("PidChargedProbability");
 		fRun->AddTask(scTask);
 	}
+	
 	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
+	
+	
+	
+	// *****************************
+	// *** PndParticleQATask ***
+	// *****************************
+	
+	if (partQA)
+	{
+		PndParticleQATask *partQaTask = new PndParticleQATask(kTRUE); // particle QA task for FastSim
+		fRun->AddTask(partQaTask);
+	}
+	
+	// *****************************
+	// *** PndParticleQATask ***
+	// *****************************
+	
 	
 	//-------------------------  Initialize the RUN  -----------------
 	fRun->Init();
