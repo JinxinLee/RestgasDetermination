@@ -17,6 +17,7 @@
 //    [mode]     : arbitrary mode number (default: 0)
 // -------------------
 
+void getRange(TString par, double &min, double &max);
 
 void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
 				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 , int runmode=0)
@@ -26,27 +27,36 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		cout << "USAGE:\n";
 		cout << "quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms], [runST], [runnum], [mode] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
-		cout << "   <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or box generator instead\n";
-		cout << "   <mom>      : EvtGen, DPM, FTF: pbar momentum (negative values are interpreted as -E_cm); BOX generator: maximum particle momentum\n";
+		cout << "   <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead\n";
+		cout << "                DPM settings: DPM = inelastic only, DPM1 = inel. + elastic, DPM2 = elastic only\n";
+		cout << "                FTF settings: FTF = inelastic only, FTF1 = inel. + elastic\n";
+		cout << "                BOX settings: optional ranges 'p/tht/phi(min,max)' separated with colon; single number = fixed value; example: 'BOX:p(1,5):tht(45):phi(90,210)'\n";
+		cout << "   <mom>      : EvtGen, DPM, FTF: pbar momentum (negative values are interpreted as -E_cm); BOX generator w/o special settings: maximum particle momentum\n";
 		cout << "   [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; '': only fast sim w/o reco will be run\n";
 		cout << "   [nevt]     : number of events; default = 1000\n";
 		cout << "   [res]      : initial resonance or particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'\n";
-		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'; 'qapart' runs PndParticleQATask\n";
+		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'; 'qapart' runs PndParticleQATask: 'persist' saves PndPidCandidates\n";
 		cout << "   [runST]    : if 'true' runs Software Trigger (default: false)\n";
 		cout << "   [runnum]   : integer run number (default: 0)\n";
 		cout << "   [mode]     : arbitrary mode number (default: 0)\n\n";
+		cout << "Example 1 - Do reco for EvtGen events : root -l -b -q 'quickfsimana.C(\"jpsi2pi\", \"decfiles/pp_jpsi2pi.dec\", 6.23, \"J/psi -> e+ e-; pbp -> J/psi pi+ pi-\", 1000, \"pbp\", \"fit4c:mwin=0.6\")'\n";
+		cout << "Example 2 - Particle QA for BOX gen   : root -l -b -q 'quickfsimana.C(\"single_kplus\", \"BOX\", 10.0, \"\", 1000, \"K+\", \"qapart\")'\n";	
+		cout << "Example 3 - Run fast sim only for DPM : root -l -b -q 'quickfsimana.C(\"bkg\", \"DPM\", 6.23, \"\", 1000)'\n\n";	
 		return;
 	}
 	
-	// only run fast sim without analysis
-	bool simonly = (anadecay == "" && anaparms == "");
+	// persist fast sim output?
+	bool persist = (anadecay == "" && anaparms == "") || anaparms.Contains("persist");
+	
+	// do some reconstruction ?
+	bool doreco  = (anadecay != "");
+	
+	// do particle QA?
 	bool partQA  = (anaparms.Contains("qapart"));
 	
-	if (partQA) // partQA already stores a NTuple names 'nmc'
-	{
-		anaparms.ReplaceAll("qamc","");
-		anaparms.ReplaceAll("::",":");
-	}
+	// partQA already stores a NTuple names 'nmc'
+	if (partQA) anaparms.ReplaceAll("qamc","");
+
 	
 	// for submission to queue all blanks in decay string were replaced by '§'; now we replace again the other way around
 	anadecay.ReplaceAll("§"," ");
@@ -83,9 +93,6 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	Bool_t useEventFilter    = false;  // enable Fast Sim event filter. *** Needs configuration (see below) *** 
 	Bool_t usePndEventFilter = false;  // enable Panda event filter.    *** Needs configuration (see below) *** 
 	
-	//----- Presist simulation output ------------------------------
-	Bool_t persist           = simonly;  // if analysis is running, fsim output not needed
-
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 	TString splitpars = BaseDir+"/fsim/splitpars.dat";
@@ -93,7 +100,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 
 	//-----User Settings:-------------------------------------------------
 	TString  OutputFile     = TString::Format("%s_%d_ana.root",Prefix.Data(), run);
-	if (simonly) OutputFile = TString::Format("%s_%d_fsim.root",Prefix.Data(), run);
+	if (persist) OutputFile = TString::Format("%s_%d_fsim.root",Prefix.Data(), run);
 	
 	gDebug             = 0;
 
@@ -104,30 +111,54 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	Bool_t UseBoxGenerator  = kFALSE;
 
 	// use DPM generator; default: inelastic @ pbarmom = mom
-	if (Decfile.BeginsWith("DPM"))
+	if (Decfile.BeginsWith("DPM") && !Decfile.EndsWith(".dec"))
 	{
 		UseEvtGenDirect = kFALSE;
 		UseDpm 	      = kTRUE;
 	}
 
 	// use FTF generator; 
-	if (Decfile.BeginsWith("FTF"))
+	if (Decfile.BeginsWith("FTF") && !Decfile.EndsWith(".dec"))
 	{
 		UseEvtGenDirect = kFALSE;
 		UseFtf 	        = kTRUE;
 	}
 
-	// use BOX generator; default: single mu-, 0<tht<180, 0<phi<360, 0.1<p<mom
-	if (Decfile=="BOX")
+	// use BOX generator; defaults
+	Double_t BoxMomMin  = 0.05;   // minimum momentum for box generator
+	Double_t BoxMomMax  = Mom;    // maximum   "       "
+	Double_t BoxThtMin  = 0. ;    // minimum theta for box generator
+	Double_t BoxThtMax  = 180.;   // maximum   "       "
+	Double_t BoxPhiMin  = 0. ;    // minimum phi for box generator
+	Double_t BoxPhiMax  = 360.;   // maximum   "       "
+	Bool_t   BoxCosTht  = false;  // isotropic in cos(theta) instead theta
+
+	if (Decfile.BeginsWith("BOX") && !Decfile.EndsWith(".dec"))
 	{
 		UseEvtGenDirect = kFALSE;
 		UseBoxGenerator = kTRUE;
+		
+		if (Decfile!="BOX")
+		{
+			Decfile.ReplaceAll("BOX","");
+			Decfile.ReplaceAll(" ","");
+			Decfile += ":";
+			
+			while (Decfile.Contains(":"))
+			{
+				TString curpar = Decfile(0,Decfile.Index(":"));
+				Decfile = Decfile(Decfile.Index(":")+1,1000);
+				
+				if (curpar.BeginsWith("p("))     getRange(curpar,BoxMomMin,BoxMomMax);
+				if (curpar.BeginsWith("tht"))   getRange(curpar,BoxThtMin,BoxThtMax);
+				if (curpar.BeginsWith("ctht")) {getRange(curpar,BoxThtMin,BoxThtMax); BoxCosTht=true;}
+				if (curpar.BeginsWith("phi"))   getRange(curpar,BoxPhiMin,BoxPhiMax);
+			}
+		}
+		
+		cout <<"BOX generator range: p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
 	}
 
-// 	usePndEventFilter=UseDpm;
-
-	Double_t MomMin  = 0.1;  // minimum momentum for box generator
-	Double_t MomMax  = Mom;  // maximum   "       "
 
 	// Start a stop watch
 	TStopwatch timer;
@@ -138,7 +169,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	FairRunSim *fRun = new FairRunSim();
 	fRun->SetOutputFile(OutputFile.Data());
 	fRun->SetGenerateRunInfo(kFALSE);
-	if (!simonly) fRun->SetUserConfig(BaseDir+"/tutorials/analysis/g3ConfigNoMC.C");
+	if (!persist) fRun->SetUserConfig(BaseDir+"/tutorials/analysis/g3ConfigNoMC.C");
 
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 
@@ -152,12 +183,16 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	fRun->SetName("TGeant3");
 
 	if(UseBoxGenerator)
-	{  // Box Generator
+	{   // Box Generator
 		int Pdgcode = TDatabasePDG::Instance()->GetParticle(Resonance)->PdgCode();
 		FairBoxGenerator* boxGen = new FairBoxGenerator(Pdgcode, 1); // 211 = pion; 1 = multipl.
-		boxGen->SetPRange(MomMin,MomMax); // GeV/c
-		boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-		boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
+		
+		boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
+		boxGen->SetPhiRange(BoxPhiMin, BoxPhiMax);   // Azimuth angle range [degree]
+		boxGen->SetThetaRange(BoxThtMin, BoxThtMax); // Polar angle in lab system range [degree]
+		
+		if (BoxCosTht) boxGen->SetCosTheta();
+		
 		boxGen->SetXYZ(0., 0., 0.); //cm
 		primGen->AddGenerator(boxGen);
 	}
@@ -417,7 +452,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	// *** PndSimpleCombinerTask ***
 	// *****************************
 		
-	if (!simonly)
+	if (doreco)
 	{
 		PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms+":algo=PidChargedProbability",Mom, run, runmode);
 		scTask->SetPidAlgo("PidChargedProbability");
@@ -461,3 +496,21 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 }
 
+void getRange(TString par, double &min, double &max)
+{
+	par.ReplaceAll(" ","");
+	par = par(par.Index("(")+1, par.Length()-par.Index("(")-2);
+	
+	TString smin=par, smax=par;
+	
+	if (par.Contains(",")) 
+	{
+		smin = par(0,par.Index(","));
+		smax = par(par.Index(",")+1,1000);
+	}
+	
+	min = smin.Atof();
+	max = smax.Atof();
+	
+	if (min>max) {double tmp=min;min=max;max=tmp;}
+}
