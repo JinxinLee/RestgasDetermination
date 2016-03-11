@@ -32,6 +32,7 @@ bool PndMdtHitProducer::PndMdtDigiLess::operator()
 PndMdtHitProducer::PndMdtHitProducer():fTimeOrderedDigi(kFALSE),
 FairTask("MDT Hit Producer") 
 {
+  fVerbose = 0;
   // Reset();
 }
 // -------------------------------------------------------------------------
@@ -203,7 +204,7 @@ void PndMdtHitProducer::Exec(Option_t* opt)
   for(Int_t ibox=0; ibox < nBox; ++ ibox)
   {
     PndMdtDigi* boxDigi  = (PndMdtDigi*) fBoxArray->At(ibox);
-    cout<< "pos 0, "<<ibox<<", "<<boxDigi->X()<<", "<<boxDigi->Y()<<", "<<boxDigi->Z()<<endl;
+    if (fVerbose>0) cout<< "pos 0, "<<ibox<<", "<<boxDigi->X()<<", "<<boxDigi->Y()<<", "<<boxDigi->Z()<<endl;
 
     ClustersColIter cit = fBoxClusters.begin();
     ClustersColIter cend = fBoxClusters.end();
@@ -244,7 +245,7 @@ void PndMdtHitProducer::Exec(Option_t* opt)
     size_t idx = aClu.size()/2;
     SingleDigiIter dit = aClu.begin();
     while( idx -- ) ++ dit;
-    cout<< "dit pos 1, "<<fBoxClusterArray->GetEntriesFast()<<", "<<(*dit)->X()<<", "<<(*dit)->Y()<<", "<<(*dit)->Z()<<endl;
+    if (fVerbose>0) cout<< "dit pos 1, "<<fBoxClusterArray->GetEntriesFast()<<", "<<(*dit)->X()<<", "<<(*dit)->Y()<<", "<<(*dit)->Z()<<endl;
     (*fBoxClusterArray)[fBoxClusterArray->GetEntriesFast()] = *dit;
 
     ++ fLayerMapofBox[ PndMdtID::LayerID((*dit)->GetDetectorID())];
@@ -273,7 +274,7 @@ void PndMdtHitProducer::Exec(Option_t* opt)
   for(; mit != mend; ++mit){
     ++ fStripHitMapofLayer[mit->second];
   }
-  //std::cout<<"produce "<<fStripClusterArray->GetEntriesFast()<<" digis"<<endl;
+  if (fVerbose>0) std::cout<<"produce "<<fStripClusterArray->GetEntriesFast()<<" digis"<<endl;
 
   fNumofGroupedBoxDigis += fBoxClusterArray->GetEntriesFast();
   fNumofGroupedStripDigis += fStripClusterArray->GetEntriesFast();
@@ -282,7 +283,7 @@ void PndMdtHitProducer::Exec(Option_t* opt)
   for (Int_t iBox=0; iBox<fBoxClusterArray->GetEntriesFast(); iBox++) 
   {
     PndMdtDigi* boxDigi  = (PndMdtDigi*) fBoxClusterArray->At(iBox);
-    cout<< "pos 2, "<<iBox<<", "<<boxDigi->X()<<", "<<boxDigi->Y()<<", "<<boxDigi->Z()<<endl;
+    if (fVerbose>0) cout<< "pos 2, "<<iBox<<", "<<boxDigi->X()<<", "<<boxDigi->Y()<<", "<<boxDigi->Z()<<endl;
     Int_t numStripFound =0 ;
     //++ nBoxDigi;
     for (Int_t iStrip=0; iStrip<fStripClusterArray->GetEntriesFast(); iStrip++) 
@@ -384,34 +385,37 @@ PndMdtHit* PndMdtHitProducer::AddHit(Int_t detID, Int_t stripID, TVector3& pos, 
 // ----
 void PndMdtHitProducer::FinishTask()
 {
-  std::cout<<"==================================================="<<std::endl;
-  std::cout<<"PndMdtHitProducer::FinishTask"<<std::endl;
-  std::cout<<"***************************************************"<<std::endl;
-  std::cout<<"Read box digis: "<<fNumofBoxDigis<<", after group: "<<fNumofGroupedBoxDigis<<std::endl;
-  std::cout<<"Read strip digis: "<<fNumofStripDigis<<", after group: "<<fNumofGroupedStripDigis<<std::endl;
-  std::cout<<"Produce hits# "<<fNumofHits<<std::endl;
-  std::cout<<"statistics: number of strip digis matching per box digi#"<<std::endl;
-  std::map<Int_t, Int_t>::const_iterator it = fMatchMap.begin();
-  std::map<Int_t, Int_t>::const_iterator end = fMatchMap.end();
-  cout<<"Nmatch\t\t"<<"Count\t"<<endl;
-  for(; it != end; ++it){
-    cout<< it->first<<"\t\t"<<it->second<<endl;
-  }
-  std::cout<<"statistics, number of hits per layer"<<std::endl;
-  std::cout<<"================== Box  ========================"<<endl;
-  std::cout<<"NumHits\t\tCount\t"<<std::endl;
-  std::map<Int_t, Int_t>::iterator mit = fBoxHitMapofLayer.begin();
-  std::map<Int_t, Int_t>::iterator mend = fBoxHitMapofLayer.end();
-  for(; mit != mend; ++mit){
-    cout<<mit->first<<"\t\t"<<mit->second<<std::endl;
-  }
-  std::cout<<"================== strip  ========================"<<endl;
-  mit = fStripHitMapofLayer.begin();
-  mend = fStripHitMapofLayer.end();
-  for(; mit != mend; ++mit){
-    cout<<mit->first<<"\t\t"<<mit->second<<std::endl;
-  }
-  std::cout<<"***************************************************"<<std::endl;
+  if (fVerbose)
+    {
+      std::cout<<"==================================================="<<std::endl;
+      std::cout<<"PndMdtHitProducer::FinishTask"<<std::endl;
+      std::cout<<"***************************************************"<<std::endl;
+      std::cout<<"Read box digis: "<<fNumofBoxDigis<<", after group: "<<fNumofGroupedBoxDigis<<std::endl;
+      std::cout<<"Read strip digis: "<<fNumofStripDigis<<", after group: "<<fNumofGroupedStripDigis<<std::endl;
+      std::cout<<"Produce hits# "<<fNumofHits<<std::endl;
+      std::cout<<"statistics: number of strip digis matching per box digi#"<<std::endl;
+      std::map<Int_t, Int_t>::const_iterator it = fMatchMap.begin();
+      std::map<Int_t, Int_t>::const_iterator end = fMatchMap.end();
+      cout<<"Nmatch\t\t"<<"Count\t"<<endl;
+      for(; it != end; ++it){
+	cout<< it->first<<"\t\t"<<it->second<<endl;
+      }
+      std::cout<<"statistics, number of hits per layer"<<std::endl;
+      std::cout<<"================== Box  ========================"<<endl;
+      std::cout<<"NumHits\t\tCount\t"<<std::endl;
+      std::map<Int_t, Int_t>::iterator mit = fBoxHitMapofLayer.begin();
+      std::map<Int_t, Int_t>::iterator mend = fBoxHitMapofLayer.end();
+      for(; mit != mend; ++mit){
+	cout<<mit->first<<"\t\t"<<mit->second<<std::endl;
+      }
+      std::cout<<"================== strip  ========================"<<endl;
+      mit = fStripHitMapofLayer.begin();
+      mend = fStripHitMapofLayer.end();
+      for(; mit != mend; ++mit){
+	cout<<mit->first<<"\t\t"<<mit->second<<std::endl;
+      }
+      std::cout<<"***************************************************"<<std::endl;
+    }
 }
 
 

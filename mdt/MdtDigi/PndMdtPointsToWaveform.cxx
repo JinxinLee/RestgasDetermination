@@ -81,7 +81,7 @@ InitStatus PndMdtPointsToWaveform::Init()
   if(fTimeOrderedWaveform){
     fDataBuffer = new PndMdtWaveformWriteoutBuffer("MdtWaveform", "Mdt", fStoreWaves);
     fDataBuffer->ActivateBuffering(kTRUE);
-    fDataBuffer->SetVerbose(3);
+    fDataBuffer->SetVerbose(fVerbose);
     ioman->RegisterWriteoutBuffer("MdtWaveform", fDataBuffer);
   }else{
     fWaveformArray = ioman->Register("MdtWaveform", "PndMdtWaveform", "Mdt",fStoreWaves);
@@ -100,7 +100,7 @@ InitStatus PndMdtPointsToWaveform::Init()
   fParamDigiModel->UsePlot(kFALSE);
   fParamDigiModel->UseGaussianAmp(kFALSE);
   fParamDigiModel->SetOptimization(10);
-  fParamDigiModel->SetVerbose(2);
+  //fParamDigiModel->SetVerbose(2);
   fParamDigiModel->Init();
 
   fGeoIF = PndMdtIGeometry::Instance();
@@ -451,13 +451,15 @@ void PndMdtPointsToWaveform::SetStorageOfData(Bool_t val)
 }
 void PndMdtPointsToWaveform::FinishTask()
 {
-  std::cout<<"==================================================="<<std::endl;
-  std::cout<<"PndMdtPointsToWaveform::FinishTask"<<std::endl;
-  std::cout<<"***************************************************"<<std::endl;
-  std::cout<<"Read points# "<<HowManyPoint<<std::endl;
-  std::cout<<"Produce waveforms# "<<nWaveformProduced<<std::endl;
-  std::cout<<"***************************************************"<<std::endl;
-
+  if (fVerbose>0)
+    {
+      std::cout<<"==================================================="<<std::endl;
+      std::cout<<"PndMdtPointsToWaveform::FinishTask"<<std::endl;
+      std::cout<<"***************************************************"<<std::endl;
+      std::cout<<"Read points# "<<HowManyPoint<<std::endl;
+      std::cout<<"Produce waveforms# "<<nWaveformProduced<<std::endl;
+      std::cout<<"***************************************************"<<std::endl;
+    }
   fFile->cd();
   tTree->Write();
   fFile->Close();

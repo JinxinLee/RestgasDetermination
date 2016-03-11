@@ -9,12 +9,14 @@ ClassImp(PndMdtWaveformWriteoutBuffer);
 
 
 PndMdtWaveformWriteoutBuffer::PndMdtWaveformWriteoutBuffer():FairWriteoutBuffer() {
+  fVerbose = 0;
 }
 
 
 PndMdtWaveformWriteoutBuffer::PndMdtWaveformWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance):
   FairWriteoutBuffer(branchName, "PndMdtWaveform", folderName, persistance)
 {
+  fVerbose = 0;
 }
 
 PndMdtWaveformWriteoutBuffer::~PndMdtWaveformWriteoutBuffer() {
