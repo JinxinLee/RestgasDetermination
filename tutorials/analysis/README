@@ -59,8 +59,11 @@ simply given in one string.
    - fitvtx      : Performs vertex fits on all decays having at least two final state tracks
    - qamc        : Dump out an ntuple with mc information
    - qaevtshape  : Fill event shape variables in ntuples (needs more output space)
+   - qapart      : Runs single particle QA task (in particular useful for BOX generator)
+   
 
 *** Example: You want to 
+
    - apply a general mass cut on all resonances of +-250 MeV, a +-50 MeV mass cut on the phi and a +-15 MeV cut on the pi0. 
    - 4C fit should be applied. 
    - The PID criterion should be loose for all particles in general.
@@ -78,27 +81,51 @@ quickfsimana.C
 In case you don't have AOD data but want to take a quick look into some channel, you can run FastSim previously by providing a proper decay file (or use DPM to check background behaviour).
 
 USAGE:
-quickfsimana.C+( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms] )
+quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms], [runST], [runnum], [mode] )
    <pref>     : output file names prefix
-   <decfile>  : decfile; 'DPM'/'FTF' uses DPM/FTF generator instead
-   <mom>      : pbar momentum; negative values are interpreted as -E_cm
-   <decay>    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi- cc'
+   <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead
+                DPM settings: DPM = inelastic only, DPM1 = inel. + elastic, DPM2 = elastic only
+                FTF settings: FTF = inelastic only, FTF1 = inel. + elastic
+                BOX settings: optional ranges 'p/tht/phi(min,max)' separated with colon; single number = fixed value; example: 'BOX:p(1,5):tht(45):phi(90,210)'
+   <mom>      : EvtGen, DPM, FTF: pbar momentum (negative values are interpreted as -E_cm); BOX generator w/o special settings: maximum particle momentum
+   [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; '': only fast sim w/o reco will be run
    [nevt]     : number of events; default = 1000
-   [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'
-   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
+   [res]      : initial resonance or particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'
+   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'; 'qapart' runs PndParticleQATask: 'persist' saves PndPidCandidates
    [runST]    : if 'true' runs Software Trigger (default: false)
    [runnum]   : integer run number (default: 0)
+   [mode]     : arbitrary mode number (default: 0)
+
 
 The specifications to <decay> and [parms] is exactly as above, you only need to specify the decay to be generated.
 
-*** Example: You want to run 1000 events of the 'standard' analysis example:
+  
+*** Example 1 - Do reco for EvtGen events (Note the shortcuts: pbarpSystem = pbp, pbarpSystem0 = pbp0):
 
   - pbarp -> J/psi pi+ pi-, J/psi -> e+ e- @ p_pbar = 6.23 GeV (i.e. at psi(2S) energy); 
   - perform 4c fit
   - the decay file is 'pp_jpsi2pi.dec'
   - mass windows are +- 300 MeV
 
-(Note the shortcuts: pbarpSystem = pbp, pbarpSystem0 = pbp0)
+> root -l -b -q 'quickfsimana.C("jpsi2pi", "decfiles/pp_jpsi2pi.dec", 6.23, "J/psi -> e+ e-; pbp -> J/psi pi+ pi-", 1000, "pbp", "fit4c:mwin=0.6")'
 
- > root -l -b -q 'quickfsimana.C("jpsi2pi", "decfiles/pp_jpsi2pi.dec", 6.23, "J/psi -> e+ e-; pbp -> J/psi pi+ pi-", 1000, "pbp", "fit4c:mwin=0.6")'
+
+
+*** Example 2 - Particle QA for BOX gen: 
+
+  - BOX generator with single K+
+  - particle momentum range p = 1 ... 5 GeV/c, polar angle range tht = 22° ... 140°, full phi range
+  - particle QA task (stores charged in 'ntp', neutral in 'ntpn', mctruth in 'nmc')
+
+> root -l -b -q 'quickfsimana.C("single_kplus", "BOX:p(1,5):tht(22,140)", 10.0, "", 1000, "K+", "qapart")'
+
+
+
+*** Example 3 - Run fast sim only for DPM:
+
+  - DPM background events
+  - store only fast simulation output w/o reco
+
+> root -l -b -q 'quickfsimana.C("bkg", "DPM", 6.23, "", 1000)'
+
 
