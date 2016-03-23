@@ -41,8 +41,10 @@ if test "$5" != ""; then
 fi
 
 outprefix="data/"$prefix
+pidfile=$outprefix"_pid.root"
 
-root -l -q -b -w prod_sim_pgun.C\(\"$outprefix\",$nEvts,$pdg,$mom,$mult\) &> $outprefix"_sim.log"
-root -l -b -q -w prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
-root -l -b -q -w prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
-root -l -b -q -w prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
+root -l -q -b prod_sim_pgun.C\(\"$outprefix\",$nEvts,$pdg,$mom,$mult\) &> $outprefix"_sim.log"
+root -l -b -q prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
+root -l -b -q prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
+root -l -b -q prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
+root -l -b -q quickana.C\(\"$pidfile\",1,\"\",0,\"qapart\",0,0,0,$pdg\)   &> $outprefix"_ana.log"
