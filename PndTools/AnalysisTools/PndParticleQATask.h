@@ -26,7 +26,7 @@ class PndParticleQATask : public FairTask
  public:
 	
 	// ** Default constructor   
-	PndParticleQATask(bool fastsim = false);
+  PndParticleQATask(bool fastsim = false, bool dumpchrg=true, bool dumpneut=true, bool dumpmc = true);
 	
 	// ** Destructor 
 	~PndParticleQATask();	
@@ -61,6 +61,9 @@ class PndParticleQATask : public FairTask
 	PndAnalysis *fAnalysis;
 	
 	bool fFastSim;
+	bool fDumpChrg;
+	bool fDumpNeut;
+	bool fDumpMc;
 	
 	TString fPid[10];
 	

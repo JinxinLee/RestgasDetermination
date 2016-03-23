@@ -31,9 +31,12 @@ using std::endl;
 
 
 // -----   Default constructor   -------------------------------------------
-PndParticleQATask::PndParticleQATask(bool fastsim) :
+PndParticleQATask::PndParticleQATask(bool fastsim, bool dumpchrg, bool dumpneut, bool dumpmc) :
   FairTask("Panda Tutorial Analysis Task") { 
 	  fFastSim = fastsim;
+	  fDumpChrg = dumpchrg;
+	  fDumpNeut = dumpneut;
+	  fDumpMc   = dumpmc;
 }
 // -------------------------------------------------------------------------
 
@@ -72,9 +75,11 @@ InitStatus PndParticleQATask::Init()
 	fEvtCount = 0;
 
 	// create ntuple
-	nmc	 = new RhoTuple("nmc", "Particle QA MC truth");
-	ntp	 = new RhoTuple("ntp", "Particle QA charged");
-	ntpn = new RhoTuple("ntpn","Particle QA neutrals");
+	nmc = ntp = ntpn = 0;
+	
+	if (fDumpMc)   nmc  = new RhoTuple("nmc", "Particle QA MC truth");
+	if (fDumpChrg) ntp  = new RhoTuple("ntp", "Particle QA charged");
+	if (fDumpNeut) ntpn = new RhoTuple("ntpn","Particle QA neutrals");
 	
 	if (fFastSim)
 	{
@@ -160,17 +165,20 @@ void PndParticleQATask::Exec(Option_t* opt)
 	PndRhoTupleQA qa(fAnalysis,15.0);
 	
 	// *** store MC truth info
-	fAnalysis->FillList(mclist,   "McTruth",50);
-	nmc->Column("ev", (Int_t) fEvtCount);
-	qa.qaMcList("",   mclist, nmc);
-	nmc->DumpData();
+	if (fDumpMc)
+	{
+	  fAnalysis->FillList(mclist,   "McTruth",50);
+	  nmc->Column("ev", (Int_t) fEvtCount);
+	  qa.qaMcList("",   mclist, nmc);
+	  nmc->DumpData();
+	}
 	
 	// *** Select with no PID info ('All'); type and mass are set 		
-	fAnalysis->FillList( neut,    "Neutral" );
+	if (fDumpNeut) fAnalysis->FillList( neut,    "Neutral" );
 	
 	// *** charged lists with different PID algo combinations
 	// *** the individual PID probs
-	fAnalysis->FillList( chr,     "Charged" , fPid[0]);		// total pid
+	if (fDumpChrg) fAnalysis->FillList( chr,     "Charged" , fPid[0]);		// total pid
 	
 	fAnalysis->FillList( chr1emc, "Charged" , fPid[1]);		// emc = algo 1
 	fAnalysis->FillList( chr2drc, "Charged" , fPid[2]);		// drc = algo 2
@@ -222,7 +230,7 @@ void PndParticleQATask::Exec(Option_t* opt)
 	TLorentzVector chrgP4=dummy;
 	
 	// *** Loop over CHARGED particles
-	for (j=0; j<chr.GetLength(); ++j)
+	for (j=0; j<ntrk; ++j)
 	{
 		RhoCandidate *truth = chr[j]->GetMcTruth();
 		
@@ -305,7 +313,7 @@ void PndParticleQATask::Exec(Option_t* opt)
 	
 	ntrk = neut.GetLength();
 	// *** Loop over NEUTRAL particles
-	for (j=0; j<neut.GetLength(); ++j)
+	for (j=0; j<ntrk; ++j)
 	{
 		RhoCandidate *truth = neut[j]->GetMcTruth();
 		
@@ -358,9 +366,9 @@ void PndParticleQATask::Exec(Option_t* opt)
 
 void PndParticleQATask::Finish()
 {	
-	nmc->GetInternalTree()->Write();
-	ntp->GetInternalTree()->Write();		
-	ntpn->GetInternalTree()->Write();	
+  if (fDumpMc)   nmc->GetInternalTree()->Write();
+  if (fDumpChrg) ntp->GetInternalTree()->Write();
+  if (fDumpNeut) ntpn->GetInternalTree()->Write();	
 }
 
 ClassImp(PndParticleQATask)
