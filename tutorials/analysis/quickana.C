@@ -34,6 +34,9 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 		return;
 	}
 	
+	// do some reconstruction ?
+	bool doreco  = (anadecay != "");
+
 	// do particle QA?
 	bool partQA  = (anaparms.Contains("qapart"));
 	
@@ -104,11 +107,14 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
-	if (fastsim) anaparms+=":algo="+pidalgo;
-	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms, Mom, run, runmode);
-	scTask->SetPidAlgo(pidalgo);
-	fRun->AddTask(scTask);
 	
+	if (doreco)
+	{
+		if (fastsim) anaparms+=":algo="+pidalgo;
+		PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms, Mom, run, runmode);
+		scTask->SetPidAlgo(pidalgo);
+		fRun->AddTask(scTask);
+	}
 	
 	// *****************************
 	// *** PndParticleQATask ***
