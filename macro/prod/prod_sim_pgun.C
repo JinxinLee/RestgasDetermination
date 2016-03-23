@@ -10,24 +10,14 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant3";
   TString  Workdir        =gSystem->Getenv("VMCWORKDIR");
-  //TString  Decfile        =Workdir+"/tutorials/apr13/psi2s_jpsi2pi.dec";
-  //TString  Resonance      ="psi(2S)";
-  
+   
   TString  OutputFile     = outpre+"_sim.root";
   TString  ParOutputfile  = outpre+"_par.root";
   Double_t BeamMomentum   = 15.0; // beam momentum ONLY for the scaling of the dipole field. For the generator use "mom"
   TString  MediaFile      = "media_pnd.geo";
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
-  // choose your event generator 
-  Bool_t UseEvtGen	      = kFALSE; 
-  Bool_t UseEvtGenDirect  = kFALSE;     
-  Bool_t UseDpm 	      = kFALSE;
-  Bool_t UseBoxGenerator  = kTRUE;
-  
-  // DPM or EvtGen?
-  //if (Decfile=="DPM") UseDpm=kTRUE;
-  //else UseEvtGenDirect=kTRUE;
+
   //------------------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -68,10 +58,10 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
-  FairModule *Magnet= new PndMagnet("MAGNET");
+  //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
-  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
-  fRun->AddModule(Magnet);
+  //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+  //fRun->AddModule(Magnet);
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
@@ -98,7 +88,7 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  SciT->SetGeometryFileName("SciTil_201504.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
@@ -117,6 +107,7 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   Muo->SetMuonFilter("fast");
   Muo->SetForward("fast");
   Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtCoil(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
   //-------------------------  FTS       -----------------
@@ -132,46 +123,38 @@ prod_sim_pgun(TString outpre="", Int_t nEvents = 100, int PdgType=13, Float_t mo
   Rich->SetGeometryFileName("rich_v2_shift.geo");
   fRun->AddModule(Rich);
 
+
+  
   // Create and Set Event Generator
   //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
   
-  if(UseBoxGenerator){	// Box Generator
-     FairBoxGenerator* boxGen = new FairBoxGenerator(PdgType, mult); // 13 = muon; 1 = multipl.
-     boxGen->SetPRange(0.01,mom); // GeV/c
-     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-     boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
-     //boxGen->SetCosTheta();
-	 boxGen->SetXYZ(0., 0., 0.); // cm
-     primGen->AddGenerator(boxGen);
-  }
-  if(UseDpm){
-  	  PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
-	  primGen->AddGenerator(Dpm);
-  }
-  if(UseEvtGenDirect){
-      PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), mom);
-	  EvtGen->SetStoreTree(kTRUE);
-	  primGen->AddGenerator(EvtGen);
-  }	
-	 
- //---------------------Create and Set the Field(s)---------- 
+  // Box Generator
+  FairBoxGenerator* boxGen = new FairBoxGenerator(PdgType, mult); // 13 = muon; 1 = multipl.
+  boxGen->SetPRange(0.01,mom); // GeV/c
+  boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
+  //boxGen->SetCosTheta();
+  boxGen->SetXYZ(0., 0., 0.); // cm
+  primGen->AddGenerator(boxGen);
+ 	 
+  //---------------------Create and Set the Field(s)---------- 
   PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
-
- // EMC Hit producer
+  
+  // EMC Hit producer
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
   
- //-------------------------  Initialize the RUN  -----------------  
+  //-------------------------  Initialize the RUN  -----------------  
   fRun->Init();
- //-------------------------  Run the Simulation  -----------------   
+  //-------------------------  Run the Simulation  -----------------   
   fRun->Run(nEvents);
- //-------------------------  Save the parameters ----------------- 
+  //-------------------------  Save the parameters ----------------- 
   rtdb->saveOutput();
- //------------------------Print some info and exit----------------     
+  //------------------------Print some info and exit----------------     
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

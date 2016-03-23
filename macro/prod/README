@@ -136,6 +136,7 @@ Box Generator
 -------------
 
 -> qsub -t <min>-<max> job_prod_pgun.sge <prefix> <N_ev> <PDG code> <max mom> <mult> <saveall>
+KRONOS: -> sbatch --time=08:00:00 --array=<min>-<max> sub_pgun_ana.sh <prefix> <N_ev> <PDG code> <max mom> <mult> <saveall>
 
 Submits an array of jobs with array numbers <min> to <max>
 
@@ -152,12 +153,14 @@ with '...' running from <prefix>_<min> to <prefix>_<max>.
 
 Example 1:
 qsub -t 1-20 job_prod_pgun.sge PiPlus 1000 211 1 saveall
+sbatch --time=08:00:00 --array=1-20 sub_pgun_ana.sh PiPlus 1000 211 1 saveall
 
 Result 1: 
 data/MPiPlus_1_par.root, data/MPiPlus_1_sim.root, data/MPiPlus_1_dig.root, data/MPiPlus_1_rec.root, ... , data/MPiPlus_20_pid.root 
 
 Example 2:
 qsub -t 1-20 job_prod_pgun.sge PiPlus 1000 211 1
+sbatch --time=08:00:00 --array=1-20 sub_pgun_ana.sh PiPlus 1000 211 1
 
 Result 2: 
 data/MPiPlus_1_par.root, data/MPiPlus_1_pid.root, ... , data/MPiPlus_20_par.root, data/MPiPlus_20_pid.root 
