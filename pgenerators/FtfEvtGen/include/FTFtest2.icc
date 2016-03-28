@@ -35,10 +35,8 @@
   //--------- Materials definition ---------
   Test30Material*  mate = new Test30Material();
   G4NistManager::Instance()->SetVerbose(0);
-
   //--------- Particles definition ---------
   Test30Physics*   phys = new Test30Physics();
-
 //  const G4ParticleDefinition* gamma = G4Gamma::Gamma();
   const G4ParticleDefinition* electron = G4Electron::Electron();
   const G4ParticleDefinition* proton = G4Proton::Proton();
@@ -59,11 +57,20 @@
   const G4ParticleDefinition* anti_He3      = G4AntiHe3::AntiHe3();
   const G4ParticleDefinition* anti_alpha    = G4AntiAlpha::AntiAlpha();
 
+  const G4ParticleDefinition* xi_minus      = G4XiMinus::XiMinus();         // Uzhi Nov. 2014
+
+  G4GenericIon* gion = G4GenericIon::GenericIon();
+  gion->SetProcessManager(new G4ProcessManager(gion));
+
   G4DecayPhysics decays;      
   decays.ConstructParticle(); 
 
   G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+  G4IonTable* ions = partTable->GetIonTable();
+
   partTable->SetReadiness();
+  ions->CreateAllIon();      // Uzhi 2.06 2014
+  ions->CreateAllIsomer();   // Uzhi 2.06.2014
 
   //--------- Geometry definition
 
