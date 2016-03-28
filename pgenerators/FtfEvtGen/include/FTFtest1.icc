@@ -48,7 +48,9 @@
 #include "G4Deuteron.hh"
 #include "G4Triton.hh"
 #include "G4IonTable.hh"
+#include "G4GenericIon.hh"
 #include "G4DecayPhysics.hh"  
+#include "G4XiMinus.hh"                // Uzhi Nov. 2014
 
 #include "G4ForceCondition.hh"
 #include "G4Box.hh"
