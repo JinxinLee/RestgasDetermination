@@ -74,15 +74,9 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-Test30Physics::Test30Physics() : theProcess(0), theDeExcitation(0), thePreCompound(0), hkmod(0), theQuasiElastic(0)
+Test30Physics::Test30Physics()
 {
   Initialise();
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
-Test30Physics::Test30Physics(const Test30Physics& other) : theProcess(other.theProcess), theDeExcitation(other.theDeExcitation), thePreCompound(other.thePreCompound), hkmod(other.hkmod), theQuasiElastic(other.theQuasiElastic)
-{
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
