@@ -26,18 +26,19 @@ public:
   PndDrcLutNode (Int_t detectorId);
 
   // Copy constructor 
-  PndDrcLutNode (PndDrcLutNode& node): TObject(node), fDetectorId(node.fDetectorId), fSize(node.fSize), fNodePos(node.fNodePos), fNodeArray(node.fNodeArray), fPathIdArray(node.fPathIdArray), fTimeArray(node.fTimeArray)  {}  ;
+  PndDrcLutNode (PndDrcLutNode& node): TObject(node), fDetectorId(node.fDetectorId), fSize(node.fSize), fNodePos(node.fNodePos), fNodeArray(node.fNodeArray), fPathArray(node.fPathArray), fPathIdArray(node.fPathIdArray), fTimeArray(node.fTimeArray)  {}  ;
 
   // Modifiers
-  void AddEntry(Int_t nodeId, TVector3 dir, Double_t pathid, Double_t time, TVector3 pos);
+  void AddEntry(Int_t nodeId, TVector3 dir, Double_t path, Int_t pathid, Double_t time, TVector3 pos);
   void SetPos(TVector3 pos){fNodePos = pos;}
 
   // Accessors
   Int_t Entries() { return fSize; }
   Double_t GetDetectorId() { return fDetectorId; }
 
-  TVector3 GetEntry(Int_t entry) { return fNodeArray[entry]; }
-  Double_t GetPathId(Int_t entry){ return fPathIdArray[entry]; }
+  TVector3 GetEntry(Int_t entry){ return fNodeArray[entry]; }
+  Int_t  GetPathId(Int_t entry){ return fPathIdArray[entry]; }
+  Double_t GetPath(Int_t entry){ return fPathArray[entry]; }
   Double_t GetTime(Int_t entry){ return fTimeArray[entry]; }
   TVector3 GetPos(){ return fNodePos; }
 
@@ -48,10 +49,11 @@ protected:
   TVector3 fNodePos;
 
   std::vector<TVector3> fNodeArray;
-  std::vector<Double_t> fPathIdArray;
+  std::vector<Int_t> fPathIdArray;
+  std::vector<Double_t> fPathArray;
   std::vector<Double_t> fTimeArray;
   
-  ClassDef(PndDrcLutNode,1)
+  ClassDef(PndDrcLutNode,2)
 };
 
 #endif //PNDDRCLUTNODE_H

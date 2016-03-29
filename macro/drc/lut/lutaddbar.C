@@ -71,7 +71,7 @@ void adddirs(TString filename){
       if(inode%10000==0) std::cout<<"Entry # "<< inode <<std::endl;
       PndDrcLutNode *node= (PndDrcLutNode*) fLut[l]->At(inode);
       for(int i=0; i< node->Entries(); i++){
-	((PndDrcLutNode*)(fLutSum[l]->At(inode)))->AddEntry(node->GetDetectorId(), node->GetEntry(i),node->GetPathId(i),node->GetTime(i),node->GetPos());
+	((PndDrcLutNode*)(fLutSum[l]->At(inode)))->AddEntry(node->GetDetectorId(), node->GetEntry(i),node->GetPath(i),node->GetPathId(i),node->GetTime(i),node->GetPos());
       }
     }
  }

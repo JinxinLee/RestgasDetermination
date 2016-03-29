@@ -1,4 +1,4 @@
-void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TString parFile="parlut.root", Int_t bars=5){
+void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TString parFile="parlut.root", Int_t bars=5, TString geom="dirc_e3_b5_l6.root"){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -47,7 +47,7 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   Drc->SetOnlyDirectPho(kFALSE);
   Drc->SetBlackLensSides(kTRUE);
   Drc->SetOptionForLUT(kTRUE);
-  Drc->SetGeometryFileName(Form("dirc_e3_b%d_l6.root",bars));
+  Drc->SetGeometryFileName(geom);
   fRun->AddModule(Drc);  
 
   // Set Random Number seed
@@ -89,7 +89,7 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   // boxGen->SetXYZ(0.,0.,0.);
   // primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kTRUE);
+  //fRun->SetStoreTraj(kTRUE);
 
   fRun->Init();
   

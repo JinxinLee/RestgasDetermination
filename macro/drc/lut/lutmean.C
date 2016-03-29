@@ -38,8 +38,9 @@ void lutmean(TString baseFile = "lut_all")
   // TH1F * hDir = new TH1F("hDir","X component",1000,-1,1);
 
 
-  std::vector<TVector3> vArray[200];
-  std::vector<Double_t> tArray[200];
+  const Int_t max(100);
+  std::vector<TVector3> vArray[max];
+  std::vector<Double_t> tArray[max];
   std::vector<Double_t> pArray;
   
   TVector3 dir, dir2, sum;
@@ -56,14 +57,14 @@ void lutmean(TString baseFile = "lut_all")
       for(int i=0; i<size; i++){
 	dir = node->GetEntry(i);
 	time = node->GetTime(i);
-	pathid = node->GetPathId(i);
+	pathid = node->GetPath(i);
       
 	// hDir->Fill(dir.X());
 	// hTime->Fill(time);
 
 	bool newid = true;
 	for(int j=0; j<pArray.size(); j++){
-	  if(pathid == pArray[j]){	    
+	  if((Int_t)pathid == (Int_t)pArray[j]){	    
 	    vArray[j].push_back(dir);
 	    tArray[j].push_back(time);
 	    newid= false;
@@ -75,7 +76,7 @@ void lutmean(TString baseFile = "lut_all")
 	  pArray.push_back(pathid);
 	}
       }
-  
+
       for(int j=0; j<pArray.size(); j++){
 	sum = TVector3(0,0,0);
 	sumt=0;
@@ -100,9 +101,9 @@ void lutmean(TString baseFile = "lut_all")
 	sum *= 1/(Double_t)vArray[j].size();
 	sumt *= 1./(Double_t)tArray[j].size();
       
-	((PndDrcLutNode*)(fLutNew[l]->At(inode)))->AddEntry(node->GetDetectorId(), sum,j,sumt, node->GetPos()); 
+	((PndDrcLutNode*)(fLutNew[l]->At(inode)))->AddEntry(node->GetDetectorId(), sum,pArray[j],j,sumt, node->GetPos()); 
       }
-      for(int i=0; i<100; i++) {vArray[i].clear();  tArray[i].clear();}
+      for(int i=0; i<max; i++) {vArray[i].clear();  tArray[i].clear();}
       pArray.clear();
     }
   }
