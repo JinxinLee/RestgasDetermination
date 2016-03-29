@@ -85,7 +85,7 @@ private:
   /**   Process MC Points **/
   void ProcessPhotonPoint(); 
   void Smear(Double_t& time, Double_t sigt);
-  void ActivatePixel(Int_t DetectorId, Int_t sensorId, Double_t signalTime, Int_t k, Int_t csflag, PndDrcPDPoint* pdp);
+  void ActivatePixel(Int_t sensorId, Int_t k, Int_t csflag);
   
   // basic parameters of DIRC
   Double_t fMcpActiveArea;

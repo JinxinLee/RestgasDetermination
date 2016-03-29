@@ -1,13 +1,13 @@
 // -----------------------------------------
-// PndDrcLutReco.h
+// PndDrcReco.h
 //
-// Created on: 13.07.2013
+// Created on: 04.03.2016
 // Author: R.Dzhygadlo at gsi.de
 // -----------------------------------------
-// Class for reconstruction in DIRC using look-up table method
+// look-up-table and time imaging reconstruction
  
-#ifndef PNDDRCLUTRECO_H
-#define PNDDRCLUTRECO_H
+#ifndef PNDDRCRECO_H
+#define PNDDRCRECO_H
  
 #include "FairTask.h"
 #include "TClonesArray.h"
@@ -23,6 +23,7 @@
 #include "TString.h"
 #include "TFile.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TF1.h"
 #include "TSpectrum.h"
 
@@ -31,19 +32,14 @@
 #include "PndDrcAmbiguityInfo.h"
 
 
-class PndDrcLutReco : public FairTask {
+class PndDrcReco : public FairTask {
 
 public:
 
-  // Default constructor
-  PndDrcLutReco();
+  PndDrcReco();
+  PndDrcReco(TString outFile, TString lutFile, TString pdfFile, Int_t verbose=0);
 
-  // Standard constructors
-  PndDrcLutReco(Int_t verbose);
-  PndDrcLutReco(Int_t verbose, TString infilename);
-
-  // Destructor
-  virtual ~PndDrcLutReco();
+  virtual ~PndDrcReco(){};
 
   virtual InitStatus Init();
 
@@ -53,18 +49,16 @@ public:
   // Finish task 
   virtual void Finish();
   
-  void SetOutputFile(TString infilename = "luttab.root"){fInputFile = infilename;}
- 
 private:
 
-  void  LoopOverMcTracks();
-  void FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId, Int_t recalculatedSensorId, Double_t directz, Double_t barHitTime);
-  void DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t boxId);
-  void DetermineBarId(Double_t phi,  Double_t &boxPhi, Int_t &boxId, Int_t &barId);
+  void DetermineCherenkov(Int_t boxId, Int_t barId);
+  void DetermineBarId(Double_t &boxPhi, Int_t &barId);
+  void LookUpTable(Int_t barId, Int_t sensorId);
+  void TimeImaging(Int_t sensorId);
+  
   Double_t FindPeak();
   Int_t FindPdg(Double_t mom, Double_t cangle);
   PndGeoDrc* fGeo;
-  Int_t fDetectorID;  
   Double_t fBboxNum,fPipehAngle,fDphi,fBarPhi;
 
   TClonesArray* fMCArray;      // DRC MCPoints in the photon detector
@@ -76,8 +70,10 @@ private:
   TClonesArray *fLut[5];
   TClonesArray *fDrcTrackInfoArray;
 
-  TFile *fFile; 
+  TFile *fFile;
+  TFile *fFileOut; 
   TTree *fTree;
+  TTree *fTreeOut;
 
   PndMCTrack* fMCTrack;
   PndDrcBarPoint *fBarPoint;
@@ -92,14 +88,39 @@ private:
   // Verbosity level
   Int_t fVerbose;
   Int_t nevents;
-  TString fInputFile;
+  TString fOutFile;
+  TString fLutFile;
+  TString fPdfFile;
   Int_t fEvType,fRadType,fLensType;
-  TH1F *fHist;
-  TH1F *fHist2;
+  TH1F *fHist,*fHist1,*fHist2;
   TF1 *fFit;
   TSpectrum *fSpect;
 
-  ClassDef(PndDrcLutReco,1)
+  Int_t fMethod;
+  TVector3 fMomInBar;
+  TVector3 fPosInBar;
+  Double_t fTimeInBar;
+  Double_t fTimeHit;
+  Double_t fLenz;
+  Double_t fCriticalAngle;
+  Bool_t fReflected;
+  Double_t fPdg[5];
+  Double_t fMass[5];
+  Double_t fAngle[5];
+  TF1 * fFunc[5];
+  Double_t fLk1[5];
+  Double_t fLk2[5];
+  Double_t fDiffLn1;
+  Double_t fDiffLn2;
+  TH1F *fHlk1[5], *fHlk2[5],*fHtang[5];
+  
+  Double_t fMom, fTheta, fPhi, fSpr[5], fNph[5], fCangle[5], fLikelihood[2], fSeparation[2];
+  Int_t fMcTrackId, fPidTrue, fPidDist, fPidLike[2];
+  
+  TVector3 fNx;
+  TVector3 fNy;
+
+  ClassDef(PndDrcReco,1)
 
 };
 

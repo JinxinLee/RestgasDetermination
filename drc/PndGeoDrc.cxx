@@ -56,7 +56,7 @@ PndGeoDrc::PndGeoDrc() {
   fPOffset	=  1.;	      // [cm] offset of the prism - outer side 
   
   // MCP parameters:
-  fMCPsize	= 5.76;	      // [cm] for geometry Mcp2 and Mcp1, = 5.78 for geometry Mcp2a
+  fMCPsize	= 5.9;	      // [cm] for geometry Mcp2 and Mcp1, = 5.78 for geometry Mcp2a
   fMCPactiveArea= 5.3;	      // [cm] 
   fMCPgap	= 0.01;       // [cm] gap between MCPs
   fNpix		= 8;	      // [cm] number of pixel in one column/row for one MCP (8 x 8)

@@ -24,6 +24,7 @@
 
 #pragma link C++ class  PndDrcLutFill+;
 #pragma link C++ class  PndDrcLutReco+;
+#pragma link C++ class  PndDrcReco+;
 
 #endif
 

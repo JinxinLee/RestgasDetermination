@@ -137,7 +137,7 @@ InitStatus PndDrcHitFinder::Init(){
   }
   
   // Create and register output array
-  fPdHitArray	= new TClonesArray("PndDrcPDHit");    
+  fPdHitArray	= new TClonesArray("PndDrcPDHit");
   ioman->Register("DrcPDHit", "Drc", fPdHitArray, fPersistency);
  
   fGapFunctor = new TimeGap();
@@ -190,6 +190,7 @@ void PndDrcHitFinder::Exec(Option_t* opt){
 
     if(fDigi->GetTimeStamp()!=etime+hitTime) hitTime =  fDigi->GetTimeStamp() - etime;
     PndDrcPDHit pdhit = PndDrcPDHit(detID, sensorId , HitPosGlobal, dPosHit, hitTime, 0., iDigi);
+    pdhit.SetPdgCode(fDigi->GetPdgCode());
     pdhit.SetTimeStamp(fDigi->GetTimeStamp());
     pdhit.SetLink(fDigi->GetLink(0)); // MCTrack
     pdhit.AddLink(fDigi->GetLink(1)); // DrcPDPoint

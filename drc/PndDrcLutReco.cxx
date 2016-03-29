@@ -96,7 +96,11 @@ InitStatus PndDrcLutReco::Init(){
     cout << "-W- PndDrcLutReco::Init: " << "No DrcPDHit array!" << endl;
     return kERROR;
   }
- 
+
+  TString name = fInputFile;
+  name.Remove(0,name.Last('/')+1);
+  sscanf(name, "lut_e%d_b%d_l%d", &fEvType,&fRadType,&fLensType);
+  
   fFile = new TFile(fInputFile);
   fTree=(TTree *) fFile->Get("dircsim") ;
   for(Int_t l=0; l<5; l++){
@@ -112,10 +116,12 @@ InitStatus PndDrcLutReco::Init(){
   fGeo = new PndGeoDrc();
   fBboxNum    = fGeo->BBoxNum();
   fPipehAngle = fGeo->PipehAngle();
-  fBarPhi = 2*atan(((fGeo->BarWidth() + fGeo->barhGap())/2.)/fGeo->radius())*180/TMath::Pi();
+  Double_t barwidth = fGeo->BarWidth();
+  if(fRadType==3) barwidth = 5.41333;
+  fBarPhi = 2*atan(((barwidth + fGeo->barhGap())/2.)/fGeo->radius())*180/TMath::Pi();
   fDphi       = 2.*(180. - 2*fPipehAngle)/(Double_t)fGeo->BBoxNum();
 
-  fHist = new TH1F("chrenkov_angle_hist","chrenkov_angle_hist", 100,0.35,0.85);
+  fHist = new TH1F("chrenkov_angle_hist","chrenkov_angle_hist", 100,0.4,0.9);
   // fHist2 = new TH1F("chrenkov_angle_hist2","chrenkov_angle_hist2", 100,0.35,0.85);
   fHist2 = new TH1F("chrenkov_angle_hist2","", 400,-30,30);
   fFit = new TF1("fgaus","[0]*exp(-0.5*((x-[1])/[2])*(x-[1])/[2])",0.35,0.85);
@@ -123,7 +129,6 @@ InitStatus PndDrcLutReco::Init(){
  
   cout << "-I- PndDrcLutReco: Intialization successfull" << endl;
   return kSUCCESS;
-   
 }
 
 // -----   Execution of Task   ---------------------------------------------
@@ -161,7 +166,7 @@ void PndDrcLutReco::LoopOverMcTracks(){
     fBarPoint->Momentum(momInBar);
     fBarPoint->Position(posInBar);
     mcBarId = fBarPoint->GetBarId();
- 
+    
     PndDrcTrackInfo trackinfo;
     trackinfo.SetMcMomentum(fMCTrack->GetMomentum());
     trackinfo.SetMcPdg(fMCTrack->GetPdgCode());
@@ -173,8 +178,8 @@ void PndDrcLutReco::LoopOverMcTracks(){
     if(fVerbose<2) gROOT->SetBatch(kTRUE);
     DetermineCherenkov(&trackinfo,mcBoxId);
     if(fVerbose<2) gROOT->SetBatch(kFALSE);
-    std::cout<<"dCh = "<< trackinfo.GetMcCherenkov()-trackinfo.GetCherenkov() 
-	     << "   pdg = "<< trackinfo.GetPdg()<<std::endl;
+    // std::cout<<"dCh = "<< trackinfo.GetMcCherenkov()-trackinfo.GetCherenkov() 
+    // 	     << "   pdg = "<< trackinfo.GetPdg()<<std::endl;
     
     new ((*fDrcTrackInfoArray)[fDrcTrackInfoArray->GetEntriesFast()]) PndDrcTrackInfo(trackinfo);
   }
@@ -190,7 +195,7 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
   Bool_t reflected;
   Int_t boxId1;
 
-  DetermineBarId(posInBar.Phi(),boxPhi, boxId1, barId); 
+  DetermineBarId(posInBar.Phi(),boxPhi, boxId1, barId);
   
   if(barId<0) return;
   momInBar.RotateZ(-boxPhi/180.*TMath::Pi());
@@ -206,7 +211,9 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
     //   if(wsensorId < window1 || wsensorId > window2) continue;
 
     Int_t sensorId = fPDHit->GetSensorId();
-    Double_t pdHitTime = fPDHit->GetTime();	
+    Double_t pdHitTime = fPDHit->GetTime();
+    
+    //((FairMultiLinkedData*)fPDHit)->Print();
     Int_t pointID = fPDHit->GetLink(1).GetIndex();
     Int_t eventID =  fPDHit->GetLink(1).GetEntry();
     
@@ -228,7 +235,9 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
     if(((PndMCTrack*)fMCArray->At(trackID))->GetMomentum().Z()>0) reflected = kTRUE;
     else  reflected = kFALSE;
 
-    Int_t recalculatedSensorId = (sensorId/100 - (boxId - lutboxId)*17)*100 + sensorId%100; 
+    Int_t recalculatedSensorId = sensorId;
+    if(fEvType<3) recalculatedSensorId = (sensorId/100 - (boxId - lutboxId)*17)*100 + sensorId%100; // for tank EV
+    
     if(sensorId>27200 || recalculatedSensorId>27200 || recalculatedSensorId <0) {
       std::cout<<"LUT reco: ignore vertical MCPblock for now.  sensorId =  "<<sensorId 
 	       << " recalculatedSensorId = "<< recalculatedSensorId  <<std::endl;
@@ -236,7 +245,6 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
     }
 
     PndDrcPhotonInfo photoninfo;
-    //    std::cout<<"barId  "<<barId << " boxId  " << boxId << " boxPhi "<< boxPhi<<std::endl;
     photoninfo.SetMcPrimeMomentumInBar(momInBar);
     photoninfo.SetHitTime(pdHitTime);
     photoninfo.SetReflected(reflected);
@@ -252,7 +260,7 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
   trackinfo->SetCherenkov(cherenkovreco);
 }
 
-void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  Int_t recalculatedSensorId, Double_t directz, Double_t barHitTime){
+void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  Int_t recalculatedSensorId, Double_t lenz, Double_t barHitTime){
   TVector3 dird, dir,
     fnX1 = TVector3(1,0,0),   
     fnY1 = TVector3(0,1,0),
@@ -261,10 +269,12 @@ void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  
   Double_t evtime, bartime, luttheta, tangle;
   Double_t reflected = photoninfo->GetReflected();
   Double_t pdHitTime = photoninfo->GetHitTime();
-
+  Double_t criticalAngle = asin(1.00028/fGeo->nQuartz());
+  if(reflected) lenz = 2*240 - lenz;
+  
   PndDrcLutNode *node = (PndDrcLutNode*) fLut[barId]->At(recalculatedSensorId);
   Int_t size = node->Entries();
-
+ 
   for(int i=0; i<size; i++){
     dird = node->GetEntry(i);
   
@@ -273,36 +283,31 @@ void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  
     evtime = node->GetTime(i);
     for(int u=0; u<4; u++){
       if(u == 0) dir = dird;
-      if(u == 1) dir.SetXYZ( dird.X(),-dird.Y(), dird.Z());
-      if(u == 2) dir.SetXYZ(-dird.X(), dird.Y(), dird.Z());
+      if(u == 1) dir.SetXYZ(-dird.X(), dird.Y(), dird.Z());
+      if(u == 2) dir.SetXYZ( dird.X(),-dird.Y(), dird.Z());
       if(u == 3) dir.SetXYZ(-dird.X(),-dird.Y(), dird.Z());
       if(reflected) dir.SetXYZ( dir.X(), dir.Y(),-dir.Z());
-      // if(reflected) dir.RotateX(-2./180.*TMath::Pi());
-	
-      double criticalAngle = asin(1.00028/fGeo->nQuartz());
+      
       if(dir.Angle(fnX1) < criticalAngle || dir.Angle(fnY1) < criticalAngle) continue;
 
       luttheta = dir.Theta();	
       if(luttheta > TMath::Pi()/2.) luttheta = TMath::Pi()-luttheta;
-      if(!reflected) bartime = directz/cos(luttheta)/19.8; 
-      else bartime = ((240 - directz)*2 + directz)/cos(luttheta)/19.8; 
-	
-      if(fabs((bartime + evtime)-(pdHitTime-barHitTime))>2) continue;
-
+      bartime = lenz/cos(luttheta)/19.8;
+      
+      if(fabs((bartime + evtime)-(pdHitTime-barHitTime))>1.5) continue;
       tangle = momInBar.Angle(dir);
-      if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
-	 
+      //if(tangle>TMath::Pi()/2.) tangle = TMath::Pi()-tangle;
+	
       PndDrcAmbiguityInfo ambinfo;
       ambinfo.SetBarTime(bartime);
       ambinfo.SetEvTime(evtime);
       ambinfo.SetCherencov(tangle);
       
       photoninfo->AddAmbiguity(ambinfo);
-      if(tangle > 0.35 && tangle < 0.85) fHist->Fill(tangle);
+      if(tangle > 0.4 && tangle < 0.9) fHist->Fill(tangle);
     }
   }
 }
-
 
 void PndDrcLutReco::DetermineBarId(Double_t phi, Double_t &boxPhi, Int_t &boxId, Int_t &barId){
   Double_t startPhi = phi/TMath::Pi()*180;
@@ -310,8 +315,9 @@ void PndDrcLutReco::DetermineBarId(Double_t phi, Double_t &boxPhi, Int_t &boxId,
   if(startPhi >= 0 && startPhi < 90) boxPhi = TMath::Floor(startPhi/fDphi) *fDphi + fDphi/2.;
   if(startPhi >= 90 && startPhi < 270) boxPhi = 90  + fPipehAngle + TMath::Floor((startPhi-90-fPipehAngle)/fDphi) *fDphi + fDphi/2.;
   if(startPhi >= 270 && startPhi < 360) boxPhi = 270 + fPipehAngle + TMath::Floor((startPhi-270-fPipehAngle)/fDphi) *fDphi + fDphi/2.;
-
-  barId = (int) (2.5 + (boxPhi-startPhi)/fBarPhi);
+  
+  if(fRadType==5) barId = (int) (2.5 + (boxPhi-startPhi)/fBarPhi);
+  if(fRadType==3) barId = (int) (1.5 + (boxPhi-startPhi)/fBarPhi);
   if(barId>4 || barId<0){
     std::cout<<"Error in PndDrcLutReco:  Bar Id is wrong. barId = "<< barId <<std::endl;
     barId = -1;
@@ -325,12 +331,14 @@ Double_t PndDrcLutReco::FindPeak(){
   if(fHist->GetEntries()>20 ){
     TCanvas* c = new TCanvas("c","c",0,0,800,600);
     Int_t nfound = fSpect->Search(fHist,1,"",0.6);
-    Double_t *xpeaks = (Double_t*)fSpect->GetPositionX();
+    Float_t *xpeaks = (Float_t*)fSpect->GetPositionX();
     if(nfound>0) cherenkovreco = xpeaks[0];
     fFit->SetParameter(1,cherenkovreco);   // peak
     fFit->SetParameter(2,0.01); // width
     fHist->Fit("fgaus","Q","",cherenkovreco-0.02,cherenkovreco+0.02);
     cherenkovreco = fFit->GetParameter(1);
+    std::cout<<"sigma  "<< fFit->GetParameter(2) <<std::endl;
+    
     if(cherenkovreco<0 || cherenkovreco>1 ) cherenkovreco = 0;
   
     if(fVerbose>1){

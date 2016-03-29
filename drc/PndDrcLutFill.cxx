@@ -133,7 +133,8 @@ void PndDrcLutFill::InitLut()
 void PndDrcLutFill::Exec(Option_t* option)
 {
   nevents++;
-  if(fVerbose>0 && nevents%1000==0) std::cout<<"Event # "<< nevents<<std::endl;  
+  // if(fVerbose>0 && nevents%1000==0)
+    std::cout<<"Event # "<< nevents<<std::endl;  
   fDetectorID = 0;
   ProcessPhotonHit();
 }
@@ -146,12 +147,11 @@ void PndDrcLutFill::ProcessPhotonHit()
   Double_t  lutboxPhi=10.825;
 
   Int_t nofChPho = 0;
-  Double_t pathid, barPhi;
+  Double_t path, barPhi;
   TVector3 dir, dirm, vec, posInBar;
 
   // Loop over PndDrcPDHits
   for(Int_t k=0; k<fPDHitArray->GetEntriesFast(); k++) {
-    std::cout<<"k  "<<k <<std::endl;
     fPDHit = (PndDrcPDHit*)fPDHitArray->At(k);
     Int_t pointID = fPDHit->GetLink(1).GetIndex();
     Int_t sensorId = fPDHit->GetSensorId();
@@ -169,7 +169,7 @@ void PndDrcLutFill::ProcessPhotonHit()
     Int_t trackID = fPDPoint->GetTrackID();
     Double_t time = fPDPoint->GetTime();
     Int_t nev=0; 
-    pathid=0;
+    path=0;
     for(int i=0; i<fEVPointArray->GetEntriesFast(); i++){
       fEVPoint = (PndDrcEVPoint*)fEVPointArray->At(i);
       if(trackID == fEVPoint->GetTrackID()){
@@ -179,7 +179,7 @@ void PndDrcLutFill::ProcessPhotonHit()
 	// }
 	nev++;
 	vec = fEVPoint->GetNormal();
-	pathid += (vec.X()+vec.Y()*10 + vec.Z()*100)*1000*nev;
+	path += (vec.X()+vec.Y()*10 + vec.Z()*100)*1000*nev;
       }
     }
     
@@ -226,7 +226,7 @@ void PndDrcLutFill::ProcessPhotonHit()
     // }
     // //======================
     
-    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(sensorId, dir,pathid,time,fPDHit->GetPosition()); //fDigi->GetDetectorId()
+    ((PndDrcLutNode*)(fLut[barId]->At(sensorId)))->AddEntry(sensorId, dir,path,0,time,fPDHit->GetPosition()); //fDigi->GetDetectorId()
   }
 }
 
@@ -238,7 +238,7 @@ void PndDrcLutFill::Finish()
     fTree->Write();
     fFile->Write();
  
-    for(Int_t l=0; l<10; l++){
+    for(Int_t l=0; l<5; l++){
       fLut[l]->Clear(); 
     }
     cout << "-I- PndDrcLutFill: Finish" << endl; 

@@ -451,12 +451,13 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
     }
     
     //if the photon goes backward through the lens, stop it
-    if(fOptionForLUT){
-      if(gMC->IsTrackExiting() == 1){
-	if(nam.Contains("LENS")){
-	  if(fMom.Z() > 0.) gMC->StopTrack();
+    if(gMC->IsTrackExiting() == 1){
+      if(nam.Contains("LENS")){
+	if(fMom.Z() > 0.) gMC->StopTrack();
 	}
-      }
+    }
+    
+    if(fOptionForLUT){
       if(fMom.Z() > 0.) gMC->StopTrack();
     }
 
@@ -519,7 +520,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 
     //if(fMom.Z()>0)  gMC->StopTrack(); 
 
-    // "TakeOnlyReflectedPho" option: if photon is exiting the bar - check its direction
+    // "TakeOnlyReflectedPho" option: if photon is exiting the bar - check its direction    
     if(fTakeReflected){
       if(gMC->IsTrackExiting()==1){        
         if(num == flens3ID && fPos.Z() < fBarEnd){
@@ -596,13 +597,19 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	}        
 	fVeloPhoton=fLength/(fTime-fTimeStart);
 
-	Double_t nx,ny,nz;
-	bool bres = gMC->CurrentBoundaryNormal(nx,ny,nz);
-
-	AddEVHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
-		 fTime, fLength, fPdgCode,
-		 fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton, TVector3(nx,ny,nz));
-
+	Double_t nmast[3];
+	bool bres = gMC->CurrentBoundaryNormal(nmast[0],nmast[1],nmast[2]);
+	//TVector3 lnorm = fGeoH->MasterToLocalShortId(TVector3(nx,ny,nz), fGeoH->GetShortID(gMC->CurrentVolPath()));
+	
+	Double_t result[3];
+	gGeoManager->MasterToLocalVect(nmast, result);
+	TVector3 lnorm = TVector3(result[0],result[1],result[2]);
+	  
+	//if(bres)
+	  AddEVHit(fTrackID, 0, fPos.Vect(), fMom.Vect(),
+			  fTime, fLength, fPdgCode,
+			  fEventID, fTimeStart, fTimeAtEVEntrance, fVeloPhoton, lnorm);
+	
 	fTimeAtEVEntrance = 0.0;
       }
     } 
@@ -649,7 +656,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	fNBar=0;
 	TString path = gMC->CurrentVolPath();
 	if (fVerboseLevel >1) cout<< "Volume: " << nam << endl;
-	sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcBarAirBox_0/DrcBarSensor_%d", &s, &b);
+	sscanf(path, "/cave_1/BarrelDIRC_0/DrcBarBox_%d/DrcBarBoxCover_0/DrcBarBoxAir_0/DrcBarSensor_%d", &s, &b);
 	
 	if(s < 17) fNBar = s*10 + b;
 	else std::cout<<"Error: Wrong BarBox Id "<< s <<std::endl;
@@ -1031,44 +1038,26 @@ void PndDrc::ConstructOpGeometry() {
 
   if(fTakeRealReflectivity == kFALSE){
     gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
-  }
-  if(fTakeRealReflectivity == kTRUE){
+  }else{
     gMC->SetMaterialProperty("MirrSurface", "REFLECTIVITY", npoints_r, ephoton_r, reflectivity_r);
   } 
-  
-  for(Int_t i=0; i<fGeo->BBoxNum(); i++){
-    gMC->SetBorderSurface("AirCarbonSurface", "DrcBarBox", i, "DrcBarAirBox", 0, "BlackSurface"); 
-    gMC->SetBorderSurface("BarMirrorSurface", "DrcMirr", i, "BarrelDIRC", 0, "MirrSurface");
-  }
+
+  gMC->SetBorderSurface("BarMirrorSurface", "DrcMirror", 0, "DrcBarBoxAir", 0, "MirrSurface");
 
   if(fSetBlackLens == kTRUE){ 
-    gMC->SetMaterialProperty("EVSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_b);    
-    for(Int_t i=0; i<fGeo->barNum(); i++){
-      // upper and bottom surfaces of lenses are touching with BarrelDIRC volume
-      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "BarrelDIRC", 0, "EVSurface"); 
-      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "BarrelDIRC", 0, "EVSurface");
-      gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "BarrelDIRC", 0, "EVSurface"); 
-      gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i, "BarrelDIRC", 0, "EVSurface");
-
-      gMC->SetBorderSurface("BarMirrorSurface", "DrcMLSensor", i, "DrcML", i, "MirrSurface");
-      for(Int_t isec=0; isec<fGeo->BBoxNum(); isec++){
-        // left and right surfaces of lenses are touching with DrcAirBox volume
-        gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "DrcEntranceBox", isec+1, "EVSurface"); 
-        gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "DrcEntranceBox", isec+1, "EVSurface");
-        gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "DrcEntranceBox", isec+1, "EVSurface"); 
-        gMC->SetBorderSurface("Lens4AirSurface", "DrcLENS4Sensor", i, "DrcEntranceBox", isec+1, "EVSurface");
-	
-      }
+    for(Int_t i=0; i<3; i++){ //fGeo->barNum()
+      gMC->SetBorderSurface("Lens1AirSurface", "DrcLENS1Sensor", i, "DrcEntrance", 0, "BlackSurface"); 
+      gMC->SetBorderSurface("Lens2AirSurface", "DrcLENS2Sensor", i, "DrcEntrance", 0, "BlackSurface");
+      //gMC->SetBorderSurface("Lens3AirSurface", "DrcLENS3Sensor", i, "DrcEntrance", 0, "BlackSurface");
     }   
-    gMC->SetBorderSurface("BarboxWindowAirSurface", "DrcBarboxWindowSensor", 0, "BarrelDIRC", 0, "EVSurface");
-    gMC->SetBorderSurface("EVGreaseAirSurface", "DrcEVgrease", 0, "BarrelDIRC", 0, "EVSurface");
+    //gMC->SetBorderSurface("BarboxWindowAirSurface", "DrcBarboxWindowSensor", 0, "BarrelDIRC", 0, "EVSurface");
+    //gMC->SetBorderSurface("EVGreaseAirSurface", "DrcEVgrease", 0, "BarrelDIRC", 0, "EVSurface");
   }
 
   //only direct  
   //gMC->SetBorderSurface("EVAirSurface", "DrcEVSensor",  0, "DrcEVCoverSensor", 0, "BlackSurface");
 
-  gMC->SetSkinSurface("AirMirrorSurface", "DrcMirr", "MirrSurface");          
-  //gMC->SetSkinSurface("AirMirrorSurface", "DrcML", "MirrSurface"); 
+  gMC->SetSkinSurface("AirMirrorSurface", "DrcMirror", "MirrSurface");
 
   cout<<" =======  DRC::ConstructOpGeometry -> Finished! ====== "<< endl;     
 }  

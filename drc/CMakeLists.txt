@@ -44,6 +44,7 @@ DrawHits.cxx
 PndDrcDigiPar.cxx
 PndDrcLutFill.cxx
 PndDrcLutReco.cxx
+PndDrcReco.cxx
 )
 
 set(LINKDEF  DrcLinkDef.h)
