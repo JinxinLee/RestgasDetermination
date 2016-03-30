@@ -11,13 +11,13 @@ PndDrcDigi::PndDrcDigi() :
 PndDrcDigi::PndDrcDigi(std::vector<Int_t> index, Int_t detectorId, Int_t sensorId, Double_t charge, Double_t time, Int_t CSflag, Double_t timeStamp):
   FairTimeStamp(timeStamp),  fIndex(), fDetectorId(detectorId), fSensorId(sensorId), fCharge(charge), fTime(time), fCSflag(CSflag), fBarID(0), fBoxID(0), fTrackID(-1), fTrackIniVertex(TVector3()), fMrID(0), fMrIDPho(0), fPdg(0), fTrackMom(TVector3()), fTimeAtBar(0), fEvtTim(0), fEventTim(0), fPileUp(0), fEventNo(0)
 {
-	AddIndex(index);	
+  //AddIndex(index);	
 }
 
 PndDrcDigi::PndDrcDigi(Int_t index, Int_t detectorId, Int_t sensorId, Double_t charge, Double_t time, Int_t CSflag, Double_t timestamp):
   FairTimeStamp(timestamp),  fIndex(), fDetectorId(detectorId), fSensorId(sensorId), fCharge(charge), fTime(time), fCSflag(CSflag), fBarID(0), fBoxID(0), fTrackID(-1), fTrackIniVertex(TVector3()), fMrID(0), fMrIDPho(0), fPdg(0), fTrackMom(TVector3()), fTimeAtBar(0), fEvtTim(0), fEventTim(0), fPileUp(0), fEventNo(0)
 {
-  AddIndex(index);
+  //AddIndex(index);
 }
 void PndDrcDigi::SetBarID(Int_t BarID){
   fBarID = BarID;

@@ -96,16 +96,16 @@ public : PndDrcDigi();
   Double_t GetTime() const { return fTime; }
   Int_t GetChargeSharingFlag() const {return fCSflag;}
 	
-  virtual void AddIndex(int index)
+  void AddIndex(int index)
   {
     fIndex.push_back(index);
-    AddLink(FairLink(fDetectorId, index));
+    AddLink(FairLink("DrcPDPoint", index));
   }
     
-  virtual void AddIndex(std::vector<Int_t> index)
+  void AddIndex(std::vector<Int_t> index)
   {
     fIndex = index;
-    AddLinks(FairMultiLinkedData(fDetectorId, index));
+    AddLinks(FairMultiLinkedData("DrcPDPoint", index));
   }	
 		  
   virtual bool equal(FairTimeStamp* data){
