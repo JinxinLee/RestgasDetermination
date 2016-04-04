@@ -78,6 +78,7 @@ KDTree::KDTree(KDTreeArray& data_in, bool rearrange_in, int dim_in)
   root(NULL),
   data(NULL),
   ind(N) {
+
 	//
 	// initialize the constant references using this unusual C++
 	// feature.
@@ -109,7 +110,9 @@ KDTree::~KDTree() {
 
 // building routines
 void KDTree::build_tree() {
-	for (int i=0; i<N; i++) ind[i] = i;
+	for (int i=0; i<N; i++){
+		ind[i] = i;
+	}
 	root = build_tree_for_range(0, N-1, NULL);
 }
 
@@ -150,17 +153,23 @@ KDTreeNode* KDTree::build_tree_for_range(int l, int u, KDTreeNode* parent) {
 			if ((parent == NULL) || (parent->cut_dim == i)) {
 				spread_in_coordinate(i, l, u, node->box[i]);
 			} else {
-				node->box[i] = parent->box[i];
+					node->box[i] = parent->box[i];
 			}
 			double spread = node->box[i].upper - node->box[i].lower;
-			if (spread>maxspread) {
+			if ( (spread - maxspread) > 1e-10){
 				maxspread = spread;
 				c=i;
 			}
 		}
 		//
 		// now, c is the identity of which coordinate has the greatest spread
+		// OR FUCKING -1, this will cause the kdtree to crash
 		//
+		if(c<0){
+			std::cout << "FATAL in kdTree creation: empty node caused crash, c is " << c << "\n";
+			exit(1);
+		}
+
 		if (false) {
 			m = (l+u)/2;
 			select_on_coordinate(c, m, l, u);
@@ -237,9 +246,6 @@ void KDTree::spread_in_coordinate(int c, int l, int u, interval& interv) {
 
 		if (lmin > lmax) {
 			swap(lmin, lmax);
-			//      double t = lmin;
-			//      lmin = lmax;
-			//      lmax = t;
 		}
 
 		if (smin > lmin) smin = lmin;
@@ -250,11 +256,6 @@ void KDTree::spread_in_coordinate(int c, int l, int u, interval& interv) {
 		double last = the_data[ind[u]] [c];
 		if (smin>last) smin = last;
 		if (smax<last) smax = last;
-	}
-
-	if(smin > smax){
-		swap(smin, smax);
-		std::cout << "shit swap\n";
 	}
 
 	interv.lower = smin;

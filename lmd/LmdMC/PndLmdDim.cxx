@@ -3304,7 +3304,7 @@ TH2Poly* PndLmdDim::Get_histogram_Moduleside(int ihalf, int iplane, int imodule,
 				//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
 			}
 		}
-return result;
+	return result;
 }
 
 
@@ -3401,5 +3401,183 @@ int PndLmdDim::makeOverlapID(int firstSensorId, int secondSensorId) {
 	}
 	return 1000*fhalf+100*fplane+10*fmodule+smalloverlap;
 }
+
+int PndLmdDim::getID1fromOverlapID(int overlapID) {
+
+	int fhalf, fplane, fmodule, fside, fdie, fsensor;
+	int bhalf, bplane, bmodule, bside, bdie, bsensor;
+
+	//get info from overlapID
+	//pad overlapID to 4 digits
+
+	fhalf=bhalf = std::floor(overlapID/1000);
+	fplane=bplane = std::floor( (overlapID%1000) / 100 );
+	fmodule=bmodule = std::floor( (overlapID % 100) / 10 );
+	int smalloverlap = std::floor(overlapID % 10);
+
+	fside=0;
+	bside=1;
+
+	if(smalloverlap==0){
+		fdie = 0;
+		fsensor = 0;
+		bdie = 0;
+		bsensor = 0;
+	}
+	else if(smalloverlap==1){
+		fdie = 1;
+		fsensor = 1;
+		bdie = 1;
+		bsensor = 1;
+	}
+	else if(smalloverlap==2){
+		fdie = 1;
+		fsensor = 2;
+		bdie = 1;
+		bsensor = 2;
+	}
+	else if(smalloverlap==3){
+		fdie = 1;
+		fsensor = 1;
+		bdie = 0;
+		bsensor = 1;
+	}
+	else if(smalloverlap==4){
+		fdie = 0;
+		fsensor = 1;
+		bdie = 1;
+		bsensor = 1;
+	}
+	else if(smalloverlap==5){
+		fdie = 0;
+		fsensor = 2;
+		bdie = 1;
+		bsensor = 1;
+	}
+	else if(smalloverlap==6){
+		fdie = 0;
+		fsensor = 2;
+		bdie = 1;
+		bsensor = 2;
+	}
+	else if(smalloverlap==7){
+		fdie = 1;
+		fsensor = 1;
+		bdie = 0;
+		bsensor = 2;
+	}
+	else if(smalloverlap==8){
+		fdie = 1;
+		fsensor = 2;
+		bdie = 0;
+		bsensor = 2;
+	}
+	else{
+		return -1;
+	}
+
+	int id = Get_sensor_id(fhalf, fplane, fmodule, fside, fdie, fsensor);
+	return id;
+}
+
+int PndLmdDim::getID2fromOverlapID(int overlapID) {
+	int fhalf, fplane, fmodule, fside, fdie, fsensor;
+	int bhalf, bplane, bmodule, bside, bdie, bsensor;
+
+	//get info from overlapID
+	//pad overlapID to 4 digits
+
+	fhalf=bhalf = std::floor(overlapID/1000);
+	fplane=bplane = std::floor( (overlapID%1000) / 100 );
+	fmodule=bmodule = std::floor( (overlapID % 100) / 10 );
+	int smalloverlap = std::floor(overlapID % 10);
+
+	fside=0;
+	bside=1;
+
+	if(smalloverlap==0){
+		fdie = 0;
+		fsensor = 0;
+		bdie = 0;
+		bsensor = 0;
+	}
+	else if(smalloverlap==1){
+		fdie = 1;
+		fsensor = 1;
+		bdie = 1;
+		bsensor = 1;
+	}
+	else if(smalloverlap==2){
+		fdie = 1;
+		fsensor = 2;
+		bdie = 1;
+		bsensor = 2;
+	}
+	else if(smalloverlap==3){
+		fdie = 1;
+		fsensor = 1;
+		bdie = 0;
+		bsensor = 1;
+	}
+	else if(smalloverlap==4){
+		fdie = 0;
+		fsensor = 1;
+		bdie = 1;
+		bsensor = 1;
+	}
+	else if(smalloverlap==5){
+		fdie = 0;
+		fsensor = 2;
+		bdie = 1;
+		bsensor = 1;
+	}
+	else if(smalloverlap==6){
+		fdie = 0;
+		fsensor = 2;
+		bdie = 1;
+		bsensor = 2;
+	}
+	else if(smalloverlap==7){
+		fdie = 1;
+		fsensor = 1;
+		bdie = 0;
+		bsensor = 2;
+	}
+	else if(smalloverlap==8){
+		fdie = 1;
+		fsensor = 2;
+		bdie = 0;
+		bsensor = 2;
+	}
+	else{
+		return -1;
+	}
+
+	int id = Get_sensor_id(bhalf, bplane, bmodule, bside, bdie, bsensor);
+	return id;
+}
+
+int PndLmdDim::makeModuleID(int overlapID){
+	int moduleID = std::floor(overlapID/10.0);
+	return moduleID;
+}
+
+std::vector<int> PndLmdDim::getAvailableOverlapIDs(){
+	std::vector<int> result;
+	int overlapID;
+
+	for(int iHalf=0; iHalf<2; iHalf++){
+		for(int iPlane=0; iPlane<4; iPlane++){
+			for(int iModule=0; iModule<5; iModule++){
+				for(int iOverlap=0; iOverlap<9;iOverlap++){
+					overlapID = 1000 * iHalf + 100 * iPlane + 10*iModule + iOverlap;
+					result.push_back(overlapID);
+				}
+			}
+		}
+	}
+	return result;
+}
+
 //
 

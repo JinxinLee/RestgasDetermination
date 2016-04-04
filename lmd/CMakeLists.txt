@@ -150,6 +150,7 @@ LmdSensorAlignment/icp/matrix.cpp
 LmdSensorAlignment/icp/kdtree.cpp
 LmdSensorAlignment/icp/icpPointToPoint.cpp
 LmdSensorAlignment/icp/icp.cpp
+LmdSensorAlignment/RunningStats.cpp
 )
 
 set(HEADERS
@@ -157,9 +158,9 @@ LmdSensorAlignment/icp/matrix.h
 LmdSensorAlignment/icp/kdtree.h
 LmdSensorAlignment/icp/icpPointToPoint.h
 LmdSensorAlignment/icp/icp.h
+LmdSensorAlignment/RunningStats.h
 )
 
-##set(LINKDEF  LmdSensorAlignerLinkDef.h)
 set(LIBRARY_NAME LmdSensorAlignerTools)
 
 set(DEPENDENCIES boost_filesystem)

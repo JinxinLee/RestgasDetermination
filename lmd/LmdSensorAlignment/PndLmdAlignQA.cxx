@@ -33,8 +33,6 @@
 #include <TFile.h>
 #include <TGeoMatrix.h>
 
-//using namespace std;
-
 using std::string;
 using std::vector;
 
@@ -56,6 +54,9 @@ void PndLmdAlignQA::init() {
 	_enableHelperMatrix = false;
 	curPlane = -1;
 	_signerrors = -1;
+	dimension = PndLmdDim::Instance();
+
+	manager.init();
 
 	//FIXME: maybe don't do this hard-coded
 	manager.readTrafoMatrix("/geometry/trafo_matrices_lmd.dat", true);
@@ -132,7 +133,7 @@ void PndLmdAlignQA::plotErrorsAbsolute(std::string inputFile, string outputPath)
 	canvas.Print((outputPath + "absoluteAlphavsNPairs.pdf").c_str());
 
 }
-
+/*
 void PndLmdAlignQA::plotErrorsRelative(int overlapID){
 
 	checkIOpaths();
@@ -213,7 +214,6 @@ void PndLmdAlignQA::plotErrorsRelative(int overlapID){
 	deltaYvspairs.Sort();
 	deltaAlphavspairs.Sort();
 
-
 	deltaX.GetXaxis()->SetTitle("offset / #mum");
 	deltaX.GetYaxis()->SetTitle("entries");
 	stringstream titleX;
@@ -262,30 +262,6 @@ void PndLmdAlignQA::plotErrorsRelative(int overlapID){
 	deltaAlphavspairs.GetYaxis()->SetTitle("#Delta#alpha / #murad");
 	deltaAlphavspairs.SetTitle("#Delta#alpha vs Number of Pairs");
 
-	/*
-	stringstream deltaFilename;
-	if(overlapID==-1){
-		deltaFilename << _outputPath << "/delta.pdf";
-	}
-	else{
-		deltaFilename << _outputPath << "/oID-" << overlapID << "-delta.pdf";
-	}
-
-	canvas.cd();
-	deltaX.Draw();
-	canvas.Print((deltaFilename.str() + "(").c_str());
-	deltaY.Draw();
-	canvas.Print(deltaFilename.str().c_str());
-	deltaAlpha.Draw();
-	canvas.Print((deltaFilename.str() + ")").c_str());
-	deltaXvspairs.Draw("AL");
-	canvas.Print((_outputPath + "/deltavsNPairs.pdf(").c_str());
-	deltaYvspairs.Draw("AL");
-	canvas.Print((_outputPath + "/deltavsNPairs.pdf").c_str());
-	deltaAlphavspairs.Draw("AL");
-	canvas.Print((_outputPath + "/deltavsNPairs.pdf)").c_str());
-	 */
-
 	stringstream deltaFilename;
 	if(overlapID==-1){
 		deltaFilename << _outputPath << "/delta.pdf";
@@ -308,29 +284,12 @@ void PndLmdAlignQA::plotErrorsRelative(int overlapID){
 	deltaAlphavspairs.Draw("AL");
 	canvas.Print((_outputPath + "/deltavsNPairs.pdf)").c_str());
 }
+*/
 
 void PndLmdAlignQA::plotByOverlapID() {
 
 
 	checkIOpaths();
-
-	//each overlap needs x, y shift and rot
-
-	//will need a struct to hold them
-
-	//make 9 overlap hists
-
-	/*
-	 * one method to generate three hists, or one hist called three times?
-	 */
-
-	//name them accordingly
-
-	//fill them
-
-	//draw and save them to SINGLE pdf file (do this by using ( and ) )
-	//or don't, I'm not your mother
-
 	curPlane=-1;
 	for(int iOverlapID=0; iOverlapID<9; iOverlapID++){
 		plotErrorsRelative(iOverlapID);
@@ -383,31 +342,6 @@ void PndLmdAlignQA::plotByPlane() {
 	_outputPath=oldOutputPath;
 }
 
-void PndLmdAlignQA::clear() {
-
-	_inputFiles.clear();
-}
-
-int PndLmdAlignQA::getPlane(double moduleID) {
-
-	if(moduleID<0){
-		return -1;
-	}
-
-	if(moduleID<10){
-		return 0;
-	}
-	if(moduleID<100){
-		return floor( moduleID/10 );
-	}
-	if (moduleID<400){
-		double remainder = fmod(moduleID, 100);
-		return floor( remainder/10 );
-	}
-	return -1;
-
-}
-
 void PndLmdAlignQA::compareMatrices(){
 
 	std::vector<std::vector<double> > data;
@@ -446,12 +380,15 @@ void PndLmdAlignQA::compareMatrices(){
 		DeltaAlpha.Fill(data[iArea][2] * 1e6);
 		DeltaX.Fill(data[iArea][3] * 1e4);
 		DeltaY.Fill(data[iArea][4] * 1e4);
+
+		//TODO: delete
+		//if(data[iArea][3]*1e4 < 1e2){
+		//	cout << "data is: " << data[iArea][3]*1e4 << " on area " << data[iArea][0] << " to " << data[iArea][1] << "\n";
+		//}
 	}
 
-	//FIXME: won't work forever, change!
 	stringstream pathname;
 	pathname << _outputPath;
-	//pathname << "/home/roman/pandaroot/macro/lmd/testPixel/countTest/pdf/";
 
 	_inCentimeters ? pathname << "inCm/" : pathname << "inPx/";
 	_enableHelperMatrix ? pathname << "corrFull-" : pathname << "";
@@ -473,17 +410,12 @@ void PndLmdAlignQA::compareMatrices(){
 
 void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vector<double> > &vec) {
 
-	if(noOfPairs(id1, id2) < 5e3){
+	if(noOfPairs(id1, id2) < 200e3){
 		return;
 	}
 
 	std::vector<double> result;
 	Matrix thisMat = getdeltaCorrectionMatrix(id1, id2);
-
-	//FIXME: this excludes ICP Matrices for badly converged ICPs. Fix that correctly!
-	if(thisMat.val[2][3] > 10){
-		return;
-	}
 
 	result.push_back(id1);
 	result.push_back(id2);
@@ -497,140 +429,48 @@ void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vecto
 Matrix PndLmdAlignQA::getdeltaCorrectionMatrix(int id1, int id2) {
 
 	if(_inCentimeters){
-
-		if(false){
-			stringstream matrixName;
-			//FIXME: this won't work forever
-			matrixName << _matrixDir << "/m";
-			matrixName << id1 << "to" << id2 << "cm";
-			if(_enableHelperMatrix){
-				matrixName << "C";
-			}
-			matrixName << ".mat";
-			Matrix icpMatrix = manager.readMatrix(matrixName.str());
-
-			//old setup
-
-			//this is no mistake, I want the inverted matrix of (id1,id2)
-			Matrix idealInv = manager.getMatrixOfficialGeometry(id2,id1,true);
-			Matrix real = manager.getMatrixOfficialGeometry(id1,id2,false);
-			Matrix correction;
-
-			if(_enableHelperMatrix){
-				Matrix helper = PndLmdAlignManager::homogenizeMatrix(manager.getHelperMatrix());
-				helper.inv();
-				correction = real * idealInv * helper;
-			}
-			else{
-				correction = real * idealInv;
-			}
-
-			//correction = manager.transformMatrixFromPixelsToCm(correction);
-
-			//transform ICP matrix here
-			Matrix lmdToGlobal = manager.getMatrixLmdToGlobal();
-			Matrix GlobalToLmd = manager.getMatrixGlobalToLmd();
-			//correction = lmdToGlobal * correction * GlobalToLmd;
-			//correction = GlobalToLmd * correction * lmdToGlobal;
-
-
-			cout << "==========================\n";
-			cout << "correction before:\n";
-			cout << correction << "\n";
-
-			//transform correction matrix here!
-			//manager.transformGlobalToLmd(correction);
-
-			cout << "correction after:\n";
-			cout << correction << "\n";
-			cout << "icp matrix:\n";
-
-			cout << icpMatrix << "\n";
-			cout << "==========================\n";
-
-			stringstream newdir;
-			newdir << _matrixDir << "/mathematica/";
-
-
-			//manager.writeMatrix(correction, "");
-			//manager.writeMatrix(icpMatrix, "");
-
-			cout << "=================== TEST =======================\n";
-			cout << "ideal inv from pndlmddim:\n";
-			cout << idealInv << endl;
-			cout << "real from pndlmddim:\n";
-			cout << real << endl;
-			cout << "correction:\n";
-			cout << real * idealInv << endl;
-			cout << "from icp:\n";
-			cout << icpMatrix << endl;
-			cout << "difference:\n";
-			cout << correction - icpMatrix << endl;
-			cout << "=================== END =======================\n";
-
-			//cout << icpMatrix << "\n";
-			//cout << "det dif: " << correction.det() - icpMatrix.det() << " (is " << correction.det() << " - " << icpMatrix.det() << ")\n";
-
-			//return correction;
-			return correction-icpMatrix;
-
-			//TODO: implement other way for comparison
+		stringstream matrixName;
+		//FIXME: this won't work forever
+		matrixName << _matrixDir << "m";
+		int overlapID = dimension->makeOverlapID(id1, id2);
+		matrixName << overlapID << "cm";
+		if(_enableHelperMatrix){
+			matrixName << "C";
 		}
-		else{
+		matrixName << ".mat";
+		Matrix icpMatrix = manager.readMatrix(matrixName.str());
+		Matrix corrSensorToSensor = manager.getCorrectionMatrix(id1, id2);
 
-			stringstream matrixName;
-			//FIXME: this won't work forever
-			matrixName << _matrixDir << "/m";
-			matrixName << id1 << "to" << id2 << "cm";
-			if(_enableHelperMatrix){
-				matrixName << "C";
-			}
-			matrixName << ".mat";
-			Matrix icpMatrix = manager.readMatrix(matrixName.str());
+		/*
+		 * remember, all pairs were in lmd local, transform matrix from PndLmdDim
+		 * (which came in panda gloabal) to lmd local, since ICP matrix will be in
+		 * lmd local
+		 */
+		manager.transformGlobalToLmd(corrSensorToSensor);
 
-			/*
-			Matrix corrId1 = manager.getCorrectionMatrix(id1);
-			Matrix corrId2 = manager.getCorrectionMatrix(id2);
-			Matrix corr0to5 = corrId1.inv(corrId1) * corrId2;
-			*/
-			Matrix corr0to5 = manager.getCorrectionMatrix(id1, id2);
+		//residual matrix
+		Matrix result = icpMatrix - corrSensorToSensor;
 
-			return icpMatrix - corr0to5;
-		}
-
-
-
+		return result;
 	}
 
-	// in pixels, lmd local frame of reference
+	// in pixels
 	else{
 		Matrix real = manager.getMatrixOfficialGeometry(id1, id2,false);
 		stringstream matrixName;
 		//FIXME: this won't work forever
-		matrixName << _matrixDir << "/m";
-		matrixName << id1 << "to" << id2 << "px.mat";
+		matrixName << _matrixDir << "m";
+		int overlapID = dimension->makeOverlapID(id1, id2);
+		matrixName << overlapID << "px.mat";
 		Matrix icpMatrix = manager.readMatrix(matrixName.str());
-
-		/*
-		cout << "=================== TEST =======================\n";
-		cout << "real from pndlmddim:\n";
-		cout << real << endl;
-		cout << "from icp:\n";
-		cout << icpMatrix << endl;
-		cout << "difference:\n";
-		cout << real-icpMatrix << endl;
-		cout << "=================== END =======================\n";
-		 */
 		return icpMatrix - real;
 	}
 
+	//default action, if all else fails.
 	return Matrix::eye(4);
-
 }
 
 int PndLmdAlignQA::noOfPairs(int id1, int id2) {
-
-	PndLmdDim *dimension = PndLmdDim::Instance();
 	int overlapId = dimension->makeOverlapID(id1, id2);
 	return matrixInfo[overlapId];
 }
@@ -649,8 +489,6 @@ void PndLmdAlignQA::readMatrixInfo() {
 	int overlapid,noPairs;
 	bool alignerComplete=true;
 
-	//cout << "all read and intialized.\n";
-
 	while(std::getline(*info, line)){
 		if(line.find("aligner") != std::string::npos && alignerComplete){
 			//cout << "found aligner line\n";
@@ -666,78 +504,9 @@ void PndLmdAlignQA::readMatrixInfo() {
 			values = manager.findRegex(line, "no of pairs. (\\d{1,6})");
 			if(values.size()>1){
 				noPairs = boost::lexical_cast<int>(values[1]);
-				//cout << "pairs: " << noPairs << endl;
 				matrixInfo[overlapid]=noPairs;
 				alignerComplete=true;
 			}
 		}
 	}
-}
-
-void PndLmdAlignQA::compareMatricesNew() {
-
-	vector<Matrix> difMatrices;
-
-	vector<string> list;
-	string matrixDir="/home/roman/pandaroot/macro/lmd/testPixel/countTest/FullRun/matrices/";
-	PndLmdAlignManager::searchFiles(matrixDir, list, "mat", false);
-	cout << "found " << list.size() << " files.\n";
-	for(int iFile=0; iFile<list.size(); iFile++){
-
-		vector<string> ids = PndLmdAlignManager::findRegex(list[iFile], "m(\\d+)to(\\d+)cm");
-		if(ids.size()>2){
-
-			int sensorID1 = boost::lexical_cast<int>(ids[1]);
-			int sensorID2 = boost::lexical_cast<int>(ids[2]);
-
-			Matrix icpMatrix = PndLmdAlignManager::readMatrix(list[iFile]);
-			Matrix correctionSensor1 = manager.getCorrectionMatrix(sensorID1);
-			Matrix correctionSensor2 = manager.getCorrectionMatrix(sensorID2);
-			Matrix correction = Matrix::inv(correctionSensor1) * correctionSensor2;
-
-			difMatrices.push_back( correction - icpMatrix);
-		}
-
-	}
-
-	cout << "found " << difMatrices.size() << " matrices.\n";
-
-	double shiftBound=100;
-	double rotBound=150;
-
-	TH1D DeltaX("DeltaX", "DeltaX", 50,-shiftBound,shiftBound);
-	TH1D DeltaY("DeltaY", "DeltaY", 50,-shiftBound,shiftBound);
-	TH1D DeltaAlpha("DeltaAlpha", "DeltaAlpha", 50,-rotBound,rotBound);
-
-	DeltaX.GetXaxis()->SetTitle("dX [#mum]");
-	DeltaX.GetYaxis()->SetTitle("entries");
-	DeltaY.GetXaxis()->SetTitle("dY [#mum]");
-	DeltaY.GetYaxis()->SetTitle("entries");
-	DeltaAlpha.GetXaxis()->SetTitle("d#alpha [#murad]");
-	DeltaAlpha.GetYaxis()->SetTitle("entries");
-
-	//have all data now
-	for(int iMatrix; iMatrix < difMatrices.size(); iMatrix++){
-		DeltaAlpha.Fill(difMatrices[iMatrix].val[0][1] * 1e6);
-		DeltaX.Fill(difMatrices[iMatrix].val[0][3] * 1e4);
-		DeltaY.Fill(difMatrices[iMatrix].val[1][3] * 1e4);
-	}
-
-	//FIXME: won't work forever, change!
-	stringstream pathname;
-	pathname << "/home/roman/pandaroot/macro/lmd/testPixel/countTest/FullRun/pdf/matrixDif/";
-	PndLmdAlignManager::mkdir(pathname.str());
-
-	TCanvas canvas;
-	canvas.cd();
-	DeltaX.Draw();
-	canvas.Print((pathname.str()+"dx.pdf").c_str());
-	DeltaY.Draw();
-	canvas.Print((pathname.str()+"dy.pdf").c_str());
-	DeltaAlpha.Draw();
-	canvas.Print((pathname.str()+"dalpha.pdf").c_str());
-
-	return;
-
-
 }

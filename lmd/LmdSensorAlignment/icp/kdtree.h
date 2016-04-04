@@ -129,7 +129,8 @@ namespace kdtree {
     KDTreeArray rearranged_data;
     // if rearrange is true then this is the rearranged data storage.
 
-    static const int bucketsize = 12;  // global constant.
+    // no of points per node, standard was 12
+    static const int bucketsize = 120;  // global constant.
     
   private:
     void set_data(KDTreeArray& din);

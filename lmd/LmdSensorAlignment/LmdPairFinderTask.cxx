@@ -218,25 +218,20 @@ InitStatus LmdPairFinderTask::Init() {
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat",false);
 
 	if(sortByModule){
-		cout << "====== STORING SORTED =========" << endl;
+		cout << "====== STORING SORTED IS NO LONGER SUPPORTED! NOT SAVING ANYTHING! =========" << endl;
 		/*
 		 * initialize multiple TClonesArrays and register them
 		 */
+		/*
 		int moduleID;
 		const char *moduleIDchar;
-		//std::stringstream moduleIDstrm;
+
 		// half can be 0 or 1
 		for(unsigned int iHalf=0; iHalf < 2; iHalf++){
 			// plane can be 0, 1, 2, 3
 			for(unsigned int iPlane=0; iPlane < 4; iPlane++){
 				// module can be 0, 1, 2, 3, 4
 				for(unsigned int iModule=0; iModule<5; iModule++){
-
-					/*
-					 * TODO: maybe outsource these two ModuleID generators to PndLmdDim.h
-					 */
-					//moduleIDstrm << iHalf << iPlane << iModule;
-					//moduleID = makeModuleID(iHalf, iPlane, iModule);
 
 					moduleID = dimension->makeModuleID(iHalf, iPlane, iModule);
 					moduleIDchar = dimension->makeModuleIDchar(iHalf, iPlane, iModule);
@@ -245,13 +240,11 @@ InitStatus LmdPairFinderTask::Init() {
 					ioman->Register(moduleIDchar, "PndLmd", hitPairMap[moduleID], kTRUE);
 
 					cerr << "HOLA! I maed dis: " << moduleIDchar << endl;
-					//delete moduleIDchar;
-
-					//ioman->Register(moduleIDstrm.str().c_str(), "PndLmd", hitPairMap[moduleID], kTRUE);
-					//moduleIDstrm.str("");
 				}
 			}
 		}
+		*/
+		return kERROR;
 	}
 	else{
 		cout << "====== STORING UNSORTED =========" << endl;
@@ -276,7 +269,8 @@ InitStatus LmdPairFinderTask::ReInit() {
 /*
  * Main SensorHit filter. It stores the sensor row and column info to a PndLmdHitPair object,
  * filters for valid hit pairs and stores the decoded hit in LMD coordinate system to the HitPair.
- * The HitPair contains BOTH original row and col hits as well as LMD xyz Coordinates (as TVector3)
+ * The HitPair contains BOTH original row and col hits as well as LMD xyz Coordinates (as TVector3).
+ * This consumes a lot of storage, but storage is cheap and for now we want the info.
  */
 void LmdPairFinderTask::Exec(Option_t* opt) {
 
@@ -335,24 +329,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 		}
 	}
 
-	//DEBUG ONLY
-	/*
-	for(int iCluster=0; iCluster<clusters.size(); iCluster++){
-		clusters[iCluster].printPixels();
-	}
-	for(int iCluster=0; iCluster<clusters.size(); iCluster++){
-		clusters[iCluster].printCenter();
-	}
-	for(int iCluster=0; iCluster<clusters.size(); iCluster++){
-		clusters[iCluster].calculateCenter();
-	}
-	for(int iCluster=0; iCluster<clusters.size(); iCluster++){
-		clusters[iCluster].printCenter();
-	}
-	 */
-
 	//all hits are present in clusters
-
 	/*
 	 * ============ find clusters ============
 	 * input: vector<pixelCluster>
@@ -414,26 +391,6 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 	}
 
 	/*
-	for(int i=0; i<clusters.size(); i++){
-		clusters[i].printPixels();
-	}
-	for(int i=0; i<clusters.size(); i++){
-		if(clusters[i]._sensorId==95){
-			cout << "===== suspect A ======" << endl;
-			clusters[i].printPixels();
-			clusters[i].printCenter();
-			cout << "===== suspect B ======" << endl;
-			clusters[i].calculateCenter();
-			clusters[i].printCenter();
-			cout << "===== suspect C ======" << endl;
-		}
-		else{
-			clusters[i].printCenter();
-		}
-	}
-	 */
-
-	/*
 	 * ============ assign hitPairs ============
 	 * algorithm: make all possible combinations of two clusters
 	 * and check if candidates are realistic. if not, discard,
@@ -491,13 +448,6 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 							moduleId = pairCanditate.getModuleId();
 							TClonesArray* targetBranch = hitPairMap[moduleId];
 							storedForBranch = hitCountMap[moduleId];
-							/*
-							if(pairCanditate.getCol1()<0 | pairCanditate.getCol2()<0 | pairCanditate.getRow1()<0 | pairCanditate.getRow2()<0){
-								cout << "got it!" << endl;
-								pairCanditate.Print();
-								exit(1);
-							}
-							 */
 							new( (*targetBranch)[storedForBranch]) PndLmdHitPair(pairCanditate);
 							hitCountMap[moduleId]++;
 						}
@@ -590,13 +540,13 @@ void LmdPairFinderTask::transformToLMDlocal(PndLmdHitPair &pair) {
 	const TVector3 frontHit = dimension->Decode_hit(fid, col1,row1, true);
 	const TVector3 backHit = dimension->Decode_hit(bid, col2, row2, true);
 
-	//dont't store in lmd local
+	//store in lmd local
 	const TVector3 frontInLMD = dimension->Transform_global_to_lmd_local(frontHit, false, true);
 	const TVector3 backInLMD = dimension->Transform_global_to_lmd_local(backHit, false, true);
 	pair.setHit1(frontHit);
 	pair.setHit2(backHit);
 
-	pair.setModuleId(dimension->makeModuleID(fid, bid));
+	pair.setModuleId(dimension->makeModuleID(dimension->makeOverlapID(fid, bid)));
 	pair.setOverlapId(dimension->makeOverlapID(fid, bid));
 }
 
@@ -613,10 +563,12 @@ bool LmdPairFinderTask::isSuitable(PndLmdHitPair &candidate) {
 	dimension->Get_sensor_by_id(candidate.getId1(), fhalf, fplane, fmodule, fside, fdie, fsensor);
 	dimension->Get_sensor_by_id(candidate.getId2(), bhalf, bplane, bmodule, bside, bdie, bsensor);
 
+	//pair must be on same plane
 	if(fplane!=bplane){
 		return false;
 	}
 
+	//count events per plane
 	switch(fplane){
 	case 0:
 		plane0++;
@@ -636,6 +588,7 @@ bool LmdPairFinderTask::isSuitable(PndLmdHitPair &candidate) {
 		cerr << "This should not happen!" << endl;
 	}
 
+	//sort them that hit0 is always upstream
 	if(bside < fside){
 		candidate.swapHits();
 	}
@@ -729,7 +682,6 @@ bool LmdPairFinderTask::candDistanceIsGood(PndLmdHitPair &candidate) {
 
 	//FIXME: this distance must be set in parameter file! currently is 2 pixels
 	//use distance squared
-
 
 	double distance = candidate.getDistance();
 	if(distance > maxDistance){

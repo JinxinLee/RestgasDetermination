@@ -1127,20 +1127,26 @@ public:
 	// several times with same parameters
 	TH2Poly* Get_histogram_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true);
 
+
 	// get ModuleID as a char*, returns a NEW char. use ONLY for PndLmdSensorAligner
+	/*
 	const char* makeModuleIDchar(int ihalf, int iplane, int imodule){
 		char* result = new char[3];
 		int intermediateId=makeModuleID(ihalf, iplane, imodule);
 		result = itoa(intermediateId, result, 10);
 		return result;
 	}
+	*/
 
 	// and this is the same is int, use ONLY for SensorAligner
+	/*
 	int makeModuleID(int ihalf, int iplane, int imodule) {
 		return 100*ihalf+10*iplane+imodule;
 	}
+	*/
 
 	// and this is the same is int, use ONLY for SensorAligner
+	/*
 	int makeModuleID(int firstSensorId, int secondSensorId) {
 
 		int fhalf, fplane, fmodule, fside, fdie, fsensor;
@@ -1161,8 +1167,14 @@ public:
 		}
 		return makeModuleID(fhalf, fplane, fmodule);
 	}
-
+	*/
+	std::vector<int> getAvailableOverlapIDs();
 	int makeOverlapID(int firstSensorId, int secondSensorId);
+	int getID1fromOverlapID(int overlapID);
+	int getID2fromOverlapID(int overlapID);
+
+	//this is a legacy function and should not be called anymore
+	int makeModuleID(int overlapID);
 
 };
 

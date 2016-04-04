@@ -13,8 +13,18 @@
 #define LMD_LMDSENSORALIGNMENT_PNDLMDALIGNMANAGER_H_
 
 #include "PndLmdHitPair.h"
+
+//apparently, CINT has a problem with some boost classes
+#ifndef __CINT__
+#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/shared_ptr.hpp>
+#endif
+
 #include <matrix.h>
 #include <string>
+#include <sstream>
 #include <PndLmdSensorAligner.h>
 #include <PndLmdDim.h>
 
@@ -24,19 +34,31 @@ class PndLmdAlignManager {
 
 private:
 
+	//loadBarMultiThreaded
+	int _i,_r,_w,_n;
+
+	stringstream _info;
+
 	std::map<int, PndLmdSensorAligner> _aligners;
 	Matrix helperMatrix;
 	PndLmdDim *dimension;
 	bool _allFilesAdded, _pretend;
 	std::vector<std::string> _fileNames;
 	bool _useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp;
-	std::string outFilename, _matrixOutDir;
+	std::string outFilename, _matrixOutDir, _binaryPairFileDirectory;
 	bool _firstInitDone;
+
+	void alignST();
+	void alignMT();
+	void alignOne(PndLmdSensorAligner &aligner);
+	void resetMTLB(int n, int r, int w);
+	void incrementMTLB();
+	void checkIOpaths();
 
 public:
 
 	/*
-	 * An empty AlignManager will use standart values. If you change any value, you must call init() again!
+	 * An empty AlignManager will use standard values. If you want to reuse a manager, call Init() again and set values.
 	 */
 	PndLmdAlignManager();
 	virtual ~PndLmdAlignManager();
@@ -44,19 +66,13 @@ public:
 	// initializes Manager on construction or RESETS every value to default
 	void init();
 
-	//check ID and sort pair to appropriate SensorAligner
-	/* FIXME: observe memory, maybe 40 Aligners with 300k Pairs is too large for memory
-	 * sizeof(PndLmdHitPair) is 152, so 300k Pairs are 45.6 MB, so 40 of that are 1.9 GB.
-	 * should work... Note: just tested it, ROOT consumes (resident) 1.9 GB, so this is spot-on.
-	 * That is a problem, because it's 400 Aligners in total, so 19 GB... that won't work.
-	 *
-	 * I decreased memory using smaller pair storage mechanisms, maybe it works now
-	 */
 	bool addPair(PndLmdHitPair &pair);
 
 	//add filename, so the aligner adds the pair itself
 	bool addFile(std::string filename);
 	void readFiles();
+	bool writePairsToBinaryFiles();
+	bool readPairsFromBinaryFiles();
 
 	//add all pair files that can be found in directory, up to a maximum of maxFiles
 	//returns number of files found (including 0 for no files) or -1 if "pretend" option is set
@@ -104,9 +120,6 @@ public:
 		return helperMatrix;
 	}
 
-	//returns a TVector3 from a Matrix(3,1) or Matrix(4,1)
-	TVector3 transformMeasuredToTrue(const TVector3 &hit, int sensorID);
-
 	void setSingleAligner(bool singleAligner) {
 		_singleAligner = singleAligner;
 	}
@@ -115,8 +128,6 @@ public:
 		outFilename = filename;
 		checkIOpaths();
 	}
-
-	void checkIOpaths();
 
 	//don't do any real work, just check all parameters
 	void setPretend(bool pretend) {
@@ -157,11 +168,19 @@ public:
 		dimension->Read_transformation_matrices(filename, aligned);
 	}
 
+	/*
+	 * for debug only, don't use these in production
+	 */
 	void xOption(int option);
 
-	void execMT(int counter);
-	void testThreadpool();
+#ifndef __CINT__
+	//when supplied with a function object, this function executes in a new thread
+	void workerThread( boost::shared_ptr< boost::asio::io_service > io_service );
+#endif
 
+	void setBinaryPairFileDirectory(const std::string& binaryPairFileDirectory){
+		_binaryPairFileDirectory = binaryPairFileDirectory;
+	}
 };
 
 #endif /* LMD_LMDSENSORALIGNMENT_PNDLMDALIGNMANAGER_H_ */

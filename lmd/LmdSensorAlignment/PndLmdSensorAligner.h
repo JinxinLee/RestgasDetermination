@@ -32,9 +32,21 @@ private:
 	int nonSanePairs, skippedPairs, swappedPairs, _verbose;
 	int ID1, ID2;
 
+	//complete Pairs
 	std::vector<PndLmdHitPair> pairs;
+
+	//simple pairs old
 	std::vector<std::pair<double, double> > simplePairsSensorOne;
 	std::vector<std::pair<double, double> > simplePairsSensorTwo;
+
+	//simple pairs new
+	std::vector<double> simpleSensorOneX;
+	std::vector<double> simpleSensorOneY;
+	std::vector<double> simpleSensorOneZ;
+	std::vector<double> simpleSensorTwoX;
+	std::vector<double> simpleSensorTwoY;
+	std::vector<double> simpleSensorTwoZ;
+
 	bool _pairsNormal, _pairsSimple, _inCentimeters, _success, _numericCorrection, _zIsTimestamp;
 
 	Matrix resultMatrix, _helperMatrix;
@@ -53,6 +65,12 @@ public:
 
 	// add simplified pair, for size and perfomance reasons
 	void addSimplePair(PndLmdHitPair &pair);
+
+	// add simplified pair, for size and perfomance reasons
+	void addSimplePairOld(PndLmdHitPair &pair);
+
+	bool writePairsToBinary(std::string directory);
+	bool readPairsFromBinary(std::string directory);
 
 	//set how many pairs the aligner should use, if higher than available in file, it will use all available
 	void setMaximumNumberOfHitPairs(Int_t maxPais){
@@ -76,7 +94,7 @@ public:
 	}
 	int getNoOfPairs(){
 		if(_pairsSimple && !_pairsNormal){
-			return simplePairsSensorOne.size();
+			return simpleSensorOneX.size();
 		}
 		else if(!_pairsSimple && _pairsNormal){
 			return pairs.size();
@@ -109,6 +127,14 @@ public:
 	//FIXME: only works with non-simplified pairs, fix this!
 	void setInCentimeters(bool inCentimeters) {
 		_inCentimeters = inCentimeters;
+	}
+
+	void setId1(int id1) {
+		ID1 = id1;
+	}
+
+	void setId2(int id2) {
+		ID2 = id2;
 	}
 
 	int getId1() const {
