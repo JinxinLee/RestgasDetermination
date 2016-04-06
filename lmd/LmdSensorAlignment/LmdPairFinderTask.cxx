@@ -452,6 +452,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 							hitCountMap[moduleId]++;
 						}
 						else{
+							//actually store pair to root file
 							new((*hitPairArray)[storedPairsPerEvent]) PndLmdHitPair(pairCanditate);
 							storedPairsPerEvent++;
 						}

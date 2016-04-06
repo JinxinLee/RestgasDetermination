@@ -48,26 +48,6 @@ public:
 	virtual ~PndLmdAlignQA();
 	void init();
 
-	//tales absolute matrix, in perfect alignment means identity matrix
-	//TODO: remove funtion
-	void plotErrorsAbsolute(std::string filename, std::string outputPath);
-
-	//takes matrix in pixels and compares to ideal matrix
-	//TODO: remove function
-	void plotErrorsRelative(int overlapID=-1);
-
-	//plot by overlapID
-	//TODO: remove function
-	void plotByOverlapID();
-
-	//plot by overlapID and plane
-	//TODO: remove function
-	void plotByPlane();
-
-	//TODO: remove function
-	void addInputfile(std::string input){
-		_inputFiles.push_back(input);
-	}
 	void setOutputPath(std::string path){
 		_outputPath = path;
 	}

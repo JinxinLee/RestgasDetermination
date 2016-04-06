@@ -125,33 +125,6 @@ void PndLmdAlignManager::init(){
 
 	helperMatrix = hmatrix2 * hmatrix1;
 
-	//FIXME: do this in PndLmdDim, so that if something changes, only one place must be corrected
-	/*
-	for(int iHalf=0; iHalf<2; iHalf++){
-		for(int iPlane=0; iPlane<4; iPlane++){
-			for(int iModule=0; iModule<5; iModule++){
-
-				//strictly speaking, this is the "conflicting" part, maybe get a vector of valid overlapIDs from PndLmdDim
-				for(int iOverlap=0; iOverlap<9;iOverlap++){
-
-					//everything works with overlapID! this is THE most important ID for an aligner.
-					overlapId = 10* (dimension->makeModuleID(iHalf, iPlane, iModule))+iOverlap;
-
-					PndLmdSensorAligner tempAligner;
-					tempAligner.setOverlapId(overlapId);
-					tempAligner.setModuleID(dimension->makeModuleID(overlapId));
-					tempAligner.setHelperMatrix(helperMatrix);
-					tempAligner.setZasTimetamp(_zIsTimestamp);
-					tempAligner.setNumericCorrection(_enableHelperMatrix);
-					tempAligner.setInCentimeters(_inCentimeters);
-					_aligners[overlapId]=tempAligner;
-				}
-			}
-		}
-	}
-	 */
-
-	//FIXME: this is the fix for the above situation
 	vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
 	for(int i=0; i<overlapIDs.size(); i++){
 		int overlapId = overlapIDs[i];
@@ -365,14 +338,12 @@ void PndLmdAlignManager::alignMT() {
 	worker_threads.join_all();
 
 	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
-
 		if(it->second.successful()){
-
 			Matrix result = it->second.getResultMatrix();
 
 			//FIXME: matrix only needs to be converted from px to cm when using real hit pairs
 			stringstream matrixfilename;
-			matrixfilename << _matrixOutDir << "m"<<it->second.getOverlapId();
+			matrixfilename << _matrixOutDir << "/m"<<it->second.getOverlapId();
 			if(_inCentimeters){
 				matrixfilename << "cm";
 			}
@@ -422,7 +393,7 @@ void PndLmdAlignManager::alignAllSensors() {
 
 	//write matrix info
 	ofstream of;
-	of.open(( _matrixOutDir + "info.txt").c_str());
+	of.open(( _matrixOutDir + "/info.txt").c_str());
 	of << _info.str();
 	of.close();
 	cout << "all aligners done.\n";
@@ -1162,6 +1133,71 @@ int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFile
 	}
 }
 
+bool PndLmdAlignManager::checkForBinaryFiles() {
+
+	//list all IDs that SHOULD be there
+	vector<int> availableIds = dimension->getAvailableOverlapIDs();
+
+	vector<string> files;
+	searchFiles(_binaryPairFileDirectory, files, "bin", false);
+	int foundFiles=0;
+
+	//cout << "looking for binary files in " << _binaryPairFileDirectory << "\n";
+
+	//no binary files at all!
+	if(files.size()==0){
+		return false;
+	}
+
+	string matrixName;
+	bool tempfilefound=false;
+
+	//check for every ID that should be there if there is a corresponding file
+	for(int i=0; i<availableIds.size(); i++){
+
+		//reset counter
+		tempfilefound=false;
+		matrixName = makeMatrixFileName(availableIds[i], _inCentimeters);
+
+		for(int j=0; j<files.size(); j++){
+			if(files[j].find(matrixName)!=string::npos){
+				//file is present
+				//cout << "file: " << files[j] << ", id: " << availableIds[i] << "\n";
+				tempfilefound=true;
+				foundFiles++;
+			}
+		}
+
+		//file not found? return false
+		if(!tempfilefound){
+			return tempfilefound;
+		}
+	}
+	//cout << "found " << foundFiles << "\n";
+	return true;
+}
+
+std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters) {
+	std::stringstream filename;
+	filename << "/pairs-";
+	filename << overlapId;
+	if(incentimeters){
+		filename << "-cm";
+	}
+	else{
+		filename << "-px";
+	}
+	filename << ".bin";
+	return filename.str();
+}
+
+std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters) {
+	int overlapId;
+	PndLmdDim *dimension = PndLmdDim::Instance();
+	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
+	return makeMatrixFileName(overlapId, incentimeters);
+}
+
 void PndLmdAlignManager::xOption(int option) {
 
 	if(option==1){
@@ -1180,9 +1216,6 @@ void PndLmdAlignManager::xOption(int option) {
 	else if(option==2){
 		int id1=0;
 		int id2=5;
-
-		//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat", true);
-		//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat", false);
 
 		//this is no mistake, I want the inverted matrix of (id1,id2)
 		Matrix idealInv = getMatrixOfficialGeometry(id2,id1,true);
@@ -1308,4 +1341,10 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 	//generate ID1 and ID2 from overlapID;
 
 	return success;
+}
+
+void PndLmdAlignManager::clearPairs() {
+	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+		it->second.clearPairs();
+	}
 }

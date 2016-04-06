@@ -74,12 +74,13 @@ public:
 
 	//set how many pairs the aligner should use, if higher than available in file, it will use all available
 	void setMaximumNumberOfHitPairs(Int_t maxPais){
-
 		if(maxPais > 0){
 			_maxNoOfPairs=maxPais;
 			//check vector capacity to avoid constant re-allocation, use max pairs
 		}
 	}
+
+	void clearPairs();
 
 	//deactivate iterative part, use for debug only
 	void forceInstant(Bool_t instant){

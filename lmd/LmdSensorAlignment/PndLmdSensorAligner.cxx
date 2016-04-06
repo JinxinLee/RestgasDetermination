@@ -160,7 +160,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 					Model[ipair*3+2] -= 40;
 					Template[ipair*3+2] -= 40;
 				}
-				*/
+				 */
 
 			}
 			else{
@@ -195,7 +195,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 				Model[ipair*3+2] -= 40;
 				Template[ipair*3+2] -= 40;
 			}
-			*/
+			 */
 		}
 		else{
 			cout << "Fatal: inconsistent storage options in ICP model and template generation.\n This should never happen. \n";
@@ -733,7 +733,8 @@ bool PndLmdSensorAligner::isValid(double val) {
 
 bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 
-	std::stringstream file_path;		//target directory
+	//std::stringstream file_path;		//target directory	DO NOT USE ANYMORE
+	string filename;					//target directory
 	double* pdata;						//array with pairs
 	int doublesPerPair=6;				//well, doubles per Pair
 	int nPairs=0;
@@ -745,9 +746,14 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 		nPairs = pairs.size();
 	}
 
+	if(nPairs==0){
+		cout << "warning: attempting to write empty binary pair file! (no pairs in buffer)\n";
+		return false;
+	}
 
 	size_t length = nPairs*doublesPerPair + 6;		//number of raw doubles (including header), remember pairs have 6 doubles
 
+	/*
 	//select  correct pair file
 	file_path << directory << "/pairs-";
 	file_path << overlapID;
@@ -758,6 +764,10 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 		file_path << "-px";
 	}
 	file_path << ".bin";
+	 */
+	filename = directory;
+	filename += PndLmdAlignManager::makeMatrixFileName(overlapID, _inCentimeters);
+
 
 	//construct header
 	double* header = new double[6];
@@ -807,17 +817,18 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	 * need to check file first
 	 */
 
-	std::ofstream os(file_path.str().c_str(), std::ios::binary | std::ios::out);
+	std::ofstream os(filename.c_str(), std::ios::binary | std::ios::out);
 	if ( !os.is_open() )
 		return false;
 	os.write(reinterpret_cast<const char*>(pdata), std::streamsize(length*sizeof(double)));
 	os.close();
+	delete[] pdata, header;
 	return true;
 }
 
 bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
-	std::stringstream filename;	//target directory
+	string filename;	//target directory
 	//size_t length;					//number of raw doubles, remember pairs have 6 doubles
 	double* pdata;					//array with pairs
 	size_t filesize;
@@ -833,10 +844,12 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	 * file size is larger than 6 doubles (header)? -> read header only! else return false;
 	 * read header and interpret data from header.
 	 * is nPairs*6*sizeof(double) + 6*sizeof(double) (header) == filezise?
+	 * is nPairs in header == 6 * sizeof(double) (filesize - header)
 	 * if so, file seems okay, read header + file. else return false;
 	 * when entire file is read, copy data without header to arrays for ICP	 *
 	 */
 
+	/*
 	//select  correct pair file
 	filename << directory << "/pairs-";
 	filename << overlapID;
@@ -847,14 +860,18 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		filename << "-px";
 	}
 	filename << ".bin";
+	 */
+
+	filename = directory;
+	filename += PndLmdAlignManager::makeMatrixFileName(overlapID, _inCentimeters);
 
 	//check if file exists and file size
-	std::fstream inStream(filename.str().c_str(), std::ios::binary|std::ios::in|std::ios::ate);
+	std::fstream inStream(filename.c_str(), std::ios::binary|std::ios::in|std::ios::ate);
 	if(inStream) {
 		std::fstream::pos_type size = inStream.tellg();
 		filesize = size;
 	} else {
-		cout << filename.str().c_str() << " could not be read!\n";
+		cout << filename.c_str() << " could not be read!\n";
 		return false;
 	}
 
@@ -863,7 +880,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		double* header = new double[6];
 
 		//read header
-		std::ifstream is(filename.str().c_str(), std::ios::binary | std::ios::in);
+		std::ifstream is(filename.c_str(), std::ios::binary | std::ios::in);
 		if ( !is.is_open() )
 			return false;
 		is.read(reinterpret_cast<char*>(header), std::streamsize(6*sizeof(double)));
@@ -885,6 +902,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		if(doublesize != header[3]){
 			cout << "warning! sizeof(double) on this system is different than on system that made this binary!\n";
 			//TODO: decide what to do in this case
+			exit(1);
 			doublesize = header[3];
 			return false;
 		}
@@ -910,14 +928,14 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
 	}
 	else{
-		cout << filename.str().c_str() << " is too small, file corrupt!\n";
+		cout << filename.c_str() << " is too small, file corrupt!\n";
 		return false;
 	}
 
 	pdata = new double[noOfDoubles];
 
 	//actually read file
-	std::ifstream is(filename.str().c_str(), std::ios::binary | std::ios::in);
+	std::ifstream is(filename.c_str(), std::ios::binary | std::ios::in);
 	if ( !is.is_open() )
 		return false;
 	is.read(reinterpret_cast<char*>(pdata), std::streamsize(noOfDoubles*sizeof(double)));
@@ -991,7 +1009,19 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	delete[] pdata;
 
 	//now, check if ID1 and ID2 can be generated from overlapID
-
 	return true;
 }
 
+void PndLmdSensorAligner::clearPairs() {
+	if(_pairsSimple){
+		simpleSensorOneX.clear();
+		simpleSensorOneY.clear();
+		simpleSensorOneZ.clear();
+		simpleSensorTwoX.clear();
+		simpleSensorTwoY.clear();
+		simpleSensorTwoZ.clear();
+	}
+	else{
+		pairs.clear();
+	}
+}

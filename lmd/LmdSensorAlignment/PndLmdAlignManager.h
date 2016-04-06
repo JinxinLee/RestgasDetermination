@@ -34,6 +34,9 @@ class PndLmdAlignManager {
 
 private:
 
+	// PndLmdSensorAligner needs private funcitons from here
+	friend class PndLmdSensorAligner;
+
 	//loadBarMultiThreaded
 	int _i,_r,_w,_n;
 
@@ -55,6 +58,10 @@ private:
 	void incrementMTLB();
 	void checkIOpaths();
 
+	//generate the file name of a matrix, so it's always the same
+	static std::string makeMatrixFileName(int overlapId, bool incentimeters);
+	static std::string makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters);
+
 public:
 
 	/*
@@ -73,6 +80,8 @@ public:
 	void readFiles();
 	bool writePairsToBinaryFiles();
 	bool readPairsFromBinaryFiles();
+	bool checkForBinaryFiles();
+	void clearPairs();
 
 	//add all pair files that can be found in directory, up to a maximum of maxFiles
 	//returns number of files found (including 0 for no files) or -1 if "pretend" option is set
