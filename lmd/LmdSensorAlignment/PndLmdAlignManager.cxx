@@ -103,6 +103,7 @@ void PndLmdAlignManager::init(){
 	_pretend=false;
 	_inCentimeters=false;
 	_enableHelperMatrix=false;
+	_multithreaded=true;
 
 	//int overlapId=-1;
 	_fileNames.clear();
@@ -233,16 +234,17 @@ void PndLmdAlignManager::readFiles(){
 		}
 	}
 
-	cout << "=========================\n";
+	cout << "================================\n";
 	cout << "total Pairs: " << totalPairs << endl;
 	cout << "All done. Running Align Manager.\n";
-	cout << "=========================\n";
+	cout << "================================\n";
 
 	delete chainPairs;
 	delete hitPairs;
 }
 
 void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner){
+	//start aligner, this can be done concurrently
 	aligner.calculateMatrix();
 	//when done, set loadBar +1
 	incrementMTLB();
@@ -259,27 +261,12 @@ void PndLmdAlignManager::alignST() {
 	tot=_aligners.size();
 
 	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
-
 		loadBar(cur++, tot, 1000, 60);
 		it->second.calculateMatrix();
 		if(it->second.successful()){
-
 			Matrix result = it->second.getResultMatrix();
-
-			//FIXME: matrix only needs to be converted from px to cm when using real hit pairs
-			stringstream matrixfilename;
-			matrixfilename << _matrixOutDir << "m"<<it->second.getOverlapId();
-			if(_inCentimeters){
-				matrixfilename << "cm";
-			}
-			else{
-				matrixfilename << "px";
-			}
-			if(_enableHelperMatrix){
-				matrixfilename << "C";
-			}
-			matrixfilename<<".mat";
-			writeMatrix(result, matrixfilename.str());
+			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
+			writeMatrix(result, matrixFilename);
 
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
 			_info << "area " << it->second.getId1() << " to " << it->second.getId2() << "\n";
@@ -308,17 +295,15 @@ void PndLmdAlignManager::alignMT() {
 	int nThreads;
 	nThreads = boost::thread::hardware_concurrency();
 
-	//sometimes hardware_concurrency returns 0, if it can't detect.
-	if(nThreads ==0){
+	//sometimes hardware_concurrency returns 0 if it can't detect.
+	if(nThreads < 1){
 		cout << "could not detect number of cores. assuming 4.\n";
 		nThreads = 4;
 	}
 
 	//create worker threads
 	for(int i=0; i<nThreads; i++){
-		worker_threads.create_thread(
-				boost::bind( &WorkerThread, io_service )
-		);
+		worker_threads.create_thread( boost::bind( &WorkerThread, io_service ) );
 	}
 
 	resetMTLB(_aligners.size(), _aligners.size(), 60);
@@ -339,22 +324,12 @@ void PndLmdAlignManager::alignMT() {
 
 	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
 		if(it->second.successful()){
-			Matrix result = it->second.getResultMatrix();
 
-			//FIXME: matrix only needs to be converted from px to cm when using real hit pairs
-			stringstream matrixfilename;
-			matrixfilename << _matrixOutDir << "/m"<<it->second.getOverlapId();
-			if(_inCentimeters){
-				matrixfilename << "cm";
+			Matrix result = it->second.getResultMatrix();
+			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
+			if(!writeMatrix(result, matrixFilename)){
+				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
 			}
-			else{
-				matrixfilename << "px";
-			}
-			if(_enableHelperMatrix){
-				matrixfilename << "C";
-			}
-			matrixfilename<<".mat";
-			writeMatrix(result, matrixfilename.str());
 
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
 			_info << "area " << it->second.getId1() << " to " << it->second.getId2() << "\n";
@@ -365,7 +340,6 @@ void PndLmdAlignManager::alignMT() {
 			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
 		}
 	}
-	//TODO: improve loadbar for multithreaded aligners
 }
 
 void PndLmdAlignManager::alignAllSensors() {
@@ -383,8 +357,7 @@ void PndLmdAlignManager::alignAllSensors() {
 	checkIOpaths();
 	cout << "starting aligners...\n";
 
-	bool multithreaded=true;
-	if(multithreaded){
+	if(_multithreaded){
 		alignMT();
 	}
 	else{
@@ -1157,7 +1130,7 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 
 		//reset counter
 		tempfilefound=false;
-		matrixName = makeMatrixFileName(availableIds[i], _inCentimeters);
+		matrixName = makeBinaryPairFileName(availableIds[i], _inCentimeters);
 
 		for(int j=0; j<files.size(); j++){
 			if(files[j].find(matrixName)!=string::npos){
@@ -1177,7 +1150,7 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 	return true;
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters) {
+std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters, bool correctionMatrix) {
 	std::stringstream filename;
 	filename << "/pairs-";
 	filename << overlapId;
@@ -1191,7 +1164,26 @@ std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentime
 	return filename.str();
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters) {
+std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters, bool correctionMatrix) {
+	int overlapId;
+	PndLmdDim *dimension = PndLmdDim::Instance();
+	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
+	return makeBinaryPairFileName(overlapId, incentimeters);
+}
+
+std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters, bool correctionMatrix) {
+	stringstream matrixName;
+	matrixName << "/m";
+	if(incentimeters){
+		matrixName << overlapId << "cm.mat";
+	}
+	else{
+		matrixName << overlapId << "px.mat";
+	}
+	return matrixName.str();
+}
+
+std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters, bool correctionMatrix) {
 	int overlapId;
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);

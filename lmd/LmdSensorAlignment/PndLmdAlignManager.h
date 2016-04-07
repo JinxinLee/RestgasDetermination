@@ -34,8 +34,9 @@ class PndLmdAlignManager {
 
 private:
 
-	// PndLmdSensorAligner needs private funcitons from here
+	// PndLmdSensorAligner needs private functions from here
 	friend class PndLmdSensorAligner;
+	friend class PndLmdAlignQA;
 
 	//loadBarMultiThreaded
 	int _i,_r,_w,_n;
@@ -50,6 +51,7 @@ private:
 	bool _useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp;
 	std::string outFilename, _matrixOutDir, _binaryPairFileDirectory;
 	bool _firstInitDone;
+	bool _multithreaded;
 
 	void alignST();
 	void alignMT();
@@ -58,15 +60,15 @@ private:
 	void incrementMTLB();
 	void checkIOpaths();
 
-	//generate the file name of a matrix, so it's always the same
-	static std::string makeMatrixFileName(int overlapId, bool incentimeters);
-	static std::string makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters);
+	//generate the file name of a matrix or pair file, so changes must only be made once
+	static std::string makeBinaryPairFileName(int overlapId=0, bool incentimeters=true, bool correctionMatrix=false);
+	static std::string makeBinaryPairFileName(int sensorOne=0, int sensorTwo=0, bool incentimeters=true, bool correctionMatrix=false);
+	static std::string makeMatrixFileName(int overlapId=0, bool incentimeters=true, bool correctionMatrix=false);
+	static std::string makeMatrixFileName(int sensorOne=0, int sensorTwo=0, bool incentimeters=true, bool correctionMatrix=false);
 
 public:
 
-	/*
-	 * An empty AlignManager will use standard values. If you want to reuse a manager, call Init() again and set values.
-	 */
+	//An empty AlignManager will use standard values. If you want to reuse a manager, call Init() again and set values.
 	PndLmdAlignManager();
 	virtual ~PndLmdAlignManager();
 
@@ -75,7 +77,7 @@ public:
 
 	bool addPair(PndLmdHitPair &pair);
 
-	//add filename, so the aligner adds the pair itself
+	//add filename, so the aligner adds the pairs itself
 	bool addFile(std::string filename);
 	void readFiles();
 	bool writePairsToBinaryFiles();

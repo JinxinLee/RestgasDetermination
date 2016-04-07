@@ -753,21 +753,8 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 
 	size_t length = nPairs*doublesPerPair + 6;		//number of raw doubles (including header), remember pairs have 6 doubles
 
-	/*
-	//select  correct pair file
-	file_path << directory << "/pairs-";
-	file_path << overlapID;
-	if(_inCentimeters){
-		file_path << "-cm";
-	}
-	else{
-		file_path << "-px";
-	}
-	file_path << ".bin";
-	 */
 	filename = directory;
-	filename += PndLmdAlignManager::makeMatrixFileName(overlapID, _inCentimeters);
-
+	filename += PndLmdAlignManager::makeBinaryPairFileName(overlapID, _inCentimeters);
 
 	//construct header
 	double* header = new double[6];
@@ -828,8 +815,8 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 
 bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
-	string filename;	//target directory
-	//size_t length;					//number of raw doubles, remember pairs have 6 doubles
+	string filename;				//binary pair file
+	//size_t length;				//number of raw doubles, remember pairs have 6 doubles
 	double* pdata;					//array with pairs
 	size_t filesize;
 	size_t doublesize = sizeof(double);
@@ -849,21 +836,8 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	 * when entire file is read, copy data without header to arrays for ICP	 *
 	 */
 
-	/*
-	//select  correct pair file
-	filename << directory << "/pairs-";
-	filename << overlapID;
-	if(_inCentimeters){
-		filename << "-cm";
-	}
-	else{
-		filename << "-px";
-	}
-	filename << ".bin";
-	 */
-
 	filename = directory;
-	filename += PndLmdAlignManager::makeMatrixFileName(overlapID, _inCentimeters);
+	filename += PndLmdAlignManager::makeBinaryPairFileName(overlapID, _inCentimeters);
 
 	//check if file exists and file size
 	std::fstream inStream(filename.c_str(), std::ios::binary|std::ios::in|std::ios::ate);

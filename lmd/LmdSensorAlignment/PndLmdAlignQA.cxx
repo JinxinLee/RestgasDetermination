@@ -56,8 +56,6 @@ void PndLmdAlignQA::init() {
 	_signerrors = -1;
 	dimension = PndLmdDim::Instance();
 
-	manager.init();
-
 	//FIXME: maybe don't do this hard-coded
 	manager.readTrafoMatrix("/geometry/trafo_matrices_lmd.dat", true);
 	manager.readTrafoMatrix("/geometry/trafo_matrices_lmd_misaligned.dat", false);
@@ -111,7 +109,7 @@ void PndLmdAlignQA::compareMatrices(){
 	stringstream pathname;
 	pathname << _outputPath;
 
-	_inCentimeters ? pathname << "inCm/" : pathname << "inPx/";
+	_inCentimeters ? pathname << "/inCm/" : pathname << "/inPx/";
 	_enableHelperMatrix ? pathname << "corrFull-" : pathname << "";
 
 	PndLmdAlignManager::mkdir(pathname.str());
@@ -136,7 +134,7 @@ void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vecto
 	}
 
 	std::vector<double> result;
-	Matrix thisMat = getdeltaCorrectionMatrix(id1, id2);
+	Matrix thisMat = getMatrixResiduals(id1, id2);
 
 	result.push_back(id1);
 	result.push_back(id2);
@@ -147,19 +145,13 @@ void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vecto
 
 }
 
-Matrix PndLmdAlignQA::getdeltaCorrectionMatrix(int id1, int id2) {
+Matrix PndLmdAlignQA::getMatrixResiduals(int id1, int id2) {
+
+	//get matrix file name from PndLmdAlignManager
+	string matrixName = _matrixDir + PndLmdAlignManager::makeMatrixFileName(id1, id2, _inCentimeters);
 
 	if(_inCentimeters){
-		stringstream matrixName;
-		//FIXME: this won't work forever
-		matrixName << _matrixDir << "m";
-		int overlapID = dimension->makeOverlapID(id1, id2);
-		matrixName << overlapID << "cm";
-		if(_enableHelperMatrix){
-			matrixName << "C";
-		}
-		matrixName << ".mat";
-		Matrix icpMatrix = manager.readMatrix(matrixName.str());
+		Matrix icpMatrix = manager.readMatrix(matrixName);
 		Matrix corrSensorToSensor = manager.getCorrectionMatrix(id1, id2);
 
 		/*
@@ -167,23 +159,17 @@ Matrix PndLmdAlignQA::getdeltaCorrectionMatrix(int id1, int id2) {
 		 * (which came in panda gloabal) to lmd local, since ICP matrix will be in
 		 * lmd local
 		 */
-		manager.transformGlobalToLmd(corrSensorToSensor);
 
+		manager.transformGlobalToLmd(corrSensorToSensor);
 		//residual matrix
 		Matrix result = icpMatrix - corrSensorToSensor;
-
 		return result;
 	}
 
 	// in pixels
 	else{
 		Matrix real = manager.getMatrixOfficialGeometry(id1, id2,false);
-		stringstream matrixName;
-		//FIXME: this won't work forever
-		matrixName << _matrixDir << "m";
-		int overlapID = dimension->makeOverlapID(id1, id2);
-		matrixName << overlapID << "px.mat";
-		Matrix icpMatrix = manager.readMatrix(matrixName.str());
+		Matrix icpMatrix = manager.readMatrix(matrixName);
 		return icpMatrix - real;
 	}
 
@@ -191,14 +177,9 @@ Matrix PndLmdAlignQA::getdeltaCorrectionMatrix(int id1, int id2) {
 	return Matrix::eye(4);
 }
 
-int PndLmdAlignQA::noOfPairs(int id1, int id2) {
-	int overlapId = dimension->makeOverlapID(id1, id2);
-	return matrixInfo[overlapId];
-}
-
 void PndLmdAlignQA::readMatrixInfo() {
 
-	string filename = _matrixDir + "info.txt";
+	string filename = _matrixDir + "/info.txt";
 	stringstream *info = manager.readFile(filename);
 
 	//parser: first, find line aligenr n (n is overlap id)
@@ -230,4 +211,48 @@ void PndLmdAlignQA::readMatrixInfo() {
 			}
 		}
 	}
+}
+
+int PndLmdAlignQA::noOfPairs(int id1, int id2) {
+	int overlapId = dimension->makeOverlapID(id1, id2);
+	return matrixInfo[overlapId];
+}
+
+bool PndLmdAlignQA::checkForMatrixFiles(){
+
+	//list all IDs that SHOULD be there
+	vector<int> availableIds = dimension->getAvailableOverlapIDs();
+
+	vector<string> files;
+	manager.searchFiles(_matrixDir, files, "mat", false);
+	int foundFiles=0;
+
+	//no matrix files at all!
+	if(files.size()==0){
+		return false;
+	}
+
+	string matrixName;
+	bool tempfilefound=false;
+
+	//check for every ID that should be there if there is a corresponding file
+	for(int i=0; i<availableIds.size(); i++){
+
+		//reset counter
+		tempfilefound=false;
+		matrixName = manager.makeMatrixFileName(availableIds[i], _inCentimeters, false);
+
+		for(int j=0; j<files.size(); j++){
+			if(files[j].find(matrixName)!=string::npos){
+				tempfilefound=true;
+				foundFiles++;
+			}
+		}
+		//file not found? return false
+		if(!tempfilefound){
+			return tempfilefound;
+		}
+	}
+	// if no file could not be found, everything is okay
+	return true;
 }
