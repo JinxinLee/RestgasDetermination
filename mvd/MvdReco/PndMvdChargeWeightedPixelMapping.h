@@ -2,6 +2,8 @@
 #define PNDMVDCHARGEWEIGHTEDPIXELMAPPING_H
 
 #include "PndSdsChargeWeightedPixelMapping.h"
+#include "PndSdsPixelDigiPar.h"
+#include "PndSdsTotDigiPar.h"
 
 //! PndMvdChargeWeightedPixelMapping.h
 //! @author T.Stockmanns <t.stockmanns@fz-juelich.de>
@@ -14,6 +16,11 @@ class PndMvdChargeWeightedPixelMapping : public PndSdsChargeWeightedPixelMapping
 
 	PndMvdChargeWeightedPixelMapping(Int_t verbose = 0);
 	PndMvdChargeWeightedPixelMapping(PndGeoHandling* geo, Int_t verbose = 0);
+	PndMvdChargeWeightedPixelMapping(PndGeoHandling* geo, PndSdsPixelDigiPar* digiPar, PndSdsTotDigiPar* totPar);
+
+	void SetChargeConverter();
+	PndSdsPixelDigiPar* fDigiPar;
+	PndSdsTotDigiPar* fTotDigiPar;
 };
 
 #endif

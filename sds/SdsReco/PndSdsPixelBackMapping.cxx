@@ -1,4 +1,5 @@
 #include "PndSdsPixelBackMapping.h"
+#include "FairLogger.h"
 
 PndSdsPixelBackMapping::PndSdsPixelBackMapping()
 {

@@ -82,8 +82,16 @@ class PndSdsPixelClusterTask : public PndSdsTask
     virtual InitStatus ReInit();
     virtual void FinishEvent();
     
+	/** Methods to run with MQ **/ 
+    virtual void SetClusterFinderMQ(TList* tempList){}; 
+	virtual void SetBackMappingMQ(TList* tempList){};  
+    virtual void InitMQ(TList* tempList);
+    virtual void GetParList(TList* tempList);
+    virtual void ExecMQ(TList* inputList,TList* outputList);
+    
     /** Virtual method Exec **/
     void Exec(Option_t* opt);
+
     
     void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
     Bool_t GetPersistance() {return fPersistance;};
@@ -105,6 +113,7 @@ class PndSdsPixelClusterTask : public PndSdsTask
     /** Output array of PndSdsHits **/
     TClonesArray* fClusterArray;
     TClonesArray* fHitArray;
+    FairEventHeader* fEventHeader;
 
     BinaryFunctor* fFunctor; //!
     BinaryFunctor* fStartFunctor; //!

@@ -2,6 +2,8 @@
 #define PNDMVDSIMPLEPIXELCLUSTERFINDER_H
 
 #include "PndSdsSimplePixelClusterFinder.h"
+#include "PndSdsTotDigiPar.h"
+#include "PndSdsPixelDigiPar.h"
 /// PndMvdSimplePixelClusterFinder.h
 /// Simple cluster finder for pixel detectors.
 ///
@@ -16,11 +18,16 @@ class PndMvdSimplePixelClusterFinder : public PndSdsSimplePixelClusterFinder
 {
 	public :
 			PndMvdSimplePixelClusterFinder(TString parName = "MVDPixelDigiPar", TString totParName = "MVDPixelTotDigiPar", Int_t verbose = 0);
+			PndMvdSimplePixelClusterFinder(PndSdsPixelDigiPar* digiPar, PndSdsTotDigiPar* totPar);
 			void SetParName(TString val){fParName = val;}
 			void SetTotParName(TString val){fTotParName = val;}
+
+	protected:		void SetParameters();
 
 	private:
 			TString fParName;
 			TString fTotParName;
+			PndSdsPixelDigiPar* fDigiPar;
+			PndSdsTotDigiPar* fTotDigiPar;
 };
 #endif

@@ -20,6 +20,10 @@ class PndMvdPixelClusterTask : public PndSdsPixelClusterTask
     /** Destructor **/
     virtual ~PndMvdPixelClusterTask();
 
+    virtual void GetParList(TList* tempList);
+    virtual void SetClusterFinderMQ(TList* tempList);
+    virtual void SetBackMappingMQ(TList* tempList);
+
     virtual void SetParContainers();
     virtual void SetBranchNames();
     virtual void SetClusterFinder();
@@ -29,6 +33,8 @@ class PndMvdPixelClusterTask : public PndSdsPixelClusterTask
  private:
     TString fParName;
     TString fTotParName;
+	PndSdsTotDigiPar* fTotDigiPar;
+	PndSensorNamePar* fSensorNamePar;
   ClassDef(PndMvdPixelClusterTask,3);
 };
 

@@ -1,11 +1,12 @@
 // A basic clusterfinder for pixel detectors
 #include "PndSdsSimplePixelClusterFinder.h"
 #include "TMath.h"
+#include "FairLogger.h"
 
 std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(std::vector<PndSdsDigiPixel> hits)
 {
 	fHits = hits;
-	if (fVerbose > 1) Print();
+//	if (fVerbose > 1) Print();
 	std::vector<Int_t> posHits;
 	for (UInt_t i = 0; i < fHits.size(); i++) posHits.push_back(i);
 	std::vector< std::vector< Int_t> > result;
@@ -26,8 +27,8 @@ std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(st
 				for (Int_t j = 0; j < sizeTempHits; j++){
 					if (fChargeConverter->DigiValueToCharge(fHits[posHits[j]]) == 0){
 								MoveHit(&posHits,j);
-								if (fVerbose > 1)
-									std::cout << "Charge too low!" << std::endl;
+//								if (fVerbose > 1)
+//									std::cout << "Charge too low!" << std::endl;
 								j--;
 					}
 					else{
@@ -35,8 +36,8 @@ std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(st
 							if (IsInRange(fHits[(*(result.end()-1))[i]], fHits[posHits[j]])) {
 									(result.end()-1)->push_back(MoveHit(&posHits,j));
 									j--;
-									if (fVerbose > 1)
-										std::cout << "Hit added to cluster: " << result.size()-1 << std::endl;
+//									if (fVerbose > 1)
+//										std::cout << "Hit added to cluster: " << result.size()-1 << std::endl;
 							}
 						}
 
@@ -51,16 +52,6 @@ std::vector< std::vector<Int_t> > PndSdsSimplePixelClusterFinder::GetClusters(st
 	return result;
 }
 
-/*PndSdsDigiPixel PndSdsSimplePixelClusterFinder::MoveHit(std::vector<PndSdsDigiPixel>* hitVector, Int_t index)
-{
-	PndSdsDigiPixel result;
-	if (index < hitVector->size()){
-		result = (*hitVector)[index];
-		hitVector->erase(hitVector->begin()+index);
-	}
-	return result;
-}
-*/
 Int_t PndSdsSimplePixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t index) const
 {
 	Int_t result = -1;

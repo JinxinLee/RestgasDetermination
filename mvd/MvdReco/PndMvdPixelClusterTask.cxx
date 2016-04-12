@@ -21,6 +21,17 @@ PndMvdPixelClusterTask::~PndMvdPixelClusterTask()
 }
 // -------------------------------------------------------------------------
 
+void PndMvdPixelClusterTask::GetParList(TList* tempList) {
+  fDigiPar = new PndSdsPixelDigiPar(fParName.Data());
+  tempList->Add(fDigiPar);
+  fTotDigiPar = new PndSdsTotDigiPar(fTotParName.Data());
+  tempList->Add(fTotDigiPar);
+  fSensorNamePar = new PndSensorNamePar("PndSensorNamePar");
+  tempList->Add(fSensorNamePar);
+
+  return;
+}
+
 // -----   Initialization  of Parameter Containers -------------------------
 void PndMvdPixelClusterTask::SetParContainers()
 {
@@ -28,7 +39,7 @@ void PndMvdPixelClusterTask::SetParContainers()
 	FairRun* ana = FairRun::Instance();
 	FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer(fParName.Data()));
-	rtdb->getContainer(fTotParName.Data());
+	fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer(fTotParName.Data()));
 	PndSdsPixelClusterTask::SetParContainers();
 }
 
@@ -38,9 +49,32 @@ void PndMvdPixelClusterTask::SetBackMapping()
 	fBackMapping = new PndMvdChargeWeightedPixelMapping(fGeoH, fVerbose);
 }
 
+void PndMvdPixelClusterTask::SetBackMappingMQ(TList* tempList)
+{
+  // at Init() stage we already have fGeoH filled with the parameters
+	fDigiPar = (PndSdsPixelDigiPar*)tempList->FindObject(fParName.Data());
+	fTotDigiPar = (PndSdsTotDigiPar*)tempList->FindObject(fTotParName.Data());
+	fSensorNamePar = (PndSensorNamePar*)tempList->FindObject("PndSensorNamePar");
+	fSensorNamePar->FillMap();
+	if (fGeoH == 0)
+		fGeoH = new PndGeoHandling(fSensorNamePar);
+	fBackMapping = new PndMvdChargeWeightedPixelMapping(fGeoH, fDigiPar, fTotDigiPar);
+}
+
 void PndMvdPixelClusterTask::SetClusterFinder()
 {
 	fClusterFinder = new PndMvdSimplePixelClusterFinder(fParName, fTotParName, fVerbose);
+}
+
+void PndMvdPixelClusterTask::SetClusterFinderMQ(TList* tempList)
+{
+	fDigiPar = (PndSdsPixelDigiPar*)tempList->FindObject(fParName.Data());
+	fTotDigiPar = (PndSdsTotDigiPar*)tempList->FindObject(fTotParName.Data());
+	fSensorNamePar = (PndSensorNamePar*)tempList->FindObject("PndSensorNamePar");
+
+	fClusterFinder = new PndMvdSimplePixelClusterFinder(fDigiPar, fTotDigiPar);
+	fGeoH = new PndGeoHandling(fSensorNamePar);
+
 }
 
 // -----   Manula I/O folders/branches   ----------------------------------------------------
