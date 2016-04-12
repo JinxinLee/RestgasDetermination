@@ -59,6 +59,7 @@ public:
   //PndGeoHandling(TGeoManager* aGeoMan);
   PndGeoHandling(TString mcFile, TString parFile);
   PndGeoHandling(Int_t runID, TString parFile);
+  PndGeoHandling(PndSensorNamePar* SensorNamePar);
   
   virtual ~PndGeoHandling(){};
   
@@ -191,8 +192,8 @@ protected:
   std::vector<TString> fLevelNames;
   Int_t fLevel;
   bool fFullPath;
-  Int_t fVerbose;
   Int_t fRunId;
+  Int_t fVerbose;
   ClassDef(PndGeoHandling,3);
 };
 

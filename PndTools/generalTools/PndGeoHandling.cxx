@@ -61,6 +61,14 @@ PndGeoHandling::PndGeoHandling():fVerbose(0),fGeoMan(0),fSensorNamePar(0),fRtdb(
 
 }
 
+
+PndGeoHandling::PndGeoHandling(PndSensorNamePar* SensorNamePar):fVerbose(0), fGeoMan(gGeoManager), fSensorNamePar(SensorNamePar), fFullPath(true), fRunId(0), fLevelNames()
+{
+	if (fInstance) return;
+	fInstance = this;
+
+}
+
 void PndGeoHandling::SetParContainers()
 {
   FairRun* run = FairRun::Instance();

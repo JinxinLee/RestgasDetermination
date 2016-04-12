@@ -82,6 +82,18 @@ class PndSensorNamePar : public FairParGenericSet
     PndSensorNamePar(const  PndSensorNamePar& L);
     PndSensorNamePar& operator= (const  PndSensorNamePar& L);
 
+    friend std::ostream &operator<<( std::ostream &output, const PndSensorNamePar &par){
+    	 output << "SensorNames:" << std::endl;
+    	 output << "Entries: " << par.fSensorNames->GetEntries() << std::endl;
+
+		for (std::map<Int_t, TString>::const_iterator iter = par.fMapOfSensorIndizes.begin(); iter != par.fMapOfSensorIndizes.end(); iter++){
+			output << iter->first << ": " << iter->second.Data() << std::endl;
+		}
+		return output;
+    }
+
+
+
   private:
     TObjArray* fSensorNames;
     std::map<TString, Int_t> fMapOfSensorNames; //!
