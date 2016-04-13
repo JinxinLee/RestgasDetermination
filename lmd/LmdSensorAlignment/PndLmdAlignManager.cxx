@@ -327,6 +327,7 @@ void PndLmdAlignManager::alignMT() {
 
 			Matrix result = it->second.getResultMatrix();
 			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
+
 			if(!writeMatrix(result, matrixFilename)){
 				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
 			}
@@ -425,19 +426,6 @@ void PndLmdAlignManager::writeDebugInfoOnAllSensors() {
 			matrixfilename << _matrixOutDir << "/m"<<id1<<"to"<<id2<<".mat";
 			writeMatrix(result, matrixfilename.str());
 
-			/*
-			cout << "============================\n";
-			cout << "========  this is it  ======\n";
-			cout << "============================\n";
-			cout << transformMatrixFromPixelsToCm(result) << endl;
-			cout << "============================\n";
-			cout << real << endl;
-			cout << "======= =====================\n";
-			cout << "=======  difference  =======\n";
-			cout << dif << endl;
-			cout << "=======  difference  =======\n";
-			 */
-
 			int overlapID, nPairs;
 			double sinAlphaAbs, sinAlphaRel, xAbs, xRel, yAbs, yRel;
 
@@ -478,9 +466,7 @@ void PndLmdAlignManager::writeDebugInfoOnAllSensors() {
 	of.close();
 }
 
-/*
- * these parameters depend on sensor geometry. Use with caution!
- */
+//these parameters depend on sensor geometry. Use with caution!
 Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
 
 	/*
@@ -489,8 +475,9 @@ Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
 	 */
 
 	//very important, because I still don't know how pixel number corresponds to active area
-	double pixelsX = 247.5;
-	double pixelsY = 242.5;
+	double pixelsX = 247.5;			//guard ring removes part of active area
+	double pixelsY = 242.5;			//guard ring removes part of active area
+	double pixelSize = 80e-4;		//in cm!
 
 	//center of pixel correction matrices
 	Matrix matrixPixelEdgeToCenter;
@@ -498,10 +485,12 @@ Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
 	Matrix matrixScaleActiveToSensor;
 	Matrix newPixelsToSensorInCm, newSensorInCmToPixels;
 
+	//measure pixels in their center, not their corner
 	matrixPixelEdgeToCenter = Matrix::eye(4);
 	matrixPixelEdgeToCenter.val[0][3] += 0.5;
 	matrixPixelEdgeToCenter.val[1][3] += 0.5;
 
+	//move from sensor edge (pixel [0,0] to center of sensor)
 	//KEEP IN MIND! This matrix also takes inactive area into account!!
 	matrixActiveEdgeToCenter = Matrix::eye(4);
 	matrixActiveEdgeToCenter.val[0][3] -= pixelsX/2;
@@ -509,8 +498,8 @@ Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
 
 	//scaling must be applied after translations
 	matrixScaleActiveToSensor = Matrix::eye(4);
-	matrixScaleActiveToSensor.val[0][0]=80e-4;
-	matrixScaleActiveToSensor.val[1][1]=80e-4;
+	matrixScaleActiveToSensor.val[0][0]=pixelSize;
+	matrixScaleActiveToSensor.val[1][1]=pixelSize;
 
 	newPixelsToSensorInCm = matrixScaleActiveToSensor * matrixActiveEdgeToCenter * matrixPixelEdgeToCenter;
 	newSensorInCmToPixels = Matrix(newPixelsToSensorInCm);
@@ -1188,6 +1177,135 @@ std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo,
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
 	return makeMatrixFileName(overlapId, incentimeters);
+}
+
+Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
+
+	bool success = false;
+
+	if(id1 > id2) swap(id1,id2);
+
+	//what module are we on? are id1 and id2 on same module?
+
+	int fhalf, fplane, fmodule, fside, fdie, fsensor;
+	int bhalf, bplane, bmodule, bside, bdie, bsensor;
+
+	dimension->Get_sensor_by_id(id1, fhalf, fplane, fmodule, fside, fdie, fsensor);
+	dimension->Get_sensor_by_id(id2, bhalf, bplane, bmodule, bside, bdie, bsensor);
+
+	if(fhalf != bhalf){
+		cout << "error! id1 and id2 are not on same half!\n";
+		success = false;
+	}
+	if(fplane != bplane){
+		cout << "error! id1 and id2 are not on same plane!\n";
+		success = false;
+	}
+	if(fmodule != bmodule){
+		cout << "error! id1 and id2 are not on same module!\n";
+		success = false;
+	}
+
+	Matrix result;
+
+	//check if either sensor is 0 on that module
+	if(!(fside==0 && fdie == 0 && fsensor ==0)){
+		cout << "can only do matrices from 0 to i for now. sorry!\n";
+		success=false;
+	}
+
+	//at this point, id0 should end in 0, so we can just add numbers
+	//FIXME: obviously, this is shuddy and needs fixing
+	else{
+
+		success=true;
+
+		//last time, just for safety
+		if( (id1 % 10) != 0 ){
+			cout << "error: id1 is not first sensor on module, something went wrong!\n";
+		}
+
+		//assign matrices, this is shuddy atm.
+		string m05f = _matrixOutDir + makeMatrixFileName(id1+0, id1+5, _inCentimeters);
+		string m18f = _matrixOutDir + makeMatrixFileName(id1+1, id1+8, _inCentimeters);
+		string m28f = _matrixOutDir + makeMatrixFileName(id1+2, id1+8, _inCentimeters);
+		string m29f = _matrixOutDir + makeMatrixFileName(id1+2, id1+9, _inCentimeters);
+		string m36f = _matrixOutDir + makeMatrixFileName(id1+3, id1+6, _inCentimeters);
+		string m37f = _matrixOutDir + makeMatrixFileName(id1+3, id1+7, _inCentimeters);
+		string m38f = _matrixOutDir + makeMatrixFileName(id1+3, id1+8, _inCentimeters);
+		string m47f = _matrixOutDir + makeMatrixFileName(id1+4, id1+7, _inCentimeters);
+		string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
+
+		//god gave us this matrix:
+		Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, false);
+
+		//cout << "m01: \n" << m01 << "\n";
+
+		Matrix m05 = readMatrix(m05f);
+		Matrix m18 = readMatrix(m18f);
+		Matrix m28 = readMatrix(m28f);
+		Matrix m29 = readMatrix(m29f);
+		Matrix m36 = readMatrix(m36f);
+		Matrix m37 = readMatrix(m37f);
+		Matrix m38 = readMatrix(m38f);
+		Matrix m47 = readMatrix(m47f);
+		Matrix m49 = readMatrix(m49f);
+
+		Matrix m50 = m05.inv(m05);
+		Matrix m81 = m18.inv(m18);
+		Matrix m82 = m28.inv(m28);
+		Matrix m92 = m29.inv(m29);
+		Matrix m63 = m36.inv(m36);
+		Matrix m73 = m37.inv(m37);
+		Matrix m83 = m38.inv(m38);
+		Matrix m74 = m47.inv(m47);
+		Matrix m94 = m49.inv(m49);
+
+
+
+		Matrix m56 = m50*m01*m18*m83*m36;		//TODO: check if this is correct!
+		//Matrix m56s = getMatrixOfficialGeometry(5,6, false);
+		//cout << "drum roll:\n " << m56-m56s << "\n end of drum roll \n"; //seems to work
+
+		//finally, if cascade:
+		switch(id2){
+		case 2:
+			result = m01*m18*m82;
+			break;
+		case 3:
+			result = m01*m18*m83;
+			break;
+		case 4:
+			result = m01*m18*m82*m29*m94;		//TODO: case 4 can have two differnt paths, check both!
+			break;
+		case 5:
+			result = m05;
+			break;
+		case 6:
+			result = m05*m56;
+			break;
+		case 7:
+			result = m05*m56*m63*m37;
+			break;
+		case 8:
+			result = m05*m56*m63*m38;
+			break;
+		case 9:
+			result = m05*m56*m63*m38*m82*m29;	//TODO: case 9 can have two differnt paths, check both!
+			break;
+		default:
+			result = Matrix::eye(4);
+			success = false;
+		}
+	}
+
+	//return successfully combined matrix
+	if(success){
+		return result;
+	}
+	//else return unity matrix
+	cerr << "warning! could not return matrix " << id1 << " to " << id2 << "! returning identity matrix!\n";
+	return Matrix::eye(4);
 }
 
 void PndLmdAlignManager::xOption(int option) {

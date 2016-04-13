@@ -60,6 +60,8 @@ private:
 	void incrementMTLB();
 	void checkIOpaths();
 
+	Matrix combineMatrix(int id1, int id2);
+
 	//generate the file name of a matrix or pair file, so changes must only be made once
 	static std::string makeBinaryPairFileName(int overlapId=0, bool incentimeters=true, bool correctionMatrix=false);
 	static std::string makeBinaryPairFileName(int sensorOne=0, int sensorTwo=0, bool incentimeters=true, bool correctionMatrix=false);

@@ -42,7 +42,7 @@ PndLmdAlignQA::PndLmdAlignQA(){
 }
 
 PndLmdAlignQA::~PndLmdAlignQA() {
-	// TODO Auto-generated destructor stub
+
 }
 
 void PndLmdAlignQA::init() {
@@ -99,11 +99,6 @@ void PndLmdAlignQA::compareMatrices(){
 		DeltaAlpha.Fill(data[iArea][2] * 1e6);
 		DeltaX.Fill(data[iArea][3] * 1e4);
 		DeltaY.Fill(data[iArea][4] * 1e4);
-
-		//TODO: delete
-		//if(data[iArea][3]*1e4 < 1e2){
-		//	cout << "data is: " << data[iArea][3]*1e4 << " on area " << data[iArea][0] << " to " << data[iArea][1] << "\n";
-		//}
 	}
 
 	stringstream pathname;
@@ -147,6 +142,8 @@ void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vecto
 
 Matrix PndLmdAlignQA::getMatrixResiduals(int id1, int id2) {
 
+	//TODO: works only with ICP matrices, not arbitrary matrices (like combined matrices). but those are interesting too!
+
 	//get matrix file name from PndLmdAlignManager
 	string matrixName = _matrixDir + PndLmdAlignManager::makeMatrixFileName(id1, id2, _inCentimeters);
 
@@ -156,21 +153,19 @@ Matrix PndLmdAlignQA::getMatrixResiduals(int id1, int id2) {
 
 		/*
 		 * remember, all pairs were in lmd local, transform matrix from PndLmdDim
-		 * (which came in panda gloabal) to lmd local, since ICP matrix will be in
+		 * (which came in panda global) to lmd local, since ICP matrix will be in
 		 * lmd local
 		 */
 
 		manager.transformGlobalToLmd(corrSensorToSensor);
-		//residual matrix
-		Matrix result = icpMatrix - corrSensorToSensor;
-		return result;
+		return icpMatrix - corrSensorToSensor;	//return matrix residuals
 	}
 
 	// in pixels
 	else{
 		Matrix real = manager.getMatrixOfficialGeometry(id1, id2,false);
 		Matrix icpMatrix = manager.readMatrix(matrixName);
-		return icpMatrix - real;
+		return icpMatrix - real;				//return matrix residuals
 	}
 
 	//default action, if all else fails.
@@ -255,4 +250,63 @@ bool PndLmdAlignQA::checkForMatrixFiles(){
 	}
 	// if no file could not be found, everything is okay
 	return true;
+}
+
+void PndLmdAlignQA::compareCombinedMatrices() {
+
+	cout << "quick and dirty!\n";
+	bool geometryAligned = false;
+
+	manager.setMatrixOutDir(_matrixDir);
+	manager.setInCentimeters(false);
+
+	cout << "================= m02\n";
+
+	Matrix m02t = manager.getMatrixOfficialGeometry(0,2,geometryAligned);
+	cout << "target: \n" << m02t << "\n";
+	Matrix m02i = manager.combineMatrix(0,2);
+	cout << "icp: \n" << m02i << "\n";
+	cout << "diff: \n" << (m02t - m02i) << "\n";
+	cout << "================= m03\n";
+
+	Matrix m03t = manager.getMatrixOfficialGeometry(0,3,geometryAligned);
+	Matrix m03i = manager.combineMatrix(0,3);
+	cout << (m03t - m03i) << "\n";
+
+	cout << "================= m04\n";
+
+	Matrix m04t = manager.getMatrixOfficialGeometry(0,4,geometryAligned);
+	Matrix m04i = manager.combineMatrix(0,4);
+	cout << (m04t - m04i) << "\n";
+
+	cout << "================= m05\n";
+
+	Matrix m05t = manager.getMatrixOfficialGeometry(0,5,geometryAligned);
+	Matrix m05i = manager.combineMatrix(0,5);
+	cout << (m05t - m05i) << "\n";
+
+	cout << "================= m06\n";
+
+	Matrix m06t = manager.getMatrixOfficialGeometry(0,6,geometryAligned);
+	Matrix m06i = manager.combineMatrix(0,6);
+	cout << (m06t - m06i) << "\n";
+
+	cout << "================= m07\n";
+
+	Matrix m07t = manager.getMatrixOfficialGeometry(0,7,geometryAligned);
+	Matrix m07i = manager.combineMatrix(0,7);
+	cout << (m07t - m07i) << "\n";
+
+	cout << "================= m08\n";
+
+	Matrix m08t = manager.getMatrixOfficialGeometry(0,8,geometryAligned);
+	Matrix m08i = manager.combineMatrix(0,8);
+	cout << (m08t - m08i) << "\n";
+
+	cout << "================= m09\n";
+
+	Matrix m09t = manager.getMatrixOfficialGeometry(0,9,geometryAligned);
+	Matrix m09i = manager.combineMatrix(0,9);
+	cout << (m09t - m09i) << "\n";
+
 }
