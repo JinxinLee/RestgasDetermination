@@ -11,21 +11,35 @@
 #include "PndMvdMQFileSampler.h"
 
 // ////////////////////////////////////////////////////////////////////////
+namespace po = boost::program_options;
+
+using channelBranches = std::vector<std::pair<std::string, std::string> >;
+
+namespace std {
+	static inline std::istream& operator>>(std::istream& is, std::pair<std::string, std::string>& into)
+	{
+		char ch;
+		while (is >> ch && ch!='=') into.first += ch;
+		return is >> into.second;
+	}
+}
+
+
 
 int main(int argc, char** argv)
 {
     try
     {
         std::vector<std::string> filename;
-        std::string branchname;
+        channelBranches branchnames;
 	int64_t     maxindex;
 
-        namespace po = boost::program_options;
+
         po::options_description sampler_options("Sampler options");
         sampler_options.add_options()
 	  ("file-name",   po::value<std::vector<std::string>>(&filename)                     , "Path to the input file")
 	  ("max-index",   po::value<int64_t>                 (&maxindex)  ->default_value(-1), "number of events to read")
-	  ("branch-name", po::value<std::string>             (&branchname)                   , "branch name");
+	  ("branch-name", po::value<channelBranches>(&branchnames) ->multitoken()                  , "branch name");
 	
 	
         FairMQProgOptions config;
@@ -42,11 +56,14 @@ int main(int argc, char** argv)
 
 	sampler.SetMaxIndex(maxindex);
 
-	sampler.AddInputBranchName(branchname);
+	for(int i = 0; i < branchnames.size(); i++){
+		LOG(INFO) << "BranchNames: " << branchnames[i].first << "/" << branchnames[i].second;
+		sampler.AddInputChannelBranchName(branchnames[i]);
+	}
 
-	sampler.AddInputBranchName("EventHeader.");
+//	sampler.AddInputBranchName("EventHeader.");
 
-        runStateMachine(sampler, config);
+    runStateMachine(sampler, config);
 
 
     }

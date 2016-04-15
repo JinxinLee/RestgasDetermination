@@ -36,8 +36,11 @@ class PndMvdMQFileSampler : public FairMQDevice
     PndMvdMQFileSampler();
     virtual ~PndMvdMQFileSampler();
 
-    void AddInputFileName  (std::string tempString) { fFileNames  .push_back(tempString); }
-    void AddInputBranchName(std::string tempString) { fBranchNames.push_back(tempString); }
+    void AddInputFileName  (std::string tempString) { fFileNames  .push_back(tempString);}
+    void AddInputChannelBranchName(std::pair<std::string, std::string> tempString) {
+    	fBranchNames.push_back(tempString);
+    	fPorts.insert(tempString.first);
+    }
     
     void SetMaxIndex(int64_t tempInt) {fMaxIndex=tempInt;}
 
@@ -48,10 +51,11 @@ class PndMvdMQFileSampler : public FairMQDevice
  private: 
     FairRunAna*     fRunAna;
     FairFileSource* fSource;
-    TObject*        fInputObjects[100];
+    std::multimap<std::string, TObject*>        fInputObjects;  //< multimap of port and object
+    std::set<std::string> fPorts;
     int             fNObjects;
     int64_t         fMaxIndex;
-    std::vector<std::string>     fBranchNames;
+    std::vector<std::pair<std::string, std::string> >    fBranchNames;
     std::vector<std::string>     fFileNames;
 };
 

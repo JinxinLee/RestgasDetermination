@@ -3,7 +3,7 @@
 MAXINDEX="--max-index -1"
 TRANSPORT="--transport zeromq"
 VERBOSE="--verbose INFO"
-FAIRTASKNAME="--task-name PndMvdPixelClusterTask"
+FAIRTASKNAME="--task-name PndMvdStripClusterTask"
 
 while [[ $# > 1 ]]
 do
@@ -40,12 +40,21 @@ ASCIIPARAM="@MVDMQ_FILE_LOCATION@/macro/params/all.par"
 if [ "$FAIRTASKNAME" == "--task-name PndMvdPixelClusterTask" ] ; then
     # input file and branch for the sampler device
     INPUTFILE="@MVDMQ_FILE_LOCATION@/macro/run/digi_complete.root"
-    INPUTBRANCH="data-out1=EventHeader. data-out1=MVDPixelDigis"
+    INPUTBRANCH="MVDPixelDigis"
     
     # output file for sink
     OUTPUTFILE="@MVDMQ_FILE_LOCATION@/macro/run/pixelRecoMQ.root"
     OUTPUTCLASS="--class-name TClonesArray(PndSdsHit) --class-name TClonesArray(PndSdsClusterPixel)"
     OUTPUTBRANCH="--branch-name MVDHitsPixel --branch-name MVDPixelCluster"
+elif [ "$FAIRTASKNAME" == "--task-name PndMvdStripClusterTask" ] ; then
+    # input file and branch for the sampler device
+    INPUTFILE="@MVDMQ_FILE_LOCATION@/macro/run/digi_complete.root"
+    INPUTBRANCH="MVDStripDigis"
+    
+    # output file for sink
+    OUTPUTFILE="@MVDMQ_FILE_LOCATION@/macro/run/stripRecoMQ.root"
+    OUTPUTCLASS="--class-name TClonesArray(PndSdsHit) --class-name TClonesArray(PndSdsClusterStrip)"
+    OUTPUTBRANCH="--branch-name MVDHitsStrip --branch-name MVDStripCluster"
 #elif [ "$FAIRTASKNAME" == "--task-name PixelFindTracks" ] ; then
 #    # input file and branch for the sampler device
 #    INPUTFILE="@EXAMPLE9_FILE_LOCATION@/examples/MQ/9-PixelDetector/macros/MQ.pixel_TGeant3.hit.root"

@@ -14,6 +14,7 @@ set(MVDMQ_BIN_LOCATION  ${CMAKE_BINARY_DIR}/bin)
 set(EXAMPLE9_BIN_LOCATION ${FAIRROOTPATH}/bin)
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdClusterTask.sh)
+configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdStripClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdStripClusterTask.sh)
 
 set(INCLUDE_DIRECTORIES
     ${BASE_INCLUDE_DIRECTORIES}

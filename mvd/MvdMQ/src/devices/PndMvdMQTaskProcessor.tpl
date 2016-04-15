@@ -96,9 +96,9 @@ void PndMvdMQTaskProcessor<T>::Run()
 				PndMQMessage2 tm(parts.At(ipart)->GetData(),
 						parts.At(ipart)->GetSize());
 				tempObjects[ipart] = (TObject*) tm.ReadObject(tm.GetClass());
+				LOG(INFO) << ipart << " : " << tempObjects[ipart]->GetName();
 				if (strcmp(tempObjects[ipart]->GetName(), "EventHeader.") == 0){
 					fEventHeader = (FairEventHeader*) tempObjects[ipart];
-
 				}
 				fInput->Add(tempObjects[ipart]);
 			}

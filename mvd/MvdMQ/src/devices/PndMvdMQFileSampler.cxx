@@ -47,10 +47,13 @@ void PndMvdMQFileSampler::InitTask()
   fSource->Init();
   LOG(INFO) << "Going to request " << fBranchNames.size() << "  branches:";
   for ( unsigned int ibrn = 0 ; ibrn < fBranchNames.size() ; ibrn++ ) {
-    LOG(INFO) << " requesting branch \"" << fBranchNames[ibrn] << "\"";
-    int branchStat = fSource->ActivateObject((TObject**)&fInputObjects[fNObjects],fBranchNames[ibrn].c_str()); // should check the status...
-    if ( fInputObjects[fNObjects] ) {
-      LOG(INFO) << "Activated object \"" << fInputObjects[fNObjects] << "\" with name \"" << fBranchNames[ibrn] << "\" (" << branchStat << ")";
+    LOG(INFO) << " requesting branch \"" << fBranchNames[ibrn].second << "\"";
+    TObject* temp = 0;
+    int branchStat = fSource->ActivateObject((TObject**)&temp,fBranchNames[ibrn].second.c_str()); // should check the status...
+    LOG(INFO) << "BranchStat: " << branchStat;
+    if ( temp ) {
+    	fInputObjects.insert(std::pair<std::string, TObject*>(fBranchNames[ibrn].first, temp));
+      LOG(INFO) << "Activated object \"" << temp << "\" with name \"" << fBranchNames[ibrn].second << " for channel " << fBranchNames[ibrn].first <<"/ (" << branchStat << ")";
       fNObjects++;
     }
   }
@@ -65,34 +68,40 @@ void free_tmessage2(void* /*data*/, void *hint)
     delete (TMessage*)hint;
 }
 
-void PndMvdMQFileSampler::Run()
-{
-  int eventCounter = 0;
+void PndMvdMQFileSampler::Run() {
+	int eventCounter = 0;
 
-  // Check if we are still in the RUNNING state.
-  while (CheckCurrentState(RUNNING))
-    {
-      if ( eventCounter == fMaxIndex ) break;
+	// Check if we are still in the RUNNING state.
+	while (CheckCurrentState(RUNNING)) {
+		if (eventCounter == fMaxIndex)
+			break;
 
-      Int_t readEventReturn = fSource->ReadEvent(eventCounter);
+		Int_t readEventReturn = fSource->ReadEvent(eventCounter);
 
-      if ( readEventReturn != 0 ) break;
+		if (readEventReturn != 0)
+			break;
 
-      TMessage* message[1000];
-      FairMQParts parts;
-      
-      for ( int iobj = 0 ; iobj < fNObjects ; iobj++ ) {
-	message[iobj] = new TMessage(kMESS_OBJECT);
-	message[iobj]->WriteObject(fInputObjects[iobj]);
-	parts.AddPart(NewMessage(message[iobj]->Buffer(), message[iobj]->BufferSize(), free_tmessage2, message[iobj]));
-      }
-      
-      Send(parts, "data-out");
-      
-      eventCounter++;
-    }
-  
-  LOG(INFO) << "Going out of RUNNING state.";
+		int messageIter = 0;
+		for (std::set<std::string>::iterator portIt = fPorts.begin(); portIt != fPorts.end(); portIt++){
+			FairMQParts parts;
+			TMessage* message[1000];
+			for (std::multimap<std::string, TObject*>::iterator dataIt = fInputObjects.lower_bound(*portIt); dataIt != fInputObjects.upper_bound(*portIt); ++dataIt){
+				TNamed* data = (TNamed*)(dataIt->second);
+				data->SetName(dataIt->first.c_str());
+				LOG(INFO) << *portIt << " : " << dataIt->second->GetName();
+				message[messageIter] = new TMessage(kMESS_OBJECT);
+				message[messageIter]->WriteObject(dataIt->second);
+				parts.AddPart(NewMessage(message[messageIter]->Buffer(), message[messageIter]->BufferSize(), free_tmessage2, message[messageIter]));
+				messageIter++;
+			}
+			LOG(INFO) << "Send!";
+			Send(parts, *portIt);
+		}
+
+		eventCounter++;
+	}
+
+	LOG(INFO) << "Going out of RUNNING state.";
 }
 
 PndMvdMQFileSampler::~PndMvdMQFileSampler()
