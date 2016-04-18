@@ -309,8 +309,7 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
 
     // std::cout<< momid<<" "<<thetaid <<"  "<< c_spr[2][momid][thetaid] <<" "<<c_spr[3][momid][thetaid] <<std::endl;
     
-    if(i==2) fFunc[i]->SetParameter(2,c_spr[2][momid][thetaid]);
-    if(i==3) fFunc[i]->SetParameter(2,c_spr[3][momid][thetaid]);
+    if(c_spr[i][momid][thetaid]>0.003 && c_spr[i][momid][thetaid] < 0.1) fFunc[i]->SetParameter(2,c_spr[i][momid][thetaid]);
   }
 
   for(Int_t h=0; h<fPDHitArray->GetEntriesFast(); h++) {
@@ -464,9 +463,8 @@ void PndDrcReco::LookUpTable(Int_t barId, Int_t sensorId){
 
       Int_t momid=fMom*10+0.5;
       Int_t thetaid=fTheta+0.5;
-      if(fPidTrue==211) tangle += c_mean[2][momid][thetaid];
-      if(fPidTrue==321) tangle += c_mean[3][momid][thetaid];
-      //tangle += 0.5*(c_mean[2][momid][thetaid]+c_mean[2][momid][thetaid]);
+      tangle += c_mean[pid][momid][thetaid];
+      //tangle += 0.5*(c_mean[2][momid][thetaid]+c_mean[3][momid][thetaid]);
       
       // if(tangle<fAngle[3]-0.04 || tangle>fAngle[2]+0.04) continue;
       if(tangle < 0.4 || tangle > 0.9) continue; 
