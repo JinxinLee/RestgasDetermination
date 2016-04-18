@@ -26,6 +26,8 @@
 #include "TH2.h"
 #include "TF1.h"
 #include "TSpectrum.h"
+#include "TKey.h"
+#include "TRandom.h"
 
 #include "PndDrcTrackInfo.h"
 #include "PndDrcPhotonInfo.h"
@@ -37,7 +39,7 @@ class PndDrcReco : public FairTask {
 public:
 
   PndDrcReco();
-  PndDrcReco(TString outFile, TString lutFile, TString pdfFile, Int_t verbose=0);
+  PndDrcReco(TString outFile, TString lutFile, TString pdfFile, Int_t verbose=0, Double_t r1=0, Double_t r2=0);
 
   virtual ~PndDrcReco(){};
 
@@ -58,6 +60,8 @@ private:
   
   Double_t FindPeak();
   Int_t FindPdg(Double_t mom, Double_t cangle);
+  void CanvasAdd(TString name="c",Int_t w=800, Int_t h=400);
+  void CanvasSave(TString path="data/reco");
   PndGeoDrc* fGeo;
   Double_t fBboxNum,fPipehAngle,fDphi,fBarPhi;
 
@@ -96,7 +100,7 @@ private:
   TF1 *fFit;
   TSpectrum *fSpect;
 
-  Int_t fMethod;
+  Int_t fMethod, fParticleArray[3000];
   TVector3 fMomInBar;
   TVector3 fPosInBar;
   Double_t fTimeInBar;
@@ -107,19 +111,24 @@ private:
   Double_t fPdg[5];
   Double_t fMass[5];
   Double_t fAngle[5];
-  TF1 * fFunc[5];
+  TF1 *fFunc[5], *fFnph[5],*fhNphArr[5][40][150];
   Double_t fLk1[5];
   Double_t fLk2[5];
-  Double_t fDiffLn1;
-  Double_t fDiffLn2;
-  TH1F *fHlk1[5], *fHlk2[5],*fHtang[5];
+  Double_t fDiffLn1, fDiffLn2;
+  TH1F *fhLk1[5], *fhLk2[5],*fhTang[5], *fhTime[5],*fhDiff[5],*fhNph[5];
   
   Double_t fMom, fTheta, fPhi, fSpr[5], fNph[5], fCangle[5], fLikelihood[2], fSeparation[2];
+  Double_t fEfficiency[5], fMissId[5];
   Int_t fMcTrackId, fPidTrue, fPidDist, fPidLike[2];
+  Int_t fEvents[5], fEventsEff[5],fEventsMis[5],fHits[5], fHitsE[5];
+  TVector3 fNx, fNy;
+  Double_t fR1,fR2;
+  TRandom fRandom;
   
-  TVector3 fNx;
-  TVector3 fNy;
+  TList *fCanvasList;
 
+  Double_t c_spr[5][50][150], c_mean[5][50][150];
+  
   ClassDef(PndDrcReco,1)
 
 };
