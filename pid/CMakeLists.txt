@@ -127,6 +127,6 @@ set(LINKDEF PidLinkDef.h)
 set(LIBRARY_NAME Pid)
 
 set(DEPENDENCIES Base GeoBase ParBase RecoTasks generalTools Mva Emc
-Ftof Fts Geane PndData Stt TrkBase Rho)
+Ftof Fts Geane PndData Stt Rich TrkBase Rho)
 
 GENERATE_LIBRARY()
