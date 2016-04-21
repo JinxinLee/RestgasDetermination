@@ -33,6 +33,7 @@ PndRichHitProducer::PndRichHitProducer() :
   FairTask("Rich Hit Producer") { 
   fPosResolution = -1.;
   fGeoVersion = 13;
+  fPhDetNoise = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -55,6 +56,12 @@ InitStatus PndRichHitProducer::Init() {
   fGeo->init(fGeoVersion);
   cout << "-I- PndRichHitProducer::Init: "
        << "fGeoVersion = " << fGeoVersion << endl;
+    
+  cout << "-I- PndRichHitProducer::Init: ";
+   if (fPhDetNoise)
+       cout << "Photodetector noise is switched on! " << endl;
+   else
+       cout << "Photodetector noise is switched off! " << endl;
     
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -149,10 +156,12 @@ void PndRichHitProducer::Exec(Option_t* opt) {
        Double_t eff = eff1+(eff2-eff1)*(wl-wl1)/(wl2-wl1);
        if ( gRandom->Uniform(0.,100.)<eff*0.526316 ) {
           point->Position(pos);
-          std::vector<Double_t> tn = PhDetNoise();
           Double_t t = point->GetTime(); //ns
-          for (Int_t i=0; i<tn.size(); i++)
-             if (t-tn.at(i)<720&&t>tn.at(i)) t = tn.at(i);
+          if (fPhDetNoise) { // add noise
+             std::vector<Double_t> tn = PhDetNoise();
+             for (Int_t i=0; i<tn.size(); i++)
+                if (t-tn.at(i)<720&&t>tn.at(i)) t = tn.at(i);
+          }
           TVector3 posl = fGeo->PhDetPositionLocal(pos);
           TVector3 posd = fGeo->PhDetPositionGlobal( fGeo->PositionDiscretization( posl ) );
           AddPDHit(point->GetDetectorID(), posd, sig, iPoint, gRandom->Gaus(t,0.05) );
@@ -163,15 +172,17 @@ void PndRichHitProducer::Exec(Option_t* opt) {
        }
     }
   } // Loop over MCPoints
-   for (Int_t ix=0; ix<iXmax; ix++)
-      for (Int_t iy=0; iy<iYmax; iy++)
-         if (!map[ix][iy]) {
-            std::vector<Double_t> tn = PhDetNoise();
-            if (tn.size()&&tn.back()>0) {
-               pos = fGeo->PixelPositionGlobal(ix,iy);
-               AddPDHit(0, pos, sig, 0, gRandom->Gaus(tn.back(),0.05) );
+   if (fPhDetNoise) {
+      for (Int_t ix=0; ix<iXmax; ix++)
+         for (Int_t iy=0; iy<iYmax; iy++)
+            if (!map[ix][iy]) {
+               std::vector<Double_t> tn = PhDetNoise();
+               if (tn.size()&&tn.back()>0) {
+                  pos = fGeo->PixelPositionGlobal(ix,iy);
+                  AddPDHit(0, pos, sig, 0, gRandom->Gaus(tn.back(),0.05) );
+               }
             }
-         }
+   }
   
   fHitArray->Clear();
   
