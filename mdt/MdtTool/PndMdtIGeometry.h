@@ -132,15 +132,18 @@ class PndMdtIGeometry : public TNamed
     Bool_t fGoodGeometry;
     TString fStateTip;
 
+  public:
     struct InfoType
     {
       TVector3 Position;
       Double_t Length;
       TGeoMatrix* Matrix;
     };
+  private:
     std::map<Int_t, InfoType> fGeoMap;
     std::map<Int_t, TGeoMatrix*> fMatrixMap;
 
+  public:
     struct  LayerBoundary 
     {
       Double_t minX;
@@ -150,6 +153,7 @@ class PndMdtIGeometry : public TNamed
       Double_t maxY;
       Double_t maxZ;
     };
+  private:
     std::map<Int_t, LayerBoundary> fLayerInfoMap;
     typedef std::map<Int_t, LayerBoundary>::iterator  LayerInfoMapIter;
     typedef std::pair<Int_t, LayerBoundary> LayerInfoMapValue; 

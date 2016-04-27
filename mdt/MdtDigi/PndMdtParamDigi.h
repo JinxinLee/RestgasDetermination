@@ -200,11 +200,13 @@ class PndMdtParamDigi : public TNamed
     TH1F* hLan;
     Int_t fVerbose;
     //
+    public:
     struct AvaBinType{
       AvaBinType(Int_t _i=0, Double_t _v=0.) : Index(_i), Probabilty(_v){}
       Int_t Index;
       Double_t Probabilty;
     };//index, density
+    private:
     std::vector<AvaBinType> fProbFunc1D;
     std::vector<AvaBinType> fProbFunc2D;
 
