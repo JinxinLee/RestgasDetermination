@@ -62,19 +62,19 @@ void PndLmdHitPair::PrintPair() const {
 void PndLmdHitPair::check() {
 
 	bool colSane=false, rowSane=false, idsane=false, allVarsSet=false, distanceOk=false;
-	if(isinf(_col1) || isinf(_col2) || isnan(_col1) || isnan (_col2)){
+	if(std::isinf(_col1) || std::isinf(_col2) || std::isnan(_col1) || std::isnan (_col2)){
 		colSane=false;
 	}
 	else{
 		colSane=true;
 	}
-	if(isinf(_row1) || isinf(_row2) || isnan(_row1) || isnan (_row2)){
+	if(std::isinf(_row1) || std::isinf(_row2) || std::isnan(_row1) || std::isnan (_row2)){
 		rowSane=false;
 	}
 	else{
 		rowSane=true;
 	}
-	if(isinf(_id1) || isinf(_id2) || isnan(_id1) || isnan (_id2)){
+	if(std::isinf(_id1) || std::isinf(_id2) || std::isnan(_id1) || std::isnan (_id2)){
 		idsane=false;
 	}
 	else{
