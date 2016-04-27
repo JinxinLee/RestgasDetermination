@@ -89,7 +89,7 @@ void PndMvdMQTaskProcessor::Run()
       
       if ( Receive(parts,"data-in") >= 0 )
         {
-	  LOG(DEBUG)<<"message received";
+	  LOG(INFO)<<"message received";
 	  receivedMsgs++;
 	  
 	  TObject* tempObjects[10];

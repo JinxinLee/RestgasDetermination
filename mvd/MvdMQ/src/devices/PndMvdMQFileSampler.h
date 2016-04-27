@@ -52,6 +52,8 @@ class PndMvdMQFileSampler : public FairMQDevice
     FairRunAna*     fRunAna;
     FairFileSource* fSource;
     std::multimap<std::string, TObject*>        fInputObjects;  //< multimap of port and object
+    std::map<std::string, TObject*>				fInputBranches;
+    TObject* fEventHeaderPointer;
     std::set<std::string> fPorts;
     int             fNObjects;
     int64_t         fMaxIndex;

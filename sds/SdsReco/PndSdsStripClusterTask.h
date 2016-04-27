@@ -52,6 +52,11 @@ class PndSdsStripClusterTask : public PndSdsTask
     virtual InitStatus Init();
     virtual InitStatus ReInit();
     
+    virtual void InitMQ(TList* tempList);
+    virtual void GetParList(TList* tempList){};
+    virtual void ExecMQ(TList* inputList,TList* outputList);
+    virtual void SetParContainersMQ(TList* tempList){};
+
     virtual void SetInBranchId(){
  		FairRootManager *ioman = FairRootManager::Instance();
  		fInBranchId = ioman->GetBranchId(fInBranchName);
@@ -102,10 +107,12 @@ class PndSdsStripClusterTask : public PndSdsTask
     Int_t fRadChannel;
     Int_t fRadTime;
     Double_t fSingleStripChargeThreshold;
+    FairEventHeader* fEventHeader;
     
     //! Digitization Parameters 
     TList* 	fDigiParameterList;
-    PndSdsStripDigiPar* fCurrentDigiPar; 
+    PndSdsStripDigiPar* fCurrentDigiPar;
+    PndSensorNamePar* fSensorNamePar;
     TList* fChargeDigiParameterList;
     //! Calculator objects 
     std::map<const char*,PndSdsCalcStrip*> fStripCalcTop; //!

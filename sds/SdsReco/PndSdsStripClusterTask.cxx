@@ -10,6 +10,7 @@
 #include "TGeoMatrix.h"
 #include "TCanvas.h"
 #include "TMatrixD.h"
+#include "TCollection.h"
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -154,6 +155,42 @@ void PndSdsStripClusterTask::SetParContainers()
 	return;
 }
 
+void PndSdsStripClusterTask::InitMQ(TList* tempList)
+{
+	SetBranchNames();
+	fHitArray = new TClonesArray("PndSdsHit",10000);
+	fHitArray->SetName("MVDHitsStrip");
+	fClusterArray = new TClonesArray("PndSdsClusterStrip", 10000);
+	fClusterArray->SetName("MVDStripCluster");
+
+	fSensorNamePar = (PndSensorNamePar*)tempList->FindObject("PndSensorNamePar");
+	fGeoH = new PndGeoHandling(fSensorNamePar);
+	fGeoH->FillSensorMap();
+
+	SetParContainersMQ(tempList);
+	SetCalculators();
+}
+
+void PndSdsStripClusterTask::ExecMQ(TList* inputList,TList* outputList)
+{
+//	LOG(INFO) << "PndSdsStripClusterTask::ExecMQ inBranchName " << fInBranchName.Data() << FairLogger::endl;
+//	LOG(INFO) << "InputList: " << inputList->GetEntries() << FairLogger::endl;
+//	TIter next(inputList);
+//	while(TObject* obj = next()){
+//		LOG(INFO) << obj->GetName() << FairLogger::endl;
+//	}
+	fDigiArray = (TClonesArray*) inputList->FindObject("PndSdsDigiStrips");
+	fEventHeader = (FairEventHeader*) inputList->FindObject("EventHeader.");
+	LOG(INFO) << "DigiArray: " << fDigiArray << FairLogger::endl;
+	LOG(INFO) << "DigiArray: " << fDigiArray->GetEntriesFast() << FairLogger::endl;
+
+
+	outputList->Add(fClusterArray);
+	outputList->Add(fHitArray);
+	Exec("");
+	return;
+}
+
 //
 InitStatus PndSdsStripClusterTask::ReInit()
 {  
@@ -249,24 +286,24 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
     std::cout<<" **Starting PndSdsStripClusterTask::Exec()**"<<std::endl;
   std::vector<PndSdsDigiStrip> digiStripArray;
   // Reset output array
-  fClusterArray = FairRootManager::Instance()->GetTClonesArray(fClustBranchName);
+//  fClusterArray = FairRootManager::Instance()->GetTClonesArray(fClustBranchName);
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
   fClusterArray->Delete();
 
-  fHitArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
+//  fHitArray = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();
 
   // Get input array
 
-	if (FairRunAna::Instance()->IsTimeStamp()){
+	if (FairRunAna::Instance() != 0 && FairRunAna::Instance()->IsTimeStamp()){
 	  fDigiArray->Clear();
 	  fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fFunctor, (1./40.0) * 1000.); //FairRootManager::Instance()->GetEventTime() +
 	  if(fVerbose > 1)
 		  std::cout << "-I- PndSdsStripClusterTask::Exec Digis: " << fDigiArray->GetEntries() << std::endl;
 	}
-	else
-	  fDigiArray = (TClonesArray*)FairRootManager::Instance()->GetObject(fInBranchName);
+//	else
+//	  fDigiArray = (TClonesArray*)FairRootManager::Instance()->GetObject(fInBranchName);
 
 //	std::cout << "Requested Time: " << FairRootManager::Instance()->GetEventTime() + 10 << std::endl;
 //	for (int i = 0; i < fDigiArray->GetEntries(); i++){
@@ -297,7 +334,9 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   std::vector< Int_t > leftDigis;
   Int_t mcindex, clindex, botIndex, topIndex;
   //Int_t detID = FairRootManager::Instance()->GetBranchId(fInBranchName); //unused??
-  Int_t clDetID = FairRootManager::Instance()->GetBranchId(fClustBranchName);
+  Int_t clDetID = -1;
+  if (FairRootManager::Instance() != 0)
+	  clDetID = FairRootManager::Instance()->GetBranchId(fClustBranchName);
   Double_t mycharge;
   TVector2 meantopPoint, meanbotPoint, onsensorPoint;
   TVector3 hitPos,hitErr;
@@ -335,7 +374,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
       clindex = fClusterArray->GetEntriesFast();
       PndSdsClusterStrip* myCluster = new((*fClusterArray)[clindex]) PndSdsClusterStrip(*(*clit));
 
-      if (FairRunAna::Instance()->IsTimeStamp()){
+      if (FairRunAna::Instance() != 0 && FairRunAna::Instance()->IsTimeStamp()){
 		  myCluster->ResetLinks();
 		  for(UInt_t i = 0; i < (UInt_t)myCluster->GetClusterSize(); i++){
 			  PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
@@ -464,8 +503,10 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           tmphit = new((*fHitArray)[i]) PndSdsHit(clDetID,sensorIDtop,hitPos,hitErr,
                                                   topIndex,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
           tmphit->SetBotIndex(botIndex);
-          tmphit->SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), fClusterType, topIndex));
-          tmphit->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), fClusterType, botIndex));
+          if (FairRootManager::Instance() != 0){
+			  tmphit->SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), fClusterType, topIndex));
+			  tmphit->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), fClusterType, botIndex));
+          }
           tmphit->SetCov(hitCov);
           tmphit->SetTimeStamp(timestamp);
           tmphit->SetTimeStampError(timestampError);

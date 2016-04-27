@@ -21,6 +21,7 @@
 
 #include "FairMQMessage.h"
 #include "TMessage.h"
+#include "FairEventHeader.h"
 
 using namespace std;
 
@@ -48,12 +49,11 @@ void PndMvdMQFileSampler::InitTask()
   LOG(INFO) << "Going to request " << fBranchNames.size() << "  branches:";
   for ( unsigned int ibrn = 0 ; ibrn < fBranchNames.size() ; ibrn++ ) {
     LOG(INFO) << " requesting branch \"" << fBranchNames[ibrn].second << "\"";
-    TObject* temp = 0;
-    int branchStat = fSource->ActivateObject((TObject**)&temp,fBranchNames[ibrn].second.c_str()); // should check the status...
+    int branchStat = fSource->ActivateObject((TObject**)&fInputBranches[fBranchNames[ibrn].second],fBranchNames[ibrn].second.c_str()); // should check the status...
     LOG(INFO) << "BranchStat: " << branchStat;
-    if ( temp ) {
-    	fInputObjects.insert(std::pair<std::string, TObject*>(fBranchNames[ibrn].first, temp));
-      LOG(INFO) << "Activated object \"" << temp << "\" with name \"" << fBranchNames[ibrn].second << " for channel " << fBranchNames[ibrn].first <<"/ (" << branchStat << ")";
+    if ( fInputBranches[fBranchNames[ibrn].second] ) {
+      fInputObjects.insert(std::pair<std::string, TObject*>(fBranchNames[ibrn].first, fInputBranches[fBranchNames[ibrn].second]));
+      LOG(INFO) << "Activated object \"" << fInputBranches[fBranchNames[ibrn].second] << "\" with name \"" << fBranchNames[ibrn].second << " for channel " << fBranchNames[ibrn].first <<"/ (" << branchStat << ")";
       fNObjects++;
     }
   }
@@ -87,8 +87,9 @@ void PndMvdMQFileSampler::Run() {
 			TMessage* message[1000];
 			for (std::multimap<std::string, TObject*>::iterator dataIt = fInputObjects.lower_bound(*portIt); dataIt != fInputObjects.upper_bound(*portIt); ++dataIt){
 				TNamed* data = (TNamed*)(dataIt->second);
-				data->SetName(dataIt->first.c_str());
-				LOG(INFO) << *portIt << " : " << dataIt->second->GetName();
+				LOG(INFO) << *portIt << " : " << dataIt->second << " " << dataIt->second->ClassName() << " " << dataIt->second->GetName();
+				if ( strcmp(dataIt->second->ClassName(),"FairEventHeader") == 0 )
+					LOG(INFO) << "RunNumber: " << ((FairEventHeader*)dataIt->second)->GetRunId();
 				message[messageIter] = new TMessage(kMESS_OBJECT);
 				message[messageIter]->WriteObject(dataIt->second);
 				parts.AddPart(NewMessage(message[messageIter]->Buffer(), message[messageIter]->BufferSize(), free_tmessage2, message[messageIter]));

@@ -24,6 +24,35 @@ PndMvdStripClusterTask::~PndMvdStripClusterTask()
 {
 }
 
+void PndMvdStripClusterTask::GetParList(TList* tempList)
+{
+	PndSdsStripDigiPar* digipar = new PndSdsStripDigiPar("MVDStripDigiParRect");
+	tempList->Add(digipar);
+
+	digipar = new PndSdsStripDigiPar("MVDStripDigiParTrap");
+	tempList->Add(digipar);
+
+	PndSdsTotDigiPar* totpar = new PndSdsTotDigiPar("MVDStripTotDigiParRect");
+	tempList->Add(totpar);
+
+	totpar = new PndSdsTotDigiPar("MVDStripTotDigiParTrap");
+	tempList->Add(totpar);
+
+	fSensorNamePar = new PndSensorNamePar("PndSensorNamePar");
+	tempList->Add(fSensorNamePar);
+}
+
+
+void PndMvdStripClusterTask::SetParContainersMQ(TList* tempList)
+{
+	fDigiParameterList->Add((PndSdsStripDigiPar*)tempList->FindObject("MVDStripDigiParTrap"));
+	fDigiParameterList->Add((PndSdsStripDigiPar*)tempList->FindObject("MVDStripDigiParRect"));
+
+	fChargeDigiParameterList->Add((PndSdsTotDigiPar*)tempList->FindObject("MVDStripTotDigiParTrap"));
+	fChargeDigiParameterList->Add((PndSdsTotDigiPar*)tempList->FindObject("MVDStripTotDigiParRect"));
+
+}
+
 // -----   Manual I/O folders/branches   ----------------------------------------------------
 void PndMvdStripClusterTask::SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName)
 {
@@ -36,7 +65,7 @@ void PndMvdStripClusterTask::SetBranchNames(TString inBranchname, TString outHit
 // -----   Default I/O folder/branches   ----------------------------------------------------
 void PndMvdStripClusterTask::SetBranchNames()
 {
-	if (FairRunAna::Instance()->IsTimeStamp())
+	if (FairRunAna::Instance() != 0 && FairRunAna::Instance()->IsTimeStamp())
 		fInBranchName = "MVDSortedStripDigis";
 	else
 		fInBranchName = "MVDStripDigis";

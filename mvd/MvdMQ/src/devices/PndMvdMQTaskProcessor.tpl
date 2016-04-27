@@ -97,13 +97,15 @@ void PndMvdMQTaskProcessor<T>::Run()
 						parts.At(ipart)->GetSize());
 				tempObjects[ipart] = (TObject*) tm.ReadObject(tm.GetClass());
 				LOG(INFO) << ipart << " : " << tempObjects[ipart]->GetName();
-				if (strcmp(tempObjects[ipart]->GetName(), "EventHeader.") == 0){
+				if (strcmp(tempObjects[ipart]->ClassName(), "FairEventHeader") == 0){
 					fEventHeader = (FairEventHeader*) tempObjects[ipart];
+					fEventHeader->SetName("EventHeader.");
 				}
 				fInput->Add(tempObjects[ipart]);
 			}
 
 			fNewRunId = fEventHeader->GetRunId();
+			LOG(INFO) << "RunNumber: " << fNewRunId;
 			if (fNewRunId != fCurrentRunId) {
 				fCurrentRunId = fNewRunId;
 				UpdateParameters();

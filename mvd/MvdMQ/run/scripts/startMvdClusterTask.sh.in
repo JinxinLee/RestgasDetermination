@@ -40,7 +40,7 @@ ASCIIPARAM="@MVDMQ_FILE_LOCATION@/macro/params/all.par"
 if [ "$FAIRTASKNAME" == "--task-name PndMvdPixelClusterTask" ] ; then
     # input file and branch for the sampler device
     INPUTFILE="@MVDMQ_FILE_LOCATION@/macro/run/digi_complete.root"
-    INPUTBRANCH="data-out1=EventHeader. data-out1=MVDPixelDigis"
+    INPUTBRANCH="data-out1=EventHeader. data-out1=MVDPixelDigis data-out2=EventHeader. data-out2=MVDStripDigis"
     
     # output file for sink
     OUTPUTFILE="@MVDMQ_FILE_LOCATION@/macro/run/pixelRecoMQ.root"
