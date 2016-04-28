@@ -243,9 +243,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
   DigiPixelArray = ConvertAndFilter(fDigiArray);
 
   // Retrieve the calculated clusters with the chosen clusterfinder
-  LOG(INFO) << "DigiPixelArray: " << DigiPixelArray.size() << " fClusterFinder: " << fClusterFinder << FairLogger::endl;
   std::vector< std::vector< Int_t> > clusters = fClusterFinder->GetClusters(DigiPixelArray);
-  LOG(INFO) << "Clusters: " << clusters.size() << FairLogger::endl;
 //  if(fVerbose>1)
 //	  std::cout << " -I-  PndSdsPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
 
