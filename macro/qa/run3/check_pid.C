@@ -58,7 +58,7 @@ bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target.root", double
 	}
 	
 	if (fTest){
-		cout << " Test passed" << endl;
+		cout << " Macro finished successfully" << endl;
 		cout << " All ok " << endl;  
 	}else{
 		cout << " Test Failed" << endl;

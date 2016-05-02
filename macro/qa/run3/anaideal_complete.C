@@ -65,8 +65,8 @@ void anaideal_complete(int nevts=0)
 	TString OutFile="output_ideal.root";  
 					
 	// *** the files coming from the simulation
-	TString inPidFile  = "pidideal_complete.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile  = "simparams.root";
+	TString inPidFile  = "psi2s_jpsi2pi_jpsi_mumu_pidideal.root";    // this file contains the PndPidCandidates and McTruth
+	TString inParFile  = "psi2s_jpsi2pi_jpsi_mumu_par.root";
 	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
