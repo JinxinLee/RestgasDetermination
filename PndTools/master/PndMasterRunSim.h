@@ -128,6 +128,11 @@ class PndMasterRunSim : public FairRunSim
    * c) "ftf" if you want to use ftf
    */  
   void SetInput(TString par)          { fInput          = par;}
+
+  /**
+   * @brief Input directory of the simulation
+   */  
+  void SetInputDir(TString par)          { fInputDir          = par;}
   
   /**
    * @brief  Setter of the parameter root file 
@@ -152,6 +157,7 @@ class PndMasterRunSim : public FairRunSim
  private:
 
   TString fInput;            ///< Name of the input for the simulation
+  TString fInputDir;         ///< Name of the input directory for the simulation
   TString fOutFile;          ///< Name of the output file
   TString fParamRootFile;    ///< Name of the parameter root file
   TString fParamAsciiFile;   ///< Name of the parameter ascii file

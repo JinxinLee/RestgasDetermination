@@ -41,7 +41,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunSim::PndMasterRunSim() :
-  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fRtdb(), fTimer(), fInput(), fOutFile(), fDpmFlag(1), fNEvents(0), fEventCounterRate(100)
+  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fRtdb(), fTimer(), fInput(), fInputDir(""), fOutFile(), fDpmFlag(1), fNEvents(0), fEventCounterRate(100)
 {
   fTimer.Start();
   gRandom->SetSeed();
@@ -245,7 +245,7 @@ void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
 {
   // Looping over the dec file trying to find the first string "Decay", in order to find the initai
   // state as the following string
-  FILE *dec = fopen(fEvtGenFile,"r");
+  FILE *dec = fopen(fInputDir+fEvtGenFile,"r");
   if (dec==NULL) LOG(FATAL) << "The EvtGen dec file does not exist!! " << fEvtGenFile << FairLogger::endl;
   
   char temp[6], particle[20];
@@ -264,8 +264,8 @@ void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
   
     //   TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
   //   EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  LOG(INFO) << "Using PndEvtGenDirect(" << particle << ", " << fEvtGenFile.Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
-  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(particle, fEvtGenFile.Data(), GetBeamMom());
+  LOG(INFO) << "Using PndEvtGenDirect(" << particle << ", " << (fInputDir+fEvtGenFile).Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(particle, (fInputDir+fEvtGenFile).Data(), GetBeamMom());
   EvtGen->SetStoreTree(kTRUE);
   fGen->AddGenerator(EvtGen);
 }
