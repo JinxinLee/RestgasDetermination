@@ -13,6 +13,8 @@
 #ifndef PNDMASTERRUNSIM_H
 #define PNDMASTERRUNSIM_H
 
+#include "PndBoxGenerator.h"
+#include "FairBoxGenerator.h"
 #include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 
@@ -64,9 +66,29 @@ class PndMasterRunSim : public FairRunSim
    * @details # Master event generator
    * This call set the event generator according to the input name. If the input name
    * contains "dpm" it uses dpm, if it contains "ftf" then ftf, if ".dec" it runs evtgen
-   * using the input name as namefile of the .dec file. 
+   * using the input name as namefile of the .dec file. If the input name contains
+   * "box" the macro breaks, since in that case the SetGenerator(PndBoxGenerator *boxGen)
+   * function must be used.
    */
   void SetGenerator();
+
+  /** 
+   * @brief Set the event generator for FairBoxGenerator
+   * @details # Master event generator for FairBoxGenerator
+   * This call set the FairBoxGenerator as event generator. The user should create a
+   * FairBoxGenerator object with all the settings, and pass it as argument to the
+   * function. 
+   */
+  void SetGenerator(FairBoxGenerator *boxGen);
+
+  /** 
+   * @brief Set the event generator for PndBoxGenerator
+   * @details # Master event generator for PndBoxGenerator
+   * This call set the PndBoxGenerator as event generator. The user should create a
+   * PndBoxGenerator object with all the settings, and pass it as argument to the
+   * function. 
+   */
+  void SetGenerator(PndBoxGenerator *boxGen);
 
    /** 
    * @brief Set the DPM flag

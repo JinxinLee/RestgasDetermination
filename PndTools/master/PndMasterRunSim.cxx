@@ -187,30 +187,46 @@ void PndMasterRunSim::SetGenerator()
   
   TString input = fInput;
   input.ToLower();
-  if ( (input.Contains("dpm") + input.Contains("ftf") + input.Contains(".dec")) !=1 )
+  
+  if (input.Contains("dpm"))
     {
-      LOG(FATAL)<< "I am not able to understand the event generator from the provided input!!" <<  FairLogger::endl;
+      UseDpmGenerator();
     }
-  else
+  else if (input.Contains("ftf"))
     {
-      if (input.Contains("dpm"))
-	{
-	  UseDpmGenerator();
-	}
-      if (input.Contains("ftf"))
-	{
-	  UseFtfGenerator();
-	}
-      if (input.Contains(".dec")) 
-	{
-	  UseEvtGenGenerator(fInput);
-	}
+      UseFtfGenerator();
     }
+  else if (input.Contains(".dec")) 
+    {
+      UseEvtGenGenerator(fInput);
+    }
+  else 
+    {
+      LOG(FATAL)<< "For box generator you must use the SetGenerator(PndBoxGenerator*) function!!" <<  FairLogger::endl;
+    }
+  
+}
+
+// -----   SetGenerator   --------------------------------------------------
+void PndMasterRunSim::SetGenerator(PndBoxGenerator *boxGen)
+{
+  LOG(INFO) << "Using PndBoxGenerator generator" << FairLogger::endl;
+  fGen = new FairPrimaryGenerator();
+  fGen->AddGenerator(boxGen);
+}
+
+// -----   SetGenerator   --------------------------------------------------
+void PndMasterRunSim::SetGenerator(FairBoxGenerator *boxGen)
+{
+  LOG(INFO) << "Using FairBoxGenerator generator" << FairLogger::endl;
+  fGen = new FairPrimaryGenerator();
+  fGen->AddGenerator(boxGen);
 }
 
 // -----   UseDpmGenerator   -----------------------------------------------
 void PndMasterRunSim::UseDpmGenerator()
 {
+  LOG(INFO) << "Using PndDpmDirect(" << GetBeamMom() << ", " << fDpmFlag << ") generator" << FairLogger::endl;
   PndDpmDirect *Dpm= new PndDpmDirect(GetBeamMom(), fDpmFlag);
   fGen->AddGenerator(Dpm);
 }
@@ -219,6 +235,7 @@ void PndMasterRunSim::UseDpmGenerator()
 void PndMasterRunSim::UseFtfGenerator()
 {
   if ( strncmp(fName,"TGeant4",7 ) == 0 ) LOG(FATAL) << "FTF does not run with Geant4 !!!"  << FairLogger::endl;
+  LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() << ") generator" << FairLogger::endl;
   PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed());
   fGen->AddGenerator(Ftf);
 }
@@ -247,6 +264,7 @@ void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
   
     //   TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
   //   EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
+  LOG(INFO) << "Using PndEvtGenDirect(" << particle << ", " << fEvtGenFile.Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
   PndEvtGenDirect *EvtGen = new PndEvtGenDirect(particle, fEvtGenFile.Data(), GetBeamMom());
   EvtGen->SetStoreTree(kTRUE);
   fGen->AddGenerator(EvtGen);
