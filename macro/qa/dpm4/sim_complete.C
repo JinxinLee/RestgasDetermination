@@ -8,8 +8,8 @@
 sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant4", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
-  TString  OutputFile     ="sim_complete.root";
-  TString  ParOutputfile  ="simparams.root";
+  TString  OutputFile     ="dpm_qa_sim.root";
+  TString  ParOutputfile  ="dpm_qa_par.root";
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 
@@ -188,7 +188,7 @@ sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant4", Float_t mom = 6.
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
-  cout << " Test passed" << endl;
+  cout << " Macro finished successfully" << endl;
   cout << " All ok " << endl;
   
   //exit(0);

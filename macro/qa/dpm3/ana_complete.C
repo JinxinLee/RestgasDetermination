@@ -65,8 +65,8 @@ void ana_complete(int nevts=0)
 	TString OutFile="output.root";  
 					
 	// *** the files coming from the simulation
-	TString inPidFile  = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile  = "simparams.root";
+	TString inPidFile  = "dpm_qa_pid.root";    // this file contains the PndPidCandidates and McTruth
+	TString inParFile  = "dpm_qa_par.root";
 	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
@@ -337,10 +337,10 @@ void ana_complete(int nevts=0)
 		// ***
 		
 		// *** and again with PidAlgoMvd;PidAlgoStt;PidAlgoDrc and loose selection
-		theAnalysis->FillList(muplus,  "MuonLoosePlus",  "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
-		theAnalysis->FillList(muminus, "MuonLooseMinus", "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
-		theAnalysis->FillList(piplus,  "PionLoosePlus",  "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
-		theAnalysis->FillList(piminus, "PionLooseMinus", "PidAlgoMvd;PidAlgoStt;PidAlgoDrc");
+		theAnalysis->FillList(muplus,  "MuonLoosePlus",  "PidAlgoMvd;PidAlgoStt;PidAlgoDrc;PidAlgoDisc;PidAlgoMdtHardCuts");
+		theAnalysis->FillList(muminus, "MuonLooseMinus", "PidAlgoMvd;PidAlgoStt;PidAlgoDrc;PidAlgoDisc;PidAlgoMdtHardCuts");
+		theAnalysis->FillList(piplus,  "PionLoosePlus",  "PidAlgoMvd;PidAlgoStt;PidAlgoDrc;PidAlgoDisc");
+		theAnalysis->FillList(piminus, "PionLooseMinus", "PidAlgoMvd;PidAlgoStt;PidAlgoDrc;PidAlgoDisc");
 		
 		jpsi.Combine(muplus, muminus);
 		for (j=0;j<jpsi.GetLength();++j) hjpsim_lpid->Fill( jpsi[j]->M() );
