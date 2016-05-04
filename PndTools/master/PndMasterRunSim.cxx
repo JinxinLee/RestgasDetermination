@@ -44,7 +44,6 @@ PndMasterRunSim::PndMasterRunSim() :
   FairRunSim(), fParamRootFile(), fParamAsciiFile(), fRtdb(), fTimer(), fInput(), fInputDir(""), fOutFile(), fDpmFlag(1), fNEvents(0), fEventCounterRate(100)
 {
   fTimer.Start();
-  gRandom->SetSeed();
 }
 
 // -----   Setup   ---------------------------------------------------------
