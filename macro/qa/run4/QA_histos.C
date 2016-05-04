@@ -9,9 +9,9 @@
 
 void QA_histos() {
 
-  TFile fileqa("recoqa_complete.root");
+  TFile fileqa("psi2s_jpsi2pi_jpsi_mumu_recoqa.root");
   TTree *cbmsim = (TTree*) fileqa.Get("cbmsim");
-  cbmsim->AddFriend("cbmsim", "sim_complete.root");
+  cbmsim->AddFriend("cbmsim", "psi2s_jpsi2pi_jpsi_mumu_sim.root");
 
   TCut cut = "";
 
@@ -289,6 +289,6 @@ void QA_histos() {
   heffinpt->Write();
   heffinpl->Write();
 
-  cout << " Test passed" << endl;
+  cout << " Macro finished successfully" << endl;
   cout << " All ok " << endl;
 }

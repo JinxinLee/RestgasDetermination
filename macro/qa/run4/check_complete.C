@@ -58,7 +58,7 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root",
 	}
 	
 	if (fTest){
-		cout << " Test passed" << endl;
+		cout << " Macro finished successfully" << endl;
 		cout << " All ok " << endl;  
 	}else{
 		cout << " Test Failed" << endl;

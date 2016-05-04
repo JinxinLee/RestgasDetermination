@@ -2,7 +2,7 @@ void plot_pid()
 {
   gStyle->SetHistMinimumZero();
     
-  TFile *file_in = TFile::Open("pid_complete.root","READ");
+  TFile *file_in = TFile::Open("psi2s_jpsi2pi_jpsi_mumu_pid.root","READ");
   TFile *file_out = TFile::Open("pid_plot.root","RECREATE");
   TTree *cbmsim = (TTree*)file_in->Get("cbmsim");
   
@@ -251,7 +251,7 @@ void plot_pid()
   hFMuoMomentumIn->Write();
   hFMuoHits->Write();
   
-  cout << " Test passed" << endl;
+  cout << " Macro finished successfully" << endl;
   cout << " All ok " << endl;  
   exit(kTRUE);
 }
