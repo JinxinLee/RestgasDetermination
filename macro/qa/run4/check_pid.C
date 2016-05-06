@@ -11,6 +11,7 @@ using std::endl;
 
 bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target.root", double minP = 0.03, int minev = 3, int maxfail=3)
 {
+        TStopwatch fTimer;
 	bool fTest=kFALSE;
         TString templateFile = gSystem->Getenv("VMCWORKDIR");
         templateFile += "/macro/run/";
@@ -56,7 +57,30 @@ bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target.root", double
 		
 		if (failcount<maxfail) fTest = kTRUE;
 	}
-	
+
+	// Extract the maximal used memory an add is as Dart measurement
+	// This line is filtered by CTest and the value send to CDash
+	FairSystemInfo sysInfo;
+	Float_t maxMemory=sysInfo.GetMaxMemory();
+	cout << "<DartMeasurement name=\"MaxMemory\" type=\"numeric/double\">";
+	cout << maxMemory;
+	cout << "</DartMeasurement>" << endl;
+  
+	fTimer.Stop();
+	Double_t rtime = fTimer.RealTime();
+	Double_t ctime = fTimer.CpuTime();
+  
+	Float_t cpuUsage=ctime/rtime;
+	cout << "<DartMeasurement name=\"CpuLoad\" type=\"numeric/double\">";
+	cout << cpuUsage;
+	cout << "</DartMeasurement>" << endl;
+  
+	cout << endl;
+	cout << "Real time " << rtime << " s, CPU time " << ctime
+		  << "s" << endl;
+	cout << "CPU usage " << cpuUsage*100. << "%" << endl;
+	cout << "Max Memory " << maxMemory << " MB" << endl;
+   
 	if (fTest){
 		cout << " Macro finished successfully" << endl;
 		cout << " All ok " << endl;  

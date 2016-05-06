@@ -56,7 +56,7 @@ void countDoubles(RhoCandList &l, int &n1, int &n2, int &n3)
 void anaideal_complete(int nevts=0)
 {
         TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",1.9,kFALSE,0.1,0,"",88888);
-        TStopwatch timer;
+        TStopwatch fTimer;
 	// *** some variables
 	int i=0,j=0, k=0, l=0;
 	gStyle->SetOptFit(1011);
@@ -408,16 +408,31 @@ void anaideal_complete(int nevts=0)
 		
 	out->Save();
         
-        timer.Stop();
-        Double_t rtime = timer.RealTime();
-        Double_t ctime = timer.CpuTime();
-        cout << endl << endl;
-        cout << "Macro finished successfully." << endl;
-        cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
-        cout << endl;
-        // ------------------------------------------------------------------------
-        cout << " Test passed" << endl;
-        cout << " All ok " << endl;
+      	// Extract the maximal used memory an add is as Dart measurement
+	// This line is filtered by CTest and the value send to CDash
+	FairSystemInfo sysInfo;
+	Float_t maxMemory=sysInfo.GetMaxMemory();
+	cout << "<DartMeasurement name=\"MaxMemory\" type=\"numeric/double\">";
+	cout << maxMemory;
+	cout << "</DartMeasurement>" << endl;
+  
+	fTimer.Stop();
+	Double_t rtime = fTimer.RealTime();
+	Double_t ctime = fTimer.CpuTime();
+  
+	Float_t cpuUsage=ctime/rtime;
+	cout << "<DartMeasurement name=\"CpuLoad\" type=\"numeric/double\">";
+	cout << cpuUsage;
+	cout << "</DartMeasurement>" << endl;
+  
+	cout << endl;
+	cout << "Real time " << rtime << " s, CPU time " << ctime
+		  << "s" << endl;
+	cout << "CPU usage " << cpuUsage*100. << "%" << endl;
+	cout << "Max Memory " << maxMemory << " MB" << endl;
+   
+	cout << "Macro finished successfully." << endl;
+
         exit(0);
 	
 }

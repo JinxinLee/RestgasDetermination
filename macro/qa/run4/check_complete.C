@@ -11,6 +11,7 @@ using std::endl;
 
 bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root", double minP = 0.03, int minev = 3, int maxfail=3)
 {
+        TStopwatch fTimer;
 	bool fTest=kFALSE;
         TString templateFile = gSystem->Getenv("VMCWORKDIR");
         templateFile += "/macro/run/";
@@ -56,14 +57,39 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root",
 		
 		if (failcount<maxfail) fTest = kTRUE;
 	}
+
+	// Extract the maximal used memory an add is as Dart measurement
+	// This line is filtered by CTest and the value send to CDash
+	FairSystemInfo sysInfo;
+	Float_t maxMemory=sysInfo.GetMaxMemory();
+	cout << "<DartMeasurement name=\"MaxMemory\" type=\"numeric/double\">";
+	cout << maxMemory;
+	cout << "</DartMeasurement>" << endl;
+	fTimer.Stop();
+	Double_t rtime = fTimer.RealTime();
+	Double_t ctime = fTimer.CpuTime();
 	
-	if (fTest){
-		cout << " Macro finished successfully" << endl;
-		cout << " All ok " << endl;  
-	}else{
-		cout << " Test Failed" << endl;
-		cout << " Not Ok " << endl;         
-	}
-    
-    exit(fTest);
+	Float_t cpuUsage=ctime/rtime;
+	cout << "<DartMeasurement name=\"CpuLoad\" type=\"numeric/double\">";
+	cout << cpuUsage;
+	cout << "</DartMeasurement>" << endl;
+	
+	cout << endl;
+	cout << "Real time " << rtime << " s, CPU time " << ctime
+	     << "s" << endl;
+	cout << "CPU usage " << cpuUsage*100. << "%" << endl;
+	cout << "Max Memory " << maxMemory << " MB" << endl;
+	
+	if (fTest)
+	  {
+	    cout << " Macro finished successfully" << endl;
+	    cout << " All ok " << endl;  
+	  }
+	else
+	  {
+	    cout << " Test Failed" << endl;
+	    cout << " Not Ok " << endl;         
+	  }
+	
+	exit(fTest);
 }

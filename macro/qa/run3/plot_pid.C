@@ -1,7 +1,8 @@
 void plot_pid()
 {
+  
   gStyle->SetHistMinimumZero();
-    
+  TStopwatch fTimer;
   TFile *file_in = TFile::Open("psi2s_jpsi2pi_jpsi_mumu_pid.root","READ");
   TFile *file_out = TFile::Open("pid_plot.root","RECREATE");
   TTree *cbmsim = (TTree*)file_in->Get("cbmsim");
@@ -250,8 +251,31 @@ void plot_pid()
   hFMuoIron->Write();
   hFMuoMomentumIn->Write();
   hFMuoHits->Write();
+
+  // Extract the maximal used memory an add is as Dart measurement
+  // This line is filtered by CTest and the value send to CDash
+  FairSystemInfo sysInfo;
+  Float_t maxMemory=sysInfo.GetMaxMemory();
+  cout << "<DartMeasurement name=\"MaxMemory\" type=\"numeric/double\">";
+  cout << maxMemory;
+  cout << "</DartMeasurement>" << endl;
   
-  cout << " Macro finished successfully" << endl;
-  cout << " All ok " << endl;  
+  fTimer.Stop();
+  Double_t rtime = fTimer.RealTime();
+  Double_t ctime = fTimer.CpuTime();
+  
+  Float_t cpuUsage=ctime/rtime;
+  cout << "<DartMeasurement name=\"CpuLoad\" type=\"numeric/double\">";
+  cout << cpuUsage;
+  cout << "</DartMeasurement>" << endl;
+  
+  cout << endl;
+  cout << "Real time " << rtime << " s, CPU time " << ctime
+       << "s" << endl;
+  cout << "CPU usage " << cpuUsage*100. << "%" << endl;
+  cout << "Max Memory " << maxMemory << " MB" << endl;
+   
+  cout << "Macro finished successfully." << endl; 
+ 
   exit(kTRUE);
 }
