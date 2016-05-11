@@ -2,9 +2,9 @@
 
 void create3StationsGem()
 {
-  // Gem disk geometry parameters (R.karabowicz) 
+  // Gem disk geometry parameters (R.Karabowicz) 
   //----------------------------------------------------------------------------------------------------------------------------------------------
-  // Done Some Changes By Nazila Divani-Veis ( since  May 2015 ) 
+  // Done Some Changes By Nazila Divani-Veis ( since  May 2015 ... ) 
   //----------------------------------------------------------------------------------------------------------------------------------------------
   // Try to get close to the CAD Geometry ( After could not use CadConverter ) //Some parameters from DL.
   //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,8 +19,8 @@ void create3StationsGem()
  
 
     const Int_t     kDiskNFoils     [kNofDisks]    = {  2  ,  2  ,  4  };   // For modifying misalignment
-    const Double_t  kMiddleROBarHfTh[kNofDisks]    = {  2.70,  2.70,  2.70 };
-    const Double_t  kHalfStationThickness = 7.4;
+    const Double_t  kMiddleROBarHfTh[kNofDisks]    = {  2.35,  2.35,  2.35 }; // half thickness of space in the middle of foils [cm]
+    const Double_t  kHalfStationThickness = 6.00;
 
     const Double_t carbonRingInnerRadius[kNofDisks]    = { 40.0, 51.0, 69.0 };
     const Double_t carbonRingOuterRadius[kNofDisks]    = { 40.2, 51.2, 69.2 };
@@ -130,7 +130,7 @@ void create3StationsGem()
 							       39.90,  50.90,  68.90,
 							       38.45,  49.45,  67.45,      39.40,  50.40,  68.40,     38.45, 49.45, 67.45,
 							       39.40,  50.40,  68.40,
-							       39.40,  50.40,  68.40,
+							       38.45,  49.45,  67.45,
 							       39.05,  50.40,  68.40,
 							       38.10,  49.45,  67.45,      39.05,  50.40,  68.40,     38.10,  49.45, 67.45,
 							       39.05,  50.40,  68.40,
@@ -148,7 +148,7 @@ void create3StationsGem()
 							       39.05,  50.40,  68.40,
 							       38.10,  49.45,  67.45,      39.05,  50.40,  68.40,    38.10,  49.45, 67.45,
 							       39.05,  50.40,  68.40,                                                        
-							       39.40,  50.40,  68.40,
+							       38.45,  49.45,  67.45,
 							       39.40,  50.40,  64.40,
 							       38.45,  49.45,  67.45,      39.40,  50.40,  68.40,    38.45,  49.45, 67.45,
 							       39.40,  50.40,  68.40,
@@ -263,7 +263,7 @@ void create3StationsGem()
    const Double_t  HYPlateWidth = 10.0;
 
    const Double_t  HTZ = 0.0;         // Translation parameters for vertical holes
-   const Double_t  HTX = 0.0,;    
+   const Double_t  HTX = 0.0;    
    const Double_t  HTY[NofHLayers][kNofDisks] = { 25.0, 45.0, 65.0,   
                                                   25.0, 45.0, 65.0,
                                                   25.0, 45.0, 65.0,
@@ -597,8 +597,8 @@ void create3StationsGem()
     cout << "doing Hlayers " << jlay << endl;
 
     HLayersShapeTube[jlay][istat] = new TGeoTube  (Form("T%dT%s",istat+1,HLayersName[jlay].Data()),HInnerRadius[jlay][istat],HOuterRadius[jlay][istat],HLayersThick[jlay]);
-    HLayersShapeHT[jlay][istat]   = new TGeoTube  (Form("H%dH%s",istat+1,HLayersName[jlay].Data()),0.0,5.00,HLayersThick[jlay]);
-    HLayersShapeHTM[jlay][istat]  = new TGeoTube  (Form("HTM%dHTM%s",istat+1,HLayersName[jlay].Data()),0.0,4.50,HLayersThick[jlay]+0.0001);
+    HLayersShapeHT[jlay][istat]   = new TGeoTube  (Form("H%dH%s",istat+1,HLayersName[jlay].Data()),0.0,4.60,HLayersThick[jlay]);
+    HLayersShapeHTM[jlay][istat]  = new TGeoTube  (Form("HTM%dHTM%s",istat+1,HLayersName[jlay].Data()),0.0,4.40,HLayersThick[jlay]+0.0002);
     HLayersShapeHTD[jlay][istat]  = new TGeoTube  (Form("HTD%dHTD%s",istat+1,HLayersName[jlay].Data()),0.0,1.90,HLayersThick[jlay]+0.0001);
 	       cout << "Tube name is " << HLayersShapeTube[jlay][istat]->GetName() << endl;
 	       //	       cout << "TubeHTM name is " << HLayersShapeHTM[jlay][istat]->GetName() << endl;
@@ -783,10 +783,10 @@ void create3StationsGem()
        << "##########################################################################################" << flush;
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // ----------------------- Riddle shell -------------------------------------------------------------------------------------------------------------------------------
-  RiddleShapeTubeA = new TGeoTube  ("TubeA" , 42.0, 45.5, 0.5 );
-  RiddleShapeTubeB = new TGeoTube  ("TubeB" , 45.5, 46.0, 10.0 );
-  RiddleShapeCone  = new TGeoCone  ("Cone"  , 20.0, 45.5, 46.0,  69.0,  69.5 );
-  RiddleShapeTubeC = new TGeoTube  ("TubeC" , 69.0, 74.5, 0.5 );
+  RiddleShapeTubeA = new TGeoTube  ("TubeA" , 44.0, 47.0, 0.5 );
+  RiddleShapeTubeB = new TGeoTube  ("TubeB" , 47.0, 47.1, 10.0 );
+  RiddleShapeCone  = new TGeoCone  ("Cone"  , 20.0, 47.0, 47.1, 71.0, 71.1 );
+  RiddleShapeTubeC = new TGeoTube  ("TubeC" , 71.0, 74.5, 0.5 );
   RiddleShapeTubeD = new TGeoTube  ("TubeD" , 74.5, 75.0, 10.1 );
   RiddleShapeTubeE = new TGeoTube  ("TubeE" , 71.5, 75.0, 0.5 );
   RiddleShapeTubeF = new TGeoTube  ("TubeF" , 0.0,  8.0,  2.0 );
@@ -804,13 +804,13 @@ void create3StationsGem()
 
      //RiddleShapecompos = new TGeoCompositeShape("riddle", "TubeA+(TubeB:trA)+(Cone:trB)+(TubeC:trC)+(TubeD:trD)+(TubeE:trE)" );
 
-     // ---------putting holes on Riddle--------------------------------------
+     // ---------putting holes on the Riddle--------------------------------------
 
       const Int_t  NofHoles = 16.0;
       const Double_t  rotDeltaAngle = 360.0/(Double_t(NofHoles));
       const Int_t NofHolesRows = 4;
 
-      Double_t holePosR[4] = {46,51,62,75}; // holes X position
+      Double_t holePosR[4] = {46,52,64,75}; // holes X position
       Double_t holePosD[4] = {90,-60,-60,90}; // holes angles
       Double_t holePosZ[4] = {10,30,50,70}; // holes Z position
 
@@ -857,45 +857,45 @@ void create3StationsGem()
 	  //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //------------------ cables top 1 --------------------------------------------------------------------------------------------------------------------------
      tAcopperbarShape = new TGeoBBox  ("tAcopperbarshape",lcopperbarx,lcopperbary,lcopperbarHalfThickness);
-     tAcopperbarVol   = new TGeoVolume("Gem_tAcopperbarVolume",tAcopperbarShape,gGeoMan->GetMedium("copper"));
-     tAcopperbarTrans = new TGeoTranslation(0.,46.2,141.);
+     tAcopperbarVol   = new TGeoVolume("GEM_tAcopperbarVolume",tAcopperbarShape,gGeoMan->GetMedium("copper"));
+     tAcopperbarTrans = new TGeoTranslation(0.,46.1,141.);
      tAcopperbarRot   = new TGeoRotation("tAcopperbarrot",0.0,-25.0,0.0);
      tAcopperbarRot ->RegisterYourself();
      tAcopperbarCombi = new TGeoCombiTrans(*tAcopperbarTrans,*tAcopperbarRot); 
-     tAcopperbarCombi->SetName("Gem_tAcopperbar_Volume");
+     tAcopperbarCombi->SetName("GEM_tAcopperbar_Volume");
      tAcopperbarCombi->RegisterYourself();
      tAcopperbarVol->SetLineColor(kOrange+1);
      SubunitVol->AddNode(tAcopperbarVol,0,tAcopperbarCombi);
  //------------------------ cables top 2 -------------------------------------------------------------------------------------------------------------------------
      tBcopperbarShape = new TGeoBBox  ("tBcopperbarshape",rcopperbarx,rcopperbary,rcopperbarHalfThickness);
-     tBcopperbarVol   = new TGeoVolume("Gem_tBcopperbarVolume",tBcopperbarShape,gGeoMan->GetMedium("copper"));
+     tBcopperbarVol   = new TGeoVolume("GEM_tBcopperbarVolume",tBcopperbarShape,gGeoMan->GetMedium("copper"));
      tBcopperbarTrans = new TGeoTranslation(0.,62.5,175.);
      tBcopperbarRot   = new TGeoRotation("tBcopperbarrot",0.0,-35.0,0.0);
      tBcopperbarRot ->RegisterYourself();
      tBcopperbarCombi = new TGeoCombiTrans(*tBcopperbarTrans,*tBcopperbarRot); 
-     tBcopperbarCombi->SetName("Gem_tBcopperbar_Volume");
+     tBcopperbarCombi->SetName("GEM_tBcopperbar_Volume");
      tBcopperbarCombi->RegisterYourself();
      tBcopperbarVol->SetLineColor(kOrange+1);
      SubunitVol->AddNode(tBcopperbarVol,0,tBcopperbarCombi);
  //------------------ cables down 1 --------------------------------------------------------------------------------------------------------------------------
      dAcopperbarShape = new TGeoBBox  ("dAcopperbarshape",lcopperbarx,lcopperbary,lcopperbarHalfThickness);
-     dAcopperbarVol   = new TGeoVolume("Gem_dAcopperbarVolume",dAcopperbarShape,gGeoMan->GetMedium("copper"));
-     dAcopperbarTrans = new TGeoTranslation(0.,-46.2,141.);
+     dAcopperbarVol   = new TGeoVolume("GEM_dAcopperbarVolume",dAcopperbarShape,gGeoMan->GetMedium("copper"));
+     dAcopperbarTrans = new TGeoTranslation(0.,-46.1,141.);
      dAcopperbarRot   = new TGeoRotation("dAcopperbarrot",0.0,25.0,0.0);
      dAcopperbarRot ->RegisterYourself();
      dAcopperbarCombi = new TGeoCombiTrans(*dAcopperbarTrans,*dAcopperbarRot); 
-     dAcopperbarCombi->SetName("Gem_dAcopperbar_Volume");
+     dAcopperbarCombi->SetName("GEM_dAcopperbar_Volume");
      dAcopperbarCombi->RegisterYourself();
      dAcopperbarVol->SetLineColor(kOrange+1);
      SubunitVol->AddNode(dAcopperbarVol,0,dAcopperbarCombi);
  //------------------------ cables down 2 -------------------------------------------------------------------------------------------------------------------------
      dBcopperbarShape = new TGeoBBox  ("dBcopperbarshape",rcopperbarx,rcopperbary,rcopperbarHalfThickness);
-     dBcopperbarVol   = new TGeoVolume("Gem_dBcopperbarVolume",dBcopperbarShape,gGeoMan->GetMedium("copper"));
+     dBcopperbarVol   = new TGeoVolume("GEM_dBcopperbarVolume",dBcopperbarShape,gGeoMan->GetMedium("copper"));
      dBcopperbarTrans = new TGeoTranslation(0.,-62.5,175.);
      dBcopperbarRot   = new TGeoRotation("dBcopperbarrot",0.0,35.0,0.0);
      dBcopperbarRot ->RegisterYourself();
      dBcopperbarCombi = new TGeoCombiTrans(*dBcopperbarTrans,*dBcopperbarRot); 
-     dBcopperbarCombi->SetName("Gem_dBcopperbar_Volume");
+     dBcopperbarCombi->SetName("GEM_dBcopperbar_Volume");
      dBcopperbarCombi->RegisterYourself();
      dBcopperbarVol->SetLineColor(kOrange+1);
      SubunitVol->AddNode(dBcopperbarVol,0,dBcopperbarCombi);
