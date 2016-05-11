@@ -1,5 +1,5 @@
-void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root", Int_t bars=5 ,Int_t pdg=13, Double_t theta=90, Double_t phi=10.825){
-
+void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root", TString geom="dirc_e3_b3_l6_m40.root", Int_t pdg=321 , Double_t mom=3.5, Double_t theta=140, Double_t phi=10.825){
+  
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -54,18 +54,17 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   //-----------------------  DRC  -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
-  Drc->SetMirrorReal(kFALSE);  
+  Drc->SetMirrorReal(kTRUE);  
   Drc->StopChargedTrackAfterDIRC(kTRUE); 
-  Drc->StopSecondaries(kFALSE); 
+  Drc->StopSecondaries(kTRUE); 
   Drc->SetTransportEffAtProduction(kTRUE);
   Drc->SetDetEffAtProduction(kTRUE);
   Drc->SetStopTime(150.);
   Drc->SetVerboseLevel(0);
-  Drc->SetOnlyDirectPho(kFALSE);
   Drc->SetBlackLensSides(kTRUE);
   Drc->SetOptionForLUT(kFALSE);
   //Drc->SetGeometryFileName("dirc_g1_l6.root");
-  Drc->SetGeometryFileName(Form("dirc_e3_b%d_l6.root",bars));
+  Drc->SetGeometryFileName(geom);
   fRun->AddModule(Drc); 
   
   //  //-------------------------  SCITIL    -----------------
@@ -125,11 +124,11 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   FairBoxGenerator* boxGen = new FairBoxGenerator(pdg, 1);// 211 = pion, 321 = kaon; 13 = muon-; 1 = multipl.
 
   // boxGen->SetPRange(0,4);
-  //  boxGen->SetPhiRange(3.84, 3.84);
+  // boxGen->SetPhiRange(3.84, 3.84);
   // boxGen->SetPhiRange(3.84, 3.84);
   // boxGen->SetThetaRange(131.53,131.53);
 
-  boxGen->SetPRange(3.5,3.5);
+  boxGen->SetPRange(mom,mom);
   boxGen->SetPhiRange(phi, phi);      // Azimuth angle range [degree]
   boxGen->SetThetaRange(theta,theta); // Polar a1ngle in lab system range [degree]
   primGen->AddGenerator(boxGen);
@@ -139,7 +138,7 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   // Create and Set Magnetic Field
   //-------------------------------
   PndMultiField *fField= new PndMultiField("FULL");
-  //fRun->SetField(fField);
+  // fRun->SetField(fField);
 
   fRun->Init();
 
@@ -162,5 +161,4 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   cout << "Output file is "    << outFile << endl;
   cout << "Parameter file is " << parFile << endl;
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-
 }
