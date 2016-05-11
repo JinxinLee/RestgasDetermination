@@ -19,8 +19,8 @@ source $VMCWORKDIR/buildPanda/config.sh
 echo $LD_LIBRARY_PATH
 echo $PATH
 
-base=/lustre/nyx/panda/carsten/fairsoft_nov15/Data/Geant4.15GeV
-path=/lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/PndTools/RadMapTool
+base=
+path=
 
 cd $base
 

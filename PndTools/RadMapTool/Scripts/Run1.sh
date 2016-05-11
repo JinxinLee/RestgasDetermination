@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Task name
 #SBATCH -J RadmapTool
 # Run time limit
@@ -12,16 +11,17 @@
 #SBATCH -e log/%j_%N.err.log
 # Execute application code
 
-
 source $VMCWORKDIR/buildPanda/config.sh
 
 
-echo $LD_LIBRARY_PATH
-echo $PATH
 
-base=/lustre/nyx/panda/carsten/fairsoft_nov15/Data/Geant4.15GeV
-path=/lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/PndTools/RadMapTool
+base=
+path=
 
-cd $base
+dir0=$(echo "($SLURM_ARRAY_TASK_ID)/100" | bc);
+dir1=$(echo "(($SLURM_ARRAY_TASK_ID)-$dir0*100)/10" | bc)
+dir2=$(echo "($SLURM_ARRAY_TASK_ID)-$dir0*100-$dir1*10" | bc)
 
-hadd -f RadMap_Out_Final.root `find $base -name RadMap_Out3.root`
+cd $base/$dir0/$dir1/$dir2
+pwd
+$VMCWORKDIR/buildPanda/bin/plot_radmap.exe

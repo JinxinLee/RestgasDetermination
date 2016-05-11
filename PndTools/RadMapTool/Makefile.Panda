@@ -6,7 +6,6 @@
 #------------------------------------------------------------------------------
 
 PANDADIR     := $(VMCWORKDIR)
-#PANDADIR     := /d/pndint02/carsten/fairsoft_mar15/pandaroot
 
 # Add include directories for the PandaRoot header files.
 INCLUDE       = -I$(PANDADIR)/base \
@@ -191,9 +190,11 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/tracking/TrkSecondary \
                 -I$(PANDADIR)/tracking/TrkStructure 
 
-#FAIRPATH	= $(SIMPATH)
-FAIRPATH	= /d/pndint02/carsten/fairsoft_mar15/buildFairRoot
+#FAIRPATH	= /d/pndint02/carsten/fairsoft_mar15/buildFairRoot
+#FAIRPATH	= $(FAIRROOTPATH)
+FAIRPATH	= $(SIMPATH)
 INCLUDE        += -I$(FAIRPATH)/include \
+	       	  -I$(FAIRROOTPATH)/include \
 		  -I$(FAIRPATH)/include/BaseVGN \
 		  -I$(FAIRPATH)/include/boost \
 		  -I$(FAIRPATH)/include/ClhepVGM \
@@ -214,10 +215,10 @@ INCLUDE        += -I$(FAIRPATH)/include \
 #PANDAPATH	= $(PANDADIR)/../built
 PANDAPATH	= $(PANDADIR)/buildPanda
 #FAIRLIBS        = -L$(FAIRPATH)/lib/root -L$(FAIRPATH)/lib 
-FAIRLIBS        = -L$(FAIRPATH)/lib 
+FAIRLIBS        = -L$(FAIRPATH)/lib -L$(FAIRROOTPATH)/lib
 PNDLIBS         = -L$(PANDAPATH)/lib 
 PNDLIBS         += -lBase -lParBase
-PNDLIBS         += -lPassive 
+PNDLIBS         += $(PANDAPATH)/lib/libPassive.so
 PNDLIBS         += -lField 
 
 #Detectors
@@ -232,11 +233,13 @@ PNDLIBS         += -lMvdReco -lgeneralTools
 
 #Reco
 #Tracking
-PNDLIBS         += -lMCMatch  
-PNDLIBS         += -lGeane -lTracking
-PNDLIBS         += -lTrkBase -lSttMvdTracking -lMvdTrk -lMvdReco 
-PNDLIBS         += -lRecoHits -lRecoTasks -lPndData
+#PNDLIBS         += -lMCMatch  
+#PNDLIBS         += -lGeane 
+#-lTracking
+#PNDLIBS         += -lTrkBase -lSttMvdTracking -lMvdTrk -lMvdReco 
 
+#PNDLIBS         += -lRecoHits -lRecoTasks -lPndData
+PNDLIBS         += -lPndData
 #pid
 PNDLIBS         += -lPid
 

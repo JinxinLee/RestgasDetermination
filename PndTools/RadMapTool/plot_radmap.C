@@ -39,7 +39,7 @@ void plot_radmap(Long64_t nevreq,
                  TString outputfile)
 {
   // open an output file
-  // TFile *fout = new TFile(outputfile,"RECREATE");
+  TFile *fout = new TFile(outputfile,"RECREATE");
 
   // chain for the cbmsim tree in the simulation files
   TChain mych("cbmsim");
@@ -142,7 +142,53 @@ void plot_radmap(Long64_t nevreq,
   BM.at(BM.size()-1)->SetQuantity(Density);
   BM.at(BM.size()-1)->SetOrientation(XY);
 
+
+  BM.push_back(new PndRadMapBoxMesh("EdepZX_1",
+				    250,0,250,
+				    1,-0.5,0.5,
+				    1200,-200,1000));
+  BM.at(BM.size()-1)->SetQuantity(Edep);
+  BM.at(BM.size()-1)->SetOrientation(ZX);
+
+  BM.push_back(new PndRadMapBoxMesh("MassZX_1",
+				    250,0,250,
+				    1,-0.5,0.5,
+				    1200,-200,1000));
+  BM.at(BM.size()-1)->SetQuantity(Mass);
+  BM.at(BM.size()-1)->SetOrientation(ZX);
+
+  BM.push_back(new PndRadMapBoxMesh("DoseZX_1",
+				    250,0,250,
+				    1,-0.5,0.5,
+				    1200,-200,1000));
+  BM.at(BM.size()-1)->SetQuantity(Dose);
+  BM.at(BM.size()-1)->SetOrientation(ZX);
+ 
+  BM.push_back(new PndRadMapBoxMesh("EdepZY_1",
+				    1,-0.5,0.5,
+				    250,0,250,
+				    1200,-200,1000));
+  BM.at(BM.size()-1)->SetQuantity(Edep);
+  BM.at(BM.size()-1)->SetOrientation(ZY);
+
+  BM.push_back(new PndRadMapBoxMesh("DoseZY_1",
+				    1,-0.5,0.5,
+				    250,0,250,
+				    1200,-200,1000));
+  BM.at(BM.size()-1)->SetQuantity(Dose);
+  BM.at(BM.size()-1)->SetOrientation(ZY);
   
+  BM.push_back(new PndRadMapBoxMesh("MassZY_1",
+				    1,-0.5,0.5,
+				    250,0,250,
+				    1200,-200,1000));
+  BM.at(BM.size()-1)->SetQuantity(Mass);
+  BM.at(BM.size()-1)->SetOrientation(ZY);
+
+
+
+
+
   for (Long64_t i=0; i<nentries; i++) {
     cout << "event " << i << endl;        
     mych.GetEntry(i);
@@ -151,14 +197,18 @@ void plot_radmap(Long64_t nevreq,
     cout << npoints << endl;
     // loop over points
     for (Int_t ii=0; ii < npoints; ii++) {
+
+      //if (i==99)cout<<ii<<" "<<npoints<<endl;
+      
       FairRadMapPoint *p= (FairRadMapPoint *) fRadMapPoint->At(ii);
       for(unsigned int iii = 0; iii < BM.size(); iii++)
         BM.at(iii)->Fill(p);
     }
   }
+  cout << "Save " << BM.size() << endl;        
   for(unsigned int i = 0; i < BM.size(); i++){
     // BM.at(i)->Scale(1./nentries);
-    BM.at(i)->Save();
+    BM.at(i)->Save(fout);
   }
 }
 

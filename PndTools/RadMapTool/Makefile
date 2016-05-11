@@ -18,10 +18,10 @@ all: sim_radmap.exe plot_radmap.exe
 sim_radmap.exe: sim_radmap.o
 	 $(CXX) $? -o $@ $(LIBS) 
 
-Mesh.o: Mesh.cpp
+PndRadMapBoxMesh.o: PndRadMapBoxMesh.cxx
 	 $(CXX) $? -c -o $@ $(INCLUDE) 
 
-plot_radmap.exe: plot_radmap.o Mesh.o
+plot_radmap.exe: plot_radmap.o PndRadMapBoxMesh.o
 	 $(CXX) $? -o $@ $(LIBS) 
 
 

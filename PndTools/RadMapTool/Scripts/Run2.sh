@@ -16,12 +16,11 @@
 source $VMCWORKDIR/buildPanda/config.sh
 
 
-echo $LD_LIBRARY_PATH
-echo $PATH
+path=
+base=
 
-base=/lustre/nyx/panda/carsten/fairsoft_nov15/Data/Geant4.15GeV
-path=/lustre/nyx/panda/carsten/fairsoft_nov15/pandaroot/PndTools/RadMapTool
+dir0=$(echo "($SLURM_ARRAY_TASK_ID)/100" | bc);
+dir1=$(echo "(($SLURM_ARRAY_TASK_ID)-$dir0*100)/10" | bc)
 
-cd $base
-
-hadd -f RadMap_Out_Final.root `find $base -name RadMap_Out3.root`
+cd $base/$dir0/$dir1
+hadd -f RadMap_Out2.root `find . -name RadMap_Out.root`

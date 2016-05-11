@@ -1,5 +1,5 @@
-#ifndef __PndRadMapMESH_HH__
-#define __PndRadmapMESH_HH__ 
+#ifndef __PNDRADMAPBOXMESH_HH__
+#define __PNDRADMAPBOXMESH_HH__ 
 #include <TH2D.h>
 #include <TROOT.h>
 #include <TFormula.h>
@@ -9,7 +9,11 @@
 
 enum axis{Xx=1, Yy=2, Zz=3}; 
 enum orientation{XY=1, YX=2, XZ=3, ZX=4, YZ=5, ZY=6}; 
-enum quantity{Edep=1, Dose=2, Fluence=3, EnergyFluence=4, Flux=5, Kerma=6, Density=7, Mass=8, SimpleFluence=9, Twos=10}; 
+enum quantity{Edep=1   , Dose=2,
+              Fluence=3, SimpleFluence=9, // -> 1/m^2
+              Flux=5   , Kerma=6  , EnergyFluence=4, // not mplemented  
+              Density=7, Mass=8, Twos=10}; ///debug
+//                                
 
 struct Corner{
   TVector3 corner1;
@@ -67,6 +71,7 @@ class PndRadMapBoxMesh{
                       axis Ax = Xx);
   void SetOrientation(Double_t rotate = 99999,
                       axis Ax = Xx);
+  void SetVerbosityLevel(int verbose = 0);
   void Fill(FairRadMapPoint *p);
   void Transform(Double_t X, Double_t Y, Double_t Z);
   void Transform(Double_t X, Double_t Y, Double_t Z,
@@ -107,60 +112,12 @@ class PndRadMapBoxMesh{
   Double_t _X, _Y, _Z;
   Double_t _tX, _tY, _tZ;//back-shifted, back-rotated coordinate
 
-  /* UInt_t    oldId; */
-  /* Double_t _Xold, _Yold, _Zold; */
   TFormula _filter;
+  int _verbose;
+
 };
 
 
-/* class PndRadMapBoxMesh : public Mesh{   */
-
-/*  public: */
-/*   Mesh(int Xbins, Double_t Xlow, Double_t Xhigh, */
-/*        int Ybins, Double_t Ylow, Double_t Yhigh, */
-/*        int Zbins, Double_t Zlow, Double_t Zhigh); */
-/*   //default values World mins, and maxs */
-/*   void SetOrientation(const char* plane, Double_t shift, Double_t rotate); */
-/*   //XY, YX */
-/*   //XZ, ZX */
-/*   //YZ, ZY */
-/*   //shift along the 'first letter axis' of the 'plane' (at "XY", shift along the X axis) */
-/*   //rotate along th 'second letter axis' */
-/*   virtual bool IsInside(Double_t X, Double_t Y, Double_t Z); */
-/*   virtual TVector3 Which(Double_t X, Double_t Y, Double_t Z); */
-/*   virtual Double_t Volume(Double_t X, Double_t Y, Double_t Z); */
-/*   virtual Double_t Volume(Double_t R = 0);//the volume does not depend on the position */
-
-/*  private: */
-/*   emum orientation{XY, YX, XZ, ZX, YZ, XY}; */
-/*   orientation Orient; */
-
-/* }; */
-
-/* class CylinderMesh : public Mesh{  //(where is the 0,0,0 point?) */
-/*   Mesh(int Zbins, Double_t Zlow, Double_t Zhigh, */
-/*        int Rbins, Double_t Rlow, Double_t Rhigh,//sqrt(xx+yy) */
-/*        int Phibins, Double_t Philow, Double_t Phihigh);//going from 0 to 2pi */
-/*   virtual bool IsInside(Double_t R, Double_t Theta, Double_t Phi); */
-/*   virtual TVector3 Which(Double_t R, Double_t Theta, Double_t Phi); */
-/*   virtual Double_t Volume(Double_t R, Double_t Theta, Double_t Phi); */
-/*   virtual Double_t Volume(Double_t R);//the volume depends on the R only */
-/*   //default values World mins, and maxs */
-
-
-/*   //RPhi, Phi */
-/*   //XZ, ZX */
-/*   //YZ, ZY */
-
-
-/* }; */
-
-/* class CSpericalMesh : public Mesh{    //(where is the 0,0,0 point?) */
-/*   Mesh(int Rbins, Double_t Rlow, Double_t Rhigh,//sqrt(xx+yy+zz) */
-/*        int Thetabins, Double_t Thetalow, Double_t Thetahigh,//from 0 to 2pi */
-/*        int Phibins, Double_t Philow, Double_t Phihigh);//going from 0 to 2pi */
-/*   //default values World mins, and maxs */
-/* }; */
 void InvMatVecProd(TMatrixD mat, TVector3 vec, TVector3& res);
 
 #endif
