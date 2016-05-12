@@ -82,7 +82,6 @@ PndMasterDigiTask.cxx
 PndMasterRecoTask.cxx
 PndMasterPidTask.cxx
 PndMasterRunSim.cxx
-PndTest.cxx
 PndMasterRunAna.cxx
 )
 
