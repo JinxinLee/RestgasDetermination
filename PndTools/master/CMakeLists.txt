@@ -82,12 +82,13 @@ PndMasterDigiTask.cxx
 PndMasterRecoTask.cxx
 PndMasterPidTask.cxx
 PndMasterRunSim.cxx
+PndTest.cxx
 PndMasterRunAna.cxx
 )
 
 set(LINKDEF  MasterLinkDef.h)
 set(LIBRARY_NAME Master)
 
-set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen FtfGenDirect EvtGenDirect)
+set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect)
 
 GENERATE_LIBRARY() 

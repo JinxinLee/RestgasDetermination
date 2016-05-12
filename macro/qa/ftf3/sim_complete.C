@@ -7,6 +7,7 @@
 
 sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
 {
+  gSystem->Load("libFtfGenDirect.so");
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
   // TString inputGenerator = 
