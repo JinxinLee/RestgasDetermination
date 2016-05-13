@@ -77,7 +77,7 @@ SET_TESTS_PROPERTIES(anaideal_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macr
 
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/reco_complete_sec.C)
 add_test(reco_complete_sec3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/reco_complete_sec.sh)
-SET_TESTS_PROPERTIES(reco_complete_sec3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(reco_complete_sec3 PROPERTIES TIMEOUT "400")
 SET_TESTS_PROPERTIES(reco_complete_sec3 PROPERTIES DEPENDS digi_complete3)
 SET_TESTS_PROPERTIES(reco_complete_sec3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
 
