@@ -1559,7 +1559,7 @@ PndEmcPoint* PndEmc::AddHit(Int_t trackID, Int_t detID, Int_t evtID, TVector3 po
       << ", entering " << entering << ", exiting " << exiting << endl;
   
  	PndEmcPoint* myPoint = new(clref[size]) PndEmcPoint(trackID, detID, evtID, pos, mom, time, length, eLoss, mod, row, crys, copy, entering, exiting);
-	// myPoint->SetLink(FairLink("MCTrack", trackID)); // 14.09.10 Stefano FIX
+ 	myPoint->SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "MCTrack", trackID)); // 14.09.10 Stefano FIX
 	return myPoint;
 }
 

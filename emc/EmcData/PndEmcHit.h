@@ -48,7 +48,7 @@ class PndEmcHit : public FairHit
   
   /** Modifiers **/
   virtual void SetEnergy(Double32_t energy) { fEnergy     = energy ;};
-  virtual void SetTime(Double32_t time)     { fTime       = time   ;};
+  virtual void SetTime(Double32_t time)     { fTime       = time   ; fTimeStamp = time * 1E9;};
    
   /** Accessors **/
   virtual Double_t GetEnergy()  const { return fEnergy     ;};
