@@ -74,6 +74,7 @@ void PndMCMatchPrintFairLinksObjects::InitBranchList(TList* branches)
 		if (branchName->String().Contains("Info")) continue;
 		if (branchName->String().Contains("ID")) continue;
 		if (branchName->String().Contains("PidAlgo")) continue;
+		if (branchName->String().Contains("Riemann")) continue;
 
 		std::cout << "PndMCMatchPrintFairLinksObjects::Init() branches: " << branchName->String() << std::endl;
 		if ((TClonesArray*)ioman->GetObject(branchName->String()) != 0){
