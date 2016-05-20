@@ -73,7 +73,7 @@ void digi_complete()
   //fRun->AddTask(emcHdrFiller); // ECM header
 
   // -----   SciT hit producers   ---------------------------
-  PndSciTHitProducerIdeal* tofhit = new PndSciTHitProducerIdeal();
+  PndSciTDigiTask* tofhit = new PndSciTDigiTask();
   tofhit->SetVerbose(iVerbose);
   fRun->AddTask(tofhit);
 
