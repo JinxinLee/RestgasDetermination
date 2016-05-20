@@ -131,7 +131,7 @@ void PndMasterRunSim::CreateGeometry()
   AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_201504.root");
+  SciT->SetGeometryFileName("SciTil_201601.root");
   AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);

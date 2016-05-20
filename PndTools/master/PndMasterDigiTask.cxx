@@ -16,6 +16,7 @@
 #include "PndEmcMakeCluster.h"
 #include "PndEmcMakeBump.h"
 #include "PndSciTHitProducerIdeal.h"
+#include "PndSciTDigiTask.h"
 #include "PndMdtHitProducerIdeal.h"
 #include "PndMdtTrkProducer.h"
 #include "PndDrcHitProducerReal.h"
@@ -56,8 +57,10 @@ PndMasterDigiTask::PndMasterDigiTask() :
   if ((GetListOfTasks()->GetSize()-1) != kPndEmcMakeBump) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
   
   // -----   SciT hit producers   -------------------------------
-  Add(new PndSciTHitProducerIdeal()); // 7
-  if ((GetListOfTasks()->GetSize()-1) != kPndSciTHitProducerIdeal) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  //Add(new PndSciTHitProducerIdeal()); // 7
+  //if ((GetListOfTasks()->GetSize()-1) != kPndSciTHitProducerIdeal) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  Add(new PndSciTDigiTask()); // 7
+  if ((GetListOfTasks()->GetSize()-1) != kPndSciTDigiTask) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
   
   // -----   MDT hit producers   ---------------------------------
   Add(new PndMdtHitProducerIdeal()); // 8
@@ -105,7 +108,8 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   ((PndEmcMakeBump*)GetListOfTasks()->At(kPndEmcMakeBump))->SetStorageOfData(kFALSE);
   
   // -----   SciT hit producers   -------------------------------
-  ((PndSciTHitProducerIdeal*)GetListOfTasks()->At(kPndSciTHitProducerIdeal))->SetPersistence(pers);
+  //((PndSciTHitProducerIdeal*)GetListOfTasks()->At(kPndSciTHitProducerIdeal))->SetPersistence(pers);
+  ((PndSciTDigiTask*)GetListOfTasks()->At(kPndSciTDigiTask))->SetPersistence(pers);
   
   // -----   MDT hit producers   ---------------------------------
   ((PndMdtHitProducerIdeal*)GetListOfTasks()->At(kPndMdtHitProducerIdeal))->SetPersistency(pers);
