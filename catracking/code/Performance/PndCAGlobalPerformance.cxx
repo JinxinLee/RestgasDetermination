@@ -145,7 +145,7 @@ void PndCAGlobalPerformance::MatchTracks()
       if ( l.fLab[1] >= 0 ) lb[nla++] = l.fLab[1];
       if ( l.fLab[2] >= 0 ) lb[nla++] = l.fLab[2];
     }
-    sort( lb, lb + nla );
+    std::sort( lb, lb + nla );
     int labmax = -1, labcur = -1, lmax = 0, lcurr = 0;
     for ( int i = 0; i < nla; i++ ) {
       if ( lb[i] != labcur ) {

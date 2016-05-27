@@ -383,7 +383,7 @@ void PndMdtIGeometry::Print() const
   std::map<Int_t, InfoType>::const_iterator cit =  fGeoMap.begin();;
   std::map<Int_t, InfoType>::const_iterator cend =  fGeoMap.end();;
 
-  ofstream ofs1("Tube.map", std::ios::out);
+  std::ofstream ofs1("Tube.map", std::ios::out);
   ofs1<<"============================================================"<<endl;
   ofs1<<"==>Tube Placement"<<endl;
   ofs1<<"============================================================"<<endl;
@@ -402,7 +402,7 @@ void PndMdtIGeometry::Print() const
     }
   }
   ofs1.close();
-  ofstream ofs2("Strip.map", std::ios::out);
+  std::ofstream ofs2("Strip.map", std::ios::out);
   ofs2<<"============================================================"<<endl;
   ofs2<<"==>Strip Placement"<<endl;
   ofs2<<"============================================================"<<endl;

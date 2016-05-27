@@ -10,7 +10,7 @@
 //
 // Jifeng Hu, hu@to.infn.it, Torino University
 //=======================================================================
-#pragma once
+//#pragma once
 #ifndef PNDMDTWAVEFORM_H
 #define PNDMDTWAVEFORM_H
 

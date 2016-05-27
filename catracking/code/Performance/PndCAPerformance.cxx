@@ -295,7 +295,7 @@ void PndCAPerformance::SaveDataInFiles(string prefix) const
 {
 
   {
-    ofstream ofile((prefix+"hitLabels.data").data(),ios::out|ios::app);
+    std::ofstream ofile((prefix+"hitLabels.data").data(),ios::out|ios::app);
     const int Size = fHitLabels.size();
     ofile << Size << std::endl;
     for (unsigned int i = 0; i < fHitLabels.size(); i++){
@@ -306,7 +306,7 @@ void PndCAPerformance::SaveDataInFiles(string prefix) const
   }
 
   {
-    ofstream ofile((prefix+"MCTracks.data").data(),ios::out|ios::app);
+    std::ofstream ofile((prefix+"MCTracks.data").data(),ios::out|ios::app);
     const int Size = fMCTracks.size();
     ofile << Size << std::endl;
     for (unsigned int i = 0; i < fMCTracks.size(); i++){
@@ -317,7 +317,7 @@ void PndCAPerformance::SaveDataInFiles(string prefix) const
   }
 
   {
-    ofstream ofile((prefix+"MCPoints.data").data(),ios::out|ios::app);
+    std::ofstream ofile((prefix+"MCPoints.data").data(),ios::out|ios::app);
     const int Size = fLocalMCPoints.size();
     ofile << Size << std::endl;
     for (unsigned int i = 0; i < fLocalMCPoints.size(); i++){
@@ -332,7 +332,7 @@ bool PndCAPerformance::ReadDataFromFiles(string prefix)
 {
 
   {
-    ifstream ifile((prefix+"hitLabels.data").data());
+    std::ifstream ifile((prefix+"hitLabels.data").data());
     if ( !ifile.is_open() ) return 0;
     int Size;
     ifile >> Size;
@@ -346,7 +346,7 @@ bool PndCAPerformance::ReadDataFromFiles(string prefix)
 
  
   {
-    ifstream ifile((prefix+"MCTracks.data").data());
+    std::ifstream ifile((prefix+"MCTracks.data").data());
     if ( !ifile.is_open() ) return 0;
     int Size;
     ifile >> Size;
@@ -360,7 +360,7 @@ bool PndCAPerformance::ReadDataFromFiles(string prefix)
 
 
   {
-    ifstream ifile((prefix+"MCPoints.data").data());
+    std::ifstream ifile((prefix+"MCPoints.data").data());
     if ( !ifile.is_open() ) return 0;
     int Size;
     ifile >> Size;
