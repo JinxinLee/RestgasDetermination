@@ -271,7 +271,7 @@ RUN LOCALLY:
 
 In order to run over a number of your resulting output (_pid.root) files, the macro prod_ana.C can be used as follows, e.g. from the data dir:
 
--> root -l -b -q '../prod_ana.C("<prefix>", <min>, <max>, <N_ev>)'
+-> root -l -b -q '../prod_ana.C("<prefix>", <min>, <max>, <mode>, <N_ev>)'
 
 Adds several input files <prefix>_<min>_pid.root, ... , <prefix>_<max>_pid.root and <prefix>_<min>_par.root as par file to FairRunAna to run analysis.
 Broken or missing files are skipped automatically.
@@ -280,6 +280,7 @@ Parameters:
  <prefix>    - Prefix for output files
  <min>       - run from this job number
  <max>       - .. to this
+ <mode>      - arbitrary mode number; default: 0
  <N_ev>      - Number of events to analyze, 0 = default -> all events
 
 Example:
@@ -293,12 +294,13 @@ SUBMITTING ANALYSIS JOBS:
 
 Submitting the analysis macro from above as job to Prometheus (e.g. to split to several jobs) can be done from macro/prod by
 
--> qsub job_ana.sge <prefix> <min> <max> 
+-> qsub job_ana.sge <prefix> <min> <max> <mode>
 
 Parameters:
  <prefix>    - Prefix for output files
- <min>       - run from this job number
- <max>       - .. to this
+ <min>       - run from this job number (default: 1)
+ <max>       - .. to this (default: 20)
+ <mode>      - arbitrary mode number; default: 0
 
 Example:
 qsub job_ana.sge MDPM10GeV 1 10 
@@ -315,10 +317,11 @@ In case a large number of output files have to be analysed, so that it is reason
 the perl script 'anasub.pl' is useful.
 
 
--> ./anasub.pl <pref> [num] [min] [max]
+-> ./anasub.pl <pref> [mode] [num] [min] [max]
 
 Parameters:
   <pref>  : prefix of output filenames of pattern 'data/<pref>_<run>_pid.root; if 'check_' is prepended only prints commands
+  [mode]  : mode number to be written in TTree; default: 0
   [num]   : number of runs per job to be analysed; default: 50
   [min]   : first run number; if omitted all found files are considered
   [max]   : last run number; if omitted, all runs starting from [min] are considered
@@ -330,14 +333,14 @@ Example 1:
 Result 1: Searches for all output files data/MDPM10GeV_<run>_pid.root and only prints submission commands for analysis jobs in packages of 50 runs.
 
 Example 2:
-./anasub.pl MDPM10GeV 20
+./anasub.pl MDPM10GeV 0 20
 
 Result 2: Searches for all output files and submits analysis jobs in packages of 20 runs, i.e. 1..20, 21..40, 41..60, ...
 
 Example 3:
-./anasub.pl MDPM10GeV 25 201 400 
+./anasub.pl MDPM10GeV 0 25 201 400 
 
-Result 3: Submits analysis jobs for runs 200 to 400 in packages of 20 runs.
+Result 3: Submits analysis jobs for runs 200 to 400 in packages of 25 runs.
 
 
 

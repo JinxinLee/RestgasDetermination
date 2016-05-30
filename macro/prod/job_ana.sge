@@ -9,7 +9,7 @@ cd $TMPDIR
 data=$VMCWORKDIR"/macro/prod"
 _target=$data"/data/"
 
-prefix=13
+prefix=M
 from=1
 to=20
 mode=0
