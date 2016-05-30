@@ -10,7 +10,7 @@ bool checkfile(TString fn)
 	return fileok;
 }
 
-void prod_ana(TString outpre="", int from=1, int to=1, int nevts=0)
+void prod_ana(TString outpre="", int from=1, int to=1, int mode=0, int nevts=0)
 {
  	if (outpre=="") 
 	{
@@ -20,6 +20,7 @@ void prod_ana(TString outpre="", int from=1, int to=1, int nevts=0)
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <from>     : first run number\n";
 		cout << "   <to>       : last run number\n";
+		cout << "   [mode]     : arbitrary mode number; default: 0\n";
 		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
 		return;
 	}
@@ -78,18 +79,23 @@ void prod_ana(TString outpre="", int from=1, int to=1, int nevts=0)
 	// *** HERE YOUR ANALYSIS CODE GOES!
 	// ***
 	
+	// configuration for PndSimpleCombinerTask (see below)
+    double   Mom      = -3.872;
+	
+	TString  anadecay = "J/psi->e+ e-; rho0->pi+ pi-; pbarpSystem->J/psi rho0";
+	TString  anaparms = "qaevtshape:qamc:fit4c:mwin(J/psi)=2.0|3.4:mwin(rho0)=0.27|1.0:!ntp1";
+		
+	bool     fastsim  = false;
+	int      run      = from;	
+	
+	// run software trigger (trigger definition might be outdated)
+	bool     runST    = false;
+	
+
 	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
-	
-	double   Mom      = -3.872;
-	TString  anadecay = "J/psi->e+ e-; rho0->pi+ pi-; pbarpSystem->J/psi rho0";
-	TString  anaparms = "fit4c:mwin(J/psi)=1.0:mwin(rho0)=0.8:pidpi=Loose:pide=Tight";
-	bool     fastsim  = false;
-	bool     runST    = false;
-	int      run      = 1;	
-	int      mode     = 10;	
-	
+		
 	// if Mom<0, interprete as -E_cm
 	double mp = 0.938272;
 	
@@ -116,12 +122,36 @@ void prod_ana(TString outpre="", int from=1, int to=1, int nevts=0)
 	if (fastsim) anaparms+=":algo="+pidalgo;
 	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms, Mom, run, mode);
 	scTask->SetPidAlgo(pidalgo);
+	
 	fRun->AddTask(scTask);
 	
 	
 	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
+	
+	// ***********************
+	// *** SoftTriggerTask ***
+	// ***********************
+	
+	if (runST)
+	{	
+		// this file contains the trigger line definitions
+		TString      triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines.cfg";       // fullsim trigger definitions 		
+		if (fastsim) triggercfg = TString(gSystem->Getenv("VMCWORKDIR"))+"/softrig/triggerlines_fsim.cfg";  // fastsim trigger definitions	
+		
+		PndSoftTriggerTask *stTask = new PndSoftTriggerTask(Mom, 0, run, triggercfg);
+		
+		if (fastsim) stTask->SetFastSimDefaults();
+		else         stTask->SetFullSimDefaults();
+				
+		fRun->AddTask(stTask);
+	}
+	
+	// ***********************
+	// *** SoftTriggerTask ***
+	// ***********************
+
 
 	// *** and run analysis
 	fRun->Init(); 

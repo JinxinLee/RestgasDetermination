@@ -12,6 +12,7 @@ _target=$data"/data/"
 prefix=13
 from=1
 to=20
+mode=0
 
 if test "$1" != ""; then
   prefix=$1
@@ -25,9 +26,15 @@ if test "$3" != ""; then
   to=$3
 fi
 
-root -l -b -q -w $data"/"prod_ana.C\(\"$_target/$prefix\",$from,$to\)
+if test "$4" != ""; then
+  mode=$4
+fi
+
+root -l -b -q -w $data"/"prod_ana.C\(\"$_target/$prefix\",$from,$to,$mode\)  &> $prefix"_"$from"_"$to"_ana.log"
 
 # Move the data to the persistent storage
 cp -v $TMPDIR/$prefix*.root $_target 
+cp -v $TMPDIR/$prefix*.log $_target
+
 # Evacuate the log-file
 cp -v $SGE_STDOUT_PATH $_target/$JOB_ID.log
