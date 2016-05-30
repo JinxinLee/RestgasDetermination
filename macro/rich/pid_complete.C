@@ -59,7 +59,6 @@ void pid_complete()
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   //corr->SetBackPropagate(kFALSE);
-  //corr->SetIdeal(kTRUE);
   fRun->AddTask(corr);
 
   PndPidBremCorrector *bremCorr = new PndPidBremCorrector();

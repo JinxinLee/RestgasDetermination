@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6.231552)
+sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -40,6 +40,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6
   FairRunSim *fRun = new FairRunSim();
   fRun->SetName(SimEngine.Data() );
   fRun->SetOutputFile(OutputFile.Data());
+  //fRun->SetUserConfig("g4Config_opt.C");
   fRun->SetGenerateRunInfo(kFALSE);
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetMaterials(MediaFile.Data());
@@ -102,7 +103,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_201504.root");
+  SciT->SetGeometryFileName("SciTil_201601.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
@@ -133,15 +134,10 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6
   FTof->SetGeometryFileName("ftofwall.root");
   fRun->AddModule(FTof);
   //-------------------------  RICH       ----------------
-  FairDetector *Rich= new PndRich("RICH",kTRUE);
-  Rich->SetGeometryFileName("rich_v13.root");
+  PndRich *Rich= new PndRich("RICH",kTRUE);
+  Rich->SetGeometryFileName("rich_v313.root");
+  //Rich->SetRunCherenkov(kTRUE);
   fRun->AddModule(Rich);
-  //------------------------- Disc DIRC       ------------
-  //DiscDIRC_Detector * disc_dirc = new DiscDIRC_Detector("DiscDIRC", kTRUE);
-  //disc_dirc->SetVerboseLevel(2);
-  //disc_dirc->SetGeometryFileName("DIRC_GEO_SIO2.root");
-  //disc_dirc->SetFilterInterval(200., 800.);
-  //fRun->AddModule(disc_dirc);
   
   // Create and Set Event Generator
   //-------------------------------
@@ -152,15 +148,9 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6
     FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
     boxGen->SetPRange(mom,mom); // GeV/c
     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-    boxGen->SetThetaRange(2., 2.); // Polar angle in lab system range [degree]
+    boxGen->SetThetaRange(3., 3.); // Polar angle in lab system range [degree]
     boxGen->SetXYZ(0., 0., 0.); // cm
     primGen->AddGenerator(boxGen);
-//    FairBoxGenerator* boxGen2 = new FairBoxGenerator(-13, 1); // 13 = muon; 1 = multipl.
-//    boxGen2->SetPRange(mom,mom); // GeV/c
-//    boxGen2->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-//    boxGen2->SetThetaRange(0., 20.); // Polar angle in lab system range [degree]
-//    boxGen2->SetXYZ(0., 0., 0.); // cm
-//    primGen->AddGenerator(boxGen2);
   }
   if(UseDpm){
     PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
@@ -182,7 +172,6 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant4", Float_t mom = 6
   }
   
   //---------------------Create and Set the Field(s)----------
-  //PndMultiField *fField= new PndMultiField("FULL",BeamMomentum);
   PndMultiField *fField= new PndMultiField("AUTO");
   fRun->SetField(fField);
   

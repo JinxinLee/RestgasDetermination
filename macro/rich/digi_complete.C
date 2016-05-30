@@ -73,7 +73,7 @@ void digi_complete()
   //fRun->AddTask(emcHdrFiller); // ECM header
 
   // -----   SciT hit producers   ---------------------------
-  PndSciTHitProducerIdeal* tofhit = new PndSciTHitProducerIdeal();
+  PndSciTDigiTask* tofhit = new PndSciTDigiTask();
   tofhit->SetVerbose(iVerbose);
   fRun->AddTask(tofhit);
 
@@ -110,6 +110,7 @@ void digi_complete()
   // -----   RICH hit producers   ---------------------------------
   PndRichHitProducer* richhit = new PndRichHitProducer();
   richhit->SetVerbose(iVerbose);
+  //richhit->SetPhDetNoiseON(kTRUE);
   fRun->AddTask(richhit);
    
   // -----   Intialise and run   --------------------------------------------
