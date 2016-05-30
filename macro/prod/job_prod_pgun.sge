@@ -43,12 +43,14 @@ fi
 
 
 outprefix=$TMPDIR"/M"$prefix"_"$SGE_TASK_ID
+pidfile=$outprefix"_pid.root"
 
 echo $TMPDIR
 root -l -q -b $data"/"prod_sim_pgun.C\(\"$outprefix\",$nEvts,$pdg,$mom,$mult\) &> $outprefix"_sim.log"
 root -l -b -q $data"/"prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
 root -l -b -q $data"/"prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
 root -l -b -q $data"/"prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
+root -l -b -q $data"/"quickana.C\(\"$pidfile\",1,\"\",0,\"qapart\",0,0,$SGE_TASK_ID,$pdg\)   &> $outprefix"_ana.log"
 
 
 # Move the data to the persistent storage
@@ -57,6 +59,7 @@ if test "$save" == "saveall"; then
   cp -v $TMPDIR/M*log $_target 
 else
   cp -v $TMPDIR/M*_pid.root $_target 
+  cp -v $TMPDIR/M*_ana.root $_target 
   cp -v $TMPDIR/M*_pid.log $_target 
   cp -v $TMPDIR/M*_par.root $_target 
 fi
