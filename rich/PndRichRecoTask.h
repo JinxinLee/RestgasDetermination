@@ -33,6 +33,8 @@ class PndRichRecoTask : public FairTask {
   void SetParticleID(UInt_t pid) { fParticleID = pid; }
   void SetTrackPosition(TVector3 pos) { fTrackPosition = pos; }
   void SetTrackDirection(TVector3 dir) { fTrackDirection = dir; }
+  void SetTrackPositionSecond(TVector3 pos) { fTrackPositionSecond = pos; }
+  void SetTrackDirectionSecond(TVector3 dir) { fTrackDirectionSecond = dir; }
   void SetNumberOfEvents(UInt_t events) { fNumberOfEvents = events; }
   TF1* GetPeakParameters(std::vector<Double_t> v, UInt_t nbins, Double_t xmin, Double_t xmax, Double_t sig);
 
@@ -47,10 +49,15 @@ class PndRichRecoTask : public FairTask {
   UInt_t fNumberOfEvents;
   UInt_t fGeoVersion;
   UInt_t fParticleID;
+  UInt_t fEvent;
   PndRichReco* fRichReco;
   TVector3 fTrackPosition;
   TVector3 fTrackDirection;
+  TVector3 fTrackPositionSecond;
+  TVector3 fTrackDirectionSecond;
   std::vector<UInt_t> vnhits;
+  std::vector<Double_t> vth;
+  std::vector<Double_t> vph;
   std::vector<Double_t> vdth;
   std::vector<Double_t> vmean;
   std::vector<Double_t> vsigma;

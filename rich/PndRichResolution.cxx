@@ -9,18 +9,38 @@ PndRichResolution::~PndRichResolution()
 // -----   Default constructor   -------------------------------------------
 PndRichResolution::PndRichResolution()
 {
+   caldb = new PndRichCalDb("rich_caldb_v313","R");
+   caldb->Init();
+   caldb->Print();
 }
 
 //______________________________________________________
-Double_t PndRichResolution::Sigma(PndPidCandidate* pidcand)
+Double_t PndRichResolution::Sigma(dbpoint pnt)
 {
-   return 0.0003;
+   Double_t sigmu = caldb->GetBetaSig(pnt);
+   // temporary: multi scattering correction
+   Double_t k = 0.41e-3;//0.462e-3;
+   Double_t beta2 = pnt.beta*pnt.beta;
+   k *= sqrt(1-beta2)/beta2;
+   Double_t sigMultScattM  = k/pnt.mass;
+   Double_t sigMultScattMu = k/0.1056583715;
+   Double_t sigmar = sigmu*sigmu -
+      sigMultScattMu*sigMultScattMu +
+      sigMultScattM*sigMultScattM;
+   sigmu = sigmar>0 ? sqrt(sigmar) : sigmu;
+   return sigmu;
 }
 
 //______________________________________________________
-Double_t PndRichResolution::Shift(PndPidCandidate* pidcand)
+Double_t PndRichResolution::Shift(dbpoint pnt)
 {
-   return 0.00135;
+   return caldb->GetBetaMean(pnt);
+}
+
+//______________________________________________________
+Double_t PndRichResolution::Efficiency(dbpoint pnt)
+{
+   return caldb->GetBetaEff(pnt);
 }
 
 // -------------------------------------------------------------------------

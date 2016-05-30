@@ -11,6 +11,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/rich	
+  ${CMAKE_SOURCE_DIR}/field
   ${CMAKE_SOURCE_DIR}/pnddata
   ${CMAKE_SOURCE_DIR}/pnddata/RichData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
@@ -37,11 +38,15 @@ PndRichReco.cxx
 PndRichHitProducer.cxx
 PndRichResolution.cxx
 PndRichRecoTask.cxx
+PndRichDbTask.cxx
+PndRichCalDb.cxx
+PndRichCalDbData.cxx
+PndRichCalDbPar.cxx
 )
 
 set(LINKDEF RichLinkDef.h)
 set(LIBRARY_NAME Rich)
 
-set(DEPENDENCIES Base PndData generalTools)
+set(DEPENDENCIES Base PndData generalTools Field)
 
 GENERATE_LIBRARY()

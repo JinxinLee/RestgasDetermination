@@ -32,8 +32,9 @@ using std::endl;
 PndRichHitProducer::PndRichHitProducer() :
   FairTask("Rich Hit Producer") { 
   fPosResolution = -1.;
-  fGeoVersion = 13;
+  fGeoVersion = 313;
   fPhDetNoise = kFALSE;
+  fNumRand = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -108,8 +109,8 @@ InitStatus PndRichHitProducer::Init() {
    Double_t wli, pdei;
    from >> wli >> pdei;
    while( !from.eof() ) {
-      fWlPhoton.push_back(wli);
-      fPDE.push_back(pdei);
+      fWlPhoton.push_back(wli); // nm
+      fPDE.push_back(pdei); // %
       from >> wli >> pdei;
    };
          
@@ -154,9 +155,9 @@ void PndRichHitProducer::Exec(Option_t* opt) {
        Double_t wl1 = fWlPhoton[ind];
        Double_t wl2 = fWlPhoton[ind+1];
        Double_t eff = eff1+(eff2-eff1)*(wl-wl1)/(wl2-wl1);
-       if ( gRandom->Uniform(0.,100.)<eff*0.526316 ) {
+       if ( gRandom->Uniform(0.,100.)<eff*0.526316/1.7 ) { // 0.526316 - geometrical occupancy, 1.7 - measured difference MC-EXP
           point->Position(pos);
-          Double_t t = point->GetTime(); //ns
+          Double_t t = gRandom->Gaus(point->GetTime(),0.05); //ns
           if (fPhDetNoise) { // add noise
              std::vector<Double_t> tn = PhDetNoise();
              for (Int_t i=0; i<tn.size(); i++)
@@ -164,7 +165,7 @@ void PndRichHitProducer::Exec(Option_t* opt) {
           }
           TVector3 posl = fGeo->PhDetPositionLocal(pos);
           TVector3 posd = fGeo->PhDetPositionGlobal( fGeo->PositionDiscretization( posl ) );
-          AddPDHit(point->GetDetectorID(), posd, sig, iPoint, gRandom->Gaus(t,0.05) );
+          AddPDHit(point->GetDetectorID(), posd, sig, iPoint, t );
           UInt_t ix = fGeo->IndexX(posl);
           UInt_t iy = fGeo->IndexY(posl);
           if ( ix<iXmax && iy<iYmax )
@@ -177,9 +178,9 @@ void PndRichHitProducer::Exec(Option_t* opt) {
          for (Int_t iy=0; iy<iYmax; iy++)
             if (!map[ix][iy]) {
                std::vector<Double_t> tn = PhDetNoise();
-               if (tn.size()&&tn.back()>0) {
+               if (tn.size()&&tn.back()>-50) {
                   pos = fGeo->PixelPositionGlobal(ix,iy);
-                  AddPDHit(0, pos, sig, 0, gRandom->Gaus(tn.back(),0.05) );
+                  AddPDHit(0, pos, sig, 0, tn.back() );
                }
             }
    }
@@ -214,6 +215,7 @@ std::vector<Double_t> PndRichHitProducer::PhDetNoise()
    Double_t t = 0;
    while(ts<tstop) {
       t += gRandom->Exp(1e9/fn-td);
+      fNumRand++;
       if (t>td) {
          ts += t;
          t = 0;
@@ -248,5 +250,12 @@ PndRichHit* PndRichHitProducer::AddHit(Int_t detID, Int_t sensorId,
 }
 // ----
 
+void PndRichHitProducer::FinishEvent()
+{
+}
+
+void PndRichHitProducer::FinishTask()
+{
+}
 
 ClassImp(PndRichHitProducer)

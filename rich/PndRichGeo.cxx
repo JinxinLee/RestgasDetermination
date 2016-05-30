@@ -41,7 +41,12 @@ PndRichGeo::PndRichGeo()
    fPhDetY = std::vector<Double_t>(2);
 }
 
-void PndRichGeo::init(size_t ver) {
+void PndRichGeo::init(size_t ver0) {
+   size_t nRefInd = (ver0%100000)/1000;
+   size_t nlayers = (ver0%1000)/100;
+   size_t ver = ver0%100;
+   nlayers = nlayers ? nlayers : 3;
+
    double ka1                      = angleExtansionInner();
    double ka2                      = angleExtansionOuter();
    double beta                     = mirrorCurvature();
@@ -84,8 +89,9 @@ void PndRichGeo::init(size_t ver) {
     double theta3 = 360-theta2;
 
    // photosensor pixel sizes
-   fdX = 0.38016;
-   fdY = 0.32;
+   // http://www.digitalphotoncounting.com/wp-content/uploads/PDPC_leaflet_A4_2015_10.pdf
+   fdX = 0.4075; //0.38016;
+   fdY = 0.4075; //0.32;
    fdZ = 0;
    fiXmax = 2*(int)(fMirrorLength/2/fdX);
    fiYmax = 0; // see further
@@ -102,15 +108,17 @@ void PndRichGeo::init(size_t ver) {
    UInt_t nm;
    Double_t yShift, zShift, dn;
 
-   size_t nlayers = 3;
    switch (nlayers)
    {
+    case 1:
+      fnOpt.resize(1);
+      fnOpt[0] = 1.05;
+      fAerogelLayers.resize(1);
+      fAerogelLayers[0] = 1;
+      break;
     case 2:
       fnOpt.resize(2);
-      fnOpt[0] = 1.0487;
-      fnOpt[1] = 1.0513;
-      dn = 0.0013*1.75;
-      //dn = 0.001; //optimal value of ref. index
+      dn = nRefInd ? (nRefInd-1)*0.00005 : 0.000817682;
       fnOpt[0] = 1.05 - dn;
       fnOpt[1] = 1.05 + dn;
       fAerogelLayers.resize(2);
@@ -119,8 +127,7 @@ void PndRichGeo::init(size_t ver) {
       break;
     case 3:
       fnOpt.resize(3);
-      //dn = 0.0013*2.0;
-      dn = 0.0013*0.944737; //optimal value of ref. index
+      dn = nRefInd ? (nRefInd-1)*0.00005 : 0.00108652;
       fnOpt[0] = 1.05 - dn;
       fnOpt[1] = 1.05;
       fnOpt[2] = 1.05 + dn;
@@ -128,6 +135,33 @@ void PndRichGeo::init(size_t ver) {
       fAerogelLayers[0] = 0.333333;
       fAerogelLayers[1] = 0.333334;
       fAerogelLayers[2] = 0.333333;
+      break;
+    case 4:
+      fnOpt.resize(4);
+      dn = nRefInd ? (nRefInd-1)*0.00005 : 0.00122976;
+      fnOpt[0] = 1.05 - dn;
+      fnOpt[1] = 1.05;
+      fnOpt[2] = 1.05;
+      fnOpt[3] = 1.05 + dn;
+      fAerogelLayers.resize(4);
+      fAerogelLayers[0] = 0.25;
+      fAerogelLayers[1] = 0.25;
+      fAerogelLayers[2] = 0.25;
+      fAerogelLayers[3] = 0.25;
+      break;
+    case 5:
+      fnOpt.resize(5);
+      fnOpt[0] = 1.05;
+      fnOpt[1] = 1.05;
+      fnOpt[2] = 1.05;
+      fnOpt[3] = 1.05;
+      fnOpt[4] = 1.05;
+      fAerogelLayers.resize(5);
+      fAerogelLayers[0] = 0.2;
+      fAerogelLayers[1] = 0.2;
+      fAerogelLayers[2] = 0.2;
+      fAerogelLayers[3] = 0.2;
+      fAerogelLayers[4] = 0.2;
       break;
     default:
       break;
@@ -148,71 +182,281 @@ void PndRichGeo::init(size_t ver) {
       fMirrorThetaMax = -0.13694;
       break;
     case 11: // flat mirror (one part)
+    case 21: // flat mirror (one part) + side mirrors
       fFlatMirrorY.resize(2);
       fFlatMirrorZ.resize(2);
       fFlatMirrorY[0] = 0;
-      fFlatMirrorY[1] = 0;
-      fFlatMirrorZ[0] = 0;
-      fFlatMirrorZ[1] = 0;
+      fFlatMirrorY[1] = 113.511542159065;
+      fFlatMirrorZ[0] = 47.6318222110121;
+      fFlatMirrorZ[1] = 129.893234066359;
+      fPhDetY[0] = 60;
+      fPhDetY[1] = fFlatMirrorY[1];
+      fPhDetZ[0] = 5.00000000000000;
+      fPhDetZ[1] = fFlatMirrorZ[1];
+      //
+      nm = fFlatMirrorZ.size();
+      fFlatMirrorYGlob.resize(nm);
+      fFlatMirrorZGlob.resize(nm);
+      yShift = 0;
+      zShift = richOffset().Z() + aerogelOffset().Z();
+      for(UInt_t i=0; i<nm; i++) {
+         fFlatMirrorYGlob[i] = fFlatMirrorY[i] + yShift;
+         fFlatMirrorZGlob[i] = fFlatMirrorZ[i] + zShift;
+      }
       break;
     case 12: // flat mirror (two part)
+    case 22: // flat mirror (two part) + side mirrors
       fFlatMirrorY.resize(3);
       fFlatMirrorZ.resize(3);
       fFlatMirrorY[0] = 0;
-      fFlatMirrorY[1] = 0;
-      fFlatMirrorY[2] = 0;
-      fFlatMirrorZ[0] = 0;
-      fFlatMirrorZ[1] = 0;
-      fFlatMirrorZ[2] = 0;
+      fFlatMirrorY[1] = 30.7192103643191;
+      fFlatMirrorY[2] = 91.7457580720718;
+      fFlatMirrorZ[0] = 21.0968997324958;
+      fFlatMirrorZ[1] = 53.4669621286154;
+      fFlatMirrorZ[2] = 79.0929943996688;
+      fPhDetY[0] = 60;
+      fPhDetY[1] = fFlatMirrorY[2];
+      fPhDetZ[0] = 5.00000000000000;
+      fPhDetZ[1] = fFlatMirrorZ[2];
+      //
+      nm = fFlatMirrorZ.size();
+      fFlatMirrorYGlob.resize(nm);
+      fFlatMirrorZGlob.resize(nm);
+      yShift = 0;
+      zShift = richOffset().Z() + aerogelOffset().Z();
+      for(UInt_t i=0; i<nm; i++) {
+         fFlatMirrorYGlob[i] = fFlatMirrorY[i] + yShift;
+         fFlatMirrorZGlob[i] = fFlatMirrorZ[i] + zShift;
+      }
       break;
     case 13: // flat mirror (three part)
+    case 23: // flat mirror (three part) + side mirrors
       fFlatMirrorY.resize(4);
       fFlatMirrorZ.resize(4);
-      // without refraction on the surface
-      fFlatMirrorY[0] = 0;
-      fFlatMirrorY[1] = 11.5823995523040;
-      fFlatMirrorY[2] = 37.0077431709015;
-      fFlatMirrorY[3] = 70.3521752085729;
-      fFlatMirrorZ[0] = 12.6022270511333;
-      fFlatMirrorZ[1] = 26.1117457127181;
-      fFlatMirrorZ[2] = 46.4793071925098;
-      fFlatMirrorZ[3] = 55.7853332421188;
       // with refraction on the surface
       fFlatMirrorY[0] = 0;
-      fFlatMirrorY[1] = 10.6711191205503;
-      fFlatMirrorY[2] = 36.5334780846887;
-      fFlatMirrorY[3] = 70.9145714437628;
-      fFlatMirrorZ[0] = 13.5631217316887;
-      fFlatMirrorZ[1] = 25.9624125206647;
-      fFlatMirrorZ[2] = 47.2843451066186;
-      fFlatMirrorZ[3] = 57.1886957783356;
-      fPhDetY[0] = 50;
-      fPhDetY[1] = fFlatMirrorY[3];
-      fPhDetZ[0] = 5.00000000000000;
-      fPhDetZ[1] = fFlatMirrorZ[3];
-      // with refraction on the surface
-      fFlatMirrorY[0] = 0;
-      fFlatMirrorY[1] = 15.4507438834428;
-      fFlatMirrorY[2] = 53.6398528340896;
-      fFlatMirrorY[3] = 86.6061734692679;
-      fFlatMirrorZ[0] = 19.4472941521775;
-      fFlatMirrorZ[1] = 36.1696395672866;
-      fFlatMirrorZ[2] = 63.5142211603757;
-      fFlatMirrorZ[3] = 67.0974637738877;
+      fFlatMirrorY[1] = 15.7768998527303;
+      fFlatMirrorY[2] = 53.8249581943035;
+      fFlatMirrorY[3] = 86.6039907197112;
+      fFlatMirrorZ[0] = 19.8059481359439;
+      fFlatMirrorZ[1] = 36.7817321826854;
+      fFlatMirrorZ[2] = 63.6406349592571;
+      fFlatMirrorZ[3] = 67.0923693467737;
       fPhDetY[0] = 60;
       fPhDetY[1] = fFlatMirrorY[3];
       fPhDetZ[0] = 5.00000000000000;
       fPhDetZ[1] = fFlatMirrorZ[3];
-//      fnOpt.resize(2);
-//      fnOpt[0] = 1.0487;
-//      fnOpt[1] = 1.0513;
-//      dn = 0.0013*1.75;
-//      dn = 0.001; //optimal value of ref. index
-//      fnOpt[0] = 1.05 - dn;
-//      fnOpt[1] = 1.05 + dn;
-//      fAerogelLayers.resize(2);
-//      fAerogelLayers[0] = 0.5;
-//      fAerogelLayers[1] = 0.5;
+      //
+      nm = fFlatMirrorZ.size();
+      fFlatMirrorYGlob.resize(nm);
+      fFlatMirrorZGlob.resize(nm);
+      yShift = 0;
+      zShift = richOffset().Z() + aerogelOffset().Z();
+      for(UInt_t i=0; i<nm; i++) {
+         fFlatMirrorYGlob[i] = fFlatMirrorY[i] + yShift;
+         fFlatMirrorZGlob[i] = fFlatMirrorZ[i] + zShift;
+      }
+      break;
+    case 14: // flat mirror (four part)
+    case 24: // flat mirror (four part) + side mirrors
+      fFlatMirrorY.resize(5);
+      fFlatMirrorZ.resize(5);
+      // with refraction on the surface
+      fFlatMirrorY[0] = 0;
+      fFlatMirrorY[1] = 8.03026468817330;
+      fFlatMirrorY[2] = 30.7475489960267;
+      fFlatMirrorY[3] = 59.1955006448811;
+      fFlatMirrorY[4] = 84.0239842069457;
+      fFlatMirrorZ[0] = 18.5825566438019;
+      fFlatMirrorZ[1] = 27.3977855428941;
+      fFlatMirrorZ[2] = 47.7739516802010;
+      fFlatMirrorZ[3] = 60.7121551030865;
+      fFlatMirrorZ[4] = 61.0707645809510;
+      fPhDetY[0] = 60;
+      fPhDetY[1] = fFlatMirrorY[4];
+      fPhDetZ[0] = 5.00000000000000;
+      fPhDetZ[1] = fFlatMirrorZ[4];
+      //
+      nm = fFlatMirrorZ.size();
+      fFlatMirrorYGlob.resize(nm);
+      fFlatMirrorZGlob.resize(nm);
+      yShift = 0;
+      zShift = richOffset().Z() + aerogelOffset().Z();
+      for(UInt_t i=0; i<nm; i++) {
+         fFlatMirrorYGlob[i] = fFlatMirrorY[i] + yShift;
+         fFlatMirrorZGlob[i] = fFlatMirrorZ[i] + zShift;
+      }
+      break;
+    case 15: // flat mirror (five part)
+    case 25: // flat mirror (five part) + side mirrors
+      fFlatMirrorY.resize(6);
+      fFlatMirrorZ.resize(6);
+      // with refraction on the surface
+      fFlatMirrorY[0] = 0;
+      fFlatMirrorY[1] = 6.43722379520563;
+      fFlatMirrorY[2] = 24.4256033426640;
+      fFlatMirrorY[3] = 49.2742119933454;
+      fFlatMirrorY[4] = 65.6045650294544;
+      fFlatMirrorY[5] = 82.9932569195603;
+      fFlatMirrorZ[0] = 19.7751084893358;
+      fFlatMirrorZ[1] = 26.7049745668535;
+      fFlatMirrorZ[2] = 43.2466340126002;
+      fFlatMirrorZ[3] = 57.0589176253026;
+      fFlatMirrorZ[4] = 60.4234882450729;
+      fFlatMirrorZ[5] = 58.6650992017072;
+      fPhDetY[0] = 60;
+      fPhDetY[1] = fFlatMirrorY[5];
+      fPhDetZ[0] = 5.00000000000000;
+      fPhDetZ[1] = fFlatMirrorZ[5];
+      //
+      nm = fFlatMirrorZ.size();
+      fFlatMirrorYGlob.resize(nm);
+      fFlatMirrorZGlob.resize(nm);
+      yShift = 0;
+      zShift = richOffset().Z() + aerogelOffset().Z();
+      for(UInt_t i=0; i<nm; i++) {
+         fFlatMirrorYGlob[i] = fFlatMirrorY[i] + yShift;
+         fFlatMirrorZGlob[i] = fFlatMirrorZ[i] + zShift;
+      }
+      break;
+    case 16: // flat mirror (six part)
+    case 26: // flat mirror (six part) + side mirrors
+      fFlatMirrorY.resize(7);
+      fFlatMirrorZ.resize(7);
+      // with refraction on the surface
+      fFlatMirrorY[0] = 0;
+      fFlatMirrorY[1] = 4.32030152236946;
+      fFlatMirrorY[2] = 16.3735214678972;
+      fFlatMirrorY[3] = 34.0234063082931;
+      fFlatMirrorY[4] = 53.4151371528727;
+      fFlatMirrorY[5] = 67.4943304893323;
+      fFlatMirrorY[6] = 82.0821597606174;
+      fFlatMirrorZ[0] = 20.0304540223155;
+      fFlatMirrorZ[1] = 24.6621130797753;
+      fFlatMirrorZ[2] = 36.3146724796001;
+      fFlatMirrorZ[3] = 48.7721721707139;
+      fFlatMirrorZ[4] = 56.7889550463438;
+      fFlatMirrorZ[5] = 58.5790965356983;
+      fFlatMirrorZ[6] = 56.5386444942197;
+      fPhDetY[0] = 60;
+      fPhDetY[1] = fFlatMirrorY[6];
+      fPhDetZ[0] = 5.00000000000000;
+      fPhDetZ[1] = fFlatMirrorZ[6];
+      //
+      nm = fFlatMirrorZ.size();
+      fFlatMirrorYGlob.resize(nm);
+      fFlatMirrorZGlob.resize(nm);
+      yShift = 0;
+      zShift = richOffset().Z() + aerogelOffset().Z();
+      for(UInt_t i=0; i<nm; i++) {
+         fFlatMirrorYGlob[i] = fFlatMirrorY[i] + yShift;
+         fFlatMirrorZGlob[i] = fFlatMirrorZ[i] + zShift;
+      }
+      break;
+    case 17: // flat mirror (seven part)
+    case 27: // flat mirror (seven part) + side mirrors
+      fFlatMirrorY.resize(8);
+      fFlatMirrorZ.resize(8);
+      // with refraction on the surface
+      fFlatMirrorY[0] = 0;
+      fFlatMirrorY[1] = 2.07504791151454;
+      fFlatMirrorY[2] = 8.03938318086690;
+      fFlatMirrorY[3] = 22.6202807022538;
+      fFlatMirrorY[4] = 38.2473277661409;
+      fFlatMirrorY[5] = 55.1167285140505;
+      fFlatMirrorY[6] = 68.1475547317666;
+      fFlatMirrorY[7] = 81.4987977109529;
+      fFlatMirrorZ[0] = 19.0632831569999;
+      fFlatMirrorZ[1] = 21.3232597676276;
+      fFlatMirrorZ[2] = 27.5080822022865;
+      fFlatMirrorZ[3] = 40.5611035370563;
+      fFlatMirrorZ[4] = 49.9253177088730;
+      fFlatMirrorZ[5] = 56.0112344905128;
+      fFlatMirrorZ[6] = 57.2586668011183;
+      fFlatMirrorZ[7] = 55.1771069627915;
+      fPhDetY[0] = 60;
+      fPhDetY[1] = fFlatMirrorY[7];
+      fPhDetZ[0] = 5.00000000000000;
+      fPhDetZ[1] = fFlatMirrorZ[7];
+      //
+      nm = fFlatMirrorZ.size();
+      fFlatMirrorYGlob.resize(nm);
+      fFlatMirrorZGlob.resize(nm);
+      yShift = 0;
+      zShift = richOffset().Z() + aerogelOffset().Z();
+      for(UInt_t i=0; i<nm; i++) {
+         fFlatMirrorYGlob[i] = fFlatMirrorY[i] + yShift;
+         fFlatMirrorZGlob[i] = fFlatMirrorZ[i] + zShift;
+      }
+      break;
+    case 18: // flat mirror (eight part)
+    case 28: // flat mirror (eight part) + side mirrors
+      fFlatMirrorY.resize(9);
+      fFlatMirrorZ.resize(9);
+      // with refraction on the surface
+      fFlatMirrorY[0] = 0;
+      fFlatMirrorY[1] = 1.53560904998618;
+      fFlatMirrorY[2] = 5.89212190378038;
+      fFlatMirrorY[3] = 17.5565807772290;
+      fFlatMirrorY[4] = 30.0104598999171;
+      fFlatMirrorY[5] = 43.1204560600741;
+      fFlatMirrorY[6] = 57.0242748178388;
+      fFlatMirrorY[7] = 69.0047342707571;
+      fFlatMirrorY[8] = 81.1329884527176;
+      fFlatMirrorZ[0] = 19.5409594890924;
+      fFlatMirrorZ[1] = 21.2004105360782;
+      fFlatMirrorZ[2] = 25.7419689325749;
+      fFlatMirrorZ[3] = 36.6887140347995;
+      fFlatMirrorZ[4] = 45.2863228266215;
+      fFlatMirrorZ[5] = 51.5860160769717;
+      fFlatMirrorZ[6] = 55.7435949020503;
+      fFlatMirrorZ[7] = 56.4461575595980;
+      fFlatMirrorZ[8] = 54.3233266479462;
+      fPhDetY[0] = 60;
+      fPhDetY[1] = fFlatMirrorY[8];
+      fPhDetZ[0] = 5.00000000000000;
+      fPhDetZ[1] = fFlatMirrorZ[8];
+      //
+      nm = fFlatMirrorZ.size();
+      fFlatMirrorYGlob.resize(nm);
+      fFlatMirrorZGlob.resize(nm);
+      yShift = 0;
+      zShift = richOffset().Z() + aerogelOffset().Z();
+      for(UInt_t i=0; i<nm; i++) {
+         fFlatMirrorYGlob[i] = fFlatMirrorY[i] + yShift;
+         fFlatMirrorZGlob[i] = fFlatMirrorZ[i] + zShift;
+      }
+      break;
+    case 19: // flat mirror (nine part)
+    case 29: // flat mirror (nine part) + side mirrors
+      fFlatMirrorY.resize(10);
+      fFlatMirrorZ.resize(10);
+      // with refraction on the surface
+      fFlatMirrorY[0] = 0;
+      fFlatMirrorY[1] = 1.49645897228357;
+      fFlatMirrorY[2] = 5.64778607612293;
+      fFlatMirrorY[3] = 16.5322752536511;
+      fFlatMirrorY[4] = 27.8183214052547;
+      fFlatMirrorY[5] = 40.2374704149686;
+      fFlatMirrorY[6] = 52.9871945876487;
+      fFlatMirrorY[7] = 62.1756927165643;
+      fFlatMirrorY[8] = 71.5135677331208;
+      fFlatMirrorY[9] = 80.8735573790680;
+      fFlatMirrorZ[0] = 20.3538808252916;
+      fFlatMirrorZ[1] = 21.9497914345741;
+      fFlatMirrorZ[2] = 26.2257519619150;
+      fFlatMirrorZ[3] = 36.3783289992003;
+      fFlatMirrorZ[4] = 44.3190814791673;
+      fFlatMirrorZ[5] = 50.6718607175374;
+      fFlatMirrorZ[6] = 54.9437977944303;
+      fFlatMirrorZ[7] = 56.2339910167212;
+      fFlatMirrorZ[8] = 55.8374506290110;
+      fFlatMirrorZ[9] = 53.7178276378618;
+      fPhDetY[0] = 60;
+      fPhDetY[1] = fFlatMirrorY[9];
+      fPhDetZ[0] = 5.00000000000000;
+      fPhDetZ[1] = fFlatMirrorZ[9];
+      //
       nm = fFlatMirrorZ.size();
       fFlatMirrorYGlob.resize(nm);
       fFlatMirrorZGlob.resize(nm);

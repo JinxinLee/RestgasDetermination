@@ -39,13 +39,16 @@ class PndRichHitProducer : public FairTask
   void SetGeoVersion(UInt_t version) { fGeoVersion = version; };
   
   void SetPhDetNoiseON(UInt_t phDetNoise) { fPhDetNoise = phDetNoise; };
-  
+
+  void FinishEvent();
+  void FinishTask();
 
  private: 
 
   PndRichGeo* fGeo;
   UInt_t fGeoVersion;
   Bool_t fPhDetNoise;
+  UInt_t fNumRand;
   
   Float_t fPosResolution;                    // Position smearing [cm]
   

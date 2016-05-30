@@ -12,5 +12,9 @@
 #pragma link C++ class PndRichReco+;
 #pragma link C++ class PndRichResolution+;
 #pragma link C++ class PndRichRecoTask+;
+#pragma link C++ class PndRichDbTask+;
+#pragma link C++ class PndRichCalDb+;
+#pragma link C++ class PndRichCalDbData+;
+#pragma link C++ class PndRichCalDbPar+;
 
 #endif

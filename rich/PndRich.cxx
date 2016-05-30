@@ -15,6 +15,7 @@
 #include "FairRuntimeDb.h"
 #include "PndDetectorList.h"
 #include "PndStack.h"
+#include "TParticle.h"
 
 #include "TClonesArray.h"
 #include "TVirtualMC.h"
@@ -35,6 +36,7 @@ PndRich::PndRich()
     fELoss(-1),
     fGeo(new PndRichGeo()),
     fGeoH(NULL),
+    fRunCherenkov(kFALSE),            //!  Switch ON/OFF Cherenkov propagation
     fPndRichPDPointCollection(new TClonesArray("PndRichPDPoint")),
     fPndRichBarPointCollection(new TClonesArray("PndRichBarPoint"))
 {
@@ -48,6 +50,7 @@ PndRich::PndRich()
    
    if ( fGeoH == NULL )
       fGeoH = PndGeoHandling::Instance();
+   fGeoVersion = 313; //default geometry
 }
 
 PndRich::PndRich(const char* name, Bool_t active)
@@ -61,6 +64,7 @@ PndRich::PndRich(const char* name, Bool_t active)
     fELoss(-1),
     fGeo(new PndRichGeo()),
     fGeoH(NULL),
+    fRunCherenkov(kFALSE),            //!  Switch ON/OFF Cherenkov propagation
     fPndRichPDPointCollection(new TClonesArray("PndRichPDPoint")),
     fPndRichBarPointCollection(new TClonesArray("PndRichBarPoint"))
 {
@@ -74,6 +78,7 @@ PndRich::PndRich(const char* name, Bool_t active)
    
    if ( fGeoH == NULL )
       fGeoH = PndGeoHandling::Instance();
+   fGeoVersion = 313; //default geometry
 }
 
 PndRich::~PndRich()
@@ -91,8 +96,11 @@ PndRich::~PndRich()
 void PndRich::Initialize()
 {
   FairDetector::Initialize();
+  FairRun* fRun = FairRun::Instance();
   FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
   PndRichGeoPar* par=(PndRichGeoPar*)(rtdb->getContainer("PndRichGeoPar"));
+  par->setChanged();
+  par->setInputVersion(fRun->GetRunId(),1);
    
   if (0==gGeoManager) 
     cout << "We do not have gGeoManager" << endl;
@@ -103,7 +111,14 @@ void PndRich::Initialize()
   fGeoH->CreateUniqueSensorId("", fListOfSensitives);
   if(fVerboseLevel>0) fGeoH->PrintSensorNames();
    trackid.clear();
-   fGeo->init(13);
+
+  if (fRunCherenkov==kFALSE) cout << " -I- PndRich: Switching OFF Cherenkov Propagation" << endl;
+   
+   // define geometry version from name of geometry file
+   DefGeoVersion();
+   
+   // average refractive index of aerogel
+   fGeo->init(fGeoVersion);
    std::vector<Double_t> nopt = fGeo->nOpt();
    if (nopt.size()>0) {
       fnOpt = 0;
@@ -112,11 +127,25 @@ void PndRich::Initialize()
       fnOpt /= nopt.size();
       std::cout << "Mid ref. index = " << fnOpt << std::endl;
    }
+   
    // aerogel bar entrance z coordinate
    TVector3 richOffset = fGeo->richOffset();
    TVector3 aerogelOffset = fGeo->aerogelOffset();
    TVector3 aerogelSize = fGeo->aerogelSize();
    fZabar = richOffset.Z() + aerogelOffset.Z();
+
+   // pde_dpc3200_22.dat
+   std::string workdir(getenv( "VMCWORKDIR" ));
+   std::string effFileName(workdir+"/rich/pde_dpc3200_22.dat");
+   std::ifstream from( effFileName.c_str() );
+   Double_t wli, pdei;
+   from >> wli >> pdei;
+   while( !from.eof() ) {
+      fWlPhoton.push_back(wli); // nm
+      fPDE.push_back(pdei); // %
+      from >> wli >> pdei;
+   };
+            
 }
 
 Bool_t  PndRich::ProcessHits(FairVolume* vol)
@@ -136,34 +165,51 @@ Bool_t  PndRich::ProcessHits(FairVolume* vol)
   gMC->TrackMomentum(fMom);
 
   // Create PndRichPoint at exit of active volume
-   if ( fPdgCode == 50000050 && nam.BeginsWith("RichPhDetSi") && gMC->IsTrackEntering()==1 ){
-     fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-     fVolumeID = vol->getMCid();
-     AddPDPoint(fTrackID, fVolumeID, fPos.Vect(), fMom.Vect(),
-                fTime, fLength, fELoss, fEventID);
-     
-     // Increment number of PndRich det points in TParticle
-     PndStack* stack = (PndStack*) gMC->GetStack();
-     stack->AddPoint(kRICH);
-     gMC->StopTrack();
+   if ( fPdgCode == 50000050 ) {
+      if (fRunCherenkov==kFALSE ) {
+         if (fVerboseLevel >0) cout<< "Photon killed" << endl;
+         gMC->StopTrack();
+      }
+      else if ( nam.BeginsWith("RichPhDetSi") && gMC->IsTrackEntering()==1 ){
+         fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+         fVolumeID = vol->getMCid();
+         AddPDPoint(fTrackID, fVolumeID, fPos.Vect(), fMom.Vect(),
+                    fTime, fLength, fELoss, fEventID);
+
+         // Increment number of PndRich det points in TParticle
+         PndStack* stack = (PndStack*) gMC->GetStack();
+         stack->AddPoint(kRICH);
+         gMC->StopTrack();
+      }
    }
    
    if( (gMC->TrackCharge() != 0) && (fMom.Beta() > 1.00/fnOpt) &&
        gMC->IsTrackEntering()==1 && (fPos.Z() < fZabar+0.001) &&
        (nam.BeginsWith("RichAerogel")) && (trackid[fTrackID] != 1) ){
-      trackid[fTrackID] = 1;
+      
+      trackid[fTrackID] = 1; // register new track
+      
       fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
       fVolumeID = vol->getMCid();
       Double_t fMass = gMC->TrackMass();
-      Double_t fP = fMom.Vect().Mag();
-      Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass);
-      Double_t fThetaC = -1;
-      if ( fP != 0 ) fThetaC = fEnergy/fnOpt/fP;
-      fThetaC = fThetaC <= 1 ? fThetaC : -1;
-      fThetaC = fP/fEnergy; //beta
+      
+      Double_t fThetaC = 1/fnOpt/fMom.Beta(); // Cerenkov angle
+      fThetaC = fMom.Beta(); // beta
+      
       AddBarPoint(fTrackID, fVolumeID, fPos.Vect(), fMom.Vect(),
                   fTime, fLength, fPdgCode, fThetaC, fEventID, fMass);
+      
+//      TParticle *particle = gMC->GetStack()->GetCurrentTrack();
+//      cout << "particle: " << particle->Vx() << " "
+//         << particle->Vy() << " " << particle->Vz() << " "
+//         << particle->T() << " "
+//         << particle->Theta() << " " << particle->Phi() << " "
+//         << particle->Px() << " " << particle->Py() << " "
+//         << particle->Pz() << " " << particle->P() << 
+//         endl;
+
    }
+
 
    return kTRUE;
 }
@@ -176,7 +222,16 @@ void PndRich::EndOfEvent()
   trackid.clear();
 }
 
-
+void PndRich::DefGeoVersion()
+{
+   TString fileName = GetGeometryFileName();
+   if( fileName.EndsWith(".root") && (fGeoVersion==13) ){
+      char pat[] = "rich_v";
+      size_t ind = fileName.Index(pat)+strlen(pat);
+      sscanf(fileName(ind,5).Data(),"%d",&fGeoVersion);
+      std::cout << "GetGeometryFileName() = " << fileName << " " << fGeoVersion << std::endl;
+   }
+}
 
 void PndRich::Register()
 {
@@ -187,8 +242,9 @@ void PndRich::Register()
       only during the simulation.
   */
 
-  FairRootManager::Instance()->Register("RichPDPoint", "PndRich",
-                                        fPndRichPDPointCollection, kTRUE);
+  if (fRunCherenkov==kTRUE)
+      FairRootManager::Instance()->Register("RichPDPoint", "PndRich",
+                                            fPndRichPDPointCollection, kTRUE);
   FairRootManager::Instance()->Register("RichBarPoint", "PndRich",
                                         fPndRichBarPointCollection, kTRUE);
 
@@ -218,106 +274,125 @@ void PndRich::ConstructGeometry()
       just copy this and use it for your detector, otherwise you can
       implement here you own way of constructing the geometry. */
 
-  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
-  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
-  PndRichGeo*  Geo  = new PndRichGeo();
-  Geo->setGeomFile(GetGeometryFileName());
-  geoFace->addGeoModule(Geo);
+     FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
+     FairGeoInterface* geoFace = geoLoad->getGeoInterface();
+     PndRichGeo*  Geo  = new PndRichGeo();
+     Geo->setGeomFile(GetGeometryFileName());
+     geoFace->addGeoModule(Geo);
+     
+     Bool_t rc = geoFace->readSet(Geo);
+     if (rc) { Geo->create(geoLoad->getGeoBuilder()); }
+     TList* volList = Geo->getListOfVolumes();
+     
+     // store geo parameter
+     FairRun* fRun = FairRun::Instance();
+     FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
+     PndRichGeoPar* par=(PndRichGeoPar*)(rtdb->getContainer("PndRichGeoPar"));
+     TObjArray* fSensNodes = par->GetGeoSensitiveNodes();
+     TObjArray* fPassNodes = par->GetGeoPassiveNodes();
+     
+     TListIter iter(volList);
+     FairGeoNode* node   = NULL;
+     FairGeoVolume* aVol=NULL;
+     
+     while( (node = (FairGeoNode*)iter.Next()) ) {
+        aVol = dynamic_cast<FairGeoVolume*> ( node );
+        if ( node->isSensitive()  ) {
+           fSensNodes->AddLast( aVol );
+        } else {
+           fPassNodes->AddLast( aVol );
+        }
+     }
+     par->setChanged();
+     par->setInputVersion(fRun->GetRunId(),1);
 
-  Bool_t rc = geoFace->readSet(Geo);
-  if (rc) { Geo->create(geoLoad->getGeoBuilder()); }
-  TList* volList = Geo->getListOfVolumes();
-
-  // store geo parameter
-  FairRun* fRun = FairRun::Instance();
-  FairRuntimeDb* rtdb= FairRun::Instance()->GetRuntimeDb();
-  PndRichGeoPar* par=(PndRichGeoPar*)(rtdb->getContainer("PndRichGeoPar"));
-  TObjArray* fSensNodes = par->GetGeoSensitiveNodes();
-  TObjArray* fPassNodes = par->GetGeoPassiveNodes();
-
-  TListIter iter(volList);
-  FairGeoNode* node   = NULL;
-  FairGeoVolume* aVol=NULL;
-
-  while( (node = (FairGeoNode*)iter.Next()) ) {
-    aVol = dynamic_cast<FairGeoVolume*> ( node );
-    if ( node->isSensitive()  ) {
-      fSensNodes->AddLast( aVol );
-    } else {
-      fPassNodes->AddLast( aVol );
-    }
-  }
-  par->setChanged();
-  par->setInputVersion(fRun->GetRunId(),1);
-
-  ProcessNodes ( volList );
+     ProcessNodes ( volList );
   }
 }
 
+// https://www.slac.stanford.edu/grp/eg/minos/dist/dist_aux4/geant4_vmc/examples/E06/src/Ex06DetectorConstruction.cxx
+// http://personalpages.to.infn.it/~puccio/htmldoc/src/AliHMPIDv2.cxx.html
 void PndRich::ConstructOpGeometry() {
   cout<< " ==================================================== " << endl;
   cout<< " =======  Rich::  ConstructOpticalGeometry()  ======== " << endl; 
 
-   //PndRichGeo *fGeo = new PndRichGeo();
-   fGeo->init(13);
-   std::vector<Double_t> nOpt        = fGeo->nOpt();
-   UInt_t nAerogelLayers = nOpt.size();
+  DefGeoVersion();
+  //PndRichGeo *fGeo = new PndRichGeo();
+  fGeo->init(fGeoVersion);
+
+
+  // Aerogel optical properties
+  
+  std::vector<Double_t> nOpt = fGeo->nOpt();
+  UInt_t nAerogelLayers = nOpt.size();
    
-  // ideal reflectivity:
-  Int_t npoints_i = 2;  
+  Int_t npoints = 10;
+   
+  Double_t ephotonMin = 1.240*1.0e-09;  // 1000 nm - maximum of pde_dpc3200
+  Double_t ephotonMax = 4.428*1.0e-09;  //  280 nm - minimum of pde_dpc3200
+  Double_t ephoton[npoints]; // Value of photon momentum (in GeV)
+   
+  Double_t absLen[npoints]; // absorption length in cm
+  Double_t qEff[npoints]; // Detection efficiency for UV photons
+  Double_t refInd[nAerogelLayers][npoints]; // Refraction index
+   
+  Double_t k = 2*3.1415927*197.3269602e-9; // coefficient energy to wavelength (hc)
+   
+  for(UInt_t i=0; i<npoints; i++ ) {
+     
+     ephoton[i] = ephotonMin + i*(ephotonMax-ephotonMin)/(npoints-1);
+     Double_t wl = k/ephoton[i]; // wavelength in nm
+     
+     for(UInt_t l=0; l<nAerogelLayers; l++ )
+        refInd[l][i] = lhcbaerindex(nOpt[l],wl);
+     
+     absLen[i] = 4.5*std::pow(wl/400,4.0);
+     qEff[i] = 0.;
+  }
+
+  for(size_t i=0;i<nOpt.size();i++) {
+     
+     Int_t mId = gMC->MediumId( Form("RichAerogel%zd",i) );
+     
+     gMC->SetCerenkov( mId, npoints, ephoton, absLen, qEff, refInd[i] );
+     
+  }
+
+  // optical properties of air, photodetector window, mirror surface
+  Int_t npoints_i = 2;
+   
   Double_t ephoton_i[npoints_i];
-  ephoton_i[0] = 1.907*1.0e-09;  // 1 eV
-  ephoton_i[1] = 6.199*1.0e-09; // 10 eV  
+  ephoton_i[0] = 1.240*1.0e-09;  // 1 eV
+  ephoton_i[1] = 4.428*1.0e-09; // 10 eV
+   
   Double_t reflectivity_i[npoints_i];
   reflectivity_i[0] = 0.9;
   reflectivity_i[1] = 0.9;
-  Double_t refractiveIndex[npoints_i];
-  refractiveIndex[0] = 1.05;
-  refractiveIndex[1] = 1.05;
+   
   Double_t abs_i[npoints_i];
   abs_i[0] = 1000.;
   abs_i[1] = 1000.;
-  Double_t airRefractiveIndex[npoints_i];
-  airRefractiveIndex[0] = 1.0;
-  airRefractiveIndex[1] = 1.0;
-  Double_t reflectivity0_i[npoints_i];
-  reflectivity0_i[0] = 0.;
-  reflectivity0_i[1] = 0.;
-  // real reflectivity:
-  Int_t npoints_r = 10;  
-  Double_t ephoton_r[npoints_r];
-  Double_t ephoton_r_min = 1.907*1.0e-09;  // 1 eV
-  Double_t ephoton_r_max = 6.199*1.0e-09; // 10 eV
-  Double_t reflectivity_r[npoints_r];
-  Double_t refractiveIndex_r[nAerogelLayers][npoints_r];
-  Double_t abs_r[npoints_r];
-  Double_t reflectivity0_r[npoints_r];
-  Double_t k = 2*3.1415927*197.3269602e-9;
-  for(UInt_t i=0; i<npoints_r; i++ ) {
-     ephoton_r[i] = ephoton_r_min + i*(ephoton_r_max-ephoton_r_min)/(npoints_r-1);
-     reflectivity_r[i] = 1.;
-     Double_t wl = k/ephoton_r[i];// wavelength in nm
-     for(UInt_t l=0; l<nAerogelLayers; l++ )      
-        refractiveIndex_r[l][i] = lhcbaerindex(nOpt[l],wl);
-     abs_r[i] = 4.5*std::pow(wl/400,4.0);
-     reflectivity0_r[i] = 0.;
-  }
-
-// https://www.slac.stanford.edu/grp/eg/minos/dist/dist_aux4/geant4_vmc/examples/E06/src/Ex06DetectorConstruction.cxx
-  //gMC->SetCerenkov(gMC->MediumId("FusedSil"),npoints_i, ephoton_i,abs_i , reflectivity0_i, refractiveIndex);
-  for(size_t i=0;i<nOpt.size();i++) {
-     TString richAerogelMedia = Form("RichAerogel%zd",i);
-     //refractiveIndex[0] = nOpt[i];
-     //refractiveIndex[1] = nOpt[i];
-     //cout<<i<<" "<<richAerogelMedia<<" "<<gMC->MediumId(richAerogelMedia)<<endl;
-     gMC->SetCerenkov(gMC->MediumId(richAerogelMedia),npoints_r, ephoton_r, abs_r, reflectivity0_r, refractiveIndex_r[i]);
-  }
-  gMC->SetCerenkov(gMC->MediumId("RichAir"),npoints_i, ephoton_i,abs_i , reflectivity0_i, airRefractiveIndex); 
-  gMC->SetCerenkov(gMC->MediumId("RichPDWindow"),npoints_i, ephoton_i,abs_i , reflectivity0_i, airRefractiveIndex); 
+   
+  Double_t pdWindowRefInd[npoints_i];
+  pdWindowRefInd[0] = 1.46;
+  pdWindowRefInd[1] = 1.46;
+   
+  Double_t airRefInd[npoints_i];
+  airRefInd[0] = 1.0;
+  airRefInd[1] = 1.0;
+   
+  Double_t qEff_i[npoints_i];
+  qEff_i[0] = 0.;
+  qEff_i[1] = 0.;
+   
+  gMC->SetCerenkov( gMC->MediumId("RichAir"),      npoints_i, ephoton_i, abs_i, qEff_i, airRefInd );
+  gMC->SetCerenkov( gMC->MediumId("RichPDWindow"), npoints_i, ephoton_i, abs_i, qEff_i, pdWindowRefInd );
+   
   gMC->DefineOpSurface("RichMirrSurface",  kGlisur, kDielectric_metal, kPolished, 0.0);
   gMC->SetMaterialProperty("RichMirrSurface", "REFLECTIVITY", npoints_i, ephoton_i, reflectivity_i);
   gMC->SetBorderSurface("BarRichMirrorSurface", "RichMirror", 1, "RichAlBoxAir", 1, "RichMirrSurface");
   gMC->SetSkinSurface("RichAirMirrorSurface", "RichMirror", "RichMirrSurface");
+   
 //  gMC->SetBorderSurface("BarRichMirrorLeftSurface", "RichMirrorLeft", 1, "RichAlBoxAir", 1, "RichMirrSurface");
 //  gMC->SetSkinSurface("RichAirMirrorLeftSurface", "RichMirrorLeft", "RichMirrSurface");
 //  gMC->SetBorderSurface("BarRichMirrorRightSurface", "RichMirrorRight", 1, "RichAlBoxAir", 1, "RichMirrSurface");

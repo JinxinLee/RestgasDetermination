@@ -25,6 +25,7 @@ class  PndRichReco //: public FairGeoSet
     PndRichGeo* fGeo;
     UInt_t fEvent;
     UInt_t fGeoVersion;
+    UInt_t fGeoVersionMirr;
     UInt_t fParticleID;
     Double_t fMirrorLength;
     TVector3 fTrackPosition;
@@ -41,6 +42,7 @@ class  PndRichReco //: public FairGeoSet
     
   public:
     PndRichReco();
+    PndRichReco(UInt_t version);
     ~PndRichReco();
 
     void Init();
@@ -48,6 +50,8 @@ class  PndRichReco //: public FairGeoSet
 
     void SetGeoVersion(UInt_t version) { fGeoVersion = version; };
     void RichFullReconstruction(TVector3 pos, TVector3 dir, Float_t ts, Float_t &chi2, Float_t &chTh, Float_t &dChTh, Int_t &nph );
+    std::vector<double> GetPhis();
+    std::vector<double> GetThetas();
     std::vector<double> GetDThetas();
     std::vector<PndRichPhoton> CherenkovPhotonListFlat( TVector3 pos, TVector3 dir, Double_t time );
     double BetaPeakFinding(std::vector<PndRichPhoton> photons, Double_t nopt, Double_t nnz);

@@ -222,8 +222,23 @@ PndRichReco::PndRichReco()
 //-----------------------------------------------------   
 }
 
+// -----   Default constructor   -------------------------------------------
+PndRichReco::PndRichReco(UInt_t version)
+  : fRichPDHit(0)
+{
+   fGeoVersion = version;
+   Init(); // init geometry parameters
+   Register();
+   
+//-----------------------------------------------------   
+}
+
 void PndRichReco::Init()
 {
+   size_t nlayers = (fGeoVersion%1000)/100;
+   fGeoVersionMirr = fGeoVersion%100;
+   nlayers = nlayers ? nlayers : 3;
+
    FairRootManager *fManager = FairRootManager::Instance();
    fGeo = new PndRichGeo();
    fGeo->init(fGeoVersion);
@@ -291,7 +306,8 @@ void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir, Float_t ts
    TVector3 pos = pos0 + tam*dir;
 
    // flat mirror
-   if (fGeoVersion==13) {
+   if (((fGeoVersionMirr>=11)&&(fGeoVersionMirr<=19))||
+       ((fGeoVersionMirr>=21)&&(fGeoVersionMirr<=29))) {
       std::vector<PndRichPhoton> photons;
       beta_ = 1;
       dbeta_ = 0;
@@ -317,6 +333,10 @@ void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir, Float_t ts
    }
    fEvent++;
 }
+
+std::vector<double> PndRichReco::GetPhis() { return fi; };
+
+std::vector<double> PndRichReco::GetThetas() { return ti; };
 
 std::vector<double> PndRichReco::GetDThetas() {
    size_t n = fi.size();
@@ -468,7 +488,8 @@ std::vector<PndRichPhoton> PndRichReco::CherenkovPhotonListFlat( TVector3 pos, T
             }
          }
       }
-/*      Double_t x_hit = hit.X();
+      if ((fGeoVersionMirr>=21)&&(fGeoVersionMirr<=29)) {
+      Double_t x_hit = hit.X();
       {
          // left mirror
          hit.SetX(fMirrorLength - x_hit);
@@ -512,7 +533,8 @@ std::vector<PndRichPhoton> PndRichReco::CherenkovPhotonListFlat( TVector3 pos, T
                ind++;
             }
          }
-      }*/
+      }
+      }
    }
    ph.resize(ind);
    return ph;

@@ -51,6 +51,10 @@ class PndRich: public FairDetector
     void ConstructGeometry();
     void ConstructOpGeometry();
     
+    void SetRunCherenkov(Bool_t const & ch) { fRunCherenkov = ch; };
+    
+    void SetGeoVersion(UInt_t const & version) { fGeoVersion = version; };
+
     std::vector<std::string> fListOfSensitives;  
     bool CheckIfSensitive(std::string name);
     
@@ -85,7 +89,6 @@ class PndRich: public FairDetector
     virtual void   PreTrack() {;}
     virtual void   BeginEvent() {;}
 
-
   private:
 
     /** Track information to be stored until the track leaves the
@@ -101,6 +104,9 @@ class PndRich: public FairDetector
 
     PndRichGeo*  fGeo;
     PndGeoHandling* fGeoH; 	//! ///< converter for detector names
+
+    Bool_t fRunCherenkov;
+    UInt_t fGeoVersion;
  
     /** container for data points */
 
@@ -110,6 +116,11 @@ class PndRich: public FairDetector
     PndRich(const PndRich&);
     PndRich& operator=(const PndRich&);
 
+    void DefGeoVersion();
+
+    std::vector<Double_t> fWlPhoton;
+    std::vector<Double_t> fPDE;
+    
     std::map <Int_t,Int_t>   trackid;
     
     Double_t fnOpt;
