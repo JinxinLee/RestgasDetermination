@@ -18,7 +18,7 @@
 // 2.b) current --> sebastian version
 #include "TString.h"
 
-QAmacro_hyp_1(Int_t nEvents = 500, TString  SimEngine ="TGeant4", Bool_t HYP_File= false,Bool_t gam = false)
+void QAmacro_hyp_1(Int_t nEvents = 500, TString  SimEngine ="TGeant4", Bool_t HYP_File= false,Bool_t gam = false)
 {
 
   //-----User Settings:-----------------------------------------------

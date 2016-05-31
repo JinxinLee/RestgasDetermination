@@ -2,8 +2,6 @@
 void QAmacro_mvd_ana()
 {
   cout << "QA Analysis module for the MVD - Hit resolution check." << endl;
-  TStopwatch timer;
-  timer.Start();
   
   TString inFile = "mvdqasim.root";
   TString recoFile = "mvdqarec.root";

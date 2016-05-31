@@ -1,6 +1,6 @@
 // TEST 1: only check EvtGenDirect
 // void qa_evtgendirect(){
-int QAmacro_evtgen_1()
+void QAmacro_evtgen_1()
 {
   TStopwatch timer;
   timer.Start();
