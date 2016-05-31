@@ -164,6 +164,7 @@ void PndSciTDigiTask::Exec(Option_t* opt)
   TVector3 mcPosition;
   Double_t xSiPm1, xSiPm2;
   TVector3 hitPosition;
+  Double_t hitXPosition;
   TVector3 sensorDim; // Sensor dimension always in half the lenghts in root!
   TVector3 dHitPosition;
 
@@ -213,18 +214,23 @@ void PndSciTDigiTask::Exec(Option_t* opt)
 
       detectorPosition = fGeoH->LocalToMasterShortId(zeroVector, detectorID);
 
-      if (sensorDim(0) > 1.5)	hitPosition.SetXYZ((sipm1-sipm2)/2*cBC408,0.,0.);     
-      else  hitPosition.SetXYZ(0.,0.,0.);
-  
+      hitXPosition = (sipm1-sipm2)/2*cBC408;
+      if (hitXPosition > sensorDim(0)){
+	hitXPosition = sensorDim(0);
+      }
+      else if (hitXPosition < -sensorDim(0)){
+	hitXPosition = -sensorDim(0);	
+      }
+      hitPosition.SetXYZ(hitXPosition,0.,0.);     
+			 
       hitPosition = fGeoH->LocalToMasterShortId(hitPosition, detectorID);
 
       // sensor Dimensions equivalent to the potential error of the hitPosition in the center of the Tile. Attention,in real its no Gaussian shaped distribution but an rectangual!!
 
       dHitPosition =(1/sqrt(12))*2*sensorDim; //without x position by time difference
 
-      if (sensorDim(0) > 1.5){
-	dHitPosition.SetX(fdt*cBC408);
-      }
+      dHitPosition.SetX(fdt*cBC408);
+
       
 
       // Create new hit
@@ -261,7 +267,7 @@ void PndSciTDigiTask::Exec(Option_t* opt)
   if (fVerbose>1) std::cout << "-I- PndSciTDigiTask: " << nPoints << " SciTPoints, "
        << nPoints << " Hits created." << std::endl;
 
-  //---------- Write Out ALL Data in after every Event in EventBased Version only -------
+  //---------- Write Out ALL Data after every Event in EventBased Version only -------
   
   if (fTimeOrderedDigi==kFALSE && fActivateBuffering==kTRUE) fDataBuffer->WriteOutAllData();
 

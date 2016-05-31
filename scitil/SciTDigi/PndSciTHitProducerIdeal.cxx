@@ -147,7 +147,7 @@ void PndSciTHitProducerIdeal::Exec(Option_t* opt)
       // sensor Dimensions equivalent to the potential error of the hitPosition in the center of the Tile. Attention,in real its no Gaussian shaped distribution but an rectangual!!
     
       sensorDim = fGeoH->GetSensorDimensionsShortId(detectorID);
-      dHitPosition = sensorDim;
+      dHitPosition = sensorDim*2*(1/sqrt(12));
 
 
      // produce realistic timestamp
