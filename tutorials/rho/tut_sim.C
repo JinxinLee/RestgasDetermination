@@ -101,7 +101,7 @@ tut_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.2315
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
+  SciT->SetGeometryFileName("SciTil_201601.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
