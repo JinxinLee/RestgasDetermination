@@ -1,0 +1,70 @@
+FAST simulation without optical physics: (used for analisis)
+
+1. sim_complite.C
+
+  // Create the Simulation run manager--------------------------------
+  FairRunSim *fRun = new FairRunSim();
+  ...
+  //fRun->SetUserConfig("g4Config_opt.C");
+  ...
+  
+  //-------------------------  RICH       ----------------
+  PndRich *Rich= new PndRich("RICH",kTRUE);
+  Rich->SetGeometryFileName("rich_v313.root");
+  //Rich->SetRunCherenkov(kTRUE);
+  fRun->AddModule(Rich);
+
+2. digi_complite.C
+
+  // -----   RICH hit producers   ---------------------------------
+  PndRichHitProducer* richhit = new PndRichHitProducer();
+  richhit->SetVerbose(iVerbose);
+  //richhit->SetPhDetNoiseON(kTRUE);
+  fRun->AddTask(richhit);
+   
+3. reco_complite.C
+
+  - nothing to be changed
+  
+4. pid_complite.C
+
+  PndPidRichAssociatorTask *assRich= new PndPidRichAssociatorTask();
+  fRun->AddTask(assRich);
+
+
+/////////////////////////////////////////////////////////////////
+
+
+FULL simulation with optical physics:
+
+1. sim_complite.C
+
+  // Create the Simulation run manager--------------------------------
+  FairRunSim *fRun = new FairRunSim();
+  ...
+  fRun->SetUserConfig("g4Config_opt.C");
+  ...
+  
+  //-------------------------  RICH       ----------------
+  PndRich *Rich= new PndRich("RICH",kTRUE);
+  Rich->SetGeometryFileName("rich_v313.root");
+  Rich->SetRunCherenkov(kTRUE);
+  fRun->AddModule(Rich);
+
+2. digi_complite.C
+
+  // -----   RICH hit producers   ---------------------------------
+  PndRichHitProducer* richhit = new PndRichHitProducer();
+  richhit->SetVerbose(iVerbose);
+  richhit->SetPhDetNoiseON(kTRUE);
+  fRun->AddTask(richhit);
+   
+3. reco_complite.C
+
+  - nothing to be changed
+  
+4. pid_complite.C
+
+  PndPidRichAssociatorTask *assRich= new PndPidRichAssociatorTask();
+  fRun->AddTask(assRich);
+
