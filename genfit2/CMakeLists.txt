@@ -11,7 +11,12 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 Set(INCLUDE_DIRECTORIES 
   ${CMAKE_SOURCE_DIR}/genfit2
   ${CMAKE_SOURCE_DIR}/genfit2/core/include
+  ${CMAKE_SOURCE_DIR}/genfit2/eventdisplay/include
+  ${CMAKE_SOURCE_DIR}/genfit2/fields/include
+  ${CMAKE_SOURCE_DIR}/genfit2/finitePlanes/include
   ${CMAKE_SOURCE_DIR}/genfit2/fitters/include
+  ${CMAKE_SOURCE_DIR}/genfit2/measurements/include
+  ${CMAKE_SOURCE_DIR}/genfit2/trackReps/include
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -21,7 +26,9 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 )
 
-set(GENFIT_SRCS
+link_directories( ${LINK_DIRECTORIES})
+
+set(SRCS
 ./eventDisplay/src/EventDisplay.cc
 ./core/src/DetPlane.cc
 ./core/src/AbsMeasurement.cc
@@ -73,72 +80,7 @@ set(GENFIT_SRCS
 )
 
 
-link_directories( ${LINK_DIRECTORIES})
-# Set GENFIT directories
-SET(GF_INC_DIRS
-        ./core/include/ 
-        ./eventDisplay/include/
-        ./fields/include/
-        ./finitePlanes/include/ 
-        ./fitters/include/
-#       ./GBL/include/
-        ./measurements/include/ 
-        ./trackReps/include/
-        ./utilities/include/
-    ${GF_INC_DIRS}
-)
-
-
-#search for boost, provide some information to user
-FIND_PACKAGE(Boost)
-IF (Boost_FOUND)
-    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    MESSAGE("-- Boost is found at: ${Boost_INCLUDE_DIR}")
-    INSTALL( DIRECTORY 
-            ${GF_INC_DIRS}
-            DESTINATION ./include/genfit PATTERN ".svn" EXCLUDE 
-         )
-ELSE()
-    MESSAGE( " Boost was not found on your system, using the one shipped with GENFIT.")
-    INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/extern/ )
-    INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extern/ ${GF_INC_DIRS}  DESTINATION ./include/genfit PATTERN ".svn" EXCLUDE )
-ENDIF()
-
-IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
-
-# include directories 
-INCLUDE_DIRECTORIES( 
-        BEFORE 
-        ${GF_INC_DIRS}
-        ${ROOT_INCLUDE_DIRS})
-
-
-# declare the ROOT library path
-LINK_DIRECTORIES(${ROOT_LIBRARY_DIR})
-
-# add the list of source code files -- careful, when a new file is added!
-AUX_SOURCE_DIRECTORY( ./core/src          library_sources )
-AUX_SOURCE_DIRECTORY( ./eventDisplay/src  library_sources )
-AUX_SOURCE_DIRECTORY( ./fields/src        library_sources )
-AUX_SOURCE_DIRECTORY( ./finitePlanes/src  library_sources )
-AUX_SOURCE_DIRECTORY( ./fitters/src       library_sources )
-#AUX_SOURCE_DIRECTORY( ./GBL/src           library_sources )
-AUX_SOURCE_DIRECTORY( ./measurements/src  library_sources )
-AUX_SOURCE_DIRECTORY( ./trackReps/src     library_sources )
-#AUX_SOURCE_DIRECTORY( ./utilities/src     library_sources )
-
-
-if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${GENFIT_SRCS}" "${INCLUDE_DIRECTORIES}" GENFIT_RULES)
-endif(RULE_CHECKER_FOUND)
-
-# fill list of header files from list of source files
-# by exchanging the file extension
-set(GENFIT_HEADERS
+set(HEADERS
   ./eventDisplay/include/EventDisplay.h
   ./core/include/FitStatus.h
   ./core/include/MeasuredStateOnPlane.h
@@ -196,114 +138,9 @@ set(GENFIT_HEADERS
   ./fields/include/ConstField.h
 )
 
+set(LINKDEF  genfit2LinkDef.h)
+set(LIBRARY_NAME genfit2)
 
-SET(CORE_DICTIONARY_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/AbsFinitePlane.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/AbsFitterInfo.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/AbsHMatrix.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/AbsTrackRep.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/DetPlane.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/FitStatus.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/MaterialProperties.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/MeasuredStateOnPlane.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/MeasurementFactory.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/MeasurementOnPlane.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/MeasurementProducer.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/StateOnPlane.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/AbsMeasurement.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/ThinScatterer.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/Track.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/TrackCand.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/TrackCandHit.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/core/include/TrackPoint.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/finitePlanes/include/RectangularFinitePlane.h
-)
+set(DEPENDENCIES ${ROOT_LIBS})
 
-SET(GENFIT_SRCS ${GENFIT_SRCS} ${INCLUDE_DIRECTORIES} )
-
-Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/core/src/coreLinkDef.h)
-Set(HDRS ${CORE_DICTIONARY_SOURCES})
-Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/coreRootDict.cxx)
-
-ROOT_GENERATE_DICTIONARY()
-
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/coreRootDict.cxx" "${library_sources}")
-
-
-SET(EVENTDISPLAY_DICTIONARY_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/include/EventDisplay.h
-)
-
-Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/eventDisplay/src/eventDisplayLinkDef.h)
-Set(HDRS ${EVENTDISPLAY_DICTIONARY_SOURCES})
-Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/eventDisplayRootDict.cxx)
-
-ROOT_GENERATE_DICTIONARY()
-
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/eventDisplayRootDict.cxx" "${library_sources}")
-
-
-
-SET(FITTERS_DICTIONARY_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/AbsKalmanFitter.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/KalmanFittedStateOnPlane.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/KalmanFitStatus.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/ReferenceStateOnPlane.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/KalmanFitterRefTrack.h
-
-  ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/KalmanFitter.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/KalmanFitterInfo.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fitters/include/DAF.h
-)
-
-Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/fitters/src/fittersLinkDef.h)
-Set(HDRS ${FITTERS_DICTIONARY_SOURCES})
-Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/fittersRootDict.cxx)
-
-ROOT_GENERATE_DICTIONARY()
-
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/fittersRootDict.cxx" "${library_sources}")
-
-
-
-SET(MEASUREMENTS_DICTIONARY_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/HMatrixPhi.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/HMatrixU.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/HMatrixUnit.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/HMatrixV.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/HMatrixUV.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/FullMeasurement.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/PlanarMeasurement.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/ProlateSpacepointMeasurement.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/SpacepointMeasurement.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/WireMeasurement.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/WireMeasurementNew.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/WirePointMeasurement.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/measurements/include/WireTrackCandHit.h
-)
-
-Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/measurements/src/measurementsLinkDef.h)
-Set(HDRS ${MEASUREMENTS_DICTIONARY_SOURCES})
-Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/measurementsRootDict.cxx)
-
-ROOT_GENERATE_DICTIONARY()
-
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/measurementsRootDict.cxx" "${library_sources}")
-
-SET(TRACKREPS_DICTIONARY_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/trackReps/include/RKTrackRep.h
-)
-
-Set(LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/trackReps/src/trackRepsLinkDef.h)
-Set(HDRS ${TRACKREPS_DICTIONARY_SOURCES})
-Set(DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/trackRepsRootDict.cxx)
-
-ROOT_GENERATE_DICTIONARY()
-
-SET(library_sources "${CMAKE_CURRENT_BINARY_DIR}/trackRepsRootDict.cxx" "${library_sources}")
-
-set(DEPENDENCIES  ${ROOT_LIBS})
-
-add_library(genfit2 SHARED ${library_sources} ${GENFIT_SRCS})
-target_link_libraries(genfit2 ${ROOT_LIBRARIES} -lEve)
-set_target_properties(genfit2 PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES} LINKER_LANGUAGE CXX)
+GENERATE_LIBRARY()
