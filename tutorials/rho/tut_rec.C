@@ -28,6 +28,7 @@ void tut_rec()
   fRun->AddFriend("digi_complete.root");
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);
+  fRun->SetUseFairLinks(kTRUE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 

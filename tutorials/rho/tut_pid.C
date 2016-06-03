@@ -29,6 +29,7 @@ void tut_pid()
   fRun->AddFriend("reco_complete.root");
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);
+  fRun->SetUseFairLinks(kTRUE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
 
@@ -58,6 +59,9 @@ void tut_pid()
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   fRun->AddTask(corr);
+
+  PndPidBremCorrector *bremCorr = new PndPidBremCorrector();
+  fRun->AddTask(bremCorr);
 
   PndMcCloner *clone = new PndMcCloner();
   fRun->AddTask(clone);

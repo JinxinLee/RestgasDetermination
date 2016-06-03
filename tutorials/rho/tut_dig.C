@@ -26,7 +26,7 @@ void tut_dig()
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);  
-  
+  fRun->SetUseFairLinks(kTRUE); 
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
   allDigiFile += "/macro/params/";
@@ -73,7 +73,7 @@ void tut_dig()
   //fRun->AddTask(emcHdrFiller); // ECM header
 
   // -----   SciT hit producers   ---------------------------
-  PndSciTHitProducerIdeal* tofhit = new PndSciTHitProducerIdeal();
+  PndSciTDigiTask* tofhit = new PndSciTDigiTask();
   tofhit->SetVerbose(iVerbose);
   fRun->AddTask(tofhit);
 
