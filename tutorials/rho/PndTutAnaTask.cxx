@@ -152,7 +152,7 @@ void PndTutAnaTask::Exec(Option_t* opt)
 	int i=0,j=0, k=0, l=0;
 	
 	// necessary to read the next event
-	fAnalysis->GetEvent();
+	fAnalysis->GetEventInTask();
 	
 	if (!(++fEvtCount%100)) cout << "evt "<<fEvtCount<<endl;
 	

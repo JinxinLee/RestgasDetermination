@@ -32,17 +32,17 @@ void tut_ana(int nevts=0)
 	TString OutFile="output.root";  
 					
 	// *** the files coming from the simulation
-	TString inPidFile  = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile  = "simparams.root";
+	TString inPidFile  = "psi2s_jpsi2pi_jpsi_mumu_pid.root";    // this file contains the PndPidCandidates and McTruth
+	TString inParFile  = "psi2s_jpsi2pi_jpsi_mumu_par.root";
 	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
 	
 	// *** initialization
-	FairLogger::GetLogger()->SetLogToFile(kFALSE);
+	//FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	FairRunAna* fRun = new FairRunAna();
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-	fRun->SetInputFile(inPidFile);
+	fRun->SetSource(new FairFileSource(inPidFile));
 	
 	// *** setup parameter database 	
 	FairParRootFileIo* parIO = new FairParRootFileIo();

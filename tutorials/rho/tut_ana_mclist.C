@@ -13,8 +13,8 @@ void tut_ana_mclist(int nevts=0)
 	TString OutFile="output.root";  
 					
 	// *** the files coming from the simulation
-	TString inPidFile = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile = "simparams.root";
+	TString inPidFile  = "psi2s_jpsi2pi_jpsi_mumu_pid.root";    // this file contains the PndPidCandidates and McTruth
+	TString inParFile  = "psi2s_jpsi2pi_jpsi_mumu_par.root";
 	
 	gStyle->SetOptFit(1011);
 	
@@ -25,7 +25,7 @@ void tut_ana_mclist(int nevts=0)
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	FairRunAna* fRun = new FairRunAna();
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-	fRun->SetInputFile(inPidFile);
+	fRun->SetSource(new FairFileSource(inPidFile));
 	
 	// *** setup parameter database 	
 	FairParRootFileIo* parIO = new FairParRootFileIo();
