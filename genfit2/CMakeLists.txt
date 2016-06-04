@@ -11,7 +11,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 Set(INCLUDE_DIRECTORIES 
   ${CMAKE_SOURCE_DIR}/genfit2
   ${CMAKE_SOURCE_DIR}/genfit2/core/include
-  ${CMAKE_SOURCE_DIR}/genfit2/eventdisplay/include
+  ${CMAKE_SOURCE_DIR}/genfit2/eventDisplay/include
   ${CMAKE_SOURCE_DIR}/genfit2/fields/include
   ${CMAKE_SOURCE_DIR}/genfit2/finitePlanes/include
   ${CMAKE_SOURCE_DIR}/genfit2/fitters/include
