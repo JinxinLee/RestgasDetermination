@@ -57,8 +57,8 @@ PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString p
 	fEmin(0.), fPmin(0.), fESel(0), fPSel(0)		
 {	
 	// initialize mapping pdg -> list index and list name
-	int pdgcodes[] = {-11, 11, -13, 13, 211, -211, 321, -321, 2212, -2212, 22};
-	TString pdgnames[] = {"ElectronMinus", "ElectronPlus", "MuonMinus", "MuonPlus", "PionPlus", "PionMinus", "KaonPlus", "KaonMinus", "ProtonPlus", "ProtonMinus", "Neutral"};
+	int pdgcodes[]     = {    -11,              11,           -13,         13,         211,        -211,        321,        -321,        2212,         -2212,         22};
+	TString pdgnames[] = {"ElectronPlus", "ElectronMinus", "MuonPlus", "MuonMinus", "PionPlus", "PionMinus", "KaonPlus", "KaonMinus", "ProtonPlus", "ProtonMinus", "Neutral"};
 	
 	fPdgIdxMap.clear();
 	fIdxPdgMap.clear();
@@ -231,8 +231,8 @@ bool PndSimpleCombiner::ParseParams(TString params)
 	{
 		if (parm[i]=="ebrem") 
 		{
-			fIdxListNameMap[0]="ElectronMinusBrem";
-			fIdxListNameMap[1]="ElectronPlusBrem";
+			fIdxListNameMap[0]="ElectronPlusBrem";
+			fIdxListNameMap[1]="ElectronMinusBrem";
 			continue;
 		}
 		
