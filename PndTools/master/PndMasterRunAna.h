@@ -33,7 +33,7 @@ class PndMasterRunAna : public FairRunAna
    * and set the relevant flags. If something fails, it returns
    * a kFALSE value.
    */
-  Bool_t Setup();
+  Bool_t Setup(TString outprefix="");
   
   /**
    * @brief Final diagnostics

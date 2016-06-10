@@ -13,13 +13,16 @@
 #ifndef PNDMASTERRUNSIM_H
 #define PNDMASTERRUNSIM_H
 
-#include "PndBoxGenerator.h"
-#include "FairBoxGenerator.h"
 #include "FairRunSim.h"
 #include "FairRuntimeDb.h"
 
 #include "TStopwatch.h"
 #include "TString.h"
+
+class FairFilteredPrimaryGenerator;
+class FairBoxGenerator;
+class PndBoxGenerator;
+
 
 class PndMasterRunSim : public FairRunSim
 {
@@ -37,7 +40,7 @@ class PndMasterRunSim : public FairRunSim
    * and set the relevant flags. If something fails, it returns
    * a kFALSE value.
    */
-  Bool_t Setup();
+  Bool_t Setup(TString outprefix="");
   
   /**
    * @brief Final diagnostics
@@ -98,6 +101,13 @@ class PndMasterRunSim : public FairRunSim
    */
   void SetDpmFlag(Int_t Mode)   { fDpmFlag = Mode; };
   
+   /** 
+   * @brief Set the FTF noelastic flag
+   * @param Mode = 0. - FTF - Elastic and inelastic interactions (default)
+   * @param Mode = 1. - FTF - No elastic scattering, only inelastic
+   */
+  void SetFtfFlag(Int_t Mode)   { fFtfFlag = Mode; };
+  
   /** 
    * @brief Use DPM as event generator
    */
@@ -120,12 +130,26 @@ class PndMasterRunSim : public FairRunSim
    */
   void UseEvtGenGenerator(TString fEvtGenFile);
 
+  /** 
+   * @brief Use BoxGen as event generator
+   * @details # Box event generator
+   * This call sets BoxGenerator as event generator. 
+   * The format of the config string is 
+   *   for isotrop events in theta:      'BOX:type(pdg,mult):p(min,max):phi(min,max):tht(min,max)'
+   *   for isotrop events in cos(theta): 'BOX:type(pdg,mult):p(min,max):phi(min,max):ctht(min,max)'
+   * Instead of range 'var(min,max)' also a fixed value can be set with 'var(value)'
+   * All variables left out are set to defaults.
+   * @param fBoxConfig configuration string of the BOX generator
+   */
+  void UseBoxGenerator(TString fBoxConfig);
+
   /**
    * @brief Input of the simulation
    * @detail This string can be:
-   * a) the name of the dec file for EvtGen, w/ or w/o .dec
+   * a) the name of the dec file for EvtGen, ending w/ .dec
    * b) "dpm" if you want to use dpm
    * c) "ftf" if you want to use ftf
+   * d) "box:[...]" if you want to use box
    */  
   void SetInput(TString par)          { fInput          = par;}
 
@@ -153,8 +177,15 @@ class PndMasterRunSim : public FairRunSim
    * @brief Setter of the event counter rate
    */
   void SetEventCounterRate(Int_t par) { fEventCounterRate = par;}
-  
+
+  /** 
+   * @brief Getter for the primary generator, e.g. to configure the event filter
+   */
+  FairFilteredPrimaryGenerator* GetFilteredPrimaryGenerator() {return (FairFilteredPrimaryGenerator*)fGen;}
+
  private:
+
+  void GetRange(TString par, double &min, double &max);
 
   TString fInput;            ///< Name of the input for the simulation
   TString fInputDir;         ///< Name of the input directory for the simulation
@@ -163,6 +194,7 @@ class PndMasterRunSim : public FairRunSim
   TString fParamAsciiFile;   ///< Name of the parameter ascii file
 
   Int_t fDpmFlag;            ///< Flag for DPM event generator
+  Int_t fFtfFlag;            ///< Flag for FTF event generator
   Int_t fNEvents;            ///< Number of events
   Int_t fEventCounterRate;   ///< After how many events the counter will print
   FairRuntimeDb *fRtdb;      ///< Runtime DB

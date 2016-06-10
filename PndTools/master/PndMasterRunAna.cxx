@@ -26,11 +26,12 @@ PndMasterRunAna::PndMasterRunAna() :
 }
 
 // -----   Setup   ---------------------------------------------------------
-Bool_t PndMasterRunAna::Setup()
+Bool_t PndMasterRunAna::Setup(TString outprefix)
 {
-  TString inputName = fInput;
-  inputName.ToLower();
+  TString inputName = outprefix;
+  if (inputName=="") inputName = fInput;
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
+  inputName.ReplaceAll(":","_");
   
   PndFileNameCreator creator(inputName.Data());
   FairFileSource *fileSource = new FairFileSource(creator.GetSimFileName().data());

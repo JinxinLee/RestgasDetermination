@@ -18,6 +18,7 @@
 #include "PndEmcHitProducer.h"
 #include "PndDpmDirect.h"
 #include "PndFtfDirect.h"
+#include "PndBoxGenerator.h"
 #include "PndEvtGenDirect.h"
 #include "PndMasterSimTask.h"
 #include "PndEventCounterTask.h"
@@ -31,28 +32,31 @@
 #include "FairModule.h"
 #include "FairDetector.h"
 #include "FairPrimaryGenerator.h"
+#include "FairFilteredPrimaryGenerator.h"
+#include "FairBoxGenerator.h"
 #include "FairLogger.h"
 
 #include "TLorentzVector.h"
 #include "TDatabasePDG.h"
 
+#include <fstream>
 using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunSim::PndMasterRunSim() :
-  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fRtdb(), fTimer(), fInput(), fInputDir(""), fOutFile(), fDpmFlag(1), fNEvents(0), fEventCounterRate(100)
+  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fRtdb(), fTimer(), fInput(), fInputDir(""), fOutFile(), fDpmFlag(1), fFtfFlag(0), fNEvents(0), fEventCounterRate(100)
 {
   fTimer.Start();
 }
 
 // -----   Setup   ---------------------------------------------------------
-Bool_t PndMasterRunSim::Setup()
+Bool_t PndMasterRunSim::Setup(TString outprefix)
 {
-  
-  TString inputName = fInput;
-  inputName.ToLower();
+  TString inputName = outprefix;
+  if (inputName=="") inputName = fInput;
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
+  inputName.ReplaceAll(":","_");
   
   PndFileNameCreator creator(inputName.Data());
   SetOutputFile(creator.GetSimFileName().data());
@@ -182,43 +186,102 @@ void PndMasterRunSim::AddSimTasks()
 // -----   SetGenerator   --------------------------------------------------
 void PndMasterRunSim::SetGenerator()
 {
-  fGen = new FairPrimaryGenerator();
+  fGen = new FairFilteredPrimaryGenerator();
   
   TString input = fInput;
   input.ToLower();
   
-  if (input.Contains("dpm"))
-    {
-      UseDpmGenerator();
-    }
-  else if (input.Contains("ftf"))
-    {
-      UseFtfGenerator();
-    }
-  else if (input.Contains(".dec")) 
+  if (input.EndsWith(".dec") || input.Contains(".dec:")) 
     {
       UseEvtGenGenerator(fInput);
     }
+  else if (input.BeginsWith("dpm"))
+    {
+      UseDpmGenerator();
+    }
+  else if (input.BeginsWith("ftf"))
+    {
+      UseFtfGenerator();
+    }
+  else if (input.BeginsWith("box"))
+    {
+      UseBoxGenerator(fInput);
+    }  
   else 
     {
-      LOG(FATAL)<< "For box generator you must use the SetGenerator(PndBoxGenerator*) function!!" <<  FairLogger::endl;
+      LOG(FATAL)<< "Generator could not be identified from input '"<<fInput.Data()<<"'!!" <<  FairLogger::endl;
     }
   
 }
 
-// -----   SetGenerator   --------------------------------------------------
-void PndMasterRunSim::SetGenerator(PndBoxGenerator *boxGen)
+void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
 {
-  LOG(INFO) << "Using PndBoxGenerator generator" << FairLogger::endl;
-  fGen = new FairPrimaryGenerator();
+  // use BOX generator; defaults
+
+  Double_t BoxMomMin  = 0.05;   // minimum momentum for box generator
+  Double_t BoxMomMax  = 10.;    // maximum   "       "
+  Double_t BoxThtMin  = 0. ;    // minimum theta for box generator
+  Double_t BoxThtMax  = 180.;   // maximum   "       "
+  Double_t BoxPhiMin  = 0. ;    // minimum phi for box generator
+  Double_t BoxPhiMax  = 360.;   // maximum   "       "
+  Bool_t   BoxCosTht  = false;  // isotropic in cos(theta) instead theta
+  
+  Int_t    BoxType    = 13;     // default particle muon
+  Int_t    BoxMult    = 1;      // default particle multiplicity
+  Double_t type=0,mult=0;       // ref. parameters for range function
+  
+  fBoxConfig.ToLower();
+  
+  if (fBoxConfig!="box")
+  {
+    fBoxConfig.ReplaceAll("box","");
+    fBoxConfig.ReplaceAll(" ","");
+    fBoxConfig += ":";
+    
+    while (fBoxConfig.Contains(":"))
+    {
+      TString curpar = fBoxConfig(0,fBoxConfig.Index(":"));
+      fBoxConfig = fBoxConfig(fBoxConfig.Index(":")+1,1000);
+
+      if (curpar.BeginsWith("type(")) {GetRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
+      if (curpar.BeginsWith("p("))    GetRange(curpar,BoxMomMin,BoxMomMax);
+      if (curpar.BeginsWith("tht("))   GetRange(curpar,BoxThtMin,BoxThtMax);
+      if (curpar.BeginsWith("ctht(")) {GetRange(curpar,BoxThtMin,BoxThtMax); BoxCosTht=true;}
+      if (curpar.BeginsWith("phi("))   GetRange(curpar,BoxPhiMin,BoxPhiMax);
+    }
+  }
+
+  PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult); 
+  
+  boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
+  boxGen->SetPhiRange(BoxPhiMin, BoxPhiMax);   // Azimuth angle range [degree]
+  boxGen->SetThetaRange(BoxThtMin, BoxThtMax); // Polar angle in lab system range [degree]
+  
+  if (BoxCosTht) boxGen->SetCosTheta();
+  
+  boxGen->SetXYZ(0., 0., 0.); //cm
+		
+  LOG(INFO) << "Using PndBoxGenerator(" << GetBeamMom() <<", pdg="<<BoxType<<" mult="<<BoxMult
+	    <<" ) generator with range p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]" << FairLogger::endl;
+  
+  //  cout <<"BOX generator range: p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
+  
   fGen->AddGenerator(boxGen);
 }
 
 // -----   SetGenerator   --------------------------------------------------
-void PndMasterRunSim::SetGenerator(FairBoxGenerator *boxGen)
+ void PndMasterRunSim::SetGenerator(PndBoxGenerator *boxGen)
 {
+  LOG(INFO) << "Using PndBoxGenerator generator" << FairLogger::endl;
+  fGen = new FairFilteredPrimaryGenerator();
+  fGen->AddGenerator(boxGen);
+}
+ 
+// -----   SetGenerator   --------------------------------------------------
+void PndMasterRunSim::SetGenerator(FairBoxGenerator *boxGen)
+ {
   LOG(INFO) << "Using FairBoxGenerator generator" << FairLogger::endl;
-  fGen = new FairPrimaryGenerator();
+  fGen = new FairFilteredPrimaryGenerator();
   fGen->AddGenerator(boxGen);
 }
 
@@ -234,14 +297,44 @@ void PndMasterRunSim::UseDpmGenerator()
 void PndMasterRunSim::UseFtfGenerator()
 {
   if ( strncmp(fName,"TGeant4",7 ) == 0 ) LOG(FATAL) << "FTF does not run with Geant4 !!!"  << FairLogger::endl;
-  LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() << ") generator" << FairLogger::endl;
-  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed());
+  LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() <<", "<<fFtfFlag<< ") generator" << FairLogger::endl;
+  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed(), fFtfFlag);
   fGen->AddGenerator(Ftf);
 }
 
 // -----   UseEvtGenGenerator   --------------------------------------------
 void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
 {
+  
+  TString IniRes="";
+  
+  if (fEvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ? 
+  {
+    IniRes = fEvtGenFile(fEvtGenFile.Index(":")+1,1000);
+    fEvtGenFile = fEvtGenFile(0,fEvtGenFile.Index(":"));
+  }
+  
+  if (IniRes=="") // we need to search the decay file
+  {
+    ifstream fs(fEvtGenFile.Data());	
+    char line[250];
+  
+    while (fs)
+    {
+      fs.getline(line,249);
+      TString s(line);
+      s.ReplaceAll("\r","");
+      if (IniRes=="" && s.Contains("Decay "))
+      {
+        if (s.Contains("#")) s=s(0,s.Index("#"));
+        s.ReplaceAll("Decay ","");
+        s.ReplaceAll(" ","");
+        IniRes = s;
+      }	 
+    } 
+    fs.close();
+  }
+  /*
   // Looping over the dec file trying to find the first string "Decay", in order to find the initai
   // state as the following string
   FILE *dec = fopen(fInputDir+fEvtGenFile,"r");
@@ -259,21 +352,26 @@ void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
 	  break;
 	}    
     }
-  if (!found) LOG(FATAL) << "The input file is not a proper .dec!! " << FairLogger::endl;
+  */
+  if (IniRes=="") LOG(FATAL) << "The input file is not a proper .dec!! " << FairLogger::endl;
   
     //   TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
   //   EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  LOG(INFO) << "Using PndEvtGenDirect(" << particle << ", " << (fInputDir+fEvtGenFile).Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
-  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(particle, (fInputDir+fEvtGenFile).Data(), GetBeamMom());
+  LOG(INFO) << "Using PndEvtGenDirect(" <<IniRes << ", " << (fInputDir+fEvtGenFile).Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(IniRes, (fInputDir+fEvtGenFile).Data(), GetBeamMom());
   EvtGen->SetStoreTree(kTRUE);
   fGen->AddGenerator(EvtGen);
+  
 }
 
 // -----   Finish   ---------------------------------------------------------
 void PndMasterRunSim::Finish()
 {
   fRtdb->saveOutput();
-  
+
+  // write the summary of event filter to output root file
+  ((FairFilteredPrimaryGenerator*)fGen)->WriteEvtFilterStatsToRootFile();   
+
   cout << endl;
   
   // Extract the maximal used memory an add is as Dart measurement
@@ -304,6 +402,26 @@ void PndMasterRunSim::Finish()
    
   LOG(INFO) << "Macro finished successfully." << FairLogger::endl;
   
+}
+
+// -----Helper function for parameter parsing  ---------------------------------------------------------
+// par = string parameter like 'varname(min,max)' of 'varname(value)'
+
+void PndMasterRunSim::GetRange(TString par, double &min, double &max)
+{
+	par.ReplaceAll(" ","");
+	par = par(par.Index("(")+1, par.Length()-par.Index("(")-2);
+	
+	TString smin=par, smax=par;
+	
+	if (par.Contains(",")) 
+	{
+		smin = par(0,par.Index(","));
+		smax = par(par.Index(",")+1,1000);
+	}
+	
+	min = smin.Atof();
+	max = smax.Atof();
 }
 
 /** @cond CLASSIMP */

@@ -13,6 +13,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/master
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/pgenerators
+  ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00	
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
   ${CMAKE_SOURCE_DIR}/pgenerators/Direct
@@ -88,6 +89,7 @@ PndMasterRunAna.cxx
 set(LINKDEF  MasterLinkDef.h)
 set(LIBRARY_NAME Master)
 
+# set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
 set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect)
 
 GENERATE_LIBRARY() 
