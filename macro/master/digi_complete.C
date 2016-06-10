@@ -6,7 +6,7 @@ void digi_complete(Int_t nEvents = 0)
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
   TString  prefix         = "evtcomplete";
-  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec:pbarpSystem"; 
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "digi";
   TString  friend1        = "";
   TString  friend2        = "";
