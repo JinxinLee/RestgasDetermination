@@ -9,7 +9,8 @@ sim_box(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentu
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  inputGenerator = "box_1pi_1GeV_theta10-120"; 
+  //TString  inputGenerator = "box_1pi_1GeV_theta10-120"; 
+  TString  inputGenerator = "box:type(211,1):p(1):tht(10,120)"; 
   //-------------------------------------------------------------------------
   // -----   Create the Simulation run manager ------------------------------
   PndMasterRunSim *fRun = new PndMasterRunSim();
@@ -23,18 +24,21 @@ sim_box(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentu
   // -----   Geometry   -----------------------------------------------------
   fRun->CreateGeometry();
   // -----   Event generator   ----------------------------------------------
+  fRun->SetGenerator();
+  /*
   FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPRange(1.,1.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(10., 120.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // cm
-  fRun->SetGenerator(boxGen);
+  fRun->SetGenerator(boxGen);*/
+  
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddSimTasks();
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(nEvents); 
-  fRun->Finish();
+  //fRun->Run(nEvents); 
+  //fRun->Finish();
   
   //exit(0);  
 };

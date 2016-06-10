@@ -57,6 +57,7 @@ void ana_complete(int nevts=0)
 {
     //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
+  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "ana";
   TString  friend1        = "pid";
@@ -73,7 +74,7 @@ void ana_complete(int nevts=0)
   fRun->SetFriend3(friend3);
   fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
-  fRun->Setup();
+  fRun->Setup(prefix);
         
 	// *** some variables
 	int i=0,j=0, k=0, l=0;
@@ -82,7 +83,7 @@ void ana_complete(int nevts=0)
 	fRun->Init(); 
 	
         // *** create an output file for all histograms
-	TFile *out = TFile::Open("output_ana.root","RECREATE");
+	TFile *out = TFile::Open(prefix+"_output_ana.root","RECREATE");
 	
 	// *** create some histograms
 	TH1F *hmomtrk    = new TH1F("hmomtrk","track momentum (all)",200,0,5);

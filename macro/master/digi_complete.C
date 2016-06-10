@@ -5,7 +5,8 @@ void digi_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  prefix         = "evtcomplete";
+  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec:pbarpSystem"; 
   TString  output         = "digi";
   TString  friend1        = "";
   TString  friend2        = "";
@@ -21,7 +22,7 @@ void digi_complete(Int_t nEvents = 0)
   fRun->SetFriend3(friend3);
   fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
-  fRun->Setup();
+  fRun->Setup(prefix);
 
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddDigiTasks();
@@ -30,6 +31,4 @@ void digi_complete(Int_t nEvents = 0)
   fRun->Init();
   fRun->Run(0, nEvents);
   fRun->Finish();
- 
-  exit(0);
 }

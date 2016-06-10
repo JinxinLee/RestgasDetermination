@@ -5,6 +5,7 @@ void full_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
+  TString  prefix         = "evtcomplete";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
   TString  output         = "pid";
   TString  friend1        = "";
@@ -21,7 +22,7 @@ void full_complete(Int_t nEvents = 0)
   fRun->SetFriend3(friend3);
   fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
-  fRun->Setup();
+  fRun->Setup(prefix);
 
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddDigiTasks(kFALSE);
@@ -32,6 +33,4 @@ void full_complete(Int_t nEvents = 0)
   fRun->Init();
   fRun->Run(0, nEvents);
   fRun->Finish();
- 
-  exit(0);
 }
