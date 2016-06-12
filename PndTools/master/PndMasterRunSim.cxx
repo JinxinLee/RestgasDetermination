@@ -316,7 +316,8 @@ void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
   
   if (IniRes=="") // we need to search the decay file
   {
-    ifstream fs(fEvtGenFile.Data());	
+    TString fnamepath=fInputDir+fEvtGenFile;
+    ifstream fs(fnamepath.Data());	
     char line[250];
   
     while (fs)
