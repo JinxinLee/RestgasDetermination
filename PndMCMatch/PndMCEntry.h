@@ -47,7 +47,11 @@ PndMCEntry(std::set<FairLink> links, Int_t source = -1, Int_t pos = -1)
 
 	friend std::ostream& operator<< (std::ostream& out, const PndMCEntry& link){
 		//out << "Source: " << link.GetSource() << " Position: " << link.GetPos() << std::endl;
+#ifdef _HavePrintLinkInfo
                 ((FairMultiLinkedData)link).PrintLinkInfo(out);
+#else
+                ((FairMultiLinkedData)link).Print(out);
+#endif
 		return out;
 	}
 
