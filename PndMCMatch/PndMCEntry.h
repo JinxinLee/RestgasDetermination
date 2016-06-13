@@ -51,10 +51,10 @@ PndMCEntry(std::set<FairLink> links, Int_t source = -1, Int_t pos = -1)
 #ifdef _HavePrintLinkInfo
                 ((FairMultiLinkedData)link).PrintLinkInfo(out);
 #else
-  		std::stringstream ss;
-  		ss << out.rdbuf();
-  		std::string myString = ss.str();
-                ((FairMultiLinkedData)link).Print(myString.c_str());
+//  		std::stringstream ss;
+//  		ss << out.rdbuf();
+//  		std::string myString = ss.str();
+//              ((FairMultiLinkedData)link).Print(myString.c_str());
 #endif
 		return out;
 	}

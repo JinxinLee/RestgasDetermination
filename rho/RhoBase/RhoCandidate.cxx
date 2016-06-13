@@ -1173,10 +1173,10 @@ void RhoCandidate::PrintOn ( std::ostream& o ) const
 #ifdef _HavePrintLinkInfo
   FairMultiLinkedData_Interface::PrintLinkInfo(o);
 #else
-  std::stringstream ss;
-  ss << o.rdbuf();
-  std::string myString = ss.str();
-  FairMultiLinkedData_Interface::Print(myString.c_str());
+//  std::stringstream ss;
+//  ss << o.rdbuf();
+//  std::string myString = ss.str();
+//  FairMultiLinkedData_Interface::Print(myString.c_str());
 #endif
 }
 
