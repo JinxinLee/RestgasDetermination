@@ -54,6 +54,7 @@ PndMasterRunSim::PndMasterRunSim() :
 Bool_t PndMasterRunSim::Setup(TString outprefix)
 {
   TString inputName = outprefix;
+  inputName.ToLower(); 
   if (inputName=="") inputName = fInput;
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   inputName.ReplaceAll(":","_");
