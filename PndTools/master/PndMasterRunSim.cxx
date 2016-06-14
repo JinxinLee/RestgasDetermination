@@ -54,8 +54,8 @@ PndMasterRunSim::PndMasterRunSim() :
 Bool_t PndMasterRunSim::Setup(TString outprefix)
 {
   TString inputName = outprefix;
-  inputName.ToLower(); 
   if (inputName=="") inputName = fInput;
+  inputName.ToLower(); 
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   inputName.ReplaceAll(":","_");
   
@@ -297,7 +297,7 @@ void PndMasterRunSim::UseDpmGenerator()
 // -----   UseFtfGenerator   -----------------------------------------------
 void PndMasterRunSim::UseFtfGenerator()
 {
-  if ( strncmp(fName,"TGeant4",7 ) == 0 ) LOG(FATAL) << "FTF does not run with Geant4 !!!"  << FairLogger::endl;
+  //if ( strncmp(fName,"TGeant4",7 ) == 0 ) LOG(FATAL) << "FTF does not run with Geant4 !!!"  << FairLogger::endl;
   LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() <<", "<<fFtfFlag<< ") generator" << FairLogger::endl;
   PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed(), fFtfFlag);
   fGen->AddGenerator(Ftf);

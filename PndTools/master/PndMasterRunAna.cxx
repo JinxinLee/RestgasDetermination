@@ -29,8 +29,8 @@ PndMasterRunAna::PndMasterRunAna() :
 Bool_t PndMasterRunAna::Setup(TString outprefix)
 {
   TString inputName = outprefix;
-  inputName.ToLower(); 
   if (inputName=="") inputName = fInput;
+  inputName.ToLower(); 
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   inputName.ReplaceAll(":","_");
   
