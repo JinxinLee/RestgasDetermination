@@ -14,6 +14,7 @@
 //    [fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'
 //    [runST]   : if 'true' runs Software Trigger (default: false)
 //    [runnum]  : integer run number (default: 0)
+//    [mode]    : arbitrary mode number (default: 0)
 // -------------------
 
 void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0, int runmode=0)
@@ -76,7 +77,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 
 	FairRunAna* fRun = new FairRunAna();
 	fRun->SetGenerateRunInfo(kFALSE);
-	fRun->SetInputFile(InFile);
+	fRun->SetSource(new FairFileSource(InFile));
 	fRun->SetOutputFile(OutFile);
 
 	// *** take constant field; needed for PocaVtx

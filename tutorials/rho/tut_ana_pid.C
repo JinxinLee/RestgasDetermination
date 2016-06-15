@@ -22,18 +22,18 @@ int SelectTruePid(PndAnalysis *ana, RhoCandList &l)
 }
 
 
-void tut_ana_pid(int nevts=0)
+void tut_ana_pid(int nevts = 0, TString prefix = "signal")
 {
-	// *** some variables
+ 	// *** some variables
 	int i=0,j=0, k=0, l=0;
+	gStyle->SetOptFit(1011);
 	
-	TString OutFile="output.root";  
+	// *** the output file for FairRunAna
+	TString OutFile="out_dummy.root";  
 					
 	// *** the files coming from the simulation
-	TString inPidFile = "pid_complete.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile = "simparams.root";
-	
-	gStyle->SetOptFit(1011);
+	TString inPidFile  = prefix+"_pid.root";    // this file contains the PndPidCandidates and McTruth
+	TString inParFile  = prefix+"_par.root";
 	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
@@ -58,7 +58,7 @@ void tut_ana_pid(int nevts=0)
 	fRun->Init(); 
 	
 	// *** create an output file for all histograms
-	TFile *out = TFile::Open("output_ana_pid.root","RECREATE");
+	TFile *out = TFile::Open(prefix+"_ana_pid.root","RECREATE");
 	
 	// *** create some histograms
 	TH1F *hjpsim_all = new TH1F("hjpsim_all","J/#psi mass (all)",200,0,4.5);

@@ -5,14 +5,15 @@
 // The parameters are
 // -------------------
 // USAGE:\n";
-// tut_fastsim.C+( [decfile], [mom], [nevt], [res] )
+// tut_fastsim.C+( [nevt], [prefix], [decfile], [mom], [res] )
+//    [nevt]     : number of events; default = 1000
+//    [pref]     : prefix for output
 //    [decfile]  : decfile; 'DPM'/'FTF' uses DPM/FTF generator instead
 //    [mom]      : pbar momentum
-//    [nevt]     : number of events; default = 1000
 //    [res]      : resonance (ignored when running DPM); default = 'pbarpSystem0'
 
 
-void tut_fastsim(Int_t nEvents = 1000, TString Decfile="pp_Jpsi2pi_Jpsi_mumu.dec", Float_t Mom=6.232, TString Resonance="pbarpSystem" )
+void tut_fastsim(Int_t nEvents = 1000, TString prefix = "signal", TString Decfile="pp_jpsi2pi_jpsi_mumu.dec", Float_t Mom=6.232, TString Resonance="pbarpSystem" )
 {
 	// if Mom<0, interprete as -E_cm -> compute mom
 	double mp = 0.938272;
@@ -45,7 +46,7 @@ void tut_fastsim(Int_t nEvents = 1000, TString Decfile="pp_Jpsi2pi_Jpsi_mumu.dec
 	gRandom->SetSeed();
 
 	//-----User Settings:-------------------------------------------------
-	TString OutputFile = "pid_complete_fast.root";
+	TString OutputFile = prefix+"_fast.root";
 	
 	gDebug             = 0;
 

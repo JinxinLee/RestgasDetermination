@@ -1,4 +1,4 @@
-tut_makegifs(TString fn="output_ana.root", TString type="gif")
+tut_makegifs(TString fn="signal_ana.root", TString type="gif")
 {
   TFile *f=new TFile(fn,"READ");
     

@@ -22,18 +22,17 @@ int SelectTruePid(PndAnalysis *ana, RhoCandList &l)
 }
 
 
-void tut_ana_fast(int nevts=0)
+void tut_ana_fast(int nevts = 0, TString prefix = "signal")
 {
-	// *** some variables
+ 	// *** some variables
 	int i=0,j=0, k=0, l=0;
 	gStyle->SetOptFit(1011);
 	
 	// *** the output file for FairRunAna
-	TString OutFile="output.root";  
+	TString OutFile="out_dummy.root";  
 					
 	// *** the files coming from the simulation
-	TString inPidFile  = "pid_complete_fast.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile  = "psi2s_jpsi2pi_jpsi_mumu_par.root";
+	TString inPidFile  = prefix+"_fast.root";    // this file contains the PndPidCandidates and McTruth
 	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
@@ -62,7 +61,7 @@ void tut_ana_fast(int nevts=0)
 	fRun->Init(); 
 	
 	// *** create an output file for all histograms
-	TFile *out = TFile::Open("output_ana.root","RECREATE");
+	TFile *out = TFile::Open(prefix+"_ana_fast.root","RECREATE");
 	
 	// *** create some histograms
 	TH1F *hjpsim_all = new TH1F("hjpsim_all","J/#psi mass (all)",200,0,4.5);
@@ -275,7 +274,7 @@ void tut_ana_fast(int nevts=0)
 		// *** LOOSE PID combinatorics
 		// ***
 		pidalgo = "MvdPidProbability;SttPidProbability;DrcBarrelProbability";
-		// *** and again with PidAlgoMvd;PidAlgoStt;PidAlgoDrc and loose selection
+		// *** and again with Mvd, Stt, Drc and loose selection
 		theAnalysis->FillList(muplus,  "MuonLoosePlus",  pidalgo );
 		theAnalysis->FillList(muminus, "MuonLooseMinus", pidalgo );
 		theAnalysis->FillList(piplus,  "PionLoosePlus",  pidalgo );
@@ -293,7 +292,7 @@ void tut_ana_fast(int nevts=0)
 		// *** TIGHT PID combinatorics
 		// ***
 		TString pidalgomdt = "ScMdtPidBarrelProbability;ScMdtPidForwardProbability";
-		// *** and again with PidAlgoMvd;PidAlgoStt and tight selection
+		// *** and again with Mvd, Stt and tight selection
 		theAnalysis->FillList(muplus,  "MuonTightPlus",  pidalgomdt);
 		theAnalysis->FillList(muminus, "MuonTightMinus", pidalgomdt);
 		theAnalysis->FillList(piplus,  "PionLoosePlus",  pidalgo);

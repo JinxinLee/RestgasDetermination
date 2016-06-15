@@ -17,30 +17,30 @@
 //    [mode]     : arbitrary mode number (default: 0)
 // -------------------
 
-void getRange(TString par, double &min, double &max);
+void    getRange(TString par, double &min, double &max);
+TString getInitialResonance(TString &fEvtGenFile);
 
-void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
-				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 , int runmode=0)
+void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", Int_t nEvents = 1000, TString anaparms="", bool runST=false, int run=0 , int runmode=0)
 {
 	if (Prefix=="" || Decfile=="" || Mom==0. ) 
 	{
 		cout << "USAGE:\n";
-		cout << "quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [res], [parms], [runST], [runnum], [mode] )\n\n";
+		cout << "quickfsimana.C( <pref>, <decfile>, <mom>, <decay>, [nevt], [parms], [runST], [runnum], [mode] )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
-		cout << "   <decfile>  : EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead\n";
+		cout << "   <decfile>  : EvtGen decfile 'xxx.dec' or 'xxx.dec:iniRes'; DPM/FTF/BOX uses DPM/FTF generator or BOX generator instead\n";
 		cout << "                DPM settings: DPM = inelastic only, DPM1 = inel. + elastic, DPM2 = elastic only\n";
 		cout << "                FTF settings: FTF = inelastic only, FTF1 = inel. + elastic\n";
 		cout << "                BOX settings: optional ranges 'p/tht/phi(min,max)' separated with colon; single number = fixed value; example: 'BOX:p(1,5):tht(45):phi(90,210)'\n";
 		cout << "   <mom>      : EvtGen, DPM, FTF: pbar momentum (negative values are interpreted as -E_cm); BOX generator w/o special settings: maximum particle momentum\n";
 		cout << "   [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; '': only fast sim w/o reco will be run\n";
 		cout << "   [nevt]     : number of events; default = 1000\n";
-		cout << "   [res]      : initial resonance or particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'\n";
+		//cout << "   [res]      : initial resonance or particle type for BOX generator (ignored when running DPM); default = 'pbarpSystem0'\n";
 		cout << "   [parms]    : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'; 'qapart' runs PndParticleQATask: 'persist' saves PndPidCandidates\n";
 		cout << "   [runST]    : if 'true' runs Software Trigger (default: false)\n";
 		cout << "   [runnum]   : integer run number (default: 0)\n";
 		cout << "   [mode]     : arbitrary mode number (default: 0)\n\n";
-		cout << "Example 1 - Do reco for EvtGen events : root -l -b -q 'quickfsimana.C(\"jpsi2pi\", \"decfiles/pp_jpsi2pi.dec\", 6.23, \"J/psi -> e+ e-; pbp -> J/psi pi+ pi-\", 1000, \"pbp\", \"fit4c:mwin=0.6\")'\n";
-		cout << "Example 2 - Particle QA for BOX gen   : root -l -b -q 'quickfsimana.C(\"single_kplus\", \"BOX\", 10.0, \"\", 1000, \"K+\", \"qapart\")'\n";	
+		cout << "Example 1 - Do reco for EvtGen events : root -l -b -q 'quickfsimana.C(\"jpsi2pi\", \"pp_jpsi2pi_jpsi_mumu.dec\", 6.23, \"J/psi -> mu+ mu-; pbp -> J/psi pi+ pi-\", 1000, \"fit4c:mwin=0.6\")'\n";
+		cout << "Example 2 - Particle QA for BOX gen   : root -l -b -q 'quickfsimana.C(\"single_kplus\", \"BOX:type(321,1)\", 8.0, \"\", 1000, \"qapart\")'\n";	
 		cout << "Example 3 - Run fast sim only for DPM : root -l -b -q 'quickfsimana.C(\"bkg\", \"DPM\", 6.23, \"\", 1000)'\n\n";	
 		return;
 	}
@@ -70,7 +70,6 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	}
 	
 	// Allow shortcut for resonance pbarpSystem
-	Resonance.ReplaceAll("pbp","pbarpSystem");
 	anadecay.ReplaceAll("pbp", "pbarpSystem");
 
 	// Prevent generator from throwing a lot of warnings
@@ -132,15 +131,20 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	Double_t BoxPhiMin  = 0. ;    // minimum phi for box generator
 	Double_t BoxPhiMax  = 360.;   // maximum   "       "
 	Bool_t   BoxCosTht  = false;  // isotropic in cos(theta) instead theta
+  
+	Int_t    BoxType    = 13;     // default particle muon
+	Int_t    BoxMult    = 1;      // default particle multiplicity
+	Double_t type=0,mult=0;       // ref. parameters for range function	
 
 	if (Decfile.BeginsWith("BOX") && !Decfile.EndsWith(".dec"))
 	{
 		UseEvtGenDirect = kFALSE;
 		UseBoxGenerator = kTRUE;
+		Decfile.ToLower();
 		
-		if (Decfile!="BOX")
+		if (Decfile!="box")
 		{
-			Decfile.ReplaceAll("BOX","");
+			Decfile.ReplaceAll("box","");
 			Decfile.ReplaceAll(" ","");
 			Decfile += ":";
 			
@@ -149,14 +153,15 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 				TString curpar = Decfile(0,Decfile.Index(":"));
 				Decfile = Decfile(Decfile.Index(":")+1,1000);
 				
+				if (curpar.BeginsWith("type(")) {getRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
 				if (curpar.BeginsWith("p("))     getRange(curpar,BoxMomMin,BoxMomMax);
-				if (curpar.BeginsWith("tht"))   getRange(curpar,BoxThtMin,BoxThtMax);
-				if (curpar.BeginsWith("ctht")) {getRange(curpar,BoxThtMin,BoxThtMax); BoxCosTht=true;}
-				if (curpar.BeginsWith("phi"))   getRange(curpar,BoxPhiMin,BoxPhiMax);
+				if (curpar.BeginsWith("tht("))   getRange(curpar,BoxThtMin,BoxThtMax);
+				if (curpar.BeginsWith("ctht(")) {getRange(curpar,BoxThtMin,BoxThtMax); BoxCosTht=true;}
+				if (curpar.BeginsWith("phi("))   getRange(curpar,BoxPhiMin,BoxPhiMax);
 			}
 		}
 		
-		cout <<"BOX generator range: p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
+		cout <<"BOX generator range: type["<<BoxType<<","<<BoxMult<<"]  p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
 	}
 
 
@@ -181,11 +186,12 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	//FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 	fRun->SetGenerator(primGen);
 	fRun->SetName("TGeant3");
-
+	
+	// Box Generator
 	if(UseBoxGenerator)
-	{   // Box Generator
-		int Pdgcode = TDatabasePDG::Instance()->GetParticle(Resonance)->PdgCode();
-		FairBoxGenerator* boxGen = new FairBoxGenerator(Pdgcode, 1); // 211 = pion; 1 = multipl.
+	{  
+		PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult);
+		boxGen->SetDebug(0);
 		
 		boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
 		boxGen->SetPhiRange(BoxPhiMin, BoxPhiMax);   // Azimuth angle range [degree]
@@ -197,6 +203,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		primGen->AddGenerator(boxGen);
 	}
 	
+	// DPM Generator
 	if(UseDpm)
 	{
 		int mode = 0;
@@ -218,6 +225,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		primGen->AddGenerator(Dpm);
 	}
 	
+	// FTF Generator
 	if(UseFtf)
 	{
 		bool noelastic = true;
@@ -226,8 +234,12 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		primGen->AddGenerator(Ftf);
 	}
 
+	// EvtGen Generator
 	if(UseEvtGenDirect)
 	{
+		TString Resonance=getInitialResonance(Decfile);
+		Resonance.ReplaceAll("pbp","pbarpSystem");
+
 		PndEvtGenDirect *EvtGen = new PndEvtGenDirect(Resonance, Decfile.Data(), Mom);
 		EvtGen->SetStoreTree(kTRUE);
 		primGen->AddGenerator(EvtGen);
@@ -512,5 +524,40 @@ void getRange(TString par, double &min, double &max)
 	min = smin.Atof();
 	max = smax.Atof();
 	
-	if (min>max) {double tmp=min;min=max;max=tmp;}
+	//if (min>max) {double tmp=min;min=max;max=tmp;}
+}
+
+TString getInitialResonance(TString &fEvtGenFile)
+{
+  
+  TString IniRes="";
+  
+  if (fEvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ? 
+  {
+    IniRes = fEvtGenFile(fEvtGenFile.Index(":")+1,1000);
+    fEvtGenFile = fEvtGenFile(0,fEvtGenFile.Index(":"));
+  }
+  
+  if (IniRes=="") // we need to search the decay file
+  {
+    std::ifstream fs(fEvtGenFile.Data());	
+    char line[250];
+  
+    while (fs)
+    {
+      fs.getline(line,249);
+      TString s(line);
+      s.ReplaceAll("\r","");
+      if (IniRes=="" && s.Contains("Decay "))
+      {
+        if (s.Contains("#")) s=s(0,s.Index("#"));
+        s.ReplaceAll("Decay ","");
+        s.ReplaceAll(" ","");
+        IniRes = s;
+      }	 
+    } 
+    fs.close();
+  }
+  
+  return IniRes;
 }
