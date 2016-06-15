@@ -19,7 +19,7 @@
 #include "PndPidDiscAssociatorTask.h"
 #include "PndPidSttAssociatorTask.h"
 #include "PndPidEmcBayesAssociatorTask.h"
-
+#include "PndPidSciTAssociatorTask.h"
 
 /**
  * @brief Default Constructor
@@ -62,24 +62,27 @@ PndMasterPidTask::PndMasterPidTask() :
   this->Add(new PndPidIdealAssociatorTask()); // 4
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidIdealAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   
-   this->Add(new PndPidMvdAssociatorTask()); // 5
+  this->Add(new PndPidMvdAssociatorTask()); // 5
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidMvdAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   
-   this->Add(new PndPidMdtHCAssociatorTask()); // 6
+  this->Add(new PndPidMdtHCAssociatorTask()); // 6
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidMdtHCAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   
-   this->Add(new PndPidDrcAssociatorTask()); // 7
+  this->Add(new PndPidDrcAssociatorTask()); // 7
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidDrcAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   
-   this->Add(new PndPidDiscAssociatorTask()); // 8
+  this->Add(new PndPidDiscAssociatorTask()); // 8
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidDiscAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   
-   this->Add(new PndPidSttAssociatorTask()); // 9
+  this->Add(new PndPidSttAssociatorTask()); // 9
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidSttAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   
-   this->Add(new PndPidEmcBayesAssociatorTask()); // 10
+  this->Add(new PndPidEmcBayesAssociatorTask()); // 10
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidEmcBayesAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
   
+  this->Add(new PndPidSciTAssociatorTask()); // 11
+  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidSciTAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
+
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------
