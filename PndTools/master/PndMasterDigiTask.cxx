@@ -24,6 +24,7 @@
 #include "PndGemFindHits.h"
 #include "PndFtsHitProducerRealFast.h"
 #include "PndFtofHitProducerIdeal.h"
+#include "PndRichHitProducer.h"
 
 
 /**
@@ -87,6 +88,10 @@ PndMasterDigiTask::PndMasterDigiTask() :
   Add(new PndFtofHitProducerIdeal());
   if ((GetListOfTasks()->GetSize()-1) != kPndFtofHitProducerIdeal) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
   
+  // -----   Rich hit producers   ---------------------------
+  Add(new PndRichHitProducer());
+  if ((GetListOfTasks()->GetSize()-1) != kPndRichHitProducer) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------
@@ -127,7 +132,9 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   
   // -----   Ftof hit producers   ---------------------------
   ((PndFtofHitProducerIdeal*)GetListOfTasks()->At(kPndFtofHitProducerIdeal))->SetPersistency(pers);
-  
+
+  // -----   Rich hit producers   ---------------------------
+  //((PndRichHitProducer*)GetListOfTasks()->At(kPndRichHitProducer))->SetPersistency(pers);
   return;
 }
 

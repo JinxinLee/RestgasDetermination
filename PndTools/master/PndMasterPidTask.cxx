@@ -20,6 +20,7 @@
 #include "PndPidSttAssociatorTask.h"
 #include "PndPidEmcBayesAssociatorTask.h"
 #include "PndPidSciTAssociatorTask.h"
+#include "PndPidRichAssociatorTask.h"
 
 /**
  * @brief Default Constructor
@@ -82,6 +83,9 @@ PndMasterPidTask::PndMasterPidTask() :
   
   this->Add(new PndPidSciTAssociatorTask()); // 11
   if ((this->GetListOfTasks()->GetSize()-1) != kPndPidSciTAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
+  
+  this->Add(new PndPidRichAssociatorTask()); // 12
+  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidRichAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
 
   SetVerbose(0);
 }

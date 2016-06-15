@@ -167,8 +167,8 @@ void PndMasterRunSim::CreateGeometry()
   FTof->SetGeometryFileName("ftofwall.root");
   AddModule(FTof);
   //-------------------------  RICH       ----------------
-  FairDetector *Rich= new PndRich("RICH",kFALSE);
-  Rich->SetGeometryFileName("rich_v2_shift.geo");
+  PndRich *Rich= new PndRich("RICH",kTRUE);
+  Rich->SetGeometryFileName("rich_v313.root");
   AddModule(Rich);
 }
 

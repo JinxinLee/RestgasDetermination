@@ -55,7 +55,8 @@ class PndMasterPidTask : public PndMasterTask
     kPndPidDiscAssociatorTask,
     kPndPidSttAssociatorTask,
     kPndPidEmcBayesAssociatorTask,
-    kPndPidSciTAssociatorTask
+    kPndPidSciTAssociatorTask,
+    kPndPidRichAssociatorTask
   };
   
   /** @cond CLASSIMP */

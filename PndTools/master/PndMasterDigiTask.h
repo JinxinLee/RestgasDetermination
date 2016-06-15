@@ -53,7 +53,8 @@ class PndMasterDigiTask : public PndMasterTask
     kPndDrcHitProducerReal,
     kPndGemDigitize, kPndGemFindHits,
     kPndFtsHitProducerRealFast,
-    kPndFtofHitProducerIdeal
+    kPndFtofHitProducerIdeal,
+    kPndRichHitProducer
   };
   
   /** @cond CLASSIMP */
