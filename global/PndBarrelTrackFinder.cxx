@@ -39,6 +39,15 @@
 #include <iomanip>
 #include <map>
 
+#include "TCanvas.h" // DRAW
+#include "TMarker.h" // DRAW
+#include "TEllipse.h" // DRAW
+#include "TSystem.h" // DRAW
+#include "TLine.h" // DRAW
+#include "TLatex.h" // DRAW
+#include "TH1F.h" // DRAW
+
+
 using std::cout;
 using std::cerr;
 using std::flush;
@@ -86,6 +95,9 @@ PndBarrelTrackFinder::PndBarrelTrackFinder() : FairTask("Barrel Track Finder", 1
 
   fTubeArray = NULL;
   fSttParameters = NULL;
+
+  fDrawDetails = kFALSE;
+  fDrawHistos  = kFALSE;
  
   Reset();
 }
@@ -220,7 +232,83 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
   std::vector<Bool_t> hitUsed(fHitDetId.size(),kFALSE);
 
   FairHit* detHit;
-  
+  // DRAW
+
+  if ( fCanvas ) {
+    fCanvas->Clear();
+    Double_t minX = -60.;
+    Double_t maxX = +60.;
+    Double_t minY = -60.;
+    Double_t maxY = +60.;
+    
+    fCanvas->Range(minX,minY,maxX,maxY);
+    fCanvas->SetFillColor(0);
+    fCanvas->SetBorderSize(0);
+    fCanvas->SetBorderMode(0);
+    fCanvas->SetFrameFillColor(0);
+    fCanvas->SetGrid(0,0);
+    fCanvas->SetLogy(0);
+    
+    // middle cross
+    TLine* horLft = new TLine(-5., 0.,-2., 0.);  horLft->SetLineWidth(2);  horLft->Draw();
+    TLine* horRgt = new TLine( 2., 0., 5., 0.);  horRgt->SetLineWidth(2);  horRgt->Draw();
+    TLine* verTop = new TLine( 0., 2., 0., 5.);  verTop->SetLineWidth(2);  verTop->Draw();
+    TLine* verBot = new TLine( 0.,-5., 0.,-2.);  verBot->SetLineWidth(2);  verBot->Draw();
+    for ( Int_t xline = -100 ; xline <= 100 ; xline+=10 ) {
+      TLine* verGrid = new TLine(xline,-100,xline,100);
+      verGrid->SetLineStyle(2);
+      verGrid->Draw();
+    }
+    for ( Int_t yline = -100 ; yline <= 100 ; yline+=10 ) {
+      TLine* horGrid = new TLine(-100,yline,100,yline);
+      horGrid->SetLineStyle(2);
+      horGrid->Draw();
+    }
+    
+    for ( Int_t iell = 0 ; iell < 1000 ; iell++ ) {
+      fEllipse[iell]->SetX1(100);
+      fEllipse[iell]->SetY1(100);
+      fEllipse[iell]->SetR1(0);
+      fEllipse[iell]->SetR2(0);
+      fEllipse[iell]->Draw();
+      fStageDesc->Draw();
+    }
+    
+    for ( Int_t ihit = 0 ; ihit < nofHits ; ihit++ ) {
+      
+      if ( fHitDetId[ihit] == 0 || fHitDetId[ihit] == 1 ) {
+	detHit = (PndSdsHit*)fHitArray[fHitDetId[ihit]]->At(fHitDetNo[ihit]);
+	TMarker* marker = new TMarker(detHit->GetX(),detHit->GetY(),20);
+	marker->SetMarkerColor(3);
+	marker->Draw();
+      }
+      else                    if ( fHitDetId[ihit] == 2 ) {
+	detHit = (PndSttHit*)fHitArray[fHitDetId[ihit]]->At(fHitDetNo[ihit]);
+	Int_t iTube = ((PndSttHit*)detHit)->GetTubeID(); 
+	PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+	if ( sttTube->GetWireDirection().Z() < 1. )
+	  continue; // don't draw skewed hits (how else to put them?)
+
+	TEllipse* ellipse = new TEllipse(detHit->GetX(),detHit->GetY(),((PndSttHit*)detHit)->GetIsochrone());
+	ellipse->SetFillStyle(0);
+	ellipse->SetLineWidth(2);
+	ellipse->SetLineColor(2);
+	ellipse->Draw(); 
+      }
+      else                    if ( fHitDetId[ihit] == 3 ) {
+	detHit = (PndGemHit*)fHitArray[fHitDetId[ihit]]->At(fHitDetNo[ihit]);
+	TMarker* marker = new TMarker(detHit->GetX(),detHit->GetY(),20);
+	marker->SetMarkerColor(6);
+	marker->Draw();
+      }
+    }
+    fStageDesc->SetText(-50.,50.,"HITS");
+    fStageDesc->Paint();
+    fCanvas->Modified();
+    fCanvas->Update();
+    gSystem->Sleep(1000);
+  }
+
   Int_t hitN = 0;
   // looping over hits as they are in the common array
 
@@ -289,11 +377,28 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
     
     AddHitToPreviousHits     (detHit,fHitDetId[hitN],fHitDetNo[hitN]);
   }
-
+  if ( fCanvas ) {
+    DrawTracks();
+    fStageDesc->SetText(-50.,50.,"TRACKS FOUND");
+    fStageDesc->Paint();
+    fCanvas->Modified();
+    fCanvas->Update();
+    gSystem->Sleep(1000);
+  }
 //   PrintTracks();
-//   cout << "REMOVING TRACKS!" << endl;
+//  cout << "REMOVING TRACKS!" << endl;
   RemoveShortTracks();
   //  PrintTracks();
+  if ( fVerbose > 0 )
+    PrintTracks();
+  if ( fCanvas ) {
+    DrawTracks();
+    fStageDesc->SetText(-50.,50.,"SHORT TRACKS REMOVED");
+    fStageDesc->Paint();
+    fCanvas->Modified();
+    fCanvas->Update();
+    gSystem->Sleep(1000);
+  }
 
   // deal with left previous hits
   for ( Int_t iuh = fHitVector.size()-1 ; iuh >= 0 ; iuh-- ) {
@@ -325,22 +430,38 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
 
   }
 
-  /*  cout << "==============================================================" << endl;
-  cout << "==============================================================" << endl;
-  cout << "there are still " << fHitVector.size() << " unused hits: " << flush;
-  for ( Int_t iuh = 0 ; iuh < fHitVector.size() ; iuh++ ) 
-    cout << fHitVectDI[iuh] << "." << fHitVectHN[iuh] << " " << flush;
-  cout << endl;
-  cout << "==============================================================" << endl;
-  cout << "==============================================================" << endl;
-  cout << "FOUND " << fTracksVector.size() << " tracks:" << endl;*/
+  // cout << "==============================================================" << endl;
+  // cout << "==============================================================" << endl;
+  // cout << "there are still " << fHitVector.size() << " unused hits: " << flush;
+  // for ( Int_t iuh = 0 ; iuh < fHitVector.size() ; iuh++ ) 
+  //   cout << fHitVectDI[iuh] << "." << fHitVectHN[iuh] << " " << flush;
+  // cout << endl;
+  // cout << "==============================================================" << endl;
+  //  cout << "==============================================================" << endl;
+  //  cout << "FOUND " << fTracksVector.size() << " tracks:" << endl;
   if ( fVerbose > 0 )
     PrintTracks();
-//   cout << "==============================================================" << endl;
-//   cout << "==============================================================" << endl;
+  if ( fCanvas ) {
+    DrawTracks();
+    fStageDesc->SetText(-50.,50.,"TRACKS REORGANIZED");
+    fStageDesc->Paint();
+    fCanvas->Modified();
+    fCanvas->Update();
+    gSystem->Sleep(1000);
+  }
+  //  cout << "==============================================================" << endl;
+  //  cout << "REMOVE CLONE TRACKS" << endl;
   RemoveCloneTracks();
   if ( fVerbose > 0 )
     PrintTracks();
+  if ( fCanvas ) {
+    DrawTracks();
+    fStageDesc->SetText(-50.,50.,"CLONE TRACKS REMOVED");
+    fStageDesc->Paint();
+    fCanvas->Modified();
+    fCanvas->Update();
+    gSystem->Sleep(5000);
+  }
 
   WriteTracks();
   
@@ -1067,7 +1188,6 @@ Bool_t PndBarrelTrackFinder::ExtractMeanZ_PFromTrack     (Int_t trackNo) {
 
 // -----   Private method PrintTracks   -------------------------------
 void   PndBarrelTrackFinder::PrintTracks() {
-
   if ( fTracksVector.size() > 0 ) {
     cout << "          --------- " << flush;
     for ( Int_t idet = 0 ; idet < 4 ; idet++ ) {
@@ -1163,6 +1283,46 @@ void   PndBarrelTrackFinder::PrintTracks() {
 }
 // -------------------------------------------------------------------------
 
+// -----   Private method PrintTracks   -------------------------------
+void   PndBarrelTrackFinder::DrawTracks() {
+  for ( Int_t iell = 0 ; iell < 1000 ; iell++ ) {
+    fEllipse[iell]->SetX1(100);
+    fEllipse[iell]->SetY1(100);
+    fEllipse[iell]->SetR1(0);
+    fEllipse[iell]->SetR2(0);
+    fEllipse[iell]->Paint();
+  }
+
+  for ( Int_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) {
+    if ( TMath::Abs(fTracksVector[itr].meanR) > 0.1 ) {
+      for ( Int_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ ) {
+	Bool_t skewedSttHit = kFALSE;
+	if ( fTracksVector[itr].trackHitD[ihit] == 2 ) {
+	  Int_t iTube = ((PndSttHit*) fTracksVector[itr].trackHits[ihit])->GetTubeID(); 
+	  PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
+	  if ( sttTube->GetWireDirection().Z() < 1. ) {
+	    skewedSttHit = kTRUE;
+	  }
+	}
+      }
+      
+      Double_t thisPhi = CalcPhi(fTracksVector[itr].meanX,
+				 fTracksVector[itr].meanY);
+      Double_t thisRad =         fTracksVector[itr].meanR;
+      
+      fEllipse[itr]->SetX1(fTracksVector[itr].meanX);
+      fEllipse[itr]->SetY1(fTracksVector[itr].meanY);
+      fEllipse[itr]->SetR1(fTracksVector[itr].meanR);
+      fEllipse[itr]->SetR2(fTracksVector[itr].meanR);
+      fEllipse[itr]->SetFillStyle(0);
+      fEllipse[itr]->SetLineWidth(2);
+      fEllipse[itr]->SetLineColor(51+2*itr);
+      fEllipse[itr]->Paint(); 
+    }
+  }
+}
+// -------------------------------------------------------------------------
+
 // -----   Private method CleanTracks   -------------------------------
 Int_t  PndBarrelTrackFinder::CleanTracks() {
   return -1;
@@ -1188,6 +1348,20 @@ void  PndBarrelTrackFinder::RemoveShortTracks() {
 
 // -----   Private method RemoveCloneTracks   -------------------------------
 void  PndBarrelTrackFinder::RemoveCloneTracks() {
+  Bool_t printInfo = kFALSE;
+  for ( Int_t itr1 = fTracksVector.size()-1 ; itr1 >= 0 ; itr1-- ) {
+    for ( Int_t itr2 = fTracksVector.size()-1 ; itr2 > itr1 ; itr2-- ) {
+      fClonesXDiff     ->Fill( fTracksVector[itr1].meanX  -fTracksVector[itr2].meanX);
+      fClonesYDiff     ->Fill( fTracksVector[itr1].meanY  -fTracksVector[itr2].meanY);
+      fClonesRDiff     ->Fill( fTracksVector[itr1].meanR  -fTracksVector[itr2].meanR);
+      fClonesZ_PDiff   ->Fill( fTracksVector[itr1].meanZ_P-fTracksVector[itr2].meanZ_P);
+      fClonesXDiffRel  ->Fill((fTracksVector[itr1].meanX  -fTracksVector[itr2].meanX  )/fTracksVector[itr2].meanR);
+      fClonesYDiffRel  ->Fill((fTracksVector[itr1].meanY  -fTracksVector[itr2].meanY  )/fTracksVector[itr2].meanR);
+      fClonesRDiffRel  ->Fill((fTracksVector[itr1].meanR  -fTracksVector[itr2].meanR  )/fTracksVector[itr2].meanR);
+      fClonesZ_PDiffRel->Fill((fTracksVector[itr1].meanZ_P-fTracksVector[itr2].meanZ_P)/fTracksVector[itr2].meanZ_P);
+    }
+  }
+
   for ( Int_t itr1 = fTracksVector.size()-1 ; itr1 >= 0 ; itr1-- ) {
     Double_t tr1Phi  = CalcPhi(fTracksVector[itr1].meanX,fTracksVector[itr1].meanY);
     Int_t nofTr1Hits = fTracksVector[itr1].trackHitD.size();
@@ -1202,11 +1376,15 @@ void  PndBarrelTrackFinder::RemoveCloneTracks() {
 //       if ( TMath::Abs(fTracksVector[itr1].meanR  -fTracksVector[itr2].meanR  ) < 0.1*fTracksVector[itr1].meanR &&
 // 	   TMath::Abs(fTracksVector[itr1].meanZ_P-fTracksVector[itr2].meanZ_P) < fReasonableZ_PD+0.05*TMath::Abs(fTracksVector[itr1].meanZ_P) && 
 // 	   TMath::Abs(tr1Phi-tr2Phi) < 0.1*TMath::RadToDeg() ) {
-      if ( TMath::Abs(fTracksVector[itr1].meanR  -fTracksVector[itr2].meanR  ) < 0.1*fTracksVector[itr1].meanR &&
-	   TMath::Abs(fTracksVector[itr1].meanZ_P-fTracksVector[itr2].meanZ_P) < fReasonableZ_PD+0.2*TMath::Abs(fTracksVector[itr1].meanZ_P) && 
+      if ( TMath::Abs(fTracksVector[itr1].meanX  -fTracksVector[itr2].meanX  ) < 0.2*TMath::Abs(fTracksVector[itr1].meanR) &&
+	   TMath::Abs(fTracksVector[itr1].meanY  -fTracksVector[itr2].meanY  ) < 0.2*TMath::Abs(fTracksVector[itr1].meanR) &&
+	   TMath::Abs(fTracksVector[itr1].meanR  -fTracksVector[itr2].meanR  ) < 0.3*fTracksVector[itr1].meanR &&
+	   TMath::Abs(fTracksVector[itr1].meanZ_P-fTracksVector[itr2].meanZ_P) < 0.4*TMath::Abs(fTracksVector[itr1].meanZ_P) && 
 	   TMath::Abs(tr1Phi-tr2Phi) < 0.2*TMath::RadToDeg() ) {
-	if ( fVerbose > 0 ) 
-	  cout << "seems that tracks " << itr1 << " and " << itr2 << " are the same" << endl;
+	if ( fVerbose > 0 || printInfo ) {
+	  cout << "seems that tracks " << itr1 << " (" << fTracksVector[itr1].meanX << "," << fTracksVector[itr1].meanY << "," << fTracksVector[itr1].meanR << "," << fTracksVector[itr1].meanZ_P << " )" << endl;
+	  cout << "              and " << itr2 << " (" << fTracksVector[itr2].meanX << "," << fTracksVector[itr2].meanY << "," << fTracksVector[itr2].meanR << "," << fTracksVector[itr2].meanZ_P << " ) ARE THE SAME!" << endl;
+	}
 
 	Int_t nofTr2Hits = fTracksVector[itr2].trackHitD.size();
 	for ( Int_t ith2 = 0 ; ith2 < nofTr2Hits ; ith2++ ) {
@@ -1579,7 +1757,28 @@ InitStatus PndBarrelTrackFinder::Init() {
 //   cout << "****************************************************" << endl;
 //   cout << "**  " << fTubeArray->GetEntriesFast() << "  TUBES  ***********************************" << endl;
 //   cout << "****************************************************" << endl;
-  
+ 
+  // DRAW
+  fCanvas = NULL;
+  if ( fDrawDetails ) 
+    fCanvas = new TCanvas("AnimatedCanvas","AnimatedCanvas",10,10,800,800);
+
+  if ( fCanvas ) {
+    for ( Int_t iell = 0 ; iell < 1000 ; iell++ ) {
+      fEllipse[iell] = new TEllipse(100,100,0);
+    }
+    fStageDesc = new TLatex(0,0,"Init");
+  }
+
+  fClonesXDiff      = new TH1F("fClonesXDiff"     ,"fClonesXDiff"     ,20000,-100.,100.);
+  fClonesYDiff      = new TH1F("fClonesYDiff"     ,"fClonesYDiff"     ,20000,-100.,100.);
+  fClonesRDiff      = new TH1F("fClonesRDiff"     ,"fClonesRDiff"     ,20000,-100.,100.);
+  fClonesZ_PDiff    = new TH1F("fClonesZ_PDiff"   ,"fClonesZ_PDiff"   ,20000,-100.,100.);
+  fClonesXDiffRel   = new TH1F("fClonesXDiffRel"  ,"fClonesXDiffRel"  ,20000,-100.,100.);
+  fClonesYDiffRel   = new TH1F("fClonesYDiffRel"  ,"fClonesYDiffRel"  ,20000,-100.,100.);
+  fClonesRDiffRel   = new TH1F("fClonesRDiffRel"  ,"fClonesRDiffRel"  ,20000,-100.,100.);
+  fClonesZ_PDiffRel = new TH1F("fClonesZ_PDiffRel","fClonesZ_PDiffRel",20000,-100.,100.);
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -1605,6 +1804,25 @@ void PndBarrelTrackFinder::Reset() {
 void PndBarrelTrackFinder::Finish() {
   fBarrelTrackArray    ->Clear();
   fBarrelTrackCandArray->Clear();
+
+  if ( fDrawHistos ) {
+    TCanvas* canv0 = new TCanvas("xdiff","xdiff",10,10,1000,800);
+    fClonesXDiff     ->Draw();
+    TCanvas* canv1 = new TCanvas("ydiff","ydiff",10,10,1000,800);
+    fClonesYDiff     ->Draw();
+    TCanvas* canv2 = new TCanvas("rdiff","rdiff",10,10,1000,800);
+    fClonesRDiff     ->Draw();
+    TCanvas* canv3 = new TCanvas("zdiff","`diff",10,10,1000,800);
+    fClonesZ_PDiff   ->Draw();
+    TCanvas* canv4 = new TCanvas("xdiffR","xdiffR",10,10,1000,800);
+    fClonesXDiffRel  ->Draw();
+    TCanvas* canv5 = new TCanvas("ydiffR","ydiffR",10,10,1000,800);
+    fClonesYDiffRel  ->Draw();
+    TCanvas* canv6 = new TCanvas("rdiffR","rdiffR",10,10,1000,800);
+    fClonesRDiffRel  ->Draw();
+    TCanvas* canv7 = new TCanvas("zdiffR","zdiffR",10,10,1000,800);
+    fClonesZ_PDiffRel->Draw();
+  }
 
   cout << "-------------------- " << fName.Data() << " : Summary -----------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;

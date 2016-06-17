@@ -30,8 +30,12 @@
 #include <map>
 #include <vector>
 
+class TEllipse;
+class TCanvas;
 class TClonesArray;
+class TLatex;
 class PndGemDigiPar;
+class TH1F;
 
 struct TrackParameter{
   Double_t x;
@@ -84,7 +88,24 @@ class PndBarrelTrackFinder : public FairTask
 
   void UseMvdSttGem   (const Bool_t useMvd, const Bool_t useStt, const Bool_t useGem); 
 
+  void DrawDetails(Bool_t tb=kTRUE) {fDrawDetails=tb;}
+  void DrawHistos (Bool_t tb=kTRUE) {fDrawHistos =tb;}
+
  private:
+
+  Bool_t    fDrawDetails;
+  Bool_t    fDrawHistos;
+  TEllipse* fEllipse[1000];
+  TCanvas*  fCanvas;
+  TLatex*   fStageDesc;
+  TH1F*     fClonesXDiff;
+  TH1F*     fClonesYDiff;
+  TH1F*     fClonesRDiff;
+  TH1F*     fClonesZ_PDiff;
+  TH1F*     fClonesXDiffRel;
+  TH1F*     fClonesYDiffRel;
+  TH1F*     fClonesRDiffRel;
+  TH1F*     fClonesZ_PDiffRel;
 
   std::vector<TrackBasis> fTracksVector;
 
@@ -131,6 +152,7 @@ class PndBarrelTrackFinder : public FairTask
 
   void   AddHitToPreviousHits     (FairHit* thisHit, Int_t detId, Int_t hitNo);
 
+  void   DrawTracks();
   void   PrintTracks();
   Int_t  CleanTracks();
   Int_t  WriteTracks();
