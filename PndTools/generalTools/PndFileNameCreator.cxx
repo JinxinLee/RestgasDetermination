@@ -184,7 +184,7 @@ std::string PndFileNameCreator::GetPath()
 	resString = pathAna.GetStringVector();
 	if(fVerbose>1) pathAna.Print();
 	if (fFileName.find("/") == 0)
-		result << "./";
+		result << "/";
 	std::cout << "resString.size() " << resString.size() << std::endl;
 	if (resString.size() > 0){
 		for (int i = 0; i < resString.size()-1; i++){
