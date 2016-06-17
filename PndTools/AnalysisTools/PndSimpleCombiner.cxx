@@ -71,7 +71,7 @@ PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString p
 		fIdxListNameMap[i]       = pdgnames[i];   // maps list index -> generic list name (ElectronPlus, PionMinus, ...; see above)
 	}
 	// set initial pid configuration
-	SetPid("All", "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts");
+	SetPid("All", "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT;PidAlgoRich");
 	
 	assert(ParseDecay(decay));
 	ParseParams(params);
