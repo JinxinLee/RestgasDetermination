@@ -54,8 +54,14 @@ PndMasterRunSim::PndMasterRunSim() :
 Bool_t PndMasterRunSim::Setup(TString outprefix)
 {
   TString inputName = outprefix;
-  if (inputName=="") inputName = fInput;
-  inputName.ToLower(); 
+
+  // If no prefix is given, we create one from fInput and force lower-case
+  if (inputName=="")
+  {
+    inputName = fInput;
+    inputName.ToLower();
+  }
+  
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   inputName.ReplaceAll(":","_");
   
@@ -252,7 +258,8 @@ void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
     }
   }
 
-  PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult); 
+  PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult);
+  boxGen->SetDebug(0);
   
   boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
   boxGen->SetPhiRange(BoxPhiMin, BoxPhiMax);   // Azimuth angle range [degree]
