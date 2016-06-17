@@ -1,15 +1,16 @@
-macro/prodgsi
+macro/prod
 ----------------------
 
-A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Prometheus-Cluster@GSI.
+A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Kronos cluster at GSI.
 
 See also 
 
-  http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine 
+ https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
+ http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine 
 
-for general description of usage of GSI GridEngine and
+for general description of usage of GSI slurm and
 
-  http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootSimulationPrometheus
+  (to be updated!!) http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootSimulationPrometheus
 
 for a nicer look-and-feel of the information given below.
 
@@ -20,11 +21,7 @@ FILES:
 
 Simulation
 - prod_sim.C
-- prod_sim_pgun.C
-- prod_dig.C
-- prod_rec.C
-- prod_pid.C
-- prod_pid_mva.C
+- prod_aod.C
 
 Analysis example for multiple files using PndSimpleCombiner(Task)
 - prod_ana.C
@@ -33,39 +30,36 @@ Example decay file for EvtGen
 - D0toKpi.dec
 
 Scripts to run all at automatically
-- runall_prod_pgun.sh
 - runall_prod.sh
 
 Scripts to (re-)submit jobs to Prometheus
-- job_prod_pgun.sge
-- job_prod.sge
+- jobprod_kronos.sh
 - resub.pl
 
 Script to submit analysis job for many input files
-- job_ana.sge 
+- jobana_kronos.sh 
 - anasub.pl
 
 
 ####################
 Run LOCALLY IN SHELL
 ####################
+
 -------------
 Box Generator
 -------------
 
--> ./runall_prod_pgun.sh <prefix> <N_ev> <PDG code> <max mom> <mult>
+-> ./runall_prod.sh <prefix> <N_ev> <config>
 
 with parameters
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
- <PDG code>  - PDG code of particle(s) to be created
- <max mom>   - Generate particles with p = 0.01 ... <max mom>, isotropic in cos(theta) and phi
- <mult>      - Multiplicity in single events
+ <config>    - String parameter to config BOX generator, e.g. "BOX:type(321,1):p(1,5):tht(0,90):phi(0:360)"
 
-Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_dig.root, <prefix>_rec.root, <prefix>_pid.root in current directory.
+Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_pid.root in current directory.
 
 Example:
-./runall_prod_pgun.sh PiPlus 1000 211 1
+> ./runall_prod.sh PiPlus 1000 "box:type(211,1):p(0.05,8)"
 
 Result: 
 PiPlus_sim.root, ... , PiPlus_pid.root
@@ -80,35 +74,35 @@ EvtGen
 with parameters
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
- <decay>     - EvtGen decay file
+ <decay>     - EvtGen decay file "xxx.dec" (automatic search for ini. res.) or with initial resonance as "xxx.dec:iniRes" 
  <pbar mom>  - Momentum of antiproton beam
- <res>       - Initial resonance used in decay file 
 
-Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_dig.root, <prefix>_rec.root, <prefix>_pid.root in current directory.
+Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_pid.root in current directory.
 
 Example:
-./runall_prod.sh D0Kpi 1000 D0toKpi.dec 10.0 pbarpSystem 
+./runall_prod.sh D0Kpi 1000 "D0toKpi.dec:pbarpSystem" 10.0 
 
 Result: 
 D0Kpi_sim.root, ... , D0Kpi_pid.root
 
 
 --------
-DPM
+DPM/FTF
 --------
 
 -> ./runall_prod.sh <prefix> <N_ev> DPM <pbar mom>
+-> ./runall_prod.sh <prefix> <N_ev> FTF <pbar mom>
 
-Runs DPM generator in _inelastic_ mode. Parameters as above, just replace name of decay file with key word 'DPM'.
+Runs DPM generator in _inelastic_ mode. Parameters as above, just replace name of decay file with key word 'DPM' or 'FTF'.
 
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
  <pbar mom>  - Momentum of antiproton beam
 
-Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_dig.root, <prefix>_rec.root, <prefix>_pid.root in current directory.
+Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_pid.root in current directory.
 
 Example:
-./runall_prod.sh DPM10GeV 1000 DPM 10.0  
+> ./runall_prod.sh DPM10GeV 1000 DPM 10.0  
 
 Result: 
 DPM10GeV_sim.root, ... , DPM10GeV_pid.root
@@ -118,114 +112,149 @@ DPM10GeV_sim.root, ... , DPM10GeV_pid.root
 SUBMIT TO CLUSTER
 ####################
 
-General information about submitting jobs on cluster can be found here:
+General information about submitting jobs on the Prometheus cluster can be found here:
 http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine
 
-BEFORE being able to submit jobs to Prometheus, you have to 
+** For Kronos cluster take a look here: **
+https://wiki.gsi.de/foswiki/bin/view/Linux/KronosCluster
+https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
 
-1. login to a lxsub machine by ssh yourname@pro.hpc.gsi.de  
 
-2. create a work directory on HERA, e.g. /hera/panda/yourname/pandaroot
+**************************************************************************************************************************
+*** In the following the actions to be taken for KRONOS are given only, since Prometheus will be decommissioned soon.  ***
+*** Refer to an older revision of this README file for information about Prometheus usage.                             *** 
+**************************************************************************************************************************
 
-3. install PandaROOT in that place, since your GSI linux home directory is not mounted on Prometheus nodes.
-   (SIMPATH is /cvmfs/fairroot.gsi.de/fairsoft/apr13/ for apr13 external packages)
 
+BEFORE being able to submit jobs to Kronos, you have to 
+
+1. Login to an lxbk machine by ssh yourname@kronos.hpc.gsi.de locally from a lxpool.gsi.de machine.  
+
+2. Create a work directory on the data storage element NYX, e.g. /lustre/nyx/panda/yourname/pandaroot
+
+3. Install PandaRoot in that place, since your GSI linux home directory is not mounted on Kronos nodes.
+
+   There are several versions of the external packages and FairRoot pre-installed under /cvmfs. Take a look with
+   
+   > ls /cvmfs/fairroot.gsi.de/fairsoft/
+   > ls /cvmfs/fairroot.gsi.de/fairroot/
+
+   and set the environment variables SIMPATH to an appropriate fairsoft and FAIRROOTPATH to a corresponding fairroot
+   version before compiling PandaRoot.
+
+-----------------------------
+Most important slurm commands
+-----------------------------
+
+Some nice condensed information about slurm can be found under
+https://rc.fas.harvard.edu/resources/documentation/convenient-slurm-commands/
+
+
+- Job array submission with time setting, partition (sth like queue) setting 
+
+  > sbatch --time=01:00:00 --partition=debug --array=1-10 my_slurm_job_script.sh <parameters> <for> <job> <script>
+
+- Check job status
+
+  > squeue -u <your_user_name>
+
+- Cancel (kill) jobs
+
+  > scancel -u <username>             # kills all your jobs
+  > scancel <jobid>                   # kills a single job with id <jobid>
+  > scancel -t PENDING -u <username>  # kills all your pending jobs
+   
 
 -------------
 Box Generator
 -------------
 
--> qsub -t <min>-<max> job_prod_pgun.sge <prefix> <N_ev> <PDG code> <max mom> <mult> <saveall>
-KRONOS: -> sbatch --time=08:00:00 --array=<min>-<max> sub_pgun_ana.sh <prefix> <N_ev> <PDG code> <max mom> <mult> <saveall>
+-> sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <N_ev> <config> <save>
 
 Submits an array of jobs with array numbers <min> to <max>
 
 with parameters
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
- <PDG code>  - PDG code of particle(s) to be created
- <max mom>   - Generate particles with p = 0.01 ... <max mom>, isotropic in cos(theta) and phi
- <mult>      - Multiplicity in single events
- <saveall>   - "saveall" copies all output stages (par, sim, dig, rec, pid) to data dir; w/o parameter only pid+par is copied
+ <config>    - String parameter to config BOX generator, e.g. "BOX:type(321,1):p(1,5):tht(0,90):phi(0:360)"
+ <save>      - If this parameter is given and set to "saveall", also sim files will be copied from the node.
 
-Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
-with '...' running from <prefix>_<min> to <prefix>_<max>. 
+Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if save=="saveall") and log files,
+with <run> running from <min> to <max>. 
 
 Example 1:
-qsub -t 1-20 job_prod_pgun.sge PiPlus 1000 211 1 saveall
-sbatch --time=08:00:00 --array=1-20 sub_pgun_ana.sh PiPlus 1000 211 1 saveall
+> sbatch -a1-20 jobsim_kronos.sh PiPlus 1000 "box:type(211,1)" saveall
 
 Result 1: 
-data/MPiPlus_1_par.root, data/MPiPlus_1_sim.root, data/MPiPlus_1_dig.root, data/MPiPlus_1_rec.root, ... , data/MPiPlus_20_pid.root 
+data/PiPlus_1_sim.root, data/PiPlus_1_par.root, data/PiPlus_1_pid.root , ... , data/PiPlus_20_pid.root 
 
 Example 2:
-qsub -t 1-20 job_prod_pgun.sge PiPlus 1000 211 1
-sbatch --time=08:00:00 --array=1-20 sub_pgun_ana.sh PiPlus 1000 211 1
+> sbatch -a1-20 jobsim_kronos.sh PiPlus 1000 "box:type(211,1)" 
 
 Result 2: 
-data/MPiPlus_1_par.root, data/MPiPlus_1_pid.root, ... , data/MPiPlus_20_par.root, data/MPiPlus_20_pid.root 
+data/PiPlus_1_par.root, data/PiPlus_1_pid.root, ... , data/PiPlus_20_par.root, data/PiPlus_20_pid.root 
+
 
 --------
 EvtGen 
 --------
 
--> qsub -t <min>-<max> job_prod.sge <prefix> <N_ev> <decay> <pbar mom> <res>
+-> sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <N_ev> <decay> <pbar mom>
 
 Submits an array of jobs with array numbers <min> to <max>
 
 with parameters
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
- <decay>     - EvtGen decay file
+ <decay>     - EvtGen decay file xxx.dec (automatic search for ini. res.) or with initial resonance as "xxx.dec:iniRes"
  <pbar mom>  - Momentum of antiproton beam
- <res>       - Initial resonance used in decay file 
- <saveall>   - "saveall" copies all output stages (sim, dig, rec, pid) to data dir; w/o parameter only pid is copied
+ <save>      - "saveall" copies all output stages (sim & pid) to data dir; w/o parameter only pid is copied
 
-Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
-with '...' running from <prefix>_<min> to <prefix>_<max>. 
+Produces output files <prefix>_<run>_sim.root, <prefix>_<run>_par.root, <prefix>_<run>_pid.root and log files in data directory, 
+with <run> running from <min> to <max>. 
 
 Example 1:
-qsub -t 1-20 job_prod.sge D0Kpi 1000 D0toKpi.dec 10.0 pbarpSystem saveall
+> sbatch -a1-20 jobsim_kronos.sh D0Kpi 1000 "D0toKpi.dec:pbarpSystem0" 10.0 saveall
 
 Result 1: 
-data/MD0Kpi_1_par.root, data/MD0Kpi_1_sim.root, data/MD0Kpi_1_dig.root, ... , data/MD0Kpi_20_pid.root 
+data/D0Kpi_1_par.root, data/D0Kpi_1_sim.root, ... , data/D0Kpi_20_pid.root 
 
 Example 2:
-qsub -t 1-20 job_prod.sge D0Kpi 1000 D0toKpi.dec 10.0 pbarpSystem
+> sbatch -a1-20 jobsim_kronos.sh D0Kpi 1000 D0toKpi.dec 10.0
 
 Result 2: 
-data/MD0Kpi_1_par.root, data/MD0Kpi_1_pid.root, ... , data/MD0Kpi_20_pid.root 
+data/D0Kpi_1_par.root, data/D0Kpi_1_pid.root, ... , data/D0Kpi_20_pid.root 
 
 
 --------
-DPM
+DPM/FTF
 --------
 
--> qsub -t <min>-<max> job_prod.sge <prefix> <N_ev> DPM <pbar mom> <dummy> <saveall>
+-> sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <N_ev> DPM <pbar mom> <saveall>
+-> sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <N_ev> FTF <pbar mom> <saveall>
 
 Submits an array of jobs with array numbers <min> to <max>
 
-Runs DPM generator in _inelastic_ mode. Parameters as above, just replace name of decay file with key word 'DPM'.
+Runs DPM generator in _inelastic_ mode. Parameters as above, just replace name of decay file with key word 'DPM'/'FTF'.
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
  <pbar mom>  - Momentum of antiproton beam
- <dummy>     - if running DPM and using switch 'saveall', some dummy string must be used
- <saveall>   - "saveall" copies all output stages (sim, dig, rec, pid) to data dir; w/o parameter only pid is copied
+ <saveall>   - "saveall" copies all output stages (sim & pid) to data dir; w/o parameter only pid is copied
 
-Produces output files M..._sim.root, M..._par.root, M..._dig.root, M..._rec.root, M..._pid.root and log files in data directory, 
-with '...' running from <prefix>_<min> to <prefix>_<max>. 
+Produces output files <prefix>_<run>_sim.root, <prefix>_<run>_par.root, <prefix>_<run>_pid.root and log files in data directory, 
+with <run> running from <min> to <max>. 
 
 Example 1:
-qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0 summy saveall 
+> sbatch -a1-20 jobsim_kronos.sh DPM10GeV 1000 DPM 10.0 saveall 
 
 Result 1: 
-data/MDPM10GeV_1_par.root, data/MDPM10GeV_1_sim.root, data/MDPM10GeV_1_dig.root, ... , data/MDPM10GeV_20_pid.root 
+data/DPM10GeV_1_par.root, data/DPM10GeV_1_sim.root, ... , data/MDPM10GeV_20_pid.root 
 
 Example 2:
-qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0
+> sbatch -a1-20 job_prod.sge DPM10GeV 1000 DPM 10.0
 
 Result 2: 
-data/MDPM10GeV_1_par.root, data/MDPM10GeV_1_pid.root, ... , data/MDPM10GeV_20_pid.root 
+data/DPM10GeV_1_par.root, data/DPM10GeV_1_pid.root, ... , data/DPM10GeV_20_pid.root 
 
 
 
@@ -235,29 +264,29 @@ RESUBMISSION OF JOBS
 ---------------------
 ---------------------
 
-When submitting many jobs/job arrays, it happens quite often that some of the jobs randomly fail. Usually resubmitting the same jobs
+When submitting many jobs/job arrays, it sometimes happens that some of the jobs randomly fail. Usually resubmitting the same jobs
 again leads to success. In order to automatically resubmit only the failed jobs the perl script 'resub.pl' can be used.
 
 It looks for missing output files and output files being too small (size < 10kB) to contain reasonable output and resubmits exactly 
 the according jobs.
 
-NOTE: In case some jobs got stuck in the queue, delete them with 'qdel' before using resub.pl.
+NOTE: In case some jobs got stuck in the queue, delete them with 'scancel -u <username>' before using resub.pl.
 
 -> ./resub.pl "<cmd>" [check]
 
 Parameters:
 
-  "<cmd>"  : full qsub command line in quotes. 
+  "<cmd>"  : full sbatch command line in quotes. 
   [check]  : optional parameter for only printing the resubmitted jobs for checking.
   
 
 Example 1:
-./resub.pl "qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0 summy saveall" check
+> ./resub.pl "sbatch -a1-20 job_prod.sge DPM10GeV 1000 DPM 10.0 saveall" check
 
 Result 1: prints out all run numbers found to be failed and prints submit commands.
 
 Example 2:
-./resub.pl "qsub -t 1-20 job_prod.sge DPM10GeV 1000 DPM 10.0"
+> ./resub.pl "sbatch -a1-20 job_prod.sge DPM10GeV 1000 DPM 10.0"
 
 Result 2: prints out all run numbers found to be failed and re-submits the according jobs. 
 
@@ -267,7 +296,9 @@ Result 2: prints out all run numbers found to be failed and re-submits the accor
 ANALYSING RESULTS
 ####################
 
+------------
 RUN LOCALLY:
+------------
 
 In order to run over a number of your resulting output (_pid.root) files, the macro prod_ana.C can be used as follows, e.g. from the data dir:
 
@@ -284,17 +315,19 @@ Parameters:
  <N_ev>      - Number of events to analyze, 0 = default -> all events
 
 Example:
-root -l -b -q  '../prod_ana.C("MDPM10GeV", 1, 10)' 
+> root -l -b -q  '../prod_ana.C("DPM10GeV", 1, 10)' 
 
 Result: 
-data/MDPM10GeV_ana_1_10.root
+data/DPM10GeV_ana_1_10.root
 
 
+-------------------------
 SUBMITTING ANALYSIS JOBS:
+-------------------------
 
 Submitting the analysis macro from above as job to Prometheus (e.g. to split to several jobs) can be done from macro/prod by
 
--> qsub job_ana.sge <prefix> <min> <max> <mode>
+-> sbatch jobana_kronos.sh <prefix> <min> <max> <mode>
 
 Parameters:
  <prefix>    - Prefix for output files
@@ -303,7 +336,7 @@ Parameters:
  <mode>      - arbitrary mode number; default: 0
 
 Example:
-qsub job_ana.sge MDPM10GeV 1 10 
+> sbatch jobana_kronos.sh MDPM10GeV 1 10 
 
 Result: 
 data/MDPM10GeV_ana_1_10.root
@@ -328,17 +361,17 @@ Parameters:
   
  
 Example 1:
-./anasub.pl check_MDPM10GeV 
+> ./anasub.pl check_DPM10GeV 
 
-Result 1: Searches for all output files data/MDPM10GeV_<run>_pid.root and only prints submission commands for analysis jobs in packages of 50 runs.
+Result 1: Searches for all output files data/DPM10GeV_<run>_pid.root and only prints submission commands for analysis jobs in packages of 50 runs.
 
 Example 2:
-./anasub.pl MDPM10GeV 0 20
+> ./anasub.pl DPM10GeV 0 20
 
 Result 2: Searches for all output files and submits analysis jobs in packages of 20 runs, i.e. 1..20, 21..40, 41..60, ...
 
 Example 3:
-./anasub.pl MDPM10GeV 0 25 201 400 
+> ./anasub.pl DPM10GeV 0 25 201 400 
 
 Result 3: Submits analysis jobs for runs 200 to 400 in packages of 25 runs.
 

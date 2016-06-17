@@ -2,21 +2,19 @@
 
 prefix=9999
 nEvts=1000
-dec="pp_DpDm_Dp_Kpipi_incl.dec"
+dec="pp_DpDm_Dp_Kpipi_incl.dec:pbarpSystem0"
 mom=6.56903
-res="pbarpSystem0"
 
 sig=1
 
 if [ $# -lt 4 ]; then
-  echo -e "\nPerforms simulation of EvtGen or DPM events.\n"
-  echo -e "USAGE: ./runall_prod.sh <prefix> <nevts> <dec-file> <pbar-mom> <init. resonance>\n"
-  echo -e " <prefix>    : Prefix of output files"
-  echo -e " <nevts>     : Number of events to be simulated"
-  echo -e " <dec-file>  : Name of EvtGen decay file. Keyword 'DPM' instead runs DPM events"
-  echo -e " <pbar-mom>  : Momentum of pbar-beam"
-  echo -e " <resonance> : Initial resonance in decay-file. Skipped for DPM simulation\n"
-  echo -e "Creates output files: <prefix>_sim.root, <prefix>_par.root, <prefix>_dig.root, <prefix>_rec.root, <prefix>_pid.root"
+  echo -e "\nPerforms simulation of EvtGen/DPM/FTF/BOX events.\n"
+  echo -e "USAGE: ./runall_prod.sh <prefix> <nevts> <dec-file> <pbar-mom>\n"
+  echo -e " <prefix>  : Prefix of output files"
+  echo -e " <nevts>   : Number of events to be simulated"
+  echo -e " <gen>     : Name of EvtGen decay file 'xxx.dec:iniRes'. Keyword 'DPM/FTF/BOX' instead runs other generator"
+  echo -e " <pbeam>   : Momentum of pbar-beam.\n"
+  echo -e "Creates output files: <prefix>_sim.root, <prefix>_par.root, <prefix>_pid.root"
   echo -e "and corresponding log files.\n"
   exit 1
 fi
@@ -37,19 +35,9 @@ if test "$4" != ""; then
   mom=$4
 fi
 
-if test "$5" != ""; then
-  res=$5
-fi
-
-if test "$dec" == "DPM"; then
-  sig=0
-fi
-
 outprefix="data/"$prefix
 
-root -l -q -b -w prod_sim.C\(\"$outprefix\",$nEvts,\"$dec\",$mom,\"$res\"\) &> $outprefix"_sim.log" 
+root -l -q -b prod_sim.C\(\"$outprefix\",$nEvts,\"$dec\",$mom\) &> $outprefix"_sim.log" 
 NUMEV=`grep 'Generated Events' $outprefix"_sim.log"`
-root -l -b -q -w prod_dig.C\(\"$outprefix\"\) &> $outprefix"_dig.log"
-root -l -b -q -w prod_rec.C\(\"$outprefix\"\) &> $outprefix"_rec.log"
-root -l -b -q -w prod_pid.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
+root -l -b -q prod_aod.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
 echo $NUMEV >> $outprefix"_pid.log"

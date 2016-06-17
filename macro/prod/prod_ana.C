@@ -10,9 +10,9 @@ bool checkfile(TString fn)
 	return fileok;
 }
 
-void prod_ana(TString outpre="", int from=1, int to=1, int mode=0, int nevts=0)
+void prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 {
- 	if (outpre=="") 
+ 	if (prefix=="") 
 	{
 		cout << "Example analysis macro using PndSimpleCombiner(Task). !! MODIFY for your purpose !!\n\n";
 		cout << "USAGE:\n";
@@ -25,65 +25,66 @@ void prod_ana(TString outpre="", int from=1, int to=1, int mode=0, int nevts=0)
 		return;
 	}
 	
-	TString OutFile1   = TString::Format("%s_ana1_%d_%d.root",outpre.Data(), from, to); 
- 	TString OutFile2   = TString::Format("%s_ana2_%d_%d.root",outpre.Data(), from, to); 
-	TString inParFile  = TString::Format("%s_%d_par.root",outpre.Data(),from);
-	
-  	FairRunAna *fRun= new FairRunAna();
-  
-   	bool firstfile=true;
+	TString outFile    = TString::Format("%s_ana_%d_%d.root",prefix.Data(), from, to);
+	TString inParFile  = TString::Format("%s_%d_par.root",prefix.Data(),from);
+	TString firstFile  = TString::Format("%s_%d_pid.root",prefix.Data(),from);
 
+	// if only one file, we name outfile to 'prefix_<run>_ana.root'
+	if (from==to)  outFile = TString::Format("%s_%d_ana.root", prefix.Data(), from);
+		
+ 	FairRunAna     *fRun = new FairRunAna();
+	FairFileSource *fSrc = new FairFileSource(firstFile);
+		
   	// *** Add pid files
-  	for (int i=from;i<=to;++i)
+  	for (int i=from+1;i<=to;++i)
   	{
-		TString fname = TString::Format("%s_%d_pid.root",outpre.Data(),i);
-
-		if ( checkfile(fname) )
-		{
-			if (firstfile) 
-				fRun->SetInputFile(fname);
-			else 
-				fRun->AddFile(fname);
-			
-			firstfile=false;
-		}
+	        TString fname = TString::Format("%s_%d_pid.root",prefix.Data(),i);
+		if ( checkfile(fname) ) fSrc->AddFile(fname);
   	}
+	
+	fRun->SetSource(fSrc);
   	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
 	
 	// *** initialization
 	FairLogger::GetLogger()->SetLogToFile(kFALSE);
-	//FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+
+	/*
+	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	
 	// *** setup parameter database 	
-	//FairParRootFileIo* parIO = new FairParRootFileIo();
-	//parIO->open(inParFile);
-	//FairParAsciiFileIo* parIOPid = new FairParAsciiFileIo();
-	//parIOPid->open(pidParFile.Data(),"in");
+	FairParRootFileIo* parIO = new FairParRootFileIo();
+	parIO->open(inParFile);
+	FairParRootFileIo* parIOdummy = new FairParRootFileIo();
+	parIO->open("dummypar.root");
+	FairParAsciiFileIo* parIOPid = new FairParAsciiFileIo();
+	parIOPid->open(pidParFile.Data(),"in");
+	rtdb->setFirstInput(parIO);
 	
-	//rtdb->setFirstInput(parIO);
-	//rtdb->setSecondInput(parIOPid);
-	//rtdb->setOutput(parIO);  
-	//rtdb->setContainersStatic();
+	rtdb->setFirstInput(parIO);
+	rtdb->setSecondInput(parIOPid);
+	rtdb->setOutput(parIOdummy);  
+	rtdb->setContainersStatic();
+	*/
 	
-	fRun->SetOutputFile(OutFile1);
+	fRun->SetOutputFile(outFile);
 	
 	//---------------------Create and Set the Field(s)---------- 
-  	PndMultiField *fField= new PndMultiField("AUTO");
-  	fRun->SetField(fField);
+  	//PndMultiField *fField= new PndMultiField("AUTO");
+  	//fRun->SetField(fField);
 	
-	//RhoCalculationTools::ForceConstantBz(20.0);
+	RhoCalculationTools::ForceConstantBz(20.0);
 
 	// ***
 	// *** HERE YOUR ANALYSIS CODE GOES!
 	// ***
 	
 	// configuration for PndSimpleCombinerTask (see below)
-    double   Mom      = -3.872;
+	double   Mom      = 12.;
 	
-	TString  anadecay = "J/psi->e+ e-; rho0->pi+ pi-; pbarpSystem->J/psi rho0";
-	TString  anaparms = "qaevtshape:qamc:fit4c:mwin(J/psi)=2.0|3.4:mwin(rho0)=0.27|1.0:!ntp1";
+	TString  anadecay = "D0->K- pi+";
+	TString  anaparms = "qamc:fit4c:fitvtx:mwin(D0)=1.0";
 		
 	bool     fastsim  = false;
 	int      run      = from;	

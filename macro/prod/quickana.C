@@ -5,7 +5,7 @@
 // The parameters are
 // -------------------
 // USAGE
-// quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )
+// quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum], [mode] )
 //    <input>   : input file name with PndPidCandidates
 //    <mom>     : pbar momentum; negative values are interpreted as -E_cm
 //    <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'
@@ -14,6 +14,7 @@
 //    [fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'
 //    [runST]   : if 'true' runs Software Trigger (default: false)
 //    [runnum]  : integer run number (default: 0)
+//    [mode]    : arbitrary mode number (default: 0)
 // -------------------
 
 void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0, int runmode=0)
@@ -21,7 +22,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	if (Fname=="" || Mom==0) 
 	{
 		cout << "USAGE:\n";
-		cout << "quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )\n\n";
+		cout << "quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum], [mode] )\n\n";
 		cout << "   <input>   : input file name with PndPidCandidates\n";
 		cout << "   <mom>     : pbar momentum; negative values are interpreted as -E_cm\n";
 		cout << "   <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'\n";
@@ -54,7 +55,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	}
 	
 	// PID algorithm for the PndSimpleCombinerTask (for Eventshape variables)
-	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts";
+	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoRich;PidAlgoSciT";
 	if (fastsim) pidalgo = "PidChargedProbability";
 	
 	// allow shortcuts
@@ -79,7 +80,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 
 	FairRunAna* fRun = new FairRunAna();
 	fRun->SetGenerateRunInfo(kFALSE);
-	fRun->SetInputFile(InFile);
+	fRun->SetSource(new FairFileSource(InFile));
 	fRun->SetOutputFile(OutFile);
 
 	// *** take constant field; needed for PocaVtx
@@ -125,7 +126,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	
 	if (partQA)
 	{
-	  PndParticleQATask *partQaTask = new PndParticleQATask(fastsim,chrg,neut,mc); // particle QA task
+		PndParticleQATask *partQaTask = new PndParticleQATask(fastsim,chrg,neut,mc); // particle QA task
 		fRun->AddTask(partQaTask);
 	}
 		
