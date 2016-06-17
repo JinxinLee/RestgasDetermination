@@ -427,7 +427,7 @@ void create1StationsGem_firstStation()
 
   pout << "#################################################################" << endl;
   pout << "# Digitization parameters for GEM                                " << endl;
-  pout << "# with 3 Stations                                                " << endl;
+  pout << "# with 1 Station                                                " << endl;
   pout << "# Format:                                                        " << endl;
   pout << "# Description of parameters:                                     " << endl;
   pout << "# [PndGemDetectors]                                              " << endl;
