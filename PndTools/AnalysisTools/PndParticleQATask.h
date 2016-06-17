@@ -19,6 +19,7 @@ class RhoCandList;
 class RhoTuple;
 class RhoCandidate;
 
+typedef std::vector<TString> StringList;
 
 class PndParticleQATask : public FairTask
 {
@@ -41,16 +42,19 @@ class PndParticleQATask : public FairTask
 	virtual void Finish();
 	
 	void SetFastSim(bool fsim=true) {fFastSim = fsim;}
-
+	void SetPidArrayNames(TString names) {fPidArrayNames = names;}
+	
  protected:
 	
 	
  private: 
 	// *** event counter
-	int fEvtCount;	
+	int fEvtCount;
+	TString fPidArrayNames;
 		
 	// *** a method 
 	int  SelectTruePid(PndAnalysis *ana, RhoCandList &l);
+	int  SplitString(TString s, TString delim, StringList &toks);// routine to split a string in pieces
 		
 	// *** declare NTuple
 	RhoTuple *nmc;				// mc truth
@@ -65,7 +69,7 @@ class PndParticleQATask : public FairTask
 	bool fDumpNeut;
 	bool fDumpMc;
 	
-	TString fPid[10];
+	StringList fPidList;
 	
 	// *** Get parameter containers
 	virtual void SetParContainers();
