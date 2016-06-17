@@ -292,7 +292,7 @@ void create1StationsGem_firstStation()
 
   TString vmcWorkdir = getenv("VMCWORKDIR");
   
-  TString outfile= "../../geometry/gem_1Stations_first_realistic_v1.root"; // it means GEM with one station which is its' first station
+  TString outfile= "../../geometry/gem_1Station_first_realistic_v1.root"; // it means GEM with one station which is its' first station
   
   TFile* fi = new TFile(outfile,"RECREATE");  
   
@@ -418,7 +418,7 @@ void create1StationsGem_firstStation()
    TGeoTranslation    *HLayersTrans      [NofHLayers][kNofDisks];
    TGeoCombiTrans     *HLayersCombi      [NofHLayers][kNofDisks];
  //----------------------------------------------------------------------------------------------
-    TString outParFileName = Form("%s/macro/params/gem_1Stations_first_realistic_v1.digi.par",vmcWorkdir.Data());
+    TString outParFileName = Form("%s/macro/params/gem_1Station_first_realistic_v1.digi.par",vmcWorkdir.Data());
    
   cout << "parameter file = \"" << outParFileName.Data() << "\"" << endl;
 
