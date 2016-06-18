@@ -134,7 +134,7 @@ void PndMasterDigiTask::SetPersistency(Bool_t pers)
   ((PndFtofHitProducerIdeal*)GetListOfTasks()->At(kPndFtofHitProducerIdeal))->SetPersistency(pers);
 
   // -----   Rich hit producers   ---------------------------
-  //((PndRichHitProducer*)GetListOfTasks()->At(kPndRichHitProducer))->SetPersistency(pers);
+  ((PndRichHitProducer*)GetListOfTasks()->At(kPndRichHitProducer))->SetPersistency(pers);
   return;
 }
 
