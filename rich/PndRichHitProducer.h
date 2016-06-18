@@ -50,6 +50,7 @@ class PndRichHitProducer : public FairTask
   UInt_t fGeoVersion;
   Bool_t fPhDetNoise;
   UInt_t fNumRand;
+  Bool_t fPersistency;
   
   Float_t fPosResolution;                    // Position smearing [cm]
   
