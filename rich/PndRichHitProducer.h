@@ -42,6 +42,7 @@ class PndRichHitProducer : public FairTask
 
   void FinishEvent();
   void FinishTask();
+  void SetPersistency(Bool_t v = kTRUE) { fPersistency = v; }
 
  private: 
 
