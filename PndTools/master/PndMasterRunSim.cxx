@@ -249,6 +249,8 @@ void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
     {
       TString curpar = fBoxConfig(0,fBoxConfig.Index(":"));
       fBoxConfig = fBoxConfig(fBoxConfig.Index(":")+1,1000);
+      curpar.ReplaceAll("[","(");
+      curpar.ReplaceAll("]",")");
 
       if (curpar.BeginsWith("type(")) {GetRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
       if (curpar.BeginsWith("p("))    GetRange(curpar,BoxMomMin,BoxMomMax);
