@@ -184,9 +184,9 @@ void PndParticleQATask::Exec(Option_t* opt)
 	// *** store MC truth info
 	if (fDumpMc)
 	{
-	  fAnalysis->FillList(mclist,   "McTruth",50);
+	  fAnalysis->FillList(mclist,   "McTruth");
 	  nmc->Column("ev", (Int_t) fEvtCount);
-	  qa.qaMcList("",   mclist, nmc);
+	  qa.qaMcList("",   mclist, nmc, 20);
 	  nmc->DumpData();
 	}
 	
@@ -259,6 +259,7 @@ void PndParticleQATask::Exec(Option_t* opt)
 		qa.qaTof( "",		chrpid[0][j], 		ntp);
 		qa.qaMuo( "",		chrpid[0][j], 		ntp);
 		qa.qaTrk( "",		chrpid[0][j], 		ntp);
+		qa.qaRich("",           chrpid[0][j],           ntp);
 		
 		float mct = 0.0;
 		float prim = 0.0;
