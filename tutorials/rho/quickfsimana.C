@@ -30,7 +30,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		cout << "   <decfile>  : EvtGen decfile 'xxx.dec' or 'xxx.dec:iniRes'; DPM/FTF/BOX uses DPM/FTF generator or BOX generator instead\n";
 		cout << "                DPM settings: DPM = inelastic only, DPM1 = inel. + elastic, DPM2 = elastic only\n";
 		cout << "                FTF settings: FTF = inelastic only, FTF1 = inel. + elastic\n";
-		cout << "                BOX settings: optional ranges 'p/tht/phi(min,max)' separated with colon; single number = fixed value; example: 'BOX:p(1,5):tht(45):phi(90,210)'\n";
+		cout << "                BOX settings: optional ranges 'p/tht/phi[min,max]' separated with colon; single number = fixed value; example: 'BOX:p[1,5]:tht[45]:phi[90,210]'\n";
 		cout << "   <mom>      : EvtGen, DPM, FTF: pbar momentum (negative values are interpreted as -E_cm); BOX generator w/o special settings: maximum particle momentum\n";
 		cout << "   [decay]    : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi+'; '': only fast sim w/o reco will be run\n";
 		cout << "   [nevt]     : number of events; default = 1000\n";
@@ -53,11 +53,10 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	
 	// do particle QA?
 	bool partQA  = (anaparms.Contains("qapart"));
-	
-	// partQA already stores a NTuple names 'nmc'
-	if (partQA) anaparms.ReplaceAll("qamc","");
-
-	
+	bool mc      = !(anaparms.Contains("!mc")) && !(anaparms.Contains("qamc"));
+	bool neut    = !(anaparms.Contains("!neut"));
+	bool chrg    = !(anaparms.Contains("!chrg"));
+		
 	// for submission to queue all blanks in decay string were replaced by '§'; now we replace again the other way around
 	anadecay.ReplaceAll("§"," ");
 	
@@ -152,6 +151,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 			{
 				TString curpar = Decfile(0,Decfile.Index(":"));
 				Decfile = Decfile(Decfile.Index(":")+1,1000);
+				curpar.ReplaceAll("[","("); curpar.ReplaceAll("]",")"); 
 				
 				if (curpar.BeginsWith("type(")) {getRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
 				if (curpar.BeginsWith("p("))     getRange(curpar,BoxMomMin,BoxMomMax);
@@ -483,7 +483,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	
 	if (partQA)
 	{
-		PndParticleQATask *partQaTask = new PndParticleQATask(kTRUE); // particle QA task for FastSim
+		PndParticleQATask *partQaTask = new PndParticleQATask(kTRUE,chrg,neut,mc); // particle QA task for FastSim
 		fRun->AddTask(partQaTask);
 	}
 	

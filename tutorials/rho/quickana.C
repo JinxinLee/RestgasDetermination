@@ -5,7 +5,7 @@
 // The parameters are
 // -------------------
 // USAGE
-// quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum] )
+// quickana.C( <input>, <mom>, <decay>, [nevt], [parms], [fastsim], [runST], [runnum], [mode] )
 //    <input>   : input file name with PndPidCandidates
 //    <mom>     : pbar momentum; negative values are interpreted as -E_cm
 //    <decay>   : the decay pattern to be reconstructed, e.g. 'phi -> K+ K-; D_s+ -> phi pi-'
@@ -40,6 +40,9 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 
 	// do particle QA?
 	bool partQA  = (anaparms.Contains("qapart"));
+	bool mc      = !(anaparms.Contains("!mc")) && !(anaparms.Contains("qamc"));
+	bool neut    = !(anaparms.Contains("!neut"));
+	bool chrg    = !(anaparms.Contains("!chrg"));
 	
 	// if Mom<0, interprete as -E_cm
 	double mp = 0.938272;
@@ -52,7 +55,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	}
 	
 	// PID algorithm for the PndSimpleCombinerTask (for Eventshape variables)
-	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts";
+	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoRich;PidAlgoSciT";
 	if (fastsim) pidalgo = "PidChargedProbability";
 	
 	// allow shortcuts
@@ -65,7 +68,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",3,kFALSE,0.1,0, "",88880);
 	
 	// *** set this to your output path
-	TString OutFile = Fname(Fname.Last('/')+1,Fname.Length()); // cut away input path
+	TString OutFile = Fname;//(Fname.Last('/')+1,Fname.Length()); // cut away input path
 	OutFile.ReplaceAll(".root","_ana.root");
 	
 	// *** the output file for FairRunAna
@@ -123,7 +126,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	
 	if (partQA)
 	{
-		PndParticleQATask *partQaTask = new PndParticleQATask(fastsim); // particle QA task
+		PndParticleQATask *partQaTask = new PndParticleQATask(fastsim,chrg,neut,mc); // particle QA task
 		fRun->AddTask(partQaTask);
 	}
 		
