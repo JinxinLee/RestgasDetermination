@@ -144,9 +144,13 @@ std::string PndFileNameCreator::GetVertexFileName(std::string addon, bool cut)
 
 std::string PndFileNameCreator::GetCustomFileName(std::string ext, std::string addon, bool cut)
 {
-	std::cout << "Ext: " << ext << " addon: " << addon << " cut: " << cut;
+
 	std::string result = TruncateFileName(cut);
-	std::cout << " Truncated: " << result << std::endl;
+	if (fVerbose > 0){
+		std::cout << "PndFileNameCreator::GetCustomFileName ";
+		std::cout << "Ext: " << ext << " addon: " << addon << " cut: " << cut;
+		std::cout << " Truncated: " << result << std::endl;
+	}
 	if (addon.size() > 0){
 		result += "_";
 		result += addon;
@@ -183,9 +187,17 @@ std::string PndFileNameCreator::GetPath()
 	PndStringSeparator pathAna(fFileName,"/");
 	resString = pathAna.GetStringVector();
 	if(fVerbose>1) pathAna.Print();
-	if (fFileName.find("/") == 0)
+
+	if (fFileName.find("/") != 0){
+		if (fFileName.find("./") != 0){
+			result << "./";
+		}
+	}
+	else {
 		result << "/";
-	std::cout << "resString.size() " << resString.size() << std::endl;
+	}
+	if (fVerbose > 0)
+		std::cout << "resString.size() " << resString.size() << std::endl;
 	if (resString.size() > 0){
 		for (int i = 0; i < resString.size()-1; i++){
 			result << resString[i] << "/";
