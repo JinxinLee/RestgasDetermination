@@ -8,6 +8,7 @@ my $max   = $ARGV[4];
 
 my $check = 0;
 
+# print some usage information
 if (!defined($para))
 {
     print "\nSubmits analysis jobs over multiple files on the KRONOS cluster at GSI.\n\n";
@@ -26,8 +27,10 @@ if (!defined($para))
     exit(0);
 }
 
+# are we in check-only mode
 if ($para=~s/^check_//) { $check = 1;}
 
+# set some defaults
 if (!defined($num))  {$num=50;}
 if (!defined($mode)) {$mode=0;}
 
@@ -59,12 +62,14 @@ else
 
 my $cnt = 1;
 
+# for each entry in the commands array
 foreach my $pref (@prefs)
 {
 
     my $minfound=100000;
     my $maxfound=0;
-    
+
+    # if no min and max is given, find minimum and maximum number
     if (!defined($min) || !defined($max))
     {
 	print "Searching for files with name data/$pref\_<run>_pid.root...\n";
@@ -84,14 +89,16 @@ foreach my $pref (@prefs)
     if (!defined($max)) {$max=$maxfound;}
 
     print "$min - $max\n";
-    
+
+    # if mode=-1 is given, the mode number is increase for each line in the .jobs file
     my $curr = $min;
     my $currmode = $mode;
     if ($mode==-1)
     {
 	$currmode = $cnt;
     }
-    
+
+    # submit a bunch of jobs necessary to cover all run numbers in chunks of $num inputs 
     while ($curr<$max)
     {
 	my $up = $curr+$num-1;
@@ -101,6 +108,7 @@ foreach my $pref (@prefs)
 	$curr+=$num;
 	if (!$check) {system($cmd);}
     }
+    
     $cnt++;
     undef($min);
     undef($max);

@@ -80,12 +80,12 @@ Box Generator
 with parameters
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
- <config>    - String parameter to config BOX generator, e.g. "BOX:type(321,1):p(1,5):tht(0,90):phi(0:360)"
+ <config>    - String parameter to config BOX generator, e.g. "BOX:type[321,1]:p[1,5]:tht[0,90]:phi[0:360]"
 
 Produces output files <prefix>_sim.root, <prefix>_par.root, <prefix>_pid.root in current directory.
 
 Example:
-> ./runall_prod.sh PiPlus 1000 "box:type(211,1):p(0.05,8)"
+> ./runall_prod.sh PiPlus 1000 box:type[211,1]:p[0.05,8]
 
 Result: 
 PiPlus_sim.root, ... , PiPlus_pid.root
@@ -206,20 +206,20 @@ Submits an array of jobs with array numbers <min> to <max>
 with parameters
  <prefix>    - Prefix for output files
  <N_ev>      - Number of events to simulate
- <config>    - String parameter to config BOX generator, e.g. "BOX:type(321,1):p(1,5):tht(0,90):phi(0:360)"
+ <config>    - String parameter to config BOX generator, e.g. BOX:type[321,1]:p[1,5]:tht[0,90]:phi[0:360]
  <save>      - If this parameter is given and set to "saveall", also sim files will be copied from the node.
 
 Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if save=="saveall") and log files,
 with <run> running from <min> to <max>. 
 
 Example 1:
-> sbatch -a1-20 jobsim_kronos.sh PiPlus 1000 "box:type(211,1)" saveall
+> sbatch -a1-20 jobsim_kronos.sh PiPlus 1000 box:type[211,1] saveall
 
 Result 1: 
 data/PiPlus_1_sim.root, data/PiPlus_1_par.root, data/PiPlus_1_pid.root , ... , data/PiPlus_20_pid.root 
 
 Example 2:
-> sbatch -a1-20 jobsim_kronos.sh PiPlus 1000 "box:type(211,1)" 
+> sbatch -a1-20 jobsim_kronos.sh PiPlus 1000 box:type[211,1] 
 
 Result 2: 
 data/PiPlus_1_par.root, data/PiPlus_1_pid.root, ... , data/PiPlus_20_par.root, data/PiPlus_20_pid.root 

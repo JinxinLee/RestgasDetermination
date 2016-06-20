@@ -9,7 +9,7 @@ sig=1
 
 if [ $# -lt 4 ]; then
   echo -e "\nPerforms simulation of EvtGen/DPM/FTF/BOX events.\n"
-  echo -e "USAGE: ./runall_prod.sh <prefix> <nevts> <dec-file> <pbar-mom>\n"
+  echo -e "USAGE: ./runall_prod.sh <prefix> <nevts> <gen> <pbeam>\n"
   echo -e " <prefix>  : Prefix of output files"
   echo -e " <nevts>   : Number of events to be simulated"
   echo -e " <gen>     : Name of EvtGen decay file 'xxx.dec:iniRes'. Keyword 'DPM/FTF/BOX' instead runs other generator"

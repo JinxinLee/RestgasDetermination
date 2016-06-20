@@ -108,7 +108,7 @@ void prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	}
 	
 	// PID algorithm for the PndSimpleCombinerTask (for Eventshape variables)
-	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts";
+	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoRich;PidAlgoSciT";
 	if (fastsim) pidalgo = "PidChargedProbability";
 	
 	// allow shortcuts
@@ -119,17 +119,43 @@ void prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	//TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",3,kFALSE,0.1,0, "",88888);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",3,kFALSE,0.1,0, "",88880);
-	
-	if (fastsim) anaparms+=":algo="+pidalgo;
-	PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms, Mom, run, mode);
-	scTask->SetPidAlgo(pidalgo);
-	
-	fRun->AddTask(scTask);
-	
+
+	if (anadecay!="")
+	{
+	  if (fastsim) anaparms+=":algo="+pidalgo;
+	  PndSimpleCombinerTask *scTask = new PndSimpleCombinerTask(anadecay, anaparms, Mom, run, mode);
+	  scTask->SetPidAlgo(pidalgo);
+	  
+	  fRun->AddTask(scTask);
+	}
 	
 	// *****************************
 	// *** PndSimpleCombinerTask ***
 	// *****************************
+
+
+	
+	// *****************************
+	// *** PndParticleQATask ***
+	// *****************************
+	
+	// do particle QA?
+	bool partQA  = (anaparms.Contains("qapart"));
+	bool mc      = !(anaparms.Contains("!mc"));
+	bool neut    = !(anaparms.Contains("!neut"));
+	bool chrg    = !(anaparms.Contains("!chrg"));
+	
+	if (partQA)
+	{
+		PndParticleQATask *partQaTask = new PndParticleQATask(fastsim,chrg,neut,mc); // particle QA task
+		fRun->AddTask(partQaTask);
+	}
+	
+	// *****************************
+	// *** PndParticleQATask ***
+	// *****************************
+
+	
 	
 	// ***********************
 	// *** SoftTriggerTask ***

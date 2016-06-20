@@ -22,7 +22,7 @@ if [ $# -lt 1 ]; then
   echo -e " <save>    : If this is set to 'saveall', also sim stage is copied to storage.\n";
   echo -e "Example 1 : sbatch -a1-20 jobsim_kronos.sh d0sim 1000 D0toKpi.dec 12."
   echo -e "Example 2 : sbatch -a1-20 jobsim_kronos.sh dpmbkg 1000 dpm 12."
-  echo -e "Example 3 : sbatch -a1-20 jobsim_kronos.sh singleK 1000 \"box:type(321,1):p(0.05,8):tht(0,180):phi(0,360)\" 12.\n"
+  echo -e "Example 3 : sbatch -a1-20 jobsim_kronos.sh singleK 1000 \"box:type[321,1]:p[0.05,8]:tht[0,180]:phi[0,360]\" 12.\n"
   
   exit 1
 fi

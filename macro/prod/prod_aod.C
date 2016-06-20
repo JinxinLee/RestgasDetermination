@@ -1,5 +1,12 @@
 void prod_aod(TString prefix="")
 {
+  if (prefix=="") 
+  {
+    cout << "USAGE:\n";
+    cout << "prod_aod.C( <pref> )\n\n";
+    cout << "   <pref>     : input/output file names prefix\n\n";    
+    return;
+  }
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
   TString  output         = "pid";
