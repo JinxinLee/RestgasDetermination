@@ -29,8 +29,14 @@ PndMasterRunAna::PndMasterRunAna() :
 Bool_t PndMasterRunAna::Setup(TString outprefix)
 {
   TString inputName = outprefix;
-  if (inputName=="") inputName = fInput;
-  inputName.ToLower(); 
+
+  // If no prefix is given, we create one from fInput and force lower-case
+  if (inputName=="")
+  {
+    inputName = fInput;
+    inputName.ToLower();
+  }
+  
   if (inputName.EndsWith(".dec")) inputName.Remove(inputName.Length()-4,4);
   inputName.ReplaceAll(":","_");
   
