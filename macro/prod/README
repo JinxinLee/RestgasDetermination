@@ -7,11 +7,12 @@ A set of macros to run various kinds of simulation either locally or submit them
 See also 
 
  https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
- http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine 
+ http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine (outdated)
 
-for general description of usage of GSI slurm and
+for general description of usage of GSI Gridengine and Slurm and
 
-  (to be updated!!) http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootSimulationPrometheus
+ https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootSimulationKronos
+ http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootSimulationPrometheus (outdated)
 
 for a nicer look-and-feel of the information given below.
 
