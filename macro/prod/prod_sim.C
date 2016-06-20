@@ -21,11 +21,11 @@ void prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
     cout << "   <gen>      : generator input: EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead\n";
     cout << "                DPM settings: DPM  = inelastic only,  DPM1 = inel. + elastic, DPM2 = elastic only\n";
     cout << "                FTF settings: FTF  = inel. + elastic, FTF1 = inelastic only\n";
-    cout << "                BOX settings: optional ranges 'p/tht/phi(min,max)' separated with colon; example: 'BOX:type(211,1):p(1,5):tht(45):phi(90,210)'\n";    
+    cout << "                BOX settings: optional ranges 'p/tht/phi[min,max]' separated with colon; example: 'BOX:type[211,1]:p[1,5]:tht[45]:phi[90,210]'\n";    
     cout << "   <pbeam>    : pbar momentum (for BOX generator it still controls the magnetic field) \n\n";
     cout << "Example 1 : root -l -b -q 'prod_sim.C(\"EvtD0D0b\", 100, \"D0toKpi.dec:pbarpSystem0\", 12.)'\n";
     cout << "Example 2 : root -l -b -q 'prod_sim.C(\"DpmInel\",  100, \"DPM\", 12.)'\n";
-    cout << "Example 3 : root -l -b -q 'prod_sim.C(\"SingleK\",  100, \"BOX:type(321,1):p(0.1,10):tht(22,140):phi(0,360)\", 12.)'\n\n";
+    cout << "Example 3 : root -l -b -q 'prod_sim.C(\"SingleK\",  100, \"BOX:type[321,1]:p[0.1,10]:tht[22,140]:phi[0,360]\", 12.)'\n\n";
     
     return;
   }

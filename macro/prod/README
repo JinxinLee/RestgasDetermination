@@ -1,4 +1,5 @@
-macro/prod
+----------------------
+README for macro/prod
 ----------------------
 
 A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Kronos cluster at GSI.
@@ -13,6 +14,31 @@ for general description of usage of GSI slurm and
   (to be updated!!) http://panda-wiki.gsi.de/cgi-bin/viewauth/Computing/PandaRootSimulationPrometheus
 
 for a nicer look-and-feel of the information given below.
+
+
+##########
+CONTENTS:
+##########
+
+- Files in directory
+
+- Run locally in shell
+  - Box generator
+  - EvtGen 
+  - DPM/FTF generator
+
+- Submit to cluster
+  - Prerequisits
+  - Most important slurm commands
+  - Box generator
+  - EvtGen 
+  - DPM/FTF generator
+  - Resubmission of jobs
+
+- Analysing data
+  - Run locally
+  - Submission of analysis jobs
+
 
 
 ######
@@ -124,6 +150,10 @@ https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
 *** In the following the actions to be taken for KRONOS are given only, since Prometheus will be decommissioned soon.  ***
 *** Refer to an older revision of this README file for information about Prometheus usage.                             *** 
 **************************************************************************************************************************
+
+-----------------------------
+Prerequisits
+-----------------------------
 
 
 BEFORE being able to submit jobs to Kronos, you have to 
@@ -276,7 +306,8 @@ NOTE: In case some jobs got stuck in the queue, delete them with 'scancel -u <us
 
 Parameters:
 
-  "<cmd>"  : full sbatch command line in quotes. 
+  "<cmd>"  : full sbatch command line in quotes. The first parameters must be '-a', the job script has to have a name matching 'job...sh'
+             it's also possible to give the name of a file 'somename.jobs' containing sbatch commands, then resub is applied to all of them (except commented by #) 
   [check]  : optional parameter for only printing the resubmitted jobs for checking.
   
 
@@ -290,10 +321,15 @@ Example 2:
 
 Result 2: prints out all run numbers found to be failed and re-submits the according jobs. 
 
+Example 3:
+> ./resub.pl mystudy.jobs
+
+Result 3: performs the re-submit for all sbatch commands found in mystudy.jobs.
+
 
 
 ####################
-ANALYSING RESULTS
+ANALYSING DATA
 ####################
 
 ------------
@@ -308,7 +344,7 @@ Adds several input files <prefix>_<min>_pid.root, ... , <prefix>_<max>_pid.root 
 Broken or missing files are skipped automatically.
 
 Parameters:
- <prefix>    - Prefix for output files
+ <prefix>    - prefix for output files
  <min>       - run from this job number
  <max>       - .. to this
  <mode>      - arbitrary mode number; default: 0
@@ -354,7 +390,8 @@ the perl script 'anasub.pl' is useful.
 
 Parameters:
   <pref>  : prefix of output filenames of pattern 'data/<pref>_<run>_pid.root; if 'check_' is prepended only prints commands
-  [mode]  : mode number to be written in TTree; default: 0
+            if the name of a file 'somename.jobs' containing many sbatch commands is given, analysis submission is performed for all of them.
+  [mode]  : mode number to be written in TTree; default: 0. mode = -1 counts up the mode for each line if filename is given as input
   [num]   : number of runs per job to be analysed; default: 50
   [min]   : first run number; if omitted all found files are considered
   [max]   : last run number; if omitted, all runs starting from [min] are considered
@@ -374,6 +411,11 @@ Example 3:
 > ./anasub.pl DPM10GeV 0 25 201 400 
 
 Result 3: Submits analysis jobs for runs 200 to 400 in packages of 25 runs.
+
+Example 4:
+> ./anasub.pl mystudy.jobs -1
+
+Result 3: Submits analysis jobs for all sbatch commands found in mystudy.jobs. Mode number starts with 1 and is increased by 1 for each line in mystudy.jobs.
 
 
 

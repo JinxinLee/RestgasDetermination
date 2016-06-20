@@ -40,7 +40,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 
 	// do particle QA?
 	bool partQA  = (anaparms.Contains("qapart"));
-	bool mc      = !(anaparms.Contains("!mc"));
+	bool mc      = !(anaparms.Contains("!mc")) && !(anaparms.Contains("qamc"));
 	bool neut    = !(anaparms.Contains("!neut"));
 	bool chrg    = !(anaparms.Contains("!chrg"));
 	
