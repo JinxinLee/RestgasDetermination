@@ -12,7 +12,7 @@
 
 if [ $# -lt 1 ]; then
   echo -e "\nJob script for submission of PandaRoot simulation jobs on KRONOS.\n"
-  echo -e "USAGE: sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <nevts> <dec-file> <pbar-mom> <save>\n"
+  echo -e "USAGE: sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <nevts> <gen> <pbeam> <save>\n"
   echo -e " <min>     : Minimum job number"
   echo -e " <max>     : Maximum job number"
   echo -e " <prefix>  : Prefix of output files"

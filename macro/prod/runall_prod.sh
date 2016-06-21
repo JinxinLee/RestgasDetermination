@@ -2,8 +2,8 @@
 
 prefix=9999
 nEvts=1000
-dec="pp_DpDm_Dp_Kpipi_incl.dec:pbarpSystem0"
-mom=6.56903
+dec="D0toKpi.dec:pbarpSystem0"
+mom=15
 
 sig=1
 

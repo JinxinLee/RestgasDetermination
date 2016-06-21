@@ -25,20 +25,57 @@ void prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 		return;
 	}
 	
-	TString outFile    = TString::Format("%s_ana_%d_%d.root",prefix.Data(), from, to);
-	TString inParFile  = TString::Format("%s_%d_par.root",prefix.Data(),from);
-	TString firstFile  = TString::Format("%s_%d_pid.root",prefix.Data(),from);
+	// ****************************************
+	// configuration for PndSimpleCombinerTask
+	// ****************************************
 
-	// if only one file, we name outfile to 'prefix_<run>_ana.root'
-	if (from==to)  outFile = TString::Format("%s_%d_ana.root", prefix.Data(), from);
+	double   Mom      = 12.;
+	
+	TString  anadecay = "";//D0->K- pi+";
+	TString  anaparms = "qapart";//"qamc:fitvtx:mwin(D0)=1.0";
 		
- 	FairRunAna     *fRun = new FairRunAna();
+	bool     fastsim  = false;
+	int      run      = from;	
+	
+	// run software trigger (trigger definition might be outdated)
+	bool     runST    = false;
+	
+	// ****************************************
+	// configuration for PndSimpleCombinerTask
+	// ****************************************
+	
+	TString suffix = fastsim ? "fsim" : "pid";
+
+	TString outFile    = TString::Format("%s_ana_%d_%d.root",prefix.Data(), from, to);
+	//TString inParFile  = TString::Format("%s_%d_par.root",prefix.Data(),from);
+	TString firstFile  = TString::Format("%s_%d_%s.root",prefix.Data(),from,suffix.Data());
+
+	// if prefix is a full file name, we skip the run number in the name
+	if (prefix.EndsWith(".root"))
+	{
+		firstFile = prefix; 
+	        outFile   = prefix; outFile.ReplaceAll(".root","_ana.root");
+		//inParFile = prefix; inParFile.ReplaceAll("_pid.root","_par.root");
+		to = from;
+	}
+	// if only one file, we name outfile to 'prefix_<run>_ana.root'
+	else if (from==to)  outFile = TString::Format("%s_%d_ana.root", prefix.Data(), from);
+
+	
+	// Start a stop watch
+	TStopwatch fTimer;
+	fTimer.Start();
+
+ 	// --------------------------------
+	// Create the Analysis run manager
+	// --------------------------------
+	FairRunAna     *fRun = new FairRunAna();
 	FairFileSource *fSrc = new FairFileSource(firstFile);
 		
   	// *** Add pid files
   	for (int i=from+1;i<=to;++i)
   	{
-	        TString fname = TString::Format("%s_%d_pid.root",prefix.Data(),i);
+	  TString fname = TString::Format("%s_%d_%s.root",prefix.Data(),i,suffix.Data());
 		if ( checkfile(fname) ) fSrc->AddFile(fname);
   	}
 	
@@ -79,18 +116,6 @@ void prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// ***
 	// *** HERE YOUR ANALYSIS CODE GOES!
 	// ***
-	
-	// configuration for PndSimpleCombinerTask (see below)
-	double   Mom      = 12.;
-	
-	TString  anadecay = "D0->K- pi+";
-	TString  anaparms = "qamc:fit4c:fitvtx:mwin(D0)=1.0";
-		
-	bool     fastsim  = false;
-	int      run      = from;	
-	
-	// run software trigger (trigger definition might be outdated)
-	bool     runST    = false;
 	
 
 	// *****************************
@@ -184,21 +209,20 @@ void prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	fRun->Init(); 
 	fRun->Run(0,nevts);	
 	
+	//------------------------Print some info and exit----------------
+	fTimer.Stop();
+	FairSystemInfo sysInfo;
+	Float_t maxMemory=sysInfo.GetMaxMemory();
+	Double_t rtime = fTimer.RealTime();
+	Double_t ctime = fTimer.CpuTime();
+	
+	Float_t cpuUsage=ctime/rtime;
+	
+	cout << endl;
+	cout << "[INFO   ] Macro call       : prod_fsim.C(\""<<prefix<<"\", "<<from<<", "<<to<<", "<<mode<<", "<<nevts<<")" <<endl;
+	cout << "[INFO   ] Output file      : " << outFile << endl;
+	cout << "[INFO   ] Real time        : " << rtime << " s, CPU time " << ctime << "s" << endl;
+	cout << "[INFO   ] CPU usage        : " << cpuUsage*100. << "%" << endl;
+	cout << "[INFO   ] Max Memory       : " << maxMemory << " MB" << endl;
+	cout << "[INFO   ] Macro finished successfully." << endl<<endl;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
