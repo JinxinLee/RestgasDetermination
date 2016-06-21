@@ -2,7 +2,7 @@
 
 nev=100
 prefix="signal"
-input="psi2s_Jpsi2pi_Jpsi_mumu.dec"
+input="pp_jpsi2pi_jpsi_mumu.dec"
 pbeam=6.231552
 
 if test "$1" != ""; then
