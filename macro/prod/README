@@ -1,6 +1,6 @@
-----------------------
-README for macro/prod
-----------------------
+-----------------------
+ README for macro/prod
+-----------------------
 
 A set of macros to run various kinds of simulation either locally or submit them for larger amounts of events to Kronos cluster at GSI.
 
@@ -17,9 +17,9 @@ for general description of usage of GSI Gridengine and Slurm and
 for a nicer look-and-feel of the information given below.
 
 
-##########
-CONTENTS:
-##########
+############
+  CONTENTS
+############
 
 - Files in directory
 
@@ -134,25 +134,25 @@ with parameters
  <prefix>    - Prefix for output files
  <nevts>     - Number of events to simulate
  <gen>       - Generator setting (see above)
- <pbeam>     - beam momentum in GeV/c
+ <pbeam>     - Beam momentum in GeV/c
 
 
 -> Produces output file <prefix>_fsim.root current directory.
 
 ----------
  Examples
------------
+----------
 
 Full Sim:
 
-> ./runall_prod.sh PiPlus  1000 box:type[211,1]:p[0.05,8]
+> ./runall_prod.sh PiPlus  1000 BOX:type[211,1]:p[0.05,8]
 > ./runall_prod.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12.
 > ./runall_prod.sh DpmBkg  1000 DPM                       12.
 > ./runall_prod.sh FtfInel 1000 FTF1                      12.
 
 Fast Sim:
 
-> root -l -b -q prod_fsim.C("PiPlus",  1000, "box:type[211,1]:p[0.05,8]", 15.)
+> root -l -b -q prod_fsim.C("PiPlus",  1000, "BOX:type[211,1]:p[0.05,8]", 15.)
 > root -l -b -q prod_fsim.C("D0Sim",   1000, "D0toKpi.dec:pbarpSystem",   12.)
 > root -l -b -q prod_fsim.C("DpmBkg",  1000, "DPM",                       12.)
 > root -l -b -q prod_fsim.C("FtfInel", 1000, "FTF1",                      12.)
@@ -178,9 +178,9 @@ https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
 *** Refer to an older revision of this README file for information about Prometheus usage.                             *** 
 **************************************************************************************************************************
 
-----------------
-  Prerequisits
-----------------
+--------------
+ Prerequisits
+--------------
 
 
 BEFORE being able to submit jobs to Kronos, you have to 
@@ -200,9 +200,9 @@ BEFORE being able to submit jobs to Kronos, you have to
    version before compiling PandaRoot.
 
 
----------------------------------
-  Most important slurm commands
----------------------------------
+-------------------------------
+ Most important slurm commands
+-------------------------------
 
 Some nice condensed information about slurm can be found under
 https://rc.fas.harvard.edu/resources/documentation/convenient-slurm-commands/
@@ -223,13 +223,13 @@ https://rc.fas.harvard.edu/resources/documentation/convenient-slurm-commands/
   > scancel -t PENDING -u <username>  # kills all your pending jobs
    
 
--------------------
-  Full Simulation
--------------------
+-----------------
+ Full Simulation
+-----------------
 
 This command submit jobs with number <min> ... <max>:
 
--> sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <nevts> <gen> <save>
+-> sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <nevts> <gen> <pbeam> [opt] [mode]
 
 with parameters
 
@@ -238,7 +238,9 @@ with parameters
  <prefix>    - Prefix for output files
  <nevts>     - Number of events to simulate
  <gen>       - Generator setting (see above)
- <save>      - if set to 'saveall', also ..._sim.root output is copied to storage
+ <pbeam>     - Beam momentum in GeV/c
+ [opt]       - Optional options: if contains 'savesim', sim output is copied as well, 'ana' runs prod_ana.C in addition.
+ [mode]      - Optional mode number for analysis. Stored in TTree produced by PndSimpleCombinerTask when using ana_prod.C.
 
 
 Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if save=="saveall") and log files,
@@ -249,9 +251,9 @@ with <run> running from <min> to <max>.
  Fast Simulation
 -----------------
 
-Submission of fast simulation jobs works in exactly the same way with script jobfsim_kronos.sh
+Submission of fast simulation jobs works in exactly the same way with script jobfsim_kronos.sh.
 
--> sbatch -a<min>-<max> jobfsim_kronos.sh <prefix> <nevts> <gen> <save>
+-> sbatch -a<min>-<max> jobfsim_kronos.sh <prefix> <nevts> <gen> <pbeam> [opt] [mode]
 
 with same parameters
 
@@ -260,7 +262,9 @@ with same parameters
  <prefix>    - Prefix for output files
  <nevts>     - Number of events to simulate
  <gen>       - Generator setting (see above)
- <save>      - if set to 'saveall', also ..._sim.root output is copied to storage
+ <pbeam>     - Beam momentum in GeV/c
+ [opt]       - Optional options: if contains 'ana', runs prod_ana.C in addition.
+ [mode]      - Optional mode number for analysis. Stored in TTree produced by PndSimpleCombinerTask when using ana_prod.C.
 
 
 Produces output files data/<prefix>_<run>_fsim.root and log files, with <run> running from <min> to <max>. 
@@ -268,26 +272,26 @@ Produces output files data/<prefix>_<run>_fsim.root and log files, with <run> ru
 
 ----------
  Examples
------------
+----------
 
 Full Sim:
 
-> sbatch -a1-20 jobsim_kronos.sh PiPlus  1000 box:type[211,1]:p[0.05,8]
-> sbatch -a1-20 jobsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12.
-> sbatch -a1-20 jobsim_kronos.sh DpmBkg  1000 DPM                       12. 
+> sbatch -a1-20 jobsim_kronos.sh PiPlus  1000 BOX:type[211,1]:p[0.05,8]
+> sbatch -a1-20 jobsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12. savesim:ana 10
+> sbatch -a1-20 jobsim_kronos.sh DpmBkg  1000 DPM                       12. ana 20
 > sbatch -a1-20 jobsim_kronos.sh FtfInel 1000 FTF1                      12. 
 
 Fast Sim: (just replace jobsim... with jobfsim...)
 
-> sbatch -a1-20 jobfsim_kronos.sh PiPlus  1000 box:type[211,1]:p[0.05,8]
-> sbatch -a1-20 jobfsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12.
-> sbatch -a1-20 jobfsim_kronos.sh DpmBkg  1000 DPM                       12. 
+> sbatch -a1-20 jobfsim_kronos.sh PiPlus  1000 BOX:type[211,1]:p[0.05,8]
+> sbatch -a1-20 jobfsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12. savesim:ana 10
+> sbatch -a1-20 jobfsim_kronos.sh DpmBkg  1000 DPM                       12. ana 20
 > sbatch -a1-20 jobfsim_kronos.sh FtfInel 1000 FTF1                      12. 
 
 
-------------------------
-  Resubmission of jobs
-------------------------
+----------------------
+ Resubmission of jobs
+----------------------
 
 When submitting many jobs/job arrays, it sometimes happens that some of the jobs randomly fail. Usually resubmitting the same jobs
 again leads to success. In order to automatically resubmit only the failed jobs the perl script 'resub.pl' can be used.
@@ -307,9 +311,9 @@ Parameters:
   [check]  : optional parameter; if set to 'check', only prints the resubmission commands for checking.
   
 
-------------
-  Examples
-------------
+----------
+ Examples
+----------
 
 Full Sim
 
@@ -323,13 +327,13 @@ Fast Sim
 
 
 
-####################
-ANALYSING DATA
-####################
+##################
+  ANALYSING DATA
+##################
 
----------------
-  Run Locally
----------------
+-------------
+ Run Locally
+-------------
 
 In order to run over a number of your resulting output (_pid.root) files, the macro prod_ana.C can be used as follows:
 
@@ -347,7 +351,7 @@ Parameters:
  <prefix>    - Prefix for output files, or ROOT file name
  <min>       - Mininum run number
  <max>       - Maximum run number
- <mode>      - Arbitrary mode number; default: 0
+ <mode>      - Arbitrary mode number; default=0. Stored in TTree produced by PndSimpleCombinerTask.
  <nevts>     - Number of events to analyze, 0 = default -> all events
 
 The format of the output file name depends on the input <prefix>
@@ -357,17 +361,17 @@ The format of the output file name depends on the input <prefix>
 - "myinput", min = max = 3               -> myinput_3_ana.root                       
 
 
-------------
-  Examples
-------------
+----------
+ Examples
+----------
 
 > root -l -b -q  'prod_ana.C("DPM10GeV", 1, 10)' 
 > root -l -b -q  'prod_ana.C("D0Sim",    1, 20, 1)' 
 
 
-----------------------------
-  Submitting analysis jobs
-----------------------------
+--------------------------
+ Submitting analysis jobs
+--------------------------
 
 Submitting the analysis macro from above as job to Kronos (e.g. to split to several jobs) can be done from macro/prod by
 
@@ -382,21 +386,21 @@ Parameters:
  <prefix>    - Prefix for output files
  <min>       - run from this job number (default: 1)
  <max>       - .. to this (default: 20)
- <mode>      - arbitrary mode number; default: 0
+ <mode>      - arbitrary mode number; default=0. Stored in TTree produced by PndSimpleCombinerTask.
 
 
-------------
-  Examples
-------------
+----------
+ Examples
+----------
 
 > sbatch jobana_kronos.sh DPM10GeV 1 10 
 > sbatch jobana_kronos.sh D0Sim    1 20 1 
 
 
 
------------------------------------
-  Split to multiple analysis jobs
------------------------------------
+---------------------------------
+ Split to multiple analysis jobs
+---------------------------------
 
 In case a large number of output files have to be analysed, so that it is reasonable to split into several jobs,
 the perl script 'anasub.pl' is useful. It works for both full and fast simulation input.
@@ -416,9 +420,9 @@ Parameters:
 When parameters [min] and [max] are not given, the scripts searches for all files with the according pattern and finds limiting numbers automatically.
 
 
-------------
-  Examples
-------------
+----------
+ Examples
+----------
 
 > ./anasub.pl check_DPM10GeV             // prints all submit commands for available files 
 > ./anasub.pl DPM10GeV 0 20              // submits analysis jobs on bunches of 20 inputs each
