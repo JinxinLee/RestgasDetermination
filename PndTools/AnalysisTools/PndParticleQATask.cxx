@@ -31,12 +31,13 @@ using std::endl;
 
 
 // -----   Default constructor   -------------------------------------------
-PndParticleQATask::PndParticleQATask(bool fastsim, bool dumpchrg, bool dumpneut, bool dumpmc) :
+PndParticleQATask::PndParticleQATask(bool fastsim, bool dumpchrg, bool dumpneut, bool dumpmc, int mode) :
   FairTask("Panda Tutorial Analysis Task") { 
 	  fFastSim = fastsim;
 	  fDumpChrg = dumpchrg;
 	  fDumpNeut = dumpneut;
 	  fDumpMc   = dumpmc;
+	  fMode     = mode;
 	  fPidArrayNames = "";
 }
 // -------------------------------------------------------------------------
@@ -212,9 +213,10 @@ void PndParticleQATask::Exec(Option_t* opt)
 	{
 		RhoCandidate *truth = chrpid[0][j]->GetMcTruth();
 		
-		ntp->Column("ev",   (Float_t)  fEvtCount,		0.0f );
-		ntp->Column("trk",  (Float_t)  j,     			0.0f );
-		ntp->Column("ntrk", (Float_t)  ntrk,     		0.0f );
+		ntp->Column("mode", (Int_t)    fMode,		        0 );
+		ntp->Column("ev",   (Int_t)    fEvtCount,		0 );
+		ntp->Column("trk",  (Int_t)    j,     			0 );
+		ntp->Column("ntrk", (Int_t)    ntrk,     		0 );
 		ntp->Column("chrg", (Float_t)  chrpid[0][j]->Charge(),  0.0f );
 
 		qa.qaP4(  "",		chrpid[0][j]->P4(),     ntp);
@@ -298,9 +300,10 @@ void PndParticleQATask::Exec(Option_t* opt)
 	{
 		RhoCandidate *truth = neut[j]->GetMcTruth();
 		
-		ntpn->Column("ev", 	 (Float_t)  fEvtCount,			0.0f );
-		ntpn->Column("ntrk", (Float_t)  ntrk,     			0.0f );
-		ntpn->Column("trk",  (Float_t)  j,     				0.0f );
+		ntpn->Column("mode", (Int_t)    fMode,		        0 );
+		ntpn->Column("ev",   (Int_t)    fEvtCount,		0 );
+		ntpn->Column("trk",  (Int_t)    j,     			0 );
+		ntpn->Column("ntrk", (Int_t)    ntrk,     		0 );
 		ntpn->Column("chrg", (Float_t)  neut[j]->Charge(),  0.0f );
 		
 		qa.qaP4(  "",			neut[j]->P4(),	ntpn);
