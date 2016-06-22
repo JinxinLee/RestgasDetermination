@@ -31,8 +31,8 @@ void prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 
 	double   Mom      = 12.;
 	
-	TString  anadecay = "";//D0->K- pi+";
-	TString  anaparms = "qapart";//"qamc:fitvtx:mwin(D0)=1.0";
+	TString  anadecay = "D0->K- pi+";
+	TString  anaparms = "qamc:fitvtx:mwin(D0)=1.0";
 		
 	bool     fastsim  = false;
 	int      run      = from;	
@@ -172,7 +172,7 @@ void prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	
 	if (partQA)
 	{
-		PndParticleQATask *partQaTask = new PndParticleQATask(fastsim,chrg,neut,mc); // particle QA task
+		PndParticleQATask *partQaTask = new PndParticleQATask(fastsim, chrg, neut, mc, mode); // particle QA task
 		fRun->AddTask(partQaTask);
 	}
 	
