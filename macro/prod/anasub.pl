@@ -72,12 +72,15 @@ foreach my $pref (@prefs)
     # if no min and max is given, find minimum and maximum number
     if (!defined($min) || !defined($max))
     {
-	print "Searching for files with name data/$pref\_<run>_pid.root...\n";
+	print "Searching for files with name data/$pref\_<run>_pid.root or data/$pref\_<run>_fsim.root...\n";
+
+	my $suff = "pid";
 	my @dir = `ls data/$pref\_*_pid.root`;
+	if (@dir == 0) {@dir = `ls data/$pref\_*_fsim.root`; $suff="fsim";}
 	
 	foreach my $fname (@dir)
 	{
-	    if ($fname =~ m/$pref\_(\d+)_pid.root/)
+	    if ($fname =~ m/$pref\_(\d+)_$suff.root/)
 	    {
 		if ($minfound>$1) {$minfound=$1;}
 		if ($maxfound<$1) {$maxfound=$1;}

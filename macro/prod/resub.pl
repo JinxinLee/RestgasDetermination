@@ -46,18 +46,25 @@ foreach my $cmd (@commands)
     print "\n".$cmd."\n";
     $cmd =~ m/(\d+)-(\d+)(.+)(job.*\.sh)\s+(\w+)\s+(.*)/;
 
-    print "Checking for files \"data/$5_<run>_pid.root\" for runs $1 - $2 (cmd opt: \"$1-$2 $3 jobsim_kronos.sh $5 $6\")\n\n"; 
-    
     my $min     = $1;
     my $max     = $2;
+    my $parms   = $3;
+    my $script  = $4;
     my $pref    = $5;
+    my $rest    = $6;
+    
+    my $suff    = "pid";
+    if ($script =~ /jobfsim/) {$suff = "fsim";} # do we have fast sim output
+    
+    print "Checking for files \"data/$pref"."_<run>_$suff.root\" for runs $min - $max (cmd opt: \"-a$min-$max $parms $script $pref $rest\")\n\n";
     
     my @broken=(), @nexist=(), @small=();
 
     # find run numbers of non-existing and too small file
     for (my $i=$min; $i<=$max; $i++)
     {
-	my $fname = "data/".$pref."_".$i."_pid.root";
+	my $fname = "data/".$pref."_".$i."_$suff.root";
+	
 	if (!-e $fname) 
 	{
 	    push(@broken,$i);
@@ -87,7 +94,7 @@ foreach my $cmd (@commands)
     foreach my $nums (@broken)
     {
 	# print out the submit command
-	my $recmd = "sbatch -a$nums\-$nums$3$4 $5 $6";
+	my $recmd = "sbatch -a$nums\-$nums$parms$script $pref $rest";
 	print "$recmd\n";
 	
 	# if not in check mode, re-submit the jobs 
