@@ -71,7 +71,7 @@ using std::endl;
 PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms, double p, int run, int mode) :
   FairTask("PndSimpleCombinerTask"), fVerbose(0), fEvtCount(0), fRun(run), fMode(mode), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
-  fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts"),
+  fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT;PidAlgoRich"),
   fQaMC(false), fQaEventShape(false), fFit4C(false), fBest4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), fNodump(0), nmc(0)
 { 
 	fIni.SetXYZT(0,0,0,0);
