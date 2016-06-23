@@ -56,9 +56,17 @@ Simulation
 - prod_aod.C
 - prod_fsim.C
 
-Analysis macros
+Analysis macros 
 - prod_ana.C
 - quickana.C
+
+Analysis example task 
+(-> https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootRhoTutorial#A_3._Analysis_in_a_Task)
+- prod_myana.C
+- PndProdAnaTask.cxx
+- PndProdAnaTask.h
+- macroprodLinkDef.h
+- CMakeLists.txt
 
 Example decay file for EvtGen
 - D0toKpi.dec

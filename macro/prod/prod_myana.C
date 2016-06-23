@@ -24,24 +24,21 @@ void prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0
 		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
 		return;
 	}
-
-	// --------------------------------
-    // Prepare input file naming
-	// --------------------------------
 	
 	bool fastsim = true;	
 
+	// --------------------------------
 	// Set Pid Algos for full or fast sim	
+	// --------------------------------
 	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoRich;PidAlgoSciT";
 	if (fastsim) pidalgo = "PidChargedProbability";
 
 	// --------------------------------
-    // Prepare input file naming
+	// Prepare input file naming
 	// --------------------------------
 	TString suffix = fastsim ? "fsim" : "pid";
 	
 	TString outFile    = TString::Format("%s_ana_%d_%d.root",prefix.Data(), from, to);
-	//TString inParFile  = TString::Format("%s_%d_par.root",prefix.Data(),from);
 	TString firstFile  = TString::Format("%s_%d_%s.root",prefix.Data(),from,suffix.Data());
 
 	// if prefix is a full file name, we skip the run number in the name
@@ -81,31 +78,10 @@ void prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
 	
 	// *** initialization
-	FairLogger::GetLogger()->SetLogToFile(kFALSE);
-
-	/*
-	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-	
-	// *** setup parameter database 	
-	FairParRootFileIo* parIO = new FairParRootFileIo();
-	parIO->open(inParFile);
-	FairParRootFileIo* parIOdummy = new FairParRootFileIo();
-	parIO->open("dummypar.root");
-	FairParAsciiFileIo* parIOPid = new FairParAsciiFileIo();
-	parIOPid->open(pidParFile.Data(),"in");
-	rtdb->setFirstInput(parIO);
-	
-	rtdb->setFirstInput(parIO);
-	rtdb->setSecondInput(parIOPid);
-	rtdb->setOutput(parIOdummy);  
-	rtdb->setContainersStatic();
-	*/
-	
+	FairLogger::GetLogger()->SetLogToFile(kFALSE);	
 	fRun->SetOutputFile(outFile);
 	
 	//---------------------Create and Set the Field(s)---------- 
-  	//PndMultiField *fField= new PndMultiField("AUTO");
-  	//fRun->SetField(fField);
 	
 	RhoCalculationTools::ForceConstantBz(20.0);
 
