@@ -127,7 +127,7 @@
                     "address": "tcp://*:5559",
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
-                    "rateLogging": "0"
+                    "rateLogging": "1"
                 }
             },
             "channel":

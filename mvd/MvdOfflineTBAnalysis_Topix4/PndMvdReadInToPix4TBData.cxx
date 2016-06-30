@@ -231,20 +231,18 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 
 	if (header == 1) // header word found
 	{
-		fTotalHeaderCount++;
-
 		fStatusValues[TotalHeaderCount]++;
 
-		fRecentAllFrameHeader = fTopix.BitAnalyzeHeader(rawData);
+		ToPix4::frameHeader frameHeader = fTopix.BitAnalyzeHeader(rawData);
 
-		Int_t deltaAllFrameCount = ((int) (fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount) < 0 ?
-						((fRecentAllFrameHeader.fFrameCount	- fOldAllHeaderCount) + 256) :
-						(fRecentAllFrameHeader.fFrameCount - fOldAllHeaderCount));
-//		new ((*fOutputArrayAllHeader)[fOutputArrayAllHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(fRecentAllFrameHeader.fFrameCount, fFE,
-//				fRecentAllFrameHeader.fChipAddress, fRecentAllFrameHeader.fECC, fTotalHeaderCount, deltaAllFrameCount, 0, 0);
+		Int_t deltaAllFrameCount = ((int) (frameHeader.fFrameCount - fOldAllHeaderCount) < 0 ?
+						((frameHeader.fFrameCount	- fOldAllHeaderCount) + 256) :
+						(frameHeader.fFrameCount - fOldAllHeaderCount));
+//		new ((*fOutputArrayAllHeader)[fOutputArrayAllHeader->GetEntriesFast()]) PndSdsDigiTopix4Header(frameHeader.fFrameCount, fFE,
+//				frameHeader.fChipAddress, frameHeader.fECC, fTotalHeaderCount, deltaAllFrameCount, 0, 0);
 		if (deltaAllFrameCount > 1 && fVerbose > 0)
 			std::cout << "-W- deltaAllFrameCount > 1: "	<< deltaAllFrameCount << std::endl;
-		fOldAllHeaderCount = fRecentAllFrameHeader.fFrameCount;
+		fOldAllHeaderCount = frameHeader.fFrameCount;
 
 		if (fHeaderPresent == kTRUE) {
 			// double header found, cannot check previous data without trailer, clear vector
@@ -275,7 +273,6 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 			// double trailer found, cannot give the hits a valid timestamp without the header, clear vector
 
 			fToPixFrame.clear();
-			fDoubleTrailer++;
 			fStatusValues[DoubleTrailer]++;
 
 			if (fVerbose > 1) {
@@ -292,7 +289,6 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 				//	std::cout << "ToPix Frame found! Go and analyze this amount of data: " << fToPixFrame.size() << std::endl;
 				//}
 
-				fTotalFrameCount++;
 				fStatusValues[TotalFrameCount]++;
 				//AnalyzeToPixFrame(clockFrequency);
 				return true;
@@ -304,6 +300,7 @@ bool PndMvdReadInToPix4TBData::BuildFrame(ULong64_t& rawData)
 				// this case is in principle impossible to enter
 				fPreFrameLossHitCount += fToPixFrame.size() - 1;
 				fDoubleTrailer++;
+				fStatusValues[DoubleTrailer]++;
 				fToPixFrame.clear();
 			}
 		}

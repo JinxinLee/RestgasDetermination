@@ -24,6 +24,8 @@
 #include "PndSdsDigiTopix4.h"
 #include "PndMQStatus.h"
 
+#include "PndTopix4.h"
+
 
 using namespace std;
 
@@ -75,7 +77,8 @@ void PndMQTopix4Processor::Run()
 				//                     << message->getNumWords() << " " << message->getNumBits()
 				//                     << "\"";
 					std::vector<ULong64_t> rawArray;
-					rawArray = fTopixDataReader.GetRawData(message);
+					PndTopix4 topix;
+					rawArray = topix.GetRawData(message);
 					std::vector<std::vector<PndSdsDigiTopix4> > frames = fTopixDataReader.AnalyzeData(rawArray, 50);
 					fPndSdsDigiTopix4Vector.clear();
 					for (auto frameIter : frames){

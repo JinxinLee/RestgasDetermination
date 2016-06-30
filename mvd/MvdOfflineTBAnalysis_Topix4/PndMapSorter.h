@@ -47,8 +47,11 @@ class PndMapSorter : public TObject
     }
 
     virtual void DeleteOutputData() {
-    	for (auto itr : fOutputData)
-    		delete(itr);
+//    	std::cout << "DeleteOutputData size: " << fOutputData.size() << std::endl;
+    	for (int itr = 0; itr < fOutputData.size(); itr++){
+  //  		std::cout << itr << " " << fOutputData[itr] << std::endl;
+ //   		delete(fOutputData[itr]);
+    	}
     	fOutputData.clear();
     }
 

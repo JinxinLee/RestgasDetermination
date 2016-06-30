@@ -13,9 +13,12 @@ configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAl
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE2.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE2.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE3.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE3.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE4.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE4.sh)
+#configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startMvdClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdClusterTask.sh)
+
 
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAll.sh.in ${CMAKE_BINARY_DIR}/bin/combineAll.sh)
+configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAllRamDisk.sh.in ${CMAKE_BINARY_DIR}/bin/combineAllRamDisk.sh)
 
 Set(INCLUDE_DIRECTORIES
   ${BASE_INCLUDE_DIRECTORIES}
@@ -92,6 +95,7 @@ set(SRCS
   "PndMQHitsEventBuilder.cxx"
   "PndMQHitEventDevice.cxx"
   "PndMQFileSamplerHits.cxx"
+#  "PndMvdMQFileSampler.cxx"
 )
 
 
@@ -143,6 +147,7 @@ set(Exe_Names
   Topix4-hitsampler
   Topix4-hiteventbuilder
   Topix4-hitsampler2
+#  PndMQFileSampler
 )
 
 
@@ -163,6 +168,7 @@ set(Exe_Source
   runHitSampler.cxx
   runPndHitEventBuilder.cxx
   runPndTopixHitSampler.cxx
+#  runFileSampler.cxx
 )
 
 list(LENGTH Exe_Names _length)

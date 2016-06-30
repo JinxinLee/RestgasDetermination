@@ -53,7 +53,8 @@ void PndMQTopix4ProcessorTask::Exec(Option_t* opt)
 //                     << message->getNumWords() << " " << message->getNumBits()
 //                     << "\"";
 	std::vector<ULong64_t> rawArray;
-	rawArray = fTopixDataReader.GetRawData(message);
+	PndTopix4 topix;
+	rawArray = topix.GetRawData(message);
 	std::vector<std::vector<PndSdsDigiTopix4> > frames = fTopixDataReader.AnalyzeData(rawArray, 50);
 
 	LOG(INFO) << "Frames.size " << frames.size();

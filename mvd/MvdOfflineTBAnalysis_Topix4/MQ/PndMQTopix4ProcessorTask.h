@@ -18,6 +18,7 @@
 //#include "FairMQDevice.h"
 #include "FairMQProcessorTask.h"
 #include "PndMvdReadInToPix4TBData.h"
+#include "PndTopix4.h"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/vector.hpp>

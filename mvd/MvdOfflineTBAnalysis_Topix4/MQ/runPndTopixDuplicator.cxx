@@ -37,6 +37,8 @@ int main(int argc, char** argv)
 	PndMQDataDuplicator processor;
     processor.CatchSignals();
 
+    processor.SetRateRatio(1, 1);
+
     FairMQProgOptions config;
 
 

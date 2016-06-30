@@ -38,6 +38,13 @@ class PndMQDataDuplicator : public FairMQDevice
 		ar& fTopixData;
 	}
 
+    void SetRateRatio(int channel, int ratio){
+    	if (channel > fRates.size() - 1){
+    		fRates.resize(channel + 1, 0);
+    	}
+    	fRates[channel] = ratio;
+    }
+
   protected:
     virtual void Run();
 

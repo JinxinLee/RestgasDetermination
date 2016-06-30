@@ -61,7 +61,7 @@ void PndMapSorterTask::Exec(Option_t* opt)
 {
 
  // fInputArray = FairRootManager::Instance()->GetTClonesArray(fInputBranch);
-  if (fVerbose > 1 && fEntryNr % 1000 == 0 ) {
+  if (fVerbose > 1 && fEntryNr % 10 == 0 ) {
     std::cout << "-I- PndMapSorterTask: " << fEntryNr << " Size PixelArray: " << fInputArray->GetEntriesFast() << std::endl;
   }
   Double_t timeOfLast = 0;
