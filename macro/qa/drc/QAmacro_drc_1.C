@@ -108,6 +108,6 @@ void QAmacro_drc_1()
   //   cout << " Not Ok " << endl;         
   // }
 
-  exit(0); 
+  //exit(0); 
 }  
   
