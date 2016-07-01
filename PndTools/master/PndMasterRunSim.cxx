@@ -403,15 +403,15 @@ void PndMasterRunSim::Finish()
   cout << "</DartMeasurement>" << endl;
   
   cout << endl;
-  LOG(INFO) << "Output file is\t\t"    << fOutFile << FairLogger::endl;
-  LOG(INFO) << "Parameter ROOT file is\t" << fParamRootFile << FairLogger::endl;
-  LOG(INFO) << "Parameter ASCII file is\t" << fParamAsciiFile << FairLogger::endl;
-  LOG(INFO) << "Real time " << rtime << " s, CPU time " << ctime
-	    << "s" << FairLogger::endl;
-  LOG(INFO) << "CPU usage " << cpuUsage*100. << "%" << FairLogger::endl;
-  LOG(INFO) << "Max Memory " << maxMemory << " MB" << FairLogger::endl;
+  cout << "Output file is\t\t"    << fOutFile << endl;
+  cout << "Parameter ROOT file is\t" << fParamRootFile << endl;
+  cout << "Parameter ASCII file is\t" << fParamAsciiFile << endl;
+  cout << "Real time " << rtime << " s, CPU time " << ctime
+	    << "s" << endl;
+  cout << "CPU usage " << cpuUsage*100. << "%" << endl;
+  cout << "Max Memory " << maxMemory << " MB" << endl;
    
-  LOG(INFO) << "Macro finished successfully." << FairLogger::endl;
+  cout << "Macro finished successfully." << endl;
   
 }
 
