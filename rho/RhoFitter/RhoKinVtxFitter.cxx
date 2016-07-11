@@ -345,15 +345,15 @@ void RhoKinVtxFitter::SetOutput(RhoCandidate* head)
     sumA += a;
     TVector3 pos(al0[k*7+4][0],al0[k*7+5][0],al0[k*7+6][0]);
 //std::cout<<" --"<<k<<"-- ("<<pos.x()<<";"<<pos.y()<<";"<<pos.z()<<")"<<std::endl;
-    TLorentzVector mom4(al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0], al0[k*7+3][0]);
 
+    TLorentzVector mom4(al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0], al0[k*7+3][0]);
+//    fDaughters[k]->SetP7(pos,mom4);
 //better to put daugthers with mass hypothesis .......?? VJ
     TLorentzVector momM;
     double fM=fDaughters[k]->Mass();
     momM.SetXYZM(al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0],fM);
 //    momM.SetP4(fM,al0[k*7+0][0],al0[k*7+1][0],al0[k*7+2][0]);
-    fDaughters[k]->SetP7(pos,mom4);
-//    fDaughters[k]->SetP7(pos,momM);
+    fDaughters[k]->SetP7(pos,momM);
 
 
     //Extend matrix for energy for each candidates if daughters from mass hypothesis 6x6 covariance
