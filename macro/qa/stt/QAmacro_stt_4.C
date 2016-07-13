@@ -123,9 +123,9 @@ void QAmacro_stt_4()
   double xinf = hptot->GetBinCenter(bininf);
   double xsup = hptot->GetBinCenter(binsup);
   double gamma = xsup - xinf;
-  double sigma = gamma / 2.34;
-  xinf = xmax - 3 * sigma;
-  xsup = xmax + 3 * sigma;
+  double sigma1 = gamma / 2.34;
+  xinf = xmax - 3 * sigma1;
+  xsup = xmax + 3 * sigma1;
 
 
 
