@@ -100,9 +100,3 @@ std::ostream& operator<< ( std::ostream& stream, const RhoVector3Err& verr );
 std::istream& operator>> ( std::istream& stream, RhoVector3Err& verr );
 
 #endif
-
-
-
-
-
-

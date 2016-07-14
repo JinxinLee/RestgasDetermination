@@ -98,7 +98,3 @@ class RhoEventInfo : public TObject
 std::ostream&  operator << ( std::ostream& o, const RhoEventInfo& );
 
 #endif
-
-
-
-

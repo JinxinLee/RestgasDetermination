@@ -95,4 +95,4 @@ class RhoCalculationTools
     static Bool_t fBzSet;
 };
 
-#endif // RHOCALCULATIONTOOLS_H
+#endif

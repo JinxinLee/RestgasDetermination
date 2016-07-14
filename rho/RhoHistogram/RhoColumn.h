@@ -372,4 +372,3 @@ class RhoStringColumn : public RhoColumn
 };
 
 #endif
-

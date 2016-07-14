@@ -462,4 +462,3 @@ class RhoCandidate : public FairMultiLinkedData_Interface
 std::ostream&  operator << ( std::ostream& o, const RhoCandidate& );
 
 #endif
-

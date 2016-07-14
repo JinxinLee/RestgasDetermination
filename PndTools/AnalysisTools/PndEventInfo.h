@@ -83,7 +83,3 @@ class PndEventInfo : public TObject
 std::ostream&  operator << ( std::ostream& o, const PndEventInfo& );
 
 #endif
-
-
-
-

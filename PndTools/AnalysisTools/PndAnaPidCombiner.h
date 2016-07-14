@@ -52,7 +52,3 @@ class PndAnaPidCombiner : public TNamed
 
 
 #endif
-
-
-
-

@@ -47,4 +47,4 @@ class PndGoodTrackSelector : public RhoGoodTrackSelector
     ClassDef(PndGoodTrackSelector,1);
 };
 
-#endif // PNDGOODTRACKSELECTOR_H
+#endif

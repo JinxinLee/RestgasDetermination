@@ -17,4 +17,4 @@ class PndAnaContFact : public FairContFact
     ClassDef(PndAnaContFact,1); // Factory for all libAnalysis parameter containers
 };
 
-#endif  /* !ANACONTFACT_H */
+#endif  

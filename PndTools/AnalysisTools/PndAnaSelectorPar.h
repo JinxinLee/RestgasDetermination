@@ -41,5 +41,4 @@ class PndAnaSelectorPar : public FairParGenericSet
     ClassDef(PndAnaSelectorPar,1);
 };
 
-#endif /* !PNDANASELECTORPAR_H*/
-
+#endif 

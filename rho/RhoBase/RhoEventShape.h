@@ -42,4 +42,3 @@ class RhoEventShape : public TObject
 };
 
 #endif
-

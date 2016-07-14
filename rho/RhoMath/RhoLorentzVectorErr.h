@@ -127,9 +127,3 @@ RhoLorentzVectorErr operator - ( const RhoLorentzVectorErr&,
 std::ostream& operator<< ( std::ostream& stream, const RhoLorentzVectorErr& verr );
 
 #endif
-
-
-
-
-
-
