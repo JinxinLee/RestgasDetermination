@@ -13,9 +13,9 @@ TString getInitialResonance(TString &fEvtGenFile);
 
 void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0. )
 {
-        if (prefix=="" || inputGen=="" || pbeam==0.) 
+	if (prefix=="" || inputGen=="" || pbeam==0.) 
 	{
-	        cout << "USAGE:\n";
+		cout << "USAGE:\n";
 		cout << "prod_fsim.C( <pref>,  <nevt>, <gen>, <pbeam> )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <nevt>     : number of events\n";
@@ -55,7 +55,6 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 	Bool_t electronBrems     = true;   // bremsstrahlung loss for electrons
 	
 	//----- Switches for Event Filter Options ------------------------------
-	Bool_t useEventFilter    = false;  // enable Fast Sim event filter. *** Needs configuration (see below) *** 
 	Bool_t usePndEventFilter = false;  // enable Panda event filter.    *** Needs configuration (see below) *** 
 
 	
@@ -97,13 +96,15 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 	// Determine event generator according to inputGen
 	// ------------------------------------------------------
 	
+	// ------------------------------------------------------
 	// use DPM generator; default: inelastic @ pbarmom = mom
 	// ------------------------------------------------------
-	if (inputGen.BeginsWith("DPM") && !inputGen.EndsWith(".dec"))
+	if (inputGen.BeginsWith("DPM",TString::kIgnoreCase) && !inputGen.EndsWith(".dec",TString::kIgnoreCase))
 	{
+		inputGen.ToLower();
 		int mode = 0;
-		if (inputGen=="DPM1") mode = 1;
-		if (inputGen=="DPM2") mode = 2;
+		if (inputGen=="dpm1") mode = 1;
+		if (inputGen=="dpm2") mode = 2;
 		
 		PndDpmDirect *Dpm= new PndDpmDirect(pbeam,mode);  // 0 = inelastic, 1 = inelastic & elastic, 2 = elastic
 		
@@ -121,20 +122,23 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 		primGen->AddGenerator(Dpm);
 	}
 
+	// ------------------------------------------------------
 	// use FTF generator; 
 	// ------------------------------------------------------
-	else if (inputGen.BeginsWith("FTF") && !inputGen.EndsWith(".dec"))
+	else if (inputGen.BeginsWith("FTF",TString::kIgnoreCase) && !inputGen.EndsWith(".dec",TString::kIgnoreCase))
 	{
-	        PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", pbeam, 0, (inputGen=="FTF1") ); 
+		inputGen.ToLower();
+		PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", pbeam, 0, (inputGen=="ftf1") ); 
 		primGen->AddGenerator(Ftf);
 	}
 
+	// ------------------------------------------------------
 	// use BOX generator; defaults
 	// ------------------------------------------------------
-	else if (inputGen.BeginsWith("BOX") && !inputGen.EndsWith(".dec"))
+	else if (inputGen.BeginsWith("BOX",TString::kIgnoreCase) && !inputGen.EndsWith(".dec",TString::kIgnoreCase))
 	{
-	        // Set Box generator defaults
-	        Double_t BoxMomMin  = 0.05;   // minimum momentum for box generator
+		// Set Box generator defaults
+		Double_t BoxMomMin  = 0.05;   // minimum momentum for box generator
 		Double_t BoxMomMax  = pbeam;  // maximum   "       "
 		Double_t BoxThtMin  = 0. ;    // minimum theta for box generator
 		Double_t BoxThtMax  = 180.;   // maximum   "       "
@@ -170,7 +174,7 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 		}
 		
 		cout <<"BOX generator range: type["<<BoxType<<","<<BoxMult<<"]  p["<<BoxMomMin<<","<<BoxMomMax
-		     <<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
+			<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
 
 		
 		PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult);
@@ -186,6 +190,7 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 		primGen->AddGenerator(boxGen);
 	}
 
+	// ------------------------------------------------------
 	// EvtGen Generator
 	// ------------------------------------------------------
 	else 
@@ -219,66 +224,23 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 	
 	if (usePndEventFilter)
 	{
+		// *** Example Configuration of Event Filter 
 		cout <<"Using FairEventFilter"<<endl;
 		primGen->SetFilterMaxTries(100000);
 		
+		// require 4 charged tracks
 		FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
 		chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
 		primGen->AndFilter(chrgFilter);
-		 		 		
-		//FairEvtFilterOnCounts* neutFilter = new FairEvtFilterOnCounts("neutFilter");
-		//neutFilter->AndMaxCharge(4, FairEvtFilter::kNeutral);
-		//primGen->AndFilter(neutFilter);
-		
+		 		 				
+		// require 1 ee combination in the mass range 2.8 < m(ee) < 3.3 GeV
 		PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
-		//eeInv->SetVerbose();//highest commenting level of the FairEvtFilterOnCounts
 		eeInv->SetPdgCodesToCombine( 11, -11);
 		eeInv->SetMinMaxInvMass( 2.8, 3.3 );
 		eeInv->SetMinMaxCounts(1,10000);
  		primGen->AndFilter(eeInv);  //add filter to fFilterList		
 	}
 	
-	// set event filters
-	//-----------------------------
-	if (useEventFilter)
-	{
-	      // Filters are:
-	      // -----------
-	      // fastSim->SetMultFilter(type, min, max); 
-	      // requires min <= mult <= max
-	      
-	      // available types are:
-	      
-	      //  "+"   : positive charged particles
-	      //  "-"   : negative charged particles
-	      //  "gam" : gammas
-	      //  "pi0" : pi0 candidates ( -> 2 gammas); mass window 0.135 +- 0.03 GeV
-	      //  "eta" : eta candidates ( -> 2 gammas); mass window 0.547 +- 0.04 GeV 
-	      //  "ks"  : K_S candidates ( -> pi+ pi-);  mass window 0.497 +- 0.04 GeV
-	  
-	      // Examples: 
- 	      //fastSim->SetMultFilter("ks",   1,1000);  // at least 1 KS
- 	      //fastSim->SetMultFilter("+",   2,1000);  // at least 2 trk+
- 	      //fastSim->SetMultFilter("-",   2,1000);  // at least 2 trk-
- 	      //fastSim->SetMultFilter("gam", 0,   4);  // at most 4 gammas
-
-	      // fastSim->SetInvMassFilter(comb, m_min, m_max, mult);
-	      
-	      // requires at least mult combined candidates with m_min < m < m_max
-	      
-	      // comb is a TString describing the combinatoric
-	      // - particle codes are: e+ e- mu+ mu- pi+ pi- k+ k- p+ p- gam pi0 ks eta
-	      // - codes must be separated with a single blank
-	      // - for charged final states only the mass is set; no pdg code selection is done! 
-	      // - optional a 'cc' added at the end of also takes into account charge conjugation
-	      
-	      // Examples: 
-	      // - ("k+ k-", 0.98, 1.1, 2)       : forms K+ K- candidate and requires >=2 in the given window
-	      // - ("ks k+ pi- cc", 2.8, 3.2,1 ) : forms ks k+ pi- / ks k- pi+ cands and req. at least one in window
-	      
-	      //fastSim->SetInvMassFilter("e+ e-",2.8,3.3,1);  // look for J/psi -> e+ e- candidate
-	}
-
 	// enable the merging of neutrals if they have similar direction
 	//-----------------------------
 	fastSim->MergeNeutralClusters(mergeNeutrals);
@@ -289,16 +251,15 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 
 	//enable the producting of parametrized neutral (hadronic) split offs
 	// generate electro-magnetic / hadronic split offs in the EMC? switch off when running w/o EMC
-
-	if (enableSplitoff)
-		fastSim->EnableSplitoffs(splitpars.Data());
+	if (enableSplitoff) fastSim->EnableSplitoffs(splitpars.Data());
 
 	fastSim->SetUseFlatCov(true);
 
 
+
 	// -----------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------
-	// *********              The Fast Simulation Configuration                   ********
+	// *********            BEGIN Fast Simulation Configuration                   ********
 	// -----------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------
 
@@ -355,6 +316,11 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 	fastSim->AddDetector("ScEmcPidBwCap",  "thtMin=142.0 thtMax=160.0  ptmin=0.0 pmin=0.0 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidBarrel", "thtMin=22.0  thtMax=142.0 ptmin=0.2 pmin=0.0 efficiency=1.0");
 	fastSim->AddDetector("ScEmcPidFS",     "thtMin=0.5   thtMax=10.0  ptmin=0.0 pmin=0.5 efficiency=1.0");
+	
+	// -----------------------------------------------------------------------------------
+	// *********              END Fast Simulation Configuration                   ********
+	// -----------------------------------------------------------------------------------
+
 
 
 	fRun->AddTask(fastSim);	
@@ -410,35 +376,35 @@ void getRange(TString par, double &min, double &max)
 
 TString getInitialResonance(TString &fEvtGenFile)
 {
-  
-  TString IniRes="";
-  
-  if (fEvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ? 
-  {
-    IniRes = fEvtGenFile(fEvtGenFile.Index(":")+1,1000);
-    fEvtGenFile = fEvtGenFile(0,fEvtGenFile.Index(":"));
-  }
-  
-  if (IniRes=="") // we need to search the decay file
-  {
-    std::ifstream fs(fEvtGenFile.Data());	
-    char line[250];
-  
-    while (fs)
-    {
-      fs.getline(line,249);
-      TString s(line);
-      s.ReplaceAll("\r","");
-      if (IniRes=="" && s.Contains("Decay "))
-      {
-        if (s.Contains("#")) s=s(0,s.Index("#"));
-        s.ReplaceAll("Decay ","");
-        s.ReplaceAll(" ","");
-        IniRes = s;
-      }	 
-    } 
-    fs.close();
-  }
-  
-  return IniRes;
+
+	TString IniRes="";
+
+	if (fEvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ? 
+	{
+		IniRes = fEvtGenFile(fEvtGenFile.Index(":")+1,1000);
+		fEvtGenFile = fEvtGenFile(0,fEvtGenFile.Index(":"));
+	}
+
+	if (IniRes=="") // we need to search the decay file
+	{
+		std::ifstream fs(fEvtGenFile.Data());	
+		char line[250];
+
+		while (fs)
+		{
+			fs.getline(line,249);
+			TString s(line);
+			s.ReplaceAll("\r","");
+			if (IniRes=="" && s.Contains("Decay "))
+			{
+				if (s.Contains("#")) s=s(0,s.Index("#"));
+				s.ReplaceAll("Decay ","");
+				s.ReplaceAll(" ","");
+				IniRes = s;
+			}	 
+		} 
+		fs.close();
+	}
+
+	return IniRes;
 }

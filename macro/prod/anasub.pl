@@ -32,7 +32,6 @@ if ($para=~s/^check_//) { $check = 1;}
 
 # set some defaults
 if (!defined($num))  {$num=50;}
-if (!defined($mode)) {$mode=0;}
 
 my @prefs;
 my @commands;
@@ -40,6 +39,9 @@ my @commands;
 # we have a file containing a list of sbatch commands
 if ( $para =~ m/\.jobs$/ )
 {
+    # if mode not yet defined, we configure for automatic counting up
+    if (!defined($mode)) {$mode=-1;}
+    
     open (in,"<$para");
     @commands= <in>;
     close in;
@@ -49,7 +51,7 @@ if ( $para =~ m/\.jobs$/ )
 	chomp $cmd;
 	if ( $cmd =~ m/^#/) {next;}
     
-	print "\n".$cmd."\n";
+	print "reading: ".$cmd."\n";
 	$cmd =~ m/(\d+)-(\d+)(.+)(job.*\.sh)\s+([\w,\/]+)\s+(.*)/;
 	push(@prefs, $5);
     }
@@ -60,7 +62,11 @@ else
     push(@prefs, $para);
 }
 
+# if mode not yet defined, set to default
+if (!defined($mode)) {$mode=0;}
+
 my $cnt = 1;
+my $njobs = 0;
 
 # for each entry in the commands array
 foreach my $pref (@prefs)
@@ -106,13 +112,33 @@ foreach my $pref (@prefs)
     {
 	my $up = $curr+$num-1;
 	if ($up>$max) {$up=$max;}
-	my $cmd = "sbatch jobana_kronos.sh $pref $curr $up $currmode";
-	print "$cmd\n";
+	
+	# the command line
+	my $cmd = "sbatch -pdebug -t20 jobana_kronos.sh $pref $curr $up $currmode";
+	
+	# the output file name
+	my $filename="$pref\_ana_$curr\_$up.root";
+	
+	# only if output file does not exist, we submit a job
+	if (!-e "data/$filename")
+	{
+	    print "$cmd  (-->  data/$filename)\n";
+	    if (!$check) {system($cmd);}
+	    $njobs+=1;
+	}
+	else # else we print that file was found (need to be deleted to resubmit automatically)
+	{
+	    print "found --> data/$filename ... not submitting!\n" 
+	}
 	$curr+=$num;
-	if (!$check) {system($cmd);}
     }
     
     $cnt++;
     undef($min);
     undef($max);
 }
+
+# print summary about jobs (to be) submitted
+print "\n$njobs jobs ";
+if ($check){print "to be ";}
+print "submitted.\n\n";
