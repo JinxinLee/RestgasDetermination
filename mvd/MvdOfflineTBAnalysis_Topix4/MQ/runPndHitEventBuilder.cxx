@@ -41,10 +41,7 @@ int main(int argc, char** argv)
 
     try
     {
-        if (config.ParseAll(argc, argv))
-        {
-            return 0;
-        }
+        config.ParseAll(argc, argv);
 
         std::string filename = config.GetValue<std::string>("config-json-file");
         std::string id = config.GetValue<std::string>("id");
