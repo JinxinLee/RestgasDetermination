@@ -1,0 +1,50 @@
+/*
+ * PndMQGapEventBuilderFTS.cxx
+ *
+ *  Created on: 14.10.2015
+ *      Author: Stockmanns
+ */
+
+#include <PndMQGapEventBuilderFTS.h>
+
+PndMQGapEventBuilderFTS::PndMQGapEventBuilderFTS() : fTimeGap(0) {
+}
+
+PndMQGapEventBuilderFTS::PndMQGapEventBuilderFTS(double timeGap) : fTimeGap(timeGap) {
+}
+
+PndMQGapEventBuilderFTS::~PndMQGapEventBuilderFTS() {
+	// TODO Auto-generated destructor stub
+}
+
+void PndMQGapEventBuilderFTS::FillData(std::vector<FairTimeStamp*> data)
+{
+	fData.insert(fData.end(), data.begin(), data.end());
+}
+
+std::vector<std::vector<FairTimeStamp*> > PndMQGapEventBuilderFTS::GetSeparatedData()
+{
+	std::vector<std::vector<FairTimeStamp*> > separatedData;
+	FairTimeStamp* oldData;
+	std::vector<FairTimeStamp*> tempData;
+	for (auto itr : fData){
+		if (itr->GetTimeStamp() - oldData->GetTimeStamp() > fTimeGap){
+			if(tempData.size() > 0){
+				separatedData.push_back(tempData);
+				tempData.clear();
+			}
+		}
+		tempData.push_back(itr);
+		oldData = itr;
+	}
+	fPreviousData = tempData;
+	fData = fPreviousData;
+	return separatedData;
+}
+
+std::vector<std::vector<FairTimeStamp*> > PndMQGapEventBuilderFTS::GetLastData(){
+	std::vector<std::vector<FairTimeStamp*> > separatedData;
+	separatedData.push_back(fPreviousData);
+	fPreviousData.clear();
+	return separatedData;
+}
