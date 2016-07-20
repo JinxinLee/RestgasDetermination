@@ -92,13 +92,15 @@ class PndSdsDigiStrip : public PndSdsDigi
     	      return out;
     }
     
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		boost::serialization::void_cast_register<PndSdsDigiStrip, PndSdsDigi>();
-		ar & boost::serialization::base_object<PndSdsDigi>(*this);
-		ar & fChannel;
-	}
+	#ifndef __CINT__ // for BOOST serialization
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::void_cast_register<PndSdsDigiStrip, PndSdsDigi>();
+			ar & boost::serialization::base_object<PndSdsDigi>(*this);
+			ar & fChannel;
+		}
+	#endif // for BOOST serialization
 
 	private :
 	#ifndef __CINT__ // for BOOST serialization

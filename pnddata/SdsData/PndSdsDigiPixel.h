@@ -103,15 +103,17 @@ class PndSdsDigiPixel : public PndSdsDigi
 		return *this;
 	}
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		boost::serialization::void_cast_register<PndSdsDigiPixel, PndSdsDigi>();
-		ar & boost::serialization::base_object<PndSdsDigi>(*this);
-		ar & fCol;
-		ar & fRow;
-	}
-    
+	#ifndef __CINT__ // for BOOST serialization
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::void_cast_register<PndSdsDigiPixel, PndSdsDigi>();
+			ar & boost::serialization::base_object<PndSdsDigi>(*this);
+			ar & fCol;
+			ar & fRow;
+		}
+	#endif // for BOOST serialization
+
     private :
 	#ifndef __CINT__ // for BOOST serialization
 		friend class boost::serialization::access;

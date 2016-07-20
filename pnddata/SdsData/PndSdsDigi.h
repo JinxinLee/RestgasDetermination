@@ -22,8 +22,9 @@
 #include <iostream>
 #include <vector>
 
-#include <boost/serialization/void_cast.hpp>
-
+#ifndef __CINT__ // for BOOST serialization
+	#include <boost/serialization/void_cast.hpp>
+#endif // for BOOST serialization
 
 class PndSdsDigi : public FairTimeStamp
   {
@@ -87,8 +88,7 @@ class PndSdsDigi : public FairTimeStamp
 			std::cout << *this;
 		}
 
-
-
+	#ifndef __CINT__ // for BOOST serialization
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
@@ -100,7 +100,8 @@ class PndSdsDigi : public FairTimeStamp
 			ar & fFE;
 			ar & fCharge;
 		}
-    
+	#endif // for BOOST serialization
+
   protected:
 	#ifndef __CINT__ // for BOOST serialization
 		friend class boost::serialization::access;
