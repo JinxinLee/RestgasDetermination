@@ -14,6 +14,7 @@ set(MVDMQ_BIN_LOCATION  ${CMAKE_BINARY_DIR}/bin)
 set(EXAMPLE9_BIN_LOCATION ${FAIRROOTPATH}/bin)
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdClusterTask.sh)
+configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdFileSamplerBursts.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdFileSamplerBursts.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdStripClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdStripClusterTask.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startCombinedClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startCombinedClusterTask.sh)
 
@@ -51,6 +52,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/sds/SdsDigi
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/mvd/MvdTools
 
   ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
 
@@ -70,6 +72,7 @@ Link_Directories( ${LINK_DIRECTORIES})
 
 Set(SRCS
 	src/devices/PndMvdMQFileSampler.cxx
+	src/devices/PndMvdMQFileSamplerBursts.cxx
 	src/devices/PndMvdMQFileSink.cxx
 )
 
@@ -107,12 +110,14 @@ GENERATE_LIBRARY()
 
 set(Exe_Names
   PndMQFileSampler
+  PndMQFileSamplerBursts
   PndMQFileSink
   PndMQTaskProcessor
 )
 
 set(Exe_Source
   run/runFileSampler.cxx
+  run/runFileSamplerBursts.cxx
   run/runFileSink.cxx
   run/runTaskProcessor.cxx
 )

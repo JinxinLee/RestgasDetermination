@@ -8,7 +8,7 @@
 
 
 // 9-PixelDetector example
-#include "PndMvdMQFileSampler.h"
+#include "PndMvdMQFileSamplerBursts.h"
 
 // ////////////////////////////////////////////////////////////////////////
 namespace po = boost::program_options;
@@ -45,9 +45,9 @@ int main(int argc, char** argv)
         FairMQProgOptions config;
         config.AddToCmdLineOptions(sampler_options);
 
-       config.ParseAll(argc, argv);
+        config.ParseAll(argc, argv);
 
-        PndMvdMQFileSampler sampler;
+        PndMvdMQFileSamplerBursts sampler;
 
 	for ( unsigned int ielem = 0 ; ielem < filename.size() ; ielem++ ) {
 	  sampler.AddInputFileName(filename.at(ielem));
