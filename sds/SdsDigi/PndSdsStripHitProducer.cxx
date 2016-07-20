@@ -347,6 +347,7 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, I
 	  //  for (int i = 0; i < indices.size(); i++)
 	      tempStrip->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, iPoint));
 	      tempStrip->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
+	      tempStrip->AddLinks(*(point->GetPointerToLinks()));
 	  }
 	  fDataBuffer->FillNewData(tempStrip,	timeStamp + 100, point->GetTime() + FairRootManager::Instance()->GetEventTime());
 	  delete(tempStrip);

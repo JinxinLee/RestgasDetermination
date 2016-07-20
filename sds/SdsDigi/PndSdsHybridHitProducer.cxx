@@ -240,7 +240,7 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
   if(fVerbose>0)
     {
       std::cout << std::endl;
-      std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << std::endl;
+      std::cout << "-I- PndSdsHybridHitProducer::Exec EventTime: " << EventTime << " event: " << FairRootManager::Instance()->GetEntryNr() << std::endl;
     }
   
   fPixelList.clear();
@@ -381,7 +381,10 @@ void PndSdsHybridHitProducer::Exec(Option_t* opt)
 		std::vector<int> indices = fPixelList[iPix].GetMCIndex();
 		FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
 		for (int i = 0; i < (int)indices.size(); i++){
-		  tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, indices[i]));
+			tempPixel->SetInsertHistory(true);
+			tempPixel->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  fInBranchId, indices[i]));
+			PndSdsMCPoint* myPoint = (PndSdsMCPoint*)fPointArray->At(indices[i]);
+			tempPixel->AddLinks(*(myPoint->GetPointerToLinks()));
 		}
 		tempPixel->AddLink(FairLink(-1, fEventNr, "EventHeader.", -1));
     }

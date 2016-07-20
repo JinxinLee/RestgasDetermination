@@ -27,7 +27,7 @@ class PndSttHitProducerRealFast : public FairTask
 
 
   /** Destructor **/
-  ~PndSttHitProducerRealFast();
+  virtual ~PndSttHitProducerRealFast();
 
 
   /** Virtual method Init **/
