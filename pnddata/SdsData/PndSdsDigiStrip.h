@@ -92,7 +92,6 @@ class PndSdsDigiStrip : public PndSdsDigi
     	      return out;
     }
     
-
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
@@ -108,14 +107,8 @@ class PndSdsDigiStrip : public PndSdsDigi
 	#endif // for BOOST serialization
 
     private :
-    //    Int_t fIndex;   /// MC Point index
-    //    Int_t fDetID;   /// Detector ID
-    //    TString fDetName;   /// Detector Name
-    //    Int_t fFE;   /// Frontend Number
+
     Int_t fChannel;   /// Frontend Channel
-    //    Int_t fTimestamp;	/// Timestamp of ev
-    //    Double_t fCharge;   /// Charge of Hit
-    //    Int_t fMCID;   /// MC Track index
     
     ClassDef(PndSdsDigiStrip,6);
   };
