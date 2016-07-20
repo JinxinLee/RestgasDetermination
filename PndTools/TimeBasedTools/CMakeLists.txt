@@ -37,6 +37,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 
 PndGapEventBuilderTask.cxx
+PndTimeStructureAnaTask.cxx
 
 )
 

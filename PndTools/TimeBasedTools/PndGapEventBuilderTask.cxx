@@ -16,7 +16,7 @@
 #include "FairTimeStamp.h"
 
 PndGapEventBuilderTask::PndGapEventBuilderTask() :
-	FairTask("Pnd Gap Event Builder"), fTimeGap(10), fMainBranchName(), fPersistence(kTRUE)
+	FairTask("Pnd Gap Event Builder"), fTimeGap(10), fMainBranchName(), fPersistence(kTRUE), fEntryNr(0)
 {
 }
 
@@ -79,14 +79,21 @@ void PndGapEventBuilderTask::Exec(Option_t* opt)
 	for (int i = 0; i < fAddHitArray.size(); i++){
 		fAddEventHitArray[i]->Delete();
 	}
+
+
+
 	fMainHitArray = FairRootManager::Instance()->GetData(fMainBranchName, fTimeGapFunctor, fTimeGap);
-	for(int i = 0; i < fMainHitArray->GetEntriesFast(); i++)
-	{
-		FairTimeStamp* temp = (FairTimeStamp*)fMainHitArray->At(i);
+
+	if (++fEntryNr % 1000 == 0 && fVerbose > 0) {
+		std::cout << "-I- PndGapEventBuilderTask:Exec " << fEntryNr << std::endl;
 	}
+
+
 	fMainEventHitArray->AbsorbObjects(fMainHitArray);
 
-	if (fMainEventHitArray->GetEntriesFast() > 0){
+
+
+	if (fMainEventHitArray->GetEntriesFast() > 0 && fAddHitArray.size() > 0){
 
 		FairTimeStamp* data = (FairTimeStamp*)fMainEventHitArray->At(0);
 		Double_t startTime = data->GetTimeStamp() - 10;
@@ -98,9 +105,6 @@ void PndGapEventBuilderTask::Exec(Option_t* opt)
 		for (int i = 0; i < fAddHitArray.size(); i++){
 			TClonesArray* tempArray = FairRootManager::Instance()->GetData(fAddBranches[i].first, fStartFunctor, startTime, fStopFunctor, stopTime + fAddBranches[i].second);
 			fAddEventHitArray[i]->AbsorbObjects(tempArray);
-			for (int j = 0; j < fAddEventHitArray[i]->GetEntriesFast(); j++){
-				FairTimeStamp* tempdata = (FairTimeStamp*)fAddEventHitArray[i]->At(j);
-			}
 		}
 	}
 

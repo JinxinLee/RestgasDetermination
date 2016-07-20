@@ -55,6 +55,8 @@ private:
 	BinaryFunctor* fStopFunctor;
 	BinaryFunctor* fTimeGapFunctor;
 
+	Int_t fEntryNr;
+
 
   void Register();
   void Reset();
