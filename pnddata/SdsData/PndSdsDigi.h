@@ -22,6 +22,8 @@
 #include <iostream>
 #include <vector>
 
+#include <boost/serialization/void_cast.hpp>
+
 
 class PndSdsDigi : public FairTimeStamp
   {
@@ -85,9 +87,13 @@ class PndSdsDigi : public FairTimeStamp
 			std::cout << *this;
 		}
 
+
+
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
+			boost::serialization::void_cast_register<PndSdsDigi, FairTimeStamp>();
+
 			ar & boost::serialization::base_object<FairTimeStamp>(*this);
 			ar & fDetID;
 			ar & fSensorID;

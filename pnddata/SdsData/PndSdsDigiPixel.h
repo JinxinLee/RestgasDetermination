@@ -43,7 +43,7 @@ class PndSdsDigiPixel : public PndSdsDigi
     PndSdsDigiPixel(std::vector<Int_t> index, Int_t detID, Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, Double_t timeStamp);
     
     
-		~PndSdsDigiPixel(){};
+	virtual ~PndSdsDigiPixel(){};
     
     void Print() {
       std::cout << *this;
@@ -102,9 +102,11 @@ class PndSdsDigiPixel : public PndSdsDigi
 	        }
 		return *this;
 	}
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
+		boost::serialization::void_cast_register<PndSdsDigiPixel, PndSdsDigi>();
 		ar & boost::serialization::base_object<PndSdsDigi>(*this);
 		ar & fCol;
 		ar & fRow;
