@@ -27,7 +27,7 @@ std::vector<ULong64_t> PndTopix4::GetRawData(TMrfData_8b* data)
 	std::vector<ULong64_t> rawData;
 	for (UInt_t i = 0; i < data->getNumWords(); i += 5) {
 		ULong_t dataword = 0;
-		for (uint j = 0; j < 5; j++) {
+		for (UInt_t j = 0; j < 5; j++) {
 			dataword = dataword << 8;
 			dataword += data->getWord(i + j);
 		}
