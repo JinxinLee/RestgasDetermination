@@ -45,7 +45,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunSim::PndMasterRunSim() :
-  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fRtdb(), fTimer(), fInput(), fInputDir(""), fOutFile(), fDpmFlag(1), fFtfFlag(0), fNEvents(0), fEventCounterRate(100)
+  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fOptions(), fRtdb(), fTimer(), fInput(), fInputDir(""), fOutFile(), fDpmFlag(1), fFtfFlag(0), fNEvents(0), fEventCounterRate(100), fTargetMode(0)
 {
   fTimer.Start();
 }
@@ -101,11 +101,19 @@ Bool_t PndMasterRunSim::Setup(TString outprefix)
   TDatabasePDG::Instance()->AddParticle("pbarpSystem1","pbarpSystem1", fIni.M(), kFALSE, 0.1, 0, "", 88881);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem2","pbarpSystem2", fIni.M(), kFALSE, 0.1, 0, "", 88882);
 
+  if (fOptions.Contains("day1")) fTargetMode = 1;
   return kTRUE;
 }
 
 // -----   CreateGeometry   -------------------------------------------------
 void PndMasterRunSim::CreateGeometry()
+{
+  if (fOptions=="") CreateGeometryDefault();
+  if (fOptions.Contains("day1")) CreateGeometryDay1();
+}
+
+// -----   CreateGeometry   -------------------------------------------------
+void PndMasterRunSim::CreateGeometryDefault()
 {
   //-------------------------  CAVE      -----------------
   FairModule *Cave= new PndCave("CAVE");
@@ -178,6 +186,86 @@ void PndMasterRunSim::CreateGeometry()
   AddModule(Rich);
 }
 
+// -----   CreateGeometryDay1   ---------------------------------------------
+void PndMasterRunSim::CreateGeometryDay1()
+{
+  //-------------------------  CAVE      -----------------
+  FairModule *Cave= new PndCave("CAVE");
+  Cave->SetGeometryFileName("pndcave.geo");
+  AddModule(Cave);
+  //-------------------------  Magnet   -----------------
+  //FairModule *Magnet= new PndMagnet("MAGNET");
+  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+  //AddModule(Magnet);
+  FairModule *Dipole= new PndMagnet("MAGNET");
+  Dipole->SetGeometryFileName("dipole.geo");
+  AddModule(Dipole);
+  //-------------------------  Pipe     -----------------
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("beampipe_201309.root");
+  AddModule(Pipe);
+  //-------------------------  STT       -----------------
+  FairDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  AddModule(Stt);
+  //-------------------------  MVD       -----------------
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+  AddModule(Mvd);
+  //-------------------------  EMC       -----------------
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  Emc->SetGeometryVersion(1);
+  Emc->SetStorageOfData(kFALSE);
+  AddModule(Emc);
+  //-------------------------  SCITIL    -----------------
+  FairDetector *SciT = new PndSciT("SCIT",kTRUE);
+  SciT->SetGeometryFileName("SciTil_201601.root");
+  AddModule(SciT);
+  //-------------------------  DRC       -----------------
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+  Drc->SetRunCherenkov(kFALSE);
+  AddModule(Drc);
+  //-------------------------  MDT       -----------------
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtCoil(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  AddModule(Muo);
+  //-------------------------  FTOF      -----------------
+  FairDetector *FTof = new PndFtof("FTOF",kTRUE);
+  FTof->SetGeometryFileName("ftofwall.root");
+  AddModule(FTof);
+   
+  if (fOptions.Contains("gem"))
+    {
+      //-------------------------  GEM       -----------------
+      FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+      Gem->SetGeometryFileName("gem_3Stations_Tube.root");
+      AddModule(Gem);
+    }
+  
+  if (fOptions.Contains("fts1256"))
+    {
+      //-------------------------  FTS       -----------------
+      FairDetector *Fts= new PndFts("FTS", kTRUE);
+      Fts->SetGeometryFileName("fts_1256.geo");
+      AddModule(Fts);
+    }
+  else
+    {
+      //-------------------------  FTS       -----------------
+      FairDetector *Fts= new PndFts("FTS", kTRUE);
+      Fts->SetGeometryFileName("fts_reduced.geo");
+      AddModule(Fts);
+    }
+}
+
 // -----   AddSimTasks   ---------------------------------------------------
 void PndMasterRunSim::AddSimTasks()
 {
@@ -194,7 +282,49 @@ void PndMasterRunSim::AddSimTasks()
 void PndMasterRunSim::SetGenerator()
 {
   fGen = new FairFilteredPrimaryGenerator();
-  
+
+  switch (fTargetMode)
+    {
+    case 0:
+      LOG(INFO) << "Using no Vertex smearing" << FairLogger::endl;
+      break;
+    case 1:
+      LOG(INFO) << "Using Cluster Jet Target" << FairLogger::endl;
+      // a cluster-jet beam at the interaction zone with a horizontal width
+      // of e.g. dx = 1 mm and a length in accelerator beam direction of dz = 10 mm.
+      // Target TDR, page 44
+      fGen->SetTarget(0., 1./2.355); // From FWHM to sigma
+      fGen->SmearVertexZ(kTRUE);
+      fGen->SmearGausVertexZ(kTRUE);
+      fGen->SetBeam(0., 0., 0.1, 0.1);
+      fGen->SmearVertexXY(kTRUE);
+      break;
+    case 2:
+      LOG(INFO) << "Using Pellet Target" << FairLogger::endl;
+      // At PANDA a beam diameter around 3mm is needed and one may want even
+      // smaller size when PTR is not possible.
+      // Target TDR, page 61
+      fGen->SetTarget(0., 0.3);
+      fGen->SmearVertexZ(kTRUE);
+      fGen->SmearGausVertexZ(kTRUE);
+      fGen->SetBeam(0., 0., 0.3, 0.3);
+      fGen->SmearVertexXY(kTRUE);
+      break;
+    case 3:
+      LOG(INFO) << "Using Pellet Tracking Target" << FairLogger::endl;
+      // A position resolution σ(x, y, z) < 0.2 mm in the in- teraction position
+      // is desirable for event reconstruc- tion.
+      // Target TDR, page 61
+      fGen->SetTarget(0., 0.02);
+      fGen->SmearVertexZ(kTRUE);
+      fGen->SmearGausVertexZ(kTRUE);
+      fGen->SetBeam(0., 0., 0.02, 0.02);
+      fGen->SmearVertexXY(kTRUE);
+      break;
+    default:
+      LOG(INFO) << "Unkwown target mode - Using no vertex smearing" << FairLogger::endl;
+    }
+   
   TString input = fInput;
   input.ToLower();
   
@@ -251,7 +381,7 @@ void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
       fBoxConfig = fBoxConfig(fBoxConfig.Index(":")+1,1000);
       curpar.ReplaceAll("[","(");
       curpar.ReplaceAll("]",")");
-
+      
       if (curpar.BeginsWith("type(")) {GetRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
       if (curpar.BeginsWith("p("))    GetRange(curpar,BoxMomMin,BoxMomMax);
       if (curpar.BeginsWith("tht("))   GetRange(curpar,BoxThtMin,BoxThtMax);

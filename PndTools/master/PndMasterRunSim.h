@@ -51,11 +51,28 @@ class PndMasterRunSim : public FairRunSim
   void Finish();
   
   /**
+   * @brief It switches between different standard geometry volumes
+   * @details # Master Geometry List
+   * According to fOptions, it creates the standard geometry volumes for the
+   * full setup, or dedicated geometries (such as day1)
+   */
+  void CreateGeometry();
+  
+  /**
    * @brief It creates all the standard geometry volumes
    * @details # Master Geometry List
-   * It creates all the standard geometry volumes which have to be used in simulation. All the MCPoint will be stored, expect for EMC
+   * It creates all the standard geometry volumes which have to be used in simulation. 
+   * All the MCPoint will be stored, expect for EMC.
    */
-  void CreateGeometry();   
+  void CreateGeometryDefault();
+  
+  /**
+   * @brief It creates the standard geometry volumes for day1 phase
+   * @details # Master Geometry List
+   * It creates all the standard geometry volumes which have to be used in simulation,
+   * with the setup for day1 experiments. All the MCPoint will be stored, expect for EMC
+   */
+  void CreateGeometryDay1();   
 
   /**
    * @brief Add simulation tasks
@@ -167,6 +184,17 @@ class PndMasterRunSim : public FairRunSim
    * @brief Setter of the parameter ascii file 
    */
   void SetParamAsciiFile(TString par) { fParamAsciiFile = par;}
+
+  /** 
+   * @brief Setter of the simulation options
+   * @detail This string can be:
+   * ""                          -> default settings full setup
+   * "day1"                      -> Setup for day1 experiment: no GEM, FTS1234, NO DISC, NO RICH
+   * "gem" (added to "day1")     -> Setup for day1 experiment with 3 GEM planes
+   * "fts1256" (added to "day1") -> Setup for day1 experiment with FTS1256 insted of FTS1234
+   * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256 
+   */
+  void SetOptions(TString par) { fOptions = par; fOptions.ToLower();}
   
   /** 
    * @brief Setter of the number of events
@@ -177,6 +205,16 @@ class PndMasterRunSim : public FairRunSim
    * @brief Setter of the event counter rate
    */
   void SetEventCounterRate(Int_t par) { fEventCounterRate = par;}
+
+  /** 
+   * @brief Setter of the target mode
+   * @details #Target mode
+   * 0 - No IP smearing (default)
+   * 1 - Cluster Jet
+   * 2 - Pellet target 
+   * 3 - Pellet Tracking target
+   */
+  void SetTargetMode(Short_t par) { fTargetMode = par;}
 
   /** 
    * @brief Getter for the primary generator, e.g. to configure the event filter
@@ -192,16 +230,19 @@ class PndMasterRunSim : public FairRunSim
   TString fOutFile;          ///< Name of the output file
   TString fParamRootFile;    ///< Name of the parameter root file
   TString fParamAsciiFile;   ///< Name of the parameter ascii file
-
+  TString fOptions;          ///< Options parsed to the simulation
+  
   Int_t fDpmFlag;            ///< Flag for DPM event generator
   Int_t fFtfFlag;            ///< Flag for FTF event generator
   Int_t fNEvents;            ///< Number of events
   Int_t fEventCounterRate;   ///< After how many events the counter will print
+  Short_t fTargetMode;       ///< Target mode
+  
   FairRuntimeDb *fRtdb;      ///< Runtime DB
   TStopwatch fTimer;         ///< Timer 
   
   /** @cond CLASSIMP */
-  ClassDef(PndMasterRunSim,1);  ///< 1st Implementation -> 1
+  ClassDef(PndMasterRunSim,2);  ///< 1st Implementation -> 1; Added day1 options -> 2
   /** @endcond */
   
 };
