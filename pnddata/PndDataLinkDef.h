@@ -70,6 +70,7 @@
 #pragma link C++ class  PndRichBarPoint+;
 #pragma link C++ class  PndRichHit+;
 #pragma link C++ class  PndRichPDHit+;
+#pragma link C++ class  PndRichMirrorSegment+;
 
 //#pragma link C++ class  PndSdsApvHit+;
 #pragma link C++ class  PndSdsMCPoint+;
