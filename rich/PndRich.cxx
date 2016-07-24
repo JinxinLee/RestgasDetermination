@@ -21,6 +21,13 @@
 #include "TVirtualMC.h"
 #include "PndGeoHandling.h"
 
+#include "FairGeoRootBuilder.h"
+#include "FairGeoMedia.h"
+#include "FairGeoLoader.h"
+#include "TGeoCompositeShape.h"
+
+#include "G4NistManager.hh"
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -36,6 +43,7 @@ PndRich::PndRich()
     fELoss(-1),
     fGeo(new PndRichGeo()),
     fGeoH(NULL),
+    fUseProtection(kFALSE),
     fRunCherenkov(kFALSE),            //!  Switch ON/OFF Cherenkov propagation
     fPndRichPDPointCollection(new TClonesArray("PndRichPDPoint")),
     fPndRichBarPointCollection(new TClonesArray("PndRichBarPoint"))
@@ -64,6 +72,7 @@ PndRich::PndRich(const char* name, Bool_t active)
     fELoss(-1),
     fGeo(new PndRichGeo()),
     fGeoH(NULL),
+    fUseProtection(kFALSE),
     fRunCherenkov(kFALSE),            //!  Switch ON/OFF Cherenkov propagation
     fPndRichPDPointCollection(new TClonesArray("PndRichPDPoint")),
     fPndRichBarPointCollection(new TClonesArray("PndRichBarPoint"))
@@ -161,6 +170,63 @@ Bool_t  PndRich::ProcessHits(FairVolume* vol)
   fTime    = gMC->TrackTime() * 1.0e09;
   fLength  = gMC->TrackLength();
 
+/*  //Get current material
+  //if ( nam.BeginsWith("RichPhDetSi") ) {
+  if ( nam.BeginsWith("RichProtection") ) {
+  //if ( nam.BeginsWith("RichAerogel") ) {
+     Float_t a, z, dens, radl, absl;
+     Int_t mat = gMC->CurrentMaterial(a,z,dens,radl,absl);
+     cout<< nam << " " << mat << endl;
+     cout<<"a = " << a << " z = " << z << " dens = " << dens << " radl = " << radl << " absl = " << absl << endl;
+
+     cout<< ">>>>>>>>>>>>>> " <<gGeoManager->GetVolume(vol->getVolumeId())->GetName() <<endl;
+
+     TGeoMaterial *material = gGeoManager->GetVolume(vol->getVolumeId())->GetMaterial();
+     //TGeoMaterial *material = gGeoManager->GetMaterial(mat);
+     //TGeoMaterial *material = gGeoManager->GetMaterial("RichProtection");
+     //TGeoMaterial *material = gGeoManager->GetMaterial("silicon");
+     //TGeoMaterial *material = gGeoManager->GetMaterial("RichAerogel0");
+     cout<< material->GetName() << endl;
+     Int_t nels = material->GetNelements();
+     for(Int_t i=0; i<nels; i++){
+        TGeoElement *element = material->GetElement(i);
+        cout << element->GetName() << endl;
+        Int_t nis = element->GetNisotopes();
+        cout << "element->GetNisotopes() = " << nis << endl;
+        cout << "element->A() = " << element->A()
+           << "  element->Z() = " << element->Z()
+              << "  element->N() = " << element->N() << endl;
+        for(Int_t j=0; j<nis; j++){
+           TGeoIsotope *isotope =  element->GetIsotope(j);
+           cout << "Isotope: " << j << " " << isotope->GetName()
+              << " a=" << isotope->GetA()
+                 << " z=" << isotope->GetZ()
+                    << " n=" << isotope->GetN() << endl;
+        }
+     }     
+  }
+  if ( nam.BeginsWith("RichAerogel") || nam.BeginsWith("RichPhDetSi")) {
+     TGeoMaterial *material = gGeoManager->GetVolume(vol->getVolumeId()-1)->GetMaterial();
+     //cout << nam << " " << "material->GetName() = " << material->GetName() << endl;
+     if ( strncmp( material->GetName(), "RichAerogel", strlen("RichAerogel") ) == 0 ) {
+        TObject *cherprop = material->GetCerenkovProperties();
+        //cout << material->GetName() << " " << cherprop << endl;
+        //cout << "cherprop->GetName() = " << cherprop->GetName() << endl;
+     }
+   
+     //TList *listOfMedia = gGeoManager->GetListOfMedia();
+     //TListIter iter(listOfMedia);
+     //TGeoMedium* medium   = NULL;
+     
+     //while( (medium = (TGeoMedium*)iter.Next()) ) {
+     //   cout << "medium->GetName() = " << medium->GetName() << endl;
+     //}
+  }
+   //TGeoVolume *RichProtection = gGeoManager->GetVolume("RichProtectionSensor0");
+   //cout << "RichProtection = " << RichProtection
+   //   << " RichProtection->IsActive() = " << RichProtection->IsActive()
+   //      << " nam.BeginsWith() = " << nam.BeginsWith("RichProtection") <<  endl;
+*/
   gMC->TrackPosition(fPos);
   gMC->TrackMomentum(fMom);
 
@@ -195,9 +261,14 @@ Bool_t  PndRich::ProcessHits(FairVolume* vol)
       
       Double_t fThetaC = 1/fnOpt/fMom.Beta(); // Cerenkov angle
       fThetaC = fMom.Beta(); // beta
+
+      TParticle *particle = gMC->GetStack()->GetCurrentTrack();
+      TVector3 pos0 = TVector3(particle->Vx(),particle->Vy(),particle->Vz());
+      TVector3 mom0 = TVector3(particle->Px(),particle->Py(),particle->Pz());
       
       AddBarPoint(fTrackID, fVolumeID, fPos.Vect(), fMom.Vect(),
-                  fTime, fLength, fPdgCode, fThetaC, fEventID, fMass);
+                  fTime, fLength, fPdgCode, fThetaC, fEventID, fMass,
+                  pos0, mom0);
       
 //      TParticle *particle = gMC->GetStack()->GetCurrentTrack();
 //      cout << "particle: " << particle->Vx() << " "
@@ -214,9 +285,59 @@ Bool_t  PndRich::ProcessHits(FairVolume* vol)
    return kTRUE;
 }
 
+void PndRich::FinishRun()
+{
+//  C->Delete();
+//  H->Delete();
+//  B->Delete();
+//  B10->Delete();
+//  B11->Delete();
+//  matRcihProt->Delete();
+//  med->Delete();
+}
+
+void PndRich::BeginEvent()
+{
+/*   TList *listOfMedia = gGeoManager->GetListOfMedia();
+   TListIter iter(listOfMedia);
+   TGeoMedium* medium   = NULL;
+   
+   while( (medium = (TGeoMedium*)iter.Next()) ) {
+      cout << "medium->GetName() = " << medium->GetName() << endl;
+   }
+
+   TList *listOfMaterials = gGeoManager->GetListOfMaterials();
+   TListIter iter1(listOfMaterials);
+   TGeoMaterial* material   = NULL;
+   
+   while( (material = (TGeoMaterial*)iter1.Next()) ) {
+      TObject *obj = material->GetCerenkovProperties();
+      cout << "material->GetName() = " << material->GetName() <<
+         " " << material->GetDensity() <<
+         " " << material->GetFWExtension() << endl;
+   }
+
+   TObjArray *listOfVolumes = gGeoManager->GetListOfVolumes();
+   TGeoVolume* volume   = NULL;
+
+   cout << "listOfVolumes->GetSize() = " << listOfVolumes->GetSize() << endl;
+   for(Int_t i=0; i<listOfVolumes->GetSize(); i++){
+      volume = (TGeoVolume*)listOfVolumes->At(i);
+      if (volume) {
+         medium = volume->GetMedium();
+         material = volume->GetMaterial();
+         cout << "volume->GetName() = " << volume->GetName() <<
+            " " << medium->GetName() << " " << material->GetName() <<endl;
+      }
+   }
+
+   size_t nm = G4NistManager::Instance()->GetNumberOfElements();
+   cout << "GetNumberOfElements = " << nm << endl;
+*/
+}
+
 void PndRich::EndOfEvent()
 {
-
   fPndRichPDPointCollection->Clear();
   fPndRichBarPointCollection->Clear();
   trackid.clear();
@@ -225,7 +346,7 @@ void PndRich::EndOfEvent()
 void PndRich::DefGeoVersion()
 {
    TString fileName = GetGeometryFileName();
-   if( fileName.EndsWith(".root") && (fGeoVersion==13) ){
+   if( fileName.EndsWith(".root") && (fGeoVersion==313) ){
       char pat[] = "rich_v";
       size_t ind = fileName.Index(pat)+strlen(pat);
       sscanf(fileName(ind,5).Data(),"%d",&fGeoVersion);
@@ -267,8 +388,109 @@ void PndRich::Reset()
 void PndRich::ConstructGeometry()
 {
   TString fileName = GetGeometryFileName();
-  if(fileName.EndsWith(".root"))
+  if(fileName.EndsWith(".root")) {
      ConstructRootGeometry();
+   
+//-------------------------------------------------------------
+/*     if (fUseProtection) {
+
+        Int_t n, z, ncomponents;   //number of nucleon in a isotope
+        TString symbol;
+        Double_t abundance, a, density;
+     
+        C = new TGeoElement("Carbon", "C", z=6, n=12, a=12.0107);
+        H = new TGeoElement("Hydrogen", "H", z=1, n=1,  a=1.00794);
+     
+        B10 = new TGeoIsotope("B10", z=5,n=10,a=10.0129370);
+        B11 = new TGeoIsotope("B11", z=5,n=11,a=11.0093054);
+     
+        B = new TGeoElement ("Boron",symbol="B",ncomponents=2);
+        B->AddIsotope(B10,19.8);
+        B->AddIsotope(B11,80.2);
+     
+        matRcihProt = (TGeoMaterial*) ( new TGeoMixture ("RichProtectionMaterial", 3, density=0.95) );
+        ((TGeoMixture*)matRcihProt)->AddElement(C,0.813467);
+        ((TGeoMixture*)matRcihProt)->AddElement(H,0.136533);
+        ((TGeoMixture*)matRcihProt)->AddElement(B,0.05);
+
+        gGeoManager->AddMaterial(matRcihProt);
+     
+        med = new TGeoMedium("RichProtectionMedium",1000,matRcihProt);
+     
+        TGeoVolume *alRichBoxAir = gGeoManager->GetVolume("RichAlBoxAir");
+
+        // Polyethilene protection
+        std::vector<Double_t> rpWidth;
+        rpWidth.push_back(5);
+        //rpWidth.push_back(1);
+        //rpWidth.push_back(1);
+        //rpWidth.push_back(1);
+        //rpWidth.push_back(1);
+        std::vector<Double_t> rpHoleWidth;
+        rpHoleWidth.push_back(10);
+        //rpHoleWidth.push_back(40);
+        //rpHoleWidth.push_back(30);
+        //rpHoleWidth.push_back(20);
+        //rpHoleWidth.push_back(10);
+        UInt_t numberOfLayers = rpWidth.size();
+        TString rpUnity = Form("( ");
+        std::vector<TGeoBBox*> lRichProtection(numberOfLayers);
+        std::vector<TGeoTranslation*> rpTrans(numberOfLayers);
+        std::vector<TGeoCompositeShape*> richProtectionCS(numberOfLayers);
+        std::vector<TGeoVolume*> richProtection(numberOfLayers);
+        std::vector<TGeoBBox*> lRichProtectionHole(numberOfLayers);
+        
+        DefGeoVersion();
+        fGeo->init(fGeoVersion);
+        TVector3 aerogelOffset            = fGeo->aerogelOffset();
+        TVector3 alBoxSize                = fGeo->alBoxSize();
+        TVector3 aerogelSize              = fGeo->aerogelSize();
+        std::vector<Double_t> phDetY      = fGeo->phDetY();
+        
+        Double_t zrp = aerogelOffset.Z()-alBoxSize.Z()/2+70;
+        for(UInt_t ia=0; ia<numberOfLayers; ia++) {
+           Double_t rpThickness = rpWidth[ia];
+           zrp += rpThickness/2;
+           
+           TString rpName = Form("rp%d",ia);
+           TString rpTransName = Form("rpTrans%d",ia);
+           TString rpMedia = Form("RichProtectionMaterial");
+           TString rpCSName = Form("RichProtectionCS%d",ia);
+           TString richProtectionName = Form("RichProtectionSensor%d",ia);
+           TString rpHoleName = Form("richProtectionHole%d",ia);
+           
+           lRichProtectionHole.at(ia) = new TGeoBBox(rpHoleName, 
+                                                     rpHoleWidth.at(ia),
+                                                     rpHoleWidth.at(ia),
+                                                     alBoxSize.Z()/2 );
+           
+           rpUnity = "( " + rpName + ":" + rpTransName + " ) - ( " + rpHoleName + " ) ";
+           
+           lRichProtection.at(ia) = new TGeoBBox(rpName, 
+                                                 aerogelSize.X()/2,
+                                                 phDetY[1],
+                                                 rpThickness/2 );
+           rpTrans.at(ia) = new TGeoTranslation(rpTransName,
+                                                aerogelOffset.X(),
+                                                aerogelOffset.Y(),
+                                                zrp);
+           rpTrans.at(ia)->RegisterYourself();
+           richProtectionCS.at(ia) = new TGeoCompositeShape(rpCSName,rpUnity);
+           richProtection.at(ia) = new TGeoVolume(richProtectionName,
+                                                  richProtectionCS.at(ia),
+                                                  med);
+           richProtection.at(ia)->SetLineColor(kCyan);
+           richProtection.at(ia)->SetTransparency(40);
+           alRichBoxAir->AddNode(richProtection.at(ia), 1, new TGeoCombiTrans( 0, 0, 0, new TGeoRotation(0) ) );
+           AddSensitiveVolume(richProtection.at(ia));
+           
+           zrp += rpThickness/2;
+        }
+     }
+*/
+//-------------------------------------------------------------     
+
+  }
   else {
   /** If you are using the standard ASCII input for the geometry
       just copy this and use it for your detector, otherwise you can
@@ -325,6 +547,12 @@ void PndRich::ConstructOpGeometry() {
   
   std::vector<Double_t> nOpt = fGeo->nOpt();
   UInt_t nAerogelLayers = nOpt.size();
+   if (nOpt.size()>0) {
+      fnOpt = 0;
+      for(size_t i=0;i<nOpt.size();i++)
+         fnOpt += nOpt.at(i);
+      fnOpt /= nOpt.size();
+   }
    
   Int_t npoints = 10;
    
@@ -350,9 +578,12 @@ void PndRich::ConstructOpGeometry() {
      qEff[i] = 0.;
   }
 
+  cout << "fGeoVersion = " << fGeoVersion << endl;
+  cout << "nOpt.size() = " << nOpt.size() << endl;
   for(size_t i=0;i<nOpt.size();i++) {
-     
-     Int_t mId = gMC->MediumId( Form("RichAerogel%zd",i) );
+
+     //Int_t mId = gGeoManager->GetVolume( Form("RichAerogelSensor%d",i) )->GetMedium()->GetId();
+     Int_t mId = gMC->MediumId( Form("RichAerogel%d",i) );
      
      gMC->SetCerenkov( mId, npoints, ephoton, absLen, qEff, refInd[i] );
      
@@ -442,13 +673,15 @@ PndRichBarPoint* PndRich::AddBarPoint(Int_t trackID, Int_t detID,
                                       TVector3 pos, TVector3 mom,
                                       Double_t time, Double_t length,
                                       Int_t pdgCode, Double_t thetaC,
-                                      Int_t eventID, Double_t mass )
+                                      Int_t eventID, Double_t mass,
+                                      TVector3 pos0, TVector3 mom0 )
 {
   TClonesArray& clref = *fPndRichBarPointCollection;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndRichBarPoint(trackID, detID, pos, mom,
                                           time, length, pdgCode,
-                                          thetaC, eventID, mass );
+                                          thetaC, eventID, mass,
+                                          pos0, mom0);
 }
 
 ClassImp(PndRich)

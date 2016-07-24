@@ -113,6 +113,8 @@ InitStatus PndRichHitProducer::Init() {
       fPDE.push_back(pdei); // %
       from >> wli >> pdei;
    };
+
+  fRichResolution = new PndRichResolution();
          
   return kSUCCESS;
 
@@ -194,12 +196,25 @@ void PndRichHitProducer::Exec(Option_t* opt) {
    Int_t detID, sensorId, index;
    TVector3 dpos(0., 0., 0.);
    // thetaC containe value of beta 
-   Double_t thetaC, errThetaC = 0.0003;
+   Double_t thetaC, errThetaC;
+   dbpoint pnt;
    for (Int_t iBarPoint=0; iBarPoint<nBarPoints; iBarPoint++) {
       hit = (PndRichBarPoint*) fBarPointArray->At(iBarPoint);
       hit->Position(pos);
-      thetaC = gRandom->Gaus(hit->GetThetaC(),errThetaC);
-      AddHit(detID, sensorId, pos, dpos, thetaC, errThetaC, iBarPoint);    
+      hit->Momentum(mom);
+      
+      pnt.mass = hit->GetMass();
+      pnt.beta = mom.Mag()/sqrt(mom.Mag()*mom.Mag()+pnt.mass*pnt.mass);
+      pnt.x = pos.X();
+      pnt.y = pos.Y();
+      pnt.theta = mom.Theta();
+      pnt.phi = mom.Phi();
+
+      if ( gRandom->Uniform() < fRichResolution->Efficiency(pnt) ) { // efficiency of reconstruction
+         errThetaC = fRichResolution->Sigma(pnt); // sigma of beta
+         thetaC = gRandom->Gaus( hit->GetThetaC(), errThetaC );
+         AddHit(detID, sensorId, pos, dpos, thetaC, errThetaC, iBarPoint);
+      }
    } // Loop over MCPoints
    
 }

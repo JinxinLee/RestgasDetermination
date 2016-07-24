@@ -55,6 +55,8 @@ class PndRich: public FairDetector
     
     void SetGeoVersion(UInt_t const & version) { fGeoVersion = version; };
 
+    void UseProtection(Bool_t const & up) { fUseProtection = up; };
+
     std::vector<std::string> fListOfSensitives;  
     bool CheckIfSensitive(std::string name);
     
@@ -72,7 +74,8 @@ class PndRich: public FairDetector
                                  TVector3 pos, TVector3 mom,
                                  Double_t time, Double_t length,
                                  Int_t pdgCode, Double_t thetaC,
-                                 Int_t eventID, Double_t mass);
+                                 Int_t eventID, Double_t mass,
+                                 TVector3 pos0, TVector3 mom0);
 
     /** The following methods can be implemented if you need to make
      *  any optional action in your detector during the transport.
@@ -83,11 +86,11 @@ class PndRich: public FairDetector
     virtual void   SetSpecialPhysicsCuts() {;}
     virtual void   EndOfEvent();
     virtual void   FinishPrimary() {;}
-    virtual void   FinishRun() {;}
+    virtual void   FinishRun();
     virtual void   BeginPrimary() {;}
     virtual void   PostTrack() {;}
     virtual void   PreTrack() {;}
-    virtual void   BeginEvent() {;}
+    virtual void   BeginEvent();
 
   private:
 
@@ -105,6 +108,7 @@ class PndRich: public FairDetector
     PndRichGeo*  fGeo;
     PndGeoHandling* fGeoH; 	//! ///< converter for detector names
 
+    Bool_t fUseProtection;
     Bool_t fRunCherenkov;
     UInt_t fGeoVersion;
  
@@ -125,6 +129,14 @@ class PndRich: public FairDetector
     
     Double_t fnOpt;
     Double_t fZabar;
+
+    //TGeoElement *C;
+    //TGeoElement *H;
+    //TGeoElement *B;
+    //TGeoIsotope *B10;
+    //TGeoIsotope *B11;
+    //TGeoMaterial *matRcihProt;
+    //TGeoMedium *med;
     
     ClassDef(PndRich,1)
 };

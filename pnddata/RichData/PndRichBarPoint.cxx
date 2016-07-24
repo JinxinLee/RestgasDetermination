@@ -17,7 +17,9 @@ PndRichBarPoint::PndRichBarPoint()
    fPdgCode(0),
    fThetaC(0.),
    fMass(0.),
-   fTrackStatus(0.)
+   fTrackStatus(0.),
+   fTrackPos0(TVector3(0,0,0)),
+   fTrackMom0(TVector3(0,0,0))
 {  
 }
 // -------------------------------------------------------------------------
@@ -31,12 +33,53 @@ PndRichBarPoint::PndRichBarPoint(Int_t trackID, Int_t detID, TVector3 pos,
    fPdgCode( pdgCode), 
    fThetaC( thetaC),
    fMass(   mass),
-   fTrackStatus(0)
+   fTrackStatus(0),
+   fTrackPos0(TVector3(0,0,0)),
+   fTrackMom0(TVector3(0,0,0))
+{ 
+}
+// -------------------------------------------------------------------------
+
+// -----   Standard constructor  2 ------------------------------------------
+PndRichBarPoint::PndRichBarPoint(Int_t trackID, Int_t detID, TVector3 pos, 
+                                 TVector3 mom, Double_t tof, Double_t length,
+                                 Int_t pdgCode, Double_t thetaC, Int_t eventID,
+                                 Double_t mass, TVector3 pos0, TVector3 mom0)
+  :FairMCPoint(trackID,detID,pos,mom, tof, length, 0.0, (UInt_t) eventID),
+   fPdgCode( pdgCode), 
+   fThetaC( thetaC),
+   fMass(   mass),
+   fTrackStatus(0),
+   fTrackPos0(pos0),
+   fTrackMom0(mom0)
 { 
 }
 // -------------------------------------------------------------------------
 
 
+PndRichBarPoint::PndRichBarPoint(TVector3 pos, TVector3 dir, Double_t time)
+  :FairMCPoint(), 
+   fTrackPos0(pos),
+   fTrackMom0(TVector3(0,0,0)),
+   fTime0(time)
+{
+   SetMomentum0(dir);
+}
+
+void PndRichBarPoint::SetMomentum0(TVector3 dir)
+{
+   if (fTrackMom0!=dir) {
+      fTrackMom0 = dir;
+      TVector3 axis = TVector3(0,0,1);
+      fAxisZ = dir.Unit();
+      fAxisX = axis-fAxisZ*(fAxisZ*axis);
+      if (fAxisX.Mag())
+         fAxisX = fAxisX.Unit();
+      else
+         fAxisX = TVector3(1,0,0);
+      fAxisY = (fAxisZ.Cross(fAxisX)).Unit();
+   }
+}
 
 // -----   Destructor   ----------------------------------------------------
 PndRichBarPoint::~PndRichBarPoint() { }

@@ -1,5 +1,6 @@
 #include "PndRichRecoTask.h"
 #include "PndRichReco.h"
+#include "PndRichBarPoint.h"
 
 // fairroot
 #include "FairRootManager.h"
@@ -48,6 +49,7 @@ InitStatus PndRichRecoTask::Init() {
    vnhits.reserve(fNumberOfEvents);
    vmean.reserve(fNumberOfEvents);
    vsigma.reserve(fNumberOfEvents);
+   fRichBarPoint = dynamic_cast<TClonesArray *> (ioman->GetObject("RichBarPoint"));
 
   cout << "-I- PndRichRecoTask: Intialisation successfull " << endl;
   return kSUCCESS;
@@ -62,11 +64,23 @@ void PndRichRecoTask::Exec(Option_t* opt) {
   }
    fEvent++;
    //fRichReco->RichFullReconstruction();
+   
+   TVector3 pos = fTrackPosition;
+   TVector3 dir = fTrackDirection.Unit();
+   
+   PndRichBarPoint *richHit = NULL;
+   Int_t richEntries = fRichBarPoint->GetEntriesFast();
+   if (richEntries) {
+      richHit = (PndRichBarPoint*)fRichBarPoint->At(0);
+      pos = richHit->GetPosition0();
+      dir = richHit->GetMomentum0().Unit();
+   }
+   
    Int_t richPhot = 0;
    Float_t richThetaC = -1000, richThetaCErr = 0;
    Float_t richQuality = 1000000;
    // first particle
-   fRichReco->RichFullReconstruction(fTrackPosition,fTrackDirection.Unit(),0.,
+   fRichReco->RichFullReconstruction(pos,dir,0.,
                                      richQuality,richThetaC,richThetaCErr,richPhot);
    std::vector<Double_t> dth = fRichReco->GetDThetas();
    

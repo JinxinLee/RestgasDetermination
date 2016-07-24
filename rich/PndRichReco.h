@@ -6,14 +6,19 @@
 #include "TClonesArray.h"
 #include "PndRichGeo.h"
 #include "PndRichPhoton.h"
+#include "PndRichBarPoint.h"
+#include "PndRichMirrorSegment.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
 #include <map>
+#include <TVectorT.h>
+#include <TMatrixT.h>
 
 class TClonesArray;
 
 using std::map;
 using std::vector; 
+using std::pair; 
 
 class  PndRichReco //: public FairGeoSet
 {
@@ -31,12 +36,12 @@ class  PndRichReco //: public FairGeoSet
     TVector3 fTrackPosition;
     TVector3 fTrackDirection;
     // flat mirror parametrs
-    UInt_t fNumberOfFlatMirrorSegments;
-    std::vector<TVector3> fMiddleFlatMirrorPoint;
-    std::vector<TVector3> fSizeOfFlatMirror;
-    std::vector<TVector3> fNormalOfFlatMirror;
+    std::vector<PndRichMirrorSegment> fMirrSegs;
+    
     Double_t fPhDetAngle;
     Double_t fZamid;
+    TVectorT<double> gResVect;
+    TMatrixT<double> gRotMatr;
 
  protected:
     
@@ -53,11 +58,16 @@ class  PndRichReco //: public FairGeoSet
     std::vector<double> GetPhis();
     std::vector<double> GetThetas();
     std::vector<double> GetDThetas();
-    std::vector<PndRichPhoton> CherenkovPhotonListFlat( TVector3 pos, TVector3 dir, Double_t time );
+    std::vector<PndRichPhoton> CherenkovPhotonListFlat( PndRichBarPoint *track );
     double BetaPeakFinding(std::vector<PndRichPhoton> photons, Double_t nopt, Double_t nnz);
-    void HitSelection(std::vector<double> &ph, std::vector<double> &th,
-                      std::vector<PndRichPhoton> photons, Double_t beta, Double_t nopt, Double_t nnz);
-    vector<TVector3>  FlatMirrorReflections( TVector3 point1, TVector3 point2 );
+    void HitSelection(std::vector<size_t> &it, std::vector<double> &ph, std::vector<double> &th,
+                      std::vector<PndRichPhoton> photons,
+                      Double_t beta, Double_t nopt, Double_t nnz, Double_t dthc);
+    void AppendFlatMirrorReflections(std::vector<PndRichPhoton> &ph,
+                                     TVector3 hit,
+                                     Double_t hitTime,
+                                     PndRichBarPoint *track);
+    
     ClassDef(PndRichReco,1)
 };
 

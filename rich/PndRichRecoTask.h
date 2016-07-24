@@ -2,6 +2,7 @@
 #define PNDRICHRECOTASK_H 1
 
 #include "FairTask.h"
+#include "TClonesArray.h"
 #include "PndRichReco.h"
 #include "TVector3.h"
 #include "TH1F.h"
@@ -61,6 +62,8 @@ class PndRichRecoTask : public FairTask {
   std::vector<Double_t> vdth;
   std::vector<Double_t> vmean;
   std::vector<Double_t> vsigma;
+
+  TClonesArray* fRichBarPoint;      //! PndRichBarPoint TCA
 
   ClassDef(PndRichRecoTask,1);
 

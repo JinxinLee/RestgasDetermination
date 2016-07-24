@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                     PndRichPhoton header file                    -----
+// -----                     PndRichPhoton header file                 -----
 // -----               Created 01/11/14 by Konstantin Beloborodov      -----
 // -----                                                               -----
 // -------------------------------------------------------------------------
@@ -9,6 +9,13 @@
 #define PNDRICHPHOTON_H
 
 #include "FairHit.h"
+#include "PndRichMirrorSegment.h"
+#include "PndRichPDHit.h"
+#include "PndRichBarPoint.h"
+#include <vector>
+
+class PndRichMirrorSegment;
+class PndRichPDHit;
 
 class PndRichPhoton {
 
@@ -35,30 +42,48 @@ public:
   
     
   /** Accessors **/
-  virtual Double_t GetLength()  {return fLength;}
-  virtual Double_t GetTime()  {return fTime;}
-  virtual Double_t GetTheta()  {return fTheta;}
-  virtual Double_t GetPhi()  {return fPhi;}
+  virtual bool  TrackCalc ();
+  virtual Double_t GetLength();
+  virtual Double_t GetTime();
+  virtual Double_t GetTheta();
+  virtual Double_t GetPhi();
   virtual UInt_t GetTMask()  {return fTMask;}
-  virtual UInt_t GetMirror()  {return fMirror;}
+  virtual std::vector<PndRichMirrorSegment*> GetMirror()  {return fMirrors;}
   virtual TVector3 GetHitPos() {return fHitPosition;}
-  virtual TVector3 GetMirrRefPos() {return fMirrRefPosition;}
+  virtual std::vector<TVector3> GetMirrRefPos() {return fMirrRefPosition;}
+  virtual PndRichBarPoint* GetTrack() {return fTrack;}
+    
   void SetLength( Double_t length ) { fLength = length; }
+  void SetDTime( Double_t time ) { fDTime = time; }
   void SetTime( Double_t time ) { fTime = time; }
   void SetTheta( Double_t theta ) { fTheta = theta; }
   void SetPhi( Double_t phi ) { fPhi = phi; }
-  void SetHitPos ( TVector3 pos ) { fHitPosition = pos; }
-  void SetMirrRefPos ( TVector3 pos ) { fMirrRefPosition = pos; }
-  void SetMirror ( UInt_t mirror ) { fMirror = mirror; }
+  void SetPDHit ( PndRichPDHit* hit ) { fPDHit = hit; }
+  void SetHitTime ( Double_t hitTime ) { fHitTime = hitTime; }
+  void SetHitPos ( TVector3 hit ) { fHitPosition = hit; }
+  void SetTrackPos ( TVector3 pos ) { fTrackPosition = pos; }
+  void SetTrackDir ( TVector3 dir ) { fTrackDirection = dir; }
+  void SetTrack ( PndRichBarPoint* track ) { fTrack = track; }
+  void SetMirrRefPos ( std::vector<TVector3> pos ) { fMirrRefPosition = pos; }
+  void SetMirror ( std::vector<PndRichMirrorSegment*> mirrors ) { fMirrors = mirrors; }
 
  protected:
-  
+
+  PndRichPDHit* fPDHit;
+  Double_t fDTime;
   Double_t fTime;
+  Double_t fHitTime;
   Double_t fTheta, fPhi;
-  UInt_t fTMask, fMirror;
+  UInt_t fTMask;
+  std::vector<PndRichMirrorSegment*> fMirrors;
   TVector3 fHitPosition;
-  TVector3 fMirrRefPosition;
+  TVector3 fTrackPosition;
+  TVector3 fTrackDirection;
+  TVector3 fTrackPositionOld;
+  TVector3 fTrackDirectionOld;
+  std::vector<TVector3> fMirrRefPosition;
   Double_t fLength;
+  PndRichBarPoint* fTrack;
    
   ClassDef(PndRichPhoton,1)
 };

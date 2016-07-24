@@ -6,6 +6,7 @@
 #include "PndRichHit.h"
 #include "PndRichGeo.h"
 #include "PndRichPDHit.h"
+#include "PndRichResolution.h"
 #include "TVector3.h"
 
 class TClonesArray;
@@ -53,6 +54,7 @@ class PndRichHitProducer : public FairTask
   Bool_t fPersistency;
   
   Float_t fPosResolution;                    // Position smearing [cm]
+  PndRichResolution* fRichResolution;
   
   /** Input array of PndRichPoint **/
   TClonesArray* fPDPointArray;

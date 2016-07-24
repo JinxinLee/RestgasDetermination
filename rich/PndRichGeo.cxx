@@ -90,8 +90,8 @@ void PndRichGeo::init(size_t ver0) {
 
    // photosensor pixel sizes
    // http://www.digitalphotoncounting.com/wp-content/uploads/PDPC_leaflet_A4_2015_10.pdf
-   fdX = 0.4075; //0.38016;
-   fdY = 0.4075; //0.32;
+   fdX = 0.4075/2; //0.38016;
+   fdY = 0.4075/2; //0.32;
    fdZ = 0;
    fiXmax = 2*(int)(fMirrorLength/2/fdX);
    fiYmax = 0; // see further
