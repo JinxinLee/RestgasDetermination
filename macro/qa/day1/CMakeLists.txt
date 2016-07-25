@@ -1,0 +1,28 @@
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/sim_complete.C)
+add_test(sim_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/sim_complete.sh)
+SET_TESTS_PROPERTIES(sim_complete3 PROPERTIES TIMEOUT "400")
+SET_TESTS_PROPERTIES(sim_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/digi_complete.C)
+add_test(digi_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/digi_complete.sh)
+SET_TESTS_PROPERTIES(digi_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(digi_complete3 PROPERTIES DEPENDS sim_complete3)
+SET_TESTS_PROPERTIES(digi_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/reco_complete.C)
+add_test(reco_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/reco_complete.sh)
+SET_TESTS_PROPERTIES(reco_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(reco_complete3 PROPERTIES DEPENDS digi_complete3)
+SET_TESTS_PROPERTIES(reco_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
+
+Generate_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/pid_complete.C)
+add_test(pid_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/pid_complete.sh)
+SET_TESTS_PROPERTIES(pid_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(pid_complete3 PROPERTIES DEPENDS reco_complete3)
+SET_TESTS_PROPERTIES(pid_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/ana_complete.C)
+add_test(ana_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/ana_complete.sh)
+SET_TESTS_PROPERTIES(ana_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(ana_complete3 PROPERTIES DEPENDS pid_complete3)
+SET_TESTS_PROPERTIES(ana_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
