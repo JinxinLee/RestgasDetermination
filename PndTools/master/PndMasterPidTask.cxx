@@ -28,20 +28,29 @@
  * Here all the pid tasks are added to the task, with the standard settings. A check is done after each task if the tasklist enum is broken or not. At the end the event counter is added (each 100 events), and the verbosity is set to 0 to all the tasks (it can be changed afterwards with SetVerbosity() functions.
  **/
 // -----   Default constructor   -------------------------------------------
-PndMasterPidTask::PndMasterPidTask() :
-  PndMasterTask("Master Pid Task")
+PndMasterPidTask::PndMasterPidTask(TString options) :
+  PndMasterTask("Master Pid Task"), fOptions(options)
 {
-  
+  pid = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+ 
   // -----   Geane   ---------------------------------------
   this->Add(new FairGeane()); // 0
-  if ((this->GetListOfTasks()->GetSize()-1) != kFairGeane) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-
+  pid.kFairGeane = GetListOfTasks()->GetSize()-1;
+  
   // -----   Correlation   ---------------------------------
   PndPidCorrelator* corr = NULL;
   this->Add(corr = new PndPidCorrelator()); // 1
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidCorrelator) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  corr->SetInputBranch("SttMvdGemGenTrack");
-  corr->SetInputIDBranch("SttMvdGemGenTrackID");
+  pid.kPndPidCorrelator = GetListOfTasks()->GetSize()-1;
+  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+    {
+      corr->SetInputBranch("SttMvdGemGenTrack");
+      corr->SetInputIDBranch("SttMvdGemGenTrackID");
+    }
+  else
+    {
+      corr->SetInputBranch("SttMvdGenTrack");
+      corr->SetInputIDBranch("SttMvdGenTrackID");
+    }
   corr->SetInputBranch2("FtsIdealGenTrack");
   corr->SetInputIDBranch2("FtsIdealGenTrackID");
   //corr->SetDebugMode(kTRUE);
@@ -50,43 +59,49 @@ PndMasterPidTask::PndMasterPidTask() :
 
   // -----   Bremsstrahlung Correction ----------------------
   this->Add(new PndPidBremCorrector()); // 2
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidBremCorrector) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-
+  pid.kPndPidBremCorrector = GetListOfTasks()->GetSize()-1;
+  
   // -----   MC Cloner   ------------------------------------
   PndMcCloner *clone = NULL;
   this->Add(clone = new PndMcCloner()); // 3
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndMcCloner) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
+  pid.kPndMcCloner = GetListOfTasks()->GetSize()-1;
   // Option to clean the MCTrack TClonesArray from particles which were not interacting with sensitive detectors
   //clone->SetCleanMc();
   
   // -----   Classifiers   ----------------------------------
   this->Add(new PndPidIdealAssociatorTask()); // 4
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidIdealAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
+  pid.kPndPidIdealAssociatorTask = GetListOfTasks()->GetSize()-1;
   
   this->Add(new PndPidMvdAssociatorTask()); // 5
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidMvdAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
+  pid.kPndPidMvdAssociatorTask = GetListOfTasks()->GetSize()-1;
+    
   this->Add(new PndPidMdtHCAssociatorTask()); // 6
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidMdtHCAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
+  pid.kPndPidMdtHCAssociatorTask = GetListOfTasks()->GetSize()-1;
   
   this->Add(new PndPidDrcAssociatorTask()); // 7
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidDrcAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
-  this->Add(new PndPidDiscAssociatorTask()); // 8
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidDiscAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
-  this->Add(new PndPidSttAssociatorTask()); // 9
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidSttAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
-  this->Add(new PndPidEmcBayesAssociatorTask()); // 10
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidEmcBayesAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
-  this->Add(new PndPidSciTAssociatorTask()); // 11
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidSciTAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
-  
-  this->Add(new PndPidRichAssociatorTask()); // 12
-  if ((this->GetListOfTasks()->GetSize()-1) != kPndPidRichAssociatorTask) Error("PndMasterDigiTask","Error in task #%i", (this->GetListOfTasks()->GetSize()-1));
+  pid.kPndPidDrcAssociatorTask = GetListOfTasks()->GetSize()-1;
 
+  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+    {
+      this->Add(new PndPidDiscAssociatorTask()); // 8
+      pid.kPndPidDiscAssociatorTask = GetListOfTasks()->GetSize()-1;
+    }
+ 
+  this->Add(new PndPidSttAssociatorTask()); // 9
+  pid.kPndPidSttAssociatorTask = GetListOfTasks()->GetSize()-1;
+    
+  this->Add(new PndPidEmcBayesAssociatorTask()); // 10
+  pid.kPndPidEmcBayesAssociatorTask = GetListOfTasks()->GetSize()-1;
+   
+  this->Add(new PndPidSciTAssociatorTask()); // 11
+  pid.kPndPidSciTAssociatorTask = GetListOfTasks()->GetSize()-1;
+
+  if ( (!fOptions.Contains("day1")) )
+    {
+      this->Add(new PndPidRichAssociatorTask()); // 12
+      pid.kPndPidRichAssociatorTask = GetListOfTasks()->GetSize()-1;
+    }
+  
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------

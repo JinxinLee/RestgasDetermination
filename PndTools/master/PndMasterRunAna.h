@@ -108,6 +108,15 @@ class PndMasterRunAna : public FairRunAna
   void SetFriend4(TString par)        { fFriendFile4    = par;}
 
   /** 
+   * @brief Setter of the reconstruction options 
+   * @detail This string can be:
+   * ""     -> default settings
+   * "day1" -> Setup for day1 experimentent, no GEM
+   * "day1+GEM" -> Setup for day1 experimentent, 3 GEM planes
+   */
+  void SetOptions(TString par) { fOptions = par; fOptions.ToLower();}
+  
+  /** 
    * @brief Setter of the event counter rate
    */
   void SetEventCounterRate(Int_t par) { fEventCounterRate = par;}
@@ -122,13 +131,14 @@ class PndMasterRunAna : public FairRunAna
   TString fFriendFile2;      ///< Name of the 2nd friend root file
   TString fFriendFile3;      ///< Name of the 3rd friend root file
   TString fFriendFile4;      ///< Name of the 4th friend root file 
-
+  TString fOptions;          ///< Options parsed to the reconstruction
+ 
   Int_t fEventCounterRate;   ///< After how many events the counter will print
 
   TStopwatch fTimer;         ///< Timer 
   
   /** @cond CLASSIMP */
-  ClassDef(PndMasterRunAna,1);  ///< 1st Implementation -> 1
+  ClassDef(PndMasterRunAna,2);  ///< 1st Implementation -> 1; day options -> 2
   /** @endcond */
   
 };

@@ -33,65 +33,71 @@
  * Here all the digitization tasks are added to the task, with the standard settings. A check is done after each task if the tasklist enum is broken or not. At the end the event counter is added (each 100 events), and the verbosity is set to 0 to all the tasks (it can be changed afterwards with SetVerbosity() functions.
  **/
 // -----   Default constructor   -------------------------------------------
-PndMasterDigiTask::PndMasterDigiTask() :
-  PndMasterTask("Master Digitization Task")
+PndMasterDigiTask::PndMasterDigiTask(TString options) :
+  PndMasterTask("Master Digitization Task"), fOptions(options)
 {
+  digi = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+  
   // -----   STT digi producers   --------------------------------
   Add(new PndSttHitProducerRealFast()); // 0
-  if ((GetListOfTasks()->GetSize()-1) != kPndSttHitProducerRealFast) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndSttHitProducerRealFast = GetListOfTasks()->GetSize()-1;
   
   // -----   MVD hit producers   ---------------------------------
   Add(new PndMvdDigiTask()); // 1
-  if ((GetListOfTasks()->GetSize()-1) != kPndMvdDigiTask) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndMvdDigiTask = GetListOfTasks()->GetSize()-1;
   Add(new PndMvdClusterTask()); // 2
-  if ((GetListOfTasks()->GetSize()-1) != kPndMvdClusterTask) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndMvdClusterTask = GetListOfTasks()->GetSize()-1;
   
   // -----   EMC hit producers   ---------------------------------
   Add(new PndEmcHitsToWaveform()); // 3
-  if ((GetListOfTasks()->GetSize()-1) != kPndEmcHitsToWaveform) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
-  ((PndEmcHitsToWaveform*)GetListOfTasks()->At(kPndEmcHitsToWaveform))->SetStorageOfData(kFALSE);
+  digi.kPndEmcHitsToWaveform = GetListOfTasks()->GetSize()-1;
   Add(new PndEmcWaveformToDigi()); // 4
-  if ((GetListOfTasks()->GetSize()-1) != kPndEmcWaveformToDigi) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndEmcWaveformToDigi = GetListOfTasks()->GetSize()-1;
   Add(new PndEmcMakeCluster()); // 5
-  if ((GetListOfTasks()->GetSize()-1) != kPndEmcMakeCluster) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndEmcMakeCluster = GetListOfTasks()->GetSize()-1;
   Add(new PndEmcMakeBump()); // 6
-  if ((GetListOfTasks()->GetSize()-1) != kPndEmcMakeBump) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndEmcMakeBump = GetListOfTasks()->GetSize()-1;
   
   // -----   SciT hit producers   -------------------------------
   //Add(new PndSciTHitProducerIdeal()); // 7
-  //if ((GetListOfTasks()->GetSize()-1) != kPndSciTHitProducerIdeal) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
   Add(new PndSciTDigiTask()); // 7
-  if ((GetListOfTasks()->GetSize()-1) != kPndSciTDigiTask) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndSciTDigiTask = GetListOfTasks()->GetSize()-1;
   
   // -----   MDT hit producers   ---------------------------------
   Add(new PndMdtHitProducerIdeal()); // 8
-  if ((GetListOfTasks()->GetSize()-1) != kPndMdtHitProducerIdeal) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
-  ((PndMdtHitProducerIdeal*)GetListOfTasks()->At(8))->SetPositionSmearing(.3); // position smearing [cm]
+  digi.kPndMdtHitProducerIdeal = GetListOfTasks()->GetSize()-1;
+  ((PndMdtHitProducerIdeal*)GetListOfTasks()->At(digi.kPndMdtHitProducerIdeal))->SetPositionSmearing(.3); // position smearing [cm]
   Add(new PndMdtTrkProducer()); // 9
-  if ((GetListOfTasks()->GetSize()-1) != kPndMdtTrkProducer) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndMdtTrkProducer = GetListOfTasks()->GetSize()-1;
   
   // -----   DRC hit producers   ---------------------------------
   Add(new PndDrcHitProducerReal()); // 10
-  if ((GetListOfTasks()->GetSize()-1) != kPndDrcHitProducerReal) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  digi.kPndDrcHitProducerReal = GetListOfTasks()->GetSize()-1;
   
   // -----   GEM hit producers   ---------------------------------
-  Add(new PndGemDigitize("GEM Digitizer", 0)); // 11
-  if ((GetListOfTasks()->GetSize()-1) != kPndGemDigitize) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
-  Add(new PndGemFindHits("GEM Hit Finder", 0)); // 12
-  if ((GetListOfTasks()->GetSize()-1) != kPndGemFindHits) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
+  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+    {
+      Add(new PndGemDigitize("GEM Digitizer", 0)); // 11
+      digi.kPndGemDigitize = GetListOfTasks()->GetSize()-1;
+      Add(new PndGemFindHits("GEM Hit Finder", 0)); // 12
+      digi.kPndGemFindHits = GetListOfTasks()->GetSize()-1;
+    }
   
   // -----   FTS hit producers   ---------------------------------
-  Add(new PndFtsHitProducerRealFast());
-  if ((GetListOfTasks()->GetSize()-1) != kPndFtsHitProducerRealFast) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
-  
+  Add(new PndFtsHitProducerRealFast()); // 13
+  digi.kPndFtsHitProducerRealFast = GetListOfTasks()->GetSize()-1;
+   
   // -----   Ftof hit producers   ---------------------------
-  Add(new PndFtofHitProducerIdeal());
-  if ((GetListOfTasks()->GetSize()-1) != kPndFtofHitProducerIdeal) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
-  
+  Add(new PndFtofHitProducerIdeal()); // 14
+  digi.kPndFtofHitProducerIdeal = GetListOfTasks()->GetSize()-1;
+ 
   // -----   Rich hit producers   ---------------------------
-  Add(new PndRichHitProducer());
-  if ((GetListOfTasks()->GetSize()-1) != kPndRichHitProducer) Error("PndMasterDigiTask","Error in task #%i", (GetListOfTasks()->GetSize()-1));
-
+  if ( !fOptions.Contains("day1") ) 
+    {
+      Add(new PndRichHitProducer()); // 15
+      digi.kPndRichHitProducer = GetListOfTasks()->GetSize()-1;
+    }
+  
   SetVerbose(0);
 }
 // -------------------------------------------------------------------------
@@ -100,41 +106,48 @@ PndMasterDigiTask::PndMasterDigiTask() :
 void PndMasterDigiTask::SetPersistency(Bool_t pers)
 {
   // -----   STT digi producers   --------------------------------
-  ((PndSttHitProducerRealFast*)GetListOfTasks()->At(kPndSttHitProducerRealFast))->SetPersistence(pers);
+  ((PndSttHitProducerRealFast*)GetListOfTasks()->At(digi.kPndSttHitProducerRealFast))->SetPersistence(pers);
   
   // -----   MVD hit producers   ---------------------------------
-  ((PndMvdDigiTask*)GetListOfTasks()->At(kPndMvdDigiTask))->SetPersistance(pers);
-  ((PndMvdClusterTask*)GetListOfTasks()->At(kPndMvdClusterTask))->SetPersistance(pers);
+  ((PndMvdDigiTask*)GetListOfTasks()->At(digi.kPndMvdDigiTask))->SetPersistance(pers);
+  ((PndMvdClusterTask*)GetListOfTasks()->At(digi.kPndMvdClusterTask))->SetPersistance(pers);
   
   // -----   EMC hit producers   ---------------------------------
-  ((PndEmcHitsToWaveform*)GetListOfTasks()->At(kPndEmcHitsToWaveform))->SetStorageOfData(kFALSE);
-  ((PndEmcWaveformToDigi*)GetListOfTasks()->At(kPndEmcWaveformToDigi))->SetStorageOfData(kFALSE);
-  ((PndEmcMakeCluster*)GetListOfTasks()->At(kPndEmcMakeCluster))->SetStorageOfData(kFALSE);
-  ((PndEmcMakeBump*)GetListOfTasks()->At(kPndEmcMakeBump))->SetStorageOfData(kFALSE);
+  ((PndEmcHitsToWaveform*)GetListOfTasks()->At(digi.kPndEmcHitsToWaveform))->SetStorageOfData(kFALSE);
+  ((PndEmcWaveformToDigi*)GetListOfTasks()->At(digi.kPndEmcWaveformToDigi))->SetStorageOfData(kFALSE);
+  ((PndEmcMakeCluster*)GetListOfTasks()->At(digi.kPndEmcMakeCluster))->SetStorageOfData(kFALSE);
+  ((PndEmcMakeBump*)GetListOfTasks()->At(digi.kPndEmcMakeBump))->SetStorageOfData(kFALSE);
   
   // -----   SciT hit producers   -------------------------------
-  //((PndSciTHitProducerIdeal*)GetListOfTasks()->At(kPndSciTHitProducerIdeal))->SetPersistence(pers);
-  ((PndSciTDigiTask*)GetListOfTasks()->At(kPndSciTDigiTask))->SetPersistence(pers);
+  //((PndSciTHitProducerIdeal*)GetListOfTasks()->At(digi.kPndSciTHitProducerIdeal))->SetPersistence(pers);
+  ((PndSciTDigiTask*)GetListOfTasks()->At(digi.kPndSciTDigiTask))->SetPersistence(pers);
   
   // -----   MDT hit producers   ---------------------------------
-  ((PndMdtHitProducerIdeal*)GetListOfTasks()->At(kPndMdtHitProducerIdeal))->SetPersistency(pers);
-  ((PndMdtTrkProducer*)GetListOfTasks()->At(kPndMdtTrkProducer))->SetPersistency(pers);
+  ((PndMdtHitProducerIdeal*)GetListOfTasks()->At(digi.kPndMdtHitProducerIdeal))->SetPersistency(pers);
+  ((PndMdtTrkProducer*)GetListOfTasks()->At(digi.kPndMdtTrkProducer))->SetPersistency(pers);
  
   // -----   DRC hit producers   ---------------------------------
-  ((PndDrcHitProducerReal*)GetListOfTasks()->At(kPndDrcHitProducerReal))->SetPersistency(pers);
-  
-  // -----   GEM hit producers   ---------------------------------
-  ((PndGemDigitize*)GetListOfTasks()->At(kPndGemDigitize))->SetPersistency(pers);
-  ((PndGemFindHits*)GetListOfTasks()->At(kPndGemFindHits))->SetPersistency(pers);
+  ((PndDrcHitProducerReal*)GetListOfTasks()->At(digi.kPndDrcHitProducerReal))->SetPersistency(pers);
+
+  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+    {
+      // -----   GEM hit producers   ---------------------------------
+      ((PndGemDigitize*)GetListOfTasks()->At(digi.kPndGemDigitize))->SetPersistency(pers);
+      ((PndGemFindHits*)GetListOfTasks()->At(digi.kPndGemFindHits))->SetPersistency(pers);
+    }
   
   // -----   FTS hit producers   ---------------------------------
-  ((PndFtsHitProducerRealFast*)GetListOfTasks()->At(kPndFtsHitProducerRealFast))->SetPersistence(pers);
+  ((PndFtsHitProducerRealFast*)GetListOfTasks()->At(digi.kPndFtsHitProducerRealFast))->SetPersistence(pers);
   
   // -----   Ftof hit producers   ---------------------------
-  ((PndFtofHitProducerIdeal*)GetListOfTasks()->At(kPndFtofHitProducerIdeal))->SetPersistency(pers);
+  ((PndFtofHitProducerIdeal*)GetListOfTasks()->At(digi.kPndFtofHitProducerIdeal))->SetPersistency(pers);
 
-  // -----   Rich hit producers   ---------------------------
-  ((PndRichHitProducer*)GetListOfTasks()->At(kPndRichHitProducer))->SetPersistency(pers);
+   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+     {
+       // -----   Rich hit producers   ---------------------------
+       ((PndRichHitProducer*)GetListOfTasks()->At(digi.kPndRichHitProducer))->SetPersistency(pers);
+     }
+   
   return;
 }
 

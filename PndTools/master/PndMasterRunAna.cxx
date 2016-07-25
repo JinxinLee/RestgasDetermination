@@ -20,7 +20,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
-  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fTimer(), fEventCounterRate(100)
+  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fOptions(), fTimer(), fEventCounterRate(100)
 {
   fTimer.Start();
 }
@@ -95,7 +95,7 @@ Bool_t PndMasterRunAna::Setup(TString outprefix)
 // -----   AddDigiTasks   ---------------------------------------------------
 void PndMasterRunAna::AddDigiTasks(Bool_t pers)
 {
-  PndMasterDigiTask *digi = new PndMasterDigiTask();
+  PndMasterDigiTask *digi = new PndMasterDigiTask(fOptions);
   if (!pers) digi->SetPersistency(kFALSE);
   AddTask(digi);
 }
@@ -103,7 +103,7 @@ void PndMasterRunAna::AddDigiTasks(Bool_t pers)
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 {
-  PndMasterRecoTask *reco = new PndMasterRecoTask();
+  PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
   if (!pers) reco->SetPersistency(kFALSE);
   AddTask(reco);
 }
@@ -111,7 +111,7 @@ void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 // -----   AddPidTasks   ----------------------------------------------------
 void PndMasterRunAna::AddPidTasks(Bool_t pers)
 {
-  PndMasterPidTask *pid = new PndMasterPidTask();
+  PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
   if (!pers) pid->SetPersistency(kFALSE);
   AddTask(pid);
 }

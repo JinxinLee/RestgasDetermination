@@ -22,9 +22,15 @@ class PndMasterDigiTask : public PndMasterTask
  public:
 
   /**
-   * @brief Default constructor 
+   * @brief Default constructor with options
+   * @detail This string can be:
+   * ""                          -> default settings full setup
+   * "day1"                      -> Setup for day1 experiment: no GEM, FTS1234, NO DISC, NO RICH
+   * "gem" (added to "day1")     -> Setup for day1 experiment with 3 GEM planes
+   * "fts1256" (added to "day1") -> Setup for day1 experiment with FTS1256 insted of FTS1234
+   * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256 
    */
-  PndMasterDigiTask();
+  PndMasterDigiTask(TString options="");
   
   /** 
    * @brief Destructor 
@@ -36,29 +42,38 @@ class PndMasterDigiTask : public PndMasterTask
    * @param pers Persistency level: 0 no TCA, 1 all TCA
    */
   virtual void SetPersistency(Bool_t pers = kTRUE);
-  
+
  private:
   
   /**
-   * @brief enum of the task list
-   * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndMvdDigiTask" for the class PndMvdDigiTask. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number
+   * @brief struct of the task list
+   * @detail This struct avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndMvdDigiTask" for the class PndMvdDigiTask. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number
    */
-  enum digiTaskList {
-    kPndSttHitProducerRealFast,
-    kPndMvdDigiTask, kPndMvdClusterTask,
-    kPndEmcHitsToWaveform, kPndEmcWaveformToDigi, kPndEmcMakeCluster, kPndEmcMakeBump,
-    //kPndSciTHitProducerIdeal,
-    kPndSciTDigiTask,
-    kPndMdtHitProducerIdeal, kPndMdtTrkProducer,
-    kPndDrcHitProducerReal,
-    kPndGemDigitize, kPndGemFindHits,
-    kPndFtsHitProducerRealFast,
-    kPndFtofHitProducerIdeal,
-    kPndRichHitProducer
-  };
+  struct digiTaskList
+  {
+    Short_t kPndSttHitProducerRealFast;
+    Short_t kPndMvdDigiTask;
+    Short_t kPndMvdClusterTask;
+    Short_t kPndEmcHitsToWaveform;
+    Short_t kPndEmcWaveformToDigi;
+    Short_t kPndEmcMakeCluster;
+    Short_t kPndEmcMakeBump;
+    Short_t kPndSciTHitProducerIdeal;
+    Short_t kPndSciTDigiTask;
+    Short_t kPndMdtHitProducerIdeal;
+    Short_t kPndMdtTrkProducer;
+    Short_t kPndDrcHitProducerReal;
+    Short_t kPndGemDigitize;
+    Short_t kPndGemFindHits;
+    Short_t kPndFtsHitProducerRealFast;
+    Short_t kPndFtofHitProducerIdeal;
+    Short_t kPndRichHitProducer;
+  } digi;
+
+  TString fOptions;          ///< Options parsed to the digitization
   
   /** @cond CLASSIMP */
-  ClassDef(PndMasterDigiTask,1);
+  ClassDef(PndMasterDigiTask,2);
   /** @endcond */
 };
 

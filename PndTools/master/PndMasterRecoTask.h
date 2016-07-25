@@ -22,9 +22,15 @@ class PndMasterRecoTask : public PndMasterTask
  public:
 
   /**
-   * @brief Default constructor 
+   * @brief Default constructor with options
+   * @detail This string can be:
+   * ""                          -> default settings full setup
+   * "day1"                      -> Setup for day1 experiment: no GEM, FTS1234, NO DISC, NO RICH
+   * "gem" (added to "day1")     -> Setup for day1 experiment with 3 GEM planes
+   * "fts1256" (added to "day1") -> Setup for day1 experiment with FTS1256 insted of FTS1234
+   * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256 
    */
-  PndMasterRecoTask();
+  PndMasterRecoTask(TString fOptions="");
   
   /**
    * @brief Destructor 
@@ -40,25 +46,27 @@ class PndMasterRecoTask : public PndMasterTask
  private:
 
   /**
-   * @brief enum of the task list
-   * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndTrkTracking2" for the class PndTracking2. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
+   * @brief struct of the task list
+   * @detail This struct avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndTrkTracking2" for the class PndTracking2. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
    * @remarks There are 4 kPndMCTrackAssociatorTask  and 2 kPndRecoKalmanTask, called kPndMCTrackAssociator1 kPndMCTrackAssociator2 etc...
    */
-  enum recoTaskList {
-    kFairGeane,
-    kPndTrkTracking2,
-    kPndSttMvdGemTracking,
-    kPndMCTrackAssociator1,
-    kPndRecoKalmanTask1,
-    kPndMCTrackAssociator2,
-    kPndFtsTrackerIdeal,
-    kPndMCTrackAssociator3,
-    kPndRecoKalmanTask2,
-    kPndMCTrackAssociator4
-  };
+  struct recoTaskList {
+    Short_t kFairGeane;
+    Short_t kPndTrkTracking2;
+    Short_t kPndSttMvdGemTracking;
+    Short_t kPndMCTrackAssociator1;
+    Short_t kPndRecoKalmanTask1;
+    Short_t kPndMCTrackAssociator2;
+    Short_t kPndFtsTrackerIdeal;
+    Short_t kPndMCTrackAssociator3;
+    Short_t kPndRecoKalmanTask2;
+    Short_t kPndMCTrackAssociator4;
+  } reco;
   
+  TString fOptions;          ///< Options parsed to the reconstruction
+   
   /** @cond CLASSIMP */
-  ClassDef(PndMasterRecoTask,1);
+  ClassDef(PndMasterRecoTask,2);
   /** @endcond */
 };
 

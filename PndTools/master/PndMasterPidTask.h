@@ -22,9 +22,15 @@ class PndMasterPidTask : public PndMasterTask
  public:
 
   /** 
-   * @brief Default constructor 
+   * @brief Default constructor with options
+   * @detail This string can be:
+   * ""                          -> default settings full setup
+   * "day1"                      -> Setup for day1 experiment: no GEM, FTS1234, NO DISC, NO RICH
+   * "gem" (added to "day1")     -> Setup for day1 experiment with 3 GEM planes
+   * "fts1256" (added to "day1") -> Setup for day1 experiment with FTS1256 insted of FTS1234
+   * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256 
    */
-  PndMasterPidTask();
+  PndMasterPidTask(TString options="");
   
   /**
    * @brief Destructor
@@ -40,27 +46,30 @@ class PndMasterPidTask : public PndMasterTask
  private:
   
   /**
-   * @brief enum of the task list
-   * @detail This enum avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndPidCorrelator" for the class PndPidCorrelator. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
+   * @brief struct of the task list
+   * @detail This struct avoids to retrieve tasks using the integer value (misleading), but uses an easier scheme. The enum is "k" + the class name, i.e. "kPndPidCorrelator" for the class PndPidCorrelator. The function PrintTaskList() can be used to check the list of the tasks and the corresponding number.
    */
-  enum pidTaskList {
-    kFairGeane,
-    kPndPidCorrelator,
-    kPndPidBremCorrector,
-    kPndMcCloner,
-    kPndPidIdealAssociatorTask,
-    kPndPidMvdAssociatorTask,
-    kPndPidMdtHCAssociatorTask,
-    kPndPidDrcAssociatorTask,
-    kPndPidDiscAssociatorTask,
-    kPndPidSttAssociatorTask,
-    kPndPidEmcBayesAssociatorTask,
-    kPndPidSciTAssociatorTask,
-    kPndPidRichAssociatorTask
-  };
+  struct pidTaskList
+  {
+    Short_t kFairGeane;
+    Short_t kPndPidCorrelator;
+    Short_t kPndPidBremCorrector;
+    Short_t kPndMcCloner;
+    Short_t kPndPidIdealAssociatorTask;
+    Short_t kPndPidMvdAssociatorTask;
+    Short_t kPndPidMdtHCAssociatorTask;
+    Short_t kPndPidDrcAssociatorTask;
+    Short_t kPndPidDiscAssociatorTask;
+    Short_t kPndPidSttAssociatorTask;
+    Short_t kPndPidEmcBayesAssociatorTask;
+    Short_t kPndPidSciTAssociatorTask;
+    Short_t kPndPidRichAssociatorTask;
+  } pid;
+
+  TString fOptions;          ///< Options parsed to the pid
   
   /** @cond CLASSIMP */
-  ClassDef(PndMasterPidTask,1);
+  ClassDef(PndMasterPidTask,2);
   /** @endcond */
 };
 
