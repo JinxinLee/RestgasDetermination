@@ -86,7 +86,7 @@ set(SRCS
   "PndMQFileSinkHits.cxx"
   "PndMQDataDuplicator.cxx"
   "PndMQTopix4OnlineHisto.cxx"
-  "PndMQGapEventBuilder.cxx"
+  "PndMQGapEventBuilderToPix.cxx"
   "PndMQTopix4DigiToHit.cxx"
   "PndMvdTopixClusterFinder.cxx"
   "PndMvdTopixHitProducer.cxx"

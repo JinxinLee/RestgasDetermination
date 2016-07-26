@@ -27,22 +27,26 @@ vector< vector<FairTimeStamp*> > PndBurstVectorBuilderT<T>::ProcessData(TClonesA
 	}
 
 	bool switchChannels = false;
+	double newTimeStamp = 0;
 	for (auto itr : fData){
 		if (itr->GetTimeStamp() < fCurrentThreshold)
 			fCurrentOutput.push_back(itr);
-		else {
+		else if ((itr->GetTimeStamp() - fCurrentThreshold) / fThreshold < 2.0){
 			fNextOutput.push_back(itr);
 			if(itr->GetTimeStamp() > fCurrentOffset){
 //						LOG(INFO) << "Switch Channels: " << itr.GetTimeStamp() << " > " << currentOffset;
 				switchChannels = true;
+				newTimeStamp = itr->GetTimeStamp();
 			}
 		}
 		if (switchChannels == true){
+			int multiply = (newTimeStamp / fThreshold) + 1;
 			result.push_back(fCurrentOutput);
 			fCurrentOutput = fNextOutput;
 			fNextOutput.clear();
-			fCurrentThreshold += fThreshold;
-			fCurrentOffset += fThreshold;
+			fCurrentThreshold = multiply * fThreshold;
+			fCurrentOffset = (multiply * fThreshold) + fOffset;
+			LOG(INFO) << "SWITCH Channels: newTS " << newTimeStamp << " mult: " << multiply << " Thresh: " << fThreshold << " CurrentThr: " << fCurrentThreshold << " CurrentOff: " << fCurrentOffset;
 			switchChannels = false;
 		}
 	}

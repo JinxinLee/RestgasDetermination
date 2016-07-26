@@ -17,6 +17,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/export.hpp>
 
 #include "FairMQLogger.h"
@@ -27,11 +28,13 @@
 
 #include "PndSdsDigiPixel.h"
 #include "PndSdsDigiStrip.h"
+#include "PndSttHit.h"
 
 using namespace std;
 
 BOOST_CLASS_EXPORT_GUID(PndSdsDigiPixel, "PndSdsDigiPixel");
 BOOST_CLASS_EXPORT_GUID(PndSdsDigiStrip, "PndSdsDigiStrip");
+BOOST_CLASS_EXPORT_GUID(PndSttHit, "PndSttHit");
 
 PndMvdMQFileSamplerBursts::PndMvdMQFileSamplerBursts()
   : FairMQDevice()
@@ -44,6 +47,14 @@ PndMvdMQFileSamplerBursts::PndMvdMQFileSamplerBursts()
   , fFileNames()
   , fEventHeader(0)
 {
+}
+
+PndMvdMQFileSamplerBursts::~PndMvdMQFileSamplerBursts()
+{
+	for (auto itr : fBurstBuilder)
+		delete(itr.second);
+	delete(fSource);
+	delete(fRunAna);
 }
 
 void PndMvdMQFileSamplerBursts::InitTask()
@@ -82,117 +93,122 @@ void PndMvdMQFileSamplerBursts::InitBurstBuilder(std::string branchName)
 		tmpBuilder = new PndBurstVectorBuilderT<PndSdsDigiPixel>;
 	else if (branchName == "MVDStripDigis")
 		tmpBuilder = new PndBurstVectorBuilderT<PndSdsDigiStrip>;
+	else if (branchName == "STTHit")
+		tmpBuilder = new PndBurstVectorBuilderT<PndSttHit>;
 
 	if (tmpBuilder != 0)
 		fBurstBuilder[branchName] = tmpBuilder;
 }
 
 // helper function to clean up the object holding the data after it is transported.
-void free_tmessage3(void* /*data*/, void *hint)
+void free_tmessage3(void* data, void *hint)
 {
-    delete (TMessage*)hint;
+ //  delete static_cast<BurstData*>(data);
 }
 
 void PndMvdMQFileSamplerBursts::Run() {
 	int eventCounter = 0;
 
 	// Check if we are still in the RUNNING state.
+//	boost::this_thread::sleep(boost::posix_time::milliseconds(100000));
 	while (CheckCurrentState(RUNNING)) {
-		if (eventCounter == fMaxIndex){
+		if (eventCounter != fMaxIndex){
 
-			break;
-		}
-		Int_t readEventReturn = fSource->ReadEvent(eventCounter);
+			Int_t readEventReturn = fSource->ReadEvent(eventCounter);
 
-		if (readEventReturn != 0)
-			break;
+			if (readEventReturn != 0)
+				break;
 
-		if (fEventHeader != 0)
-			LOG(INFO) << "EventHeader: " << fEventHeader->GetRunId() << " " << fEventHeader->GetEventTime() << std::endl;
+			if (fEventHeader != 0)
+				LOG(INFO) << "EventHeader: " << fEventHeader->GetRunId() << " " << fEventHeader->GetEventTime() << std::endl;
 
-		for (auto branchItr : fInputBranches){
-			LOG(INFO) << "ProcessingData: " << branchItr.first;
+			for (auto branchItr : fInputBranches){
+	//			LOG(INFO) << "ProcessingData: " << branchItr.first;
 
-			if (branchItr.first.find(".") == std::string::npos){
-				std::vector<std::vector< FairTimeStamp* > > data;
-				TClonesArray* tmpArray = (TClonesArray*)branchItr.second;
-				LOG(INFO) << tmpArray->GetEntries() << std::endl;
-				if (fBurstBuilder.count(branchItr.first) > 0){
-					fOutputData[branchItr.first] = fBurstBuilder[branchItr.first]->ProcessData(tmpArray);
-					LOG(INFO) << "BurstVector: " << std::endl;
-					for (int i = 0; i < fOutputData[branchItr.first].size(); i++){
-						LOG(INFO) << i << " : " << fOutputData[branchItr.first][i].size() << std::endl;
-	//					for (int j = 0; j < data[i].size(); j++){
-	//						LOG(INFO) << i << "/" << j << ": " << data[i][j]->GetTimeStamp();
-	//					}
+				if (branchItr.first.find(".") == std::string::npos){
+					std::vector<std::vector< FairTimeStamp* > > data;
+					TClonesArray* tmpArray = (TClonesArray*)branchItr.second;
+//					LOG(INFO) << "Data from TCA for branch: " << branchItr.first;
+//					for (int i = 0; i < tmpArray->GetEntries(); i++){
+//						FairTimeStamp* tcaData = (FairTimeStamp*)tmpArray->At(i);
+//						LOG(INFO) << i << " : " << tcaData->GetTimeStamp();
+//					}
+	//				LOG(INFO) << tmpArray->GetEntries() << std::endl;
+					if (fBurstBuilder.count(branchItr.first) > 0){
+						fOutputData[branchItr.first] = fBurstBuilder[branchItr.first]->ProcessData(tmpArray);
+//						LOG(INFO) << "BurstBuilder: " << branchItr.first << " " << fOutputData[branchItr.first].size();
 					}
 				}
 			}
-		}
 
-		for (auto portIt = fPorts.begin(); portIt != fPorts.end(); portIt++){
-			FairMQParts parts;
-			for (auto branchIt = fPortBranchNameMap.lower_bound(*portIt); branchIt != fPortBranchNameMap.upper_bound(*portIt); ++branchIt){
-				for (auto dataIt = fOutputData[branchIt->second].begin(); dataIt != fOutputData[branchIt->second].end(); ++dataIt){
-					if (dataIt->size() > 0){
-						BurstData bData;
-						bData.fData = *dataIt;
-						bData.fHeader.fBranchName = branchIt->second;
-						bData.fHeader.fRunID = fEventHeader->GetRunId();
-						LOG(INFO) << "Called1";
-						std::ostringstream obuffer;
-						boost::archive::binary_oarchive OutputArchive(obuffer);
-//						OutputArchive << *dataIt;
-						OutputArchive << bData;
-						LOG(INFO) << "Called2";
-						char* myData = const_cast<char*>(obuffer.str().data());
-						parts.AddPart(NewMessage(myData, obuffer.str().length(), free_tmessage3));
-						LOG(INFO) << "Called3";
+			for (auto portIt = fPorts.begin(); portIt != fPorts.end(); portIt++){
+				//FairMQParts parts;
+				for (auto branchIt = fPortBranchNameMap.lower_bound(*portIt); branchIt != fPortBranchNameMap.upper_bound(*portIt); ++branchIt){
+					for (auto dataIt = fOutputData[branchIt->second].begin(); dataIt != fOutputData[branchIt->second].end(); ++dataIt){
+						if (dataIt->size() > 0){
+
+//							LOG(INFO) << "SendData: Port " << branchIt->first << " Branch: " << branchIt->second << " data: " << dataIt->size() << std::endl;
+//							LOG(INFO) << "data to send:";
+//							for (auto itr : *dataIt)
+//								LOG(INFO) << itr->GetTimeStamp();
+							BurstData bData;// = new BurstData;
+							bData.fData = *dataIt;
+							bData.fHeader.fBranchName = branchIt->second;
+							bData.fHeader.fRunID = fEventHeader->GetRunId();
+							std::ostringstream obuffer;
+							boost::archive::binary_oarchive OutputArchive(obuffer);
+							OutputArchive << bData;
+							int outputSize = obuffer.str().length();
+							//unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(outputSize));
+							//memcpy(msg->GetData(), obuffer.str().c_str(), outputSize);
+							unique_ptr<FairMQMessage> msg(NewMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, free_tmessage3));
+							Send(msg, *portIt);
+						}
 					}
 				}
 			}
-			if (parts.Size() > 0){
-				Send(parts, *portIt);
+			eventCounter++;
+		} else {
+			LOG(INFO) << "FinishRun called!";
+			for (auto branchItr : fInputBranches){
+				if (branchItr.first.find(".") == std::string::npos){
+					if (fBurstBuilder.count(branchItr.first) > 0){
+						fOutputData[branchItr.first] = fBurstBuilder[branchItr.first]->GetLastData();
+//						LOG(INFO) << "BurstBuilder: " << branchItr.first << " " << fOutputData[branchItr.first].size();
+					}
+				}
 			}
+
+			for (auto portIt = fPorts.begin(); portIt != fPorts.end(); portIt++){
+				//FairMQParts parts;
+				for (auto branchIt = fPortBranchNameMap.lower_bound(*portIt); branchIt != fPortBranchNameMap.upper_bound(*portIt); ++branchIt){
+					for (auto dataIt = fOutputData[branchIt->second].begin(); dataIt != fOutputData[branchIt->second].end(); ++dataIt){
+						if (dataIt->size() > 0){
+
+//							LOG(INFO) << "SendData: Port " << branchIt->first << " Branch: " << branchIt->second << " data: " << dataIt->size() << std::endl;
+//							LOG(INFO) << "data to send:";
+//							for (auto itr : *dataIt)
+//								LOG(INFO) << itr->GetTimeStamp();
+							BurstData* bData = new BurstData;
+							bData->fData = *dataIt;
+							bData->fHeader.fBranchName = branchIt->second;
+							bData->fHeader.fRunID = fEventHeader->GetRunId();
+							std::ostringstream obuffer;
+							boost::archive::binary_oarchive OutputArchive(obuffer);
+							OutputArchive << *bData;
+							int outputSize = obuffer.str().length();
+							//unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(outputSize));
+							//memcpy(msg->GetData(), obuffer.str().c_str(), outputSize);
+							unique_ptr<FairMQMessage> msg(NewMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, free_tmessage3));
+							Send(msg, *portIt);
+						}
+					}
+				}
+			}
+			break;
 		}
-
-
-//		std::ostringstream obuffer;
-//		boost::archive::binary_oarchive OutputArchive(obuffer);
-//		//fPndSdsDigiTopix4Vector = frames.front();
-//		OutputArchive << fEventData;
-//		int outputSize = obuffer.str().length();
-//		unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(outputSize));
-//		memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
-//		//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
-//		dataOutChannel.Send(msg2);
-
-//		int messageIter = 0;
-//		for (std::set<std::string>::iterator portIt = fPorts.begin(); portIt != fPorts.end(); portIt++){
-//			FairMQParts parts;
-//			TMessage* message[1000];
-//			for (std::multimap<std::string, TObject*>::iterator dataIt = fInputObjects.lower_bound(*portIt); dataIt != fInputObjects.upper_bound(*portIt); ++dataIt){
-//				TNamed* data = (TNamed*)(dataIt->second);
-//				LOG(INFO) << *portIt << " : " << dataIt->second << " " << dataIt->second->ClassName() << " " << dataIt->second->GetName();
-//				if ( strcmp(dataIt->second->ClassName(),"FairEventHeader") == 0 )
-//					LOG(INFO) << "RunNumber: " << ((FairEventHeader*)dataIt->second)->GetRunId();
-//
-//
-//				message[messageIter] = new TMessage(kMESS_OBJECT);
-//				message[messageIter]->WriteObject(dataIt->second);
-//				parts.AddPart(NewMessage(message[messageIter]->Buffer(), message[messageIter]->BufferSize(), free_tmessage2, message[messageIter]));
-//				messageIter++;
-//			}
-//			LOG(INFO) << "Send!";
-//			Send(parts, *portIt);
-//		}
-
-		eventCounter++;
 	}
 
 	LOG(INFO) << "Going out of RUNNING state.";
 }
 
-PndMvdMQFileSamplerBursts::~PndMvdMQFileSamplerBursts()
-{
-}

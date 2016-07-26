@@ -16,8 +16,8 @@
 #define PndMQTopix4DigiToHit_H_
 
 //#include "FairMQDevice.h"
+#include <PndMQGapEventBuilderToPix.h>
 #include "FairMQDevice.h"
-#include "PndMQGapEventBuilder.h"
 #include "PndMvdTopixClusterFinder.h"
 #include "PndMvdTopixHitProducer.h"
 #include <boost/serialization/access.hpp>
@@ -52,7 +52,7 @@ class PndMQTopix4DigiToHit : public FairMQDevice
     std::vector<int> fClusterSize;
 
     bool fHasBoostSerialization;
-    PndMQGapEventBuilder fEventBuilder;
+    PndMQGapEventBuilderToPix fEventBuilder;
     PndMvdTopixClusterFinder fClusterFinder;
  //   PndMvdTopixHitProducer fHitProducer;
     PndMQTopixHitProducer fHitProducer;

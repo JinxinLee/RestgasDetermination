@@ -70,45 +70,60 @@ fi
 SERVER="parmq-server $TRANSPORT"
 SERVER+=" --id parmq-server  --mq-config $MQCONFIGFILE"
 SERVER+=" --first-input-name $ROOTPARAM --second-input-name $ASCIIPARAM --second-input-type ASCII"
-xterm -geometry 80x25+0+350 -e @EXAMPLE9_BIN_LOCATION@/$SERVER &
+xterm -geometry 80x25+0+350 -e @EXAMPLE9_BIN_LOCATION@/$SERVER & 
 
 
 ########################## start SAMPLER
 SAMPLER="PndMQFileSamplerBursts $TRANSPORT"
 SAMPLER+=" --id sampler1  --mq-config $MQCONFIGFILE"
 SAMPLER+=" --file-name $INPUTFILE --branch-name $INPUTBRANCH $MAXINDEX"
-xterm -geometry 80x25+0+0 -e @MVDMQ_BIN_LOCATION@/$SAMPLER &
+ xterm -sl 10000 -geometry 80x25+0+0 -e @MVDMQ_BIN_LOCATION@/$SAMPLER &
+ # | tee sampler.txt" &
 
 ######################### start PROCESSORs
 PROCESSOR1="PndMQTaskProcessor $TRANSPORT"
 PROCESSOR1+=" $VERBOSE"
 PROCESSOR1+=" --id processor1 $FAIRTASKNAME --mq-config $MQCONFIGFILE"
-xterm -geometry 80x25+500+0 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR1 &
+#xterm -geometry 80x25+500+0 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR1 &
 
 PROCESSOR2="PndMQTaskProcessor $TRANSPORT"
 PROCESSOR2+=" $VERBOSE"
 PROCESSOR2+=" --id processor2 $FAIRTASKNAME --mq-config $MQCONFIGFILE"
-xterm -geometry 80x25+500+350 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR2 &
+#xterm -geometry 80x25+500+350 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR2 &
 
 PROCESSOR3="PndMQTaskProcessor $TRANSPORT"
 PROCESSOR3+=" $VERBOSE"
 PROCESSOR3+=" --id processor3 $FAIRTASKNAME --mq-config $MQCONFIGFILE"
-xterm -geometry 80x25+500+700 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR3 &
+#xterm -geometry 80x25+500+700 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR3 &
 
 PROCESSOR4="PndMQTaskProcessor $TRANSPORT"
 PROCESSOR4+=" $VERBOSE"
 PROCESSOR4+=" --id processor4 $FAIRTASKNAME --mq-config $MQCONFIGFILE"
-xterm -geometry 80x25+1000+0 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR4 &
+#xterm -geometry 80x25+1000+0 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR4 &
 
 PROCESSOR5="PndMQTaskProcessor $TRANSPORT"
 PROCESSOR5+=" $VERBOSE"
 PROCESSOR5+=" --id processor5 $FAIRTASKNAME --mq-config $MQCONFIGFILE"
-xterm -geometry 80x25+1000+350 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR5 &
+#xterm -geometry 80x25+1000+350 -e @MVDMQ_BIN_LOCATION@/$PROCESSOR5 &
+
 
 ########################## start FILESINK
-FILESINK="PndMQFileSink $TRANSPORT"
-FILESINK+=" --id sink1 --mq-config $MQCONFIGFILE"
+FILESINK="PndMQFileSinkBursts $TRANSPORT"
+FILESINK+=" --id processor1 --mq-config $MQCONFIGFILE"
 FILESINK+=" --file-name $OUTPUTFILE $OUTPUTCLASS $OUTPUTBRANCH"
-xterm +aw -geometry 80x25+0+700 -e @MVDMQ_BIN_LOCATION@/$FILESINK &
+xterm -sl 10000 -geometry 80x25+0+700 -e @MVDMQ_BIN_LOCATION@/$FILESINK 2>&1 & 
+
+########################## start FILESINK
+FILESINK="PndMQFileSinkBursts $TRANSPORT"
+FILESINK+=" --id processor2 --mq-config $MQCONFIGFILE"
+FILESINK+=" --file-name $OUTPUTFILE $OUTPUTCLASS $OUTPUTBRANCH"
+xterm -sl 10000 -geometry 80x25+500+0 -e @MVDMQ_BIN_LOCATION@/$FILESINK &
+# 2>&1 | tee sink2.txt" &
+
+########################## start FILESINK
+#FILESINK="PndMQFileSinkBurst $TRANSPORT"
+#FILESINK+=" --id sink1 --mq-config $MQCONFIGFILE"
+#FILESINK+=" --file-name $OUTPUTFILE $OUTPUTCLASS $OUTPUTBRANCH"
+#xterm +aw -geometry 80x25+0+700 -e @MVDMQ_BIN_LOCATION@/$FILESINK &
 
 

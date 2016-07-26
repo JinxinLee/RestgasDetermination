@@ -29,6 +29,7 @@ set(INCLUDE_DIRECTORIES
     ${CMAKE_SOURCE_DIR}/sds/SdsFEModel
     ${CMAKE_SOURCE_DIR}/sds/SdsTools
     ${CMAKE_SOURCE_DIR}/pnddata/SdsData
+    ${CMAKE_SOURCE_DIR}/PndTools/MQ
     ${CMAKE_CURRENT_BINARY_DIR}
     ${FAIRROOT_INCLUDE_DIR}
 )
@@ -74,6 +75,7 @@ Set(SRCS
 	src/devices/PndMvdMQFileSampler.cxx
 	src/devices/PndMvdMQFileSamplerBursts.cxx
 	src/devices/PndMvdMQFileSink.cxx
+	src/devices/PndMQFileSinkBursts.cxx
 )
 
 Set(HEADER
@@ -112,6 +114,7 @@ set(Exe_Names
   PndMQFileSampler
   PndMQFileSamplerBursts
   PndMQFileSink
+  PndMQFileSinkBursts
   PndMQTaskProcessor
 )
 
@@ -119,6 +122,7 @@ set(Exe_Source
   run/runFileSampler.cxx
   run/runFileSamplerBursts.cxx
   run/runFileSink.cxx
+  run/runFileSinkBursts.cxx
   run/runTaskProcessor.cxx
 )
 

@@ -50,7 +50,11 @@ struct BurstHeader
 struct BurstData
 {
 	BurstData() : fHeader(), fData(){};
-	virtual ~BurstData(){};
+	virtual ~BurstData(){
+		for (auto itr : fData)
+			delete(itr);
+		fData.clear();
+	};
 	BurstHeader fHeader;
 	std::vector<FairTimeStamp*> fData;
 
@@ -88,6 +92,16 @@ class PndMvdMQFileSamplerBursts : public FairMQDevice
     
     void SetMaxIndex(int64_t tempInt) {fMaxIndex=tempInt;}
 
+    template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & fHitVector;
+	}
+
+	#ifndef __CINT__ // for BOOST serialization
+		friend class boost::serialization::access;
+	#endif
+
  protected:
     virtual void Run();
     virtual void InitTask();
@@ -103,6 +117,7 @@ class PndMvdMQFileSamplerBursts : public FairMQDevice
     std::map<std::string, std::vector< std::vector<FairTimeStamp*> > >        fOutputData;  //< map of branch and data object to be send
     std::map<std::string, TObject* >				fInputBranches;									//< branch name and TClonesArray in root tree
     std::map<std::string, PndBurstVectorBuilderBase*>		fBurstBuilder;							//< branch name and associated burst builder
+    std::vector<FairTimeStamp*> fHitVector;
     FairEventHeader* fEventHeader;
 
 

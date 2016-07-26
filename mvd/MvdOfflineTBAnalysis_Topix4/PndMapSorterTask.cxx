@@ -76,7 +76,7 @@ void PndMapSorterTask::Exec(Option_t* opt)
     fSorter->AddElement(myData, myData->GetTimeStamp());
     timeOfLast = myData->GetTimeStamp();
   }
-  if (fVerbose > 2) { fSorter->Print(); }
+  if (fVerbose > 2) { fSorter->print(); }
 
   fSorter->WriteOutData(timeOfLast);
   std::vector<FairTimeStamp*> sortedData = fSorter->GetOutputData();
@@ -115,7 +115,7 @@ void PndMapSorterTask::FinishTask()
     FairTimeStamp* myDigi = (FairTimeStamp*) fInputArray->At(i);
     fSorter->AddElement(myDigi, ((FairTimeStamp*)myDigi)->GetTimeStamp());
   }
-  fSorter->Print();
+  fSorter->print();
   fSorter->WriteOutAll();
   std::vector<FairTimeStamp*> sortedData = fSorter->GetOutputData();
 
@@ -132,7 +132,7 @@ void PndMapSorterTask::FinishTask()
   }
   fSorter->DeleteOutputData();
   if (fVerbose > 2) {
-    fSorter->Print();
+    fSorter->print();
   }
   FairRootManager::Instance()->SetLastFill();
 }
