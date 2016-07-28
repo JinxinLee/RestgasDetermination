@@ -64,6 +64,7 @@ void PndPidSciTAssociatorTask::Exec(Option_t * option) {
       pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
       prob = new((*fPidChargedProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.2,i);// initializes with equal probability
       if (pidcand->GetTofIndex()==-1) continue;
+      if ((pidcand->GetMomentum().Theta()*TMath::RadToDeg())<20.) continue; // pid runs only in the scitil region, with theta >20°
       DoPidMatch(pidcand,prob);
     }
 }

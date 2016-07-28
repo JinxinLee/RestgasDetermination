@@ -1,7 +1,11 @@
 #include "PndPidFtofAssociatorTask.h"
 #include "PndPidCandidate.h"
 #include "PndPidProbability.h"
+#include "PndPidCorrPar.h"
 #include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+
 #include "TMath.h"
 #include "TF1.h"
 #include "Riostream.h"
@@ -15,13 +19,13 @@ PndPidFtofAssociatorTask::~PndPidFtofAssociatorTask() {
 }
 
 //___________________________________________________________
-PndPidFtofAssociatorTask::PndPidFtofAssociatorTask() {
+PndPidFtofAssociatorTask::PndPidFtofAssociatorTask() : fCorrPar() {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
 }
 
 //___________________________________________________________
-PndPidFtofAssociatorTask::PndPidFtofAssociatorTask(const char *name, const char *title):FairTask(name) 
+PndPidFtofAssociatorTask::PndPidFtofAssociatorTask(const char *name, const char *title):FairTask(name), fCorrPar()
 {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
@@ -50,6 +54,16 @@ InitStatus PndPidFtofAssociatorTask::Init() {
 //______________________________________________________
 void PndPidFtofAssociatorTask::SetParContainers() {
   //--
+  // Get run and runtime database
+  FairRun* run = FairRun::Instance();
+  if ( ! run ) Fatal("PndPidFtofAssociatorTask:: SetParContainers", "No analysis run");
+  
+  FairRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("PndPidFtofAssociatorTask:: SetParContainers", "No runtime database");
+  
+  // Get PID Correlation parameter container
+  fCorrPar = (PndPidCorrPar*) db->getContainer("PndPidCorrPar");
+  
 }
 //______________________________________________________
 void PndPidFtofAssociatorTask::Exec(Option_t * option) {
@@ -63,7 +77,8 @@ void PndPidFtofAssociatorTask::Exec(Option_t * option) {
       TClonesArray& pidRef = *fPidChargedProb;
       PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
       prob->SetIndex(i);
-      if (pidcand->GetTofIndex()==-1) continue;
+      if (pidcand->GetTofIndex()==-1) continue;  
+      if (pidcand->GetLastHit().Z() < fCorrPar->GetZLastPlane()) continue; // runs ftof pid only for forward tracks
       DoPidMatch(pidcand,prob);
     }
  

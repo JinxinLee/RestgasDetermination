@@ -6,6 +6,7 @@
 
 class PndPidCandidate;
 class PndPidProbability;
+class PndPidCorrPar;
 
 class PndPidFtofAssociatorTask : public FairTask {
   
@@ -37,6 +38,11 @@ class PndPidFtofAssociatorTask : public FairTask {
   virtual void SetParContainers();
   virtual void Finish();
 
+ private:
+
+  PndPidCorrPar* fCorrPar;          //! Correlation parameters
+
+  
   ClassDef(PndPidFtofAssociatorTask,1)   // PndPidftofTask
   
     };
