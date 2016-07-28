@@ -228,7 +228,7 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
       //Filling values     
       position.SetXYZ(ftofPos[0],  gRandom->Gaus(point->GetY(), 10.),  ftofPos[2]);  // smearing of 10 cm of McPoint
       dpos.    SetXYZ(fDPosHit[0],                              10.,  fDPosHit[2]);
-      time = gRandom->Gaus(point->GetTime(), 0.1); //100 ps time resolution
+      time = gRandom->Gaus(point->GetTime(), 0.07); //70 ps time resolution
       
       // Create new hit
       if (fTimeOrderedDigi){
