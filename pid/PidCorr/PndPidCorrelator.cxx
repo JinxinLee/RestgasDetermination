@@ -20,18 +20,13 @@
 #include "PndDrcBarPoint.h"
 #include "PndDrcHit.h"
 #include "PndDskParticle.h"
-#include "PndRichGeo.h"
-#include "PndRichPhoton.h"
+#include "PndRichBarPoint.h"
 #include "PndRichHit.h"
-#include "PndRichPDPoint.h"
-#include "PndRichPDHit.h"
 #include "FairTrackParH.h"
 #include "FairMCApplication.h"
 #include "FairRunAna.h"
 #include "FairRootManager.h"
 #include "FairRuntimeDb.h"
-
-#include "PndRichReco.h"
 
 #include "TObjArray.h"
 #include "TVector3.h"
@@ -55,7 +50,7 @@ PndPidCorrelator::~PndPidCorrelator()
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator() : 
-  FairTask(), fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichBarPoint(0), fRichPDHit(0),
+  FairTask(), fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
@@ -98,8 +93,7 @@ PndPidCorrelator::PndPidCorrelator() :
   mapMdtBarrel(),
   mapMdtEndcap(),
   mapMdtForward(),
-  fGeanePropagator(NULL),
-  fRichResolution(new PndRichResolution())
+  fGeanePropagator(NULL)
 {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -122,7 +116,7 @@ PndPidCorrelator::PndPidCorrelator() :
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   FairTask(name),
-  fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichBarPoint(0), fRichPDHit(0),
+  fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
@@ -165,8 +159,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   mapMdtBarrel(),
   mapMdtEndcap(),
   mapMdtForward(),
-  fGeanePropagator(NULL),
-  fRichResolution(new PndRichResolution())
+  fGeanePropagator(NULL)
 {
   //---
   fPidChargedCand = new TClonesArray("PndPidCandidate");
@@ -483,28 +476,16 @@ InitStatus PndPidCorrelator::Init() {
   // *** RICH ***
   if (fRichMode)
     {
-      fRichReco = new PndRichReco();
-      fRichPDHit = dynamic_cast<TClonesArray *> (fManager->GetObject("RichPDHit"));
-      if ( ! fRichPDHit ) 
+      fRichHit = dynamic_cast<TClonesArray *> (fManager->GetObject("RichHit"));
+      if ( ! fRichHit ) 
 	{
-	  cout << "-W- PndPidCorrelator::Init: No RichPDHit array!" << endl;
+	  cout << "-W- PndPidCorrelator::Init: No RichHit array!" << endl;
 	  fRichMode = 0;
 	}
       else  
 	{
-	  cout << "-I- PndPidCorrelator::Init: Using RichPDHit" << endl;
+	  cout << "-I- PndPidCorrelator::Init: Using RichHit" << endl;
 	  fRichMode = 2;
-	}
-      fRichBarPoint = dynamic_cast<TClonesArray *> (fManager->GetObject("RichBarPoint"));
-      if ( ! fRichBarPoint ) 
-	{
-	  cout << "-W- PndPidCorrelator::Init: No RichBarPoint array!" << endl;
-	  fRichMode = 0;
-	}
-      else  
-	{
-	  cout << "-I- PndPidCorrelator::Init: Using RichBarPoint" << endl;
-          fRichMode = 3;
 	}
     }
   
@@ -541,8 +522,8 @@ InitStatus PndPidCorrelator::Init() {
 	{
 	  cout << "-I- PndPidCorrelator::Init: Using MdtPoint" << endl;
 	}
-      fRichBarPoint = dynamic_cast<TClonesArray *> (fManager->GetObject("RichBarPoint"));
-      if ( ! fRichBarPoint ) 
+      fRichPoint = dynamic_cast<TClonesArray *> (fManager->GetObject("RichBarPoint"));
+      if ( ! fRichPoint ) 
 	{
 	  cout << "-W- PndPidCorrelator::Init: No RichBarPoint array!" << endl;
 	  fRichMode = 0;

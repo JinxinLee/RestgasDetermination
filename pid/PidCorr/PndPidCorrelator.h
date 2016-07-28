@@ -34,8 +34,6 @@
 #include "PndEmcErrorMatrixPar.h"
 #include "PndGeoSttPar.h"
 #include "PndGeoFtsPar.h"
-#include "PndRichReco.h"
-#include "PndRichResolution.h"
 
 using std::map;
 using std::vector;
@@ -71,8 +69,8 @@ protected:
   TClonesArray* fDskParticle;       //! PndDskParticle TCA  //need to change to PndDskHit in future
   TClonesArray* fSttHit;            //! PndSttHit TCA  
   TClonesArray* fFtsHit;            //! PndFtsHit TCA  
-  TClonesArray* fRichBarPoint;      //! PndRichBarPoint TCA
-  TClonesArray* fRichPDHit;         //! PndRichPDHit TCA
+  TClonesArray* fRichPoint;         //! PndRichBarPoint TCA
+  TClonesArray* fRichHit;           //! PndRichHit TCA
  
   PndPidCorrPar* fCorrPar;          //! Correlation parameters
   PndEmcGeoPar* fEmcGeoPar;         //! EMC geometry parameters
@@ -168,9 +166,6 @@ protected:
   Bool_t MdtMapping();  // Mapping of MDT hits
   Bool_t MdtGeometry(); // Mapping of MDT geometry
 
-  PndRichReco* fRichReco;
-  PndRichResolution* fRichResolution;
-    
 public:
 
   virtual void Exec(Option_t * option);
