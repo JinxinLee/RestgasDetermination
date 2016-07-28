@@ -25,6 +25,7 @@
 #pragma link C++ class  PndPidSttAssociatorTask+;
 #pragma link C++ class  PndPidEmcBayesAssociatorTask+;
 #pragma link C++ class  PndPidSciTAssociatorTask+;
+#pragma link C++ class  PndPidFtofAssociatorTask+;
 
 #endif
 
