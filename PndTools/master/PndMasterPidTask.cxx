@@ -20,6 +20,7 @@
 #include "PndPidSttAssociatorTask.h"
 #include "PndPidEmcBayesAssociatorTask.h"
 #include "PndPidSciTAssociatorTask.h"
+#include "PndPidFtofAssociatorTask.h"
 #include "PndPidRichAssociatorTask.h"
 
 /**
@@ -31,7 +32,7 @@
 PndMasterPidTask::PndMasterPidTask(TString options) :
   PndMasterTask("Master Pid Task"), fOptions(options)
 {
-  pid = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+  pid = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
  
   // -----   Geane   ---------------------------------------
   this->Add(new FairGeane()); // 0
@@ -53,7 +54,7 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
     }
   corr->SetInputBranch2("FtsIdealGenTrack");
   corr->SetInputIDBranch2("FtsIdealGenTrackID");
-  //corr->SetDebugMode(kTRUE);
+  corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   //corr->SetBackPropagate(kFALSE);
 
@@ -96,9 +97,12 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   this->Add(new PndPidSciTAssociatorTask()); // 11
   pid.kPndPidSciTAssociatorTask = GetListOfTasks()->GetSize()-1;
 
+  this->Add(new PndPidFtofAssociatorTask()); // 12
+  pid.kPndPidFtofAssociatorTask = GetListOfTasks()->GetSize()-1;
+
   if ( (!fOptions.Contains("day1")) )
     {
-      this->Add(new PndPidRichAssociatorTask()); // 12
+      this->Add(new PndPidRichAssociatorTask()); // 13
       pid.kPndPidRichAssociatorTask = GetListOfTasks()->GetSize()-1;
     }
   

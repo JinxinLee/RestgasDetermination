@@ -64,6 +64,7 @@ class PndMasterPidTask : public PndMasterTask
     Short_t kPndPidEmcBayesAssociatorTask;
     Short_t kPndPidSciTAssociatorTask;
     Short_t kPndPidRichAssociatorTask;
+    Short_t kPndPidFtofAssociatorTask;
   } pid;
 
   TString fOptions;          ///< Options parsed to the pid
