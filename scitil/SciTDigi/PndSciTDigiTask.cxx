@@ -37,7 +37,7 @@ PndSciTDigiTask::PndSciTDigiTask() :
 
 	fGeoH =  NULL;
 
-	fdt = 0.1;  //auto time resolution 0.1 ns
+	fdt = 0.075;  //auto time resolution 0.075 ns
 	fDeadtime = 1000.0; // Tile dead time after a hit in ns
 	fPileupTime = 10.0; // Time of possible Pile up after a Hit in ns
 

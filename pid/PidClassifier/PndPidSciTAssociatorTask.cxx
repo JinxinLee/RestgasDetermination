@@ -74,6 +74,8 @@ void PndPidSciTAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbab
   //parametrizise the sigma e.g. in dependenc of the transvers momentum
   Double_t sigma=0.11;
 
+  TF1 *tofResolution = new TF1("tofResolution","[0]/x**4+[1]");
+
   Double_t mass = 0.140; // mass in GeV/c. Pion Mass as start Value
 
   Double_t mom =pidcand->GetMomentum().Mag();
@@ -83,22 +85,32 @@ void PndPidSciTAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbab
 
   // electron 
   mass   = 0.000511;
+  tofResolution->SetParameters(0.0085,0.1025);
+  sigma = tofResolution->Eval(mom); 
   prob->SetElectronPdf(GetPdf(mom,length,tof,mass,sigma));
-  
+
   // muon
   mass   = 0.106;
+  tofResolution->SetParameters(0.0085,0.1025); // still a dumy value!!! need a simulation of this!
+  sigma = tofResolution->Eval(mom); 
   prob->SetMuonPdf(GetPdf(mom,length,tof,mass,sigma));
   
   // pion 
   mass   = 0.140;
+  tofResolution->SetParameters(0.0072,0.100); // still a dumy value!!! need a simulation of this!
+  sigma = tofResolution->Eval(mom);
   prob->SetPionPdf(GetPdf(mom,length,tof,mass,sigma));
    
   // kaon
   mass   = 0.494;
+  tofResolution->SetParameters(0.00028,0.102); // still a dumy value!!! need a simulation of this!
+  sigma = tofResolution->Eval(mom);
   prob->SetKaonPdf(GetPdf(mom,length,tof,mass,sigma));
 
   // proton
   mass   = 0.938;
+  tofResolution->SetParameters(0.00126,0.103); // still a dumy value!!! need a simulation of this!
+  sigma = tofResolution->Eval(mom);
   prob->SetProtonPdf(GetPdf(mom,length,tof,mass,sigma));
 
 }  
