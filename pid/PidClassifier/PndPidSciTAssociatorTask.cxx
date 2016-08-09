@@ -85,31 +85,30 @@ void PndPidSciTAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbab
 
   // electron 
   mass   = 0.000511;
-  tofResolution->SetParameters(0.0085,0.1025);
+  tofResolution->SetParameters(0.0000153,0.0765);
   sigma = tofResolution->Eval(mom); 
   prob->SetElectronPdf(GetPdf(mom,length,tof,mass,sigma));
 
   // muon
   mass   = 0.106;
-  tofResolution->SetParameters(0.0085,0.1025); // still a dumy value!!! need a simulation of this!
+  tofResolution->SetParameters(0.0000222,0.0768); 
   sigma = tofResolution->Eval(mom); 
   prob->SetMuonPdf(GetPdf(mom,length,tof,mass,sigma));
   
   // pion 
   mass   = 0.140;
-  tofResolution->SetParameters(0.0072,0.100); // still a dumy value!!! need a simulation of this!
+  tofResolution->SetParameters(0.0000225,0.0764);
   sigma = tofResolution->Eval(mom);
   prob->SetPionPdf(GetPdf(mom,length,tof,mass,sigma));
    
   // kaon
   mass   = 0.494;
-  tofResolution->SetParameters(0.00028,0.102); // still a dumy value!!! need a simulation of this!
-  sigma = tofResolution->Eval(mom);
+  tofResolution->SetParameters(0.0003,0.0767); 
   prob->SetKaonPdf(GetPdf(mom,length,tof,mass,sigma));
 
   // proton
   mass   = 0.938;
-  tofResolution->SetParameters(0.00126,0.103); // still a dumy value!!! need a simulation of this!
+  tofResolution->SetParameters(0.00124,0.0787);
   sigma = tofResolution->Eval(mom);
   prob->SetProtonPdf(GetPdf(mom,length,tof,mass,sigma));
 
