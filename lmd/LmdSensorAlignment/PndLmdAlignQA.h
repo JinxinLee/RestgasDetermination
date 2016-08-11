@@ -17,6 +17,22 @@
 #include <PndLmdAlignManager.h>
 #include <matrix.h>
 
+enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotMatrixResiduals};
+
+struct histParams{
+	double scaleFactor=1.0;
+	std::string fileName;
+	std::string title;
+	std::string xtitle;
+	std::string ytitle;
+	std::string path;
+	int bins50;
+	double xMin=-1;
+	double xMax=-1;
+	int vectorIndex=0;
+	runParameter runParam = kNormal;
+};
+
 class PndLmdAlignQA {
 
 private:
@@ -29,10 +45,13 @@ private:
 	int curPlane;
 	PndLmdAlignManager manager;
 
-	//contiains number of pairs on overlap area
+	//contains number of pairs on overlap area
 	std::map<int, int> matrixInfo;
 
 	void histDeltaCorrection(int id1, int id2, std::vector<std::vector<double> > &vec);
+	void createThreeHistsVeryDirty(int id1, int id2, int module, std::vector<std::vector<double> > &vec, runParameter param);
+	void createHist(std::vector<std::vector<double> > &vec, histParams &parameters);
+
 	int noOfPairs(int id1, int id2);
 
 	//get matrix residuals for matrix id1->id2 from icp and target matrix
@@ -67,7 +86,7 @@ public:
 	void checkIOpaths();
 	bool checkForMatrixFiles();
 
-	void compareMatrices();
+	void compareMatrices(runParameter param=kNormal);
 	void compareCombinedMatrices();
 
 	void setInCentimeters(bool inCentimeters) {

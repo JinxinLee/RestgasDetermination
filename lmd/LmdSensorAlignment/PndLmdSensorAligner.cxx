@@ -381,6 +381,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		resultMatrix.setVal(4,4,finalMatrix);
 
 		if(!_inCentimeters){
+			//store matrix file already transformed to cm!
 			resultMatrix = PndLmdAlignManager::transformMatrixFromPixelsToCm(resultMatrix);
 		}
 

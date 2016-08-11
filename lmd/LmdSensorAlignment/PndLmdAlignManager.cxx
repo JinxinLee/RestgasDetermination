@@ -931,7 +931,7 @@ void PndLmdAlignManager::transformGlobalToLmd(Matrix& matrix) {
 	Matrix ltoG(4,4,finalArrayLtoG);
 	Matrix gToL(4,4,finalArrayGtoL);
 
-	//TODO: check which one is right
+	//FIXME: check which one is right
 	//matrix = gToL * tempmatrix * ltoG;
 	matrix = ltoG * tempmatrix * gToL;
 

@@ -61,13 +61,91 @@ void PndLmdAlignQA::init() {
 	manager.readTrafoMatrix("/geometry/trafo_matrices_lmd_misaligned.dat", false);
 }
 
-void PndLmdAlignQA::compareMatrices(){
+void PndLmdAlignQA::compareMatrices(runParameter param){
 
+	//data holds sets of entries. order is (id1, id2, alpha, dx, dy
 	std::vector<std::vector<double> > data;
 	readMatrixInfo();
 
-	for(int iMult=0; iMult < 40; iMult++){
-		histDeltaCorrection(0 +iMult*10, 5 +iMult*10, data);
+	//iterate over all available id pairs and store them to vector of std::pairs
+	vector<std::pair<int, int>> idPairs;
+	for(int i = 0; i<400; i+=10){
+		idPairs.push_back(make_pair(0+i,5+i));
+		idPairs.push_back(make_pair(1+i,8+i));
+		idPairs.push_back(make_pair(2+i,8+i));
+		idPairs.push_back(make_pair(2+i,9+i));
+		idPairs.push_back(make_pair(3+i,6+i));
+		idPairs.push_back(make_pair(3+i,7+i));
+		idPairs.push_back(make_pair(3+i,8+i));
+		idPairs.push_back(make_pair(4+i,7+i));
+		idPairs.push_back(make_pair(4+i,9+i));
+	}
+	//should now contain all available id pairs
+
+	//plot all
+	if(param==kNormal){
+
+		//gather data
+		cout << "gathering data...\n";
+		for(int i=0; i<idPairs.size(); i++){
+			histDeltaCorrection(idPairs[i].first, idPairs[i].second, data);
+		}
+
+		//now do the case distinction by parameters
+		histParams parameters;
+
+		parameters.runParam = param;
+
+		//for DX
+		parameters.title = "DeltaX";
+		parameters.xtitle = "dX [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dx.pdf";
+		parameters.vectorIndex = 3;
+		parameters.xMin=-30;
+		parameters.xMax=30;
+		createHist(data, parameters);
+
+
+		/*
+		//for DY
+		parameters.title = "DeltaY";
+		parameters.xtitle = "dY [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dyNEWMETHOD.pdf";
+		parameters.vectorIndex = 4;
+		createHist(data, parameters);
+
+		//for Dalpha
+		parameters.title = "DeltaAlpha";
+		parameters.xtitle = "d#alpha [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dalphaNEWMETHOD.pdf";
+		parameters.vectorIndex = 2;
+		createHist(data, parameters);
+		 */
+	}
+
+	//plot by module
+	else if(param == kPlotByModule){
+
+		for(int i=0; i<idPairs.size(); i++){
+
+			//check cases
+			int sensorID, half, plane, module, side, die, sensor;
+			sensorID = idPairs[i].first;
+			dimension->Get_sensor_by_id(sensorID, half, plane, module, side, die, sensor);
+
+			//for(int j=0; j<10; j++){
+			//	createThreeHistsVeryDirty(idPairs[i].first, idPairs[i].second, j, data, param);
+			//}
+
+		}
+		/*
+		tDeltaCorrection(0 +iMult*10, 5 +iMult*10, data);
 		histDeltaCorrection(1 +iMult*10, 8 +iMult*10, data);
 		histDeltaCorrection(2 +iMult*10, 8 +iMult*10, data);
 		histDeltaCorrection(2 +iMult*10, 9 +iMult*10, data);
@@ -76,55 +154,248 @@ void PndLmdAlignQA::compareMatrices(){
 		histDeltaCorrection(3 +iMult*10, 8 +iMult*10, data);
 		histDeltaCorrection(4 +iMult*10, 7 +iMult*10, data);
 		histDeltaCorrection(4 +iMult*10, 9 +iMult*10, data);
+
+		 */
 	}
 
-	TH1D DeltaX("DeltaX", "DeltaX", 50,-1,-1);
-	TH1D DeltaY("DeltaY", "DeltaY", 50,-1,-1);
-	TH1D DeltaAlpha("DeltaAlpha", "DeltaAlpha", 50,-1,-1);
+	else if(param == kPlotMatrixResiduals){
 
-	DeltaX.GetXaxis()->SetTitle("dX [#mum]");
-	DeltaX.GetYaxis()->SetTitle("entries");
-	DeltaY.GetXaxis()->SetTitle("dY [#mum]");
-	DeltaY.GetYaxis()->SetTitle("entries");
-	DeltaAlpha.GetXaxis()->SetTitle("d#alpha [#murad]");
-	DeltaAlpha.GetYaxis()->SetTitle("entries");
+		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
 
-	if(data.size()==0){
-		cout << "Error: nothing read! (maybe not enough pairs?) \n";
-		exit(1);
+		for(int i=0; i<idPairs.size(); i++){
+
+			int id1 = idPairs[i].first;
+			int id2 = idPairs[i].second;
+
+			//only select overlap areas with more than 2e5 pairs
+			int overlapID = dimension->makeOverlapID(id1, id2);
+			if( matrixInfo[overlapID] < 200e3){
+				continue;
+			}
+
+			/*
+			//read PX matrix from disk
+			string matrixnamePX = PndLmdAlignManager::makeMatrixFileName(id1, id2, false, false);
+			matrixnamePX = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/LMDmatrices/" + matrixnamePX;
+			Matrix matrixPX = PndLmdAlignManager::readMatrix(matrixnamePX);
+			matrixPX = manager.transformMatrixFromPixelsToCm(matrixPX);
+
+			//read CM matrix from disk
+			string matrixnameCM = PndLmdAlignManager::makeMatrixFileName(id1, id2, true, false);
+			matrixnameCM = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/LMDmatrices/" + matrixnameCM;
+			Matrix matrixCM = manager.readMatrix(matrixnameCM);
+
+			//Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, true);
+			Matrix corr = manager.getCorrectionMatrix(id1, id2);
+
+			manager.transformGlobalToLmd(corr);
+
+			Matrix diff = corr - matrixCM;
+
+			Matrix absolutOff = manager.getMatrixOfficialGeometry(id1, id2, false);
+			Matrix absolutICP = manager.getMatrixOfficialGeometry(id1, id2, true) * matrixCM;
+
+			Matrix absolutDiff = absolutOff - absolutICP;
+
+			//transform matrix to correct coordinate system
+
+
+			//compare
+			//Matrix matrixCM = PndLmdAlignManager::readMatrix(matrixnameCM);
+			//Matrix residual = senToSen - matrixPX;
+			//cout << "senToSen:\n" << senToSen << "\n";
+			//cout << "matrixPX:\n" << matrixPX << "\n";
+			//cout << "residual:\n" << senToSen - matrixPX << "\n\n";
+
+			 */
+
+			//prepare
+			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
+			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
+			string path = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/LMDmatrices/";
+			matrixNameCM = path + matrixNameCM;
+			matrixNamePX = path + matrixNamePX;
+
+			//read matrices from disk
+			Matrix matrixCM = manager.readMatrix(matrixNameCM);
+			Matrix matrixPX = manager.readMatrix(matrixNamePX);
+
+			/*
+			cout << "before transformation:\n";
+			cout << "matrixCM:\n" << matrixCM << "\n\n";
+			cout << "matrixPX:\n" << matrixPX << "\n\n";
+			*/
+
+			//transform matrices
+			//matrixPX = manager.transformMatrixFromPixelsToCm(matrixPX);
+
+			Matrix senToSen = manager.getMatrixOfficialGeometry(id1,id2,false);
+			matrixCM = matrixCM * senToSen;
+
+			Matrix matrixDif = matrixCM - matrixPX;
+
+			/*
+			cout << "after transformation:\n";
+			cout << "matrixCM:\n" << matrixCM << "\n\n";
+			cout << "matrixPX:\n" << matrixPX << "\n\n";
+			cout << "matrix residual:\n" << matrixDif << "\n\n";
+			*/
+
+
+			//store this residual tuple to data
+			std::vector<double> result;
+			result.push_back(id1);
+			result.push_back(id2);
+			result.push_back(matrixDif.val[0][1]);
+			result.push_back(matrixDif.val[0][3]);
+			result.push_back(matrixDif.val[1][3]);
+			data.push_back(result);
+		}
+
+
+		histParams parameters;
+
+		//for DX
+		parameters.path = pdfdir;
+		parameters.title = "DeltaX";
+		parameters.xtitle = "dX [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dx.pdf";
+		parameters.vectorIndex = 3;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+		//for DY
+		parameters.path = pdfdir;
+		parameters.title = "DeltaY";
+		parameters.xtitle = "dY [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dy.pdf";
+		parameters.vectorIndex = 4;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+		//for Dalpha
+		parameters.path = pdfdir;
+		parameters.title = "Delta#alpha";
+		parameters.xtitle = "d#alpha [#murad]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e6;
+		parameters.fileName = "dalpha.pdf";
+		parameters.vectorIndex = 2;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
 	}
 
-	//have all data now
-	for(int iArea=0; iArea<data.size();iArea++){
-		DeltaAlpha.Fill(data[iArea][2] * 1e6);
-		DeltaX.Fill(data[iArea][3] * 1e4);
-		DeltaY.Fill(data[iArea][4] * 1e4);
+	else if(param == 4){
+		//prepare
+		string matrixNameCM = manager.makeMatrixFileName(0,5,true,false);
+		string matrixNamePX = manager.makeMatrixFileName(0,5,false,false);
+		string path = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/LMDmatrices/";
+		matrixNameCM = path + matrixNameCM;
+		matrixNamePX = path + matrixNamePX;
+
+		//read matrices from disk
+		Matrix matrixCM = manager.readMatrix(matrixNameCM);
+		Matrix matrixPX = manager.readMatrix(matrixNamePX);
+
+		cout << "before transformation:\n";
+		cout << "matrixCM:\n" << matrixCM << "\n\n";
+		cout << "matrixPX:\n" << matrixPX << "\n\n";
+
+		//transform matrices
+		//matrixPX = manager.transformMatrixFromPixelsToCm(matrixPX);
+		Matrix senToSen = manager.getMatrixOfficialGeometry(0,5,true);
+		matrixCM = matrixCM * senToSen;
+
+		cout << "after transformation:\n";
+		cout << "matrixCM:\n" << matrixCM << "\n\n";
+		cout << "matrixPX:\n" << matrixPX << "\n\n";
+		cout << "matrix residual:\n" << matrixCM - matrixPX << "\n\n";
+
 	}
 
-	stringstream pathname;
-	pathname << _outputPath;
+	//The vector now contains ALL overlap matrix parameters
 
-	_inCentimeters ? pathname << "/inCm/" : pathname << "/inPx/";
-	_enableHelperMatrix ? pathname << "corrFull-" : pathname << "";
+	/*
 
-	PndLmdAlignManager::mkdir(pathname.str());
 
-	TCanvas canvas("canvas", "canvas", 800,600);
-	canvas.cd();
-	DeltaX.Draw();
-	canvas.Print((pathname.str()+"dx.pdf").c_str());
-	DeltaY.Draw();
-	canvas.Print((pathname.str()+"dy.pdf").c_str());
-	DeltaAlpha.Draw();
-	canvas.Print((pathname.str()+"dalpha.pdf").c_str());
+	if(param==kNormal){
+		TH1D DeltaX("DeltaX", "DeltaX", 50,-1,-1);
+		TH1D DeltaY("DeltaY", "DeltaY", 50,-1,-1);
+		TH1D DeltaAlpha("DeltaAlpha", "DeltaAlpha", 50,-1,-1);
 
-	return;
+		DeltaX.GetXaxis()->SetTitle("dX [#mum]");
+		DeltaX.GetYaxis()->SetTitle("entries");
+		DeltaY.GetXaxis()->SetTitle("dY [#mum]");
+		DeltaY.GetYaxis()->SetTitle("entries");
+		DeltaAlpha.GetXaxis()->SetTitle("d#alpha [#murad]");
+		DeltaAlpha.GetYaxis()->SetTitle("entries");
 
+		if(data.size()==0){
+			cout << "Error: nothing read! (maybe not enough pairs?) \n";
+			exit(1);
+		}
+
+		//have all data now
+		for(int iArea=0; iArea<data.size();iArea++){
+			DeltaAlpha.Fill(data[iArea][2] * 1e6);
+			DeltaX.Fill(data[iArea][3] * 1e4);
+			DeltaY.Fill(data[iArea][4] * 1e4);
+		}
+
+		stringstream pathname;
+		pathname << _outputPath;
+
+		_inCentimeters ? pathname << "/inCm/" : pathname << "/inPx/";
+		_enableHelperMatrix ? pathname << "corrFull-" : pathname << "";
+
+		PndLmdAlignManager::mkdir(pathname.str());
+
+		TCanvas canvas("canvas", "canvas", 800,600);
+		canvas.cd();
+		DeltaX.Draw();
+		canvas.Print((pathname.str()+"dx.pdf").c_str());
+		DeltaY.Draw();
+		canvas.Print((pathname.str()+"dy.pdf").c_str());
+		DeltaAlpha.Draw();
+		canvas.Print((pathname.str()+"dalpha.pdf").c_str());
+
+		return;
+	}
+	else if(param==kPlotByModule){
+
+	 */
+
+
+
+	//}
 }
 
 void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vector<double> > &vec) {
 
 	if(noOfPairs(id1, id2) < 200e3){
+		return;
+	}
+
+	//int overlapId = dimension->makeOverlapID(id1, id2);
+	//if(overlapId % 10 != 8){
+	//	return;
+	//}
+
+	int fhalf, fplane, fmodule, fside, fdie, fsensor;
+	dimension->Get_sensor_by_id(id1, fhalf, fplane, fmodule, fside, fdie, fsensor);
+
+	if(fhalf!=1){
+		return;
+	}
+
+	if(fmodule != 4){
 		return;
 	}
 
@@ -156,7 +427,6 @@ Matrix PndLmdAlignQA::getMatrixResiduals(int id1, int id2) {
 		 * (which came in panda global) to lmd local, since ICP matrix will be in
 		 * lmd local
 		 */
-
 		manager.transformGlobalToLmd(corrSensorToSensor);
 		return icpMatrix - corrSensorToSensor;	//return matrix residuals
 	}
@@ -250,6 +520,82 @@ bool PndLmdAlignQA::checkForMatrixFiles(){
 	}
 	// if no file could not be found, everything is okay
 	return true;
+}
+
+void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParams &parameters) {
+
+	TH1D histogram(parameters.title.c_str(), parameters.title.c_str(), 50, parameters.xMin, parameters.xMax);
+
+	histogram.GetXaxis()->SetTitle(parameters.xtitle.c_str());
+	histogram.GetYaxis()->SetTitle(parameters.ytitle.c_str());
+
+	if(vec.size()==0){
+		cout << "Error: nothing read! (maybe not enough pairs?) \n";
+		exit(1);
+	}
+
+	//have all data now
+	for(int iArea=0; iArea<vec.size();iArea++){
+		histogram.Fill(vec[iArea][parameters.vectorIndex] * parameters.scaleFactor);
+	}
+
+	stringstream pathname;
+	//pathname << _outputPath;
+	pathname << parameters.path;
+
+	_inCentimeters ? pathname << "/inCm/" : pathname << "/inPx/";
+	_enableHelperMatrix ? pathname << "corrFull-" : pathname << "";
+
+	PndLmdAlignManager::mkdir(pathname.str());
+
+	TCanvas canvas("canvas", "canvas", 800,600);
+	canvas.cd();
+	histogram.Draw();
+	canvas.Print((pathname.str()+parameters.fileName).c_str());
+}
+
+void PndLmdAlignQA::createThreeHistsVeryDirty(int id1, int id2, int module,	std::vector<std::vector<double> >& data, runParameter param) {
+
+	//check cases
+	int fSensorID, fhalf, fplane, fmodule, side, die, sensor;
+	fSensorID = id1;
+	dimension->Get_sensor_by_id(fSensorID, fhalf, fplane, fmodule, side, die, sensor);
+	if(module == fmodule){
+		histDeltaCorrection(id1, id2, data);
+	}
+
+	//now do the case distinction by parameters
+	histParams parameters;
+
+	parameters.runParam = param;
+
+	//for DX
+	parameters.title = "DeltaX";
+	parameters.xtitle = "dX [#mum]";
+	parameters.ytitle = "entries";
+	parameters.scaleFactor = 1e4;
+	parameters.fileName = "dx" + std::to_string(module) +  ".pdf";
+	parameters.vectorIndex = 3;
+	createHist(data, parameters);
+
+	//for DY
+	parameters.title = "DeltaY";
+	parameters.xtitle = "dY [#mum]";
+	parameters.ytitle = "entries";
+	parameters.scaleFactor = 1e4;
+	parameters.fileName = "dy" + std::to_string(module) +  ".pdf";
+	parameters.vectorIndex = 4;
+	createHist(data, parameters);
+
+	//for Dalpha
+	parameters.title = "DeltaAlpha";
+	parameters.xtitle = "d#alpha [#mum]";
+	parameters.ytitle = "entries";
+	parameters.scaleFactor = 1e4;
+	parameters.fileName = "dalpha" + std::to_string(module) +  ".pdf";
+	parameters.vectorIndex = 2;
+	createHist(data, parameters);
+
 }
 
 void PndLmdAlignQA::compareCombinedMatrices() {
