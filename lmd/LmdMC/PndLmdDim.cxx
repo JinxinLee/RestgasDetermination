@@ -61,10 +61,10 @@ PndLmdDim::PndLmdDim() {
 	side_tilt_phi = 0.; // do not use! -> clashing volumes
 	side_tilt_theta = 0.;
 	side_tilt_psi = 0.; // do not use! -> clashing volumes
-	sensor_offset_x = 100e-4 * test_mult_fact; // 100 mum
-	sensor_offset_y = 100e-4 * test_mult_fact; // 100 mum
+	sensor_offset_x = 50e-4 * test_mult_fact; // 100 mum
+	sensor_offset_y = 50e-4 * test_mult_fact; // 100 mum
 	sensor_offset_z = 0.; // do not use! -> clashing volumes
-	sensor_tilt_phi = 150e-6 * test_mult_fact; // 150 murad
+	sensor_tilt_phi = 1250e-6 * test_mult_fact; // 150 murad
 	sensor_tilt_theta = 0.; // do not use! -> clashing volumes
 	sensor_tilt_psi = 0.; // do not use! -> clashing volumes
 	// cvd_diamond is cut out of 79.5 mm discs of 200 micron thickness
@@ -2368,7 +2368,7 @@ void PndLmdDim::Get_offset(int ihalf, int iplane, int imodule, int iside,
 				rotpsi = gRandom->Gaus(0, sensor_tilt_psi);
 				// check for clashing sensors starting from the inner
 				// sensor and correct for it
-				// check is only performed in the gluing plane
+				// check is only performed in the glueing plane
 				// check along x
 				// calculate the own additional space required by an offset in x and the rotation
 				/*

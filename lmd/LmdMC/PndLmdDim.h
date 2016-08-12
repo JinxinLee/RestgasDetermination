@@ -211,9 +211,8 @@ public:
 		}
 		if (ikey != 6) cout << " Error in Generate_Tkey: key string " << key << " is not valid " << endl;
 	}
-
 	Tkey (){
-		;
+
 	}
 };
 
@@ -366,12 +365,12 @@ public:
 	//  |---------|----------|----------| bottom
 	//  gap
 	//            |----------|----------| top
+	//            | passive  |          |
 	//            ||-------|-||-------|-|
 	//            ||       | ||       | |
 	//            ||   2   | ||   3   | |     row 2
 	//            || active| ||       | |
 	//            ||-------|-||-------|-|
-	//            | passive  |          |
 	//            |----------|----------| bottom
 	//
 	//            left   right
@@ -1127,47 +1126,7 @@ public:
 	// several times with same parameters
 	TH2Poly* Get_histogram_Sensor(int ihalf, int iplane, int imodule, int iside, int idie, int isensor, bool aligned = true, bool lmd_frame = true);
 
-
-	// get ModuleID as a char*, returns a NEW char. use ONLY for PndLmdSensorAligner
-	/*
-	const char* makeModuleIDchar(int ihalf, int iplane, int imodule){
-		char* result = new char[3];
-		int intermediateId=makeModuleID(ihalf, iplane, imodule);
-		result = itoa(intermediateId, result, 10);
-		return result;
-	}
-	*/
-
-	// and this is the same is int, use ONLY for SensorAligner
-	/*
-	int makeModuleID(int ihalf, int iplane, int imodule) {
-		return 100*ihalf+10*iplane+imodule;
-	}
-	*/
-
-	// and this is the same is int, use ONLY for SensorAligner
-	/*
-	int makeModuleID(int firstSensorId, int secondSensorId) {
-
-		int fhalf, fplane, fmodule, fside, fdie, fsensor;
-		int bhalf, bplane, bmodule, bside, bdie, bsensor;
-
-		Get_sensor_by_id(firstSensorId, fhalf, fplane, fmodule, fside, fdie, fsensor);
-		Get_sensor_by_id(secondSensorId, bhalf, bplane, bmodule, bside, bdie, bsensor);
-
-		//the necessities for overlapping, must be on same half, plane, module and other side
-		if(bhalf != fhalf){
-			return -1;
-		}
-		if(bplane != fplane){
-			return -1;
-		}
-		if(bmodule != fmodule){
-			return -1;
-		}
-		return makeModuleID(fhalf, fplane, fmodule);
-	}
-	*/
+	//gets all ids that correspond to an overlapping area
 	std::vector<int> getAvailableOverlapIDs();
 	int makeOverlapID(int firstSensorId, int secondSensorId);
 	int getID1fromOverlapID(int overlapID);
