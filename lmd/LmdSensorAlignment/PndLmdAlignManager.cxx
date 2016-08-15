@@ -47,7 +47,7 @@ void PndLmdAlignManager::resetMTLB(int n, int r, int w){
 
 void PndLmdAlignManager::incrementMTLB(){
 
-	//incrementMutex.lock();
+	incrementMutex.lock();
 	_i++;
 
 	// Only update r times.
@@ -82,7 +82,7 @@ void PndLmdAlignManager::incrementMTLB(){
 	// ANSI Control codes to go back to the
 	// previous line and clear it.
 	printf("] %d of %d \n\033[F\033[J", _i, _n);
-	//incrementMutex.unlock();
+	incrementMutex.unlock();
 }
 
 PndLmdAlignManager::PndLmdAlignManager() {
@@ -191,6 +191,31 @@ bool PndLmdAlignManager::addFile(std::string filename) {
 	}
 }
 
+int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFiles) {
+
+	if(_pretend){
+		return -1;
+	}
+
+	if(_allFilesAdded){
+		return _fileNames.size();
+	}
+	else{
+		std::vector<string> list;
+		searchFiles(directory, list, ".root", false);
+		for(int i=0;i<list.size();i++){
+			_fileNames.push_back(list[i]);
+			if(i==maxFiles-1){			//we use == instead of >= so that maxFiles=0 always chooses all files
+				break;
+			}
+		}
+		_allFilesAdded=true;
+		cout << "looking for files in " << directory << ". choose " << _fileNames.size() << " files of maximum of " << maxFiles <<".\n";
+		return _fileNames.size();
+	}
+
+}
+
 void PndLmdAlignManager::readFiles(){
 
 	if(!_firstInitDone){
@@ -203,6 +228,15 @@ void PndLmdAlignManager::readFiles(){
 	}
 
 	_allFilesAdded=true;
+
+	int noOfFiles = _fileNames.size();
+	if(noOfFiles > 0){
+		cout << "found " << noOfFiles << " file(s). reading...\n";
+	}
+	else{
+		cout << "no files found. exiting.\n";
+		exit(0);
+	}
 
 	TChain* chainPairs = new TChain("cbmsim");
 	for(int i=0; i<_fileNames.size(); i++){
@@ -1070,29 +1104,6 @@ TVector3 PndLmdAlignManager::castMatrixToTVector3(const Matrix& vec) {
 	TVector3 result;
 	result.SetXYZ(vec.val[0][0], vec.val[1][0], vec.val[2][0]);
 	return result;
-}
-
-int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFiles) {
-
-	if(_pretend){
-		return -1;
-	}
-
-	if(_allFilesAdded){
-		return _fileNames.size();
-	}
-	else{
-		std::vector<string> list;
-		searchFiles(directory, list, ".root", false);
-		for(int i=0;i<list.size();i++){
-			_fileNames.push_back(list[i]);
-			if(i==maxFiles-1){
-				break;
-			}
-		}
-		_allFilesAdded=true;
-		return _fileNames.size();
-	}
 }
 
 bool PndLmdAlignManager::checkForBinaryFiles() {

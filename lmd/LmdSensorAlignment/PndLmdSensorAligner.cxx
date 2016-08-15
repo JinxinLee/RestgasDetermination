@@ -748,7 +748,7 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	}
 
 	if(nPairs==0){
-		cout << "warning: attempting to write empty binary pair file! (no pairs in buffer)\n";
+		cout << "warning: attempting to write empty binary pair file! (no pairs in buffer for overlapID " << overlapID << ")\n";
 		return false;
 	}
 

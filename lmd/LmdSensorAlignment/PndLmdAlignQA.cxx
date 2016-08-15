@@ -293,6 +293,8 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 	}
 
 	else if(param == 4){
+
+		/*
 		//prepare
 		string matrixNameCM = manager.makeMatrixFileName(0,5,true,false);
 		string matrixNamePX = manager.makeMatrixFileName(0,5,false,false);
@@ -317,6 +319,10 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		cout << "matrixCM:\n" << matrixCM << "\n\n";
 		cout << "matrixPX:\n" << matrixPX << "\n\n";
 		cout << "matrix residual:\n" << matrixCM - matrixPX << "\n\n";
+
+		*/
+
+		//new task: look for the same stuff only this time in perfectly align
 
 	}
 
