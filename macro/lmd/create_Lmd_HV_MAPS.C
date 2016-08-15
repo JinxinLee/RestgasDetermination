@@ -56,7 +56,7 @@ void Navigate_into(int depth = 0){
 #include <sstream>
 #include <vector>
 
-void create_HV_MAPS(bool misalign = false) {
+void create_HV_MAPS(bool misalign = true) {
 	/*
 	// ****************************** Parameters of Detector ************************
 	//--------------------------------------------------------------------
@@ -120,84 +120,93 @@ void create_HV_MAPS(bool misalign = false) {
 
 	gGeoMan->SetTopVolume(top);
 	PndLmdDim& lmddim = PndLmdDim::Get_instance();
-*/
-	  //--------------------------------------------------------------------
-	  //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+	 */
+	//--------------------------------------------------------------------
+	//gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-	  // Load this libraries
-	  //gSystem->Load("libGeoBase");
-	  //gSystem->Load("libParBase");
-	  //gSystem->Load("libBase");
-	  //gSystem->Load("libPndData");
-	  //gSystem->Load("libPassive");
+	// Load this libraries
+	//gSystem->Load("libGeoBase");
+	//gSystem->Load("libParBase");
+	//gSystem->Load("libBase");
+	//gSystem->Load("libPndData");
+	//gSystem->Load("libPassive");
+	char* dirc = getenv("VMCWORKDIR");
+	string dir;
+	if(dirc == NULL){
+		//env must be set, will crash otherwise
+		cout << "warning! environment variable VMCWORKDIR not found! set this variable and try again!\n";
+		exit(1);
+	}
+	else{
+		dir = dirc;
+	}
 
-	  string dir = getenv("VMCWORKDIR");
-	  //string moveto = dir + "/input/" + fileName + ".dat";
-	  //system(("mv "+fileName+".dat"+" "+moveto).c_str());
+	//string moveto = dir + "/input/" + fileName + ".dat";
+	//system(("mv "+fileName+".dat"+" "+moveto).c_str());
 
-	  TString outfile;
-	  if (misalign)
-		  outfile = dir+"/geometry/Luminosity-Detector_misalinged.root";
-	  else
-		  outfile = dir+"/geometry/Luminosity-Detector.root";
-	  TFile* fi = new TFile(outfile,"RECREATE");
+	TString outfile;
+	if (misalign)
+		outfile = dir+"/geometry/Luminosity-Detector_misalinged.root";
+	else
+		outfile = dir+"/geometry/Luminosity-Detector.root";
+	TFile* fi = new TFile(outfile,"RECREATE");
 
-	  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
-	  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-	  geoFace->setMediaFile((dir+"/geometry/media_pnd.geo").c_str());
-	  geoFace->readMedia();
-	  geoFace->print();
+	FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
+	FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+	geoFace->setMediaFile((dir+"/geometry/media_pnd.geo").c_str());
+	geoFace->readMedia();
+	geoFace->print();
 
-	  FairGeoMedia *Media =  geoFace->getMedia();
-	  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+	FairGeoMedia *Media =  geoFace->getMedia();
+	FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 
-	  FairGeoMedium *FairMediumSilicon = Media->getMedium("silicon");
+	FairGeoMedium *FairMediumSilicon = Media->getMedium("silicon");
 
-	  Int_t nmed=geobuild->createMedium(FairMediumSilicon);
+	Int_t nmed=geobuild->createMedium(FairMediumSilicon);
 
-	  TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
+	TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
-	  TGeoVolume *top = new TGeoVolumeAssembly("lum");
+	TGeoVolume *top = new TGeoVolumeAssembly("lum");
 
-	  gGeoMan->SetTopVolume(top);
+	gGeoMan->SetTopVolume(top);
 
-	  PndLmdDim& lmddim = PndLmdDim::Get_instance();
+	PndLmdDim& lmddim = PndLmdDim::Get_instance();
 
-	  // for testing purposes ************************
-	  // only misaligned sensors
-		lmddim.side_offset_x = 0;
-		lmddim.side_offset_y = 0;
-		lmddim.side_offset_z = 0;
-		lmddim.side_tilt_phi = 0;
-		lmddim.side_tilt_theta = 0;
-		lmddim.side_tilt_psi = 0;
-		lmddim.cvd_offset_x = 0;
-		lmddim.cvd_offset_y = 0;
-		lmddim.cvd_offset_z = 0;
-		lmddim.cvd_tilt_phi = 0;
-		lmddim.cvd_tilt_theta = 0;
-		lmddim.cvd_tilt_psi = 0;
-		lmddim.plane_half_offset_x = 0;
-		lmddim.plane_half_offset_y = 0;
-		lmddim.plane_half_offset_z = 0;
-		lmddim.plane_half_tilt_phi = 0;
-		lmddim.plane_half_tilt_theta = 0;
-		lmddim.plane_half_tilt_psi = 0;
-		lmddim.half_offset_x = 0;
-		lmddim.half_offset_y = 0;
-		lmddim.half_offset_z = 0;
-		lmddim.half_tilt_phi = 0;
-		lmddim.half_tilt_theta = 0;
-		lmddim.half_tilt_psi = 0;
-	  // **********************************************
-	  lmddim.Generate_rootgeom(*top, misalign);
-	  //lmddim.Write_transformation_matrices("matrices.txt", false);
+	// for testing purposes ************************
+	// only misaligned sensors, everything else should be perfectly aligned
+	lmddim.side_offset_x = 0;
+	lmddim.side_offset_y = 0;
+	lmddim.side_offset_z = 0;
+	lmddim.side_tilt_phi = 0;
+	lmddim.side_tilt_theta = 0;
+	lmddim.side_tilt_psi = 0;
+	lmddim.cvd_offset_x = 0;
+	lmddim.cvd_offset_y = 0;
+	lmddim.cvd_offset_z = 0;
+	lmddim.cvd_tilt_phi = 0;
+	lmddim.cvd_tilt_theta = 0;
+	lmddim.cvd_tilt_psi = 0;
+	lmddim.plane_half_offset_x = 0;
+	lmddim.plane_half_offset_y = 0;
+	lmddim.plane_half_offset_z = 0;
+	lmddim.plane_half_tilt_phi = 0;
+	lmddim.plane_half_tilt_theta = 0;
+	lmddim.plane_half_tilt_psi = 0;
+	lmddim.half_offset_x = 0;
+	lmddim.half_offset_y = 0;
+	lmddim.half_offset_z = 0;
+	lmddim.half_tilt_phi = 0;
+	lmddim.half_tilt_theta = 0;
+	lmddim.half_tilt_psi = 0;
+	// **********************************************
+	lmddim.Generate_rootgeom(*top, misalign);
+	//lmddim.Write_transformation_matrices("matrices.txt", false);
 
-	  if (!misalign)
-		  lmddim.Write_transformation_matrices("",false); // create default matrices
-	  else
-		  lmddim.Write_transformation_matrices(dir+"/geometry/trafo_matrices_lmd_misaligned.dat", false); // create a missaligned version
-	  /*
+	if (!misalign)
+		lmddim.Write_transformation_matrices("",false); // create default matrices
+	else
+		lmddim.Write_transformation_matrices(dir+"/geometry/trafo_matrices_lmd_misaligned.dat", false); // create a misaligned version
+	/*
 	  TH2* hist = lmddim.Get_histogram_Plane(0,0,false,true,false);
 	  hist->Fill(-5,-5,177);
 	  hist->Fill(5,5,2);
@@ -206,80 +215,80 @@ void create_HV_MAPS(bool misalign = false) {
 	  gPad->Print("hist.pdf");
 	  gPad->Print("hist.C");*/
 
-	  //lmddim.Write_transformation_matrices("", false); // generate standard matrices in VMCWORKDIR/geometry
+	//lmddim.Write_transformation_matrices("", false); // generate standard matrices in VMCWORKDIR/geometry
 
-	  //lmddim.Read_transformation_matrices(dir+"geometry/matrices.txt", true);
-	  //lmddim.Write_transformation_matrices(dir+"geometry/matrices_aligned.txt", true);
+	//lmddim.Read_transformation_matrices(dir+"geometry/matrices.txt", true);
+	//lmddim.Write_transformation_matrices(dir+"geometry/matrices_aligned.txt", true);
 
-	  gGeoMan->CloseGeometry();
+	gGeoMan->CloseGeometry();
 
-	  gGeoMan->CheckOverlaps(0.001); // [cm]
-	  //gGeoManager->CheckGeometryFull();
-	  gGeoMan->PrintOverlaps();
-	  top->Write();
-	  fi->Close();
-	  //gGeoManager->Export(outfile);
-	  gGeoMan->SetVisLevel(20);
-	  //lmddim.Retrieve_version_number();
-	  top->Draw("ogl");
+	gGeoMan->CheckOverlaps(0.001); // [cm]
+	//gGeoManager->CheckGeometryFull();
+	gGeoMan->PrintOverlaps();
+	top->Write();
+	fi->Close();
+	//gGeoManager->Export(outfile);
+	gGeoMan->SetVisLevel(20);
+	//lmddim.Retrieve_version_number();
+	top->Draw("ogl");
 
-	  cout << " found " << gGeoManager->GetListOfPhysicalNodes()->GetEntries() << " entries " << endl;
+	cout << " found " << gGeoManager->GetListOfPhysicalNodes()->GetEntries() << " entries " << endl;
 
-	  if (!misalign){
-		  cout << " trying to navigate through the geometry " << endl;
-		  vector<string> list_of_sensors;
-		  cout << lmddim.Get_List_of_Sensors(list_of_sensors) << endl;
+	if (!misalign){
+		cout << " trying to navigate through the geometry " << endl;
+		vector<string> list_of_sensors;
+		cout << lmddim.Get_List_of_Sensors(list_of_sensors) << endl;
 
-		  int offset;
+		int offset;
 
-		  if (lmddim.Test_List_of_Sensors(list_of_sensors, offset)) cout << " testing of sensors was fine and gave an offset of " << offset << endl;
+		if (lmddim.Test_List_of_Sensors(list_of_sensors, offset)) cout << " testing of sensors was fine and gave an offset of " << offset << endl;
 
-		  //cout << " found " << list_of_sensors.size() << " sensors " << endl;
+		//cout << " found " << list_of_sensors.size() << " sensors " << endl;
 
-		  //for (int isensor = 0; isensor < list_of_sensors.size() ; isensor++){
+		//for (int isensor = 0; isensor < list_of_sensors.size() ; isensor++){
 		//	  cout << list_of_sensors[isensor] << endl;
-		  //}
+		//}
 
-		  if (1){ // consistency checks
-			  cout << " reading matrices from file into the aligned map " << endl;
-			  lmddim.Read_transformation_matrices(dir+"/geometry/trafo_matrices_lmd_misaligned.dat", true);
-			  cout << " loading transformation matrices from geometry into not aligned map " << endl;
-			  lmddim.Read_transformation_matrices_from_geometry(false);
-			  cout << " writing matrices from aligned map to geometry" << endl;
-			  lmddim.Write_transformation_matrices_to_geometry(true);
-			  cout << " reading transformation matrices from geometry once again " << endl;
-			  lmddim.Read_transformation_matrices_from_geometry(true);
-			  //cout << " testing matrices " << endl;
-			  //lmddim.Calc_matrix_offsets();
-		  }
+		if (1){ // consistency checks
+			cout << " reading matrices from file into the aligned map " << endl;
+			lmddim.Read_transformation_matrices(dir+"/geometry/trafo_matrices_lmd_misaligned.dat", true);
+			cout << " loading transformation matrices from geometry into not aligned map " << endl;
+			lmddim.Read_transformation_matrices_from_geometry(false);
+			cout << " writing matrices from aligned map to geometry" << endl;
+			lmddim.Write_transformation_matrices_to_geometry(true);
+			cout << " reading transformation matrices from geometry once again " << endl;
+			lmddim.Read_transformation_matrices_from_geometry(true);
+			//cout << " testing matrices " << endl;
+			//lmddim.Calc_matrix_offsets();
+		}
 
-		  if (0){ // test setting individual matrices
-			  TGeoHMatrix* matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", false, 1,-1,-1,-1,-1,-1);
-			  matrix->Print();
-			  matrix->RotateX(90.);
-			  matrix->Print();
-			  lmddim.Set_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", matrix, 1,-1,-1,-1,-1,-1);
+		if (0){ // test setting individual matrices
+			TGeoHMatrix* matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", false, 1,-1,-1,-1,-1,-1);
+			matrix->Print();
+			matrix->RotateX(90.);
+			matrix->Print();
+			lmddim.Set_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", matrix, 1,-1,-1,-1,-1,-1);
 
-			  cout << " the original matrix is " << endl;
-			  matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", false, 1,-1,-1,-1,-1,-1);
-			  matrix->Print();
+			cout << " the original matrix is " << endl;
+			matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", false, 1,-1,-1,-1,-1,-1);
+			matrix->Print();
 
-			  cout << " the aligned matrix is " << endl;
-			  matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", true, 1,-1,-1,-1,-1,-1);
-			  matrix->Print();
-		  }
-		  cout << " testing matrices " << endl;
-		  lmddim.Calc_matrix_offsets();
+			cout << " the aligned matrix is " << endl;
+			matrix = lmddim.Get_matrix("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/lmd_vol_half_1", true, 1,-1,-1,-1,-1,-1);
+			matrix->Print();
+		}
+		cout << " testing matrices " << endl;
+		lmddim.Calc_matrix_offsets();
 
-		  gGeoMan->RefreshPhysicalNodes(); // should be called but is not a must
-		  //gGeoMan->CloseGeometry();
-		  top->Draw("ogl"); // an already drawn geometry will be not updated according to changes in the matrices
+		gGeoMan->RefreshPhysicalNodes(); // should be called but is not a must
+		//gGeoMan->CloseGeometry();
+		top->Draw("ogl"); // an already drawn geometry will be not updated according to changes in the matrices
 
-	  }
-	  //gGeoManager->CdTop();
-	  //Navigate_into();
+	}
+	//gGeoManager->CdTop();
+	//Navigate_into();
 
-	  /*
+	/*
 	  gGeoManager->cd("/lum_1/lmd_vol_vac_3/lmd_vol_ref_sys_0/"
 		"lmd_vol_half_1/lmd_vol_plane_3/lmd_vol_module_4/"
 		"lmd_vol_side_1/lmd_vol_die_1/LumActivePixelRect_398");
@@ -299,10 +308,10 @@ void create_HV_MAPS(bool misalign = false) {
 	  cout << gGeoManager->GetPath() << " " << gGeoManager->GetCurrentNode()->GetName() << endl;
 	  gGeoManager->GetCurrentNode()->GetMatrix()->Print();
 	  gGeoManager->GetCurrentMatrix()->Print();
-	  */
+	 */
 
-	  // according to http://personalpages.to.infn.it/~puccio/htmldoc/src/AliTRDalignment.cxx.html
-/*
+	// according to http://personalpages.to.infn.it/~puccio/htmldoc/src/AliTRDalignment.cxx.html
+	/*
 	  TGeoPNEntry *pne;
 	  TGeoMatrix* ideSm[400];
 	  TGeoMatrix* misSm[400];
@@ -335,7 +344,9 @@ void create_HV_MAPS(bool misalign = false) {
 
 int main() {
 	TApplication myapp("myapp", 0, 0);
+	cout << "before\n";
 	create_HV_MAPS();
+	cout << "after\n";
 	myapp.Run();
 	return 0;
 }

@@ -14,7 +14,7 @@ using namespace std;
 #include <PndSdsGeoPar.h>
 */
 
-void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5", const int verboseLevel=0, bool storeSorted=false)
+void runLumiPixel2ePairFinder(const int nEvents=100, const int startEvent=00000, TString storePath="test/fullrun-1.5", const int verboseLevel=0, bool storeSorted=false)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -27,7 +27,7 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	//gSystem->Load("libLmdPairFinder");
 
 
-	cout << "Running PairFinder in Task. LOLOLOLOLOL." << endl;
+	cout << "Running PairFinder in Task." << endl;
 
 	// -----   Input File   ----------------------------------------------------
 	TString inFile=storePath+"/Lumi_digi_";
@@ -83,7 +83,6 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	fRun->Run(0,nEvents);
 	rtdb->saveOutput();
 	rtdb->print();
-
 
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();
