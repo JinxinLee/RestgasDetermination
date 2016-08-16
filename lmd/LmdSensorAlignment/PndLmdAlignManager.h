@@ -104,6 +104,7 @@ public:
 	void setSimpleStorage(bool useSimpleStorage) {
 		_useSimpleStorage = useSimpleStorage;
 	}
+	void setMaxPairs(int maxPairs);
 
 	static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
 	void transformGlobalToLmd(Matrix &matrix);

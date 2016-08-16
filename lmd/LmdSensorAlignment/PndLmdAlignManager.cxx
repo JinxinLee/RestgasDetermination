@@ -1319,6 +1319,21 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 	return Matrix::eye(4);
 }
 
+void PndLmdAlignManager::setMaxPairs(int maxPairs) {
+
+	if(maxPairs > 0){
+		for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+			it->second.setMaximumNumberOfHitPairs(maxPairs);
+		}
+		return;
+	}
+	else{
+		cout << "warning. max pairs must be larger than 0!\n";
+		return;
+	}
+
+}
+
 void PndLmdAlignManager::xOption(int option) {
 
 	if(option==1){
