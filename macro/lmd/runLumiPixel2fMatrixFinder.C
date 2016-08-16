@@ -31,6 +31,7 @@ void runLumiPixel2fMatrixFinder(TString storePath="test/boxtest-aligned-1.5/", T
 	manager.setSimpleStorage(simplestorage);
 	manager.setInCentimeters(incentimeters);
 	manager.setBinaryPairFileDirectory(binaryFilesDir);
+	manager.setMaxPairs(600e3);
 
 	// ---------------------- check for binary files and sort/write, if necessary
 
