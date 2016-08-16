@@ -25,6 +25,8 @@ void runLumiPixel2fMatrixFinder(TString storePath="test/boxtest-aligned-1.5/", T
 
 	// ---------------------- init Matrix Finder
 
+	cout << "searching available files...\n";
+
 	PndLmdAlignManager manager;
 	manager.setSimpleStorage(simplestorage);
 	manager.setInCentimeters(incentimeters);
