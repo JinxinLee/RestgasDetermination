@@ -128,7 +128,7 @@ public:
 	static Matrix readMatrix(std::string filename);
 	bool writeMatrix(Matrix &mat, std::string filename);
 
-	static Matrix homogenizeMatrix(const Matrix &input);
+	static inline Matrix homogenizeMatrix(const Matrix &input);
 
 	const Matrix& getHelperMatrix() const {
 		return helperMatrix;

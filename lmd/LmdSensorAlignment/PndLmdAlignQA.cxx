@@ -212,7 +212,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//prepare
 			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/LMDmatrices/";
+			string path = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/LMDmatrices/";
 			matrixNameCM = path + matrixNameCM;
 			matrixNamePX = path + matrixNamePX;
 
@@ -229,7 +229,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//transform matrices
 			//matrixPX = manager.transformMatrixFromPixelsToCm(matrixPX);
 
-			Matrix senToSen = manager.getMatrixOfficialGeometry(id1,id2,false);
+			Matrix senToSen = manager.getMatrixOfficialGeometry(id1,id2,true);
 			matrixCM = matrixCM * senToSen;
 
 			Matrix matrixDif = matrixCM - matrixPX;

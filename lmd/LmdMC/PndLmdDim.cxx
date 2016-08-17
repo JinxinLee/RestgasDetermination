@@ -180,7 +180,7 @@ PndLmdDim::PndLmdDim() {
 	end_seg_bend = end_seg_upstream + sin(phi_bend) * r_bend;
 	// x position of the lmd
 	pos_x = (pos_z - end_seg_upstream - tan(phi_bend / 2.) * r_bend)
-			* tan(phi_bend);
+					* tan(phi_bend);
 	// y position of the lmd
 	pos_y = 0.;
 	rot_x = 0.;
@@ -229,8 +229,8 @@ PndLmdDim::~PndLmdDim() {
 	cout << endl;
 	cout << " Cleaning up PndLmdDim " << endl;
 	cout
-			<< " If you see that message several times please check the performance of your code! "
-			<< endl;
+	<< " If you see that message several times please check the performance of your code! "
+	<< endl;
 	Cleanup();
 	delete pinstance;
 }
@@ -297,29 +297,29 @@ bool PndLmdDim::Retrieve_version_number() {
 			string sversion = vol->GetTitle();
 			if (sversion.compare(0, 8, "version ") != 0) {
 				cout
-						<< " Warning from PndLmdDim::Retrieve_version_number: no version number encoded in the node title. Setting it to 0. "
-						<< endl;
+				<< " Warning from PndLmdDim::Retrieve_version_number: no version number encoded in the node title. Setting it to 0. "
+				<< endl;
 				geometry_version = 0;
 			} else {
 				// take the number behind "version " string
 				geometry_version = atoi(&(vol->GetTitle()[8]));
 			}
 			cout
-					<< " Info from PndLmdDim::Retrieve_version_number: The geometry version was set to "
-					<< geometry_version << endl;
+			<< " Info from PndLmdDim::Retrieve_version_number: The geometry version was set to "
+			<< geometry_version << endl;
 			//cout << vol->GetName() << endl;
 			result = true;
 		} else {
 			cout << " *** Error in PndLmdDim::Retrieve_version_number:" << endl;
 			cout << " Could not find the top volume " << nav_paths[0].c_str()
-					<< " to retrieve the version number of the luminosity detector! Is the geometry already loaded? "
-					<< endl;
+							<< " to retrieve the version number of the luminosity detector! Is the geometry already loaded? "
+							<< endl;
 		}
 	} else {
 		cout << " *** Error in PndLmdDim::Retrieve_version_number:" << endl;
 		cout
-				<< " Could not find a GeoManager to retrieve the version number of the luminosity detector! "
-				<< endl;
+		<< " Could not find a GeoManager to retrieve the version number of the luminosity detector! "
+		<< endl;
 	}
 	return result;
 }
@@ -443,7 +443,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	double clash_rod_y = 0.5;
 	double clash_rod_z = 29.75;
 	double origin_left[3] =
-			{ -box_size_x + clash_rod_x + box_thickness, 0., 18.15 };
+	{ -box_size_x + clash_rod_x + box_thickness, 0., 18.15 };
 	TGeoBBox* lmd_box_clash_rod_left = new TGeoBBox("lmd_box_clash_rod_left",
 			clash_rod_x, clash_rod_y, clash_rod_z, origin_left);
 	double origin_right[3] = { +box_size_x - clash_rod_x - box_thickness, 0.,
@@ -454,9 +454,9 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	TGeoCompositeShape *shape_lmd_box =
 			new TGeoCompositeShape("shape_lmd_box",
 					"(lmd_box_outer-lmd_box_inner + ((lmd_box_rib-box_hole_upstream):comb_trans_rib))"
-							"-box_hole_upstream:comb_trans_cut_pipe_upstream"
-							"-box_hole_downstream:comb_trans_cut_pipe_downstream"
-							"+lmd_box_clash_rod_left+lmd_box_clash_rod_right");
+					"-box_hole_upstream:comb_trans_cut_pipe_upstream"
+					"-box_hole_downstream:comb_trans_cut_pipe_downstream"
+					"+lmd_box_clash_rod_left+lmd_box_clash_rod_right");
 	TGeoVolume *lmd_vol_box = new TGeoVolume("lmd_vol_box", shape_lmd_box,
 			fgGeoMan->GetMedium("steel"));
 	lmd_vol_box->SetLineColor(11);
@@ -840,16 +840,16 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	TGeoCompositeShape *shape_cool_sup_up = new TGeoCompositeShape(
 			"shape_cool_sup_up",
 			"shape_cool_sup_tube-shape_cool_sup_cut:combtrans_shape_cool_sup_cut_low"
-					"-shape_module_cutout:rottrans_cutout_0"
-					"-shape_module_cutout:rottrans_cutout_1"
-					"-shape_module_cutout:rottrans_cutout_2"
-					"-shape_module_cutout:rottrans_cutout_3"
-					"-shape_module_cutout:rottrans_cutout_4"
-					"-shape_cool_sup_cut:cutshape_0"
-					"-shape_cool_sup_cut:cutshape_1"
-					"-shape_cool_sup_cut:cutshape_2"
-					"-shape_cool_sup_cut:cutshape_3"
-					"-shape_cool_sup_cut:cutshape_4");
+			"-shape_module_cutout:rottrans_cutout_0"
+			"-shape_module_cutout:rottrans_cutout_1"
+			"-shape_module_cutout:rottrans_cutout_2"
+			"-shape_module_cutout:rottrans_cutout_3"
+			"-shape_module_cutout:rottrans_cutout_4"
+			"-shape_cool_sup_cut:cutshape_0"
+			"-shape_cool_sup_cut:cutshape_1"
+			"-shape_cool_sup_cut:cutshape_2"
+			"-shape_cool_sup_cut:cutshape_3"
+			"-shape_cool_sup_cut:cutshape_4");
 
 	TGeoVolume* lmd_vol_cool_sup_up = new TGeoVolume("lmd_vol_cool_sup_up",
 			shape_cool_sup_up, fgGeoMan->GetMedium("Aluminum"));
@@ -866,16 +866,16 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	TGeoCompositeShape *shape_cool_sup_down = new TGeoCompositeShape(
 			"shape_cool_sup_down",
 			"shape_cool_sup_tube-shape_cool_sup_cut:combtrans_shape_cool_sup_cut_high"
-					"-shape_module_cutout:rottrans_cutout_5"
-					"-shape_module_cutout:rottrans_cutout_6"
-					"-shape_module_cutout:rottrans_cutout_7"
-					"-shape_module_cutout:rottrans_cutout_8"
-					"-shape_module_cutout:rottrans_cutout_9"
-					"-shape_cool_sup_cut:cutshape_5"
-					"-shape_cool_sup_cut:cutshape_6"
-					"-shape_cool_sup_cut:cutshape_7"
-					"-shape_cool_sup_cut:cutshape_8"
-					"-shape_cool_sup_cut:cutshape_9");
+			"-shape_module_cutout:rottrans_cutout_5"
+			"-shape_module_cutout:rottrans_cutout_6"
+			"-shape_module_cutout:rottrans_cutout_7"
+			"-shape_module_cutout:rottrans_cutout_8"
+			"-shape_module_cutout:rottrans_cutout_9"
+			"-shape_cool_sup_cut:cutshape_5"
+			"-shape_cool_sup_cut:cutshape_6"
+			"-shape_cool_sup_cut:cutshape_7"
+			"-shape_cool_sup_cut:cutshape_8"
+			"-shape_cool_sup_cut:cutshape_9");
 
 	TGeoVolume* lmd_vol_cool_sup_down = new TGeoVolume("lmd_vol_cool_sup_down",
 			shape_cool_sup_down, fgGeoMan->GetMedium("Aluminum"));
@@ -1212,7 +1212,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 							// into the local frame of the sensors
 							transformation_matrices[Tkey(ihalf, iplane, imodule, iside, idie,
 									isensor)] = new TGeoHMatrix(
-									(*rottrans_die) * (*rottrans_sensor));
+											(*rottrans_die) * (*rottrans_sensor));
 
 							if (0) { // some tests for debugging
 								unsigned int _sensor_id = Get_sensor_id(ihalf, iplane, imodule,
@@ -1524,11 +1524,15 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned,
 		delete (it_transformation_matrices->second);
 	}
 	matrices->clear();
+
 	string dir = getenv("VMCWORKDIR");
-	if (filename == "")
+	if (filename == ""){
 		filename = dir + "/geometry/trafo_matrices_lmd.dat";
-	else
-		filename = dir + filename;
+	}
+	else{
+		//filename = dir + filename;
+	}
+
 	ifstream file(filename.c_str());
 	int matrices_counter(0);
 	if (file.is_open()) {
@@ -1592,8 +1596,8 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned,
 				<< endl;
 	} else {
 		cout
-				<< " Error in PndLmdDim::Read_transformation_matrices: could not read from "
-				<< filename << endl;
+		<< " Error in PndLmdDim::Read_transformation_matrices: could not read from "
+		<< filename << endl;
 	}
 }
 
@@ -1709,8 +1713,8 @@ bool PndLmdDim::Read_transformation_matrices_from_geometry(bool aligned) {
 	}
 	if (geometry_version < 3) {
 		cout
-				<< " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:"
-				<< endl;
+		<< " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:"
+		<< endl;
 		cout << " geometry version " << geometry_version
 				<< " is not compatible with this method! " << endl;
 		return false;
@@ -1728,8 +1732,8 @@ bool PndLmdDim::Read_transformation_matrices_from_geometry(bool aligned) {
 		int offset;
 		if (!Test_List_of_Sensors(list_of_sensors, offset)) {
 			cout
-					<< " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:"
-					<< endl;
+			<< " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:"
+			<< endl;
 			cout << " could not retrieve list of sensors from geometry " << endl;
 			return false;
 		}
@@ -1823,13 +1827,13 @@ bool PndLmdDim::Read_transformation_matrices_from_geometry(bool aligned) {
 									}
 									stringstream path_to_sensor;
 									path_to_sensor << path_to_die.str() << "/" << nav_paths[7]
-											<< "_" << sensor_id;
+																							<< "_" << sensor_id;
 									TGeoHMatrix* sensor_matrix = Get_matrix(path_to_sensor.str(),
 											aligned, ihalf, iplane, imodule, iside, idie, isensor); //gGeoMan->GetCurrentNode()->GetMatrix();
 									if (sensor_matrix && die_matrix)
 										(*matrices)[Tkey(ihalf, iplane, imodule, iside, idie,
 												isensor)] = new TGeoHMatrix(
-												*die_matrix * *sensor_matrix); // do I have to delete it, or should I copy it?
+														*die_matrix * *sensor_matrix); // do I have to delete it, or should I copy it?
 									//new TGeoHMatrix((*rottrans_die) * (*rottrans_sensor));
 									sensor_id++;
 									delete sensor_matrix;
@@ -1851,19 +1855,19 @@ bool PndLmdDim::Read_transformation_matrices_from_geometry(bool aligned) {
 			result = true;
 		} else {
 			cout
-					<< " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:"
-					<< endl;
+			<< " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:"
+			<< endl;
 			cout << " Could not find the top volume " << nav_paths[0].c_str()
-					<< " to retrieve the transformation matrix for the luminosity detector! Is the geometry already loaded? "
-					<< endl;
+							<< " to retrieve the transformation matrix for the luminosity detector! Is the geometry already loaded? "
+							<< endl;
 		}
 	} else {
 		cout
-				<< " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:"
-				<< endl;
+		<< " *** Error in PndLmdDim::Read_transformation_matrices_from_geometry:"
+		<< endl;
 		cout
-				<< " Could not find a GeoManager to load the luminosity detector matrices from it! "
-				<< endl;
+		<< " Could not find a GeoManager to load the luminosity detector matrices from it! "
+		<< endl;
 	}
 	return result;
 }
@@ -1874,8 +1878,8 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned) {
 	}
 	if (geometry_version < 3) {
 		cout
-				<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
-				<< endl;
+		<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
+		<< endl;
 		cout << " geometry version " << geometry_version
 				<< " is not compatible with this method! " << endl;
 		return false;
@@ -1893,8 +1897,8 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned) {
 		int offset;
 		if (!Test_List_of_Sensors(list_of_sensors, offset)) {
 			cout
-					<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
-					<< endl;
+			<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
+			<< endl;
 			cout << " could not retrieve list of sensors from geometry " << endl;
 			return false;
 		}
@@ -1908,8 +1912,8 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned) {
 		// check matrix existence
 		if (matrices->size() == 0) {
 			cout
-					<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
-					<< endl;
+			<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
+			<< endl;
 			cout << " no matrices to apply to the geometry! " << endl;
 			return false;
 		}
@@ -2009,7 +2013,7 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned) {
 									stringstream path_to_sensor;
 									stringstream path_to_sensor_passive;
 									path_to_sensor << path_to_die.str() << "/" << nav_paths[7]
-											<< "_" << sensor_id;
+																							<< "_" << sensor_id;
 									// here the passive part of the sensor must be also shifted
 									// this was not reflected in the original idea to store the path in the nav_paths
 									path_to_sensor_passive << path_to_die.str() << "/"
@@ -2044,20 +2048,20 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned) {
 			result = true;
 		} else {
 			cout
-					<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
-					<< endl;
+			<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
+			<< endl;
 			cout << " Could not find the top volume " << nav_paths[0].c_str()
-					<< " to retrieve the transformation matrix for the luminosity detector! Is the geometry already loaded? "
-					<< endl;
+							<< " to retrieve the transformation matrix for the luminosity detector! Is the geometry already loaded? "
+							<< endl;
 		}
 		gGeoMan->RefreshPhysicalNodes();
 	} else {
 		cout
-				<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
-				<< endl;
+		<< " *** Error in PndLmdDim::Write_transformation_matrices_to_geometry:"
+		<< endl;
 		cout
-				<< " Could not find a GeoManager to load the luminosity detector matrices from it! "
-				<< endl;
+		<< " Could not find a GeoManager to load the luminosity detector matrices from it! "
+		<< endl;
 	}
 
 	return result;
@@ -2137,14 +2141,14 @@ bool PndLmdDim::Test_List_of_Sensors(vector<string> list_of_sensors,
 	offset = max_sensID - (nsensorstotal - 1);
 	if (offset != 0) {
 		cout
-				<< " PndLmdDim::Test_List_of_Sensors: Found an offset in the sensorIDs of "
-				<< offset << endl;
+		<< " PndLmdDim::Test_List_of_Sensors: Found an offset in the sensorIDs of "
+		<< offset << endl;
 		checksum += (nsensorstotal * offset);
 	}
 	if (checksum != sumtocheck) {
 		cout
-				<< " PndLmdDim::Test_List_of_Sensors: check sum of sensor id's does not match "
-				<< checksum << " != " << sumtocheck << endl;
+		<< " PndLmdDim::Test_List_of_Sensors: check sum of sensor id's does not match "
+		<< checksum << " != " << sumtocheck << endl;
 		return false;
 	}
 	return result;
@@ -2190,8 +2194,8 @@ void PndLmdDim::Write_transformation_matrices(string filename, bool aligned,
 			// write the key
 			Tkey key = it_transformation_matrices->first;
 			file
-					<< Generate_key(key.half, key.plane, key.module, key.side, key.die,
-							key.sensor) << '\n';
+			<< Generate_key(key.half, key.plane, key.module, key.side, key.die,
+					key.sensor) << '\n';
 			const double * translation =
 					it_transformation_matrices->second->GetTranslation();
 			const double * rotation =
@@ -2219,8 +2223,8 @@ void PndLmdDim::Write_transformation_matrices(string filename, bool aligned,
 				<< filename << endl;
 	} else
 		cout
-				<< " Error in PndLmdDim::Write_transformation_matrices: could not write to "
-				<< filename << endl;
+		<< " Error in PndLmdDim::Write_transformation_matrices: could not write to "
+		<< filename << endl;
 }
 
 void PndLmdDim::Cleanup() {
@@ -2289,7 +2293,7 @@ void PndLmdDim::Read_DB_offsets(PndLmdAlignPar *lmdalignpar) {
 			for (unsigned int imodule = 0; imodule < nmodules; imodule++) { // loop over modules
 				Tkey key(ihalf, iplane, imodule, -1, -1, -1);
 				int ikey = (ihalf * n_planes * nmodules) + (iplane * nmodules)
-						+ imodule;
+								+ imodule;
 				//	cout<<"for: "<<ihalf<<iplane<<imodule<<": ikey="<<ikey<<endl;
 				offsets[key].push_back(fShiftX[ikey]);
 				offsets[key].push_back(fShiftY[ikey]);
@@ -2327,8 +2331,8 @@ void PndLmdDim::Set_offset(int ihalf, int iplane, int imodule, int iside,
 	itoffset = offsets.find(key);
 	if (itoffset != offsets.end()) {
 		cout
-				<< " **** Warning in PndLmdDim::Set_offset: offset exists already! Replacing it! *** "
-				<< endl;
+		<< " **** Warning in PndLmdDim::Set_offset: offset exists already! Replacing it! *** "
+		<< endl;
 	} else {
 		offsets[key].clear();
 		offsets[key].push_back(x);
@@ -2542,8 +2546,8 @@ void PndLmdDim::Propagate_fast_ip_to_lmd(TVector3& pos, TVector3& mom,
 	if (geometry_version != 2 && !first_call) {
 		first_call = false;
 		cout
-				<< " Warning in PndLmdDim::Propagate_fast_ip_to_lmd: Wrong geometry version "
-				<< geometry_version << endl;
+		<< " Warning in PndLmdDim::Propagate_fast_ip_to_lmd: Wrong geometry version "
+		<< geometry_version << endl;
 		cout << " Transformation matrix was fit to data with geometry version 2 ! "
 				<< endl;
 	}
@@ -2723,8 +2727,8 @@ map<Tkey, TGeoMatrix*>* PndLmdDim::Get_matrices(bool aligned) {
 	}
 	if (matrices->size() == 0) {
 		cout
-				<< " Warning in PndLmdDim::Get_matrices: No transformation matrices loaded! => trying to load default ones. "
-				<< endl;
+		<< " Warning in PndLmdDim::Get_matrices: No transformation matrices loaded! => trying to load default ones. "
+		<< endl;
 		Read_transformation_matrices("", aligned);
 	}
 	return matrices;
@@ -2842,7 +2846,7 @@ void PndLmdDim::Calc_matrix_offsets() {
 				dy, dz, dphi, dtheta, dpsi)) {
 			outfile << " coordinate offset of the lmd reference system \n";
 			outfile
-					<< " \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+			<< " \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
 			outfile << dx << "\t" << dy << "\t" << dz << "\t" << dphi << "\t"
 					<< dtheta << "\t" << dpsi << "\n";
 			outfile << endl;
@@ -2857,7 +2861,7 @@ void PndLmdDim::Calc_matrix_offsets() {
 					dx, dy, dz, dphi, dtheta, dpsi)) {
 				outfile << "\t coordinate offset of the lmd half " << ihalf << " \n";
 				outfile
-						<< "\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+				<< "\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
 				outfile << "\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi
 						<< "\t" << dtheta << "\t" << dpsi << "\n";
 				outfile << endl;
@@ -2872,7 +2876,7 @@ void PndLmdDim::Calc_matrix_offsets() {
 					outfile << "\t\t coordinate offset of the lmd plane " << iplane
 							<< " \n";
 					outfile
-							<< "\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+					<< "\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
 					outfile << "\t\t" << dx << "\t" << dy << "\t" << dz << "\t" << dphi
 							<< "\t" << dtheta << "\t" << dpsi << "\n";
 					outfile << endl;
@@ -2886,7 +2890,7 @@ void PndLmdDim::Calc_matrix_offsets() {
 						outfile << "\t\t\t coordinate offset of the lmd module " << imodule
 								<< " \n";
 						outfile
-								<< "\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+						<< "\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
 						outfile << "\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t"
 								<< dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 						outfile << endl;
@@ -2899,7 +2903,7 @@ void PndLmdDim::Calc_matrix_offsets() {
 							outfile << "\t\t\t\t coordinate offset of the lmd module side "
 									<< iside << " \n";
 							outfile
-									<< "\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+							<< "\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
 							outfile << "\t\t\t\t" << dx << "\t" << dy << "\t" << dz << "\t"
 									<< dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 							outfile << endl;
@@ -2911,7 +2915,7 @@ void PndLmdDim::Calc_matrix_offsets() {
 								outfile << "\t\t\t\t\t coordinate offset of the lmd die "
 										<< idie << " \n";
 								outfile
-										<< "\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+								<< "\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
 								outfile << "\t\t\t\t\t" << dx << "\t" << dy << "\t" << dz
 										<< "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 								outfile << endl;
@@ -2922,7 +2926,7 @@ void PndLmdDim::Calc_matrix_offsets() {
 									outfile << "\t\t\t\t\t\t coordinate offset of the lmd sensor "
 											<< isensor << " \n";
 									outfile
-											<< "\t\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
+									<< "\t\t\t\t\t\t \u0394x [µm] \t \u0394y [µm] \t \u0394z [µm] \t \u0394\u03C6 [µrad] \t \u0394\u03D1 [µrad] \t \u0394\u03C8 [µrad] \t \n";
 									outfile << "\t\t\t\t\t\t" << dx << "\t" << dy << "\t" << dz
 											<< "\t" << dphi << "\t" << dtheta << "\t" << dpsi << "\n";
 									outfile << endl;
@@ -3461,8 +3465,8 @@ void PndLmdDim::Draw_Sensors(int iplane, bool aligned, bool lmd_frame,
 				for (unsigned int iside = 0; iside < 2; iside++) {
 					for (unsigned int idie = 0; idie < 2; idie++) {
 						for (unsigned int isensor = 0; isensor < 3; isensor++)
-						//for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
-								{
+							//for (unsigned int sensorID = 0; sensorID < 400 ; sensorID++)
+						{
 							//cout << " sensID " << sensorID << endl;
 							//int ihalf, _iplane, imodule, iside, idie, isensor;
 							//Get_sensor_by_id(sensorID, ihalf, _iplane, imodule, iside, idie, isensor);
@@ -3566,17 +3570,17 @@ vector<TGraph*> PndLmdDim::Get_Sensor_Graph(int ihalf, int iplane, int imodule,
 	Double_t y_left[5] = { -maps_height + maps_passive_bottom * 2., -maps_height
 			+ maps_passive_bottom * 2., maps_height - maps_passive_top * 2.,
 			maps_height - maps_passive_top * 2., -maps_height
-					+ maps_passive_bottom * 2. };
+			+ maps_passive_bottom * 2. };
 	xs.push_back(x_left);
 	ys.push_back(y_left);
 	// right
 	Double_t x_right[5] = { +maps_width - maps_passive_right * 2., +maps_width,
 			+maps_width, +maps_width - maps_passive_right * 2., +maps_width
-					- maps_passive_right * 2. };
+			- maps_passive_right * 2. };
 	Double_t y_right[5] = { -maps_height + maps_passive_bottom * 2., -maps_height
 			+ maps_passive_bottom * 2., maps_height - maps_passive_top * 2.,
 			maps_height - maps_passive_top * 2., -maps_height
-					+ maps_passive_bottom * 2. };
+			+ maps_passive_bottom * 2. };
 	xs.push_back(x_right);
 	ys.push_back(y_right);
 	// the pixels

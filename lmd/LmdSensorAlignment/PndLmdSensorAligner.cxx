@@ -460,12 +460,15 @@ void PndLmdSensorAligner::addPair(PndLmdHitPair &pair){
 		return;
 	}
 
+	//this is done elsewhere already
+	/*
 	pair.check();
 	if(!pair.isSane()){
 		//cerr << "Warning! HitPair is not sane.\n";
 		nonSanePairs++;
 		return;
 	}
+	*/
 
 	//use ID info from first pair
 	if(pairs.size()==0){

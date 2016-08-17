@@ -150,9 +150,12 @@ PndLmdAlignManager::~PndLmdAlignManager(){
 
 bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 
-	//TODO: implement use of single aligner, to conserve memory
-
-	//TODO: checking is done elsewhere, but const permissions don't allow to change the pair
+	//TODO: add mutex for multi threaded operation AFETR check, only for storing
+	/*
+	 * multi threaded hint: the map is always only read, not written to. there should be
+	 * no race conditions. instead, move the mutex to the actual aligner. it should be local to an aligner,
+	 * so that aligner a doesnt block aligner b.
+	 */
 	pair.check();
 	if(pair.isSane() ){
 		if(_useSimpleStorage){
@@ -238,6 +241,10 @@ void PndLmdAlignManager::readFiles(){
 		exit(0);
 	}
 
+	/*
+	 * create multiple chains for multi threaded operation here
+	 */
+
 	TChain* chainPairs = new TChain("cbmsim");
 	for(int i=0; i<_fileNames.size(); i++){
 		//cout << files[i] << endl;
@@ -251,6 +258,10 @@ void PndLmdAlignManager::readFiles(){
 	chainPairs->SetBranchAddress("PndLmdHitPair", &hitPairs);
 	int nEntries = chainPairs->GetEntries();
 	cout << "HitPairs no of entries: " << nEntries << endl;
+
+	/*
+	 * do this multi threaded over multiple chains
+	 */
 
 	cout << "Sorting Pairs to Manager...\n";
 	int totalPairs=0;
@@ -347,7 +358,7 @@ void PndLmdAlignManager::alignMT() {
 
 		/*
 		 * when binding member classes, boost::bind needs the namespace AND the pointer to an object
-		 * that class (here: this-pointer). Also, when using references, use boost::ref()
+		 * of that class (here: this-pointer). Also, when using references, use boost::ref()
 		 */
 		io_service->post( boost::bind( &PndLmdAlignManager::alignOne, this, boost::ref( it->second ) ) );
 	}
