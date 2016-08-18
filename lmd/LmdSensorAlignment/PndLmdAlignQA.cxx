@@ -212,7 +212,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//prepare
 			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/LMDmatrices/";
+			string path = "/home/arbeit/simulationData/boxtest-aligned-1.5/binaryPairs/LMDmatrices/";
 			matrixNameCM = path + matrixNameCM;
 			matrixNamePX = path + matrixNamePX;
 

@@ -544,8 +544,8 @@ void LmdPairFinderTask::transformToLMDlocal(PndLmdHitPair &pair) {
 	//store in lmd local
 	const TVector3 frontInLMD = dimension->Transform_global_to_lmd_local(frontHit, false, true);
 	const TVector3 backInLMD = dimension->Transform_global_to_lmd_local(backHit, false, true);
-	pair.setHit1(frontHit);
-	pair.setHit2(backHit);
+	pair.setHit1(frontInLMD);
+	pair.setHit2(backInLMD);
 
 	pair.setModuleId(dimension->makeModuleID(dimension->makeOverlapID(fid, bid)));
 	pair.setOverlapId(dimension->makeOverlapID(fid, bid));
