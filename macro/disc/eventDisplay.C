@@ -1,4 +1,4 @@
-void eventDisplay(TString inFile = "sim_complete.root", TString parFile="simparams.root", TString outid="n"){
+void eventDisplay(TString inFile = "sim.root", TString parFile="simparams.root", TString outid="n"){
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);

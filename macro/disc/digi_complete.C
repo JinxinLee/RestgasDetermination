@@ -85,10 +85,6 @@ void digi_complete()
   PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
 
-  // -----   DRC hit producers   ---------------------------------
-  PndDrcHitProducerReal* drchit = new PndDrcHitProducerReal();
-  drchit->SetVerbose(iVerbose);
-  fRun->AddTask(drchit);
 
   // -----   GEM hit producers   ---------------------------------
   Int_t verboseLevel = 0;
