@@ -45,6 +45,6 @@ set(LINKDEF DiscLinkDef.h)
 
 set(LIBRARY_NAME Disc)
 
-set(DEPENDECIES Base PndData GeoBase ParBase Passive Geane)
+set(DEPENDENCIES Base PndData GeoBase ParBase Passive Geane)
 
 GENERATE_LIBRARY()
