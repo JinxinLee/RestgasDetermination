@@ -273,9 +273,12 @@ void PndDiscTaskPID::Exec(Option_t* opt)
 
                 if(pixel_prediction[i][0][sensor_id] != -1 && dtime[i][0][j] != -1 && pixel_prediction[i][1][sensor_id] != -1 && dtime[i][1][j] != -1 && pixel_prediction[i][2][sensor_id] != -1 && dtime[i][2][j] != -1)
                 {
-                    double propagation = tdc - t[i]; //Calculation of photon propagation time
-                    double dt = propagation - time_prediction[i][k][sensor_id]; //Calculation of time difference
-                    prob[k] += log(gauss(pixel,pixel_prediction[i][k][sensor_id],6)); //Likelihood calculation
+                    if((pixel - pixel_prediction[i][0][sensor_id] < 5 && pixel - pixel_prediction[i][0][sensor_id] > -5) || (pixel - pixel_prediction[i][1][sensor_id] < 5 && pixel - pixel_prediction[i][1][sensor_id] > -5) || (pixel - pixel_prediction[i][2][sensor_id] < 5 && pixel - pixel_prediction[i][2][sensor_id] > -5))
+                    {
+                        double propagation = tdc - t[i]; //Calculation of photon propagation time
+                        double dt = propagation - time_prediction[i][k][sensor_id]; //Calculation of time difference
+                        prob[k] += log(gauss(pixel,pixel_prediction[i][k][sensor_id],6)); //Likelihood calculation
+                    }
                 }
             }
         }
@@ -285,6 +288,10 @@ void PndDiscTaskPID::Exec(Option_t* opt)
         std::cout << "Pion: " << (prob[0]) << std::endl;
         std::cout << "Kaon: " << (prob[1]) << std::endl;
         std::cout << "Proton: " << (prob[2]) << std::endl << std::endl;
+
+	pid_result->loglikepion = prob[0];
+	pid_result->loglikekaon = prob[1];
+	pid_result->loglikeproton = prob[2];
 
         //Save identified particle
 
