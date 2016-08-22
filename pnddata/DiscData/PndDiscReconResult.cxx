@@ -21,3 +21,7 @@ ClassImp(PndDiscReconResult)
 PndDiscReconResult::PndDiscReconResult() : TObject()
 {
 }
+
+PndDiscReconResult::~PndDiscReconResult()
+{
+}

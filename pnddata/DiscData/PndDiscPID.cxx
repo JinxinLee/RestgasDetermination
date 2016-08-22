@@ -21,3 +21,7 @@ ClassImp(PndDiscPID)
 PndDiscPID::PndDiscPID() : TObject()
 {
 }
+
+PndDiscPID::~PndDiscPID()
+{
+}

@@ -16,6 +16,7 @@ class PndDiscReconResult : public TObject
 {
     public:
         PndDiscReconResult();
+	~PndDiscReconResult();
 
         double cherenkov_angle;
 

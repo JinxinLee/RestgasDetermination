@@ -16,6 +16,11 @@ class PndDiscPID : public TObject
 {
     public:
         PndDiscPID();
+	~PndDiscPID();
+
+        double loglikepion;
+        double loglikekaon;
+        double loglikeproton;
 
         double pion;
         double kaon;
@@ -26,3 +31,4 @@ class PndDiscPID : public TObject
 
 
 #endif // PNDDISCPID_H
+
