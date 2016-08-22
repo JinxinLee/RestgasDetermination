@@ -8,7 +8,7 @@
 void analysis()
 {
 
-	TFile *file=TFile::Open("sim_complete.root","read");
+	TFile *file=TFile::Open("sim.root","read");
 
 	TTree *tree = (TTree*)file->Get("cbmsim");
 
@@ -20,7 +20,7 @@ void analysis()
 
 	int events = tree->GetEntries();
 
-	cout << "Number of events: " << events << endl;
+	//cout << "Number of events: " << events << endl;
 
 	TH2F *posxy = new TH2F("posxy", "Position on Radiator Disk", 2000,-100,100,2000,-100,100);
 	posxy->GetXaxis()->SetTitle("Position x [mm]");
@@ -35,7 +35,7 @@ void analysis()
 
 		int entries = particle->GetEntries();
 
-		cout << "Number of entries in event: " << entries << endl;
+		//cout << "Number of entries in event: " << entries << endl;
 
 		for(int j = 0; j < entries; j++)
 		{
@@ -43,7 +43,7 @@ void analysis()
 			double y = ((PndDiscParticleMCPoint*)particle->At(j))->GetY();
 			double z = ((PndDiscParticleMCPoint*)particle->At(j))->GetZ();
 
-			cout << "x = " << x << " y = " << y << " z = " << z << endl;
+			//cout << "x = " << x << " y = " << y << " z = " << z << endl;
 
 			if(z == 194 && ((PndDiscParticleMCPoint*)particle->At(j))->is_primary == true)
 			{
@@ -68,7 +68,7 @@ void analysis()
 
 		int entries = sensor->GetEntries();
 
-		cout << "Number of entries in event: " << entries << endl;
+		//cout << "Number of entries in event: " << entries << endl;
 
 		for(int j = 0; j < entries; j++)
 		{
@@ -78,7 +78,7 @@ void analysis()
 
 			int vol = ((PndDiscSensorMCPoint*)sensor->At(j))->GetDetectorID();
 
-			cout << "x = " << x << " y = " << y << " z = " << z << endl;
+			//cout << "x = " << x << " y = " << y << " z = " << z << endl;
 
 			possensor->Fill(vol,y*10);
 		}		
@@ -90,16 +90,22 @@ void analysis()
 	possensor->Draw("colz");
 
 	//Reading out digitization file
-	TFile *file2=TFile::Open("digi_complete.root","read");
+	TFile *file2=TFile::Open("digi.root","read");
 	TTree *tree2 = (TTree*)file2->Get("cbmsim");
 	TClonesArray *digit = new TClonesArray("PndDiscDigitizedHit");
 	tree2->SetBranchAddress("DiscDigit", &digit);
 
 	//Reading out reconstruction file
-	TFile *file3=TFile::Open("reco_complete.root","read");
+	TFile *file3=TFile::Open("reco.root","read");
 	TTree *tree3 = (TTree*)file3->Get("cbmsim");
 	TClonesArray *recon = new TClonesArray("PndDiscReconResult");
 	tree3->SetBranchAddress("DiscPatternPrediction", &recon);
+
+	//Reading out PID file
+	TFile *file4=TFile::Open("pid.root","read");
+	TTree *tree4 = (TTree*)file4->Get("cbmsim");
+	TClonesArray *pid = new TClonesArray("PndDiscPID");
+	tree4->SetBranchAddress("DiscPID", &pid);
 
 
 	//Histogram for pixel hits
@@ -114,17 +120,17 @@ void analysis()
 
 		int hits = digit->GetEntries();
 
-		cout << "Number of entries in hits: " << hits << endl;
+		//cout << "Number of entries in hits: " << hits << endl;
 
 		for(int j = 0; j < hits; j++)
 		{
 			int pixel = ((PndDiscDigitizedHit*)digit->At(j))->GetPixelNumber();
 			int detector_id = ((PndDiscDigitizedHit*)digit->At(j))->GetDetectorID();
 			int readout_id = ((PndDiscDigitizedHit*)digit->At(j))->GetReadoutID();
+			double tdc = ((PndDiscDigitizedHit*)digit->At(j))->GetTdcTime()*0.05;
+			//cout << "Pixel: " << pixel << " Sensor: " << readout_id << endl;
 
-			cout << "Pixel: " << pixel << " Sensor: " << readout_id << endl;
-
-			hitpattern->Fill(readout_id+27*detector_id,pixel);
+			hitpattern->Fill(readout_id+27*detector_id, pixel, tdc);
 		}		
 		
 	}
@@ -141,7 +147,7 @@ void analysis()
 
 		int entries = recon->GetEntries();
 
-		cout << "Number of entries in prediction: " << entries << endl;
+		//cout << "Number of entries in prediction: " << entries << endl;
 
 		for(int j = 0; j < entries; j++)
 		{
@@ -168,6 +174,30 @@ void analysis()
 	c3->cd(2);
 	hprediction->Draw("colz");
 	c3->Update();
+
+
+	TH1F *hlikelihood = new TH1F("hlikelihood", "Difference of Likelihood", 100, -100, 100);
+
+	for(int i = 0; i < events; i++)
+	{
+		tree4->GetEntry(i);
+
+		int entries = pid->GetEntries();
+
+		//cout << "Number of entries in PID: " << entries << endl;
+
+		for(int j = 0; j < entries; j++)
+		{
+			double diff = ((PndDiscPID*)pid->At(j))->loglikepion - ((PndDiscPID*)pid->At(j))->loglikekaon;
+
+			hlikelihood->Fill(diff);
+		}		
+		
+	}	
+
+	TCanvas *c4 = new TCanvas();
+	hlikelihood->Draw();
+	c4->Update();
 
 	//file2->Close();
 	//file3->Close();

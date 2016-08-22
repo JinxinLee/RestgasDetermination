@@ -24,7 +24,7 @@ sim(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom = 6.231552)
   if (UseBoxGenerator)
   {
     BeamMomentum   =4.0; // ** change HERE if you run Box generator
-    mom = 3.;
+    mom = 4.;
   }
   else
   {
@@ -94,17 +94,25 @@ sim(Int_t nEvents = 1, TString  SimEngine ="TGeant4", Float_t mom = 6.231552)
   if(UseBoxGenerator){	// Box Generator
     FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); //211 = pion, 2212 = proton 321 = kaon
     boxGen->SetPRange(mom,mom); // GeV/c
-    boxGen->SetPhiRange(-45., -45.); // Azimuth angle range [degree]
-    boxGen->SetThetaRange(15., 15.); // Polar angle in lab system range [degree]
-    boxGen->SetXYZ(0., 0., 0.); // cm
+    double deg = TMath::Pi()/180.;
+    double theta = 15.;
+    double phi = 45.;
+    double r = 193.9/cos(theta*deg);
+    boxGen->SetPhiRange(phi, phi); // Azimuth angle range [degree]
+    boxGen->SetThetaRange(theta, theta); // Polar angle in lab system range [degree]
+    theta = theta*deg;
+    phi = phi*deg;
+    //boxGen->SetXYZ(r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta)); // cm
+    //boxGen->SetXYZ(29.04, -42.71, 193.9); // cm
+    boxGen->SetXYZ(0, 0, 0); // cm
     primGen->AddGenerator(boxGen);
 
-    FairBoxGenerator* boxGen2 = new FairBoxGenerator(321, 1);
-    boxGen2->SetPRange(mom,mom); // GeV/c
-    boxGen2->SetPhiRange(45., 45.); //Azimuth angle range [degree]
-    boxGen2->SetThetaRange(15., 15.); // Polar angle in lab system range [degree]
-    boxGen2->SetXYZ(0., 0., 0.); // cm
-    primGen->AddGenerator(boxGen2);
+    //FairBoxGenerator* boxGen2 = new FairBoxGenerator(321, 1);
+    //boxGen2->SetPRange(mom,mom); // GeV/c
+    //boxGen2->SetPhiRange(45., 45.); //Azimuth angle range [degree]
+    //boxGen2->SetThetaRange(15., 15.); // Polar angle in lab system range [degree]
+    //boxGen2->SetXYZ(0., 0., 0.); // cm
+    //primGen->AddGenerator(boxGen2);
 
     fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
 
