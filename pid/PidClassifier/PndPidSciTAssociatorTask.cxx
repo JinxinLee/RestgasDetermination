@@ -103,7 +103,8 @@ void PndPidSciTAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbab
    
   // kaon
   mass   = 0.494;
-  tofResolution->SetParameters(0.0003,0.0767); 
+  tofResolution->SetParameters(0.0003,0.0767);
+  sigma = tofResolution->Eval(mom);
   prob->SetKaonPdf(GetPdf(mom,length,tof,mass,sigma));
 
   // proton

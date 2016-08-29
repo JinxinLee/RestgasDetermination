@@ -17,8 +17,8 @@ void create_scit_rootgeo_201601(Double_t distance = 750){
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   
-  TString outfile= "../../../geometry/SciTil_201601.root";
-  //TString outfile= "../../../geometry/SciTil_test.root";
+  //TString outfile= "../../../geometry/SciTil_201601.root";
+  TString outfile= "../../../geometry/SciTil_test.root";
   TFile* fi = new TFile(outfile,"RECREATE");  
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
