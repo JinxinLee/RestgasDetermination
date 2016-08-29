@@ -15,7 +15,7 @@
                     "address": "tcp://*:5565",
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
-                    "rateLogging": "0"
+                    "rateLogging": "1"
                 }
             },
             "channel":
@@ -28,7 +28,7 @@
 	                "address": "tcp://*:5600",
 	                "sndBufSize": "1000",
 	                "rcvBufSize": "1000",
-	                "rateLogging": "0"
+	                "rateLogging": "1"
             	}
             }
         },
@@ -55,8 +55,8 @@
                 "socket":
                 {
                     "type": "push",
-                    "method": "connect",
-                    "address": "tcp://localhost:5572",
+                    "method": "bind",
+                    "address": "tcp://*:5580",
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
                     "rateLogging": "0"
@@ -232,6 +232,45 @@
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
                     "rateLogging": "1"
+                }
+            },
+            "channel":
+            {
+                "name": "param",
+                "socket":
+                {
+                    "type": "req",
+                    "method": "connect",
+                    "address": "tcp://localhost:5005",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            }
+        },
+        "device":
+        {
+            "id": "merger",
+            "channel":
+            {
+                "name": "data-in",
+                "socket":
+                {
+                    "type": "pull",
+                    "method": "connect",
+                    "address": "tcp://localhost:5600",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                },
+                "socket":
+                {
+                    "type": "pull",
+                    "method": "connect",
+                    "address": "tcp://localhost:5580",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
                 }
             },
             "channel":

@@ -17,8 +17,6 @@
 
 #include <string>
 
-#include "TClonesArray.h"
-
 #include "FairFileSource.h"
 #include "FairRunAna.h"
 #include "FairTimeStamp.h"
@@ -26,6 +24,8 @@
 #include "FairMQDevice.h"
 
 #include "PndBurstVectorBuilder.h"
+
+#include "TClonesArray.h"
 
 struct BurstHeader
 {
@@ -51,12 +51,21 @@ struct BurstData
 {
 	BurstData() : fHeader(), fData(){};
 	virtual ~BurstData(){
-		for (auto itr : fData)
-			delete(itr);
+		for (auto itr : fData){
+			for (auto dataItr : itr){
+				delete(dataItr);
+			}
+			itr.clear();
+		}
 		fData.clear();
 	};
 	BurstHeader fHeader;
-	std::vector<FairTimeStamp*> fData;
+	std::vector<std::vector<FairTimeStamp*> > fData;
+
+	virtual void Reset()
+	{
+
+	}
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)

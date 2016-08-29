@@ -17,6 +17,7 @@ configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdClusterTask.sh.
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdFileSamplerBursts.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdFileSamplerBursts.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdStripClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdStripClusterTask.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startCombinedClusterTask.sh.in ${CMAKE_BINARY_DIR}/bin/startCombinedClusterTask.sh)
+configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdMQ/run/scripts/startMvdPixelProcessor.sh.in ${CMAKE_BINARY_DIR}/bin/startMvdPixelProcessor.sh)
 
 set(INCLUDE_DIRECTORIES
     ${BASE_INCLUDE_DIRECTORIES}
@@ -54,6 +55,8 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/mvd/MvdTools
+  ${CMAKE_SOURCE_DIR}/mvd/MvdReco
+  ${CMAKE_SOURCE_DIR}/mvd/MvdMQ/src/algorithms
 
   ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
 
@@ -76,6 +79,15 @@ Set(SRCS
 	src/devices/PndMvdMQFileSamplerBursts.cxx
 	src/devices/PndMvdMQFileSink.cxx
 	src/devices/PndMQFileSinkBursts.cxx
+	src/devices/PndMQBurstProcessor.cxx
+	src/devices/PndMQMerger.cxx
+	src/devices/PndMQMergerTest.cxx
+	src/devices/PndMQMvdPixelDigiProcessorBursts.cxx
+	src/algorithms/PndMvdPixelClusterFinder.cxx
+	src/algorithms/PndMQSdsPixelBackMapping.cxx
+	src/algorithms/PndMQSdsChargeWeightedPixelMapping.cxx
+	src/algorithms/PndMQMvdChargeWeightedPixelMapping.cxx
+	
 )
 
 Set(HEADER
@@ -116,6 +128,8 @@ set(Exe_Names
   PndMQFileSink
   PndMQFileSinkBursts
   PndMQTaskProcessor
+  PndMQPixelProcessor
+  PndMQMergerTest
 )
 
 set(Exe_Source
@@ -124,6 +138,8 @@ set(Exe_Source
   run/runFileSink.cxx
   run/runFileSinkBursts.cxx
   run/runTaskProcessor.cxx
+  run/runPixelDigisProcessor.cxx
+  run/runPndMQMergerTest.cxx
 )
 
 list(LENGTH Exe_Names _length)

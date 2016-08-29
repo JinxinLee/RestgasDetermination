@@ -17,8 +17,11 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/serialization/unique_ptr.hpp>
 
 #include "FairMQLogger.h"
 
@@ -29,12 +32,14 @@
 #include "PndSdsDigiPixel.h"
 #include "PndSdsDigiStrip.h"
 #include "PndSttHit.h"
+#include "PndSdsHit.h"
 
 using namespace std;
 
 BOOST_CLASS_EXPORT_GUID(PndSdsDigiPixel, "PndSdsDigiPixel");
 BOOST_CLASS_EXPORT_GUID(PndSdsDigiStrip, "PndSdsDigiStrip");
 BOOST_CLASS_EXPORT_GUID(PndSttHit, "PndSttHit");
+//BOOST_CLASS_EXPORT_GUID(PndSdsHit, "PndSdsHit");
 
 PndMvdMQFileSamplerBursts::PndMvdMQFileSamplerBursts()
   : FairMQDevice()
@@ -52,9 +57,9 @@ PndMvdMQFileSamplerBursts::PndMvdMQFileSamplerBursts()
 PndMvdMQFileSamplerBursts::~PndMvdMQFileSamplerBursts()
 {
 	for (auto itr : fBurstBuilder)
-		delete(itr.second);
-	delete(fSource);
-	delete(fRunAna);
+		delete itr.second;
+	delete fSource;
+	delete fRunAna;
 }
 
 void PndMvdMQFileSamplerBursts::InitTask()
@@ -95,15 +100,28 @@ void PndMvdMQFileSamplerBursts::InitBurstBuilder(std::string branchName)
 		tmpBuilder = new PndBurstVectorBuilderT<PndSdsDigiStrip>;
 	else if (branchName == "STTHit")
 		tmpBuilder = new PndBurstVectorBuilderT<PndSttHit>;
+	else if (branchName == "MVDHitsStrip")
+			tmpBuilder = new PndBurstVectorBuilderT<PndSdsHit>;
 
 	if (tmpBuilder != 0)
 		fBurstBuilder[branchName] = tmpBuilder;
 }
 
+class TMessage2 : public TMessage
+{
+  public:
+  TMessage2(void* buf, Int_t len)
+    : TMessage(buf, len)
+  {
+    ResetBit(kIsOwner);
+  }
+};
+
 // helper function to clean up the object holding the data after it is transported.
 void free_tmessage3(void* data, void *hint)
 {
- //  delete static_cast<BurstData*>(data);
+	LOG(INFO) << "FREEMESSAGE called for data: " << static_cast<BurstData*>(hint)->fHeader.fBranchName << " " << static_cast<BurstData*>(hint)->fHeader.fBurstID;
+	delete static_cast<BurstData*>(hint);
 }
 
 void PndMvdMQFileSamplerBursts::Run() {
@@ -119,96 +137,67 @@ void PndMvdMQFileSamplerBursts::Run() {
 			if (readEventReturn != 0)
 				break;
 
-			if (fEventHeader != 0)
-				LOG(INFO) << "EventHeader: " << fEventHeader->GetRunId() << " " << fEventHeader->GetEventTime() << std::endl;
+//			if (fEventHeader != 0)
+//				LOG(INFO) << "EventHeader: " << fEventHeader->GetRunId() << " " << fEventHeader->GetEventTime() << std::endl;
 
 			for (auto branchItr : fInputBranches){
-	//			LOG(INFO) << "ProcessingData: " << branchItr.first;
-
 				if (branchItr.first.find(".") == std::string::npos){
 					std::vector<std::vector< FairTimeStamp* > > data;
 					TClonesArray* tmpArray = (TClonesArray*)branchItr.second;
-//					LOG(INFO) << "Data from TCA for branch: " << branchItr.first;
-//					for (int i = 0; i < tmpArray->GetEntries(); i++){
-//						FairTimeStamp* tcaData = (FairTimeStamp*)tmpArray->At(i);
-//						LOG(INFO) << i << " : " << tcaData->GetTimeStamp();
-//					}
-	//				LOG(INFO) << tmpArray->GetEntries() << std::endl;
+
 					if (fBurstBuilder.count(branchItr.first) > 0){
 						fOutputData[branchItr.first] = fBurstBuilder[branchItr.first]->ProcessData(tmpArray);
-//						LOG(INFO) << "BurstBuilder: " << branchItr.first << " " << fOutputData[branchItr.first].size();
+		//				LOG(INFO) << branchItr.first << " has " << fOutputData[branchItr.first].size() << " bursts! ";
 					}
 				}
 			}
-
-			for (auto portIt = fPorts.begin(); portIt != fPorts.end(); portIt++){
-				//FairMQParts parts;
-				for (auto branchIt = fPortBranchNameMap.lower_bound(*portIt); branchIt != fPortBranchNameMap.upper_bound(*portIt); ++branchIt){
-					for (auto dataIt = fOutputData[branchIt->second].begin(); dataIt != fOutputData[branchIt->second].end(); ++dataIt){
-						if (dataIt->size() > 0){
-
-//							LOG(INFO) << "SendData: Port " << branchIt->first << " Branch: " << branchIt->second << " data: " << dataIt->size() << std::endl;
-//							LOG(INFO) << "data to send:";
-//							for (auto itr : *dataIt)
-//								LOG(INFO) << itr->GetTimeStamp();
-							BurstData bData;// = new BurstData;
-							bData.fData = *dataIt;
-							bData.fHeader.fBranchName = branchIt->second;
-							bData.fHeader.fRunID = fEventHeader->GetRunId();
-							std::ostringstream obuffer;
-							boost::archive::binary_oarchive OutputArchive(obuffer);
-							OutputArchive << bData;
-							int outputSize = obuffer.str().length();
-							//unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(outputSize));
-							//memcpy(msg->GetData(), obuffer.str().c_str(), outputSize);
-							unique_ptr<FairMQMessage> msg(NewMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, free_tmessage3));
-							Send(msg, *portIt);
-						}
-					}
-				}
-			}
-			eventCounter++;
 		} else {
-			LOG(INFO) << "FinishRun called!";
+			LOG(INFO) << "FinishRun";
 			for (auto branchItr : fInputBranches){
 				if (branchItr.first.find(".") == std::string::npos){
 					if (fBurstBuilder.count(branchItr.first) > 0){
 						fOutputData[branchItr.first] = fBurstBuilder[branchItr.first]->GetLastData();
-//						LOG(INFO) << "BurstBuilder: " << branchItr.first << " " << fOutputData[branchItr.first].size();
+		//				LOG(INFO) << branchItr.first << " has " << fOutputData[branchItr.first].size() << " last bursts! ";
+		//				for (auto dataItr : fOutputData[branchItr.first]){
+		//					LOG(INFO) << branchItr.first << " has data: " << dataItr.size();
+		//				}
 					}
 				}
 			}
-
-			for (auto portIt = fPorts.begin(); portIt != fPorts.end(); portIt++){
-				//FairMQParts parts;
-				for (auto branchIt = fPortBranchNameMap.lower_bound(*portIt); branchIt != fPortBranchNameMap.upper_bound(*portIt); ++branchIt){
-					for (auto dataIt = fOutputData[branchIt->second].begin(); dataIt != fOutputData[branchIt->second].end(); ++dataIt){
-						if (dataIt->size() > 0){
-
-//							LOG(INFO) << "SendData: Port " << branchIt->first << " Branch: " << branchIt->second << " data: " << dataIt->size() << std::endl;
-//							LOG(INFO) << "data to send:";
-//							for (auto itr : *dataIt)
-//								LOG(INFO) << itr->GetTimeStamp();
-							BurstData* bData = new BurstData;
-							bData->fData = *dataIt;
-							bData->fHeader.fBranchName = branchIt->second;
-							bData->fHeader.fRunID = fEventHeader->GetRunId();
-							std::ostringstream obuffer;
-							boost::archive::binary_oarchive OutputArchive(obuffer);
-							OutputArchive << *bData;
-							int outputSize = obuffer.str().length();
-							//unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(outputSize));
-							//memcpy(msg->GetData(), obuffer.str().c_str(), outputSize);
-							unique_ptr<FairMQMessage> msg(NewMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, free_tmessage3));
-							Send(msg, *portIt);
-						}
-					}
-				}
-			}
-			break;
 		}
-	}
 
+		for (auto portIt = fPorts.begin(); portIt != fPorts.end(); portIt++){
+			for (auto branchIt = fPortBranchNameMap.lower_bound(*portIt); branchIt != fPortBranchNameMap.upper_bound(*portIt); ++branchIt){
+//				LOG(INFO) << branchIt->second << " burstSize " << fOutputData[branchIt->second].size();
+				for (auto dataIt = fOutputData[branchIt->second].begin(); dataIt != fOutputData[branchIt->second].end(); ++dataIt){
+//					LOG(INFO) << branchIt->second << " dataSize " << dataIt->size();
+					if (dataIt->size() > 0){
+						BurstData* bData = new BurstData;
+						std::vector<std::vector<FairTimeStamp*> > dataVector;
+						dataVector.push_back(*dataIt);
+						bData->fData = dataVector;
+						bData->fHeader.fBranchName = branchIt->second;
+						bData->fHeader.fRunID = fEventHeader->GetRunId();
+						bData->fHeader.fBurstID = fBurstBuilder[branchIt->second]->GetBurstId(dataVector[0][0]);
+						std::ostringstream obuffer;
+						boost::archive::text_oarchive OutputArchive(obuffer);
+						OutputArchive << *bData;
+						int outputSize = obuffer.str().length();
+						unique_ptr<FairMQMessage> msg(NewMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, free_tmessage3, bData));
+						LOG(INFO) << "Send message: " << bData->fHeader.fBranchName << " " << bData->fHeader.fBurstID << " size: " << msg->GetSize();
+						LOG(INFO) << obuffer.str();
+						Send(msg, *portIt);
+					}
+				}
+			}
+		}
+		if (eventCounter != fMaxIndex){
+			eventCounter++;
+		}
+		else
+			break;
+	}
 	LOG(INFO) << "Going out of RUNNING state.";
 }
+
 

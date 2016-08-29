@@ -40,7 +40,8 @@ ASCIIPARAM="@MVDMQ_FILE_LOCATION@/macro/params/all.par"
 if [ "$FAIRTASKNAME" == "--task-name PndMvdPixelClusterTask" ] ; then
     # input file and branch for the sampler device
     INPUTFILE="@MVDMQ_FILE_LOCATION@/macro/run/digi_complete.root"
-    INPUTBRANCH="data-out1=MVDPixelDigis data-out2=MVDStripDigis"
+#    INPUTBRANCH="data-out1=MVDPixelDigis data-out2=MVDStripDigis"
+    INPUTBRANCH="data-out1=MVDStripDigis"
     
     # output file for sink
     OUTPUTFILE="@MVDMQ_FILE_LOCATION@/macro/run/pixelRecoMQ.root"
@@ -77,8 +78,8 @@ xterm -geometry 80x25+0+350 -e @EXAMPLE9_BIN_LOCATION@/$SERVER &
 SAMPLER="PndMQFileSamplerBursts $TRANSPORT"
 SAMPLER+=" --id sampler1  --mq-config $MQCONFIGFILE"
 SAMPLER+=" --file-name $INPUTFILE --branch-name $INPUTBRANCH $MAXINDEX"
- xterm -sl 10000 -geometry 80x25+0+0 -e @MVDMQ_BIN_LOCATION@/$SAMPLER &
- # | tee sampler.txt" &
+# xterm -sl 10000 -geometry 80x25+0+0 -e @MVDMQ_BIN_LOCATION@/$SAMPLER &
+
 
 ######################### start PROCESSORs
 PROCESSOR1="PndMQTaskProcessor $TRANSPORT"
@@ -111,14 +112,13 @@ PROCESSOR5+=" --id processor5 $FAIRTASKNAME --mq-config $MQCONFIGFILE"
 FILESINK="PndMQFileSinkBursts $TRANSPORT"
 FILESINK+=" --id processor1 --mq-config $MQCONFIGFILE"
 FILESINK+=" --file-name $OUTPUTFILE $OUTPUTCLASS $OUTPUTBRANCH"
-xterm -sl 10000 -geometry 80x25+0+700 -e @MVDMQ_BIN_LOCATION@/$FILESINK 2>&1 & 
+xterm -sl 10000 -geometry 80x25+0+700 -e @MVDMQ_BIN_LOCATION@/$FILESINK & 
 
 ########################## start FILESINK
 FILESINK="PndMQFileSinkBursts $TRANSPORT"
 FILESINK+=" --id processor2 --mq-config $MQCONFIGFILE"
 FILESINK+=" --file-name $OUTPUTFILE $OUTPUTCLASS $OUTPUTBRANCH"
 xterm -sl 10000 -geometry 80x25+500+0 -e @MVDMQ_BIN_LOCATION@/$FILESINK &
-# 2>&1 | tee sink2.txt" &
 
 ########################## start FILESINK
 #FILESINK="PndMQFileSinkBurst $TRANSPORT"

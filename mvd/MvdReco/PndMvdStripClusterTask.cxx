@@ -126,20 +126,20 @@ void PndMvdStripClusterTask::SetCalculators()
                                                                  digipar->GetThreshold(),
                                                                  totdigipar->GetClockFrequency(),
                                                                  fVerbose);
+			}
+			else{
+				if(fVerbose>0)	Info("SetCalculators()","Use Ideal charge conversion for %s sensors",senstype);
+				fChargeConverter[senstype] = new PndSdsIdealChargeConversion(digipar->GetNoise());
 		}
-		else{
-			if(fVerbose>0)	Info("SetCalculators()","Use Ideal charge conversion for %s sensors",senstype);
-			fChargeConverter[senstype] = new PndSdsIdealChargeConversion(digipar->GetNoise());
-    }
-    //fChargeAlgos[senstype] = new PndSdsChargeWeightingAlgorithms(fDigiArray, digipar->GetRaisingTime(),digipar->GetFallingRatio(),digipar->GetThreshold());
-    Int_t ClusterMod = digipar->GetClusterMod(); 
-    Int_t RadChannel = digipar->GetRadChannel(); 
-    Int_t RadTime    = digipar->GetRadTime(); 
-    if(0==ClusterMod) { 
-      fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder(fInBranchId, RadChannel ); //search radius in channel no.
-    } else if(1==ClusterMod) { 
-      fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(fInBranchId, RadChannel, RadTime);
-    } 
+		//fChargeAlgos[senstype] = new PndSdsChargeWeightingAlgorithms(fDigiArray, digipar->GetRaisingTime(),digipar->GetFallingRatio(),digipar->GetThreshold());
+		Int_t ClusterMod = digipar->GetClusterMod();
+		Int_t RadChannel = digipar->GetRadChannel();
+		Int_t RadTime    = digipar->GetRadTime();
+		if(0==ClusterMod) {
+		  fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder(fInBranchId, RadChannel ); //search radius in channel no.
+		} else if(1==ClusterMod) {
+		  fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(fInBranchId, RadChannel, RadTime);
+		}
 	}
 }
 

@@ -17,6 +17,10 @@
 
 #include "FairTimeStamp.h"
 
+#include "PndBurstContainer.h"
+
+#include "TClonesArray.h"
+
 #include <boost/serialization/access.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -25,46 +29,54 @@
 
 using namespace std;
 
+
+
 class PndBurstVectorBuilderBase
 {
 public :
-	PndBurstVectorBuilderBase() : fThreshold(2E3), fOffset(1E3), fHasBoostSerialization(false), fCurrentThreshold(fThreshold), fCurrentOffset(fOffset + fThreshold)
+	PndBurstVectorBuilderBase() //: fThreshold(2E3), fOffset(2E3), fHasBoostSerialization(false), fCurrentThreshold(fThreshold), fCurrentOffset(fOffset + fThreshold)
 		{}
 
 	virtual ~PndBurstVectorBuilderBase()
 	{}
 
-	virtual std::vector< std::vector<FairTimeStamp*> > ProcessData(TClonesArray* data) = 0;
+	virtual std::vector< std::vector<FairTimeStamp* > > ProcessData(TClonesArray* data) = 0;
 
-	virtual std::vector< std::vector<FairTimeStamp*> > GetLastData() = 0;
+	virtual std::vector< std::vector<FairTimeStamp* > > GetLastData() = 0;
 
-	virtual void SetThreshold(double val){ fThreshold = val;}
-	virtual void SetOffset(double val){ fOffset = val;}
+//	virtual void SetThreshold(double val){ fThreshold = val;}
+//	virtual void SetOffset(double val){ fOffset = val;}
+//
+//	virtual double GetThreshold(){return fThreshold;}
+//	virtual double GetOffset(){return fOffset;}
 
-	virtual double GetThreshold(){return fThreshold;}
-	virtual double GetOffset(){return fOffset;}
-
-	template <class Archive>
-	void serialize(Archive& ar, const unsigned int version)
-	{
-		ar& fData;
-		ar& fCurrentOutput;
-		ar& fNextOutput;
+	virtual int GetBurstId (FairTimeStamp* data){
+		int result = data->GetTimeStamp() / fBurstContainer.GetThreshold();
+		return result;
 	}
 
-  protected:
-	double fThreshold;
-	double fOffset;
-	double fCurrentThreshold;
-	double fCurrentOffset;
+//	template <class Archive>
+//	void serialize(Archive& ar, const unsigned int version)
+//	{
+//		ar& fData;
+////		ar& fCurrentOutput;
+////		ar& fNextOutputs;
+//	}
 
-	#ifndef __CINT__ // for BOOST serialization
-		friend class boost::serialization::access;
-		bool fHasBoostSerialization;
-	#endif // for BOOST serialization
-		std::vector<FairTimeStamp*> fData;
-		std::vector<FairTimeStamp*> fCurrentOutput;
-		std::vector<FairTimeStamp*> fNextOutput;
+  protected:
+//	double fThreshold;
+//	double fOffset;
+//	double fCurrentThreshold;
+//	double fCurrentOffset;
+
+//	#ifndef __CINT__ // for BOOST serialization
+//		friend class boost::serialization::access;
+//		bool fHasBoostSerialization;
+//	#endif // for BOOST serialization
+		std::vector<FairTimeStamp* > fData;
+//		std::vector<FairTimeStamp* > fCurrentOutput;
+//		std::vector<std::vector<FairTimeStamp* > > fNextOutputs;
+		PndBurstContainer fBurstContainer;
 };
 
 template<typename T>
@@ -78,9 +90,9 @@ class PndBurstVectorBuilderT : public PndBurstVectorBuilderBase
 	virtual ~PndBurstVectorBuilderT()
 	{}
 
-    std::vector< std::vector<FairTimeStamp*> > ProcessData(TClonesArray* data);
+    std::vector< std::vector<FairTimeStamp* > > ProcessData(TClonesArray* data);
 
-    std::vector< std::vector<FairTimeStamp*> > GetLastData();
+    std::vector< std::vector<FairTimeStamp* > > GetLastData();
 
 };
 

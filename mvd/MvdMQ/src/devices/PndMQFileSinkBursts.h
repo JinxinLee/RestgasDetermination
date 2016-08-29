@@ -29,8 +29,13 @@
 
 #include "FairMQDevice.h"
 #include "FairMQLogger.h"
+#include "FairParGenericSet.h"
+#include "FairGeoParSet.h"
 
 #include "PndMvdMQFileSamplerBursts.h"
+#include "PndSdsPixelDigiPar.h"
+#include "PndSdsTotDigiPar.h"
+#include "PndSensorNamePar.h"
 
 #include "PndSdsHit.h"
 
@@ -45,6 +50,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/unique_ptr.hpp>
 #endif //__CINT__
 
 class TVector3;
@@ -65,6 +71,7 @@ class PndMQFileSinkBursts : public FairMQDevice
         , fHasBoostSerialization(false)
   	  	, fOutputFileName(outputFileName)
   	  	, fBranchNameList(0)
+  	  	, fCurrentRunId(0)
     {
         gSystem->ResetSignal(kSigInterrupt);
         gSystem->ResetSignal(kSigTermination);
@@ -79,6 +86,19 @@ class PndMQFileSinkBursts : public FairMQDevice
                 fHasBoostSerialization = true;
             }
         }
+
+        fGeoPar = new FairGeoParSet("FairGeoParSet");
+        fParCList = new TList();
+        fParCList->Add(fGeoPar);
+
+        fDigiPar = new PndSdsPixelDigiPar("MVDPixelDigiPar");
+        fParCList->Add(fDigiPar);
+
+        fTotPar = new PndSdsTotDigiPar("MVDPixelTotDigiPar");
+        fParCList->Add(fTotPar);
+
+        fSensorPar = new PndSensorNamePar("PndSensorNamePar");
+        fParCList->Add(fSensorPar);
     }
 
     virtual ~PndMQFileSinkBursts()
@@ -113,6 +133,10 @@ class PndMQFileSinkBursts : public FairMQDevice
 //        fBranchNameList->AddLast(new TObjString("Output"));
     }
 
+    void UpdateParameters();
+    FairParGenericSet* UpdateParameter(FairParGenericSet* thisPar);
+    static void CustomCleanup(void *data, void *hint);
+
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
@@ -129,11 +153,18 @@ class PndMQFileSinkBursts : public FairMQDevice
     TClonesArray* fOutput;
     TList* fBranchNameList;
     std::string fOutputFileName;
+    BurstData fBurstData;
+    int fCurrentRunId;
+    int fNewRunId;
+    TList* fParCList;
+    FairGeoParSet* fGeoPar;
+    PndSdsPixelDigiPar* fDigiPar;
+    PndSdsTotDigiPar* fTotPar;
+    PndSensorNamePar* fSensorPar;
 
 #ifndef __CINT__ // for BOOST serialization
     friend class boost::serialization::access;
     vector<FairTimeStamp*> fHitVector;
-    BurstData fBurstData;
     bool fHasBoostSerialization;
 #endif // for BOOST serialization
 
