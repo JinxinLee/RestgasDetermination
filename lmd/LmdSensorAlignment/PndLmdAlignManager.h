@@ -106,8 +106,16 @@ public:
 	}
 	void setMaxPairs(int maxPairs);
 
+	//considers inactive area, guard rings, pixel size etc
 	static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
+
+	//legacy function, should be deprecated and no longer used
 	void transformGlobalToLmd(Matrix &matrix);
+
+	//helper transformation, since all px matrices are local to the system of
+	//the first sensor. they need to be transformed to lmd local so we can compare
+	//them to the matrices from pndlmddim.
+	void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId);
 
 	//returns a Matrix(4,4)
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);

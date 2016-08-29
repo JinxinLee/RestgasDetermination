@@ -203,7 +203,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			cout << "matrix residual:\n" << matrixDif << "\n\n";
 			 */
 
-
 			//store this residual tuple to data
 			std::vector<double> result;
 			result.push_back(id1);
@@ -259,11 +258,22 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		//clear console
 		manager.clearScreen();
 
-		int id1 = 10;
-		int id2 = 15;
-
-		//cout << setprecision(16);
 		/*
+		cout << "-- debug test --\n";
+		cout << "m0to1:\n" << manager.getMatrixOfficialGeometry(0,1, true) << "\n";
+		cout << "m0to2:\n" << manager.getMatrixOfficialGeometry(0,2, true) << "\n";
+		cout << "m0to3:\n" << manager.getMatrixOfficialGeometry(0,3, true) << "\n";
+		cout << "m0to4:\n" << manager.getMatrixOfficialGeometry(0,4, true) << "\n";
+		cout << "m5to6:\n" << manager.getMatrixOfficialGeometry(5,6, true) << "\n";
+		cout << "m5to7:\n" << manager.getMatrixOfficialGeometry(5,7, true) << "\n";
+		cout << "m5to8:\n" << manager.getMatrixOfficialGeometry(5,8, true) << "\n";
+		cout << "m5to9:\n" << manager.getMatrixOfficialGeometry(5,9, true) << "\n";
+		cout << "-- debug end --\n";
+		 */
+
+		int id1 = 20;
+		int id2 = 25;
+
 		//prepare
 		string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
 		string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
@@ -289,27 +299,30 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		cout << "matrixPX:\n" << matrixPX << "\n\n";
 		cout << "matrix residual:\n" << matrixCM - matrixPX << "\n\n";
 
+		/*
+		 * Okay the following finally works. Now all work!
+		 */
 		cout << "\n--------------------------------\n\n";
 		cout << "different approach: px - target:\n";
 		Matrix real = manager.getMatrixOfficialGeometry(id1, id2,false);
+		cout << "official matrix:\n" << real << "\n";
 		Matrix icpMatrixNewOne = manager.readMatrix(matrixNamePX);
-		cout << icpMatrixNewOne - real << "\n";				//return matrix residuals
+		manager.transformFromSensorToLmdLocal(icpMatrixNewOne, id1);		//remember, icp matrix is local to sensor!
+		cout << "residual:\n" << icpMatrixNewOne - real << "\n";			//return matrix residuals
 
+		/*
+		 * Okay the following finally works. Back to the previous ones.
+		 */
+		cout << "\n--------------------------------\n\n";
 		cout << "different approach: cm - target:\n";
 		Matrix icpMatrixNewTwo = manager.readMatrix(matrixNameCM);
 		Matrix corrSensorToSensor = manager.getCorrectionMatrix(id1, id2);
-		 */
+		cout << icpMatrixNewTwo - corrSensorToSensor << "\n";	//return matrix residuals
 
 		/*
-		 * remember, all pairs were in lmd local, transform matrix from PndLmdDim
-		 * (which came in panda global) to lmd local, since ICP matrix will be in
-		 * lmd local
-		 */
-		//manager.transformGlobalToLmd(corrSensorToSensor);
-		//cout << icpMatrixNewTwo - corrSensorToSensor << "\n";	//return matrix residuals
-
-		/*
-		 * Okay this finally works. Back to the previous ones.
+		 * Okay the following finally works. Back to the previous ones.
+		 * EDIT: okay I changed the getMatrixOfficial back to the previous version
+		 * and it doesn't work again. I am stumped.
 		 */
 		cout << "\n--------------------------------\n\n";
 		cout << "last try, px - cm FROM PNDLMDDIM ONLY:\n";
@@ -318,47 +331,12 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		Matrix corrSenOne = manager.getCorrectionMatrix(id1);
 		Matrix corrSenTwo = manager.getCorrectionMatrix(id2);
 
-		//manager.transformGlobalToLmd(corrSenOne);
-		//manager.transformGlobalToLmd(corrSenTwo);
-
 		Matrix senToSenWithCorrLast = corrSenTwo * senToSenLast * Matrix::inv(corrSenOne);
 
 		Matrix senToSenWithCorrDirectLast = manager.getMatrixOfficialGeometry(id1, id2,false);
-		//cout << "Matrix sen to sen:\n" << senToSenLast << "\n";
-		//cout << "Matrix corrSensorToSensorLast:\n" << corrSensorToSensorLast << "\n";
 		cout << senToSenWithCorrDirectLast - senToSenWithCorrLast << "\n";
 
-		//new task: look for the same stuff only this time in perfectly align
-
-
 		return;
-	}
-	else if(param == 5){
-
-		//test tgeohmatrices
-		TGeoHMatrix *h1 = new TGeoHMatrix(TGeoTranslation(1,2,3));
-		TGeoHMatrix *h2 = new TGeoHMatrix();
-		TGeoHMatrix *h3 = new TGeoHMatrix();
-		TGeoHMatrix *h4 = new TGeoHMatrix();
-
-		h2->SetDx(1.); h2->SetDy(2.); h2->SetDz(3.);
-
-		double tr[3] = {1.,2.,3.};
-		h3->SetTranslation(tr);
-
-		const double rot[9] = {0,1,0,-1,0,0,0,0,0};
-		h4->SetRotation(rot);
-
-		Matrix m1 = manager.castTGeoHMatrixToMatrix(*h1);
-		Matrix m2 = manager.castTGeoHMatrixToMatrix(*h2);
-		Matrix m3 = manager.castTGeoHMatrixToMatrix(*h3);
-		Matrix m4 = manager.castTGeoHMatrixToMatrix(*h4);
-
-		cout << "m1:\n" << m1 << "\n";
-		cout << "m2:\n" << m2 << "\n";
-		cout << "m3:\n" << m3 << "\n";
-		cout << "m4:\n" << m4 << "\n";
-
 	}
 
 	//The vector now contains ALL overlap matrix parameters

@@ -557,7 +557,6 @@ Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
 
 /*
  * get transformation matrix of fromSensor -> toSensor (LMD local reference frame)
- * this is in cm and IN LMD LOCAL.
  * ATTENTION! set aligned flag true for perfect geometry, else use false!
  */
 Matrix PndLmdAlignManager::getMatrixOfficialGeometry(int fromSensor, int toSensor, bool aligned){
@@ -571,14 +570,24 @@ Matrix PndLmdAlignManager::getMatrixOfficialGeometry(int fromSensor, int toSenso
 	const TGeoHMatrix& matrixSen1ToLmd = dimension->Get_transformation_sensor_to_lmd_local(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
 	const TGeoHMatrix& matrixLmdToSen2   = dimension->Get_transformation_lmd_local_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
 
-	Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
-	Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
-	return matLmdToSen2 * matSen1ToLmd;
-
+	//FIXME: this switch should ALWAYS be false, even better, remove after testing!
+	bool legacy= false;
+	if(!legacy){
+		Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
+		Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
+		return matLmdToSen2 * matSen1ToLmd;
+	}
+	//FIXME: this is a problem. I know this is the wrong order, but it works. I don't know why,
+	//in all honesty it shouldn't work. I'll keep it this way FOR NOW and will check it later again.
+	else{
+		Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
+		Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
+		return matSen1ToLmd * matLmdToSen2;
+	}
 
 	//TODO: here after is LEGACY code. Remove after testing! But this code worked in the past...
-	/*
-	TGeoMatrix* matrix = &(matrix_from*matrix_to);
+
+	TGeoMatrix* matrix = &(matrixSen1ToLmd*matrixLmdToSen2);
 
 	double* homogenousMatrix = new double[16];
 	double* finalMatrix = new double[16];
@@ -608,7 +617,6 @@ Matrix PndLmdAlignManager::getMatrixOfficialGeometry(int fromSensor, int toSenso
 	Matrix result(4,4,finalMatrix);
 	delete homogenousMatrix, finalMatrix, matrix;
 	return result;
-	 */
 }
 
 /*
@@ -927,74 +935,36 @@ void PndLmdAlignManager::setZasTimestamp(bool timestamp) {
 
 void PndLmdAlignManager::transformGlobalToLmd(Matrix& matrix) {
 
+	cout << "WARNING. You are using transformGlobalToLmd. This should not be needed anymore!\n";
+
 	//make temp copy
 	Matrix tempmatrix = Matrix(matrix);
 
-	//double arrayLtoG[16];
-	//double arrayGtoL[16];
-
-	// trafo matrix changes, too!!!
+	//get appropriate matrices
 	TGeoHMatrix lmdToGlobal=dimension->Get_transformation_lmd_local_to_global(true);
 	TGeoHMatrix globalToLmd=dimension->Get_transformation_global_to_lmd_local(true);
 
+	//use existing casting function
 	Matrix lToG = castTGeoHMatrixToMatrix(lmdToGlobal);
 	Matrix gToL = castTGeoHMatrixToMatrix(globalToLmd);
 
-	//TODO: check for errors and remove old code. new code is the two lines above
-	/*
-	lmdToGlobal.GetHomogenousMatrix(arrayLtoG);
-	globalToLmd.GetHomogenousMatrix(arrayGtoL);
-
-	double finalArrayLtoG[16];
-	double finalArrayGtoL[16];
-
-	//root documentation differs from actual implementation
-	finalArrayLtoG[0] = arrayLtoG[0];
-	finalArrayLtoG[1] = arrayLtoG[1];
-	finalArrayLtoG[2] = arrayLtoG[2];
-	finalArrayLtoG[3] = arrayLtoG[12];
-	finalArrayLtoG[4] = arrayLtoG[4];
-	finalArrayLtoG[5] = arrayLtoG[5];
-	finalArrayLtoG[6] = arrayLtoG[6];
-	finalArrayLtoG[7] = arrayLtoG[13];
-	finalArrayLtoG[8] = arrayLtoG[8];
-	finalArrayLtoG[9] = arrayLtoG[9];
-	finalArrayLtoG[10] = arrayLtoG[10];
-	finalArrayLtoG[11] = arrayLtoG[14];
-	finalArrayLtoG[12] = arrayLtoG[3];
-	finalArrayLtoG[13] = arrayLtoG[7];
-	finalArrayLtoG[14] = arrayLtoG[11];
-	finalArrayLtoG[15] = arrayLtoG[15];
-
-	finalArrayGtoL[0] = arrayGtoL[0];
-	finalArrayGtoL[1] = arrayGtoL[1];
-	finalArrayGtoL[2] = arrayGtoL[2];
-	finalArrayGtoL[3] = arrayGtoL[12];
-	finalArrayGtoL[4] = arrayGtoL[4];
-	finalArrayGtoL[5] = arrayGtoL[5];
-	finalArrayGtoL[6] = arrayGtoL[6];
-	finalArrayGtoL[7] = arrayGtoL[13];
-	finalArrayGtoL[8] = arrayGtoL[8];
-	finalArrayGtoL[9] = arrayGtoL[9];
-	finalArrayGtoL[10] = arrayGtoL[10];
-	finalArrayGtoL[11] = arrayGtoL[14];
-	finalArrayGtoL[12] = arrayGtoL[3];
-	finalArrayGtoL[13] = arrayGtoL[7];
-	finalArrayGtoL[14] = arrayGtoL[11];
-	finalArrayGtoL[15] = arrayGtoL[15];
-
-	finalArrayLtoG[15] = 1.0;
-	finalArrayGtoL[15] = 1.0;
-
-	Matrix ltoG(4,4,finalArrayLtoG);
-	Matrix gToL(4,4,finalArrayGtoL);
-
-	//FIXME: check which one is right
-	//matrix = gToL * tempmatrix * ltoG;
-	*/
-
+	//return result
 	matrix = lToG * tempmatrix * gToL;
+}
 
+void PndLmdAlignManager::transformFromSensorToLmdLocal(Matrix& matrix, int sensorId) {
+	//create local copy
+	Matrix tempmatrix = Matrix(matrix);
+
+	int half, plane, module, side, die, sensor;
+	dimension->Get_sensor_by_id(sensorId, half, plane, module, side, die, sensor);
+
+	//ATTENTION! You MUST use the matrix for the misaligned geometry, because the sensor was there!
+	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, false);
+	Matrix matSensorToLmd = castTGeoHMatrixToMatrix(sensorToLmd);
+	Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
+
+	matrix = matLmdToSensor * matrix * matSensorToLmd;
 }
 
 //FIXME: remove this code, it has moved to the actual matrix file
@@ -1055,22 +1025,12 @@ Matrix PndLmdAlignManager::homogenizeMatrix(const Matrix& input) {
  * returns the matrix needed to transform the position measured by the MISALIGNED lumi (aka measured position)
  * to the real position of a hit (as seen by a perfectly aligned lumi). It is therefore dubbed "correction matrix"
  * (see interim reports).
- * ATTENTION. THis is in lmd local frame of reference
+ * This is in lmd local frame of reference
  */
 Matrix PndLmdAlignManager::getCorrectionMatrix(int id) {
 
 	int half, plane, module, side, die, sensor;
 	dimension->Get_sensor_by_id(id, half, plane, module, side, die, sensor);
-
-	/*
-	TGeoHMatrix sensorToGlobal = dimension->Get_transformation_sensor_to_global(half, plane, module, side, die, sensor, true);
-	TGeoHMatrix globalToSensor = dimension->Get_transformation_global_to_sensor(half, plane, module, side, die, sensor, false);
-
-	TGeoHMatrix combined = globalToSensor * sensorToGlobal;
-	return castTGeoHMatrixToMatrix(combined);
-	*/
-
-	//this is the new code. it should work just like the old one.
 
 	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, true);
 	TGeoHMatrix lmdToSensor = dimension->Get_transformation_lmd_local_to_sensor(half, plane, module, side, die, sensor, false);
@@ -1079,22 +1039,12 @@ Matrix PndLmdAlignManager::getCorrectionMatrix(int id) {
 	Matrix lmdToSensorMat = castTGeoHMatrixToMatrix(lmdToSensor);
 
 	return lmdToSensorMat * sensorToLmdMat;
-
-
-
 }
 
-//FIXME: test this, this is a new version!
 Matrix PndLmdAlignManager::getCorrectionMatrix(int id1, int id2) {
-
 	Matrix corrId1 = getCorrectionMatrix(id1);
 	Matrix corrId2 = getCorrectionMatrix(id2);
-
-	//return corrId1.inv(corrId1) * corrId2;
-
-	//MAYBE it's this way round, maybe it doesn't even matter
 	return corrId2 * corrId1.inv(corrId1);
-
 }
 
 Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
@@ -1103,66 +1053,61 @@ Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 	double* finalMatrix = new double[16];
 	matrix.GetHomogenousMatrix(homogenousMatrix);
 
-	//DEBUG ONLY
-	if(false){
-		cout << "checking cast tgeohmatrix to matrix:";
-		for(int i=0; i<16; i++){
-			if(i%4 == 0){
-				cout << "\n";
-			}
-			cout << homogenousMatrix[i] << "\t";
+	/*
+	 * this code was tested on 2016-08-29 and works. The root implementation is still not
+	 * according to ROOT documentation, in that the translation parts of a matrix ar not
+	 * where they should be and sometimes the homogenous coordinate is not set to 1.
+	 * This fixes that. When in doublt, refer to the following code example:
+	 */
+	/*
 
-		}
-		cout << "done.\n";
-	}
+	//test tgeohmatrices
+	TGeoHMatrix *h1 = new TGeoHMatrix(TGeoTranslation(1,2,3));
+	TGeoHMatrix *h2 = new TGeoHMatrix();
+	TGeoHMatrix *h3 = new TGeoHMatrix();
+	TGeoHMatrix *h4 = new TGeoHMatrix();
 
-	//TODO: remove this branch after testing
-	//assuming GOOD implementation
-	if(false){
-		finalMatrix[0] = homogenousMatrix[0];
-		finalMatrix[1] = homogenousMatrix[1];
-		finalMatrix[2] = homogenousMatrix[2];
-		finalMatrix[3] = homogenousMatrix[3];
-		finalMatrix[4] = homogenousMatrix[4];
-		finalMatrix[5] = homogenousMatrix[5];
-		finalMatrix[6] = homogenousMatrix[6];
-		finalMatrix[7] = homogenousMatrix[7];
-		finalMatrix[8] = homogenousMatrix[8];
-		finalMatrix[9] = homogenousMatrix[9];
-		finalMatrix[10] = homogenousMatrix[10];
-		finalMatrix[11] = homogenousMatrix[11];
-		finalMatrix[12] = homogenousMatrix[12];
-		finalMatrix[13] = homogenousMatrix[13];
-		finalMatrix[14] = homogenousMatrix[14];
-		finalMatrix[15] = homogenousMatrix[15];
-	}
-	//root documentation differs from actual implementation
-	else{
-		finalMatrix[0] = homogenousMatrix[0];
-		finalMatrix[1] = homogenousMatrix[1];
-		finalMatrix[2] = homogenousMatrix[2];
-		finalMatrix[3] = homogenousMatrix[12];
-		finalMatrix[4] = homogenousMatrix[4];
-		finalMatrix[5] = homogenousMatrix[5];
-		finalMatrix[6] = homogenousMatrix[6];
-		finalMatrix[7] = homogenousMatrix[13];
-		finalMatrix[8] = homogenousMatrix[8];
-		finalMatrix[9] = homogenousMatrix[9];
-		finalMatrix[10] = homogenousMatrix[10];
-		finalMatrix[11] = homogenousMatrix[14];
-		finalMatrix[12] = homogenousMatrix[3];
-		finalMatrix[13] = homogenousMatrix[7];
-		finalMatrix[14] = homogenousMatrix[11];
-		finalMatrix[15] = homogenousMatrix[15];
-		finalMatrix[15] = 1.0;
-	}
+	h2->SetDx(1.); h2->SetDy(2.); h2->SetDz(3.);
+	double tr[3] = {1.,2.,3.};
+	h3->SetTranslation(tr);
+	const double rot[9] = {0,1,0,-1,0,0,0,0,0};
+	h4->SetRotation(rot);
+
+	Matrix m1 = castTGeoHMatrixToMatrix(*h1);
+	Matrix m2 = castTGeoHMatrixToMatrix(*h2);
+	Matrix m3 = castTGeoHMatrixToMatrix(*h3);
+	Matrix m4 = castTGeoHMatrixToMatrix(*h4);
+
+	cout << "m1:\n" << m1 << "\n";
+	cout << "m2:\n" << m2 << "\n";
+	cout << "m3:\n" << m3 << "\n";
+	cout << "m4:\n" << m4 << "\n";
+	 */
+
+
+	finalMatrix[0] = homogenousMatrix[0];
+	finalMatrix[1] = homogenousMatrix[1];
+	finalMatrix[2] = homogenousMatrix[2];
+	finalMatrix[3] = homogenousMatrix[12];
+	finalMatrix[4] = homogenousMatrix[4];
+	finalMatrix[5] = homogenousMatrix[5];
+	finalMatrix[6] = homogenousMatrix[6];
+	finalMatrix[7] = homogenousMatrix[13];
+	finalMatrix[8] = homogenousMatrix[8];
+	finalMatrix[9] = homogenousMatrix[9];
+	finalMatrix[10] = homogenousMatrix[10];
+	finalMatrix[11] = homogenousMatrix[14];
+	finalMatrix[12] = homogenousMatrix[3];
+	finalMatrix[13] = homogenousMatrix[7];
+	finalMatrix[14] = homogenousMatrix[11];
+	finalMatrix[15] = homogenousMatrix[15];
+	finalMatrix[15] = 1.0;
 
 	Matrix result(4,4,finalMatrix);
 	delete homogenousMatrix, finalMatrix;
 	return result;
 
 }
-
 
 Matrix PndLmdAlignManager::castTVector3toMatrix(const TVector3& vec) {
 	Matrix result(4,1);
