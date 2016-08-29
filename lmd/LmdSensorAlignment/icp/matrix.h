@@ -16,7 +16,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 matrix; if not, write to the Free Software Foundation, Inc., 51 Franklin
 Street, Fifth Floor, Boston, MA 02110-1301, USA 
-*/
+ */
 
 #ifndef MATRIX_H
 #define MATRIX_H
@@ -28,17 +28,17 @@ Street, Fifth Floor, Boston, MA 02110-1301, USA
 #include <vector>
 
 #ifndef _MSC_VER
-  //#include <stdint.h>
-  typedef int int32_t;
+//#include <stdint.h>
+typedef int int32_t;
 #else
-  typedef __int8            int8_t;
-  typedef __int16           int16_t;
-  typedef __int32           int32_t;
-  typedef __int64           int64_t;
-  typedef unsigned __int8   uint8_t;
-  typedef unsigned __int16  uint16_t;
-  typedef unsigned __int32  uint32_t;
-  typedef unsigned __int64  uint64_t;
+typedef __int8            int8_t;
+typedef __int16           int16_t;
+typedef __int32           int32_t;
+typedef __int64           int64_t;
+typedef unsigned __int8   uint8_t;
+typedef unsigned __int16  uint16_t;
+typedef unsigned __int32  uint32_t;
+typedef unsigned __int64  uint64_t;
 #endif
 
 //#define endll endl << endl // double end line definition
@@ -51,89 +51,98 @@ class Matrix {
 
 public:
 
-  // constructor / deconstructor
-  Matrix ();                                                  // init empty 0x0 matrix
-  Matrix (const int32_t m,const int32_t n);                   // init empty mxn matrix
-  Matrix (const int32_t m,const int32_t n,const FLOAT* val_); // init mxn matrix with values from array 'val'
-  Matrix (const Matrix &M);                                   // creates deepcopy of M
-  ~Matrix ();
+	// constructor / deconstructor
+	Matrix ();                                                  // init empty 0x0 matrix
+	Matrix (const int32_t m,const int32_t n);                   // init empty mxn matrix
+	Matrix (const int32_t m,const int32_t n,const FLOAT* val_); // init mxn matrix with values from array 'val'
+	Matrix (const Matrix &M);                                   // creates deepcopy of M
+	~Matrix ();
 
-  // assignment operator, copies contents of M
-  Matrix& operator= (const Matrix &M);
+	// assignment operator, copies contents of M
+	Matrix& operator= (const Matrix &M);
 
-  // copies submatrix of M into array 'val', default values copy whole row/column/matrix
-  void getData(FLOAT* val_,int32_t i1=0,int32_t j1=0,int32_t i2=-1,int32_t j2=-1);
+	// copies submatrix of M into array 'val', default values copy whole row/column/matrix
+	void getData(FLOAT* val_,int32_t i1=0,int32_t j1=0,int32_t i2=-1,int32_t j2=-1);
 
-  // set or get submatrices of current matrix
-  Matrix getMat(int32_t i1,int32_t j1,int32_t i2=-1,int32_t j2=-1);
-  void   setMat(const Matrix &M,const int32_t i,const int32_t j);
+	// set or get submatrices of current matrix
+	Matrix getMat(int32_t i1,int32_t j1,int32_t i2=-1,int32_t j2=-1);
+	void   setMat(const Matrix &M,const int32_t i,const int32_t j);
 
-  //set mxn matrix with values from array 'val'
-  void setVal(const int32_t m,const int32_t n,const FLOAT* val_);
+	//set mxn matrix with values from array 'val'
+	void setVal(const int32_t m,const int32_t n,const FLOAT* val_);
 
-  // set sub-matrix to scalar (default 0), -1 as end replaces whole row/column/matrix
-  void setVal(FLOAT s,int32_t i1=0,int32_t j1=0,int32_t i2=-1,int32_t j2=-1);
+	// set sub-matrix to scalar (default 0), -1 as end replaces whole row/column/matrix
+	void setVal(FLOAT s,int32_t i1=0,int32_t j1=0,int32_t i2=-1,int32_t j2=-1);
 
-  // set (part of) diagonal to scalar, -1 as end replaces whole diagonal
-  void setDiag(FLOAT s,int32_t i1=0,int32_t i2=-1);
+	// set (part of) diagonal to scalar, -1 as end replaces whole diagonal
+	void setDiag(FLOAT s,int32_t i1=0,int32_t i2=-1);
 
-  // clear matrix
-  void zero();
-  
-  // extract columns with given index
-  Matrix extractCols (std::vector<int> idx);
+	// clear matrix
+	void zero();
 
-  // create identity matrix
-  static Matrix eye (const int32_t m);
-  void          eye ();
+	// extract columns with given index
+	Matrix extractCols (std::vector<int> idx);
 
-  // create matrix with ones
-  static Matrix ones(const int32_t m,const int32_t n);
+	// create identity matrix
+	static Matrix eye (const int32_t m);
+	void          eye ();
 
-  // create diagonal matrix with nx1 or 1xn matrix M as elements
-  static Matrix diag(const Matrix &M);
-  
-  // returns the m-by-n matrix whose elements are taken column-wise from M
-  static Matrix reshape(const Matrix &M,int32_t m,int32_t n);
+	// create matrix with ones
+	static Matrix ones(const int32_t m,const int32_t n);
 
-  // create 3x3 rotation matrices (convention: http://en.wikipedia.org/wiki/Rotation_matrix)
-  static Matrix rotMatX(const FLOAT &angle);
-  static Matrix rotMatY(const FLOAT &angle);
-  static Matrix rotMatZ(const FLOAT &angle);
+	// create diagonal matrix with nx1 or 1xn matrix M as elements
+	static Matrix diag(const Matrix &M);
 
-  // simple arithmetic operations
-  Matrix  operator+ (const Matrix &M); // add matrix
-  Matrix  operator- (const Matrix &M); // subtract matrix
-  Matrix  operator* (const Matrix &M); // multiply with matrix
-  Matrix  operator* (const FLOAT &s);  // multiply with scalar
-  Matrix  operator/ (const Matrix &M); // divide elementwise by matrix (or vector)
-  Matrix  operator/ (const FLOAT &s);  // divide by scalar
-  Matrix  operator- ();                // negative matrix
-  Matrix  operator~ ();                // transpose
-  FLOAT   l2norm ();                   // euclidean norm (vectors) / frobenius norm (matrices)
-  FLOAT   mean ();                     // mean of all elements in matrix
+	// returns the m-by-n matrix whose elements are taken column-wise from M
+	static Matrix reshape(const Matrix &M,int32_t m,int32_t n);
 
-  // complex arithmetic operations
-  static Matrix cross (const Matrix &a, const Matrix &b);    // cross product of two vectors
-  static Matrix inv (const Matrix &M);                       // invert matrix M
-  bool   inv ();                                             // invert this matrix
-  FLOAT  det ();                                             // returns determinant of matrix
-  bool   solve (const Matrix &M,FLOAT eps=1e-20);            // solve linear system M*x=B, replaces *this and M
-  bool   lu(int32_t *idx, FLOAT &d, FLOAT eps=1e-20);        // replace *this by lower upper decomposition
-  void   svd(Matrix &U,Matrix &W,Matrix &V);                 // singular value decomposition *this = U*diag(W)*V^T
+	// create 3x3 rotation matrices (convention: http://en.wikipedia.org/wiki/Rotation_matrix)
+	static Matrix rotMatX(const FLOAT &angle);
+	static Matrix rotMatY(const FLOAT &angle);
+	static Matrix rotMatZ(const FLOAT &angle);
 
-  // print matrix to stream
-  friend std::ostream& operator<< (std::ostream& out,const Matrix& M);
+	//homogenize 3x3 matrix or 3 vector to 4x4 matrix or 4 vector
+	static Matrix homogenize(const Matrix &M);
+	//de-homogenize a 4 vector
+	static Matrix dehomogenize(const Matrix &M);
+	//homogenize 3 vector to 4x4 translation matrix
+	static Matrix homogenizeTranslation(const Matrix &M);
+	//homogenize rotation and translation simultaniously
+	static Matrix homogenizeRotTrans(const Matrix &R, const Matrix &t);
 
-  // direct data access
-  FLOAT   **val;
-  int32_t   m,n;
+	// simple arithmetic operations
+	Matrix  operator+ (const Matrix &M); // add matrix
+	Matrix  operator- (const Matrix &M); // subtract matrix
+	Matrix  operator* (const Matrix &M); // multiply with matrix
+	Matrix  operator* (const FLOAT &s);  // multiply with scalar
+	Matrix  operator/ (const Matrix &M); // divide elementwise by matrix (or vector)
+	Matrix  operator/ (const FLOAT &s);  // divide by scalar
+	Matrix  operator- ();                // negative matrix
+	Matrix  operator~ ();                // transpose
+	FLOAT   l2norm ();                   // euclidean norm (vectors) / frobenius norm (matrices)
+	FLOAT   mean ();                     // mean of all elements in matrix
+
+	// complex arithmetic operations
+	static Matrix cross (const Matrix &a, const Matrix &b);    // cross product of two vectors
+	static Matrix inv (const Matrix &M);                       // invert matrix M
+	bool   inv ();                                             // invert this matrix
+	FLOAT  det ();                                             // returns determinant of matrix
+	bool   solve (const Matrix &M,FLOAT eps=1e-20);            // solve linear system M*x=B, replaces *this and M
+	bool   lu(int32_t *idx, FLOAT &d, FLOAT eps=1e-20);        // replace *this by lower upper decomposition
+	void   svd(Matrix &U,Matrix &W,Matrix &V);                 // singular value decomposition *this = U*diag(W)*V^T
+
+	// print matrix to stream
+	friend std::ostream& operator<< (std::ostream& out,const Matrix& M);
+
+	// direct data access
+	FLOAT   **val;
+	int32_t   m,n;
 
 private:
 
-  void allocateMemory (const int32_t m_,const int32_t n_);
-  void releaseMemory ();
-  inline FLOAT pythag(FLOAT a,FLOAT b);
+	void allocateMemory (const int32_t m_,const int32_t n_);
+	void releaseMemory ();
+	inline FLOAT pythag(FLOAT a,FLOAT b);
 
 };
 
