@@ -40,6 +40,10 @@ class PndMapSorter //: public TObject
     virtual FairTimeStamp* CreateElement(FairTimeStamp* data);
 
     virtual void AddElement(FairTimeStamp* digi, double timestamp);
+    virtual void AddElements(std::vector<FairTimeStamp*> dataArray){
+    	for(auto dataItr : dataArray)
+    		AddElement(dataItr, dataItr->GetTimeStamp());
+    }
     virtual void WriteOutAll();
     virtual void WriteOutData(double time);
     virtual std::vector<FairTimeStamp*> GetOutputData() {

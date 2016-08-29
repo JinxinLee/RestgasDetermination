@@ -55,7 +55,7 @@ Link_Directories(${LINK_DIRECTORIES})
 
 set(SRCS
 
-  "PndMQGapEventBuilderFTS.cxx"
+  "PndMQGapEventBuilder.cxx"
   "PndMapSorter.cxx"
 )
 
