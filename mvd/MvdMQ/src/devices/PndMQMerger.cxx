@@ -71,11 +71,11 @@ void PndMQMerger::Run()
 					LOG(INFO) << "---Data Received--- " << msg->GetSize();
 
 					std::string msgStr(static_cast<char*>(msg->GetData()), msg->GetSize());
-					LOG(INFO) << msgStr;
+//					LOG(INFO) << msgStr;
 					std::istringstream ibuffer(msgStr);
 
 					try {
-						boost::archive::text_iarchive InputArchive(ibuffer);
+						boost::archive::binary_iarchive InputArchive(ibuffer);
 						InputArchive >> fInputData;
 					}
 					catch (boost::archive::archive_exception& e)

@@ -118,10 +118,9 @@ class TMessage2 : public TMessage
 };
 
 // helper function to clean up the object holding the data after it is transported.
-void free_tmessage3(void* data, void *hint)
+void free_string(void* data, void *hint)
 {
-	LOG(INFO) << "FREEMESSAGE called for data: " << static_cast<BurstData*>(hint)->fHeader.fBranchName << " " << static_cast<BurstData*>(hint)->fHeader.fBurstID;
-	delete static_cast<BurstData*>(hint);
+	delete static_cast<std::string*>(hint);
 }
 
 void PndMvdMQFileSamplerBursts::Run() {
@@ -172,20 +171,20 @@ void PndMvdMQFileSamplerBursts::Run() {
 				for (auto dataIt = fOutputData[branchIt->second].begin(); dataIt != fOutputData[branchIt->second].end(); ++dataIt){
 //					LOG(INFO) << branchIt->second << " dataSize " << dataIt->size();
 					if (dataIt->size() > 0){
-						BurstData* bData = new BurstData;
+						BurstData bData;// = new BurstData;
 						std::vector<std::vector<FairTimeStamp*> > dataVector;
 						dataVector.push_back(*dataIt);
-						bData->fData = dataVector;
-						bData->fHeader.fBranchName = branchIt->second;
-						bData->fHeader.fRunID = fEventHeader->GetRunId();
-						bData->fHeader.fBurstID = fBurstBuilder[branchIt->second]->GetBurstId(dataVector[0][0]);
+						bData.fData = dataVector;
+						bData.fHeader.fBranchName = branchIt->second;
+						bData.fHeader.fRunID = fEventHeader->GetRunId();
+						bData.fHeader.fBurstID = fBurstBuilder[branchIt->second]->GetBurstId(dataVector[0][0]);
 						std::ostringstream obuffer;
-						boost::archive::text_oarchive OutputArchive(obuffer);
-						OutputArchive << *bData;
-						int outputSize = obuffer.str().length();
-						unique_ptr<FairMQMessage> msg(NewMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, free_tmessage3, bData));
-						LOG(INFO) << "Send message: " << bData->fHeader.fBranchName << " " << bData->fHeader.fBurstID << " size: " << msg->GetSize();
-						LOG(INFO) << obuffer.str();
+						boost::archive::binary_oarchive OutputArchive(obuffer);
+						OutputArchive << bData;
+						std::string* strMsg = new std::string(obuffer.str());
+						unique_ptr<FairMQMessage> msg(NewMessage(const_cast<char*>(strMsg->c_str()), strMsg->length(), free_string, strMsg));
+						LOG(INFO) << "Send message: " << bData.fHeader.fBranchName << " " << bData.fHeader.fBurstID << " size: " << msg->GetSize();
+						//LOG(INFO) << obuffer.str();
 						Send(msg, *portIt);
 					}
 				}

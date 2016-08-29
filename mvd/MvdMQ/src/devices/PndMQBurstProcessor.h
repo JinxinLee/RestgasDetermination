@@ -51,7 +51,7 @@ class PndMQBurstProcessor : public FairMQDevice
 {
   public:
     PndMQBurstProcessor() :
-    	fHasBoostSerialization(false), fCurrentRunId(0), fNewRunId(0), fBurstDataOut(0)
+    	fHasBoostSerialization(false), fCurrentRunId(0), fNewRunId(0)
     {
         gSystem->ResetSignal(kSigInterrupt);
         gSystem->ResetSignal(kSigTermination);
@@ -73,8 +73,6 @@ class PndMQBurstProcessor : public FairMQDevice
     virtual ~PndMQBurstProcessor()
     {
     	fParCList->Clear();
-    	if (fBurstDataOut != 0)
-    		delete fBurstDataOut;
     }
 
 
@@ -82,7 +80,7 @@ class PndMQBurstProcessor : public FairMQDevice
     virtual FairParGenericSet* UpdateParameter(FairParGenericSet* thisPar);
     virtual void SetParameters(){};
     static void CustomCleanupParameters(void *data, void *hint);
-    static void CustomCleanupOutputData(void *data, void *hint);
+    static void free_string(void *data, void *hint);
 
     virtual void ProcessData() = 0;
 
@@ -97,7 +95,7 @@ class PndMQBurstProcessor : public FairMQDevice
   protected:
     virtual void Run();
     BurstData fBurstDataIn;
-    BurstData* fBurstDataOut;
+    BurstData fBurstDataOut;
     int fCurrentRunId;
     int fNewRunId;
     TList* fParCList;

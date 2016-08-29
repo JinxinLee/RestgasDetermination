@@ -6,14 +6,14 @@
 
 #include "FairMQLogger.h"
 
-std::vector<std::vector<Int_t> > PndMvdTopixClusterFinder::GetClusters(std::vector<PndSdsDigiTopix4> hits) {
-	fHits = hits;
+std::vector<std::vector<Int_t> > PndMvdTopixClusterFinder::GetClusters(std::vector<PndSdsDigiTopix4>& hits) {
+//	fHits = hits;
 
 //	LOG(INFO) << "HitsIn Cluster Finder!" << std::endl;
 	std::vector<Int_t> posHits;
-	for (UInt_t i = 0; i < fHits.size(); i++){
-//		LOG(INFO) << i << " : " << fHits[i];
-//		LOG(INFO) << i << " : " << fHits[i].GetTimeStamp();
+	for (UInt_t i = 0; i < hits.size(); i++){
+//		LOG(INFO) << i << " : " << hits[i];
+//		LOG(INFO) << i << " : " << hits[i].GetTimeStamp();
 		posHits.push_back(i);
 	}
 	std::vector<std::vector<Int_t> > result;
@@ -27,8 +27,8 @@ std::vector<std::vector<Int_t> > PndMvdTopixClusterFinder::GetClusters(std::vect
 		for (Int_t i = 0; i < sizeResultI; i++) {
 			sizeTempHits = posHits.size();
 			for (Int_t j = 0; j < sizeTempHits; j++) {
-				if (fHits[(*(result.end() - 1))[i]].GetSensorID() == fHits[posHits[j]].GetSensorID()) {
-					if (IsInRange(fHits[(*(result.end() - 1))[i]], fHits[posHits[j]])) {
+				if (hits[(*(result.end() - 1))[i]].GetSensorID() == hits[posHits[j]].GetSensorID()) {
+					if (IsInRange(&hits[(*(result.end() - 1))[i]], &hits[posHits[j]])) {
 						(result.end() - 1)->push_back(MoveHit(&posHits, j));
 						j--;
 					}
@@ -51,13 +51,13 @@ Int_t PndMvdTopixClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t ind
 	return result;
 }
 
-bool PndMvdTopixClusterFinder::IsInRange(PndSdsDigiTopix4 hit1, PndSdsDigiTopix4 hit2) const
+bool PndMvdTopixClusterFinder::IsInRange(PndSdsDigiPixel* hit1, PndSdsDigiPixel* hit2) const
 {
 	Double_t result1, result2;
-	Int_t col1 = hit1.GetPixelColumn() + (Int_t)((hit1.GetFE()%10) * fcols);
-	Int_t col2 = hit2.GetPixelColumn() + (Int_t)((hit2.GetFE()%10) * fcols);
-	Int_t row1 = hit1.GetPixelRow()    + (Int_t)((hit1.GetFE()/10) * frows);
-	Int_t row2 = hit2.GetPixelRow()    + (Int_t)((hit2.GetFE()/10) * frows);
+	Int_t col1 = hit1->GetPixelColumn() + (Int_t)((hit1->GetFE()%10) * fcols);
+	Int_t col2 = hit2->GetPixelColumn() + (Int_t)((hit2->GetFE()%10) * fcols);
+	Int_t row1 = hit1->GetPixelRow()    + (Int_t)((hit1->GetFE()/10) * frows);
+	Int_t row2 = hit2->GetPixelRow()    + (Int_t)((hit2->GetFE()/10) * frows);
 
 	result1 = (col1-col2);
 	result1 *= result1;

@@ -38,7 +38,7 @@ void PndMQMvdPixelDigiProcessorBursts::SetParameters()
 void PndMQMvdPixelDigiProcessorBursts::ProcessData()
 {
 
-	fBurstDataOut = new BurstData();	//will be delete in base class!;
+	fBurstDataOut.Reset();
 	for (auto dataItr : fBurstDataIn.fData)
 		fMapSorter.AddElements(dataItr);
 	 fMapSorter.WriteOutAll();
@@ -90,7 +90,7 @@ void PndMQMvdPixelDigiProcessorBursts::ProcessData()
 				 hitsInGaps.push_back(hits);
 			 }
 		 }
-		 fBurstDataOut->fHeader.fBranchName = "MVDHitsPixel";
-		 fBurstDataOut->fData = hitsInGaps;
+		 fBurstDataOut.fHeader.fBranchName = "MVDHitsPixel";
+		 fBurstDataOut.fData = hitsInGaps;
 	 }
 }

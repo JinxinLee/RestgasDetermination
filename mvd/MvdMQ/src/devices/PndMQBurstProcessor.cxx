@@ -28,9 +28,9 @@ void PndMQBurstProcessor::CustomCleanupParameters(void *data, void *hint)
     delete (std::string*)hint;
 }
 
-void PndMQBurstProcessor::CustomCleanupOutputData(void *data, void *hint)
+void PndMQBurstProcessor::free_string(void *data, void *hint)
 {
-	delete (BurstData*)hint;
+	delete static_cast<std::string*>(hint);
 }
 
 void PndMQBurstProcessor::Run()
@@ -49,7 +49,7 @@ void PndMQBurstProcessor::Run()
 				 if(!ibuffer.good())
 					 LOG(INFO) << "IBUFFER IS BAD!";
 				 try {
-					 boost::archive::text_iarchive InputArchive(ibuffer);
+					 boost::archive::binary_iarchive InputArchive(ibuffer);
 
 					InputArchive >> fBurstDataIn;
 				 }
@@ -70,14 +70,14 @@ void PndMQBurstProcessor::Run()
 
 				ProcessData();
         	 }
-        	 if (fBurstDataOut->fData.size() > 0){
-        		 fBurstDataOut->fHeader.fBurstID = fBurstDataIn.fHeader.fBurstID;
+        	 if (fBurstDataOut.fData.size() > 0){
+        		 fBurstDataOut.fHeader.fBurstID = fBurstDataIn.fHeader.fBurstID;
 				std::ostringstream obuffer;
-				boost::archive::text_oarchive OutputArchive(obuffer);
-				OutputArchive << *fBurstDataOut;
-				int outputSize = obuffer.str().length();
-				unique_ptr<FairMQMessage> msgOut(NewMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanupOutputData, fBurstDataOut));
-				LOG(INFO) << "Data sent: " << fBurstDataOut->fHeader.fBranchName << " BurstID: " << fBurstDataOut->fHeader.fBurstID << " size: " << msgOut->GetSize();
+				boost::archive::binary_oarchive OutputArchive(obuffer);
+				OutputArchive << fBurstDataOut;
+				std::string* strMsg = new std::string(obuffer.str());
+				unique_ptr<FairMQMessage> msgOut(NewMessage(const_cast<char*>(strMsg->c_str()), strMsg->length(), free_string, strMsg));
+				LOG(INFO) << "Data sent: " << fBurstDataOut.fHeader.fBranchName << " BurstID: " << fBurstDataOut.fHeader.fBurstID << " size: " << msgOut->GetSize();
 				int event = 0;
 //				for (auto eventItr : fBurstDataOut->fData){
 //					for (auto dataItr : eventItr){
