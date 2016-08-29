@@ -8,6 +8,8 @@
 #include "FairParGenericSet.h"
 #include "FairParamList.h"
 
+#include <iostream>
+
 //! Charge Digitization Parameter Class for SDS
 
 class PndSdsTotDigiPar : public FairParGenericSet
@@ -21,7 +23,12 @@ class PndSdsTotDigiPar : public FairParGenericSet
     void putParams(FairParamList* list);
     Bool_t getParams(FairParamList* list);
 
-    void Print();
+    virtual void Print(std::ostream& out = std::cout) const;
+
+    friend std::ostream& operator<<(std::ostream& out, const PndSdsTotDigiPar& dt){
+    	dt.Print(out);
+    	return out;
+    }
 
     Double_t GetChargingTime() const {return fChargingTime;}
     Double_t GetConstCurrent() const {return fConstCurrent;}

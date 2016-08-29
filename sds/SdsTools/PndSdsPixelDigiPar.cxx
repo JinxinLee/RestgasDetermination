@@ -53,16 +53,16 @@ Bool_t PndSdsPixelDigiPar::getParams(FairParamList* list)
 
 ClassImp(PndSdsPixelDigiPar);
 
-void PndSdsPixelDigiPar::Print()
+void PndSdsPixelDigiPar::Print(std::ostream& out) const
 {
-  std::cout<<"SDS Pixel Digitization Parameters:"<<std::endl;
-  std::cout<<"   fDimX (cm)   = "<<fDimX<<std::endl;
-  std::cout<<"   fDimY (cm)   = "<<fDimY<<std::endl;
-  std::cout<<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
-  std::cout<<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
-  std::cout<<"   Columns on FE                = "<<fFeCols<<std::endl;
-  std::cout<<"   Rows on FE                   = "<<fFeRows<<std::endl;
-  std::cout<<"   Cluster search radius (channels) = "<<fRadius<<std::endl;
-  std::cout<<"   Charge cloud sigma (cm) = "<<fCSigma<<std::endl;
-  std::cout<<"   charge conv. (0:ideal, 1:TOT)    = "<<fChargeConvMethod<<std::endl;
+  out <<"SDS Pixel Digitization Parameters:"<<std::endl;
+  out <<"   fDimX (cm)   = "<<fDimX<<std::endl;
+  out <<"   fDimY (cm)   = "<<fDimY<<std::endl;
+  out <<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
+  out <<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
+  out <<"   Columns on FE                = "<<fFeCols<<std::endl;
+  out <<"   Rows on FE                   = "<<fFeRows<<std::endl;
+  out <<"   Cluster search radius (channels) = "<<fRadius<<std::endl;
+  out <<"   Charge cloud sigma (cm) = "<<fCSigma<<std::endl;
+  out <<"   charge conv. (0:ideal, 1:TOT)    = "<<fChargeConvMethod<<std::endl;
 }

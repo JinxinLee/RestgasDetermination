@@ -8,6 +8,8 @@
 #include "FairParGenericSet.h"
 #include "FairParamList.h"
 
+#include <iostream>
+
 //! Digitization Parameter Class for SDS-Pixel part
 
 class PndSdsPixelDigiPar : public FairParGenericSet
@@ -21,7 +23,15 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     void putParams(FairParamList* list);
     Bool_t getParams(FairParamList* list);
     
-    void Print();
+    virtual void Print (std::ostream& out = std::cout) const;
+    virtual void print(){Print();}
+
+    friend std::ostream& operator<<(std::ostream& out, const PndSdsPixelDigiPar& dt){
+    	dt.Print(out);
+    	return out;
+    }
+
+
     
     Double_t GetXPitch()        const {return fDimX;}
     Double_t GetYPitch()        const {return fDimY;}

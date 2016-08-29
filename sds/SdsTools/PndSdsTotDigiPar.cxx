@@ -26,10 +26,10 @@ Bool_t PndSdsTotDigiPar::getParams(FairParamList* list)
 
 ClassImp(PndSdsTotDigiPar);
 
-void PndSdsTotDigiPar::Print()
+void PndSdsTotDigiPar::Print(std::ostream& out) const
 {
-	std::cout<<"SDS Mvd Tot Digitization Parameters:"<<std::endl;
-    std::cout<<"   charge time (ns)            = "<<fChargingTime<<std::endl;
-    std::cout<<"   constant current (e/ns)         = "<<fConstCurrent<<std::endl;
-    std::cout<<"   clock frequency (MHz)        = "<<fClockFrequency<<std::endl;
+	out<<"SDS Mvd Tot Digitization Parameters:"<<std::endl;
+    out<<"   charge time (ns)            = "<<fChargingTime<<std::endl;
+    out<<"   constant current (e/ns)         = "<<fConstCurrent<<std::endl;
+    out<<"   clock frequency (MHz)        = "<<fClockFrequency<<std::endl;
 }
