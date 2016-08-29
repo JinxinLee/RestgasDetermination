@@ -116,8 +116,10 @@ public:
 	static Matrix castTVector3toMatrix(const TVector3 &vec);
 	Matrix getMatrixOfficialGeometry(int fromSensor, int toSensor, bool misaligned);
 	Matrix getMatrixOfficialGeometryGlobal(int fromSensor, int toSensor, bool misaligned);
+
 	Matrix getCorrectionMatrix(int id);
 	Matrix getCorrectionMatrix(int id1, int id2);
+
 	Matrix getMatrixGlobalToLmd(){
 		return castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true))));
 	}
@@ -128,6 +130,7 @@ public:
 	static Matrix readMatrix(std::string filename);
 	bool writeMatrix(Matrix &mat, std::string filename);
 
+	//FIXME: remove this code, it has moved to the actual matrix file
 	static inline Matrix homogenizeMatrix(const Matrix &input);
 
 	const Matrix& getHelperMatrix() const {
@@ -157,6 +160,9 @@ public:
 	 * (or part of filename) you want
 	 */
 	static int searchFiles(std::string curr_directory, std::vector<std::string> &list, std::string extension="", bool includeSubDirs = true);
+
+	//clear console
+	static void clearScreen();
 
 	//searches directories in curr_directory, adds to list
 	static int searchDirectories(std::string curr_directory, std::vector<std::string> &list, bool includeSubDirs = true);

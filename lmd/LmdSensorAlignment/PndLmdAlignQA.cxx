@@ -18,6 +18,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <math.h>
 #include <sstream>
@@ -173,46 +174,10 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 				continue;
 			}
 
-			/*
-			//read PX matrix from disk
-			string matrixnamePX = PndLmdAlignManager::makeMatrixFileName(id1, id2, false, false);
-			matrixnamePX = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/LMDmatrices/" + matrixnamePX;
-			Matrix matrixPX = PndLmdAlignManager::readMatrix(matrixnamePX);
-			matrixPX = manager.transformMatrixFromPixelsToCm(matrixPX);
-
-			//read CM matrix from disk
-			string matrixnameCM = PndLmdAlignManager::makeMatrixFileName(id1, id2, true, false);
-			matrixnameCM = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/LMDmatrices/" + matrixnameCM;
-			Matrix matrixCM = manager.readMatrix(matrixnameCM);
-
-			//Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, true);
-			Matrix corr = manager.getCorrectionMatrix(id1, id2);
-
-			manager.transformGlobalToLmd(corr);
-
-			Matrix diff = corr - matrixCM;
-
-			Matrix absolutOff = manager.getMatrixOfficialGeometry(id1, id2, false);
-			Matrix absolutICP = manager.getMatrixOfficialGeometry(id1, id2, true) * matrixCM;
-
-			Matrix absolutDiff = absolutOff - absolutICP;
-
-			//transform matrix to correct coordinate system
-
-
-			//compare
-			//Matrix matrixCM = PndLmdAlignManager::readMatrix(matrixnameCM);
-			//Matrix residual = senToSen - matrixPX;
-			//cout << "senToSen:\n" << senToSen << "\n";
-			//cout << "matrixPX:\n" << matrixPX << "\n";
-			//cout << "residual:\n" << senToSen - matrixPX << "\n\n";
-
-			 */
-
 			//prepare
 			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = "/home/arbeit/simulationData/boxtest-aligned-1.5/binaryPairs/LMDmatrices/";
+			string path = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices";
 			matrixNameCM = path + matrixNameCM;
 			matrixNamePX = path + matrixNamePX;
 
@@ -220,17 +185,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			Matrix matrixCM = manager.readMatrix(matrixNameCM);
 			Matrix matrixPX = manager.readMatrix(matrixNamePX);
 
-			/*
-			cout << "before transformation:\n";
-			cout << "matrixCM:\n" << matrixCM << "\n\n";
-			cout << "matrixPX:\n" << matrixPX << "\n\n";
-			*/
-
-			//transform matrices
-			//matrixPX = manager.transformMatrixFromPixelsToCm(matrixPX);
+			//invert both
+			//matrixCM = Matrix::inv(matrixCM);
+			//matrixPX = Matrix::inv(matrixPX);
 
 			Matrix senToSen = manager.getMatrixOfficialGeometry(id1,id2,true);
-			matrixCM = matrixCM * senToSen;
+			matrixCM = matrixCM * senToSen;  //this is now the total matrix from sen1 to sen2
+
+			//matrixCM = Matrix::inv(matrixCM);
 
 			Matrix matrixDif = matrixCM - matrixPX;
 
@@ -239,16 +201,16 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			cout << "matrixCM:\n" << matrixCM << "\n\n";
 			cout << "matrixPX:\n" << matrixPX << "\n\n";
 			cout << "matrix residual:\n" << matrixDif << "\n\n";
-			*/
+			 */
 
 
 			//store this residual tuple to data
 			std::vector<double> result;
 			result.push_back(id1);
 			result.push_back(id2);
-			result.push_back(matrixDif.val[0][1]);
-			result.push_back(matrixDif.val[0][3]);
-			result.push_back(matrixDif.val[1][3]);
+			result.push_back(matrixDif.val[0][1]);		// sin(alpha)
+			result.push_back(matrixDif.val[0][3]);		// tx
+			result.push_back(matrixDif.val[1][3]);		// ty
 			data.push_back(result);
 		}
 
@@ -279,7 +241,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.xMax=-1;
 		createHist(data, parameters);
 
-		//for Dalpha
+		//for DAlpha
 		parameters.path = pdfdir;
 		parameters.title = "Delta#alpha";
 		parameters.xtitle = "d#alpha [#murad]";
@@ -294,11 +256,18 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 	else if(param == 4){
 
+		//clear console
+		manager.clearScreen();
+
+		int id1 = 10;
+		int id2 = 15;
+
+		//cout << setprecision(16);
 		/*
 		//prepare
-		string matrixNameCM = manager.makeMatrixFileName(0,5,true,false);
-		string matrixNamePX = manager.makeMatrixFileName(0,5,false,false);
-		string path = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/LMDmatrices/";
+		string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
+		string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
+		string path = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices/";
 		matrixNameCM = path + matrixNameCM;
 		matrixNamePX = path + matrixNamePX;
 
@@ -312,7 +281,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//transform matrices
 		//matrixPX = manager.transformMatrixFromPixelsToCm(matrixPX);
-		Matrix senToSen = manager.getMatrixOfficialGeometry(0,5,true);
+		Matrix senToSen = manager.getMatrixOfficialGeometry(id1,id2,true);
 		matrixCM = matrixCM * senToSen;
 
 		cout << "after transformation:\n";
@@ -320,9 +289,75 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		cout << "matrixPX:\n" << matrixPX << "\n\n";
 		cout << "matrix residual:\n" << matrixCM - matrixPX << "\n\n";
 
-		*/
+		cout << "\n--------------------------------\n\n";
+		cout << "different approach: px - target:\n";
+		Matrix real = manager.getMatrixOfficialGeometry(id1, id2,false);
+		Matrix icpMatrixNewOne = manager.readMatrix(matrixNamePX);
+		cout << icpMatrixNewOne - real << "\n";				//return matrix residuals
+
+		cout << "different approach: cm - target:\n";
+		Matrix icpMatrixNewTwo = manager.readMatrix(matrixNameCM);
+		Matrix corrSensorToSensor = manager.getCorrectionMatrix(id1, id2);
+		 */
+
+		/*
+		 * remember, all pairs were in lmd local, transform matrix from PndLmdDim
+		 * (which came in panda global) to lmd local, since ICP matrix will be in
+		 * lmd local
+		 */
+		//manager.transformGlobalToLmd(corrSensorToSensor);
+		//cout << icpMatrixNewTwo - corrSensorToSensor << "\n";	//return matrix residuals
+
+		/*
+		 * Okay this finally works. Back to the previous ones.
+		 */
+		cout << "\n--------------------------------\n\n";
+		cout << "last try, px - cm FROM PNDLMDDIM ONLY:\n";
+
+		Matrix senToSenLast = manager.getMatrixOfficialGeometry(id1,id2,true);
+		Matrix corrSenOne = manager.getCorrectionMatrix(id1);
+		Matrix corrSenTwo = manager.getCorrectionMatrix(id2);
+
+		//manager.transformGlobalToLmd(corrSenOne);
+		//manager.transformGlobalToLmd(corrSenTwo);
+
+		Matrix senToSenWithCorrLast = corrSenTwo * senToSenLast * Matrix::inv(corrSenOne);
+
+		Matrix senToSenWithCorrDirectLast = manager.getMatrixOfficialGeometry(id1, id2,false);
+		//cout << "Matrix sen to sen:\n" << senToSenLast << "\n";
+		//cout << "Matrix corrSensorToSensorLast:\n" << corrSensorToSensorLast << "\n";
+		cout << senToSenWithCorrDirectLast - senToSenWithCorrLast << "\n";
 
 		//new task: look for the same stuff only this time in perfectly align
+
+
+		return;
+	}
+	else if(param == 5){
+
+		//test tgeohmatrices
+		TGeoHMatrix *h1 = new TGeoHMatrix(TGeoTranslation(1,2,3));
+		TGeoHMatrix *h2 = new TGeoHMatrix();
+		TGeoHMatrix *h3 = new TGeoHMatrix();
+		TGeoHMatrix *h4 = new TGeoHMatrix();
+
+		h2->SetDx(1.); h2->SetDy(2.); h2->SetDz(3.);
+
+		double tr[3] = {1.,2.,3.};
+		h3->SetTranslation(tr);
+
+		const double rot[9] = {0,1,0,-1,0,0,0,0,0};
+		h4->SetRotation(rot);
+
+		Matrix m1 = manager.castTGeoHMatrixToMatrix(*h1);
+		Matrix m2 = manager.castTGeoHMatrixToMatrix(*h2);
+		Matrix m3 = manager.castTGeoHMatrixToMatrix(*h3);
+		Matrix m4 = manager.castTGeoHMatrixToMatrix(*h4);
+
+		cout << "m1:\n" << m1 << "\n";
+		cout << "m2:\n" << m2 << "\n";
+		cout << "m3:\n" << m3 << "\n";
+		cout << "m4:\n" << m4 << "\n";
 
 	}
 

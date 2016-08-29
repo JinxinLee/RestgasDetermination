@@ -181,21 +181,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 			Template[ipair*3+1] = simpleSensorTwoY[ipair];
 			Template[ipair*3+2] = simpleSensorTwoZ[ipair];
 
-			//FIXME: well, you know this is just wrong, don't you?
-			/*
-			if(Model[ipair*3+2] > 19 && Model[ipair*3+2] < 21 ){
-				Model[ipair*3+2] -= 20;
-				Template[ipair*3+2] -= 20;
-			}
-			else if(Model[ipair*3+2] > 29 && Model[ipair*3+2] < 31 ){
-				Model[ipair*3+2] -= 30;
-				Template[ipair*3+2] -= 30;
-			}
-			else if(Model[ipair*3+2] > 39 && Model[ipair*3+2] < 41 ){
-				Model[ipair*3+2] -= 40;
-				Template[ipair*3+2] -= 40;
-			}
-			 */
 		}
 		else{
 			cout << "Fatal: inconsistent storage options in ICP model and template generation.\n This should never happen. \n";
@@ -352,6 +337,13 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	double* finalMatrix = new double[16];
 
+	/*
+	 * TODO: matrices do NOT commute. That means applying translation THEN rotation is something different
+	 * than applying rotation THEN translation. What is done here? Is this even correct? Meybe this was the
+	 * bug all along?
+	 */
+
+	//okay, this is the version that FIRST rotates, THEN translates.
 	finalMatrix[0] = tempR[0];
 	finalMatrix[1] = tempR[1];
 	finalMatrix[2] = tempR[2];
@@ -368,6 +360,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 	finalMatrix[13] = 0;
 	finalMatrix[14] = 0;
 	finalMatrix[15] = 1;
+
+	//TODO: now, try the other way around.
 
 	resultMatrix = Matrix(4,4);
 
