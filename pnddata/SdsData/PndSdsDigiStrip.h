@@ -103,12 +103,10 @@ class PndSdsDigiStrip : public PndSdsDigi
 	#endif // for BOOST serialization
 
 	private :
+
 	#ifndef __CINT__ // for BOOST serialization
 		friend class boost::serialization::access;
-
 	#endif // for BOOST serialization
-
-    private :
 
     Int_t fChannel;   /// Frontend Channel
     
