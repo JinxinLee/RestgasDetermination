@@ -1,8 +1,8 @@
-void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TString digiFile = "hit.root", TString outid="n"){
+void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TString hitFile = "hit.root", TString outid="n"){
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-  fRun->AddFriend(digiFile);
+  fRun->AddFriend(hitFile);
   fRun->SetOutputFile("tst.root");
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -15,7 +15,7 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   FairMCPointDraw *PndBarPoint = new FairMCPointDraw ("DrcBarPoint",kViolet, kFullSquare);
   FairMCPointDraw *PndEVPoint = new FairMCPointDraw ("DrcEVPoint",kViolet, kFullSquare);
   FairMCPointDraw *PndPdPoint = new FairMCPointDraw ("DrcPDPoint",kBlue, kFullSquare);
-  PndDrcAccuDigiPixelDraw *PndAccuDigi = new PndDrcAccuDigiPixelDraw ("DrcPDHit",digiFile,0.5); //7. //3
+  PndDrcAccuDigiPixelDraw *PndAccuDigi = new PndDrcAccuDigiPixelDraw ("DrcPDHit",hitFile,7); //7. //3 //0.5
   
   fMan->AddTask(Track);
   fMan->AddTask(PndBarPoint);
@@ -23,9 +23,9 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   fMan->AddTask(PndPdPoint);
   fMan->AddTask(PndAccuDigi);
 
-  fMan->Init(1,4); 
+  fMan->Init(1,5); 
 
-  gGeoManager->SetNsegments(1000);
+  gGeoManager->SetNsegments(100);
   TIter next((TObjArray*)gGeoManager->GetListOfVolumes());
   TGeoVolume *vol;
   while((vol=(TGeoVolume*)next())){
@@ -38,7 +38,7 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
     if(volumename.Contains("DrcLENS")) vol->SetTransparency(90);
     if(volumename.Contains("DrcMirr")) vol->SetTransparency(50);
     if(volumename.Contains("DrcEVgrease")) vol->SetTransparency(90);
-	  
+
     //vol->SetTransparency(0);
     // vol->SetLineColor(17);
   }

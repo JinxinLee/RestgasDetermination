@@ -27,6 +27,6 @@ void eventDisplayLut()
   fMan->AddTask(PndPdPoint);
   fMan->AddTask(PndAccuDigi);
 
-  fMan->Init(1,4);                     
+  fMan->Init(1,5);                     
  
 }

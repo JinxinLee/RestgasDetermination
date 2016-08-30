@@ -1,0 +1,64 @@
+#!/bin/bash
+
+rows=40
+bars=3
+lens=6
+ev=3
+
+phi=10.825
+theta=22
+mom=3.5
+
+if [ "$bars" -eq "2" ] || [ "$bars" -eq "4" ] ; then 
+    phi=14
+fi
+
+luttab="$HOME/pandaroot/macro/drc/lut/lut_e${ev}_b${bars}_l${lens}_m${rows}_avr.root"
+log="b_log"
+
+rm -f b_*.root
+
+waitForMe (){
+    while : 
+    do 
+	activth=$(ps aux | grep "[r]oot.exe" | grep "b_" | wc -l)
+	printf "\r pandaroot [$activth] ---- [$(($(date +%s) - start_time)) s] "
+	sleep 0.1
+	if [ "$activth" -lt "$1" ]; then
+	    break
+	fi
+    done
+}
+start_time=$(date +%s)
+
+root -q -b createdirc.C"(${ev},${bars},${lens},${rows})" > $log  2>&1
+
+
+for j in {0..1} ; do
+    i=211
+    root -q -b    "sim.C(100,\"b_s${i}_${j}.root\",\"b_p${i}_${j}.root\",\"dirc_e${ev}_b${bars}_l${lens}_m${rows}.root\",${i},${mom},${theta},${phi})" > $log${i}_${j} 2>&1 && \
+    	root -q -b "digi.C(0,\"b_s${i}_${j}.root\",\"b_p${i}_${j}.root\",\"b_d${i}_${j}.root\")" >> $log${i}_${j} 2>&1 && \
+    	root -q -b " hit.C(0,\"b_s${i}_${j}.root\",\"b_p${i}_${j}.root\",\"b_d${i}_${j}.root\",\"b_h${i}_${j}.root\")" >> $log${i}_${j} 2>&1 &
+
+    i=321
+    root -q -b    "sim.C(100,\"b_s${i}_${j}.root\",\"b_p${i}_${j}.root\",\"dirc_e${ev}_b${bars}_l${lens}_m${rows}.root\",${i},${mom},${theta},${phi})" > $log${i}_${j} 2>&1 && \
+    	root -q -b "digi.C(0,\"b_s${i}_${j}.root\",\"b_p${i}_${j}.root\",\"b_d${i}_${j}.root\")" >> $log${i}_${j} 2>&1 && \
+    	root -q -b " hit.C(0,\"b_s${i}_${j}.root\",\"b_p${i}_${j}.root\",\"b_d${i}_${j}.root\",\"b_h${i}_${j}.root\")" >> $log${i}_${j} 2>&1 &
+done
+sleep 2
+
+waitForMe "1"
+
+sleep 2
+
+cp b_p${i}.root par.root
+hadd -f par.root b_p*.root
+hadd -f sim.root b_s*.root
+hadd -f digi.root b_d*.root
+hadd -f hit.root b_h*.root
+#hadd -f reco_b.root b_r*.root
+
+
+#root -l eventDisplay.C
+#root -l cdrawrecoavr.C
+#root -l cdrawreco.C

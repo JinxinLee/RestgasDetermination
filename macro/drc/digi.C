@@ -1,4 +1,4 @@
-void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=0, Double_t eventRate=50, Double_t deadTime=5){
+void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=0, Double_t eventRate=50, Double_t deadTime=40){
   Int_t verbose = 0;
   
   // -----   Timer   --------------------------------------------------------
@@ -32,7 +32,7 @@ void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.r
   PndDrcDigiTask* drcdigi = new PndDrcDigiTask(verbose);
   drcdigi->SetChargeSharing(kFALSE);
   drcdigi->SetDeadTime(deadTime); //5 ns
-  drcdigi->SetTimeResolution(0.4); //0.4 ns
+  drcdigi->SetTimeResolution(0.1); //0.4 ns
   if(timeBased) drcdigi->RunTimeBased();
   fRun->AddTask(drcdigi);
 

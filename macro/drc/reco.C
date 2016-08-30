@@ -1,5 +1,5 @@
-void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString luttab = "lut/lut_e3_b5_l6_avr.root", TString outFile = "reco.root"){
-  Int_t verbose = 0;
+void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString lut = "lut/lut_e3_b3_l6_m40_avr.root",TString pdf = "pdf/pdf_3.5.root", TString outFile = "reco.root", Double_t r1 = 0, Double_t r2 =0){
+  Int_t verbose = 3;
   gStyle->SetOptStat(0);
   
   gSystem->Load("libSpectrum");
@@ -11,9 +11,20 @@ void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetGenerateRunInfo(kFALSE);
-  fRun->SetInputFile(digiFile);
-  fRun->AddFriend(simFile);
+
+  // //fRun->SetInputFile(digiFile);
+  fRun->SetInputFile(simFile);
   fRun->AddFriend(hitFile);
+  
+  // fRun->SetInputFile("sim_321.root");
+  // fRun->AddFriend("sim_211.root");
+  // fRun->AddFriend("hit_321.root");
+  // fRun->AddFriend("hit_211.root");sim
+
+  // FairFileSource* source = new FairFileSource(simFile);
+  // source->AddFriend(hitFile);
+
+  // fRun->SetSource(source);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -24,7 +35,8 @@ void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par
   rtdb->setFirstInput(parInput1);
 
   // -- Reconstruction using Look-up tables ---------------------------------
-  PndDrcLutReco* lutreco = new PndDrcLutReco(verbose+3, luttab);  
+  //PndDrcLutReco* lutreco = new PndDrcLutReco(verbose+0, luttab);
+  PndDrcReco* lutreco = new PndDrcReco(outFile,lut,pdf,1,r1,r2);  
   fRun->AddTask(lutreco);
        
   // -----   Initialize and run  --------------------------------------------

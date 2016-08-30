@@ -1,4 +1,4 @@
-void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TString parFile="parlut.root", Int_t bars=5, TString geom="dirc_e3_b5_l6.root"){
+void simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TString parFile="parlut.root", Int_t bars=3, TString geom="dirc_e3_b3_l6_m40.root"){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -44,7 +44,7 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   Drc->SetDetEffAtProduction(kFALSE);
   Drc->SetStopTime(50);
   Drc->SetVerboseLevel(0);
-  Drc->SetOnlyDirectPho(kFALSE);
+  //Drc->SetOnlyDirectPho(kFALSE);
   Drc->SetBlackLensSides(kTRUE);
   Drc->SetOptionForLUT(kTRUE);
   Drc->SetGeometryFileName(geom);
@@ -66,8 +66,17 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   Double_t x5[] = { 45.543481, 46.148229, 46.752977, 47.357725, 47.962473 };
   Double_t y5[] = { 15.265154, 12.102453,  8.939751,  5.777050,  2.614349 };
 
+  Double_t x4[] = { 45.665,46.418, 47.145, 47.873 };
+  Double_t y4[] = { 14.643,10.771,  6.893,  3.121 };
+
   Double_t x3[] = {45.748, 46.752977,47.775 };
   Double_t y3[] = {14.26, 8.939751, 3.591 };
+
+  Double_t x2[] = {46.014, 47.514 };
+  Double_t y2[] = {12.895, 4.991 };
+
+  Double_t x1[] = {46.779};
+  Double_t y1[] = {8.946};
 
   FairBoxGenerator* boxGen = new FairBoxGenerator(50000050, 1000);
   boxGen->SetPRange(3.18e-9,3.18e-9); // GeV/c //3.18eV <==> 390nm
@@ -76,8 +85,11 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   //boxGen->SetThetaRange(0, 180); 
   boxGen->SetCosTheta();
   //boxGen->SetBoxXYZ(46.3 ,7.4, 47.3,10.4, -118.9+0.01+60);
-  // boxGen->SetXYZ(46.8,8.9,-119+0.01); 
+  // boxGen->SetXYZ(46.8,8.9,-119+0.01);
+  if(bars==1)  boxGen->SetXYZ(x1[barId],y1[barId],-119+0.0001);
+  if(bars==2)  boxGen->SetXYZ(x2[barId],y2[barId],-119+0.0001);
   if(bars==3)  boxGen->SetXYZ(x3[barId],y3[barId],-119+0.0001);
+  if(bars==4)  boxGen->SetXYZ(x4[barId],y4[barId],-119+0.0001);
   if(bars==5)  boxGen->SetXYZ(x5[barId],y5[barId],-119+0.0001);
   primGen->AddGenerator(boxGen);
   
@@ -89,7 +101,7 @@ void simLut(Int_t nEvents=20, Int_t barId = 2, TString simFile="simlut.root", TS
   // boxGen->SetXYZ(0.,0.,0.);
   // primGen->AddGenerator(boxGen);
 
-  //fRun->SetStoreTraj(kTRUE);
+  // fRun->SetStoreTraj(kTRUE);
 
   fRun->Init();
   
