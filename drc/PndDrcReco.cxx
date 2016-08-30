@@ -120,6 +120,20 @@ InitStatus PndDrcReco::Init(){
     }
     fc->Close();
   }
+  
+  if(!gSystem->GetPathInfo(fPdfFile.Data(),&id,&size,&flags,&modtime)){    
+    TFile fpdf(fPdfFile);
+    TIter nextkey(fpdf.GetListOfKeys());
+    TKey *key;
+    while ((key = (TKey*)nextkey())) {
+      TH1F *fun = (TH1F*)key->ReadObj();
+      Int_t p,m,t,i;
+      sscanf(fun->GetName(), "pdf_%d_%d_%d_%d", &p,&m,&t,&i);
+      fhPdf[p][m][t][i]=fun;
+      fhPdf[p][m][t][i]->SetDirectory(0);
+    }
+    fpdf.Close();
+  }
 
   // //nph lut
   // name = fLutFile;
@@ -217,7 +231,7 @@ InitStatus PndDrcReco::Init(){
   }
   fCanvasList = new TList();
   
-  fMethod=1;
+  fMethod=0;
   
   cout << "-I- PndDrcReco: Intialization successfull" << endl;
   return kSUCCESS;
@@ -256,44 +270,34 @@ void PndDrcReco::Exec(Option_t* option){
     fTimeInBar = fBarPoint->GetTime();
     fPidTrue = fBarPoint->GetPdgCode();
     mcBarId = fBarPoint->GetBarId();
-
-    //fMom = fMCTrack->GetMomentum();
-
-
-    // //tracking smearing
-    // fMomInBar=fMCTrack->GetMomentum();
-    // TVector3 zz = fMomInBar;
-    // std::cout<<"fRandom.Gaus(0,0.003)  "<<fRandom.Gaus(0,0.003) <<std::endl;
     
-
-    // fMomInBar.Print();
-    // fMomInBar.SetTheta(fRandom.Gaus(fMomInBar.Theta(),0.003));
-    // fMomInBar.Rotate(fRandom.Uniform(2*TMath::Pi()), zz);
-    // fMomInBar.Print();
+    //tracking smearing
+    TVector3 zz = fMomInBar;	
+    fMomInBar.SetTheta(fRandom.Gaus(fMomInBar.Theta(),0.002));
+    fMomInBar.Rotate(fRandom.Uniform(2*TMath::Pi()), zz);
     
     fMom=fMomInBar.Mag();
-    //fTheta=fMomInBar.Theta()*180/TMath::Pi();
     fTheta=fMCTrack->GetMomentum().Theta()*180/TMath::Pi();
-    fPhi=fMomInBar.Phi()*180/TMath::Pi();
+    //fPhi=fMomInBar.Phi()*180/TMath::Pi();
+    fPhi=fMCTrack->GetMomentum().Phi()*180/TMath::Pi();
 
     if(fMom>2.5 && nevents==1 && itrack==0){
-      fhLk1[2] = new TH1F("fhLk1_1",  ";ln L(K) - ln L(#pi);entries [#]",150,-100,100);
-      fhLk1[3] = new TH1F("fhLk2_3",  ";ln L(K) - ln L(#pi);entries [#]",150,-100,100);
+      fhLk1[2] = new TH1F("fhLk1_2",  ";ln L(K) - ln L(#pi);entries [#]",150,-100,100);
+      fhLk1[3] = new TH1F("fhLk1_3",  ";ln L(K) - ln L(#pi);entries [#]",150,-100,100);
     }
-    
-    // fMomInBar.Print();
-    // fMomInBar = TVector3(0,0,3);
-    // fMomInBar.SetTheta(60*TMath::Pi()/180.);
-    // fMomInBar.SetPhi((-10.825-180)*TMath::Pi()/180.);
-    // fMomInBar.Print();
+    if(fMom>1.5 && nevents==1 && itrack==0){
+      fhLk2[2] = new TH1F("fhLk2_2",  ";ln L(K) - ln L(#pi);entries [#]",150,-100,100);
+      fhLk2[3] = new TH1F("fhLk2_3",  ";ln L(K) - ln L(#pi);entries [#]",150,-100,100);
+    }
     
     Double_t boxPhi;
     DetermineBarId(boxPhi, barId);
     fMomInBar.RotateZ(-boxPhi/180.*TMath::Pi());
+    
     DetermineCherenkov(mcBoxId, barId);
   }
 }
-
+//Double_t ggg;
 Int_t gg_pathid=0;
 void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
   
@@ -301,7 +305,7 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
     fLk1[i]=0;
     fLk2[i]=0;
     fHitsE[i]=0;
-    fAngle[i] = acos(sqrt(fMom*fMom + fMass[i]*fMass[i])/fMom/1.473) - 0.00; //1.4738 = 370 = 3.35
+    fAngle[i] = acos(sqrt(fMom*fMom + fMass[i]*fMass[i])/fMom/1.473) + 0.00; //1.4738 = 370 = 3.35
     fFunc[i]->SetParameter(1,fAngle[i]);
     Int_t momid=fMom*10+0.5;
     Int_t thetaid=fTheta+0.5;
@@ -312,6 +316,7 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
     if(c_spr[i][momid][thetaid]>0.003 && c_spr[i][momid][thetaid] < 0.1) fFunc[i]->SetParameter(2,c_spr[i][momid][thetaid]);
   }
 
+  //ggg=fRandom.Gaus(0,0.003);
   for(Int_t h=0; h<fPDHitArray->GetEntriesFast(); h++) {
     fPDHit = (PndDrcPDHit*)fPDHitArray->At(h);
  
@@ -331,7 +336,7 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
     Double_t en = 1.2398/(fMCTrack->GetMomentum().Mag()*1E6);
     hEnergy->Fill(fMCTrack->GetMomentum().Mag()*1E9);
     
-    if(fBarPoint->GetBoxId() != boxId || fBarPoint->GetBarId() != barId) continue;
+    //if(fBarPoint->GetBoxId() != boxId || fBarPoint->GetBarId() != barId) continue;
 
     Int_t nev=0;
     TVector3 vec;
@@ -345,8 +350,8 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
       }
     }
     
-    if(fMethod==1 || fMethod==0) LookUpTable(barId,sensorId);
-    if(fMethod==2 || fMethod==0) TimeImaging(sensorId);
+    if(fMethod==0 || fMethod==5) LookUpTable(barId,sensorId);
+    if(fMethod==1 || fMethod==5) TimeImaging(sensorId);
   }
 
   Int_t pid=fParticleArray[fPidTrue];
@@ -359,8 +364,18 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
   fLikelihood[0] = fLk1[3]-fLk1[2];
   fLikelihood[1] = fLk2[3]-fLk2[2];
 
-  if(fMethod==1 || fMethod==0) fhLk1[pid]->Fill(fLikelihood[0]);
-  if(fMethod==2 || fMethod==0) fhLk2[pid]->Fill(fLikelihood[1]);
+  if(fMethod==0 || fMethod==5) {
+    fhLk1[pid]->Fill(fLikelihood[0]);
+    fHits[pid]+=fHitsE[pid];
+    fhNph[pid]->Fill(fHitsE[pid]);
+    std::cout<<"method 0  LK = "<< fLikelihood[0] <<std::endl;
+  }
+  if(fMethod==1 || fMethod==5){
+    fhLk2[pid]->Fill(fLikelihood[1]);
+    fHits[pid]+= fPDHitArray->GetEntriesFast();
+    fhNph[pid]->Fill(fPDHitArray->GetEntriesFast());
+    std::cout<<"method 1  LK = "<< fLikelihood[1] <<std::endl;
+  }
 
   if(fLikelihood[0]>0) {
     if(fPidTrue==321) fEventsEff[3]++;
@@ -370,12 +385,6 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
     else fEventsMis[2]++;
   }
   fEvents[pid]++;
-  
-  if(fHitsE[pid]>0) fHits[pid]+=fHitsE[pid];
-
-  fhNph[pid]->Fill(fHitsE[pid]);
-  
-  std::cout<<"nph "<< fLk1[2] <<" "<< fLk1[3]<<"  "<< fLk1[2]-fLk1[3]<< std::endl;
   
   if(false){// &&   fLk1[2] > fLk1[3]){
     TCanvas* c = new TCanvas("c","c",0,0,800,600);
@@ -452,7 +461,7 @@ void PndDrcReco::LookUpTable(Int_t barId, Int_t sensorId){
       luttime = fLenz/cos(luttheta)/19.8 + evtime;
 
       Double_t tdiff=luttime -fTimeHit;
-      
+
       tangle = fMomInBar.Angle(dir);
 
       // tangle += 0.002*tdiff;
@@ -463,7 +472,7 @@ void PndDrcReco::LookUpTable(Int_t barId, Int_t sensorId){
 
       Int_t momid=fMom*10+0.5;
       Int_t thetaid=fTheta+0.5;
-      tangle += c_mean[pid][momid][thetaid];
+      if(fabs(c_mean[pid][momid][thetaid])<0.008) tangle += c_mean[pid][momid][thetaid];
       //tangle += 0.5*(c_mean[2][momid][thetaid]+c_mean[3][momid][thetaid]);
       
       // if(tangle<fAngle[3]-0.04 || tangle>fAngle[2]+0.04) continue;
@@ -482,6 +491,7 @@ void PndDrcReco::LookUpTable(Int_t barId, Int_t sensorId){
       fLk1[2] += TMath::Log((fFunc[2]->Eval(tangle)+noise)); // 211
       fLk1[3] += TMath::Log((fFunc[3]->Eval(tangle)+noise)); // 321
 
+      
       fhTang[pid]->Fill(tangle);
       fHist->Fill(tangle);
     }
@@ -490,7 +500,14 @@ void PndDrcReco::LookUpTable(Int_t barId, Int_t sensorId){
 }
 
 void PndDrcReco::TimeImaging(Int_t sensorId){
-
+  Double_t noise = 1e-3;
+  Int_t momid=fMom*10+0.5;
+  Int_t thetaid=fTheta+0.5;
+  Int_t pid=fParticleArray[fPidTrue];
+  
+  fhTime[pid]->Fill(fTimeHit);
+  fLk2[2] += TMath::Log(fhPdf[2][momid][thetaid][sensorId]->GetBinContent(fhPdf[2][momid][thetaid][sensorId]->FindBin(fTimeHit))+noise); 
+  fLk2[3] += TMath::Log(fhPdf[3][momid][thetaid][sensorId]->GetBinContent(fhPdf[3][momid][thetaid][sensorId]->FindBin(fTimeHit))+noise);  
 }
 
 void PndDrcReco::DetermineBarId(Double_t &boxPhi, Int_t &barId){
@@ -514,7 +531,7 @@ void PndDrcReco::DetermineBarId(Double_t &boxPhi, Int_t &barId){
 Double_t PndDrcReco::FindPeak(){
   Double_t cherenkovreco = -1;
 
-  if(fHist->GetEntries()>20 ){
+  if(fHist->Integral()>20 ){
     TCanvas* c = new TCanvas("c","c",0,0,800,600);
     Int_t nfound = fSpect->Search(fHist,1,"",0.6);
     Float_t *xpeaks = (Float_t*)fSpect->GetPositionX();
@@ -612,44 +629,114 @@ void PndDrcReco::Finish(){
   CanvasAdd("hLikelihood"+strrun);
   TF1 *ff;
   Double_t m1,m2,s1,s2;
-  if(fhLk1[2]->GetEntries()>10){
+  
+  if(fMethod==0){
+    if(fhLk1[2]->Integral()>10){
       fhLk1[2]->Fit("gaus","S");
       ff = fhLk1[2]->GetFunction("gaus");
       m1=ff->GetParameter(1);
       s1=ff->GetParameter(2);
-  }
-  if(fhLk1[3]->GetEntries()>10){
-    fhLk1[3]->Fit("gaus","S");
-    ff = fhLk1[3]->GetFunction("gaus");
-    m2=ff->GetParameter(1);
-    s2=ff->GetParameter(2);
-  }
-  fSeparation[0] = (fabs(m2-m1))/(0.5*(s1+s2));
-  std::cout<<"separation "<< fSeparation[0] <<std::endl;
-  
-  fhLk1[2]->SetTitle(Form("S = %2.2f",fSeparation[0]));
-  fhLk1[2]->SetLineColor(4);
-  fhLk1[3]->SetLineColor(2);
-  fhLk1[2]->Draw();
-  fhLk1[3]->Draw("same");
+    }
+    if(fhLk1[3]->Integral()>10){
+      fhLk1[3]->Fit("gaus","S");
+      ff = fhLk1[3]->GetFunction("gaus");
+      m2=ff->GetParameter(1);
+      s2=ff->GetParameter(2);
+    }
 
-  CanvasAdd("hDiff"+strrun);
-  fhDiff[2]->SetLineColor(4);
-  fhDiff[2]->Draw();
-  fhDiff[3]->SetLineColor(2);
-  fhDiff[3]->Draw("same");
+    fSeparation[0] = (fabs(m2-m1))/(0.5*(s1+s2));
+    std::cout<<"separation1 "<< fSeparation[0] <<std::endl;
+
+    fhLk1[2]->SetTitle(Form("S = %2.2f",fSeparation[0]));
+    fhLk1[2]->SetLineColor(4);
+    fhLk1[3]->SetLineColor(2);
+    fhLk1[2]->Draw();
+    fhLk1[3]->Draw("same");
+    
+    CanvasAdd("hDiff"+strrun);
+    fhDiff[2]->SetLineColor(4);
+    fhDiff[2]->Draw();
+    fhDiff[3]->SetLineColor(2);
+    fhDiff[3]->Draw("same");
+
+    CanvasAdd("hPathAll"+strrun);
+    hPathAll->Draw();
+    hPath->SetLineColor(2);
+    hPath->Draw("same");
   
+    CanvasAdd("hAngle"+strrun);
+    for(Int_t i=2; i<4; i++){
+      fFit->SetParameter(1,fAngle[i]); // peak
+      fFit->SetParameter(2,0.01);      // width
+      if(fhTang[i]->Integral()>10){
+	fhTang[i]->Fit("fgaus","Q","",fAngle[i]-0.05,fAngle[i]+0.05);
+	fhTang[i]->Fit("fgaus","QM","",fAngle[i]-0.05,fAngle[i]+0.05);
+	fSpr[i]=fFit->GetParameter(2);
+	fCangle[i]=fFit->GetParameter(1);
+      }
+    }
+    fhTang[2]->SetTitle(Form("#theta_{C} = %2.3f  #sigma = %2.4f      #theta_{C} = %2.3f  #sigma = %2.4f",fCangle[3],fSpr[3],fCangle[2],fSpr[2]));
+ 
+    fhTang[2]->SetLineColor(4);
+    fhTang[2]->Draw();
+
+    fhTang[3]->SetLineColor(2);
+    fhTang[3]->Draw("same");
+  
+    TLine *line = new TLine(0,0,0,1000);
+    line->SetX1(fAngle[2]);
+    line->SetX2(fAngle[2]);
+    line->SetY1(gPad->GetUymin());
+    line->SetY2(fhTang[2]->GetMaximum()*1.05);
+    line->SetLineColor(kBlue);
+    line->Draw();
+  
+    TLine *line1 = new TLine(0,0,0,1000);
+    line1->SetX1(fAngle[3]);
+    line1->SetX2(fAngle[3]);
+    line1->SetY1(gPad->GetUymin());
+    line1->SetY2(fhTang[2]->GetMaximum()*1.05);
+    line1->SetLineColor(kRed);
+    line1->Draw();
+
+    CanvasAdd("hSD"+strrun);
+    hSD->Draw("colz");
+  }
+  
+  if(fMethod==1){
+    if(fhLk2[2]->Integral()>10){
+      fhLk2[2]->Fit("gaus","S");
+      ff = fhLk2[2]->GetFunction("gaus");
+      m1=ff->GetParameter(1);
+      s1=ff->GetParameter(2);
+    }
+    if(fhLk2[3]->Integral()>10){
+      fhLk2[3]->Fit("gaus","S");
+      ff = fhLk2[3]->GetFunction("gaus");
+      m2=ff->GetParameter(1);
+      s2=ff->GetParameter(2);
+    }
+
+    fSeparation[1] = (fabs(m2-m1))/(0.5*(s1+s2));
+    std::cout<<"separation2 "<< fSeparation[1] <<std::endl;
+    
+    fhLk2[2]->SetTitle(Form("S = %2.2f",fSeparation[1]));
+    fhLk2[2]->SetLineColor(4);
+    fhLk2[3]->SetLineColor(2);
+    fhLk2[2]->Draw();
+    fhLk2[3]->Draw("same");
+  }
+   
   CanvasAdd("hTime"+strrun);
   fhTime[2]->SetLineColor(4);
   fhTime[2]->Draw();
   fhTime[3]->SetLineColor(2);
   fhTime[3]->Draw("same");
 
-
   TFile fn("nph_"+strrun+".root","recreate");
   CanvasAdd("hNph"+strrun);
   for(Int_t i=2; i<4; i++){
-    if(fhNph[i]->GetEntries()>10){
+    if(fhNph[i]->Integral()>10){
       fhNph[i]->Fit("gaus","Q");
       fFnph[i]=fhNph[i]->GetFunction("gaus");
       //    fFnph[i]->SetParameter(0,1);
@@ -663,56 +750,11 @@ void PndDrcReco::Finish(){
   fhNph[2]->Draw();
   fhNph[3]->SetLineColor(2);
   fhNph[3]->Draw("same");
- 
-
-  CanvasAdd("hSD"+strrun);
-  hSD->Draw("colz");
 
   CanvasAdd("hEnergy"+strrun);
   hEnergy->Draw();
 
-  CanvasAdd("hPathAll"+strrun);
-  hPathAll->Draw();
-  hPath->SetLineColor(2);
-  hPath->Draw("same");
-  
-  CanvasAdd("hAngle"+strrun);
-  for(Int_t i=2; i<4; i++){
-    fFit->SetParameter(1,fAngle[i]); // peak
-    fFit->SetParameter(2,0.01);      // width
-    if(fhTang[i]->GetEntries()>10){
-      fhTang[i]->Fit("fgaus","Q","",fAngle[i]-0.05,fAngle[i]+0.05);
-      fhTang[i]->Fit("fgaus","QM","",fAngle[i]-0.05,fAngle[i]+0.05);
-      fSpr[i]=fFit->GetParameter(2);
-      fCangle[i]=fFit->GetParameter(1);
-    }
-  }
-  fhTang[2]->SetTitle(Form("#theta_{C} = %2.3f  #sigma = %2.4f      #theta_{C} = %2.3f  #sigma = %2.4f",fCangle[3],fSpr[3],fCangle[2],fSpr[2]));
- 
-  fhTang[2]->SetLineColor(4);
-  fhTang[2]->Draw();
-
-  fhTang[3]->SetLineColor(2);
-  fhTang[3]->Draw("same");
-  
-  TLine *line = new TLine(0,0,0,1000);
-  line->SetX1(fAngle[2]);
-  line->SetX2(fAngle[2]);
-  line->SetY1(gPad->GetUymin());
-  line->SetY2(fhTang[2]->GetMaximum()*1.05);
-  line->SetLineColor(kBlue);
-  line->Draw();
-  
-  TLine *line1 = new TLine(0,0,0,1000);
-  line1->SetX1(fAngle[3]);
-  line1->SetX2(fAngle[3]);
-  line1->SetY1(gPad->GetUymin());
-  line1->SetY2(fhTang[2]->GetMaximum()*1.05);
-  line1->SetLineColor(kRed);
-  line1->Draw();
-
   for(Int_t l=0; l<5; l++) fLut[l]->Clear();
-
   for(Int_t i=0; i<5; i++){
     if(fEvents[i]<1) continue;
     fNph[i]=fHits[i]/(Double_t)fEvents[i];

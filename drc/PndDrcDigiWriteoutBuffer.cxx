@@ -68,15 +68,25 @@ void PndDrcDigiWriteoutBuffer::EraseDataFromDataMap(FairTimeStamp* data)
 
 std::vector<std::pair<double, FairTimeStamp*> > PndDrcDigiWriteoutBuffer::Modify(std::pair<double, FairTimeStamp*> oldData, std::pair<double, FairTimeStamp*> newData) {
   std::vector<std::pair<double, FairTimeStamp*> > result;
-  std::pair<double, FairTimeStamp*> Result1;
-  if (newData.first > 0) Result1.first = oldData.first + (newData.first - oldData.first);
-  Result1.second = oldData.second;
+  
+  Double_t oldStamp =  ((PndDrcDigi*)oldData.second)->GetTimeStamp();
+  Double_t newStamp =  ((PndDrcDigi*)newData.second)->GetTimeStamp();
+  Double_t deadTime = oldData.first -oldStamp;
+  if(newStamp-oldStamp>deadTime-0.0000001) result.push_back(newData);
+  else oldData.first = newStamp+deadTime;
+
+  result.push_back(oldData);
+  
+  // std::pair<double, FairTimeStamp*> Result1;
+  // if (newData.first > 0)  Result1.first = oldData.first + (newData.first - oldData.first);
+  // Result1.second = oldData.second;
+  // result.push_back(oldData);
+
   if (fVerbose > 0){
     std::cout << "Modify hit" << std::endl;
     std::cout << "OldData: " << oldData.first << " : " << ((PndDrcDigi*)oldData.second)->GetTimeStamp() <<"("<<((PndDrcDigi*)oldData.second)->GetSensorId() <<")"<< " NewData: " << newData.first << " : " << newData.second  <<"  "<< ((PndDrcDigi*)newData.second)->GetTimeStamp() <<"("<<((PndDrcDigi*)newData.second)->GetSensorId() <<")"<< std::endl;
-    std::cout << "Resulting Data: " << Result1.first << " : " << Result1.second << std::endl;
+    //std::cout << "Resulting Data: " << Result1.first << " : " << Result1.second << std::endl;
   }
-  
-  result.push_back(Result1);
+
   return result;
 }

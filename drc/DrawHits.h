@@ -66,7 +66,7 @@ public:
   virtual void Finish();
 
  /** Rotation in Bar Co-ordinate System **/
- void RotBarCoordinate(TVector3& vector, Int_t  barID){std::cerr << "WARNNING DrawHits::RotBarCoordinate(TVector3&, int) not properly implemented." <<std::endl;};
+ void RotBarCoordinate(TVector3& vector, Int_t  barID);
  
  void SetTreeName(TString str){fTreeName = str;}
 

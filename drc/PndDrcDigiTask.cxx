@@ -149,7 +149,14 @@ void PndDrcDigiTask::ProcessPhotonPoint(){
     
     fPpt = (PndDrcPDPoint*)fPDPointArray->At(k);
     // fMCtrk = (PndMCTrack*)fMCArray->At(fPpt->GetTrackID());
-    fBarPoint = (PndDrcBarPoint*)fBarPointArray->At(fPpt->GetBarPointID());
+    Int_t bpId=fPpt->GetBarPointID();
+    if(bpId<0){
+      std::cout<<" Error: bpId = "<<bpId <<std::endl;
+      
+      continue;
+    }
+    
+    fBarPoint = (PndDrcBarPoint*)fBarPointArray->At(bpId);
     
     // transform to local sensor system
     TVector3 PptPosition;
@@ -263,6 +270,7 @@ void PndDrcDigiTask::ActivatePixel(Int_t sensorId, Int_t k, Int_t csflag) {
 
   digi->SetPdgCode(fBarPoint->GetPdgCode());
   digi->SetTimeStamp(timeStamp);
+  digi->SetTimeAtBar(fBarPoint->GetTime());
   if(fSigmat>0) digi->SetTimeStampError(fSigmat/TMath::Sqrt(fSigmat));
   else digi->SetTimeStampError(0);
 

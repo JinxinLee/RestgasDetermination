@@ -65,8 +65,7 @@ public:
 
   /** method: FindDrcHitPosition-> finds hit position in PMT plane **/
   void FindDrcHitPosition(Double_t xPoint, Double_t yPoint, Double_t zPoint,
-			  Double_t& xHit, Double_t& yHit, Double_t& zHit, Int_t pmtID)
-			  {std::cerr << "WARNNING PndDrcDigiTask::FindDrcHitPosition() not properly implemented." <<std::endl;};
+			  Double_t& xHit, Double_t& yHit, Double_t& zHit, Int_t pmtID);
 
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}

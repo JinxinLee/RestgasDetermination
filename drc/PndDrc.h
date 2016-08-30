@@ -102,20 +102,6 @@ class PndDrc : public FairDetector
     if(fPhoMaxTime <= 0.){fStopTime = kFALSE;}
   } 
 
-  /*!  \brief No reflected photons from the side of expansion volume
-    \param db Flag
-    kFALSE = only reflected photons
-    kTRUE = only direct photons
-  */ 
-  void SetOnlyDirectPho(Bool_t db=kFALSE) {fTakeDirect = db;}
-  
-  /*!  \brief No directo photons that go from the bar end to the PD plane of reflected from the cone part of the EV
-    \param db Flag
-    kFALSE = all photons
-    kTRUE = only bottom reflected photons
-  */ 
-  void SetOnlyReflectedPho(Bool_t dref=kFALSE) {fTakeReflected = dref;}
-
   /** Virtual method Initialize
    ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
    **/
@@ -236,10 +222,6 @@ class PndDrc : public FairDetector
   void SetRunCherenkov(Bool_t ch) { fRunCherenkov = ch; };
 
  private:
- 
-  //$$$$$$$$$$$$$$$$$$$$
-  Int_t nphotons;
-  //$$$$$$$$$$$$$$$$$$$$
   
   Bool_t fPersistency;
  
@@ -256,7 +238,6 @@ class PndDrc : public FairDetector
   Double_t fbarnum;
   Double_t fphi0;
   Double_t fdphi;
-  Double_t flside;
   Double_t fbarwidth;
   
   PndGeoHandling* fGeoH; 	//! ///< converter for detector names
@@ -274,14 +255,8 @@ class PndDrc : public FairDetector
   Int_t          fPosIndex;                 //! 
   Int_t          volDetector;               //!  MC volume ID of drc
   Double_t       fMass;
-  TLorentzVector fMom1;
-  TLorentzVector fMom2; //! for transport efficiency calculation
-  TLorentzVector fPos2; //! for transport efficiency calculation
-  TLorentzVector fPos1;
   TLorentzVector fMomAtEV;
   Double_t       fTimeAtEV;
-  Double_t 	 fBarEnd;
-  Double_t 	 fMirrorGap;
   Double_t 	 fTimeAtEVEntrance;
   Double_t       fTimeStart;
   Double_t       fVeloPhoton;
@@ -289,37 +264,21 @@ class PndDrc : public FairDetector
   // from Initialisation:
   Double_t       fEfficiencyR[1000]; 
   Int_t          fEVreflections;
-  Int_t          fBarTrackStatus;
-  
-  // used in ProcessHits function:
-  Int_t		 fbarID;	   //!  ID number of DrcBarSensors
-  Int_t          fpdID;		   //!  ID number of DrcPdSensor
-  Int_t		 flens3ID;	   //!  ID number of third lenses
-  Int_t		 flens2ID;
-  Int_t		 flens1ID;
-  Int_t		 fbboxID;      	   //!  ID number of DrcBarBoxes
-  Int_t 	 fevID;		   //!  ID number of Expansion Volume
   
   TGraph*        fDetEff;          //!  Detector Efficiency as a function of photon wavelength
   Bool_t         fDetEffAtProduction;
   Bool_t     	 fTransportEffAtProduction;
-  TRandom3	 frand;
-  Int_t          fLastTrackID;
+  TRandom3	 fRand;
   Double_t       fCollectionEff;//Collection Efficiency
  
   Bool_t         fStopTime;
   Double_t       fPhoMaxTime;
-  Bool_t         fTakeDirect; 
-  Bool_t         fTakeReflected;     
-  Int_t 	 fFocusing; 
   Bool_t         fTakeRealReflectivity;
   Bool_t	 fStopSecondaries;
   Bool_t  	 fStopChargedTrackAfterDIRC;
   Bool_t	 fSetBlackLens; 
   Bool_t 	 fOptionForLUT;	
    
-  TArrayI        fProc;
-
   PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
 
   Int_t          fPdgCode;
@@ -331,17 +290,10 @@ class PndDrc : public FairDetector
 
   Int_t          fEventID;
   
-   // js group velocity check    
-  Float_t fTime_out, fTime_in, fLength_in, fLength_out, fPEnergy, fLambda1, fDeltaT;
-  Double32_t     fTrackTime;            
-  // end
-  
   // reset all parameters   
   void ResetParameters();
 
-  Int_t  fSenId1, fSenId2, fSenIdBar;
-  ClassDef(PndDrc,11)
-
+  ClassDef(PndDrc,1)
 }; 
 
 

@@ -322,6 +322,8 @@ void PndDrcLutReco::DetermineBarId(Double_t phi, Double_t &boxPhi, Int_t &boxId,
     std::cout<<"Error in PndDrcLutReco:  Bar Id is wrong. barId = "<< barId <<std::endl;
     barId = -1;
   }
+  std::cout<<"phi="<<phi<<" boxPhi "<<boxPhi<<" startPhi " <<startPhi<<"  8235fBarPhi  "<<fBarPhi<<std::endl;
+  
 }
 
 Int_t g_num =0;

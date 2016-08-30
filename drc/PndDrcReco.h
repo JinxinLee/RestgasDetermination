@@ -112,10 +112,12 @@ private:
   Double_t fMass[5];
   Double_t fAngle[5];
   TF1 *fFunc[5], *fFnph[5],*fhNphArr[5][40][150];
+  
   Double_t fLk1[5];
   Double_t fLk2[5];
   Double_t fDiffLn1, fDiffLn2;
   TH1F *fhLk1[5], *fhLk2[5],*fhTang[5], *fhTime[5],*fhDiff[5],*fhNph[5];
+  TH1F *fhPdf[5][40][120][1100];
   
   Double_t fMom, fTheta, fPhi, fSpr[5], fNph[5], fCangle[5], fLikelihood[2], fSeparation[2];
   Double_t fEfficiency[5], fMissId[5];

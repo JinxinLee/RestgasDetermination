@@ -192,6 +192,7 @@ void PndDrcHitFinder::Exec(Option_t* opt){
     PndDrcPDHit pdhit = PndDrcPDHit(detID, sensorId , HitPosGlobal, dPosHit, hitTime, 0., iDigi);
     pdhit.SetPdgCode(fDigi->GetPdgCode());
     pdhit.SetTimeStamp(fDigi->GetTimeStamp());
+    pdhit.SetTimeAtBar(fDigi->GetTimeAtBar());
     pdhit.SetLink(fDigi->GetLink(0)); // MCTrack
     pdhit.AddLink(fDigi->GetLink(1)); // DrcPDPoint
     pdhit.AddLink(FairLink(-1,fEventNr, "DrcDigi", iDigi));
