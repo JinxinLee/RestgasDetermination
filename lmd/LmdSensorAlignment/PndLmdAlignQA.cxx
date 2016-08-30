@@ -131,6 +131,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 	}
 
 	//plot by module
+	//TODO: implement
 	else if(param == kPlotByModule){
 
 		for(int i=0; i<idPairs.size(); i++){
@@ -158,8 +159,8 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		 */
 	}
-
-	else if(param == kPlotMatrixResiduals){
+	//TODO: handle path and filenames correctly
+	else if(param == kPlotCMMatrixResiduals){
 
 		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
 
@@ -170,7 +171,157 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 200e3){
+			if( matrixInfo[overlapID] < 500e3){
+				continue;
+			}
+
+			//prepare
+			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
+			string path = "/home/arbeit/simulationData/boxtest-aligned-1.5/binaryPairs/LMDmatrices";
+			matrixNameCM = path + matrixNameCM;
+
+			//read matrices from disk
+			Matrix matrixCM = manager.readMatrix(matrixNameCM);
+			Matrix senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
+			//Matrix senToSenCorrTarget = Matrix::eye(4);
+			Matrix matrixDif = matrixCM - senToSenCorrTarget;
+
+			//store this residual tuple to data
+			std::vector<double> result;
+			result.push_back(id1);
+			result.push_back(id2);
+			result.push_back(matrixDif.val[0][1]);		// sin(alpha)
+			result.push_back(matrixDif.val[0][3]);		// tx
+			result.push_back(matrixDif.val[1][3]);		// ty
+			data.push_back(result);
+		}
+
+		histParams parameters;
+
+		//for DX
+		parameters.path = pdfdir;
+		parameters.title = "matrixCM - correctionTarget, #DeltaX";
+		parameters.xtitle = "dX [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dx.pdf";
+		parameters.vectorIndex = 3;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+		//for DY
+		parameters.path = pdfdir;
+		parameters.title = "matrixCM - correctionTarget, #DeltaY";
+		parameters.xtitle = "dY [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dy.pdf";
+		parameters.vectorIndex = 4;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+		//for DAlpha
+		parameters.path = pdfdir;
+		parameters.title = "matrixCM - correctionTarget, #Delta#alpha";
+		parameters.xtitle = "d#alpha [#murad]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e6;
+		parameters.fileName = "dalpha.pdf";
+		parameters.vectorIndex = 2;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+	}
+	//TODO: handle path and filenames correctly
+	else if(param == kPlotPXMatrixResiduals){
+
+		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
+
+		for(int i=0; i<idPairs.size(); i++){
+
+			int id1 = idPairs[i].first;
+			int id2 = idPairs[i].second;
+
+			//only select overlap areas with more than 2e5 pairs
+			int overlapID = dimension->makeOverlapID(id1, id2);
+			if( matrixInfo[overlapID] < 500e3){
+				continue;
+			}
+
+			//prepare
+			Matrix target = manager.getMatrixOfficialGeometry(id1, id2,true);
+			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
+			string path = "/home/arbeit/simulationData/boxtest-aligned-1.5/binaryPairs/LMDmatrices";
+			matrixNamePX = path + matrixNamePX;
+
+			//read matrices from disk
+			Matrix matrixPX = manager.readMatrix(matrixNamePX);
+			manager.transformFromSensorToLmdLocal(matrixPX, id1, true);
+			Matrix matrixDif = matrixPX - target;
+
+			//store this residual tuple to data
+			std::vector<double> result;
+			result.push_back(id1);
+			result.push_back(id2);
+			result.push_back(matrixDif.val[0][1]);		// sin(alpha)
+			result.push_back(matrixDif.val[0][3]);		// tx
+			result.push_back(matrixDif.val[1][3]);		// ty
+			data.push_back(result);
+		}
+
+		histParams parameters;
+
+		//for DX
+		parameters.path = pdfdir;
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #DeltaX";
+		parameters.xtitle = "dX [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dx.pdf";
+		parameters.vectorIndex = 3;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+		//for DY
+		parameters.path = pdfdir;
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #DeltaY";
+		parameters.xtitle = "dY [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dy.pdf";
+		parameters.vectorIndex = 4;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+		//for DAlpha
+		parameters.path = pdfdir;
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #Delta#alpha";
+		parameters.xtitle = "d#alpha [#murad]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e6;
+		parameters.fileName = "dalpha.pdf";
+		parameters.vectorIndex = 2;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+	}
+	//TODO: handle path and filenames correctly
+	else if(param==kPlotCMvsPX){
+
+		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
+
+		for(int i=0; i<idPairs.size(); i++){
+
+			int id1 = idPairs[i].first;
+			int id2 = idPairs[i].second;
+
+			//only select overlap areas with more than 2e5 pairs
+			int overlapID = dimension->makeOverlapID(id1, id2);
+			if( matrixInfo[overlapID] < 500e3){
 				continue;
 			}
 
@@ -185,16 +336,12 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			Matrix matrixCM = manager.readMatrix(matrixNameCM);
 			Matrix matrixPX = manager.readMatrix(matrixNamePX);
 
-			//invert both
-			//matrixCM = Matrix::inv(matrixCM);
-			//matrixPX = Matrix::inv(matrixPX);
+			//transform matrixPX to lmd local
+			manager.transformFromSensorToLmdLocal(matrixPX, id1);
 
 			Matrix senToSen = manager.getMatrixOfficialGeometry(id1,id2,true);
-			matrixCM = matrixCM * senToSen;  //this is now the total matrix from sen1 to sen2
-
-			//matrixCM = Matrix::inv(matrixCM);
-
-			Matrix matrixDif = matrixCM - matrixPX;
+			Matrix senToSenWithCorr = matrixCM * senToSen;  //this is now the total matrix from sen1 to sen2
+			Matrix matrixDif = senToSenWithCorr - matrixPX;
 
 			/*
 			cout << "after transformation:\n";
@@ -213,47 +360,49 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			data.push_back(result);
 		}
 
-
 		histParams parameters;
 
 		//for DX
 		parameters.path = pdfdir;
-		parameters.title = "DeltaX";
-		parameters.xtitle = "dX [#mum]";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaX";
+		parameters.xtitle = "dX [nm]";
 		parameters.ytitle = "entries";
-		parameters.scaleFactor = 1e4;
+		parameters.scaleFactor = 1e4*1e3;
 		parameters.fileName = "dx.pdf";
 		parameters.vectorIndex = 3;
-		parameters.xMin=-1;
-		parameters.xMax=-1;
+		parameters.xMin=-50;
+		parameters.xMax=50;
 		createHist(data, parameters);
 
 		//for DY
 		parameters.path = pdfdir;
-		parameters.title = "DeltaY";
-		parameters.xtitle = "dY [#mum]";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaY";
+		parameters.xtitle = "dY [nm]";
 		parameters.ytitle = "entries";
-		parameters.scaleFactor = 1e4;
+		parameters.scaleFactor = 1e4*1e3;
 		parameters.fileName = "dy.pdf";
 		parameters.vectorIndex = 4;
-		parameters.xMin=-1;
-		parameters.xMax=-1;
+		parameters.xMin=-50;
+		parameters.xMax=50;
 		createHist(data, parameters);
 
 		//for DAlpha
 		parameters.path = pdfdir;
-		parameters.title = "Delta#alpha";
-		parameters.xtitle = "d#alpha [#murad]";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #Delta#alpha";
+		parameters.xtitle = "d#alpha [nrad]";
 		parameters.ytitle = "entries";
-		parameters.scaleFactor = 1e6;
+		parameters.scaleFactor = 1e9;
 		parameters.fileName = "dalpha.pdf";
 		parameters.vectorIndex = 2;
-		parameters.xMin=-1;
-		parameters.xMax=-1;
+		parameters.xMin=-500;
+		parameters.xMax=500;
 		createHist(data, parameters);
 	}
 
-	else if(param == 4){
+	/*
+	 * test functions and sandbox
+	 */
+	else if(param == 99){
 
 		//clear console
 		manager.clearScreen();
@@ -271,13 +420,13 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		cout << "-- debug end --\n";
 		 */
 
-		int id1 = 20;
-		int id2 = 25;
+		int id1 = 0;
+		int id2 = 5;
 
 		//prepare
 		string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
 		string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-		string path = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices/";
+		string path = "/home/arbeit/simulationData/boxtest-misaligned-10u-1.5/binaryPairs/LMDmatrices/";
 		matrixNameCM = path + matrixNameCM;
 		matrixNamePX = path + matrixNamePX;
 
@@ -304,10 +453,10 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		 */
 		cout << "\n--------------------------------\n\n";
 		cout << "different approach: px - target:\n";
-		Matrix real = manager.getMatrixOfficialGeometry(id1, id2,false);
+		Matrix real = manager.getMatrixOfficialGeometry(id1, id2,true);
 		cout << "official matrix:\n" << real << "\n";
 		Matrix icpMatrixNewOne = manager.readMatrix(matrixNamePX);
-		manager.transformFromSensorToLmdLocal(icpMatrixNewOne, id1);		//remember, icp matrix is local to sensor!
+		manager.transformFromSensorToLmdLocal(icpMatrixNewOne, id1, false);		//remember, icp matrix is local to sensor!
 		cout << "residual:\n" << icpMatrixNewOne - real << "\n";			//return matrix residuals
 
 		/*
@@ -338,62 +487,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		return;
 	}
-
-	//The vector now contains ALL overlap matrix parameters
-
-	/*
-
-
-	if(param==kNormal){
-		TH1D DeltaX("DeltaX", "DeltaX", 50,-1,-1);
-		TH1D DeltaY("DeltaY", "DeltaY", 50,-1,-1);
-		TH1D DeltaAlpha("DeltaAlpha", "DeltaAlpha", 50,-1,-1);
-
-		DeltaX.GetXaxis()->SetTitle("dX [#mum]");
-		DeltaX.GetYaxis()->SetTitle("entries");
-		DeltaY.GetXaxis()->SetTitle("dY [#mum]");
-		DeltaY.GetYaxis()->SetTitle("entries");
-		DeltaAlpha.GetXaxis()->SetTitle("d#alpha [#murad]");
-		DeltaAlpha.GetYaxis()->SetTitle("entries");
-
-		if(data.size()==0){
-			cout << "Error: nothing read! (maybe not enough pairs?) \n";
-			exit(1);
-		}
-
-		//have all data now
-		for(int iArea=0; iArea<data.size();iArea++){
-			DeltaAlpha.Fill(data[iArea][2] * 1e6);
-			DeltaX.Fill(data[iArea][3] * 1e4);
-			DeltaY.Fill(data[iArea][4] * 1e4);
-		}
-
-		stringstream pathname;
-		pathname << _outputPath;
-
-		_inCentimeters ? pathname << "/inCm/" : pathname << "/inPx/";
-		_enableHelperMatrix ? pathname << "corrFull-" : pathname << "";
-
-		PndLmdAlignManager::mkdir(pathname.str());
-
-		TCanvas canvas("canvas", "canvas", 800,600);
-		canvas.cd();
-		DeltaX.Draw();
-		canvas.Print((pathname.str()+"dx.pdf").c_str());
-		DeltaY.Draw();
-		canvas.Print((pathname.str()+"dy.pdf").c_str());
-		DeltaAlpha.Draw();
-		canvas.Print((pathname.str()+"dalpha.pdf").c_str());
-
-		return;
-	}
-	else if(param==kPlotByModule){
-
-	 */
-
-
-
-	//}
 }
 
 void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vector<double> > &vec) {
@@ -437,16 +530,10 @@ Matrix PndLmdAlignQA::getMatrixResiduals(int id1, int id2) {
 	//get matrix file name from PndLmdAlignManager
 	string matrixName = _matrixDir + PndLmdAlignManager::makeMatrixFileName(id1, id2, _inCentimeters);
 
+	//FIXME: remember the changes. correct those methods.
 	if(_inCentimeters){
 		Matrix icpMatrix = manager.readMatrix(matrixName);
 		Matrix corrSensorToSensor = manager.getCorrectionMatrix(id1, id2);
-
-		/*
-		 * remember, all pairs were in lmd local, transform matrix from PndLmdDim
-		 * (which came in panda global) to lmd local, since ICP matrix will be in
-		 * lmd local
-		 */
-		manager.transformGlobalToLmd(corrSensorToSensor);
 		return icpMatrix - corrSensorToSensor;	//return matrix residuals
 	}
 

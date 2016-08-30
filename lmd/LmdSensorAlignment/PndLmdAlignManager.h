@@ -114,32 +114,42 @@ public:
 
 	//helper transformation, since all px matrices are local to the system of
 	//the first sensor. they need to be transformed to lmd local so we can compare
-	//them to the matrices from pndlmddim.
-	void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId);
+	//them to the matrices from pndlmddim. aligned should be true, since we don't
+	//actually have the misaligned matrices on the real geometry. use aligned=false
+	//only when comparing matrices from misaligned geometry
+	void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId, bool aligned=true);
 
-	//returns a Matrix(4,4)
+	//returns a Matrix(4,4) from a TGeoHMatrix
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
 
 	//returns a Matrix(4,1) to use with homogenous matrices
 	static Matrix castTVector3toMatrix(const TVector3 &vec);
+
+	//returns the actual matrices from PndLmdDim in LMD Local coordinate system
 	Matrix getMatrixOfficialGeometry(int fromSensor, int toSensor, bool misaligned);
+
+	//returns the actual matrices from PndLmdDim in panda global coordinate system
+	//you should not need this function anymore
 	Matrix getMatrixOfficialGeometryGlobal(int fromSensor, int toSensor, bool misaligned);
 
+	//returns the transformation matrix from sensor(aligned)->sensor(misaligned)
 	Matrix getCorrectionMatrix(int id);
+
+	//returns the transformation matrix from sensor1(misaligned)->sensor2(misaligned)
+	//this matrix is essentially what the ICP finds (when operating in CM mode)
 	Matrix getCorrectionMatrix(int id1, int id2);
 
+	//helper matrix, should not be needed anymore
 	Matrix getMatrixGlobalToLmd(){
 		return castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true))));
 	}
+	//helper matrix, should not be needed anymore
 	Matrix getMatrixLmdToGlobal(){
 		return Matrix::inv(castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true)))));
 	}
 	static TVector3 castMatrixToTVector3(const Matrix &vec);
 	static Matrix readMatrix(std::string filename);
 	bool writeMatrix(Matrix &mat, std::string filename);
-
-	//FIXME: remove this code, it has moved to the actual matrix file
-	static inline Matrix homogenizeMatrix(const Matrix &input);
 
 	const Matrix& getHelperMatrix() const {
 		return helperMatrix;
