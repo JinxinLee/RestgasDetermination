@@ -1,0 +1,40 @@
+#!/bin/bash
+
+ev=${1:-3}
+bars=${2:-3}
+lens=${3:-6}
+rows=${4:-40}
+
+nevents=2000
+
+JOB_ID="e${ev}_b${bars}_l${lens}_m${rows}"
+DIR="$HOME/pandaroot/macro/drc/lut"
+
+root -q -b ../createdirc.C"(${ev},${bars},${lens},${rows})"
+
+for (( i=0; i<bars; i++ )) ; do
+    TASK_ID="$i"
+    simname="$DIR/sim_${JOB_ID}_p${TASK_ID}.root"
+    parname="$DIR/par_${JOB_ID}_p${TASK_ID}.root"
+    lutname="$DIR/lut_${JOB_ID}_p${TASK_ID}.root"
+    logsimname="$DIR/logsim_${JOB_ID}_p${TASK_ID}.log"
+    loglutname="$DIR/loglut_${JOB_ID}_p${TASK_ID}.log"
+
+    (root.exe -l -b -q "simLut.C($nevents, ${i}, \"$simname\",\"$parname\",${bars}, \"dirc_${JOB_ID}.root\") > $logsimname" && root.exe -l -b -q "fillLut.C(0,\"${simname}\",\"${parname}\",\"${lutname}\") > $loglutname") &
+done
+
+while [ 1==1 ] ; do
+    activth=$(ps aux | grep "[r]oot.exe" | wc -l)
+    diffth=$(($maxnthr-$activth))
+    echo "We have $activth active root.exe " 
+    if [ "$activth" -eq 0 ]; then
+	break
+    fi
+    sleep 2
+done
+
+sleep 5
+
+root.exe -l -q "lutaddbar.C(\"$DIR/lut_${JOB_ID}_p*.root\",\"$DIR/lut_${JOB_ID}.root\")"
+root.exe -l -q "lutmean.C(\"$DIR/lut_${JOB_ID}\")"
+
