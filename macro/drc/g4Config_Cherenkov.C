@@ -30,10 +30,14 @@ void Config()
   /// Create the G4 VMC 
   TGeant4* geant4 = new TGeant4("TGeant4", "The Geant4 Monte Carlo", runConfiguration);
   cout << "Geant4 has been created." << endl;
-
-  geant4->ProcessGeantCommand("/optics_engine/selectOpProcess Cerenkov");
-  geant4->ProcessGeantCommand("/optics_engine/setTrackSecondariesFirst false");
-
+  geant4->ProcessGeantCommand("/mcVerbose/all 0"); 
+  geant4->ProcessGeantCommand("/mcVerbose/eventAction 1");
+  
+  // geant4->ProcessGeantCommand("/optics_engine/selectOpProcess Cerenkov");
+  // geant4->ProcessGeantCommand("/optics_engine/setTrackSecondariesFirst false"); 
+  // geant4->ProcessGeantCommand("/optics_engine/setCerenkovMaxPhotons 5");
+  // geant4->ProcessGeantCommand("/optics_engine/setCerenkovMaxBetaChange 0.1");
+  
   /// create the Specific stack
   PndStack *stack = new PndStack(1000); 
   //stack->StoreSecondaries(kFALSE); //default is kTRUE
@@ -50,5 +54,4 @@ void Config()
   Text_t buffer[50];
   sprintf(buffer,"/random/setSeeds %i  %i ",gRandom->GetSeed(), gRandom->GetSeed());
   geant4->ProcessGeantCommand(buffer);
-
 }
