@@ -72,13 +72,13 @@ void PndPidSciTAssociatorTask::Exec(Option_t * option) {
 void PndPidSciTAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob)
 {
   //parametrizise the sigma e.g. in dependenc of the transvers momentum
-  Double_t sigma=0.11;
+  Double_t sigma=0.08;
 
   TF1 *tofResolution = new TF1("tofResolution","[0]/x**4+[1]");
 
   Double_t mass = 0.140; // mass in GeV/c. Pion Mass as start Value
 
-  Double_t mom =pidcand->GetMomentum().Mag();
+  Double_t mom =pidcand->GetMomentum().Perp();// transverse momentum!
   Double_t length = pidcand->GetTofTrackLength();
   Double_t tof = pidcand->GetTofStopTime();
 
@@ -113,6 +113,8 @@ void PndPidSciTAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbab
   sigma = tofResolution->Eval(mom);
   prob->SetProtonPdf(GetPdf(mom,length,tof,mass,sigma));
 
+
+  delete tofResolution;
 }  
 
 Double_t PndPidSciTAssociatorTask::GetPdf(Double_t mom, Double_t length, Double_t tof, Double_t mass, Double_t sigma)
