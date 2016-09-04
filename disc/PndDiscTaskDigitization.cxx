@@ -42,7 +42,7 @@ Double_t n_phase_sellmeier(Double_t * coeff,Double_t lambda_um)
 
 PndDiscTaskDigitization::PndDiscTaskDigitization() : FairTask("PndDiscTaskDigitization"), mc_point_branch_id(0), tclarr_mc_points(NULL), writeout_buffer(NULL), fMcEventHeader(NULL), is_time_based(kTRUE), is_persistent(kTRUE)
 #ifndef USESENSORGRID
-    //,pde_interpolator(0, ROOT::Math::Interpolation::kLINEAR)
+    ,pde_interpolator(0, ROOT::Math::Interpolation::kLINEAR)
 #endif
 {
     particle_types.insert(1);

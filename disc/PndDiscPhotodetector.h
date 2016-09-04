@@ -26,13 +26,12 @@ public:
 
     void SetPDE(int n_entries, const double * wavelength_nm, const double * pde)
     {
-        //pde_interpolator.SetData(n_entries, wavelength_nm, pde);
+        pde_interpolator.SetData(n_entries, wavelength_nm, pde);
     }
 
     virtual double GetPDE(const double &wavelength_nm) const 
     {
-        //return pde_interpolator.Eval(wavelength_nm);
-        return wavelength_nm;
+        return pde_interpolator.Eval(wavelength_nm);
     }
 
 protected:
@@ -40,7 +39,7 @@ protected:
     void Init(DesignID design_id);
 
 private:
-    //ROOT::Math::Interpolator pde_interpolator;
+    ROOT::Math::Interpolator pde_interpolator;
 };
 
 

@@ -277,7 +277,7 @@ void PndDiscTaskPID::Exec(Option_t* opt)
                     {
                         double propagation = tdc - t[i]; //Calculation of photon propagation time
                         double dt = propagation - time_prediction[i][k][sensor_id]; //Calculation of time difference
-                        prob[k] += log(gauss(pixel,pixel_prediction[i][k][sensor_id],6)); //Likelihood calculation
+                        prob[k] += log(gauss(pixel,pixel_prediction[i][k][sensor_id],4)); //Likelihood calculation
                     }
                 }
             }
