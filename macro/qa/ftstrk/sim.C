@@ -239,8 +239,7 @@ void sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231
   cout << "</DartMeasurement>" << endl;
   // done sending Info
   
-  cout << " Test passed" << endl;
-  cout << " All ok " << endl;
+  cout << "Macro finished successfully." << endl;
 
   //exit(0);
 

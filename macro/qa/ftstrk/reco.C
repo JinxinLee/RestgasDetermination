@@ -122,7 +122,6 @@ void reco(Int_t nEvents = 5)
   // done sending Info
 
   // ------------------------------------------------------------------------
-  cout << " Test passed" << endl;
-  cout << " All ok " << endl;
+  cout << "Macro finished successfully." << endl;
   //exit(0);
 }
