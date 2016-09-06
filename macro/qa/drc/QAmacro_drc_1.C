@@ -45,7 +45,7 @@ void QAmacro_drc_1()
   
   //-----------------------  DRC  -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
+  Drc->SetRunCherenkov(kTRUE);        // for fast sim Cherenkov -> kFALSE
   Drc->SetMirrorReal(kFALSE);  
   //Drc->StopChargedTrackAfterDIRC(kTRUE); 
   Drc->StopSecondaries(kFALSE); 
@@ -53,18 +53,12 @@ void QAmacro_drc_1()
   Drc->SetDetEffAtProduction(kTRUE);
   Drc->SetStopTime(150.);
   Drc->SetVerboseLevel(0);
-  Drc->SetOnlyDirectPho(kFALSE);
   Drc->SetBlackLensSides(kTRUE);
   Drc->SetOptionForLUT(kFALSE);
-  Drc->SetGeometryFileName("dirc_g1_l6.root");
+  Drc->SetGeometryFileName("dirc_e3_b3_l6_m40.root");
   fRun->AddModule(Drc); 
 
-  // Set Random Number seed
-  Int_t rndm=0;
-  if (gSystem->Getenv("RANDOM")) {
-    rndm = atoi(gSystem->Getenv("RANDOM"));
-  }
-  gRandom->SetSeed(rndm); // Set 0 to use the current time
+  gRandom->SetSeed(0); // Set 0 for random
   cout<<"Seed for random number generation= "<<gRandom->GetSeed()<<endl;
 
   // Create and Set Event Generator
@@ -81,7 +75,7 @@ void QAmacro_drc_1()
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kFALSE); // to store particle trajectories  
+  fRun->SetStoreTraj(kFALSE);         // to store particle trajectories  
 
   // Create and Set Magnetic Field
   //-------------------------------
