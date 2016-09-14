@@ -197,10 +197,12 @@ void RhoKinFitter::SetOutput()
     p1.SetXYZM(fAl0[k*7+0][0],fAl0[k*7+1][0],fAl0[k*7+2][0],m[k][0]);
     // fDaughters[k]->SetP4(p1);
     fDaughters[k]->SetP7(pos,mom4);
+      
 
+    TMatrixD p1Cov(7,7);
     for(int i=0; i<7; i++) {
       for (int j=0; j<7; j++) {
-        TMatrixD p1Cov(7,7);
+        
         p1Cov[i][j]= fV_al0[k*7+i][k*7+j];
         fDaughters[k]->SetCov7(p1Cov); //New covariance matrix without correlations
       }
