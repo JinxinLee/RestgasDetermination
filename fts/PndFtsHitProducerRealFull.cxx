@@ -5,7 +5,7 @@
 //
 // authors: Pablo Genova - Pavia University
 //          Lia Lavezzi  - Pavia University
-//          
+//
 // modified for FTS by Isabella Garzia
 /////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerRealFull::PndFtsHitProducerRealFull() :
-  FairTask("Real FTS Hit Producer",0), fPointArray(0),  fHitArray(0),
+  FairTask("Real FTS Hit Producer",0), fPointArray(0),  //fHitArray(0),
   fHitInfoArray(0), fFtsParameters(new PndGeoFtsPar()), fTimeOrderedDigi(kFALSE),
   fPersistence(kTRUE)
 {
@@ -54,20 +54,20 @@ PndFtsHitProducerRealFull::~PndFtsHitProducerRealFull() { }
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndFtsHitProducerRealFull::Init() {
-  
+
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndFtsHitProducerRealFull::Init: "
-	 << "RootManager not instantiated!" << endl;
+   << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
-  
+
   // Get input array
   fPointArray = dynamic_cast<TClonesArray*> (ioman->GetObject("FTSPoint"));
   if ( ! fPointArray ) {
     cout << "-W- PndFtsHitProducerRealFull::Init: "
-	 << "No FTSPoint array!" << endl;
+   << "No FTSPoint array!" << endl;
     return kERROR;
   }
 
@@ -78,23 +78,23 @@ InitStatus PndFtsHitProducerRealFull::Init() {
   fDataBuffer = new PndFtsHitWriteoutBuffer("FTSHit", "FTS", fPersistence);
   fDataBuffer = (PndFtsHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer("FTSHit", fDataBuffer);
   fDataBuffer->ActivateBuffering(fTimeOrderedDigi);
-  
+
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndFtsHitInfo");
   ioman->Register("FTSHitInfo", "FTS", fHitInfoArray, kFALSE);
-  
-  // CHECK added 
+
+  // CHECK added
   PndFtsMapCreator *mapper = new PndFtsMapCreator(fFtsParameters);
   fTubeArray = mapper->FillTubeArray();
 
   cout << "-I- PndFtsHitProducerRealFull: Intialization successfull" << endl;
-  
+
   return kSUCCESS;
 
 }
 // -------------------------------------------------------------------------
 
-// CHECK added 
+// CHECK added
 void PndFtsHitProducerRealFull::SetParContainers() {
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
@@ -103,17 +103,17 @@ void PndFtsHitProducerRealFull::SetParContainers() {
 // -----   Public method Exec   --------------------------------------------
 void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
 
-  //  Int_t evtn=0;	
+  //  Int_t evtn=0;
   //  PndFtsPoint *ptemp =(PndFtsPoint*) fPointArray->At(0);
   //  if(ptemp !=NULL) {
   //    evtn=ptemp->GetEventID();
   //    if(evtn%50==0)cout << "Event Number "<<evtn<<endl;
   //  }
-  
+
   // Reset output array
-  if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-  
-  fHitArray->Delete();
+  //if ( ! fHitArray ) Fatal("Exec", "No HitArray");
+
+  //fHitArray->Delete();
   fHitInfoArray->Clear();
 
   Int_t detID = 0;    // detectorID
@@ -121,7 +121,7 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
 
   // Declare some variables
   PndFtsPoint* point  = NULL;
-   
+
   // Loop over FtsPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) {
@@ -129,12 +129,12 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
     if (point == NULL) continue;
 
     detID = point->GetDetectorID();
-  
+
     // tubeID  CHECK added
     Int_t skew=0;
     Int_t layerID = point->GetLayerID();
     Int_t tubeID = point->GetTubeID();
-    Int_t chamberID = point->GetChamberID();    
+    Int_t chamberID = point->GetChamberID();
     PndFtsTube *tube = (PndFtsTube*) fTubeArray->At(tubeID);
 
     //if skewed tube: skew==1
@@ -154,45 +154,45 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
     InOut[3] = point->GetXOutLocal();
     InOut[4] = point->GetYOutLocal();
     InOut[5] = point->GetZOutLocal();
-    
+
     // single straw tube simulation -----------------------
     PndFtsSingleStraw fts;
-    
+
     //setting the single straw tube simulation constants
     // 3 options currently available:
     // TConst(tube radius (cm), gas pressure (bar), Ar%, CO2%)
-    // fts.TConst(0.4, 1, 0.9, 0.1); 
+    // fts.TConst(0.4, 1, 0.9, 0.1);
     // fts.TConst(0.5, 1, 0.9, 0.1);
      fts.TConst(0.5, 2, 0.8, 0.2);
-    
-    // wire positioning   
+
+    // wire positioning
     fts.PutWireXYZ(0.,  0., -75., 0., 0., 75.);
 
     // get particle momentum
     TVector3 momentum(point->GetPxOut(),point->GetPyOut(),point->GetPzOut()); // GeV/c
-      
+
     Double_t GeV=1.;
     // position in cm (already in cm); momentum in GeV (already in GeV); mass in GeV (already in GeV)
-      
+
     // drift time calculation
     Double_t pulset = fts.PartToTime(point->GetMass()/GeV, momentum.Mag()/GeV, InOut);
-        
+
     // simulated radius (cm)
     double radius = fts.TimnsToDiscm(pulset);
     if(radius < 0.) radius = 0.; // CHECK
-      
+
     // true radius (cm)
     double true_rad = fts.TrueDist(InOut);
 
     // dE calculation
     double depCharge = fts.PartToADC();
-      
+
     // dE/dx calculation
     double dedx = -999;
-    
+
     // fts: detID, pos, dpos, index come from --------------
     // fts (FairHit):
-    Double_t closestDistanceError = 0.0150; // per adesso (stessa che in Ideal: 
+    Double_t closestDistanceError = 0.0150; // per adesso (stessa che in Ideal:
                                             // radialResolution = 0.0150)
 
     TVector3 position = tube->GetPosition();
@@ -220,21 +220,21 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
   }// Loop over MCPoints
-  
+
   // Event summary
   cout << "-I- PndFtsHitProducerRealFull: " << nPoints << " FtsPoints, "
        << nPoints << " Hits created." << endl;
-  
+
 }
 // -------------------------------------------------------------------------
-void PndFtsHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, 
-						    TVector3 localInPos, TVector3 localOutPos)
+void PndFtsHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError,
+                TVector3 localInPos, TVector3 localOutPos)
 {
   Double_t
     zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.;
- 
+
   //  zposError = gRandom->Gaus(0., GetLongitudinalResolution(zPosInStrawFrame));
-  zposError = gRandom->Gaus(0., 3.); // per adesso (stesso che in Ideal: 
+  zposError = gRandom->Gaus(0., 3.); // per adesso (stesso che in Ideal:
                                      // longitudinalResolution = 3.)
 
   zpos += zposError;
@@ -247,14 +247,14 @@ PndFtsHit* PndFtsHitProducerRealFull::AddHit(Int_t detID, Int_t tubeID, Int_t ch
 {
   // see PndFtsHit for hit description
 
-	  Double_t EventTime = FairRootManager::Instance()->GetEventTime();
+    Double_t EventTime = FairRootManager::Instance()->GetEventTime();
 
   PndFtsHit *hitnew =  new PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, p+EventTime+timeOfFlight, rsim, closestDistanceError, depcharge);
   if (fTimeOrderedDigi){
-	  hitnew->ResetLinks();
-	  FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
-	  hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "FTSPoint", iPoint));
-	  hitnew->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EventHeader.", -1));
+    hitnew->ResetLinks();
+    FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
+    hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "FTSPoint", iPoint));
+    hitnew->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EventHeader.", -1));
   }
   fDataBuffer->FillNewData(hitnew, p+EventTime+timeOfFlight, timeOfFlight+EventTime);
   return hitnew;

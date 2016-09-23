@@ -22,7 +22,7 @@ class PndFtsHitProducerRealFull : public FairTask
 
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
   PndFtsHitProducerRealFull();
 
 
@@ -50,13 +50,13 @@ class PndFtsHitProducerRealFull : public FairTask
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
 
- private: 
+ private:
 
   /** Input array of PndFtsPoints **/
-  TClonesArray* fPointArray;   
+  TClonesArray* fPointArray;
 
   /** Output array of PndFtsHits **/
-  TClonesArray* fHitArray;
+  //TClonesArray* fHitArray;
   PndFtsHitWriteoutBuffer* fDataBuffer;
 
   /** Output array of PndFtsHitInfo **/
@@ -73,7 +73,7 @@ class PndFtsHitProducerRealFull : public FairTask
 
   PndFtsHitProducerRealFull(const  PndFtsHitProducerRealFull& L);
   PndFtsHitProducerRealFull& operator= (const  PndFtsHitProducerRealFull&) {return *this;}
-  
+
   ClassDef(PndFtsHitProducerRealFull,1);
 
 };
