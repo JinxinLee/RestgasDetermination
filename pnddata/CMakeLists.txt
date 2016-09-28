@@ -135,6 +135,7 @@ SciTData/PndSciTHit.cxx
 TrackData/PndTrackCandHit.cxx
 TrackData/PndTrackCand.cxx
 TrackData/PndTrack.cxx
+TrackData/PndSimpleTrack.cxx
 TrackData/PndTrackID.cxx
 #TrackData/PndVertex.cxx
 
@@ -238,6 +239,7 @@ SciTData/PndSciTHit.h
 TrackData/PndTrackCandHit.h
 TrackData/PndTrackCand.h
 TrackData/PndTrack.h
+TrackData/PndSimpleTrack.h
 TrackData/PndTrackID.h
 #TrackData/PndVertex.h
 
