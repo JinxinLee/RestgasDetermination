@@ -23,6 +23,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/buffers
+  ${CMAKE_SOURCE_DIR}/PndTools/MQ
   ${CMAKE_SOURCE_DIR}/PndMCMatch
   ${CMAKE_SOURCE_DIR}/mvd/MvdMC
   ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
@@ -35,6 +36,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/mvd/transport
   ${CMAKE_SOURCE_DIR}/mvd
   ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
+  ${CMAKE_SOURCE_DIR}/mvd/MvdMQ
   ${CMAKE_SOURCE_DIR}/sds/SdsMC
   ${CMAKE_SOURCE_DIR}/sds/SdsTools
   ${CMAKE_SOURCE_DIR}/sds/SdsDigi
@@ -76,6 +78,8 @@ MvdTools/PndEventDisplay.cxx
 #MvdTools/PndMvdEventMerger.cxx
 #MvdTools/PndMvdEventMergerTask.cxx
 MvdTools/PndMvdMSAnaTask.cxx
+MvdTools/PndBurstContainer.cxx
+MvdTools/PndBurstVectorBuilder.cxx
 
 MvdMC/PndMvdDetector.cxx
 
@@ -97,32 +101,20 @@ MvdDAQ/PndMvdConvertApv.cxx
 MvdDAQ/PndMvdBoxMap.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
 MvdDAQ/PndMvdCreateDefaultApvMap.cxx
-
-#MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBData.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMvdReadInToPix4TBData.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMvdReadInTBDataTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMapSorterTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMapSorter.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMapSorterTpl.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMvdTopix4RingSorterTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndMvdTopix4RingSorter.cxx
-#MvdOfflineTBAnalysis_Topix4/mrftools.cxx
-#MvdOfflineTBAnalysis_Topix4/mrf_confitem.cxx
-#MvdOfflineTBAnalysis_Topix4/mrfdata_8b.cxx
-#MvdOfflineTBAnalysis_Topix4/PndTimeOffsetFinderTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndTSCorrectorTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndStraightLineTrackFinderTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndXYResidualTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndPosCorrectorTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndHammingDecoder.cxx
-#MvdOfflineTBAnalysis_Topix4/PndTopix4.cxx
 )
+
+#set(HEADERTPL
+#	"MvdTools/PndBurstVectorBuilder.h"
+#	"MvdTools/PndBurstVectorBuilder.tpl"
+#)
+
+install(FILES ${HEADERTPL} DESTINATION include)
 
 set(LINKDEF  MvdLinkDef.h)
 set(LIBRARY_NAME Mvd)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
-Geane Sds TrkBase boost_serialization boost_thread MathCore MathMore
+Geane Sds TrkBase boost_serialization boost_thread MathCore MathMore #pndMQ
   # fairmq_logger
   boost_timer
   boost_system
@@ -158,7 +150,7 @@ set(LINKDEF  MvdRecoLinkDef.h)
 set(LIBRARY_NAME MvdReco)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools 
-Geane Sds SdsReco TrkBase MathCore MathMore)
+Geane Sds SdsReco TrkBase MathCore MathMore) # pndMQ)
 
 GENERATE_LIBRARY()
 
@@ -188,6 +180,6 @@ set(LINKDEF  MvdTrkLinkDef.h)
 set(LIBRARY_NAME MvdTrk)
 
 set(DEPENDENCIES Base GeoBase ParBase PndData generalTools
-riemann Geane Sds TrkBase MathCore MathMore)
+riemann Geane Sds TrkBase MathCore MathMore) # pndMQ)
 
 GENERATE_LIBRARY()
