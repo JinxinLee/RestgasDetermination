@@ -10,17 +10,19 @@
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
+#include "FairMQLogger.h"
 
 #include "PndMQStraightLineTrackFinder.h"
 
 #include "PndSdsDigiStrip.h"
 #include "TStopwatch.h"
+#include "PndTrkFitter.h"
 // #include "PndSdsPixelCluster.h"
 
 
 // -----   Default constructor   -------------------------------------------
 PndMQStraightLineTrackFinder::PndMQStraightLineTrackFinder() :
- fNLayers(4)
+ fNLayers(4), fEventNr(0)
 {
    fdXY = 0.1;
    fHitsPerLayer.resize(fNLayers);
@@ -37,23 +39,41 @@ PndMQStraightLineTrackFinder::~PndMQStraightLineTrackFinder()
 // -------------------------------------------------------------------------
 
 // -----   Private method SortHitsByDet   --------------------------------------------
-void PndMQStraightLineTrackFinder::SortHitsToLayers(std::vector<PndSdsHit>& hits)
+void PndMQStraightLineTrackFinder::SortHitsToLayers()
 {
-  for (int i = 0; i < hits.size(); i++){
-	  if (hits[i].GetSensorID() < fNLayers)
-		  fHitsPerLayer[hits[i].GetSensorID()].push_back(make_pair(hits[i], false));
+	ClearLayerInfo();
+  for (int i = 0; i < fHits.size(); i++){
+	  if (fHits[i].GetSensorID() < fNLayers)
+		  fHitsPerLayer[fHits[i].GetSensorID()].push_back(make_pair(i, false));
   }
+}
+
+int PndMQStraightLineTrackFinder::NLayersFilled()
+{
+	int result = 0;
+	for (auto layer : fHitsPerLayer){
+		if (layer.size() > 0)
+			result++;
+	}
+	return result;
+}
+
+
+void PndMQStraightLineTrackFinder::ClearLayerInfo()
+{
+	for (int layer = 0; layer < fHitsPerLayer.size(); layer++)
+		fHitsPerLayer[layer].clear();
 }
 // -------------------------------------------------------------------------
 
-std::vector< std::vector<int> > PndMQStraightLineTrackFinder::GetStartCombination(int firstLayer, int secondLayer)
+std::vector< std::vector<int> > PndMQStraightLineTrackFinder::GetStartCombinations(int firstLayer, int secondLayer)
 {
-	std::vector< std::vector<int> > result;
-	for (int firstL = 0; firstL < fHitsPerLayer[firstLayer].size; firstL++){
-		for (int secondL = 0; secondL < fHitsPerLayer[secondLayer].size; secondL++){
-			std::vector<int> singleCombi(4,-1);
-			singleCombi[firstLayer] = firstL;
-			singleCombi[seondLayer] = secondL;
+	std::vector<std::vector<int> > result;
+	for (int firstL = 0; firstL < fHitsPerLayer[firstLayer].size(); firstL++){
+		for (int secondL = 0; secondL < fHitsPerLayer[secondLayer].size(); secondL++){
+			std::vector<int> singleCombi;
+			singleCombi.push_back(fHitsPerLayer[firstLayer][firstL].first);
+			singleCombi.push_back(fHitsPerLayer[secondLayer][secondL].first);
 			result.push_back(singleCombi);
 		}
 	}
@@ -69,28 +89,33 @@ StraightLineParams PndMQStraightLineTrackFinder::GetLineParameters(std::vector<i
 	{
 		if (startCombi[i] > -1){
 			if (firstFound == false){
-				PndSdsHit firstHit = fHitsPerLayer[i][startCombi[i]].first;
+				PndSdsHit firstHit = fHits[startCombi[i]];
 				first = firstHit.GetPosition();
 				firstFound = true;
 				result.origin = first;
+				//LOG(INFO) << "GetLineParameters: first " << firstHit;
 			} else {
 
-				PndSdsHit secondHit = fHitsPerLayer[i][startCombi[i]].first;
+				PndSdsHit secondHit = fHits[startCombi[i]];
 				second = secondHit.GetPosition();
 				result.direction = (second - first).Unit();
+				//LOG(INFO) << "GetLineParameters: second: " << secondHit;
 				break;
 			}
+			//LOG(INFO) << "LineParams: orig: " << result.origin.X() << "/" << result.origin.Y() << "/" << result.origin.Y()
+			//		<< " dir: " << result.direction.X() << "/" << result.direction.Y() << "/" << result.direction.Z();
 		}
 	}
 	return result;
 }
 
-TVector3 PndMQStraightLineTrackFinder::PropagateToXYPlane(StraightLineParams line, Double z)
+TVector3 PndMQStraightLineTrackFinder::PropagateToXYPlane(StraightLineParams line, double z)
 {
 	double t = 0;
 	t = (z - line.origin.Z()) / line.direction.Z();
 	TVector3 result;
 	result = line.origin + line.direction * t;
+	//LOG(INFO) << "Propagate to z= " << z << " : " << result.X() << "/" << result.Y() << "/" << result.Z();
 	return result;
 }
 
@@ -99,22 +124,103 @@ double PndMQStraightLineTrackFinder::DistanceOfPoints(TVector3 first, TVector3 s
 	return (first - second).Mag();
 }
 
-PndTrackCand PndMQStraightLineTrackFinder::FindTrack(std::vector<int> startCombi){
+PndSimpleTrack PndMQStraightLineTrackFinder::GenerateTrackParams(std::vector<int>& hitsInTrack)
+{
+	PndTrackCand trackCand;
+	double timeStamp = 0;
 
+	for (int i = 0; i < hitsInTrack.size(); i++){
+		trackCand.AddHit(FairLink(-1,fEventNr,1,hitsInTrack[i]), i);
+		timeStamp += fHits[hitsInTrack[i]].GetTimeStamp();
+	}
+	StraightLineParams params = FitTrack(hitsInTrack);
+	FairTrackPar par(params.origin.X(), params.origin.Y(), params.origin.Z(),
+						params.direction.X(), params.direction.Y(), params.direction.Z(), 1);
+	timeStamp /= hitsInTrack.size();
+	trackCand.SetTimeStamp(timeStamp);
+	PndSimpleTrack result(par, trackCand, params.chi2);
+//	.SetTrackCand(trackCand);
+	return result;
 }
 
-std::vector<PndTrackCand> PndMQStraightLineTrackFinder::FindTracks(std::vector<PndSdsHit> hits)
+StraightLineParams PndMQStraightLineTrackFinder::FitTrack(std::vector<int> hitsInTrack)
 {
-	SortHitsToLayers(hits);
-	std::vector<std::vector<int> > startCombi = GetStartCombination(0,1);
-	for (int i = 0; i < startCombi.size(); i++){
+	PndTrkFitter fitterXZ, fitterYZ;
+	for (auto hitId : hitsInTrack){
+		fitterXZ.SetPointToFit(fHits[hitId].GetZ(), fHits[hitId].GetX(), fHits[hitId].GetDx());
+		fitterYZ.SetPointToFit(fHits[hitId].GetZ(), fHits[hitId].GetY(), fHits[hitId].GetDy());
+	}
+	double mXZ, pXZ, mYZ, pYZ;
+	double chi2XZ = fitterXZ.StraightLineFitWithChi2(mXZ, pXZ);
+	double chi2YZ = fitterYZ.StraightLineFitWithChi2(mYZ, pYZ);
 
+	double chi2 = TMath::Sqrt(TMath::Power(chi2XZ,2) + TMath::Power(chi2YZ,2));
+
+	StraightLineParams result;
+	result.origin.SetXYZ(pXZ, pYZ, 0);
+	result.direction.SetXYZ(pXZ, pYZ, 1);
+	result.direction = result.direction.Unit();
+	result.chi2 = chi2;
+	return result;
+}
+
+PndSimpleTrack PndMQStraightLineTrackFinder::FindTrack(std::vector<int>& startCombi, int lastStartPoint){
+	StraightLineParams params = GetLineParameters(startCombi);
+	std::pair<double, int> closestPoint(-1, -1);
+	PndSimpleTrack result;
+	for (int layer = lastStartPoint + 1; layer < fNLayers; layer++){
+		if (fHitsPerLayer[layer].size() > 0){
+			double z = fHits[fHitsPerLayer[layer][0].first].GetZ();
+			TVector3 prop = PropagateToXYPlane(params, z);
+			for (int point = 0; point < fHitsPerLayer[layer].size(); point++){
+				double distance = DistanceOfPoints(prop, fHits[fHitsPerLayer[layer][point].first].GetPosition());
+				//LOG(INFO) << " distance: " << distance << " between prop: " << prop.X() << "/" << prop.Y() << "/" << prop.Z() << " and hit: " << fHits[fHitsPerLayer[layer][point].first];
+				if ((closestPoint.second < 0) || (closestPoint.first > distance)){
+					closestPoint.first = distance;
+					closestPoint.second = point;
+				}
+			}
+			if (closestPoint.first < fdXY){
+				//LOG(INFO) << "PointAdded!";
+				startCombi.push_back(closestPoint.second);
+			}
+		}
+	}
+	if (startCombi.size() > 3){
+		//LOG(INFO) << "FOUND TRACK!";
+		result = GenerateTrackParams(startCombi);
+	}
+	return result;
+}
+
+std::vector<PndSimpleTrack> PndMQStraightLineTrackFinder::FindTracks(std::vector<PndSdsHit> hits, int eventNr)
+{
+	fEventNr = eventNr;
+	fHits = hits;
+
+	std::vector<PndSimpleTrack> result;
+
+	SortHitsToLayers();
+
+	if (NLayersFilled() < 4) {
+		return result;
 	}
 
+	std::vector<std::vector<int> > startCombi = GetStartCombinations(0,1);
+	for (int i = 0; i < startCombi.size(); i++){
+		PndSimpleTrack track = FindTrack(startCombi[i], 1);
+//		LOG(INFO) << " Track with " << track.GetTrackCand().GetNHits();
+		if (track.GetTrackCand().GetNHits() > 0){
+//			LOG(INFO) << "TrackFound: " << track.GetNLinks();
+			result.push_back(track);
+
+		}
+	}
+	return result;
 }
 
 // -----   Private method FindHitsII  --------------------------------------------
-void PndMQStraightLineTrackFinder::FindHitsII(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits)
+/*void PndMQStraightLineTrackFinder::FindHitsII(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits)
 {
 
   std::vector<TVector3> trackStart, trackVec;//pseudo tracks
@@ -247,10 +353,11 @@ void PndMQStraightLineTrackFinder::FindHitsII(std::vector<PndTrackCand> &tofill,
   }//end of pseudo-tracks
 
 }
+*/
 // -------------------------------------------------------------------------
 
 // -----   Private method FindHitsI  --------------------------------------------
-void PndMQStraightLineTrackFinder::FindHitsI(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits)
+/*void PndMQStraightLineTrackFinder::FindHitsI(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits)
 {
 
   std::vector<TVector3> trackStart, trackVec;//pseudo tracks
@@ -405,10 +512,11 @@ void PndMQStraightLineTrackFinder::FindHitsI(std::vector<PndTrackCand> &tofill, 
   }//end of pseudo-tracks
 
 }
+*/
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndMQStraightLineTrackFinder::Exec(Option_t* opt)
+/*void PndMQStraightLineTrackFinder::Exec(Option_t* opt)
 {
   TStopwatch *timer_exec = new TStopwatch();
    if(fVerbose>2) timer_exec->Start();
@@ -500,6 +608,7 @@ void PndMQStraightLineTrackFinder::Exec(Option_t* opt)
     cout << endl;
   }
 }
+*/
 // -------------------------------------------------------------------------
 
 Double_t PndMQStraightLineTrackFinder::GetTrackCurvature(PndMCTrack* myTrack)

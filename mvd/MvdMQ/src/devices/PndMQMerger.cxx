@@ -24,7 +24,7 @@
 
 using namespace std;
 
-PndMQMerger::PndMQMerger() : fHasBoostSerialization(false), fOutputData(0)
+PndMQMerger::PndMQMerger() : fHasBoostSerialization(false)
 {
 	using namespace baseMQ::tools::resolve;
 	// coverity[pointless_expression]: suppress coverity warnings on apparant if(const).
@@ -36,10 +36,9 @@ PndMQMerger::~PndMQMerger()
 {
 }
 
-void CustomClean(void* data, void *hint)
+void PndMQMerger::free_string(void* data, void *hint)
 {
-	LOG(INFO) << "FREEMESSAGE called for data: " << static_cast<BurstData*>(hint)->fHeader.fBranchName;
-	delete static_cast<BurstData*>(hint);
+	delete static_cast<std::string*>(hint);
 }
 
 void PndMQMerger::Run()
@@ -101,9 +100,9 @@ void PndMQMerger::Run()
 	//					if (fOutputData != 0){
 	//						std::ostringstream obuffer;
 	//						boost::archive::binary_oarchive OutputArchive(obuffer);
-	//						OutputArchive << *fOutputData;
-	//						int outputSize = obuffer.str().length();
-	//						unique_ptr<FairMQMessage> msgOut(NewMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomClean, fOutputData));
+	//						OutputArchive << fOutputData;
+	//						std::string* strOutputMsg = new std::string(obuffer.str());
+	//						unique_ptr<FairMQMessage> msgOut(NewMessage(const_cast<char*>(strOutputMsg.c_str()), strOutputMsg->length(), free_string, strOutputMsg));
 	//						Send(msgOut, "data-out");
 	//					}
 					}

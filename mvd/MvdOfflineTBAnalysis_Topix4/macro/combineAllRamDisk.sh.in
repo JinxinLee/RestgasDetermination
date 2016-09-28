@@ -3,36 +3,36 @@
 SAMPLER="Topix4-hitsampler2"
 SAMPLER+=" --id reader1"
 SAMPLER+=" --InputFile /Volumes/RAMDisk/HitsFE1.root"
-SAMPLER+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
+SAMPLER+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
 xterm -geometry 80x23+0+150 -e @CMAKE_BINARY_DIR@/bin/$SAMPLER &
 
 SAMPLER2="Topix4-hitsampler2"
 SAMPLER2+=" --id reader2"
 SAMPLER2+=" --InputFile /Volumes/RAMDisk/HitsFE2.root"
-SAMPLER2+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
+SAMPLER2+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
 xterm -geometry 80x23+500+150 -e @CMAKE_BINARY_DIR@/bin/$SAMPLER2 &
 
 SAMPLER3="Topix4-hitsampler2"
 SAMPLER3+=" --id reader3"
 SAMPLER3+=" --InputFile /Volumes/RAMDisk/HitsFE3.root"
-SAMPLER3+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
+SAMPLER3+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
 xterm -geometry 80x23+1000+150 -e @CMAKE_BINARY_DIR@/bin/$SAMPLER3 &
 
 SAMPLER4="Topix4-hitsampler2"
 SAMPLER4+=" --id reader4"
 SAMPLER4+=" --InputFile /Volumes/RAMDisk/HitsFE4.root"
-SAMPLER4+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
+SAMPLER4+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
 xterm -geometry 80x23+0+500 -e @CMAKE_BINARY_DIR@/bin/$SAMPLER4 &
 
 BUILDER="Topix4-hiteventbuilder"
 BUILDER+=" --id builder1"
-BUILDER+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
+BUILDER+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
 xterm -geometry 80x23+500+500 -e @CMAKE_BINARY_DIR@/bin/$BUILDER >log.txt 2>&1 &
 
 FILESINK="Topix4-filesinkhits"
 FILESINK+=" --id filesink1"
 FILESINK+=" --fileName /Volumes/RAMDisk/FileSinkHits.root"
-FILESINK+=" --config-json-file @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
+FILESINK+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChain.json"
 xterm -geometry 80x23+1000+500 -e @CMAKE_BINARY_DIR@/bin/$FILESINK &
 
 wait

@@ -6,7 +6,7 @@
  *                  copied verbatim in the file "LICENSE"                       *
  ********************************************************************************/
 
-#include <PndMvdMQTaskProcessor.h>
+#include <PndMQTaskProcessor.h>
 #include "FairMQParts.h"
 #include "PixelFindHits.h"
 #include "TMessage.h"

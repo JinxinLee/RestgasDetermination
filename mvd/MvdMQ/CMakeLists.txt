@@ -91,8 +91,8 @@ Set(SRCS
 )
 
 Set(HEADER
-	src/devices/PndMvdMQTaskProcessor.h
-	src/devices/PndMvdMQTaskProcessor.tpl
+	src/devices/PndMQTaskProcessor.h
+	src/devices/PndMQTaskProcessor.tpl
 )
 
 Set(DEPENDENCIES

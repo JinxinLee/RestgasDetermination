@@ -9,12 +9,20 @@
 
 #include "FairTask.h"
 #include "PndMCTrack.h"
-#include "PndSdsGeoPar.h"
 #include "PndSdsHit.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsClusterStrip.h"
 #include "TrackData/PndTrackCand.h"
-#include "TrackData/PndTrack.h"
+#include "TrackData/PndSimpleTrack.h"
+#include "FairTrackPar.h"
+#include "TObject.h"
+#include "Rtypes.h"
+
+#ifndef __CINT__
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#endif //__CINT__
 
 #include <string>
 #include <vector>
@@ -23,6 +31,7 @@
 struct StraightLineParams{
 	TVector3 origin;
 	TVector3 direction;
+	double chi2;
 };
 
 class PndMQStraightLineTrackFinder
@@ -34,25 +43,31 @@ class PndMQStraightLineTrackFinder
     /** Destructor **/
     virtual ~PndMQStraightLineTrackFinder();
 
-    void SetVerbose(Int_t verbose){ fVerbose = verbose; };
-    void SetSearchRadius(Double_t accu) { dXY = accu; };
-    std::vector<PndTrackCand> FindTracks(std::vector<PndSdsHit> hits);
+    void SetSearchRadius(Double_t accu) { fdXY = accu; };
+    std::vector<PndSimpleTrack> FindTracks(std::vector<PndSdsHit> hits, int eventNr);
 
  protected:
+    void SortHitsToLayers(std::vector<PndSdsHit>& hits);
     Double_t GetTrackDip(PndMCTrack* myTrack);
     Double_t GetTrackCurvature(PndMCTrack* myTrack);
-    void SortHitsToLayers(std::vector<PndSdsHit> hits);
-    std::vector< std::vector<int> > GetStartCombination(int firstLayer, int secondLayer);
-    PndTrackCand FindTrack(std::vector<int> startCombi)
+    void SortHitsToLayers();
+    int NLayersFilled();
+    void ClearLayerInfo();
+    std::vector< std::vector<int> > GetStartCombinations(int firstLayer, int secondLayer);
+    PndSimpleTrack GenerateTrackParams(std::vector<int>& hitsInTrack);
+    StraightLineParams FitTrack(std::vector<int> hitsInTrack);
+    PndSimpleTrack FindTrack(std::vector<int>& startCombi, int lastStartPoint);
     StraightLineParams GetLineParameters(std::vector<int> startCombi);
-    TVector3 PropagateToXYPlane(StraightLineParams line, Double z);
+    TVector3 PropagateToXYPlane(StraightLineParams line, double z);
     double DistanceOfPoints(TVector3 first, TVector3 second);
 
  private:
     
    Double_t fdXY;
    Int_t fNLayers;
-   std::vector<std::vector<std::pair<PndSdsHit, bool> > > fHitsPerLayer;
+   Int_t fEventNr;
+   std::vector<PndSdsHit> fHits;
+   std::vector<std::vector<std::pair<int, bool> > > fHitsPerLayer; ///< Layers (4) of HitsInLayers(n) as position in vector of hits and used indicator
 
 };
 

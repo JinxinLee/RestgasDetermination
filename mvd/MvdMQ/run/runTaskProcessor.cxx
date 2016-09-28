@@ -1,6 +1,6 @@
 
 /// std
-#include <PndMvdMQTaskProcessor.h>
+#include <PndMQTaskProcessor.h>
 #include <csignal>
 
 /// FairRoot - FairMQ - base/MQ
@@ -14,8 +14,8 @@
 
 // 9-PixelDetector example
 
-using PixelHitFinder   = PndMvdMQTaskProcessor<PndMvdPixelClusterTask>;
-using StripHitFinder   = PndMvdMQTaskProcessor<PndMvdStripClusterTask>;
+using PixelHitFinder   = PndMQTaskProcessor<PndMvdPixelClusterTask>;
+using StripHitFinder   = PndMQTaskProcessor<PndMvdStripClusterTask>;
 //using TrackFinder = PndMvdMQTaskProcessor<PixelFindTracks>;
 //using TrackFitter = PndMvdMQTaskProcessor<PixelFitTracks>;
 
