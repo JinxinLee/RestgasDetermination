@@ -27,6 +27,12 @@
 #include <vector>
 #include <map>
 
+#ifndef __CINT__
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#endif //__CINT__
+
 class PndTrackCandHit : public FairLink{
 public:
   PndTrackCandHit():FairLink(), fRho(0){}
@@ -52,6 +58,15 @@ public:
   Double_t GetRho()const {return fRho;}
 
   void Print() const;
+
+#ifndef __CINT__ // for BOOST serialization
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version)
+  	{
+  		ar & boost::serialization::base_object<FairLink>(*this);
+  		ar & fRho;
+  	}
+#endif // for BOOST serialization
 
   private :
   Double_t fRho;		///< sorting parameter

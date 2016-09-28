@@ -15,6 +15,10 @@
 #include "FairTimeStamp.h"
 #include "TRef.h"
 
+#ifndef __CINT__
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#endif //__CINT__
 
 class PndTrack : public FairTimeStamp{
 public:
@@ -66,6 +70,22 @@ public:
 	virtual bool operator==(const PndTrack& myTrack) const{
 	  return false; 
 	}
+
+#ifndef __CINT__ // for BOOST serialization
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version)
+  	{
+  		ar & boost::serialization::base_object<FairTimeStamp>(*this);
+ // 		ar & fTrackParamFirst;
+ // 		ar & fTrackParamLast;
+  		ar & fTrackCand;
+  		ar & fPidHypo;
+  		ar & fFlag;
+  		ar & fChi2;
+  		ar & fNDF;
+  		ar & fRefIndex;
+  	}
+#endif // for BOOST serialization
 
 private:
 	FairTrackParP fTrackParamFirst;

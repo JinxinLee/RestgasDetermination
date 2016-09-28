@@ -30,6 +30,12 @@
 #include <vector>
 #include <map>
 
+#ifndef __CINT__
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#endif //__CINT__
+
 
 
 typedef std::multimap<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
@@ -70,6 +76,17 @@ public:
   void ResetLinks();
 
   void Print() const;
+
+#ifndef __CINT__ // for BOOST serialization
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version)
+  	{
+  		ar & boost::serialization::base_object<FairTimeStamp>(*this);
+  		ar & fHitId;
+  		ar & sorted;
+  		ar & fMcTrackId;
+  	}
+#endif // for BOOST serialization
 
 private:
   // Private Data Members ------------
