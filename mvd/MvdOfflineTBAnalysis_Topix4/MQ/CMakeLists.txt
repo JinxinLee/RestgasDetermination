@@ -135,6 +135,9 @@ set(DEPENDENCIES
   Tree
   Tracking
   PndData
+  ParBase
+  TrkBase
+  AnalysisTools
 )
 
 set(LIBRARY_NAME testMQ)
