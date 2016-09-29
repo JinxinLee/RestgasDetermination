@@ -120,6 +120,17 @@ InitStatus PndDrcReco::Init(){
     }
     fc->Close();
   }
+
+
+  for(Int_t p=0; p<5; p++){
+    for(Int_t m=0; m<40; m++){
+      for(Int_t t=0; t<120; t++){
+	for(Int_t i=0; i<1100; i++){
+	  fhPdf[p][m][t][i] = NULL;
+	}
+      }
+    }
+  }
   
   if(!gSystem->GetPathInfo(fPdfFile.Data(),&id,&size,&flags,&modtime)){    
     TFile fpdf(fPdfFile);
@@ -231,7 +242,7 @@ InitStatus PndDrcReco::Init(){
   }
   fCanvasList = new TList();
   
-  fMethod=0;
+  fMethod=1;
   
   cout << "-I- PndDrcReco: Intialization successfull" << endl;
   return kSUCCESS;
@@ -297,6 +308,7 @@ void PndDrcReco::Exec(Option_t* option){
     DetermineCherenkov(mcBoxId, barId);
   }
 }
+
 //Double_t ggg;
 Int_t gg_pathid=0;
 void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
@@ -374,7 +386,7 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
     fhLk2[pid]->Fill(fLikelihood[1]);
     fHits[pid]+= fPDHitArray->GetEntriesFast();
     fhNph[pid]->Fill(fPDHitArray->GetEntriesFast());
-    std::cout<<"method 1  LK = "<< fLikelihood[1] <<std::endl;
+    std::cout<<"method 1  LK = "<< fLikelihood[1] << " "<< fPidTrue<<std::endl;
   }
 
   if(fLikelihood[0]>0) {
@@ -506,8 +518,16 @@ void PndDrcReco::TimeImaging(Int_t sensorId){
   Int_t pid=fParticleArray[fPidTrue];
   
   fhTime[pid]->Fill(fTimeHit);
-  fLk2[2] += TMath::Log(fhPdf[2][momid][thetaid][sensorId]->GetBinContent(fhPdf[2][momid][thetaid][sensorId]->FindBin(fTimeHit))+noise); 
-  fLk2[3] += TMath::Log(fhPdf[3][momid][thetaid][sensorId]->GetBinContent(fhPdf[3][momid][thetaid][sensorId]->FindBin(fTimeHit))+noise);  
+  if(fhPdf[2][momid][thetaid][sensorId] && fhPdf[3][momid][thetaid][sensorId]){
+    // TCanvas* c = new TCanvas("c","c",0,0,800,600);
+    // fhPdf[2][momid][thetaid][sensorId]->Draw();
+    // fhPdf[3][momid][thetaid][sensorId]->Draw("same");
+    // c->Update();
+    // c->WaitPrimitive();
+    fLk2[2] += TMath::Log(fhPdf[2][momid][thetaid][sensorId]->GetBinContent(fhPdf[2][momid][thetaid][sensorId]->FindBin(fTimeHit))+noise); 
+    fLk2[3] += TMath::Log(fhPdf[3][momid][thetaid][sensorId]->GetBinContent(fhPdf[3][momid][thetaid][sensorId]->FindBin(fTimeHit))+noise);
+    
+  }
 }
 
 void PndDrcReco::DetermineBarId(Double_t &boxPhi, Int_t &barId){
@@ -733,18 +753,19 @@ void PndDrcReco::Finish(){
   fhTime[3]->SetLineColor(2);
   fhTime[3]->Draw("same");
 
-  TFile fn("nph_"+strrun+".root","recreate");
-  CanvasAdd("hNph"+strrun);
-  for(Int_t i=2; i<4; i++){
-    if(fhNph[i]->Integral()>10){
-      fhNph[i]->Fit("gaus","Q");
-      fFnph[i]=fhNph[i]->GetFunction("gaus");
-      //    fFnph[i]->SetParameter(0,1);
-      fFnph[i]->SetName(Form("%d_%d_%d",i,id_mom,id_theta));
-      fFnph[i]->Write();
-    }
-  }
-  fn.Close();
+  // nph pdf
+  // TFile fn("nph_"+strrun+".root","recreate");
+  // CanvasAdd("hNph"+strrun);
+  // for(Int_t i=2; i<4; i++){
+  //   if(fhNph[i]->Integral()>10){
+  //     fhNph[i]->Fit("gaus","Q");
+  //     fFnph[i]=fhNph[i]->GetFunction("gaus");
+  //     //    fFnph[i]->SetParameter(0,1);
+  //     fFnph[i]->SetName(Form("%d_%d_%d",i,id_mom,id_theta));
+  //     fFnph[i]->Write();
+  //   }
+  // }
+  // fn.Close();
   
   fhNph[2]->SetLineColor(4);
   fhNph[2]->Draw();
