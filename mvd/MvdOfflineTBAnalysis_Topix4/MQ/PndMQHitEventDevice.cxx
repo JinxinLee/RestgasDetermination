@@ -58,7 +58,7 @@ void PndMQHitEventDevice::Run()
 
 	// store the channel references to avoid traversing the map on every loop iteration
 	const FairMQChannel& dataOutChannel = fChannels.at("data-out").at(0);
-	const FairMQChannel& dataOutFileSink = fChannels.at("data-out").at(1);
+//	const FairMQChannel& dataOutFileSink = fChannels.at("data-out").at(1);
 
 	const FairMQChannel& statusChannel  = fChannels.at("status-out").at(0);
 	FairMQChannel* dataInChannels[fChannels.at("data-in").size()];
@@ -173,14 +173,14 @@ void PndMQHitEventDevice::Run()
 			//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
 			dataOutChannel.Send(msg2);
 
-			std::unique_ptr<FairMQMessage> headerCopy2(fTransportFactory->CreateMessage(sizeof(int)));
-			int flag2 = PndMQStatus::RUNNING;
-			memcpy(headerCopy->GetData(), &flag2, sizeof(int));
-			dataOutFileSink.SendPart(headerCopy2);
-
-			std::unique_ptr<FairMQMessage> msgCopy(fTransportFactory->CreateMessage());
-			msgCopy->Copy(msg2);
-			dataOutFileSink.Send(msgCopy);
+//			std::unique_ptr<FairMQMessage> headerCopy2(fTransportFactory->CreateMessage(sizeof(int)));
+//			int flag2 = PndMQStatus::RUNNING;
+//			memcpy(headerCopy->GetData(), &flag2, sizeof(int));
+//			dataOutFileSink.SendPart(headerCopy2);
+//
+//			std::unique_ptr<FairMQMessage> msgCopy(fTransportFactory->CreateMessage());
+//			msgCopy->Copy(msg2);
+//			dataOutFileSink.Send(msgCopy);
 
 			fillLevel = fBuilder->GetInputDataLevel();
 	//		LOG(INFO) << "EventData.size() " << eventData.size();

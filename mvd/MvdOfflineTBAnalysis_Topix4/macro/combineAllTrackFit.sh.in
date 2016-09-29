@@ -34,6 +34,11 @@ FITTER+=" --id trackfit1"
 FITTER+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChainTrackFit.json"
 xterm -sl 20000 -geometry 80x23+750+500 -e @CMAKE_BINARY_DIR@/bin/$FITTER >log.txt 2>&1 &
 
+DUPLICATOR="Topix4-duplicator"
+DUPLICATOR+=" --id duplicator1"
+DUPLICATOR+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChainTrackFit.json"
+xterm -geometry 80x23+2000+500 -e @CMAKE_BINARY_DIR@/bin/$DUPLICATOR &
+
 FILESINK="Topix4-filesinktracks"
 FILESINK+=" --id filesinktracks"
 FILESINK+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChainTrackFit.json"
