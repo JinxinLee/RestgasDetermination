@@ -7,6 +7,7 @@
  ################################################################################
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/TopixChain.json ${CMAKE_BINARY_DIR}/bin/config/TopixChain.json)
+configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/TopixChain_StatusOverNetwork.json ${CMAKE_BINARY_DIR}/bin/config/TopixChain_StatusOverNetwork.json)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/CombineChain.json ${CMAKE_BINARY_DIR}/bin/config/CombineChain.json)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/CombineChainTrackFit.json ${CMAKE_BINARY_DIR}/bin/config/CombineChainTrackFit.json)
 
