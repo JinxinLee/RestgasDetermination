@@ -5,10 +5,10 @@
 
 /// FairRoot - FairMQ - base/MQ
 #include "FairMQLogger.h"
-#include "GenericProcessor.h"
+//#include "GenericProcessor.h"
 #include "runSimpleMQStateMachine.h"
-#include "BoostSerializer.h"
-#include "RootSerializer.h"
+//#include "BoostSerializer.h"
+//#include "RootSerializer.h"
 #include "PndMvdPixelClusterTask.h"
 #include "PndMvdStripClusterTask.h"
 

@@ -152,7 +152,6 @@ ForEach(_file RANGE 0 ${_length})
   set(SRCS ${_src})
   set(DEPENDENCIES FairMQ MvdMQ MvdTBAnalysis Mvd Sds SdsReco PndData
   boost_thread
-  fairmq_logger
   boost_log
   boost_log_setup
   boost_timer
