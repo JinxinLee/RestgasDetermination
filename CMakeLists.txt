@@ -299,7 +299,10 @@ add_subdirectory(PndTools/SttCellTrackFinder)
 add_subdirectory(PndTools/TrackingQA)
 add_subdirectory(PndTools/TimeBasedTools)
 #add_subdirectory(tracking/online/CircleHough)
+#add_subdirectory(PndTools/MQ)
+#add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4)
 #add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4/MQ)
+#add_subdirectory(mvd/MvdMQ)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
@@ -333,7 +336,7 @@ add_subdirectory (global)
 
 add_subdirectory (softrig)
 #add_subdirectory (kfparticle)
-add_subdirectory (catracking)
+#add_subdirectory (catracking)
 
 if(RULE_CHECKER_FOUND)
 
