@@ -1,0 +1,61 @@
+#!/bin/bash
+
+SAMPLER="Topix4-sampler"
+SAMPLER+=" --id sampler1"
+SAMPLER+=" --FileName /Users/Stockmanns/PandaSoftware/pandaRoot/pandaRoot_ActualTrunk/macro/mvd/TestBeam/2014-10-27-00-06-02--101-data--1.txt"
+SAMPLER+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+0+150 -e @CMAKE_BINARY_DIR@/bin/$SAMPLER &
+
+PROCESSOR="Topix4-processor"
+PROCESSOR+=" --id processor1"
+PROCESSOR+=" --FE 1"
+PROCESSOR+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+500+150 -e @CMAKE_BINARY_DIR@/bin/$PROCESSOR &
+
+DUPLICATOR="Topix4-duplicator"
+DUPLICATOR+=" --id duplicator1"
+DUPLICATOR+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+1000+150 -e @CMAKE_BINARY_DIR@/bin/$DUPLICATOR &
+
+DISTRIBUTOR="Topix4-distributor"
+DISTRIBUTOR+=" --id distributor1"
+DISTRIBUTOR+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+500+200 -e @CMAKE_BINARY_DIR@/bin/$DISTRIBUTOR &
+
+SORTER1="Topix4-sorter"
+SORTER1+=" --id sorter1"
+SORTER1+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+0+500 -e @CMAKE_BINARY_DIR@/bin/$SORTER1 &
+
+SORTER2="Topix4-sorter"
+SORTER2+=" --id sorter2"
+SORTER2+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+500+500 -e @CMAKE_BINARY_DIR@/bin/$SORTER2 &
+
+SORTER3="Topix4-sorter"
+SORTER3+=" --id sorter3"
+SORTER3+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+1000+500 -e @CMAKE_BINARY_DIR@/bin/$SORTER3 &
+
+MERGER="Topix4-merger"
+MERGER+=" --id merger1"
+MERGER+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+0+850 -e @CMAKE_BINARY_DIR@/bin/$MERGER &
+
+DIGITOHIT="Topix4-digitohit"
+DIGITOHIT+=" --id digitohit1"
+DIGITOHIT+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+xterm -geometry 80x23+500+850 -e @CMAKE_BINARY_DIR@/bin/$DIGITOHIT &
+
+FILESINKHITS="Topix4-filesinkhits"
+FILESINKHITS+=" --id filesinkhits1"
+FILESINKHITS+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+FILESINKHITS+=" --fileName HitsFE1.root"
+xterm -geometry 80x23+1000+850 -e @CMAKE_BINARY_DIR@/bin/$FILESINKHITS &
+
+#ONLINE="Topix4-onlineHisto"
+#ONLINE+=" --id online1"
+#ONLINE+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
+#xterm -geometry 80x23+0+200 -e @CMAKE_BINARY_DIR@/bin/$ONLINE &
+
+wait

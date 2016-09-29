@@ -12,6 +12,7 @@ configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/CombineCha
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/CombineChainTrackFit.json ${CMAKE_BINARY_DIR}/bin/config/CombineChainTrackFit.json)
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll.sh.in ${CMAKE_BINARY_DIR}/bin/startAll.sh)
+configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_Network.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_Network.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE2.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE2.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE3.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE3.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE4.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE4.sh)
