@@ -6,6 +6,19 @@
             "id": "sampler1",
             "channel":
             {
+            	"name": "control-in",
+                "socket":
+                {
+                    "type": "sub",
+                    "method": "connect",
+                    "address": "tcp://134.94.180.53:6000",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            },
+            "channel":
+            {
                 "name": "data-out",
                 "socket":
                 {
