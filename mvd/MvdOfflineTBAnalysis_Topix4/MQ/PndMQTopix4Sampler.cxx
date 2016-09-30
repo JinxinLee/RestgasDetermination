@@ -41,34 +41,34 @@ void PndMQTopix4Sampler::Init()
 
 void PndMQTopix4Sampler::Run()
 {
-	bool stop = false;
-	bool start = false;
+	bool stopSampling = false;
+	bool startSampling = false;
 
-	if ((fGlobalControl == false) || (fChannels.count("control-in") == 0))
-		start = true;
+	if ((fGlobalControl == false) || (fChannels.count("control-in") == 0))
+		startSampling = true;
 
-    while (CheckCurrentState(RUNNING) && stop == false)
+    while (CheckCurrentState(RUNNING) && stopSampling == false)
     {
         //boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 
     	unique_ptr<FairMQMessage> controlMsg(fTransportFactory->CreateMessage());
-    	if (!start && fChannels.at("control-in").at(0).Receive(controlMsg)){
+    	if (!startSampling && fChannels.at("control-in").at(0).Receive(controlMsg)){
     		int status = *(static_cast<int*>(controlMsg->GetData()));
     		if (status == 1){
-    			start = true;
+    			startSampling = true;
     		}
     		LOG(INFO) << "Control message " << status << " received";
     	}
 
-    	if (start){
+    	if (startSampling){
 
 			TMrfData_8b* data = 0;
-			stop = fTopixDataReader.ReadInDataFromFile(data);
+			stopSampling = fTopixDataReader.ReadInDataFromFile(data);
 
 			unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage(sizeof(int)));
 
 			int flag = -1;
-			if (stop == false){
+			if (stopSampling == false){
 				flag = PndMQStatus::RUNNING;
 				memcpy(header->GetData(), &flag, sizeof(int));
 				unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(reinterpret_cast<u_int8_t*>(&data->regdata[0]),data->getNumWords(),CustomCleanup,data));
