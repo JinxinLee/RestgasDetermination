@@ -25,7 +25,7 @@
 using namespace std;
 
 PndMQTopix4Sampler::PndMQTopix4Sampler()
-    : fFileName()
+    : fFileName(), fGlobalControl(true)
 {
 }
 
@@ -42,31 +42,47 @@ void PndMQTopix4Sampler::Init()
 void PndMQTopix4Sampler::Run()
 {
 	bool stop = false;
+	bool start = false;
+
+	if ((fGlobalControl == false) || (fChannels.count("control-in") == 0))
+		start = true;
 
     while (CheckCurrentState(RUNNING) && stop == false)
     {
         //boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 
-        TMrfData_8b* data = 0;
-        stop = fTopixDataReader.ReadInDataFromFile(data);
+    	unique_ptr<FairMQMessage> controlMsg(fTransportFactory->CreateMessage());
+    	if (!start && fChannels.at("control-in").at(0).Receive(controlMsg)){
+    		int status = *(static_cast<int*>(controlMsg->GetData()));
+    		if (status == 1){
+    			start = true;
+    		}
+    		LOG(INFO) << "Control message " << status << " received";
+    	}
 
-        unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage(sizeof(int)));
+    	if (start){
 
-        int flag = -1;
-        if (stop == false){
-        	flag = PndMQStatus::RUNNING;
-			memcpy(header->GetData(), &flag, sizeof(int));
-			unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(reinterpret_cast<u_int8_t*>(&data->regdata[0]),data->getNumWords(),CustomCleanup,data));
-	 //       LOG(INFO) << "Sending Words\"" << data->getNumWords() << "\"" << " Bits: " << data->getNumBits();
-			fChannels.at("data-out").at(0).SendPart(header);
-			fChannels.at("data-out").at(0).Send(msg);
-        }
-        else
-        {
-        	flag = PndMQStatus::STOP;
-        	memcpy(header->GetData(), &flag, sizeof(int));
-        	fChannels.at("data-out").at(0).Send(header);
-        }
+			TMrfData_8b* data = 0;
+			stop = fTopixDataReader.ReadInDataFromFile(data);
+
+			unique_ptr<FairMQMessage> header(fTransportFactory->CreateMessage(sizeof(int)));
+
+			int flag = -1;
+			if (stop == false){
+				flag = PndMQStatus::RUNNING;
+				memcpy(header->GetData(), &flag, sizeof(int));
+				unique_ptr<FairMQMessage> msg(fTransportFactory->CreateMessage(reinterpret_cast<u_int8_t*>(&data->regdata[0]),data->getNumWords(),CustomCleanup,data));
+		 //       LOG(INFO) << "Sending Words\"" << data->getNumWords() << "\"" << " Bits: " << data->getNumBits();
+				fChannels.at("data-out").at(0).SendPart(header);
+				fChannels.at("data-out").at(0).Send(msg);
+			}
+			else
+			{
+				flag = PndMQStatus::STOP;
+				memcpy(header->GetData(), &flag, sizeof(int));
+				fChannels.at("data-out").at(0).Send(header);
+			}
+    	}
     }
 }
 
@@ -82,6 +98,11 @@ void PndMQTopix4Sampler::SetProperty(const int key, const string& value)
             fFileName = value;
             fTopixDataReader.SetFileName(fFileName);
             break;
+        case GlobalControl:
+        	if (value.compare("true"))
+        		fGlobalControl = true;
+        	else
+        		fGlobalControl = false;
         default:
             FairMQDevice::SetProperty(key, value);
             break;
@@ -95,6 +116,11 @@ string PndMQTopix4Sampler::GetProperty(const int key, const string& default_ /*=
         case FileName:
             return fFileName;
             break;
+        case GlobalControl:
+        	if (fGlobalControl == true)
+        		return "true";
+        	else
+        		return "false";
         default:
             return FairMQDevice::GetProperty(key, default_);
     }

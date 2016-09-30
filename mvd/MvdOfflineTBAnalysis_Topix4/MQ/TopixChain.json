@@ -6,6 +6,19 @@
             "id": "sampler1",
             "channel":
             {
+            	"name": "control-in",
+                "socket":
+                {
+                    "type": "sub",
+                    "method": "connect",
+                    "address": "tcp://localhost:6000",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            },
+            "channel":
+            {
                 "name": "data-out",
                 "socket":
                 {
@@ -419,6 +432,24 @@
                     "rateLogging": "0"
                 }
             }
+        },
+        "device":
+        {
+            "id": "globalControl",
+            "channel":
+            {
+                "name": "data-out",
+                "socket":
+                {
+                    "type": "pub",
+                    "method": "bind",
+                    "address": "tcp://*:6000",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            }
         }
+        
     }
 }
