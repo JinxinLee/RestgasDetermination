@@ -39,6 +39,11 @@ DUPLICATOR+=" --id duplicator1"
 DUPLICATOR+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChainTrackFit.json"
 xterm -geometry 80x23+2000+500 -e @CMAKE_BINARY_DIR@/bin/$DUPLICATOR &
 
+DUPLICATOR2="Topix4-duplicator"
+DUPLICATOR2+=" --id duplicator2"
+DUPLICATOR2+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChainTrackFit.json"
+xterm -geometry 80x23+2000+500 -e @CMAKE_BINARY_DIR@/bin/$DUPLICATOR2 &
+
 FILESINK="Topix4-filesinktracks"
 FILESINK+=" --id filesinktracks"
 FILESINK+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/CombineChainTrackFit.json"

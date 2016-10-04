@@ -89,7 +89,7 @@
 		            "address": "tcp://*:5556",
 		            "sndBufSize": "1000",
 		            "rcvBufSize": "1000",
-		            "rateLogging": "1"
+		            "rateLogging": "0"
         		}
         	},
         	
@@ -103,7 +103,7 @@
 	                "address": "tcp://localhost:5600",
 	                "sndBufSize": "1000",
 	                "rcvBufSize": "1000",
-	                "rateLogging": "1"
+	                "rateLogging": "0"
 	            },
 	            "socket":
 	            {
@@ -112,7 +112,7 @@
 	                "address": "tcp://134.94.180.53:5700",
 	                "sndBufSize": "1000",
 	                "rcvBufSize": "1000",
-	                "rateLogging": "1"
+	                "rateLogging": "0"
 	            }
 	    	}
         },
@@ -427,6 +427,23 @@
                     "type": "sub",
                     "method": "bind",
                     "address": "tcp://134.94.180.53:5810",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            }
+        },
+        "device":
+        {
+            "id": "globalControl",
+            "channel":
+            {
+                "name": "data-out",
+                "socket":
+                {
+                    "type": "pub",
+                    "method": "bind",
+                    "address": "tcp://*:6000",
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
                     "rateLogging": "0"

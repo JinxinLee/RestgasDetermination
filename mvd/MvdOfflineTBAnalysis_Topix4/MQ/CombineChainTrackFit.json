@@ -183,19 +183,6 @@
                     "rcvBufSize": "1000",
                     "rateLogging": "0"
                 }
-            },
-            "channel":
-            {
-	            "name": "status-out",
-                "socket":
-                {
-                    "type": "pub",
-                    "method": "bind",
-                    "address": "tcp://*:5570",
-                    "sndBufSize": "1000",
-                    "rcvBufSize": "1000",
-                    "rateLogging": "0"
-                }	
             }
         },
         
@@ -230,6 +217,47 @@
                 }
             }
         },
+        
+        "device":
+        {
+            "id": "duplicator2",
+            "channel":
+            {
+                "name": "data-in",
+                "socket":
+                {
+                    "type": "pull",
+                    "method": "connect",
+                    "address": "tcp://localhost:5561",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            },
+            
+            "channel":
+            {
+                "name": "data-out",
+                "socket":
+                {
+                    "type": "push",
+                    "method": "bind",
+                    "address": "tcp://*:5562",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                },
+                "socket":
+                {
+                    "type": "push",
+                    "method": "bind",
+                    "address": "tcp://*:5572",
+                    "sndBufSize": "1000",
+                    "rcvBufSize": "1000",
+                    "rateLogging": "0"
+                }
+            }
+        },
                
         "device":
         {
@@ -241,7 +269,7 @@
                 {
                     "type": "pull",
                     "method": "connect",
-                    "address": "tcp://localhost:5561",
+                    "address": "tcp://localhost:5562",
                     "sndBufSize": "1000",
                     "rcvBufSize": "1000",
                     "rateLogging": "1"

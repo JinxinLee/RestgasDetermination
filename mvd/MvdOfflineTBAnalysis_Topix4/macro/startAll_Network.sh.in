@@ -14,6 +14,7 @@ xterm -geometry 80x23+500+150 -e @CMAKE_BINARY_DIR@/bin/$PROCESSOR &
 
 DUPLICATOR="Topix4-duplicator"
 DUPLICATOR+=" --id duplicator1"
+DUPLICATOR+=" --channel-rate 1=200"
 DUPLICATOR+=" --mq-config @CMAKE_BINARY_DIR@/bin/config/TopixChain_StatusOverNetwork.json"
 xterm -geometry 80x23+1000+150 -e @CMAKE_BINARY_DIR@/bin/$DUPLICATOR &
 
