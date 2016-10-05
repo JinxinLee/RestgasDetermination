@@ -7,12 +7,9 @@
  ################################################################################
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/TopixChain.json ${CMAKE_BINARY_DIR}/bin/config/TopixChain.json)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/TopixChain_StatusOverNetwork.json ${CMAKE_BINARY_DIR}/bin/config/TopixChain_StatusOverNetwork.json)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/CombineChain.json ${CMAKE_BINARY_DIR}/bin/config/CombineChain.json)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/MQ/CombineChainTrackFit.json ${CMAKE_BINARY_DIR}/bin/config/CombineChainTrackFit.json)
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll.sh.in ${CMAKE_BINARY_DIR}/bin/startAll.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_Network.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_Network.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE2.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE2.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE3.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE3.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAll_FE4.sh.in ${CMAKE_BINARY_DIR}/bin/startAll_FE4.sh)
@@ -22,7 +19,6 @@ configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/startAl
 
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAll.sh.in ${CMAKE_BINARY_DIR}/bin/combineAll.sh)
 configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAllRamDisk.sh.in ${CMAKE_BINARY_DIR}/bin/combineAllRamDisk.sh)
-configure_file(${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4/macro/combineAllTrackFit.sh.in ${CMAKE_BINARY_DIR}/bin/combineAllTrackFit.sh)
 
 Set(INCLUDE_DIRECTORIES
   ${BASE_INCLUDE_DIRECTORIES}
@@ -53,7 +49,6 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/sds/SdsDigi
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/tracking/TrkAlgo
 
   ${CMAKE_SOURCE_DIR}/mvd/MvdOfflineTBAnalysis_Topix4
 
@@ -89,7 +84,6 @@ set(SRCS
   "PndMQSorterMerger.cxx"
   "PndMQFileSink.cxx"
   "PndMQFileSinkHits.cxx"
-  "PndMQFileSinkTracks.cxx"
   "PndMQDataDuplicator.cxx"
   "PndMQTopix4OnlineHisto.cxx"
   "PndMQGapEventBuilderToPix.cxx"
@@ -101,8 +95,6 @@ set(SRCS
   "PndMQHitsEventBuilder.cxx"
   "PndMQHitEventDevice.cxx"
   "PndMQFileSamplerHits.cxx"
-  "PndMQStraightLineTrackFinder.cxx"
-  "PndMQTopix4TrackFitter.cxx"
 #  "PndMvdMQFileSampler.cxx"
 )
 
@@ -131,15 +123,9 @@ set(DEPENDENCIES
   boost_chrono
   boost_exception
   Mvd
-  MvdTBAnalysis
   FairTestDetector
   RIO
   Tree
-  Tracking
-  PndData
-  ParBase
-  TrkBase
-  AnalysisTools
 )
 
 set(LIBRARY_NAME testMQ)
@@ -155,14 +141,12 @@ set(Exe_Names
   Topix4-merger
   Topix4-filesink
   Topix4-filesinkhits
-  Topix4-filesinktracks
   Topix4-duplicator
   Topix4-onlineHisto
   Topix4-digitohit
   Topix4-hitsampler
   Topix4-hiteventbuilder
   Topix4-hitsampler2
-  Topix4-trackfitter
 #  PndMQFileSampler
 )
 
@@ -178,14 +162,12 @@ set(Exe_Source
   runPndTopixSorterMerger.cxx
   runPndTopixFileSink.cxx
   runPndTopixFileSinkHits.cxx
-  runPndTopixFileSinkTracks.cxx
   runPndTopixDuplicator.cxx
   runPndTopixOnlineHisto.cxx
   runPndTopixDigiToHit.cxx
   runHitSampler.cxx
   runPndHitEventBuilder.cxx
   runPndTopixHitSampler.cxx
-  runPndTopixTrackFitter.cxx
 #  runFileSampler.cxx
 )
 
@@ -197,18 +179,6 @@ ForEach(_file RANGE 0 ${_length})
   list(GET Exe_Source ${_file} _src)
   set(EXE_NAME ${_name})
   set(SRCS ${_src})
-  set(DEPENDENCIES FairMQ testMQ PndData MvdTBAnalysis
-  boost_thread
-  fairmq_logger
-  boost_log
-  boost_log_setup
-  boost_timer
-  boost_system
-  boost_filesystem
-  boost_program_options
-  boost_random
-  boost_chrono
-  boost_exception
-  ${FAIRMQ_DEPENDENCIES})
+  set(DEPENDENCIES FairMQ testMQ ${FAIRMQ_DEPENDENCIES})
   GENERATE_EXECUTABLE()
 EndForEach(_file RANGE 0 ${_length})

@@ -23,7 +23,7 @@
 #include "TMessage.h"
 
 template<typename T>
-class PndMQTaskProcessor : public FairMQDevice
+class PndMvdMQTaskProcessor : public FairMQDevice
 {
   public:
     enum
@@ -31,8 +31,8 @@ class PndMQTaskProcessor : public FairMQDevice
         Last
     };
 
-    PndMQTaskProcessor();
-    virtual ~PndMQTaskProcessor();
+    PndMvdMQTaskProcessor();
+    virtual ~PndMvdMQTaskProcessor();
 
     void SetProperty(const int key, const std::string& value);
     std::string GetProperty(const int key, const std::string& default_ = "");
@@ -66,6 +66,6 @@ class PndMQTaskProcessor : public FairMQDevice
 };
 
 // Template implementation is in PndMvdMQTaskProcessor.tpl :
-#include <PndMQTaskProcessor.tpl>
+#include <PndMvdMQTaskProcessor.tpl>
 
 #endif /* FAIRMQEXAMPLE9TASKPROCESSOR_H_ */

@@ -24,7 +24,7 @@ void free_tmessage4(void* /*data*/, void *hint)
 }
 
 template <typename T>
-PndMQTaskProcessor<T>::PndMQTaskProcessor()
+PndMvdMQTaskProcessor<T>::PndMvdMQTaskProcessor()
   : FairMQDevice()
   , fEventHeader(NULL)
   , fInput(NULL)
@@ -40,7 +40,7 @@ PndMQTaskProcessor<T>::PndMQTaskProcessor()
 }
 
 template <typename T>
-PndMQTaskProcessor<T>::~PndMQTaskProcessor()
+PndMvdMQTaskProcessor<T>::~PndMvdMQTaskProcessor()
 {
   if(fGeoPar)
     {
@@ -65,7 +65,7 @@ PndMQTaskProcessor<T>::~PndMQTaskProcessor()
 
 
 template <typename T>
-void PndMQTaskProcessor<T>::Init()
+void PndMvdMQTaskProcessor<T>::Init()
 {
     //fHitFinder->InitMQ(fRootParFileName,fAsciiParFileName);
   fFairTask = new T();
@@ -79,7 +79,7 @@ void PndMQTaskProcessor<T>::Init()
 }
 
 template <typename T>
-void PndMQTaskProcessor<T>::Run()
+void PndMvdMQTaskProcessor<T>::Run()
 {
 	int receivedMsgs = 0;
 	int sentMsgs = 0;
@@ -151,7 +151,7 @@ void PndMQTaskProcessor<T>::Run()
 
 
 template <typename T>
-void PndMQTaskProcessor<T>::CustomCleanup(void* /*data*/, void *hint)
+void PndMvdMQTaskProcessor<T>::CustomCleanup(void* /*data*/, void *hint)
 {
     delete (std::string*)hint;
 }
@@ -159,7 +159,7 @@ void PndMQTaskProcessor<T>::CustomCleanup(void* /*data*/, void *hint)
 
 
 template <typename T>
-void PndMQTaskProcessor<T>::SetProperty(const int key, const std::string& value)
+void PndMvdMQTaskProcessor<T>::SetProperty(const int key, const std::string& value)
 {
     switch (key)
     {
@@ -172,7 +172,7 @@ void PndMQTaskProcessor<T>::SetProperty(const int key, const std::string& value)
 
 
 template <typename T>
-std::string PndMQTaskProcessor<T>::GetProperty(const int key, const std::string& default_)
+std::string PndMvdMQTaskProcessor<T>::GetProperty(const int key, const std::string& default_)
 {
     switch (key)
     {
@@ -183,13 +183,13 @@ std::string PndMQTaskProcessor<T>::GetProperty(const int key, const std::string&
 
 
 template <typename T>
-void PndMQTaskProcessor<T>::SetProperty(const int key, const int value)
+void PndMvdMQTaskProcessor<T>::SetProperty(const int key, const int value)
 {
     FairMQDevice::SetProperty(key, value);
 }
 
 template <typename T>
-int PndMQTaskProcessor<T>::GetProperty(const int key, const int value)
+int PndMvdMQTaskProcessor<T>::GetProperty(const int key, const int value)
 {
     return FairMQDevice::GetProperty(key, value);
 }
@@ -201,7 +201,7 @@ int PndMQTaskProcessor<T>::GetProperty(const int key, const int value)
 
 
 template <typename T>
-void PndMQTaskProcessor<T>::UpdateParameters() {
+void PndMvdMQTaskProcessor<T>::UpdateParameters() {
   for ( int iparC = 0 ; iparC < fParCList->GetEntries() ; iparC++ ) {
     FairParGenericSet* tempObj = (FairParGenericSet*)(fParCList->At(iparC));
     fParCList->Remove(tempObj);
@@ -210,7 +210,7 @@ void PndMQTaskProcessor<T>::UpdateParameters() {
 }
 
 template <typename T>
-FairParGenericSet* PndMQTaskProcessor<T>::UpdateParameter(FairParGenericSet* thisPar) {
+FairParGenericSet* PndMvdMQTaskProcessor<T>::UpdateParameter(FairParGenericSet* thisPar) {
   std::string paramName = thisPar->GetName();
   //  boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
   std::string* reqStr = new std::string(paramName + "," + std::to_string(fCurrentRunId));

@@ -23,7 +23,8 @@
 
 PndMQDataDuplicator::PndMQDataDuplicator()
 {
-	fRates.push_back(1);
+	fRates.push_back(0);
+	fRates.push_back(200);
 }
 
 void PndMQDataDuplicator::Run()
@@ -31,11 +32,6 @@ void PndMQDataDuplicator::Run()
     uint64_t counter = 0;
 
     const FairMQChannel& dataInChannel = fChannels.at("data-in").at(0);
-
-    while(fRates.size() < fChannels.at("data-out").size()){
-    	LOG(INFO) << "Rates size " << fRates.size() << " smaller than Data-out size " << fChannels.at("data-out").size();
-    	fRates.push_back(1);
-    }
 
     while (CheckCurrentState(RUNNING))
     {

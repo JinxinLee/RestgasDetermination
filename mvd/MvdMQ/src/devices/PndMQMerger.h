@@ -39,13 +39,11 @@ class PndMQMerger : public FairMQDevice
 
   protected:
     virtual void Run();
-    BurstData fOutputData;
+    BurstData* fOutputData;
     BurstData fInputData;
     std::map<int, std::map<std::string, BurstData> > fInputMap; //< map <BurstID, map<BranchName, Data> >
 
     virtual void ProcessData(std::map<std::string, BurstData>& dataToProcess) = 0;
-    void free_string(void* data, void *hint);
-
 
 	#ifndef __CINT__ // for BOOST serialization
 		friend class boost::serialization::access;

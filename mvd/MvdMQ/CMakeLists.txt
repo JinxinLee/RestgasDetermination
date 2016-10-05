@@ -91,8 +91,8 @@ Set(SRCS
 )
 
 Set(HEADER
-	src/devices/PndMQTaskProcessor.h
-	src/devices/PndMQTaskProcessor.tpl
+	src/devices/PndMvdMQTaskProcessor.h
+	src/devices/PndMvdMQTaskProcessor.tpl
 )
 
 Set(DEPENDENCIES
@@ -150,16 +150,6 @@ ForEach(_file RANGE 0 ${_length})
   list(GET Exe_Source ${_file} _src)
   set(EXE_NAME ${_name})
   set(SRCS ${_src})
-  set(DEPENDENCIES FairMQ MvdMQ MvdTBAnalysis Mvd Sds SdsReco PndData
-  boost_thread
-  boost_log
-  boost_log_setup
-  boost_timer
-  boost_system
-  boost_filesystem
-  boost_program_options
-  boost_random
-  boost_chrono
-  boost_exception ${FAIRMQ_DEPENDENCIES})
+  set(DEPENDENCIES FairMQ MvdMQ Mvd Sds SdsReco PndData ${FAIRMQ_DEPENDENCIES})
   GENERATE_EXECUTABLE()
 EndForEach(_file RANGE 0 ${_length})

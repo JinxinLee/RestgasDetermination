@@ -58,8 +58,6 @@ void PndMQHitEventDevice::Run()
 
 	// store the channel references to avoid traversing the map on every loop iteration
 	const FairMQChannel& dataOutChannel = fChannels.at("data-out").at(0);
-//	const FairMQChannel& dataOutFileSink = fChannels.at("data-out").at(1);
-
 	const FairMQChannel& statusChannel  = fChannels.at("status-out").at(0);
 	FairMQChannel* dataInChannels[fChannels.at("data-in").size()];
 	LOG(INFO) << "Number of Input Channels: " << numInputs;
@@ -125,7 +123,7 @@ void PndMQHitEventDevice::Run()
 					if (fillLevel[channelNr] == 0 && fRunningStatus[channelNr] == false)
 					{
 						fGlobalRunningStatus = false;
-						LOG(INFO) << "GlobalRunningStatus set to false for channel " << channelNr;
+						LOG(INFO) << "GlobarRunningStatus set to false for channel " << channelNr;
 					}
 				}
 			}
@@ -137,7 +135,7 @@ void PndMQHitEventDevice::Run()
 						<< " timeStamp: " << TString::Format("%12.0f",fEventData.front().front().GetTimeStamp()).Data()
 						<< " sensorID " << fEventData.front().front().GetSensorID();
 				fSensorsInEvent = fBuilder->GetSensorsInEvent();
-				LOG(INFO) << "Number of sensor hits in one event: ";
+				LOG(INFO) << "ChannelsInEvent: ";
 				for (auto data : fSensorsInEvent)
 					LOG(INFO) << data;
 
@@ -172,15 +170,6 @@ void PndMQHitEventDevice::Run()
 			memcpy(msg2->GetData(), obuffer.str().c_str(), outputSize);
 			//unique_ptr<FairMQMessage> msg2(fTransportFactory->CreateMessage(const_cast<char*>(obuffer.str().c_str()), outputSize, CustomCleanup, &obuffer));
 			dataOutChannel.Send(msg2);
-
-//			std::unique_ptr<FairMQMessage> headerCopy2(fTransportFactory->CreateMessage(sizeof(int)));
-//			int flag2 = PndMQStatus::RUNNING;
-//			memcpy(headerCopy->GetData(), &flag2, sizeof(int));
-//			dataOutFileSink.SendPart(headerCopy2);
-//
-//			std::unique_ptr<FairMQMessage> msgCopy(fTransportFactory->CreateMessage());
-//			msgCopy->Copy(msg2);
-//			dataOutFileSink.Send(msgCopy);
 
 			fillLevel = fBuilder->GetInputDataLevel();
 	//		LOG(INFO) << "EventData.size() " << eventData.size();

@@ -69,3 +69,4 @@ PROCESSOR5+=" --id processor5 $FAIRTASKNAME --mq-config $MQCONFIGFILE"
 MERGER="PndMQMergerTest $TRANSPORT"
 MERGER+=" --id merger --mq-config $MQCONFIGFILE"
 xterm -sl 10000 -geometry 80x25+1000+350 -e @MVDMQ_BIN_LOCATION@/$MERGER &
+

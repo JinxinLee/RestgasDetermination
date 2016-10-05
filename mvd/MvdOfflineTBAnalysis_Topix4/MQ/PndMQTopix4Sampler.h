@@ -26,7 +26,6 @@ class PndMQTopix4Sampler : public FairMQDevice
     enum
     {
         FileName = FairMQDevice::Last,
-		GlobalControl,
         Last
     };
     PndMQTopix4Sampler();
@@ -43,7 +42,6 @@ class PndMQTopix4Sampler : public FairMQDevice
 
   protected:
     std::string fFileName;
-    bool fGlobalControl;
     int fFE;
     PndMvdReadInToPix4TBData fTopixDataReader;
     virtual void Run();
