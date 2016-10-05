@@ -24,7 +24,7 @@ public:
   TObjArray             *GetGeoSensitiveNodes(){return fGeoSensNodes;}
   TObjArray             *GetGeoPassiveNodes(){return fGeoPassNodes;}
 
-  Float_t barrel_y;
+ /* Float_t barrel_y;
   Float_t dplane;
   Float_t barrel_z;
   Float_t dstrip;
@@ -32,9 +32,9 @@ public:
   Int_t nbox;
   Float_t dbox;
   Float_t dtube;
-  Int_t ntube;
+  Int_t ntube; */
   
-  ClassDef(PndGeoHypGePar,1)
+  ClassDef(PndGeoHypGePar,2)
 };
 
 #endif /* !PNDGEOHYPGEPAR_H */

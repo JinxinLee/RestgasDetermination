@@ -118,7 +118,7 @@ void PndHypGe::Initialize()
   FairDetector::Initialize();
   FairRun* sim = FairRun::Instance();
   FairRuntimeDb* rtdb=sim->GetRuntimeDb();
-  par=(PndGeoHypGePar*)(rtdb->getContainer("PndGeoHypGePar"));
+ // par=(PndGeoHypGePar*)(rtdb->getContainer("PndGeoHypGePar"));
   
   // TObjArray *fSensNodes = par->GetGeoSensitiveNodes(); 
 }

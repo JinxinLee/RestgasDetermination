@@ -44,9 +44,12 @@ geometry/PndGeoHypGeModifiedBeamPipe.cxx
 geometry/PndGeoHypGeBase.cxx
 geometry/PndGeoHypGeTripleClusterCrystalsOnly.cxx
 geometry/PndGeoHypGeCrystalWithoutCapsule.cxx
+geometry/PndGeoHypGeDEGAS.cxx
 hypGeAna/PndHypGeGammaAna.cxx
 hypGeAna/PndHypGeGammaAnaStorage.cxx
-hypGeAna/PndHypGeCOSYBackgroundAna.cxx
+#hypGeAna/PndHypGeCOSYBackgroundAna.cxx
+#hypGeSpecAnalyser/PndHypGeSpectrumAnalyser.cxx
+#hypGeSpecAnalyser/PndHypGePeakFitFunction.cxx
 )
 
 set(LINKDEF  HypGeLinkDef.h)

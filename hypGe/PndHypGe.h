@@ -10,7 +10,7 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 #include "FairDetector.h"
-#include "PndGeoHypGePar.h"
+//#include "PndGeoHypGePar.h"
 //#include "GeCluster.h"
 
 
@@ -143,7 +143,7 @@ class PndHypGe : public FairDetector
   std::vector<std::string> fListOfSensitives;
   bool CheckIfSensitive(std::string name);
 
-  PndGeoHypGePar *par;
+ // PndGeoHypGePar *par;
  Int_t fpdgCode; 
  Int_t fcharge;
  

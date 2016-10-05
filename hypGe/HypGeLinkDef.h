@@ -25,10 +25,14 @@
 #pragma link C++ class  PndGeoHypGeBase;
 #pragma link C++ class  PndGeoHypGeTripleClusterCrystalsOnly+;
 #pragma link C++ class  PndGeoHypGeCrystalWithoutCapsule+;
+#pragma link C++ class  PndGeoHypGeDEGAS+;
 
 #pragma link C++ class  PndHypGeGammaAna;
 #pragma link C++ class  PndHypGeGammaAnaStorage;
 
-#pragma link C++ class  PndHypGeCOSYBackgroundAna;
+//#pragma link C++ class  PndHypGeSpectrumAnalyser;
+//#pragma link C++ class  PndHypGePeakFitFunction;
+
+//#pragma link C++ class  PndHypGeCOSYBackgroundAna;
 
 #endif

@@ -11,7 +11,7 @@
 using namespace std;
 #include "PndHypGeContFact.h"
 #include "FairRuntimeDb.h"
-#include "PndGeoHypGePar.h"
+//#include "PndGeoHypGePar.h"
 #include <iostream>
 #include <iomanip>
 
@@ -31,12 +31,12 @@ void PndHypGeContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the HypGe library.*/
 
-    FairContainer* p= new FairContainer("PndGeoHypGePar",
-                                          "HypGe Geometry Parameters",
-                                          "TestDefaultContext");
-    p->addContext("TestNonDefaultContext");
+   // FairContainer* p= new FairContainer("PndGeoHypGePar",
+     //                                     "HypGe Geometry Parameters",
+     //                                     "TestDefaultContext");
+    //p->addContext("TestNonDefaultContext");
 
-    containers->Add(p);
+  //  containers->Add(p);
 }
 
 FairParSet* PndHypGeContFact::createContainer(FairContainer* c) {
@@ -45,8 +45,8 @@ FairParSet* PndHypGeContFact::createContainer(FairContainer* c) {
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
   FairParSet* p=NULL;
-  if (strcmp(name,"PndGeoHypGePar")==0) {
-    p=new PndGeoHypGePar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
-  }
+  //if (strcmp(name,"PndGeoHypGePar")==0) {
+  //  p=new PndGeoHypGePar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+  //}
   return p;
 }

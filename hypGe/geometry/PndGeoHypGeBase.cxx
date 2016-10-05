@@ -42,6 +42,8 @@ PndGeoHypGeBase::~PndGeoHypGeBase()
 
 void PndGeoHypGeBase::BuildTArb8Array(Double_t *OutputArray, Int_t Point1, Int_t Point2, Int_t Offset1, Int_t Offset2,Int_t ShiftValue,Int_t NumberOfPoints )
 {
+	//Point1(2) are running with every single fragment of the cryostat.
+	//Offset11(2) are increased with every new layer (lower, middle, upper, ...) of the cryostat
 	Int_t Offset3 = Offset1 +ShiftValue;
 	Int_t Offset4 = Offset2 +ShiftValue;
 	OutputArray[0]= CoordinatesInputArray[(Point2-1)* NumberOfPoints+2*Offset1];
