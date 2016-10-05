@@ -1,0 +1,2 @@
+find . -type f -size -130k  -name '\Ana_Geo36*.root' 
+find . -type f -size -100k  -name '\Ana_Geo36*.root' -exec rm -f {} \;

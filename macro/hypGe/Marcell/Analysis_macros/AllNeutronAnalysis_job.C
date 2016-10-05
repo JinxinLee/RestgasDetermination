@@ -104,7 +104,7 @@ int AllNeutronAnalysis_job(TString Filename_ext)
 	hNMom->SetXTitle("E_{kin} of neutrons [GeV]");
 	hNMom->SetYTitle("Counts / 0.5 MeV");
 		//histogram to see which detector is hit
-	TH1D* hCrystalHit = new TH1D("hCrystalHit","Hits per Crystal",1700,1,1700);
+	TH1D* hCrystalHit = new TH1D("hCrystalHit","Hits per Crystal",2100,1,2100);
 	hCrystalHit->SetXTitle("Crystal number");
 	hCrystalHit->SetYTitle("Counts per crystal");
  		//histogram to see the energy deposited by the neutron
@@ -431,7 +431,7 @@ int AllNeutronAnalysis_job(TString Filename_ext)
 	Int_t CrystalNumber = 1;
 	cout << "Bin\tCrystal\tCluster\tNeutron hits"<<endl;
 	TxTOutfile << "Bin\tCrystal\tCluster\tNeutron hits"<<endl;
-	for (Int_t iBin=0;iBin<1700;iBin++)
+	for (Int_t iBin=0;iBin<2100;iBin++)
 	{
 		
 		if(hCrystalHit->GetBinContent(iBin))
@@ -455,7 +455,7 @@ int AllNeutronAnalysis_job(TString Filename_ext)
   hRing3->Scale(12);
   hRing4->Scale(6);
   
-  //Analysis of spectrum
+
   hNHits->Write();
   hRing1->Write();
   hRing2->Write();

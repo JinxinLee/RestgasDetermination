@@ -1,0 +1,23 @@
+#do simulation	(
+	###start simulation jobs
+	script_Gamma_sim.sh 
+	###check simulation jobs
+	FindMissingFiles.sh
+	StartMissingJobs.sh						## maybe automatic
+#analysis
+	###create analysis script input
+	ListSim	command <- adapt ListSim.sh script before!
+	###send ana jobs
+	script_Gamma_Ana_List.sh
+	###checken
+	FindMissingFilesAna.sh
+	StartMissingJobsAna.sh				## maybe automatic
+		### some more commands in SomeFilesizeCheckCommands.txt
+#Kombinieren
+	### fill file AnaFolderstoCombine.txt with folders to analyse (done manually via ls 20.07.15 steinen)
+	script_CombineGammaFiles.sh
+#Fitten
+	script_FitCombinedFiles.sh
+#Plotten
+	### in Analysis_Macros/pictures , choose right macro /adapt
+	Pic_FEP-Eff_lowEnergy_0thOrder.C

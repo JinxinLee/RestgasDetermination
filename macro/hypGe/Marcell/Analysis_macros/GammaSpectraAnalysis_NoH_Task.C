@@ -1,58 +1,86 @@
-void GammaSpectraAnalysis_NoH_Task(TString Filename)
+//void GammaSpectraAnalysis_NoH_Task(TString Filename = "Sim_Geo36_E0.500MeV_Evts1000_FileEvts1000_Gen1_ST0__0.root", TString SubFolder ="Sim_Geo36_E0.500MeV_Evts1000_FileEvts1000_Gen1_ST0")//, Double_t Energy)
+void GammaSpectraAnalysis_NoH_Task(
+		TString Filename = "Sim_Geo43_E0.519MeV_Evts2860000_FileEvts11440_Gen1_ST12__248.root",
+		TString SubFolder ="Sim_Geo43_E0.519MeV_Evts2860000_FileEvts11440_Gen1_ST12",
+		Bool_t OmegaQuadrupolMode = 1,
+		Double_t PeakWidthStretchfactor=1
+				)//, Double_t Energy)
+
 {
-	Int_t nEvents= 0;//1000000;
+
 	Int_t iVerbose = 0;
 	
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-	rootlogon();
+	//rootlogon();
+	gROOT->LoadMacro("$VMCWORKDIR/macro/hypGe/Marcell/SharedMacros/SharedMacroFunctions.C");
 
-	gSystem->Load("libHyp");
 	gSystem->Load("libHypGe");
+	gSystem->Load("librazhyp");
+	gSystem->Load("libHyp");
 	gSystem->Load("libSpectrum");
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
 	timer.Start();
 	
-	//---------compose inFile----------------------------------------------------
+	// get energy from filename
+	Double_t Energy = GetEnergyFromFilename(Filename);			// now in MeV
+
+	// get number of events from filename
+
+	Int_t nEvents = GetNumberOfEventsInFileFromFilename(Filename);
+
+	Int_t TargetSimulated= GetIfTargetIsSimulated(Filename);
+	cout << "TargetSimulated " << TargetSimulated << endl;
 	if(Filename.EndsWith(".root",1))
 	{
 		Filename.ReplaceAll(".root","");
 		cout << "Filename ending chopped!" << endl;
 	}
+	TString CompleteFilename = "$SIMDATADIR/Gamma/"+SubFolder+"/"+Filename+".root";
+	TString CompleteParameterFilename = "$SIMDATADIR/Gamma/"+SubFolder+"/"+Filename+"__Simparams.root";
+	//Output Files
+	Filename.ReplaceAll("Sim","Ana");
+	SubFolder.ReplaceAll("Sim","Ana");
+	TString TextAdd = "_OQP_Psf";					//text added to files /folders in Omega Quadropole mode
+			TextAdd +=PeakWidthStretchfactor;
+	if (OmegaQuadrupolMode)
+	{
+		SubFolder+=TextAdd;
+	}
 	TString Path = getenv("SIMDATADIR");
-	TString inFile = Path+"/"+Filename+".root";
-	
-	//---------compose parFile---------------------------------------------------
-	TString parFile = Path+"/"+Filename+"__Simparams.root";
-	//---------compose outFile---------------------------------------------------
-	
-	TString outFile= Path+"/Data_Marcell/";
-	outFile += Filename;
-	TString txtfileName =  outFile;
-	outFile +="_Spectrum_test.root";		//changed for development
-	txtfileName += "_Spectrum.txt";
-	
-	//---------get gamma energy from filename-----------------------------------
-	Double_t GammaEnergy;
-	Int_t IndexPreEnergy = Filename.Index("_",1,0,0);
-	Int_t IndexPostEnergy = Filename.Index("MeV",3,0,0);
-	TString EnergyFromFileName = Filename(IndexPreEnergy+1,IndexPostEnergy-IndexPreEnergy-1);
-	cout << EnergyFromFileName << endl;
-	GammaEnergy = EnergyFromFileName.Atof()/1000.;
-	 if(GammaEnergy == 0)
-		GammaEnergy = 0.001;				//set default value
-	
-	cout << "Extracted GammaEnergy " << GammaEnergy << endl;
+	TString FullPath= Path+"/Gamma/Ana/"+SubFolder;
+	char CommandBuffer[400];
+	sprintf(CommandBuffer,".!mkdir -p %s",FullPath.Data());
+		cout << "Processing " << CommandBuffer<< endl;
+		gROOT->ProcessLine(CommandBuffer);		// create subfolder for the output
+	TString outfile;
+	TString txtfileName;
+		if (OmegaQuadrupolMode)
+	{
+
+		outfile = FullPath + "/" + Filename;
+		outfile.Insert(outfile.Index("__"),TextAdd.Data());
+		//cout << outfile.Data()<<endl;
+
+		txtfileName = outfile+ ".txt";
+		outfile+=".root";
+
+	}
+	else
+	{
+		outfile = FullPath + "/" + Filename + ".root";
+		txtfileName = FullPath + "/" + Filename + ".txt";
+	}
 	//--------- gamma ana run
 	FairRunAna *fRun= new FairRunAna();
-	fRun->SetInputFile(inFile.Data());
-	fRun->SetOutputFile(outFile.Data());
+	fRun->SetInputFile(CompleteFilename.Data());
+	fRun->SetOutputFile(outfile.Data());
 	
 	 // -----  Parameter database   --------------------------------------------
   
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	FairParRootFileIo* parInput1 = new FairParRootFileIo();
-	parInput1->open(parFile.Data());
+	parInput1->open(CompleteParameterFilename.Data());
 	
 	Bool_t kParameterMerged=kTRUE;
 	rtdb->setFirstInput(parInput1);
@@ -60,8 +88,14 @@ void GammaSpectraAnalysis_NoH_Task(TString Filename)
 	
 		
 	//--------analysis task----------------------------------------------------
-	PndHypGeGammaAna* GammaAna = new PndHypGeGammaAna(txtfileName,GammaEnergy,nEvents);
+	PndHypGeGammaAna* GammaAna = new PndHypGeGammaAna(txtfileName,Energy,nEvents);
 	GammaAna->SetVerbose(iVerbose);
+	GammaAna->SetTarget(TargetSimulated);
+	if (OmegaQuadrupolMode)
+	{
+		GammaAna->SetOmegaQuadrupolMode(1);
+		GammaAna->SetPeakWidtchStrechFactor(PeakWidthStretchfactor);
+	}
 	fRun->AddTask(GammaAna);
 	
 
@@ -76,9 +110,9 @@ void GammaSpectraAnalysis_NoH_Task(TString Filename)
   Double_t ctime = timer.CpuTime();
   cout << endl << endl;
   cout << "Macro finished succesfully." << endl;
-  cout << "Output file is "    << outFile << endl;
+  cout << "Output file is "    << outfile << endl;
   cout << "Text file is " << txtfileName << endl;
-  cout << "Parameter file is " << parFile << endl;
+  //cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
 }

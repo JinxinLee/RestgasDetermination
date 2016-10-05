@@ -2,14 +2,24 @@
 // It creates a geant simulation file for hypGe
 // 16.09.13: steinen: added sec target (air version) to use PndVolGenerator without material
 //void sim_Gamma(Int_t nEvents = 1000, Int_t WhichDetector = 36,Double_t Energy = 0.001,Bool_t addSecTar = 1)
-void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Int_t GenType, Bool_t addSecTar, Int_t nAllEvents, Int_t JobNr)
+
+
+void sim_Gamma(	Int_t WhichDetector ,
+				Double_t Energy,
+				Int_t nAllEvents,
+				Int_t nEvents,
+				Int_t GenType,
+				Int_t addSecTar,
+				Int_t JobNr,
+				Bool_t OmegaMode = 0,
+				Double_t mu = 0,
+				Double_t Q = 0)
 {
 
 	// Load basic libraries
   // If it does not work,  please check the path of the libs and put it 	by hands
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-	
-	cout << "blabal" << endl;
+	gROOT->LoadMacro("$VMCWORKDIR/macro/hypGe/Marcell/SharedMacros/SharedMacroFunctions.C");
 	gSystem->Load("libHypGe");
 	gSystem->Load("librazhyp");
 	gSystem->Load("libHyp");  
@@ -18,88 +28,31 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Int_t GenTy
 	TStopwatch timer;
 	timer.Start();
 	gDebug=0;
-
-  
-
+ 
+	Double_t EnergyGeV = Energy/1000;
 	//Choose geometry
 	TString outFile="$SIMDATADIR/Gamma/";							// If no SIMDATADIR, same folder as the macro
-	TString GeoFile;
-	if (WhichDetector == 3)
-	{
-		GeoFile ="hypGe_GeoMarcell.root";
-		outFile += "TripleV2_";
-	}
-	else if (WhichDetector == 31)
-	{
-		GeoFile = "hypGeGeoTripleCluster_V3.root";
-		outFile += "TripleBall30_";
-	}
-	else if (WhichDetector == 32)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Straight.root";
-		outFile += "TripleStraight_";
-	}
-	else if (WhichDetector == 33)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Ball40_Offset10.root";
-		outFile += "TripleBall40Offset10_";
-	}
-	else if (WhichDetector == 34)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Ball40_Offset20.root";
-		outFile += "TripleBall40Offset20_";
-	}
-	else if (WhichDetector == 35)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Ball40_Offset10_STTFitting.root";
-		outFile += "TripleBall40Offset10STT_";
-	}
-	else if (WhichDetector == 36)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Ball40_Offset20_STTFitting.root";
-		outFile += "TripleBall40Offset20STT_";
-	}
+	TString GeoFile=GeoFileChooser(WhichDetector);
+	TString outFolderPureName = ComposeOutputFoldername("Sim" ,WhichDetector,Energy,nAllEvents, nEvents, GenType,addSecTar,OmegaMode,mu,Q);
+	TString outFilePureName = ComposeOutputFilename("Sim" ,WhichDetector,Energy,nAllEvents, nEvents, GenType,addSecTar, JobNr,OmegaMode,mu,Q);
 	
-	else if (WhichDetector == 2)
-	{
-		GeoFile = "hypGe_GeoMarcell_2er.root";
-		outFile += "DoubleV2_";
-	}
-	else if (WhichDetector == 21)
-	{
-		GeoFile = "hypGeGeoDoubleCluster_V3.root";
-		outFile += "DoubleV3_";
-	}
-
-	// choose Co60
-	bool isCo60 = false;
-	//compose the name of the output file and the simparams file
+	outFile += outFolderPureName;						// subfolder until here
 	
-	if (!isCo60)
-	{
-		outFile += Energy*1000;
-		outFile += "MeV_";
-	}
-	else
-	{
-		outFile += "Co60_";
-	}
-	outFile += nAllEvents;
-	outFile += "Evts_Gen";
-	outFile += GenType;
-	outFile +="_ST";
-	outFile += int(addSecTar);
-	outFile += "__";
-	outFile += JobNr;
+	char CommandBuffer[400];
+	sprintf(CommandBuffer,".!mkdir -p %s",outFile.Data());
+	cout << "Processing " << CommandBuffer<< endl;	
+	gROOT->ProcessLine(CommandBuffer);		// create subfolder for the output	
 	
+	outFile += "/";
+	outFile += outFilePureName;
 	
 	TString SimparamsFile;
 	SimparamsFile=outFile;
 	outFile +=".root";
 	SimparamsFile += "__Simparams.root";
 
-	//TString inFile="/d/panda02/urqmd_smm/pbarC_3_GeV.root";
-  //TString inFile="/u/asanchez/razhyp_gt12.dat";
+	cout << outFile << endl;
+
   // set the MC version used
   // ------------------------
   
@@ -121,7 +74,7 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Int_t GenTy
 
 	if (addSecTar)
 	{  
-		//acc sec. target
+		//add sec. target
 		PndHyp *Hyp= new PndHyp("HYP",kTRUE);
 		Hyp->SetAbsorberVol("Absorber"); // absorber layer
 		Hyp->SetSensorVol("Sensor");   // silicon sensor
@@ -132,10 +85,23 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Int_t GenTy
 		Hyp->SetListMat("titanium");
 		Hyp->SetListMat("HYPcarbon");
 		Hyp->SetListMat("siliconinactive");
+		Hyp->SetListMat("acrylicGlass");
+		Hyp->SetMatbud(true);			//activate hits in other parts than silicons or absorber
 		switch (addSecTar)
 		{
-			case 1: Hyp->SetGeometryFileName("TargetSystem_Ti_TcT150um_filledCorners_addSens.root");break ;
+			case 1: Hyp->SetGeometryFileName("TargetSystem_WindowTi_filledCorners_TcT1500um_longBP.root");break ;
 			case 2: Hyp->SetGeometryFileName("TargetSystem_AbsWindow_filledCorners_addSens.root");break ;
+			case 3: Hyp->SetGeometryFileName("TargetSystem_WindowAbsB_insideAbsB_primTarget.root");break;
+			case 12: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v2_iron.root");break;
+			case 13: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v3_iron.root");break;
+			case 22: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v2_titanium.root");break;
+			case 23: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v3_titanium.root");break;
+			case 32: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v2_tantalum.root");break;
+			case 33: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v2_tantalum.root");break;
+			case 42: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v2_lead.root");break;
+			case 43: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v3_lead.root");break;
+			case 52: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v2_gold.root");break;
+			case 53: Hyp->SetGeometryFileName("hypTargetSystem_XiAtoms_v3_gold.root");break;
 		}
 		fRun->AddModule(Hyp);
 	}
@@ -169,14 +135,16 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Int_t GenTy
   
   if(boxgen)
 	{	
+  	bool isCo60 = false;
 		PndBoxGenerator* boxGen = new PndBoxGenerator(22, 1);
 		boxGen->SetXYZ(0., 0., -55.); // vertex coordinates [cm]
 		if (!isCo60) 
-			boxGen->SetPRange(Energy,Energy); // GeV/c
+			boxGen->SetPRange(EnergyGeV,EnergyGeV); // GeV/c
 		else
 			boxGen->SetPRange(0.001172,0.001172);	//set first line of Co60 in GeV/c
 		boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
 		boxGen->SetThetaRange(90., 180.); // Polar angle in lab system range [degree]
+		boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
 		primGen->AddGenerator(boxGen);
 		if (isCo60)
 		{ 
@@ -193,19 +161,36 @@ void sim_Gamma(Int_t nEvents , Int_t WhichDetector ,Double_t Energy ,Int_t GenTy
 
 	if (partgen)
 	{
-		//TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/partGenFiles/hypBupV1T_Decay_gam_test.root"; 	//220 events
-		//TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/partGenFiles/testgam_1_6All.root";						// ~1300 events
-		TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/partGenFiles/testgam_1_99All.root";							//22517 events
+		//TString inFile= "$VMCWORKDIR/hypGe/hypGeTools/partGenFiles/testgam_1_99All.root";							//22517 events
+		//TString inFile= "/home/steinen/work/GeneratorInput/XiAtoms/CombinedHypfile_Geo3_simruns_Events5000000.root";							//9686 events
+		TString inFile= "/home/steinen/work/GeneratorInput/XiAtoms/CombinedHypfile_Geo_3_simruns_Events10000000.root";							//52867 events
+		TString inFile= "/data/work/kpha1/steinen/XiAtoms/data/Hypfiles/CombinedHypfile_Geo_";
+		inFile+=addSecTar;
+		inFile+="_simruns_Events20000000";
+		if ((addSecTar % 10)==3)
+			inFile+="_Omega";
+		inFile+=".root";
+
+
+//		if (addSecTar ==4 || addSecTar == 7)
+//			TString inFile= "/home/steinen/work/GeneratorInput/XiAtoms/CombinedHypfile_Geo_3_simruns_Events10000000.root";							//52867 events
+//		else if (addSecTar ==6 || addSecTar == 8)
+//			TString inFile= "/home/steinen/work/GeneratorInput/XiAtoms/CombinedHypfile_Geo_5_simruns_Events10000000.root";
+//			else
+//			{
+//				cout << "no valid input file for partgen!!!!";
+//				return -1;
+//			}
 		PndHypBupGenerator* partGen = new PndHypBupGenerator(inFile.Data());
 	  partGen->GammaEmissPar(kTRUE);
-	  partGen->SetPRange(Energy,Energy);
+	  partGen->SetPRange(EnergyGeV,EnergyGeV);
 	  partGen->SetPhiRange(0,360);
-	  partGen->SetThetaRange(90,180);
+	  partGen->SetThetaRange(90,180);			// only 2 pi of solid angle, since there are no germaniums in forward direction. This has to be taken into account in analysis of efficiency!!!
 	  primGen->AddGenerator(partGen);
 	}
   
 	
-  //boxGen->SetCosTheta(); // Set uniform ditribution in cos(theta)
+  //boxGen->SetCosTheta(); // Set uniform distribution in cos(theta)
 	
 	
 

@@ -38,4 +38,4 @@ EOF
 ### submit job to batch system
 	qsub $jobpath/job_$line.sh
 	#root -l -q -b AllNeutronAnalysis_job.C\(\"$line\"\)
-done < ../../Lists/NeutronSimulationsToAnaList.txt
+done < /data/work/kpha1/steinen/Neutron/NeutronSimulationsToAnaList.txt

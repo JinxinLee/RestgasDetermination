@@ -1,10 +1,10 @@
 # This script runs hypGe urqmd neutron macros 
 
 # reads number of Events, name of run and verbose Level
-DefnEvts=5000
+DefnEvts=50000
 DefGeometry=36
 DefiUrqmd=1
-DefnJobs=1
+DefnJobs=10
 DefaddSecTar=1
 
 
@@ -90,6 +90,10 @@ fi
 #seed=$(expr 1 \+ $seed)
 EvtsPerJob=$(($nEvts/$nJobs))
 iJob=0
+for Geometry in 36 41 42
+do
+for iUrqmd in {1..10}
+do
 for (( i=0; i<${nEvts};i=i+$(($nEvts/$nJobs)) ))
 do
 	iJob=$(($iJob+1))
@@ -117,5 +121,7 @@ EOF
 	### submit job to batch system
 	qsub ${jobpath}/${jobname}.sh
 	#root -l -q -b sim_hypGe_extparameters_urqmd.C\($EvtsPerJob\,$Geometry\,$iUrqmd\,$i\,$addSecTar\)
-
 done
+done
+done
+echo $iJob

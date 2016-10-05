@@ -1,0 +1,4 @@
+
+
+
+ls Sim_Geo36_E*10000000*/Sim*.root | grep -v Simpara > SimList.txt

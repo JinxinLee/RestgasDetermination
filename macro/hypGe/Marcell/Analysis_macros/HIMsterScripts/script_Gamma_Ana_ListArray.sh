@@ -1,10 +1,10 @@
 #!/bin/bash
 
+#### not implemented yet!!!!
+
+
 subdir=Gamma
 Anasubdir=Ana
-
-OmegaQuadruMode=1
-PeakWidtchStretchFactor=1.5
 
 Datapath=${SIMDATADIR}/$subdir
 if [ ! -d $Datapath ]; then 
@@ -36,14 +36,8 @@ while read line; do
 	jobadd=`echo  $file | awk -v FS="Sim_" '{print $2}'`
 	jobadd=`echo  $jobadd | awk -v FS=".root" '{print $1}'`
 	jobadd=Ana_${jobadd}
+	#echo $jobadd
 	
-	if [ "$OmegaQuadruMode" -eq 1 ]
-	then
-		jobaddfront=`echo  $jobadd | awk -v FS="__" '{print $1}'`
-		jobaddnumber=`echo  $jobadd | awk -v FS="__" '{print $2}'`
-		jobadd=${jobaddfront}_OQP_Psf${PeakWidtchStretchFactor}__$jobaddnumber
-	fi
-	#echo $jobpath/job_${jobadd}.sh
 	cat >$jobpath/job_${jobadd}.sh <<EOF
 	#!/bin/bash
 	#
@@ -57,10 +51,13 @@ while read line; do
 	cd \$PBS_O_WORKDIR
 
 	echo "Start Analysis of File $line."
-	root -l -q -b ../GammaSpectraAnalysis_NoH_Task.C\(\"$file\"\,\"$folder\",${OmegaQuadruMode},${PeakWidtchStretchFactor}\) 
+	root -l -q -b ../GammaSpectraAnalysis_NoH_Task.C\(\"$file\"\,\"$folder\"\) &> $AnaLogpath/ana_$file.log
 
 
 EOF
+
+
+
 	#echo "Analysis of $folder $file"
 ### submit job to batch system
 	qsub $jobpath/job_${jobadd}.sh
@@ -73,6 +70,6 @@ EOF
 			#x=$(ls | grep -c ext)
 			x=$(qstat | grep -c ${USER})
 		done			### end of while "double queue" loop
-	#echo "root -l -q -b ../GammaSpectraAnalysis_NoH_Task.C\(\"$file\"\,\"$folder\",${OmegaQuadruMode},${PeakWidtchStretchFactor}\)"
+	echo "root -l -q -b ../GammaSpectraAnalysis_NoH_Task.C\(\"$file\"\,\"$folder\"\)"
 done < ${SIMDATADIR}/$subdir/txtfiles/GammaFilesToAnaList.txt
  

@@ -20,7 +20,7 @@ Double_t PoissonFunc(Double_t *x, Double_t *par)
 {
 	return par[1]*TMath::Poisson(x[0],par[0]);
 }
-void GammaSpectraAnalysis_NoH(TString Filename = "TripleBall40Offset10STT_8MeV_1000EvtswithSecTar.root")//, Double_t Energy) 
+void GammaSpectraAnalysis_NoH(TString Filename = "Sim_Geo36_E0.500MeV_Evts10000000_FileEvts20000_Gen1_ST0__1.root", TString SubFolder ="Sim_Geo36_E0.500MeV_Evts10000000_FileEvts20000_Gen1_ST0")//, Double_t Energy) 
 {
 	
 
@@ -38,26 +38,35 @@ void GammaSpectraAnalysis_NoH(TString Filename = "TripleBall40Offset10STT_8MeV_1
 
 	//Get energy from filename
 	
-	Int_t IndexPreEnergy = Filename.Index("_",1,0,0);
-	Int_t IndexPostEnergy = Filename.Index("MeV",3,0,0);
+	Int_t IndexPreEnergy = Filename.Index("E",1,4,0);
+	Int_t IndexPostEnergy = Filename.Index("MeV",3,4,0);
 	TString EnergyFromFileName = Filename(IndexPreEnergy+1,IndexPostEnergy-IndexPreEnergy-1);
 	//cout << EnergyFromFileName << endl;
-	Double_t Energy = EnergyFromFileName.Atof()/1000;
+	Double_t Energy = EnergyFromFileName.Atof();				// now in MeV, correct???? (7.11.14)
 
 	// the sim file you want to analyse
 	//string Filename = "TripleBall40Offset10_1MeV_10000Evts"; //without File Type ending!!!
 	//Double_t Energy = 0.001;
+	
+	
 	if(Filename.EndsWith(".root",1))
 	{
 		Filename.ReplaceAll(".root","");
 		cout << "Filename ending chopped!" << endl;
 	}
-	TString CompleteFilename = "$SIMDATADIR/Gamma/"+Filename+".root";
+	TString CompleteFilename = "$SIMDATADIR/Gamma/"+SubFolder+"/"+Filename+".root";
 	TFile* g = new TFile(CompleteFilename);
 	
 //Output Files
+	Filename.ReplaceAll("Sim","Ana");
+	SubFolder.ReplaceAll("Sim","Ana");
 	TString Path = getenv("SIMDATADIR");
-	TString outfile= Path+"/Gamma/Ana/Ana";
+	TString outfile= Path+"/Gamma/Ana/"+SubFolder;
+	char CommandBuffer[400];
+	sprintf(CommandBuffer,".!mkdir -p %s",outfile.Data());
+		cout << "Processing " << CommandBuffer<< endl;	
+		gROOT->ProcessLine(CommandBuffer);		// create subfolder for the output
+	outfile += "/";
 	outfile += Filename;
 	TString txtfileName =  outfile;
 	outfile +=".root";
@@ -70,6 +79,8 @@ void GammaSpectraAnalysis_NoH(TString Filename = "TripleBall40Offset10STT_8MeV_1
 	ofstream txtfile;
 	txtfile.open(txtfileName);
 	txtfile << "File read:" << CompleteFilename << endl;
+
+
    //photons from hyp electromag. decay
   TTree *b=(TTree *) g->Get("cbmsim") ;
   TClonesArray* hit_bar=new TClonesArray("PndHypGePoint");
@@ -139,12 +150,12 @@ void GammaSpectraAnalysis_NoH(TString Filename = "TripleBall40Offset10STT_8MeV_1
 			//cout << TMath::Abs(Eng-Energy) << "\t" << 3*0.000001*Resolution/2.3548 << endl;
 		if (TMath::Abs(Eng-Energy) < 10*0.000001*Resolution/2.3548) 			//Peak = 10 * Resolution of 1 crystal --> takes multiple hits into account (faster than fitting and than doing it again, error is small)
 		{			
-			std::cout << "SetOfCrystalHit contains Crystal No";
-			for (it=SetOfCrystalHit.begin(); it!=SetOfCrystalHit.end(); ++it)
-			{
-				std::cout << ' ' << *it;
-			}
-			std::cout << " and is " << SetOfCrystalHit.size() << " long\n";
+			//std::cout << "SetOfCrystalHit contains Crystal No";
+			//for (it=SetOfCrystalHit.begin(); it!=SetOfCrystalHit.end(); ++it)
+			//{
+			//	std::cout << ' ' << *it;
+			//}
+			//std::cout << " and is " << SetOfCrystalHit.size() << " long\n";
 			hNoHits->Fill(SetOfCrystalHit.size());				
 			//hNoHits->Fill(hit_bar->GetEntriesFast());		//Fill # of Hits -diagramm with events inside 3 sigma of the peak
 			//cout << hit_bar->GetEntriesFast()<<endl;
@@ -153,9 +164,9 @@ void GammaSpectraAnalysis_NoH(TString Filename = "TripleBall40Offset10STT_8MeV_1
 		{
 			gamTde->Fill(Eng);		//Fill spectrum
 		}
-	  cout << "Size" << SetOfCrystalHit.size()<< endl;
+	  //cout << "Size" << SetOfCrystalHit.size()<< endl;
 		SetOfCrystalHit.clear();
-		cout << "Size" << SetOfCrystalHit.size()<< endl;
+		//cout << "Size" << SetOfCrystalHit.size()<< endl;
 	}// end for j (events)
   
 
@@ -298,8 +309,8 @@ void GammaSpectraAnalysis_NoH(TString Filename = "TripleBall40Offset10STT_8MeV_1
 	// writing to files and closing 
 	gamTde->Write();
 	hNoHits->Write();
-	GausBG->Write();
-	Poisson->Write();
+	//GausBG->Write();
+	//Poisson->Write();
 	fi->Close();
 	txtfile.close();
 	

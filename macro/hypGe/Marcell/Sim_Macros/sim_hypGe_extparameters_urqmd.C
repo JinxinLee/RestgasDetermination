@@ -5,8 +5,11 @@ void sim_hypGe_extparameters_urqmd(Int_t nEvents, Int_t WhichDetector,Int_t iurq
   // If it does not work,  please check the path of the libs and put it 	by hands
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libHypGe");  
+  gSystem->Load("librazhyp");
+  gSystem->Load("libHyp");
+  gROOT->LoadMacro("$VMCWORKDIR/macro/hypGe/Marcell/SharedMacros/SharedMacroFunctions.C");
   FairRunSim *fRun = new FairRunSim();
-
+  gRandom->SetSeed();
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -16,58 +19,10 @@ void sim_hypGe_extparameters_urqmd(Int_t nEvents, Int_t WhichDetector,Int_t iurq
 	inFile += urqmdFile;
 	inFile += ".root";
 	//Choose geometry
-	TString outFile="$SIMDATADIR/Neutron/";							// If no SIMDATADIR, same folder as the macro
-	TString GeoFile;
-	if (WhichDetector == 3)
-	{
-		GeoFile ="hypGe_GeoMarcell.root";
-		outFile += "TripleV2_";
-	}
-	else if (WhichDetector == 31)
-	{
-		GeoFile = "hypGeGeoTripleCluster_V3.root";
-		outFile += "TripleBall30_";
-	}
-	else if (WhichDetector == 32)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Straight.root";
-		outFile += "TripleStraight_";
-	}
-	else if (WhichDetector == 33)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Ball40_Offset10.root";
-		outFile += "TripleBall40Offset10_";
-	}
-	else if (WhichDetector == 34)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Ball40_Offset20.root";
-		outFile += "TripleBall40Offset20_";
-	}
-	else if (WhichDetector == 35)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Ball40_Offset10_STTFitting.root";
-		outFile += "TripleBall40Offset10STT_";
-	}
-	else if (WhichDetector == 36)
-	{
-		GeoFile = "hypGeGeoTripleCluster_Ball40_Offset20_STTFitting.root";
-		outFile += "TripleBall40Offset20STT_";
-	}
-	
-	else if (WhichDetector == 2)
-	{
-		GeoFile = "hypGe_GeoMarcell_2er.root";
-		outFile += "DoubleV2_";
-	}
-	else if (WhichDetector == 21)
-	{
-		GeoFile = "hypGeGeoDoubleCluster_V3.root";
-		outFile += "DoubleV3_";
-	}
-
+	TString outFile="$SIMDATADIR/Neutron/Geo";							// If no SIMDATADIR, same folder as the macro
+	TString GeoFile= GeoFileChooser(WhichDetector);
+	outFile += WhichDetector;
 	//compose the name of the output file and the simparams file
-	
-
 		outFile += "urqmd_";
 		outFile += urqmdFile;
 		outFile +="_";
@@ -85,6 +40,8 @@ void sim_hypGe_extparameters_urqmd(Int_t nEvents, Int_t WhichDetector,Int_t iurq
 
 	//TString inFile="/d/panda02/urqmd_smm/pbarC_3_GeV.root";
   //TString inFile="/u/asanchez/razhyp_gt12.dat";
+
+	//TString inFile="/data/work/kpha1/bleser/GiBUU-data2b/jobs/carbon0003/Conversion_Class_apr13_carbon0003_allParticles/carbon0003_allParticles_1_32.root"; //GiBUU file 1.5*10⁷ events
   // set the MC version used
   // ------------------------
   
