@@ -488,7 +488,7 @@ void RhoKinVtxFitter::ReadMatrix()
         if(i>=3) {
           if(j>=3) {
             p4Cov[i-3][j-3] = p2Cov[i][j];
-          } else { p4Cov[i-3][j+3] = p2Cov[i][j]; }
+          } else { p4Cov[i-3][j+4] = p2Cov[i][j]; }
         } else {
           if(j>=3) {
             p4Cov[i+4][j-3] = p2Cov[i][j];
