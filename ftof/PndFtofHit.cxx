@@ -24,6 +24,8 @@ PndFtofHit::PndFtofHit(Int_t trackId, Int_t detID, TString detName,  Double_t ti
   fCharge  = charge;
   ftime  = time;
   fdt  = dt;
+
+  SetTimeStamp(time);
   //fNPixelHits = NPixelHits;
 }
 
