@@ -22,6 +22,7 @@
 #pragma link C++ class genfit::TrackCand+;
 #pragma link C++ class genfit::TrackCandHit+;
 #pragma link C++ class genfit::AbsTrackRep+;
+#pragma link C++ class genfit::RKTrackRep-;
 #pragma link C++ class genfit::MeasuredStateOnPlane+;
 #pragma link C++ class genfit::AbsMeasurement+; // trackPoint_
 #pragma link C++ class genfit::AbsFitterInfo-; // trackPoint_, rep_, sharedPlanePtr
