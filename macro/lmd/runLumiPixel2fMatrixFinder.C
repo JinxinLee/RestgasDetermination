@@ -15,9 +15,11 @@ void runLumiPixel2fMatrixFinder(TString storePath="test/boxtest-aligned-1.5/", T
 
 	// ---------------------- init parameters
 
+	string pandaDir = getenv("VMCWORKDIR");
+
 	bool simplestorage=true;
 	bool incentimeters=true;
-	string matrixDir=binaryPath + "/../LMDmatrices";
+	string matrixDir=pandaDir + "/geometry/LMDmatrices";
 	string pairFilesDir=storePath.Data();
 	string binaryFilesDir=binaryPath.Data();
 	int readNoOfFiles=0;			//assuming each pair file is about 64 MB in size FIXME: maybe don't restrict at all
@@ -31,7 +33,7 @@ void runLumiPixel2fMatrixFinder(TString storePath="test/boxtest-aligned-1.5/", T
 	manager.setSimpleStorage(simplestorage);
 	manager.setInCentimeters(incentimeters);
 	manager.setBinaryPairFileDirectory(binaryFilesDir);
-	manager.setMaxPairs(600e3);
+	manager.setMaxPairs(300e3);
 
 	// ---------------------- check for binary files and sort/write, if necessary
 
@@ -61,95 +63,6 @@ void runLumiPixel2fMatrixFinder(TString storePath="test/boxtest-aligned-1.5/", T
 
 	//compose combined matrices m01, m02, m03 etc and compare with PndLmdDim
 
-
-
-	/*
-	return;
-
-	// ---- write Lumi_Pairs to binary files ------------------------------------------------------
-	// TODO: check if binaries exist
-	if(false){
-		//pairs in panda global, new and correct data:
-		string inputDir = "/home/roman/arbeit/simulationData/1.5-misaligned-lmdlocal";
-		string binaryPath = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/timestampTest/binaryPairs-cm-lmdlocal";
-
-		int readNoOfFiles=200;
-		PndLmdAlignManager manager;
-
-		manager.init();
-		manager.addFilesFromDirectory(inputDir, readNoOfFiles);
-		manager.setSimpleStorage(true);
-		manager.setInCentimeters(true);
-		manager.setBinaryPairFileDirectory(binaryPath);
-		manager.readFiles();
-		manager.writePairsToBinaryFiles();
-	}
-
-	// ---- read pair from binary files and create overlap matrices ------------------------------
-
-	// ---- make correction matrices and store to PndLmdDim matrix files -------------------------
-
-	if(false){
-		//self contained matrix finder, no parameters needed
-		string inputDir = "/home/roman/arbeit/simulationData/1.5-misaligned-lmdlocal";
-		string binaryPath = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/timestampTest/binaryPairs-lmdlocal";
-		int readNoOfFiles=200;
-		PndLmdAlignManager manager;
-		bool simpleStorage=false;
-		bool timeStamp=true;
-
-		simpleStorage = true;
-		timeStamp=false;
-
-		if(true){
-			manager.init();
-			manager.setMatrixOutDir("/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/timestampTest/matrices-ts0-ss1/");
-			manager.setInCentimeters(true);
-			manager.setZasTimestamp(timeStamp);
-			manager.setSimpleStorage(simpleStorage);
-			manager.setBinaryPairFileDirectory(binaryPath);
-			manager.readPairsFromBinaryFiles();
-			manager.alignAllSensors();
-		}
-
-		if(true){
-			manager.init();
-			manager.setMatrixOutDir("/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/timestampTest/matrices-ts0-ss1/");
-			manager.setInCentimeters(false);
-			manager.setZasTimestamp(timeStamp);
-			manager.setSimpleStorage(simpleStorage);
-			manager.setBinaryPairFileDirectory(binaryPath);
-			manager.readPairsFromBinaryFiles();
-			manager.alignAllSensors();
-		}
-
-		simpleStorage = true;
-		bool timeStamp=true;
-
-		if(true){
-			manager.init();
-			manager.setMatrixOutDir("/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/timestampTest/matrices-ts1-ss1/");
-			manager.setInCentimeters(true);
-			manager.setZasTimestamp(timeStamp);
-			manager.setSimpleStorage(simpleStorage);
-			manager.setBinaryPairFileDirectory(binaryPath);
-			manager.readPairsFromBinaryFiles();
-			manager.alignAllSensors();
-		}
-
-		if(true){
-			manager.init();
-			manager.setMatrixOutDir("/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/timestampTest/matrices-ts1-ss1/");
-			manager.setInCentimeters(false);
-			manager.setZasTimestamp(timeStamp);
-			manager.setSimpleStorage(simpleStorage);
-			manager.setBinaryPairFileDirectory(binaryPath);
-			manager.readPairsFromBinaryFiles();
-			manager.alignAllSensors();
-		}
-	}
-
-	*/
 
 	// -----   Finish   -------------------------------------------------------
 	timer.Stop();

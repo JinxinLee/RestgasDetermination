@@ -5,7 +5,7 @@ using namespace std;
 
 #include <string>
 
-void runLumiPixel2gAlignQA(TString storePath="test/newTest/LMDmatrices", const int verboseLevel=0)
+void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices/", const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -32,6 +32,11 @@ void runLumiPixel2gAlignQA(TString storePath="test/newTest/LMDmatrices", const i
 	qaTask.setCorrection(useCorrectionMatrix);
 	qaTask.setInCentimeters(inCentimeters);
 	qaTask.setOutputPath(reportOutDir);
+
+	//dimension is a singleton, so you can load matrices even after a different object requested a dimension object
+	PndLmdDim *dimension = PndLmdDim::Instance();
+	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-aligned-1.5/GeometryMatrices/trafo_matrices_lmd_misaligned-10u.dat", false);
+	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-aligned-1.5/GeometryMatrices/trafo_matrices_lmd.dat", true);
 
 
 	// check if matrices exist (matrix finder was run)
