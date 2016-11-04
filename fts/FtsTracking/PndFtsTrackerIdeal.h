@@ -55,7 +55,7 @@ public:
   void SetTrackingEfficiency(Double_t eff = 1.) { fEfficiency=eff; };
   Int_t SetMinFtsHitsPerTrack(Int_t minFtsHitsPerTrack = 5); // checks argument, sets fMinFtsHitsPerTrack (in any case) and gives new value back
 
-
+  void DeactivateFtsStation(Int_t i) {fStationsDisabled[i]=true;};
 
   void SetFtsActivity(Bool_t act=kTRUE){fBranchActive[0]=act;}
   void SetGemActivity(Bool_t act=kTRUE){fBranchActive[1]=act;}
@@ -67,11 +67,12 @@ protected:
 
   void SmearFWD(TVector3 &vec, const TVector3 &sigma); // smearing with doubled sigma in z direction
 
-  TClonesArray*  fMCTracks;         //! Array of PndMCTrack
-  TClonesArray*  fMCPoints[4];      //! Array of event's points
-  TClonesArray*  fHits[4];          //! Array of event's hits
-  Int_t          fBranchIDs[4];     //! Array of Branch IDs
-  Bool_t         fBranchActive[4];  //! Array of Branch Activeness
+  TClonesArray*  fMCTracks;              //! Array of PndMCTrack
+  TClonesArray*  fMCPoints[4];           //! Array of event's points
+  TClonesArray*  fHits[4];               //! Array of event's hits
+  Int_t          fBranchIDs[4];          //! Array of Branch IDs
+  Bool_t         fBranchActive[4];       //! Array of Branch Activeness
+  std::map<int,bool> fStationsDisabled;  //! Array of disabled stations
 
   TClonesArray  *fTrackCands;   //! Array of found track candidates
   TClonesArray  *fTracks;       //! Array of found tracks
