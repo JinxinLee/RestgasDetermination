@@ -17,7 +17,7 @@
 #include <PndLmdAlignManager.h>
 #include <matrix.h>
 
-enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX};
+enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals};
 
 struct histParams{
 	double scaleFactor=1.0;
@@ -26,7 +26,7 @@ struct histParams{
 	std::string xtitle;
 	std::string ytitle;
 	std::string path;
-	int bins50;
+	int bins=50;
 	double xMin=-1;
 	double xMax=-1;
 	int vectorIndex=0;

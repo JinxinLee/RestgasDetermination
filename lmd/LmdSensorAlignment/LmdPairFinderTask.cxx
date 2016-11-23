@@ -185,7 +185,7 @@ LmdPairFinderTask::~LmdPairFinderTask() {
 InitStatus LmdPairFinderTask::Init() {
 
 	//for now, disregard sorting option, always store unsorted (data will be supplied in the future sorted anyway)
-	sortByModule=false;
+	_sortByModule=false;
 
 	noOfGoodPairs=0;
 	noOfEvents=noOfCombos=0;
@@ -217,7 +217,7 @@ InitStatus LmdPairFinderTask::Init() {
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat",true);
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat",false);
 
-	if(sortByModule){
+	if(_sortByModule){
 		cout << "====== STORING SORTED IS NO LONGER SUPPORTED! NOT SAVING ANYTHING! =========" << endl;
 		/*
 		 * initialize multiple TClonesArrays and register them
@@ -276,7 +276,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 
 	//clear temporary array for next event
 
-	if(sortByModule){
+	if(_sortByModule){
 		//clear hit count map for next event
 		typedef std::map<int, int>::iterator it_type1;
 		typedef std::map<int, TClonesArray*>::iterator it_type2;
@@ -330,6 +330,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 	}
 
 	//all hits are present in clusters
+
 	/*
 	 * ============ find clusters ============
 	 * input: vector<pixelCluster>
@@ -375,11 +376,13 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 		if(clusters[i].clusterSize > 1){
 			hitsClustered++;
 
+			//if ignoreClustres is set, skip clustered events
 			//FIXME: get from config file
-			if(clusters[i].clusterSize > 3){
+			if(_ignoreClusters || clusters[i].clusterSize > 3){
 				clusters.erase(clusters.begin()+i);
 				/*
-				 * this is important! when you erase cluster i, cluster i+1 becomes cluster i, but i becomes i+1.
+				 * this is important! when you erase cluster i, cluster i+1 becomes cluster i, but the first i
+				 * becomes i+1 itself.
 				 * that means, cluster i (former i+1) never gets checked in the first line of the outer for loop!
 				 */
 				i--;
@@ -444,7 +447,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 						/*
 						 * ============ store pairs ============
 						 */
-						if(sortByModule){
+						if(_sortByModule){
 							moduleId = pairCanditate.getModuleId();
 							TClonesArray* targetBranch = hitPairMap[moduleId];
 							storedForBranch = hitCountMap[moduleId];
@@ -685,7 +688,7 @@ bool LmdPairFinderTask::candDistanceIsGood(PndLmdHitPair &candidate) {
 	//use distance squared
 
 	double distance = candidate.getDistance();
-	if(distance > maxDistance){
+	if(distance > _maxDistance){
 		return false;
 	}
 	return true;

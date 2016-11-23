@@ -99,6 +99,12 @@ public:
 
 	void writeDebugInfoOnAllSensors();
 
+	//compute combined matrices
+	void computeCombinedMatrices();
+
+	//compare combined with target matrices
+	void compareCombinedMatrices();
+
 	static void loadBar(int current, int total, int resolution, int width, std::string message="");
 
 	void setSimpleStorage(bool useSimpleStorage) {

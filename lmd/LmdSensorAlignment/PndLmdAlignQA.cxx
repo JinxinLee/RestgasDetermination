@@ -108,26 +108,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.xMax=30;
 		createHist(data, parameters);
 
-
-		/*
-		//for DY
-		parameters.title = "DeltaY";
-		parameters.xtitle = "dY [#mum]";
-		parameters.ytitle = "entries";
-		parameters.scaleFactor = 1e4;
-		parameters.fileName = "dyNEWMETHOD.pdf";
-		parameters.vectorIndex = 4;
-		createHist(data, parameters);
-
-		//for Dalpha
-		parameters.title = "DeltaAlpha";
-		parameters.xtitle = "d#alpha [#mum]";
-		parameters.ytitle = "entries";
-		parameters.scaleFactor = 1e4;
-		parameters.fileName = "dalphaNEWMETHOD.pdf";
-		parameters.vectorIndex = 2;
-		createHist(data, parameters);
-		 */
 	}
 
 	//plot by module
@@ -146,19 +126,8 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//}
 
 		}
-		/*
-		tDeltaCorrection(0 +iMult*10, 5 +iMult*10, data);
-		histDeltaCorrection(1 +iMult*10, 8 +iMult*10, data);
-		histDeltaCorrection(2 +iMult*10, 8 +iMult*10, data);
-		histDeltaCorrection(2 +iMult*10, 9 +iMult*10, data);
-		histDeltaCorrection(3 +iMult*10, 6 +iMult*10, data);
-		histDeltaCorrection(3 +iMult*10, 7 +iMult*10, data);
-		histDeltaCorrection(3 +iMult*10, 8 +iMult*10, data);
-		histDeltaCorrection(4 +iMult*10, 7 +iMult*10, data);
-		histDeltaCorrection(4 +iMult*10, 9 +iMult*10, data);
-
-		 */
 	}
+
 	//TODO: handle path and filenames correctly
 	else if(param == kPlotCMMatrixResiduals){
 
@@ -182,9 +151,20 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//read matrices from disk
 			Matrix matrixCM = manager.readMatrix(matrixNameCM);
-			Matrix senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
-			//Matrix senToSenCorrTarget = Matrix::eye(4);
-			Matrix matrixDif = matrixCM - senToSenCorrTarget;
+
+			bool alignmentcase = true;	//the aligned case is special because the correction matrix is the identity
+			Matrix senToSenCorrTarget;
+			if(alignmentcase){
+				senToSenCorrTarget = Matrix::eye(4);
+			}
+			else{
+				senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
+			}
+
+			//transform both correction matrices to full sensor to sensor matrices
+			Matrix senToSenIdeal = manager.getMatrixOfficialGeometry(id1, id2, true);
+
+			Matrix matrixDif = (matrixCM*senToSenIdeal) - (senToSenCorrTarget*senToSenIdeal);
 
 			//store this residual tuple to data
 			std::vector<double> result;
@@ -197,6 +177,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		}
 
 		histParams parameters;
+		parameters.bins=25;
 
 		//for DX
 		parameters.path = pdfdir;
@@ -251,14 +232,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			}
 
 			//prepare
-			Matrix target = manager.getMatrixOfficialGeometry(id1, id2,true);
+			Matrix target = manager.getMatrixOfficialGeometry(id1, id2,false); //true = aligned, false = misaligned
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = "/home/arbeit/simulationData/boxtest-aligned-1.5/binaryPairs/LMDmatrices";
+			string path = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices";
 			matrixNamePX = path + matrixNamePX;
 
 			//read matrices from disk
 			Matrix matrixPX = manager.readMatrix(matrixNamePX);
-			manager.transformFromSensorToLmdLocal(matrixPX, id1, true);
+			manager.transformFromSensorToLmdLocal(matrixPX, id1, false); // false = misaligned geometry
 			Matrix matrixDif = matrixPX - target;
 
 			//store this residual tuple to data
@@ -272,6 +253,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		}
 
 		histParams parameters;
+		parameters.bins=25;
 
 		//for DX
 		parameters.path = pdfdir;
@@ -399,6 +381,203 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 	}
 
+	else if(param==kPlotPXvsCMResiduals){
+
+		//change this option from 0 to 2 accordingly.
+		// 0 = aligned
+		// 1 = misaligned 10u
+		// 2 = misaligned 50u
+		int alignOption=0;
+
+		//prepare some stuff for aligned/misaligned cases
+		bool alignOptionBool;
+		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/residualsDiff/";
+		string matrixPath;
+
+		switch(alignOption){
+		case 0:
+			alignOptionBool=true;
+			matrixPath = "/home/arbeit/simulationData/boxtest-aligned-1.5/binaryPairs/LMDmatrices";
+			break;
+		case 1:
+			alignOptionBool=false;
+			matrixPath = "/home/arbeit/simulationData/boxtest-misaligned-10u-1.5/binaryPairs/LMDmatrices";
+			break;
+		case 2:
+			alignOptionBool=false;
+			matrixPath = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices";
+			break;
+		}
+
+		//remember, we want the difference between two residuals
+		// (matrixPX-matrixTarget) - (matrixCM-matrixtarget)
+
+		// prepare data sets
+		std::vector<std::vector<double> > dataCM;
+		std::vector<std::vector<double> > dataPX;
+
+		//so, gather all CMresiduals
+		for(int i=0; i<idPairs.size(); i++){
+
+			int id1 = idPairs[i].first;
+			int id2 = idPairs[i].second;
+
+			//only select overlap areas with more than 2e5 pairs
+			int overlapID = dimension->makeOverlapID(id1, id2);
+			if( matrixInfo[overlapID] < 500e3){
+				continue;
+			}
+
+			//prepare
+			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
+			string path = matrixPath;
+			matrixNameCM = path + matrixNameCM;
+
+			//read matrices from disk
+			Matrix matrixCM = manager.readMatrix(matrixNameCM);
+
+			//the aligned case is special because the correction matrix is the identity
+			Matrix senToSenCorrTarget;
+			if(alignOptionBool){
+				senToSenCorrTarget = Matrix::eye(4);
+			}
+			else{
+				senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
+			}
+
+			//transform both correction matrices to full sensor to sensor matrices
+			Matrix senToSenIdeal = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
+
+			Matrix matrixDif = (matrixCM*senToSenIdeal) - (senToSenCorrTarget*senToSenIdeal);
+
+			//store this residual tuple to data
+			std::vector<double> resultCM;
+			resultCM.push_back(id1);
+			resultCM.push_back(id2);
+			resultCM.push_back(matrixDif.val[0][1]);		// sin(alpha)
+			resultCM.push_back(matrixDif.val[0][3]);		// tx
+			resultCM.push_back(matrixDif.val[1][3]);		// ty
+			dataCM.push_back(resultCM);
+		}
+
+		//gather all PX residuals
+		for(int i=0; i<idPairs.size(); i++){
+
+			int id1 = idPairs[i].first;
+			int id2 = idPairs[i].second;
+
+			//only select overlap areas with more than 2e5 pairs
+			int overlapID = dimension->makeOverlapID(id1, id2);
+			if( matrixInfo[overlapID] < 500e3){
+				continue;
+			}
+
+			//prepare
+			Matrix target = manager.getMatrixOfficialGeometry(id1, id2,alignOptionBool); //true = aligned, false = misaligned
+			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
+			string path = matrixPath;
+			matrixNamePX = path + matrixNamePX;
+
+			//read matrices from disk
+			Matrix matrixPX = manager.readMatrix(matrixNamePX);
+			manager.transformFromSensorToLmdLocal(matrixPX, id1, alignOptionBool); // false = misaligned geometry
+			Matrix matrixDif = matrixPX - target;
+
+			//store this residual tuple to data
+			std::vector<double> resultPX;
+			resultPX.push_back(id1);
+			resultPX.push_back(id2);
+			resultPX.push_back(matrixDif.val[0][1]);		// sin(alpha)
+			resultPX.push_back(matrixDif.val[0][3]);		// tx
+			resultPX.push_back(matrixDif.val[1][3]);		// ty
+			dataPX.push_back(resultPX);
+		}
+
+		//we now have two data sets, dataCM and dataPX. combine!
+
+		if(dataCM.size() != dataPX.size()){
+			cout << "ERROR. the two data sets are not equally large! exiting!\n";
+			exit(1);
+		}
+
+		data.reserve(dataCM.size());
+
+		for(int i=0; i<dataCM.size(); i++){
+
+			//check if ids match
+			if( (dataCM[i][0] != dataPX[i][0]) || (dataCM[i][1] != dataPX[i][1]) ){
+				cout << "ERROR. vectors are not in the same order!\n";
+			}
+
+			std::vector<double> interimData;
+			interimData.push_back(dataCM[i][0]);
+			interimData.push_back(dataCM[i][1]);
+			interimData.push_back(dataPX[i][2] - dataCM[i][2]);		// sin(alpha)
+			interimData.push_back(dataPX[i][3] - dataCM[i][3]);		// tx
+			interimData.push_back(dataPX[i][4] - dataCM[i][4]);		// ty
+
+			/*
+			if(abs(interimData[2]) > 2e-6 ){
+				cout << "offender: da, id: " << interimData[0] << "to" << interimData[1] << ", val: " << interimData[2] << "\n";
+			}
+			if(abs(interimData[3]) > 0.2e-4 ){
+				cout << "offender: dx, id: " << interimData[0] << "to" << interimData[1] << ", val: " << interimData[3] << "\n";
+			}
+			if(abs(interimData[4]) > 0.2e-4  ){
+				cout << "offender: dy, id: " << interimData[0] << "to" << interimData[1] << ", val: " << interimData[4] << "\n";
+			}
+			*/
+
+			if(abs(interimData[2]) > 2e-6 || abs(interimData[3]) > 0.2e-4 || abs(interimData[4]) > 0.2e-4 ){
+				cout << "offender: id: " << interimData[0] << "to" << interimData[1] << "\n";
+			}
+
+			data.push_back(interimData);
+
+		}
+
+		//plot difference
+		histParams parameters;
+		parameters.bins=25;
+
+		//for DX
+		parameters.path = pdfdir;
+		parameters.title = "PXresiduals - CMresiduals, #DeltaX";
+		parameters.xtitle = "dX [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dx.pdf";
+		parameters.vectorIndex = 3;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+		//for DY
+		parameters.path = pdfdir;
+		parameters.title = "PXresiduals - CMresiduals, #DeltaY";
+		parameters.xtitle = "dY [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dy.pdf";
+		parameters.vectorIndex = 4;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+		//for DAlpha
+		parameters.path = pdfdir;
+		parameters.title = "PXresiduals - CMresiduals, #Delta#alpha";
+		parameters.xtitle = "d#alpha [#murad]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e6;
+		parameters.fileName = "dalpha.pdf";
+		parameters.vectorIndex = 2;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		createHist(data, parameters);
+
+	}
+
 	/*
 	 * test functions and sandbox
 	 */
@@ -480,7 +659,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		Matrix corrSenOne = manager.getCorrectionMatrix(id1);
 		Matrix corrSenTwo = manager.getCorrectionMatrix(id2);
 
-		Matrix senToSenWithCorrLast = corrSenTwo * senToSenLast * Matrix::inv(corrSenOne);
+				Matrix senToSenWithCorrLast = corrSenTwo * senToSenLast * Matrix::inv(corrSenOne);
 
 		Matrix senToSenWithCorrDirectLast = manager.getMatrixOfficialGeometry(id1, id2,false);
 		cout << senToSenWithCorrDirectLast - senToSenWithCorrLast << "\n";
@@ -630,7 +809,7 @@ bool PndLmdAlignQA::checkForMatrixFiles(){
 
 void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParams &parameters) {
 
-	TH1D histogram(parameters.title.c_str(), parameters.title.c_str(), 50, parameters.xMin, parameters.xMax);
+	TH1D histogram(parameters.title.c_str(), parameters.title.c_str(), parameters.bins, parameters.xMin, parameters.xMax);
 
 	histogram.GetXaxis()->SetTitle(parameters.xtitle.c_str());
 	histogram.GetYaxis()->SetTitle(parameters.ytitle.c_str());
@@ -640,9 +819,29 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 		exit(1);
 	}
 
+	vector< std::pair<double, std::string> > offenders;
+
 	//have all data now
+	double dataPoint=0.0;
 	for(int iArea=0; iArea<vec.size();iArea++){
-		histogram.Fill(vec[iArea][parameters.vectorIndex] * parameters.scaleFactor);
+		dataPoint = vec[iArea][parameters.vectorIndex] * parameters.scaleFactor;
+		histogram.Fill(dataPoint);
+
+		if(abs(dataPoint) > 0.2){
+			offenders.push_back(make_pair(dataPoint, "ARGH"));
+			//cout << "offender at " << dataPoint << "\n";
+		}
+
+	}
+
+	// iterate over all offenders
+	// find bin for every offender
+	// set bin label for every offender
+	// FUCK ignore bins that have two offenders
+
+	for(int i=0; i<offenders.size(); i++){
+		Int_t binNo = histogram.GetXaxis()->FindFixBin(offenders[i].first );
+		histogram.GetXaxis()->SetBinLabel(binNo, offenders[i].second.c_str());
 	}
 
 	stringstream pathname;
@@ -657,6 +856,7 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 	TCanvas canvas("canvas", "canvas", 800,600);
 	canvas.cd();
 	histogram.Draw();
+	histogram.Draw("HIST TEXT0 SAME");
 	canvas.Print((pathname.str()+parameters.fileName).c_str());
 }
 

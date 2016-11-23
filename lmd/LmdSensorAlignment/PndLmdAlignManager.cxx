@@ -125,7 +125,7 @@ void PndLmdAlignManager::init(){
 	hmatrix2 = Matrix::homogenize(hmatrix2);
 
 	helperMatrix = hmatrix2 * hmatrix1;
-	*/
+	 */
 
 	vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
 	for(int i=0; i<overlapIDs.size(); i++){
@@ -328,7 +328,7 @@ void PndLmdAlignManager::alignST() {
 
 void PndLmdAlignManager::alignMT() {
 
-	//new version, multi threaded
+	//new version, multi threaded using thread pool model and boost::asio implementation
 
 	//shared pointer, since io_services cant' be copied
 	boost::shared_ptr< boost::asio::io_service > io_service(new boost::asio::io_service);
@@ -343,7 +343,7 @@ void PndLmdAlignManager::alignMT() {
 
 	//sometimes hardware_concurrency returns 0 if it can't detect.
 	if(nThreads < 1){
-		cout << "could not detect number of cores. assuming 4.\n";
+		cout << "INFO:: could not detect number of cores. assuming 4.\n";
 		nThreads = 4;
 	}
 
@@ -364,7 +364,7 @@ void PndLmdAlignManager::alignMT() {
 		io_service->post( boost::bind( &PndLmdAlignManager::alignOne, this, boost::ref( it->second ) ) );
 	}
 
-	//wait for all threads to complete
+	//wait for all threads to complete, then and only then write matrices to disk
 	work.reset();
 	worker_threads.join_all();
 
@@ -828,7 +828,8 @@ int PndLmdAlignManager::searchDirectories(std::string curr_directory, std::vecto
 	for(; iterator != boost::filesystem::directory_iterator(); ++iterator){
 		if(boost::filesystem::is_directory(iterator->path())){
 			list.push_back(iterator->path().string());
-			//recursively call
+
+			//recursively call for sub directories
 			if(includeSubDirs){
 				searchDirectories(iterator->path().string(), list, includeSubDirs);
 			}
@@ -931,9 +932,13 @@ Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 
 	/*
 	 * this code was tested on 2016-08-29 and works. The root implementation is still not
-	 * according to ROOT documentation, in that the translation parts of a matrix ar not
+	 * according to ROOT documentation, in that the translation parts of a matrix are not
 	 * where they should be and sometimes the homogenous coordinate is not set to 1.
-	 * This fixes that. DO NOT REMOVE THESE comments! When in doublt, refer to the
+	 * This fixes that.
+	 *
+	 * DO NOT REMOVE THESE COMMENTS!
+	 *
+	 * When in doubt, refer to the
 	 * following code example, that shows where the translations (wrongfully) is:
 	 */
 	/*
@@ -977,7 +982,7 @@ Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 	finalMatrix[12] = homogenousMatrix[3];
 	finalMatrix[13] = homogenousMatrix[7];
 	finalMatrix[14] = homogenousMatrix[11];
-	finalMatrix[15] = homogenousMatrix[15];
+	//finalMatrix[15] = homogenousMatrix[15];	//don't really need to do this anymore
 	finalMatrix[15] = 1.0;
 
 	//create matrix and clean up
@@ -1124,91 +1129,100 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 	if(!(fside==0 && fdie == 0 && fsensor ==0)){
 		cout << "can only do matrices from 0 to i for now. sorry!\n";
 		success=false;
+		return result;
 	}
 
 	//at this point, id0 should end in 0, so we can just add numbers
 	//FIXME: obviously, this is shuddy and needs fixing
-	else{
 
-		success=true;
+	success=true;
 
-		//last time, just for safety
-		if( (id1 % 10) != 0 ){
-			cout << "error: id1 is not first sensor on module, something went wrong!\n";
-		}
+	//last time, just for safety
+	if( (id1 % 10) != 0 ){
+		cout << "error: id1 is not first sensor on module, something went wrong!\n";
+	}
 
-		//assign matrices, this is shuddy atm.
-		string m05f = _matrixOutDir + makeMatrixFileName(id1+0, id1+5, _inCentimeters);
-		string m18f = _matrixOutDir + makeMatrixFileName(id1+1, id1+8, _inCentimeters);
-		string m28f = _matrixOutDir + makeMatrixFileName(id1+2, id1+8, _inCentimeters);
-		string m29f = _matrixOutDir + makeMatrixFileName(id1+2, id1+9, _inCentimeters);
-		string m36f = _matrixOutDir + makeMatrixFileName(id1+3, id1+6, _inCentimeters);
-		string m37f = _matrixOutDir + makeMatrixFileName(id1+3, id1+7, _inCentimeters);
-		string m38f = _matrixOutDir + makeMatrixFileName(id1+3, id1+8, _inCentimeters);
-		string m47f = _matrixOutDir + makeMatrixFileName(id1+4, id1+7, _inCentimeters);
-		string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
+	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
+	string m05f = _matrixOutDir + makeMatrixFileName(id1+0, id1+5, _inCentimeters);
+	string m18f = _matrixOutDir + makeMatrixFileName(id1+1, id1+8, _inCentimeters);
+	string m28f = _matrixOutDir + makeMatrixFileName(id1+2, id1+8, _inCentimeters);
+	string m29f = _matrixOutDir + makeMatrixFileName(id1+2, id1+9, _inCentimeters);
+	string m36f = _matrixOutDir + makeMatrixFileName(id1+3, id1+6, _inCentimeters);
+	string m37f = _matrixOutDir + makeMatrixFileName(id1+3, id1+7, _inCentimeters);
+	string m38f = _matrixOutDir + makeMatrixFileName(id1+3, id1+8, _inCentimeters);
+	string m47f = _matrixOutDir + makeMatrixFileName(id1+4, id1+7, _inCentimeters);
+	string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
 
-		//god gave us this matrix:
-		Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, false);
+	//god gave us this matrix:
+	Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, false);
 
-		//cout << "m01: \n" << m01 << "\n";
+	//cout << "m01: \n" << m01 << "\n";
 
-		Matrix m05 = readMatrix(m05f);
-		Matrix m18 = readMatrix(m18f);
-		Matrix m28 = readMatrix(m28f);
-		Matrix m29 = readMatrix(m29f);
-		Matrix m36 = readMatrix(m36f);
-		Matrix m37 = readMatrix(m37f);
-		Matrix m38 = readMatrix(m38f);
-		Matrix m47 = readMatrix(m47f);
-		Matrix m49 = readMatrix(m49f);
+	// TODO: the following code can be optimized, as it currently computes the inverse of 9 matrices.
+	// also, only read matrices from disk that are required here.
+	// but that's not really a priority right now
 
-		Matrix m50 = m05.inv(m05);
-		Matrix m81 = m18.inv(m18);
-		Matrix m82 = m28.inv(m28);
-		Matrix m92 = m29.inv(m29);
-		Matrix m63 = m36.inv(m36);
-		Matrix m73 = m37.inv(m37);
-		Matrix m83 = m38.inv(m38);
-		Matrix m74 = m47.inv(m47);
-		Matrix m94 = m49.inv(m49);
+	Matrix m05 = readMatrix(m05f);
+	Matrix m18 = readMatrix(m18f);
+	Matrix m28 = readMatrix(m28f);
+	Matrix m29 = readMatrix(m29f);
+	Matrix m36 = readMatrix(m36f);
+	Matrix m37 = readMatrix(m37f);
+	Matrix m38 = readMatrix(m38f);
+	Matrix m47 = readMatrix(m47f);
+	Matrix m49 = readMatrix(m49f);
+
+	Matrix m50 = m05.inv(m05);
+	Matrix m81 = m18.inv(m18);
+	Matrix m82 = m28.inv(m28);
+	Matrix m92 = m29.inv(m29);
+	Matrix m63 = m36.inv(m36);
+	Matrix m73 = m37.inv(m37);
+	Matrix m83 = m38.inv(m38);
+	Matrix m74 = m47.inv(m47);
+	Matrix m94 = m49.inv(m49);
+
+	//TODO: check here for m01 or m56 presence, we only need one.
+
+	Matrix m56 = m50*m01*m18*m83*m36;		//TODO: check if this is correct!
+	//Matrix m56s = getMatrixOfficialGeometry(5,6, false);
+	//cout << "drum roll:\n " << m56-m56s << "\n end of drum roll \n"; //seems to work
+
+	id2 %= 10;
+
+	//TODO: check again, something doesn't work
 
 
-
-		Matrix m56 = m50*m01*m18*m83*m36;		//TODO: check if this is correct!
-		//Matrix m56s = getMatrixOfficialGeometry(5,6, false);
-		//cout << "drum roll:\n " << m56-m56s << "\n end of drum roll \n"; //seems to work
-
-		//finally, if cascade:
-		switch(id2){
-		case 2:
-			result = m01*m18*m82;
-			break;
-		case 3:
-			result = m01*m18*m83;
-			break;
-		case 4:
-			result = m01*m18*m82*m29*m94;		//TODO: case 4 can have two differnt paths, check both!
-			break;
-		case 5:
-			result = m05;
-			break;
-		case 6:
-			result = m05*m56;
-			break;
-		case 7:
-			result = m05*m56*m63*m37;
-			break;
-		case 8:
-			result = m05*m56*m63*m38;
-			break;
-		case 9:
-			result = m05*m56*m63*m38*m82*m29;	//TODO: case 9 can have two differnt paths, check both!
-			break;
-		default:
-			result = Matrix::eye(4);
-			success = false;
-		}
+	//finally, if cascade:
+	//TODO: check if this is not backwards again.  multiplication goes from right to left!
+	switch(id2){
+	case 2:
+		result = m01*m18*m82;
+		break;
+	case 3:
+		result = m01*m18*m83;
+		break;
+	case 4:
+		result = m01*m18*m82*m29*m94;		//TODO: case 4 can have two differnt paths, check both!
+		break;
+	case 5:
+		result = m05;
+		break;
+	case 6:
+		result = m05*m56;
+		break;
+	case 7:
+		result = m05*m56*m63*m37;
+		break;
+	case 8:
+		result = m05*m56*m63*m38;
+		break;
+	case 9:
+		result = m05*m56*m63*m38*m82*m29;	//TODO: case 9 can have two differnt paths, check both!
+		break;
+	default:
+		result = Matrix::eye(4);
+		success = false;
 	}
 
 	//return successfully combined matrix
@@ -1237,6 +1251,51 @@ void PndLmdAlignManager::setMaxPairs(int maxPairs) {
 
 void PndLmdAlignManager::clearScreen() {
 	cout << "\x1B[2J\x1B[H";
+}
+
+void PndLmdAlignManager::compareCombinedMatrices() {
+
+	// for every half
+	// for every plane
+	// for every module
+
+	double avgX=0, avgY=0, avgA=0;
+
+	for(int iHalf=0; iHalf < 2; iHalf++){
+		for(int iPlane=0; iPlane < 4; iPlane++){
+			for(int iModule=0; iModule < 5; iModule++){
+				// calculate all combined matrices
+				// compare with target matrices
+				// histogram dat shit on a per-module basis
+				// if results are good and consistent, on a corridor and/or half plane basis
+
+				int firstID=0;
+				firstID = dimension->Get_sensor_id(iHalf, iPlane, iModule, 0, 0, 0);
+
+				if(firstID % 10 !=0 ){
+					cout << "WARNING. something went wrong. first sensor of module should be mod 10";
+					cout << ", but is actually " << firstID << "\n";
+				}
+
+				for(int iSecondSensor=1; iSecondSensor<9; iSecondSensor++){
+					cout << "-------------------------------\n";
+					Matrix thisCombined = combineMatrix(firstID, iSecondSensor);
+					Matrix targetCombined = getMatrixOfficialGeometry(firstID, iSecondSensor, true);
+					cout << "thismat:\n" << thisCombined << "\ntargetmat:\n" << targetCombined << "\n";
+				}
+
+
+			}
+		}
+	}
+
+
+
+}
+
+void PndLmdAlignManager::computeCombinedMatrices() {
+
+
 }
 
 void PndLmdAlignManager::xOption(int option) {
