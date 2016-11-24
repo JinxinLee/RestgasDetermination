@@ -1,0 +1,11 @@
+noPhotos
+#
+Decay pbarASystem
+  1.0   A-1System  pbarpSystem	NucleusSpectator 20.0 1.0 1.88;
+Enddecay
+#
+Decay pbarpSystem
+  1.0   p+ anti-p-		PHSP;
+Enddecay
+#
+End

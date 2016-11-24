@@ -78,16 +78,16 @@ int main(int argc, char* argv[])
   EvtStdHep evtstdhep;
   EvtParticle *parent;
     
-
   if (argc<3) {
-    cout << "\nUSAGE: simpleEvtGenRO <particle> <dec-file> <# events> <pbar-mom/cms-energy> <rand seed>\n" << endl;
+    cout << "\nUSAGE: simpleEvtGen <particle> <dec-file> <# events> <pbar-mom/cms-energy> <rand seed> <A_Target>\n" << endl;
     cout << "  <particle> = particle type to decay, e.g. 'eta_c', 'pbarpSystem' etc."<<endl;               //argv[1]
     cout << "  <dec-file> = EvtGen decay file (.DEC) to use; see directory 'test' for examples"<<endl;     //argv[2]
     cout << "  <# events> = number of events to produce; default value = 10"<<endl;                    //argv[3]
     cout << "  <pbar-mom> = (>0) momentum of the pbar beam; (<0) negativ cms energy; default value = mass of <particle>"<<endl;  //argv[4]
     cout << "               mandatory, when <particle> = pbarpSystem"<<endl;
-    cout << "  <rand seed> = random seed for TRandom3. Value < 0 = use default random gen.; default = -1\n"<<endl;                    //argv[3]
-    cout << "Output is stored in file 'evtOutput.root'.\n\n"<<endl;
+    cout << "  <rand seed> = random seed for TRandom3. Value < 0 = use default random gen.; default = -1"<<endl; //argv[5]
+    cout << "  <A_Target> = target nucleus mass number; mandatory when <particle> = 'pbarASystem'\n"<<endl;      //argv[6]
+    cout << "Output is stored in file 'output.evt'.\n\n"<<endl;
     return 0;
   }
   
@@ -118,6 +118,9 @@ int main(int argc, char* argv[])
   int number=10;
   if (argc>=4) number=atoi(argv[3]);
 
+  double atarget = 0.;
+  if (argc>=7) atarget=atof(argv[6]);
+
   if (std::string(argv[1])=="pbarpSystem" && argc<5)
   {
     cout <<"\n******  FATAL EVT_ERROR: <particle> is 'pbarpSystem'; MUST give pbar momentum or cms energy!\n\n"<<endl;
@@ -128,15 +131,21 @@ int main(int argc, char* argv[])
   //  cout <<"\n****** WARNING: overriding given momentum, setting cms energy to mass of "<<argv[1]<<".\n"<<endl;
   // }
 
-  if (std::string(argv[1])=="pbardSystem" && argc<5)
+  if ((std::string(argv[1])=="pbardSystem" || std::string(argv[1])=="pbarASystem") && argc<5)
   {
-    cout <<"\n******  FATAL EVT_ERROR: <particle> is 'pbardSystem'; MUST give pbar momentum!\n\n"<<endl;
+    cout <<"\n******  FATAL EVT_ERROR: <particle> is 'pbardSystem' or 'pbarASystem'; MUST give pbar momentum!\n\n"<<endl;
     return 0;
   }
 
-  if (std::string(argv[1])=="pbardSystem" && atof(argv[4])<0)
+  if ((std::string(argv[1])=="pbardSystem" || std::string(argv[1])=="pbarASystem") && atof(argv[4])<0)
   {
-    cout <<"\n******  FATAL EVT_ERROR: <particle> is 'pbardSystem'; cms energy doesn't make sense, give the pbar momentum!\n\n"<<endl;
+    cout <<"\n******  FATAL EVT_ERROR: <particle> is 'pbardSystem' or 'pbarASystem'; cms energy doesn't make sense, give the pbar momentum!\n\n"<<endl;
+    return 0;
+  }
+
+  if (std::string(argv[1])=="pbarASystem" && (argc<7 || atof(argv[6])<3 || atof(argv[6])>238))
+  {
+    cout <<"\n******  FATAL EVT_ERROR: <particle> is 'pbarASystem'; give target mass number within 3 and 238!\n\n"<<endl;
     return 0;
   }
 
@@ -145,10 +154,12 @@ int main(int argc, char* argv[])
   double E = 0.0;
   double mp=0.938272;
   double md=1.875613;
+  double mu=0.931494;
   double mtarg;
 
   if (std::string(argv[1])=="pbarpSystem") mtarg = mp;
   if (std::string(argv[1])=="pbardSystem") mtarg = md;
+  if (std::string(argv[1])=="pbarASystem") mtarg = mu*atarget;
 
   if (argc>=5) 
     val=atof(argv[4]);

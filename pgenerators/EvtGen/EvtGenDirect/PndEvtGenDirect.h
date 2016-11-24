@@ -33,8 +33,9 @@ class PndEvtGenDirect : public FairGenerator
   /** Default constructor (should not be used) **/
   PndEvtGenDirect();
 
-  PndEvtGenDirect(TString particle,TString decfile="",Double_t Mom=0, Long_t Seed=-1,TString defDECAY="",TString defPDL=""); // Mom>0 -> pbar Momentum; Mom<0 -> cms Energy
-  
+  PndEvtGenDirect(TString particle,TString decfile="",Double_t Mom=0, Long_t Seed=-1,TString defDECAY="",TString defPDL="",Double_t ATarg=0.0); // Mom>0 -> pbar Momentum; Mom<0 -> cms Energy
+  // ATarg is for nuclear target, value is 0 for p and d, and between 3 and 238 for heavier nuclei
+ 
   /** Destructor **/
   virtual ~PndEvtGenDirect();
 

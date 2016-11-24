@@ -550,11 +550,12 @@ add  p Particle  K(2)(1820)+                    20325  1.8160000e+00  2.7600000e
 *---------------------------------------------------------------------------------------------------------------------------------------
 * Added by S. Spataro 27/06/2013 for Panda
 *---------------------------------------------------------------------------------------------------------------------------------------
-add  p Special   pbarpSystem                    88888  2.98           0.1            0                 0     0   0                 88888
-add  p Special   pbarpSystem0                   88880  2.98           0.1            0                 0     0   0                 88880
-add  p Special   pbarpSystem1                   88881  2.98           0.1            0                 0     2   0                 88881
-add  p Special   pbarpSystem2                   88882  2.98           0.1            0                 0     4   0                 88882
-add  p Special   pbardSystem                    88889  4.32           0.1            0                 0     0   0                 88889
-add  p Special   pbarnSystem                    88887  3.07744        0.1            0                -3     0   0                 88887
+add  p Special   pbarpSystem                    88888  5.50           0.1            0                 0     0   0                 88888
+add  p Special   pbarpSystem0                   88880  5.50           0.1            0                 0     0   0                 88880
+add  p Special   pbarpSystem1                   88881  5.50           0.1            0                 0     2   0                 88881
+add  p Special   pbarpSystem2                   88882  5.50           0.1            0                 0     4   0                 88882
+add  p Special   pbardSystem                    88889  7.80           0.1            0                 0     0   0                 88889
+add  p Special   pbarnSystem                    88887  5.50           0.1            0                -3     0   0                 88887
+add  p Special   pbarASystem                    88890  250.0          0.1            0                 0     0   0                 88890
+add  p Special   A-1System                  	88891  1.8            0.1            0                 0     0   0                 88891
 end
-

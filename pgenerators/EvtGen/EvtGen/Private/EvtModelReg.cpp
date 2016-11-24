@@ -161,6 +161,7 @@
 #include "EvtGenModels/EvtElectronPositron.hh"
 #include "EvtGenModels/EvtDeuteronSpectator.hh"
 #include "EvtGenModels/EvtDeuteronResonance.hh"  // [A.Blinov.26.12.2015]
+#include "EvtGenModels/EvtNucleusSpectator.hh" //[A. Gillitzer.07.11.2016]
 //#include "EvtGenModels/EvtPpbarPi0Pi0.hh"
 #include "EvtGenModels/EvtPpbarEtacGamma.hh"
 #include "EvtGenModels/EvtDsDalitz.hh"
@@ -200,6 +201,8 @@ EvtModelReg::EvtModelReg(const std::list<EvtDecayBase*>* extraModels)
     modelist.registerModel(new EvtElectronPositron); // [Gosia Sudol 24/07/09]
 //    modelist.registerModel(new EvtPpbarPi0Pi0);
     modelist.registerModel(new EvtDeuteronSpectator); // [Albrecht Gillitzer 10/02/12]
+    modelist.registerModel(new EvtDeuteronResonance); // [Albrecht Gillitzer 07/11/16]
+    modelist.registerModel(new EvtNucleusSpectator); // [Albrecht Gillitzer 07/11/16]
     modelist.registerModel(new EvtPpbarEtacGamma); // [Johan Messchendorp, September 2012]
     modelist.registerModel(new EvtDsDalitz); // [Cao Lu, 2013]
     modelist.registerModel(new EvtChic1toJpsiGam); //[J.Z.07.07.2014]

@@ -69,7 +69,7 @@ PndEvtGenDirect::PndEvtGenDirect() {
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
-PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, Long_t Seed,TString defaultDECAY,TString defaultPDL) {
+PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom,Long_t Seed,TString defaultDECAY,TString defaultPDL,Double_t ATarg) {
   PndEvtGenDirect();
 
   cout << "<I> PndEvtGenDirect"<<endl;
@@ -82,6 +82,14 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   TString work = getenv("VMCWORKDIR");
   if (defaultDECAY=="") defaultDECAY = work + "/pgenerators/EvtGen/EvtGen/Private/DECAY.DEC";
   if (defaultPDL=="") defaultPDL = work + "/pgenerators/EvtGen/EvtGen/Private/evt.pdl";
+
+  if (particle.Contains("pbarASystem") && (ATarg<3.||ATarg>238.))
+    {
+      cerr <<"******  FATAL ERROR: nuclear target mass number MUST be between 3 and 238! ******"<<endl;
+      exit(0);
+    }
+
+
 
   //Initialize the generator - read in the decay table and particle properties
   
@@ -115,7 +123,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
 
   PART=EvtPDL::getId(std::string(particle.Data()));
 
-  if ( (particle.Contains("pbarp") || particle.Contains("pbard")) && Mom==0)
+  if ( (particle.Contains("pbarp") || particle.Contains("pbard") || particle.Contains("pbarA")) && Mom==0)
     {
       cerr <<"\033[5m\033[31m -E  ******  FATAL ERROR: <particle> is '" << particle.Data() << "'; MUST give pbar momentum or cms energy!\033[0m"<<endl;
       exit(0);
@@ -124,10 +132,12 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
   double val=-3.0969;
   fMomentum = 0.0;
   fEnergy = 0.0;
-  double mp=0.93827;
+  double mp=0.938272;
   double md=1.875613;
+  double mu=0.931494;
+  double mA=ATarg*mu;
 
-  if ( (particle.Contains("pbarp") || particle.Contains("pbard")) && Mom!=0){
+  if ( (particle.Contains("pbarp") || particle.Contains("pbard") || particle.Contains("pbarA") ) && Mom!=0){
     val=Mom;
   }else{
     if(PART.getId()==-1){
@@ -142,6 +152,7 @@ PndEvtGenDirect::PndEvtGenDirect(TString particle,TString decfile,Double_t Mom, 
     fMomentum = val;
     if ( particle.Contains("pbarpSystem") ) fEnergy = mp+sqrt(fMomentum*fMomentum+mp*mp);
     if ( particle.Contains("pbardSystem") ) fEnergy = md+sqrt(fMomentum*fMomentum+mp*mp);
+    if ( particle.Contains("pbarASystem") ) fEnergy = mA+sqrt(fMomentum*fMomentum+mp*mp);
   }
   else  //val is -E_cm
     {
@@ -251,4 +262,3 @@ Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 // ------------------------------------------------------------------------
 
 ClassImp(PndEvtGenDirect)
-
