@@ -35,6 +35,8 @@ void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/simulationData/boxtes
 
 	//dimension is a singleton, so you can load matrices even after a different object requested a dimension object
 	PndLmdDim *dimension = PndLmdDim::Instance();
+	//TODO: the matrices here are also important for the AlignQA class, which also needs to know if we use 10u or 50u. So this is messy design.
+	//change that!
 	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-aligned-1.5/GeometryMatrices/trafo_matrices_lmd_misaligned-10u.dat", false);
 	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-aligned-1.5/GeometryMatrices/trafo_matrices_lmd.dat", true);
 
@@ -51,8 +53,7 @@ void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/simulationData/boxtes
 	// compare overlap matrices with icp matrices
 	//qaTask.compareMatrices(0);
 
-	qaTask.compareMatrices(3);
-
+	qaTask.compareMatrices(6);
 
 
 	// TODO: compare lmdlocal -> sensor matrices with target matrices from PndLmdDim (maybe optional, because they are already in PndLmdDim?)

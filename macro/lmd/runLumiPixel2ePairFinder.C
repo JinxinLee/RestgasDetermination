@@ -68,6 +68,7 @@ void runLumiPixel2ePairFinder(const int nEvents=100, const int startEvent=00000,
 	LmdPairFinderTask* lmdPairFinder = new LmdPairFinderTask();
 	lmdPairFinder->storeSorted(storeSorted);	//for easier access, but takes longer
 	lmdPairFinder->setMaxDistance(320e-4);		//two pixels
+	lmdPairFinder->ignoreClusters(true);
 	fRun->AddTask(lmdPairFinder);
 
 	rtdb->setOutput(parInput1);
