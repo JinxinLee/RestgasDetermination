@@ -52,7 +52,7 @@ class PndSciTDigiTask : public FairTask
   void RunTimeBased();
 
   void SetDeadTime(Double_t deadtime) {fDeadtime = deadtime;};//in ns  default val = 1000
-  void SetTimeResolution(Double_t dt) {fdt = dt;}; // in ns  default val = 0.1
+  void SetTimeResolution(Double_t dt) {fdt = dt;}; // in ns  default val = 0.075
   void SetPileupTime(Double_t pileuptime) {fPileupTime = pileuptime;}; // in ns  default val = 0.1
   
   void SetBuffering(Bool_t B) {fActivateBuffering=B;};
