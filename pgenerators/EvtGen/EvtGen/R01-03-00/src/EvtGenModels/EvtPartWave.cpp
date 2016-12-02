@@ -172,7 +172,7 @@ void EvtPartWave::init(){
       _HBC[ib][ic]=0.0;
       if (abs(_lambdaB2[ib]-_lambdaC2[ic])<=_JA2){
 	for(i=0;i<_nPartialWaveAmp;i++){
-	  int L=_nL[i];
+	  int the_L=_nL[i];
 	  int S=_nS[i];
 	  int lambda2=_lambdaB2[ib];
 	  int lambda3=_lambdaC2[ic];
@@ -181,19 +181,19 @@ void EvtPartWave::init(){
 	  int s3=_JC2;
 	  int m1=lambda2-lambda3;
 	  EvtCGCoefSingle c1(s2,s3);
-	  EvtCGCoefSingle c2(L,S);
+	  EvtCGCoefSingle c2(the_L,S);
 
 	  if (verbose()){
 	    report(EVT_INFO,"EvtGen") << "s2,lambda2:"<<s2<<" "<<lambda2<<endl;
 	  }
 	  //fkw changes to satisfy KCC
-	  double fkwTmp = (L+1.0)/(s1+1.0);
+	  double fkwTmp = (the_L+1.0)/(s1+1.0);
 
 	  if (S>=abs(m1)){
 
 	    EvtComplex tmp=sqrt(fkwTmp)
 	      *c1.coef(S,m1,s2,s3,lambda2,-lambda3)
-	      *c2.coef(s1,m1,L,S,0,m1)*_M[i];
+	      *c2.coef(s1,m1,the_L,S,0,m1)*_M[i];
 	    _HBC[ib][ic]+=tmp;
 	  }
 	}

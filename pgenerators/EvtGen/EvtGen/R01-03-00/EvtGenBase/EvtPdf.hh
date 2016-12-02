@@ -157,8 +157,8 @@ public:
   template <class InputIterator> void compute_max(InputIterator it, InputIterator end,
 						  double factor = 1.)
   {
-    T p = *it++;
-    itsPdfMax = EvtPdfMax<T>(p,itsPdf->evaluate(p)*factor);
+    T the_p = *it++;
+    itsPdfMax = EvtPdfMax<T>(the_p,itsPdf->evaluate(the_p)*factor);
     
     while(!(it == end)) {      
       T p = *it++;

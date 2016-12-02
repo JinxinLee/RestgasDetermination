@@ -75,7 +75,7 @@ void EvtPDL::readPDT(const std::string fname){
   double mass;
   double pwidth;
   double pmaxwidth;
-  int    chg3;  
+  int    the_chg3;  
   int    spin2;
   double ctau;
   int    lundkc;
@@ -115,7 +115,7 @@ void EvtPDL::readPDT(const std::string fname){
         indec >> mass;
         indec >> pwidth;
         indec >> pmaxwidth;
-        indec >> chg3;  
+        indec >> the_chg3;  
         indec >> spin2;
         indec >> ctau;
         indec >> lundkc;
@@ -163,7 +163,7 @@ void EvtPDL::readPDT(const std::string fname){
 	}
 	_particleNameLookup[std::string(pname)]=_nentries;
 	tmp.setctau(ctau);
-	tmp.setChg3(chg3);
+	tmp.setChg3(the_chg3);
 	
 	tmp.initLineShape(mass,pwidth,pmaxwidth);
 

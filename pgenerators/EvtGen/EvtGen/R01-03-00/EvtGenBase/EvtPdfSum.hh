@@ -29,11 +29,11 @@ public:
 
   // Manipulate terms and coefficients
   
-  void addTerm(double c,const EvtPdf<T>& pdf)
-  { assert(c >= 0.); _c.push_back(c); _term.push_back(pdf.clone()); }
+  void addTerm(double the_c,const EvtPdf<T>& the_pdf)
+  { assert(the_c >= 0.); _c.push_back(the_c); _term.push_back(the_pdf.clone()); }
 
-  void addOwnedTerm(double c, EvtPdf<T>* pdf)
-  { _c.push_back(c); _term.push_back(pdf); }
+  void addOwnedTerm(double the_c, EvtPdf<T>* the_pdf)
+  { _c.push_back(the_c); _term.push_back(the_pdf); }
   
   size_t nTerms() const { return _term.size(); }  // number of terms
   

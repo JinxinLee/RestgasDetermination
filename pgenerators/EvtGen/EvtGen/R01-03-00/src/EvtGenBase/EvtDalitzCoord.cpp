@@ -28,8 +28,8 @@ EvtDalitzCoord::EvtDalitzCoord(const EvtDalitzCoord& other)
 {}
 
 
-EvtDalitzCoord::EvtDalitzCoord(Pair i1, double q1, Pair i2, double q2)
-  : _i1(i1), _i2(i2),_q1(q1),_q2(q2)
+EvtDalitzCoord::EvtDalitzCoord(Pair i1, double the_q1, Pair i2, double the_q2)
+  : _i1(i1), _i2(i2),_q1(the_q1),_q2(the_q2)
 {} 
 
 

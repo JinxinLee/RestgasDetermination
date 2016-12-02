@@ -27,7 +27,7 @@ class IcpPointToPoint : public Icp {
 
 public:
 
-  IcpPointToPoint (double *M,const int32_t M_num,const int32_t dim) : Icp(M,M_num,dim) {}
+  IcpPointToPoint (double *M,const int32_t M_num,const int32_t M_dim) : Icp(M,M_num,M_dim) {}
   virtual ~IcpPointToPoint () {}
 
 private:

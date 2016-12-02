@@ -21,12 +21,12 @@ EvtTwoBodyKine::EvtTwoBodyKine()
   : _mA(0.), _mB(0.), _mAB(0.)
 {}
 
-EvtTwoBodyKine::EvtTwoBodyKine(double mA, double mB, double mAB)
-  : _mA(mA), _mB(mB), _mAB(mAB)
+EvtTwoBodyKine::EvtTwoBodyKine(double the_mA, double the_mB, double the_mAB)
+  : _mA(the_mA), _mB(the_mB), _mAB(the_mAB)
 {
-  if(mAB < mA + mB) {
+  if(the_mAB < the_mA + the_mB) {
 
-    report(EVT_INFO,"EvtGen") << mAB << " < " << mA << " + " << mB << endl;
+    report(EVT_INFO,"EvtGen") << the_mAB << " < " << the_mA << " + " << the_mB << endl;
     assert(0);
   }
 }

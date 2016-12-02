@@ -27,8 +27,8 @@ public:
     int i;
     for(i=0;i<other.nTerms();i++) {
       
-      EvtComplex c = other.c(i);      
-      _c.push_back(c);
+      EvtComplex the_c = other.c(i);      
+      _c.push_back(the_c);
       EvtAmplitude<T>* amp = other.getTerm(i);
       assert(amp);
       EvtAmplitude<T>* amp1 = amp->clone();
@@ -51,16 +51,16 @@ public:
   }
   
   
-  void addTerm(EvtComplex c,const EvtAmplitude<T>& amp)
+  void addTerm(EvtComplex the_c,const EvtAmplitude<T>& amp)
   {
-    _c.push_back(c);
+    _c.push_back(the_c);
     _term.push_back(amp.clone());
   }
   
-  void addOwnedTerm(EvtComplex c, EvtAmplitude<T>* amp)
+  void addOwnedTerm(EvtComplex the_c, EvtAmplitude<T>* amp)
   {
     assert(amp);
-    _c.push_back(c);
+    _c.push_back(the_c);
     _term.push_back(amp);
   }
   

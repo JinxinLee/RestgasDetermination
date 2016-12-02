@@ -12,8 +12,8 @@
 
 
 EvtPropGounarisSakurai::EvtPropGounarisSakurai(EvtDalitzPlot *dp, 
-              EvtCyclic3::Pair pair, double m0, double g0) 
-  : EvtPropagator(m0,g0),_pair(pair),_gbase(g0)
+              EvtCyclic3::Pair pair, double the_m0, double the_g0) 
+  : EvtPropagator(the_m0,the_g0),_pair(pair),_gbase(the_g0)
 {
   _dalitzSpace = dp;
   _m1= dp->m(EvtCyclic3::first(_pair));

@@ -228,8 +228,8 @@ double EvtVubAC::PolyLog(double v, double z) {
 if (z >= 1) cout << "Error in EvtVubAC: 2nd argument to PolyLog is >= 1." << endl;
 
 double sum = 0.0;
-for (int k=1; k<101; k++) { 
-sum = sum + pow(z,k)/pow(k,v);
+for (int the_k=1; the_k<101; the_k++) { 
+sum = sum + pow(z,the_k)/pow(the_k,v);
 }
 return sum;
 }
@@ -301,9 +301,9 @@ vars[2] = xb;
 for (int j=3;j<11;j++) {vars[j] = gvars[j];}
 double a = 1+xb-w; 
 double b = -PolyLog(2,1-w)-3.0/2.0*log(wreg(w)) - 1.0/2.0*w*f(w) - 35.0/8.0 + (M_PI*M_PI)/6.0;
-double c = 1.0/2.0*xb*f(wreg(w));
+double the_c = 1.0/2.0*xb*f(wreg(w));
 
-double ans = 12.0*CF/M_PI*(w-xb)*((a*b)+c);
+double ans = 12.0*CF/M_PI*(w-xb)*((a*b)+the_c);
 
 return ans;
 }
@@ -328,22 +328,22 @@ for (int j=3;j<11;j++) {vars[j] = gvars[j];}
 
 double a = 3*pow(w,4)*(24+3*w-8*xb)/(4*pow(1+u,5));
 double b = 9*pow(w,4)*(24+3*w-8*xb)/(8*pow(1+u,4));
-double c = 9*(-12+w)*pow(-2+w,2)*pow(w-2*xb,2)/(16*pow(1-u,3));
+double the_c = 9*(-12+w)*pow(-2+w,2)*pow(w-2*xb,2)/(16*pow(1-u,3));
 double cc = 9*(-12+w)*pow(-2+w,2)*pow(w-2*xb,2)/(32*pow(1-u,2));
-double d = 3*pow(w,2)*(32-47*w-8*w*w+16*xb+20*w*xb+w*w*xb+8*xb*xb-3*w*xb*xb)/(8*pow(1+u,2));
+double the_d = 3*pow(w,2)*(32-47*w-8*w*w+16*xb+20*w*xb+w*w*xb+8*xb*xb-3*w*xb*xb)/(8*pow(1+u,2));
 double e = 1/(8*pow(1+u,3))*(3*w*w*(-64+94*w+40*w*w+3*pow(w,3)-32*xb-40*xb*w-10*w*w*xb-16*xb*xb+6*w*xb*xb)); 
-double f = 1/(64*(1+u))*(3*(640*w-368*w*w-200*w*w*w-16*pow(w,4)+3*pow(w,5)-384*xb+320*w*xb+528*w*w*xb+112*pow(w,3)*xb-16*pow(w,4)*xb-256*xb*xb-48*w*xb*xb-224*pow(w,2)*pow(xb,2)+24*pow(w,3)*pow(xb,2)));
+double the_f = 1/(64*(1+u))*(3*(640*w-368*w*w-200*w*w*w-16*pow(w,4)+3*pow(w,5)-384*xb+320*w*xb+528*w*w*xb+112*pow(w,3)*xb-16*pow(w,4)*xb-256*xb*xb-48*w*xb*xb-224*pow(w,2)*pow(xb,2)+24*pow(w,3)*pow(xb,2)));
 double g = 1/(64*(1-u))*(3*(-256*w+528*w*w-200*pow(w,3)-16*pow(w,4)+3*pow(w,5)+512*xb-1472*w*xb+528*pow(w,2)*xb+112*pow(w,3)*xb-16*pow(w,4)*xb+640*xb*xb-48*w*xb*xb-224*pow(w,2)*pow(xb,2)+24*pow(w,3)*pow(xb,2)));
 double h = 9*pow(w,5)*log(ureg(u))/(4*pow(1+u,6));
 double i = 9*pow(w,5)*log(ureg(u))/(2*pow(1+u,5));
 double ii = 9*(-12+w)*pow(-2+w,2)*pow(w-2*xb,2)*log(ureg(u))/(16*pow(1-u,4));
 double j = 9*(-12+w)*pow(-2+w,2)*pow(w-2*xb,2)*log(ureg(u))/(16*pow(1-u,3));
-double k = (3*pow(w,3)*(-10+16*w+pow(w,2)+8*xb-2*w*xb-2*pow(xb,2))*log(ureg(u)))/(8*pow(1+u,3));
+double the_k = (3*pow(w,3)*(-10+16*w+pow(w,2)+8*xb-2*w*xb-2*pow(xb,2))*log(ureg(u)))/(8*pow(1+u,3));
 double l = (3*pow(w,3)*(-10+16*w+7*pow(w,2)+8*xb-2*w*xb-2*pow(xb,2))*log(ureg(u)))/(8*pow(1+u,4));
 double m = 1/(64*pow(1+u,2))*(3*w*(-144*w+208*pow(w,2)+16*pow(w,3)+pow(w,4)-64*xb-80*w*xb-16*pow(w,2)*xb-8*pow(w,3)*xb+48*xb*xb-96*w*xb*xb+16*pow(w,2)*pow(xb,2))*log(ureg(u)));
 double n = 1/(64*pow(1-u,2))*(3*(-256*w+624*pow(w,2)-304*pow(w,3)+16*pow(w,4)+pow(w,5)+512*xb-1856*w*xb+944*pow(w,2)*xb-16*pow(w,3)*xb-8*pow(w,4)*xb+1024*xb*xb-464*w*xb*xb-96*pow(w,2)*pow(xb,2)+16*pow(w,3)*pow(xb,2))*log(ureg(u)));
 
-double rem = -a + b - c +cc - d - e + f + g - h +i -ii +j  +k -l -m +n;
+double rem = -a + b - the_c +cc - the_d - e + the_f + g - h +i -ii +j  +the_k -l -m +n;
 
 return rem;
 }
@@ -358,29 +358,29 @@ for (int j=3;j<11;j++) {vars[j] = gvars[j];}
                 return -1;
 }
 
-double EvtVubAC::Lambda2(double x, const double alphaSmZ) {
+double EvtVubAC::Lambda2(double x, const double the_alphaSmZ) {
 std::vector<double> vars(11);
 for (int j=3;j<11;j++) {vars[j] = gvars[j];}
-double alphaSmB =  0.22*alphaSmZ/0.1189;
-double func = (1/beta0)*(1/log(mB*mB/x)+x/(x-mB*mB))-alphaSmB;
+double the_alphaSmB =  0.22*the_alphaSmZ/0.1189;
+double func = (1/beta0)*(1/log(mB*mB/x)+x/(x-mB*mB))-the_alphaSmB;
 return func;
 }
 
-double EvtVubAC::FindRoot(const double alphaSmZ){
+double EvtVubAC::FindRoot(const double the_alphaSmZ){
 std::vector<double> vars(11);
 for (int j=3;j<11;j++) {vars[j] = gvars[j];}
    double root;
    const double precision=1e-8;
-   Bisect(0.0,1.0, precision, root, alphaSmZ);
+   Bisect(0.0,1.0, precision, root, the_alphaSmZ);
 return root;
 }
 
-int EvtVubAC::Bisect(double x1,double x2, double precision,double& root, const double alphaSmZ){
+int EvtVubAC::Bisect(double x1,double x2, double precision,double& root, const double the_alphaSmZ){
 std::vector<double> vars(11);
 
 for (int j=3;j<11;j++) {vars[j] = gvars[j];}
 
-    if( Lambda2(x1,alphaSmZ)*Lambda2(x2,alphaSmZ) > 0 ){
+    if( Lambda2(x1,alphaSmZ)*Lambda2(x2,the_alphaSmZ) > 0 ){
         root = 0;
         return 0;
 
@@ -388,16 +388,16 @@ for (int j=3;j<11;j++) {vars[j] = gvars[j];}
 
         double x = 0.5*(x1+x2);
 
-        if( fabs(Lambda2(x,alphaSmZ)) < precision){
+        if( fabs(Lambda2(x,the_alphaSmZ)) < precision){
             root = x;
             return 1;
         } else {
 
-            if( Lambda2(x1,alphaSmZ)*Lambda2(x,alphaSmZ) < 0 ){
-                return Bisect(x1,x,precision,root,alphaSmZ);
+            if( Lambda2(x1,alphaSmZ)*Lambda2(x,the_alphaSmZ) < 0 ){
+                return Bisect(x1,x,precision,root,the_alphaSmZ);
 
                 } else {
-                return Bisect(x,x2,precision,root, alphaSmZ);
+                return Bisect(x,x2,precision,root, the_alphaSmZ);
 
             }
         }
@@ -409,7 +409,7 @@ for (int j=3;j<11;j++) {vars[j] = gvars[j];}
 double EvtVubAC::Sigma(double x1, double x2){
 double ans;
 int j = 0;
-int k = 0;
+int the_k = 0;
 int JMAX = 20;
 int KMAX = 6282;
 
@@ -6707,12 +6707,12 @@ double sigma[6283][21] = {{1.4165575231667025e-6,2.367068423885654e-6,3.01051645
 {-24.95702726318268,-28.41603374108672,-28.208046173589537,-27.370962059532758,-26.53450110432459,-25.74412687594304,-25.16476929106284,-24.74265667324653,-24.324929237249307,-23.945858225924894,-23.597706217726227,-23.258072621247265,-22.94115044485079,-22.649432538542897,-22.379161227901932,-22.12788341025589,-21.893044561729766,-21.672730688005686,-21.465751135896426,-21.24358945764834,-21.022028209641576}};
 
 
-double wreg[]= {0.04, 0.088, 0.136, 0.18400000000000002, 0.232, 0.27999999999999997,
+double the_wreg[]= {0.04, 0.088, 0.136, 0.18400000000000002, 0.232, 0.27999999999999997,
        0.328, 0.376, 0.424, 0.472, 0.52, 0.5680000000000001, 
        0.6160000000000001, 0.664, 0.7120000000000001, 0.76, 0.808, 
 	 0.8560000000000001, 0.904, 0.9520000000000001, 1.0}; 
 
-double ularge[]={0., 0.000999525142261537, 0.0019980512340131984, 0.002995579273830762, 
+double the_ularge[]={0., 0.000999525142261537, 0.0019980512340131984, 0.002995579273830762, 
        0.0039921102592925806, 0.00498764518697925, 0.00598218505247583, 
        0.006975730850371842, 0.007968283574262824, 0.008959844216751223, 
        0.009950413769447386, 0.010939993222970568, 0.011928583566949591, 
@@ -8810,16 +8810,16 @@ double ularge[]={0., 0.000999525142261537, 0.0019980512340131984, 0.002995579273
 
                 //Find the correct [j][k] element for a given x1 and x2
 
-                if ( x1==wreg[JMAX] ){j=JMAX;}
+                if ( x1==the_wreg[JMAX] ){j=JMAX;}
                         else{
                 for (int y=0; y<=JMAX; y++){
-                        if ( (wreg[y] <= x1) && ( x1 < wreg[y+1]) ) { j=y; break;}
+                        if ( (the_wreg[y] <= x1) && ( x1 < the_wreg[y+1]) ) { j=y; break;}
                 }
                         }
- 		if ( x2>ularge[KMAX-1] ){k=KMAX;}
+ 		if ( x2>the_ularge[KMAX-1] ){the_k=KMAX;}
                         else{
                 for (int z=0; z<=KMAX; z++){
-                        if ( (ularge[z] <= x2) && ( x2 < ularge[z+1]) ) { k=z; break;}
+                        if ( (the_ularge[z] <= x2) && ( x2 < the_ularge[z+1]) ) { the_k=z; break;}
                 }
                         }
 
@@ -8828,18 +8828,18 @@ double ularge[]={0., 0.000999525142261537, 0.0019980512340131984, 0.002995579273
                 double y0, y1, y2, y3;
                 double t, u;
 
-                        if ( k==KMAX) {
-                        ans =  sigma[k][j];
+                        if ( the_k==KMAX) {
+                        ans =  sigma[the_k][j];
                         }
 
                 else {
-                y0 =  sigma[k][j];
-                y1 =  sigma[k][j+1];
-                y2 =  sigma[k+1][j+1];
-                y3 =  sigma[k+1][j];
+                y0 =  sigma[the_k][j];
+                y1 =  sigma[the_k][j+1];
+                y2 =  sigma[the_k+1][j+1];
+                y3 =  sigma[the_k+1][j];
 
-                t = (x1-wreg[j])/(wreg[j+1]-wreg[j]);
-                u = (x2-ularge[k])/(ularge[k+1]-ularge[k]);
+                t = (x1-the_wreg[j])/(the_wreg[j+1]-the_wreg[j]);
+                u = (x2-the_ularge[the_k])/(the_ularge[the_k+1]-the_ularge[the_k]);
 
                 ans = (1-t)*(1-u)*y0+t*(1-u)*y1 +t*u*y2+(1-t)*u*y3;
                 }

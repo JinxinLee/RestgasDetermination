@@ -32,8 +32,8 @@ class EvtComplex;
 
 class EvtFlatteParam {
 public:
-  EvtFlatteParam(double m1, double m2, double g):
-    _m1(m1), _m2(m2), _g(g) {}
+  EvtFlatteParam(double the_m1, double the_m2, double the_g):
+    _m1(the_m1), _m2(the_m2), _g(the_g) {}
       
   inline double m1() const { return _m1; }
   inline double m2() const { return _m2; }

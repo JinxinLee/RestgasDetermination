@@ -199,7 +199,7 @@ void EvtBHadronic::decay( EvtParticle *p){
   case 5:
     q=p4b-p4[0];
     q2=q*q;
-    double f,gf,ap,am;
+    //double f,gf,ap,am;
     nbcurrent=3;
     ffmodel.getvectorff(B0,D1P10,EvtPDL::getMeanMass(D1P10),q2,&f,&gf,&ap,&am);
     g.setdiag(1.0,-1.0,-1.0,-1.0);

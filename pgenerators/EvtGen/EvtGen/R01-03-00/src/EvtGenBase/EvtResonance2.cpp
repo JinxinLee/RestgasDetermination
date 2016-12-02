@@ -45,12 +45,12 @@ EvtResonance2& EvtResonance2::operator = ( const EvtResonance2  &n)
 }
 
  
-EvtResonance2::EvtResonance2(const EvtVector4R& p4_p, const EvtVector4R& p4_d1,
-			     const  EvtVector4R& p4_d2, double ampl, 
-			     double theta, double gamma, double bwm, int spin,
+EvtResonance2::EvtResonance2(const EvtVector4R& the_p4_p, const EvtVector4R& the_p4_d1,
+			     const  EvtVector4R& the_p4_d2, double the_ampl, 
+			     double the_theta, double the_gamma, double the_bwm, int the_spin,
 			     bool invmass_angdenom): 
-  _p4_p(p4_p),_p4_d1(p4_d1), _p4_d2(p4_d2),_ampl(ampl), _theta(theta), 
-  _gamma(gamma), _bwm(bwm), _spin(spin), _invmass_angdenom(invmass_angdenom) {}
+  _p4_p(the_p4_p),_p4_d1(the_p4_d1), _p4_d2(the_p4_d2),_ampl(the_ampl), _theta(the_theta), 
+  _gamma(the_gamma), _bwm(the_bwm), _spin(the_spin), _invmass_angdenom(invmass_angdenom) {}
 
 
 EvtComplex EvtResonance2::resAmpl() {

@@ -138,7 +138,7 @@ void EvtDalitzTable::readXMLDecayFile(const std::string dec_name, bool verbose){
 
       } else if(parser.getTagTitle() == "copyDalitz") {
         int nDaughters = 0;
-        EvtId daughter[3];
+        //EvtId daughter[3];
         int nCopyDaughters = 0;
         EvtId copyDaughter[3];
 

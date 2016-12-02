@@ -18,8 +18,8 @@
 #include "EvtGenBase/EvtBreitWignerPdf.hh"
 #include "EvtGenBase/EvtConst.hh"
 
-EvtBreitWignerPdf::EvtBreitWignerPdf(double min, double max, double m0, double g0)
-  : EvtIntegPdf1D(min,max), _m0(m0), _g0(g0)
+EvtBreitWignerPdf::EvtBreitWignerPdf(double min, double max, double the_m0, double the_g0)
+  : EvtIntegPdf1D(min,max), _m0(the_m0), _g0(the_g0)
 {}
 
 

@@ -89,9 +89,8 @@ void EvtDecayAmp::makeDecay(EvtParticle* p, bool recursive){
 	report(EVT_DEBUG,"EvtGen") << "parent channel        :"
 			       <<p->getParent()->getChannel()<<endl;
 
-        size_t i;
 	report(EVT_DEBUG,"EvtGen") << "parent daughters  :";
-        for (i=0;i<p->getParent()->getNDaug();i++){
+        for (size_t i=0;i<p->getParent()->getNDaug();i++){
 	  report(EVT_DEBUG,"") << EvtPDL::name(
 			    p->getParent()->getDaug(i)->getId()).c_str()
 				 << " ";

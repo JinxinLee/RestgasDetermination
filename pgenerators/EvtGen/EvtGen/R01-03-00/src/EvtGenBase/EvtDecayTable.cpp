@@ -577,7 +577,7 @@ void EvtDecayTable::readDecayFile(const std::string dec_name, bool verbose){
           
           
           int photos=0;
-          int verbose=0;
+          int the_verbose=0;
           int summary=0;
           
           do{
@@ -586,7 +586,7 @@ void EvtDecayTable::readDecayFile(const std::string dec_name, bool verbose){
               model=parser.getToken(itoken++);
             }
             if (model=="VERBOSE"){
-              verbose=1;
+              the_verbose=1;
               model=parser.getToken(itoken++);
             }
             if (model=="SUMMARY"){
@@ -627,7 +627,7 @@ void EvtDecayTable::readDecayFile(const std::string dec_name, bool verbose){
           if (photos){
             temp_fcn_new->setPHOTOS();
           }
-          if (verbose){
+          if (the_verbose){
             temp_fcn_new->setVerbose();
           }
           if (summary){
@@ -656,8 +656,8 @@ void EvtDecayTable::readDecayFile(const std::string dec_name, bool verbose){
 		}
 	      }
 	      //int isname=EvtPDL::getId(name).getId()>=0;
-	      int ismodel=modelist.isModel(name);
-	      if (ismodel) {
+	      int isthe_model=modelist.isModel(name);
+	      if (isthe_model) {
 		report(EVT_ERROR,"EvtGen")
 		  <<"Expected ';' but found:"<<
 		  name.c_str()<<" on line:"<<
@@ -1325,21 +1325,21 @@ EvtDecayBase* EvtDecayTable::findDecayModel(int aliasInt, int modeInt) {
 
 bool EvtDecayTable::hasPythia(EvtId id) {
 
-  bool hasPythia = this->hasPythia(id.getAlias());
-  return hasPythia;
+  bool hasthe_Pythia = this->hasPythia(id.getAlias());
+  return hasthe_Pythia;
 
 }
 
 bool EvtDecayTable::hasPythia(int aliasInt) {
 
-  bool hasPythia(false);
+  bool hasthe_Pythia(false);
   if (aliasInt >= 0 && aliasInt < (int) EvtPDL::entries()) {
 
-    hasPythia = _decaytable[aliasInt].isJetSet();
+    hasthe_Pythia = _decaytable[aliasInt].isJetSet();
 
   }
   
-  return hasPythia;
+  return hasthe_Pythia;
 
 }
 

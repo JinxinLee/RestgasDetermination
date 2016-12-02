@@ -26,8 +26,8 @@
 extern "C" {
 }
 
-EvtItgFourCoeffFcn::EvtItgFourCoeffFcn( double (*theFunction)(double, const std::vector<double> &, const std::vector<double> &, const std::vector<double> &, const std::vector<double> &), double lowerRange, double upperRange, const std::vector<double> &coeffs1, const std::vector<double> &coeffs2, const std::vector<double> &coeffs3, const std::vector<double> &coeffs4):
-  EvtItgAbsFunction(lowerRange, upperRange),
+EvtItgFourCoeffFcn::EvtItgFourCoeffFcn( double (*theFunction)(double, const std::vector<double> &, const std::vector<double> &, const std::vector<double> &, const std::vector<double> &), double the_lowerRange, double the_upperRange, const std::vector<double> &coeffs1, const std::vector<double> &coeffs2, const std::vector<double> &coeffs3, const std::vector<double> &coeffs4):
+  EvtItgAbsFunction(the_lowerRange, the_upperRange),
   _myFunction(theFunction),
   _coeffs1(coeffs1),
   _coeffs2(coeffs2), 
@@ -45,12 +45,12 @@ EvtItgFourCoeffFcn::myFunction(double x) const{
 }
 
 void
-EvtItgFourCoeffFcn::setCoeff(int vect, int which, double value)
+EvtItgFourCoeffFcn::setCoeff(int vect, int which, double the_value)
 {
-  if (vect == 1) _coeffs1[which] = value;
-  else if (vect == 2) _coeffs2[which] = value;
-  else if (vect == 3) _coeffs3[which] = value;
-  else if (vect == 4) _coeffs4[which] = value;
+  if (vect == 1) _coeffs1[which] = the_value;
+  else if (vect == 2) _coeffs2[which] = the_value;
+  else if (vect == 3) _coeffs3[which] = the_value;
+  else if (vect == 4) _coeffs4[which] = the_value;
 }
 
 double

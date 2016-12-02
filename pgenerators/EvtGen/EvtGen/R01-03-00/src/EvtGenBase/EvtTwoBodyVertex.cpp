@@ -23,14 +23,14 @@ EvtTwoBodyVertex::EvtTwoBodyVertex()
   : _LL(0), _p0(0), _f(0)
 {}
 
-EvtTwoBodyVertex::EvtTwoBodyVertex(double mA, double mB, double mAB, int L)
-  : _kine(), _LL(L), _p0(0), _f(0)
+EvtTwoBodyVertex::EvtTwoBodyVertex(double the_mA, double the_mB, double the_mAB, int the_L)
+  : _kine(), _LL(the_L), _p0(0), _f(0)
 {
   // Kinematics is initialized only if the decay is above threshold
 
-  if(mAB > mA + mB) {
+  if(the_mAB > the_mA + the_mB) {
 
-    _kine = EvtTwoBodyKine(mA,mB,mAB);
+    _kine = EvtTwoBodyKine(the_mA,the_mB,the_mAB);
     _p0 = _kine.p();
   }
 }

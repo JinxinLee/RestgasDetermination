@@ -438,11 +438,11 @@ FLOAT Matrix::l2norm () {
 }
 
 FLOAT Matrix::mean () {
-	FLOAT mean = 0;
+	FLOAT result = 0;
 	for (int32_t i=0; i<m; i++)
 		for (int32_t j=0; j<n; j++)
-			mean += val[i][j];
-	return mean/(FLOAT)(m*n);
+			result += val[i][j];
+	return result/(FLOAT)(m*n);
 }
 
 Matrix Matrix::cross (const Matrix &a, const Matrix &b) {

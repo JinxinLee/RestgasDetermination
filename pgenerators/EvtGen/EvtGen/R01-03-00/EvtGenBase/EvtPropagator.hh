@@ -20,11 +20,11 @@
 class EvtPropagator : public EvtAmplitude<EvtPoint1D> {
 public:
   
-  EvtPropagator(double m0, double g0)
-    : _m0(m0), _g0(g0)
+  EvtPropagator(double the_m0, double the_g0)
+    : _m0(the_m0), _g0(the_g0)
   {
-    assert(m0 > 0);
-    assert(g0 >= 0);
+    assert(the_m0 > 0);
+    assert(the_g0 >= 0);
   }
   EvtPropagator(const EvtPropagator& other)
     : EvtAmplitude<EvtPoint1D>(other), _m0(other._m0), _g0(other._g0)
@@ -39,8 +39,8 @@ public:
   
   // Modifiers (can be useful e.g. for fitting!)
 
-  inline void set_m0(double m0)  { assert(m0>0);  _m0 = m0; }
-  inline void set_g0(double g0)  { assert(g0>=0); _g0 = g0; }
+  inline void set_m0(double the_m0)  { assert(the_m0>0);  _m0 = the_m0; }
+  inline void set_g0(double the_g0)  { assert(the_g0>=0); _g0 = the_g0; }
 
 protected:
 

@@ -40,7 +40,6 @@
 //     the right size and adding the proper axis on the right
 //
 
-
 #include <TLatex.h>
 #include <TColor.h>
 #include <TString.h>
@@ -52,13 +51,13 @@
 #include <TStyle.h>
 #include <TROOT.h>
 
-void Tools()
+bool Tools()
 {
   cout<<"pandaroot/macro/run/Tools.C loaded. Enjoy it."<<endl;
-  return;
+  return true;
 }
 
-void DrawText(Double_t posX = 0., Double_t posY = 0., const char* text = "",
+bool DrawText(Double_t posX = 0., Double_t posY = 0., const char* text = "",
               Double_t size=0.08, Int_t col=1
               //                      Int_t align=0, Double_t angle=0.,
               //                      Int_t font, Bool_t bNDC=kTRUE
@@ -73,9 +72,10 @@ void DrawText(Double_t posX = 0., Double_t posY = 0., const char* text = "",
   //   pText->SetTextAngle(angle);
   //   pText->SetTextFont(font); pText->SetTextAlign(align);
   pText->Draw();
+  return true;
 }
 
-void DrawNice2DHisto(TH2* h,const char* opt="",double range = 10.)
+bool DrawNice2DHisto(TH2* h,const char* opt="",double range = 10.)
 {
   // Draw a 2D histo with the rainbow colors and the palette besides
   TString options = "colz"; options += opt;
@@ -94,9 +94,10 @@ void DrawNice2DHisto(TH2* h,const char* opt="",double range = 10.)
   h->SetTitleOffset(0.8,"T");
   gPad->SetRightMargin(0.15);
   h->DrawCopy(options.Data());
+  return true;
 }
 
-void set_nicer_2d_plot_style()
+bool set_nicer_2d_plot_style()
 {
   const Int_t NRGBs = 5;
   const Int_t NCont = 99;//255;
@@ -108,9 +109,10 @@ void set_nicer_2d_plot_style()
   TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
   //     gStyle->CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
   gStyle->SetNumberContours(NCont);
+  return true;
 }
 
-void BetterStatBox( TPad* pad ){
+bool BetterStatBox( TPad* pad ){
   /// Vorgehensweise:
   /// * Histogramme in ein TPad zeichnen (1. Histogramm: Draw(), ntes Histogramm:
   ///   Draw("sames"))
@@ -141,6 +143,7 @@ void BetterStatBox( TPad* pad ){
       }
     }
   }
+  return true;
 }
 
 // TLegend discontinued in ROOT ???
@@ -156,7 +159,7 @@ void BetterStatBox( TPad* pad ){
 //  return legend;
 //}
 
-void ImproveDefaultStyle()
+bool ImproveDefaultStyle()
 {
   gStyle->SetOptFit ( 1011 );
   gStyle->SetPaperSize(20,26);
@@ -189,12 +192,13 @@ void ImproveDefaultStyle()
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
 
-  //R.K. avoid clumsy axis lables
+  //R.K. abool clumsy axis lables
   gStyle->SetNdivisions(509); // default root value is 510
 
+  return true;
 }
 
-void LoadPandaStyle(void)
+bool LoadPandaStyle(bool)
 {
 
   //--------------------------------------------------------------------------
@@ -217,7 +221,7 @@ void LoadPandaStyle(void)
   //
   //------------------------------------------------------------------------
 
-  if(gStyle->GetName() == "PANDA") return;
+  if(gStyle->GetName() == "PANDA") return true;
   // use the 'plain' style for plots (white backgrounds, etc)
   //cout << "...using style 'Plain'" << endl;
   //gROOT->SetStyle("Plain");
@@ -295,7 +299,7 @@ void LoadPandaStyle(void)
   pandaStyle->SetPadTickX(1);
   pandaStyle->SetPadTickY(1);
 
-  //R.K. avoid clumsy axis lables
+  //R.K. abool clumsy axis lables
   pandaStyle->SetNdivisions(509); // default root value is 510
 
   //cout <<"    For approved plots use: gROOT->SetStyle(\"PANDA\");"<< endl;
@@ -303,8 +307,8 @@ void LoadPandaStyle(void)
   pandaStyle->cd();
   gROOT->ForceStyle();
   set_nicer_2d_plot_style();//[R.K.] use nicer 2D plots
-  return;
-}//void PBase::LoadPandaStyle(void)
+  return true;
+}//bool PBase::LoadPandaStyle(bool)
 
 
 
@@ -316,25 +320,25 @@ TH1D TransformHisto(TH2* h2, double min, double max)
    *      Author: stockman
    */
 
-	TH1D result("h1","h1", 1000, min, max);
-	int nbins = h2->GetNbinsX() * h2->GetNbinsY();
-	for (int i = 0; i < nbins; i++){
-		//std::cout << h2->GetBinContent(i) << std::endl;
-		result->Fill(h2->GetBinContent(i));
-		if (i == 10)
-			cout << h2->GetBinContent(i) << endl;
-	}
-	return result;
+  TH1D result("h1","h1", 1000, min, max);
+  int nbins = h2->GetNbinsX() * h2->GetNbinsY();
+  for (int i = 0; i < nbins; i++){
+    //std::cout << h2->GetBinContent(i) << std::endl;
+    result->Fill(h2->GetBinContent(i));
+    if (i == 10)
+      cout << h2->GetBinContent(i) << endl;
+  }
+  return result;
 }
 
 
-void plothistosfromfile(TString filename = "histos.root", TString ext=".pdf", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
+bool plothistosfromfile(TString filename = "histos.root", TString ext=".pdf", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
 { // Plot all histograms into a ps file
   // works with TH1, TH2, & TProfile
   //LoadPandaStyle();
   set_nicer_2d_plot_style();
   TFile* file = new TFile(filename.Data());
-  if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return;}
+  if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return true;}
   TCanvas* can = new TCanvas();
   Int_t pixx = ceil(1.4*pix*divx);
   Int_t pixy = pix*divy;
@@ -350,7 +354,7 @@ void plothistosfromfile(TString filename = "histos.root", TString ext=".pdf", In
   pic=picname;
 
   TList* list = file->GetListOfKeys();
-  if (!list) {cout<<"List not there..."<<endl;return;}
+  if (!list) {cout<<"List not there..."<<endl;return true;}
   int padcount = 1;
   TString keyclass="";
   for(int i=0;i<list->GetEntries();i++)
@@ -425,14 +429,14 @@ void plothistosfromfile(TString filename = "histos.root", TString ext=".pdf", In
   //convertcmd += pic.Data();
   //gSystem->Exec(convertcmd.Data());
   delete can;
-  return;
+  return true;
 }
 
-void plotntuplefromfile(TString filename = "ntps.root", TString ext=".pdf", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
+bool plotntuplefromfile(TString filename = "ntps.root", TString ext=".pdf", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
 {
   // Plot all columns of an NTuple into a pdf (or ps file)
   TFile* file = new TFile(filename.Data());
-  if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return;}
+  if (!file) {cout<<"File \""<<filename.Data()<<"\" is not there..."<<endl;return true;}
   TCanvas* can = new TCanvas();
   Int_t pixx = ceil(1.4*pix*divx);
   Int_t pixy = pix*divy;
@@ -448,7 +452,7 @@ void plotntuplefromfile(TString filename = "ntps.root", TString ext=".pdf", Int_
   pic=picname;
 
   TList* list = file->GetListOfKeys();
-  if (!list) {cout<<"List not there..."<<endl;return;}
+  if (!list) {cout<<"List not there..."<<endl;return true;}
   int padcount = 1;
   TString keyclass="";
   for(int i=0;i<list->GetEntries();i++)
@@ -495,11 +499,11 @@ void plotntuplefromfile(TString filename = "ntps.root", TString ext=".pdf", Int_
 //   convertcmd += pic.Data();
 //   gSystem->Exec(convertcmd.Data());
   delete can;
-  return;
+  return true;
 }
 
 
-void LoadManySimFiles(TString treename="cbmsim")
+bool LoadManySimFiles(TString treename="cbmsim")
 { // to use that method you should have opened some files
   // containing the same tree structure, like splitted files of
   // mass production simulations. (like "root -f data/sim01*.root"
@@ -510,6 +514,7 @@ void LoadManySimFiles(TString treename="cbmsim")
   TChain *R=new TChain(treename.Data());
   while (fi=(TFile*)next()) R->Add(fi->GetName());
   cout<<(Int_t)R->GetEntries()<<endl;
+  return true;
 }
 
 TString InitDefaultRun(TString filetag)
@@ -567,7 +572,7 @@ DrawHistSecondScale(TH1* hist, int color=kRed)
    axis->SetLineColor(color);
    axis->SetTextColor(color);
    axis->Draw();
-   return;
+   return true;
 }
 
 

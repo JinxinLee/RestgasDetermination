@@ -18,9 +18,9 @@
 using namespace EvtCyclic3;
 
 EvtDalitzResPdf::EvtDalitzResPdf(const EvtDalitzPlot& dp, 
-				 double _m0, double _g0, EvtCyclic3::Pair pair)
+				 double the_m0, double the_g0, EvtCyclic3::Pair pair)
   : EvtPdf<EvtDalitzPoint>(), 
-  _dp(dp), _m0(_m0), _g0(_g0), _pair(pair)
+  _dp(dp), _m0(the_m0), _g0(the_g0), _pair(pair)
 {}
 
 

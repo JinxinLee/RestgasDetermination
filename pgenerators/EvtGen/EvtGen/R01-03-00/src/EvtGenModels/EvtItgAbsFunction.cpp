@@ -33,9 +33,9 @@ extern "C" {
 #include "EvtGenBase/EvtReport.hh"
 using std::endl;
 
-EvtItgAbsFunction::EvtItgAbsFunction(double lowerRange, double upperRange):
-  _upperRange(upperRange),
-  _lowerRange(lowerRange){}
+EvtItgAbsFunction::EvtItgAbsFunction(double the_lowerRange, double the_upperRange):
+  _upperRange(the_upperRange),
+  _lowerRange(the_lowerRange){}
 
 EvtItgAbsFunction::~EvtItgAbsFunction( )
 {}

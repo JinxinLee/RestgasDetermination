@@ -546,13 +546,13 @@ const EvtGammaMatrix& EvtGammaMatrix::id(){
 
 
 
-EvtGammaMatrix& EvtGammaMatrix::operator+=(const EvtGammaMatrix &g){
+EvtGammaMatrix& EvtGammaMatrix::operator+=(const EvtGammaMatrix &the_g){
 
   int i,j;
   
   for(i=0;i<4;i++){
     for(j=0;j<4;j++){
-      _gamma[i][j]+=g._gamma[i][j];
+      _gamma[i][j]+=the_g._gamma[i][j];
     }
   }
   return *this;
@@ -562,13 +562,13 @@ EvtGammaMatrix& EvtGammaMatrix::operator+=(const EvtGammaMatrix &g){
 
 
 
-EvtGammaMatrix& EvtGammaMatrix::operator-=(const EvtGammaMatrix &g){
+EvtGammaMatrix& EvtGammaMatrix::operator-=(const EvtGammaMatrix &the_g){
 
   int i,j;
   
   for(i=0;i<4;i++){
     for(j=0;j<4;j++){
-      _gamma[i][j]-=g._gamma[i][j];
+      _gamma[i][j]-=the_g._gamma[i][j];
     }
   }
   return *this;
@@ -576,7 +576,7 @@ EvtGammaMatrix& EvtGammaMatrix::operator-=(const EvtGammaMatrix &g){
 
 
 
-EvtGammaMatrix& EvtGammaMatrix::operator*=(const EvtGammaMatrix &g){
+EvtGammaMatrix& EvtGammaMatrix::operator*=(const EvtGammaMatrix &the_g){
 
   int i,j,k;
   EvtGammaMatrix temp;
@@ -585,7 +585,7 @@ EvtGammaMatrix& EvtGammaMatrix::operator*=(const EvtGammaMatrix &g){
     for(j=0;j<4;j++){
       temp._gamma[i][j]=EvtComplex(0.0,0.0);
       for(k=0;k<4;k++){
-	temp._gamma[i][j]+=_gamma[i][k]*g._gamma[k][j];
+	temp._gamma[i][j]+=_gamma[i][k]*the_g._gamma[k][j];
       }
     }
   }

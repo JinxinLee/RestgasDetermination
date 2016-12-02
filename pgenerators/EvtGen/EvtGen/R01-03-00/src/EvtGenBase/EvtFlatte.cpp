@@ -52,16 +52,16 @@ EvtFlatte& EvtFlatte::operator = ( const EvtFlatte  &n)
 
 //constructor
  
-EvtFlatte::EvtFlatte(const EvtVector4R& p4_p, const EvtVector4R& p4_d1,
-                     const  EvtVector4R& p4_d2, double ampl,
-                     double theta, double mass, 
-                     vector<EvtFlatteParam>& params
+EvtFlatte::EvtFlatte(const EvtVector4R& the_p4_p, const EvtVector4R& the_p4_d1,
+                     const  EvtVector4R& the_p4_d2, double the_ampl,
+                     double the_theta, double the_mass, 
+                     vector<EvtFlatteParam>& the_params
 		     //                   double m1a, double m1b, double g1,
 		     //                   double m2a, double m2b, double g2
                      ): 
-  _p4_p(p4_p),_p4_d1(p4_d1), _p4_d2(p4_d2), _ampl(ampl), _theta(theta), 
-  _mass(mass),
-  _params(params)
+  _p4_p(the_p4_p),_p4_d1(the_p4_d1), _p4_d2(the_p4_d2), _ampl(the_ampl), _theta(the_theta), 
+  _mass(the_mass),
+  _params(the_params)
   //  _m1a(m1a), _m1b(m1b), _g1(g1),
   //  _m2a(m2a), _m2b(m2b), _g2(g2)
 {}

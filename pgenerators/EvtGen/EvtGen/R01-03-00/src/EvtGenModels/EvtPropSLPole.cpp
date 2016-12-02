@@ -177,9 +177,14 @@ double EvtPropSLPole::calBreitWignerBasic(double maxMass){
 double EvtPropSLPole::calBreitWigner(EvtParticle *pmeson, EvtPoint1D point){
 
   EvtId mesnum = pmeson->getId(); 
-  double _mass = EvtPDL::getMeanMass(mesnum);
-  double _width = EvtPDL::getWidth(mesnum);
-  double _maxRange = EvtPDL::getMaxRange(mesnum);
+//FIXME: Removed declarations for shadowing warning issues
+// BUT is it intentional to not set the mass/width here for the whole object?  
+  //double _mass = EvtPDL::getMeanMass(mesnum);
+  //double _width = EvtPDL::getWidth(mesnum);
+  //double _maxRange = EvtPDL::getMaxRange(mesnum);
+  _mass = EvtPDL::getMeanMass(mesnum);
+  _width = EvtPDL::getWidth(mesnum);
+  _maxRange = EvtPDL::getMaxRange(mesnum);
   EvtSpinType::spintype mesontype=EvtPDL::getSpinType(mesnum);
   _includeDecayFact=true;
   _includeBirthFact=true;

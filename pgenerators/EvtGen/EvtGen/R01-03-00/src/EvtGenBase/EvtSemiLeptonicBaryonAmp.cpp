@@ -556,19 +556,19 @@ void EvtSemiLeptonicBaryonAmp::CalcAmp(EvtParticle *parent,
     
     const double form_fact[8] = {f1, f2, f3, f4, g1, g2, g3, g4};
     
-    EvtId l_num = parent->getDaug(1)->getId();
+    EvtId the_l_num = parent->getDaug(1)->getId();
     
     EvtVector4C b11, b12, b21, b22, b13, b23, b14, b24, l1, l2;
 
     //  Lepton Current
-    if (l_num==EM || l_num==MUM || l_num==TAUM) {
+    if (the_l_num==EM || the_l_num==MUM || the_l_num==TAUM) {
       //  Lepton Current
       l1=EvtLeptonVACurrent(parent->getDaug(1)->spParent(0),
 			    parent->getDaug(2)->spParentNeutrino());
       l2=EvtLeptonVACurrent(parent->getDaug(1)->spParent(1),
 			    parent->getDaug(2)->spParentNeutrino());
     }
-    else if (l_num==EP || l_num==MUP || l_num==TAUP) {
+    else if (the_l_num==EP || the_l_num==MUP || the_l_num==TAUP) {
       l1=EvtLeptonVACurrent(parent->getDaug(2)->spParentNeutrino(),
 			    parent->getDaug(1)->spParent(0));
       l2=EvtLeptonVACurrent(parent->getDaug(2)->spParentNeutrino(),

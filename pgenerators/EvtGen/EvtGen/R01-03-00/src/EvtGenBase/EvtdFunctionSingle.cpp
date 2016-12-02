@@ -81,14 +81,14 @@ double EvtdFunctionSingle::d(int j,int m1,int m2, double theta){
   double c2=cos(0.5*theta);
   double s2=sin(0.5*theta);
 
-  double d=0.0;
+  double the_d=0.0;
   
   int k;
   for(k=_kmin;k<=_kmax;k+=2){
-    d+=_coef[(k-_kmin)/2]*pow(c2,(2*_j-2*k+m2-m1)/2)*pow(s2,(2*k-m2+m1)/2);
+    the_d+=_coef[(k-_kmin)/2]*pow(c2,(2*_j-2*k+m2-m1)/2)*pow(s2,(2*k-m2+m1)/2);
   }
 
-  return d;
+  return the_d;
   
 }
 

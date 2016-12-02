@@ -23,7 +23,7 @@ Street, Fifth Floor, Boston, MA 02110-1301, USA
 using namespace std;
 
 // Also see (3d part): "Least-Squares Fitting of Two 3-D Point Sets" (Arun, Huang and Blostein)
-double IcpPointToPoint::fitStep (double *T,const int32_t T_num,Matrix &R,Matrix &t,const std::vector<int32_t> &active) {
+double IcpPointToPoint::fitStep (double *T,const int32_t T_numA,Matrix &R,Matrix &t,const std::vector<int32_t> &active) {
   
   // kd tree query + result
   std::vector<double>         query(dim);
@@ -126,7 +126,7 @@ double IcpPointToPoint::fitStep (double *T,const int32_t T_num,Matrix &R,Matrix 
   else        return max((R_-Matrix::eye(3)).l2norm(),t_.l2norm());
 }
 
-double IcpPointToPoint::fitInstant(double* T, const int32_t T_num, Matrix& R,Matrix& t, const std::vector<int32_t>& active) {
+double IcpPointToPoint::fitInstant(double* T, const int32_t T_numA, Matrix& R,Matrix& t, const std::vector<int32_t>& active) {
 
 	// init matrix for point correspondences
 	Matrix p_m(active.size(),dim); // model
@@ -146,7 +146,7 @@ double IcpPointToPoint::fitInstant(double* T, const int32_t T_num, Matrix& R,Mat
 
 
 	// fill template and model
-	for(int i=0; i< T_num; i++){
+	for(int i=0; i< T_numA; i++){
 
 		// transform point according to R|t
 		query[0] = r00*T[i*3+0] + r01*T[i*3+1] + r02*T[i*3+2] + t0;
@@ -185,7 +185,7 @@ double IcpPointToPoint::fitInstant(double* T, const int32_t T_num, Matrix& R,Mat
 	return max((R_-Matrix::eye(3)).l2norm(),t_.l2norm());
 }
 
-std::vector<int32_t> IcpPointToPoint::getInliers (double *T,const int32_t T_num,const Matrix &R,const Matrix &t,const double indist) {
+std::vector<int32_t> IcpPointToPoint::getInliers (double *T,const int32_t T_numA,const Matrix &R,const Matrix &t,const double indist) {
 
   // init inlier vector + query point + query result
   vector<int32_t>            inliers;
@@ -201,7 +201,7 @@ std::vector<int32_t> IcpPointToPoint::getInliers (double *T,const int32_t T_num,
     double t0  = t.val[0][0]; double t1  = t.val[1][0];
 
     // check for all points if they are inliers
-    for (int32_t i=0; i<T_num; i++) {
+    for (int32_t i=0; i<T_numA; i++) {
 
       // transform point according to R|t
       query[0] = r00*T[i*2+0] + r01*T[i*2+1] + t0;
@@ -225,7 +225,7 @@ std::vector<int32_t> IcpPointToPoint::getInliers (double *T,const int32_t T_num,
     double t0  = t.val[0][0]; double t1  = t.val[1][0]; double t2  = t.val[2][0];
 
     // check for all points if they are inliers
-    for (int32_t i=0; i<T_num; i++) {
+    for (int32_t i=0; i<T_numA; i++) {
 
       // transform point according to R|t
       query[0] = r00*T[i*3+0] + r01*T[i*3+1] + r02*T[i*3+2] + t0;

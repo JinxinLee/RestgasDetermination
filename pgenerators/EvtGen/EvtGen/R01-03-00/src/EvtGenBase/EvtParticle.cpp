@@ -508,7 +508,7 @@ bool EvtParticle::generateMassTree() {
 double EvtParticle::compMassProb() {
 
   EvtParticle *p=this;
-  double mass=p->mass();
+  double the_mass=p->mass();
   double parMass=0.;
   if ( p->getParent()) { 
     parMass=p->getParent()->mass();
@@ -524,7 +524,7 @@ double EvtParticle::compMassProb() {
   }
 
   double temp=1.0;
-  temp=EvtPDL::getMassProb(p->getId(), mass, parMass, nDaug, dMasses);
+  temp=EvtPDL::getMassProb(p->getId(), the_mass, parMass, nDaug, dMasses);
 
   //If the particle already has a mass, we dont need to include
   //it in the probability calculation
@@ -1035,7 +1035,7 @@ double EvtParticle::initializePhaseSpace(
   //  this->makeDaughters(numdaughter,daughters);
 
   static EvtVector4R p4[100];
-  static double mass[100];
+  static double the_mass[100];
 
   m_b = this->mass();
 
@@ -1069,7 +1069,7 @@ double EvtParticle::initializePhaseSpace(
 
   double weight=0.;
   for (i=0; i<numdaughter;i++) {
-    mass[i]=this->getDaug(i)->mass();
+    the_mass[i]=this->getDaug(i)->mass();
   }
 
   if ( poleSize<-0.1) {
@@ -1078,7 +1078,7 @@ double EvtParticle::initializePhaseSpace(
       this->getDaug(0)->init(daughters[0],EvtVector4R(m_b,0.0,0.0,0.0));
     }
     else{
-      EvtGenKine::PhaseSpace( numdaughter, mass, p4, m_b );
+      EvtGenKine::PhaseSpace( numdaughter, the_mass, p4, m_b );
       for(i=0;i<numdaughter;i++){
 	this->getDaug(i)->init(daughters[i],p4[i]);
       }
@@ -1094,7 +1094,7 @@ double EvtParticle::initializePhaseSpace(
     bool ok=false;
     if ( (whichTwo1 == 1 && whichTwo2 == 0 ) ||
 	 (whichTwo1 == 0 && whichTwo2 == 1 ) ) {
-      weight=EvtGenKine::PhaseSpacePole( m_b, mass[0], mass[1], mass[2], 
+      weight=EvtGenKine::PhaseSpacePole( m_b, the_mass[0], the_mass[1], the_mass[2], 
 					  poleSize, p4);
       this->getDaug(0)->init(daughters[0],p4[0]);
       this->getDaug(1)->init(daughters[1],p4[1]);
@@ -1103,7 +1103,7 @@ double EvtParticle::initializePhaseSpace(
     }
     if ( (whichTwo1 == 1 && whichTwo2 == 2 ) ||
 	 (whichTwo1 == 2 && whichTwo2 == 1 ) ) {
-      weight=EvtGenKine::PhaseSpacePole( m_b, mass[2], mass[1], mass[0], 
+      weight=EvtGenKine::PhaseSpacePole( m_b, the_mass[2], the_mass[1], the_mass[0], 
 					  poleSize, p4);
       this->getDaug(0)->init(daughters[0],p4[2]);
       this->getDaug(1)->init(daughters[1],p4[1]);
@@ -1112,7 +1112,7 @@ double EvtParticle::initializePhaseSpace(
     }
     if ( (whichTwo1 == 0 && whichTwo2 == 2 ) ||
 	 (whichTwo1 == 2 && whichTwo2 == 0 ) ) {
-      weight=EvtGenKine::PhaseSpacePole( m_b, mass[1], mass[0], mass[2], 
+      weight=EvtGenKine::PhaseSpacePole( m_b, the_mass[1], the_mass[0], the_mass[2], 
 					  poleSize, p4);
       this->getDaug(0)->init(daughters[0],p4[1]);
       this->getDaug(1)->init(daughters[1],p4[0]);
@@ -1155,7 +1155,6 @@ void EvtParticle::makeDaughters(unsigned int ndaugstore, std::vector<EvtId> idVe
 
 void EvtParticle::makeDaughters( unsigned int ndaugstore, EvtId *id){
 
-  unsigned int i;
   if ( _channel < 0 ) {
     setChannel(0);
   }
@@ -1176,7 +1175,7 @@ void EvtParticle::makeDaughters( unsigned int ndaugstore, EvtId *id){
     }
   } 
   else{
-    for(i=0;i<ndaugstore;i++){
+    for(unsigned int i=0;i<ndaugstore;i++){
       pdaug=EvtParticleFactory::particleFactory(EvtPDL::getSpinType(id[i]));
       pdaug->setId(id[i]);
       pdaug->addDaug(this);	

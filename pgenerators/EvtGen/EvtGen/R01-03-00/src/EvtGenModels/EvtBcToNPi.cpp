@@ -31,9 +31,9 @@
 #include <iostream>
 using std::endl;
 
-EvtBcToNPi::EvtBcToNPi(bool printAuthorInfo) {
+EvtBcToNPi::EvtBcToNPi(bool the_printAuthorInfo) {
   nCall=0; maxAmp2=0;
-  if (printAuthorInfo == true) {this->printAuthorInfo();}
+  if (the_printAuthorInfo == true) {this->printAuthorInfo();}
 }
 
 EvtBcToNPi::~EvtBcToNPi() { 
@@ -279,8 +279,8 @@ void EvtBcToNPi::decay( EvtParticle *root_particle ){
 	else if( root_particle->getDaug(0)->getSpinType() == EvtSpinType::SCALAR) {
 		double Fp=Fp_N*exp(Fp_c1*Q2 + Fp_c2*Q2*Q2);
 		double Fm=Fm_N*exp(Fm_c1*Q2 + Fm_c2*Q2*Q2);
-		EvtVector4C H=Fp*(p+k)+Fm*(p-k);
-		EvtComplex amp=H*hardCur;
+		EvtVector4C the_H=Fp*(p+k)+Fm*(p-k);
+		EvtComplex amp=the_H*hardCur;
 		vertex(amp);
 		amp2+=pow( abs(amp),2);
 	};

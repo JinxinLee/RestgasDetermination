@@ -53,19 +53,19 @@ EvtAmpFactory<EvtDalitzPoint>* EvtPto3P::createFactory(const EvtMultiChannelPars
 }
 
 
-std::vector<EvtVector4R> EvtPto3P::initDaughters(const EvtDalitzPoint& x) const
+std::vector<EvtVector4R> EvtPto3P::initDaughters(const EvtDalitzPoint& the_x) const
 {
   std::vector<EvtVector4R> v;
-  assert(x.isValid());
+  assert(the_x.isValid());
   
   // Calculate in the r.f. of AB
                                                                               
-  double eA = x.e(A,AB);
-  double eB = x.e(B,AB);
-  double eC = x.e(C,AB);
-  double pA = x.p(A,AB);
-  double pC = x.p(C,AB);
-  double cos = x.cosTh(CA,AB);
+  double eA = the_x.e(A,AB);
+  double eB = the_x.e(B,AB);
+  double eC = the_x.e(C,AB);
+  double pA = the_x.p(A,AB);
+  double pC = the_x.p(C,AB);
+  double cos = the_x.cosTh(CA,AB);
   double sin = sqrt(1.0-cos*cos);
                                                                                   
   EvtVector4R vA(eA,0,0,pA);                                                   

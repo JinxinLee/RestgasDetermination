@@ -27,12 +27,12 @@ EvtDalitzPoint::EvtDalitzPoint(double mA, double mB, double mC, double qAB, doub
 
 EvtDalitzPoint::EvtDalitzPoint(double mA, double mB, double mC, 
 			       EvtCyclic3::Pair i, 
-			       double qres, double qhel, double qsum)
+			       double the_qres, double the_qhel, double the_qsum)
   : _mA(mA), _mB(mB), _mC(mC)
 {
-  double qi = qres + qsum/3.;
-  double qj = -qres/2. + qhel + qsum/3.;
-  double qk = -qres/2. - qhel + qsum/3.;
+  double qi = the_qres + the_qsum/3.;
+  double qj = -the_qres/2. + the_qhel + the_qsum/3.;
+  double qk = -the_qres/2. - the_qhel + the_qsum/3.;
   
   if(i == AB) { _qAB = qi; _qBC = qj; _qCA = qk; }
   else if(i == BC) { _qAB = qk; _qBC = qi; _qCA = qj; }

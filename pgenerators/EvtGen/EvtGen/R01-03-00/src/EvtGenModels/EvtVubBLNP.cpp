@@ -368,7 +368,7 @@ double EvtVubBLNP::rate3(double Pp, double Pl, double Pm) {
 
 }
 
-double EvtVubBLNP::F1(double Pp, double Pm, double muh, double mui, double mubar, double doneJS, double done1) {
+double EvtVubBLNP::F1(double Pp, double Pm, double the_muh, double the_mui, double the_mubar, double doneJS, double done1) {
 
   std::vector<double> vars(12);
   vars[0] = Pp;
@@ -376,15 +376,15 @@ double EvtVubBLNP::F1(double Pp, double Pm, double muh, double mui, double mubar
   for (int j=2;j<12;j++) {vars[j] = gvars[j];}
 
   double y = (Pm - Pp)/(mBB - Pp);
-  double ah = CF*alphas(muh, vars)/4/M_PI;
-  double ai = CF*alphas(mui, vars)/4/M_PI;
-  double abar = CF*alphas(mubar, vars)/4/M_PI;
+  double ah = CF*alphas(the_muh, vars)/4/M_PI;
+  double ai = CF*alphas(the_mui, vars)/4/M_PI;
+  double abar = CF*alphas(the_mubar, vars)/4/M_PI;
   double lambda1 = -mupisq;
 
-  double t1 = -4*ai/(Pp - Lbar)*(2*log((Pp - Lbar)/mui) + 1);
-  double t2 = 1 + dU1nlo(muh, mui) + anlo(muh, mui)*log(y);
-  double t3 = -4.0*pow(log(y*mb/muh),2) + 10.0*log(y*mb/muh) - 4.0*log(y) - 2.0*log(y)/(1-y) - 4.0*PolyLog(2, 1-y) - M_PI*M_PI/6.0 - 12.0;
-  double t4 = 2*pow( log(y*mb*Pp/(mui*mui)), 2) - 3*log(y*mb*Pp/(mui*mui)) + 7 - M_PI*M_PI;
+  double t1 = -4*ai/(Pp - Lbar)*(2*log((Pp - Lbar)/the_mui) + 1);
+  double t2 = 1 + dU1nlo(the_muh, the_mui) + anlo(the_muh, the_mui)*log(y);
+  double t3 = -4.0*pow(log(y*mb/the_muh),2) + 10.0*log(y*mb/the_muh) - 4.0*log(y) - 2.0*log(y)/(1-y) - 4.0*PolyLog(2, 1-y) - M_PI*M_PI/6.0 - 12.0;
+  double t4 = 2*pow( log(y*mb*Pp/(the_mui*the_mui)), 2) - 3*log(y*mb*Pp/(the_mui*the_mui)) + 7 - M_PI*M_PI;
 
   double t5 = -wS(Pp) + 2*t(Pp) + (1.0/y - 1.0)*(u(Pp) - v(Pp));
   double t6 = -(lambda1 + 3.0*lambda2)/3.0 + 1.0/pow(y,2)*(4.0/3.0*lambda1 - 2.0*lambda2);
@@ -392,12 +392,12 @@ double EvtVubBLNP::F1(double Pp, double Pm, double muh, double mui, double mubar
   double shapePp = Shat(Pp, vars);
 
   double answer = (t2 + ah*t3 + ai*t4)*shapePp + ai*doneJS + 1/(mBB - Pp)*(flag2*abar*done1 + flag1*t5) + 1/pow(mBB - Pp, 2)*flag3*shapePp*t6;
-  if (Pp > Lbar + mui/exp(0.5)) answer = answer + t1;
+  if (Pp > Lbar + the_mui/exp(0.5)) answer = answer + t1;
   return answer;
 
 }
 
-double EvtVubBLNP::F2(double Pp, double Pm, double muh, double /*mui*/, double mubar, double done3) {
+double EvtVubBLNP::F2(double Pp, double Pm, double the_muh, double /*the_mui*/, double the_mubar, double done3) {
   
   std::vector<double> vars(12);
   vars[0] = Pp;
@@ -406,8 +406,8 @@ double EvtVubBLNP::F2(double Pp, double Pm, double muh, double /*mui*/, double m
 
   double y = (Pm - Pp)/(mBB - Pp);
   double lambda1 = -mupisq;
-  double ah = CF*alphas(muh, vars)/4/M_PI;
-  double abar = CF*alphas(mubar, vars)/4/M_PI;
+  double ah = CF*alphas(the_muh, vars)/4/M_PI;
+  double abar = CF*alphas(the_mubar, vars)/4/M_PI;
 
   double t6 = -wS(Pp) - 2*t(Pp) + 1.0/y*(t(Pp) + v(Pp));
   double t7 = 1/pow(y,2)*(2.0/3.0*lambda1 + 4.0*lambda2) - 1/y*(2.0/3.0*lambda1 + 3.0/2.0*lambda2);
@@ -419,7 +419,7 @@ double EvtVubBLNP::F2(double Pp, double Pm, double muh, double /*mui*/, double m
 
 }
 
-double EvtVubBLNP::F3(double Pp, double Pm, double /*muh*/, double /*mui*/, double mubar, double done2) {
+double EvtVubBLNP::F3(double Pp, double Pm, double /*the_muh*/, double /*the_mui*/, double the_mubar, double done2) {
 
   std::vector<double> vars(12);
   vars[0] = Pp;
@@ -428,7 +428,7 @@ double EvtVubBLNP::F3(double Pp, double Pm, double /*muh*/, double /*mui*/, doub
   
   double y = (Pm - Pp)/(mBB - Pp);
   double lambda1 = -mupisq;
-  double abar = CF*alphas(mubar, vars)/4/M_PI;
+  double abar = CF*alphas(the_mubar, vars)/4/M_PI;
 
   double t7 = 1.0/pow(y,2)*(-2.0/3.0*lambda1 + lambda2);
 
@@ -692,35 +692,35 @@ double EvtVubBLNP::v(double w) {
   return answer;
 }
 
-double EvtVubBLNP::myfunction(double w, double Lbar, double mom2) {
+double EvtVubBLNP::myfunction(double w, double the_Lbar, double mom2) {
 
   double bval = 5.0;
-  double x = w/Lbar;
-  double factor = 0.5*mom2*pow(bval/Lbar, 3);
+  double x = w/the_Lbar;
+  double factor = 0.5*mom2*pow(bval/the_Lbar, 3);
   double answer = factor*exp(-bval*x)*(1 - 2*bval*x + 0.5*bval*bval*x*x);
   return answer;
 
 }
 
-double EvtVubBLNP::myfunctionBIK(double w, double Lbar, double /*mom2*/) {
+double EvtVubBLNP::myfunctionBIK(double w, double the_Lbar, double /*mom2*/) {
 
   double aval = 10.0;
   double normBIK = (4 - M_PI)*M_PI*M_PI/8/(2-M_PI)/aval + 1;
-  double z = 3*M_PI*w/8/Lbar;
+  double z = 3*M_PI*w/8/the_Lbar;
   double q = M_PI*M_PI*2*pow(M_PI*aval, 0.5)*exp(-aval*z*z)/(4*M_PI - 8)*(1 - 2*pow(aval/M_PI, 0.5)*z) + 8/pow(1+z*z, 4)*(z*log(z) + 0.5*z*(1+z*z) - M_PI/4*(1-z*z));
   double answer = q/normBIK;
   return answer;
 
 }
 
-double EvtVubBLNP::dU1nlo(double muh, double mui) { 
+double EvtVubBLNP::dU1nlo(double the_muh, double the_mui) { 
 
-  double ai = alphas(mui, gvars);
-  double ah = alphas(muh, gvars);
+  double ai = alphas(the_mui, gvars);
+  double ah = alphas(the_muh, gvars);
 
   double q1 = (ah - ai)/(4*M_PI*beta0);
-  double q2 = log(mb/muh)*Gamma1 + gp1;
-  double q3 = 4*beta1*(log(mb/muh)*Gamma0 + gp0) + Gamma2*(1-ai/ah);
+  double q2 = log(mb/the_muh)*Gamma1 + gp1;
+  double q3 = 4*beta1*(log(mb/the_muh)*Gamma0 + gp0) + Gamma2*(1-ai/ah);
   double q4 = beta1*beta1*Gamma0*(-1.0 + ai/ah)/(4*pow(beta0,3));
   double q5 = -beta2*Gamma0*(1.0 + ai/ah) + beta1*Gamma1*(3 - ai/ah);
   double q6 = beta1*beta1*Gamma0*(ah - ai)/beta0 - beta2*Gamma0*ah + beta1*Gamma1*ai;
@@ -729,15 +729,15 @@ double EvtVubBLNP::dU1nlo(double muh, double mui) {
   return answer;
 }
 
-double EvtVubBLNP::U1lo(double muh, double mui) {
+double EvtVubBLNP::U1lo(double the_muh, double the_mui) {
   double epsilon = 0.0;
-  double answer = pow(mb/muh, -2*aGamma(muh, mui, epsilon))*exp(2*Sfun(muh, mui, epsilon) - 2*agp(muh, mui, epsilon));
+  double answer = pow(mb/the_muh, -2*aGamma(the_muh, the_mui, epsilon))*exp(2*Sfun(the_muh, the_mui, epsilon) - 2*agp(the_muh, the_mui, epsilon));
   return answer;
 }
 
-double EvtVubBLNP::Sfun(double mu1, double mu2, double epsilon) {
-  double a1 = alphas(mu1, gvars)/4/M_PI;
-  double a2 = alphas(mu2, gvars)/alphas(mu1, gvars);
+double EvtVubBLNP::Sfun(double the_mu1, double the_mu2, double epsilon) {
+  double a1 = alphas(the_mu1, gvars)/4/M_PI;
+  double a2 = alphas(the_mu2, gvars)/alphas(the_mu1, gvars);
 
   double answer = S0(a1,a2) + S1(a1,a2) + epsilon*S2(a1,a2);
   return answer;
@@ -779,12 +779,12 @@ double EvtVubBLNP::agp(double mu1, double mu2, double epsilon) {
   return answer;
 }
 
-double EvtVubBLNP::alo(double muh, double mui) { return -2.0*aGamma(muh, mui, 0);}
+double EvtVubBLNP::alo(double the_muh, double the_mui) { return -2.0*aGamma(the_muh, the_mui, 0);}
 
-double EvtVubBLNP::anlo(double muh, double mui) {   // d/depsilon of aGamma
+double EvtVubBLNP::anlo(double the_muh, double the_mui) {   // d/depsilon of aGamma
 
-  double ah = alphas(muh, gvars);
-  double ai = alphas(mui, gvars);
+  double ah = alphas(the_muh, gvars);
+  double ai = alphas(the_mui, gvars);
   double answer = (ah-ai)/(8.0*M_PI)*(Gamma1/beta0 - beta1*Gamma0/(beta0*beta0));
   return answer;
 }
@@ -805,13 +805,13 @@ double EvtVubBLNP::alphas(double mu, const std::vector<double> &vars) {
     
 }
 
-double EvtVubBLNP::PolyLog(double v, double z) {
+double EvtVubBLNP::PolyLog(double the_v, double z) {
 
   if (z >= 1) cout << "Error in EvtVubBLNP: 2nd argument to PolyLog is >= 1." << endl;
 
   double sum = 0.0;
   for (int k=1; k<101; k++) { 
-    sum = sum + pow(z,k)/pow(k,v);
+    sum = sum + pow(z,k)/pow(k,the_v);
   }
   return sum;
 }

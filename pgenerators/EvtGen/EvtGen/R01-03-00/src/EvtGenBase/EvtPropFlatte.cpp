@@ -14,15 +14,15 @@
 using std::cout;
 using std::endl;
 
-EvtPropFlatte::EvtPropFlatte(double m0, 
-			     double g0, double m0a, double m0b, 
-			     double g1, double m1a, double m1b) :
-  EvtPropagator( m0, g0),
-  _m0a(m0a),
-  _m0b(m0b),
-  _g1 (g1),
-  _m1a(m1a),
-  _m1b(m1b)
+EvtPropFlatte::EvtPropFlatte(double the_m0, 
+			     double the_g0, double the_m0a, double the_m0b, 
+			     double the_g1, double the_m1a, double the_m1b) :
+  EvtPropagator( the_m0, the_g0),
+  _m0a(the_m0a),
+  _m0b(the_m0b),
+  _g1 (the_g1),
+  _m1a(the_m1a),
+  _m1b(the_m1b)
 {}
 
 

@@ -97,9 +97,9 @@ public:
       EvtPdfSum<T>* pc = _fact->getPC();
       EvtPdfDiv<T> pdfdiv(pdf,*pc);
       printf("Sampling %d points to find maximum\n",_nScan);
-      EvtPdfMax<T> x = pdfdiv.findMax(*pc,_nScan);
-      _probMax = factor * x.value();
-      printf("Found maximum %f\n",x.value());
+      EvtPdfMax<T> the_x = pdfdiv.findMax(*pc,_nScan);
+      _probMax = factor * the_x.value();
+      printf("Found maximum %f\n",the_x.value());
       printf("Increase to   %f\n",_probMax);
       setProbMax(_probMax);
     }
@@ -180,7 +180,7 @@ public:
   // provide access to the decay point and to the amplitude of any decay point.
   // this is used by EvtBtoKD3P:
   const T & x() const {return _x;}
-  EvtComplex amplNonCP(const T & x) {return _fact->getAmp()->evaluate(x);}
+  EvtComplex amplNonCP(const T & the_x) {return _fact->getAmp()->evaluate(the_x);}
   EvtPdfSum<T>* getPC() {return _fact->getPC();}
 
 protected:

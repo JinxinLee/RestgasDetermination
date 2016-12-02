@@ -31,9 +31,9 @@ using std::string;
 using std::vector;
 
 
-EvtDecayMode::EvtDecayMode(std::string mother,vector<string> dau)
-  : _mother(mother),
-    _dau(dau)
+EvtDecayMode::EvtDecayMode(std::string the_mother,vector<string> the_dau)
+  : _mother(the_mother),
+    _dau(the_dau)
 {
 }
 

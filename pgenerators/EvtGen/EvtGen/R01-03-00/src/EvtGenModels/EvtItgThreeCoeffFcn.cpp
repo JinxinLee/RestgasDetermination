@@ -29,8 +29,8 @@
 extern "C" {
 }
 
-EvtItgThreeCoeffFcn::EvtItgThreeCoeffFcn( double (*theFunction)(double, const std::vector<double> &, const std::vector<double> &, const std::vector<double> &), double lowerRange, double upperRange, const std::vector<double> &coeffs1, const std::vector<double> &coeffs2, const std::vector<double> &coeffs3):
-  EvtItgAbsFunction(lowerRange, upperRange),
+EvtItgThreeCoeffFcn::EvtItgThreeCoeffFcn( double (*theFunction)(double, const std::vector<double> &, const std::vector<double> &, const std::vector<double> &), double the_lowerRange, double the_upperRange, const std::vector<double> &coeffs1, const std::vector<double> &coeffs2, const std::vector<double> &coeffs3):
+  EvtItgAbsFunction(the_lowerRange, the_upperRange),
   _myFunction(theFunction),
   _coeffs1(coeffs1),
   _coeffs2(coeffs2), 
@@ -47,11 +47,11 @@ EvtItgThreeCoeffFcn::myFunction(double x) const{
 }
 
 void
-EvtItgThreeCoeffFcn::setCoeff(int vect, int which, double value)
+EvtItgThreeCoeffFcn::setCoeff(int vect, int which, double the_value)
 {
-  if (vect == 1) _coeffs1[which] = value;
-  else if (vect == 2) _coeffs2[which] = value;
-  else if (vect == 3) _coeffs3[which] = value;
+  if (vect == 1) _coeffs1[which] = the_value;
+  else if (vect == 2) _coeffs2[which] = the_value;
+  else if (vect == 3) _coeffs3[which] = the_value;
 }
 
 double

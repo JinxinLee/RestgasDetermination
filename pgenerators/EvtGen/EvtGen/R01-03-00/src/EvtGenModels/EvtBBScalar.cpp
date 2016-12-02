@@ -314,13 +314,13 @@ void EvtBBScalar::decay(EvtParticle* p) {
         for (int j=0; j<2; ++j)  {
             EvtDiracSpinor antiP_Pol = theAntiP->spParent(j);
             EvtVector4C theAmplitudePartA = amp_A(B_Momentum, scalarMomentum);
-            EvtComplex amplitude;
+            EvtComplex the_amplitude;
             for (int index=0; index<4; ++index) {
-                amplitude += theAmplitudePartA.get(index)
+                the_amplitude += theAmplitudePartA.get(index)
                         * ( const_B*amp_B(theLambda, lambdaPol, theAntiP, antiP_Pol, index)
                           + const_C*amp_C(theLambda, lambdaPol, theAntiP, antiP_Pol, index) );
             }       
-            vertex(i, j, amplitude);
+            vertex(i, j, the_amplitude);
         }
     }
 }
