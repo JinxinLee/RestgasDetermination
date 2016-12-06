@@ -59,7 +59,8 @@ class PndHypDigi : public TObject
 			std::cout << *this;
 		}
 	protected :
-		std::vector<Int_t> fIndex;Int_t fDetID;
+		std::vector<Int_t> fIndex;
+    Int_t fDetID;
 		TString fDetName;
 		Double_t fCharge;
 		Int_t fFE;

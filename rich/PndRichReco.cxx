@@ -427,8 +427,21 @@ PndRichReco::~PndRichReco()
 }
 
 // -----   Default constructor   -------------------------------------------
-PndRichReco::PndRichReco()
-  : fRichPDHit(0)
+PndRichReco::PndRichReco() : 
+    fRichPDHit(0),
+    fGeo(NULL),
+    fEvent(0),
+    fGeoVersion(0),
+    fGeoVersionMirr(0),
+    fParticleID(0),
+    fMirrorLength(0.),
+    fTrackPosition(0.,0.,0.),
+    fTrackDirection(0.,0.,0.),
+    fMirrSegs(),
+    fPhDetAngle(0.),
+    fZamid(0.),
+    gResVect(),
+    gRotMatr()
 {
    fGeoVersion = 313;
    Init(); // init geometry parameters
@@ -439,9 +452,22 @@ PndRichReco::PndRichReco()
 
 // -----   Default constructor   -------------------------------------------
 PndRichReco::PndRichReco(UInt_t version)
-  : fRichPDHit(0)
+  :
+    fRichPDHit(0),
+    fGeo(NULL),
+    fEvent(0),
+    fGeoVersion(version),
+    fGeoVersionMirr(0),
+    fParticleID(0),
+    fMirrorLength(0.),
+    fTrackPosition(0.,0.,0.),
+    fTrackDirection(0.,0.,0.),
+    fMirrSegs(),
+    fPhDetAngle(0.),
+    fZamid(0.),
+    gResVect(),
+    gRotMatr()
 {
-   fGeoVersion = version;
    Init(); // init geometry parameters
    Register();
    

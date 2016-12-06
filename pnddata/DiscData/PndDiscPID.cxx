@@ -18,7 +18,13 @@ ClassImp(PndDiscPID)
 
 
 
-PndDiscPID::PndDiscPID() : TObject()
+PndDiscPID::PndDiscPID() : TObject(),
+loglikepion(0.),
+loglikekaon(0.),
+loglikeproton(0.),
+pion(0.),
+kaon(0.),
+proton(0.)
 {
 }
 

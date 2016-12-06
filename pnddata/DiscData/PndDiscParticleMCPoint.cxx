@@ -18,7 +18,16 @@ ClassImp(PndDiscParticleMCPoint)
 
 
 
-PndDiscParticleMCPoint::PndDiscParticleMCPoint() : FairMCPoint()
+PndDiscParticleMCPoint::PndDiscParticleMCPoint() : FairMCPoint(),
+volume_id(0),
+pos_out(0.,0.,0.),
+mom_out(0.,0.,0.),
+charge(0.),
+mass(0.),
+pdgCode(0),
+pos_in_inside(false),
+is_primary(false),
+my_energy_loss(0.)
 {
 }
 

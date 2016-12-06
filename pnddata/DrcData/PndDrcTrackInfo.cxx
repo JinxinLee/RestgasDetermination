@@ -18,6 +18,7 @@ PndDrcTrackInfo::PndDrcTrackInfo(): TObject(),
   fMcMomentumInBar(TVector3()),
   fMcPositionInBar(TVector3()),
   fMcCherenkov(0),
+  fMcTimeInBar(0),
   fPdg(0),
   fMomentum(TVector3()),
   fCherenkov(0)

@@ -16,6 +16,7 @@ PndPidBremCorrected4Mom::PndPidBremCorrected4Mom():
   fYmomentum(0.),
   fZmomentum(0.),
   fEnergy(0.),
+  fPidCandIdx(-1),
   fPhiBumpList(),
   fSepBumpList()
 {
@@ -28,6 +29,7 @@ PndPidBremCorrected4Mom::PndPidBremCorrected4Mom(TLorentzVector &p4) :
   fYmomentum(p4.Y()),
   fZmomentum(p4.Z()),
   fEnergy(p4.E()),
+  fPidCandIdx(-1),
   fPhiBumpList(),
   fSepBumpList()
 {

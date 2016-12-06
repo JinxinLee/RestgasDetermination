@@ -18,7 +18,7 @@
 class PndHypCluster: public TObject
 {
  public : 
-  PndHypCluster():fSide(kTOP){};	
+  PndHypCluster():fClusterList(),fSide(kTOP){};	
 		~PndHypCluster(){};
 		PndHypCluster(std::vector<Int_t> list);
 

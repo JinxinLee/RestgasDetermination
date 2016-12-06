@@ -22,10 +22,9 @@ class PndSdsClusterStrip: public PndSdsCluster {
   }
   
 public:
-	PndSdsClusterStrip();
-	PndSdsClusterStrip(Int_t DigiType, std::vector<Int_t> list){
-		SetClusterList(DigiType, list);
-	};
+	PndSdsClusterStrip():fSide(kTOP){};
+	PndSdsClusterStrip(Int_t DigiType, std::vector<Int_t> list):fSide(kTOP)
+  {		SetClusterList(DigiType, list);	};
 	virtual ~PndSdsClusterStrip();
   
 	void SetClusterList(Int_t DigiType, std::vector<Int_t> list, Int_t fileId = -1, Int_t eventId = -1){

@@ -11,25 +11,23 @@
 #include "PndPidProbability.h"
 
 
-PndPidProbability::PndPidProbability()
-{
-  fElectronPdf = 0.2 ;
-  fMuonPdf = 0.2 ;
-  fPionPdf = 0.2 ;
-  fKaonPdf = 0.2 ;
-  fProtonPdf = 0.2 ;
-  fIndex = -1;
-}
+PndPidProbability::PndPidProbability() :
+  fElectronPdf(0.2),
+  fMuonPdf(0.2),
+  fPionPdf(0.2),
+  fKaonPdf(0.2),
+  fProtonPdf(0.2),
+  fIndex(-1)
+{}
 
-PndPidProbability::PndPidProbability(Double_t e, Double_t mu, Double_t pi, Double_t k, Double_t p, Int_t idx)
-{
-  fElectronPdf = e;
-  fMuonPdf = mu;
-  fPionPdf = pi;
-  fKaonPdf = k;
-  fProtonPdf = p;
-  fIndex = idx;
-}
+PndPidProbability::PndPidProbability(Double_t e, Double_t mu, Double_t pi, Double_t k, Double_t p, Int_t idx) :
+  fElectronPdf(e),
+  fMuonPdf(mu),
+  fPionPdf(pi),
+  fKaonPdf(k),
+  fProtonPdf(p),
+  fIndex(idx)
+{}
 
 PndPidProbability::~PndPidProbability()
 {

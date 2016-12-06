@@ -18,7 +18,13 @@ ClassImp(PndDiscReconResult)
 
 
 
-PndDiscReconResult::PndDiscReconResult() : TObject()
+PndDiscReconResult::PndDiscReconResult() : TObject(),
+cherenkov_angle(0.),
+particle(0),
+hypothesis(0),
+sensor(0),
+pixel(0),
+time(0.)
 {
 }
 

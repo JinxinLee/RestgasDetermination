@@ -27,7 +27,7 @@
 
 ClassImp(PndTrackCand);
 
-PndTrackCand::PndTrackCand():sorted(false), fMcTrackId(-1),fVerbose(0){}
+PndTrackCand::PndTrackCand():fHitId(), sorted(false), fMcTrackId(-1),fVerbose(0){}
 
 PndTrackCand::~PndTrackCand(){}
 

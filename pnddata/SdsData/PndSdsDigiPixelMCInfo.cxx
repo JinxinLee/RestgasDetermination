@@ -8,7 +8,13 @@
 #include "PndSdsDigiPixelMCInfo.h"
 
 
-PndSdsDigiPixelMCInfo::PndSdsDigiPixelMCInfo() : PndSdsDigiPixel()
+PndSdsDigiPixelMCInfo::PndSdsDigiPixelMCInfo() : PndSdsDigiPixel(),
+	fMCCharge(0.),
+	fAddNoise(0.),
+	fTimeWalk(0.),
+	fTimeWalkCorrection(0.),
+	fTof(0.),
+	fDigiCharge(0.)
 {
 
 }

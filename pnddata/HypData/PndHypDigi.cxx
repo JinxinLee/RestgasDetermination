@@ -1,17 +1,22 @@
 #include "PndHypDigi.h"
 
-PndHypDigi::PndHypDigi(){
-  //fIndex = -1;
-       fCharge = -1;
+PndHypDigi::PndHypDigi() :
+		fIndex(),
+    fDetID(-1),
+		fDetName(""),
+		fCharge(-1),
+		fFE(0)
+{
 }
 
-PndHypDigi::PndHypDigi(Int_t index, Int_t detID, TString detName, Int_t fe, Double_t charge){
-  //fIndex 	= index;
+PndHypDigi::PndHypDigi(Int_t index, Int_t detID, TString detName, Int_t fe, Double_t charge) :
+		fIndex(),
+    fDetID(detID),
+		fDetName(detName),
+		fCharge(charge),
+		fFE(fe)
+{
 	fIndex.push_back(index);
-	fDetID  = detID;
-	fDetName= detName;
-	fFE     = fe;
-	fCharge	= charge;
 }
 
 ClassImp(PndHypDigi)

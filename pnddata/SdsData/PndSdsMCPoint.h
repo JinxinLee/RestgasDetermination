@@ -62,7 +62,15 @@ class PndSdsMCPoint : public FairMCPoint
 
 
   /** Copy constructor **/
-  PndSdsMCPoint(const PndSdsMCPoint& point) { *this = point; };
+  PndSdsMCPoint(const PndSdsMCPoint& point) :
+  fXfOut(point.fXfOut),
+  fYfOut(point.fYfOut),
+  fZfOut(point.fZfOut),
+  fPxfOut(point.fPxfOut),
+  fPyfOut(point.fPyfOut),
+  fPzfOut(point.fPzfOut),
+  fSensorID(point.fSensorID)
+  { *this = point; };
 
 
   /** Destructor **/

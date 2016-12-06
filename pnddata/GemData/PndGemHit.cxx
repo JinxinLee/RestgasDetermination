@@ -17,7 +17,14 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndGemHit::PndGemHit() {
+PndGemHit::PndGemHit()
+  : FairHit(),
+    fCharge    (-1),
+    fNDigiHits (-1),
+    fBotIndex  (-1),
+    fDr        (-1),
+    fDp        (-1)
+{
 }
 // -------------------------------------------------------------------------
 

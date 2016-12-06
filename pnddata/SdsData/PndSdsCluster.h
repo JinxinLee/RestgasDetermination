@@ -30,7 +30,7 @@ friend std::ostream& operator<< (std::ostream& out, PndSdsCluster& cl){
     }
 
 public :
-    PndSdsCluster(){};
+    PndSdsCluster():fClusterList(){};
     ~PndSdsCluster(){};
     PndSdsCluster(std::vector<Int_t> list);
 

@@ -13,9 +13,22 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndRichPhoton::PndRichPhoton():
-fHitPosition(TVector3(0,0,0)),
-fTrackPosition(TVector3(0,0,0)),
-fTrackDirection(TVector3(0,0,0))
+  fPDHit(NULL),
+  fDTime(0.),
+  fTime(0.),
+  fHitTime(0.),
+  fTheta(0.),
+  fPhi(0.),
+  fTMask(0),
+  fMirrors(),
+  fHitPosition(0,0,0),
+  fTrackPosition(0,0,0),
+  fTrackDirection(0,0,0),
+  fTrackPositionOld(0,0,0),
+  fTrackDirectionOld(0,0,0),
+  fMirrRefPosition(),
+  fLength(0.),
+  fTrack(NULL)
 {  
 }
 // -------------------------------------------------------------------------
@@ -26,12 +39,22 @@ fTrackDirection(TVector3(0,0,0))
 PndRichPhoton::PndRichPhoton(Double_t theta, 
                              Double_t phi, 
                              UInt_t tmask):
-fTheta(theta),
-fPhi(phi),
-fTMask(tmask),
-fHitPosition(TVector3(0,0,0)),
-fTrackPosition(TVector3(0,0,0)),
-fTrackDirection(TVector3(0,0,0))
+  fPDHit(NULL),
+  fDTime(0.),
+  fTime(0.),
+  fHitTime(0.),
+  fTheta(theta),
+  fPhi(phi),
+  fTMask(tmask),
+  fMirrors(),
+  fHitPosition(0,0,0),
+  fTrackPosition(0,0,0),
+  fTrackDirection(0,0,0),
+  fTrackPositionOld(0,0,0),
+  fTrackDirectionOld(0,0,0),
+  fMirrRefPosition(),
+  fLength(0.),
+  fTrack(NULL)
 {    
 }
 

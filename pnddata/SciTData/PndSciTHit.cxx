@@ -41,7 +41,14 @@ bool PndSciTHit::equal(FairTimeStamp* data){
 }
 
 // -----   Default constructor   -------------------------------------------
-PndSciTHit::PndSciTHit() {
+PndSciTHit::PndSciTHit() :
+  fDetName(""),
+  fCharge(0.),
+  fSiPm1(0.),
+  fDSiPm1(0.),
+  fSiPm2(0.),
+  fDSiPm2(0.)
+{
 }
 // -------------------------------------------------------------------------
 

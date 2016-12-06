@@ -9,7 +9,10 @@
 
 ClassImp(PndSimpleTrack);
 
-PndSimpleTrack::PndSimpleTrack(): fChi2(0)
+PndSimpleTrack::PndSimpleTrack(): 
+	fTrackParam(),
+	fTrackCand(),
+	fChi2(0)
 {
 }
 

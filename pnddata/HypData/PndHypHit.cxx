@@ -13,7 +13,12 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndHypHit::PndHypHit() {
+PndHypHit::PndHypHit() :
+   fDetName(""),
+   fCharge(0.),
+   fNDigiHits(0),
+   fBotIndex(-1)
+{
 }
 // -------------------------------------------------------------------------
 
@@ -21,13 +26,12 @@ PndHypHit::PndHypHit() {
 
 // -----   Standard constructor   ------------------------------------------
 PndHypHit::PndHypHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos,Int_t index, Double_t charge, Int_t NDigiHits) 
-  : FairHit(detID, pos, dpos, index) {
-  fDetName = detName;
-  //fTrackID = trackId;
-  fCharge  = charge;
-  fNDigiHits = NDigiHits;
-  fBotIndex = -1;
-}
+  : FairHit(detID, pos, dpos, index), 
+  fDetName(detName),
+  fCharge(charge),
+  fNDigiHits(NDigiHits),
+  fBotIndex(-1)
+{}
 
 
 // -------------------------------------------------------------------------

@@ -1,25 +1,33 @@
 #include "PndMdtDigi.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMdtDigi::PndMdtDigi()
+PndMdtDigi::PndMdtDigi() :
+fDetectorID(-1),
+fLabPos(0.,0.,0.),
+fPointList(),
+fSignalWidth(0.),
+fEvtNo(0)
 {
-  fDetectorID = -1;
-  fLabPos.SetXYZ(0,0,0);
 }
 
 
-PndMdtDigi::PndMdtDigi(Int_t detID, TVector3& pos, std::vector<Int_t> pointList)
+PndMdtDigi::PndMdtDigi(Int_t detID, TVector3& pos, std::vector<Int_t> pointList) :
+fDetectorID(detID),
+fLabPos(pos),
+fPointList(pointList),
+fSignalWidth(0.),
+fEvtNo(0)
 {
-  fDetectorID = detID;
-  fLabPos = pos;
-  fPointList = pointList;
   SetLinks(FairMultiLinkedData("MdtPoint", pointList));
 }
-PndMdtDigi::PndMdtDigi(Int_t detID, TVector3& pos, Int_t evtNo)
+
+PndMdtDigi::PndMdtDigi(Int_t detID, TVector3& pos, Int_t evtNo) :
+fDetectorID(detID),
+fLabPos(pos),
+fPointList(),
+fSignalWidth(0.),
+fEvtNo(evtNo)
 {
-  fDetectorID = detID;
-  fLabPos = pos;
-  fEvtNo  = evtNo;
 }
 
 /** Destructor **/
@@ -28,10 +36,11 @@ PndMdtDigi::~PndMdtDigi()
 } 
 
 PndMdtDigi::PndMdtDigi(const PndMdtDigi& copy):
-  fDetectorID(copy.fDetectorID)
-  ,fLabPos(copy.fLabPos)
-  ,fPointList(copy.fPointList)
-  ,fEvtNo(copy.fEvtNo)
+  fDetectorID(copy.fDetectorID),
+  fLabPos(copy.fLabPos),
+  fPointList(copy.fPointList),
+  fSignalWidth(copy.fSignalWidth),
+  fEvtNo(copy.fEvtNo)
 {
   SetTimeStamp(copy.GetTimeStamp());
   SetTimeStampError(copy.GetTimeStampError());

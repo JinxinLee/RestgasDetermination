@@ -24,7 +24,11 @@ public:
    
 
 /** Copy constructor **/
-  PndRichMirrorSegment(const PndRichMirrorSegment& seg) { *this = seg; };
+  PndRichMirrorSegment(const PndRichMirrorSegment& seg) :
+  fMiddleFlatMirrorPoint(seg.fMiddleFlatMirrorPoint),
+  fSizeOfFlatMirror(seg.fSizeOfFlatMirror),
+  fNormalOfFlatMirror(seg.fNormalOfFlatMirror)
+  { *this = seg; };
 
   /** Destructor **/
   virtual ~PndRichMirrorSegment();    

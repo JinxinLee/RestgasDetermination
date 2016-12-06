@@ -2,7 +2,19 @@
 //#include "PndTrackCand.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMdtTrk::PndMdtTrk()
+PndMdtTrk::PndMdtTrk():
+  fHitList(),
+  fHitMult(),      
+  fHitDist(),    
+  fHitDeltaAngle(),
+  fLayDist(),    
+  fIronDist(0.),
+  fHitCount(0),       
+  fLayerCount(0),       
+  fMaxLayer(0),
+  fHitBit(0),       
+  fModule(0),         
+  fChi2(0.)        
 {
   Clear();
 }

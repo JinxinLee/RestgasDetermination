@@ -7,7 +7,15 @@
 
 #include "PndSdsRadDamHit.h"
 
-PndSdsRadDamHit::PndSdsRadDamHit()
+PndSdsRadDamHit::PndSdsRadDamHit() :
+  fTrackID(-1),
+  fHitID(-1),
+  fDetName(""),
+  fPdgCode(-1),
+  fEnergy(0.),
+  fPos(0.,0.,0.),
+  fMom(0.,0.,0.),
+  fRadDam(0.)
 {
 }
 

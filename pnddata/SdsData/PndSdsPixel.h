@@ -8,21 +8,27 @@
 
 class PndSdsPixel
 {
-	public :  PndSdsPixel(){
-			fCol = -1;
-			fRow = -1;
-			fCharge = -1.0;
-			fFe = -1;
-		  };
+	public :  
+      PndSdsPixel() :
+			  fFe(-1),
+			  fCol(-1),
+			  fRow(-1),
+			  fCharge(-1.0),
+		    fSensorID(-1),
+		    fMCIndex(),
+		    fAddNoise(0.)
+		    {};
 		  
-		  PndSdsPixel(Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, int index=-1){
-		  	fSensorID = sensorID;
-			fFe = fe;
-			fCol = col;
-			fRow = row;
-			fCharge = charge;
-			if (index >= 0)
-				fMCIndex.push_back(index);
+		  PndSdsPixel(Int_t sensorID, Int_t fe, Int_t col, Int_t row, Double_t charge, int index=-1) :
+			  fFe(fe),
+			  fCol(col),
+			  fRow(row),
+			  fCharge(charge),
+		    fSensorID(sensorID),
+		    fMCIndex(),
+		    fAddNoise(0.)
+      {
+			  if (index >= 0) fMCIndex.push_back(index);
 		  };
 		  
 		  void SetCol(Int_t col) {fCol = col;};

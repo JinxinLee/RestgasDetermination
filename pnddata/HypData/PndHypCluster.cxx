@@ -1,8 +1,8 @@
 #include "PndHypCluster.h"
 
-PndHypCluster::PndHypCluster(std::vector<Int_t> list)
+PndHypCluster::PndHypCluster(std::vector<Int_t> list) :
+	fClusterList(list),fSide(kTOP)
 {
-	fClusterList = list;
 }
 
 void PndHypCluster::Print()

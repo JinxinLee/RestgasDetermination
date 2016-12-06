@@ -10,22 +10,22 @@
 class PndHypStrip
 {
 public : 
-          PndHypStrip(){
-			fnumber = -1;
-			fcharge = -1.0;
+      PndHypStrip() : 
+  			fnumber(-1),
+	  		fcharge(-1.0)
 //			_fe = -1;
-		  }
+		    {}
 		  
 //		  PndHypStrip(const std::string& detName, int fe, int nr, double charge){
-		  PndHypStrip(Int_t nr, Double_t charge){
+		  PndHypStrip(Int_t nr, Double_t charge):
 //		  	_detName = detName;
 //			_fe = fe;
-			fnumber = nr;
-			fcharge = charge;
+			fnumber(nr),
+			fcharge(charge)
 //			_index = 0;
 //			_detID = 0;
 //			_trackID = 0;
-			
+			{
 		  }
 		  
 		  void SetIndex(Int_t nr) {fnumber = nr;}

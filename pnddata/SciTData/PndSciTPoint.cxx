@@ -18,11 +18,11 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndSciTPoint::PndSciTPoint() : FairMCPoint() {
-
-  fXout         = fYout  = fZout =  0.;
-  fPxout        = fPyout = fPzout = 0.;
- 
+PndSciTPoint::PndSciTPoint() : FairMCPoint() ,
+  fDetName(""),
+  fXout(0.), fYout(0.), fZout(0.),
+  fPxout(0.),fPyout(0.),fPzout(0.)
+{
 }
 // -------------------------------------------------------------------------
 
@@ -35,17 +35,11 @@ PndSciTPoint::PndSciTPoint( Int_t eventID, Int_t trackID,
 			 TVector3 momout, 
 			 Double_t tof, Double_t length,
 			 Double_t eLoss)
- : FairMCPoint(trackID, detectorID, posin, momin, tof, length, eLoss, (UInt_t) eventID) {
- 
-  fDetName = detName;
- 
-  fXout          = posout.X();
-  fYout          = posout.Y();
-  fZout          = posout.Z();
-  fPxout         = momout.Px();
-  fPyout         = momout.Py();
-  fPzout         = momout.Pz();
-
+ : FairMCPoint(trackID, detectorID, posin, momin, tof, length, eLoss, (UInt_t) eventID) ,
+  fDetName(detName),
+  fXout(posout.X()), fYout(posout.Y()), fZout(posout.Z()),
+  fPxout(momout.Px()),fPyout(momout.Py()),fPzout(momout.Pz())
+{
   FairEventHeader* evtHeader = FairRun::Instance()->GetEventHeader();
   SetLink(FairLink(-1, eventID, "MCTrack", trackID));
 }

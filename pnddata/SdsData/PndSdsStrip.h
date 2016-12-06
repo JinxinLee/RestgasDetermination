@@ -15,15 +15,15 @@
 class PndSdsStrip
 {
 public : 
-          PndSdsStrip(){
-			fNumber = -1;
-			fCharge = -1.0;
-		  }
+          PndSdsStrip():
+			fNumber(-1),
+			fCharge(-1.0)
+      { }
 		  
-		  PndSdsStrip(Int_t nr, Double_t charge){
-			fNumber = nr;
-			fCharge = charge;
-		  }
+		  PndSdsStrip(Int_t nr, Double_t charge):
+			fNumber(nr),
+			fCharge(charge)
+		  {}
 		  
 		  void SetIndex(Int_t nr) {fNumber = nr;}
 		  void SetCharge(Double_t charge) {fCharge = charge;}

@@ -16,12 +16,13 @@ using namespace std;
 
 /** Default constructor **/
 PndSttSkewedHit::PndSttSkewedHit() :
- FairHit()
+ FairHit(),
+ fTubeIDs()
 {
 }
 
 
-PndSttSkewedHit::PndSttSkewedHit(Int_t detID, Int_t tubeID1, Int_t tubeID2, Int_t mcindex, TVector3& pos, TVector3& dpos) : FairHit(detID, pos, dpos, mcindex)
+PndSttSkewedHit::PndSttSkewedHit(Int_t detID, Int_t tubeID1, Int_t tubeID2, Int_t mcindex, TVector3& pos, TVector3& dpos) : FairHit(detID, pos, dpos, mcindex),  fTubeIDs()
 {
   SetTubeIDs(tubeID1, tubeID2);
   

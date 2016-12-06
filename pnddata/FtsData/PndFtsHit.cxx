@@ -10,25 +10,32 @@ last revision December, 2012
 #include <iostream>
 #include "TMath.h"
 /** Default constructor **/
-PndFtsHit::PndFtsHit()
+PndFtsHit::PndFtsHit() :
+  fIsochrone(0.),
+  fIsochroneError(0.),
+  fPulse(0.),
+  fDepCharge(0.),
+  fTubeID(0),
+  fChamberID(0),
+  fLayerID(0),
+  fSkewed(0)
 {
-    Clear();
+    //Clear();
 }
 
 
-PndFtsHit::PndFtsHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep) : FairHit(detID, pos, dpos, mcindex)
+PndFtsHit::PndFtsHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep) : 
+  FairHit(detID, pos, dpos, mcindex) ,
+  fTubeID(tubeID),
+  fChamberID(chamberID),
+  fLayerID(layerID),
+  fSkewed(skew),
+  fPulse(p),
+  fIsochrone(isochrone),
+  fIsochroneError(isochroneError),
+  fDepCharge(chDep)
 {
-  fTubeID = tubeID;
-  fChamberID = chamberID;
-  fLayerID = layerID;
-  fSkewed = skew;
-  fPulse   = p;
-  fIsochrone = isochrone;
-  fIsochroneError = isochroneError;
-  fDepCharge = chDep;
-
   SetLink(FairLink("FTSPoint", mcindex));
-
 }
 
 /** Public method Clear **/
@@ -42,7 +49,6 @@ void PndFtsHit::Clear()
   fIsochrone = 0.;
   fIsochroneError = 0.;
   fDepCharge = 0.;
-
 } 
 
 

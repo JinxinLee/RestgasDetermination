@@ -18,7 +18,17 @@
 class PndMvdApvHit : public TObject
 {
    public :
-	PndMvdApvHit(){}
+	PndMvdApvHit():
+  	fEventID(-1),
+	  fModuleID(-1),
+	  fFeID(-1),
+	  fTriggerID(-1.),
+	  fChannel(-1),
+	  fTimestamp(-1.),
+	  fFrameID(-1),
+	  fADC(-1.),
+	  fLength(0)
+  {}
 	/**
 	main constructor, used to create ApvHit with resonable information
 	@param eventID event ID

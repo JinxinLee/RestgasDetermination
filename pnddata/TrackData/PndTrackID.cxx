@@ -25,19 +25,17 @@ using std::endl;
 
 ClassImp(PndTrackID);
 
-PndTrackID::PndTrackID()
-{
-  fTrackID = -1;
-  fCorrTrackIds.Set(0);
-  fMultTrackIds.Set(0);
-}
+PndTrackID::PndTrackID() :
+  fTrackID(-1),
+  fCorrTrackIds(0),
+  fMultTrackIds(0)
+{}
 
-PndTrackID::PndTrackID(Int_t id, TArrayI track, TArrayI mult)
-{
-  fTrackID = id;
-  fCorrTrackIds = track;
-  fMultTrackIds = mult;
-}
+PndTrackID::PndTrackID(Int_t id, TArrayI track, TArrayI mult) :
+  fTrackID(id),
+  fCorrTrackIds(track),
+  fMultTrackIds(mult)
+{}
 
 PndTrackID::~PndTrackID(){
 }

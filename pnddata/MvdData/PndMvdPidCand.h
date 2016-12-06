@@ -31,12 +31,22 @@ class PndMvdPidCand : public TObject {
 public:
 
   // Constructors/Destructors ---------
-  PndMvdPidCand() {
-    fmvdhits=0;
-  }
+  PndMvdPidCand() :
+    fmvdhits(0),
+    fdE(),
+    fdx(),
+    fmomentum(),
+    flikelihood()
+    {  };
 
   // CopyConstructor
-  PndMvdPidCand(PndMvdPidCand& point) { *this = point; };
+  PndMvdPidCand(PndMvdPidCand& point) :
+    fmvdhits(point.fmvdhits),
+    fdE(point.fdE),
+    fdx(point.fdx),
+    fmomentum(point.fmomentum),
+    flikelihood(point.flikelihood)
+    { *this = point; };
 
   // operators
 

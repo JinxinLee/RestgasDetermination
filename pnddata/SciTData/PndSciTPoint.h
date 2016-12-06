@@ -35,9 +35,16 @@ class PndSciTPoint : public FairMCPoint
 );
   
   //** Copy constructor **/
-  PndSciTPoint(const PndSciTPoint& point) { *this = point; };
+  PndSciTPoint(const PndSciTPoint& point) :
+  fDetName(point.fDetName),
+  fXout(point.fXout),
+  fYout(point.fYout),
+  fZout(point.fZout),
+  fPxout(point.fPxout),
+  fPyout(point.fPyout),
+  fPzout(point.fPzout)
+  { *this = point; };
   
-
   //** Destructor **/
   virtual ~PndSciTPoint();
   

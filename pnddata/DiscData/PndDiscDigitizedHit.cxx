@@ -11,7 +11,16 @@
 ClassImp(PndDiscDigitizedHit)
 
 
-PndDiscDigitizedHit::PndDiscDigitizedHit() {
+PndDiscDigitizedHit::PndDiscDigitizedHit() :
+detector_id(0),
+readout_id(0),
+sensor_id(0),
+pixel_number(0),
+dead_time_entity(0),
+pixel_pos(0.),
+tdc_time(0.),
+digit_classifier(0)
+{
 }
 
 

@@ -14,6 +14,7 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndRichPDHit::PndRichPDHit()
    :FairHit(),
+   fSensorId(-1),
    fTime(-999.),
    fTimeThreshold(-999.)
 {  

@@ -9,10 +9,6 @@
 
 ClassImp(PndSdsClusterStrip);
 
-PndSdsClusterStrip::PndSdsClusterStrip():fSide(kTOP) {
-	// TODO Auto-generated constructor stub
-
-}
 
 PndSdsClusterStrip::~PndSdsClusterStrip() {
 	// TODO Auto-generated destructor stub

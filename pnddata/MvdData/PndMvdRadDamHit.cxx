@@ -7,7 +7,14 @@
 
 #include "PndMvdRadDamHit.h"
 
-PndMvdRadDamHit::PndMvdRadDamHit()
+PndMvdRadDamHit::PndMvdRadDamHit() :
+  fTrackID(0),
+	fHitID(0),
+  fDetId(0),
+	fPdgCode(0),
+	fEnergy(0.),
+	fMom(0.,0.,0.),
+	fRadDam(0.)
 {
 }
 

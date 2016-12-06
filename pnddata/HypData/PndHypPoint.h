@@ -56,7 +56,29 @@ class PndHypPoint : public FairMCPoint
 	      Double_t PLin, Double_t PLout);
   
   /** Copy constructor **/
-  PndHypPoint(const PndHypPoint& point) { *this = point; };
+  PndHypPoint(const PndHypPoint& point) :
+    fEventID(point.fEventID),
+    fPLin(point.fPLin),
+    fPLout(point.fPLout),
+    fmass(point.fmass),
+    fcharge(point.fcharge),
+    fXin(point.fXin),
+    fYin(point.fYin),
+    fZin(point.fZin),
+    fPxin(point.fPxin),
+    fPyin(point.fPyin),
+    fPzin(point.fPzin),
+    fXout(point.fXout),
+    fYout(point.fYout),
+    fZout(point.fZout),
+    fPxout(point.fPxout),
+    fPyout(point.fPyout),
+    fPzout(point.fPzout),
+    fdist(point.fdist),
+    fDetName(point.fDetName),
+    fVolumeID(point.fVolumeID),
+    fpdgCode(point.fpdgCode)
+    { *this = point; };
   
 
   /** Destructor **/
@@ -151,8 +173,7 @@ class PndHypPoint : public FairMCPoint
   TString fDetName;
   
   Int_t fVolumeID,fpdgCode;
-  
-  
+
   ClassDef(PndHypPoint,7)
 
 };

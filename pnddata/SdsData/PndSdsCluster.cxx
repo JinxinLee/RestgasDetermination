@@ -1,8 +1,8 @@
 #include "PndSdsCluster.h"
 
-PndSdsCluster::PndSdsCluster(std::vector<Int_t> list)
+PndSdsCluster::PndSdsCluster(std::vector<Int_t> list) :
+fClusterList(list)
 {
-	fClusterList = list;
 }
 
 void PndSdsCluster::Print()

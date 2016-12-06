@@ -1,14 +1,14 @@
 #include "PndMdtCluster.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMdtCluster::PndMdtCluster()
+PndMdtCluster::PndMdtCluster() : fDigiList()
 {
 }
 
 
-PndMdtCluster::PndMdtCluster(std::vector<Int_t> list)
-{ 
-  fDigiList = list;
+PndMdtCluster::PndMdtCluster(std::vector<Int_t> list) :
+  fDigiList(list)
+{
 }
 
 /** Destructor **/

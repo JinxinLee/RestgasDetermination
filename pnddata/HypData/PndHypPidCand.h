@@ -32,12 +32,22 @@ class PndHypPidCand : public TObject {
 public:
 
   // Constructors/Destructors ---------
-  PndHypPidCand() {
-    fhyphits=0;
-  }
+  PndHypPidCand() :
+    fhyphits(0),
+    fdE(),
+    fdx(),
+    fmomentum(),
+    flikelihood()
+    {  }
 
   // CopyConstructor
-  PndHypPidCand(PndHypPidCand& point) { *this = point; };
+  PndHypPidCand(PndHypPidCand& point) :
+  fhyphits(point.fhyphits),
+  fdE(point.fdE),
+  fdx(point.fdx),
+  fmomentum(point.fmomentum),
+  flikelihood(point.flikelihood)
+  { *this = point; };
 
   // operators
 

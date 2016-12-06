@@ -17,9 +17,13 @@ PndRichBarPoint::PndRichBarPoint()
    fPdgCode(0),
    fThetaC(0.),
    fMass(0.),
-   fTrackStatus(0.),
-   fTrackPos0(TVector3(0,0,0)),
-   fTrackMom0(TVector3(0,0,0))
+   fTrackStatus(0),
+   fTrackPos0(0.,0.,0.),
+   fTrackMom0(0.,0.,0.),
+   fTime0(-1.),
+   fAxisX(0.,0.,0.),
+   fAxisY(0.,0.,0.),
+   fAxisZ(0.,0.,0.)
 {  
 }
 // -------------------------------------------------------------------------
@@ -34,8 +38,12 @@ PndRichBarPoint::PndRichBarPoint(Int_t trackID, Int_t detID, TVector3 pos,
    fThetaC( thetaC),
    fMass(   mass),
    fTrackStatus(0),
-   fTrackPos0(TVector3(0,0,0)),
-   fTrackMom0(TVector3(0,0,0))
+   fTrackPos0(0.,0.,0.),
+   fTrackMom0(0.,0.,0.),
+   fTime0(-1.),
+   fAxisX(0.,0.,0.),
+   fAxisY(0.,0.,0.),
+   fAxisZ(0.,0.,0.)
 { 
 }
 // -------------------------------------------------------------------------
@@ -51,7 +59,11 @@ PndRichBarPoint::PndRichBarPoint(Int_t trackID, Int_t detID, TVector3 pos,
    fMass(   mass),
    fTrackStatus(0),
    fTrackPos0(pos0),
-   fTrackMom0(mom0)
+   fTrackMom0(mom0),
+   fTime0(-1.),
+   fAxisX(0.,0.,0.),
+   fAxisY(0.,0.,0.),
+   fAxisZ(0.,0.,0.)
 { 
 }
 // -------------------------------------------------------------------------
@@ -59,9 +71,16 @@ PndRichBarPoint::PndRichBarPoint(Int_t trackID, Int_t detID, TVector3 pos,
 
 PndRichBarPoint::PndRichBarPoint(TVector3 pos, TVector3 dir, Double_t time)
   :FairMCPoint(), 
+   fPdgCode(0),
+   fThetaC(0.),
+   fMass(0.),
+   fTrackStatus(0),
    fTrackPos0(pos),
-   fTrackMom0(TVector3(0,0,0)),
-   fTime0(time)
+   fTrackMom0(0.,0.,0.),
+   fTime0(time),
+   fAxisX(0.,0.,0.),
+   fAxisY(0.,0.,0.),
+   fAxisZ(0.,0.,0.)
 {
    SetMomentum0(dir);
 }

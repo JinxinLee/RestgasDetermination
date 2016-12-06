@@ -2,30 +2,38 @@
 #include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMdtHit::PndMdtHit() : FairHit()
+PndMdtHit::PndMdtHit() : FairHit(),
+  fDetID1(-1),
+  fStripID(-1),
+  fStripIndex(-1)
 {
-        fStripID = -1;
-        fStripIndex = -1;
 }
 
 
 PndMdtHit::PndMdtHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index) 
-  : FairHit(detID, pos, dpos, index)
+  : FairHit(detID, pos, dpos, index),
+  fDetID1(-1),
+  fStripID(-1),
+  fStripIndex(-1)
 {
 	SetLink(FairLink("MdtPoint", index));
 }
 
 PndMdtHit::PndMdtHit(Int_t detID, Int_t stripID, TVector3& pos, TVector3& dpos, Int_t bIndex, Int_t sIndex)
-  : FairHit(detID, pos, dpos, bIndex)
+  : FairHit(detID, pos, dpos, bIndex),
+  fDetID1(-1),
+  fStripID(stripID),
+  fStripIndex(sIndex)
 {
-        fStripID = stripID;
-        fStripIndex = sIndex;
         SetLink(FairLink("MdtDigiBox", bIndex));
         SetLink(FairLink("MdtDigiStrip", sIndex));
 }
 
 PndMdtHit::PndMdtHit(Int_t detID, Int_t detID1, TVector3& pos, TVector3& dpos, Int_t bIndex)
-  : FairHit(detID, pos, dpos, bIndex), fDetID1(detID1)
+  : FairHit(detID, pos, dpos, bIndex), 
+  fDetID1(detID1),
+  fStripID(-1),
+  fStripIndex(-1)
 {
         fStripID = GetStrip1();
         SetLink(FairLink("MdtDigiBox", bIndex));

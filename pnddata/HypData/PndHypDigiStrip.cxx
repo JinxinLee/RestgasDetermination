@@ -1,20 +1,16 @@
 #include "PndHypDigiStrip.h"
 #include "PndHypDigi.h"
 
-PndHypDigiStrip::PndHypDigiStrip()
+PndHypDigiStrip::PndHypDigiStrip() :
+  fChannel(-1)
 {
   //fIndex = -1;
 }
 
-PndHypDigiStrip::PndHypDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge): PndHypDigi(index,detID,detName,fe,charge)
+PndHypDigiStrip::PndHypDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge): 
+  PndHypDigi(index,detID,detName,fe,charge),
+  fChannel(chan)
 {
-// 	fIndex 	= index;
-// 	fDetID  = detID;
-// 	fDetName = detName;
-// 	fFE = fe;
- 	fChannel = chan;
-// 	fCharge = charge;
-// 	fMCID = -1;
 }
 
 // const void PndHypDigiStrip::print(){

@@ -25,7 +25,9 @@ public:
   ~PndDrcAmbiguityInfo () { };
   
   // Copy constructor 
-  PndDrcAmbiguityInfo (const PndDrcAmbiguityInfo& val) { *this = val; }  
+  PndDrcAmbiguityInfo (const PndDrcAmbiguityInfo& val) :
+    fCherenkov(0.),fBarTime(0.),fEvTime(0.)
+    { *this = val; }  
 
   // Mutators
   void SetCherencov(Double_t val)           {fCherenkov = val;}

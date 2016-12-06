@@ -1,6 +1,6 @@
 #include "PndSdsDigiTopix4.h"
 
-PndSdsDigiTopix4::PndSdsDigiTopix4() : PndSdsDigiPixel(), fLeadingEdge(0), fTrailingEdge(0), fFrameCount(0), fHitCountCorrect(0), fHitCountIndependent(0)
+PndSdsDigiTopix4::PndSdsDigiTopix4() : PndSdsDigiPixel(), fLeadingEdge(0), fTrailingEdge(0), fFrameCount(0), fHitCountCorrect(0), fHitCountIndependent(0), fTimeStampIndependent(0.)
 {
 }
 

@@ -18,13 +18,14 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndRichRecoTask::PndRichRecoTask() :
-  FairTask("Rich Reco task") { 
-  fPersistence = kTRUE;
-  fVerbose = 1;
-  fNumberOfEvents = 0;
-  fEvent = 0;
-  fTrackPositionSecond = TVector3(0,0,0);
-  fTrackDirectionSecond = TVector3(0,0,0);
+  FairTask("Rich Reco task")  ,
+  fPersistence(kTRUE),
+  fNumberOfEvents(0),
+  fEvent(0),
+  fTrackPositionSecond(0,0,0),
+  fTrackDirectionSecond(0,0,0)
+{  
+  fVerbose=1;
 }
 // -------------------------------------------------------------------------
 

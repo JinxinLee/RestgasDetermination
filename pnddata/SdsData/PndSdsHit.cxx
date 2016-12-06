@@ -13,7 +13,14 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndSdsHit::PndSdsHit() {
+PndSdsHit::PndSdsHit() : FairHit(),
+  fCov(3,3),
+  fSensorID(-1),
+  fCharge(0),
+  fNDigiHits(0),
+  fClusterIndex(-1),
+  fBotIndex(-1)
+{
 }
 // -------------------------------------------------------------------------
 
@@ -22,13 +29,14 @@ PndSdsHit::PndSdsHit() {
 // -----   Standard constructor   ------------------------------------------
 PndSdsHit::PndSdsHit(Int_t detID, Int_t sensorID, TVector3& pos, TVector3& dpos,
                      Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex)
-: FairHit(detID, pos, dpos, mcindex), fCov(3,3){
-  fSensorID = sensorID;
-  fCharge  = charge;
-  fNDigiHits = NDigiHits;
-  fClusterIndex = clindex;
-  fBotIndex = -1;
-}
+: FairHit(detID, pos, dpos, mcindex), 
+  fCov(3,3),
+  fSensorID(sensorID),
+  fCharge(charge),
+  fNDigiHits(NDigiHits),
+  fClusterIndex(clindex),
+  fBotIndex(-1)
+{}
 
 /*PndSdsHit::PndSdsHit(PndSdsHit& c)
  : FairHit()

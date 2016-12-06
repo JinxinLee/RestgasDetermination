@@ -13,24 +13,18 @@ using std::endl;
 #include "PndHypPoint.h"
 
 // -----   Default constructor   -------------------------------------------
-PndHypPoint::PndHypPoint() : FairMCPoint() {
- 
-  fEventID    = -1;
-  fXin          = fYin  = fZin =  0.;
-  fPxin         = fPyin = fPzin = 0.;
-  fXout         = fYout  = fZout =  0.;
-  fPxout        = fPyout = fPzout = 0.;
-  // fXin_local  = fYin_local   = fZin_local   = 0.;
-//   fXout_local = fYout_local  = fZout_local  = 0.;
-  fPLin        = fPLout = 0.;
-
-  fTime       =  0.;
- 
-  fcharge = 0.0;
-  fmass   = 0.0;
-  fVolumeID = fpdgCode = 0;
-  fdist =  0.;
- 
+PndHypPoint::PndHypPoint() : FairMCPoint(),
+  fEventID(-1),
+  fPLin(0), fPLout(0),
+  fmass(0), fcharge(0),
+  fXin(0.), fYin(0.), fZin(0.),
+  fPxin(0.),fPyin(0.),fPzin(0.),
+  fXout(0.), fYout(0.), fZout(0.),
+  fPxout(0.),fPyout(0.),fPzout(0.), fdist(0.),
+  fDetName(""),
+  fVolumeID(0), fpdgCode(0)
+{   
+  fTime =  0.;
 }
 // -------------------------------------------------------------------------
 
@@ -43,53 +37,34 @@ PndHypPoint::PndHypPoint(Int_t trackID, Int_t evtID,
 			 TVector3 momin, 
 			 TVector3 posout, 
 			 TVector3 momout, 
-			 //TVector3 posInLocal, TVector3 posOutLocal, 
 			 Double_t tof, Double_t length,
 			 Double_t eLoss,Double_t charge,
                          Double_t mass, 
 			 Int_t pdgCode,Double_t dist, 
 			 Double_t PLin, Double_t PLout)
-: FairMCPoint(trackID, detID, posin, momin, tof, length, eLoss)
-  {
-
-  fVolumeID = detID; 
-  fEventID = evtID;
-  
-  fXin          = posin.X();
-  fYin          = posin.Y();
-  fZin          = posin.Z();
-  fPxin         = momin.X();
-  fPyin         = momin.Py();
-  fPzin         = momin.Pz();
-
-  fPLin         = PLin;
-  fPLout         = PLout;
-  
-  fXout          = posout.X();
-  fYout          = posout.Y();
-  fZout          = posout.Z();
-  fPxout         = momout.Px();
-  fPyout         = momout.Py();
-  fPzout         = momout.Pz();
-  
- //  fXout_local  = posOutLocal.X();
-//   fYout_local  = posOutLocal.Y();
-//   fZout_local  = posOutLocal.Z();
-
-//   fXin_local  = posInLocal.X();
-//   fYin_local  = posInLocal.Y();
-//   fZin_local  = posInLocal.Z();
-  
-  fDetName = detName;
-  
-  //fTime       = tof;
- 
-  fcharge = charge;
-  fmass   = mass;
-  
-  fpdgCode = pdgCode;
-  fdist = dist;
-  
+: FairMCPoint(trackID, detID, posin, momin, tof, length, eLoss),
+  fEventID(evtID),
+  fPLin(PLin),
+  fPLout(PLout),
+  fmass(mass),
+  fcharge(charge),
+  fXin(posin.X()),
+  fYin(posin.Y()),
+  fZin(posin.Z()),
+  fPxin(momin.X()),
+  fPyin(momin.Py()),
+  fPzin(momin.Pz()),
+  fXout(posout.X()),
+  fYout(posout.Y()),
+  fZout(posout.Z()),
+  fPxout(momout.Px()),
+  fPyout(momout.Py()),
+  fPzout(momout.Pz()),
+  fdist(dist),
+  fDetName(detName),
+  fVolumeID(detID), 
+  fpdgCode(pdgCode)
+{
  
 }
 

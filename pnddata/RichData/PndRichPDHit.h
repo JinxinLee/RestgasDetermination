@@ -27,7 +27,11 @@ public:
    
 
 /** Copy constructor **/
-  PndRichPDHit(const PndRichPDHit& hit) { *this = hit; };
+  PndRichPDHit(const PndRichPDHit& hit) :
+  fSensorId(hit.fSensorId),
+  fTime(hit.fTime),
+  fTimeThreshold(hit.fTimeThreshold)
+  { *this = hit; };
 
   /** Destructor **/
   virtual ~PndRichPDHit();    

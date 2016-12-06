@@ -30,7 +30,49 @@ public:
    
 
 /** Copy constructor **/
-  PndRichPhoton(const PndRichPhoton& photon) { *this = photon; };
+  PndRichPhoton(const PndRichPhoton& photon) :
+  fPDHit(photon.fPDHit),
+  fDTime(photon.fDTime),
+  fTime(photon.fTime),
+  fHitTime(photon.fHitTime),
+  fTheta(photon.fTheta),
+  fPhi(photon.fPhi),
+  fTMask(photon.fTMask),
+  fMirrors(photon.fMirrors),
+  fHitPosition(photon.fHitPosition),
+  fTrackPosition(photon.fTrackPosition),
+  fTrackDirection(photon.fTrackDirection),
+  fTrackPositionOld(photon.fTrackPositionOld),
+  fTrackDirectionOld(photon.fTrackDirectionOld),
+  fMirrRefPosition(photon.fMirrRefPosition),
+  fLength(photon.fLength),
+  fTrack(photon.fTrack)
+  {  };
+  //{ *this = photon; };
+
+  PndRichPhoton & operator= (const PndRichPhoton & photon)
+  {
+    if (this != &photon)
+    {
+      fPDHit = photon.fPDHit;
+      fDTime = photon.fDTime;
+      fTime = photon.fTime;
+      fHitTime = photon.fHitTime;
+      fTheta = photon.fTheta;
+      fPhi = photon.fPhi;
+      fTMask = photon.fTMask;
+      fMirrors = photon.fMirrors;
+      fHitPosition = photon.fHitPosition;
+      fTrackPosition = photon.fTrackPosition;
+      fTrackDirection = photon.fTrackDirection;
+      fTrackPositionOld = photon.fTrackPositionOld;
+      fTrackDirectionOld = photon.fTrackDirectionOld;
+      fMirrRefPosition = photon.fMirrRefPosition;
+      fLength = photon.fLength;
+      fTrack = photon.fTrack;
+    }
+    return *this;
+  };
 
   /** Destructor **/
   virtual ~PndRichPhoton();    
@@ -84,7 +126,7 @@ public:
   std::vector<TVector3> fMirrRefPosition;
   Double_t fLength;
   PndRichBarPoint* fTrack;
-   
+  
   ClassDef(PndRichPhoton,1)
 };
 
