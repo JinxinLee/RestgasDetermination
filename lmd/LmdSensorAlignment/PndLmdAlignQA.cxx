@@ -387,7 +387,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		// 0 = aligned
 		// 1 = misaligned 10u
 		// 2 = misaligned 50u
-		int alignOption=0;
+		int alignOption=2;
 
 		//prepare some stuff for aligned/misaligned cases
 		bool alignOptionBool;
@@ -424,7 +424,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 500e3){
+			if( matrixInfo[overlapID] < 100e3){
 				continue;
 			}
 
@@ -468,7 +468,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 500e3){
+			if( matrixInfo[overlapID] < 100e3){
 				continue;
 			}
 
@@ -839,10 +839,10 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 	// set bin label for every offender
 	// FUCK ignore bins that have two offenders
 
-	for(int i=0; i<offenders.size(); i++){
-		Int_t binNo = histogram.GetXaxis()->FindFixBin(offenders[i].first );
-		histogram.GetXaxis()->SetBinLabel(binNo, offenders[i].second.c_str());
-	}
+	//for(int i=0; i<offenders.size(); i++){
+	//	Int_t binNo = histogram.GetXaxis()->FindFixBin(offenders[i].first );
+	//	histogram.GetXaxis()->SetBinLabel(binNo, offenders[i].second.c_str());
+	//}
 
 	stringstream pathname;
 	//pathname << _outputPath;

@@ -377,7 +377,8 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 			hitsClustered++;
 
 			//if ignoreClustres is set, skip clustered events
-			//FIXME: get from config file
+			//FIXME: get maximum cluster size from config file
+			//TODO: deleting from vector is expensive, maybe do this another way?
 			if(_ignoreClusters || clusters[i].clusterSize > 3){
 				clusters.erase(clusters.begin()+i);
 				/*
