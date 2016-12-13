@@ -5,10 +5,10 @@
 #include <TFormula.h>
 #include <TMatrixD.h>
 #include <FairRadMapPoint.h>
+#include <PndRadMapPlane.h>
+#include <TDatabasePDG.h>
 
 
-enum axis{Xx=1, Yy=2, Zz=3}; 
-enum orientation{XY=1, YX=2, XZ=3, ZX=4, YZ=5, ZY=6}; 
 enum quantity{Edep=1   , Dose=2,
               Fluence=3, SimpleFluence=9, // -> 1/m^2
               Flux=5   , Kerma=6  , EnergyFluence=4, // not mplemented  
@@ -21,30 +21,30 @@ struct Corner{
   TVector3 corner3;
 };
 
-class PndRadMapPlane {
- private:
-  TVector3 normal;
-  TVector3 corner1;
-  TVector3 corner2;
-  TVector3 corner3;
-  double distance;
- public:
-  PndRadMapPlane(TVector3 _corner1,
-        TVector3 _corner2,
-        TVector3 _corner3,
-        double dist = 0);
-  PndRadMapPlane();
-  TVector3 LineIntersection(TVector3 begline,
-                            TVector3 endline);
-  void SetNormal(TVector3 n){normal = n;};
-  void SetDistance(double d){distance = d;};
-  TVector3 GetCorner(int i);
-  TVector3 Corner1(){return corner1;};
-  TVector3 Corner2(){return corner2;};
-  TVector3 Corner3(){return corner3;};
-  double Distance(){return distance;};
-  TVector3 Normal(){return normal;};
-};
+/* class PndRadMapPlane { */
+/*  public: */
+/*   PndRadMapPlane(TVector3 _corner1, */
+/*         TVector3 _corner2, */
+/*         TVector3 _corner3, */
+/*         double dist = 0); */
+/*   PndRadMapPlane(); */
+/*   TVector3 LineIntersection(TVector3 begline, */
+/*                             TVector3 endline); */
+/*   void SetNormal(TVector3 n){normal = n;}; */
+/*   void SetDistance(double d){distance = d;}; */
+/*   TVector3 GetCorner(int i); */
+/*   TVector3 Corner1(){return corner1;}; */
+/*   TVector3 Corner2(){return corner2;}; */
+/*   TVector3 Corner3(){return corner3;}; */
+/*   double Distance(){return distance;}; */
+/*   TVector3 Normal(){return normal;}; */
+/*  private: */
+/*   TVector3 normal; */
+/*   TVector3 corner1; */
+/*   TVector3 corner2; */
+/*   TVector3 corner3; */
+/*   double distance; */
+/* }; */
 
 
 class PndRadMapBoxMesh{
@@ -76,24 +76,30 @@ class PndRadMapBoxMesh{
   void Transform(Double_t X, Double_t Y, Double_t Z);
   void Transform(Double_t X, Double_t Y, Double_t Z,
                  Double_t& X0, Double_t& Y0, Double_t& Z0);
+  void Transform(TVector3 InV,
+                 TVector3& OutV);
 
   void Scale(Double_t sca);
   void Save(TFile* fout);
   void Save();
   TH2D* GetHisto();
+  PndRadMapPlane* GetPlane();
   Double_t CalcFluence(FairRadMapPoint *p);
 
  protected:
   bool IsInside(Double_t X, Double_t Y, Double_t Z);
   bool IsInside(FairRadMapPoint *p);
+  bool IsInside();
   void Fill(Int_t gBin, Double_t val);
-  void Fill(Double_t X, Double_t Y, Double_t Z, Double_t we);
+  void Fill(Double_t X, Double_t Y, Double_t Z, Double_t we=1);
   void makeHisto(const char* Orient, Double_t rotate,
                  int Hbins, Double_t Hlow, Double_t Hhigh,
-                 int Vbins, Double_t Vlow, Double_t Vhigh);
+                 int Vbins, Double_t Vlow, Double_t Vhigh,
+                 Double_t dlow, Double_t dhigh);
 
   TH2D*    _MeshHisto;
   TH2I*    _StatHisto;
+  TH2D*    _EnergyHisto;
   TString  _Name;
 
   orientation _orientation;
@@ -115,6 +121,13 @@ class PndRadMapBoxMesh{
   TFormula _filter;
   int _verbose;
 
+  PndRadMapPlane* _plane;
+  TVector3 InterSection;
+
+ private:
+  bool _isSurfaceQuantity;
+  TDatabasePDG *pdg;
+  TParticlePDG* pdgpart;
 };
 
 
