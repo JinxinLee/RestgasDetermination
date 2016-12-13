@@ -1,30 +1,30 @@
 #Karoly Makonyi 12/20/14
 
-sim_radmap.exe   - full simulation of p-p-bar event with DPM event generator
+sim_radmap       - full simulation of p-p-bar event with DPM event generator
                    usage: [path-to-the-executable]/sim_rad.exe -o [name of the outout file [blablabla.root]]\
                                                                -n [number of events to simulate [2]]\
                                                                -t [used tracker [Geant4]]
-                   It have to be compiled via 'make all' or 'make sim_radmap.exe'
-
-Mesh             - The class that is used to make the maps.
-                   For examples, how to use it, see the plot_radmap.C file
-                   It also have to be compiled together with the plot_radmap.exe.
-
-plot_radmap.exe  - The code that demonstrates the abilities of the Mesh class.
+PndRadMapBoxMesh - The class that is used to make the maps.
+                   One can find examples for its usage in the plot_radmap.C file
+plot_radmap      - The code that demonstrates the abilities of the Mesh class.
                    It produces the 'RadMap_Out.root' file where the required histos are stored.
-                   It have to be compiled via 'make plot_radmap.exe'
-histodivider.C   - It calculates the quantities for the one year nominal run (rescales the histos)
-                   and removes the low-statistic bins.
-                   The output of this code is 'figures.pdf'.
-                   This is a root-interpreted file
-                   (runs from root-prompt via
-                   .L histodivider.C;
-                   main();)
-Makefile         - The Makefile produces the executables
-                   'make all' or 'make sim_radmap.exe' makes the simulation code.
-                   'make plot_radmap.exe' produces the plotter code
-Makefile.Panda   - contains header and lib directories (supposed to be correct
-                   but it may require some hand-pimping).
+                   It asssumes that the simulated file (RadMap_Out_Sim.root' is in the directory
+                   where the plot_radmap is run.
+histodivider.C   - It calculates the quantities for the required running time nominal run
+                   and - optionally - removes the low-statistic bins.
+                   The output of this code is 'figures.pdf' and 'figures.root'.
+                   TODO: add the file name as a command line parameter
+                   One have to compile it and run the resulting executable
+                   In a separate textfile (the name must be "names.dat") some details of the histos can be given:
+                   #name of the histo/directory    title   Xlabel  Ylabel  norm
+                   - name of the directory - the histos are arranged in directories
+                                             one must give the name of the directory where the
+                                               'Histo' and the 'StatHisto' histograms can be found
+                   - title                 - title of the histogram taht will appear in the figures.* files
+                   - Xlabel                - the label on the X-axis
+                   - Ylabel                - the label on the Y-axis
+                   - norm                  - the scaling factor on the histos (1 -> quantity per event)
+                   the fields should be separated by semi-comma (;)
 dirmaker.sh      - produces 10x10x10 disrectories (this is the
                    directory-structure that I used
                    [see /hera/panda/makonyi/Work/FieldSimu/SimulationMacros/Geant[3,4].15GeV])
@@ -36,40 +36,53 @@ job_submit.sh    - Sends the jobs (sinulation or plot_radmap.exe)to the cluster.
                    or
                    - runs the plot_radmap.exe in every directory
                    - 'hadd's the resulting files
-
+                   comman line parameters:
+                      - -b - [b]asename -- name of the the dir where the 'dirmaker' produced the directory structure
+                      - -s - [s]imulation -- the script will run simulation in every directories in the 'basename' directory
+                      - -n - [n]umber -- number of simulated events per file
+                      - -a - [a]nalysis -- the script will run analysis
+                      - -h - [h]elp -- print out a help screen
+job_submit_kronos.sh - same as the job_submit.sh but runs on the kronos cluster
 
 Workflow:
 ---------------------------- This have to be made once ----------------
-- Edit the Makefile.Panda, set the correct 
-    PANDADIR (where the PandaROOT source can be found), the 
-    FAIRPATH (where the FairROOT includes can be found) and the 
-    PANDAPATH (where the compiled PandaROOT can be found.
+You produce files that will be processed further.
+If the geometry doesn't change (or obvious bug was not found) these steps should be done
+only once.
+
 - Make a directory
        where the data will be stored, for example
-  'mkdir Data'.
+  'mkdir [Data]'.
+ (the 'Data' name can be changed as one prefers it)
 - Go to this directory:
   'cd Data'.
 - Copy the 'dirmaker.sh'
        to this directory:
-  'cp ../dirmaker.sh .'
+  'cp ..Scripts/dirmaker.sh .'
 - Run it:
   './dirmaker.sh'
   -> This will take some time, but finally the director structures (1000
      directories) will be produced
-- go up by directory:
+- go up
   'cd ..'
 - run the simulation
-  'job_submit.sh -s -b Data -n 100'
-       this will run 100 events in one job, and will run a separated job
+  'job_submit_kronos.sh -s -b Data -n 100'
+       this will run _100_ events in one job, and will run a separated job
        for every directory (1000) in the 'Data' (produced by the 'dirmaked')
        parallel, using the cluster ... some output will be produced
+  see the parametrisation of the job_submit_kronos.sh script via the
+  './job_submit_kronos.sh -h'
 
 ---------------------------- This can be made several times ----------------
-- run the 'plot_radmap.exe'
-  'job_submit.sh -a -b Data'
+After having the simulated files, several different analysis can be run on the same set of simulated files.
+
+- run the 'plot_radmap'
+  'job_submit_kronos.sh -a -b Data'
        this will run 'plot_radmap.exe' on every simulated files in the 'Data'
        directory parallel, using the cluster ... some output will be produced.
        If every simulated files are processed the results will be added into
        one file (RadMap_Out_Final_Geant4.15GeV.root).
+  - be sure that all the files are added properly together in the [Data]/RadMap_Out_Fineal.root
 - rescale the results to one nominal year operation
-  run the histodivider.C
+  run the histodivider ('./histodivider')
+  
