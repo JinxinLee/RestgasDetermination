@@ -8,7 +8,9 @@ PndSdsAdcChargeConversion::PndSdsAdcChargeConversion(Int_t threshold, Int_t adcs
 fVerboseLevel(VerboseLevel),
 fThreshold(threshold),
 fAdcStep(adcstep),
-fResolution(resolution)
+fResolution(resolution),
+fMaxADC(0),
+fTimeStep(0.)
 {
   fMaxADC = (Int_t)pow(2,fResolution);
 }

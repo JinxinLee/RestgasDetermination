@@ -36,7 +36,28 @@ class PndSdsNoiseProducer : public PndSdsTask
   /** Default constructor **/
   PndSdsNoiseProducer();
 
-
+  PndSdsNoiseProducer(PndSdsNoiseProducer& other):
+      fPersistance(other.fPersistance),
+      fBranchNameStrip(other.fBranchNameStrip),
+      fBranchNamePixel(other.fBranchNamePixel),
+      fDigiStripArray(other.fDigiStripArray),
+      fDigiPixelArray(other.fDigiPixelArray),
+      fDigiParRect(other.fDigiParRect),
+      fDigiParTrap(other.fDigiParTrap),
+      fDigiParPix(other.fDigiParPix),
+      fMCPointType(other.fMCPointType),
+      fGeoH(other.fGeoH),
+      fPixelIds4(other.fPixelIds4),
+      fPixelIds6(other.fPixelIds6),
+      fPixelIds8(other.fPixelIds8),
+      fPixelIds12(other.fPixelIds12),
+      fStripRectIds(other.fStripRectIds),
+      fStripTrapIds(other.fStripTrapIds),
+      fNoiseSpread(other.fNoiseSpread),
+      fThreshold(other.fThreshold),
+      fIonizationEnergy(other.fIonizationEnergy)
+  {};
+  
   /** Destructor **/
   virtual ~PndSdsNoiseProducer();
 
@@ -68,6 +89,33 @@ class PndSdsNoiseProducer : public PndSdsTask
   
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
+  
+  PndSdsNoiseProducer& operator=(PndSdsNoiseProducer& other)
+  {
+    if(this != &other) // protect against invalid self-assignment
+    {
+      fPersistance=other.fPersistance;
+      fBranchNameStrip=other.fBranchNameStrip;
+      fBranchNamePixel=other.fBranchNamePixel;
+      fDigiStripArray=other.fDigiStripArray;
+      fDigiPixelArray=other.fDigiPixelArray;
+      fDigiParRect=other.fDigiParRect;
+      fDigiParTrap=other.fDigiParTrap;
+      fDigiParPix=other.fDigiParPix;
+      fMCPointType=other.fMCPointType;
+      fGeoH=other.fGeoH;
+      fPixelIds4=other.fPixelIds4;
+      fPixelIds6=other.fPixelIds6;
+      fPixelIds8=other.fPixelIds8;
+      fPixelIds12=other.fPixelIds12;
+      fStripRectIds=other.fStripRectIds;
+      fStripTrapIds=other.fStripTrapIds;
+      fNoiseSpread=other.fNoiseSpread;
+      fThreshold=other.fThreshold;
+      fIonizationEnergy=other.fIonizationEnergy;
+    }
+    return *this;
+  }
 
  protected:
   Bool_t fPersistance;
@@ -84,8 +132,6 @@ class PndSdsNoiseProducer : public PndSdsTask
 
   fDetectorType fMCPointType;
 
-//  PndSdsGeoPar* fGeoPar;
-
   PndGeoHandling* fGeoH;      //! Geometry name handling
 
   std::vector<Int_t> fPixelIds4;
@@ -95,17 +141,13 @@ class PndSdsNoiseProducer : public PndSdsTask
   std::vector<Int_t> fStripRectIds;
   std::vector<Int_t> fStripTrapIds;
 
-
   Int_t fNoiseSpread;
   Int_t fThreshold;
 
-  const Double_t fIonizationEnergy; // electrons per GeV (Panda unified units)
+  Double_t fIonizationEnergy; // electrons per GeV (Panda unified units)
 //   void Register();
-
 //   void Reset();
-
 //   void ProduceHits();
-
 
   ClassDef(PndSdsNoiseProducer,1);
 

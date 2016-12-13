@@ -16,17 +16,25 @@ class PndSdsCalcFePixel
   {
     public :
     ///Default constructor
-    PndSdsCalcFePixel(){ fNcols = 1; fNrows = 1; fMaxFEperCol = 1;};
+    PndSdsCalcFePixel() : 
+    fNcols(1),
+    fNrows(1),
+    fMaxFEperCol(1),
+    fSensorHits(),
+    fFeHits()
+    { };
     
     ///Main constructor
     /// @param ncols number of columns on a front-end chip
     /// @param nrows number of rows on a front-end chip
     /// @param maxFe maximum number of front-end chip per column on a sensor
-    PndSdsCalcFePixel(Int_t ncols, Int_t nrows, Int_t maxFe){
-      fNcols = ncols;
-      fNrows = nrows;
-      fMaxFEperCol = maxFe;
-    };
+    PndSdsCalcFePixel(Int_t ncols, Int_t nrows, Int_t maxFe) :
+    fNcols(ncols),
+    fNrows(nrows),
+    fMaxFEperCol(maxFe),
+    fSensorHits(),
+    fFeHits()
+    { };
     
     ~PndSdsCalcFePixel(){};
     
@@ -54,7 +62,8 @@ class PndSdsCalcFePixel
     std::vector<PndSdsPixel> CalcSensorHits(const std::vector<PndSdsPixel> FePixel);
     PndSdsPixel CalcSensorHit(const PndSdsPixel FePixel) const;
     void CalcSensorColRow(Int_t& col, Int_t& row, const Int_t fe) const;
-    protected : Int_t fNcols;
+  protected : 
+    Int_t fNcols;
     Int_t fNrows;
     Int_t fMaxFEperCol;
     std::vector<PndSdsPixel> fSensorHits;

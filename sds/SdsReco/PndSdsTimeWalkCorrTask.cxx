@@ -14,16 +14,29 @@ ClassImp(PndSdsTimeWalkCorrTask);
 // -----   Default constructor   -------------------------------------------
 
 PndSdsTimeWalkCorrTask::PndSdsTimeWalkCorrTask():
-   PndSdsTask("SDS TimeWalkCorrection Task"), fPersistance(true)
+   PndSdsTask("SDS TimeWalkCorrection Task"), 
+ 	  fPersistance(true),
+	  fDigiArray(NULL),
+	  fDigiCorrArray(NULL),
+    fDigiPar(NULL),
+    fDigiTotPar(NULL),
+    fFEModel(NULL),
+    fVerbose(0)
 {
 
 }
 
 // -----   Named constructor   ---------------------------------------------
 PndSdsTimeWalkCorrTask::PndSdsTimeWalkCorrTask(const char* name):
-   PndSdsTask(name), fPersistance(true)
+   PndSdsTask(name), 
+ 	  fPersistance(true),
+	  fDigiArray(NULL),
+	  fDigiCorrArray(NULL),
+    fDigiPar(NULL),
+    fDigiTotPar(NULL),
+    fFEModel(NULL),
+    fVerbose(1)
 {
-fVerbose=1;
 }
 
 

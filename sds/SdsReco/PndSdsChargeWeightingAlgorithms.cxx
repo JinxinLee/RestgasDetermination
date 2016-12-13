@@ -14,10 +14,13 @@
 //using namespace std;
 ClassImp(PndSdsChargeWeightingAlgorithms);
 
-PndSdsChargeWeightingAlgorithms::PndSdsChargeWeightingAlgorithms(TClonesArray* arr) : TObject()
+PndSdsChargeWeightingAlgorithms::PndSdsChargeWeightingAlgorithms(TClonesArray* arr) 
+:  TObject(),
+	 fDigiArray(arr),
+	 fCalcStrip(NULL),
+	 fChargeConverter(NULL),
+   fVerbose(0)
 {
-  fDigiArray = arr;
-        fVerbose=0;
 }
 PndSdsChargeWeightingAlgorithms::~PndSdsChargeWeightingAlgorithms()
 {

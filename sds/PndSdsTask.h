@@ -16,7 +16,14 @@ class PndSdsTask: public FairTask {
 public:
 	PndSdsTask();
 
-	PndSdsTask(const char* name, Int_t iVerbose = 1):FairTask(name, iVerbose){};
+	PndSdsTask(const char* name, Int_t iVerbose = 1) : 
+  FairTask(name, iVerbose),
+  fInBranchName(""),
+	fOutBranchName(""),
+	fFolderName(""),
+	fInBranchId(-1),
+	fOutBranchId(-1)
+  {};
 	virtual ~PndSdsTask();
 
 	virtual void SetBranchNames()= 0;

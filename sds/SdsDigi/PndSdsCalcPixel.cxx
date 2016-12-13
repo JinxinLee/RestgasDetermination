@@ -3,22 +3,46 @@
 #include "TRandom.h"
 
 
-PndSdsCalcPixel::PndSdsCalcPixel()
+PndSdsCalcPixel::PndSdsCalcPixel() :
+  fPixels(),
+  fPixelWidth(0.),
+  fPixelLength(0.),
+  fThreshold(0.),
+  fNoise(0.),
+  fEnergy(0.),
+  fVerboseLevel(0),
+  fQuad(kQuadUNDEF),
+  fNextPixel(kPixelUNDEF),
+  fIn(),
+  fOut(),
+  fDir(),
+  fPos(),
+  fCon(),
+  fActivePixel(),
+  fCperL(-1),
+  fStop(false)
 {
-  fCperL = -1;
-  fQuad = kQuadUNDEF;
-  fNextPixel = kPixelUNDEF;
-  fVerboseLevel = 0;
 }
 
-PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold, Double_t noise)
-{
-  fPixelWidth = w;
-  fPixelLength= l;
-  fThreshold=threshold;
-  fNoise=noise;
-  fVerboseLevel = 0;
-}
+PndSdsCalcPixel::PndSdsCalcPixel(Double_t w, Double_t l, Double_t threshold, Double_t noise) :
+  fPixels(),
+  fPixelWidth(w),
+  fPixelLength(l),
+  fThreshold(threshold),
+  fNoise(noise),
+  fEnergy(0.),
+  fVerboseLevel(0),
+  fQuad(kQuadUNDEF),
+  fNextPixel(kPixelUNDEF),
+  fIn(),
+  fOut(),
+  fDir(),
+  fPos(),
+  fCon(),
+  fActivePixel(),
+  fCperL(-1),
+  fStop(false)
+{}
 
 Int_t PndSdsCalcPixel::GetPixelsAlternative(Double_t inx, Double_t iny,
                                             Double_t outx, Double_t outy,

@@ -2,7 +2,10 @@
 #include "PndSdsTotDigiPar.h"
 
 PndSdsTotDigiPar::PndSdsTotDigiPar(const char* name, const char* title, const char* context)
-  : FairParGenericSet(name,title,context)
+  : FairParGenericSet(name,title,context),
+    fChargingTime(0.),
+    fConstCurrent(0.),
+    fClockFrequency(0.)
 {
   clear();
 }

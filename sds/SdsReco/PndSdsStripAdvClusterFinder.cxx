@@ -12,18 +12,17 @@
 #include "TMath.h"
 // enum SensorSide { kTOP, kBOTTOM };
 
-PndSdsStripAdvClusterFinder::PndSdsStripAdvClusterFinder(Int_t DigiType):PndSdsStripClusterer(DigiType)
-{
-  fNmCh=2;
-  fNmTS=0;
-}
+PndSdsStripAdvClusterFinder::PndSdsStripAdvClusterFinder(Int_t DigiType)\
+: PndSdsStripClusterer(DigiType),
+  fNmCh(2),
+  fNmTS(0)
+{}
 
 PndSdsStripAdvClusterFinder::PndSdsStripAdvClusterFinder(Int_t DigiType, Int_t NrofmissedChannels, Int_t NrofmissedTimestamp)
-	:PndSdsStripClusterer(DigiType)
-{
-  fNmCh=NrofmissedChannels+1;
-  fNmTS=NrofmissedTimestamp;
-}
+: PndSdsStripClusterer(DigiType),
+  fNmCh(NrofmissedChannels+1),
+  fNmTS(NrofmissedTimestamp)
+{}
 
 PndSdsStripAdvClusterFinder::~PndSdsStripAdvClusterFinder()
 {

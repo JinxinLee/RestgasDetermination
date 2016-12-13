@@ -17,16 +17,19 @@
 #include "TRandom.h"
 
 //______________________________________________________________________________
-PndSdsCalcStrip::PndSdsCalcStrip(){
-  fPitch = 0.;
-  fOrient = 0.;
-  fAnchor = TVector2(0.,0.);
-  fNrStrips = 0;
-  fThreshold = 0.;
-  fNoise = 0.;
-  fCSigma = 0.;
-  fVerboseLevel = 0;
-}
+PndSdsCalcStrip::PndSdsCalcStrip() :
+    fPitch(0.),
+    fOrient(0.),
+    fNrStrips(0),
+    fNrFeChannels(0),
+    fAnchor(0.,0.),
+    fThreshold(0.),
+    fNoise(0.),
+    fCSigma(0.),
+    fStripDir(0.,0.),
+    fOrthoDir(0.,0.),
+    fVerboseLevel(0)
+{}
 
 //______________________________________________________________________________
 PndSdsCalcStrip::PndSdsCalcStrip(Double_t pitch, Double_t orient,
@@ -36,16 +39,27 @@ PndSdsCalcStrip::PndSdsCalcStrip(Double_t pitch, Double_t orient,
 : fPitch(pitch), fOrient(orient),
 fNrStrips(nrStrips), fNrFeChannels(nrFeChannels),
 fAnchor(firstStripAnchor),
-fThreshold(threshold), fNoise(noise), fCSigma(csigma)
+fThreshold(threshold), fNoise(noise), fCSigma(csigma),  
+fStripDir(0.,0.),    fOrthoDir(0.,0.),    fVerboseLevel(0)
 {
   fStripDir.Set(cos(fOrient),sin(fOrient));
   fOrthoDir.Set(sin(fOrient),-cos(fOrient));
-  fVerboseLevel = 0;
   //Print();
 }
 
 //______________________________________________________________________________
 PndSdsCalcStrip::PndSdsCalcStrip(const PndSdsStripDigiPar* digipar, SensorSide side)
+:   fPitch(0.),
+    fOrient(0.),
+    fNrStrips(0),
+    fNrFeChannels(0),
+    fAnchor(0.,0.),
+    fThreshold(0.),
+    fNoise(0.),
+    fCSigma(0.),
+    fStripDir(0.,0.),
+    fOrthoDir(0.,0.),
+    fVerboseLevel(0)
 {
   if(side == kTOP)
   {

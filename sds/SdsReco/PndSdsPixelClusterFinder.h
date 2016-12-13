@@ -16,8 +16,22 @@
 class PndSdsPixelClusterFinder
   {
     public :
-    PndSdsPixelClusterFinder();
-    //  PndSdsPixelClusterFinder(std::vector<PndSdsDigiPixel> hits);
+    PndSdsPixelClusterFinder()
+    : fHits(),
+      fVerbose(0),
+      fChargeConverter(NULL)
+    {};
+    PndSdsPixelClusterFinder(PndSdsPixelClusterFinder& other)
+    : fHits(other.fHits),
+      fVerbose(other.fVerbose),
+      fChargeConverter(other.fChargeConverter)
+    {};
+    PndSdsPixelClusterFinder& operator=(PndSdsPixelClusterFinder& other)
+    {
+      fHits=other.fHits;
+      fVerbose=other.fVerbose;
+      fChargeConverter=other.fChargeConverter;
+    };
     virtual ~PndSdsPixelClusterFinder(){};
     virtual std::vector< std::vector < Int_t > > GetClusters(std::vector<PndSdsDigiPixel> hits) = 0;
     void Print();

@@ -4,8 +4,6 @@
 
 ClassImp(PndSdsPixelClusterFinder);
 
-PndSdsPixelClusterFinder::PndSdsPixelClusterFinder(){
-}
 //PndSdsPixelClusterFinder::PndSdsPixelClusterFinder(std::vector<PndSdsDigiPixel> hits){
 //     fHits   = hits;
 //      fVerbose = 0;

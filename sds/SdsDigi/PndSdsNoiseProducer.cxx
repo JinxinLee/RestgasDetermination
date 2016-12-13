@@ -23,22 +23,27 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsNoiseProducer::PndSdsNoiseProducer() :
-PndSdsTask("Charge Noise Producer"), fIonizationEnergy(1.)
+PndSdsTask("Charge Noise Producer"), 
+fPersistance(kTRUE),
+fBranchNameStrip(""),
+fBranchNamePixel(""),
+fDigiStripArray(NULL),
+fDigiPixelArray(NULL),
+fDigiParRect(NULL),
+fDigiParTrap(NULL),
+fDigiParPix(NULL),
+fMCPointType(), // Not used???
+fGeoH(NULL),
+fPixelIds4(),
+fPixelIds6(),
+fPixelIds8(),
+fPixelIds12(),
+fStripRectIds(),
+fStripTrapIds(),
+fNoiseSpread(0),
+fThreshold(0),
+fIonizationEnergy(1.)
 {
-  fPersistance = kTRUE;
-  fGeoH = NULL;//PndGeoHandling::Instance();
-
-  fBranchNameStrip = "";
-  fBranchNamePixel = "";
-  fDigiStripArray = NULL;
-  fDigiPixelArray = NULL;
-  
-  fDigiParRect = NULL;
-  fDigiParTrap = NULL;
-  fDigiParPix = NULL;
-  
-  fNoiseSpread = 0;
-  fThreshold = 0;
 }
 // -------------------------------------------------------------------------
 

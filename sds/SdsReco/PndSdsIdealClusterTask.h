@@ -39,9 +39,39 @@ class PndSdsIdealClusterTask : public PndSdsTask
     /** Default constructor **/  
     PndSdsIdealClusterTask();
     PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile);
+    PndSdsIdealClusterTask(PndSdsIdealClusterTask& other) :
+      fPersistance(other.fPersistance),
+      fDigiArray(other.fDigiArray),
+      fClustBranchName(other.fClustBranchName),
+      fClusterType(other.fClusterType),
+      fClusterArray(other.fClusterArray),
+      fHitArray(other.fHitArray),
+      fGeoH(other.fGeoH),
+      fRadius(other.fRadius),
+      fFEcolumns(other.fFEcolumns),
+      fFErows(other.fFErows),
+      fGeoFile(other.fGeoFile),
+      finder(other.finder),
+      mapping(other.mapping)
+    {};
     /** Destructor **/
     virtual ~PndSdsIdealClusterTask();
-  
+    PndSdsIdealClusterTask& operator=(PndSdsIdealClusterTask& other)
+    {
+      fPersistance=other.fPersistance;
+      fDigiArray=other.fDigiArray;
+      fClustBranchName=other.fClustBranchName;
+      fClusterType=other.fClusterType;
+      fClusterArray=other.fClusterArray;
+      fHitArray=other.fHitArray;
+      fGeoH=other.fGeoH;
+      fRadius=other.fRadius;
+      fFEcolumns=other.fFEcolumns;
+      fFErows=other.fFErows;
+      fGeoFile=other.fGeoFile;
+      finder=other.finder;
+      mapping=other.mapping;
+    };
    /** pure virtual method SetBranchNames
    **
    ** called by Init()
@@ -53,11 +83,11 @@ class PndSdsIdealClusterTask : public PndSdsTask
     virtual InitStatus ReInit();
 
     virtual void SetInBranchId(){
- 		FairRootManager *ioman = FairRootManager::Instance();
- 		fInBranchId = ioman->GetBranchId(fInBranchName);
- 		std::cout << "InBranchId: " << fInBranchId << " for Branch: " << fInBranchName.Data() << std::endl;
- 		fClusterType = ioman->GetBranchId(fClustBranchName);
- 	}
+ 		  FairRootManager *ioman = FairRootManager::Instance();
+ 		  fInBranchId = ioman->GetBranchId(fInBranchName);
+ 		  std::cout << "InBranchId: " << fInBranchId << " for Branch: " << fInBranchName.Data() << std::endl;
+ 		  fClusterType = ioman->GetBranchId(fClustBranchName);
+ 	  }
 
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);

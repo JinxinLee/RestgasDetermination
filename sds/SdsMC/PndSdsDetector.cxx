@@ -37,10 +37,28 @@
 class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
-PndSdsDetector::PndSdsDetector():FairDetector(),fPersistance(kTRUE), fVolumeID(-1), fUseRadDamOption(false)
+PndSdsDetector::PndSdsDetector() : 
+    FairDetector(),
+    fPersistance(kTRUE),
+    fTrackID(-1),
+    fVolumeID(-1),
+    fPosIn(),
+    fPosOut(),
+    fMomIn(),
+    fMomOut(),
+    fTime(0.),
+    fLength(0.),
+    fELoss(0.),
+    fGeoH(PndGeoHandling::Instance()),
+    fPosIndex(0),
+    fPndSdsCollection(NULL),
+    fUseRadDamOption(false),
+    fOutBranchName(""),
+    fFolderName(""),
+    fDetectorID(),
+    fListOfSensitives()
 {
 //  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
-  fPosIndex = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -48,11 +66,27 @@ PndSdsDetector::PndSdsDetector():FairDetector(),fPersistance(kTRUE), fVolumeID(-
 
 // -----   Standard constructor   ------------------------------------------
 PndSdsDetector::PndSdsDetector (const char* name, Bool_t active)
-: FairDetector(name, active), fPersistance(kTRUE), fVolumeID(-1), fUseRadDamOption(false)
+: FairDetector(name, active),
+    fPersistance(kTRUE),
+    fTrackID(-1),
+    fVolumeID(-1),
+    fPosIn(),
+    fPosOut(),
+    fMomIn(),
+    fMomOut(),
+    fTime(0.),
+    fLength(0.),
+    fELoss(0.),
+    fGeoH(PndGeoHandling::Instance()),
+    fPosIndex(0),
+    fPndSdsCollection(NULL),
+    fUseRadDamOption(false),
+    fOutBranchName(""),
+    fFolderName(""),
+    fDetectorID(),
+    fListOfSensitives()
 {
 //  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
-  fPosIndex = 0;
-  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 

@@ -77,6 +77,26 @@ class PndSdsStripHitProducer : public PndSdsTask
    **/
   PndSdsStripHitProducer();
   
+  PndSdsStripHitProducer(PndSdsStripHitProducer& other):
+      fPersistance(other.fPersistance),
+      fPointArray(other.fPointArray),
+      fStripArray(other.fStripArray),
+      fDataBuffer(other.fDataBuffer),
+      fDigiParameterList(other.fDigiParameterList),
+      fChargeDigiParameterList(other.fChargeDigiParameterList),
+      fCurrentDigiPar(other.fCurrentDigiPar),
+      fCurrentChargeConverter(other.fCurrentChargeConverter),
+      fStripCalcTop(other.fStripCalcTop),
+      fStripCalcBot(other.fStripCalcBot),
+      fChargeConverter(other.fChargeConverter),
+      fCurrentStripCalcTop(other.fCurrentStripCalcTop),
+      fCurrentStripCalcBot(other.fCurrentStripCalcBot),
+      fMcEventHeader(other.fMcEventHeader),
+      fGeoH(other.fGeoH),
+      fOverrideParams(other.fOverrideParams),
+      fTimeOrderedDigi(other.fTimeOrderedDigi),
+      fEventNr(other.fEventNr)
+  {};
   /** Like default Constructor, but passes a name to PndSdsTask**/
   PndSdsStripHitProducer(const char* name);
  
@@ -109,10 +129,36 @@ class PndSdsStripHitProducer : public PndSdsTask
 
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
   
+  PndSdsStripHitProducer& operator=(PndSdsStripHitProducer& other)
+  {
+    if(this != &other) // protect against invalid self-assignment
+    {
+      fPersistance=other.fPersistance;
+      fPointArray=other.fPointArray;
+      fStripArray=other.fStripArray;
+      fDataBuffer=other.fDataBuffer;
+      fDigiParameterList=other.fDigiParameterList;
+      fChargeDigiParameterList=other.fChargeDigiParameterList;
+      fCurrentDigiPar=other.fCurrentDigiPar;
+      fCurrentChargeConverter=other.fCurrentChargeConverter;
+      fStripCalcTop=other.fStripCalcTop;
+      fStripCalcBot=other.fStripCalcBot;
+      fChargeConverter=other.fChargeConverter;
+      fCurrentStripCalcTop=other.fCurrentStripCalcTop;
+      fCurrentStripCalcBot=other.fCurrentStripCalcBot;
+      fMcEventHeader=other.fMcEventHeader;
+      fGeoH=other.fGeoH;
+      fOverrideParams=other.fOverrideParams;
+      fTimeOrderedDigi=other.fTimeOrderedDigi;
+      fEventNr=other.fEventNr;
+    }
+    return *this;
+  }
+  
+  
  protected:
 
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
-
 
   /** Input array of PndSdsMCPoints **/
   TClonesArray* fPointArray;
@@ -121,7 +167,6 @@ class PndSdsStripHitProducer : public PndSdsTask
   TClonesArray* fStripArray;
 
   FairWriteoutBuffer *fDataBuffer;
-
 
   //! Digitization Parameters
   TList* fDigiParameterList;

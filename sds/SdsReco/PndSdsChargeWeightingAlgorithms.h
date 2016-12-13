@@ -26,7 +26,21 @@ class PndSdsChargeWeightingAlgorithms : public TObject
 
 public:
 	PndSdsChargeWeightingAlgorithms(TClonesArray* arr);
+  PndSdsChargeWeightingAlgorithms(PndSdsChargeWeightingAlgorithms& other):
+	  fDigiArray(other.fDigiArray),
+	  fCalcStrip(other.fCalcStrip),
+	  fChargeConverter(other.fChargeConverter),
+    fVerbose(other.fVerbose)
+  {
+  };
 	virtual ~PndSdsChargeWeightingAlgorithms();
+  PndSdsChargeWeightingAlgorithms& operator=(PndSdsChargeWeightingAlgorithms& other)
+  {
+	  fDigiArray=other.fDigiArray;
+	  fCalcStrip=other.fCalcStrip;
+	  fChargeConverter=other.fChargeConverter;
+    fVerbose=other.fVerbose;
+  };
 
 	   /**
 	 @fn Double_t center_of_gravity(const StripCluster& Cluster)

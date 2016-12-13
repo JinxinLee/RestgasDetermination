@@ -2,7 +2,19 @@
 #include "PndSdsPixelDigiPar.h"
 
 PndSdsPixelDigiPar::PndSdsPixelDigiPar(const char* name, const char* title, const char* context)
-: FairParGenericSet(name,title,context)
+: FairParGenericSet(name,title,context),
+    fFeCols(0),
+    fFeRows(0),
+    fDimX(0.),
+    fDimY(0.),
+    fRadius(0.),
+    fThreshold(0.),
+    fNoise(0.),
+    fCSigma(0.),
+    fFeBusClock(0.),
+    fChargeConvMethod(0),
+    fPixelSorterCellWidth(0.),
+    fPixelSorterNumberOfCells(0)
 {
   clear();
 }

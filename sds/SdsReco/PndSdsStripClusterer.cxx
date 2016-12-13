@@ -15,6 +15,12 @@
 
 
 PndSdsStripClusterer::PndSdsStripClusterer(Int_t DigiType)
+: fSortedDigis(),
+  fTopclusters(),
+  fBotclusters(),
+  fLeftDigis(),
+  fClusters(),
+  fDigiType(-1)
 {
   SetDigiType(DigiType);
 }

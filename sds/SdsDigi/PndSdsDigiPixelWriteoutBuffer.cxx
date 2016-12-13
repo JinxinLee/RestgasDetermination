@@ -13,14 +13,17 @@ ClassImp(PndSdsDigiPixelWriteoutBuffer);
 #include "PndSdsDigiStrip.h"
 
 
-PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer():FairWriteoutBuffer() {
+PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer():FairWriteoutBuffer()
+, fData_map()
+{
 
 	// TODO Auto-generated constructor stub
 
 }
 
 
-PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance): FairWriteoutBuffer(branchName, "PndSdsDigiPixel", folderName, persistance)
+PndSdsDigiPixelWriteoutBuffer::PndSdsDigiPixelWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance): FairWriteoutBuffer(branchName, "PndSdsDigiPixel", folderName, persistance),
+fData_map()
 {
 }
 

@@ -37,6 +37,31 @@ class PndSdsHybridHitProducer : public PndSdsTask
   /** Default constructor **/
   PndSdsHybridHitProducer();
   
+  PndSdsHybridHitProducer(PndSdsHybridHitProducer& other) :
+      fPersistance(other.fPersistance),
+      fDigiPixelMCInfo(other.fDigiPixelMCInfo),
+      fPointArray(other.fPointArray),
+      fPixelArray(other.fPixelArray),
+      fPixelMCArray(other.fPixelMCArray),
+      fDigiPar(other.fDigiPar),
+      fTotDigiPar(other.fTotDigiPar),
+      fChargeConverter(other.fChargeConverter),
+      fMCEventHeader(other.fMCEventHeader),
+      fDataBuffer(other.fDataBuffer),
+      flx(other.flx),
+      fly(other.fly),
+      fthreshold(other.fthreshold),
+      fnoise(other.fnoise),
+      fqsigma(other.fqsigma),
+      fcols(other.fcols),
+      frows(other.frows),
+      fPixelHits(other.fPixelHits),
+      fGeoH(other.fGeoH),
+      fEventNr(other.fEventNr),
+      fOverwriteParams(other.fOverwriteParams),
+      fTimeOrderedDigi(other.fTimeOrderedDigi),
+      fPixelList(other.fPixelList)
+  {}
   /** Named constructor **/
   PndSdsHybridHitProducer(const char* name);
 
@@ -61,6 +86,37 @@ class PndSdsHybridHitProducer : public PndSdsTask
   Bool_t GetPersistance() {return fPersistance;};
   
   void RunTimeBased(){fTimeOrderedDigi = kTRUE;}
+  
+  PndSdsHybridHitProducer& operator=(PndSdsHybridHitProducer& other)
+  {
+    if(this != &other) // protect against invalid self-assignment
+    {
+      fPersistance=other.fPersistance;
+      fDigiPixelMCInfo=other.fDigiPixelMCInfo;
+      fPointArray=other.fPointArray;
+      fPixelArray=other.fPixelArray;
+      fPixelMCArray=other.fPixelMCArray;
+      fDigiPar=other.fDigiPar;
+      fTotDigiPar=other.fTotDigiPar;
+      fChargeConverter=other.fChargeConverter;
+      fMCEventHeader=other.fMCEventHeader;
+      fDataBuffer=other.fDataBuffer;
+      flx=other.flx;
+      fly=other.fly;
+      fthreshold=other.fthreshold;
+      fnoise=other.fnoise;
+      fqsigma=other.fqsigma;
+      fcols=other.fcols;
+      frows=other.frows;
+      fPixelHits=other.fPixelHits;
+      fGeoH=other.fGeoH;
+      fEventNr=other.fEventNr;
+      fOverwriteParams=other.fOverwriteParams;
+      fTimeOrderedDigi=other.fTimeOrderedDigi;
+      fPixelList=other.fPixelList;
+    }
+    return *this;
+  };
 
 protected:
   

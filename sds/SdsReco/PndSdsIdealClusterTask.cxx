@@ -27,25 +27,45 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsIdealClusterTask::PndSdsIdealClusterTask() :
-  PndSdsTask("SDS Clustertisation Task")
+  PndSdsTask("SDS Clustertisation Task"),
+      fPersistance(kTRUE),
+      fDigiArray(NULL),
+      fClustBranchName(""),
+      fClusterType(-1),
+      fClusterArray(NULL),
+      fHitArray(NULL),
+      fGeoH(PndGeoHandling::Instance()),
+      fRadius(0),
+      fFEcolumns(0),
+      fFErows(0),
+      fGeoFile(""),
+      finder(NULL),
+      mapping(NULL)
 {
-  TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
-  geoMan = gGeoManager;
-  fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  //TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
+  //geoMan = gGeoManager;
+  //fGeoH = PndGeoHandling::Instance();
 }
 
 PndSdsIdealClusterTask::PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
-  PndSdsTask("SDS Clustertisation Task")
+  PndSdsTask("SDS Clustertisation Task"),
+      fPersistance(kTRUE),
+      fDigiArray(NULL),
+      fClustBranchName(""),
+      fClusterType(-1),
+      fClusterArray(NULL),
+      fHitArray(NULL),
+      fGeoH(PndGeoHandling::Instance()),
+      fRadius(radius),
+      fFEcolumns(FEcolumns),
+      fFErows(FErows),
+      fGeoFile(geoFile),
+      finder(NULL),
+      mapping(NULL)
 {
-  TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
-  geoMan = gGeoManager;
-  fRadius = radius;
-  fFEcolumns = FEcolumns;
-  fFErows    = FErows;
-  fGeoFile   = geoFile;
-  fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  //TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
+  //geoMan = gGeoManager;
+  //fGeoH = PndGeoHandling::Instance();
 }
 
 // -------------------------------------------------------------------------

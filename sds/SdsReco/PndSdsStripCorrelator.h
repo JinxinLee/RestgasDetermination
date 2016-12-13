@@ -36,15 +36,16 @@ struct PndSdsStripCorrelatorCand {
 struct PndSdsStripCorrelatorCombi {
 public:
   PndSdsStripCorrelatorCombi()
-  : pairlist(),prob(1.)
+  : pairlist(), prob(1.)
   {}
   PndSdsStripCorrelatorCombi(const std::vector<PndSdsStripCorrelatorCand>& list, double p)
-  : prob(p)
+  : pairlist(), prob(p)
+  
   {
     pairlist.insert(pairlist.end(),list.begin(),list.end());
   }
   PndSdsStripCorrelatorCombi(const PndSdsStripCorrelatorCombi& a_combi)
-  : prob(a_combi.prob)
+  : pairlist(), prob(a_combi.prob)
   {
     pairlist.insert(pairlist.end(),a_combi.pairlist.begin(),a_combi.pairlist.end());
   }
@@ -92,8 +93,7 @@ private:
   double fThreshold; //Discrimination threshold [e-]
   int fMode; //which mode to use 0:ChargeDifferenceCut 1:Liklelihood
   bool fCalculated; //flag for automatic calculation calls
-  
-  
+    
 };
 
 

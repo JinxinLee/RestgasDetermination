@@ -7,10 +7,12 @@
 ClassImp(PndSdsGeoPar)
 
 PndSdsGeoPar::PndSdsGeoPar(const char* name,const char* title,const char* context)
-           : FairParGenericSet(name,title,context) 
+           : FairParGenericSet(name,title,context) ,
+    fGeoSensNodes(new TObjArray()),
+    fGeoPassNodes(new TObjArray())
 {
-  fGeoSensNodes = new TObjArray();
-  fGeoPassNodes = new TObjArray();
+  //fGeoSensNodes = new TObjArray();
+  //fGeoPassNodes = new TObjArray();
 }
 
 PndSdsGeoPar::~PndSdsGeoPar(void) 

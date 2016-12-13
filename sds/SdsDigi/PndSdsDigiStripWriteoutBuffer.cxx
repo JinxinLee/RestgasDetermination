@@ -16,12 +16,14 @@ ClassImp(PndSdsDigiStripWriteoutBuffer);
 
 
 
-PndSdsDigiStripWriteoutBuffer::PndSdsDigiStripWriteoutBuffer():FairWriteoutBuffer() {
+PndSdsDigiStripWriteoutBuffer::PndSdsDigiStripWriteoutBuffer():FairWriteoutBuffer() , fData_map()
+{
 	// TODO Auto-generated constructor stub
 
 }
 
-PndSdsDigiStripWriteoutBuffer::PndSdsDigiStripWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance): FairWriteoutBuffer(branchName, "PndSdsDigiStrip", folderName, persistance)
+PndSdsDigiStripWriteoutBuffer::PndSdsDigiStripWriteoutBuffer(TString branchName, TString folderName, Bool_t persistance): FairWriteoutBuffer(branchName, "PndSdsDigiStrip", folderName, persistance), fData_map()
+
 {
 }
 

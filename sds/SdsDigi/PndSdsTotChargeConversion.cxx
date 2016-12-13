@@ -2,7 +2,19 @@
 #include "TMath.h"
 
 ///Default constructor
-PndSdsTotChargeConversion::PndSdsTotChargeConversion(Int_t VerboseLevel) : PndSdsChargeConversion(kToT){
+PndSdsTotChargeConversion::PndSdsTotChargeConversion(Int_t VerboseLevel) : PndSdsChargeConversion(kToT),
+fthreshold(0.),
+Qt(0.),
+t1e(0.),
+t2e(0.),
+ftimestep(0.),
+fstarttime(0.),
+fstoptime(0.),
+ftimeoffset(0.),
+ftimewalk(0.),
+fVerboseLevel(0),
+fRand()
+{
   SetParameter("ftr", 100.); //todo take data from Database
   SetParameter("fa", 60.);
   SetParameter("fth", 3000.);
@@ -21,7 +33,19 @@ PndSdsTotChargeConversion::PndSdsTotChargeConversion(Int_t VerboseLevel) : PndSd
 };
 
 ///Main constructor
-PndSdsTotChargeConversion::PndSdsTotChargeConversion(Double_t tr, Double_t a, Double_t threshold, Double_t clockfrequency, Int_t VerboseLevel) : PndSdsChargeConversion(kToT) {
+PndSdsTotChargeConversion::PndSdsTotChargeConversion(Double_t tr, Double_t a, Double_t threshold, Double_t clockfrequency, Int_t VerboseLevel) : PndSdsChargeConversion(kToT),
+fthreshold(0.),
+Qt(0.),
+t1e(0.),
+t2e(0.),
+ftimestep(0.),
+fstarttime(0.),
+fstoptime(0.),
+ftimeoffset(0.),
+ftimewalk(0.),
+fVerboseLevel(0),
+fRand()
+{
   SetParameter("ftr", tr);				//charge time [ns]
   SetParameter("fa", a);					//const. curren [e/ns]
   SetParameter("fth", threshold);

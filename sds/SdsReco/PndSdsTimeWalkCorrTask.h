@@ -23,8 +23,26 @@ class PndSdsTimeWalkCorrTask : public PndSdsTask {
 public:
 	PndSdsTimeWalkCorrTask();
 	PndSdsTimeWalkCorrTask(const char* name);
+  PndSdsTimeWalkCorrTask(PndSdsTimeWalkCorrTask& other) :
+	  fPersistance(other.fPersistance),
+	  fDigiArray(other.fDigiArray),
+	  fDigiCorrArray(other.fDigiCorrArray),
+    fDigiPar(other.fDigiPar),
+    fDigiTotPar(other.fDigiTotPar),
+    fFEModel(other.fFEModel),
+    fVerbose(other.fVerbose)
+  {};
 	virtual ~PndSdsTimeWalkCorrTask();
-
+  PndSdsTimeWalkCorrTask& operator=(PndSdsTimeWalkCorrTask& other)
+  {
+	  fPersistance=other.fPersistance;
+	  fDigiArray=other.fDigiArray;
+	  fDigiCorrArray=other.fDigiCorrArray;
+    fDigiPar=other.fDigiPar;
+    fDigiTotPar=other.fDigiTotPar;
+    fFEModel=other.fFEModel;
+    fVerbose=other.fVerbose;
+  };
 	InitStatus Init();
 	void SetParContainers();
 	void Exec(Option_t* opt);

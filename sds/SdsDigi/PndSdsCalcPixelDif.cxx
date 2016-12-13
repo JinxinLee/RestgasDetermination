@@ -3,23 +3,29 @@
 #include "TRandom.h"
 
 
-PndSdsCalcPixelDif::PndSdsCalcPixelDif()
-{
-  fPixelSizeX = 0;
-  fPixelSizeY= 0;
-  fVerboseLevel = 0;
-  fQspread = 0;
-}
+PndSdsCalcPixelDif::PndSdsCalcPixelDif() :
+    fPixels(),
+    fActivePixel(),
+		fPixelSizeX(0.),
+		fPixelSizeY(0.),
+		fThreshold(0.),
+		fNoise(0.),
+    fQspread(0.),
+		fEnergy(0.),
+    fVerboseLevel(0)
+{}
 
-PndSdsCalcPixelDif::PndSdsCalcPixelDif(Double_t lx, Double_t ly, Double_t qspread,Double_t threshold, Double_t noise)
-{
-  fPixelSizeX = lx;
-  fPixelSizeY= ly;
-  fVerboseLevel = 0;
-  fQspread = qspread;
-  fThreshold=threshold;
-  fNoise=noise;
-}
+PndSdsCalcPixelDif::PndSdsCalcPixelDif(Double_t lx, Double_t ly, Double_t qspread,Double_t threshold, Double_t noise) :
+    fPixels(),
+    fActivePixel(),
+		fPixelSizeX(lx),
+		fPixelSizeY(ly),
+		fThreshold(threshold),
+		fNoise(noise),
+    fQspread(qspread),
+		fEnergy(0.),
+    fVerboseLevel(0)
+{}
 
 Int_t PndSdsCalcPixelDif::GetPixelsAlternative(Double_t inx, Double_t iny,
                                                Double_t outx, Double_t outy,

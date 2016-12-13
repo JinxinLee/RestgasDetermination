@@ -9,7 +9,16 @@ public:
   PndSdsGeoPar(const char* name="PndSdsGeoPar",
 	       const char* title="PndSds Geometry Parameters",
 	       const char* context="TestDefaultContext");
+  PndSdsGeoPar(PndSdsGeoPar& other) :
+    fGeoSensNodes(other.fGeoSensNodes),
+    fGeoPassNodes(other.fGeoPassNodes)
+  {};
   ~PndSdsGeoPar(void);
+  PndSdsGeoPar& operator=(PndSdsGeoPar& other)
+  {
+    fGeoSensNodes=other.fGeoSensNodes;
+    fGeoPassNodes=other.fGeoPassNodes;
+  };
   void clear(void);
   void putParams(FairParamList* l);
   Bool_t getParams(FairParamList* l);

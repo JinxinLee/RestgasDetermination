@@ -5,11 +5,21 @@
 #include "TMath.h"
 
 PndSdsChargeWeightedPixelMapping::PndSdsChargeWeightedPixelMapping()
-:PndSdsPixelBackMapping(){
-}
+:PndSdsPixelBackMapping(),
+      fChargeConverter(NULL),
+      flx(0.),
+      fly(0.),
+      fcols(0),
+      frows(0)
+{}
 PndSdsChargeWeightedPixelMapping::PndSdsChargeWeightedPixelMapping(PndGeoHandling* geo)
-:PndSdsPixelBackMapping(geo){
-}
+:PndSdsPixelBackMapping(geo),
+      fChargeConverter(NULL),
+      flx(0.),
+      fly(0.),
+      fcols(0),
+      frows(0)
+{}
 
 PndSdsHit PndSdsChargeWeightedPixelMapping::GetCluster(std::vector<PndSdsDigiPixel> pixelArray)
 {

@@ -7,7 +7,14 @@
 
 #include "PndSdsTask.h"
 
-PndSdsTask::PndSdsTask() {
+PndSdsTask::PndSdsTask() :
+  FairTask("SdsTask", 0),
+  fInBranchName(""),
+	fOutBranchName(""),
+	fFolderName(""),
+	fInBranchId(-1),
+	fOutBranchId(-1)
+  {
 	// TODO Auto-generated constructor stub
 
 }

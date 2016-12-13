@@ -15,7 +15,7 @@ class PndSdsChargeConversion : public TObject
   {
     public :
     
-    PndSdsChargeConversion(ConvType type){fConvType = type;};
+    PndSdsChargeConversion(ConvType type):  fParams(), it(), fConvType(type){};
     virtual ~PndSdsChargeConversion(){};
     virtual void StartExecute(){};
     virtual void EndExecute(){};

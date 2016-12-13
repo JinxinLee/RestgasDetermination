@@ -35,50 +35,48 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
-PndSdsTask("SDS Clustertisation Task"), fPersistance(kTRUE), fClusterType(-1), fEventNr(0), fUseNoiseSuppression(kTRUE), fEventHeader(0)
-{
-  fFEModel = NULL;
-
-  fDigiArray = NULL;
-  fDigiPar = NULL;
-  fChargeConverter = NULL;
-  fGeoH = NULL;
-  
-  fClustBranchName = "";
-  /** Output array of PndSdsHits **/
-  fClusterArray = NULL;
-  fHitArray = NULL;
-  
-  fFunctor = NULL;
-  fStartFunctor = NULL;
-  
-  fClusterFinder = NULL;
-  fBackMapping = NULL;
-}
+PndSdsTask("SDS Clustertisation Task"),
+      fPersistance(kTRUE),
+      fUseNoiseSuppression(kTRUE),
+      fFEModel(NULL),
+      fDigiArray(NULL),
+      fDigiPar(NULL),
+      fChargeConverter(NULL),
+      fGeoH(NULL),
+      fClustBranchName(""),
+      fClusterArray(NULL),
+      fHitArray(NULL),
+      fEventHeader(0),
+      fFunctor(NULL),
+      fStartFunctor(NULL), 
+      fClusterType(-1),
+      fEventNr(0),
+      fClusterFinder(NULL),
+      fBackMapping(NULL)
+{}
 // -------------------------------------------------------------------------
 
 // -----   Named constructor   ---------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask(const char* name) :
-PndSdsTask(name), fPersistance(kTRUE), fClusterType(-1), fEventNr(0), fUseNoiseSuppression(kTRUE), fEventHeader(0)
-{
-  fFEModel = NULL;
-
-  fDigiArray = NULL;
-  fDigiPar = NULL;
-  fChargeConverter = NULL;
-  fGeoH = NULL;
-  
-  fClustBranchName = "";
-  /** Output array of PndSdsHits **/
-  fClusterArray = NULL;
-  fHitArray = NULL;
-  
-  fFunctor = NULL;
-  fStartFunctor = NULL;
-  
-  fClusterFinder = NULL;
-  fBackMapping = NULL;
-}
+PndSdsTask(name), 
+      fPersistance(kTRUE),
+      fUseNoiseSuppression(kTRUE),
+      fFEModel(NULL),
+      fDigiArray(NULL),
+      fDigiPar(NULL),
+      fChargeConverter(NULL),
+      fGeoH(NULL),
+      fClustBranchName(""),
+      fClusterArray(NULL),
+      fHitArray(NULL),
+      fEventHeader(0),
+      fFunctor(NULL),
+      fStartFunctor(NULL), 
+      fClusterType(-1),
+      fEventNr(0),
+      fClusterFinder(NULL),
+      fBackMapping(NULL)
+{}
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------

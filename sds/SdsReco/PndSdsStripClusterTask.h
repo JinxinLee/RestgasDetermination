@@ -42,10 +42,79 @@ class PndSdsStripClusterTask : public PndSdsTask
     
     PndSdsStripClusterTask(); 
     PndSdsStripClusterTask(const char* name); 
-    
+    PndSdsStripClusterTask(PndSdsStripClusterTask& other) :
+  	  fPath(other.fPath),
+      fPersistance(other.fPersistance),
+      fDigiArray(other.fDigiArray),
+      fClusterArray(other.fClusterArray),
+      fHitArray(other.fHitArray),
+      fClustBranchName(other.fClustBranchName),
+      fClusterType(other.fClusterType),
+      fFEcolumns(other.fFEcolumns),
+      fFErows(other.fFErows),
+      fChargeCut(other.fChargeCut),
+      fRadChannel(other.fRadChannel),
+      fRadTime(other.fRadTime),
+      fSingleStripChargeThreshold(other.fSingleStripChargeThreshold),
+      fEventHeader(other.fEventHeader),
+     	fDigiParameterList(other.fDigiParameterList),
+      fCurrentDigiPar(other.fCurrentDigiPar),
+      fSensorNamePar(other.fSensorNamePar),
+      fChargeDigiParameterList(other.fChargeDigiParameterList),
+      fStripCalcTop(other.fStripCalcTop),
+      fStripCalcBot(other.fStripCalcBot),
+      fChargeConverter(other.fChargeConverter),
+      fCurrentStripCalcTop(other.fCurrentStripCalcTop),
+      fCurrentStripCalcBot(other.fCurrentStripCalcBot),
+      fChargeAlgos(other.fChargeAlgos),
+      fCurrentChargeConverter(other.fCurrentChargeConverter),
+      fDigiPar(other.fDigiPar),
+      fGeoH(other.fGeoH),
+      fCurrentClusterfinder(other.fCurrentClusterfinder),
+      fClusterFinderList(other.fClusterFinderList),
+      fFunctor(other.fFunctor),
+      eta_rect(other.eta_rect),
+      eta_trap(other.eta_trap),
+      etahistofile(other.etahistofile)
+    {};
     /** Destructor **/
     virtual ~PndSdsStripClusterTask();
-
+    PndSdsStripClusterTask& operator=(PndSdsStripClusterTask& other)
+    {
+  	  fPath=other.fPath;
+      fPersistance=other.fPersistance;
+      fDigiArray=other.fDigiArray;
+      fClusterArray=other.fClusterArray;
+      fHitArray=other.fHitArray;
+      fClustBranchName=other.fClustBranchName;
+      fClusterType=other.fClusterType;
+      fFEcolumns=other.fFEcolumns;
+      fFErows=other.fFErows;
+      fChargeCut=other.fChargeCut;
+      fRadChannel=other.fRadChannel;
+      fRadTime=other.fRadTime;
+      fSingleStripChargeThreshold=other.fSingleStripChargeThreshold;
+      fEventHeader=other.fEventHeader;
+     	fDigiParameterList=other.fDigiParameterList;
+      fCurrentDigiPar=other.fCurrentDigiPar;
+      fSensorNamePar=other.fSensorNamePar;
+      fChargeDigiParameterList=other.fChargeDigiParameterList;
+      fStripCalcTop=other.fStripCalcTop;
+      fStripCalcBot=other.fStripCalcBot;
+      fChargeConverter=other.fChargeConverter;
+      fCurrentStripCalcTop=other.fCurrentStripCalcTop;
+      fCurrentStripCalcBot=other.fCurrentStripCalcBot;
+      fChargeAlgos=other.fChargeAlgos;
+      fCurrentChargeConverter=other.fCurrentChargeConverter;
+      fDigiPar=other.fDigiPar;
+      fGeoH=other.fGeoH;
+      fCurrentClusterfinder=other.fCurrentClusterfinder;
+      fClusterFinderList=other.fClusterFinderList;
+      fFunctor=other.fFunctor;
+      eta_rect=other.eta_rect;
+      eta_trap=other.eta_trap;
+      etahistofile=other.etahistofile;
+    };
     
     /** Virtual method Init **/
     virtual void SetParContainers();

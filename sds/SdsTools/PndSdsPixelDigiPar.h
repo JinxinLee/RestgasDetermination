@@ -30,9 +30,7 @@ class PndSdsPixelDigiPar : public FairParGenericSet
     	dt.Print(out);
     	return out;
     }
-
-
-    
+   
     Double_t GetXPitch()        const {return fDimX;}
     Double_t GetYPitch()        const {return fDimY;}
     Double_t GetThreshold()     const {return fThreshold;}

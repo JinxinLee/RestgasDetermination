@@ -36,76 +36,79 @@
 // -----   Default constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask() :
   PndSdsTask("SDS Strip Clustertisation Task"),
-  fDigiPar(0)
+  	  fPath(),
+      fPersistance(kTRUE),
+      fDigiArray(NULL),
+      fClusterArray(NULL),
+      fHitArray(NULL),
+      fClustBranchName(""),
+      fClusterType(0),
+      fFEcolumns(0),
+      fFErows(0),
+      fChargeCut(1.e8),
+      fRadChannel(0),
+      fRadTime(0),
+      fSingleStripChargeThreshold(0),
+      fEventHeader(NULL),
+     	fDigiParameterList(new TList()),
+      fCurrentDigiPar(0),
+      fSensorNamePar(NULL),
+      fChargeDigiParameterList(new TList()),
+      fStripCalcTop(),
+      fStripCalcBot(),
+      fChargeConverter(),
+      fCurrentStripCalcTop(0),
+      fCurrentStripCalcBot(0),
+      fChargeAlgos(0),
+      fCurrentChargeConverter(0),
+      fDigiPar(0),
+      fGeoH(NULL),
+      fCurrentClusterfinder(0),
+      fClusterFinderList(),
+      fFunctor(NULL),
+      eta_rect(NULL),
+      eta_trap(NULL),
+      etahistofile(NULL)
 {
-  fChargeCut = 1.e8; // this reset dynamically
-  fDigiParameterList = new TList();
-  fChargeDigiParameterList = new TList();
-  fPersistance = kTRUE;
-  fChargeAlgos=0;
-  fCurrentDigiPar=0;
-  fCurrentChargeConverter=0;
-  fCurrentStripCalcTop=0;
-  fCurrentStripCalcBot=0;
-  fCurrentClusterfinder=0;
-
-  fDigiArray = NULL;
-  fClusterArray = NULL;
-  fHitArray = NULL;
-    
-  fClustBranchName = "";
-  fClusterType = 0;
-    
-  fFEcolumns = 0;
-  fFErows = 0;
-  fChargeCut = 0.;
-  fRadChannel = 0;
-  fRadTime = 0;
-  fSingleStripChargeThreshold = 0.;
-    
-  fGeoH = NULL;
-    
-  fFunctor= NULL;
-
-  fVerbose = 0;
 }
 
 // -----   Named constructor   -------------------------------------------
 PndSdsStripClusterTask::PndSdsStripClusterTask(const char* name) :
   PndSdsTask(name),
-  fDigiPar(0)
+  	  fPath(),
+      fPersistance(kTRUE),
+      fDigiArray(NULL),
+      fClusterArray(NULL),
+      fHitArray(NULL),
+      fClustBranchName(""),
+      fClusterType(0),
+      fFEcolumns(0),
+      fFErows(0),
+      fChargeCut(1.e8),
+      fRadChannel(0),
+      fRadTime(0),
+      fSingleStripChargeThreshold(0),
+      fEventHeader(NULL),
+     	fDigiParameterList(new TList()),
+      fCurrentDigiPar(0),
+      fSensorNamePar(NULL),
+      fChargeDigiParameterList(new TList()),
+      fStripCalcTop(),
+      fStripCalcBot(),
+      fChargeConverter(),
+      fCurrentStripCalcTop(0),
+      fCurrentStripCalcBot(0),
+      fChargeAlgos(0),
+      fCurrentChargeConverter(0),
+      fDigiPar(0),
+      fGeoH(NULL),
+      fCurrentClusterfinder(0),
+      fClusterFinderList(),
+      fFunctor(NULL),
+      eta_rect(NULL),
+      eta_trap(NULL),
+      etahistofile(NULL)
 {
-  // TODO: fChargeCut in parameter database??
-  fChargeCut = 1.e8; // this ist really large and shall have no effect
-  fDigiParameterList = new TList();
-  fChargeDigiParameterList = new TList();
-  fPersistance = kTRUE;
-  fChargeAlgos=0;
-  fCurrentChargeConverter=0;
-  fCurrentDigiPar=0;
-  fCurrentStripCalcTop=0;
-  fCurrentStripCalcBot=0;
-  fCurrentClusterfinder=0;
-
-  fDigiArray = NULL;
-  fClusterArray = NULL;
-  fHitArray = NULL;
-    
-  fClustBranchName = "";
-  fClusterType = 0;
-    
-  fFEcolumns = 0;
-  fFErows = 0;
-  fChargeCut = 0.;
-  fRadChannel = 0;
-  fRadTime = 0;
-  fSingleStripChargeThreshold = 0.;
-    
-  fGeoH = NULL;
-    
-  fFunctor= NULL;
-
-  fVerbose = 0;
 }
 
 // -----   Destructor   ----------------------------------------------------

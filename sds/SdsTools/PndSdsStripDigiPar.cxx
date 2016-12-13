@@ -3,7 +3,29 @@
 #include "TMath.h"
 
 PndSdsStripDigiPar::PndSdsStripDigiPar(const char* name, const char* title, const char* context)
-: FairParGenericSet(name,title,context)
+: FairParGenericSet(name,title,context),
+    fTopPitch(0.),
+    fBotPitch(0.),
+    fOrient(0.),
+    fSkew(0.),
+    fThreshold(0.),
+    fNoise(0.),
+    fCSigma(0.),
+    fChargeCut(0.),
+    fSingleChargeCut(0.),
+    fFeBusClock(0.),
+    fTopAnchor(0.,0.),
+    fBotAnchor(0.,0.),
+    fFeChannels(0),
+    fTopNrFE(0),
+    fBotNrFE(0),
+    fClusterMod(0),
+    fClusterMean(0),
+    fRadChannel(0),
+    fRadTime(0),
+    fSensType(""),
+    fFeType(""),
+    fChargeConvMethod(0)
 {
   clear();
 }

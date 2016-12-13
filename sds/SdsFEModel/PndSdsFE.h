@@ -23,11 +23,31 @@
 
 class PndSdsFE: public TObject {
 public:
-	PndSdsFE(): fFrontEndModel(0), fNumberOfSupportPoints(0), fNumberOfMaxElectons(0), fFunction(0), fMaximumAmplitude(0),fThreshold(0), fBaselineEpsilon(1), fToF(0), fEventTime(0),
-	fTimeOffSet(0), fTimeStep(0),fFunctionRange(0), fRand(0), i(0), stepsize(0), fCharge_list(0), fTot_list(0), inter(0) 
+	PndSdsFE(): fFrontEndModel(0), fNumberOfSupportPoints(0), fNumberOfMaxElectons(0), fFunction(0), fMaximumAmplitude(0),fThreshold(0), fBaselineEpsilon(1), fToF(0), fEventTime(0),	fTimeOffSet(0), fTimeStep(0),fFunctionRange(0), fRand(0), i(0), stepsize(0), fCharge_list(0), fTot_list(0), inter(0) 
 	{
 		CalcTimeOffSet();
 	};
+  
+  PndSdsFE(PndSdsFE& other):
+      fFrontEndModel(other.fFrontEndModel),
+      fNumberOfSupportPoints(other.fNumberOfSupportPoints),
+      fNumberOfMaxElectons(other.fNumberOfMaxElectons),
+      fFunction(other.fFunction),
+      fMaximumAmplitude(other.fMaximumAmplitude),
+      fThreshold(other.fThreshold),
+      fBaselineEpsilon(other.fBaselineEpsilon),
+      fToF(other.fToF),
+      fEventTime(other.fEventTime),
+  	  fTimeOffSet(other.fTimeOffSet),
+      fTimeStep(other.fTimeStep),
+      fFunctionRange(other.fFunctionRange),
+      fRand(other.fRand),
+      i(other.i),
+      stepsize(other.stepsize),
+      fCharge_list(other.fCharge_list),
+      fTot_list(other.fTot_list),
+      inter(other.inter)
+  {};
 //	PndSdsFE(double charingtime, double constcurrent, double threshold, double frequency, int verbose);
 	virtual ~PndSdsFE();
 
@@ -41,12 +61,36 @@ public:
 	virtual void SetParameter(TString parName, double parValue);
 	virtual void SetThreshold(double threshold){fThreshold = threshold;}
 
-
+  PndSdsFE& operator=(PndSdsFE& other)
+  {
+    if (this != &other) // protect against invalid self-assignment
+    {   
+      fFrontEndModel=other.fFrontEndModel;
+      fNumberOfSupportPoints=other.fNumberOfSupportPoints;
+      fNumberOfMaxElectons=other.fNumberOfMaxElectons;
+      fFunction=other.fFunction;
+      fMaximumAmplitude=other.fMaximumAmplitude;
+      fThreshold=other.fThreshold;
+      fBaselineEpsilon=other.fBaselineEpsilon;
+      fToF=other.fToF;
+      fEventTime=other.fEventTime;
+  	  fTimeOffSet=other.fTimeOffSet;
+      fTimeStep=other.fTimeStep;
+      fFunctionRange=other.fFunctionRange;
+      fRand=other.fRand;
+      i=other.i;
+      stepsize=other.stepsize;
+      fCharge_list=other.fCharge_list;
+      fTot_list=other.fTot_list;
+      inter=other.inter;
+    }
+    return *this;
+  };
 protected:
 
-    double DigitizeTime(double time);
+  double DigitizeTime(double time);
 	void CalcTimeOffSet();
-    void CreateInterpolatorList();  // Creates the Interpolatorlist for GetTotFromCharge calculation
+  void CreateInterpolatorList();  // Creates the Interpolatorlist for GetTotFromCharge calculation
 	void SaveInterpolatorList(std::vector<double> charge, std::vector<double> tot);
 	void LoadInterpolatorList();
 	void GetInterpolatorList();

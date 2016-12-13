@@ -12,14 +12,29 @@ ClassImp(PndSdsTimeWalkCorrSimple);
 
 //----- Default Constructor
 
-PndSdsTimeWalkCorrSimple::PndSdsTimeWalkCorrSimple() {
-
+PndSdsTimeWalkCorrSimple::PndSdsTimeWalkCorrSimple() 
+:	fRisingTime(0.),
+  fConstantCurrent(0.),
+  fTimeOverThreshold(0.),
+  fThreshold(0.),
+  fFrequency(0.),
+  fVerboseLevel(0),
+  fCharge(0.),
+  fTimeWalk(0.)
+{
 }
 //----- Main Constructor
 
-PndSdsTimeWalkCorrSimple::PndSdsTimeWalkCorrSimple(Double_t risingtime, Double_t constcurrent, Double_t thr, Double_t frequency, Int_t verblevel):
-		fRisingTime(risingtime), fConstantCurrent(constcurrent), fThreshold(thr),fFrequency(frequency), fVerboseLevel(verblevel) {
-
+PndSdsTimeWalkCorrSimple::PndSdsTimeWalkCorrSimple(Double_t risingtime, Double_t constcurrent, Double_t thr, Double_t frequency, Int_t verblevel)
+:	fRisingTime(risingtime),
+  fConstantCurrent(constcurrent),
+  fTimeOverThreshold(0.),
+  fThreshold(thr),
+  fFrequency(frequency),
+  fVerboseLevel(verblevel),
+  fCharge(0.),
+  fTimeWalk(0.)
+{
 }
 
 PndSdsTimeWalkCorrSimple::~PndSdsTimeWalkCorrSimple() {

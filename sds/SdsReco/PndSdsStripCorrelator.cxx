@@ -17,11 +17,16 @@
 
 //------------------------------------------------------------------------------------
 PndSdsStripCorrelator::PndSdsStripCorrelator(int mode, double cut, double noise, double threshold) :
-fCut(cut),
-fNoise(noise),
-fThreshold(threshold),
-fMode(mode),
-fCalculated(false)
+  fClusterList(),
+  fCorrelationList(),
+  fCorrelationProbList(),
+  fSecondProbList(),
+  fMultProbList(),
+  fCut(cut),
+  fNoise(noise),
+  fThreshold(threshold),
+  fMode(mode),
+  fCalculated(false)
 {}
 
 //------------------------------------------------------------------------------------

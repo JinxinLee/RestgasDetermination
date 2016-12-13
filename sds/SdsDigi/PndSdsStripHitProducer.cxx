@@ -32,52 +32,55 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer() :
-PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"), fDataBuffer(0), fEventNr(0)
+PndSdsTask("SDS Strip Digi Producer(PndSdsStripHitProducer)"), 
+      fPersistance(kTRUE),
+      fPointArray(NULL),
+      fStripArray(NULL),
+      fDataBuffer(0),
+      fDigiParameterList(NULL),
+      fChargeDigiParameterList(NULL),
+      fCurrentDigiPar(NULL),
+      fCurrentChargeConverter(NULL),
+      fStripCalcTop(),
+      fStripCalcBot(),
+      fChargeConverter(),
+      fCurrentStripCalcTop(NULL),
+      fCurrentStripCalcBot(NULL),
+      fMcEventHeader(NULL),
+      fGeoH(NULL),
+      fOverrideParams(kFALSE),
+      fTimeOrderedDigi(kFALSE),
+      fEventNr(0)
 {
-  fOverrideParams = false;
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
-  fPersistance = kTRUE;
-  fGeoH = NULL;//PndGeoHandling::Instance();
-  fTimeOrderedDigi = kFALSE;
-
-  fPointArray = NULL;
-  fStripArray = NULL;
-
-  fCurrentDigiPar = NULL;
-  fCurrentChargeConverter = NULL;
-
-//   fStripCalcTop = NULL;
-//   fStripCalcBot = NULL;
-//   fChargeConverter = NULL;
-  fCurrentStripCalcTop = NULL;
-  fCurrentStripCalcBot = NULL;
-
 }
 // -------------------------------------------------------------------------
 
 // -----   Default constructor   -------------------------------------------
 PndSdsStripHitProducer::PndSdsStripHitProducer(const char* name) :
-PndSdsTask(name), fDataBuffer(0), fEventNr(0)
+PndSdsTask(name), 
+      fPersistance(kTRUE),
+      fPointArray(NULL),
+      fStripArray(NULL),
+      fDataBuffer(0),
+      fDigiParameterList(NULL),
+      fChargeDigiParameterList(NULL),
+      fCurrentDigiPar(NULL),
+      fCurrentChargeConverter(NULL),
+      fStripCalcTop(),
+      fStripCalcBot(),
+      fChargeConverter(),
+      fCurrentStripCalcTop(NULL),
+      fCurrentStripCalcBot(NULL),
+      fMcEventHeader(NULL),
+      fGeoH(NULL),
+      fOverrideParams(kFALSE),
+      fTimeOrderedDigi(kFALSE),
+      fEventNr(0)
 {
-  fOverrideParams = false;
   fDigiParameterList = new TList();
   fChargeDigiParameterList = new TList();
-  fPersistance = kTRUE;
-  fGeoH = NULL;//PndGeoHandling::Instance();
-  fTimeOrderedDigi = kFALSE;
-
-  fPointArray = NULL;
-  fStripArray = NULL;
-
-  fCurrentDigiPar = NULL;
-  fCurrentChargeConverter = NULL;
-
-//   fStripCalcTop = NULL;
-//   fStripCalcBot = NULL;
-//   fChargeConverter = NULL;
-  fCurrentStripCalcTop = NULL;
-  fCurrentStripCalcBot = NULL;
 }
 // -------------------------------------------------------------------------
 

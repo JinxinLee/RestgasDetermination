@@ -34,6 +34,11 @@ class PndSdsHitProducerIdeal : public PndSdsTask
   /** Default constructor **/  
   PndSdsHitProducerIdeal();
 
+  PndSdsHitProducerIdeal(PndSdsHitProducerIdeal& other):
+      fPersistance(other.fPersistance),
+      fPointArray(other.fPointArray),
+      fHitArray(other.fHitArray)
+   {};
   /** Named constructor **/  
   PndSdsHitProducerIdeal(const char* name);
 
@@ -59,6 +64,16 @@ class PndSdsHitProducerIdeal : public PndSdsTask
   void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
   Bool_t GetPersistance() {return fPersistance;};
   
+  PndSdsHitProducerIdeal& operator=(PndSdsHitProducerIdeal& other)
+  {
+    if(this != &other) // protect against invalid self-assignment
+    {
+      fPersistance=other.fPersistance;
+      fPointArray=other.fPointArray;
+      fHitArray=other.fHitArray;
+    }
+    return *this;
+  }
 protected:
   
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file

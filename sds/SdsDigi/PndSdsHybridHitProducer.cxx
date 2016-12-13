@@ -35,106 +35,94 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsHybridHitProducer::PndSdsHybridHitProducer() :
-PndSdsTask("SDS Hybrid Hit Producer")
+  PndSdsTask("SDS Hybrid Hit Producer"),
+  fPersistance(kTRUE),
+  fDigiPixelMCInfo(kFALSE),
+  fPointArray(NULL),
+  fPixelArray(NULL),
+  fPixelMCArray(NULL),
+  fDigiPar(NULL),
+  fTotDigiPar(NULL),
+  fChargeConverter(NULL),
+  fMCEventHeader(NULL),
+  fDataBuffer(NULL),
+  flx(0.),
+  fly(0.),
+  fthreshold(0.),
+  fnoise(0.),
+  fqsigma(0.),
+  fcols(0),
+  frows(0),
+  fPixelHits(0),
+  fGeoH(NULL),
+  fEventNr(0),
+  fOverwriteParams(kFALSE),
+  fTimeOrderedDigi(kFALSE),
+  fPixelList()
 {
-  
-  fPixelHits = 0;
-  fEventNr = 0;
-  fOverwriteParams = kFALSE;
-  
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be taken from RTDB");
   fPersistance = kTRUE;
-  fGeoH=NULL;
-  fDigiPixelMCInfo = kFALSE;
-  fTimeOrderedDigi = kFALSE;
-  //fFEModel = NULL;
-
-  fPointArray   = NULL;
-  fPixelArray   = NULL;
-  fPixelMCArray = NULL;
-
-  fDigiPar = NULL;
-  fTotDigiPar = NULL;
-  fChargeConverter = NULL;
-  fMCEventHeader = NULL;
-  fDataBuffer = NULL;
-
-  flx = 0.;	//pixel width in x;
-  fly = 0.;	//pixel width in y;
-  fthreshold = 0.; //pixel threshold in electrons
-  fnoise = 0.; //pixel noise in electrons
-  fqsigma = 0.; //gaussian charge cloud spread
-  fcols = 0; //pixel columns in one FE
-  frows = 0; //pixel rows in one FE
-
 }
 // -------------------------------------------------------------------------
 
 PndSdsHybridHitProducer::PndSdsHybridHitProducer(const char* name) :
-PndSdsTask(name)
+PndSdsTask(name),
+  fPersistance(kTRUE),
+  fDigiPixelMCInfo(kFALSE),
+  fPointArray(NULL),
+  fPixelArray(NULL),
+  fPixelMCArray(NULL),
+  fDigiPar(NULL),
+  fTotDigiPar(NULL),
+  fChargeConverter(NULL),
+  fMCEventHeader(NULL),
+  fDataBuffer(NULL),
+  flx(0.),
+  fly(0.),
+  fthreshold(0.),
+  fnoise(0.),
+  fqsigma(0.),
+  fcols(0),
+  frows(0),
+  fPixelHits(0),
+  fGeoH(NULL),
+  fEventNr(0),
+  fOverwriteParams(kFALSE),
+  fTimeOrderedDigi(kFALSE),
+  fPixelList()
 {
-  fPixelHits = 0;
-  fEventNr = 0;
-  fOverwriteParams = kFALSE;
-  fPersistance = kTRUE;
-  fGeoH = NULL;//PndGeoHandling::Instance();
-  fDigiPixelMCInfo = kFALSE;
-  fTimeOrderedDigi = kFALSE;
-  //fFEModel = NULL;
   if(fVerbose>0) Info("PndSdsHybridHitProducer","%s created, Parameters will be taken from RTDB",name);
-
-  fPointArray   = NULL;
-  fPixelArray   = NULL;
-  fPixelMCArray = NULL;
-
-  fDigiPar = NULL;
-  fTotDigiPar = NULL;
-  fChargeConverter = NULL;
-  fMCEventHeader = NULL;
-  fDataBuffer = NULL;
-
-  flx = 0.;	//pixel width in x;
-  fly = 0.;	//pixel width in y;
-  fthreshold = 0.; //pixel threshold in electrons
-  fnoise = 0.; //pixel noise in electrons
-  fqsigma = 0.; //gaussian charge cloud spread
-  fcols = 0; //pixel columns in one FE
-  frows = 0; //pixel rows in one FE
-
 }
 // -------------------------------------------------------------------------
 
 PndSdsHybridHitProducer::PndSdsHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise) :
-PndSdsTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)")
+PndSdsTask("SDS Hybrid Digi Producer (PndSdsHybridHitProducer)"),
+  fPersistance(kTRUE),
+  fDigiPixelMCInfo(kFALSE),
+  fPointArray(NULL),
+  fPixelArray(NULL),
+  fPixelMCArray(NULL),
+  fDigiPar(NULL),
+  fTotDigiPar(NULL),
+  fChargeConverter(NULL),
+  fMCEventHeader(NULL),
+  fDataBuffer(NULL),
+  flx(lx),
+  fly(ly),
+  fthreshold(threshold),
+  fnoise(noise),
+  fqsigma(0.),
+  fcols(104),
+  frows(104),
+  fPixelHits(0),
+  fGeoH(NULL),
+  fEventNr(0),
+  fOverwriteParams(kTRUE),
+  fTimeOrderedDigi(kFALSE),
+  fPixelList()
 {
-  
-  flx = lx;
-  fly = ly;
-  fthreshold = threshold;
-  fnoise = noise;
-  fPixelHits = 0;
-  fEventNr = 0;
-  fcols = 104;
-  frows = 104;
-  fOverwriteParams = kTRUE;
-  fPersistance = kTRUE;
-  fDigiPixelMCInfo = kFALSE;
-  fGeoH = NULL;//PndGeoHandling::Instance();
   fTimeOrderedDigi = kFALSE;
-  //fFEModel = NULL;
   if(fVerbose>0) Info("PndSdsHybridHitProducer","SDS Hybrid Digi Producer created, Parameters will be overwritten in RTDB");
-
-  fPointArray   = NULL;
-  fPixelArray   = NULL;
-  fPixelMCArray = NULL;
-
-  fDigiPar = NULL;
-  fTotDigiPar = NULL;
-  fChargeConverter = NULL;
-  fMCEventHeader = NULL;
-  fDataBuffer = NULL;
-
-  fqsigma = 0.; //gaussian charge cloud spread
 }
 // -------------------------------------------------------------------------
 

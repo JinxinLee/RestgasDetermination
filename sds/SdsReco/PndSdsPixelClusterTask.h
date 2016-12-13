@@ -55,13 +55,50 @@ class PndSdsPixelClusterTask : public PndSdsTask
     
     /** Default constructor **/  
     PndSdsPixelClusterTask();
-    
+    PndSdsPixelClusterTask(PndSdsPixelClusterTask& other):
+      fPersistance(other.fPersistance),
+      fUseNoiseSuppression(other.fUseNoiseSuppression),
+      fFEModel(other.fFEModel),
+      fDigiArray(other.fDigiArray),
+      fDigiPar(other.fDigiPar),
+      fChargeConverter(other.fChargeConverter),
+      fGeoH(other.fGeoH),
+      fClustBranchName(other.fClustBranchName),
+      fClusterArray(other.fClusterArray),
+      fHitArray(other.fHitArray),
+      fEventHeader(other.fEventHeader),
+      fFunctor(other.fFunctor),
+      fStartFunctor(other.fStartFunctor), 
+      fClusterType(other.fClusterType),
+      fEventNr(other.fEventNr),
+      fClusterFinder(other.fClusterFinder),
+      fBackMapping(other.fBackMapping)
+    {};
     /** Named constructor **/  
     PndSdsPixelClusterTask(const char* name);
     
     /** Destructor **/
     virtual ~PndSdsPixelClusterTask();
-
+    PndSdsPixelClusterTask& operator=(PndSdsPixelClusterTask& other)
+    {
+      fPersistance=other.fPersistance;
+      fUseNoiseSuppression=other.fUseNoiseSuppression;
+      fFEModel=other.fFEModel;
+      fDigiArray=other.fDigiArray;
+      fDigiPar=other.fDigiPar;
+      fChargeConverter=other.fChargeConverter;
+      fGeoH=other.fGeoH;
+      fClustBranchName=other.fClustBranchName;
+      fClusterArray=other.fClusterArray;
+      fHitArray=other.fHitArray;
+      fEventHeader=other.fEventHeader;
+      fFunctor=other.fFunctor;
+      fStartFunctor=other.fStartFunctor; 
+      fClusterType=other.fClusterType;
+      fEventNr=other.fEventNr;
+      fClusterFinder=other.fClusterFinder;
+      fBackMapping=other.fBackMapping;
+    };
    virtual void SetClusterFinder()=0;
    virtual void SetBackMapping()=0;
 

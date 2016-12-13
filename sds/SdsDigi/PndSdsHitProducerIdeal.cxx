@@ -15,14 +15,20 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsHitProducerIdeal::PndSdsHitProducerIdeal() :
-PndSdsTask("Ideal SDS Hit Producer"), fPersistance(kTRUE)
+PndSdsTask("Ideal SDS Hit Producer"), 
+fPersistance(kTRUE),
+fPointArray(NULL),
+fHitArray(NULL)
 {
 }
 // -------------------------------------------------------------------------
 
 // -----   Named constructor   -------------------------------------------
 PndSdsHitProducerIdeal::PndSdsHitProducerIdeal(const char* name) :
-PndSdsTask(name), fPersistance(kTRUE)
+PndSdsTask(name), 
+fPersistance(kTRUE),
+fPointArray(),
+fHitArray()
 {
 }
 // -------------------------------------------------------------------------

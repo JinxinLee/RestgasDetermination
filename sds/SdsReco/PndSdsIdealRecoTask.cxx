@@ -28,26 +28,38 @@
 // -----   Default constructor   -------------------------------------------
 PndSdsIdealRecoTask::PndSdsIdealRecoTask() :
   PndSdsTask("Ideal reconstruction task for PANDA PndSds"),
-  fHitCovMatrix(3,3)
+    fPersistance(kTRUE),
+    fGeoH(PndGeoHandling::Instance()),
+    fPointArray(NULL),
+    fMctruthArray(NULL),
+    fHitOutputArray(NULL),
+    fSigmaX(0.),
+    fSigmaY(0.),
+    fSigmaZ(0.),
+    fCurrentPndSdsMCPoint(NULL),
+    fCurrentTransMat(NULL),
+    fHitCovMatrix(3,3)
 {
-  fSigmaX=0.;
-  fSigmaY=0.;
-  fSigmaZ=0.;
-  fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  //fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
 // -----   Constructor   ---------------------------------------------------
 PndSdsIdealRecoTask::PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
   PndSdsTask("Ideal reconstruction task for PANDA PndSds"),
-  fHitCovMatrix(3,3)
+    fPersistance(kTRUE),
+    fGeoH(PndGeoHandling::Instance()),
+    fPointArray(NULL),
+    fMctruthArray(NULL),
+    fHitOutputArray(NULL),
+    fSigmaX(sx),
+    fSigmaY(sy),
+    fSigmaZ(sz),
+    fCurrentPndSdsMCPoint(NULL),
+    fCurrentTransMat(NULL),
+    fHitCovMatrix(3,3)
 {
-  fSigmaX=sx;
-  fSigmaY=sy;
-  fSigmaZ=sz;
-  fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
+  //fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 

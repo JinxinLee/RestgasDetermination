@@ -38,11 +38,39 @@ class PndSdsIdealRecoTask : public PndSdsTask
   PndSdsIdealRecoTask();
 
   PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz);
-
+  
+  PndSdsIdealRecoTask(PndSdsIdealRecoTask& other) :
+    fPersistance(other.fPersistance),
+    fGeoH(other.fGeoH),
+    fPointArray(other.fPointArray),
+    fMctruthArray(other.fMctruthArray),
+    fHitOutputArray(other.fHitOutputArray),
+    fSigmaX(other.fSigmaX),
+    fSigmaY(other.fSigmaY),
+    fSigmaZ(other.fSigmaZ),
+    fCurrentPndSdsMCPoint(other.fCurrentPndSdsMCPoint),
+    fCurrentTransMat(other.fCurrentTransMat),
+    fHitCovMatrix(other.fHitCovMatrix)
+  {}
 
   /** Destructor **/
   virtual ~PndSdsIdealRecoTask();
 
+  PndSdsIdealRecoTask& operator=(PndSdsIdealRecoTask& other)
+  {
+    fPersistance=other.fPersistance;
+    fGeoH=other.fGeoH;
+    fPointArray=other.fPointArray;
+    fMctruthArray=other.fMctruthArray;
+    fHitOutputArray=other.fHitOutputArray;
+    fSigmaX=other.fSigmaX;
+    fSigmaY=other.fSigmaY;
+    fSigmaZ=other.fSigmaZ;
+    fCurrentPndSdsMCPoint=other.fCurrentPndSdsMCPoint;
+    fCurrentTransMat=other.fCurrentTransMat;
+    fHitCovMatrix=other.fHitCovMatrix;
+  };
+  
   /** Virtual method Init **/
   virtual void SetParContainers();
   virtual InitStatus Init();

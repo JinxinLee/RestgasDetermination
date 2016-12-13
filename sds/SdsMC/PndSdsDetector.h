@@ -44,16 +44,56 @@ class PndSdsDetector : public FairDetector
   /** Default constructor **/
   PndSdsDetector();
 
-
+  PndSdsDetector(PndSdsDetector& other) :
+    fPersistance(other.fPersistance),
+    fTrackID(other.fTrackID),
+    fVolumeID(other.fVolumeID),
+    fPosIn(other.fPosIn),
+    fPosOut(other.fPosOut),
+    fMomIn(other.fMomIn),
+    fMomOut(other.fMomOut),
+    fTime(other.fTime),
+    fLength(other.fLength),
+    fELoss(other.fELoss),
+    fGeoH(other.fGeoH),
+    fPosIndex(other.fPosIndex),
+    fPndSdsCollection(other.fPndSdsCollection),
+    fUseRadDamOption(other.fUseRadDamOption),
+    fOutBranchName(other.fOutBranchName),
+    fFolderName(other.fFolderName),
+    fDetectorID(other.fDetectorID),
+    fListOfSensitives(other.fListOfSensitives)
+  {};
   /** Standard constructor.
    *@param name    detetcor name
    *@param active  sensitivity flag
    **/
   PndSdsDetector(const char* name, Bool_t active);
 
-
   /** Destructor **/
   virtual ~PndSdsDetector();
+
+  PndSdsDetector& operator=(PndSdsDetector& other)
+  {
+    fPersistance=other.fPersistance;
+    fTrackID=other.fTrackID;
+    fVolumeID=other.fVolumeID;
+    fPosIn=other.fPosIn;
+    fPosOut=other.fPosOut;
+    fMomIn=other.fMomIn;
+    fMomOut=other.fMomOut;
+    fTime=other.fTime;
+    fLength=other.fLength;
+    fELoss=other.fELoss;
+    fGeoH=other.fGeoH;
+    fPosIndex=other.fPosIndex;
+    fPndSdsCollection=other.fPndSdsCollection;
+    fUseRadDamOption=other.fUseRadDamOption;
+    fOutBranchName=other.fOutBranchName;
+    fFolderName=other.fFolderName;
+    fDetectorID=other.fDetectorID;
+    fListOfSensitives=other.fListOfSensitives;
+  };
 
   virtual void Initialize();
 

@@ -15,19 +15,17 @@
 // enum SensorSide { kTOP, kBOTTOM };
 
 
-PndSdsSimpleStripClusterFinder::PndSdsSimpleStripClusterFinder(Int_t DigiType): PndSdsStripClusterer(DigiType)
-{
-  // dummy
-	fRadius = 1;
-}
-PndSdsSimpleStripClusterFinder::PndSdsSimpleStripClusterFinder(Int_t DigiType, Int_t rad): PndSdsStripClusterer(DigiType)
-{
-	fRadius = rad;
-}
+PndSdsSimpleStripClusterFinder::PndSdsSimpleStripClusterFinder(Int_t DigiType)
+: PndSdsStripClusterer(DigiType),
+  fRadius(1)
+{}
+PndSdsSimpleStripClusterFinder::PndSdsSimpleStripClusterFinder(Int_t DigiType, Int_t rad)
+: PndSdsStripClusterer(DigiType),
+ 	fRadius(rad)
+{}
 
 PndSdsSimpleStripClusterFinder::~PndSdsSimpleStripClusterFinder()
-{
-}
+{}
 
 
 std::vector< PndSdsClusterStrip* >  PndSdsSimpleStripClusterFinder::SearchClusters()
