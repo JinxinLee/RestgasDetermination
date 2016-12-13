@@ -79,7 +79,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
  #Mesh.cpp
- #PndRadMapPlane.cxx
+ PndRadMapPlane.cxx
  PndRadMapBoxMesh.cxx
 )
 set(LINKDEF RadMapLinkDef.h)
