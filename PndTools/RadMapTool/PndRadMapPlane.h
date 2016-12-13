@@ -6,10 +6,14 @@
 #include <TMatrixD.h>
 #include <FairRadMapPoint.h>
 
+enum axis{Xx=1, Yy=2, Zz=3}; 
+enum orientation{XY=1, YX=2, XZ=3, ZX=4, YZ=5, ZY=6}; 
+
 class PndRadMapPlane {
  public:
   PndRadMapPlane();
   PndRadMapPlane(TVector3 _corner1, TVector3 _corner2, TVector3 _corner3, double dist = 0);
+  PndRadMapPlane(Double_t dist, Double_t rot, orientation plane, axis ax);
   TVector3 LineIntersection(TVector3 begline, TVector3 endline);
   void SetNormal(TVector3 n){normal = n;};
   void SetDistance(double d){distance = d;};
@@ -24,6 +28,7 @@ class PndRadMapPlane {
   TVector3 corner1;
   TVector3 corner2;
   TVector3 corner3;
+  TVector3 _axis;
   double distance;
   //ClassDef(PndRadMapPlane,1);
 };

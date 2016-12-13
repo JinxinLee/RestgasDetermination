@@ -23,7 +23,7 @@ PndRadMapPlane::PndRadMapPlane(){
 }
 
 PndRadMapPlane::PndRadMapPlane(TVector3 _corner1, TVector3 _corner2, TVector3 _corner3,
-             double dist){
+                               double dist){
   corner1 = _corner1;
   corner2 = _corner2;
   corner3 = _corner3;
@@ -32,13 +32,51 @@ PndRadMapPlane::PndRadMapPlane(TVector3 _corner1, TVector3 _corner2, TVector3 _c
   TVector3 n = (dpv1.Cross(dpv2)).Unit();
   SetNormal(n);
   SetDistance(dist);
+}
 
-  // std::cout << "p1: " << corner1.X() << ' ' << corner1.Y() << ' ' << corner1.Z() << std::endl;
-  // std::cout << "p2: " << corner2.X() << ' ' << corner2.Y() << ' ' << corner2.Z() << std::endl;
-  // std::cout << "p3: " << corner3.X() << ' ' << corner3.Y() << ' ' << corner3.Z() << std::endl;
-  // std::cout << "dp1: " << dpv1.X() << ' ' << dpv1.Y() << ' ' << dpv1.Z() << std::endl;
-  // std::cout << "dp2: " << dpv2.X() << ' ' << dpv2.Y() << ' ' << dpv2.Z() << std::endl;
-  // std::cout << "normal: " << n.X() << ' ' << n.Y() << ' ' << n.Z() << std::endl;
+PndRadMapPlane::PndRadMapPlane(Double_t dist, Double_t rot, orientation plane, axis ax){
+  
+  // TVector3 corner1, corner2, corner3, axis;
+  switch (plane){
+  case XY: case YX:
+    corner1.SetXYZ( 1,  1, dist);
+    corner2.SetXYZ(-1,  1, dist);
+    corner3.SetXYZ(-1, -1, dist);
+    break;
+
+  case XZ: case ZX:
+    corner1.SetXYZ(  1,  dist,  1);
+    corner2.SetXYZ( -1,  dist,  1);
+    corner3.SetXYZ( -1,  dist, -1);
+    break;
+    
+  case YZ: case ZY:
+    corner1.SetXYZ(dist,  1,  1);
+    corner2.SetXYZ(dist, -1,  1);
+    corner3.SetXYZ(dist,- 1, -1);
+    break;
+  };
+  
+  switch (ax){
+  case Xx:
+    _axis.SetXYZ(1, 0, 0);
+    break;
+  case Yy:
+    _axis.SetXYZ(0, 1, 0);
+    break;
+  case Zz:
+    _axis.SetXYZ(0, 0, 1);
+    break;
+  };
+
+  corner1.Rotate(rot, _axis);
+  corner2.Rotate(rot, _axis);
+  corner3.Rotate(rot, _axis);
+
+  TVector3 dpv1 = corner2-corner1;
+  TVector3 dpv2 = corner3-corner1;
+  TVector3 n = (dpv1.Cross(dpv2)).Unit();
+  SetNormal(n);
 }
 
 TVector3 PndRadMapPlane::GetCorner(int i){
@@ -62,8 +100,6 @@ TVector3 PndRadMapPlane::LineIntersection(TVector3 begline, TVector3 endline){
   //    (t*(end-beg) + beg - corner1)*n=0
   //    t*(end-beg)*n+(beg-corner1)*n=0
   //    n*(corner1-beg)/(n*(end-beg))=t
-
-
   TVector3 diffl = endline-begline;
   float nDotBeg = normal*(corner1-begline);
   float nDotDiff = normal*diffl;
@@ -71,9 +107,6 @@ TVector3 PndRadMapPlane::LineIntersection(TVector3 begline, TVector3 endline){
 
   TVector3 ixp = begline + tt*diffl;
 
-  // std::cout << diffl.X() << ' ' << diffl.Y() << ' ' << diffl.Z() << "   "
-  //           << normal.X() << ' ' << normal.Y() << ' ' << normal.Z() << "   "
-  //           << nDotBeg << ' ' << nDotDiff << ' ' << tt << std::endl;
   return ixp;
 
 }
