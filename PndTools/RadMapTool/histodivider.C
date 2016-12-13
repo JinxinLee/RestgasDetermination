@@ -1,387 +1,375 @@
-
-
-#include <string>
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TH1D.h"
-#include "TH2.h"
-#include "TH2D.h"
-#include "TMath.h"
-#include "TPaletteAxis.h"
-#include "TStyle.h"
-#include <iostream>
-
-
-
-#include <stdio.h>
-#include <vector>
+#include "histodivider.hh"
 
 using namespace std;
 
-TCanvas * c1 = new TCanvas("c1", "c1", 1100, 1100);
-TH1D* histo(TH2* h2, const char* name = "histo", double min=0, double max=-1);
-TH2D* plot(TH2D* h2, TH2D* h2S, TCanvas* canvas,
-           int min=0, double fact=-1,
-           const char* Xlabel="", const char* Ylabel="", const char* Title="",
-           bool Xlog=false, bool Ylog=false, bool Zlog=false,
-           double rmin=-1, double rmax=-1,
-           const char* filename="",
-           TH2D* hmass = NULL, TH2D* hmass_stat = NULL);
-TH2D*  divider(TH2D* H3, TH2D* H3S, Int_t t3,
-               TH2D* H4, TH2D* H4S, Int_t t4,
-               TCanvas* canvas,
-               const char* Xlabel="", const char* Ylabel="", const char* Title="",
-               bool Xlog=false, bool Ylog=false, bool Zlog=false,
-               double rmin=-1, double rmax=-1,
-               const char* filename="");
-TH2D* Cut(TH2D* H4, TH2D* H4R, const char* name, double thrs, bool larger=true);
-TH1D* distro(TH2D* histo, double min = 0, double max = 0);
-void Quater(std::vector<TH2D*>& HV);
+// int main(const char* filename="Geant4/RadMap_Out.root"){
+int main(){
+  const char* filename="Geant4/RadMap_Out.root";
+  gStyle->SetOptStat(0);
+
+  TFile* file = new TFile(filename);
+
+  TH2D* signal = NULL;
+  TH2D* normal = NULL;
+  std::vector<TH2D*> H;
 
 
-TH2D* plot(TH2D* h2, TH2D* h2S, TCanvas* canvas,
-           int min, double fact,
-           const char* Xlabel, const char* Ylabel, const char* Title,
-           bool Xlog, bool Ylog, bool Zlog,
-           double rmin, double rmax,
-           const char* filename,
-           TH2D* hmass, TH2D* hmass_stat){
+  
+  TFile* ofile = new TFile("figures.root", "RECREATE");
+  // file->ls();
+  Double_t norm = 1000;
+/*
 
-  bool masscorrect = false;
-  TH2D* massratio = NULL;
-  if((hmass != NULL) && (hmass_stat != NULL)){
-    masscorrect = true;
-    massratio = (TH2D*) hmass->Clone("massratio");
-    massratio->Divide(hmass_stat);
+  TDirectory* dir = NULL;
+  TH2D* htemps = NULL;
+  TH2D* htempb = NULL;
+
+  dir = (TDirectory*)file->Get("EmcAllFluenceZX_ZY_14.3");
+  htemps = (TH2D*)dir->Get("EmcAllFluenceZX_Histo_ZY_14.3");
+  htempb = (TH2D*)dir->Get("EmcAllFluenceZX_StatHisto_ZY_14.3");
+  cout << "1 - " << dir << ' ' << htemps << ' ' << htempb 
+  << endl;
+
+
+  
+
+
+  
+
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.61e14/norm,
+  H.push_back(plot(htemps  ,htempb  , c1 , 0, 1./norm,
+  "Z [cm]", "Y [cm]",
+  "Full particle fluence (at X=50cm) [1/cm^2]",
+  false, false, true,
+  -1, -1,
+  "figures.pdf"));
+
+
+
+  delete htemps;
+  delete htempb;
+  delete dir;
+
+  dir = (TDirectory*)file->Get("EmcNFluenceZX_ZY_14.3");
+  htemps = (TH2D*)dir->Get("EmcNFluenceZX_Histo_ZY_14.3");
+  htempb = (TH2D*)dir->Get("EmcNFluenceZX_StatHisto_ZY_14.3");
+
+  cout << "2 - " << dir << ' ' << htemps << ' ' << htempb 
+  << endl;
+  
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.61e14/norm,
+  H.push_back(plot(htemps  ,htempb  , c1 , 0, 1./norm,
+  "Z [cm]", "Y [cm]",
+  "Neutron fluence (at X=50cm) [1/cm^2]",
+  false, false, true,
+  -1, -1,
+  "figures.pdf"));
+
+
+
+  delete htemps;
+  delete htempb;
+  delete dir;
+
+  dir = (TDirectory*)file->Get("EmcPFluenceZX_ZY_14.3");
+  htemps = (TH2D*)dir->Get("EmcPFluenceZX_Histo_ZY_14.3");
+  htempb = (TH2D*)dir->Get("EmcPFluenceZX_StatHisto_ZY_14.3");
+
+  cout << "3 - " << dir << ' ' << htemps << ' ' << htempb 
+  << endl;
+  
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.61e14/norm,
+  H.push_back(plot(htemps  ,htempb  , c1 , 0, 1./norm,
+  "Z [cm]", "Y [cm]",
+  "Proton fluence (at X=50cm) [1/cm^2]",
+  false, false, true,
+  -1, -1,
+  "figures.pdf"));
+
+
+
+  delete htemps;
+  delete htempb;
+  delete dir;
+
+  dir = (TDirectory*)file->Get("EmcAllFluencePawelXY_XY_0");
+  htemps = (TH2D*)dir->Get("EmcAllFluencePawelXY_Histo_XY_0");
+  htempb = (TH2D*)dir->Get("EmcAllFluencePawelXY_StatHisto_XY_0");
+
+  cout << "4 - " << dir << ' ' << htemps << ' ' << htempb 
+  << endl;
+  
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.61e14/norm,
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1./norm,
+  H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.02e7/norm,
+  "Z [cm]", "Y [cm]",
+  "All Particle fluence (at X=50cm) [1/cm^2/event]",
+  false, false, true,
+  -1, -1,
+  "figures.pdf"));
+  Quater(H);
+
+
+
+  delete htemps;
+  delete htempb;
+  delete dir;
+
+  dir = (TDirectory*)file->Get("EmcCFluencePawelXY_XY_0");
+  htemps = (TH2D*)dir->Get("EmcCFluencePawelXY_Histo_XY_0");
+  htempb = (TH2D*)dir->Get("EmcCFluencePawelXY_StatHisto_XY_0");
+
+  cout << "5 - " << dir << ' ' << htemps << ' ' << htempb 
+  << endl;
+  
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.61e14/norm,
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1./norm,
+  H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.02e7/norm,
+  "Z [cm]", "Y [cm]",
+  "Charged fluence (at X=50cm) [1/cm^2/event]",
+  false, false, true,
+  -1, -1,
+  "figures.pdf"));
+  Quater(H);
+
+
+
+  delete htemps;
+  delete htempb;
+  delete dir;
+
+  dir = (TDirectory*)file->Get("EmcCnepFluencePawelXY_XY_0");
+  htemps = (TH2D*)dir->Get("EmcCnepFluencePawelXY_Histo_XY_0");
+  htempb = (TH2D*)dir->Get("EmcCnepFluencePawelXY_StatHisto_XY_0");
+
+  cout << "6 - " << dir << ' ' << htemps << ' ' << htempb 
+  << endl;
+  
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.61e14/norm,
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1./norm,
+  H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.02e7/norm,
+  "Z [cm]", "Y [cm]",
+  "Charged fluence (without e^{\pm})(at X=50cm) [1/cm^2/events]",
+  false, false, true,
+  -1, -1,
+  "figures.pdf"));
+  Quater(H);
+
+
+
+  delete htemps;
+  delete htempb;
+  delete dir;
+
+  dir = (TDirectory*)file->Get("EmcPFluencePawelXY_XY_0");
+  htemps = (TH2D*)dir->Get("EmcPFluencePawelXY_Histo_XY_0");
+  htempb = (TH2D*)dir->Get("EmcPFluencePawelXY_StatHisto_XY_0");
+
+  cout << "7 - " << dir << ' ' << htemps << ' ' << htempb 
+  << endl;
+  
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.61e14/norm,
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1./norm,
+  H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.02e7/norm,
+  "Z [cm]", "Y [cm]",
+  "Proton fluence (at X=50cm) [1/cm^2/events]",
+  false, false, true,
+  -1, -1,
+  "figures.pdf"));
+  Quater(H);
+
+
+
+
+  delete htemps;
+  delete htempb;
+  delete dir;
+
+  dir = (TDirectory*)file->Get("EmcNFluencePawelXY_XY_0");
+  htemps = (TH2D*)dir->Get("EmcNFluencePawelXY_Histo_XY_0");
+  htempb = (TH2D*)dir->Get("EmcNFluencePawelXY_StatHisto_XY_0");
+
+  cout << "8 - " << dir << ' ' << htemps << ' ' << htempb 
+  << endl;
+  
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.61e14/norm,
+  // H.push_back(plot(htemps  ,htempb  , c1 , 0, 1./norm,
+  H.push_back(plot(htemps  ,htempb  , c1 , 0, 1.02e7/norm,
+  "Z [cm]", "Y [cm]",
+  "Neutron fluence (at X=50cm) [1/cm^2/events]",
+  false, false, true,
+  -1, -1,
+  "figures.pdf"));
+  Quater(H);
+
+
+
+
+//-------------------
+//reaction rate ~1e7/s
+//-------------------
+
+ofile->Write();
+*/
+  std::vector<TObjArray*> vto = ReadNames("names.dat");
+  std::cout << "in the file names.dat there eare " << vto.size() << " valid entries\n";
+  std::cout << vto.at(0)->GetSize() << std::endl;
+  // for(int i = 0; i < vto.at(0)->GetSize(); i++)
+  //   std::cout << i << ' ' << vto.at(0)->At(i) << std::endl;
+  
+  TIter next(file->GetListOfKeys());
+  TKey *key;
+  std::vector<TDirectory*> Dirs;
+  
+  while ((key = (TKey*)next())) {
+    TClass *cl = gROOT->GetClass(key->GetClassName());
+    // if (cl->InheritsFrom("TH2")){
+    if (cl->InheritsFrom("TDirectory")){
+      Dirs.push_back((TDirectory*)key->ReadObj());
+    }
   }
-  
-  cout << h2->GetName() << endl;
-  canvas->cd();
-
-  char cc[64];
-  sprintf(cc, "%s_temp", h2->GetTitle());
-  TH2D* h2t = (TH2D*)h2->Clone(cc);
-  h2t->SetNameTitle(cc, cc);
-  h2t->Divide(h2S);
-
-  TH1D* h1 = distro(h2t, -20);
-  int minb = h1->GetMinimumBin();
-  int maxb = h1->GetMaximumBin();
-  std::cout << "Min: " << minb << ' ' << h1->GetBinCenter(minb) << std::endl;
-  std::cout << "Max: " << maxb << ' ' << h1->GetBinCenter(maxb) << std::endl;
-
-  double max = TMath::Power(10, h1->GetBinCenter(maxb));
-
-  
-  if(Xlog) canvas->SetLogx(1);
-  else canvas->SetLogx(0);
-  if(Ylog) canvas->SetLogy(1);
-  else canvas->SetLogy(0);
-  if(Zlog) canvas->SetLogz(1);
-  else canvas->SetLogz(0);
-  
-  cout << h2->GetMinimum(0) << ' ' << h2->GetMaximum() << endl;
-  sprintf(cc, "%s_R", h2->GetTitle());
-  TH2D* h2c = new TH2D(cc, cc,
-                       h2->GetNbinsX(), h2->GetXaxis()->GetBinLowEdge(1),
-                       h2->GetXaxis()->GetBinUpEdge(h2->GetNbinsX()),
-                       h2->GetNbinsY(), h2->GetYaxis()->GetBinLowEdge(1),
-                       h2->GetYaxis()->GetBinUpEdge(h2->GetNbinsY()));
+  std::cout << "There are " << Dirs.size() << " directories in the file\n";
 
 
+  // std::string E = exec("find Geant4.15GeV/ -type f -name \"*Sim*.root\"  | wc -l");
+  // Int_t norm = atoi(E.c_str());
 
-  bool massok = true;
-  for(int x = 1; x <= h2S->GetXaxis()->GetNbins(); x++){
+  printf("%i file are created\n", norm);  
+  Int_t u = 0;
 
-    for(int y = 1; y <= h2S->GetYaxis()->GetNbins(); y++){
 
-      //cout<<x<<" "<<y<<" "<<h2S->GetBinContent(x, y)<<endl;
-      int content = h2S->GetBinContent(x, y);
-      
-      if(min < content ) { 
+  for(unsigned int di = 0; di < Dirs.size(); di++){
+    TDirectory* dir = Dirs.at(di);
+    TString TS(dir->GetName());
+    unsigned int si = 9999;
+    for(unsigned int ii = 0; ii < vto.size(); ii++){
+      if(vto.at(ii)->At(0)){
+        // cout << di << '\t' << ii << '\t'
+        //      << TS.Data() << '\t'
+        //      << (dynamic_cast<TObjString*>(vto.at(ii)->At(0)))->String()// << " - " << (TS == ((TObjString)(vto.at(ii)->At(0))).String())
+        //      << endl;
+        if(TS == (dynamic_cast<TObjString*>(vto.at(ii)->At(0)))->String()) si = ii;
+      }
+    }
+    std::cout << TS.Data() << ' ' << si << endl;    
+    if(si < 9999){
+      TObjArray* TOA = TS.Tokenize("_");
+      TString Sbegin = (dynamic_cast<TObjString*>(TOA->At(0)))->String();
+      TString Send = (dynamic_cast<TObjString*>(TOA->At(1)))->String();
+      Send += "_";
+      Send += (dynamic_cast<TObjString*>(TOA->At(2)))->String();
+      // std::cout << Sbegin.Data() << ' ' << Send.Data() << endl;
+      TString HName = Sbegin + "_Histo_" + Send;
+      TString SHName = Sbegin + "_StatHisto_" + Send;
+      // std::cout << HName.Data() << ' ' << SHName.Data() << endl;
 
-	massok = true;
+      signal = (TH2D*)dir->Get(HName.Data());
+      normal = (TH2D*)dir->Get(SHName.Data());
 
-	if(masscorrect)
 
-	  if(massratio->GetBinContent(x, y) > 1000) massok = false;
+      if(signal && normal){
+        // cout << atof((dynamic_cast<TObjString*>(vto.at(si)->At(4)))->String()) << ' '
+        //      << (dynamic_cast<TObjString*>(vto.at(si)->At(2)))->String() << ' '
+        //      << (dynamic_cast<TObjString*>(vto.at(si)->At(3)))->String() << ' '
+        //      << (dynamic_cast<TObjString*>(vto.at(si)->At(1)))->String() << ' '
+        //      << endl;
 
-	if(massok)
-
-	  h2c->SetBinContent(x, y, h2->GetBinContent(x, y));
+        TH2D* h2 = plot(signal  ,normal  , c1 , 0, 
+                        atof((dynamic_cast<TObjString*>(vto.at(si)->At(4)))->String())/norm,
+                        (dynamic_cast<TObjString*>(vto.at(si)->At(2)))->String(),
+                        (dynamic_cast<TObjString*>(vto.at(si)->At(3)))->String(),
+                        (dynamic_cast<TObjString*>(vto.at(si)->At(1)))->String(),
+                        false, false, true,
+                        -1, -1,
+                        "figures.pdf");
+          
+        H.push_back(h2);
+//       H.at(H.size()-1)->Write();
+        delete signal;
+        signal = NULL;
+        delete normal;
+        normal = NULL;
       }
     }
   }
-
-
-  
-  h2c->Scale(fact);
-  if((rmin > 0) || (rmax > 0))
-    h2c->GetZaxis()->SetRangeUser(rmin, rmax);
-  else
-    h2c->GetZaxis()->SetRangeUser(h2c->GetMinimum(0), h2c->GetMaximum());
-  h2c->SetContour(99);
-
-
-  h2c->SetXTitle(Xlabel);
-  h2c->SetYTitle(Ylabel);
-  h2c->SetTitle(Title);
-
-
-  TPaletteAxis *palette = new TPaletteAxis(h2c->GetXaxis()->GetBinCenter(h2->GetNbinsX())*1.025, 
-                                           h2c->GetYaxis()->GetBinCenter(1),
-                                           h2c->GetXaxis()->GetBinCenter(h2->GetNbinsX())*1.0375, 
-                                           h2c->GetYaxis()->GetBinCenter(h2->GetNbinsY()),
-                                           h2c);
-
-
-
-  palette->SetLabelColor(1);
-  palette->SetLabelFont(42);
-  palette->SetLabelOffset(0.005);
-  palette->SetLabelSize(0.035);
-  palette->SetTitleOffset(1);
-  palette->SetTitleSize(0.035);
-  palette->SetFillColor(100);
-  palette->SetFillStyle(1001);
-  h2c->GetListOfFunctions()->Add(palette,"br");
-
-
-  //cout<<5<<endl;
-
-  
-  //h2c->Draw("colz");
-  canvas->Print(filename, "pdf");
-
-  //cout<<6<<endl;
-  
-  return h2c;
-}
-
-// TH1D* histo(TH2* h2, const char* name){
-TH1D* histo(TH2* h2, const char* name, double min, double max){
-
-  double dynamics = TMath::Ceil(h2->GetMaximum());
-  cout << dynamics << endl;
-  double Min = min;
-  double Max = max;
-  if(min < 0) Min = 1;
-  if(max < 0) Max = dynamics;
-  TH1D* histo = new TH1D(name, name, 10*dynamics, Min, Max);
-  for(int x = 1; x <= h2->GetXaxis()->GetNbins(); x++)
-    for(int y = 1; y <= h2->GetXaxis()->GetNbins(); y++)
-      histo->Fill(h2->GetBinContent(x, y));
-  return histo;
-}
-
-
-
-
-int main0(const char* filename="/lustre/nyx/panda/carsten/fairsoft_nov15/Data/Geant4.15GeV/RadMap_Out_Final.root"){
-  gStyle->SetOptStat(0);
-
-
-  TFile* _file_g3 = new TFile(filename);
-  TH2D* signal;
-  TH2D* normal;
-  std::vector<TH2D*> H;
-
-  signal   = (TH2D*) _file_g3->Get("EmcFluenceXY_Histo_XY_0");
-  normal   = (TH2D*) _file_g3->Get("EmcFluenceXY_StatHisto_XY_0");//200
-  //1000 files was added together, in each files the quantities are normalized per evenrs
-  H.push_back(plot(signal  ,normal  , c1 , 0, 1.61e14/1000.,
-                   "Z [cm]", "X [cm]",
-                   "Full neutron fluence (20cm wide XY slice (Z[223cm, 223cm])) []",
-                   false, false, true,
-                   -1, -1,
-                   "figures.pdf("));
-  delete signal;
-  delete normal;
-
-  Quater(H);
-  
-  signal   = (TH2D*) _file_g3->Get("EmcEdepXY_Histo_XY_0");
-  normal   = (TH2D*) _file_g3->Get("EmcEdepXY_StatHisto_XY_0");//200
-  TH2D* masssignal   = (TH2D*) _file_g3->Get("EmcMassXY_Histo_XY_0");
-  TH2D* massnormal   = (TH2D*) _file_g3->Get("EmcMassXY_StatHisto_XY_0");//200
-  //1000 files was added together, in each files the quantities are normalized per evenrs
-  H.push_back(plot(signal  ,normal  , c1 , 0, 1.61e14/1000.,
-                   "Z [cm]", "X [cm]",
-                   "Full Edep (20cm wide XY slice (Z[223cm, 223cm])) [J]",
-                   false, false, true,
-                   -1, -1,
-                   "figures.pdf(",
-                   masssignal, massnormal));
-  delete signal;
-  delete normal;
-  Quater(H);
-
-  /*
-  signal   = (TH2D*) _file_g3->Get("EmcDensityXY_Histo_XY_0");
-  normal   = (TH2D*) _file_g3->Get("EmcDensityXY_StatHisto_XY_0");//200
-  H.push_back(plot(signal  ,normal  , c1 , 0, 1./1000.,//it is not time-dependent
-                   "Z [cm]", "X [cm]",
-                   "Density (20cm wide XY slice (Z[223cm, 223cm])) []",
-                   false, false, true,
-                   -1, -1,
-                   "figures.pdf("));
-  delete signal;
-  delete normal;
-
-  signal   = (TH2D*) _file_g3->Get("EmcTwoXY_Histo_XY_0");
-  normal   = (TH2D*) _file_g3->Get("EmcTwoXY_StatHisto_XY_0");//200
-  H.push_back(plot(signal  ,normal  , c1 , 0, 1./1000.,
-                   "Z [cm]", "X [cm]",
-                   "Two (20cm wide XY slice (Z[223cm, 223cm])) []",
-                   false, false, true,
-                   -1, -1,
-                   "figures.pdf)"));
-  delete signal;
-  delete normal;
-  */
-
-
+  ofile->Write();
   return 0;
 }
 
+// H.push_back(plot(signal  ,normal  , c1 , 0, 1.61e14/1000.,
+// H.push_back(plot(signal  ,normal  , c1 , 0, 
+//                  atoi(((TObjString)vto.at(si)->At(4)).String().Data()),
+//                  ((TObjString)vto.at(si)->At(2)).String().Data(),
+//                  ((TObjString)vto.at(si)->At(3)).String().Data(),
+//                  ((TObjString)vto.at(si)->At(1)).String().Data(),
+//                  false, false, true,
+//                  -1, -1,
+//                  "figures.pdf"));
+//       if(TString(h->GetName()).Contains("endcap")){
+//         Quater(H);
+//       }
+/*  
 
-TH1D* distro(TH2D* histo, double min, double max){
-  char C[64];
-  if(min == max){
-    min = TMath::Log10(histo->GetMinimum()/2);
-    max = TMath::Log10(histo->GetMaximum()*2);
-    // min = (histo->GetMinimum()/2);
-    // max = (histo->GetMaximum()*2);
-  }
-  int dx = (int)(ceil(max)-floor(min))*100;
-  // std::cout << dx << ' ' << min << ' ' << max << std::endl;
-  sprintf(C, "%s_distro", histo->GetName());
-  TH1D* h1 = new TH1D(C, C, dx, min, max);
-  for(int x = 1; x < histo->GetNbinsX(); x++){
-    for(int y = 1; y < histo->GetNbinsY(); y++){
-      h1->Fill(TMath::Log10(histo->GetBinContent(x, y)));
-      // h1->Fill((histo->GetBinContent(x, y)));
-    }
-  }
-  return h1;
-}
-
-
-TH2D*  divider(TH2D* H3, TH2D* H3S, Int_t t3,
-               TH2D* H4, TH2D* H4S, Int_t t4,
-               TCanvas* canvas,
-               const char* Xlabel, const char* Ylabel, const char* Title,
-               bool Xlog, bool Ylog, bool Zlog,
-               double rmin, double rmax,
-               const char* filename){
-
-  canvas->cd();
-
-  if(Xlog) canvas->SetLogx(1);
-  else canvas->SetLogx(0);
-  if(Ylog) canvas->SetLogy(1);
-  else canvas->SetLogy(0);
-  if(Zlog) canvas->SetLogz(1);
-  else canvas->SetLogz(0);
-
-  
-  char cc[64];
-  sprintf(cc, "%s_R", H3->GetTitle());
-  TH2D* hresult = new TH2D(cc, cc,
-                           H3->GetNbinsX(),
-                           H3->GetXaxis()->GetBinLowEdge(1),
-                           H3->GetXaxis()->GetBinUpEdge(H3->GetNbinsX()),
-                           H3->GetNbinsY(),
-                           H3->GetYaxis()->GetBinLowEdge(1),
-                           H3->GetYaxis()->GetBinUpEdge(H3->GetNbinsY()));
-
-  for(int x = 1; x <= H3S->GetXaxis()->GetNbins(); x++){
-    for(int y = 1; y <= H3S->GetXaxis()->GetNbins(); y++){
-
-      if((H3S->GetBinContent(x, y) > t3) &&
-         (H4S->GetBinContent(x, y) > t4))
-        {
-          double ratio = H4->GetBinContent(x, y)/H3->GetBinContent(x, y);
-          hresult->SetBinContent(x, y, ratio);
+  while ((key = (TKey*)next())) {
+    cout << "pitty\n";
+    TClass *cl = gROOT->GetClass(key->GetClassName());
+    if (cl->InheritsFrom("TDirectory")){
+      TDirectory* dir = (TDirectory*)key->ReadObj();
+      TString TS(dir->GetName());
+      unsigned int si = 0;
+      for(int ii = 0; ii < vto.size(); ii++){
+        if(vto.at(si)->At(0)){
+          if(TS = ((TObjString)(vto.at(si)->At(0))).String()) si = ii;            
         }
+      }
+      // while(TS != ((TObjString)(vto.at(si)->At(0))).String() && si < vto.size()) si++;
+      std::cout << TS.Data() << ' ' << si << endl;
+      // dir->cd();
+      // // dir->ls();
+
+      // TObjArray* TOA = TS.Tokenize("_");
+      // TString Sbegin = ((TObjString*)TOA->At(0))->GetString();
+      // TString Send = ((TObjString*)TOA->At(1))->GetString();
+      // Send += "_";
+      // Send += ((TObjString*)TOA->At(2))->GetString();
+
+      // std::cout << Sbegin.Data() << ' ' << Send.Data() << endl;
+      // TString HName = Sbegin + "_Histo_" + Send;
+      // TString SHName = Sbegin + "_StatHisto_" + Send;
+      // std::cout << HName.Data() << ' ' << SHName.Data() << endl;
+
+      // signal = (TH2D*)dir->Get(HName.Data());
+      // normal = (TH2D*)dir->Get(SHName.Data());
+/////////////////////////
+
+      
+//     if(TString(h->GetName()).Contains("StatHist"))
+  //       normal = (TH2D*)key->ReadObj();
+  //     else
+  //       signal = (TH2D*)key->ReadObj();
+  //     // if(TString(signal->GetName()).Contains("Mass") ||
+  //     //    TString(signal->GetName()).Contains("Density") ||
+  //     //    TString(signal->GetName()).Contains("Two"))
+  //     //   norm = 1;
+  //     cout << "**** " << signal << ' ' << normal << " **** " << norm << endl;
+      if(signal && normal){
+        // H.push_back(plot(signal  ,normal  , c1 , 0, 1.61e14/1000.,
+        H.push_back(plot(signal  ,normal  , c1 , 0, 1.61e14/norm,
+                         "Z [cm]", "X [cm]",
+                         "Full neutron fluence (1cm wide XY slice (Z[222cm, 223cm])) []",
+                         false, false, true,
+                         -1, -1,
+                         "figures.pdf"));
+  //       if(TString(h->GetName()).Contains("endcap")){
+  //         Quater(H);
+  //       }
+  //       H.at(H.size()-1)->Write();
+        delete signal;
+        signal = NULL;
+        delete normal;
+        normal = NULL;
+      }
     }
-  }
-  if((rmin > 0) || (rmax > 0))
-    hresult->GetZaxis()->SetRangeUser(rmin, rmax);
-  else
-    hresult->GetZaxis()->SetRangeUser(hresult->GetMinimum(0),
-                                      hresult->GetMaximum());
-  hresult->SetContour(99);
-  hresult->SetXTitle(Xlabel);
-  hresult->SetYTitle(Ylabel);
-  hresult->SetTitle(Title);
+*/
 
-  TPaletteAxis *palette = new TPaletteAxis(hresult->GetXaxis()->GetBinCenter(H3->GetNbinsX())*1.025, 
-                                           hresult->GetYaxis()->GetBinCenter(1),
-                                           hresult->GetXaxis()->GetBinCenter(H3->GetNbinsX())*1.0375, 
-                                           hresult->GetYaxis()->GetBinCenter(H3->GetNbinsY()),
-                                           hresult);
-  palette->SetLabelColor(1);
-  palette->SetLabelFont(42);
-  palette->SetLabelOffset(0.005);
-  palette->SetLabelSize(0.035);
-  palette->SetTitleOffset(1);
-  palette->SetTitleSize(0.035);
-  palette->SetFillColor(100);
-  palette->SetFillStyle(1001);
-  hresult->GetListOfFunctions()->Add(palette,"br");
-  
-  hresult->Draw("colz");
-  canvas->Print(filename, "pdf");
-
-  return hresult;
-
-}
-
-TH2D* Cut(TH2D* H4, TH2D* H4R, const char* name, double thrs, bool larger){
-
-  TH2D* hresult = new TH2D(name, name,
-                           H4->GetNbinsX(),
-                           H4->GetXaxis()->GetBinLowEdge(1),
-                           H4->GetXaxis()->GetBinUpEdge(H4->GetNbinsX()),
-                           H4->GetNbinsY(),
-                           H4->GetYaxis()->GetBinLowEdge(1),
-                           H4->GetYaxis()->GetBinUpEdge(H4->GetNbinsY()));
-
-  for(int x = 1; x <= H4R->GetXaxis()->GetNbins(); x++){
-    for(int y = 1; y <= H4R->GetXaxis()->GetNbins(); y++){
-
-      // bool true = false;
-      if((thrs < H4->GetBinContent(x, y)) && larger)
-        hresult->SetBinContent(x, y, H4->GetBinContent(x, y));
-      if((H4->GetBinContent(x, y) < thrs) && !larger)
-        hresult->SetBinContent(x, y, H4->GetBinContent(x, y));
-    }
-  }
-  return hresult;
-}
-
-
-void Quater(std::vector<TH2D*>& HV){
-  char C[64];
-
-
-  int isize = (HV.size()-1);
-  cout<<"ISIZE="<<isize<<endl;
-  
-  sprintf(C, "%s_F2", HV.at(isize)->GetName());
-
-  TH2D* h2 = new TH2D(C, C,
-                      HV.at(isize)->GetNbinsX()/2, 0, HV.at(isize)->GetXaxis()->GetBinUpEdge(HV.at(isize)->GetNbinsX()),
-                      HV.at(isize)->GetNbinsY()/2, 0, HV.at(isize)->GetYaxis()->GetBinUpEdge(HV.at(isize)->GetNbinsY()));
-  
-  for(int i = 1; i < HV.at(isize)->GetNbinsX(); i++){
-    double x = HV.at(isize)->GetXaxis()->GetBinCenter(i);
-    for(int j = 1; j < HV.at(isize)->GetNbinsY(); j++){
-      double y = HV.at(isize)->GetYaxis()->GetBinCenter(j);
-      h2->Fill(TMath::Abs(x), TMath::Abs(y), HV.at(isize)->GetBinContent(i, j)/4.);
-    }
-  }
-  HV.push_back(h2);
-}
 
