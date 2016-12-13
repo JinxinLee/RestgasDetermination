@@ -57,133 +57,201 @@ void plot_radmap(Long64_t nevreq,
 
   std::vector<PndRadMapBoxMesh*> BM;
 
-  BM.push_back(new PndRadMapBoxMesh("EmcEdepZX",
-                           250,0.,250.,
-                           1, -5, 5,
-                           3300, -100.,230.));
-  BM.at(BM.size()-1)->SetQuantity(Edep);
-  BM.at(BM.size()-1)->SetOrientation(ZX);
-  
-  BM.push_back(new PndRadMapBoxMesh("EmcFluenceZX",
-                           250,0.,250.,
-                           1, -5, 5,
-                           3300, -100.,230.));
-  BM.at(BM.size()-1)->SetQuantity(SimpleFluence);
-  BM.at(BM.size()-1)->SetOrientation(ZX);
-  BM.at(BM.size()-1)->SetFilter("(Pid==2212)");
-
-  BM.push_back(new PndRadMapBoxMesh("EmcFluenceXY",
-                           210, -105.  , 105.,
-                           210, -105.  , 105,
-                           1  , 207., 223.));
-  BM.at(BM.size()-1)->SetQuantity(SimpleFluence);
-  BM.at(BM.size()-1)->SetOrientation(XY);
-  BM.at(BM.size()-1)->SetFilter("(Pid==2212)");
-
   BM.push_back(new PndRadMapBoxMesh("EmcEdepXY",
-                           210, -105.  , 105.,
-                           210, -105.  , 105,
-                           1  , 207., 223.));
+                                    250,0.,250.,
+                                    250,0.,250.,
+                                    1, -40, 110));
   BM.at(BM.size()-1)->SetQuantity(Edep);
   BM.at(BM.size()-1)->SetOrientation(XY);
   
-  BM.push_back(new PndRadMapBoxMesh("EmcTwosXY",
-                           210, -105.  , 105.,
-                           210, -105.  , 105,
-                           1  , 222., 223.));
-  BM.at(BM.size()-1)->SetQuantity(Twos);
-  BM.at(BM.size()-1)->SetOrientation(XY);
-  
-  BM.push_back(new PndRadMapBoxMesh("EmcDoseXY",
-                           210, -105.  , 105.,
-                           210, -105.  , 105,
-                           1  , 222., 223.));
-  BM.at(BM.size()-1)->SetQuantity(Dose);
-  BM.at(BM.size()-1)->SetOrientation(XY);
-  
-  BM.push_back(new PndRadMapBoxMesh("EmcTwoXY",
-                           1000,   2  ,  3,
-                           1000,  23.5, 24.5,
-                           1   , 222. , 223.));
-  BM.at(BM.size()-1)->SetQuantity(Twos);
-  BM.at(BM.size()-1)->SetOrientation(XY);
-  
-  BM.push_back(new PndRadMapBoxMesh("EmcTwoXZ",
-                           1000,   2  ,  3,
-                           1,  23.5, 24.5,
-                           1000, 222. , 223.));
-  BM.at(BM.size()-1)->SetQuantity(Twos);
-  BM.at(BM.size()-1)->SetOrientation(XZ);
+  BM.push_back(new PndRadMapBoxMesh("EmcAllFluenceZX",
+                                    1, 50, 50,
+                                    250,0.,250.,
+                                    150, -40, 110));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(ZY, 14.3, Zz);
+  BM.at(BM.size()-1)->SetVerbosityLevel(0);
 
-  BM.push_back(new PndRadMapBoxMesh("EmcTwoYZ",
-                           1   ,   2  ,  3,
-                           1000,  23.5, 24.5,
-                           1000, 222. , 223.));
-  BM.at(BM.size()-1)->SetQuantity(Twos);
-  BM.at(BM.size()-1)->SetOrientation(YZ);
-  // BM.push_back(new PndRadMapBoxMesh("EmcTwoXY",
-  //                          2100, -105.  , 105.,
-  //                          2100, -105.  , 105,
+  BM.push_back(new PndRadMapBoxMesh("EmcCFluenceZX",
+                                    1, 50, 50,
+                                    250,0.,250.,
+                                    150, -40, 110));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(ZY, 14.3, Zz);
+  BM.at(BM.size()-1)->SetFilter("(Ch!=0)");//charged
+
+  BM.push_back(new PndRadMapBoxMesh("EmcCnepFluenceZX",
+                                    1, 50, 50,
+                                    250,0.,250.,
+                                    150, -40, 110));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(ZY, 14.3, Zz);
+  BM.at(BM.size()-1)->SetFilter("(Ch!=0) && (Pid!=11) && (Pid!=-11)");//charged but e+-
+
+  BM.push_back(new PndRadMapBoxMesh("EmcPFluenceZX",
+                                    1, 50, 50,
+                                    250,0.,250.,
+                                    150, -40, 110));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(ZY, 14.3, Zz);
+  BM.at(BM.size()-1)->SetFilter("(Pid==2212)");//proton
+
+  BM.push_back(new PndRadMapBoxMesh("EmcNFluenceZX",
+                                    1, 50, 50,
+                                    250,0.,250.,
+                                    150, -40, 110));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(ZY, 14.3, Zz);
+  BM.at(BM.size()-1)->SetFilter("(Pid==2112)");//neutron
+
+
+  BM.push_back(new PndRadMapBoxMesh("EmcAllFluencePawelXY",
+                           210, -105.  , 105.,
+                           210, -105.  , 105,
+                           1  , 207., 207.));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(XY);
+
+  BM.push_back(new PndRadMapBoxMesh("EmcCFluencePawelXY",
+                           210, -105.  , 105.,
+                           210, -105.  , 105,
+                           1  , 207., 207.));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(XY);
+  BM.at(BM.size()-1)->SetFilter("(Ch!=0)");//charged (including e+-)
+
+  BM.push_back(new PndRadMapBoxMesh("EmcCnepFluencePawelXY",
+                           210, -105.  , 105.,
+                           210, -105.  , 105,
+                           1  , 207., 207.));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(XY);
+  BM.at(BM.size()-1)->SetFilter("(Ch!=0) && (Pid!=11) && (Pid!=-11) ");//charged particles but not e+-
+
+  BM.push_back(new PndRadMapBoxMesh("EmcPFluencePawelXY",
+                           210, -105.  , 105.,
+                           210, -105.  , 105,
+                           1  , 207., 207.));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(XY);
+  BM.at(BM.size()-1)->SetFilter("(Pid==2212)");//proton
+
+  BM.push_back(new PndRadMapBoxMesh("EmcNFluencePawelXY",
+                           210, -105.  , 105.,
+                           210, -105.  , 105,
+                           1  , 207., 207.));
+  BM.at(BM.size()-1)->SetQuantity(Fluence);
+  BM.at(BM.size()-1)->SetOrientation(XY);
+  BM.at(BM.size()-1)->SetFilter("(Pid==2112)");//proton
+
+
+ ///////////////////////////////////////////////////////
+  
+  // BM.push_back(new PndRadMapBoxMesh("EmcEdepXY",
+  //                          210, -105.  , 105.,
+  //                          210, -105.  , 105,
+  //                          1  , 207., 223.));
+  // BM.at(BM.size()-1)->SetQuantity(Edep);
+  // BM.at(BM.size()-1)->SetOrientation(XY);
+  
+  // BM.push_back(new PndRadMapBoxMesh("EmcTwosXY",
+  //                          210, -105.  , 105.,
+  //                          210, -105.  , 105,
   //                          1  , 222., 223.));
   // BM.at(BM.size()-1)->SetQuantity(Twos);
   // BM.at(BM.size()-1)->SetOrientation(XY);
   
-  BM.push_back(new PndRadMapBoxMesh("EmcMassXY",
-                           210, -105.  , 105.,
-                           210, -105.  , 105,
-                           1  , 222., 223.));
-  BM.at(BM.size()-1)->SetQuantity(Mass);
-  BM.at(BM.size()-1)->SetOrientation(XY);
-
-  BM.push_back(new PndRadMapBoxMesh("EmcDensityXY",
-                           210, -105.  , 105.,
-                           210, -105.  , 105,
-                           1  , 222., 223.));
-  BM.at(BM.size()-1)->SetQuantity(Density);
-  BM.at(BM.size()-1)->SetOrientation(XY);
-
-
-  BM.push_back(new PndRadMapBoxMesh("EdepZX_1",
-				    250,0,250,
-				    1,-0.5,0.5,
-				    1200,-200,1000));
-  BM.at(BM.size()-1)->SetQuantity(Edep);
-  BM.at(BM.size()-1)->SetOrientation(ZX);
-
-  BM.push_back(new PndRadMapBoxMesh("MassZX_1",
-				    250,0,250,
-				    1,-0.5,0.5,
-				    1200,-200,1000));
-  BM.at(BM.size()-1)->SetQuantity(Mass);
-  BM.at(BM.size()-1)->SetOrientation(ZX);
-
-  BM.push_back(new PndRadMapBoxMesh("DoseZX_1",
-				    250,0,250,
-				    1,-0.5,0.5,
-				    1200,-200,1000));
-  BM.at(BM.size()-1)->SetQuantity(Dose);
-  BM.at(BM.size()-1)->SetOrientation(ZX);
- 
-  BM.push_back(new PndRadMapBoxMesh("EdepZY_1",
-				    1,-0.5,0.5,
-				    250,0,250,
-				    1200,-200,1000));
-  BM.at(BM.size()-1)->SetQuantity(Edep);
-  BM.at(BM.size()-1)->SetOrientation(ZY);
-
-  BM.push_back(new PndRadMapBoxMesh("DoseZY_1",
-				    1,-0.5,0.5,
-				    250,0,250,
-				    1200,-200,1000));
-  BM.at(BM.size()-1)->SetQuantity(Dose);
-  BM.at(BM.size()-1)->SetOrientation(ZY);
+  // BM.push_back(new PndRadMapBoxMesh("EmcDoseXY",
+  //                          210, -105.  , 105.,
+  //                          210, -105.  , 105,
+  //                          1  , 222., 223.));
+  // BM.at(BM.size()-1)->SetQuantity(Dose);
+  // BM.at(BM.size()-1)->SetOrientation(XY);
   
-  BM.push_back(new PndRadMapBoxMesh("MassZY_1",
-				    1,-0.5,0.5,
-				    250,0,250,
-				    1200,-200,1000));
-  BM.at(BM.size()-1)->SetQuantity(Mass);
-  BM.at(BM.size()-1)->SetOrientation(ZY);
+  // BM.push_back(new PndRadMapBoxMesh("EmcTwoXY",
+  //                          1000,   2  ,  3,
+  //                          1000,  23.5, 24.5,
+  //                          1   , 222. , 223.));
+  // BM.at(BM.size()-1)->SetQuantity(Twos);
+  // BM.at(BM.size()-1)->SetOrientation(XY);
+  
+  // BM.push_back(new PndRadMapBoxMesh("EmcTwoXZ",
+  //                          210, -105.  , 105.,
+  //                          210, -105.  , 105,
+  //                          1  , 222., 223.));
+  // BM.at(BM.size()-1)->SetQuantity(Twos);
+  // BM.at(BM.size()-1)->SetOrientation(XY);
+
+  // BM.push_back(new PndRadMapBoxMesh("EmcTwoYZ",
+  //                          1   ,   2  ,  3,
+  //                          1000,  23.5, 24.5,
+  //                          1000, 222. , 223.));
+  // BM.at(BM.size()-1)->SetQuantity(Twos);
+  // BM.at(BM.size()-1)->SetOrientation(YZ);
+  // BM.push_back(new PndRadMapBoxMesh("EmcTwoXY",
+  //                          210, -105.  , 105.,
+  //                          210, -105.  , 105,
+  //                          1  , 222., 223.));
+  // BM.at(BM.size()-1)->SetQuantity(Twos);
+  // BM.at(BM.size()-1)->SetOrientation(XY);
+  
+  // BM.push_back(new PndRadMapBoxMesh("EmcMassXY",
+  //                          210, -105.  , 105.,
+  //                          210, -105.  , 105,
+  //                          1  , -40., 110.));
+  // BM.at(BM.size()-1)->SetQuantity(Mass);
+  // BM.at(BM.size()-1)->SetOrientation(XY);
+  // BM.at(BM.size()-1)->SetVerbosityLevel(0);
+
+  // BM.push_back(new PndRadMapBoxMesh("EmcDensityXY",
+  //                          210, -105.  , 105.,
+  //                          210, -105.  , 105,
+  //                          1  , 222., 223.));
+  // BM.at(BM.size()-1)->SetQuantity(Density);
+  // BM.at(BM.size()-1)->SetOrientation(XY);
+
+
+  // BM.push_back(new PndRadMapBoxMesh("EdepZX_1",
+  //       			    250,0,250,
+  //       			    1,-0.5,0.5,
+  //       			    1200,-200,1000));
+  // BM.at(BM.size()-1)->SetQuantity(Edep);
+  // BM.at(BM.size()-1)->SetOrientation(ZX);
+
+  // BM.push_back(new PndRadMapBoxMesh("MassZX_1",
+  //       			    250,0,250,
+  //       			    1,-0.5,0.5,
+  //       			    1200,-200,1000));
+  // BM.at(BM.size()-1)->SetQuantity(Mass);
+  // BM.at(BM.size()-1)->SetOrientation(ZX);
+
+  // BM.push_back(new PndRadMapBoxMesh("DoseZX_1",
+  //       			    250,0,250,
+  //       			    1,-0.5,0.5,
+  //       			    1200,-200,1000));
+  // BM.at(BM.size()-1)->SetQuantity(Dose);
+  // BM.at(BM.size()-1)->SetOrientation(ZX);
+ 
+  // BM.push_back(new PndRadMapBoxMesh("EdepZY_1",
+  //       			    1,-0.5,0.5,
+  //       			    250,0,250,
+  //       			    1200,-200,1000));
+  // BM.at(BM.size()-1)->SetQuantity(Edep);
+  // BM.at(BM.size()-1)->SetOrientation(ZY);
+
+  // BM.push_back(new PndRadMapBoxMesh("DoseZY_1",
+  //       			    1,-0.5,0.5,
+  //       			    250,0,250,
+  //       			    1200,-200,1000));
+  // BM.at(BM.size()-1)->SetQuantity(Dose);
+  // BM.at(BM.size()-1)->SetOrientation(ZY);
+  
+  // BM.push_back(new PndRadMapBoxMesh("MassZY_1",
+  //       			    1,-0.5,0.5,
+  //       			    250,0,250,
+  //       			    1200,-200,1000));
+  // BM.at(BM.size()-1)->SetQuantity(Mass);
+  // BM.at(BM.size()-1)->SetOrientation(ZY);
 
 
 
@@ -201,13 +269,14 @@ void plot_radmap(Long64_t nevreq,
       //if (i==99)cout<<ii<<" "<<npoints<<endl;
       
       FairRadMapPoint *p= (FairRadMapPoint *) fRadMapPoint->At(ii);
-      for(unsigned int iii = 0; iii < BM.size(); iii++)
+      for(unsigned int iii = 0; iii < BM.size(); iii++){
         BM.at(iii)->Fill(p);
+      }
     }
   }
   cout << "Save " << BM.size() << endl;        
   for(unsigned int i = 0; i < BM.size(); i++){
-    // BM.at(i)->Scale(1./nentries);
+    BM.at(i)->Scale(1./nentries);//normalizing it to 1 event!
     BM.at(i)->Save(fout);
   }
 }

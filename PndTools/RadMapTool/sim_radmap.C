@@ -136,12 +136,9 @@ int main(int argc, char ** argv){
   std::cout << "sim: " << RandN << std::endl;
   std::cout << "***************************\n";
 
-  // sim("blablabla2.root", 1000, "TGeant3", RandN);
   sim(TString(out.c_str()), nevt, tra.c_str(), geometryfiles, RandN);
 }
 
-// Macro sim_radmap
-// It creates a geant simulation file with the RadMap branch
 void sim(TString output, 
          Int_t nEvents,  
          const char* TransportModel, 
@@ -162,52 +159,37 @@ void sim(TString output,
   
   fRun->SetName(TransportModel);  
   fRun->SetOutputFile(output);
-  //  fRun->GetOutputFile()->SetCompressionSettings(ROOT::CompressionSettings(ROOT::kLZMA, 1));
-  // fRun->GetOutputFile()->SetCompressionLevel(9);
 
-  // fRun->SetMaterials("media_pnd.geo");
   fRun->SetMaterials(geometryfiles.at(0).c_str());
   
 
   // Create and add detectors
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
-  // Cave->SetGeometryFileName("pndcave.geo");
   Cave->SetGeometryFileName(geometryfiles.at(1).c_str());
   fRun->AddModule(Cave); 
 
   FairModule *Magnet= new PndMagnet("MAGNET");
-  // Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   Magnet->SetGeometryFileName(geometryfiles.at(2).c_str());
-  // Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   fRun->AddModule(Magnet);
 
   FairModule *Dipole= new PndMagnet("MAGNET");
-  // Dipole->SetGeometryFileName("dipole.geo");
   Dipole->SetGeometryFileName(geometryfiles.at(3).c_str());
   fRun->AddModule(Dipole);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  // Pipe->SetGeometryFileName("beampipe_201112.root");
   Pipe->SetGeometryFileName(geometryfiles.at(4).c_str());
-  // Pipe->SetGeometryFileName("beampipe_201309.root");
   fRun->AddModule(Pipe);
 
   FairDetector *Stt= new PndStt("STT", kFALSE);
-  // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe_electronics.geo");
-  // Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   Stt->SetGeometryFileName(geometryfiles.at(5).c_str());
   fRun->AddModule(Stt);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kFALSE);
   Mvd->SetGeometryFileName(geometryfiles.at(6).c_str());
-  // Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-  // Mvd->SetGeometryFileName("Mvd-2.1_AddDisks_FullVersion.root");
   fRun->AddModule(Mvd);
 
   FairDetector *Gem = new PndGemDetector("GEM", kFALSE);
-  // Gem->SetGeometryFileName("gem_3Stations.root");
-  // Gem->SetGeometryFileName("gem_4Stations.root");
   Gem->SetGeometryFileName(geometryfiles.at(7).c_str());
   fRun->AddModule(Gem);
 
@@ -217,43 +199,17 @@ void sim(TString output,
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
-  // FairDetector *Tof = new PndTof("TOF",kFALSE);
-  // Tof->SetGeometryFileName("tofbarrel.geo");
-  // fRun->AddModule(Tof);
-  
-  // including forward detectors
-    
-  /////
-  // FairModule* SciT = new PndSciT("SCIT",kTRUE);
-  // SciT->SetGeometryFileName("SciTil_latest.root");
-  // // SciT->SetGeometryFileName("barrel-SciTil_07022013.root");
-  // // SciT->SetGeometryFileName(geometryfiles.at(8).c_str());
-  // fRun->AddModule(SciT);
-
   PndDrc *Drc = new PndDrc("DIRC", kFALSE);
   Drc->SetGeometryFileName(geometryfiles.at(9).c_str()); 
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
 
   PndDsk* Dsk = new PndDsk("DSK", kFALSE);
-  // Dsk->SetGeometryFileName("dsk.root");
-  // Dsk->SetGeometryFileName(geometryfiles.at(10).c_str());
   Dsk->SetStoreCerenkovs(kFALSE);
   Dsk->SetStoreTrackPoints(kFALSE);
   fRun->AddModule(Dsk);
 
-
-  // PndDsk* Dsk = new PndDsk("DSK", kFALSE);
-  // Dsk->SetGeometryFileName("dsk.geo");
-  // fRun->AddModule(Dsk);
- 
   PndMdt *Muo = new PndMdt("MDT",kFALSE);
-  // Muo->SetMdtMagnet(kTRUE);
-  // Muo->SetBarrel(geometryfiles.at(10).c_str());
-  // Muo->SetEndcap(geometryfiles.at(11).c_str());
-  // Muo->SetForward(geometryfiles.at(12).c_str());
-  // Muo->SetMuonFilter(geometryfiles.at(13).c_str());
-  // fRun->AddModule(Muo);
   Muo->SetBarrel("fast");
   Muo->SetEndcap("fast");
   Muo->SetMuonFilter("fast");
@@ -266,18 +222,15 @@ void sim(TString output,
   //-------------------------  FTS       -----------------
   FairDetector *Fts= new PndFts("FTS", kFALSE);
   Fts->SetGeometryFileName(geometryfiles.at(14).c_str());
-  // Fts->SetGeometryFileName("fts.geo");
   fRun->AddModule(Fts);
 
   //---------------------------  FTOF      -----------------
   FairDetector *FTof = new PndFtof("FTOF",kFALSE);
-  // FTof->SetGeometryFileName("ftofwall.root"); // not default
   FTof->SetGeometryFileName(geometryfiles.at(15).c_str()); // not default
   fRun->AddModule(FTof);
 
 
   FairModule* Rich= new PndRich("RICH",kFALSE);
-  // Rich->SetGeometryFileName("rich_v2.geo");
   Rich->SetGeometryFileName(geometryfiles.at(16).c_str());
   fRun->AddModule(Rich);
   // Create and Set Event Generator
@@ -286,9 +239,6 @@ void sim(TString output,
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
   
-  // PndFlukaGenerator* flugen = new PndFlukaGenerator(input);
-  // primGen->AddGenerator(flugen);
-
   Double_t P = 15.0;
   RandN = GetRandomSeed();
   std::cout << "***************************\n";
@@ -302,14 +252,12 @@ void sim(TString output,
   fRun->SetStoreTraj(kFALSE); // to store particle trajectories 
   fRun->SetRadMapRegister(kTRUE); // radiation map manager
   fRun->SetBeamMom(P);
-  // fRun->SetBeamMom(15.0);
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
 
   timer.Stop();
   
   Double_t preinitrtime = timer.RealTime();
-  // Double_t preinitctime = timer.CpuTime();
 
   timer.Continue();
 
@@ -318,10 +266,10 @@ void sim(TString output,
   timer.Stop();
   
   Double_t postinitrtime = timer.RealTime();
-  // Double_t postinitctime = timer.CpuTime();
 
   timer.Continue();
 
+  printf("************* Running %i events ******************\n", nEvents);
   fRun->Run(nEvents);
    
   timer.Stop();
