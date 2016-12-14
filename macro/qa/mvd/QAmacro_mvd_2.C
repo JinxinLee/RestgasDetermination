@@ -19,7 +19,7 @@ void QAmacro_mvd_2()
   TString allDigiFile = sysFile+"/macro/params/all.par";
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
 
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
@@ -27,7 +27,7 @@ void QAmacro_mvd_2()
 
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  
+
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);

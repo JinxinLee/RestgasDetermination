@@ -1,4 +1,6 @@
 // root macro to analyze the clusterization output
+#include "../../run/Tools.C"
+
 void QAmacro_mvd_ana()
 {
   cout << "QA Analysis module for the MVD - Hit resolution check." << endl;
@@ -12,6 +14,7 @@ void QAmacro_mvd_ana()
   Bool_t isSuccessful = kFALSE;
   Bool_t test1=kTRUE, test2=kTRUE, test3=kTRUE;  
   
+  cout << "$VMCWORKDIR" << endl;
   gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
   LoadPandaStyle();
 
@@ -29,9 +32,10 @@ void QAmacro_mvd_ana()
   TTree* t=(TTree*)f->Get("cbmsim");
   t->AddFriend("cbmsim",recoFile.Data()); // the reco file you want to analyse
   TFile* dbfile = new TFile(parFile.Data());
+  TGeoManager *geoMan;
   if (!gGeoManager) {      
     dbfile->Get("FairBaseParSet");      
-    TGeoManager *geoMan = gGeoManager;      
+    geoMan = gGeoManager;
     if(!geoMan) {      
       dbfile->Get("FairGeoParSet");      
       geoMan = gGeoManager;      
@@ -58,7 +62,7 @@ void QAmacro_mvd_ana()
   t->SetBranchAddress("MVDHitsPixel",&pixhit_array);//Branch names
 
   PndGeoHandling* fGeoH = new PndGeoHandling(inFile,parFile);
-  
+
   if(!fGeoH){
     std::cout<<"No MvdGeoHandling existant. Abort now!"<<std::endl;
     exit(1);
@@ -72,7 +76,7 @@ void QAmacro_mvd_ana()
 //
 //  Int_t runId = header->GetRunId();
 
-  
+
 
   TH1D* hisDiff = new TH1D("diff","",100,-0.008,0.008);
   hisDiff->SetTitle("MVD Hit Resolution (double gaussian fit);#Deltax / cm;");
@@ -236,11 +240,11 @@ void QAmacro_mvd_ana()
 
   Double_t par[6]={0., 0., 0.0005, 0., 0., 0.002};
   //prefit peak
-  g2    = new TF1("g2","gaus",-0.002,0.002);
+  TF1* g2    = new TF1("g2","gaus",-0.002,0.002);
   hisDiff->Fit(g2,"R");
   g2->GetParameters(&par[0]);
   //fit total
-  total = new TF1("total","gaus(0)+gaus(3)",-0.008,0.008);
+  TF1* total = new TF1("total","gaus(0)+gaus(3)",-0.008,0.008);
   total->SetParameters(par);
   total->SetLineColor(4);
   total->SetLineWidth(2);
@@ -311,9 +315,9 @@ void QAmacro_mvd_ana()
 
   // reset styling for pictures
   LoadPandaStyle();
-  
+
   can2->Print(picture);
-  
+
 //  can2->Print(picture + "(");
 //  can1->cd(1);
 //  hisDiff->GetXaxis()->SetNdivisions(-05);
@@ -329,7 +333,7 @@ void QAmacro_mvd_ana()
 //  can1->Update();mypad=(TPad*)gPad;BetterStatBox(mypad);
 //  can1->Print(picture + ")");
 
-  
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
