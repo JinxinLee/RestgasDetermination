@@ -366,7 +366,7 @@ void PndSimpleCombinerTask::Exec(Option_t* opt)
 					
 					for (int k2=0;k2<d0fit->NDaughters();++k2)
 					{
-						RhoCandidate *ddfit = d0fit->Daughter(k);
+						RhoCandidate *ddfit = d0fit->Daughter(k2);
 						qa.qaP4(TString::Format("f4cxd%dd%d",k,k2),ddfit->P4(),vntp[i]);
 					}
 				}
