@@ -45,21 +45,27 @@ simply given in one string.
 - PndSimpleCombiner parameters:
 
    - mwin     : mass window for all composites
-   - mwin(X)  : mass window for composite 'X'; X (or cc of X) has to appear in decay. E.g. m(D_s+)=0.4 cuts +-0.2 GeV around nominal D_s+ mass 
+   - mwin(X)  : mass window for composite 'X'; X (or cc of X) has to appear in decay. E.g. 'm(D_s+)=0.4' cuts +-0.2 GeV around nominal D_s+ mass 
+                - can also be given as range to define arbitrary windows, e.g. 'm(D_s+)=1.7|2.1' cuts 1.7 < m < 2.1 GeV
+				- overrides a global mass window set by 'mwin=...', so needs to be defined afterwards!
    - emin     : minimum energy threshold for neutrals, e.g. 0.1 = 100 MeV energy threshold neutrals
    - pmin     : minimum momentum threshold for charged, e.g. 0.15 = 150 MeV/c momentum threshold for tracks
    - pid      : PID criterion ("All","VeryLoose","Loose","Tight","VeryTight","Best") for all species
    - pide, pidmu, pidpi, pidk, pidp : PID criterion for specific species; overrides previous setting by 'pid' if specified afterwards
    - algo     : PID algorithm (e.g. "PidAlgoEmcBayes;PidAlgoDrc" or "PidChargedProbability") for all species
    - algoe, ... algop : PID algorithm for specific species, overrides previous setting by 'algo' if specified afterwards
+   - ebrem    : uses the bremsstrahlungs corrected lists ElectronMinusBrem/ElectronPlusBrem for combinatorics (only full sim)
 
 - PndSimpleCombinerTask parameters:
  
    - fit4c       : Performs a 4 constraint fit on the last decay specified (assuming, that only this one can match the full energy)    
+   - fit4cbest   : Performs a 4 constraint fit on the last decay specified, and only stores the candidate with best chi2 each event  
    - fitvtx      : Performs vertex fits on all decays having at least two final state tracks
-   - qamc        : Dump out an ntuple with mc information
+   - qamc        : Dump out an ntuple with mc information named 'nmc' (including secondaries)
    - qaevtshape  : Fill event shape variables in ntuples (needs more output space)
-   - qapart      : Runs single particle QA task (in particular useful for BOX generator)
+   - qapart      : Runs single particle QA task (in particular useful for BOX generator); 
+                   output trees named 'ntp' (charged), 'ntpn' (neutral particles) and 'nmc' (MC truth, w/o secondaries)
+   - !ntpX       : Skips write-out of ntpX (X being number 0,1,... corresponding to Xth decay definition in decay parameter string)
    
 
 *** Example: You want to 
