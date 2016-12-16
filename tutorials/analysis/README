@@ -28,8 +28,8 @@ In case you already have a file containing AOD (PndPidCandidates) you just need 
 	[nevt]    : number of events; default: 0 = all
 	[parms]   : parameters for the analysis, e.g. 'mwin=0.4:mwin(phi)=0.1:emin=0.1:pmin=0.1:qamc'
 	[fastsim] : set true, if running fast sim (sets the PID algos properly); default: false'
-    [runST]   : if 'true' runs Software Trigger (default: false)
-    [runnum]  : integer run number (default: 0)
+	[runST]   : if 'true' runs Software Trigger (default: false)
+	[runnum]  : integer run number (default: 0)
 
 The string <decay> specifying the decay pattern to be reconstructed is a concatenation of the needed subdecays separated by ';'. Please note that you need to define any list in 
 advance of its usage.
