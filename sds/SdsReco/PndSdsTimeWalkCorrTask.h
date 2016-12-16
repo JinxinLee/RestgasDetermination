@@ -42,6 +42,7 @@ public:
     fDigiTotPar=other.fDigiTotPar;
     fFEModel=other.fFEModel;
     fVerbose=other.fVerbose;
+    return *this;
   };
 	InitStatus Init();
 	void SetParContainers();

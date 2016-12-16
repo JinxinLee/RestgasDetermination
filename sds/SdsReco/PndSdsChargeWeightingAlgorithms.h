@@ -40,6 +40,7 @@ public:
 	  fCalcStrip=other.fCalcStrip;
 	  fChargeConverter=other.fChargeConverter;
     fVerbose=other.fVerbose;
+    return *this;
   };
 
 	   /**

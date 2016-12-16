@@ -31,6 +31,7 @@ class PndSdsPixelClusterFinder
       fHits=other.fHits;
       fVerbose=other.fVerbose;
       fChargeConverter=other.fChargeConverter;
+    return *this;
     };
     virtual ~PndSdsPixelClusterFinder(){};
     virtual std::vector< std::vector < Int_t > > GetClusters(std::vector<PndSdsDigiPixel> hits) = 0;

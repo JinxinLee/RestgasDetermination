@@ -18,6 +18,7 @@ public:
   {
     fGeoSensNodes=other.fGeoSensNodes;
     fGeoPassNodes=other.fGeoPassNodes;
+    return *this;
   };
   void clear(void);
   void putParams(FairParamList* l);

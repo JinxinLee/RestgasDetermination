@@ -69,6 +69,7 @@ class PndSdsIdealRecoTask : public PndSdsTask
     fCurrentPndSdsMCPoint=other.fCurrentPndSdsMCPoint;
     fCurrentTransMat=other.fCurrentTransMat;
     fHitCovMatrix=other.fHitCovMatrix;
+    return *this;
   };
   
   /** Virtual method Init **/

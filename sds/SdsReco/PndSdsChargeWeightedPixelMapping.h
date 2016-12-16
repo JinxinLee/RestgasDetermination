@@ -32,7 +32,8 @@ class PndSdsChargeWeightedPixelMapping : public PndSdsPixelBackMapping
       fly=other.fly;
       fcols=other.fcols;
       frows=other.frows;
-    };
+     return *this;
+   };
     PndSdsHit GetCluster(std::vector<PndSdsDigiPixel> pixelArray); ///< Main function of class to calculate the PndSdsHit out of the given PndSdsDigis
     
     protected :

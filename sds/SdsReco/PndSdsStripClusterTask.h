@@ -114,7 +114,8 @@ class PndSdsStripClusterTask : public PndSdsTask
       eta_rect=other.eta_rect;
       eta_trap=other.eta_trap;
       etahistofile=other.etahistofile;
-    };
+      return *this;
+   };
     
     /** Virtual method Init **/
     virtual void SetParContainers();

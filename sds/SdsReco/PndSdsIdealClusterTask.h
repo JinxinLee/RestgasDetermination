@@ -71,6 +71,7 @@ class PndSdsIdealClusterTask : public PndSdsTask
       fGeoFile=other.fGeoFile;
       finder=other.finder;
       mapping=other.mapping;
+    return *this;
     };
    /** pure virtual method SetBranchNames
    **

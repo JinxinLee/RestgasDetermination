@@ -93,6 +93,7 @@ class PndSdsDetector : public FairDetector
     fFolderName=other.fFolderName;
     fDetectorID=other.fDetectorID;
     fListOfSensitives=other.fListOfSensitives;
+    return *this;
   };
 
   virtual void Initialize();

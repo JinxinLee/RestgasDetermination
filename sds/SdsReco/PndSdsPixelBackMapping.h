@@ -21,7 +21,8 @@ class PndSdsPixelBackMapping
     fDigiArray=other.fDigiArray;
     fGeoH=other.fGeoH;
     fVerbose=other.fVerbose;
-  };
+     return *this;
+ };
   virtual ~PndSdsPixelBackMapping();
 
   void SetVerbose (Int_t level) {fVerbose = level;};

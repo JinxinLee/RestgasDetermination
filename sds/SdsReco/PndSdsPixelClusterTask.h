@@ -98,6 +98,7 @@ class PndSdsPixelClusterTask : public PndSdsTask
       fEventNr=other.fEventNr;
       fClusterFinder=other.fClusterFinder;
       fBackMapping=other.fBackMapping;
+      return *this;
     };
    virtual void SetClusterFinder()=0;
    virtual void SetBackMapping()=0;
