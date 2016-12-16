@@ -32,6 +32,22 @@ public:
   PndMvdCreateDefaultApvMap();
   
   ~PndMvdCreateDefaultApvMap();
+  PndMvdCreateDefaultApvMap(const PndMvdCreateDefaultApvMap& o) :
+    fSortedMapping(o.fSortedMapping),
+    fCurrentDigiPar(o.fCurrentDigiPar),
+    fDigiParameterList(o.fDigiParameterList),
+    fFeCount(o.fFeCount),
+    fFakeCount(o.fFakeCount)
+  {};
+  PndMvdCreateDefaultApvMap& operator=(const PndMvdCreateDefaultApvMap& o)
+  {
+    fSortedMapping=o.fSortedMapping;
+    fCurrentDigiPar=o.fCurrentDigiPar;
+    fDigiParameterList=o.fDigiParameterList;
+    fFeCount=o.fFeCount;
+    fFakeCount=o.fFakeCount;
+    return *this;  
+  };
   
   // setup  
   virtual void SetParContainers();

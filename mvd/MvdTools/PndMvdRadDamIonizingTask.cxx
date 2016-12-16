@@ -16,10 +16,14 @@
 
 #include <iostream>
 
-PndMvdRadDamIonizingTask::PndMvdRadDamIonizingTask()
+PndMvdRadDamIonizingTask::PndMvdRadDamIonizingTask() :
+    fPersistance(kTRUE),
+	  fMCHits(NULL),
+	  fRadDamHits(NULL),
+	  fGeoH(PndGeoHandling::Instance()),
+	  fMapDetHistos(),
+	  fRadDamHisto(NULL)
 {
-  fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
 }
 
 PndMvdRadDamIonizingTask::~PndMvdRadDamIonizingTask()

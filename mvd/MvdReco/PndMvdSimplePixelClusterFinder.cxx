@@ -5,17 +5,24 @@
 #include "FairLogger.h"
 
 PndMvdSimplePixelClusterFinder::PndMvdSimplePixelClusterFinder(TString parName, TString totParName, Int_t verbose):PndSdsSimplePixelClusterFinder(),
-fParName(parName), fTotParName(totParName){
+fParName(parName), 
+fTotParName(totParName),
+fDigiPar(NULL),
+fTotDigiPar(NULL)
+{
 	fVerbose = verbose;
 	FairRun* ana = FairRun::Instance();
 	FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer(fParName.Data()));
 	fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer(fTotParName.Data()));
-
 	SetParameters();
 };
 
-PndMvdSimplePixelClusterFinder::PndMvdSimplePixelClusterFinder(PndSdsPixelDigiPar* digiPar, PndSdsTotDigiPar* totPar):PndSdsSimplePixelClusterFinder(), fDigiPar(digiPar), fTotDigiPar(totPar)
+PndMvdSimplePixelClusterFinder::PndMvdSimplePixelClusterFinder(PndSdsPixelDigiPar* digiPar, PndSdsTotDigiPar* totPar):PndSdsSimplePixelClusterFinder(), 
+fParName(""), 
+fTotParName(""),
+fDigiPar(digiPar), 
+fTotDigiPar(totPar)
 {
 	SetParameters();
 }

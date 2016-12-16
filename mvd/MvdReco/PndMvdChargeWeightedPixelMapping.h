@@ -17,6 +17,16 @@ class PndMvdChargeWeightedPixelMapping : public PndSdsChargeWeightedPixelMapping
 	PndMvdChargeWeightedPixelMapping(Int_t verbose = 0);
 	PndMvdChargeWeightedPixelMapping(PndGeoHandling* geo, Int_t verbose = 0);
 	PndMvdChargeWeightedPixelMapping(PndGeoHandling* geo, PndSdsPixelDigiPar* digiPar, PndSdsTotDigiPar* totPar);
+  PndMvdChargeWeightedPixelMapping(const PndMvdChargeWeightedPixelMapping& o) :
+	  fDigiPar(o.fDigiPar),
+	  fTotDigiPar(o.fTotDigiPar)
+  {};
+  PndMvdChargeWeightedPixelMapping& operator=(const PndMvdChargeWeightedPixelMapping& o)
+  {
+	  fDigiPar=o.fDigiPar;
+	  fTotDigiPar=o.fTotDigiPar;
+    return *this;
+  };
 
 	void SetChargeConverter();
 	PndSdsPixelDigiPar* fDigiPar;

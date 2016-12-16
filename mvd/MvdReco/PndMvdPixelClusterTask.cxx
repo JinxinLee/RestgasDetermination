@@ -9,7 +9,11 @@
 #include "PndSdsPixelDigiPar.h"
 // -----   Default constructor   -------------------------------------------
 PndMvdPixelClusterTask::PndMvdPixelClusterTask(TString parName, TString totParName) :
-PndSdsPixelClusterTask("MVD Clustertisation Task"), fParName(parName), fTotParName(totParName)
+PndSdsPixelClusterTask("MVD Clustertisation Task"), 
+      fParName(parName),
+      fTotParName(totParName),
+	    fTotDigiPar(NULL),
+	    fSensorNamePar(NULL)
 {
   fPersistance = kTRUE;
 }

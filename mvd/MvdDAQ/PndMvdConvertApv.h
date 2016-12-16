@@ -40,7 +40,24 @@ class PndMvdConvertApv
 {
    public :
 	/** default constructor **/
-	PndMvdConvertApv() {;}
+	PndMvdConvertApv() :
+    fCalibPars(),
+	  fNofEvents(0),
+    fEvent(-1),
+	  fLastEvent(0),
+	  fNoCalib(kFALSE),
+	  fHitFileName(""),
+	  fDataFile(),
+	  fhitlist(),
+	  fTopModuleID(0),
+	  fBottomModuleID(0),
+	  fFake(kFALSE),
+	  f(NULL),
+	  t(NULL),
+	  tsEv(NULL),
+	  arr(NULL),
+    fGeoH(NULL)
+  {};
 
 	/**
 	main constructor, call all function to be ready for converting hits from hitfile
@@ -50,8 +67,48 @@ class PndMvdConvertApv
 	PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName);
 
 	/** Destructor **/
-	~PndMvdConvertApv()
-	{ fDataFile.close(); }
+	virtual ~PndMvdConvertApv()
+	{ fDataFile.close(); };
+  
+  PndMvdConvertApv(const PndMvdConvertApv& o) :
+ 	  fCalibPars(o.fCalibPars),
+	  fNofEvents(o.fNofEvents),
+    fEvent(o.fEvent),
+	  fLastEvent(o.fLastEvent),
+	  fNoCalib(o.fNoCalib),
+	  fHitFileName(o.fHitFileName),
+	  fDataFile(),
+	  fhitlist(o.fhitlist),
+	  fTopModuleID(o.fTopModuleID),
+	  fBottomModuleID(o.fBottomModuleID),
+	  fFake(o.fFake),
+	  f(o.f),
+	  t(o.t),
+	  tsEv(o.tsEv),
+	  arr(o.arr),
+    fGeoH(o.fGeoH)
+  {};
+  
+  PndMvdConvertApv& operator=(const PndMvdConvertApv& o)
+  {
+ 	  fCalibPars=o.fCalibPars;
+	  fNofEvents=o.fNofEvents;
+    fEvent=o.fEvent;
+	  fLastEvent=o.fLastEvent;
+	  fNoCalib=o.fNoCalib;
+	  fHitFileName=o.fHitFileName;
+	  //fDataFile=o.fDataFile;
+	  fhitlist=o.fhitlist;
+	  fTopModuleID=o.fTopModuleID;
+	  fBottomModuleID=o.fBottomModuleID;
+	  fFake=o.fFake;
+	  f=o.f;
+	  t=o.t;
+	  tsEv=o.tsEv;
+	  arr=o.arr;
+    fGeoH=o.fGeoH;
+    return *this;  
+  };
 
 	/**
 	@fn long int GetNofEvents()

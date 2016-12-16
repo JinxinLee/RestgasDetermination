@@ -24,27 +24,34 @@
 #include "PndDetectorList.h"
 
 
-PndMvdRiemannTrackFinderTaskCutPar::PndMvdRiemannTrackFinderTaskCutPar() : FairTask("MVD Riemann Track Finder Cuts")
+PndMvdRiemannTrackFinderTaskCutPar::PndMvdRiemannTrackFinderTaskCutPar() : FairTask("MVD Riemann Track Finder Cuts"),
+	  fHitBranch("MVDHitsPixel"),
+	  fHitBranch2("MVDHitsStrip"),
+	  fMCTrackBranch("MCTrack"),
+    fTrackBranch("MVDIdealTrackCand"),
+    fEventNr(0),
+    fMaxSZChi2(1),
+    fMaxSZDist(10),
+    fMinPointDist(1),
+    fMaxDist(1),
+	  fHitArray(NULL),
+	  fHitArray2(NULL),
+	  fTrackCandArray(NULL),
+	  fMCTrackArray(NULL),
+	  fRiemannTracks(NULL),
+    fNCut(10),
+    fNbin(100000),
+    frangeDist(2),
+    frangeChi2(1),
+    fPtS(0.1),
+    fPtF(1.0),
+    fThetaS(15),
+    fThetaF(150),
+    fhistsDist(),
+    fhistsChi2(),
+    fCutDistH(NULL),
+    fCutChi2H(NULL)
 {
-	fHitBranch = "MVDHitsPixel";
-	fHitBranch2 = "MVDHitsStrip";
-	fMCTrackBranch = "MCTrack";
-	fTrackBranch = "MVDIdealTrackCand";
-	fMaxSZChi2 = 1;
-	fMaxSZDist = 10;
-	fMinPointDist = 1;
-	fMaxDist = 1;
-
-	fNCut=10;
-
-	fEventNr = 0;
-	fNbin=100000;
-	frangeDist=2;
-	frangeChi2=1;
-	fPtS=0.1;
-	fPtF=1.0;
-	fThetaS=15;
-	fThetaF=150;
 ///// creating of Dist and Chi2 histograms
     for(int i=0;i<fNPt;i++){
     	for(int j=0;j<fNTh;j++){
@@ -61,8 +68,7 @@ PndMvdRiemannTrackFinderTaskCutPar::PndMvdRiemannTrackFinderTaskCutPar() : FairT
     fCutDistH->GetXaxis()->SetTitle("Pt, GeV/c");
     fCutDistH->GetYaxis()->SetTitle("Theta");
     fCutChi2H->GetXaxis()->SetTitle("Pt, GeV/c");
-	fCutChi2H->GetYaxis()->SetTitle("Theta");
-
+	  fCutChi2H->GetYaxis()->SetTitle("Theta");
 }
 
 PndMvdRiemannTrackFinderTaskCutPar::~PndMvdRiemannTrackFinderTaskCutPar()

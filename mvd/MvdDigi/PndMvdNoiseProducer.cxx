@@ -27,32 +27,37 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdNoiseProducer::PndMvdNoiseProducer() :
-FairTask("Charge Noise Producer"), fGeoH(0)
+FairTask("Charge Noise Producer"),
+    fPersistance(kTRUE),
+    fTimeOrderedDigi(kFALSE),
+    fBranchName("MVDStripDigis"),
+    fDigiStripArray(NULL),
+    fDigiPixelArray(NULL),
+    fDigiPixelBuffer(NULL),
+    fDigiStripBuffer(NULL),
+    fDigiParRect(NULL),
+    fDigiParTrap(NULL),
+    fDigiParPix(NULL),
+    fTotDigiParRect(NULL),
+    fTotDigiParTrap(NULL),
+    fTotDigiParPix(NULL),
+    fGeoH(NULL),
+    fMCEventheader(NULL),
+    fPixelIds2(),
+    fPixelIds4(),
+    fPixelIds5(),
+    fPixelIds6(),
+    fStripRectLIds(),
+    fStripRectSIds(),
+    fStripTrapIds(),
+    fStripRectChargeConv(NULL),
+    fStripTrapChargeConv(NULL),
+    fCurrentChargeConv(NULL),
+    fPixChargeConv(NULL),
+    fNoiseSpread(0),
+    fThreshold(0),
+    fPreviousTime(0)
 {
-  fBranchName 	= "MVDStripDigis";
-  fPersistance = kTRUE;
-  //  fGeoH = NULL;
-
-  fTimeOrderedDigi = kFALSE;
-  fBranchName = "";
-  fDigiStripArray = NULL;
-  fDigiPixelArray = NULL;
-  fDigiPixelBuffer = NULL;
-  fDigiStripBuffer = NULL;
-  fDigiParRect = NULL;
-  fDigiParTrap = NULL;
-  fDigiParPix = NULL;
-  fTotDigiParRect = NULL;
-  fTotDigiParTrap = NULL;
-  fTotDigiParPix = NULL;
-  fMCEventheader = NULL;
-  fStripRectChargeConv = NULL;
-  fStripTrapChargeConv = NULL;
-  fCurrentChargeConv = NULL;
-  fPixChargeConv = NULL;
-  fNoiseSpread = 0;
-  fThreshold = 0;
-  fPreviousTime = 0.;
 }
 // -------------------------------------------------------------------------
 

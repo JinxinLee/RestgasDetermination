@@ -4,32 +4,36 @@
 #include "FairLogger.h"
 
 PndMvdChargeWeightedPixelMapping::PndMvdChargeWeightedPixelMapping(Int_t verbose)
-:PndSdsChargeWeightedPixelMapping(){
+:PndSdsChargeWeightedPixelMapping(),
+	fDigiPar(NULL),
+	fTotDigiPar(NULL)
+{
 	fVerbose = verbose;
 	FairRun* ana = FairRun::Instance();
 	FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
 	fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer("MVDPixelTotDigiPar"));
-
 	SetChargeConverter();
-
 }
 
 PndMvdChargeWeightedPixelMapping::PndMvdChargeWeightedPixelMapping(PndGeoHandling* geo, Int_t verbose)
-:PndSdsChargeWeightedPixelMapping(geo){
+:PndSdsChargeWeightedPixelMapping(geo),
+	fDigiPar(NULL),
+	fTotDigiPar(NULL)
+{
 	fVerbose = verbose;
 	FairRun* ana = FairRun::Instance();
 	FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 	fDigiPar = (PndSdsPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
 	fTotDigiPar = (PndSdsTotDigiPar*)(rtdb->getContainer("MVDPixelTotDigiPar"));
-
 	SetChargeConverter();
-
 }
 
 
 PndMvdChargeWeightedPixelMapping::PndMvdChargeWeightedPixelMapping(PndGeoHandling* geo, PndSdsPixelDigiPar* digiPar, PndSdsTotDigiPar* totPar)
-:PndSdsChargeWeightedPixelMapping(geo), fDigiPar(digiPar), fTotDigiPar(totPar)
+:PndSdsChargeWeightedPixelMapping(geo), 
+  fDigiPar(digiPar),
+  fTotDigiPar(totPar)
 {
 	SetChargeConverter();
 }

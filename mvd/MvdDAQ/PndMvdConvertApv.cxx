@@ -17,18 +17,29 @@ using namespace std;
 
 // -----   Constructor   --------------------------------------------
 
-PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName)
+PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName):
+    fCalibPars(),
+	  fNofEvents(0),
+    fEvent(-1),
+	  fLastEvent(0),
+	  fNoCalib(kFALSE),
+	  fHitFileName(""),
+	  fDataFile(),
+	  fhitlist(),
+	  fTopModuleID(0),
+	  fBottomModuleID(0),
+	  fFake(kFALSE),
+	  f(NULL),
+	  t(NULL),
+	  tsEv(NULL),
+	  arr(NULL),
+    fGeoH(NULL)
 {
 
   f = new TFile(HitFileName);
-
   fGeoH = PndGeoHandling::Instance();
-  fFake=false;
- 	
   t = (TTree*) f->Get("T");
-	
   tsEv = new PndMvdTsEvent();
-	
   arr = new TClonesArray("PndMvdSiHit");
 
   cout << "---------------------------------------" << endl;
@@ -36,15 +47,12 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
   cout << "---------------------------------------" << endl;
 	
   t->SetBranchAddress("events",&tsEv);
-	
   cout << t->GetEntries() << " events in File" << endl;
 
   //LoadCalibration(CalibFileName, fes);
   LoadCalibration(CalibFileName);
 
   fNofEvents=t->GetEntries();
-  fLastEvent=0;
-  fEvent=-1;
  
   cout<<"** end of PndMvdConvertApv::PndMvdConvertApv(const TString& , const TString&) **"<<endl;
 }

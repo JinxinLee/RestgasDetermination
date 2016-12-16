@@ -28,27 +28,38 @@
 // -----   Default constructor   -------------------------------------------
 PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
 FairTask("Ideal reconstruction task for PANDA PndMvd"),
-fHitCovMatrix(3,3)
+    fPersistance(kTRUE),
+    fBranchName("MVDPoint"),
+    fGeoH(PndGeoHandling::Instance()),
+    fPointArray(NULL),
+    fMctruthArray(NULL),
+    fHitOutputArray(NULL),
+    fSigmaX(0.),
+    fSigmaY(0.),
+    fSigmaZ(0.),
+    fCurrentPndMvdMCPoint(NULL),
+    fCurrentTransMat(NULL),
+    fHitCovMatrix(3,3)
 {
-  fSigmaX=0.;
-  fSigmaY=0.;
-  fSigmaZ=0.;
-	fBranchName 	= "MVDPoint";
-  fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 
 // -----   Constructor   ---------------------------------------------------
 PndMvdIdealRecoTask::PndMvdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
 FairTask("Ideal reconstruction task for PANDA PndMvd"),
-fHitCovMatrix(3,3)
+    fPersistance(kTRUE),
+    fBranchName("MVDPoint"),
+    fGeoH(PndGeoHandling::Instance()),
+    fPointArray(NULL),
+    fMctruthArray(NULL),
+    fHitOutputArray(NULL),
+    fSigmaX(sx),
+    fSigmaY(sy),
+    fSigmaZ(sz),
+    fCurrentPndMvdMCPoint(NULL),
+    fCurrentTransMat(NULL),
+    fHitCovMatrix(3,3)
 {
-  fSigmaX=sx;
-  fSigmaY=sy;
-  fSigmaZ=sz;
-  fBranchName   = "MVDPoint";
-  fGeoH = PndGeoHandling::Instance();
 }
 // -------------------------------------------------------------------------
 

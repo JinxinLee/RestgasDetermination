@@ -40,9 +40,15 @@
 using namespace std;
 
 TtCracowTask::TtCracowTask()
-  : FairTask("Cracow")
-{
-  fTCandBranchName = "MVDHitsStrip";
+  : FairTask("Cracow"),
+    fTCandArray(NULL),
+    fTCandBranchName("MVDHitsStrip"),
+    fTrackArray(NULL),
+    fTrackcount(0),
+    fEvent(0),
+    fEloss()
+{    
+  for(int i=0;i<6;i++)fEloss[i]=0.;
 }
 
 

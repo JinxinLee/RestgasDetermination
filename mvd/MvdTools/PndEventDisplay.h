@@ -39,7 +39,7 @@ public:
   
   PndGeoHitList* GetHitList(TString ListName);
   std::map<TString, PndGeoHitList*> GetHitListMap(){return fHitListMap;};
-  void operator=(PndEventDisplay& display){fHitListMap = display.GetHitListMap();};
+  PndEventDisplay& operator=(PndEventDisplay& display){fHitListMap = display.GetHitListMap();return *this;};
   
   
 private:

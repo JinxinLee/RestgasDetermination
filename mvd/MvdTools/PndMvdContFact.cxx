@@ -23,11 +23,12 @@ ClassImp(PndMvdContFact);
 
 static PndMvdContFact gPndMvdContFact;
 
-PndMvdContFact::PndMvdContFact() {
+PndMvdContFact::PndMvdContFact() :
+  fDigiParNames(new TList())
+{
   // Constructor (called when the library is loaded)
   fName="PndMvdContFact";
   fTitle="Factory for parameter containers in libPndMvd";
-  fDigiParNames = new TList();
   setAllContainers();
   FairRuntimeDb::instance()->addContFactory(this);
 }

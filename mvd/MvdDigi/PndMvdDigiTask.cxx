@@ -16,14 +16,13 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdDigiTask::PndMvdDigiTask() :
-  PndBlackBoxTask("MVD Digitization BlacBox Task")
+  PndBlackBoxTask("MVD Digitization BlacBox Task"),
+  fPersistance(kTRUE)
 {
   this->Add(new PndMvdHybridHitProducer());
   this->Add(new PndMvdStripHitProducer());
   this->Add(new PndMvdNoiseProducer());
-   
-  fPersistance = kTRUE;
-  SetPersistance(fPersistance);
+     SetPersistance(fPersistance);
 }
 // -------------------------------------------------------------------------
 

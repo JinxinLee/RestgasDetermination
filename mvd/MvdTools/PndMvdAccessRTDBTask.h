@@ -16,11 +16,28 @@ class PndMvdAccessRTDBTask : public FairTask
  public:
 
   /** Default constructor **/
- PndMvdAccessRTDBTask(){};
+  PndMvdAccessRTDBTask():
+    fPixelDigiPar(NULL),
+    fStripDigiParRect(NULL),
+    fStripDigiParTrap(NULL)
+  {};
 
   /** Destructor **/
   virtual ~PndMvdAccessRTDBTask(){};
-
+  
+  PndMvdAccessRTDBTask(const PndMvdAccessRTDBTask& o) :
+    fPixelDigiPar(o.fPixelDigiPar),
+    fStripDigiParRect(o.fStripDigiParRect),
+    fStripDigiParTrap(o.fStripDigiParTrap)
+  {};
+  
+  PndMvdAccessRTDBTask& operator=(const PndMvdAccessRTDBTask& o)
+  {
+    fPixelDigiPar=o.fPixelDigiPar;
+    fStripDigiParRect=o.fStripDigiParRect;
+    fStripDigiParTrap=o.fStripDigiParTrap;
+    return *this;
+  };
 
   /** Virtual method Init **/
   virtual void SetParContainers();

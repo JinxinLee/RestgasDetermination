@@ -23,11 +23,13 @@
 ClassImp(PndMvdCreateDefaultApvMap);
 
 // Constructor
-PndMvdCreateDefaultApvMap::PndMvdCreateDefaultApvMap()
+PndMvdCreateDefaultApvMap::PndMvdCreateDefaultApvMap() :
+    fSortedMapping(),
+    fCurrentDigiPar(NULL),
+    fDigiParameterList(new TList()),
+    fFeCount(0),
+    fFakeCount(0)
 {
-  fDigiParameterList = new TList();
-  fFeCount = 0;
-  fFakeCount = 0;
 }
 
 // Destructor

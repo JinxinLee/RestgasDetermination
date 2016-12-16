@@ -14,6 +14,48 @@ class PndMvdRiemannTrackFinderTaskEff : public FairTask
 public:
 	PndMvdRiemannTrackFinderTaskEff();
 	virtual ~PndMvdRiemannTrackFinderTaskEff();
+  PndMvdRiemannTrackFinderTaskEff(const PndMvdRiemannTrackFinderTaskEff& o) :
+    eff0H(o.eff0H),
+    effH(o.effH),
+    GhH(o.GhH),
+	  fHitBranch(o.fHitBranch),
+	  fHitBranch2(o.fHitBranch2),
+    fMCTrackBranch(o.fMCTrackBranch),
+    fIdealTrackBranch(o.fIdealTrackBranch),
+    fFTrackBranch(o.fFTrackBranch),
+    fEventNr(o.fEventNr),
+    fMaxSZChi2(o.fMaxSZChi2),
+    fMaxSZDist(o.fMaxSZDist),
+    fMinPointDist(o.fMinPointDist),
+    fMaxDist(o.fMaxDist),
+	  fHitArray(o.fHitArray),
+	  fHitArray2(o.fHitArray2),
+	  fTrackCandArray(o.fTrackCandArray),
+	  fIdealTrackCandArray(o.fIdealTrackCandArray),
+	  fMCTracksArray(o.fMCTracksArray)
+  {};
+  PndMvdRiemannTrackFinderTaskEff& operator=(const PndMvdRiemannTrackFinderTaskEff& o)
+  {
+    eff0H=o.eff0H;
+    effH=o.effH;
+    GhH=o.GhH;
+	  fHitBranch=o.fHitBranch;
+	  fHitBranch2=o.fHitBranch2;
+    fMCTrackBranch=o.fMCTrackBranch;
+    fIdealTrackBranch=o.fIdealTrackBranch;
+    fFTrackBranch=o.fFTrackBranch;
+    fEventNr=o.fEventNr;
+    fMaxSZChi2=o.fMaxSZChi2;
+    fMaxSZDist=o.fMaxSZDist;
+    fMinPointDist=o.fMinPointDist;
+    fMaxDist=o.fMaxDist;
+	  fHitArray=o.fHitArray;
+	  fHitArray2=o.fHitArray2;
+	  fTrackCandArray=o.fTrackCandArray;
+	  fIdealTrackCandArray=o.fIdealTrackCandArray;
+	  fMCTracksArray=o.fMCTracksArray;
+    return *this;
+  };
 
 	 /** Virtual method Init **/
     virtual void SetParContainers();

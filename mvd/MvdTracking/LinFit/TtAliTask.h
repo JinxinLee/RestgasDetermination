@@ -27,14 +27,57 @@ public:
   // Constructors/Destructors ---------
   TtAliTask();
   TtAliTask(Int_t ExcludedBox);
-   TtAliTask(const TtAliTask& o){};
-  TtAliTask& operator=(const TtAliTask& o) { return *this;};
+  TtAliTask(const TtAliTask& o) :
+    fTCandArray(o.fTCandArray),
+    fTCandBranchName(o.fTCandBranchName),
+    fTrackcount(o.fTrackcount),
+    fEvent(o.fEvent),
+    fExclBox(o.fExclBox),
+    fPrint(o.fPrint),
+    sX(),
+    sY(),
+    sigX(),
+    sigY(),
+    m_X(),
+    m_Y(),
+    hx(o.hy),
+    hy(o.hy)
+  {
+    for (Int_t gg = 0 ; gg < 4 ; gg++)
+    {
+      sX[gg] = o.sX[gg];
+      sY[gg] = o.sY[gg];
+      sigX[gg] = o.sigX[gg];
+      sigY[gg] = o.sigY[gg];
+      m_X[gg] = o.m_X[gg];
+      m_Y[gg] = o.m_Y[gg];
+    }
+  };
+  TtAliTask& operator=(const TtAliTask& o) 
+  { 
+    fTCandArray=o.fTCandArray;
+    fTCandBranchName=o.fTCandBranchName;
+    fTrackcount=o.fTrackcount;
+    fEvent=o.fEvent;
+    fExclBox=o.fExclBox;
+    fPrint=o.fPrint;
+    for (Int_t gg = 0 ; gg < 4 ; gg++)
+    {
+      sX[gg] = o.sX[gg];
+      sY[gg] = o.sY[gg];
+      sigX[gg] = o.sigX[gg];
+      sigY[gg] = o.sigY[gg];
+      m_X[gg] = o.m_X[gg];
+      m_Y[gg] = o.m_Y[gg];
+    }
+    hx=o.hx;
+    hy=o.hy;
+    return *this;
+  };
   virtual ~TtAliTask();
 
   virtual InitStatus Init();
-
   virtual void Exec(Option_t* opt);
-
   virtual void FinishTask();
 
   void SetExcludedBox(Int_t excl){
@@ -45,15 +88,10 @@ public:
   };
 
   void PrintVal();
-
   void PrintMeanResiduals();
-
   void PrintSigmaResiduals();
-
   TVector2 GetRes();
-
   void PrintHistos();
-
   void FlagPrint(Int_t flag){fPrint = flag;}; // 1 to print residuals 
 
 private:
@@ -63,7 +101,6 @@ private:
   TString fTCandBranchName;
 
   //Bool_t firstIt; 
-
   Int_t fTrackcount;
 
   Int_t fEvent;
@@ -72,18 +109,13 @@ private:
   Int_t fPrint; // flag 
 
   Double_t sX[6],sY[6]; // shifts
-
   Double_t sigX[6],sigY[6]; // sigma residuals
-
   Double_t m_X[6],m_Y[6]; // residuals
 
   TH1F *hx;
   TH1F *hy;
 
-  
-
   // Fitting ------------
- 
   void  MyFit(Double_t *x,Double_t *y,Double_t *z,Double_t *Erx,Double_t *Ery,Double_t *Erz,Double_t realX, Double_t realY, Double_t realZ, Double_t &DELTAX, Double_t &DELTAY);
 
   ClassDef(TtAliTask,1);

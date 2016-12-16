@@ -10,8 +10,6 @@ class TRandom3;
 
 class PndMvdAdvancedPidAlgo {
 public:
-
-
   //Local pid type (BABAR)
   enum {kNPidType = 5};
   enum PidType {
@@ -39,6 +37,9 @@ public:
   static const double GetEnergyLoss() {return fenergyloss;};
 
 private:
+  //private contructor/destructor to prohibit instantiation
+   PndMvdAdvancedPidAlgo(){};
+   virtual ~PndMvdAdvancedPidAlgo(){};
 
   static void CalcLikelihood(double* lh);
 

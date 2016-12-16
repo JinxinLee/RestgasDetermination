@@ -29,20 +29,26 @@
 #include "PndRiemannHit.h"
 #include "PndRiemannTrack.h"
 
-PndMvdRiemannTrackFinderTaskEff::PndMvdRiemannTrackFinderTaskEff() : FairTask("MVD Riemann Track Finder")
+PndMvdRiemannTrackFinderTaskEff::PndMvdRiemannTrackFinderTaskEff() : FairTask("MVD Riemann Track Finder"),
+    eff0H(NULL),
+    effH(NULL),
+    GhH(NULL),
+	  fHitBranch("MVDHitsPixel"),
+	  fHitBranch2("MVDHitsStrip"),
+    fMCTrackBranch("MCTrack"),
+    fIdealTrackBranch("MVDIdealTrackCand"),
+    fFTrackBranch("MVDRiemannTrackCand"),
+    fEventNr(0),
+    fMaxSZChi2(1),
+    fMaxSZDist(10),
+    fMinPointDist(1),
+    fMaxDist(1),
+	  fHitArray(NULL),
+	  fHitArray2(NULL),
+	  fTrackCandArray(NULL),
+	  fIdealTrackCandArray(NULL),
+	  fMCTracksArray(NULL)
 {
-	fHitBranch = "MVDHitsPixel";
-	fHitBranch2 = "MVDHitsStrip";
-	fMCTrackBranch = "MCTrack";
-	fIdealTrackBranch = "MVDIdealTrackCand";
-	fFTrackBranch = "MVDRiemannTrackCand";
-	fMaxSZChi2 = 1;
-	fMaxSZDist = 10;
-	fMinPointDist = 1;
-	fMaxDist = 1;
-
-	fEventNr = 0;
-
 }
 
 PndMvdRiemannTrackFinderTaskEff::~PndMvdRiemannTrackFinderTaskEff()

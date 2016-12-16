@@ -20,16 +20,26 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdIdealTrackFinderTask::PndMvdIdealTrackFinderTask() :
-  FairTask("MVD Ideal Track Finding Task")
+  FairTask("MVD Ideal Track Finding Task"),
+      fHitBranchStrip("MVDHitsStrip"),
+      fHitBranchPixel("MVDHitsPixel"),
+      fClusterBranchStrip("MVDStripClusterCand"),
+      fClusterBranchPixel("MVDPixelClusterCand"),
+      fDigiBranchStrip("MVDStripDigis"),
+      fDigiBranchPixel("MVDPixelDigis"),
+      fMcBranch("MVDPoint"),
+      fTrackBranch("MCTrack"),
+      fStripHitArray(NULL),
+      fPixelHitArray(NULL),
+      fStripClusterArray(NULL),
+      fPixelClusterArray(NULL),
+      fStripDigiArray(NULL),
+      fPixelDigiArray(NULL),
+      fMcArray(NULL),
+      fTrackArray(NULL),
+      fTrackCandArray(NULL),
+      fTrackCandMap()
 {
-   fHitBranchStrip = "MVDHitsStrip";
-   fHitBranchPixel = "MVDHitsPixel";
-   fClusterBranchStrip = "MVDStripClusterCand";
-   fClusterBranchPixel = "MVDPixelClusterCand";
-   fDigiBranchStrip = "MVDStripDigis";
-   fDigiBranchPixel = "MVDPixelDigis";
-   fMcBranch = "MVDPoint";
-   fTrackBranch = "MCTrack";
 }
 
 

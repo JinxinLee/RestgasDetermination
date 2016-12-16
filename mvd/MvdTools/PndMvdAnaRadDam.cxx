@@ -12,10 +12,12 @@
 
 #include<iostream>
 
-PndMvdAnaRadDam::PndMvdAnaRadDam():fCountGoodFiles(0)
+PndMvdAnaRadDam::PndMvdAnaRadDam() :
+	fCountGoodFiles(0),
+	fFileList(),
+	fHistoMap()
 {
 	// TODO Auto-generated constructor stub
-
 }
 
 PndMvdAnaRadDam::~PndMvdAnaRadDam()

@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-PndMvdRadDamList::PndMvdRadDamList(TString fileName)
+PndMvdRadDamList::PndMvdRadDamList(TString fileName) : fList()
 {
 	Float_t E, W;
 	TFile f(fileName);

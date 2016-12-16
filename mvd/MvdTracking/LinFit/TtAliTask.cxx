@@ -40,10 +40,22 @@ using namespace ROOT::Math;
 using namespace std;
 
 TtAliTask::TtAliTask()
-  : FairTask("Alignment")
+  : FairTask("Alignment") ,
+  fTCandArray(NULL),
+  fTCandBranchName("MVDHitsStrip"),
+  fTrackcount(),
+  fEvent(),
+  fExclBox(),
+  fPrint(0),
+  sX(),
+  sY(),
+  sigX(),
+  sigY(),
+  m_X(),
+  m_Y(),
+  hx(NULL),
+  hy(NULL)
 {
-  fTCandBranchName = "MVDHitsStrip";
-
   for (Int_t gg = 0 ; gg < 4 ; gg++)
     {
       sX[gg] = 0.;
@@ -53,22 +65,30 @@ TtAliTask::TtAliTask()
       m_X[gg] = 0.;
       m_Y[gg] = 0.;
     }
-
-  fPrint = 0;
 }
 
 TtAliTask::TtAliTask(Int_t ExcludedBox)
-  : FairTask("3D-Straight-Line-Fit")
+  : FairTask("3D-Straight-Line-Fit"),
+  fTCandArray(NULL),
+  fTCandBranchName("MVDHitsStrip"),
+  fTrackcount(),
+  fEvent(),
+  fExclBox(ExcludedBox),
+  fPrint(0),
+  sX(),
+  sY(),
+  sigX(),
+  sigY(),
+  m_X(),
+  m_Y(),
+  hx(NULL),
+  hy(NULL)
 {
-  fTCandBranchName = "MVDHitsStrip";
- 
-  if (ExcludedBox < 1 || ExcludedBox > 6) 
-    {
-      std::cout << "Excluded box: Wrong value, setting as default 2!" << std::endl; 
-      ExcludedBox = 2;
-    }
-
-  fExclBox = ExcludedBox;
+  if (fExclBox < 1 || fExclBox > 6) 
+  {
+    std::cout << "Excluded box: Wrong value, setting as default 2!" << std::endl; 
+    fExclBox = 2;
+  }
 
   for (Int_t gg = 0 ; gg < 6 ; gg++)
     {
@@ -79,8 +99,6 @@ TtAliTask::TtAliTask(Int_t ExcludedBox)
       m_X[gg] = 0.;
       m_Y[gg] = 0.;
     }
-
-  fPrint = 0;
 }
 
 TtAliTask::~TtAliTask()

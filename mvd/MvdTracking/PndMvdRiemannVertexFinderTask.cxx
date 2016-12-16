@@ -31,16 +31,28 @@
 #include "PndSdsMCPoint.h"
 
 
-PndMvdRiemannVertexFinderTask::PndMvdRiemannVertexFinderTask() : FairTask("MVD Riemann VERTEX Finder")
+PndMvdRiemannVertexFinderTask::PndMvdRiemannVertexFinderTask() : FairTask("MVD Riemann VERTEX Finder"),
+	  delta(NULL),
+  	wrongV(NULL),
+    eff(),
+    ghosts(),
+	  fHitBranch("MVDHitsPixel"),
+	  fHitBranch2("MVDHitsStrip"),
+    fTrackBranch("MVDRiemannTrackCand"),
+    fIdealTrackCandBranch("MVDIdealTrackCand"),
+    fMCTrackBranch("MCTrack"),
+    fEventNr(0),
+    fVerbose(0),
+	  fVertexCut(0.),
+	  fHitArray(NULL),
+	  fHitArray2(NULL),
+	  fTrackCandArray(NULL),
+	  fTrackArray(NULL),
+	  fIdealTrackCandArray(NULL),
+	  fMCTrackArray(NULL),
+	  fVertex(NULL),
+	  fMCVertex(NULL)
 {
-	fHitBranch = "MVDHitsPixel";
-	fHitBranch2 = "MVDHitsStrip";
-	fTrackBranch = "MVDRiemannTrackCand";
-	fIdealTrackCandBranch = "MVDIdealTrackCand";
-	fMCTrackBranch = "MCTrack";
-
-	fEventNr = 0;
-	//fTrackBranch = "MCTrack";
 }
 
 PndMvdRiemannVertexFinderTask::~PndMvdRiemannVertexFinderTask()

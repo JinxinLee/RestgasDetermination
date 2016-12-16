@@ -4,11 +4,23 @@
 
 ClassImp(PndGeoHitList);
 
-PndGeoHitList::PndGeoHitList()
+PndGeoHitList::PndGeoHitList() :
+ 	  fGroupName(""),
+	  fVolName(""),
+	  fNodeList(),
+	  fGroupVolume(NULL),
+	  fTopVolume(NULL),
+	  fBaseVolume(NULL)
 {
 }
 
-PndGeoHitList::PndGeoHitList(TString groupName, TString topNodeName, TGeoVolume* baseVolume)
+PndGeoHitList::PndGeoHitList(TString groupName, TString topNodeName, TGeoVolume* baseVolume) :
+ 	  fGroupName(""),
+	  fVolName(""),
+	  fNodeList(),
+	  fGroupVolume(NULL),
+	  fTopVolume(NULL),
+	  fBaseVolume(NULL)
 {
   CreateNewGroup(groupName, topNodeName, baseVolume);
 }

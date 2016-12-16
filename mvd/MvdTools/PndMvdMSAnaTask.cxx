@@ -30,7 +30,19 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndMvdMSAnaTask::PndMvdMSAnaTask() : FairTask("Geane Task for PANDA PndMvd"), fEventNr(0), fUseMVDPoint(false)
+PndMvdMSAnaTask::PndMvdMSAnaTask() : FairTask("Geane Task for PANDA PndMvd"),
+		fMCHits(NULL),
+		fMCTracks(NULL),
+		fTrackParGeane(NULL),
+		fTrackParIni(NULL),
+		fTrackParFinal(NULL),
+		fDetName(NULL),
+    fPro(NULL),
+		fGeoH(NULL),
+    fEventNr(0),
+		fUseMVDPoint(false),
+		fTrackPixHitIdMap(),
+		fTrackStripHitIdMap()
 {
   fGeoH = PndGeoHandling::Instance();
 }

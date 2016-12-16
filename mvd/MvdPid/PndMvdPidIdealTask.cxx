@@ -34,9 +34,13 @@
 #include "MvdPid/PndMvdAdvancedPidAlgo.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMvdPidIdealTask::PndMvdPidIdealTask(TString algoName) :  FairTask("Digitization task for PANDA PndMvd") {
-  fBranchName = "MVDPoint";
-  fAlgoName = algoName;
+PndMvdPidIdealTask::PndMvdPidIdealTask(TString algoName) :  FairTask("Digitization task for PANDA PndMvd"),
+    fBranchName("MVDPoint"),
+    fAlgoName(algoName),
+    fPointArray(NULL),
+    fMcArray(NULL),
+    fTrackOutputArray(NULL)
+{
 }
 
 // -----   Public method Init   --------------------------------------------

@@ -18,10 +18,8 @@ class PndMvdDigiTask : public PndBlackBoxTask
     /** Default constructor **/
     PndMvdDigiTask();
 
-
     /** Destructor **/
     virtual ~PndMvdDigiTask();
-
     
   void SetPersistance(Bool_t p = kTRUE);
   Bool_t GetPersistance() {return fPersistance;};

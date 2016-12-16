@@ -15,6 +15,52 @@ class PndMvdRiemannVertexFinderTask : public FairTask
 public:
 	PndMvdRiemannVertexFinderTask();
 	virtual ~PndMvdRiemannVertexFinderTask();
+  PndMvdRiemannVertexFinderTask(const PndMvdRiemannVertexFinderTask& o) :
+	  delta(o.delta),
+  	wrongV(o.wrongV),
+    eff(o.eff),
+    ghosts(o.ghosts),
+	  fHitBranch(o.fHitBranch),
+	  fHitBranch2(o.fHitBranch2),
+    fTrackBranch(o.fTrackBranch),
+    fIdealTrackCandBranch(o.fIdealTrackCandBranch),
+    fMCTrackBranch(o.fMCTrackBranch),
+    fEventNr(o.fEventNr),
+    fVerbose(o.fVerbose),
+	  fVertexCut(o.fVertexCut),
+	  fHitArray(o.fHitArray),
+	  fHitArray2(o.fHitArray2),
+	  fTrackCandArray(o.fTrackCandArray),
+	  fTrackArray(o.fTrackArray),
+	  fIdealTrackCandArray(o.fIdealTrackCandArray),
+	  fMCTrackArray(o.fMCTrackArray),
+	  fVertex(o.fVertex),
+	  fMCVertex(o.fMCVertex)
+  {};
+  PndMvdRiemannVertexFinderTask& operator=(const PndMvdRiemannVertexFinderTask& o)
+  {
+	  delta=o.delta;
+  	wrongV=o.wrongV;
+    eff=o.eff;
+    ghosts=o.ghosts;
+	  fHitBranch=o.fHitBranch;
+	  fHitBranch2=o.fHitBranch2;
+    fTrackBranch=o.fTrackBranch;
+    fIdealTrackCandBranch=o.fIdealTrackCandBranch;
+    fMCTrackBranch=o.fMCTrackBranch;
+    fEventNr=o.fEventNr;
+    fVerbose=o.fVerbose;
+	  fVertexCut=o.fVertexCut;
+	  fHitArray=o.fHitArray;
+	  fHitArray2=o.fHitArray2;
+	  fTrackCandArray=o.fTrackCandArray;
+	  fTrackArray=o.fTrackArray;
+	  fIdealTrackCandArray=o.fIdealTrackCandArray;
+	  fMCTrackArray=o.fMCTrackArray;
+	  fVertex=o.fVertex;
+	  fMCVertex=o.fMCVertex;
+    return *this;
+  };
 
 	 /** Virtual method Init **/
     virtual void SetParContainers();
@@ -28,8 +74,8 @@ public:
     //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     void SetVertexCut(double cut){ fVertexCut =cut;};
-	TH1F* delta;
-	TH1F* wrongV;
+	  TH1F* delta;
+  	TH1F* wrongV;
 
     std::pair<double,double> eff;
     std::pair<double,double> ghosts;
@@ -37,12 +83,12 @@ public:
 private:
 	TString fHitBranch;
 	TString fHitBranch2;
-    TString fTrackBranch;
-    TString fIdealTrackCandBranch;
-    TString fMCTrackBranch;
+  TString fTrackBranch;
+  TString fIdealTrackCandBranch;
+  TString fMCTrackBranch;
 
-    int fEventNr;
-    int fVerbose;
+  int fEventNr;
+  int fVerbose;
 	double fVertexCut;
 
 	TClonesArray* fHitArray;
@@ -56,9 +102,6 @@ private:
 	TClonesArray* fVertex;
 	TClonesArray* fMCVertex;
 
-
-
-
 	bool CheckRecoTrack(PndTrackCand *cand,PndMCTrack* myTrack);
 
 	bool CheckVertex(std::vector<int> Combination, std::vector< std::pair<int,int> > PairCand);
@@ -70,11 +113,9 @@ private:
 	void CalcEfficiency(std::vector< std::pair <int,int> > TrueMCCand,
 			std::vector< std::pair <int,int> > FalseMCCand,std::vector< std::pair <int,int> > MCCand);
 
-
   void Register();
   void Reset();
   void ProduceHits();
-
 
   ClassDef(PndMvdRiemannVertexFinderTask,1);
 

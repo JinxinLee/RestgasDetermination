@@ -42,9 +42,73 @@ class PndMvdNoiseProducer : public FairTask
   /** Default constructor **/
   PndMvdNoiseProducer();
 
-
   /** Destructor **/
   virtual ~PndMvdNoiseProducer();
+
+  PndMvdNoiseProducer(const PndMvdNoiseProducer& o) :
+    fPersistance(o.fPersistance),
+    fTimeOrderedDigi(o.fTimeOrderedDigi),
+    fBranchName(o.fBranchName),
+    fDigiStripArray(o.fDigiStripArray),
+    fDigiPixelArray(o.fDigiPixelArray),
+    fDigiPixelBuffer(o.fDigiPixelBuffer),
+    fDigiStripBuffer(o.fDigiStripBuffer),
+    fDigiParRect(o.fDigiParRect),
+    fDigiParTrap(o.fDigiParTrap),
+    fDigiParPix(o.fDigiParPix),
+    fTotDigiParRect(o.fTotDigiParRect),
+    fTotDigiParTrap(o.fTotDigiParTrap),
+    fTotDigiParPix(o.fTotDigiParPix),
+    fGeoH(o.fGeoH),
+    fMCEventheader(o.fMCEventheader),
+    fPixelIds2(o.fPixelIds2),
+    fPixelIds4(o.fPixelIds4),
+    fPixelIds5(o.fPixelIds5),
+    fPixelIds6(o.fPixelIds6),
+    fStripRectLIds(o.fStripRectLIds),
+    fStripRectSIds(o.fStripRectSIds),
+    fStripTrapIds(o.fStripTrapIds),
+    fStripRectChargeConv(o.fStripRectChargeConv),
+    fStripTrapChargeConv(o.fStripTrapChargeConv),
+    fCurrentChargeConv(o.fCurrentChargeConv),
+    fPixChargeConv(o.fPixChargeConv),
+    fNoiseSpread(o.fNoiseSpread),
+    fThreshold(o.fThreshold),
+    fPreviousTime(o.fPreviousTime)
+  {};
+  PndMvdNoiseProducer& operator=(const PndMvdNoiseProducer& o)
+  {
+    fPersistance=o.fPersistance;
+    fTimeOrderedDigi=o.fTimeOrderedDigi;
+    fBranchName=o.fBranchName;
+    fDigiStripArray=o.fDigiStripArray;
+    fDigiPixelArray=o.fDigiPixelArray;
+    fDigiPixelBuffer=o.fDigiPixelBuffer;
+    fDigiStripBuffer=o.fDigiStripBuffer;
+    fDigiParRect=o.fDigiParRect;
+    fDigiParTrap=o.fDigiParTrap;
+    fDigiParPix=o.fDigiParPix;
+    fTotDigiParRect=o.fTotDigiParRect;
+    fTotDigiParTrap=o.fTotDigiParTrap;
+    fTotDigiParPix=o.fTotDigiParPix;
+    fGeoH=o.fGeoH;
+    fMCEventheader=o.fMCEventheader;
+    fPixelIds2=o.fPixelIds2;
+    fPixelIds4=o.fPixelIds4;
+    fPixelIds5=o.fPixelIds5;
+    fPixelIds6=o.fPixelIds6;
+    fStripRectLIds=o.fStripRectLIds;
+    fStripRectSIds=o.fStripRectSIds;
+    fStripTrapIds=o.fStripTrapIds;
+    fStripRectChargeConv=o.fStripRectChargeConv;
+    fStripTrapChargeConv=o.fStripTrapChargeConv;
+    fCurrentChargeConv=o.fCurrentChargeConv;
+    fPixChargeConv=o.fPixChargeConv;
+    fNoiseSpread=o.fNoiseSpread;
+    fThreshold=o.fThreshold;
+    fPreviousTime=o.fPreviousTime;
+    return *this;
+  };
 
 
   /** Virtual method Init **/

@@ -7,17 +7,17 @@
 
 ClassImp(PndMvdTsEvent);
 
-PndMvdTsEvent::PndMvdTsEvent()
+PndMvdTsEvent::PndMvdTsEvent() :
+    fEventId(0),                
+    fSiHitList(new TClonesArray("PndMvdSiHit")),       
+    fTdcValues(new TClonesArray("PndMvdTdcData")),       
+    fQdcValues(new TClonesArray("PndMvdQdcData")),       
+    fNumScalerValues(0),
+    fScalerValues(NULL),          
+    fScalerValuesAllocSize(0),  
+    fExtClockCount(0),       
+    fExtClockResetCount(0) 
 {
-    fEventId = 0;
-    fSiHitList = new TClonesArray("PndMvdSiHit");
-    fTdcValues = new TClonesArray("PndMvdTdcData");
-    fQdcValues = new TClonesArray("PndMvdQdcData");
-    //    fGiTdcValues = new TClonesArray("PndMvdTdcData");
-    //    fGiQdcValues = new TClonesArray("PndMvdQdcData");
-    fNumScalerValues = 0;
-    fScalerValues = NULL;
-    fScalerValuesAllocSize = 0;
 }
 
 PndMvdTsEvent::~PndMvdTsEvent()

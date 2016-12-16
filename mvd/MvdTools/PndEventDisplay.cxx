@@ -2,14 +2,13 @@
 
 ClassImp(PndEventDisplay);
 
-PndEventDisplay::PndEventDisplay()
+PndEventDisplay::PndEventDisplay() : fHitListMap()
 {
 }
 
-PndEventDisplay::PndEventDisplay(PndEventDisplay& display)
-{
-	fHitListMap = display.GetHitListMap();
-}
+PndEventDisplay::PndEventDisplay(PndEventDisplay& display) :
+	fHitListMap(display.GetHitListMap())
+{}
 
 PndEventDisplay::~PndEventDisplay()
 {

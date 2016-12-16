@@ -23,7 +23,28 @@
 
 
 PndMvdSttGemRiemannTrackFinderTask::PndMvdSttGemRiemannTrackFinderTask() :
-	FairTask("MVD Riemann Track Finder"), fMaxSZChi2(1), fMaxSZDist(10), fMinPointDist(1), fMaxDist(1), fEventNr(0), fB(2.0), fInitDone(kFALSE), fCutChi2H(0), fCutDistH(0), fPersistence(kTRUE)
+	FairTask("MVD Riemann Track Finder"), 
+    fHitBranch(),
+    fTrackBranch(""),
+    fEventNr(0),
+    fMaxSZChi2(1),
+    fMaxSZDist(10),
+    fMinPointDist(1),
+    fMaxDist(1),
+    fB(2.), 
+    fHitArray(),
+	  fTrackCandArray(NULL),
+	  fRiemannTrackArray(NULL),
+	  fTrackArray(NULL),
+	  fCorrectedSttHitArray(NULL),
+	  fCutDistH(NULL),
+	  fCutChi2H(NULL),
+	  fInitDone(kFALSE),
+	  fPersistence(kTRUE),
+	  fStopFunctor(NULL),
+	  fTimeGapFunctor(NULL),
+	  fSttParameters(NULL),
+	  fTubeArray(NULL)
 {
   PndGeoHandling::Instance();
 }

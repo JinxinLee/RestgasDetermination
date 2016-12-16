@@ -32,6 +32,48 @@ class PndMvdIdealTrackFinderTask : public FairTask
     PndMvdIdealTrackFinderTask();
     /** Destructor **/
     virtual ~PndMvdIdealTrackFinderTask();
+    PndMvdIdealTrackFinderTask(const PndMvdIdealTrackFinderTask& o) :
+      fHitBranchStrip(o.fHitBranchStrip),
+      fHitBranchPixel(o.fHitBranchPixel),
+      fClusterBranchStrip(o.fClusterBranchStrip),
+      fClusterBranchPixel(o.fClusterBranchPixel),
+      fDigiBranchStrip(o.fDigiBranchStrip),
+      fDigiBranchPixel(o.fDigiBranchPixel),
+      fMcBranch(o.fMcBranch),
+      fTrackBranch(o.fTrackBranch),
+      fStripHitArray(o.fStripHitArray),
+      fPixelHitArray(o.fPixelHitArray),
+      fStripClusterArray(o.fStripClusterArray),
+      fPixelClusterArray(o.fPixelClusterArray),
+      fStripDigiArray(o.fStripDigiArray),
+      fPixelDigiArray(o.fPixelDigiArray),
+      fMcArray(o.fMcArray),
+      fTrackArray(o.fTrackArray),
+      fTrackCandArray(o.fTrackCandArray),
+      fTrackCandMap(o.fTrackCandMap)
+   {};
+    PndMvdIdealTrackFinderTask& operator=(const PndMvdIdealTrackFinderTask& o)
+    {
+      fHitBranchStrip=o.fHitBranchStrip;
+      fHitBranchPixel=o.fHitBranchPixel;
+      fClusterBranchStrip=o.fClusterBranchStrip;
+      fClusterBranchPixel=o.fClusterBranchPixel;
+      fDigiBranchStrip=o.fDigiBranchStrip;
+      fDigiBranchPixel=o.fDigiBranchPixel;
+      fMcBranch=o.fMcBranch;
+      fTrackBranch=o.fTrackBranch;
+      fStripHitArray=o.fStripHitArray;
+      fPixelHitArray=o.fPixelHitArray;
+      fStripClusterArray=o.fStripClusterArray;
+      fPixelClusterArray=o.fPixelClusterArray;
+      fStripDigiArray=o.fStripDigiArray;
+      fPixelDigiArray=o.fPixelDigiArray;
+      fMcArray=o.fMcArray;
+      fTrackArray=o.fTrackArray;
+      fTrackCandArray=o.fTrackCandArray;
+      fTrackCandMap=o.fTrackCandMap;
+    return *this;
+    };
 
 
     /** Virtual method Init **/

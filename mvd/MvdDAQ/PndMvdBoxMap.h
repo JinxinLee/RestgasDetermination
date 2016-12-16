@@ -17,8 +17,23 @@
 class PndMvdBoxMap : public TObject {
 public:
   // Constructor/destructor
-  PndMvdBoxMap() {};
-  PndMvdBoxMap(TString nome) {SetMappingFile(nome);};
+  PndMvdBoxMap() :
+    box(),
+    fCh(),
+    lCh(),
+    fMap(),
+    fFileName(""),
+    nLines(0)
+  {};
+  PndMvdBoxMap(TString nome) :
+    box(),
+    fCh(),
+    lCh(),
+    fMap(),
+    fFileName(""),
+    nLines(0)
+  {SetMappingFile(nome);};
+  
   ~PndMvdBoxMap() {};
   
   // Printing

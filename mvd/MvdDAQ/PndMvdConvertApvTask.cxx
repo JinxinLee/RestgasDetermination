@@ -28,13 +28,16 @@
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert,PndMvdBoxMap* Apvmapper) : FairTask()
+PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert,PndMvdBoxMap* Apvmapper) : FairTask() ,
+    fPersistance(kTRUE),
+  	fApvConvert(Apvconvert),
+    fApvMapper(Apvmapper),
+	  fStripArray(NULL),
+    fGeoH(PndGeoHandling::Instance()),
+	  iStrip(0),
+    fDigiParameterList(new TList()),
+    fBotSides()
 {
-  fApvConvert=Apvconvert;
-  fApvMapper=Apvmapper;
-  fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
-  fDigiParameterList = new TList();
 }
 // -----   Destructor   ----------------------------------------------------
 PndMvdConvertApvTask::~PndMvdConvertApvTask()

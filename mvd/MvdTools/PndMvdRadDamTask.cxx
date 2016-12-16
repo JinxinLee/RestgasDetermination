@@ -16,10 +16,20 @@
 
 #include <iostream>
 
-PndMvdRadDamTask::PndMvdRadDamTask()
+PndMvdRadDamTask::PndMvdRadDamTask() :
+    fPersistance(kTRUE),
+	  fMCTracks(NULL),
+	  fMCHits(NULL),
+	  fRadDamHits(NULL),
+ 	  fElectronList(NULL),
+	  fProtonList(NULL),
+	  fNeutronList(NULL),
+	  fPionList(NULL),
+	  fGeoH(PndGeoHandling::Instance()),
+	  fMapDetHistos(),
+	  fRadDamHisto(NULL),
+	  fWeightListsMap()
 {
-  fPersistance = kTRUE;
-  fGeoH = PndGeoHandling::Instance();
 }
 
 PndMvdRadDamTask::~PndMvdRadDamTask()
