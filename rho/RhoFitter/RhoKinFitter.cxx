@@ -196,7 +196,8 @@ void RhoKinFitter::SetOutput()
     TLorentzVector p1;
     p1.SetXYZM(fAl0[k*7+0][0],fAl0[k*7+1][0],fAl0[k*7+2][0],m[k][0]);
     // fDaughters[k]->SetP4(p1);
-    fDaughters[k]->SetP7(pos,mom4);
+    //fDaughters[k]->SetP7(pos,mom4);
+    fDaughters[k]->SetP7(pos,p1);
       
 
     TMatrixD p1Cov(7,7);
