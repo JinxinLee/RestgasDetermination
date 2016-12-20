@@ -14,8 +14,8 @@ void QAmacro_mvd_ana()
   Bool_t isSuccessful = kFALSE;
   Bool_t test1=kTRUE, test2=kTRUE, test3=kTRUE;  
   
-  cout << "$VMCWORKDIR" << endl;
-  gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
+//  cout << "$VMCWORKDIR" << endl;
+//  gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
   LoadPandaStyle();
 
   // -----   Timer   --------------------------------------------------------
