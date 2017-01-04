@@ -16,7 +16,7 @@ void QAmacro_mvd_ana()
   
 //  cout << "$VMCWORKDIR" << endl;
 //  gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
-  LoadPandaStyle();
+//  LoadPandaStyle();
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
