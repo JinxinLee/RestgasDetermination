@@ -53,10 +53,12 @@ public:
 
 protected:
 	  virtual void CreateTrackCands();
+	  virtual void CreateTracks();
+	  virtual FairMCPoint* GetFairMCPoint(FairMultiLinkedData_Interface* links, FairMultiLinkedData& array);
 	  // taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h
-	  void SmearVector(TVector3 &vec, const TVector3 &sigma);
+	  virtual void SmearVector(TVector3 &vec, const TVector3 &sigma);
 
-private:
+protected:
 	  TString fOutBranchName;
 	  TClonesArray* fTrackCand;
 	  TClonesArray* fTrack;

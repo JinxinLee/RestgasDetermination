@@ -6,6 +6,8 @@
 
 #pragma link C++ class PndMCIdealTrackFinderNewLinks+;
 #pragma link C++ class PndMCTruthMatch+;
+#pragma link C++ class PndCloneGenerator+;
+
 
 #endif
 
