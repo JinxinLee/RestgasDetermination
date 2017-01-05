@@ -142,15 +142,6 @@ class PndPidCandidate : public FairRecoCandidate  //FairMultiLinkedData
   Int_t    	GetFitStatus() const{return fFitStatus;}
   Float_t  	GetChiSquared() const{return fChiSquared;}
   
-  //TODO: PID values workaround
-	Float_t		GetElectronPidLH() const { return -1; }
-	Float_t		GetMuonPidLH() const { return -1; }
-	Float_t		GetPionPidLH() const { return -1; } 
-	Float_t		GetKaonPidLH() const { return -1; }
-	Float_t		GetProtonPidLH() const { return -1; }
-  
-	    
-  
   // ************************
   // MODIFIER METHODS
   // ************************
@@ -256,14 +247,6 @@ class PndPidCandidate : public FairRecoCandidate  //FairMultiLinkedData
   void    SetFitStatus(Int_t val) { fFitStatus= val;}
   void  	SetChiSquared(Double_t val) { fChiSquared=(Float_t) val;}
 	  
-  //TODO: workaround
-  void	SetElectronPidLH(Double_t val)  { return; }
-	void	SetMuonPidLH(Double_t val)  { return; }
-	void	SetPionPidLH(Double_t val) { return; }
-	void	SetKaonPidLH(Double_t val)  { return; }
-	void	SetProtonPidLH(Double_t val) { return; }
-
-  
   void SetDefault();
  protected:
   // Candidate lock

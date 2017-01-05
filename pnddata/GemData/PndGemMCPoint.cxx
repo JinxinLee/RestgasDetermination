@@ -49,7 +49,7 @@ PndGemMCPoint::~PndGemMCPoint() { }
 
 // -----   Public method Print   -------------------------------------------
 void PndGemMCPoint::Print(const Option_t* opt) const {
-	std::cout << *this;
+	std::cout << *this << " opt = " << opt << std::endl;
 }
 // -------------------------------------------------------------------------
 

@@ -40,7 +40,8 @@ PndSciTPoint::PndSciTPoint( Int_t eventID, Int_t trackID,
   fXout(posout.X()), fYout(posout.Y()), fZout(posout.Z()),
   fPxout(momout.Px()),fPyout(momout.Py()),fPzout(momout.Pz())
 {
-  FairEventHeader* evtHeader = FairRun::Instance()->GetEventHeader();
+  //FIXME: Do we need to call the event header here?
+  //FairEventHeader* evtHeader = FairRun::Instance()->GetEventHeader();
   SetLink(FairLink(-1, eventID, "MCTrack", trackID));
 }
 
@@ -56,7 +57,7 @@ void PndSciTPoint::Print(const Option_t* opt) const {
   cout << "    Position (" << fX << ", " << fY << ", " << fZ
        << ") cm" << endl;
   cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
-       << ") GeV" << endl;
+       << ") GeV" << " opt="<<opt<< endl;
  
 }
 // -------------------------------------------------------------------------

@@ -218,12 +218,6 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n) :
   AddLinks(a.GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")));
 
   SetPidInfo ( 0 );
-  SetPidInfo ( 0,a.GetElectronPidLH() );
-  SetPidInfo ( 1,a.GetMuonPidLH() );
-  SetPidInfo ( 2,a.GetPionPidLH() );
-  SetPidInfo ( 3,a.GetKaonPidLH() );
-  SetPidInfo ( 4,a.GetProtonPidLH() );
-//  SetMcTruth ( a.GetMcTruth() ); // set the MCTuth object when building the mc list
 }
 
 
@@ -265,13 +259,6 @@ RhoCandidate::RhoCandidate ( FairRecoCandidate& a, Int_t n, RhoVector3Err& vp, B
   AddLinks(a.GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")));
 
   SetPidInfo ( 0 );
-  SetPidInfo ( 0,a.GetElectronPidLH() );
-  SetPidInfo ( 1,a.GetMuonPidLH() );
-  SetPidInfo ( 2,a.GetPionPidLH() );
-  SetPidInfo ( 3,a.GetKaonPidLH() );
-  SetPidInfo ( 4,a.GetProtonPidLH() );
-
-//  SetMcTruth ( a.GetMcTruth() ); // set the MCTuth object when building the mc list
 }
 
 

@@ -25,6 +25,19 @@ class PndSttTube : public TObject
 	     Double_t r31, Double_t r32, Double_t r33,
 	     Double_t radin, Double_t radout);
 
+  PndSttTube& operator=(const PndSttTube& o)
+  {
+    fTubeParms=o.fTubeParms;
+    fCenPosition=o.fCenPosition;
+    fRotationMatrix=o.fRotationMatrix;
+    fRadIn=o.fRadIn;
+    fRadOut=o.fRadOut;
+    fSectorID=o.fSectorID;
+    fLayerID=o.fLayerID;
+    fNeighborings=o.fNeighborings;
+    fLayerLimit=o.fLayerLimit;
+    fSectorLimit=o.fSectorLimit;
+  };
 
   TVector3 GetPosition();
   TMatrixT<Double_t> GetRotationMatrix();

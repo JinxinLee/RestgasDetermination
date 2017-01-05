@@ -35,7 +35,7 @@ PndMdtDigi::~PndMdtDigi()
 {
 } 
 
-PndMdtDigi::PndMdtDigi(const PndMdtDigi& copy):
+PndMdtDigi::PndMdtDigi(const PndMdtDigi& copy): FairTimeStamp(),
   fDetectorID(copy.fDetectorID),
   fLabPos(copy.fLabPos),
   fPointList(copy.fPointList),

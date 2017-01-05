@@ -692,21 +692,21 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
           case 165:
             if (mic) { theArF[off+k]=mic->GetSttMeanDEDX(); }
             break;    // STT dEdx
-
+          // fetch likelihoods from proper place, e.g. the rhocand. now with meaning
           case 170:
-            if (mic) { theArF[off+k]=mic->GetElectronPidLH(); }
+            if (mic) { theArF[off+k]=cur->fList[k]->GetPidInfo(0); }
             break;  // Electron LH
           case 171:
-            if (mic) { theArF[off+k]=mic->GetMuonPidLH(); }
+            if (mic) { theArF[off+k]=cur->fList[k]->GetPidInfo(1); }
             break;    // Muon LH
           case 172:
-            if (mic) { theArF[off+k]=mic->GetPionPidLH(); }
+            if (mic) { theArF[off+k]=cur->fList[k]->GetPidInfo(2); }
             break;    // Pion LH
           case 173:
-            if (mic) { theArF[off+k]=mic->GetKaonPidLH(); }
+            if (mic) { theArF[off+k]=cur->fList[k]->GetPidInfo(3); }
             break;    // Kaon LH
           case 174:
-            if (mic) { theArF[off+k]=mic->GetProtonPidLH(); }
+            if (mic) { theArF[off+k]=cur->fList[k]->GetPidInfo(4); }
             break;    // Proton LH
 
             // PID Info based in RhoCandidate entries... obsolete

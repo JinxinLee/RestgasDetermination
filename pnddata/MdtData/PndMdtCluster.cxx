@@ -26,7 +26,7 @@ Bool_t PndMdtCluster::DigiBelongsToCluster(Int_t digiIndex)
 
 void PndMdtCluster::Print(const Option_t* opt)
 {
-  std::cout << *this;
+  std::cout << *this << " opt = " << opt << std::endl;
 }
 
 ClassImp(PndMdtCluster)

@@ -39,8 +39,8 @@ public:
 
     virtual void Print(const Option_t* opt = 0) const; /// FairMCPoint forces the implementation
     const Double_t & GetTotalReflectionAngle() {return internal_reflection_angle;}
-    const Double_t ComputeWavelenght() { return 1.239841939E-6/sqrt(fPx*fPx+fPy*fPy+fPz*fPz); }
-    const Double_t ComputeTrackTof()  { return fTime-track_start_time; }
+     Double_t ComputeWavelenght() { return 1.239841939E-6/sqrt(fPx*fPx+fPy*fPy+fPz*fPz); }
+     Double_t ComputeTrackTof()  { return fTime-track_start_time; }
 
     Int_t volume_id;
     Double_t internal_reflection_angle;

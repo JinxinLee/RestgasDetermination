@@ -25,6 +25,27 @@ public:
 
 	PndSttStrawMap();
 	PndSttStrawMap(TClonesArray* const stt_tube_array);
+  PndSttStrawMap(const PndSttStrawMap& o) :
+	  fStrawIndex(o.fStrawIndex),
+	  fSectorOfStraw(o.fSectorOfStraw),
+	  fRowOfStraw(o.fRowOfStraw),
+	  fAxialStraw(o.fAxialStraw),
+	  fStrawMapInitialized(o.fStrawMapInitialized),
+	  fTubeArray(o.fTubeArray),
+	  fSectorStart(o.fSectorStart),
+	  fSectorEnd(o.fSectorEnd)
+  {};
+  PndSttStrawMap& operator=(const PndSttStrawMap& o)
+  {
+	  fStrawIndex=o.fStrawIndex;
+	  fSectorOfStraw=o.fSectorOfStraw;
+	  fRowOfStraw=o.fRowOfStraw;
+	  fAxialStraw=o.fAxialStraw;
+	  fStrawMapInitialized=o.fStrawMapInitialized;
+	  fTubeArray=o.fTubeArray;
+	  fSectorStart=o.fSectorStart;
+	  fSectorEnd=o.fSectorEnd;
+  };
 
 	const vector<int>& GetStrawRow(int sector, int row) const {return (fStrawIndex.find(sector))->second.at(row);}
 	const vector<vector<int> >& GetStrawSector(int sector) const {return (fStrawIndex.find(sector))->second;}

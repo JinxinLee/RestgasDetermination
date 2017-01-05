@@ -40,8 +40,8 @@ PndDiscParticleMCPoint::PndDiscParticleMCPoint(Int_t track_id_, Int_t det_id_, I
 
     : FairMCPoint(track_id_, det_id_, pos_in_, mom_in_, total_tof_, total_length_, energy_loss_),
       volume_id(volume_id_), pos_out(pos_out_), mom_out(mom_out_), charge(charge_), mass(mass_),
-      pdgCode(pdgCode_), my_energy_loss(energy_loss_), pos_in_inside(pos_in_inside_), 
-      is_primary(is_primary_)
+      pdgCode(pdgCode_), pos_in_inside(pos_in_inside_), 
+      is_primary(is_primary_), my_energy_loss(energy_loss_)
 {
 
 }
@@ -68,5 +68,6 @@ void PndDiscParticleMCPoint::Print(const Option_t *opt) const
               << "  pdgCode       " << pdgCode << std::endl
               << "  Pos in inside " << pos_in_inside << std::endl
               << "  is primary    " << is_primary << std::endl
+              << "  Option is     " << opt << std::endl
               ;
 }

@@ -23,6 +23,52 @@ public:
   
   PndSttMvdGemTrackingIdeal();
   virtual ~PndSttMvdGemTrackingIdeal();  
+  PndSttMvdGemTrackingIdeal(const PndSttMvdGemTrackingIdeal& o) :
+    fMCTracks(o.fMCTracks),
+    fMCPoints(),
+    fHits(),
+    fBranchIDs(),
+    fBranchActive(),
+    fTrackCands(o.fTrackCands),
+    fTracks(o.fTracks),
+    fTrackIds(o.fTrackIds),
+    fMomSigma(o.fMomSigma),
+    fDPoP(o.fDPoP),
+    fRelative(o.fRelative),
+    fVtxSigma(o.fVtxSigma),
+    fEfficiency(o.fEfficiency),
+    fPersistence(o.fPersistence),
+    fTracksArrayName(o.fTracksArrayName),
+    pdg(o.pdg)
+  { 
+    for(int i=0;i<4;i++){
+      fMCPoints[i]=o.fMCPoints[i];
+      fHits[i]=o.fHits[i];
+      fBranchIDs[i]=o.fBranchIDs[i];
+      fBranchActive[i]=o.fBranchActive[i];
+    }
+};
+  PndSttMvdGemTrackingIdeal& operator=(const PndSttMvdGemTrackingIdeal& o)
+  {
+    fMCTracks=o.fMCTracks;
+    for(int i=0;i<4;i++){
+      fMCPoints[i]=o.fMCPoints[i];
+      fHits[i]=o.fHits[i];
+      fBranchIDs[i]=o.fBranchIDs[i];
+      fBranchActive[i]=o.fBranchActive[i];
+    }
+    fTrackCands=o.fTrackCands;
+    fTracks=o.fTracks;
+    fTrackIds=o.fTrackIds;
+    fMomSigma=o.fMomSigma;
+    fDPoP=o.fDPoP;
+    fRelative=o.fRelative;
+    fVtxSigma=o.fVtxSigma;
+    fEfficiency=o.fEfficiency;
+    fPersistence=o.fPersistence;
+    fTracksArrayName=o.fTracksArrayName;
+    pdg=o.pdg;
+  };
   
   virtual void Exec(Option_t * option);
   virtual InitStatus Init();              
@@ -69,8 +115,8 @@ protected:
   TString fTracksArrayName;     // Branch name where to store the Track candidates
   TDatabasePDG *pdg;            //! Particle DB
   
-  PndSttMvdGemTrackingIdeal(const  PndSttMvdGemTrackingIdeal& L);
-  PndSttMvdGemTrackingIdeal& operator= (const  PndSttMvdGemTrackingIdeal&) {return *this;}
+  //PndSttMvdGemTrackingIdeal(const  PndSttMvdGemTrackingIdeal& L);
+  //PndSttMvdGemTrackingIdeal& operator= (const  PndSttMvdGemTrackingIdeal&) {return *this;}
   
   ClassDef(PndSttMvdGemTrackingIdeal,1);
   

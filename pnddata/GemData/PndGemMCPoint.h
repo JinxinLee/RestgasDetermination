@@ -68,7 +68,7 @@ class PndGemMCPoint : public FairMCPoint
 
 
   /** Copy constructor **/
-  PndGemMCPoint(const PndGemMCPoint& point) :
+  PndGemMCPoint(const PndGemMCPoint& point) : FairMCPoint(point),
       fXfOut(0.), fYfOut(0.), fZfOut(0.), 
       fPxfOut(0.), fPyfOut(0.), fPzfOut(0.),
       fSensorId(0)

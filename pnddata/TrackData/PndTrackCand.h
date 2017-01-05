@@ -59,7 +59,7 @@ public:
   UInt_t GetNHits() const {return fHitId.size();}
   int getMcTrackId() const {return fMcTrackId;}
 
-  UInt_t GetNHitsDet(UInt_t detId);
+  UInt_t GetNHitsDet(Int_t detId);
   std::vector<PndTrackCandHit>GetSortedHits();
   void Sort();
 

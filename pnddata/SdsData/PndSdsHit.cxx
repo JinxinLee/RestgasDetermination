@@ -14,12 +14,12 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsHit::PndSdsHit() : FairHit(),
-  fCov(3,3),
   fSensorID(-1),
   fCharge(0),
   fNDigiHits(0),
   fClusterIndex(-1),
-  fBotIndex(-1)
+  fBotIndex(-1),
+  fCov(3,3)
 {
 }
 // -------------------------------------------------------------------------
@@ -30,12 +30,12 @@ PndSdsHit::PndSdsHit() : FairHit(),
 PndSdsHit::PndSdsHit(Int_t detID, Int_t sensorID, TVector3& pos, TVector3& dpos,
                      Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex)
 : FairHit(detID, pos, dpos, mcindex), 
-  fCov(3,3),
   fSensorID(sensorID),
   fCharge(charge),
   fNDigiHits(NDigiHits),
   fClusterIndex(clindex),
-  fBotIndex(-1)
+  fBotIndex(-1),
+  fCov(3,3)
 {}
 
 /*PndSdsHit::PndSdsHit(PndSdsHit& c)
@@ -64,7 +64,7 @@ PndSdsHit::~PndSdsHit() {}
 
 // -----   Public method Print   -------------------------------------------
 void PndSdsHit::Print(const Option_t* opt) const {
-  std::cout << *this;
+  std::cout << *this<<"opt="<<opt<<std::endl;
 }
 
 void PndSdsHit::SetCov(TMatrixD cov)

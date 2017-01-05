@@ -28,10 +28,10 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID, Int_t tubeID, Int_t hitindex, Int_t 
 }
 
 // DELETE THIS CHECK
-void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
-{
+//void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
+//{
 
-}
+//}
 
 
 

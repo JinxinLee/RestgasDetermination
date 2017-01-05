@@ -30,11 +30,11 @@ PndDiscDigitizedHit::PndDiscDigitizedHit(FairLink const & fairln_mc_point,
                                              const Int_t & pixel_number_, const Double_t & pixel_pos_,
                                              const Double_t & tdc_time_,  const Double_t & panda_timestamp,
                                              const Int_t classifier_)
-    : detector_id(detector_id_), readout_id(readout_id_),
-      sensor_id(sensor_id_), dead_time_entity(dead_time_entity_),
-      pixel_number(pixel_number_), pixel_pos(pixel_pos_),
-      tdc_time(tdc_time_), digit_classifier(classifier_),
-      FairTimeStamp(panda_timestamp)
+    : FairTimeStamp(panda_timestamp),
+      detector_id(detector_id_), readout_id(readout_id_),
+      sensor_id(sensor_id_), pixel_number(pixel_number_), 
+      dead_time_entity(dead_time_entity_),pixel_pos(pixel_pos_),
+      tdc_time(tdc_time_), digit_classifier(classifier_)
 {
     AddLink(fairln_mc_point);
 }

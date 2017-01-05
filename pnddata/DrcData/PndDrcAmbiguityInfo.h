@@ -26,7 +26,7 @@ public:
   
   // Copy constructor 
   PndDrcAmbiguityInfo (const PndDrcAmbiguityInfo& val) :
-    fCherenkov(0.),fBarTime(0.),fEvTime(0.)
+    TObject(), fCherenkov(0.),fBarTime(0.),fEvTime(0.)
     { *this = val; }  
 
   // Mutators

@@ -49,7 +49,7 @@ class PndSttHit : public FairHit
 
 
   /** Output to screen (not yet implemented) **/
-  virtual void Print(const Option_t* opt = 0) const {;}
+  virtual void Print(const Option_t* opt = 0) const {std::cout<<" opt = "<<opt<<std::endl; return;}
 
 
   /** Public method Clear
@@ -99,19 +99,17 @@ class PndSttHit : public FairHit
 
  protected:
   
+  /** tube id **/
+  Int_t fTubeID; // CHECK added
+  /** time pulse **/
+  Double_t fPulse; 
   /** This variable contains the radial distance to the wire **/    
   Double_t fIsochrone;
   /** This variable contains the error on the radial distance to the wire **/    
   Double_t fIsochroneError;
-
-  /** time pulse **/
-  Double_t fPulse; 
-
  /**  deposit charge (arbitrary units) **/
   Double_t fDepCharge; 
 
-  /** tube id **/
-  Int_t fTubeID; // CHECK added
 
 
  ClassDef(PndSttHit,1);

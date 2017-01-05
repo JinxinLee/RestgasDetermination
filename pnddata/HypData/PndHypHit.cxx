@@ -46,7 +46,7 @@ PndHypHit::~PndHypHit() {}
 
 // -----   Public method Print   -------------------------------------------
 void PndHypHit::Print(const Option_t* opt) const {
-  std::cout << *this;
+  std::cout << *this << " opt="<<opt<<std::endl;
   
 }
 

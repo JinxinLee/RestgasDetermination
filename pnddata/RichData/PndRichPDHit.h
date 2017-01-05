@@ -27,7 +27,7 @@ public:
    
 
 /** Copy constructor **/
-  PndRichPDHit(const PndRichPDHit& hit) :
+  PndRichPDHit(const PndRichPDHit& hit) : FairHit(hit),
   fSensorId(hit.fSensorId),
   fTime(hit.fTime),
   fTimeThreshold(hit.fTimeThreshold)

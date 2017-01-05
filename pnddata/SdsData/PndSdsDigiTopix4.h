@@ -91,8 +91,8 @@ class PndSdsDigiTopix4 : public PndSdsDigiPixel
 	UInt_t fLeadingEdge;
 	UInt_t fTrailingEdge;
 	UInt_t fFrameCount;
-	UInt_t fHitCountIndependent;
 	UInt_t fHitCountCorrect;
+	UInt_t fHitCountIndependent;
 	Double_t fTimeStampIndependent;
     
     ClassDef(PndSdsDigiTopix4,3);

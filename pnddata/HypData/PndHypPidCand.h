@@ -41,7 +41,7 @@ public:
     {  }
 
   // CopyConstructor
-  PndHypPidCand(PndHypPidCand& point) :
+  PndHypPidCand(PndHypPidCand& point) : TObject(point),
   fhyphits(point.fhyphits),
   fdE(point.fdE),
   fdx(point.fdx),

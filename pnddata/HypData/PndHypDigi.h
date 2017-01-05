@@ -28,7 +28,7 @@ class PndHypDigi : public TObject
 	<< digi.GetFE() << " "
 	<< " charge " << digi.GetCharge() << " e";
     std::vector<Int_t> indices = digi.GetIndices();
-	        for (int i = 0; i < indices.size(); i++){
+	        for (unsigned int i = 0; i < indices.size(); i++){
 		  std::cout << digi.GetIndex(i) << " " << std::endl;
  	        }
     return out;

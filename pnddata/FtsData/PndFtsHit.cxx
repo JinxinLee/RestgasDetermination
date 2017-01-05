@@ -26,14 +26,14 @@ PndFtsHit::PndFtsHit() :
 
 PndFtsHit::PndFtsHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, Int_t skew, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep) : 
   FairHit(detID, pos, dpos, mcindex) ,
+  fIsochrone(isochrone),
+  fIsochroneError(isochroneError),
+  fPulse(p),
+  fDepCharge(chDep),
   fTubeID(tubeID),
   fChamberID(chamberID),
   fLayerID(layerID),
-  fSkewed(skew),
-  fPulse(p),
-  fIsochrone(isochrone),
-  fIsochroneError(isochroneError),
-  fDepCharge(chDep)
+  fSkewed(skew)
 {
   SetLink(FairLink("FTSPoint", mcindex));
 }

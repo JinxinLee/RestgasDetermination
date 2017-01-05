@@ -17,7 +17,7 @@ void PndSttGeomPoint::Destroy()
 {
 }
 
-PndSttGeomPoint::PndSttGeomPoint(PndSttGeomPoint const &other):
+PndSttGeomPoint::PndSttGeomPoint(PndSttGeomPoint const &other):TObject(other),
   fX(other.fX),
   fY(other.fY),
   fZ(other.fZ),
@@ -34,7 +34,7 @@ void PndSttGeomPoint::operator=(PndSttGeomPoint const &other)
 }  
 */
 
-PndSttGeomPoint::PndSttGeomPoint():
+PndSttGeomPoint::PndSttGeomPoint():TObject(),
   fX(0),
   fY(0),
   fZ(0),

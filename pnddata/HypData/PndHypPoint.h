@@ -56,7 +56,7 @@ class PndHypPoint : public FairMCPoint
 	      Double_t PLin, Double_t PLout);
   
   /** Copy constructor **/
-  PndHypPoint(const PndHypPoint& point) :
+  PndHypPoint(const PndHypPoint& point) : FairMCPoint(point),
     fEventID(point.fEventID),
     fPLin(point.fPLin),
     fPLout(point.fPLout),

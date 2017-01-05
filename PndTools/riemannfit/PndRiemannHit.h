@@ -36,7 +36,7 @@ class PndRiemannHit : public TObject{
 public:
 
   // Constructors/Destructors ---------
-  PndRiemannHit() : fCovX(3,3), fS(-1.), fZ(-1.), fDeltaZ(-1.), fAlpha(-1.), fHit(0){};
+  PndRiemannHit() : fX(0.,0.,0.), fSigmaX(0.,0.,0.), fCovX(3,3), fHit(0), fHitID(-1), fS(-1.), fZ(-1.), fDeltaZ(-1.), fAlpha(-1.), fVerbose(0) {};
   PndRiemannHit(double x,double y, double z, double dx, double dy, double dz);
   PndRiemannHit(FairHit* cl, int hitID = -1);
   ~PndRiemannHit();
@@ -63,8 +63,6 @@ public:
 	  }
 	  return *this;
   }
-
-
 
   // Accessors -----------------------
   void setXYZ(double x, double y, double z);
@@ -94,8 +92,6 @@ public:
   }
 
   // Modifiers -----------------------
-
-
   // Operations ----------------------
   void calcPosOnTrk(PndRiemannTrack* trk);
 
@@ -111,7 +107,6 @@ private:
   double fZ;				///< z-coordinate of hit
   double fDeltaZ;			///< error in z
   double fAlpha; 			///< angle along track
-
   int fVerbose;
 
   // Private Methods -----------------

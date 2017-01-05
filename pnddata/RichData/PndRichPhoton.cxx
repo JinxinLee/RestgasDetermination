@@ -178,7 +178,7 @@ Double_t PndRichPhoton::GetPhi()
 
 // -----   Public method Print   -------------------------------------------
 void PndRichPhoton::Print(const Option_t* opt) const {
-  cout << "RICH Photon hit: Time = " << fTime << endl;
+  cout << "RICH Photon hit: Time = " << fTime << " opt="<<opt<<endl;
 }
 // -------------------------------------------------------------------------
 

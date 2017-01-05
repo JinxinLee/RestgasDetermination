@@ -65,14 +65,7 @@ class FairRecoCandidate : public FairMultiLinkedData_Interface
   virtual Int_t    	GetFitStatus() const =0;
   //Float_t  	GetProbability() {return TMath::Prob(GetChiSquared(),GetDegreesOfFreedom());};
   virtual Float_t  	GetChiSquared() const =0;
-	    
-  //PID
-  virtual Float_t		GetElectronPidLH() const=0;
-  virtual Float_t		GetMuonPidLH() const=0;
-  virtual Float_t		GetPionPidLH() const=0;
-  virtual Float_t		GetKaonPidLH() const=0;
-  virtual Float_t		GetProtonPidLH() const=0;
-	
+  
   void     	PrintOn( std::ostream& o=std::cout ) const;
 
  

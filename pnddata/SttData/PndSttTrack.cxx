@@ -15,7 +15,7 @@ using std::map;
 
 // -----   Default constructor   -------------------------------------------
 PndSttTrack::PndSttTrack() :
-    fPidHypo(0), fFlag(0), fChi2Long(0.), fChi2Rad(0.), fDist(0.), fPhi(0.), fRad(0.), fTanL(0.), fZ(0.), fH(0), fHelixHits(TArrayI()), fNDF(0), fTrackCandIndex(0)
+    fHelixHits(TArrayI()),fPidHypo(0), fDist(0.), fPhi(0.), fRad(0.), fTanL(0.), fZ(0.), fH(0), fFlag(0), fChi2Long(0.),  fNDF(0), fChi2Rad(0.), fTrackCandIndex(0)
 {
 }
 // -------------------------------------------------------------------------

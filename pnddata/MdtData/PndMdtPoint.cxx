@@ -38,6 +38,7 @@ void PndMdtPoint::Print(const Option_t* opt) const {
   cout << "    Momentum In (" << fMomIn.X() << ", " << fMomIn.Y() << ", " << fMomIn.Z() << ") GeV^4" << endl; 
   cout << "    Position Out (" << fX << ", " << fY << ", " << fZ << ") cm^3*s" << endl;
   cout << "    Momentum Out(" << fPx << ", " << fPy << ", " << fPz << ") GeV^4" << endl;
+  cout << " opt = " << opt << endl;
 }
 // -------------------------------------------------------------------------
 

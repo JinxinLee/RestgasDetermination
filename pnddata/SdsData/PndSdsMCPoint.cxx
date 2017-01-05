@@ -33,7 +33,8 @@ PndSdsMCPoint::PndSdsMCPoint(Int_t trackID, Int_t detID, Int_t sensorID,
   fPzfOut(momOut.Pz()),
   fSensorID(sensorID)
 {
-  FairEventHeader* evtHeader = FairRun::Instance()->GetEventHeader();
+  //FIXME: Do we really need the header request?
+  //FairEventHeader* evtHeader = FairRun::Instance()->GetEventHeader();
   SetLink(FairLink("MCTrack", trackID));
 }
 // -------------------------------------------------------------------------
@@ -49,7 +50,7 @@ PndSdsMCPoint::~PndSdsMCPoint() { }
 
 // -----   Public method Print   -------------------------------------------
 void PndSdsMCPoint::Print(const Option_t* opt) const {
-	std::cout << *this;
+	std::cout << *this << "opt="<<opt<<std::endl;
 }
 // -------------------------------------------------------------------------
 

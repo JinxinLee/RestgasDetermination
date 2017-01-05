@@ -10,8 +10,8 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndSttPoint::PndSttPoint() : FairMCPoint(),
-			     fX_in_local(0.), fY_in_local(0), fZ_in_local(0),
 			     fX_out_local(0), fY_out_local(0), fZ_out_local(0),
+			     fX_in_local(0.), fY_in_local(0), fZ_in_local(0),
 			     fPx_in(0), fPy_in(0), fPz_in(0),
 			     fPx_out(0), fPy_out(0), fPz_out(0),
 			     fMass(0), fTubeID(0) 
@@ -84,7 +84,7 @@ void PndSttPoint::Print(const Option_t* opt) const {
   cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
        << ") GeV" << endl;
   cout << "    Time " << fTime << " ns,  Length " << fLength 
-       << " cm,  Energy loss " << fELoss*1.0e06 << " keV" << endl;
+       << " cm,  Energy loss " << fELoss*1.0e06 << " keV" << " opt = "<<opt<<endl;
 }
 // -------------------------------------------------------------------------
 

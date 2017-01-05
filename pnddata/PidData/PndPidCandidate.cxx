@@ -17,7 +17,7 @@
 //  ===== PndPidCandidate - Class definig the AOD interface           ====
 //  ========================================================================
 
-PndPidCandidate::PndPidCandidate(): 
+PndPidCandidate::PndPidCandidate(): FairRecoCandidate(),
   fLocked(kFALSE),
   fCharge(0),
   fXposition(0.),		
@@ -89,7 +89,7 @@ PndPidCandidate::PndPidCandidate():
   SetDefault();
 }
 
-PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 ) :
+PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 ) : FairRecoCandidate(),
   fLocked(kFALSE),
   fCharge(0),
   fXposition(0.),		
@@ -165,7 +165,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   SetCharge(charge);
 }
 
-PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4) :
+PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4) : FairRecoCandidate(),
   fLocked(kFALSE),
   fCharge(0),
   fXposition(0.),		

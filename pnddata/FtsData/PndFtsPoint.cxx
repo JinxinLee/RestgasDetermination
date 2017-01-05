@@ -9,10 +9,10 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndFtsPoint::PndFtsPoint() : FairMCPoint(),
-			     fX_in_local(0.), fY_in_local(0), fZ_in_local(0),
 			     fX_out_local(0), fY_out_local(0), fZ_out_local(0),
-			     fPx_in(0), fPy_in(0), fPz_in(0),
+			     fX_in_local(0.), fY_in_local(0), fZ_in_local(0),
 			     fPx_out(0), fPy_out(0), fPz_out(0),
+			     fPx_in(0), fPy_in(0), fPz_in(0),
 			     fMass(0), fTubeID(0),  fChamberID(0), fLayerID(0)
 {
 }
@@ -28,8 +28,8 @@ PndFtsPoint::PndFtsPoint(Int_t trackID, Int_t detID, Int_t tubeID, Int_t chamber
   : FairMCPoint(trackID, detID, pos, momIn, tof, length, eLoss),
     fX_out_local(posOutLocal.X()), fY_out_local(posOutLocal.Y()), fZ_out_local(posOutLocal.Z()),
     fX_in_local(posInLocal.X()),  fY_in_local(posInLocal.Y()), fZ_in_local(posInLocal.Z()),
-    fPx_in(momIn.Px()), fPy_in(momIn.Py()), fPz_in(momIn.Pz()),
     fPx_out(momOut.Px()), fPy_out(momOut.Py()), fPz_out(momOut.Pz()),
+    fPx_in(momIn.Px()), fPy_in(momIn.Py()), fPz_in(momIn.Pz()),
     fMass(mass), fTubeID(tubeID), fChamberID(chamberID), fLayerID(layerID)
 {
   // reset MC momentum
@@ -49,10 +49,10 @@ PndFtsPoint::~PndFtsPoint() { }
 // -----   Copy constructor   ------------------------------------------
 PndFtsPoint::PndFtsPoint(const PndFtsPoint& point):
   FairMCPoint(point.fTrackID, point.fDetectorID, TVector3(point.fX, point.fY, point.fZ), TVector3(point.fPx, point.fPy, point.fPz), point.fTime, point.fLength, point.fELoss, point.fEventId),
-  fX_in_local(point.fX_in_local), fY_in_local(point.fY_in_local), fZ_in_local(point.fZ_in_local),
   fX_out_local(point.fX_out_local), fY_out_local(point.fY_out_local), fZ_out_local(point.fZ_out_local),
-  fPx_in(point.fPx_in), fPy_in(point.fPy_in), fPz_in(point.fPz_in),
+  fX_in_local(point.fX_in_local), fY_in_local(point.fY_in_local), fZ_in_local(point.fZ_in_local),
   fPx_out(point.fPx_out), fPy_out(point. fPy_out), fPz_out(point.fPz_out),
+  fPx_in(point.fPx_in), fPy_in(point.fPy_in), fPz_in(point.fPz_in),
   fMass(point.fMass), fTubeID(point.fTubeID),  fChamberID(point.fChamberID), fLayerID(point.fLayerID)
 {
   
@@ -68,7 +68,7 @@ void PndFtsPoint::Print(const Option_t* opt) const {
   cout << "    Momentum (" << fPx << ", " << fPy << ", " << fPz
        << ") GeV" << endl;
   cout << "    Time " << fTime << " ns,  Length " << fLength 
-       << " cm,  Energy loss " << fELoss*1.0e06 << " keV" << endl;
+       << " cm,  Energy loss " << fELoss*1.0e06 << " keV" << " opt="<<opt<<endl;
 }
 // -------------------------------------------------------------------------
 

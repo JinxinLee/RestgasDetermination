@@ -57,8 +57,8 @@ Double_t PndSttHit::ComputedEdx(PndTrack *track, Double_t tuberadius) {
 //  cout << "tuberadius/isochrone/distance " << tuberadius << " " << fIsochrone << " " << distance << endl;
 
   TVector3 momentum = track->GetParamFirst().GetMomentum();
-  Double_t pt = momentum.Perp();
-  Double_t pl = momentum.Z();
+  //Double_t pt = momentum.Perp();
+  //Double_t pl = momentum.Z();
 
   Double_t coslam = momentum.Perp()/momentum.Mag();
 

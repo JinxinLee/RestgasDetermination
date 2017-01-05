@@ -27,6 +27,63 @@ class PndSttGeometryMap : public TObject
   PndSttGeometryMap(); 
   PndSttGeometryMap(TClonesArray *tubearray, Int_t geoType);
   ~PndSttGeometryMap();
+  PndSttGeometryMap(const PndSttGeometryMap& o) :
+    fGeoType(o.fGeoType), 
+    fVerbose(o.fVerbose),
+    fStrawIndex(o.fStrawIndex),
+    fStrawNeighbors(o.fStrawNeighbors),
+    fSectorOfStraw(o.fSectorOfStraw),
+    fLayerOfStraw(o.fLayerOfStraw),
+    fAxialStraw(o.fAxialStraw),
+    fSectorStart(o.fSectorStart),
+    fSectorEnd(o.fSectorEnd),
+    fStrawMapInitialized(o.fStrawMapInitialized),
+    fNLayers(o.fNLayers),
+    fNSectors(o.fNSectors),
+    fNTubes(o.fNTubes),
+    fNTubes_inner_parallel(o.fNTubes_inner_parallel),
+    fNTubes_outer_parallel(o.fNTubes_outer_parallel),
+    fNTubes_fillup_parallel(o.fNTubes_fillup_parallel),
+    fNTubes_skewed(o.fNTubes_skewed),
+    fNLayers_inner_parallel(o.fNLayers_inner_parallel),
+    fNLayers_skew(o.fNLayers_skew),
+    fNLayers_outer_parallel(o.fNLayers_outer_parallel),
+    fNLayers_fillup_parallel(o.fNLayers_fillup_parallel),
+    fStartTube(o.fStartTube),
+    fEndTube(o.fEndTube),
+    fShift(o.fShift),
+    fShiftSkew(o.fShiftSkew),
+    fTubeArray(o.fTubeArray)
+  {};
+  PndSttGeometryMap& operator=(const PndSttGeometryMap& o)
+  {
+    fGeoType=o.fGeoType; 
+    fVerbose=o.fVerbose;
+    fStrawIndex=o.fStrawIndex;
+    fStrawNeighbors=o.fStrawNeighbors;
+    fSectorOfStraw=o.fSectorOfStraw;
+    fLayerOfStraw=o.fLayerOfStraw;
+    fAxialStraw=o.fAxialStraw;
+    fSectorStart=o.fSectorStart;
+    fSectorEnd=o.fSectorEnd;
+    fStrawMapInitialized=o.fStrawMapInitialized;
+    fNLayers=o.fNLayers;
+    fNSectors=o.fNSectors;
+    fNTubes=o.fNTubes;
+    fNTubes_inner_parallel=o.fNTubes_inner_parallel;
+    fNTubes_outer_parallel=o.fNTubes_outer_parallel;
+    fNTubes_fillup_parallel=o.fNTubes_fillup_parallel;
+    fNTubes_skewed=o.fNTubes_skewed;
+    fNLayers_inner_parallel=o.fNLayers_inner_parallel;
+    fNLayers_skew=o.fNLayers_skew;
+    fNLayers_outer_parallel=o.fNLayers_outer_parallel;
+    fNLayers_fillup_parallel=o.fNLayers_fillup_parallel;
+    fStartTube=o.fStartTube;
+    fEndTube=o.fEndTube;
+    fShift=o.fShift;
+    fShiftSkew=o.fShiftSkew;
+    fTubeArray=o.fTubeArray;
+  };
   // ----------------------------
   void SetGeneralParameters();
   void GenerateStrawMap(Int_t map);

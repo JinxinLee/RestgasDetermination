@@ -40,6 +40,7 @@ PndRichMirrorSegment::~PndRichMirrorSegment(){}
 // -----   Public method Print   -------------------------------------------
 void PndRichMirrorSegment::Print(const Option_t* opt) const {
 //  cout << "RICH Photon hit: Time = " << fTime << endl;
+  cout<< " opt="<<opt<<endl;
 }
 // -------------------------------------------------------------------------
 

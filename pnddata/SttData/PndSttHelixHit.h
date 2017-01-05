@@ -38,14 +38,14 @@ class PndSttHelixHit : public FairHit
 		 Double_t dedx);
   
 
-  void CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex);
+  //void CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex);
 
 
 /** Destructor **/
   virtual ~PndSttHelixHit();    
 
   /** Output to screen **/
-  virtual void Print(const Option_t* opt = 0) const {;}
+  virtual void Print(const Option_t* opt = 0) const {std::cout<< " opt = " << opt << std::endl;return;}
 
   /** Public method Clear  **/
   void Clear();

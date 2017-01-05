@@ -21,7 +21,7 @@ class PndMdtTrk : public FairMultiLinkedData_Interface {
    virtual ~PndMdtTrk();
   
   /** Output to screen (not yet implemented) **/
-  virtual void Print(const Option_t* opt = 0) const {;}
+  virtual void Print(const Option_t* opt = 0) const {std::cout<< " opt = " << opt << std::endl; return;}
   
   
   /** Public method Clear

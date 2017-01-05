@@ -40,7 +40,7 @@ public:
   {  }
 
   // CopyConstructor
-  PndSdsPidCand(PndSdsPidCand& point) :
+  PndSdsPidCand(PndSdsPidCand& point) : TObject(point),
   fssdhits(point.fssdhits),
   fdE(point.fdE),
   fdx(point.fdx),

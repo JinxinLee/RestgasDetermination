@@ -40,7 +40,7 @@ public:
     {  };
 
   // CopyConstructor
-  PndMvdPidCand(PndMvdPidCand& point) :
+  PndMvdPidCand(PndMvdPidCand& point) : TObject(point),
     fmvdhits(point.fmvdhits),
     fdE(point.fdE),
     fdx(point.fdx),

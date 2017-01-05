@@ -19,11 +19,11 @@
 // -----   Default constructor   -------------------------------------------
 PndGemHit::PndGemHit()
   : FairHit(),
+    fDr        (-1),
+    fDp        (-1),
     fCharge    (-1),
     fNDigiHits (-1),
-    fBotIndex  (-1),
-    fDr        (-1),
-    fDp        (-1)
+    fBotIndex  (-1)
 {
 }
 // -------------------------------------------------------------------------
@@ -34,11 +34,11 @@ PndGemHit::PndGemHit()
 PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
 		     Int_t index, Double_t charge, Int_t NDigiHits, TString fromStr)
   : FairHit    (detID, pos, dpos, index),
+    fDr        (-1),
+    fDp        (-1),
     fCharge    (charge),
     fNDigiHits (NDigiHits),
-    fBotIndex  (-1),
-    fDr        (-1),
-    fDp        (-1)
+    fBotIndex  (-1)
 { 
   fDigiNr[0] = -1;
   fDigiNr[1] = -1;
@@ -50,11 +50,11 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
 PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
 		     Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index, TString fromStr) 
   : FairHit(detID, pos, dpos, index),
+    fDr        (dr),
+    fDp        (dp),
     fCharge    (-1),
     fNDigiHits (-1),
-    fBotIndex  (-1),
-    fDr        (dr),
-    fDp        (dp)
+    fBotIndex  (-1)
 {
   fDigiNr[0] = digi1;
   fDigiNr[1] = digi2;
@@ -69,11 +69,11 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
 		     Int_t digi1, Int_t digi2, 
 		     Double_t dr, Double_t dp, Int_t index, TString fromStr) 
   : FairHit(detID, pos, dpos, index),
+    fDr        (dr),
+    fDp        (dp),
     fCharge    (charge),
     fNDigiHits (-1),
-    fBotIndex  (-1),
-    fDr        (dr),
-    fDp        (dp)
+    fBotIndex  (-1)
 {
   fTimeStamp = time;
   fDigiNr[0] = digi1;
@@ -92,7 +92,7 @@ PndGemHit::~PndGemHit() {}
 
 // -----   Public method Print   -------------------------------------------
 void PndGemHit::Print(const Option_t* opt) const {
-  std::cout << *this;
+  std::cout << *this << " opt = " << opt << std::endl;
 }
 
 

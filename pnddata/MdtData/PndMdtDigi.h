@@ -20,7 +20,7 @@ class PndMdtDigi : public FairTimeStamp
   virtual ~PndMdtDigi();
   
   /** Output to screen (not yet implemented) **/
-  virtual void Print(const Option_t* opt = 0) const {;}
+  virtual void Print(const Option_t* opt = 0) const {std::cout << " opt = " << opt << std::endl; return;}
   
   bool operator < (const PndMdtDigi& ) const;
   
@@ -32,10 +32,10 @@ class PndMdtDigi : public FairTimeStamp
   /** Accessors **/
   void SetPosition(const TVector3& pos) { fLabPos = pos; };
 
-  const Double_t X() const { return fLabPos.X(); }
-  const Double_t Y() const { return fLabPos.Y(); }
-  const Double_t Z() const { return fLabPos.Z(); }
-  const Int_t GetEvtNumber() const { return fEvtNo; }
+  Double_t X() const { return fLabPos.X(); }
+  Double_t Y() const { return fLabPos.Y(); }
+  Double_t Z() const { return fLabPos.Z(); }
+  Int_t GetEvtNumber() const { return fEvtNo; }
   TVector3 GetLabPosition() const { return fLabPos; }
   Int_t GetDetectorID()     const { return fDetectorID; }  
   Short_t GetModule()       const { return PndMdtID::Module(GetDetectorID());}

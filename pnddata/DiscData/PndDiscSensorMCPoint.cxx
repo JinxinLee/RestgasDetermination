@@ -52,5 +52,6 @@ void PndDiscSensorMCPoint::Print(const Option_t *opt) const {
               << "  fELoss        " << fELoss           << std::endl
               << "  volume_id     " << volume_id        << std::endl
               << "  irefl. angle  " << internal_reflection_angle << std::endl
+              << "  Option is     " << opt << std::endl
             ;
 }

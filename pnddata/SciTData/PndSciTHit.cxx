@@ -76,7 +76,7 @@ PndSciTHit::~PndSciTHit() {}
 void PndSciTHit::Print(const Option_t* opt) const {
   std::cout << "Forward tof hit in detector " << fDetName << " at ("
        << fX << ", " << fY << ", " << fZ << ") cm " 
-       << ", Point " << fRefIndex << std::endl;
+       << ", Point " << fRefIndex << "opt="<<opt<<std::endl;
 }
 // -------------------------------------------------------------------------
 ClassImp(PndSciTHit)

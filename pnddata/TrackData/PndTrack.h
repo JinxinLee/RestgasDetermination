@@ -50,6 +50,7 @@ public:
 	FairTrackParP GetParamLast()  { return fTrackParamLast ; }
 
 	virtual bool equal(FairTimeStamp* data) const {
+    if(data) return false; // dummy
 	  return false;
 	}
 	
@@ -68,6 +69,7 @@ public:
 	}
 	
 	virtual bool operator==(const PndTrack& myTrack) const{
+    if(fFlag==myTrack.fFlag) return false; // dummy
 	  return false; 
 	}
 
