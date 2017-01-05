@@ -50,6 +50,14 @@
 #include <TList.h>
 #include <TStyle.h>
 #include <TROOT.h>
+#include <TGeoManager.h>
+
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairParRootFileIo.h"
+#include "FairGeane"
+#include "PndFileNameCreator.h"
+#include "PndGeoHandling.h"
 
 bool Tools()
 {
@@ -324,7 +332,7 @@ TH1D TransformHisto(TH2* h2, double min, double max)
   int nbins = h2->GetNbinsX() * h2->GetNbinsY();
   for (int i = 0; i < nbins; i++){
     //std::cout << h2->GetBinContent(i) << std::endl;
-    result->Fill(h2->GetBinContent(i));
+    result.Fill(h2->GetBinContent(i));
     if (i == 10)
       cout << h2->GetBinContent(i) << endl;
   }
@@ -390,15 +398,15 @@ bool plothistosfromfile(TString filename = "histos.root", TString ext=".pdf", In
       TH2* his2 = (TH2*)key->ReadObj();
       his2->GetXaxis()->SetNoExponent(); // put exponents to numbers directly
       his2->GetYaxis()->SetNoExponent(); // put exponents to numbers directly
-      TString options(his->GetOption());
+      TString options(his2->GetOption());
       if(options.Contains("log")){
         gPad->SetLogz();
         options.ReplaceAll("log","");
-        his->SetOption(options.Data());
+        his2->SetOption(options.Data());
       }
       if(options.Contains("nice")){
         options.ReplaceAll("nice","");
-        his->SetOption(options.Data());
+        his2->SetOption(options.Data());
         DrawNice2DHisto(his2);
       } else {
         his2->Draw("colz");
