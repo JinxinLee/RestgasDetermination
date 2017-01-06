@@ -37,6 +37,7 @@ class PndSttTube : public TObject
     fNeighborings=o.fNeighborings;
     fLayerLimit=o.fLayerLimit;
     fSectorLimit=o.fSectorLimit;
+    return *this;
   };
 
   TVector3 GetPosition();

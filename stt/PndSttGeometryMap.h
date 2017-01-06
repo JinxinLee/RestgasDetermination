@@ -83,6 +83,7 @@ class PndSttGeometryMap : public TObject
     fShift=o.fShift;
     fShiftSkew=o.fShiftSkew;
     fTubeArray=o.fTubeArray;
+    return *this;
   };
   // ----------------------------
   void SetGeneralParameters();

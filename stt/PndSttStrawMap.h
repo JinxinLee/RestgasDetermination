@@ -45,6 +45,7 @@ public:
 	  fTubeArray=o.fTubeArray;
 	  fSectorStart=o.fSectorStart;
 	  fSectorEnd=o.fSectorEnd;
+    return *this;
   };
 
 	const vector<int>& GetStrawRow(int sector, int row) const {return (fStrawIndex.find(sector))->second.at(row);}

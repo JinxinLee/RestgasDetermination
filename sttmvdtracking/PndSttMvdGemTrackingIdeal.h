@@ -68,6 +68,7 @@ public:
     fPersistence=o.fPersistence;
     fTracksArrayName=o.fTracksArrayName;
     pdg=o.pdg;
+    return *this;
   };
   
   virtual void Exec(Option_t * option);
