@@ -30,7 +30,6 @@
 #ifndef __CINT__
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/vector.hpp>
 #endif //__CINT__
 
 class PndTrackCandHit : public FairLink{
