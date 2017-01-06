@@ -29,6 +29,7 @@ class PndSensorNamePar : public FairParGenericSet
     void putParams(FairParamList* list);
     Bool_t getParams(FairParamList* list);
 
+    virtual void print(){Print();}
     void Print();
 
     Int_t AddSensorName(TObjString* name);
