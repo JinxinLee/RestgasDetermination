@@ -21,13 +21,14 @@
 #include "PndTrackCand.h"
 #include "FairRootManager.h"
 #include "FairEventHeader.h"
+#include "TClonesArray.h"
 
 #include <algorithm>
 #include "math.h"
 
 ClassImp(PndTrackCand);
 
-PndTrackCand::PndTrackCand():fHitId(), sorted(false), fMcTrackId(-1),fVerbose(0){}
+PndTrackCand::PndTrackCand():sorted(false), fMcTrackId(-1),fVerbose(0){}
 
 PndTrackCand::~PndTrackCand(){}
 
@@ -81,12 +82,12 @@ void PndTrackCand::DeleteHit(UInt_t detId, UInt_t hitId)
 	//DeleteLink(det, hit);
 }
 
-UInt_t PndTrackCand::GetNHitsDet(Int_t detId)
+UInt_t PndTrackCand::GetNHitsDet(UInt_t detId)
 {
   // Function to count the number of hits from the same detId
   Int_t detCounts = 0;
 
-  for (unsigned int ihit = 0; ihit<fHitId.size(); ihit++)
+  for (Int_t ihit = 0; ihit<fHitId.size(); ihit++)
     {
       PndTrackCandHit candhit = GetSortedHit(ihit);
       if (candhit.GetDetId() == detId) detCounts++;
@@ -123,7 +124,7 @@ void PndTrackCand::CalcTimeStamp()
 
 		if (type > -1){
 			TString branchName = FairRootManager::Instance()->GetBranchName(type);
-			//std::cout << "BranchName: " << branchName.Data() << std::endl;
+			if (branchName.Contains("Hit") == kFALSE) continue;
 
 			TClonesArray* myArray = (TClonesArray*)FairRootManager::Instance()->GetObject(branchName);
 			if (myArray != NULL){
