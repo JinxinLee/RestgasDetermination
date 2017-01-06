@@ -26,6 +26,7 @@ void tut_ana_comb(int nevts = 0, TString prefix = "signal")
 	FairRunAna* fRun = new FairRunAna();
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	fRun->SetSource(new FairFileSource(inPidFile));
+	fRun->SetUseFairLinks(kTRUE);
 	
 	// *** setup parameter database 	
 	FairParRootFileIo* parIO = new FairParRootFileIo();
@@ -78,11 +79,33 @@ void tut_ana_comb(int nevts = 0, TString prefix = "signal")
 		theAnalysis->FillList(piplus,  "PionAllPlus");
 		theAnalysis->FillList(piminus, "PionAllMinus");
 		
+		std::cout << "MuPlus:" << std::endl;
+		for (int k = 0; k < muplus.GetLength(); k++){
+			std::cout << k << " : ";
+			((FairMultiLinkedData_Interface*)muplus[k])->Print();
+			std::cout << std::endl;
+		}
+
+		std::cout << "MuMinus:" << std::endl;
+		for (int k = 0; k < muminus.GetLength(); k++){
+			std::cout << k << " : ";
+			((FairMultiLinkedData_Interface*)muminus[k])->Print();
+			std::cout << std::endl;
+		}
+
 		// ***
 		// *** SIMPLE COMBINATORICS for J/psi -> mu+ mu-
 		// ***
 		jpsi.Combine(muplus, muminus);
 		for (j=0;j<jpsi.GetLength();++j) hjpsim_all->Fill( jpsi[j]->M() );
+
+		std::cout << "JPsi:" << std::endl;
+		for (int k = 0; k < jpsi.GetLength(); k++){
+			std::cout << k << " : ";
+			((FairMultiLinkedData_Interface*)jpsi[k])->Print();
+			std::cout << std::endl;
+		}
+
 
 		// *** some rough mass selection
 		jpsi.Select(jpsiMassSel);
