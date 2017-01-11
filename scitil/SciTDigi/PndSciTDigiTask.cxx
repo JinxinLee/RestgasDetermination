@@ -168,7 +168,7 @@ void PndSciTDigiTask::Exec(Option_t* opt)
   TVector3 sensorDim; // Sensor dimension always in half the lenghts in root!
   TVector3 dHitPosition;
 
-  //calculate invariant values out of the loop:
+  //calculate invariant values outside of a loop:
 
   dSiPm = sqrt(2) * fdt; // time resolution of a single (row of) SiPm
   Double_t cBC408 = 299792458.0/nBC408*(100/(1.0e9)); // Light in BC408 Scintillator in [cm/ns]
