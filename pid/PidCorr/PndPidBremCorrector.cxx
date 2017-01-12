@@ -212,8 +212,8 @@ double PndPidBremCorrector::GetMergPhotonE(PndPidCandidate *ChargedCand, std::ve
   if (EleRefCluster < 0) return 0.0;
   GetEmcPhiBumpList(EleRefCluster);
 
-  Double_t EnergyCut = 0.15/TMath::Sin(fRecThetaOfEle*TMath::DegToRad());
-  Double_t EleEnergy = 0;
+  //Double_t EnergyCut = 0.15/TMath::Sin(fRecThetaOfEle*TMath::DegToRad()); //[R.K. 01/2017] unused variable
+  //Double_t EleEnergy = 0; //[R.K. 01/2017] unused variable
 
   int iMax = 0;
   Float_t eMax = -1e9;

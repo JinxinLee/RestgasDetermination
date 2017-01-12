@@ -67,7 +67,8 @@ Bool_t PndGasGenerator::ReadEvent(FairPrimaryGenerator* primGen)
   // those kinematics variables which were limitted by setters.
   // if SetCosTheta() function is used, the distribution will be uniform in cos(theta)
   
-  Double32_t pabs, phi, pt, theta=0, eta, y, mt, px, py, pz, pinv=0;
+  Double32_t pabs, phi, pt, theta=0, px, py, pz;
+  //Double32_t eta, pinv, y, mt=0; //[R.K. 01/2017] unused variable?
 
   // Generate particles
   for (Int_t k = 0; k < fMult; k++) {

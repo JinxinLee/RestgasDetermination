@@ -796,7 +796,7 @@ fEvent++;
 bool PndLmdQATask::HitReco()
 {
   bool isProblem = true;
-    const int nMCHits = fmcHitArray->GetEntriesFast();
+    //const int nMCHits = fmcHitArray->GetEntriesFast(); //[R.K. 01/2017] unused variable
     const int nRecHits = fHitArray->GetEntriesFast();
 
     for (Int_t i=0; i<nRecHits; i++){
@@ -808,7 +808,7 @@ bool PndLmdQATask::HitReco()
 	if (astripdigi->GetIndex(0) == -1)
 	  continue;
 	PndSdsMCPoint* mc = (PndSdsMCPoint*)(fmcHitArray->At(astripdigi->GetIndex(0)));
-	int MCidTOP = mc->GetTrackID();
+	//int MCidTOP = mc->GetTrackID(); //[R.K. 01/2017] unused variable
       // PndSdsHit *hit = (PndSdsHit*) fHitArray->At(i);
       // if(hit->GetRefIndex()<0) continue;
       // PndSdsMCPoint *mc = (PndSdsMCPoint*) fmcHitArray->At(hit->GetRefIndex());
@@ -860,7 +860,7 @@ void PndLmdQATask::ResoAndPulls()
     // Read GEANE & MC info -----------------------------------------------------------------
     const int nGeaneTrks = fGeaneArray->GetEntriesFast();
     const int nParticles = fmcTrkArray->GetEntriesFast();
-    const int nRecHits = fHitArray->GetEntriesFast();
+    //const int nRecHits = fHitArray->GetEntriesFast(); //[R.K. 01/2017] unused variable
     const int nRecTrks = fTrkArray->GetEntriesFast();
 
     if(nGeaneTrks<nParticles)
@@ -903,15 +903,15 @@ void PndLmdQATask::ResoAndPulls()
       Double_t errZ = fRes->GetDZ();
       TVector3 errPosRecPCA(errX,errY,errZ);
 
-      Double_t thetaBP = TMath::Pi()/2. - lyambda;
+      //Double_t thetaBP = TMath::Pi()/2. - lyambda; //[R.K. 01/2017] unused variable
       //   Double_t err_lyambda = fRes->GetDLambda();
-      Double_t phiBP = fRes->GetPhi();
+      //Double_t phiBP = fRes->GetPhi(); //[R.K. 01/2017] unused variable
       //  Double_t err_phi = fRes->GetDPhi();
 
       //calculate theta & phi errors
       double fLmPCA = TMath::ASin(MomRecPCA.Z()/MomRecPCA.Mag());
       double cLmPCA= TMath::Cos(fLmPCA);
-      double  sLmPCA= TMath::Sin(fLmPCA);
+      //double  sLmPCA= TMath::Sin(fLmPCA); //[R.K. 01/2017] unused variable
       Double_t fPPCA =sqrt(MomRecPCA.X()*MomRecPCA.X()+MomRecPCA.Y()*MomRecPCA.Y()+MomRecPCA.Z()*MomRecPCA.Z());
       Double_t fDPPCA= (2*MomRecPCA.X()*errMomRecPCA.X()+2*MomRecPCA.Y()*errMomRecPCA.Y()+2*MomRecPCA.Z()*errMomRecPCA.Z())/(2*fPPCA); //dp
       Double_t err_lyambda = (-((MomRecPCA.Z()*fDPPCA)/pow(fPPCA,2)) + errMomRecPCA.Z()/fPPCA)/ TMath::Sqrt(1 - pow(MomRecPCA.Z(),2)/pow(fPPCA,2)); 
@@ -946,7 +946,7 @@ void PndLmdQATask::ResoAndPulls()
       //calculate theta & phi errors
       double fLm = TMath::ASin(MomRecLMD.Z()/MomRecLMD.Mag());
       double cLm= TMath::Cos(fLm);
-      double  sLm= TMath::Sin(fLm);
+      //double  sLm= TMath::Sin(fLm); //[R.K. 01/2017] unused variable
       Double_t fP =sqrt(MomRecLMD.X()*MomRecLMD.X()+MomRecLMD.Y()*MomRecLMD.Y()+MomRecLMD.Z()*MomRecLMD.Z());
       Double_t fDP= (2*MomRecLMD.X()*errMomRecLMD.X()+2*MomRecLMD.Y()*errMomRecLMD.Y()+2*MomRecLMD.Z()*errMomRecLMD.Z())/(2*fP); //dp
       Double_t err_lyambdaLMD = (-((MomRecLMD.Z()*fDP)/pow(fP,2)) + errMomRecLMD.Z()/fP)/ TMath::Sqrt(1 - pow(MomRecLMD.Z(),2)/pow(fP,2)); 
@@ -995,11 +995,11 @@ void PndLmdQATask::ResoAndPulls()
       if(MCid<0) continue;
 	/// Read MC track parameters near IP ------------------------------------
 	PndMCTrack *mctrk =(PndMCTrack*) fmcTrkArray->At(MCid);
-	Int_t mcID = mctrk->GetPdgCode();
+	//Int_t mcID = mctrk->GetPdgCode(); //[R.K. 01/2017] unused variable
 	TVector3 MomMCpca = mctrk->GetMomentum();
 	TVector3 PosMCpca = mctrk->GetStartVertex();
-	Double_t thetaMC = MomMCpca.Theta();
-	Double_t phiMC = MomMCpca.Phi();
+	//Double_t thetaMC = MomMCpca.Theta(); //[R.K. 01/2017] unused variable
+	//Double_t phiMC = MomMCpca.Phi(); //[R.K. 01/2017] unused variable
 	///------------------------------------------------------------------------------------
 
 	MomRecPCA *= MomMCpca.Mag()/MomRecPCA.Mag();

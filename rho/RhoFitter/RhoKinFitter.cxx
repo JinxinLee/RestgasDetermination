@@ -331,10 +331,10 @@ void RhoKinFitter::ReadMassKinMatrix()
     int kN=k*7;
     TLorentzVector p1=fDaughters[k]->P4();
     m[k][0]=p1.M();
-    double px = al1p[kN+0][0];
-    double py = al1p[kN+1][0];
-    double pz = al1p[kN+2][0];
-    double E = TMath::Sqrt(px*px+py*py+pz*pz+m[k][0]*m[k][0]);
+    //double px = al1p[kN+0][0]; //[R.K. 01/2017] unused variable?
+    //double py = al1p[kN+1][0]; //[R.K. 01/2017] unused variable?
+    //double pz = al1p[kN+2][0]; //[R.K. 01/2017] unused variable?
+    //double E = TMath::Sqrt(px*px+py*py+pz*pz+m[k][0]*m[k][0]); //[R.K. 01/2017] unused variable?
     Double_t bField = 0.1*RhoCalculationTools::GetBz(fDaughters[k]->Pos()); // T, assume field in z only
     a = -0.00299792458*bField*fDaughters[k]->GetCharge();
     //Double_t invE = 1./E;

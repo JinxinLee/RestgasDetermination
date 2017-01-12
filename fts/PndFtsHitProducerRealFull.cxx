@@ -188,7 +188,7 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
     double depCharge = fts.PartToADC();
 
     // dE/dx calculation
-    double dedx = -999;
+    //double dedx = -999; //[R.K. 01/2017] unused variable?
 
     // fts: detID, pos, dpos, index come from --------------
     // fts (FairHit):
@@ -230,8 +230,8 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
 void PndFtsHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError,
                 TVector3 localInPos, TVector3 localOutPos)
 {
-  Double_t
-    zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.;
+  //Double_t
+    //zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.; //[R.K. 01/2017] unused variable?
 
   //  zposError = gRandom->Gaus(0., GetLongitudinalResolution(zPosInStrawFrame));
   zposError = gRandom->Gaus(0., 3.); // per adesso (stesso che in Ideal:

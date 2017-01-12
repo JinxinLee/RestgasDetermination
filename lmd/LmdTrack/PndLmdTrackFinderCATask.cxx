@@ -441,7 +441,7 @@ delete timer_neighbors_itter;
 //create cells between all planes at once
 TClonesArray* PndLmdTrackFinderCATask::CookAllCells(std::vector< std::vector<Int_t> > hitsd){
   TClonesArray* tCellArray = new TClonesArray("PndSdsCell");
-  int ncells=0;
+  //int ncells=0; //[R.K. 01/2017] unused variable
   if(fVerbose>2){
     int nPixelHits = fStripHitArray->GetEntriesFast();
     cout<<"Start cell contruction from "<<nPixelHits<<" hits"<<endl;
@@ -538,7 +538,7 @@ void PndLmdTrackFinderCATask::Exec(Option_t* opt)
 
   //Build  cells  
   fCellArray->Clear();
- const unsigned int nplanes = nP;
+ //const unsigned int nplanes = nP; //[R.K. 01/2017] unused variable
   TStopwatch *timer_cook_cells = new TStopwatch();
   if(fVerbose>0)
     timer_cook_cells->Start();

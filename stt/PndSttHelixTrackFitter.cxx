@@ -312,9 +312,9 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     
 
     if(whatToFit == 2) {
-      Double_t resx = iPoint->GetX() - currenthit->GetX();
-      Double_t resy = iPoint->GetY() - currenthit->GetY();
-      Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetY())*(iPoint->GetY() - currenthit->GetY()) + (iPoint->GetX() - currenthit->GetX())*(iPoint->GetX() - currenthit->GetX()));
+      //Double_t resx = iPoint->GetX() - currenthit->GetX(); //[R.K. 01/2017] unused variable?
+      //Double_t resy = iPoint->GetY() - currenthit->GetY(); //[R.K. 01/2017] unused variable?
+      //Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetY())*(iPoint->GetY() - currenthit->GetY()) + (iPoint->GetX() - currenthit->GetX())*(iPoint->GetX() - currenthit->GetX())); //[R.K. 01/2017] unused variable?
       
     }
  
@@ -830,8 +830,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
   if(hitcounter == 0) return kFALSE;
   
   Double_t Sxx, Sx, Sz, Sxz, S1z;
-  Double_t Detz = 0.;
-  Double_t fitm, fitp;
+  //Double_t Detz = 0.; //[R.K. 01/2017] unused variable?
+  //Double_t fitm, fitp; //[R.K. 01/2017] unused variable?
   Double_t sigz = 1.;  // CHECK
   
   Sx = 0.;
@@ -1254,7 +1254,7 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
   
   // SCOSL ======
   // get 1st hit
-  PndSttHit *fMhit = (PndSttHit*) fHitArray->At(pTrackCand->GetSortedHit(0).GetHitId());
+  //PndSttHit *fMhit = (PndSttHit*) fHitArray->At(pTrackCand->GetSortedHit(0).GetHitId()); //[R.K. 01/2017] unused variable?
  
 
   Double_t Sxx, Sx, Sz, Sxz, S1z;
@@ -1269,13 +1269,13 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
   S1z = 0.;
   
   // centre of curvature
-  Double_t x_0 = (fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi());
-  Double_t y_0 = (fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi());
+  //Double_t x_0 = (fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi()); //[R.K. 01/2017] unused variable?
+  //Double_t y_0 = (fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi()); //[R.K. 01/2017] unused variable?
   // radius of curvature
-  Double_t R  = fTrack->GetRad();
+  //Double_t R  = fTrack->GetRad(); //[R.K. 01/2017] unused variable?
   Int_t counter = 0;
   Int_t wireOk = 0;
-  Bool_t first = kTRUE;
+  //Bool_t first = kTRUE; //[R.K. 01/2017] unused variable?
   for (Int_t i = 0; i < hitcounter; i++) {
    
     // get index of hit
@@ -1398,7 +1398,7 @@ TVector3 PndSttHelixTrackFitter::GetHoughResponse()
   TMarker *mrk2;
   
   Double_t aref, bref, vref = 0;
-  Double_t aref2, bref2, vref2 = 0, cref2 = 0;
+  //Double_t aref2, bref2, vref2 = 0, cref2 = 0; //[R.K. 01/2017] unused variable?
   for(Int_t i=0; i <= 200; i++)
     {
       tga = TMath::Tan(a);
@@ -1506,7 +1506,7 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFi
    if(fVerbose == 2) cout << "MINUIT FIT " << pTrackCand->GetNHits() << endl;
  
   fEventCounter++;
-  Double_t hitcounter = pTrackCand->GetNHits();
+  //Double_t hitcounter = pTrackCand->GetNHits(); //[R.K. 01/2017] unused variable?
      
   Double_t rstart = fTrack->GetRad();
   Double_t xcstart = (fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi());
@@ -1529,7 +1529,7 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFi
   // set the object to be fitted:
   // TMatrixT<Double_t> [x][y][r][err_r]
   TMatrixT<Double_t> fitvect;
-  int nfithits = SetUpFitVector(pTrackCand, fitvect);
+  int nfithits = SetUpFitVector(pTrackCand, fitvect); //FIXME: unused variable?
 
   if(whatToFit == 1) minimizer.SetFCN(fcnHelix);
   else  minimizer.SetFCN(fcnHelix2);
@@ -1547,7 +1547,8 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFi
 
   minimizer.Migrad();
 
-  Double_t chisquare, resultsRadial[3], errorsRadial[3]; 
+  //Double_t chisquare;  //[R.K. 01/2017] unused variable?
+  Double_t resultsRadial[3], errorsRadial[3]; 
 
   minimizer.GetParameter(0, resultsRadial[0], errorsRadial[0]);
   minimizer.GetParameter(1, resultsRadial[1], errorsRadial[1]);
@@ -1764,8 +1765,8 @@ Int_t PndSttHelixTrackFitter::GetCharge(Double_t dCenter, Double_t phiCenter, Do
 	      endTube->GetPosition().Y(), 
 	      endTube->GetPosition().Z());
   
-  Bool_t
-    retval = kTRUE;
+  //Bool_t
+    //retval = kTRUE; //[R.K. 01/2017] unused variable?
   
   Double_t
     angle,
@@ -1949,14 +1950,14 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
     
 
     if(whatToFit == 2) {
-      Double_t resx = iPoint->GetX() - currenthit->GetX();
-      Double_t resy = iPoint->GetY() - currenthit->GetY();
-      Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetY())*(iPoint->GetY() - currenthit->GetY()) + (iPoint->GetX() - currenthit->GetX())*(iPoint->GetX() - currenthit->GetX()));
+      //Double_t resx = iPoint->GetX() - currenthit->GetX(); //[R.K. 01/2017] unused variable?
+      //Double_t resy = iPoint->GetY() - currenthit->GetY(); //[R.K. 01/2017] unused variable?
+      //Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetY())*(iPoint->GetY() - currenthit->GetY()) + (iPoint->GetX() - currenthit->GetX())*(iPoint->GetX() - currenthit->GetX())); //[R.K. 01/2017] unused variable?
       
     }
     
     Double_t xtrasl, ytrasl;
-    Double_t xi, yi;
+    //Double_t xi, yi; //[R.K. 01/2017] unused variable?
     // traslation
     xtrasl = currenthit->GetX() - trasl[0];
     ytrasl = currenthit->GetY() - trasl[1];
@@ -2201,10 +2202,10 @@ TVector3 PndSttHelixTrackFitter::GetHoughResponseThroughOrigin()
   Double_t a = -TMath::Pi()/2.;
   Double_t tga;
 
-  TMarker *mrk2;
+  //TMarker *mrk2; //[R.K. 01/2017] unused variable?
   
-  Double_t aref, bref, vref = 0;
-  Double_t aref2, bref2, vref2 = 0, cref2 = 0;
+  Double_t aref, /*bref,*/ vref = 0; //[R.K. 01/2017] unused variable?
+  //Double_t aref2, bref2, vref2 = 0, cref2 = 0; //[R.K. 01/2017] unused variable?
   for(Int_t i=0; i <= 200; i++)
     {
       tga = TMath::Tan(a);
@@ -2263,7 +2264,7 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
   if(hitcounter == 0) return kFALSE;
   
   Double_t Sxx, Sxz;
-  Double_t fitm, fitp;
+  //Double_t fitm, fitp; //[R.K. 01/2017] unused variable?
   Double_t sigz = 1.;  // CHECK
   
   Sxx = 0.;
@@ -2687,7 +2688,7 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
   
   // SCOSL ======
   // get 1st hit
-  PndSttHit *fMhit = (PndSttHit*) fHitArray->At(pTrackCand->GetSortedHit(0).GetHitId());
+  //PndSttHit *fMhit = (PndSttHit*) fHitArray->At(pTrackCand->GetSortedHit(0).GetHitId()); //[R.K. 01/2017] unused variable?
  
 
   Double_t Sxx, Sxz;
@@ -2698,13 +2699,13 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
   Sxz = 0.;
   
   // centre of curvature
-  Double_t x_0 = (fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi());
-  Double_t y_0 = (fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi());
+  //Double_t x_0 = (fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi()); //[R.K. 01/2017] unused variable?
+  //Double_t y_0 = (fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi()); //[R.K. 01/2017] unused variable?
   // radius of curvature
-  Double_t R  = fTrack->GetRad();
+  //Double_t R  = fTrack->GetRad(); //[R.K. 01/2017] unused variable?
   Int_t counter = 0;
   Int_t wireOk = 0;
-  Bool_t first = kTRUE;
+  //Bool_t first = kTRUE; //[R.K. 01/2017] unused variable?
   for (Int_t i = 0; i < hitcounter; i++) {
    
     // get index of hit

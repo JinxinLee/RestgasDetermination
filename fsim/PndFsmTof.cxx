@@ -172,7 +172,7 @@ PndFsmTof::respond(PndFsmTrack *t)
   double dm2=2*sqrt(measE*measE*dE*dE+measp*measp*sigp*sigp);
    
     result->setdm(dm_p);    
-    double dm_test=result->dm();                              //aida
+    //double dm_test=result->dm();   //[R.K. 01/2017] unused variable                            //aida
     //    std::cout <<"Tof_result_setdm ="<< dm_test <<std::endl;   //aida
 
 /*          
@@ -208,10 +208,10 @@ PndFsmTof::detected(PndFsmTrack *t) const
   {
 
     int    lundId = abs(t->pdt());
-    TParticlePDG* part = _fdbPDG->GetParticle(lundId);
-    double mass = (part) ? part->Mass() : t->p4().M();
+    //TParticlePDG* part = _fdbPDG->GetParticle(lundId); //[R.K. 01/2017] unused variable?
+    //double mass = (part) ? part->Mass() : t->p4().M(); //[R.K. 01/2017] unused variable
     double theta  = t->p4().Theta();
-    double p      = t->p4().Vect().Mag();
+    //double p      = t->p4().Vect().Mag(); //[R.K. 01/2017] unused variable
     double p_t    = t->p4().Vect().Pt();
     double charge=t->charge();
      

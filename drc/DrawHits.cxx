@@ -165,7 +165,7 @@ void DrawHits::ProcessBarHit()
        Double_t trPz = pt->GetPz();
        Double_t trP = sqrt(trPx*trPx + trPy*trPy +trPz*trPz);
        Double_t mass = pt->GetMass();
-       Double_t energy = sqrt(trP*trP + mass*mass);
+       //Double_t energy = sqrt(trP*trP + mass*mass); //[R.K. 01/2017] unused variable?
        
        // for my tree phoTree:
        xEnt = pt->GetX();
@@ -202,7 +202,7 @@ void DrawHits::ProcessBarHit()
 //--------------Process Photon MC Points----------------------------------------------------
 void DrawHits::ProcessPhotonMC()
 {
-  Double_t deg=180.0/TMath::Pi();
+  //Double_t deg=180.0/TMath::Pi(); //[R.K. 01/2017] unused variable?
 
 
    PndMCTrack* ptr = NULL;
@@ -220,7 +220,7 @@ void DrawHits::ProcessPhotonMC()
          
          Double_t xP= Ppt->GetX();
          Double_t yP= Ppt->GetY();
-         Double_t zP= Ppt->GetZ();
+         //Double_t zP= Ppt->GetZ(); //[R.K. 01/2017] unused variable?
 
          fhXYPDMCPt->Fill(xP,yP);
         if( nevents==1 && trMpdg ==321)fhXYPDMCPtKp->Fill(xP,yP);
@@ -234,9 +234,9 @@ void DrawHits::ProcessPhotonMC()
          Double_t Pfx= Ppt->GetPx();
          Double_t Pfy= Ppt->GetPy();
          Double_t Pfz= Ppt->GetPz();
-         Double_t Pf = sqrt(Pfx*Pfx + Pfy*Pfy +Pfz*Pfz);
+         //Double_t Pf = sqrt(Pfx*Pfx + Pfy*Pfy +Pfz*Pfz); //[R.K. 01/2017] unused variable?
          Double_t etot = sqrt(Pfx*Pfx + Pfy*Pfy +Pfz*Pfz);
-         Double_t nRefrac=1.467;
+         //Double_t nRefrac=1.467; //[R.K. 01/2017] unused variable?
          //Double_t lambda=197.0*2.0*TMath::Pi()/nRefrac/(etot*1.0E9);//wavelength of photon in nm
 	 Double_t lambda=197.0*2.0*TMath::Pi()/(etot*1.0E9);
 
@@ -319,15 +319,15 @@ void DrawHits::ProcessPhotonHit()
       //phoTree->Fill();
       // ------------
       
-      Double_t xP= Ppt->GetX();
-      Double_t yP= Ppt->GetY();
-      Double_t zP= Ppt->GetZ();
+      //Double_t xP= Ppt->GetX(); //[R.K. 01/2017] unused variable?
+      //Double_t yP= Ppt->GetY(); //[R.K. 01/2017] unused variable?
+      //Double_t zP= Ppt->GetZ(); //[R.K. 01/2017] unused variable?
       
       Double_t PPx= Ppt->GetPx();
       Double_t PPy= Ppt->GetPy();
       Double_t PPz= Ppt->GetPz();
       Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);
-      Double_t nRefrac=1.467;
+      //Double_t nRefrac=1.467; //[R.K. 01/2017] unused variable?
       //Double_t lambdah=197.0*2.0*TMath::Pi()/nRefrac/(etot*1.0E9);//wavelength of photon in nm
       Double_t lambdah=197.0*2.0*TMath::Pi()/(etot*1.0E9);
       

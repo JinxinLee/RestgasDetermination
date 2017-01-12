@@ -851,7 +851,7 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
 {
   Int_t nd  = c->NDaughters();
   Int_t pdg = c->PdgCode();
-  Int_t nmct = mct.GetLength();
+  //Int_t nmct = mct.GetLength(); //[R.K. 01/2017] unused variable?
 
   if ( 0==nd ) { // final state particle
     RhoCandidate* mccnd = c->GetMcTruth();

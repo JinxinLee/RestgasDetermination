@@ -176,8 +176,8 @@ void PndMdt::ConstructGeometry()
 void PndMdt::Initialize() 
 {
   FairDetector::Initialize();
-  FairRun* sim = FairRun::Instance();
-  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairRun* sim = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
   //PndGeoMdtPar* par=(PndGeoMdtPar*)(rtdb->getContainer("PndGeoMdtPar"));
   
   //TObjArray *fSensNodes = par->GetSensitiveNodes();
@@ -225,7 +225,7 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
   if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
     {
       Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
-      Int_t pdg= gMC->TrackPid();
+      //Int_t pdg= gMC->TrackPid(); //[R.K. 01/2017] unused variable?
       if ( (TrNo == fTrkIn) && (fELoss >0.) )
 	{
 	  TLorentzVector lPos, lMom;
@@ -244,9 +244,11 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
 	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), fTime,
 							gMC->TrackLength(), fELoss, 
 							fPos_In.Vect(), fMom_In.Vect());
-	  /**if you add a point then tell the stack! here*/
-	  PndStack* stack = (PndStack*) gMC->GetStack();
-	  stack->AddPoint(kMDT);
+    if(P) {
+	    /**if you add a point then tell the stack! here*/
+	    PndStack* stack = (PndStack*) gMC->GetStack();
+	    stack->AddPoint(kMDT);
+    }
 	};
       
       ResetParameters();
@@ -281,7 +283,7 @@ Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol)
   if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
   {
     Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
-    Int_t pdg= gMC->TrackPid();
+    //Int_t pdg= gMC->TrackPid(); //[R.K. 01/2017] unused variable?
     if ( (TrNo == fTrkIn) && (fELoss >0.) )
     {
       TLorentzVector lPos, lMom;
@@ -310,9 +312,11 @@ Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol)
       PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), fTime,
 	  gMC->TrackLength(), fELoss, 
 	  fPos_In.Vect(), fMom_In.Vect());
+    if(P){
       /**if you add a point then tell the stack! here*/
       PndStack* stack = (PndStack*) gMC->GetStack();
       stack->AddPoint(kMDT);
+    }
     };
 
     ResetParameters();

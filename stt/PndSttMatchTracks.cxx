@@ -123,7 +123,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
   Int_t nHits    = 0;
   Int_t nMCTracks = 0;
   Int_t iPoint    = 0;
-  Int_t iFlag     = 0;
+  //Int_t iFlag     = 0; //[R.K. 01/2017] unused variable?
   Int_t iMCTrack  = 0;
   Int_t nAll      = 0;
   Int_t nTrue     = 0;

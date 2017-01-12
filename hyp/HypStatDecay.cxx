@@ -260,7 +260,7 @@ if(ion==22){AI=0;ZI=0;L=0;}
 TLorentzVector HypStatDecay::GetPgCMSLab(float mass,float &Delta,TVector3 &PL,TRandom& rd)
 { 
   Double_t Mex,Pgam,Xgam,Ygam,Zgam,EL,PLmag, MC;
-  Double_t theta,phi;
+  //Double_t theta,phi; //[R.K. 01/2017] unused variable
   
   TLorentzVector res,PNlab,resLab;
   //mASS OF EXCITED HYPERNUCLEUS

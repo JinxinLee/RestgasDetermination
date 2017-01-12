@@ -439,7 +439,7 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
 
   PndMCTrack* mcTrack;
   PndTrack* gemTrack;
-  PndGemHit* gemHit;
+  //PndGemHit* gemHit; //[R.K. 01/2017] unused variable?
 
   for ( Int_t imct = 0 ; imct < nofMCTracks ; imct++ ) {
 
@@ -697,11 +697,11 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
   fRecoTrackMCMatch.clear();
   fRecoTrackMCMatch.resize(nofRecoTracks,-1);
 
-  PndGemHit* gemHit;
+  //PndGemHit* gemHit; //[R.K. 01/2017] unused variable?
   FairMCPoint* mcPoint;
   PndTrack* gemTrack;
 
-  const Int_t nsh = 2*fDigiPar->GetNStations();
+  //const Int_t nsh = 2*fDigiPar->GetNStations(); //[R.K. 01/2017] unused variable?
 
   for ( Int_t irtr = 0 ; irtr < nofRecoTracks ; irtr++ ) {
     gemTrack = (PndTrack*) fGemTrackArray->At(irtr);

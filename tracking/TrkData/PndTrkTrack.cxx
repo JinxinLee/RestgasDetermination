@@ -331,7 +331,7 @@ TVector3 PndTrkTrack::ComputeMomentumAtPosition(TVector3 position, TVector3 &new
   if(fTanL != -999) pl = pt * fTanL;
 //   cout << "pl " << pl << " tanl " << fTanL << endl;
 
-  Double_t ptot = TMath::Sqrt(pt * pt + pl * pl);
+  //Double_t ptot = TMath::Sqrt(pt * pt + pl * pl); //[R.K. 01/2017] unused variable
 
 
 //   cout << rotx << " " << roty << endl;

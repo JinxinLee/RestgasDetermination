@@ -174,6 +174,7 @@ void PndEmcWaveformWriteoutBuffer::WriteToFile( PndEmcWaveform* theWaveform)
 	gFile = fWave;
 	gFile->cd();
 	gr->Write();
+  oldFile->cd();
 	delete gr;
 }
 /*void PndEmcWaveformWriteoutBuffer::FillDataToDeadTimeMap(FairTimeStamp* data, double activeTime)

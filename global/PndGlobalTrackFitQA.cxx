@@ -194,10 +194,10 @@ void PndGlobalTrackFitQA::Exec(Option_t* opt) {
     TVector3 fitMom  = fitTrack ->GetParamFirst().GetMomentum();
 
     Double_t mcMomMag     =   mcMom.Mag();
-    Double_t recoMomMag   = recoMom.Mag();
+    //Double_t recoMomMag   = recoMom.Mag(); //[R.K. 01/2017] unused variable?
     Double_t fitMomMag    =  fitMom.Mag();
     Double_t mcMomTheta   =   mcMom.Theta()*TMath::RadToDeg();
-    Double_t recoMomTheta = recoMom.Theta()*TMath::RadToDeg();
+    //Double_t recoMomTheta = recoMom.Theta()*TMath::RadToDeg(); //[R.K. 01/2017] unused variable?
     Double_t fitMomTheta  =  fitMom.Theta()*TMath::RadToDeg();
 
     Int_t   magBin = (Int_t)(mcMomMag  /0.5);

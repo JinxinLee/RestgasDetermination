@@ -899,7 +899,7 @@ ostream& operator<< (ostream& out,const Matrix& M) {
 		out << "[empty matrix]";
 	}
 	else{
-		char buffer[1024];
+		//char buffer[1024]; //[R.K. 01/2017] unused variable?
 		for (int32_t i=0; i<M.m; i++) {
 			for (int32_t j=0; j<M.n; j++) {
 				out << M.val[i][j];

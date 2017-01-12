@@ -117,7 +117,7 @@ InitStatus PndDrcHitFinder::ReInit(){
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndDrcHitFinder::Init(){
-  FairRun* ana = FairRun::Instance();
+  //FairRun* ana = FairRun::Instance(); //[R.K. 01/2017] unused variable?
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman )
   {

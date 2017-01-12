@@ -716,7 +716,7 @@ void PndLmdSensorAligner::printAllPairs() {
 
 bool PndLmdSensorAligner::isValid(double val) {
 
-	bool result=false;
+	//bool result=false; //[R.K. 01/2017] unused variable
 
 	if(std::isinf(val)){
 		cout << "fucker is invalid! is inf\n";

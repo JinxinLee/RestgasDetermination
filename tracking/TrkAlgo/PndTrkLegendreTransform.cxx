@@ -73,7 +73,7 @@ void PndTrkLegendreTransform::FillHisto(TH2F *histo, double thetamin, double the
  
 
   // computation
-  double deltar = deltaThetaRad * (y * TMath::Cos(thetaRad) - x * TMath::Sin(thetaRad));
+  //double deltar = deltaThetaRad * (y * TMath::Cos(thetaRad) - x * TMath::Sin(thetaRad)); //[R.K. 01/2017] unused variable
   //  cout << "cfr delta r " << x << " " << y << " " << radius << " " << deltar << " " << (fRMax - fRMin)/fRNofBin << " " << 2 * radius << endl; 
 
 

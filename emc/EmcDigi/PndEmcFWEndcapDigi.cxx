@@ -214,7 +214,7 @@ void PndEmcFWEndcapDigi::Exec(Option_t* opt)
 		detId=theWaveform->GetDetectorId();
 		trackId=theWaveform->GetTrackId();
 
-		Double_t timeshift; // how maximum is shifted
+		//Double_t timeshift; // how maximum is shifted //[R.K. 01/2017] unused variable?
 
 		nHits = fHighLowPSA.Process(theWaveform);	
 

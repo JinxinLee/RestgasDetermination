@@ -183,11 +183,11 @@ ReadMainzProto60v6::ReadMainzProto60v6(const char *datafilename, const char *cal
 	NumberOfEvents=0;
 	ResetToFirstEvent=kFALSE;
 	
-	unsigned int rv;
-	unsigned int noe=0;
-	int how_often=1000;
+	//unsigned int rv; //[R.K. 01/2017] unused variable?
+	//unsigned int noe=0; //[R.K. 01/2017] unused variable?
+	//int how_often=1000; //[R.K. 01/2017] unused variable?
 
-	int tagged_crystal=35;
+	//int tagged_crystal=35; //[R.K. 01/2017] unused variable?
 	in = fopen(datafilename, "rb");	
 	if(in==NULL){ 
 		printf("can't read datafile %s !!!\n", datafilename);

@@ -101,7 +101,7 @@ PndRiemannTrack::init(double x0_, double y0_, double R_,
 void
 PndRiemannTrack::addHit(PndRiemannHit& hit){
 //	SetVerbose(3);
-  int nbefore=fHits.size();
+  //int nbefore=fHits.size(); //[R.K. 01/2017] unused variable?
   fHits.push_back(hit);
 //  std::cout << "fweight before addHit: " << fweight << std::endl;
   //ADDED by ME//
@@ -1003,7 +1003,7 @@ double PndRiemannTrack::P(double B)
 TVector3 PndRiemannTrack::getPforHit(int i, double B)
 {
 	double pt = Pt(B);
-	double p = P(B);
+	//double p = P(B); //[R.K. 01/2017] unused variable?
 	double pl = Pl(B);
 	TVectorD origin = orig();
 	TVector3 result;
@@ -1154,7 +1154,7 @@ void PndRiemannTrack::calcJacRXY()
 void PndRiemannTrack::PrintHits()
 {
 	std::cout << "-I- PndRiemannTrack::PrintHits: " << fHits.size() << std::endl;
-	bool first = false;
+	//bool first = false; //[R.K. 01/2017] unused variable?
 	for (int i = 0; i < fHits.size(); i++){
 		std::cout << i << ": ";
 

@@ -405,7 +405,7 @@ void PndRichCalDb::WriteAsciiFile(const char* fileName) {
 
   // Write field values
   cout << right;
-  Int_t nTot = fNp * fNx * fNy * fNt * fNf;
+  //Int_t nTot = fNp * fNx * fNy * fNt * fNf; //[R.K. 01/2017] unused variable?
   cout << "-I- PndRichCalDb: " << fNp*fNx*fNy*fNt*fNf << " entries to write... " 
        << setw(3) << 0 << " % ";
   Int_t index=0;

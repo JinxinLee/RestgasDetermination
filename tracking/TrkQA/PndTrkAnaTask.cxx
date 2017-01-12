@@ -423,7 +423,7 @@ void PndTrkAnaTask::Exec(Option_t* opt) {
     if(cleanplist.GetLength() > 1) {
       cout << "ERROR proton " << cleanplist.GetLength() << endl;
       for(int k = 0; k < cleanplist.GetLength(); k++) {
-	FairRecoCandidate *cp=cleanplist[k]->GetRecoCandidate();
+	//FairRecoCandidate *cp=cleanplist[k]->GetRecoCandidate(); //[R.K. 01/2017] unused variable
 	RhoCandidate* mccp = cleanplist[k]->GetMcTruth();
 	cout << "mc proton " << mccp->GetTrackNumber() << endl;
       }

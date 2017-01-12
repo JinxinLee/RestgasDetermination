@@ -109,7 +109,7 @@ void PndGemFindClusters::Exec(Option_t* opt) {
   fTNofEvents++;
 
   fTimer.Start();
-  Bool_t warn = kFALSE;
+  //Bool_t warn = kFALSE; //[R.K. 01/2017] unused variable?
 
   // Clear output array
   fClusters->Clear();
@@ -122,7 +122,7 @@ void PndGemFindClusters::Exec(Option_t* opt) {
 
   //FindClusters();
   
-  Int_t nofCreatedClusters = CreateClusters();
+  Int_t nofCreatedClusters = CreateClusters();// FIXME: unused variable...
 
   if ( fVerbose > 1 ) {
     Int_t nofC2W = 0;
@@ -791,7 +791,7 @@ Int_t PndGemFindClusters::WriteClusters() {
   if ( fVerbose > 0 ) cout << "-I- PndGemFindClusters::WriteClusters()" <<endl;
   
   Int_t nClusters = 0;
-  PndGemDigi* digi;
+  //PndGemDigi* digi; //[R.K. 01/2017] unused variable?
   PndGemCluster* cluster;
 
   for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
@@ -927,7 +927,7 @@ Bool_t PndGemFindClusters::CompareDigiToClustersDigis(Int_t digiNumber) {
 void PndGemFindClusters::JoinTwoClusters(Int_t clus1, Int_t clus2) {
   if ( fVerbose > 0 ) cout << "PndGemFindClusters::JointTwoClusters()" << endl;
   
-  PndGemDigi* digi;
+  //PndGemDigi* digi; //[R.K. 01/2017] unused variable?
 
   for ( Int_t id2 = 0 ; id2 < fDigiClusters[clus2].digiNr.size() ; id2++ ) { 
     Int_t digi2 = fDigiClusters[clus2].digiNr[id2];

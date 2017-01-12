@@ -826,7 +826,7 @@ void RhoKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
 	for(int k=0; k<nd; k++) {
 		kN=7*k;
 
-		double m = fDaughters[k]->Mass();
+		//double m = fDaughters[k]->Mass(); //[R.K. 01/2017] unused variable?
 		//check, if daughter particle is either neutral or charged
 		if (fabs(fDaughters[k]->GetCharge())<1e-6){//begin neutral
 
@@ -834,7 +834,7 @@ void RhoKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
 			double px=a_in[kN+0][0];
 			double py=a_in[kN+1][0];
 			double pz=a_in[kN+2][0];
-			double p2=px*px+py*py+pz*pz;
+			//double p2=px*px+py*py+pz*pz; //[R.K. 01/2017] unused variable?
 			//double E= sqrt(m*m+p2);
 			double x=a_in[kN+4][0];
 			double y=a_in[kN+5][0];

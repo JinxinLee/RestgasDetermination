@@ -143,11 +143,11 @@ void PndDrcLutFill::Exec(Option_t* option)
 void PndDrcLutFill::ProcessPhotonHit()
 {
   // LUT was generated for:
-  Int_t  lutboxId=3;
+  //Int_t  lutboxId=3; //[R.K. 01/2017] unused variable?
   Double_t  lutboxPhi=10.825;
 
-  Int_t nofChPho = 0;
-  Double_t path, barPhi;
+  //Int_t nofChPho = 0; //[R.K. 01/2017] unused variable?
+  Double_t path;//, barPhi; //[R.K. 01/2017] unused variable?
   TVector3 dir, dirm, vec, posInBar;
 
   // Loop over PndDrcPDHits

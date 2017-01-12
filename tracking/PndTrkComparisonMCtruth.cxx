@@ -84,7 +84,7 @@ using namespace std;
 
 
 
-   Short_t  i, j, jtemp,jexp , nmid;
+   Short_t  i, j, jtemp,jexp;// , nmid; //[R.K. 01/2017] unused variable?
 
    Short_t  itemp, massimo;
 	Short_t TMPtoMCtracklist[tmp_dim2*MAXSTTHITSINTRACK];
@@ -494,9 +494,9 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
  int
 	i,
 	j,
-	dim1,
-	dim2,
-	dim3,
+	//dim1, //[R.K. 01/2017] unused variable?
+	//dim2, //[R.K. 01/2017] unused variable?
+	//dim3, //[R.K. 01/2017] unused variable?
 	nele,
 	ncand,
 	nMCTracks,
@@ -791,7 +791,7 @@ int PndTrkComparisonMCtruth::ComparisonwithMC(
 
  if( nMCTracks >0 && nTotalCandidates > 0){
 
-	int nmid,nn;
+	int nn;//nmid, //[R.K. 01/2017] unused variable?
 
 	// non cambiare le seguenti righe
 	// perche' vengono processate da modificaPndTrkComparisonMCtruth.pl
@@ -1067,7 +1067,7 @@ PndMCTrack* pMCtr;
 for (i=0;i<nMCTracks;i++){
    	pMCtr = (PndMCTrack*) fMCTrackArray->At(i);
    	if ( ! pMCtr ) continue;
-         Double_t aaa, carica, Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;
+         Double_t aaa, carica, Rr, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ; // Dd, Fifi, //[R.K. 01/2017] unused variable?
          Int_t icode;
          icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
          Oxx = pMCtr->GetStartVertex().X();    //   X of starting point track
@@ -1170,7 +1170,7 @@ Double_t HoughFiii;
 	Double_t	perc_trueSttPar = 0. ,
 			perc_trueSttSkew = 0. ,
 			perc_missSttSkew = 0. ,
-			spurSttSkew = 0. ,
+			//spurSttSkew = 0. , //[R.K. 01/2017] unused variable?
 			perc_trueStt = 0. ,
 			perc_trueMvdPixel = 0. ,
 			perc_trueMvdStrip = 0. ,
@@ -1301,7 +1301,7 @@ ioData.nSciTilCommon[ii]+ioData.nMCSciTilAlone[ii],ioData.nSciTilCommon[ii],ioDa
     HoughFiii =  atan2(Oy[ii],Ox[ii]);
     if(HoughFiii<0.)  HoughFiii += 2.*PI;
 
-         Double_t aaa, carica, Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;
+         Double_t aaa, carica, Rr, Fifi, Oxx, Oyy, Cx, Cy, Pxx, Pyy  ;// Dd,  //[R.K. 01/2017] unused variable?
          Int_t icode;
          icode  = pMCtr->GetPdgCode() ;    //   PDG code of track
          Oxx = pMCtr->GetStartVertex().X();    //   X of starting point track
@@ -1434,16 +1434,16 @@ Double_t PndTrkComparisonMCtruth::FindDistance(
 		 dist,
 		 dist1,
 		 dist2,
-		 distlow,
-		 distmid,
-		 distup,
+		 //distlow, //[R.K. 01/2017] unused variable?
+		 //distmid, //[R.K. 01/2017] unused variable?
+		 //distup, //[R.K. 01/2017] unused variable?
 		 totaldist,
 		 x1,
 		 x2,
 		 y1,
 		 y2;
 
-int nevento=1;
+//int nevento=1; //[R.K. 01/2017] unused variable?
 
 
 
@@ -1537,7 +1537,7 @@ void PndTrkComparisonMCtruth::getMCInfo(
 {
 //  fine cambio_in_perl.
 		Int_t icode;
-		Double_t aaa, Dd, Fifi, Oxx, Oyy, Pxx, Pyy, carica  ;
+		Double_t aaa,  Oxx, Oyy, Pxx, Pyy, carica  ;// Dd,Fifi,  //[R.K. 01/2017] unused variable?
 		PndMCTrack* pMC;
 
 

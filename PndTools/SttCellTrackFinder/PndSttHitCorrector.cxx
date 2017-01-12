@@ -222,7 +222,7 @@ void PndSttHitCorrector::CorrectHits() {
 						PndSttHit* secondNeigh =
 								(PndSttHit*) fHits[fMapTubeIdToHit[straightNeighbors.second]];
 
-						double keep;
+						//double keep; //[R.K. 01/2017] unused variable?
 						double similarAngle;
 
 						if (actualHit->GetIsochrone()

@@ -26,7 +26,7 @@ PndGapEventBuilderTask::~PndGapEventBuilderTask()
 
 void PndGapEventBuilderTask::SetParContainers()
 {
-  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  //FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
 //  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 

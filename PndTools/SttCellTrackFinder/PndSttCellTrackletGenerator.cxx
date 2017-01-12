@@ -207,7 +207,7 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 		cout << "PndSttCellTrackletGenerator::CreatePndTrackCands()" << endl;
 	}
 
-	int state, numHits;
+	int numHits; // state,  //[R.K. 01/2017] unused variable?
 
 //create TrackCands for each combination of tracklets
 	for (int i = 0; i < fCombinedData.size(); ++i) {
@@ -1015,7 +1015,7 @@ TrackletInf_t PndSttCellTrackletGenerator::GetTrackletInf(set<int> tracklets) {
 	if (tracklets.size() > 1) {
 		//update trackletInf
 
-		int state = 5000, maxID = 0, endID = 0;
+		int state = 5000, maxID = 0;//, endID = 0; //[R.K. 01/2017] unused variable?
 		bool straight = false;
 
 		//state of combined tracklet equals min state of all

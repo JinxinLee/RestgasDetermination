@@ -18,13 +18,13 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix,
 		return kFALSE;
 	}
 	//---
-	Float_t trackTheta = helix->GetMomentum().Theta() * TMath::RadToDeg();
+	//Float_t trackTheta = helix->GetMomentum().Theta() * TMath::RadToDeg(); //[R.K. 01/2017] unused variable
 
 	Int_t emcEntries = fEmcCluster->GetEntriesFast();
 	Int_t emcIndex = -1, emcModuleCorr = -1, emcNCrystals = -1, emcNBumps = -1;
 	Float_t emcEloss = 0., emcElossCorr = 0., emcGLength = -1000;
 	Float_t emcQuality = 1000000;
-	Float_t chi2 = 0;
+	//Float_t chi2 = 0; //[R.K. 01/2017] unused variable
 	TVector3 vertex(0., 0., 0.);
 	TVector3 emcPos(0., 0., 0.); // TVector3 momentum(0., 0., 0.);
 

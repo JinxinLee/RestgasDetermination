@@ -549,7 +549,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1;
       idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
        
-      Int_t col=0, k1=0;
+      Int_t col=0;//, k1=0; //[R.K. 01/2017] unused variable?
       Int_t subrow=4;   // 4 crystals in each subvolume
       Int_t next=0;     // starts (from the middle) next column, represents rows
       copyNoSub-=1;     // When geometry is created, copyNoSub starts from 1-13 
@@ -1345,7 +1345,7 @@ void PndEmc::ConstructASCIIGeometry() {
   TGeoVolume *flayer6 = new TGeoVolumeAssembly("EmcTest");
   
   Bool_t bIsModuleOn[6] = {kFALSE, kFALSE, kFALSE, kFALSE, kFALSE,kFALSE};
-  Bool_t isFirst = kTRUE;
+  //Bool_t isFirst = kTRUE; //[R.K. 01/2017] unused variable?
   
   PndEmcReader read(GetGeometryFileName() );
   for(Int_t module=read.GetMinModules(); module<=read.GetMaxModules(); module++) {
@@ -1437,7 +1437,12 @@ void PndEmc::ConstructASCIIGeometry() {
       TGeoVolume *volAbs1, *volSci1, *volAbs2, *volSci2, *volAbs3, *volSci3;
       TGeoRotation rot;
       TGeoVolume *volume = new TGeoVolumeAssembly("FscBox");
-      Int_t padX = 28, padY = 14, holeX = 4, holeY = 2, padX1 = 11, padX2 = 13;
+      Int_t padX = 28, 
+            padY = 14, 
+            //holeX = 4,  //[R.K. 01/2017] unused variable?
+            holeY = 2, 
+            padX1 = 11, 
+            padX2 = 13;
       Float_t pDx1 = 11., pDx2 = 11., pDy1 = 11., pDy2 = 11., pAlp1 = 0.0275, pAlp2 = 0.15, pDz = 0.00375, posZ = 760.; 	    
       
       TGeoBBox *absorber1     = new TGeoBBox(pDx1*padX/2. , pDy1*(padY-holeY)/4., pAlp1/2.); 
@@ -1590,7 +1595,7 @@ void PndEmc::SetSpecialPhysicsCuts(){
 		matIdVMC = medium->GetId();
 		double cut_el = 1.0E-4;   // 100 KeV
 		double cut_had = 1.0E-4;  // 100 KeV
-		double tofmax = 1.E10;    // (s)
+		//double tofmax = 1.E10;    // (s) //[R.K. 01/2017] unused variable?
 
     // Set new properties, physics cuts etc. for the FSC
 //		gMC->Gstpar(matIdVMC,"PAIR",1); /** pair production*/

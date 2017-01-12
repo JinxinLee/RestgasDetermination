@@ -50,8 +50,8 @@ InitStatus PndRichHitProducer::Init() {
   cout << "-I- PndRichHitProducer::Init: "
        << "INITIALIZATION *********************" << endl;
   
-  FairRun* sim = FairRun::Instance();
-  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairRun* sim = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
    
   fGeo = new PndRichGeo();
   fGeo->init(fGeoVersion);
@@ -193,7 +193,7 @@ void PndRichHitProducer::Exec(Option_t* opt) {
    Int_t nBarPoints = fBarPointArray->GetEntriesFast();
    PndRichBarPoint *hit = 0;
 
-   Int_t detID, sensorId, index;
+   Int_t detID, sensorId;//, index; //[R.K. 01/2017] unused variable?
    TVector3 dpos(0., 0., 0.);
    // thetaC containe value of beta 
    Double_t thetaC, errThetaC;

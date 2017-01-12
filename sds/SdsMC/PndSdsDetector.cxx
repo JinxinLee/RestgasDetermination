@@ -442,7 +442,7 @@ PndSdsMCPoint* PndSdsDetector::AddHit(Int_t trackID, Int_t detID, Int_t sensorID
 //  Int_t
 //  size = clref.GetEntriesFast();
   fPndSdsCollection = FairRootManager::Instance()->GetTClonesArray(fOutBranchName);
-  FairMCEventHeader* header= (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
+  //FairMCEventHeader* header= (FairMCEventHeader*)FairRootManager::Instance()->GetObject("MCEventHeader.");
 
   if (fVerboseLevel >= 2)
     std::cout << "-I- PndSdsDetector: Adding Point at (" << posIn.X() << ", " << posIn.Y()

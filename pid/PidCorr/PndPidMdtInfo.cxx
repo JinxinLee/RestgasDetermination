@@ -30,7 +30,7 @@ Bool_t PndPidCorrelator::GetMdtInfo(PndTrack* track, PndPidCandidate* pidCand) {
   Float_t mdtQuality = 1000000;
   Float_t mdtIron = 0., mdtMom = 0, mdtTempMom = 0;
   
-  Float_t chi2 = 0;
+  //Float_t chi2 = 0; //[R.K. 01/2017] unused variable
   TVector3 vertex(0., 0., 0.);
   TVector3 vertexD(0., 0., 0.);
   TVector3 mdtPos(0., 0., 0.);
@@ -272,7 +272,7 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
   Float_t mdtGLength = -1000;
   Float_t mdtQuality = 1000000;
 
-  Float_t chi2 = 0;
+  //Float_t chi2 = 0; //[R.K. 01/2017] unused variable
   TVector3 mdtPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   TVector3 vertex(0., 0., 0.); 
@@ -362,8 +362,8 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
 	  Float_t propY = helix->GetY() + (propZ - helix->GetZ()) * helix->GetPy() / helix->GetPz();	  
 	  vertex.SetXYZ(propX, propY, propZ);
 	  
-	  Float_t mdtLQuality = 1000000, corrDist = -1, corrHitDist = -1;
-	  Int_t mdtLIndex = -1, hitLCounts = 0, layerMult = 0; 
+	  Float_t corrDist = -1, corrHitDist = -1; //mdtLQuality = 1000000, //[R.K. 01/2017] unused variable
+	  Int_t mdtLIndex = -1, layerMult = 0; // hitLCounts = 0, //[R.K. 01/2017] unused variable
 	  TVector3 corrPos(0., 0., 0.); 
 	  for (Int_t mm = 0; mm< vecMdt.size(); mm++)
 	    {

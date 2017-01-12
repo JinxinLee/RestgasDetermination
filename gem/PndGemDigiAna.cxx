@@ -223,7 +223,7 @@ void PndGemDigiAna::CreateHistos() {
     PndGemStation* station = (PndGemStation*)fDigiPar->GetStation(istat);
 
     for ( Int_t isens = 0 ; isens < station->GetNSensors() ; isens++ ) {
-      PndGemSensor* sensor = (PndGemSensor*)station->GetSensor(isens);
+      //PndGemSensor* sensor = (PndGemSensor*)station->GetSensor(isens); //[R.K. 01/2017] unused variable?
 
       for ( Int_t iside = 0 ; iside < 2 ; iside++ ) {
 
@@ -244,7 +244,7 @@ void PndGemDigiAna::CreateHistos() {
 // -----   Private method AnaHistos   --------------------------------------------
 void PndGemDigiAna::AnaHistos() {
 
-  Int_t nofStations = fDigiPar->GetNStations();
+  //Int_t nofStations = fDigiPar->GetNStations(); //[R.K. 01/2017] unused variable?
 }
 // ------------------------------------------------------------
 

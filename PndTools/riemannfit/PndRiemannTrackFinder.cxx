@@ -377,7 +377,7 @@ void PndRiemannTrackFinder::MergeTracks()
 				   tempTrCnd.push_back(fTrackCand[SelectedTracks[k]]);
 				   tempST.push_back(k);
 			   }
-            int tempSize0=tempTrCnd.size();
+            //int tempSize0=tempTrCnd.size(); //[R.K. 01/2017] unused variable?
 			int tempSize=tempTrCnd.size();
             bool checkMerge=true;
 			while (checkMerge){

@@ -829,12 +829,12 @@ void PndTrkTracking2::Exec(Option_t* opt) {
  bool
 	accepted,
 	flag,
-	intersect,
+	//intersect, //[R.K. 01/2017] unused variable?
 	outcome,
 	GoodSkewFit[MAXTRACKSPEREVENT],
 	keepit[MAXTRACKSPEREVENT],
 	Mvdhits[MAXTRACKSPEREVENT],
-	status[MAXTRACKSPEREVENT],
+	//status[MAXTRACKSPEREVENT], //[R.K. 01/2017] unused variable?
 	SttSZfit[MAXTRACKSPEREVENT];
 
 
@@ -853,9 +853,9 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	RConformalIndex[MAXSTTHITS],
 	//  given a Hit number it gives its azimuthal box number
 	FiConformalIndex[MAXSTTHITS],
-	tempore[MAXSTTHITS],
+	//tempore[MAXSTTHITS], //[R.K. 01/2017] unused variable?
 	CandidateSkewList[2*MAXSTTHITS][2],
-	BigList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
+	//BigList[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
 	// nBoxConformal,  first index -> radial divisions,
 	// 2nd index -> azimuthal divisions; n. of hits falling in this cell.
 	nBoxConformal[NRDIVCONFORMAL*NFIDIVCONFORMAL],
@@ -894,26 +894,26 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
 
  Short_t
-	nalone,
+	//nalone, //[R.K. 01/2017] unused variable?
 	ncand,
 	nhitsinfit,
 	nMvdMCPoint,
-	Nint,
-	NNN,
+	//Nint, //[R.K. 01/2017] unused variable?
+	//NNN, //[R.K. 01/2017] unused variable?
 	nRemainingCandidates,
-	npixelhitsintrack,
-	nstriphitsintrack,
+	//npixelhitsintrack, //[R.K. 01/2017] unused variable?
+	//nstriphitsintrack, //[R.K. 01/2017] unused variable?
 	nTotalCandidates,
 	nXYZhits,
 	i,
 	iCluster,
-	iexcl,
-	iParHit,
+	//iexcl, //[R.K. 01/2017] unused variable?
+	//iParHit, //[R.K. 01/2017] unused variable?
 	ipunto,
 	j,
 	k,
-	kall,
-	l,
+	//kall, //[R.K. 01/2017] unused variable?
+	//l, //[R.K. 01/2017] unused variable?
 	oldPixel,
 	oldSkew,
 	oldStrip,
@@ -926,7 +926,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	save_nMvdStripHitsinTrack
 	;
 
- int	oldistampa;
+ //int	oldistampa; //[R.K. 01/2017] unused variable?
 
  Int_t
 	iaccept,
@@ -940,8 +940,8 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
  PndSdsMCPoint * pMvdMCPoint;
 
- Int_t	nrounds0,
-	nrounds1,
+ Int_t	//nrounds0, //[R.K. 01/2017] unused variable?
+	//nrounds1, //[R.K. 01/2017] unused variable?
 	tListHits[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK];
 
 
@@ -958,30 +958,30 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
  Double_t
 	Distance,
-	Fi,
-	Ptras,
-	ddd,
-	delta,
+	//Fi, //[R.K. 01/2017] unused variable?
+	//Ptras, //[R.K. 01/2017] unused variable?
+	//ddd, //[R.K. 01/2017] unused variable?
+	//delta, //[R.K. 01/2017] unused variable?
 	dis,
-	dista,
-	dista0,
-	dista1,
+	//dista, //[R.K. 01/2017] unused variable?
+	//dista0, //[R.K. 01/2017] unused variable?
+	//dista1, //[R.K. 01/2017] unused variable?
 	emme,
 	gap,
-	highqualitycut,
-	Pxini,
-	px,
-	Pyini,
-	py,
-	Pzini,
-	qop,
-	rotationangle,
+	//highqualitycut, //[R.K. 01/2017] unused variable?
+	//Pxini, //[R.K. 01/2017] unused variable?
+	//px, //[R.K. 01/2017] unused variable?
+	//Pyini, //[R.K. 01/2017] unused variable?
+	//py, //[R.K. 01/2017] unused variable?
+	//Pzini, //[R.K. 01/2017] unused variable?
+	//qop, //[R.K. 01/2017] unused variable?
+	//rotationangle, //[R.K. 01/2017] unused variable?
 	signPz,
-	x,
-	y,
+	//x, //[R.K. 01/2017] unused variable?
+	//y, //[R.K. 01/2017] unused variable?
 //
-	AloneX[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
-	AloneY[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK],
+	//AloneX[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//AloneY[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK], //[R.K. 01/2017] unused variable?
 	DriftRadiusbis[2*MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+
 		MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK],// all skew hits have double
 	ErrorchosenPixel[MAXMVDPIXELHITS],
@@ -995,9 +995,9 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	Fi_low_limit[MAXTRACKSPEREVENT],
 	Fi_up_limit[MAXTRACKSPEREVENT],
 	KAPPA[MAXTRACKSPEREVENT],
-	Posiz1[3],
-	primoangolo[MAXTRACKSPEREVENT],
-	s[2],
+	//Posiz1[3], //[R.K. 01/2017] unused variable?
+	//primoangolo[MAXTRACKSPEREVENT], //[R.K. 01/2017] unused variable?
+	//s[2], //[R.K. 01/2017] unused variable?
 	Sbis[2*MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK
 		+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], // multiplication by 2 in the
 	SchosenPixel[MAXTRACKSPEREVENT][MAXMVDPIXELHITS],
@@ -1007,46 +1007,46 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 					// solution is selected.
 	Start[3],
 
-	S_Skew[MAXSTTHITS],
-	temporeZError[MAXSTTHITSINTRACK],
-	temporeS[MAXSTTHITSINTRACK],
-	temporeZ[MAXSTTHITSINTRACK],
-	temporeZDrift[MAXSTTHITSINTRACK],
-	tmpErrorZDrift[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK],
-	tmpS[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK],
-	tmpZ[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK],
-	tmpZDrift[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK],
+	//S_Skew[MAXSTTHITS], //[R.K. 01/2017] unused variable?
+	//temporeZError[MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//temporeS[MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//temporeZ[MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//temporeZDrift[MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//tmpErrorZDrift[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//tmpS[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//tmpZ[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//tmpZDrift[MAXSTTHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
 	trajectory_vertex[2],
 	Trajectory_Start[MAXTRACKSPEREVENT][2],
-	ultimoangolo[MAXTRACKSPEREVENT],
-	versor[2],
+	//ultimoangolo[MAXTRACKSPEREVENT], //[R.K. 01/2017] unused variable?
+	//versor[2], //[R.K. 01/2017] unused variable?
 	WDX[MAXSTTHITS],
 	WDY[MAXSTTHITS],
 	WDZ[MAXSTTHITS],
-	X[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK],
-	XintersectionList[2],
-	Y[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK],
-	YintersectionList[2],
-	z[2],
+	//X[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//XintersectionList[2], //[R.K. 01/2017] unused variable?
+	//Y[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//YintersectionList[2], //[R.K. 01/2017] unused variable?
+	//z[2], //[R.K. 01/2017] unused variable?
 	ZEDbis[2*MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK
 		+MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK], // rather improbable chance that
-	zdrift[2],
-	zerror[2],
-	ZDrift[2*MAXSTTHITS],
-	ZError[2*MAXSTTHITS],
-	zeta0,
-	zeta1,
+	//zdrift[2], //[R.K. 01/2017] unused variable?
+	//zerror[2], //[R.K. 01/2017] unused variable?
+	//ZDrift[2*MAXSTTHITS], //[R.K. 01/2017] unused variable?
+	//ZError[2*MAXSTTHITS], //[R.K. 01/2017] unused variable?
+	//zeta0, //[R.K. 01/2017] unused variable?
+	//zeta1, //[R.K. 01/2017] unused variable?
 //
 	info[MAXSTTHITS][7],
 	infoparalConformal[MAXSTTHITS][5],
-	Sfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	XY[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK][2],
+	//Sfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//XY[MAXMVDPIXELHITSINTRACK+MAXMVDSTRIPHITSINTRACK][2], //[R.K. 01/2017] unused variable?
 	ZchosenPixel[MAXTRACKSPEREVENT][MAXMVDPIXELHITS],
 	ZchosenStrip[MAXTRACKSPEREVENT][MAXMVDSTRIPHITS],
-	ZchosenSkew[MAXTRACKSPEREVENT][MAXSTTHITS],
-	Zfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	ZDriftfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK],
-	ZErrorfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK];
+	ZchosenSkew[MAXTRACKSPEREVENT][MAXSTTHITS];
+	//Zfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//ZDriftfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK], //[R.K. 01/2017] unused variable?
+	//ZErrorfinal[MAXTRACKSPEREVENT][MAXSTTHITSINTRACK]; //[R.K. 01/2017] unused variable?
 
 
 //--------------------
@@ -1079,7 +1079,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
  FairMCPoint *puntator;
 
- PndMCTrack* pMCtr;
+ //PndMCTrack* pMCtr; //[R.K. 01/2017] unused variable?
 
  PndSttHit *pSttHit;
 
@@ -1097,7 +1097,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 
 
  // the class with all the fits. This is used for the SZ fit.
- bool YesGLPKfitSZ = false;
+ //bool YesGLPKfitSZ = false; //[R.K. 01/2017] unused variable?
 // PndTrkGlpkFits fit;  YesGLPKfitSZ=true;
 // PndTrkLegendreFits fit;
  PndTrkChi2Fits fit;
@@ -2864,7 +2864,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 
     Short_t NAssociated;
     Short_t  sign;
-    Int_t i, j, i1, ii, iii,  Kincl, nlow, nup;
+    Int_t i; //, j, i1, ii, iii,  Kincl, nlow, nup; //[R.K. 01/2017] unused variable
 
     Double_t bbb,
              tempZ[2],
@@ -2952,30 +2952,30 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 	ii,
 	iii,
 	location,
-	NAssociated,
-	STATUS;
+	NAssociated;
+	//STATUS; //[R.K. 01/2017] unused variable
 
  Double_t
 	auxS[2],		// output;
 	auxZ[2],		// output, Zcoordinate of the central wire.
 	auxZDrift[2],		// output, drift radius projected onto the Helix.
-	auxZError[2],	// output, 150 micron projected onto the Helix.
-	xmin , xmax, ymin, ymax,
-           dx, dy, diff, dista, d1, d2,
-           delta, deltax, deltay, deltaz, deltaS,
-           factor,
-           zmin, zmax, Smin, Smax, S1, S2,
-           z1, z2, y1, y2,
-           vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, angle, minor, major,
-           distance, Rx, Ry, LL,
-           Aellipsis1, Bellipsis1,fi1,
-           fmin, fmax, offset, step,
-	Tilted_Radius,
-	zpos, zpos1, zpos2,
-           Tiltdirection1[2],
-           zl[200],zu[200],
-           POINTS1[6];
+	auxZError[2];	// output, 150 micron projected onto the Helix.
+	//xmin , xmax, ymin, ymax, //[R.K. 01/2017] unused variable
+           //dx, dy, diff, dista, d1, d2, //[R.K. 01/2017] unused variable
+           //delta, deltax, deltay, deltaz, deltaS, //[R.K. 01/2017] unused variable
+           //factor, //[R.K. 01/2017] unused variable
+           //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable
+           //z1, z2, y1, y2, //[R.K. 01/2017] unused variable
+           //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable
+           //aaa, bbb, ccc, angle, minor, major, //[R.K. 01/2017] unused variable
+           //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable
+           //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable
+           //fmin, fmax, offset, step, //[R.K. 01/2017] unused variable
+	//Tilted_Radius, //[R.K. 01/2017] unused variable
+	//zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable
+           //Tiltdirection1[2], //[R.K. 01/2017] unused variable
+           //zl[200],zu[200], //[R.K. 01/2017] unused variable
+           //POINTS1[6]; //[R.K. 01/2017] unused variable
 
 
  PndTrkCTGeometryCalculations GeomCalculator;
@@ -3079,9 +3079,9 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
  Short_t i,
 	itrack,
 	ihit,
-	j,
-	k,
-	ntot,
+	//j, //[R.K. 01/2017] unused variable
+	//k, //[R.K. 01/2017] unused variable
+	//ntot, //[R.K. 01/2017] unused variable
 	nadd;
 
  Double_t angle,
@@ -3306,7 +3306,7 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		 j,
 		 k,
 		 m,
-		 Kmin,
+		 //Kmin, //[R.K. 01/2017] unused variable
 		 auxnMvdPixel,
 		 auxListMvdPixel[MAXMVDPIXELHITS],
 		 auxnMvdStrip,
@@ -3333,10 +3333,10 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		 dista1,
 		 dista0,
 		 Drift,
-		 d_min,
+		 //d_min, //[R.K. 01/2017] unused variable
 		 error,
 		 Fi,
-		 zeta1,
+		 //zeta1, //[R.K. 01/2017] unused variable
 		 distance_RS,
 		 distance_Z,
 		 dista_storage[MAXSTTHITS],
@@ -3601,8 +3601,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_ter(
 	Short_t	 i,
 		 j,
 		 k,
-		 m,
-		 Kmin,
+		 //m, //[R.K. 01/2017] unused variable
+		 //Kmin, //[R.K. 01/2017] unused variable
 		 auxnMvdPixel,
 		 auxListMvdPixel[MAXMVDPIXELHITS],
 		 auxnMvdStrip,
@@ -3633,15 +3633,15 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 		 chosenS2,
 		 ddd,
 		 dista,
-		 dista1,
-		 dista0,
+		 //dista1, //[R.K. 01/2017] unused variable
+		 //dista0, //[R.K. 01/2017] unused variable
 		 Drift,
-		 d_min,
+		 //d_min, //[R.K. 01/2017] unused variable
 		 error,
 		 Fi,
-		 zeta1,
-		 distance_RS,
-		 distance_Z,
+		 //zeta1, //[R.K. 01/2017] unused variable
+		 //distance_RS, //[R.K. 01/2017] unused variable
+		 //distance_Z, //[R.K. 01/2017] unused variable
 		 dista_storage[MAXSTTHITS],
 		 Z;
 
@@ -3877,7 +3877,7 @@ void PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane(
 {
 
  Short_t i;
- Double_t max, min;
+ //Double_t max, min; //[R.K. 01/2017] unused variable
 
  if( Charge >0 )
  {
@@ -3955,13 +3955,13 @@ void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatri
 			cout<<"anomalous case, not a box nor a TGeoArb8 !\n";
 		}
 // cout<<"-----------------------------------------------\n";
-		const Double_t * Scal = gmat->GetScale();
+		//const Double_t * Scal = gmat->GetScale(); //[R.K. 01/2017] unused variable
 //		cout<<"\til suo fattore di scala rispetto a Master : X "<<Scal[0]<<", Y "<<Scal[1]
 //		<<", Z "<<Scal[2]<<endl;
-		const Double_t * Tras = gmat->GetTranslation();
+		//const Double_t * Tras = gmat->GetTranslation(); //[R.K. 01/2017] unused variable
 //		cout<<"\tla sua traslazione rispetto a Master : X "<<Tras[0]<<", Y "<<
 //		Tras[1]<<", Z "<<Tras[2]<<endl;
-		const Double_t * Rot = gmat->GetRotationMatrix();
+		//const Double_t * Rot = gmat->GetRotationMatrix(); //[R.K. 01/2017] unused variable
 
 
 
@@ -4252,7 +4252,7 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	ipinco,
 	j,
 	k,
-	l,
+	//l, //[R.K. 01/2017] unused variable
 	ncand
 	;
 
@@ -4718,7 +4718,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracks(
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	)
 {
-	bool specialcase;
+	//bool specialcase; //[R.K. 01/2017] unused variable
 
 	Short_t i,
 		jmvdhit;
@@ -4845,9 +4845,9 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 {
 	bool
 //		flaggo,
-		specialcase,
-	     downstream,
-	     determined;
+		//specialcase, //[R.K. 01/2017] unused variable
+	     downstream;
+	     //determined; //[R.K. 01/2017] unused variable
 
 	Short_t j,
 		itrack,
@@ -4862,12 +4862,12 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 	Double_t angle,
 		anglemax,
 		anglemin,
-		dist,
-		oldtotal,
-		oldtotal2,
-		total,
-		Dist,
-		DIST[MAXMVDTRACKSPEREVENT+1];
+		dist;
+		//oldtotal, //[R.K. 01/2017] unused variable
+		//oldtotal2, //[R.K. 01/2017] unused variable
+		//total, //[R.K. 01/2017] unused variable
+		//Dist, //[R.K. 01/2017] unused variable
+		//DIST[MAXMVDTRACKSPEREVENT+1]; //[R.K. 01/2017] unused variable
 
 
   for(itrack=0; itrack<nSttTrackCand; itrack++){
@@ -5042,9 +5042,9 @@ void PndTrkTracking2::MatchMvdHitsToSttTracks2(
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	)
 {
-	bool specialcase;
+	//bool specialcase; //[R.K. 01/2017] unused variable
 
-	Short_t i,j,j1, j2, imvdcand, jmvdhit, ncont,
+	Short_t i,j,j1, imvdcand, jmvdhit, ncont,// j2, //[R.K. 01/2017] unused variable
 		chosenmix,
 		chosenmix2,
 		ngoodmix,
@@ -5990,9 +5990,9 @@ void   PndTrkTracking2::OrderingUsingConformal(
 		bbb,
 		ccc,
 		b1,
-		firstR2,
-		lastR2,
-		aux[nHits],
+		//firstR2, //[R.K. 01/2017] unused variable
+		//lastR2, //[R.K. 01/2017] unused variable
+		//aux[nHits], //[R.K. 01/2017] unused variable
 		U[nHits],
 		V[nHits];
 

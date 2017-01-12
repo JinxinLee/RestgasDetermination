@@ -149,8 +149,8 @@ void PndMCTestMomentumCompare::Exec(Option_t* opt) {
 		PndMCEntry myLinks = myResult.GetMCLink(i);
 		myLinks.RemoveType(-1);
 		PndTrack* myTrack = (PndTrack*) fTrack->At(i);
-		PndTrackCand* myTrackCand = (PndTrackCand*) fTrackCand->At(
-				myTrack->GetLink(0).GetIndex());
+		//PndTrackCand* myTrackCand = (PndTrackCand*) fTrackCand->At(
+				//myTrack->GetLink(0).GetIndex()); //[R.K. 01/2017] unused variable
 		if (fVerbose > 2)std::cout << "TrackMatch for Track " << i << std::endl;
 		//myTrackCand->Print();
 		if (fVerbose > 2)myTrack->GetParamFirst().Print();

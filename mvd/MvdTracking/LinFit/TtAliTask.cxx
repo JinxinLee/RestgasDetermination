@@ -261,14 +261,14 @@ void TtAliTask::Exec(Option_t* opt)
 	  Double_t Ery[6];
 	  Double_t Erz[6];
 
-	  Int_t track = 0;
+	  //Int_t track = 0; //[R.K. 01/2017] unused variable?
 
       
-	  Double_t RealX = -1999999., RealY = -1999999;
+	  //Double_t RealX = -1999999., RealY = -1999999;
       
 
-	  Double_t buffErrX = -0.099999;
-	  Double_t buffErrY = -0.099999;
+	  //Double_t buffErrX = -0.099999; //[R.K. 01/2017] unused variable?
+	  //Double_t buffErrY = -0.099999; //[R.K. 01/2017] unused variable?
 
 	
 	  Int_t ihit = 0;
@@ -384,7 +384,7 @@ void TtAliTask::Exec(Option_t* opt)
 
  	  MyFit(x,y,z,Erx,Ery,Erz,x[fExclBox-1],y[fExclBox-1],z[fExclBox-1],DX,DY);	
 
- 	  Double_t pointX,pointY,pointZ;
+ 	  //Double_t pointX,pointY,pointZ; //[R.K. 01/2017] unused variable?
 				
  	  hx->Fill(DX);
  	  hy->Fill(DY);

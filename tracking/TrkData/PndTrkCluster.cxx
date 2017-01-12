@@ -98,7 +98,7 @@ void PndTrkCluster::DeleteHitAndCompress(PndTrkHit *hit) {
 
 // CHECK if it works, never tried
 void PndTrkCluster::DeleteHit(Int_t index) {
-  PndTrkHit* hit = (PndTrkHit*) fHitList.At(index);
+  //PndTrkHit* hit = (PndTrkHit*) fHitList.At(index); //[R.K. 01/2017] unused variable
 //   hitlist.RemoveAt(index);
 //   hitlist.Compress(); // CHECK
   fHitList.RemoveAt(index);
@@ -625,7 +625,7 @@ Bool_t PndTrkCluster::ComputeCircle(TVector3 v1, TVector3 v2, TVector3 v3, doubl
 }
 // =======================================================================================
 Bool_t PndTrkCluster::DoesContain(PndTrkHit *hit) {
-  bool isthere = false;
+  //bool isthere = false; //[R.K. 01/2017] unused variable
   //  if(hitlist.FindObject(hit) == 0) return kFALSE;
   if(fHitList.FindObject(hit) == 0) return kFALSE;
    return kTRUE;  

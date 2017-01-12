@@ -19,7 +19,7 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000, tofLengthTemp = -1000;
   Float_t tofQuality = 1000000;
   
-  Float_t chi2 = 0;
+  //Float_t chi2 = 0; //[R.K. 01/2017] unused variable
   TVector3 vertex(0., 0., 0.);
   TVector3 tofPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);

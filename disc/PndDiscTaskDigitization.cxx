@@ -301,11 +301,11 @@ void PndDiscTaskDigitization::Exec(Option_t* opt)
     // --------------------------------------------------------
     // some fixed design parameters:
     // --------------------------------------------------------
-    Double_t rms_time_ns = 0.021;
+    //Double_t rms_time_ns = 0.021; //[R.K. 01/2017] unused variable?
     Double_t binning_ns  = 0.050;
     Double_t radiator_thickness     = 2.0;
     Double_t rms_roughness_nm       = 1.5;
-    Double_t dead_time              = 20.0;
+    //Double_t dead_time              = 20.0; //[R.K. 01/2017] unused variable?
     // need refractive index for reflection probability:
     Double_t sellmeier_coeff [6] = {0.473115591, 0.631038719, 0.906404498, 0.012995717, 0.0041280992, 98.7685322};
     // --------------------------------------------------------

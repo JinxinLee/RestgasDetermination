@@ -182,8 +182,8 @@ InitStatus PndLmdBPtestTask::Init()
 
   fPro = new FairGeanePro();
   fGeoH = PndGeoHandling::Instance();
-  FairRun* fRun = FairRun::Instance();
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  //FairRun* fRun = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb = fRun->GetRuntimeDb(); //[R.K. 01/2017] unused variable
  
   pndField = FairRunAna::Instance()->GetField();
 
@@ -237,7 +237,7 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
 
     //  cout<<"PndLmdBPtestTask::Exec for track#"<<i<<endl;
       TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
-      int p = 0;
+      //int p = 0; //[R.K. 01/2017] unused variable
     
       PndTrack* recTrack = (PndTrack*)(fTracks->At(i));
       FairTrackParP fFittedTrkP = recTrack->GetParamFirst();

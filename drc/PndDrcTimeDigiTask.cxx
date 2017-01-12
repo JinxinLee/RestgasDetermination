@@ -158,7 +158,7 @@ void PndDrcTimeDigiTask::Exec(Option_t* option)
   fDrcDigiArray->Delete();
   nevents++;
   fPileup=0;
-  Int_t PDHIT = fPDPointArray->GetEntriesFast();
+  //Int_t PDHIT = fPDPointArray->GetEntriesFast(); //[R.K. 01/2017] unused variable?
 //  if (fVerbose > 0) if(nevents%10==0) 
 //  cout<<"event time "<<FairRootManager::Instance()->GetEventTime()<<endl;
   // Reset output array
@@ -184,8 +184,8 @@ void PndDrcTimeDigiTask::Exec(Option_t* option)
     PndMCTrack* fMCtrk1 = (PndMCTrack*)fMCArray->At(trMrID);
     fPdg  = fMCtrk1->GetPdgCode();
     fMrId = fMCtrk1->GetMotherID();
-    Int_t NbouncesX, NbouncesY;
-    Double_t angleX, angleY;    
+    //Int_t NbouncesX, NbouncesY; //[R.K. 01/2017] unused variable?
+    //Double_t angleX, angleY;    //[R.K. 01/2017] unused variable? 
     Int_t BarId=-1;
     fTrackId= trID;
     fTrackMom.SetXYZ(fMCtrk1->GetMomentum().X(),fMCtrk1->GetMomentum().Y(),fMCtrk1->GetMomentum().Z());
@@ -203,12 +203,12 @@ void PndDrcTimeDigiTask::Exec(Option_t* option)
       
   
       
-    Double_t PPx= fPpt->GetPx();
-    Double_t PPy= fPpt->GetPy();
-    Double_t PPz= fPpt->GetPz();
+    //Double_t PPx= fPpt->GetPx(); //[R.K. 01/2017] unused variable?
+    //Double_t PPy= fPpt->GetPy(); //[R.K. 01/2017] unused variable?
+    //Double_t PPz= fPpt->GetPz(); //[R.K. 01/2017] unused variable?
 
-    Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);// in GeV
-    Double_t lambda=197.0*2.0*fpi/(etot*1.0E9);//wavelength of photon in nm
+    //Double_t etot = sqrt(PPx*PPx + PPy*PPy +PPz*PPz);// in GeV //[R.K. 01/2017] unused variable?
+    //Double_t lambda=197.0*2.0*fpi/(etot*1.0E9);//wavelength of photon in nm //[R.K. 01/2017] unused variable?
        
     //####################################
     // transport efficiency
@@ -357,7 +357,7 @@ void PndDrcTimeDigiTask::ActivatePixel(Int_t detectorId, Int_t sensorId, Double_
     Digi->SetLink(FairLink("PndDrcPDPoint", k));
   }
   else {    
-    Int_t iDigi = fPixelMap[sensorId];
+    //Int_t iDigi = fPixelMap[sensorId]; //[R.K. 01/2017] unused variable?
     
     if(fabs(fTimeMap.find(sensorId)->second-signalTime)<5.0){
       fPileup++;        

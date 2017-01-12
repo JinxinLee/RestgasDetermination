@@ -1259,7 +1259,7 @@ void PndLmdAlignManager::compareCombinedMatrices() {
 	// for every plane
 	// for every module
 
-	double avgX=0, avgY=0, avgA=0;
+	//double avgX=0, avgY=0, avgA=0; //[R.K. 01/2017] unused variable
 
 	for(int iHalf=0; iHalf < 2; iHalf++){
 		for(int iPlane=0; iPlane < 4; iPlane++){

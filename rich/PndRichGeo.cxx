@@ -76,17 +76,17 @@ void PndRichGeo::init(size_t ver0) {
        zp2 = zm2;
        alpham = atan((zp2-zp1)/(yp2-yp1));
     }
-    double phDetWidth = sqrt((zp1-zp2)*(zp1-zp2)+(yp1-yp2)*(yp1-yp2));
+    //double phDetWidth = sqrt((zp1-zp2)*(zp1-zp2)+(yp1-yp2)*(yp1-yp2)); //[R.K. 01/2017] unused variable?
     double zmc = (zm1+zm2)/2;
     double ymc = (ym1+ym2)/2;
     double wm = sqrt((zm1-zm2)*(zm1-zm2)+(ym1-ym2)*(ym1-ym2));
     double rm = wm/2/sin(beta);
     double hm = rm*cos(beta);
-    double zm0 = zmc-hm*cos(alpha)-alBoxSize().Z()/2+aerogelOffset().Z();
-    double ym0 = ymc+hm*sin(alpha);
+    //double zm0 = zmc-hm*cos(alpha)-alBoxSize().Z()/2+aerogelOffset().Z(); //[R.K. 01/2017] unused variable?
+    //double ym0 = ymc+hm*sin(alpha); //[R.K. 01/2017] unused variable?
     double theta1 = 360-(alpha+beta)*180/M_PI;
     double theta2 = 360-(alpha-beta)*180/M_PI;
-    double theta3 = 360-theta2;
+    //double theta3 = 360-theta2; //[R.K. 01/2017] unused variable?
 
    // photosensor pixel sizes
    // http://www.digitalphotoncounting.com/wp-content/uploads/PDPC_leaflet_A4_2015_10.pdf

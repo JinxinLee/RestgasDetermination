@@ -168,7 +168,7 @@ void PndLmdLineTask::Exec(Option_t* opt)
     for(unsigned int ihit=0; ihit<numPts; ihit++){ //fill Graph
       PndTrackCandHit theHit = trcnd->GetSortedHit(ihit); //get hit
       Int_t index = theHit.GetHitId();
-      Int_t detId = theHit.GetDetId();
+      //Int_t detId = theHit.GetDetId(); //[R.K. 01/2017] unused variable
       // if(fVerbose>2) std::cout << "Point: "<< ihit<< " index: "<< index <<std::endl;
 
       if(ihit==0)

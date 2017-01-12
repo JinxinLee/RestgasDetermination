@@ -236,7 +236,7 @@ void PndEmcMakeCorr::Exec(Option_t* opt)
   Bool_t use_interpolation=kTRUE;
   Double_t valzEn[4], valzTh[4], ThCorr[4], ThCorrRad[4], EnCorr[4];
   Int_t ndigi;
-  Int_t particle[5];
+  //Int_t particle[5]; //[R.K. 01/2017] unused variable?
   Int_t chosenModule =0;
 
   // Loop over Clusters to make the energy and theta correction

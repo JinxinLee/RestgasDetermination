@@ -247,7 +247,7 @@ TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
     xerr = TMath::Hypot(xerr,sigmaMSplane);
     yerr = TMath::Hypot(yerr,sigmaMSplane);
   }
-  double xhit = hpos.X();
+  //double xhit = hpos.X(); //[R.K. 01/2017] unused variable
  
   //  Double_t l = 10./cos(2.326*TMath::Pi()/180.);
   double sigmaMS;
@@ -311,7 +311,7 @@ void PndLmdStripClusterTask::Exec(Option_t* opt)
   std::vector< Int_t > oneclusterbot;
   std::vector< Int_t > leftDigis;
   Int_t mcindex, clindex, botIndex, topIndex;
-  Int_t detID = FairRootManager::Instance()->GetBranchId(fInBranchName);
+  //Int_t detID = FairRootManager::Instance()->GetBranchId(fInBranchName); //[R.K. 01/2017] unused variable
   Int_t clDetID = FairRootManager::Instance()->GetBranchId(fClustBranchName);
   Double_t mycharge;
   TVector2 meantopPoint, meanbotPoint, onsensorPoint;
@@ -497,10 +497,10 @@ void PndLmdStripClusterTask::Exec(Option_t* opt)
 }
 void PndLmdStripClusterTask::combitransToLumiFrame(TVector3& hitPos){
   //do the transformation from lab frame to LUMI frame (with z-axis perp. to lumi planes)
-  const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm)
+  //const Double_t  kHalfFoilThickness  = 0.0075; // Thickness of sensitive foil (cm) //[R.K. 01/2017] unused variable
   const Double_t  kTransZ = 1100.; //(cm) //move at z-position
   const Double_t  kRotUmZ = 476.03; //(cm) //z-point to rotate
-  const Double_t  kTransX = 25; //(cm) //move at x-position
+  //const Double_t  kTransX = 25; //(cm) //move at x-position //[R.K. 01/2017] unused variable
   const Double_t  kRot =  0.040596358401388; // 2.326 degree  = 4.05963584013881024e-02 rad
   TVector3 LumiTrans(0,0,kRotUmZ);
   hitPos -=LumiTrans;

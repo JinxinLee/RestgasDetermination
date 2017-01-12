@@ -168,7 +168,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
     //    if(pTrack->GetFlag() < 3) continue; // only prefit-fit-zfit CHECK
     // --------------------------- THE TRACK ----------------------------
     // xy
-    Int_t hh = -(Int_t) pTrack->GetCharge();
+    //Int_t hh = -(Int_t) pTrack->GetCharge(); //[R.K. 01/2017] unused variable?
     Double_t d0 = pTrack->GetDist();
     Double_t phi0 = pTrack->GetPhi();
     Double_t Rad =  pTrack->GetRad();
@@ -361,11 +361,11 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    Double_t y2 = -9999.;
 	
 	    // from xy plane fit
-	    Double_t x0 = d0*TMath::Cos(phi0);
-	    Double_t y0 = d0*TMath::Sin(phi0);
+	    //Double_t x0 = d0*TMath::Cos(phi0); //[R.K. 01/2017] unused variable?
+	    //Double_t y0 = d0*TMath::Sin(phi0); //[R.K. 01/2017] unused variable?
 	    // in xy plane: angle of the PCA to the origin
 	    // with respect to the curvature center
- 	    Double_t Phi0 = TMath::ATan2((y0 - vec.Y()),(x0 - vec.X()));
+ 	    //Double_t Phi0 = TMath::ATan2((y0 - vec.Y()),(x0 - vec.X())); //[R.K. 01/2017] unused variable?
 
 	    Double_t a = -999;
 	    Double_t b = -999;
@@ -509,8 +509,8 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	
 	//=====================
 	// z plane / non skewed tubes -------------------------------------------------
-	Double_t scosl = pTrack->CalculateScosl(helixhit->GetX(), helixhit->GetY());
-	Double_t zcoord = z0 + zslope * scosl;
+	//Double_t scosl = pTrack->CalculateScosl(helixhit->GetX(), helixhit->GetY()); //[R.K. 01/2017] unused variable?
+	//Double_t zcoord = z0 + zslope * scosl; //[R.K. 01/2017] unused variable?
 	//	helixhit->SetZ(zcoord);
 
 	//	cout << "helix hit skewed " << helixhit->GetX() << " " << helixhit->GetY() << " " << helixhit->GetZ() << endl; // CHECK the procedure!!

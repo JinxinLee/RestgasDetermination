@@ -830,11 +830,11 @@ Double_t PndSttSingleStraw::Signal(Double_t t, Double_t t0) {
 
   // electric signal at time  t of a cluster arriving at t0
   Double_t elesig;
-  Double_t A = 1.03e-03;
-  Double_t B = 3.95;
-  Double_t C = 0.228;
-  Double_t D = -3.839e-02;
-  Double_t E = 1.148e-03;
+  //Double_t A = 1.03e-03; //[R.K. 01/2017] unused variable?
+  //Double_t B = 3.95; //[R.K. 01/2017] unused variable?
+  //Double_t C = 0.228; //[R.K. 01/2017] unused variable?
+  //Double_t D = -3.839e-02; //[R.K. 01/2017] unused variable?
+  //Double_t E = 1.148e-03; //[R.K. 01/2017] unused variable?
 
   Double_t x= t - t0; 
   //if(x>0) elesig = A*exp(B*log(x)-C*x)*(1+D*x+E*x*x);  // Sokolov Signal

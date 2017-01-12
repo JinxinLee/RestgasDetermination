@@ -181,7 +181,7 @@ Double_t PndGeoDskFLG::SlopeCurveFunction(TVector3 Point)
 // to judge whether the input point (x1, y1, z2) exceed the curve function
 {
 Double_t x1 = Point.X();
-Double_t y1 = Point.Y();
+//Double_t y1 = Point.Y(); //[R.K. 01/2017] unused variable?
 
 return atan(a0*0. + a1 + 2*a2*x1 + 3*a3*x1*x1 + 4*a4*x1*x1*x1 + 5*a5*x1*x1*x1*x1);
 }

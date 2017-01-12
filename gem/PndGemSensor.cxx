@@ -508,7 +508,7 @@ Double_t PndGemSensor::GetDistance(Int_t iSide, Double_t chan1, Double_t chan2) 
     if ( iSide == 0 ) {
       //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
 //       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
-      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+      //Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5); //[R.K. 01/2017] unused variable?
       Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] +0.5);
       Int_t part1 = 666;
       Int_t part2 = 666;
@@ -584,7 +584,7 @@ Int_t PndGemSensor::GetDistance(Int_t iSide, Int_t chanMin, Int_t chanMax, Int_t
     if ( iSide == 0 ) {
       //Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
 //       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
-      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+      //Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5); //[R.K. 01/2017] unused variable?
       Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       // THIS BROKEN VERTICAL STRIPS NEED SPECIAL ATTENTION
       // DO NOT YET CONSIDER ALL THE PROBLEMS...
@@ -664,7 +664,7 @@ Double_t PndGemSensor::GetDistance2(Int_t iSide, Double_t chan1, Double_t chan2)
     if ( iSide == 0 ) {
 //       Int_t nlStrips = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
 //       Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
-      Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
+      //Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5); //[R.K. 01/2017] unused variable?
       Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
       Int_t part1 = 666;
       Int_t part2 = 666;
@@ -1071,7 +1071,7 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
     //Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
     Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
     Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
-    Double_t x = -666.;
+    //Double_t x = -666.; //[R.K. 01/2017] unused variable?
     yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
     zCross = fPosition[2];
     if ( iFStrip < nlStrips ) {
@@ -1155,7 +1155,7 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
 //     Int_t nsStrips = (Int_t)(TMath::Ceil(fInnerRadius/fPitch[0]));
     Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
     Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
-    Double_t x = -666.;
+    //Double_t x = -666.; //[R.K. 01/2017] unused variable?
     yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
     zCross = fPosition[2];
 
@@ -1263,7 +1263,7 @@ Int_t PndGemSensor::Intersect(Double_t iFStrip, Double_t iBStrip, Double_t& xCro
     Int_t nlStrips = (Int_t)((fOuterRadius-fInnerRadius)/fPitch[0] + 0.5);
     Int_t nsStrips = (Int_t)(fInnerRadius/fPitch[0] + 0.5);
     //cout << " nlStrips="<<nlStrips<<" nsStrips="<<nsStrips<<endl;
-    Double_t x = -666.;
+    //Double_t x = -666.; //[R.K. 01/2017] unused variable?
     yCross = -fOuterRadius+(Double_t(bs)+0.5)*fPitch[1];
     zCross = fPosition[2];
 

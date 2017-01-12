@@ -281,11 +281,11 @@ void TtCracowTask::Exec(Option_t* opt)
 	  Double_t Ery[6];
 	  Double_t Erz[6];
 	  
-	  Int_t track = 0;
+	  //Int_t track = 0; //[R.K. 01/2017] unused variable?
 	  
 	  
-	  Double_t buffErrX = -0.099999;
-	  Double_t buffErrY = -0.099999;
+	  //Double_t buffErrX = -0.099999; //[R.K. 01/2017] unused variable?
+	  //Double_t buffErrY = -0.099999; //[R.K. 01/2017] unused variable?
 
 	
 	  //	  std::cout << "Event: " << fEvent << std::endl;
@@ -376,7 +376,7 @@ void TtCracowTask::Exec(Option_t* opt)
 	    } // end loop on points
 	  
 	 
-	  Int_t uu = 0;
+	  //Int_t uu = 0; //[R.K. 01/2017] unused variable?
 
 
  	  for (Int_t ww = 0 ; ww < 6 ; ww++)
@@ -391,7 +391,7 @@ void TtCracowTask::Exec(Option_t* opt)
  	    }
 	  
 	  
-	  Double_t parFit[4]; //fit-parameter
+	  //Double_t parFit[4]; //fit-parameter //[R.K. 01/2017] unused variable?
 	  
 
 	  if (s0 && s1 && s2 && s3 && s4 && s5)
@@ -424,8 +424,8 @@ void TtCracowTask::Exec(Option_t* opt)
 	  arglist[0] = -1;
 	  min->ExecuteCommand("SET PRINT",arglist,1);
 
-	  double pStart[4] = {xx[0],(dir.X())/(dir.Y()),zz[0],(dir.Z())/(dir.Y())};
-	  double pStartErr[4] = {gr->GetErrorX(0),0.1*(dir.X())/(dir.Y()),gr->GetErrorZ(0),0.1*(dir.Z())/(dir.Y())};
+	  //double pStart[4] = {xx[0],(dir.X())/(dir.Y()),zz[0],(dir.Z())/(dir.Y())}; //[R.K. 01/2017] unused variable?
+	  //double pStartErr[4] = {gr->GetErrorX(0),0.1*(dir.X())/(dir.Y()),gr->GetErrorZ(0),0.1*(dir.Z())/(dir.Y())}; //[R.K. 01/2017] unused variable?
 
 	  /*min->SetParameter(0,"y0",pStart[0],pStartErr[0],0,0);
 	  min->SetParameter(1,"A",pStart[1],pStartErr[1],0,0);
@@ -446,8 +446,8 @@ void TtCracowTask::Exec(Option_t* opt)
 	   min->GetStats(amin,edm,errdef,nvpar,nparx);
 	   if(fVerbose>1) min->PrintResults(1,amin);
 
-	  Double_t fitPar[4];
-	  Double_t fitParErr[4];
+	  //Double_t fitPar[4]; //[R.K. 01/2017] unused variable?
+	  //Double_t fitParErr[4]; //[R.K. 01/2017] unused variable?
 
 	  Double_t chi2 = amin/(2.*Npoint-4);
 

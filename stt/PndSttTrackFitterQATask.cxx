@@ -225,7 +225,7 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     Double_t phi0 = pTrack->GetPhi();
     Double_t Rad =  pTrack->GetRad();
     // z    
-    Double_t z0 = pTrack->GetZ();
+    //Double_t z0 = pTrack->GetZ(); //[R.K. 01/2017] unused variable?
     Double_t zslope = pTrack->GetTanL();
     // center of curvature of helix
     TVector2 vec((d0+Rad)*cos(phi0), (d0+Rad)*sin(phi0));
@@ -237,7 +237,7 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     // -------------------------------------------------------------------
     // FOUND track
     TVector3 foundMom = pFoundTrack->GetParamFirst().GetMomentum();
-    Double_t momMag = foundMom.Mag();
+    //Double_t momMag = foundMom.Mag(); //[R.K. 01/2017] unused variable?
 
     // -------------------------------------------------------------------
     // MC track
@@ -288,10 +288,10 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     double mcRad = mcmom.Perp()/0.006;
 
     // track from tangent ---------------------
-    double mc_m1 = mcmom.Y() / mcmom.X();
-    double mc_q1 = vertex.Y() - vertex.X() * mc_m1;
-    double mc_m2 = -1./mc_m1;
-    double mc_q2 = vertex.Y() - vertex.X() * mc_m2;
+    //double mc_m1 = mcmom.Y() / mcmom.X(); //[R.K. 01/2017] unused variable?
+    //double mc_q1 = vertex.Y() - vertex.X() * mc_m1; //[R.K. 01/2017] unused variable?
+    //double mc_m2 = -1./mc_m1; //[R.K. 01/2017] unused variable?
+    //double mc_q2 = vertex.Y() - vertex.X() * mc_m2; //[R.K. 01/2017] unused variable?
 
     double alpha = TMath::ATan2(mcmom.X(), mcmom.Y());
     double mcX0, mcY0;
@@ -309,7 +309,7 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
     mcDist = TMath::Sqrt(mcX0 * mcX0 + mcY0 * mcY0) - mcRad;
     mcPhi = atan2(mcY0, mcX0);
 
-    Double_t mcTanL, mcZ;
+    Double_t mcTanL; //[R.K. 01/2017] unused variable?//, mcZ;
     mcTanL = mcmom.Z()/mcmom.Perp();
 
     // mcZ = ??

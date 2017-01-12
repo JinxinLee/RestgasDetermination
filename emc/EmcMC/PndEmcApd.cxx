@@ -80,8 +80,8 @@ void PndEmcApd::Initialize() {
   // Init function
   
   FairDetector::Initialize();
-  FairRun* sim = FairRun::Instance();
-  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairRun* sim = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
   
 }
 // -------------------------------------------------------------------------
@@ -100,8 +100,8 @@ Bool_t PndEmcApd::ProcessHits(FairVolume* vol) {
   // ---------------------------------------------------------------------------------
   // Getting parameters for the ROOT file with geometry for Forward Enc-Cap.
   // Each of the subvolume name for FwEndCap geometry in the ROOT file contains "Vol". 
-  Int_t copyNoCrys=-1,copyNoBox=-1,copyNoSub=-1,copyNoQuar=-1;
-  Int_t idCrys=-1,idBox=-1,idSub=-1,idQuar=-1;
+  //Int_t copyNoCrys=-1,copyNoBox=-1,copyNoSub=-1,copyNoQuar=-1; //[R.K. 01/2017] unused variable?
+  //Int_t idCrys=-1,idBox=-1,idSub=-1,idQuar=-1; //[R.K. 01/2017] unused variable?
   Int_t copyNo = -1, id = -1;
   Int_t nMod = -1, nRow = -1, nCrys = -1; 
   Short_t nFlag=0
@@ -238,7 +238,7 @@ void PndEmcApd::ConstructASCIIGeometry() {
   TGeoVolume *flayer6 = new TGeoVolumeAssembly("ApdLayer6");
    
   Bool_t bIsModuleOn[6] = {kFALSE, kFALSE, kFALSE, kFALSE, kFALSE,kFALSE};
-  Bool_t isFirst = kTRUE;
+  //Bool_t isFirst = kTRUE; //[R.K. 01/2017] unused variable?
   
   PndEmcReader read(GetGeometryFileName() );
   for(Int_t module=read.GetMinModules(); module<=read.GetMaxModules(); module++) {

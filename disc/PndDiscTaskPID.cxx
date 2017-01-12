@@ -223,7 +223,7 @@ void PndDiscTaskPID::Exec(Option_t* opt)
 
             int detector_id = sensor_mc_point->GetDetectorID();
             int sensor_id = 27*detector_id + sensor_mc_point->GetReadoutID(); //Sensor ID of hit
-            int pixel = sensor_mc_point->GetPixelNumber(); // Pixel number of hit
+            //int pixel = sensor_mc_point->GetPixelNumber(); // Pixel number of hit //[R.K. 01/2017] unused variable?
             double tdc = sensor_mc_point->GetTdcTime();
             
             for(int k = 0; k < 3; k++)
@@ -276,7 +276,7 @@ void PndDiscTaskPID::Exec(Option_t* opt)
                     if((pixel - pixel_prediction[i][0][sensor_id] < 5 && pixel - pixel_prediction[i][0][sensor_id] > -5) || (pixel - pixel_prediction[i][1][sensor_id] < 5 && pixel - pixel_prediction[i][1][sensor_id] > -5) || (pixel - pixel_prediction[i][2][sensor_id] < 5 && pixel - pixel_prediction[i][2][sensor_id] > -5))
                     {
                         double propagation = tdc - t[i]; //Calculation of photon propagation time
-                        double dt = propagation - time_prediction[i][k][sensor_id]; //Calculation of time difference
+                        //double dt = propagation - time_prediction[i][k][sensor_id]; //Calculation of time difference //[R.K. 01/2017] unused variable?
                         prob[k] += log(gauss(pixel,pixel_prediction[i][k][sensor_id],4)); //Likelihood calculation
                     }
                 }

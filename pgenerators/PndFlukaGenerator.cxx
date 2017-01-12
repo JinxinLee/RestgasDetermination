@@ -126,7 +126,7 @@ Bool_t PndFlukaGenerator::ReadRootEvent(FairPrimaryGenerator* primGen)
 {
   // Check for number of events in input file
 
-  Int_t nentries = fInputTree->GetEntries();
+  //Int_t nentries = fInputTree->GetEntries(); //[R.K. 01/2017] unused variable?
 
   if ( iEntry > fInputTree->GetEntries() ) {
     cout << "-E PndFlukaGenerator: No more events in input file!" << endl;

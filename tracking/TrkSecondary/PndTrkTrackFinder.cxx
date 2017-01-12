@@ -185,7 +185,7 @@ Bool_t PndTrkTrackFinder::MinuitFit(PndTrkCluster *cluster, double mstart, doubl
   minimizer.SetMaxIterations(500);
   minimizer.Migrad();
   
-  Double_t chisquare, results[3], errors[3]; 
+  Double_t results[3], errors[3]; //chisquare,  //[R.K. 01/2017] unused variable
   minimizer.GetParameter(0, results[0], errors[0]);
   minimizer.GetParameter(1, results[1], errors[1]);
   
@@ -292,7 +292,7 @@ Bool_t PndTrkTrackFinder::MinuitFit2(PndTrkCluster *cluster, double xstart, doub
   minimizer.SetMaxIterations(500);
   minimizer.Migrad();
   
-  Double_t chisquare, results[4], errors[4]; 
+  Double_t results[4], errors[4]; //chisquare,  //[R.K. 01/2017] unused variable
   minimizer.GetParameter(0, results[0], errors[0]);
   minimizer.GetParameter(1, results[1], errors[1]);
   minimizer.GetParameter(2, results[2], errors[2]);
@@ -890,7 +890,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   for(int iqua = 0; iqua < trackcandidates2.size(); iqua++) {
     std::vector< int > triplet = trackcandidates2[iqua];
     
-    PndTrkHit *hit0 = stthitlist->GetHit(triplet[0]);
+    PndTrkHit *hit0 = stthitlist->GetHit(triplet[0]); //[R.K. 01/2017] unused variable
     PndTrkHit *hit1 = stthitlist->GetHit(triplet[1]);
     PndTrkHit *hit2 = stthitlist->GetHit(triplet[2]);
     //  cout << "TRIPLET: " << triplet[0] << ", " << triplet[1] <<  " and " << triplet[2] << endl;
@@ -1247,7 +1247,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     if(fDisplayOn) {
       display->Update();
       display->Modified();
-      char goOnChar;
+      //char goOnChar; //[R.K. 01/2017] unused variable
 //       cin >> goOnChar;
     }
   
@@ -1386,7 +1386,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     if(goodtrack == false) continue;
 
     if(fDisplayOn)  {
-      char goOnChar;
+      //char goOnChar; //[R.K. 01/2017] unused variable
       display->cd(1);
       TArc *arcm = new TArc(xc, yc, R);
       arcm->SetFillStyle(0);
@@ -1603,7 +1603,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
 
     if(fDisplayOn)  {
-      char goOnChar;
+      //char goOnChar; //[R.K. 01/2017] unused variable
       display->cd(1);
       TArc *arcm = new TArc(xc2, yc2, R2);
       arcm->SetFillStyle(0);
@@ -1799,7 +1799,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // lets start from the skewed --------------------------------
     //    PndTrkCluster skewhitlist = CreateSkewHitList(finaltrack);
     PndTrkSkewHitList skewhitlist;
-    double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
+    //double phimin = 400, phimax = -1, zmin = 1000, zmax = -1; //[R.K. 01/2017] unused variable
     for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
       hit = stthitlist->GetHit(ihit);	
       //      cout << hit->IsSttSkew() << " " << hit->GetSector() << " " << TMath::RadToDeg() * hit->GetPosition().Phi() << " " << sectorID << " " << othersecID << endl;
@@ -1903,7 +1903,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       double y0b = y0bnew;
 
       if(fDisplayOn) {
-	char goOnChar;
+	//char goOnChar; //[R.K. 01/2017] unused variable
 	display->cd(1);
 
 	TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
@@ -2199,7 +2199,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
 
       // check neighborings @ layer 8 & 15
-      PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+      //PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID()); //[R.K. 01/2017] unused variable
       //      if(tube->GetLayerID() == 8) {
       // 	PndTrkHit *thit = stthitlist->GetHit(hit->GetHitID());
       // 	TObjArray neighs = fHitMap->GetNeighboringsToHit(thit);
@@ -2706,7 +2706,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
 //   cout << "TRACKS IN TRACKLIST " << fTrackList->GetNofTracks() << endl;
   if(fDisplayOn) {
-    char goOnChar;
+    //char goOnChar; //[R.K. 01/2017] unused variable
     display->cd(1);
     for(int jtrk = 0; jtrk < fTrackList->GetNofTracks(); jtrk++) {
       PndTrkTrack *track = fTrackList->GetTrack(jtrk);
@@ -2851,7 +2851,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       if(fitting == kFALSE) continue;
        FromConformalToRealTrack(fitm, fitq, xc3, yc3, R3);
        if(fDisplayOn)  {
-	 char goOnChar;
+	 //char goOnChar; //[R.K. 01/2017] unused variable
 	 display->cd(2);
 	 TLine *line = new TLine(-10, -10 * fitm + fitq, 10, 10 * fitm + fitq);
 	 line->SetLineColor(kMagenta);
@@ -2891,7 +2891,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
    
 //   cout << "TRACKS IN MERGED TRACK LIST " << mergedtracklist->GetNofTracks() << endl;
   if(fDisplayOn) {
-    char goOnChar;
+    //char goOnChar; //[R.K. 01/2017] unused variable
     display->cd(1);
     for(int jtrk = 0; jtrk < mergedtracklist->GetNofTracks(); jtrk++) {
       PndTrkTrack *track = mergedtracklist->GetTrack(jtrk);
@@ -3025,14 +3025,14 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	 hit2->SetSortVariable(hit2->GetPosition().Perp());
 	 if(!clusteri.DoesContain(hit2)) {
 	   
-	   double distance_hit_center = (hit2->GetPosition().XYvector() - TVector2(tracki->GetCenter().X(), tracki->GetCenter().Y())).Mod();
-	   double recoiso = fabs(distance_hit_center - tracki->GetRadius());
+	   //double distance_hit_center = (hit2->GetPosition().XYvector() - TVector2(tracki->GetCenter().X(), tracki->GetCenter().Y())).Mod(); //[R.K. 01/2017] unused variable?
+	   //double recoiso = fabs(distance_hit_center - tracki->GetRadius()); //[R.K. 01/2017] unused variable
 	   //	   if(recoiso < 0.5)
 	   clusteri.AddHit(hit2);
 	 }
       }
       if(fDisplayOn) {
-	char goOnChar;
+	//char goOnChar; //[R.K. 01/2017] unused variable
 	//	cin >> goOnChar ;
       }
     }
@@ -3059,7 +3059,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   delete indivtracklist;
   
   if(fDisplayOn) {
-    char goOnChar;
+    //char goOnChar; //[R.K. 01/2017] unused variable
     display->cd(1);
     Refresh();
   }
@@ -3224,14 +3224,14 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     if(fDisplayOn)  {
       Refresh();
       hiti->Draw(kRed);
-      char goOnChar;
+      //char goOnChar; //[R.K. 01/2017] unused variable
       display->Update();
       display->Modified();
       //  cin >> goOnChar;
     }
 
     hiti->SetUsedFlag(kTRUE);
-    int layerid = hiti->GetSensorID();
+    //int layerid = hiti->GetSensorID(); //[R.K. 01/2017] unused variable
     PndTrkHit *tmphiti = hiti;
 
     bool goOn = true;
@@ -3263,7 +3263,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	if(fDisplayOn)  {
 	  Refresh();
 	  tmphitj->Draw(kBlue);
-	  char goOnChar;
+	  //char goOnChar; //[R.K. 01/2017] unused variable
 	  display->Update();
 	  display->Modified();
 	  //  cin >> goOnChar;
@@ -3556,7 +3556,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	  if(border == false && hit->GetSector() != sectorID) continue;
 	  else if(border == true && (hit->GetSector() != sectorID && hit->GetSector() != othersecID)) continue;
 	}  
-	double distance = hit->GetXYDistance(TVector3(xc, yc, 0.));
+	//double distance = hit->GetXYDistance(TVector3(xc, yc, 0.)); //[R.K. 01/2017] unused variable
       
 	double distance_hit_center = (hit->GetPosition().XYvector() - TVector2(xc, yc)).Mod();
 	double recoiso = fabs(distance_hit_center - R);
@@ -3708,7 +3708,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	cluster2.Draw(kRed);
 	display->Update();
 	display->Modified();
-	char goOnChar;
+	//char goOnChar; //[R.K. 01/2017] unused variable
 	cout << "want to go on?" << endl;
 	// cin >> goOnChar;
       } 
@@ -3769,7 +3769,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	TVector3 position = hit->GetPosition();
 	double phi = hit->GetPhi();
 	if(fDisplayOn) {
-	  char goOnChar;
+	  //char goOnChar; //[R.K. 01/2017] unused variable
 	  display->cd(4);
 	  TMarker *mrkz = NULL;
 	  if(hit->IsMvdPixel()) mrkz = new TMarker(phi, position.Z(), 21);
@@ -3821,7 +3821,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   	double phi = hit->GetPhi();
 
   	if(fDisplayOn) {
- 	  char goOnChar;
+ 	  //char goOnChar; //[R.K. 01/2017] unused variable
   	  display->cd(4);
   	  TMarker *mrkz = NULL;
   	  if(hit->IsMvdPixel()) mrkz = new TMarker(phi, position.Z(), 21);
@@ -3865,7 +3865,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
 	display->Update();
 	display->Modified();
-	char goOnChar;
+	//char goOnChar; //[R.K. 01/2017] unused variable
 	// cin >> goOnChar;
       }
 
@@ -3937,7 +3937,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
 
 	  if(fDisplayOn) {
-	    char goOnChar;
+	    //char goOnChar; //[R.K. 01/2017] unused variable
 	    display->cd(4);
 	    TMarker *mrkz = new TMarker(phi, position.Z(), 20);
 	    mrkz->SetMarkerColor(kOrange);
@@ -3984,7 +3984,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double phi = hit->GetPhi();
 	//	cout << " z part " << phi << " " << position.Z() << endl;
 	if(fDisplayOn) {
-	  char goOnChar;
+	  //char goOnChar; //[R.K. 01/2017] unused variable
 	  display->cd(4);
 	  TMarker *mrkz = NULL;
 	  if(hit->IsMvdPixel()) mrkz = new TMarker(phi, position.Z(), 21);
@@ -4012,7 +4012,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	line->Draw("SAME");
 	display->Update();
 	display->Modified();
-	char goOnChar;
+	//char goOnChar; //[R.K. 01/2017] unused variable
 	// cin >> goOnChar;
       }
       
@@ -4094,7 +4094,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       FromConformalToRealTrack(fitm3, fitq3, xc3, yc3, R3);
   
       if(fDisplayOn)  {
-	char goOnChar;
+	//char goOnChar; //[R.K. 01/2017] unused variable
 	display->cd(1);
 	TArc *arcm = new TArc(xc3, yc3, R3);
 	arcm->SetFillStyle(0);
@@ -4158,8 +4158,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	 hit = fFinalCluster->GetHit(jhit);
 
-	 PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hit->GetHitID());
-	 int refindex = gemhit->GetRefIndex();
+	 //PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(hit->GetHitID()); //[R.K. 01/2017] unused variable?
+	 //int refindex = gemhit->GetRefIndex(); //[R.K. 01/2017] unused variable
 	 
 // 	 cout << "THIS it is " <<  hit->GetHitID() << " " << hit->GetDetectorID() << " " << hit->GetSensorID() << " " << refindex << endl;
       }
@@ -4337,8 +4337,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
  
       // check the 0/360 discontinuity ..................
-      PndTrkHit *hit1 = fFinalCluster->GetHit(0);
-      PndTrkHit *hit2 = fFinalCluster->GetHit(1);
+      PndTrkHit *hit1 = fFinalCluster->GetHit(0); //FIXME [R.K. 01/2017] unused variable?
+      PndTrkHit *hit2 = fFinalCluster->GetHit(1); //FIXME [R.K. 01/2017] unused variable?
 
       if(fDisplayOn) {
 	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
@@ -4531,7 +4531,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // lets start from the skewed --------------------------------
       //    PndTrkCluster skewhitlist = CreateSkewHitList(finaltrack);
       PndTrkSkewHitList skewhitlist;
-      double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
+      //double phimin = 400, phimax = -1, zmin = 1000, zmax = -1; //[R.K. 01/2017] unused variable
       for(int jhit = 0; jhit < stthitlist->GetNofHits(); jhit++) {
 	hit = stthitlist->GetHit(jhit);	
 	//      cout << hit->IsSttSkew() << " " << hit->GetSector() << " " << TMath::RadToDeg() * hit->GetPosition().Phi() << " " << sectorID << " " << othersecID << endl;
@@ -4635,7 +4635,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	double y0b = y0bnew;
 
 	if(fDisplayOn) {
-	  char goOnChar;
+	  //char goOnChar; //[R.K. 01/2017] unused variable
 	  display->cd(1);
 
 	  TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
@@ -4683,7 +4683,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
 	double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
 	if(fDisplayOn) {
-	  char goOnChar;
+	  //char goOnChar; //[R.K. 01/2017] unused variable
 	  display->cd(3);
 	  TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
 	  linezx1->SetLineStyle(1);
@@ -4717,7 +4717,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // and belong to the cluster
       for(int jhit = 0; jhit <  fFinalCluster->GetNofHits(); jhit++) {
 	hit = fFinalCluster->GetHit(jhit);
-	double phi = hit->GetPhi(); // finaltrack.ComputePhiFrom(hit->GetPosition(), fromhere);
+	//double phi = hit->GetPhi(); // finaltrack.ComputePhiFrom(hit->GetPosition(), fromhere); //[R.K. 01/2017] unused variable
 	if(hit->IsStt() == kFALSE) {
 	  //	hit->SetPhi(phi);
 	  //	hit->SetSortVariable(phi);
@@ -4945,15 +4945,15 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       finalfwdtrack.SetZ0(z0);
       finalfwdtrack.SetTanL(tanl);
       fTrackList->AddTrack(&finalfwdtrack);
-      for(int jtrk = 0; jtrk < fTrackList->GetNofTracks(); jtrk++) {
-	PndTrkTrack *tmptrack = fTrackList->GetTrack(jtrk);
-      }
+      //for(int jtrk = 0; jtrk < fTrack //[R.K. 01/2017] unused variableList->GetNofTracks(); jtrk++) {
+	//PndTrkTrack *tmptrack = fTrackList->GetTrack(jtrk); //[R.K. 01/2017] unused variable
+      //} //[R.K. 01/2017] unused variable
     }    
   }
   
   //   fDisplayOn = kTRUE;
   if(fDisplayOn) {
-    char goOnChar;
+    //char goOnChar; //[R.K. 01/2017] unused variable
     display->cd(1);
     Refresh();
   }
@@ -5095,7 +5095,7 @@ void PndTrkTrackFinder::Apollonius(PndTrkCluster *cluster, std::vector< double >
       //      cout << xc << " " << yc << "  " << rc << endl;
 
       if(fDisplayOn) {
-	char goOnChar;
+	//char goOnChar; //[R.K. 01/2017] unused variable
 	display->cd(2);  
 	TArc *arc = new TArc(xc, yc, rc);
 	arc->SetFillStyle(0);
@@ -5325,7 +5325,7 @@ void PndTrkTrackFinder::Apollonius(PndTrkHit* hit1, PndTrkHit * hit2, PndTrkHit 
 
 void PndTrkTrackFinder::Refresh(){
   // CHECK
-  char goOnChar;
+  //char goOnChar; //[R.K. 01/2017] unused variable
   //  cout << "Refresh?" << endl;
   //  cin >> goOnChar;
   //  cout << "REFRESHING" << endl;
@@ -5353,7 +5353,7 @@ void PndTrkTrackFinder::DrawLegendreHisto() {
 
 void PndTrkTrackFinder::RefreshConf() { // CHECK delete
   // CHECK
-  char goOnChar;
+  //char goOnChar;
   //  cout << "RefreshConf?" << endl;
   //  cin >> goOnChar;
   //  cout << "REFRESHING CONF" << endl;
@@ -5402,7 +5402,7 @@ void PndTrkTrackFinder::DrawGeometry() {
 
 void PndTrkTrackFinder::DrawGeometryConf(double x1, double x2, double y1, double y2) {
   // CHECK
-  char goOnChar;
+  //char goOnChar; //[R.K. 01/2017] unused variable
   //  cout << "DRAWING GEOMETRY CONF" << endl;
   // cin >> goOnChar;
   
@@ -5497,7 +5497,7 @@ void PndTrkTrackFinder::DrawNeighboringsToHit(PndTrkHit *hit) {
  
   Refresh(); 
   hit->DrawTube(kYellow);
-  PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+  //PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID()); //[R.K. 01/2017] unused variable
   TObjArray neighs = fHitMap->GetNeighboringsToHit(hit);
 
 
@@ -5786,7 +5786,7 @@ Int_t PndTrkTrackFinder::ApplyLegendre(PndTrkCluster *cluster, double &theta_max
 
 Int_t  PndTrkTrackFinder::ExtractLegendre(Int_t mode, double &theta_max, double &r_max) {
   if(fDisplayOn) {
-    char goOnChar;
+    //char goOnChar; //[R.K. 01/2017] unused variable
     //      cin >> goOnChar;
     DrawLegendreHisto();
     //    cout << "LEGENDRE (nof conf hits = " <<  conformalhitlist->GetNofHits() << ")" << endl;
@@ -5843,11 +5843,11 @@ Int_t  PndTrkTrackFinder::ExtractLegendre(Int_t mode, double &theta_max, double 
     legendre->DeleteZoneAroundXYZoom(theta_max, r_max);
   }
 
-  int maxpeakzoom = legendre->ExtractZoomMaximum(theta_max, r_max);
+  int maxpeakzoom = legendre->ExtractZoomMaximum(theta_max, r_max); //FIXME [R.K. 01/2017] unused variable
   //  cout << "THETA/R ZOOM " << theta_max << " " << r_max <<  " maxpeakzoom " << maxpeakzoom << endl;
 
   if(fDisplayOn) {
-    char goOnChar;
+    //char goOnChar; //[R.K. 01/2017] unused variable
     display->cd(3);
     TMarker *mrk = new TMarker(theta_max, r_max, 29);
     mrk->Draw("SAME");
@@ -5995,7 +5995,7 @@ void PndTrkTrackFinder::FillHitMap() {
       PndTrkHit *stthit = stthitlist->GetHit(ihit);
       TObjArray indiv = fHitMap->GetIndivisiblesToHit(stthit);
       for(int jhit = 0; jhit < indiv.GetEntriesFast(); jhit++) {
-	PndTrkHit *stthit2 = (PndTrkHit*) indiv.At(jhit);
+	//PndTrkHit *stthit2 = (PndTrkHit*) indiv.At(jhit); //[R.K. 01/2017] unused variable
 	// 	stthit2->Draw(kOrange);
 	//  	stthit->Draw(kOrange);
       }
@@ -6033,8 +6033,8 @@ PndTrkClusterList PndTrkTrackFinder::CreateFullClusterization() {
     if(seedhit->IsUsed() == kTRUE) continue;
     
     int seedtubeID = seedhit->GetTubeID();
-    PndSttTube *seedtube = (PndSttTube*) fTubeArray->At(seedtubeID);
-    int seedlayerID = seedtube->GetLayerID();
+    //PndSttTube *seedtube = (PndSttTube*) fTubeArray->At(seedtubeID); //[R.K. 01/2017] unused variable?
+    //int seedlayerID = seedtube->GetLayerID(); //[R.K. 01/2017] unused variable
     
     // add hit to cluster
     cluster->AddHit(seedhit);
@@ -6149,8 +6149,8 @@ PndTrkClusterList PndTrkTrackFinder::CreateFullClusterization() {
       if(cseedhit->IsUsed() == kTRUE) { cout << "already" << endl ; continue; }
     
       int cseedtubeID = cseedhit->GetTubeID();
-      PndSttTube *cseedtube = (PndSttTube*) fTubeArray->At(cseedtubeID);
-      int cseedlayerID = cseedtube->GetLayerID();
+      //PndSttTube *cseedtube = (PndSttTube*) fTubeArray->At(cseedtubeID); //[R.K. 01/2017] unused variable?
+      //int cseedlayerID = cseedtube->GetLayerID(); //[R.K. 01/2017] unused variable
     
       // add hit to cluster
       cluster->AddHit(cseedhit);
@@ -6279,11 +6279,11 @@ Int_t PndTrkTrackFinder::CountPossibleTracks() {
   }
   cluster.Sort();
 
-  for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
-    PndTrkHit *hit = cluster.GetHit(ihit);
-    PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+  //for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) { //[R.K. 01/2017] unused variable?
+    //PndTrkHit *hit = cluster.GetHit(ihit); //[R.K. 01/2017] unused variable?
+    //PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID()); //[R.K. 01/2017] unused variable
     //    cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << endl;
-  }
+  //} //[R.K. 01/2017] unused variable?
 
   int maxnoftracks = 1;
   int tmplayid = -1;
@@ -6399,11 +6399,11 @@ Int_t PndTrkTrackFinder::CountTracksInCluster(PndTrkCluster *cluster, Int_t wher
   }
   cluster->Sort();
 
-  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-    PndTrkHit *hit = cluster->GetHit(ihit);
-    PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID());
+  //for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) { //[R.K. 01/2017] unused variable?
+    //PndTrkHit *hit = cluster->GetHit(ihit); //[R.K. 01/2017] unused variable?
+    //PndSttTube *tube = (PndSttTube*) fTubeArray->At(hit->GetTubeID()); //[R.K. 01/2017] unused variable
     //    cout << "SORTED " << ihit << " " << hit->GetHitID() << " " << tube->GetLayerID() << endl;
-  }
+  //} //[R.K. 01/2017] unused variable?
 
   int maxnoftracks = 1;
   int tmplayid = -1;
@@ -6583,7 +6583,7 @@ PndTrkCluster * PndTrkTrackFinder::CreateClusterAroundTrack(PndTrkTrack *track) 
   // create cluster depending on fitting
   PndTrkCluster *thiscluster = new PndTrkCluster();
   int startsecid = 1000, endsecid = -1, startlayid = 1000, endlayid = -1;
-  double totaldistanceconf = 0,  chi2 = 0;
+  double totaldistanceconf = 0;//,  chi2 = 0; //[R.K. 01/2017] unused variable
   // clean existing cluster
   for(int ihit = 0; ihit < cluster.GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster.GetHit(ihit);
@@ -6620,7 +6620,7 @@ PndTrkCluster * PndTrkTrackFinder::CreateClusterAroundTrack(PndTrkTrack *track) 
     }
   }
 
-  double meandistanceconf = totaldistanceconf/thiscluster->GetNofHits();
+  //double meandistanceconf = totaldistanceconf/thiscluster->GetNofHits(); //[R.K. 01/2017] unused variable
 
 //   cout << "START SECTOR " << startsecid << " END SECTOR " << endsecid << endl;
 //   cout << "START LAYER  " << startlayid << " END LAYER  " << endlayid << endl;
@@ -6656,7 +6656,7 @@ PndTrkCluster * PndTrkTrackFinder::CreateClusterAroundTrack(PndTrkTrack *track) 
 	PndTrkConformalHit chit;
 	if(hit->IsSttParallel()) chit = conform->GetConformalSttHit(hit);
 	else chit = conform->GetConformalHit(hit); // CHECK if skew?
-	double distanceconf = fabs((chit.GetV() - fitm * chit.GetU() - fitp)/ TMath::Sqrt(fitm * fitm + 1));
+	//double distanceconf = fabs((chit.GetV() - fitm * chit.GetU() - fitp)/ TMath::Sqrt(fitm * fitm + 1)); //[R.K. 01/2017] unused variable
    
 	//	cout << "->distance " << distance << " (" << meandistanceconf << ") " << rmin << " " << rmax << " " << distanceconf << endl;
  
@@ -6667,7 +6667,7 @@ PndTrkCluster * PndTrkTrackFinder::CreateClusterAroundTrack(PndTrkTrack *track) 
 	  //	  hit->DrawTube(kBlue);
 	  display->Update();
 	  display->Modified();
-	  char goOnChar;
+	  //char goOnChar; //[R.K. 01/2017] unused variable
 	  cout << "want to go to next?" << endl;
 	  // cin >> goOnChar;
 	} 
@@ -7036,7 +7036,7 @@ PndTrkCluster PndTrkTrackFinder::CreateSkewHitList(PndTrkTrack *track) {
   double R = track->GetRadius();
   PndTrkCluster skewhitlist;
 
-  double phimin = 400, phimax = -1, zmin = 1000, zmax = -1;
+  //double phimin = 400, phimax = -1, zmin = 1000, zmax = -1; //[R.K. 01/2017] unused variable
   for(int ihit = 0; ihit < stthitlist->GetNofHits(); ihit++) {
     PndTrkHit *hit = stthitlist->GetHit(ihit);	
     if(hit->IsSttSkew() == kFALSE) continue;
@@ -7073,7 +7073,7 @@ PndTrkCluster PndTrkTrackFinder::CreateSkewHitList(PndTrkTrack *track) {
     }
     
     if(fDisplayOn) {
-      char goOnChar;
+      //char goOnChar; //[R.K. 01/2017] unused variable
       display->cd(1);
       TLine *l = new TLine(first.X(), first.Y(), second.X(), second.Y());
       l->SetLineColor(kBlue);
@@ -7164,7 +7164,7 @@ PndTrkCluster PndTrkTrackFinder::CreateSkewHitList(PndTrkTrack *track) {
     double y0b = y0bnew;
 
     if(fDisplayOn) {
-      char goOnChar;
+      //char goOnChar; //[R.K. 01/2017] unused variable
       display->cd(1);
 
       TEllipse *ell1 = new TEllipse(x0a, y0a, a, b, 0, 360, -beta);
@@ -7224,7 +7224,7 @@ PndTrkCluster PndTrkTrackFinder::CreateSkewHitList(PndTrkTrack *track) {
     t = ((intxa + intya) - (tfirst.X() + tfirst.Y())) /  ((tsecond.X() - tfirst.X()) + (tsecond.Y() - tfirst.Y()));
     double intza = tfirst.Z() + (tsecond.Z() - tfirst.Z()) * t;
     if(fDisplayOn) {
-      char goOnChar;
+      //char goOnChar; //[R.K. 01/2017] unused variable
       display->cd(3);
       TLine *linezx1 = new TLine(tfirst.X(), tfirst.Z(), tsecond.X(), tsecond.Z());
       linezx1->SetLineStyle(1);
@@ -7311,7 +7311,7 @@ PndTrkCluster PndTrkTrackFinder::CleanUpSkewHitList(PndTrkCluster *skewhitlist) 
 
   // DISPLAY ----------------------------
   if(fDisplayOn) {
-    char goOnChar;
+    //char goOnChar; //[R.K. 01/2017] unused variable
     display->cd(4);
     phimin -= 30;
     phimax += 30;

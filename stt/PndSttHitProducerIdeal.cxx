@@ -172,7 +172,7 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
   
       //minimum distance ----------------
 
-      Double_t fd_in  = sqrt(point->GetXInLocal()*point->GetXInLocal()+point->GetYInLocal()*point->GetYInLocal());
+      //Double_t fd_in  = sqrt(point->GetXInLocal()*point->GetXInLocal()+point->GetYInLocal()*point->GetYInLocal()); //[R.K. 01/2017] unused variable?
       //cout<<fd_in<<endl;
       double InOut[6];
       memset(InOut, 0, sizeof(InOut));

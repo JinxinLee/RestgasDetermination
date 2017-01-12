@@ -405,10 +405,10 @@ PndTrackingQualityMCInfo PndTrackingQualityTaskNewLinks::GetMCInfoFromIdealTrack
   
   PndTrackCand *idealtrkcand = idealtrack->GetTrackCandPtr();
     
-  Int_t nofsttpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("STTHit"));
+  //Int_t nofsttpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("STTHit")); //[R.K. 01/2017] unused variable
   Int_t nofmvdpixpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("MVDHitsPixel"));
   Int_t nofmvdstrpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"));
-  Int_t nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint;
+  //Int_t nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint; //[R.K. 01/2017] unused variable
   Int_t nofgempoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("GEMHit"));
   
   int nofsttskewpoint = 0, nofsttparalpoint = 0;    

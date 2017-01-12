@@ -190,7 +190,7 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
   TVector3 momInBar = trackinfo->GetMcMomentumInBar();
   TVector3 posInBar = trackinfo->GetMcPositionInBar();
   Double_t barHitTime = trackinfo->GetMcTimeInBar();
-  Double_t cangle, boxPhi, bartime, lutboxPhi=10.825, window1, window2, angdiv;
+  Double_t boxPhi;//, cangle, bartime, lutboxPhi=10.825, window1, window2, angdiv; //[R.K. 01/2017] unused variable?
   Int_t lutboxId(3), barId(-1), evpointcount(0);
   Bool_t reflected;
   Int_t boxId1;
@@ -207,7 +207,7 @@ void PndDrcLutReco::DetermineCherenkov(PndDrcTrackInfo *trackinfo, Int_t  boxId)
   // Loop over PndDrcPDHits
   for(Int_t ihit=0; ihit<fPDHitArray->GetEntriesFast(); ihit++) {
     fPDHit = (PndDrcPDHit*)fPDHitArray->At(ihit);
-    Int_t wsensorId = fPDHit->GetSensorId()/100;
+    //Int_t wsensorId = fPDHit->GetSensorId()/100; //[R.K. 01/2017] unused variable?
     //   if(wsensorId < window1 || wsensorId > window2) continue;
 
     Int_t sensorId = fPDHit->GetSensorId();

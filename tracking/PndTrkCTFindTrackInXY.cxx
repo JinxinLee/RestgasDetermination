@@ -356,7 +356,7 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
  rotationsin /=*(in->nHitsinTrack);
  rotationangle = atan2(rotationsin, rotationcos);
 //  fitting with superfast MILP code
- bool Type;
+ //bool Type; //[R.K. 01/2017] unused variable?
 
  int	nFitPoints,
 	offset;
@@ -452,16 +452,16 @@ bool PndTrkCTFindTrackInXY::FindTrackInXYProjection(
 //  P1 =  [ x0- abs{(L/2)*y0/RR}; y0-SIGN*abs{(L/2)*x0/RR} ],
 //  P2 =  [ x0+abs{(L/2)*y0/RR}; y0+SIGN*abs{(L/2)*x0/RR} ].
 
- bool intersect;
- Short_t
-	Nint;
+ //bool intersect; //[R.K. 01/2017] unused variable?
+ //Short_t
+	//Nint; //[R.K. 01/2017] unused variable?
 //	nSciT;
- Double_t distance,
-	QQ,
-	sqrtRR,
-	SIGN,
-	XintersectionList[2],
-	YintersectionList[2];
+ //Double_t distance, //[R.K. 01/2017] unused variable?
+	//QQ, //[R.K. 01/2017] unused variable?
+	//sqrtRR, //[R.K. 01/2017] unused variable?
+	//SIGN, //[R.K. 01/2017] unused variable?
+	//XintersectionList[2], //[R.K. 01/2017] unused variable?
+	//YintersectionList[2]; //[R.K. 01/2017] unused variable?
 
 
  // whether or not the seed hit was a Stt hit try if any SciTil hits are
@@ -700,12 +700,12 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 	nRemainingHits,
 	nHitsinTrack,
 	tri_index,
-	auxIndex[maxstthits],
+	//auxIndex[maxstthits], //[R.K. 01/2017] unused variable?
 	Remaining[maxstthits];
 
  Short_t iFi2;
 
- Double_t auxRvalues[maxstthits];
+ //Double_t auxRvalues[maxstthits]; //[R.K. 01/2017] unused variable?
 
 
 //   ihit        is the hit number in the PARALLEL number scheme
@@ -851,11 +851,11 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 	nRmax,
 	nRmin,
 	tri_index,
-	auxIndex[maxstthits],
+	//auxIndex[maxstthits], //[R.K. 01/2017] unused variable?
 	Remaining[maxstthits];
 
 
- Double_t auxRvalues[maxstthits];
+ //Double_t auxRvalues[maxstthits]; //[R.K. 01/2017] unused variable?
 
 
 
@@ -968,12 +968,12 @@ Short_t PndTrkCTFindTrackInXY::FindTrackStrictCollection(
 	i,
 	iFi,
 	iFiseed,
-	iR,
-	j,
+	//iR, //[R.K. 01/2017] unused variable?
+	//j, //[R.K. 01/2017] unused variable?
 	nHitsinTrack;
 
 
- Double_t auxRvalues[maxstthits];
+ //Double_t auxRvalues[maxstthits]; //[R.K. 01/2017] unused variable?
 
 //   iSeed        is the hit number in the ORIGINAL number scheme
 
@@ -1050,8 +1050,8 @@ void PndTrkCTFindTrackInXY::OrderingParallel(
 
       Double_t	aaa,
 		b1,
-		firstR2,
-		lastR2,
+		//firstR2, //[R.K. 01/2017] unused variable?
+		//lastR2, //[R.K. 01/2017] unused variable?
 		aux[nParallelHits];
 
  PndTrkMergeSort MergeSort;
@@ -1277,13 +1277,13 @@ Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
   Short_t i, i2, j, k, l,  l2, l3, itemp, kstart, kend,
           iFi0,FFimin, FFimax;
   Short_t Nextra=8,
-           nFi,
+           //nFi, //[R.K. 01/2017] unused variable?
            Fi,
            nR,
            nAssociatedHits,
            nHit_original;
-  Double_t maxFi,
-           minFi,
+  Double_t //maxFi, //[R.K. 01/2017] unused variable?
+           //minFi, //[R.K. 01/2017] unused variable?
            dist,
            xx,
            yy,

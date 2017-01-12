@@ -212,7 +212,7 @@ void PndBarrelTrackFinder::Exec(Option_t* opt) {
   if ( fVerbose > 0 ) 
     cout << "=============== EVENT " << fTNofEvents << " =================" << endl;
 
-  Int_t nofCreatedTracks = 0;
+  //Int_t nofCreatedTracks = 0; //[R.K. 01/2017] unused variable?
 
   Int_t nofHits = 0;
   Int_t firstDH[4];
@@ -1306,9 +1306,9 @@ void   PndBarrelTrackFinder::DrawTracks() {
 	}
       }
       
-      Double_t thisPhi = CalcPhi(fTracksVector[itr].meanX,
-				 fTracksVector[itr].meanY);
-      Double_t thisRad =         fTracksVector[itr].meanR;
+      //Double_t thisPhi = CalcPhi(fTracksVector[itr].meanX,
+				 //fTracksVector[itr].meanY); //[R.K. 01/2017] unused variable?
+      //Double_t thisRad =         fTracksVector[itr].meanR; //[R.K. 01/2017] unused variable?
       
       fEllipse[itr]->SetX1(fTracksVector[itr].meanX);
       fEllipse[itr]->SetY1(fTracksVector[itr].meanY);

@@ -235,7 +235,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     for(unsigned int ihit=0; ihit<numPts; ihit++){ //fill Graph
       PndTrackCandHit theHit = trcnd->GetSortedHit(ihit); //get hit
       Int_t index = theHit.GetHitId();
-      Int_t detId = theHit.GetDetId();
+      //Int_t detId = theHit.GetDetId(); //[R.K. 01/2017] unused variable
       // if(fVerbose>2) std::cout << "Point: "<< ihit<< " index: "<< index <<std::endl;
 
       //      PndSdsHit* addHit = (PndSdsHit*) fRecoArray->At(index);
@@ -550,7 +550,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
     cout<<"dirSeed:"<<endl;
     dirSeed.Print();
   }
-  double l = 1/dirSeed.Mag();
+  //double l = 1/dirSeed.Mag(); //[R.K. 01/2017] unused variable
 
   double pStart[6] = {posSeed.X(),dirSeed.X(),posSeed.Y(),dirSeed.Y(),posSeed.Z(),dirSeed.Z()};
   // //  //go out of middle of plane!
@@ -616,7 +616,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
 double PndLmdLinFitTask::ScatteredAngle(double radLen){
   //Calculation of ThetaMS -------------------------------------
   //Charge & mass of particle
-  Int_t PDGCode = -2212; //barp
+  //Int_t PDGCode = -2212; //barp //[R.K. 01/2017] unused variable
   Double_t fMass = 0.938272046;
   Double_t Ebeam = TMath::Hypot(fPbeam,fMass);
   TLorentzVector LorMom(0, 0, fPbeam, Ebeam);

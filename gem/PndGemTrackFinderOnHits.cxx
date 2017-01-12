@@ -192,18 +192,18 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
   }
   
   // Initialise control counters
-  Int_t nNoTrack     = 0;
-  Int_t nNoGemPoint  = 0;
-  Int_t nNoGemHit    = 0;
+  //Int_t nNoTrack     = 0; //[R.K. 01/2017] unused variable?
+  //Int_t nNoGemPoint  = 0; //[R.K. 01/2017] unused variable?
+  //Int_t nNoGemHit    = 0; //[R.K. 01/2017] unused variable?
   
   // Create pointers to GemHit and GemPoint
   PndGemHit*   gemHit   = NULL;
   PndGemHit*   gemHit2   = NULL;
-  PndTrackCand* gemTrackCand = NULL;
+  //PndTrackCand* gemTrackCand = NULL; //[R.K. 01/2017] unused variable?
 
   // Declare variables outside the loop
-  Int_t trackIndex = 0;    // Gem track index
-  Int_t relDetID = -1;//3000;   // 
+  //Int_t trackIndex = 0;    // Gem track index //[R.K. 01/2017] unused variable?
+  //Int_t relDetID = -1;//3000;   //  //[R.K. 01/2017] unused variable?
 
   if ( fMCAvailable & fVerbose ) {
     cout <<"# MC Tracks: "<< fMCTrackArray->GetEntriesFast() << endl;
@@ -881,7 +881,7 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
 void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
   PndGemHit* gemHit;
 
-  const Int_t kNofGemStations = fDigiPar->GetNStations();
+  //const Int_t kNofGemStations = fDigiPar->GetNStations(); //[R.K. 01/2017] unused variable?
 
   for ( Int_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
     TrackSegment tempTS = fTrackSegments[itrc];

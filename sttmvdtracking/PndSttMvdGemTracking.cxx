@@ -1005,8 +1005,8 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlane(FairTrackParP *tmppar, FairTrac
   
   // last z position
   // get 1st sensor in 1st station
-  PndGemStation *station = fGemParameters->GetStation(0);
-  PndGemSensor *sensor = station->GetSensor(0); 
+  //PndGemStation *station = fGemParameters->GetStation(0); //[R.K. 01/2017] unused variable?
+  //PndGemSensor *sensor = station->GetSensor(0);  //[R.K. 01/2017] unused variable?
   if(tmppar->GetPosition().Z() > sensorpos->Z()) {
     if(fVerbose > 0) cout << "-> Z OUT OF BOUNDS: backpropagation" << endl;
     fPro->setBackProp();
@@ -1484,7 +1484,7 @@ void PndSttMvdGemTracking::Retrack() {
     }
  
     std::vector<int> hitvector = GetHitsAssociatedToTrack(itrk);
-    Int_t nhitinthistrack = hitvector.size();
+    //Int_t nhitinthistrack = hitvector.size(); //[R.K. 01/2017] unused variable?
 
      PndTrack* completeTrack = (PndTrack*) fCompleteTrackArray->At(itrk);
      if(!completeTrack) continue;
@@ -1629,7 +1629,7 @@ void PndSttMvdGemTracking::Retrack() {
       Double_t phi = TMath::ATan2(gemhit->GetY(), gemhit->GetX());
       Double_t sinp = TMath::Sin(phi);
       Double_t cosp = TMath::Cos(phi);
-      Double_t raddist = gemhit->GetPosition().Perp();
+      //Double_t raddist = gemhit->GetPosition().Perp(); //[R.K. 01/2017] unused variable?
       Double_t dR, dP;
       if(IDEAL == true) {
 	dR = 0.01;
@@ -1684,7 +1684,7 @@ Double_t PndSttMvdGemTracking::IsAssignable(FairTrackParP *gempar, PndGemHit *ge
   Double_t phi = TMath::ATan2(gemhit->GetY(), gemhit->GetX());
   Double_t sinp = TMath::Sin(phi);
   Double_t cosp = TMath::Cos(phi);
-  Double_t raddist = gemhit->GetPosition().Perp();
+  //Double_t raddist = gemhit->GetPosition().Perp(); //[R.K. 01/2017] unused variable?
   Double_t dR, dP;
   if(IDEAL == true) {
     dR = 0.01;
@@ -1840,7 +1840,7 @@ void PndSttMvdGemTracking::Kalman(TMatrixT<double> extrap, TMatrixT<double> meas
   TMatrixT<double> extrapHT_cov(extrap_cov, TMatrixT<double>::kMultTranspose, H);
   TMatrixT<double> HextrapHT_cov(H, TMatrixT<double>::kMult, extrapHT_cov);
   TMatrixT<double> sum_cov = measurement_cov + HextrapHT_cov;
-  double det = 0; // CHECK fill it 
+  //double det = 0; // CHECK fill it  //[R.K. 01/2017] unused variable?
   sum_cov.Invert();
   // calculate gain
   TMatrixT<double> Hsum_cov(H, TMatrixT<double>::kTransposeMult, sum_cov);
@@ -1946,8 +1946,8 @@ FairTrackParP PndSttMvdGemTracking::SetStartParameters(PndTrack *sttmvd, PndTrac
     //      lastpar.GetMomentum().Print();
     
     bool startpoint = false;
-    PndGemStation *station = fGemParameters->GetStation(0);
-    PndGemSensor *sensor = station->GetSensor(0); 
+    //PndGemStation *station = fGemParameters->GetStation(0); //[R.K. 01/2017] unused variable?
+    //PndGemSensor *sensor = station->GetSensor(0);  //[R.K. 01/2017] unused variable?
     TVector3 position;
     TVector3 momentum;
     //     if(fabs(lastpar.GetPosition().X()) > 42. || fabs(lastpar.GetPosition().Y()) > 42. || 
@@ -2144,8 +2144,8 @@ void PndSttMvdGemTracking::FillTrueDistances() {
     if(mcIndex == -1) continue;
     PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mcIndex);
     if(mctrk) {
-      int pdgcode = mctrk->GetPdgCode();
-      int motherid = mctrk->GetMotherID();
+      //int pdgcode = mctrk->GetPdgCode(); //[R.K. 01/2017] unused variable?
+      //int motherid = mctrk->GetMotherID(); //[R.K. 01/2017] unused variable?
       TVector3 vertex = mctrk->GetStartVertex();
       TVector3 vtxmomentum = mctrk->GetMomentum();
    //    cout << "PDG " << pdgcode << " MOTHID " << motherid << " VTX POS " << vertex.Mag() << " MOM " << vtxmomentum.Mag() << endl;
@@ -2814,14 +2814,14 @@ Bool_t PndSttMvdGemTracking::GetInitialParams(PndTrack * sttmvd, Double_t &xc, D
   
   if(fabs(recomom.X()) >  1e-10) {
     // track from tangent ---------------------
-    double reco_m1 = recomom.Y() / recomom.X();
-    double reco_q1 = recopos.Y() - recopos.X() * reco_m1;
-    double reco_m2 = -1./reco_m1;
-    double reco_q2 = recopos.Y() - recopos.X() * reco_m2;
+    //double reco_m1 = recomom.Y() / recomom.X(); //[R.K. 01/2017] unused variable?
+    //double reco_q1 = recopos.Y() - recopos.X() * reco_m1; //[R.K. 01/2017] unused variable?
+    //double reco_m2 = -1./reco_m1; //[R.K. 01/2017] unused variable?
+    //double reco_q2 = recopos.Y() - recopos.X() * reco_m2; //[R.K. 01/2017] unused variable?
    beta = TMath::ATan2(recomom.X(), recomom.Y());
   }
   else beta = TMath::Sign(1., recomom.Y()) * TMath::Pi(); 
-  double recoX0, recoY0;
+  //double recoX0, recoY0; //[R.K. 01/2017] unused variable?
   if(charge > 0) { 
     xc = recopos.X() + radius * TMath::Cos(beta);
     yc = recopos.Y() - radius * TMath::Sin(beta);
@@ -2964,8 +2964,8 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
     sensor[ihit][0] = ihit;
     sensor[ihit][1] = hit->GetX();
     sensor[ihit][2] = hit->GetY();
-    int istat = hit->GetStationNr();
-    int isens = hit->GetSensorNr();
+    //int istat = hit->GetStationNr(); //[R.K. 01/2017] unused variable?
+    //int isens = hit->GetSensorNr(); //[R.K. 01/2017] unused variable?
     int posindex =  GetPosIndex(hit);
     fOrderingIterator = find(fOrdering.begin(), fOrdering.end(), posindex);
     int ipos = fOrderingIterator - fOrdering.begin();

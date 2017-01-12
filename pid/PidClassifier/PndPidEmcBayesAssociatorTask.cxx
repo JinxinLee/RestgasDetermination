@@ -189,7 +189,7 @@ void PndPidEmcBayesAssociatorTask::GetPdf(Double_t ppin, Double_t thin, Double_t
 // variables: pp,th,ph, z20, z53, LAT, E/P
    Double_t lRange[7]={0.2,  5,-180, 0, 0, 0, 0};
    Double_t uRange[7]={10  ,140, 180, 4, 5, 6, 2};
-   Int_t nRange[7]  ={14 ,  7,   1, 1,   1,120};
+   //Int_t nRange[7]  ={14 ,  7,   1, 1,   1,120}; //[R.K. 01/2017] unused variable
    Double_t rangePconst0= 4.2318;  // Two constants to ajust the momenta 
    Double_t rangePconst1= 5.7682;  // calculated from the nominal range
     

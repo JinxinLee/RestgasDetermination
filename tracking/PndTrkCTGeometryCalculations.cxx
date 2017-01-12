@@ -115,9 +115,9 @@ void PndTrkCTGeometryCalculations::calculateintersections(
 //-------------------------------------------
 
 
-  Double_t P1x, P1y, P1z, P2x, P2y, P2z;
+  //Double_t P1x, P1y, P1z, P2x, P2y, P2z; //[R.K. 01/2017] unused variable?
 
-  Double_t AAA, DELTA, ax, ay, aaa;
+  Double_t AAA, DELTA, ax, ay; //, aaa; //[R.K. 01/2017] unused variable?
 
 
 
@@ -392,8 +392,8 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExitbis(
 {
 
  Short_t
-	i,
-	j;
+	i;
+	//j; //[R.K. 01/2017] unused variable?
 
  PndTrkMergeSort MergeSort;
 
@@ -459,8 +459,8 @@ void PndTrkCTGeometryCalculations::ChooseEntranceExit3(
 {
 
  Short_t
-	i,
-	j;
+	i;
+	//j; //[R.K. 01/2017] unused variable?
 
  Int_t auxIndex[nIntersections];
 
@@ -545,11 +545,11 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ(
 // the limits of an Int_t are : -2147483648 <= n <= 2147483647
 
 	Double_t aaa,
-		ABSdis1,
+		//ABSdis1, //[R.K. 01/2017] unused variable?
 		dis1,
 		dis2,
-		dis_segments,
-		gap;
+		dis_segments;
+		//gap; //[R.K. 01/2017] unused variable?
 
 	if(fabs(KAPPA) < 1.e-10){
 		return -999999999.;
@@ -606,10 +606,10 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ_bis(
 
 
 
-	Short_t	i,
-		nMax,
-		nMin
-		;
+	Short_t	i;
+		//nMax, //[R.K. 01/2017] unused variable?
+		//nMin //[R.K. 01/2017] unused variable?
+		
 
 	Double_t
 		boundaries[n_allowed_rounds+3],
@@ -743,16 +743,16 @@ Double_t PndTrkCTGeometryCalculations::FindDistance(
 		 dist,
 		 dist1,
 		 dist2,
-		 distlow,
-		 distmid,
-		 distup,
+		 //distlow, //[R.K. 01/2017] unused variable?
+		 //distmid, //[R.K. 01/2017] unused variable?
+		 //distup, //[R.K. 01/2017] unused variable?
 		 totaldist,
 		 x1,
 		 x2,
 		 y1,
 		 y2;
 
-int nevento=1;
+//int nevento=1; //[R.K. 01/2017] unused variable?
 
 
 
@@ -853,20 +853,20 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange(
 
 	bool	intersection_inner,
 		intersection_outer;
-	Double_t	teta1,
-			teta2,
-			tetavertex,
+	Double_t	//teta1, //[R.K. 01/2017] unused variable?
+			//teta2, //[R.K. 01/2017] unused variable?
+			//tetavertex, //[R.K. 01/2017] unused variable?
 			a,
-			cosT,
-			cost,
+			//cosT, //[R.K. 01/2017] unused variable?
+			//cost, //[R.K. 01/2017] unused variable?
 			cosFi,
 			cosfi,
 			Fi,
 			fi,
-			FI0,
-			Px,
-			Py,
-			tmp;
+			FI0;
+			//Px, //[R.K. 01/2017] unused variable?
+			//Py, //[R.K. 01/2017] unused variable?
+			//tmp; //[R.K. 01/2017] unused variable?
 
 
 	Rma += 1. ; // add a safety margin.
@@ -997,20 +997,20 @@ void  PndTrkCTGeometryCalculations::FindingParallelTrackAngularRange2(
 
 	bool	intersection_inner,
 		intersection_outer;
-	Double_t	teta1,
-			teta2,
-			tetavertex,
+	Double_t	//teta1, //[R.K. 01/2017] unused variable?
+			//teta2, //[R.K. 01/2017] unused variable?
+			//tetavertex, //[R.K. 01/2017] unused variable?
 			a,
-			cosT,
-			cost,
+			//cosT, //[R.K. 01/2017] unused variable?
+			//cost, //[R.K. 01/2017] unused variable?
 			cosFi,
 			cosfi,
 			Fi,
 			fi,
-			FI0,
-			Px,
-			Py,
-			tmp;
+			FI0;
+			//Px, //[R.K. 01/2017] unused variable?
+			//Py, //[R.K. 01/2017] unused variable?
+			//tmp; //[R.K. 01/2017] unused variable?
 
 
 	// Fi_low_limit is an array of dimensionality 2;
@@ -1634,18 +1634,18 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft(
 //  It returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
 
 
-	Double_t	cosFi,
-			theta1,
-			theta2,
-			Theta1,
-			Theta2,
-			aaa,
-			Fi,
-			FI0,
-			x1,
-			x2,
-			y1,
-			y2;
+	//Double_t	cosFi, //[R.K. 01/2017] unused variable?
+			//theta1, //[R.K. 01/2017] unused variable?
+			//theta2, //[R.K. 01/2017] unused variable?
+			//Theta1, //[R.K. 01/2017] unused variable?
+			//Theta2, //[R.K. 01/2017] unused variable?
+			//aaa, //[R.K. 01/2017] unused variable?
+			//Fi,
+			//FI0,
+			//x1,
+			//x2,
+			//y1,
+			//y2;
 //------------------
 
 	Short_t	nIntersectionsCircle,
@@ -1764,18 +1764,18 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleLeft2(
 
 	Short_t		nIntersections;
 
-	Double_t	cosFi,
-			theta1,
-			theta2,
-			Theta1,
-			Theta2,
-			aaa,
-			Fi,
-			FI0,
-			x1,
-			x2,
-			y1,
-			y2;
+	//Double_t	cosFi, //[R.K. 01/2017] unused variable?
+			//theta1, //[R.K. 01/2017] unused variable?
+			//theta2, //[R.K. 01/2017] unused variable?
+			//Theta1, //[R.K. 01/2017] unused variable?
+			//Theta2, //[R.K. 01/2017] unused variable?
+			//aaa, //[R.K. 01/2017] unused variable?
+			//Fi, //[R.K. 01/2017] unused variable?
+			//FI0, //[R.K. 01/2017] unused variable?
+			//x1, //[R.K. 01/2017] unused variable?
+			//x2, //[R.K. 01/2017] unused variable?
+			//y1, //[R.K. 01/2017] unused variable?
+			//y2; //[R.K. 01/2017] unused variable?
 //------------------
 
 	Short_t	nIntersectionsCircle;
@@ -1891,18 +1891,18 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight(
 //  It returns -1 if there are 0 or 1 intersections, 0 if there are at least 2 intersections.
 
 
-	Double_t	cosFi,
-			theta1,
-			theta2,
-			Theta1,
-			Theta2,
-			aaa,
-			Fi,
-			FI0,
-			x1,
-			x2,
-			y1,
-			y2;
+	//Double_t	cosFi, //[R.K. 01/2017] unused variable?
+			//theta1, //[R.K. 01/2017] unused variable?
+			//theta2, //[R.K. 01/2017] unused variable?
+			//Theta1, //[R.K. 01/2017] unused variable?
+			//Theta2, //[R.K. 01/2017] unused variable?
+			//aaa, //[R.K. 01/2017] unused variable?
+			//Fi, //[R.K. 01/2017] unused variable?
+			//FI0, //[R.K. 01/2017] unused variable?
+			//x1, //[R.K. 01/2017] unused variable?
+			//x2, //[R.K. 01/2017] unused variable?
+			//y1, //[R.K. 01/2017] unused variable?
+			//y2; //[R.K. 01/2017] unused variable?
 //------------------
 
 	Short_t	nIntersectionsCircle,
@@ -2023,18 +2023,18 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitHexagonCircleRight2(
 
 	Short_t		nIntersections;
 
-	Double_t	cosFi,
-			theta1,
-			theta2,
-			Theta1,
-			Theta2,
-			aaa,
-			Fi,
-			FI0,
-			x1,
-			x2,
-			y1,
-			y2;
+	//Double_t	cosFi, //[R.K. 01/2017] unused variable?
+			//theta1, //[R.K. 01/2017] unused variable?
+			//theta2, //[R.K. 01/2017] unused variable?
+			//Theta1, //[R.K. 01/2017] unused variable?
+			//Theta2, //[R.K. 01/2017] unused variable?
+			//aaa, //[R.K. 01/2017] unused variable?
+			//Fi, //[R.K. 01/2017] unused variable?
+			//FI0, //[R.K. 01/2017] unused variable?
+			//x1, //[R.K. 01/2017] unused variable?
+			//x2, //[R.K. 01/2017] unused variable?
+			//y1, //[R.K. 01/2017] unused variable?
+			//y2; //[R.K. 01/2017] unused variable?
 //------------------
 
 	Short_t	nIntersectionsCircle;
@@ -2148,8 +2148,8 @@ bool PndTrkCTGeometryCalculations::IntersectionCircle_Segment(
 		 cperp,
 		 det,
 		 distq,
-		 dist1,
-		 dist2,
+		 //dist1, //[R.K. 01/2017] unused variable?
+		 //dist2, //[R.K. 01/2017] unused variable?
 		 length,
 		 length_segmentq,
 		 Rq,
@@ -2240,8 +2240,8 @@ bool PndTrkCTGeometryCalculations::IntersectionCircle_Segment_forScitil(
 		 cperp,
 		 det,
 		 distq,
-		 dist1,
-		 dist2,
+		 //dist1, //[R.K. 01/2017] unused variable?
+		 //dist2, //[R.K. 01/2017] unused variable?
 		 length,
 		 length_segmentq,
 		 Rq,
@@ -2383,7 +2383,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedbiHexagonLeft(
 	bool	internal,
 		AtLeast1;
 
-	Short_t i,
+	Short_t //i, //[R.K. 01/2017] unused variable?
 		 is,
 		 j,
 		 Nintersections;
@@ -2526,7 +2526,7 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithClosedbiHexagonRight(
 	bool	internal,
 		AtLeast1;
 
-	Short_t i,
+	Short_t //i, //[R.K. 01/2017] unused variable?
 		 is,
 		 j,
 		 Nintersections;
@@ -2893,13 +2893,13 @@ Short_t  PndTrkCTGeometryCalculations::IntersectionsWithOpenPolygon(
 
 	// this methods returns the n. of intersections.
 
-	Short_t i,
+	Short_t //i, //[R.K. 01/2017] unused variable?
 		 is,
 		 j,
 		 nIntersections,
 		 Nintersections;
 
-	Double_t mindist,
+	Double_t //mindist, //[R.K. 01/2017] unused variable?
 		 distance,
 	//-------------------
 	// a,b,c == coefficients of the implicit equations of the six sides of the Hexagon
@@ -3993,8 +3993,8 @@ bool PndTrkCTGeometryCalculations::IsInternal(
 	Short_t
 		half,
 		i,
-		ihit,
-		j,
+		//ihit, //[R.K. 01/2017] unused variable?
+		//j, //[R.K. 01/2017] unused variable?
 		jArc,
 		n,
 		nArcs,
@@ -4008,19 +4008,19 @@ bool PndTrkCTGeometryCalculations::IsInternal(
 		AllYOrderedList[56],
 		fi,
 		FiStart,
-		Start[3],
-		FiOrderedList12[12],	// at most 12 intersections; ordered according to charge of the track
+		Start[3];
+		//FiOrderedList12[12], //[R.K. 01/2017] unused variable?	// at most 12 intersections; ordered according to charge of the track
 					// assuming it originated from (0,0,0);
-		FiOrderedList16[16];	// at most 16 intersections; ordered according to charge of the track
+		//FiOrderedList16[16]; //[R.K. 01/2017] unused variable?	// at most 16 intersections; ordered according to charge of the track
 					// assuming it originated from (0,0,0);
 
 
 
-Double_t
-		XintersectionList12[12],	// at most 12 intersections;
-		XintersectionList16[16],	// at most 16 intersections;
-		YintersectionList12[12],	// at most 12 intersections;
-		YintersectionList16[16];	// at most 16 intersections;
+//Double_t
+		//XintersectionList12[12],	// at most 12 intersections; //[R.K. 01/2017] unused variable?
+		//XintersectionList16[16],	// at most 16 intersections; //[R.K. 01/2017] unused variable?
+		//YintersectionList12[12],	// at most 12 intersections; //[R.K. 01/2017] unused variable?
+		//YintersectionList16[16];	// at most 16 intersections; //[R.K. 01/2017] unused variable?
 
 
 

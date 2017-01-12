@@ -169,7 +169,7 @@ void PndTrkMergeSort::Merge_Sort(
 	Int_t *ind)
 {
 
-  Int_t nr, nl, middle, i,
+  Int_t middle, i,//nr,  nl, //[R.K. 01/2017] unused variable?
 	ind_left[n_ele], ind_right[n_ele];
 
   Double_t left[n_ele], right[n_ele];
@@ -223,7 +223,7 @@ void PndTrkMergeSort::Merge_Sort2(
 	Short_t *ind)
 {
 
-  Short_t nr, nl, middle, i,
+  Short_t middle, i,//nr, nl,  //[R.K. 01/2017] unused variable?
 	ind_left[n_ele], ind_right[n_ele];
 
   Double_t left[n_ele], right[n_ele];
@@ -277,7 +277,7 @@ void PndTrkMergeSort::Merge_Sort3(
 	Short_t *ind)
 {
 
-  Short_t nr, nl, middle, i,
+  Short_t middle, i,// nr, nl, //[R.K. 01/2017] unused variable?
 	ind_left[n_ele], ind_right[n_ele];
 
   Int_t left[n_ele], right[n_ele];

@@ -283,7 +283,7 @@ void PndRhoTupleQA::qaComp(TString pre, RhoCandidate *c, RhoTuple *n, bool covs,
   if (n==0) return;
 
   // what kind of particle?
-  int pdg = c->PdgCode();
+  //int pdg = c->PdgCode(); //[R.K. 01/2017] unused variable
 
   // special composite particle?
   // pi0 or eta?

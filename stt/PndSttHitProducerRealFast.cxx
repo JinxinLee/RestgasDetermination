@@ -243,7 +243,7 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     // charge calculation
     Double_t depcharge = stt.FastPartToADC(); // CHECK   arbitrary units!
     // dE/dx calculation postponed
-    Double_t dedx = -999;
+    //Double_t dedx = -999; //[R.K. 01/2017] unused variable?
 
     // error calculation according to the curve chosen by flag
     Double_t closestDistanceError = GetError(radius, flag); 
@@ -298,8 +298,8 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
 void PndSttHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, 
 						    TVector3 localInPos, TVector3 localOutPos)
 {
-  Double_t
-    zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.;
+  //Double_t
+    //zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.; //[R.K. 01/2017] unused variable?
  
   //  zposError = gRandom->Gaus(0., GetLongitudinalResolution(zPosInStrawFrame));
   zposError = gRandom->Gaus(0., 3.); // per adesso (stesso che in Ideal: 

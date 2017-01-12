@@ -199,7 +199,7 @@ InitStatus LmdPairFinderTask::Init() {
 	fFolderName = "cbmsim";
 	SetBranchNames();
 
-	FairRun* ana = FairRun::Instance();
+	//FairRun* ana = FairRun::Instance(); //[R.K. 01/2017] unused variable?
 	FairRootManager* ioman = FairRootManager::Instance();
 
 	if (!ioman)	{
@@ -303,7 +303,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 	sumOfPixelHits +=nPixels;
 
 	int hitSensorId, col, row;
-	int sortedHits=0;
+	//int sortedHits=0; //[R.K. 01/2017] unused variable?
 
 	//display some kind of progress
 	if((noOfEvents%10000)==0){
@@ -486,7 +486,7 @@ void LmdPairFinderTask::FinishEvent() {
 
 void LmdPairFinderTask::FinishTask() {
 
-	Int_t sumOfEvents;
+	//Int_t sumOfEvents; //[R.K. 01/2017] unused variable?
 	Int_t sumOfAllPlanes=plane0+plane1+plane2+plane3;
 	double plane0Percent = ((double)plane0/noOfGoodPairs)*100;
 	double plane1Percent = ((double)plane1/noOfGoodPairs)*100;

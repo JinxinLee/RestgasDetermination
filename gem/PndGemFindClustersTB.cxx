@@ -154,7 +154,7 @@ void PndGemFindClustersTB::Exec(Option_t* opt) {
   Int_t nDigis    = fDigis->GetEntries();
   Int_t nClusters = 0;
 
-  Int_t nofCreatedClusters = CreateClusters();
+  Int_t nofCreatedClusters = CreateClusters(); //FIXME: unused variable?
   fCreateTime+=fTimer.RealTime();
   fTimer.Continue();
 

@@ -9,7 +9,7 @@ Bool_t PndPidCorrelator::GetFtsInfo(PndTrack* track, PndPidCandidate* pidCand) {
   std::vector<Double_t> dedxvec;
   dedxvec.clear();
 
-  Double_t tuberadius = fFtsParameters->GetTubeInRad(); 
+  //Double_t tuberadius = fFtsParameters->GetTubeInRad();  //[R.K. 01/2017] unused variable
   
   Int_t ftsCounts = 0, ftsRawCounts = 0;
   PndTrackCand trackCand = track->GetTrackCand();

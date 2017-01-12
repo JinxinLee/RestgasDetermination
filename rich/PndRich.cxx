@@ -161,7 +161,7 @@ Bool_t  PndRich::ProcessHits(FairVolume* vol)
 {
   /** This method is called from the MC stepping */
   TString nam =vol->GetName();
-  Int_t num = vol->getMCid();
+  //Int_t num = vol->getMCid(); //[R.K. 01/2017] unused variable?
 
   //Set parameters at entrance of volume. Reset ELoss.
   Int_t fEventID = gMC->CurrentEvent();

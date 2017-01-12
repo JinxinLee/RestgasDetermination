@@ -49,7 +49,7 @@ void PndMdt::PndMdtForward()
   FairGeoMedium *medmdtVac  = Media->getMedium("vacuum");
   Int_t  kMedmdtVac=geobuild->createMedium(medmdtVac);
     
-  char fe[12], hl[12], ffe[12], gas[12], hgas[12], ggas[12];
+  //char fe[12], hl[12], ffe[12], gas[12], hgas[12], ggas[12]; //[R.K. 01/2017] unused variable?
   Char_t buffer[255];
   TGeoTranslation *frotfe[16]; 
   TGeoTranslation *frotgas[17];

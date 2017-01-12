@@ -621,28 +621,28 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	double cA2uiz = cA2diz - 0.1 / tan(cone_angle);
 	double cA2uiy = cA2diy + 0.1;
 	double cA2uoy = cA2uiy + tA2thick;
-	double cA2uoz = cA2uiz;
+	//double cA2uoz = cA2uiz; //[R.K. 01/2017] unused variable?
 	double cA2doy = cA2diy + tA2thick;
 	double cA2doz = cA2diz;
 
 	double tbruiz = cbrdiz;
 	double tbruiy = cbrdiy;
-	double tbruoz = cbrdoz;
+	//double tbruoz = cbrdoz; //[R.K. 01/2017] unused variable?
 	double tbruoy = cbrdoy;
 
 	double tbrdiz = tbruiz + 2.;
 	double tbrdiy = tbruiy;
-	double tbrdoz = tbrdiz;
+	//double tbrdoz = tbrdiz; //[R.K. 01/2017] unused variable?
 	double tbrdoy = tbruoy;
 
-	double tA2uoz = cA2doz;
+	//double tA2uoz = cA2doz; //[R.K. 01/2017] unused variable?
 	double tA2uoy = cA2doy;
 	double tA2uiz = cA2diz;
 	double tA2uiy = cA2diy;
 
 	double tA2diz = tA2uiz + 44.;
 	double tA2diy = tA2uiy;
-	double tA2doz = tA2uiz;
+	//double tA2doz = tA2uiz; //[R.K. 01/2017] unused variable?
 	double tA2doy = tA2uoy;
 
 	TGeoCone* lmd_capton_cone = new TGeoCone("lmd_capton_cone",
@@ -1752,8 +1752,8 @@ bool PndLmdDim::Read_transformation_matrices_from_geometry(bool aligned) {
 		}
 		matrices->clear();
 
-		int matrices_counter(0);
-		TGeoHMatrix* matrix;
+		//int matrices_counter(0); //[R.K. 01/2017] unused variable?
+		//TGeoHMatrix* matrix; //[R.K. 01/2017] unused variable?
 
 		TGeoVolume* vol = gGeoMan->FindVolumeFast(nav_paths[0].c_str());
 		if (vol) { // check only the existence of the top node, everything else will be not checked, so earlier simulations will fail here
@@ -1918,7 +1918,7 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned) {
 			return false;
 		}
 
-		int matrices_counter(0);
+		//int matrices_counter(0); //[R.K. 01/2017] unused variable?
 		TGeoHMatrix* matrix;
 		TGeoHMatrix* matrix_mother;
 
@@ -1955,8 +1955,8 @@ bool PndLmdDim::Write_transformation_matrices_to_geometry(bool aligned) {
 				gGeoMan->cd(path_to_half.str().c_str());
 				// get the original matrix to subtract it
 				// I'm not sure if it is always correct
-				TGeoHMatrix* half_matrix = Get_matrix(path_to_half.str(), false, ihalf,
-						-1, -1, -1, -1, -1);
+				//TGeoHMatrix* half_matrix = Get_matrix(path_to_half.str(), false, ihalf,
+						//-1, -1, -1, -1, -1); //[R.K. 01/2017] unused variable?
 				//matrix = (TGeoHMatrix*) Get_matrix(ihalf,-1,-1,-1,-1,-1, aligned);
 				//if (matrix) Set_matrix(path_to_half.str(), matrix,
 				//		ihalf, -1, -1, -1, -1, -1);

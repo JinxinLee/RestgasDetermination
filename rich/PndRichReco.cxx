@@ -111,7 +111,7 @@ namespace {
     
     double thc0(double thc_, double phc_, double nopt, double beta, double nnz)
     {
-       Double_t cphc_ = std::cos(phc_);
+       //Double_t cphc_ = std::cos(phc_); //[R.K. 01/2017] unused variable?
        Double_t sphc_ = std::sin(phc_);
        Double_t sphc2_ = sphc_*sphc_;
        Double_t nopt2 = nopt*nopt;
@@ -121,14 +121,14 @@ namespace {
        if (cthc>1) cthc = 1;
        Double_t stht2 = 1-ctht*ctht;
        Double_t sthc2 = 1-cthc*cthc;
-       Double_t stht = std::sqrt(stht2);
+       //Double_t stht = std::sqrt(stht2); //[R.K. 01/2017] unused variable?
        Double_t sthc = std::sqrt(sthc2);
        Double_t cthc_ = cthc, sthc_ = sthc;
        Double_t p;
-       Double_t A0, A1, A2;
-       Double_t B0, B1, B2;
+       Double_t A0, A1;//, A2; //[R.K. 01/2017] unused variable?
+       Double_t B0, B1;//, B2; //[R.K. 01/2017] unused variable?
        Double_t C0;
-       Double_t F0, F1, F2;
+       Double_t F0, F1;//, F2; //[R.K. 01/2017] unused variable?
        for(Int_t i=0; i<10; i++) {
           p = (cthc_-nopt*cthc)/ctht;
           A0 = (1-nopt2)/p-p-2*nopt*ctht*cthc;
@@ -672,10 +672,10 @@ double PndRichReco::BetaPeakFinding(std::vector<PndRichPhoton> photons,
    Int_t nch = 60;
    Double_t bmin = 1.0/nopt;
    Double_t bmax = 1+(1-bmin)*0.2;
-   Double_t dbeta = (bmax-bmin)/nch;
+   //Double_t dbeta = (bmax-bmin)/nch; //[R.K. 01/2017] unused variable?
    Double_t beta = 1.0;
-   Double_t thcmin = 0;
-   Double_t thcmax = std::acos(bmin);
+   //Double_t thcmin = 0; //[R.K. 01/2017] unused variable?
+   //Double_t thcmax = std::acos(bmin); //[R.K. 01/2017] unused variable?
    Double_t bim = 0;
    Int_t ibm = -1;
    Double_t dtm = 0.5;

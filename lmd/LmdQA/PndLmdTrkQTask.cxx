@@ -144,8 +144,8 @@ InitStatus PndLmdTrkQTask::Init()
   // ioman->Register("DetName", "TrkQ", fDetName, kTRUE);
 
   // fGeoH = PndGeoHandling::Instance();
-  FairRun* fRun = FairRun::Instance();
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  //FairRun* fRun = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb = fRun->GetRuntimeDb(); //[R.K. 01/2017] unused variable
   //  TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
   //  fdbPDG = TDatabasePDG::Instance();
 
@@ -192,14 +192,14 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
     const int nMCHits = fMCHits->GetEntriesFast();
     
     const int nTrkCandidates = fRecCandTracks->GetEntriesFast();
-    const int nRecTrks = fRecTracks->GetEntriesFast();
+    //const int nRecTrks = fRecTracks->GetEntriesFast(); //[R.K. 01/2017] unused variable
     if(fVerbose>0)  
       cout<<"%%%%%! Event #"<<fEventNr<<" has "<<nParticles<<" true particles, "<<" out of it "<<nRecHits<<" hits, "<<nTrkCandidates
 	  <<" trk-cands, "<<numTrk<<" tracks and "<<nGeaneTrks<<" geane Trks!"<<endl;
    
     /// Set signal/bkg flag ----------------------------------------------------
     int sumID=0;
-    int TotCharge=0;
+    //int TotCharge=0; //[R.K. 01/2017] unused variable
     for (Int_t iN=0; iN<nParticles; iN++){
       PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(iN);
       glPDG = mctrk->GetPdgCode();
@@ -302,7 +302,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       glNumDoubleMChits=-9999;
 
       PndTrack *trkpnd = (PndTrack*)fRecTracks->At(iN);
-      double chi2 = trkpnd->GetChi2();
+      //double chi2 = trkpnd->GetChi2(); //[R.K. 01/2017] unused variable
       FairTrackParP fFittedTrkP = trkpnd->GetParamFirst();
       TVector3 PosRecLMD(fFittedTrkP.GetX(),fFittedTrkP.GetY(),fFittedTrkP.GetZ());
       TVector3 MomRecLMD(fFittedTrkP.GetPx(),fFittedTrkP.GetPy(),fFittedTrkP.GetPz());
@@ -330,7 +330,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
     ///-------------------------------------------------------------------
 
     /// Set MC ID for each track ----------------------------------------------------
-    Int_t nRecGEANEtrk = 0;
+    //Int_t nRecGEANEtrk = 0; //[R.K. 01/2017] unused variable
     int MCtrk[nParticles]; //Number of participation this MCid in rec.tracks
     int RECtrkMCid[nGeaneTrks];//Assignment MC id to REC trk;
     for(int nk=0;nk<nParticles;nk++)
@@ -343,7 +343,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       RECtrkMCid[iN]=-1;
     }
 
-    int goodRectrk=0;//for missed trk-search
+    //int goodRectrk=0;//for missed trk-search //[R.K. 01/2017] unused variable
     for (Int_t iN=0; iN<nGeaneTrks; iN++){// loop over all reconstructed trks
       FairTrackParH *fRes = (FairTrackParH*)fRecBPTracks->At(iN);
       TVector3 PosRec = fRes->GetPosition();
@@ -353,7 +353,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       }
         
       PndTrack *trkpnd = (PndTrack*)fRecTracks->At(iN);
-      double chi2 = trkpnd->GetChi2();
+      //double chi2 = trkpnd->GetChi2(); //[R.K. 01/2017] unused variable
       int candID = trkpnd->GetRefIndex();
       //if(fVerbose>5) cout<<"candID = "<<candID<<endl;
       PndTrackCand *trkcand = (PndTrackCand*)fRecCandTracks->At(candID);    

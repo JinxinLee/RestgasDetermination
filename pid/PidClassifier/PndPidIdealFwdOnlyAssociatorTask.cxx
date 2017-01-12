@@ -99,7 +99,7 @@ void PndPidIdealFwdOnlyAssociatorTask::Exec(Option_t * option) {
     if(fVerbose>1) std::cout<<"-I- PndPidIdealFwdOnlyAssociatorTask Charged AFTER   "<< pidcand->GetLorentzVector().M()<<std::endl;;
   }
   for(Int_t i=0; i<fPidNeutralCand->GetEntriesFast(); i++){
-    PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
+    //PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i); //[R.K. 01/2017] unused variable
     PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(1.,1.,1.,1.,1.,i);
     // initializes with eqaual pdf (no preference)
     //DoPidMatch(pidcand,prob); //TODO match idealy neutral cands, esp. when we have pi0s 

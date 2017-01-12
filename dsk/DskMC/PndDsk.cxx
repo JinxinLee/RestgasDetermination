@@ -126,8 +126,8 @@ void
 PndDsk::Initialize()
 {
   FairDetector::Initialize();
-  FairRun       *sim  = FairRun::Instance();
-  FairRuntimeDb *rtdb = sim->GetRuntimeDb();
+  //FairRun       *sim  = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb *rtdb = sim->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
   SetTrapFraction("$VMCWORKDIR/input/trapfrac_disc.root");
 }
 

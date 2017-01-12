@@ -47,7 +47,7 @@ Bool_t PndGiBuuGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 {
 
 	Int_t GiBuuPid = 0, GiBuuCharge = 0;
-	Int_t runId = 0;
+	//Int_t runId = 0; //[R.K. 01/2017] unused variable?
 	Int_t motherId1 = 0;
 	Int_t motherId2 = 0;
 	Int_t dummyInt = 0;

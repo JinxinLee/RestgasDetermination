@@ -173,15 +173,15 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     if(radius < 0.) radius = 0.; // CHECK
       
     // true radius (cm)
-    double true_rad = stt.TrueDist(InOut);
+    //double true_rad = stt.TrueDist(InOut); //[R.K. 01/2017] unused variable?
 
     // dE calculation
     double depCharge = stt.PartToADC();
       
     // dE/dx calculation
-    double dedx = -999;
+    //double dedx = -999; //[R.K. 01/2017] unused variable?
     
-    Double_t halflength = tube->GetHalfLength(); // CHECK added
+    //Double_t halflength = tube->GetHalfLength(); // CHECK added //[R.K. 01/2017] unused variable?
 
 
     // stt2: detID, pos, dpos, index come from --------------
@@ -226,8 +226,8 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
 void PndSttHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, 
 						    TVector3 localInPos, TVector3 localOutPos)
 {
-  Double_t
-    zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.;
+  //Double_t
+    //zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.; //[R.K. 01/2017] unused variable?
  
   //  zposError = gRandom->Gaus(0., GetLongitudinalResolution(zPosInStrawFrame));
   zposError = gRandom->Gaus(0., 3.); // per adesso (stesso che in Ideal: 

@@ -219,7 +219,7 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
   PndTrack*     globalTrack;
   PndTrackCand* globalTrackCand;
   PndTrackCandHit candHit;
-  FairHit* detHit;
+  //FairHit* detHit; //[R.K. 01/2017] unused variable?
   FairTrackParP firstPar;
   FairTrackParP  lastPar;
   for ( Int_t itr = 0 ; itr < nofMCTracks ; itr++ ) {

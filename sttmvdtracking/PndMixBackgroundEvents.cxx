@@ -227,7 +227,7 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 			iStrip,
 			iStt,
 			j,
-			k,
+			//k, //[R.K. 01/2017] unused variable?
 			k1,
 			k2,
 			k3;
@@ -235,7 +235,7 @@ void PndMixBackgroundEvents::Exec(Option_t* opt) {
 	Double_t	modified,
 			times[NMAXBCKGRND];
 
-	PndSttTube * pSttTube;
+	//PndSttTube * pSttTube; //[R.K. 01/2017] unused variable?
 
 	PndSttHit * pSttHit;
 

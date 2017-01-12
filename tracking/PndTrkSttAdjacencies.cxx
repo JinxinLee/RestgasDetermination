@@ -29,7 +29,7 @@ using namespace std;
 		Short_t ListParContiguous[][6]  // output list (axial Stt); first dimension is NUMBER_STRAWS;
 						)
  {
-	int i,j,n, ncontigue;
+	int i,j;  //n, ncontigue, //[R.K. 01/2017] unused variable?
 
 //	FILE *HAND = fopen("ListaSttStraw.lis","w");
 
@@ -99,7 +99,7 @@ using namespace std;
 		Double_t *rxy2	// X*X+Y*Y position center of tube;
 						)
  {
-	int i,j,n, ncontigue;
+	int i,j;//,n, ncontigue; //[R.K. 01/2017] unused variable?
 
 //	FILE *HAND = fopen("ListaSttStraw.lis","w");
 

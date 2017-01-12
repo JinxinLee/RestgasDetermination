@@ -838,7 +838,7 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt(PndRiemannTrack* track, 
 //	double maxSZDist = 10;
 //	double szChi2 = track->calcSZChi2(hit);
 //	double maxSZChi2 = 25;
-	double r = track->r();
+	//double r = track->r(); //[R.K. 01/2017] unused variable?
 	bool sign;
 	if ((track->getHit(1)->z())>0 )
 		sign=true;
@@ -879,7 +879,7 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitSkewedStt(PndRiemannTrack* t
 //	double maxSZDist = 10;
 //	double szChi2 = track->calcSZChi2(hit);
 //	double maxSZChi2 = 25;
-	double r = track->r();
+	//double r = track->r(); //[R.K. 01/2017] unused variable?
 	bool sign;
 	if ((track->getHit(1)->z())>0 )
 		sign=true;
@@ -914,8 +914,8 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitGem(PndRiemannTrack* track, 
 	double maxSZDist = 10;
 	double szChi2 = track->calcSZChi2(hit);
 	double maxSZChi2 = 25;
-	double r = track->r();
-	double dip=track->dip();
+	//double r = track->r(); //[R.K. 01/2017] unused variable?
+	//double dip=track->dip(); //[R.K. 01/2017] unused variable?
 	bool sign;
 	if ((track->getHit(1)->z())>0 )
 		sign=true;
@@ -941,7 +941,7 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitGem(PndRiemannTrack* track, 
 
 bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitMvd(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit)
 {
-	double oldSZChi2 = track->szChi2();
+	//double oldSZChi2 = track->szChi2(); //[R.K. 01/2017] unused variable?
 	double dist = track->dist(hit);
 	double szDist = track->szDist(hit);
 	double szChi2 = track->calcSZChi2(hit);

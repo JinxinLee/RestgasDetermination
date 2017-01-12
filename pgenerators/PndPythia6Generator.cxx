@@ -63,9 +63,9 @@ Bool_t PndPythia6Generator::ReadEvent(FairPrimaryGenerator* primGen) {
   
   // Read event header line from input file
 
-  Int_t max_nr = 0;
+  //Int_t max_nr = 0; //[R.K. 01/2017] unused variable?
   
-  Text_t buffer[200];
+  //Text_t buffer[200]; //[R.K. 01/2017] unused variable?
   ncols = fscanf(fInputFile,"%d\t%d", &eventID, &ntracks);
   
   if (ncols && ntracks>0) {

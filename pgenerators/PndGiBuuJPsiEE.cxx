@@ -51,7 +51,7 @@ std::vector<PndGiBuuTrack> PndGiBuuJPsiEE::DecayTrack(PndGiBuuTrack track)
 	JPsiP4.SetXYZM(JPsiP3.X(),JPsiP3.Y(),JPsiP3.Z(),JPsiMass);
 
 	TParticlePDG* eplusPDG = pdgBase->GetParticle(-11);
-	TParticlePDG* eminusPDG = pdgBase->GetParticle(11);
+	//TParticlePDG* eminusPDG = pdgBase->GetParticle(11); //[R.K. 01/2017] unused variable?
 
 	Double_t eMass = eplusPDG->Mass();
 

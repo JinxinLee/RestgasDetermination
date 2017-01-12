@@ -9,7 +9,7 @@ Bool_t PndPidCorrelator::GetDskInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   PndDskParticle *dskParticle = NULL;
   Int_t dskEntries = fDskParticle->GetEntriesFast();
   Int_t dskIndex = -1, dskPhot = 0;
-  Float_t dskThetaC = -1000, dskThetaCErr = 0, dskGLength = -1000;
+  Float_t dskThetaC = -1000,dskGLength = -1000; //dskThetaCErr = 0,  //[R.K. 01/2017] unused variable
   Float_t dskQuality = 1000000;
   Float_t x_p = -1000;
   

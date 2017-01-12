@@ -149,7 +149,7 @@ void PndFtsHitProducerMcPointCoordinates::Exec(Option_t* opt) {
     Int_t tubeID = point->GetTubeID();
     Int_t chamberID=point->GetChamberID();
     Int_t layerID=point->GetLayerID();
-    PndFtsTube *tube = (PndFtsTube*) fTubeArray->At(tubeID);
+    //PndFtsTube *tube = (PndFtsTube*) fTubeArray->At(tubeID); //[R.K. 01/2017] unused variable?
 
     //if skewed tube: skew==1
     if(layerID>=3 && layerID<=6){skew=1;} //skewed tudes fts1
@@ -215,7 +215,7 @@ void PndFtsHitProducerMcPointCoordinates::Exec(Option_t* opt) {
     // charge calculation
     Double_t depcharge = fts.FastPartToADC(); // CHECK   arbitrary units!
     // dE/dx calculation postponed
-    Double_t dedx = -999;
+    //Double_t dedx = -999; //[R.K. 01/2017] unused variable?
 
     // stt2: detID, pos, dpos, index come from --------------
     // stt2 (FairHit):
@@ -253,8 +253,8 @@ void PndFtsHitProducerMcPointCoordinates::FoldZPosWithResolution(Double_t &zpos,
 {
 
 
-  Double_t
-    zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.;
+  //Double_t //[R.K. 01/2017] unused variable
+    //zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.; //[R.K. 01/2017] unused variable?
 
   //  zposError = gRandom->Gaus(0., GetLongitudinalResolution(zPosInStrawFrame));
   zposError = gRandom->Gaus(0., 3.); // per adesso (stesso che in Ideal:

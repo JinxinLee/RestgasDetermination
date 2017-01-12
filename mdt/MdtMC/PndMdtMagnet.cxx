@@ -50,7 +50,7 @@ void PndMdt::PndMdtMagnet()
   int k;
   Double_t dx1, dx2, dy1, dy2, dz;
   TGeoRotation tRot, tRotSlice;
-  Double_t angle;
+  //Double_t angle; //[R.K. 01/2017] unused variable?
 
   FairGeoLoader*geoLoad = FairGeoLoader::Instance();
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();

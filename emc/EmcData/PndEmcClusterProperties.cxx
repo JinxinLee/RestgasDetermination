@@ -207,7 +207,7 @@ PndEmcClusterProperties::LinearWhere()
 	{
 		PndEmcDigi *lDigi = (PndEmcDigi *) DigiArray()->At(*current);
 		PndEmcTwoCoordIndex *tci = lDigi->GetTCI(); 
-		PndEmcXtal* xtal = tciXtalMap.find(tci)->second;
+		//PndEmcXtal* xtal = tciXtalMap.find(tci)->second; //[R.K. 01/2017] unused variable?
 		
 		const TVector3 lDigiWhere=lDigi->where();
 		

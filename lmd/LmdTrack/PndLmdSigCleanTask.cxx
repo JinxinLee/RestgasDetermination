@@ -107,8 +107,8 @@ InitStatus PndLmdSigCleanTask::Init()
   ioman->Register("LMDCleanTrack","PndLmd", fTrackParFinal, kTRUE);
 
   fGeoH = PndGeoHandling::Instance();
-  FairRun* fRun = FairRun::Instance();
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  //FairRun* fRun = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb = fRun->GetRuntimeDb(); //[R.K. 01/2017] unused variable
 
   //TMVA -----------------------------------------------------
   // This loads the library

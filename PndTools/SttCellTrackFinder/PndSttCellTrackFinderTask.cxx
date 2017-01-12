@@ -167,7 +167,7 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 
 	FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader;
-	int eventNumber = myEventHeader->GetMCEntryNumber();
+	//int eventNumber = myEventHeader->GetMCEntryNumber(); //[R.K. 01/2017] unused variable?
 
 	if (fVerbose > 0) {
 		cout
@@ -225,7 +225,7 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 		std::map<int, FairHit*> correctedIsochrones =
 				fTrackFinder->GetCorrectedIsochrones();
 
-		int indexCounter = 0;
+		//int indexCounter = 0;
 		for (std::map<int, FairHit*>::iterator iter =
 				correctedIsochrones.begin(); iter != correctedIsochrones.end();
 				iter++) {

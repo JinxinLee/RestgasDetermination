@@ -188,8 +188,8 @@ Double_t PndEmcClusterHistCalibrator::Energy(PndEmcCluster *theCluster, Int_t pi
 	
 	Int_t module=theCluster->GetModule();
  
-	TH2F *fHEnergyRatioBarrel, *fHThetaDiffBarrel, *fHEnergyRatioFwd, *fHThetaDiffFwd, 
-	*fHEnergyRatioBwd, *fHThetaDiffBwd, *fHEnergyRatioShashlyk, *fHThetaDiffShashlyk;
+	//TH2F *fHEnergyRatioBarrel, *fHThetaDiffBarrel, *fHEnergyRatioFwd, *fHThetaDiffFwd, 
+	//*fHEnergyRatioBwd, *fHThetaDiffBwd, *fHEnergyRatioShashlyk, *fHThetaDiffShashlyk; //[R.K. 01/2017] unused variable?
 	
 	switch (pid)
 	{

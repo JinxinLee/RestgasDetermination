@@ -129,7 +129,7 @@ Bool_t PndRecoDafFit2::Init()
 	}
     }
   
-  TClonesArray *sttr;  TClonesArray* sthit; 
+  TClonesArray* sthit; //TClonesArray *sttr;   //[R.K. 01/2017] unused variable?
 
   if (fCentralTrackerBranchName == "Mix")
     {
@@ -197,7 +197,7 @@ PndTrack* PndRecoDafFit2::Fit(PndTrack *tBefore, Int_t PDG)
       return tAfter; // flag -10 : pz==0
     }
   
-  Int_t  fCharge= tBefore->GetParamFirst().GetQ();
+  //Int_t  fCharge= tBefore->GetParamFirst().GetQ(); //[R.K. 01/2017] unused variable?
   Int_t PDGCode= PDG;
   TVector3 StartPos(tBefore->GetParamFirst().GetX(),tBefore->GetParamFirst().GetY(),tBefore->GetParamFirst().GetZ()); 
   TVector3 StartMom(tBefore->GetParamFirst().GetPx(),tBefore->GetParamFirst().GetPy(),tBefore->GetParamFirst().GetPz());

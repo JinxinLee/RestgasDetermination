@@ -120,7 +120,7 @@ void PndHypIdealRecoTask::Exec(Option_t* opt)
   for(Int_t iHypHit=0;iHypHit<nHypHits;++iHypHit)
     {
       fCurrentHypPoint=(PndHypPoint*)fPointArray->At(iHypHit);
-      int trackid=fCurrentHypPoint->GetTrackID();
+      //int trackid=fCurrentHypPoint->GetTrackID(); //[R.K. 01/2017] unused variable
       int size = fHitOutputArray->GetEntriesFast();
       InitTransMat();
       

@@ -281,7 +281,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 { 
   
  
-  Double_t beta, gamma;	TString nam;
+  Double_t beta;	TString nam; //Double_t gamma; //[R.K. 01/2017] unused variable
   Int_t nSiL = -1,nAbL = -1;
   ostringstream FullName,matName;
   

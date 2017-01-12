@@ -99,7 +99,7 @@ void PndTrackDraw::Exec(Option_t* option)
 
 	if(fVerbose>1)  cout << " PndTrackDraw::Exec "<< endl;
     PndTrack *tr;
-    const Double_t *point;
+    //const Double_t *point; //[R.K. 01/2017] unused variable
 
     Reset();
     fTrackCandDraw->Reset();
@@ -210,10 +210,10 @@ void PndTrackDraw::Exec(Option_t* option)
     }
     gEve->AddElement((TEveBoxSet*)myBoxSet, fEventManager);
 
-    for (Int_t i=0; i<fEveTrList->GetEntriesFast(); i++){
-       TEveTrackList *TrListIn=( TEveTrackList *) fEveTrList->At(i);
+    //for (Int_t i=0; i<fEveTrList->GetEntriesFast(); i++){ //[R.K. 01/2017] unused variable
+       //TEveTrackList *TrListIn=( TEveTrackList *) fEveTrList->At(i); //[R.K. 01/2017] unused variable
        //TrListIn->FindMomentumLimits(TrListIn, kFALSE);
-    }
+    //} //[R.K. 01/2017] unused variable
   //  fEventManager->SetEvtMaxEnergy(MaxEnergyLimit);
   //  fEventManager->SetEvtMinEnergy(MinEnergyLimit);
     gEve->Redraw3D(kFALSE);

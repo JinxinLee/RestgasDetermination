@@ -175,8 +175,8 @@ void PndLmdNoiseProducer::Exec(Option_t* opt)
 {
   //   TObjArray* activeSensors = fGeoPar->GetGeoSensitiveNodes();
   Int_t nrCh=0,rnd=0,
-  nrFE=0,sens=0,
-  nrSensors=0,fe=0,
+  nrFE=0, //sens=0, //[R.K. 01/2017] unused variable?
+  fe=0, //nrSensors=0, //[R.K. 01/2017] unused variable?
   chanmax=0,chan=0,
   col=0,row=0,
   chanwhite=0,

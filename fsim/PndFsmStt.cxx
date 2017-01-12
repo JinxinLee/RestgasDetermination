@@ -208,7 +208,7 @@ PndFsmStt::detected(PndFsmTrack *t) const
 
     
 	  double theta  = t->p4().Theta();
-	  double p      = t->p4().Vect().Mag();
+	  //double p      = t->p4().Vect().Mag(); //[R.K. 01/2017] unused variable
 	  double p_t    = t->p4().Vect().Pt();
 	  double charge=t->charge();
 	  

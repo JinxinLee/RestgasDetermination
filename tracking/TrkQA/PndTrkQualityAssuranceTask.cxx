@@ -283,10 +283,10 @@ PndTrkMCTrackInfo PndTrkQualityAssuranceTask::GetMCInfoFromIdealTrack(PndTrack *
   
   PndTrackCand *idealtrkcand = idealtrack->GetTrackCandPtr();
     
-  Int_t nofsttpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch));
+  //Int_t nofsttpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch)); //[R.K. 01/2017] unused variable
   Int_t nofmvdpixpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch));
   Int_t nofmvdstrpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch));
-  int nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint;
+  //int nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint; //[R.K. 01/2017] unused variable
   Int_t nofscitilpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSciTBranch));
   Int_t nofgempoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fGemBranch));
   
@@ -306,7 +306,7 @@ PndTrkMCTrackInfo PndTrkQualityAssuranceTask::GetMCInfoFromIdealTrack(PndTrack *
   }
   // -------------------------------------------------------
   // CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK 
-  //    temporary hacking not to save the SciTil to PndTrackCand CHECK CHECK CHECK CHECK 
+  // FIXME   temporary hacking not to save the SciTil to PndTrackCand  CHECK CHECK CHECK  
   // CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK CHECK 
   nofscitilpoint = 0;
 
@@ -362,12 +362,12 @@ PndTrkRecoTrackInfo PndTrkQualityAssuranceTask::GetRecoInfoFromRecoTrack(int rec
   
   PndTrackCand *trkcand = track->GetTrackCandPtr();
     
-  Int_t nofsttpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch));
-  Int_t nofmvdpixpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch));
-  Int_t nofmvdstrpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch));
-  int nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint;
-  Int_t nofscitilpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSciTBranch));
-  Int_t nofgempoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fGemBranch));
+  //Int_t nofsttpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSttBranch)); //[R.K. 01/2017] unused variable
+  //Int_t nofmvdpixpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch)); //[R.K. 01/2017] unused variable?
+  //Int_t nofmvdstrpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fMvdStripBranch)); //[R.K. 01/2017] unused variable?
+  //int nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint; //[R.K. 01/2017] unused variable
+  //Int_t nofscitilpoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fSciTBranch)); //[R.K. 01/2017] unused variable
+  //Int_t nofgempoint = trkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId(fGemBranch)); //[R.K. 01/2017] unused variable
 
   int nofsttskewpoint = 0, nofsttparalpoint = 0;    
   // this loop counts skewed (--> parallel) STT/FTS hits
@@ -386,7 +386,7 @@ PndTrkRecoTrackInfo PndTrkQualityAssuranceTask::GetRecoInfoFromRecoTrack(int rec
 
   // -------------------------------------------------------
   int mctrackid = trackid->GetCorrTrackID();
-  int noftruehits = trackid->GetMultTrackID();
+  //int noftruehits = trackid->GetMultTrackID(); //[R.K. 01/2017] unused variable
 
   int nofassomctracks = trackid->GetNCorrTrackId();
   int noffakehits = 0;

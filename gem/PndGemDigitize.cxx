@@ -251,7 +251,7 @@ void PndGemDigitize::DigitizeEvent() {
 	TVector3 dposLocal(0.,0.,0.);
 
 
-	Int_t hitDetId = sensorDetId | kGemHit << 21;
+	//Int_t hitDetId = sensorDetId | kGemHit << 21; //[R.K. 01/2017] unused variable?
       
 	new ((*fHitOutsideArray)[nofHitsOutside]) PndGemHit(sensorDetId,
 							    pos,dposLocal,iPoint,currentPndGemMCPoint->GetEnergyLoss(),1);
@@ -279,7 +279,7 @@ void PndGemDigitize::DigitizeRealisticEvent() {
   //Double_t showerSigma =   0.1; // radius of smearing, in cm  
   Double_t showerSigma =   0.03; // radius of smearing, in cm (based on Andrii's sim)
   showerSigma = fSSigma;
-  Double_t totalSignal = 100.;  // total signal strength
+  //Double_t totalSignal = 100.;  // total signal strength //[R.K. 01/2017] unused variable?
   Double_t sigMult = 1.e6;
   
   if ( fVerbose > 1 ) {
@@ -290,7 +290,7 @@ void PndGemDigitize::DigitizeRealisticEvent() {
   
   PndGemSensor* sensor;
   
-  Int_t nofHitsOutside = 0;
+  //Int_t nofHitsOutside = 0; //[R.K. 01/2017] unused variable?
   Int_t nofPoints = fPoints->GetEntriesFast();
 
   // if ( fVerbose > 0 ) {
@@ -325,7 +325,7 @@ void PndGemDigitize::DigitizeRealisticEvent() {
 	   << sensorId << endl;
     }
 
-    Double_t stripWidth;
+    //Double_t stripWidth; //[R.K. 01/2017] unused variable?
 
     TString nodeName = fDigiPar->GetNodeName(sensorId);
 
@@ -361,8 +361,8 @@ void PndGemDigitize::DigitizeRealisticEvent() {
 
     //    if ( sensor->GetType()!=1 ) { locPosIn[3] = locPosIn[2]; locPosIn[2] = locPosIn[1]; locPosIn[1] = locPosIn[3]; locPosIn[0] = -locPosIn[0]; }
     
-    Int_t sensorDetId = sensor->GetDetectorId();
-    Double_t rectSig  = 100.;
+    //Int_t sensorDetId = sensor->GetDetectorId(); //[R.K. 01/2017] unused variable?
+    //Double_t rectSig  = 100.; //[R.K. 01/2017] unused variable?
     
     //Double_t channelInd = sensor->GetChannel(locPosIn[0],locPosIn[1],0,stripWidth);
     //Int_t channelNumber = (Int_t)channelInd;

@@ -49,8 +49,8 @@ InitStatus PndMdtHitProducer::Init() {
   cout << "-I- PndMdtHitProducer::Init: "
     << "INITIALIZATION *********************" << endl;
 
-  FairRun* sim = FairRun::Instance();
-  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairRun* sim = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();

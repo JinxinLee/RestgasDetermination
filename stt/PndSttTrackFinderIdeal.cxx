@@ -425,10 +425,10 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	      xSeed = (dSeed + rSeed) * cos(phiSeed),
 	      ySeed = (dSeed + rSeed) * sin(phiSeed);
 
-	  Double_t
-	      xSeed_old = xSeed,
-	      ySeed_old = ySeed,
-	      rSeed_old = rSeed;
+	  //Double_t //[R.K. 01/2017] unused variable
+	      //xSeed_old = xSeed, //[R.K. 01/2017] unused variable?
+	      //ySeed_old = ySeed, //[R.K. 01/2017] unused variable?
+	      //rSeed_old = rSeed; //[R.K. 01/2017] unused variable?
 
 	  //	  ZoomTrack(dSeed, phiSeed, rSeed, pTrck); // CHECK!!!
 

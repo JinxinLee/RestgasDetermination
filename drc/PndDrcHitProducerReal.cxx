@@ -186,27 +186,27 @@ void PndDrcHitProducerReal::ProcessBarPoint()
   
       // calculate the center of the bars from the detectorID
       Int_t s = (fDetectorID /10);// correction DD
-      Int_t b =  (fDetectorID % 10);
+      //Int_t b =  (fDetectorID % 10); //[R.K. 01/2017] unused variable?
     
       //cout<<"-I- HitProducerReal: s = "<<s<<", b = "<<b<<endl;
    
-      Double_t bbAngle       =  ( 180. - 2.*fpipehAngle - fbbGap/fradius/fpi*180.*(fbbnum/2.-1.) )/(fbbnum/2.);  
-      Double_t bbX           =  fradius*bbAngle/180.*fpi;  
+      //Double_t bbAngle       =  ( 180. - 2.*fpipehAngle - fbbGap/fradius/fpi*180.*(fbbnum/2.-1.) )/(fbbnum/2.);   //[R.K. 01/2017] unused variable?
+      //Double_t bbX           =  fradius*bbAngle/180.*fpi;   //[R.K. 01/2017] unused variable?
     
       Double_t phi_curr = (90. - fphi0 - fdphi*(s-1))/180.*fpi;    
       if(s > fbbnum/2){ phi_curr = (90. - fphi0 - fdphi*(s-1) - 2.*fpipehAngle)/180.*fpi; }
       //cout<<"-I- HitProducerReal: phi_curr = "<< phi_curr/fpi*180.<<endl;
-      Double_t Xs = fradius * cos(phi_curr);
-      Double_t Ys = fradius * sin(phi_curr);
+      //Double_t Xs = fradius * cos(phi_curr); //[R.K. 01/2017] unused variable?
+      //Double_t Ys = fradius * sin(phi_curr); //[R.K. 01/2017] unused variable?
       //cout<<"-I- HitProducerReal: Xs = "<<Xs<<", Ys = "<<Ys<<endl;
-      Double_t Xb =  bbX/2.*((2.*b-1.)/fbarnum - 1.)*sin(phi_curr);
-      Double_t Yb = -bbX/2.*((2.*b-1.)/fbarnum - 1.)*cos(phi_curr);
+      //Double_t Xb =  bbX/2.*((2.*b-1.)/fbarnum - 1.)*sin(phi_curr); //[R.K. 01/2017] unused variable?
+      //Double_t Yb = -bbX/2.*((2.*b-1.)/fbarnum - 1.)*cos(phi_curr); //[R.K. 01/2017] unused variable?
       //cout<<"-I- HitProducerReal: ((2.*b-1.)/barnum - 1.)"<< ((2.*b-1.)/barnum - 1.)<<endl;
       //cout<<"-I- HitProducerReal: Xb = "<<Xb<<", Yb = "<<Yb<<endl;          
-      Double_t fXHit = Xs+Xb;
-      Double_t fYHit = Ys+Yb;
+      //Double_t fXHit = Xs+Xb; //[R.K. 01/2017] unused variable?v
+      //Double_t fYHit = Ys+Yb; //[R.K. 01/2017] unused variable?
       //Double_t fZHit = 0.;
-      Double_t fZHit = fGeo->barBoxZUp() - fGeo->EVlen();
+      //Double_t fZHit = fGeo->barBoxZUp() - fGeo->EVlen(); //[R.K. 01/2017] unused variable?
    
       //cout<<"-I- HitProducerReal: bar center = "<< fXHit << ", "<< fYHit <<endl;
  
@@ -355,7 +355,7 @@ void PndDrcHitProducerReal::ProcessPhotonPoint()
       // Maria Patsyuk
       if(ftilt != 0.){
 	  
-	Int_t s = (fDetectorID /10);// correction DD
+	//Int_t s = (fDetectorID /10);// correction DD //[R.K. 01/2017] unused variable?
 	  
 	TVector3 point;
 	point.SetXYZ(xP,yP,0.);

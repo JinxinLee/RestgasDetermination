@@ -206,7 +206,7 @@ Int_t PndSttMapCreator::FillSttTubeParametersGeoType1(PndGeoSttPar *par, TList* 
   TListIter iter(volList);
   
   FairGeoNode* node   = NULL;
-  FairGeoVolume *aVol=NULL;
+  //FairGeoVolume *aVol=NULL; //[R.K. 01/2017] unused variable?
   int tubecounter = 0;
   PndSttTubeParameters *parms = new PndSttTubeParameters();
   pararray->AddLast(parms); // add this to have correspondence index <-> tubeid

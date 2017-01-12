@@ -406,7 +406,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	fVeloPhoton=fLength/(fTime-fTimeStart);
 
 	Double_t nmast[3];
-	bool bres = gMC->CurrentBoundaryNormal(nmast[0],nmast[1],nmast[2]);
+	//bool bres = gMC->CurrentBoundaryNormal(nmast[0],nmast[1],nmast[2]); //[R.K. 01/2017] unused variable?
 	//TVector3 lnorm = fGeoH->MasterToLocalShortId(TVector3(nx,ny,nz), fGeoH->GetShortID(gMC->CurrentVolPath()));
 	
 	Double_t result[3];

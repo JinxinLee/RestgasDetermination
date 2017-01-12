@@ -179,7 +179,7 @@ PndFsmEmcPid::detected(PndFsmTrack *t) const
     double p=t->p4().Vect().Mag();
     double pt=t->p4().Pt();
     double charge=t->charge();
-    int type=abs(t->pdt());
+    //int type=abs(t->pdt()); //[R.K. 01/2017] unused variable
 
 	return ( fabs(charge)>1e-6 && theta>=_thtMin && theta<=_thtMax && phi>=_phiMin && phi<=_phiMax && p>_pmin && pt> _ptmin && _rand->Rndm()<=_efficiency);
 }

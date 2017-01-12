@@ -474,7 +474,7 @@ Bool_t PndMdtPointsToWaveform::Digitize(PndMdtWaveform* theWf, Double_t& time, D
   amp = -9999;
   Double_t fPeak = 0.;
   Bool_t NotFound = kTRUE;
-  Double_t fNoiseSigma;
+  //Double_t fNoiseSigma; //[R.K. 01/2017] unused variable?
   Double_t fThreshold(1e9);
   if(isWire) fThreshold = 5.*fWireNoiseSigma;
   else fThreshold = 5.*fStripNoiseSigma;

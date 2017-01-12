@@ -127,8 +127,8 @@ InitStatus PndLmdGeaneTask::Init()
 
   fPro = new FairGeanePro();
   fGeoH = PndGeoHandling::Instance();
-  FairRun* fRun = FairRun::Instance();
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  //FairRun* fRun = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb = fRun->GetRuntimeDb(); //[R.K. 01/2017] unused variable
  
   pndField = FairRunAna::Instance()->GetField();
 
@@ -168,9 +168,9 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
   //Charge & mass of particle
   Int_t PDGCode = -2212; //antiproton
   //  Int_t PDGCode = fPDGid;
-  TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
-  TParticlePDG *fParticle = fdbPDG->GetParticle(PDGCode);
-  Double_t  fCharge = fParticle->Charge()/3.;
+  //TDatabasePDG *fdbPDG = TDatabasePDG::Instance(); //[R.K. 01/2017] unused variable?
+  //TParticlePDG *fParticle = fdbPDG->GetParticle(PDGCode); //[R.K. 01/2017] unused variable?
+  //Double_t  fCharge = fParticle->Charge()/3.; //[R.K. 01/2017] unused variable
   //  cout<<"fCharge = "<<fCharge<<endl;
 
   //go through all tracks
@@ -182,7 +182,7 @@ void PndLmdGeaneTask::Exec(Option_t* opt)
 
     //  cout<<"PndLmdGeaneTask::Exec for track#"<<i<<endl;
       TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
-      int p = 0;
+      //int p = 0; //[R.K. 01/2017] unused variable
     
       PndTrack* recTrack = (PndTrack*)(fTracks->At(i));
       FairTrackParP fFittedTrkP = recTrack->GetParamFirst();

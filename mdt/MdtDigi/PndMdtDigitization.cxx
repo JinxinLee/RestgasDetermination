@@ -39,8 +39,8 @@ PndMdtDigitization::~PndMdtDigitization() { }
 InitStatus PndMdtDigitization::Init() {
 
 
-  FairRun* sim = FairRun::Instance();
-  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairRun* sim = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -207,7 +207,7 @@ Bool_t PndMdtDigitization::Digitize(PndMdtWaveform* theWf, Double_t& time, Doubl
   amp = -9999;
   Double_t fPeak = 0.;
   Bool_t NotFound = kTRUE;
-  Double_t fNoiseSigma;
+  //Double_t fNoiseSigma; //[R.K. 01/2017] unused variable?
   Double_t fThreshold(1e9);
   if(isWire) fThreshold = 5.*fWireNoiseSigma;
   else fThreshold = 5.*fStripNoiseSigma;

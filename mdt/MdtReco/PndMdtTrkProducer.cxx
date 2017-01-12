@@ -48,8 +48,8 @@ InitStatus PndMdtTrkProducer::Init() {
   cout << "-I- PndMdtTrkProducer::Init: "
        << "INITIALIZATION *********************" << endl;
   
-  FairRun* sim = FairRun::Instance();
-  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairRun* sim = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
     
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -697,7 +697,7 @@ void PndMdtTrkProducer::AlgorithmWithLheGenTrack()  //lyt April 15th, 2010
     Float_t mdtGLength = -1000;
     Float_t mdtQuality = 1000000;
 
-    Float_t chi2 = 0;
+    //Float_t chi2 = 0; //[R.K. 01/2017] unused variable?
     TVector3 vertex(0., 0., 0.);
     TVector3 mdtPos(0., 0., 0.);
     TVector3 momentum(0., 0., 0.);

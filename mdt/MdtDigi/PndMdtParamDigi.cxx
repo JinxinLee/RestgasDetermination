@@ -326,7 +326,7 @@ void PndMdtParamDigi::GetRawSignalbySimAvalanche(Double_t fNoiseLevel)
 	Double_t fStartTime = fTime + GetElectronDriftTime(fCurrentPosofCluster.XYvector());//micro second
 	Int_t tShift = Int_t(fStartTime/fSamplingInterval);
 	if(tShift >= fSamplingSize) tShift = fSamplingSize-1;
-	Int_t refPhiIndex = Int_t(fCurrentPosofCluster.Phi()/cUNITPHI);
+	//Int_t refPhiIndex = Int_t(fCurrentPosofCluster.Phi()/cUNITPHI); //[R.K. 01/2017] unused variable?
 	//if(refPhiIndex>=100) refPhiIndex = 99;
 
 	TVector2 unitV = fCurrentPosofCluster.XYvector().Unit();

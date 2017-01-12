@@ -175,7 +175,7 @@ TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
 
   //Calculation of ThetaMS -------------------------------------
   //Charge & mass of particle
-  Int_t PDGCode = -2212;
+  //Int_t PDGCode = -2212; //[R.K. 01/2017] unused variable
   Double_t fMass = 0.938272046;
   Double_t Ebeam = TMath::Hypot(fPbeam,fMass);
   TLorentzVector LorMom(0, 0, fPbeam, Ebeam);
@@ -281,7 +281,7 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 	}
     
       // mapping with the choosen back mapping
-      Int_t iHits = fHitArray->GetEntriesFast();
+      //Int_t iHits = fHitArray->GetEntriesFast(); //[R.K. 01/2017] unused variable
       //      PndSdsHit *myHit = new((*fHitArray)[iHits]) PndSdsHit(fBackMapping->GetCluster(clusterArray));
       PndSdsHit myHit = fBackMapping->GetCluster(clusterArray);
       clusterArray.clear();

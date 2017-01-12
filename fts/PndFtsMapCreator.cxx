@@ -35,8 +35,8 @@ PndFtsMapCreator::PndFtsMapCreator()
 {
   //fCopy_Map.clear();
   // Geometry loading                                                                    
-  FairRootManager* ioman = FairRootManager::Instance();
-  TFile *infile = ioman->GetInFile();
+  //FairRootManager* ioman = FairRootManager::Instance(); //[R.K. 01/2017] unused variable?
+  //TFile *infile = ioman->GetInFile(); //[R.K. 01/2017] unused variable?
 }
 
 
@@ -210,7 +210,7 @@ TString PndFtsMapCreator::GetNameFromPathGeoType1(TString path){
 Int_t PndFtsMapCreator::GetLayerID(Int_t chamberid, Int_t tudeid,TString path ){
 
   Int_t tube=tudeid;
-  Int_t chamber=chamberid;
+  //Int_t chamber=chamberid; //[R.K. 01/2017] unused variable?
   TString tmpstring = path;
 
   Int_t i=1;
@@ -569,7 +569,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename, I
   double z = tra.getZ()/10.; // in cm
 
   //std::cout<<"tubename="<<tubename<<" tubeid="<<tubeid<<" x="<<x<<" z="<<z<<std::endl;
-  Int_t skew=IsSkew(layerid);
+  //Int_t skew=IsSkew(layerid); //[R.K. 01/2017] unused variable?
   //double angle=5*3.14159/180;
   //x=(x+skew*(tra.getY()*sin(angle))/10.1);
   //std::cout<<"tubename="<<tubename<<" tubeid="<<tubeid<<" skew="<<skew<<" newx="<<x<<std::endl;
@@ -599,7 +599,7 @@ TClonesArray* PndFtsMapCreator::FillTubeArrayGeoType1() {
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
   TClonesArray *tubeArray = new TClonesArray("PndFtsTube");
 //  tubeArray->Delete();
-  int mytest=0;
+  //int mytest=0; //[R.K. 01/2017] unused variable?
   //std::cout << "TA: entries: " <<  geoPassNodes->GetEntriesFast() << std::endl;
   for(int i = 0; i < geoPassNodes->GetEntriesFast(); i++) {
     FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->At(i);

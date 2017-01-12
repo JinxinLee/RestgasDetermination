@@ -155,7 +155,7 @@ void PndHypStripClusterTask::Exec(Option_t* opt)
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Clear();
   
-  Int_t nPoints = fDigiArray->GetEntriesFast();
+  //Int_t nPoints = fDigiArray->GetEntriesFast(); //[R.K. 01/2017] unused variable
 
   // load the Clusterfinder
   PndHypStripClusterBuilder clusterbuilder;
@@ -164,15 +164,15 @@ void PndHypStripClusterTask::Exec(Option_t* opt)
   if(fVerbose>1) fDigiPar->Print();
   
   TVector2 topDirection, botDirection ;
-  TGeoVolume* actVolume;
-  TGeoBBox* actBox;
+  //TGeoVolume* actVolume; //[R.K. 01/2017] unused variable
+  //TGeoBBox* actBox; //[R.K. 01/2017] unused variable
   TVector3 sensorDim,localpos, localDpos;
   TString detName;//std::string detName;
-  Int_t detID, iDigi, clindex, mcindex,topIndex, botIndex;;
+  Int_t detID, clindex, botIndex;//;iDigi,  mcindex,topIndex, //[R.K. 01/2017] unused variable
   Double_t mycharge;
   TVector2 meantopPoint, meanbotPoint, onsensorPoint;
   TVector3 hitPos,hitErr;
-  Double_t local[3], master[3], t, b;
+  Double_t t, b; //local[3], master[3], //[R.K. 01/2017] unused variable
 
  
 
@@ -180,8 +180,8 @@ void PndHypStripClusterTask::Exec(Option_t* opt)
     Int_t strip;
     SensorSide side;
   PndHypDigiStrip* myDigi=0;
-  PndHypCluster* myCandTop=0;
-  PndHypCluster* myCandBot=0;
+  //PndHypCluster* myCandTop=0; //[R.K. 01/2017] unused variable
+  //PndHypCluster* myCandBot=0; //[R.K. 01/2017] unused variable
 
  
   for (Int_t iPoint = 0; iPoint < fDigiArray->GetEntriesFast(); iPoint++)
@@ -269,7 +269,7 @@ void PndHypStripClusterTask::Exec(Option_t* opt)
 
      detID = ((PndHypDigiStrip*)fDigiArray->At(oneclustertop[0]))->GetDetID();
      
-      Double_t lastcharge=0;
+      //Double_t lastcharge=0; //[R.K. 01/2017] unused variable
       for (std::vector<Int_t>::iterator itTopDigi = oneclustertop.begin();
 	   itTopDigi != oneclustertop.end(); ++itTopDigi)
 	{// I use the temp. variables from the top of this method again
@@ -426,7 +426,7 @@ TVector2 PndHypStripClusterTask::CalcLineCross(
 					       TVector2 point1, TVector2 dir1,
 					       TVector2 point2, TVector2 dir2)
 {
-  Double_t dx, dy, s, t, M, x, y;
+  Double_t dx, dy, s,  M, x, y;//t, //[R.K. 01/2017] unused variable
   dx = point2.X() - point1.X();
   dy = point2.Y() - point1.Y();
   

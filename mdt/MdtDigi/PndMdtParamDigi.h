@@ -116,8 +116,8 @@ class PndMdtParamDigi : public TNamed
       const Double_t p1 = 1.80248;
       const Double_t p2 = 3.68652e+2;
       const Double_t p3 = 1.67353e+3;
-      const Double_t mean = 0;
-      const Double_t sigma = 2.73477e-3;//micro second
+      //const Double_t mean = 0; //[R.K. 01/2017] unused variable?
+      //const Double_t sigma = 2.73477e-3;//micro second //[R.K. 01/2017] unused variable?
       Double_t dr = (fProductionPos-fWireSurfacePos).Mod();
       return (((p3*dr+p2)*dr+p1)*dr+p0 /*+ gRandom->Gaus(mean, sigma)*/)*1.e3;//nano sencod
     }

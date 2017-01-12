@@ -57,7 +57,7 @@
   const G4ParticleDefinition* anti_He3      = G4AntiHe3::AntiHe3();
   const G4ParticleDefinition* anti_alpha    = G4AntiAlpha::AntiAlpha();
 
-  const G4ParticleDefinition* xi_minus      = G4XiMinus::XiMinus();         // Uzhi Nov. 2014
+  //const G4ParticleDefinition* xi_minus      = G4XiMinus::XiMinus();         // Uzhi Nov. 2014 //[R.K. 01/2017] unused variable?
 
   G4GenericIon* gion = G4GenericIon::GenericIon();
   gion->SetProcessManager(new G4ProcessManager(gion));

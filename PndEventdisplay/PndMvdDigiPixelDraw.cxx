@@ -106,11 +106,11 @@ void PndMvdDigiPixelDraw::Exec(Option_t* option)
 	for (boxSetMapIter it = fModules.begin(); it != fModules.end(); it++){
 		   TGeoHMatrix testMatrix = *(fGeoH->GetMatrixShortId(it->first));
 		   //TGeoHMatrix invMatrix = testMatrix.Inverse();
-		   Double_t scale[] = {0.01,0.01,0.01};		//Dim is 0.1 mm
+		   //Double_t scale[] = {0.01,0.01,0.01};		//Dim is 0.1 mm //[R.K. 01/2017] unused variable
 		   //testMatrix.SetScale(scale);
 		   TEveTrans& t = it->second->RefMainTrans();
 		   t.SetFrom(testMatrix);
-		   TEveElement* el = (TEveElement*)it->second;
+		   //TEveElement* el = (TEveElement*)it->second; //[R.K. 01/2017] unused variable
  		   TEveElement* man = (TEveElement*)fEventManager;
 // 		   gEve->AddElement(it->second, fEventManager);
  		   gEve->AddElement(it->second, man);
@@ -133,7 +133,7 @@ TEveBoxSet* PndMvdDigiPixelDraw::CreateNewBoxSet(TString& name)
 void PndMvdDigiPixelDraw::Reset()
 {
 	for (boxSetMapIter it = fModules.begin(); it != fModules.end(); it++){
-		TEveElement* el = (TEveElement*)it->second;
+		//TEveElement* el = (TEveElement*)it->second; //[R.K. 01/2017] unused variable
 	        TEveElement* man = (TEveElement*)fEventManager;
 // 		   gEve->AddElement(it->second, fEventManager);
  	        gEve->AddElement(it->second, man);

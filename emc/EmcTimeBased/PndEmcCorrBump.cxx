@@ -185,7 +185,7 @@ void PndEmcCorrBump::Exec(Option_t* opt)
 	std::vector<PndEmcBump*> taggedBumpofToBeDeleted;
 	PndEmcDigi* seedDigi(0);
 	Double_t    EnergyOfSeedDigi(-1.), fTimeError(0.), CalibTimeOfaDigi(0.), CalibTimeOfSeedDigi(0.);
-	Int_t       TheIndexOfEnergy, TheIndexOfModule;
+	Int_t       TheIndexOfModule;//TheIndexOfEnergy,  //[R.K. 01/2017] unused variable?
 	Int_t       iDigi = PndEmcDigi::fDigiArrayTBD->GetEntriesFast();
 	Int_t iBump = 0;
 	Bool_t isBumpOK = kTRUE;

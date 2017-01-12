@@ -182,7 +182,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
   fstream outMCT(fadataMCT_name, fstream::out);
   fstream outMCP(fadataMCP_name, fstream::out);
 
-  FairHit* ghit = NULL;
+  //FairHit* ghit = NULL; //[R.K. 01/2017] unused variable?
 
     // Loop over all hits from FTS first (later other detectors, too)
 
@@ -334,7 +334,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
             if ( part )
               q = part->Charge()/3.f;
           }
-          Double_t ex,ey,ez,qp;
+          //Double_t ex,ey,ez,qp; //[R.K. 01/2017] unused variable?
           outMCT << mcTr->GetMotherID() << " " << pdgCode << endl;
           outMCT << mcTr->GetStartVertex().X() << " " << mcTr->GetStartVertex().Y() << " " << mcTr->GetStartVertex().Z() << " "
                  << px/fabs(p) << " " << py/fabs(p) << " " << pz/fabs(p) << " " << q/p << endl;
@@ -397,7 +397,7 @@ void PndFtsDataAccessor::Exec(Option_t * option)
       }
 
         // Field
-      int ind = 0;
+      //int ind = 0; //[R.K. 01/2017] unused variable?
       for( int i=0; i<3; i++ ){
         Double_t z = i*(Z[0]-1.f)/2; // last point is taken in 1 cm from first station
         Double_t point[3] = {0,0,z};

@@ -172,7 +172,7 @@ Bool_t PndFtof::ProcessHits(FairVolume* vol)
 	    Int_t cp=-1;
 	    gMC->CurrentVolOffID(1,cp) ;
 	    fVolumeID = vol->getMCid();
-	    Int_t fVolid = gMC->CurrentVolID(cp);
+	    //Int_t fVolid = gMC->CurrentVolID(cp); //[R.K. 01/2017] unused variable?
 	    TString FullName = gMC->CurrentVolPath();
 	    
 	    gMC->TrackPosition(fPosOut);
@@ -323,8 +323,8 @@ void PndFtof::ConstructASCIIGeometry() {
   TGeoVolume* VertVol;
   
   
-  Double_t bx[26],by[26],bz[26];
-  Double_t bvx[50],bvy[50],bvz[50];
+  Double_t bx[26];//,by[26],bz[26]; //[R.K. 01/2017] unused variable?
+  Double_t bvx[50];//,bvy[50],bvz[50]; //[R.K. 01/2017] unused variable?
   TGeoVolumeAssembly* SubunitVol = new TGeoVolumeAssembly("Ftof_strips");
   
   
@@ -334,9 +334,9 @@ void PndFtof::ConstructASCIIGeometry() {
   char name1[17];
   char namB1[17];
   char namV1[20];
-  char name2[17];
-  char namB2[17];
-  char namV2[17];
+  //char name2[17]; //[R.K. 01/2017] unused variable?
+  //char namB2[17]; //[R.K. 01/2017] unused variable?
+  //char namV2[17]; //[R.K. 01/2017] unused variable?
   
   
   for(int i=0;i<26;i++){
@@ -347,7 +347,7 @@ void PndFtof::ConstructASCIIGeometry() {
     if(i<8||i>17){
       TGeoCombiTrans* trc1;
       
-      Double_t offset;
+      //Double_t offset; //[R.K. 01/2017] unused variable?
       sprintf (name,"Centshape%d",i);
       sprintf (name1,"Ftof_Central_Strip%d",i);
       

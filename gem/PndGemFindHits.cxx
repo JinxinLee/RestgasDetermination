@@ -829,7 +829,7 @@ void PndGemFindHits::SortDigis() {
 Int_t PndGemFindHits::FindHits(PndGemSensor* sensor, 
 			       set<Int_t>& fSet, set<Int_t>& bSet) {
 
-  Int_t    iType  = sensor->GetType();
+  //Int_t    iType  = sensor->GetType(); //[R.K. 01/2017] unused variable?
  
   Double_t sigmaX = 1., sigmaY = 2.;
   
@@ -954,7 +954,7 @@ Int_t PndGemFindHits::FindHits2(PndGemSensor* sensor,
 				set<Int_t>& fSet, set<Int_t>& bSet) {
   if ( fVerbose > 0 ) cout << "-I- PndGemFindHits::FindHits2(). Station " << sensor->GetStationNr() << " sensor " << sensor->GetSensorNr() << endl; 
 
-  Int_t    iType  = sensor->GetType();
+  //Int_t    iType  = sensor->GetType(); //[R.K. 01/2017] unused variable?
  
   Double_t sigmaX = 1., sigmaY = 2., sigmaZ;
   Double_t sigmaR, sigmaP;

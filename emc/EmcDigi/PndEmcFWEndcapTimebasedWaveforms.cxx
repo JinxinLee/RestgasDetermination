@@ -209,7 +209,7 @@ void PndEmcFWEndcapTimebasedWaveforms::Exec(Option_t* opt)
 			energy *=photonStatFactor;
 		}	
 
-		Double_t eventTime = ioman->GetEventTime();
+		//Double_t eventTime = ioman->GetEventTime(); //[R.K. 01/2017] unused variable?
 
 		// construct corresponding waveform data Object
 		PndEmcWaveformData wfData(theHit->GetDetectorID(),  wfSimulator);

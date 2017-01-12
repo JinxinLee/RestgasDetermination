@@ -218,9 +218,9 @@ bool PndTrkCleanup::GoodTrack(
 		index_last,
 		inner,
 		j,
-		nIntersections,
+		//nIntersections, //[R.K. 01/2017] unused variable?
 		outer,
-		tube_current,
+		//tube_current, //[R.K. 01/2017] unused variable?
 		tube_next;
 
 
@@ -229,7 +229,7 @@ bool PndTrkCleanup::GoodTrack(
 		dist,
 		dist2,
 		fi,
-		Start[3],
+		//Start[3], //[R.K. 01/2017] unused variable?
 		Xend[2],
 		Yend[2];
 
@@ -396,9 +396,9 @@ bool PndTrkCleanup::GoodTrack(
 		Double_t* ZMvdStrip  // list of the Z positions of ALL Mvd hits of the event;
 			)
 {
-	bool	at_least_one_good_hit;
+	//bool	at_least_one_good_hit; //[R.K. 01/2017] unused variable?
 
-	Short_t	i,
+	Short_t	//i, //[R.K. 01/2017] unused variable?
 		j;
 
 	const Double_t	Ximprecision=1. ,
@@ -971,28 +971,28 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 		nFaults,
 		n_forseen_hits,
 		n_present_hits,
-		type_of_intersection_in_disk[MVD_DISK_LAYERS],	// = +1 --> track completely in the sensors;
+		type_of_intersection_in_disk[MVD_DISK_LAYERS]	// = +1 --> track completely in the sensors;
 							//  = 0 --> uncertain; = -1 --> out of the sensor;
-		yes_intersect
+		//,yes_intersect //[R.K. 01/2017] unused variable?
 		;
 	Double_t
-		FiOrderedList[2],
+		//FiOrderedList[2], //[R.K. 01/2017] unused variable?
 		phase,
 		r,
 		rmax,
 		rmin,
-		r2,
-		Xcross[2],
+		//r2, //[R.K. 01/2017] unused variable?
+		//Xcross[2], //[R.K. 01/2017] unused variable?
 		X_disk,
 		Xintersect[2],
 		Xlow,
 		Xup,
-		Ycross[2],
+		//Ycross[2], //[R.K. 01/2017] unused variable?
 		Y_disk,
 		Yintersect[2],
 		Ylow,
 		Yup,
-		Z_disk,
+		//Z_disk, //[R.K. 01/2017] unused variable?
 		Zintersect[2];
 
 	PndTrkCTGeometryCalculations  GeometryCalculator;
@@ -1536,9 +1536,9 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 		flagOuterSttL,
 		flagOutStt;
 
-	Short_t	enne,
+	Short_t	//enne, //[R.K. 01/2017] unused variable?
 			i,
-			ihit,
+			//ihit, //[R.K. 01/2017] unused variable?
 			ipurged,
 			islack,
 			nintersections,
@@ -1546,11 +1546,11 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 			nInnerHits,
 			nInnerHitsLeft,
 			nInnerHitsRight,
-			nOuter,
+			//nOuter, //[R.K. 01/2017] unused variable?
 			nOuterHits,
 			nOuterHitsLeft,
 			nOuterHitsRight,
-			nIntersections[2],
+			//nIntersections[2], //[R.K. 01/2017] unused variable?
 			ListHits[nHits],
 			ListInnerHits[nHits],
 			ListInnerHitsLeft[nHits],
@@ -1561,7 +1561,7 @@ void PndTrkCleanup::SeparateInnerOuterRightLeftAxialStt(
 
 	Double_t	epsilonTheta,
 			fi,
-			r,
+			//r, //[R.K. 01/2017] unused variable?
 			aux[2],
 			Xcross[2],
 			Ycross[2],
@@ -2266,7 +2266,7 @@ bool PndTrkCleanup::SttSkewCleanup(
 
 {
 
-	bool ConsiderLastHit;
+	//bool ConsiderLastHit; //[R.K. 01/2017] unused variable?
 
 	Short_t flagSttL,
 		flagSttR,
@@ -2281,7 +2281,7 @@ bool PndTrkCleanup::SttSkewCleanup(
 			nintersections,
 			ninside,
 			nnn,
-			nIntersections[2],
+			//nIntersections[2], //[R.K. 01/2017] unused variable?
 			ListHits[nHits],
 			ListHitsRight[nHits],
 			ListHitsLeft[nHits];
@@ -2289,9 +2289,9 @@ bool PndTrkCleanup::SttSkewCleanup(
 	Double_t	cut2,
 			epsilonTheta,
 			fi,
-			FiStart,
+			//FiStart, //[R.K. 01/2017] unused variable?
 			length,
-			r,
+			//r, //[R.K. 01/2017] unused variable?
 			Sprevious,
 			aux[2],
 			Distance[MAXSTTHITS+1],
@@ -2755,24 +2755,24 @@ bool PndTrkCleanup::TrackCleanup(
 //	3)  eliminates the tracks if the hit sequence is not continuous enough.
 
 
-	bool ConsiderLastHit;
+	//bool ConsiderLastHit; //[R.K. 01/2017] unused variable?
 
-	Short_t flagInnerStt,
-		flagOuterStt;
+	//Short_t flagInnerStt, //[R.K. 01/2017] unused variable?
+		//flagOuterStt; //[R.K. 01/2017] unused variable?
 
-	Short_t	ihit,
-			nInnerHits,
-			nOuterHits,
-			nIntersections[2],
-			ListInnerHits[MAXSTTHITS],
-			ListOuterHits[MAXSTTHITS];
+	//Short_t	ihit, //[R.K. 01/2017] unused variable?
+			//nInnerHits, //[R.K. 01/2017] unused variable?
+			//nOuterHits, //[R.K. 01/2017] unused variable?
+			//nIntersections[2], //[R.K. 01/2017] unused variable?
+			//ListInnerHits[MAXSTTHITS], //[R.K. 01/2017] unused variable?
+			//ListOuterHits[MAXSTTHITS]; //[R.K. 01/2017] unused variable?
 
-	Double_t	FiLimitAdmissible,
-			r,
-			Xcross[2],
-			Ycross[2],
-			XintersectionList[12][2], // second index =0 --> inner Hexagon, =1 --> outer.
-			YintersectionList[12][2]; // first index : all the possible intersections
+	Double_t	FiLimitAdmissible;
+			//r, //[R.K. 01/2017] unused variable?
+			//Xcross[2], //[R.K. 01/2017] unused variable?
+			//Ycross[2], //[R.K. 01/2017] unused variable?
+			//XintersectionList[12][2],  //[R.K. 01/2017] unused variable?// second index =0 --> inner Hexagon, =1 --> outer.
+			//YintersectionList[12][2];  //[R.K. 01/2017] unused variable?// first index : all the possible intersections
 						  // (up to 12 intersections).
 
 //------------------------
@@ -3341,7 +3341,7 @@ bool PndTrkCleanup::XYCleanup(
 				)
 {
 
-   bool	connected,
+   bool	//connected, //[R.K. 01/2017] unused variable?
 	farthest_hit_is_boundary,
 	good;
 
@@ -3350,26 +3350,26 @@ bool PndTrkCleanup::XYCleanup(
 	holes,
 	i,
 	j,
-	k,
+	//k, //[R.K. 01/2017] unused variable?
 	nArcs_populated,
 
 	tListInnerHitsLeft[nHits],
 	tListInnerHitsRight[nHits],
 	tListOuterHitsLeft[nHits],
 	tListOuterHitsRight[nHits],
-	tube_adjacent,
-	tube_current,
-	tube_next,
-	tube_near,
+	//tube_adjacent, //[R.K. 01/2017] unused variable?
+	//tube_current, //[R.K. 01/2017] unused variable?
+	//tube_next, //[R.K. 01/2017] unused variable?
+	//tube_near, //[R.K. 01/2017] unused variable?
 	ListHitsInArc[MAXSTTHITSINTRACK][56],	// ordered list of hits in each Arc (from first to last
 						// according to the charge of the particle;if the maximum
 						//  # of Intersected Sector is 56, than the maximum # of Arcs is 28;
 
-	nHitsInArc[56],	// number of hits in each Arc; the maximum # of Arcs is 56;
-	nInnerHitsLeft,
-	nInnerHitsRight,
-	nOuterHitsLeft,
-	nOuterHitsRight;
+	nHitsInArc[56];	// number of hits in each Arc; the maximum # of Arcs is 56;
+	//nInnerHitsLeft, //[R.K. 01/2017] unused variable?
+	//nInnerHitsRight, //[R.K. 01/2017] unused variable?
+	//nOuterHitsLeft, //[R.K. 01/2017] unused variable?
+	//nOuterHitsRight; //[R.K. 01/2017] unused variable?
 //	OrderedSectorList[56];	// ordered list of Sectors crossed (from first to last); each
 				// Sector number is the Sector where the Arc lies;
 

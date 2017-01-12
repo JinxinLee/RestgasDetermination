@@ -490,8 +490,8 @@ void PndDiscTaskReconstruction::Exec(Option_t* opt)
     int entries = tclarr_digits->GetEntries();
 
     // time window around track time:
-    const double time_window_t1 =  -5.0;
-    const double time_window_t2 =  40.0;
+    //const double time_window_t1 =  -5.0; //[R.K. 01/2017] unused variable?
+    //const double time_window_t2 =  40.0; //[R.K. 01/2017] unused variable?
 
 
     //Information of primary particle
@@ -504,7 +504,7 @@ void PndDiscTaskReconstruction::Exec(Option_t* opt)
 
 
 
-    double average;
+    //double average; //[R.K. 01/2017] unused variable?
 
     //-----------------------------------------------------------------------
     // Reading out primary particle information

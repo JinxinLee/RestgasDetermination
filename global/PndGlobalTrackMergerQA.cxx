@@ -335,7 +335,7 @@ void PndGlobalTrackMergerQA::Exec(Option_t* opt) {
 // -----   Private method PrepareMCTrack   --------------------------------------------
 void PndGlobalTrackMergerQA::PrepareMCTracks() {
   
-  const Int_t nofMCTracks    = fMCTrackArray->GetEntriesFast();
+  //const Int_t nofMCTracks    = fMCTrackArray->GetEntriesFast(); //[R.K. 01/2017] unused variable?
 
 }
 // ------------------------------------------------------------

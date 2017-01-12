@@ -45,9 +45,9 @@ void PndTrkCTFindTrackInXY2::AddMvdHitsToSttTracks(
 	Short_t *ListMvdStripHitsinTrack // output; dimensionality : [MAXMVDSTRIPHITSINTRACK];
 	)
 {
-	bool specialcase;
+	//bool specialcase; //[R.K. 01/2017] unused variable?
 
-	Short_t i,
+	Short_t //i, //[R.K. 01/2017] unused variable?
 		jmvdhit;
 
 	Double_t angle,
@@ -345,32 +345,32 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 
 //---------------
 
- bool
-	Type;
+ //bool
+	//Type; //[R.K. 01/2017] unused variable?
 //int istampa = 2;
 
  Short_t
 	auxListHitsinTrack[InOut->maxstthits],
 	flagStt,
 	i,
-	iexcl,
+	//iexcl, //[R.K. 01/2017] unused variable?
 	j,
-	ListHitsinTrackinWhichToSearch[InOut->maxstthits],
-	Naux,
-	Nbaux,
+	//ListHitsinTrackinWhichToSearch[InOut->maxstthits], //[R.K. 01/2017] unused variable?
+	//Naux, //[R.K. 01/2017] unused variable?
+	//Nbaux, //[R.K. 01/2017] unused variable?
 	nFitPoints,
-	Nint,
+	//Nint, //[R.K. 01/2017] unused variable?
 	NN,
-	Nouter,
-	OutputListHitsinTrack[InOut->maxstthits],
-	OutputList2HitsinTrack[InOut->maxstthits],
+	//Nouter, //[R.K. 01/2017] unused variable?
+	//OutputListHitsinTrack[InOut->maxstthits], //[R.K. 01/2017] unused variable?
+	//OutputList2HitsinTrack[InOut->maxstthits], //[R.K. 01/2017] unused variable?
 	status;
 
 
  Double_t
 	aaa,
-	d,
-	diff,
+	//d, //[R.K. 01/2017] unused variable?
+	//diff, //[R.K. 01/2017] unused variable?
 	fiCenter,
 	fi_low_limit[2],
  	fi_up_limit[2],
@@ -379,10 +379,10 @@ bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 	gamma,
 	m,
 	q,
-	r2,
-	rotationangle,
-	rotationcos,
-	rotationsin;
+	r2;
+	//rotationangle, //[R.K. 01/2017] unused variable?
+	//rotationcos, //[R.K. 01/2017] unused variable?
+	//rotationsin; //[R.K. 01/2017] unused variable?
 
 
 //---------------------
@@ -1344,10 +1344,10 @@ void  PndTrkCTFindTrackInXY2::OrderingUsingR(
 	)
 {
  Short_t	i,
-		iaux,
-		j,
-		ipar,
-		iskew;
+		iaux;
+		//j, //[R.K. 01/2017] unused variable?
+		//ipar, //[R.K. 01/2017] unused variable?
+		//iskew; //[R.K. 01/2017] unused variable?
  Double_t	aux,
 		auxR2[nHits],
 		distq1,

@@ -161,8 +161,8 @@ InitStatus PndDrcReco::Init(){
   // }
   // fn_r.Close();
   
-  Double_t mom(0), theta(0),phi(0), trr(0),  nph(0),
-    par1(0), par2(0), par3(0), par4(0), par5(0), par6(0), test1(0), test2(0), test3(0),separation(0);
+  //Double_t mom(0), theta(0),phi(0), trr(0),  nph(0),
+    //par1(0), par2(0), par3(0), par4(0), par5(0), par6(0), test1(0), test2(0), test3(0),separation(0); //[R.K. 01/2017] unused variable?
 
   if(fOutFile.Contains("reco")) fOutFile.ReplaceAll("reco","rt_reco");
   else fOutFile.ReplaceAll(".root","t.root");
@@ -336,7 +336,7 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
     fTimeHit = fPDHit->GetTime()-fTimeInBar;
     
     Int_t pointID = fPDHit->GetLink(1).GetIndex();
-    Int_t eventID = fPDHit->GetLink(1).GetEntry();
+    //Int_t eventID = fPDHit->GetLink(1).GetEntry(); //[R.K. 01/2017] unused variable?
     
     fPDPoint = (PndDrcPDPoint*)fPDPointArray->At(pointID);
     fBarPoint = (PndDrcBarPoint*)fBarPointArray->At(fPDPoint->GetBarPointID());
@@ -345,7 +345,7 @@ void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
     fMCTrack =(PndMCTrack*)fMCArray->At(fPDPoint->GetTrackID());
     if(fMcTrackId!=fMCTrack->GetMotherID()) continue;
 
-    Double_t en = 1.2398/(fMCTrack->GetMomentum().Mag()*1E6);
+    //Double_t en = 1.2398/(fMCTrack->GetMomentum().Mag()*1E6); //[R.K. 01/2017] unused variable?
     hEnergy->Fill(fMCTrack->GetMomentum().Mag()*1E9);
     
     //if(fBarPoint->GetBoxId() != boxId || fBarPoint->GetBarId() != barId) continue;

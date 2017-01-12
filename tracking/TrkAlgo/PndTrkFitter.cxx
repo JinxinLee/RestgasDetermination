@@ -236,7 +236,7 @@ Bool_t PndTrkFitter::ParabolaFit(Double_t &fita, Double_t &fitb, Double_t &fitc)
   TMatrixD column2(3,1);
   column2.Mult(matrix, column);
   
-  Double_t a, b, c;
+  //Double_t a, b, c; //[R.K. 01/2017] unused variable
   fita = column2[0][0];
   fitb = column2[1][0];
   fitc = column2[2][0];

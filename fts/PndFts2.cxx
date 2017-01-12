@@ -146,9 +146,9 @@ Bool_t  PndFts2::ProcessHits(FairVolume* vol)
 
   //std::cout<<"ProcessHit PndFts####################################################"<<std::endl;
 
-  TParticle* particle =  gMC->GetStack()->GetCurrentTrack();
-  TGeoMedium *medium = (TGeoMedium*) vol->getGeoNode()->getRootVolume()->GetMedium();
-  Double_t epsil = medium->GetParam(6);
+  //TParticle* particle =  gMC->GetStack()->GetCurrentTrack(); //[R.K. 01/2017] unused variable?
+  //TGeoMedium *medium = (TGeoMedium*) vol->getGeoNode()->getRootVolume()->GetMedium(); //[R.K. 01/2017] unused variable?
+  //Double_t epsil = medium->GetParam(6); //[R.K. 01/2017] unused variable?
 
   TString vol_name(gMC->CurrentVolName()); 
   TGeoHMatrix M;

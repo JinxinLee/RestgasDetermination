@@ -927,7 +927,7 @@ Bool_t PndFtfDirect::ProcessEvent(FairPrimaryGenerator* primGen)
     G4ParticleDefinition *pd1  = sec1->GetDefinition();
     G4ParticleDefinition *pd2  = sec2->GetDefinition();
     int id1 = pd1->GetPDGEncoding();
-    int id2 = pd2->GetPDGEncoding();
+    //int id2 = pd2->GetPDGEncoding(); //[R.K. 01/2017] unused variable?
 	// now we know it's fully elastic!
     if(abs(id1)==2212 && abs(id1)==2212)
 	{

@@ -85,7 +85,7 @@ void PndHypStripHitProducer::SetParamSet(Double_t topPitch, Double_t botPitch,
                                          TString sensorType, TString feType)
 {
   FairRunAna* ana = FairRunAna::Instance();
-  FairRootManager* ioman = FairRootManager::Instance();
+  //FairRootManager* ioman = FairRootManager::Instance(); //[R.K. 01/2017] unused variable
   if ( fDigiPar==0 ) SetParContainers();
   if (fOverrideParams){
     if (sensorType.Contains("Rect"))fCurrentDigiPar = fDigiPar;
@@ -149,7 +149,7 @@ InitStatus PndHypStripHitProducer::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndHypStripHitProducer::Init()
 {
-  FairRunAna* ana = FairRunAna::Instance();
+  //FairRunAna* ana = FairRunAna::Instance(); //[R.K. 01/2017] unused variable
   FairRootManager* ioman = FairRootManager::Instance();
   
   fGeoH = new PndHypGeoHandling(gGeoManager);
@@ -359,7 +359,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
       
 	    //      for(uint i = 0; i < myStrips.size(); i++)
 	    //iStrip = 0;
-	    Int_t sp;SensorSide si;
+	    //Int_t sp;SensorSide si; //[R.K. 01/2017] unused variable
 	    
 	    
 	    
@@ -421,7 +421,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
       trackID = point->GetTrackID();
       detID   = point->GetVolumeID();
       //uint iStrip = 0;
-      Int_t sp;SensorSide si;
+      //Int_t sp;SensorSide si; //[R.K. 01/2017] unused variable
       
       for(std::vector<PndHypStrip>::const_iterator it=botStrips.begin();
           it!= botStrips.end();++it)

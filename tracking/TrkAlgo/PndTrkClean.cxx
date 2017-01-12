@@ -332,11 +332,11 @@ PndTrkClusterList PndTrkClean::Cleanup2(PndTrkCluster *cluster) {
     hit->SetSortVariable(dist);
   }
   cluster->Sort();
-  for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
-    PndTrkHit *hit = cluster->GetHit(ihit);
+  //for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) { //[R.K. 01/2017] unused variable
+    //PndTrkHit *hit = cluster->GetHit(ihit); //[R.K. 01/2017] unused variable
     //  cout << "sorted hit " << ihit << " " << hit->GetDetectorID() << " " << hit->GetHitID() << " " << hit->GetSortVariable() << " " << hit->IsSortable() << endl;
 
-  }
+  //} //[R.K. 01/2017] unused variable
   std::vector< int > failedhits, breakpoints;
   for(int ihit = 0; ihit < cluster->GetNofHits(); ihit++) {
     PndTrkHit *hit = cluster->GetHit(ihit);
@@ -438,7 +438,7 @@ PndTrkClusterList PndTrkClean::Cleanup2(PndTrkCluster *cluster) {
 // CHECK if it works
 Bool_t PndTrkClean::SplitAtHit(PndTrkCluster *hitlist, PndTrkHit *athit, PndTrkCluster &cluster1, PndTrkCluster &cluster2) {
 
-  PndTrkHit *tmphit = hitlist->GetHit(0);
+  //PndTrkHit *tmphit = hitlist->GetHit(0); //[R.K. 01/2017] unused variable?
 
   cluster1.AddHit(athit);
   cluster2.AddHit(athit);

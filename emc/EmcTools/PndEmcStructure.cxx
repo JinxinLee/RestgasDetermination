@@ -90,12 +90,12 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan): emcX(), emcY(), emcZ(), f
   
 	int module,copy,row,crystal;
 	TString node_path;
-	const char* crystal_name;
+	//const char* crystal_name; //[R.K. 01/2017] unused variable?
 	const TGeoMatrix *crystal_matrix;
 	const double *trans;
 	TGeoRotation geoRot;
 	TRotation rot;
-	Double_t phi, theta, psi;
+	//Double_t phi, theta, psi; //[R.K. 01/2017] unused variable?
 	int detId;
 	
 	TGeoIterator next(geoMan->GetTopVolume());
@@ -237,7 +237,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 	// Case of barrel section with hole
 	///////////////////////////////////////////////////////////////////////////
 	if (node_path.Contains("Emc12Hole")){
-		int tmp1,tmp2;
+		//int tmp1,tmp2; //[R.K. 01/2017] unused variable?
 		if (node_path.Contains("EmcLayer2Hole"))
 		{
 			sscanf(node_path.Data(),"cave/Emc12Hole_%d/EmcLayer2Hole_0/emc%dr%dc%d_0$",&copy,&module,&row,&crystal);
@@ -642,7 +642,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 			}
 		}
      
-		Int_t col=0, k1=0, nRow=-1, nCrys=-1;
+		Int_t col=0, nRow=-1, nCrys=-1; //k1=0,  //[R.K. 01/2017] unused variable?
 		Int_t subrow=4;   // 4 crystals in each subvolume
 		Int_t next=0;     // starts (from the middle) next column 
 	  

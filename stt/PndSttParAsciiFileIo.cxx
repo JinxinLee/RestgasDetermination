@@ -95,6 +95,6 @@ template<class T> Int_t PndSttParAsciiFileIo::writeFile2(T* pPar) {
   //   function writeline(...)
   pPar->putAsciiHeader(fHeader);
   writeHeader(pPar->GetName());
-  Text_t buf[155];
+  Text_t buf[155]; //FIXME: unused variable?
   return 1;
 }

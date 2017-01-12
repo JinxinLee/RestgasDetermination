@@ -149,8 +149,8 @@ Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
   
   float Generator=0.; //  Format in which events are produced (0=pythia, 1=pluto)
 
-  Double_t weight = 1.0;
-  Int_t activeCnt=0;
+  //Double_t weight = 1.0; //[R.K. 01/2017] unused variable?
+  //Int_t activeCnt=0; //[R.K. 01/2017] unused variable?
 
   // run generator
 	dpm_gen_(&Generator, &fSeed);

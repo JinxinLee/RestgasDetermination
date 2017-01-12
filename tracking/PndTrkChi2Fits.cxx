@@ -30,8 +30,8 @@ void  PndTrkChi2Fits:: Calculations_Mvd(
 					)
 {
  Short_t
-	i,
-	j;
+	i;
+	//j; //[R.K. 01/2017] unused variable?
 
  Mvd_DipVar_DipVar_Sum = 0. ;
  Mvd_IndVar_DipVar_Sum = 0. ;
@@ -518,7 +518,7 @@ return 1;
   Short_t
 	i,
 	j,
-	nHitsinFit,
+	//nHitsinFit, //[R.K. 01/2017] unused variable?
 	nMvdHits,
 	nSttHits,
 	status;
@@ -544,12 +544,12 @@ return 1;
 
 	Penalty,
 
-	Stt_DipVar_Sum,
+	//Stt_DipVar_Sum, //[R.K. 01/2017] unused variable?
 	Stt_DipVar_DipVar_Sum,
 	Stt_DriftRad_DipVar[nHitsinTrack],
 	Stt_DriftRad_DriftRad_Sum,
 	Stt_DriftRad_IndVar[nHitsinTrack],
-	Stt_IndVar_Sum,
+	//Stt_IndVar_Sum, //[R.K. 01/2017] unused variable?
 	Stt_IndVar_DipVar_Sum,
 	Stt_IndVar_IndVar_Sum;
 

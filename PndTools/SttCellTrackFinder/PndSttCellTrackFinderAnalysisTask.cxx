@@ -233,7 +233,7 @@ void PndSttCellTrackFinderAnalysisTask::CheckFirstTracklets() {
 	if (fVerbose > 1)
 		cout << "=== CheckFirstTracklets() ===" << endl;
 
-	PndMCTrack* myMCTrack;
+	//PndMCTrack* myMCTrack; //[R.K. 01/2017] unused variable?
 	PndTrackCand* myTrackCand;
 	vector<PndTrackCandHit> hits;
 	int eventNumber;
@@ -339,7 +339,7 @@ void PndSttCellTrackFinderAnalysisTask::CheckTrackletCombinations() {
 
 	if (fVerbose > 1)
 		cout << "=== CheckTrackletCombinations() ===" << endl;
-	PndMCTrack* myMCTrack;
+	//PndMCTrack* myMCTrack; //[R.K. 01/2017] unused variable?
 	PndTrackCand* myTrackCand;
 	vector<PndTrackCandHit> hits;
 	int eventNumber;
@@ -913,8 +913,8 @@ void PndSttCellTrackFinderAnalysisTask::TestRecoQualityFirstStep() {
 
 	}
 
-	int numberOfLinks, candTrackIndex, numMCHits, numTrackHits,
-			numSkewedTubesMC, numSkewedTubesCand, hitIndex;
+	int candTrackIndex, numMCHits, numTrackHits,
+			numSkewedTubesMC, numSkewedTubesCand, hitIndex; //numberOfLinks,  //[R.K. 01/2017] unused variable?
 	double amount;
 
 	for (int i = 0; i < trackCandToMCTrack.GetNEntries(); i++) {
@@ -1135,8 +1135,8 @@ void PndSttCellTrackFinderAnalysisTask::TestRecoQualityCombi() {
 
 	}
 
-	int numberOfLinks, candTrackIndex, numMCHits, numTrackHits,
-			numSkewedTubesMC, numSkewedTubesCand, hitIndex;
+	int candTrackIndex, numMCHits, numTrackHits,
+			numSkewedTubesMC, numSkewedTubesCand, hitIndex;// numberOfLinks,  //[R.K. 01/2017] unused variable?
 	double amount;
 
 	for (int i = 0; i < trackCandToMCTrack.GetNEntries(); i++) {

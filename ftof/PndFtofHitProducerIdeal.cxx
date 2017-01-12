@@ -81,8 +81,8 @@ InitStatus PndFtofHitProducerIdeal::Init()
 void PndFtofHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  //FairRun* ana = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb=ana->GetRuntimeDb(); //[R.K. 01/2017] unused variable?
   //fGeoPar = (PndGeoFtofPar*)(rtdb->getContainer("PndGeoFtofPar"));
 
 }
@@ -106,11 +106,12 @@ void PndFtofHitProducerIdeal::Exec(Option_t* opt)
     trackID = 0;     // Track index
 
 
-  Double_t time = 0.;Double_t scitime = 0.;
-  Double_t t2 = 0.;
+  Double_t time = 0.;
+  //Double_t scitime = 0.; //[R.K. 01/2017] unused variable?
+  //Double_t t2 = 0.; //[R.K. 01/2017] unused variable?
   Double_t t1 = 0.;
-  Double_t phdt2 = 0.,tdc12 =0.,tz=0.;
-  Double_t phdt1 = 0.,tsig = 0.;
+  //Double_t phdt2 = 0.,tdc12 =0.,tz=0.; //[R.K. 01/2017] unused variable?
+  //Double_t phdt1 = 0.,tsig = 0.; //[R.K. 01/2017] unused variable?
 
   // Loop over FtofPoints
   Int_t 

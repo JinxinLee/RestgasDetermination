@@ -138,7 +138,7 @@ std::vector<std::pair<TLorentzVector, int> > OnlineDBuilderTask::CombineFirstWit
 	for (int outer = 0; outer < first.size(); outer++){
 //		std::cout << "OnlineDBuilderTask::CombineFirstWithTwoSecond: " << "second.size() = " << second.size() << std::endl;
 		for (int inner1 = 0; inner1 < (second.size() - 1); inner1++){
-			bool temp = inner1 < second.size() - 1;
+			//bool temp = inner1 < second.size() - 1; //[R.K. 01/2017] unused variable
 //			std::cout << "OnlineDBuilderTask::CombineFirstWithTwoSecond: " << "inner: " << 0 << ", second.size() - 1: " << second.size() - 1 << ", inner < second.size() - 1: " << temp  << std::endl;
 			for (int inner2 = inner1 + 1; inner2 < second.size(); inner2++){
 				PndTrack* kTrack = first[outer];
@@ -176,7 +176,7 @@ std::vector<std::pair<TLorentzVector, int> > OnlineDBuilderTask::CombineFirstWit
 				}
 
 				int mostProbMCPi2 = -1;
-				int countPi2 = -1;
+				//int countPi2 = -1; //[R.K. 01/2017] unused variable
 				int pi2McId = -1;
 				for (int i = 0; i < pi2Links.GetNLinks(); i++){
 					if (pi2Links.GetLink(i).GetWeight() > countPi){

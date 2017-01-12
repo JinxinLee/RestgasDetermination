@@ -87,7 +87,7 @@ void PndSttGeometryMap::SetGeneralParametersGeoType1() {   //  CHECK whether it 
  
   fNLayers = 26;
   fNSectors = 6;
-  const int size = 26* 6; // CHECK
+  //const int size = 26* 6; // CHECK //[R.K. 01/2017] unused variable?
  
  
   fNTubes_inner_parallel = 1000;

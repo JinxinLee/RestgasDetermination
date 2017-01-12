@@ -99,8 +99,8 @@ InitStatus PndLmdDigiQTask::Init()
   fDigiQ = new TClonesArray("PndLmdDigiQ");
   ioman->Register("LMDPixelDigisQ","DigiQ",fDigiQ,kTRUE);
 
-  FairRun* fRun = FairRun::Instance();
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  //FairRun* fRun = FairRun::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb = fRun->GetRuntimeDb(); //[R.K. 01/2017] unused variable
 
   // if(lmddim!=0 ) lmddim->Cleanup();
   lmddim = PndLmdDim::Instance();
@@ -116,18 +116,18 @@ void PndLmdDigiQTask::Exec(Option_t* opt)
   FairRootManager* ioman = FairRootManager::Instance();
   double glEvTime= ioman->GetEventTime();
   fDigiQ->Delete();
-  const int nMCHits = fMCHits->GetEntriesFast();
+  //const int nMCHits = fMCHits->GetEntriesFast(); //[R.K. 01/2017] unused variable
   const int nDigis = fDigis->GetEntriesFast();
   const int nParticles = fMCTracks->GetEntriesFast();
 
   /// Set elastic/inelastic flag ----------------------------------------------------
   bool elfl=false;
   int sumID=0;
-  int TotCharge=0;
+  //int TotCharge=0; //[R.K. 01/2017] unused variable
   for (Int_t iN=0; iN<nParticles; iN++){
 
     PndMCTrack *mctrk =(PndMCTrack*) fMCTracks->At(iN);
-    int glPDG = mctrk->GetPdgCode();
+    //int glPDG = mctrk->GetPdgCode(); //[R.K. 01/2017] unused variable
     Int_t mcID = mctrk->GetPdgCode();
     int motherid = mctrk->GetMotherID();
     if(motherid<0){

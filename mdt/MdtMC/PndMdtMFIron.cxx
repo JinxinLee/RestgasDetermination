@@ -43,13 +43,14 @@ void PndMdt::PndMdtMFIron()
 //Additional definitions
     Text_t buffer[30];
     Text_t longbuffer[250];
-    Double_t mpx, mpy, mpz;
-    Double_t mx0, my0, mz0;
+    //Double_t mpx, mpy, mpz;
+    //Double_t mx0, my0,  //[R.K. 01/2017] unused variable?
+    Double_t mz0;
     Double_t my;
-    int k;
+    //int k; //[R.K. 01/2017] unused variable?
     Double_t dx1, dx2, dy1, dy2, dz;
     TGeoRotation tRot, tRotSlice;
-    Double_t angle;
+    //Double_t angle; //[R.K. 01/2017] unused variable?
 
     FairGeoLoader*geoLoad = FairGeoLoader::Instance();
     FairGeoInterface *geoFace = geoLoad->getGeoInterface();

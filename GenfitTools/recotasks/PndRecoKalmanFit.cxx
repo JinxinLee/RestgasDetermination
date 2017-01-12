@@ -139,7 +139,7 @@ Bool_t PndRecoKalmanFit::Init()
 	}
     }
   
-  TClonesArray *sttr;  TClonesArray* sthit; 
+  TClonesArray* sthit; //  TClonesArray *sttr;   //[R.K. 01/2017] unused variable?
 
   if (fCentralTrackerBranchName == "Mix")
     {

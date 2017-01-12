@@ -75,8 +75,8 @@ InitStatus PndHypPidIdealTask::Init()
 void PndHypPidIdealTask::SetParContainers()
 {
   // Get Base Container
-  FairRunAna* ana = FairRunAna::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  //FairRunAna* ana = FairRunAna::Instance(); //[R.K. 01/2017] unused variable?
+  //FairRuntimeDb* rtdb=ana->GetRuntimeDb(); //[R.K. 01/2017] unused variable
 
 }
 

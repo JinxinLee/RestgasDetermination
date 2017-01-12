@@ -232,7 +232,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
 
-  Int_t nPoints = fDigiArray->GetEntriesFast();
+  //Int_t nPoints = fDigiArray->GetEntriesFast();
 //  if (fVerbose > 1)
 //	  std::cout << "Points in DigiArray: " << nPoints << std::endl;
 

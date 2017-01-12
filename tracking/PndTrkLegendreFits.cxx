@@ -311,8 +311,8 @@ Short_t PndTrkLegendreFits::FitSZspace(
 	CellMax,
 	ncell,
 	nMvdHits,
-	nSttHits,
-	result;
+	nSttHits;
+	//result; //[R.K. 01/2017] unused variable?
 
  UShort_t
 	Matrix[ThetaDiv];
@@ -610,7 +610,7 @@ void PndTrkLegendreFits::LoadMatrix_FindMaximum2(
 					)
 {
 
- const int MAXCONTENT= 30000;
+ //const int MAXCONTENT= 30000; //[R.K. 01/2017] unused variable?
 
 
 
@@ -626,7 +626,7 @@ void PndTrkLegendreFits::LoadMatrix_FindMaximum2(
 	j,
 	List_filled_cells_IndexR[nHitsinTrack*LEGIANDRE_NTHETADIV],
 	List_filled_cells_IndexT[nHitsinTrack*LEGIANDRE_NTHETADIV],
-	maxval,
+	//maxval, //[R.K. 01/2017] unused variable?
 	n_filled_cells;
 
  Int_t	Matrix[LEGIANDRE_NRADIUSDIV][LEGIANDRE_NTHETADIV];
@@ -636,8 +636,8 @@ void PndTrkLegendreFits::LoadMatrix_FindMaximum2(
 	DeltaR,
 	Drift[nHitsinTrack],
 	HistoRmax,
-	R,
-	Theta;
+	R;
+	//Theta; //[R.K. 01/2017] unused variable?
 
 
  PndTrkMergeSort MergerSorter;

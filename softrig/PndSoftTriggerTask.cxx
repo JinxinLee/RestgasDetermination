@@ -819,7 +819,7 @@ void PndSoftTriggerTask::Exec(Option_t* opt)
 	if ( fTcaOnlineFilterInfo->GetEntriesFast() != 0 ) fTcaOnlineFilterInfo->Delete();
 	
 	// *** some variables
-	int i=0,j=0, k=0;
+	//int i=0,j=0, k=0; //[R.K. 01/2017] unused variable
 	
 	if (!(++fEvtCount%100)) cout << "[PndSoftTriggerTask] evt "<<fEvtCount<<endl;
 	
@@ -1334,8 +1334,8 @@ double PndSoftTriggerTask::GetVarValue(RhoCandidate *c, int id)
 	//  3 (vtx) |  pocqa  | pocdist | pocctau |         |         |
 	//  4 (ang) |  oang   | decang  | cdecang |         |         |
 	
-	double val = -999.;
-	double pocqa, pocdist, pocctau, oang, decang, cdecang, pidmax;
+	//double val = -999.; //[R.K. 01/2017] unused variable
+	double pocdist, pocctau, oang, decang, cdecang, pidmax; //pocqa, //[R.K. 01/2017] unused variable
 	TLorentzVector bl;
 	
 	switch (quant)

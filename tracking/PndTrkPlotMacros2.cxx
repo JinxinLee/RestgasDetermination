@@ -337,12 +337,12 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 //  marker1 per cambioperl;
 
 //---------------  trasformazione   in variabili locali;
-	int MAXMCTRACKS = In_Put.MAXMCTRACKS;
+	//int MAXMCTRACKS = In_Put.MAXMCTRACKS; //[R.K. 01/2017] unused variable?
 	int MAXMVDPIXELHITS = In_Put.MAXMVDPIXELHITS;
 	int MAXMVDPIXELHITSINTRACK = In_Put.MAXMVDPIXELHITSINTRACK;
 	int MAXMVDSTRIPHITS = In_Put.MAXMVDSTRIPHITS;
 	int MAXMVDSTRIPHITSINTRACK = In_Put.MAXMVDSTRIPHITSINTRACK;
-	int MAXSCITILHITS = In_Put.MAXSCITILHITS;
+	//int MAXSCITILHITS = In_Put.MAXSCITILHITS; //[R.K. 01/2017] unused variable?
 	int MAXSCITILHITSINTRACK = In_Put.MAXSCITILHITSINTRACK;
 	int MAXSTTHITS = In_Put.MAXSTTHITS;
 	int MAXSTTHITSINTRACK = In_Put.maxstthitsintrack;
@@ -375,7 +375,7 @@ void PndTrkPlotMacros2::DrawHexagonCircleInMacro(
 	int IVOLTE = In_Put.IVOLTE;
  Vec<Double_t> KAPPA(In_Put.KAPPA,In_Put.MAXTRACKSPEREVENT,"KAPPA") ;
  Vec<bool> keepit(In_Put.keepit,In_Put.MAXTRACKSPEREVENT,"keepit") ;
-	int istampa = In_Put.istampa;
+	//int istampa = In_Put.istampa; //[R.K. 01/2017] unused variable?
 
  Vec<Short_t> ListMvdPixelHitsinTrack(In_Put.ListMvdPixelHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDPIXELHITSINTRACK,"ListMvdPixelHitsinTrack") ;
 
@@ -944,12 +944,12 @@ void PndTrkPlotMacros2::WriteMacroAllHitsRestanti(
  char	nome[300],
 		nome2[300];
 
- int i,j,k;
+ int i,j;//,k; //[R.K. 01/2017] unused variable?
 
 
- Double_t	delta,
-			deltax,
-			deltay,
+ Double_t	//delta, //[R.K. 01/2017] unused variable?
+			//deltax, //[R.K. 01/2017] unused variable?
+			//deltay, //[R.K. 01/2017] unused variable?
 			xmin,
 			xmax,
 			ymin,
@@ -1139,24 +1139,24 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneral(
 {
 //  fine cambio_in_perl ;
 
-    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+    Int_t i, j, ii;//, i1, index, Kincl, nlow, nup, STATUS; //[R.K. 01/2017] unused variable?
 
-    Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu,
-           gamma,
-           dx, dy, diff, d1, d2,
-           delta, deltax, deltay, deltaz, deltaS,
-           factor,ff,
-           zmin, zmax, Smin, Smax, S1, S2,
-           z1, z2, y1, y2,x1,x2,
-           vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, rrr, angle, minor, major,
-           distance, Rx, Ry, LL,
-           Aellipsis1, Bellipsis1,fi1,
-           fmin, fmax, offset, step,
-	   zpos, zpos1, zpos2,
-           Tiltdirection1[2],
-           zl[200],zu[200],
-           POINTS1[6];
+    Double_t xmin , xmax, ymin, ymax, //xl, xu, yl, yu, //[R.K. 01/2017] unused variable?
+           //gamma, //[R.K. 01/2017] unused variable?
+           //dx, dy, diff, d1, d2, //[R.K. 01/2017] unused variable?
+           //delta, deltax, deltay, deltaz, deltaS, //[R.K. 01/2017] unused variable?
+           //factor,ff, //[R.K. 01/2017] unused variable?
+           //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable?
+           y1, y2,x1,x2,//z1, z2,  //[R.K. 01/2017] unused variable?
+           //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
+           aaa, bbb, rrr; //ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
+           //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
+           //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable?
+           //fmin, fmax, offset, step, //[R.K. 01/2017] unused variable?
+	         //zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable?
+           //Tiltdirection1[2], //[R.K. 01/2017] unused variable?
+           //zl[200],zu[200], //[R.K. 01/2017] unused variable?
+           //POINTS1[6]; //[R.K. 01/2017] unused variable?
 
       char nome[300], nome2[300];
 
@@ -1418,7 +1418,7 @@ fprintf(MACRO,
   for(i=0; i<nMCTracks;i++) {
 	Int_t icode;
 		Double_t alfa0, newalfa, newx, newy,primo, ultimo ;
-         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+         Double_t Rr, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;// Dd, Fifi, //[R.K. 01/2017] unused variable?
 		PndMCTrack* pMC;
 		pMC = (PndMCTrack*) fMCTrackArray->At(i);
          	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
@@ -1591,24 +1591,24 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneralConformalwithMC(
 {
 //  fine cambio_in_perl ;
 
-    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+    Int_t i; //, j, i1, ii, index, Kincl, nlow, nup, STATUS; //[R.K. 01/2017] unused variable?
 
     Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu,
            gamma,
-           dx, dy, diff, d1, d2,
-           delta, deltax, deltay, deltaz, deltaS,
-           factor,ff,
-           zmin, zmax, Smin, Smax, S1, S2,
-           z1, z2, y1, y2,x1,x2,
-           vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, rrr, angle, minor, major,
-           distance, Rx, Ry, LL,
-           Aellipsis1, Bellipsis1,fi1,
-           fmin, fmax, offset, step,
-	   zpos, zpos1, zpos2,
-           Tiltdirection1[2],
-           zl[200],zu[200],
-           POINTS1[6];
+           //dx, dy, diff, d1, d2, //[R.K. 01/2017] unused variable?
+           delta, deltax, deltay, //deltaz, deltaS, //[R.K. 01/2017] unused variable?
+           ff,//factor, //[R.K. 01/2017] unused variable?
+           //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable?
+           y1, y2,x1,x2,// z1, z2,  //[R.K. 01/2017] unused variable?
+           //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
+           aaa, bbb, rrr; //ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
+           //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
+           //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable?
+           //fmin, fmax, offset, step, //[R.K. 01/2017] unused variable?
+	         //zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable?
+           //Tiltdirection1[2], //[R.K. 01/2017] unused variable?
+           //zl[200],zu[200], //[R.K. 01/2017] unused variable?
+           //POINTS1[6]; //[R.K. 01/2017] unused variable?
 
       char nome[300], nome2[300];
 
@@ -1844,7 +1844,7 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneralConformalwithMC(
 //   plotting all the tracks MC generated
 	if(doMcComparison){
 	Int_t icode;
-         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+         Double_t Rr, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;// Dd, Fifi, //[R.K. 01/2017] unused variable?
      PndMCTrack* pMC;
 	for(i=0;i<nMCTracks; i++){
 		pMC = (PndMCTrack*) In_Put.fMCTrackArray->At(i);
@@ -1971,24 +1971,24 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 {
 //  fine cambio_in_perl ;
 
-    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+    Int_t i; //, j, i1, ii, index, Kincl, nlow, nup, STATUS; //[R.K. 01/2017] unused variable?
 
     Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu,
            gamma,
-           dx, dy, diff, d1, d2,
-           delta, deltax, deltay, deltaz, deltaS,
-           factor,ff,
-           zmin, zmax, Smin, Smax, S1, S2,
-           z1, z2, y1, y2,x1,x2,
-           vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, rrr, angle, minor, major,
-           distance, Rx, Ry, LL,
-           Aellipsis1, Bellipsis1,fi1,
-           fmin, fmax, offset, step,
-	   zpos, zpos1, zpos2,
-           Tiltdirection1[2],
-           zl[200],zu[200],
-           POINTS1[6];
+           //dx, dy, diff, d1, d2, //[R.K. 01/2017] unused variable?
+           delta, deltax, deltay,// deltaz, deltaS, //[R.K. 01/2017] unused variable?
+           ff,//factor, //[R.K. 01/2017] unused variable?
+           //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable?
+           y1, y2,x1,x2,//z1, z2,  //[R.K. 01/2017] unused variable?
+           //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
+           aaa, bbb, rrr; //ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
+           //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
+           //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable?
+           //fmin, fmax, offset, step, //[R.K. 01/2017] unused variable?
+	         //zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable?
+           //Tiltdirection1[2], //[R.K. 01/2017] unused variable?
+           //zl[200],zu[200], //[R.K. 01/2017] unused variable?
+           //POINTS1[6]; //[R.K. 01/2017] unused variable?
 
       char nome[300], nome2[300];
 
@@ -2306,7 +2306,7 @@ void PndTrkPlotMacros2::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 //   plotting all the tracks MC generated
 	if(doMcComparison){
 	Int_t icode;
-         Double_t Rr, Dd, Fifi, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;
+         Double_t Rr, Oxx, Oyy, Cx, Cy, Px, Py, carica  ;// Dd, Fifi, //[R.K. 01/2017] unused variable?
      PndMCTrack* pMC;
 	for(i=0;i<nMCTracks; i++){
 		pMC = (PndMCTrack*) In_Put.fMCTrackArray->At(i);
@@ -2425,16 +2425,16 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
  Short_t *MCMvdStripAloneList = In_Put.MCMvdStripAloneList ;
  Short_t *MCSkewAloneList = In_Put.MCSkewAloneList ;
  Short_t *MvdPixelCommonList = In_Put.MvdPixelCommonList;
- Short_t *MvdPixelSpuriList = In_Put.MvdPixelSpuriList;
+ //Short_t *MvdPixelSpuriList = In_Put.MvdPixelSpuriList; //[R.K. 01/2017] unused variable?
  Short_t *MvdStripCommonList = In_Put.MvdStripCommonList;
 
  Short_t nMCMvdPixelAlone = In_Put.nMCMvdPixelAlone[iTrack] ;
  Short_t nMCMvdStripAlone = In_Put.nMCMvdStripAlone[iTrack] ;
  Short_t nMCSkewAlone = In_Put.nMCSkewAlone[iTrack] ;
  Short_t nMvdPixelCommon = In_Put.nMvdPixelCommon[iTrack] ;
- Short_t nMvdPixelSpuriinTrack = In_Put.nMvdPixelSpuriinTrack[iTrack] ;
+ //Short_t nMvdPixelSpuriinTrack = In_Put.nMvdPixelSpuriinTrack[iTrack] ; //[R.K. 01/2017] unused variable?
  Short_t nMvdStripCommon = In_Put.nMvdStripCommon[iTrack] ;
- Short_t nMvdStripSpuriinTrack = In_Put.nMvdStripSpuriinTrack[iTrack] ;
+ //Short_t nMvdStripSpuriinTrack = In_Put.nMvdStripSpuriinTrack[iTrack] ; //[R.K. 01/2017] unused variable?
 
  Short_t *nPixelHitsinTrack = In_Put.nMvdPixelHitsinTrack ;
  Short_t *nSciTilHitsinTrack = In_Put.nSciTilHitsinTrack;
@@ -2465,24 +2465,24 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 
  int icolore;
 
-    Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
+    Int_t i, j, i1, ii, iii, imc, Nmin, Nmax;// index, Kincl, nlow, nup, STATUS, //[R.K. 01/2017] unused variable?
 
-    Double_t xmin , xmax, ymin, ymax,
-           dx, dy, diff, d1, d2,
-           delta, deltax, deltay, deltaz, deltaS,
-           esse,factor,
-           zmin, zmax, zmin2, zmax2, Smin, Smax, S1, S2,
-           z1, z2, y1, y2,
-           vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, angle, minor, major,dis,
-           distance, Rx, Ry, LL,
-           Aellipsis1, Bellipsis1,fi1,
-           fmin, fmax, offset, step,
-	   zpos, zpos1, zpos2,
-	   dist[2],
-           Tiltdirection1[2],
-           zl[200],zu[200],
-           POINTS1[6];
+    Double_t //xmin , xmax, ymin, ymax, //[R.K. 01/2017] unused variable?
+           //dx, dy, diff, d1, d2, //[R.K. 01/2017] unused variable?
+           deltaz, deltaS,//delta, deltax, deltay,  //[R.K. 01/2017] unused variable?
+           esse,//factor, //[R.K. 01/2017] unused variable?
+           zmin, zmax, zmin2, zmax2, Smin, Smax, //S1, S2, //[R.K. 01/2017] unused variable?
+           z1, z2, //y1, y2, //[R.K. 01/2017] unused variable?
+           //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
+           aaa, dis, //bbb, ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
+           //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
+           //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable?
+           fmin, fmax, offset; //step, //[R.K. 01/2017] unused variable?
+	         //zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable?
+	         //dist[2], //[R.K. 01/2017] unused variable?
+           //Tiltdirection1[2], //[R.K. 01/2017] unused variable?
+           //zl[200],zu[200], //[R.K. 01/2017] unused variable?
+           //POINTS1[6]; //[R.K. 01/2017] unused variable?
 
  const Double_t PI=3.141592654;
 
@@ -2544,8 +2544,8 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 	auxSDrift[2],		// output; drift radius projected onto the Helix along the S direction.
 	auxZ[2],		// output, Zcoordinate of the central wire.
 	auxZDrift[2],		// output, drift radius projected onto the Helix along the Z direction.
-	auxZErrorafterTilt[2],	// output, 150 micron projected onto the Helix.
-	res = 0.015;
+	auxZErrorafterTilt[2];	// output, 150 micron projected onto the Helix.
+	//res = 0.015; //[R.K. 01/2017] unused variable?
  Double_t auxInfo[  In_Put.MAXSTTHITS ][7];
  for(i=0;i<In_Put.MAXSTTHITS;i++){
 	for(j=0;j<7;j++){
@@ -3120,7 +3120,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 
        if( imc>-1 ) {
 	Int_t icode ;
-         Double_t r_r, Dd, Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;
+         Double_t r_r, Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;// Dd, //[R.K. 01/2017] unused variable?
 		PndMCTrack* pMC;
 		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
 	if ( pMC ) {
@@ -3227,16 +3227,16 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
  Short_t *MCMvdStripAloneList = In_Put.MCMvdStripAloneList ;
  Short_t *MCSkewAloneList = In_Put.MCSkewAloneList ;
  Short_t *MvdPixelCommonList = In_Put.MvdPixelCommonList;
- Short_t *MvdPixelSpuriList = In_Put.MvdPixelSpuriList;
+ //Short_t *MvdPixelSpuriList = In_Put.MvdPixelSpuriList; //[R.K. 01/2017] unused variable?
  Short_t *MvdStripCommonList = In_Put.MvdStripCommonList;
 
  Short_t nMCMvdPixelAlone = In_Put.nMCMvdPixelAlone[iTrack] ;
  Short_t nMCMvdStripAlone = In_Put.nMCMvdStripAlone[iTrack] ;
  Short_t nMCSkewAlone = In_Put.nMCSkewAlone[iTrack] ;
  Short_t nMvdPixelCommon = In_Put.nMvdPixelCommon[iTrack] ;
- Short_t nMvdPixelSpuriinTrack = In_Put.nMvdPixelSpuriinTrack[iTrack] ;
+ //Short_t nMvdPixelSpuriinTrack = In_Put.nMvdPixelSpuriinTrack[iTrack] ; //[R.K. 01/2017] unused variable?
  Short_t nMvdStripCommon = In_Put.nMvdStripCommon[iTrack] ;
- Short_t nMvdStripSpuriinTrack = In_Put.nMvdStripSpuriinTrack[iTrack] ;
+ //Short_t nMvdStripSpuriinTrack = In_Put.nMvdStripSpuriinTrack[iTrack] ; //[R.K. 01/2017] unused variable?
 
  Short_t *nPixelHitsinTrack = In_Put.nMvdPixelHitsinTrack ;
  Short_t *nSciTilHitsinTrack = In_Put.nSciTilHitsinTrack;
@@ -3267,24 +3267,24 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 
  int icolore;
 
-    Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
+    Int_t i, j, i1, ii, iii, imc, Nmin, Nmax; //index, Kincl, nlow, nup, STATUS //[R.K. 01/2017] unused variable?
 
-    Double_t xmin , xmax, ymin, ymax,
-           dx, dy, diff, d1, d2,
-           delta, deltax, deltay, deltaz, deltaS,
-           esse,factor,
-           zmin, zmax, zmin2, zmax2, Smin, Smax, S1, S2,
-           z1, z2, y1, y2,
-           vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, angle, minor, major,dis,
-           distance, Rx, Ry, LL,
-           Aellipsis1, Bellipsis1,fi1,
-           fmin, fmax, offset, step,
-	   zpos, zpos1, zpos2,
-	   dist[2],
-           Tiltdirection1[2],
-           zl[200],zu[200],
-           POINTS1[6];
+    Double_t //xmin , xmax, ymin, ymax, //[R.K. 01/2017] unused variable?
+           //dx, dy, diff, d1, d2, //[R.K. 01/2017] unused variable?
+           deltaz, deltaS,//delta, deltax, deltay, //[R.K. 01/2017] unused variable?
+           esse,//factor, //[R.K. 01/2017] unused variable?
+           zmin, zmax, zmin2, zmax2, Smin, Smax, //S1, S2, //[R.K. 01/2017] unused variable?
+           z1, z2, //y1, y2, //[R.K. 01/2017] unused variable?
+           //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
+           aaa, dis, //bbb, ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
+           //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
+           //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable?
+           fmin, fmax, offset; //step, //[R.K. 01/2017] unused variable?
+	         //zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable?
+      	   //dist[2], //[R.K. 01/2017] unused variable?
+           //Tiltdirection1[2], //[R.K. 01/2017] unused variable?
+           //zl[200],zu[200], //[R.K. 01/2017] unused variable?
+           //POINTS1[6]; //[R.K. 01/2017] unused variable?
 
  const Double_t PI=3.141592654;
 
@@ -3346,8 +3346,8 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 	auxSDrift[2],		// output; drift radius projected onto the Helix along the S direction.
 	auxZ[2],		// output, Zcoordinate of the central wire.
 	auxZDrift[2],		// output, drift radius projected onto the Helix along the Z direction.
-	auxZErrorafterTilt[2],	// output, 150 micron projected onto the Helix.
-	res = 0.015;
+	auxZErrorafterTilt[2];	// output, 150 micron projected onto the Helix.
+	//res = 0.015; //[R.K. 01/2017] unused variable?
  Double_t auxInfo[  In_Put.MAXSTTHITS ][7];
  for(i=0;i<In_Put.MAXSTTHITS;i++){
 	for(j=0;j<7;j++){
@@ -3929,7 +3929,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 
        if( imc>-1 ) {
 	Int_t icode ;
-         Double_t r_r, Dd, Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;
+         Double_t r_r, Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;// Dd, //[R.K. 01/2017] unused variable?
 		PndMCTrack* pMC;
 		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
 	if ( pMC ) {
@@ -4020,40 +4020,40 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 {
 //  fine cambio_in_perl;
 
-    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+    Int_t i, j, ii; //i1,  index, Kincl, nlow, nup, STATUS; //[R.K. 01/2017] unused variable?
 
     Double_t xmin , xmax, ymin, ymax,
-           dx, dy, diff, d1, d2,
-           delta, deltax, deltay, deltaz, deltaS,
-           factor,
-           zmin, zmax, Smin, Smax, S1, S2,
-           z1, z2, y1, y2,x1,x2,
-           vx1, vy1, vz1, C0x1, C0y1, C0z1,
-           aaa, bbb, ccc, angle, minor, major,
-           distance, Rx, Ry, LL,
-           Aellipsis1, Bellipsis1,fi1,
-           fmin, fmax, offset, step,
-	   zpos, zpos1, zpos2,
-           Tiltdirection1[2],
-           zl[200],zu[200],
-           POINTS1[6];
+           //dx, dy, diff, d1, d2, //[R.K. 01/2017] unused variable?
+           //delta, deltax, deltay, deltaz, deltaS, //[R.K. 01/2017] unused variable?
+           //factor, //[R.K. 01/2017] unused variable?
+           //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable?
+           y1, y2,x1,x2, //z1, z2,  //[R.K. 01/2017] unused variable?
+           //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
+           aaa, bbb; //ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
+           //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
+           //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable?
+           //fmin, fmax, offset, step, //[R.K. 01/2017] unused variable?
+	         //zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable?
+           //Tiltdirection1[2], //[R.K. 01/2017] unused variable?
+           //zl[200],zu[200], //[R.K. 01/2017] unused variable?
+           //POINTS1[6]; //[R.K. 01/2017] unused variable?
 
 //  istruzione per perl : da qui non usare cambia_cxx ;
 
 //  conversioni  in variabili locali;
 
-	int MAXMCTRACKS = In_Put.MAXMCTRACKS;
-	int MAXMVDPIXELHITS = In_Put.MAXMVDPIXELHITS;
+	//int MAXMCTRACKS = In_Put.MAXMCTRACKS; //[R.K. 01/2017] unused variable?
+	//int MAXMVDPIXELHITS = In_Put.MAXMVDPIXELHITS; //[R.K. 01/2017] unused variable?
 	int MAXMVDPIXELHITSINTRACK = In_Put.MAXMVDPIXELHITSINTRACK;
-	int MAXMVDSTRIPHITS = In_Put.MAXMVDSTRIPHITS;
-	int MAXMVDSTRIPHITSINTRACK = In_Put.MAXMVDSTRIPHITSINTRACK;
-	int MAXSCITILHITS = In_Put.MAXSCITILHITS;
+	//int MAXMVDSTRIPHITS = In_Put.MAXMVDSTRIPHITS; //[R.K. 01/2017] unused variable?
+	//int MAXMVDSTRIPHITSINTRACK = In_Put.MAXMVDSTRIPHITSINTRACK; //[R.K. 01/2017] unused variable?
+	//int MAXSCITILHITS = In_Put.MAXSCITILHITS; //[R.K. 01/2017] unused variable?
 	int MAXSCITILHITSINTRACK = In_Put.MAXSCITILHITSINTRACK;
 	int MAXSTTHITS = In_Put.MAXSTTHITS;
 	int MAXSTTHITSINTRACK = In_Put.maxstthitsintrack;
-	int MAXTRACKSPEREVENT = In_Put.MAXTRACKSPEREVENT;
-	int dime = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+
-				MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK;
+	//int MAXTRACKSPEREVENT = In_Put.MAXTRACKSPEREVENT; //[R.K. 01/2017] unused variable?
+	//int dime = MAXSTTHITSINTRACK+MAXMVDPIXELHITSINTRACK+
+				//MAXMVDSTRIPHITSINTRACK+MAXSCITILHITSINTRACK; //[R.K. 01/2017] unused variable?
 
 	Double_t APOTEMAMAXINNERPARSTRAW = In_Put.apotemamaxinnerparstraw;
 	Double_t APOTEMAMAXSKEWSTRAW = In_Put.apotemamaxskewstraw;
@@ -4067,10 +4067,10 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
  Vec<Short_t> daTrackFoundaTrackMC(In_Put.daTrackFoundaTrackMC,In_Put.MAXTRACKSPEREVENT,
 			"daTrackFoundaTrackMC") ;
 	Double_t DIMENSIONSCITIL = In_Put.dimensionscitil;
-	bool doMcComparison = In_Put.doMcComparison;
+	//bool doMcComparison = In_Put.doMcComparison; //[R.K. 01/2017] unused variable?
  Vec<Double_t> FI0(In_Put.FI0,In_Put.MAXTRACKSPEREVENT,"FI0") ;
 	TClonesArray *fMCTrackArray = In_Put.fMCTrackArray;
-	TClonesArray *fSttPointArray = In_Put.fSttPointArray;
+	//TClonesArray *fSttPointArray = In_Put.fSttPointArray; //[R.K. 01/2017] unused variable?
 
  Vec<Double_t> info(In_Put.info,In_Put.MAXSTTHITS*7,"info") ; // dimensione originale : [MAXSTTHITS][7];
 
@@ -4079,7 +4079,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	int IVOLTE = In_Put.IVOLTE;
  Vec<Double_t> KAPPA(In_Put.KAPPA,In_Put.MAXTRACKSPEREVENT,"KAPPA") ;
  Vec<bool> keepit(In_Put.keepit,In_Put.MAXTRACKSPEREVENT,"keepit") ;
-	int istampa = In_Put.istampa;
+	//int istampa = In_Put.istampa; //[R.K. 01/2017] unused variable?
 
  Vec<Short_t> ListMvdPixelHitsinTrack(In_Put.ListMvdPixelHitsinTrack,In_Put.MAXTRACKSPEREVENT*In_Put.MAXMVDPIXELHITSINTRACK,"ListMvdPixelHitsinTrack") ;
 
@@ -4139,22 +4139,22 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
  Vec<Short_t> nMCParalAlone(In_Put.nMCParalAlone,In_Put.MAXTRACKSPEREVENT,"nMCParalAlone") ;
  Vec<Short_t> nMCSkewAlone(In_Put.nMCSkewAlone,In_Put.MAXTRACKSPEREVENT,"nMCSkewAlone") ;
 
-	Short_t nMCTracks = In_Put.nMCTracks;
+	//Short_t nMCTracks = In_Put.nMCTracks; //[R.K. 01/2017] unused variable?
 
  Vec<Short_t> nMvdPixelCommon(In_Put.nMvdPixelCommon,In_Put.nTotalCandidates,"nMvdPixelCommon") ;
-	Short_t nMvdPixelHit = In_Put.nMvdPixelHit;
+	//Short_t nMvdPixelHit = In_Put.nMvdPixelHit; //[R.K. 01/2017] unused variable?
  Vec<Short_t> nMvdPixelHitsinTrack(In_Put.nMvdPixelHitsinTrack,In_Put.MAXTRACKSPEREVENT,"nMvdPixelHitsinTrack") ;
  Vec<Short_t> nMvdPixelSpuriinTrack(In_Put.nMvdPixelSpuriinTrack,In_Put.MAXTRACKSPEREVENT,"nMvdPixelSpuriinTrack") ;
 
  Vec<Short_t> nMvdStripCommon(In_Put.nMvdStripCommon,In_Put.nTotalCandidates,"nMvdStripCommon") ;
-	Short_t nMvdStripHit = In_Put.nMvdStripHit;
+	//Short_t nMvdStripHit = In_Put.nMvdStripHit; //[R.K. 01/2017] unused variable?
  Vec<Short_t> nMvdStripHitsinTrack(In_Put.nMvdStripHitsinTrack,In_Put.MAXTRACKSPEREVENT,"nMvdStripHitsinTrack") ;
  Vec<Short_t> nMvdStripSpuriinTrack(In_Put.nMvdStripSpuriinTrack,In_Put.nTotalCandidates,"nMvdStripSpuriinTrack") ;
 
 
  Vec<Short_t> nParalCommon(In_Put.nParalCommon,In_Put.MAXTRACKSPEREVENT,"nParalCommon") ;
 
-	Short_t nSciTilHits = In_Put.nSciTilHits;
+	//Short_t nSciTilHits = In_Put.nSciTilHits; //[R.K. 01/2017] unused variable?
 
  Vec<Short_t> nSciTilHitsinTrack(In_Put.nSciTilHitsinTrack,In_Put.MAXTRACKSPEREVENT,"nSciTilHitsinTrack") ;
 
@@ -4162,13 +4162,13 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
  Vec<Short_t> nSpuriParinTrack(In_Put.nSpuriParinTrack,In_Put.MAXTRACKSPEREVENT,"nSpuriParinTrack") ;
 
-	Int_t    nSttHit = In_Put.nSttHit;
-	Int_t    nSttParHit = In_Put.nSttParHit;
+	//Int_t    nSttHit = In_Put.nSttHit; //[R.K. 01/2017] unused variable?
+	//Int_t    nSttParHit = In_Put.nSttParHit; //[R.K. 01/2017] unused variable?
  Vec<Short_t> nSttParHitsinTrack(In_Put.nSttParHitsinTrack,In_Put.MAXTRACKSPEREVENT,"nSttParHitsinTrack") ;
-	Int_t    nSttSkewHit = In_Put.nSttSkewHit;
+	//Int_t    nSttSkewHit = In_Put.nSttSkewHit; //[R.K. 01/2017] unused variable?
  Vec<Short_t> nSttSkewHitsinTrack(In_Put.nSttSkewHitsinTrack,In_Put.MAXTRACKSPEREVENT,"nSttSkewHitsinTrack") ;
 
-	Short_t  nTotalCandidates = In_Put.nTotalCandidates;
+	//Short_t  nTotalCandidates = In_Put.nTotalCandidates; //[R.K. 01/2017] unused variable?
  Vec<Short_t> nTrackCandHit(In_Put.nTrackCandHit,In_Put.MAXTRACKSPEREVENT,"nTrackCandHit") ;
 
  Vec<Double_t> Ox(In_Put.Ox,In_Put.MAXTRACKSPEREVENT,"Ox") ;
@@ -4459,7 +4459,7 @@ if( MvdPixelCommonList.at(iTrack*In_Put.MAXMVDPIXELHITSINTRACK+k)== ii){
 //----------------- ora la traccia MC corrispondente a questa traccia Stt
        if( daSttTrackaMCTrack>-1 ) {
 	Int_t icode, im;
-         Double_t r_r, Dd, Fifi, o_x, o_y, Cx, Cy, Px, Py, carica  ;
+         Double_t r_r, o_x, o_y, Cx, Cy, Px, Py, carica  ;// Dd, Fifi //[R.K. 01/2017] unused variable?
 		PndMCTrack* pMC;
 		im=daSttTrackaMCTrack;
 		pMC = (PndMCTrack*) fMCTrackArray->At(im);

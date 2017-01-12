@@ -235,9 +235,9 @@ void PndMvdGemTrackFinderOnHits::Exec(Option_t* opt) {
   */
 
   // Initialise control counters
-  Int_t nNoTrack     = 0;
-  Int_t nNoGemPoint  = 0;
-  Int_t nNoGemHit    = 0;
+  //Int_t nNoTrack     = 0; //[R.K. 01/2017] unused variable?
+  //Int_t nNoGemPoint  = 0; //[R.K. 01/2017] unused variable?
+  //Int_t nNoGemHit    = 0; //[R.K. 01/2017] unused variable?
   
   FindTrackSegments();
   for ( Int_t istat1 = 0 ; istat1 < fDigiPar->GetNStations() ; istat1++ ) {
@@ -563,7 +563,7 @@ void PndMvdGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
     itr = iterTS.recoTrackIndex;
     
     Bool_t hitInTrack[2] = {kFALSE,kFALSE};
-    Bool_t staInTrack[2] = {kFALSE,kFALSE};
+    //Bool_t staInTrack[2] = {kFALSE,kFALSE}; //[R.K. 01/2017] unused variable?
     for ( Int_t ih1 = 0 ; ih1 < 2 ; ih1++ ) {
       for ( Int_t ihit = 0 ; ihit < nofHits[itr] ; ihit++ ) 
 	if ( hitIndices[itr][ihit][0] == iterTS.detId   [ih1] )
@@ -1008,7 +1008,7 @@ Int_t PndMvdGemTrackFinderOnHits::FindTrackSegments() {
 
   Int_t nMvdPixelHits = fMvdPixelHitArray->GetEntriesFast();
   Int_t nMvdStripHits = fMvdStripHitArray->GetEntriesFast();
-  Int_t nGemHits = fGemHitArray->GetEntriesFast();
+  //Int_t nGemHits = fGemHitArray->GetEntriesFast(); //[R.K. 01/2017] unused variable?
    
   PndSdsHit* mvdHit1;
   PndSdsHit* mvdHit2;

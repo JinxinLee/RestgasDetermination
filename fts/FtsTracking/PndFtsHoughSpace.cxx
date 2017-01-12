@@ -775,8 +775,8 @@ void PndFtsHoughSpace::AddHitsToTrackletByCalculating(PndFtsHoughTracklet *curre
 
 	const Int_t xfirst  = fXaxis.GetFirst();
 	const Int_t xlast   = fXaxis.GetLast();
-	const Int_t yfirst  = fYaxis.GetFirst();
-	const Int_t ylast   = fYaxis.GetLast();
+	//const Int_t yfirst  = fYaxis.GetFirst(); //[R.K. 01/2017] unused variable?
+	//const Int_t ylast   = fYaxis.GetLast(); //[R.K. 01/2017] unused variable?
 
 	// 1 calculate the 2nd value for the next higher/lower theta bin of peak theta
 	UInt_t thetaBinLo = locmax-1;
@@ -912,7 +912,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksBinsWoMergingWith
 
 	//   -*-*-*-*-*Return location of bin with maximum value in the range*-*
 	//             ======================================================
-	Int_t binNumber, binx, biny, binz=0;
+	Int_t binNumber, binx, biny;
+  //, binz=0; //[R.K. 01/2017] unused variable?
 	// get values for first and last bins on each axis and take into account that we might want a search window (make sure search window stays within histogram)
 	const Int_t xfirst  = fXaxis.GetFirst()+vicinityLength;
 	const Int_t xlast   = fXaxis.GetLast()-vicinityLength;
@@ -947,7 +948,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksBinsWoMergingWith
 				Double_t peakThetaVal = fXaxis.GetBinCenter(locmax);
 				Double_t peakSecondVal = fYaxis.GetBinCenter(locmay);
 
-				Int_t binmaxglobal = Fill(peakThetaVal, peakSecondVal, 0); // returns binnumber without modifying the histogram
+				//Int_t binmaxglobal = Fill(peakThetaVal, peakSecondVal, 0); // returns binnumber without modifying the histogram //[R.K. 01/2017] unused variable?
 				Double_t peakThetaHw = fXaxis.GetBinWidth(peakThetaVal)/2.;
 				Double_t peakSecondHw = fYaxis.GetBinWidth(peakSecondVal)/2.;
 
@@ -1154,7 +1155,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 	Double_t currHeight;
 	Int_t peakBinX = 0;
 	Int_t peakBinY = 0;
-	Int_t peakBinZ = 0; // location of maximum (x,y,z)
+	//Int_t peakBinZ = 0; // location of maximum (x,y,z) //[R.K. 01/2017] unused variable?
 
 	for (Int_t currBinX=xFirstBin; currBinX<=xLastBin; ++currBinX) {
 		for (Int_t currBinY=yFirstBin; currBinY<=yLastBin; ++currBinY) {
