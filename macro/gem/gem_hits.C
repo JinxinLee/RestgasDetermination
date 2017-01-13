@@ -15,6 +15,7 @@ Int_t gem_hits(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   baseName.Form("Gem_%dStations_%gGeV_n%d",nStations,momentum,nEvents);
 
   TString parFile = baseName + "_par.root";
+  TString MCFile = baseName + ".root";
   TString digFile = baseName + "_digi.root";
   // ------------------------------------------------------------------------
   TString outFile = baseName + "_hits.root";
@@ -28,8 +29,9 @@ Int_t gem_hits(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(digFile);
+  fRun->AddFriend(MCFile);
   fRun->SetOutputFile(outFile);
-  
+  fRun->SetUseFairLinks(kTRUE);
 
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
