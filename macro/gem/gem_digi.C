@@ -32,7 +32,8 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   fRun->SetUseFairLinks(kTRUE);
 
   // -----  Parameter database   --------------------------------------------
-  TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
+  //TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
+  TString allDigiFile = sysFile+"/macro/params/gem_3Stations_realistic_v1.digi.par";
   if ( nStations == 4 ) allDigiFile = sysFile+"/macro/params/gem_4Stations.digi.par";
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
