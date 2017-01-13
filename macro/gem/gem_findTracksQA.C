@@ -19,6 +19,7 @@ Int_t gem_findTracksQA(Int_t nStations, Double_t momentum = 15., Int_t nEvents =
   TString digFile = baseName + "_digi.root";
   TString hitFile = baseName + "_hits.root";
   TString trkFile = baseName + "_tracks.root";
+  TString trkfitFile = baseName + "_fitTracks.root";
   // ------------------------------------------------------------------------
   TString outFile = baseName + "_tracksQA.root";
   std::cout << "Output File: " << outFile.Data()<< std::endl;
@@ -30,15 +31,17 @@ Int_t gem_findTracksQA(Int_t nStations, Double_t momentum = 15., Int_t nEvents =
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile); 
+  fRun->SetInputFile(trkfitFile);
+  fRun->AddFriend(MCFile);
   fRun->AddFriend(digFile);
   fRun->AddFriend(hitFile);
   fRun->AddFriend(trkFile);
   fRun->SetOutputFile(outFile);
-  
+  fRun->SetUseFairLinks(kTRUE);
 
   // -----  Parameter database   --------------------------------------------
-  TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
+  //TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
+  TString allDigiFile = sysFile+"/macro/params/gem_3Stations_realistic_v1.digi.par";
   if ( nStations == 4 ) allDigiFile = sysFile+"/macro/params/gem_4Stations.digi.par";
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -54,7 +57,7 @@ Int_t gem_findTracksQA(Int_t nStations, Double_t momentum = 15., Int_t nEvents =
 
   //------ Track finder QA ---------------------------
   PndGemTrackFinderQA* trackFinderQA = new PndGemTrackFinderQA();
-  trackFinderQA->SetVerbose(verboseLevel);
+  trackFinderQA->SetVerbose(10);//verboseLevel);
   fRun->AddTask(trackFinderQA);
   //--------------------------------------------------
 
