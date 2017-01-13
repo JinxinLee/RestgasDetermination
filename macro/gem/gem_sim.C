@@ -55,11 +55,6 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
    FairModule *dipole= new PndMagnet("MAGNET");
    dipole->SetGeometryFileName("dipole.geo");
    fRun->AddModule(dipole);
-
-   // FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-   // Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-   // Mvd->SetVerboseLevel(0);
-   // fRun->AddModule(Mvd);   
  
    FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
    //Gem->SetGeometryFileName(Form("gem_%dStations_Tube.root",nStations))
