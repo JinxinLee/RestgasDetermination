@@ -28,6 +28,7 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
   fRun->SetOutputFile(OutputFile.Data());
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetMaterials(MediaFile.Data());
+  fRun->SetUseFairLinks(kTRUE);
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   
  //---------------------Set Parameter output      ---------- 
@@ -43,34 +44,44 @@ Int_t gem_sim(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, in
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipebeamtarget.geo");
-  fRun->AddModule(Pipe);
+   FairModule *Pipe= new PndPipe("PIPE");
+   Pipe->SetGeometryFileName("pipebeamtarget.geo");
+   fRun->AddModule(Pipe);
   
-//  FairModule *Magnet= new PndMagnet("MAGNET");
-//  Magnet->SetGeometryFileName("FullSolenoid.root");
-//  fRun->AddModule(Magnet);
+   FairModule *Magnet= new PndMagnet("MAGNET");
+   Magnet->SetGeometryFileName("FullSolenoid.root");
+   fRun->AddModule(Magnet);
   
-  FairModule *dipole= new PndMagnet("MAGNET");
-  dipole->SetGeometryFileName("dipole.geo");
-  fRun->AddModule(dipole);
+   FairModule *dipole= new PndMagnet("MAGNET");
+   dipole->SetGeometryFileName("dipole.geo");
+   fRun->AddModule(dipole);
+
+   // FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+   // Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+   // Mvd->SetVerboseLevel(0);
+   // fRun->AddModule(Mvd);   
  
-  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName(Form("gem_%dStations_Tube.root",nStations));
-  Gem->SetVerboseLevel(0);
-  fRun->AddModule(Gem);
+   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+   //Gem->SetGeometryFileName(Form("gem_%dStations_Tube.root",nStations))
+   Gem->SetGeometryFileName(Form("gem_%dStations_realistic_v1.root",nStations));
+   Gem->SetVerboseLevel(0);
+   fRun->AddModule(Gem);
   
   // Event generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-  
-//   FairBoxGenerator* boxGen = new FairBoxGenerator(13,1);
-//   boxGen->SetThetaRange(4,4);
-//   boxGen->SetPhiRange  (0.,360.);
-//   boxGen->SetPRange    (2.,2.);
-//   primGen->AddGenerator(boxGen);
-   PndDpmDirect* dpmGen = new PndDpmDirect(momentum,1); //0. - only inelastic, 2 only elastic, 1 both
-   primGen->AddGenerator(dpmGen);
+  // FairBoxGenerator* boxGen = new FairBoxGenerator(13,1);
+  // boxGen->SetThetaRange(4,4);
+  // boxGen->SetPhiRange  (0.,360.);
+  // boxGen->SetPRange    (2.,2.);
+  // primGen->AddGenerator(boxGen);
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13,1);// pdgcode13=Muon
+   boxGen->SetThetaRange(0.,30.);
+   boxGen->SetPhiRange  (0.,360.);
+   boxGen->SetPRange    (0.05,10.);
+   primGen->AddGenerator(boxGen);
+   //PndDpmDirect* dpmGen = new PndDpmDirect(momentum,1); //0. - only inelastic, 2 only elastic, 1 both
+   //primGen->AddGenerator(dpmGen);
   
   //---------------------Create and Set the Field(s)---------- 
   PndMultiField *fField= new PndMultiField("FULL");
