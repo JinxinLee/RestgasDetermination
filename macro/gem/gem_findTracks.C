@@ -15,6 +15,8 @@ Int_t gem_findTracks(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1
   baseName.Form("Gem_%dStations_%gGeV_n%d",nStations,momentum,nEvents);
 
   TString parFile = baseName + "_par.root";
+  TString MCFile = baseName + ".root";
+  TString digFile = baseName + "_digi.root";
   TString hitFile = baseName + "_hits.root";
   // ------------------------------------------------------------------------
   TString outFile = baseName + "_tracks.root";
@@ -28,8 +30,10 @@ Int_t gem_findTracks(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(hitFile);
+  fRun->AddFriend(MCFile);
+  fRun->AddFriend(digFile);  
   fRun->SetOutputFile(outFile);
-  
+  fRun->SetUseFairLinks(kTRUE);
 
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = sysFile+"/macro/params/gem_3Stations.digi.par";
