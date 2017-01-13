@@ -45,10 +45,6 @@ Int_t gem_digi(Int_t nStations, Double_t momentum = 15., Int_t nEvents = 1000, i
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
-  // -----   MVD digi producers -------------------------------------------------
-  // PndMvdDigiTask* mvddigi = new  PndMvdDigiTask();
-  // mvddigi->SetVerbose(0);
-  // fRun->AddTask(mvddigi);
 
   // -----   GEM Digitizer   -----------------------------------------------
   PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
