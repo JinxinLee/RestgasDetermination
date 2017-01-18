@@ -71,7 +71,7 @@ class PndEmcErrorMatrixPar : public FairParGenericSet
 		PndEmcErrorMatrixParObject *fParObject;
 		ClassDef(PndEmcErrorMatrixPar,1);
 
-                PndEmcErrorMatrixPar(const  PndEmcErrorMatrixPar& L) {};
+                PndEmcErrorMatrixPar(const  PndEmcErrorMatrixPar& L) : FairParGenericSet(L) {};
                 PndEmcErrorMatrixPar& operator= (const  PndEmcErrorMatrixPar&) {return *this;};
 
 };

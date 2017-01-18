@@ -38,6 +38,7 @@ class PndSdsHybridHitProducer : public PndSdsTask
   PndSdsHybridHitProducer();
   
   PndSdsHybridHitProducer(PndSdsHybridHitProducer& other) :
+      PndSdsTask(),
       fPersistance(other.fPersistance),
       fDigiPixelMCInfo(other.fDigiPixelMCInfo),
       fPointArray(other.fPointArray),

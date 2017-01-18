@@ -78,6 +78,7 @@ class PndSdsStripHitProducer : public PndSdsTask
   PndSdsStripHitProducer();
   
   PndSdsStripHitProducer(PndSdsStripHitProducer& other):
+      PndSdsTask(),
       fPersistance(other.fPersistance),
       fPointArray(other.fPointArray),
       fStripArray(other.fStripArray),

@@ -23,7 +23,7 @@ RhoCandListIterator::RhoCandListIterator ( RhoCandList& li ) :
   fList ( &li ), fCurrentIndex ( 0 ) {}
 
 RhoCandListIterator::RhoCandListIterator ( const RhoCandListIterator& li ) :
-  fList ( li.fList ), fCurrentIndex ( li.fCurrentIndex ) {}
+  TObject(li), fList ( li.fList ), fCurrentIndex ( li.fCurrentIndex ) {}
 
 RhoCandListIterator::~RhoCandListIterator() {}
 

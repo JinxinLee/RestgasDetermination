@@ -133,14 +133,14 @@ class PndMdtParamDigi : public TNamed
 
 
     void GetMPVofPrimaryIonization(Int_t particleType, const TVector3& momentum, ValueErrorType& val) const;
-    const Int_t GetAmplicationFactor(Int_t particleType, Double_t momentum) const ;
+    Int_t GetAmplicationFactor(Int_t particleType, Double_t momentum) const ;
     //sampling position of secondary ion/electron for a given center 
     Bool_t fDetailedSim;
     void SamplingPosition(TVector2 fDirection, TVector2& fIonProductionPos);
     //mean free path function as velocity
     TGraphErrors* gFreePath[5];//
 
-    inline const Double_t GetMeanFreePath(Int_t ptlType, Double_t mom) const 
+    inline Double_t GetMeanFreePath(Int_t ptlType, Double_t mom) const 
     {
       Double_t mMass = fRestMass[ptlType];
       //Double_t mEnergy = sqrt(mom*mom + mMass*mMass);

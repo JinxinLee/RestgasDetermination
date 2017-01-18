@@ -113,7 +113,7 @@ class PndHypCalcStrip
 	   135 	     * @return Smeared Charge
 	   136 	     */
 	Double_t SmearCharge(Double_t charge);
-	inline const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
+	inline Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
 };
 
 #endif /* PNDHYPCALCSTRIP_H */

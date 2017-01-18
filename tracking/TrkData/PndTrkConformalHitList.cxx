@@ -16,7 +16,7 @@ PndTrkConformalHitList::PndTrkConformalHitList() : fConformal(new PndTrkConforma
 
 PndTrkConformalHitList::PndTrkConformalHitList(PndTrkConformalTransform *conformal) : fConformal(conformal), fHitList(TClonesArray("PndTrkConformalHit", 10000)) {}
  
-PndTrkConformalHitList::PndTrkConformalHitList(const PndTrkConformalHitList& hlist) : fConformal(new PndTrkConformalTransform()), fHitList(TClonesArray("PndTrkConformalHit", 10000)) {
+PndTrkConformalHitList::PndTrkConformalHitList(const PndTrkConformalHitList& hlist) : TObject(hlist), fConformal(new PndTrkConformalTransform()), fHitList(TClonesArray("PndTrkConformalHit", 10000)) {
   *this = hlist;
 }
 

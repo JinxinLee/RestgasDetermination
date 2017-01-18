@@ -45,6 +45,7 @@ class PndSdsDetector : public FairDetector
   PndSdsDetector();
 
   PndSdsDetector(PndSdsDetector& other) :
+    FairDetector(other),
     fPersistance(other.fPersistance),
     fTrackID(other.fTrackID),
     fVolumeID(other.fVolumeID),

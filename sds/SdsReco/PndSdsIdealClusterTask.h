@@ -40,6 +40,7 @@ class PndSdsIdealClusterTask : public PndSdsTask
     PndSdsIdealClusterTask();
     PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile);
     PndSdsIdealClusterTask(PndSdsIdealClusterTask& other) :
+      PndSdsTask(),
       fPersistance(other.fPersistance),
       fDigiArray(other.fDigiArray),
       fClustBranchName(other.fClustBranchName),

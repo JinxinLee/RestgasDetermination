@@ -68,7 +68,7 @@ PndTrkTrack::PndTrkTrack(PndTrack *trk)  :  fRefHit(NULL), fCluster(PndTrkCluste
 
 }
 
-PndTrkTrack::PndTrkTrack(const PndTrkTrack &track) :  fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {
+PndTrkTrack::PndTrkTrack(const PndTrkTrack &track) : TObject(track), fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {
   *this = track;
 }
 

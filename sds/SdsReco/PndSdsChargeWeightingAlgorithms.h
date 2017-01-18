@@ -27,6 +27,7 @@ class PndSdsChargeWeightingAlgorithms : public TObject
 public:
 	PndSdsChargeWeightingAlgorithms(TClonesArray* arr);
   PndSdsChargeWeightingAlgorithms(PndSdsChargeWeightingAlgorithms& other):
+    TObject(other),
 	  fDigiArray(other.fDigiArray),
 	  fCalcStrip(other.fCalcStrip),
 	  fChargeConverter(other.fChargeConverter),

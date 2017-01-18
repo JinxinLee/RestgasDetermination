@@ -21,7 +21,7 @@ class PndMCObject: public TObject {
 public:
 	PndMCObject();
 	PndMCObject(Int_t type):fStageId(type){};
-	PndMCObject(const PndMCObject& obj):
+	PndMCObject(const PndMCObject& obj):TObject(obj),
 		fStageId(obj.GetStageId()),fStage(obj.GetEntryVector())
 	{}
 	PndMCObject(Int_t type, std::vector<PndMCEntry> stage):

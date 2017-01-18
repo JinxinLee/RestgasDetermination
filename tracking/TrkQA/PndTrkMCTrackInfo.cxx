@@ -17,7 +17,7 @@ PndTrkMCTrackInfo::PndTrkMCTrackInfo() :  fNofMvdPixPoints(0),  fNofMvdStrPoints
 
 PndTrkMCTrackInfo::PndTrkMCTrackInfo(int nofmvdpix, int nofmvdstr, int nofsttparal, int nofsttskew, int nofgem, int nofscitil) :  fNofMvdPixPoints(nofmvdpix),  fNofMvdStrPoints(nofmvdstr), fNofSttParalPoints(nofsttparal), fNofSttSkewPoints(nofsttskew), fNofGemPoints(nofgem), fNofSciTilPoints(nofscitil), fIsReconstructable(kFALSE), fMCTrackID(-1), fRecoTrackIDs(TArrayI(0)), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fPosLast(TVector3(0., 0., 0.)), fMomLast(TVector3(0., 0., 0.)), fCharge(0) {}
 
-PndTrkMCTrackInfo::PndTrkMCTrackInfo(const PndTrkMCTrackInfo &info) :  fNofMvdPixPoints(0),  fNofMvdStrPoints(0), fNofSttParalPoints(0), fNofSttSkewPoints(0), fNofGemPoints(0), fNofSciTilPoints(0), fIsReconstructable(kFALSE), fMCTrackID(-1), fRecoTrackIDs(TArrayI(0)), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fPosLast(TVector3(0., 0., 0.)), fMomLast(TVector3(0., 0., 0.)), fCharge(0) {
+PndTrkMCTrackInfo::PndTrkMCTrackInfo(const PndTrkMCTrackInfo &info) : TObject(info), fNofMvdPixPoints(0),  fNofMvdStrPoints(0), fNofSttParalPoints(0), fNofSttSkewPoints(0), fNofGemPoints(0), fNofSciTilPoints(0), fIsReconstructable(kFALSE), fMCTrackID(-1), fRecoTrackIDs(TArrayI(0)), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fPosLast(TVector3(0., 0., 0.)), fMomLast(TVector3(0., 0., 0.)), fCharge(0) {
   *this = info;
 }
 

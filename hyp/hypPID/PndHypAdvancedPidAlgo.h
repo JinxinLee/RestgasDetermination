@@ -35,8 +35,8 @@ public:
   static void CalcLikelihood(int lundId, double momentum, double* lh);
 
   //Read last used energy loss and momentum
-  static const double GetMomentum() {return fmomentum;};
-  static const double GetEnergyLoss() {return fenergyloss;};
+  static double GetMomentum() {return fmomentum;};
+  static double GetEnergyLoss() {return fenergyloss;};
 
 private:
 

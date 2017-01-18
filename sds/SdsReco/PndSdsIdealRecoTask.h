@@ -40,6 +40,7 @@ class PndSdsIdealRecoTask : public PndSdsTask
   PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz);
   
   PndSdsIdealRecoTask(PndSdsIdealRecoTask& other) :
+    PndSdsTask(),
     fPersistance(other.fPersistance),
     fGeoH(other.fGeoH),
     fPointArray(other.fPointArray),

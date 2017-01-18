@@ -113,7 +113,7 @@ inline Bool_t PndFtsHoughSpace::IsHitFromTubeIdAlreadyAdded(const Int_t tubeIdTo
 	//	return kFALSE; // uncomment this line to switch off testing for duplicates
 	for (int iTestHit = 0; iTestHit < GetNHits(); ++iTestHit)
 	{
-		const PndFtsHit *const myTestHit = getHitFromHS(iTestHit);
+		const PndFtsHit* myTestHit = getHitFromHS(iTestHit);
 
 		const Int_t tubeIdTestHit = myTestHit->GetTubeID();
 
@@ -416,7 +416,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 	for (int iHit = 0; iHit < GetNHits(); iHit++)
 	{
 		firstEntry = kTRUE;
-		const PndFtsHit *const myHit = getHitFromHS(iHit);
+		const PndFtsHit* myHit = getHitFromHS(iHit);
 
 
 		// get hit position

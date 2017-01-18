@@ -31,7 +31,8 @@ RhoError::RhoError ( Int_t n, Double_t init )
     }
 }
 
-RhoError::RhoError ( const RhoError& v )
+RhoError::RhoError ( const RhoError& v ) :
+TMatrixD(v)
 {
   TMatrixD::Allocate ( v.GetNrows(),v.GetNcols() );
   TMatrixD::operator= ( v );

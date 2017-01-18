@@ -26,6 +26,7 @@ public:
 	PndSttStrawMap();
 	PndSttStrawMap(TClonesArray* const stt_tube_array);
   PndSttStrawMap(const PndSttStrawMap& o) :
+    TObject(o),
 	  fStrawIndex(o.fStrawIndex),
 	  fSectorOfStraw(o.fSectorOfStraw),
 	  fRowOfStraw(o.fRowOfStraw),

@@ -55,7 +55,8 @@ class PndSdsPixelClusterTask : public PndSdsTask
     
     /** Default constructor **/  
     PndSdsPixelClusterTask();
-    PndSdsPixelClusterTask(PndSdsPixelClusterTask& other):
+    PndSdsPixelClusterTask(const PndSdsPixelClusterTask& other):
+      PndSdsTask(),
       fPersistance(other.fPersistance),
       fUseNoiseSuppression(other.fUseNoiseSuppression),
       fFEModel(other.fFEModel),

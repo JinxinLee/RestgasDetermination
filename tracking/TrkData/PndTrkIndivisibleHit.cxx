@@ -36,7 +36,7 @@ PndTrkIndivisibleHit::PndTrkIndivisibleHit() :  PndTrkHit(), fHitIDs(TArrayI(0))
 PndTrkIndivisibleHit::PndTrkIndivisibleHit(TArrayI hitids, TVector3 &pos) : fHitIDs(hitids), PndTrkHit(-1, -1, kFALSE, INDIVISIBLE, -1, pos, -1, pos.Mag()) {}
 
 
-PndTrkIndivisibleHit::PndTrkIndivisibleHit(const PndTrkIndivisibleHit &hit) {
+PndTrkIndivisibleHit::PndTrkIndivisibleHit(const PndTrkIndivisibleHit &hit) : PndTrkHit(hit) {
   fHitIDs = TArrayI(hit.fHitIDs);
 }
 

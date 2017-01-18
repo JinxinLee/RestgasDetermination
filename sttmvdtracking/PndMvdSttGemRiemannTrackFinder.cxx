@@ -354,7 +354,7 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 		if (fVerbose > 1) std::cout << "Track before STT: " << actTrack << std::endl;
 
-		if (fSttHits > 0){															//assign STTHits to Mvd track
+		if (fSttHits != NULL){															//assign STTHits to Mvd track
 			if (fVerbose > 1 )
 				std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignSttHits" << std::endl;
 			AssignSttHits(actTrack, StartTrack);
@@ -372,7 +372,7 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 		}
 
-		if (fSkewedSttHits > 0){
+		if (fSkewedSttHits != NULL){
 			if (fVerbose > 1 )
 				std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignSkewedSttHits" << std::endl;
 			AssignSkewedSttHits(actTrack, StartTrack);
@@ -384,7 +384,7 @@ void PndMvdSttGemRiemannTrackFinder::FindTracks()
 
 		if (fVerbose > 1) std::cout << "Track after STT: " << actTrack << std::endl;
 
-		if (fGemHits > 0){
+		if (fGemHits != NULL){
 			if (fVerbose > 1 )
 				if (fVerbose > 1) std::cout << "PndMvdSttGemRiemannTrackFinder::FindTracks AssignGemHits" << std::endl;
 			AssignGemHits(actTrack, StartTrack);

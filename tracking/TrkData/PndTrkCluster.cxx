@@ -37,7 +37,7 @@ PndTrkCluster::PndTrkCluster() : fIRegion(-1), fFromPoint(0., 0., 0.), fHitList(
 //    //  *this = cluster;
 // }
 
-PndTrkCluster::PndTrkCluster(const PndTrkCluster &cluster) : fIRegion(-1), fFromPoint(0., 0., 0.), fHitList(TClonesArray("PndTrkHit", 10000)) {
+PndTrkCluster::PndTrkCluster(const PndTrkCluster &cluster) : TObject(cluster), fIRegion(-1), fFromPoint(0., 0., 0.), fHitList(TClonesArray("PndTrkHit", 10000)) {
   *this = cluster;
 }
 

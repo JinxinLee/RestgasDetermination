@@ -18,7 +18,7 @@ using namespace std;
 
 PndTrkClusterList::PndTrkClusterList() : fClusterList(TClonesArray("PndTrkCluster", 10000)) {}
 
-PndTrkClusterList::PndTrkClusterList(const PndTrkClusterList& clist) {
+PndTrkClusterList::PndTrkClusterList(const PndTrkClusterList& clist) : TObject(clist) {
   *this = clist;
 }
 

@@ -43,6 +43,7 @@ class PndSdsStripClusterTask : public PndSdsTask
     PndSdsStripClusterTask(); 
     PndSdsStripClusterTask(const char* name); 
     PndSdsStripClusterTask(PndSdsStripClusterTask& other) :
+      PndSdsTask(),
   	  fPath(other.fPath),
       fPersistance(other.fPersistance),
       fDigiArray(other.fDigiArray),

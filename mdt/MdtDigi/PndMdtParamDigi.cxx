@@ -681,7 +681,7 @@ Bool_t PndMdtParamDigi::Digitize(Int_t id, Double_t& time, Double_t& amp)
 //6 - 2GeV
 //7 - 5GeV
 //8 - 10GeV
-const Int_t PndMdtParamDigi::GetAmplicationFactor(Int_t particleType, Double_t momentum)  const
+Int_t PndMdtParamDigi::GetAmplicationFactor(Int_t particleType, Double_t momentum)  const
 {
   TGraphErrors* gAmp(0);
   if(!gAmp){

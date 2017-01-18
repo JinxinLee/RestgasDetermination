@@ -10,7 +10,8 @@ PndSensorNamePar::PndSensorNamePar(const char* name, const char* title, const ch
 
 }
 
-PndSensorNamePar::PndSensorNamePar(const  PndSensorNamePar& L)
+PndSensorNamePar::PndSensorNamePar(const  PndSensorNamePar& L) :
+FairParGenericSet(L)
 {
 	fSensorNames = new TObjArray(*(L.GetSensorNames()));
 }

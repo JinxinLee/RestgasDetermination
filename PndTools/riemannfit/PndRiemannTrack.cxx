@@ -450,7 +450,7 @@ PndRiemannTrack::szFit(bool withErrorCalc){
 	  int j=0;
 	  for(unsigned int i=0;i<num;++i){
 		if (fVerbose > 1)
-			if (fHits[i].hit() > 0)
+			if (fHits[i].hit() != NULL)
 				std::cout << "Point: " << i << ": " << fHits[i].hit()->GetEntryNr() << " ";
 		if (fHits[i].hit() != 0 && fHits[i].hit()->GetEntryNr().GetType() == GetBranchId("STTHit")){
 			continue;

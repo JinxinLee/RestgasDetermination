@@ -186,8 +186,8 @@ private:
 	inline void AddHitToHS(UInt_t hitId, Double_t rho);
 	inline void AddHitToHS(FairLink link, Double_t rho);
 	inline Bool_t IsHitFromTubeIdAlreadyAdded(const Int_t tubeIdToAdd);
-	inline const PndFtsHit *const getHitFromHS(UInt_t index) const; // gets the FTS hit corresponding to index
-	inline const Int_t getHitIdFromHS(UInt_t index) const { return fHitId.at(index).GetHitId(); }; // gets the FTS hit Id corresponding to index
+	inline const PndFtsHit* getHitFromHS(UInt_t index) const; // gets the FTS hit corresponding to index
+	inline Int_t getHitIdFromHS(UInt_t index) const { return fHitId.at(index).GetHitId(); }; // gets the FTS hit Id corresponding to index
 	inline const TVector3 CalculateHitPosFromIntersectionsWithZxTrackModel(const PndFtsHit *const myHit) const;
 	inline const TVector3 GetRawOrCalculatedHitPos(const PndFtsHit* const myHit) const;
 
@@ -371,7 +371,7 @@ void PndFtsHoughSpace::PrintFoundTracklets(const std::vector<PndFtsHoughTracklet
 }
 
 
-const PndFtsHit *const PndFtsHoughSpace::getHitFromHS(UInt_t index) const {
+const PndFtsHit* PndFtsHoughSpace::getHitFromHS(UInt_t index) const {
 	if (GetNHits() < index) throwError("index too high");
 
 	Int_t hitIndex = fHitId.at(index).GetHitId();

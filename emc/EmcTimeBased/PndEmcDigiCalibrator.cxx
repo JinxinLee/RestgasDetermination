@@ -143,7 +143,7 @@ PndEmcDigiCalibrator::~PndEmcDigiCalibrator()
 {
 }
 
-const Double_t PndEmcDigiCalibrator::CalibrationEvtTimeByDigi(PndEmcDigi* theDigi, bool PrintOut) const
+Double_t PndEmcDigiCalibrator::CalibrationEvtTimeByDigi(PndEmcDigi* theDigi, bool PrintOut) const
 {
 	Double_t digiT = theDigi->GetTimeStamp();
 	Double_t digiE = theDigi->GetEnergy();
@@ -179,7 +179,8 @@ const Double_t PndEmcDigiCalibrator::CalibrationEvtTimeByDigi(PndEmcDigi* theDig
 	}
 	return digiT - corrT;
 }
-const Double_t PndEmcDigiCalibrator::CalibrationEvtTimeByBump(PndEmcBump* theBump, bool PrintOut) const
+
+Double_t PndEmcDigiCalibrator::CalibrationEvtTimeByBump(PndEmcBump* theBump, bool PrintOut) const
 {
 	Double_t bumpT = theBump->GetTimeStamp();
 	Double_t bumpE = theBump->energy();
@@ -225,13 +226,15 @@ const Double_t PndEmcDigiCalibrator::CalibrationEvtTimeByBump(PndEmcBump* theBum
 	}
 	return bumpT - corrT;
 }
-const Double_t PndEmcDigiCalibrator::GetTimeResolutionOfDigi(PndEmcDigi* theDigi) const
+
+Double_t PndEmcDigiCalibrator::GetTimeResolutionOfDigi(PndEmcDigi* theDigi) const
 {
 	Int_t TheIndexOfEnergy = GetIdxByEnergy(theDigi->GetEnergy());
 	Int_t TheIndexOfModule = theDigi->GetModule();
 	return PndEmcDigiCalibrator::fTimeWindowOfDigi[TheIndexOfModule-1][TheIndexOfEnergy];
 }
-const Double_t PndEmcDigiCalibrator::GetTimeResolutionOfShower(PndEmcBump* theBump) const
+
+Double_t PndEmcDigiCalibrator::GetTimeResolutionOfShower(PndEmcBump* theBump) const
 {
 	Int_t TheIndexOfEnergy = GetIdxByEnergyForBump(theBump->energy());
 	Int_t TheIndexOfModule = theBump->GetModule();

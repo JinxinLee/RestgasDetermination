@@ -172,6 +172,7 @@ protected:
  private:
   static PndGeoHandling* fInstance;
   PndGeoHandling(PndGeoHandling& gh):
+    FairTask(),
     fGeoMan(gh.fGeoMan),
     fSensorNamePar(gh.fSensorNamePar),
     fRtdb(gh.fRtdb),

@@ -48,7 +48,7 @@ class PndEmcFWEndcapDigiPar : public FairParGenericSet {
 		const TString& GetPsaTypeHigh() { return fPsaTypeHigh; }
 		const TString& GetRValueParLow() { return fRValueParaLow; }
 		const TString& GetRValueParHigh() { return fRValueParaHigh; }
-		const Double_t GetSignalOverflowHigh() { return fSignalOverflowHigh; }
+		Double_t GetSignalOverflowHigh() { return fSignalOverflowHigh; }
 
 		virtual void putParams(FairParamList* list);
 		virtual Bool_t getParams(FairParamList* list);

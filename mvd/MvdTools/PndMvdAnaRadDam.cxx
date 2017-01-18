@@ -29,7 +29,7 @@ void PndMvdAnaRadDam::AnalyzeFiles()
 {
 	for (unsigned int i = 0; i < fFileList.size(); i++){
 		TFile* f = fFileList[i];
-		if (f > 0){
+		if (f != NULL){
 			TList* l = f->GetListOfKeys();
 			TIter iter(l);
 			TObject* ob;

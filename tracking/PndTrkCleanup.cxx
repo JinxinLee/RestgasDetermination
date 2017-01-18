@@ -225,7 +225,7 @@ bool PndTrkCleanup::GoodTrack(
 
 
    Double_t
-		C2,
+		C2, // FIXME [R.K. 01/2017] C2 is not calculated below!
 		dist,
 		dist2,
 		fi,
@@ -339,7 +339,8 @@ bool PndTrkCleanup::GoodTrack(
 		tube_next = ListParContiguous[index_last][j]  ;
 
 		// calculate the distance between the center of the trajectory and the center of the straw;
-		// C2 has been calculated abova --> C2 = Ox*Ox + Oy*Oy ;
+		// C2 has been calculated abova --> C2 = Ox*Ox + Oy*Oy ; 
+    //FIXME [R.K. 01/2017] NO, C2 is not calcualted!!!!!
 		dist2 = xxyyTube[tube_next-1] -2.*(xTube[tube_next-1]*Ox + yTube[tube_next-1]*Oy) +C2;
 		dist = fabs(sqrt(dist2)-R);
 		if( dist > STRAWRADIUS * 1.5) continue; //tubes doesn't lie on trajectory; the factor 1.5 just to be sure

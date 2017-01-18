@@ -21,7 +21,8 @@ PndSttTubeParameters::PndSttTubeParameters()
 }
 
 PndSttTubeParameters::PndSttTubeParameters(PndSttTubeParameters &tubs)
-  :fTubeID(tubs.GetTubeID()),
+  :TObject(tubs),
+   fTubeID(tubs.GetTubeID()),
    fHalfLength(tubs.GetHalfLength())
 {
 }

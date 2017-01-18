@@ -71,7 +71,7 @@ public:
 	}
 
 	//sanity check applies only to valid numeric entries, so no entries are nan. or the like
-	const bool isSane() const{
+  bool isSane() const{
 		//if(!checked){
 		//	check();
 		//}

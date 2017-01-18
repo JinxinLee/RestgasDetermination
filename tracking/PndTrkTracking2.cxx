@@ -914,9 +914,9 @@ void PndTrkTracking2::Exec(Option_t* opt) {
 	k,
 	//kall, //[R.K. 01/2017] unused variable?
 	//l, //[R.K. 01/2017] unused variable?
-	oldPixel,
-	oldSkew,
-	oldStrip,
+	oldPixel, //FIXME [R.K. 01/2017] Used without Initialization below
+	oldSkew,  //FIXME [R.K. 01/2017] Used without Initialization below
+	oldStrip, //FIXME [R.K. 01/2017] Used without Initialization below
 	save_ListMvdPixelHitsinTrack[MAXMVDPIXELHITSINTRACK],
 	save_ListSttSkewHitsinTrack[MAXSTTHITSINTRACK],
 	save_ListSttSkewHitsinTrackSolution[MAXSTTHITSINTRACK],

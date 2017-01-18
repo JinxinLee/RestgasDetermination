@@ -70,7 +70,7 @@ PndSttMapCreator::PndSttMapCreator(PndGeoSttPar *sttPar): fGeoType(-1), fSttPara
 }
 
 PndSttMapCreator::~PndSttMapCreator(){
-	if (fMap > 0) delete(fMap);
+	if (fMap != NULL) delete(fMap);
 }
 
 void PndSttMapCreator::SetGeneralParameters() {   //  CHECK whether it depends on geometry or not

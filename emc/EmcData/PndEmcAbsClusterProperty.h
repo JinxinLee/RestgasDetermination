@@ -51,6 +51,7 @@ protected:
   const TClonesArray* DigiArray() const;
 
  PndEmcAbsClusterProperty(const  PndEmcAbsClusterProperty& L) :
+  TObject(L),
   fMyCluster (L.fMyCluster),
     fMembers (L.fMembers) {};
   PndEmcAbsClusterProperty &operator=(const PndEmcAbsClusterProperty&) {return *this;};

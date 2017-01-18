@@ -130,7 +130,7 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
 	  Double_t Ekin = mom.Mag();
 	  Int_t pid = mcTrack->GetPdgCode();
 	  Double_t weight = 0;
-	  if (fWeightListsMap[pid] > 0){
+	  if (fWeightListsMap[pid] != NULL){
 		  weight = fWeightListsMap[pid]->GetWeight(Ekin);
 	  }
 	  //std::cout << "WeightCalc: pid: " << pid << " Energy: " << Ekin << " Weight: " << weight << std::endl;

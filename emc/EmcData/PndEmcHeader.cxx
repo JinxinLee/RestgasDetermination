@@ -28,7 +28,7 @@ fPx(p_clu.X()), fPy(p_clu.Y()), fPz(p_clu.Z()), fHitEnergy(ene_hit), fCluEnergy(
 // -------------------------------------------------------------------------
 
 //Copy
-PndEmcHeader::PndEmcHeader(const PndEmcHeader &copy):
+PndEmcHeader::PndEmcHeader(const PndEmcHeader &copy): TObject(copy),
 fPx(copy.fPx), fPy(copy.fPy), fPz(copy.fPz), fHitEnergy(copy.fHitEnergy), fCluEnergy(copy.fCluEnergy), nHitMult(copy.nHitMult), nCluMult(copy.nCluMult), nDigiMult(copy.nDigiMult)
 {
 }

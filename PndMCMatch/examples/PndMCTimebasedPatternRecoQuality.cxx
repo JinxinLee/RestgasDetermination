@@ -80,7 +80,7 @@ void PndMCTimebasedPatternRecoQuality::FillMCTrackMap()
 	for (int i = 0; i < ioman->GetInChain()->GetEntries() ; i++){
 		FairLink tempLink(-1, i, "MVDPoint", 0);
 		TClonesArray* myMVDPoints = (TClonesArray*)ioman->GetCloneOfTClonesArray(tempLink);
-		if (myMVDPoints > 0) {
+		if (myMVDPoints != NULL) {
 //			std::cout << "MVDPoints: " << myMVDPoints->GetEntries() << std::endl;
 			for (int pointsIter = 0; pointsIter < myMVDPoints->GetEntries(); pointsIter++){
 				PndSdsMCPoint* myPoint = (PndSdsMCPoint*)myMVDPoints->At(pointsIter);

@@ -114,8 +114,8 @@ class PndSdsCalcStrip
     
     void SetVerboseLevel(Int_t level){ fVerboseLevel = level;}
     //std::ostream& operator<<(std::ostream& out);  // not implemented
-    const Double_t GetThreshold() const {return fThreshold;}
-    const Double_t GetNoise() const {return fNoise;}
+    Double_t GetThreshold() const {return fThreshold;}
+    Double_t GetNoise() const {return fNoise;}
     
     void Print() const;
     
@@ -140,7 +140,7 @@ class PndSdsCalcStrip
      */
     Double_t CalcStripFromPoint(Double_t x, Double_t y);
     
-    const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
+    Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
     void InjectStripCharge(std::vector<PndSdsStrip>& array, Int_t istrip, Double_t charge);
     Double_t SmearCharge(Double_t charge);
   };

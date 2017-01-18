@@ -10,7 +10,7 @@ class PndMvdContFact : public FairContFact {
 public:
   PndMvdContFact();
   ~PndMvdContFact();
-  PndMvdContFact(const PndMvdContFact& o) :
+  PndMvdContFact(const PndMvdContFact& o) : FairContFact(),
     fDigiParNames(o.fDigiParNames)
   {};
   PndMvdContFact& operator=(const PndMvdContFact& o)

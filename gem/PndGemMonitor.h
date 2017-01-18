@@ -57,7 +57,7 @@ class PndGemMonitor : public FairTask {
   
  private:
   static PndGemMonitor* fInstance;
-  PndGemMonitor(PndGemMonitor& gm)
+  PndGemMonitor(PndGemMonitor& gm) : FairTask()
   {}
 
   TGeoManager*   fGeoMan;

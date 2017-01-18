@@ -22,6 +22,7 @@ PndGeoSttPar::~PndGeoSttPar(void)
 }
 
 PndGeoSttPar::PndGeoSttPar(PndGeoSttPar& par) :
+  FairParGenericSet(par),
   fTubeParams(par.GetTubeParameters()),
   fGeoType(par.GetGeometryType()),
   fTubeInRad(par.GetTubeInRad()), 

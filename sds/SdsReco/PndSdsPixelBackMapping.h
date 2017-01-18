@@ -11,7 +11,7 @@ class PndSdsPixelBackMapping
   public :  
   PndSdsPixelBackMapping();
   PndSdsPixelBackMapping(PndGeoHandling* geo);
-  PndSdsPixelBackMapping(PndSdsPixelBackMapping& other) :
+  PndSdsPixelBackMapping(const PndSdsPixelBackMapping& other) :
     fDigiArray(other.fDigiArray),
     fGeoH(other.fGeoH),
     fVerbose(other.fVerbose)

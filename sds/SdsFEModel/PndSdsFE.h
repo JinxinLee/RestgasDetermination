@@ -28,7 +28,7 @@ public:
 		CalcTimeOffSet();
 	};
   
-  PndSdsFE(PndSdsFE& other):
+  PndSdsFE(PndSdsFE& other):TObject(other),
       fFrontEndModel(other.fFrontEndModel),
       fNumberOfSupportPoints(other.fNumberOfSupportPoints),
       fNumberOfMaxElectons(other.fNumberOfMaxElectons),

@@ -14,7 +14,7 @@
 class FairTimeStamp;
 
 struct PndMdtWaveformLess {
-  const bool operator()(const PndMdtWaveform* lw, const PndMdtWaveform* rw) const{
+  bool operator()(const PndMdtWaveform* lw, const PndMdtWaveform* rw) const{
     return (*lw) < (*rw);
   }
 };

@@ -27,7 +27,8 @@ using namespace std;
 
 static const char rscid[] = "$Id: TDoubleErr.cxx,v 1.3 2002-02-01 22:34:57 marcel Exp $";
 
-RhoDoubleErr::RhoDoubleErr ( const RhoDoubleErr& original )
+RhoDoubleErr::RhoDoubleErr ( const RhoDoubleErr& original ) :
+TObject(original)
 {
   *this = original;
 }

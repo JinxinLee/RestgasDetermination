@@ -29,7 +29,8 @@ PndSttTube::PndSttTube()
 }
 
 PndSttTube::PndSttTube(PndSttTube &tube)
-  :fCenPosition(tube.GetPosition()),
+  :TObject(tube),
+   fCenPosition(tube.GetPosition()),
    fRotationMatrix(TMatrixT<double>(3,3)),
    fTubeParms(tube.GetTubeParameters()),
    fRadIn(tube.GetRadIn()),

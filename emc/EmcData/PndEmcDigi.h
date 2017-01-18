@@ -88,7 +88,7 @@ class PndEmcDigi : public FairTimeStamp
 	virtual void AbsorbEnergy(PndEmcDigi& otherDigi);
 
 	//check if 2 digis are neigbour or not (prelim for testing)
-	const bool isNeighbour(const PndEmcDigi* theDigi) const;
+	bool isNeighbour(const PndEmcDigi* theDigi) const;
 
 
 	/** Accessors **/

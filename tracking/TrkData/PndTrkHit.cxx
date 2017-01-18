@@ -48,7 +48,7 @@ PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t
 
 // PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos) :  fHitID(hitID), fDetID(detID), fUsed(used), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(0) {}
 
-PndTrkHit::PndTrkHit(const PndTrkHit &hit) : fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fUsed(hit.fUsed), fUsedAsRefHit(hit.fUsedAsRefHit), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {
+PndTrkHit::PndTrkHit(const PndTrkHit &hit) : FairTimeStamp(hit), fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fUsed(hit.fUsed), fUsedAsRefHit(hit.fUsedAsRefHit), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {
 
   double phi = fPosition.Phi() * TMath::RadToDeg();
   if(phi < 0 && phi < -30) phi += 360;

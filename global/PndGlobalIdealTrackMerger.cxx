@@ -242,7 +242,7 @@ void PndGlobalIdealTrackMerger::Exec(Option_t* opt) {
  	TVector3 dirSeed;// = localTrackCand->getDirSeed();
  	Double_t QoverPs;// = localTrackCand->getQoverPseed();
 	//	cout << "track " << fDetName[idet].Data() << " Q/P = " << TMath::Abs(QoverPs) << endl;
-	Int_t charge = (QoverPs>0?1:-1);
+	Int_t charge = (QoverPs>0?1:-1); //FIXME [R.K.01/2017] QoverPs is used uninitialized!
 	dirSeed  = dirSeed.Unit();
 	if ( TMath::Abs(QoverPs) > 10e-12)
 	  dirSeed *= 1./TMath::Abs(QoverPs);

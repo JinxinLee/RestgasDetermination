@@ -28,6 +28,7 @@ class PndSttGeometryMap : public TObject
   PndSttGeometryMap(TClonesArray *tubearray, Int_t geoType);
   ~PndSttGeometryMap();
   PndSttGeometryMap(const PndSttGeometryMap& o) :
+    TObject(o),
     fGeoType(o.fGeoType), 
     fVerbose(o.fVerbose),
     fStrawIndex(o.fStrawIndex),

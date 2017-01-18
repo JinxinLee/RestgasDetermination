@@ -36,11 +36,11 @@ class PndEmcDigiCalibrator
 		// Destructor
 		virtual ~PndEmcDigiCalibrator();
 
-		const Double_t CalibrationEvtTimeByDigi(PndEmcDigi* theDigi, bool PrintOut=kFALSE) const;
-		const Double_t CalibrationEvtTimeByBump(PndEmcBump* theBump, bool PrintOut=kFALSE) const;
+		Double_t CalibrationEvtTimeByDigi(PndEmcDigi* theDigi, bool PrintOut=kFALSE) const;
+		Double_t CalibrationEvtTimeByBump(PndEmcBump* theBump, bool PrintOut=kFALSE) const;
 
-		const Double_t GetTimeResolutionOfDigi(PndEmcDigi* theDigi) const;
-		const Double_t GetTimeResolutionOfShower(PndEmcBump* theBump) const;
+		Double_t GetTimeResolutionOfDigi(PndEmcDigi* theDigi) const;
+		Double_t GetTimeResolutionOfShower(PndEmcBump* theBump) const;
 	private:
 
 		Int_t GetIdxByEnergy(Double_t energy) const;

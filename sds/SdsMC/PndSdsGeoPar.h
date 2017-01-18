@@ -9,7 +9,7 @@ public:
   PndSdsGeoPar(const char* name="PndSdsGeoPar",
 	       const char* title="PndSds Geometry Parameters",
 	       const char* context="TestDefaultContext");
-  PndSdsGeoPar(PndSdsGeoPar& other) :
+  PndSdsGeoPar(PndSdsGeoPar& other) : FairParGenericSet(other),
     fGeoSensNodes(other.fGeoSensNodes),
     fGeoPassNodes(other.fGeoPassNodes)
   {};

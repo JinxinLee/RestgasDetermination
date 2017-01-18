@@ -19,7 +19,7 @@ using namespace std;
 
 PndTrkTrackList::PndTrkTrackList() : fTrackList(TClonesArray("PndTrkTrack", 10000)) {}
 
-PndTrkTrackList::PndTrkTrackList(const PndTrkTrackList& tlist) {
+PndTrkTrackList::PndTrkTrackList(const PndTrkTrackList& tlist) : TObject(tlist) {
   *this = tlist;
 }
 

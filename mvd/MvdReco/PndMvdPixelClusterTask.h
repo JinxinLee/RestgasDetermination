@@ -20,6 +20,7 @@ class PndMvdPixelClusterTask : public PndSdsPixelClusterTask
     /** Destructor **/
     virtual ~PndMvdPixelClusterTask();
     PndMvdPixelClusterTask(const PndMvdPixelClusterTask& o) :
+      PndSdsPixelClusterTask(o),
       fParName(o.fParName),
       fTotParName(o.fTotParName),
 	    fTotDigiPar(o.fTotDigiPar),

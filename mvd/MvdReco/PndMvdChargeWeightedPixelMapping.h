@@ -18,6 +18,7 @@ class PndMvdChargeWeightedPixelMapping : public PndSdsChargeWeightedPixelMapping
 	PndMvdChargeWeightedPixelMapping(PndGeoHandling* geo, Int_t verbose = 0);
 	PndMvdChargeWeightedPixelMapping(PndGeoHandling* geo, PndSdsPixelDigiPar* digiPar, PndSdsTotDigiPar* totPar);
   PndMvdChargeWeightedPixelMapping(const PndMvdChargeWeightedPixelMapping& o) :
+    PndSdsChargeWeightedPixelMapping(o),
 	  fDigiPar(o.fDigiPar),
 	  fTotDigiPar(o.fTotDigiPar)
   {};

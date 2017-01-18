@@ -16,7 +16,8 @@ class PndSdsChargeWeightedPixelMapping : public PndSdsPixelBackMapping
   {
     public :
     PndSdsChargeWeightedPixelMapping();
-    PndSdsChargeWeightedPixelMapping(PndSdsChargeWeightedPixelMapping& other) :
+    PndSdsChargeWeightedPixelMapping(const PndSdsChargeWeightedPixelMapping& other) :
+      PndSdsPixelBackMapping(other),
       fChargeConverter(other.fChargeConverter),
       flx(other.flx),
       fly(other.fly),

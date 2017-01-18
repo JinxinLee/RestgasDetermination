@@ -17,7 +17,7 @@ PndTrackingQualityMCInfo::PndTrackingQualityMCInfo() :  fNofMvdPixelPoints(0),  
 
 PndTrackingQualityMCInfo::PndTrackingQualityMCInfo(int nofmvdpix, int nofmvdstr, int nofsttparal, int nofsttskew, int nofgem) :  fNofMvdPixelPoints(nofmvdpix),  fNofMvdStripPoints(nofmvdstr), fNofSttParalPoints(nofsttparal), fNofSttSkewPoints(nofsttskew), fNofGemPoints(nofgem), fReconstructabilityStatus(-1), fMCTrackID(-1), fRecoTrackIDs(TArrayI(0)), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fPosLast(TVector3(0., 0., 0.)), fMomLast(TVector3(0., 0., 0.)), fCharge(0), fPDGCode(-1), fQuality(0.), fAssoRecoTrackID(-1) {}
 
-PndTrackingQualityMCInfo::PndTrackingQualityMCInfo(const PndTrackingQualityMCInfo &info) :  fNofMvdPixelPoints(0),  fNofMvdStripPoints(0), fNofSttParalPoints(0), fNofSttSkewPoints(0), fNofGemPoints(0), fReconstructabilityStatus(-1), fMCTrackID(-1), fRecoTrackIDs(TArrayI(0)), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fPosLast(TVector3(0., 0., 0.)), fMomLast(TVector3(0., 0., 0.)), fCharge(0), fPDGCode(-1), fQuality(0.), fAssoRecoTrackID(-1) {
+PndTrackingQualityMCInfo::PndTrackingQualityMCInfo(const PndTrackingQualityMCInfo &info) : TObject(info), fNofMvdPixelPoints(0),  fNofMvdStripPoints(0), fNofSttParalPoints(0), fNofSttSkewPoints(0), fNofGemPoints(0), fReconstructabilityStatus(-1), fMCTrackID(-1), fRecoTrackIDs(TArrayI(0)), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fPosLast(TVector3(0., 0., 0.)), fMomLast(TVector3(0., 0., 0.)), fCharge(0), fPDGCode(-1), fQuality(0.), fAssoRecoTrackID(-1) {
   *this = info;
 }
 

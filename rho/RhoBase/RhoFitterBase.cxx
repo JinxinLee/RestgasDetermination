@@ -39,7 +39,7 @@ RhoFitterBase::~RhoFitterBase()
 {
 }
 
-RhoFitterBase::RhoFitterBase ( const RhoFitterBase& other ) : fVerbose ( other.fVerbose )
+RhoFitterBase::RhoFitterBase ( const RhoFitterBase& other ) : TObject(other), fVerbose ( other.fVerbose )
 {
   //fHeadOfTree=CopyCand(*other.fHeadOfTree);
   //TODO do we want to copy the tree here and now?

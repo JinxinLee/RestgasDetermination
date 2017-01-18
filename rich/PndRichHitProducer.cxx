@@ -193,7 +193,9 @@ void PndRichHitProducer::Exec(Option_t* opt) {
    Int_t nBarPoints = fBarPointArray->GetEntriesFast();
    PndRichBarPoint *hit = 0;
 
-   Int_t detID, sensorId;//, index; //[R.K. 01/2017] unused variable?
+   Int_t detID=-999; //[R.K.Jan/2017] Variable was not initialized!
+   Int_t sensorId=-999; //[R.K.Jan/2017] Variable was not initialized! 
+   //, index; //[R.K. 01/2017] unused variable?
    TVector3 dpos(0., 0., 0.);
    // thetaC containe value of beta 
    Double_t thetaC, errThetaC;
@@ -245,8 +247,8 @@ PndRichPDHit* PndRichHitProducer::AddPDHit(Int_t detID, TVector3& pos, TVector3&
                                                 Int_t index, Double_t time ){
   // It fills the PndRichPDHit category
  
-  Int_t sensorId;
-  Double_t timeThreshold;
+  Int_t sensorId=-999; //[R.K.Jan/2017] Variable was not initialized!
+  Double_t timeThreshold=-999; //[R.K.Jan/2017] Variable was not initialized!
   TClonesArray& clref = *fPDHitArray;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndRichPDHit(detID, sensorId, pos, dpos, time, timeThreshold, index);

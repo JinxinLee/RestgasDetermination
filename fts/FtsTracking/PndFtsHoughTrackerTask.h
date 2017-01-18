@@ -90,9 +90,9 @@ public:
 	//----------
 	// GETTERS
 	//----------
-	const Int_t GetVerbose() const { return fVerbose; }; ///< @brief Returns the verbosity level.
-	const Int_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
-	const UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
+	Int_t GetVerbose() const { return fVerbose; }; ///< @brief Returns the verbosity level.
+	Int_t GetSaveDebugInfo() const { return fSaveDebugInfo; }; ///< @brief Returns the save debug flag.
+	UInt_t GetEventNr() const { return fEventNr; }; ///< @brief Returns the event number.
 
 
 
@@ -102,12 +102,12 @@ public:
 	/**@brief Returns the number of FTS hits.
 	 * @return Number of FTS hits.
 	 */
-	const Int_t GetNFtsHits() const { return fFtsHitArray->GetEntriesFast(); };
+	Int_t GetNFtsHits() const { return fFtsHitArray->GetEntriesFast(); };
 	/** @brief Returns pointer to the hit with index hitId in the FTS hit array.
 	 * @param[in] hitId Index (in FTS hit array) of the hit which should be returned.
 	 * @return Pointer to hit with index hitId in FTS hit array.
 	 */
-	const PndFtsHit *const GetFtsHit(UInt_t hitId) const {
+	const PndFtsHit* GetFtsHit(UInt_t hitId) const {
 		if ( hitId >= GetNFtsHits() ) throwError("GetFtsHit: hitId is too large.");
 		//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
 		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
@@ -128,7 +128,7 @@ public:
 	 * @param[in] myHit: FTS hit for which the tube should be returned.
 	 * @return Pointer to tube corresponding to myHit.
 	 */
-	const PndFtsTube *const GetFtsTube(const PndFtsHit *const myHit) const {
+	const PndFtsTube* GetFtsTube(const PndFtsHit *const myHit) const {
 		Int_t tubeID = myHit->GetTubeID();
 		const PndFtsTube *tube = (PndFtsTube*) fFtsTubeArray->At(tubeID);
 		return tube;
@@ -149,21 +149,21 @@ public:
 	 * @see GetNHits
 	 * @return Detector Id of FTS.
 	 */
-	const Int_t getFtsBranchId() const {  return fFtsBranchId; };
+	Int_t getFtsBranchId() const {  return fFtsBranchId; };
 	/**@brief Returns pointer to the hit array in which FTS hits are saved as PndFtsHit. Try not to use it.
 	 *
 	 * @see GetFtsHit
 	 * @see GetNHits
 	 * @return Pointer to the hit array in which hits are saved as PndFtsHit.
 	 */
-	TClonesArray *const getFtsHitArrayPtr() const { return fFtsHitArray; };
+	TClonesArray* getFtsHitArrayPtr() const { return fFtsHitArray; };
 
 
 
 	//-----------
 	//DATA ACCESS TO B FIELD
 	//-----------
-	FairField *const getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
+	FairField* getMagneticFieldPtr() const { return fField; }; ///< @brief Returns pointer to the B field.
 
 
 	FairLogger* fLogger; ///< @brief For output handling.

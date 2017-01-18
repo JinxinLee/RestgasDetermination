@@ -46,7 +46,7 @@ PndMdtWaveform::PndMdtWaveform(Int_t trackId, Int_t detId, Double_t time, Bool_t
   SetTimeStamp(time);
 }
 
-PndMdtWaveform::PndMdtWaveform(const PndMdtWaveform& copy):
+PndMdtWaveform::PndMdtWaveform(const PndMdtWaveform& copy):FairTimeStamp(copy),
   fTrackId(copy.fTrackId)
   ,fDetectorId ( copy.fDetectorId)
   ,fSignal(copy.fSignal)

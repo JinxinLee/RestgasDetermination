@@ -18,7 +18,7 @@ using namespace std;
 
 PndTrkNeighboringMap::PndTrkNeighboringMap(TClonesArray *tubearray) : fTubeArray(tubearray), fStandalone(TObjArray()), fOneNeigh(TObjArray()), fTwoNeigh(TObjArray()) {}
 
-PndTrkNeighboringMap::PndTrkNeighboringMap(const PndTrkNeighboringMap &thismap) {
+PndTrkNeighboringMap::PndTrkNeighboringMap(const PndTrkNeighboringMap &thismap) : TObject(thismap) {
   *this = thismap;
 }
 

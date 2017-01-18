@@ -14,7 +14,7 @@ using namespace std;
 
 PndTrkSkewHitList::PndTrkSkewHitList() : fHitList(TClonesArray("PndTrkSkewHit", 10000)) {}
 
-PndTrkSkewHitList::PndTrkSkewHitList(const PndTrkSkewHitList& hlist) {
+PndTrkSkewHitList::PndTrkSkewHitList(const PndTrkSkewHitList& hlist) : TObject(hlist) {
   *this = hlist;
 }
 

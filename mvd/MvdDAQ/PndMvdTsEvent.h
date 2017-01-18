@@ -56,6 +56,7 @@ protected:
 
 private:
   PndMvdTsEvent(const PndMvdTsEvent& o) :
+    TObject(o),
     fEventId(o.fEventId),                
     fSiHitList(o.fSiHitList),       
     fTdcValues(o.fTdcValues),       

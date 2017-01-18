@@ -51,7 +51,7 @@ class PndFtofPoint : public FairMCPoint
 	      Double_t PLin, Double_t PLout);
   
   /** Copy constructor **/
-  PndFtofPoint(const PndFtofPoint& point) { *this = point; };
+  PndFtofPoint(const PndFtofPoint& point) : FairMCPoint(point) { *this = point; };
   
 
   /** Destructor **/

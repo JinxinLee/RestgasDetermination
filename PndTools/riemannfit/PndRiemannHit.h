@@ -42,7 +42,7 @@ public:
   ~PndRiemannHit();
 
   //Copy-/Assignment-Operator
-  PndRiemannHit(const PndRiemannHit& myHit): fX(myHit.fX), fSigmaX(myHit.fSigmaX),
+  PndRiemannHit(const PndRiemannHit& myHit): TObject(myHit), fX(myHit.fX), fSigmaX(myHit.fSigmaX),
 		fCovX(myHit.fCovX), fHit(myHit.fHit), fHitID(myHit.fHitID), fS(myHit.fS),
   	    fZ(myHit.fZ), fDeltaZ(myHit.fDeltaZ), fAlpha(myHit.fAlpha), fVerbose(myHit.fVerbose)
   {}
@@ -79,7 +79,7 @@ public:
   double sigmaY() const{return TMath::Sqrt(fCovX[1][1]);}
   double sigmaW() const{return TMath::Sqrt(TMath::Power(2*x().x()*sigmaX(),2) + TMath::Power(2*x().y()*sigmaY(),2));} // error of z-Coordinate (x2+y2) in RiemannSpace
   const TMatrixD& covX() const {return fCovX;}
-  const double covX(int row, int col) const {return fCovX[row][col];}
+  double covX(int row, int col) const {return fCovX[row][col];}
   bool operator< (const PndRiemannHit& aHit) const{							///< Sort hits by arclength, fails if track curls
 	  if (s() >= 0 && aHit.s() >= 0){
 		  return s() < aHit.s();

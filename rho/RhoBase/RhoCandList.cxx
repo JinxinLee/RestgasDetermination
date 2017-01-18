@@ -33,7 +33,7 @@ RhoCandList::RhoCandList ( const char* name, UInt_t capacity ) :
 
 
 // Perform a deep copy
-RhoCandList::RhoCandList ( RhoCandList& l )
+RhoCandList::RhoCandList ( RhoCandList& l ) : TNamed(l)
 {
   fFast = l.fFast;
   fOwnList = new TObjArray( l.GetLength() );

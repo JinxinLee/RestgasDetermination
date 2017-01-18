@@ -36,7 +36,20 @@ class THParticle : public TParticle
             const TLorentzVector &v);
   
   /** Copy constructor **/
-  THParticle(const THParticle& point) { *this = point; };
+  THParticle(const THParticle& point) :
+  TParticle(point),
+  fstatus(point.fstatus),
+  fEventID(point.fEventID),
+  fpdgCode(point.fpdgCode),
+  fCalcMass(point.fCalcMass),
+  fVx(point.fVx),
+  fVy(point.fVy),
+  fVz(point.fVz),
+  fIndex(point.fIndex),
+  fA(point.fA),
+  fZ(point.fZ),
+  fH(point.fH)
+  { return; }
   
 
   /** Destructor **/

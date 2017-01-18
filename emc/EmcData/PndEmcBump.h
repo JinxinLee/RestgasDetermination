@@ -53,7 +53,7 @@ public:
 
 	Int_t GetClusterIndex()  { return fClusterIndex; };
 
-	const Int_t GetEventNo() const { return fEvtNo; }
+	Int_t GetEventNo() const { return fEvtNo; }
 	void SetEventNo(Int_t evtNo) { fEvtNo = evtNo; }
 
 protected:

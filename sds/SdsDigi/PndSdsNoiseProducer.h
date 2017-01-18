@@ -37,6 +37,7 @@ class PndSdsNoiseProducer : public PndSdsTask
   PndSdsNoiseProducer();
 
   PndSdsNoiseProducer(PndSdsNoiseProducer& other):
+      PndSdsTask(),
       fPersistance(other.fPersistance),
       fBranchNameStrip(other.fBranchNameStrip),
       fBranchNamePixel(other.fBranchNamePixel),

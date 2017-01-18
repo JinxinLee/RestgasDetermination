@@ -24,6 +24,7 @@ public:
 	PndSdsTimeWalkCorrTask();
 	PndSdsTimeWalkCorrTask(const char* name);
   PndSdsTimeWalkCorrTask(PndSdsTimeWalkCorrTask& other) :
+    PndSdsTask(),
 	  fPersistance(other.fPersistance),
 	  fDigiArray(other.fDigiArray),
 	  fDigiCorrArray(other.fDigiCorrArray),

@@ -190,6 +190,7 @@ part(0)
 }
 // ------------------------------------------------------------------------
 PndFtfDirect::PndFtfDirect(const PndFtfDirect& other) :
+FairGenerator(other),
 fverbose(other.fverbose),
 fsaverand(other.fsaverand),
 fnamePart(other.fnamePart),

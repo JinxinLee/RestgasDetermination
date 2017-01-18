@@ -35,6 +35,7 @@ class PndSdsHitProducerIdeal : public PndSdsTask
   PndSdsHitProducerIdeal();
 
   PndSdsHitProducerIdeal(PndSdsHitProducerIdeal& other):
+      PndSdsTask(),
       fPersistance(other.fPersistance),
       fPointArray(other.fPointArray),
       fHitArray(other.fHitArray)

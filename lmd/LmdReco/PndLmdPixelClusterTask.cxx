@@ -376,8 +376,8 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
 
 void PndLmdPixelClusterTask::FinishEvent(){
 
-	if (fDigiArray > 0) 	fDigiArray->Delete();
-	if (fHitArray > 0) 	  fHitArray->Delete();
+	if (fDigiArray != NULL) 	fDigiArray->Delete();
+	if (fHitArray != NULL) 	  fHitArray->Delete();
 	if (fClusterArray > 0)  fClusterArray->Delete();
        	FinishEvents();
 	//std::cout << "-I- PndLmdPixelClusterTask: FinishEvent()" << std::endl;
