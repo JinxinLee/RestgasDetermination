@@ -181,7 +181,7 @@ std::map< int, bool > PndTrkGemCombinatorial::CombinatorialSuppression()
      if(fVerbose) cout << "---> pos 1 hit " << hitid1 << " has counts " << hit1Topairhit2_distance.count(hitid1) << endl;
   }
 
-  for(int ihit = 0; ihit < alone1.size(); ihit++) {
+  for(size_t ihit = 0; ihit < alone1.size(); ihit++) {
      hit1 = (PndGemHit*) fGemHitArray->At(alone1[ihit]);
      if(fVerbose) cout << "**********alone1 " << alone1[ihit] << " " << hit1->GetRefIndex() << endl;
   }
@@ -192,7 +192,7 @@ std::map< int, bool > PndTrkGemCombinatorial::CombinatorialSuppression()
      if(fVerbose) cout << "---> pos 2 hit " << hitid2 << " has counts " << hit2Topairhit1_distance.count(hitid2) << endl;
   }
 
-  for(int ihit = 0; ihit < alone2.size(); ihit++) {
+  for(size_t ihit = 0; ihit < alone2.size(); ihit++) {
      hit2 = (PndGemHit*) fGemHitArray->At(alone2[ihit]);
      if(fVerbose) cout << "**********alone2 " << alone2[ihit] << " " << hit2->GetRefIndex() << endl;
   }
@@ -342,7 +342,7 @@ std::map< int, bool > PndTrkGemCombinatorial::CombinatorialSuppression()
   }
 
 
-  for(int ihit = 0; ihit < dontuse.size(); ihit++) {
+  for(size_t ihit = 0; ihit < dontuse.size(); ihit++) {
     PndGemHit *hit = (PndGemHit*) fGemHitArray->At(dontuse[ihit]);
     if(fVerbose) cout << "dontuse " << dontuse[ihit] << " " << hit->GetRefIndex() << endl;
 

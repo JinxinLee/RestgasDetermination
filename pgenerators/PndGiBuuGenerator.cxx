@@ -87,7 +87,7 @@ void PndGiBuuGenerator::WriteoutDecayParticle(Int_t oldEventNr, Int_t oldRunId, 
 	if (fEvent == oldEventNr && fRunId == oldRunId) {
 		if (fDecayerMap.count(fPdg) > 0) {
 			std::vector<PndGiBuuTrack> tracks = fDecayerMap[fPdg]->DecayTrack(PndGiBuuTrack(fPdg, fPx, fPy, fPz, 0., 0., 0.));
-			for (int i = 0; i < tracks.size(); i++) {
+			for (size_t i = 0; i < tracks.size(); i++) {
 				std::cout << "Writing decayed particles: " << tracks[i].GetPdgId() << std::endl;
 				primGen->AddTrack(tracks[i].GetPdgId(),
 						tracks[i].GetMomentum().X(), tracks[i].GetMomentum().Y(), tracks[i].GetMomentum().Z(),

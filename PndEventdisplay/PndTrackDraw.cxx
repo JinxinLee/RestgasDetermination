@@ -385,7 +385,7 @@ void PndTrackDraw::Reset()
       gEve->RemoveElement(ele,fEventManager); 
    }
    fEveTrList->Clear();
-   for (Int_t j = 0; j < fArrows.size(); j++){
+   for (size_t j = 0; j < fArrows.size(); j++){
 	   gEve->RemoveElement(fArrows[j], fEventManager);
 	   //delete(fArrows[j]);
    }

@@ -10,7 +10,7 @@ PndLmdDetector::PndLmdDetector() {
   fListOfSensitives.push_back("LumActive");//Lumi
   //if (fVerboseLevel>0) {
     std::cout<<"-I- PndLmdDetector: fListOfSensitives contains:";
-    for(Int_t k=0;k<fListOfSensitives.size();k++)
+    for(size_t k=0;k<fListOfSensitives.size();k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   //}
@@ -27,7 +27,7 @@ PndLmdDetector::PndLmdDetector (const char* name, Bool_t active)
   fListOfSensitives.push_back("LumActive");//Lumi
   //if (fVerboseLevel>0) {
     std::cout<<"- I - PndLmdDetector: fListOfSensitives contains:";
-    for(Int_t k=0;k<fListOfSensitives.size();k++)
+    for(size_t k=0;k<fListOfSensitives.size();k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   //}

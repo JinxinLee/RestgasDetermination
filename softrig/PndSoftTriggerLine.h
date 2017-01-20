@@ -69,7 +69,7 @@ public:
 	int GetNTagged() {return fNTagged;}
 
 	int GetMotherPdg() {if (fPdgList.size()>0) return fPdgList[0]; return -1;}
-	int GetDaughterPdg(int idx) {if (fPdgList.size()>idx+1) return fPdgList[idx+1]; return -1;}
+	int GetDaughterPdg(int idx) {if ((int)fPdgList.size()>idx+1) return fPdgList[idx+1]; return -1;}
 	int GetNDaughters() {return fPdgList.size()-1;}
 		
 	RhoMassParticleSelector *GetQASelector() {return fQASelector;}

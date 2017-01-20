@@ -127,7 +127,7 @@ void PndMCTimebasedPatternRecoQuality::Exec(Option_t* opt) {
 				if (fMCTrackMap.count(result.GetLinksWithType(0).GetLink(0)) > 0){
 					std::cout << "fMCTrackMap found for link " << result.GetLinksWithType(0).GetLink(0) << std::endl;
 					std::cout << "TrackCand hits: " << result.GetLinksWithType(2).GetNLinks() << " MCHits: " << fMCTrackMap[result.GetLinksWithType(0).GetLink(0)]->GetNHits() << std::endl;
-					if (result.GetLinksWithType(2).GetNLinks() == fMCTrackMap[result.GetLinksWithType(0).GetLink(0)]->GetNHits()){
+					if (result.GetLinksWithType(2).GetNLinks() == (int)fMCTrackMap[result.GetLinksWithType(0).GetLink(0)]->GetNHits()){
 				//		if (fMCTrackQualityMap[result.GetLinksWithType(0).GetLink(0)] < 0){
 							fMCTrackQualityMap[result.GetLinksWithType(0).GetLink(0)] = 9;
 				//		}

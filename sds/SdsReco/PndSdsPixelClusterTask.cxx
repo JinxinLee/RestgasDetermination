@@ -247,7 +247,7 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 
   // Get rid of noise hits with a single digi in cluster and minimum charge
   if (fUseNoiseSuppression) {
-	  Int_t clusterSize = clusters.size();
+	  UInt_t clusterSize = clusters.size();
 	  for (UInt_t i = 0 ; i < clusterSize; i++)
 	  {
 		  if (clusters[i].size() == 1){

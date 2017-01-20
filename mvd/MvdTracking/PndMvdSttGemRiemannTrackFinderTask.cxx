@@ -220,7 +220,7 @@ void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t* opt)
 		  myTrack->Print();
 	  }
 
-	  for (int j = 0; j < myCand->GetNHits(); j++){
+	  for (size_t j = 0; j < myCand->GetNHits(); j++){
 		  if (myCand->GetLink(j).GetType() == FairRootManager::Instance()->GetBranchId("STTHit")){
 			  PndSttHit* mySttHit = (PndSttHit*)FairRootManager::Instance()->GetCloneOfLinkData(myCand->GetLink(j));
 			  PndRiemannTrack myRiemannTrack = trackFinder.GetTrack(i);

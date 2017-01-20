@@ -802,7 +802,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	TGeoTube* shape_module_cutout = new TGeoTube("shape_module_cutout", 0.,
 			cvd_disc_rad + 0.05,
 			cvd_disc_thick_half + 2 * kapton_disc_thick_half + 0.01);
-	for (int imodule = 0; imodule < nmodules * 2 /*upper and lower half*/;
+	for (size_t imodule = 0; imodule < nmodules * 2 /*upper and lower half*/;
 			imodule++) {
 		double angle = delta_phi / 2. + imodule * delta_phi;
 		double add_z = cvd_disc_even_odd_offset;
@@ -2109,12 +2109,12 @@ bool PndLmdDim::Test_List_of_Sensors(vector<string> list_of_sensors,
 	int max_sensID = nsensorstotal - 1;
 	int checksum = 0;
 	int sumtocheck = 0;
-	if (list_of_sensors.size() != nsensorstotal) {
+	if ((int)list_of_sensors.size() != nsensorstotal) {
 		cout << " PndLmdDim::Test_List_of_Sensors: number of sensors is wrong "
 				<< list_of_sensors.size() << " != " << nsensorstotal << endl;
 		return false;
 	}
-	for (unsigned isensor = 0; isensor < nsensorstotal; isensor++) {
+	for (int isensor = 0; isensor < nsensorstotal; isensor++) {
 		gGeoManager->cd(list_of_sensors[isensor].c_str());
 		string path(gGeoManager->GetCurrentNavigator()->GetPath());
 		if (path != list_of_sensors[isensor]) {
@@ -2866,7 +2866,7 @@ void PndLmdDim::Calc_matrix_offsets() {
 						<< "\t" << dtheta << "\t" << dpsi << "\n";
 				outfile << endl;
 			}
-			for (iplane = 0; iplane < n_planes; iplane++) {
+			for (iplane = 0; iplane < (int)n_planes; iplane++) {
 				imodule = -1;
 				iside = -1;
 				idie = -1;
@@ -3674,7 +3674,7 @@ TH2Poly* PndLmdDim::Get_histogram_Plane(int iplane, int iside, bool aligned,
 					vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane,
 							imodule, iside, idie, isensor, aligned, lmd_frame,
 							pixel_subdivision);
-					for (int igraph = 0; igraph < sensor_graph.size(); igraph++) {
+					for (size_t igraph = 0; igraph < sensor_graph.size(); igraph++) {
 						result->AddBin(sensor_graph[igraph]);
 						//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
 					}
@@ -3706,7 +3706,7 @@ TH2Poly* PndLmdDim::Get_histogram_Moduleside(int ihalf, int iplane, int imodule,
 				continue;
 			vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule,
 					iside, idie, isensor, aligned, lmd_frame, pixel_subdivision);
-			for (int igraph = 0; igraph < sensor_graph.size(); igraph++) {
+			for (size_t igraph = 0; igraph < sensor_graph.size(); igraph++) {
 				result->AddBin(sensor_graph[igraph]);
 				//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it
 			}
@@ -3731,7 +3731,7 @@ TH2Poly* PndLmdDim::Get_histogram_Sensor(int ihalf, int iplane, int imodule,
 
 	vector<TGraph*> sensor_graph = Get_Sensor_Graph(ihalf, iplane, imodule, iside,
 			idie, isensor, aligned, lmd_frame, true);
-	for (int igraph = 0; igraph < sensor_graph.size(); igraph++) {
+	for (size_t igraph = 0; igraph < sensor_graph.size(); igraph++) {
 		//cout << " adding bins " << endl;
 		result->AddBin(sensor_graph[igraph]);
 		//delete sensor_graph[igraph]; is owned by a PolyBin, so don't delete it

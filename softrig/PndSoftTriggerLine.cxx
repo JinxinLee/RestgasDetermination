@@ -164,7 +164,7 @@ void PndSoftTriggerLine::Print()
 	if ( fPdgList.size()>0 )
 	{
 		cout << " ( " << fPdgList[0]<<" -> ";
-		for (int i=1;i<fPdgList.size();++i)
+		for (size_t i=1;i<fPdgList.size();++i)
 		{
 			if (fPdgList[i]==-99) cout <<" [";
 			else if (fPdgList[i]==-98) cout <<" ]";

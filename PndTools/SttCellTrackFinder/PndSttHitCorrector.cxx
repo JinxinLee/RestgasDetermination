@@ -19,7 +19,7 @@ void PndSttHitCorrector::CorrectHits() {
 		cout << "PndSttHitCorrector::CorrectHits" << endl;
 
 	//for each tube with 2 active neighbors
-	for (int i = 0; i < fSeparations[2].size(); ++i) {
+	for (size_t i = 0; i < fSeparations[2].size(); ++i) {
 		int actualTubeId = fSeparations[2][i];
 
 		//continue if straw is skewed
@@ -37,7 +37,7 @@ void PndSttHitCorrector::CorrectHits() {
 				&& !fStrawMap->IsSkewedStraw(fHitNeighbors[actualTubeId][1])) {
 
 			//for each neighbor of actual tube
-			for (int j = 0; j < fHitNeighbors[actualTubeId].size(); j++) {
+			for (size_t j = 0; j < fHitNeighbors[actualTubeId].size(); j++) {
 				int neighborTubeId = fHitNeighbors[actualTubeId][j];
 
 				if (fVerbose > 3)
@@ -83,7 +83,7 @@ void PndSttHitCorrector::CorrectHits() {
 
 	int midNeighbor;
 	double phi1, phi2;
-	for (int i = 0; i < fSeparations[3].size(); ++i) {
+	for (size_t i = 0; i < fSeparations[3].size(); ++i) {
 		int currentTube = fSeparations[3].at(i);
 
 		//if currentTube is not in fTangentAngles
@@ -123,7 +123,7 @@ void PndSttHitCorrector::CorrectHits() {
 	set<int> tubesToCheck;
 
 	for (int i = 2; i < 5; ++i) {
-		for (int j = 0; j < fSeparations[i].size(); ++j) {
+		for (size_t j = 0; j < fSeparations[i].size(); ++j) {
 			int actualTubeId = fSeparations[i].at(j);
 			if (fTangentAngles.find(actualTubeId) == fTangentAngles.end()
 					|| fTangentAngles[actualTubeId].size() != 1) {
@@ -171,7 +171,7 @@ void PndSttHitCorrector::CorrectHits() {
 					if (fHitNeighbors[actualTubeId].size() == 3) {
 						//get neighbor in straight line that lies next to the other neighbor (which is not in straight line)
 						int thirdNeighbor;
-						for (int j = 0; j < fHitNeighbors[actualTubeId].size();
+						for (size_t j = 0; j < fHitNeighbors[actualTubeId].size();
 								++j) {
 							if (fHitNeighbors[actualTubeId].at(j)
 									!= straightNeighbors.first
@@ -639,9 +639,9 @@ pair<int, int> PndSttHitCorrector::GetStraightNeighbors(int tubeID) {
 	straightNeighbors.first = 0;
 	straightNeighbors.second = 0;
 
-	for (int i = 0; i < fHitNeighbors[tubeID].size() - 1; ++i) {
+	for (size_t i = 0; i < fHitNeighbors[tubeID].size() - 1; ++i) {
 
-		for (int j = i + 1; j < fHitNeighbors[tubeID].size(); ++j) {
+		for (size_t j = i + 1; j < fHitNeighbors[tubeID].size(); ++j) {
 
 			if (fGeometryMap->InStraightLine(tubeID,
 					fHitNeighbors[tubeID].at(i), fHitNeighbors[tubeID].at(j))) {
@@ -685,7 +685,7 @@ set<double> PndSttHitCorrector::GetBestCombinatedPhi(
 
 	vector<double> tmp = classification.at(0);
 
-	for (int j = 0; j < tmp.size(); ++j) {
+	for (size_t j = 0; j < tmp.size(); ++j) {
 		if (tmp[j] > biggest) {
 			secondBiggest = biggest;
 			secondBiggestIndex = biggestIndex;
@@ -753,7 +753,7 @@ void PndSttHitCorrector::CalcDifferencesBetweenAngles(
 				iterFirst != angles.end(); ++iterFirst) {
 			vector<double> tmp = *iterFirst;
 			cout << "(";
-			for (int i = 0; i < tmp.size(); ++i) {
+			for (size_t i = 0; i < tmp.size(); ++i) {
 				cout << TMath::RadToDeg() * tmp[i] << ",";
 			}
 			cout << ") ";
@@ -783,7 +783,7 @@ void PndSttHitCorrector::CalcDifferencesBetweenAngles(
 
 			double currentDiff;
 			// for all angles k of X
-			for (int k = 0; k < first.size(); k++) {
+			for (size_t k = 0; k < first.size(); k++) {
 
 				// create a vector for differences between k and all angles of Y
 				vector<double> tmp;
@@ -793,7 +793,7 @@ void PndSttHitCorrector::CalcDifferencesBetweenAngles(
 				pair<int, int> indexOfSmallest;
 
 				// calculate distances between k and all angles j of Y
-				for (int j = 0; j < second.size(); j++) {
+				for (size_t j = 0; j < second.size(); j++) {
 
 					if (fVerbose > 4) {
 						cout << "Phi 0: " << k << " : "
@@ -827,19 +827,19 @@ void PndSttHitCorrector::CalcDifferencesBetweenAngles(
 
 		cout << "Result of Calculation:" << endl;
 		int first = 0, second = 1;
-		for (int i = 0; i < retDifferences.size(); ++i) {
+		for (size_t i = 0; i < retDifferences.size(); ++i) {
 
 			cout << "Smallest Difference for vectors (" << first << ", "
 					<< second << "): " << endl;
 
-			for (int k = 0; k < retSmallestDiff.at(i).size(); ++k) {
+			for (size_t k = 0; k < retSmallestDiff.at(i).size(); ++k) {
 				cout << TMath::RadToDeg() * retSmallestDiff.at(i)[k]
 						<< " for Phi [" << retPairsOfSmallest.at(i)[k].first
 						<< ", " << retPairsOfSmallest.at(i)[k].second << "]"
 						<< endl;
 			}
 
-			if (second == retDifferences.size() - 1) {
+			if (second == (int)retDifferences.size() - 1) {
 				++first;
 				second = first + 1;
 			} else {
@@ -861,11 +861,11 @@ vector<vector<double> > PndSttHitCorrector::CalcClassification(
 	vector<vector<double> > classification;
 	vector<double> sumOfSmallest;
 
-	for (int i = 0; i < smallestDiff.size(); ++i) {
+	for (size_t i = 0; i < smallestDiff.size(); ++i) {
 		sumOfSmallest.push_back(0);
 
 // calculate sum of smallest differences
-		for (int j = 0; j < smallestDiff[i].size(); ++j) {
+		for (size_t j = 0; j < smallestDiff[i].size(); ++j) {
 			sumOfSmallest[i] += smallestDiff[i][j];
 		}
 
@@ -873,7 +873,7 @@ vector<vector<double> > PndSttHitCorrector::CalcClassification(
 		classification.push_back(tmp);
 
 // calculate classification
-		for (int j = 0; j < smallestDiff[i].size(); ++j) {
+		for (size_t j = 0; j < smallestDiff[i].size(); ++j) {
 			classification.back().push_back(
 					1 - smallestDiff[i][j] / sumOfSmallest[i]);
 		}
@@ -882,9 +882,9 @@ vector<vector<double> > PndSttHitCorrector::CalcClassification(
 	if (fVerbose > 4) {
 		cout << "Calculated classification: " << endl;
 
-		for (int i = 0; i < classification.size(); ++i) {
+		for (size_t i = 0; i < classification.size(); ++i) {
 			cout << "Data for " << i << ". vector of smallest differences: ";
-			for (int j = 0; j < classification[i].size(); ++j) {
+			for (size_t j = 0; j < classification[i].size(); ++j) {
 				cout << classification[i][j] << ", ";
 			}
 			cout << endl;
@@ -921,11 +921,11 @@ vector<vector<double> > PndSttHitCorrector::CalcClassification(
 		vector<pair<int, int> > tmp2;
 		pairsOfSmallestValues.push_back(tmp2);
 
-		for (int i = 0; i < outerIter->size(); i++) {
+		for (size_t i = 0; i < outerIter->size(); i++) {
 			double smallestValue = 10000;
 			pair<int, int> pairOfSmallest;
 
-			for (int j = 0; j < outerIter->at(i).size(); j++) {
+			for (size_t j = 0; j < outerIter->at(i).size(); j++) {
 				if (fVerbose > 4)
 					cout << "Pairs: " << i << "/" << j << " : "
 							<< outerIter->at(i)[j] << endl;
@@ -941,7 +941,7 @@ vector<vector<double> > PndSttHitCorrector::CalcClassification(
 			pairsOfSmallestValues[out].push_back(pairOfSmallest);
 			sumOfSmallestValues[out] += smallestValue;
 		}
-		for (int i = 0; i < smallestValues[out].size(); i++) {
+		for (size_t i = 0; i < smallestValues[out].size(); i++) {
 			classification[out].push_back(
 					1 - smallestValues[out][i] / sumOfSmallestValues[out]);
 			if (fVerbose > 4)
@@ -1090,7 +1090,7 @@ bool PndSttHitCorrector::AreHitNeihbors(int tubeID1, int tubeID2) {
 		return false;
 	}
 
-	for (int i = 0; i < fHitNeighbors[tubeID1].size(); ++i) {
+	for (size_t i = 0; i < fHitNeighbors[tubeID1].size(); ++i) {
 		if (fHitNeighbors[tubeID1].at(i) == tubeID2) {
 			return true;
 		}

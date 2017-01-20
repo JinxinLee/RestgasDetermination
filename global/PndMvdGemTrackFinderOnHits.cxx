@@ -309,7 +309,7 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
     nofTS[itr] = 0;
   }
 
-  for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+  for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
     TrackSegment iterTS = fTrackSegments[its];
     if ( iterTS.recoTrackIndex == -1 ) continue;
     itr = iterTS.recoTrackIndex;
@@ -351,7 +351,7 @@ Int_t PndMvdGemTrackFinderOnHits::CreateTracks(Int_t nofRecoTracks) {
       cout << "---------------------------------------------------------" << endl;
       cout << "  Track " << itr << " segments:" << endl;
 
-      for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+      for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
 	TrackSegment iterTS = fTrackSegments[its];
 	if ( iterTS.recoTrackIndex != itr ) continue;
 	cout << iterTS.trackMom << " GeV/c, " << iterTS.trackTheta << " deg theta, " << iterTS.trackPhi << " deg phi)" << endl; 
@@ -486,7 +486,7 @@ void PndMvdGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
   }
 
   Int_t itr = -1;
-  for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+  for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
     TrackSegment iterTS = fTrackSegments[its];
     if ( iterTS.recoTrackIndex == -1 ) continue;
     itr = iterTS.recoTrackIndex;
@@ -507,7 +507,7 @@ void PndMvdGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
     meanThe[itr] = meanThe[itr]/nofTS[itr];
   } 
   
-  for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+  for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
     TrackSegment iterTS = fTrackSegments[its];
     if ( iterTS.recoTrackIndex == -1 ) continue;
     itr = iterTS.recoTrackIndex;
@@ -554,7 +554,7 @@ void PndMvdGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
     }
   }
 
-  for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+  for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
     TrackSegment iterTS = fTrackSegments[its];
     if ( iterTS.recoTrackIndex == -1 ) continue;
     iterTS             .recoTrackIndex = whatToDo[iterTS.recoTrackIndex];
@@ -600,7 +600,7 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
 
   Int_t nofRecoTracks = 0;
 
-  for ( Int_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
+  for ( size_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
     TrackSegment origTS = fTrackSegments[itrc];
     if ( origTS.recoTrackIndex != -1 ) continue; // this track segment has already been used
     if ( fVerbose > 4 || printInfo ) 
@@ -610,7 +610,7 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
     vector<Int_t> trackSegs;
     trackSegs.push_back(itrc);
     
-    for ( Int_t itrc2 = 0 ; itrc2 < fTrackSegments.size() ; itrc2++ ) {
+    for ( size_t itrc2 = 0 ; itrc2 < fTrackSegments.size() ; itrc2++ ) {
       if ( itrc2 == itrc ) continue; // do not match segment with itself
       TrackSegment matchTS = fTrackSegments[itrc2];
       if ( origTS.detId[0] == matchTS.detId[0] && origTS.detId[1] == matchTS.detId[1] ) continue;
@@ -622,7 +622,7 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
       Double_t meanPhi = 0.;
       Double_t meanThe = 0.;
       Bool_t matching = kFALSE;
-      for ( Int_t its = 0 ; its < trackSegs.size() ; its++ ) {
+      for ( size_t its = 0 ; its < trackSegs.size() ; its++ ) {
 	TrackSegment iterTS = fTrackSegments[trackSegs[its]];
 
 	if ( TMath::Abs(matchTS.trackPhi  -iterTS.trackPhi)   < 1.0 && 
@@ -641,7 +641,7 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
       //      cout << "segment belongs to track" << endl;          
       // check if there exists in trackSegs a segment that uses different hits on some station
       Bool_t sameStationSegment = kFALSE;
-      for ( Int_t its = 0 ; its < trackSegs.size() ; its++ ) {
+      for ( size_t its = 0 ; its < trackSegs.size() ; its++ ) {
 	TrackSegment iterTS = fTrackSegments[trackSegs[its]];
 	// different stations
 	if ( matchTS.detId[0]    != iterTS.detId[0]    || matchTS.detId[1]    != iterTS.detId[1] )
@@ -654,7 +654,7 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
 	meanMom = 0.;
 	meanPhi = 0.;
 	meanThe = 0.;
-	for ( Int_t its2 = 0 ; its2 < trackSegs.size() ; its2++ ) {	
+	for ( size_t its2 = 0 ; its2 < trackSegs.size() ; its2++ ) {	
 	  if ( its == its2 ) continue; // the track segment in question should not go to mean
 	  TrackSegment aveTS = fTrackSegments[trackSegs[its2]];
 	  if ( fVerbose > 4 || printInfo ) 
@@ -698,7 +698,7 @@ Int_t PndMvdGemTrackFinderOnHits::MatchTrackSegments() {
     
     if ( fVerbose > 4 || printInfo ) 
       cout << "track " << nofRecoTracks << " segments: " << endl;
-    for ( Int_t its = 0 ; its < trackSegs.size() ; its++ ) {
+    for ( size_t its = 0 ; its < trackSegs.size() ; its++ ) {
       TrackSegment iterTS = fTrackSegments[trackSegs[its]];
       if ( fVerbose > 4 || printInfo )  
 	{

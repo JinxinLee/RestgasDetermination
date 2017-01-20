@@ -88,7 +88,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//gather data
 		cout << "gathering data...\n";
-		for(int i=0; i<idPairs.size(); i++){
+		for(size_t i=0; i<idPairs.size(); i++){
 			histDeltaCorrection(idPairs[i].first, idPairs[i].second, data);
 		}
 
@@ -114,7 +114,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 	//TODO: implement
 	else if(param == kPlotByModule){
 
-		for(int i=0; i<idPairs.size(); i++){
+		for(size_t i=0; i<idPairs.size(); i++){
 
 			//check cases
 			int sensorID, half, plane, module, side, die, sensor;
@@ -133,7 +133,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
 
-		for(int i=0; i<idPairs.size(); i++){
+		for(size_t i=0; i<idPairs.size(); i++){
 
 			int id1 = idPairs[i].first;
 			int id2 = idPairs[i].second;
@@ -220,7 +220,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
 
-		for(int i=0; i<idPairs.size(); i++){
+		for(size_t i=0; i<idPairs.size(); i++){
 
 			int id1 = idPairs[i].first;
 			int id2 = idPairs[i].second;
@@ -296,7 +296,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
 
-		for(int i=0; i<idPairs.size(); i++){
+		for(size_t i=0; i<idPairs.size(); i++){
 
 			int id1 = idPairs[i].first;
 			int id2 = idPairs[i].second;
@@ -417,7 +417,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		std::vector<std::vector<double> > dataPX;
 
 		//so, gather all CMresiduals
-		for(int i=0; i<idPairs.size(); i++){
+		for(size_t i=0; i<idPairs.size(); i++){
 
 			int id1 = idPairs[i].first;
 			int id2 = idPairs[i].second;
@@ -461,7 +461,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		}
 
 		//gather all PX residuals
-		for(int i=0; i<idPairs.size(); i++){
+		for(size_t i=0; i<idPairs.size(); i++){
 
 			int id1 = idPairs[i].first;
 			int id2 = idPairs[i].second;
@@ -502,7 +502,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		data.reserve(dataCM.size());
 
-		for(int i=0; i<dataCM.size(); i++){
+		for(size_t i=0; i<dataCM.size(); i++){
 
 			//check if ids match
 			if( (dataCM[i][0] != dataPX[i][0]) || (dataCM[i][1] != dataPX[i][1]) ){
@@ -786,13 +786,13 @@ bool PndLmdAlignQA::checkForMatrixFiles(){
 	bool tempfilefound=false;
 
 	//check for every ID that should be there if there is a corresponding file
-	for(int i=0; i<availableIds.size(); i++){
+	for(size_t i=0; i<availableIds.size(); i++){
 
 		//reset counter
 		tempfilefound=false;
 		matrixName = manager.makeMatrixFileName(availableIds[i], _inCentimeters, false);
 
-		for(int j=0; j<files.size(); j++){
+		for(size_t j=0; j<files.size(); j++){
 			if(files[j].find(matrixName)!=string::npos){
 				tempfilefound=true;
 				foundFiles++;
@@ -823,7 +823,7 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 
 	//have all data now
 	double dataPoint=0.0;
-	for(int iArea=0; iArea<vec.size();iArea++){
+	for(size_t iArea=0; iArea<vec.size();iArea++){
 		dataPoint = vec[iArea][parameters.vectorIndex] * parameters.scaleFactor;
 		histogram.Fill(dataPoint);
 

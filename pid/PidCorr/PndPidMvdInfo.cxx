@@ -32,7 +32,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
   Int_t ierr = 0;
   FairTrackParH *helix = new FairTrackParH(&par, ierr); // This will be used for propagation
   
-  for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
+  for (size_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
       PndSdsHit *mvdHit = NULL;
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);

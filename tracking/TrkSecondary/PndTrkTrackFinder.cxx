@@ -556,7 +556,7 @@ void PndTrkTrackFinder::Initialize() {
   if(fUseSTT) { 
     stthitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fSttBranch), fSttHitArray);
     std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fSttBranch), det_to_hitids);
-    for(int ihit = 0; ihit < primaries.size(); ihit++) {
+    for(size_t ihit = 0; ihit < primaries.size(); ihit++) {
       if(primaries[ihit] == true) continue;
       PndTrkHit *hit = stthitlist->GetHitByID(ihit);
       stthitlist->RemoveHit(hit);
@@ -567,7 +567,7 @@ void PndTrkTrackFinder::Initialize() {
   if(fUseMVDPix) {
     mvdpixhitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), fMvdPixelHitArray);
     std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fMvdPixelBranch), det_to_hitids);
-    for(int ihit = 0; ihit < primaries.size(); ihit++) {
+    for(size_t ihit = 0; ihit < primaries.size(); ihit++) {
       if(primaries[ihit] == true) continue;
       PndTrkHit *hit = mvdpixhitlist->GetHitByID(ihit);
       mvdpixhitlist->RemoveHit(hit);
@@ -578,7 +578,7 @@ void PndTrkTrackFinder::Initialize() {
   if(fUseMVDStr) {
     mvdstrhitlist->AddTCA(FairRootManager::Instance()->GetBranchId(fMvdStripBranch), fMvdStripHitArray);
     std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fMvdStripBranch), det_to_hitids);
-    for(int ihit = 0; ihit < primaries.size(); ihit++) {
+    for(size_t ihit = 0; ihit < primaries.size(); ihit++) {
       if(primaries[ihit] == true) continue;
       PndTrkHit *hit = mvdstrhitlist->GetHitByID(ihit);
       mvdstrhitlist->RemoveHit(hit);
@@ -603,7 +603,7 @@ void PndTrkTrackFinder::Initialize() {
     gemhitlist->AddNonCombiHits(FairRootManager::Instance()->GetBranchId(fGemBranch), fGemHitArray, hitidTousability);
    
     std::map< int, bool > primaries = PrimaryCheck(FairRootManager::Instance()->GetBranchId(fGemBranch), det_to_hitids);
-    for(int ihit = 0; ihit < primaries.size(); ihit++) {
+    for(size_t ihit = 0; ihit < primaries.size(); ihit++) {
       if(primaries[ihit] == true) continue;
       PndTrkHit *hit = gemhitlist->GetHitByID(ihit);
       if(hit) gemhitlist->RemoveHit(hit);
@@ -763,7 +763,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   }
 
 
-  for(int ilay = 0; ilay < maplay2hits.size(); ilay++) {
+  for(size_t ilay = 0; ilay < maplay2hits.size(); ilay++) {
     std::vector< int > hits = maplay2hits[ilay];
     //    cout << "layer " << ilay << " has nof hits " << hits.size() << endl;
   }
@@ -776,9 +776,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // cosalpha < 0.94
 
   std::vector< int > hits0 =  maplay2hits[0];
-  for(int ihit = 0; ihit < hits0.size(); ihit++) {
+  for(size_t ihit = 0; ihit < hits0.size(); ihit++) {
     std::vector< int > hits7 =  maplay2hits[7];
-    for(int jhit = 0; jhit < hits7.size(); jhit++) {
+    for(size_t jhit = 0; jhit < hits7.size(); jhit++) {
       // cut on distance
       PndTrkHit *hiti = stthitlist->GetHit(hits0[ihit]);
       PndTrkHit *hitj = stthitlist->GetHit(hits7[jhit]);
@@ -827,11 +827,11 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   //  cout << endl;
   // triplets
   std::vector< std::vector < int > > trackcandidates2;
-  for(int ipair = 0; ipair < trackcandidates.size(); ipair++) {
+  for(size_t ipair = 0; ipair < trackcandidates.size(); ipair++) {
     std::vector< int > couple = trackcandidates[ipair];
     
     std::vector< int > hits16 =  maplay2hits[16];
-    for(int jhit = 0; jhit < hits16.size(); jhit++) {
+    for(size_t jhit = 0; jhit < hits16.size(); jhit++) {
       PndTrkHit *hit0 = stthitlist->GetHit(couple[0]);
       PndTrkHit *hit1 = stthitlist->GetHit(couple[1]);
       
@@ -887,7 +887,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 
   // fourth hit
   std::vector< std::vector< int > >  trackcandidates3;
-  for(int iqua = 0; iqua < trackcandidates2.size(); iqua++) {
+  for(size_t iqua = 0; iqua < trackcandidates2.size(); iqua++) {
     std::vector< int > triplet = trackcandidates2[iqua];
     
     PndTrkHit *hit0 = stthitlist->GetHit(triplet[0]); //[R.K. 01/2017] unused variable
@@ -896,7 +896,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     //  cout << "TRIPLET: " << triplet[0] << ", " << triplet[1] <<  " and " << triplet[2] << endl;
 
     std::vector< int > hits20 =  maplay2hits[20];
-    for(int jhit = 0; jhit < hits20.size(); jhit++) {
+    for(size_t jhit = 0; jhit < hits20.size(); jhit++) {
       PndTrkHit *hit20 = stthitlist->GetHit(hits20[jhit]);
       double distance = hit2->GetXYDistance(hit20);
       // cout << triplet[0] << ", " << triplet[1] <<  ", " << triplet[2] << " and " << hits20[jhit];
@@ -956,7 +956,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   // find the tracks
   std::vector < std::vector < double > > tracks; // x0, y0, R
   std::vector< std::vector< int > >  trackcandidates4;
-  for(int iqua = 0; iqua < trackcandidates3.size(); iqua++) {
+  for(size_t iqua = 0; iqua < trackcandidates3.size(); iqua++) {
     std::vector< int > quadriplet = trackcandidates3[iqua];
     PndTrkHit *hit0 = stthitlist->GetHit(quadriplet[0]);
     PndTrkHit *hit1 = stthitlist->GetHit(quadriplet[1]);
@@ -1117,7 +1117,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   PndTrkClusterList clusterlist;
   
   //   cout << "tracks " <<  tracks.size() << endl;
-  for(int itrk = 0; itrk < tracks.size(); itrk++) {
+  for(size_t itrk = 0; itrk < tracks.size(); itrk++) {
     std::vector< double > track = tracks[itrk];
     double x = track[0];
     double y = track[1];
@@ -1162,7 +1162,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     }
     
     int tmpsecentries = 0, tmpsec = -1;
-    for(int isec = 0; isec < sectorids.size(); isec++) {
+    for(size_t isec = 0; isec < sectorids.size(); isec++) {
       if(tmpsecentries < sectorids[isec]) {
 	tmpsecentries = sectorids[isec];
 	tmpsec = isec;
@@ -1174,8 +1174,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     // border?
     bool border = false;
     int othersecID = -1;
-    for(int isec = 0; isec < sectorids.size(); isec++) {
-      if(sectorids[isec] > 0 && isec != sectorID) {
+    for(size_t isec = 0; isec < sectorids.size(); isec++) {
+      if(sectorids[isec] > 0 && (int)isec != sectorID) {
 	border = true;
 	othersecID = isec;
       }
@@ -2766,7 +2766,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     if(mtracks[0] != -1) {
       //  cout << it->first << "/" << mergingtracks.size() << endl; // " last fit " <<  clusteri.GetNofHits() << endl;
       // cout << "i " << clusteri.GetNofHits() << endl;
-      for(int ktrk = 0; ktrk < mtracks.size(); ktrk++) {
+      for(size_t ktrk = 0; ktrk < mtracks.size(); ktrk++) {
 	int jtrk = mtracks[ktrk];
 	PndTrkTrack *trackj = fTrackList->GetTrack(jtrk);
 	PndTrkCluster clusterj = trackj->GetCluster();
@@ -3145,7 +3145,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	continue;
       }
     //    cout << fNofPrimaries << " track " << trk << " cand " << cand << endl;
-    for (Int_t ihit = 0; ihit < cand->GetNHits(); ihit++) {
+    for (size_t ihit = 0; ihit < cand->GetNHits(); ihit++) {
       PndTrackCandHit candhit = cand->GetSortedHit(ihit);
       Int_t hitId = candhit.GetHitId();
       Int_t detId = candhit.GetDetId();
@@ -3438,7 +3438,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	}
       
       int tmpsecentries = 0, tmpsec = -1;
-      for(int isec = 0; isec < sectorids.size(); isec++) {
+      for(size_t isec = 0; isec < sectorids.size(); isec++) {
 	if(tmpsecentries < sectorids[isec]) {
 	  tmpsecentries = sectorids[isec];
 	  tmpsec = isec;
@@ -3450,8 +3450,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // border?
       bool border = false;
       int othersecID = -1;
-      for(int isec = 0; isec < sectorids.size(); isec++) {
-	if(sectorids[isec] > 0 && isec != sectorID) {
+      for(size_t isec = 0; isec < sectorids.size(); isec++) {
+	if(sectorids[isec] > 0 && (int)isec != sectorID) {
 	  border = true;
 	  othersecID = isec;
 	}
@@ -3579,7 +3579,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	}
       
       tmpsecentries = 0, tmpsec = -1;
-      for(int isec = 0; isec < sectorids.size(); isec++) {
+      for(size_t isec = 0; isec < sectorids.size(); isec++) {
 	if(tmpsecentries < sectorids[isec]) {
 	  tmpsecentries = sectorids[isec];
 	  tmpsec = isec;
@@ -3591,8 +3591,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       // border?
       border = false;
       othersecID = -1;
-      for(int isec = 0; isec < sectorids.size(); isec++) {
-	if(sectorids[isec] > 0 && isec != sectorID) {
+      for(size_t isec = 0; isec < sectorids.size(); isec++) {
+	if(sectorids[isec] > 0 && (int)isec != sectorID) {
 	  border = true;
 	  othersecID = isec;
 	}
@@ -5810,7 +5810,7 @@ Int_t  PndTrkTrackFinder::ExtractLegendre(Int_t mode, double &theta_max, double 
       return maxpeak;
     }
   
-    for(int ialready = 0; ialready < fFoundPeaks.size(); ialready++) {
+    for(size_t ialready = 0; ialready < fFoundPeaks.size(); ialready++) {
       std::pair<double, double> foundthetar = fFoundPeaks.at(ialready);
       double foundtheta = foundthetar.first;
       double foundr = foundthetar.second;
@@ -7423,7 +7423,7 @@ Int_t PndTrkTrackFinder::RecreateHitArrays( std::map< int, std::vector< int > > 
 
 
     PndTrackCand *pricand = pritrack->GetTrackCandPtr();
-    for (Int_t ihit = 0; ihit < pricand->GetNHits(); ihit++) {
+    for (size_t ihit = 0; ihit < pricand->GetNHits(); ihit++) {
       PndTrackCandHit candhit = pricand->GetSortedHit(ihit);
       Int_t hitId = candhit.GetHitId();
       Int_t detId = candhit.GetDetId();

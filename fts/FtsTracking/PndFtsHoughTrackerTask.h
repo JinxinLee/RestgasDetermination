@@ -108,7 +108,7 @@ public:
 	 * @return Pointer to hit with index hitId in FTS hit array.
 	 */
 	const PndFtsHit* GetFtsHit(UInt_t hitId) const {
-		if ( hitId >= GetNFtsHits() ) throwError("GetFtsHit: hitId is too large.");
+		if ( hitId >= (UInt_t)GetNFtsHits() ) throwError("GetFtsHit: hitId is too large.");
 		//		TClonesArray *ftsHitArray= (TClonesArray *)FairRootManager::Instance()->GetObject("FTSHit");
 		const PndFtsHit *myHit = (PndFtsHit*) fFtsHitArray->At(hitId);
 		if (0 == myHit) throwError("GetFtsHit was not able to get the hit.");

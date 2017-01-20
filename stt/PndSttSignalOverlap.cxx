@@ -96,7 +96,7 @@ Bool_t PndSttSignalOverlap::OverlapSimultaneousSignals(TClonesArray * OverlapHit
   }
 
   // copy to output only the hits in the map
-  for(int itube = 0; itube < firingtubes.size(); itube++) {
+  for(size_t itube = 0; itube < firingtubes.size(); itube++) {
     int tubeid = firingtubes[itube];
     int hitid = maptubetohit[tubeid];
     Bool_t wrote = WriteToOutputHit(hitid);

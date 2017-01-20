@@ -71,7 +71,7 @@ struct pixelCluster{
 
 	pixelCluster(const pixelCluster& copy){
 		_sensorId=copy._sensorId;
-		for(int i=0; i<copy.pixelHits.size(); i++){
+		for(size_t i=0; i<copy.pixelHits.size(); i++){
 			pixelHits.push_back(copy.pixelHits[i]);
 		}
 
@@ -89,10 +89,10 @@ struct pixelCluster{
 			return false;
 		}
 		double _col1,_col2,_row1,_row2;
-		for(int i=0; i<this->pixelHits.size(); i++){
+		for(size_t i=0; i<this->pixelHits.size(); i++){
 			_col1 = this->pixelHits[i]._col;
 			_row1 = this->pixelHits[i]._row;
-			for(int j=0; j<other.pixelHits.size(); j++){
+			for(size_t j=0; j<other.pixelHits.size(); j++){
 				_col2 = other.pixelHits[j]._col;
 				_row2 = other.pixelHits[j]._row;
 				//check if neighboring, that means distance of pixels is smaller than 1.5 pixels
@@ -106,7 +106,7 @@ struct pixelCluster{
 
 	//merges other to this one
 	void merge(pixelCluster &other){
-		for(int i=0; i<other.pixelHits.size(); i++){
+		for(size_t i=0; i<other.pixelHits.size(); i++){
 			pixelHits.push_back(other.pixelHits[i]);
 		}
 	}
@@ -114,7 +114,7 @@ struct pixelCluster{
 	void calculateCenter(){
 		centerCol=0;
 		centerRow=0;
-		for(int i=0; i<pixelHits.size(); i++){
+		for(size_t i=0; i<pixelHits.size(); i++){
 			centerCol+=pixelHits[i]._col;
 			centerRow+=pixelHits[i]._row;
 		}
@@ -126,8 +126,8 @@ struct pixelCluster{
 			clusterSize=1;
 		}
 		else{
-			for(int i=0; i<pixelHits.size(); i++){
-				for(int j=i+1; j<pixelHits.size(); j++){
+			for(size_t i=0; i<pixelHits.size(); i++){
+				for(size_t j=i+1; j<pixelHits.size(); j++){
 					double deltax=(pixelHits[i]._col-pixelHits[j]._col);
 					if(deltax>0){
 						deltax=deltax+1;
@@ -151,7 +151,7 @@ struct pixelCluster{
 	}
 
 	void printPixels(){
-		for(int i=0; i<pixelHits.size(); i++){
+		for(size_t i=0; i<pixelHits.size(); i++){
 			cout << "pixelHit x:" << pixelHits[i]._col << ", y:" << pixelHits[i]._row << " on sensor " << pixelHits[i]._sensorId << endl;
 		}
 	}
@@ -346,9 +346,9 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 	for(int iRounds=0; iRounds<nPixels; iRounds++){
 		actionDone=false;
 		//for every cluster, check every other cluster
-		for(int i=0; i<clusters.size(); i++){
+		for(size_t i=0; i<clusters.size(); i++){
 			//clusters are interchangeable, check every pair only once
-			for(int j=i+1; j<clusters.size(); j++){
+			for(size_t j=i+1; j<clusters.size(); j++){
 
 				//clusters must be on same sensor
 				if(clusters[i]._sensorId != clusters[j]._sensorId){
@@ -370,7 +370,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 	}
 	//calculate cluster centers and discard large clusters
 	//for statistis: count cluster ratio
-	for(int i=0; i<clusters.size();i++){
+	for(size_t i=0; i<clusters.size();i++){
 		clusters[i].calculateCenter();
 		//FIXME: read from parameter file!
 		if(clusters[i].clusterSize > 1){
@@ -415,8 +415,8 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 	Int_t storedForBranch;
 
 	//try every cluster combination and check
-	for(int i=0; i<clusters.size(); i++){
-		for(int j=i+1; j<clusters.size(); j++){
+	for(size_t i=0; i<clusters.size(); i++){
+		for(size_t j=i+1; j<clusters.size(); j++){
 
 			col1=clusters[i].centerCol;
 			col2=clusters[j].centerCol;

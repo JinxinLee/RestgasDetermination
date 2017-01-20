@@ -64,7 +64,7 @@ void PndEmcWaveformData::AddHit(const FairLink& link, Double_t absEventTime, Dou
 
 
 void PndEmcWaveformData::GetHitParameter(Int_t hitNo, Double_t& time, Double_t& energy) {
-	assert(hitNo>=0 && hitNo<fHitMap.size());	
+	assert(hitNo>=0 && hitNo<(int)fHitMap.size());	
 	map<Double_t, Double_t>::iterator it = fHitMap.begin();
 	while(hitNo--) it++;
 	time = it->first;	

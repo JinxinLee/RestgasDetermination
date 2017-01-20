@@ -297,7 +297,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
       vector<Int_t>vecMdt0 = mapMdtBarrel[0];
       TVector3 oldPos(0., 0., 0.);
       TVector3 newPos(0., 0., 0.);
-      for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
+      for (size_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
 	  Int_t layerCount = 1, maxLayer = 0;
 	  Float_t layerDist = 0.; Float_t ironDist = 0.;
@@ -338,7 +338,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	      Int_t corrId = -1;
 	      TVector3 corrPos(0., 0., 0.); 
 	      Int_t layerMult = 0;
-	      for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
+	      for (size_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		{
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
 		  mdtHit->Position(newPos);
@@ -390,7 +390,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  Int_t corrId = -1;
 		  TVector3 corrPos(0., 0., 0.);
 		  Int_t layerMult = 0;
-		  for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
+		  for (size_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		    {
 		      PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
 		      mdtHit->Position(newPos);
@@ -436,7 +436,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
       TVector3 oldPos(0., 0., 0.);
       TVector3 newPos(0., 0., 0.);
       
-      for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
+      for (size_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
 	  Int_t layerCount = 1, maxLayer = 0;
 	  Float_t layerDist = 0., ironDist = 0.;
@@ -477,7 +477,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	      Int_t corrId = -1;
 	      TVector3 corrPos(0., 0., 0.);
 	      Int_t layerMult = 0;
-	      for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
+	      for (size_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		{
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
 		  mdtHit->Position(newPos);
@@ -522,7 +522,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
       TVector3 oldPos(0., 0., 0.);
       TVector3 newPos(0., 0., 0.);
       
-      for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
+      for (size_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
 	  Int_t layerCount = 1, maxLayer = 0;
 	  Float_t layerDist = 0;
@@ -563,7 +563,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	      Int_t corrId = -1;
 	      TVector3 corrPos(0., 0., 0.);
 	      Int_t layerMult = 0;
-	      for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
+	      for (size_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		{
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
 		  mdtHit->Position(newPos);

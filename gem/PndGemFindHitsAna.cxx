@@ -259,10 +259,10 @@ void PndGemFindHitsAna::CreateHistos() {
     cout << "HM, seems that fhFrontBackDiff is filled with histograms, and there are " << nofHists << " of them" << endl;
     
     cout << "fStatBegHist has " << fStatBegHist.size() << " entries:" << endl;
-    for ( Int_t isbh = 0 ; isbh < fStatBegHist.size() ; isbh++ )
+    for ( size_t isbh = 0 ; isbh < fStatBegHist.size() ; isbh++ )
       cout << " ---> " << fStatBegHist[isbh] << endl;
     cout << "fGridHalfLen has " << fGridHalfLen.size() << " entries:" << endl;
-    for ( Int_t ighl = 0 ; ighl < fGridHalfLen.size() ; ighl++ )
+    for ( size_t ighl = 0 ; ighl < fGridHalfLen.size() ; ighl++ )
       cout << " ---> " << fGridHalfLen[ighl] << endl;
   }
 

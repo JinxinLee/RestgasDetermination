@@ -119,7 +119,7 @@ PndDrc::PndDrc()
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
     std::cout<<"-I- PndBarrelDIRC: fListOfSensitives contains:";
-    for(Int_t k=0; k<fListOfSensitives.size(); k++)
+    for(size_t k=0; k<fListOfSensitives.size(); k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   } 
@@ -184,7 +184,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
     std::cout<<"-I- PndBarrelDIRC: fListOfSensitives contains:";
-    for(Int_t k=0; k<fListOfSensitives.size(); k++)
+    for(size_t k=0; k<fListOfSensitives.size(); k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   }
@@ -842,7 +842,7 @@ void PndDrc::ConstructOpGeometry() {
 
 // -----   Public method CheckIfSensitive   --------------------------------------
 bool PndDrc::CheckIfSensitive(std::string name) {
-  for (Int_t i = 0; i < fListOfSensitives.size(); i++){
+  for (size_t i = 0; i < fListOfSensitives.size(); i++){
     if (name.find(fListOfSensitives[i]) != std::string::npos)    
       return true;
   }

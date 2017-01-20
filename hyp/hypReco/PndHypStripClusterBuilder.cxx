@@ -97,19 +97,19 @@ std::vector< PndHypCluster> PndHypStripClusterBuilder::SearchClusters()
 
 PndHypCluster PndHypStripClusterBuilder::GetCluster(Int_t i)
 	{
- 	  if(0<=i && fClusters.size() < i)
+ 	  if(0<=i && (int)fClusters.size() < i)
  	    return fClusters[i];
           return PndHypCluster();
  	}
 PndHypCluster PndHypStripClusterBuilder::GetTopCluster(Int_t i)
  	{
- 	  if(0<=i && fTopclusters.size() < i)
+ 	  if(0<=i && (int)fTopclusters.size() < i)
  	    return fClusters[ (fTopclusters[i]) ];
           return PndHypCluster();
  	}
  PndHypCluster PndHypStripClusterBuilder::GetBotCluster(Int_t i)
  	{
- 	  if(0<=i && fBotclusters.size() < i)
+ 	  if(0<=i && (int)fBotclusters.size() < i)
  	    return fClusters[ (fBotclusters[i]) ];
           return PndHypCluster();
  	}

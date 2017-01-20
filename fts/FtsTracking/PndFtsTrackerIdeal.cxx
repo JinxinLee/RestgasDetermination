@@ -274,7 +274,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
           continue;
         }
         // remove tcand if it does not have enough hits from FTS (after run with iDet == 0 only FTS hits are filled)
-        if( tcand->GetNHits() < fMinFtsHitsPerTrack ){ // TODO: Make this criterion more realistic
+        if( (int)tcand->GetNHits() < fMinFtsHitsPerTrack ){ // TODO: Make this criterion more realistic
           if(fVerbose>9){
             Info("Exec","Mark candlist[%i] for deletion because it has only %i FTS hits which is not enough.", trackID, tcand->GetNHits());
           }
@@ -288,7 +288,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
         // Go through all hits of the PndTrkCand and check if their z values are increasing.
         // If not, remove the PndTrkCand from candlist
         Double_t lastz = -100.; // saves the z-position of the last hit
-        for( Int_t iSortedHit=0; iSortedHit<tcand->GetNHits(); ++iSortedHit ) {
+        for( size_t iSortedHit=0; iSortedHit<tcand->GetNHits(); ++iSortedHit ) {
           // TODO: This needs to be checked
           if(fVerbose>11) Info("Exec","Look at hit iSortedHit == %i", iSortedHit);
           PndTrackCandHit candhit = tcand->GetSortedHit(iSortedHit);
@@ -340,7 +340,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
 
 
       // now delete all keys from candlist that have previously been saved in the vector keysToDeleteFromCandList
-      for (Int_t iKey=0; iKey<keysToDeleteFromCandList.size(); ++iKey){
+      for (size_t iKey=0; iKey<keysToDeleteFromCandList.size(); ++iKey){
         if(fVerbose>10){
           std::cout << "Delete key " << keysToDeleteFromCandList[iKey] << std::endl;
         }

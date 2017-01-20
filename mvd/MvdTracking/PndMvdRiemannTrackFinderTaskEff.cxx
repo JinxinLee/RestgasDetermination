@@ -154,9 +154,9 @@ bool PndMvdRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMCTra
 			detIDi=cand->GetSortedHit(i).GetDetId();
 			hitIDi=cand->GetSortedHit(i).GetHitId();
 			PndSdsHit *pointI;
-			if (detIDi == FairRootManager::Instance()->GetBranchId(fHitBranch))
+			if ((int)detIDi == FairRootManager::Instance()->GetBranchId(fHitBranch))
 				 pointI = (PndSdsHit*)fHitArray->At(hitIDi);
-			else if (detIDi == FairRootManager::Instance()->GetBranchId(fHitBranch2))
+			else if ((int)detIDi == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 				 pointI = (PndSdsHit*)fHitArray2->At(hitIDi);
 			else pointI = 0;
 
@@ -164,9 +164,9 @@ bool PndMvdRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMCTra
 					detIDj=cand->GetSortedHit(j).GetDetId();
 					hitIDj=cand->GetSortedHit(j).GetHitId();
 					PndSdsHit *pointJ;
-					if (detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch))
+					if ((int)detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch))
 						 pointJ = (PndSdsHit*)fHitArray->At(hitIDj);
-					else if (detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch2))
+					else if ((int)detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 						 pointJ = (PndSdsHit*)fHitArray2->At(hitIDj);
 					else pointJ = 0;
 
@@ -237,9 +237,9 @@ void PndMvdRiemannTrackFinderTaskEff::AddGhostTrack(int trackF)
 			detID=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(i).GetDetId();
 			hitID=((PndTrackCand*)fTrackCandArray->At(trackF))->GetSortedHit(i).GetHitId();
 			PndSdsHit *point;
-			if (detID == FairRootManager::Instance()->GetBranchId(fHitBranch))
+			if ((int)detID == FairRootManager::Instance()->GetBranchId(fHitBranch))
 				 point = (PndSdsHit*)fHitArray->At(hitID);
-			else if (detID == FairRootManager::Instance()->GetBranchId(fHitBranch2))
+			else if ((int)detID == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 				 point = (PndSdsHit*)fHitArray2->At(hitID);
 			else point = 0;
 			if (point!=0){

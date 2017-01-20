@@ -211,7 +211,7 @@ void PndLmdTrksFilterTask::Exec(Option_t* opt)
     PndTrackCand *trkcand = (PndTrackCand*)fTrkCandArray->At(candID);    
     const unsigned int Ntrkcandhits= trkcand->GetNHits();
     trkHn.push_back(Ntrkcandhits);
-    for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
+    for (size_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
       PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
       Int_t hitID = candhit.GetHitId();
       //      PndSdsHit* myHit = (PndSdsHit*)(fHitArray->At(hitID));

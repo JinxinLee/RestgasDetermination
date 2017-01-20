@@ -190,7 +190,7 @@ bool PndLmdTrackFinderTask::SortHitsByZ(std::vector< std::vector< std::pair<Int_
   for (Int_t iHit = 0; iHit < nStripHits; iHit++){
     Double_t tmp = ((PndSdsHit*) (fStripHitArray->At(iHit)))->GetZ();
     bool newZ = true;
-    for(Int_t idet = 0; idet < detZ.size(); idet++){
+    for(size_t idet = 0; idet < detZ.size(); idet++){
       //  if(tmp == detZ.at(idet)){ //check if already found
       //   cout<<"tmp = "<<tmp<<" detZ.at(idet) = "<<detZ.at(idet)
       //	  <<" fabs(tmp-detZ.at(idet))="<<fabs(tmp-detZ.at(idet))<<endl;
@@ -211,7 +211,7 @@ bool PndLmdTrackFinderTask::SortHitsByZ(std::vector< std::vector< std::pair<Int_
         Double_t swap = detZ.at(pos);
         detZ.at(pos) = tmp;
         tmp = swap;
-        for(Int_t i=pos+1; i<detZ.size(); i++){
+        for(size_t i=pos+1; i<detZ.size(); i++){
           swap = detZ.at(i);
           detZ.at(i) = tmp;
           tmp = swap;
@@ -226,7 +226,7 @@ bool PndLmdTrackFinderTask::SortHitsByZ(std::vector< std::vector< std::pair<Int_
     PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(iHit));
 
     Double_t z = myHit->GetZ();
-    for(Int_t idet = 0; idet < detZ.size(); idet++){ //planes
+    for(size_t idet = 0; idet < detZ.size(); idet++){ //planes
      
       // if( z == detZ.at(idet) ){
       if( fabs(z-detZ.at(idet))<9. ){ //[for using with Dipole]
@@ -239,7 +239,7 @@ bool PndLmdTrackFinderTask::SortHitsByZ(std::vector< std::vector< std::pair<Int_
   //   cout << "Hits: " << nStripHits << endl;
    if(fVerbose>2) {
      cout << "Hits: " << nStripHits << " in " << detZ.size() << " plane(s)." << endl;
-     for(Int_t idet = 0; idet < detZ.size(); idet++)
+     for(size_t idet = 0; idet < detZ.size(); idet++)
        cout << "Plane: "<< idet <<" DiscHits: "<< hitsd.at(idet).size() <<endl;
    }
 
@@ -260,13 +260,13 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
   TVector3 start, tmp, vec, dstart, dvec; //temp-vars
 
   if(hitsd.size()<3) return;
-  for (Int_t i=0; i<hitsd.at(1).size(); i++)
+  for (size_t i=0; i<hitsd.at(1).size(); i++)
     {
     if(hitsd.at(1).at(i).second) continue; //if already used
     PndSdsHit *hit1=(PndSdsHit*)fStripHitArray->At(hitsd.at(1).at(i).first);
     start.SetXYZ(hit1->GetX(), hit1->GetY(), hit1->GetZ());
     dstart.SetXYZ(hit1->GetDx(), hit1->GetDy(), hit1->GetDz());
-    for (Int_t k=0; k<hitsd.at(2).size(); k++)
+    for (size_t k=0; k<hitsd.at(2).size(); k++)
     {
       if(hitsd.at(2).at(k).second) continue; //if already used
       PndSdsHit *hit2=(PndSdsHit*)fStripHitArray->At(hitsd.at(2).at(k).first);
@@ -293,7 +293,7 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
   std::vector<Int_t> ids;
 
 //check if other discs have hits in track, add points for fitting ---------------
-  for (Int_t i=0; i<trackStart.size(); i++) //pseudo-loop
+  for (size_t i=0; i<trackStart.size(); i++) //pseudo-loop
   {
     ids.clear();
     Int_t pntcnt=2;
@@ -309,7 +309,7 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
     for (Int_t idet=3; idet < 4; idet++){ //i know this is not a loop, but in case we someday will have more planes
       Double_t distClosest = 2*idet*dXY; //just bigger as possible
       Bool_t firstp = true;
-      for (Int_t ihit=0; ihit<hitsd.at(idet).size(); ihit++)
+      for (size_t ihit=0; ihit<hitsd.at(idet).size(); ihit++)
       {
         PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(idet).at(ihit).first);
         Double_t scale = (hit->GetZ()-start.z())/vec.z();
@@ -340,7 +340,7 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
     if(ids.size()>2){ //third hit found <=> !track found!
       PndTrackCand *myTCand = new PndTrackCand();
 
-      for (Int_t id=0; id<ids.size(); id++){
+      for (size_t id=0; id<ids.size(); id++){
         PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(ids.at(id)));
         PndSdsClusterStrip* myCluster;
         PndSdsDigiStrip* astripdigi;
@@ -356,7 +356,7 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
       //mark used hits---------
       hitsd.at(1).at(trackID2.at(i)).second=true;
       hitsd.at(2).at(trackID3.at(i)).second=true;
-      for(Int_t id=0; id<otherIDs.size(); id++){
+      for(size_t id=0; id<otherIDs.size(); id++){
         hitsd.at(otherIDs.at(id).first).at(otherIDs.at(id).second).second=true;
       }
 
@@ -396,13 +396,13 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
   TVector3 start, tmp, vec, dstart, dvec; //temp-vars
 
   if(hitsd.size()<3) return;
-  for (Int_t i=0; i<hitsd.at(0).size(); i++)
+  for (size_t i=0; i<hitsd.at(0).size(); i++)
     {
     if(hitsd.at(0).at(i).second) continue; //if already used
     PndSdsHit *hit1=(PndSdsHit*)fStripHitArray->At(hitsd.at(0).at(i).first);
     start.SetXYZ(hit1->GetX(), hit1->GetY(), hit1->GetZ());
     dstart.SetXYZ(hit1->GetDx(), hit1->GetDy(), hit1->GetDz());
-    for (Int_t k=0; k<hitsd.at(2).size(); k++)
+    for (size_t k=0; k<hitsd.at(2).size(); k++)
     {
       if(hitsd.at(2).at(k).second) continue; //if already used
       PndSdsHit *hit2=(PndSdsHit*)fStripHitArray->At(hitsd.at(2).at(k).first);
@@ -429,7 +429,7 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
   std::vector<Int_t> ids;
 
 //check if other discs have hits in track, add points for fitting ---------------
-  for (Int_t i=0; i<trackStart.size(); i++) //pseudo-loop
+  for (size_t i=0; i<trackStart.size(); i++) //pseudo-loop
   {
     ids.clear();
     Int_t pntcnt=2;
@@ -445,7 +445,7 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
     for (Int_t idet=3; idet < 4; idet++){ //i know this is not a loop, but in case we someday will have more planes
       Double_t distClosest = 2*idet*dXY; //just bigger as possible
       Bool_t firstp = true;
-      for (Int_t ihit=0; ihit<hitsd.at(idet).size(); ihit++)
+      for (size_t ihit=0; ihit<hitsd.at(idet).size(); ihit++)
       {
         PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(idet).at(ihit).first);
         Double_t scale = (hit->GetZ()-start.z())/vec.z();
@@ -476,7 +476,7 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
     if(ids.size()>2){ //third hit found <=> !track found!
       PndTrackCand *myTCand = new PndTrackCand();
 
-      for (Int_t id=0; id<ids.size(); id++){
+      for (size_t id=0; id<ids.size(); id++){
         PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(ids.at(id)));
         PndSdsClusterStrip* myCluster;
         PndSdsDigiStrip* astripdigi;
@@ -492,7 +492,7 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
       //mark used hits---------
       hitsd.at(0).at(trackID1.at(i)).second=true;
       hitsd.at(2).at(trackID3.at(i)).second=true;
-      for(Int_t id=0; id<otherIDs.size(); id++){
+      for(size_t id=0; id<otherIDs.size(); id++){
         hitsd.at(otherIDs.at(id).first).at(otherIDs.at(id).second).second=true;
       }
 
@@ -532,12 +532,12 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
   TVector3 start, tmp, vec, dstart, dvec; //temp-vars
 
   if(hitsd.size()<2) return;
-  for (Int_t i=0; i<hitsd.at(0).size(); i++)
+  for (size_t i=0; i<hitsd.at(0).size(); i++)
     {
     PndSdsHit *hit1=(PndSdsHit*)fStripHitArray->At(hitsd.at(0).at(i).first);
     start.SetXYZ(hit1->GetX(), hit1->GetY(), hit1->GetZ());
     dstart.SetXYZ(hit1->GetDx(), hit1->GetDy(), hit1->GetDz());
-    for (Int_t k=0; k<hitsd.at(1).size(); k++)
+    for (size_t k=0; k<hitsd.at(1).size(); k++)
     {
       PndSdsHit *hit2=(PndSdsHit*)fStripHitArray->At(hitsd.at(1).at(k).first);
       tmp.SetXYZ(hit2->GetX(), hit2->GetY(), hit2->GetZ());
@@ -562,7 +562,7 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
   std::vector<Int_t> ids;
 
 //check if other discs have hits in track, add points for fitting ---------------
-  for (Int_t i=0; i<trackStart.size(); i++) //pseudo-loop
+  for (size_t i=0; i<trackStart.size(); i++) //pseudo-loop
   {
     ids.clear();
     Int_t pntcnt=2;
@@ -578,7 +578,7 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
     for (Int_t idet=2; idet < 4; idet++){
       Double_t distClosest = 2*idet*dXY; //just bigger as possible
       Bool_t firstp = true;
-      for (Int_t ihit=0; ihit<hitsd.at(idet).size(); ihit++)
+      for (size_t ihit=0; ihit<hitsd.at(idet).size(); ihit++)
       {
         PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(idet).at(ihit).first);
         Double_t scale = (hit->GetZ()-start.z())/vec.z();
@@ -615,7 +615,7 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       if(fVerbose>2) cout << "  Track: "<< i << "#Planes: " << ids.size() <<endl;
       PndTrackCand *myTCand = new PndTrackCand();
       
-      for (Int_t id=0; id<ids.size(); id++){
+      for (size_t id=0; id<ids.size(); id++){
         PndSdsHit* myHit = (PndSdsHit*)(fStripHitArray->At(ids.at(id)));
         PndSdsClusterStrip* myCluster;
         PndSdsDigiStrip* astripdigi;
@@ -631,7 +631,7 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
       //mark used hits---------
       hitsd.at(0).at(trackID1.at(i)).second=true;
       hitsd.at(1).at(trackID2.at(i)).second=true;
-      for(Int_t id=0; id<otherIDs.size(); id++){
+      for(size_t id=0; id<otherIDs.size(); id++){
         hitsd.at(otherIDs.at(id).first).at(otherIDs.at(id).second).second=true;
       }
 
@@ -728,25 +728,25 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
   if(fVerbose>2){
     cout<<"HitMap size: "<< hitsd.size() <<endl;
     if(hitsd.size()>0){
-      for (Int_t i=0; i<hitsd.at(0).size(); i++){
+      for (size_t i=0; i<hitsd.at(0).size(); i++){
 	PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(0).at(i).first);
 	cout<<"Plane0 Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<")"<<endl;
       }
     }
     if(hitsd.size()>1){
-      for (Int_t i=0; i<hitsd.at(1).size(); i++){
+      for (size_t i=0; i<hitsd.at(1).size(); i++){
 	PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(1).at(i).first);
 	cout<<"Plane1 Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<")"<<endl;
       }
     }
     if(hitsd.size()>2){
-      for (Int_t i=0; i<hitsd.at(2).size(); i++){
+      for (size_t i=0; i<hitsd.at(2).size(); i++){
 	PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(2).at(i).first);
 	cout<<"Plane2 Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<")"<<endl;
       }
     }
     if(hitsd.size()>3){
-      for (Int_t i=0; i<hitsd.at(3).size(); i++){
+      for (size_t i=0; i<hitsd.at(3).size(); i++){
 	PndSdsHit *hit=(PndSdsHit*)fStripHitArray->At(hitsd.at(3).at(i).first);
 	cout<<"Plane3 Hit=("<<hit->GetX()<<", "<<hit->GetY()<<", "<<hit->GetZ()<<")"<<endl;
       }
@@ -763,7 +763,7 @@ void PndLmdTrackFinderTask::Exec(Option_t* opt)
   }
 
   //fill tracklist für fitting
-  for(int t=0; t<theCands.size(); t++)
+  for(size_t t=0; t<theCands.size(); t++)
     new((*fTrackCandArray)[t]) PndTrackCand(theCands.at(t)); 
 
   if(fVerbose>2) cout << "Evt finsihed--------------"<<endl<<endl;

@@ -126,7 +126,7 @@ void PndGemFindClusters::Exec(Option_t* opt) {
 
   if ( fVerbose > 1 ) {
     Int_t nofC2W = 0;
-    for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ )
+    for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ )
       if ( fDigiClusters[idc].cluPos > -0.5 )
 	nofC2W++;
     cout << ">>>> created  " << fDigiClusters.size() << " clusters, " << nofC2W << " to write" << endl;
@@ -794,7 +794,7 @@ Int_t PndGemFindClusters::WriteClusters() {
   //PndGemDigi* digi; //[R.K. 01/2017] unused variable?
   PndGemCluster* cluster;
 
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     
     //    if ( fDigiClusters[idc].cluADC < 1. ) continue;
     if ( fDigiClusters[idc].cluPos < -0.5 ) continue;
@@ -802,7 +802,7 @@ Int_t PndGemFindClusters::WriteClusters() {
     if ( fVerbose > 1 ) {      
       cout << "cluster at " << fDigiClusters[idc].cluPos << ", h = " << fDigiClusters[idc].cluADC << ", for detId = " << fDigiClusters[idc].detId << " from " << fDigiClusters[idc].digiNr.size() << " digis (from " << fDigiClusters[idc].cluPMn << " to " << fDigiClusters[idc].cluPMx << "): " << endl;
       
-      for ( Int_t idigi = 0 ; idigi < fDigiClusters[idc].digiNr.size() ; idigi++ ) {
+      for ( size_t idigi = 0 ; idigi < fDigiClusters[idc].digiNr.size() ; idigi++ ) {
 	cout <<" digiNr="  << fDigiClusters[idc].digiNr[idigi] 
 	     <<" chanNr=" << fDigiClusters[idc].chanNr[idigi] 
 	     <<" sigADC=" << fDigiClusters[idc].sigADC[idigi] << endl;
@@ -883,7 +883,7 @@ Bool_t PndGemFindClusters::CompareDigiToClustersDigis(Int_t digiNumber) {
   digi = (PndGemDigi*) fDigis->At(digiNumber);
 
   Int_t iDigiUsed = -1;
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     if ( fDigiClusters[idc].cluPos < -0.5 ) continue;
     if ( digi->GetDetectorId() != fDigiClusters[idc].detId ) continue;
 
@@ -894,7 +894,7 @@ Bool_t PndGemFindClusters::CompareDigiToClustersDigis(Int_t digiNumber) {
     sensor = fDigiPar->GetSensor(stationNr, sensorNr);
 
     Double_t digiDigiDist=999999999, testDist;
-    for ( Int_t id = 0 ; id < fDigiClusters[idc].digiNr.size() ; id++ ) {
+    for ( size_t id = 0 ; id < fDigiClusters[idc].digiNr.size() ; id++ ) {
       testDist = sensor->GetDistance2(iSide,digi->GetChannelNr(),fDigiClusters[idc].chanNr[id]);
       if ( testDist < digiDigiDist  ) digiDigiDist=testDist;
     }
@@ -929,12 +929,12 @@ void PndGemFindClusters::JoinTwoClusters(Int_t clus1, Int_t clus2) {
   
   //PndGemDigi* digi; //[R.K. 01/2017] unused variable?
 
-  for ( Int_t id2 = 0 ; id2 < fDigiClusters[clus2].digiNr.size() ; id2++ ) { 
+  for ( size_t id2 = 0 ; id2 < fDigiClusters[clus2].digiNr.size() ; id2++ ) { 
     Int_t digi2 = fDigiClusters[clus2].digiNr[id2];
     Int_t chan2 = fDigiClusters[clus2].chanNr[id2];
 
     Int_t addDigi = kTRUE;
-    for ( Int_t id1 = 0 ; id1 < fDigiClusters[clus1].digiNr.size() ; id1++ ) {
+    for ( size_t id1 = 0 ; id1 < fDigiClusters[clus1].digiNr.size() ; id1++ ) {
       if ( chan2 == fDigiClusters[clus1].chanNr[id1] ) addDigi = kFALSE;
     }
     
@@ -988,7 +988,7 @@ void PndGemFindClusters::AddDigiToCluster(Int_t digiNr, Int_t clusNr) {
 // -----   Private method SortClusters   -------------------------------
 void PndGemFindClusters::SortClusters() {
   if ( fVerbose > 0 ) cout << "PndGemFindClusters::SortClusters()" << endl;
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     SortCluster(idc);
   }
 }
@@ -1000,7 +1000,7 @@ void PndGemFindClusters::SortCluster(Int_t clus) {
   Int_t channelPosition = 0;
 
   for ( Int_t ich = fDigiClusters[clus].cluPMn ; ich <= fDigiClusters[clus].cluPMx ; ich++ ) {
-    for ( Int_t idigi = channelPosition ; idigi < fDigiClusters[clus].digiNr.size() ; idigi++ ) {
+    for ( size_t idigi = channelPosition ; idigi < fDigiClusters[clus].digiNr.size() ; idigi++ ) {
       if ( fDigiClusters[clus].chanNr[idigi] == ich ) {
 	Int_t    dN = fDigiClusters[clus].digiNr[idigi];
 	Int_t    cN = fDigiClusters[clus].chanNr[idigi];
@@ -1022,7 +1022,7 @@ void PndGemFindClusters::SortCluster(Int_t clus) {
 void PndGemFindClusters::PrintClusters() {
   if ( fVerbose > 0 ) cout << "PndGemFindClusters::PrintClusters()" << endl;
 
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     //    if ( fDigiClusters[idc].detId != 568329024 ) continue;
     if ( fDigiClusters[idc].cluPos < -0.5 ) continue;
     PrintCluster(idc);

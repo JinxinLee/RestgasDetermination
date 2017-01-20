@@ -54,7 +54,7 @@ RhoBoolArrColumn::RhoBoolArrColumn ( const char* l,
 void RhoBoolArrColumn::SetValue ( const void* p,RhoColumn* cp )
 {
   const RhoHTAbsValVector<Bool_t>* vp = ( const RhoHTAbsValVector<Bool_t>* ) p;
-  if ( vp->length() < fMax ) {
+  if ( (Int_t)vp->length() < fMax ) {
     cerr << "BoolArrColumn::SetValue: input vector too short,"
          << "use default values" << endl;
     SetDefValue();
@@ -95,7 +95,7 @@ void RhoBoolDynArrColumn::SetValue ( const void* p,RhoColumn* cp )
 {
   const RhoHTAbsValVector<Bool_t>* vp = ( const RhoHTAbsValVector<Bool_t>* ) p;
   Int_t* np = ( Int_t* ) cp->GetPointer();
-  if ( *np > vp->length() ) {
+  if ( *np > (int)vp->length() ) {
     cerr << "BoolDynArrColumn::SetValue: input vector too short,"
          << "use default values" << endl;
     SetDefValue();
@@ -143,7 +143,7 @@ RhoIntArrColumn::RhoIntArrColumn ( const char* l,
 void RhoIntArrColumn::SetValue ( const void* p,RhoColumn* cp )
 {
   const RhoHTAbsValVector<Int_t>* vp = ( const RhoHTAbsValVector<Int_t>* ) p;
-  if ( vp->length() < fMax ) {
+  if ( (Int_t)vp->length() < fMax ) {
     cerr << "IntArrColumn::SetValue: input vector too short,"
          << "use default values" << endl;
     SetDefValue();
@@ -184,7 +184,7 @@ void RhoIntDynArrColumn::SetValue ( const void* p,RhoColumn* cp )
 {
   const RhoHTAbsValVector<Int_t>* vp = ( const RhoHTAbsValVector<Int_t>* ) p;
   Int_t* np = ( Int_t* ) cp->GetPointer();
-  if ( *np > vp->length() ) {
+  if ( *np > (int)vp->length() ) {
     cerr << "IntDynArrColumn::SetValue: input vector too short,"
          << "use default values" << endl;
     SetDefValue();
@@ -379,7 +379,7 @@ RhoDoubleArrColumn::RhoDoubleArrColumn ( const char* l,
 void RhoDoubleArrColumn::SetValue ( const void* p,RhoColumn* cp )
 {
   const RhoHTAbsValVector<Double_t>* vp = ( const RhoHTAbsValVector<Double_t>* ) p;
-  if ( vp->length() < fMax ) {
+  if ( (Int_t)vp->length() < fMax ) {
     cerr << "DoubleArrColumn::SetValue: input vector too short,"
          << "use default values" << endl;
     SetDefValue();
@@ -420,7 +420,7 @@ void RhoDoubleDynArrColumn::SetValue ( const void* p,RhoColumn* cp )
 {
   const RhoHTAbsValVector<Double_t>* vp = ( const RhoHTAbsValVector<Double_t>* ) p;
   Int_t* np = ( Int_t* ) cp->GetPointer();
-  if ( *np > vp->length() ) {
+  if ( *np > (int)vp->length() ) {
     cerr << "IntDynArrColumn::SetValue: input vector too short,"
          << "use default values" << endl;
     SetDefValue();

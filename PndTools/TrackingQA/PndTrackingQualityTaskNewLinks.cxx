@@ -86,7 +86,7 @@ InitStatus PndTrackingQualityTaskNewLinks::Init() {
 	}
 
 
-	for (int i = 0; i < fBranchNames.size(); i++){
+	for (size_t i = 0; i < fBranchNames.size(); i++){
 		fMapEfficiencies[fBranchNames[i]] = new TH2D(fBranchNames[i], fBranchNames[i], 100, 0., 100., 50, 0, 1.1);
 		fMapEfficiencies[fBranchNames[i]]->SetDrawOption("COLz");
 	}
@@ -260,7 +260,7 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 Int_t PndTrackingQualityTaskNewLinks::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
 {
 	Int_t result = 0;
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		result += trackData->GetLinksWithType(ioman->GetBranchId(fBranchNames[branchIndex])).GetNLinks();
 	}
 	return result;
@@ -318,7 +318,7 @@ void PndTrackingQualityTaskNewLinks::Finish() {
 	// fQualyHisto->Draw();
 	// LabelQualyHistogram((TH1*) fQualyStack);
 
-	for (int i = 0; i < fBranchNames.size(); i++){
+	for (size_t i = 0; i < fBranchNames.size(); i++){
 		fMapEfficiencies[fBranchNames[i]]->Write();
 	}
 	fPHisto->Write();
@@ -413,7 +413,7 @@ PndTrackingQualityMCInfo PndTrackingQualityTaskNewLinks::GetMCInfoFromIdealTrack
   
   int nofsttskewpoint = 0, nofsttparalpoint = 0;    
   // this loop counts skewed (--> parallel) STT/FTS hits
-  for(Int_t ihit = 0; ihit < idealtrkcand->GetNHits(); ihit++) {
+  for(size_t ihit = 0; ihit < idealtrkcand->GetNHits(); ihit++) {
     PndTrackCandHit idealcandhit = idealtrkcand->GetSortedHit(ihit);
     Int_t hitID = idealcandhit.GetHitId();
     Int_t detID = idealcandhit.GetDetId();

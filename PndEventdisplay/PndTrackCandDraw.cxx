@@ -70,7 +70,7 @@ void PndTrackCandDraw::AddBoxesTrackCand(FairBoxSet* set, TObject* obj, Int_t i)
 	if (0 == tc)
 		return;
 
-	for (Int_t j = 0; j < tc->getNHits(); j++) {
+	for (size_t j = 0; j < tc->getNHits(); j++) {
 		unsigned int detId, hitId;
 		tc->getHit(j, detId, hitId);
 		TVector3 point = GetVector(detId, hitId);
@@ -85,7 +85,7 @@ void PndTrackCandDraw::AddBoxesPndTrackCand(FairBoxSet* set, TObject* obj, Int_t
 	std::cout << "Hits in TrackCand: " << std::endl;
 
 	((FairMultiLinkedData_Interface*) pndtc)->Print();
-	for (Int_t j = 0; j < pndtc->GetNHits(); j++) {
+	for (size_t j = 0; j < pndtc->GetNHits(); j++) {
 		TVector3 point = GetVector(pndtc->GetSortedHit(j));
 		set->AddBox(point.X(), point.Y(), point.Z());
 		std::cout << " color: " << i << std::endl;

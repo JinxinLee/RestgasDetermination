@@ -312,7 +312,7 @@ void PndMCTrackAssociator::Exec(Option_t * option)
     
     PndTrack *pndTrack = (PndTrack*)fTrackArray->At(tt);
     PndTrackCand trackCand = pndTrack->GetTrackCand();
-    for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
+    for (size_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
       Int_t trackID = -1;

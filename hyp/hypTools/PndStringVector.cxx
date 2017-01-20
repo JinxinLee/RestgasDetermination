@@ -58,6 +58,6 @@ std::vector<std::string> PndStringVector::GetStringVector(void)
 void PndStringVector::Print()
 {
   std::cout << "PndStringVector for: " << fInput << std::endl;
-  for (Int_t i = 0; i < fStrings.size(); i++)
+  for (Int_t i = 0; i < (int)fStrings.size(); i++)
     std::cout << i << ": " << fStrings[i] << std::endl;
 }

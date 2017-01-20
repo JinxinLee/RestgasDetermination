@@ -1711,7 +1711,7 @@ void PndSttHelixTrackFitter::OrderHitsByR(map<Double_t, Int_t> &hitMap)
   
      if(fVerbose == 2) cout << "n of hits: " << fTrackCand->GetNHits() << endl;
   
-    for (Int_t i = 0; i < fTrackCand->GetNHits(); i++)
+    for (size_t i = 0; i < fTrackCand->GetNHits(); i++)
       {
 	// get index of hit
 	PndTrackCandHit candhit = fTrackCand->GetSortedHit(i);

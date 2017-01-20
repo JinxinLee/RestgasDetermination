@@ -176,7 +176,7 @@ PndEmcCluster::addDigi(const TClonesArray *digiArray, Int_t iDigi)
 	void
 PndEmcCluster::removeDigi(const TClonesArray *digiArray, Int_t iDigi)
 {
-	for(Int_t i=0;i<fDigiList.size();++i){
+	for(size_t i=0;i<fDigiList.size();++i){
 		if(fDigiList[i] == iDigi){
 			fDigiList.erase(fDigiList.begin()+i);
 			break;
@@ -327,7 +327,7 @@ const std::vector<Int_t>& PndEmcCluster::GetMcList() const {
 	}
 	sort(sortedVec.begin(), sortedVec.end(), Ascend());
 	fMcList.clear();
-	for(Int_t i=0;i<sortedVec.size();++i) fMcList.push_back(sortedVec[i].first);
+	for(size_t i=0;i<sortedVec.size();++i) fMcList.push_back(sortedVec[i].first);
 	return fMcList;
 }
 

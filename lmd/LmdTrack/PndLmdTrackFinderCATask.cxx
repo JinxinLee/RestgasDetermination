@@ -363,7 +363,7 @@ TClonesArray* PndLmdTrackFinderCATask::ForwardEvolution(TClonesArray *tCellArray
   /// Set counters values -----
   std::vector<int> pv_new;
   Int_t nCells = tCellArray->GetEntriesFast();
-  for(unsigned int icv=0;icv<nCells;icv++)
+  for(int icv=0;icv<nCells;icv++)
     pv_new.push_back(-1);
   bool stop_itter = true;
   //for(int itt=0;itt<1000;itt++){ //should be infinite loop! due to small number of layers 1000 is close to infinity ;)
@@ -641,7 +641,7 @@ if(missPlAlgo){
 
   //find max number of cells in a track
   int pcmax = 0;
-  for(unsigned int cid=1;cid<nCells;cid++){
+  for(int cid=1;cid<nCells;cid++){
     PndSdsCell *cell =   (PndSdsCell*)fCellArray->At(cid);
     int tag_cur = cell->GetPV();
     if(tag_cur>pcmax) pcmax = tag_cur;
@@ -658,7 +658,7 @@ if(missPlAlgo){
     //    bool newtrk=true;
 	for (int icell0 = 0; icell0 < nCells; icell0++){ 
 	  PndSdsCell *cell0 =   (PndSdsCell*)fCellArray->At(icell0);
-	  if(cell0->GetPV() == cur_max_tag){ //from "upstream" to "downstream"
+	  if(cell0->GetPV() == (int)cur_max_tag){ //from "upstream" to "downstream"
 	    for (int icell1 = 0; icell1 < nCells; icell1++){
 	      PndSdsCell *cell1 =   (PndSdsCell*)fCellArray->At(icell1);
 	      if( (cell0->GetPV()-cell1->GetPV())==1 && ((cell1->GetHitUp())==(cell0->GetHitDw()))){ //cells have common point

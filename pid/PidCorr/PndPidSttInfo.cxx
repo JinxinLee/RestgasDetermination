@@ -12,7 +12,7 @@ Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
   Double_t tuberadius = fSttParameters->GetTubeInRad(); 
   Int_t sttCounts = 0, sttRawCounts = 0;
   PndTrackCand trackCand = track->GetTrackCand();
-  for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
+  for (size_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
       Double_t dedx = 0.;

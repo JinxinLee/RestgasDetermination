@@ -135,8 +135,8 @@ void PndRichHitProducer::Exec(Option_t* opt) {
    UInt_t iXmax = fGeo->phDetNPixelMaxX();
    UInt_t iYmax = fGeo->phDetNPixelMaxY();
    UInt_t map[iXmax][iYmax];
-   for (Int_t ix=0; ix<iXmax; ix++)
-      for (Int_t iy=0; iy<iYmax; iy++)
+   for (UInt_t ix=0; ix<iXmax; ix++)
+      for (UInt_t iy=0; iy<iYmax; iy++)
          map[ix][iy] = 0;
   
   // Loop over RichPDpoints
@@ -162,7 +162,7 @@ void PndRichHitProducer::Exec(Option_t* opt) {
           Double_t t = gRandom->Gaus(point->GetTime(),0.05); //ns
           if (fPhDetNoise) { // add noise
              std::vector<Double_t> tn = PhDetNoise();
-             for (Int_t i=0; i<tn.size(); i++)
+             for (size_t i=0; i<tn.size(); i++)
                 if (t-tn.at(i)<720&&t>tn.at(i)) t = tn.at(i);
           }
           TVector3 posl = fGeo->PhDetPositionLocal(pos);
@@ -176,8 +176,8 @@ void PndRichHitProducer::Exec(Option_t* opt) {
     }
   } // Loop over MCPoints
    if (fPhDetNoise) {
-      for (Int_t ix=0; ix<iXmax; ix++)
-         for (Int_t iy=0; iy<iYmax; iy++)
+      for (UInt_t ix=0; ix<iXmax; ix++)
+         for (UInt_t iy=0; iy<iYmax; iy++)
             if (!map[ix][iy]) {
                std::vector<Double_t> tn = PhDetNoise();
                if (tn.size()&&tn.back()>-50) {

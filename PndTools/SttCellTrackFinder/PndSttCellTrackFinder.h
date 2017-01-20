@@ -36,7 +36,7 @@ public:
 		delete fHitCorrector;
 		delete fTrackletGenerator;
 
-		for (int i = 0; i < fHits.size(); ++i) {
+		for (size_t i = 0; i < fHits.size(); ++i) {
 			delete fHits.at(i);
 		}
 		for (std::multimap<int, PndSttSkewedHit*>::iterator it =

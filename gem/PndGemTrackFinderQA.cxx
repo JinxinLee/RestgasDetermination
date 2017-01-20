@@ -590,7 +590,7 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
     Int_t nofCorrHits = 0;
     Int_t nofOthTHits = 0;
     Int_t nofNoTrHits = 0;
-    for ( Int_t ihit = 0 ; ihit < gemTrack->GetTrackCand().GetNHits() ; ihit++ ) { 
+    for ( size_t ihit = 0 ; ihit < gemTrack->GetTrackCand().GetNHits() ; ihit++ ) { 
       PndTrackCandHit tch = gemTrack->GetTrackCand().GetSortedHit(ihit);
       Int_t bestPointIndex = FindMatchingPoint(tch.GetHitId());
 
@@ -707,7 +707,7 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
     gemTrack = (PndTrack*) fGemTrackArray->At(irtr);
     vector<Int_t> nofTrMCId(500,0);
  
-    for ( Int_t ihit = 0 ; ihit < gemTrack->GetTrackCand().GetNHits() ; ihit++ ) { 
+    for ( size_t ihit = 0 ; ihit < gemTrack->GetTrackCand().GetNHits() ; ihit++ ) { 
       PndTrackCandHit tch = gemTrack->GetTrackCand().GetSortedHit(ihit);
 
       Int_t bestPointIndex = FindMatchingPoint(tch.GetHitId());
@@ -785,7 +785,7 @@ Int_t PndGemTrackFinderQA::FindMatchingPoint(Int_t gemHitIndex) {
     GetPointVector(gemHit->GetLink(1).GetType(),gemHit->GetLink(1).GetIndex(),pointVector1,printMCMatching); 
     if ( printMCMatching ) 
       cout << "VECT0: (" << gemHit->GetLink(0).GetIndex() << ") " << flush;
-    for ( Int_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
+    for ( size_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
       if ( printMCMatching ) 
 	cout << pointVector0[ipnt] << " . " << flush;
       if ( maxPnt0 < pointVector0[ipnt] ) {
@@ -796,7 +796,7 @@ Int_t PndGemTrackFinderQA::FindMatchingPoint(Int_t gemHitIndex) {
       cout << "\b\b" << endl; 
     if ( printMCMatching ) 
       cout << "VECT1: (" << gemHit->GetLink(1).GetIndex() << ") " << flush;
-    for ( Int_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
+    for ( size_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
       if ( printMCMatching ) 
 	cout << pointVector1[ipnt] << " . " << flush;
       if ( maxPnt1 < pointVector1[ipnt] ) {
@@ -809,10 +809,10 @@ Int_t PndGemTrackFinderQA::FindMatchingPoint(Int_t gemHitIndex) {
       cout << "highest points are " << maxPnt0 << " , " << maxPnt1 << endl;
     std::vector<Int_t> countPointV0(maxPnt0+1,0);
     std::vector<Int_t> countPointV1(maxPnt1+1,0);
-    for ( Int_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
+    for ( size_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
       ++countPointV0[pointVector0[ipnt]];
     }
-    for ( Int_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
+    for ( size_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
       ++countPointV1[pointVector1[ipnt]];
     }
     if ( maxPnt0 > maxPnt1 )

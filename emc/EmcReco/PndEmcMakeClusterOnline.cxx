@@ -222,7 +222,7 @@ void PndEmcMakeClusterOnline::FinishCluster(PndEmcCluster* cluster) {
 	Double_t max_energy = 0;
 	Int_t max_energy_idx = 0;
 
-	for(Int_t iDigi=0; iDigi<list.size(); ++iDigi) {
+	for(size_t iDigi=0; iDigi<list.size(); ++iDigi) {
 		Int_t idx = list[iDigi];
 		PndEmcDigi* thedigi = (PndEmcDigi*) fDigiArray->UncheckedAt(idx);
 

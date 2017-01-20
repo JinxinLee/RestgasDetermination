@@ -285,7 +285,7 @@ void PndTrackingQualityAnalysis::FillMapTrackQualifikation()
 Int_t PndTrackingQualityAnalysis::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
 {
 	Int_t result = 0;
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		if (fBranchNames[branchIndex] == "GEMHit"){
 			FairMultiLinkedData gemHits = trackData->GetLinksWithType(ioman->GetBranchId("GEMHit"));
 			for (int i = 0; i < gemHits.GetNLinks(); i++){
@@ -309,7 +309,7 @@ Bool_t PndTrackingQualityAnalysis::IsCorrectGemHit(FairLink& gemLink)
 void PndTrackingQualityAnalysis::CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo)
 {
 	if (mostProbableTrack < 0) return;
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		Int_t nMcHits = GetNIdealHits(mostProbableTrack, fBranchNames[branchIndex]);
 		FairMultiLinkedData foundHits = trackInfo[fBranchNames[branchIndex]];
 		for (int i = 0; i < foundHits.GetNLinks(); i++){
@@ -349,7 +349,7 @@ Int_t PndTrackingQualityAnalysis::GetNIdealHits(FairMultiLinkedData& track, TStr
 void PndTrackingQualityAnalysis::PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo)
 {
 	if (detailedInfo == kTRUE) std::cout << std::endl;
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		TString branchName = fBranchNames[branchIndex];
 		std::cout << branchName << " " << GetNIdealHits(trackData, branchName);
 		if (detailedInfo == kTRUE){

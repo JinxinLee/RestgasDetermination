@@ -387,7 +387,7 @@ PndEmcWaveform& PndEmcWaveform::operator += (const PndEmcWaveform& otherWave)
 	//++ fPileupCount ;
 
 	const std::vector<Int_t>& evtList = otherWave.GetEvtList();
-	for(Int_t i=0; i< evtList.size();++i){
+	for(size_t i=0; i< evtList.size();++i){
 		AddEvt(evtList[i]);
 	}
 
@@ -417,7 +417,7 @@ TGraphErrors* PndEmcWaveform::ToTGraph() const
 
 	//free this object outside 
 	TGraphErrors* g = new TGraphErrors(fSignal.size());
-	for(Int_t i = 0; i< fSignal.size(); ++i){
+	for(size_t i = 0; i< fSignal.size(); ++i){
 		g->SetPoint(i, GetTimeStamp()/1.e9 + Double_t(i)/fSampleRate, fSignal[i]);
 		g->SetPointError(i, 0, fSignalError[i]);
 	}
@@ -431,7 +431,7 @@ void PndEmcWaveform::SetWaveform(std::vector<Double_t>&signal,Int_t length)
 }
 Double_t PndEmcWaveform::Integral() const {
 	Double_t sum(0.);
-	for(Int_t i=0;i<fSignal.size();++i)
+	for(size_t i=0;i<fSignal.size();++i)
 		sum += fSignal[i];
 	return sum;
 }

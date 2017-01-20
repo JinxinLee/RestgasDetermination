@@ -530,7 +530,7 @@ void PndTrkQATask::Exec(Option_t* opt) {
 
 
     // begin loop over all associated tracks (found with tracking algorithm under investigation) to the mc track (found by ideal tracking)
-    for(Int_t itrk = 0; itrk < asso.size(); itrk++) {
+    for(size_t itrk = 0; itrk < asso.size(); itrk++) {
 
       Int_t nTmpAssigned = 0, nTmpNotAssigned = 0, nTmpWrong = 0;
       Int_t nTmpAssignedStt = 0, nTmpNotAssignedStt = 0, nTmpWrongStt = 0;

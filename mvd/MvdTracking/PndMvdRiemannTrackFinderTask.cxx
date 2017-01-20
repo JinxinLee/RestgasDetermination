@@ -251,7 +251,7 @@ void PndMvdRiemannTrackFinderTask::FillHitArray()
 {
 	Double_t eventTime = -1;
 	if (FairRunAna::Instance()->IsTimeStamp()){
-		for (int i = 0; i < fHitArray.size(); i++){
+		for (size_t i = 0; i < fHitArray.size(); i++){
 			fHitArray[i]->Delete();
 		}
 

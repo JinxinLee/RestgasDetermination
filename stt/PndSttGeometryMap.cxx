@@ -161,7 +161,7 @@ TArrayI PndSttGeometryMap::FindNeighborings(PndSttTube *tube) {
 			//    cout << "CHECKING " << possible_lay_sec[itest][0] <<  " " << possible_lay_sec[itest][1] << endl;
 			neigh_candidates = GetStrawRow(possible_lay_sec[itest][1], possible_lay_sec[itest][0]);
 
-			for (int itube = 0; itube < neigh_candidates.size(); itube++) {
+			for (size_t itube = 0; itube < neigh_candidates.size(); itube++) {
 					tubeid = neigh_candidates.at(itube);
 					if (tube->GetTubeID() == tubeid)
 							continue;

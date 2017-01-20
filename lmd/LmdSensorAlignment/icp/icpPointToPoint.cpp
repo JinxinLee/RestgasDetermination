@@ -46,7 +46,7 @@ double IcpPointToPoint::fitStep (double *T,const int32_t T_numA,Matrix &R,Matrix
     double t0  = t.val[0][0]; double t1  = t.val[1][0];
 
     // establish correspondences
-    for (int32_t i=0; i<active.size(); i++) {
+    for (size_t i=0; i<active.size(); i++) {
 
       // get index of active point
       int32_t idx = active[i];
@@ -79,7 +79,7 @@ double IcpPointToPoint::fitStep (double *T,const int32_t T_numA,Matrix &R,Matrix
     double t0  = t.val[0][0]; double t1  = t.val[1][0]; double t2  = t.val[2][0];
 
     // establish correspondences
-    for (int32_t i=0; i<active.size(); i++) {
+    for (size_t i=0; i<active.size(); i++) {
 
       // get index of active point
       int32_t idx = active[i];

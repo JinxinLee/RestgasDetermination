@@ -54,7 +54,7 @@ InitStatus PndGapEventBuilderTask::Init()
   std::cout << "ClassName of HitArray: " << fMainHitArray->ClassName() << std::endl;
   fMainEventHitArray = ioman->Register(outputName.Data(), fMainHitArray->GetClass()->GetName(), "EventData", fPersistence);
 
-  for (int i = 0; i < fAddBranches.size(); i++){
+  for (size_t i = 0; i < fAddBranches.size(); i++){
 	  outputName = fAddBranches[i].first;
 	  fAddHitArray.push_back((TClonesArray*)ioman->GetObject(outputName.Data()));
 	  outputName.Append("_event");
@@ -76,7 +76,7 @@ void PndGapEventBuilderTask::Exec(Option_t* opt)
 {
 	fMainHitArray->Delete();
 	fMainEventHitArray->Delete();
-	for (int i = 0; i < fAddHitArray.size(); i++){
+	for (size_t i = 0; i < fAddHitArray.size(); i++){
 		fAddEventHitArray[i]->Delete();
 	}
 
@@ -102,7 +102,7 @@ void PndGapEventBuilderTask::Exec(Option_t* opt)
 		data = (FairTimeStamp*)fMainEventHitArray->At(fMainEventHitArray->GetEntriesFast() - 1);
 		Double_t stopTime  = data->GetTimeStamp();
 
-		for (int i = 0; i < fAddHitArray.size(); i++){
+		for (size_t i = 0; i < fAddHitArray.size(); i++){
 			TClonesArray* tempArray = FairRootManager::Instance()->GetData(fAddBranches[i].first, fStartFunctor, startTime, fStopFunctor, stopTime + fAddBranches[i].second);
 			fAddEventHitArray[i]->AbsorbObjects(tempArray);
 		}

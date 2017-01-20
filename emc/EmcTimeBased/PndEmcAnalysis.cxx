@@ -469,7 +469,7 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 			PndEmcWaveform* theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWaveform);
 			if(fTimeOrderedDigi){
 				const std::vector<Int_t>& evtList = theWaveform->GetEvtList();
-				for(Int_t i=0; i< evtList.size(); ++i){
+				for(size_t i=0; i< evtList.size(); ++i){
 					evtset.insert(evtList[i]);
 					++ evtMap[evtList[i]].first;//all waveforms counter
 					if(evtList.size() > 1){
@@ -558,7 +558,7 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 			}
 			PndEmcDigi* seedDigi(0);
 			Double_t maxE(-1.);
-			for(Int_t id=0; id < digis.size(); ++id){
+			for(size_t id=0; id < digis.size(); ++id){
 				PndEmcDigi* theDigi = (PndEmcDigi*)fSharedDigiArray->At(digis[id]);
 				if(theDigi->GetEnergy() > maxE){
 					maxE = theDigi->GetEnergy();
@@ -600,7 +600,7 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 						break;
 				}
 				sort(goodTrack.begin(), goodTrack.end(), std::greater<key>());
-				for(Int_t i=0; i< goodTrack.size(); ++i){
+				for(size_t i=0; i< goodTrack.size(); ++i){
 					PndMCTrack* p1 = (PndMCTrack*)fMcTrackArray->At(goodTrack[i].iHit);
 					TLorentzVector p4(p1->GetMomentum(), p1->Get4Momentum().E());
 					memcpy(&fMcp4[i*4], &p4[0], 4*sizeof(Double_t)); 
@@ -612,7 +612,7 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 			PndEmcAbsClusterCalibrator * calibrator2= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2);
 			Int_t NEL = goodHits.size() > NElement ? NElement : goodHits.size();
 			fRestEnergy1 = fRestEnergy2 = fRestEnergy3 = 0.;
-			for(Int_t i=NEL;i<goodHits.size();++i){
+			for(size_t i=NEL;i<goodHits.size();++i){
 				PndEmcBump* theBump = (PndEmcBump*) fBumpArray->At(goodHits[i].iHit);
 				fRestEnergy1 += theBump->energy();
 				fRestEnergy2 += calibrator1->Energy(theBump);
@@ -692,7 +692,7 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 					pt1->Print(itrack);
 					cout<<"MC points #"<<pt1->GetNPoints(kEMC)<<", #"<<trackMap.size()<<endl;
 				}
-				for(Int_t im=0; im < trackMap.size(); ++im){
+				for(size_t im=0; im < trackMap.size(); ++im){
 					std::map<Int_t, Int_t>& theMap = trackMap[im];
 					if(theMap.find(pt1->GetMotherID()) != theMap.end()){
 						theMap.insert(std::pair<Int_t,Int_t>(itrack, pt1->GetMotherID()));
@@ -820,7 +820,7 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 			//fpos3  = cand3->GetPosition();
 			fNumberOfGoodPhoton = goodCand.size();
 			fExternalEnergy = 0.;
-			for(Int_t jc=3;jc<goodCand.size();++jc){
+			for(size_t jc=3;jc<goodCand.size();++jc){
 				PndPidCandidate* cand = (PndPidCandidate*)fNeutralCand->At(goodCand[jc].iHit);
 				fExternalEnergy += cand->GetEnergy();
 			}

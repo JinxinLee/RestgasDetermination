@@ -157,7 +157,7 @@ void PndLmdAlignPar::Print()
   std::cout<<"   frotate_y.size() = "<< frotate_y.size()<<std::endl;
   std::cout<<"   frotate_z.size() = "<< frotate_z.size()<<std::endl;
 
-  for(int ix=0; ix<fshift_x.size();ix++){
+  for(size_t ix=0; ix<fshift_x.size();ix++){
     if(fshift_x[ix]!=0) cout<<"fshift_x["<<ix<<"]="<<fshift_x[ix]<<endl;
     if(fshift_y[ix]!=0) cout<<"fshift_y["<<ix<<"]="<<fshift_y[ix]<<endl;
     if(fshift_z[ix]!=0) cout<<"fshift_z["<<ix<<"]="<<fshift_z[ix]<<endl;

@@ -159,7 +159,7 @@ void PndGemFindClustersTB::Exec(Option_t* opt) {
   fTimer.Continue();
 
   Int_t nofC2W = 0;
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ )
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ )
     if ( fDigiClusters[idc].cluPos > -0.5 )
       nofC2W++;
   //  cout << ">>>> created        " << fDigiClusters.size() << " clusters, " << nofC2W << " to write" << endl;
@@ -183,7 +183,7 @@ void PndGemFindClustersTB::Exec(Option_t* opt) {
   //  cout << "done" << endl;
 
   nofC2W = 0;
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ )
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ )
     if ( fDigiClusters[idc].cluPos > -0.5 )
       nofC2W++;
   //  cout << ">>>> after cleaning " << fDigiClusters.size() << " clusters, " << nofC2W << " to write" << endl;
@@ -273,7 +273,7 @@ Bool_t PndGemFindClustersTB::CompareDigiToClusters(Int_t digiNumber) {
     cout << "digi [" << digiNumber << "] in detector " << digi->GetDetectorId() << " channel " << digi->GetChannelNr() << " @ " << digi->GetTimeStamp() << endl;
 
   Int_t digiUsed = -1;
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     if ( fDigiClusters[idc].cluPos < -0.5 ) continue;
     if ( digi->GetDetectorId() != fDigiClusters[idc].detId ) continue;
 
@@ -351,11 +351,11 @@ void PndGemFindClustersTB::JoinTwoClusters(Int_t clus1, Int_t clus2) {
   }
 
   // go through digis in clus2
-  for ( Int_t id2 = 0 ; id2 < fDigiClusters[clus2].digiNr.size() ; id2++ ) { 
+  for ( size_t id2 = 0 ; id2 < fDigiClusters[clus2].digiNr.size() ; id2++ ) { 
     Int_t digi2 = fDigiClusters[clus2].digiNr[id2];
 
     Int_t addDigi = kTRUE;
-    for ( Int_t id1 = 0 ; id1 < fDigiClusters[clus1].digiNr.size() ; id1++ ) 
+    for ( size_t id1 = 0 ; id1 < fDigiClusters[clus1].digiNr.size() ; id1++ ) 
       if ( digi2 == fDigiClusters[clus1].digiNr[id1] ) 
 	addDigi = kFALSE;
     //if ( addDigi ) cout << "SHOULD " << (addDigi?"":"NOT ") << "ADD DIGI " << digi2 << " ( " << fDigiClusters[clus2].chanNr[id2] << " )" << endl;
@@ -417,7 +417,7 @@ void PndGemFindClustersTB::AnalyzeClusters() {
 
   if ( printInfo ) cout << "AnalyzeClusters" << endl;
 
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     if ( fDigiClusters[idc].cluPos < -0.5 ) continue;
 
     //    if ( fTNofEvents == 9 && fDigiClusters[idc].detId == 568329088 ) printInfo = kTRUE;
@@ -459,7 +459,7 @@ void PndGemFindClustersTB::AnalyzeClusters() {
     Int_t thisChan = -1;
     Int_t lastChan = -1;
     Int_t chanDist = -1;
-    for ( Int_t idigi = 0 ; idigi < fDigiClusters[idc].digiNr.size() ; idigi++ ) {
+    for ( size_t idigi = 0 ; idigi < fDigiClusters[idc].digiNr.size() ; idigi++ ) {
       thisChan = fDigiClusters[idc].chanNr[idigi];
       digi = (PndGemDigi*) fDigis->At(fDigiClusters[idc].digiNr[idigi]);
     
@@ -518,14 +518,14 @@ Int_t PndGemFindClustersTB::WriteClusters() {
   PndGemDigi* digi;
   PndGemCluster* cluster;
 
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
 
     //    if ( fDigiClusters[idc].cluADC < 1. ) continue;
     if ( fDigiClusters[idc].cluPos < -0.5 ) continue;
 
     clusterRefs.clear();
     
-    for ( Int_t id = 0 ; id < fDigiClusters[idc].digiNr.size() ; id++ ) {
+    for ( size_t id = 0 ; id < fDigiClusters[idc].digiNr.size() ; id++ ) {
       digi   = (PndGemDigi*)fDigis->At(fDigiClusters[idc].digiNr[id]);
 
       if ( !digi ) cout << "there is no digi number " << fDigiClusters[idc].digiNr[id] << ", cause there are only " << fDigis->GetEntries() << " of them" << endl;
@@ -566,7 +566,7 @@ Int_t PndGemFindClustersTB::WriteClusters() {
 
 // -----   Private method CheckClusters   -------------------------------
 void PndGemFindClustersTB::CheckClusters() {
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     CheckCluster(idc);
   }
 }
@@ -591,7 +591,7 @@ void PndGemFindClustersTB::CheckCluster(Int_t clus) {
   if ( minPart == maxPart ) return;
 
   Int_t tempPart = -1;
-  for ( Int_t ichan = 1 ; ichan < fDigiClusters[clus].digiNr.size()-1 ; ichan++ ) {
+  for ( size_t ichan = 1 ; ichan < fDigiClusters[clus].digiNr.size()-1 ; ichan++ ) {
     tempPart = sensor->GetSensorPart(iSide,fDigiClusters[clus].chanNr[ichan]);
     if ( tempPart != minPart && tempPart != maxPart ) {
       // cout << "PARTS ARE DIFFERENT: " 
@@ -615,7 +615,7 @@ void PndGemFindClustersTB::CheckCluster(Int_t clus) {
   fDigiClusters.push_back(tempDC);
   fDigiClusters.push_back(tempDC);
 
-  for ( Int_t ichan = 0 ; ichan < fDigiClusters[clus].digiNr.size() ; ichan++ ) {
+  for ( size_t ichan = 0 ; ichan < fDigiClusters[clus].digiNr.size() ; ichan++ ) {
     tempPart = sensor->GetSensorPart(iSide,fDigiClusters[clus].chanNr[ichan]);
 
     if ( tempPart == 0 || tempPart == 1 ) {
@@ -638,7 +638,7 @@ void PndGemFindClustersTB::CheckCluster(Int_t clus) {
 
 // -----   Private method SortClusters   -------------------------------
 void PndGemFindClustersTB::SortClusters() {
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     SortCluster(idc);
   }
 }
@@ -649,7 +649,7 @@ void PndGemFindClustersTB::SortCluster(Int_t clus) {
   Int_t channelPosition = 0;
 
   for ( Int_t ich = fDigiClusters[clus].cluPMn ; ich <= fDigiClusters[clus].cluPMx ; ich++ ) {
-    for ( Int_t idigi = channelPosition ; idigi < fDigiClusters[clus].digiNr.size() ; idigi++ ) {
+    for ( size_t idigi = channelPosition ; idigi < fDigiClusters[clus].digiNr.size() ; idigi++ ) {
       if ( fDigiClusters[clus].chanNr[idigi] == ich ) {
 	Int_t    dN = fDigiClusters[clus].digiNr[idigi];
 	Int_t    cN = fDigiClusters[clus].chanNr[idigi];
@@ -673,7 +673,7 @@ void PndGemFindClustersTB::SortCluster(Int_t clus) {
 // -----   Private method PrintClusters   -------------------------------
 void PndGemFindClustersTB::PrintClusters() {
 
-  for ( Int_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
+  for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     //    if ( fDigiClusters[idc].detId != 568329024 ) continue;
     if ( fDigiClusters[idc].cluPos < -0.5 ) continue;
     PrintCluster(idc);

@@ -194,7 +194,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 
     // Find start bin number for the phi projection of cluster.
     Int_t StartIndex = 0;
-    for (Int_t i = 0;i < vGapSizeList.size();i++)
+    for (size_t i = 0;i < vGapSizeList.size();i++)
       {
 	if (vGapSizeList.at(i) > vGapSizeList.at(StartIndex)) StartIndex = i;
       }
@@ -216,7 +216,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     double _Weight = 0;
     Weight.push_back(0);
     ValleyType.push_back(0);
-    for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
+    for (size_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       {
 	if(vDepoEnergyList.at(n_sel-1) > vDepoEnergyList.at(n_sel) &&
 	   vDepoEnergyList.at(n_sel) < vDepoEnergyList.at(n_sel+1) ) {
@@ -234,7 +234,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
     std::vector<double> enePhiBump, phiPhiBump;
     int ValleyIndex = 0;
     int iWeight = 0;
-    for (Int_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
+    for (size_t n_sel = 1; n_sel < vDepoEnergyList.size()-1; n_sel++)
       {
 	if (ValleyType.at(n_sel) == 1 || n_sel == vDepoEnergyList.size()-2)
 	  {
@@ -243,7 +243,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 	    const double _eneRightEdge = vDepoEnergyList.at(ValleyIndex)*(Weight.at(iWeight)/(Weight.at(iWeight)+Weight.at(iWeight-1)));
 	    double _enePhiBump = _eneRightEdge;
 	    double _phiPhiBump = vPhiList.at(ValleyIndex)*_eneRightEdge;
-	    for(Int_t p = ValleyIndex+1;p < n_sel;p++) {
+	    for(size_t p = ValleyIndex+1;p < n_sel;p++) {
 	      _enePhiBump += vDepoEnergyList.at(p);
 	      _phiPhiBump += vPhiList.at(p)*vDepoEnergyList.at(p);
 	    }
@@ -258,7 +258,7 @@ void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
       }
 
     TVector3 posClust = theCluster->position();
-    for (int i_phibump=0; i_phibump<enePhiBump.size(); ++i_phibump) {
+    for (size_t i_phibump=0; i_phibump<enePhiBump.size(); ++i_phibump) {
       PndEmcBump* theNewPhiBump = AddPhiBump();
       theNewPhiBump->MadeFrom(iCluster);
       theNewPhiBump->SetLink(FairLink("EmcCluster", iCluster));

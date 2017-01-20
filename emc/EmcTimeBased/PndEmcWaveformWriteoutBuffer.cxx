@@ -163,7 +163,7 @@ void PndEmcWaveformWriteoutBuffer::WriteToFile( PndEmcWaveform* theWaveform)
 	name += evtNo;
 	name += "_e";
 	std::vector<Int_t> evtList = theWaveform->GetEvtList();
-	for(Int_t i=0;i<evtList.size();++i){
+	for(size_t i=0;i<evtList.size();++i){
 		name += evtList[i];
 		name += "_";
 	}

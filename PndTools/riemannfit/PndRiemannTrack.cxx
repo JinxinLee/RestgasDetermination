@@ -161,7 +161,7 @@ PndRiemannTrack::distCircle(PndRiemannHit* hit){
 
 double PndRiemannTrack::ChiSquareDistCircle(){
 	double sum = 0;
-	for (int i = 0; i < fHits.size(); i++){
+	for (size_t i = 0; i < fHits.size(); i++){
 		double distance = distCircle(&(fHits[i]));
 		sum += TMath::Power(distance / fHits[i].sigmaXY(), 2);
 	}
@@ -302,7 +302,7 @@ PndRiemannTrack::refit(bool withErrorCalc)
 	  // 2. Calculation of the covarianz matrix of fav
 
 	  TMatrixD covAv(3,3);
-	  for (int i = 0; i < fHits.size();i++){
+	  for (size_t i = 0; i < fHits.size();i++){
 		  covAv[0][0] += fHits[i].covX(0,0)/(TMath::Power(fHits[i].sigmaXY(),4));
 		  covAv[1][1] += fHits[i].covX(1,1)/(TMath::Power(fHits[i].sigmaXY(),4));
 		  covAv[1][0] += fHits[i].covX(1,0)/(TMath::Power(fHits[i].sigmaXY(),4));
@@ -504,7 +504,7 @@ double PndRiemannTrack::calcChi2Plane()
 	if (fFitDone == false)
 			refit ();
 	if (r() > 0) {
-		for (int i = 0; i < getNumHits(); i++){
+		for (size_t i = 0; i < getNumHits(); i++){
 			PndRiemannHit* actualHit = getHit(i);
 //			chiSquare += TMath::Power((dist(actualHit)/actualHit->sigmaXY()),2);
 //			std::cout << "Dist: " << " "<< dist(actualHit) << std::endl;
@@ -935,7 +935,7 @@ double PndRiemannTrack::calcAlpha(PndRiemannHit* myHit)
 }
 
 void PndRiemannTrack::calcSForHits(){
-	for (int i = 0; i < fHits.size(); i++){
+	for (size_t i = 0; i < fHits.size(); i++){
 		fHits[i].calcPosOnTrk(this);
 	}
 	sortHits();
@@ -1014,7 +1014,7 @@ TVector3 PndRiemannTrack::getPforHit(int i, double B)
 //	}
 
 
-	if (i < getNumHits())
+	if (i < (int)getNumHits())
 	{
 		PndRiemannHit* myHit = getHit(i);
 		//std::cout << "MyHit: " << myHit->x().X() << " " << myHit->x().Y() << std::endl;
@@ -1087,7 +1087,7 @@ FairTrackParP PndRiemannTrack::getTrackParPForHit(Int_t i, Double_t B)
 	TVector3 dk(0,1,0);
 	TVector3 origin(0, 0, 1);
 
-	if (i < getNumHits()){
+	if (i < (int)getNumHits()){
 		Double_t s = getHit(i)->s();
 		getHit(i)->hit()->Position(hitPos);
 		hitPos = calcPosByS(s);
@@ -1155,7 +1155,7 @@ void PndRiemannTrack::PrintHits()
 {
 	std::cout << "-I- PndRiemannTrack::PrintHits: " << fHits.size() << std::endl;
 	//bool first = false; //[R.K. 01/2017] unused variable?
-	for (int i = 0; i < fHits.size(); i++){
+	for (size_t i = 0; i < fHits.size(); i++){
 		std::cout << i << ": ";
 
 		if (fHits[i].hit() != 0) {
@@ -1268,7 +1268,7 @@ PndRiemannHit PndRiemannTrack::correctSttSkewedHit(PndSttHit* mySttHit, PndSttTu
 void PndRiemannTrack::correctSttHits()
 {
 
-	for (int i = 0; i < fHits.size(); i++){
+	for (size_t i = 0; i < fHits.size(); i++){
 		if (fHits[i].hit()->GetEntryNr().GetType() == GetBranchId("STTHit")){
 
 			PndRiemannHit myHit = fHits[i];

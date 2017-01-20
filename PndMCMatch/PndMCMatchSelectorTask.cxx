@@ -97,7 +97,7 @@ void PndMCMatchSelectorTask::SetWeights()
 {
 //	std::cout << "SetWeights: CommonWeight " << fCommonWeight << " NStageWeights " << fStageWeights.size() << std::endl;
 	fMCMatch->SetCommonWeightStages(fCommonWeight);
-	for (int i = 0; i < fStageWeights.size();i++){
+	for (size_t i = 0; i < fStageWeights.size();i++){
 		fMCMatch->GetMCStageType(fStageWeights[i].first)->SetWeight(fStageWeights[i].second);
 	}
 }

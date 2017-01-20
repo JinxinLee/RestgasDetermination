@@ -502,7 +502,7 @@ void PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 		return;
 	}
 
-	if(simpleSensorOneX.size() >= _maxNoOfPairs){
+	if((int)simpleSensorOneX.size() >= _maxNoOfPairs){
 		// add no more
 		return;
 	}
@@ -570,7 +570,7 @@ void PndLmdSensorAligner::addSimplePairOld(PndLmdHitPair &pair){
 		return;
 	}
 
-	if(simplePairsSensorOne.size() >= _maxNoOfPairs){
+	if((int)simplePairsSensorOne.size() >= _maxNoOfPairs){
 		// add no more
 		return;
 	}
@@ -646,7 +646,7 @@ void PndLmdSensorAligner::printAllPairs() {
 	cout << "number of pairs normal: " << pairs.size() << ", number of simple pairs: " << simpleSensorOneX.size() << "\n";
 
 	if(_pairsNormal){
-		for(int i=0; i<pairs.size(); i++){
+		for(size_t i=0; i<pairs.size(); i++){
 			//pairs[i].Print();
 			avgID1+=pairs[i].getId1();
 			avgID2+=pairs[i].getId2();
@@ -678,7 +678,7 @@ void PndLmdSensorAligner::printAllPairs() {
 		RunningStats statsY2;
 		RunningStats statsZ2;
 
-		for(int i=0; i<simpleSensorOneX.size(); i++){
+		for(size_t i=0; i<simpleSensorOneX.size(); i++){
 			statsX1.Push(simpleSensorOneX[i]);
 			statsY1.Push(simpleSensorOneY[i]);
 			statsZ1.Push(simpleSensorOneZ[i]);
@@ -921,7 +921,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	bool compareBinaryToStored = false;
 
 	if(compareBinaryToStored){
-		if(simpleSensorOneX.size()!=nPairs){
+		if((int)simpleSensorOneX.size()!=nPairs){
 			cout << "fatal, can't compare to empty vector.\n";
 			return false;
 		}

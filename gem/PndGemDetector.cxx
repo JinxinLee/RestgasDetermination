@@ -49,7 +49,7 @@ PndGemDetector::PndGemDetector() : fUseRadDamOption(false) {
   fListOfSensitives.push_back("Sensor");
   if (fVerboseLevel>0) {
     std::cout<<"-I- PndGemDetector: fListOfSensitives contains:";
-    for(Int_t k=0;k<fListOfSensitives.size();k++)
+    for(size_t k=0;k<fListOfSensitives.size();k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   }
@@ -66,7 +66,7 @@ PndGemDetector::PndGemDetector (const char* name, Bool_t active)
   fListOfSensitives.push_back("Sensor");
   if (fVerboseLevel>0) {
     std::cout<<"- I - PndGemDetector: fListOfSensitives contains:";
-    for(Int_t k=0;k<fListOfSensitives.size();k++)
+    for(size_t k=0;k<fListOfSensitives.size();k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   }
@@ -328,7 +328,7 @@ void PndGemDetector::MisalignDetector()
 // -------------------------------------------------------------------------
 bool PndGemDetector::CheckIfSensitive(std::string name)
 {
-  for (Int_t i = 0; i < fListOfSensitives.size(); i++){
+  for (size_t i = 0; i < fListOfSensitives.size(); i++){
     if (name.find(fListOfSensitives[i]) != std::string::npos)
     return true;
   }

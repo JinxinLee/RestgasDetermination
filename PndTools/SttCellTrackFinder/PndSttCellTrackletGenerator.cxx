@@ -67,7 +67,7 @@ void PndSttCellTrackletGenerator::RefitTracks() {
 			}
 
 			PndTrackCand trackCand;
-			for (int i = 0; i < trackletInf.hitIDs.size(); ++i) {
+			for (size_t i = 0; i < trackletInf.hitIDs.size(); ++i) {
 				// add hits to TrackCand
 				if (fCalcWithCorrectedHits
 						&& (fCorrectedHits.find(trackletInf.hitIDs.at(i))
@@ -88,7 +88,7 @@ void PndSttCellTrackletGenerator::RefitTracks() {
 	}
 
 	//update TrackletInf of combinations --> Hits of RiemannTracks changed
-	for (int i = 0; i < fCombinedData.size(); i++) {
+	for (size_t i = 0; i < fCombinedData.size(); i++) {
 		fCombinedData[i].trackletInf = GetTrackletInf(
 				fCombinedData[i].tracklets);
 	}
@@ -107,7 +107,7 @@ void PndSttCellTrackletGenerator::PrintInfo() {
 	for (map<int, TrackletInf_t>::iterator i = fStartTracklets.begin();
 			i != fStartTracklets.end(); ++i) {
 		cout << "state: " << i->first << ", tubeIDs: ";
-		for (int j = 0; j < i->second.hitIDs.size(); ++j)
+		for (size_t j = 0; j < i->second.hitIDs.size(); ++j)
 			cout << ((PndSttHit*) fHits[i->second.hitIDs.at(j)])->GetTubeID()
 					<< ", ";
 		cout << endl;
@@ -123,7 +123,7 @@ void PndSttCellTrackletGenerator::PrintInfo() {
 				setIt != it->second.end(); ++setIt) {
 			cout << *setIt << ", ";
 		}
-		if (maxNumMultiState < it->second.size())
+		if (maxNumMultiState < (int)it->second.size())
 			maxNumMultiState = it->second.size();
 		averageNumMultiState += it->second.size();
 		cout << endl;
@@ -140,7 +140,7 @@ void PndSttCellTrackletGenerator::PrintInfo() {
 
 	cout << "#Accepted Combination of Tracklets: " << fCombinedData.size()
 			<< endl;
-	for (int i = 0; i < fCombinedData.size(); ++i) {
+	for (size_t i = 0; i < fCombinedData.size(); ++i) {
 		cout << "Combination #" << i << endl;
 		cout << "state of tracklets: ";
 		for (set<int>::iterator iter = fCombinedData[i].tracklets.begin();
@@ -180,7 +180,7 @@ void PndSttCellTrackletGenerator::FindTracks() {
 	fTimeStamps[11] = TTimeStamp();
 
 	//Update trackletInf
-	for (int i = 0; i < fCombinedData.size(); i++) {
+	for (size_t i = 0; i < fCombinedData.size(); i++) {
 		fCombinedData[i].trackletInf = GetTrackletInf(
 				fCombinedData[i].tracklets);
 	}
@@ -210,11 +210,11 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 	int numHits; // state,  //[R.K. 01/2017] unused variable?
 
 //create TrackCands for each combination of tracklets
-	for (int i = 0; i < fCombinedData.size(); ++i) {
+	for (size_t i = 0; i < fCombinedData.size(); ++i) {
 		PndTrackCand trackCand;
 
 		//add all hits of combined tracklets to trackCand
-		for (int j = 0; j < fCombinedData[i].trackletInf.hitIDs.size(); ++j) {
+		for (size_t j = 0; j < fCombinedData[i].trackletInf.hitIDs.size(); ++j) {
 
 			int hitIndex = fCombinedData[i].trackletInf.hitIDs.at(j);
 
@@ -244,7 +244,7 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 	}
 
 	// create TrackCands for tracklets without a combi and more than 2 hits
-	for (int i = 0; i < fTrackletsWithoutCombi.size(); ++i) {
+	for (size_t i = 0; i < fTrackletsWithoutCombi.size(); ++i) {
 		PndTrackCand trackCand;
 		numHits = fStartTracklets[fTrackletsWithoutCombi[i]].hitIDs.size();
 
@@ -300,7 +300,7 @@ void PndSttCellTrackletGenerator::GenerateTrackletsGPU() {
 	int tubeID;
 
 	//fill sets with hits of skewed and unskewed tubes --> no more multiple hits per tube
-	for (int i = 0; i < fHits.size(); ++i) {
+	for (size_t i = 0; i < fHits.size(); ++i) {
 		sttHit = (PndSttHit*) fHits[i];
 		tubeID = sttHit->GetTubeID();
 
@@ -421,7 +421,7 @@ void PndSttCellTrackletGenerator::GenerateTracklets() {
 
 //initialize states of cells with the id of the tube
 	PndSttHit* sttHit;
-	for (int i = 0; i < fHits.size(); ++i) {
+	for (size_t i = 0; i < fHits.size(); ++i) {
 		sttHit = (PndSttHit*) fHits[i];
 		fStates[sttHit->GetTubeID()] = sttHit->GetTubeID();
 	}
@@ -638,7 +638,7 @@ void PndSttCellTrackletGenerator::EvaluateMultiState() {
 				cout << "Neighbors: " << endl;
 			}
 
-			for (int i = 0; i < neighbors.size(); i++) {
+			for (size_t i = 0; i < neighbors.size(); i++) {
 				if (fVerbose > 3)
 					cout << neighbors[i] << " : ";
 
@@ -735,7 +735,7 @@ void PndSttCellTrackletGenerator::InitStartTracklets() {
 		trackletInf.numSkewed = 0;
 		bool IsEndID;
 
-		for (int i = 0; i < hitIDs.size(); ++i) {
+		for (size_t i = 0; i < hitIDs.size(); ++i) {
 
 			sttHit = (PndSttHit*) fHits[hitIDs[i]];
 			tubeID = sttHit->GetTubeID();
@@ -884,7 +884,7 @@ void PndSttCellTrackletGenerator::CombineTrackletsMultiStagesRecursive(
 
 	if (fVerbose > 2) {
 		cout << "neighbors of end-tube " << endID << ": ";
-		for (int i = 0; i < fHitNeighbors[endID].size(); ++i) {
+		for (size_t i = 0; i < fHitNeighbors[endID].size(); ++i) {
 			cout << fHitNeighbors[endID].at(i) << " ";
 		}
 		cout << endl;
@@ -989,7 +989,7 @@ void PndSttCellTrackletGenerator::InsertCombination(set<int> combination) {
 	set<int>::iterator oldIt;
 	set<int>::iterator newIt;
 
-	for (int i = 0; i < fStateCombinations.size(); ++i) {
+	for (size_t i = 0; i < fStateCombinations.size(); ++i) {
 
 		if (fStateCombinations[i] == combination) {
 			found = true;
@@ -1086,7 +1086,7 @@ void PndSttCellTrackletGenerator::SplitData() {
 	set<int> combinedTracklets;
 
 	// fill set with states of combined tracklets
-	for (int i = 0; i < fCombinedData.size(); ++i) {
+	for (size_t i = 0; i < fCombinedData.size(); ++i) {
 		for (set<int>::iterator iter = fCombinedData[i].tracklets.begin();
 				iter != fCombinedData[i].tracklets.end(); iter++) {
 			combinedTracklets.insert(*iter);
@@ -1173,7 +1173,7 @@ void PndSttCellTrackletGenerator::AddRemainingHits() {
 	for (it = fShortTracklets.begin(); it != fShortTracklets.end(); ++it) {
 		state = it->first;
 
-		for (int j = 0; j < fShortTracklets[state].hitIDs.size(); ++j) {
+		for (size_t j = 0; j < fShortTracklets[state].hitIDs.size(); ++j) {
 			sttHit = (PndSttHit*) fHits[fShortTracklets[state].hitIDs[j]];
 			if (!fStrawMap->IsSkewedStraw(sttHit->GetTubeID())) {
 				AddHitToBestCombi(fShortTracklets[state].hitIDs[j]);
@@ -1197,7 +1197,7 @@ bool PndSttCellTrackletGenerator::AddHitToBestCombi(int hitID) {
 	int sector = fStrawMap->GetSector(tubeID);
 	int sectorOfCombi, foundCombi;
 
-	for (int i = 0; i < fCombinedData.size(); ++i) {
+	for (size_t i = 0; i < fCombinedData.size(); ++i) {
 
 		sectorOfCombi = fStrawMap->GetSector(
 				*(fCombinedData[i].tracklets.begin()));
@@ -1240,7 +1240,7 @@ PndRiemannTrack PndSttCellTrackletGenerator::CreateRiemannTrack(
 	set<int> skewedTubeIdsInTrack;
 
 // add hits to riemannTrack (if unskewed)
-	for (int i = 0; i < hitIDs.size(); ++i) {
+	for (size_t i = 0; i < hitIDs.size(); ++i) {
 
 		sttHit = (PndSttHit*) fHits[hitIDs[i]];
 		if (!fStrawMap->IsSkewedStraw(sttHit->GetTubeID())) {
@@ -1270,7 +1270,7 @@ PndRiemannTrack PndSttCellTrackletGenerator::CreateRiemannTrack(
 		if (fVerbose > 3) {
 			vector<PndRiemannHit> hits = riemannTrack.getHits();
 			cout << endl << "RiemannTrack, Input: " << endl;
-			for (int i = 0; i < hits.size(); ++i) {
+			for (size_t i = 0; i < hits.size(); ++i) {
 				const FairHit* hit = hits[i].hit();
 				cout << "(" << hit->GetX() << "|" << hit->GetY() << "), ";
 			}
@@ -1366,7 +1366,7 @@ double PndSttCellTrackletGenerator::CalcDeviationOfRiemannTrack(
 	double r = track.r();
 	double sum = 0;
 
-	for (int i = 0; i < track.getNumHits(); ++i) {
+	for (size_t i = 0; i < track.getNumHits(); ++i) {
 
 		//get x- and y-coordinate of the hit
 		pos.Set(hits[i].x()[0], hits[i].x()[1]);
@@ -1417,7 +1417,7 @@ int PndSttCellTrackletGenerator::GetDeviationCount(PndRiemannTrack& track) {
 	TVector2 diff;
 	double r = track.r();
 
-	for (int i = 0; i < track.getNumHits(); ++i) {
+	for (size_t i = 0; i < track.getNumHits(); ++i) {
 
 		//get x- and y-coordinate of the hit
 		pos.Set(hits[i].x()[0], hits[i].x()[1]);

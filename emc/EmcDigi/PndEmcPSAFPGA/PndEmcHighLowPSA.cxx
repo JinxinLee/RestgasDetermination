@@ -154,7 +154,7 @@ void PndEmcHighLowPSA::GetHit(Int_t i, Double_t& energy, Double_t& time) {
 
 Int_t PndEmcHighLowPSA::GetWaveformIdx(Int_t i) {
 
-	if(i<fHitsInFE.size() && i>=0) {
+	if(i<(int)fHitsInFE.size() && i>=0) {
 		PndEmcPSAFPGASampleAnalyser* psa = fHitsInFE[i].first;
 		if(psa==fHighgainPSA) return fIdx_high;
 		else if(psa==fLowgainPSA) return fIdx_low;

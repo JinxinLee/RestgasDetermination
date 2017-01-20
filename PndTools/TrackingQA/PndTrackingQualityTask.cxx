@@ -77,7 +77,7 @@ InitStatus PndTrackingQualityTask::Init() {
 	}
 
 
-	for (int i = 0; i < fBranchNames.size(); i++){
+	for (size_t i = 0; i < fBranchNames.size(); i++){
 		fMapEfficiencies[fBranchNames[i]] = new TH2D(fBranchNames[i], fBranchNames[i], 100, 0., 100., 50, 0, 1.1);
 		fMapEfficiencies[fBranchNames[i]]->SetDrawOption("COLz");
 	}
@@ -204,7 +204,7 @@ void PndTrackingQualityTask::Exec(Option_t* opt) {
 Int_t PndTrackingQualityTask::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
 {
 	Int_t result = 0;
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		result += trackData->GetLinksWithType(ioman->GetBranchId(fBranchNames[branchIndex])).GetNLinks();
 	}
 	return result;
@@ -262,7 +262,7 @@ void PndTrackingQualityTask::Finish() {
 	// fQualyHisto->Draw();
 	// LabelQualyHistogram((TH1*) fQualyStack);
 
-	for (int i = 0; i < fBranchNames.size(); i++){
+	for (size_t i = 0; i < fBranchNames.size(); i++){
 		fMapEfficiencies[fBranchNames[i]]->Write();
 	}
 	fPHisto->Write();

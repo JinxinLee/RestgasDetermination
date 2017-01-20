@@ -14,7 +14,7 @@ std::ostream& operator <<(std::ostream& os, const std::vector<Int_t>& v)
 		return os;
 	}
 
-	for (UInt_t iVec = 0; iVec < lastIdx; ++iVec){
+	for (Int_t iVec = 0; iVec < lastIdx; ++iVec){
 		os << v[iVec] << ", ";
 	}
 	os << v[lastIdx] << ")";
@@ -32,7 +32,7 @@ std::ostream& operator <<(std::ostream& os, const std::vector< std::pair<Double_
 		return os;
 	}
 
-	for (UInt_t iVec = 0; iVec < lastIdx; ++iVec){
+	for (Int_t iVec = 0; iVec < lastIdx; ++iVec){
 		os << "{";
 		os << vpair[iVec].first << ", ";
 		os << vpair[iVec].second;
@@ -55,7 +55,7 @@ std::ostream& operator <<(std::ostream& os, const std::vector< std::pair<Int_t,I
 		return os;
 	}
 
-	for (UInt_t iVec = 0; iVec < lastIdx; ++iVec){
+	for (Int_t iVec = 0; iVec < lastIdx; ++iVec){
 		os << "{";
 		os << vpair[iVec].first << ", ";
 		os << vpair[iVec].second;
@@ -503,7 +503,7 @@ void FairEvtFilterOnSingleParticleCounts::CountPdg(TParticle* particle){
 	if ( fPdgGroupId.end() != it ){
 		// pdg code was found
 		std::vector<Int_t> groupIdVector = it->second;
-		for (Int_t iGroupId = 0; iGroupId < groupIdVector.size(); ++iGroupId){
+		for (size_t iGroupId = 0; iGroupId < groupIdVector.size(); ++iGroupId){
 			++fCountGroupId[groupIdVector[iGroupId]];
 		}
 	}

@@ -196,7 +196,7 @@ void PndEmcCorrBump::Exec(Option_t* opt)
 		PndEmcBump* theBump = (PndEmcBump*)fBumpArray->At(iBump);
 		//find the seed digi with maximum energy
 		const std::vector<Int_t>& listOfDigi = theBump->DigiList();
-		for(Int_t id=0;id <listOfDigi.size();++id){
+		for(size_t id=0;id <listOfDigi.size();++id){
 			PndEmcDigi* theDigi = (PndEmcDigi*)fSharedDigiArray->At(listOfDigi[id]);
 			if(theDigi->GetEnergy() > EnergyOfSeedDigi){
 				seedDigi = theDigi;
@@ -237,7 +237,7 @@ void PndEmcCorrBump::Exec(Option_t* opt)
 		{
 			Double_t WeightedFactor = 0.;
 			Bool_t DigiStatus = kTRUE;
-			for(Int_t id=0;id <listOfDigi.size();++id){
+			for(size_t id=0;id <listOfDigi.size();++id){
 				PndEmcDigi* theDigi = (PndEmcDigi*)fSharedDigiArray->At(listOfDigi[id]);
 				CalibTimeOfaDigi = digiCalibrator.CalibrationEvtTimeByDigi(theDigi, kFALSE);
 				fTimeError = digiCalibrator.GetTimeResolutionOfDigi(theDigi);
@@ -271,10 +271,10 @@ void PndEmcCorrBump::Exec(Option_t* opt)
 		}
 	}
 	//remove tagged bumps
-	for(Int_t ix=0;ix <taggedBumpofToBeDeleted.size();++ix){
+	for(size_t ix=0;ix <taggedBumpofToBeDeleted.size();++ix){
 		const std::vector<Int_t>& listOfDigi = taggedBumpofToBeDeleted[ix]->DigiList();
 		//copy all digis of this bump to the buffer PndEmcDigi::fDigiArrayTBD;
-		for(Int_t id=0;id <listOfDigi.size();++id){
+		for(size_t id=0;id <listOfDigi.size();++id){
 			PndEmcDigi* theDigi = (PndEmcDigi*)fSharedDigiArray->At(listOfDigi[id]);
 			new((*PndEmcDigi::fDigiArrayTBD)[iDigi++]) PndEmcDigi(*theDigi);
 		}

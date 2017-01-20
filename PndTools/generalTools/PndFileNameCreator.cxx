@@ -199,7 +199,7 @@ std::string PndFileNameCreator::GetPath()
 	if (fVerbose > 0)
 		std::cout << "resString.size() " << resString.size() << std::endl;
 	if (resString.size() > 0){
-		for (int i = 0; i < resString.size()-1; i++){
+		for (size_t i = 0; i < resString.size()-1; i++){
 			result << resString[i] << "/";
 		}
 	}

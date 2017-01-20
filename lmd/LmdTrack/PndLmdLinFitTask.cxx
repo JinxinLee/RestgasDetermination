@@ -232,7 +232,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
     TGraph2DErrors fitme(numPts); //new graph for fitting
     Int_t firstHit=-1, lastHit=-1;
     TVector3 hit0,hit1;
-    for(unsigned int ihit=0; ihit<numPts; ihit++){ //fill Graph
+    for(int ihit=0; ihit<numPts; ihit++){ //fill Graph
       PndTrackCandHit theHit = trcnd->GetSortedHit(ihit); //get hit
       Int_t index = theHit.GetHitId();
       //Int_t detId = theHit.GetDetId(); //[R.K. 01/2017] unused variable

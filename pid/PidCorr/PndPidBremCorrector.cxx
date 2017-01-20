@@ -133,8 +133,8 @@ void PndPidBremCorrector::Exec(Option_t* opt)
     PndPidBremCorrected4Mom *bremCorr = AddBremCorrected4Mom();
     bremCorr->SetMomentum(momCorr);
     bremCorr->SetEnergy(eneCorr);
-    for (int i=0; i < sep_bumps.size(); ++i) bremCorr->AddToSepBumpList(sep_bumps[i]);
-    for (int i=0; i < phi_bumps.size(); ++i) bremCorr->AddToPhiBumpList(phi_bumps[i]);
+    for (size_t i=0; i < sep_bumps.size(); ++i) bremCorr->AddToSepBumpList(sep_bumps[i]);
+    for (size_t i=0; i < phi_bumps.size(); ++i) bremCorr->AddToPhiBumpList(phi_bumps[i]);
     bremCorr->SetPidCandIdx(iCand);
 
   }
@@ -217,7 +217,7 @@ double PndPidBremCorrector::GetMergPhotonE(PndPidCandidate *ChargedCand, std::ve
 
   int iMax = 0;
   Float_t eMax = -1e9;
-  for (Int_t ib = 0; ib < fEmcPhiBumpList.size(); ++ib) {
+  for (size_t ib = 0; ib < fEmcPhiBumpList.size(); ++ib) {
     if( fEmcPhiBumpList[ib]->energy() > eMax) {
       iMax = ib;
       eMax = fEmcPhiBumpList[ib]->energy();

@@ -128,7 +128,7 @@ void PndLmdAlignManager::init(){
 	 */
 
 	vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
-	for(int i=0; i<overlapIDs.size(); i++){
+	for(size_t i=0; i<overlapIDs.size(); i++){
 		int overlapId = overlapIDs[i];
 
 		PndLmdSensorAligner tempAligner;
@@ -207,9 +207,9 @@ int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFile
 	else{
 		std::vector<string> list;
 		searchFiles(directory, list, ".root", false);
-		for(int i=0;i<list.size();i++){
+		for(size_t i=0;i<list.size();i++){
 			_fileNames.push_back(list[i]);
-			if(i==maxFiles-1){			//we use == instead of >= so that maxFiles=0 always chooses all files
+			if((int)i==maxFiles-1){			//we use == instead of >= so that maxFiles=0 always chooses all files
 				break;
 			}
 		}
@@ -247,7 +247,7 @@ void PndLmdAlignManager::readFiles(){
 	 */
 
 	TChain* chainPairs = new TChain("cbmsim");
-	for(int i=0; i<_fileNames.size(); i++){
+	for(size_t i=0; i<_fileNames.size(); i++){
 		//cout << files[i] << endl;
 		if( _fileNames[i].find("Lumi_Pairs") != std::string::npos ){
 			chainPairs->Add(_fileNames[i].c_str());
@@ -640,7 +640,7 @@ void PndLmdAlignManager::checkIOpaths() {
 	if(_fileNames.size()==0 ){
 		//cout << "no pair files specified, are we using binary data?\n";
 	}
-	for(int iFile=0; iFile<_fileNames.size(); iFile++){
+	for(size_t iFile=0; iFile<_fileNames.size(); iFile++){
 		if(!boost::filesystem::exists(_fileNames[iFile])){
 			cout << "error opening file:";
 			cout << _fileNames[iFile] << "\n";
@@ -807,7 +807,7 @@ vector<string> PndLmdAlignManager::findRegex(std::string source, std::string reg
 		// update search position:
 		start = result[0].second;
 
-		for(int j=0; j<result.size(); j++){
+		for(size_t j=0; j<result.size(); j++){
 			resultStrings.push_back( boost::lexical_cast<string>(result[j]));
 		}
 
@@ -1030,13 +1030,13 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 	bool tempfilefound=false;
 
 	//check for every ID that should be there if there is a corresponding file
-	for(int i=0; i<availableIds.size(); i++){
+	for(size_t i=0; i<availableIds.size(); i++){
 
 		//reset counter
 		tempfilefound=false;
 		matrixName = makeBinaryPairFileName(availableIds[i], _inCentimeters);
 
-		for(int j=0; j<files.size(); j++){
+		for(size_t j=0; j<files.size(); j++){
 			if(files[j].find(matrixName)!=string::npos){
 				//file is present
 				//cout << "file: " << files[j] << ", id: " << availableIds[i] << "\n";

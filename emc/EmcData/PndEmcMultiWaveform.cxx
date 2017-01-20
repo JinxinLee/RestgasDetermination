@@ -28,7 +28,7 @@ void PndEmcMultiWaveform::clearAndReset(){
 }
 
 std::vector<Double_t> PndEmcMultiWaveform::GetSignal() const{
-	if( fActiveWaveform <1 || fActiveWaveform >= fSignals.size()){
+	if( fActiveWaveform <1 || fActiveWaveform >= (int)fSignals.size()){
 		return fSignals.at(0);
 	}else{
 		return fSignals.at(fActiveWaveform);
@@ -39,7 +39,7 @@ void PndEmcMultiWaveform::SetWaveform(const std::vector<Double_t>&signal,Int_t l
 	if(Waveform < 0){
 		return;
 	}
-	if(Waveform>=fSignals.size()){
+	if(Waveform>=(int)fSignals.size()){
 		fSignals.insert(fSignals.end(),Waveform-fSignals.size()+1,std::vector<Double_t>(fWaveformLength,0.));
 	}
 	fSignals[Waveform]= signal;

@@ -97,11 +97,11 @@ void OnlineDBuilderTask::Exec(Option_t* opt) {
 //	std::cout << "-I- OnlineDBuilderTask::Exec: " << " After first Loop -- " << " plusTracks.size(): " << plusTracks.size() << ", minusTracks.size(): " << minusTracks.size() << std::endl;
 
 	std::cout << "CombinePlusTracks: " << plusTracks.size() << std::endl;
-	for (int i = 0; i < plusTracks.size(); i++){
+	for (size_t i = 0; i < plusTracks.size(); i++){
 		std::cout << plusTracks[i]->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")) << std::endl;
 	}
 	std::cout << " MinusTracks: " << minusTracks.size() << std::endl;
-	for (int i = 0; i < minusTracks.size(); i++){
+	for (size_t i = 0; i < minusTracks.size(); i++){
 		std::cout << minusTracks[i]->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")) << std::endl;
 	}
 	std::vector<std::pair<TLorentzVector, int> > Dminus = CombineFirstWithTwoSecond(plusTracks, minusTracks);
@@ -110,14 +110,14 @@ void OnlineDBuilderTask::Exec(Option_t* opt) {
 	std::cout << std::endl;
 //	std::cout << "-I- OnlineDBuilderTask::Exec: Dminus.size: " << Dminus.size() << ", Dplus.size: " << Dplus.size() << std::endl;
 
-	for (int i = 0; i < Dminus.size(); i++){
+	for (size_t i = 0; i < Dminus.size(); i++){
 		TLorentzVector* vec = new ((*fDMinusArray)[fDMinusArray->GetEntriesFast()]) TLorentzVector(Dminus[i].first);
 		std::cout << "DMinus " << Dminus[i].second << " " << vec->Px() << "/" << vec->Py() << "/" << vec->Pz() << " " << vec->M() << std::endl;
 		if (Dminus[i].second == -1){
 			TLorentzVector* vec1 = new ((*fDMinusArrayTrue)[fDMinusArrayTrue->GetEntriesFast()]) TLorentzVector(Dminus[i].first);
 		}
 	}
-	for (int i = 0; i < Dplus.size(); i++){
+	for (size_t i = 0; i < Dplus.size(); i++){
 //		std::cout << "-I- OnlineDBuilderTask::Exec:" << "TCA n entries: " << fDPlusArray->GetEntriesFast() << std::endl;
 		TLorentzVector* vec = new ((*fDPlusArray)[fDPlusArray->GetEntriesFast()]) TLorentzVector(Dplus[i].first);
 		std::cout << "DPlus " << Dplus[i].second << " " << vec->Px() << "/" << vec->Py() << "/" << vec->Pz() << " " << vec->M() << std::endl;
@@ -135,12 +135,12 @@ std::vector<std::pair<TLorentzVector, int> > OnlineDBuilderTask::CombineFirstWit
 	std::vector<std::pair<TLorentzVector, int> > result;
 //	std::cout << "OnlineDBuilderTask::CombineFirstWithTwoSecond: " << "first.size() = " << first.size() << std::endl;
 	if (second.size() == 0) return result;
-	for (int outer = 0; outer < first.size(); outer++){
+	for (size_t outer = 0; outer < first.size(); outer++){
 //		std::cout << "OnlineDBuilderTask::CombineFirstWithTwoSecond: " << "second.size() = " << second.size() << std::endl;
-		for (int inner1 = 0; inner1 < (second.size() - 1); inner1++){
+		for (size_t inner1 = 0; inner1 < (second.size() - 1); inner1++){
 			//bool temp = inner1 < second.size() - 1; //[R.K. 01/2017] unused variable
 //			std::cout << "OnlineDBuilderTask::CombineFirstWithTwoSecond: " << "inner: " << 0 << ", second.size() - 1: " << second.size() - 1 << ", inner < second.size() - 1: " << temp  << std::endl;
-			for (int inner2 = inner1 + 1; inner2 < second.size(); inner2++){
+			for (size_t inner2 = inner1 + 1; inner2 < second.size(); inner2++){
 				PndTrack* kTrack = first[outer];
 				PndTrack* pi1Track = second[inner1];
 				PndTrack* pi2Track = second[inner2];

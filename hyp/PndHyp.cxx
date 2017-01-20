@@ -241,7 +241,7 @@ void PndHyp::Initialize() {
     fStandard=kTRUE;//sebastian fVolumeID
     fCurrent=kFALSE;
 
-    for(int m=0;m<fListOfMaterials.size();m++){
+    for(size_t m=0;m<fListOfMaterials.size();m++){
       gGeoManager->GetMedium(fListOfMaterials[m].Data());
     }
     
@@ -695,7 +695,7 @@ TString fileName=GetGeometryFileName();
 // -------------------------------------------------------------------------
 bool PndHyp::CheckIfSensitive(std::string name)
 {
-  for (Int_t i = 0; i < fListOfSensitives.size(); i++){
+  for (size_t i = 0; i < fListOfSensitives.size(); i++){
     
     if (name.find(fListOfSensitives[i]) != std::string::npos)
     return true;

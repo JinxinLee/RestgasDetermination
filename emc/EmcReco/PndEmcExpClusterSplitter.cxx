@@ -510,7 +510,7 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 		AverageTime1 = 0.;//AverageTime2 = AverageTime3 = 0.;
 		Double_t fMaxDigiEnergy = -1.;
 		const std::vector<Int_t>& listOfDigi = tmpbump->DigiList();
-		for(Int_t id=0;id <listOfDigi.size();++id){
+		for(size_t id=0;id <listOfDigi.size();++id){
 			PndEmcDigi* theDigi = (PndEmcDigi*)fSharedDigiArray->At(listOfDigi[id]);
 			//CalibTimeOfaDigi = digiCalibrator.CalibrationEvtTimeByDigi(theDigi, kFALSE);
 			fTimeError = digiCalibrator.GetTimeResolutionOfDigi(theDigi);
@@ -524,7 +524,7 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 				//tmpbump->fSeedPosition = theDigi->where();
 			}
 		}
-		for(Int_t id=0;id <listOfDigi.size();++id){
+		for(size_t id=0;id <listOfDigi.size();++id){
 			PndEmcDigi* theDigi = (PndEmcDigi*)fSharedDigiArray->At(listOfDigi[id]);
 			CalibTimeOfaDigi = digiCalibrator.CalibrationEvtTimeByDigi(theDigi, kFALSE);
 			fTimeError = digiCalibrator.GetTimeResolutionOfDigi(theDigi);

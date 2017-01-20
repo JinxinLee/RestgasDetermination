@@ -286,7 +286,7 @@ Bool_t PndGemSensorMonitor::ChannelLastActivation(Int_t channelNr, Int_t sideId,
 void PndGemSensorMonitor::Print() {
   cout << "---> sensor has " << fFLATime.size() << " Front and " << fBLATime.size() << " Back strips" << endl;
 
-  for ( Int_t ichan = 0 ; ichan < fFLATime.size() ; ichan++ ) {
+  for ( size_t ichan = 0 ; ichan < fFLATime.size() ; ichan++ ) {
     cout << ichan << ":" << fFLATime[ichan] << " . " << flush;
   }
   cout << endl;

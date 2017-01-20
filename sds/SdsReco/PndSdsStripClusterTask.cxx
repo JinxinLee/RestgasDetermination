@@ -519,7 +519,7 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
           if (fVerbose > 2) std::cout<<"Strip charge contents too different"<<std::endl;
       }// loop bot clusters
     }// loop top clusters
-    for (int i = 0; i < clusters.size(); i++){
+    for (size_t i = 0; i < clusters.size(); i++){
     	delete (clusters[i]);
     }
     clusters.clear();

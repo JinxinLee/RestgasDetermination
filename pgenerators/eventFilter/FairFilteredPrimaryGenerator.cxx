@@ -106,11 +106,11 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 
 	if(kTRUE == fEventFilterActive){
 		// sanity check settings for logical combinations of event filters
-		if(fFilterNegation.size()!=fFilterList->GetEntriesFast()){
+		if((int)fFilterNegation.size()!=fFilterList->GetEntriesFast()){
 			std::cout << "\n\n\n  -WARNING from FairFilteredPrimaryGenerator: size of the negation vector has to be equal to the number of added filters. Check your FilterNegation call!\n\n\n";
 			return kFALSE;
 		}
-		if(fLogicalFilterOperation.size()!=fFilterList->GetEntriesFast()-1){
+		if((int)fLogicalFilterOperation.size()!=fFilterList->GetEntriesFast()-1){
 			std::cout << "\n\n\n  -WARNING from FairFilteredPrimaryGenerator: size of the operation vector has to be equal to the number of added filters minus one. Check your LogicalFilterOperation call!\n\n\n";
 			return kFALSE;
 		}

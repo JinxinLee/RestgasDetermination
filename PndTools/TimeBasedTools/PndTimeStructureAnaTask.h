@@ -80,14 +80,14 @@ struct DataObject
 	void FillGraph(TH1D* theGraph, TH1* h1){
 		std::vector<Double_t> values = CalcIntegral(h1);
 		std::vector<Double_t> binCenters = GetBinCenters(h1);
-		for (int i = 0; i < values.size(); i++)
+		for (size_t i = 0; i < values.size(); i++)
 			theGraph->Fill(binCenters[i], values[i]);
 	}
 
 	void FillGraphPercent(TH1D* theGraph, TH1* h1){
 		std::vector<Double_t> values = CalcIntegral(h1);
 		std::vector<Double_t> binCenters = GetBinCenters(h1);
-		for (int i = 0; i < values.size(); i++)
+		for (size_t i = 0; i < values.size(); i++)
 			theGraph->Fill(binCenters[i], values[i]/values.back() * 100.0);
 	}
 

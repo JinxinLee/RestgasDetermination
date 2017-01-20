@@ -116,7 +116,7 @@ TGraphErrors* PndMdtWaveform::ToTGraph() const
 {
   //free this object outside 
   TGraphErrors* g = new TGraphErrors(fSignal.size());
-  for(Int_t i = 0; i< fSignal.size(); ++i){
+  for(size_t i = 0; i< fSignal.size(); ++i){
     g->SetPoint(i, i*10, fSignal[i]);//every 10 nano seconds
     g->SetPointError(i, 0, 0);
   }

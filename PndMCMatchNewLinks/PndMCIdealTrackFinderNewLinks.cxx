@@ -51,7 +51,7 @@ InitStatus PndMCIdealTrackFinderNewLinks::Init()
         AddBranchName("FTSHit");
 	}
 
-	for (int i = 0; i < fBranchNames.size(); i++){
+	for (size_t i = 0; i < fBranchNames.size(); i++){
 		if (ioman->GetObject(fBranchNames[i]) != 0){
 			fBranchMap[fBranchNames[i]] = (TClonesArray*)ioman->GetObject(fBranchNames[i]);
 		}

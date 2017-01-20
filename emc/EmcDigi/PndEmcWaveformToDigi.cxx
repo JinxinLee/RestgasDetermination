@@ -379,7 +379,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 		if(fVerbose > 1){
 			cout<<endl;
 			std::cout<<"The wave#"<<iWaveform<<" includes "<<evtList.size()<<" events #";
-			for(Int_t i=0; i< evtList.size(); ++i){
+			for(size_t i=0; i< evtList.size(); ++i){
 				std::cout<<evtList[i]<<" ";
 			}
 			cout<<endl;

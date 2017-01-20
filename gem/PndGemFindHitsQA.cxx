@@ -388,7 +388,7 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
       GetPointVector(gemHit->GetLink(1).GetType(),gemHit->GetLink(1).GetIndex(),pointVector1,printMCMatching); 
       if ( printMCMatching ) 
 	cout << "VECT0: (" << gemHit->GetLink(0).GetIndex() << ") " << flush;
-      for ( Int_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
+      for ( size_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
 	if ( printMCMatching ) 
 	  cout << pointVector0[ipnt] << " . " << flush;
 	if ( maxPnt0 < pointVector0[ipnt] ) {
@@ -399,7 +399,7 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
 	cout << "\b\b" << endl; 
       if ( printMCMatching ) 
 	cout << "VECT1: (" << gemHit->GetLink(1).GetIndex() << ") " << flush;
-      for ( Int_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
+      for ( size_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
 	if ( printMCMatching ) 
 	  cout << pointVector1[ipnt] << " . " << flush;
 	if ( maxPnt1 < pointVector1[ipnt] ) {
@@ -412,10 +412,10 @@ void PndGemFindHitsQA::Exec(Option_t* opt) {
 	cout << "highest points are " << maxPnt0 << " , " << maxPnt1 << endl;
       std::vector<Int_t> countPointV0(maxPnt0+1,0);
       std::vector<Int_t> countPointV1(maxPnt1+1,0);
-      for ( Int_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
+      for ( size_t ipnt = 0 ; ipnt < pointVector0.size() ; ipnt++ ) {
 	++countPointV0[pointVector0[ipnt]];
       }
-      for ( Int_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
+      for ( size_t ipnt = 0 ; ipnt < pointVector1.size() ; ipnt++ ) {
 	++countPointV1[pointVector1[ipnt]];
       }
       if ( maxPnt0 > maxPnt1 )

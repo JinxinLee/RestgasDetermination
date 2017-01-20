@@ -118,7 +118,7 @@ void PndMCTestEmcClusterCompare::Exec(Option_t* opt)
 
 		std::cout << "cleaned list ..." <<std::endl;
 		cleansortmclist(testlist,fMCTrack);
-               for (int j = 0; j < testlist.size(); j++){
+               for (size_t j = 0; j < testlist.size(); j++){
                         std::cout << "MCTrack (in list)"<<j <<" , MCIndex: "<< testlist[j];
                         PndMCTrack* myMCTrack = (PndMCTrack*)fMCTrack->At(testlist[j]);
                         std::cout << " E: " << myMCTrack->Get4Momentum().E() << " MC PID: " << myMCTrack->GetPdgCode() << std::endl;

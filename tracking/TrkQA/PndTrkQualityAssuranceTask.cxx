@@ -268,7 +268,7 @@ void PndTrkQualityAssuranceTask::Exec(Option_t* opt) {
       info->SetTrue();
       mcinfo->SetRecoTrackID(info->GetRecoTrackID());
       
-      for(int jtrk = 0; jtrk < recolist.size(); jtrk++) {
+      for(size_t jtrk = 0; jtrk < recolist.size(); jtrk++) {
 	if(tmpcandidate == recolist[jtrk]) continue;
 	info = (PndTrkRecoTrackInfo*) fRecoTrackInfo->At(recolist[jtrk]);
 	info->SetClone();
@@ -292,7 +292,7 @@ PndTrkMCTrackInfo PndTrkQualityAssuranceTask::GetMCInfoFromIdealTrack(PndTrack *
   
   int nofsttskewpoint = 0, nofsttparalpoint = 0;    
   // this loop counts skewed (--> parallel) STT/FTS hits
-  for(Int_t ihit = 0; ihit < idealtrkcand->GetNHits(); ihit++) {
+  for(size_t ihit = 0; ihit < idealtrkcand->GetNHits(); ihit++) {
     PndTrackCandHit idealcandhit = idealtrkcand->GetSortedHit(ihit);
     Int_t hitID1 = idealcandhit.GetHitId();
     Int_t detID1 = idealcandhit.GetDetId();
@@ -371,7 +371,7 @@ PndTrkRecoTrackInfo PndTrkQualityAssuranceTask::GetRecoInfoFromRecoTrack(int rec
 
   int nofsttskewpoint = 0, nofsttparalpoint = 0;    
   // this loop counts skewed (--> parallel) STT/FTS hits
-  for(Int_t ihit = 0; ihit < trkcand->GetNHits(); ihit++) {
+  for(size_t ihit = 0; ihit < trkcand->GetNHits(); ihit++) {
     PndTrackCandHit candhit = trkcand->GetSortedHit(ihit);
     Int_t hitID1 = candhit.GetHitId();
     Int_t detID1 = candhit.GetDetId();
@@ -401,7 +401,7 @@ PndTrkRecoTrackInfo PndTrkQualityAssuranceTask::GetRecoInfoFromRecoTrack(int rec
 
   FairHit *hit = NULL;
   FairMCPoint *point = NULL;
-  for(Int_t ihit = 0; ihit < trkcand->GetNHits(); ihit++) {
+  for(size_t ihit = 0; ihit < trkcand->GetNHits(); ihit++) {
     PndTrackCandHit candhit = trkcand->GetSortedHit(ihit);
     Int_t hitID1 = candhit.GetHitId();
     Int_t detID1 = candhit.GetDetId();

@@ -174,7 +174,7 @@ std::map<TString, FairMultiLinkedData> PndTrackingQualityAnalysisNewLinks::Analy
 		std::cout << "PndTrackingQualityData::AnalyseTrackCand: TrackInfo" << std::endl;
 		//std::cout << *trackCand << std::endl;
 	}
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		trackInfo[fBranchNames[branchIndex]] = GetMCInfoForBranch(fBranchNames[branchIndex], trackCand);
 		trackInfo["AllHits"].AddLinks(trackInfo[fBranchNames[branchIndex]]);
 	}
@@ -321,7 +321,7 @@ void PndTrackingQualityAnalysisNewLinks::FillMapTrackQualifikation()
 Int_t PndTrackingQualityAnalysisNewLinks::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
 {
 	Int_t result = 0;
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		if (fBranchNames[branchIndex] == "GEMHit"){
 			FairMultiLinkedData gemHits = trackData->GetLinksWithType(ioman->GetBranchId("GEMPoint"));
 			result += gemHits.GetNLinks();
@@ -336,7 +336,7 @@ Int_t PndTrackingQualityAnalysisNewLinks::GetSumOfAllValidMCHits(FairMultiLinked
 void PndTrackingQualityAnalysisNewLinks::CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo)
 {
 	if (mostProbableTrack < 0) return;
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		if (fMCIdIdealTrackId.count(mostProbableTrack) > 0){
 			PndTrackCand* trackCand = ((PndTrack*)fIdealTrack->At(fMCIdIdealTrackId[mostProbableTrack]))->GetTrackCandPtr();
 			Int_t nMcHits = GetNIdealHits(*trackCand->GetPointerToLinks(), fBranchNames[branchIndex]);
@@ -375,7 +375,7 @@ Int_t PndTrackingQualityAnalysisNewLinks::GetNIdealHits(FairMultiLinkedData& tra
 void PndTrackingQualityAnalysisNewLinks::PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo)
 {
 	if (detailedInfo == kTRUE) std::cout << std::endl;
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		TString branchName = fBranchNames[branchIndex];
 		std::cout << branchName << " " << GetNIdealHits(trackData, branchName);
 		if (detailedInfo == kTRUE){
@@ -446,7 +446,7 @@ PndTrackingQualityRecoInfo PndTrackingQualityAnalysisNewLinks::GetRecoInfoFromRe
   std::map< int, int > noffakehits;
   std::map< int, int > nofmissinghits;
 
-  for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+  for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
     noftruehits.clear();
     noffakehits.clear();
     nofmissinghits.clear();

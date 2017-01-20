@@ -123,7 +123,7 @@ void PndSttCellTrackFinderData::GenerateNeighborhoodData() {
 	map<int, FairLink> mapWithoutDouble;
 	int hitIndex=0;
 
-	for(int i=0; i<fHitsOrig.size(); ++i){
+	for(size_t i=0; i<fHitsOrig.size(); ++i){
 		tubeId=((PndSttHit*) fHitsOrig[i])->GetTubeID();
 
 		if(sttHits.find(tubeId)==sttHits.end()){
@@ -147,7 +147,7 @@ void PndSttCellTrackFinderData::GenerateNeighborhoodData() {
 	}
 
 	PndSttHit* sttHit;
-	for (int i = 0; i < fHits.size(); ++i) {
+	for (size_t i = 0; i < fHits.size(); ++i) {
 		sttHit = (PndSttHit*) fHits[i];
 		fMapTubeIdToHit[sttHit->GetTubeID()] = i;
 	}
@@ -167,13 +167,13 @@ void PndSttCellTrackFinderData::FindHitNeighbors() {
 	set<int> hitIds;
 
 	//initialize set with straw-ids of hits
-	for (int i = 0; i < fHits.size(); ++i) {
+	for (size_t i = 0; i < fHits.size(); ++i) {
 		sttHit = (PndSttHit*) fHits[i];
 		hitIds.insert(sttHit->GetTubeID());
 	}
 
 	//fill fHitNeighbors
-	for (int i = 0; i < fHits.size(); ++i) {
+	for (size_t i = 0; i < fHits.size(); ++i) {
 		sttHit = (PndSttHit*) fHits[i];
 		tubeId = sttHit->GetTubeID();
 		//get neighbors
@@ -279,7 +279,7 @@ void PndSttCellTrackFinderData::PrintInfo() {
 
 	cout << "fHits (*-skewed): ";
 	int tubeID;
-	for (int i = 0; i < fHits.size(); ++i) {
+	for (size_t i = 0; i < fHits.size(); ++i) {
 		tubeID = ((PndSttHit*) fHits.at(i))->GetTubeID();
 		cout << tubeID;
 		if (fStrawMap->IsSkewedStraw(tubeID))
@@ -291,7 +291,7 @@ void PndSttCellTrackFinderData::PrintInfo() {
 	cout << "fSeparations: " << endl;
 	for (int i = 0; i < 8; ++i) {
 		cout << "#" << i << ": ";
-		for (int j = 0; j < fSeparations[i].size(); ++j) {
+		for (size_t j = 0; j < fSeparations[i].size(); ++j) {
 			cout << fSeparations[i].at(j);
 			if (fStrawMap->IsSkewedStraw(tubeID))
 				cout << "*";
@@ -304,7 +304,7 @@ void PndSttCellTrackFinderData::PrintInfo() {
 	for (map<int, vector<int> >::iterator it = fHitNeighbors.begin();
 			it != fHitNeighbors.end(); ++it) {
 		cout << it->first << ": ";
-		for (int i = 0; i < it->second.size(); ++i) {
+		for (size_t i = 0; i < it->second.size(); ++i) {
 			cout << it->second.at(i) << " ";
 		}
 		cout << endl;

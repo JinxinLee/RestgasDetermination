@@ -354,9 +354,9 @@ void PndMdtHitProducer::Exec_old(Option_t* opt){
 	continue;
       vector<Int_t>vecBox = boxDigi->GetPointList();
       vector<Int_t>vecStrip = stripDigi->GetPointList();
-      for (Int_t vBox=0; vBox<(vecBox.size()); vBox++) 
+      for (size_t vBox=0; vBox<(vecBox.size()); vBox++) 
       {
-	for (Int_t vStrip=0; vStrip<(vecStrip.size()); vStrip++) 
+	for (size_t vStrip=0; vStrip<(vecStrip.size()); vStrip++) 
 	{
 	  if (vecBox[vBox]==vecStrip[vStrip])
 	  {

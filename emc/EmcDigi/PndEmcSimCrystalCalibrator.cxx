@@ -18,7 +18,7 @@ PndEmcSimCrystalCalibrator::PndEmcSimCrystalCalibrator(Int_t verbose) :PndEmcAbs
 };
 
 void PndEmcSimCrystalCalibrator::SetCalibration(Int_t ModId, Double_t cal, Int_t SignalNr, Double_t overflow){
-	if(fModuleCalibrationMaps.size() < SignalNr+1) {
+	if((int)fModuleCalibrationMaps.size() < SignalNr+1) {
 		fModuleCalibrationMaps.resize(SignalNr+1);
 		fCrystalCalibrationMaps.resize(SignalNr+1);
 	}	
@@ -39,7 +39,7 @@ PndEmcAbsCrystalCalibrator::CalibrationStatus_t PndEmcSimCrystalCalibrator::Cali
 
 	CalibrationStatus_t returnValue = kCALERROR;
 
-	if(fModuleCalibrationMaps.size() <= SignalNr) {
+	if((int)fModuleCalibrationMaps.size() <= SignalNr) {
 		if(fVerbose) std::cout << "no calibration found for signal number " << SignalNr << std::endl;
 		returnValue = kCALMISSING;
 	} else {

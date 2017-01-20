@@ -84,7 +84,7 @@ PndSimpleCombiner::~PndSimpleCombiner()
 	if (fESel) delete fESel;
 	if (fPSel) delete fPSel;
 
-	for (int i=0;i<fDecayInfoArray.size();++i) if (fDecayInfoArray[i].msel) delete fDecayInfoArray[i].msel;
+	for (size_t i=0;i<fDecayInfoArray.size();++i) if (fDecayInfoArray[i].msel) delete fDecayInfoArray[i].msel;
 }
 
 // -------------------------------------------------------------------------
@@ -154,7 +154,7 @@ bool PndSimpleCombiner::ParseDecay(TString decay)
 		bool cc=true;
 		
 		// loop over daughters
-		for (int j=1;j<dectoks.size();++j)
+		for (size_t j=1;j<dectoks.size();++j)
 		{
 			if (dectoks[j]=="nocc") { cc = false; continue; }
 			
@@ -192,7 +192,7 @@ bool PndSimpleCombiner::ParseDecay(TString decay)
 				fPdgIdxMap[ainfo.mpdg]  = ainfo.midx;
 				fIdxPdgMap[ainfo.midx]  = ainfo.mpdg;
 				
-				for (int j=0;j<info.dpdg.size();++j)
+				for (size_t j=0;j<info.dpdg.size();++j)
 				{
 					int apdg = AntiPdg(info.dpdg[j]);
 					if (apdg==-999999 || fPdgIdxMap.find(apdg) == fPdgIdxMap.end() ) {cout <<"[PndSimpleCombiner] **** ERROR : No list for PDG code "<<apdg<<endl; return false;}
@@ -206,7 +206,7 @@ bool PndSimpleCombiner::ParseDecay(TString decay)
 			// then we simply set the daucc switch, which will be taken into account during combinatorics
 			else if (!CCInvariant(info.dpdg))
 			{
-				for (int j=0;j<info.dpdg.size();++j)
+				for (size_t j=0;j<info.dpdg.size();++j)
 				{
 					int apdg = AntiPdg(info.dpdg[j]);
 					if (apdg==-999999 || fPdgIdxMap.find(apdg) == fPdgIdxMap.end() ) {cout <<"[PndSimpleCombiner] **** ERROR : No list for PDG code "<<apdg<<endl; return false;}
@@ -227,7 +227,7 @@ bool PndSimpleCombiner::ParseParams(TString params)
 	StringList parm;
 	SplitString(params,":",parm);
 	
-	for (int i=0;i<parm.size();++i)
+	for (size_t i=0;i<parm.size();++i)
 	{
 		if (parm[i]=="ebrem") 
 		{
@@ -250,7 +250,7 @@ bool PndSimpleCombiner::ParseParams(TString params)
 		{
 			double window = pair[1].Atof();
 			
-			for (int j=0;j<fDecayInfoArray.size();++j)
+			for (size_t j=0;j<fDecayInfoArray.size();++j)
 			{
 				SCDecayInfo &info = fDecayInfoArray[j];
 				if (info.msel) delete info.msel;
@@ -287,7 +287,7 @@ bool PndSimpleCombiner::ParseParams(TString params)
 			}
 			else window = pair[1].Atof();
 			
-			for (int j=0;j<fDecayInfoArray.size();++j)
+			for (size_t j=0;j<fDecayInfoArray.size();++j)
 			{
 				SCDecayInfo &info = fDecayInfoArray[j];
 				// only set for this particle type
@@ -429,7 +429,7 @@ bool PndSimpleCombiner::CCInvariant(std::vector<int> &vpdg)
 {
 	int sum=0, nminus=0, nplus=0;
 	
-	for (int i=0;i<vpdg.size();++i)
+	for (size_t i=0;i<vpdg.size();++i)
 	{
 		if (!CCInvariant(vpdg[i])) 
 		{
@@ -470,7 +470,7 @@ void PndSimpleCombiner::Print()
 	{
 		SCDecayInfo info = fDecayInfoArray[i];
 		cout <<"Decay "<<i<<" : " << TDatabasePDG::Instance()->GetParticle(info.mpdg)->GetName()<<"("<<info.mpdg<<"/"<<info.midx<<") -> ";
-		for (int j=0;j<info.dpdg.size();++j) cout << TDatabasePDG::Instance()->GetParticle(info.dpdg[j])->GetName()<<"("<<info.dpdg[j]<<"/"<<info.didx[j]<<") ";
+		for (size_t j=0;j<info.dpdg.size();++j) cout << TDatabasePDG::Instance()->GetParticle(info.dpdg[j])->GetName()<<"("<<info.dpdg[j]<<"/"<<info.didx[j]<<") ";
 		
 		cout <<"  daucc: "<<info.daucc;
 		cout <<"  mass window:"<<info.mwin;
@@ -505,7 +505,7 @@ void PndSimpleCombiner::Combine()
 		{
 			// create index list with cc daughters
 			std::vector<int> aidx;
-			for (int j=0;j<info.didx.size();++j)
+			for (size_t j=0;j<info.didx.size();++j)
 			{
 				int apdg = AntiPdg(info.dpdg[j]);
 				aidx.push_back(fPdgIdxMap[apdg]);			

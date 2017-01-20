@@ -118,7 +118,7 @@ void PndLmdHitMergeTask::Exec(Option_t* opt)
     }
     bool skip=false;
     for(unsigned int ijk=0; ijk<mergedHits.size(); ijk++) //check if already merged
-      if(iHit==mergedHits.at(ijk))
+      if(iHit==(int)mergedHits.at(ijk))
         skip=true;
     if(skip) continue;
     mergewithIDs.clear();

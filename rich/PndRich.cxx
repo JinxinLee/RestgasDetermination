@@ -51,7 +51,7 @@ PndRich::PndRich()
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
     std::cout<<"-I- PndRich: fListOfSensitives contains:";
-    for(Int_t k=0; k<fListOfSensitives.size(); k++)
+    for(size_t k=0; k<fListOfSensitives.size(); k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   } 
@@ -80,7 +80,7 @@ PndRich::PndRich(const char* name, Bool_t active)
   fListOfSensitives.push_back("Sensor");
   if(fVerboseLevel > 0){
     std::cout<<"-I- PndRich: fListOfSensitives contains:";
-    for(Int_t k=0; k<fListOfSensitives.size(); k++)
+    for(size_t k=0; k<fListOfSensitives.size(); k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
   }
@@ -566,7 +566,7 @@ void PndRich::ConstructOpGeometry() {
    
   Double_t k = 2*3.1415927*197.3269602e-9; // coefficient energy to wavelength (hc)
    
-  for(UInt_t i=0; i<npoints; i++ ) {
+  for(Int_t i=0; i<npoints; i++ ) {
      
      ephoton[i] = ephotonMin + i*(ephotonMax-ephotonMin)/(npoints-1);
      Double_t wl = k/ephoton[i]; // wavelength in nm
@@ -650,7 +650,7 @@ Double_t PndRich::lhcbaerindex(Double_t n400,Double_t wl)
 
 // -----   Public method CheckIfSensitive   --------------------------------------
 bool PndRich::CheckIfSensitive(std::string name) {
-  for (Int_t i = 0; i < fListOfSensitives.size(); i++){
+  for (size_t i = 0; i < fListOfSensitives.size(); i++){
     if (name.find(fListOfSensitives[i]) != std::string::npos)    
       return true;
   }

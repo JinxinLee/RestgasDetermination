@@ -122,7 +122,7 @@ void PndTrkCluster::DeleteAllHits() {
 }
 
 void PndTrkCluster::DeleteHits(std::vector< int > todelete) {
-  for(int ihit = 0; ihit < todelete.size(); ihit++) {
+  for(size_t ihit = 0; ihit < todelete.size(); ihit++) {
     int hitno = todelete[ihit];
     DeleteHit(hitno);
   }
@@ -701,7 +701,7 @@ int PndTrkCluster::MergeTo(PndTrkCluster *cluster2) {
     tobeadded.push_back(ihit);
   }
   
-  for(int ihit = 0; ihit < tobeadded.size(); ihit++) {
+  for(size_t ihit = 0; ihit < tobeadded.size(); ihit++) {
     int hitno = tobeadded.at(ihit);
     PndTrkHit *hit = cluster2->GetHit(hitno);
     AddHit(hit);

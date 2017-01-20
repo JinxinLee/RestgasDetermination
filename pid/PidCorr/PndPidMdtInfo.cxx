@@ -307,7 +307,7 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
   
   vector<Int_t>vecMdt0 = mapMdtForward[0]; // hit in layer0
   TVector3 oldPos(0., 0., 0.);
-  for (Int_t mm0 = 0; mm0< vecMdt0.size(); mm0++)
+  for (size_t mm0 = 0; mm0< vecMdt0.size(); mm0++)
     {
       mdtHit = (PndMdtHit*)fMdtHit->At(vecMdt0[mm0]);
       if ( fIdeal && ( ((PndMdtPoint*)fMdtPoint->At(mdtHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
@@ -365,7 +365,7 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
 	  Float_t corrDist = -1, corrHitDist = -1; //mdtLQuality = 1000000, //[R.K. 01/2017] unused variable
 	  Int_t mdtLIndex = -1, layerMult = 0; // hitLCounts = 0, //[R.K. 01/2017] unused variable
 	  TVector3 corrPos(0., 0., 0.); 
-	  for (Int_t mm = 0; mm< vecMdt.size(); mm++)
+	  for (size_t mm = 0; mm< vecMdt.size(); mm++)
 	    {
 	      mdtHit = (PndMdtHit*)fMdtHit->At(vecMdt[mm]);
 	      if ( fIdeal && ( ((PndMdtPoint*)fMdtPoint->At(mdtHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;

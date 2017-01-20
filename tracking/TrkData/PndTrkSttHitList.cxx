@@ -138,14 +138,14 @@ void PndTrkSttHitList::PrintLayers() {
 void PndTrkSttHitList::PrintLayer(int ilay) {
   std::vector< PndTrkHit* > listofhits = GetHitListFromLayer(ilay);
   cout << "Layer " << ilay << ": ";
-  for (int ihit = 0; ihit < listofhits.size(); ihit++) cout << " " << (listofhits.at(ihit))->GetHitID();
+  for (size_t ihit = 0; ihit < listofhits.size(); ihit++) cout << " " << (listofhits.at(ihit))->GetHitID();
   cout << endl;
 }
 
 void PndTrkSttHitList::DrawLayer(int ilay, Color_t color) {
   std::vector< PndTrkHit* > listofhits = GetHitListFromLayer(ilay);
   
-  for (int ihit = 0; ihit < listofhits.size(); ihit++) (listofhits.at(ihit))->Draw(color);
+  for (size_t ihit = 0; ihit < listofhits.size(); ihit++) (listofhits.at(ihit))->Draw(color);
 }
 
 int PndTrkSttHitList::GetNofHitsInLayer(int ilay) {
@@ -207,14 +207,14 @@ void PndTrkSttHitList::PrintSectors() {
 void PndTrkSttHitList::PrintSector(int isec) { 
  std::vector< PndTrkHit* > listofhits = GetHitListFromSector(isec);
    cout << "Sector " << isec << ": ";
-   for (int ihit = 0; ihit < listofhits.size(); ihit++) cout << " " << (listofhits.at(ihit))->GetHitID();
+   for (size_t ihit = 0; ihit < listofhits.size(); ihit++) cout << " " << (listofhits.at(ihit))->GetHitID();
    cout << endl;
 }
 
 void PndTrkSttHitList::DrawSector(int isec, Color_t color) {
   
    std::vector< PndTrkHit* > listofhits = GetHitListFromSector(isec);
-   for (int ihit = 0; ihit < listofhits.size(); ihit++) (listofhits.at(ihit))->Draw(color);
+   for (size_t ihit = 0; ihit < listofhits.size(); ihit++) (listofhits.at(ihit))->Draw(color);
 }
 
 int PndTrkSttHitList::GetNofHitsInSector(int isec) {
@@ -274,14 +274,14 @@ void PndTrkSttHitList::PrintSectorAndLayer(int isec, int ilay) {
   std::vector< PndTrkHit* > listofhits = GetHitListFromSectorAndLayer(isec, ilay);
   cout << "Sector " << isec << ", Layer " << ilay << ": ";
 
-  for (int ihit = 0; ihit < listofhits.size(); ihit++) cout << " " << (listofhits.at(ihit))->GetHitID();
+  for (size_t ihit = 0; ihit < listofhits.size(); ihit++) cout << " " << (listofhits.at(ihit))->GetHitID();
   cout << endl;
 }
 
 void PndTrkSttHitList::DrawSectorAndLayer(int isec, int ilay, Color_t color) {
   
   std::vector< PndTrkHit* > listofhits = GetHitListFromSectorAndLayer(isec, ilay);
-  for (int ihit = 0; ihit < listofhits.size(); ihit++) (listofhits.at(ihit))->Draw(color);
+  for (size_t ihit = 0; ihit < listofhits.size(); ihit++) (listofhits.at(ihit))->Draw(color);
 }
 
 int PndTrkSttHitList::GetNofHitsInSectorAndLayer(int isec, int ilay) {
@@ -335,7 +335,7 @@ std::vector< PndTrkHit* > PndTrkSttHitList::GetHitList() {
 
   std::vector< PndTrkHit* > thislist;
   
-  for (int ihit = 0; ihit  < hitlist.size() ;  ihit++) {
+  for (size_t ihit = 0; ihit  < hitlist.size() ;  ihit++) {
     PndTrkHit *hit = &hitlist[ihit];
     thislist.push_back(hit);
   }

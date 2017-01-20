@@ -303,7 +303,7 @@ InitStatus PndSoftTriggerTask::Init()
 	fSTModeIndex = 0;
 	double diff = 1000.;
 	
-	for (int i=0; i<fSTencode.size(); ++i) 
+	for (size_t i=0; i<fSTencode.size(); ++i) 
 	{
 		double en = (double)fSTencode[i]/100.;
 		if (fabs(fEcm-en)<diff)
@@ -1621,12 +1621,12 @@ int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 	if (fVerbose>1)
 	{
 		cout <<"("<<mothpdg<<"/"<<amothpdg<<") : ";
-		for (int i=0; i<idx.size(); ++i) cout <<"("<<idx[i]<<"/"<<aidx[i]<<") "; 
+		for (size_t i=0; i<idx.size(); ++i) cout <<"("<<idx[i]<<"/"<<aidx[i]<<") "; 
 		cout <<endl<<endl;
 		if (auxidx.size()>0)
 		{
 			cout <<"("<<auxmothpdg<<"/"<<auxamothpdg<<") : ";
-			for (int i=0; i<auxidx.size(); ++i) cout <<"("<<auxidx[i]<<"/"<<auxaidx[i]<<") "; cout <<endl;
+			for (size_t i=0; i<auxidx.size(); ++i) cout <<"("<<auxidx[i]<<"/"<<auxaidx[i]<<") "; cout <<endl;
 		}
 	}
 	
@@ -1647,7 +1647,7 @@ int PndSoftTriggerTask::DoCombinatorics(RhoCandList &l, PndSoftTriggerLine *tl)
 			// this can be done by summing all pdg codes for particles with pdg!=anti-pdg
 			// if sum = 0, final state and anti-final state are the same (i.e. FS has for each particle the according anti-particle)
 			int pdgsum = 0;
-			for (int i=0;i<auxidx.size();++i) if (auxidx[i]<10) pdgsum+=fSTPidIndex[auxidx[i]];
+			for (size_t i=0;i<auxidx.size();++i) if (auxidx[i]<10) pdgsum+=fSTPidIndex[auxidx[i]];
 			
 			// if FS = anti-FS, just do combinatorics once (not adding the composites from anti-FS list)
 			if (pdgsum==0) 

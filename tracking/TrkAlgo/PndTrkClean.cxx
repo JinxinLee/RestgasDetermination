@@ -389,14 +389,14 @@ PndTrkClusterList PndTrkClean::Cleanup2(PndTrkCluster *cluster) {
 
     //    if(display == kTRUE)
     {    
-      for(int ihit = 0; ihit < failedhits.size(); ihit++) {
+      for(size_t ihit = 0; ihit < failedhits.size(); ihit++) {
 // 	cout << "failedhits " << failedhits.size() << " " << failedhits[ihit] << endl;
 	int hitno = failedhits[ihit];
 	PndTrkHit *hit = cluster->GetHit(hitno);
 	hit->Draw(kRed);
       }
       
-      for(int ihit = 0; ihit < breakpoints.size(); ihit++) {
+      for(size_t ihit = 0; ihit < breakpoints.size(); ihit++) {
 	int hitno = breakpoints[ihit];
 	PndTrkHit *hit = cluster->GetHit(hitno);
 	hit->Draw(kGreen);
@@ -413,9 +413,9 @@ PndTrkClusterList PndTrkClean::Cleanup2(PndTrkCluster *cluster) {
    // break orig ihit 4 8
    // break fix  ihit 2 5
    // fix the breakcounter
-   for(int jhit = 0; jhit < breakpoints.size(); jhit++) {
+   for(size_t jhit = 0; jhit < breakpoints.size(); jhit++) {
      int counter = 0;
-     for(int ihit = 0; ihit < failedhits.size(); ihit++) {
+     for(size_t ihit = 0; ihit < failedhits.size(); ihit++) {
        if(failedhits[ihit] < breakpoints[jhit]) counter++;
        else break;
      }
@@ -515,7 +515,7 @@ PndTrkClusterList PndTrkClean::Split(PndTrkCluster *cluster, std::vector< int > 
 
   PndTrkCluster cluster1, cluster2;
   PndTrkCluster *tmpcluster = cluster;
-  for(int ihit = 0; ihit < breakpoints.size(); ihit++) {
+  for(size_t ihit = 0; ihit < breakpoints.size(); ihit++) {
     int hitno = breakpoints[ihit] - cluster1.GetNofHits();    
     PndTrkHit *athit = tmpcluster->GetHit(hitno);
     SplitAtHit(tmpcluster, athit, cluster1, cluster2);

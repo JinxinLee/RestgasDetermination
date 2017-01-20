@@ -275,9 +275,9 @@ void PndMvdRiemannVertexFinderTask::refit(std::vector<int>& CheckedCand)
 			  hitId=Cand->GetSortedHit(j).GetHitId();
 			  PndSdsHit* point = new PndSdsHit();
 	//		  std::cout<<"detId=  "<<detId<<"  "<<"hitId= "<<hitId<<std::endl;
-			  if (detId==FairRootManager::Instance()->GetBranchId(fHitBranch))
+			  if ((int)detId==FairRootManager::Instance()->GetBranchId(fHitBranch))
 				  point=(PndSdsHit*)fHitArray->At(hitId);
-			  else if (detId==FairRootManager::Instance()->GetBranchId(fHitBranch2))
+			  else if ((int)detId==FairRootManager::Instance()->GetBranchId(fHitBranch2))
 				  point=(PndSdsHit*)fHitArray2->At(hitId);
 			  else point=0;
 				  if (point!=0){
@@ -384,9 +384,9 @@ bool PndMvdRiemannVertexFinderTask::CheckRecoTrack(PndTrackCand *cand,PndMCTrack
 			detIDi=cand->GetSortedHit(i).GetDetId();
 			hitIDi=cand->GetSortedHit(i).GetHitId();
 			PndSdsHit *pointI;
-			if (detIDi == FairRootManager::Instance()->GetBranchId(fHitBranch))
+			if ((int)detIDi == FairRootManager::Instance()->GetBranchId(fHitBranch))
 				 pointI = (PndSdsHit*)fHitArray->At(hitIDi);
-			else if (detIDi == FairRootManager::Instance()->GetBranchId(fHitBranch2))
+			else if ((int)detIDi == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 				 pointI = (PndSdsHit*)fHitArray2->At(hitIDi);
 			else pointI = 0;
 
@@ -394,9 +394,9 @@ bool PndMvdRiemannVertexFinderTask::CheckRecoTrack(PndTrackCand *cand,PndMCTrack
 					detIDj=cand->GetSortedHit(j).GetDetId();
 					hitIDj=cand->GetSortedHit(j).GetHitId();
 					PndSdsHit *pointJ;
-					if (detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch))
+					if ((int)detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch))
 						 pointJ = (PndSdsHit*)fHitArray->At(hitIDj);
-					else if (detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch2))
+					else if ((int)detIDj == FairRootManager::Instance()->GetBranchId(fHitBranch2))
 						 pointJ = (PndSdsHit*)fHitArray2->At(hitIDj);
 					else pointJ = 0;
 

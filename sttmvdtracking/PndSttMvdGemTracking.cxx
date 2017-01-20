@@ -675,7 +675,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
 	// if the propagation was successful ... 
 	// assign the hits to track itrk, extrapolated to gempar on ipos
 	std::vector<int> assignedhits = AssignHits(itrk, gempar, ipos); 
-	for(int ihit = 0; ihit < assignedhits.size(); ihit++) AddHitToTrack(assignedhits[ihit], itrk);
+	for(size_t ihit = 0; ihit < assignedhits.size(); ihit++) AddHitToTrack(assignedhits[ihit], itrk);
 
 	if(closestonfirst == -1) closestonfirst = GetClosestOnFirst(gempar, ipos, closestdistance);
 
@@ -732,7 +732,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
     completeCand = (PndTrackCand* ) fCompleteTrackCandArray->At(itrk);
     std::vector<int> thistrackhits = GetHitsAssociatedToTrack(itrk);
 
-    for(Int_t j = 0; j < thistrackhits.size(); j++) {
+    for(size_t j = 0; j < thistrackhits.size(); j++) {
       int ihit = thistrackhits[j];
       gemhit = (PndGemHit*) fGemHitArray->At(ihit);
       if(!gemhit) continue;
@@ -772,7 +772,7 @@ void PndSttMvdGemTracking::Copy(PndTrackCand *completeCand, PndTrack *completeTr
   completeCand->setMcTrackId(sttmvdCand->getMcTrackId());
 
   std::vector<PndTrackCandHit> sttmvdhits = sttmvdCand->GetSortedHits();
-  for(int ihit = 0; ihit < sttmvdCand->GetNHits(); ihit++) {
+  for(size_t ihit = 0; ihit < sttmvdCand->GetNHits(); ihit++) {
     completeCand->AddHit(sttmvdCand->GetSortedHit(ihit).GetDetId(),
 			 sttmvdCand->GetSortedHit(ihit).GetHitId(),
 			 sttmvdCand->GetSortedHit(ihit).GetRho());
@@ -802,7 +802,7 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
   
     //    UpdateMCTrackId(completeCand);
     
-    for (Int_t ihit = 0; ihit < completeCand->GetNHits(); ihit++) {
+    for (size_t ihit = 0; ihit < completeCand->GetNHits(); ihit++) {
       PndTrackCandHit candhit = completeCand->GetSortedHit(ihit);
       Int_t iHit = candhit.GetHitId();
       Int_t detId = candhit.GetDetId();
@@ -895,7 +895,7 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
      std::vector<int>::iterator iter3;
      iter3 = find(usabletracks.begin(), usabletracks.end(), mcIndex);
      Int_t where3 = iter3 - usabletracks.begin();
-     if(where != recoTrack.size() && where2 == truepoints.size() && where3 != usabletracks.size()) {
+     if(where != (int)recoTrack.size() && where2 == (int)truepoints.size() && where3 != (int)usabletracks.size()) {
        // .............. and uncomment this
        // if(where != recoTrack.size() && where2 == truepoints.size()) {
      
@@ -917,7 +917,7 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
       }
     }
 
-    if(where != recoTrack.size()) countreconstructablehit++; // if the hit is found
+    if(where != (int)recoTrack.size()) countreconstructablehit++; // if the hit is found
 
     if(GetTracksAssociatedToHit(ihit).size() != 0) continue;
     PndMCTrack *mctrk = (PndMCTrack*) fMCTrackArray->At(mcIndex);
@@ -926,7 +926,7 @@ void PndSttMvdGemTracking::EvaluatePerformances(Int_t nhits, Int_t ntracks) {
     else countsecnotassigned++;
   }
 
-  for(int i = 0; i < notassignedhits.size(); i++) {
+  for(size_t i = 0; i < notassignedhits.size(); i++) {
     if(fVerbose != 0) cout << "hit " << notassignedhits[i] << "NOT ASSIGNED" << endl;
  }
 
@@ -1175,7 +1175,7 @@ void PndSttMvdGemTracking::OnlyOneHitToEachTrack(Int_t nhits, Int_t ntracks)
       tmpposhitindex.push_back(-1); 
     }
     
-    for(Int_t j = 0; j < thistrackhits.size(); j++) {
+    for(size_t j = 0; j < thistrackhits.size(); j++) {
       int ihit = thistrackhits[j];
       
       PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(ihit);
@@ -1233,7 +1233,7 @@ Int_t PndSttMvdGemTracking::GetTrackIndex(int i) {
 //     }
 //   }
 
-  if(i < trackindexes.size()) return trackindexes[i];
+  if(i < (int)trackindexes.size()) return trackindexes[i];
   cout << "PndSttMvdGemTracking::GetTrackIndex " << i << " Out Of Bounds" << endl;
   return -1;
 }
@@ -1294,7 +1294,7 @@ void PndSttMvdGemTracking::AddHitToTrack(Int_t ihit, Int_t itrk) {
   std::vector<int>::iterator iter;
   iter = std::find(notassignedhits.begin(), notassignedhits.end(), ihit);
   int where = iter - notassignedhits.begin();
-  if(where != notassignedhits.size()) notassignedhits.erase(iter); // remove from not assigned list
+  if(where != (int)notassignedhits.size()) notassignedhits.erase(iter); // remove from not assigned list
   if(fVerbose > 0) cout << "ADD HIT " << ihit << " TO TRK " << itrk << endl;
 }
 
@@ -1309,7 +1309,7 @@ void PndSttMvdGemTracking::DeleteHitFromTrack(Int_t ihit, Int_t itrk) {
   std::vector<int>::iterator iter2;
   iter2 = std::find(notassignedhits.begin(), notassignedhits.end(), ihit);
   int where2 = iter2 - notassignedhits.begin();
-  if(where2 != notassignedhits.size()) notassignedhits.push_back(ihit); // put it in not assigned list
+  if(where2 != (int)notassignedhits.size()) notassignedhits.push_back(ihit); // put it in not assigned list
   if(fVerbose > 0) cout << "DELETE HIT " << ihit << " FROM TRK " << itrk << endl;
 
 }
@@ -1324,7 +1324,7 @@ std::vector<int> PndSttMvdGemTracking::GetTracksAssociatedToHit(Int_t ihit) {
   }
   if(fVerbose != 0) {
     std::cout << "hit " << ihit << " belongs to " << thishittracks.size() << " tracks: " ;
-    for(int j = 0; j < thishittracks.size(); j++) std::cout << thishittracks[j] << " ";
+    for(size_t j = 0; j < thishittracks.size(); j++) std::cout << thishittracks[j] << " ";
     std::cout << std::endl;
   }
   return thishittracks;
@@ -1339,7 +1339,7 @@ std::vector<int> PndSttMvdGemTracking::GetHitsAssociatedToTrack(Int_t itrk) {
   }
   if(fVerbose != 0) {
     std::cout << "track " << itrk << " has " << thistrackhits.size() << " hits: " ;
-    for(int j = 0; j < thistrackhits.size(); j++) std::cout << thistrackhits[j] << " ";
+    for(size_t j = 0; j < thistrackhits.size(); j++) std::cout << thistrackhits[j] << " ";
     std::cout << std::endl;
   }
   return thistrackhits;
@@ -1419,7 +1419,7 @@ void PndSttMvdGemTracking::AddRemainingHits(Int_t ntracks) {
     // run over the track hits and delete from
     // the list the positions already filled
     std::vector<int>::iterator iter;
-    for(Int_t i = 0; i < hitvector.size(); i++) {
+    for(size_t i = 0; i < hitvector.size(); i++) {
       PndGemHit *gemhit =(PndGemHit*) fGemHitArray->At(hitvector[i]);
       if(!gemhit) continue;
 
@@ -1427,7 +1427,7 @@ void PndSttMvdGemTracking::AddRemainingHits(Int_t ntracks) {
       int ipos = fOrderingIterator - fOrdering.begin();
       iter = std::find(missingpositions.begin(), missingpositions.end(), ipos);
       Int_t where = iter - missingpositions.begin();
-      if(where != missingpositions.size()) {
+      if(where != (int)missingpositions.size()) {
 	if(fVerbose > 0) cout << "here" << endl;   // CHECK  delete it
 	missingpositions.erase(iter); 
       }
@@ -1436,7 +1436,7 @@ void PndSttMvdGemTracking::AddRemainingHits(Int_t ntracks) {
     // for each missing pos check 
     // whether there are hits there
     // or not
-    for(Int_t i = 0; i < missingpositions.size(); i++) {
+    for(size_t i = 0; i < missingpositions.size(); i++) {
       Int_t ipos = missingpositions[i];
       if(fVerbose > 0) cout << "missing position " << ipos << endl;
       // if there are not hits continue
@@ -1479,7 +1479,7 @@ void PndSttMvdGemTracking::Retrack() {
     std::vector<int> alreadyassociatedhits = GetHitsAssociatedToTrack(itrk);
     if(fVerbose > 0) {
       cout << "TRK " << itrk << " has hits ";
-      for(int ihit = 0; ihit < alreadyassociatedhits.size(); ihit++) cout << " " << alreadyassociatedhits[ihit];
+      for(size_t ihit = 0; ihit < alreadyassociatedhits.size(); ihit++) cout << " " << alreadyassociatedhits[ihit];
       cout << endl;
     }
  
@@ -1547,7 +1547,7 @@ void PndSttMvdGemTracking::Retrack() {
 	   if(distancemap[itrk][ihit] < tmpdistance) { 
 	     iter2 = std::find(assignedhits.begin(), assignedhits.end(), tmphit);
 	     int where = iter2 - assignedhits.begin();
-	     if(where != assignedhits.size()) {
+	     if(where != (int)assignedhits.size()) {
 	       if(fVerbose > 0) cout << "deleting old " << *iter2 << endl;
 	       assignedhits.erase(iter2); // remove from assigned list
 	       iter--;
@@ -1571,7 +1571,7 @@ void PndSttMvdGemTracking::Retrack() {
        int where = iter - alreadyassociatedhits.begin();
        
        // if not...
-       if(where == alreadyassociatedhits.size()) {
+       if(where == (int)alreadyassociatedhits.size()) {
 	 // if there was a previosly assigned hit
 	 // here, then make the substitution
 	 if(alreadyassociatedhitsonplane.size() > 0) {
@@ -3043,13 +3043,13 @@ void PndSttMvdGemTracking::ConsiderCombinatorialEffect(Int_t nhits) {
 	std::vector< int > acc1 =  accepted[first];
 	std::vector< int > acc2 =  accepted[second];
 	bool alreadythere1 = false, alreadythere2 = false;
-	for(int j = 0; j < acc1.size(); j++) {
+	for(size_t j = 0; j < acc1.size(); j++) {
 	  if(sensor[ihit][0] == acc1[j]) {
 	    alreadythere1 = true;
 	    break;
 	  }
 	}
-	for(int j = 0; j < acc2.size(); j++) {
+	for(size_t j = 0; j < acc2.size(); j++) {
 	  if(sensor[jhit][0] == acc2[j]) {
 	    alreadythere2 = true;
 	    break;
@@ -3225,10 +3225,10 @@ void PndSttMvdGemTracking::CheckCombinatorial(Int_t nhits, Int_t ntracks)
     // init
     for(Int_t ipos = 0; ipos < fNPositions; ipos++) {
       addhit[ipos] = 0;
-      for(Int_t j = 0; j < thistrackhits.size(); j++) combi[ipos][j] = -1;
+      for(size_t j = 0; j < thistrackhits.size(); j++) combi[ipos][j] = -1;
     }
 
-    for(Int_t j = 0; j < thistrackhits.size(); j++) {
+    for(size_t j = 0; j < thistrackhits.size(); j++) {
       int ihit = thistrackhits[j];
       
       PndGemHit *gemhit = (PndGemHit*) fGemHitArray->At(ihit);
@@ -3254,7 +3254,7 @@ void PndSttMvdGemTracking::CheckCombinatorial(Int_t nhits, Int_t ntracks)
 
       int count = 0;
       // count hits associated on this sensor plane
-      for(Int_t i = 0; i < thistrackhits.size(); i++) {
+      for(size_t i = 0; i < thistrackhits.size(); i++) {
 	if(combi[ipos][i] != -1) count++;
       }
 
@@ -3265,7 +3265,7 @@ void PndSttMvdGemTracking::CheckCombinatorial(Int_t nhits, Int_t ntracks)
       // ... else
       int count2 = 0;
       // count how many true (non combi) hits are there
-      for(Int_t i = 0; i < thistrackhits.size(); i++) {
+      for(size_t i = 0; i < thistrackhits.size(); i++) {
 	int ihit = (int) combi[ipos][i];
 	if(ihit == -1) continue;
 	if(fCombiMap[ihit] == 0) count2++;
@@ -3276,7 +3276,7 @@ void PndSttMvdGemTracking::CheckCombinatorial(Int_t nhits, Int_t ntracks)
       // if there is no true hit, continue ...
       if(count2 == 0) continue;
       // ... else, clean up from combinatorial hits
-      for(Int_t i = 0; i <  thistrackhits.size(); i++) {
+      for(size_t i = 0; i <  thistrackhits.size(); i++) {
 	int ihit = (int) combi[ipos][i];
 	if(fCombiMap[ihit] != 0) {
 	  if(fVerbose > 0) cout << "delete " << ihit << " from track " << itrk << endl;
@@ -3396,7 +3396,7 @@ void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
   std::map<int, int> mctrackids;
  //  std::vector<int> newtracks;
 
-   for (Int_t ihit = 0; ihit < completeCand->GetNHits(); ihit++) {
+   for (size_t ihit = 0; ihit < completeCand->GetNHits(); ihit++) {
       PndTrackCandHit candhit = completeCand->GetSortedHit(ihit);
       Int_t iHit = candhit.GetHitId();
       Int_t detId = candhit.GetDetId();
@@ -3451,7 +3451,7 @@ void PndSttMvdGemTracking::UpdateMCTrackId(PndTrackCand *completeCand) {
 	
    int counter = 0;
    int tmptrackID = -1;
-   for(int itrk = 0; itrk < mctrackids.size(); itrk++) {
+   for(size_t itrk = 0; itrk < mctrackids.size(); itrk++) {
      if(counter < mctrackids[itrk]) {
        counter =  mctrackids[itrk];
        tmptrackID = itrk;

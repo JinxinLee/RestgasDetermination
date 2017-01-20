@@ -37,7 +37,7 @@ double PndDiscTaskPID::mean(std::vector<double> values)
 {
     double average = 0;
 
-    for(int i = 0; i < values.size(); i++)
+    for(size_t i = 0; i < values.size(); i++)
     {
         average += values[i];
     }
@@ -52,7 +52,7 @@ double PndDiscTaskPID::deviation(double mean_value, std::vector<double> values)
 {
     double average = 0;
 
-    for(int i = 0; i < values.size(); i++)
+    for(size_t i = 0; i < values.size(); i++)
     {
         average += (values[i]-mean_value)*(values[i]-mean_value);
     }

@@ -62,7 +62,7 @@ std::ostream& operator <<(std::ostream& os, const IdxPath& outVector){
 		return os;
 	}
 
-	for (UInt_t iVec = 0; iVec < lastIdx; ++iVec){
+	for (Int_t iVec = 0; iVec < lastIdx; ++iVec){
 		os << outVector[iVec] << ", ";
 	}
 	os << outVector[lastIdx] << "]";
@@ -111,7 +111,7 @@ inline void PndFtsHoughSpace::AddHitToHS(FairLink link, Double_t rho)
 inline Bool_t PndFtsHoughSpace::IsHitFromTubeIdAlreadyAdded(const Int_t tubeIdToAdd)
 {
 	//	return kFALSE; // uncomment this line to switch off testing for duplicates
-	for (int iTestHit = 0; iTestHit < GetNHits(); ++iTestHit)
+	for (size_t iTestHit = 0; iTestHit < GetNHits(); ++iTestHit)
 	{
 		const PndFtsHit* myTestHit = getHitFromHS(iTestHit);
 
@@ -413,7 +413,7 @@ void PndFtsHoughSpace::FillHoughSpace()
 
 
 	// This produces the Hough space for a parabola or a line (with constant B field or with B field read from field maps)
-	for (int iHit = 0; iHit < GetNHits(); iHit++)
+	for (size_t iHit = 0; iHit < GetNHits(); iHit++)
 	{
 		firstEntry = kTRUE;
 		const PndFtsHit* myHit = getHitFromHS(iHit);
@@ -625,7 +625,7 @@ void PndFtsHoughSpace::WriteHistoOfAllPaths() const {
 		const IdxPath& currPath = itPath->second;
 
 		Int_t lastBinNumber = -1;
-		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
+		for (size_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
 			const Int_t currBinNumber = currPath[iGlobalBin];
 			// warn if we accidently saved the same bin twice in the path
 			if ( currBinNumber == lastBinNumber ) std::cerr << "FATAL! Bin " << currBinNumber << " twice in a row! in hit " << currHit << '\n';
@@ -686,7 +686,7 @@ void PndFtsHoughSpace::WriteHistoOfAllPathsForEachMcTruthTrack() const {
 
 		// Fill current path into correct histo (first as projection, second as if only hits from same mc truth track were filled)
 		const IdxPath& currPath = itPath->second;
-		for (Int_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
+		for (size_t iGlobalBin = 0; iGlobalBin < currPath.size(); ++iGlobalBin) {
 			Int_t currBinNumber = currPath[iGlobalBin];
 			std::pair<TH2S, TH2S >& histoPair = itFind->second;
 
@@ -782,10 +782,10 @@ void PndFtsHoughSpace::AddHitsToTrackletByCalculating(PndFtsHoughTracklet *curre
 	UInt_t thetaBinLo = locmax-1;
 	UInt_t thetaBinHi = locmax+1;
 	// special case if we are at the edge of the Hough space
-	if (thetaBinLo>xfirst) {
+	if ((int)thetaBinLo>xfirst) {
 		thetaBinLo=xfirst;
 	}
-	if (thetaBinHi>xlast) {
+	if ((int)thetaBinHi>xlast) {
 		thetaBinHi=xlast;
 	}
 
@@ -798,7 +798,7 @@ void PndFtsHoughSpace::AddHitsToTrackletByCalculating(PndFtsHoughTracklet *curre
 	Double_t yValHi = 0.;
 
 
-	for (int iHit = 0; iHit < GetNHits(); iHit++)
+	for (size_t iHit = 0; iHit < GetNHits(); iHit++)
 	{
 		const PndFtsHit* myHit = getHitFromHS(iHit);
 
@@ -1005,7 +1005,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 		peaksForOneHit.clear();
 
 		// loop over bins along the path
-		for (Int_t iGlobalBin = 0; iGlobalBin < path.size(); ++iGlobalBin){
+		for (int iGlobalBin = 0; iGlobalBin < (int)path.size(); ++iGlobalBin){
 			// current bin
 			const Int_t currBinNumber = path[iGlobalBin];
 			const Int_t currHeight = GetBinContent(currBinNumber);
@@ -1022,7 +1022,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 				}
 			} // we have already >= 1 peaks
 
-			if ( minHeight <= currHeight ) { // Bin could belong to a peak
+			if ( (int)minHeight <= currHeight ) { // Bin could belong to a peak
 
 
 				// Make sure we are not on a falling edge by checking that the previous position was strictly lower!
@@ -1289,10 +1289,10 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 			UInt_t thetaBinLo = combinedPeakBinXLow-1;
 			UInt_t thetaBinHi = combinedPeakBinXHigh+1;
 			// special case if we are at the edge of the Hough space
-			if (thetaBinLo>xFirstBin) {
+			if ((int)thetaBinLo>xFirstBin) {
 				thetaBinLo=xFirstBin;
 			}
-			if (thetaBinHi>xLastBin) {
+			if ((int)thetaBinHi>xLastBin) {
 				thetaBinHi=xLastBin;
 			}
 
@@ -1304,7 +1304,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 			Double_t yValLo = 0.;
 			Double_t yValHi = 0.;
 
-			for (int iHit = 0; iHit < GetNHits(); iHit++)
+			for (size_t iHit = 0; iHit < GetNHits(); iHit++)
 			{
 				const PndFtsHit* myHit = getHitFromHS(iHit);
 
@@ -1430,7 +1430,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksWithTSpectrum2(co
 	s.Print();
 
 	// for output
-	for (UInt_t iPeak = 0; iPeak < nfound; ++iPeak){
+	for (Int_t iPeak = 0; iPeak < nfound; ++iPeak){
 		Double_t peakThetaVal = xpeaks[iPeak];
 		Double_t peakSecondVal = ypeaks[iPeak];
 

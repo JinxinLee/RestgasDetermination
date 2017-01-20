@@ -180,7 +180,7 @@ Bool_t PndEvtFilterOnInvMassCounts::EventMatches(Int_t evtNr)
 
 
 	// do not accept events that do not have enough particles
-	if ( fParticleList->GetEntriesFast() < fPdgCodesCharges.size() ){
+	if ( fParticleList->GetEntriesFast() < (int)fPdgCodesCharges.size() ){
 		if (0<fVerbose) std::cout << "\n\n\n PndEvtFilterOnInvMassCounts: Event contains less than " << fPdgCodesCharges.size() << " particles. " << this->GetTitle() << ": " << this->GetName() << " will not accept this event.\n\n\n";
 		return kFALSE;
 	}

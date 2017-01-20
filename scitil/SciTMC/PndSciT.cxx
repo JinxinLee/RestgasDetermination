@@ -273,7 +273,7 @@ void PndSciT::ConstructGeometry() {
 // -------------------------------------------------------------------------
 bool PndSciT::CheckIfSensitive(std::string name)
 {
-  for (Int_t i = 0; i < fListOfSensitives.size(); i++){
+  for (size_t i = 0; i < fListOfSensitives.size(); i++){
     if (name.find(fListOfSensitives[i]) != std::string::npos)
     return true;
   }

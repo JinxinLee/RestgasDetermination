@@ -194,7 +194,7 @@ void PndSttFitTracks::AddAllCollections()
 {
     if (!fCollectionsComplete)
     {
-	for (int counter = 0; counter < fHitCollectionNames.size(); counter++)
+	for (size_t counter = 0; counter < fHitCollectionNames.size(); counter++)
 	{
 	    AddHitCollection(fHitCollectionNames[counter].c_str());
 	}

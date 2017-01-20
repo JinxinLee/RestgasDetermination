@@ -417,7 +417,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray,
     meanThe[itr] = 0.; 
     nofTS[itr] = 0;
 
-    for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+    for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
       TrackSegment iterTS = fTrackSegments[its];
       if ( iterTS.recoTrackIndex != itr ) continue;
       for ( Int_t istat = 0 ; istat < 2 ; istat++ ) {
@@ -523,7 +523,7 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
     }
     trackCons[itr] = 0.;
 
-    for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+    for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
       TrackSegment iterTS = fTrackSegments[its];
       if ( iterTS.recoTrackIndex != itr ) continue;
       for ( Int_t istat = 0 ; istat < 2 ; istat++ ) {
@@ -582,7 +582,7 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
     if ( nofMultiHits[itr] >= nofHits[itr]/2 ) cloneIndicators++; // too many hits shared with other tracks
 
     if ( cloneIndicators >= 2 ) { // remove this track candidate
-      for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+      for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
 	TrackSegment iterTS = fTrackSegments[its];
 	if ( iterTS.recoTrackIndex != itr ) continue;
 	iterTS.recoTrackIndex = -1;
@@ -607,7 +607,7 @@ Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
 
   Int_t nofRecoTracks = 0;
 
-  for ( Int_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
+  for ( size_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
     TrackSegment origTS = fTrackSegments[itrc];
     if ( origTS.recoTrackIndex != -1 ) continue; // this track segment has already been used
     if ( fVerbose > 4 || printInfo ) 
@@ -618,7 +618,7 @@ Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
     trackSegs.push_back(itrc);
 
     Bool_t overrepr = kFALSE;
-    for ( Int_t itrc2 = 0 ; itrc2 < fTrackSegments.size() ; itrc2++ ) {
+    for ( size_t itrc2 = 0 ; itrc2 < fTrackSegments.size() ; itrc2++ ) {
       if ( itrc2 == itrc ) continue; // do not match segment with itself
       TrackSegment matchTS = fTrackSegments[itrc2];
       if ( origTS.stationIndex[0] == matchTS.stationIndex[0] && origTS.stationIndex[1] == matchTS.stationIndex[1] ) continue;
@@ -630,7 +630,7 @@ Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
       Double_t meanPhi = 0.;
       Double_t meanThe = 0.;
       Bool_t matching = kFALSE;
-      for ( Int_t its = 0 ; its < trackSegs.size() ; its++ ) {
+      for ( size_t its = 0 ; its < trackSegs.size() ; its++ ) {
 	TrackSegment iterTS = fTrackSegments[trackSegs[its]];
 	if ( !matching ) {
 	  if ( matchTS.hitIndex[0] == iterTS.hitIndex[2] && matchTS.hitIndex[1] == iterTS.hitIndex[3] ) { matching = kTRUE; } //break; } // matchTS matches after iterTS
@@ -660,7 +660,7 @@ Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
       // check if there exists in trackSegs a segment that uses different hits on some station
       Bool_t mismatch = kFALSE;
       Bool_t mismatchSolved = kFALSE;
-      for ( Int_t its = 0 ; its < trackSegs.size() ; its++ ) {
+      for ( size_t its = 0 ; its < trackSegs.size() ; its++ ) {
 	TrackSegment iterTS = fTrackSegments[trackSegs[its]];
 	for ( Int_t istat1 = 0 ; istat1 < 2 ; istat1++ ) {
 	  for ( Int_t istat2 = 0 ; istat2 < 2 ; istat2++ ) {
@@ -671,7 +671,7 @@ Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
 		meanMom = 0.;
 		meanPhi = 0.;
 		meanThe = 0.;
-		for ( Int_t its2 = 0 ; its2 < trackSegs.size() ; its2++ ) {	
+		for ( size_t its2 = 0 ; its2 < trackSegs.size() ; its2++ ) {	
 		  if ( its == its2 ) continue; // the track segment in question should not go to mean
 		  TrackSegment aveTS = fTrackSegments[trackSegs[its2]];
 		  if ( fVerbose > 4 || printInfo ) 
@@ -736,7 +736,7 @@ Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
     
     if ( fVerbose > 4 || printInfo ) 
       cout << "segments: " << endl;
-    for ( Int_t its = 0 ; its < trackSegs.size() ; its++ ) {
+    for ( size_t its = 0 ; its < trackSegs.size() ; its++ ) {
       TrackSegment iterTS = fTrackSegments[trackSegs[its]];
       if ( fVerbose > 4 || printInfo )  {
 	cout << iterTS.stationIndex[0] << " " << iterTS.stationIndex[1] << " > " << flush;
@@ -883,7 +883,7 @@ void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
 
   //const Int_t kNofGemStations = fDigiPar->GetNStations(); //[R.K. 01/2017] unused variable?
 
-  for ( Int_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
+  for ( size_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
     TrackSegment tempTS = fTrackSegments[itrc];
     cout << tempTS.stationIndex[0] << " " << tempTS.stationIndex[1] << " >> segment " << itrc << ": " << flush;
     for ( Int_t ihit = 0 ; ihit < 4 ; ihit++ ) {
@@ -942,7 +942,7 @@ void PndGemTrackFinderOnHits::PrintMCTrackSegments(TClonesArray* hitArray) {
   vector<Int_t> nofTrMCId(kNofMCTracks,0);
   vector<Int_t> segmentMCId(fTrackSegments.size(),-1);
 
-  for ( Int_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
+  for ( size_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
     for ( Int_t itr = 0 ; itr < kNofMCTracks ; itr++ ) nofTrMCId[itr] = 0;
     TrackSegment tempTS = fTrackSegments[itrc];
     cout << tempTS.stationIndex[0] << " " << tempTS.stationIndex[1] << " >> segment " << itrc << ": " << flush;
@@ -985,7 +985,7 @@ void PndGemTrackFinderOnHits::PrintMCTrackSegments(TClonesArray* hitArray) {
     if ( nofTrSegments[imct] == 0 || nofFiredStations[imct] == 0 ) continue;
     cout << " track " << imct << " fired " << nofFiredStations[imct] << " stations, and " << nofTrSegments[imct] << " segments were created:" << endl;
 
-    for ( Int_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
+    for ( size_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
       if ( segmentMCId[itrc] != imct ) continue;
       TrackSegment tempTS = fTrackSegments[itrc];
       cout << " " << itrc << "   " << setw(11) << tempTS.trackMom << " " << setw(11) << tempTS.trackPhi << " " << setw(11) << tempTS.trackTheta << endl;
@@ -1023,7 +1023,7 @@ void PndGemTrackFinderOnHits::PrintTracks(TClonesArray* hitArray, Int_t nofRecoT
     vector<Int_t> hitIndices(kNofStatDbl,-1);
     cout << "===================== TRACK " << itr << " ======================" << endl;
     Int_t nofTS = 0;
-    for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+    for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
       TrackSegment iterTS = fTrackSegments[its];
       if ( iterTS.recoTrackIndex != itr ) continue;
       //      for ( Int_t ih = 0 ; ih < 4 ; ih++ ) cout << its << " > " << ih << " > " <<  iterTS.hitIndex[ih] << endl;
@@ -1078,7 +1078,7 @@ void PndGemTrackFinderOnHits::PrintMCTracks(TClonesArray* hitArray, Int_t nofRec
     vector<Int_t> hitIndices(kNofStatDbl,-1);
     cout << "===================== TRACK " << itr << " ======================" << endl;
     Int_t nofTS = 0;
-    for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+    for ( size_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
       TrackSegment iterTS = fTrackSegments[its];
       if ( iterTS.recoTrackIndex != itr ) continue;
       //      for ( Int_t ih = 0 ; ih < 4 ; ih++ ) cout << its << " > " << ih << " > " <<  iterTS.hitIndex[ih] << endl;

@@ -80,7 +80,7 @@ TString PndHypGeoHandling::GetPath(TString id)
 	PndStringVector pathAna(id.Data(), "/_");
 	idVector = pathAna.GetStringVector();
 	
-	for(Int_t i = 0; i < idVector.size(); i+=2){
+	for(Int_t i = 0; i < (int)idVector.size(); i+=2){
 		result += "/";
 		Int_t VolId = atoi(idVector[i].c_str());
 		Int_t CopyNr = atoi(idVector[i+1].c_str());

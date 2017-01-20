@@ -67,7 +67,7 @@ std::map<TString, FairMultiLinkedData> PndTrackingQualityData::AnalyseTrackCand(
 	if (fVerbose > 0) {
 		std::cout << "PndTrackingQualityData::AnalyseTrackCand: TrackInfo" << std::endl;
 	}
-	for (int branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
 		trackInfo[fBranchNames[branchIndex]] = GetMCInfoForBranch(fBranchNames[branchIndex], trackCand);
 		trackInfo["AllHits"].AddLinks(trackInfo[fBranchNames[branchIndex]]);
 

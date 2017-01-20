@@ -28,9 +28,9 @@ public:
 	virtual ~PndSttCellTrackFinderData() {
 		delete fStrawMap;
 		delete fGeometryMap;
-		for (int i = 0; i < fHits.size(); ++i)
+		for (size_t i = 0; i < fHits.size(); ++i)
 			delete fHits.at(i);
-		for (int i = 0; i < fHitsOrig.size(); ++i)
+		for (size_t i = 0; i < fHitsOrig.size(); ++i)
 			delete fHitsOrig.at(i);
 
 	}

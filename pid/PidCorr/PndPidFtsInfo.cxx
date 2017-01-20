@@ -13,7 +13,7 @@ Bool_t PndPidCorrelator::GetFtsInfo(PndTrack* track, PndPidCandidate* pidCand) {
   
   Int_t ftsCounts = 0, ftsRawCounts = 0;
   PndTrackCand trackCand = track->GetTrackCand();
-  for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
+  for (size_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
       Double_t dedx = 0.;

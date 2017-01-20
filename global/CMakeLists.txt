@@ -49,7 +49,7 @@ PndBarrelTrackFinder.cxx
 PndBarrelTrackFinderQA.cxx
 #PndEventBuilderManager.cxx
 #PndEventBuilderOnMCEvents.cxx
-PndGlobalIdealTrackMerger.cxx
+#PndGlobalIdealTrackMerger.cxx
 PndGlobalTrackFitQA.cxx
 PndGlobalTrackMergerQA.cxx
 PndMvdGemTrackFinderOnHits.cxx

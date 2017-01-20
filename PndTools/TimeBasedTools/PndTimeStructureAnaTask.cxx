@@ -57,7 +57,7 @@ InitStatus PndTimeStructureAnaTask::Init()
   	fDataPrim.push_back(DataObject("SciTSortedHitPrim"));
   }
 
-  for (int i = 0; i < fData.size(); i++){
+  for (size_t i = 0; i < fData.size(); i++){
 	  fData[i].fBranch = (TClonesArray*)ioman->GetObject(fData[i].fBranchName);
   }
 
@@ -74,7 +74,7 @@ void PndTimeStructureAnaTask::Exec(Option_t* opt)
 	std::cout << " ------------- Event " << FairRootManager::Instance()->GetEntryNr() << " ----------------" << std::endl;
 	bool primaryParticle = false;
 	PndMCTrack* mcTrack = 0;
-	for (int i = 0; i < fData.size(); i++){
+	for (size_t i = 0; i < fData.size(); i++){
 		for (int j = 0; j < fData[i].fBranch->GetEntries(); j++){
 			FairTimeStamp* data = (FairTimeStamp*)fData[i].fBranch->At(j);
 			FairMultiLinkedData links = data->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
@@ -159,7 +159,7 @@ void PndTimeStructureAnaTask::FinishEvent()
 
 void PndTimeStructureAnaTask::FinishTask()
 {
-	for (int i = 0; i < fData.size(); i++){
+	for (size_t i = 0; i < fData.size(); i++){
 		fData[i].fTimeHisto->Write();
 		fData[i].fEventHisto->Write();
 		for (std::map<Int_t, std::pair<Double_t, Double_t> >::iterator iter = fData[i].fEventStartStopMap.begin(); iter != fData[i].fEventStartStopMap.end(); iter++) {

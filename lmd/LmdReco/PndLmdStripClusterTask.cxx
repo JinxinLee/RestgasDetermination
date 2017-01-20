@@ -353,7 +353,7 @@ void PndLmdStripClusterTask::Exec(Option_t* opt)
       
       if (FairRunAna::Instance()->IsTimeStamp()){
         myCluster->ResetLinks();
-        for(UInt_t i = 0; i < myCluster->GetClusterSize(); i++){
+        for(Int_t i = 0; i < myCluster->GetClusterSize(); i++){
           PndSdsDigiStrip* tempDigi = (PndSdsDigiStrip*)fDigiArray->At(myCluster->GetDigiIndex(i));
           myCluster->AddLink(FairLink(tempDigi->GetEntryNr()));
         }

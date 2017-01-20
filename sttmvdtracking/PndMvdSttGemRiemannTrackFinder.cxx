@@ -655,7 +655,7 @@ void PndMvdSttGemRiemannTrackFinder::AssignSttHits(PndRiemannTrack& actTrack, st
 		if (fVerbose > 2)
 			std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: Actual searchSector: "  << searchSector << std::endl;
 
-		for (int i = 0; i < sttHits.size(); i++){
+		for (size_t i = 0; i < sttHits.size(); i++){
 
 			if (nHitsStt < 0) nHitsStt = 0;
 
@@ -739,7 +739,7 @@ void PndMvdSttGemRiemannTrackFinder::AssignSkewedSttHits(PndRiemannTrack& actTra
 	if (fVerbose > 2)
 		std::cout << "-I- PndMvdSttGemRiemannTrackFinder SearchSector: Actual searchSector: "  << searchSector << std::endl;
 
-	for (int i = 0; i < sttHits.size(); i++){
+	for (size_t i = 0; i < sttHits.size(); i++){
 
 		if (nHitsStt < 0) nHitsStt = 0;
 
@@ -997,7 +997,7 @@ int PndMvdSttGemRiemannTrackFinder::GetStrawSector(PndRiemannTrack& track)
 
 	std::vector<PndRiemannHit> riemannHits = track.getHits();
 
-	for (int i = 0; i < riemannHits.size(); i++){
+	for (size_t i = 0; i < riemannHits.size(); i++){
 		FairLink hitLink = fMapHitToID[riemannHits[i].hitID()];
 		if (fVerbose > 1) std::cout << "HitID Track : " << i << " : " << riemannHits[i].hitID() << " " << hitLink << std::endl;
 		int branchId = hitLink.GetType();

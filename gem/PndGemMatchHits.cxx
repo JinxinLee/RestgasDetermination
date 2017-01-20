@@ -144,7 +144,7 @@ void PndGemMatchHits::Exec(Option_t* opt) {
     Int_t matchPoint = -1;
     Double_t closestDistance = 1000.;
     Bool_t multiHit = kFALSE;
-    for ( Int_t iPoint = 0 ; iPoint < pointZ.size() ; iPoint++ ) {
+    for ( size_t iPoint = 0 ; iPoint < pointZ.size() ; iPoint++ ) {
       //     if ( fVerbose > 1 )
       if ( TMath::Abs(pointZ[iPoint]-hitZ) > currentPndGemHit->GetDz() ) { /*cout << "FAILED Z" << endl;*/ continue; }
       if ( TMath::Abs(pointR[iPoint]-hitR) > currentPndGemHit->GetDr()*TMath::Sqrt(3.) ) { /*cout << "FAILED R" << endl;*/ continue; }
