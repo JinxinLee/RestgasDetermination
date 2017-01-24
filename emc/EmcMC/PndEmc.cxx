@@ -72,6 +72,7 @@ PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts):
   bIsFastFsc(fast), fStoreData(storepnts), fwendcap(kFALSE), bwendcap(kFALSE), fgeoName2(""), fgeoName3(""), fgeoName4(""), MapperVersion(0)
 {
     fEmcCollection        = new TClonesArray("PndEmcPoint");
+    
 }
 // -------------------------------------------------------------------------
 
@@ -110,7 +111,6 @@ void PndEmc::BeginEvent(){
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndEmc::ProcessHits(FairVolume* vol) {  
   
-
   TString nam = gMC->CurrentVolName();
 
 //  if(gMC->IsTrackEntering()||gMC->IsTrackExiting()){
@@ -742,22 +742,56 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
     }
   else if (!bIsFastFsc )
     {
+      
 	  Int_t ModCopy=0;
+	  Int_t SupModCopy=0;
+          Int_t LocCopy=0;
+          Int_t nSupCol=0;
+          Int_t nSupRow = 0;
+          Int_t nModCol = 0;
+          Int_t nModRow = 0;
 	  if (nam.Contains("FscSciVolume")){
-		  gMC->CurrentVolOffID(3,ModCopy);//upto FscModuleVolume
-		  nCrys = ModCopy/100;
-		  nRow = ModCopy%100;
+		  gMC->CurrentVolOffID(4,SupModCopy);//upto FscSuperModuleVolume
+ 		  
+                  nSupCol = SupModCopy/100;
+                  nSupRow = SupModCopy%100;
+                  
+                  gMC->CurrentVolOffID(2,LocCopy);//upto FscModuleVolume
+                  nModCol = LocCopy%2;
+                  nModRow = LocCopy/2;
+                  
+		  nCrys = (nSupCol - 1)*2 + nModCol + 1;
+		  nRow = (nSupRow - 1)*2 + nModRow + 1;
 		  nMod = 5;
 		  copyNo = 1;
+//                  cout<<"SupModCopy="<<SupModCopy<<endl;
+//                  cout<<"LocCopy="<<LocCopy<<endl;
+//                  cout<<"nRow="<<nRow<<endl;
+//                  cout<<"nCrys="<<nCrys<<endl;
+//                  
+                  
 //		  TGeant3* gMC3 = (TGeant3*) gMC;
 //		  gMC3->Gpcxyz(); //a simple test
 	  }
 	  else if (nam.Contains("FscFiberVolume")){
 	 	  nMod = 10; //for fibers different module
-	 	  gMC->CurrentVolOffID(2,ModCopy);//upto FscModuleVolume
-	 	  nCrys = ModCopy/100;
-	 	  nRow = ModCopy%100;
+ 		  gMC->CurrentVolOffID(4,SupModCopy);//upto FscSuperModuleVolume
+ 		  
+                  nSupCol = SupModCopy/100;
+                  nSupRow = SupModCopy%100;
+                  
+                  gMC->CurrentVolOffID(2,LocCopy);//upto FscModuleVolume
+                  nModCol = LocCopy%2;
+                  nModRow = LocCopy/2;
+                  
+		  nCrys = (nSupCol - 1)*2 + nModCol + 1;
+		  nRow = (nSupRow - 1)*2 + nModRow + 1;
+                 
 	 	  Int_t fiberID = gMC->CurrentVolOffID(1,copyNo); //copyNo - number of FIber
+//                  cout<<"Fiber nRow="<<nRow<<endl;
+//                  cout<<"Fiber nCrys="<<nCrys<<endl;
+//                  cout<<"Fiber copyNo="<<copyNo<<endl;
+                 
 	   }
 	  else{
 
@@ -884,6 +918,7 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 
   switch(GeoNumber){
 
+  //TODO: Make  emc_mechanics_and_module5_fsc.root default after resolution of overlap with Forward MDT   
   case 1:
 	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2012_new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
 	MapperVersion =1;
@@ -946,22 +981,22 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 
   case 13:
     SetGeometryFileName("emc_module4_FwEndCapGeo.root");
-	MapperVersion =1;
+	MapperVersion = 1;
     break;
 
   case 14:
     SetGeometryFileName("emc_module4_FwEndCapGeo_Al.root");
-	MapperVersion =1;
+	MapperVersion = 1;
     break;
 
   case 15:
     SetGeometryFileName("emc_module5_fsc.root");
-	MapperVersion =1;
+	MapperVersion = 1;
     break;
 
   case 16:
     SetGeometryFileName("emc_module_5x5.dat");
-	MapperVersion =6;
+	MapperVersion = 6;
     break;
 
   case 17:
@@ -969,10 +1004,21 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 	MapperVersion = 7;
 	break;
 
+  case 18:
+        SetGeometryFileName("emc_mechanics_and_module5_fsc.root");
+        MapperVersion = 1;
+        break;
+        
+  case 19:
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2012_new.root","emc_module4_StraightGeo24.4.root","emc_mechanics_and_module5_fsc.root");
+	MapperVersion =1;
+	break;
+
+
   default:
 	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
 	MapperVersion =1;
-    break;
+        break;
   }
 
   // store geo parameter
@@ -1235,7 +1281,7 @@ void PndEmc::ConstructRootGeomMod5() {
   std::cout<< "File name Fsc= " << FileName << std::endl;
 
 
-
+  
 
   TGeoVolume *Fsc=(TGeoVolume *)fb->Get("Emc5");
   TGeoVolume *Cave = gGeoManager->GetTopVolume();
@@ -1260,7 +1306,7 @@ void PndEmc::ConstructRootGeomMod5() {
   Cave->AddNode(Fsc,0, new TGeoCombiTrans(0., 0., 818.775, new TGeoRotation(rotFsc)));
 
   ExpandNode(Fsc,Cave);
-
+   
 }
 
 void PndEmc::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){

@@ -204,7 +204,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 	// Name convention is according to PndEmc.cxx
 
 	if (!(node_path.Contains("emc") || node_path.Contains("Crystal") || node_path.Contains("FscModuleVolume"))) return false;
-	
+	//cout << "node_path= " << node_path << endl;
 	///////////////////////////////////////////////////////////////////////////
 	// Case of old Fsc
 	///////////////////////////////////////////////////////////////////////////
@@ -221,14 +221,34 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 	///////////////////////////////////////////////////////////////////////////
 	if (node_path.Contains("FscModuleVolume")){
 		//at the moment all the layers of module in Fsc are not taken into account, only the whole block is selected
-		if (node_path.Contains("FscLayer") || node_path.Contains("FscTyvek") || node_path.Contains("FscFibHole"))
+//		if (node_path.Contains("FscLayer") || node_path.Contains("FscTyvek") || node_path.Contains("FscFibHole"))
+		if (node_path.Contains("FscLayer") || node_path.Contains("FscFibHole"))
 			return false;
-		
-		int ModCopy;
-		sscanf(node_path.Data(),"cave/Emc%d_%d/FscModuleVolume_%d",&module,&copy,&ModCopy);
+//		cout << "node_path= " << node_path << endl;
+		int SupModCopy=0;
+                int LocCopy=0;
+                int dummyTyv = 0;
+                Int_t nSupCol=0;
+                Int_t nSupRow = 0;
+                Int_t nModCol = 0;
+                Int_t nModRow = 0;
+
+//		sscanf(node_path.Data(),"cave/Emc%d_%d/FscModuleVolume_%d",&module,&copy,&ModCopy);
+		sscanf(node_path.Data(),"cave/Emc%d_%d/FscSuperModuleVolume_%d/FscTyvekVolume_%d/FscModuleVolume_%d",
+                        &module,&copy,&SupModCopy,&dummyTyv,&LocCopy);
 		copy+=1;
-		row  = ModCopy%100;
-		crystal  = ModCopy/100;
+                
+                nSupCol = SupModCopy/100;
+                nSupRow = SupModCopy%100;
+
+                
+                nModCol = LocCopy%2;
+                nModRow = LocCopy/2;
+
+                crystal = (nSupCol - 1)*2 + nModCol + 1;
+                row = (nSupRow - 1)*2 + nModRow + 1;
+                
+                
 
 		return true;
 	}
