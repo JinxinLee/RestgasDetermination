@@ -158,9 +158,9 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 			njpsi->Column("jpsimvtx",       (Float_t) fitvtx_jpsi->M(),              -999.9f); 
 			njpsi->Column("chi2vtx",        (Float_t) chi2_vtx,                      -999.9f); 
 			njpsi->Column("probvtx",        (Float_t) prob_vtx,                      -999.9f); 
-			njpsi->Column("vtxx",           vtxpos.X(),                              -999.9f);
-			njpsi->Column("vtxy",           vtxpos.Y(),                              -999.9f);
-			njpsi->Column("vtxz",           vtxpos.Z(),                              -999.9f);
+			njpsi->Column("vtxx",           (Float_t) vtxpos.X(),                    -999.9f);
+			njpsi->Column("vtxy",           (Float_t) vtxpos.Y(),                    -999.9f);
+			njpsi->Column("vtxz",           (Float_t) vtxpos.Z(),                    -999.9f);
 			
 			njpsi->Column("jpsimmass",      (Float_t) fitmass_jpsi->M(),             -999.9f); 
 			njpsi->Column("chi2mass",       (Float_t) chi2_mass,                     -999.9f); 
