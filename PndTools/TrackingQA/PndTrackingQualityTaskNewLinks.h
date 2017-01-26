@@ -24,6 +24,7 @@
 #include "TH2.h"
 #include "THStack.h"
 #include "RhoHistogram/RhoTuple.h"
+#include "PndTrackingQualityAnalysis.h"
 
 
 #include <vector>
@@ -63,6 +64,9 @@ class PndTrackingQualityTaskNewLinks : public FairTask
 
   void SetOutputMCInfoBranchName(TString name) { fMCInfoBranchName = name; }
   void SetOutputRecoInfoBranchName(TString name) { fRecoInfoBranchName = name; }
+
+  void SetFunctorName(TString name){ fPossibleTrackFunctorName = name; }
+  void SetFunctor();
 
  private:
 //
@@ -125,6 +129,11 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
   PndGeoSttPar *fSttParameters;
 
+  TString fPossibleTrackFunctorName;
+
+  PossibleTrackFunctor* fPossibleTrackFunctor;
+
+
   RhoTuple * fTuple;
 
   TH1* fPHisto;
@@ -137,6 +146,9 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   TH1 * fQualyHisto_neg;
   TH1 * fQualyHisto_pos;
   TH1 * fQualyHisto_all;
+  TH1* fQualyHisto_rel_all;
+  TH1* fQualyHisto_rel_possible;
+
 
   Int_t fEventNr;
 

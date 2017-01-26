@@ -14,7 +14,7 @@
 ClassImp(PndTrackingQualityAnalysisNewLinks);
 
 PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString trackBranchName, TString idealTrackName, Bool_t pndTrackData):
-       fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
+       fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -25,11 +25,12 @@ PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString 
 		} else {
 			fPossibleTrack = new StandardTrackFunctor();
 		}
+		fCleanFunctor = kTRUE;
 	}
 }
 
 PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString trackBranchName, TString idealTrackName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData):
-	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
+	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -40,12 +41,14 @@ PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString 
 		} else {
 			fPossibleTrack = new StandardTrackFunctor();
 		}
+		fCleanFunctor = kTRUE;
 	}
 }
 
 PndTrackingQualityAnalysisNewLinks::~PndTrackingQualityAnalysisNewLinks()
 {
-	delete (fPossibleTrack);
+	if (fCleanFunctor)
+		delete (fPossibleTrack);
 }
 
 void PndTrackingQualityAnalysisNewLinks::Init()
@@ -59,7 +62,6 @@ void PndTrackingQualityAnalysisNewLinks::Init()
 
 	fTrack = (TClonesArray*) ioman->GetObject(fTrackBranchName);
 	fMCTrack = (TClonesArray*) ioman->GetObject("MCTrack");
-	fIdealTrack = (TClonesArray*) ioman->GetObject(fIdealTrackName);
 	fIdealTrack = (TClonesArray*) ioman->GetObject(fIdealTrackName);
 
 
@@ -251,9 +253,15 @@ void PndTrackingQualityAnalysisNewLinks::FillMapTrackQualifikation()
 	fMapTrackQualification.clear();
 	fMapTrackMCStatus.clear();
 	fMCIdIdealTrackId.clear();
+	std::cout << " fIdealTrack.size() " << fIdealTrack->GetEntriesFast() << std::endl;
 	for (int i = 0; i < fIdealTrack->GetEntriesFast(); i++){
 		PndTrackCand* idealTrackCand = ((PndTrack*)fIdealTrack->At(i))->GetTrackCandPtr();
+		std::cout << i << " : " << idealTrackCand << std::endl;
+		std::cout << "PndTrackingQualityAnalysisNewLinks::FillMapTrackQualifikation: " << *idealTrackCand << std::endl;
+
 		PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(idealTrackCand->getMcTrackId());
+
+
 		fMCIdIdealTrackId[idealTrackCand->getMcTrackId()] = i;
 		Bool_t primaryTrack = (mcTrack->GetMotherID() < 0);
 		Bool_t atLeastThreeHits = kFALSE;

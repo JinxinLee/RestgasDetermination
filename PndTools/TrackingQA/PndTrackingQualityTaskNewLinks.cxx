@@ -85,7 +85,10 @@ InitStatus PndTrackingQualityTaskNewLinks::Init() {
 	//	std::cout << std::endl;
 	}
 
+	if (fPossibleTrackFunctorName.Length() == 0)
+		fPossibleTrackFunctorName = "StandardTrackFunctor";
 
+	SetFunctor();
 	for (size_t i = 0; i < fBranchNames.size(); i++){
 		fMapEfficiencies[fBranchNames[i]] = new TH2D(fBranchNames[i], fBranchNames[i], 100, 0., 100., 50, 0, 1.1);
 		fMapEfficiencies[fBranchNames[i]]->SetDrawOption("COLz");
@@ -126,6 +129,19 @@ void PndTrackingQualityTaskNewLinks::InitializeHistograms() {
 	fQualyHisto_neg = new TH1I("fQualyHisto_neg", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
 	fQualyHisto_mc = new TH1I("fQualyHisto_mc", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
 	fQualyStack = new THStack();
+
+	fQualyHisto_rel_all = new TH1D("fQualyHisto_rel_all", "Quality of Trackfinding;;Relative", 26, -15.5, 10.5);
+	fQualyHisto_rel_all->SetBarWidth(0.45);
+	fQualyHisto_rel_all->SetBarOffset(0.1);
+	fQualyHisto_rel_all->SetFillColor(kBlue);
+
+	fQualyHisto_rel_possible = new TH1D("fQualyHisto_rel_possible", "Quality of Trackfinding;;Relative", 26, -15.5, 10.5);
+	fQualyHisto_rel_possible->SetBarWidth(0.4);
+	fQualyHisto_rel_possible->SetBarOffset(0.55);
+	fQualyHisto_rel_possible->SetFillColor(kRed);
+
+
+	LabelQualyHistogram(fQualyHisto_rel_all);
 }
 
 void PndTrackingQualityTaskNewLinks::LabelQualyHistogram(TH1 * hist) {
@@ -154,6 +170,18 @@ void PndTrackingQualityTaskNewLinks::SetParContainers() {
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
+void PndTrackingQualityTaskNewLinks::SetFunctor()
+{
+	if (fPossibleTrackFunctorName.Contains("StandardTrackFunctor"))
+		fPossibleTrackFunctor = new StandardTrackFunctor();
+	else if (fPossibleTrackFunctorName.Contains("OnlySttFunctor"))
+		fPossibleTrackFunctor = new OnlySttFunctor();
+	else if (fPossibleTrackFunctorName.Contains("RiemannMvdSttGemFunctor"))
+		fPossibleTrackFunctor = new RiemannMvdSttGemFunctor();
+	else if (fPossibleTrackFunctorName.Contains("CircleHoughTrackFunctor"))
+		fPossibleTrackFunctor = new CircleHoughTrackFunctor();
+}
+
 // -----   Public method Exec   --------------------------------------------
 void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
   fMCTrackInfo->Delete();
@@ -162,7 +190,7 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 	std::cout << "----- Event " << fEventNr << " ------" << std::endl;
 
 
-	PndTrackingQualityAnalysisNewLinks qaAna(fTrackBranchName, fIdealTrackBranchName, new CircleHoughTrackFunctor(), fPndTrackOrTrackCand);
+	PndTrackingQualityAnalysisNewLinks qaAna(fTrackBranchName, fIdealTrackBranchName, fPossibleTrackFunctor, fPndTrackOrTrackCand);
 	qaAna.SetVerbose(fVerbose);
 	qaAna.SetHitsBranchNames(fBranchNames);
 	qaAna.Init();
@@ -371,6 +399,21 @@ void PndTrackingQualityTaskNewLinks::Finish() {
 			  << " Ghosts: "	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost))		<< " "
 			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)) / allTracksWithHits * 100 << "% "
 			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)) / allPossibleTracksWithHits * 100 << "% " << std::endl;
+
+	fQualyHisto_rel_all->Fill(qualityNumbers::kFullyFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound)) / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kFullyFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound)) / allPossibleTracksWithHits * 100);
+
+	fQualyHisto_rel_all->Fill(qualityNumbers::kPartiallyFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound)) / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kPartiallyFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound)) / allPossibleTracksWithHits * 100);
+
+	fQualyHisto_rel_all->Fill(qualityNumbers::kSpuriousFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound)) / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kSpuriousFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound)) / allPossibleTracksWithHits * 100);
+
+	fQualyHisto_rel_all->Fill(qualityNumbers::kGhost, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)) / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kGhost, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)) / allPossibleTracksWithHits * 100);
+
+	fQualyHisto_rel_all->Write();
+	fQualyHisto_rel_possible->Write();
 }
 
 void PndTrackingQualityTaskNewLinks::ColorHistogram() {

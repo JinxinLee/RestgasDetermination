@@ -225,6 +225,7 @@ private:
 	TString fIdealTrackName;
 	Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
 	PossibleTrackFunctor* fPossibleTrack;
+	Bool_t fCleanFunctor;
 
 	Bool_t fUseCorrectedSkewedHits;
 
