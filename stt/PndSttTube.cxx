@@ -5,9 +5,9 @@
 #include "TVector3.h"
 
 PndSttTube::PndSttTube()
-  :fCenPosition(TVector3(0,0,0)),
+  :fTubeParms(new PndSttTubeParameters()),
+   fCenPosition(TVector3(0,0,0)),
    fRotationMatrix(TMatrixT<double>(3,3)),
-   fTubeParms(new PndSttTubeParameters()),
    fRadIn(-1),
    fRadOut(-1),
    fSectorID(-1),
@@ -30,9 +30,9 @@ PndSttTube::PndSttTube()
 
 PndSttTube::PndSttTube(PndSttTube &tube)
   :TObject(tube),
+   fTubeParms(tube.GetTubeParameters()),
    fCenPosition(tube.GetPosition()),
    fRotationMatrix(TMatrixT<double>(3,3)),
-   fTubeParms(tube.GetTubeParameters()),
    fRadIn(tube.GetRadIn()),
    fRadOut(tube.GetRadOut()),
    fSectorID(tube.GetSectorID()),
@@ -50,9 +50,9 @@ PndSttTube::PndSttTube(PndSttTubeParameters *parms,
 		       Double_t r21, Double_t r22, Double_t r23,
 		       Double_t r31, Double_t r32, Double_t r33,
 		       Double_t radin, Double_t radout)
-  :fCenPosition(TVector3(x,y,z)),
+  :fTubeParms(parms),
+   fCenPosition(TVector3(x,y,z)),
    fRotationMatrix(TMatrixT<double>(3,3)),
-   fTubeParms(parms),
    fRadIn(radin),
    fRadOut(radout),
    fSectorID(-1),

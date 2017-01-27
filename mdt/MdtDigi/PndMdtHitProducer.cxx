@@ -29,8 +29,8 @@ bool PndMdtHitProducer::PndMdtDigiLess::operator()
 { return lv->GetDetectorID() < rv->GetDetectorID(); }
 
 // -----   Default constructor   -------------------------------------------
-PndMdtHitProducer::PndMdtHitProducer():fTimeOrderedDigi(kFALSE),
-FairTask("MDT Hit Producer") 
+PndMdtHitProducer::PndMdtHitProducer():
+FairTask("MDT Hit Producer") ,fTimeOrderedDigi(kFALSE)
 {
   fVerbose = 0;
   // Reset();

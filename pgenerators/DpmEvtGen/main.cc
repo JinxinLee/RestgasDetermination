@@ -36,7 +36,7 @@ extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
  float Plab, Elastic, tetmin;          // Plab - PBAP momentum in Lab.Sys. 
  double seed;
  int ntot, Ieven, npart, i;	
- double Px[1000],Py[1000],Pz[1000],E[1000],Pm[1000],Wh[1000];
+ double Px[1000],Py[1000],Pz[1000],E[1000]; //,Pm[1000],Wh[1000]; //[R.K. 01/2017] unused variables
  int Id[1000];
 
 //	Elastic=0.;	 // No elastic scattering, only inelastic
@@ -139,9 +139,9 @@ extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
      Px[i]=lujets_.p[i];
      Py[i]=lujets_.p[i+1000];
      Pz[i]=lujets_.p[i+2000];
-     Pm[i]=lujets_.p[i+4000];
+     //Pm[i]=lujets_.p[i+4000];
      E[i]=lujets_.p[i+3000];
-     Wh[i]=1.0;
+     //Wh[i]=1.0;
 
      Mom.SetPxPyPzE(Px[i],Py[i],Pz[i],E[i]);
      TParticle  fparticle(Id[i],1,0,0,0,0,Mom,V);

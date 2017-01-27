@@ -124,13 +124,13 @@ class PndEmcDigi : public FairTimeStamp
 	Double_t fEnergy;    // digi amplitude
 	Int_t fTrackId;
 	Int_t fDetectorId;
+	Int_t fHitIndex; //  Index of hit which is converted to digi
+	TVector3 fWhere;
 	Int_t fThetaInd;
 	Int_t fPhiInd;
 	Double_t fTheta;
 	Double_t fPhi;
-	TVector3 fWhere;
 
-	Int_t fHitIndex; //  Index of hit which is converted to digi
 
 	private:
 

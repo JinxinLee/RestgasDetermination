@@ -40,7 +40,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerRealFast::PndSttHitProducerRealFast() : 
-  FairTask("Ideal STT Hit Producer",0), fSttParameters(NULL), fSeparate(kFALSE) { 
+  FairTask("Ideal STT Hit Producer",0), fSeparate(kFALSE), fSttParameters(NULL) { 
   fPersistence = kTRUE;
   fOverlap = kFALSE;
 }

@@ -238,7 +238,7 @@ Int_t PndGemFindClusters::SortDigis() {
   }
   TRandom2* randNumber = new TRandom2();
 
-  PndGemDigi* digi;
+  //PndGemDigi* digi; //[R.K. 01/2017] unused variable?
   Int_t nDigis = fDigis->GetEntriesFast();
 
   fTimeOrderedDigis.clear();
@@ -246,7 +246,7 @@ Int_t PndGemFindClusters::SortDigis() {
   fTNofDigis += nDigis;
 
   for (Int_t iDigi=0; iDigi<nDigis; iDigi++) {
-    digi = (PndGemDigi*) fDigis->At(iDigi);
+    //digi = (PndGemDigi*) fDigis->At(iDigi); //[R.K. 01/2017] unused variable?
     //    Double_t time = digi->GetTimeStamp();
     Double_t time = randNumber->Gaus(0.,5.);
 

@@ -38,7 +38,7 @@
 ClassImp(PndRiemannHit)
 
 PndRiemannHit::PndRiemannHit(double mx, double my, double mz,double dx, double dy, double dz) :
-	fHit(0), fCovX(3,3), fZ(mz), fS(-1), fDeltaZ(-1.), fAlpha(-1.), fVerbose(0)
+	 fCovX(3,3),fHit(0),  fS(-1),fZ(mz), fDeltaZ(-1.), fAlpha(-1.), fVerbose(0)
 {
 	setXYZ(mx,my,mz);
 	setDXYZ(dx,dy,dz);
@@ -46,7 +46,7 @@ PndRiemannHit::PndRiemannHit(double mx, double my, double mz,double dx, double d
 
 
 PndRiemannHit::PndRiemannHit(FairHit* cl, int myHitID) :
-		fHit(cl), fHitID(myHitID), fCovX(3,3), fS(-1), fZ(-1.), fDeltaZ(-1.), fAlpha(-1.), fVerbose(0)
+		fCovX(3,3),fHit(cl), fHitID(myHitID),  fS(-1), fZ(-1.), fDeltaZ(-1.), fAlpha(-1.), fVerbose(0)
 {
   setHit(cl);
 }

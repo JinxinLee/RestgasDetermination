@@ -36,8 +36,8 @@ using namespace std;
 //________________________________________________________________
 PndFtsTrackerIdeal::PndFtsTrackerIdeal():
     FairTask("FTSTrackfinderIdeal"), fMCTracks(0), fTrackCands(0), fTracks(0),
-    fTrackIds(0), fMinFtsHitsPerTrack(5), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.),
-    fTracksArrayName("FTSTrkIdeal"), pdg(0), fPersistence(kTRUE)
+    fTrackIds(0), fMinFtsHitsPerTrack(5), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), fPersistence(kTRUE),
+    fTracksArrayName("FTSTrkIdeal"), pdg(0)
 {
   //---
   fTrackCands = new TClonesArray("PndTrackCand");
@@ -290,7 +290,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
         Double_t lastz = -100.; // saves the z-position of the last hit
         for( size_t iSortedHit=0; iSortedHit<tcand->GetNHits(); ++iSortedHit ) {
           // TODO: This needs to be checked
-          if(fVerbose>11) Info("Exec","Look at hit iSortedHit == %i", iSortedHit);
+          if(fVerbose>11) Info("Exec","Look at hit iSortedHit == %i", (int)iSortedHit);
           PndTrackCandHit candhit = tcand->GetSortedHit(iSortedHit);
           Int_t hitID = candhit.GetHitId();
           Int_t detID = candhit.GetDetId();
@@ -308,7 +308,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
             PndFtsTube *tube = (PndFtsTube*) fTubeArrayFts->At(tubeID);
             if( tube->IsSkew() ){ // only check and count non-skewed hits
               if(hit->GetRefIndex() == -1) {
-                Error("Exec","Cleaning loop found a hit which was not caused by any MC truth track at iSortedHit == %i",iSortedHit);
+                Error("Exec","Cleaning loop found a hit which was not caused by any MC truth track at iSortedHit == %i",(int)iSortedHit);
               }
               else {
                 PndFtsPoint *pnt = (PndFtsPoint*) fMCPoints[0]->At(hit->GetRefIndex());
@@ -330,7 +330,7 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
                 }
               }
             } // if IsSkew
-          } else Error("Exec","Cleaning loop found a hit from a detector other than FTS at iSortedHit == %i",iSortedHit);
+          } else Error("Exec","Cleaning loop found a hit from a detector other than FTS at iSortedHit == %i",(int)iSortedHit);
 
 
 

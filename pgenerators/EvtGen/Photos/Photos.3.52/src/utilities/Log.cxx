@@ -119,7 +119,7 @@ void Log::Summary()
 	if(!iAction) *out<<"(OFF)";
 	*out<<"\t\t"<<iCount<<"\t"<<endl;
 	*out<<" Warnings:\t";
-	if(!wAction) if(warnLimit>0 && wCount>warnLimit) *out<<"(SUPP.)"; else *out<<"(OFF)";
+	if(!wAction) {if(warnLimit>0 && wCount>warnLimit) *out<<"(SUPP.)"; else *out<<"(OFF)";}
 	*out<<"\t\t"<<wCount<<"\t"<<endl;
 	*out<<" Errors:  \t";
 	if(!eAction) *out<<"(OFF)";

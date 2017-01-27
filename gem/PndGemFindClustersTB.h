@@ -79,21 +79,15 @@ class PndGemFindClustersTB : public FairTask
 
  private:
 
-  TString fInBranchName;
-  
   PndGemDigiPar*    fDigiPar;     /** Digitisation parameters **/
   TClonesArray*     fDigis;       /** Input array of PndGemDigi **/
   TClonesArray*     fClusters;    /** Output array of PndGemCluster **/
-
-  BinaryFunctor* fFunctor; //!
-
-  std::vector <DigiClusterTB>  fDigiClusters;
 
   Int_t             fTNofEvents;
   Int_t             fTNofDigis;
   Int_t             fTNofClusters;
 
-  TStopwatch fTimer;
+  BinaryFunctor* fFunctor; //!
 
   Double_t fPrepTime;
   Double_t fCreateTime;
@@ -103,7 +97,14 @@ class PndGemFindClustersTB : public FairTask
   Double_t fWriteTime;
   Double_t fAllTime;
 
-  /** Get parameter containers **/
+  TString fInBranchName;
+   
+  std::vector <DigiClusterTB>  fDigiClusters;
+
+  TStopwatch fTimer;
+
+   
+ /** Get parameter containers **/
   virtual void SetParContainers();
 
 

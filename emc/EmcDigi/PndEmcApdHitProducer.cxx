@@ -125,12 +125,12 @@ void PndEmcApdHitProducer::Exec(Option_t* opt) {
   // Loop over EmcApdPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
   
-  Double_t point_time;
+  //Double_t point_time; //[R.K. 01/2017] unused variable
   for (Int_t iPoint=0; iPoint<nPoints; iPoint++)
     {
       point  = (PndEmcApdPoint*) fPointArray->At(iPoint);
       fTrackEnergy[point->GetDetectorID()] += point->GetEnergyLoss();
-      point_time=point ->GetTime();
+      //point_time=point ->GetTime(); //[R.K. 01/2017] unused variable
       if (point->GetFlag()==-1) {
 	fPointIndex[point->GetDetectorID()].Set(fPointIndex[point->GetDetectorID()].GetSize()+1);
 	fPointIndex[point->GetDetectorID()].AddAt(point->GetTrackID(),fPointIndex[point->GetDetectorID()].GetSize()-1);

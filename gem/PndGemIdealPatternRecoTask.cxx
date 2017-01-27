@@ -127,13 +127,13 @@ void PndGemIdealPatternRecoTask::Exec(Option_t* opt) {
       //      cands[trackId]->setMcTrackId(trackId);
       PndMCTrack *myMCTrack = (PndMCTrack*)fMCTrackArr->At(trackId);
       int pdg = myMCTrack->GetPdgCode();
-      double charge;
-      if(pdg<100000000){
-	charge =  TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
-      }
-      else{
-	charge = 0.;
-      }
+      //double charge; //[R.K. 01/2017] unused variable?
+      //if(pdg<100000000){ //[R.K. 01/2017] unused variable?
+	//charge =  TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.; //[R.K. 01/2017] unused variable?
+      //} //[R.K. 01/2017] unused variable?
+      //else{ //[R.K. 01/2017] unused variable?
+	//charge = 0.; //[R.K. 01/2017] unused variable?
+      //} //[R.K. 01/2017] unused variable?
 
     }
     cands[trackId]->AddHit(FairRootManager::Instance()->GetBranchId("GEMHit"),ihit,gemHit->GetPosition().Mag());

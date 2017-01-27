@@ -22,7 +22,7 @@
 #include"TString.h"
 
 
-GFBookkeeping::GFBookkeeping(const GFBookkeeping& bk) {
+GFBookkeeping::GFBookkeeping(const GFBookkeeping& bk) : TObject(bk) {
   fNhits = bk.fNhits;
   fMatrices = bk.fMatrices; //implicit copy constructor call
   fNumbers = bk.fNumbers; 

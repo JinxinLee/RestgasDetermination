@@ -88,12 +88,9 @@ class PndGemFindHits : public FairTask
   std::map<PndGemSensor*, std::set<Int_t> > fDigiMapF;  /** sensor digis (front) **/
   std::map<PndGemSensor*, std::set<Int_t> > fDigiMapB;  /** sensor digis (back)  **/
 
-  Int_t             fTNofEvents;
-  Int_t             fTNofDigis;
-  Int_t             fTNofHits;
-  Int_t             fTNofHitsTemp;
-
-  TStopwatch fTimer;
+  Int_t  fMCPointBranchId;
+  Bool_t fUseClusters;
+  Bool_t fTimeOrderedDigi;
 
   Double_t fPrepTime;
   Double_t fSortTime;
@@ -103,9 +100,13 @@ class PndGemFindHits : public FairTask
   Double_t fAllTime;
   Double_t fHitWindow;
 
-  Int_t  fMCPointBranchId;
-  Bool_t fUseClusters;
-  Bool_t fTimeOrderedDigi;
+  Int_t             fTNofEvents;
+  Int_t             fTNofDigis;
+  Int_t             fTNofHits;
+  Int_t             fTNofHitsTemp;
+
+  TStopwatch fTimer;
+
   Bool_t fPersistency;                       ///< Persistency flag
   
   /** Get parameter containers **/

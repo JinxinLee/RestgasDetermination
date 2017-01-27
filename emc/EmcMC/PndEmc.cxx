@@ -465,7 +465,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 		  CrystalRow = -1;
 		else
 		  CrystalRow = SubunitRow*4 - (1-getsign(SubunitRow))/2;
-	      else if (copyNoBox==2)//here necessarily: copyNoCrys==3 || copyNoCrys==2
+	      else if (copyNoBox==2)//here necessarily: copyNoCrys==3 || copyNoCrys==2 //FIXME Check Logic!
 		if (copyNoSub == 25 || copyNoSub == 42)
 		  CrystalRow = -2;
 		else

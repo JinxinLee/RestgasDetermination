@@ -211,14 +211,14 @@ void PndSdsPixelClusterTask::Exec(Option_t* opt)
 
   fGeoH->SetVerbose(fVerbose);
 
-  Double_t eventTime = 0;
+  //Double_t eventTime = 0; //[R.K. 01/2017] unused variable
   Int_t entryNumber = -1;
   if (fEventHeader != 0){
-	  eventTime = fEventHeader->GetEventTime();
+	  //eventTime = fEventHeader->GetEventTime(); //[R.K. 01/2017] unused variable
 	  entryNumber = fEventHeader->GetMCEntryNumber();
   }
   else {
-	  eventTime = FairRootManager::Instance()->GetEventTime();
+	  //eventTime = FairRootManager::Instance()->GetEventTime(); //[R.K. 01/2017] unused variable
 	  entryNumber = FairRootManager::Instance()->GetEntryNr();
   }
 

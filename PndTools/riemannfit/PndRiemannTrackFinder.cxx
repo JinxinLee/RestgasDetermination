@@ -5,8 +5,7 @@
 
 ClassImp(PndRiemannTrackFinder);
 
-PndRiemannTrackFinder::PndRiemannTrackFinder(): fMaxPlaneDist(1), fMaxSZDist(1), fMaxSZChi2(1),
-fMinPointDist(1), fUseZeroPos(false), fCurvDiff(0.05), fDipDiff(0.05),fMinNumberOfHits(4), fVerbose(0), fMagField(2.0)
+PndRiemannTrackFinder::PndRiemannTrackFinder(): fMaxPlaneDist(1), fMaxSZDist(1),fMinPointDist(1), fMaxSZChi2(1),fMinNumberOfHits(4), fCurvDiff(0.05), fDipDiff(0.05), fMagField(2.0), fVerbose(0), fUseZeroPos(false)
 {
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
@@ -368,7 +367,7 @@ void PndRiemannTrackFinder::MergeTracks()
 		remainingTracksSize=RemainingTracks.size();
 		if (fVerbose > 1) std::cout << "RemainingTracks: " << RemainingTracks.size() << std::endl;
 		if (SelectedTracks.size() > 1){
-			int selectedTracksSize = SelectedTracks.size();
+			//int selectedTracksSize = SelectedTracks.size(); //[R.K. 01/2017] unused variable
 			std::vector<PndTrackCand> tempTrCnd;
 			std::vector<int> tempST;
 			std::vector<int> tempKillAfter;
@@ -384,7 +383,7 @@ void PndRiemannTrackFinder::MergeTracks()
 				int counter=0;
 				for(int j=0;j<tempSize;j++){
 					TracksToMerge = FindTracksWithSimilarHits(tempST,tempTrCnd,tempKillAfter);
-					selectedTracksSize = SelectedTracks.size();
+					//selectedTracksSize = SelectedTracks.size(); //[R.K. 01/2017] unused variable
 					PndTrackCand newCand = CreateOneTrackCand(TracksToMerge,tempTrCnd);
 					tempTrCnd.push_back(newCand);
 					tempST.push_back(tempTrCnd.size()-1);

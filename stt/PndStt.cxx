@@ -152,8 +152,8 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
   TGeoHMatrix M;
   gMC->GetTransformation(gMC->CurrentVolPath(),M);
   TString name(gMC->CurrentVolName());
-  Bool_t skew = kFALSE;
-  if(name.Contains("skew")) skew = kTRUE;
+  //Bool_t skew = kFALSE; //[R.K. 01/2017] Unused variable.
+  //if(name.Contains("skew")) skew = kTRUE; //[R.K. 01/2017] Unused variable.
   //new>>>>>>>>>>>>>>>>>>
   
   TGeoMedium *medium = (TGeoMedium*) vol->getGeoNode()->getRootVolume()->GetMedium();

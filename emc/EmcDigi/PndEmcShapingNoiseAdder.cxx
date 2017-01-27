@@ -8,9 +8,9 @@
 PndEmcShapingNoiseAdder::PndEmcShapingNoiseAdder() : 
 	fShapingTime(0),
 	fNoiseWidth(0.),
+	fInputScale(0.0),
 	fSingleNoiseWidth(0.0),
-	fMA_buffer(0),
-	fInputScale(0.0) {
+	fMA_buffer(0) {
 }
 
 PndEmcShapingNoiseAdder::PndEmcShapingNoiseAdder(Double_t shapingTime, Double_t sampleRate, Double_t noiseWidth, Double_t inputScale) :

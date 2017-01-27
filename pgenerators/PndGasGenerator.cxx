@@ -21,7 +21,7 @@ PndGasGenerator::PndGasGenerator() :
   fPMin(0),fPMax(0),fThetaMin(0),fThetaMax(0),fX(0),fY(0),fZ(0),
   fThetaRangeIsSet(0),
   fCosThetaIsSet(0),fPRangeIsSet(0),
-  fDensityProfile(NULL), fZMin(0.), fZMax(10.)
+  fZMin(0.), fZMax(10.), fDensityProfile(NULL)
 {
   // Default constructor
 }
@@ -32,7 +32,7 @@ PndGasGenerator::PndGasGenerator(Int_t pdgid, Int_t mult) :
   fPMin(0),fPMax(0),fX(0),fY(0),fZ(0),
   fThetaRangeIsSet(0),
   fCosThetaIsSet(0),fPRangeIsSet(0),
-  fDensityProfile(NULL), fZMin(0.), fZMax(10.)
+  fZMin(0.), fZMax(10.), fDensityProfile(NULL)
 {
   // Constructor. Set default kinematics limits
   SetPhiRange  ();

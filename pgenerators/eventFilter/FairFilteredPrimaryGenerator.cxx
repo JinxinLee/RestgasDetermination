@@ -32,11 +32,11 @@ FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator()
   fVetoFilterIter(fVetoFilterList->MakeIterator()),
   fFilterList(new TObjArray()),
   fFilterIter(fFilterList->MakeIterator()),
+  fEvtFilterStat(FairEvtFilterParams()),
+  fVerbose(3),
   fEventVetoFilterActive(kFALSE),
   fEventFilterActive(kFALSE),
-  fVerbose(3),
-  fEvtFilterStat(FairEvtFilterParams()),
-
+  filterAcceptEvent(),fLogicalFilterOperation(),fFilterNegation(),
   fEventNrFiltered(0)
 {
 }
@@ -52,11 +52,11 @@ FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator(const char* name, con
   fVetoFilterIter(fVetoFilterList->MakeIterator()),
   fFilterList(new TObjArray()),
   fFilterIter(fFilterList->MakeIterator()),
+  fEvtFilterStat(FairEvtFilterParams()),
+  fVerbose(3),
   fEventVetoFilterActive(kFALSE),
   fEventFilterActive(kFALSE),
-  fVerbose(3),
-  fEvtFilterStat(FairEvtFilterParams()),
-
+  filterAcceptEvent(),fLogicalFilterOperation(),fFilterNegation(),
   fEventNrFiltered(0)
 {
 }

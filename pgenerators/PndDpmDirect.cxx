@@ -144,7 +144,7 @@ Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 
   int  npart, i;	
 	Double_t fX, fY, fZ, radius;
-  double Px[1000],Py[1000],Pz[1000],E[1000],Pm[1000],Wh[1000];
+  double Px[1000],Py[1000],Pz[1000];  //,E[1000],Pm[1000],Wh[1000];  //[R.K. 01/2017] unused variables
   int Id[1000];
   
   float Generator=0.; //  Format in which events are produced (0=pythia, 1=pluto)
@@ -164,9 +164,9 @@ Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 		Px[i]=lujets_.p[i];
     Py[i]=lujets_.p[i+1000];
     Pz[i]=lujets_.p[i+2000];
-    Pm[i]=lujets_.p[i+4000];
-    E[i]=lujets_.p[i+3000];
-    Wh[i]=1.0;
+    //Pm[i]=lujets_.p[i+4000];
+    //E[i]=lujets_.p[i+3000];
+    //Wh[i]=1.0;
 
     /* Check if fGasmode is set */
     fX = 0.;

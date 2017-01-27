@@ -179,8 +179,8 @@ protected:
     fLevelNames(gh.fLevelNames),
     fLevel(gh.fLevel),
     fFullPath(gh.fFullPath),
-    fVerbose(gh.fVerbose),
-    fRunId(gh.fRunId)
+    fRunId(gh.fRunId),
+    fVerbose(gh.fVerbose)
   {}
   
   void DiveDownToFillSensNamePar(std::vector<std::string> listOfSensitives);

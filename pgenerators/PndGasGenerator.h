@@ -84,7 +84,6 @@ private:
 
   Double32_t fPDGMass;             // Particle mass [GeV]
   Double32_t fPhiMin, fPhiMax;     // Azimuth angle range [degree]
-  Double32_t fZMin,   fZMax;       // Minimum and maximum z position
   Double32_t fPMin,   fPMax;       // Momentum range in lab system
   Double32_t fThetaMin, fThetaMax; // Polar angle range in lab system [degree]
   Double32_t fX, fY, fZ;           // Point vertex coordinates [cm]
@@ -93,6 +92,7 @@ private:
   Bool_t     fThetaRangeIsSet;     // True if theta range is set
   Bool_t     fCosThetaIsSet;       // True if uniform distribution in cos(theta) is set (default -> uniform theta)
   Bool_t     fPRangeIsSet;         // True if abs.momentum range is set
+  Double32_t fZMin,   fZMax;       // Minimum and maximum z position
   Bool_t     fDebug;               // Debug switch
 
   //  TString    fProfileFunction;      // function to generate density profile

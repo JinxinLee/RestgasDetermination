@@ -27,12 +27,12 @@
 using namespace std;
 
 PndEmcFadcFilter::PndEmcFadcFilter():
+    fCoeff(),
     fOffset(0),
     fType(arbitrary),
 	 fIntegerize(kFALSE),
 	 fNormFactor(1.),
-    fShiftCount(0),
-    fCoeff()
+    fShiftCount(0)
 {
   fCoeff.clear();
 }

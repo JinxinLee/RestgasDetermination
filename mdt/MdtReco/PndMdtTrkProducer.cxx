@@ -613,30 +613,30 @@ Bool_t PndMdtTrkProducer::MdtMapping()
   for (Int_t iHit=0; iHit<nHits; iHit++) 
     {  
       mdtHit  = (PndMdtHit*) fHitArray->At(iHit);
-      Int_t mdtModule = -1, mdtLayer = -1;
+      Int_t mdtLayer = -1; //mdtModule = -1,  //[R.K. 01/2017] unused variable
     
       switch (mdtHit->GetModule())
 	{
 	case 1:
-	  mdtModule = 1;
+	  //mdtModule = 1; //[R.K. 01/2017] unused variable
 	  mdtLayer = mdtHit->GetLayerID();
 	  mapMdtBarrel[mdtLayer].push_back(iHit);
 	  break;
 	  
 	case 2:
-	  mdtModule = 2;
+	  //mdtModule = 2; //[R.K. 01/2017] unused variable
 	  mdtLayer = mdtHit->GetLayerID();
 	  mapMdtEndcap[mdtLayer].push_back(iHit);
 	  break;
 
 	case 3:
-	  mdtModule = 2;
+	  //mdtModule = 2; //[R.K. 01/2017] unused variable
 	  mdtLayer = mdtHit->GetLayerID()+5;
 	  mapMdtEndcap[mdtLayer].push_back(iHit);
 	  break;
 	  
 	case 4:
-	  mdtModule = 3;
+	  //mdtModule = 3; //[R.K. 01/2017] unused variable
 	  mdtLayer = mdtHit->GetLayerID();
 	  mapMdtForward[mdtLayer].push_back(iHit);
 	  break;
@@ -693,7 +693,7 @@ void PndMdtTrkProducer::AlgorithmWithLheGenTrack()  //lyt April 15th, 2010
     //loop mdthit, to find distance
     PndMdtHit *mdtHit = NULL;
     Int_t mdtEntries = fHitArray->GetEntriesFast();
-    Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0;
+    Int_t mdtIndex = -1; //mdtMod = 0, , mdtLayer = 0 //[R.K. 01/2017] unused variable
     Float_t mdtGLength = -1000;
     Float_t mdtQuality = 1000000;
 
@@ -740,8 +740,8 @@ void PndMdtTrkProducer::AlgorithmWithLheGenTrack()  //lyt April 15th, 2010
           mdtIndex = mm;
           mdtQuality = dist;
 	  momentum_keep = momentum;
-          mdtMod = mdtHit->GetModule();
-          mdtLayer = 1;
+          //mdtMod = mdtHit->GetModule(); //[R.K. 01/2017] unused variable
+          //mdtLayer = 1; //[R.K. 01/2017] unused variable
         }
     }// found one closest hit to the track;
 

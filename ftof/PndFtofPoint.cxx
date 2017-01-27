@@ -16,12 +16,13 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndFtofPoint::PndFtofPoint() : FairMCPoint(),
-			       fcharge(0), fmass(0),  fpdgCode(0), fdist(0), fDetName(),
+			       fPLin(0), fPLout(0), 
+			       fmass(0),fcharge(0), 
 			       fXin(0), fYin(0), fZin(0), 
 			       fPxin(0), fPyin(0), fPzin(0),
-			       fPLin(0), fPLout(0), 
 			       fXout(0), fYout(0), fZout(0),
-			       fPxout(0), fPyout(0), fPzout(0)
+			       fPxout(0), fPyout(0), fPzout(0), 
+             fdist(0), fDetName(), fVolumeID(-999), fpdgCode(0)
 {
 }
 // -------------------------------------------------------------------------
@@ -41,12 +42,13 @@ PndFtofPoint::PndFtofPoint(Int_t trackID, Int_t evtID,
 			 Int_t pdgCode,Double_t dist, 
 			 Double_t PLin, Double_t PLout)
   : FairMCPoint(trackID, detID, posin, momin, tof, length, eLoss, evtID), 
-    fcharge(charge), fmass(mass),  fpdgCode(pdgCode), fdist(dist), fDetName(detName),
+    fPLin(PLin), fPLout(PLout), 
+    fmass(mass),  fcharge(charge), 
     fXin(posin.X()), fYin(posin.Y()), fZin(posin.Z()), 
     fPxin(momin.X()), fPyin(momin.Py()), fPzin(momin.Pz()),
-    fPLin(PLin), fPLout(PLout), 
     fXout(posout.X()), fYout(posout.Y()), fZout(posout.Z()),
-    fPxout(momout.Px()), fPyout(momout.Py()), fPzout(momout.Pz())
+    fPxout(momout.Px()), fPyout(momout.Py()), fPzout(momout.Pz()),
+    fdist(dist), fDetName(detName), fVolumeID(-999), fpdgCode(pdgCode)
 {
 }
 

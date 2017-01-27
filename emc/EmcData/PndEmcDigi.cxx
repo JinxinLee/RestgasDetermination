@@ -37,7 +37,7 @@
 using namespace std;
 TClonesArray* PndEmcDigi::fDigiArrayTBD = NULL;//new TClonesArray("PndEmcDigi");
 // -----   Default constructor   -----------------------------------
-PndEmcDigi::PndEmcDigi():FairTimeStamp(0),fEnergy(0),fTrackId(-1),fDetectorId(-1),fHitIndex(-1),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0), fEvtNo(-1)
+PndEmcDigi::PndEmcDigi():FairTimeStamp(0), fEvtNo(-1),fEnergy(0),fTrackId(-1),fDetectorId(-1),fHitIndex(-1),fWhere(0,0,0), fThetaInd(0), fPhiInd(0),fTheta(0), fPhi(0)
 {
 }
 // -----------------------------------------------------------------
@@ -67,12 +67,12 @@ PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, In
 //
 
 PndEmcDigi::PndEmcDigi( const PndEmcDigi& other ) 
-: FairTimeStamp(other),
+: FairTimeStamp(other), fEvtNo(other.fEvtNo),
   fEnergy( other.fEnergy ),
   fTrackId(other.fTrackId),
   fDetectorId( other.fDetectorId),
-  fHitIndex( other.fHitIndex),
-  fThetaInd(0), fPhiInd(0),fTheta(0),fPhi(0), fWhere(0,0,0), fEvtNo(other.fEvtNo)
+  fHitIndex( other.fHitIndex), fWhere(0,0,0),
+  fThetaInd(0), fPhiInd(0),fTheta(0),fPhi(0)
 {
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(fDetectorId);

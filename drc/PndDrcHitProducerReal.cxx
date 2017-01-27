@@ -43,13 +43,13 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitProducerReal::PndDrcHitProducerReal() 
-  :FairTask("PndDrcHitProducerReal"),fGeo(new PndGeoDrc()),fisDetEff(kTRUE),fisPixel(kTRUE),fDetType(1),fPersistency(kTRUE),fVerbose(0){
+  :FairTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fPersistency(kTRUE),fGeo(new PndGeoDrc()),fVerbose(0),fDetType(1){
   SetParameters();
 }
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
-PndDrcHitProducerReal::PndDrcHitProducerReal(Int_t verbose, Int_t det_type) 
-  :FairTask("PndDrcHitProducerReal"),fGeo(new PndGeoDrc()),fisDetEff(kTRUE),fisPixel(kTRUE),fDetType(det_type),fPersistency(kTRUE),fVerbose(verbose){
+PndDrcHitProducerReal::PndDrcHitProducerReal(Int_t verbose, Int_t det_type)  
+  :FairTask("PndDrcHitProducerReal"),fisDetEff(kTRUE),fisPixel(kTRUE),fPersistency(kTRUE),fGeo(new PndGeoDrc()),fVerbose(verbose),fDetType(det_type){
   SetParameters();
 }
 
@@ -185,7 +185,7 @@ void PndDrcHitProducerReal::ProcessBarPoint()
       fDetectorID = pt->GetBoxId()*10 + pt->GetBarId();
   
       // calculate the center of the bars from the detectorID
-      Int_t s = (fDetectorID /10);// correction DD
+      //Int_t s = (fDetectorID /10);// correction DD //[R.K. 01/2017] unused variable
       //Int_t b =  (fDetectorID % 10); //[R.K. 01/2017] unused variable?
     
       //cout<<"-I- HitProducerReal: s = "<<s<<", b = "<<b<<endl;
@@ -193,8 +193,8 @@ void PndDrcHitProducerReal::ProcessBarPoint()
       //Double_t bbAngle       =  ( 180. - 2.*fpipehAngle - fbbGap/fradius/fpi*180.*(fbbnum/2.-1.) )/(fbbnum/2.);   //[R.K. 01/2017] unused variable?
       //Double_t bbX           =  fradius*bbAngle/180.*fpi;   //[R.K. 01/2017] unused variable?
     
-      Double_t phi_curr = (90. - fphi0 - fdphi*(s-1))/180.*fpi;    
-      if(s > fbbnum/2){ phi_curr = (90. - fphi0 - fdphi*(s-1) - 2.*fpipehAngle)/180.*fpi; }
+      //Double_t phi_curr = (90. - fphi0 - fdphi*(s-1))/180.*fpi;     //[R.K. 01/2017] unused variable
+      //if(s > fbbnum/2){ phi_curr = (90. - fphi0 - fdphi*(s-1) - 2.*fpipehAngle)/180.*fpi; } //[R.K. 01/2017] unused variable
       //cout<<"-I- HitProducerReal: phi_curr = "<< phi_curr/fpi*180.<<endl;
       //Double_t Xs = fradius * cos(phi_curr); //[R.K. 01/2017] unused variable?
       //Double_t Ys = fradius * sin(phi_curr); //[R.K. 01/2017] unused variable?

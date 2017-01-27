@@ -72,16 +72,12 @@ struct Combination_t {
 class PndSttCellTrackletGenerator {
 public:
 	PndSttCellTrackletGenerator(const PndSttCellTrackFinderData* data) :
-			fVerbose(0), fCalcFirstTrackletInf(false), fCalcWithCorrectedHits(
-					false), fHits(data->GetHits()), fCombinedSkewedHits(
-					data->GetCombinedSkewedHits()), fStrawMap(
-					data->GetStrawMap()), fMapTubeIdToHit(
-					data->GetMapTubeIdToHit()), fMapTubeIdToPos(
-					data->GetMapTubeIdToPos()), fMapHitToFairLink(
-					data->GetMapHitToFairLink()), fHitNeighbors(
-					data->GetHitNeighbors()), fSeparations(
-					data->GetSeparations()), fTimeStamps(20), fUseGPU(false), fDev_tubeNeighborings(
-					0), fTUBE_RADIUS(0.5005) {
+			fTimeStamps(20),fVerbose(0), fCalcFirstTrackletInf(false), fCalcWithCorrectedHits(
+					false), fTUBE_RADIUS(0.5005),  fUseGPU(false), fDev_tubeNeighborings(0), 
+          fHits(data->GetHits()), fCombinedSkewedHits(data->GetCombinedSkewedHits()), 
+          fStrawMap(data->GetStrawMap()), fMapTubeIdToHit(data->GetMapTubeIdToHit()), 
+          fMapTubeIdToPos(data->GetMapTubeIdToPos()), fMapHitToFairLink(data->GetMapHitToFairLink()), 
+          fHitNeighbors(data->GetHitNeighbors()), fSeparations(data->GetSeparations()) {
 
 	}
 

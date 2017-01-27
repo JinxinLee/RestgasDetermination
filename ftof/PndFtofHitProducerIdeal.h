@@ -60,6 +60,7 @@ class PndFtofHitProducerIdeal : public FairTask
  private:
   
   TString fBranchName;
+  Bool_t fTimeOrderedDigi;
   Bool_t fPersistency;                       ///< Persistency flag
   
   /** Input array of PndFtofPoints **/
@@ -71,7 +72,6 @@ class PndFtofHitProducerIdeal : public FairTask
   
   PndGeoFtofPar* fGeoPar;
   Double_t fdt,fdt2;
-  Bool_t fTimeOrderedDigi;
   
   void Register();
   

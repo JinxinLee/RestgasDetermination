@@ -544,12 +544,12 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
 PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename, Int_t tubeid, Int_t layerid) {
   
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
-  Bool_t isCopy = kTRUE;
+  //Bool_t isCopy = kTRUE; //[R.K. 01/2017] unused variable
   // try as if it was a copy stt01tube#XXX
 
   FairGeoNode *pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
   if(!pnode) { // try as if it was a solo stt01tubeXXX
-    isCopy = kFALSE;
+    //isCopy = kFALSE; //[R.K. 01/2017] unused variable
     //tubename = GetNameFromTubeIDGeoType1(tubeid, isCopy);
     //pnode = (FairGeoNode*) geoPassNodes->FindObject(tubename);
   }

@@ -698,7 +698,7 @@ Double_t PndGemSensor::GetDistance2(Int_t iSide, Double_t chan1, Double_t chan2)
   if ( fType == 3 ) {
     if ( iSide == 0 ) {
       Int_t ifac=1,ifac_test=1, ifac1=1, ifac2=1,icom_ifac=0;
-      Int_t ideno,iring_test=0,iring1=0,iring2=0,icom_ring=0;
+      Int_t ideno,iring_test=0,iring1=0,iring2=0; //,icom_ring=0; //[R.K. 01/2017] unused variable?
       Int_t itest1,itest2,i1ok=0,i2ok=0;
       Int_t icom_chstep=0;
       Double_t retval;
@@ -732,11 +732,11 @@ Double_t PndGemSensor::GetDistance2(Int_t iSide, Double_t chan1, Double_t chan2)
       }
       //take minimum common ring
       if( iring1 >= iring2 ){
-	icom_ring=iring1;
+	//icom_ring=iring1; //[R.K. 01/2017] unused variable?
 	icom_ifac=ifac1;
       }
       else{
-	icom_ring=iring2;
+	//icom_ring=iring2; //[R.K. 01/2017] unused variable?
 	icom_ifac=ifac2;
       }
       //channel step at the common ring

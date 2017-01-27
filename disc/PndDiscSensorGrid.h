@@ -45,7 +45,7 @@ struct PixelInfo {
 class SensorGridBase {
 public:
     SensorGridBase()
-        : pixel_number_offset(0), number_of_pixels(0), user_row_offset(0), user_col_offset(0), locked(false)
+        : pixel_number_offset(0), user_row_offset(0), user_col_offset(0), number_of_pixels(0), locked(false)
     { }
     virtual ~SensorGridBase() {}
     void SetUserColumnOffset(int ofs) { user_col_offset = ofs; }

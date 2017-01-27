@@ -40,12 +40,12 @@
 
 using namespace std;
 
-PndSttMapCreator::PndSttMapCreator() :  fGeoType(-1), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), fSttTube(0), copy_map(), fMap(0) {
+PndSttMapCreator::PndSttMapCreator() :  fGeoType(-1), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), copy_map(), fSttTube(0), fMap(0) {
   //copy_map.clear();
 }
 
 // to use in PndStt
-PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), fSttTube(0), copy_map(), fMap(0) {
+PndSttMapCreator::PndSttMapCreator(Int_t geoType) : fGeoType(geoType), fSttParameters(new PndGeoSttPar()), fTubeInRad(0), fTubeOutRad(0), copy_map(), fSttTube(0), fMap(0) {
   //copy_map.clear();
 
   if(fGeoType != 1) cout << "-E- PndSttMapCreator: geometry not supported by map" << endl; // CHECK

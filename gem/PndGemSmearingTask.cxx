@@ -27,8 +27,8 @@
 
 // -----   Default constructor   -------------------------------------------
 PndGemSmearingTask::PndGemSmearingTask() :
-  fHitCovMatrix(3,3),
-  FairTask("Ideal reconstruction task for PANDA PndGem")
+  FairTask("Ideal reconstruction task for PANDA PndGem"),
+  fHitCovMatrix(3,3)
 {
   fDigiPar     = NULL;
   fSigmaX=0.;
@@ -40,8 +40,8 @@ PndGemSmearingTask::PndGemSmearingTask() :
 
 // -----   Constructor   ---------------------------------------------------
 PndGemSmearingTask::PndGemSmearingTask(Double_t sx, Double_t sy, Double_t sz) :
-  fHitCovMatrix(3,3),
-  FairTask("Ideal reconstruction task for PANDA PndGem")
+  FairTask("Ideal reconstruction task for PANDA PndGem"),
+  fHitCovMatrix(3,3)
 {
   fDigiPar     = NULL;
   fSigmaX=sx;

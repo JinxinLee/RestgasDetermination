@@ -36,10 +36,10 @@ using std::fstream;
 PndMdtPointsToWaveform::PndMdtPointsToWaveform(Int_t verbose, Bool_t storewaves):
   //fDigiPar(new PndMdtDigiPar())
   //, fGeoPar(new PndMdtGeoPar())
-   fVerbose(verbose)
-  , fDataBuffer(0)
-  , fWaveformArray(0)
+    fWaveformArray(0)
   , fTimeOrderedWaveform(kFALSE)
+  , fDataBuffer(0)
+  , fVerbose(verbose)
   , fStoreWaves(storewaves)
 {
 }

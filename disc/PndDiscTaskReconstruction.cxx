@@ -651,16 +651,16 @@ void PndDiscTaskReconstruction::Exec(Option_t* opt)
         //double dx = pos_fel_x[sensor_id] - x0[0];
         //double dy = pos_fel_y[sensor_id] - y0[0]; 
 
-        double angle = 0;
+        //double angle = 0; //[R.K. 01/2017] unused variable
 
-        if(detector_id == 0 || detector_id == 3)
-        {
-            angle = angle_sensor[sensor_id]*TMath::Pi()/180;
-        }
-        if(detector_id == 1 || detector_id == 2)
-        {
-            angle = 2*TMath::Pi() - angle_sensor[sensor_id]*TMath::Pi()/180;
-        }
+        //if(detector_id == 0 || detector_id == 3) //[R.K. 01/2017] unused variable
+        //{
+            //angle = angle_sensor[sensor_id]*TMath::Pi()/180; //[R.K. 01/2017] unused variable
+        //}
+        //if(detector_id == 1 || detector_id == 2) //[R.K. 01/2017] unused variable
+        //{
+            //angle = 2*TMath::Pi() - angle_sensor[sensor_id]*TMath::Pi()/180; //[R.K. 01/2017] unused variable
+        //}
 
         //double phirel = acos((dx*px[0]+dy*py[0])/(sqrt(dx*dx+dy*dy)*sqrt(px[0]*px[0]+py[0]*py[0])));
         //double alpha = acos(dx/(sqrt(dx*dx+dy*dy))) - angle;

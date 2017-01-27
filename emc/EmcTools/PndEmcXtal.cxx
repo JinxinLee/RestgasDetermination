@@ -39,10 +39,10 @@ using namespace std;
 //----------------
 PndEmcXtal::PndEmcXtal():
        fTCIIndex(new PndEmcTwoCoordIndex()),
+       fLength(0),
        fTrap(TGeoTrap()),
        fRotation(TGeoRotation()),
        fCentre(0,0,0),
-       fLength(0),
        fFrontCentre(0,0,0),
        fNormalToFrontFace(0,0,0),
        fAxis(0,0,0)       
@@ -50,10 +50,10 @@ PndEmcXtal::PndEmcXtal():
 }
 PndEmcXtal::PndEmcXtal(const PndEmcTwoCoordIndex *id, const TGeoTrap &trap, const TVector3 &pos, const TGeoRotation &rot):
        fTCIIndex(id),
+       fLength(0),
        fTrap(trap),
        fRotation(rot),
        fCentre(pos),
-       fLength(0),
        fFrontCentre(0,0,0),
        fNormalToFrontFace(0,0,0),
        fAxis(0,0,0)

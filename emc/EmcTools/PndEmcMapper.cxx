@@ -141,8 +141,8 @@ PndEmcMapperGeo12Dat::PndEmcMapperGeo12Dat()
 PndEmcMapperGeo3Dat::PndEmcMapperGeo3Dat()
 {
 	PndEmcTwoCoordIndex *_tci;
-	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
-	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	Int_t   detId, detId_tmp, iX, iY;  //iTheta,iPhi, //[R.K. 01/2017] unused variable
+	detId = detId_tmp =iX = iY = 0;  //iTheta = iPhi =  //[R.K. 01/2017] unused variable
 	
 	Int_t module =3;
 	for (Int_t row=1; row<=40;row++)
@@ -164,8 +164,8 @@ PndEmcMapperGeo3Dat::PndEmcMapperGeo3Dat()
 PndEmcMapperGeo3Root::PndEmcMapperGeo3Root()
 {
 	PndEmcTwoCoordIndex *_tci;
-	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
-	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	Int_t detId, detId_tmp, iX, iY;  //iTheta,iPhi,   //[R.K. 01/2017] unused variable
+	detId = detId_tmp =iX = iY = 0;  //iTheta = iPhi =  //[R.K. 01/2017] unused variable
 	
 	Int_t module =3;
 	for (Int_t row=1; row<=36;row++)
@@ -187,8 +187,8 @@ PndEmcMapperGeo3Root::PndEmcMapperGeo3Root()
 PndEmcMapperGeo3RootV2::PndEmcMapperGeo3RootV2()
 {
 	PndEmcTwoCoordIndex *_tci;
-	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
-	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	Int_t detId, detId_tmp, iX, iY;  //iTheta, iPhi,  //[R.K. 01/2017] unused variable
+	detId = detId_tmp =iX = iY = 0;  //iTheta = iPhi =  //[R.K. 01/2017] unused variable
 	
 	Int_t module =3;
 	for (Int_t row = -37; row <= 37; row++)
@@ -212,8 +212,8 @@ PndEmcMapperGeo3RootV2::PndEmcMapperGeo3RootV2()
 PndEmcMapperGeo4Dat::PndEmcMapperGeo4Dat()
 {
 	PndEmcTwoCoordIndex *_tci;
-	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
-	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	Int_t detId, detId_tmp, iX, iY; //iTheta, iPhi,  //[R.K. 01/2017] unused variable
+	detId = detId_tmp =iX = iY = 0; //iTheta = iPhi =  //[R.K. 01/2017] unused variable
 	Int_t module =4;
 	for (Int_t row=1; row<=18;row++)
 		for (Int_t crystal=1; crystal<=18;crystal++)
@@ -236,8 +236,8 @@ PndEmcMapperGeo4Root::PndEmcMapperGeo4Root()
    // *** for testing of BwEndCap ONLY --> from "emc_module4_*.root" file ***
    // 26.02.2009
   	PndEmcTwoCoordIndex *_tci;
-	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
-	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	Int_t  detId, detId_tmp, iX, iY; //iTheta,iPhi,  //[R.K. 01/2017] unused variable
+	detId = detId_tmp =iX = iY = 0;  //iTheta = iPhi =  //[R.K. 01/2017] unused variable
 	
 	Int_t module=4;
 	for (Int_t row=1; row<=16;row++)
@@ -258,8 +258,8 @@ PndEmcMapperGeo4Root::PndEmcMapperGeo4Root()
 PndEmcMapperGeo5Dat::PndEmcMapperGeo5Dat()
 {
 	PndEmcTwoCoordIndex *_tci;
-	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
-	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	Int_t detId, detId_tmp, iX, iY; //iTheta,iPhi,   //[R.K. 01/2017] unused variable
+	detId = detId_tmp =iX = iY = 0;  //iTheta = iPhi =  //[R.K. 01/2017] unused variable
 	Int_t module =5;
 	
 	for (Int_t row=1; row<=14;row++)
@@ -283,8 +283,8 @@ PndEmcMapperGeo5Root::PndEmcMapperGeo5Root()
    // *** for testing of Fsc ONLY --> from "emc_module5_*.root" file ***
    // 20.04.2010
   	PndEmcTwoCoordIndex *_tci;
-	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
-	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	Int_t detId, detId_tmp, iX, iY;  //iTheta, iPhi,  //[R.K. 01/2017] unused variable
+	detId = detId_tmp =iX = iY = 0;  //iTheta = iPhi =  //[R.K. 01/2017] unused variable
 
 	Int_t module=5;
 	for (Int_t row=1; row<=28;row++)
@@ -302,8 +302,8 @@ PndEmcMapperGeo5Root::PndEmcMapperGeo5Root()
 PndEmcMapperGeo6Dat::PndEmcMapperGeo6Dat()
 {
 	PndEmcTwoCoordIndex *_tci;
-	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
-	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
+	Int_t detId, detId_tmp, iX, iY;  //iTheta,iPhi,   //[R.K. 01/2017] unused variable
+	detId = detId_tmp =iX = iY = 0;  //iTheta = iPhi =  //[R.K. 01/2017] unused variable
 	Int_t module =6;
 	for (Int_t row=1; row<=5;row++)
 	for (Int_t crystal=1; crystal<=5;crystal++)

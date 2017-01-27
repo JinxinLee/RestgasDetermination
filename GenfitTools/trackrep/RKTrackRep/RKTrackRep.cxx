@@ -1027,12 +1027,12 @@ double RKTrackRep::Extrap( const GFDetPlane& plane, TMatrixT<double>* state, TMa
       P[55] =  (*state)[6][0];
     }
 
-    double dir(1.);
+    //double dir(1.); //[R.K. 01/2017] unused variable?
     {
       TVector3 Pvect(P[0],P[1],P[2]); //position
       TVector3 Avect(P[3],P[4],P[5]); //direction
       TVector3 dist = plane.dist(Pvect); //from point to plane
-      if(dist*Avect<0.) dir=-1.;
+      //if(dist*Avect<0.) dir=-1.; //[R.K. 01/2017] unused variable?
     }
 
     TVector3 directionBefore(P[3],P[4],P[5]); // direction before propagation

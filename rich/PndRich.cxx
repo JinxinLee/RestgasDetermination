@@ -583,7 +583,7 @@ void PndRich::ConstructOpGeometry() {
   for(size_t i=0;i<nOpt.size();i++) {
 
      //Int_t mId = gGeoManager->GetVolume( Form("RichAerogelSensor%d",i) )->GetMedium()->GetId();
-     Int_t mId = gMC->MediumId( Form("RichAerogel%d",i) );
+     Int_t mId = gMC->MediumId( Form("RichAerogel%d",(int)i) );
      
      gMC->SetCerenkov( mId, npoints, ephoton, absLen, qEff, refInd[i] );
      

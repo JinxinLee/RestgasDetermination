@@ -57,7 +57,7 @@ PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Floa
 
 //Copy
 PndEmcHit::PndEmcHit(const PndEmcHit &copy):
-  FairHit(copy),fEnergy(copy.fEnergy), fTime(copy.fTime), fMcList(0),  fPointList(0), fTrackEntering(copy.fTrackEntering), fTrackExiting(copy.fTrackExiting)
+  FairHit(copy), fTime(copy.fTime),fEnergy(copy.fEnergy), fMcList(0),  fPointList(0), fTrackEntering(copy.fTrackEntering), fTrackExiting(copy.fTrackExiting)
 {
   fRefIndex=copy.fRefIndex;
   fDetectorID=copy.fDetectorID;

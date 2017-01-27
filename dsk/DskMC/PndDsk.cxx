@@ -53,14 +53,14 @@ using std::cout;
 
 // -----   Default constructor   ----------------------------------------------
 PndDsk::PndDsk()
-  : fStoreCerenkovs(kTRUE),
+  : fDebugLevel(0), 
+    fStoreCerenkovs(kTRUE),
     fStoreParticles(kTRUE),
     fStoreTrackPoints(kFALSE),
     fStoreFLGHits(kFALSE),
     fCalcPWay(kFALSE),
     fMeasureTotalRefAngle(kFALSE),
-    fPDE(1.),
-    fDebugLevel(0)
+    fPDE(1.)
 {
   fDskCerenkovCollection = new TClonesArray("PndDskCerenkov");
   fDskParticleCollection = new TClonesArray("PndDskParticle");
@@ -75,14 +75,14 @@ PndDsk::PndDsk()
 // -----   Standard constructor   ---------------------------------------------
 PndDsk::PndDsk(const char* name, Bool_t active)
   : FairDetector(name, active),
+    fDebugLevel(0),
     fStoreCerenkovs(kTRUE),
     fStoreParticles(kTRUE),
     fStoreTrackPoints(kFALSE),
     fStoreFLGHits(kFALSE),
     fCalcPWay(kFALSE),
     fMeasureTotalRefAngle(kFALSE),
-    fPDE(1.),
-    fDebugLevel(0)
+    fPDE(1.)
 {
   fDskCerenkovCollection = new TClonesArray("PndDskCerenkov");
   fDskParticleCollection = new TClonesArray("PndDskParticle");

@@ -38,13 +38,11 @@ using std::map;
 PndGemTrackFinderOnHitsTB::PndGemTrackFinderOnHitsTB() :
   PndGemTrackFinder(),
   fDigiPar(NULL),
-  fSigmaMult(60.),
   fMCTrackArray(NULL),
   fMCPointArray(NULL),
-  fNofEvents(0),
-  fNofClHits(0),
   fVerbose(0),
   fPrimary(0),
+  fSigmaMult(60.),
   fParThetaA(0.),
   fParThetaB(0.),
   fParTheta0(0.),
@@ -59,7 +57,9 @@ PndGemTrackFinderOnHitsTB::PndGemTrackFinderOnHitsTB() :
   fRemoveTime(0.),
   fWriteTime(0.),
   fAllTime(0.),
+  fNofEvents(0),
   fMCAvailable(-666),
+  fNofClHits(0),
   fNofExpectedTrackSegments(0),
   fNofFoundTrackSegments(0)
 {

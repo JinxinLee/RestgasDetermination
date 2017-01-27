@@ -139,22 +139,18 @@ PndFtsHoughSpace::PndFtsHoughSpace(
 
 		PndFtsHoughTrackerTask *trackerTask
 ) :
-			fTrackerTask(trackerTask),
-			fRefIndex(refIndex),
-
-			fZRefPos(zRefPos),
-			fInterceptZx(interceptZx),
-
 			TH2S(name, name,
 					binning.getNBinsTheta(), binning.getThetaRadLow(), binning.getThetaRadHigh(),
 					binning.getNBinsY(),binning.getYLow(),binning.getYHigh()),
-
-			// set from tracker task
-			fFtsBranchId(0),
+			fTrackerTask(trackerTask),
 			fVerbose(0),
-			fField(0),
-
-			fAssociatedTrackCand(associatedTrackCand)
+			fRefIndex(refIndex),
+			fFtsBranchId(0),
+			fAssociatedTrackCand(associatedTrackCand),
+			fZRefPos(zRefPos),
+			fInterceptZx(interceptZx),
+			// set from tracker task
+			fField(0)
 {
 	if (0==fTrackerTask){
 		std::cerr << "PndFtsHoughSpace FATAL ERROR Tracker task pointer not set.\n";
@@ -1184,8 +1180,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 			Double_t combinedPeakHeight=currHeight;
 
 			// save info of last visited neighbor
-			Int_t lastVisitedBinX = currBinX;
-			Int_t lastVisitedBinNumber = currBinNumber;
+			//Int_t lastVisitedBinX = currBinX; //[R.K. 01/2017] unused variable
+			//Int_t lastVisitedBinNumber = currBinNumber; //[R.K. 01/2017] unused variable
 			Double_t lastVisitedHeight = currHeight;
 
 			// storing the current neighbor bin
@@ -1230,8 +1226,8 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 					// peak is spread over several bins
 					combinedPeakBinXHigh = currNeighborBinX;
 				}
-				lastVisitedBinX = currNeighborBinX;
-				lastVisitedBinNumber = currNeighborBinNumber;
+				//lastVisitedBinX = currNeighborBinX; //[R.K. 01/2017] unused variable
+				//lastVisitedBinNumber = currNeighborBinNumber; //[R.K. 01/2017] unused variable
 				lastVisitedHeight = currNeighborHeight;
 
 			} while(kTRUE);

@@ -69,14 +69,14 @@ class PndEmcApdHit : public FairHit
   //TArrayI* GetPoindIndexes() { return fPointIndexes;};
     
  protected:
-  Double32_t fEnergy;    // hit amplitude
   Double32_t fTime;      // time
-  Int_t fNPoints;        // number of ApdPoints
+  Double32_t fEnergy;    // hit amplitude
   Int_t fPointIndex[10]; // index of ther first 10 particles entering
   
   //TArrayI *fPointIndexes;
   
   std::vector<PndEmcApdPoint*> fPointList; //  points contributed to hit
+  Int_t fNPoints;        // number of ApdPoints
 
   ClassDef(PndEmcApdHit,1)
 };

@@ -72,6 +72,7 @@ double GFAbsTrackRep::stepalong(double h,
                   TVector3& point,
                   TVector3& dir){
   Abort("stepalong()");
+  return -1.;
 }
 
 

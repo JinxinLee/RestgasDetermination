@@ -53,10 +53,10 @@ using std::ostringstream;
 
 // -----   Default constructor   -------------------------------------------
 PndFtof::PndFtof()
-  : FairDetector(), fFtofCollection(0),
-    fListOfSensitives(), par(), fTrackID(-1),  fVolumeID(-1), fEventID(-1), fPosIn(), fMomIn(), fPosOut(), fMomOut(),
+  : FairDetector(),fListOfSensitives(),
+    par(), fTrackID(-1),  fVolumeID(-1), fEventID(-1), fPosIn(), fMomIn(), fPosOut(), fMomOut(),
     fPLout(0), fPLin(0), fTime(0),  fLength(0), fELoss(0), fPosIndex(-1), fpdgCode(-1), 
-    SiId(0), CId(0), alId(0), beId(0), CpipeId(0), fcharge(0), fmass(0), fdist(0)
+    SiId(0), CId(0), alId(0), beId(0), CpipeId(0), fcharge(0), fmass(0), fdist(0), fFtofCollection(0)
 {
   fFtofCollection        = new TClonesArray("PndFtofPoint");
   fVerboseLevel = 0;
@@ -73,10 +73,10 @@ PndFtof::PndFtof()
 
 // -----   Standard constructor   ------------------------------------------
 PndFtof::PndFtof(const char* name, Bool_t active)
-  : FairDetector(name, active), fFtofCollection(0),
+  : FairDetector(name, active),
     fListOfSensitives(), par(), fTrackID(-1),  fVolumeID(-1), fEventID(-1), fPosIn(), fMomIn(), fPosOut(), fMomOut(),
     fPLout(0), fPLin(0), fTime(0),  fLength(0), fELoss(0), fPosIndex(-1), fpdgCode(-1), 
-    SiId(0), CId(0), alId(0), beId(0), CpipeId(0), fcharge(0), fmass(0), fdist(0)
+    SiId(0), CId(0), alId(0), beId(0), CpipeId(0), fcharge(0), fmass(0), fdist(0), fFtofCollection(0)
 {
     fFtofCollection        = new TClonesArray("PndFtofPoint");
     fVerboseLevel = 0;
@@ -301,7 +301,7 @@ void PndFtof::ConstructASCIIGeometry() {
   TString vname = "cave";
   TGeoVolume* vcave = gGeoManager->FindVolumeFast(vname);
 
-   const Double_t  kBCentX    = 2.5;   // half length(cm) //from EMC TDR
+  const Double_t  kBCentX    = 2.5;   // half length(cm) //from EMC TDR
   const Double_t  kBCentY    = 70.0;   //half length (cm) //?
   const Double_t  kBCentZ    = 0.75;   //half length (cm) //?
 

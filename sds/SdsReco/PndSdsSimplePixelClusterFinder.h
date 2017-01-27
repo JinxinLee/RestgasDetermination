@@ -21,7 +21,7 @@
 class PndSdsSimplePixelClusterFinder : public PndSdsPixelClusterFinder
   {
     public :
-    PndSdsSimplePixelClusterFinder():PndSdsPixelClusterFinder(), frows(0), fcols(0), fradius(-1.0){};
+    PndSdsSimplePixelClusterFinder():PndSdsPixelClusterFinder(), fcols(0), frows(0), fradius(-1.0){};
     //PndSdsSimplePixelClusterFinder(std::vector<PndSdsDigiPixel> hits):
     //	PndSdsPixelClusterFinder(hits){
     //	if(fVerbose>0)std::cout << "Hits in array: " << fHits.size() << std::endl;

@@ -40,7 +40,7 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal() 
-  :FairTask("PndDrcHitProducerIdeal"),fGeo(new PndGeoDrc()),fPersistency(kTRUE)
+  :FairTask("PndDrcHitProducerIdeal"),fPersistency(kTRUE),fGeo(new PndGeoDrc())
 {
   fVerbose=0;
 }
@@ -49,7 +49,7 @@ PndDrcHitProducerIdeal::PndDrcHitProducerIdeal()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose)
-  :FairTask("PndDrcHitProducerIdeal"),fGeo(new PndGeoDrc()),fPersistency(kTRUE)
+  :FairTask("PndDrcHitProducerIdeal"),fPersistency(kTRUE),fGeo(new PndGeoDrc())
 {
   fVerbose=verbose;
 }

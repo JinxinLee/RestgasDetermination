@@ -17,20 +17,14 @@ ClassImp(PndFtsHoughTracklet);
 
 PndFtsHoughTracklet::PndFtsHoughTracklet(Double_t zRefLabSys, PndFtsHoughTrackerTask *trackerTask) :
 						fTrackerTask(trackerTask),
-
 						fVerbose(0),
-
 						fIsSet(kFALSE),
-
-						fZRefLabSys(zRefLabSys),
-
 						fPeakHeightFromPeakFinder(0.),
-
 						fThetaRadVal(0.),
 						fThetaRadHw(0.),
-
 						fSecondVal(0.),
-						fSecondHw(0.)
+						fSecondHw(0.),
+						fZRefLabSys(zRefLabSys)
 {
 	if (0==fTrackerTask){
 		std::cout << "PndFtsHoughTracklet FATAL ERROR Tracker task pointer not set in constructor.\n";

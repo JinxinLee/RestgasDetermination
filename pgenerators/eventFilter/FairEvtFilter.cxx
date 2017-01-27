@@ -9,10 +9,9 @@ const Double_t FairEvtFilter::kNoChargeSpecified = -999.9;
 
 // -----   Default constructor   -------------------------------------------
 FairEvtFilter::FairEvtFilter()
-: TNamed(), fEventNr(0), fVerbose(0), fTestMode(0)
+: TNamed(), fParticleList(NULL), fVerbose(0), fTestMode(0), fAcceptedEventNumbers(), fEvtNrsToAccept(), fEventNr(0)
 {
 	fAcceptedEventNumbers.clear();
-	fParticleList = 0;
 	fdbPdg = TDatabasePDG::Instance();
 }
 // -------------------------------------------------------------------------
@@ -21,7 +20,7 @@ FairEvtFilter::FairEvtFilter()
 
 // -----   Constructor with name and title   -------------------------------
 FairEvtFilter::FairEvtFilter(const char* name, const char* title)
-: TNamed(name, title), fEventNr(0), fVerbose(0), fTestMode(0)
+: TNamed(name, title), fParticleList(NULL), fVerbose(0), fTestMode(0), fAcceptedEventNumbers(), fEvtNrsToAccept(), fEventNr(0)
 {
 	fAcceptedEventNumbers.clear();
 	fParticleList = 0;

@@ -262,7 +262,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
   }  
 
   // error <--> resolution
-  Double_t sigr, sigxy, sigx, sigy; // = 0.14;
+  Double_t sigr, sigx, sigy; // = 0.14; //sigxy, //[R.K. 01/2017] unused variable?
     
   // FITTING IN X-Y PLANE:
   // v = a + bu + cu^2
@@ -370,7 +370,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
 	sigr = 0.0150;
 	sigx = fabs(sigr * TMath::Cos(TMath::ATan(marray.At(i))));
 	sigy = fabs(sigr * TMath::Sin(TMath::ATan(marray.At(i))));
-	sigxy = sigr * TMath::Sqrt(fabs(TMath::Cos(TMath::ATan(marray.At(i))) * TMath::Sin(TMath::ATan(marray.At(i)))));;
+	//sigxy = sigr * TMath::Sqrt(fabs(TMath::Cos(TMath::ATan(marray.At(i))) * TMath::Sin(TMath::ATan(marray.At(i)))));; //[R.K. 01/2017] unused variable?
       }
     }
 
@@ -829,17 +829,17 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
   // ZFIT =======
   if(hitcounter == 0) return kFALSE;
   
-  Double_t Sxx, Sx, Sz, Sxz, S1z;
+  //Double_t Sxx, Sx, Sz, Sxz, S1z; //[R.K.01/2017]unused variable?
   //Double_t Detz = 0.; //[R.K. 01/2017] unused variable?
   //Double_t fitm, fitp; //[R.K. 01/2017] unused variable?
   Double_t sigz = 1.;  // CHECK
   
-  Sx = 0.;
-  Sz = 0.;
-  Sxx = 0.;
-  Sxz = 0.;
-  S1z = 0.;
-  // ============
+  //Sx = 0.; //[R.K.01/2017]unused variable?
+  //Sz = 0.; //[R.K.01/2017]unused variable?
+  //Sxx = 0.; //[R.K.01/2017]unused variable?
+  //Sxz = 0.; //[R.K.01/2017]unused variable?
+  //S1z = 0.; //[R.K.01/2017]unused variable?
+  //// ============
 
   TVector3 *tofit, *tofit2;
  
@@ -850,7 +850,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
   // radius of curvature
   Double_t R = fTrack->GetRad();
   Int_t wireOk = 0;
-  Bool_t first = kTRUE;
+  //Bool_t first = kTRUE; //[R.K.01/2017]unused variable?
 
   for (Int_t i = 0; i < hitcounter; i++) {
    
@@ -1127,7 +1127,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
     return kFALSE;
   }
 
-  first = kTRUE;
+  //first = kTRUE; //[R.K.01/2017]unused variable?
   wireOk = 0;
   Int_t okcounter = 0;
   for(Int_t i = 0; i < (2*hitcounter); i+=2) {
@@ -1905,7 +1905,7 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
   }
 
   // error <--> resolution
-  Double_t sigr, sigxy, sigx, sigy; // = 0.14;
+  Double_t sigr, sigx, sigy; // = 0.14;   sigxy,  //[R.K.01/2017]unused variable?
     
   // FITTING IN X-Y PLANE:
   // v = a + bu
@@ -2007,7 +2007,7 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
 	sigr = 0.0150;
 	sigx = fabs(sigr * TMath::Cos(TMath::ATan(marray.At(i))));
 	sigy = fabs(sigr * TMath::Sin(TMath::ATan(marray.At(i))));
-	sigxy = sigr * TMath::Sqrt(fabs(TMath::Cos(TMath::ATan(marray.At(i))) * TMath::Sin(TMath::ATan(marray.At(i)))));;
+	//sigxy = sigr * TMath::Sqrt(fabs(TMath::Cos(TMath::ATan(marray.At(i))) * TMath::Sin(TMath::ATan(marray.At(i)))));; //[R.K.01/2017]unused variable?
       }
     }
 
@@ -2263,12 +2263,12 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
   // ZFIT =======
   if(hitcounter == 0) return kFALSE;
   
-  Double_t Sxx, Sxz;
+  //Double_t Sxx, Sxz; //[R.K. 01/2017] unused variable?
   //Double_t fitm, fitp; //[R.K. 01/2017] unused variable?
   Double_t sigz = 1.;  // CHECK
   
-  Sxx = 0.;
-  Sxz = 0.;
+  //Sxx = 0.; //[R.K. 01/2017] unused variable?
+  //Sxz = 0.; //[R.K. 01/2017] unused variable?
   // ============
 
   TVector3 *tofit, *tofit2;
@@ -2286,7 +2286,7 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
   // radius of curvature
   Double_t R = fTrack->GetRad();
   Int_t wireOk = 0;
-  Bool_t first = kTRUE;
+  //Bool_t first = kTRUE; //[R.K. 01/2017] unused variable?
 
   for (Int_t i = 0; i < hitcounter; i++) {
    
@@ -2559,7 +2559,7 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
     return kFALSE;
   }
 
-  first = kTRUE;
+  //first = kTRUE; //[R.K. 01/2017] unused variable?
   wireOk = 0;
   Int_t okcounter = 0;
   for(Int_t i = 0; i < (2*hitcounter); i+=2) {

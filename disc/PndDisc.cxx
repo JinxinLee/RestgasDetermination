@@ -373,7 +373,7 @@ Bool_t PndDisc::ProcessHits(FairVolume* v)
                                            "track->T(): %g\tgMC->TrackTime(): %g\tev_header->GetT(): %g\n",
                                            track->T(), gMC->TrackTime(), ev_header->GetT());
 
-            double internal_reflection_angle = 0.0;
+            //double internal_reflection_angle = 0.0; //[R.K. 01/2017] unused variable
             std::map<int, double>::iterator it = internal_reflection_angle_of_photons.find(current_track);
 
             if(it == internal_reflection_angle_of_photons.end())
@@ -382,7 +382,7 @@ Bool_t PndDisc::ProcessHits(FairVolume* v)
                         "No registered total internal reflection angle for photon track id %d\n",
                         current_track);
             } else {
-                internal_reflection_angle = it->second;
+                //internal_reflection_angle = it->second; //[R.K. 01/2017] unused variable
                 internal_reflection_angle_of_photons.erase(it);
             }
 

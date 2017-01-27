@@ -64,11 +64,11 @@ class PndGemEmpty : public FairTask
 
  private:
 
-  TString fInBranchName;
+  BinaryFunctor* fFunctor; //!
   TClonesArray* fInBranch;
   TClonesArray* fOutBranch;
+  TString fInBranchName;
 
-  BinaryFunctor* fFunctor; //!
 
   /** Get parameter containers **/
   virtual void SetParContainers();

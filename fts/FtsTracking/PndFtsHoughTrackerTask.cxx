@@ -77,29 +77,21 @@ using std::endl;
 // ---- Default constructor -------------------------------------------
 PndFtsHoughTrackerTask::PndFtsHoughTrackerTask(Int_t verbose, Bool_t persistence)
 : FairTask("PndFtsHoughTrackerTask", verbose),
-  fSaveDebugInfo(kFALSE),
+  fLogger(FairLogger::GetLogger()),
   fPersistence(persistence),
-  fEventNr(0),
-  //  fOutFile(0),
-
-  // arrays
+  fFtsBranchId(0),
+  fFtsHitArray(0),
+  fFtsMcPoints(0),
   fFtsParameters(0),
   fFtsTubeArray(0),
-  fFtsHitArray(0),
-  fFtsBranchId(0),
-  fTracksArrayName("FTSTrkHough"),
-
-  // B field
   fField(0),
-
-  // Debugging
-//  fHoughTrackCands(0),
-  fLogger(FairLogger::GetLogger()),
-  fFtsMcPoints(0),
-
-  // output
+  fTracksArrayName("FTSTrkHough"),
   fTrackCands(0),
-  fTracks(0)
+  fTracks(0),
+  fSaveDebugInfo(kFALSE),
+  fEventNr(0)
+  //  fOutFile(0),
+  //  fHoughTrackCands(0),
 {
 	if(3<fVerbose) std::cout << "PndFtsHoughTrackerTask is the tracker ptr " << this << '\n';
 }

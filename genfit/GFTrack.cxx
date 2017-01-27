@@ -50,7 +50,7 @@ GFTrack::~GFTrack() {
   }
 }
 
-GFTrack::GFTrack(const GFTrack& _tr) {
+GFTrack::GFTrack(const GFTrack& _tr) :TObject(_tr) {
   fCand=_tr.fCand;
   fCardinal_rep=_tr.fCardinal_rep;
   fNextHitToFit=_tr.fNextHitToFit;

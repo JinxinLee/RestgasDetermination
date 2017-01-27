@@ -46,14 +46,14 @@ using std::vector;
 //----------------
 
 PndEmcCluster::PndEmcCluster()  : 
-	fEnergyValid( false ),
-	fEnergy( 0 ),
-	fWhereValid( false ),
-	fWhere( TVector3(0,0,0) ),
 	fDigiList(),
 	fMcList(),
 	fMemberDigiMap(),
 	fLocalMaxMap(),
+	fEnergyValid( false ),
+	fEnergy( 0 ),
+	fWhereValid( false ),
+	fWhere( TVector3(0,0,0) ),
 	fNbumps(0),
 	fZ20(0),
 	fZ53(0),

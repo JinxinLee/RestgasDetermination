@@ -15,7 +15,7 @@
 
 // ------------------------------------------------------------------------
 PndFlatParticleGenerator::PndFlatParticleGenerator() :
-  fPDGType(0),fMult(0),fPDGMass(0), fEvent(0),
+  fPDGType(0),fMult(0),fEvent(0), fPDGMass(0),
   fX(0),fY(0),fZ(0),
   fX1(0),fY1(0),fX2(0),fY2(0),
   fEtaRangeIsSet(0),fYRangeIsSet(0),fThetaRangeIsSet(0),
@@ -32,7 +32,7 @@ PndFlatParticleGenerator::PndFlatParticleGenerator() :
 
 // ------------------------------------------------------------------------
 PndFlatParticleGenerator::PndFlatParticleGenerator(Int_t pdgid, Int_t mult) :
-  fPDGType(pdgid),fMult(mult),fPDGMass(0), fEvent(0),
+  fPDGType(pdgid),fMult(mult), fEvent(0),fPDGMass(0),
   fX(0),fY(0),fZ(0),
   fX1(0),fY1(0),fX2(0),fY2(0),
   fEtaRangeIsSet(0),fYRangeIsSet(0),fThetaRangeIsSet(0),

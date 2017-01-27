@@ -85,8 +85,8 @@ std::ostream& operator <<(std::ostream& os, const std::map<Int_t, std::vector<In
 
 
 // -----   Default constructor   -------------------------------------------
-FairEvtFilterOnSingleParticleCounts::FairEvtFilterOnSingleParticleCounts() : fFilterPdg(kFALSE),
-		FairEvtFilter(" ", "FairEvtFilterOnSingleParticleCounts"), fFilterCharge(kFALSE),
+FairEvtFilterOnSingleParticleCounts::FairEvtFilterOnSingleParticleCounts() : 
+		FairEvtFilter(" ", "FairEvtFilterOnSingleParticleCounts"), fFilterPdg(kFALSE),fFilterCharge(kFALSE),
 		fFilterMom(kFALSE),fFilterGeom(kFALSE)
 {
 	SetDefaultBoundaries();
@@ -95,7 +95,7 @@ FairEvtFilterOnSingleParticleCounts::FairEvtFilterOnSingleParticleCounts() : fFi
 
 // -----   Constructor with name and title   ------------------------------------
 FairEvtFilterOnSingleParticleCounts::FairEvtFilterOnSingleParticleCounts(const char* name, const char* title)
-: fFilterPdg(kFALSE), FairEvtFilter(name, title), fFilterCharge(kFALSE),
+: FairEvtFilter(name, title),fFilterPdg(kFALSE),  fFilterCharge(kFALSE),
   fFilterMom(kFALSE),fFilterGeom(kFALSE)
 {
 	SetDefaultBoundaries();

@@ -31,10 +31,10 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndMdt::PndMdt() 
-  :  FairDetector(), fMdtCollection(0), fTrkIn(-1), 
-     fBarrel(""), fEndcap(""), fMuonFilter(""), fForward(""),
-     mdtMagnet(0), mdtMFI(0), mdtCoil(0), fVerboseLevel(0),
-     fELoss(0), fPos_In(), fMom_In(), fTime(0)
+  :  FairDetector(), fMdtCollection(0), fTrkIn(-1),
+     fELoss(0), fTime(0), fPos_In(), fMom_In(), 
+     fVerboseLevel(0),mdtMagnet(0), mdtCoil(0), mdtMFI(0), 
+     fBarrel(""), fEndcap(""), fMuonFilter(""), fForward("")
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
 }
@@ -43,10 +43,10 @@ PndMdt::PndMdt()
 
 // -----   Inherited constructor   -----------------------------------------
 PndMdt::PndMdt(const char* name, Bool_t active)
-  : FairDetector(name,active), fMdtCollection(0), fTrkIn(-1), 
-     fBarrel(""), fEndcap(""), fMuonFilter(""), fForward(""),
-     mdtMagnet(0), mdtMFI(0), mdtCoil(0), fVerboseLevel(0),
-     fELoss(0), fPos_In(), fMom_In(), fTime(0)
+  : FairDetector(name,active), fMdtCollection(0), fTrkIn(-1),
+     fELoss(0), fTime(0), fPos_In(), fMom_In(), 
+     fVerboseLevel(0),mdtMagnet(0), mdtCoil(0), mdtMFI(0), 
+     fBarrel(""), fEndcap(""), fMuonFilter(""), fForward("")
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
 }

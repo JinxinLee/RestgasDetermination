@@ -28,10 +28,10 @@ using std::endl;
 // Constructors --
 //----------------
 PndMdtWaveform::PndMdtWaveform():
-  fTrackId(-1)
+  FairTimeStamp()
+  ,fTrackId(-1)
   ,fDetectorId(-1)
   ,fSignal(40,0.)
-  ,FairTimeStamp()
 { }
 
 
@@ -40,8 +40,8 @@ PndMdtWaveform::PndMdtWaveform():
 PndMdtWaveform::PndMdtWaveform(Int_t trackId, Int_t detId, Double_t time, Bool_t isWire) :
   fTrackId(trackId)
   ,fDetectorId(detId)
-  ,fSignal(40,0.)
   ,fIsWireSig(isWire)
+  ,fSignal(40,0.)
 {
   SetTimeStamp(time);
 }
@@ -49,8 +49,8 @@ PndMdtWaveform::PndMdtWaveform(Int_t trackId, Int_t detId, Double_t time, Bool_t
 PndMdtWaveform::PndMdtWaveform(const PndMdtWaveform& copy):FairTimeStamp(copy),
   fTrackId(copy.fTrackId)
   ,fDetectorId ( copy.fDetectorId)
-  ,fSignal(copy.fSignal)
   ,fIsWireSig(copy.fIsWireSig)
+  ,fSignal(copy.fSignal)
 {
   SetTimeStamp(copy.GetTimeStamp());
   SetTimeStampError(copy.GetTimeStampError());

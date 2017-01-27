@@ -275,7 +275,7 @@ void PndDiscTaskPID::Exec(Option_t* opt)
                 {
                     if((pixel - pixel_prediction[i][0][sensor_id] < 5 && pixel - pixel_prediction[i][0][sensor_id] > -5) || (pixel - pixel_prediction[i][1][sensor_id] < 5 && pixel - pixel_prediction[i][1][sensor_id] > -5) || (pixel - pixel_prediction[i][2][sensor_id] < 5 && pixel - pixel_prediction[i][2][sensor_id] > -5))
                     {
-                        double propagation = tdc - t[i]; //Calculation of photon propagation time
+                        //double propagation = tdc - t[i]; //Calculation of photon propagation time //[R.K. 01/2017] unused variable
                         //double dt = propagation - time_prediction[i][k][sensor_id]; //Calculation of time difference //[R.K. 01/2017] unused variable?
                         prob[k] += log(gauss(pixel,pixel_prediction[i][k][sensor_id],4)); //Likelihood calculation
                     }

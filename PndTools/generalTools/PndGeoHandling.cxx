@@ -41,7 +41,7 @@ PndGeoHandling* PndGeoHandling::Instance(){
 	return fInstance;
 }
 
-PndGeoHandling::PndGeoHandling():fVerbose(0),fGeoMan(0),fSensorNamePar(0),fRtdb(0),fLevel(0),fFullPath(true),fRunId(0),fLevelNames()
+PndGeoHandling::PndGeoHandling():fGeoMan(0),fSensorNamePar(0),fRtdb(0),fLevelNames(),fLevel(0),fFullPath(true),fRunId(0),fVerbose(0)
 {
   if(fInstance) return;
   fInstance = this;
@@ -62,7 +62,7 @@ PndGeoHandling::PndGeoHandling():fVerbose(0),fGeoMan(0),fSensorNamePar(0),fRtdb(
 }
 
 
-PndGeoHandling::PndGeoHandling(PndSensorNamePar* SensorNamePar):fVerbose(0), fGeoMan(gGeoManager), fSensorNamePar(SensorNamePar), fFullPath(true), fRunId(0), fLevelNames()
+PndGeoHandling::PndGeoHandling(PndSensorNamePar* SensorNamePar): fGeoMan(gGeoManager), fSensorNamePar(SensorNamePar),fRtdb(), fLevelNames(), fLevel(0),fFullPath(true), fRunId(0),fVerbose(0)
 {
 	if (fInstance) return;
 	fInstance = this;
@@ -86,7 +86,7 @@ void PndGeoHandling::SetParContainers()
   FairTask::SetParContainers();
 }
 
-PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0),fGeoMan(),fSensorNamePar(),fRtdb(),fLevel(0),fFullPath(true),fRunId(0),fLevelNames()
+PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fGeoMan(),fSensorNamePar(),fRtdb(),fLevelNames(),fLevel(0),fFullPath(true),fRunId(0),fVerbose(0)
 {
   if(fInstance) return;
   fInstance = this;
@@ -106,7 +106,7 @@ PndGeoHandling::PndGeoHandling(TString mcFile, TString parFile):fVerbose(0),fGeo
 	GetSensorNamePar();
 }
 
-PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fVerbose(0),fGeoMan(),fSensorNamePar(),fRtdb(),fLevel(0),fFullPath(true),fRunId(0),fLevelNames()
+PndGeoHandling::PndGeoHandling(Int_t runId, TString parFile):fGeoMan(),fSensorNamePar(),fRtdb(),fLevelNames(),fLevel(0),fFullPath(true),fRunId(0),fVerbose(0)
 {
   if(fInstance) return;
   fInstance = this;

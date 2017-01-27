@@ -155,17 +155,17 @@ private:
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
   Int_t fPosIndex;      //! 
+  TClonesArray* fEmcCollection;        //! Hit collection
   //Int_t volDetector;     //!  MC volume ID of MUO
   Bool_t         bIsFastFsc;         //!  Flag for fast fsc geometry
   Bool_t         fStoreData; // Flag which specify whether points are stored or not
-  
-  TClonesArray* fEmcCollection;        //! Hit collection
+  Bool_t  fwendcap;         //!  Flag for the new FwEndCap geometry
+  Bool_t  bwendcap;         //!  Flag for the new BwEndCap geometry
+
 
   TString fgeoName2;
   TString fgeoName3;
   TString fgeoName4;
-  Bool_t  fwendcap;         //!  Flag for the new FwEndCap geometry
-  Bool_t  bwendcap;         //!  Flag for the new BwEndCap geometry
 
   Int_t MapperVersion;
   

@@ -96,11 +96,11 @@ int main(int argc, char** argv)
 //-----------------------------------------------------------------------
   #include "FTFtest2.icc"   // Initialization
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   
-G4double sigTot = 0; 
-G4double sigEl  = 0;
-G4double sigIn  = 0;
+//G4double sigTot = 0;  //[R.K. 01/2017] unused variables
+//G4double sigEl  = 0; //[R.K. 01/2017] unused variables
+//G4double sigIn  = 0; //[R.K. 01/2017] unused variables
 
-int npart;
+//int npart; //[R.K. 01/2017] unused variables
  //   Root initialization
  TFile f1("FTF.root","RECREATE","ROOT_Tree");
 
@@ -163,12 +163,12 @@ int npart;
              "Plab          Total        Elastic      Inelastic"   <<G4endl;
      G4cout<<" "<<Plab/GeV<<" "<< chipsTot<<" "<<chipsEl<<" "<<chipsIn <<G4endl<<G4endl;
 
-     sigTot=chipsTot; sigEl=chipsEl; sigIn=chipsIn;
+     //sigTot=chipsTot; sigEl=chipsEl; sigIn=chipsIn; //[R.K. 01/2017] unused variables
     } else
     {
-     sigTot = cross_sec; 
-     sigEl  = cross_secel;
-     sigIn  = cross_inel;
+     //sigTot = cross_sec;  //[R.K. 01/2017] unused variables
+     //sigEl  = cross_secel; //[R.K. 01/2017] unused variables
+     //sigIn  = cross_inel; //[R.K. 01/2017] unused variables
 
      G4cout<<"Proposed Xs (mb) are used: Tot El In: "
            <<cross_sec<<" "<<cross_secel<<" "<<cross_inel<<G4endl;
@@ -184,7 +184,7 @@ int npart;
     G4ParticleDefinition* pd;
     G4ThreeVector  mom;
     G4LorentzVector labv, fm;
-    G4double e, px, py, pz, pt, theta;
+    G4double e, px, py, pz, theta; //pt,  //[R.K. 01/2017] unused variables
     G4VParticleChange* aChange = 0;
 
 //  G4double E=energy+part->GetPDGMass();                                  // Elab Proj
@@ -244,7 +244,7 @@ int npart;
       labv -= dee;
 
       G4int n = aChange->GetNumberOfSecondaries();     // Multiplicity of prod. part.
-      npart = n;
+      //npart = n; //[R.K. 01/2017] unused variables
    fEvt->Clear();
    Int_t cnt = 0;
  
@@ -283,7 +283,7 @@ int npart;
         px = mom.x()/GeV;
         py = mom.y()/GeV;
         pz = mom.z()/GeV;    
-        pt = std::sqrt(px*px +py*py)/GeV; 
+        //pt = std::sqrt(px*px +py*py)/GeV;  //[R.K. 01/2017] unused variables
         e  = fm.e()/GeV; // - m;
         theta = mom.theta();
 if(std::abs(pd->GetBaryonNumber()) < 2)

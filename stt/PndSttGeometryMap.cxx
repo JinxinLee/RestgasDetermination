@@ -50,10 +50,10 @@
 
 using namespace std;
 
-PndSttGeometryMap::PndSttGeometryMap() : fTubeArray(0), fGeoType(-1), fVerbose(0) {}
+PndSttGeometryMap::PndSttGeometryMap() : fGeoType(-1), fVerbose(0), fTubeArray(0) {}
 
 
-PndSttGeometryMap::PndSttGeometryMap(TClonesArray *tubearray, Int_t geoType) : fTubeArray(tubearray), fGeoType(geoType), fVerbose(0) {
+PndSttGeometryMap::PndSttGeometryMap(TClonesArray *tubearray, Int_t geoType) : fGeoType(geoType), fVerbose(0), fTubeArray(tubearray) {
   if(fGeoType != 1) cout << "ERROR PndSttGeometryMap: fGeoType " << fGeoType << " not supported" << endl;
   SetGeneralParameters();
   GenerateStrawMap(1);
@@ -223,7 +223,8 @@ bool PndSttGeometryMap::InStraightLine(int tube1, int tube2, int tube3) const {
 					- GetAngleBetweenTubes(tube1, tube3));
 
 	//accept a deviation of 1 percent
-	if ((TMath::Pi() * 0.99) < diff & diff < (TMath::Pi() * 1.01)) {
+	//if ((TMath::Pi() * 0.99) < diff & diff < (TMath::Pi() * 1.01)) {
+	if (((TMath::Pi() * 0.99) < diff) && (diff < (TMath::Pi() * 1.01))) {  //[R.K. 01/2017] more explicit parenthesis logic
 		//tube1 is in the middle
 		return true;
 	} else if (diff < 0.01) {

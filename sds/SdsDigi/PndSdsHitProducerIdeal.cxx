@@ -97,8 +97,8 @@ void PndSdsHitProducerIdeal::Exec(Option_t* opt)
   PndSdsMCPoint *point = 0;
 
   Int_t
-    detID = 0,       // Detector ID
-    trackID = 0;     // Track index
+    detID = 0;      // Detector ID
+    //trackID = 0;     // Track index //[R.K. 01/2017] unused variable
 
   TVector3
     pos, dpos;       // Position and error vectors
@@ -118,7 +118,7 @@ void PndSdsHitProducerIdeal::Exec(Option_t* opt)
       detID = point->GetDetectorID();
 
       // MCTrack ID
-      trackID = point->GetTrackID();
+      //trackID = point->GetTrackID(); //[R.K. 01/2017] unused variable
 
      TVector3
 	position(point->GetX(), point->GetY(), point->GetZ());

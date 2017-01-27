@@ -69,12 +69,12 @@ class PndEmcHit : public FairHit
   const std::vector<Int_t> &GetMcList() {return fMcList;}
 
  protected:
-  Double32_t fEnergy;    // hit amplitude
   Double32_t fTime;      // time
+  Double32_t fEnergy;    // hit amplitude
  
 
-  std::vector<PndEmcPoint*> fPointList; //  points contributed to hit
   std::vector<Int_t> fMcList; //  Mc TrackIndex contributed to hit
+  std::vector<PndEmcPoint*> fPointList; //  points contributed to hit
   FairMultiLinkedData fTrackEntering; // Links to tracks entering the crystal
   FairMultiLinkedData fTrackExiting;  // Links to tracks exiting the crystal
 

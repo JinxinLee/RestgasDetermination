@@ -24,7 +24,7 @@ struct SensorGridPhotodetector::PixelTraits {
 
 
 SensorGridPhotodetector::SensorGridPhotodetector(SensorGridBase* sensor_grid_, bool per_pixel_traits_, double const & efficiency_init, double const & noise_rate_init, double const & time_res_init)
-    : sensor_grid(sensor_grid_), per_pixel_traits(per_pixel_traits_), use_inhomogenity_factor(false)
+    :  per_pixel_traits(per_pixel_traits_), use_inhomogenity_factor(false),sensor_grid(sensor_grid_)
 {
     Init(sensor_grid_, per_pixel_traits_, efficiency_init, noise_rate_init, time_res_init);
 }

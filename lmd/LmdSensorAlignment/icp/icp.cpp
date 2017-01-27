@@ -23,10 +23,11 @@ Street, Fifth Floor, Boston, MA 02110-1301, USA
 using namespace std;
 
 Icp::Icp (double *M,const int32_t M_num,const int32_t dimension) :
-		  dim(dimension), sub_step(10), max_iter(200), min_delta(1e-6),
-		  current_delta(1), euclidean_fitness(1e14), T_num(0),
-		  hasConvergedBool(false),iterations(0),instantForce(false),
-		  giveOutputIfNotConvergedB(false), checkEventTime(false) {
+		  dim(dimension), sub_step(10), max_iter(200),  
+      T_num(0),iterations(0),min_delta(1e-6),
+		  current_delta(1), euclidean_fitness(1e14),
+		  hasConvergedBool(false), checkEventTime(false),
+      giveOutputIfNotConvergedB(false),instantForce(false)      {
 
 	// check for correct dimensionality
 	if (dimension!=2 && dimension!=3) {

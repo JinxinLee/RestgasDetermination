@@ -140,11 +140,11 @@ class PndStt : public FairDetector
 
   TObjArray *fPassNodes; //!
 
-  // flag to tell if a track entered the tube
-  Bool_t fInFlag; //!
-
   // geometry type
   Int_t fGeoType;
+
+  // flag to tell if a track entered the tube
+  Bool_t fInFlag; //!
 
   /** Private method AddHit
    **

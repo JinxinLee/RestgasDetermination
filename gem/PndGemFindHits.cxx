@@ -769,7 +769,7 @@ void PndGemFindHits::SortDigis() {
 
   // Fill digis into sets
   PndGemDigi*     digi = NULL;
-  PndGemCluster* clust = NULL;
+  //PndGemCluster* clust = NULL; //[R.K.01/2017]unused variable?
   PndGemSensor* sensor = NULL;
   Int_t stationNr = -1;
   Int_t sensorNr  = -1;
@@ -780,7 +780,7 @@ void PndGemFindHits::SortDigis() {
 
   for (Int_t iDigi=0; iDigi<nDigis; iDigi++) {
     digi  = (PndGemDigi*)    fDigis->At(iDigi);
-    clust = (PndGemCluster*) fDigis->At(iDigi);
+    //clust = (PndGemCluster*) fDigis->At(iDigi); //[R.K.01/2017]unused variable?
     stationNr = digi->GetStationNr();
     sensorNr  = digi->GetSensorNr();
     iSide     = digi->GetSide();
@@ -846,7 +846,7 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
   TVector3 pos, dpos;
   PndGemDigi* digiF = NULL;
   PndGemDigi* digiB = NULL;
-  PndGemCluster* clusterB = NULL;
+  //PndGemCluster* clusterB = NULL; //[R.K.01/2017]unused variable?
 
   set<Int_t>::iterator it1;
   set<Int_t>::iterator it2;
@@ -864,7 +864,7 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
     for (it2=bSet.begin(); it2!=bSet.end(); it2++) {
       iDigiB = (*it2);
       digiB  = (PndGemDigi*) fDigis->At(iDigiB);
-      clusterB = (PndGemCluster*) fDigis->At(iDigiB);
+      //clusterB = (PndGemCluster*) fDigis->At(iDigiB); //[R.K.01/2017]unused variable?
       if ( ! digiB ) {
 	cout << "-W- " << GetName() << "::FindHits: Invalid digi index " 
 	     << iDigiB << " in front set of sensor " 

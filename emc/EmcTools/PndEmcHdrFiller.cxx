@@ -26,8 +26,8 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcHdrFiller::PndEmcHdrFiller() :
-fHitArray(0), fDigiArray(0), fCluArray(0), fHdrArray(0),
-  FairTask("EMC Header Filler") { 
+  FairTask("EMC Header Filler"),fHitArray(0), fDigiArray(0), fCluArray(0), fHdrArray(0)
+ { 
 }
 // -------------------------------------------------------------------------
 

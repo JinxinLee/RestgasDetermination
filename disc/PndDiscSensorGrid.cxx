@@ -55,8 +55,8 @@ BasicGrid::BasicGrid() { }
 
 BasicGrid::BasicGrid(const double & x_min_, const double & x_width_, const double & x_pitch_, int n_x_,
                      const double & y_min_, const double & y_width_, const double & y_pitch_, int n_y_)
-    : SensorGridBase(), x_min(x_min_), x_width(x_width_), x_pitch(x_pitch_), n_x(n_x_),
-      y_min(y_min_), y_width(y_width_), y_pitch(y_pitch_), n_y(n_y_)
+    : SensorGridBase(), x_min(x_min_), x_width(x_width_), x_pitch(x_pitch_),
+      y_min(y_min_), y_width(y_width_), y_pitch(y_pitch_), n_x(n_x_), n_y(n_y_)
 {
     ///\todo: throw here
     x_width_over_two_pitch = x_width/(2.*x_pitch);

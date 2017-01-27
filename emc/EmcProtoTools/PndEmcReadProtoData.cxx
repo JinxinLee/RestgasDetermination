@@ -15,7 +15,7 @@
 #include "PndEmcMapper.h"
 
 PndEmcReadProtoData::PndEmcReadProtoData(ReadMainzProto60 *datareader, Bool_t StoreHits, Int_t debuglevel)
-	:lDataReader(datareader),lStoreHits(StoreHits),lDebug(debuglevel),IsInit(kFALSE),lOnlyTagged(kFALSE),lOnlyPrompt(kFALSE)
+	:lDataReader(datareader),lStoreHits(StoreHits),lDebug(debuglevel),lOnlyTagged(kFALSE),lOnlyPrompt(kFALSE),IsInit(kFALSE)
 {};
 
 InitStatus PndEmcReadProtoData::Init(){

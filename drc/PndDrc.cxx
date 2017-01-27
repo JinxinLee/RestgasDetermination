@@ -66,6 +66,7 @@ using std::cout;
 // -----   Default constructor   -------------------------------------------
 PndDrc::PndDrc() 
   : FairDetector("PndDrcDefault",kTRUE),
+    fPersistency(kTRUE),
     fpi(TMath::Pi()),			//!
     fzup(-999.),		//!
     fzdown(-999.),
@@ -106,7 +107,6 @@ PndDrc::PndDrc()
     fStopSecondaries(kFALSE),
     fStopChargedTrackAfterDIRC(kFALSE),
     fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
-    fPersistency(kTRUE),
     
     fPdgCode(-1),
     fThetaC(-1),
@@ -130,6 +130,7 @@ PndDrc::PndDrc()
 // -----   Standard constructor   ------------------------------------------
 PndDrc::PndDrc(const char* name, Bool_t active)
   : FairDetector(name, active),
+    fPersistency(kTRUE),
     fpi(TMath::Pi()),			//!
     fzup(-999.),		//!
     fzdown(-999.),
@@ -171,7 +172,6 @@ PndDrc::PndDrc(const char* name, Bool_t active)
 
     fStopChargedTrackAfterDIRC(kFALSE),
     fGeo(new PndGeoDrc()),             //! Pointer to basic DRC geometry data
-    fPersistency(kTRUE),
     
     fPdgCode(-1),
     fThetaC(-1),

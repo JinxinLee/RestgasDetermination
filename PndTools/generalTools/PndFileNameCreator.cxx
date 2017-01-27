@@ -6,16 +6,16 @@
 
 PndFileNameCreator::PndFileNameCreator():
 	fFileName(), fExtPar("par"), fExtSim("sim"), fExtDigi("digi"), fExtReco("reco"), fExtPid("pid"),
-	fExtTrackF("trackF"), fExtIdealTrackF("idealTrackF"), fExtKalman("kalman"),
-	fExtRiemann("riemann"),fExtCombinedRiemann("combRiemann"),fExtVertex("vertex"),
+	fExtTrackF("trackF"), fExtIdealTrackF("idealTrackF"),	fExtRiemann("riemann"),
+  fExtCombinedRiemann("combRiemann"), fExtKalman("kalman"),fExtVertex("vertex"),
 	fVerbose(0)
 {
 }
 
 PndFileNameCreator::PndFileNameCreator(std::string fileName):
 	fFileName(fileName), fExtPar("par"), fExtSim("sim"), fExtDigi("digi"), fExtReco("reco"), fExtPid("pid"),
-	fExtTrackF("trackF"), fExtIdealTrackF("idealTrackF"), fExtKalman("kalman"),
-	fExtRiemann("riemann"),fExtCombinedRiemann("combRiemann"),fExtVertex("vertex"),
+	fExtTrackF("trackF"), fExtIdealTrackF("idealTrackF"),	fExtRiemann("riemann"),
+  fExtCombinedRiemann("combRiemann"), fExtKalman("kalman"),fExtVertex("vertex"),
 	fVerbose(0)
 {
 	std::cout << "PndFileNameCreator::fFileName " << fileName << " " << fileName.size() << std::endl;

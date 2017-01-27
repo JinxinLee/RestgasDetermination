@@ -147,6 +147,7 @@ private:
 
   // Private Data Members ------------
   TVectorD fn;  		///< normal vector to plane;
+  TVectorD fav;  		///< average over all hits
   double fc;     		///< distance of plane to origin
 
   double fm; 			///< parameters of sz-fit
@@ -154,25 +155,25 @@ private:
   double fmError;		///< Error of fit
   double ftError;		///< Error of fit
   double fChi2;			///< Chisquare of sz fit
+  TMatrixD fcovPlane; 	///< full covarince matrix of the plane;
+  TMatrixD fjacRXY;  	///< jacobian matrix to transform from c,n1,n2,n2 to r,x,y
+  TMatrixD fcovRXY;
+  
+  int fVerbose;
+  
   bool fFitDone;
   bool fSZFitDone;
   bool fErrorCalcDone;
-
+  double fweight; 		///< sum over all weights (1/(sigmaXY*sigmaXY))
+  bool ftrefit;
   double fVertexCut;
 
   std::vector<PndRiemannHit> fHits;
   Double_t fStartAlpha;
   Double_t fStopAlpha;
-  TVectorD fav;  		///< average over all hits
-  double fweight; 		///< sum over all weights (1/(sigmaXY*sigmaXY))
-  TMatrixD fcovPlane; 	///< full covarince matrix of the plane;
-  TMatrixD fjacRXY;  	///< jacobian matrix to transform from c,n1,n2,n2 to r,x,y
-  TMatrixD fcovRXY;
 
   std::map<TString, Int_t> fBranchNameMap;
-  int fVerbose;
   /////////////////
-    bool ftrefit;
   ////////////////
 
 

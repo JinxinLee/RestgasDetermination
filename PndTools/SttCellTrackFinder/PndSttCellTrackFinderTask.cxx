@@ -166,7 +166,7 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 // -----   Public method Exec   --------------------------------------------
 void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 
-	FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader;
+	//FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader; //[R.K. 01/2017] unused variable?
 	//int eventNumber = myEventHeader->GetMCEntryNumber(); //[R.K. 01/2017] unused variable?
 
 	if (fVerbose > 0) {

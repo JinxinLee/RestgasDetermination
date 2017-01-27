@@ -55,7 +55,7 @@ PndEmcApdHit::PndEmcApdHit(Int_t trackid, Int_t id, Float_t energy, Float_t time
 
 //Copy
 PndEmcApdHit::PndEmcApdHit(const PndEmcApdHit &copy)
-:FairHit(copy),fEnergy(copy.fEnergy), fTime(copy.fTime), fNPoints(copy.fNPoints), fPointList(copy.fPointList)
+:FairHit(copy), fTime(copy.fTime),fEnergy(copy.fEnergy), fPointList(copy.fPointList), fNPoints(copy.fNPoints)
 {
 	fRefIndex=copy.fRefIndex;
 	fDetectorID=copy.fDetectorID;

@@ -46,16 +46,39 @@ using std::cout;
 using std::endl;
 using std::fstream;
 
-PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis):
-	fWaveformArray(0), fDigiArray(0), fSampleRate(0), fSampleRate_PMT(0), fEnergyDigiThreshold(0),
-	fASIC_Shaping_int_time(0), fPMT_Shaping_int_time(0), fPMT_Shaping_diff_time(0),
-	fCrystal_time_constant(0), fShashlyk_time_constant(0), fNumber_of_samples_in_waveform(0), 
-	fNumber_of_samples_in_waveform_pmt(0), fDigiPosMethod(0), fEmcDigiRescaleFactor(0),
-	fEmcDigiPositionDepthPWO(0), fEmcDigiPositionDepthShashlyk(0), fPulseshape(0),
-	fPulseshape_pmt(0), fpsaAlgorithm(0), fpsaAlgorithm_pmt(0), fpsaAlgorithm_fwd(0), fDigiPar(new PndEmcDigiPar()),
-	fRecoPar(new PndEmcRecoPar()), fVerbose(verbose), fStoreDigis(storedigis), 
-	fWfNormalisation(0), fWfNormalisation_pmt(0), fWfNormalisation_fwd(0), fTimeOrderedDigi(kFALSE), fFpgaPar(new PndEmcFpgaPar()) ,
-	fDigitizationVersion2(kFALSE),fCalibrator()
+PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis)
+  : fWaveformArray(0)
+  , fDigiArray(0)
+  , fSampleRate(0)
+  , fSampleRate_PMT(0)
+  , fEnergyDigiThreshold(0)
+  ,	fASIC_Shaping_int_time(0)
+  , fPMT_Shaping_int_time(0)
+  , fPMT_Shaping_diff_time(0)
+  ,	fCrystal_time_constant(0)
+  , fShashlyk_time_constant(0)
+  , fNumber_of_samples_in_waveform(0)
+  , fNumber_of_samples_in_waveform_pmt(0)
+  , fDigiPosMethod(0)
+  , fEmcDigiRescaleFactor(0)
+  ,	fEmcDigiPositionDepthPWO(0)
+  , fEmcDigiPositionDepthShashlyk(0)
+  , fPulseshape(0)
+  ,	fPulseshape_pmt(0)
+  , fpsaAlgorithm(0)
+  , fpsaAlgorithm_pmt(0)
+  , fpsaAlgorithm_fwd(0)
+  , fCalibrator()
+  , fDigiPar(new PndEmcDigiPar())
+  ,	fRecoPar(new PndEmcRecoPar())
+  , fFpgaPar(new PndEmcFpgaPar()) 
+  , fVerbose(verbose)
+  , fStoreDigis(storedigis)
+  , fTimeOrderedDigi(kFALSE)
+  , fWfNormalisation(0)
+  , fWfNormalisation_fwd(0)
+  , fWfNormalisation_pmt(0)
+  , fDigitizationVersion2(kFALSE)
 {
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;

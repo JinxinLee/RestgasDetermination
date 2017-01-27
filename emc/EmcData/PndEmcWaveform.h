@@ -144,13 +144,13 @@ class PndEmcWaveform: public FairTimeStamp
 		Int_t fTrackId;	
 		Int_t fDetectorId;
 		Int_t fWaveformLength;
+		std::vector<Double_t>  fSignal; // Signal after FADC
+		std::vector<Double_t>  fSignalError; // Signal after FADC
 		Int_t fHitIndex;
 
 		Double_t fSampleRate;	//in s^(-1)
 		Double_t fBaselineValue;
 
-		std::vector<Double_t>  fSignal; // Signal after FADC
-		std::vector<Double_t>  fSignalError; // Signal after FADC
 		std::vector<Int_t>     fEvt;//combined waveforms from which events, for check.
 
 		//for pileup

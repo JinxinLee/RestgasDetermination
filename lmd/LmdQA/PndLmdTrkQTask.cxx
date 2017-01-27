@@ -238,7 +238,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
     }
     if(fVerbose>7)
       cout<<"    ** ALL REChits are made from MChits: "<<endl;//start MC hit content
-    bool fMCnegative = false;
+    //bool fMCnegative = false; //[R.K. 01/2017] unused variable
     for(int irec=0;irec<nRecHits;irec++){
 	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fRecHits->At(irec));
 	int mcrefbot = myHit->GetSecondMCHit();
@@ -247,7 +247,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(fMCHits->At(mcrefbot));
 	  int MCtrkid = MCPointBot->GetTrackID();
 	  if(MCtrkid<0){
-	    fMCnegative=true;
+	    //fMCnegative=true; //[R.K. 01/2017] unused variable
 	    //MCtrkid = fabs(MCtrkid)+1e4;
 	    MCtrkid = MCtrkid;
 	  }
@@ -261,7 +261,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(fMCHits->At(mcreftop));
 	  int MCtrkid = MCPointTop->GetTrackID();
 	  if(MCtrkid<0){
-	    fMCnegative=true;//TODO: how it is possible???
+	    //fMCnegative=true;//TODO: how it is possible??? //[R.K. 01/2017] unused variable
 	    //	    MCtrkid = fabs(MCtrkid)+1e4;
 	    MCtrkid = MCtrkid;
 	  }
@@ -366,7 +366,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       Int_t diffIDs=1;
 
       ///Matching between MC & Rec on hits level-----------------------------------
-      bool emergExit=false;
+      //bool emergExit=false; //[R.K. 01/2017] unused variable
       if(fVerbose>7)
 	cout<<"    *** REChits in trk (with "<<Ntrkcandhits<<" hits) are made from MChits: "<<endl;//start MC hit content
       for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
@@ -375,13 +375,13 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	Int_t hitID = candhit.GetHitId();
 	PndSdsMergedHit* myHit = (PndSdsMergedHit*)(fRecHits->At(hitID));
 	int mcrefbot = myHit->GetSecondMCHit();
-	bool badpxbot=false;
-	bool badpxtop=false;
+	//bool badpxbot=false; //[R.K. 01/2017] unused variable
+	//bool badpxtop=false; //[R.K. 01/2017] unused variable
 	if(mcrefbot>=0){
 	  PndSdsMCPoint* MCPointBot = (PndSdsMCPoint*)(fMCHits->At(mcrefbot));
 	  int MCtrkid = MCPointBot->GetTrackID();
 	  if(MCtrkid<0){
-	    emergExit=true;
+	    //emergExit=true; //[R.K. 01/2017] unused variable
 	    if(fVerbose>7)  cout<<" "<<MCtrkid<<"!!!";
 	    break;//TODO: how it is possible???
 	  }
@@ -391,7 +391,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	      cout<<" "<<MCtrkid;
 	}
 	else{
-	  badpxbot=true;
+	  //badpxbot=true; //[R.K. 01/2017] unused variable
 	  if(fVerbose>7) cout<<" Ooops,  mcrefbot = "<<mcrefbot;
 	}
 	int mcreftop = myHit->GetRefIndex();
@@ -402,7 +402,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	  PndSdsMCPoint* MCPointTop = (PndSdsMCPoint*)(fMCHits->At(mcreftop));
 	  int MCtrkid = MCPointTop->GetTrackID();
 	  if(MCtrkid<0){ 
-	    emergExit=true;
+	    //emergExit=true; //[R.K. 01/2017] unused variable
 	    if(fVerbose>7)  cout<<" "<<MCtrkid<<"!!!";
 	    break;//TODO: how it is possible???
 	  }
@@ -412,7 +412,7 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
 	      cout<<" "<<MCtrkid;
 	}
 	else{
-	  badpxtop=true;
+	  //badpxtop=true; //[R.K. 01/2017] unused variable
 	  if(fVerbose>7) cout<<" Ooops,  mcreftop = "<<mcreftop;
 	}
 
@@ -425,14 +425,15 @@ void PndLmdTrkQTask::Exec(Option_t* opt)
       //   Sorting MC IDs ---------------------------------------- 
       //TODO: sort it by c++ function
       Int_t k, x;
-      bool ch=false; //Was element changed? 
+      //bool ch=false; //Was element changed?  //[R.K. 01/2017] unused variable
       Int_t nch = 0; //How many times?
       for(Int_t n=0; n<Ntrkcandhits; n++) { // n - current position
 	k=n; x=MCtrkID[n];
 	for(Int_t m=n+1; m<Ntrkcandhits; m++)	// find the least element
 	  if (MCtrkID[m]<x){
 	    k=m; x=MCtrkID[m];	        // k - index for the least element
-	    ch=true; nch++;
+	    //ch=true;  //[R.K. 01/2017] unused variable
+      nch++;
 	  }
 	MCtrkID[k] = MCtrkID[n]; MCtrkID[n] = x; // change position between the least and current elements
       }

@@ -45,27 +45,27 @@ Double_t PndEmcWaveform::ForwardOverlapTime = 390;//(60*10 - 210);
 Double_t PndEmcWaveform::ShashylikOverlapTime = 130;//(60*5.5 - 200);
 
 PndEmcWaveform::PndEmcWaveform():
-	fTrackId(-1)
+   FairTimeStamp()
+  ,fTrackId(-1)
 	,fDetectorId(-1)
 	,fWaveformLength(0)
 	,fSignal(0,0.)
 	,fSignalError(0,0.)
 	,fHitIndex(-1)
 	,fSampleRate(0.)
-	, fBaselineValue(0.)
-	,FairTimeStamp()
+	,fBaselineValue(0.)
 {}
 
 PndEmcWaveform::PndEmcWaveform(int trackId, long detId, Double_t sampleRate, long waveform_length, Int_t hitIndex, Double_t time) :
-	fTrackId(trackId)
+	FairTimeStamp(time)
+	,fTrackId(trackId)
 	,fDetectorId(detId)
 	,fWaveformLength(waveform_length)
 	,fSignal(waveform_length,0.)
 	,fSignalError(waveform_length,0.)
 	,fHitIndex(hitIndex)
 	,fSampleRate(sampleRate)
-	, fBaselineValue(0.)
-	,FairTimeStamp(time)
+	,fBaselineValue(0.)
 {
   if(hitIndex>=0) SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EmcHit", hitIndex));
 }

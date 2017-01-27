@@ -81,35 +81,31 @@ class PndGemDigitize : public FairTask
   TClonesArray*     fPoints;       /** Input array of PndGemPoint **/
   TClonesArray*     fDigis;        /** Output array of PndGemDigi **/
   TClonesArray*     fDigiMatches;  /** Output array of PndGemDigiMatches**/
+  Double_t          fSSigma;
+  Bool_t fSaveOutsideHits; /** whether to save the hits **/
+  TClonesArray* fHitOutsideArray; 
+  Bool_t fRealisticResponse;
+  Int_t             fTNofEvents;
+  Int_t             fTNofPoints;
+  Int_t             fTNofDigis;
+  TRandom2*         fRand;
+  PndGemDigiWriteoutBuffer* fDataBuffer;
+  Bool_t fTimeOrderedDigi;
+  Bool_t fPersistency;                       ///< Persistency flag
+
   Int_t             fNPoints;
   Int_t             fNFailed;
   Int_t             fNOutside;
   Int_t             fNMulti;
   Int_t             fNDigis;
 
-  Double_t          fSSigma;
-
-  Int_t             fTNofEvents;
-  Int_t             fTNofPoints;
-  Int_t             fTNofDigis;
-
   TStopwatch        fTimer;
-  TRandom2*         fRand;
 
   /** Map of active channels (pair detectorId, channel number) 
    ** to index of PndGemDigi **/
   std::map<std::pair<Int_t, Int_t>, Int_t> fChannelMap; //!
  
-  Bool_t fRealisticResponse;
-
-  TClonesArray* fHitOutsideArray; 
-
-  Bool_t fSaveOutsideHits; /** whether to save the hits **/
-			       
-  PndGemDigiWriteoutBuffer* fDataBuffer;
-  Bool_t fTimeOrderedDigi;
-  Bool_t fPersistency;                       ///< Persistency flag
-  
+ 
   /** Get parameter containers **/
   virtual void SetParContainers();
 

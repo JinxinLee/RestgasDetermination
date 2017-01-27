@@ -39,7 +39,7 @@
 using namespace std;
   //________________________________________________________________
 PndFtsDataAccessor::PndFtsDataAccessor():
-  FairTask("FTSDataAccessor"), fMCTracks(0), pdg(0), fPersistence(kTRUE), By(0)
+  FairTask("FTSDataAccessor"), fMCTracks(0), By(0), fPersistence(kTRUE), pdg(0)
 {
     //---
   fVerbose = 0;
