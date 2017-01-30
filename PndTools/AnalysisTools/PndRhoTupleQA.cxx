@@ -606,13 +606,22 @@ void PndRhoTupleQA::qaPull(TString pre, RhoCandidate *c, RhoTuple *n, bool skip)
       TVector3       difpos = c->Pos() - mct->Pos();
       RhoError       covp4  = c->P4Cov();
       RhoError       covpos = c->PosCov();
-      n->Column(pre+"pullpx",   (Float_t) (difp4.Px()/sqrt(covp4(0,0))),    	0.0f );
-      n->Column(pre+"pullpy",   (Float_t) (difp4.Py()/sqrt(covp4(1,1))),    	0.0f );
-      n->Column(pre+"pullpz",   (Float_t) (difp4.Pz()/sqrt(covp4(2,2))),    	0.0f );
-      n->Column(pre+"pulle",    (Float_t) (difp4.E()/sqrt(covp4(3,3))),     	0.0f );
-      n->Column(pre+"pullx",    (Float_t) (difpos.X()/sqrt(covpos(0,0))),    	0.0f );
-      n->Column(pre+"pully",    (Float_t) (difpos.Y()/sqrt(covpos(1,1))),    	0.0f );
-      n->Column(pre+"pullz",    (Float_t) (difpos.Z()/sqrt(covpos(2,2))),    	0.0f );
+      n->Column(pre+"pullpx",   (Float_t) (difp4.Px()/sqrt(covp4(0,0))),               0.0f );
+      n->Column(pre+"pullpy",   (Float_t) (difp4.Py()/sqrt(covp4(1,1))),               0.0f );
+      n->Column(pre+"pullpz",   (Float_t) (difp4.Pz()/sqrt(covp4(2,2))),               0.0f );
+      n->Column(pre+"pulle",    (Float_t) (difp4.E()/sqrt(covp4(3,3))),                0.0f );
+      n->Column(pre+"pullx",    (Float_t) (difpos.X()/sqrt(covpos(0,0))),              0.0f );
+      n->Column(pre+"pully",    (Float_t) (difpos.Y()/sqrt(covpos(1,1))),              0.0f );
+      n->Column(pre+"pullz",    (Float_t) (difpos.Z()/sqrt(covpos(2,2))),              0.0f );
+      n->Column(pre+"pullpxpy", (Float_t) (sqrt(difp4.Px()*difp4.Py()/covp4(0,1))),    0.0f );
+      n->Column(pre+"pullpxpz", (Float_t) (sqrt(difp4.Px()*difp4.Pz()/covp4(0,2))),    0.0f );
+      n->Column(pre+"pullpypz", (Float_t) (sqrt(difp4.Py()*difp4.Pz()/covp4(1,2))),    0.0f );
+      n->Column(pre+"pullpxe",  (Float_t) (sqrt(difp4.Px()*difp4.E()/covp4(0,3))),     0.0f );
+      n->Column(pre+"pullpye",  (Float_t) (sqrt(difp4.Py()*difp4.E()/covp4(1,3))),     0.0f );
+      n->Column(pre+"pullpze",  (Float_t) (sqrt(difp4.Pz()*difp4.E()/covp4(2,3))),     0.0f );
+      n->Column(pre+"pullxy",   (Float_t) (sqrt(difpos.X()*difpos.Y()/covpos(0,1))),   0.0f );
+      n->Column(pre+"pullxz",   (Float_t) (sqrt(difpos.Y()*difpos.Z()/covpos(0,2))),   0.0f );
+      n->Column(pre+"pullyz",   (Float_t) (sqrt(difpos.Y()*difpos.Z()/covpos(1,2))),   0.0f );
     } else {skip=true;}
   }
   
@@ -625,7 +634,16 @@ void PndRhoTupleQA::qaPull(TString pre, RhoCandidate *c, RhoTuple *n, bool skip)
       n->Column(pre+"pullx",    (Float_t) -999.,    	0.0f );
       n->Column(pre+"pully",    (Float_t) -999.,    	0.0f );
       n->Column(pre+"pullz",    (Float_t) -999.,    	0.0f );
-  }
+      n->Column(pre+"pullpxpy", (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullpxpz", (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullpypz", (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullpxe",  (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullpye",  (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullpze",  (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullxy",   (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullxz",   (Float_t) -999.,    	0.0f );
+      n->Column(pre+"pullyz",   (Float_t) -999.,    	0.0f );
+ }
 }
 // -------------------------------------------------------------------------
 
