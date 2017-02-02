@@ -180,8 +180,10 @@ void PndMCIdealTrackFinderNewLinks::CreateTracks()
 		  firstpos = 0.5 * (posin + posout);
 		}
 		else firstpoint.Position(firstpos);
+
 		SmearVector(firstpos, fVtxSigma);
 		firstpoint.Momentum(firstmom);
+
 		if (fRelative) fMomSigma.SetXYZ(fDPoP*firstmom.Mag(),fDPoP*firstmom.Mag(),fDPoP*firstmom.Mag());
 		SmearVector(firstmom, fMomSigma);
 		FairTrackParP firstPar(firstpos, firstmom,
@@ -191,6 +193,7 @@ void PndMCIdealTrackFinderNewLinks::CreateTracks()
 		// last
 		FairMCPoint lastpoint = fLastPointMap[iter->first];
 		TVector3 lastpos(0, 0, 0), lastmom(0, 0, 0);
+
 		if(myTrackCand->GetSortedHit(myTrackCand->GetNHits() - 1).GetDetId() == FairRootManager::Instance()->GetBranchId("GEMHit")) {
 		  TClonesArray *gemhitarray = fBranchMap["GEMHit"];
 		  Int_t hitid = myTrackCand->GetSortedHit(myTrackCand->GetNHits() - 1).GetHitId();
@@ -204,6 +207,7 @@ void PndMCIdealTrackFinderNewLinks::CreateTracks()
 		  lastpos = 0.5 * (posin + posout);
 		}
 		else lastpoint.Position(lastpos);
+
 		SmearVector(lastpos, fVtxSigma);
 		lastpoint.Momentum(lastmom);
 		SmearVector(lastmom, fMomSigma);
