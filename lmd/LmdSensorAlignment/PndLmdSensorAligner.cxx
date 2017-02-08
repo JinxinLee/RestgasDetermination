@@ -339,7 +339,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	/*
 	 * TODO: matrices do NOT commute. That means applying translation THEN rotation is something different
-	 * than applying rotation THEN translation. What is done here? Is this even correct? Meybe this was the
+	 * than applying rotation THEN translation. What is done here? Is this even correct? Maybe this was the
 	 * bug all along?
 	 */
 

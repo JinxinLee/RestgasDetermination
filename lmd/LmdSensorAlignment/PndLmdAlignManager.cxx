@@ -413,7 +413,13 @@ void PndLmdAlignManager::alignAllSensors() {
 
 	//write matrix info
 	ofstream of;
-	of.open(( _matrixOutDir + "/info.txt").c_str());
+	if(_inCentimeters){
+		of.open(( _matrixOutDir + "/info-cm.txt").c_str());
+	}
+	else{
+		of.open(( _matrixOutDir + "/info-px.txt").c_str());
+	}
+	
 	of << _info.str();
 	of.close();
 	cout << "all aligners done.\n";
@@ -678,7 +684,7 @@ std::stringstream* PndLmdAlignManager::readFile(std::string filename) {
 		cout << "could not read ";
 		cout << filename;
 		cout << "! aborting." << endl;
-		return 0;
+		return NULL;
 	}
 	string linebuffer;// = new string();
 	while(std::getline(ifs,linebuffer)){
@@ -1045,7 +1051,7 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 			}
 		}
 
-		//file not found? return false
+		//file not found? then at least one is missing, return false
 		if(!tempfilefound){
 			return tempfilefound;
 		}

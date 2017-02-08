@@ -387,25 +387,25 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		// 0 = aligned
 		// 1 = misaligned 10u
 		// 2 = misaligned 50u
-		int alignOption=2;
+		int alignOption=0;
 
 		//prepare some stuff for aligned/misaligned cases
 		bool alignOptionBool;
-		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/residualsDiff/";
+		string pdfdir = "/home/arbeit/simulationData/PDFout/residualsDiff/";
 		string matrixPath;
 
 		switch(alignOption){
 		case 0:
 			alignOptionBool=true;
-			matrixPath = "/home/arbeit/simulationData/boxtest-aligned-1.5/binaryPairs/LMDmatrices";
+			matrixPath = "/home/arbeit/simulationData/boxtest-0u-1.5/binaryPairs/LMDmatrices";
 			break;
 		case 1:
 			alignOptionBool=false;
-			matrixPath = "/home/arbeit/simulationData/boxtest-misaligned-10u-1.5/binaryPairs/LMDmatrices";
+			matrixPath = "/home/arbeit/simulationData/boxtest-10u-1.5/binaryPairs/LMDmatrices";
 			break;
 		case 2:
 			alignOptionBool=false;
-			matrixPath = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices";
+			matrixPath = "/home/arbeit/simulationData/boxtest-50u-1.5/binaryPairs/LMDmatrices";
 			break;
 		}
 
@@ -424,7 +424,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 100e3){
+			if( matrixInfo[overlapID] < 250e3){
 				continue;
 			}
 
@@ -468,7 +468,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 100e3){
+			if( matrixInfo[overlapID] < 250e3){
 				continue;
 			}
 

@@ -2,7 +2,7 @@
  * PndLmdSensorAligner.h
  *
  *  Created on: May 6, 2015
- *      Author: Roman Klasen, klasen@kph.uni-mainz.de
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  *
  *      This class gets HitPairs from PndLmdAlignManager and generates transformation matrices for ONE overlapping area.
  *      It works in cm and gives the matrix between sensors, so the hit pairs MUST have valid x, y and z coordinates
