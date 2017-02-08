@@ -3,11 +3,9 @@
  */
 using namespace std;
 
-// g++ $(root-config --cflags --glibs) -lGeom -I${PANDAROOT}/geobase -L${PANDAROOT}/../buildPanda/lib -lGeoBase runLumiPixel2fMatrixFinder.C -o /tmp/find_matrices -I${PANDAROOT}/lmd/LmdMC -I${PANDAROOT}/lmd -I${PANDAROOT}/parbase -I${PANDAROOT}/dbase/dbInterface -I${PANDAROOT}/dbase/dbValidation -I${PANDAROOT}/dbase/dbInput -I${PANDAROOT}/lmd/LmdSensorAlignment/icp -I${PANDAROOT}/lmd/LmdSensorAlignment -I${PANDAROOT}/base/event
-
 #include <string>
 
-void runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/", TString binaryPairFilePath="test/boxtest-aligned-1.5/binaryFiles", bool incentimeters =true, const int verboseLevel=0)
+void runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/", TString binaryPairFilePath="test/boxtest-aligned-1.5/binaryFiles", TString geometryDir="", bool incentimeters=true, const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -18,7 +16,14 @@ void runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/"
 	string pandaDir = getenv("VMCWORKDIR");
 
 	bool simplestorage=true;
-	string matrixDir=pandaDir + "/geometry/LMDmatrices";
+	string matrixDir;
+	
+	if(geometryDir==""){
+		matrixDir=pandaDir + "/geometry/LMDmatrices";
+	}
+	else{
+		matrixDir=geometryDir.Data();
+	}
 	string pairFilesDir=pairFilePath.Data();
 	string binaryFilesDir=binaryPairFilePath.Data();
 	int readNoOfFiles=0;			//assuming each pair file is about 64 MB in size FIXME: maybe don't restrict at all
@@ -32,18 +37,19 @@ void runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/"
 	manager.setSimpleStorage(simplestorage);
 	manager.setInCentimeters(incentimeters);
 	manager.setBinaryPairFileDirectory(binaryFilesDir);
-	manager.setMaxPairs(300e3);
+	manager.setMaxPairs(600e3);
 
 	// DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE ---
-	manager.setMatrixOutDir(matrixDir);
-	manager.compareCombinedMatrices();
-	return;
+	//manager.setMatrixOutDir(matrixDir);
+	//manager.compareCombinedMatrices();
+	//return;
 	// DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE ---
 
 	// ---------------------- check for binary files and sort/write, if necessary
 
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
 	if(!binaryPairsPresent){
+		cout << "no binary pair files found, creating...\n";
 		manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
 		manager.readFiles();
 		manager.writePairsToBinaryFiles();
@@ -53,6 +59,7 @@ void runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/"
 	// ---------------------- find overlap matrices and store to (overlap) matrix files
 	binaryPairsPresent = manager.checkForBinaryFiles();
 	if(binaryPairsPresent){
+		cout << "reading binary pair files.\n";
 		manager.readPairsFromBinaryFiles();
 		manager.setMatrixOutDir(matrixDir);
 		manager.alignAllSensors();

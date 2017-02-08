@@ -5,7 +5,7 @@ using namespace std;
 
 #include <string>
 
-void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices/", const int verboseLevel=0)
+void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/fairsoft_may16p1/pandaroot/geometry/LMDmatrices/", const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -37,8 +37,8 @@ void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/simulationData/boxtes
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	//TODO: the matrices here are also important for the AlignQA class, which also needs to know if we use 10u or 50u. So this is messy design.
 	//change that!
-	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-aligned-1.5/GeometryMatrices/trafo_matrices_lmd_misaligned-10u.dat", false);
-	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-aligned-1.5/GeometryMatrices/trafo_matrices_lmd.dat", true);
+	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-0u-1.5/GeometryMatrices/trafo_matrices_lmd_misaligned-10u.dat", false);
+	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-0u-1.5/GeometryMatrices/trafo_matrices_lmd.dat", true);
 
 
 	// check if matrices exist (matrix finder was run)

@@ -1,7 +1,9 @@
 /*
  * Finds pixel hit pairs and stores them to pair File
  */
+ 
 using namespace std;
+
 /*
 #include <TROOT.h>
 #include <TString.h>
@@ -14,7 +16,7 @@ using namespace std;
 #include <PndSdsGeoPar.h>
 */
 
-void runLumiPixel2ePairFinder(const int nEvents=100, const int startEvent=00000, TString storePath="test/fullrun-1.5", const int verboseLevel=0, bool storeSorted=false)
+void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0, bool storeSorted=false)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -67,8 +69,8 @@ void runLumiPixel2ePairFinder(const int nEvents=100, const int startEvent=00000,
 
 	LmdPairFinderTask* lmdPairFinder = new LmdPairFinderTask();
 	lmdPairFinder->storeSorted(storeSorted);	//for easier access, but takes longer
-	lmdPairFinder->setMaxDistance(320e-4);		//two pixels
-	lmdPairFinder->ignoreClusters(true);
+	lmdPairFinder->setMaxDistance(160e-4);		//two pixels
+	lmdPairFinder->ignoreClusters(false);
 	fRun->AddTask(lmdPairFinder);
 
 	rtdb->setOutput(parInput1);
