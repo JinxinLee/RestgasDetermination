@@ -2,7 +2,7 @@
  * PndLmdAlignManager.cpp
  *
  *  Created on: May 26, 2015
- *      Author: roman
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
 #include <PndLmdAlignManager.h>
