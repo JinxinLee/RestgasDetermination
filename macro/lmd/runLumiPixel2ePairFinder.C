@@ -1,5 +1,8 @@
 /*
  * Finds pixel hit pairs and stores them to pair File
+ *
+ *	Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
+ *
  */
  
 using namespace std;

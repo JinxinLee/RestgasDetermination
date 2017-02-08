@@ -1,5 +1,8 @@
 /*
  * runs align QA Taks and strores results to PDF, root
+ *
+ *	Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
+ * 
  */
 using namespace std;
 
