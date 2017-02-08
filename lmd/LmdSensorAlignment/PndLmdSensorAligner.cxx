@@ -2,7 +2,7 @@
  * PndLmdSensorAligner.cxx
  *
  *  Created on: May 6, 2015
- *      Author: Roman Klasen, klasen@kph.uni-mainz.de
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
 #include "PndLmdSensorAligner.h"

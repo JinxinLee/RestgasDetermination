@@ -2,7 +2,7 @@
  * PndLmdAlignQA.cxx
  *
  *  Created on: Jul 6, 2015
- *      Author: roman
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
 #include <PndLmdAlignQA.h>

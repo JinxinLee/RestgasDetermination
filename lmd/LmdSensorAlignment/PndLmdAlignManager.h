@@ -2,7 +2,7 @@
  * PndLmdAlignManager.h
  *
  *  Created on: May 26, 2015
- *      Author: Roman Klasen, klasen@kph.uni-mainz.de
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  *
  *      This is a manager for all SensorAligner objects. It gathers all PndLmdHitPairs indiscriminately,
  *      and sorts them to 40 (depends on sensor geometry) SensorAligner Objects. It also stores the

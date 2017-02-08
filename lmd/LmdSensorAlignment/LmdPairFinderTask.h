@@ -2,7 +2,7 @@
  * PairFinderTask.h
  *
  *  Created on: Jul 22, 2014
- *      Author: Roman Klasen, klasen@kph.uni-mainz.de
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
 #ifndef LMDPAIRFINDERTASK_H_

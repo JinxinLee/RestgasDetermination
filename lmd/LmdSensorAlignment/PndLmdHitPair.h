@@ -14,7 +14,7 @@
 //      Software developed for the PANDA Luminosity Detector at FAIR.
 //
 // Author List:
-//      Roman Klasen (klasen@kph.uni-mainz.de) by a template from Tobias Stockmanns (IKP - Juelich)
+//      Roman Klasen (roklasen@uni-mainz.de or klasen@kph.uni-mainz.de) by a template from Tobias Stockmanns (IKP - Juelich)
 //
 //
 //-----------------------------------------------------------

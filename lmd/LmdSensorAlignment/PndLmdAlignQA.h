@@ -2,7 +2,7 @@
  * PndLmdAlignQA.h
  *
  *  Created on: Jul 6, 2015
- *      Author: roman
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  *
  *      helper class that plots stuff, use one instance for desired plot, then delete and create new.
  */

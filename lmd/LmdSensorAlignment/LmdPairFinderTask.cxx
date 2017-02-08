@@ -2,7 +2,7 @@
  * PairFinderTask.cpp
  *
  *  Created on: Jul 22, 2014
- *      Author: Roman Klasen, klasen@kph.uni-mainz.de
+ *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
 #include "LmdPairFinderTask.h"
@@ -185,6 +185,11 @@ LmdPairFinderTask::~LmdPairFinderTask() {
 InitStatus LmdPairFinderTask::Init() {
 
 	//for now, disregard sorting option, always store unsorted (data will be supplied in the future sorted anyway)
+	if(_sortByModule){
+		cerr << "============================================================\n";
+		cerr << "WARNING. soreted storage is deprecated and will not be used!\n";
+		cerr << "============================================================\n";
+	}
 	_sortByModule=false;
 
 	noOfGoodPairs=0;
@@ -199,7 +204,6 @@ InitStatus LmdPairFinderTask::Init() {
 	fFolderName = "cbmsim";
 	SetBranchNames();
 
-	//FairRun* ana = FairRun::Instance(); //[R.K. 01/2017] unused variable?
 	FairRootManager* ioman = FairRootManager::Instance();
 
 	if (!ioman)	{
@@ -280,7 +284,6 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 		//clear hit count map for next event
 		typedef std::map<int, int>::iterator it_type1;
 		typedef std::map<int, TClonesArray*>::iterator it_type2;
-
 		for(it_type1 iterator = hitCountMap.begin(); iterator != hitCountMap.end(); iterator++) {
 			iterator->second = 0;
 		}
@@ -303,7 +306,6 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 	sumOfPixelHits +=nPixels;
 
 	int hitSensorId, col, row;
-	//int sortedHits=0; //[R.K. 01/2017] unused variable?
 
 	//display some kind of progress
 	if((noOfEvents%10000)==0){
@@ -685,9 +687,7 @@ bool LmdPairFinderTask::candHitsOverlappingArea(Int_t firstSensorId, Int_t secon
 
 bool LmdPairFinderTask::candDistanceIsGood(PndLmdHitPair &candidate) {
 
-	//FIXME: this distance must be set in parameter file! currently is 2 pixels
 	//use distance squared
-
 	double distance = candidate.getDistance();
 	if(distance > _maxDistance){
 		return false;

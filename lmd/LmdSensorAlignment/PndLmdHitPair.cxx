@@ -10,7 +10,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//		Roman Klasen (HIM) using template by Tobias Stockmanns (IKP - Juelich)
+//		Roman Klasen (HIM), roklasen@uni-mainz.de using template by Tobias Stockmanns (IKP - Juelich)
 //
 //
 //-----------------------------------------------------------
