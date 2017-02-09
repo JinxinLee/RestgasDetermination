@@ -42,6 +42,7 @@ set(SRCS
 PndMCIdealTrackFinderNewLinks.cxx
 PndCloneGenerator.cxx
 PndMCTruthMatch.cxx
+PndTrackFunctor.cxx
 )
 
 set(LINKDEF  PndMCMatchNewLinksLinkDef.h)

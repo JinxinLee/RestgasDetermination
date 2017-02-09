@@ -116,6 +116,10 @@ void reco_complete()
   trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
   fRun->AddTask(trackMC3);
 
+  PndMCIdealTrackFinderNewLinks* idealTracking = new PndMCIdealTrackFinderNewLinks();
+  idealTracking->SetTrackSelector("FtsTrackFunctor");
+  fRun->AddTask(idealTracking);
+
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);
   cout << "fRun->Init()" << endl;

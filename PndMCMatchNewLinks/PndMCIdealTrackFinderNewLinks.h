@@ -13,6 +13,7 @@
 #include "FairTask.h"
 #include "FairMCPoint.h"
 #include "PndTrackCand.h"
+#include "PndTrackFunctor.h"
 
 #include "TClonesArray.h"
 #include "TDatabasePDG.h"
@@ -50,10 +51,15 @@ public:
 	    fEfficiency=eff; 
 	  };
 
+	  void SetTrackSelector(TString selector){
+		  fTrackSelector = PndTrackFunctor::make_PndTrackFunctor(selector.Data());
+	  }
+
 
 protected:
 	  virtual void CreateTrackCands();
 	  virtual void CreateTracks();
+	  virtual void FilterTrackCands();
 	  virtual FairMCPoint* GetFairMCPoint(FairMultiLinkedData_Interface* links, FairMultiLinkedData& array);
 	  // taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h
 	  virtual void SmearVector(TVector3 &vec, const TVector3 &sigma);
@@ -63,6 +69,7 @@ protected:
 	  TClonesArray* fTrackCand;
 	  TClonesArray* fTrack;
 	  TClonesArray* fMCTrack;
+	  PndTrackFunctor* fTrackSelector;
 	  std::map<TString, TClonesArray*> fBranchMap;
 	  std::vector<TString> fBranchNames;
 	  std::map<FairLink, PndTrackCand> fTrackCandMap;

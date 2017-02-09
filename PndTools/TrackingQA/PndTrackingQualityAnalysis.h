@@ -15,6 +15,8 @@
 #include "PndMCResult.h"
 #include "PndTrackCand.h"
 
+#include "PndTrackFunctor.h"
+
 #include <TObject.h>
 #include <TString.h>
 #include <TClonesArray.h>
@@ -24,93 +26,6 @@
 
 #include <functional>
 
-class PossibleTrackFunctor : public std::binary_function<FairMultiLinkedData* , Bool_t, Bool_t>
-{
-  public :
-    virtual Bool_t operator() (FairMultiLinkedData* a, Bool_t primary) {return Call(a, primary);};
-    virtual Bool_t Call(FairMultiLinkedData* a, Bool_t primary) = 0;
-    virtual void Print() = 0;
-
-    virtual ~PossibleTrackFunctor() {};
-
-};
-
-class StandardTrackFunctor : public PossibleTrackFunctor
-{
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
-		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = kFALSE;
-		possibleTrack = (possibleTrack | ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks()) > 3));
-
-		possibleTrack = (possibleTrack | ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() ) > 5));
-
-		return possibleTrack;
-	}
-
-	void Print(){
-		std::cout << "StandardTrackFunctor: > 3 Hits in MVD or > 5 Hits in (MVD+Stt)" << std::endl;
-	}
-};
-
-class OnlySttFunctor : public PossibleTrackFunctor
-{
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
-		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = kFALSE;
-
-		possibleTrack = (possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5));
-
-		return possibleTrack;
-	}
-	void Print(){
-		std::cout << "OnlySttFunctor: > 5 Hits in Stt" << std::endl;
-	}
-};
-
-class RiemannMvdSttGemFunctor : public PossibleTrackFunctor
-{
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
-		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = kFALSE;
-		Bool_t mvdHits =  ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-							a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks()) > 2);
-
-		if (mvdHits){
-			possibleTrack = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 1 | a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks() > 1;
-		}
-		return possibleTrack;
-	}
-	void Print(){
-		std::cout << "RiemannMvdSttGemFunctor: > 2 Hits in MVD and >0 Hits in (Stt+Gem)" << std::endl;
-	}
-
-};
-
-class CircleHoughTrackFunctor : public PossibleTrackFunctor
-{
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
-		if (primary == kFALSE) return kFALSE;
-		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = kFALSE;
-
-		Int_t nHitsMvdPixel = a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks();
-		Int_t nHitsMvdStrip = a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks();
-		if (nHitsMvdPixel + nHitsMvdStrip > 2) {  // First requirement: more than two MVD hits
-			//Int_t nHitsStt = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks();
-			//Int_t nHitsGem = a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks();
-			possibleTrack = kTRUE;
-			//possibleTrack = (nHitsMvdPixel + nHitsMvdStrip + nHitsStt + nHitsGem > 6);  // Second requirement: More than six hits total
-		}
-		return possibleTrack;
-	}
-	void Print(){
-		std::cout << "CircleHoughTrackFunctor: >= 3 Hits in MVD and primary track" << std::endl;
-	}
-
-};
 /**
  * @brief Holding statically callable quality numbers
  * @details Per event, a track can have a certain quality. On a MC level, it can be below a threshold to be even found. If found, it can be found fully, or partially. 
@@ -154,7 +69,7 @@ class PndTrackingQualityAnalysis : public TObject
 {
 public:
 	PndTrackingQualityAnalysis(TString trackBranchName, Bool_t pndTrackData = kTRUE);
-	PndTrackingQualityAnalysis(TString trackBranchName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
+	PndTrackingQualityAnalysis(TString trackBranchName, PndTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
 	virtual ~PndTrackingQualityAnalysis();
 
 	virtual void Init();
@@ -210,7 +125,7 @@ private:
 
 	TString fTrackBranchName;
 	Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
-	PossibleTrackFunctor* fPossibleTrack;
+	PndTrackFunctor* fPossibleTrack;
 
 	Bool_t fUseCorrectedSkewedHits;
 

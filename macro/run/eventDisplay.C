@@ -122,11 +122,12 @@ eventDisplay()
 	  PndTrackDraw* SttMvdGemTrack = new PndTrackDraw("SttMvdGemTrack", kTRUE);
 	  PndTrackDraw* FtsIdealTrack = new PndTrackDraw("FtsIdealTrack");
       PndTrackDraw* SttMvdGemGenTrack = new PndTrackDraw("SttMvdGemGenTrack", kTRUE);
-
+	  PndTrackDraw* idealTrack = new PndTrackDraw("IdealTrack", kTRUE);
 	  fMan->AddTask(SttMvdTrack);
 	  fMan->AddTask(SttMvdGemTrack);
       fMan->AddTask(SttMvdGemGenTrack);
 	  fMan->AddTask(FtsIdealTrack);
+	  fMan->AddTask(idealTrack);
   }
 
 

@@ -21,14 +21,15 @@
 ClassImp(PndMCIdealTrackFinderNewLinks);
 
 PndMCIdealTrackFinderNewLinks::PndMCIdealTrackFinderNewLinks() :
-  fOutBranchName("IdealTrack"), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
+  fOutBranchName("IdealTrack"), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), fTrackSelector(0)
 {
 	// TODO Auto-generated constructor stub
 
 }
 
 PndMCIdealTrackFinderNewLinks::~PndMCIdealTrackFinderNewLinks() {
-	// TODO Auto-generated destructor stub
+	if (fTrackSelector != 0)
+		delete fTrackSelector;
 }
 
 // -----   Public method Init   --------------------------------------------
@@ -82,6 +83,7 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 
 	std::cout << "Event #" << FairRootManager::Instance()->GetEntryNr() << std::endl;
 	CreateTrackCands();
+	FilterTrackCands();
 
 	std::cout << "PndMCIdealTrackFinderNewLinks:Found Tracks:" << std::endl;	
 	CreateTracks();
@@ -137,6 +139,19 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
 				// fTrackCandMap[mctracks.GetLink(trackIndex)].AddHit(link, fHitCount++);			//todo Rho is not properly calculated!
 				fTrackCandMap[mctracks.GetLink(trackIndex)].AddHit(link, tof);
 			}
+		}
+	}
+}
+
+void PndMCIdealTrackFinderNewLinks::FilterTrackCands()
+{
+	if (fTrackSelector == 0)
+		return;
+	for (std::map<FairLink, PndTrackCand>::iterator iter = fTrackCandMap.begin(); iter != fTrackCandMap.end();){
+		if (!(*fTrackSelector)(iter->second.GetPointerToLinks(), true)){
+			fTrackCandMap.erase(iter++);
+		} else {
+			++iter;
 		}
 	}
 }

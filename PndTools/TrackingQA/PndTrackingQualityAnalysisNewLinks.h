@@ -23,6 +23,7 @@
 
 #include <functional>
 #include "PndTrackingQualityAnalysis.h"
+#include "PndTrackFunctor.h"
 
 /*class PossibleTrackFunctor : public std::binary_function<FairMultiLinkedData* , Bool_t, Bool_t>
 {
@@ -157,7 +158,7 @@ class PndTrackingQualityAnalysisNewLinks : public TObject
 {
 public:
 	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackName, Bool_t pndTrackData = kTRUE);
-	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
+	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackName, PndTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
 	virtual ~PndTrackingQualityAnalysisNewLinks();
 
 	virtual void Init();
@@ -224,7 +225,8 @@ private:
 	TString fTrackBranchName;
 	TString fIdealTrackName;
 	Bool_t fPndTrackOrTrackCand; //kTRUE if track and kFALSE if track cand
-	PossibleTrackFunctor* fPossibleTrack;
+	std::string fPossibleTrackName;
+	PndTrackFunctor* fPossibleTrack;
 	Bool_t fCleanFunctor;
 
 	Bool_t fUseCorrectedSkewedHits;

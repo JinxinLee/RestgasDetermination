@@ -131,7 +131,7 @@ class PndTrackingQualityTaskNewLinks : public FairTask
 
   TString fPossibleTrackFunctorName;
 
-  PossibleTrackFunctor* fPossibleTrackFunctor;
+  PndTrackFunctor* fPossibleTrackFunctor;
 
 
   RhoTuple * fTuple;

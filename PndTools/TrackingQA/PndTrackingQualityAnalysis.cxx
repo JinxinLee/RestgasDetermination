@@ -28,7 +28,7 @@ PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName,
 	}
 }
 
-PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData):
+PndTrackingQualityAnalysis::PndTrackingQualityAnalysis (TString trackBranchName, PndTrackFunctor* posTrack, Bool_t pndTrackData):
 	fTrackBranchName(trackBranchName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
 {
 	if(fPossibleTrack == 0){

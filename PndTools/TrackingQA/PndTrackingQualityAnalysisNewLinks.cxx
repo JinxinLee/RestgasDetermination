@@ -29,7 +29,7 @@ PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString 
 	}
 }
 
-PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString trackBranchName, TString idealTrackName, PossibleTrackFunctor* posTrack, Bool_t pndTrackData):
+PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString trackBranchName, TString idealTrackName, PndTrackFunctor* posTrack, Bool_t pndTrackData):
 	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
 {
 	if(fPossibleTrack == 0){
