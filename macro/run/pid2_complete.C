@@ -52,9 +52,9 @@ void pid2_complete()
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
   corr->SetInputBranch("SttMvdGemGenTrack");
-  corr->SetInputIDBranch("SttMvdGemGenTrackID");
+//  corr->SetInputIDBranch("SttMvdGemGenTrackID");
   corr->SetInputBranch2("FtsRealGenTrack");
-  corr->SetInputIDBranch2("FtsRealGenTrackID");
+//  corr->SetInputIDBranch2("FtsRealGenTrackID");
   //corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   //corr->SetBackPropagate(kFALSE);

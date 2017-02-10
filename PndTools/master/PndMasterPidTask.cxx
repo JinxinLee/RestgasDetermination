@@ -45,15 +45,15 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
     {
       corr->SetInputBranch("SttMvdGemGenTrack");
-      corr->SetInputIDBranch("SttMvdGemGenTrackID");
+//      corr->SetInputIDBranch("SttMvdGemGenTrackID");
     }
   else
     {
       corr->SetInputBranch("SttMvdGenTrack");
-      corr->SetInputIDBranch("SttMvdGenTrackID");
+//      corr->SetInputIDBranch("SttMvdGenTrackID");
     }
   corr->SetInputBranch2("FtsIdealGenTrack");
-  corr->SetInputIDBranch2("FtsIdealGenTrackID");
+//  corr->SetInputIDBranch2("FtsIdealGenTrackID");
   corr->SetDebugMode(kTRUE);
   //corr->SetFast(kTRUE);
   //corr->SetBackPropagate(kFALSE);

@@ -81,11 +81,11 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 	fTrack->Delete();
 	fTrackCandMap.clear();
 
-	std::cout << "Event #" << FairRootManager::Instance()->GetEntryNr() << std::endl;
+//	std::cout << "Event #" << FairRootManager::Instance()->GetEntryNr() << std::endl;
 	CreateTrackCands();
 	FilterTrackCands();
 
-	std::cout << "PndMCIdealTrackFinderNewLinks:Found Tracks:" << std::endl;	
+//	std::cout << "PndMCIdealTrackFinderNewLinks:Found Tracks:" << std::endl;
 	CreateTracks();
 }
 

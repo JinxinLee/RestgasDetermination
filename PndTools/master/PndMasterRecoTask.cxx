@@ -55,20 +55,20 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   
   // ----- MC Association #1 ---------------------------------
   // Useful only if you want to use ideal hypothesis in barrel kalman
-  PndMCTrackAssociator* trackMC = NULL;
-  this->Add(trackMC = new PndMCTrackAssociator()); // 3
-  reco.kPndMCTrackAssociator1 = GetListOfTasks()->GetSize()-1;
-  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
-    {
-      trackMC->SetTrackInBranchName("SttMvdGemTrack");
-      trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
-    }
-  else
-    {
-      trackMC->SetTrackInBranchName("SttMvdTrack");
-      trackMC->SetTrackOutBranchName("SttMvdTrackID");
-    }
-  trackMC->SetPersistence(kFALSE);
+//  PndMCTrackAssociator* trackMC = NULL;
+//  this->Add(trackMC = new PndMCTrackAssociator()); // 3
+//  reco.kPndMCTrackAssociator1 = GetListOfTasks()->GetSize()-1;
+//  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+//    {
+//      trackMC->SetTrackInBranchName("SttMvdGemTrack");
+//      trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
+//    }
+//  else
+//    {
+//      trackMC->SetTrackInBranchName("SttMvdTrack");
+//      trackMC->SetTrackOutBranchName("SttMvdTrackID");
+//    }
+//  trackMC->SetPersistence(kFALSE);
   
   // ----- Barrel Kalman Task     ----------------------------
   PndRecoKalmanTask* recoKalman = NULL;
@@ -93,19 +93,19 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   //recoKalman->SetPropagateToIP(kFALSE);
   
   // ----- MC Association #2 ---------------------------------
-  PndMCTrackAssociator* trackMC2 = NULL;
-  this->Add(trackMC2 = new PndMCTrackAssociator()); // 5
-  reco.kPndMCTrackAssociator2 = GetListOfTasks()->GetSize()-1;
-  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
-    {
-      trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
-      trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
-    }
-  else
-    {
-      trackMC2->SetTrackInBranchName("SttMvdGenTrack"); 
-      trackMC2->SetTrackOutBranchName("SttMvdGenTrackID");
-    }
+//  PndMCTrackAssociator* trackMC2 = NULL;
+//  this->Add(trackMC2 = new PndMCTrackAssociator()); // 5
+//  reco.kPndMCTrackAssociator2 = GetListOfTasks()->GetSize()-1;
+//  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+//    {
+//      trackMC2->SetTrackInBranchName("SttMvdGemGenTrack");
+//      trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
+//    }
+//  else
+//    {
+//      trackMC2->SetTrackInBranchName("SttMvdGenTrack");
+//      trackMC2->SetTrackOutBranchName("SttMvdGenTrackID");
+//    }
   
   // -----  FTS Ideal Tracking    ----------------------------
   PndFtsTrackerIdeal* trackFts = NULL;
@@ -119,11 +119,11 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 
   // ----- MC Association #3 ---------------------------------
   // Useful only if you want to use ideal hypothesis in fwd kalman
-  PndMCTrackAssociator* trackMCfwd = NULL;
-  this->Add(trackMCfwd = new PndMCTrackAssociator()); // 7
-  reco.kPndMCTrackAssociator3 = GetListOfTasks()->GetSize()-1;
-  trackMCfwd->SetTrackInBranchName("FtsIdealTrack");
-  trackMCfwd->SetTrackOutBranchName("FtsIdealTrackID");
+//  PndMCTrackAssociator* trackMCfwd = NULL;
+//  this->Add(trackMCfwd = new PndMCTrackAssociator()); // 7
+//  reco.kPndMCTrackAssociator3 = GetListOfTasks()->GetSize()-1;
+//  trackMCfwd->SetTrackInBranchName("FtsIdealTrack");
+//  trackMCfwd->SetTrackOutBranchName("FtsIdealTrackID");
 
   // ----- Forward Kalman Task     ---------------------------
   PndRecoKalmanTask* recoKalmanFwd = NULL;
@@ -139,11 +139,11 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   //recoKalmanFwd->SetPropagateToIP(kFALSE);
 
   // ----- MC Association #4 ---------------------------------
-  PndMCTrackAssociator* trackMC3 = NULL;
-  this->Add(trackMC3 = new PndMCTrackAssociator()); // 9
-  reco.kPndMCTrackAssociator4 = GetListOfTasks()->GetSize()-1;
-  trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
-  trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
+//  PndMCTrackAssociator* trackMC3 = NULL;
+//  this->Add(trackMC3 = new PndMCTrackAssociator()); // 9
+//  reco.kPndMCTrackAssociator4 = GetListOfTasks()->GetSize()-1;
+//  trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
+//  trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
  
   SetVerbose(0);
 }

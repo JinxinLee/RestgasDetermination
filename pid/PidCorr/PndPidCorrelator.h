@@ -108,9 +108,9 @@ protected:
   map<Int_t, Bool_t> fClusterList;  // List of clusters correlated to tracks
   map<Int_t, Double_t> fClusterQ;   // List of emc quaity correlated to clusters
   TString fTrackBranch;             //  options to choose PndTrack branches
-  TString fTrackIDBranch;           //  options to choose PndTrackID branches
+//  TString fTrackIDBranch;           //  options to choose PndTrackID branches
   TString fTrackBranch2;            //  options to choose 2nd PndTrack branches
-  TString fTrackIDBranch2;          //  options to choose 2nd PndTrackID branches
+//  TString fTrackIDBranch2;          //  options to choose 2nd PndTrackID branches
   TString fTrackOutBranch;          //  options to choose output branch
   Bool_t fSimulation;               // Switch simulation diagnostic
   Bool_t fGeanePro;                 // Use GEANE propagation 
@@ -186,8 +186,8 @@ public:
   void SetMixMode(Bool_t mix)             { fMixMode = mix; };
   void SetInputBranch(TString branch)     { fTrackBranch = branch; };
   void SetInputBranch2(TString branch)    { fTrackBranch2 = branch; };
-  void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	 
-  void SetInputIDBranch2(TString branch)  { fTrackIDBranch2 = branch; };
+//  void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };
+//  void SetInputIDBranch2(TString branch)  { fTrackIDBranch2 = branch; };
   void SetOutputBranch(TString branch)    { fTrackOutBranch = branch; };
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
   void SetIdeal(Bool_t id)                { fIdeal = id; }; 

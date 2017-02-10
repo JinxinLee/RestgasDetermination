@@ -50,7 +50,7 @@ PndPidCorrelator::~PndPidCorrelator()
 
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator() : 
-  FairTask(), fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
+  FairTask(), fMcTrack(0), fTrack(0), fTrack2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
@@ -81,9 +81,7 @@ PndPidCorrelator::PndPidCorrelator() :
   dskCorr(0),
   richCorr(0),
   fTrackBranch(""),
-  fTrackIDBranch(""),
   fTrackBranch2(""),
-  fTrackIDBranch2(""),
   fTrackOutBranch(""),
   sDir(""),
   sFile(""),
@@ -116,7 +114,7 @@ PndPidCorrelator::PndPidCorrelator() :
 //___________________________________________________________
 PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   FairTask(name),
-  fMcTrack(0), fTrack(0), fTrackID(0), fTrack2(0), fTrackID2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
+  fMcTrack(0), fTrack(0), fTrack2(0), fPidChargedCand(0), fPidNeutralCand(0), fMdtTrack(0), fMvdHitsStrip(0), fMvdHitsPixel(0), fTofHit(0), fTofPoint(0), fFtofHit(0), fFtofPoint(0), fEmcCluster(0), fEmcBump(0), fEmcDigi(0), fMdtPoint(0), fMdtHit(0), fMdtTrk(0), fDrcPoint(0), fDrcHit(0), fDskParticle(0), fSttHit(0), fFtsHit(0), fRichPoint(0), fRichHit(0),
   fCorrPar(new PndPidCorrPar()), fEmcGeoPar(new PndEmcGeoPar()), fEmcErrorMatrixPar(new PndEmcErrorMatrixPar()), fEmcErrorMatrix(new PndEmcErrorMatrix()), fSttParameters(new PndGeoSttPar()), fEmcCalibrator(NULL), fEmcClstCount(0), fFscClstCount(0),
   fDebugMode(kFALSE),
   fGeanePro(kTRUE), 
@@ -147,9 +145,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
   dskCorr(0),
   richCorr(0),
   fTrackBranch(""),
-  fTrackIDBranch(""),
   fTrackBranch2(""),
-  fTrackIDBranch2(""),
   fTrackOutBranch(""),
   sDir(""),
   sFile(""),
@@ -192,14 +188,14 @@ InitStatus PndPidCorrelator::Init() {
     return kERROR;
   }
   
-  if (fTrackIDBranch!="")
-    {
-      fTrackID = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackIDBranch));
-      if ( ! fTrackID ) {
-	cout << "-I- PndPidCorrelator::Init: No PndTrackID array! Switching MC propagation OFF" << endl;
-	fTrackIDBranch = "";
-      }
-    }
+//  if (fTrackIDBranch!="")
+//    {
+//      fTrackID = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackIDBranch));
+//      if ( ! fTrackID ) {
+//	cout << "-I- PndPidCorrelator::Init: No PndTrackID array! Switching MC propagation OFF" << endl;
+//	fTrackIDBranch = "";
+//      }
+//    }
   
   if (fTrackBranch2!="")
     {
@@ -210,14 +206,14 @@ InitStatus PndPidCorrelator::Init() {
       }
     }
   
-  if (fTrackIDBranch2!="")
-    {
-      fTrackID2 = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackIDBranch2));
-      if ( ! fTrackID2 ) {
-	cout << "-I- PndPidCorrelator::Init: No 2nd PndTrackID array! Switching MC propagation OFF" << endl;
-	fTrackIDBranch2 = "";
-      }
-    }
+//  if (fTrackIDBranch2!="")
+//    {
+//      fTrackID2 = dynamic_cast<TClonesArray *> (fManager->GetObject(fTrackIDBranch2));
+//      if ( ! fTrackID2 ) {
+//	cout << "-I- PndPidCorrelator::Init: No 2nd PndTrackID array! Switching MC propagation OFF" << endl;
+//	fTrackIDBranch2 = "";
+//      }
+//    }
   
   // *** STT ***
   if (fSttMode)
@@ -555,10 +551,10 @@ InitStatus PndPidCorrelator::Init() {
 	    cout << "-I- PndPidCorrelator::Init: No PndMcTrack array! No ideal pid hypothesis is possible!" << endl;
 	    return kERROR;
 	  }
-	  if (fTrackIDBranch=="") {
-	    cout << "-I- PndPidCorrelator::Init: No TrackID Branch name! No ideal pid hypothesis is possible!" << endl;
-	    return kERROR;
-	  }
+//	  if (fTrackIDBranch=="") {
+//	    cout << "-I- PndPidCorrelator::Init: No TrackID Branch name! No ideal pid hypothesis is possible!" << endl;
+//	    return kERROR;
+//	  }
 	}
       else
 	{
@@ -756,38 +752,40 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     FairTrackParH *helix = new FairTrackParH(&par, ierr);
     
     PndPidCandidate* pidCand = 	new PndPidCandidate();
-    if (fTrackIDBranch!="")
-      {
-	PndTrackID* trackID = (PndTrackID*) fTrackID->At(i);
-	if (trackID->GetNCorrTrackId()>0)
-	  {
-	    pidCand->SetMcIndex(trackID->GetCorrTrackID());
-	    if (fIdealHyp)
-	      {
-		PndMCTrack *mcTrack = (PndMCTrack*)fMcTrack->At(trackID->GetCorrTrackID());
-		if ( ! mcTrack ) 
-		  {
-		    fPidHyp = 211;
-                    cout << "-I- PndPidCorrelator::ConstructChargedCandidate: PndMCTrack does not exist!! (why?) -> let's try with pion hyp " << endl;
-		  }
-                else
-		  {
-		    fPidHyp = abs(mcTrack->GetPdgCode());
-		  }
-                if (fPidHyp>=100000000)
-                  {
-                    fPidHyp = 211;
-                    std::cout << "-I- PndPidCorrelator::ConstructChargedCandidate: Track is an ion (PDGCode>100000000) -> let's try with pion hyp" << std::endl;
-                  }
+//    if (fTrackIDBranch!="")
+//      {
+//	PndTrackID* trackID = (PndTrackID*) fTrackID->At(i);
+	std::vector<FairLink> mcTrackLinks = track->GetSortedMCTracks();
+	if (mcTrackLinks.size() > 0) {
+		pidCand->SetMcIndex(mcTrackLinks[0].GetIndex());//todo: replace with GetCloneOfLinke for time-based operation
+		if (fIdealHyp) {
+			PndMCTrack *mcTrack = (PndMCTrack*) fMcTrack->At(
+					mcTrackLinks[0].GetIndex());
+			if (!mcTrack) {
+				fPidHyp = 211;
+				cout
+						<< "-I- PndPidCorrelator::ConstructChargedCandidate: PndMCTrack does not exist!! (why?) -> let's try with pion hyp "
+						<< endl;
+			} else {
+				fPidHyp = abs(mcTrack->GetPdgCode());
+			}
+			if (fPidHyp >= 100000000) {
+				fPidHyp = 211;
+				std::cout
+						<< "-I- PndPidCorrelator::ConstructChargedCandidate: Track is an ion (PDGCode>100000000) -> let's try with pion hyp"
+						<< std::endl;
+			}
 
-		if ( abs(fPidHyp)==13 ) fPidHyp = -13;
-		if ( abs(fPidHyp)==11 ) fPidHyp = -11;
-	      }
-	  }
-      } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
-      PndTrackCand trackCand = track->GetTrackCand();
-      pidCand->SetMcIndex(trackCand.getMcTrackId());
-    }
+			if (abs(fPidHyp) == 13)
+				fPidHyp = -13;
+			if (abs(fPidHyp) == 11)
+				fPidHyp = -11;
+		}
+	}
+//      } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
+//      PndTrackCand trackCand = track->GetTrackCand();
+//      pidCand->SetMcIndex(trackCand.getMcTrackId());
+//    }
     pidCand->SetTrackIndex(i);
     pidCand->SetTrackBranch(FairRootManager::Instance()->GetBranchId(fTrackBranch));
     pidCand->AddLink(FairLink(fTrackBranch, i));
@@ -818,38 +816,39 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	FairTrackParH *helix = new FairTrackParH(&par, ierr);
       
 	PndPidCandidate* pidCand =  new PndPidCandidate();
-	if (fTrackIDBranch2!="")
-	  {
-	    PndTrackID* trackID = (PndTrackID*) fTrackID2->At(i);
-	    if (trackID->GetNCorrTrackId()>0)
-	      {
-		pidCand->SetMcIndex(trackID->GetCorrTrackID());
-		if (fIdealHyp)
-		  {
-		    PndMCTrack *mcTrack = (PndMCTrack*)fMcTrack->At(trackID->GetCorrTrackID());
-		    if ( ! mcTrack ) 
-		      {
-			fPidHyp = 211;
-			cout << "-I- PndPidCorrelator::ConstructChargedCandidate: PndMCTrack does not exist!! (why?) -> let's try with pion hyp " << endl;
-		      }
-		    else
-		      {
-			fPidHyp = abs(mcTrack->GetPdgCode());
-		      }
-		    if (fPidHyp>=100000000)
-		      {
-			fPidHyp = 211;
-			std::cout << "-I- PndPidCorrelator::ConstructChargedCandidate: Track is an ion (PDGCode>100000000) -> let's try with pion hyp" << std::endl;
-		      }
-		    
-		    if ( abs(fPidHyp)==13 ) fPidHyp = -13;
-		    if ( abs(fPidHyp)==11 ) fPidHyp = -11;
-		  }
-	      }
-	  } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
-	  PndTrackCand trackCand = track->GetTrackCand();
-	  pidCand->SetMcIndex(trackCand.getMcTrackId());
+//	if (fTrackIDBranch2!="")
+//	  {
+	std::vector<FairLink> mcTrackLinks = track->GetSortedMCTracks();
+	if (mcTrackLinks.size() > 0) {
+		pidCand->SetMcIndex(mcTrackLinks[0].GetIndex());
+		if (fIdealHyp) {
+			PndMCTrack *mcTrack = (PndMCTrack*) fMcTrack->At(
+					mcTrackLinks[0].GetIndex());
+			if (!mcTrack) {
+				fPidHyp = 211;
+				cout
+						<< "-I- PndPidCorrelator::ConstructChargedCandidate: PndMCTrack does not exist!! (why?) -> let's try with pion hyp "
+						<< endl;
+			} else {
+				fPidHyp = abs(mcTrack->GetPdgCode());
+			}
+			if (fPidHyp >= 100000000) {
+				fPidHyp = 211;
+				std::cout
+						<< "-I- PndPidCorrelator::ConstructChargedCandidate: Track is an ion (PDGCode>100000000) -> let's try with pion hyp"
+						<< std::endl;
+			}
+
+			if (abs(fPidHyp) == 13)
+				fPidHyp = -13;
+			if (abs(fPidHyp) == 11)
+				fPidHyp = -11;
+		}
 	}
+//	  } else { // added for PndAnalysis, TODO: remove after Fairlinks work with Associators
+//	  PndTrackCand trackCand = track->GetTrackCand();
+//	  pidCand->SetMcIndex(trackCand.getMcTrackId());
+//	}
 	pidCand->SetTrackIndex(i);
         pidCand->SetTrackBranch(FairRootManager::Instance()->GetBranchId(fTrackBranch2));
 	pidCand->AddLink(FairLink(fTrackBranch2, i));
