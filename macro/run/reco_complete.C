@@ -87,12 +87,13 @@ void reco_complete()
 //  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
 //  fRun->AddTask(trackMC2);
  
-  PndFtsTrackerIdeal* trackFts = new PndFtsTrackerIdeal();
+  PndMCIdealTrackFinderNewLinks* trackFts = new PndMCIdealTrackFinderNewLinks();
+  trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
-  trackFts->SetTrackOutput("FtsIdealTrack");
-  trackFts->SetPersistence(kFALSE);
+  trackFts->SetOutputBranchName("FtsIdealTrack");
+  trackFts->SetOutputBranchPersistent("FtsIdealTrack", kFALSE);
   fRun->AddTask(trackFts);
 
 //  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
