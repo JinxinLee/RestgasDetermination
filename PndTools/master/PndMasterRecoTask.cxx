@@ -13,7 +13,8 @@
 #include "PndSttMvdGemTracking.h"
 #include "PndMCTrackAssociator.h"
 #include "PndRecoKalmanTask.h"
-#include "PndFtsTrackerIdeal.h"
+//#include "PndFtsTrackerIdeal.h"
+#include "PndMCIdealTrackFinderNewLinks.h"
 
 /**
  * @brief Default Constructor
@@ -108,14 +109,15 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 //    }
   
   // -----  FTS Ideal Tracking    ----------------------------
-  PndFtsTrackerIdeal* trackFts = NULL;
-  this->Add(trackFts = new PndFtsTrackerIdeal()); // 6
+  PndMCIdealTrackFinderNewLinks* trackFts = NULL;
+  this->Add(trackFts = new PndMCIdealTrackFinderNewLinks()); // 6
   reco.kPndFtsTrackerIdeal = GetListOfTasks()->GetSize()-1;
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
-  trackFts->SetTrackOutput("FtsIdealTrack");
+  trackFts->SetOutputBranchName("FtsIdealTrack");
   trackFts->SetPersistence(kFALSE);
+
 
   // ----- MC Association #3 ---------------------------------
   // Useful only if you want to use ideal hypothesis in fwd kalman
@@ -162,25 +164,25 @@ void PndMasterRecoTask::SetPersistency(Bool_t pers)
     }
   
   // ----- MC Association #1 ---------------------------------
-  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator1))->SetPersistence(pers);
+//  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator1))->SetPersistence(pers);
   
   // ----- Barrel Kalman Task     ----------------------------
   ((PndRecoKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask1))->SetPersistence(pers);
   
   // ----- MC Association #2 ---------------------------------
-  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator2))->SetPersistence(pers);
+//  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator2))->SetPersistence(pers);
   
   // -----  FTS Ideal Tracking    ----------------------------
-  ((PndFtsTrackerIdeal*)GetListOfTasks()->At(reco.kPndFtsTrackerIdeal))->SetPersistence(pers);
+  ((PndMCIdealTrackFinderNewLinks*)GetListOfTasks()->At(reco.kPndFtsTrackerIdeal))->SetPersistence(pers);
 
   // ----- MC Association #3 ---------------------------------
-  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator3))->SetPersistence(pers);
+//  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator3))->SetPersistence(pers);
 
   // ----- Forward Kalman Task     ---------------------------
   ((PndRecoKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask2))->SetPersistence(pers);
 
   // ----- MC Association #4 ---------------------------------
-  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator4))->SetPersistence(pers);
+//  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator4))->SetPersistence(pers);
 
   return;
 }

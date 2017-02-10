@@ -56,6 +56,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/fts/FtsTracking
   ${CMAKE_SOURCE_DIR}/PndMCMatch
+  ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
   ${CMAKE_SOURCE_DIR}/GenfitTools/recotasks
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/pid/PidCorr

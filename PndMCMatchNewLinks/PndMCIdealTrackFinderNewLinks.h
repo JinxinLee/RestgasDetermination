@@ -55,6 +55,8 @@ public:
 		  fTrackSelector = PndTrackFunctor::make_PndTrackFunctor(selector.Data());
 	  }
 
+	  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
 
 protected:
 	  virtual void CreateTrackCands();
@@ -79,6 +81,7 @@ protected:
 	  TDatabasePDG *fPdg;            //!<! Particle DB
 
 	  Int_t fHitCount;
+	  Bool_t fPersistence;
 
 	  // Parameters for fake tracking taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h
 	  TVector3 fMomSigma;          ///< Momentum smearing sigma [GeV]

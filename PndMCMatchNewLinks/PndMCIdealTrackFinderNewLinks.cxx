@@ -21,7 +21,7 @@
 ClassImp(PndMCIdealTrackFinderNewLinks);
 
 PndMCIdealTrackFinderNewLinks::PndMCIdealTrackFinderNewLinks() :
-  fOutBranchName("IdealTrack"), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), fTrackSelector(0)
+  fOutBranchName("IdealTrack"), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), fTrackSelector(0), fPersistence(kTRUE)
 {
 	// TODO Auto-generated constructor stub
 
@@ -66,9 +66,9 @@ InitStatus PndMCIdealTrackFinderNewLinks::Init()
     ioman->GetObject("FTSPoint");
 
 	fTrackCand = new TClonesArray("PndTrackCand");
- 	ioman->Register(fOutBranchName + "Cand", "MC", fTrackCand, kTRUE);
+ 	ioman->Register(fOutBranchName + "Cand", "MC", fTrackCand, fPersistence);
 	fTrack = new TClonesArray("PndTrack");
-	ioman->Register(fOutBranchName, "MC", fTrack, kTRUE);
+	ioman->Register(fOutBranchName, "MC", fTrack, fPersistence);
  
 	fPdg = new TDatabasePDG();
 
