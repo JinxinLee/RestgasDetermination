@@ -73,10 +73,10 @@ void reco_complete()
 
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
+//  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   recoKalman->SetBusyCut(50); // CHECK to be tuned
-  //recoKalman->SetIdealHyp(kTRUE);
+//  recoKalman->SetIdealHyp(kTRUE);
   //recoKalman->SetNumIterations(3);
   recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
   //recoKalman->SetPropagateToIP(kFALSE);

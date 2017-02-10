@@ -36,7 +36,7 @@
 #include "FairRuntimeDb.h"
 
 PndRecoKalmanTask2::PndRecoKalmanTask2(const char* name, Int_t iVerbose)
-: FairTask(name, iVerbose), fTrackInBranchName(""), fTrackInIDBranchName(""),
+: FairTask(name, iVerbose), fTrackInBranchName(""),
 fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
 fFitTrackArray(), fFitter(), fDafFitter(), fPDGHyp(-13),
 fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE), fPersistence(kTRUE),
@@ -104,12 +104,12 @@ PndRecoKalmanTask2::Init()
   if (fIdealHyp)
     { 
       pdg = new TDatabasePDG();
-      fTrackIDArray=(TClonesArray*) ioman->GetObject(fTrackInIDBranchName);
-      if(fTrackIDArray==0)
-	{
-	  Error("PndRecoKalmanTask2::Init","track ID array not found! It is not possible to run ideal particle hypothesis");
-	  return kERROR;
-	} 
+//      fTrackIDArray=(TClonesArray*) ioman->GetObject(fTrackInIDBranchName);
+//      if(fTrackIDArray==0)
+//	{
+//	  Error("PndRecoKalmanTask2::Init","track ID array not found! It is not possible to run ideal particle hypothesis");
+//	  return kERROR;
+//	}
 
       fMCTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
       if(fMCTrackArray==0)
@@ -161,11 +161,12 @@ void PndRecoKalmanTask2::Exec(Option_t* opt) {
 		Int_t fCharge = prefitTrack->GetParamFirst().GetQ();
 		Int_t PDGCode = 0;
 		if (fIdealHyp) {
-			PndTrackID *prefitTrackID = (PndTrackID*) fTrackIDArray->At(itr);
-			if (prefitTrackID->GetNCorrTrackId() > 0) {
-				Int_t mcTrackId = prefitTrackID->GetCorrTrackID();
+			std::vector<FairLink> mcTrackLinks = prefitTrack->GetSortedMCTracks();
+//			PndTrackID *prefitTrackID = (PndTrackID*) fTrackIDArray->At(itr);
+			if (mcTrackLinks.size() > 0) {
+				Int_t mcTrackId = mcTrackLinks[0].GetIndex();
 				if (mcTrackId != -1) {
-					PndMCTrack *mcTrack = (PndMCTrack*) fMCTrackArray->At(
+					PndMCTrack *mcTrack = (PndMCTrack*) fMCTrackArray->At(			//TODO: Replace with GetCloneOfLinkData to run time-based
 							mcTrackId);
 					if (!mcTrack) {
 						PDGCode = 211 * fCharge;
