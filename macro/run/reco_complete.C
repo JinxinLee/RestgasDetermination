@@ -93,7 +93,7 @@ void reco_complete()
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetOutputBranchName("FtsIdealTrack");
-  trackFts->SetOutputBranchPersistent("FtsIdealTrack", kFALSE);
+  trackFts->SetPersistence(kFALSE);
   fRun->AddTask(trackFts);
 
 //  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
