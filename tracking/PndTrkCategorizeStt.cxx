@@ -47,10 +47,10 @@ using namespace std;
 	double
 		r2,
 		x[NUMBER_STRAWS],
-		Xwiredirection[NUMBER_STRAWS],
+		//Xwiredirection[NUMBER_STRAWS], //[R.K.02/2017] Unused variable?
 		y[NUMBER_STRAWS],
-		Ywiredirection[NUMBER_STRAWS],
-		z[NUMBER_STRAWS],
+		//Ywiredirection[NUMBER_STRAWS], //[R.K.02/2017] Unused variable?
+		//z[NUMBER_STRAWS], //[R.K.02/2017] Unused variable?
 		Zwiredirection[NUMBER_STRAWS];
 
 	PndSttTube *pSttTube;
@@ -69,9 +69,9 @@ using namespace std;
 		pSttTube = (PndSttTube *) SttTubeArray->At(i);
 		x[i-1] = pSttTube->GetPosition().X();
 		y[i-1] = pSttTube->GetPosition().Y();
-		z[i-1] = pSttTube->GetPosition().Z();
-		Xwiredirection[i-1] = pSttTube->GetWireDirection().X();
-		Ywiredirection[i-1] = pSttTube->GetWireDirection().Y();
+		//z[i-1] = pSttTube->GetPosition().Z(); //[R.K.02/2017] Unused variable?
+		//Xwiredirection[i-1] = pSttTube->GetWireDirection().X(); //[R.K.02/2017] Unused variable?
+		//Ywiredirection[i-1] = pSttTube->GetWireDirection().Y(); //[R.K.02/2017] Unused variable?
 		Zwiredirection[i-1] = pSttTube->GetWireDirection().Z();
 	}
 

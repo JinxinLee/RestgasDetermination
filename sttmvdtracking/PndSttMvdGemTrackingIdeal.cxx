@@ -27,7 +27,7 @@
 PndSttMvdGemTrackingIdeal::PndSttMvdGemTrackingIdeal():
   FairTask("SttMvdGemTrackingIdeal"), fMCTracks(0), fTrackCands(0), fTracks(0),
   fTrackIds(0), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.),
-  fTracksArrayName("STTTrkIdeal"), pdg(0), fPersistence(kTRUE)
+  fPersistence(kTRUE), fTracksArrayName("STTTrkIdeal"), pdg(0)
 {
   //---
   fTrackCands = new TClonesArray("PndTrackCand");

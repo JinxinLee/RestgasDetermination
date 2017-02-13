@@ -131,15 +131,15 @@ std::vector<PndSdsDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     }
     
     //TString detPath="Module";
-    Int_t modId=-1;
-    if(fFake)
-    {
-      if(fTopModuleID==hitlist[hitnumber].GetModuleID() || fBottomModuleID==hitlist[hitnumber].GetModuleID())
-        modId = 1;
-      if(fBottomModuleID==hitlist[hitnumber].GetModuleID()) hitlist[hitnumber].SetFeID(hitlist[hitnumber].GetFeID()+3);
-    }else{
-      modId = hitlist[hitnumber].GetModuleID();
-    }
+    //Int_t modId=-1; //[R.K.02/2017] Unused variable?
+    //if(fFake) //[R.K.02/2017] Unused variable?
+    //{ //[R.K.02/2017] Unused variable?
+      //if(fTopModuleID==hitlist[hitnumber].GetModuleID() || fBottomModuleID==hitlist[hitnumber].GetModuleID())
+        //modId = 1; //[R.K.02/2017] Unused variable?
+      //if(fBottomModuleID==hitlist[hitnumber].GetModuleID()) hitlist[hitnumber].SetFeID(hitlist[hitnumber].GetFeID()+3); //[R.K.02/2017] Unused variable?
+    //}else{ //[R.K.02/2017] Unused variable?
+      //modId = hitlist[hitnumber].GetModuleID(); //[R.K.02/2017] Unused variable?
+    //} //[R.K.02/2017] Unused variable?
    /* detPath+=modId;
     detPath+="Rect";
     //     std::cout<<detPath.Data()<<"   |    "<<modId<<std::endl;

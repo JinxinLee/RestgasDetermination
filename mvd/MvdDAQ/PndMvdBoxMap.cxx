@@ -98,7 +98,7 @@ void PndMvdBoxMap::PrintMap()
 void PndMvdBoxMap::DoMapping(Int_t nbox, Int_t chan, TString &detpath)
 {
 
-  Int_t sat = -1;
+  //Int_t sat = -1; //[R.K.02/2017] Unused variable?
 
   for (Int_t jj = 0 ; jj < nLines ; jj++)
   {
@@ -107,7 +107,7 @@ void PndMvdBoxMap::DoMapping(Int_t nbox, Int_t chan, TString &detpath)
 	if ( chan >= fCh[jj] && chan <= lCh[jj] )
 	{
 	   detpath = fMap[jj];
-	   sat = jj;
+	   //sat = jj; //[R.K.02/2017] Unused variable?
 	}
     }
   }

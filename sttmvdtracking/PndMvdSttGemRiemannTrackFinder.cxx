@@ -12,7 +12,7 @@ using namespace std;
 
   ClassImp(PndMvdSttGemRiemannTrackFinder);
 
-PndMvdSttGemRiemannTrackFinder::PndMvdSttGemRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1), fLastLayerId(0), fSttHits(0), fGemHits(0)
+PndMvdSttGemRiemannTrackFinder::PndMvdSttGemRiemannTrackFinder():PndRiemannTrackFinder(), fSttHits(0), fGemHits(0),fZClosePar(0.1), fLastLayerId(0)
 {
 	fLayers.resize(22);
 	if (fUseZeroPos)
@@ -839,10 +839,10 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt(PndRiemannTrack* track, 
 //	double szChi2 = track->calcSZChi2(hit);
 //	double maxSZChi2 = 25;
 	//double r = track->r(); //[R.K. 01/2017] unused variable?
-	bool sign;
-	if ((track->getHit(1)->z())>0 )
-		sign=true;
-	else sign=false;
+	//bool sign; //[R.K.02/2017] Unused variable?
+	//if ((track->getHit(1)->z())>0 ) //[R.K.02/2017] Unused variable?
+		//sign=true; //[R.K.02/2017] Unused variable?
+	//else sign=false; //[R.K.02/2017] Unused variable?
 	if (fVerbose > 1) std::cout << "STTHit: dist " << dist << std::endl;
 
 	if (fabs(dist) > maxDist){
@@ -880,10 +880,10 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitSkewedStt(PndRiemannTrack* t
 //	double szChi2 = track->calcSZChi2(hit);
 //	double maxSZChi2 = 25;
 	//double r = track->r(); //[R.K. 01/2017] unused variable?
-	bool sign;
-	if ((track->getHit(1)->z())>0 )
-		sign=true;
-	else sign=false;
+	//bool sign; //[R.K.02/2017] Unused variable?
+	//if ((track->getHit(1)->z())>0 ) //[R.K.02/2017] Unused variable?
+		//sign=true; //[R.K.02/2017] Unused variable?
+	//else sign=false; //[R.K.02/2017] Unused variable?
 	if (fVerbose > 1) std::cout << "STTHit: dist " << dist << std::endl;
 
 	if (fabs(dist) > maxDist){
@@ -916,10 +916,10 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitGem(PndRiemannTrack* track, 
 	double maxSZChi2 = 25;
 	//double r = track->r(); //[R.K. 01/2017] unused variable?
 	//double dip=track->dip(); //[R.K. 01/2017] unused variable?
-	bool sign;
-	if ((track->getHit(1)->z())>0 )
-		sign=true;
-	else sign=false;
+	//bool sign; //[R.K.02/2017] Unused variable?
+	//if ((track->getHit(1)->z())>0 ) //[R.K.02/2017] Unused variable?
+		//sign=true; //[R.K.02/2017] Unused variable?
+	//else sign=false; //[R.K.02/2017] Unused variable?
 	if (fVerbose > 1) std::cout << "Checking GemHit: " << fairHit->GetEntryNr() << std::endl;
 	if (fVerbose > 1) std::cout << ": dist " << dist << " szDist " << szDist << " szChi2 " << szChi2 << std::endl;
   

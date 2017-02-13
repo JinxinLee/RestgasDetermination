@@ -236,7 +236,7 @@ void TtCracowTask::Exec(Option_t* opt)
       const Int_t sizeMap = (Int_t) SensorsPos.size();
 	   
       Int_t DetNames[sizeMap];
-      Double_t Pos[sizeMap];
+      //Double_t Pos[sizeMap]; //[R.K.02/2017] Unused variable?
 
       
       Int_t jj = 0;
@@ -252,7 +252,7 @@ void TtCracowTask::Exec(Option_t* opt)
 	      	      std::cout << "position: " << it->first << " name: " << (it->second) << std::endl;
 	  
 	      DetNames[jj] = it->second;
-	      Pos[jj] = it -> first;
+	      //Pos[jj] = it -> first; //[R.K.02/2017] Unused variable?
 	      jj++;
 	    }
 	  
@@ -279,7 +279,7 @@ void TtCracowTask::Exec(Option_t* opt)
 	  
 	  Double_t Erx[6];
 	  Double_t Ery[6];
-	  Double_t Erz[6];
+	  //Double_t Erz[6]; //[R.K.02/2017] Unused variable?
 	  
 	  //Int_t track = 0; //[R.K. 01/2017] unused variable?
 	  
@@ -307,7 +307,7 @@ void TtCracowTask::Exec(Option_t* opt)
 		  z[0] = theHit->GetZ();
 		  Erx[0] = theHit->GetDx();
 		  Ery[0] = theHit->GetDy();
-		  Erz[0] = theHit->GetDz();
+		  //Erz[0] = theHit->GetDz(); //[R.K.02/2017] Unused variable?
 		  fEloss[0] = theHit->GetEloss();
 		  s0 = kTRUE;
 		}
@@ -319,7 +319,7 @@ void TtCracowTask::Exec(Option_t* opt)
 		  z[1] = theHit->GetZ();
 		  Erx[1] = theHit->GetDx();
 		  Ery[1] = theHit->GetDy();
-		  Erz[1] = theHit->GetDz();
+		  //Erz[1] = theHit->GetDz(); //[R.K.02/2017] Unused variable?
 		  fEloss[1] = theHit->GetEloss();
 		  s1 = kTRUE;
 		}
@@ -330,7 +330,7 @@ void TtCracowTask::Exec(Option_t* opt)
 		  z[2] = theHit->GetZ();
 		  Erx[2] = theHit->GetDx();
 		  Ery[2] = theHit->GetDy();
-		  Erz[2] = theHit->GetDz();
+		  //Erz[2] = theHit->GetDz(); //[R.K.02/2017] Unused variable?
 		  fEloss[2] = theHit->GetEloss();
 		  s2 = kTRUE;
 		}
@@ -342,7 +342,7 @@ void TtCracowTask::Exec(Option_t* opt)
 		  z[3] = theHit->GetZ();
 		  Erx[3] = theHit->GetDx();
 		  Ery[3] = theHit->GetDy();
-		  Erz[3] = theHit->GetDz();
+		  //Erz[3] = theHit->GetDz(); //[R.K.02/2017] Unused variable?
 		  fEloss[3] = theHit->GetEloss();
 		  s3 = kTRUE;
 		}
@@ -353,7 +353,7 @@ void TtCracowTask::Exec(Option_t* opt)
 		  z[4] = theHit->GetZ();
 		  Erx[4] = theHit->GetDx();
 		  Ery[4] = theHit->GetDy();
-		  Erz[4] = theHit->GetDz();
+		  //Erz[4] = theHit->GetDz(); //[R.K.02/2017] Unused variable?
 		  fEloss[4] = theHit->GetEloss();
 		  s4 = kTRUE;
 		}
@@ -365,7 +365,7 @@ void TtCracowTask::Exec(Option_t* opt)
 		  z[5] = theHit->GetZ();
 		  Erx[5] = theHit->GetDx();
 		  Ery[5] = theHit->GetDy();
-		  Erz[5] = theHit->GetDz();
+		  //Erz[5] = theHit->GetDz(); //[R.K.02/2017] Unused variable?
 		  fEloss[5] = theHit->GetEloss();
 		  s5 = kTRUE;
 		}

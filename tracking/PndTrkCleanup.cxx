@@ -911,6 +911,7 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 	  " is not in the list of known Mvd MiniDisks !";
    }
 
+	return false; //FIXME Is this logically correct?
 
 }
 
@@ -986,13 +987,13 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 		//Xcross[2], //[R.K. 01/2017] unused variable?
 		X_disk,
 		Xintersect[2],
-		Xlow,
-		Xup,
+		//Xlow, //[R.K.02/2017] Unused variable?
+		//Xup, //[R.K.02/2017] Unused variable?
 		//Ycross[2], //[R.K. 01/2017] unused variable?
 		Y_disk,
 		Yintersect[2],
-		Ylow,
-		Yup,
+		//Ylow, //[R.K. 01/2017] unused variable?
+		//Yup, //[R.K. 01/2017] unused variable?
 		//Z_disk, //[R.K. 01/2017] unused variable?
 		Zintersect[2];
 
@@ -1246,11 +1247,11 @@ bool PndTrkCleanup::IsThereHitInMvdMiniDisk(
 		// calculate the intersections on the Mvd Disks;
 		phase = fi0 + kappa *  MVD_DISK_Z[i];	
 		X_disk = Ox + R* cos(phase) ;
-		Xup = X_disk + extra_distance;
-		Xlow = X_disk - extra_distance;
+		//Xup = X_disk + extra_distance; //[R.K.02/2017] Unused variable?
+		//Xlow = X_disk - extra_distance; //[R.K.02/2017] Unused variable?
 		Y_disk = Oy + R* sin(phase) ;
-		Ylow = Y_disk - extra_distance;
-		Yup = Y_disk + extra_distance;
+		//Ylow = Y_disk - extra_distance; //[R.K.02/2017] Unused variable?
+		//Yup = Y_disk + extra_distance; //[R.K.02/2017] Unused variable?
 
 		// now calculate if the intersection falls in the sensor active region of the Mvd Disk;
 		// theoretical radius**2 of the intersection point;
@@ -2283,9 +2284,9 @@ bool PndTrkCleanup::SttSkewCleanup(
 			ninside,
 			nnn,
 			//nIntersections[2], //[R.K. 01/2017] unused variable?
-			ListHits[nHits],
-			ListHitsRight[nHits],
-			ListHitsLeft[nHits];
+			ListHits[nHits];
+			//ListHitsRight[nHits], //[R.K. 01/2017] unused variable?
+			//ListHitsLeft[nHits]; //[R.K. 01/2017] unused variable?
 
 	Double_t	cut2,
 			epsilonTheta,
@@ -2370,10 +2371,10 @@ if(istampa>1)cout<<"in SttSkewCleanup : hit skew prima di purga = "
 	nHitsRight=nHitsLeft=0;
 	for(i=0;i< nHits; i++){
 		if(info[ListHits[i]][0]<0.){
-			ListHitsLeft[nHitsLeft]=ListHits[i];
+			//ListHitsLeft[nHitsLeft]=ListHits[i]; //[R.K. 01/2017] unused variable?
 			nHitsLeft++;
 		}else{
-			ListHitsRight[nHitsRight]=ListHits[i];
+			//ListHitsRight[nHitsRight]=ListHits[i]; //[R.K. 01/2017] unused variable?
 			nHitsRight++;
 		}
 	}
@@ -3305,6 +3306,7 @@ bool PndTrkCleanup::Track_Crosses_MvdMiniDisk_withMargin(
 			" is not in the list of known Mvd MiniDisks !";
 
 	}
+	return false; //FIXME Is this logically correct?
 
 }
 

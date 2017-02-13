@@ -27,7 +27,7 @@ void  PndTrkBoundaryParStraws2::CalculateSpecialRegion(
 
 
 	double px, py, qx, qy;
-	double alfa, beta, D, A, B, x1, y1, x2, y2;
+	double alfa, beta, D, A, B, x1, y1; //x2, y2,  //[R.K.02/2017] Unused variable?
 
 	a1 = APOTEMASTRAWDETECTORMIN;
 	a2 = APOTEMAMAXINNERPARSTRAW;
@@ -50,10 +50,10 @@ void  PndTrkBoundaryParStraws2::CalculateSpecialRegion(
 	D = sqrt(D);
 //	cout<<"A "<<A<<", B "<<B<<", delta "<<D<<endl;
 	y1 = (-A + D)/8. ;
-	y2 = (-A - D)/8. ;
+	//y2 = (-A - D)/8. ; //[R.K.02/2017] Unused variable?
 
 	x1 = 2.*a3 - sqrt(3.)*y1;
-	x2 = 2.*a3 - sqrt(3.)*y2;
+	//x2 = 2.*a3 - sqrt(3.)*y2; //[R.K.02/2017] Unused variable?
 
 	// il punto nel 1 quadrante ha coordinate (x1,y1);
 	// la soluzione (x2,y2) e' l'intersezione che non interessa;

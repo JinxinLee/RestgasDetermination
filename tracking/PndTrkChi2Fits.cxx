@@ -540,7 +540,7 @@ return 1;
 	Mvd_IndVar_DipVar_Sum,
 	Mvd_IndVar_IndVar[nHitsinTrack],
 	Mvd_IndVar_IndVar_Sum,
-	Mvd_invError2[nHitsinTrack],
+	//Mvd_invError2[nHitsinTrack], //[R.K.02/2017] Unused variable?
 
 	Penalty,
 
@@ -607,7 +607,7 @@ return 1;
 	  Mvd_IndVar_IndVar[nMvdHits] =(S[i]-FInot)*(S[i]-FInot)*e2;
 	  Mvd_IndVar_DipVar[nMvdHits] =(S[i]-FInot)*Z[i]*e2;
 	  // the following is useful only for adding the penalty term later;
-	  Mvd_invError2[nMvdHits] = e2;
+	  //Mvd_invError2[nMvdHits] = e2; //[R.K.02/2017] Unused variable?
 	  nMvdHits++;
 	} else {
 	  // Skew Straw hit;

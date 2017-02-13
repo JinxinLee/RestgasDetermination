@@ -126,7 +126,7 @@ void PndGemIdealPatternRecoTask::Exec(Option_t* opt) {
       cands[trackId] = new PndTrackCand;
       //      cands[trackId]->setMcTrackId(trackId);
       PndMCTrack *myMCTrack = (PndMCTrack*)fMCTrackArr->At(trackId);
-      int pdg = myMCTrack->GetPdgCode();
+      //int pdg = myMCTrack->GetPdgCode(); //[R.K.02/2017] Unused variable?
       //double charge; //[R.K. 01/2017] unused variable?
       //if(pdg<100000000){ //[R.K. 01/2017] unused variable?
 	//charge =  TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.; //[R.K. 01/2017] unused variable?

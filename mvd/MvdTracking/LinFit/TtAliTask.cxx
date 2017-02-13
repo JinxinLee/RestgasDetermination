@@ -223,34 +223,34 @@ void TtAliTask::Exec(Option_t* opt)
       
       if (SensorsPos.size()==6)
 	{
-	  Int_t DetRem[sizeMap-1];
-	  for (Int_t ss = 0 ; ss < (sizeMap-1) ; ss++)
-	    {
+	  //Int_t DetRem[sizeMap-1]; //[R.K.02/2017] Unused variable?
+	  //for (Int_t ss = 0 ; ss < (sizeMap-1) ; ss++) //[R.K.02/2017] Unused variable?
+	    //{ //[R.K.02/2017] Unused variable?
 
-	      DetRem[ss] = 0;
+	      //DetRem[ss] = 0; //[R.K.02/2017] Unused variable?
 
-	    }
+	    //} //[R.K.02/2017] Unused variable?
   
   
-	  Int_t counter = 0;
+	  //Int_t counter = 0; //[R.K.02/2017] Unused variable?
 
-	  Double_t BuffZ = -9999.;
+	  //Double_t BuffZ = -9999.;
 
-	  for (Int_t kk = 0 ; kk < (sizeMap) ; kk++)
-	    {
+	  //for (Int_t kk = 0 ; kk < (sizeMap) ; kk++) //[R.K.02/2017] Unused variable?
+	    //{ //[R.K.02/2017] Unused variable?
 
-	      if ((fExclBox-1) == kk) 
-		{
-		  BuffZ = Pos[kk];
-		  continue;
-		}
-	      else
-		{
-		  DetRem[counter] = kk;
-		  counter++;
-		}
+	      //if ((fExclBox-1) == kk)  //[R.K.02/2017] Unused variable?
+		//{ //[R.K.02/2017] Unused variable?
+		  //BuffZ = Pos[kk]; //[R.K.02/2017] Unused variable?
+		  //continue; //[R.K.02/2017] Unused variable?
+		//} //[R.K.02/2017] Unused variable?
+	      //else //[R.K.02/2017] Unused variable?
+		//{ //[R.K.02/2017] Unused variable?
+		  //DetRem[counter] = kk; //[R.K.02/2017] Unused variable?
+		  //counter++; //[R.K.02/2017] Unused variable?
+		//} //[R.K.02/2017] Unused variable?
       
-	    }
+	    //} //[R.K.02/2017] Unused variable?
   
 
 	  Double_t x[6];

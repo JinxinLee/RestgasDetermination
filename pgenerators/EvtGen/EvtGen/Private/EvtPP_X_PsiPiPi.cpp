@@ -108,7 +108,7 @@ EvtComplex EvtPP_X_PsiPiPi::invDD(double E) {
 void EvtPP_X_PsiPiPi::decay(EvtParticle* root) {
     root->initializePhaseSpace(getNDaug(), getDaugs());
     EvtVector4R P=root->getP4(),
-            pPsi=root->getDaug(0)->getP4(),
+            //pPsi=root->getDaug(0)->getP4(), //[R.K.02/2017] Unused variable?
             k1=root->getDaug(1)->getP4(),
             k2=root->getDaug(2)->getP4();
     double m2=(k1+k2).mass2();

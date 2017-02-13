@@ -13,7 +13,7 @@ public:
   //Local pid type (BABAR)
   enum {kNPidType = 5};
   enum PidType {
-    kElectron,
+    kElectron=0,
     kMuon,
     kPion,
     kKaon,

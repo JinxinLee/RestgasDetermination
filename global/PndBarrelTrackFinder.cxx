@@ -1238,13 +1238,13 @@ void   PndBarrelTrackFinder::PrintTracks() {
       Double_t calcThe = TMath::ACos(calcPz/calcP);
       
       Double_t calcPhi = thisPhi-TMath::Pi()/2.;
-      Double_t calcChg = -1.;
+      //Double_t calcChg = -1.; //[R.K. 01/2017] unused variable?
       if ( calcPhi < 0. ) calcPhi += TMath::Pi()*2.;
       Double_t firpPhi = CalcPhi(fTracksVector[itr].trackHits[0]->GetX(),fTracksVector[itr].trackHits[0]->GetY());
       if ( TMath::Abs(calcPhi-firpPhi) > TMath::Pi()/2. && TMath::Abs(calcPhi-firpPhi) < 3.*TMath::Pi()/2. ) {
 	calcPhi = thisPhi+TMath::Pi()/2.;
 	if ( calcPhi > 2.*TMath::Pi() ) calcPhi -= TMath::Pi()*2.;
-	calcChg = 1.;
+	//calcChg = 1.; //[R.K. 01/2017] unused variable?
       }
       if ( calcPhi > TMath::Pi() )
 	calcPhi -= 2.*TMath::Pi();
@@ -1296,12 +1296,12 @@ void   PndBarrelTrackFinder::DrawTracks() {
   for ( size_t itr = 0 ; itr < fTracksVector.size() ; itr++ ) {
     if ( TMath::Abs(fTracksVector[itr].meanR) > 0.1 ) {
       for ( size_t ihit = 0 ; ihit < fTracksVector[itr].trackHitD.size() ; ihit++ ) {
-	Bool_t skewedSttHit = kFALSE;
+	//Bool_t skewedSttHit = kFALSE; //[R.K. 01/2017] unused variable?
 	if ( fTracksVector[itr].trackHitD[ihit] == 2 ) {
 	  Int_t iTube = ((PndSttHit*) fTracksVector[itr].trackHits[ihit])->GetTubeID(); 
 	  PndSttTube *sttTube = (PndSttTube*) fTubeArray->At(iTube);
 	  if ( sttTube->GetWireDirection().Z() < 1. ) {
-	    skewedSttHit = kTRUE;
+	    //skewedSttHit = kTRUE; //[R.K. 01/2017] unused variable?
 	  }
 	}
       }

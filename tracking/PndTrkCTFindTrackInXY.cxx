@@ -699,9 +699,9 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 	nRmax,
 	nRemainingHits,
 	nHitsinTrack,
-	tri_index,
+	tri_index;
 	//auxIndex[maxstthits], //[R.K. 01/2017] unused variable?
-	Remaining[maxstthits];
+	//Remaining[maxstthits]; //[R.K. 01/2017] unused variable?
 
  Short_t iFi2;
 
@@ -717,7 +717,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 				//  remember the index of InclusionListStt is in the
 				//  ORIGINAL scheme of hits
 		TemporaryInclusionList[ ListSttParHits[i]  ]= true;
-		Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
+		//Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit //[R.K. 01/2017] unused variable?
 		nRemainingHits++;
 	} else {
 		TemporaryInclusionList[ ListSttParHits[i]  ]= false;
@@ -850,9 +850,9 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 	nRemainingHits,
 	nRmax,
 	nRmin,
-	tri_index,
+	tri_index;
 	//auxIndex[maxstthits], //[R.K. 01/2017] unused variable?
-	Remaining[maxstthits];
+	//Remaining[maxstthits]; //[R.K. 01/2017] unused variable?
 
 
  //Double_t auxRvalues[maxstthits]; //[R.K. 01/2017] unused variable?
@@ -874,7 +874,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 //  remember the index of InclusionListStt is in the ORIGINAL scheme of hits.
 	if( i != iSeed && InclusionListStt[ListSttParHits[i]] ) {
 		TemporaryInclusionList[ListSttParHits[i]]= true;
-		Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit
+		//Remaining[nRemainingHits]= i;   //  index of the PARALLEL hit //[R.K. 01/2017] unused variable?
 		nRemainingHits++;
 	}
  }

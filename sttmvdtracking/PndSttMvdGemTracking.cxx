@@ -744,7 +744,7 @@ void PndSttMvdGemTracking::Exec(Option_t* opt) {
     completeTrack = (PndTrack*) fCompleteTrackArray->At(itrk);
     if(fVerbose > 0 && completeTrack->GetRefIndex() != itrk) cout << "************** ERROR ****************" << endl;
     completeTrack->SetTrackCand(*completeCand);
-    //    completeTrack->SetFlag(flag[itrk]);
+    completeTrack->SetFlag(flag[itrk]);
     //    cout << "track " << itrk << " has flag " << flag[itrk] << endl;
   }
 
@@ -2621,7 +2621,7 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
       ytrasl = yrot;
 
       // change coordinate
-      Double_t u, v, sigv2, sigu2;
+      Double_t u, v, sigv2; //, sigu2; //[R.K.02/2017] Unused variable?
       u = xtrasl / (xtrasl*xtrasl + ytrasl*ytrasl);
       v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl);
     
@@ -2630,7 +2630,7 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
       Double_t dudx = (ytrasl*ytrasl - xtrasl*xtrasl) / pow((xtrasl*xtrasl + ytrasl*ytrasl),2);
       Double_t dudy = (-2 * xtrasl * ytrasl)/pow((xtrasl*xtrasl + ytrasl*ytrasl),2);
     
-      sigu2 = dudx * dudx * sigx * sigx + dudy * dudy * sigy * sigy + 2 * dudx * dudy * sigx * sigy; 
+      //sigu2 = dudx * dudx * sigx * sigx + dudy * dudy * sigy * sigy + 2 * dudx * dudy * sigx * sigy;  //[R.K.02/2017] Unused variable?
       sigv2 = dvdx * dvdx * sigx * sigx + dvdy * dvdy * sigy * sigy + 2 * dvdx * dvdy * sigx * sigy; 
 
       if(sigv2 == 0) sigv2 = 1e-5; // CHECK MVD covariance
@@ -2710,8 +2710,8 @@ Bool_t PndSttMvdGemTracking::IntersectionFinder(Double_t xc, Double_t yc, Double
   xc = xc + trasl[0];
   yc = yc + trasl[1];
   Double_t phi = TMath::ATan2(yc, xc); 
-  Double_t d;
-  d = ((xc + yc) - R*(TMath::Cos(phi) + TMath::Sin(phi)))/(TMath::Cos(phi) + TMath::Sin(phi)); 
+  //Double_t d; //[R.K.02/2017] Unused variable?
+  //d = ((xc + yc) - R*(TMath::Cos(phi) + TMath::Sin(phi)))/(TMath::Cos(phi) + TMath::Sin(phi));  //[R.K.02/2017] Unused variable?
   
   //  cout << "REFITTED FIT: " << xc << " " << yc << endl;
   //  cout << "RAGGIO: " << R << endl;

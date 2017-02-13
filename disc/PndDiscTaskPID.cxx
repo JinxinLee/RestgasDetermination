@@ -264,7 +264,7 @@ void PndDiscTaskPID::Exec(Option_t* opt)
             int detector_id = sensor_mc_point->GetDetectorID();
             int sensor_id = 27*detector_id + sensor_mc_point->GetReadoutID(); //Sensor ID of hit
             int pixel = sensor_mc_point->GetPixelNumber(); // Pixel number of hit
-            double tdc = sensor_mc_point->GetTdcTime();
+            //double tdc = sensor_mc_point->GetTdcTime(); //[R.K. 01/2017] unused variable?
             
             for(int k = 0; k < 3; k++)
             {

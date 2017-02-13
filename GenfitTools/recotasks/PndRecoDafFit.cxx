@@ -65,7 +65,7 @@
 
 PndRecoDafFit::PndRecoDafFit(): TNamed("Genfit", "Fit Tracks"),
                                       fMvdBranchName(""), fCentralTrackerBranchName(""),
-                                      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fVerbose(0), fTrackRep(0)
+                                      fUseGeane(kTRUE), fPropagateToIP(kTRUE), fPerpPlane(kFALSE), fNumIt(1), fTrackRep(0), fVerbose(0)
 {
   PndGeoHandling::Instance();
 }

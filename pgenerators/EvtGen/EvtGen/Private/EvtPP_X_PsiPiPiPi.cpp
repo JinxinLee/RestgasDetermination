@@ -110,7 +110,7 @@ void EvtPP_X_PsiPiPiPi::initProbMax() {
 void EvtPP_X_PsiPiPiPi::decay(EvtParticle* root) {
     root->initializePhaseSpace(getNDaug(), getDaugs());
     EvtVector4R P=root->getP4(),
-            pPsi=root->getDaug(0)->getP4(),
+            //pPsi=root->getDaug(0)->getP4(), //[R.K.02/2017] Unused variable?
             k1=root->getDaug(1)->getP4(),
             k2=root->getDaug(2)->getP4(),
             k3=root->getDaug(3)->getP4();

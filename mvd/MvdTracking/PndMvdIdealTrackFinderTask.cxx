@@ -203,13 +203,13 @@ void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t
 //    myTCand->setDip(GetTrackDip(myMCTrack));
 //    myTCand->setInverted(false);
     int pdg = myMCTrack->GetPdgCode();
-    double charge;
-    if(pdg<100000000){
-      charge =  TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
-    }
-    else{
-      charge = 0.;
-    }
+    //double charge; //[R.K.02/2017] Unused variable?
+    //if(pdg<100000000){ //[R.K.02/2017] Unused variable?
+      //charge =  TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.; //[R.K.02/2017] Unused variable?
+    //} //[R.K.02/2017] Unused variable?
+    //else{ //[R.K.02/2017] Unused variable?
+      //charge = 0.; //[R.K.02/2017] Unused variable?
+    //} //[R.K.02/2017] Unused variable?
 //    myTCand->setTrackSeed(
 //			  myMCTrack->GetStartVertex(),
 //			  myMCTrack->GetMomentum(),
