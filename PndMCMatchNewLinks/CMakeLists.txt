@@ -43,6 +43,7 @@ PndMCIdealTrackFinderNewLinks.cxx
 PndCloneGenerator.cxx
 PndMCTruthMatch.cxx
 PndTrackFunctor.cxx
+PndMCMatchPrintFairLinksObjects.cxx
 )
 
 set(LINKDEF  PndMCMatchNewLinksLinkDef.h)

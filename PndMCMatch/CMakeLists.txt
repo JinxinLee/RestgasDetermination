@@ -52,7 +52,6 @@ PndMCList.cxx
 PndMCTrackAssociator.cxx
 PndMCTrackEnumAssociator.cxx
 PndMCDataCrawler.cxx
-PndMCMatchPrintFairLinksObjects.cxx
 )
 
 set(LINKDEF  PndMCMatchLinkDef.h)
