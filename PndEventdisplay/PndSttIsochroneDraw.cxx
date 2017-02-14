@@ -36,7 +36,7 @@ using std::endl;
 PndSttIsochroneDraw::PndSttIsochroneDraw(Bool_t propagate)
    : fTimeWindowPlus(0.), fTimeWindowMinus(0.), fStartTime(-1), fUseEventTime(kTRUE), fUseIsochroneTime(kFALSE),
 	 fSttHitArray(0), fSttTubeArray(0), fSttParameters(0), fEventManager(0), fListOfIsochrones(0), fListOfTiltedIsochrones(0), fListOfParallelIsochrones(0),
-	 fStartFunctor(0), fStopFunctor(0), fCrawler(0), fEveTrList(0), fEventHeaderBranch(0)
+	 fStartFunctor(0), fStopFunctor(0), fEveTrList(0), fEventHeaderBranch(0)
 {
 }
 // -------------------------------------------------------------------------
@@ -46,7 +46,7 @@ PndSttIsochroneDraw::PndSttIsochroneDraw(Bool_t propagate)
 PndSttIsochroneDraw::PndSttIsochroneDraw(const char* name, Bool_t propagate, Int_t iVerbose)
   : FairTask(name, iVerbose), fTimeWindowPlus(0.), fTimeWindowMinus(0.), fStartTime(-1), fUseEventTime(kTRUE), fUseIsochroneTime(kFALSE),
 	 fSttHitArray(0), fSttTubeArray(0), fSttParameters(0), fEventManager(0), fListOfIsochrones(0), fListOfTiltedIsochrones(0), fListOfParallelIsochrones(0),
-	 fStartFunctor(0), fStopFunctor(0), fCrawler(0), fEveTrList(0), fEventHeaderBranch(0)
+	 fStartFunctor(0), fStopFunctor(0), fEveTrList(0), fEventHeaderBranch(0)
 {
 	 // fPro = new FairGeanePro();
 
@@ -76,9 +76,9 @@ InitStatus PndSttIsochroneDraw::Init()
    }
    fStartFunctor = new StopTime();
    fStopFunctor = new StopTime();
-   fCrawler = new PndMCDataCrawler();
-   fCrawler->Init();
-   fCrawler->SetStoreIntermediate(kFALSE);
+//   fCrawler = new PndMCDataCrawler();
+//   fCrawler->Init();
+//   fCrawler->SetStoreIntermediate(kFALSE);
 
    if (IsActive())
 		return kSUCCESS;
@@ -162,12 +162,14 @@ void PndSttIsochroneDraw::Exec(Option_t* option)
 				if (fUseIsochroneTime == kTRUE) {
 					PndSttSingleStraw straw;
 					Double_t driftTime = myHit->GetTimeStamp() - eventTime;
-					FairMultiLinkedData* linkData = (FairMultiLinkedData*)myHit; //fInputData->At(i);
+					FairMultiLinkedData_Interface* linkData = (FairMultiLinkedData_Interface*)myHit; //fInputData->At(i);
 
-					fCrawler->Init();
-					fCrawler->SetStoreIntermediate(kFALSE);
+					//fCrawler->Init();
+					//fCrawler->SetStoreIntermediate(kFALSE);
 					std::cout << "StartLink: " << *linkData << std::endl;
-					FairMultiLinkedData result = fCrawler->GetInfo(FairMultiLinkedData(*linkData), "STTPoint");
+					FairMultiLinkedData result = linkData->GetLinksWithType(FairRootManager::Instance()->GetBranchId("STTPoint"));
+							//fCrawler->GetInfo(FairMultiLinkedData(*linkData), "STTPoint");
+
 					std::cout << "Links: " << result << std::endl;
 					if (result.GetNLinks() == 1 && result.GetLink(0).GetType() == FairRootManager::Instance()->GetBranchId("STTPoint")){
 						PndSttPoint* mcPoint = (PndSttPoint*)FairRootManager::Instance()->GetCloneOfLinkData(result.GetLink(0));

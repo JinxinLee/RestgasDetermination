@@ -24,7 +24,7 @@
 #include "FairGeanePro.h"
 
 #include "FairRootManager.h"
-#include "PndMCDataCrawler.h"
+//#include "PndMCDataCrawler.h"
 
 #include "PndTrackCandDraw.h"
 #include "PndGeoSttPar.h"
@@ -93,7 +93,7 @@ protected:
    BinaryFunctor* fStartFunctor;
    BinaryFunctor* fStopFunctor;
 
-   PndMCDataCrawler* fCrawler;
+//   PndMCDataCrawler* fCrawler;
    TBranch* fEventHeaderBranch;
 
   ClassDef(PndSttIsochroneDraw,1);
