@@ -18,13 +18,14 @@
 // framework includes
 #include "FairTask.h"
 #include "PndDetectorList.h"
+#include "PndTrack.h"
 #include "PndTrackCand.h"
 #include "PndTrackingQualityMCInfo.h"
 #include "PndGeoSttPar.h"
 #include "TH2.h"
 #include "THStack.h"
 #include "RhoHistogram/RhoTuple.h"
-#include "PndTrackingQualityAnalysis.h"
+#include "PndTrackFunctor.h"
 
 
 #include <vector>

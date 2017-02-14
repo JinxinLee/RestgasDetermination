@@ -22,96 +22,8 @@
 #include <map>
 
 #include <functional>
-#include "PndTrackingQualityAnalysis.h"
 #include "PndTrackFunctor.h"
 
-/*class PossibleTrackFunctor : public std::binary_function<FairMultiLinkedData* , Bool_t, Bool_t>
-{
-  public :
-    virtual Bool_t operator() (FairMultiLinkedData* a, Bool_t primary) {return Call(a, primary);};
-    virtual Bool_t Call(FairMultiLinkedData* a, Bool_t primary) = 0;
-    virtual void Print() = 0;
-
-    virtual ~PossibleTrackFunctor() {};
-
-};
-
-class StandardTrackFunctor : public PossibleTrackFunctor
-{
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
-		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = kFALSE;
-		possibleTrack = possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() > 3);
-
-		possibleTrack = possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() ) > 5;
-
-		return possibleTrack;
-	}
-
-	void Print(){
-		std::cout << "StandardTrackFunctor: > 3 Hits in MVD or > 5 Hits in (MVD+Stt)" << std::endl;
-	}
-};
-
-class OnlySttFunctor : public PossibleTrackFunctor
-{
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
-		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = kFALSE;
-
-		possibleTrack = possibleTrack | a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 5;
-
-		return possibleTrack;
-	}
-	void Print(){
-		std::cout << "OnlySttFunctor: > 5 Hits in Stt" << std::endl;
-	}
-};
-
-class RiemannMvdSttGemFunctor : public PossibleTrackFunctor
-{
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
-		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = kFALSE;
-		Bool_t mvdHits =  ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
-							a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks()) > 2);
-
-		if (mvdHits){
-			possibleTrack = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 1 | a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks() > 1;
-		}
-		return possibleTrack;
-	}
-	void Print(){
-		std::cout << "RiemannMvdSttGemFunctor: > 2 Hits in MVD and >0 Hits in (Stt+Gem)" << std::endl;
-	}
-
-};
-
-class CircleHoughTrackFunctor : public PossibleTrackFunctor
-{
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
-		if (primary == kFALSE) return kFALSE;
-		FairRootManager* ioman = FairRootManager::Instance();
-		Bool_t possibleTrack = kFALSE;
-
-		Int_t nHitsMvdPixel = a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks();
-		Int_t nHitsMvdStrip = a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks();
-		if (nHitsMvdPixel + nHitsMvdStrip > 2) {  // First requirement: more than two MVD hits
-			Int_t nHitsStt = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks();
-			Int_t nHitsGem = a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks();
-			possibleTrack = (nHitsMvdPixel + nHitsMvdStrip + nHitsStt + nHitsGem > 6);  // Second requirement: More than six hits total
-		}
-		return possibleTrack;
-	}
-	void Print(){
-		std::cout << "CircleHoughTrackFunctor: > 3 Hits in MVD and primary track" << std::endl;
-	}
-
-};
-*/
 
 /**
  * @brief Holding statically callable quality numbers
@@ -123,7 +35,7 @@ class CircleHoughTrackFunctor : public PossibleTrackFunctor
  *  
  */
 
-/*
+
 struct qualityNumbers {
 	static const int
 		// Following: Default statuses.
@@ -151,8 +63,6 @@ struct qualityNumbers {
 		kNotFound = 7,  // notFound: total number of not reco'd tracks
 		kFound = 8;  // found: total number of reco'd tracks; the sum of fullyFound, partiallyFound, spuriousFound
 };
-
-*/
 
 class PndTrackingQualityAnalysisNewLinks : public TObject
 {
