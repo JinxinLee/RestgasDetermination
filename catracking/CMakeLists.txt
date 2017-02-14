@@ -76,6 +76,6 @@ PndTrackingQualityBarrelAnalysisNewLinks.cxx
 set(LINKDEF  CATrackingLinkDef.h)
 set(LIBRARY_NAME CATracking)
 
-set(DEPENDENCIES PndData Stt Vc.a Base MCMatch Rho TrackingQA)
+set(DEPENDENCIES PndData Stt Vc.a Base MCMatchNewLinks Rho TrackingQA)
 
 GENERATE_LIBRARY()

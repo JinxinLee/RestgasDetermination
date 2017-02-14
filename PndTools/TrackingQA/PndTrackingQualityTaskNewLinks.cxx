@@ -26,7 +26,6 @@
 // PandaRoot includes
 #include "PndMCTrack.h"
 #include "PndTrack.h"
-#include "PndMCEntry.h"
 #include "PndSttHit.h"
 #include "PndSttTube.h"
 #include "PndSttMapCreator.h"

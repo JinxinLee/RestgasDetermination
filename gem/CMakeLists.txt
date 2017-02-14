@@ -18,7 +18,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/gem
   ${CMAKE_SOURCE_DIR}/recotasks
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/PndMCMatch
+  ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

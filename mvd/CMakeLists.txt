@@ -23,7 +23,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/buffers
-  ${CMAKE_SOURCE_DIR}/PndMCMatch
+  ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
   ${CMAKE_SOURCE_DIR}/mvd/MvdMC
   ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
   ${CMAKE_SOURCE_DIR}/mvd/MvdReco

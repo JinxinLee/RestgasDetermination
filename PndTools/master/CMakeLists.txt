@@ -90,6 +90,6 @@ set(LINKDEF  MasterLinkDef.h)
 set(LIBRARY_NAME Master)
 
 # set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
-set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect)
+set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatchNewLinks RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect)
 
 GENERATE_LIBRARY() 
