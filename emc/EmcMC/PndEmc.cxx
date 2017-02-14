@@ -743,7 +743,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   else if (!bIsFastFsc )
     {
       
-	  Int_t ModCopy=0;
+	  //Int_t ModCopy=0; //[R.K.02/2017] Unused variable
 	  Int_t SupModCopy=0;
           Int_t LocCopy=0;
           Int_t nSupCol=0;

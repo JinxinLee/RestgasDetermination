@@ -623,7 +623,7 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	double cA2uoy = cA2uiy + tA2thick;
 	//double cA2uoz = cA2uiz; //[R.K. 01/2017] unused variable?
 	double cA2doy = cA2diy + tA2thick;
-	double cA2doz = cA2diz;
+	//double cA2doz = cA2diz; //[R.K.02/2017] Unused variable?
 
 	double tbruiz = cbrdiz;
 	double tbruiy = cbrdiy;

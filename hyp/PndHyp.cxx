@@ -363,8 +363,8 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   
 	     
 	   //cout << "*******  Info from gMC *************" << endl;
-	   Int_t cp=-1;
-	   Int_t fVolid = gMC->CurrentVolID(cp);
+	   //Int_t cp=-1; //[R.K.02/2017] Unused variable?
+	   //Int_t fVolid = gMC->CurrentVolID(cp); //[R.K.02/2017] Unused variable?
 	   
 	   
 	   //cout << " Vol Name: " << gMC->CurrentVolPath() <<" vol id "<<vol->getMCid()<< endl;
