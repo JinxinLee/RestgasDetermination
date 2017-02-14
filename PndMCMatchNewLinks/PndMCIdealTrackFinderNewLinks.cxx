@@ -21,7 +21,7 @@
 ClassImp(PndMCIdealTrackFinderNewLinks);
 
 PndMCIdealTrackFinderNewLinks::PndMCIdealTrackFinderNewLinks() :
-  fOutBranchName("IdealTrack"), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.), fTrackSelector(0), fPersistence(kTRUE)
+  fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fPersistence(kTRUE), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fPersistence(kTRUE), fEfficiency(1.)
 {
 	// TODO Auto-generated constructor stub
 

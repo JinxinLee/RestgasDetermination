@@ -69,7 +69,8 @@ class RiemannMvdSttGemFunctor : public PndTrackFunctor
 							a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks()) > 2);
 
 		if (mvdHits){
-			possibleTrack = a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() > 1 | a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks() > 1;
+			possibleTrack = a->GetLinksWithType((ioman->GetBranchId("STTHit")).GetNLinks() > 1)
+							| (a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks() > 1);
 		}
 		return possibleTrack;
 	}
