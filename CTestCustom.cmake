@@ -6,7 +6,7 @@
 # -- Number of warnings to display
 # -----------------------------------------------------------
 
-set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS "500" )
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS "5000" )
 
 # -----------------------------------------------------------
 # -- Number of errors to display
