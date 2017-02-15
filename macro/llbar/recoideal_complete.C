@@ -65,7 +65,7 @@ void recoideal_complete()
 
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemIdealTrack");
-  recoKalman->SetTrackInIDBranchName("SttMvdGemIdealTrackID");
+//  recoKalman->SetTrackInIDBranchName("SttMvdGemIdealTrackID");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetIdealHyp(kTRUE);//Comment out for secondaries
@@ -93,7 +93,7 @@ void recoideal_complete()
 
   PndRecoKalmanTask* recoKalmanFwd = new PndRecoKalmanTask();
   recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
-  recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
+//  recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
   recoKalmanFwd->SetTrackOutBranchName("FtsIdealGenTrack");
   recoKalmanFwd->SetBusyCut(50); // CHECK to be tuned
   //recoKalmanFwd->SetIdealHyp(kTRUE);//Comment out for secondaries

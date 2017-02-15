@@ -72,7 +72,7 @@ void reco_complete()
 
   PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
+//  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetIdealHyp(kTRUE);
@@ -83,7 +83,7 @@ void reco_complete()
 
   PndRecoKalmanTask2* recoKalman2 = new PndRecoKalmanTask2();
   recoKalman2->SetTrackInBranchName("SttMvdGemTrack");
-  recoKalman2->SetTrackInIDBranchName("SttMvdGemTrackID");
+//  recoKalman2->SetTrackInIDBranchName("SttMvdGemTrackID");
   recoKalman2->SetTrackOutBranchName("SttMvdGemGen2Track");
   recoKalman2->SetBusyCut(50); // CHECK to be tuned
   //recoKalman2->SetIdealHyp(kTRUE);
