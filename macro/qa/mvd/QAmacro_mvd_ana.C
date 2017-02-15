@@ -1,5 +1,5 @@
 // root macro to analyze the clusterization output
-#include "../../run/Tools.C"
+//#include "../../run/Tools.C"
 
 void QAmacro_mvd_ana()
 {
@@ -32,6 +32,9 @@ void QAmacro_mvd_ana()
   TTree* t=(TTree*)f->Get("cbmsim");
   t->AddFriend("cbmsim",recoFile.Data()); // the reco file you want to analyse
   TFile* dbfile = new TFile(parFile.Data());
+
+  PndGeoHandling* fGeoH = new PndGeoHandling(inFile,parFile);
+
   TGeoManager *geoMan;
   if (!gGeoManager) {      
     dbfile->Get("FairBaseParSet");      
@@ -60,8 +63,6 @@ void QAmacro_mvd_ana()
 
   TClonesArray* pixhit_array=new TClonesArray("PndSdsHit");
   t->SetBranchAddress("MVDHitsPixel",&pixhit_array);//Branch names
-
-  PndGeoHandling* fGeoH = new PndGeoHandling(inFile,parFile);
 
   if(!fGeoH){
     std::cout<<"No MvdGeoHandling existant. Abort now!"<<std::endl;
@@ -290,7 +291,7 @@ void QAmacro_mvd_ana()
   str = "#sigma_{1} = ";
   str += (10000*par[2]); for (int i=0;i<6;i++) str.Chop();
   str += " #mum";
-  DrawText( 0.2, 0.8, str.Data(),0.05,1);
+//  DrawText( 0.2, 0.8, str.Data(),0.05,1);
   std::cout<< str.Data();
   if( fabs(10000*par[2]) < 10 ){
     std::cout<< " Passed a 10um window.";
@@ -303,7 +304,7 @@ void QAmacro_mvd_ana()
   str = "#sigma_{2} = ";
   str += (10000*par[5]); for (int i=0;i<6;i++) str.Chop();
   str += " #mum";
-  DrawText( 0.2, 0.7, str.Data(),0.05,1);
+//  DrawText( 0.2, 0.7, str.Data(),0.05,1);
   std::cout<< str.Data();
   if( fabs(10000*par[5]) < 50 ){
     std::cout<< " Passed a 50um window.";
@@ -314,7 +315,7 @@ void QAmacro_mvd_ana()
   } std::cout<<std::endl;
 
   // reset styling for pictures
-  LoadPandaStyle();
+//  LoadPandaStyle();
 
   can2->Print(picture);
 
@@ -350,6 +351,6 @@ void QAmacro_mvd_ana()
     std::cout<<"Test of resolution sigma: "<< ((test2) ? "ok" : "bad") <<std::endl;
   }
   std::cout<<std::endl;
- // exit(0);
+  exit(0);
    
 }
