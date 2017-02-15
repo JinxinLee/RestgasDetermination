@@ -46,15 +46,15 @@ void reco_complete_gf2(Int_t nEvents = 0)
   SttMvdGemTracking->SetPersistence(kFALSE);
   fRun->AddTask(SttMvdGemTracking);
   
-  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
-  trackMC->SetTrackInBranchName("SttMvdGemTrack");
-  trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
-  trackMC->SetPersistence(kFALSE);
-  fRun->AddTask(trackMC);
+//  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+//  trackMC->SetTrackInBranchName("SttMvdGemTrack");
+//  trackMC->SetTrackOutBranchName("SttMvdGemTrackID");
+//  trackMC->SetPersistence(kFALSE);
+//  fRun->AddTask(trackMC);
 
   PndRecoKalmanTask2* recoKalman = new PndRecoKalmanTask2();
   recoKalman->SetTrackInBranchName("SttMvdGemTrack");
-  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
+//  recoKalman->SetTrackInIDBranchName("SttMvdGemTrackID");
   recoKalman->SetTrackOutBranchName("SttMvdGemGenTrack");
   recoKalman->SetBusyCut(50); // CHECK to be tuned
   //recoKalman->SetIdealHyp(kTRUE);
@@ -63,23 +63,24 @@ void reco_complete_gf2(Int_t nEvents = 0)
   //recoKalman->SetPropagateToIP(kFALSE);
   fRun->AddTask(recoKalman);
 
-  PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
-  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack"); 
-  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
-  fRun->AddTask(trackMC2);
- 
-  PndFtsTrackerIdeal* trackFts = new PndFtsTrackerIdeal();
+//  PndMCTrackAssociator* trackMC2 = new PndMCTrackAssociator();
+//  trackMC2->SetTrackInBranchName("SttMvdGemGenTrack");
+//  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
+//  fRun->AddTask(trackMC2);
+//
+  PndMCIdealTrackFinderNewLinks* trackFts = new PndMCIdealTrackFinderNewLinks();
+  trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
-  trackFts->SetTrackOutput("FtsIdealTrack");
+  trackFts->SetOutputBranchName("FtsIdealTrack");
   trackFts->SetPersistence(kFALSE);
   fRun->AddTask(trackFts);
 
-  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
-  trackMCfwd->SetTrackInBranchName("FtsIdealTrack");
-  trackMCfwd->SetTrackOutBranchName("FtsIdealTrackID");
-  fRun->AddTask(trackMCfwd);
+//  PndMCTrackAssociator* trackMCfwd = new PndMCTrackAssociator();
+//  trackMCfwd->SetTrackInBranchName("FtsIdealTrack");
+//  trackMCfwd->SetTrackOutBranchName("FtsIdealTrackID");
+//  fRun->AddTask(trackMCfwd);
 
   PndRecoKalmanTask2* recoKalmanFwd = new PndRecoKalmanTask2();
   recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
@@ -92,10 +93,10 @@ void reco_complete_gf2(Int_t nEvents = 0)
   //recoKalmanFwd->SetPropagateToIP(kFALSE);
   fRun->AddTask(recoKalmanFwd);
 
-  PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();
-  trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
-  trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
-  fRun->AddTask(trackMC3);
+//  PndMCTrackAssociator* trackMC3 = new PndMCTrackAssociator();
+//  trackMC3->SetTrackInBranchName("FtsIdealGenTrack");
+//  trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
+//  fRun->AddTask(trackMC3);
   
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(1);

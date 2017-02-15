@@ -30,9 +30,9 @@ void pidideal_complete(Int_t nEvents = 0)
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
   corr->SetInputBranch("SttMvdGemGenTrack");
-  corr->SetInputIDBranch("SttMvdGemGenTrackID");
+//  corr->SetInputIDBranch("SttMvdGemGenTrackID");
   corr->SetInputBranch2("FtsIdealGenTrack");
-  corr->SetInputIDBranch2("FtsIdealGenTrackID");
+//  corr->SetInputIDBranch2("FtsIdealGenTrackID");
   corr->SetIdeal(kTRUE);
   corr->SetIdealHyp(kTRUE);
   //corr->SetDebugMode(kTRUE);
