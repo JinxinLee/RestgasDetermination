@@ -54,9 +54,9 @@ void pid()
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
   corr->SetInputBranch("SttMvdGemGenTrack");
-  corr->SetInputIDBranch("SttMvdGemGenTrackID");
+//  corr->SetInputIDBranch("SttMvdGemGenTrackID");
   corr->SetInputBranch2("FtsIdealGenTrack");
-  corr->SetInputIDBranch2("FtsIdealGenTrackID");
+//  corr->SetInputIDBranch2("FtsIdealGenTrackID");
   //corr->SetFast(kTRUE);
   //corr->SetBackPropagate(kFALSE);
   fRun->AddTask(corr);

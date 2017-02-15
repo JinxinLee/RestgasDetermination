@@ -49,7 +49,7 @@
   PndPidCorrelator* corr = new PndPidCorrelator();
   //corr->SetVerbose();
   corr->SetInputBranch("LheGenTrack");
-  corr->SetInputIDBranch("LheTrackID");
+//  corr->SetInputIDBranch("LheTrackID");
   //corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
  
