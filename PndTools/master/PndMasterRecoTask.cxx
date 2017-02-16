@@ -112,6 +112,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   PndMCIdealTrackFinderNewLinks* trackFts = NULL;
   this->Add(trackFts = new PndMCIdealTrackFinderNewLinks()); // 6
   reco.kPndFtsTrackerIdeal = GetListOfTasks()->GetSize()-1;
+  trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);

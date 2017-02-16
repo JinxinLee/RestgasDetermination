@@ -69,6 +69,10 @@ InitStatus PndMCIdealTrackFinderNewLinks::Init()
  	ioman->Register(fOutBranchName + "Cand", "MC", fTrackCand, fPersistence);
 	fTrack = new TClonesArray("PndTrack");
 	ioman->Register(fOutBranchName, "MC", fTrack, fPersistence);
+
+	if (fTrackSelector == 0){
+		std::cout << "-W- PndMCIdealTrackFinderNewLinks::Init() no fTrackSelector set! All possible tracks will be taken!" << std::endl;
+	}
  
 	fPdg = new TDatabasePDG();
 
