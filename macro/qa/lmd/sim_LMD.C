@@ -38,9 +38,9 @@ void sim_LMD(const int nEvents=1000, const int startEvent=0, const double mom=1.
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   //-------------------------  Magnet   ----------------- 
-  FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid_V842.root");
-  fRun->AddModule(Magnet);
+//  FairModule *Magnet= new PndMagnet("MAGNET");
+//  Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+//  fRun->AddModule(Magnet);
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
@@ -48,6 +48,16 @@ void sim_LMD(const int nEvents=1000, const int startEvent=0, const double mom=1.
   FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("beampipe_201407.root");
   fRun->AddModule(Pipe);
+
+  PndMdt *Muo = new PndMdt("MDT",kFALSE);
+    Muo->SetBarrel("fast");
+    Muo->SetEndcap("fast");
+    Muo->SetMuonFilter("fast");
+    Muo->SetForward("fast");
+    Muo->SetMdtMagnet(kTRUE);
+    Muo->SetMdtCoil(kTRUE);
+    Muo->SetMdtMFIron(kTRUE);
+    fRun->AddModule(Muo);
 
   //-------------------------  LMD     -----------------
   PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);

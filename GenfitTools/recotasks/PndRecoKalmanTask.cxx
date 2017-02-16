@@ -36,7 +36,7 @@
 #include "FairRuntimeDb.h"
 
 PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
-: FairTask(name, iVerbose), fTrackInBranchName(""), fTrackInIDBranchName(""),
+: FairTask(name, iVerbose), fTrackInBranchName(""),
 fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
 fFitTrackArray(), fFitter(), fDafFitter(), fPDGHyp(-13),
 fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE), fPersistence(kTRUE),
@@ -114,12 +114,12 @@ PndRecoKalmanTask::Init()
   if (fIdealHyp)
     { 
       pdg = new TDatabasePDG();
-      fTrackIDArray=(TClonesArray*) ioman->GetObject(fTrackInIDBranchName);
-      if(fTrackIDArray==0)
-	{
-	  Error("PndRecoKalmanTask::Init","track ID array not found! It is not possible to run ideal particle hypothesis");
-	  return kERROR;
-	} 
+//      fTrackIDArray=(TClonesArray*) ioman->GetObject(fTrackInIDBranchName);
+//      if(fTrackIDArray==0)
+//	{
+//	  Error("PndRecoKalmanTask::Init","track ID array not found! It is not possible to run ideal particle hypothesis");
+//	  return kERROR;
+//	}
 
       fMCTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
       if(fMCTrackArray==0)
@@ -171,12 +171,11 @@ void PndRecoKalmanTask::Exec(Option_t* opt) {
 		Int_t fCharge = prefitTrack->GetParamFirst().GetQ();
 		Int_t PDGCode = 0;
 		if (fIdealHyp) {
-			PndTrackID *prefitTrackID = (PndTrackID*) fTrackIDArray->At(itr);
-			if (prefitTrackID->GetNCorrTrackId() > 0) {
-				Int_t mcTrackId = prefitTrackID->GetCorrTrackID();
-				if (mcTrackId != -1) {
-					PndMCTrack *mcTrack = (PndMCTrack*) fMCTrackArray->At(
-							mcTrackId);
+			//PndTrackID *prefitTrackID = (PndTrackID*) fTrackIDArray->At(itr);
+			if (prefitTrack->GetSortedMCTracks().size() > 0) {
+				FairLink mcTrackId = prefitTrack->GetSortedMCTracks().at(0);
+				if (mcTrackId.GetType() == FairRootManager::Instance()->GetBranchId("MCTrack")) {
+					PndMCTrack *mcTrack = (PndMCTrack*) fMCTrackArray->At(mcTrackId.GetIndex()); //todo: replace with GetCloneOfLinkData
 					if (!mcTrack) {
 						PDGCode = 211 * fCharge;
 						std::cout << "-I- PndRecoKalmanTask::Exec: MCTrack #"

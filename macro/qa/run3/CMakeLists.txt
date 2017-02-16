@@ -11,19 +11,19 @@ SET_TESTS_PROPERTIES(digi_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro fi
 
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/reco_complete.C)
 add_test(reco_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/reco_complete.sh)
-SET_TESTS_PROPERTIES(reco_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(reco_complete3 PROPERTIES TIMEOUT "300")
 SET_TESTS_PROPERTIES(reco_complete3 PROPERTIES DEPENDS digi_complete3)
 SET_TESTS_PROPERTIES(reco_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
 
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/reco_complete_gf2.C)
 add_test(reco_complete3_gf2 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/reco_complete_gf2.sh)
-SET_TESTS_PROPERTIES(reco_complete3_gf2 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(reco_complete3_gf2 PROPERTIES TIMEOUT "300")
 SET_TESTS_PROPERTIES(reco_complete3_gf2 PROPERTIES DEPENDS digi_complete3)
 SET_TESTS_PROPERTIES(reco_complete3_gf2 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
 
 Generate_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/run3/recoqa_complete.C)
 add_test(recoqa_complete3 ${PANDAROOT_BINARY_DIR}/macro/qa/run3/recoqa_complete.sh)
-SET_TESTS_PROPERTIES(recoqa_complete3 PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(recoqa_complete3 PROPERTIES TIMEOUT "300")
 SET_TESTS_PROPERTIES(recoqa_complete3 PROPERTIES DEPENDS reco_complete3)
 SET_TESTS_PROPERTIES(recoqa_complete3 PROPERTIES PASS_REGULAR_EXPRESSION "Macro finished successfully")
 

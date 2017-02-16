@@ -9,7 +9,7 @@ void sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant4", Float_t mom
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="ftf_qa.root";
-  TString  ParOutputfile  ="ftf_qa.root";
+  TString  ParOutputfile  ="ftf_par.root";
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly 

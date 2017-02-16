@@ -44,7 +44,7 @@ public:
   
   // Modifiers -----------------------
   void SetTrackInBranchName(const TString& name)   { fTrackInBranchName = name;  }  
-  void SetTrackInIDBranchName(const TString& name) { fTrackInIDBranchName = name;} 
+//  void SetTrackInIDBranchName(const TString& name) { fTrackInIDBranchName = name;}
   void SetTrackOutBranchName(const TString& name)  { fTrackOutBranchName = name; } 
   void SetMvdBranchName(const TString& name)       { fMvdBranchName = name;      }
   void SetCentralTrackerBranchName(const TString& name)  { fCentralTrackerBranchName = name; }
@@ -70,12 +70,12 @@ protected:
   
   // Private Data Members ------------
   TClonesArray* fTrackArray;      //! Input TCA for PndTrack
-  TClonesArray* fTrackIDArray;    //! Input TCA for PndTrackID
+//  TClonesArray* fTrackIDArray;    //! Input TCA for PndTrackID
   TClonesArray* fMCTrackArray;    //! Input TCA for PndMCTrack
   TClonesArray* fFitTrackArray;    //! Output TCA for track
   
   TString fTrackInBranchName;      //! Name of the input TCA 
-  TString fTrackInIDBranchName;    //! Name of the input TCA
+//  TString fTrackInIDBranchName;    //! Name of the input TCA
   TString fTrackOutBranchName;     //! Name of the output TCA
    
   TString fMvdBranchName;           //! Name of the TCA for MVD
