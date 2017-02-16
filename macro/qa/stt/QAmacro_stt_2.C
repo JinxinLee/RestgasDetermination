@@ -26,6 +26,7 @@ void QAmacro_stt_2()
   FairRunAna *fRun = new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
+  fRun->SetUseFairLinks(kTRUE);
   // ------------------------------------------------------------------------
  
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();

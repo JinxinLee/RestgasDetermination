@@ -31,8 +31,8 @@ void QAmacro_stt_4()
   treereco->SetBranchAddress("SttMvdTrack",&trackarray);
   
   // Track Match
-  TClonesArray *trackIDarray = new TClonesArray("PndTrackID");
-  treereco->SetBranchAddress("SttMvdTrackID",&trackIDarray);
+//  TClonesArray *trackIDarray = new TClonesArray("PndTrackID");
+//  treereco->SetBranchAddress("SttMvdTrackID",&trackIDarray);
 
   
   // histograms
@@ -89,14 +89,19 @@ void QAmacro_stt_4()
     
       PndTrack *track = (PndTrack*) trackarray->At(k);
       if(!track) continue;
-      PndTrackID *trackID = (PndTrackID*) trackIDarray->At(k);
-      if(!trackID) continue;
+//      PndTrackID *trackID = (PndTrackID*) trackIDarray->At(k);
+//      if(!trackID) continue;
 
       if(track->GetFlag() < 0) continue;
       TVector3 lastmom = track->GetParamLast().GetMomentum();  
 	
       // mu - or mu + ?
-      Int_t MCTrackID = trackID->GetCorrTrackID();
+      Int_t MCTrackID = -1;
+      if (track->GetNLinks() > 0){
+    	  FairLink MCLink = track->GetLink(1);
+    	  if (MCLink.GetType() == 0)
+    		  MCTrackID = MCLink.GetIndex();
+      }
       if(MCTrackID == -1) continue;
       PndMCTrack *mctrack = (PndMCTrack*) mctrackarray->At(MCTrackID);
       if(!mctrack) continue;

@@ -28,6 +28,7 @@ void QAmacro_stt_3()
   fRun->SetInputFile(inFile);
   fRun->AddFriend(inFile2);
   fRun->SetOutputFile(outFile);
+  fRun->SetUseFairLinks(kTRUE);
   // ------------------------------------------------------------------------
  
 
@@ -52,10 +53,10 @@ void QAmacro_stt_3()
   tracking->NoMvdAloneTracking();
   fRun->AddTask(tracking);
   
-  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
-  trackMC->SetTrackInBranchName("SttMvdTrack");
-  trackMC->SetTrackOutBranchName("SttMvdTrackID");
-  fRun->AddTask(trackMC);
+//  PndMCTrackAssociator* trackMC = new PndMCTrackAssociator();
+//  trackMC->SetTrackInBranchName("SttMvdTrack");
+//  trackMC->SetTrackOutBranchName("SttMvdTrackID");
+//  fRun->AddTask(trackMC);
 
  
   // -----   Initialize and run   --------------------------------------------

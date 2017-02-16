@@ -1,7 +1,7 @@
 // TEST 1: 100 events, 3 mu- and 3 mu+ each
 // ptot  = 1 GeV/c
-// theta in [20°, 140°]
-// phi   in [0° , 360°]
+// theta in [20ï¿½, 140ï¿½]
+// phi   in [0ï¿½ , 360ï¿½]
 
 void QAmacro_stt_1()
 {
@@ -18,6 +18,7 @@ void QAmacro_stt_1()
   fRun->SetName("TGeant3");
   
   fRun->SetOutputFile("testrun.root");
+  fRun->SetUseFairLinks(kTRUE);
  
   // -----   Magnetic field   -------------------------------------------
   // Constant Field
