@@ -45,11 +45,12 @@
 // // -------------------------------------------------------------------------
 
 
-PndLmdTrkQTask::PndLmdTrkQTask(Double_t pBeam,TString geaneBranch) : FairTask("Track Quality Task for PANDA Lmd"), fEventNr(0)
+PndLmdTrkQTask::PndLmdTrkQTask(Double_t pBeam,TString geaneBranch, TString trackBranch) : FairTask("Track Quality Task for PANDA Lmd"), fEventNr(0)
 {
   fWriteAllMC = false;
   fPbeam = pBeam;
   fGeaneName = geaneBranch;
+  fTrackName = trackBranch;
   //cout<<"Beam Momentum for particle with PDGid#"<<fPDGid<<" this run is "<<fPbeam<<endl;
   // vtx = IP;
   // cout<<"Interaction Point:"<<endl;
@@ -120,7 +121,7 @@ InitStatus PndLmdTrkQTask::Init()
     return kERROR;
   }
   //Get rec.tracks before back propagation
-  fRecTracks = (TClonesArray*) ioman->GetObject("LMDPndTrackFilt");
+  fRecTracks = (TClonesArray*) ioman->GetObject(fTrackName);
   if (!fRecTracks){
     std::cout << "-W- PndLmdTrkQTask::Init: "<< "No LMDPndTrackFilt" << " array!" << std::endl;
     return kERROR;

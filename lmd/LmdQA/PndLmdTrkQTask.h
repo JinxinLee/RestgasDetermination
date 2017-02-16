@@ -38,7 +38,7 @@ class PndLmdTrkQTask : public FairTask
   //  PndLmdTrkQTask();
   PndLmdTrkQTask(const PndLmdTrkQTask& o){};
   ///Set up beam momuntum value
-  PndLmdTrkQTask(Double_t pBeam=0, TString geaneBranch="GeaneTrackFinal");
+  PndLmdTrkQTask(Double_t pBeam=0, TString geaneBranch="GeaneTrackFinal", TString trackBranch="LMDPndTrackFilt");
 
   /** Destructor **/
   ~PndLmdTrkQTask();
@@ -58,6 +58,7 @@ class PndLmdTrkQTask : public FairTask
 
   // Input Data ----------
   TString fGeaneName;
+  TString fTrackName;
   TClonesArray* fMCHits;
   TClonesArray* fMCTracks;
   TClonesArray* fDigis;

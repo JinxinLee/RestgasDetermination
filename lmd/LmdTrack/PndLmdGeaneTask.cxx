@@ -47,7 +47,7 @@ PndLmdGeaneTask::PndLmdGeaneTask() : FairTask("Geane Task for PANDA Lmd"), fEven
 // -------------------------------------------------------------------------
 
 
-PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP): FairTask("Geane Task for PANDA Lmd"), fEventNr(0), fUseMVDPoint(false)
+PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP, bool is_prefiltered): FairTask("Geane Task for PANDA Lmd"), fEventNr(0), fUseMVDPoint(false)
 {
   fPDGid=-2212;
   fPbeam = pBeam;
@@ -55,8 +55,11 @@ PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP): FairTask("Geane Ta
   vtx = IP;
   cout<<"Interaction Point:"<<endl;
   vtx.Print();
-
-
+  
+  if(is_prefiltered)
+    track_branch_name="LMDPndTrackFilt";
+  else
+    track_branch_name="LMDPndTrack";
 }
 
 
@@ -92,7 +95,7 @@ InitStatus PndLmdGeaneTask::Init()
   }
 
   //  fTracks = (TClonesArray*) ioman->GetObject("LMDTrack");
-  fTracks = (TClonesArray*) ioman->GetObject("LMDPndTrackFilt");
+  fTracks = (TClonesArray*) ioman->GetObject(track_branch_name.c_str());
   if (!fTracks){
     std::cout << "-W- PndLmdGeaneTask::Init: "<< "No Track" << " array!" << std::endl;
     return kERROR;

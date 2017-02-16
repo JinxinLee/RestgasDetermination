@@ -43,7 +43,7 @@ class PndLmdGeaneTask : public FairTask
   PndLmdGeaneTask();
 
   ///Set up beam momuntum value and position of interaction point
-  PndLmdGeaneTask(Double_t pBeam, TVector3 IP);
+  PndLmdGeaneTask(Double_t pBeam, TVector3 IP, bool is_prefiltered=true);
 
   /** Destructor **/
   ~PndLmdGeaneTask();
@@ -78,6 +78,8 @@ class PndLmdGeaneTask : public FairTask
   FairField *pndField;		
   std::map<int, std::vector<int> > fTrackPixHitIdMap;	 //Track -> PixHitId
   std::map<int, std::vector<int> > fTrackStripHitIdMap;	 //Track -> StripHitId
+
+  std::string track_branch_name;
 
   // Input Data ----------
   TClonesArray* fMCHits;
