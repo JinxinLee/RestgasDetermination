@@ -1530,7 +1530,7 @@ void PndLmdDim::Read_transformation_matrices(string filename, bool aligned,
 		filename = dir + "/geometry/trafo_matrices_lmd.dat";
 	}
 	else{
-		//filename = dir + filename;
+		filename = dir + filename;
 	}
 
 	ifstream file(filename.c_str());
