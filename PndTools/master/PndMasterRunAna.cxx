@@ -12,6 +12,7 @@
 #include "FairRuntimeDb.h"
 #include "FairSystemInfo.h"
 #include "FairLogger.h"
+#include "FairGeane.h"
 
 #include <iostream>
 
@@ -20,7 +21,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunAna::PndMasterRunAna() :
-  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fOptions(), fTimer(), fEventCounterRate(100)
+  FairRunAna(), fInput(), fParamRootFile(), fParamAsciiFile(), fFriendFile1(), fFriendFile2(), fFriendFile3(), fFriendFile4(), fOptions(), fEventCounterRate(100), fNoGeane(kTRUE), fTimer()
 {
   fTimer.Start();
 }
@@ -103,6 +104,8 @@ void PndMasterRunAna::AddDigiTasks(Bool_t pers)
 // -----   AddRecoTasks   ---------------------------------------------------
 void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 {
+  // -----   Geane   ---------------------------------------
+  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
   PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
   if (!pers) reco->SetPersistency(kFALSE);
   AddTask(reco);
@@ -111,6 +114,7 @@ void PndMasterRunAna::AddRecoTasks(Bool_t pers)
 // -----   AddPidTasks   ----------------------------------------------------
 void PndMasterRunAna::AddPidTasks(Bool_t pers)
 {
+  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
   PndMasterPidTask *pid = new PndMasterPidTask(fOptions);
   if (!pers) pid->SetPersistency(kFALSE);
   AddTask(pid);

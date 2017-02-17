@@ -1147,7 +1147,7 @@ void PndTrkPlotMacros2::WriteMacroParallelHitsGeneral(
            //delta, deltax, deltay, deltaz, deltaS, //[R.K. 01/2017] unused variable?
            //factor,ff, //[R.K. 01/2017] unused variable?
            //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable?
-           y1, y2,x1,x2,//z1, z2,  //[R.K. 01/2017] unused variable?
+           y2,x2,//x1,y1, z1, z2,  //[R.K. 01/2017] unused variable?
            //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
            aaa, bbb, rrr; //ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
            //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
@@ -1230,9 +1230,9 @@ fprintf(MACRO,"TMarker* Skew%d = new TMarker(%f,%f,%d);\nSkew%d->SetMarkerColor(
        }
 
        for( ii=0; ii< nMvdStripHit; ii++) {
-            x1= XMvdStrip->at(ii)-sigmaXMvdStrip->at(ii);
+            //x1= XMvdStrip->at(ii)-sigmaXMvdStrip->at(ii); //[R.K. 01/2017] unused variable?
             x2= XMvdStrip->at(ii)+sigmaXMvdStrip->at(ii);
-            y1= YMvdStrip->at(ii)-sigmaYMvdStrip->at(ii);
+            //y1= YMvdStrip->at(ii)-sigmaYMvdStrip->at(ii); //[R.K. 01/2017] unused variable?
             y2= YMvdStrip->at(ii)+sigmaYMvdStrip->at(ii);
 fprintf(MACRO,
  "TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
@@ -1241,9 +1241,9 @@ fprintf(MACRO,
 
        }
        for( ii=0; ii< nMvdPixelHit; ii++) {
-            x1= XMvdPixel->at(ii)-sigmaXMvdPixel->at(ii);
+            //x1= XMvdPixel->at(ii)-sigmaXMvdPixel->at(ii); //[R.K. 01/2017] unused variable?
             x2= XMvdPixel->at(ii)+sigmaXMvdPixel->at(ii);
-            y1= YMvdPixel->at(ii)-sigmaYMvdPixel->at(ii);
+            //y1= YMvdPixel->at(ii)-sigmaYMvdPixel->at(ii); //[R.K. 01/2017] unused variable?
             y2= YMvdPixel->at(ii)+sigmaYMvdPixel->at(ii);
 fprintf(MACRO,
 "TMarker* Pixel%d = new TMarker(%f,%f,%d);\nPixel%d->SetMarkerColor(1);\nPixel%d->Draw();\n",
@@ -1355,9 +1355,9 @@ fprintf(MACRO,"TMarker* Skew%d = new TMarker(%f,%f,%d);\nSkew%d->SetMarkerColor(
        }
 
        for( ii=0; ii< nMvdStripHit; ii++) {
-            x1= XMvdStrip->at(ii)-sigmaXMvdStrip->at(ii);
+            //x1= XMvdStrip->at(ii)-sigmaXMvdStrip->at(ii); //[R.K. 01/2017] unused variable?
             x2= XMvdStrip->at(ii)+sigmaXMvdStrip->at(ii);
-            y1= YMvdStrip->at(ii)-sigmaYMvdStrip->at(ii);
+            //y1= YMvdStrip->at(ii)-sigmaYMvdStrip->at(ii); //[R.K. 01/2017] unused variable?
             y2= YMvdStrip->at(ii)+sigmaYMvdStrip->at(ii);
 fprintf(MACRO,
  "TMarker* Strip%d = new TMarker(%f,%f,%d);\nStrip%d->SetMarkerColor(1);\nStrip%d->Draw();\n",
@@ -1366,9 +1366,9 @@ fprintf(MACRO,
 
        }
        for( ii=0; ii< nMvdPixelHit; ii++) {
-            x1= XMvdPixel->at(ii)-sigmaXMvdPixel->at(ii);
+            //x1= XMvdPixel->at(ii)-sigmaXMvdPixel->at(ii); //[R.K. 01/2017] unused variable?
             x2= XMvdPixel->at(ii)+sigmaXMvdPixel->at(ii);
-            y1= YMvdPixel->at(ii)-sigmaYMvdPixel->at(ii);
+            //y1= YMvdPixel->at(ii)-sigmaYMvdPixel->at(ii); //[R.K. 01/2017] unused variable?
             y2= YMvdPixel->at(ii)+sigmaYMvdPixel->at(ii);
 fprintf(MACRO,
 "TMarker* Pixel%d = new TMarker(%f,%f,%d);\nPixel%d->SetMarkerColor(1);\nPixel%d->Draw();\n",
@@ -2477,7 +2477,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
            aaa, dis, //bbb, ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
            //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
            //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable?
-           fmin, fmax, offset; //step, //[R.K. 01/2017] unused variable?
+           fmin, fmax; //step, offset, //[R.K. 01/2017] unused variable?
 	         //zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable?
 	         //dist[2], //[R.K. 01/2017] unused variable?
            //Tiltdirection1[2], //[R.K. 01/2017] unused variable?
@@ -3095,7 +3095,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 	<<" perche' ha fabs(KAPPA)<1.e-10.\n";
    } else {
 	for(i=Nmin; i<= Nmax;i++){
-		offset = 2.*PI*i;
+		//offset = 2.*PI*i; //[R.K. 01/2017] unused variable?
 		z1 = (i*2.*PI-FI0)/KAPPA;
 		z2 = ((i+1)*2.*PI-FI0)/KAPPA;
 		fprintf(MACRO,
@@ -3120,7 +3120,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
 
        if( imc>-1 ) {
 	Int_t icode ;
-         Double_t r_r, Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;// Dd, //[R.K. 01/2017] unused variable?
+         Double_t Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;// r_r, Dd, //[R.K. 01/2017] unused variable?
 		PndMCTrack* pMC;
 		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
 	if ( pMC ) {
@@ -3130,7 +3130,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
          	Px = pMC->GetMomentum().X();
          	Py = pMC->GetMomentum().Y();
          	aaa = sqrt( Px*Px + Py*Py);
-         	r_r =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	//r_r =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla //[R.K. 01/2017] unused variable?
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
@@ -3162,7 +3162,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC(
   }
 
   for(i=Nmin; i<= Nmax;i++){
-   offset = 2.*PI*i;
+   //offset = 2.*PI*i; //[R.K. 01/2017] unused variable?
    z1 = (i*2.*PI-FI0)/KAPPA;
    z2 = ((i+1)*2.*PI-FI0)/KAPPA;
    fprintf(MACRO,"TLine* MC%d_%d = new TLine(%f,%f,%f,%f);\nMC%d_%d->SetLineColor(3);\nMC%d_%d->Draw();\n",
@@ -3279,7 +3279,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
            aaa, dis, //bbb, ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
            //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
            //Aellipsis1, Bellipsis1,fi1, //[R.K. 01/2017] unused variable?
-           fmin, fmax, offset; //step, //[R.K. 01/2017] unused variable?
+           fmin, fmax; //step, offset, //[R.K. 01/2017] unused variable?
 	         //zpos, zpos1, zpos2, //[R.K. 01/2017] unused variable?
       	   //dist[2], //[R.K. 01/2017] unused variable?
            //Tiltdirection1[2], //[R.K. 01/2017] unused variable?
@@ -3904,7 +3904,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 	<<" perche' ha fabs(KAPPA)<1.e-10.\n";
    } else {
 	for(i=Nmin; i<= Nmax;i++){
-		offset = 2.*PI*i;
+		//offset = 2.*PI*i; //[R.K. 01/2017] unused variable?
 		z1 = (i*2.*PI-FI0)/KAPPA;
 		z2 = ((i+1)*2.*PI-FI0)/KAPPA;
 		fprintf(MACRO,
@@ -3929,7 +3929,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
 
        if( imc>-1 ) {
 	Int_t icode ;
-         Double_t r_r, Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;// Dd, //[R.K. 01/2017] unused variable?
+         Double_t Fifi, Kakka, o_x, o_y, Cx, Cy, Px, Py, carica  ;// r_r, Dd, //[R.K. 01/2017] unused variable?
 		PndMCTrack* pMC;
 		pMC = (PndMCTrack*) fMCTrackArray->At(imc);
 	if ( pMC ) {
@@ -3939,7 +3939,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
          	Px = pMC->GetMomentum().X();
          	Py = pMC->GetMomentum().Y();
          	aaa = sqrt( Px*Px + Py*Py);
-         	r_r =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla
+         	//r_r =   aaa*1000./(BFIELD*CVEL);    //   R (cm) of Helix of track projected in XY plane; B = 2 Tesla //[R.K. 01/2017] unused variable?
          	TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
        		if (icode>1000000000) carica = 1.;
        		else  carica = fParticle->Charge()/3. ;    //   charge of track
@@ -3971,7 +3971,7 @@ void PndTrkPlotMacros2::WriteMacroSkewAssociatedHitswithMC_Degree(
   }
 
   for(i=Nmin; i<= Nmax;i++){
-   offset = 2.*PI*i;
+   //offset = 2.*PI*i; //[R.K. 01/2017] unused variable?
    z1 = (i*2.*PI-FI0)/KAPPA;
    z2 = ((i+1)*2.*PI-FI0)/KAPPA;
    fprintf(MACRO,"TLine* MC%d_%d = new TLine(%f,%f,%f,%f);\nMC%d_%d->SetLineColor(3);\nMC%d_%d->Draw();\n",
@@ -4027,7 +4027,7 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
            //delta, deltax, deltay, deltaz, deltaS, //[R.K. 01/2017] unused variable?
            //factor, //[R.K. 01/2017] unused variable?
            //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable?
-           y1, y2,x1,x2, //z1, z2,  //[R.K. 01/2017] unused variable?
+           //y1, y2,x1,x2, //z1, z2,  //[R.K. 01/2017] unused variable?
            //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
            aaa, bbb; //ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
            //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
@@ -4387,10 +4387,10 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
        for( i=0; i< nMvdStripHitsAssociatedToSttTra; i++) {
         ii = ListMvdStripHitsinTrack.at(iTrack*In_Put.MAXMVDSTRIPHITSINTRACK+i);
-            x1= XMvdStrip.at(ii)-sigmaXMvdStrip.at(ii);
-            x2= XMvdStrip.at(ii)+sigmaXMvdStrip.at(ii);
-            y1= YMvdStrip.at(ii)-sigmaYMvdStrip.at(ii);
-            y2= YMvdStrip.at(ii)+sigmaYMvdStrip.at(ii);
+            //x1= XMvdStrip.at(ii)-sigmaXMvdStrip.at(ii); //[R.K. 01/2017] unused variable?
+            //x2= XMvdStrip.at(ii)+sigmaXMvdStrip.at(ii); //[R.K. 01/2017] unused variable?
+            //y1= YMvdStrip.at(ii)-sigmaYMvdStrip.at(ii); //[R.K. 01/2017] unused variable?
+            //y2= YMvdStrip.at(ii)+sigmaYMvdStrip.at(ii); //[R.K. 01/2017] unused variable?
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdStripCommon.at(iTrack);k++){
@@ -4423,10 +4423,10 @@ void PndTrkPlotMacros2::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
        for( i=0; i< nMvdPixelHitsAssociatedToSttTra; i++) {
         ii = ListMvdPixelHitsinTrack.at(iTrack*MAXMVDPIXELHITSINTRACK+i);
-            x1= XMvdPixel.at(ii)-sigmaXMvdPixel.at(ii);
-            x2= XMvdPixel.at(ii)+sigmaXMvdPixel.at(ii);
-            y1= YMvdPixel.at(ii)-sigmaYMvdPixel.at(ii);
-            y2= YMvdPixel.at(ii)+sigmaYMvdPixel.at(ii);
+            //x1= XMvdPixel.at(ii)-sigmaXMvdPixel.at(ii); //[R.K. 01/2017] unused variable?
+            //x2= XMvdPixel.at(ii)+sigmaXMvdPixel.at(ii); //[R.K. 01/2017] unused variable?
+            //y1= YMvdPixel.at(ii)-sigmaYMvdPixel.at(ii); //[R.K. 01/2017] unused variable?
+            //y2= YMvdPixel.at(ii)+sigmaYMvdPixel.at(ii); //[R.K. 01/2017] unused variable?
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdPixelCommon.at(iTrack);k++){

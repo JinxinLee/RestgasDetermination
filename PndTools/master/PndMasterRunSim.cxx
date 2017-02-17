@@ -120,6 +120,7 @@ void PndMasterRunSim::CreateGeometryDefault()
   Cave->SetGeometryFileName("pndcave.geo");
   AddModule(Cave);
   //-------------------------  Magnet   -----------------
+  // This part is commented because the MDT geometry contains the magnet now
   //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
@@ -194,6 +195,7 @@ void PndMasterRunSim::CreateGeometryDay1()
   Cave->SetGeometryFileName("pndcave.geo");
   AddModule(Cave);
   //-------------------------  Magnet   -----------------
+  // This part is commented because the MDT geometry contains the magnet now
   //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");

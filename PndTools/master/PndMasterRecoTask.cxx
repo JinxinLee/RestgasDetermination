@@ -8,7 +8,6 @@
 #include "PndMasterRecoTask.h"
 #include "PndMasterTask.h"
 
-#include "FairGeane.h"
 #include "PndTrkTracking2.h"
 #include "PndSttMvdGemTracking.h"
 //#include "PndMCTrackAssociator.h"
@@ -25,12 +24,8 @@
 PndMasterRecoTask::PndMasterRecoTask(TString options) :
   PndMasterTask("Master Reconstruction Task"), fOptions(options)
 {
-  reco = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-  
-  // -----   Geane   ---------------------------------------
-  this->Add(new FairGeane()); // 0
-  reco.kFairGeane = GetListOfTasks()->GetSize()-1;
-  
+  reco = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+ 
   // -----  MVD + STT Pattern Recognition -----------------------------------
   //  use the constructor with input :
   //      printout flag (int) , plotting flag (bool), MC comparison flag (bool), SciTil.

@@ -3284,7 +3284,7 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
            //delta, deltax, deltay, deltaz, deltaS, //[R.K. 01/2017] unused variable?
            //factor, //[R.K. 01/2017] unused variable?
            //zmin, zmax, Smin, Smax, S1, S2, //[R.K. 01/2017] unused variable?
-           y1, y2,x1,x2, //z1, z2,  //[R.K. 01/2017] unused variable?
+           //y1, y2,x1,x2, //z1, z2,  //[R.K. 01/2017] unused variable?
            //vx1, vy1, vz1, C0x1, C0y1, C0z1, //[R.K. 01/2017] unused variable?
            aaa, bbb;// ccc, angle, minor, major, //[R.K. 01/2017] unused variable?
            //distance, Rx, Ry, LL, //[R.K. 01/2017] unused variable?
@@ -3644,10 +3644,10 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
        for( i=0; i< nMvdStripHitsAssociatedToSttTra; i++) {
         ii = ListMvdStripHitsinTrack.at(iTrack*In_Put.MAXMVDSTRIPHITSINTRACK+i);
-            x1= XMvdStrip.at(ii)-sigmaXMvdStrip.at(ii);
-            x2= XMvdStrip.at(ii)+sigmaXMvdStrip.at(ii);
-            y1= YMvdStrip.at(ii)-sigmaYMvdStrip.at(ii);
-            y2= YMvdStrip.at(ii)+sigmaYMvdStrip.at(ii);
+            //x1= XMvdStrip.at(ii)-sigmaXMvdStrip.at(ii);
+            //x2= XMvdStrip.at(ii)+sigmaXMvdStrip.at(ii);
+            //y1= YMvdStrip.at(ii)-sigmaYMvdStrip.at(ii);
+            //y2= YMvdStrip.at(ii)+sigmaYMvdStrip.at(ii);
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdStripCommon.at(iTrack);k++){
@@ -3680,10 +3680,10 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 
        for( i=0; i< nMvdPixelHitsAssociatedToSttTra; i++) {
         ii = ListMvdPixelHitsinTrack.at(iTrack*MAXMVDPIXELHITSINTRACK+i);
-            x1= XMvdPixel.at(ii)-sigmaXMvdPixel.at(ii);
-            x2= XMvdPixel.at(ii)+sigmaXMvdPixel.at(ii);
-            y1= YMvdPixel.at(ii)-sigmaYMvdPixel.at(ii);
-            y2= YMvdPixel.at(ii)+sigmaYMvdPixel.at(ii);
+            //x1= XMvdPixel.at(ii)-sigmaXMvdPixel.at(ii);
+            //x2= XMvdPixel.at(ii)+sigmaXMvdPixel.at(ii);
+            //y1= YMvdPixel.at(ii)-sigmaYMvdPixel.at(ii);
+            //y2= YMvdPixel.at(ii)+sigmaYMvdPixel.at(ii);
 
 		bool flaggo=true;
 		for( int k=0; k<nMvdPixelCommon.at(iTrack);k++){

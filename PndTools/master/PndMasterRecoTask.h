@@ -51,7 +51,6 @@ class PndMasterRecoTask : public PndMasterTask
    * @remarks There are 4 kPndMCTrackAssociatorTask  and 2 kPndRecoKalmanTask, called kPndMCTrackAssociator1 kPndMCTrackAssociator2 etc...
    */
   struct recoTaskList {
-    Short_t kFairGeane;
     Short_t kPndTrkTracking2;
     Short_t kPndSttMvdGemTracking;
     Short_t kPndMCTrackAssociator1;

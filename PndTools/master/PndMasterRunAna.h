@@ -134,7 +134,8 @@ class PndMasterRunAna : public FairRunAna
   TString fOptions;          ///< Options parsed to the reconstruction
  
   Int_t fEventCounterRate;   ///< After how many events the counter will print
-
+  Bool_t fNoGeane;           ///< Protect GEANE from being loaded twice
+  
   TStopwatch fTimer;         ///< Timer 
   
   /** @cond CLASSIMP */

@@ -1,14 +1,14 @@
-// Macro for running Panda pid tasks
+// Macro for running Panda digitization tasks
 // to run the macro:
-// root  pid_complete.C  or in root session root>.x  pid_complete.C
-void pid_complete(Int_t nEvents = 0)
+// root  digi_day1.C  or in root session root>.x  digi_complete.C
+void digi_day1(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all_day1.par";
   TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
-  TString  output         = "pid";
-  TString  friend1        = "digi";
-  TString  friend2        = "reco";
+  TString  output         = "digi";
+  TString  friend1        = "";
+  TString  friend2        = "";
   TString  friend3        = "";
   TString  friend4        = "";
   
@@ -23,15 +23,14 @@ void pid_complete(Int_t nEvents = 0)
   fRun->SetFriend4(friend4);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup();
-  
+
   // -----   Add tasks   ----------------------------------------------------
-  fRun->AddPidTasks();
-  
+  fRun->AddDigiTasks();
+
   // -----   Intialise and run   --------------------------------------------
-  PndEmcMapper::Init(1);
   fRun->Init();
   fRun->Run(0, nEvents);
   fRun->Finish();
-
-  exit(0); 
+ 
+  exit(0);
 }

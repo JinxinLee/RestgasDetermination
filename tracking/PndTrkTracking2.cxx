@@ -1971,8 +1971,8 @@ MAXMVDPIXELHITSINTRACK,MAXMVDSTRIPHITSINTRACK,MAXSCITILHITSINTRACK,MAXSTTHITSINT
 	  nhitsinfit = nXYZhits + fnSttSkewHitsinTrack[ncand];
 
 	// the following is a protection against declaration of 0 dimension array;
-	int dime ;
-	if(nhitsinfit>0) dime = nhitsinfit ; else dime=1;
+	//int dime ; //[R.K. 02/2017] unused variable?
+	//if(nhitsinfit>0) dime = nhitsinfit ; else dime=1; //[R.K. 02/2017] unused variable?
 
 if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 //---------------------   here calculate the S and Z values of Mvd Pixels, Mvd Strips,
@@ -3078,11 +3078,11 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 
  Short_t i,
 	itrack,
-	ihit,
+	ihit;
 	//j, //[R.K. 01/2017] unused variable
 	//k, //[R.K. 01/2017] unused variable
 	//ntot, //[R.K. 01/2017] unused variable
-	nadd;
+	//nadd; //[R.K. 02/2017] unused variable?
 
  Double_t angle,
 	deltaZ,
@@ -3105,7 +3105,7 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 //	way in one shot I collect also the previously non collected hits and I remove the
 //	spurious hits.
 
-	nadd=0;
+	//nadd=0; //[R.K. 02/2017] unused variable?
 	for(i=0; i<nSttParHit; i++){
 		ihit = fListSttParHits[i];
 
@@ -3330,8 +3330,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 		 chosenS2,
 		 ddd,
 		 dista,
-		 dista1,
-		 dista0,
+		 //dista1, //[R.K. 02/2017] unused variable?
+		 //dista0, //[R.K. 02/2017] unused variable?
 		 Drift,
 		 //d_min, //[R.K. 01/2017] unused variable
 		 error,
@@ -3513,8 +3513,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 				} else {
 					inclusion[i]=false;
 				}
-				dista0 = Pix_distance[i];
- 				dista1 =Pix_distance[j];
+				//dista0 = Pix_distance[i]; //[R.K. 02/2017] unused variable?
+ 				//dista1 =Pix_distance[j]; //[R.K. 02/2017] unused variable?
 			}
 		}   // end of for(i=0;i<auxnMvdPixel;i++)
 	}	// end of  for(i=0;i<auxnMvdPixel;i++)
@@ -3548,8 +3548,8 @@ void PndTrkTracking2::EliminateSpuriousSZ_bis(
 				} else {
 					inclusion2[i]=false;
 				}
-				dista0 = Strip_distance[i];
- 				dista1 = Strip_distance[j];
+				//dista0 = Strip_distance[i]; //[R.K. 02/2017] unused variable?
+ 				//dista1 = Strip_distance[j]; //[R.K. 02/2017] unused variable?
 			}
 		}   // end of for(i=0;i<auxnMvdStrip;i++)
 	}	// end of  for(i=0;i<auxnMvdStrip;i++)
@@ -3654,7 +3654,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 	auxnMvdStrip=0;
 	auxnSttSkew=0;
 
-	Double_t	Pix_distance[fnMvdPixelHitsinTrack[ncand]];
+	//Double_t	Pix_distance[fnMvdPixelHitsinTrack[ncand]]; //[R.K. 02/2017] unused variable?
 
 
 	for(i=0;i< fnMvdPixelHitsinTrack[ncand] ;i++){
@@ -3673,7 +3673,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 			SchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]= chosenS;
 			ZchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]=Z;
 			ErrorchosenPixel[fListMvdPixelHitsinTrack[ncand][i]]=ERRORPIXEL;
-			Pix_distance[auxnMvdPixel] = dista;
+			//Pix_distance[auxnMvdPixel] = dista; //[R.K. 02/2017] unused variable?
 			auxnMvdPixel++;
 			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
@@ -3682,7 +3682,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 	}	// end of  for(i=0;i<*nPixelHitsinTrack;i++)
 
 
-	Double_t	Strip_distance[fnMvdStripHitsinTrack[ncand]];
+	//Double_t	Strip_distance[fnMvdStripHitsinTrack[ncand]]; //[R.K. 02/2017] unused variable?
 	for(j=0;j<fnMvdStripHitsinTrack[ncand];j++){
 		i=j+fnMvdPixelHitsinTrack[ncand] ;
 		k = fListMvdStripHitsinTrack[ncand][j];
@@ -3698,7 +3698,7 @@ if(istampa>=2) cout<<"from eliminatespurioussz_ter, MvdCut "<<MvdCut<<endl;
 			SchosenStrip[fListMvdStripHitsinTrack[ncand][j]]= chosenS ;
 			ZchosenStrip[fListMvdStripHitsinTrack[ncand][j]]=Z;
 			ErrorchosenStrip[fListMvdStripHitsinTrack[ncand][j]]=ERRORSTRIP;
-			Strip_distance[auxnMvdStrip] = dista;
+			//Strip_distance[auxnMvdStrip] = dista; //[R.K. 02/2017] unused variable?
 			auxnMvdStrip++;
 			if(istampa>=2){ cout<<", chosen. "<<endl;}
 		} else {
@@ -3821,7 +3821,7 @@ void PndTrkTracking2::FindCharge(
 		nright;
 
 	Double_t cross,
-		 disq,
+		 //disq, //[R.K. 02/2017] unused variable?
 		 minl,
 		 minr;
 
@@ -3841,7 +3841,7 @@ void PndTrkTracking2::FindCharge(
 	// to the hit following the smaller path) otherwise it stays 'on the right'.
 
 		if (cross>0.) {
-			disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit];
+			//disq =	X[ihit]*X[ihit]+Y[ihit]*Y[ihit]; //[R.K. 02/2017] unused variable?
 			nleft++;
 		} else {
 			nright++;

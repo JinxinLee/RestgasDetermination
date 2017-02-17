@@ -8,7 +8,6 @@
 #include "PndMasterPidTask.h"
 #include "PndMasterTask.h"
 
-#include "FairGeane.h"
 #include "PndPidCorrelator.h"
 #include "PndPidBremCorrector.h"
 #include "PndMcCloner.h"
@@ -32,12 +31,8 @@
 PndMasterPidTask::PndMasterPidTask(TString options) :
   PndMasterTask("Master Pid Task"), fOptions(options)
 {
-  pid = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
- 
-  // -----   Geane   ---------------------------------------
-  this->Add(new FairGeane()); // 0
-  pid.kFairGeane = GetListOfTasks()->GetSize()-1;
-  
+  pid = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+   
   // -----   Correlation   ---------------------------------
   PndPidCorrelator* corr = NULL;
   this->Add(corr = new PndPidCorrelator()); // 1

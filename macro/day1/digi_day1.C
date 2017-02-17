@@ -1,11 +1,12 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
-// root  digi_complete.C  or in root session root>.x  digi_complete.C
-void digi_complete(Int_t nEvents = 0)
+// root  digi_day1.C  or in root session root>.x  digi_complete.C
+void digi_day1(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
-  TString  parAsciiFile   = "all_day1.par";
-  TString  input          = "psi2s_Jpsi2pi_Jpsi_mumu.dec"; 
+  TString  parAsciiFile   = "all.par";
+  TString  options        = "day1+gem+fts1256";
+  TString  input          = "evtday1"; 
   TString  output         = "digi";
   TString  friend1        = "";
   TString  friend2        = "";
@@ -14,7 +15,7 @@ void digi_complete(Int_t nEvents = 0)
   
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
-  fRun->SetOptions("day1");
+  fRun->SetOptions(options);
   fRun->SetInput(input);
   fRun->SetOutput(output);
   fRun->SetFriend1(friend1);

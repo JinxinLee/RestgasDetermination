@@ -72,6 +72,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
   //-------------------------  Magnet   -----------------
+  // This part is commented because the MDT geometry contains the magnet now
   //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");

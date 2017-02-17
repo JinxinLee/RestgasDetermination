@@ -51,7 +51,6 @@ class PndMasterPidTask : public PndMasterTask
    */
   struct pidTaskList
   {
-    Short_t kFairGeane;
     Short_t kPndPidCorrelator;
     Short_t kPndPidBremCorrector;
     Short_t kPndMcCloner;
