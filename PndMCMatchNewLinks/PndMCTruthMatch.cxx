@@ -1,5 +1,5 @@
 /*
- * PndMCIdealTrackFinderNewLinkss.cpp
+ * PndIdealTrackFinders.cpp
  *
  *  Created on: Apr 12, 2010
  *      Author: stockman

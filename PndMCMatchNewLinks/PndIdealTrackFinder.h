@@ -1,12 +1,12 @@
 /*
- * PndMCIdealTrackFinderNewLinks.h
+ * PndIdealTrackFinder.h
  *
  *  Created on: Apr 12, 2010
  *      Author: stockman
  */
 
-#ifndef PndMCIdealTrackFinderNewLinks_H_
-#define PndMCIdealTrackFinderNewLinks_H_
+#ifndef PndIdealTrackFinder_H_
+#define PndIdealTrackFinder_H_
 
 
 // framework includes
@@ -19,10 +19,10 @@
 #include "TDatabasePDG.h"
 #include <math.h>
 
-class PndMCIdealTrackFinderNewLinks : public FairTask {
+class PndIdealTrackFinder : public FairTask {
 public:
-	PndMCIdealTrackFinderNewLinks();
-	virtual ~PndMCIdealTrackFinderNewLinks();
+	PndIdealTrackFinder();
+	virtual ~PndIdealTrackFinder();
 
 	  /** Virtual method Init **/
 //	  virtual void SetParContainers();
@@ -91,7 +91,7 @@ protected:
 	  Double_t fEfficiency;        ///< Tracking efficiency - if (0 <= e < 1), some tracks will be discarded
 
 
-	  ClassDef(PndMCIdealTrackFinderNewLinks,2);
+	  ClassDef(PndIdealTrackFinder,2);
 };
 
-#endif /* PndMCIdealTrackFinderNewLinks_H_ */
+#endif /* PndIdealTrackFinder_H_ */

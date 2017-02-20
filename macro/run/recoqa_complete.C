@@ -52,7 +52,7 @@ void recoqa_complete()
   rtdb->setSecondInput(parIo1);
 
   /// Ideal Track finder
-  PndMCIdealTrackFinderNewLinks* idealTracking = new PndMCIdealTrackFinderNewLinks();
+  PndIdealTrackFinder* idealTracking = new PndIdealTrackFinder();
   idealTracking->AddBranchName("MVDHitsPixel");
   idealTracking->AddBranchName("MVDHitsStrip");
   idealTracking->AddBranchName("STTHit");

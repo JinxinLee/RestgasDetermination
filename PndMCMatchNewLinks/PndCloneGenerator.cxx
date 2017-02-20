@@ -43,7 +43,7 @@ void PndCloneGenerator::Exec(Option_t* opt)
 		CreateTrackCands();
 		CreateTrackCandClones();
 		SetFirstLastHit(fTrackCandMap);
-		std::cout << "PndMCIdealTrackFinderNewLinks:Found Tracks:" << std::endl;
+		std::cout << "PndIdealTrackFinder:Found Tracks:" << std::endl;
 		CreateTracks();
 		fTrackCandMap = fTrackCandCloneMap;
 		SetFirstLastHit(fTrackCandMap);

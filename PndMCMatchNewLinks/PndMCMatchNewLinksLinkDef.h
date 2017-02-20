@@ -4,7 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class PndMCIdealTrackFinderNewLinks+;
+#pragma link C++ class PndIdealTrackFinder+;
 #pragma link C++ class PndMCTruthMatch+;
 #pragma link C++ class PndCloneGenerator+;
 #pragma link C++ class PndMCMatchPrintFairLinksObjects+;

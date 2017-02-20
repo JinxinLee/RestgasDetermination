@@ -35,7 +35,8 @@ class StandardTrackFunctor : public PndTrackFunctor
 
 		possibleTrack = (possibleTrack | ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
 										 a->GetLinksWithType(ioman->GetBranchId("MVDHitsStrip")).GetNLinks() +
-										 a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() ) > 5));
+										 a->GetLinksWithType(ioman->GetBranchId("STTHit")).GetNLinks() +
+										 a->GetLinksWithType(ioman->GetBranchId("GEMHit")).GetNLinks()) > 5));
 
 		return possibleTrack;
 	}
@@ -110,6 +111,24 @@ class FtsTrackFunctor : public PndTrackFunctor
 		Bool_t possibleTrack = kFALSE;
 
 		possibleTrack = (possibleTrack | (a->GetLinksWithType(ioman->GetBranchId("FTSHit")).GetNLinks() > 5));
+
+		return possibleTrack;
+	}
+	void Print() {
+		std::cout << "FTSTrackFunctor: > 5 Hits in Fts" << std::endl;
+	}
+};
+
+class NoFtsTrackFunctor : public PndTrackFunctor
+{
+	Bool_t Call(FairMultiLinkedData* a, Bool_t primary) {
+		FairRootManager* ioman = FairRootManager::Instance();
+		Bool_t possibleTrack = kFALSE;
+
+		possibleTrack = (possibleTrack | !(a->GetLinksWithType(ioman->GetBranchId("FTSHit")).GetNLinks() > 0));
+		if (possibleTrack == kFALSE) return kFALSE;
+		StandardTrackFunctor standard;
+		possibleTrack = (possibleTrack | standard(a, primary));
 
 		return possibleTrack;
 	}

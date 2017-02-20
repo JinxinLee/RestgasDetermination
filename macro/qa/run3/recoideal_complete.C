@@ -27,11 +27,12 @@ void recoideal_complete(Int_t nEvents = 0)
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
   
-  PndSttMvdGemTrackingIdeal* trackStt = new PndSttMvdGemTrackingIdeal();
+  PndIdealTrackFinder* trackStt = new PndIdealTrackFinder();
+  trackStt->SetTrackSelector("NoFtsTrackFunctor")
   trackStt->SetRelativeMomentumSmearing(0.05);
   trackStt->SetVertexSmearing(0.05, 0.05, 0.05);
   trackStt->SetTrackingEfficiency(1.);
-  trackStt->SetTrackOutput("SttMvdGemIdealTrack");
+  trackStt->SetOutputBranchName("SttMvdGemIdealTrack");
   trackStt->SetPersistence(kFALSE);
   fRun->AddTask(trackStt);
    
@@ -55,7 +56,7 @@ void recoideal_complete(Int_t nEvents = 0)
 //  fRun->AddTask(trackMC2);
 
  
-  PndMCIdealTrackFinderNewLinks* trackFts = new PndMCIdealTrackFinderNewLinks();
+  PndIdealTrackFinder* trackFts = new PndIdealTrackFinder();
   trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);

@@ -5,6 +5,7 @@
 // -------------------------------------------------------------------------
 
 
+#include <PndIdealTrackFinder.h>
 #include "PndMasterRecoTask.h"
 #include "PndMasterTask.h"
 
@@ -13,7 +14,6 @@
 //#include "PndMCTrackAssociator.h"
 #include "PndRecoKalmanTask.h"
 //#include "PndFtsTrackerIdeal.h"
-#include "PndMCIdealTrackFinderNewLinks.h"
 
 /**
  * @brief Default Constructor
@@ -104,8 +104,8 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
 //    }
   
   // -----  FTS Ideal Tracking    ----------------------------
-  PndMCIdealTrackFinderNewLinks* trackFts = NULL;
-  this->Add(trackFts = new PndMCIdealTrackFinderNewLinks()); // 6
+  PndIdealTrackFinder* trackFts = NULL;
+  this->Add(trackFts = new PndIdealTrackFinder()); // 6
   reco.kPndFtsTrackerIdeal = GetListOfTasks()->GetSize()-1;
   trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
@@ -169,7 +169,7 @@ void PndMasterRecoTask::SetPersistency(Bool_t pers)
 //  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator2))->SetPersistence(pers);
   
   // -----  FTS Ideal Tracking    ----------------------------
-  ((PndMCIdealTrackFinderNewLinks*)GetListOfTasks()->At(reco.kPndFtsTrackerIdeal))->SetPersistence(pers);
+  ((PndIdealTrackFinder*)GetListOfTasks()->At(reco.kPndFtsTrackerIdeal))->SetPersistence(pers);
 
   // ----- MC Association #3 ---------------------------------
 //  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator3))->SetPersistence(pers);

@@ -1,12 +1,11 @@
 /*
- * PndMCIdealTrackFinderNewLinkss.cpp
+ * PndIdealTrackFinders.cpp
  *
  *  Created on: Apr 12, 2010
  *      Author: stockman
  */
 
-#include "PndMCIdealTrackFinderNewLinks.h"
-
+#include <PndIdealTrackFinder.h>
 #include "FairRootManager.h"
 #include "FairMCPoint.h"
 #include "FairHit.h"
@@ -18,22 +17,22 @@
 #include "PndGemHit.h"
 
 #include "TRandom.h"
-ClassImp(PndMCIdealTrackFinderNewLinks);
+ClassImp(PndIdealTrackFinder);
 
-PndMCIdealTrackFinderNewLinks::PndMCIdealTrackFinderNewLinks() :
+PndIdealTrackFinder::PndIdealTrackFinder() :
   fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fPersistence(kTRUE), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
 {
 	// TODO Auto-generated constructor stub
 
 }
 
-PndMCIdealTrackFinderNewLinks::~PndMCIdealTrackFinderNewLinks() {
+PndIdealTrackFinder::~PndIdealTrackFinder() {
 	if (fTrackSelector != 0)
 		delete fTrackSelector;
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMCIdealTrackFinderNewLinks::Init()
+InitStatus PndIdealTrackFinder::Init()
 {
 
 	FairRootManager* ioman = FairRootManager::Instance();
@@ -71,7 +70,7 @@ InitStatus PndMCIdealTrackFinderNewLinks::Init()
 	ioman->Register(fOutBranchName, "MC", fTrack, fPersistence);
 
 	if (fTrackSelector == 0){
-		std::cout << "-W- PndMCIdealTrackFinderNewLinks::Init() no fTrackSelector set! All possible tracks will be taken!" << std::endl;
+		std::cout << "-W- PndIdealTrackFinder::Init() no fTrackSelector set! All possible tracks will be taken!" << std::endl;
 	}
  
 	fPdg = new TDatabasePDG();
@@ -79,7 +78,7 @@ InitStatus PndMCIdealTrackFinderNewLinks::Init()
   	return kSUCCESS;
 }
 
-void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
+void PndIdealTrackFinder::Exec(Option_t* opt)
 {
 	fTrackCand->Delete();
 	fTrack->Delete();
@@ -89,11 +88,11 @@ void PndMCIdealTrackFinderNewLinks::Exec(Option_t* opt)
 	CreateTrackCands();
 	FilterTrackCands();
 
-//	std::cout << "PndMCIdealTrackFinderNewLinks:Found Tracks:" << std::endl;
+//	std::cout << "PndIdealTrackFinder:Found Tracks:" << std::endl;
 	CreateTracks();
 }
 
-void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
+void PndIdealTrackFinder::CreateTrackCands()
 {
 	fHitCount = 0;
 	for (std::map<TString, TClonesArray*>::iterator iter = fBranchMap.begin(); iter != fBranchMap.end(); iter++){
@@ -147,7 +146,7 @@ void PndMCIdealTrackFinderNewLinks::CreateTrackCands()
 	}
 }
 
-void PndMCIdealTrackFinderNewLinks::FilterTrackCands()
+void PndIdealTrackFinder::FilterTrackCands()
 {
 	if (fTrackSelector == 0)
 		return;
@@ -160,7 +159,7 @@ void PndMCIdealTrackFinderNewLinks::FilterTrackCands()
 	}
 }
 
-void PndMCIdealTrackFinderNewLinks::CreateTracks()
+void PndIdealTrackFinder::CreateTracks()
 {
 	int trackcounter = 0;
 	for (std::map<FairLink, PndTrackCand>::iterator iter = fTrackCandMap.begin(); iter != fTrackCandMap.end(); iter++){
@@ -242,7 +241,7 @@ void PndMCIdealTrackFinderNewLinks::CreateTracks()
 	}
 }
 
-FairMCPoint* PndMCIdealTrackFinderNewLinks::GetFairMCPoint(FairMultiLinkedData_Interface* links, FairMultiLinkedData& array)
+FairMCPoint* PndIdealTrackFinder::GetFairMCPoint(FairMultiLinkedData_Interface* links, FairMultiLinkedData& array)
 {
 	// get the mc point(s) from each reco hit ......
 	FairMultiLinkedData mvdpoints = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MVDPoint"));
@@ -268,7 +267,7 @@ FairMCPoint* PndMCIdealTrackFinderNewLinks::GetFairMCPoint(FairMultiLinkedData_I
 	return (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(array.GetLink(0));
 }
 
-void PndMCIdealTrackFinderNewLinks::SmearVector(TVector3 &vec, const TVector3 &sigma)
+void PndIdealTrackFinder::SmearVector(TVector3 &vec, const TVector3 &sigma)
 {
   // gaussian smearing
   Double_t rannn=0.;

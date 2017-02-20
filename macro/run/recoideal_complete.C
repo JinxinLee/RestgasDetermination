@@ -28,6 +28,7 @@ void recoideal_complete()
   fRun->SetInputFile("sim_complete.root");
   fRun->AddFriend("digi_complete.root");
   fRun->SetOutputFile(outFile);
+  fRun->SetUseFairLinks(kTRUE);
   fRun->SetGenerateRunInfo(kFALSE);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
@@ -48,11 +49,12 @@ void recoideal_complete()
   rtdb->setSecondInput(parIo1);
 
   // ------------------------------------------------------------------------
-  PndSttMvdGemTrackingIdeal* trackStt = new PndSttMvdGemTrackingIdeal();
+  PndIdealTrackFinder* trackStt = new PndIdealTrackFinder();
+  trackStt->SetTrackSelector("NoFtsTrackFunctor");
   trackStt->SetRelativeMomentumSmearing(0.05);
   trackStt->SetVertexSmearing(0.05, 0.05, 0.05);
   trackStt->SetTrackingEfficiency(1.);
-  trackStt->SetTrackOutput("SttMvdGemIdealTrack");
+  trackStt->SetOutputBranchName("SttMvdGemIdealTrack");
   trackStt->SetPersistence(kFALSE);
   fRun->AddTask(trackStt);
  
@@ -77,7 +79,7 @@ void recoideal_complete()
 //  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
 //  fRun->AddTask(trackMC2);
  
-  PndMCIdealTrackFinderNewLinks* trackFts = new PndMCIdealTrackFinderNewLinks();
+  PndIdealTrackFinder* trackFts = new PndIdealTrackFinder();
   trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);

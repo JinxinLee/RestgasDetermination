@@ -30,7 +30,7 @@ void recoqa_complete(Int_t nEvents = 0)
   
   // -----   Add tasks   ----------------------------------------------------
   /// Ideal Track finder
-  PndMCIdealTrackFinderNewLinks* idealTracking = new PndMCIdealTrackFinderNewLinks();
+  PndIdealTrackFinder* idealTracking = new PndIdealTrackFinder();
   idealTracking->AddBranchName("MVDHitsPixel");
   idealTracking->AddBranchName("MVDHitsStrip");
   idealTracking->AddBranchName("STTHit");

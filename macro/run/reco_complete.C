@@ -87,7 +87,7 @@ void reco_complete()
 //  trackMC2->SetTrackOutBranchName("SttMvdGemGenTrackID");
 //  fRun->AddTask(trackMC2);
  
-  PndMCIdealTrackFinderNewLinks* trackFts = new PndMCIdealTrackFinderNewLinks();
+  PndIdealTrackFinder* trackFts = new PndIdealTrackFinder();
   trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
@@ -117,7 +117,7 @@ void reco_complete()
 //  trackMC3->SetTrackOutBranchName("FtsIdealGenTrackID");
 //  fRun->AddTask(trackMC3);
 
-  PndMCIdealTrackFinderNewLinks* idealTracking = new PndMCIdealTrackFinderNewLinks();
+  PndIdealTrackFinder* idealTracking = new PndIdealTrackFinder();
   idealTracking->SetTrackSelector("FtsTrackFunctor");
   fRun->AddTask(idealTracking);
 

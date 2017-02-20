@@ -13,13 +13,12 @@
 #include "FairTask.h"
 #include "FairMCPoint.h"
 #include "PndTrackCand.h"
-#include "PndMCIdealTrackFinderNewLinks.h"
-
 #include "TClonesArray.h"
 #include "TDatabasePDG.h"
 #include <math.h>
+#include <PndIdealTrackFinder.h>
 
-class PndCloneGenerator : public PndMCIdealTrackFinderNewLinks {
+class PndCloneGenerator : public PndIdealTrackFinder {
 public:
 	PndCloneGenerator();
 	virtual ~PndCloneGenerator();

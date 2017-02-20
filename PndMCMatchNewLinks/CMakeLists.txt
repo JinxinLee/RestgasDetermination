@@ -39,7 +39,7 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-PndMCIdealTrackFinderNewLinks.cxx
+PndIdealTrackFinder.cxx
 PndCloneGenerator.cxx
 PndMCTruthMatch.cxx
 PndTrackFunctor.cxx
