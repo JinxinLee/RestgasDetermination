@@ -40,7 +40,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
 PndSttMvdGemTracking.cxx
-PndSttMvdGemTrackingIdeal.cxx
+#PndSttMvdGemTrackingIdeal.cxx
 PndMixBackgroundEvents.cxx
 PndMvdSttGemRiemannTrackFinder.cxx
 )
