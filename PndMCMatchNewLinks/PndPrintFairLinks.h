@@ -1,18 +1,18 @@
 // -------------------------------------------------------------------------
-// -----                 PndMCMatchPrintFairLinksObjects header file             -----
+// -----                 PndPrintFairLinks header file             -----
 // -----                  Created 20/03/07  by R.Kliemt               -----
 // -------------------------------------------------------------------------
 
 
-/** PndMCMatchPrintFairLinksObjects.h
+/** PndPrintFairLinks.h
  *@author T.Stockmanns <t.stockmanns@fz-juelich.de>
  **
- ** Displays all available informations for a given event
+ ** Prints all FairLinks of a given branch to the screen
  **/
 
 
-#ifndef PndMCMatchPrintFairLinksObjects_H
-#define PndMCMatchPrintFairLinksObjects_H
+#ifndef PndPrintFairLinks_H
+#define PndPrintFairLinks_H
 
 
 // framework includes
@@ -24,15 +24,15 @@
 
 class TClonesArray;
 
-class PndMCMatchPrintFairLinksObjects : public FairTask
+class PndPrintFairLinks : public FairTask
 {
  public:
 
   /** Default constructor **/
-	PndMCMatchPrintFairLinksObjects();
+	PndPrintFairLinks();
 
   /** Destructor **/
-  virtual ~PndMCMatchPrintFairLinksObjects();
+  virtual ~PndPrintFairLinks();
 
 
   /** Virtual method Init **/
@@ -68,7 +68,7 @@ class PndMCMatchPrintFairLinksObjects : public FairTask
   void ProduceHits();
 
 
-  ClassDef(PndMCMatchPrintFairLinksObjects,1);
+  ClassDef(PndPrintFairLinks,1);
 
 };
 

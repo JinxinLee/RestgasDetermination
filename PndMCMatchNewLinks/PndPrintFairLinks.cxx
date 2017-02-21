@@ -1,9 +1,9 @@
 // -------------------------------------------------------------------------
-// -----                PndMCMatchPrintFairLinksObjects source file             -----
+// -----                PndPrintFairLinks source file             -----
 // -----                  Created 18/07/08  by T.Stockmanns        -----
 // -------------------------------------------------------------------------
 // libc includes
-#include <PndMCMatchPrintFairLinksObjects.h>
+#include <PndPrintFairLinks.h>
 #include <iostream>
 #include <exception>
 
@@ -24,23 +24,23 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndMCMatchPrintFairLinksObjects::PndMCMatchPrintFairLinksObjects() : FairTask("Creates PndMCMatch"), fSelectedBranches(new TList())
+PndPrintFairLinks::PndPrintFairLinks() : FairTask("Creates PndMCMatch"), fSelectedBranches(new TList())
 {
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMCMatchPrintFairLinksObjects::~PndMCMatchPrintFairLinksObjects()
+PndPrintFairLinks::~PndPrintFairLinks()
 {
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMCMatchPrintFairLinksObjects::Init()
+InitStatus PndPrintFairLinks::Init()
 {
 	  FairRootManager* ioman = FairRootManager::Instance();
 	  	if (!ioman) {
-	  		std::cout << "-E- PndMCMatchPrintFairLinksObjects::Init: "
+	  		std::cout << "-E- PndPrintFairLinks::Init: "
 	  				<< "RootManager not instantiated!" << std::endl;
 	  		return kFATAL;
 	  	}
@@ -60,7 +60,7 @@ InitStatus PndMCMatchPrintFairLinksObjects::Init()
 }
 
 
-void PndMCMatchPrintFairLinksObjects::InitBranchList(TList* branches)
+void PndPrintFairLinks::InitBranchList(TList* branches)
 {
 	FairRootManager* ioman = FairRootManager::Instance();
 	for (int i = 0; i < branches->GetEntries(); i++) {
@@ -75,19 +75,19 @@ void PndMCMatchPrintFairLinksObjects::InitBranchList(TList* branches)
 		if (branchName->String().Contains("PidAlgo")) continue;
 		if (branchName->String().Contains("Riemann")) continue;
 
-		std::cout << "PndMCMatchPrintFairLinksObjects::Init() branches: " << branchName->String() << std::endl;
+		std::cout << "PndPrintFairLinks::Init() branches: " << branchName->String() << std::endl;
 		if ((TClonesArray*)ioman->GetObject(branchName->String()) != 0){
 			fBranches[ioman->GetBranchId(branchName->String())] = (TClonesArray*)ioman->GetObject(branchName->String());
 		} else {
-			std::cout << "-E- PndMCMatchPrintFairLinksObjects " << branchName->String().Data() << " is not a valid branch name!" << std::endl;
+			std::cout << "-E- PndPrintFairLinks " << branchName->String().Data() << " is not a valid branch name!" << std::endl;
 		}
 	}
 }
 
 
-void PndMCMatchPrintFairLinksObjects::PrintBranchNameList(TList* branches)
+void PndPrintFairLinks::PrintBranchNameList(TList* branches)
 {
-	std::cout << "-I- PndMCMatchPrintFairLinksObjects Branches:" << std::endl;
+	std::cout << "-I- PndPrintFairLinks Branches:" << std::endl;
 
 	for (int i = 0; i < branches->GetEntries(); i++) {
 		TObjString* branchName = (TObjString*) branches->At(i);
@@ -97,7 +97,7 @@ void PndMCMatchPrintFairLinksObjects::PrintBranchNameList(TList* branches)
 }
 
 // -------------------------------------------------------------------------
-void PndMCMatchPrintFairLinksObjects::SetParContainers()
+void PndPrintFairLinks::SetParContainers()
 {
   // Get Base Container
 //  FairRun* ana = FairRun::Instance();
@@ -107,7 +107,7 @@ void PndMCMatchPrintFairLinksObjects::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMCMatchPrintFairLinksObjects::Exec(Option_t* opt)
+void PndPrintFairLinks::Exec(Option_t* opt)
 {
 	std::cout << std::endl << "--------------------- Event " << FairRootManager::Instance()->GetEntryNr() <<
 			" at " << FairRootManager::Instance()->GetEventTime() << " ns ----------------------" << std::endl;
@@ -122,9 +122,9 @@ void PndMCMatchPrintFairLinksObjects::Exec(Option_t* opt)
 	}
 }
 
-void PndMCMatchPrintFairLinksObjects::Finish()
+void PndPrintFairLinks::Finish()
 {
 }
 
 
-ClassImp(PndMCMatchPrintFairLinksObjects);
+ClassImp(PndPrintFairLinks);

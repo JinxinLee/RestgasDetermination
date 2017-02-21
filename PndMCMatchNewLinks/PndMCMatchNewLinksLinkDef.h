@@ -7,7 +7,7 @@
 #pragma link C++ class PndIdealTrackFinder+;
 #pragma link C++ class PndMCTruthMatch+;
 #pragma link C++ class PndCloneGenerator+;
-#pragma link C++ class PndMCMatchPrintFairLinksObjects+;
+#pragma link C++ class PndPrintFairLinks+;
 
 #endif
 
