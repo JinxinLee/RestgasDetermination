@@ -20,7 +20,9 @@ PndTrackFunctor* PndTrackFunctor::make_PndTrackFunctor(std::string functorName)
 		return new FtsTrackFunctor();
 	if (functorName.compare("NoFtsTrackFunctor") == 0)
 		return new NoFtsTrackFunctor();
-	else
+	else {
+		std::cout << "-E- PndTrackFunctor: No valid functorName given: " << functorName << std::endl;
 		return new AllTracksFunctor();
+	}
 }
 

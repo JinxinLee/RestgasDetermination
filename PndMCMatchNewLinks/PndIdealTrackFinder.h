@@ -1,8 +1,11 @@
-/*
+/**
  * PndIdealTrackFinder.h
  *
- *  Created on: Apr 12, 2010
- *      Author: stockman
+ * \brief Ideal track finder for all types of tracking detectors
+ * \detailed The PndIdealTrackFinder combines all hits in given branches into PndTrackCand and calculates the PndTrack based on MC information
+ * \author Tobias Stockmanns <t.stockmanns@fz-juelich.de>
+ * \date Apr 12, 2010
+ *
  */
 
 #ifndef PndIdealTrackFinder_H_
@@ -27,7 +30,7 @@ public:
 	  /** Virtual method Init **/
 //	  virtual void SetParContainers();
 	  virtual InitStatus Init();
-	  virtual void AddBranchName(TString name){ fBranchNames.push_back(name);}
+	  virtual void AddBranchName(TString name){ fBranchNames.push_back(name);} ///< Search for tracks only in given branches. If no BranchName is given all tracking detectors are taken
 	  virtual void SetOutputBranchName(TString name){ fOutBranchName = name; };
 
 	  /** Virtual method Exec **/
@@ -51,7 +54,7 @@ public:
 	    fEfficiency=eff; 
 	  };
 
-	  void SetTrackSelector(TString selector){
+	  void SetTrackSelector(TString selector){			///< The track selector decides if a track is taken or discarded. You can set them via a string. Valid strings can be found in PndTrackFunctor.h
 		  fTrackSelector = PndTrackFunctor::make_PndTrackFunctor(selector.Data());
 	  }
 
