@@ -58,7 +58,7 @@ void PrintLinks_complete(Int_t nEvents = 0)
 
   // ------------------------------------------------------------------------
 
-  PndMCMatchPrintFairLinksObjects* printlinksTask = new PndMCMatchPrintFairLinksObjects();
+  PndPrintFairLinks* printlinksTask = new PndPrintFairLinks();
   fRun->AddTask(printlinksTask);
 
 //  PndMCMatchPrintTask* printTask = new PndMCMatchPrintTask();
