@@ -28,7 +28,7 @@ void recoideal_complete(Int_t nEvents = 0)
   fRun->AddTask(Geane);
   
   PndIdealTrackFinder* trackStt = new PndIdealTrackFinder();
-  trackStt->SetTrackSelector("NoFtsTrackFunctor")
+  trackStt->SetTrackSelector("NoFtsTrackFunctor");
   trackStt->SetRelativeMomentumSmearing(0.05);
   trackStt->SetVertexSmearing(0.05, 0.05, 0.05);
   trackStt->SetTrackingEfficiency(1.);
