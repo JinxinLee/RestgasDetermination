@@ -81,6 +81,7 @@ PndMasterTask.cxx
 PndMasterSimTask.cxx
 PndMasterDigiTask.cxx
 PndMasterRecoTask.cxx
+PndMasterRecoIdealTask.cxx
 PndMasterPidTask.cxx
 PndMasterRunSim.cxx
 PndMasterRunAna.cxx

@@ -2,6 +2,7 @@
 
 #include "PndMasterDigiTask.h"
 #include "PndMasterRecoTask.h"
+#include "PndMasterRecoIdealTask.h"
 #include "PndMasterPidTask.h"
 #include "PndFileNameCreator.h"
 #include "PndEventCounterTask.h"
@@ -109,6 +110,16 @@ void PndMasterRunAna::AddRecoTasks(Bool_t pers)
   PndMasterRecoTask *reco = new PndMasterRecoTask(fOptions);
   if (!pers) reco->SetPersistency(kFALSE);
   AddTask(reco);
+}
+
+// -----   AddRecoTasks   ---------------------------------------------------
+void PndMasterRunAna::AddRecoIdealTasks(Bool_t pers)
+{
+  // -----   Geane   ---------------------------------------
+  if(fNoGeane) {AddTask(new FairGeane()); fNoGeane=false;}
+  PndMasterRecoIdealTask *recoIdeal = new PndMasterRecoIdealTask(fOptions);
+  if (!pers) recoIdeal->SetPersistency(kFALSE);
+  AddTask(recoIdeal);
 }
 
 // -----   AddPidTasks   ----------------------------------------------------

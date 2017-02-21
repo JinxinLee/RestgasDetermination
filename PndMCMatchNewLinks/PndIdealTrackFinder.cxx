@@ -168,7 +168,7 @@ void PndIdealTrackFinder::CreateTracks()
 		myTrackCand->AddLink(iter->first);
 		myTrackCand->SetTimeStamp(FairRootManager::Instance()->GetEventTime());
 		//std::cout << myTrackCand->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack")) << " : " << std::endl;
-		myTrackCand->Print();
+		//myTrackCand->Print();
 		//std::cout << *myTrackCand << std::endl;
 
 		// ....... track
