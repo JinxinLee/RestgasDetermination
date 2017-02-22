@@ -1,23 +1,22 @@
 /*
- * PndTrackingQualityAnalysisNewLinks.cxx
+ * PndTrackingQA.cxx
  *
  *  Created on: Aug 23, 2013
  *      Author: stockman
  */
 
-#include "PndTrackingQualityAnalysisNewLinks.h"
-
+#include <PndTrackingQA.h>
 #include "PndTrack.h"
 #include "PndMCTrack.h"
 #include "FairHit.h"
 
-ClassImp(PndTrackingQualityAnalysisNewLinks);
+ClassImp(PndTrackingQA);
 
-PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString trackBranchName, TString idealTrackName, Bool_t pndTrackData):
+PndTrackingQA::PndTrackingQA (TString trackBranchName, TString idealTrackName, Bool_t pndTrackData):
        fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
 {
 	if(fPossibleTrack == 0){
-		std::cout << "-I- PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks no PossibleTrackFunctor given. Taking Standard!" << std::endl;
+		std::cout << "-I- PndTrackingQA::PndTrackingQA no PossibleTrackFunctor given. Taking Standard!" << std::endl;
 		if (trackBranchName == "MVDTrack" ){
 			fPossibleTrack = new RiemannMvdSttGemFunctor();
 		} else if (trackBranchName == "CombiTrackCand" ) {
@@ -29,11 +28,11 @@ PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString 
 	}
 }
 
-PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString trackBranchName, TString idealTrackName, PndTrackFunctor* posTrack, Bool_t pndTrackData):
+PndTrackingQA::PndTrackingQA (TString trackBranchName, TString idealTrackName, PndTrackFunctor* posTrack, Bool_t pndTrackData):
 	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
 {
 	if(fPossibleTrack == 0){
-		std::cout << "-I- PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks no PossibleTrackFunctor given. Taking Standard!" << std::endl;
+		std::cout << "-I- PndTrackingQA::PndTrackingQA no PossibleTrackFunctor given. Taking Standard!" << std::endl;
 		if (trackBranchName == "MVDTrack" ){
 			fPossibleTrack = new RiemannMvdSttGemFunctor();
 		} else if (trackBranchName == "CombiTrackCand" ) {
@@ -45,13 +44,13 @@ PndTrackingQualityAnalysisNewLinks::PndTrackingQualityAnalysisNewLinks (TString 
 	}
 }
 
-PndTrackingQualityAnalysisNewLinks::~PndTrackingQualityAnalysisNewLinks()
+PndTrackingQA::~PndTrackingQA()
 {
 	if (fCleanFunctor)
 		delete (fPossibleTrack);
 }
 
-void PndTrackingQualityAnalysisNewLinks::Init()
+void PndTrackingQA::Init()
 {
 	ioman = FairRootManager::Instance();
 	if (!ioman) {
@@ -75,14 +74,14 @@ void PndTrackingQualityAnalysisNewLinks::Init()
 	//		AddHitsBranchName("CorrectedSkewedHits");
 	//	}
 	}
-	std::cout << "-I- PndTrackingQualityAnalysisNewLinks::Init: PossibleTrackFunctor: ";
+	std::cout << "-I- PndTrackingQA::Init: PossibleTrackFunctor: ";
 	fPossibleTrack->Print();
 }
 
-void PndTrackingQualityAnalysisNewLinks::AnalyseEvent(TClonesArray *recoTrackInfo)
+void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 {
 	FillMapTrackQualifikation();
-	std::cout << "PndTrackingQualityAnalysisNewLinks::AnalyseEvent() Track quality map before analysis: " << std::endl << std::endl;
+	std::cout << "PndTrackingQA::AnalyseEvent() Track quality map before analysis: " << std::endl << std::endl;
 	PrintTrackQualityMap(kTRUE);
 
 	for (Int_t i = 0; i < fTrack->GetEntriesFast(); i++){
@@ -101,7 +100,7 @@ void PndTrackingQualityAnalysisNewLinks::AnalyseEvent(TClonesArray *recoTrackInf
 			trackInfo = AnalyseTrackCand(myTrack);
 		}
 		if (fVerbose > 1){
-			std::cout << "PndTrackingQualityAnalysisNewLinks::AnalyseEvent Analyse track: " << i << std::endl;
+			std::cout << "PndTrackingQA::AnalyseEvent Analyse track: " << i << std::endl;
 		}
 		Int_t mostProbableTrack = AnalyseTrackInfo(trackInfo, i);
 		std::cout << "mostProbableTrack " << mostProbableTrack << std::endl;
@@ -148,7 +147,7 @@ void PndTrackingQualityAnalysisNewLinks::AnalyseEvent(TClonesArray *recoTrackInf
 
 }
 
-FairMultiLinkedData PndTrackingQualityAnalysisNewLinks::GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand)
+FairMultiLinkedData PndTrackingQA::GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand)
 {
 	FairMultiLinkedData result;
 	result.SetInsertHistory(kFALSE);
@@ -168,7 +167,7 @@ FairMultiLinkedData PndTrackingQualityAnalysisNewLinks::GetMCInfoForBranch(TStri
 	return result;
 }
 
-std::map<TString, FairMultiLinkedData> PndTrackingQualityAnalysisNewLinks::AnalyseTrackCand(PndTrackCand* trackCand)
+std::map<TString, FairMultiLinkedData> PndTrackingQA::AnalyseTrackCand(PndTrackCand* trackCand)
 {
 	std::map<TString, FairMultiLinkedData> trackInfo;
 
@@ -185,12 +184,12 @@ std::map<TString, FairMultiLinkedData> PndTrackingQualityAnalysisNewLinks::Analy
 	return trackInfo;
 }
 
-Int_t PndTrackingQualityAnalysisNewLinks::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId)
+Int_t PndTrackingQA::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId)
 {
 
 	Int_t mostProbableTrack = -1;
 //	if (fVerbose > 0)
-//		std::cout << "PndTrackingQualityAnalysisNewLinks::AnalyseTrackInfo: TrackInfo: " << trackInfo["AllHits"].GetNLinks() << std::endl;
+//		std::cout << "PndTrackingQA::AnalyseTrackInfo: TrackInfo: " << trackInfo["AllHits"].GetNLinks() << std::endl;
 	//PrintTrackDataSummary(trackInfo["AllHits"]);
 
 	if (trackInfo["AllHits"].GetNLinks() == 1){
@@ -248,7 +247,7 @@ Int_t PndTrackingQualityAnalysisNewLinks::AnalyseTrackInfo(std::map<TString, Fai
 	return mostProbableTrack;
 }
 
-void PndTrackingQualityAnalysisNewLinks::FillMapTrackQualifikation()
+void PndTrackingQA::FillMapTrackQualifikation()
 {
 	fMapTrackQualification.clear();
 	fMapTrackMCStatus.clear();
@@ -257,7 +256,7 @@ void PndTrackingQualityAnalysisNewLinks::FillMapTrackQualifikation()
 	for (int i = 0; i < fIdealTrack->GetEntriesFast(); i++){
 		PndTrackCand* idealTrackCand = ((PndTrack*)fIdealTrack->At(i))->GetTrackCandPtr();
 		std::cout << i << " : " << idealTrackCand << std::endl;
-		std::cout << "PndTrackingQualityAnalysisNewLinks::FillMapTrackQualifikation: " << *idealTrackCand << std::endl;
+		std::cout << "PndTrackingQA::FillMapTrackQualifikation: " << *idealTrackCand << std::endl;
 
 		PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(idealTrackCand->getMcTrackId());
 
@@ -308,7 +307,7 @@ void PndTrackingQualityAnalysisNewLinks::FillMapTrackQualifikation()
 	fMapTrackMCStatus = fMapTrackQualification;
 }
 
-//Bool_t PndTrackingQualityAnalysisNewLinks::PossibleTrack(FairMultiLinkedData& mcForward)
+//Bool_t PndTrackingQA::PossibleTrack(FairMultiLinkedData& mcForward)
 //{
 //	Bool_t possibleTrack = kFALSE;
 //
@@ -326,7 +325,7 @@ void PndTrackingQualityAnalysisNewLinks::FillMapTrackQualifikation()
 //	return possibleTrack;
 //}
 
-Int_t PndTrackingQualityAnalysisNewLinks::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
+Int_t PndTrackingQA::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
 {
 	Int_t result = 0;
 	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
@@ -341,7 +340,7 @@ Int_t PndTrackingQualityAnalysisNewLinks::GetSumOfAllValidMCHits(FairMultiLinked
 }
 
 
-void PndTrackingQualityAnalysisNewLinks::CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo)
+void PndTrackingQA::CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo)
 {
 	if (mostProbableTrack < 0) return;
 	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
@@ -362,7 +361,7 @@ void PndTrackingQualityAnalysisNewLinks::CalcEfficiencies(Int_t mostProbableTrac
 	}
 }
 
-//Int_t PndTrackingQualityAnalysisNewLinks::GetNIdealHits(Int_t trackId, TString branchName)
+//Int_t PndTrackingQA::GetNIdealHits(Int_t trackId, TString branchName)
 //{
 //	PndMCEntry idealTrack = fIdealTrackCand.GetEntry(trackId);
 //	return GetNIdealHits(idealTrack, branchName);
@@ -370,7 +369,7 @@ void PndTrackingQualityAnalysisNewLinks::CalcEfficiencies(Int_t mostProbableTrac
 //}
 
 
-Int_t PndTrackingQualityAnalysisNewLinks::GetNIdealHits(FairMultiLinkedData& track, TString branchName)
+Int_t PndTrackingQA::GetNIdealHits(FairMultiLinkedData& track, TString branchName)
 {
 	Int_t numberGemHits = 0;
 	if (branchName == "GEMHit"){
@@ -380,7 +379,7 @@ Int_t PndTrackingQualityAnalysisNewLinks::GetNIdealHits(FairMultiLinkedData& tra
 	return track.GetLinksWithType(ioman->GetBranchId(branchName)).GetNLinks();
 }
 
-void PndTrackingQualityAnalysisNewLinks::PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo)
+void PndTrackingQA::PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo)
 {
 	if (detailedInfo == kTRUE) std::cout << std::endl;
 	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
@@ -399,7 +398,7 @@ void PndTrackingQualityAnalysisNewLinks::PrintTrackDataSummary(FairMultiLinkedDa
 }
 
 
-void PndTrackingQualityAnalysisNewLinks::PrintTrackQualityMap(Bool_t detailedInfo)
+void PndTrackingQA::PrintTrackQualityMap(Bool_t detailedInfo)
 {
 	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualification.begin(); iter != fMapTrackQualification.end(); iter++){
 		std::cout << "TrackID: " << iter->first << " MCQuality: "  << fMapTrackMCStatus[iter->first] << " Quality: " << iter->second << " Found: " << fMCTrackFound[iter->first] << " MCData: ";
@@ -411,7 +410,7 @@ void PndTrackingQualityAnalysisNewLinks::PrintTrackQualityMap(Bool_t detailedInf
 	std::cout << std::endl;
 }
 
-void PndTrackingQualityAnalysisNewLinks::PrintTrackMCStatusMap()
+void PndTrackingQA::PrintTrackMCStatusMap()
 {
 	std::cout << "PrintTrackMCStatusMap: " << std::endl;
 	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackMCStatus.begin(); iter != fMapTrackMCStatus.end(); iter++){
@@ -422,7 +421,7 @@ void PndTrackingQualityAnalysisNewLinks::PrintTrackMCStatusMap()
 }
 
 
-void PndTrackingQualityAnalysisNewLinks::PrintTrackInfo(std::map<TString, FairMultiLinkedData> info)
+void PndTrackingQA::PrintTrackInfo(std::map<TString, FairMultiLinkedData> info)
 {
 	std::cout << "TrackInfo: (MC-ID/NHits) : ";
 	for (std::map<TString, FairMultiLinkedData>::iterator iter = info.begin(); iter != info.end(); iter++){
@@ -436,7 +435,7 @@ void PndTrackingQualityAnalysisNewLinks::PrintTrackInfo(std::map<TString, FairMu
 }
 
 
-Bool_t PndTrackingQualityAnalysisNewLinks::IsBetterTrackExisting(Int_t& mcIndex,  int quality)
+Bool_t PndTrackingQA::IsBetterTrackExisting(Int_t& mcIndex,  int quality)
 {
 	if (fMapTrackQualification.count(mcIndex) == 1){
 		if (fMapTrackQualification[mcIndex] > 0 && fMapTrackQualification[mcIndex] > quality) return true;
@@ -444,7 +443,7 @@ Bool_t PndTrackingQualityAnalysisNewLinks::IsBetterTrackExisting(Int_t& mcIndex,
 	return false;
 }
 
-PndTrackingQualityRecoInfo PndTrackingQualityAnalysisNewLinks::GetRecoInfoFromRecoTrack(Int_t trackId, Int_t mctrackId)
+PndTrackingQualityRecoInfo PndTrackingQA::GetRecoInfoFromRecoTrack(Int_t trackId, Int_t mctrackId)
 {
   PndTrackingQualityRecoInfo recoinfo(trackId);
 

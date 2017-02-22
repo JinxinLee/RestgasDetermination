@@ -1,12 +1,12 @@
 /*
- * PndTrackingQualityAnalysisNewLinks.h
+ * PndTrackingQA.h
  *
  *  Created on: Aug 23, 2013
  *      Author: stockman
  */
 
-#ifndef PndTrackingQualityAnalysisNewLinks_H_
-#define PndTrackingQualityAnalysisNewLinks_H_
+#ifndef PndTrackingQA_H_
+#define PndTrackingQA_H_
 
 #include "FairMultiLinkedData.h"
 #include "FairRootManager.h"
@@ -64,12 +64,12 @@ struct qualityNumbers {
 		kFound = 8;  // found: total number of reco'd tracks; the sum of fullyFound, partiallyFound, spuriousFound
 };
 
-class PndTrackingQualityAnalysisNewLinks : public TObject
+class PndTrackingQA : public TObject
 {
 public:
-	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackName, Bool_t pndTrackData = kTRUE);
-	PndTrackingQualityAnalysisNewLinks(TString trackBranchName, TString idealTrackName, PndTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
-	virtual ~PndTrackingQualityAnalysisNewLinks();
+	PndTrackingQA(TString trackBranchName, TString idealTrackName, Bool_t pndTrackData = kTRUE);
+	PndTrackingQA(TString trackBranchName, TString idealTrackName, PndTrackFunctor* posTrack, Bool_t pndTrackData = kTRUE);
+	virtual ~PndTrackingQA();
 
 	virtual void Init();
 	void SetVerbose(Int_t val){fVerbose = val;}
@@ -166,7 +166,7 @@ private:
 	TClonesArray* fIdealTrackCand;
 
 
-	ClassDef(PndTrackingQualityAnalysisNewLinks, 1)
+	ClassDef(PndTrackingQA, 1)
 };
 
 #endif /* PNDTRACKINGQUALITY_H_ */

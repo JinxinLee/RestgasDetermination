@@ -32,8 +32,8 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-PndTrackingQualityAnalysisNewLinks.cxx
-PndTrackingQualityTaskNewLinks.cxx
+PndTrackingQA.cxx
+PndTrackingQATask.cxx
 PndTrackingQualityMCInfo.cxx
 PndTrackingQualityRecoInfo.cxx
 OnlineDBuilderTask.cxx

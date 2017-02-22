@@ -55,7 +55,7 @@ void trackingQANewLinks(Int_t nEvents = 0)
   fRun->AddTask(idealTracking);
 
 
-  PndTrackingQualityTaskNewLinks* trackingQA = new PndTrackingQualityTaskNewLinks("TracksIsochrone", "IdealTrackCand");
+  PndTrackingQATask* trackingQA = new PndTrackingQATask("TracksIsochrone", "IdealTrackCand");
   fRun->AddTask(trackingQA);
 
   // -----   Intialise and run   --------------------------------------------

@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                PndTrackingQualityTaskNewLinks source file             -----
+// -----                PndTrackingQATask source file             -----
 // -----                  Created 18/07/08  by T.Stockmanns        -----
 // -------------------------------------------------------------------------
 
@@ -8,6 +8,8 @@
  */
 
 // C++ includes
+#include <PndTrackingQA.h>
+#include <PndTrackingQATask.h>
 #include <iostream>
 #include <functional>
 
@@ -32,27 +34,25 @@
 #include "RhoHistogram/RhoTuple.h"
 
 // Class includes
-#include "PndTrackingQualityTaskNewLinks.h"
-#include "PndTrackingQualityAnalysisNewLinks.h"
 
 // -----   Default constructor   -------------------------------------------
-PndTrackingQualityTaskNewLinks::PndTrackingQualityTaskNewLinks(TString trackBranchName, TString idealBranchName, Bool_t pndTrackData) :
+PndTrackingQATask::PndTrackingQATask(TString trackBranchName, TString idealBranchName, Bool_t pndTrackData) :
   FairTask("Creates PndMC test"), fEventNr(0), fTrackBranchName(trackBranchName), fIdealTrackBranchName(idealBranchName), fPndTrackOrTrackCand(pndTrackData), fMCInfoBranchName("MCTrackInfo"), fRecoInfoBranchName("RecoTrackInfo") {
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
-PndTrackingQualityTaskNewLinks::~PndTrackingQualityTaskNewLinks() {
+PndTrackingQATask::~PndTrackingQATask() {
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndTrackingQualityTaskNewLinks::Init() {
+InitStatus PndTrackingQATask::Init() {
 	InitializeHistograms();
 
 	ioman = FairRootManager::Instance();
 	if (!ioman) {
-		std::cout << "-E- PndTrackingQualityTaskNewLinks::Init: "
+		std::cout << "-E- PndTrackingQATask::Init: "
 				<< "RootManager not instantiated!" << std::endl;
 		return kFATAL;
 	}
@@ -99,13 +99,13 @@ InitStatus PndTrackingQualityTaskNewLinks::Init() {
 	// ----------------------------------------------------  end map
 
 	std::cout
-			<< "-I- PndTrackingQualityTaskNewLinks::Init: Initialization successfull"
+			<< "-I- PndTrackingQATask::Init: Initialization successfull"
 			<< std::endl;
 
 	return kSUCCESS;
 }
 
-void PndTrackingQualityTaskNewLinks::InitializeHistograms() {
+void PndTrackingQATask::InitializeHistograms() {
 	fPHisto = new TH1D("fPHisto", "Momentum Resolution", 1000, -1, 1);
 	fPHisto->GetXaxis()->SetTitle("p^{RECO} - p^{MC} / GeV");
 	fPHisto->GetYaxis()->SetTitle("counts");
@@ -143,7 +143,7 @@ void PndTrackingQualityTaskNewLinks::InitializeHistograms() {
 	LabelQualyHistogram(fQualyHisto_rel_all);
 }
 
-void PndTrackingQualityTaskNewLinks::LabelQualyHistogram(TH1 * hist) {
+void PndTrackingQATask::LabelQualyHistogram(TH1 * hist) {
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kFullyFound), "Fully found");
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kPartiallyFound), "Partially found");
 	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(qualityNumbers::kSpuriousFound), "Spurious found");
@@ -164,12 +164,12 @@ void PndTrackingQualityTaskNewLinks::LabelQualyHistogram(TH1 * hist) {
 
 
 // -------------------------------------------------------------------------
-void PndTrackingQualityTaskNewLinks::SetParContainers() {
+void PndTrackingQATask::SetParContainers() {
   FairRuntimeDb* rtdb = FairRun::Instance()->GetRuntimeDb();
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
-void PndTrackingQualityTaskNewLinks::SetFunctor()
+void PndTrackingQATask::SetFunctor()
 {
 	if (fPossibleTrackFunctorName.Contains("StandardTrackFunctor"))
 		fPossibleTrackFunctor = new StandardTrackFunctor();
@@ -182,14 +182,14 @@ void PndTrackingQualityTaskNewLinks::SetFunctor()
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
+void PndTrackingQATask::Exec(Option_t* opt) {
   fMCTrackInfo->Delete();
   fRecoTrackInfo->Delete();
 
 	std::cout << "----- Event " << fEventNr << " ------" << std::endl;
 
 
-	PndTrackingQualityAnalysisNewLinks qaAna(fTrackBranchName, fIdealTrackBranchName, fPossibleTrackFunctor, fPndTrackOrTrackCand);
+	PndTrackingQA qaAna(fTrackBranchName, fIdealTrackBranchName, fPossibleTrackFunctor, fPndTrackOrTrackCand);
 	qaAna.SetVerbose(fVerbose);
 	qaAna.SetHitsBranchNames(fBranchNames);
 	qaAna.Init();
@@ -284,7 +284,7 @@ void PndTrackingQualityTaskNewLinks::Exec(Option_t* opt) {
 	fEventNr++;
 }
 
-Int_t PndTrackingQualityTaskNewLinks::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
+Int_t PndTrackingQATask::GetSumOfAllValidMCHits(FairMultiLinkedData* trackData)
 {
 	Int_t result = 0;
 	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
@@ -294,7 +294,7 @@ Int_t PndTrackingQualityTaskNewLinks::GetSumOfAllValidMCHits(FairMultiLinkedData
 }
 
 
-void PndTrackingQualityTaskNewLinks::FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts)
+void PndTrackingQATask::FillQualyHisto(std::map<Int_t, Int_t> trackQualifikation, Int_t nGhosts)
 {
 
 	fQualyHisto->Fill(qualityNumbers::kGhost, nGhosts);
@@ -309,7 +309,7 @@ void PndTrackingQualityTaskNewLinks::FillQualyHisto(std::map<Int_t, Int_t> track
 	}
 }
 
-void PndTrackingQualityTaskNewLinks::FillMCStatus(std::map<Int_t, Int_t> trackMCStatus)
+void PndTrackingQATask::FillMCStatus(std::map<Int_t, Int_t> trackMCStatus)
 {
 	int mcOffset = qualityNumbers::kPossibleSec - qualityNumbers::kMcPossibleSec;
 	for(std::map<Int_t, Int_t>::iterator iter = trackMCStatus.begin(); iter != trackMCStatus.end(); iter++){
@@ -318,7 +318,7 @@ void PndTrackingQualityTaskNewLinks::FillMCStatus(std::map<Int_t, Int_t> trackMC
 }
 
 
-void PndTrackingQualityTaskNewLinks::FillEfficiencies(std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > efficiencies)
+void PndTrackingQATask::FillEfficiencies(std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > efficiencies)
 {
 	for (std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t> > >::iterator iterTracks = efficiencies.begin(); iterTracks != efficiencies.end(); iterTracks++ ){
 		std::map<TString, std::pair<Double_t, Int_t> > branchEfficiency = iterTracks->second;
@@ -327,13 +327,13 @@ void PndTrackingQualityTaskNewLinks::FillEfficiencies(std::map<Int_t, std::map<T
 		}
 	}
 }
-void PndTrackingQualityTaskNewLinks::MapToHist (std::map<Int_t, Double_t> map, TH1 * histo) {
+void PndTrackingQATask::MapToHist (std::map<Int_t, Double_t> map, TH1 * histo) {
 	for (std::map<Int_t, Double_t>::iterator iter = map.begin(); iter != map.end(); iter++ ){
 		histo->Fill(iter->second);
 	}
 }
 
-void PndTrackingQualityTaskNewLinks::Finish() {
+void PndTrackingQATask::Finish() {
 	ColorHistogram();
 	fQualyStack->Add(fQualyHisto_mc);
 	fQualyStack->Add(fQualyHisto_neg);
@@ -415,7 +415,7 @@ void PndTrackingQualityTaskNewLinks::Finish() {
 	fQualyHisto_rel_possible->Write();
 }
 
-void PndTrackingQualityTaskNewLinks::ColorHistogram() {
+void PndTrackingQATask::ColorHistogram() {
 	fQualyHisto_pos->SetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost), fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)));
 	fQualyHisto_pos->SetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound), fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound)));
 	fQualyHisto_pos->SetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound), fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound)));
@@ -443,7 +443,7 @@ void PndTrackingQualityTaskNewLinks::ColorHistogram() {
 
 }
 
-PndTrackingQualityMCInfo PndTrackingQualityTaskNewLinks::GetMCInfoFromIdealTrack(PndTrack *idealtrack) {
+PndTrackingQualityMCInfo PndTrackingQATask::GetMCInfoFromIdealTrack(PndTrack *idealtrack) {
   
   PndTrackCand *idealtrkcand = idealtrack->GetTrackCandPtr();
     
@@ -486,7 +486,7 @@ PndTrackingQualityMCInfo PndTrackingQualityTaskNewLinks::GetMCInfoFromIdealTrack
 
 }
 /**  
-PndTrackingQualityRecoInfo PndTrackingQualityTaskNewLinks::GetRecoInfoFromRecoTrack(int recotrackid, PndTrack *track) {
+PndTrackingQualityRecoInfo PndTrackingQATask::GetRecoInfoFromRecoTrack(int recotrackid, PndTrack *track) {
   
   PndTrackCand *trkcand = track->GetTrackCandPtr();
     
@@ -656,7 +656,7 @@ PndTrackingQualityRecoInfo PndTrackingQualityTaskNewLinks::GetRecoInfoFromRecoTr
  
 **/
 
-void PndTrackingQualityTaskNewLinks::AssociateRecoTracksToMCTracks() {
+void PndTrackingQATask::AssociateRecoTracksToMCTracks() {
   // loop over mc track infos
   for(int imctrk = 0; imctrk < fMCTrackInfo->GetEntriesFast(); imctrk++) {
     PndTrackingQualityMCInfo *mcinfo = (PndTrackingQualityMCInfo *) fMCTrackInfo->At(imctrk);
@@ -694,4 +694,4 @@ void PndTrackingQualityTaskNewLinks::AssociateRecoTracksToMCTracks() {
 
 
 
-ClassImp( PndTrackingQualityTaskNewLinks);
+ClassImp( PndTrackingQATask);

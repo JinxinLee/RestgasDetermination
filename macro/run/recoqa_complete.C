@@ -60,7 +60,7 @@ void recoqa_complete()
   fRun->AddTask(idealTracking);
 
   /// QA task
-  PndTrackingQualityTaskNewLinks* trackingQA = new PndTrackingQualityTaskNewLinks("SttMvdGemGenTrack", "IdealTrack");
+  PndTrackingQATask* trackingQA = new PndTrackingQATask("SttMvdGemGenTrack", "IdealTrack");
   fRun->AddTask(trackingQA);
 
   // -----   Intialise and run   --------------------------------------------

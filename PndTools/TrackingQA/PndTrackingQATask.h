@@ -1,18 +1,18 @@
 // -------------------------------------------------------------------------
-// -----                 PNDMCMATCHSELECTORTASK header file             -----
+// -----                 PndTrackingQATask header file             -----
 // -----                  Created 18/01/10  by T.Stockmanns             -----
 // -------------------------------------------------------------------------
 
 
-/** PNDMCMATCHSELECTORTASK.h
+/** PndTrackingQATask.h
  *@author T.Stockmanns <t.stockmanns@fz-juelich.de>
  **
- ** Displays all available informations for a given event
+ **
  **/
 
 
-#ifndef PndTrackingQualityTaskNewLinks_H
-#define PndTrackingQualityTaskNewLinks_H
+#ifndef PndTrackingQATask_H
+#define PndTrackingQATask_H
 
 
 // framework includes
@@ -33,15 +33,15 @@
 
 class TClonesArray;
 
-class PndTrackingQualityTaskNewLinks : public FairTask
+class PndTrackingQATask : public FairTask
 {
  public:
 
   /** Default constructor **/
-	PndTrackingQualityTaskNewLinks(TString trackBranchName, TString idealBranchName, Bool_t pndTrackData = kTRUE);
+	PndTrackingQATask(TString trackBranchName, TString idealBranchName, Bool_t pndTrackData = kTRUE);
 
   /** Destructor **/
-  virtual ~PndTrackingQualityTaskNewLinks();
+  virtual ~PndTrackingQATask();
 
 
   /** Virtual method Init **/
@@ -158,7 +158,7 @@ class PndTrackingQualityTaskNewLinks : public FairTask
   void Reset();
 
 
-  ClassDef(PndTrackingQualityTaskNewLinks,1);
+  ClassDef(PndTrackingQATask,1);
 
 };
 
