@@ -54,6 +54,9 @@ PndMixBackgroundEvents::PndMixBackgroundEvents() : FairTask("Mixing bkgrnd hits 
   fVerbose = 0;
 //  IVOLTE=-1;
 //  istampa=2;
+
+  Initialization_ClassVariables();
+
 }
 // -------------------------------------------------------------------------
 
@@ -63,6 +66,9 @@ PndMixBackgroundEvents::PndMixBackgroundEvents(Int_t verbose) : FairTask("STT St
   fVerbose = verbose;
 //  IVOLTE=-1;
 //  istampa=2;
+
+  Initialization_ClassVariables();
+
 }
 // -------------------------------------------------------------------------
 
@@ -74,7 +80,49 @@ PndMixBackgroundEvents::~PndMixBackgroundEvents() {
 }
 // -------------------------------------------------------------------------
 
+//--------------- begin  PndMixBackgroundEvents::Initialization_ClassVariables
 
+void PndMixBackgroundEvents::Initialization_ClassVariables()
+{
+	// this is only for initializing the Class Variables.
+
+	size_t len;
+
+	//  Bool_t
+
+	fPersistence = false;
+
+	// char :
+
+	len = sizeof(fSttBkgFilename);
+	memset (fSttBkgFilename,0,len);
+
+	len = sizeof(fMvdBkgFilename);
+	memset (fMvdBkgFilename,0,len);
+
+
+	// pointers
+
+	filedigirun=NULL;
+	filerecorun=NULL;
+	fMCTrackArray=NULL;
+	fMvdPixelHitandBckgrndArray=NULL;
+	fMvdPixelHitArray=NULL;
+	fMvdPixelHitBkgArray=NULL;
+	fMvdStripHitandBckgrndArray=NULL;
+	fMvdStripHitArray=NULL;
+	fMvdStripHitBkgArray=NULL;
+	fSttHitandBckgrndArray=NULL;
+	fSttHitArray=NULL;
+	fSttHitBkgArray=NULL;
+	fSttParameters=NULL;
+	fSttTubeArray=NULL;
+	treedigibkg=NULL ;
+	treerecobkg=NULL ;
+
+	return;
+}
+//--------------- end  PndMixBackgroundEvents::Initialization_ClassVariables
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMixBackgroundEvents::Init() {
@@ -122,7 +170,6 @@ InitStatus PndMixBackgroundEvents::Init() {
     std::cout << "-W- PndMixBackgroundEvents::Init: " << "No MVD Strip hitArray, return!" << std::endl;
     return kERROR;
   }
-
 
   //  Background input Arrays
 
