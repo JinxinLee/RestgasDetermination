@@ -153,6 +153,9 @@ class PndMixBackgroundEvents : public FairTask
   PndGeoSttPar *fSttParameters;  //  CHECK added
  
 
+  void Initialization_ClassVariables();
+
+
 
   void BackgroundNandT(
 			UShort_t *nBkgEventsToAdd,
