@@ -22,7 +22,7 @@
 
 string file_name="sim_emc.root";
 
-void structure_analysis_emc()
+int structure_analysis_emc()
 {
   gROOT->SetStyle("Plain");
 	
@@ -74,6 +74,7 @@ void structure_analysis_emc()
    // Popup the GUI...
    new MyMainFrame(gClient->GetRoot(), 200, 200);
 	
+  return 0;
 }
 
 

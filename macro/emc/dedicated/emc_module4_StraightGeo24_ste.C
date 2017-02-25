@@ -1,4 +1,4 @@
-void emc_module4_StraightGeo24_ste(){
+int emc_module4_StraightGeo24_ste(){
   // This macro creates the Backward EndCap (BwEndCap) geometry 
   // of the EMC detector for PANDA. 
   // The straight crystals with the size of 24.4x24.4x200 mm^3 are used
@@ -357,4 +357,5 @@ void emc_module4_StraightGeo24_ste(){
   /*gGeoManager->Export(outfile);
   top->Draw();
   gGeoManager->SetVisLevel(10);*/
+  return 0;
 }

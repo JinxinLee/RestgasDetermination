@@ -1,4 +1,4 @@
-void muon_barrel_strip_5bis()
+int muon_barrel_strip_5bis()
 {
   TFile *out = TFile::Open("output.root","RECREATE");
 
@@ -1497,12 +1497,14 @@ void muon_barrel_strip_5bis()
 //  gGeoManager->Export("muon_TS_endcap.root");
 //  gGeoManager->Export("muon_MF.root");
 //  gGeoManager->Export("muon_FS.root");
+  return 0;
 }   
    
-void name(TGeoVolume* &vol, int n1, int n2, int n3, int n4, int n5)
+int name(TGeoVolume* &vol, int n1, int n2, int n3, int n4, int n5)
 {
 
 //  MDT%ds%dl%db%dw%d -> MDT + 1/2/3/4 (Barrel/Endcap/MF/FS) + octant# + layer# + box# + wire#  
   TObjArray* nodes = vol->GetNodes();
   vol->SetName(Form("BP%ds%dl%db%dw%d",n1,n2,n3,n4,n5));
+  return 0;
 }

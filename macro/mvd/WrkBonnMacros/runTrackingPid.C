@@ -1,4 +1,4 @@
-void runTrackingPid(TString runfiles, Int_t nEvents = 0)
+int runTrackingPid(TString runfiles, Int_t nEvents = 0)
 {
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -99,5 +99,6 @@ void runTrackingPid(TString runfiles, Int_t nEvents = 0)
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   
+  return 0;
 }
 

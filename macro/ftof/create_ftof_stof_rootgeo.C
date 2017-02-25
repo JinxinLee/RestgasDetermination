@@ -218,7 +218,7 @@ Bool_t create_ftofwall(Double_t zDistFtofWall, TGeoManager *gGeoMan, TGeoVolume 
 
 
 
-void create_ftof_stof_rootgeo(Double_t zDistFtofWall = 775){
+int create_ftof_stof_rootgeo(Double_t zDistFtofWall = 775){
 
 
 	//--------------------------------------------------------------------
@@ -272,4 +272,5 @@ void create_ftof_stof_rootgeo(Double_t zDistFtofWall = 775){
 	fi->Close();
 	//   gGeoManager->Export(outfile);
 	top->Draw("ogl");
+  return 0;
 }  

@@ -1,6 +1,6 @@
 // Macro for running Cbm  with Geant3  or Geant4 (M. Al-Turany , D. Bertini)
 // Modified 22/06/2005 D.Bertini
-void runMC(TString fname="dsdsj20k_4291.evt", int nEvents = 10 )
+int runMC(TString fname="dsdsj20k_4291.evt", int nEvents = 10 )
 {
   TStopwatch timer;
   timer.Start();
@@ -168,5 +168,6 @@ void runMC(TString fname="dsdsj20k_4291.evt", int nEvents = 10 )
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }  
   

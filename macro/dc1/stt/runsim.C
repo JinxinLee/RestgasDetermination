@@ -1,4 +1,4 @@
-void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
+int runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
 
   gRandom->SetSeed(seed);
 
@@ -181,7 +181,7 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  return 0;
    
 }  
   

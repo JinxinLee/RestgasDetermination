@@ -10,7 +10,7 @@
 // #include<>
 // #include<>
 
-void geoconvert()
+int geoconvert()
 {
 
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
@@ -58,9 +58,10 @@ std::cout<<"------------------------------"<<std::endl;
 std::cout<<"------------------------------"<<std::endl;
 
 //   geoMan->GetListOfVolumes()->Print();
+  return 0;
 }
 
-void expandnode(TGeoNode* fN)
+int expandnode(TGeoNode* fN)
 {
   TGeoVolume *v1=fN->GetVolume();
   TObjArray *NodeList=v1->GetNodes();
@@ -77,6 +78,7 @@ void expandnode(TGeoNode* fN)
 //       v->SetMaterial("lead");
     }
   }
+  return 0;
 }
 
 

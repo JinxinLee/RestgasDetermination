@@ -1,4 +1,4 @@
-void runReco(TString base="dsdsj_20k.evt", int nEvents = 10 )
+int runReco(TString base="dsdsj_20k.evt", int nEvents = 10 )
 {
 
   // ========================================================================
@@ -194,4 +194,5 @@ gSystem->ListLibraries();
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
+  return 0;
 }

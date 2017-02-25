@@ -1,4 +1,4 @@
-void sim_theta(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nStations = 3) {
+int sim_theta(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nStations = 3) {
   
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
@@ -135,5 +135,6 @@ void sim_theta(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nStati
   cout << " All ok " << endl;
   //exit(0);
    
+  return 0;
 }  
   

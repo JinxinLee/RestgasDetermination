@@ -1,4 +1,4 @@
-void runDigiReco(TString runfiles, Int_t nEvents = 0)
+int runDigiReco(TString runfiles, Int_t nEvents = 0)
 {
   // leave nEvents at 0 to run on the whole data
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -133,5 +133,6 @@ void runDigiReco(TString runfiles, Int_t nEvents = 0)
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   
+  return 0;
 }
 

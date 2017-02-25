@@ -7,7 +7,7 @@
 
 #include <sstream>
 using namespace std;
-void LimitsAlign_misalignConstsSUM(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/10data_20consts_SamplesStudyOct2013/BOX/mom_15/")
+int LimitsAlign_misalignConstsSUM(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/10data_20consts_SamplesStudyOct2013/BOX/mom_15/")
 {
 
   const int nDt = 8;
@@ -355,4 +355,5 @@ void LimitsAlign_misalignConstsSUM(TString pathG="/home/karavdin/datastorage/Ali
     fout->Close();
   }//end diff output files Delta_a
 
+  return 0;
 }

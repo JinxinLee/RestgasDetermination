@@ -1,6 +1,6 @@
 #include "iomanip.h"
 
-void create4StationsGem()
+int create4StationsGem()
 {
   // Gem disk geometry parameters
   //-----------------------------
@@ -297,4 +297,5 @@ void create4StationsGem()
 
   pout.close();
 
+  return 0;
 }  

@@ -1,6 +1,6 @@
 #include "iomanip.h"
 
-void create1StationsGem_firstStation()
+int create1StationsGem_firstStation()
 { // create only GEM with one station
   //----------------------------------------------------------------------------------------------------------------------------------------------
   // Gem disk geometry parameters (R.Karabowicz) 
@@ -736,5 +736,6 @@ void create1StationsGem_firstStation()
   top->Draw("ogl");
   pout.close();
 
+  return 0;
 }
 

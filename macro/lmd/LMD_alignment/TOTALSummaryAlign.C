@@ -7,7 +7,7 @@
 #include <sstream>
 using namespace std;
 //void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", double tr_sc=200, double rt_sc=9)
-void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignDPM/", double tr_sc=200, double rt_sc=3)
+int TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignDPM/", double tr_sc=200, double rt_sc=3)
 {
   //  const int nS=8;
   // double TrksSim[nS]={10000, 100000, 200000, 300000, 400000, 500000, 700000, 1000000};
@@ -758,4 +758,5 @@ void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignD
  //  f->Write();
  //  f->Close();
  //  // // ---------------------------------------------------------------------------------
+  return 0;
 }

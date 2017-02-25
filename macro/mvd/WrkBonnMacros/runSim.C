@@ -1,4 +1,4 @@
-void runSim(TString runfiles="test.root", Double_t momentum, Int_t nEvents=0, Int_t runSeed=1234)
+int runSim(TString runfiles="test.root", Double_t momentum, Int_t nEvents=0, Int_t runSeed=1234)
 {
   TStopwatch timer;
   timer.Start();
@@ -142,5 +142,6 @@ void runSim(TString runfiles="test.root", Double_t momentum, Int_t nEvents=0, In
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

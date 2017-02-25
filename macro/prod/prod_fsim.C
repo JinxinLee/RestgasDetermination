@@ -11,7 +11,7 @@
 void    getRange(TString par, double &min, double &max);
 TString getInitialResonance(TString &fEvtGenFile);
 
-void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0. )
+int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0. )
 {
 	if (prefix=="" || inputGen=="" || pbeam==0.) 
 	{
@@ -351,6 +351,7 @@ void prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Floa
 	cout << "[INFO   ] CPU usage        : " << cpuUsage*100. << "%" << endl;
 	cout << "[INFO   ] Max Memory       : " << maxMemory << " MB" << endl;
 	cout << "[INFO   ] Macro finished successfully." << endl<<endl;
+  return 0;
 }
 
 // ------ Helper functions -------

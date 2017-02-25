@@ -1,7 +1,7 @@
 #include "TCanvas.h"
 #include "TTree.h"
 
-void ana_dsinc(TString fname,int nevts=0)
+int ana_dsinc(TString fname,int nevts=0)
 {
 	gROOT->Reset();
   	TStopwatch timer;
@@ -65,5 +65,6 @@ void ana_dsinc(TString fname,int nevts=0)
     Double_t ctime = timer.CpuTime();
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-	
+	  return 0;
+
 }

@@ -1,4 +1,4 @@
-void digi_complete()
+int digi_complete()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits 
@@ -130,5 +130,5 @@ void digi_complete()
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
 
-  exit(0);
+  return 0;
 }

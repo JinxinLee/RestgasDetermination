@@ -9,7 +9,7 @@ void SaveAndUpdateHisto(TH1* currenthisto, TFile& storagefile)
 	currenthisto->Write(currenthisto->GetName(), TObject::kWriteDelete);
 }
 
-void runTripletFinderMini()  {
+int runTripletFinderMini()  {
 	gROOT->Reset();
 	// Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
 	Int_t iVerbose = 0;
@@ -386,4 +386,5 @@ void runTripletFinderMini()  {
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
 	// ------------------------------------------------------------------------
+  return 0;
 }

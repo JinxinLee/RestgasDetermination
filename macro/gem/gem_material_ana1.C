@@ -30,7 +30,7 @@
 //#include "../run/Tools.C"
 //------------------------------------------------------------------------------
 
-void gem_material_ana1(int nEvents = 1000000, bool verbose = false)
+int gem_material_ana1(int nEvents = 1000000, bool verbose = false)
 {
 // int nEvents = 100;
 //  verbose  = true;
@@ -565,4 +565,5 @@ can1->Print("outAnaGemSim1.ps");
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 }

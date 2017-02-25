@@ -64,7 +64,7 @@ TPolyLine* Get_PolyLine_circle(float x,float y, float r);
 // when checking for acceptance along a beam pipe
 string geo_beampipe = "/home/jasinski/bin/pandaroot/macro/lmd/Promme/beampipe_201209.root";
 
-void Check_particle_path() {
+int Check_particle_path() {
 	cout << " analysis tool vers. 1.4 " << endl;
 
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -533,6 +533,7 @@ void Check_particle_path() {
 	output_histfile->Write();
 
 	output_histfile->Close();
+  return 0;
 }
 
 void DrawProgressBar(int len, double percent) {

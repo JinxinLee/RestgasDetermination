@@ -132,7 +132,7 @@ bool Set_matrix(string path, TGeoHMatrix* matrix, string uniquename, int uniqueI
 	return node->Align(matrix);
 }
 
-void Modify_root_geometry(){
+int Modify_root_geometry(){
 	Load_Geometry();
 	vector <string> list_of_sensors;
 	Get_List_of_Sensors(list_of_sensors, false);
@@ -142,4 +142,5 @@ void Modify_root_geometry(){
 		stringstream uname;
 
 	}
+  return 0;
 }

@@ -1,4 +1,4 @@
-void idealcomplete(int level = 2){
+int idealcomplete(int level = 2){
   // ========================================================================
   // "Ideality" level: 1 = real  digi + ideal track finding + real fitting
   //                   2 = ideal digi + ideal track finding + real fitting
@@ -97,4 +97,5 @@ void idealcomplete(int level = 2){
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
+  return 0;
 }

@@ -15,7 +15,7 @@
 // xy-projection of time-based MVD and STT Hits
 // m.mertens@fz-juelich.de
 
-void runStreamDisplay() {
+int runStreamDisplay() {
 	gROOT->Reset();
 	// Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
 	Int_t iVerbose = 0;
@@ -198,4 +198,5 @@ void runStreamDisplay() {
 		rzcanvas->Print("hitstreamrz.gif+15");
 	}
 	//c1->Print("hitstream.gif++");
+  return 0;
 }

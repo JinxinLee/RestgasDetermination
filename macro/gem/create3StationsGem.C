@@ -1,6 +1,6 @@
 #include "iomanip.h"
 
-void create3StationsGem()
+int create3StationsGem()
 {
   // Gem disk geometry parameters (R.Karabowicz) 
   //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -929,5 +929,6 @@ void create3StationsGem()
 
   pout.close();
 
+  return 0;
 }
 

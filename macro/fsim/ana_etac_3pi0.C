@@ -1,4 +1,4 @@
-void ana_etac_3pi0(TString fname="etac_3pi0.root",int num=0)
+int ana_etac_3pi0(TString fname="etac_3pi0.root",int num=0)
 {
     TStopwatch timer;
     timer.Start();
@@ -133,6 +133,7 @@ void ana_etac_3pi0(TString fname="etac_3pi0.root",int num=0)
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
     
+  return 0;
 }
 
 /*void printTree(TCandidate *tc, int level=0)

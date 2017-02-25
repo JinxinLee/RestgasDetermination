@@ -1,4 +1,4 @@
-void DrawEveHisto(TH2* histo, TGeoHMatrix* matrix, double max = -1., TEveCompound* comp = 0)
+int DrawEveHisto(TH2* histo, TGeoHMatrix* matrix, double max = -1., TEveCompound* comp = 0)
 {
 	//TEveCompound* comp = new TEveCompound();
 
@@ -40,4 +40,5 @@ void DrawEveHisto(TH2* histo, TGeoHMatrix* matrix, double max = -1., TEveCompoun
    else
 	   gEve->AddGlobalElement(q);
    //gEve->Redraw3D(kTRUE);
+  return 0;
 }

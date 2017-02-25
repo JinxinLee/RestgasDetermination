@@ -1,4 +1,4 @@
-void read_nonuniformity_param(Int_t type=1)
+int read_nonuniformity_param(Int_t type=1)
 {
 	TString fileName="EmcDigiNoniformityPars2.root";
 	TFile *nonunifile = new TFile(fileName,"READ");
@@ -14,5 +14,6 @@ void read_nonuniformity_param(Int_t type=1)
 	std::cout<<pars1[2]<<std::endl;
 	
 	nonunifile->Close();
+  return 0;
 }
 

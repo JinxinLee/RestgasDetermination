@@ -1,4 +1,4 @@
-void runLumiPixel1Digi(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int pitch=1)
+int runLumiPixel1Digi(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int pitch=1)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -134,4 +134,5 @@ void runLumiPixel1Digi(const int nEvents=10, const int startEvent=0, TString sto
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
   cout << endl;
 
+  return 0;
 }

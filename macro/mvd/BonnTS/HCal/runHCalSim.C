@@ -2,7 +2,7 @@
 // Updated 21.03.2010
 // Simone Bianco
 
-void runHCalSim(Double_t beam_mom = 0.7, Int_t nEvents = 100)
+int runHCalSim(Double_t beam_mom = 0.7, Int_t nEvents = 100)
 
 {
   TStopwatch timer;
@@ -81,6 +81,7 @@ void runHCalSim(Double_t beam_mom = 0.7, Int_t nEvents = 100)
     Double_t rtime = timer.RealTime();
     Double_t ctime = timer.CpuTime();
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 
 }
 

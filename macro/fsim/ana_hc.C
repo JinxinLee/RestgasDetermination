@@ -1,4 +1,4 @@
-void ana_hc(TString fname,int nevts=0)
+int ana_hc(TString fname,int nevts=0)
 {
   	TStopwatch timer;
   	timer.Start();
@@ -68,4 +68,5 @@ void ana_hc(TString fname,int nevts=0)
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 	
+  return 0;
 }

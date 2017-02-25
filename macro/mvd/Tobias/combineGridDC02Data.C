@@ -1,4 +1,4 @@
-void combineGridDC02Data(Int_t runNr)	//give only the initial number (1,2,3)
+int combineGridDC02Data(Int_t runNr)	//give only the initial number (1,2,3)
 {
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	//gSystem->Load("libEve");
@@ -19,4 +19,5 @@ void combineGridDC02Data(Int_t runNr)	//give only the initial number (1,2,3)
 	std::stringstream outputName;
 	outputName << "./radDamageData/" << "Mvd_GridUrqmdAna_" << runNr << ".root";
 	radAna.SaveHistos(outputName.str().c_str());
+  return 0;
 }

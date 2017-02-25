@@ -1,4 +1,4 @@
-void mvdgem_reco(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nStations = 3) {
+int mvdgem_reco(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nStations = 3) {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -109,4 +109,5 @@ void mvdgem_reco(Int_t nEvents=1000, Int_t pid=13, Double_t theta=5., Int_t nSta
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

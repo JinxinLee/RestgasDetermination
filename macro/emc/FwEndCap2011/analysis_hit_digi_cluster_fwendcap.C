@@ -7,7 +7,7 @@
   #include <iomanip>
 
   
-void analysis_hit_digi_cluster_fwendcap()
+int analysis_hit_digi_cluster_fwendcap()
 {
   gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Tools.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -729,4 +729,5 @@ void analysis_hit_digi_cluster_fwendcap()
   HISTmultiplicity_1MeVtrigThresh_100keV_h->SetLineStyle(2);
 */
   
+  return 0;
 }

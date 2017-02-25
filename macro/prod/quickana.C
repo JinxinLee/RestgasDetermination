@@ -17,7 +17,7 @@
 //    [mode]    : arbitrary mode number (default: 0)
 // -------------------
 
-void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0, int runmode=0)
+int quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0, int runmode=0)
 {
 	if (Fname=="" || Mom==0) 
 	{
@@ -134,4 +134,5 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	// *** and run analysis
 	fRun->Init(); 
 	fRun->Run(0,nevts);	
+  return 0;
 }

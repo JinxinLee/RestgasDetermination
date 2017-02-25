@@ -107,7 +107,8 @@ void runMCsim()
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 }
-void runDPMsim()
+int runDPMsim()
 {
     runMCsim();
-	}
+	  return 0;
+}

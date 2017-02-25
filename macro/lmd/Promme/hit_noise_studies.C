@@ -32,7 +32,7 @@ void DrawProgressBar(int len, double percent);
 // the application
 // Assuming to find an mc file called
 // ./Lumi_MC_0.root
-void hit_noise_studies();
+int hit_noise_studies();
 
 int main() {
 	Root_Appearance();
@@ -42,7 +42,7 @@ int main() {
 	return 0;
 }
 
-void hit_noise_studies(){
+int hit_noise_studies(){
 	cout << " lmd hit noise studies " << endl;
 	TCanvas* canvas = new TCanvas("canvas", "canvas", 900, 600);
 	canvas->Divide(3,2);
@@ -345,6 +345,7 @@ void hit_noise_studies(){
 	canvas->Print("MC_IEL_dose_1_5_plane_3_side_0.pdf");
 	canvas->Print("MC_IEL_does_1_5_plane_3_side_0.root");
 	*/
+  return 0;
 }
 
 void Root_Appearance(){

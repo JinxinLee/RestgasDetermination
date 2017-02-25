@@ -3,7 +3,7 @@
 
 
 
-void MakeResolutionPlot(TProfile *histo)
+int MakeResolutionPlot(TProfile *histo)
 {
 	// I wrote this to get the error bars from a TProfile plot with name histo and put it into a new plot,
 	// but this is not really what I need, maybe it is useful another time
@@ -40,6 +40,7 @@ void MakeResolutionPlot(TProfile *histo)
 
 	hCoordinateSystem->Draw();
 	resolution->Draw("L,SAME");
+  return 0;
 
 }
 
@@ -51,7 +52,7 @@ void MakeResolutionPlot(TProfile *histo)
 
 
 
-void plotTrackCands()
+int plotTrackCands()
 {
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 	rootlogon();
@@ -407,6 +408,7 @@ void plotTrackCands()
 	//		cout << "\n";
 	//	}
 
+  return 0;
 
 
 }

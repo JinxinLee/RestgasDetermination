@@ -1,6 +1,6 @@
 // Macro for running Cbm  with Geant3  or Geant4 (M. Al-Turany , D. Bertini)
 // Modified 22/06/2005 D.Bertini
-void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
+int runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
 {
   TStopwatch timer;
   timer.Start();
@@ -149,5 +149,6 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

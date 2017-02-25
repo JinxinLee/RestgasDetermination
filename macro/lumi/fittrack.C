@@ -1,4 +1,4 @@
-void fittrack()
+int fittrack()
 {
 
 	// Load basic libraries
@@ -49,5 +49,5 @@ void fittrack()
 	cout << "Macro finished succesfully." << endl;
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
-	exit();
+  return 0;
 }

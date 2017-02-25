@@ -1,4 +1,4 @@
-void sim_BARREL_1000(Int_t fileId = 0, Int_t nEvents=1000, Int_t pid=13, Int_t nStations = 3) {
+int sim_BARREL_1000(Int_t fileId = 0, Int_t nEvents=1000, Int_t pid=13, Int_t nStations = 3) {
   TTimeStamp* timeStamp = new TTimeStamp();
   Int_t newSeed = 1000*(Int_t)(timeStamp->AsDouble())+timeStamp-(Int_t)(timeStamp->AsDouble());
   gRandom->SetSeed(newSeed);
@@ -140,5 +140,6 @@ void sim_BARREL_1000(Int_t fileId = 0, Int_t nEvents=1000, Int_t pid=13, Int_t n
   cout << " All ok " << endl;
   //exit(0);
    
+  return 0;
 }  
   

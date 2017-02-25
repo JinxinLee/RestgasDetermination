@@ -5,7 +5,7 @@ double CalcEventsPerYear(Int_t simEvents, Int_t interactionRate = 2*1E7, Double_
 }
 
 
-void drawMvdHistos(TString fileName, TString selector, Int_t columns = 2, Int_t mult = 1)
+int drawMvdHistos(TString fileName, TString selector, Int_t columns = 2, Int_t mult = 1)
 {
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/TransformHisto.C");
@@ -60,5 +60,6 @@ void drawMvdHistos(TString fileName, TString selector, Int_t columns = 2, Int_t 
 	TCanvas *c2 = new TCanvas();
 	c2->cd(1);
 	h1.DrawCopy();
+  return 0;
 
 }

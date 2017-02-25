@@ -1,4 +1,4 @@
-void sim_BARREL(Int_t nEvents=1, Int_t pid=13, Int_t nStations = 3) {
+int sim_BARREL(Int_t nEvents=1, Int_t pid=13, Int_t nStations = 3) {
   
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
@@ -137,5 +137,6 @@ void sim_BARREL(Int_t nEvents=1, Int_t pid=13, Int_t nStations = 3) {
   cout << " All ok " << endl;
   //exit(0);
    
+  return 0;
 }  
   

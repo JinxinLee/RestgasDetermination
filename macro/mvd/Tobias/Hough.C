@@ -1,4 +1,4 @@
-void Hough(int i)
+int Hough(int i)
 { 
 gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libriemann.C");
@@ -51,4 +51,5 @@ gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	}
 	gStyle->SetPalette(1);
 	h2.DrawCopy("colz");
+  return 0;
 }

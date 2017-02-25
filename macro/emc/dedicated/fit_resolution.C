@@ -1,6 +1,6 @@
 // Fit energy distribution with Novosibirsk function
 
-void fit_resolution()
+int fit_resolution()
 {
 	Double_t energy0=1.; // GeV
 
@@ -36,6 +36,7 @@ void fit_resolution()
  	h1->Draw();
 	h1->Fit(f1);
 
+  return 0;
 }
 
 Double_t novosibirsk_fcn(Double_t *xp, Double_t *par)

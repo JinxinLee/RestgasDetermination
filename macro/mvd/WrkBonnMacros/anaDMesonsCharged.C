@@ -1,4 +1,4 @@
-void anaDMesonsCharged(TString filename="data/dpdm", int nevts=0)
+int anaDMesonsCharged(TString filename="data/dpdm", int nevts=0)
 {
   TStopwatch timer;
   timer.Start();
@@ -275,6 +275,7 @@ void anaDMesonsCharged(TString filename="data/dpdm", int nevts=0)
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 
 

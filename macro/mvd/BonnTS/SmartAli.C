@@ -2,7 +2,7 @@
 // Simone Bianco 15/07/2010
 
 
-void SmartAli()
+int SmartAli()
 {
 
   // Load basic libraries
@@ -73,4 +73,5 @@ void SmartAli()
   cout << endl;
 	
   //exit();
+  return 0;
 }

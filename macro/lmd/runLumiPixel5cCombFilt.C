@@ -1,4 +1,4 @@
-void runLumiPixel5cCombFilt(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double mom=15, const double dX=0, const double dY=0)
+int runLumiPixel5cCombFilt(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double mom=15, const double dX=0, const double dY=0)
 {
   // ========================================================================
   // Input file (MC events)
@@ -120,4 +120,5 @@ void runLumiPixel5cCombFilt(const int nEvents=10, const int startEvent=0, TStrin
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
+  return 0;
 }

@@ -1,4 +1,4 @@
-void sim_muo_test(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
+int sim_muo_test(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   
   TStopwatch timer;
   timer.Start();
@@ -131,6 +131,6 @@ void sim_muo_test(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   //exit(0);
-   
+     return 0;
 }  
   

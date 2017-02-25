@@ -1,4 +1,4 @@
-void create_misalignment_lmd_pixel(double dr=0, double da=0, string filename){
+int create_misalignment_lmd_pixel(double dr=0, double da=0, string filename){
   dr*=1e-4;//mkm --> cm
   // da*=1e-5;// 10e-5rad --> rad
   da*=1e-3;// 10e-3rad --> rad
@@ -93,4 +93,5 @@ void create_misalignment_lmd_pixel(double dr=0, double da=0, string filename){
   }
   output<<"#################################################################"<<endl;
   output.close();
+  return 0;
 }  

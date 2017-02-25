@@ -7,7 +7,7 @@
 #include <sstream>
 #include <cmath>
 using namespace std;
-void SenseAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPixelAlignSIM_LIMITS_10000/mom_15/")
+int SenseAlign(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPixelAlignSIM_LIMITS_10000/mom_15/")
 //void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10000/mom_15//", double tr_sc=0, double rt_sc=0)
 {
   // gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -228,4 +228,5 @@ TH2D *htheta_mean = new TH2D("htheta_mean","#theta_{MEAN}; #Delta_{t}, #mum;#Del
  hY_rms->Write();
  f->Write();
  f->Close();
+  return 0;
 }

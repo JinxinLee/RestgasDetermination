@@ -4,7 +4,7 @@
 #include "TF1.h"
 
 
-void analysis_digi_cluster_allGammasAnalysis_fwendcap()
+int analysis_digi_cluster_allGammasAnalysis_fwendcap()
 {
   TStopwatch timer;
   timer.Start();
@@ -556,5 +556,6 @@ void analysis_digi_cluster_allGammasAnalysis_fwendcap()
    Double_t rtime = timer.RealTime();
    Double_t ctime = timer.CpuTime();
    printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

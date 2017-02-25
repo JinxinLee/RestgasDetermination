@@ -1064,9 +1064,10 @@ MyMainFrame::~MyMainFrame() {
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-void guiEventDisplay() {
+int guiEventDisplay() {
   // Popup the GUI...
   new MyMainFrame(gClient->GetRoot(),fWindowSize*1.2,fWindowSize);
+  return 0;
 }
 //-----------------------------------------------------------------------------
 

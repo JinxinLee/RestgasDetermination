@@ -7,7 +7,7 @@
 // *******
 
 
-void makeTCands(TString base="dsdsj20k.evt",int nevts=10)
+int makeTCands(TString base="dsdsj20k.evt",int nevts=10)
 {
   TStopwatch timer;
   timer.Start();
@@ -64,5 +64,6 @@ void makeTCands(TString base="dsdsj20k.evt",int nevts=10)
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }  
   

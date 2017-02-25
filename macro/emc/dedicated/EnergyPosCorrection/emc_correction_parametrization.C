@@ -21,7 +21,7 @@ Double_t energyIntervalsShashlyk[]= {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1
 Int_t nrEnergyIntervals[5];//BarrelLow, BarrelHigh, Fwd, Bwd, Shashlyk
 Int_t nrThetaIntervals[4]; //BarrelLow, BarrelHigh, Fwd, Bwd
 
-void emc_correction_parametrization(Int_t version, TString InputFile1, TString particle="gamma", Bool_t debug=false, Bool_t useStoredHistos=true)
+int emc_correction_parametrization(Int_t version, TString InputFile1, TString particle="gamma", Bool_t debug=false, Bool_t useStoredHistos=true)
 {
 TStopwatch timer;
 timer.Start();
@@ -489,6 +489,7 @@ Double_t rtime = timer.RealTime();
 Double_t ctime = timer.CpuTime();
 printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 	
+  return 0;
 }
 
 

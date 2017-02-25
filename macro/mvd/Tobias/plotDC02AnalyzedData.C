@@ -21,7 +21,7 @@ double FindMax(TFile* f, TString select)
 	return oldMax;
 }
 
-void plotDC02AnalyzedData(TString fileName)
+int plotDC02AnalyzedData(TString fileName)
 {
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libEve");
@@ -112,4 +112,5 @@ void plotDC02AnalyzedData(TString fileName)
 	gEve->AddGlobalElement(TNod);
 	gEve->AddGlobalElement(comp);
 	gEve->Redraw3D(kTRUE);
+  return 0;
 }

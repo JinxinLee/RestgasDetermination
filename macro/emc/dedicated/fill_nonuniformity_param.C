@@ -1,6 +1,6 @@
 // Set linear non-uniformity for barrel EMC crystals
 // 1-11 - barrel, 12 - forward endcap, 13 - backward endcap
-void fill_nonuniformity_param()
+int fill_nonuniformity_param()
 {
 	TString fileName="EmcDigiNoniformityPars2.root";
 	TFile *nonunifile = new TFile(fileName, "RECREATE");
@@ -19,5 +19,6 @@ void fill_nonuniformity_param()
 	
 	parObject->Write();
 	nonunifile->Close();
+  return 0;
 }
 

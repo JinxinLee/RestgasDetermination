@@ -57,7 +57,7 @@ void config_histo(TH1 *h, TString tx, TString ty,double offy=1.65)
 
 }
 
-void trapmap_barrel(double steps=100, double phst=500, double pmax=6.0, double H=2, double rd=0.48)
+int trapmap_barrel(double steps=100, double phst=500, double pmax=6.0, double H=2, double rd=0.48)
 {
   double mass[5]={0.000511,0.10566,0.13957,0.493677,0.938272};
 
@@ -175,4 +175,5 @@ void trapmap_barrel(double steps=100, double phst=500, double pmax=6.0, double H
   for (pid=0;pid<5;pid++) 
       hacc[pid]->Write();
   f->Close();
+  return 0;
 }

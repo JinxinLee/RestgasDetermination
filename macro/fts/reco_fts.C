@@ -1,4 +1,4 @@
-void reco_fts()
+int reco_fts()
 {
 	// Macro created 20/09/2006 by S.Spataro
 	// It loads a digi file and performs tracking
@@ -109,5 +109,5 @@ void reco_fts()
 	// ------------------------------------------------------------------------
 	cout << " Test passed" << endl;
 	cout << " All ok " << endl;
-	exit(0);
+  return 0;
 }

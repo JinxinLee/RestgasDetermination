@@ -3,7 +3,7 @@
 */
 
 
-void simfast_single_allpid(int mult=5, int soff=0,int nevts=0,TString outfile="")
+int simfast_single_allpid(int mult=5, int soff=0,int nevts=0,TString outfile="")
 {
   TStopwatch timer;
   timer.Start();
@@ -100,5 +100,6 @@ void simfast_single_allpid(int mult=5, int soff=0,int nevts=0,TString outfile=""
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }  
   

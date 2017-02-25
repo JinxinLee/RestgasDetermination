@@ -1,5 +1,5 @@
 // root macro to analyze the clusterization output
-void anaGemSmearing(int  nEvents = 10,  bool verbose = false)
+int anaGemSmearing(int  nEvents = 10,  bool verbose = false)
 {
 
   // -----   Timer   --------------------------------------------------------
@@ -141,4 +141,5 @@ hisDiffZ->DrawCopy("");
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 }

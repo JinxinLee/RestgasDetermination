@@ -63,7 +63,7 @@ void propagate(TLorentzVector &l, TVector3 &p, float charge, TH2F* hpro=0)
   p.SetZ(z*100);
 }
 
-void ana_Lambda(TString fname="tmp.root",int num=0)
+int ana_Lambda(TString fname="tmp.root",int num=0)
 {
     TStopwatch timer;
     timer.Start();
@@ -196,6 +196,7 @@ void ana_Lambda(TString fname="tmp.root",int num=0)
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
     
+  return 0;
 }
 
 /*void printTree(TCandidate *tc, int level=0)

@@ -13,7 +13,7 @@
 #include <TStopwatch.h>
 #include <sstream>
 using namespace std;
-void ModulesStatFast(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/100data_10consts_SamplesStudyOct2013/BOX/mom_15/", double daGL=0, int MisConstSamp=0)
+int ModulesStatFast(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/100data_10consts_SamplesStudyOct2013/BOX/mom_15/", double daGL=0, int MisConstSamp=0)
 {
   TStopwatch timerB;
   timerB.Start();
@@ -298,6 +298,7 @@ void ModulesStatFast(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel
     Double_t rtime = timerB.RealTime();
     Double_t ctime = timerB.CpuTime();
     printf("On HIMSTER it took: RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 
 int main(int __argc,char *__argv[]) {

@@ -1,5 +1,5 @@
 
-void runOnline()  {
+int runOnline()  {
     gROOT->Reset();
     // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
     Int_t iVerbose = 0;
@@ -115,4 +115,5 @@ void runOnline()  {
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

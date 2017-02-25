@@ -1,7 +1,7 @@
 // root macro to analyze the clusterization output
 #include <map>
 #include <vector>
-void anaclust()
+int anaclust()
 {
   int  nEvents = 100;
   bool verbose = false;
@@ -401,4 +401,5 @@ can7->Print("res-clust-efiiciencies.png");
   cout << endl;*/
   // ------------------------------------------------------------------------
 
+  return 0;
 }

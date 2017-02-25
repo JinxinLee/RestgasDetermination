@@ -1,4 +1,4 @@
-void TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
+int TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
 
   TFile* simFile = TFile::Open("Gem_MvdStt_3Stations_DPM_n10000.root");
   TTree* simTree = (TTree*)simFile->Get("cbmsim");
@@ -329,4 +329,5 @@ void TB_checkHitReconstruction(Double_t pntHitDist=0.1) {
     }
   outFile->Write();
   outFile->Close();
+  return 0;
 }

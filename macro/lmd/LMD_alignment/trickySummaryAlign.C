@@ -6,7 +6,7 @@
 
 #include <sstream>
 using namespace std;
-void trickySummaryAlign(TString pathGi="/panda/pandaroot/macro/lmd/testPixelAlignSIM_", double tr_sc=0, double rt_sc=0)
+int trickySummaryAlign(TString pathGi="/panda/pandaroot/macro/lmd/testPixelAlignSIM_", double tr_sc=0, double rt_sc=0)
 //void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10000/mom_15//", double tr_sc=0, double rt_sc=0)
 {
   gStyle->SetLabelSize(0.045,"xyz");
@@ -546,4 +546,5 @@ TLegend *leg2 = new TLegend(0.13,0.13,0.38,0.52);
   // f->Close();
   //   }
   // }
+  return 0;
 }

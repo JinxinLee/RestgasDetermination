@@ -7,7 +7,7 @@
 // *******
 
 
-void ana_fast(TString infile="dsdsj_20k.evt.root",int nevts=0,TString outfile="ana.root")
+int ana_fast(TString infile="dsdsj_20k.evt.root",int nevts=0,TString outfile="ana.root")
 {
   TStopwatch timer;
   timer.Start();
@@ -48,5 +48,6 @@ void ana_fast(TString infile="dsdsj_20k.evt.root",int nevts=0,TString outfile="a
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }  
   

@@ -1,4 +1,4 @@
-void create_ftof_rootgeo(Double_t distance = 775){
+int create_ftof_rootgeo(Double_t distance = 775){
   // Forward tof geometry parameters
   //-----------------------------
   //-- macro created by Alicia S. based on
@@ -159,6 +159,7 @@ for(int i=0;i<26;i++){
   }
   }
   
+  return 0;
 }
 
 for(int i=0;i<24;i++){

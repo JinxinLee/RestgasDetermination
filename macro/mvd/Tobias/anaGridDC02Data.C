@@ -1,4 +1,4 @@
-void anaGridDC02Data(Int_t runNr, Int_t start = -1)
+int anaGridDC02Data(Int_t runNr, Int_t start = -1)
 {
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	//gSystem->Load("libEve");
@@ -34,4 +34,5 @@ void anaGridDC02Data(Int_t runNr, Int_t start = -1)
 	if (start < 0) outputName << "/Mvd_GridUrqmdAna_AnalyzedData.root";
 	else outputName << "/Mvd_GridUrqmdAna_AnalyzedData_" << startIndex << "-" << stopIndex-1 << ".root";
 	radAna.SaveHistos(outputName.str().c_str());
+  return 0;
 }

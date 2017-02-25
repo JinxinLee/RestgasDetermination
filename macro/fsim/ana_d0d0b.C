@@ -2,7 +2,7 @@
 #include "TTree.h"
 #include "TChain.h"
 
-void ana_d0d0b(TString fname,int num=1000000)
+int ana_d0d0b(TString fname,int num=1000000)
 {
     TStopwatch timer;
     timer.Start();
@@ -82,4 +82,5 @@ void ana_d0d0b(TString fname,int num=1000000)
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
     
+  return 0;
 }

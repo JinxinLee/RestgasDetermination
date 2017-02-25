@@ -1,4 +1,4 @@
-void locT_theta(Int_t pid = 13, Double_t theta = 5., Int_t nStations = 3) {
+int locT_theta(Int_t pid = 13, Double_t theta = 5., Int_t nStations = 3) {
   
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
@@ -119,4 +119,5 @@ void locT_theta(Int_t pid = 13, Double_t theta = 5., Int_t nStations = 3) {
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

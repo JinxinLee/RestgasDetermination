@@ -1,4 +1,4 @@
-void globT_all() {
+int globT_all() {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -97,4 +97,5 @@ void globT_all() {
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

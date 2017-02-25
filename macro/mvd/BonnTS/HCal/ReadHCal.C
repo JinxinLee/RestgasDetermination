@@ -5,7 +5,7 @@
  *      Author: Simone Bianco
  */
 
-void ReadHCal(){
+int ReadHCal(){
 
   // Customize
 
@@ -131,6 +131,7 @@ void ReadHCal(){
   c2->cd();
   elossTot->Draw();
   elossTot->GetXaxis()->SetTitle("Energy loss / event [GeV]");
+  return 0;
 
 }
 

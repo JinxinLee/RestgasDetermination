@@ -113,7 +113,7 @@ void propagate(TLorentzVector &l, TVector3 &p, float charge, TH2F* hpro=0)
   p.SetZ(z*100);
 }
 
-void ana_dsdsj_full(TString fname="dsdsj.full.root",int num=10, int pr=1)
+int ana_dsdsj_full(TString fname="dsdsj.full.root",int num=10, int pr=1)
 {
     TStopwatch timer;
     timer.Start();
@@ -412,7 +412,8 @@ void ana_dsdsj_full(TString fname="dsdsj.full.root",int num=10, int pr=1)
     //Double_t ctime = timer.CpuTime();
     
     //printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-    
+      return 0;
+
 }
 
 /*void printTree(TCandidate *tc, int level=0)

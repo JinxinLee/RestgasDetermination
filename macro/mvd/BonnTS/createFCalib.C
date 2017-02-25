@@ -1,4 +1,4 @@
-void createFCalib()
+int createFCalib()
 {
   cout<<"Create a fake calibration for BonnTS data"<<endl;
 
@@ -22,5 +22,6 @@ void createFCalib()
 
   out.close();
 
+  return 0;
 
 }

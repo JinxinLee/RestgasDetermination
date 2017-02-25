@@ -1,4 +1,4 @@
-void digi_BARREL(Int_t nEvents, Int_t nparts = 33, Int_t pid = 13, Int_t nStations = 3) {
+int digi_BARREL(Int_t nEvents, Int_t nparts = 33, Int_t pid = 13, Int_t nStations = 3) {
   
   if ( nStations != 3 && nStations != 4 ) {
     cout << "WRONG number of stations, only 3 or 4 allowed." << endl;
@@ -147,4 +147,5 @@ void digi_BARREL(Int_t nEvents, Int_t nparts = 33, Int_t pid = 13, Int_t nStatio
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

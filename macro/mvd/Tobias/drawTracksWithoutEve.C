@@ -1,5 +1,5 @@
 
-void drawTracks(int eventNr, TTree* t, int track = -1)
+int drawTracks(int eventNr, TTree* t, int track = -1)
 {
 	TClonesArray* tracks = new TClonesArray("TGeoTrack");
 	TClonesArray* hits = new TClonesArray("PndSdsMCPoint");
@@ -31,4 +31,5 @@ void drawTracks(int eventNr, TTree* t, int track = -1)
 		std::cout << "Track " << c2->first << " : " << c2->second << std::endl;
 		myTrack->Draw("");
 	}
+  return 0;
 }

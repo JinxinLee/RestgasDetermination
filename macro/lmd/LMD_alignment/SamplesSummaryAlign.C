@@ -7,7 +7,7 @@
 #include <sstream>
 using namespace std;
 //void TOTALSummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/tmpOutputAlignTMP/", double tr_sc=200, double rt_sc=9)
-void SamplesSummaryAlign(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/LargeSamplesStudyMay/BOX/mom_15/", double tr_sc=300, double rt_sc=3)
+int SamplesSummaryAlign(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/LargeSamplesStudyMay/BOX/mom_15/", double tr_sc=300, double rt_sc=3)
 {
   const int ntrksSample = 2e4;
   const double i_TrksSimi = 100./ntrksSample; //relative to simulated in %
@@ -620,4 +620,5 @@ void SamplesSummaryAlign(TString pathG="/home/karavdin/datastorage/AlignmentLMDp
   f->Close();
     }
   }
+  return 0;
 }

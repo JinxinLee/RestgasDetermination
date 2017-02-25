@@ -1,4 +1,4 @@
-void runLumiPixel8DigiQA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5)
+int runLumiPixel8DigiQA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5)
 {
   // ========================================================================
   // Input file (MC events)
@@ -74,4 +74,5 @@ void runLumiPixel8DigiQA(const int nEvents=100000, const int startEvent=0, TStri
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

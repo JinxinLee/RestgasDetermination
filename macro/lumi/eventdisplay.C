@@ -1,5 +1,5 @@
 
-void eventdisplay()
+int eventdisplay()
 {
 	//-----User Settings:-----------------------------------------------
 	TString  SimEngine      ="TGeant4";
@@ -36,4 +36,5 @@ void eventdisplay()
 	fMan->AddTask(LmdPoint);
 
 	fMan->Init();
+  return 0;
 }

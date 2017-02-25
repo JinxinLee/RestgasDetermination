@@ -9,7 +9,7 @@
 // *******
 
 
-void writeMicro(TString recofn="", TString simfn="",int nevts=10, TString outfile="")
+int writeMicro(TString recofn="", TString simfn="",int nevts=10, TString outfile="")
 {
   TStopwatch timer;
   timer.Start();
@@ -48,5 +48,6 @@ void writeMicro(TString recofn="", TString simfn="",int nevts=10, TString outfil
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }  
   

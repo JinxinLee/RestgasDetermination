@@ -1,4 +1,4 @@
-void digi_all() {
+int digi_all() {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -116,4 +116,5 @@ void digi_all() {
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

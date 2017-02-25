@@ -3,7 +3,7 @@
 #include <vector> 
 #include "TF1.h"
 
-void analysis_digi_cluster_7gammaAnalysis_FullEmc()
+int analysis_digi_cluster_7gammaAnalysis_FullEmc()
 {
   TStopwatch timer;
   timer.Start();
@@ -591,4 +591,5 @@ void analysis_digi_cluster_7gammaAnalysis_FullEmc()
    Double_t rtime = timer.RealTime();
    Double_t ctime = timer.CpuTime();
    printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }

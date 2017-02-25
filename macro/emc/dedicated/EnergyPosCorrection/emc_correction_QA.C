@@ -4,7 +4,7 @@
 // 2 - energy distribution for single 1 GeV gammas
 // 3 - pi0 invariant mass
 // Two methods can be tested depending on input parametr (method=1 or 2)
-void emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, Int_t version=1)
+int emc_correction_QA(TString InputFile="emc_complete_QA.root", Int_t test=1, Int_t version=1)
 {
 	// test=1
 	TH1F *h_energy= new TH1F("h_energy","Cluster energy",100,0.8,1.2);
@@ -280,4 +280,5 @@ if (test==3)
 // 	h_mpi0_corr_old->Draw();
 // 	h_mpi0_corr_old->Fit(f4,"R");
 }
+  return 0;
 }

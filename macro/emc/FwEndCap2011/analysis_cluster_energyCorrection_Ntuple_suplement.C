@@ -4,7 +4,7 @@
 #include "TF1.h"
 #include "MyClass.h"
 
-void analysis_cluster_energyCorrection_Ntuple_suplement()
+int analysis_cluster_energyCorrection_Ntuple_suplement()
 {
   TStopwatch timer;
   timer.Start();
@@ -151,5 +151,6 @@ for (int i=1; i<=35; i++)//Egamma
    Double_t rtime = timer.RealTime();
    Double_t ctime = timer.CpuTime();
    printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

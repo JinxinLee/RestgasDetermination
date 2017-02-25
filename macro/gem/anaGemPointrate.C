@@ -1,7 +1,7 @@
 // root macro to analyze the simulation output
 #include <vector>
 #include <map>
-void anaGemPointrate(int nEvents = 10, bool verbose = false)
+int anaGemPointrate(int nEvents = 10, bool verbose = false)
 {
 //  int  nEvents = 1000;
 //  bool verbose = false;
@@ -130,4 +130,5 @@ can1->Print("outAnaGemSim.png");
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 }

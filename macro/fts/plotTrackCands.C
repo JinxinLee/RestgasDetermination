@@ -72,7 +72,7 @@ using namespace std;
 
 
 
-void PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoints, TFile* fSim = 0)
+int PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoints, TFile* fSim = 0)
 {
 	// if no file is specified the newest open file is used
 
@@ -159,10 +159,11 @@ void PlotMCTracks(int iEvent, TString branchName, TString tcaName, TGraph *mcPoi
 
 	tSim->ResetBranchAddresses();
 	Points->Delete(); // maybe Points->Clear(); would be enough...
+  return 0;
 }
 
 
-void PlotMCTracksPrintBField(PndMultiField *fField, int iEvent,
+int PlotMCTracksPrintBField(PndMultiField *fField, int iEvent,
 		TString branchName, TString tcaName, TH2D* mcPoints)
 {
 	// File that you want to access needs to be opened first (and not other file after it), because the file is accessed via gFile
@@ -272,6 +273,7 @@ void PlotMCTracksPrintBField(PndMultiField *fField, int iEvent,
 
 	tSim->ResetBranchAddresses();
 	Points->Delete(); // maybe Points->Clear(); would be enough...
+  return 0;
 
 }
 
@@ -283,7 +285,7 @@ void PlotMCTracksPrintBField(PndMultiField *fField, int iEvent,
 
 
 
-void plotHoughTrackCand(PndFtsHoughTrackCand *trackCand, TGraph* returnTGraph)
+int plotHoughTrackCand(PndFtsHoughTrackCand *trackCand, TGraph* returnTGraph)
 {
 
 	// calculate two points on lines, many points for parabola and return result in TGraph*
@@ -321,6 +323,7 @@ void plotHoughTrackCand(PndFtsHoughTrackCand *trackCand, TGraph* returnTGraph)
 	}
 
 	returnTGraph->DrawGraph(nPoints,z,x,"LP,SAME") ;
+  return 0;
 }
 
 
@@ -487,7 +490,7 @@ Double_t MakeHoughParabolaFitwithBfield(PndMultiField *fField, Double_t pzinv, D
 
 
 // This procedure draws the magnetic field in pointer fField into histogram Bfield
-void DrawField(PndMultiField *fField, TH2F* Bfield)
+int DrawField(PndMultiField *fField, TH2F* Bfield)
 {
 	int verbose = 0;
 	// For magnetic field access
@@ -513,6 +516,7 @@ void DrawField(PndMultiField *fField, TH2F* Bfield)
 			//Bfield->Fill(z,x,BB[1]/ 10.); // This plots By = y-component of B field
 		}
 	}
+  return 0;
 }
 
 

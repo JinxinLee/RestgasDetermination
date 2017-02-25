@@ -8,7 +8,7 @@
 
 #include <vector>;
 
-void ReadLines(){
+int ReadLines(){
 
 
 	// load libs
@@ -66,6 +66,7 @@ void ReadLines(){
 	    
 	  } // end loop on events
 
+  return 0;
 
 }
 

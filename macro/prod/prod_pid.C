@@ -1,4 +1,4 @@
-void prod_pid(TString prefix="")
+int prod_pid(TString prefix="")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -24,4 +24,5 @@ void prod_pid(TString prefix="")
   fRun->Run(0, nEvents);
   fRun->Finish();
 
+  return 0;
 }

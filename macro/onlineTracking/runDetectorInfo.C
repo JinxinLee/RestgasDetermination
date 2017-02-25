@@ -14,7 +14,7 @@
 // xy-projection of time-based MVD and STT Hits
 // m.mertens@fz-juelich.de
 
-void runDetectorInfo() {
+int runDetectorInfo() {
 	gROOT->Reset();
 	// Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
 	Int_t iVerbose = 0;
@@ -65,4 +65,5 @@ void runDetectorInfo() {
 	TText* mytext = new TText();
 
 	PrintSttStats(tubearray);
+  return 0;
 }

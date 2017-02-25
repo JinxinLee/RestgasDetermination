@@ -5,7 +5,7 @@
  *      Author: Simone Bianco
  */
 
-void ReadHits(){
+int ReadHits(){
 
 	// Customize
 
@@ -113,6 +113,7 @@ void ReadHits(){
 	histOne->Draw("COLZ");
 	histOne->GetXaxis()->SetTitle("x [cm]");
 	histOne->GetYaxis()->SetTitle("y [cm]");
+  return 0;
 
 }
 

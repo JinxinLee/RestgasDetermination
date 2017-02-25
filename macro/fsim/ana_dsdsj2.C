@@ -1,4 +1,4 @@
-void ana_dsdsj2(TString fname="dsds_10k.evt.root",int num=0)
+int ana_dsdsj2(TString fname="dsds_10k.evt.root",int num=0)
 {
     TStopwatch timer;
     timer.Start();
@@ -201,6 +201,7 @@ void ana_dsdsj2(TString fname="dsds_10k.evt.root",int num=0)
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
     
+  return 0;
 }
 
 /*void printTree(TCandidate *tc, int level=0)

@@ -21,7 +21,7 @@
 
 #include <sstream>
 using namespace std;
-void LimitsAlign(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/10data_20consts_SamplesStudyOct2013/BOX/mom_15/", double daGL=0,int iSc=0)
+int LimitsAlign(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/10data_20consts_SamplesStudyOct2013/BOX/mom_15/", double daGL=0,int iSc=0)
 {
 
   const int nDt = 8;
@@ -369,6 +369,7 @@ void LimitsAlign(TString pathG="/home/karavdin/datastorage/AlignmentLMDpixel/10d
   f->Write();
   f->Close();
     }
+  return 0;
 }
 
 int main(int __argc,char *__argv[]) {

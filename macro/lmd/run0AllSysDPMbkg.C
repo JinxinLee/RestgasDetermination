@@ -1,5 +1,5 @@
 // Panda FullSim macro
-void run0AllSysDPMbkg(const int nEvents=10, const int startEvent=0, const double mom=15, TString storePath="tmpOutputDPM", const int verboseLevel=0, TString input="Background.root")
+int run0AllSysDPMbkg(const int nEvents=10, const int startEvent=0, const double mom=15, TString storePath="tmpOutputDPM", const int verboseLevel=0, TString input="Background.root")
 //void runLumi0DPMbkg(const int nEvents=10, const int startEvent=0, const double mom=15, Int_t mode =1, UInt_t seed=0, TString storePath="tmpOutputDPM", const int verboseLevel=0)
 {
   // gRandom->SetSeed(seed);
@@ -180,5 +180,6 @@ void run0AllSysDPMbkg(const int nEvents=10, const int startEvent=0, const double
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

@@ -1,4 +1,4 @@
-void prod_aod(TString prefix="")
+int prod_aod(TString prefix="")
 {
   if (prefix=="") 
   {
@@ -27,4 +27,5 @@ void prod_aod(TString prefix="")
   fRun->Init();
   fRun->Run(0);
   fRun->Finish();
+  return 0;
 }

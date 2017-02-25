@@ -5,7 +5,7 @@
  *      Author: HGZ
  */
 
-void TrackHits(){
+int TrackHits(){
 
 	// Customize
 
@@ -233,4 +233,5 @@ void TrackHits(){
    h8->Draw("");
    h8->GetXaxis()->SetTitle("eloss [keV]");
    h8->GetYaxis()->SetTitle("counts");
+  return 0;
 }

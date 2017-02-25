@@ -1,4 +1,4 @@
-void runFit(TString parFile, TString DigiFile, TString RecoFile, TString outFile, TString path)
+int runFit(TString parFile, TString DigiFile, TString RecoFile, TString outFile, TString path)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -65,5 +65,6 @@ void runFit(TString parFile, TString DigiFile, TString RecoFile, TString outFile
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 
 }

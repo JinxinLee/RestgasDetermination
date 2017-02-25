@@ -1,4 +1,4 @@
-void fill_error_matrix_param()
+int fill_error_matrix_param()
 {
 
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -67,5 +67,6 @@ void fill_error_matrix_param()
 	
 	parObject->Write();
 	errorfile->Close();
+  return 0;
 }
 

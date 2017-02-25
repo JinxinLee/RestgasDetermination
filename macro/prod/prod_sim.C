@@ -10,7 +10,7 @@
 // root -l -b -q 'prod_sim.C("DpmInel",  100, "DPM",                      12.)'
 // root -l -b -q 'prod_sim.C("Box1Kp",   100, "BOX:type(321,1):p(0.1,10):tht(22,140):phi(0,360)",1.)'
 
-void prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0. )
+int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0. )
 {
   if (prefix=="" || inputGen=="" || pbeam==0.) 
   {
@@ -86,5 +86,6 @@ void prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
   fRun->Init();
   fRun->Run(nEvents); 
   fRun->Finish();
+  return 0;
 }  
   

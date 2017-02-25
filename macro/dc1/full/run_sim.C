@@ -1,4 +1,4 @@
-void run_sim(Int_t nEvents=100, Double_t momentum=2.0, UInt_t seed=0){
+int run_sim(Int_t nEvents=100, Double_t momentum=2.0, UInt_t seed=0){
 
 gRandom->SetSeed(seed);
 
@@ -148,7 +148,7 @@ printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
    
 cout << " Test passed" << endl;
 cout << " All ok " << endl;
-exit(0);
+  return 0;
    
 }  
   

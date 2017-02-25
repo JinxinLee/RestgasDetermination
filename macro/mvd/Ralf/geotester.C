@@ -1,4 +1,4 @@
-void geotester(TString filename="../../../geometry/MVD_v1.0_woPassiveTraps.root")
+int geotester(TString filename="../../../geometry/MVD_v1.0_woPassiveTraps.root")
 {
 
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -34,5 +34,6 @@ std::cout<<"------------------------------"<<std::endl;
 
 //   geoMan->CheckOverlaps();
 //   geoMan->PrintOverlaps();
+  return 0;
 }
 

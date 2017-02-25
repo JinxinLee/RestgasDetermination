@@ -43,7 +43,7 @@ void DrawProgressBar(int len, double percent);
 // ./Lumi_MC_0.root
 // if invert, then the solution for a transformation
 // from lmd to ip is searched
-void trafo_matrix_fit(bool invert = false);
+int trafo_matrix_fit(bool invert = false);
 
 // calling all vectors to minimize the parameters xx
 // (Minimizer function)
@@ -501,7 +501,7 @@ void load_vectors(string filename, bool invert){
 	canvas.Print((outfile.str()+")").c_str());
 }
 
-void trafo_matrix_fit(bool invert){
+int trafo_matrix_fit(bool invert){
 	TApplication myapp("myapp", 0, 0);
 	// all 1.5 GeV/c files by stefan
 
@@ -688,6 +688,7 @@ load_vectors("./dpm_elastic_thmin_0.06deg/ip_offset_XYZDXDYDZ_0.5_0.0_0.0_0.08_0
 	trafo_matrix_test(Mij_min.Get(), "residuals_after.pdf");
 	//min->PrintResults();
 	myapp.Run();
+  return 0;
 }
 
 void Root_Appearance(){

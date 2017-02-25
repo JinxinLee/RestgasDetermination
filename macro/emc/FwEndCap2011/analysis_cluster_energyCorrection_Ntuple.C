@@ -4,7 +4,7 @@
 #include "TF1.h"
 
 
-void analysis_cluster_energyCorrection_Ntuple()
+int analysis_cluster_energyCorrection_Ntuple()
 {
   TStopwatch timer;
   timer.Start();
@@ -171,5 +171,6 @@ cout << "clusterEnergyCorrectionFactor_max= "<<clusterEnergyCorrectionFactor_max
    Double_t rtime = timer.RealTime();
    Double_t ctime = timer.CpuTime();
    printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

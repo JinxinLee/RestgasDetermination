@@ -1,6 +1,6 @@
 #include "iomanip.h"
 
-void create1StationsGem_lastStation()  
+int create1StationsGem_lastStation()  
 { // create only GEM with one station , create GEM last station at the ZPosition=188.50cm , (it is the biggest one )
   //----------------------------------------------------------------------------------------------------------------------------------------------
   // Gem disk geometry parameters (R.Karabowicz) 
@@ -734,5 +734,6 @@ void create1StationsGem_lastStation()
   top->Draw("ogl"); 
   pout.close();
 
+  return 0;
 }
 

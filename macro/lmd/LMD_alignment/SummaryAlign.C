@@ -6,7 +6,7 @@
 
 #include <sstream>
 using namespace std;
-void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_400000/mom_15/", double tr_sc=0, double rt_sc=0)
+int SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_400000/mom_15/", double tr_sc=0, double rt_sc=0)
 //void SummaryAlign(TString pathG="/panda/pandaroot/macro/lmd/testPixelAlignSIM_10000/mom_15//", double tr_sc=0, double rt_sc=0)
 {
   const int colors[4] = {28,kAzure+2,46,8};
@@ -596,4 +596,5 @@ TLegend *leg2 = new TLegend(0.78,0.58,0.98,0.98);
   // f->Close();
   //   }
   // }
+  return 0;
 }

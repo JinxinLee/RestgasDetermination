@@ -10,7 +10,7 @@
 #include <TMath.h>
 #include <sstream>
 using namespace std;
-void ModulesStat(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPixelAlignSIM/mom_15/")
+int ModulesStat(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPixelAlignSIM/mom_15/")
 {
 
   //  const int nDt = 8;
@@ -383,4 +383,5 @@ void ModulesStat(TString pathG="/home/karavdina/soft/pandaroot/macro/lmd/testPix
       f->Close();
     }
   }
+  return 0;
 }

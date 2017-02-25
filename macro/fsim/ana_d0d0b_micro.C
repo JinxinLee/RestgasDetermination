@@ -1,4 +1,4 @@
-void ana_d0d0b_micro(TString fname="dsds_10k.evt.root",int num=0)
+int ana_d0d0b_micro(TString fname="dsds_10k.evt.root",int num=0)
 {
     TStopwatch timer;
     timer.Start();
@@ -146,7 +146,7 @@ void ana_d0d0b_micro(TString fname="dsds_10k.evt.root",int num=0)
     Double_t ctime = timer.CpuTime();
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-    
+    return 0;
 }
 
 /*void printTree(TCandidate *tc, int level=0)

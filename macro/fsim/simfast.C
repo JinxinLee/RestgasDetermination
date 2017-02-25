@@ -3,7 +3,7 @@
 // *******
 
 
-void simfast(TString infile="dsdsj20k.evt",int soff=0,int nevts=0,TString outfile="")
+int simfast(TString infile="dsdsj20k.evt",int soff=0,int nevts=0,TString outfile="")
 {
   TStopwatch timer;
   timer.Start();
@@ -80,5 +80,6 @@ void simfast(TString infile="dsdsj20k.evt",int soff=0,int nevts=0,TString outfil
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }  
   

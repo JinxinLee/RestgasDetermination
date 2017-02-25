@@ -1,4 +1,4 @@
-void runGemSmearing(Int_t nEvents = 10,int verboseLevel = 0)
+int runGemSmearing(Int_t nEvents = 10,int verboseLevel = 0)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -63,5 +63,6 @@ void runGemSmearing(Int_t nEvents = 10,int verboseLevel = 0)
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
 
+  return 0;
 }
 

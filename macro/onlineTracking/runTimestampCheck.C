@@ -1,4 +1,4 @@
-void runTimestampCheck()  {
+int runTimestampCheck()  {
     gROOT->Reset();
     // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
     Int_t iVerbose = 0;
@@ -156,6 +156,7 @@ void runTimestampCheck()  {
     // ------------------------------------------------------------------------
 
 
+  return 0;
 }
 
 

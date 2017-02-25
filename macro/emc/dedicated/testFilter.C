@@ -1,6 +1,6 @@
 // Test digital filter to reconstruct parameters from waveforms
 // Input paramters event index and index of waveform in the events
-void testFilter(Int_t i_event=0, Int_t i_wf=0)
+int testFilter(Int_t i_event=0, Int_t i_wf=0)
 {
 	gROOT->SetStyle("Plain");
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -48,4 +48,5 @@ void testFilter(Int_t i_event=0, Int_t i_wf=0)
 	TCanvas *c2 = new TCanvas();
 	h2->Draw();
 
+  return 0;
 }

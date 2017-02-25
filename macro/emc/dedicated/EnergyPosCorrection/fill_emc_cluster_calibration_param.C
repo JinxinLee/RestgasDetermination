@@ -1,4 +1,4 @@
-void fill_emc_cluster_calibration_param()
+int fill_emc_cluster_calibration_param()
 {
 
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -77,5 +77,6 @@ void fill_emc_cluster_calibration_param()
 	
 	parObject->Write();
 	calibrParFile->Close();
+  return 0;
 }
 

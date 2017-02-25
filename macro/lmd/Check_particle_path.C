@@ -46,7 +46,7 @@ void DrawProgressBar(int len, double percent);
 // par[2]: the bending angle
 Double_t function_beampipe(Double_t *x, Double_t *par);
 
-void Check_particle_path() {
+int Check_particle_path() {
 	cout << " analysis tool vers. 1.3 " << endl;
 
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -441,6 +441,7 @@ void Check_particle_path() {
 	output_histfile->Write();
 
 	output_histfile->Close();
+  return 0;
 }
 
 void DrawProgressBar(int len, double percent) {

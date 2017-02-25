@@ -1,4 +1,4 @@
-void createCalibJuelichFeb02()
+int createCalibJuelichFeb02()
 {
   cout<<"Create a calibration file for BonnTS data from Feb02 Beamtime@COSY"<<endl;
 
@@ -38,5 +38,6 @@ void createCalibJuelichFeb02()
 
   out.close();
 
+  return 0;
 
 }

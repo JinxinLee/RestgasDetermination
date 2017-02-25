@@ -1,4 +1,4 @@
-void tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, Int_t nofEvents=1000, TString proofName="") {
+int tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, Int_t nofEvents=1000, TString proofName="") {
 
   Int_t nparts = 22;
   Int_t pid = 13;
@@ -145,6 +145,7 @@ void tracks_BARREL_1000sep_proof(Int_t nofFiles = 1, Int_t nofEvents=1000, TStri
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }
 
 

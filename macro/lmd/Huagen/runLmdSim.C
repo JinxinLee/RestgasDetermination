@@ -115,8 +115,9 @@ void runSim(const int nEvents=10, const double mom= 6.2, TString storePath=" /pr
     exit();
 }
 
-void runLmdSim()
+int runLmdSim()
 {
 	runSim();
+  return 0;
 }
 

@@ -2,7 +2,7 @@
 // ifile = 0 1 2 3 4 = e mu pi k p
 
 
-void dedx_p_chain(int ifile = 0){
+int dedx_p_chain(int ifile = 0){
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();//basic libraries
 
@@ -192,5 +192,6 @@ void dedx_p_chain(int ifile = 0){
   output.Write();
   output.Close();
   
+  return 0;
 }
 

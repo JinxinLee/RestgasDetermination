@@ -3,7 +3,7 @@
 // transport model (TGeant3, TGeant4)
 // Full Panda geometry or EMC only useFullPandaGeometry=true/false
 // emcModule = TS/shashlyk
-void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TString TransportModel = "TGeant3", Bool_t useFullPandaGeometry=true, TString emcModule="TS",TString energyRange="all", UInt_t seed=0)
+int emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TString TransportModel = "TGeant3", Bool_t useFullPandaGeometry=true, TString emcModule="TS",TString energyRange="all", UInt_t seed=0)
 {
 	gRandom->SetSeed(seed);
 	Double_t phi_min = 0; Double_t phi_max = 360;
@@ -230,5 +230,6 @@ void emc_correction_data_production(Int_t nEvents = 10, TString part="gamma", TS
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 	
+  return 0;
 }  
 

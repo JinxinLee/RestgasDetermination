@@ -14,7 +14,7 @@
 // xy-projection of time-based MVD and STT Hits
 // m.mertens@fz-juelich.de
 
-void runTripletAna() {
+int runTripletAna() {
 	gROOT->Reset();
 	// Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
 	Int_t iVerbose = 0;
@@ -218,6 +218,7 @@ void runTripletAna() {
 		std::cout << i << " " << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() << " " << tube->GetWireDirection().X() << " " << tube->GetWireDirection().Y() << " " << tube->GetWireDirection().Z() << std::endl;
 	}
 */
+  return 0;
 }
 
 TEllipse DrawOriginTrackLipse(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Color_t linecolor = kBlack) {

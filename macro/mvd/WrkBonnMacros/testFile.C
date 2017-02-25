@@ -1,4 +1,4 @@
-void testFile (TString nome, TString type){
+int testFile (TString nome, TString type){
 
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  
   rootlogon();
@@ -38,4 +38,5 @@ void testFile (TString nome, TString type){
   exit(0);
 
 
+  return 0;
 }

@@ -1,7 +1,7 @@
 // macro to fit hits with a straight line
 // Simone Bianco 15/07/2010
 
-void Fit()
+int Fit()
 {
 
 	// Load basic libraries
@@ -44,5 +44,6 @@ void Fit()
 	cout << "Macro finished succesfully." << endl;
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
-	exit();
+	//exit();
+  return 0;
 }

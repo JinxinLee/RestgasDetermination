@@ -5,7 +5,7 @@
  *      Author: tsito
  */
 
-void sim()
+int sim()
 {
 	   TStopwatch timer;
 		timer.Start();
@@ -101,5 +101,5 @@ void sim()
 		Double_t rtime = timer.RealTime();
 		Double_t ctime = timer.CpuTime();
 		printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-//		exit();
+  return 0;
 }

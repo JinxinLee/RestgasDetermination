@@ -28,7 +28,7 @@
 // #include "$VMCWORKDIR/mvd/MvdTools/PndGeoHandling.h"
 #include "$VMCWORKDIR/macro/mvd/Tools.C"
 
-void materialana(int nEvents = 10, bool verbose = false)
+int materialana(int nEvents = 10, bool verbose = false)
 {
 // int nEvents = 100;
 //   bool verbose  = false;
@@ -351,4 +351,5 @@ for(int i=0;i<a;i++){
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 }

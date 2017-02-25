@@ -2,7 +2,7 @@
 // Macro for running fast simulation
 // *******
 
-void simfast_dpm(double mom, int mode=0,int soff=0,int nevts=100,TString outfile="")
+int simfast_dpm(double mom, int mode=0,int soff=0,int nevts=100,TString outfile="")
 {
   TStopwatch timer;
   timer.Start();
@@ -104,5 +104,6 @@ void simfast_dpm(double mom, int mode=0,int soff=0,int nevts=100,TString outfile
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }  
   

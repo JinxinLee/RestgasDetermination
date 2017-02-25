@@ -56,7 +56,7 @@ void Navigate_into(int depth = 0){
 #include <sstream>
 #include <vector>
 
-void create_HV_MAPS(bool misalign = true) {
+int create_HV_MAPS(bool misalign = true) {
 	/*
 	// ****************************** Parameters of Detector ************************
 	//--------------------------------------------------------------------
@@ -338,6 +338,7 @@ void create_HV_MAPS(bool misalign = true) {
 	//gGeoMan->SetVisLevel(20);
 	//top->Draw("ogl");
 	//top->RandomPoints(100000);
+  return 0;
 }
 
 #include<TApplication.h>

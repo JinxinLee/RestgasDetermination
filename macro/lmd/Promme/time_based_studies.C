@@ -27,7 +27,7 @@ void DrawProgressBar(int len, double percent);
 // the application
 // Assuming to find an mc file called
 // ./Lumi_MC_0.root
-void time_based_studies();
+int time_based_studies();
 
 int main() {
 	Root_Appearance();
@@ -37,7 +37,7 @@ int main() {
 	return 0;
 }
 
-void time_based_studies(){
+int time_based_studies(){
 	cout << " lmd time based studies " << endl;
 	TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
 	canvas->Divide(2,2);
@@ -171,6 +171,7 @@ void time_based_studies(){
 	canvas->Print("MC_IEL_dose_1_5_plane_3_side_0.pdf");
 	canvas->Print("MC_IEL_does_1_5_plane_3_side_0.root");
 	*/
+  return 0;
 }
 
 void Root_Appearance(){

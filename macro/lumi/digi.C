@@ -1,4 +1,4 @@
-void digi()
+int digi()
 {
 	// Load basic libraries
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -61,6 +61,6 @@ void digi()
 	cout << "Parameter file is " << parFile << endl;
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
 	cout << endl;
-	exit();
+  return 0;
 }
 

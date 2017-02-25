@@ -19,7 +19,7 @@ Int_t nrEnergyIntervals;
 Int_t nrThetaIntervals[4]; //Barrel, Fwd, Bwd, Shashlyk
 
 // version is used for output file name
-void emc_correction_hist(Int_t version, TString InputFile1, Bool_t debug=false)
+int emc_correction_hist(Int_t version, TString InputFile1, Bool_t debug=false)
 {
 	TStopwatch timer;
 	timer.Start();
@@ -460,6 +460,7 @@ void emc_correction_hist(Int_t version, TString InputFile1, Bool_t debug=false)
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
+  return 0;
 }
 
 Int_t GetThetaBin(Double_t val, Int_t module)

@@ -1,4 +1,4 @@
-void pid()
+int pid()
 {
   // Macro created 02/10/2012 by S.Spataro
   // It loads a reconstruction file and compute PID informations
@@ -109,5 +109,5 @@ void pid()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  return 0;
 }

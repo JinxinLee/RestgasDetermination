@@ -1,4 +1,4 @@
-void findtrack()
+int findtrack()
 {
 
 	// Load basic libraries
@@ -46,5 +46,5 @@ void findtrack()
 	cout << "Macro finished succesfully." << endl;
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	cout << endl;
-	exit();
+  return 0;
 }

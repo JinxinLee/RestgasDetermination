@@ -1,4 +1,4 @@
-void ReadLines(TString LinFile, TString MCFile){
+int ReadLines(TString LinFile, TString MCFile){
 
 	// load libs
 
@@ -114,5 +114,6 @@ void ReadLines(TString LinFile, TString MCFile){
 	resY->Fit("gaus");
 
 	can2->SaveAs(Res1D.Data(),"png");
+  return 0;
 }
 

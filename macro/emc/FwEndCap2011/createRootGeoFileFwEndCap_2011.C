@@ -19,7 +19,7 @@
   //
 #include <string>
 
-void createRootGeoFileFwEndCap_2011()
+int createRootGeoFileFwEndCap_2011()
 {
   TH1F *HISTOsubunitTheta = new TH1F("HISTOsubunitTheta","Subunit #theta",1250,4.5,17.);//0.01 degree resolution of the histogram
   TH1F *HISTOoffpointToCrystalMidpointAlongBeam_calculatedForEachSubunit = new TH1F("HISTOoffpointToCrystalMidpointAlongBeam_calculatedForEachSubunit","Along-the-beam prjection of the distance between offpoint and the crystal midpoint",640,316.5,322.9);//cm
@@ -724,6 +724,7 @@ void createRootGeoFileFwEndCap_2011()
   c0->cd(4);
   HISTOoffpointToFwEndCap_calculatedForEachSubunit->Draw();
 
+  return 0;
 }
 
 

@@ -1,4 +1,4 @@
-void prod_dig(TString prefix="")
+int prod_dig(TString prefix="")
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -19,4 +19,5 @@ void prod_dig(TString prefix="")
   fRun->Run(0, nEvents);
   fRun->Finish();
 
+  return 0;
 }

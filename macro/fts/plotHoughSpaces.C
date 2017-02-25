@@ -1,7 +1,7 @@
 // Martin Galuska
 // currently not used, might be useful in the future
 
-void plotHoughSpaces()
+int plotHoughSpaces()
 {
 
 	UInt_t fVerbose = 0;
@@ -78,5 +78,6 @@ void plotHoughSpaces()
 
 
 	} // end of event loop
+  return 0;
 
 }

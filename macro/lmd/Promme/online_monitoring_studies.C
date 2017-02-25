@@ -31,14 +31,14 @@ void DrawProgressBar(int len, double percent);
 // the application
 // Assuming to find an mc file called
 // ./Lumi_MC_0.root
-void online_monitoring_studies();
+int online_monitoring_studies();
 
 int main() {
 	online_monitoring_studies();
 	return 0;
 }
 
-void online_monitoring_studies(){
+int online_monitoring_studies(){
 	Root_Appearance();
 	TApplication myapp("myapp", 0, 0);
 	cout << " lmd online monitoring studies " << endl;
@@ -463,6 +463,7 @@ void online_monitoring_studies(){
 	treefile.Close();
 	cout << " done " << endl;
 	myapp.Run();
+  return 0;
 }
 
 void Root_Appearance(){

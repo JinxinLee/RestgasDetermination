@@ -1,4 +1,4 @@
-void runLumiPixel5BackProp(const int nEvents = 10, const int startEvent = 0,
+int runLumiPixel5BackProp(const int nEvents = 10, const int startEvent = 0,
 		TString storePath = "tmpOutput", const int verboseLevel = 0,
 		const TString Method = "Geane", const bool mergedHits = true,
 		const double mom = 15, double ipc_x = 0.0, double ipc_y = 0.0,
@@ -129,4 +129,5 @@ void runLumiPixel5BackProp(const int nEvents = 10, const int startEvent = 0,
 	cout << endl;
 	// ------------------------------------------------------------------------
 
+  return 0;
 }

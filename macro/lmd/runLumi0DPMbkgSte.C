@@ -1,6 +1,6 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-void runLumi0DPMbkgSte(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, const int verboseLevel=0, UInt_t seed=0){
+int runLumi0DPMbkgSte(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, const int verboseLevel=0, UInt_t seed=0){
   gRandom->SetSeed(seed);
   TStopwatch timer;
   timer.Start();
@@ -110,4 +110,5 @@ void runLumi0DPMbkgSte(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, const 
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
+  return 0;
 }

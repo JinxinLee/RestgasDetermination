@@ -84,7 +84,8 @@ void runReco()
   // ------------------------------------------------------------------------
 }
 
-void runLmdReco()
+int runLmdReco()
 {
 	runReco();
-	}
+	  return 0;
+}

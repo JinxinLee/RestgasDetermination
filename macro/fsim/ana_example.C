@@ -1,4 +1,4 @@
-void ana_example(TString fname,int nevts=0)
+int ana_example(TString fname,int nevts=0)
 {
   	TStopwatch timer;
   	timer.Start();
@@ -57,4 +57,5 @@ void ana_example(TString fname,int nevts=0)
     Double_t ctime = timer.CpuTime();
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }

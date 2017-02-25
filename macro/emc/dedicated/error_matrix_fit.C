@@ -4,7 +4,7 @@
 // Dependence of parameters error (standard deviation) as a function of energy is fitted with 2 functions (one for energy and another for position parameters).
 // Parameters of this fitting for all four EMC components are stored in PndEmcErrorMatrixParObject in output file  
 
-void error_matrix_fit(Int_t emcGeometry=17, TString fileVersion="1")
+int error_matrix_fit(Int_t emcGeometry=17, TString fileVersion="1")
 {
 	gROOT->SetStyle("Plain");
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -684,6 +684,7 @@ void error_matrix_fit(Int_t emcGeometry=17, TString fileVersion="1")
 	parObject->Write();
 	errorfile->Close();
 
+  return 0;
 }
 
 Double_t fit1(Double_t *x, Double_t *par)

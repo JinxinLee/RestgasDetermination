@@ -39,7 +39,7 @@ const bool show_beam_pipe_dummy = true;
 
 const bool include_box = false;
 
-void create_HV_MAPS(bool misalign = false) {
+int create_HV_MAPS(bool misalign = false) {
 	/*
 	// ****************************** Parameters of Detector ************************
 	//--------------------------------------------------------------------
@@ -159,6 +159,7 @@ void create_HV_MAPS(bool misalign = false) {
 	//gGeoMan->SetVisLevel(20);
 	//top->Draw("ogl");
 	//top->RandomPoints(100000);
+  return 0;
 }
 
 #include<TApplication.h>

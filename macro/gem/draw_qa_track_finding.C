@@ -1,6 +1,6 @@
 #include <iomanip>
 
-void draw_qa_track_finding(TString inFileName)
+int draw_qa_track_finding(TString inFileName)
 {
   //    TPstyle();
 
@@ -314,4 +314,5 @@ void draw_qa_track_finding(TString inFileName)
   cout << " clones       : " << setw(10) << fNofRecoClones << "   >>> " << setw(10) << clPerEv << " per event   >>> " << setw(10) << clPerTr << " per MC Track" << endl;
   cout << "---------------------------------------------------------------------" << endl; 
 
+  return 0;
 }

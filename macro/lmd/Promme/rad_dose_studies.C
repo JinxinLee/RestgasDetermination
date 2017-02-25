@@ -27,7 +27,7 @@ void DrawProgressBar(int len, double percent);
 // the application
 // Assuming to find an mc file called
 // ./Lumi_MC_0.root
-void rad_dose_studies();
+int rad_dose_studies();
 
 int main() {
 	Root_Appearance();
@@ -37,7 +37,7 @@ int main() {
 	return 0;
 }
 
-void rad_dose_studies(){
+int rad_dose_studies(){
 	cout << " lmd radiation dose studies based on energy deposit in sensors " << endl;
 	TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
 	canvas->Divide(2,2);
@@ -165,6 +165,7 @@ void rad_dose_studies(){
 	cout << " max dose is " << plane3_rad->GetBinContent(plane3_rad->GetMaximumBin()) << " Gy" << endl;
 	canvas->Print("MC_IEL_dose_1_5_plane_3_side_0.pdf");
 	canvas->Print("MC_IEL_does_1_5_plane_3_side_0.root");
+  return 0;
 }
 
 void Root_Appearance(){

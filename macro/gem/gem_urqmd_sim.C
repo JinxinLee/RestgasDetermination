@@ -1,5 +1,5 @@
 // Macro for running tha Panda gems  with Geant4 (R. Kliemt)
-void gem_urqmd_sim(Int_t nEvents = 100, TString urqmdString = "pbarC_15_GeV", int verboseLevel = 0)
+int gem_urqmd_sim(Int_t nEvents = 100, TString urqmdString = "pbarC_15_GeV", int verboseLevel = 0)
 {
   TStopwatch timer;
   timer.Start();
@@ -126,5 +126,6 @@ void gem_urqmd_sim(Int_t nEvents = 100, TString urqmdString = "pbarC_15_GeV", in
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 
