@@ -1,7 +1,7 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumi0SimBox(const int nEvents=10000, const int startEv=0, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1, const int seed=3435)
+int runLumi0SimBox(const int nEvents=10000, const int startEv=0, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const int trkNum=1, const int seed=3435)
 {
   gRandom->SetSeed(seed);
   TStopwatch timer;
@@ -199,5 +199,6 @@ void runLumi0SimBox(const int nEvents=10000, const int startEv=0, const double m
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

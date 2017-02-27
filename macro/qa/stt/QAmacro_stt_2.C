@@ -1,5 +1,5 @@
 // TEST 2: digitization
-void QAmacro_stt_2()
+int QAmacro_stt_2()
 {
   TStopwatch timer;
   timer.Start();
@@ -81,6 +81,6 @@ void QAmacro_stt_2()
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
  
-  exit(0); 
+  return 0;
 }  
   

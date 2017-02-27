@@ -1,4 +1,4 @@
-void plot_pid()
+int plot_pid()
 {
   
   gStyle->SetHistMinimumZero();
@@ -277,5 +277,5 @@ void plot_pid()
    
   cout << "Macro finished successfully." << endl; 
  
-  exit(kTRUE);
+  return 0;
 }

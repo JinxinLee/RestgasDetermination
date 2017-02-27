@@ -1,4 +1,4 @@
-void QAmacro_hyp_2()
+int QAmacro_hyp_2()
 {
 	  cout << "QA module for the MVD Digitization and Hit Reconstruction." << endl;
 
@@ -44,5 +44,5 @@ void QAmacro_hyp_2()
   cout << " DigiReco passed" << endl;
   cout << " All ok " << endl;
 
-  exit(0);
+  return 0;
 }

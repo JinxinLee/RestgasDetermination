@@ -1,6 +1,6 @@
 ///  Method="Follow" - Track-following method, Method="CA" - Cellular Automaton
 ///  missPl=true - use "missing plane" algorithm
-void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true, const bool trkcuts=true, double mom=1.5)
+int runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=5,  TString Method="Follow", const bool missPl=true, const bool mergedHits=true, const bool trkcuts=true, double mom=1.5)
 {
   // ========================================================================
   // Input file (MC events)
@@ -161,4 +161,5 @@ void runLumiPixel3Finder(const int nEvents=1000, const int startEvent=0, TString
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

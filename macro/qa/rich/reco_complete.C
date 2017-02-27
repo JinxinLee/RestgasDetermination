@@ -1,4 +1,4 @@
-void reco_complete()
+int reco_complete()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a digi file and performs tracking
@@ -139,5 +139,5 @@ void reco_complete()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  return 0;
 }

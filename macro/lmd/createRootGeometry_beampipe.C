@@ -43,7 +43,7 @@
 #include<iostream>
 #include<cmath>
 
-void createRootGeometry_beampipe() {
+int createRootGeometry_beampipe() {
 
 	// basic constants concerning the path of the beam pipe
 	// downstream of the target
@@ -771,6 +771,7 @@ void createRootGeometry_beampipe() {
 			fGeoFile.Data());
 	fprintf(stderr, "\n");
 
+  return 0;
 }
 
 #include<TApplication.h>

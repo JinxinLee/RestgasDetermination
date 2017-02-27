@@ -1,4 +1,4 @@
-void ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.231552)
+int ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.231552)
 {
 	// *** some variables
 	int i=0,j=0, k=0, l=0;
@@ -174,4 +174,5 @@ void ana_jpsi(TString InFile="test_fast.root", int nevts=0, double pbarmom = 6.2
 		
 	out->Save();
 	
+  return 0;
 }

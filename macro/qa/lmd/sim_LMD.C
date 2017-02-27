@@ -4,7 +4,7 @@
 // # 23/07/2015
 // # author: A.Karavdina
 //###################################
-void sim_LMD(const int nEvents=1000, const int startEvent=0, const double mom=1.5, TString storePath="", 
+int sim_LMD(const int nEvents=1000, const int startEvent=0, const double mom=1.5, TString storePath="", 
 			       const int verboseLevel=0, const int seed=3267, const int mode = 1, const double th_min = 0.12)
 {
   TStopwatch timer;
@@ -130,5 +130,6 @@ void sim_LMD(const int nEvents=1000, const int startEvent=0, const double mom=1.
 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  return 0;
 
 }

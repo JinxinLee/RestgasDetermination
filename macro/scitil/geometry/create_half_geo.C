@@ -1,4 +1,4 @@
-void create_half_geo(Double_t distance = 750){
+int create_half_geo(Double_t distance = 750){
   // Forward tof geometry parameters
   //-----------------------------
   //-- macro created by Alicia S. based on step file
@@ -211,5 +211,6 @@ void create_half_geo(Double_t distance = 750){
 	  // gGeoManager->Export(outfile);
 	  top->Draw("ogl");
 	  
+  return 0;
   }  
   

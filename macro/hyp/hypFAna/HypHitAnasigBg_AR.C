@@ -2,7 +2,7 @@
 #include <TH1F.h>
 #include <TLine.h>
 
-void HypHitAnasigBg_AR()
+int HypHitAnasigBg_AR()
 {
   
   //gROOT->Reset();gROOT->LoadMacro("style.C");
@@ -190,6 +190,7 @@ void HypHitAnasigBg_AR()
        //c4->Print("MesSeqDecColCutBg.pdf");
        //c4->Print("MesSeqDecColCut.eps");
     
+  return 0;
  }//end
 
  void style()

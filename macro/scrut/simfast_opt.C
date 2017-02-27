@@ -22,7 +22,7 @@
 
 
 
-void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int Pdgcode = 11,
+int simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int Pdgcode = 11,
            TString DetOpt="MvdGem EmcBar Drc Dsc FwdSpec" )
 
 {
@@ -306,5 +306,6 @@ void simfast_opt(TString Prefix, TString Decfile, Float_t Mom, Int_t nEvents = 1
 	Double_t rtime = timer.RealTime();
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

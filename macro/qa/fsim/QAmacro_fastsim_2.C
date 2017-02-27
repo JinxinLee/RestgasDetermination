@@ -15,7 +15,7 @@ void printCand(TLorentzVector l, TVector3 p)
 }
 
 
-void QAmacro_fastsim_2(int nevts=0)
+int QAmacro_fastsim_2(int nevts=0)
 {
     TStopwatch timer;
     timer.Start();
@@ -165,4 +165,5 @@ void QAmacro_fastsim_2(int nevts=0)
     cout << " Test passed" << endl;
     cout << " All ok " << endl;
     }
+  return 0;
 }

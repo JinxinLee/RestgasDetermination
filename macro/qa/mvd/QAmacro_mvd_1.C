@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-void QAmacro_mvd_1(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+int QAmacro_mvd_1(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="mvdqasim.root";
@@ -105,7 +105,7 @@ PndMultiField *fField= new PndMultiField("AUTO");
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   delete fRun;  
-  exit(0);
+  return 0;
   
 };
 

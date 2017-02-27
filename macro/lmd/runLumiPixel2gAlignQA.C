@@ -8,7 +8,7 @@ using namespace std;
 
 #include <string>
 
-void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/fairsoft_may16p1/pandaroot/geometry/LMDmatrices/", const int verboseLevel=0)
+int runLumiPixel2gAlignQA(TString storePath="/home/arbeit/fairsoft_may16p1/pandaroot/geometry/LMDmatrices/", const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -114,4 +114,5 @@ void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/fairsoft_may16p1/pand
 	cout << "Macro finished successfully." << endl;
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
 	cout << endl;
+  return 0;
 }

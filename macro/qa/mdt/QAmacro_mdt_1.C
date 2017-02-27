@@ -1,6 +1,6 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-void QAmacro_mdt_1()
+int QAmacro_mdt_1()
 {
   TStopwatch timer;
   timer.Start();
@@ -118,5 +118,6 @@ void QAmacro_mdt_1()
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
+  return 0;
 }  
   

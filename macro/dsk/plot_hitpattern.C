@@ -10,6 +10,7 @@
 /// theWhat: 1 = primary, 2 = secondary, 3 = both
 
 //void plot_hitpattern(TString theRunName = "test", Int_t theWhat = 1, Int_t fEventMin = 0, Int_t fEventMax = -2)
+int plot_hitpattern()
 {
   
   TString theRunName = "test";
@@ -143,6 +144,7 @@
 //   c1->Update();
 
   cout << "This is Event No. " << fEventMin << ". Detected Cerenkovs: " << pris << " from primary, " << secs << " from secondaries." << endl;
+  return 0;
 }
 
 

@@ -1,4 +1,4 @@
-void QAmacro_gem_1()
+int QAmacro_gem_1()
 {
   //FileNames
   TString OutputFile    = "tstQA.points.root";
@@ -76,5 +76,6 @@ void QAmacro_gem_1()
 
   //delete fRun;
   //exit(0); 
+  return 0;
 }  
   

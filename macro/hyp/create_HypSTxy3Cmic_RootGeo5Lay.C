@@ -65,7 +65,7 @@ TVector3 rotate(TVector3 vec, TGeoRotation* rotma)
 //the whole target setup at the (0,0,0). hypst assembly
 //places pipe and traget at the desired position, here at -76.5 cm.
 
-void create_HypSTxy3Cmic_RootGeo5Lay()
+int create_HypSTxy3Cmic_RootGeo5Lay()
 {
 
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -650,5 +650,6 @@ void create_HypSTxy3Cmic_RootGeo5Lay()
     top->Write();
     fi->Close();
     //  top->Draw("ogl");				 
+  return 0;
 }
 	

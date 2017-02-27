@@ -1,7 +1,7 @@
 // Macro for running Panda pid tasks
 // to run the macro:
 // root  pidideal_complete.C  or in root session root>.x  pidideal_complete.C
-void pidideal_complete(Int_t nEvents = 0)
+int pidideal_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -70,5 +70,5 @@ void pidideal_complete(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
 
-  exit(0); 
+  return 0;
 }

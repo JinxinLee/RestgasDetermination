@@ -62,7 +62,7 @@ TVector3 rotate(TVector3 vec, TGeoRotation* rotma)
 
 }
 
-void create_HypSTxy3Cmic_rootgeo3()
+int create_HypSTxy3Cmic_rootgeo3()
 {
 
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -518,5 +518,6 @@ void create_HypSTxy3Cmic_rootgeo3()
     top->Write();
     fi->Close();
     //top->Draw("ogl");				 
+  return 0;
 }
 	

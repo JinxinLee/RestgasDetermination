@@ -1,5 +1,5 @@
 
-void draw_track(TString the_RunName = "test", Bool_t do_plot = kTRUE)
+int draw_track(TString the_RunName = "test", Bool_t do_plot = kTRUE)
 {
 
   if (do_plot) {
@@ -151,4 +151,5 @@ void draw_track(TString the_RunName = "test", Bool_t do_plot = kTRUE)
       }
     }
   }
+  return 0;
 }

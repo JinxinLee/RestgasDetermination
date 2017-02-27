@@ -1,4 +1,4 @@
-void runLumi5RungeKutta(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=false)
+int runLumi5RungeKutta(const int nEvents=10, const double mom=15, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -122,4 +122,5 @@ void runLumi5RungeKutta(const int nEvents=10, const double mom=15, const int sta
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

@@ -18,7 +18,7 @@
 // 2.b) current --> sebastian version
 #include "TString.h"
 
-void QAmacro_hyp_1(Int_t nEvents = 500, TString  SimEngine ="TGeant4", Bool_t HYP_File= false,Bool_t gam = false)
+int QAmacro_hyp_1(Int_t nEvents = 500, TString  SimEngine ="TGeant4", Bool_t HYP_File= false,Bool_t gam = false)
 {
 
   //-----User Settings:-----------------------------------------------
@@ -125,7 +125,7 @@ void QAmacro_hyp_1(Int_t nEvents = 500, TString  SimEngine ="TGeant4", Bool_t HY
     cout << " Test passed" << endl;
     cout << " All ok " << endl;
     delete fRun;  
-    exit(0);
+  return 0;
   
 };
 

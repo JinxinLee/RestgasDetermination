@@ -3,7 +3,7 @@
 // root  reco_complete.C  or in root session root>.x  reco_complete.C
 #include <TEveManager.h>
 
-void reco_complete_gf2(Int_t nEvents = 0)
+int reco_complete_gf2(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -104,5 +104,5 @@ void reco_complete_gf2(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
 
-  exit(0);
+  return 0;
 }

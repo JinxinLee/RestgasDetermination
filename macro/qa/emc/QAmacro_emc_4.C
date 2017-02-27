@@ -7,7 +7,7 @@
 //
 // JGM, April 2010
 //
-void QAmacro_emc_4()
+int QAmacro_emc_4()
 {
   
 	////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +120,6 @@ if (fTest){
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
 }
-exit(0); 
+  return 0;
 }
 

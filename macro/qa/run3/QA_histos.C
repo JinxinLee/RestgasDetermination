@@ -7,7 +7,7 @@
    @date Jun 15, 2015
 **/
 
-void QA_histos() {
+int QA_histos() {
   TStopwatch fTimer;
   TFile fileqa("psi2s_jpsi2pi_jpsi_mumu_recoqa.root");
   TTree *cbmsim = (TTree*) fileqa.Get("cbmsim");
@@ -314,4 +314,5 @@ void QA_histos() {
    
   cout << "Macro finished successfully." << endl;
 
+  return 0;
 }

@@ -10,7 +10,7 @@ bool checkfile(TString fn)
 	return fileok;
 }
 
-void ana_task_mult(TString outpre="test", int from=1, int to=1, double pbarmom = 6.232069, int nevts=0)
+int ana_task_mult(TString outpre="test", int from=1, int to=1, double pbarmom = 6.232069, int nevts=0)
 {
  	// *** set this to your output path
 	TString OutPath  = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/scrut/data";	
@@ -55,4 +55,5 @@ void ana_task_mult(TString outpre="test", int from=1, int to=1, double pbarmom =
 	// *** and run analysis
 	fRun->Init(); 
 	fRun->Run(0,nevts);	
+  return 0;
 }

@@ -1,7 +1,7 @@
 // root macro to analyze the clusterization output
 //#include "../../run/Tools.C"
 
-void QAmacro_mvd_ana()
+int QAmacro_mvd_ana()
 {
   cout << "QA Analysis module for the MVD - Hit resolution check." << endl;
   
@@ -351,6 +351,6 @@ void QAmacro_mvd_ana()
     std::cout<<"Test of resolution sigma: "<< ((test2) ? "ok" : "bad") <<std::endl;
   }
   std::cout<<std::endl;
-  exit(0);
+  return 0;
    
 }

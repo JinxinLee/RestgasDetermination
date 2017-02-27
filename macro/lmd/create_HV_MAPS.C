@@ -27,7 +27,7 @@
 #include<cmath>
 #include<sstream>
 
-void create_HV_MAPS() {
+int create_HV_MAPS() {
 	// Lumi Si-Set Parameter
 	//-----------------------------
 
@@ -398,6 +398,7 @@ void create_HV_MAPS() {
 	//   gGeoManager->Export(outfile);
 
 	top->Draw("ogl");
+  return 0;
 }
 
 #include<TApplication.h>

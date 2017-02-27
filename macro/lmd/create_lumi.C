@@ -1,5 +1,5 @@
 
-void create_lumi(){
+int create_lumi(){
   // Lumi Si-Set Parameter
   //-----------------------------
   const Double_t  kTrapInnerDist    = 3.;   // (cm) //Dimension of Trapezoid
@@ -116,4 +116,5 @@ void create_lumi(){
 //   gGeoManager->Export(outfile);
   
   top->Draw("ogl");
+  return 0;
 }  

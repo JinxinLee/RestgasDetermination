@@ -1,7 +1,7 @@
 // Macro for running Panda reconstruction tasks
 // to run the macro:
 // root  reco_complete_sec.C  or in root session root>.x  reco_complete_sec.C
-void reco_complete_sec(Int_t nEvents = 0)
+int reco_complete_sec(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -109,5 +109,5 @@ void reco_complete_sec(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
 
-  exit(0);
+  return 0;
 }

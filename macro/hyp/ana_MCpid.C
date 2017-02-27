@@ -1,5 +1,6 @@
 // root macro to analyze the simulation output
 //void convertMCPoints()
+int ana_MCpid()
 {
 
   // -----  Load libraries   ------------------------------------------------
@@ -117,4 +118,5 @@ can1->Print("output.jpg");
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 }

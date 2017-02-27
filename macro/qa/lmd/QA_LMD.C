@@ -1,7 +1,7 @@
 // QA macro for lmd
 // created 23/07/2015 by A.Karavdina
 
-void QA_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="", const int verboseLevel=0)
+int QA_LMD(const int nEvents=1000, const int startEvent=0, TString storePath="", const int verboseLevel=0)
 {
   // ========================================================================
   // Input file (MC events)
@@ -73,5 +73,6 @@ void QA_LMD(const int nEvents=1000, const int startEvent=0, TString storePath=""
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  return 0;
 
 }

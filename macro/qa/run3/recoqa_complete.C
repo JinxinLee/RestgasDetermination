@@ -6,7 +6,7 @@
    @version 1.0
    @date Jun 25, 2015
 **/
-void recoqa_complete(Int_t nEvents = 0)
+int recoqa_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -47,5 +47,5 @@ void recoqa_complete(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
 
-  exit(0); 
+  return 0;
 }

@@ -1,4 +1,4 @@
-void runLumiPixel1bDigiNoise(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int pitch=1, const unsigned int seed = 0 )
+int runLumiPixel1bDigiNoise(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const int pitch=1, const unsigned int seed = 0 )
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -140,4 +140,5 @@ void runLumiPixel1bDigiNoise(const int nEvents=10, const int startEvent=0, TStri
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
   cout << endl;
 
+  return 0;
 }

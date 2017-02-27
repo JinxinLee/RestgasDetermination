@@ -1,4 +1,4 @@
-void QAmacro_ftof_1()
+int QAmacro_ftof_1()
 {
   Bool_t fTest=kFALSE;
 
@@ -12,6 +12,6 @@ void QAmacro_ftof_1()
     cout << " Not Ok " << endl;         
   }
 
-  exit(0); 
+  return 0;
 }  
   

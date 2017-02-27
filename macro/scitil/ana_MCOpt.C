@@ -1,5 +1,5 @@
 // root macro to analyze the simulation output
-//void convertMCPoints()
+int ana_MCOpt()
 {
 
   // -----  Load libraries   ------------------------------------------------
@@ -111,4 +111,5 @@ out->Save();
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 }

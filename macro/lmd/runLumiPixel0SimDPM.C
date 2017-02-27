@@ -1,5 +1,5 @@
 // Lmd DPM Sim macro
-void runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
+int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 		const double mom = 15, TString input, TString storePath = "tmpOutputDPM",
 		const double beam_X0 = 0.0, const double beam_Y0 = 0.0,
 		const double target_Z0 = 0.0, const double beam_width_sigma_X = 0.0,
@@ -203,4 +203,5 @@ void runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 	Double_t rtime = timer.RealTime();
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
+  return 0;
 }

@@ -1,4 +1,4 @@
-void check_trackcand(Int_t nEntries = 0)
+int check_trackcand(Int_t nEntries = 0)
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -176,4 +176,5 @@ void check_trackcand(Int_t nEntries = 0)
   
   out->Save();
   
+  return 0;
 }	

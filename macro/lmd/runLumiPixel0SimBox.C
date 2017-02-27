@@ -1,7 +1,7 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int trkNum=1, const int seed=0, const double dP=0)
+int runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int trkNum=1, const int seed=0, const double dP=0)
 {
 
   // ///PROOF lite
@@ -269,5 +269,6 @@ void runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString stor
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

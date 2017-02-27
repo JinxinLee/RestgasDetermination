@@ -1,4 +1,4 @@
-void ana_jpsi_task(TString Fname="test", int nevts=0, double pbarmom = 6.232069)
+int ana_jpsi_task(TString Fname="test", int nevts=0, double pbarmom = 6.232069)
 {
 	// *** set this to your output path
 	TString OutPath = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/scrut/data";	
@@ -26,4 +26,5 @@ void ana_jpsi_task(TString Fname="test", int nevts=0, double pbarmom = 6.232069)
 	// *** and run analysis
 	fRun->Init(); 
 	fRun->Run(0,nevts);	
+  return 0;
 }

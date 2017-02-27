@@ -1,4 +1,4 @@
-void tb_digi_scit()
+int tb_digi_scit()
 {
   // -----------   User Settings: -------------------------------
 
@@ -134,5 +134,5 @@ void tb_digi_scit()
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
 
-  exit(0);
+  return 0;
 }

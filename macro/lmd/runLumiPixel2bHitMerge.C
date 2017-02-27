@@ -1,4 +1,4 @@
-void runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool misalign=false)
+int runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool misalign=false)
 {
   // ========================================================================
   // Input file (Reco events)
@@ -113,4 +113,5 @@ void runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TStrin
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

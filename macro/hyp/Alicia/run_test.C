@@ -15,7 +15,7 @@
 // 2.a) standard--> alicia version 
 // 2.b) current --> sebastian version
 
-void run_test(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "box", TString vers = "current",Bool_t HYP_File= false,Bool_t gam = false){
+int run_test(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "box", TString vers = "current",Bool_t HYP_File= false,Bool_t gam = false){
   TStopwatch timer;
   timer.Start();
   gRandom->SetSeed(); 
@@ -348,6 +348,7 @@ void run_test(TString prefix = "",Int_t nEvents = 2000,TString Decfile = "box", 
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   // delete fRun;
   //exit(0);
+  return 0;
 }  
   
 

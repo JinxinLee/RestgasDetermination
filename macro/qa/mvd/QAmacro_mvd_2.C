@@ -1,4 +1,4 @@
-void QAmacro_mvd_2()
+int QAmacro_mvd_2()
 {
 	  cout << "QA module for the MVD Digitization and Hit Reconstruction." << endl;
   TStopwatch timer;
@@ -50,5 +50,5 @@ void QAmacro_mvd_2()
   cout << " DigiReco passed" << endl;
   cout << " All ok " << endl;
 
-  exit(0);
+  return 0;
 }

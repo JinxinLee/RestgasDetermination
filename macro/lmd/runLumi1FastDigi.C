@@ -1,4 +1,4 @@
-void runLumi1FastDigi(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double pitch=0.005)
+int runLumi1FastDigi(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double pitch=0.005)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -132,4 +132,5 @@ void runLumi1FastDigi(const int nEvents=100000, const int startEvent=0, TString 
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
   cout << endl;
 
+  return 0;
 }

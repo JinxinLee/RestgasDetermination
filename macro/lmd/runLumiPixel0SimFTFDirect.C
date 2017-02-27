@@ -4,7 +4,7 @@
 // # 23/10/2013
 // # author: A.Karavdina
 //###################################
-void runLumiPixel0SimFTFDirect(const int nEvents=10, const int startEvent=0, const double mom=15, TString storePath="tmpOutputDPM", 
+int runLumiPixel0SimFTFDirect(const int nEvents=10, const int startEvent=0, const double mom=15, TString storePath="tmpOutputDPM", 
 			       const int verboseLevel=0, const int seed)
 {
   // gRandom->SetSeed(seed);
@@ -260,4 +260,5 @@ void runLumiPixel0SimFTFDirect(const int nEvents=10, const int startEvent=0, con
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }

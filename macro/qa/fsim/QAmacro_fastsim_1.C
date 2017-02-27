@@ -1,7 +1,7 @@
 /** Macro for running fast simulation it will only fill the
 *   PndData without any transport(M. Al-Turany)
 */
-void QAmacro_fastsim_1(Int_t nEvents = 1000 )
+int QAmacro_fastsim_1(Int_t nEvents = 1000 )
 {
   TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 
@@ -98,5 +98,6 @@ void QAmacro_fastsim_1(Int_t nEvents = 1000 )
 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  return 0;
 }
 

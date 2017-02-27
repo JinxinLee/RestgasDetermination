@@ -1,4 +1,4 @@
-void pid_check()
+int pid_check()
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -112,4 +112,5 @@ void pid_check()
   out->Save();
   
   
+  return 0;
 }	

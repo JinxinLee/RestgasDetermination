@@ -4,7 +4,7 @@
 // # 23/07/2015
 // # author: A.Karavdina
 //###################################
-void sim_LMD(const int nEvents=2000, const int startEvent=0, const double mom=1.5, TString storePath="", 
+int sim_LMD(const int nEvents=2000, const int startEvent=0, const double mom=1.5, TString storePath="", 
 			       const int verboseLevel=0, const int seed=3267, const int mode = 1, const double th_min = 0.12)
 {
   TStopwatch timer;
@@ -117,4 +117,5 @@ void sim_LMD(const int nEvents=2000, const int startEvent=0, const double mom=1.
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }

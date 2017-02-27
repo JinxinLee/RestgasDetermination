@@ -1,4 +1,4 @@
-void runLumiPixel4aFilter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=true, const bool SkipFilt=false, const bool XthFilt=true, const bool YphFilt=true, const bool BoxFilt=false, const double dX=0, const double dY=0)
+int runLumiPixel4aFilter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const bool mergedHits=true, const bool SkipFilt=false, const bool XthFilt=true, const bool YphFilt=true, const bool BoxFilt=false, const double dX=0, const double dY=0)
 {
   // ========================================================================
   // Input file (MC events)
@@ -128,4 +128,5 @@ void runLumiPixel4aFilter(const int nEvents=100000, const int startEvent=0, TStr
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

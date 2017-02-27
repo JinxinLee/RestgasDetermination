@@ -1,4 +1,4 @@
-void runLumi7QA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5)
+int runLumi7QA(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutnewDesign", const int verboseLevel=5)
 {
   // ========================================================================
   // Input file (MC events)
@@ -103,4 +103,5 @@ void runLumi7QA(const int nEvents=100000, const int startEvent=0, TString storeP
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

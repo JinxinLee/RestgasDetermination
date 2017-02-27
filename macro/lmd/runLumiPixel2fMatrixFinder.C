@@ -9,7 +9,7 @@ using namespace std;
 
 #include <string>
 
-void runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/", TString binaryPairFilePath="test/boxtest-aligned-1.5/binaryFiles", TString geometryDir="", bool incentimeters=true, const int verboseLevel=0)
+int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/", TString binaryPairFilePath="test/boxtest-aligned-1.5/binaryFiles", TString geometryDir="", bool incentimeters=true, const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -96,4 +96,5 @@ void runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/"
 	cout << "Macro finished successfully." << endl;
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
 	cout << endl;
+  return 0;
 }

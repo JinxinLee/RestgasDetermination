@@ -141,7 +141,7 @@ Bool_t propagate_mclist(Int_t id,TClonesArray * mctrack_array)
 }
 
 // TEST 3: check result
-void QAmacro_evtgen_3()
+int QAmacro_evtgen_3()
 {
   TStopwatch timer;
   timer.Start();
@@ -194,6 +194,6 @@ void QAmacro_evtgen_3()
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  exit(0);
+  return 0;
 }
 

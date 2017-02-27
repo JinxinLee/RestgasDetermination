@@ -7,7 +7,7 @@
 // *******
 
 
-void run_HypSimpleAna(TString base="Hit_hypIdReco",int nevts=0, TString outfile="")
+int run_HypSimpleAna(TString base="Hit_hypIdReco",int nevts=0, TString outfile="")
 {
   TStopwatch timer;
   timer.Start();
@@ -72,5 +72,6 @@ void run_HypSimpleAna(TString base="Hit_hypIdReco",int nevts=0, TString outfile=
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }  
   

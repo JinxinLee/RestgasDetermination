@@ -1,6 +1,6 @@
 // TEST 1: only check EvtGenDirect
 // void qa_evtgendirect(){
-void QAmacro_evtgen_1()
+int QAmacro_evtgen_1()
 {
   TStopwatch timer;
   timer.Start();
@@ -78,5 +78,6 @@ void QAmacro_evtgen_1()
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   //exit(0); 
+  return 0;
 }  
   

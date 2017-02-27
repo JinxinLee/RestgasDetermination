@@ -1,4 +1,4 @@
-void QAmacro_emc_3()
+int QAmacro_emc_3()
 {
   // Macro loads a file after reconstruction and plots difference between initial direction of particle and angular position of cluster
 	////////////////////////////////////////////////////////////////////////////////
@@ -192,6 +192,6 @@ if (fTest){
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
 }
-exit(0);
+  return 0;
 }
 

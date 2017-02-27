@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-void run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -197,6 +197,7 @@ void run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   cout << " All ok " << endl;
   
   //exit(0);
+  return 0;
   
 };
 

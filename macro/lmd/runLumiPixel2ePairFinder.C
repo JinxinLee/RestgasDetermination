@@ -19,7 +19,7 @@ using namespace std;
 #include <PndSdsGeoPar.h>
 */
 
-void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0, bool storeSorted=false)
+int runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0, bool storeSorted=false)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -99,4 +99,5 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
 	cout << endl;
 
+  return 0;
 }

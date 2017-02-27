@@ -1,6 +1,6 @@
 // digi macro for lmd
 // created 23/07/2015 by A.Karavdina
-void digi_LMD(const int nEvents=2000, const int startEvent=0, TString storePath="", const int verboseLevel=0)
+int digi_LMD(const int nEvents=2000, const int startEvent=0, TString storePath="", const int verboseLevel=0)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -79,4 +79,5 @@ void digi_LMD(const int nEvents=2000, const int startEvent=0, TString storePath=
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
   cout << endl;
 
+  return 0;
 }

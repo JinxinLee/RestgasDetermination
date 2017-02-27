@@ -1,4 +1,4 @@
-void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const TString Method="KalmanGeane", const bool mergedHits=true, const double radlen=0.31)
+int runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const TString Method="KalmanGeane", const bool mergedHits=true, const double radlen=0.31)
 {
   // ========================================================================
   // Input file (MC events)
@@ -153,4 +153,5 @@ void runLumiPixel4Fitter(const int nEvents=100000, const int startEvent=0, TStri
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

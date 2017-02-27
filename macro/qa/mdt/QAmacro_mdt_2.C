@@ -1,4 +1,4 @@
-void QAmacro_mdt_2()
+int QAmacro_mdt_2()
 {
 
   Bool_t Test=kTRUE;
@@ -61,7 +61,7 @@ void QAmacro_mdt_2()
      cout << " Test Failed" << endl;
      cout << " Not Ok " << endl;         
   }
-  exit(0);
+  return 0;
 
 
 }

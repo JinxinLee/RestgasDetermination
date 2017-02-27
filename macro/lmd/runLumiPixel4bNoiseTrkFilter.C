@@ -1,4 +1,4 @@
-void runLumiPixel4bNoiseTrkFilter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double mom=1.5)
+int runLumiPixel4bNoiseTrkFilter(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, const double mom=1.5)
 {
 // ========================================================================
 // Input Track file
@@ -40,4 +40,5 @@ void runLumiPixel4bNoiseTrkFilter(const int nEvents=100000, const int startEvent
   fRun->Run(0,nEvents);
   cout<<"fRun->Run(0, "<<nEvents<<") was done!"<<endl;
   // ------------------------------------------------------------------------
+  return 0;
 }

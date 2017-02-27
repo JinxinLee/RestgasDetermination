@@ -1,4 +1,4 @@
-void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool useMSerr=true)
+int runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool useMSerr=true)
 {
   // ========================================================================
   // Input file (MC events)
@@ -119,4 +119,5 @@ void runLumi2Reco(const int nEvents=1, const int startEvent=0, TString storePath
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

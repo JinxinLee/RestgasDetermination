@@ -15,7 +15,7 @@
 // 2.a) standard--> alicia version 
 // 2.b) current --> sebastian version
 
-void runSimHF_GiB_DC(TString Decfile = "hist", TString vers = "standard"){
+int runSimHF_GiB_DC(TString Decfile = "hist", TString vers = "standard"){
   TStopwatch timer;
   timer.Start();
   gRandom->SetSeed(); 
@@ -287,6 +287,7 @@ void runSimHF_GiB_DC(TString Decfile = "hist", TString vers = "standard"){
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   // delete fRun;
   //exit(0);
+  return 0;
 }  
   
 

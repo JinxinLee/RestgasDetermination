@@ -15,7 +15,7 @@
 // 2.a) standard--> alicia version 
 // 2.b) current --> sebastian version
 
-void run(TString prefix = "",Int_t nEvents = 420,TString Decfile = "hypbup", TString vers = "current",Bool_t HYP_File= false,Bool_t gam = false){
+int run(TString prefix = "",Int_t nEvents = 420,TString Decfile = "hypbup", TString vers = "current",Bool_t HYP_File= false,Bool_t gam = false){
   TStopwatch timer;
   timer.Start();
   gRandom->SetSeed(); 
@@ -350,6 +350,7 @@ void run(TString prefix = "",Int_t nEvents = 420,TString Decfile = "hypbup", TSt
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   // delete fRun;
   //exit(0);
+  return 0;
 }  
   
 

@@ -1,4 +1,4 @@
-void track_check(Int_t nEntries = 0)
+int track_check(Int_t nEntries = 0)
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -74,4 +74,5 @@ void track_check(Int_t nEntries = 0)
   nt->Write();
   out->Save();
   
+  return 0;
 }	

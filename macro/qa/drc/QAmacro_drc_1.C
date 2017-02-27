@@ -1,4 +1,4 @@
-void QAmacro_drc_1()
+int QAmacro_drc_1()
 {
   cout << "QA module for the DRC Simulation." << endl;
 
@@ -103,5 +103,6 @@ void QAmacro_drc_1()
   // }
 
   //exit(0); 
+  return 0;
 }  
   

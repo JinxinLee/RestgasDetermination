@@ -1,6 +1,6 @@
 ///  Method="Follow" - Track-following method, Method="CA" - Cellular Automaton
 ///  missPl=true - use "missing plane" algorithm
-void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0,  TString Method="Follow", const bool missPl=false)
+int runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0,  TString Method="Follow", const bool missPl=false)
 {
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -131,4 +131,5 @@ void runLumi3Finder(const int nEvents=100000, const int startEvent=0, TString st
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

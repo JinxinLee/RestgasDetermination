@@ -10,7 +10,7 @@ Double_t fitf(Double_t *v, Double_t *par)
       return fitval;
    }
 
-void ana_track(){
+int ana_track(){
 
   // -----  Load libraries   ------------------------------------------------
 //``gSystem->Load("fstream.h");
@@ -81,4 +81,5 @@ cout<<" fit parameters "<<" Mean "<<Mean<<" "<<" sigma "<<sig<<endl;
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 }

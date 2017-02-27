@@ -1,4 +1,4 @@
-void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool misalign=false)
+int runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString storePath="tmpOutput", const int verboseLevel=0, bool misalign=false)
 {
   // ========================================================================
   // Input file (MC events)
@@ -134,4 +134,5 @@ void runLumiPixel2Reco(const int nEvents=10, const int startEvent=0, TString sto
   // ------------------------------------------------------------------------
 
 
+  return 0;
 }

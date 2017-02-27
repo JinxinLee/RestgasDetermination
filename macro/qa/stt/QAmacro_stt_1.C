@@ -3,7 +3,7 @@
 // theta in [20�, 140�]
 // phi   in [0� , 360�]
 
-void QAmacro_stt_1()
+int QAmacro_stt_1()
 {
   TStopwatch timer;
   timer.Start();
@@ -163,6 +163,6 @@ void QAmacro_stt_1()
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
-  exit(0); 
+  return 0;
 }  
   

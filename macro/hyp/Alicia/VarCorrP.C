@@ -1,7 +1,7 @@
 
 
 #include "TParticle.h" 
-void VarCorrP() {
+int VarCorrP() {
 
   TFile *f = new TFile("carbon_onlyXi_2_5.root");
   Double_t y=2.;
@@ -85,4 +85,5 @@ void VarCorrP() {
     source->Write();
     out->Save();
 
+  return 0;
 }
