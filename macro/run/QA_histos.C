@@ -7,7 +7,7 @@
    @date Jun 15, 2015
 **/
 
-void QA_histos() {
+int QA_histos() {
 
   TFile fileqa("recoqa_complete.root");
   TTree *cbmsim = (TTree*) fileqa.Get("cbmsim");
@@ -291,4 +291,5 @@ void QA_histos() {
 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  return 0;
 }

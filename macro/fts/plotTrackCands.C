@@ -566,7 +566,7 @@ int DrawField(PndMultiField *fField, TH2F* Bfield)
 // ------------------------ MACRO STARTS HERE --------------------
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-void plotTrackCands(int iEvent)
+int plotTrackCands(int iEvent)
 {
 
 	UInt_t fVerbose = 0;
@@ -904,6 +904,7 @@ void plotTrackCands(int iEvent)
 		PndFtsHoughTrackCand *myTrackCand = (PndFtsHoughTrackCand*) fTrackCands->At(iTrackCand);
 		plotHoughTrackCand(myTrackCand, FitInXZPlane);
 	}
+  return 0;
 }
 
 

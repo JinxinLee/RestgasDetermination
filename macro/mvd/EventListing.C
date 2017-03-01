@@ -1,4 +1,4 @@
-void EventListing()
+int EventListing()
 { 
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libriemann.C");
@@ -96,5 +96,6 @@ void EventListing()
 			}
 		}
 	}
+  return 0;
 	
 }

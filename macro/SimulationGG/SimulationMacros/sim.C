@@ -1,6 +1,6 @@
 // Macro created 18/09/2006 by S.Spataro
 // It creates a geant simulation file for emc by using an EvtGen outout file
-void sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t TransportModel[] = "TGeant4", UInt_t seed=0)
+int sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t TransportModel[] = "TGeant4", UInt_t seed=0)
 {
   gRandom->SetSeed(seed);
   TStopwatch timer;
@@ -133,5 +133,6 @@ void sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t 
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
+  return 0;
 }  
  

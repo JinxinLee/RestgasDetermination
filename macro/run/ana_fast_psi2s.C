@@ -15,7 +15,7 @@ void printCand(TLorentzVector l, TVector3 p)
 }
 
 
-void ana_fast_psi2s(TString fname="sim_fast.root", int nevts=0)
+int ana_fast_psi2s(TString fname="sim_fast.root", int nevts=0)
 {
     TStopwatch timer;
     timer.Start();
@@ -116,4 +116,5 @@ void ana_fast_psi2s(TString fname="sim_fast.root", int nevts=0)
     
     printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
     
+  return 0;
 }

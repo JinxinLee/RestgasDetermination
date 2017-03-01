@@ -53,7 +53,7 @@ void countDoubles(RhoCandList &l, int &n1, int &n2, int &n3)
 	n3 = n_both;
 }
 
-void ana_day1(int nevts=0)
+int ana_day1(int nevts=0)
 {
         TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",1.9,kFALSE,0.1,0,"",88888);
         TStopwatch fTimer;
@@ -433,6 +433,5 @@ void ana_day1(int nevts=0)
    
 	cout << "Macro finished successfully." << endl;
 
-        exit(0);
-	
+  return 0;
 }

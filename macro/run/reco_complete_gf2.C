@@ -34,7 +34,7 @@ void process_mem_usage(double& vm_usage)
 
 }
 
-void reco_complete_gf2()
+int reco_complete_gf2()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a digi file and performs tracking
@@ -180,5 +180,5 @@ void reco_complete_gf2()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  return 0;
 }

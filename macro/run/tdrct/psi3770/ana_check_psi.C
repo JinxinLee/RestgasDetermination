@@ -2,7 +2,7 @@ class TCandList;
 class TCandidate;
 class TFitParams;
 
-void ana_check(int nevts=0)
+int ana_check_psi(int nevts=0)
 {
   TString OutFile = "output.root";
   
@@ -499,6 +499,7 @@ void ana_check(int nevts=0)
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
+  return 0;
 }
 
 void removeCombinatoric(TCandList &psi_list)

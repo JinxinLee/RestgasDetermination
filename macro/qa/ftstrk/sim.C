@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim.C"(100, "TGeant4",2)"
 
-void sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+int sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="data/sim.root";
@@ -242,6 +242,7 @@ void sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231
   cout << "Macro finished successfully." << endl;
 
   //exit(0);
+  return 0;
 
 }
 

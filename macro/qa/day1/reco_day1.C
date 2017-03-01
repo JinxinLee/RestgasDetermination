@@ -1,7 +1,7 @@
 // Macro for running Panda reconstruction tasks
 // to run the macro:
 // root  reco_day1.C  or in root session root>.x  reco_complete.C
-void reco_day1(Int_t nEvents = 0)
+int reco_day1(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all_day1.par";
@@ -33,5 +33,5 @@ void reco_day1(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
 
-  exit(0);
+  return 0;
 }

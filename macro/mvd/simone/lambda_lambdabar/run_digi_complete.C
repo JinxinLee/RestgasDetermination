@@ -1,4 +1,4 @@
-void run_digi_complete(TString FileName="test"){
+int run_digi_complete(TString FileName="test"){
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
 
@@ -164,5 +164,6 @@ void run_digi_complete(TString FileName="test"){
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
-  exit(0);
+  return 0;
+
 }

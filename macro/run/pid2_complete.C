@@ -1,4 +1,4 @@
-void pid2_complete()
+int pid2_complete()
 {
   // Macro created 02/10/2012 by S.Spataro
   // It loads a reconstruction file and compute PID informations
@@ -107,5 +107,5 @@ void pid2_complete()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  return 0;
 }

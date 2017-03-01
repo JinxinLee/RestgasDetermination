@@ -1,4 +1,4 @@
-void run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Momenta = 1.642, Int_t nEvents=100000,Int_t DecayModel=1,Int_t Seed=6){
+int run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double_t Momenta = 1.642, Int_t nEvents=100000,Int_t DecayModel=1,Int_t Seed=6){
   
   // This script should simulate the decay p pbar -> lambda lambdabar -> p pbar pi+ pi- with the hole panda detector.
   // The default beam momenta is 1.642, since the dataset for the parametrisation of the decay was recorded with this momenta.
@@ -315,4 +315,5 @@ void run_sim_complete(TString FileName="test",Int_t lambdadiskposition=0, Double
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
+  return 0;
 }

@@ -18,4 +18,4 @@
 #pragma link C++ class map<int,vector<int> >+;
 #endif
 
-void Helper(){return;}
+int Helper(){return 0;}

@@ -2,7 +2,7 @@ class TCandList;
 class TCandidate;
 class TFitParams;
 
-void run_ana_eta_c_stt(int nevts=0, bool usePID=true)
+int run_ana_eta_c_stt(int nevts=0, bool usePID=true)
 {
 	TString OutFile="etac_histo_stt.root";
   
@@ -611,4 +611,5 @@ void run_ana_eta_c_stt(int nevts=0, bool usePID=true)
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
+  return 0;
 }

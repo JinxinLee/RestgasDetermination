@@ -2,7 +2,7 @@ class TCandList;
 class TCandidate;
 class TFitParams;
 
-void run_ana_invariantmass_4pi_stt(int nEntries=0)
+int run_ana_invariantmass_4pi_stt(int nEntries=0)
 {
   gStyle->SetOptFit(1011);
   
@@ -249,5 +249,6 @@ TH1F *invmass_trackhighmom= new TH1F("invmass_trackhighmom","2(#pi^{+}#pi^{-}) I
   out->Save();
 
 
+  return 0;
 }
 

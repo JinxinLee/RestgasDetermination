@@ -1,4 +1,4 @@
-void mcMatch(Int_t nEvents = 0)
+int mcMatch(Int_t nEvents = 0)
 {
     //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant3"; 
@@ -58,4 +58,5 @@ void mcMatch(Int_t nEvents = 0)
     // ------------------------------------------------------------------------
     cout << " Test passed" << endl;
     cout << " All ok " << endl;
+  return 0;
 }

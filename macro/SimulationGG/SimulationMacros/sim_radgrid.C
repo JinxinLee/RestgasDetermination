@@ -1,7 +1,7 @@
 // Macro sim_radgrid
 // It creates a geant simulation file giving RadGrid histograms according
 // to the defined mesh(s)
-void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] = "TGeant3", UInt_t seed=0)
+int sim_radgrid(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] = "TGeant3", UInt_t seed=0)
 {
   //   activate TMemStat info file (ROOT >=5.28)
   //   TMemStat mm("gnubuiltin");
@@ -158,5 +158,6 @@ void sim(TString output, TString input, Int_t nEvents,  Char_t TransportModel[] 
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
+  return 0;
 }  
  

@@ -1,4 +1,4 @@
-void full(TString simdatei="sim_emc.root", TString fulldatei="full_emc.root", TString param="simparam.root"){
+int full(TString simdatei="sim_emc.root", TString fulldatei="full_emc.root", TString param="simparam.root"){
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
   
@@ -118,4 +118,5 @@ void full(TString simdatei="sim_emc.root", TString fulldatei="full_emc.root", TS
   cout << endl;
   // ------------------------------------------------------------------------
   
+  return 0;
 }

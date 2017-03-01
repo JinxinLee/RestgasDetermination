@@ -93,7 +93,7 @@ void ExtractData(TClonesArray* array, TGraph* g){
 	}
 }
 
-void NHitsPerEvent()
+int NHitsPerEvent()
 {
 	Init();
 	for (int i = 0; i < t->GetEntries(); i++){
@@ -101,4 +101,5 @@ void NHitsPerEvent()
 		h1->Fill(mvdHitArray->GetEntriesFast());
 	}
 	h1->Draw();
+  return 0;
 }

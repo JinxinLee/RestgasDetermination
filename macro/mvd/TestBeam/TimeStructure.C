@@ -45,7 +45,7 @@ void Init()
 }
 
 
-void TimeStructure(Int_t sensorId = 0, Bool_t allSensors = kFALSE)
+int TimeStructure(Int_t sensorId = 0, Bool_t allSensors = kFALSE)
 {
 	Init();
 	int runIndexUnsorted = 0;
@@ -109,4 +109,5 @@ void TimeStructure(Int_t sensorId = 0, Bool_t allSensors = kFALSE)
 	h1UnsortedTL->Draw();
 	c1->cd(4);
 	h1Sorted->Draw();
+  return 0;
 }

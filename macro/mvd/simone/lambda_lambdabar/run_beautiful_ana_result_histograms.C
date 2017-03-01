@@ -146,7 +146,7 @@ void DrawLambdaDiskPosition3()
 
 }
 
-void run_beautiful_ana_result_histograms(TString FileName="test"){
+int run_beautiful_ana_result_histograms(TString FileName="test"){
   // Input file (MC events)
 
   gROOT->Reset();
@@ -594,4 +594,5 @@ void run_beautiful_ana_result_histograms(TString FileName="test"){
   // ------------------------------------------------------------------------
 
 //exit();
+  return 0;
 }

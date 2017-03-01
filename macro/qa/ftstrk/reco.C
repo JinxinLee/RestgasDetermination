@@ -1,4 +1,4 @@
-void reco(Int_t nEvents = 5)
+int reco(Int_t nEvents = 5)
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a digi file and performs tracking
@@ -124,4 +124,5 @@ void reco(Int_t nEvents = 5)
   // ------------------------------------------------------------------------
   cout << "Macro finished successfully." << endl;
   //exit(0);
+  return 0;
 }

@@ -3,7 +3,7 @@ class TCandList;
 class TCandidate;
 class TFitParams;
 
-void run_ana_eta_c_stt_v2(int nevts=0, bool usePID=true)
+int run_ana_eta_c_stt_v2(int nevts=0, bool usePID=true)
 {
 	TString simFile = "evt_points_stt.root";
 	TString recoFile  = "evt_reco_stt.root";
@@ -498,4 +498,5 @@ void run_ana_eta_c_stt_v2(int nevts=0, bool usePID=true)
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
+  return 0;
 }

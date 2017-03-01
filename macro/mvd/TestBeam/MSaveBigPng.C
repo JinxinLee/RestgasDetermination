@@ -5,7 +5,7 @@
  *      Author: Stockmanns
  */
 
-void MSaveBigPNG(TString filename="", double scale=5) {
+int MSaveBigPNG(TString filename="", double scale=5) {
     TCanvas* old_canv = gPad->GetCanvas();
 
     gROOT->SetBatch(kTRUE);
@@ -44,6 +44,6 @@ void MSaveBigPNG(TString filename="", double scale=5) {
     gROOT->ForceStyle(kFALSE);
     gROOT->SetBatch(kFALSE);
 
-    return;
+    return 0;
 }
 

@@ -2,7 +2,7 @@ class TCandList;
 class TCandidate;
 class TFitParams;
 
-void run_ana_invariantmass_2pi_stt(int nEntries=0)
+int run_ana_invariantmass_2pi_stt(int nEntries=0)
 {
 
   gStyle->SetOptFit(1011);
@@ -263,6 +263,7 @@ int n_reco=0;
   timer.Stop();
 
 
+  return 0;
 }
 
 

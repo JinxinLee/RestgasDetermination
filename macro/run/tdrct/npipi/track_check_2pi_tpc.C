@@ -3,7 +3,7 @@ enum DetectorId {
 /** kDCH must be the 1st id, and kHYP must be the last one. Please put new detectors in between!! **/
     kDCH,kDRC,kDSK,kEMC,kGEM,kLUMI,kMDT,kMVD,kRPC,kSTT,kTPC,kTOF,kFTS,kHYPG,kHYP};
 
-void track_check_2pi_tpc(Int_t nEntries = 0)
+int track_check_2pi_tpc(Int_t nEntries = 0)
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -181,4 +181,5 @@ void track_check_2pi_tpc(Int_t nEntries = 0)
   
   out->Save();
   
+  return 0;
 }	

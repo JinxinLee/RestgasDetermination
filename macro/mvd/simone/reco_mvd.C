@@ -1,4 +1,4 @@
-void reco_mvd()
+int reco_mvd()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
@@ -149,5 +149,5 @@ void reco_mvd()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  return 0;
 }

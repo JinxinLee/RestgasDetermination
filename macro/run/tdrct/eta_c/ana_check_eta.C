@@ -2,7 +2,7 @@ class TCandList;
 class TCandidate;
 class TFitParams;
 
-void ana_check(int nevts=0)
+int ana_check(int nevts=0)
 {
   TString OutFile="output.root";
 
@@ -337,6 +337,7 @@ void ana_check(int nevts=0)
   hvtxresZ->Write();
   out->Save();
 
+  return 0;
 }
 
 void removeCombinatoric(TCandList &etac_list)

@@ -11,7 +11,7 @@ void deactivatePhiSplitter(FairTask* bumpSplitter) {
 	}
 }
 
-void run_reco()
+int run_reco()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits 
@@ -132,5 +132,5 @@ void run_reco()
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
 
-  exit(0);
+  return 0;
 }

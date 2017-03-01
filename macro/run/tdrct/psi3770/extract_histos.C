@@ -7,7 +7,7 @@
 #include "TTree.h"
 #include "TString.h"
 
-void extractHisto(TString& histoname, TFile& storagefile, TCanvas* mycanvas, TString& myprefix)
+int extractHisto(TString& histoname, TFile& storagefile, TCanvas* mycanvas, TString& myprefix)
 {
 	if (storagefile.Get(histoname.Data()) != 0) {
 		TH1D* myhisto = (TH1D*)storagefile.Get(histoname.Data());
@@ -16,6 +16,7 @@ void extractHisto(TString& histoname, TFile& storagefile, TCanvas* mycanvas, TSt
 		myhisto->Draw();
 		mycanvas->SaveAs(outfilename.Data());
 	}
+  return 0;
 }
 
 int extract_histos(TString infilename, TString prefix="psi3770plot_")

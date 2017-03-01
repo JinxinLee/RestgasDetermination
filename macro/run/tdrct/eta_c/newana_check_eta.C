@@ -2,7 +2,7 @@ class TCandList;
 class TCandidate;
 class TFitParams;
 
-void newana_check_eta(int nevts=0)
+int newana_check_eta(int nevts=0)
 {
   TString OutFile="output.root";
   TString inPidFile  = "evt_pid_stt.root";
@@ -328,4 +328,5 @@ void newana_check_eta(int nevts=0)
   hvtxresZ->Write();
   out->Save();
 
+  return 0;
 }

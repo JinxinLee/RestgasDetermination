@@ -1,4 +1,4 @@
-void plot_pid()
+int plot_pid()
 {
   gStyle->SetHistMinimumZero();
     
@@ -253,5 +253,5 @@ void plot_pid()
   
   cout << " Test passed" << endl;
   cout << " All ok " << endl;  
-  exit(kTRUE);
+  return 0;
 }

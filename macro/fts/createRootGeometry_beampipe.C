@@ -12,7 +12,7 @@
 //
 // 
 // =============================================================================
-void createRootGeometry_beampipe(){ 
+int createRootGeometry_beampipe(){ 
   
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   TString vmcWorkdir = getenv("VMCWORKDIR");
@@ -647,4 +647,5 @@ void createRootGeometry_beampipe(){
 	fprintf(stderr,"<I> Geometry of PANDA beam pipe written to %s\n",(char*)fGeoFile);
 	fprintf(stderr,"\n");
 
+  return 0;
 }

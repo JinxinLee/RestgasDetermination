@@ -16,7 +16,7 @@ void SaveAndUpdateHisto(TH1D* currenthisto, TFile& storagefile)
 	currenthisto->Write();
 }
 
-void run_ana_mertens_evt7(TString fname, TString simfname, int nevts=0, TString outfilename="psiana.root")
+int run_ana_mertens_evt7(TString fname, TString simfname, int nevts=0, TString outfilename="psiana.root")
 {
 
 TStopwatch timer;
@@ -1181,4 +1181,5 @@ Double_t ctime = timer.CpuTime();
     
 printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
     
+  return 0;
 } // end macro

@@ -1,4 +1,4 @@
-void DisplayGeometry(TString fileName="Mvd_Params.root")
+int DisplayGeometry(TString fileName="Mvd_Params.root")
 {
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libEve");
@@ -21,5 +21,6 @@ void DisplayGeometry(TString fileName="Mvd_Params.root")
   //  gGeoManager->SetVisLevel(10);
   //  gGeoManager->GetMasterVolume()->Draw("ogl");
   
-  
+    return 0;
+
 }

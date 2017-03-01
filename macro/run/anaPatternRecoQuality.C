@@ -1,4 +1,4 @@
-void anaPatternRecoQuality(Int_t nEvents = 0)
+int anaPatternRecoQuality(Int_t nEvents = 0)
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a digi file and performs tracking
@@ -81,10 +81,7 @@ void anaPatternRecoQuality(Int_t nEvents = 0)
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
 //  exit(0);
+  return 0;
 }
-
-
-
-
 
 

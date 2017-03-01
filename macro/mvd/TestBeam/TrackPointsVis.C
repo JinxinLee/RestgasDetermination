@@ -92,8 +92,9 @@ void ExtractData(TClonesArray* array, TGraph* g){
 	}
 }
 
-void TrackPointsVis()
+int TrackPointsVis()
 {
 	Init();
 	Draw();
+  return 0;
 }
