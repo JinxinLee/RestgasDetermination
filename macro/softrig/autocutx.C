@@ -398,7 +398,7 @@ int countCuts(TString s)
 
 // ---------------------------------------------------------------
 
-void autocutx(TString fname, TString precut="", double supr=0.95, double target=0.0001, double mineff = 0.1, double minreleff = 0.0, int evmult=10000, double norm=1.0, int n0s=-1)
+int autocutx(TString fname, TString precut="", double supr=0.95, double target=0.0001, double mineff = 0.1, double minreleff = 0.0, int evmult=10000, double norm=1.0, int n0s=-1)
 {
 // 	gStyle->SetTitleX(0.2);
 // 	gStyle->SetTitleY(0.993);
@@ -545,4 +545,5 @@ void autocutx(TString fname, TString precut="", double supr=0.95, double target=
 	cout<<"Eff    : "; for (int k=0;k<10;++k) printf("%6.1f%%",(double) evcntrec[k].size()/evmult*norm*100.);cout <<endl<<endl;
 
 	t->SetEventList(0);
+  return 0;
 }

@@ -6,7 +6,7 @@
    @version 1.0
    @date Jun 25, 2015
 **/
-void recoqa_ca()
+int recoqa_ca()
 {
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
@@ -89,5 +89,5 @@ void recoqa_ca()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  return 0;
 }

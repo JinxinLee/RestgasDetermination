@@ -1,4 +1,4 @@
-void DecayConfig() {
+int DecayConfig() {
      
   KFPartEfficiencies eff;
   
@@ -39,6 +39,7 @@ void DecayConfig() {
   }
   //make pi0 stable for pythia, Geant will decay it
   pythia6.SetMDCY(pythia6.Pycomp(111),1,0);
+  return 0;
 }
 
 

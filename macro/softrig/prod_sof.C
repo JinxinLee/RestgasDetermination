@@ -1,4 +1,4 @@
-void prod_sof(TString outpre="", Float_t Mom=15.15, int mode=9999, int run=-1, int applyfull=0)
+int prod_sof(TString outpre="", Float_t Mom=15.15, int mode=9999, int run=-1, int applyfull=0)
 {
 	// Parameter file
 	TString inParFile = outpre+"_par.root"; 
@@ -106,4 +106,5 @@ void prod_sof(TString outpre="", Float_t Mom=15.15, int mode=9999, int run=-1, i
 	fRun->Run(0,0);
 	
 	//gObjectTable->Print();
+  return 0;
 }

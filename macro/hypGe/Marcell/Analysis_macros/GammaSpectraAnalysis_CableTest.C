@@ -33,7 +33,7 @@ Double_t PoissonFunc(Double_t *x, Double_t *par)
 {
 	return par[1]*TMath::Poisson(x[0],par[0]);
 }
-void GammaSpectraAnalysis_CableTest(TString Filename)//, Double_t Energy) 
+int GammaSpectraAnalysis_CableTest(TString Filename)//, Double_t Energy) 
 {
 
   // -----  Load libraries   ------------------------------------------------
@@ -321,4 +321,5 @@ void GammaSpectraAnalysis_CableTest(TString Filename)//, Double_t Energy)
 	cout << endl;
 	// ------------------------------------------------------------------------
 	
+  return 0;
 }

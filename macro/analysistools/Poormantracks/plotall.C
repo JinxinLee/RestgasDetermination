@@ -1,5 +1,5 @@
 
-void plotall(TString filename="Data/HistoVertexing.root")
+int plotall(TString filename="Data/HistoVertexing.root")
 {
   gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
   LoadPandaStyle();
@@ -19,5 +19,6 @@ void plotall(TString filename="Data/HistoVertexing.root")
   gStyle->SetPadBottomMargin(0.17);
 
   plothistosfromfile(filename.Data(),"pdf",3,3);
+  return 0;
 
 }

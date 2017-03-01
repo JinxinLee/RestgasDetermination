@@ -28,7 +28,7 @@ double getX(TVector3 corner1, TVector3 corner2, double yy);
 int findSectorIn(double y, double dphi, double radius, double EVdrop, double hthick);
 int findSectorOut(double y, double dphi_rad, double radiusCornerOut);
 
-void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
+int createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t fprizm = kFALSE){ 
   
   //const Double_t pi = 3.1415926535;
 
@@ -963,6 +963,7 @@ void createRootGeometry_DIRC_fsEVdroplens_MCPs(Int_t fFocusingSystem = 0, Bool_t
   TObjArray *listOfOverlaps = gGeoManager->GetListOfOverlaps();
   cout<<listOfOverlaps->GetEntries()<<endl;
   //listOfOverlaps->Print(); 
+  return 0;
 }
 
 int findSectorIn(double y, double dphi_rad, double radius, double EVdrop, double hthick){  

@@ -2,7 +2,7 @@
 double Pi = TMath::Pi();
 
 
-void hypGeGeoBuilderTripleBall40Offset10GeometryCrystalsOnly()
+int hypGeGeoBuilderTripleBall40Offset10GeometryCrystalsOnly()
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -108,6 +108,7 @@ void hypGeGeoBuilderTripleBall40Offset10GeometryCrystalsOnly()
 	//geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

@@ -1,6 +1,6 @@
 // Macro created 5/04/2007 by A.Sanchez
 // It creates a geant simulation file for hypGe
-void sim_hypGe_TestGeo(Int_t nEvents , Int_t WhichDetector,Double_t Energy,Bool_t addSecTar)
+int sim_hypGe_TestGeo(Int_t nEvents , Int_t WhichDetector,Double_t Energy,Bool_t addSecTar)
 {
 	// Load basic libraries
   // If it does not work,  please check the path of the libs and put it 	by hands
@@ -195,6 +195,7 @@ void sim_hypGe_TestGeo(Int_t nEvents , Int_t WhichDetector,Double_t Energy,Bool_
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
+  return 0;
 }  
   
 

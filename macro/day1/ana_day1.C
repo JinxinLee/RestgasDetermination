@@ -53,7 +53,7 @@ void countDoubles(RhoCandList &l, int &n1, int &n2, int &n3)
 	n3 = n_both;
 }
 
-void ana_day1(int nevts=0)
+int ana_day1(int nevts=0)
 {
     //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -401,6 +401,6 @@ void ana_day1(int nevts=0)
 	out->Save();
         
 	fRun->Finish();
-        exit(0);
+  return 0;
 	
 }

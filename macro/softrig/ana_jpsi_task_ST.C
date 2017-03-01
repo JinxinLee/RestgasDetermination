@@ -3,7 +3,7 @@
 // written by the SoftTriggerTask
 // ********************************************
 
-void ana_jpsi_task_ST(TString Fname="test", int nevts=0, double pbarmom = 6.232069)
+int ana_jpsi_task_ST(TString Fname="test", int nevts=0, double pbarmom = 6.232069)
 {
 	// *** set this to your output path
 	TString WorkDir = TString(gSystem->Getenv("VMCWORKDIR"));
@@ -78,4 +78,5 @@ void ana_jpsi_task_ST(TString Fname="test", int nevts=0, double pbarmom = 6.2320
 	// *** and run analysis
 	fRun->Init(); 
 	fRun->Run(0,nevts);	
+  return 0;
 }

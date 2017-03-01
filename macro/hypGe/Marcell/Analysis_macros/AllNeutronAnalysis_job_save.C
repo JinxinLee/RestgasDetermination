@@ -1,4 +1,4 @@
-void AllNeutronAnalysis_job(TString Filename_ext)
+int AllNeutronAnalysis_job(TString Filename_ext)
 {
 	bool verbose = false;
   // -----  Load libraries   ------------------------------------------------
@@ -158,4 +158,5 @@ void AllNeutronAnalysis_job(TString Filename_ext)
 	cout << endl;
 	// ------------------------------------------------------------------------
 	
+  return 0;
 }

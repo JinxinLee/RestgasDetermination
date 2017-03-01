@@ -145,7 +145,7 @@ int cnt_events(TTree* t, TString cut, bool globcnt=false)
 	return sigcnt.size();
 }
 
-void simu_tag(TString energy="24")
+int simu_tag(TString energy="24")
 {
 	init_cuts(energy);
 	init_modes();
@@ -203,6 +203,7 @@ void simu_tag(TString energy="24")
       iter != evcnt.end(); ++iter )
       if (iter->second>1) cout << iter->first << '\t' << iter->second << '\n';*/
 	
+  return 0;
 }
 
 

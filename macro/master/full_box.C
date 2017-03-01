@@ -1,7 +1,7 @@
 // Macro for running Panda digitization, reconstruction and pid tasks
 // to run the macro:
 // root  full_box.C  or in root session root>.x  full_box.C
-void full_box(Int_t nEvents = 0)
+int full_box(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -33,5 +33,5 @@ void full_box(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
  
-  exit(0);
+  return 0;
 }

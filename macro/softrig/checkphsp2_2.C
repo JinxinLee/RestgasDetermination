@@ -232,7 +232,7 @@ double qadalitz2(TH2F* h1, TH2F* h2, TH1F *hpull, TH2F* heff)
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 
-void checkphsp2_2(TString filepatt, double step=.1, TString cut="")
+int checkphsp2_2(TString filepatt, double step=.1, TString cut="")
 {
 	palette2();
 	
@@ -362,4 +362,5 @@ void checkphsp2_2(TString filepatt, double step=.1, TString cut="")
 	
 	c1->SaveAs("QA_plots_M"+mname+".gif");
 	c2->SaveAs("QA_value_M"+mname+".gif");
+  return 0;
 }

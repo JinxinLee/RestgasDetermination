@@ -1,4 +1,4 @@
-void Pic_FEP_Eff_lEE()
+int Pic_FEP_Eff_lEE()
 {
 	const int nPoints = 20;
 Double_t x[nPoints],y[nPoints],yE[nPoints];			//without target
@@ -182,4 +182,5 @@ ifstream Inputfile("/data/work/kpha1/steinen/Gamma/Ana/CombinedData/Fitted/Fitte
 
 		c2->SaveAs(PicFEPCompString.Data());
 	}
+  return 0;
 }

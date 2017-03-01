@@ -3,7 +3,7 @@ double Pi = TMath::Pi();
 
 
 
-void hypGeGeoBuilderDouble30cmRadius_test()
+int hypGeGeoBuilderDouble30cmRadius_test()
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -120,6 +120,7 @@ void hypGeGeoBuilderDouble30cmRadius_test()
 	geom->CheckOverlaps(0.0000000001,option="d"); //1 Overlap von Strahlrohr + Kugel ist normal!!!!!!!!!!!!!!!!!
 	geom->PrintOverlaps();
 	
+  return 0;
 	
 }
 

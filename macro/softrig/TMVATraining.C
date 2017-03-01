@@ -69,7 +69,7 @@ TString getFromCut(TString vars)
 
 // ---------------------------------------------------------------
 
-void TMVATraining(TString fname, TString vars, TString precut="", TString treename="")
+int TMVATraining(TString fname, TString vars, TString precut="", TString treename="")
 {
 	if (vars.Contains("&&")) vars = getFromCut(vars);
 	cout <<"Vars : "<<vars<<endl;
@@ -130,4 +130,5 @@ void TMVATraining(TString fname, TString vars, TString precut="", TString treena
 	
 	outputFile->Close();
 	delete factory;
+  return 0;
 }

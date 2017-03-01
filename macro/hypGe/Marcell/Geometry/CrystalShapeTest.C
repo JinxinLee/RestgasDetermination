@@ -3,7 +3,7 @@ double Pi = TMath::Pi();
 
 
 
-void CrystalShapeTest()
+int CrystalShapeTest()
 {
 
 gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -152,6 +152,7 @@ strange->AddNode(Crystal,6);
 	strange->Draw("ogl");
 	
 	
+  return 0;
 }
 
 

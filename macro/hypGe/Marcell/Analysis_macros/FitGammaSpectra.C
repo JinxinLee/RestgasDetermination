@@ -1,6 +1,6 @@
 using namespace std;
 
-void FitGammaSpectra(TString Filename="Combined_Ana_Geo36_E1.000MeV_Evts10000000_FileEvts50000_Gen1_ST12.root")
+int FitGammaSpectra(TString Filename="Combined_Ana_Geo36_E1.000MeV_Evts10000000_FileEvts50000_Gen1_ST12.root")
 {
 	//gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gROOT->LoadMacro("$VMCWORKDIR/macro/hypGe/Marcell/SharedMacros/SharedMacroFunctions.C");
@@ -111,4 +111,5 @@ void FitGammaSpectra(TString Filename="Combined_Ana_Geo36_E1.000MeV_Evts10000000
 //			hEnergySpec->Write();
 //			fileOut->Close();
 		file->Close();
+  return 0;
 }

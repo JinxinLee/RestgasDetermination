@@ -2,7 +2,7 @@
 #include "TCanvas.h"
 #include "TH2F.h"
 
-void inspectvar(int mode, TString var, TString opt="cont")
+int inspectvar(int mode, TString var, TString opt="cont")
 {
 	TString path="/data.local1/kgoetzen/data/softrig/fsim/merge4/shr/"; 
 	TChain n(TString::Format("n%3d",mode));
@@ -37,4 +37,5 @@ void inspectvar(int mode, TString var, TString opt="cont")
 	h->SetContour(50);
 	h->Draw(opt);
 	c1->Update();
+  return 0;
 }

@@ -7,7 +7,7 @@
 //
 //
 
-void runpmt(int nevt=250, int laut=0, int seed=-1)
+int runpmt(int nevt=250, int laut=0, int seed=-1)
 {
   gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
   LoadPandaStyle();
@@ -26,4 +26,5 @@ void runpmt(int nevt=250, int laut=0, int seed=-1)
   myPmt->Finish();
   cout<<"done"<<endl;
 
+  return 0;
 }

@@ -2,7 +2,7 @@
 double Pi = TMath::Pi();
 
 
-void hypGeGeoBuilderDEGASStraight40_offset15(Double_t ZShift = 0)
+int hypGeGeoBuilderDEGASStraight40_offset15(Double_t ZShift = 0)
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -105,6 +105,7 @@ void hypGeGeoBuilderDEGASStraight40_offset15(Double_t ZShift = 0)
 	//geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

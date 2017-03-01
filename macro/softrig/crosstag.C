@@ -200,7 +200,7 @@ void config_histo1d(TH1* h, TString titley="", TString titlex="", int lincol=1, 
 
 // -----------------------------------------------------------------------
 
-void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
+int crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 {
 	setStyle();
 	
@@ -407,5 +407,6 @@ void crosstag(TString fname, int fact=1, int saveplots=0, double sqs=-1.)
 		hbg->Write();
 		ff->Close();
 	}
+  return 0;
 }
 

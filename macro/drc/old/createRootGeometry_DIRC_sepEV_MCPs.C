@@ -18,7 +18,7 @@
 // fFocusingSystem = 2 && fprizm = kTRUE   output file is in geometry/dirc_l2_p1.root
 // corresponding .root files with geometry please fone in the geometry directory
 
-void createRootGeometry_DIRC_sepEV_MCPs(Bool_t sepEV = kTRUE, Int_t fFocusingSystem = 1, Bool_t fprizm = kFALSE){ 
+int createRootGeometry_DIRC_sepEV_MCPs(Bool_t sepEV = kTRUE, Int_t fFocusingSystem = 1, Bool_t fprizm = kFALSE){ 
   
   const Double_t pi = 3.1415926535;
   #include <time.h>
@@ -845,4 +845,5 @@ void createRootGeometry_DIRC_sepEV_MCPs(Bool_t sepEV = kTRUE, Int_t fFocusingSys
  //  McpGlue->Draw("ogl");
   cave->Draw("ogl");
  
+  return 0;
 }

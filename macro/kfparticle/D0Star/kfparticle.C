@@ -1,4 +1,4 @@
-void kfparticle()
+int kfparticle()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
@@ -101,4 +101,5 @@ void kfparticle()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  return 0;
 }

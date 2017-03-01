@@ -1,4 +1,4 @@
-void llbar_ana_task(int nevts=0)
+int llbar_ana_task(int nevts=0)
 {
 	TString OutFile="output_ana_task.root";  
 					
@@ -36,4 +36,5 @@ void llbar_ana_task(int nevts=0)
 	// *** and run analysis
 	fRun->Init(); 
 	fRun->Run(0,nevts);
+  return 0;
 }

@@ -9,7 +9,7 @@ TString BuildOutputNameDetector(Double_t ClusterRadius)
 	return outfileWithoutPath;
 }
 
-void hypGeGeoBuilderSingle(Double_t ClusterRadius_ext = 30)
+int hypGeGeoBuilderSingle(Double_t ClusterRadius_ext = 30)
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -97,6 +97,7 @@ void hypGeGeoBuilderSingle(Double_t ClusterRadius_ext = 30)
 	//geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

@@ -1,4 +1,4 @@
-void emc_timebasedDigi(const char* inFile="emc_sim.root", const char* outFile="emc_timebasedDigi.root", Int_t nEvents=0, Double_t dt=50, const char* parFile="simparams.root") {
+int emc_timebasedDigi(const char* inFile="emc_sim.root", const char* outFile="emc_timebasedDigi.root", Int_t nEvents=0, Double_t dt=50, const char* parFile="simparams.root") {
 
   // Loads a filewith hits and makes digitization for EMC
   
@@ -100,5 +100,6 @@ void emc_timebasedDigi(const char* inFile="emc_sim.root", const char* outFile="e
   cout << endl;
   // ------------------------------------------------------------------------
   
+  return 0;
 }
 

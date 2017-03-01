@@ -25,7 +25,7 @@
 
 
 
-void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int mode = 900, int run = -1, int applyfull=0 )
+int prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEvents = 1000, TString Resonance="pbarpSystem0", int mode = 900, int run = -1, int applyfull=0 )
 {
 	if (Prefix=="" || Decfile=="" || Mom==0.) 
 	{
@@ -427,5 +427,6 @@ void prod_fsim(TString Prefix="", TString Decfile="", Float_t Mom=0., Int_t nEve
 	Double_t rtime = timer.RealTime();
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

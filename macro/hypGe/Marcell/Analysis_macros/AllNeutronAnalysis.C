@@ -2,7 +2,7 @@
 
 
 
-void AllNeutronAnalysis()
+int AllNeutronAnalysis()
 {
 Int_t *ActualTrackID ;
   // -----  Load libraries   ------------------------------------------------
@@ -181,4 +181,5 @@ Int_t *ActualTrackID ;
 	cout << endl;
 	// ------------------------------------------------------------------------
 	
+  return 0;
 }

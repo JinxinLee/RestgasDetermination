@@ -2,7 +2,7 @@
 double Pi = TMath::Pi();
 
 
-void hypGeGeoBuilderTripleStraightGeometryCrystalsOnly()
+int hypGeGeoBuilderTripleStraightGeometryCrystalsOnly()
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -105,6 +105,7 @@ void hypGeGeoBuilderTripleStraightGeometryCrystalsOnly()
 	//geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

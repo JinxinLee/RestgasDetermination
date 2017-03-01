@@ -7,7 +7,7 @@ TString BuildOutputNameDetector(Double_t ClusterRadius)
 	return outfileWithoutPath;
 }
 
-void hypGeGeoCOSYGermaniums(Double_t ClusterRadius_ext = 30)
+int hypGeGeoCOSYGermaniums(Double_t ClusterRadius_ext = 30)
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -114,6 +114,7 @@ void hypGeGeoCOSYGermaniums(Double_t ClusterRadius_ext = 30)
 	//geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

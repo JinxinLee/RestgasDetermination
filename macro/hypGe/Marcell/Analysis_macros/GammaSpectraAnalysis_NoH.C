@@ -20,7 +20,7 @@ Double_t PoissonFunc(Double_t *x, Double_t *par)
 {
 	return par[1]*TMath::Poisson(x[0],par[0]);
 }
-void GammaSpectraAnalysis_NoH(TString Filename = "Sim_Geo36_E0.500MeV_Evts10000000_FileEvts20000_Gen1_ST0__1.root", TString SubFolder ="Sim_Geo36_E0.500MeV_Evts10000000_FileEvts20000_Gen1_ST0")//, Double_t Energy) 
+int GammaSpectraAnalysis_NoH(TString Filename = "Sim_Geo36_E0.500MeV_Evts10000000_FileEvts20000_Gen1_ST0__1.root", TString SubFolder ="Sim_Geo36_E0.500MeV_Evts10000000_FileEvts20000_Gen1_ST0")//, Double_t Energy) 
 {
 	
 
@@ -350,4 +350,5 @@ void GammaSpectraAnalysis_NoH(TString Filename = "Sim_Geo36_E0.500MeV_Evts100000
 	cout << endl;
 	// ------------------------------------------------------------------------
 	
+  return 0;
 }

@@ -319,7 +319,7 @@ double DbMass(TString name)
 	if (fPdg->GetParticle(name)) return fPdg->GetParticle(name)->Mass();
 }
 
-void full_core_ntp(TString fname, int nev=50, bool tagonly=false)
+int full_core_ntp(TString fname, int nev=50, bool tagonly=false)
 {
 	int i,j;
 	nev*=1000;
@@ -626,6 +626,7 @@ void full_core_ntp(TString fname, int nev=50, bool tagonly=false)
 	//cout <<result;							
 	ofs <<result;
 	ofs.close();
+  return 0;
 }
 
 

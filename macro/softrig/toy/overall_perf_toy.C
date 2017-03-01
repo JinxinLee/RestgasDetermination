@@ -33,7 +33,7 @@ void config_graph(TGraph *g, int m=20, TString name="")
 	g->SetName(name);
 }
 
-void overall_perf_toy()
+int overall_perf_toy()
 {
 	setStyle();
 	
@@ -424,6 +424,7 @@ void overall_perf_toy()
 	leg4->Draw();
 	c4->SaveAs("figtoy_v2/Efficiency_sum_opt_eff90.gif");
 	c4->SaveAs("figtoy_v2/Efficiency_sum_opt_eff90.pdf");
+  return 0;
 }
 
 

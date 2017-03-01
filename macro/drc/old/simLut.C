@@ -1,4 +1,4 @@
-void simLut(Int_t nEvents=100, TString simFile="simlut.root", TString parFile="parlut.root"){
+int simLut(Int_t nEvents=100, TString simFile="simlut.root", TString parFile="parlut.root"){
 
   TStopwatch timer;
   timer.Start();
@@ -90,4 +90,5 @@ void simLut(Int_t nEvents=100, TString simFile="simlut.root", TString parFile="p
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
+  return 0;
 }

@@ -4,7 +4,7 @@
 //void sim_Gamma(Int_t nEvents = 1000, Int_t WhichDetector = 36,Double_t Energy = 0.001,Bool_t addSecTar = 1)
 
 
-void sim_Gamma(	Int_t WhichDetector ,
+int sim_Gamma(	Int_t WhichDetector ,
 				Double_t Energy,
 				Int_t nAllEvents,
 				Int_t nEvents,
@@ -235,6 +235,7 @@ void sim_Gamma(	Int_t WhichDetector ,
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
+  return 0;
 }  
   
 

@@ -1,4 +1,4 @@
-void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TString hitFile = "hit.root", TString outid="n"){
+int eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TString hitFile = "hit.root", TString outid="n"){
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
@@ -121,6 +121,7 @@ void eventDisplay(TString inFile = "sim.root", TString parFile="par.root", TStri
   v->SavePicture("geometry.png");
   // v->SavePicture("anim_"+outid+".png");
   
+  return 0;
 }
 
 

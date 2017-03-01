@@ -1,4 +1,4 @@
-void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root", TString geom="dirc_e3_b3_l6_m40.root", Int_t pdg=321 , Double_t mom=3.5, Double_t theta=140, Double_t phi=10.825){
+int sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root", TString geom="dirc_e3_b3_l6_m40.root", Int_t pdg=321 , Double_t mom=3.5, Double_t theta=140, Double_t phi=10.825){
   
   TStopwatch timer;
   timer.Start();
@@ -161,4 +161,5 @@ void sim(Int_t nEvents=10, TString outFile="sim.root", TString parFile="par.root
   cout << "Output file is "    << outFile << endl;
   cout << "Parameter file is " << parFile << endl;
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }

@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void CombineNeutronAna(TString FileListname_ext,TString OutfileName_ext)
+int CombineNeutronAna(TString FileListname_ext,TString OutfileName_ext)
 {
 	TString PathFirstPart = getenv("SIMDATADIR");
 	TString FullPath = PathFirstPart;
@@ -145,4 +145,5 @@ void CombineNeutronAna(TString FileListname_ext,TString OutfileName_ext)
 	//hNeutronsPerCrystal->Draw();
 	OutFile->ls();
 	OutFile->Close();
+  return 0;
 }

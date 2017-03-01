@@ -29,7 +29,7 @@ Double_t* MapsToArrays(std::map<Double_t, Double_t> Map,const int ArraySize, boo
 	return Array;
 }
 
-void Pic_FEP-Eff_lE(bool Plot20 = true,	bool Plot10SekTar = false,	bool Plot10 = false)
+int Pic_FEP-Eff_lE(bool Plot20 = true,	bool Plot10SekTar = false,	bool Plot10 = false)
 {
 
 	bool useExpectedRange = 0;
@@ -417,4 +417,5 @@ TCanvas *c2 = new TCanvas("c2","A Simple Graph with error bars",200,10,900,700);
 
 		leg4->Draw();
 		c4->SaveAs("~/pictures/Compare_geo1geo3.png");
+  return 0;
 }

@@ -2,7 +2,7 @@
 double Pi = TMath::Pi();
 
 
-void hypGeGeoBuilderDEGASBall40_6sym_offset20(Double_t ZShift = 0)
+int hypGeGeoBuilderDEGASBall40_6sym_offset20(Double_t ZShift = 0)
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -105,6 +105,7 @@ void hypGeGeoBuilderDEGASBall40_6sym_offset20(Double_t ZShift = 0)
 	//geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

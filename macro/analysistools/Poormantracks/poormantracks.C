@@ -26,7 +26,7 @@ int fVerbose=0;
 TClonesArray* fMcCands=0;
 TClonesArray* fCands=0;
 
-void poormantracks(int nevt=250, int laut=0, int seed=-1)
+int poormantracks(int nevt=250, int laut=0, int seed=-1)
 {
   //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   //gSystem->Load("libRho");
@@ -586,6 +586,7 @@ void poormantracks(int nevt=250, int laut=0, int seed=-1)
   // plothistosfromfile(hfile.Data(),"pdf",3,3);
 
   //gROOT->Macro("drawhistos.C");//automatic draw 1D histos with gauss fit
+  return 0;
 
 }
 

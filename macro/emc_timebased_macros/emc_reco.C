@@ -11,7 +11,7 @@ void deactivatePhiSplitter(FairTask* bumpSplitter) {
 	}
 }
 
-void emc_reco(const char* digiFile, const char* simFile, const char* outFile, Int_t events=0, const char* parFile="simparams.root") {
+int emc_reco(const char* digiFile, const char* simFile, const char* outFile, Int_t events=0, const char* parFile="simparams.root") {
   // Loads a filewith hits and makes digitization for EMC
   
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -111,5 +111,6 @@ void emc_reco(const char* digiFile, const char* simFile, const char* outFile, In
   cout << endl;
   // ------------------------------------------------------------------------
   
+  return 0;
 }
 

@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-void sim_complete_pbarA(Int_t nEvents = 100, UInt_t seed=-1, TString  SimEngine ="TGeant3", Float_t mom = 8.0, Float_t atarg = 20.0)
+int sim_complete_pbarA(Int_t nEvents = 100, UInt_t seed=-1, TString  SimEngine ="TGeant3", Float_t mom = 8.0, Float_t atarg = 20.0)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -205,6 +205,7 @@ void sim_complete_pbarA(Int_t nEvents = 100, UInt_t seed=-1, TString  SimEngine 
   cout << " All ok " << endl;
   
   //exit(0);
+  return 0;
   
 };
 

@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-void sizetree(TString fname)
+int sizetree(TString fname)
 {
 	int totsize = 0;
 	TString name[1000];
@@ -67,4 +67,5 @@ void sizetree(TString fname)
 			ar[i],name[ar[i]].Data(), n[ar[i]], br[ar[i]], (n[ar[i]]*br[ar[i]])/1000, size[ar[i]]/1000);
 	
 	cout <<"total size: "<<totsize/1000<<"k"<<endl;
+  return 0;
 }

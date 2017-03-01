@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, Geant4, different momentum)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-void sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 15.)
+int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 15.)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -37,5 +37,6 @@ void sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t B
   fRun->Finish();
   
   //exit(0);  
+  return 0;
 };
 

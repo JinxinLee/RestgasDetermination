@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------
 
 
-void analysis()
+int analysis()
 {
 
 	TFile *file=TFile::Open("sim.root","read");
@@ -201,4 +201,5 @@ void analysis()
 
 	//file2->Close();
 	//file3->Close();
+  return 0;
 }

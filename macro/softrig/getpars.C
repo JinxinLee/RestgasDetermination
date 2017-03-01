@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-void getpars(TString fname)
+int getpars(TString fname)
 {
 	TRegexp regntp("n[0-9]+");
 	TString ntp = fname(regntp);
@@ -44,4 +44,5 @@ void getpars(TString fname)
 		
 		printf("dM: MEAN = %6.4f  SIGMA = %6.4f\n", f2.GetParameter(1), f2.GetParameter(2));
 	}
+  return 0;
 }

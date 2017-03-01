@@ -1,4 +1,4 @@
-void NeutronAnalysis() 
+int NeutronAnalysis() 
 {
 
   // -----  Load libraries   ------------------------------------------------
@@ -111,4 +111,5 @@ void NeutronAnalysis()
 	cout << endl;
 	// ------------------------------------------------------------------------
 	
+  return 0;
 }

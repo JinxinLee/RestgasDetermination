@@ -2,7 +2,7 @@
 double Pi = TMath::Pi();
 
 
-void hypGeGeoBuilderTripleBall40Offset20Geometry_STTFitting()
+int hypGeGeoBuilderTripleBall40Offset20Geometry_STTFitting()
 {
 	
 	//gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -108,6 +108,7 @@ void hypGeGeoBuilderTripleBall40Offset20Geometry_STTFitting()
 	geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

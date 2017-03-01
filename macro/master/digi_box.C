@@ -1,7 +1,7 @@
 // Macro for running Panda digitization tasks
 // to run the macro:
 // root  digi_box.C  or in root session root>.x  digi_box.C
-void digi_box(Int_t nEvents = 0)
+int digi_box(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -31,5 +31,5 @@ void digi_box(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
  
-  exit(0);
+  return 0;
 }

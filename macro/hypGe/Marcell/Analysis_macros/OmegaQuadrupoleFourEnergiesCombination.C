@@ -36,7 +36,7 @@ Double_t QuadGausPlusStep (Double_t *x,Double_t *par)
 }
 
 
-void OmegaQuadrupoleFourEnergiesCombination(
+int OmegaQuadrupoleFourEnergiesCombination(
 			TString mu = "-2.5",
 			TString Q = "-2.8",
 			TString Psf = "1",
@@ -157,4 +157,5 @@ void OmegaQuadrupoleFourEnergiesCombination(
 			can[i]->Write();
 		}
 		RootOutfile->Close();
+  return 0;
 }

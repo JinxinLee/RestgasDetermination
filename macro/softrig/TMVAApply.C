@@ -137,7 +137,7 @@ TString getFromCut(TString vars)
 }
 // ---------------------------------------------------------------
 
-void TMVAApply(TString fname, TString vars, TString precut="", TString wfile="", Float_t bglevel=0.0001)
+int TMVAApply(TString fname, TString vars, TString precut="", TString wfile="", Float_t bglevel=0.0001)
 {
 	if (vars.Contains("&&")) vars = getFromCut(vars);
 	cout <<"Vars : "<<vars<<endl;
@@ -237,6 +237,7 @@ void TMVAApply(TString fname, TString vars, TString precut="", TString wfile="",
 	else precut="tag&&"+precut;
 	TString cfgline = smode(1,3)+treename(1,3)+" : "+precut+" : M"+smode(1,3)+treename(1,3)+"_BDT "+vars+" "+TString::Format("%f",cut);
 	cout <<"cfgline -> "<<cfgline<<endl;
+  return 0;
 }
 
 

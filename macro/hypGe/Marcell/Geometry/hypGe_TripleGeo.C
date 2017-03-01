@@ -8,7 +8,7 @@ TGeoRotation *Clusterrot = new TGeoRotation("Clusterrot",phi, theta,psi-phi);
 top->AddNode(Clusterr,ObjectNo,new TGeoCombiTrans(x,y,GlobalZOffset+z,Clusterrot));
 }
 
-void hypGe_TripleGeo()
+int hypGe_TripleGeo()
 {
 
 gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -340,6 +340,7 @@ ClusterPlacer(-8.421,20.8241, -19.8857, GlobalZOffset , 16000, strange,Cluster[1
 	geom->PrintOverlaps();
 	cout <<"Anzahl der Objekte: "<< ObjektNr << endl;
 	//Paket[1]->Print();
+  return 0;
 }
 
 

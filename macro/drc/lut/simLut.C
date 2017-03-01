@@ -1,4 +1,4 @@
-void simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TString parFile="parlut.root", Int_t bars=3, TString geom="dirc_e3_b3_l6_m40.root"){
+int simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TString parFile="parlut.root", Int_t bars=3, TString geom="dirc_e3_b3_l6_m40.root"){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -116,4 +116,5 @@ void simLut(Int_t nEvents=20, Int_t barId = 1, TString simFile="simlut.root", TS
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
+  return 0;
 }

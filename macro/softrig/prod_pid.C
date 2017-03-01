@@ -1,4 +1,4 @@
-void prod_pid(TString outpre="")
+int prod_pid(TString outpre="")
 {
   // Macro created 02/10/2012 by S.Spataro
   // It loads a reconstruction file and compute PID informations
@@ -108,4 +108,5 @@ void prod_pid(TString outpre="")
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   //exit(0);
+  return 0;
 }

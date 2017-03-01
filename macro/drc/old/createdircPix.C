@@ -26,7 +26,7 @@
 // B E F O R E   R U N N I N G   T H E   P R O G R A M   C H E C K   T H E   N A M E   O F   T H E   O U T P U T   F I L E ! ! ! 
 const Double_t pi =  4.*atan(1.);
 
-void createdircPix(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TString geomPath=".", Double_t par1=-100, Double_t par2=-100, Double_t par3=-100, Double_t par4=-100, Double_t par5=-100, Double_t par6=-100, Double_t par7=-100, Double_t par8=-100){ 
+int createdircPix(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0, TString geomPath=".", Double_t par1=-100, Double_t par2=-100, Double_t par3=-100, Double_t par4=-100, Double_t par5=-100, Double_t par6=-100, Double_t par7=-100, Double_t par8=-100){ 
 
   { // initialization 
     gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -1270,4 +1270,5 @@ void createdircPix(Int_t fGeomType = 1, Int_t fFocusingSystem = 6, Int_t iter=0,
   TObjArray *listOfOverlaps = gGeoManager->GetListOfOverlaps();
   cout<<listOfOverlaps->GetEntries()<<endl;
   listOfOverlaps->Print(); 
+  return 0;
 }

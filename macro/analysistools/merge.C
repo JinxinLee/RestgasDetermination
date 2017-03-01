@@ -1,4 +1,4 @@
-void merge(TString ntp="", TString fout="", TString f1="", TString f2="", TString f3="", TString f4="", TString f5="")
+int merge(TString ntp="", TString fout="", TString f1="", TString f2="", TString f3="", TString f4="", TString f5="")
 {
 	if (ntp=="" || fout=="" || f1=="")
 	{
@@ -23,4 +23,5 @@ void merge(TString ntp="", TString fout="", TString f1="", TString f2="", TStrin
 	if (f5!="") n.Add(f5);
 	
 	n.Merge(fout);
+  return 0;
 }

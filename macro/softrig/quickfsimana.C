@@ -18,7 +18,7 @@
 // -------------------
 
 
-void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
+int quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString anadecay="", 
 				  Int_t nEvents = 1000, TString Resonance="pbarpSystem0", TString anaparms="", bool runST=false, int run=0 , int mode=0)
 {
 	if (Prefix=="" || Decfile=="" || Mom==0. ) 
@@ -337,5 +337,6 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	Double_t rtime = timer.RealTime();
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  return 0;
 }
 

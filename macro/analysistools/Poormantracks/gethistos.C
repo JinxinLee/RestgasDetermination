@@ -1,4 +1,4 @@
-void gethistos()
+int gethistos()
 {
   gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
   LoadPandaStyle();
@@ -52,6 +52,7 @@ void gethistos()
   
   plotandfithistosfromfile("Histos.root",".pdf",3,3,900);
   //plothistosfromfile("Histos.root",".pdf",3,5,250);
+  return 0;
 }
 
 

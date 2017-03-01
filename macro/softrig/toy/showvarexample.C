@@ -208,7 +208,7 @@ void drawHistos(TTree *t, TString var, TString title, TString precut, TString ne
 	
 }
 
-void showvarexample()
+int showvarexample()
 {
 	setStyle();
 	
@@ -311,4 +311,5 @@ void showvarexample()
 	
 	cout<<100*preEff<<endl;
 			
+  return 0;
 }

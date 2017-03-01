@@ -1,4 +1,4 @@
-void Pic_OmegaQuadrupoleComparison()
+int Pic_OmegaQuadrupoleComparison()
 {
 	const int nFiles = 3;
 	TString RootInputFiles[nFiles];

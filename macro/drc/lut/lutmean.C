@@ -1,4 +1,4 @@
-void lutmean(TString baseFile = "lut_all")
+int lutmean(TString baseFile = "lut_all")
 {
   gInterpreter->GenerateDictionary("vector<TVector3>","TVector3.h"); 
   
@@ -112,4 +112,5 @@ void lutmean(TString baseFile = "lut_all")
   fTreeNew->Write();
   fFileNew->Write();
 
+  return 0;
 }

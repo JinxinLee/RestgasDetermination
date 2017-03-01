@@ -1,4 +1,4 @@
-void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=0, Double_t eventRate=50, Double_t deadTime=40){
+int digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.root", TString outFile = "digi.root", Int_t timeBased=0, Double_t eventRate=50, Double_t deadTime=40){
   Int_t verbose = 0;
   
   // -----   Timer   --------------------------------------------------------
@@ -58,4 +58,5 @@ void digi(Int_t nEvents = 0, TString inFile = "sim.root", TString parFile="par.r
   cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
+  return 0;
 }

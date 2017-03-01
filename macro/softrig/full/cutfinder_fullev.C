@@ -531,7 +531,7 @@ void findLimits(TTree *t, TString var, TString ccut, double &low, double &high, 
 	t->SetEventList(0);	
 }
 
-void cutfinder_fullev(TString pre, TString ntp, TString sigcut, TString precut="", double n0s=50., double n0b=500., double supr=0.9 )
+int cutfinder_fullev(TString pre, TString ntp, TString sigcut, TString precut="", double n0s=50., double n0b=500., double supr=0.9 )
 {
 	gStyle->SetTitleY(0.993);
 	gStyle->SetTitleH(0.07);
@@ -666,4 +666,5 @@ void cutfinder_fullev(TString pre, TString ntp, TString sigcut, TString precut="
 	
 	cout <<"SIG EVT : "<<nsig<<"    "<<"BG EVT : "<<nbg<<endl;
 	cout <<"SIG EFF : "<<nsig/N0_sig<<"    "<<"BG EFF : "<< nbg/N0_bg<<endl;
+  return 0;
 }

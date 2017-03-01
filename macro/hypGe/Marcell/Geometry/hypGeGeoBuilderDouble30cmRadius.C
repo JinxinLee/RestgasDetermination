@@ -3,7 +3,7 @@ double Pi = TMath::Pi();
 
 
 
-void hypGeGeoBuilderDouble30cmRadius()
+int hypGeGeoBuilderDouble30cmRadius()
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -121,6 +121,7 @@ void hypGeGeoBuilderDouble30cmRadius()
 	//geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

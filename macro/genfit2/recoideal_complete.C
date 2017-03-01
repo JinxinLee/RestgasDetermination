@@ -1,4 +1,4 @@
-void recoideal_complete()
+int recoideal_complete()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
@@ -138,5 +138,5 @@ void recoideal_complete()
   // ------------------------------------------------------------------------
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  return 0;
 }

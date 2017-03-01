@@ -2,7 +2,7 @@
 double Pi = TMath::Pi();
 
 
-void hypGeGeantTestGeometry()
+int hypGeGeantTestGeometry()
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -70,6 +70,7 @@ void hypGeGeantTestGeometry()
 	//geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

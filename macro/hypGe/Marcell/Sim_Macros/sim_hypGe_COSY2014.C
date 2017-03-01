@@ -1,6 +1,6 @@
 // Macro created 5/04/2007 by A.Sanchez
 // It creates a geant simulation file for hypGe
-void sim_hypGe_COSY2014(Double_t ProtonMomentum = 2.78,Int_t nEvents = 100, Int_t PDG_ext = 2212, Bool_t GausSmearedBeam = 0, Bool_t BremsStahlungActivated = 0, Double_t RunNo = 0)
+int sim_hypGe_COSY2014(Double_t ProtonMomentum = 2.78,Int_t nEvents = 100, Int_t PDG_ext = 2212, Bool_t GausSmearedBeam = 0, Bool_t BremsStahlungActivated = 0, Double_t RunNo = 0)
 //void sim_hypGe_COSY(Int_t nEvents, Int_t PDG_ext ,Double_t TargetThickness , Double_t TargetAngle , Bool_t GausSmearedBeam , Bool_t BremsStahlungActivated , Bool_t WithBeamDump , Double_t ClusterRadius , Double_t BeamDumpDist )
 //sim_hypGe_COSY.C(10	,2212	,5	,0	,0	,1	,1	,30	,200)
 {
@@ -147,6 +147,7 @@ void sim_hypGe_COSY2014(Double_t ProtonMomentum = 2.78,Int_t nEvents = 100, Int_
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 	cout << "Data written to file:\t" << outFile.Data() << endl;
   
+  return 0;
 }  
   
 

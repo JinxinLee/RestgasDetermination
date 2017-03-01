@@ -120,7 +120,7 @@ bool readConfig(TString fname, int mode)
 	return true;
 }
 
-void inspectmode(int mode, TString opt="cont", TString selcfg = "../../softrig/selection_fsim_dec2014.cfg")
+int inspectmode(int mode, TString opt="cont", TString selcfg = "../../softrig/selection_fsim_dec2014.cfg")
 {
 	TString path="/data.local1/kgoetzen/data/softrig/fsim/merge4/shr/"; 
 	
@@ -201,4 +201,5 @@ void inspectmode(int mode, TString opt="cont", TString selcfg = "../../softrig/s
 	cout <<endl;
 	
 	
+  return 0;
 }

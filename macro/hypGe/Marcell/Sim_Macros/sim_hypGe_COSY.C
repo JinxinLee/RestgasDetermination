@@ -1,6 +1,6 @@
 // Macro created 5/04/2007 by A.Sanchez
 // It creates a geant simulation file for hypGe
-void sim_hypGe_COSY(Double_t ProtonMomentum = 2.95,Int_t nEvents = 100, Int_t PDG_ext = 2212,Double_t TargetThickness = 5, Double_t TargetAngle = 0, Bool_t GausSmearedBeam = 0, Bool_t BremsStahlungActivated = 0, Bool_t WithBeamDump = 1, Double_t ClusterRadius = 30 , Double_t BeamDumpDist = 200, Double_t RunNo)
+int sim_hypGe_COSY(Double_t ProtonMomentum = 2.95,Int_t nEvents = 100, Int_t PDG_ext = 2212,Double_t TargetThickness = 5, Double_t TargetAngle = 0, Bool_t GausSmearedBeam = 0, Bool_t BremsStahlungActivated = 0, Bool_t WithBeamDump = 1, Double_t ClusterRadius = 30 , Double_t BeamDumpDist = 200, Double_t RunNo)
 //void sim_hypGe_COSY(Int_t nEvents, Int_t PDG_ext ,Double_t TargetThickness , Double_t TargetAngle , Bool_t GausSmearedBeam , Bool_t BremsStahlungActivated , Bool_t WithBeamDump , Double_t ClusterRadius , Double_t BeamDumpDist )
 //sim_hypGe_COSY.C(10	,2212	,5	,0	,0	,1	,1	,30	,200)
 {
@@ -193,6 +193,7 @@ void sim_hypGe_COSY(Double_t ProtonMomentum = 2.95,Int_t nEvents = 100, Int_t PD
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
+  return 0;
 }  
   
 

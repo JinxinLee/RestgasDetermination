@@ -1,4 +1,4 @@
-void Pic_FEP_Eff_lEE_XiManyTargets()
+int Pic_FEP_Eff_lEE_XiManyTargets()
 {
 	andi::setCustomStyle();
 	TString HistoTitle = "Simulation of full-energy-peak-efficiency;#gamma energy [MeV]; Full-energy-peak-efficiency [%]";
@@ -68,4 +68,5 @@ void Pic_FEP_Eff_lEE_XiManyTargets()
 	cout << PicRootDir.Data() << endl;
 	andi::saveCanvas_allFileNames(c1,TString::Format("%s/XiAtoms/Gamma/%s",PicRootDir.Data(),PicName.Data()));
 
+  return 0;
 }

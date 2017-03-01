@@ -1,4 +1,4 @@
-void prod_dig(TString outpre="")
+int prod_dig(TString outpre="")
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits 
@@ -128,4 +128,5 @@ void prod_dig(TString outpre="")
   cout << " All ok " << endl;
 
   //exit(0);
+  return 0;
 }

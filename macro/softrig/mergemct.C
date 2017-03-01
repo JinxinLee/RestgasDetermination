@@ -1,4 +1,4 @@
-void mergemct(TString ntp, TString fout, TString f1, TString f2="", TString f3="", TString f4="", TString f5="")
+int mergemct(TString ntp, TString fout, TString f1, TString f2="", TString f3="", TString f4="", TString f5="")
 {
 	TChain n(ntp);
 	
@@ -12,4 +12,5 @@ void mergemct(TString ntp, TString fout, TString f1, TString f2="", TString f3="
 	TTree *newtree = n.CopyTree("xmct||mode%1000==900");
 	f.Write();
 	f.Close();
+  return 0;
 }

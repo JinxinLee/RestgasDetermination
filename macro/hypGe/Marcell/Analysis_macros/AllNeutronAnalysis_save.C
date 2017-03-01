@@ -1,4 +1,4 @@
-void AllNeutronAnalysis() 
+int AllNeutronAnalysis() 
 {
 
   // -----  Load libraries   ------------------------------------------------
@@ -138,4 +138,5 @@ void AllNeutronAnalysis()
 	cout << endl;
 	// ------------------------------------------------------------------------
 	
+  return 0;
 }

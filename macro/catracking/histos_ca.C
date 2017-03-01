@@ -7,7 +7,7 @@
    @date Jun 15, 2015
 **/
 
-void histos_ca() {
+int histos_ca() {
 
   TFile fileqa("recoqa_ca.root");
   TTree *cbmsim = (TTree*) fileqa.Get("cbmsim");
@@ -298,4 +298,5 @@ void histos_ca() {
 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  return 0;
 }

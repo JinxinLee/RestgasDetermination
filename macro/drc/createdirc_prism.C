@@ -32,7 +32,7 @@
 
 const Double_t pi =  4.*atan(1.);
 
-void createdirc_prism(Int_t fEvType = 3,Int_t fNBars = 3, Int_t fFocusingSystem = 6, Int_t  fMcpRows= 40, Int_t iter=0, TString geomPath=".", Double_t par1=-100, Double_t par2=-100, Double_t par3=-100, Double_t par4=-100, Double_t par5=-100, Double_t par6=-100, Double_t par7=-100, Double_t par8=-100, Double_t par9=-100){ 
+int createdirc_prism(Int_t fEvType = 3,Int_t fNBars = 3, Int_t fFocusingSystem = 6, Int_t  fMcpRows= 40, Int_t iter=0, TString geomPath=".", Double_t par1=-100, Double_t par2=-100, Double_t par3=-100, Double_t par4=-100, Double_t par5=-100, Double_t par6=-100, Double_t par7=-100, Double_t par8=-100, Double_t par9=-100){ 
 
   { // initialization 
     TString vmcWorkdir = getenv("VMCWORKDIR");
@@ -1362,4 +1362,5 @@ void createdirc_prism(Int_t fEvType = 3,Int_t fNBars = 3, Int_t fFocusingSystem 
   TObjArray *listOfOverlaps = gGeoManager->GetListOfOverlaps();
   cout<<listOfOverlaps->GetEntries()<<endl;
   listOfOverlaps->Print(); 
+  return 0;
 }

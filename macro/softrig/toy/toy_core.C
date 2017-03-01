@@ -838,7 +838,7 @@ void writeTuple(TString pre, CandList &l, EventShape &evsh, SimpleNtp *n, double
 	}
 }
 
-void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=true, bool evcut=false, double dp=0.05, 
+int toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=true, bool evcut=false, double dp=0.05, 
 			double trkeff=95., double pideff=95., double misid =5., double P_mix=0.00, bool writentp=false, int mode =9999)
 {
 	setStyle();
@@ -1681,4 +1681,5 @@ void toy_core(TString fsig, int nev=2, double sqrts=3.77, bool simcut=true, bool
 		fn->Close();
 	}
 	
+  return 0;
 }

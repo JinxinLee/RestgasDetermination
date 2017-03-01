@@ -1,4 +1,4 @@
-void hit(Int_t nEvents = 0, TString inFile = "sim.root",  TString parFile="par.root", TString inDigi = "digi.root", TString outFile = "hit.root", Int_t timeBased=0){
+int hit(Int_t nEvents = 0, TString inFile = "sim.root",  TString parFile="par.root", TString inDigi = "digi.root", TString outFile = "hit.root", Int_t timeBased=0){
   Int_t verbose = 0;
   
   // -----   Timer   --------------------------------------------------------
@@ -45,4 +45,5 @@ void hit(Int_t nEvents = 0, TString inFile = "sim.root",  TString parFile="par.r
   cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
+  return 0;
 }

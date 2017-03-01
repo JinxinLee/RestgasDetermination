@@ -23,7 +23,7 @@ int SplitString(TString s, TString delim, StrVec &toks)
 	return toks.size();
 }
 
-void compress(TString ntp, TString fnamein, TString fnameout, TString bnames="", TString precut="tag" )
+int compress(TString ntp, TString fnamein, TString fnameout, TString bnames="", TString precut="tag" )
 {
 	if (bnames=="*" && precut=="") 
 	{
@@ -81,4 +81,5 @@ void compress(TString ntp, TString fnamein, TString fnameout, TString bnames="",
 	fo->Write();
 	fo->Close();
 	fi->Close();
+  return 0;
 }

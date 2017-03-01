@@ -1,4 +1,4 @@
-void FileCleaner(TString InputFile = "/data/work/kpha1/steinen/Gamma/Ana/CombinedData/Combined_Ana_Geo43_E0.5189MeV_Evts2860000_FileEvts11440_Gen1_ST12_mu-2.5,Q-2.8_OQP_Psf1.5.root")
+int FileCleaner(TString InputFile = "/data/work/kpha1/steinen/Gamma/Ana/CombinedData/Combined_Ana_Geo43_E0.5189MeV_Evts2860000_FileEvts11440_Gen1_ST12_mu-2.5,Q-2.8_OQP_Psf1.5.root")
 {
 	TString FullFilename = InputFile;
 	//TString FullFilename = "/data/work/kpha1/steinen/Gamma/Ana/CombinedData/"+InputFile;
@@ -17,4 +17,5 @@ void FileCleaner(TString InputFile = "/data/work/kpha1/steinen/Gamma/Ana/Combine
 	gDirectory->Delete("BranchList;1");
 	gDirectory->Delete("cbmsim;1");
 	File->Close();
+  return 0;
 }

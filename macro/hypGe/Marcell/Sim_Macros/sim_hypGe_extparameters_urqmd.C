@@ -1,6 +1,6 @@
 // Macro created 5/04/2007 by A.Sanchez
 // It creates a geant simulation file for hypGe
-void sim_hypGe_extparameters_urqmd(Int_t nEvents, Int_t WhichDetector,Int_t iurqmdFile,Int_t StartEvent,Int_t SecTarget){
+int sim_hypGe_extparameters_urqmd(Int_t nEvents, Int_t WhichDetector,Int_t iurqmdFile,Int_t StartEvent,Int_t SecTarget){
 	// Load basic libraries
   // If it does not work,  please check the path of the libs and put it 	by hands
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -147,6 +147,7 @@ void sim_hypGe_extparameters_urqmd(Int_t nEvents, Int_t WhichDetector,Int_t iurq
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
+  return 0;
 }  
   
 

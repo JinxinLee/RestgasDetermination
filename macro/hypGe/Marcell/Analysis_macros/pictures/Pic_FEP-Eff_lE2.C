@@ -1,4 +1,4 @@
-void Pic_FED-Eff_lEE.C()
+int Pic_FED-Eff_lEE.C()
 {
 Double_t x[10],y[10],yE[];
 
@@ -16,4 +16,5 @@ ifstream Inputfile("/data/work/kpha1/steinen/Gamma/Ana/CombinedData/Fitted/Fitte
 	cout <<x[counter] <<" " <<y[counter] << " " <<yE[counter]<<endl;
 	}
 	
+  return 0;
 }

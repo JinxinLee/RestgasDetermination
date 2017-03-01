@@ -724,7 +724,7 @@ void makeIni4Vector(TLorentzVector &l, double s)
 }
 
 
-void softtrigger_kin5(TString fsig, int mode=0, double sqrts=3.77, int nev=1000, bool evcut=false, double dp=0.03,
+int softtrigger_kin5(TString fsig, int mode=0, double sqrts=3.77, int nev=1000, bool evcut=false, double dp=0.03,
                      double trkeff=100., double pideff=95., double misid =5., double P_mix=0.00 )
 {
     fRand.SetSeed();
@@ -1180,4 +1180,5 @@ void softtrigger_kin5(TString fsig, int mode=0, double sqrts=3.77, int nev=1000,
     ntpev->Write();
     ggg->Close();
 
+  return 0;
 }

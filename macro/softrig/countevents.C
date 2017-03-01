@@ -29,7 +29,7 @@ int uid(int lev, int lrun, int lmode)
 
 // ---------------------------------------------------------------
 
-void countevents(TString fname, TString ntp, TString cut)
+int countevents(TString fname, TString ntp, TString cut)
 {
 	TFile *f=new TFile(fname,"READ");
 	TTree *t=(TTree*)f->Get(ntp);
@@ -58,4 +58,5 @@ void countevents(TString fname, TString ntp, TString cut)
 	t->SetBranchStatus("*",1);
 
 	printf("EVT = %d   CAND = %d\n",evcnt.size(), el->GetN());
+  return 0;
 }

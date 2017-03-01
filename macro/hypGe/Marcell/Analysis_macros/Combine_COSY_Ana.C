@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void Combine_COSY_Ana()//TString FileListname_ext,TString OutfileName_ext)
+int Combine_COSY_Ana()//TString FileListname_ext,TString OutfileName_ext)
 {
 	TString PathFirstPart = getenv("SIMDATADIR");
 	TString FullPath = PathFirstPart;
@@ -195,4 +195,5 @@ void Combine_COSY_Ana()//TString FileListname_ext,TString OutfileName_ext)
 		}
 		FolderFile.close();
 	}
+  return 0;
 }

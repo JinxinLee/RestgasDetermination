@@ -496,7 +496,7 @@ void FCDrawVariable(TString var, int numpad, int norm=1, TString cut="")
 // -------------------------------------------
 // The main function
 // -------------------------------------------
-void findcuts(TTree *theTree=0, TString ctlvar="", TString sigcut="", TString bnames="", TString precut="", int numvars=9, double qaopt=0., double ws=1., double wb=1., int norm=1, int bins=500)
+int findcuts(TTree *theTree=0, TString ctlvar="", TString sigcut="", TString bnames="", TString precut="", int numvars=9, double qaopt=0., double ws=1., double wb=1., int norm=1, int bins=500)
 {
 	// if no argument given, print usage information
 	if (theTree==0) {FCPrintInfo();return;} 
@@ -628,5 +628,6 @@ void findcuts(TTree *theTree=0, TString ctlvar="", TString sigcut="", TString bn
 	printf("\nEFF_S = %5.3f (%d/%d)   EFF_B = %5.3f (%d/%d)   PUR = %5.3f   S/sqrt(S+B) %s= %6.3f\n",effs, Ns, N0s, effb, Nb, N0b, pur, normalize?"norm'd ":"", qa);
 	
 	c1->cd(); c1->Update();
+  return 0;
 }
 

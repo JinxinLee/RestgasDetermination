@@ -16,7 +16,7 @@
 #include <string>
 #include "TVector3.h"
 
-void AnalyseThetaRadiusCorrelation()
+int AnalyseThetaRadiusCorrelation()
 {
 
   // -----  Load libraries   ------------------------------------------------
@@ -376,4 +376,5 @@ void AnalyseThetaRadiusCorrelation()
 	cout << endl;
 	// ------------------------------------------------------------------------
 	
+  return 0;
 }

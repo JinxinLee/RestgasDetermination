@@ -657,7 +657,7 @@ void configHisto(TH1* h)
 	h->SetLineColor(602);
 }
 
-void softtrigger_toy12(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, bool evcut=false, double dp=0.03, 
+int softtrigger_toy12(TString fsig, int nev=2, double sqrts=3.77, bool simcut=false, bool evcut=false, double dp=0.03, 
 			double trkeff=100., double pideff=95., double misid =5., double P_mix=0.00)
 {
 	fRand.SetSeed();
@@ -1515,4 +1515,5 @@ void softtrigger_toy12(TString fsig, int nev=2, double sqrts=3.77, bool simcut=f
 	//h_lamc->Draw(); h_lamcsel->Draw("same"); h_lamcsig->Draw("same");	
 	//h_dpm->Draw();  h_dpmsel->Draw("same");  h_dpmsig->Draw("same");
 	
+  return 0;
 }

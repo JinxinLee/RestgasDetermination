@@ -350,7 +350,7 @@ void fillHistos(TTree *t, TString var, TString cut, TString all, TString sel, TS
 	t->Project(sig,var,cut+" && mct");
 }
 
-void toy_core_ntp(TString fname, int nev=50, bool tagonly=false)
+int toy_core_ntp(TString fname, int nev=50, bool tagonly=false)
 {
 	int i,j;
 	nev*=1000;
@@ -604,6 +604,7 @@ void toy_core_ntp(TString fname, int nev=50, bool tagonly=false)
 	cout <<result;							
 	ofs <<result;
 	ofs.close();
+  return 0;
 }
 
 

@@ -3,7 +3,7 @@ double Pi = TMath::Pi();
 
 
 
-void hypGe_GeoBuilder_template()
+int hypGe_GeoBuilder_template()
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -97,6 +97,7 @@ void hypGe_GeoBuilder_template()
 	geom->PrintOverlaps();
 	
 	
+  return 0;
 }
 
 

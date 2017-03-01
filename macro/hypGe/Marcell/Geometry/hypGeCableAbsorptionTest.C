@@ -2,7 +2,7 @@
 double Pi = TMath::Pi();
 
 
-void hypGeCableAbsorptionTest(Double_t FoilThickness_Ext = 2)
+int hypGeCableAbsorptionTest(Double_t FoilThickness_Ext = 2)
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -89,6 +89,7 @@ void hypGeCableAbsorptionTest(Double_t FoilThickness_Ext = 2)
 	delete geom;
 	
 	//return outfileWithoutPath; // returns the 
+  return 0;
 }
 
 

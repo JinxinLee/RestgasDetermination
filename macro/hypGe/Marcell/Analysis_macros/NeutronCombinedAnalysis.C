@@ -1,4 +1,4 @@
-void NeutronCombinedAnalysis(TString Filename = "Combined_AnaGeo36urqmd_500000Evts.root")
+int NeutronCombinedAnalysis(TString Filename = "Combined_AnaGeo36urqmd_500000Evts.root")
 {
 	gROOT->LoadMacro("$VMCWORKDIR/macro/hypGe/Marcell/SharedMacros/SharedMacroFunctions.C");
 	TString Path = getenv("SIMDATADIR");
@@ -51,4 +51,5 @@ void NeutronCombinedAnalysis(TString Filename = "Combined_AnaGeo36urqmd_500000Ev
 	TxTOutfile << TotalEvents<<endl;
 
 	TxTOutfile.close();
+  return 0;
 }

@@ -98,7 +98,7 @@ void init()
 
 // ---------------------------------------------------------------------
 				
-void evaltrig(TString fname="crosstag_histos.root", bool makeplots=0)
+int evaltrig(TString fname="crosstag_histos.root", bool makeplots=0)
 {
 	init();
 	
@@ -229,5 +229,6 @@ void evaltrig(TString fname="crosstag_histos.root", bool makeplots=0)
 		c3->SaveAs("effbg_graphs.gif");
 		c3->SaveAs("effbg_graphs.pdf");
 	}
+  return 0;
 }
 

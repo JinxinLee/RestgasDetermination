@@ -42,7 +42,7 @@ int countEvents(TTree *t, TString ccut)
 }
 
 
-void cutqa(TString pre, TString ntp, TString var, TString cut="", int n0sig=0, int n0bkg=0)
+int cutqa(TString pre, TString ntp, TString var, TString cut="", int n0sig=0, int n0bkg=0)
 {
 	TString bgcode="900";
 	TFile *f=new TFile("M"+pre+"_"+ntp+".root","READ");
@@ -149,4 +149,5 @@ void cutqa(TString pre, TString ntp, TString var, TString cut="", int n0sig=0, i
 	if (n0sig>0 && n0bkg>0)
 		cout <<"EVTS: eff_sig = "<< nev_sig*0.001/n0sig<<"   eff_bkg = "<<nev_bkg*0.001/n0bkg<<endl;
 	
+  return 0;
 }

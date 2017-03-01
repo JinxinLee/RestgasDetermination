@@ -1,4 +1,4 @@
-void digiLut(Int_t nEvents = 0, TString inFile = "simlut.root", TString outFile = "digilut.root", TString parFile1="parlut.root"){
+int digiLut(Int_t nEvents = 0, TString inFile = "simlut.root", TString outFile = "digilut.root", TString parFile1="parlut.root"){
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 3;
 
@@ -42,4 +42,5 @@ void digiLut(Int_t nEvents = 0, TString inFile = "simlut.root", TString outFile 
   cout << "Parameter file is " << parFile1 << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
+  return 0;
 }

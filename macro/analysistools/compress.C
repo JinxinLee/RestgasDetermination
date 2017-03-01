@@ -23,7 +23,7 @@ int COMSplitString(TString s, TString delim, StrVec &toks)
 	return toks.size();
 }
 
-void compress(TString ntp="", TString fnamein="", TString fnameout="", TString bnames="", TString precut="" )
+int compress(TString ntp="", TString fnamein="", TString fnameout="", TString bnames="", TString precut="" )
 {
 	if (ntp=="" || fnamein=="" || fnameout=="")
 	{
@@ -85,4 +85,5 @@ void compress(TString ntp="", TString fnamein="", TString fnameout="", TString b
 	fo->Write();
 	fo->Close();
 	fi->Close();
+  return 0;
 }

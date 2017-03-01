@@ -1,4 +1,4 @@
-void PandaSmartLabel(TString align="Rprel", Double_t xpos=-1, Double_t ypos=-1, Double_t scale=-1, TString str="-1", Double_t scale2=-1) {
+int PandaSmartLabel(TString align="Rprel", Double_t xpos=-1, Double_t ypos=-1, Double_t scale=-1, TString str="-1", Double_t scale2=-1) {
   // H as the first parameter triggers printing comamnd options
   if (align == "H") {
    cout 
@@ -100,5 +100,5 @@ void PandaSmartLabel(TString align="Rprel", Double_t xpos=-1, Double_t ypos=-1, 
  
   delete panda;
   
-  return;
+  return 0;
 }

@@ -1,4 +1,4 @@
-void COSYBackgroundAnalysis(TString Filename, Int_t StartEvent=0, Int_t NoOfEvents=0) 
+int COSYBackgroundAnalysis(TString Filename, Int_t StartEvent=0, Int_t NoOfEvents=0) 
 {
 	Int_t nEvents= NoOfEvents;//1000000;
 	Int_t iVerbose = 0;
@@ -81,4 +81,5 @@ void COSYBackgroundAnalysis(TString Filename, Int_t StartEvent=0, Int_t NoOfEven
   cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
+  return 0;
 }

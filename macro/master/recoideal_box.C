@@ -1,7 +1,7 @@
 // Macro for running Panda reconstruction tasks
 // to run the macro:
 // root  reco_box.C  or in root session root>.x  reco_box.C
-void recoideal_box(Int_t nEvents = 0)
+int recoideal_box(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -32,5 +32,5 @@ void recoideal_box(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
 
-  exit(0);
+  return 0;
 }

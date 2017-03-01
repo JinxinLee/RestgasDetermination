@@ -1,4 +1,4 @@
-void eventDisplayLut()
+int eventDisplayLut()
 {
   gSystem->Load("libEve");
   gSystem->Load("libEventDisplay");
@@ -29,4 +29,5 @@ void eventDisplayLut()
 
   fMan->Init(1,5);                     
  
+  return 0;
 }

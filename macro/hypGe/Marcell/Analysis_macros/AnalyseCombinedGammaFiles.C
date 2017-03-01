@@ -32,7 +32,7 @@ Double_t PoissonFunc(Double_t *x, Double_t *par)
 	return par[1]*TMath::Poisson(x[0],par[0]);
 }
 
-void AnalyseCombinedGammaFiles(TString Filepath, TString FileName,Int_t NoOfJobs = 10)//TString FileListname_ext,TString OutfileName_ext)
+int AnalyseCombinedGammaFiles(TString Filepath, TString FileName,Int_t NoOfJobs = 10)//TString FileListname_ext,TString OutfileName_ext)
 {
 	
 	TString Anapath = Filepath;
@@ -218,5 +218,6 @@ void AnalyseCombinedGammaFiles(TString Filepath, TString FileName,Int_t NoOfJobs
 	
 	cout << "macro finished successfully" << endl;
 	
+  return 0;
 }
 

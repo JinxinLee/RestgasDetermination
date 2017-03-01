@@ -4,7 +4,7 @@
 // It uses an ideal pattern recognition both in the barrel and the forward part with a smearing of momentum and position vectors.
 // After the ideal pattern reco the genfit kalman filter runs over the data set.
 
-void recoideal_day1(Int_t nEvents = 0)
+int recoideal_day1(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
@@ -37,5 +37,5 @@ void recoideal_day1(Int_t nEvents = 0)
   fRun->Run(0, nEvents);
   fRun->Finish();
 
-  exit(0);
+  return 0;
 }

@@ -2,7 +2,7 @@
 double Pi = TMath::Pi();
 
 
-void hypGeGeoBuilderTripleBall40Offset20Geometry()
+int hypGeGeoBuilderTripleBall40Offset20Geometry()
 {
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -107,6 +107,7 @@ void hypGeGeoBuilderTripleBall40Offset20Geometry()
 	//geom->CheckOverlaps(0.0000000001,option="d"); //1 Overlap von Strahlrohr + Kugel ist normal!!!!!!!!!!!!!!!!!
 	//geom->PrintOverlaps();
 	
+  return 0;
 	
 }
 

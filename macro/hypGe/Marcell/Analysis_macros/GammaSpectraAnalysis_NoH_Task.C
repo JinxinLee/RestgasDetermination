@@ -1,5 +1,5 @@
 //void GammaSpectraAnalysis_NoH_Task(TString Filename = "Sim_Geo36_E0.500MeV_Evts1000_FileEvts1000_Gen1_ST0__0.root", TString SubFolder ="Sim_Geo36_E0.500MeV_Evts1000_FileEvts1000_Gen1_ST0")//, Double_t Energy)
-void GammaSpectraAnalysis_NoH_Task(
+int GammaSpectraAnalysis_NoH_Task(
 		TString Filename = "Sim_Geo43_E0.519MeV_Evts2860000_FileEvts11440_Gen1_ST12__248.root",
 		TString SubFolder ="Sim_Geo43_E0.519MeV_Evts2860000_FileEvts11440_Gen1_ST12",
 		Bool_t OmegaQuadrupolMode = 1,
@@ -115,4 +115,5 @@ void GammaSpectraAnalysis_NoH_Task(
   //cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
+  return 0;
 }

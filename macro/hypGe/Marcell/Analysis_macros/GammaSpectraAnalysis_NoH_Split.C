@@ -22,7 +22,7 @@ Double_t PoissonFunc(Double_t *x, Double_t *par)
 {
 	return par[1]*TMath::Poisson(x[0],par[0]);
 }
-void GammaSpectraAnalysis_NoH_Split(TString Filename = "TripleBall40Offset10STT_8MeV_1000EvtswithSecTar.root",Int_t NoOfJobs = 10, Int_t JobNumber = 2)//, Double_t Energy) 
+int GammaSpectraAnalysis_NoH_Split(TString Filename = "TripleBall40Offset10STT_8MeV_1000EvtswithSecTar.root",Int_t NoOfJobs = 10, Int_t JobNumber = 2)//, Double_t Energy) 
 {
 	
 
@@ -205,4 +205,5 @@ void GammaSpectraAnalysis_NoH_Split(TString Filename = "TripleBall40Offset10STT_
 	cout << endl;
 	// ------------------------------------------------------------------------
 	
+  return 0;
 }

@@ -95,7 +95,7 @@ void config_graph(TGraph *g, int m=20, TString name="")
 	g->SetName(name);
 }
 
-void overall_perf()
+int overall_perf()
 {
 	setStyle();
 	
@@ -320,6 +320,7 @@ void overall_perf()
 	leg3->Draw();
 	c3->SaveAs("fig/Efficiency_sum_opt_fac1000.gif");
 	c3->SaveAs("fig/Efficiency_sum_opt_fac1000.pdf");
+  return 0;
 }
 
 

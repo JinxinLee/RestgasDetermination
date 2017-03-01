@@ -155,7 +155,7 @@ void readdir()
 // ---------------------------------------------------------------
 
 
-void simubg(TString cfgfile)
+int simubg(TString cfgfile)
 {
 	int nmodes = readmodes(cfgfile);
 	readdir();
@@ -211,6 +211,7 @@ void simubg(TString cfgfile)
 	}
 	
 	printf("\nSUM(effb) = %6.3f%%   SIMU(effb) = %6.3f%%\n",sumeffb, geffb);
+  return 0;
 }
 
 

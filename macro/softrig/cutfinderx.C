@@ -394,7 +394,7 @@ double bestCombiEvt(TTree *t, TString varname, TEventList &els, TEventList &elb,
 
 // ---------------------------------------------------------------
 
-void cutfinderx(TString fname, TString precut="", double supr=0.95, int evmult=10000, double norm=1.0, int n0s=-1)
+int cutfinderx(TString fname, TString precut="", double supr=0.95, int evmult=10000, double norm=1.0, int n0s=-1)
 {
 	isbt = gROOT->IsBatch();
 	
@@ -573,4 +573,5 @@ void cutfinderx(TString fname, TString precut="", double supr=0.95, int evmult=1
 		for (j=0;j<20;++j) cout <<vars[myidx[j]].Data()<<" ";
 		cout <<endl;
 	}
+  return 0;
 }

@@ -1,4 +1,4 @@
-void Pic_FEP_DEGASComparison()
+int Pic_FEP_DEGASComparison()
 {
 	andi::setCustomStyle();
 	//TString HistoTitle = "Simulation of full-energy-peak-efficiency;#gamma energy [MeV]; Full-energy-peak-efficiency [%]";
@@ -123,4 +123,5 @@ void Pic_FEP_DEGASComparison()
 	leg2->Draw();
 
 	andi::saveCanvas_allFileNames(c2,TString::Format("%s/XiAtoms/Gamma/%s",PicRootDir.Data(),PicName2.Data()));
+  return 0;
 }

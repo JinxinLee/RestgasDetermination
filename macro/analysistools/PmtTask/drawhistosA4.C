@@ -1,5 +1,5 @@
 
-void drawhistosA4(TString filename="Data/HistoVertexing.root")
+int drawhistosA4(TString filename="Data/HistoVertexing.root")
 {
   gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
   LoadPandaStyle();
@@ -20,6 +20,7 @@ void drawhistosA4(TString filename="Data/HistoVertexing.root")
 
   plotandfithistosfromfile(filename.Data(),"pdf",3,5,1200);
 
+  return 0;
 
 }
 

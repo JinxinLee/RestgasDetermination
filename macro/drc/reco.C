@@ -1,4 +1,4 @@
-void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString lut = "lut/lut_e3_b3_l6_m40_avr.root",TString pdf = "pdf/pdf_3.5.root", TString outFile = "reco.root", Double_t r1 = 0, Double_t r2 =0){
+int reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par.root", TString digiFile = "digi.root", TString hitFile = "hit.root", TString lut = "lut/lut_e3_b3_l6_m40_avr.root",TString pdf = "pdf/pdf_3.5.root", TString outFile = "reco.root", Double_t r1 = 0, Double_t r2 =0){
   Int_t verbose = 3;
   gStyle->SetOptStat(0);
   
@@ -54,4 +54,5 @@ void reco(Int_t nEvents = 0, TString simFile = "sim.root", TString parFile1="par
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
 
+  return 0;
 }

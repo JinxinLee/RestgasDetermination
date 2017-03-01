@@ -1,4 +1,4 @@
-void setPandaStyle()
+int setPandaStyle()
 {
 	TStyle *pandaStyle=new TStyle("PANDA","PANDA approved plots style");
 
@@ -71,4 +71,5 @@ void setPandaStyle()
 	gROOT->Reset();
 	gROOT->SetStyle("PANDA");
 	gROOT->ForceStyle();
+  return 0;
 }
