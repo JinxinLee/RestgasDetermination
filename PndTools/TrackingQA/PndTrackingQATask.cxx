@@ -375,6 +375,13 @@ void PndTrackingQATask::Finish() {
 	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPossiblePrim));
 	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPossibleSec));
 
+	Double_t fullyFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound));
+	Double_t partiallyFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound));
+	Double_t spuriousFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound));
+	Double_t allFound = fullyFound + partiallyFound + spuriousFound;
+
+	Double_t ghosts = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost));
+
 	std::cout << "fQualyHisto: All Tracks: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) + allTracksWithHits << std::endl
 			  << " Primary Tracks < 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) << std::endl
 			  << " All Tracks with hits: " << allTracksWithHits << ". Not Found: " << allTracksWithHitsNotFound << std::endl
@@ -383,33 +390,37 @@ void PndTrackingQATask::Finish() {
 			  << " Primary Tracks possible: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kMcPossiblePrim)) << ". Not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPossiblePrim)) << std::endl
 			  << " Secondary Tracks possible: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kMcPossibleSec)) << ". Not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPossibleSec)) << std::endl
 
-			  << " FullyFound: "    << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound)) 	<< " "
-			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound)) / allTracksWithHits * 100 << "% (of all tracks), "
-			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound)) / allPossibleTracksWithHits * 100 << "% (of all tracks possible)"
+			  << " FullyFound: "    << fullyFound 	<< " "
+			  << fullyFound / allTracksWithHits * 100 << "% (of all tracks), "
+			  << fullyFound / allPossibleTracksWithHits * 100 << "% (of all tracks possible)"
 
-			  << " PartlyFound: "  << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound)) 	<< " "
-			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound)) / allTracksWithHits * 100 << "% "
-			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound)) / allPossibleTracksWithHits * 100 << "% "
+			  << " PartlyFound: "  << partiallyFound 	<< " "
+			  << partiallyFound / allTracksWithHits * 100 << "% "
+			  << partiallyFound / allPossibleTracksWithHits * 100 << "% "
 
-			  << " Spurious: " 	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound)) 		<< " "
-			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound)) / allTracksWithHits * 100 << "% "
-			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound)) / allPossibleTracksWithHits * 100 << "% "
+			  << " Spurious: " 	<< spuriousFound 		<< " "
+			  << spuriousFound / allTracksWithHits * 100 << "% "
+			  << spuriousFound / allPossibleTracksWithHits * 100 << "% "
 
-			  << " Ghosts: "	<< fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost))		<< " "
-			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)) / allTracksWithHits * 100 << "% "
-			  << (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)) / allPossibleTracksWithHits * 100 << "% " << std::endl;
+			  << " Ghosts: "	<< ghosts		<< " "
+			  << ghosts / allTracksWithHits * 100 << "% "
+			  << ghosts / allPossibleTracksWithHits * 100 << "% " << std::endl;
 
-	fQualyHisto_rel_all->Fill(qualityNumbers::kFullyFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound)) / allTracksWithHits * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kFullyFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound)) / allPossibleTracksWithHits * 100);
+	fQualyHisto_rel_all->Fill(qualityNumbers::kFullyFound, fullyFound / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kFullyFound, fullyFound / allPossibleTracksWithHits * 100);
 
-	fQualyHisto_rel_all->Fill(qualityNumbers::kPartiallyFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound)) / allTracksWithHits * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kPartiallyFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound)) / allPossibleTracksWithHits * 100);
+	fQualyHisto_rel_all->Fill(qualityNumbers::kPartiallyFound, partiallyFound / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kPartiallyFound, partiallyFound / allPossibleTracksWithHits * 100);
 
-	fQualyHisto_rel_all->Fill(qualityNumbers::kSpuriousFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound)) / allTracksWithHits * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kSpuriousFound, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound)) / allPossibleTracksWithHits * 100);
+	fQualyHisto_rel_all->Fill(qualityNumbers::kSpuriousFound, spuriousFound / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kSpuriousFound, spuriousFound / allPossibleTracksWithHits * 100);
 
-	fQualyHisto_rel_all->Fill(qualityNumbers::kGhost, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)) / allTracksWithHits * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kGhost, (Double_t)fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost)) / allPossibleTracksWithHits * 100);
+	fQualyHisto_rel_all->Fill(qualityNumbers::kGhost, ghosts / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kGhost, ghosts / allPossibleTracksWithHits * 100);
+
+	fQualyHisto_rel_all->Fill(qualityNumbers::kFound, allFound / allTracksWithHits * 100);
+	fQualyHisto_rel_possible->Fill(qualityNumbers::kFound, allFound / allPossibleTracksWithHits * 100);
+
 
 	fQualyHisto_rel_all->Write();
 	fQualyHisto_rel_possible->Write();
