@@ -38,7 +38,7 @@ void PndLmdSensorAligner::init(){
 	ID2=-1;
 	_verbose=0;
 	_pairsNormal=false;
-	_pairsSimple=false;
+	_simpleStorage=false;
 	overlapID=-1;
 	_inCentimeters=true;
 	_success=false;
@@ -65,10 +65,13 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	int nPairs;
 
-	if(_pairsNormal && !_pairsSimple){
+	// this is no longer supported!
+	if(_pairsNormal && !_simpleStorage){
 		nPairs=pairs.size();
+		cout << "ERROR! non-simpleStorage no longer supported!\n";
+		return;
 	}
-	else if(!_pairsNormal && _pairsSimple){
+	else if(!_pairsNormal && _simpleStorage){
 
 		//check if all vectors have the same size
 		int s1 = simpleSensorOneX.size();
@@ -83,7 +86,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 			nPairs=simpleSensorOneX.size();
 		}
 		else{
-			cout << "FATAL. Pair sorting error, pais vectors have different sizes.\n";
+			cout << "FATAL. Pair sorting error, pairs vectors have different sizes.\n";
 			cout << "s1: " << s1 << "\n";
 			cout << "s2: " << s2 << "\n";
 			cout << "s3: " << s3 << "\n";
@@ -95,7 +98,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	}
 	else{
 		cout << "Error: inconsistent storage options. This could mean no pairs loaded. \n";
-		cout << "pairsNormal: " << _pairsNormal << ", pairsSimple: " << _pairsSimple << "\n";
+		cout << "pairsNormal: " << _pairsNormal << ", pairsSimple: " << _simpleStorage << "\n";
 		_success=false;
 		return;
 	}
@@ -137,7 +140,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	// (branch prediction), instead make the if condition outside and the loop inside the ifs.
 	//loop over all available pairs and sort them to arrays
 	for(int ipair=0; ipair<nPairs; ipair++){
-		if(_pairsNormal && !_pairsSimple){
+		if(_pairsNormal && !_simpleStorage){
 			if(_inCentimeters){
 				Model[ipair*3+0] = pairs[ipair].getHit1().x();
 				Model[ipair*3+1] = pairs[ipair].getHit1().y();
@@ -172,7 +175,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 				Template[ipair*3+2] = ipair;
 			}
 		}
-		else if(!_pairsNormal && _pairsSimple){
+		else if(!_pairsNormal && _simpleStorage){
 
 			Model[ipair*3+0] = simpleSensorOneX[ipair];
 			Model[ipair*3+1] = simpleSensorOneY[ipair];
@@ -184,7 +187,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		}
 		else{
 			cout << "Fatal: inconsistent storage options in ICP model and template generation.\n This should never happen. \n";
-			cout << "pairsNormal: " << _pairsNormal << ", pairsSimple: " << _pairsSimple << "\n";
+			cout << "pairsNormal: " << _pairsNormal << ", pairsSimple: " << _simpleStorage << "\n";
 			exit(1);
 		}
 	}
@@ -361,8 +364,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 	finalMatrix[14] = 0;
 	finalMatrix[15] = 1;
 
-	//TODO: now, try the other way around.
-
 	resultMatrix = Matrix(4,4);
 
 	std::stringstream alignlog;
@@ -443,14 +444,18 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 void PndLmdSensorAligner::addPair(PndLmdHitPair &pair){
 
+	cout << "WARNING. using legacy mode of stroring pairs!\n";
+
+	//TODO: we don't want to allow this in the future because it consumes vast amounts of memory.
+
 	//only one kind of pairs is allowed
-	if(!_pairsNormal && !_pairsSimple){
+	if(!_pairsNormal && !_simpleStorage){
 		_pairsNormal=true;
-		_pairsSimple=false;
+		_simpleStorage=false;
 	}
 
 	//only one kind of pairs is allowed
-	else if(!_pairsNormal && _pairsSimple){
+	else if(!_pairsNormal && _simpleStorage){
 		return;
 	}
 
@@ -492,13 +497,13 @@ void PndLmdSensorAligner::addPair(PndLmdHitPair &pair){
 void PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 
 	//only one kind of pairs is allowed
-	if(!_pairsNormal && !_pairsSimple){
-		_pairsSimple=true;
+	if(!_pairsNormal && !_simpleStorage){
+		_simpleStorage=true;
 		_pairsNormal=false;
 	}
 
 	//only one kind of pairs is allowed
-	if(_pairsNormal && !_pairsSimple){
+	if(_pairsNormal && !_simpleStorage){
 		return;
 	}
 
@@ -549,14 +554,16 @@ void PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 	else{
 		simpleSensorOneX.push_back(pair.getCol1());
 		simpleSensorOneY.push_back(pair.getRow1());
-		simpleSensorOneZ.push_back(simpleSensorOneZ.size());
+		simpleSensorOneZ.push_back(simpleSensorOneZ.size());	//vecor grows, so this is okay
 
 		simpleSensorTwoX.push_back(pair.getCol2());
 		simpleSensorTwoY.push_back(pair.getRow2());
-		simpleSensorTwoZ.push_back(simpleSensorTwoZ.size());
+		simpleSensorTwoZ.push_back(simpleSensorTwoZ.size());	//vecor grows, so this is okay
 	}
 }
 
+//TODO: this code is old an can go
+/*
 void PndLmdSensorAligner::addSimplePairOld(PndLmdHitPair &pair){
 
 	//only one kind of pairs is allowed
@@ -630,6 +637,8 @@ void PndLmdSensorAligner::addSimplePairOld(PndLmdHitPair &pair){
 	}
 }
 
+*/
+
 void PndLmdSensorAligner::printAllPairs() {
 
 	double avgID1 =0;
@@ -642,7 +651,7 @@ void PndLmdSensorAligner::printAllPairs() {
 	double avgHit2y=0;
 	double avgHit2z=0;
 
-	cout << "pairs normal: " << _pairsNormal << ", pairs simple: " << _pairsSimple << "\n";
+	cout << "pairs normal: " << _pairsNormal << ", pairs simple: " << _simpleStorage << "\n";
 	cout << "number of pairs normal: " << pairs.size() << ", number of simple pairs: " << simpleSensorOneX.size() << "\n";
 
 	if(_pairsNormal){
@@ -669,7 +678,7 @@ void PndLmdSensorAligner::printAllPairs() {
 		cout << "avg hit 2 y : " << avgHit2y/pairs.size() << "\n";
 		cout << "avg hit 2 z : " << avgHit2z/pairs.size() << "\n";
 	}
-	else if(_pairsSimple){
+	else if(_simpleStorage){
 
 		RunningStats statsX1;
 		RunningStats statsY1;
@@ -737,7 +746,7 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	int doublesPerPair=6;				//well, doubles per Pair
 	int nPairs=0;
 
-	if(_pairsSimple){
+	if(_simpleStorage){
 		nPairs = simpleSensorOneX.size();				//number of pairs, TODO: check if all vectors have same size!
 	}
 	else{
@@ -772,7 +781,7 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	//save data
 	int currentIndex=6;				//data starts here
 
-	if(_pairsSimple){
+	if(_simpleStorage){
 		for(int i=0; i<nPairs; i++){
 			//first, only assume simple storage
 			pdata[currentIndex+0]=simpleSensorOneX[i];
@@ -813,6 +822,12 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 
 bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
+	//TODO: shouldn't we check if this aligner is even using simpleStorage?
+	if(!_simpleStorage){
+		cout << "ERROR. reading binary pairs and storing in legacy mode is no longer supported.\n";
+		return false;
+	}
+
 	string filename;				//binary pair file
 	//size_t length;				//number of raw doubles, remember pairs have 6 doubles
 	double* pdata;					//array with pairs
@@ -842,7 +857,8 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	if(inStream) {
 		std::fstream::pos_type size = inStream.tellg();
 		filesize = size;
-	} else {
+	}
+	else{
 		cout << filename.c_str() << " could not be read!\n";
 		return false;
 	}
@@ -927,6 +943,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		}
 	}
 
+	//from here on, only simpleStorage is supported
 	for(int i=0; i<nPairs; i++){
 		//assign pair data
 		if(!compareBinaryToStored){
@@ -974,18 +991,19 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		if(_verbose==3){
 			cout << "file check successful, everything okay!\n";
 		}
-		_pairsSimple=true;
+		_simpleStorage=true;
 	}
 
 	//delete array!
 	delete[] pdata;
 
+	//TODO:
 	//now, check if ID1 and ID2 can be generated from overlapID
 	return true;
 }
 
 void PndLmdSensorAligner::clearPairs() {
-	if(_pairsSimple){
+	if(_simpleStorage){
 		simpleSensorOneX.clear();
 		simpleSensorOneY.clear();
 		simpleSensorOneZ.clear();

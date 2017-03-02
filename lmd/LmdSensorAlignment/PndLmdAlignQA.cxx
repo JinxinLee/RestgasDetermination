@@ -218,7 +218,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 	//TODO: handle path and filenames correctly
 	else if(param == kPlotPXMatrixResiduals){
 
-		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
+		string pdfdir = "/home/arbeit/RedPro3TB/simulationData/boxtest-0u-1.5/AlignQA";
 
 		for(size_t i=0; i<idPairs.size(); i++){
 
@@ -227,14 +227,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 500e3){
+			if( matrixInfo[overlapID] < 300e3){
 				continue;
 			}
 
 			//prepare
 			Matrix target = manager.getMatrixOfficialGeometry(id1, id2,false); //true = aligned, false = misaligned
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices";
+			string path = "/home/arbeit/RedPro3TB/simulationData/boxtest-50u-1.5/binaryPairs-cut-160/LMDmatrices";
 			matrixNamePX = path + matrixNamePX;
 
 			//read matrices from disk
@@ -294,7 +294,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 	//TODO: handle path and filenames correctly
 	else if(param==kPlotCMvsPX){
 
-		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
+		string pdfdir = "/home/arbeit/RedPro3TB/simulationData/boxtest-0u-1.5/AlignQA";
 
 		for(size_t i=0; i<idPairs.size(); i++){
 
@@ -303,14 +303,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 500e3){
+			if( matrixInfo[overlapID] < 300e3){
 				continue;
 			}
 
 			//prepare
 			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = "/home/arbeit/simulationData/boxtest-misaligned-50u-1.5/binaryPairs/LMDmatrices";
+			string path = "/home/arbeit/RedPro3TB/simulationData/boxtest-0u-1.5/binaryPairs-cut-160/LMDmatrices";
 			matrixNameCM = path + matrixNameCM;
 			matrixNamePX = path + matrixNamePX;
 
@@ -346,7 +346,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//for DX
 		parameters.path = pdfdir;
-		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaX";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaX (10u)";
 		parameters.xtitle = "dX [nm]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e4*1e3;
@@ -358,7 +358,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//for DY
 		parameters.path = pdfdir;
-		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaY";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaY (10u)";
 		parameters.xtitle = "dY [nm]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e4*1e3;
@@ -370,7 +370,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//for DAlpha
 		parameters.path = pdfdir;
-		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #Delta#alpha";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #Delta#alpha (10u)";
 		parameters.xtitle = "d#alpha [nrad]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e9;
@@ -397,15 +397,15 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		switch(alignOption){
 		case 0:
 			alignOptionBool=true;
-			matrixPath = "/home/arbeit/simulationData/boxtest-0u-1.5/binaryPairs/LMDmatrices";
+			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-0u-1.5/binaryPairs-cut-160/LMDmatrices";
 			break;
 		case 1:
 			alignOptionBool=false;
-			matrixPath = "/home/arbeit/simulationData/boxtest-10u-1.5/binaryPairs/LMDmatrices";
+			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-10u-1.5/binaryPairs-cut-160/LMDmatrices";
 			break;
 		case 2:
 			alignOptionBool=false;
-			matrixPath = "/home/arbeit/simulationData/boxtest-50u-1.5/binaryPairs/LMDmatrices";
+			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-50u-1.5/binaryPairs-cut-160/LMDmatrices";
 			break;
 		}
 
@@ -542,7 +542,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//for DX
 		parameters.path = pdfdir;
-		parameters.title = "PXresiduals - CMresiduals, #DeltaX";
+		parameters.title = "PXresiduals - CMresiduals, #DeltaX (0u)";
 		parameters.xtitle = "dX [#mum]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e4;
@@ -554,7 +554,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//for DY
 		parameters.path = pdfdir;
-		parameters.title = "PXresiduals - CMresiduals, #DeltaY";
+		parameters.title = "PXresiduals - CMresiduals, #DeltaY (0u)";
 		parameters.xtitle = "dY [#mum]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e4;
@@ -566,7 +566,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//for DAlpha
 		parameters.path = pdfdir;
-		parameters.title = "PXresiduals - CMresiduals, #Delta#alpha";
+		parameters.title = "PXresiduals - CMresiduals, #Delta#alpha (0u)";
 		parameters.xtitle = "d#alpha [#murad]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e6;
@@ -729,7 +729,14 @@ Matrix PndLmdAlignQA::getMatrixResiduals(int id1, int id2) {
 
 void PndLmdAlignQA::readMatrixInfo() {
 
-	string filename = _matrixDir + "/info.txt";
+	string filename;
+	if(_inCentimeters){
+		filename = _matrixDir + "/info-cm.txt";
+	}
+	else{
+		filename = _matrixDir + "/info-px.txt";
+	}
+	
 	stringstream *info = manager.readFile(filename);
 
 	//parser: first, find line aligenr n (n is overlap id)
@@ -815,7 +822,7 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 	histogram.GetYaxis()->SetTitle(parameters.ytitle.c_str());
 
 	if(vec.size()==0){
-		cout << "Error: nothing read! (maybe not enough pairs?) \n";
+		cout << "Error: nothing read, data empty! (maybe not enough pairs?) \n";
 		exit(1);
 	}
 

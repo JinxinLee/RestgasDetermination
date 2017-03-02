@@ -47,7 +47,7 @@ private:
 	std::vector<double> simpleSensorTwoY;
 	std::vector<double> simpleSensorTwoZ;
 
-	bool _pairsNormal, _pairsSimple, _inCentimeters, _success, _numericCorrection, _zIsTimestamp;
+	bool _pairsNormal, _simpleStorage, _inCentimeters, _success, _numericCorrection, _zIsTimestamp;
 
 	Matrix resultMatrix, _helperMatrix;
 
@@ -57,7 +57,7 @@ public:
 	PndLmdSensorAligner(const PndLmdSensorAligner &other);
 	virtual ~PndLmdSensorAligner();
 
-	//every constructor should call this, also resets aligner (even though that never happens in normale use)
+	//every constructor should call this, also resets aligner (even though that never happens in normal use)
 	void init();
 
 	// add pair, make to vector
@@ -66,8 +66,9 @@ public:
 	// add simplified pair, for size and perfomance reasons
 	void addSimplePair(PndLmdHitPair &pair);
 
+	//TODO: remove this after checks
 	// add simplified pair, for size and perfomance reasons
-	void addSimplePairOld(PndLmdHitPair &pair);
+	//void addSimplePairOld(PndLmdHitPair &pair);
 
 	bool writePairsToBinary(std::string directory);
 	bool readPairsFromBinary(std::string directory);
@@ -94,10 +95,10 @@ public:
 		return _moduleID;
 	}
 	int getNoOfPairs(){
-		if(_pairsSimple && !_pairsNormal){
+		if(_simpleStorage && !_pairsNormal){
 			return simpleSensorOneX.size();
 		}
-		else if(!_pairsSimple && _pairsNormal){
+		else if(!_simpleStorage && _pairsNormal){
 			return pairs.size();
 		}
 		else{

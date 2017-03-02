@@ -98,7 +98,7 @@ void PndLmdAlignManager::init(){
 
 	_zIsTimestamp=true;
 	_allFilesAdded=false;
-	_useSimpleStorage=false;
+	_useSimpleStorage=true;
 	_singleAligner=true;
 	_pretend=false;
 	_inCentimeters=false;
@@ -151,7 +151,7 @@ PndLmdAlignManager::~PndLmdAlignManager(){
 
 bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 
-	//TODO: add mutex for multi threaded operation AFETR check, only for storing
+	//TODO: add mutex for multi threaded operation AFTER check, only for storing
 	/*
 	 * multi threaded hint: the map is always only read, not written to. there should be
 	 * no race conditions. instead, move the mutex to the actual aligner. it should be local to an aligner,
@@ -1289,14 +1289,9 @@ void PndLmdAlignManager::compareCombinedMatrices() {
 					Matrix targetCombined = getMatrixOfficialGeometry(firstID, iSecondSensor, true);
 					cout << "thismat:\n" << thisCombined << "\ntargetmat:\n" << targetCombined << "\n";
 				}
-
-
 			}
 		}
 	}
-
-
-
 }
 
 void PndLmdAlignManager::computeCombinedMatrices() {
