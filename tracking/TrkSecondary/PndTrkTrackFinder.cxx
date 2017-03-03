@@ -331,7 +331,7 @@ Bool_t PndTrkTrackFinder::MinuitFit2(PndTrkCluster *cluster, double xstart, doub
 }
 
 // -----   Default constructor   -------------------------------------------
-PndTrkTrackFinder::PndTrkTrackFinder() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL), fDelPrim(kFALSE), fNofPrimaries(0) {
+PndTrkTrackFinder::PndTrkTrackFinder() : FairTask("secondary track finder", 0), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fInitDone(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL), fDelPrim(kFALSE), fNofPrimaries(0) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -340,7 +340,7 @@ PndTrkTrackFinder::PndTrkTrackFinder() : FairTask("secondary track finder", 0), 
   PndGeoHandling::Instance();
 }
 
-PndTrkTrackFinder::PndTrkTrackFinder(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fInitDone(kFALSE), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL), fDelPrim(kFALSE), fNofPrimaries(0) {
+PndTrkTrackFinder::PndTrkTrackFinder(int verbose) : FairTask("secondary track finder", verbose), fDisplayOn(kFALSE), fPersistence(kTRUE), fUseMVDPix(kTRUE), fUseMVDStr(kTRUE), fUseSTT(kTRUE), fUseSCIT(kTRUE), fUseGEM(kTRUE), fSecondary(kFALSE), fInitDone(kFALSE), fMvdPix_RealDistLimit(1000), fMvdStr_RealDistLimit(1000), fStt_RealDistLimit(1000), fMvdPix_ConfDistLimit(1000), fMvdStr_ConfDistLimit(1000), fStt_ConfDistLimit(1000), fUmin(-0.07), fUmax(0.07), fVmin(-0.07), fVmax(0.07), fRmin(-1.5), fRmax(1.5), fThetamin(0), fThetamax(180), fRefHit(NULL), fDelPrim(kFALSE), fNofPrimaries(0) {
   sprintf(fSttBranch,"STTHit");
   sprintf(fMvdPixelBranch,"MVDHitsPixel");
   sprintf(fMvdStripBranch,"MVDHitsStrip");
@@ -890,7 +890,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
   for(size_t iqua = 0; iqua < trackcandidates2.size(); iqua++) {
     std::vector< int > triplet = trackcandidates2[iqua];
     
-    PndTrkHit *hit0 = stthitlist->GetHit(triplet[0]); //[R.K. 01/2017] unused variable
+    //PndTrkHit *hit0 = stthitlist->GetHit(triplet[0]); //[R.K. 03/2017] unused variable
     PndTrkHit *hit1 = stthitlist->GetHit(triplet[1]);
     PndTrkHit *hit2 = stthitlist->GetHit(triplet[2]);
     //  cout << "TRIPLET: " << triplet[0] << ", " << triplet[1] <<  " and " << triplet[2] << endl;
@@ -2341,9 +2341,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 	      r1 = phi11 * cost + fin_intersection11.Z() * TMath::Sin(theta);
 	    }
 	    fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
-	    double fitm11 =  -TMath::Cos(theta)/TMath::Sin(theta);
-	    double fitq11 = r1/TMath::Sin(theta);
-	    TLine *line11 = new TLine(0, fitq11, 360, 360 * fitm11 + fitq11);
+	    //double fitm11 =  -TMath::Cos(theta)/TMath::Sin(theta); //[R.K. 03/2017] unused variable
+	    //double fitq11 = r1/TMath::Sin(theta); //[R.K. 03/2017] unused variable
+	    //TLine *line11 = new TLine(0, fitq11, 360, 360 * fitm11 + fitq11); //[R.K. 03/2017] unused variable
 	    //    line11->Draw("SAME");
 	    // 	    cout << phi11 << " " << phi21 << endl;
 	    
@@ -2358,9 +2358,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 		r1 = phi12 * cost + fin_intersection12.Z() * TMath::Sin(theta);
 	      }
 	      fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
-	      double fitm21 =  -TMath::Cos(theta)/TMath::Sin(theta);
-	      double fitq21 = r1/TMath::Sin(theta);
-	      TLine *line21 = new TLine(0, fitq21, 360, 360 * fitm21 + fitq21);
+	      //double fitm21 =  -TMath::Cos(theta)/TMath::Sin(theta); //[R.K. 03/2017] unused variable
+	      //double fitq21 = r1/TMath::Sin(theta); //[R.K. 03/2017] unused variable
+	      //TLine *line21 = new TLine(0, fitq21, 360, 360 * fitm21 + fitq21); //[R.K. 03/2017] unused variable
 	      // 	      line21->Draw("SAME");
 	      // 	      cout << phi12 << " " << phi21 << endl;
 	    }
@@ -2376,9 +2376,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 		r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
 	      }
 	      fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
-	      double fitm12 =  -TMath::Cos(theta)/TMath::Sin(theta);
-	      double fitq12 = r1/TMath::Sin(theta);
-	      TLine *line12 = new TLine(0, fitq12, 360, 360 * fitm12 + fitq12);
+	      //double fitm12 =  -TMath::Cos(theta)/TMath::Sin(theta); //[R.K. 03/2017] unused variable
+	      //double fitq12 = r1/TMath::Sin(theta); //[R.K. 03/2017] unused variable
+	      //TLine *line12 = new TLine(0, fitq12, 360, 360 * fitm12 + fitq12); //[R.K. 03/2017] unused variable
 	      // 	      line12->Draw("SAME");
 	      // 	      cout << phi11<< " " << phi22<< endl;	   
 	    }
@@ -2394,9 +2394,9 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
 		r1 = phi22 * cost + fin_intersection22.Z() * TMath::Sin(theta);
 	      }
 	      fLineHisto->Fill(theta * TMath::RadToDeg(), r1);
-	      double fitm22 =  -TMath::Cos(theta)/TMath::Sin(theta);
-	      double fitq22 = r1/TMath::Sin(theta);
-	      TLine *line22 = new TLine(0, fitq22, 360, 360 * fitm22 + fitq22);
+	      //double fitm22 =  -TMath::Cos(theta)/TMath::Sin(theta); //[R.K. 03/2017] unused variable
+	      //double fitq22 = r1/TMath::Sin(theta); //[R.K. 03/2017] unused variable
+	      //TLine *line22 = new TLine(0, fitq22, 360, 360 * fitm22 + fitq22); //[R.K. 03/2017] unused variable
 	      // 	       line22->Draw("SAME");
 	      // 	       cout << phi12 << " " << phi22<< endl;
 	    }
@@ -4337,9 +4337,8 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
       }
  
       // check the 0/360 discontinuity ..................
-      PndTrkHit *hit1 = fFinalCluster->GetHit(0); //FIXME [R.K. 01/2017] unused variable?
-      PndTrkHit *hit2 = fFinalCluster->GetHit(1); //FIXME [R.K. 01/2017] unused variable?
-
+      //PndTrkHit *hit1 = fFinalCluster->GetHit(0); //[R.K. 03/2017] unused variable
+      //PndTrkHit *hit2 = fFinalCluster->GetHit(1); //[R.K. 03/2017] unused variable
       if(fDisplayOn) {
 	for(int jhit = 0; jhit < fFinalCluster->GetNofHits(); jhit++) {
 	  hit = fFinalCluster->GetHit(jhit);
@@ -5428,18 +5427,18 @@ void PndTrkTrackFinder::DrawLists() {
   //   Refresh(); 
   
   
-  for(int i = 0; i < fHitMap->GetStandalone().GetEntriesFast(); i++) {
-    PndTrkHit *hitA = (PndTrkHit*) fHitMap->GetStandalone().At(i);
-    //    hitA->DrawTube(kGreen);
-  }
-  for(int i = 0; i < fHitMap->GetSeeds().GetEntriesFast(); i++) {
-    PndTrkHit *hitA = (PndTrkHit*) fHitMap->GetSeeds().At(i);
-    //    hitA->DrawTube(kRed);
-  }
-  for(int i = 0; i < fHitMap->GetCandseeds().GetEntriesFast(); i++) {
-    PndTrkHit *hitA = (PndTrkHit*) fHitMap->GetCandseeds().At(i);
-    //    hitA->DrawTube(kBlue);
-  }
+  //for(int i = 0; i < fHitMap->GetStandalone().GetEntriesFast(); i++) {  //[R.K. 03/2017] unused variable
+    //PndTrkHit *hitA = (PndTrkHit*) fHitMap->GetStandalone().At(i); //[R.K. 03/2017] unused variable
+    ////    hitA->DrawTube(kGreen); //[R.K. 03/2017] unused variable
+  //} //[R.K. 03/2017] unused variable
+  //for(int i = 0; i < fHitMap->GetSeeds().GetEntriesFast(); i++) { //[R.K. 03/2017] unused variable
+    //PndTrkHit *hitA = (PndTrkHit*) fHitMap->GetSeeds().At(i); //[R.K. 03/2017] unused variable
+    ////    hitA->DrawTube(kRed); //[R.K. 03/2017] unused variable
+  //} //[R.K. 03/2017] unused variable
+  //for(int i = 0; i < fHitMap->GetCandseeds().GetEntriesFast(); i++) { //[R.K. 03/2017] unused variable
+    //PndTrkHit *hitA = (PndTrkHit*) fHitMap->GetCandseeds().At(i); //[R.K. 03/2017] unused variable
+    ////    hitA->DrawTube(kBlue); //[R.K. 03/2017] unused variable
+  //} //[R.K. 03/2017] unused variable
   for(int i = 0; i < fHitMap->GetIndivisibles().GetEntriesFast(); i++) {
     PndTrkHit *hitA = (PndTrkHit*) fHitMap->GetIndivisibles().At(i);
     //    hitA->DrawTube(kOrange);

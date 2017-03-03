@@ -42,13 +42,13 @@ Bool_t PndTrkHit::operator<(const PndTrkHit &hit1) {
 
 
 
-PndTrkHit::PndTrkHit() :  fHitID(-1), fDetectorID(-1), fUsed(0), fUsedAsRefHit(0), fIRegion(-1), fSensorID(-1), fPosition(0., 0., 0.), fIsochrone(0), fSortVariable(-1), fPhi(-1),  fSector(-1){}
+PndTrkHit::PndTrkHit() :  fHitID(-1), fDetectorID(-1), fIRegion(-1), fSensorID(-1), fUsed(0), fUsedAsRefHit(0), fPosition(0., 0., 0.), fIsochrone(0), fSortVariable(-1), fPhi(-1),  fSector(-1){}
 
-PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos, Double_t isochrone, Double_t sortvar) : fHitID(hitID), fDetectorID(detID), fUsed(used), fUsedAsRefHit(0), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(isochrone), fSortVariable(sortvar), fPhi(-1), fSector(-1) {}
+PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos, Double_t isochrone, Double_t sortvar) : fHitID(hitID), fDetectorID(detID), fIRegion(iregion), fSensorID(sensorID), fUsed(used), fUsedAsRefHit(0), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(isochrone), fSortVariable(sortvar), fPhi(-1), fSector(-1) {}
 
 // PndTrkHit::PndTrkHit(Int_t hitID, Int_t detID, Bool_t used, Int_t iregion, Int_t sensorID, TVector3& pos) :  fHitID(hitID), fDetID(detID), fUsed(used), fIRegion(iregion), fSensorID(sensorID), fPosition(pos.X(), pos.Y(), pos.Z()), fIsochrone(0) {}
 
-PndTrkHit::PndTrkHit(const PndTrkHit &hit) : FairTimeStamp(hit), fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fUsed(hit.fUsed), fUsedAsRefHit(hit.fUsedAsRefHit), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {
+PndTrkHit::PndTrkHit(const PndTrkHit &hit) : FairTimeStamp(hit), fHitID(hit.fHitID), fDetectorID(hit.fDetectorID), fIRegion(hit.fIRegion), fSensorID(hit.fSensorID), fUsed(hit.fUsed), fUsedAsRefHit(hit.fUsedAsRefHit), fPosition(hit.fPosition), fIsochrone(hit.fIsochrone), fSortVariable(hit.fSortVariable), fPhi(hit.fPhi) {
 
   double phi = fPosition.Phi() * TMath::RadToDeg();
   if(phi < 0 && phi < -30) phi += 360;
@@ -177,9 +177,9 @@ void PndTrkHit::Draw(Color_t color) {
 
 void PndTrkHit::DrawTube(Color_t color) {
   //  cout << "draw "<< fIRegion << endl;
-  Int_t style = 1; 
+  //Int_t style = 1;  // [R.K. 03/2017] Unused variables
   if(fUsed  && color == kBlack) {
-    style = 0;
+    //style = 0; // [R.K. 03/2017] Unused variables
     color = kGray;
   }
   TMarker *mrk = NULL;

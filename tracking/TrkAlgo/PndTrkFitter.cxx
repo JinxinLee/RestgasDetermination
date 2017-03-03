@@ -20,14 +20,14 @@ using namespace std;
 
 
 // -----   Default constructor   -------------------------------------------
-PndTrkFitter::PndTrkFitter() : fVerbose(0), fSx(0), fSy(0), fSxy(0), fSxx(0), fS1(0)
+PndTrkFitter::PndTrkFitter() : fSx(0), fSy(0), fSxy(0), fSxx(0), fS1(0), fVerbose(0)
 {
   fX.clear();
   fY.clear();
   fSigma.clear();
 }
 // -------------------------------------------------------------------------
-PndTrkFitter::PndTrkFitter(int verbose) : fVerbose(verbose), fSx(0), fSy(0), fSxy(0), fSxx(0), fS1(0)
+PndTrkFitter::PndTrkFitter(int verbose) : fSx(0), fSy(0), fSxy(0), fSxx(0), fS1(0), fVerbose(verbose)
 {
   fX.clear();
   fY.clear();

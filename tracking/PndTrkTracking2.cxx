@@ -2135,9 +2135,9 @@ if(istampa>=2) cout<<"\tevt. "<<IVOLTE<<",nhitsinfit "<< nhitsinfit<<endl;
 
 	  // in case some hits were eliminated by EliminateSpuriousSZ redo the SZ fit;
 
-	  if(	fnMvdPixelHitsinTrack[ncand] != oldPixel ||
-	  	fnMvdStripHitsinTrack[ncand] != oldStrip ||
-		fnSttSkewHitsinTrack[ncand]  != oldSkew ) {
+	  if(	fnMvdPixelHitsinTrack[ncand] != oldPixel || //FIXME [R.K. 03/2017] not initialized variable! oldPixel
+	  	fnMvdStripHitsinTrack[ncand] != oldStrip || //FIXME [R.K. 03/2017] not initialized variable! oldStrip
+		fnSttSkewHitsinTrack[ncand]  != oldSkew ) { //FIXME [R.K. 03/2017] not initialized variable! oldSkew
 		nhitsinfit = fnMvdPixelHitsinTrack[ncand]+fnMvdStripHitsinTrack[ncand]+
 				fnSttSkewHitsinTrack[ncand]+fnSciTilHitsinTrack[ncand];
 		// load the quantities needed for the SZ fit;
@@ -3993,9 +3993,9 @@ cout<<"-------------------------------\n\n";
 
 //cout<<"------------------------------------------- inizio stampa relativa al volume "<<vol->GetName()<<endl;
 			if(shape->GetByteCount()== 36){	// this is a TGeoBBox;
-				TGeoBBox *p =(TGeoBBox *) shape;
-				const Double_t *Or;
-				Or = p->GetOrigin();
+				//TGeoBBox *p =(TGeoBBox *) shape; // [R.K. 03/2017] Unused variables
+				//const Double_t *Or; // [R.K. 03/2017] Unused variables
+				//Or = p->GetOrigin(); // [R.K. 03/2017] Unused variables
 //				cout<<"questo e' una box con OriginX "<<Or[0]<<",OriginY "<<Or[1]
 //				<<",OriginZ "<<Or[2]<<" e Semilato X (= DX) = "<<p->GetDX()
 //				<<", DY "<<p->GetDY()<< ", DZ "<<p->GetDZ()<<endl;
@@ -4263,8 +4263,8 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	Oxx,
 	Oyy,
 	Ptras,
-	Pxini,
-	Pyini,
+	//Pxini, // [R.K. 03/2017] Unused variables
+	//Pyini, // [R.K. 03/2017] Unused variables
 	Pzini,
 	px,
 	py,
@@ -4293,8 +4293,8 @@ void PndTrkTracking2::LoadPndTrack_TrackCand(
 	dis=sqrt( Oxx*Oxx+Oyy*Oyy );
 	if( dis < 1.e-20)  continue;
 	Ptras = fR[ncand]*0.003*fBFIELD;
-	Pxini = -Charge[ncand]*Ptras*Oyy/dis;
-	Pyini = Charge[ncand]*Ptras*Oxx/dis;
+	//Pxini = -Charge[ncand]*Ptras*Oyy/dis; // [R.K. 03/2017] Unused variables
+	//Pyini = Charge[ncand]*Ptras*Oxx/dis; // [R.K. 03/2017] Unused variables
 
 //   starting point not necessarily at x=0., y=0.
 
@@ -4843,10 +4843,10 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 	Short_t ListStripHitsinTrack[][MAXMVDSTRIPHITSINTRACK] // output
 	)
 {
-	bool
+	//bool
 //		flaggo,
 		//specialcase, //[R.K. 01/2017] unused variable
-	     downstream;
+	     //downstream; // [R.K. 03/2017] Unused variables
 	     //determined; //[R.K. 01/2017] unused variable
 
 	Short_t j,
@@ -4907,8 +4907,8 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 			ndownstream++ ;
 		}
 	}
-	if(ndownstream>ntot-ndownstream) downstream=true;
-	else downstream=false;
+	//if(ndownstream>ntot-ndownstream) downstream=true; // [R.K. 03/2017] Unused variables
+	//else downstream=false; // [R.K. 03/2017] Unused variables
 
 //  loop over the Mvd Pixel and try to attach new Pixels to each candidate track
 

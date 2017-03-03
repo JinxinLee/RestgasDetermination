@@ -14,18 +14,18 @@
 
 using namespace std;
 
-PndTrkTrack::PndTrkTrack() :  fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
+PndTrkTrack::PndTrkTrack() :  fCluster(PndTrkCluster()), fRefHit(NULL), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
 
-PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster) :  fRefHit(NULL), fCluster(*cluster), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360){}
+PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster) :  fCluster(*cluster), fRefHit(NULL), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360){}
 
-PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(NULL), fCluster(*cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) , fPhiMin(0), fPhiMax(360){}
+PndTrkTrack::PndTrkTrack(PndTrkCluster *cluster, double x, double y, double radius) : fCluster(*cluster), fRefHit(NULL), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0) , fPhiMin(0), fPhiMax(360){}
 
-PndTrkTrack::PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius) : fRefHit(hit), fCluster(*cluster), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
+PndTrkTrack::PndTrkTrack(PndTrkHit *hit, PndTrkCluster *cluster, double x, double y, double radius) : fCluster(*cluster), fRefHit(hit), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
 
-PndTrkTrack::PndTrkTrack(double x, double y, double radius) : fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
+PndTrkTrack::PndTrkTrack(double x, double y, double radius) : fCluster(PndTrkCluster()), fRefHit(NULL), fCenterX(x), fCenterY(y), fRadius(radius), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {}
 
 
-PndTrkTrack::PndTrkTrack(PndTrack *trk)  :  fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360){
+PndTrkTrack::PndTrkTrack(PndTrack *trk)  :  fCluster(PndTrkCluster()), fRefHit(NULL), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360){
 
   TVector3 momentum = trk->GetParamFirst().GetMomentum();
   TVector3 position = trk->GetParamFirst().GetPosition();
@@ -68,7 +68,7 @@ PndTrkTrack::PndTrkTrack(PndTrack *trk)  :  fRefHit(NULL), fCluster(PndTrkCluste
 
 }
 
-PndTrkTrack::PndTrkTrack(const PndTrkTrack &track) : TObject(track), fRefHit(NULL), fCluster(PndTrkCluster()), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {
+PndTrkTrack::PndTrkTrack(const PndTrkTrack &track) : TObject(track), fCluster(PndTrkCluster()), fRefHit(NULL), fCenterX(0), fCenterY(0), fRadius(0), fTanL(0), fZ0(0), fCharge(0), fPhiMin(0), fPhiMax(360) {
   *this = track;
 }
 

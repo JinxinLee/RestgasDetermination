@@ -54,8 +54,8 @@ class PndTrkConformalHitList : public TObject
  protected:
 
   /*   std::vector<PndTrkConformalHit *> hitlist; */
-  TClonesArray fHitList;
   PndTrkConformalTransform *fConformal;
+  TClonesArray fHitList;
   
   ClassDef(PndTrkConformalHitList,1);
 };

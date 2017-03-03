@@ -29,7 +29,7 @@ Bool_t SorterFunction(PndTrkHit *hit1, PndTrkHit *hit2) {
   return *hit1 < *hit2;
 }
 
-PndTrkCluster::PndTrkCluster() : fIRegion(-1), fFromPoint(0., 0., 0.), fHitList(TClonesArray("PndTrkHit", 10000)) {
+PndTrkCluster::PndTrkCluster() : fFromPoint(0., 0., 0.), fIRegion(-1), fHitList(TClonesArray("PndTrkHit", 10000)) {
 } 
 
 // PndTrkCluster::PndTrkCluster(const PndTrkCluster &cluster): fFromPoint(cluster.fFromPoint), fIRegion(cluster.fIRegion), fHitList(TClonesArray(cluster.fHitList))
@@ -37,7 +37,7 @@ PndTrkCluster::PndTrkCluster() : fIRegion(-1), fFromPoint(0., 0., 0.), fHitList(
 //    //  *this = cluster;
 // }
 
-PndTrkCluster::PndTrkCluster(const PndTrkCluster &cluster) : TObject(cluster), fIRegion(-1), fFromPoint(0., 0., 0.), fHitList(TClonesArray("PndTrkHit", 10000)) {
+PndTrkCluster::PndTrkCluster(const PndTrkCluster &cluster) : TObject(cluster), fFromPoint(0., 0., 0.), fIRegion(-1), fHitList(TClonesArray("PndTrkHit", 10000)) {
   *this = cluster;
 }
 

@@ -140,11 +140,9 @@ class PndTrkTrackFinder : public FairTask {
 
  private:
 
-  Int_t fNofPrimaries;
 
   Int_t fNofMvdPixHits, fNofMvdStrHits, fNofSttHits, fNofTriplets, fNofHits, fNofSciTHits, fNofGemHits;
  
-  Bool_t fDelPrim;
    /** Input array of PndSttPoints **/
   TClonesArray* fSttPointArray;
   /** Input array of PndSttHit **/
@@ -190,7 +188,12 @@ class PndTrkTrackFinder : public FairTask {
   double  fDeltaThetaRad;
   //  TSpectrum2 *s;
   PndTrkLegendreTransform *legendre;
-  Bool_t fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT, fUseSCIT, fUseGEM, fSecondary, fInitDone;
+  Bool_t fDisplayOn, fPersistence, fUseMVDPix, fUseMVDStr, fUseSTT, fUseSCIT, fUseGEM, fSecondary, fInitDone;
+  Double_t fMvdPix_RealDistLimit, fMvdStr_RealDistLimit, fStt_RealDistLimit,  fMvdPix_ConfDistLimit, fMvdStr_ConfDistLimit, fStt_ConfDistLimit; 
+  double fUmin, fUmax, fVmin, fVmax, fRmin, fRmax, fThetamin, fThetamax;
+  PndTrkHit *fRefHit;
+  Bool_t fDelPrim;
+  Int_t fNofPrimaries;
 
 
 
@@ -198,9 +201,7 @@ class PndTrkTrackFinder : public FairTask {
   PndTrkConformalHitList *fConformalHitList;
   PndTrkTools *tools;
 
-  PndTrkHit *fRefHit;
 
-  Double_t fMvdPix_RealDistLimit, fMvdStr_RealDistLimit, fStt_RealDistLimit,  fMvdPix_ConfDistLimit, fMvdStr_ConfDistLimit, fStt_ConfDistLimit; 
 
   std::vector< std::pair<double, double> > fFoundPeaks;
   double fTime;
@@ -208,10 +209,8 @@ class PndTrkTrackFinder : public FairTask {
   PndTrkFitter *fFitter;
 
   PndTrkNeighboringMap *fHitMap;
-  double fUmin, fUmax, fVmin, fVmax, fRmin, fRmax, fThetamin, fThetamax;
-
-  // display
-  Bool_t fDisplayOn;
+ 
+   // display
   TH2F *hxy, *hxz, *hzphi;
   TCanvas *display;
   TH2F *huv;

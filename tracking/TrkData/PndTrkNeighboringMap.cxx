@@ -40,7 +40,7 @@ PndTrkNeighboringMap& PndTrkNeighboringMap::operator=(const PndTrkNeighboringMap
   TObjArray *hits2;
   while(PndTrkHit *hit = (PndTrkHit*) it2->Next()) {
     hits2 = (TObjArray*) thismap.hit2indiv.GetValue(hit);
-    hit2indiv.Add(hit, hits);
+    hit2indiv.Add(hit, hits2); //FIXME [R.K. 03/2017] Should here be hits or hits2? I put hits2 now.
   }
 
 

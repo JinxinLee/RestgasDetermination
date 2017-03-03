@@ -63,10 +63,10 @@ class PndTrkTrack : public TObject
   void Clear(Option_t* opt = "");
 
  protected:
-  double fRadius, fCenterX, fCenterY, fTanL, fZ0; //!
-  int fCharge; //!
   PndTrkCluster fCluster; //!
   PndTrkHit *fRefHit; //!
+  double fCenterX, fCenterY, fRadius, fTanL, fZ0; //!
+  int fCharge; //!
   double fPhiMin; //!
   double fPhiMax; //!
   // parameters:

@@ -33,7 +33,7 @@ using namespace std;
 
 PndTrkIndivisibleHit::PndTrkIndivisibleHit() :  PndTrkHit(), fHitIDs(TArrayI(0)) {}
 
-PndTrkIndivisibleHit::PndTrkIndivisibleHit(TArrayI hitids, TVector3 &pos) : fHitIDs(hitids), PndTrkHit(-1, -1, kFALSE, INDIVISIBLE, -1, pos, -1, pos.Mag()) {}
+PndTrkIndivisibleHit::PndTrkIndivisibleHit(TArrayI hitids, TVector3 &pos) : PndTrkHit(-1, -1, kFALSE, INDIVISIBLE, -1, pos, -1, pos.Mag()), fHitIDs(hitids) {}
 
 
 PndTrkIndivisibleHit::PndTrkIndivisibleHit(const PndTrkIndivisibleHit &hit) : PndTrkHit(hit) {
