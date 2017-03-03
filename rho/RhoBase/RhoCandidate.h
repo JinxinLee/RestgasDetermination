@@ -35,7 +35,7 @@ class RhoError;
 class RhoCandListIterator;
 
 #define MATRIXSIZE 28
-#define MAXDAUG 15
+#define MAXDAUG 10
 
 
 //      ---------------------
@@ -380,6 +380,12 @@ class RhoCandidate : public FairMultiLinkedData_Interface
     RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2 );
     RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3 );
     RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8, RhoCandidate* c9 );
+    RhoCandidate* Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8, RhoCandidate* c9, RhoCandidate* c10 );
 
     // two Candidates overlap if they are identical
     // (same pointers), equal (same Base),

@@ -1389,6 +1389,161 @@ RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCan
   return cand;
 }
 
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5 )
+{
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() , 
+                     Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() );
+  RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1]|c3->fMarker[1]|c4->fMarker[1]|c5->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2]|c3->fMarker[2]|c4->fMarker[2]|c5->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3]|c3->fMarker[3]|c4->fMarker[3]|c5->fMarker[3],3 );
+
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() +c4->P4Cov() +c5->P4Cov());
+
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
+  cand->AddDaughterLinkSimple(c3);
+  cand->AddDaughterLinkSimple(c4);
+  cand->AddDaughterLinkSimple(c5);
+
+  return cand;
+}
+
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6 )
+{
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4()  , 
+                     Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge()  );
+  RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1]|c3->fMarker[1]|c4->fMarker[1]|c5->fMarker[1]|c6->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2]|c3->fMarker[2]|c4->fMarker[2]|c5->fMarker[2]|c6->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3]|c3->fMarker[3]|c4->fMarker[3]|c5->fMarker[3]|c6->fMarker[3],3 );
+
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() +c4->P4Cov() +c5->P4Cov() +c6->P4Cov());
+
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
+  cand->AddDaughterLinkSimple(c3);
+  cand->AddDaughterLinkSimple(c4);
+  cand->AddDaughterLinkSimple(c5);
+  cand->AddDaughterLinkSimple(c6);
+
+  return cand;
+}
+
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7 )
+{
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() , 
+                     Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge() +c7->Charge() );
+  RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0]|c7->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1]|c3->fMarker[1]|c4->fMarker[1]|c5->fMarker[1]|c6->fMarker[1]|c7->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2]|c3->fMarker[2]|c4->fMarker[2]|c5->fMarker[2]|c6->fMarker[2]|c7->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3]|c3->fMarker[3]|c4->fMarker[3]|c5->fMarker[3]|c6->fMarker[3]|c7->fMarker[3],3 );
+
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() +c4->P4Cov() +c5->P4Cov() +c6->P4Cov() +c7->P4Cov() );
+
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
+  cand->AddDaughterLinkSimple(c3);
+  cand->AddDaughterLinkSimple(c4);
+  cand->AddDaughterLinkSimple(c5);
+  cand->AddDaughterLinkSimple(c6);
+  cand->AddDaughterLinkSimple(c7);
+
+  return cand;
+}
+
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8 )
+{
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() , 
+                     Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge() +c7->Charge() +c8->Charge() );
+  RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0]|c7->fMarker[0]|c8->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1]|c3->fMarker[1]|c4->fMarker[1]|c5->fMarker[1]|c6->fMarker[1]|c7->fMarker[1]|c8->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2]|c3->fMarker[2]|c4->fMarker[2]|c5->fMarker[2]|c6->fMarker[2]|c7->fMarker[2]|c8->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3]|c3->fMarker[3]|c4->fMarker[3]|c5->fMarker[3]|c6->fMarker[3]|c7->fMarker[3]|c8->fMarker[3],3 );
+
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() +c4->P4Cov() +c5->P4Cov() +c6->P4Cov() +c7->P4Cov() +c8->P4Cov() );
+
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
+  cand->AddDaughterLinkSimple(c3);
+  cand->AddDaughterLinkSimple(c4);
+  cand->AddDaughterLinkSimple(c5);
+  cand->AddDaughterLinkSimple(c6);
+  cand->AddDaughterLinkSimple(c7);
+  cand->AddDaughterLinkSimple(c8);
+
+  return cand;
+}
+
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8, RhoCandidate* c9 )
+{
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() + c9->P4() , 
+                     Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge() +c7->Charge() +c8->Charge() +c9->Charge() );
+  RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0]|c7->fMarker[0]|c8->fMarker[0]|c9->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1]|c3->fMarker[1]|c4->fMarker[1]|c5->fMarker[1]|c6->fMarker[1]|c7->fMarker[1]|c8->fMarker[1]|c9->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2]|c3->fMarker[2]|c4->fMarker[2]|c5->fMarker[2]|c6->fMarker[2]|c7->fMarker[2]|c8->fMarker[2]|c9->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3]|c3->fMarker[3]|c4->fMarker[3]|c5->fMarker[3]|c6->fMarker[3]|c7->fMarker[3]|c8->fMarker[3]|c9->fMarker[3],3 );
+
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() +c4->P4Cov() +c5->P4Cov() +c6->P4Cov() +c7->P4Cov() +c8->P4Cov() +c9->P4Cov());
+
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
+  cand->AddDaughterLinkSimple(c3);
+  cand->AddDaughterLinkSimple(c4);
+  cand->AddDaughterLinkSimple(c5);
+  cand->AddDaughterLinkSimple(c6);
+  cand->AddDaughterLinkSimple(c7);
+  cand->AddDaughterLinkSimple(c8);
+  cand->AddDaughterLinkSimple(c9);
+
+  return cand;
+}
+
+
+RhoCandidate* RhoCandidate::Combine ( RhoCandidate* c1, RhoCandidate* c2, RhoCandidate* c3, RhoCandidate* c4, RhoCandidate* c5, RhoCandidate* c6, RhoCandidate* c7, RhoCandidate* c8, RhoCandidate* c9, RhoCandidate* c10 )
+{
+  RhoCandidate tmp ( P4() +c1->P4() +c2->P4() +c3->P4()  + c4->P4() + c5->P4() + c6->P4() + c7->P4() + c8->P4() + c9->P4() + c10->P4() , 
+                     Charge() +c1->Charge() +c2->Charge() +c3->Charge() +c4->Charge() +c5->Charge() +c6->Charge() +c7->Charge() +c8->Charge() +c9->Charge() +c10->Charge() );
+  RhoCandidate* cand = RhoFactory::Instance()->NewCandidate ( tmp );
+  cand->SetMarker ( fMarker[0]|c1->fMarker[0]|c2->fMarker[0]|c3->fMarker[0]|c4->fMarker[0]|c5->fMarker[0]|c6->fMarker[0]|c7->fMarker[0]|c8->fMarker[0]|c9->fMarker[0]|c10->fMarker[0],0 );
+  cand->SetMarker ( fMarker[1]|c1->fMarker[1]|c2->fMarker[1]|c3->fMarker[1]|c4->fMarker[1]|c5->fMarker[1]|c6->fMarker[1]|c7->fMarker[1]|c8->fMarker[1]|c9->fMarker[1]|c10->fMarker[1],1 );
+  cand->SetMarker ( fMarker[2]|c1->fMarker[2]|c2->fMarker[2]|c3->fMarker[2]|c4->fMarker[2]|c5->fMarker[2]|c6->fMarker[2]|c7->fMarker[2]|c8->fMarker[2]|c9->fMarker[2]|c10->fMarker[2],2 );
+  cand->SetMarker ( fMarker[3]|c1->fMarker[3]|c2->fMarker[3]|c3->fMarker[3]|c4->fMarker[3]|c5->fMarker[3]|c6->fMarker[3]|c7->fMarker[3]|c8->fMarker[3]|c9->fMarker[3]|c10->fMarker[3],3 );
+
+  cand->SetCovP4 ( P4Cov() +c1->P4Cov() +c2->P4Cov() +c3->P4Cov() +c4->P4Cov() +c5->P4Cov() +c6->P4Cov() +c7->P4Cov() +c8->P4Cov() +c9->P4Cov() +c10->P4Cov() );
+
+  //Only one-way link because we're not sure where else the daughters are used (combinatorics)
+  cand->AddDaughterLinkSimple(this);
+  cand->AddDaughterLinkSimple(c1);
+  cand->AddDaughterLinkSimple(c2);
+  cand->AddDaughterLinkSimple(c3);
+  cand->AddDaughterLinkSimple(c4);
+  cand->AddDaughterLinkSimple(c5);
+  cand->AddDaughterLinkSimple(c6);
+  cand->AddDaughterLinkSimple(c7);
+  cand->AddDaughterLinkSimple(c8);
+  cand->AddDaughterLinkSimple(c9);
+  cand->AddDaughterLinkSimple(c10);
+
+  return cand;
+}
+
+
 
 void RhoCandidate::SetMarker ( UInt_t l,UInt_t m )
 {

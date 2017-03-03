@@ -61,54 +61,91 @@ class RhoCandList : public TNamed
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3 );   //added 06/08 K.Goetzen
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4 );//added 06/08 K.Goetzen
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5 );//added 06/08 K.Goetzen
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6 );//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7 );//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8 );//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9 );//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, RhoCandList& l10 );//added 03/2017 R.Kliemt
 
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2 );
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3 );//added 06/08 K.Goetzen
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4 );//added 06/08 K.Goetzen
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5 );//added 06/08 K.Goetzen
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6 );//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7 );//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8 );//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9 );//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, RhoCandList& l10 );
 
 	// with type as TParticlePDG
-	void Combine ( RhoCandList& l1, RhoCandList& l2, const TParticlePDG* pdt ) { Combine(l1, l2); SetType(pdt); }
+  	void Combine ( RhoCandList& l1, RhoCandList& l2, const TParticlePDG* pdt ) { Combine(l1, l2); SetType(pdt); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, const TParticlePDG* pdt ) { Combine(l1, l2, l3); SetType(pdt); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, const TParticlePDG* pdt ) { Combine(l1, l2, l3, l4); SetType(pdt); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const TParticlePDG* pdt ) { Combine(l1, l2, l3, l4, l5); SetType(pdt); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, const TParticlePDG* pdt  ){ Combine(l1, l2, l3, l4, l5, l6); SetType(pdt); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, const TParticlePDG* pdt  ){ Combine(l1, l2, l3, l4, l5, l6, l7); SetType(pdt); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, const TParticlePDG* pdt  ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8); SetType(pdt); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9 , const TParticlePDG* pdt ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8, l9); SetType(pdt); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, RhoCandList& l10, const TParticlePDG* pdt  ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8, l9, l10); SetType(pdt); };//added 03/2017 R.Kliemt
 
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2); SetType(pdt, s); }
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, const TParticlePDG* pdt ) { int s = GetLength();CombineAndAppend(l1, l2, l3); SetType(pdt, s); }
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4); SetType(pdt, s); }
-    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const TParticlePDG* pdt ) 
-		{ int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(pdt, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(pdt, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6); SetType(pdt, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7); SetType(pdt, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8); SetType(pdt, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8, l9); SetType(pdt, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, RhoCandList& l10, const TParticlePDG* pdt ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8, l9, l10); SetType(pdt, s); };
 
 	// with type as char* (name)
-	void Combine ( RhoCandList& l1, RhoCandList& l2, const char* name ) { Combine(l1, l2); SetType(name); }
+	  void Combine ( RhoCandList& l1, RhoCandList& l2, const char* name ) { Combine(l1, l2); SetType(name); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, const char* name ) { Combine(l1, l2, l3); SetType(name); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, const char* name ) { Combine(l1, l2, l3, l4); SetType(name); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const char* name ) { Combine(l1, l2, l3, l4, l5); SetType(name); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, const char* name  ){ Combine(l1, l2, l3, l4, l5, l6); SetType(name); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, const char* name  ){ Combine(l1, l2, l3, l4, l5, l6, l7); SetType(name); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, const char* name  ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8); SetType(name); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9 , const char* name ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8, l9); SetType(name); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, RhoCandList& l10, const char* name  ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8, l9, l10); SetType(name); };//added 03/2017 R.Kliemt
 
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2); SetType(name, s); }
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, const char* name ) { int s = GetLength();CombineAndAppend(l1, l2, l3); SetType(name, s); }
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4); SetType(name, s); }
-    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const char* name ) 
-		{ int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(name, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, const char* name ) 		{ int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(name, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6); SetType(name, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7); SetType(name, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8); SetType(name, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8, l9); SetType(name, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, RhoCandList& l10, const char* name ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8, l9, l10); SetType(name, s); };
 
 	// with type as int (pdgtype)
-	void Combine ( RhoCandList& l1, RhoCandList& l2, Int_t pdgcode ) { Combine(l1, l2); SetType(pdgcode); }
+	  void Combine ( RhoCandList& l1, RhoCandList& l2, Int_t pdgcode ) { Combine(l1, l2); SetType(pdgcode); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, Int_t pdgcode ) { Combine(l1, l2, l3); SetType(pdgcode); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, Int_t pdgcode ) { Combine(l1, l2, l3, l4); SetType(pdgcode); }
     void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, Int_t pdgcode ) { Combine(l1, l2, l3, l4, l5); SetType(pdgcode); }
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, Int_t pdgcode  ){ Combine(l1, l2, l3, l4, l5, l6); SetType(pdgcode); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, Int_t pdgcode  ){ Combine(l1, l2, l3, l4, l5, l6, l7); SetType(pdgcode); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, Int_t pdgcode  ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8); SetType(pdgcode); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9 , Int_t pdgcode ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8, l9); SetType(pdgcode); };//added 03/2017 R.Kliemt
+    void Combine ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, RhoCandList& l10, Int_t pdgcode  ){ Combine(l1, l2, l3, l4, l5, l6, l7, l8, l9, l10); SetType(pdgcode); };//added 03/2017 R.Kliemt
 
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2); SetType(pdgcode, s); }
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, Int_t pdgcode ) { int s = GetLength();CombineAndAppend(l1, l2, l3); SetType(pdgcode, s); }
     void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4); SetType(pdgcode, s); }
-    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, Int_t pdgcode ) 
-		{ int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(pdgcode, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, Int_t pdgcode ) 		{ int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5); SetType(pdgcode, s); }
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6); SetType(pdgcode, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7); SetType(pdgcode, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8); SetType(pdgcode, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8, l9); SetType(pdgcode, s); };//added 03/2017 R.Kliemt
+    void CombineAndAppend ( RhoCandList& l1, RhoCandList& l2, RhoCandList& l3, RhoCandList& l4, RhoCandList& l5, RhoCandList& l6, RhoCandList& l7, RhoCandList& l8, RhoCandList& l9, RhoCandList& l10, Int_t pdgcode ) { int s = GetLength(); CombineAndAppend(l1, l2, l3, l4, l5, l6, l7, l8, l9, l10); SetType(pdgcode, s); };
 
 	// set type for complete list or starting from index 'start'
     void SetType ( const TParticlePDG* pdt, int start=0 );
     void SetType ( const char* name, int start=0 );
     void SetType ( Int_t pdgcode, int start=0 );
 
-   void Select ( RhoParticleSelectorBase* pidmgr );
+    void Select ( RhoParticleSelectorBase* pidmgr );
     void Select ( RhoCandList& l, RhoParticleSelectorBase* pidmgr );
     void Select ( RhoCandList& l, Bool_t ( *selfunc ) ( RhoCandidate* ) );
     Int_t OccurrencesOf ( RhoCandidate* );
