@@ -32,11 +32,13 @@ int QA_histos() {
   TH1F *eff_mvdstr = new TH1F("eff_mvdstr", "MVD strip efficiency", 100, effmin, effmax);
   TH1F *eff_stt = new TH1F("eff_stt", "STT efficiency", 100, effmin, effmax);
   TH1F *eff_gem = new TH1F("eff_gem", "GEM efficiency", 100, effmin, effmax);
+  TH1F *eff_fts = new TH1F("eff_fts", "FTS efficiency", 100, effmin, effmax);
   
   cbmsim->Draw("RecoTrackInfo.GetMvdPixelEfficiency() >> eff_mvdpix", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetMvdStripEfficiency() >> eff_mvdstr", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetSttEfficiency() >> eff_stt", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetGemEfficiency() >> eff_gem", cut, "goff");
+  cbmsim->Draw("RecoTrackInfo.GetFtsEfficiency() >> eff_fts", cut, "goff");
 
   TH1F *eff_glo = new TH1F("eff_glo", "global efficiency", 100, effmin, effmax);
   cbmsim->Draw("RecoTrackInfo.GetEfficiency() >> eff_glo", cut, "goff");
@@ -57,11 +59,13 @@ int QA_histos() {
   TH1F *pur_mvdstr = new TH1F("pur_mvdstr", "MVD strip purity", 100, purmin, purmax);
   TH1F *pur_stt = new TH1F("pur_stt", "STT purity", 100, purmin, purmax);
   TH1F *pur_gem = new TH1F("pur_gem", "GEM purity", 100, purmin, purmax);
+  TH1F *pur_fts = new TH1F("pur_fts", "FTS purity", 100, purmin, purmax);
   
   cbmsim->Draw("RecoTrackInfo.GetMvdPixelPurity() >> pur_mvdpix", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetMvdStripPurity() >> pur_mvdstr", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetSttPurity() >> pur_stt", cut, "goff");
   cbmsim->Draw("RecoTrackInfo.GetGemPurity() >> pur_gem", cut, "goff");
+  cbmsim->Draw("RecoTrackInfo.GetFtsPurity() >> pur_fts", cut, "goff");
 
  
   TH1F *pur_glo = new TH1F("pur_glo", "global purity", 100, purmin, purmax);
@@ -249,12 +253,14 @@ int QA_histos() {
   eff_mvdstr->Write();
   eff_stt->Write();
   eff_gem->Write();
+  eff_fts->Write();
   eff_glo->Write();
 
   pur_mvdpix->Write();
   pur_mvdstr->Write();
   pur_stt->Write();
   pur_gem->Write();
+  pur_fts->Write();
   pur_glo->Write();
 
   hnofrecotracks->Write();

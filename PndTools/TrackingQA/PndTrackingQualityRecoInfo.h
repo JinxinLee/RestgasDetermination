@@ -101,7 +101,7 @@ class PndTrackingQualityRecoInfo : public TObject
   Int_t GetNofGemTrueHits() {return fNofGemTrueHits; }
   Int_t GetNofFtsTrueHits() {return fNofFtsTrueHits; }
   /*  Int_t GetNofSciTilTrueHits() {return fNofSciTilTrueHits; } */
-  Int_t GetNofRecoTrueHits() {return  fNofMvdPixelTrueHits + fNofMvdStripTrueHits + fNofSttTrueHits + fNofGemTrueHits; } // + fNofSttParalTrueHits + fNofSttSkewTrueHit + fNofSciTilTrueHits; }
+  Int_t GetNofRecoTrueHits() {return  fNofMvdPixelTrueHits + fNofMvdStripTrueHits + fNofSttTrueHits + fNofGemTrueHits + fNofFtsTrueHits; } // + fNofSttParalTrueHits + fNofSttSkewTrueHit + fNofSciTilTrueHits; }
  
   void SetNofMvdPixelFakeHits(int nofpix) { fNofMvdPixelFakeHits = nofpix; }
   void SetNofMvdStripFakeHits(int nofstr) { fNofMvdStripFakeHits = nofstr; }
