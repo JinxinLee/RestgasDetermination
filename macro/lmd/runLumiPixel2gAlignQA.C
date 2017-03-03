@@ -8,7 +8,7 @@ using namespace std;
 
 #include <string>
 
-int runLumiPixel2gAlignQA(TString storePath="/home/arbeit/fairsoft_may16p1/pandaroot/geometry/LMDmatrices/", const int verboseLevel=0)
+void runLumiPixel2gAlignQA(TString storePath="/home/arbeit/RedPro3TB/simulationData/boxtest-50u-1.5/binaryPairs-cut-160/LMDmatrices", const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -40,8 +40,8 @@ int runLumiPixel2gAlignQA(TString storePath="/home/arbeit/fairsoft_may16p1/panda
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	//TODO: the matrices here are also important for the AlignQA class, which also needs to know if we use 10u or 50u. So this is messy design.
 	//change that!
-	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-0u-1.5/GeometryMatrices/trafo_matrices_lmd_misaligned-10u.dat", false);
-	dimension->Read_transformation_matrices("/home/arbeit/simulationData/boxtest-0u-1.5/GeometryMatrices/trafo_matrices_lmd.dat", true);
+	dimension->Read_transformation_matrices("/home/arbeit/RedPro3TB/simulationData/boxtest-50u-1.5/GeometryMatrices/trafo_matrices_lmd_misaligned-50u.dat", false);
+	dimension->Read_transformation_matrices("/home/arbeit/RedPro3TB/simulationData/boxtest-50u-1.5/GeometryMatrices/trafo_matrices_lmd.dat", true);
 
 
 	// check if matrices exist (matrix finder was run)
@@ -56,7 +56,7 @@ int runLumiPixel2gAlignQA(TString storePath="/home/arbeit/fairsoft_may16p1/panda
 	// compare overlap matrices with icp matrices
 	//qaTask.compareMatrices(0);
 
-	qaTask.compareMatrices(6);
+	qaTask.compareMatrices(4);
 
 
 	// TODO: compare lmdlocal -> sensor matrices with target matrices from PndLmdDim (maybe optional, because they are already in PndLmdDim?)

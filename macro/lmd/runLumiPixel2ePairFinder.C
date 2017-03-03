@@ -19,7 +19,7 @@ using namespace std;
 #include <PndSdsGeoPar.h>
 */
 
-int runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0, bool storeSorted=false)
+void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -71,7 +71,6 @@ int runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TS
 	// -----   Actual Task   --------------------------------------------------
 
 	LmdPairFinderTask* lmdPairFinder = new LmdPairFinderTask();
-	lmdPairFinder->storeSorted(storeSorted);	//for easier access, but takes longer
 	lmdPairFinder->setMaxDistance(160e-4);		//two pixels
 	lmdPairFinder->ignoreClusters(false);
 	fRun->AddTask(lmdPairFinder);

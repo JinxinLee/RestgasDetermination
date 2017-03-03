@@ -74,5 +74,5 @@ target_link_libraries(createRootGeometry_lmd_HV_MAPS -lrt ${ROOT_LIBRARIES} LmdT
 #add_executable(simple_mc_rec_match simpleMCandRECmatch.C)
 #target_link_libraries(simple_mc_rec_match -lrt ${ROOT_LIBRARIES} LmdTool MathMore)
 #add_subdirectory(LMD_alignment)
-add_subdirectory(Anastasia/test_macros)
+#add_subdirectory(Anastasia/test_macros)
 #add_subdirectory(Promme)

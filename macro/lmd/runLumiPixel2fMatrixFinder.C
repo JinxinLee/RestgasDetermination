@@ -41,7 +41,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 	manager.setSimpleStorage(simplestorage);
 	manager.setInCentimeters(incentimeters);
 	manager.setBinaryPairFileDirectory(binaryFilesDir);
-	manager.setMaxPairs(600e3);
+	manager.setMaxPairs(300e3);
 
 	// DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE ---
 	//manager.setMatrixOutDir(matrixDir);
