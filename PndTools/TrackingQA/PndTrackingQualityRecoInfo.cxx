@@ -13,9 +13,9 @@
 
 using namespace std;
 
-PndTrackingQualityRecoInfo::PndTrackingQualityRecoInfo() : fNofMvdPixelTrueHits(0), fNofMvdStripTrueHits(0), fNofSttTrueHits(0), fNofGemTrueHits(0), fNofMvdPixelFakeHits(0), fNofMvdStripFakeHits(0), fNofSttFakeHits(0), fNofGemFakeHits(0), fNofMvdPixelMissingHits(0), fNofMvdStripMissingHits(0), fNofSttMissingHits(0), fNofGemMissingHits(0), fRecoTrackID(-1), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fMCTrackInfo(PndTrackingQualityMCInfo()), fFlag(-1), fNofMCTracks(0) {}
+PndTrackingQualityRecoInfo::PndTrackingQualityRecoInfo() : fNofMvdPixelTrueHits(0), fNofMvdStripTrueHits(0), fNofSttTrueHits(0), fNofGemTrueHits(0), fNofFtsTrueHits(0), fNofMvdPixelFakeHits(0), fNofMvdStripFakeHits(0), fNofSttFakeHits(0), fNofGemFakeHits(0), fNofFtsFakeHits(0), fNofMvdPixelMissingHits(0), fNofMvdStripMissingHits(0), fNofSttMissingHits(0), fNofGemMissingHits(0), fNofFtsMissingHits(0), fRecoTrackID(-1), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)), fMCTrackInfo(PndTrackingQualityMCInfo()), fFlag(-1), fNofMCTracks(0) {}
 
-PndTrackingQualityRecoInfo::PndTrackingQualityRecoInfo(int recotrackid) : fNofMvdPixelTrueHits(0),  fNofMvdStripTrueHits(0), fNofSttTrueHits(0), fNofGemTrueHits(0),  fNofMvdPixelFakeHits(0),  fNofMvdStripFakeHits(0), fNofSttFakeHits(0), fNofGemFakeHits(0), fNofMvdPixelMissingHits(0),  fNofMvdStripMissingHits(0), fNofSttMissingHits(0), fNofGemMissingHits(0), fRecoTrackID(recotrackid), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)),  fMCTrackInfo(PndTrackingQualityMCInfo()), fFlag(-1), fNofMCTracks(0) {}
+PndTrackingQualityRecoInfo::PndTrackingQualityRecoInfo(int recotrackid) : fNofMvdPixelTrueHits(0),  fNofMvdStripTrueHits(0), fNofSttTrueHits(0), fNofGemTrueHits(0), fNofFtsTrueHits(0),  fNofMvdPixelFakeHits(0),  fNofMvdStripFakeHits(0), fNofSttFakeHits(0), fNofGemFakeHits(0), fNofFtsFakeHits(0), fNofMvdPixelMissingHits(0),  fNofMvdStripMissingHits(0), fNofSttMissingHits(0), fNofGemMissingHits(0), fNofFtsMissingHits(0), fRecoTrackID(recotrackid), fPosFirst(TVector3(0., 0., 0.)), fMomFirst(TVector3(0., 0., 0.)),  fMCTrackInfo(PndTrackingQualityMCInfo()), fFlag(-1), fNofMCTracks(0) {}
 
 PndTrackingQualityRecoInfo::~PndTrackingQualityRecoInfo() {}
 
@@ -57,6 +57,11 @@ double PndTrackingQualityRecoInfo::GetSttEfficiency() {
 double PndTrackingQualityRecoInfo::GetGemEfficiency() { 
   if(fMCTrackInfo.GetNofGemPoints() == 0) return -1;  // CHECK
   return (double) GetNofGemTrueHits()/fMCTrackInfo.GetNofGemPoints(); 
+}
+
+double PndTrackingQualityRecoInfo::GetFtsEfficiency() {
+  if(fMCTrackInfo.GetNofFtsPoints() == 0) return -1;  // CHECK
+  return (double) GetNofFtsTrueHits()/fMCTrackInfo.GetNofFtsPoints();
 }
 
 // double PndTrackingQualityRecoInfo::GetSciTilEfficiency() { 
@@ -105,6 +110,11 @@ double PndTrackingQualityRecoInfo::GetGemInefficiency() {
   return (double) GetNofGemMissingHits()/fMCTrackInfo.GetNofGemPoints(); 
 }
 
+double PndTrackingQualityRecoInfo::GetFtsInefficiency() {
+  if(fMCTrackInfo.GetNofFtsPoints() == 0) return -1;  // CHECK
+  return (double) GetNofFtsMissingHits()/fMCTrackInfo.GetNofFtsPoints();
+}
+
 // double PndTrackingQualityRecoInfo::GetSciTilInefficiency() { 
 //   if(fMCTrackInfo.GetNofSciTilPoints() == 0) return -1;  // CHECK
 //   return (double) GetNofSciTilMissingHits()/fMCTrackInfo.GetNofSciTilPoints(); 
@@ -141,6 +151,11 @@ double PndTrackingQualityRecoInfo::GetMvdPurity() {
 double PndTrackingQualityRecoInfo::GetGemPurity() { 
   if(GetNofGemHits() == 0) return -1;  // CHECK
   return (double) GetNofGemTrueHits()/GetNofGemHits();
+}
+
+double PndTrackingQualityRecoInfo::GetFtsPurity() {
+  if(GetNofFtsHits() == 0) return -1;  // CHECK
+  return (double) GetNofFtsTrueHits()/GetNofFtsHits();
 }
 // double PndTrackingQualityRecoInfo::GetSciTilPurity() { 
 //   if(GetNofSciTilHits() == 0) return -1;  // CHECK

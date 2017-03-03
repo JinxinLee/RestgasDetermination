@@ -17,7 +17,7 @@ class PndTrackingQualityMCInfo : public TObject
  public:    
 
   PndTrackingQualityMCInfo();
-  PndTrackingQualityMCInfo(int nofmvdpix, int nofmvdstr, int nofsttparal, int nofsttskew, int nofgem);
+  PndTrackingQualityMCInfo(int nofmvdpix, int nofmvdstr, int nofsttparal, int nofsttskew, int nofgem, int noffts);
   PndTrackingQualityMCInfo(const PndTrackingQualityMCInfo& info);
   ~PndTrackingQualityMCInfo();    
 
@@ -40,7 +40,8 @@ class PndTrackingQualityMCInfo : public TObject
   Int_t GetNofSttSkewPoints() { return fNofSttSkewPoints; }
   Int_t GetNofSttPoints() {return fNofSttParalPoints + fNofSttSkewPoints ;}
   Int_t GetNofGemPoints() {return fNofGemPoints; }
-  Int_t GetNofMCPoints() {return  fNofMvdPixelPoints + fNofMvdStripPoints + fNofSttParalPoints + fNofSttSkewPoints + fNofGemPoints; }
+  Int_t GetNofFtsPoints() {return fNofFtsPoints; }
+  Int_t GetNofMCPoints() {return  fNofMvdPixelPoints + fNofMvdStripPoints + fNofSttParalPoints + fNofSttSkewPoints + fNofGemPoints + fNofFtsPoints; }
  
   Int_t GetMCTrackID() { return fMCTrackID; }
   Short_t GetNofRecoTracks(void)     const { return fRecoTrackIDs.GetSize(); }
@@ -78,7 +79,7 @@ class PndTrackingQualityMCInfo : public TObject
  protected:
  
   Int_t fAssoRecoTrackID;
-  Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints;
+  Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints, fNofFtsPoints;
   Bool_t fReconstructabilityStatus;
   Int_t fMCTrackID;
   Int_t fPDGCode;
@@ -91,7 +92,7 @@ class PndTrackingQualityMCInfo : public TObject
 
   Int_t fQuality;
 
-  ClassDef(PndTrackingQualityMCInfo,1);
+  ClassDef(PndTrackingQualityMCInfo,2);
 };
 
 

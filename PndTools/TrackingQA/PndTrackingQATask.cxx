@@ -76,6 +76,7 @@ InitStatus PndTrackingQATask::Init() {
 		AddHitsBranchName("MVDHitsStrip");
 		AddHitsBranchName("STTHit");
 		AddHitsBranchName("GEMHit");
+		AddHitsBranchName("FTSHit");
 	//	std::cout << "PndTrackingQualityAnalysis::Init() CorrectedSkewedHits present: " << FairRootManager::Instance()->GetBranchId("CorrectedSkewedHits") << " ";
 	//	if (FairRootManager::Instance()->GetBranchId("CorrectedSkewedHits")  > 0){
 	//		std::cout << "kTRUE";
@@ -171,14 +172,7 @@ void PndTrackingQATask::SetParContainers() {
 
 void PndTrackingQATask::SetFunctor()
 {
-	if (fPossibleTrackFunctorName.Contains("StandardTrackFunctor"))
-		fPossibleTrackFunctor = new StandardTrackFunctor();
-	else if (fPossibleTrackFunctorName.Contains("OnlySttFunctor"))
-		fPossibleTrackFunctor = new OnlySttFunctor();
-	else if (fPossibleTrackFunctorName.Contains("RiemannMvdSttGemFunctor"))
-		fPossibleTrackFunctor = new RiemannMvdSttGemFunctor();
-	else if (fPossibleTrackFunctorName.Contains("CircleHoughTrackFunctor"))
-		fPossibleTrackFunctor = new CircleHoughTrackFunctor();
+	fPossibleTrackFunctor = PndTrackFunctor::make_PndTrackFunctor(fPossibleTrackFunctorName.Data());
 }
 
 // -----   Public method Exec   --------------------------------------------
@@ -217,7 +211,17 @@ void PndTrackingQATask::Exec(Option_t* opt) {
 			  
 	  PndTrack *idealtrack = (PndTrack*) fIdealTrack->At(idealTrackId);
 	  
+	  if (mcTrackId == -1){
+		  std::cout << "-W- PndTrackingQATask::Exec mcTrackId == -1" << std::endl;
+		  continue;
+	  }
+
 	  PndMCTrack * myMcTrack = (PndMCTrack *) fMCTrack->At(mcTrackId);
+
+	  if (myMcTrack == 0){
+		  std::cout << "-E- PndTrackingQATask::Exec mcMyTrack == 0" << std::endl;
+		  continue;
+	  }
 	  Int_t pdgId = myMcTrack->GetPdgCode();
 
 	  int size = fMCTrackInfo->GetEntriesFast();
@@ -252,9 +256,19 @@ void PndTrackingQATask::Exec(Option_t* opt) {
 		Int_t mcTrackId = iter->first;
 		Int_t trackQuality = iter->second;
 
+		if (mcTrackId == -1){
+			std::cout << "-W- PndTrackingQATask::Exec mcTrackId == -1" << std::endl;
+			continue;
+		}
+
 		TVector3 recoMomentum = recoPMap[mcTrackId];
 
 		PndMCTrack * myMcTrack = (PndMCTrack *) fMCTrack->At(mcTrackId);
+
+		if (myMcTrack == 0){
+		  std::cout << "-E- PndTrackingQATask::Exec mcMyTrack == 0" << std::endl;
+		  continue;
+		}
 		TVector3 mcMomentum = myMcTrack->GetMomentum();
 		Int_t pdgId = myMcTrack->GetPdgCode();
 
@@ -421,7 +435,6 @@ void PndTrackingQATask::Finish() {
 	fQualyHisto_rel_all->Fill(qualityNumbers::kFound, allFound / allTracksWithHits * 100);
 	fQualyHisto_rel_possible->Fill(qualityNumbers::kFound, allFound / allPossibleTracksWithHits * 100);
 
-
 	fQualyHisto_rel_all->Write();
 	fQualyHisto_rel_possible->Write();
 }
@@ -463,6 +476,7 @@ PndTrackingQualityMCInfo PndTrackingQATask::GetMCInfoFromIdealTrack(PndTrack *id
   Int_t nofmvdstrpoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("MVDHitsStrip"));
   //Int_t nofmvdpoint = nofmvdpixpoint + nofmvdstrpoint; //[R.K. 01/2017] unused variable
   Int_t nofgempoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("GEMHit"));
+  Int_t nofftspoint = idealtrkcand->GetNHitsDet(FairRootManager::Instance()->GetBranchId("FTSHit"));
   
   int nofsttskewpoint = 0, nofsttparalpoint = 0;    
   // this loop counts skewed (--> parallel) STT/FTS hits
@@ -479,7 +493,7 @@ PndTrackingQualityMCInfo PndTrackingQATask::GetMCInfoFromIdealTrack(PndTrack *id
     else nofsttparalpoint++;
   }
 
-  PndTrackingQualityMCInfo info(nofmvdpixpoint, nofmvdstrpoint, nofsttparalpoint, nofsttskewpoint, nofgempoint);
+  PndTrackingQualityMCInfo info(nofmvdpixpoint, nofmvdstrpoint, nofsttparalpoint, nofsttskewpoint, nofgempoint, nofftspoint);
 
   // CHECK
   // Bool_t isreco = Reconstructability(nofmvdpixpoint, nofmvdstrpoint, nofsttparalpoint, nofsttskewpoint, nofgempoint, nofscitilpoint);

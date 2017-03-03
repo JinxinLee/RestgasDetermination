@@ -34,6 +34,7 @@ class PndTrackingQualityRecoInfo : public TObject
   double GetMvdStripPurity();
   double GetMvdPurity();
   double GetGemPurity();
+  double GetFtsPurity();
   /*  double GetSciTilPurity() { return (double) GetNofSciTilTrueHits()/GetNofSciTilHits(); } */
 
   double GetContamination();
@@ -44,6 +45,7 @@ class PndTrackingQualityRecoInfo : public TObject
   double GetMvdStripContamination();
   double GetMvdContamination();
   double GetGemContamination();
+  double GetFtsContamination();
   /*  double GetSciTilContamination() { return (double) GetNofSciTilFakeHits()/GetNofSciTilHits(); } */
 
   double GetEfficiency();
@@ -54,6 +56,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  double GetSttSkewEfficiency(); */
   double GetSttEfficiency();
   double GetGemEfficiency();
+  double GetFtsEfficiency();
   /*  double GetSciTilEfficiency(); */
  
   double GetInefficiency();
@@ -64,6 +67,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  double GetSttSkewInefficiency(); */
   double GetSttInefficiency();
   double GetGemInefficiency();
+  double GetFtsInefficiency();
   /*  double GetSciTilInefficiency(); */
 
 
@@ -85,6 +89,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  void SetNofSttSkewTrueHits(int nofsttskew) { fNofSttSkewTrueHits = nofsttskew; } */
   void SetNofSttTrueHits(int nofstt) { fNofSttTrueHits = nofstt; }
   void SetNofGemTrueHits(int nofgem) { fNofGemTrueHits = nofgem; }
+  void SetNofFtsTrueHits(int noffts) { fNofFtsTrueHits = noffts; }
   /*  void SetNofSciTilTrueHits(int nofscitil) { fNofSciTilTrueHits = nofscitil; } */
 
   Int_t GetNofMvdPixelTrueHits() { return fNofMvdPixelTrueHits; }
@@ -94,6 +99,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  Int_t GetNofSttSkewTrueHits() { return fNofSttSkewTrueHits; } */
   Int_t GetNofSttTrueHits() {return fNofSttTrueHits; } // fNofParalSttTrueHits + fNofSttSkewTrueHits ;}
   Int_t GetNofGemTrueHits() {return fNofGemTrueHits; }
+  Int_t GetNofFtsTrueHits() {return fNofFtsTrueHits; }
   /*  Int_t GetNofSciTilTrueHits() {return fNofSciTilTrueHits; } */
   Int_t GetNofRecoTrueHits() {return  fNofMvdPixelTrueHits + fNofMvdStripTrueHits + fNofSttTrueHits + fNofGemTrueHits; } // + fNofSttParalTrueHits + fNofSttSkewTrueHit + fNofSciTilTrueHits; }
  
@@ -103,6 +109,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  void SetNofSttSkewFakeHits(int nofsttskew) { fNofSttSkewFakeHits = nofsttskew; } */
   void SetNofSttFakeHits(int nofstt) { fNofSttFakeHits = nofstt; }
   void SetNofGemFakeHits(int nofgem) { fNofGemFakeHits = nofgem; }
+  void SetNofFtsFakeHits(int noffts) { fNofFtsFakeHits = noffts; }
   /*  void SetNofSciTilFakeHits(int nofscitil) { fNofSciTilFakeHits = nofscitil; } */
 
   Int_t GetNofMvdPixelFakeHits() { return fNofMvdPixelFakeHits; }
@@ -112,6 +119,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  Int_t GetNofSttSkewFakeHits() { return fNofSttSkewFakeHits; } */
   Int_t GetNofSttFakeHits() {return fNofSttFakeHits; } // fNofSttParalFakeHits + fNofSttSkewFakeHits ;}
   Int_t GetNofGemFakeHits() {return fNofGemFakeHits; }
+  Int_t GetNofFtsFakeHits() {return fNofFtsFakeHits; }
   /*  Int_t GetNofSciTilFakeHits() {return fNofSciTilFakeHits; } */
   Int_t GetNofRecoFakeHits() {return  fNofMvdPixelFakeHits + fNofMvdStripFakeHits + fNofSttFakeHits + fNofGemFakeHits; }//  + fNofSttParalFakeHits + fNofSttSkewFakeHits + fNofSciTilFakeHits; } 
 
@@ -122,6 +130,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  Int_t GetNofSttSkewMissingHits() { return fNofSttSkewMissingHits; } */
   Int_t GetNofSttMissingHits() {return fNofSttMissingHits; } // fNofSttParalMissingHits + fNofSttSkewMissingHits ;}
   Int_t GetNofGemMissingHits() {return fNofGemMissingHits; }
+  Int_t GetNofFtsMissingHits() {return fNofFtsMissingHits; }
   /*  Int_t GetNofSciTilMissingHits() {return fNofSciTilMissingHits; } */
   Int_t GetNofMissingHits() {return  fNofMvdPixelMissingHits + fNofMvdStripMissingHits + fNofSttMissingHits + fNofGemMissingHits; } // + fNofSttParalMissingHits + fNofSttSkewMissingHits + fNofSciTilMissingHits; }
 
@@ -131,6 +140,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  void SetNofSttSkewMissingHits(int nofsttskew) { fNofSttSkewMissingHits = nofsttskew; } */
   void SetNofSttMissingHits(int nofstt) { fNofSttMissingHits = nofstt; }
   void SetNofGemMissingHits(int nofgem) { fNofGemMissingHits = nofgem; }
+  void SetNofFtsMissingHits(int nofgem) { fNofFtsMissingHits = nofgem; }
   /*  void SetNofSciTilMissingHits(int nofscitil) { fNofSciTilMissingHits = nofscitil; } */
 
   Int_t GetNofTrueHits() { return fNofMvdPixelTrueHits + fNofMvdStripTrueHits + fNofSttTrueHits + fNofGemTrueHits; } // + fNofSttParalTrueHits + fNofSttSkewTrueHits + fNofSciTilTrueHits; }
@@ -144,6 +154,7 @@ class PndTrackingQualityRecoInfo : public TObject
   /*  Int_t GetNofSttSkewHits() { return GetNofSttSkewTrueHits() + GetNofSttSkewFakeHits(); } */
   Int_t GetNofSttHits() { return GetNofSttTrueHits() + GetNofSttFakeHits(); } // GetNofSttParalHits() + GetNofSttSkewHits(); }
   Int_t GetNofGemHits() { return GetNofGemTrueHits() + GetNofGemFakeHits(); }
+  Int_t GetNofFtsHits() { return GetNofFtsTrueHits() + GetNofFtsFakeHits(); }
   /*  Int_t GetNofSciTilHits() { return GetNofSciTilTrueHits() + GetNofSciTilFakeHits(); } */
 
   Bool_t IsFull()       { return GetEfficiency() > 0.9999; }
@@ -180,9 +191,9 @@ class PndTrackingQualityRecoInfo : public TObject
   PndTrackingQualityMCInfo fMCTrackInfo; 
 
   Int_t fNofMCTracks, fMCTrackID;
-  Int_t fNofMvdPixelTrueHits,  fNofMvdStripTrueHits,  fNofSttTrueHits, fNofGemTrueHits;
-  Int_t fNofMvdPixelFakeHits,  fNofMvdStripFakeHits,  fNofSttFakeHits, fNofGemFakeHits;
-  Int_t fNofMvdPixelMissingHits,  fNofMvdStripMissingHits,  fNofSttMissingHits, fNofGemMissingHits;
+  Int_t fNofMvdPixelTrueHits,  fNofMvdStripTrueHits,  fNofSttTrueHits, fNofGemTrueHits, fNofFtsTrueHits;
+  Int_t fNofMvdPixelFakeHits,  fNofMvdStripFakeHits,  fNofSttFakeHits, fNofGemFakeHits, fNofFtsFakeHits;
+  Int_t fNofMvdPixelMissingHits,  fNofMvdStripMissingHits,  fNofSttMissingHits, fNofGemMissingHits, fNofFtsMissingHits;
 
   /*  Int_t fNofSttParalTrueHits, fNofSttSkewTrueHits, fNofSciTilTrueHits; */
   /*  Int_t fNofSttParalFakeHits, fNofSttSkewFakeHits, fNofSciTilFakeHits; */
@@ -197,7 +208,7 @@ class PndTrackingQualityRecoInfo : public TObject
   // true = 0, clone = 1
   Int_t fFlag;
   Bool_t fTrue;
-  ClassDef(PndTrackingQualityRecoInfo,1);
+  ClassDef(PndTrackingQualityRecoInfo,2);
 };
 
 
