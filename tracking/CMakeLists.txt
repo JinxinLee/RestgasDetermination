@@ -34,7 +34,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/tracking/TrkStructure
   ${CMAKE_SOURCE_DIR}/tracking/TrkAlgo
   ${CMAKE_SOURCE_DIR}/tracking/TrkData
-  ${CMAKE_SOURCE_DIR}/tracking/TrkQA
+#  ${CMAKE_SOURCE_DIR}/tracking/TrkQA
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -97,11 +97,11 @@ TrkSecondary/PndTrkTrackFinder.cxx
 TrkSecondary/PndTrkAddTCA.cxx
 TrkSecondary/PndTrkGemCombiTask.cxx
 #
-TrkStructure/PndTrkQATask.cxx
-TrkQA/PndTrkQualityAssuranceTask.cxx
-TrkQA/PndTrkMCTrackInfo.cxx
-TrkQA/PndTrkRecoTrackInfo.cxx
-TrkQA/PndTrkAnaTask.cxx
+#TrkStructure/PndTrkQATask.cxx
+#TrkQA/PndTrkQualityAssuranceTask.cxx
+#TrkQA/PndTrkMCTrackInfo.cxx
+#TrkQA/PndTrkRecoTrackInfo.cxx
+#TrkQA/PndTrkAnaTask.cxx
 
 )
 
