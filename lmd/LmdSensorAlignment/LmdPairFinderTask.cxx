@@ -184,6 +184,7 @@ LmdPairFinderTask::~LmdPairFinderTask() {
 
 InitStatus LmdPairFinderTask::Init() {
 
+	/* this function is deprecated
 	//for now, disregard sorting option, always store unsorted (data will be supplied in the future sorted anyway)
 	if(_sortByModule){
 		cerr << "============================================================\n";
@@ -191,6 +192,7 @@ InitStatus LmdPairFinderTask::Init() {
 		cerr << "============================================================\n";
 	}
 	_sortByModule=false;
+	 */
 
 	noOfGoodPairs=0;
 	noOfEvents=noOfCombos=0;
@@ -221,42 +223,10 @@ InitStatus LmdPairFinderTask::Init() {
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat",true);
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat",false);
 
-	if(_sortByModule){
-		cout << "====== STORING SORTED IS NO LONGER SUPPORTED! NOT SAVING ANYTHING! =========" << endl;
-		/*
-		 * initialize multiple TClonesArrays and register them
-		 */
-		/*
-		int moduleID;
-		const char *moduleIDchar;
 
-		// half can be 0 or 1
-		for(unsigned int iHalf=0; iHalf < 2; iHalf++){
-			// plane can be 0, 1, 2, 3
-			for(unsigned int iPlane=0; iPlane < 4; iPlane++){
-				// module can be 0, 1, 2, 3, 4
-				for(unsigned int iModule=0; iModule<5; iModule++){
-
-					moduleID = dimension->makeModuleID(iHalf, iPlane, iModule);
-					moduleIDchar = dimension->makeModuleIDchar(iHalf, iPlane, iModule);
-
-					hitPairMap[moduleID] = new TClonesArray("PndLmdHitPair");
-					ioman->Register(moduleIDchar, "PndLmd", hitPairMap[moduleID], kTRUE);
-
-					cerr << "HOLA! I maed dis: " << moduleIDchar << endl;
-				}
-			}
-		}
-		*/
-		return kERROR;
-	}
-	else{
-		cout << "====== STORING UNSORTED =========" << endl;
-		hitPairArray = new TClonesArray("PndLmdHitPair");
-		ioman->Register("PndLmdHitPair", "PndLmd", hitPairArray, kTRUE);
-	}
-
-	//maxDistance=160e-4;
+	cout << "====== STORING UNSORTED =========" << endl;
+	hitPairArray = new TClonesArray("PndLmdHitPair");
+	ioman->Register("PndLmdHitPair", "PndLmd", hitPairArray, kTRUE);
 
 	std::cout << "LmdPairFinder::Init(): Initialization successful." << std::endl;
 	return kSUCCESS;
@@ -280,20 +250,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 
 	//clear temporary array for next event
 
-	if(_sortByModule){
-		//clear hit count map for next event
-		typedef std::map<int, int>::iterator it_type1;
-		typedef std::map<int, TClonesArray*>::iterator it_type2;
-		for(it_type1 iterator = hitCountMap.begin(); iterator != hitCountMap.end(); iterator++) {
-			iterator->second = 0;
-		}
-		for(it_type2 iterator = hitPairMap.begin(); iterator != hitPairMap.end(); iterator++) {
-			iterator->second->Clear();
-		}
-	}
-	else{
-		hitPairArray->Clear();
-	}
+	hitPairArray->Clear();
 
 	Int_t nPixels = mcPixels->GetEntriesFast();
 	noOfEvents++;
@@ -450,18 +407,9 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 						/*
 						 * ============ store pairs ============
 						 */
-						if(_sortByModule){
-							moduleId = pairCanditate.getModuleId();
-							TClonesArray* targetBranch = hitPairMap[moduleId];
-							storedForBranch = hitCountMap[moduleId];
-							new( (*targetBranch)[storedForBranch]) PndLmdHitPair(pairCanditate);
-							hitCountMap[moduleId]++;
-						}
-						else{
-							//actually store pair to root file
-							new((*hitPairArray)[storedPairsPerEvent]) PndLmdHitPair(pairCanditate);
-							storedPairsPerEvent++;
-						}
+						//actually store pair to root file
+						new((*hitPairArray)[storedPairsPerEvent]) PndLmdHitPair(pairCanditate);
+						storedPairsPerEvent++;
 					}
 					else{
 						unsuitable++;

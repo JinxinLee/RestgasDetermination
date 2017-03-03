@@ -155,7 +155,7 @@ bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 	/*
 	 * multi threaded hint: the map is always only read, not written to. there should be
 	 * no race conditions. instead, move the mutex to the actual aligner. it should be local to an aligner,
-	 * so that aligner a doesnt block aligner b.
+	 * so that aligner A doesnt block aligner B.
 	 */
 	pair.check();
 	if(pair.isSane() ){
@@ -163,7 +163,8 @@ bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 			_aligners[pair.getOverlapId()].addSimplePair(pair);
 		}
 		else{
-			_aligners[pair.getOverlapId()].addPair(pair);
+			//_aligners[pair.getOverlapId()].addPair(pair);
+			cout << "WARNING! Legacy storage mode is no longer supported.";
 		}
 	}
 	else{

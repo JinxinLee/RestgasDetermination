@@ -47,7 +47,7 @@ private:
 	std::vector<double> simpleSensorTwoY;
 	std::vector<double> simpleSensorTwoZ;
 
-	bool _pairsNormal, _simpleStorage, _inCentimeters, _success, _numericCorrection, _zIsTimestamp;
+	bool _simpleStorage, _inCentimeters, _success, _numericCorrection, _zIsTimestamp;
 
 	Matrix resultMatrix, _helperMatrix;
 
@@ -60,8 +60,9 @@ public:
 	//every constructor should call this, also resets aligner (even though that never happens in normal use)
 	void init();
 
+	//legacy function, no longer supported
 	// add pair, make to vector
-	void addPair(PndLmdHitPair &pair);
+	//void addPair(PndLmdHitPair &pair);
 
 	// add simplified pair, for size and perfomance reasons
 	void addSimplePair(PndLmdHitPair &pair);
@@ -95,14 +96,11 @@ public:
 		return _moduleID;
 	}
 	int getNoOfPairs(){
-		if(_simpleStorage && !_pairsNormal){
+		if(_simpleStorage){
 			return simpleSensorOneX.size();
 		}
-		else if(!_simpleStorage && _pairsNormal){
-			return pairs.size();
-		}
 		else{
-			return -1;
+			return pairs.size();
 		}
 	}
 

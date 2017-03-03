@@ -31,7 +31,8 @@ private:
 	Int_t hitsClustered, hitsSinglePixel;
 	Int_t noOfCombos;
 
-	Bool_t _sortByModule;
+	//deprecated
+	//Bool_t _sortByModule;
 	Bool_t _ignoreClusters;
 
 	Double_t _maxDistance;
@@ -54,9 +55,11 @@ public:
 
 	virtual void FinishEvent();
 	virtual void FinishTask();
-	void storeSorted(Bool_t value){
-		_sortByModule = value;
-	}
+
+	//function is deprecated!
+	//void storeSorted(Bool_t value){
+	//	_sortByModule = value;
+	//}
 
 	void setMaxDistance(Double_t value) {
 		_maxDistance = value;
