@@ -829,7 +829,7 @@ void RhoKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
 		//double m = fDaughters[k]->Mass(); //[R.K. 01/2017] unused variable?
 		//check, if daughter particle is either neutral or charged
 		if (fabs(fDaughters[k]->GetCharge())<1e-6){//begin neutral
-			double a = -0.00299792458; // unit conversion constant
+			double a = 0.00299792458; // unit conversion constant
       double inva = 1/a;
 			//Get position, energy and momentum for the daughter particle
 			double px=a_in[kN+0][0];
