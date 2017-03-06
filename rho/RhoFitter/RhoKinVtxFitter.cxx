@@ -829,7 +829,8 @@ void RhoKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
 		//double m = fDaughters[k]->Mass(); //[R.K. 01/2017] unused variable?
 		//check, if daughter particle is either neutral or charged
 		if (fabs(fDaughters[k]->GetCharge())<1e-6){//begin neutral
-
+			double a = -0.00299792458; // unit conversion constant
+      double inva = 1/a;
 			//Get position, energy and momentum for the daughter particle
 			double px=a_in[kN+0][0];
 			double py=a_in[kN+1][0];
@@ -845,24 +846,24 @@ void RhoKinVtxFitter::TransportToVertex(TMatrixD& a_in, TMatrixD& a_cov_in, TMat
 			a_out[kN+1][0] = py;
 			a_out[kN+2][0] = pz;
 			a_out[kN+3][0] = a_in[kN+3][0];
-			a_out[kN+4][0] = x+px;
-			a_out[kN+5][0] = y+py;
-			a_out[kN+6][0] = z+pz;
+			a_out[kN+4][0] = x+px*inva;
+			a_out[kN+5][0] = y+py*inva;
+			a_out[kN+6][0] = z+pz*inva;
 
 			//matrix U corrects the covariant matrix a_cov_in to a_cov_out= U * a_cov_in * U^T
 		    U[kN+0][kN+0] = 1.;
 		    U[kN+1][kN+1] = 1.;
 		    U[kN+2][kN+2] = 1.;
-		    U[3+kN][3+kN] = 1.;
-
-		    U[4+kN][4+kN] = 1.;
-		    U[4+kN][0+kN] = 1.;
-
-		    U[5+kN][5+kN] = 1.;
-		    U[5+kN][1+kN] = 1.;
-
-		    U[6+kN][6+kN] = 1.;
-		    U[6+kN][2+kN] = 1.;
+		    U[kN+3][kN+3] = 1.;
+                   
+		    U[kN+4][kN+4] = 1.;
+		    U[kN+4][kN+0] = inva;
+                   
+		    U[kN+5][kN+5] = 1.;
+		    U[kN+5][kN+1] = inva;
+                   
+		    U[kN+6][kN+6] = 1.;
+		    U[kN+6][kN+2] = inva;
 
 
 		}//end neutral
