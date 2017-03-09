@@ -278,13 +278,13 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
 
     if(fSeparate == kTRUE) {
       PndSttSignalOverlap *soverlap2 = new PndSttSignalOverlap(fSttParalHitArray);
-      bool overlap2 = soverlap2->OverlapSimultaneousSignals(fSttParalOverlapHitArray);
+      soverlap2->OverlapSimultaneousSignals(fSttParalOverlapHitArray);
       PndSttSignalOverlap *soverlap3 = new PndSttSignalOverlap(fSttSkewHitArray);
-      bool overlap3 = soverlap3->OverlapSimultaneousSignals(fSttSkewOverlapHitArray);
+      soverlap3->OverlapSimultaneousSignals(fSttSkewOverlapHitArray);
     }
     else {
       PndSttSignalOverlap *soverlap = new PndSttSignalOverlap(fHitArray);
-      bool overlap = soverlap->OverlapSimultaneousSignals(fOverlapHitArray);
+      soverlap->OverlapSimultaneousSignals(fOverlapHitArray);
       // cout << "OVERLAP " << overlap << endl;
     }
   }

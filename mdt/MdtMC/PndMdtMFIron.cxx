@@ -57,19 +57,19 @@ void PndMdt::PndMdtMFIron()
     FairGeoMedia *Media =  geoFace->getMedia();
     FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
     FairGeoMedium *medIron = Media->getMedium("iron");
-    Int_t  kMedIron=geobuild->createMedium(medIron);
+    geobuild->createMedium(medIron);
 
 //creating the holes
-    TGeoBBox* mfihbox2 = new TGeoBBox("mfihbox2",((Double_t)PndMdtMFIron_H02_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H02_V)/10.0,0);
-    TGeoBBox* mfihbox3 = new TGeoBBox("mfihbox3",((Double_t)PndMdtMFIron_H03_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H03_V)/10.0,0);
-    TGeoBBox* mfihbox4 = new TGeoBBox("mfihbox4",((Double_t)PndMdtMFIron_H04_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H04_V)/10.0,0);
-    TGeoBBox* mfihbox5 = new TGeoBBox("mfihbox5",((Double_t)PndMdtMFIron_H05_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H05_V)/10.0,0);
-    TGeoBBox* mfihbox6 = new TGeoBBox("mfihbox6",((Double_t)PndMdtMFIron_H06_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H06_V)/10.0,0);
-    TGeoBBox* mfihboxpmp2 = new TGeoBBox("mfihboxpmp2",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
-    TGeoBBox* mfihboxpmp3 = new TGeoBBox("mfihboxpmp3",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
-    TGeoBBox* mfihboxpmp4 = new TGeoBBox("mfihboxpmp4",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
-    TGeoBBox* mfihboxpmp5 = new TGeoBBox("mfihboxpmp5",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
-    TGeoBBox* mfihboxpmp6 = new TGeoBBox("mfihboxpmp6",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    new TGeoBBox("mfihbox2",((Double_t)PndMdtMFIron_H02_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H02_V)/10.0,0);
+    new TGeoBBox("mfihbox3",((Double_t)PndMdtMFIron_H03_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H03_V)/10.0,0);
+    new TGeoBBox("mfihbox4",((Double_t)PndMdtMFIron_H04_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H04_V)/10.0,0);
+    new TGeoBBox("mfihbox5",((Double_t)PndMdtMFIron_H05_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H05_V)/10.0,0);
+    new TGeoBBox("mfihbox6",((Double_t)PndMdtMFIron_H06_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H06_V)/10.0,0);
+    new TGeoBBox("mfihboxpmp2",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    new TGeoBBox("mfihboxpmp3",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    new TGeoBBox("mfihboxpmp4",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    new TGeoBBox("mfihboxpmp5",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
+    new TGeoBBox("mfihboxpmp6",((Double_t)PndMdtMFIron_PUMP_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_PUMP_V)/10.0,0);
 
 
 
@@ -118,7 +118,7 @@ void PndMdt::PndMdtMFIron()
     TGeoTranslation* mfitgt = new TGeoTranslation(0.0,0.0,my/(-10.0));
     mfitgt->SetName("mfitgt");
     mfitgt->RegisterYourself();
-    TGeoTrd2* mfitrd = new TGeoTrd2("mfitrd",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
+    new TGeoTrd2("mfitrd",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
 
     for(int i=0; i<5; i++)
     {

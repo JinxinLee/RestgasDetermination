@@ -694,7 +694,7 @@ void PndMdtTrkProducer::AlgorithmWithLheGenTrack()  //lyt April 15th, 2010
     PndMdtHit *mdtHit = NULL;
     Int_t mdtEntries = fHitArray->GetEntriesFast();
     Int_t mdtIndex = -1; //mdtMod = 0, , mdtLayer = 0 //[R.K. 01/2017] unused variable
-    Float_t mdtGLength = -1000;
+    //Float_t mdtGLength = -1000; //[R.K. 03/2017] unused variable?
     Float_t mdtQuality = 1000000;
 
     //Float_t chi2 = 0; //[R.K. 01/2017] unused variable?
@@ -721,7 +721,7 @@ void PndMdtTrkProducer::AlgorithmWithLheGenTrack()  //lyt April 15th, 2010
  
           vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	  momentum.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());   //set momentum, to be used as the direction to extrapolated to next layer.
-          mdtGLength = fProMdt->GetLengthAtPCA();
+          //mdtGLength = fProMdt->GetLengthAtPCA(); //[R.K. 03/2017] unused variable?
 	}
 
 	Float_t dist;

@@ -419,8 +419,8 @@ void PndFtsTrackerIdeal::Exec(Option_t * option)
       return;
     }
 
-    PndTrackCand* pndTrackCand = new(pndtrackcands[size]) PndTrackCand(*tcand);
-    PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *tcand,0,0,1,mc->GetPdgCode(),trackID,FairRootManager::Instance()->GetBranchId("MCTrack"));
+    new(pndtrackcands[size]) PndTrackCand(*tcand);
+    new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *tcand,0,0,1,mc->GetPdgCode(),trackID,FairRootManager::Instance()->GetBranchId("MCTrack"));
     //delete(tcand);
     delete(firstPar);
     delete(lastPar);

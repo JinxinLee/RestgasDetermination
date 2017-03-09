@@ -61,21 +61,21 @@ void PndMdt::PndMdtMuonFilter()
     FairGeoMedia *Media =  geoFace->getMedia();
     FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
     FairGeoMedium *medmdtArCO2  = Media->getMedium("MDTMixture");
-    Int_t  kMedmdtArCO2=geobuild->createMedium(medmdtArCO2);
+    geobuild->createMedium(medmdtArCO2);
 
 //creating the holes
-    TGeoBBox* mfhbox2 = new TGeoBBox("mfhbox2",((Double_t)PndMdt_H07_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H07_V)/10.0,0);
-    TGeoBBox* mfhbox3 = new TGeoBBox("mfhbox3",((Double_t)PndMdt_H08_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H08_V)/10.0,0);
-    TGeoBBox* mfhbox4 = new TGeoBBox("mfhbox4",((Double_t)PndMdt_H09_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H09_V)/10.0,0);
-    TGeoBBox* mfhbox5 = new TGeoBBox("mfhbox5",((Double_t)PndMdt_H10_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H10_V)/10.0,0);
-    TGeoBBox* mfhbox6 = new TGeoBBox("mfhbox6",((Double_t)PndMdt_H11_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H11_V)/10.0,0);
-    TGeoBBox* mfhbox7 = new TGeoBBox("mfhbox7",((Double_t)PndMdt_H12_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H12_V)/10.0,0);
-    TGeoBBox* mfhboxpmp2 = new TGeoBBox("mfhboxpmp2",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
-    TGeoBBox* mfhboxpmp3 = new TGeoBBox("mfhboxpmp3",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
-    TGeoBBox* mfhboxpmp4 = new TGeoBBox("mfhboxpmp4",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
-    TGeoBBox* mfhboxpmp5 = new TGeoBBox("mfhboxpmp5",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
-    TGeoBBox* mfhboxpmp6 = new TGeoBBox("mfhboxpmp6",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
-    TGeoBBox* mfhboxpmp7 = new TGeoBBox("mfhboxpmp7",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    new TGeoBBox("mfhbox2",((Double_t)PndMdt_H07_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H07_V)/10.0,0);
+    new TGeoBBox("mfhbox3",((Double_t)PndMdt_H08_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H08_V)/10.0,0);
+    new TGeoBBox("mfhbox4",((Double_t)PndMdt_H09_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H09_V)/10.0,0);
+    new TGeoBBox("mfhbox5",((Double_t)PndMdt_H10_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H10_V)/10.0,0);
+    new TGeoBBox("mfhbox6",((Double_t)PndMdt_H11_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H11_V)/10.0,0);
+    new TGeoBBox("mfhbox7",((Double_t)PndMdt_H12_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H12_V)/10.0,0);
+    new TGeoBBox("mfhboxpmp2",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    new TGeoBBox("mfhboxpmp3",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    new TGeoBBox("mfhboxpmp4",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    new TGeoBBox("mfhboxpmp5",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    new TGeoBBox("mfhboxpmp6",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
+    new TGeoBBox("mfhboxpmp7",((Double_t)PndMdt_PUMP_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_PUMP_V)/10.0,0);
 
 
 //MdtMF    
@@ -123,7 +123,7 @@ void PndMdt::PndMdtMuonFilter()
     TGeoTranslation* mftgt = new TGeoTranslation(0.0,0.0,my/(-10.0));
     mftgt->SetName("mftgt");
     mftgt->RegisterYourself();
-    TGeoTrd2* mftrd = new TGeoTrd2("mftrd",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
+    new TGeoTrd2("mftrd",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
 
     for(int i=0; i<6; i++)
     {

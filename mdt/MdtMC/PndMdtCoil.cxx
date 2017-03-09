@@ -45,7 +45,7 @@ void PndMdt::PndMdtCoil()
   FairGeoMedia *Media =  geoFace->getMedia();
   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
   FairGeoMedium *medmdtiron  = Media->getMedium("iron");
-  Int_t  kMedmdtiron=geobuild->createMedium(medmdtiron);
+  geobuild->createMedium(medmdtiron);
     
 
     

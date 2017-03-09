@@ -211,10 +211,8 @@ void PndFtsHitProducerIdeal::Exec(Option_t* opt)
       dpos.SetXYZ(innerStrawDiameter / 2., innerStrawDiameter / 2., GetLongitudinalResolution(position.Z()));
 
       //  if(fabs(fd_in-0.5)>0.001) continue;
-      
-      PndFtsHit *hit = NULL;
-    
-      hit = new ((*fHitArray)[counter]) PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, 0, closestDistance, closestDistanceError, eloss * 1e6);
+          
+      new ((*fHitArray)[counter]) PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, 0, closestDistance, closestDistanceError, eloss * 1e6);
      
       new ((*fHitInfoArray)[counter]) PndFtsHitInfo(0, 0, trackID, iPoint,
 						   0, kFALSE);

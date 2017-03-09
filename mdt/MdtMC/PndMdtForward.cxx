@@ -43,11 +43,11 @@ void PndMdt::PndMdtForward()
   FairGeoMedia *Media =  geoFace->getMedia();
   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
   FairGeoMedium *medmdtArCO2  = Media->getMedium("MDTMixture");
-  Int_t  kMedmdtArCO2=geobuild->createMedium(medmdtArCO2);
+  geobuild->createMedium(medmdtArCO2);
   FairGeoMedium *medmdtFe  = Media->getMedium("iron");
-  Int_t  kMedmdtFe=geobuild->createMedium(medmdtFe);
+  geobuild->createMedium(medmdtFe);
   FairGeoMedium *medmdtVac  = Media->getMedium("vacuum");
-  Int_t  kMedmdtVac=geobuild->createMedium(medmdtVac);
+  geobuild->createMedium(medmdtVac);
     
   //char fe[12], hl[12], ffe[12], gas[12], hgas[12], ggas[12]; //[R.K. 01/2017] unused variable?
   Char_t buffer[255];
@@ -63,11 +63,11 @@ void PndMdt::PndMdtForward()
   Double_t fwd_holedy = (Double_t)PndMdt_FWD_Hole_DY;
   Double_t fwd_thick = (Double_t)PndMdt_SVThickness;
 
-  TGeoVolume *volFe =  gGeoManager->MakeBox("fe", gGeoManager->GetMedium("iron"),  fwd_dx/20., fwd_dy/20., fwd_fedz/20.);
-  TGeoVolume *volHFe = gGeoManager->MakeBox("hl", gGeoManager->GetMedium("vacuum"), fwd_holedx/20., fwd_holedy/20., fwd_fedz/20.+1.);
+  gGeoManager->MakeBox("fe", gGeoManager->GetMedium("iron"),  fwd_dx/20., fwd_dy/20., fwd_fedz/20.);
+  gGeoManager->MakeBox("hl", gGeoManager->GetMedium("vacuum"), fwd_holedx/20., fwd_holedy/20., fwd_fedz/20.+1.);
   
-  TGeoVolume *volGas =  gGeoManager->MakeBox("gas", gGeoManager->GetMedium("MDTMixture"), fwd_dx/20., fwd_dy/20., fwd_thick/20.);
-  TGeoVolume *volHGas = gGeoManager->MakeBox("hgas", gGeoManager->GetMedium("vacuum"), fwd_holedx/20., fwd_holedy/20., fwd_thick/20.+1.);
+  gGeoManager->MakeBox("gas", gGeoManager->GetMedium("MDTMixture"), fwd_dx/20., fwd_dy/20., fwd_thick/20.);
+  gGeoManager->MakeBox("hgas", gGeoManager->GetMedium("vacuum"), fwd_holedx/20., fwd_holedy/20., fwd_thick/20.+1.);
   
   TGeoTranslation *vv = new TGeoTranslation((15+1.8), 0, 0);
   vv->SetName("vv");

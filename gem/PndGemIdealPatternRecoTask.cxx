@@ -125,7 +125,7 @@ void PndGemIdealPatternRecoTask::Exec(Option_t* opt) {
     if(cands[trackId]==NULL) {
       cands[trackId] = new PndTrackCand;
       //      cands[trackId]->setMcTrackId(trackId);
-      PndMCTrack *myMCTrack = (PndMCTrack*)fMCTrackArr->At(trackId);
+      //PndMCTrack *myMCTrack = (PndMCTrack*)fMCTrackArr->At(trackId); //[R.K. 03/2017] unused variable?
       //int pdg = myMCTrack->GetPdgCode(); //[R.K.02/2017] Unused variable?
       //double charge; //[R.K. 01/2017] unused variable?
       //if(pdg<100000000){ //[R.K. 01/2017] unused variable?

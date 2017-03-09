@@ -1529,7 +1529,7 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFi
   // set the object to be fitted:
   // TMatrixT<Double_t> [x][y][r][err_r]
   TMatrixT<Double_t> fitvect;
-  int nfithits = SetUpFitVector(pTrackCand, fitvect); //FIXME: unused variable?
+  SetUpFitVector(pTrackCand, fitvect);
 
   if(whatToFit == 1) minimizer.SetFCN(fcnHelix);
   else  minimizer.SetFCN(fcnHelix2);

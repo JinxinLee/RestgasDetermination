@@ -111,9 +111,9 @@ void PndGemEmpty::Exec(Option_t* opt) {
   fOutBranch->Delete();
 
   std::vector<Int_t> clusterRefs;
-  PndGemCluster* cluster = NULL;
+  //PndGemCluster* cluster = NULL;
   for ( Int_t iout = 0 ; iout < fInBranch->GetEntries()/14 ; iout++ ) {
-    cluster = new ((*fOutBranch)[iout]) PndGemCluster(585180824,
+    new ((*fOutBranch)[iout]) PndGemCluster(585180824,
 						      iout,
 						      0,
 						      iout*2.,

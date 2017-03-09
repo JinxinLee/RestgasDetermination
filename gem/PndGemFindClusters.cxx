@@ -122,7 +122,7 @@ void PndGemFindClusters::Exec(Option_t* opt) {
 
   //FindClusters();
   
-  Int_t nofCreatedClusters = CreateClusters();// FIXME: unused variable...
+  CreateClusters();
 
   if ( fVerbose > 1 ) {
     Int_t nofC2W = 0;
@@ -792,7 +792,6 @@ Int_t PndGemFindClusters::WriteClusters() {
   
   Int_t nClusters = 0;
   //PndGemDigi* digi; //[R.K. 01/2017] unused variable?
-  PndGemCluster* cluster;
 
   for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
     
@@ -809,7 +808,7 @@ Int_t PndGemFindClusters::WriteClusters() {
       }
     }
     
-    cluster = new ((*fClusters)[nClusters]) PndGemCluster(fDigiClusters[idc].detId, 
+    new ((*fClusters)[nClusters]) PndGemCluster(fDigiClusters[idc].detId, 
 							  fDigiClusters[idc].cluPos,
 							  fDigiClusters[idc].cluPMn,
 							  fDigiClusters[idc].cluPMx,

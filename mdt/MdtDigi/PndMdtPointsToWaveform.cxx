@@ -253,7 +253,7 @@ void PndMdtPointsToWaveform::exec_e(Option_t* opt)
       Int_t newDetID;
       for(; mit != mend; ++mit){
 	//re-make detector id;
-	Bool_t ret = fGeoIF->MapWireToStrip(DetectorID, fNewEntrance, newDetID);//waiting for updates
+	fGeoIF->MapWireToStrip(DetectorID, fNewEntrance, newDetID);//waiting for updates
 	Int_t lid = mit->first;
 	if(lid%2 == 0) newDetID += lid/2;
 	else newDetID -= lid/2;
@@ -397,7 +397,7 @@ void PndMdtPointsToWaveform::exec_t(Option_t* opt)
       Int_t detID;
       for(; mit != mend; ++mit, ++nWaveformProduced){
 	//re-make detector id;
-	Bool_t ret = fGeoIF->MapWireToStrip(DetectorID, EntrancePosition, detID);//waiting for updates for new geometry versions
+	fGeoIF->MapWireToStrip(DetectorID, EntrancePosition, detID);//waiting for updates for new geometry versions
 	Int_t lid = mit->first;
 	if(lid%2 == 0) detID += lid/2;
 	else detID -= lid/2;

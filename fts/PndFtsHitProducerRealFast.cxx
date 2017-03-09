@@ -255,7 +255,7 @@ void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
 
   if(fOverlap){
     PndFtsSignalOverlap *myoverlap=new PndFtsSignalOverlap(fHitArray);
-    bool overlap = myoverlap->OverlapSimultaneousSignals(fOverlapHitArray);
+    myoverlap->OverlapSimultaneousSignals(fOverlapHitArray);
 
   }
 

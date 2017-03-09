@@ -182,7 +182,7 @@ void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
     if(radius < 0.) radius = 0.; // CHECK
 
     // true radius (cm)
-    double true_rad = fts.TrueDist(InOut);
+    //double true_rad = fts.TrueDist(InOut); //[R.K. 03/2017] unused variable?
 
     // dE calculation
     double depCharge = fts.PartToADC();

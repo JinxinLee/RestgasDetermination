@@ -269,17 +269,17 @@ PndDsk::ConstructGeometry()
 
   // Call materials
   FairGeoMedium *fusedSil  = Media->getMedium("FusedSil");
-  Int_t nFusedSil = geobuild->createMedium(fusedSil);
+  geobuild->createMedium(fusedSil);
   FairGeoMedium *nlak33a  = Media->getMedium("NLAK33A");
-  Int_t nNlak33a = geobuild->createMedium(nlak33a);
+  geobuild->createMedium(nlak33a);
   FairGeoMedium *air  = Media->getMedium("DIRCair");
-  Int_t nAir = geobuild->createMedium(air);
+  geobuild->createMedium(air);
   FairGeoMedium *airNoSens  = Media->getMedium("DIRCairNoSens");
-  Int_t nAirNoSens = geobuild->createMedium(airNoSens);
+  geobuild->createMedium(airNoSens);
   FairGeoMedium *mirror  = Media->getMedium("Mirror");
-  Int_t nMirror = geobuild->createMedium(mirror);
+  geobuild->createMedium(mirror);
   FairGeoMedium *marcol82  = Media->getMedium("Marcol82");
-  Int_t nMarcol82 = geobuild->createMedium(marcol82);
+  geobuild->createMedium(marcol82);
 
   TGeoVolume *cave = gGeoManager->GetTopVolume();
 
@@ -293,11 +293,11 @@ PndDsk::ConstructGeometry()
   Double_t const fWindowHeightHalf = z_position * TMath::Tan( 5.*TMath::DegToRad()); // ~17.15 cm
   Double_t const fWindowWidthHalf  = z_position * TMath::Tan(10.*TMath::DegToRad()); // ~34.56 cm
 
-  TGeoBBox* lDiskWindow = new TGeoBBox("DW",fWindowWidthHalf,fWindowHeightHalf,thickness);
+  new TGeoBBox("DW",fWindowWidthHalf,fWindowHeightHalf,thickness);
 
 
   TGeoCone* baseVol = new TGeoCone("baseVol",thickness+0.1, rmin, rmax+0.1, rmin, rmax+0.1);
-  TGeoCone* logicPlate = new TGeoCone("logicPlate", thickness, rmin, rmax, rmin, rmax);
+  new TGeoCone("logicPlate", thickness, rmin, rmax, rmin, rmax);
   TGeoCompositeShape* logicPlate_DW = new TGeoCompositeShape("logicPlate - DW");
 
   TGeoVolume *dskVol = new TGeoVolume("DskBase", baseVol, gGeoManager->GetMedium("DIRCairNoSens"));

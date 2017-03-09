@@ -40,29 +40,10 @@
 //     the right size and adding the proper axis on the right
 //
 
-#include <TLatex.h>
-#include <TColor.h>
-#include <TString.h>
-#include <TPaveStats.h>
-#include <TH1.h>
-#include <TLegend.h>
-#include <THStack.h>
-#include <TList.h>
-#include <TStyle.h>
-#include <TROOT.h>
-#include <TGeoManager.h>
-
-#include "FairRunAna.h"
-#include "FairRuntimeDb.h"
-#include "FairParRootFileIo.h"
-#include "FairGeane"
-#include "PndFileNameCreator.h"
-#include "PndGeoHandling.h"
-
-bool Tools()
+int Tools()
 {
   cout<<"pandaroot/macro/run/Tools.C loaded. Enjoy it."<<endl;
-  return true;
+  return 0;
 }
 
 bool DrawText(Double_t posX = 0., Double_t posY = 0., const char* text = "",
@@ -188,7 +169,7 @@ bool ImproveDefaultStyle()
   gStyle->SetTitleSize(0.06,"z");
   // use bold lines and markers
   gStyle->SetMarkerStyle(8);
-  gStyle->SetHistLineWidth(1.85);//1.85);
+  gStyle->SetHistLineWidth(1);//1.85);
   gStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
 
   // do not display any of the standard histogram decorations
@@ -229,7 +210,7 @@ bool LoadPandaStyle(bool)
   //
   //------------------------------------------------------------------------
 
-  if(gStyle->GetName() == "PANDA") return true;
+  if( strcmp(gStyle->GetName(),"PANDA")==0 ) return true;
   // use the 'plain' style for plots (white backgrounds, etc)
   //cout << "...using style 'Plain'" << endl;
   //gROOT->SetStyle("Plain");
@@ -239,7 +220,6 @@ bool LoadPandaStyle(bool)
   //
   //  gStyle->SetMarkerSize(0.75);  // use smaller markers in a histogram with many bins
   //  gStyle->SetTitleOffset(0.65,"y");  // bring y axis label closer to narrow values
-
 
   // Ralf Kliemt:
   // I changed a bit for myself here
@@ -262,7 +242,6 @@ bool LoadPandaStyle(bool)
   pandaStyle->SetTitleColor(1);
   pandaStyle->SetTitleFillColor(0);
   pandaStyle->SetTitleFontSize(0.07);
-
 
   // set the paper & margin sizes
   pandaStyle->SetPaperSize(20,26);
@@ -295,7 +274,7 @@ bool LoadPandaStyle(bool)
 
   // use bold lines and markers
   pandaStyle->SetMarkerStyle(8);
-  pandaStyle->SetHistLineWidth(1.85);//1.85);
+  pandaStyle->SetHistLineWidth(1);//2
   pandaStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
 
   // do not display any of the standard histogram decorations
@@ -318,9 +297,6 @@ bool LoadPandaStyle(bool)
   return true;
 }//bool PBase::LoadPandaStyle(bool)
 
-
-
-
 TH1D TransformHisto(TH2* h2, double min, double max)
 {
   /*
@@ -338,7 +314,6 @@ TH1D TransformHisto(TH2* h2, double min, double max)
   }
   return result;
 }
-
 
 bool plothistosfromfile(TString filename = "histos.root", TString ext=".pdf", Int_t divx=2, Int_t divy=2, Int_t pix = 300)
 { // Plot all histograms into a ps file
@@ -510,7 +485,6 @@ bool plotntuplefromfile(TString filename = "ntps.root", TString ext=".pdf", Int_
   return true;
 }
 
-
 bool LoadManySimFiles(TString treename="cbmsim")
 { // to use that method you should have opened some files
   // containing the same tree structure, like splitted files of
@@ -520,7 +494,7 @@ bool LoadManySimFiles(TString treename="cbmsim")
   TIter next(gROOT->GetListOfFiles());
   TFile *fi=0;
   TChain *R=new TChain(treename.Data());
-  while (fi=(TFile*)next()) R->Add(fi->GetName());
+  while ( (fi=(TFile*)next()) ) R->Add(fi->GetName());
   cout<<(Int_t)R->GetEntries()<<endl;
   return true;
 }
@@ -564,8 +538,7 @@ TString InitDefaultRun(TString filetag)
   return histoFile;
 }
 
-
-DrawHistSecondScale(TH1* hist, int color=kRed)
+bool DrawHistSecondScale(TH1* hist, int color=kRed)
 {
     // scale hint1 to the pad coordinates
    Float_t rightmax = 1.1*hist->GetMaximum();
@@ -582,5 +555,3 @@ DrawHistSecondScale(TH1* hist, int color=kRed)
    axis->Draw();
    return true;
 }
-
-

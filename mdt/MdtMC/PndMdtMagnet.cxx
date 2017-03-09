@@ -57,20 +57,20 @@ void PndMdt::PndMdtMagnet()
   FairGeoMedia *Media =  geoFace->getMedia();
   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
   FairGeoMedium *medmdtiron  = Media->getMedium("iron");
-  Int_t  kMedmdtiron=geobuild->createMedium(medmdtiron);
+  geobuild->createMedium(medmdtiron);
     
   //creating the holes
-  TGeoBBox* mhbox1 = new TGeoBBox("mhbox1",((Double_t)PndMdtMagnet_H01_Length)/10.0,((Double_t)PndMdtMagnet_H01_Length)/10.0,((Double_t)PndMdtMagnet_L201)/10.0,0);
-  TGeoBBox* mhbox2 = new TGeoBBox("mhbox2",((Double_t)PndMdtMagnet_H02_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H02_V)/10.0,0);
-  TGeoBBox* mhbox3 = new TGeoBBox("mhbox3",((Double_t)PndMdtMagnet_H03_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H03_V)/10.0,0);
-  TGeoBBox* mhbox4 = new TGeoBBox("mhbox4",((Double_t)PndMdtMagnet_H04_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H04_V)/10.0,0);
-  TGeoBBox* mhbox5 = new TGeoBBox("mhbox5",((Double_t)PndMdtMagnet_H05_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H05_V)/10.0,0);
-  TGeoBBox* mhbox6 = new TGeoBBox("mhbox6",((Double_t)PndMdtMagnet_H06_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H06_V)/10.0,0);
+  new TGeoBBox("mhbox1",((Double_t)PndMdtMagnet_H01_Length)/10.0,((Double_t)PndMdtMagnet_H01_Length)/10.0,((Double_t)PndMdtMagnet_L201)/10.0,0);
+  new TGeoBBox("mhbox2",((Double_t)PndMdtMagnet_H02_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H02_V)/10.0,0);
+  new TGeoBBox("mhbox3",((Double_t)PndMdtMagnet_H03_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H03_V)/10.0,0);
+  new TGeoBBox("mhbox4",((Double_t)PndMdtMagnet_H04_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H04_V)/10.0,0);
+  new TGeoBBox("mhbox5",((Double_t)PndMdtMagnet_H05_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H05_V)/10.0,0);
+  new TGeoBBox("mhbox6",((Double_t)PndMdtMagnet_H06_H)/10.0,0.5+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H06_V)/10.0,0);
  
-  TGeoBBox* mhupbox = new TGeoBBox("mhupbox",((Double_t)PndMdtMagnet_H_U_X)/10.0,((Double_t)PndMdtMagnet_H_U_Z)/10.0,((Double_t)PndMdtMagnet_L201)/10.0,0);
-  TGeoTube* mhuptub = new TGeoTube("mhuptub",0., ((Double_t)PndMdtMagnet_H_U_R)/10.0,((Double_t)PndMdtMagnet_L201)/10.0);
-  TGeoTube* mhdotub1 = new TGeoTube("mhdotub1", 0., ((Double_t)PndMdtMagnet_H_D_R1)/10.0,((Double_t)PndMdtMagnet_L201)/10.0);
-  TGeoTube* mhdotub2 = new TGeoTube("mhdotub2", 0., ((Double_t)PndMdtMagnet_H_D_R2)/10.0,((Double_t)PndMdtMagnet_L201)/10.0);
+  new TGeoBBox("mhupbox",((Double_t)PndMdtMagnet_H_U_X)/10.0,((Double_t)PndMdtMagnet_H_U_Z)/10.0,((Double_t)PndMdtMagnet_L201)/10.0,0);
+  new TGeoTube("mhuptub",0., ((Double_t)PndMdtMagnet_H_U_R)/10.0,((Double_t)PndMdtMagnet_L201)/10.0);
+  new TGeoTube("mhdotub1", 0., ((Double_t)PndMdtMagnet_H_D_R1)/10.0,((Double_t)PndMdtMagnet_L201)/10.0);
+  new TGeoTube("mhdotub2", 0., ((Double_t)PndMdtMagnet_H_D_R2)/10.0,((Double_t)PndMdtMagnet_L201)/10.0);
 
 
   //MdtMagnetBarrel
@@ -229,7 +229,7 @@ void PndMdt::PndMdtMagnet()
   TGeoTranslation* magtgt = new TGeoTranslation(0.0,0.0,my/(-10.0));
   magtgt->SetName("magtgt");
   magtgt->RegisterYourself();
-  TGeoTrd2* magtrd = new TGeoTrd2("magtrd",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
+  new TGeoTrd2("magtrd",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
 
   for(int i=0; i<5; i++)
     {

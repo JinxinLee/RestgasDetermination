@@ -297,7 +297,8 @@ void PndFtof::ConstructASCIIGeometry() {
   FairGeoMedium *CbmMediumSci  = Media->getMedium("polyvinyltoluene");
  
   
-  Int_t nmed=geobuild->createMedium(CbmMediumSci);
+  //Int_t nmed=
+  geobuild->createMedium(CbmMediumSci);
   TString vname = "cave";
   TGeoVolume* vcave = gGeoManager->FindVolumeFast(vname);
 

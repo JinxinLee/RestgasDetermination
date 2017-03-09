@@ -39,7 +39,7 @@ void PndMdt::ConstructGeometryFast()
 
   //General definitions
   TGeoVolume* mdt        = new TGeoVolumeAssembly("Mdt");
-  TGeoVolume* mdtMag     = new TGeoVolumeAssembly("MdtMag");
+  TGeoVolume* mdtMag     = new TGeoVolumeAssembly("MdtMag"); //FIXME [R.K. 03/2017] unused variable?
   TGeoVolume* mdtBarrel  = new TGeoVolumeAssembly("MdtBarrel");
   TGeoVolume* mdtBL00    = new TGeoVolumeAssembly("MdtBarrelLayer00");
   TGeoVolume* mdtBL01    = new TGeoVolumeAssembly("MdtBarrelLayer01");
@@ -60,7 +60,7 @@ void PndMdt::ConstructGeometryFast()
   TGeoVolume* mdtEL02    = new TGeoVolumeAssembly("MdtEndcapLayer02");
   TGeoVolume* mdtEL03    = new TGeoVolumeAssembly("MdtEndcapLayer03");
   TGeoVolume* mdtEL04    = new TGeoVolumeAssembly("MdtEndcapLayer04");
-  TGeoVolume* mdtEL05    = new TGeoVolumeAssembly("MdtEndcapLayer05");
+  TGeoVolume* mdtEL05    = new TGeoVolumeAssembly("MdtEndcapLayer05"); //FIXME [R.K. 03/2017] unused variable?
     
   //Additional definitions
   Text_t buffer[30];
@@ -81,12 +81,12 @@ void PndMdt::ConstructGeometryFast()
   Int_t  kMedmdtArCO2=geobuild->createMedium(medmdtArCO2);
    
   //creating the holes
-  TGeoBBox* hbox1 = new TGeoBBox("hbox1",((Double_t)PndMdt_H01_LengthX)/10.0,((Double_t)PndMdt_H01_LengthZ)/10.0,((Double_t)PndMdt_SVThickness+1.)/10.0,0);
-  TGeoBBox* hbox2 = new TGeoBBox("hbox2",((Double_t)PndMdt_H02_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H02_V)/10.0,0);
-  TGeoBBox* hbox3 = new TGeoBBox("hbox3",((Double_t)PndMdt_H03_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H03_V)/10.0,0);
-  TGeoBBox* hbox4 = new TGeoBBox("hbox4",((Double_t)PndMdt_H04_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H04_V)/10.0,0);
-  TGeoBBox* hbox5 = new TGeoBBox("hbox5",((Double_t)PndMdt_H05_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H05_V)/10.0,0);
-  TGeoBBox* hbox6 = new TGeoBBox("hbox6",((Double_t)PndMdt_H06_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H06_V)/10.0,0);
+  new TGeoBBox("hbox1",((Double_t)PndMdt_H01_LengthX)/10.0,((Double_t)PndMdt_H01_LengthZ)/10.0,((Double_t)PndMdt_SVThickness+1.)/10.0,0);
+  new TGeoBBox("hbox2",((Double_t)PndMdt_H02_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H02_V)/10.0,0);
+  new TGeoBBox("hbox3",((Double_t)PndMdt_H03_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H03_V)/10.0,0);
+  new TGeoBBox("hbox4",((Double_t)PndMdt_H04_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H04_V)/10.0,0);
+  new TGeoBBox("hbox5",((Double_t)PndMdt_H05_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H05_V)/10.0,0);
+  new TGeoBBox("hbox6",((Double_t)PndMdt_H06_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H06_V)/10.0,0);
 
   //MdtBarrel
   tRot.RotateX(90.0);
@@ -346,7 +346,7 @@ void PndMdt::ConstructGeometryFast()
 	      TGeoTranslation* tgt1 = new TGeoTranslation(0.0,0.0,my/(-10.0));
 	      tgt1->SetName("tgt1");
 	      tgt1->RegisterYourself();
-	      TGeoTrd2* trd = new TGeoTrd2("trd1",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
+	      new TGeoTrd2("trd1",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
 	    } else {
 	    dx1 = ((Double_t)PndMdt_Endcap_Height)*(TMath::Tan(TMath::ACos(-1.0)/8.0));
 	    my = ((Double_t)PndMdt_Endcap_Height)/2.0;
@@ -354,7 +354,7 @@ void PndMdt::ConstructGeometryFast()
 	    TGeoTranslation* tgt2 = new TGeoTranslation(0.0,0.0,my/(-10.0));
 	    tgt2->SetName("tgt2");
 	    tgt2->RegisterYourself();
-	    TGeoTrd2* trd = new TGeoTrd2("trd2",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
+	    new TGeoTrd2("trd2",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
 	  };
 	  for(int j=0; j<8; j++)
 	    {

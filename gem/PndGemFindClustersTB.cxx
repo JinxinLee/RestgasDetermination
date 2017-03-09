@@ -154,7 +154,7 @@ void PndGemFindClustersTB::Exec(Option_t* opt) {
   Int_t nDigis    = fDigis->GetEntries();
   Int_t nClusters = 0;
 
-  Int_t nofCreatedClusters = CreateClusters(); //FIXME: unused variable?
+  CreateClusters();
   fCreateTime+=fTimer.RealTime();
   fTimer.Continue();
 
@@ -516,7 +516,6 @@ Int_t PndGemFindClustersTB::WriteClusters() {
   Int_t nClusters = 0;
   std::vector<Int_t> clusterRefs;
   PndGemDigi* digi;
-  PndGemCluster* cluster;
 
   for ( size_t idc = 0 ; idc < fDigiClusters.size() ; idc++ ) {
 
@@ -546,7 +545,7 @@ Int_t PndGemFindClustersTB::WriteClusters() {
     //    cout << "CREATING CLUSTER " << idc << " IN DETECTOR " << fDigiClusters[idc].detId << " AT " << fDigiClusters[idc].cluPos << " WITH TIME " << fDigiClusters[idc].cluTDC << endl;
     //  PndGemCluster(Int_t iDetectorId, Double_t iChannel, Int_t bChannel, Int_t eChannel, Double_t signal, Double_t time, std::vector<Int_t> index);
 
-    cluster = new ((*fClusters)[nClusters]) PndGemCluster(fDigiClusters[idc].detId, 
+    new ((*fClusters)[nClusters]) PndGemCluster(fDigiClusters[idc].detId, 
 							  fDigiClusters[idc].cluPos,
 							  fDigiClusters[idc].cluPMn,
 							  fDigiClusters[idc].cluPMx,
