@@ -36,11 +36,13 @@ private:
 
 	std::vector<std::pair<double, double> > shitIds;
 	std::vector<std::string> _inputFiles;
-	std::string outputPath, matrixDir, pdfOutPath, binaryMatPath, LMDMatPath;
+	std::string outputPath, pdfOutPath, binaryMatPath, LMDMatPath;
 	double infoMomentum;
 	bool infoAbsolute, infoRelative, byPlane, _inCentimeters, _enableHelperMatrix;
+	bool alignOptionBool;
 	int curPlane;
 	int alignOption;	// 0: aligned, others in um: 10, 50, 100, 200
+	int pairsRequired;
 	PndLmdAlignManager manager;
 
 	//contains number of pairs on overlap area
@@ -95,10 +97,6 @@ public:
 		_enableHelperMatrix = correction;
 	}
 
-	void setMatrixPath(const std::string& path) {
-		matrixDir = path;
-	}
-
 	void setLmdMatPath(const std::string& path) {
 		LMDMatPath = path;
 	}
@@ -112,7 +110,17 @@ public:
 	}
 
 	void setAlignOption(int align) {
+		if(align == 0){
+			alignOptionBool = true;
+		}
+		else{
+			alignOptionBool = false;
+		}
 		alignOption = align;
+	}
+
+	void setPairsRequired(int number) {
+		pairsRequired = number;
 	}
 };
 

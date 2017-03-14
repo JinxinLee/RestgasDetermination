@@ -132,6 +132,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 	else if(param == kPlotCMMatrixResiduals){
 
 		string pdfdir = pdfOutPath;
+		_inCentimeters = true;
 
 		for(size_t i=0; i<idPairs.size(); i++){
 
@@ -140,21 +141,20 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 500e3){
+			if( matrixInfo[overlapID] < pairsRequired){
 				continue;
 			}
 
 			//prepare
 			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
-			string path = "/home/arbeit/simulationData/boxtest-aligned-1.5/binaryPairs/LMDmatrices";
+			string path = LMDMatPath;
 			matrixNameCM = path + matrixNameCM;
 
 			//read matrices from disk
 			Matrix matrixCM = manager.readMatrix(matrixNameCM);
 
-			bool alignmentcase = true;	//the aligned case is special because the correction matrix is the identity
 			Matrix senToSenCorrTarget;
-			if(alignmentcase){
+			if(alignOptionBool){
 				senToSenCorrTarget = Matrix::eye(4);
 			}
 			else{
@@ -189,6 +189,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 3;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
 		createHist(data, parameters);
 
 		//for DY
@@ -201,6 +202,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 4;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
 		createHist(data, parameters);
 
 		//for DAlpha
@@ -213,12 +215,15 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 2;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
 		createHist(data, parameters);
 	}
+
 	//TODO: handle path and filenames correctly
 	else if(param == kPlotPXMatrixResiduals){
 
-		string pdfdir = "/home/arbeit/RedPro3TB/simulationData/boxtest-0u-1.5/AlignQA";
+		string pdfdir = pdfOutPath;
+		_inCentimeters = false;
 
 		for(size_t i=0; i<idPairs.size(); i++){
 
@@ -227,19 +232,19 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 300e3){
+			if( matrixInfo[overlapID] < pairsRequired){
 				continue;
 			}
 
 			//prepare
-			Matrix target = manager.getMatrixOfficialGeometry(id1, id2,false); //true = aligned, false = misaligned
+			Matrix target = manager.getMatrixOfficialGeometry(id1, id2,alignOptionBool); //true = aligned, false = misaligned
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = "/home/arbeit/RedPro3TB/simulationData/boxtest-50u-1.5/binaryPairs-cut-160/LMDmatrices";
+			string path = LMDMatPath;
 			matrixNamePX = path + matrixNamePX;
 
 			//read matrices from disk
 			Matrix matrixPX = manager.readMatrix(matrixNamePX);
-			manager.transformFromSensorToLmdLocal(matrixPX, id1, false); // false = misaligned geometry
+			manager.transformFromSensorToLmdLocal(matrixPX, id1, alignOptionBool); // false = misaligned geometry
 			Matrix matrixDif = matrixPX - target;
 
 			//store this residual tuple to data
@@ -265,6 +270,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 3;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
 		createHist(data, parameters);
 
 		//for DY
@@ -277,6 +283,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 4;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
 		createHist(data, parameters);
 
 		//for DAlpha
@@ -289,12 +296,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 2;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
 		createHist(data, parameters);
 	}
+
 	//TODO: handle path and filenames correctly
 	else if(param==kPlotCMvsPX){
 
-		string pdfdir = "/home/arbeit/RedPro3TB/simulationData/boxtest-0u-1.5/AlignQA";
+		string pdfdir = pdfOutPath;
 
 		for(size_t i=0; i<idPairs.size(); i++){
 
@@ -303,14 +312,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 300e3){
+			if( matrixInfo[overlapID] < pairsRequired){
 				continue;
 			}
 
 			//prepare
 			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = "/home/arbeit/RedPro3TB/simulationData/boxtest-0u-1.5/binaryPairs-cut-160/LMDmatrices";
+			string path = LMDMatPath;
 			matrixNameCM = path + matrixNameCM;
 			matrixNamePX = path + matrixNamePX;
 
@@ -354,6 +363,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 3;
 		parameters.xMin=-50;
 		parameters.xMax=50;
+		parameters.printCMPXinPathName = false;
 		createHist(data, parameters);
 
 		//for DY
@@ -366,6 +376,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 4;
 		parameters.xMin=-50;
 		parameters.xMax=50;
+		parameters.printCMPXinPathName = false;
 		createHist(data, parameters);
 
 		//for DAlpha
@@ -378,47 +389,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 2;
 		parameters.xMin=-500;
 		parameters.xMax=500;
+		parameters.printCMPXinPathName = false;
 		createHist(data, parameters);
 	}
 
 	else if(param==kPlotPXvsCMResiduals){
 
-		// TODO: remove, is opbsolete now
-		//change this option from 0 to 2 accordingly.
-		// 0 = aligned
-		// 1 = misaligned 10u
-		// 2 = misaligned 50u
-		//int alignOption=0;
-
 		//prepare some stuff for aligned/misaligned cases
 		string pdfdir = pdfOutPath;
-		//string matrixPath;
-
-		bool alignOptionBool;
-		if(alignOption == 0){
-			alignOptionBool = true;
-		}
-		else{
-			alignOptionBool = false;
-		}
-
-		// TODO: remove, is opbsolete now
-		/*
-		switch(alignOption){
-		case 0:
-			alignOptionBool=true;
-			matrixPath = LMDMatPath;
-			break;
-		case 1:
-			alignOptionBool=false;
-			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-10u-15/binaryPairs-cut-320/LMDmatrices";
-			break;
-		case 2:
-			alignOptionBool=false;
-			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-50u-15/binaryPairs-cut-320/LMDmatrices";
-			break;
-		}
-		*/
 
 		//remember, we want the difference between two residuals
 		// (matrixPX-matrixTarget) - (matrixCM-matrixtarget)
@@ -435,7 +413,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 250e3){
+			if( matrixInfo[overlapID] < pairsRequired){
 				continue;
 			}
 
@@ -526,18 +504,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			interimData.push_back(dataPX[i][2] - dataCM[i][2]);		// sin(alpha)
 			interimData.push_back(dataPX[i][3] - dataCM[i][3]);		// tx
 			interimData.push_back(dataPX[i][4] - dataCM[i][4]);		// ty
-
-			/*
-			if(abs(interimData[2]) > 2e-6 ){
-				cout << "offender: da, id: " << interimData[0] << "to" << interimData[1] << ", val: " << interimData[2] << "\n";
-			}
-			if(abs(interimData[3]) > 0.2e-4 ){
-				cout << "offender: dx, id: " << interimData[0] << "to" << interimData[1] << ", val: " << interimData[3] << "\n";
-			}
-			if(abs(interimData[4]) > 0.2e-4  ){
-				cout << "offender: dy, id: " << interimData[0] << "to" << interimData[1] << ", val: " << interimData[4] << "\n";
-			}
-			*/
 
 			if(abs(interimData[2]) > 2e-6 || abs(interimData[3]) > 0.2e-4 || abs(interimData[4]) > 0.2e-4 ){
 				cout << "offender: id: " << interimData[0] << "to" << interimData[1] << "\n";
@@ -673,7 +639,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		Matrix corrSenOne = manager.getCorrectionMatrix(id1);
 		Matrix corrSenTwo = manager.getCorrectionMatrix(id2);
 
-				Matrix senToSenWithCorrLast = corrSenTwo * senToSenLast * Matrix::inv(corrSenOne);
+		Matrix senToSenWithCorrLast = corrSenTwo * senToSenLast * Matrix::inv(corrSenOne);
 
 		Matrix senToSenWithCorrDirectLast = manager.getMatrixOfficialGeometry(id1, id2,false);
 		cout << senToSenWithCorrDirectLast - senToSenWithCorrLast << "\n";
@@ -721,7 +687,7 @@ Matrix PndLmdAlignQA::getMatrixResiduals(int id1, int id2) {
 	//TODO: works only with ICP matrices, not arbitrary matrices (like combined matrices). but those are interesting too!
 
 	//get matrix file name from PndLmdAlignManager
-	string matrixName = matrixDir + PndLmdAlignManager::makeMatrixFileName(id1, id2, _inCentimeters);
+	string matrixName = LMDMatPath + PndLmdAlignManager::makeMatrixFileName(id1, id2, _inCentimeters);
 
 	//FIXME: remember the changes. correct those methods.
 	if(_inCentimeters){
@@ -745,12 +711,12 @@ void PndLmdAlignQA::readMatrixInfo() {
 
 	string filename;
 	if(_inCentimeters){
-		filename = matrixDir + "/info-cm.txt";
+		filename = LMDMatPath + "/info-cm.txt";
 	}
 	else{
-		filename = matrixDir + "/info-px.txt";
+		filename = LMDMatPath + "/info-px.txt";
 	}
-	
+
 	stringstream *info = manager.readFile(filename);
 
 	//parser: first, find line aligenr n (n is overlap id)
@@ -795,7 +761,7 @@ bool PndLmdAlignQA::checkForMatrixFiles(){
 	vector<int> availableIds = dimension->getAvailableOverlapIDs();
 
 	vector<string> files;
-	manager.searchFiles(matrixDir, files, "mat", false);
+	manager.searchFiles(LMDMatPath, files, "mat", false);
 	int foundFiles=0;
 
 	//no matrix files at all!
@@ -933,7 +899,7 @@ void PndLmdAlignQA::compareCombinedMatrices() {
 	cout << "quick and dirty!\n";
 	bool geometryAligned = false;
 
-	manager.setMatrixOutDir(matrixDir);
+	manager.setMatrixOutDir(LMDMatPath);
 	manager.setInCentimeters(false);
 
 	cout << "================= m02\n";
