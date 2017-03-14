@@ -20,12 +20,9 @@
 enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals};
 
 struct histParams{
+	bool printCMPXinPathName=true;
 	double scaleFactor=1.0;
-	std::string fileName;
-	std::string title;
-	std::string xtitle;
-	std::string ytitle;
-	std::string path;
+	std::string fileName, title, xtitle, ytitle, path;
 	int bins=50;
 	double xMin=-1;
 	double xMax=-1;
@@ -39,10 +36,11 @@ private:
 
 	std::vector<std::pair<double, double> > shitIds;
 	std::vector<std::string> _inputFiles;
-	std::string _outputPath, _matrixDir;
+	std::string outputPath, matrixDir, pdfOutPath, binaryMatPath, LMDMatPath;
 	double infoMomentum;
 	bool infoAbsolute, infoRelative, byPlane, _inCentimeters, _enableHelperMatrix;
 	int curPlane;
+	int alignOption;	// 0: aligned, others in um: 10, 50, 100, 200
 	PndLmdAlignManager manager;
 
 	//contains number of pairs on overlap area
@@ -69,7 +67,7 @@ public:
 	void init();
 
 	void setOutputPath(std::string path){
-		_outputPath = path;
+		outputPath = path;
 	}
 	void setInfoAbsolute(bool info) {
 		infoAbsolute = info;
@@ -97,8 +95,24 @@ public:
 		_enableHelperMatrix = correction;
 	}
 
-	void setMatrixDir(const std::string& matrixDir) {
-		_matrixDir = matrixDir;
+	void setMatrixPath(const std::string& path) {
+		matrixDir = path;
+	}
+
+	void setLmdMatPath(const std::string& path) {
+		LMDMatPath = path;
+	}
+
+	void setBinaryMatPath(const std::string& path) {
+		binaryMatPath = path;
+	}
+
+	void setPdfOutPath(const std::string& path) {
+		pdfOutPath = path;
+	}
+
+	void setAlignOption(int align) {
+		alignOption = align;
 	}
 };
 

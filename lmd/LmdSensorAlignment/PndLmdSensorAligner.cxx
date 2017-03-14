@@ -875,7 +875,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
 	int headersize;
 	if(headersizeD[0] < 6){
-		cout << "headersize is " << headersizeD[0] << ", seems to be old format. using 6 for now.";
+		//cout << "headersize is " << headersizeD[0] << ", seems to be old format. using 6 for now.";
 		headersize=6;
 	}
 	else{

@@ -131,7 +131,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 	//TODO: handle path and filenames correctly
 	else if(param == kPlotCMMatrixResiduals){
 
-		string pdfdir = "/home/roman/arbeit/fairsoft_mar15/pandaroot/macro/lmd/test/newTest/residualsPlots/";
+		string pdfdir = pdfOutPath;
 
 		for(size_t i=0; i<idPairs.size(); i++){
 
@@ -383,31 +383,42 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 	else if(param==kPlotPXvsCMResiduals){
 
+		// TODO: remove, is opbsolete now
 		//change this option from 0 to 2 accordingly.
 		// 0 = aligned
 		// 1 = misaligned 10u
 		// 2 = misaligned 50u
-		int alignOption=0;
+		//int alignOption=0;
 
 		//prepare some stuff for aligned/misaligned cases
-		bool alignOptionBool;
-		string pdfdir = "/home/arbeit/simulationData/PDFout/residualsDiff/";
-		string matrixPath;
+		string pdfdir = pdfOutPath;
+		//string matrixPath;
 
+		bool alignOptionBool;
+		if(alignOption == 0){
+			alignOptionBool = true;
+		}
+		else{
+			alignOptionBool = false;
+		}
+
+		// TODO: remove, is opbsolete now
+		/*
 		switch(alignOption){
 		case 0:
 			alignOptionBool=true;
-			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-0u-1.5/binaryPairs-cut-160/LMDmatrices";
+			matrixPath = LMDMatPath;
 			break;
 		case 1:
 			alignOptionBool=false;
-			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-10u-1.5/binaryPairs-cut-160/LMDmatrices";
+			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-10u-15/binaryPairs-cut-320/LMDmatrices";
 			break;
 		case 2:
 			alignOptionBool=false;
-			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-50u-1.5/binaryPairs-cut-160/LMDmatrices";
+			matrixPath = "/home/arbeit/RedPro3TB/simulationData/boxtest-50u-15/binaryPairs-cut-320/LMDmatrices";
 			break;
 		}
+		*/
 
 		//remember, we want the difference between two residuals
 		// (matrixPX-matrixTarget) - (matrixCM-matrixtarget)
@@ -430,7 +441,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//prepare
 			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
-			string path = matrixPath;
+			string path = LMDMatPath;
 			matrixNameCM = path + matrixNameCM;
 
 			//read matrices from disk
@@ -475,7 +486,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//prepare
 			Matrix target = manager.getMatrixOfficialGeometry(id1, id2,alignOptionBool); //true = aligned, false = misaligned
 			string matrixNamePX = manager.makeMatrixFileName(id1,id2,false,false);
-			string path = matrixPath;
+			string path = LMDMatPath;
 			matrixNamePX = path + matrixNamePX;
 
 			//read matrices from disk
@@ -541,7 +552,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.bins=25;
 
 		//for DX
-		parameters.path = pdfdir;
+		parameters.path = pdfOutPath;
 		parameters.title = "PXresiduals - CMresiduals, #DeltaX (0u)";
 		parameters.xtitle = "dX [#mum]";
 		parameters.ytitle = "entries";
@@ -550,10 +561,11 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 3;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName=false;
 		createHist(data, parameters);
 
 		//for DY
-		parameters.path = pdfdir;
+		parameters.path = pdfOutPath;
 		parameters.title = "PXresiduals - CMresiduals, #DeltaY (0u)";
 		parameters.xtitle = "dY [#mum]";
 		parameters.ytitle = "entries";
@@ -562,10 +574,11 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 4;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName=false;
 		createHist(data, parameters);
 
 		//for DAlpha
-		parameters.path = pdfdir;
+		parameters.path = pdfOutPath;
 		parameters.title = "PXresiduals - CMresiduals, #Delta#alpha (0u)";
 		parameters.xtitle = "d#alpha [#murad]";
 		parameters.ytitle = "entries";
@@ -574,6 +587,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.vectorIndex = 2;
 		parameters.xMin=-1;
 		parameters.xMax=-1;
+		parameters.printCMPXinPathName=false;
 		createHist(data, parameters);
 
 	}
@@ -707,7 +721,7 @@ Matrix PndLmdAlignQA::getMatrixResiduals(int id1, int id2) {
 	//TODO: works only with ICP matrices, not arbitrary matrices (like combined matrices). but those are interesting too!
 
 	//get matrix file name from PndLmdAlignManager
-	string matrixName = _matrixDir + PndLmdAlignManager::makeMatrixFileName(id1, id2, _inCentimeters);
+	string matrixName = matrixDir + PndLmdAlignManager::makeMatrixFileName(id1, id2, _inCentimeters);
 
 	//FIXME: remember the changes. correct those methods.
 	if(_inCentimeters){
@@ -731,10 +745,10 @@ void PndLmdAlignQA::readMatrixInfo() {
 
 	string filename;
 	if(_inCentimeters){
-		filename = _matrixDir + "/info-cm.txt";
+		filename = matrixDir + "/info-cm.txt";
 	}
 	else{
-		filename = _matrixDir + "/info-px.txt";
+		filename = matrixDir + "/info-px.txt";
 	}
 	
 	stringstream *info = manager.readFile(filename);
@@ -781,7 +795,7 @@ bool PndLmdAlignQA::checkForMatrixFiles(){
 	vector<int> availableIds = dimension->getAvailableOverlapIDs();
 
 	vector<string> files;
-	manager.searchFiles(_matrixDir, files, "mat", false);
+	manager.searchFiles(matrixDir, files, "mat", false);
 	int foundFiles=0;
 
 	//no matrix files at all!
@@ -855,7 +869,10 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 	//pathname << _outputPath;
 	pathname << parameters.path;
 
-	_inCentimeters ? pathname << "/inCm/" : pathname << "/inPx/";
+	if(parameters.printCMPXinPathName){
+		_inCentimeters ? pathname << "/inCm/" : pathname << "/inPx/";
+	}
+
 	_enableHelperMatrix ? pathname << "corrFull-" : pathname << "";
 
 	PndLmdAlignManager::mkdir(pathname.str());
@@ -916,7 +933,7 @@ void PndLmdAlignQA::compareCombinedMatrices() {
 	cout << "quick and dirty!\n";
 	bool geometryAligned = false;
 
-	manager.setMatrixOutDir(_matrixDir);
+	manager.setMatrixOutDir(matrixDir);
 	manager.setInCentimeters(false);
 
 	cout << "================= m02\n";
