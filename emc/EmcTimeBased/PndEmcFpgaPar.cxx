@@ -11,10 +11,11 @@
 
 ClassImp(PndEmcFpgaPar)
 
-PndEmcFpgaPar::PndEmcFpgaPar(const char* name,const char* title,
-			     const char* context)
+PndEmcFpgaPar::PndEmcFpgaPar(const char* name,const char* title, const char* context)
 : FairParGenericSet(name,title,context),
-fMAFilterLengthBarrel(0),fCFFilterLengthBarrel(0),fCFFilterRatioBarrel(0),fCFDelayLengthBarrel(0),fMWDFilterLengthBarrel(0),fMWDDecayConstantBarrel(0),fPulseThresholdBarrel(0),fMWDFilterUsedBarrel(0),fMAFilterLengthForward(0),fCFFilterLengthForward(0),fCFFilterRatioForward(0),fCFDelayLengthForward(0),fMWDFilterLengthForward(0),fMWDDecayConstantForward(0),fPulseThresholdForward(0),fMWDFilterUsedForward(0),fMAFilterLengthShashylik(0),fCFFilterLengthShashylik(0),fCFFilterRatioShashylik(0),fCFDelayLengthShashylik(0),fMWDFilterLengthShashylik(0),fMWDDecayConstantShashylik(0),fPulseThresholdShashylik(0),fMWDFilterUsedShashylik(0)
+fMAFilterLengthBarrel(0),   fCFFilterLengthBarrel(0),   fCFFilterRatioBarrel(0),   fCFDelayLengthBarrel(0),   fCFFitterLengthBarrel(0),   fMWDFilterUsedBarrel(0),   fMWDFilterLengthBarrel(0),   fMWDDecayConstantBarrel(0),fPulseThresholdBarrel(0),
+fMAFilterLengthForward(0),  fCFFilterLengthForward(0),  fCFFilterRatioForward(0),  fCFDelayLengthForward(0),  fCFFitterLengthForward(0),  fMWDFilterUsedForward(0),  fMWDFilterLengthForward(0),  fMWDDecayConstantForward(0),fPulseThresholdForward(0),
+fMAFilterLengthShashylik(0),fCFFilterLengthShashylik(0),fCFFilterRatioShashylik(0),fCFDelayLengthShashylik(0),fCFFitterLengthShashylik(0),fMWDFilterUsedShashylik(0),fMWDFilterLengthShashylik(0),fMWDDecayConstantShashylik(0),fPulseThresholdShashylik(0)
 																																																													 
 {
 	clear();//WHY?

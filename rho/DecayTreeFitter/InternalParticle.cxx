@@ -136,6 +136,8 @@ DecayTreeFitter::InternalParticle::initPar1(FitParams* fitparams)
         RecoTrack* dau1 = trkdaughters[0] ;
         RecoTrack* dau2 = trkdaughters[1] ;
 
+        //FIXME [R.K.03/2017] We at Panda don't have so many hard tracks.
+        // We 
         // get the poca of the two statevectors
         const DecayTreeFitter::State& state1 = dau1->state() ;
         const DecayTreeFitter::State& state2 = dau2->state() ;

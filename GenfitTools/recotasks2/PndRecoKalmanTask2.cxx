@@ -36,12 +36,12 @@
 #include "FairRuntimeDb.h"
 
 PndRecoKalmanTask2::PndRecoKalmanTask2(const char* name, Int_t iVerbose)
-: FairTask(name, iVerbose), fTrackInBranchName(""),
+: FairTask(name, iVerbose),fFitTrackArray(), fTrackInBranchName(""),
 fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
-fFitTrackArray(), fFitter(), fDafFitter(), fPDGHyp(-13),
-fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE), fPersistence(kTRUE),
-fPropagateToIP(kFALSE), fPropagateDistance(2.f), fPerpPlane(kFALSE),
-  fNumIt(1), fBusyCut(20)
+ fFitter(), fDafFitter(),  fPersistence(kTRUE),
+fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE),
+  fPropagateToIP(kFALSE), fPropagateDistance(2.f), fPerpPlane(kFALSE),
+  fNumIt(1), fPDGHyp(-13), fBusyCut(20)
 {
   fFitTrackArray = new TClonesArray("PndTrack");  
   fFitter = new PndRecoKalmanFit2(); 
@@ -210,7 +210,7 @@ void PndRecoKalmanTask2::Exec(Option_t* opt) {
 
 		PndTrack fitTrack;
 		PndTrack* fitTrackPointer = 0;
-		bool usePrefit = false;
+		//bool usePrefit = false; //[R.K.03/2017] unused variable
 		if (PDGCode != 0) {
 			if (fDaf){
 				fitTrackPointer = (fDafFitter->Fit(prefitTrack, PDGCode));
@@ -223,19 +223,19 @@ void PndRecoKalmanTask2::Exec(Option_t* opt) {
 		} else {
 			fitTrack = *prefitTrack;
 			fitTrack.SetFlag(-22);
-			usePrefit = true;
+			//usePrefit = true; //[R.K.03/2017] unused variable
 			std::cout
 					<< "-I- PndRecoKalmanTask2::Exec: Kalman cannot run on this track because of the bad MonteCarlo PDG code"
 					<< std::endl;
 		}
 
 
-			PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+			new (trkRef[size]) PndTrack(
 				fitTrack.GetParamFirst(), fitTrack.GetParamLast(),
 				fitTrack.GetTrackCand(), fitTrack.GetFlag(),
 				fitTrack.GetChi2(), fitTrack.GetNDF(), fitTrack.GetPidHypo(),
 				itr,
-				FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
+				FairRootManager::Instance()->GetBranchId(fTrackInBranchName));//PndTrack* pndTrack =  //[R.K.03/2017] unused variable
 
 	}
 

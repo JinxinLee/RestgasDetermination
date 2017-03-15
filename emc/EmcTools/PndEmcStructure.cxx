@@ -578,7 +578,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 			  CrystalRow = -1;
 			else
 			  CrystalRow = SubunitRow*4 - (1-getsign(SubunitRow))/2;
-		      else if (copyNoBox==2)//here necessarily: copyNoCrys==3 || copyNoCrys==2
+		      else if (copyNoBox==2)//here necessarily: copyNoCrys==3 || copyNoCrys==2  // FIXME Use braces for explicit logic, possible ambiguity
 			if (copyNoSub == 25 || copyNoSub == 42)
 			  CrystalRow = -2;
 			else

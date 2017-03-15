@@ -140,7 +140,8 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     if (pt->GetThetaC() != -1. && beta > 1/1.47){  
       fDetectorID = pt->GetBoxId()*10 + pt->GetBarId();
   
-      TGeoNode *dircNode = (TGeoNode*)gGeoManager->FindNode(pt->GetX(), pt->GetY(), pt->GetZ()); 
+      //TGeoNode *dircNode = (TGeoNode*)
+      gGeoManager->FindNode(pt->GetX(), pt->GetY(), pt->GetZ()); 
       TGeoMatrix *dircMat = (TGeoMatrix*)gGeoManager->GetCurrentMatrix();
       const Double_t *dircPos = dircMat->GetTranslation();
       fPosHit.SetXYZ(dircPos[0], dircPos[1], dircPos[2]);

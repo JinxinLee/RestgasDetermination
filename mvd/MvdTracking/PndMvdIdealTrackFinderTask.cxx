@@ -198,7 +198,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit,PndSdsHit* theHit){
   if (fTrackCandMap[trackID] == 0){
     PndTrackCand *myTCand = new PndTrackCand();
-    PndMCTrack* myMCTrack = (PndMCTrack*)fTrackArray->At(trackID);
+    //PndMCTrack* myMCTrack = (PndMCTrack*)fTrackArray->At(trackID); //[R.K.03/2017] unused variable
 //    myTCand->setCurv(GetTrackCurvature(myMCTrack));
 //    myTCand->setDip(GetTrackDip(myMCTrack));
 //    myTCand->setInverted(false);

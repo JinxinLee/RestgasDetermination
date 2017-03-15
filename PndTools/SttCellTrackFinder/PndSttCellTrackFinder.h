@@ -22,9 +22,7 @@ class TClonesArray;
 class PndSttCellTrackFinder {
 public:
 	PndSttCellTrackFinder(TClonesArray *tubeArray) :
-			fVerbose(0), fCalcFirstTrackletInf(kFALSE), fTrackletGenerator(0), fHitCorrector(
-					0), fTrackFinderData(0), fUseGPU(kFALSE), fDev_tubeNeighborings(
-					0), fCalcWithCorrectedIsochrones(kFALSE) {
+			fVerbose(0), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fCalcWithCorrectedIsochrones(kFALSE), fCalcFirstTrackletInf(kFALSE), fTrackFinderData(0), fTrackletGenerator(0), fHitCorrector(0) {
 
 		//Generate TrackFinderData-Object
 		fTrackFinderData= new PndSttCellTrackFinderData(tubeArray);

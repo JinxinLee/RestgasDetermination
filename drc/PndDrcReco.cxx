@@ -30,7 +30,7 @@ PndDrcReco::PndDrcReco() : FairTask("PndDrcReco"){
 }
 
 PndDrcReco::PndDrcReco(TString outFile, TString lutFile, TString pdfFile, Int_t verbose, Double_t r1, Double_t r2)
-  :FairTask("PndDrcReco",verbose),fOutFile(outFile),fLutFile(lutFile),fPdfFile(pdfFile),fVerbose(verbose){
+  :FairTask("PndDrcReco",verbose),fVerbose(verbose),fOutFile(outFile),fLutFile(lutFile),fPdfFile(pdfFile){
   fR1=r1;
   fR2=r2;
 }
@@ -266,7 +266,7 @@ void PndDrcReco::Exec(Option_t* option){
     if( fMCTrack->GetMotherID() != -1) continue;
     fMcTrackId = itrack; 
 
-    Int_t mcBarId, mcBoxId(-1), barId;
+    Int_t mcBoxId(-1), barId; //mcBarId,  //[R.K.03/2017] unused variable
     for(int i=0; i<fBarPointArray->GetEntriesFast(); i++){
       fBarPoint = (PndDrcBarPoint*)fBarPointArray->At(i);
       if(itrack == fBarPoint->GetTrackID()){
@@ -280,7 +280,7 @@ void PndDrcReco::Exec(Option_t* option){
     fBarPoint->Position(fPosInBar);
     fTimeInBar = fBarPoint->GetTime();
     fPidTrue = fBarPoint->GetPdgCode();
-    mcBarId = fBarPoint->GetBarId();
+    fBarPoint->GetBarId();  //mcBarId =  //[R.K.03/2017] unused variable
     
     //tracking smearing
     TVector3 zz = fMomInBar;	

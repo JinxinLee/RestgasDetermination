@@ -221,6 +221,7 @@ void PndParticleQATask::Exec(Option_t* opt)
 		ntp->Column("chrg", (Float_t)  chrpid[0][j]->Charge(),  0.0f );
 
 		qa.qaP4(  "",		chrpid[0][j]->P4(),     ntp);
+    qa.qaPull( "" , chrpid[0][j] ,     ntp);
 
 		// all the pid stuff now
 		qa.qaPid("idl", chrpid[0][j],        ntp);

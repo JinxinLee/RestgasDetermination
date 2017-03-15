@@ -44,11 +44,11 @@ PndEmcMakeClusterOnline::PndEmcMakeClusterOnline(Int_t verbose, Bool_t storeclus
 	FairTask("EmcClusteringTask", verbose),
 	fDigiArray(NULL), 
 	fClusterArray(NULL), 
-	fDigiFunctor(NULL), 
-	fDigiEnergyTresholdBarrel(0.), fDigiEnergyTresholdFWD(0.), fDigiEnergyTresholdBWD(0.), fDigiEnergyTresholdShashlyk(0.), 
-	fClusterActiveTime(0.),
 	fGeoPar(new PndEmcGeoPar()), 
 	fRecoPar(new PndEmcRecoPar()), 
+	fDigiEnergyTresholdBarrel(0.), fDigiEnergyTresholdFWD(0.), fDigiEnergyTresholdBWD(0.), fDigiEnergyTresholdShashlyk(0.), 
+	fClusterActiveTime(0.),
+	fDigiFunctor(NULL), 
 	fStoreClusters(storeclusters), 
 	fStoreClusterBase(kTRUE)
 {

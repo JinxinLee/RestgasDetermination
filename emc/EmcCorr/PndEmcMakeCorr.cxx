@@ -50,7 +50,7 @@ using std::endl;
 // Constructors --
 //----------------
 PndEmcMakeCorr::PndEmcMakeCorr(Int_t verbose, TString transportModel, TString clusterType):
-f(new TFile()), f0(new TFile()), f1(new TFile()), f2(new TFile()), f3(new TFile()), fClusterIndex(-1), fClusterArray(0), fClusterArrayCorr(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fStoreClustersCorr(kTRUE), fModel(transportModel), fClusterType(clusterType), fVerbose(0)
+f(new TFile()), f0(new TFile()), f1(new TFile()), f2(new TFile()), f3(new TFile()), fClusterIndex(-1), fClusterArray(0), fClusterArrayCorr(0), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fVerbose(0), fStoreClustersCorr(kTRUE), fModel(transportModel), fClusterType(clusterType)
 {
   cout<<"PndEmcMakeCorr  constructor: "<<fClusterType<<endl;
 }
@@ -234,8 +234,8 @@ void PndEmcMakeCorr::Exec(Option_t* opt)
 
   // Variables for Energy & Theta Cluster's Corrections 
   Bool_t use_interpolation=kTRUE;
-  Double_t valzEn[4], valzTh[4], ThCorr[4], ThCorrRad[4], EnCorr[4];
-  Int_t ndigi;
+  Double_t valzEn[4], valzTh[4], ThCorr[4],  EnCorr[4];//ThCorrRad[4], //[R.K.03/2017] unused variable
+  //Int_t ndigi; //[R.K.03/2017] unused variable
   //Int_t particle[5]; //[R.K. 01/2017] unused variable?
   Int_t chosenModule =0;
 
@@ -270,7 +270,7 @@ void PndEmcMakeCorr::Exec(Option_t* opt)
       // Check the ID of a crystal, get module number from it and put into a map
       std::map<Int_t,Int_t> digiMap=theCluster->MemberDigiMap();
       std::map<Int_t,Int_t>::iterator iter;
-      ndigi=digiMap.size();
+      //ndigi=digiMap.size(); //[R.K.03/2017] unused variable
       
       Int_t ID, module;     
       std::map<int, int> counting;
@@ -313,7 +313,7 @@ void PndEmcMakeCorr::Exec(Option_t* opt)
 	    valzTh[i] = GetValueInZ( hTh5[i], energy, theta, use_interpolation);
 	    
 	    ThCorr[i] = (valzTh[i]+theta);
-	    ThCorrRad[i] = ThCorr[i]*(TMath::Pi()/180.); // DegToRad
+	    //ThCorrRad[i] = ThCorr[i]*(TMath::Pi()/180.); // DegToRad //[R.K.03/2017] unused variable
 	    
 	    EnCorr[i] = energy/valzEn[i];
 	    
@@ -328,7 +328,7 @@ void PndEmcMakeCorr::Exec(Option_t* opt)
 	    valzEn[i] = GetValueInZ( hEn[i], energy, theta, use_interpolation);
 	    
 	    ThCorr[i] = (valzTh[i]+theta);
-	    ThCorrRad[i] = ThCorr[i]*(TMath::Pi()/180.);
+	    //ThCorrRad[i] = ThCorr[i]*(TMath::Pi()/180.); //[R.K.03/2017] unused variable
 	    
 	    EnCorr[i] = energy/valzEn[i];
 	    

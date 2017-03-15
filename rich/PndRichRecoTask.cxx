@@ -125,8 +125,8 @@ void PndRichRecoTask::FinishTask()
    double chisqdf=chisq/ndf;
    std::cout << "Chisquare: " << chisq << "/" << ndf << " : " << chisqdf << std::endl;
    
-   Double_t amp = f->GetParameter(0); //value of 0th parameter
-   Double_t eamp = f->GetParError(0); //error on 0th parameter
+   //Double_t amp = f->GetParameter(0); //value of 0th parameter //[R.K. 03/2017] unused variable?
+   //Double_t eamp = f->GetParError(0); //error on 0th parameter //[R.K. 03/2017] unused variable?
    Double_t mean = f->GetParameter(1); //value of 1st parameter
    Double_t emean = f->GetParError(1); //error on 1st parameter
    Double_t sig = f->GetParameter(2); //value of 1st parameter
@@ -153,8 +153,8 @@ void PndRichRecoTask::FinishTask()
    chisqdf=chisq/ndf;
    std::cout << "Chisquare: " << chisq << "/" << ndf << " : " << chisqdf << std::endl;
    
-   amp = f1->GetParameter(0); //value of 0th parameter
-   eamp = f1->GetParError(0); //error on 0th parameter
+   //amp = f1->GetParameter(0); //value of 0th parameter //[R.K. 03/2017] unused variable?
+   //eamp = f1->GetParError(0); //error on 0th parameter //[R.K. 03/2017] unused variable?
    mean = f1->GetParameter(1); //value of 1st parameter
    emean = f1->GetParError(1); //error on 1st parameter
    sig = f1->GetParameter(2); //value of 1st parameter

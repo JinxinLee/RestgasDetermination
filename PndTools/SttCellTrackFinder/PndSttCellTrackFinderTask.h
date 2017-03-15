@@ -16,8 +16,8 @@ class PndSttCellTrackFinderTask: public FairTask {
 public:
 
 	PndSttCellTrackFinderTask() :
-			FairTask("Stt Cell Track Finder"), fVerbose(0), fPersistence(kTRUE), fAnalyseSteps(
-					kFALSE) , fTrackFinder(0), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fCalcWithCorrectedIsochrones(kFALSE){
+			FairTask("Stt Cell Track Finder"), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fCalcWithCorrectedIsochrones(kFALSE), fVerbose(0), fPersistence(kTRUE), fAnalyseSteps(
+					kFALSE) , fTrackFinder(0){
 	}
 	;
 

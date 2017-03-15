@@ -98,6 +98,7 @@ private:
 
 
 
+	Int_t fVerbose;
 	Bool_t fStoreRooTFile;
 
 	PndEmcAnalysis(const  PndEmcAnalysis& L);
@@ -191,7 +192,6 @@ private:
 	//for Tree tTaskPileup
 	Int_t fTotWave;
 	Int_t fPileupWave;
-	Int_t fVerbose;
 	Int_t totNumOfWave;
 	Int_t totNumOfSubWave;
 	Int_t totNumOfDigi;

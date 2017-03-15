@@ -17,10 +17,10 @@ using std::endl;
 using std::ifstream;
 using std::map;
 
-PndEmcFileCrystalCalibrator::PndEmcFileCrystalCalibrator() :fCalFileName(""),PndEmcAbsCrystalCalibrator(){
+PndEmcFileCrystalCalibrator::PndEmcFileCrystalCalibrator() :PndEmcAbsCrystalCalibrator(),fCalFileName(""){
 };
 
-PndEmcFileCrystalCalibrator::PndEmcFileCrystalCalibrator(const char *CalFileName):fCalFileName(CalFileName),PndEmcAbsCrystalCalibrator(){
+PndEmcFileCrystalCalibrator::PndEmcFileCrystalCalibrator(const char *CalFileName):PndEmcAbsCrystalCalibrator(),fCalFileName(CalFileName){
 };
 
 void PndEmcFileCrystalCalibrator::SetCalibrationFile(const char *CalFileName){

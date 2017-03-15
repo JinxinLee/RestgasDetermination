@@ -88,7 +88,7 @@ PndEmcAnalysis::PndEmcAnalysis(Int_t verbose, Bool_t storeFile):
 	,fMcTrackArray(0)
 	,fEvtHeaderArray(0)
 	,fVerbose(verbose)
-										,fStoreRooTFile(storeFile)
+	,fStoreRooTFile(storeFile)
 {
 	fileName="PndEmcAnalysis.root";
 	fTimeOrderedDigi = kFALSE;
@@ -536,7 +536,7 @@ void PndEmcAnalysis::Exec(Option_t* opt)
 	std::vector<key> goodHits;
 	if(fSaveBump){
 		PndEmcAbsClusterCalibrator * calibrator1= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(1);
-		PndEmcAbsClusterCalibrator * calibrator2= PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2);
+		PndEmcClusterCalibrator::MakeEmcClusterCalibrator(2); //PndEmcAbsClusterCalibrator * calibrator2= //[R.K.03/2017] unused variable
 		for (Int_t iBump=0; iBump<nBump; iBump++) 
 		{
 			PndEmcBump* theBump = (PndEmcBump*) fBumpArray->At(iBump);

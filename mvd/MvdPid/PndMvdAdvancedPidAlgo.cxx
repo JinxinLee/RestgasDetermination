@@ -79,12 +79,12 @@ void PndMvdAdvancedPidAlgo::CalcLikelihood(double* lh) {
     for (PidType part=kElectron; part<=kProton;part=(PidType)(part+1))
       lh[part]=LandauGaus(fenergyloss - MeanEnergyLoss(part) - mpv(part), width1(part), width2(part));
   } else
-    for (char part=kElectron;part<=kProton;part++)
+    for (int part=kElectron;part<=kProton;part++)
       lh[part]=1;
   double sum=0;
-  for (char part=kElectron;part<=kProton;part++)
+  for (int part=kElectron;part<=kProton;part++)
     sum+=lh[part];
-  for (char part=kElectron;part<=kProton;part++)
+  for (int part=kElectron;part<=kProton;part++)
     lh[part]/=sum;
 }
 

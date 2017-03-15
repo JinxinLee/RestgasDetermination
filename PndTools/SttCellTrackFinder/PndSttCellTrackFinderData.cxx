@@ -21,7 +21,7 @@ using namespace std;
 ClassImp(PndSttCellTrackFinderData);
 
 PndSttCellTrackFinderData::PndSttCellTrackFinderData(
-		TClonesArray* sttTubeArray):fNumHits(0),fNumHitsWithoutDouble(0),fAllowDoubleHits(kFALSE) {
+		TClonesArray* sttTubeArray):fAllowDoubleHits(kFALSE), fNumHits(0),fNumHitsWithoutDouble(0){
 
 	// Generate information of Straw- and GeometryMap.
 	// It is always the same data for all events.

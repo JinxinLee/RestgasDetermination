@@ -289,15 +289,15 @@ InitStatus PndEmcWaveformToDigi::Init()
 		// Determine normalisation constant for PndEmcWaveform
 		Double_t tmpPeakPosition;
 		Double_t WfNormalisation;
-		Int_t ii1=fpsaAlgorithm->Process(tmpwaveform1);
+		fpsaAlgorithm->Process(tmpwaveform1);
 		fpsaAlgorithm->GetHit(0, WfNormalisation, tmpPeakPosition);
 		SimCalibrator->SetCalibration(1,WfNormalisation); // Barrel
 		SimCalibrator->SetCalibration(2,WfNormalisation); // Barrel
 		SimCalibrator->SetCalibration(4,WfNormalisation); // Backward endcap
-		Int_t ii2=fpsaAlgorithm_pmt->Process(tmpwaveform2);
+		fpsaAlgorithm_pmt->Process(tmpwaveform2);
 		fpsaAlgorithm_pmt->GetHit(0, WfNormalisation, tmpPeakPosition);
 		SimCalibrator->SetCalibration(5,WfNormalisation); // Shashlyk
-		Int_t ii3=fpsaAlgorithm_fwd->Process(tmpwaveform3);
+		fpsaAlgorithm_fwd->Process(tmpwaveform3);
 		fpsaAlgorithm_fwd->GetHit(0, WfNormalisation, tmpPeakPosition);
 		SimCalibrator->SetCalibration(3,WfNormalisation); // Forward endcap
 		fCalibrator=SimCalibrator;

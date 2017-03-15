@@ -278,7 +278,7 @@ Bool_t PndDisc::ProcessHits(FairVolume* v)
     static const Int_t prism_b_volume_id      = gMC->VolId("DiscDIRC_prism_b");
     static const Int_t prism_c_volume_id      = gMC->VolId("DiscDIRC_prism_c");
 
-    static const Int_t sensor_volume_uid = gGeoManager->GetUID("DiscDIRC_sensor_pmt"); // find a good place for one time initialization
+    static const Int_t sensor_volume_uid = gGeoManager->GetUID("DiscDIRC_sensor_pmt"); // find a good place for one time initialization  //FIXME [R.K. 03/2017] unused variable?
 
     static Bool_t entered_inside     = kFALSE;
     static Int_t  entered_track_id   = -1;
@@ -502,7 +502,6 @@ Bool_t PndDisc::ProcessHits(FairVolume* v)
                 else
                 {
                     Int_t volume_uid = gGeoManager->GetUID(gMC->VolName(volume_id));
-                    PndDiscParticleMCPoint * pt =
                         new((*clarr_particle_tracks)[nextid_clarr_particle_tracks++])
                             PndDiscParticleMCPoint(
                                     entered_track_id,

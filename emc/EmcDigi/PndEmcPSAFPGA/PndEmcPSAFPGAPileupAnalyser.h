@@ -45,6 +45,8 @@ protected:
   virtual void InitParameters(const std::vector<Double_t> &params);
   virtual void Init2(const std::vector<Double_t> &params, TF1* R_thres, TF1* R_mean);
   Int_t fVerbose;
+  TF1* Int_thres;  
+  TF1* Int_mean;  
 
   unsigned int BaselineStartSample;
   unsigned int BaselineStopSample;
@@ -65,8 +67,6 @@ protected:
   float cfRise[MAX_NUMBER_OF_HITS];
   pileup_t pileups[MAX_NUMBER_OF_HITS];
 
-  TF1* Int_thres;  
-  TF1* Int_mean;  
 
 
 

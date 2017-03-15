@@ -220,10 +220,11 @@ void PndEmcFWEndcapDigi::Exec(Option_t* opt)
 
 		for(Int_t iHit=0; iHit<nHits; ++iHit) {
 			fHighLowPSA.GetHit(iHit, energy, digi_time);	
-			PndEmcAbsCrystalCalibrator::CalibrationStatus_t CalStat;
+			//PndEmcAbsCrystalCalibrator::CalibrationStatus_t CalS //[R.K. 03/2017] unused variable?tat;
 
 			//cout << "#" << iHit << ".\tDetId: " << detId << "\tsample time: " << digi_time << "\traw energy: " << energy << "\t";
-			CalStat = fCalibrator->Calibrate(energy, detId, fHighLowPSA.GetWaveformIdx(iHit));
+			//CalStat =  //[R.K. 03/2017] unused variable?
+      fCalibrator->Calibrate(energy, detId, fHighLowPSA.GetWaveformIdx(iHit));
 
 			Double_t sampleRate = theWaveform->GetSampleRate();
 

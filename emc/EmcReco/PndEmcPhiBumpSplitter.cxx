@@ -72,9 +72,9 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):
-  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fClusterPosParam(), 
-	FairTask("PndEmcPhiBumpSplitter", verbose)
+PndEmcPhiBumpSplitter::PndEmcPhiBumpSplitter(Int_t verbose):FairTask("PndEmcPhiBumpSplitter", verbose),
+  fDigiArray(0), fClusterArray(0), fPhiBumpArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fClusterPosParam(), fPersistance(kTRUE) 
+	
 {
   fClusterPosParam.clear();
 }
@@ -147,7 +147,7 @@ InitStatus PndEmcPhiBumpSplitter::Init()
  */
 void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
 {
-  PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
+  PndEmcMapper::Instance(); //PndEmcMapper *fEmcMap= //[R.K.03/2017] unused variable
 
   // Reset output array
   if ( ! fPhiBumpArray ) Fatal("Exec", "No Phi-Bump Array");

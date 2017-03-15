@@ -38,8 +38,6 @@ class PndEmcReadProto192Data : public FairTask{
 		TTree *lTaggerTree;
 		Long_t lProto192EventNum;
 		UInt_t lTaggerEventNum;
-		Long_t lTaggerTreeOffset;
-		Long_t lEventNumOverflow;
 		TProtoUnpackEvent *lProto192Event;
 		TClonesArray *lWaveArray;
 		TClonesArray *lTaggerArray;
@@ -51,10 +49,12 @@ class PndEmcReadProto192Data : public FairTask{
 		PndEmcDigiPar *lDigiPar;
 		PndGeoPassivePar *lGeoPassivePar;
 		FairBaseParSet *lBaseParSet;
-		Bool_t IsInit;
 		Bool_t lStoreHits;
 		Int_t lDebug;
+		Bool_t IsInit;
 		std::vector<Double_t> signal;
+		Long_t lTaggerTreeOffset;
+		Long_t lEventNumOverflow;
 		ClassDef(PndEmcReadProto192Data,1);
 };
 

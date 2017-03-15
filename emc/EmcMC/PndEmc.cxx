@@ -465,7 +465,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 		  CrystalRow = -1;
 		else
 		  CrystalRow = SubunitRow*4 - (1-getsign(SubunitRow))/2;
-	      else if (copyNoBox==2)//here necessarily: copyNoCrys==3 || copyNoCrys==2 //FIXME Check Logic!
+	      else if (copyNoBox==2)//here necessarily: copyNoCrys==3 || copyNoCrys==2 //FIXME Check Logic. use braces!
 		if (copyNoSub == 25 || copyNoSub == 42)
 		  CrystalRow = -2;
 		else
@@ -692,7 +692,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   fTime =  gMC->TrackTime();
   gMC->TrackPosition(fPos); // cm
   gMC->TrackMomentum(fMom); // GeV
-	Int_t CrystalID;
+	//Int_t CrystalID; //[R.K.03/2017] unused variable
 	if(nam.Contains("CrystalType6")){
 		nMod=7;
 		copyNo=1;
@@ -704,7 +704,8 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 	//        } else {
 	//            nMod=-1;
 	//        }
-		CrystalID=gMC->CurrentVolOffID(1,nCrys);
+		//CrystalID= //[R.K.03/2017] unused variable
+    gMC->CurrentVolOffID(1,nCrys);
 		nRow =(nCrys-1)/5+1;
 		nCrys = (nCrys-1) % 5;
 	//        printf("Crystal has name %s, ID %i, and copy number %i\n",namCrystal.Data(),CrystalID,nCrys);
@@ -787,7 +788,8 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 		  nCrys = (nSupCol - 1)*2 + nModCol + 1;
 		  nRow = (nSupRow - 1)*2 + nModRow + 1;
                  
-	 	  Int_t fiberID = gMC->CurrentVolOffID(1,copyNo); //copyNo - number of FIber
+	 	  //Int_t fiberID = //[R.K.03/2017] unused variable
+      gMC->CurrentVolOffID(1,copyNo); //copyNo - number of FIber
 //                  cout<<"Fiber nRow="<<nRow<<endl;
 //                  cout<<"Fiber nCrys="<<nCrys<<endl;
 //                  cout<<"Fiber copyNo="<<copyNo<<endl;
@@ -1378,9 +1380,12 @@ void PndEmc::ConstructASCIIGeometry() {
   FairGeoMedium *CbmMediumPWO = Media->getMedium("PWO");
   FairGeoMedium *CbmMediumFsc = Media->getMedium("FscScint");
   
-  Int_t nmedPb=geobuild->createMedium(CbmMediumPb);
-  Int_t nmedPWO=geobuild->createMedium(CbmMediumPWO);
-  Int_t nmedFsc=geobuild->createMedium(CbmMediumFsc);
+  //Int_t nmedPb= //[R.K.03/2017] unused variable
+  geobuild->createMedium(CbmMediumPb);
+  //Int_t nmedPWO= //[R.K.03/2017] unused variable
+  geobuild->createMedium(CbmMediumPWO);
+  //Int_t nmedFsc= //[R.K.03/2017] unused variable
+  geobuild->createMedium(CbmMediumFsc);
   
   TGeoVolume *flayer1 = new TGeoVolumeAssembly("EmcLayer1");
   TGeoVolume *flayer2 = new TGeoVolumeAssembly("EmcLayer2");
@@ -1505,11 +1510,14 @@ void PndEmc::ConstructASCIIGeometry() {
       volAbs3 = new TGeoVolume("FscAbsorber3",     absorber3,     gGeoManager->GetMedium("lead"));
       volSci3 = new TGeoVolume("FscScintillator3", scintillator3, gGeoManager->GetMedium("FscScint"));
       
-      TGeoVolume *volSci1X  = gGeoManager->Division("FscScintillator1X" ,"FscScintillator1" , 1, padX          , -pDx2*padX/2.        , pDx2);
+      //TGeoVolume *volSci1X  =  //[R.K.03/2017] unused variable
+      gGeoManager->Division("FscScintillator1X" ,"FscScintillator1" , 1, padX          , -pDx2*padX/2.        , pDx2);
       TGeoVolume *volSci1XY = gGeoManager->Division("FscScintillator1XY","FscScintillator1X", 2, (padY-holeY)/2, -pDy2*(padY-holeY)/4., pDy2);
-      TGeoVolume *volSci2X  = gGeoManager->Division("FscScintillator2X" ,"FscScintillator2" , 1, padX1         , -pDx2*padX1/2.       , pDx2);
+      //TGeoVolume *volSci2X  =  //[R.K.03/2017] unused variable
+      gGeoManager->Division("FscScintillator2X" ,"FscScintillator2" , 1, padX1         , -pDx2*padX1/2.       , pDx2);
       TGeoVolume *volSci2XY = gGeoManager->Division("FscScintillator2XY","FscScintillator2X", 2, holeY/2       , -pDy2*holeY/4.       , pDy2);
-      TGeoVolume *volSci3X  = gGeoManager->Division("FscScintillator3X" ,"FscScintillator3" , 1, padX2         , -pDx2*padX2/2.       , pDx2);
+      //TGeoVolume *volSci3X  =  //[R.K.03/2017] unused variable
+      gGeoManager->Division("FscScintillator3X" ,"FscScintillator3" , 1, padX2         , -pDx2*padX2/2.       , pDx2);
       TGeoVolume *volSci3XY = gGeoManager->Division("FscScintillator3XY","FscScintillator3X", 2, holeY/2       , -pDy2*holeY/4.       , pDy2);
       
       TGeoVolume *ffsclay = new TGeoVolumeAssembly("FscLayer");

@@ -12,7 +12,6 @@ using namespace std;
 PndRichCalDbPar::PndRichCalDbPar(const char* name, const char* title,
                                  const char* context) 
   : FairParGenericSet(name, title, context), 
-   fMapName(TString("")),
    fType(-1),
    fPmin(0), 
    fPmax(0),
@@ -26,7 +25,8 @@ PndRichCalDbPar::PndRichCalDbPar(const char* name, const char* title,
    fFmax(0),
    fBetaMean(0), 
    fBetaSig(0), 
-   fBetaEff(0) 
+   fBetaEff(0) ,
+   fMapName(TString(""))
 
 {
 }
@@ -34,7 +34,6 @@ PndRichCalDbPar::PndRichCalDbPar(const char* name, const char* title,
 
 PndRichCalDbPar::PndRichCalDbPar()
    : fMapName(TString("")),
-   fType(-1),
    fPmin(0), 
    fPmax(0),
    fXmin(0), 
@@ -47,7 +46,8 @@ PndRichCalDbPar::PndRichCalDbPar()
    fFmax(0),
    fBetaMean(0), 
    fBetaSig(0),
-   fBetaEff(0) 
+   fBetaEff(0),
+   fType(-1) 
 {
 }
 // -------------------------------------------------------------------------

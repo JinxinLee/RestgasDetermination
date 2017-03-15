@@ -68,8 +68,8 @@ using std::endl;
 // Constructors --
 //----------------
 
-PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose):
-fDigiArray(0), fClusterArray(0), fBumpArray(0), fSharedDigiArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fPersistance(kTRUE), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0), fClusterPosParam(), FairTask("PndEmcExpClusterSplitter", verbose)
+PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(Int_t verbose):FairTask("PndEmcExpClusterSplitter", verbose), 
+fDigiArray(0), fClusterArray(0), fBumpArray(0), fSharedDigiArray(0), fGeoPar(new PndEmcGeoPar()), fDigiPar(new PndEmcDigiPar()), fRecoPar(new PndEmcRecoPar()), fClusterPosParam(), fPersistance(kTRUE), fMoliereRadius(0), fMoliereRadiusShashlyk(0), fExponentialConstant(0), fMaxIterations(0), fCentroidShift(0), fMaxBumps(0), fMinDigiEnergy(0)
 {
   fClusterPosParam.clear();
 }
@@ -217,7 +217,7 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 			for(theDigiIterator = theCluster->MemberDigiMap().begin();
 			theDigiIterator != theCluster->MemberDigiMap().end(); ++theDigiIterator){
 				PndEmcDigi *theDigi = (PndEmcDigi *) fDigiArray->At(theDigiIterator->second);
-				PndEmcSharedDigi* sharedDigi=AddSharedDigi(theDigi, 1.0);
+				AddSharedDigi(theDigi, 1.0); // PndEmcSharedDigi* sharedDigi= //[R.K.03/2017] unused variable
 				Int_t iSharedDigi=fSharedDigiArray->GetEntriesFast()-1;
 				theNewBump->addDigi(fSharedDigiArray,iSharedDigi);
 			}
@@ -488,7 +488,7 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 	// position from output root file
 	Int_t nBump = fBumpArray->GetEntriesFast();
 
-	Double_t CalibTimeOfaDigi, fTimeError;
+	Double_t  fTimeError; //CalibTimeOfaDigi, //[R.K.03/2017] unused variable
 	Double_t WeightedFactor1(0.), NormWeightedFactor1(0.), AverageTime1(0.);
 	//Double_t WeightedFactor2(0.), NormWeightedFactor2(0.), AverageTime2(0.);
 	//Double_t WeightedFactor3(0.), NormWeightedFactor3(0.), AverageTime3(0.);
@@ -526,7 +526,7 @@ void PndEmcExpClusterSplitter::Exec(Option_t* opt)
 		}
 		for(size_t id=0;id <listOfDigi.size();++id){
 			PndEmcDigi* theDigi = (PndEmcDigi*)fSharedDigiArray->At(listOfDigi[id]);
-			CalibTimeOfaDigi = digiCalibrator.CalibrationEvtTimeByDigi(theDigi, kFALSE);
+			digiCalibrator.CalibrationEvtTimeByDigi(theDigi, kFALSE); //CalibTimeOfaDigi =  //[R.K.03/2017] unused variable
 			fTimeError = digiCalibrator.GetTimeResolutionOfDigi(theDigi);
 			NormWeightedFactor1 = 1./fTimeError/fTimeError;
 			NormWeightedFactor1 /= WeightedFactor1;

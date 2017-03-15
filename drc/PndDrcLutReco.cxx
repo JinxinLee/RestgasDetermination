@@ -151,7 +151,7 @@ void PndDrcLutReco::LoopOverMcTracks(){
     fMCTrack = (PndMCTrack*)fMCArray->At(itrack);
     if( fMCTrack->GetMotherID() != -1) continue;
 
-    Int_t mcBarId, mcBoxId(-1);
+    Int_t mcBoxId(-1); //mcBarId,  //[R.K.03/2017] unused variable
     for(int i=0; i<fBarPointArray->GetEntriesFast(); i++){
       fBarPoint = (PndDrcBarPoint*)fBarPointArray->At(i);
       if(itrack == fBarPoint->GetTrackID()){
@@ -165,7 +165,7 @@ void PndDrcLutReco::LoopOverMcTracks(){
     }
     fBarPoint->Momentum(momInBar);
     fBarPoint->Position(posInBar);
-    mcBarId = fBarPoint->GetBarId();
+    //mcBarId = fBarPoint->GetBarId(); //[R.K.03/2017] unused variable
     
     PndDrcTrackInfo trackinfo;
     trackinfo.SetMcMomentum(fMCTrack->GetMomentum());

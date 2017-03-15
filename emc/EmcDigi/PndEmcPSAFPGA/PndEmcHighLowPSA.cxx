@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-PndEmcHighLowPSA::PndEmcHighLowPSA(Int_t verbose) : fLowgainPSA(NULL), fHighgainPSA(NULL), fVerbose(verbose) {
+PndEmcHighLowPSA::PndEmcHighLowPSA(Int_t verbose) :  fHighgainPSA(NULL), fLowgainPSA(NULL),fVerbose(verbose) {
 };
 
 void PndEmcHighLowPSA::Init(PndEmcPSAFPGASampleAnalyser* highgainPSA, PndEmcPSAFPGASampleAnalyser* lowgainPSA, Double_t overflowThreshold, Int_t highgainWfIndex, Int_t lowgainWfIndex) {
@@ -84,7 +84,7 @@ Int_t PndEmcHighLowPSA::Process(const PndEmcWaveform* waveform) {
 				fHitsInFE.push_back(std::make_pair(fHighgainPSA, counter_high));
 				fHitsInFE.push_back(std::make_pair(fHighgainPSA, counter_high+1));
 				if(fVerbose>=2) { 
-					std::cout << "I- PndEmcHighLowPSA: adding highgain hits #:" << counter_high << "," << counter_high++ << std::endl;
+					std::cout << "I- PndEmcHighLowPSA: adding highgain hits #:" << counter_high << "," << counter_high++ << std::endl; //FIXME Implicit operation is bad style!
 				}
 			}
 			counter_high+=2;

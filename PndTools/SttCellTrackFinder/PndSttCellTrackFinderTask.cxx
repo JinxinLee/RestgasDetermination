@@ -193,13 +193,13 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 
 	if (fAnalyseSteps) {
 		for (int i = 0; i < fTrackFinder->NumFirstTrackCands(); i++) {
-			PndTrackCand* myCand =
+			//PndTrackCand* myCand = //[R.K.03/2017] unused variable
 					new ((*fFirstTrackCandArray)[i]) PndTrackCand(
 							fTrackFinder->GetFirstTrackCand(i));
 		}
 
 		for (int i = 0; i < fTrackFinder->NumFirstRiemannTracks(); ++i) {
-			PndRiemannTrack* myTrack =
+			//PndRiemannTrack* myTrack = //[R.K.03/2017] unused variable
 					new ((*fFirstRiemannTrackArray)[i]) PndRiemannTrack(
 							fTrackFinder->GetFirstRiemannTrack(i));
 		}
@@ -216,7 +216,7 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 	}
 
 	for (int i = 0; i < fTrackFinder->NumCombinedRiemannTracks(); ++i) {
-		PndRiemannTrack* myRiemannTrack =
+		//PndRiemannTrack* myRiemannTrack = //[R.K.03/2017] unused variable
 				new ((*fCombiRiemannTrackArray)[i]) PndRiemannTrack(
 						fTrackFinder->GetCombiRiemannTrack(i));
 	}
@@ -229,10 +229,8 @@ void PndSttCellTrackFinderTask::Exec(Option_t* opt) {
 		for (std::map<int, FairHit*>::iterator iter =
 				correctedIsochrones.begin(); iter != correctedIsochrones.end();
 				iter++) {
-			FairHit* myCorrectedHit =
-					new (
-							(*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(
-							*iter->second);
+			//FairHit* myCorrectedHit = //[R.K.03/2017] unused variable
+					new ((*fCorrectedIsochronesArray)[fCorrectedIsochronesArray->GetEntries()]) FairHit(*iter->second);
 		}
 	}
 

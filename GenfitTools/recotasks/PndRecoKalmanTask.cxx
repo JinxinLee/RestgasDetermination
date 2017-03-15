@@ -36,12 +36,12 @@
 #include "FairRuntimeDb.h"
 
 PndRecoKalmanTask::PndRecoKalmanTask(const char* name, Int_t iVerbose)
-: FairTask(name, iVerbose), fTrackInBranchName(""),
+: FairTask(name, iVerbose),fFitTrackArray(), fTrackInBranchName(""),
 fTrackOutBranchName(""), fMvdBranchName(""), fCentralTrackerBranchName(""),
-fFitTrackArray(), fFitter(), fDafFitter(), fPDGHyp(-13),
-fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE), fPersistence(kTRUE),
-  fPropagateToIP(kFALSE), fPropagateDistance(2.f), fPerpPlane(kFALSE),
-  fNumIt(1), fBusyCut(20), fTrackRep(0)
+ fFitter(), fDafFitter(),  fPersistence(kTRUE),
+fUseGeane(kTRUE), fIdealHyp(kFALSE), fDaf(kFALSE),
+  fPropagateToIP(kFALSE), fPropagateDistance(2.f), fPerpPlane(kFALSE),fTrackRep(0),
+  fNumIt(1), fPDGHyp(-13), fBusyCut(20)
 {
   fFitTrackArray = new TClonesArray("PndTrack");  
   fFitter = new PndRecoKalmanFit(); 
@@ -230,12 +230,12 @@ void PndRecoKalmanTask::Exec(Option_t* opt) {
 					<< std::endl;
 		}
 
-		PndTrack* pndTrack = new (trkRef[size]) PndTrack(
+		new (trkRef[size]) PndTrack(
 				fitTrack->GetParamFirst(), fitTrack->GetParamLast(),
 				fitTrack->GetTrackCand(), fitTrack->GetFlag(),
 				fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(),
 				itr,
-				FairRootManager::Instance()->GetBranchId(fTrackInBranchName));
+				FairRootManager::Instance()->GetBranchId(fTrackInBranchName)); //PndTrack* pndTrack =  //[R.K.03/2017] unused variable
 		delete (fitTrack);
 	}
 

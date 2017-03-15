@@ -1806,21 +1806,21 @@ void PndBarrelTrackFinder::Finish() {
   fBarrelTrackCandArray->Clear();
 
   if ( fDrawHistos ) {
-    TCanvas* canv0 = new TCanvas("xdiff","xdiff",10,10,1000,800);
+    new TCanvas("xdiff","xdiff",10,10,1000,800);
     fClonesXDiff     ->Draw();
-    TCanvas* canv1 = new TCanvas("ydiff","ydiff",10,10,1000,800);
+    new TCanvas("ydiff","ydiff",10,10,1000,800);
     fClonesYDiff     ->Draw();
-    TCanvas* canv2 = new TCanvas("rdiff","rdiff",10,10,1000,800);
+    new TCanvas("rdiff","rdiff",10,10,1000,800);
     fClonesRDiff     ->Draw();
-    TCanvas* canv3 = new TCanvas("zdiff","`diff",10,10,1000,800);
+    new TCanvas("zdiff","`diff",10,10,1000,800);
     fClonesZ_PDiff   ->Draw();
-    TCanvas* canv4 = new TCanvas("xdiffR","xdiffR",10,10,1000,800);
+    new TCanvas("xdiffR","xdiffR",10,10,1000,800);
     fClonesXDiffRel  ->Draw();
-    TCanvas* canv5 = new TCanvas("ydiffR","ydiffR",10,10,1000,800);
+    new TCanvas("ydiffR","ydiffR",10,10,1000,800);
     fClonesYDiffRel  ->Draw();
-    TCanvas* canv6 = new TCanvas("rdiffR","rdiffR",10,10,1000,800);
+    new TCanvas("rdiffR","rdiffR",10,10,1000,800);
     fClonesRDiffRel  ->Draw();
-    TCanvas* canv7 = new TCanvas("zdiffR","zdiffR",10,10,1000,800);
+    new TCanvas("zdiffR","zdiffR",10,10,1000,800);
     fClonesZ_PDiffRel->Draw();
   }
 

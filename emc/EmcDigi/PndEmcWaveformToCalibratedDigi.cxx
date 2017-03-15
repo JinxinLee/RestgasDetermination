@@ -180,7 +180,7 @@ void PndEmcWaveformToCalibratedDigi::Exec(Option_t* opt)
 	Int_t nHits;
 	Int_t detId;
 	Int_t trackId;
-	Int_t module;
+	//Int_t module; //[R.K. 03/2017] unused variable?
 	Int_t nWaveforms = fWaveformArray->GetEntriesFast();
 	//cout<<"PndEmcWaveformToCalibratedDigi: "<<nWaveforms<<" waveforms to convert"<<endl;
 	for (Int_t iWaveform=0; iWaveform<nWaveforms; iWaveform++) {
@@ -188,7 +188,7 @@ void PndEmcWaveformToCalibratedDigi::Exec(Option_t* opt)
 		hitIndex=theWaveform->GetHitIndex();
 		detId=theWaveform->GetDetectorId();
 		trackId=theWaveform->GetTrackId();
-		module=theWaveform->GetModule();
+		//module=theWaveform->GetModule(); //[R.K. 03/2017] unused variable?
 		// Determine waveform maximum and its position
 /*		if(module==5){
 			psaAlgorithm_pmt->Process(theWaveform,energy,peakPosition);

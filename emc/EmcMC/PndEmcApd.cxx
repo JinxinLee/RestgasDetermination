@@ -102,7 +102,7 @@ Bool_t PndEmcApd::ProcessHits(FairVolume* vol) {
   // Each of the subvolume name for FwEndCap geometry in the ROOT file contains "Vol". 
   //Int_t copyNoCrys=-1,copyNoBox=-1,copyNoSub=-1,copyNoQuar=-1; //[R.K. 01/2017] unused variable?
   //Int_t idCrys=-1,idBox=-1,idSub=-1,idQuar=-1; //[R.K. 01/2017] unused variable?
-  Int_t copyNo = -1, id = -1;
+  Int_t copyNo = -1; //, id = -1; //[R.K.03/2017] unused variable
   Int_t nMod = -1, nRow = -1, nCrys = -1; 
   Short_t nFlag=0
     ;
@@ -124,7 +124,7 @@ Bool_t PndEmcApd::ProcessHits(FairVolume* vol) {
   gMC->TrackMomentum(fMom); // GeV
   
   sscanf(nam,"apd%dr%dc%d", &nMod, &nRow, &nCrys);
-  id = gMC->CurrentVolOffID(2,copyNo);
+  gMC->CurrentVolOffID(2,copyNo); //id =  //[R.K.03/2017] unused variable
   
   fVolumeID = nMod*100000000 + nRow*1000000 + copyNo*10000 + nCrys; 
   
@@ -231,7 +231,7 @@ void PndEmcApd::ConstructASCIIGeometry() {
   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
   
   FairGeoMedium *CbmMediumSi = Media->getMedium("silicon");
-  Int_t nmedSi =geobuild->createMedium(CbmMediumSi);
+  geobuild->createMedium(CbmMediumSi); //Int_t nmedSi = //[R.K.03/2017] unused variable
   
   TGeoVolume *flayer1 = new TGeoVolumeAssembly("ApdLayer1");
   TGeoVolume *flayer2 = new TGeoVolumeAssembly("ApdLayer2");

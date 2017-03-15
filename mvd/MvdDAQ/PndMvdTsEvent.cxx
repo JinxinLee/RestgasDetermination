@@ -49,7 +49,7 @@ void PndMvdTsEvent::FillSiHits(int adcChannel, DWORD* hits, WORD count)
     TClonesArray& hitList = *fSiHitList;
     for (int i=0; i<count; i++)
     {
-        DWORD triggerNo = (hits[i]&0x1f000000) >> 24;    // bit 28 to 24
+        DWORD triggerNo = (hits[i]&0x1f000000) >> 24;    // bit 28 to 24  //[R.K.03/2017] FIXME unused variable
         WORD numFrames  = (hits[i]&0x00f80000) >> 19;    // bit 19 to 23
         WORD channel    = (hits[i]&0x0007f000) >> 12;    // bit 12 to 18
         WORD height     = (hits[i]&0x00000fff);          // bit 0 to 11

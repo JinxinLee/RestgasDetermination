@@ -670,7 +670,8 @@ void DrawHits::DrawHisto()
   p2->Draw("same");
  
   SetPlotStyle();
-  TCanvas *C7= new TCanvas("C7","Full sim study",500,500);  
+  //TCanvas *C7=  //[R.K.03/2017] unused variable
+  new TCanvas("C7","Full sim study",500,500);  
   fhPDPlane->SetMarkerStyle(20);
   fhPDPlane->SetMarkerSize(0.3);
   fhPDPlane->SetMarkerColor(8);
