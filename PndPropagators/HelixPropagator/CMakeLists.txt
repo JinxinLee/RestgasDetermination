@@ -10,7 +10,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackbase 
-  ${CMAKE_SOURCE_DIR}/PndTools/HelixPropagator
+  ${CMAKE_SOURCE_DIR}/PndPropagators/HelixPropagator
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

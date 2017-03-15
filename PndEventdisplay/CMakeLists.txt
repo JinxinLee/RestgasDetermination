@@ -9,7 +9,7 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools 
-  ${CMAKE_SOURCE_DIR}/PndTools/HelixPropagator
+  ${CMAKE_SOURCE_DIR}/PndPropagators/HelixPropagator
   ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/geane

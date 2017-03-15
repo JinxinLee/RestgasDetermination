@@ -259,6 +259,7 @@ ENDIF (NOT FAIRROOT_FOUND)
 
 add_subdirectory (PndTools/generalTools)
 add_subdirectory (PndTools/buffers)
+#add_subdirectory (PndTools/PndTrkMerge)
 add_subdirectory (pnddata)
 add_subdirectory (passive)
 add_subdirectory (field)
@@ -303,6 +304,7 @@ add_subdirectory(PndTools/TimeBasedTools)
 #add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4)
 #add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4/MQ)
 #add_subdirectory(mvd/MvdMQ)
+#add_subdirectory(tracking/PndForwardTrackFinder)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
@@ -327,10 +329,9 @@ add_subdirectory (dsk)
 add_subdirectory (disc)
 add_subdirectory (PndTools/riemannfit)
 add_subdirectory (PndTools/MVA)
-add_subdirectory (PndTools/HelixPropagator)
+add_subdirectory (PndPropagators/HelixPropagator)
 add_subdirectory (lmd)
 add_subdirectory (pid)
-#add_subdirectory (PndMCMatch)
 add_subdirectory (PndMCMatchNewLinks)
 add_subdirectory (global)
 
