@@ -13,6 +13,7 @@
 #include "PndSdsHit.h"
 #include "TGeoManager.h"
 #include "PndGeoHandling.h"
+#include "PndTrackFunctor.h"
 using namespace std;
 
 ClassImp(PndTrackingQualityBarrelAnalysisNewLinks);
