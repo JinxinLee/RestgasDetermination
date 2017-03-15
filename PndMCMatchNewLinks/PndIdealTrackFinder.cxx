@@ -234,7 +234,7 @@ void PndIdealTrackFinder::CreateTracks()
 							 charge, lastpos,
 							 TVector3(1.,0.,0.), TVector3(0.,1.,0.));
 
-		PndTrack* myTrack = new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(firstPar, lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), trackcounter,FairRootManager::Instance()->GetBranchId("MCTrack")); // CHECK trackcounter is correct??
+		new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(firstPar, lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), trackcounter,FairRootManager::Instance()->GetBranchId("MCTrack")); // CHECK trackcounter is correct?? //PndTrack* myTrack =  //[R.K.03/2017] unused variable
 
 		trackcounter++;
 		// .............

@@ -33,7 +33,7 @@ namespace DecayTreeFitter {
     DecayChain(RhoCandidate* bc, const RhoLorentzVectorErr& lv, const Configuration& config)  ;
     DecayChain(RhoCandidate* bc, const RhoLorentzVectorErr& lv, const RhoVector3Err& pv, const Configuration& config)  ;
 
-    ~DecayChain() ;
+    virtual ~DecayChain() ;
 
     int dim() const { return m_dim ; }
 

@@ -21,7 +21,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
-  ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+  ${CMAKE_SOURCE_DIR}/PndTracking/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/buffers
   ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
   ${CMAKE_SOURCE_DIR}/mvd/MvdMC
@@ -44,7 +44,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/stt
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/geane
-  ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+  ${CMAKE_SOURCE_DIR}/PndTracking/riemannfit
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

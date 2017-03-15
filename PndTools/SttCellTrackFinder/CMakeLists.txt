@@ -55,7 +55,7 @@ ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/sttmvdtracking
 ${CMAKE_SOURCE_DIR}/PndTools/SttCellTrackFinder
-${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+${CMAKE_SOURCE_DIR}/PndTracking/riemannfit
 ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
 )
 

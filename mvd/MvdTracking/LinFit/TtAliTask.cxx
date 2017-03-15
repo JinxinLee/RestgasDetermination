@@ -188,7 +188,7 @@ void TtAliTask::Exec(Option_t* opt)
       const Int_t sizeMap = SensorsPos.size();
   
       Int_t DetNames[sizeMap];
-      Double_t Pos[sizeMap];
+      //Double_t Pos[sizeMap]; //[R.K.03/2017] unused variable
       Int_t jj = 0;
 
       if (SensorsPos.size()>=6)
@@ -199,7 +199,7 @@ void TtAliTask::Exec(Option_t* opt)
 	      if (fEvent < 5) std::cout << "position: " << it->first << " name: " << (it->second) << std::endl;
 	  
 	      DetNames[jj] = it->second;
-	      Pos[jj] = it -> first;
+	      //Pos[jj] = it -> first; //[R.K.03/2017] unused variable
 	      jj++;
 	    }
 

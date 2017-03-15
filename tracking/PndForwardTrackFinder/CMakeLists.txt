@@ -20,7 +20,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+  ${CMAKE_SOURCE_DIR}/PndTracking/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/SttCellTrackFinder
   ${CMAKE_SOURCE_DIR}/tracking/PndForwardTrackFinder
   ${CMAKE_SOURCE_DIR}/PndMCMatch

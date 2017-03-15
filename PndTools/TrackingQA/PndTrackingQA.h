@@ -128,9 +128,7 @@ private:
 
 //	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);
 
-	Int_t fVerbose;
 	FairRootManager* ioman;
-	Int_t fNGhosts;
 
 	TString fTrackBranchName;
 	TString fIdealTrackName;
@@ -138,8 +136,10 @@ private:
 	std::string fPossibleTrackName;
 	PndTrackFunctor* fPossibleTrack;
 	Bool_t fCleanFunctor;
+	Int_t fNGhosts;
 
 	Bool_t fUseCorrectedSkewedHits;
+	Int_t fVerbose;
 
 	std::vector<TString> fBranchNames;                              //!
 	std::map<Int_t, Int_t> fTrackIdMCId;				//!<! map between track id and most probable MC track id

@@ -447,12 +447,12 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	double clash_rod_z = 29.75;
 	double origin_left[3] =
 	{ -box_size_x + clash_rod_x + box_thickness, 0., 18.15 };
-	TGeoBBox* lmd_box_clash_rod_left = new TGeoBBox("lmd_box_clash_rod_left",
-			clash_rod_x, clash_rod_y, clash_rod_z, origin_left);
+	new TGeoBBox("lmd_box_clash_rod_left",
+			clash_rod_x, clash_rod_y, clash_rod_z, origin_left);// TGeoBBox* lmd_box_clash_rod_left =  //[R.K.03/2017] unused variable
 	double origin_right[3] = { +box_size_x - clash_rod_x - box_thickness, 0.,
 			18.15 };
-	TGeoBBox* lmd_box_clash_rod_right = new TGeoBBox("lmd_box_clash_rod_right",
-			clash_rod_x, clash_rod_y, clash_rod_z, origin_right);
+	new TGeoBBox("lmd_box_clash_rod_right",
+			clash_rod_x, clash_rod_y, clash_rod_z, origin_right);//TGeoBBox* lmd_box_clash_rod_right =  //[R.K.03/2017] unused variable
 	// compose all the parts into one luminosity vacuum box
 	TGeoCompositeShape *shape_lmd_box =
 			new TGeoCompositeShape("shape_lmd_box",
@@ -779,11 +779,11 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 	double lmd_cool_sup_thick = 1.; // half of it
 
 	// construct first a tube
-	TGeoTube* shape_cool_sup_tube = new TGeoTube("shape_cool_sup_tube",
-			lmd_cool_sup_inner_rad, lmd_cool_sup_outer_rad, lmd_cool_sup_thick);
+	new TGeoTube("shape_cool_sup_tube",
+			lmd_cool_sup_inner_rad, lmd_cool_sup_outer_rad, lmd_cool_sup_thick);//TGeoTube* shape_cool_sup_tube =  //[R.K.03/2017] unused variable
 	// to cut off a half + a little bit
-	TGeoBBox* shape_cool_sup_cut = new TGeoBBox("shape_cool_sup_cut",
-			lmd_cool_sup_outer_rad, lmd_cool_sup_outer_rad, lmd_cool_sup_thick + 0.1);
+	new TGeoBBox("shape_cool_sup_cut",
+			lmd_cool_sup_outer_rad, lmd_cool_sup_outer_rad, lmd_cool_sup_thick + 0.1);//TGeoBBox* shape_cool_sup_cut =  //[R.K.03/2017] unused variable
 	// set the position for the cut off
 	TGeoTranslation* trans_shape_cool_sup_cut_low = new TGeoTranslation(
 			"trans_shape_cool_sup_cut_low", 0., -lmd_cool_sup_outer_rad + 0.5, 0.); // 0.5 should be 0.3 but for the sake of simplicity not to clash to simple rod description
@@ -802,9 +802,9 @@ void PndLmdDim::Generate_rootgeom(TGeoVolume& mothervol, bool misaligned) {
 
 	// We need some cut outs for the modules and the outer structure
 	// we give them a little bit more space for misalignment studies without clashing volumes
-	TGeoTube* shape_module_cutout = new TGeoTube("shape_module_cutout", 0.,
+	new TGeoTube("shape_module_cutout", 0.,
 			cvd_disc_rad + 0.05,
-			cvd_disc_thick_half + 2 * kapton_disc_thick_half + 0.01);
+			cvd_disc_thick_half + 2 * kapton_disc_thick_half + 0.01);//TGeoTube* shape_module_cutout =  //[R.K.03/2017] unused variable
 	for (size_t imodule = 0; imodule < nmodules * 2 /*upper and lower half*/;
 			imodule++) {
 		double angle = delta_phi / 2. + imodule * delta_phi;
@@ -1707,7 +1707,7 @@ bool PndLmdDim::Set_matrix(string path, TGeoHMatrix* matrix, int ihalf,
 	/*
 	 if (aligned) return new TGeoHMatrix(*node->GetNode(node->GetLevel())->GetMatrix());
 	 else return new TGeoHMatrix(*node->GetOriginalMatrix());	*/
-	//return true;
+	return true;
 }
 
 bool PndLmdDim::Read_transformation_matrices_from_geometry(bool aligned) {
@@ -3821,64 +3821,64 @@ int PndLmdDim::makeOverlapID(int firstSensorId, int secondSensorId) {
 int PndLmdDim::getID1fromOverlapID(int overlapID) {
 
 	int fhalf, fplane, fmodule, fside, fdie, fsensor;
-	int bhalf, bplane, bmodule, bside, bdie, bsensor;
+	//int bhalf, bplane, bmodule, bside, bdie, bsensor; //[R.K.03/2017] unused variable
 
 	//get info from overlapID
 	//pad overlapID to 4 digits
 
-	fhalf = bhalf = std::floor(overlapID / 1000);
-	fplane = bplane = std::floor((overlapID % 1000) / 100);
-	fmodule = bmodule = std::floor((overlapID % 100) / 10);
+	fhalf = std::floor(overlapID / 1000); // = bhalf //[R.K.03/2017] unused variable
+	fplane = std::floor((overlapID % 1000) / 100); // = bplane //[R.K.03/2017] unused variable
+	fmodule = std::floor((overlapID % 100) / 10);// = bmodule //[R.K.03/2017] unused variable
 	int smalloverlap = std::floor(overlapID % 10);
 
 	fside = 0;
-	bside = 1;
+	//bside = 1; //[R.K.03/2017] unused variable
 
 	if (smalloverlap == 0) {
 		fdie = 0;
 		fsensor = 0;
-		bdie = 0;
-		bsensor = 0;
+		//bdie = 0; //[R.K.03/2017] unused variable
+		//bsensor = 0; //[R.K.03/2017] unused variable
 	} else if (smalloverlap == 1) {
 		fdie = 1;
 		fsensor = 1;
-		bdie = 1;
-		bsensor = 1;
+		//bdie = 1; //[R.K.03/2017] unused variable
+		//bsensor = 1; //[R.K.03/2017] unused variable
 	} else if (smalloverlap == 2) {
 		fdie = 1;
 		fsensor = 2;
-		bdie = 1;
-		bsensor = 2;
+		//bdie = 1; //[R.K.03/2017] unused variable
+		//bsensor = 2; //[R.K.03/2017] unused variable
 	} else if (smalloverlap == 3) {
 		fdie = 1;
 		fsensor = 1;
-		bdie = 0;
-		bsensor = 1;
+		//bdie = 0; //[R.K.03/2017] unused variable
+		//bsensor = 1; //[R.K.03/2017] unused variable
 	} else if (smalloverlap == 4) {
 		fdie = 0;
 		fsensor = 1;
-		bdie = 1;
-		bsensor = 1;
+		//bdie = 1; //[R.K.03/2017] unused variable
+		//bsensor = 1; //[R.K.03/2017] unused variable
 	} else if (smalloverlap == 5) {
 		fdie = 0;
 		fsensor = 2;
-		bdie = 1;
-		bsensor = 1;
+		//bdie = 1; //[R.K.03/2017] unused variable
+		//bsensor = 1; //[R.K.03/2017] unused variable
 	} else if (smalloverlap == 6) {
 		fdie = 0;
 		fsensor = 2;
-		bdie = 1;
-		bsensor = 2;
+		//bdie = 1; //[R.K.03/2017] unused variable
+		//bsensor = 2; //[R.K.03/2017] unused variable
 	} else if (smalloverlap == 7) {
 		fdie = 1;
 		fsensor = 1;
-		bdie = 0;
-		bsensor = 2;
+		//bdie = 0; //[R.K.03/2017] unused variable
+		//bsensor = 2; //[R.K.03/2017] unused variable
 	} else if (smalloverlap == 8) {
 		fdie = 1;
 		fsensor = 2;
-		bdie = 0;
-		bsensor = 2;
+		//bdie = 0; //[R.K.03/2017] unused variable
+		//bsensor = 2; //[R.K.03/2017] unused variable
 	} else {
 		return -1;
 	}
@@ -3888,63 +3888,63 @@ int PndLmdDim::getID1fromOverlapID(int overlapID) {
 }
 
 int PndLmdDim::getID2fromOverlapID(int overlapID) {
-	int fhalf, fplane, fmodule, fside, fdie, fsensor;
+	//int fhalf, fplane, fmodule, fside, fdie, fsensor; //[R.K.03/2017] unused variable
 	int bhalf, bplane, bmodule, bside, bdie, bsensor;
 
 	//get info from overlapID
 	//pad overlapID to 4 digits
 
-	fhalf = bhalf = std::floor(overlapID / 1000);
-	fplane = bplane = std::floor((overlapID % 1000) / 100);
-	fmodule = bmodule = std::floor((overlapID % 100) / 10);
+	bhalf = std::floor(overlapID / 1000); //fhalf = //[R.K.03/2017] unused variable
+	bplane = std::floor((overlapID % 1000) / 100); //fplane = //[R.K.03/2017] unused variable
+	bmodule = std::floor((overlapID % 100) / 10); //fmodule = //[R.K.03/2017] unused variable
 	int smalloverlap = std::floor(overlapID % 10);
 
-	fside = 0;
+	//fside = 0; //[R.K.03/2017] unused variable
 	bside = 1;
 
 	if (smalloverlap == 0) {
-		fdie = 0;
-		fsensor = 0;
+		//fdie = 0; //[R.K.03/2017] unused variable
+		//fsensor = 0; //[R.K.03/2017] unused variable
 		bdie = 0;
 		bsensor = 0;
 	} else if (smalloverlap == 1) {
-		fdie = 1;
-		fsensor = 1;
+		//fdie = 1; //[R.K.03/2017] unused variable
+		//fsensor = 1; //[R.K.03/2017] unused variable
 		bdie = 1;
 		bsensor = 1;
 	} else if (smalloverlap == 2) {
-		fdie = 1;
-		fsensor = 2;
+		//fdie = 1; //[R.K.03/2017] unused variable
+		//fsensor = 2; //[R.K.03/2017] unused variable
 		bdie = 1;
 		bsensor = 2;
 	} else if (smalloverlap == 3) {
-		fdie = 1;
-		fsensor = 1;
+		//fdie = 1; //[R.K.03/2017] unused variable
+		//fsensor = 1; //[R.K.03/2017] unused variable
 		bdie = 0;
 		bsensor = 1;
 	} else if (smalloverlap == 4) {
-		fdie = 0;
-		fsensor = 1;
+		//fdie = 0; //[R.K.03/2017] unused variable
+		//fsensor = 1; //[R.K.03/2017] unused variable
 		bdie = 1;
 		bsensor = 1;
 	} else if (smalloverlap == 5) {
-		fdie = 0;
-		fsensor = 2;
+		//fdie = 0; //[R.K.03/2017] unused variable
+		//fsensor = 2; //[R.K.03/2017] unused variable
 		bdie = 1;
 		bsensor = 1;
 	} else if (smalloverlap == 6) {
-		fdie = 0;
-		fsensor = 2;
+		//fdie = 0; //[R.K.03/2017] unused variable
+		//fsensor = 2; //[R.K.03/2017] unused variable
 		bdie = 1;
 		bsensor = 2;
 	} else if (smalloverlap == 7) {
-		fdie = 1;
-		fsensor = 1;
+		//fdie = 1; //[R.K.03/2017] unused variable
+		//fsensor = 1; //[R.K.03/2017] unused variable
 		bdie = 0;
 		bsensor = 2;
 	} else if (smalloverlap == 8) {
-		fdie = 1;
-		fsensor = 2;
+		//fdie = 1; //[R.K.03/2017] unused variable
+		//fsensor = 2; //[R.K.03/2017] unused variable
 		bdie = 0;
 		bsensor = 2;
 	} else {
