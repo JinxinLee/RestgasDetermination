@@ -1,0 +1,23 @@
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/eventDet/sim.C)
+add_test(sim_eventDet ${PANDAROOT_BINARY_DIR}/macro/qa/eventDet/sim.sh)
+SET_TESTS_PROPERTIES(sim_eventDet PROPERTIES TIMEOUT "400")
+SET_TESTS_PROPERTIES(sim_eventDet PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/eventDet/digi.C)
+add_test(digi_eventDet ${PANDAROOT_BINARY_DIR}/macro/qa/eventDet/digi.sh)
+SET_TESTS_PROPERTIES(digi_eventDet PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(digi_eventDet PROPERTIES DEPENDS sim_eventDet)
+SET_TESTS_PROPERTIES(digi_eventDet PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/eventDet/reco.C)
+add_test(reco_eventDet ${PANDAROOT_BINARY_DIR}/macro/qa/eventDet/reco.sh)
+SET_TESTS_PROPERTIES(reco_eventDet PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(reco_eventDet PROPERTIES DEPENDS digi_eventDet)
+SET_TESTS_PROPERTIES(reco_eventDet PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/eventDet/benchmark.C)
+add_test(benchmark_eventDet ${PANDAROOT_BINARY_DIR}/macro/qa/eventDet/benchmark.sh)
+SET_TESTS_PROPERTIES(benchmark_eventDet PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(benchmark_eventDet PROPERTIES DEPENDS reco_eventDet)
+SET_TESTS_PROPERTIES(benchmark_eventDet PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+

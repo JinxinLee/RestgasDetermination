@@ -15,6 +15,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/MvdData
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+  ${CMAKE_SOURCE_DIR}/pnddata/SciTData
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/PndTools/TimeBasedTools
@@ -38,6 +39,9 @@ set(SRCS
 
 PndGapEventBuilderTask.cxx
 PndTimeStructureAnaTask.cxx
+PndSolCorrTask.cxx
+PndT0CandidateTask.cxx
+PndT0CandidateDetermination.cxx
 
 )
 
