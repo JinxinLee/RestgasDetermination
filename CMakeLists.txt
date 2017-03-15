@@ -327,7 +327,7 @@ EndIf(TEvePath)
 
 add_subdirectory (dsk)
 add_subdirectory (disc)
-add_subdirectory (PndTools/riemannfit)
+add_subdirectory (PndTracking/riemannfit)
 add_subdirectory (PndTools/MVA)
 add_subdirectory (PndPropagators/HelixPropagator)
 add_subdirectory (lmd)
