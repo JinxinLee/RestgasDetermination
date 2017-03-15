@@ -9,6 +9,7 @@
 #include "TFile.h"
 #include "TLorentzVector.h"
 #include "TTree.h"
+#include "TMath.h"
 #include "TVector3.h"
 #include "TParticle.h"
 #include "TRandom.h"
@@ -233,7 +234,7 @@ Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 	Id=evtstdhep.getStdHepID(i);
 	vxyz=evtstdhep.getX4(i);
 	pxyz=evtstdhep.getP4(i);
-	fT=vxyz.get(0);
+	fT=vxyz.get(0)/(1000*TMath::C());  //mm - > s conversion
 	fX=vxyz.get(1)/10.; // mm -> cm conversion
 	fY=vxyz.get(2)/10.; // mm -> cm conversion
 	fZ=vxyz.get(3)/10.; // mm -> cm conversion
@@ -244,9 +245,9 @@ Bool_t PndEvtGenDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 	if(plotflag) printf("- I -: new particle %d at: %f, %f, %f (%f)-> %f %f %f (%f) ID %d ##Daughters %d %d Mothers %d %d\n", i,
     fX, fY, fZ, fT,Px, Py, Pz, fE, Id, nFD, nLD,evtstdhep.getFirstMother(i),evtstdhep.getLastMother(i));
 	if(fStoreTree){
-	  primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1),fE);
+	  primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ, evtstdhep.getFirstMother(i),(nFD==-1 && nLD==-1),fE,fT);
 	}else{
-	  primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ);// default -1, true
+	  primGen->AddTrack(Id, Px, Py, Pz, fX, fY, fZ,-1,true,fE,fT);// default -1, true
 	}
       }
   }
