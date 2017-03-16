@@ -96,12 +96,6 @@ TrkData/PndTrkNeighboringMap.cxx
 TrkSecondary/PndTrkTrackFinder.cxx
 TrkSecondary/PndTrkAddTCA.cxx
 TrkSecondary/PndTrkGemCombiTask.cxx
-#
-#TrkStructure/PndTrkQATask.cxx
-#TrkQA/PndTrkQualityAssuranceTask.cxx
-#TrkQA/PndTrkMCTrackInfo.cxx
-#TrkQA/PndTrkRecoTrackInfo.cxx
-#TrkQA/PndTrkAnaTask.cxx
 
 )
 

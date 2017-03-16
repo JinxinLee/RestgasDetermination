@@ -304,7 +304,7 @@ add_subdirectory(PndTools/TimeBasedTools)
 #add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4)
 #add_subdirectory(mvd/MvdOfflineTBAnalysis_Topix4/MQ)
 #add_subdirectory(mvd/MvdMQ)
-#add_subdirectory(tracking/PndForwardTrackFinder)
+add_subdirectory(PndTrackers/PndForwardTrackFinder)
 
 FIND_PATH(TEvePath NAMES TEveEventManager.h PATHS
   ${SIMPATH}/tools/root/include
