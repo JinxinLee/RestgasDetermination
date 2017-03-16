@@ -28,7 +28,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/rho/RhoMath
   ${CMAKE_SOURCE_DIR}/rho/RhoFitter
-  ${CMAKE_SOURCE_DIR}/tracking
+  ${CMAKE_SOURCE_DIR}/PndTrackers/CentralTracking
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
   ${CMAKE_SOURCE_DIR}/tracking/TrkSecondary
   ${CMAKE_SOURCE_DIR}/tracking/TrkStructure
@@ -49,39 +49,29 @@ ${FAIRROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(SRCS
-TrkAlgo/PndTrkLegendreTransform.cxx
-TrkAlgo/PndTrkConformalTransform.cxx
-TrkAlgo/PndTrkTools.cxx
-TrkAlgo/PndTrkClean.cxx
-TrkAlgo/PndTrkFitter.cxx
-TrkAlgo/PndTrkGemCombinatorial.cxx
-#
-TrkData/PndTrkHit.cxx
-TrkData/PndTrkIndivisibleHit.cxx
-TrkData/PndTrkSkewHit.cxx
-TrkData/PndTrkHitList.cxx
-TrkData/PndTrkSdsHitList.cxx
-TrkData/PndTrkSttHitList.cxx
-TrkData/PndTrkGemHitList.cxx
-TrkData/PndTrkSciTHitList.cxx
-TrkData/PndTrkCluster.cxx
-TrkData/PndTrkLegendreCluster.cxx 
-TrkData/PndTrkClusterList.cxx
-TrkData/PndTrkTrackList.cxx      
-TrkData/PndTrkTrack.cxx
-TrkData/PndTrkConformalHit.cxx
-TrkData/PndTrkConformalHitList.cxx
-TrkData/PndTrkSkewHitList.cxx
-TrkData/PndTrkNeighboringMap.cxx
-#
-TrkSecondary/PndTrkTrackFinder.cxx
-TrkSecondary/PndTrkAddTCA.cxx
-TrkSecondary/PndTrkGemCombiTask.cxx
+PndTrkBoundaryParStraws.cxx
+PndTrkBoundaryParStraws2.cxx
+PndTrkCategorizeStt.cxx
+PndTrkChi2Fits.cxx
+PndTrkCleanup.cxx
+PndTrkComparisonMCtruth.cxx
+PndTrkCTFindTrackInXY.cxx
+PndTrkCTFindTrackInXY2.cxx
+PndTrkCTGeometryCalculations.cxx
+PndTrkLegendreFits.cxx
+PndTrkMergeSort.cxx
+PndTrkSttConformalFilling.cxx
+PndTrkPlotMacros.cxx
+PndTrkPlotMacros2.cxx
+PndTrkPrintouts.cxx
+PndTrkTracking2.cxx
+PndTrkSttAdjacencies.cxx
+PndTrkSttClusterFinder.cxx
 
 )
 
-set(LINKDEF  TrackingLinkDef.h)
-set(LIBRARY_NAME Tracking)
+set(LINKDEF  CentralTrackingLinkDef.h)
+set(LIBRARY_NAME CentralTracking)
 
 set(DEPENDENCIES Base ParBase PndData Stt Fts TrkBase ParticleFitters)
 

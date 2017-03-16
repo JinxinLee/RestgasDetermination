@@ -52,7 +52,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/pnddata/RichData
-  ${CMAKE_SOURCE_DIR}/tracking
+  ${CMAKE_SOURCE_DIR}/PndTrackers/CentralTracking
   ${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/fts/FtsTracking
   ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
@@ -91,6 +91,6 @@ set(LINKDEF  MasterLinkDef.h)
 set(LIBRARY_NAME Master)
 
 # set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
-set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatchNewLinks RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect)
+set(DEPENDENCIES Base generalTools MvdReco CentralTracking SttMvdTracking MCMatchNewLinks RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect)
 
 GENERATE_LIBRARY() 
