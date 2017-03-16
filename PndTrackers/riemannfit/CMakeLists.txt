@@ -18,7 +18,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/passive
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/trackbase
-  ${CMAKE_SOURCE_DIR}/PndTracking/riemannfit
+  ${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

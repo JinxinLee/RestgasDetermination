@@ -1153,7 +1153,7 @@ void PndTrkTracking2::Exec(Option_t* opt) {
  }
 
   if(nMvdMCPoint>MAXMVDMCPOINTS) {
-	cout<<"from PndTracking, nMvdMCPoint = "<<nMvdMCPoint
+	cout<<"from PndTrackers, nMvdMCPoint = "<<nMvdMCPoint
 	<<" and it is > the maximum number allowed ("<<MAXMVDMCPOINTS<<
 	")"<<
 	", setting nMvdMCPoint to "<<MAXMVDMCPOINTS<<endl;
