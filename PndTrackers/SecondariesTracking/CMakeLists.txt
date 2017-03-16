@@ -28,13 +28,12 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
   ${CMAKE_SOURCE_DIR}/rho/RhoMath
   ${CMAKE_SOURCE_DIR}/rho/RhoFitter
-  ${CMAKE_SOURCE_DIR}/tracking
+  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
-  ${CMAKE_SOURCE_DIR}/tracking/TrkSecondary
-  ${CMAKE_SOURCE_DIR}/tracking/TrkStructure
-  ${CMAKE_SOURCE_DIR}/tracking/TrkAlgo
-  ${CMAKE_SOURCE_DIR}/tracking/TrkData
-#  ${CMAKE_SOURCE_DIR}/tracking/TrkQA
+  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking/TrkSecondary
+  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking/TrkStructure
+  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking/TrkAlgo
+  ${CMAKE_SOURCE_DIR}/PndTrackers/SecondariesTracking/TrkData
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -80,8 +79,8 @@ TrkSecondary/PndTrkGemCombiTask.cxx
 
 )
 
-set(LINKDEF  TrackingLinkDef.h)
-set(LIBRARY_NAME Tracking)
+set(LINKDEF  SecondariesTrackingLinkDef.h)
+set(LIBRARY_NAME SecondariesTracking)
 
 set(DEPENDENCIES Base ParBase PndData Stt Fts TrkBase ParticleFitters)
 
