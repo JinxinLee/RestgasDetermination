@@ -15,7 +15,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/
 ${CMAKE_SOURCE_DIR}/PndTools/buffers
-${CMAKE_SOURCE_DIR}/PndTracking/riemannfit
+${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/PndTools/
 ${CMAKE_SOURCE_DIR}/mvd
@@ -39,7 +39,7 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/tpc
-${CMAKE_SOURCE_DIR}/PndTracking/riemannfit
+${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
 ${CMAKE_SOURCE_DIR}/generators
 )
 
