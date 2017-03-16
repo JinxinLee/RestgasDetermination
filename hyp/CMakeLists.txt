@@ -15,7 +15,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/HypData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/passive
-  ${CMAKE_SOURCE_DIR}/PndTracking/riemannfit
+  ${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
   ${CMAKE_SOURCE_DIR}/hyp
   ${CMAKE_SOURCE_DIR}/hyp/hypData
