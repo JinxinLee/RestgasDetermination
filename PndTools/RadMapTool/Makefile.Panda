@@ -181,7 +181,7 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/sds/SdsTools \
                 -I$(PANDADIR)/softrig \
                 -I$(PANDADIR)/stt \
-                -I$(PANDADIR)/sttmvdtracking \
+                -I$(PANDADIR)/PndTrackers/sttmvdtracking \
                 -I$(PANDADIR)/stt/sttreco \
                 -I$(PANDADIR)/trackbase \
                 -I$(PANDADIR)/tracking \

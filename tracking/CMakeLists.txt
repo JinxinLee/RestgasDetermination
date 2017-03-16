@@ -16,7 +16,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/field 
   ${CMAKE_SOURCE_DIR}/stt
   ${CMAKE_SOURCE_DIR}/fts
-  ${CMAKE_SOURCE_DIR}/sttmvdtracking
+  ${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
   ${CMAKE_SOURCE_DIR}/pnddata/SdsData
   ${CMAKE_SOURCE_DIR}/gem 

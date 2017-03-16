@@ -53,7 +53,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/pnddata/RichData
   ${CMAKE_SOURCE_DIR}/tracking
-  ${CMAKE_SOURCE_DIR}/sttmvdtracking
+  ${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/fts/FtsTracking
   ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
   ${CMAKE_SOURCE_DIR}/GenfitTools/recotasks
