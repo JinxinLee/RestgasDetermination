@@ -163,7 +163,7 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/PndTools/MVA/TMVA_PDE_FOAM \
                 -I$(PANDADIR)/PndTrackers/riemannfit \
                 -I$(PANDADIR)/PndTrackers/SttCellTrackFinder \
-                -I$(PANDADIR)/PndTools/TrackingQA \
+                -I$(PANDADIR)/PndTrackers/TrackingQA \
                 -I$(PANDADIR)/rho \
                 -I$(PANDADIR)/rho/RhoBase \
                 -I$(PANDADIR)/rho/RhoConstraints \
@@ -184,11 +184,11 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/PndTrackers/sttmvdtracking \
                 -I$(PANDADIR)/stt/sttreco \
                 -I$(PANDADIR)/trackbase \
-                -I$(PANDADIR)/tracking \
-                -I$(PANDADIR)/tracking/TrkAlgo \
-                -I$(PANDADIR)/tracking/TrkData \
-                -I$(PANDADIR)/tracking/TrkSecondary \
-                -I$(PANDADIR)/tracking/TrkStructure 
+                -I$(PANDADIR)/PndTrackers/SecondariesTracking \
+                -I$(PANDADIR)/PndTrackers/SecondariesTracking/TrkAlgo \
+                -I$(PANDADIR)/PndTrackers/SecondariesTracking/TrkData \
+                -I$(PANDADIR)/PndTrackers/SecondariesTracking/TrkSecondary \
+                -I$(PANDADIR)/PndTrackers/SecondariesTracking/TrkStructure 
 
 #FAIRPATH	= /d/pndint02/carsten/fairsoft_mar15/buildFairRoot
 #FAIRPATH	= $(FAIRROOTPATH)

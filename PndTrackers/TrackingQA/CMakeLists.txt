@@ -16,7 +16,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackbase
 #  ${CMAKE_SOURCE_DIR}/PndMCMatch
   ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks 
-  ${CMAKE_SOURCE_DIR}/PndTools/TrackingQA
+  ${CMAKE_SOURCE_DIR}/PndTrackers/TrackingQA
   ${CMAKE_SOURCE_DIR}/rho
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
 )
