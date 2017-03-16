@@ -162,7 +162,7 @@ INCLUDE       = -I$(PANDADIR)/base \
                 -I$(PANDADIR)/PndTools/MVA/TMVA_MCL \
                 -I$(PANDADIR)/PndTools/MVA/TMVA_PDE_FOAM \
                 -I$(PANDADIR)/PndTrackers/riemannfit \
-                -I$(PANDADIR)/PndTools/SttCellTrackFinder \
+                -I$(PANDADIR)/PndTrackers/SttCellTrackFinder \
                 -I$(PANDADIR)/PndTools/TrackingQA \
                 -I$(PANDADIR)/rho \
                 -I$(PANDADIR)/rho/RhoBase \
