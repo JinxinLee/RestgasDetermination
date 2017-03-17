@@ -19,10 +19,10 @@ PndLineApproximation::PndLineApproximation(PndLine lineApprox, vector<PndFtsHit*
 }
 
 void PndLineApproximation::correctHits3DAndAdd(vector<PndFtsHit*> ch){
-	for (int i = 0; i < ch.size(); i++) {
+	for (size_t i = 0; i < ch.size(); i++) {
 		//check to duplicate hits
 		Bool_t duplicated = kFALSE;
-		for(int j=0;j<fCorrectedHits.size();j++){
+		for(size_t j=0;j<fCorrectedHits.size();j++){
 			Int_t id1 = fCorrectedHits[j]->GetTubeID();
 			Int_t id2 = ch[i]->GetTubeID();
 			if(id1==id2){
@@ -53,9 +53,9 @@ void PndLineApproximation::correctHits3DAndAdd(vector<PndFtsHit*> ch){
 
 PndLineApproximation PndLineApproximation::newApproximation(PndLineApproximation &approx2){
 	vector<PndFtsHit*> hits;
-	for(int i=0;i<fCorrectedHits.size();i++)
+	for(size_t i=0;i<fCorrectedHits.size();i++)
 		hits.push_back(fCorrectedHits[i]);
-	for(int i=0;i<approx2.fCorrectedHits.size();i++){
+	for(size_t i=0;i<approx2.fCorrectedHits.size();i++){
 		hits.push_back(approx2.fCorrectedHits[i]);
 	}
 	PndLine newLine = linearRegression(hits);
@@ -80,7 +80,7 @@ PndLine PndLineApproximation::linearRegressionXZ(vector<PndFtsHit*> hits){
 	Double_t sumX2 = 0;
 	Double_t sumZ = 0;
 	Double_t sumXZ = 0;
-	for(int i=0;i<hits.size();i++){
+	for(size_t i=0;i<hits.size();i++){
 		cout.precision(10);
 		sumX+=hits[i]->GetX();
 		sumX2+=hits[i]->GetX()*hits[i]->GetX();
@@ -108,7 +108,7 @@ PndLine PndLineApproximation::linearRegressionZX(vector<PndFtsHit*> hits){
 	Double_t sumZ2 = 0;
 	Double_t sumX = 0;
 	Double_t sumZX = 0;
-	for(int i=0;i<hits.size();i++){
+	for(size_t i=0;i<hits.size();i++){
 		sumZ+=hits[i]->GetZ();
 		sumZ2+=hits[i]->GetZ()*hits[i]->GetZ();
 		sumX+=hits[i]->GetX();
@@ -133,7 +133,7 @@ PndLine PndLineApproximation::linearRegressionYZ(vector<PndFtsHit*> hits){
 	Double_t sumY2 = 0;
 	Double_t sumZ = 0;
 	Double_t sumYZ = 0;
-	for(int i=0;i<hits.size();i++){
+	for(size_t i=0;i<hits.size();i++){
 		sumY+=hits[i]->GetY();
 		sumY2+=hits[i]->GetY()*hits[i]->GetY();
 		sumZ+=hits[i]->GetZ();
@@ -158,7 +158,7 @@ PndLine PndLineApproximation::linearRegressionZY(vector<PndFtsHit*> hits){
 	Double_t sumZ2 = 0;
 	Double_t sumY = 0;
 	Double_t sumZY = 0;
-	for(int i=0;i<hits.size();i++){
+	for(size_t i=0;i<hits.size();i++){
 		sumZ+=hits[i]->GetZ();
 		sumZ2+=hits[i]->GetZ()*hits[i]->GetZ();
 		sumY+=hits[i]->GetY();
@@ -207,9 +207,9 @@ PndTrack PndLineApproximation::plot(Double_t zVal1, Double_t zVal2, TClonesArray
 	FairTrackParP tp2(v, 0 * v, v, v, 1, v, v, v);
 	PndTrackCand cand;
 	Int_t j = hitArr->GetEntries();
-	for(int i=0;i<fCorrectedHits.size();i++){
+	for(size_t i=0;i<fCorrectedHits.size();i++){
 		fCorrectedHits[i]->SetEntryNr(FairLink(-1, FairRootManager::Instance()->GetEntryNr(),FairRootManager::Instance()->GetBranchId("CorrectedHits"), j));
-		PndFtsHit* myHit = new ((*hitArr)[j++]) PndFtsHit(*fCorrectedHits[i]);
+		new ((*hitArr)[j++]) PndFtsHit(*fCorrectedHits[i]);//PndFtsHit* myHit =  //[R.K.03/2017] unused variable
 		cand.AddHit(fCorrectedHits[i]->GetEntryNr(),i);
 	}
 	PndTrack t(tp1,tp2,cand);

@@ -33,7 +33,7 @@ public:
 	static Double_t compAngle;
 	static Double_t compQuali;
 
-	PndTrackCombiner(TClonesArray* a,TClonesArray *b): fComparator(compDist,compAngle), planes(a), firstRun(0), angleLimit(20), corrHits(b){}
+	PndTrackCombiner(TClonesArray* a,TClonesArray *b): fComparator(compDist,compAngle), planes(a), corrHits(b), firstRun(0), angleLimit(20){}
 	virtual ~PndTrackCombiner();
 	void init(map<Int_t, vector<PndFtsExpandedTrackCand>> c){
 		fExpandedTrackCands=c;

@@ -41,26 +41,26 @@ PndFtsExpandedTrackCand PndFtsLineApproximator::createExpandedTrackCand(PndTrack
 		//more than 2 hits => search the best line
 		vector<vector<PndLineApproximation>> lines;
 		//create all combinations of possible lines
-		for(int i=0;i<hits.size();i++){
-			for(int j=i+1;j<hits.size();j++){
+		for(size_t i=0;i<hits.size();i++){
+			for(size_t j=i+1;j<hits.size();j++){
 				vector<PndLineApproximation> lines2 = approxLines(hits[i],hits[j]);
-				for(int k=0;k<lines2.size();k++)
+				for(size_t k=0;k<lines2.size();k++)
 					addLine(lines,lines2[k]);
 
 			}
 		}
 		//find the max
 		Int_t max= 0;
-		for(int i=0;i<lines.size();i++){
+		for(size_t i=0;i<lines.size();i++){
 			if(lines[i].size()>max)
 				max = lines[i].size();
 		}
 		vector<PndLineApproximation> result;
 		//find all approximations with size=max
-		for(int i=0;i<lines.size();i++){
+		for(size_t i=0;i<lines.size();i++){
 			if(lines[i].size()==max){
 				PndLineApproximation a = lines[i][0];
-				for(int j=1;j<lines[i].size();j++)
+				for(size_t j=1;j<lines[i].size();j++)
 					a = a.newApproximation(lines[i][j]);
 				a.getLine().setRating(1);
 				result.push_back(a);
@@ -289,7 +289,7 @@ vector<PndLineApproximation> PndFtsLineApproximator::approxOuterLine(PndFtsHit* 
 
 void PndFtsLineApproximator::addLine(vector<vector<PndLineApproximation>> &lines, PndLineApproximation &l){
 	Bool_t used = kFALSE;
-	for(int i=0;i<lines.size();i++){
+	for(size_t i=0;i<lines.size();i++){
 		PndLine l2 = lines[i][0].getLine();
 		if(fComparator.areEqual2D(l.getLine(),l2)){
 			lines[i].push_back(l);

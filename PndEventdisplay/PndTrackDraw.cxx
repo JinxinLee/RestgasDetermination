@@ -24,11 +24,11 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndTrackDraw::PndTrackDraw(Bool_t propagate)
-	:fListOfTracks(0),
-	 fTimeWindowPlus(0.),
+	:fTimeWindowPlus(0.),
 	 fTimeWindowMinus(0.),
+	 fUseEventTime(kTRUE),
 	 fDoPropagation(propagate),
-	 fUseEventTime(kTRUE)
+   fListOfTracks(0)
 {
 	   fPndTrackList = 0;
 }
@@ -40,8 +40,8 @@ PndTrackDraw::PndTrackDraw(const char* name, Bool_t propagate, Int_t iVerbose)
   : FairTask(name, iVerbose),
     fTimeWindowPlus(0.),
     fTimeWindowMinus(0.),
-    fEveTrList( new TObjArray(16)), fListOfTracks(0), fDoPropagation(propagate),
-    fUseEventTime(kTRUE)
+    fUseEventTime(kTRUE), fEveTrList( new TObjArray(16)),
+    fDoPropagation(propagate), fListOfTracks(0)
 {
 	 // fPro = new FairGeanePro();
 	  fPndTrackList = 0;

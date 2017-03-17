@@ -120,7 +120,7 @@ void PndAnalysisForwardTask::Finish(){
 
 map<Int_t,vector<PndFtsHit*>> PndAnalysisForwardTask::getMcTracks(){
 	Int_t branchID = fIoman->GetBranchId("FTSHit"); //right hits
-	Int_t mcTrackBranchId = fIoman->GetBranchId("MCTrack");
+	//Int_t mcTrackBranchId = fIoman->GetBranchId("MCTrack"); //[R.K.03/2017] unused variable
 	map<Int_t,vector<PndFtsHit*>> mcTracksToHits;
 	mcToHitCount.clear();
 	momentum.clear();
@@ -183,7 +183,7 @@ map<Int_t,vector<PndFtsHit*>*> PndAnalysisForwardTask::getReconstructedTracks(){
 			hits->push_back(hit);
 		}
 		//save the hits
-		for(int j=0;j<hits->size();j++){
+		for(size_t j=0;j<hits->size();j++){
 			PndFtsHit* hit = (*hits)[j];
 			hitToTrack[hit->GetTubeID()]=hits;
 		}
@@ -195,12 +195,12 @@ void PndAnalysisForwardTask::analyzeMCTracks(vector<PndFtsHit*> hits,map<Int_t,v
 	//get all reconstructed tracks with hits from this mc track
 	vector<vector<PndFtsHit*>*> tracksToMc;
 	cout << "Track has " << hits.size() << " Hits" << endl;
-	for(int i=0;i<hits.size();i++){
+	for(size_t i=0;i<hits.size();i++){
 		vector<PndFtsHit*> *track = tracks[hits[i]->GetTubeID()];
 		if(track==0) continue;
 
 		Bool_t exists = kFALSE;
-		for(int j=0;j<tracksToMc.size();j++){
+		for(size_t j=0;j<tracksToMc.size();j++){
 			if(tracksToMc[j]==track){
 				exists=kTRUE;
 				break;
@@ -245,7 +245,7 @@ void PndAnalysisForwardTask::analyzeMCTracks(vector<PndFtsHit*> hits,map<Int_t,v
 		else trackCountArray[trackCount-1]++;
 	} else {
 		vector<Int_t> bestResult = analyzeMCTrack(hits,tracksToMc[0]);
-		for(int i=1;i<tracksToMc.size();i++){
+		for(size_t i=1;i<tracksToMc.size();i++){
 			vector<Int_t> nextResult = analyzeMCTrack(hits,tracksToMc[i]);
 			if(bestResult[1]<nextResult[1]) bestResult = nextResult;
 		}
@@ -300,11 +300,11 @@ vector<Int_t> PndAnalysisForwardTask::analyzeMCTrack(vector<PndFtsHit*> mcHits,v
 	Int_t wrongHits = 0;
 
 	//search for found mc hits
-	for(int i=0;i<mcHits.size();i++){
+	for(size_t i=0;i<mcHits.size();i++){
 		PndFtsHit *mcHit = mcHits[i];
 
 		Int_t hitFound = kFALSE;
-		for(int j=0;j<reconstructedHits->size();j++){
+		for(size_t j=0;j<reconstructedHits->size();j++){
 			PndFtsHit *recoHit = (*reconstructedHits)[j];
 			if(mcHit->GetTubeID()==recoHit->GetTubeID()){
 				hitFound = kTRUE;
@@ -316,10 +316,10 @@ vector<Int_t> PndAnalysisForwardTask::analyzeMCTrack(vector<PndFtsHit*> mcHits,v
 		else hitsNotFound++;
 	}
 
-	for(int i=0;i<reconstructedHits->size();i++){
+	for(size_t i=0;i<reconstructedHits->size();i++){
 		PndFtsHit* recoHit = (*reconstructedHits)[i];
 		Int_t hitFound = kFALSE;
-		for(int j=0;j<mcHits.size();j++){
+		for(size_t j=0;j<mcHits.size();j++){
 			PndFtsHit *mcHit = mcHits[j];
 			if(mcHit->GetTubeID()==recoHit->GetTubeID()){
 				hitFound = kTRUE;
@@ -344,7 +344,7 @@ void PndAnalysisForwardTask::anaSpecialCases(map<Int_t,vector<PndFtsHit*>> mcTra
 		Int_t tubeID[10000];
 		for(int j=0;j<24;j++) layer[j]=0;
 		for(int j=0;j<10000;j++) tubeID[j]=0;
-		for(int j=0;j<i->second.size();j++){
+		for(size_t j=0;j<i->second.size();j++){
 			PndFtsHit* hit = i->second[j];
 			Int_t layerID = (hit->GetLayerID() - 1) / 2;
 			layer[layerID]++;

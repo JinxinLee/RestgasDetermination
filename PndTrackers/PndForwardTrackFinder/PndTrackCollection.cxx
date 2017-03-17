@@ -19,7 +19,7 @@ void PndTrackCollection::add(PndLineApproximation l,Bool_t skewed){
 	//copy hits
 	vector<PndFtsHit*> newHits;
 	vector<PndFtsHit*> oldHits = l.getHits();
-	for(int i=0;i<oldHits.size();i++){
+	for(size_t i=0;i<oldHits.size();i++){
 		newHits.push_back(copyHit(oldHits[i]));
 	}
 	l.setHits(newHits);
@@ -31,7 +31,7 @@ void PndTrackCollection::add(PndLineApproximation l,Bool_t skewed){
 		refitAllHits();
 	} else if(fLines->size()>1){
 		vector<PndFtsHit*> hits = l.getHits();
-		for(int i=0;i<hits.size();i++){
+		for(size_t i=0;i<hits.size();i++){
 			refitHit(fCurrLine,hits[i]);
 		}
 	}
@@ -55,21 +55,21 @@ PndFtsHit* PndTrackCollection::copyHit(PndFtsHit *h){
 void PndTrackCollection::refitAllHits(){
 	//get all hits
 	vector<PndFtsHit*> allHits;
-	for(int i=0;i<fLines->size();i++){
+	for(size_t i=0;i<fLines->size();i++){
 		vector<PndFtsHit*> hits = (*fLines)[i].getHits();
-		for(int j=0;j<hits.size();j++) allHits.push_back(hits[j]);
+		for(size_t j=0;j<hits.size();j++) allHits.push_back(hits[j]);
 	}
 	//refit with line
 	PndLine zyLine = (*fLines)[0].linearRegressionZY(allHits);
 	//set the z pos
-	for(int i=0;i<allHits.size();i++){
+	for(size_t i=0;i<allHits.size();i++){
 		refitHit(zyLine,allHits[i]);
 	}
 	fCurrLine = zyLine;
 }
 
 void PndTrackCollection::refitAllTracks(){
-	for(int i=0;i<fLines->size();i++){
+	for(size_t i=0;i<fLines->size();i++){
 		PndLineApproximation a = (*fLines)[i];
 		PndPlane p(a.getLine(),0);
 		PndPlane p2(fCurrLine.getP1(),fCurrLine.getDir(),TVector3(1,0,0));
@@ -94,22 +94,22 @@ PndTrack PndTrackCollection::getPndTrack(map<Int_t,PndFtsHit*> orgHits){
 	FairTrackParP tp2(last.getP1(),3 * last.getDir().Unit(), v, v, 1, v, v, v);
 	PndTrackCand  trackCand;
 	Int_t hitCount;
-	for(int i=0;i<fLines->size();i++){
+	for(size_t i=0;i<fLines->size();i++){
 		PndLineApproximation a = (*fLines)[i];
 		vector<PndFtsHit*> hits = a.getHits();
 		hitCount = hits.size();
-		for(int j=0;j<hits.size();j++){
+		for(size_t j=0;j<hits.size();j++){
 			trackCand.AddHit(orgHits[hits[j]->GetTubeID()]->GetEntryNr(),j);
 		}
 	}
-	for(int i=0;i<fHits.size();i++)
+	for(size_t i=0;i<fHits.size();i++)
 		trackCand.AddHit(fHits[i]->GetEntryNr(),i+hitCount);
 	return PndTrack(tp1,tp2,trackCand);
 }
 
 Double_t PndTrackCollection::getDistTo(PndLine l,Int_t layer){
 	Double_t dist = 9999999999;
-	for(int i=0;i<fLines->size();i++){
+	for(size_t i=0;i<fLines->size();i++){
 		PndLineApproximation appr = (*fLines)[i];
 		Int_t apprLayer = appr.getHits()[0]->GetLayerID();
 		if(layer<8 && apprLayer>=8)continue;

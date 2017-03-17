@@ -74,7 +74,7 @@ void PndForwardTrackFinderTask::Exec(Option_t* opt) {
 	fFirstTrackCand.clear();
 	for (map<Int_t, vector<PndTrackCand>>::iterator it = result.begin();
 			it != result.end(); it++) {
-		for(int i=0;i<it->second.size();i++)
+		for(size_t i=0;i<it->second.size();i++)
 			fFirstTrackCand.push_back(it->second[i]);
 	}
 	cout << fFirstTrackCand.size() << " Tracks found " << endl;
@@ -85,8 +85,8 @@ void PndForwardTrackFinderTask::Exec(Option_t* opt) {
 	}
 
 	//save data in root-branch
-	for (int i = 0; i < fFirstTrackCand.size(); i++) {
-		PndTrackCand* myCand = new ((*fFirstTrackCandArray)[i]) PndTrackCand(fFirstTrackCand[i]);
+	for (size_t i = 0; i < fFirstTrackCand.size(); i++) {
+		new ((*fFirstTrackCandArray)[i]) PndTrackCand(fFirstTrackCand[i]); //PndTrackCand* myCand =  //[R.K.03/2017] unused variable
 	}
 
 	//create expanded track cands
@@ -94,7 +94,7 @@ void PndForwardTrackFinderTask::Exec(Option_t* opt) {
 	for (map<Int_t, vector<PndTrackCand>>::iterator it = result.begin();
 				it != result.end(); it++) {
 		vector<PndTrackCand> myCands = it->second;
-		for(int i=0;i<myCands.size();i++){
+		for(size_t i=0;i<myCands.size();i++){
 			PndTrackCand myCand = myCands[i];
 			PndFtsExpandedTrackCand c = fPndFtsLineApproximator->createExpandedTrackCand(myCand);
 			if(c.getLineApproximations().size()!=0)
@@ -172,23 +172,23 @@ void PndForwardTrackFinderTask::saveCombined(vector<PndLineApproximation> combin
 		std::cout << "PndForwardTrackFinderTask::saveCombined branchID == -1" << std::endl;
 	}
 	TVector3 v(1, 1, 1);
-	for (int i = 0; i < combined.size(); i++) {
+	for (size_t i = 0; i < combined.size(); i++) {
 		PndLineApproximation l = combined[i];
 		PndLine l2 = l.getLine();
 		PndTrackCand c;
 		FairTrackParP tp1(v, v, v, v, 1, v, v, v);
 		FairTrackParP tp2(l2.getP1(), 3 * l2.getDir().Unit(), v, v, 1, v, v, v);
-		for (int j = 0; j < l.getHits().size(); j++) {
+		for (size_t j = 0; j < l.getHits().size(); j++) {
 			PndFtsHit* hit = l.getHits()[j];
 			if(!useOrgHits){
 				hit->SetEntryNr(FairLink(-1, fIoman->GetEntryNr(),branchID, combinedTracksHitNum));
-				PndFtsHit* myHit = new ((*(rootBranches[branch+1]))[combinedTracksHitNum++]) PndFtsHit(*hit);
+				new ((*(rootBranches[branch+1]))[combinedTracksHitNum++]) PndFtsHit(*hit); //PndFtsHit* myHit =  //[R.K.03/2017] unused variable
 			} else {
 				hit = fOriginalHits[hit->GetTubeID()];
 			}
 			c.AddHit(hit->GetEntryNr(), j);
 		}
-		PndTrack* myCand = new ((*(rootBranches[branch]))[combinedTracksTrackNum++]) PndTrack(tp1, tp2, c);
+		new ((*(rootBranches[branch]))[combinedTracksTrackNum++]) PndTrack(tp1, tp2, c); //PndTrack* myCand =  //[R.K.03/2017] unused variable
 	}
 }
 
@@ -197,16 +197,16 @@ void PndForwardTrackFinderTask::saveCorrectedTracklets(map<Int_t, vector<PndFtsE
 	Int_t hitNum= 0;
 	for (map<Int_t, vector<PndFtsExpandedTrackCand>>::iterator it = res.begin();it != res.end(); it++) {
 		vector<PndFtsExpandedTrackCand> etc = it->second;
-		for(int i=0;i<etc.size();i++){
+		for(size_t i=0;i<etc.size();i++){
 			PndFtsExpandedTrackCand cand = etc[i];
 			vector<PndLineApproximation> approxs = cand.getLineApproximations();
-			for(int j=0;j<approxs.size();j++){
+			for(size_t j=0;j<approxs.size();j++){
 				PndLineApproximation approx = approxs[j];
 				PndTrackCand trackCand;
-				for (int k = 0; k < approx.getHits().size(); k++) {
+				for (size_t k = 0; k < approx.getHits().size(); k++) {
 					PndFtsHit* hit = approx.getHits()[k];
 					hit->SetEntryNr(FairLink(-1, fIoman->GetEntryNr(),fIoman->GetBranchId("CorrectedHits"),hitNum));
-					PndFtsHit* myHit = new ((*correctedHits)[hitNum++]) PndFtsHit(*hit);
+					new ((*correctedHits)[hitNum++]) PndFtsHit(*hit);//PndFtsHit* myHit =  //[R.K.03/2017] unused variable
 					trackCand.AddHit(hit->GetEntryNr(), k);
 				}
 				TVector3 v(1, 1, 1);
@@ -224,36 +224,36 @@ void PndForwardTrackFinderTask::saveTrackCollection(vector<PndTrackCollection> c
 	Int_t trackNum = 0;
 	Int_t hitNum = 0;
 	TVector3 v(1, 1, 1);
-	for(int k=0;k<coll.size();k++){
+	for(size_t k=0;k<coll.size();k++){
 		PndTrackCollection c = coll[k];
 		if(withOrgHits){
-			PndTrack* myCand = new ((*fFinalSolution)[trackNum++]) PndTrack(c.getPndTrack(fOriginalHits));
+			new ((*fFinalSolution)[trackNum++]) PndTrack(c.getPndTrack(fOriginalHits));//PndTrack* myCand =  //[R.K.03/2017] unused variable
 		} else {
 			vector<PndLineApproximation> *approx = c.getLines();
-			for(int i=0;i<approx->size();i++){
+			for(size_t i=0;i<approx->size();i++){
 				PndLineApproximation a = (*approx)[i];
 				PndTrackCand trackCand;
-				for(int j=0;j<a.getHits().size();j++){
+				for(size_t j=0;j<a.getHits().size();j++){
 					PndFtsHit* hit = a.getHits()[j];
 					hit->SetEntryNr(FairLink(-1, fIoman->GetEntryNr(),fIoman->GetBranchId("TrackCollectionHits"),hitNum));
-					PndFtsHit* myHit = new ((*fTrackCollectionHits)[hitNum++]) PndFtsHit(*hit);
+					new ((*fTrackCollectionHits)[hitNum++]) PndFtsHit(*hit);//PndFtsHit* myHit =  //[R.K.03/2017] unused variable
 					trackCand.AddHit(hit->GetEntryNr(), j);
 				}
 				FairTrackParP tp1(a.getLine().getP1(),3 * a.getLine().getDir().Unit(), v, v, 1, v, v, v);
 				FairTrackParP tp2(v, 2 * v, v, v, 1, v, v, v);
-				PndTrack* myCand = new ((*fTrackCollection)[trackNum++]) PndTrack(tp1, tp2, trackCand);
+				new ((*fTrackCollection)[trackNum++]) PndTrack(tp1, tp2, trackCand);//PndTrack* myCand =  //[R.K.03/2017] unused variable
 			}
 			FairTrackParP tp1(c.getCurrLine().getP1(),3 * c.getCurrLine().getDir().Unit(), v, v, 1, v, v, v);
 			FairTrackParP tp2(v, 2 * v, v, v, 1, v, v, v);
 			PndTrackCand  trackCand;
-			PndTrack* myCand = new ((*fTrackCollection)[trackNum++]) PndTrack(tp1, tp2, trackCand);
+			new ((*fTrackCollection)[trackNum++]) PndTrack(tp1, tp2, trackCand);//PndTrack* myCand =  //[R.K.03/2017] unused variable
 		}
 	}
 }
 
 void PndForwardTrackFinderTask::createStatictcs(vector<PndTrackCollection> c,vector<PndLineApproximation> a){
 	PndFtsLineComparator comparator(0,0);
-	for(int i=0;i<c.size();i++){
+	for(size_t i=0;i<c.size();i++){
 		PndTrackCollection coll = c[i];
 		PndLineApproximation appr = getBest(coll,a);
 		if(appr.getLine().getRating()==-1) continue;
@@ -273,7 +273,7 @@ void PndForwardTrackFinderTask::createStatictcs(vector<PndTrackCollection> c,vec
 
 PndLineApproximation PndForwardTrackFinderTask::getBest(PndTrackCollection &c,vector<PndLineApproximation> a){
 	Int_t mc = getMcId(c.getHits());
-	for(int i=0;i<a.size();i++){
+	for(size_t i=0;i<a.size();i++){
 		Int_t mc2 = getMcId(a[i].getHits());
 		if(mc==mc2) return a[i];
 	}
@@ -285,7 +285,7 @@ PndLineApproximation PndForwardTrackFinderTask::getBest(PndTrackCollection &c,ve
 Int_t PndForwardTrackFinderTask::getMcId(vector<PndFtsHit*> hits){
 	Int_t mcTrackBranchId = fIoman->GetBranchId("MCTrack");
 	vector<Int_t> trackIDs;
-	for(int i=0;i<hits.size();i++){
+	for(size_t i=0;i<hits.size();i++){
 		PndFtsHit* hit = fOriginalHits[hits[i]->GetTubeID()];
 		FairLink link = hit->GetEntryNr();
 		PndFtsPoint* p = (PndFtsPoint*) fIoman->GetCloneOfLinkData(link);
@@ -297,7 +297,7 @@ Int_t PndForwardTrackFinderTask::getMcId(vector<PndFtsHit*> hits){
 	Int_t maxID = 0;
 	Int_t maxVal = -1;
 	map<Int_t,Int_t> m;
-	for(int i=0;i<trackIDs.size();i++){
+	for(size_t i=0;i<trackIDs.size();i++){
 		m[trackIDs[i]]++;
 		if(m[trackIDs[i]] > maxVal){
 			maxVal = m[trackIDs[i]];

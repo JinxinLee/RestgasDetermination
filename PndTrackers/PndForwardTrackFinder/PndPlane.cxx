@@ -46,7 +46,7 @@ PndLine PndPlane::getIntersection(PndPlane &p){
 	//swap rows
 	if(arr[0][0]==0){
 		for(int i=0;i<3;i++){
-			Double_t temp = arr[0][i];
+			//Double_t temp = arr[0][i]; //[R.K.03/2017] unused variable
 			arr[0][i]=arr[1][i];
 			arr[1][i]=arr[0][i];
 		}

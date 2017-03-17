@@ -35,7 +35,7 @@ vector<PndLineApproximation> PndTrackCombiner::combine(Int_t bigLayer){
 	//new implementation
 	vector<PndLineCombination> combindedLines;
 	//add the tracks of the first layer
-	for(int i=0;i<arr[0].size();i++){
+	for(size_t i=0;i<arr[0].size();i++){
 		PndLineApproximation newApprox(arr[0][i]);
 		combindedLines.push_back(newApprox);
 	}
@@ -45,14 +45,14 @@ vector<PndLineApproximation> PndTrackCombiner::combine(Int_t bigLayer){
 		vector<PndLineApproximation> lines = arr[i];
 		fComparator.setZValue(ftsPos[bigLayer]+5*i);
 		Int_t maxVal = combindedLines.size(); //tracks in layers before -> no combination in same layer
-		for(int j=0;j<lines.size();j++){
+		for(size_t j=0;j<lines.size();j++){
 			addLine(combindedLines,lines[j],maxVal);
 		}
 		refitLines(combindedLines);
 	}
 	//get all lines with a high quality
 	vector<PndLineApproximation> result;
-	for(int i=0;i<combindedLines.size();i++){
+	for(size_t i=0;i<combindedLines.size();i++){
 		PndLineCombination combi = combindedLines[i];
 		PndLineApproximation approx = combi.getApprox1();
 		if(approx.getLine().getRating()>2){
@@ -63,11 +63,11 @@ vector<PndLineApproximation> PndTrackCombiner::combine(Int_t bigLayer){
 	vector<PndLineApproximation> result2;
 	fComparator.setZValue(ftsPos[bigLayer]);
 	Bool_t used[result.size()];
-	for(int i=0;i<result.size();i++)used[i]=kFALSE;
-	for(int i=0;i<result.size();i++){
+	for(size_t i=0;i<result.size();i++)used[i]=kFALSE;
+	for(size_t i=0;i<result.size();i++){
 		if(used[i])continue;
 		PndLineApproximation a = result[i];
-		for(int j=i+1;j<result.size();j++){
+		for(size_t j=i+1;j<result.size();j++){
 			if(used[j])continue;
 			PndLineApproximation b = result[j];
 			if(fComparator.areEqual2D(a.getLine(),b.getLine())){
@@ -84,10 +84,10 @@ vector<PndLineApproximation> PndTrackCombiner::combine(Int_t bigLayer){
 vector<PndLineApproximation> PndTrackCombiner::combine
 		(vector<PndFtsExpandedTrackCand> cands1, vector<PndFtsExpandedTrackCand> cands2, Int_t layer1, Int_t layer2){
 	vector<PndLineApproximation> result;
-	for(int i=0;i<cands1.size();i++){
+	for(size_t i=0;i<cands1.size();i++){
 		Int_t resultSizeBefore = result.size();
 		PndFtsExpandedTrackCand cand1 = cands1[i];
-		for(int j=0;j<cands2.size();j++){
+		for(size_t j=0;j<cands2.size();j++){
 			PndFtsExpandedTrackCand cand2 = cands2[j];
 			vector<PndLineApproximation> lines = combine(cand1,cand2,layer1,layer2);
 			result.insert(result.begin(),lines.begin(),lines.end());
@@ -107,8 +107,8 @@ vector<PndLineApproximation> PndTrackCombiner::combine(PndFtsExpandedTrackCand c
 	vector<PndLineApproximation> approx1 = c1.getLineApproximations();
 	vector<PndLineApproximation> approx2 = c2.getLineApproximations();
 	vector<PndLineApproximation> result;
-	for(int i=0;i<approx1.size();i++){
-		for(int j=0;j<approx2.size();j++){
+	for(size_t i=0;i<approx1.size();i++){
+		for(size_t j=0;j<approx2.size();j++){
 			PndLine line1 = approx1[i].getLine();
 			PndLine line2 = approx2[j].getLine();
 			PndPlane p1(line1,layer1);
@@ -151,7 +151,7 @@ void PndTrackCombiner::addLine(vector<PndLineCombination> &lines, PndLineApproxi
 }
 
 void PndTrackCombiner::refitLines(vector<PndLineCombination> &lines){
-	for(int i=0;i<lines.size();i++){
+	for(size_t i=0;i<lines.size();i++){
 		PndLineApproximation *a2 = lines[i].getApprox2();
 		if(a2!=0){
 			PndLineApproximation a1 = lines[i].getApprox1();
@@ -179,11 +179,11 @@ vector<PndFtsExpandedTrackCand> PndTrackCombiner::compareAndRefit(Int_t layer1, 
 	vector<PndFtsExpandedTrackCand> cands2 = fExpandedTrackCands[layer2];
 	vector<PndFtsExpandedTrackCand> result;
 	Bool_t used2[cands2.size()]; //second cand is used
-	for(int j=0;j<cands2.size();j++)used2[j]=kFALSE;
+	for(size_t j=0;j<cands2.size();j++)used2[j]=kFALSE;
 
-	for(int i=0;i<cands1.size();i++){
+	for(size_t i=0;i<cands1.size();i++){
 		Bool_t used = kFALSE;
-		for(int j=0;j<cands2.size();j++){
+		for(size_t j=0;j<cands2.size();j++){
 			PndFtsExpandedTrackCand cand1 = cands1[i];
 			PndFtsExpandedTrackCand cand2 = cands2[j];
 			vector<PndLineApproximation> a1 = cand1.getLineApproximations();
@@ -197,7 +197,7 @@ vector<PndFtsExpandedTrackCand> PndTrackCombiner::compareAndRefit(Int_t layer1, 
 		}
 		if(!used)result.push_back(cands1[i]);
 	}
-	for(int j=0;j<cands2.size();j++){
+	for(size_t j=0;j<cands2.size();j++){
 		if(!used2[j])result.push_back(cands2[j]);
 	}
 	return result;
@@ -206,11 +206,11 @@ vector<PndFtsExpandedTrackCand> PndTrackCombiner::compareAndRefit(Int_t layer1, 
 vector<PndLineApproximation> PndTrackCombiner::compareAndRefit
 		(vector<PndLineApproximation> l1, vector<PndLineApproximation> l2){
 	vector<PndLineApproximation> result;
-	for(int i=0;i<l1.size();i++){
+	for(size_t i=0;i<l1.size();i++){
 		PndLineApproximation approx1 = l1[i];
 		PndLine line1 = approx1.getLine();
 		fComparator.setZValue(line1.getP1()[2]);
-		for(int j=0;j<l2.size();j++){
+		for(size_t j=0;j<l2.size();j++){
 			PndLineApproximation approx2 = l2[j];
 			PndLine line2 = approx2.getLine();
 			if(fComparator.areEqual2D(line1,line2)){

@@ -25,8 +25,8 @@ public:
 	PndTrack getPndTrack(map<Int_t,PndFtsHit*> orgHits);
 	vector<PndFtsHit*> getHits(){
 		vector<PndFtsHit*> result;
-		for(int i=0;i<fLines->size();i++){
-			for(int j=0;j<(*fLines)[i].getHits().size();j++){
+		for(size_t i=0;i<fLines->size();i++){
+			for(size_t j=0;j<(*fLines)[i].getHits().size();j++){
 				result.push_back((*fLines)[i].getHits()[j]);
 			}
 		}

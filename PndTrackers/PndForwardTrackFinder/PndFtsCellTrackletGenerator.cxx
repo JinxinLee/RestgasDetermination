@@ -60,7 +60,7 @@ void PndFtsCellTrackletGenerator::findTracks(map<Int_t, vector<PndFtsHit*>> spli
 map<Int_t, vector<PndFtsHit*>> PndFtsCellTrackletGenerator::splitLayers(
 		vector<PndFtsHit*> hits) {
 	map<Int_t, vector<PndFtsHit*>> map;
-	for (int i = 0; i < hits.size(); i++) {
+	for (size_t i = 0; i < hits.size(); i++) {
 		PndFtsHit* hit = fHits[i];
 		map[(hit->GetLayerID() - 1) / 2].push_back(hit);
 	}
@@ -69,13 +69,13 @@ map<Int_t, vector<PndFtsHit*>> PndFtsCellTrackletGenerator::splitLayers(
 
 map<Int_t, PndTrackCand> PndFtsCellTrackletGenerator::FindTracklets(
 		vector<PndFtsHit*> hits) {
-	typedef std::map<Int_t, vector<Int_t> >::iterator it_type;
+	//typedef std::map<Int_t, vector<Int_t> >::iterator it_type; //[R.K.03/2017] unused typedef
 	typedef std::map<Int_t, Int_t>::iterator it_type2;
 	map<Int_t, Int_t> states;
 	map<Int_t, PndFtsHit*> hitMap;
 	map<Int_t, vector<Int_t> > neighbors = getNeighbors(hits);
 	//create state Map
-	for (int i = 0; i < hits.size(); i++) {
+	for (size_t i = 0; i < hits.size(); i++) {
 		PndFtsHit* hit = hits[i];
 		states[hit->GetTubeID()] = hit->GetTubeID();
 		hitMap[hit->GetTubeID()] = hit;
@@ -89,7 +89,7 @@ map<Int_t, PndTrackCand> PndFtsCellTrackletGenerator::FindTracklets(
 		for (it_type2 it = states.begin(); it != states.end(); it++) {
 			//for all neighbors
 			vector<int> hitNeighbors = neighbors[it->second];
-			for (int i = 0; i < hitNeighbors.size(); i++) {
+			for (size_t i = 0; i < hitNeighbors.size(); i++) {
 				Int_t state1 = states[it->first];
 				Int_t state2 = states[hitNeighbors[i]];
 				if (state1 != state2) {
@@ -115,10 +115,10 @@ map<Int_t, PndTrackCand> PndFtsCellTrackletGenerator::FindTracklets(
 map<Int_t, vector<Int_t> > PndFtsCellTrackletGenerator::getNeighbors(
 		vector<PndFtsHit*> hits) {
 	map<Int_t, vector<Int_t> > neighbors;
-	for (int i = 0; i < hits.size(); i++) {
+	for (size_t i = 0; i < hits.size(); i++) {
 		PndFtsHit* hit1 = hits[i];
 		transform(kTRUE,hit1);
-		for (int j = i + 1; j < hits.size(); j++) {
+		for (size_t j = i + 1; j < hits.size(); j++) {
 			PndFtsHit* hit2 = hits[j];
 			transform(kTRUE,hit2);
 			TVector3 p1;

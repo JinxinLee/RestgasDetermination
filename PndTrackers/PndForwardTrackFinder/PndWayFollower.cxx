@@ -26,7 +26,7 @@ vector<PndTrackCollection> PndWayFollower::followLines(Int_t begin){
 	}*/
 
 
-	for(int i=0;i<fBefore.size();i++){
+	for(size_t i=0;i<fBefore.size();i++){
 		cout << "Follow Track " << i << endl;
 		PndTrackCollection trackCollection;
 		PndLineApproximation a = fBefore[i];
@@ -80,9 +80,9 @@ PndLineApproximation PndWayFollower::getBestApproxTo(PndLine l1, Int_t layer){
 	bestApprox.getLine().setRating(-1);
 	Double_t bestDist = 99999999;
 
-	for(int i=0;i<layerCands.size();i++){
+	for(size_t i=0;i<layerCands.size();i++){
 		vector<PndLineApproximation> approxs = layerCands[i].getLineApproximations();
-		for(int j=0;j<approxs.size();j++){
+		for(size_t j=0;j<approxs.size();j++){
 			PndLineApproximation approx = approxs[j];
 			fLineComp.setZValue(approx.getHits()[0]->GetZ()-20);
 			PndLine l2 = approx.getLine();
@@ -116,9 +116,9 @@ PndLineApproximation PndWayFollower::getBestSkewedApproxTo(PndLine l1, Int_t lay
 	bestApprox.getLine().setRating(-1);
 	Double_t bestDist = 99999999;
 
-	for(int i=0;i<layerCands.size();i++){
+	for(size_t i=0;i<layerCands.size();i++){
 		vector<PndLineApproximation> approxs = layerCands[i].getLineApproximations();
-		for(int j=0;j<approxs.size();j++){
+		for(size_t j=0;j<approxs.size();j++){
 			PndLineApproximation approx = approxs[j];
 			fLineComp.setZValue(approx.getHits()[0]->GetZ());
 			PndPlane p2(approx.getLine(),layer);

@@ -20,13 +20,13 @@ vector<PndLineApproximation> PndModuleCombiner::combineModules(vector<PndLineApp
 	Bool_t usedM1[m1.size()];
 	Bool_t usedM2[m2.size()];
 	//init
-	for(int i=0;i<m1.size();i++) usedM1[i]=kFALSE;
-	for(int i=0;i<m2.size();i++) usedM2[i]=kFALSE;
+	for(size_t i=0;i<m1.size();i++) usedM1[i]=kFALSE;
+	for(size_t i=0;i<m2.size();i++) usedM2[i]=kFALSE;
 	//combine
-	for(int i=0;i<m1.size();i++){
+	for(size_t i=0;i<m1.size();i++){
 		PndLineApproximation a1 = m1[i];
 		PndLine l1 = a1.getLine();
-		for(int j=0;j<m2.size();j++){
+		for(size_t j=0;j<m2.size();j++){
 			PndLineApproximation a2 = m2[j];
 			PndLine l2 = a2.getLine();
 			Double_t zVal = (l1.getP1()[2]+l2.getP1()[2])/2;
@@ -40,26 +40,26 @@ vector<PndLineApproximation> PndModuleCombiner::combineModules(vector<PndLineApp
 		}
 	}
 	//add not used tracks
-	for(int i=0;i<m1.size();i++){
+	for(size_t i=0;i<m1.size();i++){
 		if(!usedM1[i]) result.push_back(m1[i]);
 	}
-	for(int i=0;i<m2.size();i++){
+	for(size_t i=0;i<m2.size();i++){
 		if(!usedM2[i]) result.push_back(m2[i]);
 	}
 	return result;
 }
 
 void PndModuleCombiner::combineModules(vector<PndTrackCollection> &c,vector<PndLineApproximation> a){
-	Bool_t used[a.size()];
-	for(int i=0;i<c.size();i++){
+	//Bool_t used[a.size()]; //unused?
+	for(size_t i=0;i<c.size();i++){
 		PndTrackCollection coll = c[i];
 		PndLine l1 = coll.getLastLine();
 
 		PndLineApproximation best;
 		best.getLine().setRating(-1);
 		Double_t bestVal = 999999999999;
-		Int_t index;
-		for(int j=0;j<a.size();j++){
+		//Int_t index; //unused?
+		for(size_t j=0;j<a.size();j++){
 			PndLineApproximation approx = a[j];
 			PndLine l2 = approx.getLine();
 			Double_t zVal = (l1.getP1()[2]+l2.getP1()[2])/2;
@@ -68,7 +68,7 @@ void PndModuleCombiner::combineModules(vector<PndTrackCollection> &c,vector<PndL
 			if(quali<bestVal){
 				bestVal = quali;
 				best = approx;
-				index = j;
+				//index = j; //unused?
 			}
 		}
 		/*PndLine l2 = best.getLine();
@@ -78,7 +78,7 @@ void PndModuleCombiner::combineModules(vector<PndTrackCollection> &c,vector<PndL
 			coll.add(best,best.HasYInfo());*/
 		if(bestVal<8000){
 			coll.add(best,best.HasYInfo());
-			used[index] = kTRUE;
+			//used[index] = kTRUE; //unused?
 		}
 	}
 	//add unused
@@ -92,20 +92,20 @@ void PndModuleCombiner::combineModules(vector<PndTrackCollection> &c,vector<PndL
 }
 
 void PndModuleCombiner::addUnusedHits(vector<PndFtsHit*> hits,vector<PndTrackCollection> &c){
-	for(int i=0;i<c.size();i++){
+	for(size_t i=0;i<c.size();i++){
 		//get all unused hits
 		vector<PndFtsHit*> unused;
 		vector<PndFtsHit*> collectionHits = c[i].getHits();
-		for(int j=0;j<hits.size();j++){
+		for(size_t j=0;j<hits.size();j++){
 			Bool_t inUse = kFALSE;
-			for(int k=0;k<collectionHits.size();k++){
+			for(size_t k=0;k<collectionHits.size();k++){
 				if(collectionHits[k]->GetTubeID()==hits[j]->GetTubeID())
 					inUse = kTRUE;
 			}
 			if(!inUse) unused.push_back(hits[j]);
 		}
 		//check all unused hits
-		for(int j=0;j<unused.size();j++){
+		for(size_t j=0;j<unused.size();j++){
 			Int_t layer = (unused[j]->GetLayerID()-1)/2;
 			TVector3 pos;
 			unused[j]->Position(pos);

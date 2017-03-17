@@ -22,7 +22,7 @@ using namespace std;
 
 class PndLineApproximation {
 public:
-	PndLineApproximation(vector<PndFtsHit*> hits) : fCorrectedHits(hits), fLineApprox(linearRegression(hits)), hasYInfo(kTRUE){}
+	PndLineApproximation(vector<PndFtsHit*> hits) : fLineApprox(linearRegression(hits)), fCorrectedHits(hits), hasYInfo(kTRUE){}
 	PndLineApproximation(){}
 	PndLineApproximation(PndLine lineApprox, vector<PndFtsHit*> correctedHits)
 		:fLineApprox(lineApprox),fCorrectedHits(correctedHits) {}
