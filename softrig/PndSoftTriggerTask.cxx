@@ -138,11 +138,11 @@ PndSoftTriggerTask::PndSoftTriggerTask(double pmom, int mode, int runnum, TStrin
 	fIniP4(0,0,0,0), fEcm(0.), fPbarMom(pmom),
 	fQAPi0(false),fQAEta(false),fQAKs0(false),fQAEvent(false), fQAMc(false), fQAMctOnly(false),
 	fGammaMinE(0.03), fPi0MinE(0.0), fEtaMinE(0.0), fTrackMinP(0.15), fIniPidCut(0.0),
-	fEventShape(NULL), 
-	fQA(NULL),
 	fPi0Sel(NULL), fEtaSel(NULL), fKs0Sel(NULL),
 	fMomentumSel(NULL), fEnergySel(NULL),
-	ntp(0),	nks0(0), npi0(0), neta(0), nmc(0)	
+	ntp(0),	nks0(0), npi0(0), neta(0), nmc(0), 
+	fEventShape(NULL),
+	fQA(NULL)	
 {
 	fPdg = TDatabasePDG::Instance();
 	

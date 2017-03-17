@@ -994,7 +994,7 @@ Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 
 	//create matrix and clean up
 	Matrix result(4,4,finalMatrix);
-	delete homogenousMatrix, finalMatrix;
+	delete homogenousMatrix; delete finalMatrix;
 	return result;
 
 }

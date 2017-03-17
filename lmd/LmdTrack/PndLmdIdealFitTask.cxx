@@ -139,7 +139,7 @@ void PndLmdIdealFitTask::Exec(Option_t* opt)
   if(fVerbose>1)std::cout<<" -I- PndLmdLinFitTask: contains "<<ntcand<<" RhoCandidates"<<std::endl;
   if(fVerbose>2){
     std::cout<< " Detailed Debug info on the candidates:"<<std::endl;
-    unsigned int detid=12345, index=12345;
+    unsigned int index=12345; //detid=12345,  //[R.K.03/2017] unused variable
     for(Int_t itr=0;itr<ntcand;++itr){
       PndTrackCand* trcnd = (PndTrackCand*)fTCandArray->At(itr);
       std::cout<< "TrackCand no. "<<itr<<" has "<<trcnd->GetNHits()<<" hits."<<std::endl;
@@ -147,7 +147,7 @@ void PndLmdIdealFitTask::Exec(Option_t* opt)
       for(unsigned int ihit=0; ihit<trcnd->GetNHits(); ihit++){ //fill Graph
         PndTrackCandHit theHit = trcnd->GetSortedHit(ihit); //get hit
         index = theHit.GetHitId();
-        detid = theHit.GetDetId();
+        //detid = theHit.GetDetId(); //[R.K.03/2017] unused variable
         std::cout << ihit << "\t" << index <<std::endl;
       }
     }

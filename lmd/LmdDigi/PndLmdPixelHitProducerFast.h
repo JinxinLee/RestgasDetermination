@@ -62,10 +62,10 @@ class PndLmdPixelHitProducerFast : public PndSdsTask
   
 protected:
 
+  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   Double_t fPixelSizeX; //to round MC-Hit x-position
   Double_t fPixelSizeY; //to round MC-Hit y-position
   
-  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   
   /** Input array of PndSdsMCPoints **/
   TClonesArray* fPointArray;

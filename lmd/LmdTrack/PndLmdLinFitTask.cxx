@@ -199,7 +199,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
   if(fVerbose>1)std::cout<<" -I- PndLmdLinFitTask: contains "<<ntcand<<" RhoCandidates"<<std::endl;
   if(fVerbose>2){
     std::cout<< " Detailed Debug info on the candidates:"<<std::endl;
-    unsigned int detid=12345, index=12345;
+    unsigned int index=12345; //detid=12345,  //[R.K.03/2017] unused variable
     for(Int_t itr=0;itr<ntcand;++itr){
       PndTrackCand* trcnd = (PndTrackCand*)fTCandArray->At(itr);
       std::cout<< "TrackCand no. "<<itr<<" has "<<trcnd->GetNHits()<<" hits."<<std::endl;
@@ -207,7 +207,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
       for(unsigned int ihit=0; ihit<trcnd->GetNHits(); ihit++){ //fill Graph
         PndTrackCandHit theHit = trcnd->GetSortedHit(ihit); //get hit
         index = theHit.GetHitId();
-        detid = theHit.GetDetId();
+        //detid = theHit.GetDetId(); //[R.K.03/2017] unused variable
         std::cout << ihit << "\t" << index <<std::endl;
       }
     }
@@ -230,7 +230,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
    
 
     TGraph2DErrors fitme(numPts); //new graph for fitting
-    Int_t firstHit=-1, lastHit=-1;
+    //Int_t firstHit=-1, lastHit=-1; //[R.K.03/2017] unused variable
     TVector3 hit0,hit1;
     for(int ihit=0; ihit<numPts; ihit++){ //fill Graph
       PndTrackCandHit theHit = trcnd->GetSortedHit(ihit); //get hit
@@ -249,7 +249,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
       //      lmddim->Transform_global_to_lmd_local(xhit,yhit,zhit,false);
       // TVector3 addPos2(xhit,yhit,zhit);
       if(ihit==0){
-         firstHit=index;
+         //firstHit=index; //[R.K.03/2017] unused variable
 	 hit0 = addPos;
       }
       else{
@@ -257,7 +257,7 @@ void PndLmdLinFitTask::Exec(Option_t* opt)
 	//	if(ihit==1) 	  hit1 = addPos;
 	//	if(ihit==numPts-1) 	  hit1 = addPos;
 	if(ihit==numPts-1){
-          lastHit=index;
+          //lastHit=index; //[R.K.03/2017] unused variable
 	  //	  hit1 = addPos2;
 	}
       }
@@ -580,11 +580,11 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSee
    if(fVerbose>1)
      min->PrintResults(1,amin);
 
-   Double_t fitparerr[6];
+   //Double_t fitparerr[6]; //[R.K.03/2017] unused variable
    // get fit parameters
    for (int i = 0; i <6; ++i){
       fitpar[i] = min->GetParameter(i); 
-      fitparerr[i] = min->GetParError(i);
+      //fitparerr[i] = min->GetParError(i); //[R.K.03/2017] unused variable
    }
   
    if((fitpar[1]*fitpar[1]+fitpar[3]*fitpar[3])<1.){
@@ -747,11 +747,11 @@ double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posS
   //   fmin->PrintResults(1,amin);
   // }
   
-   Double_t fitparerr[nparams];
+   //Double_t fitparerr[nparams]; //[R.K.03/2017] unused variable
    // get fit parameters
    for (int i = 0; i <nparams; ++i){
       fitpar[i] = fmin->GetParameter(i); 
-      fitparerr[i] = fmin->GetParError(i);
+      //fitparerr[i] = fmin->GetParError(i); //[R.K.03/2017] unused variable
    }
   
   

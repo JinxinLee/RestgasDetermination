@@ -208,13 +208,13 @@ public:
   Double_t fXmc,fYmc,fZmc,fThetamc,fPhimc, fMommc;
   Double_t fXmcLMD,fYmcLMD,fZmcLMD,fThetamcLMD,fPhimcLMD, fMommcLMD;
   Double_t fchi2LMD;
-  int fnumMChits;//number of MC hits for MC trk
-  int fnumMCdoublehits;//number of doubled [diff side of one plane] MC hits for MC trk 
   int fTrkRecStatus;// 0 = good,
-                              // >0 = ghost: 1 = hit mixture, 2 = doubled trk
-                              // <0 = missed: -1=trk-search losses,-2=little amount of hits,-3=no MC hits, -10=trk wasn't back-propag
   int fSecondary;//0=primary, 1=secondary
   int fPDGcode;// PDG code particle made the main contribution (65 % of hits) to the rec.track, -9999=n/a
+  int fnumMChits;//number of MC hits for MC trk
+  int fnumMCdoublehits;//number of doubled [diff side of one plane] MC hits for MC trk 
+                              // >0 = ghost: 1 = hit mixture, 2 = doubled trk
+                              // <0 = missed: -1=trk-search losses,-2=little amount of hits,-3=no MC hits, -10=trk wasn't back-propag
   double fEvTime;//global time for event
   double fTrkTime;//time for 1st hit in the Trk = ToF (flight time from IP to LMD)
 

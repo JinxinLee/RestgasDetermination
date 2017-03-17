@@ -116,8 +116,8 @@ void PndLmdPixelHitProducerFast::Exec(Option_t* opt)
   PndSdsMCPoint *point = 0;
 
   Int_t
-    detID = 0,       // Detector ID
-    trackID = 0;     // Track index
+    detID = 0;       // Detector ID
+    //trackID = 0;     // Track index //[R.K.03/2017] unused variable
 
   TVector3
     pos, dpos;       // Position and error vectors
@@ -137,7 +137,7 @@ void PndLmdPixelHitProducerFast::Exec(Option_t* opt)
       detID = point->GetDetectorID();
 
       // MCTrack ID
-      trackID = point->GetTrackID();
+      //trackID = point->GetTrackID(); //[R.K.03/2017] unused variable
 
      TVector3
 	position(fPixelSizeX*TMath::Nint(point->GetX()/fPixelSizeX), fPixelSizeY*TMath::Nint(point->GetY()/fPixelSizeY), point->GetZ());

@@ -638,15 +638,15 @@ void PndLmdSensorAligner::addSimplePairOld(PndLmdHitPair &pair){
 
 void PndLmdSensorAligner::printAllPairs() {
 
-	double avgID1 =0;
-	double avgID2 =0;
+	//double avgID1 =0; //[R.K.03/2017] unused variable
+	//double avgID2 =0; //[R.K.03/2017] unused variable
 	double avgDist=0;
-	double avgHit1x=0;
-	double avgHit1y=0;
-	double avgHit1z=0;
-	double avgHit2x=0;
-	double avgHit2y=0;
-	double avgHit2z=0;
+	//double avgHit1x=0; //[R.K.03/2017] unused variable
+	//double avgHit1y=0; //[R.K.03/2017] unused variable
+	//double avgHit1z=0; //[R.K.03/2017] unused variable
+	//double avgHit2x=0; //[R.K.03/2017] unused variable
+	//double avgHit2y=0; //[R.K.03/2017] unused variable
+	//double avgHit2z=0; //[R.K.03/2017] unused variable
 
 	cout << "pairs simple: " << _simpleStorage << "\n";
 	cout << "number of pairs normal: " << pairs.size() << ", number of simple pairs: " << simpleSensorOneX.size() << "\n";
@@ -815,7 +815,7 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 		return false;
 	os.write(reinterpret_cast<const char*>(pdata), std::streamsize(length*sizeof(double)));
 	os.close();
-	delete[] pdata, header;
+	delete[] pdata; delete[] header;
 	return true;
 }
 

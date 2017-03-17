@@ -348,7 +348,7 @@ void PndLmdPixelClusterTask::Exec(Option_t* opt)
       }
       TClonesArray& clref = *fHitArray;
       Int_t size = clref.GetEntriesFast();
-      PndSdsHit *freshHit = new(clref[size]) PndSdsHit(myHit);
+      new(clref[size]) PndSdsHit(myHit); //PndSdsHit *freshHit =  //[R.K.03/2017] unused variable
       //myHit.Delete();
       //      myHit.Clear();
       //      std::cout<<"fHitArray.size() = "<<sizeof(*fHitArray)<<std::endl;

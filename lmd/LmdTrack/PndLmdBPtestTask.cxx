@@ -581,7 +581,7 @@ void PndLmdBPtestTask::Exec(Option_t* opt)
 	fPro->SetPoint(vtx);
 	fPro->PropagateToPCA(1,-1);// back-propagate to point
 	FairTrackParH *fResMCLMD = new FairTrackParH();
-	Bool_t isPropMC = fPro->Propagate(fStartMClmd, fResMCLMD, PDGCode);
+	fPro->Propagate(fStartMClmd, fResMCLMD, PDGCode);//Bool_t isPropMC =  //[R.K.03/2017] unused variable
 	TVector3 gPosMC(fResMCLMD->GetX(),fResMCLMD->GetY(),fResMCLMD->GetZ());
 	TVector3 gMomMC(fResMCLMD->GetPx(),fResMCLMD->GetPy(),fResMCLMD->GetPz());
 	fxmclmd = gPosMC.X();

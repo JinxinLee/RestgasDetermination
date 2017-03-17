@@ -197,7 +197,7 @@ InitStatus LmdPairFinderTask::Init() {
 	noOfGoodPairs=0;
 	noOfEvents=noOfCombos=0;
 	hitsClustered=distanceTooHigh=0;
-	hitsSinglePixel=hitsSinglePixel=0;
+	hitsSinglePixel=0;hitsSinglePixel=0;
 	unsuitable=sumOfPixelHits=0;
 	eventMissedAllPlanes=noOverlap=0;
 	plane0=plane1=plane2=plane3=0;
@@ -280,7 +280,7 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 		row = mcPixel->GetPixelRow();
 
 		//skip decoding errors
-		if(col < 0 | row < 0){
+		if(col < 0 || row < 0){ //FIXME this expression was 'col < 0 | row < 0' and caused a warning
 			continue;
 		}
 		else{
@@ -370,8 +370,8 @@ void LmdPairFinderTask::Exec(Option_t* opt) {
 	Double_t col1, col2, row1, row2;
 	Int_t id1, id2;
 	Int_t storedPairsPerEvent=0;
-	Int_t moduleId;
-	Int_t storedForBranch;
+	//Int_t moduleId; //[R.K.03/2017] unused variable
+	//Int_t storedForBranch; //[R.K.03/2017] unused variable
 
 	//try every cluster combination and check
 	for(size_t i=0; i<clusters.size(); i++){
