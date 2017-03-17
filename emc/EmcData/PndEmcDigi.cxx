@@ -200,7 +200,7 @@ double PndEmcDigi::fPositionDepthShashlyk = 20.9;
 
 bool PndEmcDigi::isNeighbour( const PndEmcDigi* theDigi ) const
 {
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(); //FIXME: unused variable?
+	PndEmcMapper::Instance(); //: unused variable?PndEmcMapper *emcMap= //[R.K.03/2017] unused variable
 	PndEmcTwoCoordIndex* tci=this->GetTCI();
 
 	if ((theDigi->GetTCI()==0)||(tci==0)){

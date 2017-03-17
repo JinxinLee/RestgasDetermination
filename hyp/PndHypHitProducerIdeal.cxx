@@ -83,8 +83,8 @@ void PndHypHitProducerIdeal::Exec(Option_t* opt)
   PndHypPoint *point = 0;
 
   Int_t 
-    detID = 0,       // Detector ID
-    trackID = 0;     // Track index
+    detID = 0;       // Detector ID
+    //trackID = 0;     // Track index //[R.K.03/2017] unused variable
 
   TVector3 
     dpos;       // Position and error vectors
@@ -104,7 +104,7 @@ void PndHypHitProducerIdeal::Exec(Option_t* opt)
       detID = point->GetVolumeID();
 
       // MCTrack ID
-      trackID = point->GetTrackID();
+      //trackID = point->GetTrackID(); //[R.K.03/2017] unused variable
 
       TVector3 position(point->GetXin(), point->GetYin(), point->GetZin());
       //point->Position(pos);

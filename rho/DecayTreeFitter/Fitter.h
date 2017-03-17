@@ -87,7 +87,7 @@ namespace DecayTreeFitter
             RecoTrackStateProvider* extrapolator = 0        ,
             int verbosity = 0) ;
     /// destructor
-    ~Fitter() ;                                                   // destructor
+    virtual ~Fitter() ;                                           // destructor
     // ========================================================================
   public:
     // ========================================================================

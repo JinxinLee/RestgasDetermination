@@ -39,7 +39,7 @@ void PndMdt::ConstructGeometryFast()
 
   //General definitions
   TGeoVolume* mdt        = new TGeoVolumeAssembly("Mdt");
-  TGeoVolume* mdtMag     = new TGeoVolumeAssembly("MdtMag"); //FIXME [R.K. 03/2017] unused variable?
+  new TGeoVolumeAssembly("MdtMag"); //TGeoVolume* mdtMag     = // FIXME [R.K. 03/2017] unused variable?
   TGeoVolume* mdtBarrel  = new TGeoVolumeAssembly("MdtBarrel");
   TGeoVolume* mdtBL00    = new TGeoVolumeAssembly("MdtBarrelLayer00");
   TGeoVolume* mdtBL01    = new TGeoVolumeAssembly("MdtBarrelLayer01");
@@ -60,7 +60,7 @@ void PndMdt::ConstructGeometryFast()
   TGeoVolume* mdtEL02    = new TGeoVolumeAssembly("MdtEndcapLayer02");
   TGeoVolume* mdtEL03    = new TGeoVolumeAssembly("MdtEndcapLayer03");
   TGeoVolume* mdtEL04    = new TGeoVolumeAssembly("MdtEndcapLayer04");
-  TGeoVolume* mdtEL05    = new TGeoVolumeAssembly("MdtEndcapLayer05"); //FIXME [R.K. 03/2017] unused variable?
+  new TGeoVolumeAssembly("MdtEndcapLayer05"); //TGeoVolume* mdtEL05    = //FIXME [R.K. 03/2017] unused variable?
     
   //Additional definitions
   Text_t buffer[30];
@@ -78,7 +78,7 @@ void PndMdt::ConstructGeometryFast()
   FairGeoMedia *Media =  geoFace->getMedia();
   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
   FairGeoMedium *medmdtArCO2  = Media->getMedium("MDTMixture");
-  Int_t  kMedmdtArCO2=geobuild->createMedium(medmdtArCO2);
+  geobuild->createMedium(medmdtArCO2);// Int_t  kMedmdtArCO2= //[R.K.03/2017] unused variable
    
   //creating the holes
   new TGeoBBox("hbox1",((Double_t)PndMdt_H01_LengthX)/10.0,((Double_t)PndMdt_H01_LengthZ)/10.0,((Double_t)PndMdt_SVThickness+1.)/10.0,0);

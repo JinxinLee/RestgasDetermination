@@ -24,7 +24,7 @@
 class RhoEventShapes {
 public:
 	RhoEventShapes(RhoCandList &l, TLorentzVector cms);	
-	~RhoEventShapes(){};
+	virtual ~RhoEventShapes(){};
 
 	// ******* multiplicities
 	int NParticles() const {return fN;}			// number of particle candidates

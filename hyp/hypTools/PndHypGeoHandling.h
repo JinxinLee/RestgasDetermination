@@ -36,7 +36,7 @@ public:
   {if (aGeoMan == 0) std::cout << "-E- not a valid GeoManager" << std::endl;
    fGeoMan = aGeoMan;};
 
-    ~PndHypGeoHandling(){};
+   virtual ~PndHypGeoHandling(){};
   TString GetCurrentID(); ///< returns the ID of the current node
   TString GetID(TString path); ///< for a given TGeoManager-path the ID is returned
   TString GetPath(TString id); ///< for a given ID the path is returned

@@ -22,6 +22,7 @@ namespace DecayTreeFitter
   public:
     // constructor
     Projection(int dimP, int dimC) : m_matrixH(dimC,dimP),m_r(dimC),m_matrixV(dimC),m_offset(0),m_particle(0),m_nHidden(0) {}
+    virtual ~Projection(){};
 
     // accessors to the projection matrix
     const TMatrixD& H() const { return m_matrixH ; }

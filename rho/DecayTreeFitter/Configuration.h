@@ -22,6 +22,8 @@ namespace DecayTreeFitter
     m_useTrackTraj( true )
     {}
 
+    virtual ~Configuration(){};
+    
     const RecoTrackStateProvider* stateProvider() const { return m_stateprovider ; }
 
     bool useTrackTraj() const { return m_stateprovider && m_useTrackTraj ; }

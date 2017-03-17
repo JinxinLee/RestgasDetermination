@@ -238,8 +238,8 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
   // Declare some variables
   PndHypPoint *point = NULL;
   
-  Int_t detID = 0,       // Detector ID
-  trackID = 0;     // Track index
+  Int_t detID = 0;       // Detector ID
+  //trackID = 0;     // Track index //[R.K.03/2017] unused variable
   
   // Loop over PndHypPoints
   Int_t 
@@ -354,7 +354,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
 	    if (fVerbose > 0)
 	      std::cout  << "SensorStrips: top " << topStrips.size()<<std::endl;
 	    
-	    trackID = point->GetTrackID();
+	    //trackID = point->GetTrackID(); //[R.K.03/2017] unused variable
 	    detID   = point->GetVolumeID();
       
 	    //      for(uint i = 0; i < myStrips.size(); i++)
@@ -418,7 +418,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
       if (fVerbose > 1)
         std::cout  << "SensorStrips: bot " << botStrips.size()<<std::endl;
       
-      trackID = point->GetTrackID();
+      //trackID = point->GetTrackID(); //[R.K.03/2017] unused variable
       detID   = point->GetVolumeID();
       //uint iStrip = 0;
       //Int_t sp;SensorSide si; //[R.K. 01/2017] unused variable

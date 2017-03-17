@@ -20,6 +20,7 @@ class PndRangeValues
 public :
 	PndRangeValues(Double32_t start = 0, Double32_t stop = 0, Double32_t step = 1): fStart(start), fStop(stop), fStep(step), fActualValue(start)
 	{}
+  virtual ~PndRangeValues(){};
 	Double32_t fStart;
 	Double32_t fStop;
 	Double32_t fStep;

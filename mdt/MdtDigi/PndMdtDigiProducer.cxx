@@ -132,7 +132,7 @@ void PndMdtDigiProducer::Exec(Option_t* opt)
     if ((inPos-outPos).Mag()<0.2) continue; // skipped points
     
     meanPos = 0.5*(inPos+outPos);
-    TGeoNode *mdtNode = (TGeoNode*)gGeoManager->FindNode(meanPos.X(), meanPos.Y(), meanPos.Z());
+    gGeoManager->FindNode(meanPos.X(), meanPos.Y(), meanPos.Z()); // TGeoNode *mdtNode = (TGeoNode*) //[R.K.03/2017] unused variable
     TGeoMatrix *mdtMat = (TGeoMatrix*)gGeoManager->GetCurrentMatrix();
     const Double_t *matM = mdtMat->GetTranslation();
     TVector3 tubePos(matM[0], matM[1], matM[2]);

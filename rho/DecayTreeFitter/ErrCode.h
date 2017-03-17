@@ -29,6 +29,8 @@ namespace DecayTreeFitter
     ErrCode() : _flag(success) {}
 
     ErrCode(Status aflag) : _flag(aflag) {}
+    
+    virtual ~ErrCode(){};
 
     const ErrCode& operator|=(const ErrCode& rhs) {
       _flag |= rhs._flag ; return *this ; }

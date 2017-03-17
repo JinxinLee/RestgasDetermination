@@ -259,7 +259,7 @@ if(ion==22){AI=0;ZI=0;L=0;}
 
 TLorentzVector HypStatDecay::GetPgCMSLab(float mass,float &Delta,TVector3 &PL,TRandom& rd)
 { 
-  Double_t Mex,Pgam,Xgam,Ygam,Zgam,EL,PLmag, MC;
+  Double_t Mex,Pgam,Xgam,Ygam,Zgam,EL,PLmag;//, MC; //[R.K.03/2017] unused variable
   //Double_t theta,phi; //[R.K. 01/2017] unused variable
   
   TLorentzVector res,PNlab,resLab;
@@ -268,7 +268,7 @@ TLorentzVector HypStatDecay::GetPgCMSLab(float mass,float &Delta,TVector3 &PL,TR
   Mex = mass + Delta;
   //cout<<Mex<<" "<<Mex*Mex<<" "<<mass*mass<<endl;
   
-  MC = (Mex*Mex) - (mass*mass);
+  //MC = (Mex*Mex) - (mass*mass); //[R.K.03/2017] unused variable
   //cout<<Mex*Mex-mass*mass<<" "<<MC<<" "<<MC/(2*Mex)<<endl;
   // --pgam in CM after decay
   Pgam = ((Mex*Mex) - (mass*mass))/(2*Mex);
@@ -308,14 +308,15 @@ TLorentzVector HypStatDecay::GetPgCMSLab(float mass,float &Delta,TVector3 &PL,TR
 
 TLorentzVector HypStatDecay::GetPNuCMSLab(float mass,float &Delta,TVector3 &PL,TRandom& rd)
 { 
-  Double_t Mex,Pgam,Xgam,Ygam,Zgam,EL,PLmag, MC;
-  TLorentzVector result,PNlab,resLab;Double_t theta,phi;
+  Double_t Mex,Pgam,Xgam,Ygam,Zgam,EL,PLmag;//, MC; //[R.K.03/2017] unused variable
+  TLorentzVector result,PNlab,resLab;
+  //Double_t theta, phi; //[R.K.03/2017] unused variable
   //mASS OF EXCITED HYPERNUCLEUS
   //cout<<mass<<" "<<Delta<<endl;
   Mex = mass + Delta;
   //cout<<Mex<<" "<<Mex*Mex<<" "<<mass*mass<<endl;
   
-  MC = (Mex*Mex) - (mass*mass);
+  //MC = (Mex*Mex) - (mass*mass); //[R.K.03/2017] unused variable
   //cout<<Mex*Mex-mass*mass<<" "<<MC<<" "<<MC/(2*Mex)<<endl;
   // --pgam in CM after decay
   Pgam = ((Mex*Mex) - (mass*mass))/(2*Mex);
@@ -325,8 +326,8 @@ TLorentzVector HypStatDecay::GetPNuCMSLab(float mass,float &Delta,TVector3 &PL,T
   //isotropically distributed
   rd.Sphere(Xgam,Ygam,Zgam,-Pgam);
   
-  theta = acos(rd.Uniform(cos(0.* TMath::DegToRad()),cos(180.* TMath::DegToRad())));
-  phi = rd.Uniform(0,360) * TMath::DegToRad();
+  //theta = acos(rd.Uniform(cos(0.* TMath::DegToRad()),cos(180.* TMath::DegToRad()))); //[R.K.03/2017] unused variable
+  //phi = rd.Uniform(0,360) * TMath::DegToRad(); //[R.K.03/2017] unused variable
    /*Xgam = -Pgam*TMath::Sin(theta)*TMath::Cos(phi);
   Ygam = -Pgam*TMath::Sin(theta)*TMath::Sin(phi);
   Zgam = -Pgam*TMath::Cos(theta);*/

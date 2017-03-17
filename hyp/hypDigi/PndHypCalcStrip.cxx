@@ -34,8 +34,8 @@ PndHypCalcStrip::PndHypCalcStrip(Double_t pitch, Double_t orient,
 				 Double_t threshold, Double_t noise)
   : fPitch(pitch), fOrient(orient),
     fNrStrips(nrStrips), fNrFeChannels(nrFeChannels),
-    fAnchor(firstStripAnchor),
-    fThreshold(threshold), fNoise(noise)
+    fThreshold(threshold), fNoise(noise),
+    fAnchor(firstStripAnchor)
 {
   fStripDir.Set(cos(fOrient),sin(fOrient));
   fOrthoDir.Set(sin(fOrient),-cos(fOrient));

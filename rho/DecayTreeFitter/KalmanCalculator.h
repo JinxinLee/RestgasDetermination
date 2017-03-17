@@ -21,6 +21,9 @@ namespace DecayTreeFitter
   class KalmanCalculator
   {
   public:
+    KalmanCalculator(){};
+    virtual ~KalmanCalculator(){};
+
     ErrCode init(const TVectorD& value, const TMatrixD& G,
                  const FitParams* fitparams, const TMatrixDSym& V, int weight=1) ;
     void updatePar(FitParams* fitparams) ;

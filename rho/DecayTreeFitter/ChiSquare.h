@@ -25,7 +25,7 @@ namespace DecayTreeFitter
     m_nDoF(0) {}
 
     /// Default Destructor
-    ~ChiSquare() {}
+    virtual ~ChiSquare() {}
 
     /// return chi2/ndof if ndof>0. returns zero otherwise.
     double chi2PerDoF() const { return m_nDoF>0 ? m_chi2/m_nDoF : 0 ; }

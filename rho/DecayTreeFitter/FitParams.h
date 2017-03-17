@@ -29,7 +29,7 @@ namespace DecayTreeFitter
     FitParams(int dim) ;
     
     FitParams(const FitParams& par) ;
-    ~FitParams() ;
+    virtual ~FitParams() ;
 
     TMatrixDSym& cov() { return m_cov ; }
     TVectorD& par() { return m_par ; }

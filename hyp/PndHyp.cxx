@@ -63,7 +63,7 @@ class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
 PndHyp::PndHyp():
-  fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fMatBud(false),fcount(0){
+  fcount(0),fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fMatBud(false){
   fHypCollection        = new TClonesArray("PndHypPoint");
   fHypSecTarCollection  = new TClonesArray("PndHypPoint");
   fHypSTMatBudCollection  = new TClonesArray("PndHypPoint");
@@ -104,7 +104,7 @@ PndHyp::PndHyp():
 
 // -----   Standard constructor   ------------------------------------------
 PndHyp::PndHyp(const char* name, Bool_t active)
-  : FairDetector(name, active),fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fMatBud(false),fcount(0){
+  : FairDetector(name, active),fcount(0),fUseFileOption(false),fUseRAZHOption(false),fUseGamOption(false),fMatBud(false){
     fHypCollection        = new TClonesArray("PndHypPoint");
     fHypSecTarCollection  = new TClonesArray("PndHypPoint");
     fHypSTMatBudCollection  = new TClonesArray("PndHypPoint");
@@ -775,9 +775,9 @@ fEvt->Clear();
 	TGenPhaseSpace ev7;
 	ev7.SetDecay(W7, 2, mass5);
 	
-	Double_t weight7 = ev6.Generate();
+	ev6.Generate();//Double_t weight7 =  //[R.K.03/2017] unused variable
 	TLorentzVector *pPi6    = ev6.GetDecay(1);
-	Double_t weight8 = ev7.Generate();
+	ev7.Generate();//Double_t weight8 =  //[R.K.03/2017] unused variable
 	TLorentzVector *pPi7    = ev7.GetDecay(1);
 	
 	TLorentzVector V;

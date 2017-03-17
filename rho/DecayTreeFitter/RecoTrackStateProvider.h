@@ -30,6 +30,8 @@ namespace DecayTreeFitter
 
     RecoTrackStateProvider()
     : m_ztolerance(0) {};
+    
+    virtual ~RecoTrackStateProvider(){};
 
     void state( DecayTreeFitter::State& aState, RhoCandidate* track) const
     {

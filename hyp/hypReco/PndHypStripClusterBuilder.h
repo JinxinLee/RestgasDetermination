@@ -29,7 +29,7 @@ typedef std::map<std::string,std::map<SensorSide,Indexpair> > Fullmap;
 class PndHypStripClusterBuilder {
  public:
   PndHypStripClusterBuilder();
-  ~PndHypStripClusterBuilder();
+  virtual ~PndHypStripClusterBuilder();
 
 ///--------------------------------------------------------------------------///
 

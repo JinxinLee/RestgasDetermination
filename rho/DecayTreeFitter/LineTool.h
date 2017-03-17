@@ -29,6 +29,8 @@ namespace DecayTreeFitter
   public:
     Line() {}
     Line ( const TVector3& p0 , const TVector3& v0 ) : m_p0 ( p0 ) , m_v0 ( v0  ) {}
+    virtual ~Line(){};
+
     const TVector3&  beginPoint() const { return m_p0 ; }
     const TVector3& direction()  const { return m_v0 ; }
     TVector3 position ( const double mu ) const

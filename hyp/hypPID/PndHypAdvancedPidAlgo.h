@@ -40,6 +40,8 @@ public:
 
 private:
 
+  PndHypAdvancedPidAlgo(){};
+  virtual ~PndHypAdvancedPidAlgo(){};
   static void CalcLikelihood(double* lh);
 
   //Expected energy loss, as given by Bethe-Bloch formula

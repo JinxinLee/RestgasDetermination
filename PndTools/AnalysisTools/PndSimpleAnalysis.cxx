@@ -1047,7 +1047,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 
   bool defineOpen=false;
   bool decaySet=false;
-  bool dauListsSet=false;
+  //bool dauListsSet=false; //[R.K.03/2017] unused variable
 
   PndListDefiner* currentList;
   PndListDefiner* currentAntiList;
@@ -1090,7 +1090,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 
       defineOpen=true;
       decaySet=false;
-      dauListsSet=false;
+      //dauListsSet=false; //[R.K.03/2017] unused variable
       daupdgs.clear();
       daucnt=0;
       daulistcnt=0;

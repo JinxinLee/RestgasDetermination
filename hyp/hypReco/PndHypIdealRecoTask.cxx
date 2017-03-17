@@ -28,8 +28,8 @@
 
 // -----   Default constructor   -------------------------------------------
 PndHypIdealRecoTask::PndHypIdealRecoTask() :
-  fHitCovMatrix(3,3),
-  FairTask("Ideal reconstruction task for PANDA Hyp")
+  FairTask("Ideal reconstruction task for PANDA Hyp"),
+  fHitCovMatrix(3,3)
 {
   fSigmaX=0.; 
   fSigmaY=0.;
@@ -40,8 +40,8 @@ PndHypIdealRecoTask::PndHypIdealRecoTask() :
 
 // -----   Constructor   ---------------------------------------------------
 PndHypIdealRecoTask::PndHypIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
-  fHitCovMatrix(3,3),
-  FairTask("Ideal reconstruction task for PANDA Hyp")
+  FairTask("Ideal reconstruction task for PANDA Hyp"),
+  fHitCovMatrix(3,3)
 {
   fSigmaX=sx;
   fSigmaY=sy;
