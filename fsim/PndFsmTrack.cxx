@@ -72,11 +72,11 @@ PndFsmTrack::PndFsmTrack() {
   setCharge(0);
   setGTrackId(0);
   setDetResponse(0);
-  for (char i=0;i<15;i++)
+  for (int i=0;i<15;i++)
     fCov5[i]=0;
-  for (char i=0;i<5;i++)
+  for (int i=0;i<5;i++)
     fPar5[i]=0;
-  for (char i=0;i<28;i++)
+  for (int i=0;i<28;i++)
     fCov7[i]=0;
 }
 

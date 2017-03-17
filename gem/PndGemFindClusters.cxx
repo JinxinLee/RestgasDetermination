@@ -114,11 +114,11 @@ void PndGemFindClusters::Exec(Option_t* opt) {
   // Clear output array
   fClusters->Clear();
 
-  Int_t nDigis    = 0;
+  //Int_t nDigis    = 0; //[R.K.03/2017] unused variable
   Int_t nClusters = 0;
 
   // Sort digis with respect to time
-  nDigis = SortDigis();
+  SortDigis();//nDigis =  //[R.K.03/2017] unused variable
 
   //FindClusters();
   

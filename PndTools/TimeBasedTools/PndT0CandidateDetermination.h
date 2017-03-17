@@ -23,7 +23,7 @@ public:
 /** Destructor **/
 	virtual ~PndT0CandidateDetermination();
 
-/*
+
 	 /** Virtual method Init **/
     //virtual void SetParContainers();
     virtual InitStatus Init();

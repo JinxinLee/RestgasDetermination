@@ -101,7 +101,7 @@ void PndTrkAddTCA::Exec(Option_t* opt)  {
 
     TClonesArray& clref2 = *fTrackCandArray;
     size = clref2.GetEntriesFast();
-    PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(track->GetTrackCand());
+    new(clref2[size]) PndTrackCand(track->GetTrackCand());  //PndTrackCand *outputtrackcand =  //[R.K.03/2017] unused variable
   }
 
   // secondaries
@@ -115,7 +115,7 @@ void PndTrkAddTCA::Exec(Option_t* opt)  {
 
     TClonesArray& clref2 = *fTrackCandArray;
     size = clref2.GetEntriesFast();
-    PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(track->GetTrackCand());
+    new(clref2[size]) PndTrackCand(track->GetTrackCand());  //PndTrackCand *outputtrackcand =  //[R.K.03/2017] unused variable
   }
 
 

@@ -48,7 +48,7 @@ InitStatus PndSolCorrTask::Init()
  
 
   TString inputName = "none";
-  for (int i = 0; i < fInBranches.size(); i++){
+  for (size_t i = 0; i < fInBranches.size(); i++){
     inputName = fInBranches[i];
     fInArrays.push_back((TClonesArray*)ioman->GetObject(inputName.Data()));
     if ( ! fInArrays[i]){
@@ -80,7 +80,7 @@ void PndSolCorrTask::Exec(Option_t* opt)
 
   if(fRunContinuous==kFALSE){  // ---  for Event based Simulation 
   // Loop over Input FairHits 
-    for (int i = 0; i < fInArrays.size(); i++){
+    for (size_t i = 0; i < fInArrays.size(); i++){
       for (int j = 0; j < fInArrays[i]->GetEntriesFast(); j++){
 	inHit = (FairHit*) fInArrays[i]->At(j);
  	outStamp = SolCorr(inHit);
@@ -99,7 +99,7 @@ void PndSolCorrTask::Exec(Option_t* opt)
     
     double time;
 
-    for (int i = 0; i < fInArrays.size(); i++){
+    for (size_t i = 0; i < fInArrays.size(); i++){
       if (fInArrays[i]->GetEntriesFast()>0){
 	inHit = (FairHit*) fInArrays[i]->At(fInArrays[i]->GetEntriesFast()-1);
 	time = inHit->GetTimeStamp();
@@ -108,7 +108,7 @@ void PndSolCorrTask::Exec(Option_t* opt)
     }
 
 
-    for (int i = 0; i < fInBranches.size(); i++){
+    for (size_t i = 0; i < fInBranches.size(); i++){
      
       TClonesArray* tempArray = FairRootManager::Instance()->GetData(fInBranches[i],fStopFunctor,fReadOutStop);
 

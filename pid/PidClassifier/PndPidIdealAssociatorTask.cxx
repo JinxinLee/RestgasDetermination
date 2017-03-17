@@ -99,7 +99,7 @@ void PndPidIdealAssociatorTask::Exec(Option_t * option) {
   }
   for(Int_t i=0; i<fPidNeutralCand->GetEntriesFast(); i++){
     //PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i); //[R.K. 01/2017] unused variable
-    PndPidProbability* prob = new((*fPidNeutralProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.2,i);// initializes with zeros
+    new((*fPidNeutralProb)[i]) PndPidProbability(0.2,0.2,0.2,0.2,0.2,i);// initializes flat //PndPidProbability* prob =  //[R.K.03/2017] unused variable
     //DoPidMatch(pidcand,prob); //TODO match idealy neutral cands, esp. when we have pi0s
   }
 

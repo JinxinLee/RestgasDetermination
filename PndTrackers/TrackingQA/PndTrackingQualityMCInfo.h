@@ -78,19 +78,19 @@ class PndTrackingQualityMCInfo : public TObject
 
  protected:
  
-  Int_t fAssoRecoTrackID;
   Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints, fNofFtsPoints;
   Bool_t fReconstructabilityStatus;
   Int_t fMCTrackID;
-  Int_t fPDGCode;
   
   TArrayI fRecoTrackIDs;
   
   TVector3 fPosFirst, fMomFirst;
   TVector3 fPosLast, fMomLast;
   Int_t fCharge;
+  Int_t fPDGCode;
 
   Int_t fQuality;
+  Int_t fAssoRecoTrackID;
 
   ClassDef(PndTrackingQualityMCInfo,2);
 };

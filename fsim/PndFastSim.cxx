@@ -1077,11 +1077,11 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     // as well as tandip
     err[4] = dtheta/pow(sin(theta),2);
     // smear track pars
-    for (char p=0;p<5;p++) t->GetHelixParams()[p] += err[p] * gaus[p];
+    for (int p=0;p<5;p++) t->GetHelixParams()[p] += err[p] * gaus[p];
     
     // write scaled cov matrix
-    for (char ir=0;ir<5;ir++) {
-      for (char c=0;c<5;c++) {
+    for (int ir=0;ir<5;ir++) {
+      for (int c=0;c<5;c++) {
         t->GetHelixCov()(ir,c) = fRho(ir,c)*fabs(err[ir]*err[c])*(fUseCovMatrix||ir==c);
       }
     }

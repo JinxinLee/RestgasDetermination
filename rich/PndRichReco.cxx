@@ -50,64 +50,65 @@ namespace {
     std::vector<double> fi;
     std::vector<size_t> it;
     double nopt_, beta_, nnz_;
-    double dnopt_, dbeta_, dnnz_;
+    double dbeta_; //, dnopt_, dnnz_; //[R.K.03/2017] unused variable
     double chi2_;
     
-    double thc_old(const double phic,
-               const double nopt,
-               const double beta,
-               const double nnz0)
-    {
-       Double_t cthc = 1.0/nopt/beta;
-       Double_t nnz = nnz0;
-       if (nnz>1) nnz = 1;
-       if (cthc>1) cthc = 1;
-       Double_t sthc = std::sqrt(1-cthc*cthc);
-       Double_t nng = nnz*cthc+std::sqrt(1-nnz*nnz)*sthc*std::cos(phic);
-       Double_t cdthc = nopt*(1-nng*nng);
-       cdthc = cdthc + std::sqrt(std::fabs(1-nopt*cdthc))*nng;
-       if (cdthc>1) cdthc = 1;
-       return std::acos(cdthc)+std::acos(cthc);
-    }
-    
-    double thc_v1(const double phic,
-                  const double nopt,
-                  const double beta,
-                  const double nnz0)
-    {
-       Double_t cphc_ = std::cos(phic);
-       Double_t sphc_ = std::sin(phic);
-       //Double_t nopt = par[0];
-       //Double_t beta = par[1];
-       Double_t ctht = nnz0;
-       Double_t cthc = 1.0/nopt/beta;
-       if (ctht>1) ctht = 1;
-       if (cthc>1) cthc = 1;
-       Double_t stht = std::sqrt(1-ctht*ctht);
-       Double_t sthc = std::sqrt(1-cthc*cthc);
-       Double_t cphc = cphc_;
-       Double_t nng, cthc_, sthc_, sphc;
-       for(Int_t i=0; i<5; i++) {
-          nng = ctht*cthc + stht*sthc*cphc;
-          cthc_ = 1.0/beta + ctht*(std::sqrt(std::fabs(1-nopt*nopt*(1-nng*nng)))-nopt*nng);
-          if (cthc_>1) cthc_ = 1;
-          sthc_ = std::sqrt(1-cthc_*cthc_);
-          sphc = sphc_/nopt*sthc_/sthc;
-          Double_t cphc2 = 1-sphc*sphc;
-          Double_t cphcp, cphcm;
-          if (cphc2>=0) {
-             cphcp = std::sqrt(cphc2);
-             cphcm = -cphcp;
-          } else {
-             cphcp = 0*cphc_;
-             cphcm = 0*cphc_;
-          }
-          Double_t np = cphcp*cphc_+sphc*sphc_;
-          Double_t nm = cphcm*cphc_+sphc*sphc_;
-          cphc = np>nm ? cphcp : cphcm;
-       }
-       return std::acos(cthc_);
-    }
+    // //[R.K.03/2017] unused function?
+    //double thc_old(const double phic,
+               //const double nopt,
+               //const double beta,
+               //const double nnz0)
+    //{
+       //Double_t cthc = 1.0/nopt/beta;
+       //Double_t nnz = nnz0;
+       //if (nnz>1) nnz = 1;
+       //if (cthc>1) cthc = 1;
+       //Double_t sthc = std::sqrt(1-cthc*cthc);
+       //Double_t nng = nnz*cthc+std::sqrt(1-nnz*nnz)*sthc*std::cos(phic);
+       //Double_t cdthc = nopt*(1-nng*nng);
+       //cdthc = cdthc + std::sqrt(std::fabs(1-nopt*cdthc))*nng;
+       //if (cdthc>1) cdthc = 1;
+       //return std::acos(cdthc)+std::acos(cthc);
+    //}
+     //[R.K.03/2017] unused function
+    //double thc_v1(const double phic,
+                  //const double nopt,
+                  //const double beta,
+                  //const double nnz0)
+    //{
+       //Double_t cphc_ = std::cos(phic);
+       //Double_t sphc_ = std::sin(phic);
+       ////Double_t nopt = par[0];
+       ////Double_t beta = par[1];
+       //Double_t ctht = nnz0;
+       //Double_t cthc = 1.0/nopt/beta;
+       //if (ctht>1) ctht = 1;
+       //if (cthc>1) cthc = 1;
+       //Double_t stht = std::sqrt(1-ctht*ctht);
+       //Double_t sthc = std::sqrt(1-cthc*cthc);
+       //Double_t cphc = cphc_;
+       //Double_t nng, cthc_, sthc_, sphc;
+       //for(Int_t i=0; i<5; i++) {
+          //nng = ctht*cthc + stht*sthc*cphc;
+          //cthc_ = 1.0/beta + ctht*(std::sqrt(std::fabs(1-nopt*nopt*(1-nng*nng)))-nopt*nng);
+          //if (cthc_>1) cthc_ = 1;
+          //sthc_ = std::sqrt(1-cthc_*cthc_);
+          //sphc = sphc_/nopt*sthc_/sthc;
+          //Double_t cphc2 = 1-sphc*sphc;
+          //Double_t cphcp, cphcm;
+          //if (cphc2>=0) {
+             //cphcp = std::sqrt(cphc2);
+             //cphcm = -cphcp;
+          //} else {
+             //cphcp = 0*cphc_;
+             //cphcm = 0*cphc_;
+          //}
+          //Double_t np = cphcp*cphc_+sphc*sphc_;
+          //Double_t nm = cphcm*cphc_+sphc*sphc_;
+          //cphc = np>nm ? cphcp : cphcm;
+       //}
+       //return std::acos(cthc_);
+    //}
     
     double thc0(double thc_, double phc_, double nopt, double beta, double nnz)
     {
@@ -186,77 +187,79 @@ namespace {
        return thc0(thc_,phic,nopt,beta,nnz);
     }
 
-    double Chi2(const double *xx )
-    {
-       const double nopt = xx[0];
-       const double beta = xx[1];
-       const double nnz  = xx[2];
-       double Chi2_ = 0;
-       size_t n = fi.size();
-       for(size_t i=0;i<n;i++) {
-          double chi = (ti.at(i) - thc(fi.at(i),nopt,beta,nnz))/0.05;
-          Chi2_ += chi*chi;
-       }
-       return Chi2_;
-    }
+ //[R.K.03/2017] unused function
+    //double Chi2(const double *xx )
+    //{
+       //const double nopt = xx[0];
+       //const double beta = xx[1];
+       //const double nnz  = xx[2];
+       //double Chi2_ = 0;
+       //size_t n = fi.size();
+       //for(size_t i=0;i<n;i++) {
+          //double chi = (ti.at(i) - thc(fi.at(i),nopt,beta,nnz))/0.05;
+          //Chi2_ += chi*chi;
+       //}
+       //return Chi2_;
+    //}
     
-    int Minimizer(const char * minName = "Minuit2",
-                  const char *algoName = "" ,
-                  int randomSeed = -1)
-    {
-       // create minimizer giving a name and a name (optionally) for the specific
-       // algorithm
-       // possible choices are: 
-       //     minName                  algoName
-       // Minuit /Minuit2             Migrad, Simplex,Combined,Scan  (default is Migrad)
-       //  Minuit2                     Fumili2
-       //  Fumili
-       //  GSLMultiMin                ConjugateFR, ConjugatePR, BFGS, 
-       //                              BFGS2, SteepestDescent
-       //  GSLMultiFit
-       //   GSLSimAn
-       //   Genetic
-       ROOT::Math::Minimizer* min = 
-          ROOT::Math::Factory::CreateMinimizer(minName, algoName);
+     //[R.K.03/2017] unused function
+    //int Minimizer(const char * minName = "Minuit2",
+                  //const char *algoName = "" ,
+                  //int randomSeed = -1)
+    //{
+       //// create minimizer giving a name and a name (optionally) for the specific
+       //// algorithm
+       //// possible choices are: 
+       ////     minName                  algoName
+       //// Minuit /Minuit2             Migrad, Simplex,Combined,Scan  (default is Migrad)
+       ////  Minuit2                     Fumili2
+       ////  Fumili
+       ////  GSLMultiMin                ConjugateFR, ConjugatePR, BFGS, 
+       ////                              BFGS2, SteepestDescent
+       ////  GSLMultiFit
+       ////   GSLSimAn
+       ////   Genetic
+       //ROOT::Math::Minimizer* min = 
+          //ROOT::Math::Factory::CreateMinimizer(minName, algoName);
        
-       // set tolerance , etc...
-       min->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2 
-       min->SetMaxIterations(10000);  // for GSL 
-       min->SetTolerance(1e-12);
-       min->SetPrintLevel(0);
+       //// set tolerance , etc...
+       //min->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2 
+       //min->SetMaxIterations(10000);  // for GSL 
+       //min->SetTolerance(1e-12);
+       //min->SetPrintLevel(0);
        
-       // create funciton wrapper for minmizer
-       // a IMultiGenFunction type 
-       ROOT::Math::Functor f(&Chi2,3); 
-       double step[3] = {0.00,0.001,0.00};
+       //// create funciton wrapper for minmizer
+       //// a IMultiGenFunction type 
+       //ROOT::Math::Functor f(&Chi2,3); 
+       //double step[3] = {0.00,0.001,0.00};
        
-       // starting point
+       //// starting point
                                                                                                                                                                     
-       double variable[3] = { nopt_, beta_, nnz_ };
+       //double variable[3] = { nopt_, beta_, nnz_ };
        
-       min->SetFunction(f);
+       //min->SetFunction(f);
        
-       // Set the free variables to be minimized!
-       min->SetVariable(0,"nopt",variable[0], step[0]);
-       min->SetVariable(1,"beta",variable[1], step[1]);
-       min->SetVariable(2,"nnz",variable[2], step[2]);
+       //// Set the free variables to be minimized!
+       //min->SetVariable(0,"nopt",variable[0], step[0]);
+       //min->SetVariable(1,"beta",variable[1], step[1]);
+       //min->SetVariable(2,"nnz",variable[2], step[2]);
        
-       // do the minimization
-       min->Minimize(); 
+       //// do the minimization
+       //min->Minimize(); 
        
-       const double *xs = min->X();
-       const double *dxs = min->Errors();
+       //const double *xs = min->X();
+       //const double *dxs = min->Errors();
        
-       nopt_ = xs[0];
-       beta_ = xs[1];
-       nnz_  = xs[2];
-       dnopt_ = dxs[0];
-       dbeta_ = dxs[1];
-       dnnz_  = dxs[2];
-       chi2_  = min->MinValue();
+       //nopt_ = xs[0];
+       //beta_ = xs[1];
+       //nnz_  = xs[2];
+       //dnopt_ = dxs[0];
+       //dbeta_ = dxs[1];
+       //dnnz_  = dxs[2];
+       //chi2_  = min->MinValue();
        
-       return 0;
-    }
+       //return 0;
+    //}
 
 //---------------------------------------------------------------------------
     

@@ -188,9 +188,8 @@ class PndTrackingQualityRecoInfo : public TObject
 
  protected:
  
-  PndTrackingQualityMCInfo fMCTrackInfo; 
 
-  Int_t fNofMCTracks, fMCTrackID;
+  Int_t  fMCTrackID;
   Int_t fNofMvdPixelTrueHits,  fNofMvdStripTrueHits,  fNofSttTrueHits, fNofGemTrueHits, fNofFtsTrueHits;
   Int_t fNofMvdPixelFakeHits,  fNofMvdStripFakeHits,  fNofSttFakeHits, fNofGemFakeHits, fNofFtsFakeHits;
   Int_t fNofMvdPixelMissingHits,  fNofMvdStripMissingHits,  fNofSttMissingHits, fNofGemMissingHits, fNofFtsMissingHits;
@@ -205,8 +204,10 @@ class PndTrackingQualityRecoInfo : public TObject
   TVector3 fPosLast, fMomLast;
   Int_t fCharge;
 
+  PndTrackingQualityMCInfo fMCTrackInfo; 
   // true = 0, clone = 1
   Int_t fFlag;
+  Int_t fNofMCTracks;
   Bool_t fTrue;
   ClassDef(PndTrackingQualityRecoInfo,2);
 };

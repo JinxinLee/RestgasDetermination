@@ -13,7 +13,7 @@ class PndTrkSttAdjacencies
  PndTrkSttAdjacencies();
 
  /** Destructor **/
- ~PndTrkSttAdjacencies();
+ virtual ~PndTrkSttAdjacencies();
 
  void CalculateAdjacentStt(
 	// in this geametry there are 4542 Stt Straws (axial and skew);

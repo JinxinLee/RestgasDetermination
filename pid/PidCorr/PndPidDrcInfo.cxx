@@ -15,7 +15,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Float_t drcQuality = 1000000;
   
   TVector3 vertex(0., 0., 0.);
-  Float_t vertex_z = -1000;
+  //Float_t vertex_z = -1000; //[R.K.03/2017] unused variable
   TVector3 drcPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
 
@@ -28,7 +28,7 @@ Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       Bool_t rc =  fGeanePropagator->Propagate(helix, fRes, fPidHyp*pidCand->GetCharge()); 	
       if (!rc) return kFALSE;
       vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
-      vertex_z = fRes->GetZ();
+      //vertex_z = fRes->GetZ(); //[R.K.03/2017] unused variable
       drcGLength = fGeanePropagator->GetLengthAtPCA();
       if (drcGLength>30.) return kFALSE;  // additional cut on extrapolation distance to avoid fake correlations
     }

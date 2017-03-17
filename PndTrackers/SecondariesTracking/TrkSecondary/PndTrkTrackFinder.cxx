@@ -3099,7 +3099,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     
     TClonesArray& clref3 = *fTrkTrackArray;
     size = clref3.GetEntriesFast();
-    PndTrkTrack *outputtrktrack = new(clref3[size]) PndTrkTrack(*track);
+    new(clref3[size]) PndTrkTrack(*track);  // PndTrkTrack *outputtrktrack =  //[R.K.03/2017] unused variable
   
     //    cout << "\033[1;31m RECO R " << outputtrktrack->GetRadius() <<  ", " << outputtrack->GetParamFirst().GetMomentum().Perp() / 0.006 << "\033[0m" << endl;
     //         cout << "MOM FIRST: TOT, PT, PL " << outputtrack->GetParamFirst().GetMomentum().Mag() << " " << outputtrack->GetParamFirst().GetMomentum().Perp() << " " << outputtrack->GetParamFirst().GetMomentum().Z() << endl;
@@ -4973,7 +4973,7 @@ void PndTrkTrackFinder::Exec(Option_t* opt)  {
     
     TClonesArray& clref3 = *fTrkTrackArray;
     size = clref3.GetEntriesFast();
-    PndTrkTrack*outputtrktrack = new(clref3[size]) PndTrkTrack(*track);
+    new(clref3[size]) PndTrkTrack(*track);  //PndTrkTrack*outputtrktrack =  //[R.K.03/2017] unused variable
     
     //     cout << "\033[1;31m RECO R " << outputtrktrack->GetRadius() <<  ", " << outputtrack->GetParamFirst().GetMomentum().Perp() / 0.006 << "\033[0m" << endl;
 
@@ -5842,7 +5842,7 @@ Int_t  PndTrkTrackFinder::ExtractLegendre(Int_t mode, double &theta_max, double 
     legendre->DeleteZoneAroundXYZoom(theta_max, r_max);
   }
 
-  int maxpeakzoom = legendre->ExtractZoomMaximum(theta_max, r_max); //FIXME [R.K. 01/2017] unused variable
+  legendre->ExtractZoomMaximum(theta_max, r_max); //int maxpeakzoom = //FIXME [R.K. 01/2017] unused variable
   //  cout << "THETA/R ZOOM " << theta_max << " " << r_max <<  " maxpeakzoom " << maxpeakzoom << endl;
 
   if(fDisplayOn) {
@@ -7441,7 +7441,7 @@ Int_t PndTrkTrackFinder::RecreateHitArrays( std::map< int, std::vector< int > > 
 
     TClonesArray& clref2 = *fTrackCandArray;
     size = clref2.GetEntriesFast();
-    PndTrackCand *outputtrackcand = new(clref2[size]) PndTrackCand(pritrack->GetTrackCand());
+    new(clref2[size]) PndTrackCand(pritrack->GetTrackCand()); //PndTrackCand *outputtrackcand =  //[R.K.03/2017] unused variable
     counter++;
   }
   

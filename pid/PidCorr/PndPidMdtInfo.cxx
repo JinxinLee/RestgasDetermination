@@ -145,30 +145,30 @@ Bool_t PndPidCorrelator::MdtMapping() {
   for (Int_t iHit=0; iHit<nHits; iHit++) 
     {  
       mdtHit  = (PndMdtHit*) fMdtHit->At(iHit);
-      Int_t mdtModule = -1, mdtLayer = -1;
+      Int_t mdtLayer = -1;// mdtModule = -1,  //[R.K.03/2017] unused variable
       //std::cout << mdtHit->GetModule() << "\t" << mdtHit->GetLayerID() << "\t" << iHit << std::endl;
       switch (mdtHit->GetModule())
 	{
 	case 1:
-	  mdtModule = 1;
+	  //mdtModule = 1; //[R.K.03/2017] unused variable
 	  mdtLayer = mdtHit->GetLayerID();
 	  mapMdtBarrel[mdtLayer].push_back(iHit);
 	  break;
 	  
 	case 2:
-	  mdtModule = 2;
+	  //mdtModule = 2; //[R.K.03/2017] unused variable
 	  mdtLayer = mdtHit->GetLayerID();
 	  mapMdtEndcap[mdtLayer].push_back(iHit);
 	  break;
 
 	case 3:
-	  mdtModule = 2;
+	  //mdtModule = 2; //[R.K.03/2017] unused variable
 	  mdtLayer = mdtHit->GetLayerID()+5;
 	  mapMdtEndcap[mdtLayer].push_back(iHit);
 	  break;
 	  
 	case 4:
-	  mdtModule = 3;
+	  //mdtModule = 3; //[R.K.03/2017] unused variable
 	  mdtLayer = mdtHit->GetLayerID();
 	  mapMdtForward[mdtLayer].push_back(iHit);
 	  break;
@@ -363,7 +363,7 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
 	  vertex.SetXYZ(propX, propY, propZ);
 	  
 	  Float_t corrDist = -1, corrHitDist = -1; //mdtLQuality = 1000000, //[R.K. 01/2017] unused variable
-	  Int_t mdtLIndex = -1, layerMult = 0; // hitLCounts = 0, //[R.K. 01/2017] unused variable
+	  Int_t layerMult = 0; // mdtLIndex = -1, hitLCounts = 0, //[R.K. 01/2017] unused variable
 	  TVector3 corrPos(0., 0., 0.); 
 	  for (size_t mm = 0; mm< vecMdt.size(); mm++)
 	    {
@@ -374,7 +374,7 @@ Bool_t PndPidCorrelator::GetFMdtInfo(FairTrackParP* helix, PndPidCandidate* pidC
 	      Float_t hitDist = (mdtPos-oldPos).Mag2();
 	      if ( (corrDist<0) || (dist<corrDist) )
 		{
-		  mdtLIndex = vecMdt[mm];
+		  //mdtLIndex = vecMdt[mm]; //[R.K.03/2017] unused variable
 		  corrDist = dist;
 		  corrHitDist = hitDist;
 		  corrPos = mdtPos;		 

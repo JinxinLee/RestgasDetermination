@@ -48,7 +48,7 @@ class  PndRichReco //: public FairGeoSet
   public:
     PndRichReco();
     PndRichReco(UInt_t version);
-    ~PndRichReco();
+    virtual ~PndRichReco();
 
     void Init();
     void Register();

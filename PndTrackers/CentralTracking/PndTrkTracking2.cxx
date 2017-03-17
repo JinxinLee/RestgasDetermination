@@ -4854,7 +4854,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 		ipix,
 		istr,
 		ndownstream,
-		ntot,
+		//ntot, //[R.K.03/2017] unused variable
 		naddpix,
 		naddstr,
 		List[MAXMVDPIXELHITS+MAXMVDSTRIPHITS];
@@ -4873,7 +4873,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
   for(itrack=0; itrack<nSttTrackCand; itrack++){
 	if( ! keepit[itrack] ) continue;
 //	if( ! Mvdhits[itrack] ) continue;
-	ntot=nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack];
+	//ntot=nPixelHitsinTrack[itrack]+nStripHitsinTrack[itrack]; //[R.K.03/2017] unused variable
 	if( Fifirst[itrack] < -99998. ){  // case with Fifirst[i]=-99999.; in this
 					// case the circle is contained
 					// in the Mvd region.

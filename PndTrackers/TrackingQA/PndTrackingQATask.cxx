@@ -37,7 +37,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndTrackingQATask::PndTrackingQATask(TString trackBranchName, TString idealBranchName, Bool_t pndTrackData) :
-  FairTask("Creates PndMC test"), fEventNr(0), fTrackBranchName(trackBranchName), fIdealTrackBranchName(idealBranchName), fPndTrackOrTrackCand(pndTrackData), fMCInfoBranchName("MCTrackInfo"), fRecoInfoBranchName("RecoTrackInfo") {
+  FairTask("Creates PndMC test"), fMCInfoBranchName("MCTrackInfo"), fRecoInfoBranchName("RecoTrackInfo"), fTrackBranchName(trackBranchName), fIdealTrackBranchName(idealBranchName), fPndTrackOrTrackCand(pndTrackData), fEventNr(0) {
 }
 // -------------------------------------------------------------------------
 

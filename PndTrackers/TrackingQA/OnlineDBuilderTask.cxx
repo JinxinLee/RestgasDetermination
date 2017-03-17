@@ -114,7 +114,7 @@ void OnlineDBuilderTask::Exec(Option_t* opt) {
 		TLorentzVector* vec = new ((*fDMinusArray)[fDMinusArray->GetEntriesFast()]) TLorentzVector(Dminus[i].first);
 		std::cout << "DMinus " << Dminus[i].second << " " << vec->Px() << "/" << vec->Py() << "/" << vec->Pz() << " " << vec->M() << std::endl;
 		if (Dminus[i].second == -1){
-			TLorentzVector* vec1 = new ((*fDMinusArrayTrue)[fDMinusArrayTrue->GetEntriesFast()]) TLorentzVector(Dminus[i].first);
+			new ((*fDMinusArrayTrue)[fDMinusArrayTrue->GetEntriesFast()]) TLorentzVector(Dminus[i].first); //TLorentzVector* vec1 =  //[R.K.03/2017] unused variable
 		}
 	}
 	for (size_t i = 0; i < Dplus.size(); i++){
@@ -123,7 +123,7 @@ void OnlineDBuilderTask::Exec(Option_t* opt) {
 		std::cout << "DPlus " << Dplus[i].second << " " << vec->Px() << "/" << vec->Py() << "/" << vec->Pz() << " " << vec->M() << std::endl;
 
 		if (Dplus[i].second == 1){
-			TLorentzVector* vec2 = new ((*fDPlusArrayTrue)[fDPlusArrayTrue->GetEntriesFast()]) TLorentzVector(Dplus[i].first);
+			new ((*fDPlusArrayTrue)[fDPlusArrayTrue->GetEntriesFast()]) TLorentzVector(Dplus[i].first); //TLorentzVector* vec2 =  //[R.K.03/2017] unused variable
 		}
 	}
 	std::cout << "-I- OnlineDBuilderTask::Exec: Finish " << std::endl << std::endl;
@@ -153,35 +153,35 @@ std::vector<std::pair<TLorentzVector, int> > OnlineDBuilderTask::CombineFirstWit
 				FairMultiLinkedData pi1Links =  pi1Track->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
 				FairMultiLinkedData pi2Links = pi2Track->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
 
-				int mostProbMCK = -1;
+				//int mostProbMCK = -1; //[R.K.03/2017] unused variable
 				int countK = -1;
 				int kMcId = -1;
 				for (int i = 0; i < kTrackLinks.GetNLinks(); i++){
 					if (kTrackLinks.GetLink(i).GetWeight() > countK){
 						countK = kTrackLinks.GetLink(i).GetWeight();
-						mostProbMCK = i;
+						//mostProbMCK = i; //[R.K.03/2017] unused variable
 						kMcId = kTrackLinks.GetLink(i).GetIndex();
 					}
 				}
 
-				int mostProbMCPi = -1;
+				//int mostProbMCPi = -1; //[R.K.03/2017] unused variable
 				int countPi = -1;
 				int pi1McId = -1;
 				for (int i = 0; i < pi1Links.GetNLinks(); i++){
 					if (pi1Links.GetLink(i).GetWeight() > countPi){
 						countPi = pi1Links.GetLink(i).GetWeight();
-						mostProbMCPi = i;
+						//mostProbMCPi = i; //[R.K.03/2017] unused variable
 						pi1McId = pi1Links.GetLink(i).GetIndex();
 					}
 				}
 
-				int mostProbMCPi2 = -1;
+				//int mostProbMCPi2 = -1; //[R.K.03/2017] unused variable
 				//int countPi2 = -1; //[R.K. 01/2017] unused variable
 				int pi2McId = -1;
 				for (int i = 0; i < pi2Links.GetNLinks(); i++){
 					if (pi2Links.GetLink(i).GetWeight() > countPi){
 						countPi = pi2Links.GetLink(i).GetWeight();
-						mostProbMCPi2 = i;
+						//mostProbMCPi2 = i; //[R.K.03/2017] unused variable
 						pi2McId = pi2Links.GetLink(i).GetIndex();
 					}
 				}

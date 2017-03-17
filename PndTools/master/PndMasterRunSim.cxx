@@ -45,7 +45,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMasterRunSim::PndMasterRunSim() :
-  FairRunSim(), fParamRootFile(), fParamAsciiFile(), fOptions(), fRtdb(), fTimer(), fInput(), fInputDir(""), fOutFile(), fDpmFlag(1), fFtfFlag(0), fNEvents(0), fEventCounterRate(100), fTargetMode(0)
+  FairRunSim(), fInput(), fInputDir(""), fOutFile(), fParamRootFile(), fParamAsciiFile(), fOptions(), fDpmFlag(1), fFtfFlag(0), fNEvents(0), fEventCounterRate(100), fTargetMode(0), fRtdb(), fTimer()
 {
   fTimer.Start();
 }

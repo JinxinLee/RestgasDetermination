@@ -128,7 +128,7 @@ class PndTrkComparisonMCtruth
  /** Default constructor **/
  PndTrkComparisonMCtruth(){};
  /** Destructor **/
- ~PndTrkComparisonMCtruth(){};
+ virtual ~PndTrkComparisonMCtruth(){};
 
  void AssociateFoundTrackstoMCquater(
 	Double_t BFIELD,

@@ -593,7 +593,7 @@ PndTrkClusterList PndTrkClean::MergeClusters(PndTrkClusterList *clusterlist) {
       bool isSimilar = iclus->IsSimilarTo(jclus);
 	    if(isSimilar) {
 	      cout << imax << " is similar to " << jmax << endl;
-	      int nhits = merge->MergeTo(jclus); // CHECK
+	      merge->MergeTo(jclus); // CHECK  //int nhits =  //[R.K.03/2017] unused variable
 	      merged.push_back(jmax);
 	      cout << "MERGING " << iclus->GetNofHits() << " + " << jclus->GetNofHits() << " = " << merge->GetNofHits() << endl;
 	      //	iclus->Print();

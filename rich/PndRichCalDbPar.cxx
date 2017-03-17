@@ -33,7 +33,7 @@ PndRichCalDbPar::PndRichCalDbPar(const char* name, const char* title,
 // -------------------------------------------------------------------------
 
 PndRichCalDbPar::PndRichCalDbPar()
-   : fMapName(TString("")),
+   : fType(-1),
    fPmin(0), 
    fPmax(0),
    fXmin(0), 
@@ -47,7 +47,7 @@ PndRichCalDbPar::PndRichCalDbPar()
    fBetaMean(0), 
    fBetaSig(0),
    fBetaEff(0),
-   fType(-1) 
+   fMapName(TString("")) 
 {
 }
 // -------------------------------------------------------------------------

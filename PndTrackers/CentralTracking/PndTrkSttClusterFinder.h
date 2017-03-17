@@ -13,7 +13,7 @@ class PndTrkSttClusterFinder
  PndTrkSttClusterFinder();
 
  /** Destructor **/
- ~PndTrkSttClusterFinder();
+ virtual ~PndTrkSttClusterFinder();
 
 Short_t FindTrackPattern(
 		bool* InclusionListStt,		// input; here it is the exclusion of Stt hits for Stt multiple hits

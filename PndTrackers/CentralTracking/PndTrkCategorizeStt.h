@@ -13,7 +13,7 @@ class PndTrkCategorizeStt
  PndTrkCategorizeStt();
 
  /** Destructor **/
- ~PndTrkCategorizeStt();
+ virtual ~PndTrkCategorizeStt();
 
  void CategorizeStt(
 	// in this geametry there are 4542 Stt Straws (axial and skew);

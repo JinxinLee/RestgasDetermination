@@ -218,7 +218,7 @@ Int_t PndTrackingQA::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& tr
 		Int_t highestCount = sortedMCTracks[0].GetWeight();
 		mostProbableTrack = sortedMCTracks[0].GetIndex();
 		Int_t allCounts = 0;
-		for (int i = 0; i < sortedMCTracks.size(); i++){
+		for (size_t i = 0; i < sortedMCTracks.size(); i++){
 			allCounts += sortedMCTracks[i].GetWeight();
 //			if (trackInfo["AllHits"].GetLink(i).GetWeight() > highestCount){
 //				highestCount = trackInfo["AllHits"].GetLink(i).GetWeight();
@@ -239,7 +239,7 @@ Int_t PndTrackingQA::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& tr
 		}
 	}
 	if (fVerbose > 0){
-		for (int j = 0; j < sortedMCTracks.size(); j++){
+		for (size_t j = 0; j < sortedMCTracks.size(); j++){
 			FairLink myLink = sortedMCTracks[j];
             if (fMCIdIdealTrackId.count(myLink.GetIndex()) > 0){
                 PndTrackCand* myIdealTrack = ((PndTrack*)fIdealTrack->At(fMCIdIdealTrackId[myLink.GetIndex()]))->GetTrackCandPtr();
