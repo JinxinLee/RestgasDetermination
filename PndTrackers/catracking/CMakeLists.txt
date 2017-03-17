@@ -18,9 +18,9 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
-${CMAKE_SOURCE_DIR}/catracking
-${CMAKE_SOURCE_DIR}/catracking/code
-${CMAKE_SOURCE_DIR}/catracking/code/Performance
+${CMAKE_SOURCE_DIR}/PndTrackers/catracking
+${CMAKE_SOURCE_DIR}/PndTrackers/catracking/code
+${CMAKE_SOURCE_DIR}/PndTrackers/catracking/code/Performance
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/PndMCMatch 
@@ -46,8 +46,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DDO_TPCCATRACKER_EFF_PERFORMA
 set(HEADERS
 code/Performance/PndCATrackMCPointContainer.h
 PndCATracking.h
-PndTrackingQualityBarrelTaskNewLinks.h
-PndTrackingQualityBarrelAnalysisNewLinks.h
+#PndTrackingQualityBarrelTaskNewLinks.h
+#PndTrackingQualityBarrelAnalysisNewLinks.h
 )
 
 set(SRCS
@@ -69,8 +69,8 @@ code/Performance/PndCAMCVertex.cxx
 code/Performance/PndCATrackMCPointContainer.cxx 
 code/Performance/PndCATrackPerformanceBase.cxx
 code/Performance/PndCADisplay.cxx
-PndTrackingQualityBarrelTaskNewLinks.cxx
-PndTrackingQualityBarrelAnalysisNewLinks.cxx
+#PndTrackingQualityBarrelTaskNewLinks.cxx
+#PndTrackingQualityBarrelAnalysisNewLinks.cxx
 )
 
 set(LINKDEF  CATrackingLinkDef.h)
