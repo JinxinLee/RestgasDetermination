@@ -16,40 +16,8 @@ class PndMvdSttGemRiemannTrackFinder : public  PndRiemannTrackFinder
 public:
 	PndMvdSttGemRiemannTrackFinder();
 	virtual ~PndMvdSttGemRiemannTrackFinder();
-  PndMvdSttGemRiemannTrackFinder(const PndMvdSttGemRiemannTrackFinder& o) :
-	  fGeoH(o.fGeoH),
-	  fCutDistH(o.fCutDistH),
-	  fCutChi2H(o.fCutChi2H),
-	  fSttHits(o.fSttHits),
-	  fSkewedSttHits(o.fSkewedSttHits),
-	  fGemHits(o.fGemHits),
-	  fStrawMap(o.fStrawMap),
-	  fSttHitsInSectors(o.fSttHitsInSectors),
-	  fSttSkewedHitsInSectors(o.fSttSkewedHitsInSectors),
-	  fZClosePar(o.fZClosePar),
-	  fLayers(o.fLayers),
-	  fLayerMap(o.fLayerMap),
-	  fLastLayerId(o.fLastLayerId),
-	  fNLayers(o.fNLayers)
-  {};
-  PndMvdSttGemRiemannTrackFinder& operator=(const PndMvdSttGemRiemannTrackFinder& o)
-  {
-	  fGeoH=o.fGeoH;
-	  fCutDistH=o.fCutDistH;
-	  fCutChi2H=o.fCutChi2H;
-	  fSttHits=o.fSttHits;
-	  fSkewedSttHits=o.fSkewedSttHits;
-	  fGemHits=o.fGemHits;
-	  fStrawMap=o.fStrawMap;
-	  fSttHitsInSectors=o.fSttHitsInSectors;
-	  fSttSkewedHitsInSectors=o.fSttSkewedHitsInSectors;
-	  fZClosePar=o.fZClosePar;
-	  fLayers=o.fLayers;
-	  fLayerMap=o.fLayerMap;
-	  fLastLayerId=o.fLastLayerId;
-	  fNLayers=o.fNLayers;
-    return *this;
-  };
+  PndMvdSttGemRiemannTrackFinder(const PndMvdSttGemRiemannTrackFinder& ) = delete;
+  PndMvdSttGemRiemannTrackFinder& operator=(const PndMvdSttGemRiemannTrackFinder& ) = delete;
 
 	void FindTracks();										///< Main function to start the riemann track finding
 	void AddHits(TClonesArray* hits, Int_t branchId);

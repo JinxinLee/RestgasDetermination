@@ -19,20 +19,8 @@ class PndMvdSimplePixelClusterFinder : public PndSdsSimplePixelClusterFinder
 	public :
 			PndMvdSimplePixelClusterFinder(TString parName = "MVDPixelDigiPar", TString totParName = "MVDPixelTotDigiPar", Int_t verbose = 0);
 			PndMvdSimplePixelClusterFinder(PndSdsPixelDigiPar* digiPar, PndSdsTotDigiPar* totPar);
-      PndMvdSimplePixelClusterFinder(const PndMvdSimplePixelClusterFinder& o) :
-			  fParName(o.fParName),
-			  fTotParName(o.fTotParName),
-			  fDigiPar(o.fDigiPar),
-			  fTotDigiPar(o.fTotDigiPar)
-      {};
-      PndMvdSimplePixelClusterFinder& operator=(const PndMvdSimplePixelClusterFinder& o)
-      {
-			  fParName=o.fParName;
-			  fTotParName=o.fTotParName;
-			  fDigiPar=o.fDigiPar;
-			  fTotDigiPar=o.fTotDigiPar;
-        return *this;
-      };
+      PndMvdSimplePixelClusterFinder(const PndMvdSimplePixelClusterFinder& ) = delete;
+      PndMvdSimplePixelClusterFinder& operator=(const PndMvdSimplePixelClusterFinder& ) = delete;
 			void SetParName(TString val){fParName = val;}
 			void SetTotParName(TString val){fTotParName = val;}
 

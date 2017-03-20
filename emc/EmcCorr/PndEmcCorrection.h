@@ -74,9 +74,9 @@ class PndEmcCorrection  : public TObject
 
  private: 
   // Copy const.
-  PndEmcCorrection(const PndEmcCorrection& o);
+  PndEmcCorrection(const PndEmcCorrection& ) = delete;
   // Assignment operator.
-  PndEmcCorrection& operator=(const PndEmcCorrection& o);
+  PndEmcCorrection& operator=(const PndEmcCorrection& ) = delete;
 
   Int_t fChosenModule;
 

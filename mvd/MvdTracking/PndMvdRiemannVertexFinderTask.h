@@ -15,52 +15,8 @@ class PndMvdRiemannVertexFinderTask : public FairTask
 public:
 	PndMvdRiemannVertexFinderTask();
 	virtual ~PndMvdRiemannVertexFinderTask();
-  PndMvdRiemannVertexFinderTask(const PndMvdRiemannVertexFinderTask& o) :
-	  delta(o.delta),
-  	wrongV(o.wrongV),
-    eff(o.eff),
-    ghosts(o.ghosts),
-	  fHitBranch(o.fHitBranch),
-	  fHitBranch2(o.fHitBranch2),
-    fTrackBranch(o.fTrackBranch),
-    fIdealTrackCandBranch(o.fIdealTrackCandBranch),
-    fMCTrackBranch(o.fMCTrackBranch),
-    fEventNr(o.fEventNr),
-    fVerbose(o.fVerbose),
-	  fVertexCut(o.fVertexCut),
-	  fHitArray(o.fHitArray),
-	  fHitArray2(o.fHitArray2),
-	  fTrackCandArray(o.fTrackCandArray),
-	  fTrackArray(o.fTrackArray),
-	  fIdealTrackCandArray(o.fIdealTrackCandArray),
-	  fMCTrackArray(o.fMCTrackArray),
-	  fVertex(o.fVertex),
-	  fMCVertex(o.fMCVertex)
-  {};
-  PndMvdRiemannVertexFinderTask& operator=(const PndMvdRiemannVertexFinderTask& o)
-  {
-	  delta=o.delta;
-  	wrongV=o.wrongV;
-    eff=o.eff;
-    ghosts=o.ghosts;
-	  fHitBranch=o.fHitBranch;
-	  fHitBranch2=o.fHitBranch2;
-    fTrackBranch=o.fTrackBranch;
-    fIdealTrackCandBranch=o.fIdealTrackCandBranch;
-    fMCTrackBranch=o.fMCTrackBranch;
-    fEventNr=o.fEventNr;
-    fVerbose=o.fVerbose;
-	  fVertexCut=o.fVertexCut;
-	  fHitArray=o.fHitArray;
-	  fHitArray2=o.fHitArray2;
-	  fTrackCandArray=o.fTrackCandArray;
-	  fTrackArray=o.fTrackArray;
-	  fIdealTrackCandArray=o.fIdealTrackCandArray;
-	  fMCTrackArray=o.fMCTrackArray;
-	  fVertex=o.fVertex;
-	  fMCVertex=o.fMCVertex;
-    return *this;
-  };
+  PndMvdRiemannVertexFinderTask(const PndMvdRiemannVertexFinderTask& ) = delete;
+  PndMvdRiemannVertexFinderTask& operator=(const PndMvdRiemannVertexFinderTask& ) = delete;
 
 	 /** Virtual method Init **/
     virtual void SetParContainers();

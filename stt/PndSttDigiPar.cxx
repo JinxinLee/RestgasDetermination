@@ -65,19 +65,23 @@ void PndSttDigiPar::printParam()
     // to be done
 }
 
-void PndSttDigiPar::readline(const char *buf, Int_t *set, std::fstream *f) 
+//void PndSttDigiPar::readline(const char *buf, Int_t *set, std::fstream *f) 
+void PndSttDigiPar::readline(const char *, Int_t *, std::fstream *) 
 {
 }
 
-void PndSttDigiPar::readline(const char *buf, Int_t *set) 
+//void PndSttDigiPar::readline(const char *buf, Int_t *set) 
+void PndSttDigiPar::readline(const char *, Int_t *) 
 {
 }
 
-void PndSttDigiPar::putAsciiHeader(TString& header) 
+//void PndSttDigiPar::putAsciiHeader(TString& header) 
+void PndSttDigiPar::putAsciiHeader(TString& ) 
 {
 }
 
-Bool_t PndSttDigiPar::writeline(char *buf, Int_t mod, Int_t strip) 
+//Bool_t PndSttDigiPar::writeline(char *buf, Int_t mod, Int_t strip) 
+Bool_t PndSttDigiPar::writeline(char *, Int_t , Int_t ) 
 {
     return kTRUE;
 }

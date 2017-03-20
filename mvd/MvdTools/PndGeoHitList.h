@@ -19,24 +19,8 @@ public:
 	PndGeoHitList();
 	PndGeoHitList(TString groupName, TString topNodeName, TGeoVolume* baseVolume);
 	virtual ~PndGeoHitList();
-  PndGeoHitList(const PndGeoHitList& o) :
- 	  fGroupName(o.fGroupName),
-	  fVolName(o.fVolName),
-	  fNodeList(o.fNodeList),
-	  fGroupVolume(o.fGroupVolume),
-	  fTopVolume(o.fTopVolume),
-	  fBaseVolume(o.fBaseVolume)
-  {};
-  PndGeoHitList& operator=(const PndGeoHitList& o)
-  {
-	  fGroupName=o.fGroupName;
-	  fVolName=o.fVolName;
-	  fNodeList=o.fNodeList;
-	  fGroupVolume=o.fGroupVolume;
-	  fTopVolume=o.fTopVolume;
-	  fBaseVolume=o.fBaseVolume;
-    return *this;
-  };
+  PndGeoHitList(const PndGeoHitList& ) = delete;
+  PndGeoHitList& operator=(const PndGeoHitList& ) = delete;
 	
 	void CreateNewGroup(TString groupName, TString topNodeName, TGeoVolume* baseVolume);
 	void AddHit(FairHit* hit, Bool_t vis = kTRUE);

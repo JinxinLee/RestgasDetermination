@@ -19,21 +19,8 @@ class PndMvdPixelClusterTask : public PndSdsPixelClusterTask
   
     /** Destructor **/
     virtual ~PndMvdPixelClusterTask();
-    PndMvdPixelClusterTask(const PndMvdPixelClusterTask& o) :
-      PndSdsPixelClusterTask(o),
-      fParName(o.fParName),
-      fTotParName(o.fTotParName),
-	    fTotDigiPar(o.fTotDigiPar),
-	    fSensorNamePar(o.fSensorNamePar)
-    {};
-    PndMvdPixelClusterTask& operator=(const PndMvdPixelClusterTask& o)
-    {
-      fParName=o.fParName;
-      fTotParName=o.fTotParName;
-	    fTotDigiPar=o.fTotDigiPar;
-	    fSensorNamePar=o.fSensorNamePar;
-    return *this;
-    };
+    PndMvdPixelClusterTask(const PndMvdPixelClusterTask& ) = delete;
+    PndMvdPixelClusterTask& operator=(const PndMvdPixelClusterTask& ) = delete;
 
     virtual void GetParList(TList* tempList);
     virtual void SetClusterFinderMQ(TList* tempList);

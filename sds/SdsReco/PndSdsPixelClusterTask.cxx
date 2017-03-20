@@ -122,7 +122,7 @@ void   PndSdsPixelClusterTask::ExecMQ(TList* inputList,TList* outputList) {
 }
 // -------------------------------------------------------------------------
 
-void PndSdsPixelClusterTask::GetParList(TList* tempList) {
+void PndSdsPixelClusterTask::GetParList(TList* ) {  //tempList //[R.K.03/2017] unused variable(s)
 }
 
 // -----   Initialization  of Parameter Containers -------------------------

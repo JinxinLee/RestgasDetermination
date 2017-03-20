@@ -46,28 +46,8 @@ class PndMvdConvertApvTask : public FairTask
 	/** Destructor **/
 	~PndMvdConvertApvTask();
   
-  PndMvdConvertApvTask(const PndMvdConvertApvTask& o) :
-    fPersistance(o.fPersistance),
-  	fApvConvert(o.fApvConvert),
-    fApvMapper(o.fApvMapper),
-	  fStripArray(o.fStripArray),
-    fGeoH(o.fGeoH),
-	  iStrip(o.iStrip),
-    fDigiParameterList(o.fDigiParameterList),
-    fBotSides(o.fBotSides)
-  {};
-  PndMvdConvertApvTask& operator=(const PndMvdConvertApvTask& o)
-  {
-    fPersistance=o.fPersistance;
-  	fApvConvert=o.fApvConvert;
-    fApvMapper=o.fApvMapper;
-	  fStripArray=o.fStripArray;
-    fGeoH=o.fGeoH;
-	  iStrip=o.iStrip;
-    fDigiParameterList=o.fDigiParameterList;
-    fBotSides=o.fBotSides;
-    return *this;  
-  };
+  PndMvdConvertApvTask(const PndMvdConvertApvTask& ) = delete;
+  PndMvdConvertApvTask& operator=(const PndMvdConvertApvTask& ) = delete;
 
 	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);

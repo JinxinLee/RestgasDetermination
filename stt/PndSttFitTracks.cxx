@@ -44,6 +44,7 @@ PndSttFitTracks::PndSttFitTracks(const char* name,
   fFitter        = fitter;
   fNofTracks     = 0;
   fCollectionsComplete = kFALSE;
+  SetTitle(title);
 }
 // -------------------------------------------------------------------------
 

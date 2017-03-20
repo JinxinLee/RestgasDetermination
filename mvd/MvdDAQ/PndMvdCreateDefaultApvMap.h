@@ -32,22 +32,8 @@ public:
   PndMvdCreateDefaultApvMap();
   
   ~PndMvdCreateDefaultApvMap();
-  PndMvdCreateDefaultApvMap(const PndMvdCreateDefaultApvMap& o) :
-    fSortedMapping(o.fSortedMapping),
-    fCurrentDigiPar(o.fCurrentDigiPar),
-    fDigiParameterList(o.fDigiParameterList),
-    fFeCount(o.fFeCount),
-    fFakeCount(o.fFakeCount)
-  {};
-  PndMvdCreateDefaultApvMap& operator=(const PndMvdCreateDefaultApvMap& o)
-  {
-    fSortedMapping=o.fSortedMapping;
-    fCurrentDigiPar=o.fCurrentDigiPar;
-    fDigiParameterList=o.fDigiParameterList;
-    fFeCount=o.fFeCount;
-    fFakeCount=o.fFakeCount;
-    return *this;  
-  };
+  PndMvdCreateDefaultApvMap(const PndMvdCreateDefaultApvMap& ) = delete;
+  PndMvdCreateDefaultApvMap& operator=(const PndMvdCreateDefaultApvMap& ) = delete;
   
   // setup  
   virtual void SetParContainers();
@@ -55,7 +41,7 @@ public:
   virtual InitStatus ReInit(){return kSUCCESS;};
   
   /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt){return;};
+  virtual void Exec(Option_t* ){return;};
   
   /** Our main function here **/
   Bool_t CreateFile(TString outFile);

@@ -72,6 +72,7 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
   fCollectionsComplete = kFALSE;
   fPersistence = kTRUE;
   fHelixHitProduction = kFALSE;
+  SetTitle(title);
 }
 // -------------------------------------------------------------------------
 

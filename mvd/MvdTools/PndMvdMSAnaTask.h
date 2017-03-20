@@ -37,37 +37,9 @@ class PndMvdMSAnaTask : public FairTask
 
   /** Destructor **/
   ~PndMvdMSAnaTask();
-  PndMvdMSAnaTask(const PndMvdMSAnaTask& o) :
-		fMCHits(o.fMCHits),
-		fMCTracks(o.fMCTracks),
-		fTrackParGeane(o.fTrackParGeane),
-		fTrackParIni(o.fTrackParIni),
-		fTrackParFinal(o.fTrackParFinal),
-		fDetName(o.fDetName),
-    fPro(o.fPro),
-		fGeoH(o.fGeoH),
-    fEventNr(o.fEventNr),
-		fUseMVDPoint(o.fUseMVDPoint),
-		fTrackPixHitIdMap(o.fTrackPixHitIdMap),
-		fTrackStripHitIdMap(o.fTrackStripHitIdMap)
-  {};
-  PndMvdMSAnaTask& operator=(const PndMvdMSAnaTask& o)
-  {
-		fMCHits=o.fMCHits;
-		fMCTracks=o.fMCTracks;
-		fTrackParGeane=o.fTrackParGeane;
-		fTrackParIni=o.fTrackParIni;
-		fTrackParFinal=o.fTrackParFinal;
-		fDetName=o.fDetName;
-    fPro=o.fPro;
-		fGeoH=o.fGeoH;
-    fEventNr=o.fEventNr;
-		fUseMVDPoint=o.fUseMVDPoint;
-		fTrackPixHitIdMap=o.fTrackPixHitIdMap;
-		fTrackStripHitIdMap=o.fTrackStripHitIdMap;
-    return *this;
-  };
-
+  PndMvdMSAnaTask(const PndMvdMSAnaTask& ) = delete;
+  PndMvdMSAnaTask& operator=(const PndMvdMSAnaTask& ) = delete;
+  
 
   /** Virtual method Init **/
   virtual void SetParContainers();

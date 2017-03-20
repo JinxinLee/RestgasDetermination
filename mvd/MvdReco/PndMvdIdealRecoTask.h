@@ -43,36 +43,8 @@ class PndMvdIdealRecoTask : public FairTask
   /** Destructor **/
   virtual ~PndMvdIdealRecoTask();
 
-  PndMvdIdealRecoTask(const PndMvdIdealRecoTask& o) :
-    fPersistance(o.fPersistance),
-    fBranchName(o.fBranchName),
-    fGeoH(o.fGeoH),
-    fPointArray(o.fPointArray),
-    fMctruthArray(o.fMctruthArray),
-    fHitOutputArray(o.fHitOutputArray),
-    fSigmaX(o.fSigmaX),
-    fSigmaY(o.fSigmaY),
-    fSigmaZ(o.fSigmaZ),
-    fCurrentPndMvdMCPoint(o.fCurrentPndMvdMCPoint),
-    fCurrentTransMat(o.fCurrentTransMat),
-    fHitCovMatrix(o.fHitCovMatrix)
-  {};
-  PndMvdIdealRecoTask& operator=(const PndMvdIdealRecoTask& o)
-  {
-    fPersistance=o.fPersistance;
-    fBranchName=o.fBranchName;
-    fGeoH=o.fGeoH;
-    fPointArray=o.fPointArray;
-    fMctruthArray=o.fMctruthArray;
-    fHitOutputArray=o.fHitOutputArray;
-    fSigmaX=o.fSigmaX;
-    fSigmaY=o.fSigmaY;
-    fSigmaZ=o.fSigmaZ;
-    fCurrentPndMvdMCPoint=o.fCurrentPndMvdMCPoint;
-    fCurrentTransMat=o.fCurrentTransMat;
-    fHitCovMatrix=o.fHitCovMatrix;
-    return *this;
-  };
+  PndMvdIdealRecoTask(const PndMvdIdealRecoTask& ) = delete;
+  PndMvdIdealRecoTask& operator=(const PndMvdIdealRecoTask& ) = delete;
 
   /** Virtual method Init **/
   virtual void SetParContainers();

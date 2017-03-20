@@ -16,54 +16,8 @@ class PndMvdSttGemRiemannTrackFinderTask : public FairTask
 public:
 	PndMvdSttGemRiemannTrackFinderTask();
 	virtual ~PndMvdSttGemRiemannTrackFinderTask();
-  PndMvdSttGemRiemannTrackFinderTask(const PndMvdSttGemRiemannTrackFinderTask& o) :
-    fHitBranch(o.fHitBranch),
-    fTrackBranch(o.fTrackBranch),
-    fEventNr(o.fEventNr),
-    fMaxSZChi2(o.fMaxSZChi2),
-    fMaxSZDist(o.fMaxSZDist),
-    fMinPointDist(o.fMinPointDist),
-    fMaxDist(o.fMaxDist),
-    fB(o.fB), 
-    fHitArray(o.fHitArray),
-	  fTrackCandArray(o.fTrackCandArray),
-	  fRiemannTrackArray(o.fRiemannTrackArray),
-	  fTrackArray(o.fTrackArray),
-	  fCorrectedSttHitArray(o.fCorrectedSttHitArray),
-	  fCutDistH(o.fCutDistH),
-	  fCutChi2H(o.fCutChi2H),
-	  fInitDone(o.fInitDone),
-	  fPersistence(o.fPersistence),
-	  fStopFunctor(o.fStopFunctor),
-	  fTimeGapFunctor(o.fTimeGapFunctor),
-	  fSttParameters(o.fSttParameters),
-	  fTubeArray(o.fTubeArray)
-  {};
-  PndMvdSttGemRiemannTrackFinderTask& operator=(const PndMvdSttGemRiemannTrackFinderTask& o)
-  {
-    fHitBranch=o.fHitBranch;
-    fTrackBranch=o.fTrackBranch;
-    fEventNr=o.fEventNr;
-    fMaxSZChi2=o.fMaxSZChi2;
-    fMaxSZDist=o.fMaxSZDist;
-    fMinPointDist=o.fMinPointDist;
-    fMaxDist=o.fMaxDist;
-    fB=o.fB; 
-    fHitArray=o.fHitArray;
-	  fTrackCandArray=o.fTrackCandArray;
-	  fRiemannTrackArray=o.fRiemannTrackArray;
-	  fTrackArray=o.fTrackArray;
-	  fCorrectedSttHitArray=o.fCorrectedSttHitArray;
-	  fCutDistH=o.fCutDistH;
-	  fCutChi2H=o.fCutChi2H;
-	  fInitDone=o.fInitDone;
-	  fPersistence=o.fPersistence;
-	  fStopFunctor=o.fStopFunctor;
-	  fTimeGapFunctor=o.fTimeGapFunctor;
-	  fSttParameters=o.fSttParameters;
-	  fTubeArray=o.fTubeArray;
-    return *this;
-  };
+  PndMvdSttGemRiemannTrackFinderTask(const PndMvdSttGemRiemannTrackFinderTask& ) = delete;
+  PndMvdSttGemRiemannTrackFinderTask& operator=(const PndMvdSttGemRiemannTrackFinderTask& ) = delete;
 
 	 /** Virtual method Init **/
     virtual void SetParContainers();

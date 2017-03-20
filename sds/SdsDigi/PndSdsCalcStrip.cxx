@@ -89,8 +89,8 @@ PndSdsCalcStrip::PndSdsCalcStrip(const PndSdsStripDigiPar* digipar, SensorSide s
 
 //______________________________________________________________________________
 std::vector<PndSdsStrip>
-PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
-                           Double_t outx, Double_t outy, Double_t outz,
+PndSdsCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t ,   //inz //[R.K.03/2017] unused variable(s)
+                           Double_t outx, Double_t outy, Double_t ,  //  outz //[R.K.03/2017] unused variable(s)
                            Double_t eLoss)
 {
   if (fVerboseLevel > 2) std::cout<<"-I- PndSdsCalcStrip::GetStrips "<<std::endl;

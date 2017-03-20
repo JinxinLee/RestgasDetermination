@@ -134,7 +134,7 @@ void PndSdsNoiseProducer::FillSensorLists()
 	}
 }
 
-void PndSdsNoiseProducer::DiveDownNode(TGeoNode *nodeMother){
+void PndSdsNoiseProducer::DiveDownNode(TGeoNode *){ //nodeMother //[R.K.03/2017] unused variable(s)
   //  for (Int_t Nod=0; Nod<nodeMother->GetNdaughters();Nod++)
   //  {
   //    gGeoManager->CdDown(Nod);

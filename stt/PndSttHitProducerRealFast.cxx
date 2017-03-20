@@ -296,7 +296,7 @@ void PndSttHitProducerRealFast::Exec(Option_t*) {
 // -------------------------------------------------------------------------
 
 void PndSttHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, 
-						    TVector3 localInPos, TVector3 localOutPos)
+						    TVector3 , TVector3 ) // localInPos ,localOutPos //[R.K.03/2017] unused variable(s)
 {
   //Double_t
     //zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.; //[R.K. 01/2017] unused variable?

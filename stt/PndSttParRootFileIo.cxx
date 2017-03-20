@@ -41,7 +41,8 @@ Bool_t PndSttParRootFileIo::init(FairParSet* pPar,Int_t* set)
 }
 
 
-Bool_t PndSttParRootFileIo::read(PndSttDigiPar* pPar,Int_t* set) 
+//Bool_t PndSttParRootFileIo::read(PndSttDigiPar* pPar,Int_t* set) 
+Bool_t PndSttParRootFileIo::read(PndSttDigiPar* ,Int_t* ) 
 {
   // No params are implemented
   std::cout << "-I- PndSttParRootFileIo : reading " << std::endl;

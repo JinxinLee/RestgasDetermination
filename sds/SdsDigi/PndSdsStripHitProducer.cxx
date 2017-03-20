@@ -322,7 +322,7 @@ void PndSdsStripHitProducer::Exec(Option_t*)
 }
 // -------------------------------------------------------------------------
 
-void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)
+void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t , Int_t sensorID, Int_t fe, Int_t chan, Double_t charge)  //detID //[R.K.03/2017] unused variable(s)
 {
 
 	PndSdsMCPoint *point = (PndSdsMCPoint*)fPointArray->At(iPoint);

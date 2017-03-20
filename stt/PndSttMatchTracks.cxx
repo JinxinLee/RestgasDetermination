@@ -50,6 +50,7 @@ PndSttMatchTracks::PndSttMatchTracks(const char* name, const char* title,
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;
   fPersistence = kTRUE;
+  SetTitle(title);
 }
 // -------------------------------------------------------------------------
 

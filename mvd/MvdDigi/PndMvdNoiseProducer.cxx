@@ -467,7 +467,7 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
 		tempPixel->SetTimeStampError(fPixChargeConv->GetTimeStampErrorAfterCorrection());
   }
   fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime(), FairRootManager::Instance()->GetEventTime());
-
+  noisies++; // to count outside the noisy digis.
   delete(tempPixel);
   //  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
 }

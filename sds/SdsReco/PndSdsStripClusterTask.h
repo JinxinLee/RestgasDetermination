@@ -124,9 +124,9 @@ class PndSdsStripClusterTask : public PndSdsTask
     virtual InitStatus ReInit();
     
     virtual void InitMQ(TList* tempList);
-    virtual void GetParList(TList* tempList){};
+    virtual void GetParList(TList* ){};// tempList //[R.K.03/2017] unused variable(s)
     virtual void ExecMQ(TList* inputList,TList* outputList);
-    virtual void SetParContainersMQ(TList* tempList){};
+    virtual void SetParContainersMQ(TList* ){};  //tempList //[R.K.03/2017] unused variable(s)
 
     virtual void SetInBranchId(){
  		FairRootManager *ioman = FairRootManager::Instance();

@@ -35,7 +35,7 @@ PndSttSignalOverlap::PndSttSignalOverlap(TClonesArray * OriginalHitArray) {
 }
 // -------------------------------------------------------------------------
 
-PndSttSignalOverlap::PndSttSignalOverlap(Int_t verbose, TClonesArray * OriginalHitArray) {
+PndSttSignalOverlap::PndSttSignalOverlap(Int_t , TClonesArray * OriginalHitArray) { // verbose   //[R.K.03/2017] unused variable(s)
    fVerbose = 0;
    fOriginalHitArray = OriginalHitArray;
 }

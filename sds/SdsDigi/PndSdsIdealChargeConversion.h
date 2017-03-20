@@ -14,7 +14,7 @@ public:
 	virtual Double_t ChargeToDigiValue(Double_t charge){return charge;};
 	virtual Double_t DigiValueToCharge(Double_t digi){return digi;};
   virtual Double_t GetRelativeError(Double_t charge){return charge!=0 ? fNoise/charge : 0.;};
-  virtual Double_t GetTimeStamp(Double_t time, Double_t charge, Double_t mceventtime){return ( time -1. );};
+  virtual Double_t GetTimeStamp(Double_t time, Double_t , Double_t ){return ( time -1. );}; // charge  mceventtime //[R.K.03/2017] unused variable(s)
   
 protected:
   Double_t fNoise;

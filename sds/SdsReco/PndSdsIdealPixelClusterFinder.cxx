@@ -1,7 +1,7 @@
 #include "PndSdsIdealPixelClusterFinder.h"
 #include "TMath.h"
 
-std::vector< std::vector<Int_t> > PndSdsIdealPixelClusterFinder::GetClusters(std::vector<PndSdsDigiPixel> hits)
+std::vector< std::vector<Int_t> > PndSdsIdealPixelClusterFinder::GetClusters(std::vector<PndSdsDigiPixel>)// hits //[R.K.03/2017] unused variable(s)
 {
   if (fVerbose > 1)
     Print();

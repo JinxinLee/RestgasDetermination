@@ -42,8 +42,8 @@ public:
 
   // Constructors/Destructors ---------
   PndLmdIdealFitTask();
-  PndLmdIdealFitTask(const PndLmdIdealFitTask& o){};
-  PndLmdIdealFitTask& operator=(const PndLmdIdealFitTask& o) { return *this;};
+  PndLmdIdealFitTask(const PndLmdIdealFitTask& ) = delete;
+  PndLmdIdealFitTask& operator=(const PndLmdIdealFitTask& ) = delete;
   virtual ~PndLmdIdealFitTask();
 
   virtual InitStatus Init();

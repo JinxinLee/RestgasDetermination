@@ -23,36 +23,8 @@ class PndMvdRadDamTask : public FairTask
 public:
 	PndMvdRadDamTask();
 	~PndMvdRadDamTask();
-  PndMvdRadDamTask(const PndMvdRadDamTask& o) :
-    fPersistance(o.fPersistance),
-	  fMCTracks(o.fMCTracks),
-	  fMCHits(o.fMCHits),
-	  fRadDamHits(o.fRadDamHits),
- 	  fElectronList(o.fElectronList),
-	  fProtonList(o.fProtonList),
-	  fNeutronList(o.fNeutronList),
-	  fPionList(o.fPionList),
-	  fGeoH(o.fGeoH),
-	  fMapDetHistos(o.fMapDetHistos),
-	  fRadDamHisto(o.fRadDamHisto),
-	  fWeightListsMap(o.fWeightListsMap)
-  {};
-  PndMvdRadDamTask& operator=(const PndMvdRadDamTask& o)
-  {
-    fPersistance=o.fPersistance;
-	  fMCTracks=o.fMCTracks;
-	  fMCHits=o.fMCHits;
-	  fRadDamHits=o.fRadDamHits;
- 	  fElectronList=o.fElectronList;
-	  fProtonList=o.fProtonList;
-	  fNeutronList=o.fNeutronList;
-	  fPionList=o.fPionList;
-	  fGeoH=o.fGeoH;
-	  fMapDetHistos=o.fMapDetHistos;
-	  fRadDamHisto=o.fRadDamHisto;
-	  fWeightListsMap=o.fWeightListsMap;
-    return *this;  
-  };
+  PndMvdRadDamTask(const PndMvdRadDamTask& ) = delete;
+  PndMvdRadDamTask& operator=(const PndMvdRadDamTask& ) = delete;
 
 	  virtual void SetParContainers();
 	  virtual InitStatus Init();

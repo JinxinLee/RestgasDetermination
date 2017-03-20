@@ -42,7 +42,7 @@ void PndSdsStripClusterer::Reinit()
   fLeftDigis.clear();
 }
 
-void PndSdsStripClusterer::AddDigi(Int_t sensorID, SensorSide side, Int_t timestamp, Int_t strip, Int_t iDigi)
+void PndSdsStripClusterer::AddDigi(Int_t sensorID, SensorSide side, Int_t , Int_t strip, Int_t iDigi) //timestamp //[R.K.03/2017] unused variable(s)
 {
   fSortedDigis[sensorID][side][1][strip] = iDigi;
   //[R.K.30.3.'12] Defunc timestamp binning as it comes in ns precision. 

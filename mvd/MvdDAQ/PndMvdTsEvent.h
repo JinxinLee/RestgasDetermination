@@ -55,31 +55,8 @@ protected:
    UInt_t fExtClockResetCount;     // number of times the ext. clock was reset (since loading of FPGA)
 
 private:
-  PndMvdTsEvent(const PndMvdTsEvent& o) :
-    TObject(o),
-    fEventId(o.fEventId),                
-    fSiHitList(o.fSiHitList),       
-    fTdcValues(o.fTdcValues),       
-    fQdcValues(o.fQdcValues),       
-    fNumScalerValues(o.fNumScalerValues),
-    fScalerValues(o.fScalerValues),          
-    fScalerValuesAllocSize(o.fScalerValuesAllocSize),  
-    fExtClockCount(o.fExtClockCount),       
-    fExtClockResetCount(o.fExtClockResetCount) 
-  {};
-  PndMvdTsEvent& operator=(const PndMvdTsEvent& o)
-  {    
-    fEventId=o.fEventId;                
-    fSiHitList=o.fSiHitList;       
-    fTdcValues=o.fTdcValues;       
-    fQdcValues=o.fQdcValues;       
-    fNumScalerValues=o.fNumScalerValues;
-    fScalerValues=o.fScalerValues;          
-    fScalerValuesAllocSize=o.fScalerValuesAllocSize;  
-    fExtClockCount=o.fExtClockCount;       
-    fExtClockResetCount=o.fExtClockResetCount;     
-    return *this;  
-  };
+  PndMvdTsEvent(const PndMvdTsEvent& ) = delete;
+  PndMvdTsEvent& operator=(const PndMvdTsEvent& ) = delete;
    ClassDef(PndMvdTsEvent,2);
 };
 

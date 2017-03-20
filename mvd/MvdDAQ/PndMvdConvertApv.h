@@ -70,45 +70,9 @@ class PndMvdConvertApv
 	virtual ~PndMvdConvertApv()
 	{ fDataFile.close(); };
   
-  PndMvdConvertApv(const PndMvdConvertApv& o) :
- 	  fCalibPars(o.fCalibPars),
-	  fNofEvents(o.fNofEvents),
-    fEvent(o.fEvent),
-	  fLastEvent(o.fLastEvent),
-	  fNoCalib(o.fNoCalib),
-	  fHitFileName(o.fHitFileName),
-	  fDataFile(),
-	  fhitlist(o.fhitlist),
-	  fTopModuleID(o.fTopModuleID),
-	  fBottomModuleID(o.fBottomModuleID),
-	  fFake(o.fFake),
-	  f(o.f),
-	  t(o.t),
-	  tsEv(o.tsEv),
-	  arr(o.arr),
-    fGeoH(o.fGeoH)
-  {};
+  PndMvdConvertApv(const PndMvdConvertApv& ) = delete;
   
-  PndMvdConvertApv& operator=(const PndMvdConvertApv& o)
-  {
- 	  fCalibPars=o.fCalibPars;
-	  fNofEvents=o.fNofEvents;
-    fEvent=o.fEvent;
-	  fLastEvent=o.fLastEvent;
-	  fNoCalib=o.fNoCalib;
-	  fHitFileName=o.fHitFileName;
-	  //fDataFile=o.fDataFile;
-	  fhitlist=o.fhitlist;
-	  fTopModuleID=o.fTopModuleID;
-	  fBottomModuleID=o.fBottomModuleID;
-	  fFake=o.fFake;
-	  f=o.f;
-	  t=o.t;
-	  tsEv=o.tsEv;
-	  arr=o.arr;
-    fGeoH=o.fGeoH;
-    return *this;  
-  };
+  PndMvdConvertApv& operator=(const PndMvdConvertApv& ) = delete;
 
 	/**
 	@fn long int GetNofEvents()

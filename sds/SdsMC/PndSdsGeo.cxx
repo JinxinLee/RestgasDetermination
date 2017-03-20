@@ -44,7 +44,7 @@ const char* PndSdsGeo::getEleName(Int_t m)
   return fEleName;
 }
 
-const char* PndSdsGeo::getKeepinName(Int_t i, Int_t j)
+const char* PndSdsGeo::getKeepinName(Int_t i, Int_t ) // j //[R.K.03/2017] unused variable(s)
 {
    sprintf(fKeepinName,"SDSKeepin0%i",i+1);
    return fKeepinName;

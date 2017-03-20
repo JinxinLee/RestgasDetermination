@@ -24,7 +24,7 @@ class PndSdsChargeConversion : public TObject
     virtual Double_t DigiValueToCharge(PndSdsDigi &digi);
     virtual Double_t GetRelativeError(Double_t Charge) = 0;
     virtual Double_t GetTimeStamp(Double_t tof, Double_t charge, Double_t MCEventTime) = 0;	///< absolute time stamp of a hit in ns (clock is taken into account)
-    virtual Double_t GetTimeWalk(Double_t charge){return 0;}; ///< Time between hit in detector and the time stamp assigned to the hit
+    virtual Double_t GetTimeWalk(Double_t ){return 0;}; //charge //[R.K.03/2017] unused variable(s) ///< Time between hit in detector and the time stamp assigned to the hit
 //    virtual Double_t GetTimeWalk(Int_t tot){
 //    	return GetTimeWalk(DigiValueToCharge(tot));
 //    }

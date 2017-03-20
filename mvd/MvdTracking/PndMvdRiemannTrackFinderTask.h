@@ -17,52 +17,8 @@ class PndMvdRiemannTrackFinderTask : public FairTask
 public:
 	PndMvdRiemannTrackFinderTask();
 	virtual ~PndMvdRiemannTrackFinderTask();
-  PndMvdRiemannTrackFinderTask(const PndMvdRiemannTrackFinderTask& o) :
-    fHitBranch(o.fHitBranch),
-    fTrackBranch(o.fTrackBranch),
-    fEventNr(o.fEventNr),
-    fMaxSZChi2(o.fMaxSZChi2),
-    fMaxSZDist(o.fMaxSZDist),
-    fMinPointDist(o.fMinPointDist),
-    fMaxDist(o.fMaxDist),
-    fB(o.fB),
-	  fHitArray(o.fHitArray),
-	  fTrackCandArray(o.fTrackCandArray),
-	  fRiemannTrackArray(o.fRiemannTrackArray),
-	  fTrackArray(o.fTrackArray),
-	  fCutDistH(o.fCutDistH),
-	  fCutChi2H(o.fCutChi2H),
-	  fInitDone(o.fInitDone),
-	  fPersistence(o.fPersistence),
-	  fStopFunctor(o.fStopFunctor),
-	  fTimeGapFunctor(o.fTimeGapFunctor),
-	  fSttParameters(o.fSttParameters),
-	  fTubeArray(o.fTubeArray)
-  {};
-  PndMvdRiemannTrackFinderTask& operator=(const PndMvdRiemannTrackFinderTask& o)
-  {
-    fHitBranch=o.fHitBranch;
-    fTrackBranch=o.fTrackBranch;
-    fEventNr=o.fEventNr;
-    fMaxSZChi2=o.fMaxSZChi2;
-    fMaxSZDist=o.fMaxSZDist;
-    fMinPointDist=o.fMinPointDist;
-    fMaxDist=o.fMaxDist;
-    fB=o.fB;
-	  fHitArray=o.fHitArray;
-	  fTrackCandArray=o.fTrackCandArray;
-	  fRiemannTrackArray=o.fRiemannTrackArray;
-	  fTrackArray=o.fTrackArray;
-	  fCutDistH=o.fCutDistH;
-	  fCutChi2H=o.fCutChi2H;
-	  fInitDone=o.fInitDone;
-	  fPersistence=o.fPersistence;
-	  fStopFunctor=o.fStopFunctor;
-	  fTimeGapFunctor=o.fTimeGapFunctor;
-	  fSttParameters=o.fSttParameters;
-	  fTubeArray=o.fTubeArray;
-    return *this;
-  };
+  PndMvdRiemannTrackFinderTask(const PndMvdRiemannTrackFinderTask& ) = delete;
+  PndMvdRiemannTrackFinderTask& operator=(const PndMvdRiemannTrackFinderTask& ) = delete;
 
 	 /** Virtual method Init **/
     virtual void SetParContainers();

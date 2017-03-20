@@ -38,23 +38,9 @@ class PndMvdPidIdealTask : public FairTask
 
   /** Default constructor **/
   PndMvdPidIdealTask(const TString algoName="ideal");
-  PndMvdPidIdealTask(PndMvdPidIdealTask& o) :
-    fBranchName(o.fBranchName),
-    fAlgoName(o.fAlgoName),
-    fPointArray(o.fPointArray),
-    fMcArray(o.fMcArray),
-    fTrackOutputArray(o.fTrackOutputArray)
-  {};
+  PndMvdPidIdealTask(PndMvdPidIdealTask& ) = delete;
 //  virtual ~PndMvdPidIdealTask();
-  PndMvdPidIdealTask& operator=(PndMvdPidIdealTask& o)
-  {
-    fBranchName=o.fBranchName;
-    fAlgoName=o.fAlgoName;
-    fPointArray=o.fPointArray;
-    fMcArray=o.fMcArray;
-    fTrackOutputArray=o.fTrackOutputArray;
-    return *this;
-  };
+  PndMvdPidIdealTask& operator=(PndMvdPidIdealTask& ) = delete;
   /** Virtual method Init **/
   virtual void SetParContainers();
   virtual InitStatus Init();

@@ -122,8 +122,8 @@ class PndSdsPixelClusterTask : public PndSdsTask
     virtual void FinishEvent();
     
 	/** Methods to run with MQ **/ 
-    virtual void SetClusterFinderMQ(TList* tempList){}; 
-	virtual void SetBackMappingMQ(TList* tempList){};  
+    virtual void SetClusterFinderMQ(TList*){}; // tempList //[R.K.03/2017] unused variable(s)
+	virtual void SetBackMappingMQ(TList* ){}; // tempList //[R.K.03/2017] unused variable(s)
     virtual void InitMQ(TList* tempList);
     virtual void GetParList(TList* tempList);
     virtual void ExecMQ(TList* inputList,TList* outputList);

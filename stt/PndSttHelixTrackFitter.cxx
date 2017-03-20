@@ -122,7 +122,7 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
 
 // ===================================================================================
 // CONSTRAINT 0
-Int_t PndSttHelixTrackFitter::DoFitPlain(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo)
+Int_t PndSttHelixTrackFitter::DoFitPlain(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t )//pidHypo //[R.K.03/2017] unused variable(s)
 {
   // cout << "track fitting event # " << fEventCounter << endl;
  
@@ -804,7 +804,7 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
 
 // ZFinder was ZFinderbb3
 // -------- ZFinder --------------------------------------------
-Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit) {
+Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t ) { //whatToFit //[R.K.03/2017] unused variable(s)
   // the z finding procedure uses the hough transform to find the line
   // in the plane z - track length on which the correct points lie.
 
@@ -1236,7 +1236,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 
 // ZFit was Zfitbb2
 // ----- Zfit  ----------------------------------------
-Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
+Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t ) { //whatToFit //[R.K.03/2017] unused variable(s)
 
    if(fVerbose == 2) cout << "ZFIT" << endl;
 
@@ -1452,7 +1452,7 @@ TVector3 PndSttHelixTrackFitter::GetHoughResponse()
 
 
 // ------ Extrapolate ------------------------------------------------------------
-void PndSttHelixTrackFitter::Extrapolate(PndSttTrack* track, Double_t r, FairTrackParam *param )
+void PndSttHelixTrackFitter::Extrapolate(PndSttTrack* , Double_t , FairTrackParam * ) //track, r, param //[R.K.03/2017] unused variable(s)
 {
   cout << "-W- PndSttMinuitTrackFitter::Extrapolate: Not yet implemented, sorry!"
        << endl;
@@ -1590,7 +1590,7 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFi
   return 1;
 }
 
-void fcnHelix(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
+void fcnHelix(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t ) // npar, gin, iflag //[R.K.03/2017] unused variable(s)
 {
 
   TMatrixT<Double_t> *mama = (TMatrixT<Double_t> *)gMinuit->GetObjectFit();
@@ -1607,7 +1607,7 @@ void fcnHelix(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t ifla
   f = chisq; 
 }
 
-void fcnHelix2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
+void fcnHelix2(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t ) //npar, gin, iflag //[R.K.03/2017] unused variable(s)
 {
   TMatrixT<Double_t> *mama = (TMatrixT<Double_t> *)gMinuit->GetObjectFit();
 
@@ -2238,7 +2238,7 @@ TVector3 PndSttHelixTrackFitter::GetHoughResponseThroughOrigin()
 
 // ZFinder was ZFinderbb3
 // -------- ZFinder --------------------------------------------
-Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, Int_t whatToFit) {
+Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, Int_t ) { //whatToFit //[R.K.03/2017] unused variable(s)
   // the z finding procedure uses the hough transform to find the line
   // in the plane z - track length on which the correct points lie.
 
@@ -2670,7 +2670,7 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 
 // ZFit was Zfitbb2
 // ----- Zfit  ----------------------------------------
-Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t whatToFit) {
+Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t ) {// whatToFit //[R.K.03/2017] unused variable(s)
 
    if(fVerbose == 2) cout << "ZFIT" << endl;
 

@@ -22,24 +22,8 @@ class PndMvdRadDamIonizingTask : public FairTask
 public:
 	PndMvdRadDamIonizingTask();
 	~PndMvdRadDamIonizingTask();
-  PndMvdRadDamIonizingTask(const PndMvdRadDamIonizingTask& o) :
-    fPersistance(o.fPersistance),
-	  fMCHits(o.fMCHits),
-	  fRadDamHits(o.fRadDamHits),
-	  fGeoH(o.fGeoH),
-	  fMapDetHistos(o.fMapDetHistos),
-	  fRadDamHisto(o.fRadDamHisto)
- {};
-  PndMvdRadDamIonizingTask& operator=(const PndMvdRadDamIonizingTask& o)
-  {
-    fPersistance=o.fPersistance;
-	  fMCHits=o.fMCHits;
-	  fRadDamHits=o.fRadDamHits;
-	  fGeoH=o.fGeoH;
-	  fMapDetHistos=o.fMapDetHistos;
-	  fRadDamHisto=o.fRadDamHisto;
-    return *this;
-  };
+  PndMvdRadDamIonizingTask(const PndMvdRadDamIonizingTask& ) = delete;
+  PndMvdRadDamIonizingTask& operator=(const PndMvdRadDamIonizingTask& ) = delete;
 
 	  virtual void SetParContainers();
 	  virtual InitStatus Init();

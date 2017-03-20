@@ -39,7 +39,8 @@ float begran_(int *){
 }
 
 
-int main(int argc, char* argv[]){
+//int main(int argc, char* argv[]){
+int main(int , char* ){
 
   EvtStdHep evtstdhep;
   EvtParticle *parent;

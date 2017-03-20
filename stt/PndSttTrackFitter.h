@@ -27,7 +27,7 @@ class PndSttTrackFitter : public TObject
 {
 
  public:
-  virtual void AddHitCollection(TClonesArray* mHitArray) { };
+  virtual void AddHitCollection(TClonesArray* ) { };
 
   /** Default constructor **/
   PndSttTrackFitter() { };

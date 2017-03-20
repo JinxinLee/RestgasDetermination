@@ -10,14 +10,8 @@ class PndMvdContFact : public FairContFact {
 public:
   PndMvdContFact();
   ~PndMvdContFact();
-  PndMvdContFact(const PndMvdContFact& o) : FairContFact(),
-    fDigiParNames(o.fDigiParNames)
-  {};
-  PndMvdContFact& operator=(const PndMvdContFact& o)
-  {
-    fDigiParNames=o.fDigiParNames;
-    return *this;
-  };
+  PndMvdContFact(const PndMvdContFact& ) = delete;
+  PndMvdContFact& operator=(const PndMvdContFact& ) = delete;
   FairParSet* createContainer(FairContainer* c);
   TList* GetDigiParNames() {return fDigiParNames;};
 private:
