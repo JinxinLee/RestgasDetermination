@@ -90,13 +90,13 @@ PndFsmAbsDet::~PndFsmAbsDet()
 //--------------
 
 bool
-PndFsmAbsDet::setParameter(std::string &name, double value)
+PndFsmAbsDet::setParameter(std::string &, double ) // name value //[R.K.03/2017] unused variable(s)
 {
   return false;
 }
 
 bool
-PndFsmAbsDet::setParameter(std::string &name, std::string &value)
+PndFsmAbsDet::setParameter(std::string &, std::string &) // name value //[R.K.03/2017] unused variable(s)
 {
   return false;
 }

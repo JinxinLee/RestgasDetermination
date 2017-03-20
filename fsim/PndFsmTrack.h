@@ -83,7 +83,7 @@ public:
 
   // for the time being partial interface conservation for migration purpose
   bool hitMapValid() {return false;}
-  bool hitMapResponse(unsigned int index) {return false;}
+  bool hitMapResponse(unsigned int ) {return false;} // index //[R.K.03/2017] unused variable(s)
 
 
 

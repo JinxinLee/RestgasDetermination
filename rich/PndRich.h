@@ -81,8 +81,8 @@ class PndRich: public FairDetector
      *  any optional action in your detector during the transport.
     */
 
-    virtual void   CopyClones( TClonesArray* cl1,  TClonesArray* cl2 ,
-                               Int_t offset) {;}
+    virtual void   CopyClones( TClonesArray* ,  TClonesArray*  ,
+                               Int_t ) {;} //cl1 cl2  offset //[R.K.03/2017] unused variable(s)
     virtual void   SetSpecialPhysicsCuts() {;}
     virtual void   EndOfEvent();
     virtual void   FinishPrimary() {;}

@@ -59,7 +59,7 @@ PndGemFindTracks::PndGemFindTracks() {
 
 // -----   Standard constructor   ------------------------------------------
 PndGemFindTracks::PndGemFindTracks(const char* name, 
-				   const char* title, 
+				   const char* title,  //  //[R.K.03/2017] unused variable(s)
 				   PndGemTrackFinder* finder) 
   : FairTask(name) {
   fDigiPar             = NULL;
@@ -73,6 +73,7 @@ PndGemFindTracks::PndGemFindTracks(const char* name,
   fTTime      = 0.;
   fTNofTracks = 0;
   fTNofEvents = 0;
+  SetTitle(title);
 }
 // -------------------------------------------------------------------------
 

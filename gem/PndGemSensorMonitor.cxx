@@ -212,7 +212,7 @@ void PndGemSensorMonitor::ActivateChannel(Int_t channelNr, Int_t sideId, Int_t e
 // -------------------------------------------------------------------------
 
 // -----   Check neighbours   ----------------------------------------------------
-void PndGemSensorMonitor::CheckNeighbours(Int_t channelNr, Int_t sideId, Int_t eventNr, Int_t digiNr, Double_t channelTime, Double_t channelCharge) {
+void PndGemSensorMonitor::CheckNeighbours(Int_t channelNr, Int_t sideId, Int_t , Int_t , Double_t , Double_t ) { // eventNr digiNr channelTime channelCharge //[R.K.03/2017] unused variable(s)
   Int_t nChan[3]={-1,-1,-1};
   Int_t nofChan = GetNeighbours(sideId,channelNr,nChan[0],nChan[1],nChan[2]);
   //  cout << "------ check " << nofChan << " neighbours of channel " << channelNr << " on sensor " << this->GetDetectorId() << "." << sideId << " : " << endl;
@@ -228,7 +228,7 @@ void PndGemSensorMonitor::CheckNeighbours(Int_t channelNr, Int_t sideId, Int_t e
 // -------------------------------------------------------------------------
 
 // -----   Is channel active?   ----------------------------------------------------
-Bool_t PndGemSensorMonitor::ChannelIsActive    (Int_t channelNr, Int_t sideId, Double_t timeNow) {
+Bool_t PndGemSensorMonitor::ChannelIsActive    (Int_t , Int_t , Double_t ) { // channelNr sideId timeNow   //[R.K.03/2017] unused variable(s)
   // Empty function!!
   return kFALSE;
 }
@@ -255,7 +255,7 @@ Double_t PndGemSensorMonitor::ChannelLastActiveAt(Int_t channelNr, Int_t sideId)
 // -------------------------------------------------------------------------
 
 // -----   How much time passed since last activation?   ----------------------------------------------------
-Double_t PndGemSensorMonitor::ChannelLastActiveAt(Int_t channelNr, Int_t sideId, Double_t timeNow, Int_t eventNr) {
+Double_t PndGemSensorMonitor::ChannelLastActiveAt(Int_t channelNr, Int_t sideId, Double_t timeNow, Int_t ) { // eventNr //[R.K.03/2017] unused variable(s)
   if ( sideId == 0 && fFLATime[channelNr] < -0.5 ) return -1.;
   if ( sideId == 1 && fBLATime[channelNr] < -0.5 ) return -1.;
 
@@ -276,7 +276,7 @@ Double_t PndGemSensorMonitor::ChannelLastActiveAt(Int_t channelNr, Int_t sideId,
 // -------------------------------------------------------------------------
 
 // -----   Last activation data   ----------------------------------------------------
-Bool_t PndGemSensorMonitor::ChannelLastActivation(Int_t channelNr, Int_t sideId, Int_t& eventNr, Int_t& digiNr, Double_t& channelTime, Double_t& channelCharge) {
+Bool_t PndGemSensorMonitor::ChannelLastActivation(Int_t , Int_t , Int_t& , Int_t& , Double_t& , Double_t& ) { // channelNr sideId eventNr digiNr channelTime channelCharge //[R.K.03/2017] unused variable(s)
   // Empty function
   return kFALSE;
 }

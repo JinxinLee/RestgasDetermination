@@ -131,7 +131,7 @@ void PndSciT::BeginEvent(){
 
 // -----   Public method ProcessHits  --------------------------------------
 
-Bool_t PndSciT::ProcessHits(FairVolume* vol) 
+Bool_t PndSciT::ProcessHits(FairVolume* )  // vol //[R.K.03/2017] unused variable(s)
 {
 
     if(0==fGeoH) {

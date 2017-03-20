@@ -472,7 +472,7 @@ PndFtofPoint* PndFtof::AddHit(Int_t trackID, Int_t evtID, Int_t detID, TString d
 			    TVector3 pos, TVector3 mom,
 			    TVector3 posout, 
 			    TVector3 momout,
-			    Double_t time,
+			    Double_t , // time //[R.K.03/2017] unused variable(s)
 			    Double_t length, 
 			    Double_t eLoss,
 			    Double_t charge, Double_t mass,

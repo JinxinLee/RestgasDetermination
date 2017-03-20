@@ -151,13 +151,13 @@ PndFsmMdcFS::dp(PndFsmTrack *t) const
 }
 
 double
-PndFsmMdcFS::dphi(PndFsmTrack *t) const
+PndFsmMdcFS::dphi(PndFsmTrack *) const // t //[R.K.03/2017] unused variable(s)
 {
   return 0.0002; //to be refined
 }
 
 double
-PndFsmMdcFS::dtheta(PndFsmTrack *t) const
+PndFsmMdcFS::dtheta(PndFsmTrack *) const // t //[R.K.03/2017] unused variable(s)
 {
   return 0.0002; //to be refined
 }

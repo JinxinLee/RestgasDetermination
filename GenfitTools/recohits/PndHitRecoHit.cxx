@@ -108,8 +108,8 @@ PndHitRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
 }
 
 Double_t
-PndHitRecoHit::residualScalar(GFAbsTrackRep* stateVector,
-                              const TMatrixT<Double_t>& state)
+PndHitRecoHit::residualScalar(GFAbsTrackRep* /*stateVector*/,
+                              const TMatrixT<Double_t>& /*state*/)
 {
   std::cerr<<"PndHitRecoHit::residualScalar() called. Throw exception."<<std::endl;
   throw;

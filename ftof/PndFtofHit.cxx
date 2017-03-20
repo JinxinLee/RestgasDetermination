@@ -41,7 +41,7 @@ PndFtofHit::~PndFtofHit() {}
 
 
 // -----   Public method Print   -------------------------------------------
-void PndFtofHit::Print(const Option_t* opt) const {
+void PndFtofHit::Print(const Option_t* ) const {
   std::cout << "Forward tof hit in detector " << fDetName << " at ("
        << fX << ", " << fY << ", " << fZ << ") cm " 
        << ", Point " << fRefIndex << std::endl;

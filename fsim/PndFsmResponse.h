@@ -118,8 +118,8 @@ public:
   void setDrcDiscThtc(double val, double err=0);
   void setDrcBarrelThtc(double val, double err=0);
   void setRichThtc(double val, double err=0);
-  void setEmcEcal(double val, double err=0) {_EmcEcal = val;}
-  void setMuoIron(double val, double err=0) {_MuoIron = val;}
+  void setEmcEcal(double val) {_EmcEcal = val;} // , double err=0 //[R.K.03/2017] unused variable(s)
+  void setMuoIron(double val) {_MuoIron = val;} // , double err=0 //[R.K.03/2017] unused variable(s)
 
   void setdV(TVector3 v);
   void setdV(double dx, double dy, double dz);

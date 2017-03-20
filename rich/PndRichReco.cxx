@@ -278,8 +278,8 @@ namespace {
     }
     
     int Minimizer_v1(const char * minName = "Minuit2",
-                     const char *algoName = "" ,
-                     int randomSeed = -1)
+                     const char *algoName = "" )
+                     //, int randomSeed = -1)  //  //[R.K.03/2017] unused variable(s)
     {
        // create minimizer giving a name and a name (optionally) for the specific
        // algorithm
@@ -359,8 +359,8 @@ namespace {
     }
     
     int Minimizer_v2(const char * minName = "Minuit2",
-                     const char *algoName = "" ,
-                     int randomSeed = -1)
+                     const char *algoName = "" )
+                     //, int randomSeed = -1) //  //[R.K.03/2017] unused variable(s)
     {
        // create minimizer giving a name and a name (optionally) for the specific
        // algorithm

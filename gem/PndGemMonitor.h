@@ -57,7 +57,7 @@ class PndGemMonitor : public FairTask {
   
  private:
   static PndGemMonitor* fInstance;
-  PndGemMonitor(PndGemMonitor& gm) : FairTask()
+  PndGemMonitor(PndGemMonitor& ) : FairTask() // gm //[R.K.03/2017] unused variable(s)
   {}
 
   TGeoManager*   fGeoMan;

@@ -164,14 +164,14 @@ PndFsmMvd2::dp(PndFsmTrack *t) const
 }
 
 double
-PndFsmMvd2::dphi(PndFsmTrack *t) const
+PndFsmMvd2::dphi(PndFsmTrack *) const // t //[R.K.03/2017] unused variable(s)
 {
   double Dphi=_phiRes*M_PI/180.0;   
   return Dphi; //to be refined
 }
 
 double
-PndFsmMvd2::dtheta(PndFsmTrack *t) const
+PndFsmMvd2::dtheta(PndFsmTrack *) const // t //[R.K.03/2017] unused variable(s)
 {
   double dt=_thetaRes*M_PI/180.0;   
   return dt; //to be refined 

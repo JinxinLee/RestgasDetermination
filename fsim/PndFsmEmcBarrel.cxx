@@ -153,7 +153,7 @@ PndFsmEmcBarrel::dE(PndFsmTrack *t) const
 }
 
 double
-PndFsmEmcBarrel::dphi(PndFsmTrack *t) const
+PndFsmEmcBarrel::dphi(PndFsmTrack *) const // t //[R.K.03/2017] unused variable(s)
 {
   return (_resFactor*M_PI/int(2*M_PI*_barrelRadius/_xtalDim) );
 }

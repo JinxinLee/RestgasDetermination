@@ -58,7 +58,7 @@ PndFtofPoint::~PndFtofPoint() { }
 // -------------------------------------------------------------------------
 
 // -----   Public method Print   -------------------------------------------
-void PndFtofPoint::Print(const Option_t* opt) const {
+void PndFtofPoint::Print(const Option_t* ) const {
   cout << "-I- PndFtofPoint: forward tof Point for track " 
        <<" in detector " << endl;
   cout << "    Position (" << fX << ", " << fY << ", " << fZ
