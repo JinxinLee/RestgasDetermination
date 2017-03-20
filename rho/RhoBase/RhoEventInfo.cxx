@@ -69,7 +69,7 @@ RhoEventInfo::SetEventShape ( RhoEventShape* eventShape )
 // Operations --
 //--------------
 
-void RhoEventInfo::PrintOn ( std::ostream& o ) const
+void RhoEventInfo::PrintOn ( std::ostream&  ) const
 {
 }
 

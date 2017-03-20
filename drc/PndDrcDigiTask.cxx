@@ -134,7 +134,7 @@ InitStatus PndDrcDigiTask::Init(){
 }
 
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcDigiTask::Exec(Option_t*ion){
+void PndDrcDigiTask::Exec(Option_t*){ // ion //[R.K.03/2017] unused variable(s)
   Reset();
   if (fVerbose > 0) cout << "-I- PndDrcDigiTask: Event # " << nevents 
 			 << " has " << fPDPointArray->GetEntriesFast() 

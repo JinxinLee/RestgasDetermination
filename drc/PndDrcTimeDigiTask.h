@@ -77,8 +77,8 @@ public:
   PndDrcDigi* AddDrcDigi(Int_t index, Int_t iDetectorId, Double_t charge, Double_t TimeStamp, Int_t csflag);
 
   /** method: FindDrcHitPosition-> finds hit position in PMT plane **/
-  void FindDrcHitPosition(Double_t xPoint, Double_t yPoint, Double_t zPoint,
-		                          Double_t& xHit, Double_t& yHit, Double_t& zHit, Int_t pmtID)
+  void FindDrcHitPosition(Double_t , Double_t , Double_t ,
+		                          Double_t& , Double_t& , Double_t& , Int_t ) //xPoint yPoint zPoint xHit yHit zHit pmtID //[R.K.03/2017] unused variable(s)
 {std::cerr << "WARNNING PndDrcTimeDigiTask::FindDrcHitPosition() not properly implemented." <<std::endl;};
  /**  Set Photon Detector Parameter **/
 

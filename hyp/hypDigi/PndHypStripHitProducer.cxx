@@ -53,7 +53,7 @@ PndHypStripHitProducer::PndHypStripHitProducer(Double_t topPitch, Double_t botPi
                                                TVector2 topAnchor, TVector2 botAnchor,
                                                Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
                                                Double_t threshold, Double_t noise,
-                                               TString sensorType, TString feType) :
+                                               TString , TString feType) : // sensorType //[R.K.03/2017] unused variable(s)
 FairTask("Hyp Strip Hit Producer")
 {
   fBranchName   = "HypPoint";

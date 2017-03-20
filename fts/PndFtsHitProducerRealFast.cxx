@@ -266,7 +266,7 @@ void PndFtsHitProducerRealFast::Exec(Option_t*) {
 }
 // -------------------------------------------------------------------------
 void PndFtsHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, 
-						    TVector3 localInPos, TVector3 localOutPos)
+						    TVector3 , TVector3 ) // localInPos localOutPos //[R.K.03/2017] unused variable(s)
 {
 
 

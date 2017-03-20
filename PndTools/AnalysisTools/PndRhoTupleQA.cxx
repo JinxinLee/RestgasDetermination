@@ -1084,7 +1084,7 @@ void PndRhoTupleQA::qaMcDiff(TString pre, RhoCandidate *c, RhoTuple *n, bool ski
   if (c==0) return;
 
   RhoCandidate *mct=c->GetMcTruth();
-  if (mct)
+  if (!skip && mct)
   {
     TLorentzVector p4=c->P4();
     TLorentzVector mcp4=mct->P4();

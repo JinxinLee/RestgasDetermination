@@ -58,7 +58,7 @@ Bool_t RhoSimpleMuonSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoSimpleMuonSelector::Accept ( FairRecoCandidate* b )
+Bool_t RhoSimpleMuonSelector::Accept ( FairRecoCandidate*  )
 {
   return kFALSE;
 }

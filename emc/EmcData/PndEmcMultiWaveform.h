@@ -40,7 +40,7 @@ class PndEmcMultiWaveform: public PndEmcWaveform
 		void SetWaveform(const std::vector<Double_t>&signal,Int_t length,Int_t Waveform);	
 		
 		virtual void clearAndReset();
-		virtual void Clear(Option_t *option=""){fSignal.clear();fSignals.clear();};
+		virtual void Clear(Option_t *){fSignal.clear();fSignals.clear();};
 		Int_t GetNumberOfWaveforms() const {return fSignals.size();};
 		Int_t GetActiveWaveform() const {return fActiveWaveform;};
 		void SetActiveWaveform(Int_t active = 1){fActiveWaveform=active;};

@@ -113,7 +113,7 @@ Double_t TtCracowTask::distance2(double x,double y,double z,double *par) {
    return d2; 
 }
 
-Double_t TtCracowTask::distance2Single(double x,double y,double z,double ex,double ey,double ez,double *par) { 
+Double_t TtCracowTask::distance2Single(double x,double y,double z,double ex,double ey,double ,double *par) {// ez //[R.K.03/2017] unused variable(s)
    // distance line point is D= | (xp-x0) cross  ux | 
    // where ux is direction of line and x0 is a point in the line (like t = 0) 
 

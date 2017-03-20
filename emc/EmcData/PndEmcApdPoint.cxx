@@ -49,7 +49,7 @@ PndEmcApdPoint::~PndEmcApdPoint() { }
 // -------------------------------------------------------------------------
 
 // -----   Public method Print   -------------------------------------------
-void PndEmcApdPoint::Print(const Option_t* opt) const {
+void PndEmcApdPoint::Print(const Option_t* ) const {
   cout << "-I- PndEmcApdPoint: EMCAPD Point for track " << fTrackID 
        << " in detector " << fDetectorID << endl;
   cout << "    Position (" << fX << ", " << fY << ", " << fZ

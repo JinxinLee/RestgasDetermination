@@ -109,7 +109,7 @@ void PndEmc::BeginEvent(){
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndEmc::ProcessHits(FairVolume* vol) {  
+Bool_t PndEmc::ProcessHits(FairVolume* ) {  // vol //[R.K.03/2017] unused variable(s)
   
   TString nam = gMC->CurrentVolName();
 

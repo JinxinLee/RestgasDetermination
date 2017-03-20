@@ -43,7 +43,7 @@ PndEmcApdHit::PndEmcApdHit(Int_t trackid, Int_t id, Float_t energy, Float_t time
   for (Int_t ii=0; ii<10; ii++) fPointIndex[ii] = pointIndex[ii];
 }
 // -----   Constructor           -------------------------------------------
-PndEmcApdHit::PndEmcApdHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcApdPoint*> PointList)
+PndEmcApdHit::PndEmcApdHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcApdPoint*> )   // PointList //[R.K.03/2017] unused variable(s)
 :FairHit(), fTime(time), fEnergy(energy), fPointList(0), fNPoints(0)
 {
   fRefIndex = trackid;
@@ -73,7 +73,7 @@ PndEmcApdHit::~PndEmcApdHit()
 
 
 // -----   Public method Print   -------------------------------------------
-void PndEmcApdHit::Print(const Option_t* opt) const {
+void PndEmcApdHit::Print(const Option_t* ) const {
   cout << "EMC hit: cellid=" << GetDetectorID() << ", Energy=" << fEnergy;
   if (fRefIndex>0) cout << ", TrackID= " << fRefIndex;
 //  cout << ", x=" << GetX() << ", y=" << GetY() << endl << flush; 

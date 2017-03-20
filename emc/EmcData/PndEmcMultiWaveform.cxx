@@ -35,7 +35,7 @@ std::vector<Double_t> PndEmcMultiWaveform::GetSignal() const{
 	}
 }
 
-void PndEmcMultiWaveform::SetWaveform(const std::vector<Double_t>&signal,Int_t length,Int_t Waveform){
+void PndEmcMultiWaveform::SetWaveform(const std::vector<Double_t>&signal,Int_t ,Int_t Waveform){  // length   //[R.K.03/2017] unused variable(s)
 	if(Waveform < 0){
 		return;
 	}

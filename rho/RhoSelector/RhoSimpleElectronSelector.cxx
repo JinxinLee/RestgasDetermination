@@ -61,7 +61,7 @@ Bool_t RhoSimpleElectronSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoSimpleElectronSelector::Accept ( FairRecoCandidate* b )
+Bool_t RhoSimpleElectronSelector::Accept ( FairRecoCandidate*  )
 {
   return kFALSE;
 }

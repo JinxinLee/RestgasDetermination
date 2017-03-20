@@ -56,7 +56,7 @@ RhoTuple::~RhoTuple()
 void RhoTuple::Column ( const char* label,
                         Bool_t value,
                         Bool_t defval,
-                        const char* block )
+                        const char*  ) //  block//[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -75,7 +75,7 @@ void RhoTuple::Column ( const char* label,
 void RhoTuple::Column ( const char* label,
                         const RhoHTAbsValVector<Bool_t> &vector,
                         Bool_t defval,
-                        const char* block )
+                        const char*  ) // block //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -96,7 +96,7 @@ void RhoTuple::Column ( const char* label,
                         const RhoHTAbsValVector<Bool_t> &vector,
                         const char* ilab,
                         Bool_t defval,
-                        const char* block )
+                        const char*  ) // block //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -118,8 +118,8 @@ void RhoTuple::Column ( const char* label,
 void RhoTuple::Column ( const char* label,
                         Int_t value,
                         Int_t defval,
-                        const char* block,
-                        const RhoHTRange<Int_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Int_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -138,8 +138,8 @@ void RhoTuple::Column ( const char* label,
 void RhoTuple::Column ( const char* label,
                         const RhoHTAbsValVector<Int_t> &vector,
                         Int_t defval,
-                        const char* block,
-                        const RhoHTRange<Int_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Int_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -160,8 +160,8 @@ void RhoTuple::Column ( const char* label,
                         const RhoHTAbsValVector<Int_t> &vector,
                         const char* ilab,
                         Int_t defval,
-                        const char* block,
-                        const RhoHTRange<Int_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Int_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -183,8 +183,8 @@ void RhoTuple::Column ( const char* label,
 void RhoTuple::Column ( const char* label,
                         Float_t value,
                         Float_t defval,
-                        const char* block,
-                        const RhoHTRange<Float_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Float_t> & ) //  range//[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -204,8 +204,8 @@ void RhoTuple::Column ( const char* label,
 void RhoTuple::Column ( const char* label,
                         const TVector& vector,
                         Float_t defval,
-                        const char* block,
-                        const RhoHTRange<Float_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Float_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -227,8 +227,8 @@ void RhoTuple::Column ( const char* label,
                         const TVector& vector,
                         const char* ilab,
                         Float_t defval,
-                        const char* block,
-                        const RhoHTRange<Float_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Float_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -248,8 +248,8 @@ void RhoTuple::Column ( const char* label,
 void RhoTuple::Column ( const char* label,
                         const RhoHTAbsValVector<Float_t> &vector,
                         Float_t defval,
-                        const char* block,
-                        const RhoHTRange<Float_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Float_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -271,8 +271,8 @@ void RhoTuple::Column ( const char* label,
                         const RhoHTAbsValVector<Float_t> &vector,
                         const char* ilab,
                         Float_t defval,
-                        const char* block,
-                        const RhoHTRange<Float_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Float_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -293,8 +293,8 @@ void RhoTuple::Column ( const char* label,
 void RhoTuple::Column ( const char* label,
                         Double_t value,
                         Double_t defval,
-                        const char* block,
-                        const RhoHTRange<Double_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Double_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -314,8 +314,8 @@ void RhoTuple::Column ( const char* label,
 void RhoTuple::Column ( const char* label,
                         const RhoHTAbsValVector<Double_t> &vector,
                         Double_t defval,
-                        const char* block,
-                        const RhoHTRange<Double_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Double_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -337,8 +337,8 @@ void RhoTuple::Column ( const char* label,
                         const RhoHTAbsValVector<Double_t> &vector,
                         const char* ilab,
                         Double_t defval,
-                        const char* block,
-                        const RhoHTRange<Double_t> &range )
+                        const char* , // block //[R.K.03/2017] unused variable(s)
+                        const RhoHTRange<Double_t> & ) // range //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -358,9 +358,9 @@ void RhoTuple::Column ( const char* label,
 // Can actually be variable length in ROOT,N is ignored:
 void RhoTuple::Column ( const char* label,
                         const char* value,
-                        Int_t N,
+                        Int_t , // N //[R.K.03/2017] unused variable(s)
                         const char* defval,
-                        const char* block )
+                        const char*  ) // block //[R.K.03/2017] unused variable(s)
 {
   RhoColumn* colp = ( RhoColumn* ) fMap->FindObject ( label );
   if ( colp ) {
@@ -434,7 +434,7 @@ const char* RhoTuple::Label ( Int_t i ) const
 }
 
 // Print info about ntuple:
-void RhoTuple::PrintOn ( std::ostream& o )  const
+void RhoTuple::PrintOn ( std::ostream& )  const
 {
   cout << "TTuple: ntuple " << Title() << " has " << NColumns()
        << " Columns." << endl;

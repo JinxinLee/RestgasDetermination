@@ -72,7 +72,7 @@ PndEmcHit::~PndEmcHit() {}
 
 
 // -----   Public method Print   -------------------------------------------
-void PndEmcHit::Print(const Option_t* opt) const {
+void PndEmcHit::Print(const Option_t* ) const {
   cout << "EMC hit: cellid=" << GetDetectorID() << ", Energy=" << fEnergy;
   if (fRefIndex>0) cout << ", TrackID= " << fRefIndex << std::endl;
   cout << " TrackEntering: " << fTrackEntering << std::endl;

@@ -523,7 +523,7 @@ fParObject(new PndEmcClusterCalibrationParObject())
 // 	}
 }
 
-TVector3 PndEmcClusterSimpleCalibrator::Where(PndEmcCluster *clust, Int_t pid)
+TVector3 PndEmcClusterSimpleCalibrator::Where(PndEmcCluster *clust, Int_t )// pid //[R.K.03/2017] unused variable(s)
 {
 	return clust->where();
 }

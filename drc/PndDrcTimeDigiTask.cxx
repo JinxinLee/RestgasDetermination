@@ -151,7 +151,7 @@ if ( ! ioman ) {
   return kSUCCESS;   
 }
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcTimeDigiTask::Exec(Option_t*ion)
+void PndDrcTimeDigiTask::Exec(Option_t*) // ion //[R.K.03/2017] unused variable(s)
 {
   fTimeMap.clear();
   Reset();

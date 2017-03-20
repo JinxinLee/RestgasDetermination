@@ -333,7 +333,7 @@ void PndMdtHitProducer::Exec(Option_t*)
   }
 
 }
-void PndMdtHitProducer::Exec_old(Option_t* opt){
+void PndMdtHitProducer::Exec_old(Option_t* ){
 
   // Reset output array
   fHitArray->Delete();

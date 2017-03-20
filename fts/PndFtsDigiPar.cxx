@@ -65,29 +65,29 @@ void PndFtsDigiPar::printParam()
     // to be done
 }
 
-void PndFtsDigiPar::readline(const char *buf, Int_t *set, std::fstream *f) 
+void PndFtsDigiPar::readline(const char *, Int_t *, std::fstream *)  // buf set f //[R.K.03/2017] unused variable(s)
 {
 }
 
-void PndFtsDigiPar::readline(const char *buf, Int_t *set) 
+void PndFtsDigiPar::readline(const char *, Int_t *)  // buf  set//[R.K.03/2017] unused variable(s)
 {
 }
 
-void PndFtsDigiPar::putAsciiHeader(TString& header) 
+void PndFtsDigiPar::putAsciiHeader(TString& )  // header //[R.K.03/2017] unused variable(s)
 {
 }
 
-Bool_t PndFtsDigiPar::writeline(char *buf, Int_t mod, Int_t strip) 
+Bool_t PndFtsDigiPar::writeline(char *, Int_t , Int_t )  // buf mod strip //[R.K.03/2017] unused variable(s)
 {
     return kTRUE;
 }
 
-void PndFtsDigiPar::putParams(FairParamList* list)
+void PndFtsDigiPar::putParams(FairParamList* ) // list //[R.K.03/2017] unused variable(s)
 {
   // At present the container is empty
 }
 
-Bool_t PndFtsDigiPar::getParams(FairParamList* list)
+Bool_t PndFtsDigiPar::getParams(FairParamList* ) // list //[R.K.03/2017] unused variable(s)
 {
   // At present the container is empty
   return kTRUE;

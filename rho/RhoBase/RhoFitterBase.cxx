@@ -127,7 +127,7 @@ Bool_t RhoFitterBase::IterateAndFit(RhoCandidate* b)
   return kTRUE;
 }
 
-Bool_t RhoFitterBase::FitNode(RhoCandidate* b)
+Bool_t RhoFitterBase::FitNode(RhoCandidate* )
 {
   Warning("RhoFitterBase::FitNode","Method not implemented in %s",this->GetName());
   return kFALSE;

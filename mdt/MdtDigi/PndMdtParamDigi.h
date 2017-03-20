@@ -175,7 +175,7 @@ class PndMdtParamDigi : public TNamed
     //cluster initialization
     struct ClusInfo 
     {
-      explicit ClusInfo(TVector3 _v=TVector3(), Int_t _fn=0): fPosition(_v) {}
+      explicit ClusInfo(TVector3 _v=TVector3()): fPosition(_v) {}
       TVector3 fPosition;
       Int_t    fNumofPrimaryIonization;
       Int_t    fNumofIonsofThisCluster;

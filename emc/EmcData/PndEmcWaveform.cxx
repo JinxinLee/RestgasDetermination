@@ -188,7 +188,7 @@ PndEmcWaveform::UpdateWaveform(PndEmcHit *hit
 
 void 
 PndEmcWaveform::MakeWaveform(Double_t energy
-		, Double_t time
+		, Double_t   //  time  //[R.K.03/2017] unused variable(s)
 		, Double_t pePerMeV
 		, Bool_t usePhotonStatistic
 		, Double_t excessNoiseFactor
@@ -289,7 +289,7 @@ PndEmcWaveform::AddElecNoiseAndDigitise(Double_t noise_width,
 
 	void 
 PndEmcWaveform::AddShapedElecNoiseAndDigitise(Double_t noise_width,
-		Double_t oneBitResolution, PndEmcAbsPulseshape *pulseshape, Double_t firstADCBinTime, Double_t sampleRate, Double_t EnergyError )
+		Double_t , PndEmcAbsPulseshape *pulseshape, Double_t firstADCBinTime, Double_t sampleRate, Double_t EnergyError )            // oneBitResolution //[R.K.03/2017] unused variable(s)
 {
 	// Do both e_noise and digitisation.
 	Double_t t;

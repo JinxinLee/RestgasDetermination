@@ -121,7 +121,7 @@ InitStatus DrawHits::Init()
    
 }
 // -----   Execution of Task   ---------------------------------------------
-void DrawHits::Exec(Option_t*ion)
+void DrawHits::Exec(Option_t*) // ion //[R.K.03/2017] unused variable(s)
 {
 
   nevents++;

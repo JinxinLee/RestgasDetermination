@@ -29,7 +29,7 @@ class PndEmcFullStackedWaveformSimulator : public PndEmcAbsWaveformSimulator
 
 		virtual void GetAbsoluteTimeInterval(PndEmcWaveformData* wfData, Double_t& startTime, Double_t& activeTime);	//in ns
 
-		virtual Double_t GetTimeBeforeFirstHit(PndEmcWaveformData* wfData) { return fSamplingBeforeFirstPulse; }					//in ns
+		virtual Double_t GetTimeBeforeFirstHit(PndEmcWaveformData* ) { return fSamplingBeforeFirstPulse; }	//in ns  //wfData //[R.K.03/2017] unused variable(s)
 
 		virtual Double_t GetScale() { return fScale; }	
 		virtual PndEmcWaveform* Get1GevWaveform() { return f1GeVWaveform; };

@@ -24,26 +24,8 @@ public:
   // TtCracowTask(const TtCracowTask& o){};
   //  TtCracowTask& operator=(const TtCracowTask& o) { return *this;};
   virtual ~TtCracowTask();
-  TtCracowTask(const TtCracowTask& o) :
-    fTCandArray(o.fTCandArray),
-    fTCandBranchName(o.fTCandBranchName),
-    fTrackArray(o.fTrackArray),
-    fTrackcount(o.fTrackcount),
-    fEvent(o.fEvent),
-    fEloss()
-  {
-    for(int i=0;i<6;i++)fEloss[i]=o.fEloss[i];
-  };
-  TtCracowTask& operator=(const TtCracowTask& o)
-  {
-    fTCandArray=o.fTCandArray;
-    fTCandBranchName=o.fTCandBranchName;
-    fTrackArray=o.fTrackArray;
-    fTrackcount=o.fTrackcount;
-    fEvent=o.fEvent;
-    for(int i=0;i<6;i++)fEloss[i]=o.fEloss[i];
-    return *this;
-  };
+  TtCracowTask(const TtCracowTask& ) = delete;
+  TtCracowTask& operator=(const TtCracowTask& ) = delete;
 
   virtual InitStatus Init();
 

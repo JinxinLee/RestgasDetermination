@@ -59,7 +59,7 @@ Bool_t RhoSimpleKaonSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoSimpleKaonSelector::Accept ( FairRecoCandidate* b )
+Bool_t RhoSimpleKaonSelector::Accept ( FairRecoCandidate*  )
 {
   return kFALSE;
 }

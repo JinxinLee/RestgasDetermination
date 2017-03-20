@@ -291,7 +291,7 @@ const TMatrixT<Double_t> PndFtsHoughTrackerTask::GetFtsHitCovMatrix(const PndFts
 
 
 // ---- Exec ----------------------------------------------------------
-void PndFtsHoughTrackerTask::Exec(Option_t*ion)
+void PndFtsHoughTrackerTask::Exec(Option_t*)
 {
 	if(1<fVerbose) Info("Exec","Exec of PndFtsHoughTrackerTask on event %i", fEventNr);
 

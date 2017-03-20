@@ -289,7 +289,7 @@ bool PndEmc2DLocMaxFinder::isALocalMax( const PndEmcDigi *const theDigi, const P
  */
 void PndEmc2DLocMaxFinder::getNeighbourDigis( PndEmcCoordIndexSet &allDigiNeighbours, 
 					      PndEmcCoordIndexSet &currentDigiNeighbours, 
-					      int neighbourLevel,
+					      int ,    // neighbourLevel //[R.K.03/2017] unused variable(s)
 					      std::map<Int_t,Int_t> theClusterDigis ) const
 {
 	PndEmcMapper *fEmcMap=PndEmcMapper::Instance();

@@ -587,7 +587,7 @@ void PndMdtParamDigi::GetSignal(Bool_t useConvolution)
     }
   }
 }
-void PndMdtParamDigi::ApplyTransferFunction(Double_t* fSignalData, Int_t nSize)
+void PndMdtParamDigi::ApplyTransferFunction(Double_t* fSignalData, Int_t )// nSize //[R.K.03/2017] unused variable(s)
 {
   Double_t dt=0.01;//microsecond
   Double_t t(0.);
@@ -618,7 +618,7 @@ void PndMdtParamDigi::ApplyTransferFunction(Double_t* fSignalData, Int_t nSize)
   }
 }
 // suppose noise level is 1 micro ampere;
-void PndMdtParamDigi::AddNoise(Double_t fNoiseLevel, Int_t isAnode)
+void PndMdtParamDigi::AddNoise(Double_t fNoiseLevel, Int_t ) // isAnode //[R.K.03/2017] unused variable(s)
 {
   Double_t fSigmaAnode = fNoiseLevel*fNoiseSigmaAnode;//micro ampere
   Double_t fSigmaStrip = fNoiseLevel*fNoiseSigmaStrip;//micro ampere
@@ -681,7 +681,7 @@ Bool_t PndMdtParamDigi::Digitize(Int_t id, Double_t& time, Double_t& amp)
 //6 - 2GeV
 //7 - 5GeV
 //8 - 10GeV
-Int_t PndMdtParamDigi::GetAmplicationFactor(Int_t particleType, Double_t momentum)  const
+Int_t PndMdtParamDigi::GetAmplicationFactor(Int_t , Double_t momentum)  const  //  particleType //[R.K.03/2017] unused variable(s)
 {
   TGraphErrors* gAmp(0);
   if(!gAmp){

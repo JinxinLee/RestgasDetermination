@@ -26,8 +26,8 @@ TBuffer& operator>> ( TBuffer& buf, RhoGoodPhotonSelector *&obj )
 #include <iostream>
 using namespace std;
 
-RhoGoodPhotonSelector::RhoGoodPhotonSelector ( const char* name, Double_t emc, Int_t nCrys, Double_t lat, Bool_t qc ) :
-  RhoParticleSelectorBase ( name,"gamma" )
+RhoGoodPhotonSelector::RhoGoodPhotonSelector ( const char* name, Double_t emc, Int_t nCrys, Double_t , Bool_t  ) :
+  RhoParticleSelectorBase ( name,"gamma" ) // lat qc //[R.K.03/2017] unused variable(s)
 {
   SetShowerEnergy ( emc,1.E8 );
   SetCrystals ( nCrys,100000 );

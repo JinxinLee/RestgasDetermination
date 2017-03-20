@@ -127,7 +127,7 @@ class PndEmcWaveform: public FairTimeStamp
 		Double_t Max();
 
 		virtual void clearAndReset();
-		virtual void Clear(Option_t *option=""){fSignal.clear();};
+		virtual void Clear(Option_t *){fSignal.clear();};
 
 		Double_t GetActiveTime() const { return GetTimeStamp() + (fWaveformLength-1)/fSampleRate*1.0e9; }//nano seconds
 		Int_t    GetPileupCount() const {return fEvt.size() - 1; }

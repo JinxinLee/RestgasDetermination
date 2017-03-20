@@ -74,9 +74,9 @@ PndHypCalcStrip::PndHypCalcStrip(const PndHypStripDigiPar* digipar, SensorSide s
 
 
 std::vector<PndHypStrip>
-  PndHypCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
-	                        Double_t outx, Double_t outy, Double_t outz,
-			     Double_t eLoss,int id)
+  PndHypCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t ,
+	                        Double_t outx, Double_t outy, Double_t ,
+			     Double_t eLoss,int ) //inz outz id//[R.K.03/2017] unused variable(s)
 {//1
   if (fVerboseLevel > 2) std::cout<<"-I-  PndHypCalcStrip::GetStrips "<<std::endl;
   

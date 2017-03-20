@@ -51,7 +51,7 @@ RhoBoolArrColumn::RhoBoolArrColumn ( const char* l,
   fBranch = tp->Branch ( fLabel, ( void* ) &bp[0],&*leafs,8000 );
 }
 
-void RhoBoolArrColumn::SetValue ( const void* p,RhoColumn* cp )
+void RhoBoolArrColumn::SetValue ( const void* p,RhoColumn*  )
 {
   const RhoHTAbsValVector<Bool_t>* vp = ( const RhoHTAbsValVector<Bool_t>* ) p;
   if ( (Int_t)vp->length() < fMax ) {
@@ -140,7 +140,7 @@ RhoIntArrColumn::RhoIntArrColumn ( const char* l,
   fBranch = tp->Branch ( fLabel,&ip[0],&*leafs,8000 );
 }
 
-void RhoIntArrColumn::SetValue ( const void* p,RhoColumn* cp )
+void RhoIntArrColumn::SetValue ( const void* p,RhoColumn*  )
 {
   const RhoHTAbsValVector<Int_t>* vp = ( const RhoHTAbsValVector<Int_t>* ) p;
   if ( (Int_t)vp->length() < fMax ) {
@@ -239,7 +239,7 @@ RhoFloatArrColumn::RhoFloatArrColumn ( const char* l,
     for ( Int_t i = 0; i < fMax; ++i ) { ( ( Float_t* ) fPointer ) [i] = ( *vp ) ( i ); }
   }
 }*/
-void RhoFloatArrColumn::SetValue ( const void* p,RhoColumn* cp )
+void RhoFloatArrColumn::SetValue ( const void* p,RhoColumn*  )
 {
   const TVector *vp = (const TVector*) p;
   if ( vp->GetNoElements() < fMax ) {
@@ -376,7 +376,7 @@ RhoDoubleArrColumn::RhoDoubleArrColumn ( const char* l,
   fBranch = tp->Branch ( fLabel,&dp[0],&*leafs,8000 );
 }
 
-void RhoDoubleArrColumn::SetValue ( const void* p,RhoColumn* cp )
+void RhoDoubleArrColumn::SetValue ( const void* p,RhoColumn*  )
 {
   const RhoHTAbsValVector<Double_t>* vp = ( const RhoHTAbsValVector<Double_t>* ) p;
   if ( (Int_t)vp->length() < fMax ) {
@@ -458,7 +458,7 @@ void RhoStringColumn::SetDefValue()
   fBranch->SetAddress ( &cp[0] );
 }
 
-void RhoStringColumn::SetValue ( const void* p,RhoColumn* cp )
+void RhoStringColumn::SetValue ( const void* p,RhoColumn*  )
 {
   const char* cpin = ( const char* ) p;
   if ( fPointer ) { delete[] ( TString* ) fPointer; }

@@ -163,7 +163,7 @@ PndEmcXClMoments::Lat() const
 }
 
 void
-PndEmcXClMoments::Print(const Option_t* opt) const
+PndEmcXClMoments::Print(const Option_t* ) const
 {
 	TVector3 cl( MyCluster().where() );
 	TVector3 ClusDirection(cl.x(),cl.y(),cl.z());
@@ -203,7 +203,7 @@ PndEmcXClMoments::Print(const Option_t* opt) const
 
 
 Double_t 
-PndEmcXClMoments::f00(Double_t r) const { return 1; }
+PndEmcXClMoments::f00(Double_t ) const { return 1; } // r   //[R.K.03/2017] unused variable(s)
 
 Double_t 
 PndEmcXClMoments::f11(Double_t r) const { return r; }

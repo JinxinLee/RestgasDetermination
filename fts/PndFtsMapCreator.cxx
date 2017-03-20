@@ -541,7 +541,7 @@ PndFtsTube * PndFtsMapCreator::GetTubeFromTubeIDToFillGeoType1(Int_t tubeid) {
 			fTubeInRad, fTubeOutRad, halflength);
 }
 
-PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename, Int_t tubeid, Int_t layerid) {
+PndFtsTube * PndFtsMapCreator::GetTubeFromNameToFillGeoType1(TString tubename, Int_t , Int_t ) { // tubeid layerid //[R.K.03/2017] unused variable(s)
   
   TObjArray *geoPassNodes = fFtsParameters->GetGeoPassiveNodes();
   //Bool_t isCopy = kTRUE; //[R.K. 01/2017] unused variable

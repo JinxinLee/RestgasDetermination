@@ -235,7 +235,7 @@ double PndEventShape::Thrust(int Nmax)
   // no particles  ->  return thr = -1 
   if( fN==0 ) return -1.;
   
-  int i,j,k;
+  size_t i,j,k;
 
   // copy vector components of 4-vectors to TVector3 list
   std::vector<TVector3> MomList;
@@ -246,13 +246,13 @@ double PndEventShape::Thrust(int Nmax)
   
   // select highest momentum
   TVector3 n0 = MomList[0];
-  double pmax = n0.Mag();
+  //double pmax = n0.Mag(); //  //[R.K.03/2017] unused variable(s)
   
   // prepare vector container for all 2^(Nmax-1) start vectors
   // based on the Nmax highest momentum vectors.
   // this is to avoid getting stuck in local maximum
   std::vector<TVector3>  startn0;
-  int n = std::min(Nmax, fN), nst = pow(2,n-1);
+  size_t n = std::min(Nmax, fN), nst = pow(2,n-1);
   
   // construct 2^(Nmax-1) start vectors 
   // n_i = Sum [eps_i * p_i], with eps_i = +-1
@@ -280,7 +280,7 @@ double PndEventShape::Thrust(int Nmax)
 	for (i=0;i<5;++i)
 	{
 	  // compute current thrust axis for next iteration
-	  for (j=0;j<fN;++j) nnew += Eps(n0, MomList[j]) * MomList[j];
+	  for (j=0;(int)j<fN;++j) nnew += Eps(n0, MomList[j]) * MomList[j];
 	  
 	  // normalize
 	  n0 = nnew.Unit();
@@ -289,7 +289,7 @@ double PndEventShape::Thrust(int Nmax)
     // compute current thrust value
 	double thisthr=0, sum=0;
 		
-	for (i=0;i<fN;++i)
+	for (i=0;(int)i<fN;++i)
 	{
 	  thisthr += fabs(n0.Dot(MomList[i]));
 	  sum     += MomList[i].Mag();

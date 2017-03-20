@@ -54,7 +54,7 @@ TGo4EventElement::~TGo4EventElement()
 {
 }
 
-Bool_t TGo4EventElement::CheckEventSource(const char* classname)
+Bool_t TGo4EventElement::CheckEventSource(const char* ) // classname  //[R.K.03/2017] unused variable(s)
 {
    return kFALSE;
 }
@@ -63,12 +63,12 @@ void TGo4EventElement::PrintEvent()
 {
 }
 
-void TGo4EventElement::Print(Option_t* option) const
+void TGo4EventElement::Print(Option_t* ) const
 {
    ((TGo4EventElement*)this) -> PrintEvent();
 }
 
-void TGo4EventElement::makeBranch(TBranch *parent)
+void TGo4EventElement::makeBranch(TBranch *) //parent //[R.K.03/2017] unused variable(s)
 {
    // method for recursive branching algorithm
 
@@ -134,7 +134,7 @@ fbActivated = kTRUE;
 */
 
 
-Int_t TGo4EventElement::activateBranch(TBranch *branch, Int_t init, TGo4EventElement** var_ptr)
+Int_t TGo4EventElement::activateBranch(TBranch *branch, Int_t , TGo4EventElement** var_ptr) // init //[R.K.03/2017] unused variable(s)
 {
    if (branch==0) return 0;
 

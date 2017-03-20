@@ -174,7 +174,7 @@ Double_t PndEmcClusterEnergySums::E9E25() const
 }
 
 void
-PndEmcClusterEnergySums::Print(const Option_t* opt) const
+PndEmcClusterEnergySums::Print(const Option_t* ) const
 {
   std::cout << " E1=" << E1() << ", E9=" << E9() << ", E25=" << E25();
   std::cout << ", E1/E9=" << E1E9() << ", E9/E25=" << E9E25();

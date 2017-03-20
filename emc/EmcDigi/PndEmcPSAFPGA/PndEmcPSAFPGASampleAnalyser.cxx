@@ -68,7 +68,7 @@ void PndEmcPSAFPGASampleAnalyser::init(PndEmcPSAFPGASampleAnalyser::SampleAnalys
   return;
 }
 
-void PndEmcPSAFPGASampleAnalyser::initFromFile(const std::string &fname) {
+void PndEmcPSAFPGASampleAnalyser::initFromFile(const std::string &) {// fname //[R.K.03/2017] unused variable(s)
   SampleAnalyserParams newParams;
   newParams.hit_threshold = 200;
   newParams.ma_trig_M = 30;

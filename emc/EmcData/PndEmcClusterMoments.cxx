@@ -327,7 +327,7 @@ PndEmcClusterMoments::Centre2() const
 }
 
 void
-PndEmcClusterMoments::Print(const Option_t* opt) const
+PndEmcClusterMoments::Print(const Option_t* ) const
 {
 //  std::cout << " centre1=" << Centre1() << ", centre2=" << Centre2();
 //  std::cout << endl;

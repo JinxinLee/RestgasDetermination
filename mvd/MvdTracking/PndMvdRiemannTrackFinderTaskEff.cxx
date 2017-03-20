@@ -144,7 +144,7 @@ void PndMvdRiemannTrackFinderTaskEff::Exec(Option_t*)
 void PndMvdRiemannTrackFinderTaskEff::FinishEvent()
 {
 }
-bool PndMvdRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMCTrack* myTrack)
+bool PndMvdRiemannTrackFinderTaskEff::CheckRecoTrack(PndTrackCand *cand,PndMCTrack* ) //myTrack //[R.K.03/2017] unused variable(s)
 {
 	if (/*myTrack->GetPdgCode()==211 &&*/ (cand->GetNHits()>2)/* && (myTrack->GetMotherID()==-1)*/){
 		int count=0;

@@ -132,7 +132,7 @@ InitStatus PndDrcLutReco::Init(){
 }
 
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcLutReco::Exec(Option_t*ion){
+void PndDrcLutReco::Exec(Option_t*){
   nevents++;
   fDetectorID = 0;
   if ( ! fDrcTrackInfoArray ) Fatal("Exec", "No fDrcTrackInfoArray");
@@ -309,7 +309,7 @@ void PndDrcLutReco::FillAmbiguities(PndDrcPhotonInfo *photoninfo, Int_t barId,  
   }
 }
 
-void PndDrcLutReco::DetermineBarId(Double_t phi, Double_t &boxPhi, Int_t &boxId, Int_t &barId){
+void PndDrcLutReco::DetermineBarId(Double_t phi, Double_t &boxPhi, Int_t &, Int_t &barId){ // boxId //[R.K.03/2017] unused variable(s)
   Double_t startPhi = phi/TMath::Pi()*180;
   if(startPhi < 0) startPhi = 360 + startPhi;
   if(startPhi >= 0 && startPhi < 90) boxPhi = TMath::Floor(startPhi/fDphi) *fDphi + fDphi/2.;

@@ -85,7 +85,7 @@ PndRiemannTrack::~PndRiemannTrack()
 
 void
 PndRiemannTrack::init(double x0_, double y0_, double R_,
-			 double mydip, double z0){
+			 double mydip, double){// z0 //[R.K.03/2017] unused variable(s)
 
 	fn[1] = TMath::Sqrt(4*y0_*y0_/(4*y0_*y0_+4*x0_*x0_+1));
 	fn[0] = x0_/y0_*fn[1];

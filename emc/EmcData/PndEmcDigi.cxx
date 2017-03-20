@@ -334,7 +334,7 @@ bool PndEmcDigi::operator<( const PndEmcDigi & otherDigi) const
 
 
 // -----   Public method Print   -----------------------------------
-void PndEmcDigi::Print(const Option_t* opt) const {
+void PndEmcDigi::Print(const Option_t* ) const {
   cout << "EMC digi: cellid=" << GetDetectorId() << ", Energy=" << fEnergy<<", Time="<<GetTimeStamp()<<", Evt="<<fEvtNo;
   if (fTrackId>0) cout << ", TrackID= " << fTrackId;
 	//cout<<endl;

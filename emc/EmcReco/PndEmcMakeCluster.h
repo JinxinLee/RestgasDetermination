@@ -58,7 +58,7 @@ public:
    *
    *	Restoring digis makes only sense if reconstruction is done timebased	
    */
-  void StoreClusterBaseDigis(Bool_t val = kTRUE) { fStoreClusterBase = kTRUE; }
+  void StoreClusterBaseDigis(Bool_t val = kTRUE) { fStoreClusterBase = val; }
  
   void SetClusterActiveTime(Double_t time) { fClusterActiveTime = time; } //!<  Override EmcRecoPar cluster active time parameter ..to be set in ns!!! 
   

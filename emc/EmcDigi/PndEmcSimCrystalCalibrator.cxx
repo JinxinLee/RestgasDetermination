@@ -25,7 +25,7 @@ void PndEmcSimCrystalCalibrator::SetCalibration(Int_t ModId, Double_t cal, Int_t
 		fModuleCalibrationMaps[SignalNr].insert(pair<Int_t, pair<Double_t,Double_t> >(ModId, make_pair(1.0/cal, overflow)));
  }
 
-void PndEmcSimCrystalCalibrator::CreateRandomCalibration(Double_t Sigma){
+void PndEmcSimCrystalCalibrator::CreateRandomCalibration(Double_t ){ // Sigma //[R.K.03/2017] unused variable(s)
 	//not implemented yet
 };
 

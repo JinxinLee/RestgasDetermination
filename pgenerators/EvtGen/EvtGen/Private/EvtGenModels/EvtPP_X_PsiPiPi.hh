@@ -38,7 +38,7 @@ class EvtParticle;
 class EvtPP_X_PsiPiPi: public EvtDecayAmp  {
 public:
     EvtPP_X_PsiPiPi();
-    EvtPP_X_PsiPiPi(const EvtPP_X_PsiPiPi& orig);
+    EvtPP_X_PsiPiPi(const EvtPP_X_PsiPiPi&) = delete; // orig);
     virtual ~EvtPP_X_PsiPiPi();
     virtual std::string getName();
     virtual EvtDecayBase* clone();

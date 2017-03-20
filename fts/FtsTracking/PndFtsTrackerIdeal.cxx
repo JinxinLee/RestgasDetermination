@@ -149,7 +149,7 @@ InitStatus PndFtsTrackerIdeal::Init() {
 }
 
 //_________________________________________________________________
-void PndFtsTrackerIdeal::Exec(Option_t * option)
+void PndFtsTrackerIdeal::Exec(Option_t * )
 {
   Reset();
   if(fVerbose>3) Info("Exec","Start eventloop.");

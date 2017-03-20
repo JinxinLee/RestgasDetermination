@@ -133,7 +133,7 @@ InitStatus PndDrcHitProducerReal::Init()
    
 }
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcHitProducerReal::Exec(Option_t*ion)
+void PndDrcHitProducerReal::Exec(Option_t*) // ion //[R.K.03/2017] unused variable(s)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();
@@ -1343,7 +1343,7 @@ void PndDrcHitProducerReal::SetPhotonTransportEff(Double_t& fLambdaMin,
 }
 // -----   Find Photon Hit Position---------------------------------------------------
 void PndDrcHitProducerReal::FindDrcHitPosition(Double_t xPoint, Double_t yPoint,
-					       Double_t& xHit, Double_t& yHit, Int_t& pmtID)
+					       Double_t& xHit, Double_t& yHit, Int_t& ) // pmtID //[R.K.03/2017] unused variable(s)
 {
   Double_t pixelDim = fPixelDim;
   if(xPoint >= 0)
@@ -1360,7 +1360,7 @@ void PndDrcHitProducerReal::FindDrcHitPosition(Double_t xPoint, Double_t yPoint,
 
 // -----   Find Photon Hit Position Tilt---------------------------------------------------
 void PndDrcHitProducerReal::FindDrcHitPositionTilt(Double_t xPoint, Double_t yPoint,
-						   Double_t& xHit, Double_t& yHit, Int_t& pmtID)
+						   Double_t& xHit, Double_t& yHit, Int_t& ) // pmtID //[R.K.03/2017] unused variable(s)
 {
   Double_t pixelDim = fPixelDim;
   Double_t pixelDimY = fPixelDim*cos(ftilt/180.*fpi);

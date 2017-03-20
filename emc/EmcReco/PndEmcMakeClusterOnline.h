@@ -45,7 +45,7 @@ public:
   void SetStorageOfData(Bool_t val); 	//!< Method to specify whether clusters are stored or not.
 
   /// Restoring digis makes only sense if reconstruction is done timebased	
-  void StoreClusterBaseDigis(Bool_t val = kTRUE) { fStoreClusterBase = kTRUE; }
+  void StoreClusterBaseDigis(Bool_t val = kTRUE) { fStoreClusterBase = val; }
  
   ///  Override EmcRecoPar cluster active time parameter ..to be set in ns!!! 
   void SetClusterActiveTime(Double_t time) { fClusterActiveTime = time; } 

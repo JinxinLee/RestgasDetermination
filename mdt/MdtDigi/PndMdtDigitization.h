@@ -26,7 +26,7 @@ class PndMdtDigitization : public FairTask
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
 
-    void SetStorageOfData(Bool_t val) {; }
+    void SetStorageOfData(Bool_t ) {; }  //val //[R.K.03/2017] unused variable(s)
     void FinishTask();
 
     void RunTimeBased() { fTimeOrderedDigi = kTRUE; }

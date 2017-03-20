@@ -355,7 +355,7 @@ PndEmcCluster::SetNBumps(unsigned nbumps) {
 }
 
 void
-PndEmcCluster::Print(const Option_t* opt) const
+PndEmcCluster::Print(const Option_t* ) const
 {
 	std::cout<<"*********************************"<< endl;
 	std::cout<<"total energy of cluster: "<< energy() << endl;

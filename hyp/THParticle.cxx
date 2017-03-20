@@ -65,7 +65,7 @@ THParticle::~THParticle() { }
 // -------------------------------------------------------------------------
 
 // -----   Public method Print   -------------------------------------------
-void THParticle::Print(const Option_t* opt) const {
+void THParticle::Print(const Option_t* ) const {
   cout << "-I- THParticle: HYP fragment for track " << fpdgCode 
        << " in event " <<fEventID<< endl;
   

@@ -38,7 +38,7 @@ PndEmcHeader::~PndEmcHeader() {}
 
 
 // -----   Public method Print   -------------------------------------------
-void PndEmcHeader::Print(const Option_t* opt) const {
+void PndEmcHeader::Print(const Option_t* ) const {
   cout << "EMC header: fired crystals= " << GetHitMult() << ", digi= " << GetDigiMult() << ", Total energy= " << GetHitEnergy() << " [GeV], Reconstructed clusters= " << GetCluMult() << ", Total energy in clusters= " << GetCluEnergy() << " [GeV]" << endl;
 }
 // -------------------------------------------------------------------------

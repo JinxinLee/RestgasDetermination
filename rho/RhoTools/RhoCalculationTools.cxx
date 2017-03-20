@@ -759,7 +759,7 @@ Bool_t RhoCalculationTools::P6FromTrajectory( TVectorD& mom6, TMatrixDSym& cov6,
 };
 
 Double_t RhoCalculationTools::StateFromTrajectory( TVectorD& state, TMatrixDSym& cov, RhoCandidate* cand, 
-                                                  double vx, double vy, double vz,  double ztolerance=-1. ) 
+                                                  double , double , double vz,  double ztolerance=-1. )  // vx vy //[R.K.03/2017] unused variable(s)
 {
   //std::cout<<"RhoCalculationTools::StateFromTrajectory()"<<std::endl;
   // here we transform from Pos&P4 of the RhoCandidate to DecayTreeFitter state

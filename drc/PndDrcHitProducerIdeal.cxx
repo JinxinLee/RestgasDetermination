@@ -99,7 +99,7 @@ InitStatus PndDrcHitProducerIdeal::Init()
 
 // -----   Execution of Task   ---------------------------------------------
 // -------------------------------------------------------------------------
-void PndDrcHitProducerIdeal::Exec(Option_t*ion)
+void PndDrcHitProducerIdeal::Exec(Option_t*) // ion //[R.K.03/2017] unused variable(s)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Clear();
@@ -173,7 +173,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t*ion)
 
 // -----   Add Hit to HitCollection   --------------------------------------
 PndDrcHit* PndDrcHitProducerIdeal::AddHit(Int_t detID,
-					  Int_t sensorID, 
+					  Int_t ,  // sensorID //[R.K.03/2017] unused variable(s)
 				     TVector3 posHit, 
 				     TVector3 dPosHit, 
 				     Double_t thetaC,

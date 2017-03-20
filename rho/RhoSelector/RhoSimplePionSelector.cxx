@@ -61,7 +61,7 @@ Bool_t RhoSimplePionSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t RhoSimplePionSelector::Accept ( FairRecoCandidate* b )
+Bool_t RhoSimplePionSelector::Accept ( FairRecoCandidate*  )
 {
   return kFALSE;
 }

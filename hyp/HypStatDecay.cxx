@@ -99,7 +99,7 @@ HypStatDecay::~HypStatDecay() {
 
 
 // -----   Public method ReadEvent   --------------------------------------
-void HypStatDecay::GetFragment(Int_t primGen) 
+void HypStatDecay::GetFragment(Int_t )  // primGen //[R.K.03/2017] unused variable(s)
 {
    fPx.clear();fPy.clear();fPz.clear();
    A.clear();Z.clear();H.clear();

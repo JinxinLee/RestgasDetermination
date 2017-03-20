@@ -30,7 +30,7 @@ TProtoUnpackEvent::~TProtoUnpackEvent()
 //***********************************************************
 
 //-----------------------------------------------------------
-void  TProtoUnpackEvent::Clear(Option_t *t)
+void  TProtoUnpackEvent::Clear(Option_t *)
 {
    void* destfield;
    //cout << "+++ event clear" << endl;

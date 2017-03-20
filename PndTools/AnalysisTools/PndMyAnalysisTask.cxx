@@ -403,7 +403,7 @@ void PndMyAnalysisTask::FillMassHisto(TH1F* h, RhoCandList& l)
 
 // -------------------------------------------------------------------------
 
-int PndMyAnalysisTask::SelectPdgCode(RhoCandList& mct, RhoCandList& l)
+int PndMyAnalysisTask::SelectPdgCode(RhoCandList& , RhoCandList& l) // mct //[R.K.03/2017] unused variable(s)
 {
   int removed = 0;
   int pdgcode=0;

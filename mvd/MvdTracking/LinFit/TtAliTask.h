@@ -27,53 +27,8 @@ public:
   // Constructors/Destructors ---------
   TtAliTask();
   TtAliTask(Int_t ExcludedBox);
-  TtAliTask(const TtAliTask& o) :
-    fTCandArray(o.fTCandArray),
-    fTCandBranchName(o.fTCandBranchName),
-    fTrackcount(o.fTrackcount),
-    fEvent(o.fEvent),
-    fExclBox(o.fExclBox),
-    fPrint(o.fPrint),
-    sX(),
-    sY(),
-    sigX(),
-    sigY(),
-    m_X(),
-    m_Y(),
-    hx(o.hy),
-    hy(o.hy)
-  {
-    for (Int_t gg = 0 ; gg < 4 ; gg++)
-    {
-      sX[gg] = o.sX[gg];
-      sY[gg] = o.sY[gg];
-      sigX[gg] = o.sigX[gg];
-      sigY[gg] = o.sigY[gg];
-      m_X[gg] = o.m_X[gg];
-      m_Y[gg] = o.m_Y[gg];
-    }
-  };
-  TtAliTask& operator=(const TtAliTask& o) 
-  { 
-    fTCandArray=o.fTCandArray;
-    fTCandBranchName=o.fTCandBranchName;
-    fTrackcount=o.fTrackcount;
-    fEvent=o.fEvent;
-    fExclBox=o.fExclBox;
-    fPrint=o.fPrint;
-    for (Int_t gg = 0 ; gg < 4 ; gg++)
-    {
-      sX[gg] = o.sX[gg];
-      sY[gg] = o.sY[gg];
-      sigX[gg] = o.sigX[gg];
-      sigY[gg] = o.sigY[gg];
-      m_X[gg] = o.m_X[gg];
-      m_Y[gg] = o.m_Y[gg];
-    }
-    hx=o.hx;
-    hy=o.hy;
-    return *this;
-  };
+  TtAliTask(const TtAliTask& ) = delete;
+  TtAliTask& operator=(const TtAliTask& ) = delete;
   virtual ~TtAliTask();
 
   virtual InitStatus Init();

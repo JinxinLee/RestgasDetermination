@@ -156,7 +156,7 @@ InitStatus PndFtsDataAccessor::Init() {
 }
 
   //_________________________________________________________________
-void PndFtsDataAccessor::Exec(Option_t * option)
+void PndFtsDataAccessor::Exec(Option_t * )
 {
   if(fVerbose>3) Info("Exec","Start eventloop.");
   if(fVerbose>4){

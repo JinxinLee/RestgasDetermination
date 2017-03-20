@@ -106,7 +106,7 @@ TString PndHypGeoHandling::GetVolumeID(TString name)
 	return result;
 }
 
-std::vector<TString> PndHypGeoHandling::GetNamesLevel(Int_t level, TString startPath, bool fullPath)
+std::vector<TString> PndHypGeoHandling::GetNamesLevel(Int_t level, TString startPath, bool ) // fullPath //[R.K.03/2017] unused variable(s)
 {
 	TString actPath = fGeoMan->GetPath();
 	fLevelNames.clear();

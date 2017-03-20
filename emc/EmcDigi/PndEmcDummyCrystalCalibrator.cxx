@@ -9,7 +9,7 @@
 
 #include "PndEmcDummyCrystalCalibrator.h"
 
-PndEmcAbsCrystalCalibrator::CalibrationStatus_t PndEmcDummyCrystalCalibrator::Calibrate(Double_t &Energy, Long_t detId, Int_t SignalNr){
+PndEmcAbsCrystalCalibrator::CalibrationStatus_t PndEmcDummyCrystalCalibrator::Calibrate(Double_t &, Long_t , Int_t ){// Energy detId SignalNr //[R.K.03/2017] unused variable(s)
 	return kCALOK;
 }
 ClassImp(PndEmcDummyCrystalCalibrator);

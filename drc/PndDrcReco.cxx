@@ -254,7 +254,7 @@ TH1F *hPath = new TH1F("hPath",";pathid [#];entries [#]",30,0,30);
 TH2F *hSD = new TH2F("hSD",";#theta_{c} [rad];t_{lut} - t_{daq} [ns]",200,0.8,0.85,200,-2,2);
 
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcReco::Exec(Option_t*ion){
+void PndDrcReco::Exec(Option_t*){
   nevents++;
   
   Int_t nHits = fPDHitArray->GetEntriesFast();
@@ -311,7 +311,7 @@ void PndDrcReco::Exec(Option_t*ion){
 
 //Double_t ggg;
 Int_t gg_pathid=0;
-void PndDrcReco::DetermineCherenkov(Int_t  boxId, Int_t barId){
+void PndDrcReco::DetermineCherenkov(Int_t  , Int_t barId){ // boxId //[R.K.03/2017] unused variable(s)
   
   for(Int_t i=0; i<5; i++) {
     fLk1[i]=0;

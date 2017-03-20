@@ -400,7 +400,7 @@ void TtAliTask::Exec(Option_t*)
 }
 
 
-void TtAliTask::MyFit(Double_t *x,Double_t *y,Double_t *z,Double_t *Erx,Double_t *Ery,Double_t *Erz,Double_t realX, Double_t realY, Double_t realZ, Double_t &DELTAX, Double_t &DELTAY)
+void TtAliTask::MyFit(Double_t *x,Double_t *y,Double_t *z,Double_t *Erx,Double_t *Ery,Double_t *,Double_t realX, Double_t realY, Double_t realZ, Double_t &DELTAX, Double_t &DELTAY) //Erz //[R.K.03/2017] unused variable(s)
 {
 
   TGraphErrors grX;

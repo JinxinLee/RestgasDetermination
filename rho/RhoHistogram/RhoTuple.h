@@ -197,7 +197,7 @@ class RhoTuple : public TNamed
     // Print info about ntuple:
     virtual void PrintOn ( std::ostream& ) const;
 
-    RhoTuple& operator= ( const RhoTuple& v ) {
+    RhoTuple& operator= ( const RhoTuple&  ) {
       return *this;
     }
 

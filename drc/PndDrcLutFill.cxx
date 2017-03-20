@@ -130,7 +130,7 @@ void PndDrcLutFill::InitLut()
 }
 
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcLutFill::Exec(Option_t*ion)
+void PndDrcLutFill::Exec(Option_t*)
 {
   nevents++;
   // if(fVerbose>0 && nevents%1000==0)

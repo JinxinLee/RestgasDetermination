@@ -72,7 +72,7 @@ public:
 
 	Double_t getThetaZxRad(const Double_t zLabSys) const; // gets the angle to the z axis in the zx plane calculated at some z coordinate (in laboratory system)
 	// gets the angle to the z axis in the zy plane calculated at some z coordinate (in laboratory system)
-	Double_t getThetaZyRad(const Double_t zLabSys) const { return fZyLine.getThetaRadVal(); };
+	Double_t getThetaZyRad(const Double_t ) const { return fZyLine.getThetaRadVal(); }; // zLabSys //[R.K.03/2017] unused variable(s)
 
 	Double_t getZLineParabola() { return fZCoordLineParabola; }; // gets z coordinate in laboratory system where I switch from line before dipole to parabola within dipole (in zx plane)
 	Double_t getZParabolaLine() { return fZCoordParabolaLine; }; // gets z coordinate in laboratory system where I switch from parabola within dipole to line behind dipole (in zx plane)
@@ -200,7 +200,7 @@ std::pair<Double_t, Double_t> PndFtsHoughTrackCand::getPZPXLabParabola(const Dou
 }
 
 
-std::pair<Double_t, Double_t> PndFtsHoughTrackCand::getPZPXLabLine(const Double_t &zLabSys, const PndFtsHoughTracklet * const lineTracklet) const {
+std::pair<Double_t, Double_t> PndFtsHoughTrackCand::getPZPXLabLine(const Double_t &, const PndFtsHoughTracklet * const lineTracklet) const { // zLabSys //[R.K.03/2017] unused variable(s)
 		// theta in radian in zx plane given at z = zRefLabSys
 		const Double_t thetaRad = lineTracklet->getThetaRadVal();
 		const Double_t qDivPzx = fZxParabola.getSecondVal(); // Q/pzx

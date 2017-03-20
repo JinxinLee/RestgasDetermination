@@ -163,7 +163,7 @@ class RhoBoolColumn : public RhoColumn
     virtual void SetDefValue() {
       * ( Char_t* ) fPointer = fDefValue;
     }
-    virtual void SetValue ( const void* p, RhoColumn* cp=0 ) {
+    virtual void SetValue ( const void* p, RhoColumn*  ) {
       * ( Char_t* ) fPointer = * ( const Bool_t* ) p;
     }
   private:
@@ -213,7 +213,7 @@ class RhoIntColumn : public RhoColumn
     virtual void SetDefValue() {
       * ( Int_t* ) fPointer = fDefValue;
     }
-    virtual void SetValue ( const void* p, RhoColumn* cp=0 ) {
+    virtual void SetValue ( const void* p, RhoColumn*  ) {
       * ( Int_t* ) fPointer = * ( const Int_t* ) p;
     }
   private:
@@ -263,7 +263,7 @@ class RhoFloatColumn : public RhoColumn
     virtual void SetDefValue() {
       * ( Float_t* ) fPointer = fDefValue;
     }
-    virtual void SetValue ( const void* p, RhoColumn* cp=0 ) {
+    virtual void SetValue ( const void* p, RhoColumn*  ) {
       * ( Float_t* ) fPointer = * ( const Float_t* ) p;
     }
   private:
@@ -317,7 +317,7 @@ class RhoDoubleColumn : public RhoColumn
     virtual void SetDefValue() {
       * ( Double_t* ) fPointer = fDefValue;
     }
-    virtual void SetValue ( const void* p, RhoColumn* cp=0 ) {
+    virtual void SetValue ( const void* p, RhoColumn*  ) {
       * ( Double_t* ) fPointer = * ( const Double_t* ) p;
     }
   private:

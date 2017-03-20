@@ -34,7 +34,7 @@ Int_t PndEmcPSAParabolicBaseline::Process(const PndEmcWaveform *waveform){
 		return 0;
 	}
 }
-void PndEmcPSAParabolicBaseline::GetHit(Int_t i, Double_t &energy, Double_t &time){
+void PndEmcPSAParabolicBaseline::GetHit(Int_t , Double_t &energy, Double_t &time){ //i //[R.K.03/2017] unused variable(s)
 	energy = lAmplitude;
 	time = lTime;
 }

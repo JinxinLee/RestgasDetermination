@@ -37,7 +37,7 @@ TBuffer& operator>> ( TBuffer& buf,PndAnaPidSelector  *&obj )
   return buf;
 }
 
-PndAnaPidSelector::PndAnaPidSelector ( const char* name, const char* type, const char* paramid ) :
+PndAnaPidSelector::PndAnaPidSelector ( const char* name, const char* type, const char*  ) : // paramid //[R.K.03/2017] unused variable(s)
     RhoParticleSelectorBase ( name,type ) ,
     fChargeCrit ( 0.0 ),
     fPidSelect ( 99 )   // some silly default number here
@@ -245,7 +245,7 @@ Bool_t PndAnaPidSelector::Accept ( RhoCandidate* b )
   return kTRUE;
 }
 
-Bool_t PndAnaPidSelector::Accept ( FairRecoCandidate* b )
+Bool_t PndAnaPidSelector::Accept ( FairRecoCandidate*  )
 {
   Warning ( "PndAnaPidSelector::Accept(VAbsMicroCandidate&)","No implementation for this. Please use PndAnaPidSelector::Accept(RhoCandidate&)" );
   return kFALSE;

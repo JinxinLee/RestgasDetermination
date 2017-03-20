@@ -115,7 +115,7 @@ InitStatus PndFtsHoughTrackerTaskQA::ReInit()
 
 
 // ---- Exec ----------------------------------------------------------
-void PndFtsHoughTrackerTaskQA::Exec(Option_t*ion)
+void PndFtsHoughTrackerTaskQA::Exec(Option_t*)
 {
 	if(1<fVerbose) Info("Exec","Exec of PndFtsHoughTrackerTaskQA on event %i", fEventNr);
 

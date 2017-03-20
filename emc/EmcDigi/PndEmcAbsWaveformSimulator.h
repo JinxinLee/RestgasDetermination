@@ -46,7 +46,7 @@ class PndEmcAbsWaveformSimulator : public TObject
 		/*! maximum timeinterval generated waveforms are ahead of causal detector hits
 		 *
 		 * Information is needed by timebased simulation framework. E.g. provokeed by simulation of preceding baseline samples */
-		virtual Double_t GetTimeBeforeFirstHit(PndEmcWaveformData* wfData) { return 0; }					// in ns
+		virtual Double_t GetTimeBeforeFirstHit(PndEmcWaveformData* ) { return 0; }					// in ns  // wfData //[R.K.03/2017] unused variable(s)
 
 		/*! Get 1GeV pulse height equivalient of simulator generated waveform*/
 		virtual Double_t GetScale() = 0;

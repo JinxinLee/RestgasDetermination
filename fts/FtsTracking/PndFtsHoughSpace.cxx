@@ -1395,7 +1395,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksScanPathsMergeBin
 
 
 
-std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksWithTSpectrum2(const UInt_t minHeight)
+std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksWithTSpectrum2(const UInt_t ) // minHeight //[R.K.03/2017] unused variable(s)
 {
 	std::vector<PndFtsHoughTracklet> tracklets; // for output
 
@@ -1452,7 +1452,7 @@ std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksWithTSpectrum2(co
 
 
 
-std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksBlanko(const UInt_t minHeight)
+std::vector<PndFtsHoughTracklet> PndFtsHoughSpace::FindAllPeaksBlanko(const UInt_t ) // minHeight //[R.K.03/2017] unused variable(s)
 {
 	std::vector<PndFtsHoughTracklet> tracklets; // for output
 
