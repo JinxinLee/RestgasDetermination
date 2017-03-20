@@ -106,7 +106,7 @@ InitStatus PndLmdLineTask::Init()
 }
 
 
-void PndLmdLineTask::Exec(Option_t* opt)
+void PndLmdLineTask::Exec(Option_t*)
 {
   std::cout<<"PndLmdLineTask::Exec"<<std::endl;
   // Reset output Array

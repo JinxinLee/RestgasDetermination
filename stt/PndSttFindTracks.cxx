@@ -211,7 +211,7 @@ void PndSttFindTracks::AddAllCollections()
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttFindTracks::Exec(Option_t* opt) 
+void PndSttFindTracks::Exec(Option_t*) 
 {
   // CHECK !!! IMPORTANT: event 0 (the first) 
 

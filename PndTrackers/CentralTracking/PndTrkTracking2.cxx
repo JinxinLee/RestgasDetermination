@@ -823,7 +823,7 @@ void PndTrkTracking2::WriteHistograms(){
 
 // -----   Public method Exec   --------------------------------------------
 
-void PndTrkTracking2::Exec(Option_t* opt) {
+void PndTrkTracking2::Exec(Option_t*) {
 
 
  bool

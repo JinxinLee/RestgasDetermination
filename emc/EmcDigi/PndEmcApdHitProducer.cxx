@@ -101,7 +101,7 @@ InitStatus PndEmcApdHitProducer::Init() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndEmcApdHitProducer::Exec(Option_t* opt) {
+void PndEmcApdHitProducer::Exec(Option_t*) {
   //cout << " DIGI EXECUTION *********************" << endl;
   // Reset output array
   if ( ! fDigiArray ) Fatal("Exec", "No DigiArray");

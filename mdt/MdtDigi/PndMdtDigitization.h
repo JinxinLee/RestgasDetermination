@@ -36,8 +36,8 @@ class PndMdtDigitization : public FairTask
     PndMdtDigi* AddDigiStrip(Int_t detID, TVector3& pos, Int_t);
     PndMdtDigi* AddDigi(Int_t detID, TVector3& pos, Int_t evtNo);
     Bool_t Digitize(PndMdtWaveform* theWf, Double_t& time, Double_t& amp, Bool_t isWire);
-    void exec_t(Option_t* );
-    void exec_e(Option_t* );
+    void exec_t();
+    void exec_e();
 
 
     Double_t fWireNoiseSigma;

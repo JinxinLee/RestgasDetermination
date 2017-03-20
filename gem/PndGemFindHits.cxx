@@ -151,7 +151,7 @@ PndGemFindHits::~PndGemFindHits() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemFindHits::Exec(Option_t* opt) {
+void PndGemFindHits::Exec(Option_t*) {
   if ( fVerbose > 0 ) cout << "-I- PndGemFindHits::Exec()" << endl; 
   //  cout << "======== PndGemFindHits::Exec(Event = " << fTNofEvents << " ) ====================" << endl;
 

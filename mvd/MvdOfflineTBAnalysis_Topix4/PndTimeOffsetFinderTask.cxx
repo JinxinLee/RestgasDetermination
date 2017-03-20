@@ -68,7 +68,7 @@ InitStatus PndTimeOffsetFinderTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndTimeOffsetFinderTask::Exec(Option_t* opt)
+void PndTimeOffsetFinderTask::Exec(Option_t*)
 {
 	if (FairRunAna::Instance()->IsTimeStamp() != kTRUE){
 		std::cout << "-E- PndTimeOffsetFinderTask::Exec not running in time based mode." << std::endl;

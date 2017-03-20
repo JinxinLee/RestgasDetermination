@@ -479,7 +479,7 @@ TClonesArray* PndLmdTrackFinderCATask::CookCells(std::vector< std::vector<Int_t>
 }
  
 // -----   Public method Exec   --------------------------------------------
-void PndLmdTrackFinderCATask::Exec(Option_t* opt)
+void PndLmdTrackFinderCATask::Exec(Option_t*)
 {
 
 

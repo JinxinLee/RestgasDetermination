@@ -107,7 +107,7 @@ void PndPrintFairLinks::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndPrintFairLinks::Exec(Option_t* opt)
+void PndPrintFairLinks::Exec(Option_t*)
 {
 	std::cout << std::endl << "--------------------- Event " << FairRootManager::Instance()->GetEntryNr() <<
 			" at " << FairRootManager::Instance()->GetEventTime() << " ns ----------------------" << std::endl;

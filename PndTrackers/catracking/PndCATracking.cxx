@@ -257,7 +257,7 @@ void PndCATracking::CATrackParToFairTrackParP( FairTrackParP *fairParam, const P
 }
 
 
-void PndCATracking::Exec(Option_t* opt)
+void PndCATracking::Exec(Option_t*)
 {
   if (fVerbose>0) std::cout<<"PndCATracking::Exec"<<std::endl;
 

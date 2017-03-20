@@ -68,7 +68,7 @@ InitStatus PndJpsi2PiAna::Init()
 
 // -------------------------------------------------------------------------
 
-void PndJpsi2PiAna::Exec(Option_t* opt) 
+void PndJpsi2PiAna::Exec(Option_t*) 
 {
 	if (0==(++fEvtCount)%100) cout <<"evt "<<fEvtCount<<endl;
 	

@@ -125,7 +125,7 @@ InitStatus PndLmdTrksFilterTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdTrksFilterTask::Exec(Option_t* opt)
+void PndLmdTrksFilterTask::Exec(Option_t*)
 {
  fTrkOutArray->Delete();
   if(fVerbose>4){

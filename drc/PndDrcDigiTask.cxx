@@ -134,7 +134,7 @@ InitStatus PndDrcDigiTask::Init(){
 }
 
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcDigiTask::Exec(Option_t* option){
+void PndDrcDigiTask::Exec(Option_t*ion){
   Reset();
   if (fVerbose > 0) cout << "-I- PndDrcDigiTask: Event # " << nevents 
 			 << " has " << fPDPointArray->GetEntriesFast() 

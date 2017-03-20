@@ -582,7 +582,7 @@ void PndLmdPerformanceTask::Propagate(TVector3 pos, TVector3 mom, int pdgcode,
 }*/
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdPerformanceTask::Exec(Option_t* opt) {
+void PndLmdPerformanceTask::Exec(Option_t*) {
 
 	bool verbose(false);
 

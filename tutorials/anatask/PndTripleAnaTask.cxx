@@ -189,7 +189,7 @@ void PndTripleAnaTask::SetParContainers()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndTripleAnaTask::Exec(Option_t* opt)
+void PndTripleAnaTask::Exec(Option_t*)
 {
 	// *** necessary to read the next event
 	fAnalysis->GetEventInTask();

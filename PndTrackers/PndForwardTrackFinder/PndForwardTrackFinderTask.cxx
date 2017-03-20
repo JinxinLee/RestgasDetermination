@@ -49,7 +49,7 @@ InitStatus PndForwardTrackFinderTask::Init() {
 	return kSUCCESS;
 }
 
-void PndForwardTrackFinderTask::Exec(Option_t* opt) {
+void PndForwardTrackFinderTask::Exec(Option_t*) {
 	std::cout
 			<< ">>>>>>>>>>>>>>====================PndForwardTrackFinderTask::Exec====================<<<<<<<<<<<<<<"
 			<< std::endl;

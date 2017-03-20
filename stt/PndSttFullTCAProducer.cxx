@@ -90,7 +90,7 @@ InitStatus PndSttFullTCAProducer::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttFullTCAProducer::Exec(Option_t* opt) 
+void PndSttFullTCAProducer::Exec(Option_t*) 
 {
   fSttHitArray0->Delete();
 

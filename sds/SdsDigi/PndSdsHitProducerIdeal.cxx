@@ -85,7 +85,7 @@ void PndSdsHitProducerIdeal::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSdsHitProducerIdeal::Exec(Option_t* opt)
+void PndSdsHitProducerIdeal::Exec(Option_t*)
 {
   // Reset output array
   if ( ! fHitArray )

@@ -85,7 +85,7 @@ PndGemMatchHits::~PndGemMatchHits() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemMatchHits::Exec(Option_t* opt) {
+void PndGemMatchHits::Exec(Option_t*) {
   Int_t nofPoints = fPoints->GetEntriesFast();
   Int_t nofHits = fHits->GetEntriesFast();
 

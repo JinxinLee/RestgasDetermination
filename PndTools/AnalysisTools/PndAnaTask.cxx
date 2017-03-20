@@ -47,7 +47,7 @@ InitStatus PndAnaTask::Init()
   return kSUCCESS;
 }
 
-void PndAnaTask::Exec(Option_t* opt)
+void PndAnaTask::Exec(Option_t*)
 {
 }
 

@@ -90,7 +90,7 @@ void PndHypMSAnaTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypMSAnaTask::Exec(Option_t* opt)
+void PndHypMSAnaTask::Exec(Option_t*)
 {																	
   // mcHitMap.clear();						//Track ->  MCHits
 	TVector3 vpi2;

@@ -93,7 +93,7 @@ InitStatus PndMvdEventMergerTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdEventMergerTask::Exec(Option_t* opt)
+void PndMvdEventMergerTask::Exec(Option_t*)
 {
 
 	TClonesArray* bg;

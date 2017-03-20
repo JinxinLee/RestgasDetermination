@@ -181,7 +181,7 @@ void TtCracowTask::SumDistance2(int &, double *, double & sum, double * par, int
 
 
 
-void TtCracowTask::Exec(Option_t* opt)
+void TtCracowTask::Exec(Option_t*)
 {
 
   

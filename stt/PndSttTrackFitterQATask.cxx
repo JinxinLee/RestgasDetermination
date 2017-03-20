@@ -184,7 +184,7 @@ void PndSttTrackFitterQATask::SetParContainers() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttTrackFitterQATask::Exec(Option_t* opt) 
+void PndSttTrackFitterQATask::Exec(Option_t*) 
 {
   // Declare some variables
   PndSttTrack*  pTrack  = NULL;

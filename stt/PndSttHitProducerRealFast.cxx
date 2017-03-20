@@ -135,7 +135,7 @@ void PndSttHitProducerRealFast::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttHitProducerRealFast::Exec(Option_t* opt) {
+void PndSttHitProducerRealFast::Exec(Option_t*) {
 
   if(fVerbose && fevtn%50==0) cout << "Event Number "<<fevtn<<endl;
   else if(fVerbose >= 3) cout << "Event Number "<<fevtn<<endl;

@@ -113,7 +113,7 @@ void PndFtsHitProducerMcPointCoordinates::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndFtsHitProducerMcPointCoordinates::Exec(Option_t* opt) {
+void PndFtsHitProducerMcPointCoordinates::Exec(Option_t*) {
 
   //std::cout<<"PndFtsHitProducer Exec ########"<<std::endl;
   if(fVerbose && fevtn%50==0) cout << "Event Number "<<fevtn<<endl;

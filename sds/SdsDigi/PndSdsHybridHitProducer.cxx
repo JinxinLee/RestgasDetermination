@@ -215,7 +215,7 @@ InitStatus PndSdsHybridHitProducer::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndSdsHybridHitProducer::Exec(Option_t* opt)
+void PndSdsHybridHitProducer::Exec(Option_t*)
 {
   if(fVerbose>3) Info("Exec","Start");
   //

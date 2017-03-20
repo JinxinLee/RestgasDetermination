@@ -78,7 +78,7 @@ void PndJPsiExample::SetParContainers() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndJPsiExample::Exec(Option_t* opt) {
+void PndJPsiExample::Exec(Option_t*) {
   
   // Reset output array
   Int_t nTracks = fTrArray->GetEntriesFast();

@@ -144,7 +144,7 @@ InitStatus PndDiscTaskPID::Init()
 //----------------------------------------------------------------------
 
 
-void PndDiscTaskPID::Exec(Option_t* opt)
+void PndDiscTaskPID::Exec(Option_t*)
 {
     //Reading out entries
     int particles = tclarr_particles_in->GetEntries();

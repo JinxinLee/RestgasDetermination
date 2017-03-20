@@ -75,7 +75,7 @@ InitStatus OnlineDBuilderTask::Init() {
 	return kSUCCESS;
 }
 
-void OnlineDBuilderTask::Exec(Option_t* opt) {
+void OnlineDBuilderTask::Exec(Option_t*) {
 	fDMinusArray->Delete();
 	fDPlusArray->Delete();
 	fDMinusArrayTrue->Delete();

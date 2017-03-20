@@ -39,7 +39,7 @@
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
- void PndSorterTask::Exec(Option_t* opt)
+ void PndSorterTask::Exec(Option_t*)
 {
 
 

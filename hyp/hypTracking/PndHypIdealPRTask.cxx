@@ -128,7 +128,7 @@ PndHypIdealPRTask::Init()
 
 
 void
-PndHypIdealPRTask::Exec(Option_t* opt)
+PndHypIdealPRTask::Exec(Option_t*)
 {
   std::cout<<"PndHypIdealPRTask::Exec"<<std::endl;
   // Reset output Array

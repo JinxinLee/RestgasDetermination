@@ -127,7 +127,7 @@ void PndLmdBPRungeKuttaTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdBPRungeKuttaTask::Exec(Option_t* opt)
+void PndLmdBPRungeKuttaTask::Exec(Option_t*)
 {
 
   std::map<int, std::vector<int> > mcHitMap;//Track ->  MCHits

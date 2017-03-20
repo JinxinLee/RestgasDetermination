@@ -281,7 +281,7 @@ void PndMdtTrkProducer::SetGeometry() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndMdtTrkProducer::Exec(Option_t* opt)
+void PndMdtTrkProducer::Exec(Option_t*)
 {
   // Reset output array
   fTrkArray->Delete();

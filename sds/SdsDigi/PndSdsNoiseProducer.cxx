@@ -177,7 +177,7 @@ void PndSdsNoiseProducer::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSdsNoiseProducer::Exec(Option_t* opt)
+void PndSdsNoiseProducer::Exec(Option_t*)
 {
   fGeoH->SetVerbose(fVerbose);
   //   TObjArray* activeSensors = fGeoPar->GetGeoSensitiveNodes();

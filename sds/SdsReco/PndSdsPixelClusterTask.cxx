@@ -203,7 +203,7 @@ InitStatus PndSdsPixelClusterTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSdsPixelClusterTask::Exec(Option_t* opt)
+void PndSdsPixelClusterTask::Exec(Option_t*)
 {
   std::vector<PndSdsDigiPixel> DigiPixelArray;
 //  // Reset output array

@@ -192,7 +192,7 @@ void PndTrkLegendreTask::Initialize() {
 
 }
 
-void PndTrkLegendreTask::Exec(Option_t* opt) {
+void PndTrkLegendreTask::Exec(Option_t*) {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
 

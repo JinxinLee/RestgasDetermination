@@ -75,7 +75,7 @@ public:
   Int_t	  GetShortID(TString path); ///< for a given path the (unique) position of the sensor path in the fSensorNamePar-List is given. If it is not found -1 is returned.
   
   TString GetVolumeID(TString name); ///< returns the volume ID for a given volume name
-  std::vector<TString> GetNamesLevel(Int_t level, TString startPath = "", bool fullPath = false);
+  std::vector<TString> GetNamesLevel(Int_t level, TString startPath = ""); //, bool fullPath = false); //[R.K.03/2017] unused variable
   void GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its path the o, u, v vectors for the plane are returned
   //  void GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its ID the o, u, v vectors for the plane are returned
   void GetOUVShortId(Int_t shortId, TVector3& o, TVector3& u, TVector3& v){

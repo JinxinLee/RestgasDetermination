@@ -176,7 +176,7 @@ void PndTrackingQATask::SetFunctor()
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndTrackingQATask::Exec(Option_t* opt) {
+void PndTrackingQATask::Exec(Option_t*) {
   fMCTrackInfo->Delete();
   fRecoTrackInfo->Delete();
 

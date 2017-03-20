@@ -65,7 +65,7 @@ InitStatus PndKFParticleFinderPID::Init()
   return kSUCCESS;
 }
 
-void PndKFParticleFinderPID::Exec(Option_t* opt)
+void PndKFParticleFinderPID::Exec(Option_t*)
 { 
   fPID.clear();
   

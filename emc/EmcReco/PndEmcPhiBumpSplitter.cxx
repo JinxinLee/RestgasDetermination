@@ -145,7 +145,7 @@ InitStatus PndEmcPhiBumpSplitter::Init()
  * @param opt unused
  * @return void
  */
-void PndEmcPhiBumpSplitter::Exec(Option_t* opt)
+void PndEmcPhiBumpSplitter::Exec(Option_t*)
 {
   PndEmcMapper::Instance(); //PndEmcMapper *fEmcMap= //[R.K.03/2017] unused variable
 

@@ -257,7 +257,7 @@ void PndMixBackgroundEvents::SetParContainers() {
 // -----   Public method Exec   --------------------------------------------
 // -----   Public method Exec   --------------------------------------------
 // -----   Public method Exec   --------------------------------------------
-void PndMixBackgroundEvents::Exec(Option_t* opt) {
+void PndMixBackgroundEvents::Exec(Option_t*) {
 
 
 //---------------- declaration of variables

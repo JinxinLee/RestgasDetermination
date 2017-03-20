@@ -390,7 +390,7 @@ void PndMvdGemTrackFinderQA::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdGemTrackFinderQA::Exec(Option_t* opt) {
+void PndMvdGemTrackFinderQA::Exec(Option_t*) {
   
   fNofEvents++;
 

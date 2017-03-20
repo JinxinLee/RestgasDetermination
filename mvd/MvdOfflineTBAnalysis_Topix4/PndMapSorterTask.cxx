@@ -57,7 +57,7 @@ InitStatus PndMapSorterTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndMapSorterTask::Exec(Option_t* opt)
+void PndMapSorterTask::Exec(Option_t*)
 {
 
  // fInputArray = FairRootManager::Instance()->GetTClonesArray(fInputBranch);

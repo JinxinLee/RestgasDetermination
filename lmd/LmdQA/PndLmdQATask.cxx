@@ -783,7 +783,7 @@ InitStatus PndLmdQATask::Init()
   return kSUCCESS;
 }
 
-void PndLmdQATask::Exec(Option_t* opt)
+void PndLmdQATask::Exec(Option_t*)
 {
 fEvent++;
   //  std::cout<<"PndLmdQATask::Exec"<<std::endl;

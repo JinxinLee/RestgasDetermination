@@ -137,7 +137,7 @@ InitStatus PndEmcCorrBump::Init()
 }
 
 
-void PndEmcCorrBump::Exec(Option_t* opt) 
+void PndEmcCorrBump::Exec(Option_t*) 
 {
 	TStopwatch timer;
 	if (fVerbose>2){

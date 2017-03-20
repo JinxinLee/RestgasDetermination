@@ -121,7 +121,7 @@ InitStatus DrawHits::Init()
    
 }
 // -----   Execution of Task   ---------------------------------------------
-void DrawHits::Exec(Option_t* option)
+void DrawHits::Exec(Option_t*ion)
 {
 
   nevents++;

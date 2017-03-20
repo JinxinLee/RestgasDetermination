@@ -55,7 +55,7 @@ void PndCudaExampleTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndCudaExampleTask::Exec(Option_t* opt)
+void PndCudaExampleTask::Exec(Option_t*)
 {
   std::cout << "============= PndCudaExampleTask:: START DEVICE INFO: " << std::endl;
   DeviceInfo_();

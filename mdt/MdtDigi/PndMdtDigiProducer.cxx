@@ -99,7 +99,7 @@ InitStatus PndMdtDigiProducer::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMdtDigiProducer::Exec(Option_t* opt) 
+void PndMdtDigiProducer::Exec(Option_t*) 
 { 
   // Reset output array
   fDigiBoxArray->Delete();

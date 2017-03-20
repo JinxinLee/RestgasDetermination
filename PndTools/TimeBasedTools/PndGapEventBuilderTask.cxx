@@ -72,7 +72,7 @@ InitStatus PndGapEventBuilderTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGapEventBuilderTask::Exec(Option_t* opt)
+void PndGapEventBuilderTask::Exec(Option_t*)
 {
 	fMainHitArray->Delete();
 	fMainEventHitArray->Delete();

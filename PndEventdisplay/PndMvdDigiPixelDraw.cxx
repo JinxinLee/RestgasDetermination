@@ -41,7 +41,7 @@ InitStatus PndMvdDigiPixelDraw::Init()
         return kSUCCESS;
 }
 
-void PndMvdDigiPixelDraw::Exec(Option_t* option)
+void PndMvdDigiPixelDraw::Exec(Option_t*ion)
 {
 	PndSdsCalcFePixel calc(104,104,10);
 	Int_t col, row, fe;

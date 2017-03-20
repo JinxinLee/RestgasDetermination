@@ -83,7 +83,7 @@ InitStatus PndMdtHitProducerIdeal::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMdtHitProducerIdeal::Exec(Option_t* opt) {
+void PndMdtHitProducerIdeal::Exec(Option_t*) {
   
   // Reset output array
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");

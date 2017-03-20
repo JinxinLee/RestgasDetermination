@@ -160,7 +160,7 @@ void PndGemFindTracks::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemFindTracks::Exec(Option_t* opt) {
+void PndGemFindTracks::Exec(Option_t*) {
 
   fTimer.Start();
 

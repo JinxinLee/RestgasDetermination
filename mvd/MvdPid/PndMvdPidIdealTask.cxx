@@ -86,7 +86,7 @@ void PndMvdPidIdealTask::SetParContainers()
 
 
 //----------------Exec----------------
-void PndMvdPidIdealTask::Exec(Option_t* opt)
+void PndMvdPidIdealTask::Exec(Option_t*)
 {
   if ( ! fTrackOutputArray ) Fatal("Exec", "No fTrackOutputArray");
   fTrackOutputArray->Delete();

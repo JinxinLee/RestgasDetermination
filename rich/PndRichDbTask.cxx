@@ -48,7 +48,7 @@ InitStatus PndRichDbTask::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndRichDbTask::Exec(Option_t* opt) {
+void PndRichDbTask::Exec(Option_t*) {
   if(fVerbose > 0) {
     //cout << "==================== EVENT " << evt << endl;
   }

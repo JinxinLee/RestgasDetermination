@@ -101,7 +101,7 @@ void PndFtsHitProducerRealFull::SetParContainers() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndFtsHitProducerRealFull::Exec(Option_t* opt) {
+void PndFtsHitProducerRealFull::Exec(Option_t*) {
 
   //  Int_t evtn=0;
   //  PndFtsPoint *ptemp =(PndFtsPoint*) fPointArray->At(0);

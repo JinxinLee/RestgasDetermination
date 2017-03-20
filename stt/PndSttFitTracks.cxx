@@ -111,7 +111,7 @@ void PndSttFitTracks::SetParContainers() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttFitTracks::Exec(Option_t* opt) 
+void PndSttFitTracks::Exec(Option_t*) 
 {
     AddAllCollections();
 

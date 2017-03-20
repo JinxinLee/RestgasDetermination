@@ -105,7 +105,7 @@ void PndFtsHitProducerIdeal::SetParContainers() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndFtsHitProducerIdeal::Exec(Option_t* opt) 
+void PndFtsHitProducerIdeal::Exec(Option_t*) 
 {
   if(fTubeArray == NULL){
     PndFtsMapCreator *mapper = new PndFtsMapCreator(fFtsParameters);

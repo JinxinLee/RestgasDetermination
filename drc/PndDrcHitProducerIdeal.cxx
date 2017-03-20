@@ -99,7 +99,7 @@ InitStatus PndDrcHitProducerIdeal::Init()
 
 // -----   Execution of Task   ---------------------------------------------
 // -------------------------------------------------------------------------
-void PndDrcHitProducerIdeal::Exec(Option_t* option)
+void PndDrcHitProducerIdeal::Exec(Option_t*ion)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Clear();

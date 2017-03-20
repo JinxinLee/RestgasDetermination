@@ -165,7 +165,7 @@ void PndMvdEventAnaTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdEventAnaTask::Exec(Option_t* opt)
+void PndMvdEventAnaTask::Exec(Option_t*)
 {
 	std::map<int, std::vector<int> > mcHitMap;						//Track ->  MCHits
 	std::map<int, std::vector<int> > trackToTrackCandMap;			//Track -> TrackCand

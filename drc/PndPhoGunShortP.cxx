@@ -167,7 +167,7 @@ InitStatus PndPhoGunShortP::Init()
 }
 
 // -----   Execution of Task   ---------------------------------------------
-void PndPhoGunShortP::Exec(Option_t* option)
+void PndPhoGunShortP::Exec(Option_t*ion)
 {
   nevents++;
   

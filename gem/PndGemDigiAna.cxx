@@ -139,7 +139,7 @@ void PndGemDigiAna::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemDigiAna::Exec(Option_t* opt) {
+void PndGemDigiAna::Exec(Option_t*) {
   
   if ( fVerbose ) {
     cout << "IN EVENT GOT " << fGemDigiArray->GetEntries() << " hits." << endl;

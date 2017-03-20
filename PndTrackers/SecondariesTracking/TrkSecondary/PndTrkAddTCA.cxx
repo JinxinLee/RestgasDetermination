@@ -81,7 +81,7 @@ InitStatus PndTrkAddTCA::Init() {
 }
 
 // -------------------------------------------------------------------------
-void PndTrkAddTCA::Exec(Option_t* opt)  {
+void PndTrkAddTCA::Exec(Option_t*)  {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
 

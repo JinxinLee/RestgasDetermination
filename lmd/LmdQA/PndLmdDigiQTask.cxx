@@ -111,7 +111,7 @@ InitStatus PndLmdDigiQTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdDigiQTask::Exec(Option_t* opt)
+void PndLmdDigiQTask::Exec(Option_t*)
  {
   FairRootManager* ioman = FairRootManager::Instance();
   double glEvTime= ioman->GetEventTime();

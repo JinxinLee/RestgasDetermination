@@ -111,7 +111,7 @@ InitStatus PndEmcTmpWaveformToDigi::Init()
 	return kSUCCESS;
 }
 
-void PndEmcTmpWaveformToDigi::Exec(Option_t* opt)
+void PndEmcTmpWaveformToDigi::Exec(Option_t*)
 {
 	TStopwatch timer;
 	if (fVerbose>0){

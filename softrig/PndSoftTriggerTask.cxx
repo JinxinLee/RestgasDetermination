@@ -813,7 +813,7 @@ void PndSoftTriggerTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSoftTriggerTask::Exec(Option_t* opt)
+void PndSoftTriggerTask::Exec(Option_t*)
 {
 	// *** prepare TCA for writing OnlineFilterInfo
 	if ( fTcaOnlineFilterInfo->GetEntriesFast() != 0 ) fTcaOnlineFilterInfo->Delete();

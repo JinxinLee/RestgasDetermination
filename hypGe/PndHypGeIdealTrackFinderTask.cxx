@@ -106,7 +106,7 @@ InitStatus PndHypGeIdealTrackFinderTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypGeIdealTrackFinderTask::Exec(Option_t* opt) 
+void PndHypGeIdealTrackFinderTask::Exec(Option_t*) 
 {
   // Reset output array
   // if ( ! fTrackCandArray )

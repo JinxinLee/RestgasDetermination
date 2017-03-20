@@ -157,7 +157,7 @@ InitStatus PndEmcMakeCluster::Init()
  * @param opt unused
  * @return void
  */
-void PndEmcMakeCluster::Exec(Option_t* opt) 
+void PndEmcMakeCluster::Exec(Option_t*) 
 {
 
 	if (fVerbose>2){

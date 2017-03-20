@@ -131,7 +131,7 @@ InitStatus PndMvdRiemannTrackFinderTaskCutPar::Init()
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdRiemannTrackFinderTaskCutPar::Exec(Option_t* opt)
+void PndMvdRiemannTrackFinderTaskCutPar::Exec(Option_t*)
 {
 
   // Reset output array

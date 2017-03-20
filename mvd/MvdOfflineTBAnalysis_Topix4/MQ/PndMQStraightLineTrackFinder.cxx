@@ -408,7 +408,7 @@ void PndMQStraightLineTrackFinder::FindHitsI(std::vector<PndTrackCand> &tofill, 
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndMQStraightLineTrackFinder::Exec(Option_t* opt)
+void PndMQStraightLineTrackFinder::Exec(Option_t*)
 {
   TStopwatch *timer_exec = new TStopwatch();
    if(fVerbose>2) timer_exec->Start();

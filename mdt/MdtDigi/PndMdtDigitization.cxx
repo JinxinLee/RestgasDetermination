@@ -87,14 +87,14 @@ InitStatus PndMdtDigitization::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMdtDigitization::Exec(Option_t* opt) 
+void PndMdtDigitization::Exec(Option_t*) 
 { 
   if(fTimeOrderedDigi)
-    exec_t(opt);
+    exec_t();
   else
-    exec_e(opt);
+    exec_e();
 }
-void PndMdtDigitization::exec_e(Option_t* opt)
+void PndMdtDigitization::exec_e()
 {
   // Reset output array
   fDigiBoxArray->Delete();
@@ -130,7 +130,7 @@ void PndMdtDigitization::exec_e(Option_t* opt)
   }
 
 }
-void PndMdtDigitization::exec_t(Option_t* opt)
+void PndMdtDigitization::exec_t()
 {
   // Reset output array
   fDigiArray->Delete();

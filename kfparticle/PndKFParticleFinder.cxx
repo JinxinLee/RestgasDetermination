@@ -75,7 +75,7 @@ InitStatus PndKFParticleFinder::Init()
   return kSUCCESS;
 }
 
-void PndKFParticleFinder::Exec(Option_t* opt)
+void PndKFParticleFinder::Exec(Option_t*)
 {
   Int_t ntracks=0;//fChargedTrackArray->GetEntriesFast();
 

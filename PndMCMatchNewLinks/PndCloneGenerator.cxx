@@ -31,7 +31,7 @@ PndCloneGenerator::~PndCloneGenerator() {
 }
 
 
-void PndCloneGenerator::Exec(Option_t* opt)
+void PndCloneGenerator::Exec(Option_t*)
 {
 
 		fTrackCand->Delete();

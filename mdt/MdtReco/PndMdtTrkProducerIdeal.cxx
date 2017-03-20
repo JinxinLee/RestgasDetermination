@@ -95,7 +95,7 @@ InitStatus PndMdtTrkProducerIdeal::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMdtTrkProducerIdeal::Exec(Option_t* opt) {
+void PndMdtTrkProducerIdeal::Exec(Option_t*) {
   
   // Reset output array
   if ( ! fTrkArray ) Fatal("Exec", "No TrkArray");

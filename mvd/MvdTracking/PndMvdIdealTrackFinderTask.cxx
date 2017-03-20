@@ -151,7 +151,7 @@ InitStatus PndMvdIdealTrackFinderTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
+void PndMvdIdealTrackFinderTask::Exec(Option_t*)
 {
 
   // Reset output array

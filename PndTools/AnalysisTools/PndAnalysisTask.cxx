@@ -129,7 +129,7 @@ void PndAnalysisTask::SetParContainers()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndAnalysisTask::Exec(Option_t* opt)
+void PndAnalysisTask::Exec(Option_t*)
 {
 
   RhoFactory::Instance()->Reset();

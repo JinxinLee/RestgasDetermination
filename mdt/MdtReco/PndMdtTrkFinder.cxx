@@ -94,7 +94,7 @@ void PndMdtTrkFinder::SetParContainers() {
 //______________________________________________________
 
 // -----   Public method Exec   --------------------------------------------
-void PndMdtTrkFinder::Exec(Option_t* opt)
+void PndMdtTrkFinder::Exec(Option_t*)
 {
   // Reset output array
   fTrkArray->Delete();

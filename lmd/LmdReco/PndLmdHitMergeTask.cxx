@@ -84,7 +84,7 @@ InitStatus PndLmdHitMergeTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdHitMergeTask::Exec(Option_t* opt)
+void PndLmdHitMergeTask::Exec(Option_t*)
 {
   if (fVerbose > 2)
     std::cout<<" **Starting PndLmdHitMergeTask::Exec()**"<<std::endl;

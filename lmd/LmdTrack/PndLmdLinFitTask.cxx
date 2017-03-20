@@ -186,7 +186,7 @@ InitStatus PndLmdLinFitTask::Init()
 }
 
 
-void PndLmdLinFitTask::Exec(Option_t* opt)
+void PndLmdLinFitTask::Exec(Option_t*)
 {
   //  std::cout<<"PndLmdLinFitTask::Exec"<<std::endl;
   // Reset output Array

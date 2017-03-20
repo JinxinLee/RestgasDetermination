@@ -76,7 +76,7 @@ InitStatus PndMvdRadDamIonizingTask::Init()
 }
 
 
-void PndMvdRadDamIonizingTask::Exec(Option_t* opt)
+void PndMvdRadDamIonizingTask::Exec(Option_t*)
 {
   // Reset output array
   

@@ -72,8 +72,8 @@ class PndMdtPointsToWaveform : public FairTask
 //    PndMdtGeoPar*     fGeoPar;       /** Geometry parameter container **/
     /** Get parameter containers **/
     virtual void SetParContainers();
-    virtual void exec_t(Option_t* opt);
-    virtual void exec_e(Option_t* opt);
+    virtual void exec_t();
+    virtual void exec_e();
     Int_t PdgToIndex(Int_t pdg);
 
     /** Verbosity level **/

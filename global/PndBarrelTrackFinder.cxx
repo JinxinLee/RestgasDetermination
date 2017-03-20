@@ -204,7 +204,7 @@ void PndBarrelTrackFinder::UseMvdSttGem(const Bool_t useMvd, const Bool_t useStt
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndBarrelTrackFinder::Exec(Option_t* opt) {
+void PndBarrelTrackFinder::Exec(Option_t*) {
   Reset();
   fBarrelTrackArray    ->Delete();
   fBarrelTrackCandArray->Delete();

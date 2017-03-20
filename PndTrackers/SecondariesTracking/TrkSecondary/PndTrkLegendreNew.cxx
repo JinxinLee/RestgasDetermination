@@ -200,7 +200,7 @@ void PndTrkLegendreNew::Initialize() {
 }
 
 
-void PndTrkLegendreNew::Exec(Option_t* opt)  {
+void PndTrkLegendreNew::Exec(Option_t*)  {
   // ############## I N I T I A L I Z A T I O N S ##############
   fTrackArray->Delete();
   fTrackCandArray->Delete();

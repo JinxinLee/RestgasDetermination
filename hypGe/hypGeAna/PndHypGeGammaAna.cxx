@@ -205,7 +205,7 @@ void PndHypGeGammaAna::SetParContainers()
 
 }
 
-void PndHypGeGammaAna::Exec(Option_t* opt)
+void PndHypGeGammaAna::Exec(Option_t*)
 {
 	Double_t EnergyPerCrystal[48] = {0};
 	Double_t CollectedEnergy = 0;

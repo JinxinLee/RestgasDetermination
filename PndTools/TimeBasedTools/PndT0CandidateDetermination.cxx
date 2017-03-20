@@ -55,7 +55,7 @@ InitStatus PndT0CandidateDetermination::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndT0CandidateDetermination::Exec(Option_t* opt)
+void PndT0CandidateDetermination::Exec(Option_t*)
 {
   // Declare some variables
 

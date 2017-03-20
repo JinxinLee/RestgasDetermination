@@ -104,7 +104,7 @@ void PndGemSmearingTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemSmearingTask::Exec(Option_t* opt)
+void PndGemSmearingTask::Exec(Option_t*)
 {
 	// Fills PndGemHits with the MC Truth
   // TODO filling of RecoHits, together with the sensor plane

@@ -81,7 +81,7 @@ InitStatus PndMvdReadInTBDataTask::Init()
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdReadInTBDataTask::Exec(Option_t* opt)
+void PndMvdReadInTBDataTask::Exec(Option_t*)
 {
 	if (fEvent % 10000 == 0) {
 	  std::cout << "PndMvdReadInTBDataTask::Exec called - Event " <<std::dec<<  fEvent << std::endl;

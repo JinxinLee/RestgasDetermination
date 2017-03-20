@@ -149,7 +149,7 @@ InitStatus PndMvdRiemannVertexFinderTask::Init()
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdRiemannVertexFinderTask::Exec(Option_t* opt)
+void PndMvdRiemannVertexFinderTask::Exec(Option_t*)
 {
   // Reset output array
   if ( ! fTrackCandArray )

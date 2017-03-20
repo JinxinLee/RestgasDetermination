@@ -200,7 +200,7 @@ void PndLmdBPtestTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdBPtestTask::Exec(Option_t* opt)
+void PndLmdBPtestTask::Exec(Option_t*)
 {
   // if(fVerbose>5){
   //   if((fTracks->GetEntries())!=(fMCTracks->GetEntries()))

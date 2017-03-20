@@ -107,7 +107,7 @@ void PndGemIdealPatternRecoTask::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemIdealPatternRecoTask::Exec(Option_t* opt) {
+void PndGemIdealPatternRecoTask::Exec(Option_t*) {
   fPndTrackCandArr->Delete();
  
   std::map<int,PndTrackCand*> cands;

@@ -48,7 +48,7 @@ void PndEventCounterTask::StartTimer(){
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndEventCounterTask::Exec(Option_t* opt)
+void PndEventCounterTask::Exec(Option_t* )
 {
   if (!fInitialiezed) StartTimer();
   fEvtCounter++;

@@ -99,7 +99,7 @@ void PndSciTHitProducerIdeal::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSciTHitProducerIdeal::Exec(Option_t* opt) 
+void PndSciTHitProducerIdeal::Exec(Option_t*) 
 {
   // Reset output array
   if ( ! fHitArray ) 

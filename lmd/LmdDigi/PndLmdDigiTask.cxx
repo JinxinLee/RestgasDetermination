@@ -52,7 +52,7 @@ InitStatus PndLmdDigiTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdDigiTask::Exec(Option_t* opt)
+void PndLmdDigiTask::Exec(Option_t*)
 {
   return;
 }

@@ -71,7 +71,7 @@ void PndHypHitProducerIdeal::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypHitProducerIdeal::Exec(Option_t* opt) 
+void PndHypHitProducerIdeal::Exec(Option_t*) 
 {
   // Reset output array
   if ( ! fHitArray ) 

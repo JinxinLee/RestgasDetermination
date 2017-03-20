@@ -118,7 +118,7 @@ InitStatus PndMvdConvertApvTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdConvertApvTask::Exec(Option_t* opt)
+void PndMvdConvertApvTask::Exec(Option_t*)
 {
 
   //	cout << "--*--" << endl;

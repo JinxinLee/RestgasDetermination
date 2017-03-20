@@ -175,7 +175,7 @@ void PndHypSimpleAna::SetParContainers() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypSimpleAna::Exec(Option_t* opt) {
+void PndHypSimpleAna::Exec(Option_t*) {
 
   RhoFactory::Instance()->Reset();
   

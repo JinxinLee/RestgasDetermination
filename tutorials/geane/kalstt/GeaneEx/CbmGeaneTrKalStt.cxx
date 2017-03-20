@@ -107,7 +107,7 @@ void FairGeaneTrKalStt::FinishTask() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void FairGeaneTrKalStt::Exec(Option_t* opt) {
+void FairGeaneTrKalStt::Exec(Option_t*) {
 
   //  cout << "EVENT " << eventnum3 << endl;
   eventnum3++;

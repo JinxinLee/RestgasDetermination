@@ -292,7 +292,7 @@ void PndBarrelTrackFinderQA::SetParContainers() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndBarrelTrackFinderQA::Exec(Option_t* opt) {
+void PndBarrelTrackFinderQA::Exec(Option_t*) {
   if ( fVerbose > 0 ) 
     cout << "=============== EVENT " << fTNofEvents << " =================" << endl;
 

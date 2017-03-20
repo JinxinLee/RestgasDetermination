@@ -222,7 +222,7 @@ void PndTrkLegendreSecTask2::Initialize() {
 //   fInitDone = kFALSE;
 // }
 
-void PndTrkLegendreSecTask2::Exec(Option_t* opt) {
+void PndTrkLegendreSecTask2::Exec(Option_t*) {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
   if(fVerbose > 0) cout << "*********************** " << fEventCounter << " ***********************" << endl;

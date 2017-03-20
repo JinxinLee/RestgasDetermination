@@ -425,7 +425,7 @@ InitStatus PndEmcAnalysis::Init()
 	return kSUCCESS;
 }
 
-void PndEmcAnalysis::Exec(Option_t* opt)
+void PndEmcAnalysis::Exec(Option_t*)
 {
 	TStopwatch timer;
 	if (fVerbose>2){

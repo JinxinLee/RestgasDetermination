@@ -683,7 +683,7 @@ void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::ve
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdTrackFinderTask::Exec(Option_t* opt)
+void PndLmdTrackFinderTask::Exec(Option_t*)
 {
   TStopwatch *timer_exec = new TStopwatch();
    if(fVerbose>2) timer_exec->Start();

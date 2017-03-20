@@ -72,7 +72,7 @@ void PndHypGeHitProducerIdeal::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypGeHitProducerIdeal::Exec(Option_t* opt) 
+void PndHypGeHitProducerIdeal::Exec(Option_t*) 
 {
   // Reset output array
   if ( ! fHitArray ) 

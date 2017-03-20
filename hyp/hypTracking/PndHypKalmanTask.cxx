@@ -151,7 +151,7 @@ PndHypKalmanTask::Init()
 
 
 void
-PndHypKalmanTask::Exec(Option_t* opt)
+PndHypKalmanTask::Exec(Option_t*)
 {
   std::cout<<"PndHypKalmanTask::Exec"<<std::endl;
   // Reset output Array

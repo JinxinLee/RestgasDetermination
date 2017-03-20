@@ -226,7 +226,7 @@ PndEmcMakeCorr::GetValueInZ(TH2 *lookup_table, Float_t value_x, Float_t value_y,
   return 0;
 }
 
-void PndEmcMakeCorr::Exec(Option_t* opt)
+void PndEmcMakeCorr::Exec(Option_t*)
 {
   // Reset output array(s)
   if ( ! fClusterArrayCorr ) Fatal("Exec", "No Corrected Cluster Array");

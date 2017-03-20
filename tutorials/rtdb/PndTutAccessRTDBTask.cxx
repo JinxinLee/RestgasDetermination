@@ -34,7 +34,7 @@ InitStatus PndTutAccessRTDBTask::ReInit()
 }
 
 void
-PndTutAccessRTDBTask::Exec(Option_t* opt)
+PndTutAccessRTDBTask::Exec(Option_t*)
 {
   return;
 }

@@ -626,7 +626,7 @@ void PndTrkTrackFinder::Initialize() {
 }
 
 
-void PndTrkTrackFinder::Exec(Option_t* opt)  {
+void PndTrkTrackFinder::Exec(Option_t*)  {
   // ############## I N I T I A L I Z A T I O N S ##############
   fTrackArray->Delete();
   fTrkTrackArray->Delete();

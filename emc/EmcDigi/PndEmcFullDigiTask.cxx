@@ -71,7 +71,7 @@ InitStatus PndEmcFullDigiTask::Init() {
   return kSUCCESS;
 }
 
-void PndEmcFullDigiTask::Exec(Option_t* opt) 
+void PndEmcFullDigiTask::Exec(Option_t*) 
 {
 	return;
 }

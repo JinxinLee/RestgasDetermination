@@ -105,7 +105,7 @@ InitStatus PndDskFLGHitProducerIdeal::Init()
 
 // -----   Execution of Task   ---------------------------------------------
 // -------------------------------------------------------------------------
-void PndDskFLGHitProducerIdeal::Exec(Option_t* option)
+void PndDskFLGHitProducerIdeal::Exec(Option_t*ion)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Clear();

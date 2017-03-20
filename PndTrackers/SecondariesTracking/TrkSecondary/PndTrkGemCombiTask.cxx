@@ -79,7 +79,7 @@ InitStatus PndTrkGemCombiTask::Init() {
 }
 
 // -------------------------------------------------------------------------
-void PndTrkGemCombiTask::Exec(Option_t* opt)  {
+void PndTrkGemCombiTask::Exec(Option_t*)  {
 
   std::map< int, bool > hitidTousability = fCombiFinder->CombinatorialSuppression();
 

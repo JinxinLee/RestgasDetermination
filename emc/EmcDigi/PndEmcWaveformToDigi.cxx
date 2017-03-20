@@ -329,7 +329,7 @@ InitStatus PndEmcWaveformToDigi::Init()
  * @param opt unused
  * @return void
  */
-void PndEmcWaveformToDigi::Exec(Option_t* opt)
+void PndEmcWaveformToDigi::Exec(Option_t*)
 {
 	TStopwatch timer;
 	if (fVerbose>2){

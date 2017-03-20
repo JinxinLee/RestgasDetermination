@@ -124,7 +124,7 @@ InitStatus PndRichHitProducer::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndRichHitProducer::Exec(Option_t* opt) {
+void PndRichHitProducer::Exec(Option_t*) {
   
   // Reset output array
   if ( ! fPDHitArray ) Fatal("Exec", "No HitArray");

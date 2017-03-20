@@ -99,7 +99,7 @@ void PndMcListConverter::SetParContainers()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndMcListConverter::Exec(Option_t* opt)
+void PndMcListConverter::Exec(Option_t*)
 {
 
   if(fVerbose) { cout << "-I- Start PndMcListConverter. "<<endl; }

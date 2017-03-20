@@ -163,7 +163,7 @@ InitStatus PndEmcWaveformToCalibratedDigi::Init()
 	return kSUCCESS;
 }
 
-void PndEmcWaveformToCalibratedDigi::Exec(Option_t* opt)
+void PndEmcWaveformToCalibratedDigi::Exec(Option_t*)
 {
 	TStopwatch timer;
 	if (fVerbose>2){

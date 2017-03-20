@@ -148,7 +148,7 @@ void PndLmdSigCleanTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdSigCleanTask::Exec(Option_t* opt)
+void PndLmdSigCleanTask::Exec(Option_t*)
 {
   // if(fVerbose>5){
   //   if((fTracks->GetEntries())!=(fMCTracks->GetEntries()))

@@ -116,7 +116,7 @@ InitStatus PndEmcMakeClusterOnline::Init() {
 }
 
 
-void PndEmcMakeClusterOnline::Exec(Option_t* opt) {
+void PndEmcMakeClusterOnline::Exec(Option_t*) {
 
 	if (fVerbose>2){
 		fTimer.Start();

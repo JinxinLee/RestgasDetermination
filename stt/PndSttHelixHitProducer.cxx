@@ -141,7 +141,7 @@ void PndSttHelixHitProducer::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttHelixHitProducer::Exec(Option_t* opt) {
+void PndSttHelixHitProducer::Exec(Option_t*) {
 
   // Reset output array
   if ( ! fHelixHitArray ) Fatal("Exec", "No HelixHitArray");

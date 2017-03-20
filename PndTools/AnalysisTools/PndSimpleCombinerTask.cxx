@@ -243,7 +243,7 @@ int PndSimpleCombinerTask::SplitString(TString s, TString delim, StringList &tok
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndSimpleCombinerTask::Exec(Option_t* opt)
+void PndSimpleCombinerTask::Exec(Option_t*)
 {
 	// *** some variables
 	int i=0,j=0;

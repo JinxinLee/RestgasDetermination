@@ -54,7 +54,7 @@ InitStatus PndMCTruthMatch::Init()
   	return kSUCCESS;
 }
 
-void PndMCTruthMatch::Exec(Option_t* opt)
+void PndMCTruthMatch::Exec(Option_t*)
 {
 	std::cout << "------------ EventNr " << FairRootManager::Instance()->GetEntryNr() << " ------------" << std::endl;
 	std::cout << FairRootManager::Instance()->GetBranchId(fInBranchName) << " : " << fInBranchName << " Entries: " << fInBranch->GetEntriesFast() << std::endl;

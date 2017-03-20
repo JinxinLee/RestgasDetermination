@@ -139,7 +139,7 @@ InitStatus TtAliTask::Init()
 }
 
 
-void TtAliTask::Exec(Option_t* opt)
+void TtAliTask::Exec(Option_t*)
 {
 
   //  std::cout << "Event: " << fEvent << std::endl;

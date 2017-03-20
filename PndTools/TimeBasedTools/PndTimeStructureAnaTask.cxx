@@ -69,7 +69,7 @@ InitStatus PndTimeStructureAnaTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndTimeStructureAnaTask::Exec(Option_t* opt)
+void PndTimeStructureAnaTask::Exec(Option_t*)
 {
 	std::cout << " ------------- Event " << FairRootManager::Instance()->GetEntryNr() << " ----------------" << std::endl;
 	bool primaryParticle = false;

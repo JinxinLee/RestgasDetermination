@@ -78,7 +78,7 @@ InitStatus PndIdealTrackFinder::Init()
   	return kSUCCESS;
 }
 
-void PndIdealTrackFinder::Exec(Option_t* opt)
+void PndIdealTrackFinder::Exec(Option_t*)
 {
 	fTrackCand->Delete();
 	fTrack->Delete();

@@ -111,7 +111,7 @@ InitStatus PndMdtHitProducer::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMdtHitProducer::Exec(Option_t* opt) 
+void PndMdtHitProducer::Exec(Option_t*) 
 {
   fHitArray->Delete();
   fBoxClusterArray->Clear();

@@ -83,7 +83,7 @@ void PndHypPidIdealTask::SetParContainers()
 
 
 //----------------Exec----------------
-void PndHypPidIdealTask::Exec(Option_t* opt)
+void PndHypPidIdealTask::Exec(Option_t*)
 {
   if ( ! fTrackOutputArray ) Fatal("Exec", "No fTrackOutputArray");
   fTrackOutputArray->Clear();

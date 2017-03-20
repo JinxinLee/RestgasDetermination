@@ -8,7 +8,7 @@
 #include "PndMQSdsHitLoader.h"
 
 // Default implementation of PndMQSdsHitLoader::Exec() with Boost transport data format
-void PndMQSdsHitLoader::Exec(Option_t* opt)
+void PndMQSdsHitLoader::Exec(Option_t*)
 {
     // Default implementation of the base template Exec function using boost
     // the condition check if the input class has a function member with name

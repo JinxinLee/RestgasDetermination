@@ -20,7 +20,7 @@ InitStatus PndAnalysisForwardTask::Init(){
 	return kSUCCESS;
 }
 
-void PndAnalysisForwardTask::Exec(Option_t* opt){
+void PndAnalysisForwardTask::Exec(Option_t*){
 	cout << "####################  Event nr " << eventNum << "  ####################" << endl;
 
 	//get the data

@@ -138,7 +138,7 @@ void PndSciTDigiTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSciTDigiTask::Exec(Option_t* opt) 
+void PndSciTDigiTask::Exec(Option_t*) 
 {
   // Reset output array
   if ( ! fHitArray ) 

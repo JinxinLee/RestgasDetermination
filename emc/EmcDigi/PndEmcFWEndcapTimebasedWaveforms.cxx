@@ -159,7 +159,7 @@ InitStatus PndEmcFWEndcapTimebasedWaveforms::Init()
  * @param opt unused
  * @return void
  */
-void PndEmcFWEndcapTimebasedWaveforms::Exec(Option_t* opt) 
+void PndEmcFWEndcapTimebasedWaveforms::Exec(Option_t*) 
 {
 	FairRootManager* ioman = FairRootManager::Instance();
 

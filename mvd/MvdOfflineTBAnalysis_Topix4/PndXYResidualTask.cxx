@@ -68,7 +68,7 @@ InitStatus PndXYResidualTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndXYResidualTask::Exec(Option_t* opt)
+void PndXYResidualTask::Exec(Option_t*)
 {
 	SetVerbose(2);
 	if (fVerbose > 1 && ++fEntryNr % 1000 == 0) {

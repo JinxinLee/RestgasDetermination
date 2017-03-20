@@ -79,7 +79,7 @@ InitStatus PndSttSkewedCombineTask::Init() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttSkewedCombineTask::Exec(Option_t* opt) {
+void PndSttSkewedCombineTask::Exec(Option_t*) {
 
 	FairEventHeader* myEventHeader = (FairEventHeader*) fEventHeader;
 	int eventNumber = myEventHeader->GetMCEntryNumber();

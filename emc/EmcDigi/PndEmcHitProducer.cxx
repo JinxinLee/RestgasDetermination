@@ -213,7 +213,7 @@ void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArr
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndEmcHitProducer::Exec(Option_t* opt)
+void PndEmcHitProducer::Exec(Option_t*)
 {  
 	if (fVerbose>1) cout << " -I- PndEmcHitProducer POINT EXECUTION *********************" << endl;
 	// Reset output array

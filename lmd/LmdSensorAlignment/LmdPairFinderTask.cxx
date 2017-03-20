@@ -246,7 +246,7 @@ InitStatus LmdPairFinderTask::ReInit() {
  * The HitPair contains BOTH original row and col hits as well as LMD xyz Coordinates (as TVector3).
  * This consumes a lot of storage, but storage is cheap and for now we want the info.
  */
-void LmdPairFinderTask::Exec(Option_t* opt) {
+void LmdPairFinderTask::Exec(Option_t*) {
 
 	//clear temporary array for next event
 

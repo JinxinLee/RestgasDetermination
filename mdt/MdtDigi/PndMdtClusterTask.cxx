@@ -83,7 +83,7 @@ InitStatus PndMdtClusterTask::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMdtClusterTask::Exec(Option_t* opt) {
+void PndMdtClusterTask::Exec(Option_t*) {
   
   // Reset output array
   fBoxOArray->Delete(); 

@@ -132,7 +132,7 @@ InitStatus PndDrcLutReco::Init(){
 }
 
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcLutReco::Exec(Option_t* option){
+void PndDrcLutReco::Exec(Option_t*ion){
   nevents++;
   fDetectorID = 0;
   if ( ! fDrcTrackInfoArray ) Fatal("Exec", "No fDrcTrackInfoArray");

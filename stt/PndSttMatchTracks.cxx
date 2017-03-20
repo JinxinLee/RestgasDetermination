@@ -96,7 +96,7 @@ InitStatus PndSttMatchTracks::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttMatchTracks::Exec(Option_t* opt) 
+void PndSttMatchTracks::Exec(Option_t*) 
 {
   AddAllCollections();
   

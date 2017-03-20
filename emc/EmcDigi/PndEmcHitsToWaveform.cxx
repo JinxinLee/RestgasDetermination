@@ -253,7 +253,7 @@ InitStatus PndEmcHitsToWaveform::Init()
  * @param opt unused
  * @return void
  */
-void PndEmcHitsToWaveform::Exec(Option_t* opt)
+void PndEmcHitsToWaveform::Exec(Option_t*)
 {
 	TStopwatch timer;
 	if (fVerbose>2){

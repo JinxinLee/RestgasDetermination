@@ -111,7 +111,7 @@ void PndSdsIdealRecoTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSdsIdealRecoTask::Exec(Option_t* opt)
+void PndSdsIdealRecoTask::Exec(Option_t*)
 {
 	// Fills PndSdsHits with the MC Truth
   // TODO filling of RecoHits, together with the sensor plane

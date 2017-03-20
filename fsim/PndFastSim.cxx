@@ -613,7 +613,7 @@ void PndFastSim::Finish()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndFastSim::Exec(Option_t* opt)
+void PndFastSim::Exec(Option_t*)
 {
   int nCharged = 0;
   int nNeutral = 0;

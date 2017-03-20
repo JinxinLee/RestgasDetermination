@@ -283,7 +283,7 @@ InitStatus PndSdsStripClusterTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndSdsStripClusterTask::Exec(Option_t* opt)
+void PndSdsStripClusterTask::Exec(Option_t*)
 {
   if (fVerbose > 2)
     std::cout<<" **Starting PndSdsStripClusterTask::Exec()**"<<std::endl;

@@ -124,7 +124,7 @@ InitStatus PndLmdDigiProducer::Init()
     return kSUCCESS;
 }
 
-void PndLmdDigiProducer::Exec(Option_t* opt)
+void PndLmdDigiProducer::Exec(Option_t*)
 {
 	//reset the output array
 	fStripArray->Clear();

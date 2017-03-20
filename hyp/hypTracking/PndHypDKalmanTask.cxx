@@ -156,7 +156,7 @@ PndHypDKalmanTask::Init()
 
 
 void
-PndHypDKalmanTask::Exec(Option_t* opt)
+PndHypDKalmanTask::Exec(Option_t*)
 {
   std::cout<<"PndHypDKalmanTask::Exec Event "<<fEvt++<<std::endl;
   //Reset output Array

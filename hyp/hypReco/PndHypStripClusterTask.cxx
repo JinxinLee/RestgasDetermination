@@ -141,7 +141,7 @@ InitStatus PndHypStripClusterTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypStripClusterTask::Exec(Option_t* opt)
+void PndHypStripClusterTask::Exec(Option_t*)
 {
   if (fVerbose > 2)
     std::cout<<"Sarting PndHypStripClusterTask::Exec()"<<std::endl;

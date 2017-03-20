@@ -141,7 +141,7 @@ InitStatus PndKFParticleFinderQA::Init()
   return kSUCCESS;
 }
 
-void PndKFParticleFinderQA::Exec(Option_t* opt)
+void PndKFParticleFinderQA::Exec(Option_t*)
 { 
   if(fSaveParticles)
     fRecParticles->Delete();

@@ -90,7 +90,7 @@ InitStatus FairGeaneTrT::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void FairGeaneTrT::Exec(Option_t* opt) {
+void FairGeaneTrT::Exec(Option_t*) {
   //	cout << "FairGeaneTrT::Exec" << endl;
    fTrackParGeane->Delete();
    fTrackParIni->Delete();

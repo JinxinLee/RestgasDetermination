@@ -123,7 +123,7 @@ InitStatus PndSciTAnaIdeal::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSciTAnaIdeal::Exec(Option_t* opt) 
+void PndSciTAnaIdeal::Exec(Option_t*) 
 {
   
   ++evt;

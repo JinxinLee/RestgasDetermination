@@ -131,7 +131,7 @@ void PndScrutAnaTask::SetParContainers()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndScrutAnaTask::Exec(Option_t* opt)
+void PndScrutAnaTask::Exec(Option_t*)
 {
 	// *** some variables
 	int i=0,j=0;

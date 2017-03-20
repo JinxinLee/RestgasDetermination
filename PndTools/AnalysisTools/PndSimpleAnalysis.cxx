@@ -411,7 +411,7 @@ void PndSimpleAnalysis::SetParContainers()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndSimpleAnalysis::Exec(Option_t* opt)
+void PndSimpleAnalysis::Exec(Option_t*)
 {
   // set the boost vector
   TVector3 pInitBoost(0,0,0);

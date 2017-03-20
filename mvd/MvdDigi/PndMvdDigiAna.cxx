@@ -99,7 +99,7 @@ InitStatus PndMvdDigiAna::Init()
 }
 // -------------------------------------------------------------------------
 
-void PndMvdDigiAna::Exec(Option_t* opt)
+void PndMvdDigiAna::Exec(Option_t*)
 {
   // Reset output array
   std::cout << "Within Exec! " << fHitArray << " " << fPixelArray << std::endl;

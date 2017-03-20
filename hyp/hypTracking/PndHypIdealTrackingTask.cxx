@@ -102,7 +102,7 @@ void PndHypIdealTrackingTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypIdealTrackingTask::Exec(Option_t* opt)
+void PndHypIdealTrackingTask::Exec(Option_t*)
 {
  	if ( ! fTrackOutputArray ) Fatal("Exec", "No fTrackOutputArray");
  	fTrackOutputArray->Delete();

@@ -44,7 +44,7 @@ PndMQTopix4ProcessorTask::PndMQTopix4ProcessorTask() : fHasBoostSerialization(fa
 }
 
 
-void PndMQTopix4ProcessorTask::Exec(Option_t* opt)
+void PndMQTopix4ProcessorTask::Exec(Option_t*)
 {
 	TMrfData_8b* message = new TMrfData_8b();
 	message->setNumWords(fPayload->GetSize());

@@ -137,7 +137,7 @@ InitStatus PndEmcMakeDigi::Init()
  * @param opt unused
  * @return void
  */
-void PndEmcMakeDigi::Exec(Option_t* opt)
+void PndEmcMakeDigi::Exec(Option_t*)
 {
 	// Reset output array
 	if ( ! fDigiArray ) Fatal("Exec", "No Digi Array");

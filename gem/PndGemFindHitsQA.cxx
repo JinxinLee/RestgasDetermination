@@ -241,7 +241,7 @@ void PndGemFindHitsQA::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemFindHitsQA::Exec(Option_t* opt) {
+void PndGemFindHitsQA::Exec(Option_t*) {
 
   Bool_t printInfo = kFALSE;  
 

@@ -189,7 +189,7 @@ InitStatus PndEmcFWEndcapDigi::Init()
  * @param opt unused
  * @return void
  */
-void PndEmcFWEndcapDigi::Exec(Option_t* opt)
+void PndEmcFWEndcapDigi::Exec(Option_t*)
 {
 	TStopwatch timer;
 	if (fVerbose>2){

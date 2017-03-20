@@ -128,7 +128,7 @@ PndHypDPatternRecoTask::Init()
 
 
 void
-PndHypDPatternRecoTask::Exec(Option_t* opt)
+PndHypDPatternRecoTask::Exec(Option_t*)
 {
   std::cout<<"PndHypDPatternRecoTask::Exec"<<std::endl;
   // Reset output Array

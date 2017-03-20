@@ -324,7 +324,7 @@ void PndPmtTask::SetParContainers() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndPmtTask::Exec(Option_t* opt) {
+void PndPmtTask::Exec(Option_t*) {
 
 
   RhoCandidate *aCand=0,*bCand=0,*cCand=0,*dCand=0;

@@ -171,7 +171,7 @@ void PndLmdNoiseProducer::SetParContainers()
   fGeoH->SetParContainers();
 }
 
-void PndLmdNoiseProducer::Exec(Option_t* opt)
+void PndLmdNoiseProducer::Exec(Option_t*)
 {
   //   TObjArray* activeSensors = fGeoPar->GetGeoSensitiveNodes();
   Int_t nrCh=0,rnd=0,

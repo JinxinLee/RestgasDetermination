@@ -112,7 +112,7 @@ void PndMvdRadDamTask::InitWeightLists()
   
 }
 
-void PndMvdRadDamTask::Exec(Option_t* opt)
+void PndMvdRadDamTask::Exec(Option_t*)
 {
   // Reset output array
   if ( ! fRadDamHits )

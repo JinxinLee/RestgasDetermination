@@ -168,7 +168,7 @@ void PndHypMicroWriter::SetParContainers() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypMicroWriter::Exec(Option_t* opt) 
+void PndHypMicroWriter::Exec(Option_t*) 
 {
   if ((++evtcnt)%100==0)cout <<"evt: "<<evtcnt<<endl;
   

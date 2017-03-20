@@ -79,7 +79,7 @@ InitStatus PndEmcMakeRecoHit::Init() {
 }
 
 
-void PndEmcMakeRecoHit::Exec(Option_t* opt) 
+void PndEmcMakeRecoHit::Exec(Option_t*) 
 {
 	// Reset output array
 	if ( ! fRecoHitArray ) Fatal("Exec", "No Cluster Array");

@@ -105,7 +105,7 @@ void PndLmdNoiseTrkSuppressionTask::SetParContainers()
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdNoiseTrkSuppressionTask::Exec(Option_t* opt)
+void PndLmdNoiseTrkSuppressionTask::Exec(Option_t*)
 {
 
 fTrkOutArray->Delete();

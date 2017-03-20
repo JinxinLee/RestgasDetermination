@@ -110,7 +110,7 @@ void PndSttHitProducerIdeal::SetParContainers() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttHitProducerIdeal::Exec(Option_t* opt) 
+void PndSttHitProducerIdeal::Exec(Option_t*) 
 {
   if ( fTubeArray == NULL ) {
     PndSttMapCreator mapper(fSttParameters);

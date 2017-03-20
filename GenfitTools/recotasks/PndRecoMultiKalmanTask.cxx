@@ -95,7 +95,7 @@ void PndRecoMultiKalmanTask::SetParContainers()
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
-void PndRecoMultiKalmanTask::Exec(Option_t* opt)
+void PndRecoMultiKalmanTask::Exec(Option_t*)
 {
   if (fVerbose>0) std::cout<<"PndRecoMultiKalmanTask::Exec"<<std::endl;
   

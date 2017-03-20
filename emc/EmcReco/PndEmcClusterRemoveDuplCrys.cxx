@@ -46,7 +46,7 @@ InitStatus PndEmcClusterRemoveDuplCrys::Init() {
 	return kSUCCESS;
 }
 
-void PndEmcClusterRemoveDuplCrys::Exec(Option_t* opt) {
+void PndEmcClusterRemoveDuplCrys::Exec(Option_t*) {
 
 	for(Int_t iClu=0; iClu<fClusterArray->GetEntriesFast(); ++iClu) {
 		PndEmcCluster* theCluster = static_cast<PndEmcCluster*>(fClusterArray->UncheckedAt(iClu));

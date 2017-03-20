@@ -192,7 +192,7 @@ void PndTrkLegendreSecTask::Initialize() {
   //  stthitlist->PrintSectors();
 }
 
-void PndTrkLegendreSecTask::Exec(Option_t* opt) {
+void PndTrkLegendreSecTask::Exec(Option_t*) {
   fTrackArray->Delete();
   fTrackCandArray->Delete();
   if(fVerbose > 0) cout << "*********************** " << fEventCounter << " ***********************" << endl;

@@ -133,7 +133,7 @@ InitStatus PndDrcHitProducerReal::Init()
    
 }
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcHitProducerReal::Exec(Option_t* option)
+void PndDrcHitProducerReal::Exec(Option_t*ion)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();

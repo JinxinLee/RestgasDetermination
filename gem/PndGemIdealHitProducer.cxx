@@ -125,7 +125,7 @@ InitStatus PndGemIdealHitProducer::Init() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemIdealHitProducer::Exec(Option_t* opt) {
+void PndGemIdealHitProducer::Exec(Option_t*) {
 
   // Reset output array
   if( !fHitArray ) Fatal("Exec", "No hit array");

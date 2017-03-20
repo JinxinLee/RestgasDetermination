@@ -89,7 +89,7 @@ void PndFtofHitProducerIdeal::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndFtofHitProducerIdeal::Exec(Option_t* opt) 
+void PndFtofHitProducerIdeal::Exec(Option_t*) 
 {
   // Reset output array
   if ( ! fHitArray ) 

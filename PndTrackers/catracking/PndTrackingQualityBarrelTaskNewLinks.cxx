@@ -171,7 +171,7 @@ void PndTrackingQualityBarrelTaskNewLinks::SetParContainers() {
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndTrackingQualityBarrelTaskNewLinks::Exec(Option_t* opt) {
+void PndTrackingQualityBarrelTaskNewLinks::Exec(Option_t*) {
   fMCTrackInfo->Delete();
   fRecoTrackInfo->Delete();
 

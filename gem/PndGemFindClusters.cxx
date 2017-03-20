@@ -103,7 +103,7 @@ PndGemFindClusters::~PndGemFindClusters() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemFindClusters::Exec(Option_t* opt) {
+void PndGemFindClusters::Exec(Option_t*) {
   if ( fVerbose > 0 ) cout <<"-I- PndGemFindClusters::Exec()"<<endl;
   
   fTNofEvents++;

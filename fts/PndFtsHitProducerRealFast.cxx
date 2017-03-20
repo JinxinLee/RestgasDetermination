@@ -127,7 +127,7 @@ void PndFtsHitProducerRealFast::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndFtsHitProducerRealFast::Exec(Option_t* opt) {
+void PndFtsHitProducerRealFast::Exec(Option_t*) {
 
   //std::cout<<"PndFtsHitProducer Exec ########"<<std::endl;
   if(fVerbose && fevtn%50==0) cout << "Event Number "<<fevtn<<endl;

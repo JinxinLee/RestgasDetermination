@@ -410,7 +410,7 @@ void PndGemTrackFinderQA::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemTrackFinderQA::Exec(Option_t* opt) {
+void PndGemTrackFinderQA::Exec(Option_t*) {
   
   fNofEvents++;
 

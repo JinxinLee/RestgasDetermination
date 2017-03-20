@@ -223,7 +223,7 @@ InitStatus PndHypStripHitProducer::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypStripHitProducer::Exec(Option_t* opt)
+void PndHypStripHitProducer::Exec(Option_t*)
 {
   // Reset output array
   //if ( ! fHitArray ) 

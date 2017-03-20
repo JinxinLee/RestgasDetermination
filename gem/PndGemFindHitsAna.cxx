@@ -150,7 +150,7 @@ void PndGemFindHitsAna::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemFindHitsAna::Exec(Option_t* opt) {
+void PndGemFindHitsAna::Exec(Option_t*) {
   
   if ( fVerbose ) {
     cout << "IN EVENT GOT " << fGemHitArray->GetEntries() << " hits." << endl;

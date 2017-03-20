@@ -67,7 +67,7 @@ InitStatus PndSolCorrTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSolCorrTask::Exec(Option_t* opt)
+void PndSolCorrTask::Exec(Option_t*)
 {
   // Declare some variables
 

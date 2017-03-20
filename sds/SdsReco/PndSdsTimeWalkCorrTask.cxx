@@ -92,7 +92,7 @@ InitStatus PndSdsTimeWalkCorrTask::Init()
 }
 // -------------------------------------------------------------------------
 
-void PndSdsTimeWalkCorrTask::Exec(Option_t* opt)
+void PndSdsTimeWalkCorrTask::Exec(Option_t*)
 {
 
 	if ( ! fDigiCorrArray ) Fatal("Exec", "No ClusterArray");

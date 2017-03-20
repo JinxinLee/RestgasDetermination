@@ -84,7 +84,7 @@ PndGemMagneticFieldVsTrackParameters::~PndGemMagneticFieldVsTrackParameters() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemMagneticFieldVsTrackParameters::Exec(Option_t* opt) {
+void PndGemMagneticFieldVsTrackParameters::Exec(Option_t*) {
 
   // Size of fMCTrackArray
   //cout <<"# MC Tracks: "<< fMCTrackArray->GetEntriesFast() << endl;

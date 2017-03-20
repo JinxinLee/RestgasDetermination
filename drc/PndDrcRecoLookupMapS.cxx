@@ -193,7 +193,7 @@ void PndDrcRecoLookupMapS::SetParContainers() {
 // -------------------------------------------------------------------------
 
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcRecoLookupMapS::Exec(Option_t* option)
+void PndDrcRecoLookupMapS::Exec(Option_t*ion)
 {
   //if ( ! fChPhoArray ) Fatal("Exec", "No fChPhoArray");
   //fChPhoArray->Clear();

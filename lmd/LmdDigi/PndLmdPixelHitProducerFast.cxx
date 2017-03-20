@@ -104,7 +104,7 @@ void PndLmdPixelHitProducerFast::SetBranchNames()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdPixelHitProducerFast::Exec(Option_t* opt)
+void PndLmdPixelHitProducerFast::Exec(Option_t*)
 {
   // Reset output array
   if ( ! fHitArray )

@@ -82,7 +82,7 @@ InitStatus FairGeaneTrEmc::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void FairGeaneTrEmc::Exec(Option_t* opt) {
+void FairGeaneTrEmc::Exec(Option_t*) {
 // 	cout << "FairGeaneTrEmc::Exec" << endl;
    fTrackParGeane->Delete();
    fTrackParIni->Delete();

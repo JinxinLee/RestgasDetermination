@@ -110,7 +110,7 @@ InitStatus PndEmcMakeBump::Init()
  * @param opt unused
  * @return void
  */
-void PndEmcMakeBump::Exec(Option_t* opt) 
+void PndEmcMakeBump::Exec(Option_t*) 
 {
 	if (fVerbose>0)
 		std::cout<<"***************** PndEmcMakeBump, event: "

@@ -202,7 +202,7 @@ InitStatus PndSdsStripHitProducer::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSdsStripHitProducer::Exec(Option_t* opt)
+void PndSdsStripHitProducer::Exec(Option_t*)
 {
   // Reset output array
   fGeoH->SetVerbose(fVerbose);

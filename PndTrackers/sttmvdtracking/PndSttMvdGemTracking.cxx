@@ -483,7 +483,7 @@ void PndSttMvdGemTracking::OrderGemHits(Int_t nhits) {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSttMvdGemTracking::Exec(Option_t* opt) {
+void PndSttMvdGemTracking::Exec(Option_t*) {
   if(fVerbose > 0) {
     cout << "==================== EVENT " << evt << endl;
     cout << "detId " << FairRootManager::Instance()->GetBranchId(fMvdPixelBranchName) 

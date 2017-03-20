@@ -130,7 +130,7 @@ void PndRecoKalmanTask2::SetParContainers() {
   rtdb->getContainer("PndGeoFtsPar");
 }
 
-void PndRecoKalmanTask2::Exec(Option_t* opt) {
+void PndRecoKalmanTask2::Exec(Option_t*) {
 	if (fVerbose > 0)
 		std::cout << "PndRecoKalmanTask2::Exec " << FairRootManager::Instance()->GetEntryNr() << std::endl;
 

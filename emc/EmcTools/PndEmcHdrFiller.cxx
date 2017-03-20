@@ -83,7 +83,7 @@ InitStatus PndEmcHdrFiller::Init() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndEmcHdrFiller::Exec(Option_t* opt) {
+void PndEmcHdrFiller::Exec(Option_t*) {
   
   // Initial reset of parameters
   Double32_t fHitEnergy = 0.;

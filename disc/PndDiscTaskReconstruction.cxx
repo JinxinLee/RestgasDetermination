@@ -483,7 +483,7 @@ InitStatus PndDiscTaskReconstruction::Init()
 
 /// Use particle track array as driving quantity
 /// and retrieve pattern digits by using time-based-simulation.
-void PndDiscTaskReconstruction::Exec(Option_t* opt)
+void PndDiscTaskReconstruction::Exec(Option_t*)
 {
     //Reading out entries
     int particles = tclarr_particles->GetEntries();

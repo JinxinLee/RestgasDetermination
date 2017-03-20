@@ -62,7 +62,7 @@ InitStatus PndTrackArrayMerger::Init()
   return kSUCCESS;
 }
 
-void PndTrackArrayMerger::Exec(Option_t* opt)
+void PndTrackArrayMerger::Exec(Option_t*)
 {
   fOutputArray->Clear();
   // copy data from input arrays to output array

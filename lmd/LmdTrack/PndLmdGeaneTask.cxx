@@ -148,7 +148,7 @@ void PndLmdGeaneTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdGeaneTask::Exec(Option_t* opt)
+void PndLmdGeaneTask::Exec(Option_t*)
 {
   // if(fVerbose>5){
   //   if((fTracks->GetEntries())!=(fMCTracks->GetEntries()))

@@ -95,7 +95,7 @@ PndSttIsochroneDraw::~PndSttIsochroneDraw()
 		delete (fStopFunctor);
 }
 // -------------------------------------------------------------------------
-void PndSttIsochroneDraw::Exec(Option_t* option)
+void PndSttIsochroneDraw::Exec(Option_t*ion)
 {
 
 	if (IsActive()) {

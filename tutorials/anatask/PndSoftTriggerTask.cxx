@@ -195,7 +195,7 @@ void PndSoftTriggerTask::SetParContainers() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndSoftTriggerTask::Exec(Option_t* opt) 
+void PndSoftTriggerTask::Exec(Option_t*) 
 {
 	Int_t j=0;
 

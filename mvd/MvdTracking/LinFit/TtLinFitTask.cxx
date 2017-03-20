@@ -87,7 +87,7 @@ InitStatus TtLinFitTask::Init()
 }
 
 
-void TtLinFitTask::Exec(Option_t* opt)
+void TtLinFitTask::Exec(Option_t*)
 {
 
   fTrackcount = 0; 

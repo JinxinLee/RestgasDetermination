@@ -52,7 +52,7 @@ InitStatus PndTSCorrectorTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndTSCorrectorTask::Exec(Option_t* opt)
+void PndTSCorrectorTask::Exec(Option_t*)
 {
 
 //  fInputArray = (FairRootManager::Instance()->GetTClonesArray(fInputBranch);

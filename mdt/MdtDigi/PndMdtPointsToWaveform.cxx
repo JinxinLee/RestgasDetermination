@@ -131,14 +131,14 @@ InitStatus PndMdtPointsToWaveform::Init()
 
   return fGoodGeo ? kSUCCESS : kERROR;
 }
-void PndMdtPointsToWaveform::Exec(Option_t* opt)
+void PndMdtPointsToWaveform::Exec(Option_t*)
 {
   if(fTimeOrderedWaveform)
-    exec_t(opt);
+    exec_t();
   else
-    exec_e(opt);
+    exec_e();
 }
-void PndMdtPointsToWaveform::exec_e(Option_t* opt)
+void PndMdtPointsToWaveform::exec_e()
 {
   TStopwatch timer;
   if (fVerbose>2){
@@ -307,7 +307,7 @@ void PndMdtPointsToWaveform::exec_e(Option_t* opt)
 }
 
 
-void PndMdtPointsToWaveform::exec_t(Option_t* opt)
+void PndMdtPointsToWaveform::exec_t()
 {
   TStopwatch timer;
   if (fVerbose>2){

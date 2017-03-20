@@ -134,7 +134,7 @@ void PndMvdRiemannTrackFinderTask::AddHitBranch(TString branchName)
 //}
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
+void PndMvdRiemannTrackFinderTask::Exec(Option_t*)
 {
 
 	  if (fVerbose > 0) std::cout << std::endl;

@@ -103,7 +103,7 @@ void PndHypIdealRecoTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndHypIdealRecoTask::Exec(Option_t* opt)
+void PndHypIdealRecoTask::Exec(Option_t*)
 {
   // Fills HypClusters with the MC Truth
   // TODO filling of RecoHits, together with the sensor plane

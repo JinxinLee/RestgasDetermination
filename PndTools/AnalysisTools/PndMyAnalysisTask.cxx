@@ -128,7 +128,7 @@ void PndMyAnalysisTask::SetParContainers()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndMyAnalysisTask::Exec(Option_t* opt)
+void PndMyAnalysisTask::Exec(Option_t*)
 {
   Int_t j=0;
 

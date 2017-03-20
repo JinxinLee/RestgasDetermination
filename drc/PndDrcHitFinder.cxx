@@ -146,7 +146,7 @@ InitStatus PndDrcHitFinder::Init(){
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndDrcHitFinder::Exec(Option_t* opt){
+void PndDrcHitFinder::Exec(Option_t*){
   
   if(fVerbose>3) Info("Exec","Start");  
   if (!fPdHitArray) Fatal("Exec", "No PdHitArray");

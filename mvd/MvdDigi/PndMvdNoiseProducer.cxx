@@ -210,7 +210,7 @@ void PndMvdNoiseProducer::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdNoiseProducer::Exec(Option_t* opt)
+void PndMvdNoiseProducer::Exec(Option_t*)
 {
   //   TObjArray* activeSensors = fGeoPar->GetGeoSensitiveNodes();
   Int_t nrCh=0,rnd=0,

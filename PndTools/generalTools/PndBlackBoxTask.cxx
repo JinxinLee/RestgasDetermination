@@ -47,7 +47,7 @@ InitStatus PndBlackBoxTask::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndBlackBoxTask::Exec(Option_t* opt)
+void PndBlackBoxTask::Exec(Option_t*)
 {
   return;
 }

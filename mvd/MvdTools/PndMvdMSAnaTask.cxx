@@ -99,7 +99,7 @@ void PndMvdMSAnaTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdMSAnaTask::Exec(Option_t* opt)
+void PndMvdMSAnaTask::Exec(Option_t*)
 {
 	std::map<int, std::vector<int> > mcHitMap;						//Track ->  MCHits
 	fTrackParGeane->Delete();

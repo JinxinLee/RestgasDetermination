@@ -192,7 +192,7 @@ InitStatus PndMvdGemTrackFinderOnHits::ReInit() {
 // -------------------------------------------------------------------------
 
 // -----   Public method DoFind   ------------------------------------------
-void PndMvdGemTrackFinderOnHits::Exec(Option_t* opt) {
+void PndMvdGemTrackFinderOnHits::Exec(Option_t*) {
   if ( fVerbose > 0 ) {
     cout << "===========================================" << endl;
     cout << "=============== EVENT " << fNofEvents << " =================" << endl;

@@ -147,7 +147,7 @@ InitStatus PndEmc2DLocMaxFinder::Init()
  * @param opt unused
  * @return void
  */
-void PndEmc2DLocMaxFinder::Exec(Option_t* opt)
+void PndEmc2DLocMaxFinder::Exec(Option_t*)
 {
 	int nClusters = fClusterArray->GetEntriesFast();
 	PndEmcCoordIndexSet tmp_CoordSet_set;

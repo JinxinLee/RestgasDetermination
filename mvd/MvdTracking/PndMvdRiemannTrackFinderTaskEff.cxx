@@ -119,7 +119,7 @@ InitStatus PndMvdRiemannTrackFinderTaskEff::Init()
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdRiemannTrackFinderTaskEff::Exec(Option_t* opt)
+void PndMvdRiemannTrackFinderTaskEff::Exec(Option_t*)
 {
 
   std::vector<PndTrackCand*>  RecoT;

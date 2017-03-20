@@ -203,7 +203,7 @@ InitStatus PndSdsStripHitProducerDif::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndSdsStripHitProducerDif::Exec(Option_t* opt)
+void PndSdsStripHitProducerDif::Exec(Option_t*)
 {
   // Reset output array
   fStripArray->Clear();

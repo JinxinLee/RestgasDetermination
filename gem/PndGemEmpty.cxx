@@ -96,7 +96,7 @@ PndGemEmpty::~PndGemEmpty() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemEmpty::Exec(Option_t* opt) {
+void PndGemEmpty::Exec(Option_t*) {
   //  cout << endl << "======== PndGemEmpty::Exec(Event = " << fTNofEvents << " ) ====================" << endl;
 
   if ( fInBranchName.Contains("Sorted") ) {

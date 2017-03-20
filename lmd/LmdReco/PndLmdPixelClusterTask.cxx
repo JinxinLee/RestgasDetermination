@@ -218,7 +218,7 @@ TVector3 PndLmdPixelClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
 };
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdPixelClusterTask::Exec(Option_t* opt)
+void PndLmdPixelClusterTask::Exec(Option_t*)
 {
   // std::cout<<" fEventNr = "<< fEventNr<<std::endl;
   // Reset output array

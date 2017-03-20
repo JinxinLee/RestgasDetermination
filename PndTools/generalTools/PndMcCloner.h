@@ -28,7 +28,7 @@ class PndMcCloner : public FairTask
 
 
   /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt);
+  virtual void Exec(Option_t*);
 
   void SetCleanMc(Bool_t opt = kTRUE) { fCleanMC = opt; };
 

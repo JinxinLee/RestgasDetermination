@@ -86,7 +86,7 @@ InitStatus PndMcCloner::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMcCloner::Exec(Option_t* opt) {
+void PndMcCloner::Exec(Option_t*) {
   
   // Reset output array
   if ( ! fOutputArray ) Fatal("Exec", "No Output Array");

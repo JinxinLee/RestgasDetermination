@@ -26,7 +26,7 @@ InitStatus PndMvdAccessRTDBTask::ReInit()
 }
 
 void
-PndMvdAccessRTDBTask::Exec(Option_t* opt)
+PndMvdAccessRTDBTask::Exec(Option_t*)
 {
   return;
 }

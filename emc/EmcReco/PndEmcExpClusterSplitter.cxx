@@ -185,7 +185,7 @@ InitStatus PndEmcExpClusterSplitter::Init() {
  * @param opt unused
  * @return void
  */
-void PndEmcExpClusterSplitter::Exec(Option_t* opt) 
+void PndEmcExpClusterSplitter::Exec(Option_t*) 
 {
 
 	PndEmcMapper *fEmcMap=PndEmcMapper::Instance();

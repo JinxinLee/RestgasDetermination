@@ -160,7 +160,7 @@ InitStatus PndLmdTrkQTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdTrkQTask::Exec(Option_t* opt)
+void PndLmdTrkQTask::Exec(Option_t*)
  {
   
   fTrackQ->Delete();

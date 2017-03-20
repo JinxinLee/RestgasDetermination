@@ -248,7 +248,7 @@ InitStatus PndHypGeCOSYBackgroundAna::Init()
 	cout << "HypGe COSYBackgroundSim Ana:\t" << "Init of HypGe COSYBackgroundSim Ana finished succesfully" << endl;
 }
 
-void PndHypGeCOSYBackgroundAna::Exec(Option_t* opt)
+void PndHypGeCOSYBackgroundAna::Exec(Option_t*)
 {
 	Double_t NeutronEnergyLossArray[10];
 	for(Int_t i = 0; i < 10; i++)

@@ -106,7 +106,7 @@ void PndTutAnaTaskD0::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndTutAnaTaskD0::Exec(Option_t* opt)
+void PndTutAnaTaskD0::Exec(Option_t*)
 {
 	// *** some variables
 	int i=0,j=0, k=0, l=0;

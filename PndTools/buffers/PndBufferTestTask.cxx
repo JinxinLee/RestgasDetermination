@@ -19,7 +19,7 @@ PndBufferTestTask::~PndMvdClusterTask()
 }
 // -------------------------------------------------------------------------
 
-void PndBufferTestTask::Exec(Option_t* opt)
+void PndBufferTestTask::Exec(Option_t*)
 {
 	
 }

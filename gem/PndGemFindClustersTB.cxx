@@ -131,7 +131,7 @@ PndGemFindClustersTB::~PndGemFindClustersTB() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemFindClustersTB::Exec(Option_t* opt) {
+void PndGemFindClustersTB::Exec(Option_t*) {
   //  cout << endl << "======== PndGemFindClustersTB::Exec(Event = " << fTNofEvents << " ) ====================" << endl;
   fTimer.Start();
 

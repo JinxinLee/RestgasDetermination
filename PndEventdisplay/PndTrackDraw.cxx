@@ -92,7 +92,7 @@ PndTrackDraw::~PndTrackDraw()
 }
 
 // -------------------------------------------------------------------------
-void PndTrackDraw::Exec(Option_t* option)
+void PndTrackDraw::Exec(Option_t*ion)
 {
 
   if (IsActive()){

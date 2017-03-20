@@ -189,7 +189,7 @@ PndLmdKalmanTask::Init()
 
 
 void
-PndLmdKalmanTask::Exec(Option_t* opt)
+PndLmdKalmanTask::Exec(Option_t*)
 {
   fTrackTmpArray->Delete();
   fTrkOutArray->Delete();

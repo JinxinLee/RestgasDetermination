@@ -266,7 +266,7 @@ TVector3 PndLmdStripClusterTask::AddMSErr(TVector3 hpos, TVector3 hposerr){
 };
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdStripClusterTask::Exec(Option_t* opt)
+void PndLmdStripClusterTask::Exec(Option_t*)
 {
   if (fVerbose > 2)
     std::cout<<" **Starting PndLmdStripClusterTask::Exec()**"<<std::endl;

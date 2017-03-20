@@ -291,7 +291,7 @@ InitStatus PndDiscTaskDigitization::Init()
 }
 
 
-void PndDiscTaskDigitization::Exec(Option_t* opt)
+void PndDiscTaskDigitization::Exec(Option_t*)
 {
     PndDiscSensorMCPoint * mc_point = NULL;
     Int_t i = 0, n_mc_points = tclarr_mc_points->GetEntriesFast();

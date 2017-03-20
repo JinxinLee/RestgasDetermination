@@ -138,7 +138,7 @@ PndGemDigitize::~PndGemDigitize() {
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndGemDigitize::Exec(Option_t* opt) {
+void PndGemDigitize::Exec(Option_t*) {
 
   if ( fSaveOutsideHits ) {
     if ( ! fHitOutsideArray ) Fatal("Exec", "No fHitOutsideArray");

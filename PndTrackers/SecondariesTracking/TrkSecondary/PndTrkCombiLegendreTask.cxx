@@ -215,7 +215,7 @@ void PndTrkCombiLegendreTask::Initialize() {
 }
 
 
-void PndTrkCombiLegendreTask::Exec(Option_t* opt) {
+void PndTrkCombiLegendreTask::Exec(Option_t*) {
 
   // ############## I N I T I A L I Z A T I O N S ##############
   fTrackArray->Delete();

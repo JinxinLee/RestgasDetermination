@@ -204,7 +204,7 @@ void PndLLbarAnaTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLLbarAnaTask::Exec(Option_t* opt)
+void PndLLbarAnaTask::Exec(Option_t*)
 {
 	// some variables
 	int i=0,j=0, k=0, l=0;

@@ -254,7 +254,7 @@ TH1F *hPath = new TH1F("hPath",";pathid [#];entries [#]",30,0,30);
 TH2F *hSD = new TH2F("hSD",";#theta_{c} [rad];t_{lut} - t_{daq} [ns]",200,0.8,0.85,200,-2,2);
 
 // -----   Execution of Task   ---------------------------------------------
-void PndDrcReco::Exec(Option_t* option){
+void PndDrcReco::Exec(Option_t*ion){
   nevents++;
   
   Int_t nHits = fPDHitArray->GetEntriesFast();

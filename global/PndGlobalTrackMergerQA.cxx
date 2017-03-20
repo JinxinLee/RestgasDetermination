@@ -145,7 +145,7 @@ void PndGlobalTrackMergerQA::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGlobalTrackMergerQA::Exec(Option_t* opt) {
+void PndGlobalTrackMergerQA::Exec(Option_t*) {
   
   fNofEvents++;
 

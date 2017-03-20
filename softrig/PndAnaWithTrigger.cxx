@@ -129,7 +129,7 @@ InitStatus PndAnaWithTrigger::Init()
 // -------------------------------------------------------------------------
 
 // -----   Public method Exec   --------------------------------------------
-void PndAnaWithTrigger::Exec(Option_t* opt)
+void PndAnaWithTrigger::Exec(Option_t*)
 {
 	// *** some variables
 	int i=0,j=0;

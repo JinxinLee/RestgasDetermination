@@ -99,7 +99,7 @@ InitStatus PndPidBremCorrector::Init() {
 
 }
 
-void PndPidBremCorrector::Exec(Option_t* opt)
+void PndPidBremCorrector::Exec(Option_t*)
 {
 
   // Reset output array

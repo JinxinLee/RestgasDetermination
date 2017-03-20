@@ -142,7 +142,7 @@ void PndGlobalTrackFitQA::SetParContainers() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndGlobalTrackFitQA::Exec(Option_t* opt) {
+void PndGlobalTrackFitQA::Exec(Option_t*) {
   
   fNofEvents++;
 

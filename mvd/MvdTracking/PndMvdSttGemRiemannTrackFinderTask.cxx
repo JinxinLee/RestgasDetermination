@@ -140,7 +140,7 @@ void PndMvdSttGemRiemannTrackFinderTask::AddHitBranch(TString branchName)
 //}
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t* opt)
+void PndMvdSttGemRiemannTrackFinderTask::Exec(Option_t*)
 {
 
 //	SetVerbose(0);
