@@ -7,6 +7,8 @@
 #include "TMatrixD.h"
 #include "TMatrixDEigen.h"
 
+#include <algorithm>
+
 PndEventShape::PndEventShape(RhoCandList &l, TLorentzVector cms, double neutMinE, double chrgMinP) : 
   fnChrg(0), fnNeut(0), fN(0), fpmaxlab(0.), fpmaxcms(0.),fpminlab(0.), fpmincms(0.), fptmax(0.), fptmin(0.),
   fprapmax(0.), femaxneutlab(0.), femaxneutcms(0.), fpmaxchlab(0.), fpmaxchcms(0.), fdetemcsum(0.), fdetemcmax(0.),
@@ -217,15 +219,95 @@ double PndEventShape::Circularity()
 //            |        ''             | 
 //
 // with eps(x)=-1 for x<0 and =+1 for x>0
+//
+// KG 03/2017:
+//   extended for multiple start vectors to 
+//   avoid getting stuck in local minimum
+//
+// ref: http://home.fnal.gov/~mrenna/lutp0613man2/node235.html
+//
 
-double PndEventShape::Thrust()
+double PndEventShape::Thrust(int Nmax)
 {
   // did we already compute?
   if (fthr>-1.) return fthr; 
   
-  TVector3 n0(0,0,0);
+  // no particles  ->  return thr = -1 
   if( fN==0 ) return -1.;
   
+  int i,j,k;
+
+  // copy vector components of 4-vectors to TVector3 list
+  std::vector<TVector3> MomList;
+  for (i=0;i<fCmsList.size();++i) MomList.push_back(fCmsList[i].Vect());
+  
+  // sort wrt momentum magnitudes to initialize the start vectors
+  std::sort(MomList.begin(), MomList.end(), CmpTVect3Mag);
+  
+  // select highest momentum
+  TVector3 n0 = MomList[0];
+  double pmax = n0.Mag();
+  
+  // prepare vector container for all 2^(Nmax-1) start vectors
+  // based on the Nmax highest momentum vectors.
+  // this is to avoid getting stuck in local maximum
+  std::vector<TVector3>  startn0;
+  int n = std::min(Nmax, fN), nst = pow(2,n-1);
+  
+  // construct 2^(Nmax-1) start vectors 
+  // n_i = Sum [eps_i * p_i], with eps_i = +-1
+  for (i=0; i<nst; ++i)
+  {
+  	TVector3 newst = n0;
+	
+	// the expression (i>>j) & 1)*2-1 turns bit at j-th position in integer i
+	// like: 0 -> -1 and 1 -> 1 
+	// in the bit string coding the eps_i settings
+	// e.g. i = 5 = 0101 --> eps_i = {-1,1,-1,1}
+	
+    for (j=0;j<n-1;++j) newst += (( (i>>j) & 1)*2-1 ) * MomList[j+1];
+		
+	startn0.push_back(newst.Unit());
+  }  
+
+  // compute maximum thrust for all start vectors    
+  for (k=0; k<startn0.size(); ++k)
+  {
+  	n0 = startn0[k];
+	TVector3 nnew(0,0,0);
+	
+	// find thrust axis (5 iterations)
+	for (i=0;i<5;++i)
+	{
+	  // compute current thrust axis for next iteration
+	  for (j=0;j<fN;++j) nnew += Eps(n0, MomList[j]) * MomList[j];
+	  
+	  // normalize
+	  n0 = nnew.Unit();
+	}
+
+    // compute current thrust value
+	double thisthr=0, sum=0;
+		
+	for (i=0;i<fN;++i)
+	{
+	  thisthr += fabs(n0.Dot(MomList[i]));
+	  sum     += MomList[i].Mag();
+	}
+	
+	// maximum thrust for starting vector k
+	thisthr /= sum;
+	
+	if (fthr<thisthr)
+	{
+	  fthr     = thisthr;
+	  fThrVect = n0;
+	}
+  }
+  
+  return fthr;
+
+  /*  
   int i,j;
   double pmax=0;
   
@@ -262,6 +344,7 @@ double PndEventShape::Thrust()
   fthr = thr/sum;
   
   return fthr;
+  */
 }
 
 // ---------------------------------------

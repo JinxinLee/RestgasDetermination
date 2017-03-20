@@ -119,14 +119,15 @@ public:
 	double FoxWolfMomH(int order);	// Fox Wolfram moment absolute H_i
 	double FoxWolfMomR(int order);  // Fox Wolfram moment relative R_i = H_i/H_0
 	
-	double Thrust();
-	TVector3 ThrustVector();
+	double Thrust(int Nmax=4);      // Thrust, with 0.5 < thr < 1.0
+	TVector3 ThrustVector();        // Direction of thrust vector
 	
 private:
 	
 	void ComputeSphericity();				// compute sph, apl, pla
 	double Eps(const TVector3 v1, const TVector3 v2) {return (v1*v2)>0. ? 1. : -1.;}  // aux for Thrust
 	double Legendre( int l, double x );		// Legendre function; auxilliary for Fox Wolfram moments
+	static bool   CmpTVect3Mag(TVector3 v1, TVector3 v2) { return (v1.Mag()<v2.Mag()); }
 	
 	std::vector<TLorentzVector> fLabList;	// List of 4-vectors in lab frame
 	std::vector<TLorentzVector> fCmsList;	// List of 4-vectors in cms frame
