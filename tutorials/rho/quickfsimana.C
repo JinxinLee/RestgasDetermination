@@ -49,7 +49,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	bool persist = (anadecay == "" && anaparms == "") || anaparms.Contains("persist");
 	
 	// do some reconstruction ?
-	bool doreco  = (anadecay != "");
+	bool doreco  = (anadecay != "" || anaparms.Contains("nevt"));
 	
 	// do particle QA?
 	bool partQA  = (anaparms.Contains("qapart"));
@@ -266,9 +266,9 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		cout <<"Using FairEventFilter"<<endl;
 		primGen->SetFilterMaxTries(100000);
 		
-		FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
-		chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
-		primGen->AndFilter(chrgFilter);
+		//FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
+		//chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
+		//primGen->AndFilter(chrgFilter);
 		 		 		
 		//FairEvtFilterOnCounts* neutFilter = new FairEvtFilterOnCounts("neutFilter");
 		//neutFilter->AndMaxCharge(4, FairEvtFilter::kNeutral);
@@ -276,8 +276,8 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 		
 		PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
 		//eeInv->SetVerbose();//highest commenting level of the FairEvtFilterOnCounts
-		eeInv->SetPdgCodesToCombine( 11, -11);
-		eeInv->SetMinMaxInvMass( 2.8, 3.3 );
+		eeInv->SetPdgCodesToCombine( 13, -13);
+		eeInv->SetMinMaxInvMass( 2.5, 3.3 );
 		eeInv->SetMinMaxCounts(1,10000);
  		primGen->AndFilter(eeInv);  //add filter to fFilterList		
 	}
@@ -320,7 +320,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	      // - ("k+ k-", 0.98, 1.1, 2)       : forms K+ K- candidate and requires >=2 in the given window
 	      // - ("ks k+ pi- cc", 2.8, 3.2,1 ) : forms ks k+ pi- / ks k- pi+ cands and req. at least one in window
 	      
-	      //fastSim->SetInvMassFilter("e+ e-",2.8,3.3,1);  // look for J/psi -> e+ e- candidate
+	      fastSim->SetInvMassFilter("mu+ mu-",2.5,3.3,1);  // look for J/psi -> e+ e- candidate
 	}
 
 	// enable the merging of neutrals if they have similar direction

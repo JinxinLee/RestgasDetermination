@@ -36,7 +36,7 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	}
 	
 	// do some reconstruction ?
-	bool doreco  = (anadecay != "");
+	bool doreco  = (anadecay != "" || anaparms.Contains("nevt"));
 
 	// do particle QA?
 	bool partQA  = (anaparms.Contains("qapart"));
