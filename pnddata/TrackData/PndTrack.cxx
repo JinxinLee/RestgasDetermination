@@ -26,7 +26,8 @@ PndTrack::PndTrack() :
 PndTrack::PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand, Int_t flag, Double_t chi2, Int_t ndf, Int_t pid, Int_t id, Int_t type):
   fTrackParamFirst(first), fTrackParamLast(last), fTrackCand(cand), fRefToPndTrackCand(), fPidHypo(pid), fFlag(flag), fChi2(chi2), fNDF(ndf), fRefIndex(id)
 {
-	SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), type, id));
+	if (!(type < 0))
+		SetLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), type, id));
 	if (cand.GetPointerToLinks() != 0)
 		AddLinks(*cand.GetPointerToLinks());
 	SetTimeStamp(cand.GetTimeStamp());

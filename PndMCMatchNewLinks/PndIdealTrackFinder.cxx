@@ -161,7 +161,6 @@ void PndIdealTrackFinder::FilterTrackCands()
 
 void PndIdealTrackFinder::CreateTracks()
 {
-	int trackcounter = 0;
 	for (std::map<FairLink, PndTrackCand>::iterator iter = fTrackCandMap.begin(); iter != fTrackCandMap.end(); iter++){
 		PndTrackCand* myTrackCand = new((*fTrackCand)[fTrackCand->GetEntriesFast()]) PndTrackCand(iter->second);
 		myTrackCand->setMcTrackId(iter->first.GetIndex());
@@ -234,10 +233,9 @@ void PndIdealTrackFinder::CreateTracks()
 							 charge, lastpos,
 							 TVector3(1.,0.,0.), TVector3(0.,1.,0.));
 
-		new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(firstPar, lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), trackcounter,FairRootManager::Instance()->GetBranchId("MCTrack")); // CHECK trackcounter is correct?? //PndTrack* myTrack =  //[R.K.03/2017] unused variable
 
-		trackcounter++;
-		// .............
+
+		new((*fTrack)[fTrack->GetEntriesFast()]) PndTrack(firstPar, lastPar, *myTrackCand, 0,0,1,mc->GetPdgCode(), -1,-1);
 	}
 }
 
