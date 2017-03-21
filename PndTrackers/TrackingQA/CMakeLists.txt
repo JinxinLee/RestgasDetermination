@@ -15,7 +15,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackrep
   ${CMAKE_SOURCE_DIR}/trackbase
 #  ${CMAKE_SOURCE_DIR}/PndMCMatch
-  ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks 
+  ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
   ${CMAKE_SOURCE_DIR}/PndTrackers/TrackingQA
   ${CMAKE_SOURCE_DIR}/rho
   ${CMAKE_SOURCE_DIR}/rho/RhoBase
@@ -42,6 +42,6 @@ OnlineDBuilderTask.cxx
 set(LINKDEF  TrackingQualityAnalysis_LinkDef.h)
 set(LIBRARY_NAME TrackingQA)
 
-set(DEPENDENCIES Base PndData MCMatchNewLinks Rho)
+set(DEPENDENCIES Base PndData IdealTrackFinder Rho)
 
 GENERATE_LIBRARY()

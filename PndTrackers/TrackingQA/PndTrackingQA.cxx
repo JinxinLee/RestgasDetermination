@@ -13,7 +13,7 @@
 ClassImp(PndTrackingQA);
 
 PndTrackingQA::PndTrackingQA (TString trackBranchName, TString idealTrackName, Bool_t pndTrackData):
-       fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
+       fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(0), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQA::PndTrackingQA no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -29,7 +29,7 @@ PndTrackingQA::PndTrackingQA (TString trackBranchName, TString idealTrackName, B
 }
 
 PndTrackingQA::PndTrackingQA (TString trackBranchName, TString idealTrackName, PndTrackFunctor* posTrack, Bool_t pndTrackData):
-	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(1)
+	fTrackBranchName(trackBranchName), fIdealTrackName(idealTrackName), fPndTrackOrTrackCand(pndTrackData), fPossibleTrack(posTrack), fCleanFunctor(kFALSE), fNGhosts(0), fUseCorrectedSkewedHits(kFALSE), fVerbose(0)
 {
 	if(fPossibleTrack == 0){
 		std::cout << "-I- PndTrackingQA::PndTrackingQA no PossibleTrackFunctor given. Taking Standard!" << std::endl;
@@ -82,14 +82,14 @@ void PndTrackingQA::Init()
 void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 {
 	FillMapTrackQualifikation();
-	std::cout << "PndTrackingQA::AnalyseEvent() Track quality map before analysis: " << std::endl << std::endl;
-	PrintTrackQualityMap(kTRUE);
+//	std::cout << "PndTrackingQA::AnalyseEvent() Track quality map before analysis: " << std::endl << std::endl;
+//	PrintTrackQualityMap(kTRUE);
 
 	for (Int_t i = 0; i < fTrack->GetEntriesFast(); i++){
 
-		std::cout << "----------------------------------" << std::endl;
+//		std::cout << "----------------------------------" << std::endl;
 
-		std::cout << "Analyse Track: " << i << std::endl;
+//		std::cout << "Analyse Track: " << i << std::endl;
 
 		std::map<TString, FairMultiLinkedData> trackInfo;
 
@@ -104,7 +104,7 @@ void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 			std::cout << "PndTrackingQA::AnalyseEvent Analyse track: " << i << std::endl;
 		}
 		Int_t mostProbableTrack = AnalyseTrackInfo(trackInfo, i);
-		std::cout << "mostProbableTrack " << mostProbableTrack << std::endl;
+//		std::cout << "mostProbableTrack " << mostProbableTrack << std::endl;
 		if (mostProbableTrack == -1) continue;
 
 		fTrackIdMCId[i] = mostProbableTrack;
@@ -154,7 +154,7 @@ FairMultiLinkedData PndTrackingQA::GetMCInfoForBranch(TString branchName, PndTra
 	result.SetInsertHistory(kFALSE);
 	//std::cout << "GetMCInforForBranch: " << branchName << std::endl;
 	FairMultiLinkedData linksOfType = trackCand->GetLinksWithType(ioman->GetBranchId(branchName));
-	std::cout << "GetMCInforForBranch: LinksOfType " << branchName << " : " << linksOfType << std::endl;
+//	std::cout << "GetMCInforForBranch: LinksOfType " << branchName << " : " << linksOfType << std::endl;
 
 	for (int j = 0; j < linksOfType.GetNLinks(); j++){
 		FairMultiLinkedData_Interface* linkData = (FairMultiLinkedData_Interface*)FairRootManager::Instance()->GetCloneOfLinkData(linksOfType.GetLink(j));
@@ -172,16 +172,16 @@ std::map<TString, FairMultiLinkedData> PndTrackingQA::AnalyseTrackCand(PndTrackC
 {
 	std::map<TString, FairMultiLinkedData> trackInfo;
 
-//	if (fVerbose > 0) {
+	if (fVerbose > 0) {
 		std::cout << "PndTrackingQualityData::AnalyseTrackCand: TrackInfo" << std::endl;
 		std::cout << *trackCand << std::endl;
-//	}
+	}
 	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
-		std::cout << "BranchName: " << fBranchNames[branchIndex] << std::endl;
+//		std::cout << "BranchName: " << fBranchNames[branchIndex] << std::endl;
 		trackInfo[fBranchNames[branchIndex]] = GetMCInfoForBranch(fBranchNames[branchIndex], trackCand);
 		trackInfo["AllHits"].AddLinks(trackInfo[fBranchNames[branchIndex]]);
 	}
-//	if (fVerbose > 0)
+	if (fVerbose > 0)
 		PrintTrackInfo(trackInfo);
 	return trackInfo;
 }
@@ -194,7 +194,7 @@ Int_t PndTrackingQA::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& tr
 //		std::cout << "PndTrackingQA::AnalyseTrackInfo: TrackInfo: " << trackInfo["AllHits"].GetNLinks() << std::endl;
 	//PrintTrackDataSummary(trackInfo["AllHits"]);
 
-	std::cout << "PndTrackingQA::AnalyseTrackInfo " << trackInfo["AllHits"] << std::endl;
+//	std::cout << "PndTrackingQA::AnalyseTrackInfo " << trackInfo["AllHits"] << std::endl;
 
 	std::vector<FairLink> sortedMCTracks = trackInfo["AllHits"].GetSortedMCTracks();
 
@@ -202,6 +202,8 @@ Int_t PndTrackingQA::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& tr
 
 	if (sortedMCTracks.size() == 1){
 		mostProbableTrack = sortedMCTracks[0].GetIndex();
+		if (!(fMCIdIdealTrackId[mostProbableTrack] < fIdealTrack->GetEntriesFast()))
+				return -1;
 		PndTrackCand* myIdealTrack = ((PndTrack*)fIdealTrack->At(fMCIdIdealTrackId[mostProbableTrack]))->GetTrackCandPtr();
 		Int_t nMCHits = GetSumOfAllValidMCHits(myIdealTrack->GetPointerToLinks());
 
@@ -243,15 +245,15 @@ Int_t PndTrackingQA::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& tr
 			FairLink myLink = sortedMCTracks[j];
             if (fMCIdIdealTrackId.count(myLink.GetIndex()) > 0){
                 PndTrackCand* myIdealTrack = ((PndTrack*)fIdealTrack->At(fMCIdIdealTrackId[myLink.GetIndex()]))->GetTrackCandPtr();
-                std::cout << "Ideal Tracking: Track " << myLink.GetIndex() << ": ";
-                PrintTrackDataSummary(*myIdealTrack->GetPointerToLinks());
+//                std::cout << "Ideal Tracking: Track " << myLink.GetIndex() << ": ";
+//                PrintTrackDataSummary(*myIdealTrack->GetPointerToLinks());
             } else {
                 std::cout << "Ideal Tracking: Track " << myLink.GetIndex() << " not available" << std::endl;
             }
 
 		}
-		std::cout << "MostProbableTrack: " << mostProbableTrack << " Quality: " << fMapTrackQualification[mostProbableTrack] << std::endl;
-		std::cout << std::endl;
+//		std::cout << "MostProbableTrack: " << mostProbableTrack << " Quality: " << fMapTrackQualification[mostProbableTrack] << std::endl;
+//		std::cout << std::endl;
 	}
 
 	return mostProbableTrack;
@@ -262,10 +264,10 @@ void PndTrackingQA::FillMapTrackQualifikation()
 	fMapTrackQualification.clear();
 	fMapTrackMCStatus.clear();
 	fMCIdIdealTrackId.clear();
-	std::cout << " fIdealTrack.size() " << fIdealTrack->GetEntriesFast() << std::endl;
+//	std::cout << " fIdealTrack.size() " << fIdealTrack->GetEntriesFast() << std::endl;
 	for (int i = 0; i < fIdealTrack->GetEntriesFast(); i++){
 		PndTrackCand* idealTrackCand = ((PndTrack*)fIdealTrack->At(i))->GetTrackCandPtr();
-		std::cout << i << " : PndTrackingQA::FillMapTrackQualifikation: " << *idealTrackCand << std::endl;
+//		std::cout << i << " : PndTrackingQA::FillMapTrackQualifikation: " << *idealTrackCand << std::endl;
 
 		PndMCTrack* mcTrack = (PndMCTrack*)fMCTrack->At(idealTrackCand->getMcTrackId());
 
@@ -489,7 +491,7 @@ PndTrackingQualityRecoInfo PndTrackingQA::GetRecoInfoFromRecoTrack(Int_t trackId
     FairMultiLinkedData links = ptrlink.GetLinksWithType(ioman->GetBranchId(fBranchNames[branchIndex]));
     // get their number
     Int_t nHits = links.GetNLinks();
-    std::cout << "----- reco track " << trackId << " (mc track " << mctrackId<< ") has " << nHits << " from " << fBranchNames[branchIndex] << std::endl;
+ //   std::cout << "----- reco track " << trackId << " (mc track " << mctrackId<< ") has " << nHits << " from " << fBranchNames[branchIndex] << std::endl;
 
     // get mc track info from each hit
     for (int ihit = 0; ihit < nHits; ihit++){
@@ -498,13 +500,13 @@ PndTrackingQualityRecoInfo PndTrackingQA::GetRecoInfoFromRecoTrack(Int_t trackId
       // std::cout << "ihit " << ihit << " " << link.GetIndex() << " " << link.GetType() << " " << link.GetWeight() << std::endl;
       FairHit * hit = (FairHit*) links.GetData(link);
       if(!hit) {
-	std::cout << "ihit " << ihit << " " << link.GetIndex() << " is FAKE" << std::endl;
+    	  std::cout << "ihit " << ihit << " " << link.GetIndex() << " is FAKE" << std::endl;
 	//    std::cout << "No Obj Hit" << std::endl;
 
 	//
-	if(noffakehits.count(branchIndex) > 0) noffakehits[branchIndex]++;
-	else noffakehits[branchIndex] = 1; // if not there
-	continue;
+		if(noffakehits.count(branchIndex) > 0) noffakehits[branchIndex]++;
+		else noffakehits[branchIndex] = 1; // if not there
+		continue;
       }
 
       // get links of the hit
@@ -523,7 +525,7 @@ PndTrackingQualityRecoInfo PndTrackingQA::GetRecoInfoFromRecoTrack(Int_t trackId
 	  FairLink mclink = mclinks.GetLink(imctrk);
 	  assomctrack = mclink.GetIndex();
 	  // 	     std::cout << "imctrk " << imctrk << " " << mclink.GetIndex() << " " << mclink.GetType() << " " << mclink.GetWeight() << std::endl;
-	  std::cout << "ihit " << ihit << " (hitid " << link.GetIndex() << ") belongs to MC track " << assomctrack << std::endl;
+//	  std::cout << "ihit " << ihit << " (hitid " << link.GetIndex() << ") belongs to MC track " << assomctrack << std::endl;
 	  if(assomctrack == mctrackId) isgood = kTRUE;
 	}
       }
@@ -552,11 +554,11 @@ PndTrackingQualityRecoInfo PndTrackingQA::GetRecoInfoFromRecoTrack(Int_t trackId
       
       nofmissinghits[branchIndex] = nMcHits - noftruehits[branchIndex];
 
-      std::cout << "**** ideal track " << idealtrackid << " has " << nMcHits << " from " << fBranchNames[branchIndex] << std::endl;
+//      std::cout << "**** ideal track " << idealtrackid << " has " << nMcHits << " from " << fBranchNames[branchIndex] << std::endl;
 
     }
     
-    std::cout << "===> BRANCH " << fBranchNames[branchIndex] << " of track " << trackId << " (mc track " << mctrackId << ") has " << noftruehits[branchIndex] << " true, " << noffakehits[branchIndex] << " fake and " << nofmissinghits[branchIndex] << " missing hits" << std::endl;
+//    std::cout << "===> BRANCH " << fBranchNames[branchIndex] << " of track " << trackId << " (mc track " << mctrackId << ") has " << noftruehits[branchIndex] << " true, " << noffakehits[branchIndex] << " fake and " << nofmissinghits[branchIndex] << " missing hits" << std::endl;
 
     if(fBranchNames[branchIndex] == "MVDHitsPixel") {
       recoinfo.SetNofMvdPixelTrueHits(noftruehits[branchIndex]);

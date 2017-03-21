@@ -25,7 +25,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/emc/EmcData
   ${CMAKE_SOURCE_DIR}/emc/EmcReco
   ${CMAKE_SOURCE_DIR}/stt
-  ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
+  ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -41,13 +41,11 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
 PndIdealTrackFinder.cxx
 PndCloneGenerator.cxx
-PndMCTruthMatch.cxx
 PndTrackFunctor.cxx
-PndPrintFairLinks.cxx
 )
 
-set(LINKDEF  PndMCMatchNewLinksLinkDef.h)
-set(LIBRARY_NAME MCMatchNewLinks)
+set(LINKDEF  PndIdealTrackFinderLinkDef.h)
+set(LIBRARY_NAME IdealTrackFinder)
 
 set(DEPENDENCIES Base riemann Emc ParBase PndData)
 

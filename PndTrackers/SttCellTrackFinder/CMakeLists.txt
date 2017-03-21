@@ -56,7 +56,7 @@ ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
 ${CMAKE_SOURCE_DIR}/PndTrackers/SttCellTrackFinder
 ${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
-${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
+${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
 )
 
 If (DO_THE_CUDA_DANCE)

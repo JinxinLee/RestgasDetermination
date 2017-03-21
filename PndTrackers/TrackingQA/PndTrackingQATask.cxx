@@ -142,6 +142,7 @@ void PndTrackingQATask::InitializeHistograms() {
 
 
 	LabelQualyHistogram(fQualyHisto_rel_all);
+	LabelQualyHistogram(fQualyHisto_rel_possible);
 }
 
 void PndTrackingQATask::LabelQualyHistogram(TH1 * hist) {
@@ -355,6 +356,7 @@ void PndTrackingQATask::Finish() {
 	fQualyStack->Add(fQualyHisto_all);
 	fQualyStack->SetName("fQualyHistoColor");
 	fQualyStack->SetTitle(fQualyHisto->GetTitle());
+
 	// gROOT->SetBatch(kTRUE);
 	// fQualyHisto->Draw();
 	// LabelQualyHistogram((TH1*) fQualyStack);
@@ -382,8 +384,6 @@ void PndTrackingQATask::Finish() {
 	allPossibleTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kMcPossiblePrim));
 	allPossibleTracksWithHits += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kMcPossibleSec));
 
-
-
 	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kAtLeastThreePrim));
 	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kAtLeastThreeSec));
 	allTracksWithHitsNotFound += fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPossiblePrim));
@@ -396,8 +396,8 @@ void PndTrackingQATask::Finish() {
 
 	Double_t ghosts = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost));
 
-	std::cout << "fQualyHisto: All Tracks: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) + allTracksWithHits << std::endl
-			  << " Primary Tracks < 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(-11)) << std::endl
+	std::cout << "fQualyHisto: All Tracks: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kMcLessThanThreePrim)) + allTracksWithHits << std::endl
+			  << " Primary Tracks < 3 hits: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kMcLessThanThreePrim)) << std::endl
 			  << " All Tracks with hits: " << allTracksWithHits << ". Not Found: " << allTracksWithHitsNotFound << std::endl
 			  << " Primary Tracks with >= 3 hits, but not a possible track: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kMcAtLeastThreePrim)) << ". Not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kAtLeastThreePrim)) << std::endl
 			  << " Secondary Tracks with >= 3 hits, but not a possible track: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kMcAtLeastThreeSec)) << ". Not Found: " << fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kAtLeastThreeSec)) << std::endl

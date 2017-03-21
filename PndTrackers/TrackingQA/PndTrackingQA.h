@@ -51,7 +51,9 @@ struct qualityNumbers {
 		kMcPossiblePrim = -8, 
 		kMcAtLeastThreeSec = -9, 
 		kMcAtLeastThreePrim = -10, 
-		kMcLessThanThreePrim = -11,  
+		kMcLessThanThreePrim = -11,
+		kMcAllTracksWithHits = -12, // sum of -7 - -10
+		kMcAllTracks = -13, // sum of -11 and -12
 
 		// Following: Status of reconstructed tracks (= created PndTracks)
 		kSpuriousFound = 1,  // spuriousFound: at least 70% of hits of reco'd track come from one MC track ('mostProbableTrack')

@@ -36,7 +36,7 @@ PndMasterRecoIdealTask::PndMasterRecoIdealTask(TString options) :
   tracking->SetVertexSmearing(0.05, 0.05, 0.05);
   tracking->SetTrackingEfficiency(1.);
   tracking->SetOutputBranchName("SttMvdGemTrack");
-  tracking->SetPersistence(kFALSE);
+  tracking->SetPersistence(kTRUE);
 
 
   // ----- Barrel Kalman Task     ----------------------------
@@ -63,7 +63,7 @@ PndMasterRecoIdealTask::PndMasterRecoIdealTask(TString options) :
   trackFts->SetVertexSmearing(0.05, 0.05, 0.05);
   trackFts->SetTrackingEfficiency(1.);
   trackFts->SetOutputBranchName("FtsIdealTrack");
-  trackFts->SetPersistence(kFALSE);
+  trackFts->SetPersistence(kTRUE);
 
 
   // ----- Forward Kalman Task     ---------------------------

@@ -23,7 +23,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
   ${CMAKE_SOURCE_DIR}/PndTrackers/SttCellTrackFinder
   ${CMAKE_SOURCE_DIR}/PndTrackers/PndForwardTrackFinder
-  ${CMAKE_SOURCE_DIR}/PndMCMatch
+  ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

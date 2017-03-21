@@ -302,6 +302,7 @@ add_subdirectory (PndTrackers/SecondariesTracking)
 add_subdirectory (PndTrackers/SttCellTrackFinder)
 add_subdirectory (PndTrackers/TrackingQA)
 add_subdirectory (PndTrackers/PndForwardTrackFinder)
+add_subdirectory (PndTrackers/PndIdealTrackFinder)
 
 #add_subdirectory(online)
 #add_subdirectory(tracking/online/CircleHough)
@@ -341,7 +342,7 @@ add_subdirectory (global)
 
 add_subdirectory (softrig)
 #add_subdirectory (kfparticle)
-#add_subdirectory (catracking)
+#add_subdirectory (PndTrackers/catracking)
 
 if(RULE_CHECKER_FOUND)
 

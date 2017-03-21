@@ -23,7 +23,7 @@ ${CMAKE_SOURCE_DIR}/PndTrackers/catracking/code
 ${CMAKE_SOURCE_DIR}/PndTrackers/catracking/code/Performance
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/trackbase
-${CMAKE_SOURCE_DIR}/PndMCMatch 
+${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
 ${CMAKE_SOURCE_DIR}/PndTrackers/TrackingQA
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
@@ -76,6 +76,6 @@ code/Performance/PndCADisplay.cxx
 set(LINKDEF  CATrackingLinkDef.h)
 set(LIBRARY_NAME CATracking)
 
-set(DEPENDENCIES PndData Stt Vc.a Base MCMatchNewLinks Rho TrackingQA)
+set(DEPENDENCIES PndData Stt Vc.a Base IdealTrackFinder Rho TrackingQA)
 
 GENERATE_LIBRARY()
