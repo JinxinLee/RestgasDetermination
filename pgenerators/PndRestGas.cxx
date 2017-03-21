@@ -45,7 +45,7 @@ PndRestGas::~PndRestGas() {
 // ------------------------------------------------------------------------
 // return rest gas density at zval
 TGraph*  fDensityGraph;
-Double_t GetDDValue(Double_t *zval, Double_t *p) {
+Double_t GetDDValue(Double_t *zval, Double_t *) { // p //[R.K.03/2017] unused variable(s)
   
 	Double_t y = fDensityGraph->Eval(zval[0]);
   return y;

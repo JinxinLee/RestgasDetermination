@@ -30,7 +30,7 @@ using namespace std;
 	Vec <Short_t> *ListSttParHitsinTrack,
 	Vec <Short_t> *ListMvdPixelHitsinTrack,
 	Vec <Short_t> *ListSciTilHitsinTrack,
-	Vec <Short_t> *ListSttSkewHitsinTrack,
+	Vec <Short_t> *, // ListSttSkewHitsinTrack //[R.K.03/2017] unused variable(s)
 	Vec <Short_t> *ListMvdStripHitsinTrack,
 	int MAXMVDPIXELHITSINTRACK,
 	int MAXMVDSTRIPHITSINTRACK,
@@ -40,7 +40,7 @@ using namespace std;
 	Vec <Short_t> *nSttParHitsinTrack,
 	int nMCTracks,
 	Vec <Short_t> *nMvdPixelHitsinTrack,
-	Short_t nSciTilHits,
+	Short_t , // nSciTilHits //[R.K.03/2017] unused variable(s)
 	Vec <Short_t> *nSciTilHitsinTrack,
 	Vec <Short_t> *nSttSkewHitsinTrack,
 	Vec <Short_t> *nMvdStripHitsinTrack,
@@ -54,7 +54,7 @@ using namespace std;
 	Vec <Double_t> *Y2,
 	Vec <Double_t> *X3,
 	Vec <Double_t> *Y3,
-	int IVOLTE
+	int  // IVOLTE //[R.K.03/2017] unused variable(s)
 
 						)
 {
@@ -1731,7 +1731,7 @@ void PndTrkComparisonMCtruth::MvdMatchedSpurioustoTrackCand(
 //  inizio cambio_in_perl.
 
 void PndTrkComparisonMCtruth::MvdMatchtoMC(
-	Double_t ERRORSQPIXEL,
+	Double_t , // ERRORSQPIXEL //[R.K.03/2017] unused variable(s)
 	Double_t ERRORSQSTRIP,
 	TClonesArray *fMvdMCPointArray,
 	Short_t nMvdMCPoint,
@@ -1880,10 +1880,10 @@ cout<<"Evento n. "<<IVOLTE<<
 //----------begin of function PndTrkComparisonMCtruth::SciTilMatchtoMC
 //  inizio cambio_in_perl.
  void PndTrkComparisonMCtruth::SciTilMatchtoMC(
-	Double_t BFIELD,
-	Double_t CVEL,
-	Double_t DIMENSIONSCITIL,
-	TClonesArray *fMCTrackArray,
+	Double_t , //  BFIELD//[R.K.03/2017] unused variable(s)
+	Double_t , // CVEL //[R.K.03/2017] unused variable(s)
+	Double_t , // DIMENSIONSCITIL //[R.K.03/2017] unused variable(s)
+	TClonesArray *, //  fMCTrackArray//[R.K.03/2017] unused variable(s)
 	Vec <int> *FromSciTiltoMCTrackList,
 	TClonesArray *fSciTHitArray,
 	Short_t fSciTilMaxNumber,
@@ -1893,9 +1893,9 @@ cout<<"Evento n. "<<IVOLTE<<
 	int nMCTracks,
 	Short_t nSciTilHits,
 	Short_t *OriginalSciTilList,
-	Vec <Double_t> *XSciTilCenter,
-	Vec <Double_t> *YSciTilCenter,
-	Vec <Double_t> *ZSciTilCenter
+	Vec <Double_t> *, // XSciTilCenter //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> *, // YSciTilCenter //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * // ZSciTilCenter //[R.K.03/2017] unused variable(s)
 
 		)
 {
@@ -2128,9 +2128,9 @@ void PndTrkComparisonMCtruth::SttMatchedSpurious(
 	Vec <bool> *InclusionListStt,
 	Vec <Double_t> *info,
 	Vec <bool> *keepit,
-	int MAXSTTHITS,
+	int , //  MAXSTTHITS//[R.K.03/2017] unused variable(s)
 	int MAXSTTHITSINTRACK,
-	int MAXTRACKSPEREVENT,
+	int , // MAXTRACKSPEREVENT //[R.K.03/2017] unused variable(s)
 	Vec <Short_t> *ListSttParHitsinTrack,
 	Vec <Short_t> *ListSttSkewHitsinTrack,
 	Vec <Short_t> *MCParalAloneList,

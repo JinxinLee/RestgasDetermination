@@ -258,7 +258,7 @@ Bool_t PndMdt::ProcessHitsFast(FairVolume* vol)
 }
 
 // -----   Public method ProcessHitsRoot  --------------------------------------
-Bool_t PndMdt::ProcessHitsRoot(FairVolume* vol) 
+Bool_t PndMdt::ProcessHitsRoot(FairVolume* )  // vol //[R.K.03/2017] unused variable(s)
 {
   if (gMC->TrackCharge()==0) return kTRUE; // skip neutrals
   

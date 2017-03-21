@@ -344,15 +344,15 @@ bool PndLmdTrackFinderCATask::Neighbor(PndSdsCell* cell0, PndSdsCell* cell1){
 
 //update cell status in evolution
 //TODO: smth buggy here, check it
-void PndLmdTrackFinderCATask::Evolution(int& pv0, int& pv1, int& pv0_n, int& pv1_n, bool isstop){
-  isstop = true;
+void PndLmdTrackFinderCATask::Evolution(int& pv0, int& pv1, int& pv0_n, int& pv1_n, bool ){ // isstop // [R.K.03/2017] unused variable(s)
+  //isstop = true; //  // [R.K.03/2017] unused variable
   if(pv0==pv1){
     if(pv1<0)
       pv0_n = 0;
     else
       pv0_n = pv0;
     pv1_n = pv1+1;
-    isstop = false;
+    //isstop = false; //  // [R.K.03/2017] unused variable
     if(fVerbose>2)
       cout<<"pv 0 = "<< pv0_n<<" pv 1 = "<< pv1_n<<endl;
   }

@@ -1267,7 +1267,7 @@ void PndMvdGemTrackFinderOnHits::PrintMCTrackSegments() {
 // ------------------------------------------------------------
 
 // --- Private method to print track candidates ---------------
-void PndMvdGemTrackFinderOnHits::PrintTracks(Int_t nofRecoTracks) {
+void PndMvdGemTrackFinderOnHits::PrintTracks(Int_t ) { // nofRecoTracks // [R.K.03/2017] unused variable(s)
   /*
   PndGemHit* gemHit;
 
@@ -1320,7 +1320,7 @@ void PndMvdGemTrackFinderOnHits::PrintTracks(Int_t nofRecoTracks) {
 // ------------------------------------------------------------
 
 // --- Private method to print track candidates ---------------
-void PndMvdGemTrackFinderOnHits::PrintMCTracks(Int_t nofRecoTracks) {
+void PndMvdGemTrackFinderOnHits::PrintMCTracks(Int_t ) { // nofRecoTracks // [R.K.03/2017] unused variable(s)
   /*
   PndGemHit* gemHit;
   FairMCPoint* mcPoint;

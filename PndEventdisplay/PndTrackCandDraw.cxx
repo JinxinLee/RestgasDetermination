@@ -124,7 +124,7 @@ TVector3 PndTrackCandDraw::GetVector(FairLink link) {
 
 }
 
-TVector3 PndTrackCandDraw::GetVector(TObject* obj){
+TVector3 PndTrackCandDraw::GetVector(TObject* ){ // obj //[R.K.03/2017] unused variable(s)
 
   return TVector3();
 

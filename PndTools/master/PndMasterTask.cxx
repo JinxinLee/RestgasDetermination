@@ -62,7 +62,7 @@ void PndMasterTask::SetVerbose(Int_t nTask, Int_t iVerbose)
 }
 
 /** Set the Persistency of all the tasks in the same way **/
-void PndMasterTask::SetPersistency(Bool_t pers)
+void PndMasterTask::SetPersistency(Bool_t ) // pers //[R.K.03/2017] unused variable(s)
 {
   return;
 }

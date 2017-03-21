@@ -23,7 +23,7 @@ Street, Fifth Floor, Boston, MA 02110-1301, USA
 using namespace std;
 
 // Also see (3d part): "Least-Squares Fitting of Two 3-D Point Sets" (Arun, Huang and Blostein)
-double IcpPointToPoint::fitStep (double *T,const int32_t T_numA,Matrix &R,Matrix &t,const std::vector<int32_t> &active) {
+double IcpPointToPoint::fitStep (double *T,const int32_t ,Matrix &R,Matrix &t,const std::vector<int32_t> &active) { // T_numA //FIXME [R.K.03/2017] unused variable(s)
   
   // kd tree query + result
   std::vector<double>         query(dim);

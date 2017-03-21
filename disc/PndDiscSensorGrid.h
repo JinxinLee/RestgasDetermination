@@ -61,7 +61,7 @@ public:
 
 protected:
     virtual void EnumerateGrids(int & id, int & pixel_offset) = 0;      // used to enumerate grids and pixel offsets.
-    virtual void LockChilds(bool lock) {}                               // used to forward lock to children
+    virtual void LockChilds(bool ) {}    // used to forward lock to children //  lock//[R.K.03/2017] unused variable(s)
     void SetPixelNumberOffset(int offset) { pixel_number_offset= offset; }
 
     // Proxys to method in siblings through base class:

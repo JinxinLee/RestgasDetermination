@@ -340,7 +340,7 @@ void PndLmdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t senso
   }
 
   fDigiPixelBuffer->FillNewData(tempPixel,fPixChargeConv->ChargeToDigiValue(charge)*6 + FairRootManager::Instance()->GetEventTime(), FairRootManager::Instance()->GetEventTime());
-
+  noisies++;
   delete(tempPixel);
   //  std::cout << "DataInBuffer: " << fDigiPixelBuffer->GetNData() << std::endl;
 }

@@ -59,8 +59,8 @@ FairTrackPar PndHelixPropagator::PropagateToZ(Double_t zPos)
 	return result;
 }
 
-FairTrackPar  PndHelixPropagator::PropagateToXYPos(TVector2 xyPos)
-{
+FairTrackPar  PndHelixPropagator::PropagateToXYPos(TVector2 ) // xyPos //[R.K.03/2017] unused variable(s)
+{  //FIXME The TVector2 is not utilized!
 	TVector3 magField(0,0,fFieldStrength);
 
 	TVector3 dirRadius = fMomentum.Cross(magField).Unit();
@@ -98,7 +98,7 @@ FairTrackPar  PndHelixPropagator::PropagateToXYPos(TVector2 xyPos)
 	return result;
 }
 
-FairTrackPar PropagateToS(Double_t arcLength)
+FairTrackPar PropagateToS(Double_t ) // arcLength //[R.K.03/2017] unused variable(s)
 {
   // Not yet implemented!
   std::cout << "*** -E- PndHelixPropagator::PropagateToS not yet implemented!" << std::endl;

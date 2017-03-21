@@ -38,7 +38,7 @@ bool PndTrkCTFindTrackInXY::AcceptHitsConformal(
 
 
 Short_t PndTrkCTFindTrackInXY::AssociateSciTilHit(
-	Double_t dimensionscitil,
+	Double_t , // dimensionscitil //[R.K.03/2017] unused variable(s)
 	Double_t *esse, // output, list of  S of the SciTil hits associated. 
 	bool* InclusionListSciTil,
 	Short_t *List, // output, list of SciTil hits associated (max. 2);
@@ -666,7 +666,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformal(
 	Short_t* HitsinBoxConformal,
 	Short_t ihit, // seed hit;
 	bool *InclusionListStt,
-	Double_t info[][7],
+	Double_t (*)[7], // Double_t info[][7] //[R.K.03/2017] unused variable(s)
 	Short_t* ListHitsinTrack,
 	Short_t* ListSttParHits,
 	Short_t maxstthitsintrack,
@@ -815,7 +815,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackPatterninBoxConformalSpecial(
 	Short_t *FiConformalIndex,
 	Short_t* HitsinBoxConformal,
 	bool *InclusionListStt,
-	Double_t info[][7],
+	Double_t (*)[7], // Double_t info[][7] //[R.K.03/2017] unused variable(s)
 	Short_t iSeed, // in ORIGINAL hit numbering.
 	Short_t *ListHitsinTrackinWhichToSearch, // in original hit numbering.
 	Short_t* ListSttParHits,
@@ -955,7 +955,7 @@ Short_t PndTrkCTFindTrackInXY::FindTrackStrictCollection(
 	//  seed track (original notation) as far as the Fi angle is concerned
 	Short_t iSeed,  // in ORIGINAl hit numbering.
 	Short_t *ListHitsinTrackinWhichToSearch,  // in ORIGINAl hit numbering.
-	Short_t maxstthits,
+	Short_t , // maxstthits //[R.K.03/2017] unused variable(s)
 	Short_t NFiCELLDISTANCE,
 	Short_t nfid,
 	//  n. of hits to search in ListHitsinTrackinWhichToSearch
@@ -1255,13 +1255,13 @@ Short_t PndTrkCTFindTrackInXY::TrkAssociatedParallelHitsToHelixQuater(
 	Short_t* nBoxConformal,
 	Short_t nfid, // number of division of the fi range [0-360] used in BoxConformal.
 	Short_t nHitsinTrack,
-	Int_t NhitsParallel,
+	Int_t , // NhitsParallel //[R.K.03/2017] unused variable(s)
 	Short_t nrd,
 	Double_t Oxx,
 	Double_t Oyy,
 	Double_t q,
 	Double_t* radiaConf,
-	Short_t *RConformalIndex,
+	Short_t *, // RConformalIndex //[R.K.03/2017] unused variable(s)
 	Double_t Rr,
 	Double_t rstrawdetectormin,
 	Short_t Status,

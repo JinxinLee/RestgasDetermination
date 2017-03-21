@@ -27,7 +27,7 @@ class PndTrackFunctor : public std::binary_function<FairMultiLinkedData* , Bool_
 
 class StandardTrackFunctor : public PndTrackFunctor
 {
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
+	Bool_t Call(FairMultiLinkedData* a, Bool_t ){ // primary //[R.K.03/2017] unused variable(s)
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
 		possibleTrack = (possibleTrack | ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
@@ -48,7 +48,7 @@ class StandardTrackFunctor : public PndTrackFunctor
 
 class OnlySttFunctor : public PndTrackFunctor
 {
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
+	Bool_t Call(FairMultiLinkedData* a, Bool_t ){ // primary //[R.K.03/2017] unused variable(s)
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
 
@@ -63,7 +63,7 @@ class OnlySttFunctor : public PndTrackFunctor
 
 class RiemannMvdSttGemFunctor : public PndTrackFunctor
 {
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary){
+	Bool_t Call(FairMultiLinkedData* a, Bool_t ){ // primary //[R.K.03/2017] unused variable(s)
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
 		Bool_t mvdHits =  ((a->GetLinksWithType(ioman->GetBranchId("MVDHitsPixel")).GetNLinks() +
@@ -106,7 +106,7 @@ class CircleHoughTrackFunctor : public PndTrackFunctor
 
 class FtsTrackFunctor : public PndTrackFunctor
 {
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary) {
+	Bool_t Call(FairMultiLinkedData* a, Bool_t ) { // primary //[R.K.03/2017] unused variable(s)
 		FairRootManager* ioman = FairRootManager::Instance();
 		Bool_t possibleTrack = kFALSE;
 
@@ -139,7 +139,7 @@ class NoFtsTrackFunctor : public PndTrackFunctor
 
 class AllTracksFunctor : public PndTrackFunctor
 {
-	Bool_t Call(FairMultiLinkedData* a, Bool_t primary) {
+	Bool_t Call(FairMultiLinkedData* , Bool_t ) { //a  primary//[R.K.03/2017] unused variable(s)
 		return kTRUE;
 	}
 	void Print() {

@@ -137,7 +137,7 @@ Short_t PndTrkSttClusterFinder::FindTrackPattern(
 		Short_t * StrawCode,		// input;
 		Short_t * StrawCode2,		// input;
 		Short_t *SttStrawOn,		// input;
-		TClonesArray *SttTubeArray,	// input; array of the Stt tubes;
+		TClonesArray *,	// input; array of the Stt tubes; // SttTubeArray //[R.K.03/2017] unused variable(s)
 		Short_t * TubeID,		// input;
 
 		Short_t * ListHitsinCluster,	// output;

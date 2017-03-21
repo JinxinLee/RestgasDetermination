@@ -103,7 +103,7 @@ void PndTrkCTGeometryCalculations::calculateintersections(
 	Double_t C0x,
 	Double_t C0y,
 	Double_t C0z,
-	Double_t r,
+	Double_t , // r //[R.K.03/2017] unused variable(s)
 	Double_t vx,
 	Double_t vy,
 	Double_t vz,
@@ -591,7 +591,7 @@ Double_t PndTrkCTGeometryCalculations::Dist_SZ(
 //-------------------------  begin of function  PndTrkCTGeometryCalculations::Dist_SZ_bis
 
 Double_t PndTrkCTGeometryCalculations::Dist_SZ_bis(
-	Double_t Rr,	// input
+	Double_t ,	// input // Rr //[R.K.03/2017] unused variable(s)
 	Double_t KAPPA,	// input
 	Double_t FI0,	// input
 	Double_t ZED,	// input
@@ -3741,8 +3741,8 @@ bool PndTrkCTGeometryCalculations::IsInsideArc(
   bool PndTrkCTGeometryCalculations::IsInMvdMiniDisk21_77to21_79withMargin(
 	Double_t X,		//  X coordinate of point;
 	Double_t Y,		//  Y coordinate of point;
-	Double_t xmargin,	//  safety margin in X coordinate;
-	Double_t ymargin	//  safety margin in Y coordinate;
+	Double_t ,	//  safety margin in X coordinate; // xmargin //[R.K.03/2017] unused variable(s)
+	Double_t 	//  safety margin in Y coordinate; // ymargin //[R.K.03/2017] unused variable(s)
 	)
 {
 //	this is a set of sensors placed vertically perpendicularly to the Z direction;

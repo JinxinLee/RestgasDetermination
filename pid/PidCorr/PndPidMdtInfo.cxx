@@ -232,7 +232,7 @@ Bool_t PndPidCorrelator::MdtGeometry()
 }
 
 //_________________________________________________________________
-Bool_t PndPidCorrelator::GetMdt2Info(FairTrackParH* helix, PndPidCandidate* pidCand) {
+Bool_t PndPidCorrelator::GetMdt2Info(FairTrackParH* , PndPidCandidate* ) { // helix pidCand //[R.K.03/2017] unused variable(s)
   
   return kTRUE;
 }

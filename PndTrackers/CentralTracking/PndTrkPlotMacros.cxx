@@ -903,13 +903,13 @@ void PndTrkPlotMacros::WriteMacroAllHitsRestanti(
 	int MAXSCITILHITSINTRACK,
 	int MAXSTTHITS,
 	int MAXSTTHITSINTRACK,
-	int MAXTRACKSPEREVENT,
+	int , // MAXTRACKSPEREVENT //[R.K.03/2017] unused variable(s)
 	Short_t nMvdPixelHit,
 	Short_t nMvdStripHit,
 	Short_t nSciTilHits,
 	Short_t nSttHit,
-	Short_t nSttParHit,
-	Short_t nSttSkewHit,
+	Short_t , // nSttParHit //[R.K.03/2017] unused variable(s)
+	Short_t , // nSttSkewHit //[R.K.03/2017] unused variable(s)
 	Short_t nSttTrackCand,
 	Vec <Short_t> * nTrackCandHit,
 	Vec <Double_t> * posizSciTil,
@@ -1106,7 +1106,7 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneral(
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
 	Vec <bool> * keepit,
-	Vec <Double_t> * FI0,
+	Vec <Double_t> * , // FI0 //[R.K.03/2017] unused variable(s)
 	Vec <Double_t> * Ox,
 	Vec <Double_t> * Oy,
 	Vec <Double_t> * posizSciTil,
@@ -1541,43 +1541,43 @@ fprintf(MACRO,
 //  inizio cambio_in_perl ;
 
 void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
-	Double_t APOTEMAMAXINNERPARSTRAW,
-	Double_t APOTEMAMAXSKEWSTRAW,
-	Double_t APOTEMAMINOUTERPARSTRAW,
-	Double_t APOTEMAMINSKEWSTRAW,
+	Double_t , // APOTEMAMAXINNERPARSTRAW //[R.K.03/2017] unused variable(s)
+	Double_t , // APOTEMAMAXSKEWSTRAW //[R.K.03/2017] unused variable(s)
+	Double_t , //  APOTEMAMINOUTERPARSTRAW//[R.K.03/2017] unused variable(s)
+	Double_t , // APOTEMAMINSKEWSTRAW //[R.K.03/2017] unused variable(s)
 	Double_t BFIELD,
 	Double_t CVEL,
-	Double_t DIMENSIONSCITIL,
+	Double_t , // DIMENSIONSCITIL //[R.K.03/2017] unused variable(s)
 	bool doMcComparison,
-	TClonesArray *fMCTrackArray,
+	TClonesArray *, //  fMCTrackArray//[R.K.03/2017] unused variable(s)
 	Int_t Nhits,
 	Vec <Double_t> * info,
 	PndTrkPlotMacros_InputData In_Put,
 	int IVOLTE,
 	Short_t nMCTracks,
-	Short_t nMvdPixelHit,
-	Short_t nMvdStripHit,
+	Short_t , // nMvdPixelHit //[R.K.03/2017] unused variable(s)
+	Short_t , // nMvdStripHit //[R.K.03/2017] unused variable(s)
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
 	Vec <bool> * keepit,
-	Vec <Double_t> * FI0,
+	Vec <Double_t> * , // FI0 //[R.K.03/2017] unused variable(s)
 	Vec <Double_t> * Oxxx,
 	Vec <Double_t> * Oyyy,
 	Vec <Double_t> * posizSciTil,
-	Vec <Double_t> * primoangolo,
+	Vec <Double_t> * , // primoangolo //[R.K.03/2017] unused variable(s)
 	Vec <Double_t> * R,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
-	Vec <Double_t> * sigmaXMvdPixel,
-	Vec <Double_t> * sigmaXMvdStrip,
-	Vec <Double_t> * sigmaYMvdPixel,
-	Vec <Double_t> * sigmaYMvdStrip,
-	Vec <Double_t> * ultimoangolo,
-	Double_t VERTICALGAP,
-	Vec <Double_t> * XMvdPixel,
-	Vec <Double_t> * XMvdStrip,
-	Vec <Double_t> * YMvdPixel,
-	Vec <Double_t> * YMvdStrip
+	Vec <Double_t> * , // sigmaXMvdPixel //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // sigmaXMvdStrip //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // sigmaYMvdPixel //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // sigmaYMvdStrip //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // ultimoangolo //[R.K.03/2017] unused variable(s)
+	Double_t , // VERTICALGAP //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // XMvdPixel //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // XMvdStrip //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // YMvdPixel //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> *  // YMvdStrip //[R.K.03/2017] unused variable(s)
 
 	)
 {
@@ -1921,15 +1921,15 @@ void PndTrkPlotMacros::WriteMacroParallelHitsGeneralConformalwithMC(
 //  inizio cambio_in_perl ;
 
 void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
-	Double_t APOTEMAMAXINNERPARSTRAW,
-	Double_t APOTEMAMAXSKEWSTRAW,
-	Double_t APOTEMAMINOUTERPARSTRAW,
-	Double_t APOTEMAMINSKEWSTRAW,
+	Double_t , // APOTEMAMAXINNERPARSTRAW //[R.K.03/2017] unused variable(s)
+	Double_t , // APOTEMAMAXSKEWSTRAW //[R.K.03/2017] unused variable(s)
+	Double_t , // APOTEMAMINOUTERPARSTRAW //[R.K.03/2017] unused variable(s)
+	Double_t , // APOTEMAMINSKEWSTRAW //[R.K.03/2017] unused variable(s)
 	Double_t BFIELD,
 	Double_t CVEL,
-	Double_t DIMENSIONSCITIL,
+	Double_t , // DIMENSIONSCITIL //[R.K.03/2017] unused variable(s)
 	bool doMcComparison,
-	TClonesArray *fMCTrackArray,
+	TClonesArray *, // fMCTrackArray //[R.K.03/2017] unused variable(s)
 	Int_t Nhits,
 	Vec <Double_t> * info,
 	PndTrkPlotMacros_InputData In_Put,
@@ -1940,20 +1940,20 @@ void PndTrkPlotMacros::WriteMacroParallel_MvdHitsGeneralConformalwithMC(
 	Short_t nSciTilHits,
 	Short_t nTracksFoundSoFar,
 	Vec <bool> * keepit,
-	Vec <Double_t> * FI0,
+	Vec <Double_t> * , // FI0 //[R.K.03/2017] unused variable(s)
 	Vec <Double_t> * Oxxx,
 	Vec <Double_t> * Oyyy,
 	Vec <Double_t> * posizSciTil,
-	Vec <Double_t> * primoangolo,
+	Vec <Double_t> * , // primoangolo //[R.K.03/2017] unused variable(s)
 	Vec <Double_t> * R,
 	Double_t RSTRAWDETECTORMAX,
 	Double_t RSTRAWDETECTORMIN,
-	Vec <Double_t> * sigmaXMvdPixel,
-	Vec <Double_t> * sigmaXMvdStrip,
-	Vec <Double_t> * sigmaYMvdPixel,
-	Vec <Double_t> * sigmaYMvdStrip,
-	Vec <Double_t> * ultimoangolo,
-	Double_t VERTICALGAP,
+	Vec <Double_t> * , // sigmaXMvdPixel //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // sigmaXMvdStrip //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // sigmaYMvdPixel //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // sigmaYMvdStrip //[R.K.03/2017] unused variable(s)
+	Vec <Double_t> * , // ultimoangolo //[R.K.03/2017] unused variable(s)
+	Double_t , // VERTICALGAP //[R.K.03/2017] unused variable(s)
 	Vec <Double_t> * XMvdPixel,
 	Vec <Double_t> * XMvdStrip,
 	Vec <Double_t> * YMvdPixel,
@@ -3266,7 +3266,7 @@ void PndTrkPlotMacros::WriteMacroSttParallelAssociatedHitsandMvdwithMC(
 	Double_t Rr,
 	Double_t primoangolo,
 	Double_t ultimoangolo,
-	Short_t Nhits,
+	Short_t , //  Nhits//[R.K.03/2017] unused variable(s)
 	int iTrack,
 	int iNome,
 	Short_t daSttTrackaMCTrack,

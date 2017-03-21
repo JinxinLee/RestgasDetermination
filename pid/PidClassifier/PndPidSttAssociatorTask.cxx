@@ -38,6 +38,7 @@ PndPidSttAssociatorTask::PndPidSttAssociatorTask(const char *name, const char *t
 {
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fDefaultHypo = kTRUE;
+  SetTitle(title);
 }
 
 //___________________________________________________________
@@ -83,7 +84,7 @@ InitStatus PndPidSttAssociatorTask::Init() {
   return kSUCCESS;
 }
 
-void PndPidSttAssociatorTask::Exec(Option_t * option) {
+void PndPidSttAssociatorTask::Exec(Option_t *) {
 
   // cout << "PND PID STT ASSOCIATOR" << endl;
 

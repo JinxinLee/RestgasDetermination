@@ -32,9 +32,9 @@ public:
 	TVector3 getP1(){return fP1;}
 	TVector3 getP2(){return fP2;}
 	TVector3 getDir(){return fP1-fP2;}
-	bool operator <( const PndLine &rhs ) const
+	bool operator <( const PndLine & ) const // rhs //[R.K.03/2017] unused variable(s)
 	{
-		return kTRUE;//for map
+		return kTRUE;//dummy sorting operator for map
 	}
 	Double_t getZAngle(){
 		return TMath::Abs(TMath::ASin(getDir()[2]/getDir().Mag())*TMath::RadToDeg());

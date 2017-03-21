@@ -1061,7 +1061,7 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 	return true;
 }
 
-std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters, bool correctionMatrix) {
+std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters, bool ) { // correctionMatrix //FIXME [R.K.03/2017] unused variable(s)
 	std::stringstream filename;
 	filename << "/pairs-";
 	filename << overlapId;
@@ -1075,14 +1075,14 @@ std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incen
 	return filename.str();
 }
 
-std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters, bool correctionMatrix) {
+std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters, bool ) { // correctionMatrix //FIXME [R.K.03/2017] unused variable(s)
 	int overlapId;
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
 	return makeBinaryPairFileName(overlapId, incentimeters);
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters, bool correctionMatrix) {
+std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters, bool ) { // correctionMatrix //FIXME [R.K.03/2017] unused variable(s)
 	stringstream matrixName;
 	matrixName << "/m";
 	if(incentimeters){
@@ -1094,7 +1094,7 @@ std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentime
 	return matrixName.str();
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters, bool correctionMatrix) {
+std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters, bool ) { // correctionMatrix //FIXME [R.K.03/2017] unused variable(s)
 	int overlapId;
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
@@ -1300,7 +1300,7 @@ void PndLmdAlignManager::computeCombinedMatrices() {
 
 }
 
-void PndLmdAlignManager::xOption(int option) {
+void PndLmdAlignManager::xOption(int ) { // option //FIXME [R.K.03/2017] unused variable(s)
 
 	if(false){
 

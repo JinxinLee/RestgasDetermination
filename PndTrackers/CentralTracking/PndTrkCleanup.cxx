@@ -184,7 +184,7 @@ bool PndTrkCleanup::GoodTrack(
 		Short_t ListParContiguous[][6],	// input
 		Double_t *xTube,		// input
 		Double_t *yTube,		// input
-		Double_t *zTube,		// input
+		Double_t *,		// input // zTube //[R.K.03/2017] unused variable(s)
 		Double_t *xxyyTube,		// input
 
 		Short_t & holes			// input and output
@@ -3337,7 +3337,7 @@ bool PndTrkCleanup::XYCleanup(
 	Short_t Charge,
 	Short_t *ListHits,
 	Short_t nHits,
-	Double_t R_STT_INNER_PAR_MAX,
+	Double_t , // R_STT_INNER_PAR_MAX //[R.K.03/2017] unused variable(s)
 	Short_t nScitilHitsInTrack,	// input, # of SciTil hits in the current track;
 	Short_t* ListSciTilHitsinTrack,	// input, list of SciTil hits in the current track;
 	Double_t posizSciTil[][3]	// input, info on all the SciTil position;

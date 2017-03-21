@@ -25,7 +25,8 @@ PndPidDrcAssociatorTask::PndPidDrcAssociatorTask(const char *name, const char *t
 {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
-}
+  SetTitle(title);
+  }
 
 //___________________________________________________________
 InitStatus PndPidDrcAssociatorTask::Init() {
@@ -52,7 +53,7 @@ void PndPidDrcAssociatorTask::SetParContainers() {
   //--
 }
 //______________________________________________________
-void PndPidDrcAssociatorTask::Exec(Option_t * option) {
+void PndPidDrcAssociatorTask::Exec(Option_t *) {
   if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
   if(fVerbose>1) std::cout << "-I- Start PndPidDrcAssociatorTask. "<<std::endl;
 

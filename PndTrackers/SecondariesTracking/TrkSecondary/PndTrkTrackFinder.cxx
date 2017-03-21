@@ -62,7 +62,7 @@ Double_t fit_distance(float x, float y, Double_t *par)
 }
 
 
-void Chi2Calculation(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) 
+void Chi2Calculation(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )  //npar gin iflag//[R.K.03/2017] unused variable(s)
 {
 
 
@@ -85,7 +85,7 @@ void Chi2Calculation(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int
   return;
 }
 
-void Chi2Calculation2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag) 
+void Chi2Calculation2(Int_t &, Double_t *, Double_t &f, Double_t *par, Int_t )  //npar gin iflag//[R.K.03/2017] unused variable(s)
 {
 
   TMatrixT<Double_t> *objtofit = (TMatrixT<Double_t> *) gMinuit->GetObjectFit();
@@ -5700,7 +5700,7 @@ void PndTrkTrackFinder::ComputeTraAndRot(PndTrkHit *hit, Double_t &delta, Double
   
 }
 
-void PndTrkTrackFinder::ComputePlaneExtremities(PndTrkCluster *cluster) {
+void PndTrkTrackFinder::ComputePlaneExtremities(PndTrkCluster *) { // cluster //[R.K.03/2017] unused variable(s)
   fUmin =  1000, fVmin =  1000, fRmin =  1000;
   fUmax = -1000, fVmax = -1000, fRmax = -1000;
   double rc_of_min, rc_of_max;
@@ -5904,7 +5904,7 @@ void PndTrkTrackFinder::FromConformalToRealTrackParabola(double fita, double fit
 
 }
 
-void PndTrkTrackFinder::FromRealToConformalTrack(double x0, double y0, double R, double &fitm, double &fitp) {
+void PndTrkTrackFinder::FromRealToConformalTrack(double x0, double y0, double , double &fitm, double &fitp) { // R //[R.K.03/2017] unused variable(s)
   // CHECK if this needs to be kept --> change xc0 to xc etc
   Double_t xcrot0, ycrot0;
  

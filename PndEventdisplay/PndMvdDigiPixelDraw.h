@@ -32,7 +32,7 @@ public:
 	void Reset();
 
 protected:
-	TVector3 GetVector(TObject* obj){return TVector3();};
+	TVector3 GetVector(TObject* ){return TVector3();}; // obj //[R.K.03/2017] unused variable(s)
 
 	InitStatus Init();
 

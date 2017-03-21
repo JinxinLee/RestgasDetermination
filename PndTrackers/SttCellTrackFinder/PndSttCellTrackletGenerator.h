@@ -101,8 +101,8 @@ public:
 
 	void PrintInfo();
 
-	void SetCalcWithCorrectedHits(bool calcWithCorrectedHits) {
-		fCalcWithCorrectedHits = true;
+	void SetCalcWithCorrectedHits(bool calcWithCorrectedHits=true) {
+		fCalcWithCorrectedHits = calcWithCorrectedHits;
 	}
 
 	int GetNumPrimaryTracklets() {

@@ -121,7 +121,7 @@ void PndDrcAccuDigiPixelDraw::ReadAllHits(){
   }
 }
 
-void PndDrcAccuDigiPixelDraw::Exec(Option_t*ion)
+void PndDrcAccuDigiPixelDraw::Exec(Option_t*)
 {
   if(fFirstEvent) ReadAllHits();
   

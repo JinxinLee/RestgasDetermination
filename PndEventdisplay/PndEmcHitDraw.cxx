@@ -9,7 +9,7 @@
 
 // -------------------------------------------------------------------------
 
-Int_t PndEmcHitDraw::GetValue(TObject* obj, Int_t i)
+Int_t PndEmcHitDraw::GetValue(TObject* obj, Int_t ) // i //[R.K.03/2017] unused variable(s)
 {
 	PndEmcHit* Hit = (PndEmcHit*)obj;
 	return (Hit->GetEnergy() * 1000); //< Energy in MeV

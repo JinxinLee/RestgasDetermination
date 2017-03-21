@@ -50,7 +50,7 @@ PndFtsExpandedTrackCand PndFtsLineApproximator::createExpandedTrackCand(PndTrack
 			}
 		}
 		//find the max
-		Int_t max= 0;
+		size_t max= 0;
 		for(size_t i=0;i<lines.size();i++){
 			if(lines[i].size()>max)
 				max = lines[i].size();

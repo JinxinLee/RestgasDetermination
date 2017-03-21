@@ -249,7 +249,7 @@ bool PndLmdTrackFinderTask::SortHitsByZ(std::vector< std::vector< std::pair<Int_
 // -------------------------------------------------------------------------
 
 // -----   Private method FindHitsIII  --------------------------------------------
-void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits)
+void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t ) // nStripHits //FIXME [R.K.03/2017] unused variable(s)
 {
 
   std::vector<TVector3> trackStart, trackVec;//pseudo tracks
@@ -385,7 +385,7 @@ void PndLmdTrackFinderTask::FindHitsIII(std::vector<PndTrackCand> &tofill, std::
 // -------------------------------------------------------------------------
 
 // -----   Private method FindHitsII  --------------------------------------------
-void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits)
+void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t ) // nStripHits //FIXME [R.K.03/2017] unused variable(s)
 {
 
   std::vector<TVector3> trackStart, trackVec;//pseudo tracks
@@ -521,7 +521,7 @@ void PndLmdTrackFinderTask::FindHitsII(std::vector<PndTrackCand> &tofill, std::v
 // -------------------------------------------------------------------------
 
 // -----   Private method FindHitsI  --------------------------------------------
-void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t nStripHits)
+void PndLmdTrackFinderTask::FindHitsI(std::vector<PndTrackCand> &tofill, std::vector< std::vector< std::pair<Int_t,bool> > > &hitsd, Int_t ) // nStripHits //FIXME [R.K.03/2017] unused variable(s)
 {
 
   std::vector<TVector3> trackStart, trackVec;//pseudo tracks

@@ -242,7 +242,7 @@ PndDsk::Reset()
 
 // -----   Public method CopyClones   -----------------------------------------
 void
-PndDsk::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
+PndDsk::CopyClones(TClonesArray* , TClonesArray* , Int_t ) // cl1 cl2 offset //[R.K.03/2017] unused variable(s)
 {
   cout << "-I- PndDsk::CopyClones() was called, but is not yet implemented." << endl;
 }
@@ -316,7 +316,7 @@ PndDsk::ConstructGeometry()
 
 // -----   Public method CheckIfSensitive   -----------------------------------
 Bool_t
-PndDsk::CheckIfSensitive(std::string name)
+PndDsk::CheckIfSensitive(std::string ) // name //[R.K.03/2017] unused variable(s)
 {
   return kTRUE;
 //   if (name.compare("radiator") == 0) { // "radiator"

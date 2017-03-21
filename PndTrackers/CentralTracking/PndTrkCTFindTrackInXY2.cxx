@@ -24,7 +24,7 @@ using namespace std;
 
 void PndTrkCTFindTrackInXY2::AddMvdHitsToSttTracks(
 	Double_t delta,			// input;
-	Double_t highqualitycut,	// input;
+	Double_t ,	// input; // highqualitycut //[R.K.03/2017] unused variable(s)
 	Double_t FiRangeMvdLow,		// input;
 	Double_t FiRangeMvdUp,		// input;
 	const Short_t maxmvdpixelhitsintrack,	// input;
@@ -125,7 +125,7 @@ void PndTrkCTFindTrackInXY2::AddMvdHitsToSttTracks(
 
 
 Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
-	Double_t dimensionscitil,
+	Double_t , // dimensionscitil //[R.K.03/2017] unused variable(s)
 	Double_t *esse, // output, list of  S of the SciTil hits associated. 
 	bool* InclusionListSciTil,
 	Short_t *List, // output, list of SciTil hits associated (max. 2);
@@ -312,7 +312,7 @@ Short_t PndTrkCTFindTrackInXY2::AssociateSciTilHit(
 bool PndTrkCTFindTrackInXY2::FindTrackInXYProjection(
 	struct FindTrackInXYProjection2_InputOutputData* InOut,
 	int istampa,
-	int IVOLTE
+	int  // IVOLTE //[R.K.03/2017] unused variable(s)
 	)
 {
 

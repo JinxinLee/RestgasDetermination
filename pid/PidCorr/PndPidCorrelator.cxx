@@ -174,7 +174,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title) :
 	mdtLayerPos[mm][ll] = -1;
 	mdtIronThickness[mm][ll] = -1;
       }
-  
+  SetTitle(title);
   Reset();
 }
 
@@ -694,7 +694,7 @@ void PndPidCorrelator::SetParContainers() {
   fFtsParameters = (PndGeoFtsPar*) db->getContainer("PndGeoFtsPar");
 }
 //______________________________________________________
-void PndPidCorrelator::Exec(Option_t * option) {
+void PndPidCorrelator::Exec(Option_t *) {
   //-
   Reset();
   cout << " =====   PndPidCorrelator - Event: " << fEventCounter;

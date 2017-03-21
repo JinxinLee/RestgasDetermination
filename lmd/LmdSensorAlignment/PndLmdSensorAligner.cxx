@@ -55,7 +55,7 @@ PndLmdSensorAligner::~PndLmdSensorAligner(){
 	//destroy everything. leave nothing standing.
 }
 
-PndLmdSensorAligner::PndLmdSensorAligner(const PndLmdSensorAligner& other) {
+PndLmdSensorAligner::PndLmdSensorAligner(const PndLmdSensorAligner& ) { // other //FIXME [R.K.03/2017] unused variable(s)
 	std::cout << "PndLmdSensorAligner::Warning! Unnecessary copy-construction." << "\n";
 	init();
 }

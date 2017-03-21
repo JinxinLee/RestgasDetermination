@@ -2926,7 +2926,7 @@ MAXSCITILHITSINTRACK,MAXSTTHITSINTRACK,fR,fOx,fOy,FI0,KAPPA);
 //----------begin of function PndTrkTracking2::AssociateSkewHitsToXYTrack
 
 Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
-	bool *InclusionListSkew,
+	bool *, // InclusionListSkew //[R.K.03/2017] unused variable(s)
 	Short_t NSkewhits,
 	Short_t *infoskew,  // from skew numbering to original Stt hit numbering;
 	Double_t Oxx,
@@ -2938,7 +2938,7 @@ Short_t PndTrkTracking2::AssociateSkewHitsToXYTrack(
 	Double_t *WDZ,
 	Double_t Fi_low_limit,
 	Double_t Fi_up_limit,
-	Short_t  Charge,
+	Short_t  , // Charge //[R.K.03/2017] unused variable(s)
 	Short_t SkewList[][2], // output,list of selected skew hits (original numbering)
 	Double_t *S,       //  output,  S coordinate of selected Skew hit
 	Double_t *Z,       //  output,  Z coordinate of selected Skew hit
@@ -3896,8 +3896,8 @@ void PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane(
 //----------end of function PndTrkTracking2::FixDiscontinuitiesFiangleinSZplane
 
 //---------- begin of function PndTrkTracking2::GetVolumeCharacteristics
-void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatrix *gmat,
-		Double_t GlobalScal[3],  Double_t GlobalTrans[3],  Double_t  GlobalRot[9]  )
+void PndTrkTracking2::GetVolumeCharacteristics( TGeoVolume * tgeovol, TGeoHMatrix *,
+		Double_t GlobalScal[3],  Double_t GlobalTrans[3],  Double_t  GlobalRot[9]  ) // gmat //[R.K.03/2017] unused variable(s)
 {
 
 	//  tgeovol ==  input TGeoVolume  class;
@@ -4652,7 +4652,7 @@ void PndTrkTracking2::LoadSZetc_forSZfit(
 void PndTrkTracking2::MakeInclusionListStt(
 	Int_t nSttHit,
 	Short_t * TubeID,
-	Double_t info[][7]
+	Double_t (*)[7] // Double_t info[][7] //[R.K.03/2017] unused variable(s)
 	)
 {
 
@@ -4707,7 +4707,7 @@ void PndTrkTracking2::MakeInclusionListStt(
 void PndTrkTracking2::MatchMvdHitsToSttTracks(
 	Vec <bool>& keepit,
 	Double_t delta,
-	Double_t highqualitycut,
+	Double_t , //  highqualitycut//[R.K.03/2017] unused variable(s)
 	Short_t nSttTrackCand,
 	Double_t *FI0,
 	Double_t *Fifirst,
@@ -4830,7 +4830,7 @@ void PndTrkTracking2::MatchMvdHitsToSttTracks(
 void PndTrkTracking2::MatchMvdHitsToSttTracksagain(
 	Vec <bool>& keepit,
 	Vec <bool>& Mvdhits,
-	Double_t delta,
+	Double_t , // delta //[R.K.03/2017] unused variable(s)
 	Double_t highqualitycut,
 	Short_t nSttTrackCand,
 	Double_t *FI0,

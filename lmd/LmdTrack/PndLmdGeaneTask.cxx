@@ -380,7 +380,7 @@ FairTrackParP* PndLmdGeaneTask::PropToXZPlane(FairTrackParP* fStartPst, double y
 	return fResPst;
 }
 
-FairTrackParH* PndLmdGeaneTask::PropToLine(FairTrackParH* fStartPst, double ypos,int dir, bool& isProp){
+FairTrackParH* PndLmdGeaneTask::PropToLine(FairTrackParH* fStartPst, double ,int , bool& isProp){ // ypos dir // [R.K.03/2017] unused variable(s)
   // ... the line with the extremities
   //  TVector3 extremity1(0,0,-5), extremity2(0,0,5);
   TVector3 extremity1(0,0,-100.), extremity2(0,0,100.);

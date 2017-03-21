@@ -265,7 +265,7 @@ void PndDisc::PostTrack()
 
 
 
-Bool_t PndDisc::ProcessHits(FairVolume* v)
+Bool_t PndDisc::ProcessHits(FairVolume* ) // v //[R.K.03/2017] unused variable(s)
 {
     static TVector3 pos_in, mom_in;
     static Double_t integrated_energy_deposit;

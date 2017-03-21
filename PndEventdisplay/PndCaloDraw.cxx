@@ -112,7 +112,7 @@ InitStatus PndCaloDraw::Init()
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
-void PndCaloDraw::Exec(Option_t*ion)
+void PndCaloDraw::Exec(Option_t*)
 {
   if(IsActive()) {
     TObject* p;

@@ -593,7 +593,7 @@ bool Matrix::solve (const Matrix &M, FLOAT eps) {
 // or odd, respectively. This routine is used in combination with lubksb to solve linear equations
 // or invert a matrix.
 
-bool Matrix::lu(int32_t *idx, FLOAT &d, FLOAT eps) {
+bool Matrix::lu(int32_t *idx, FLOAT &d, FLOAT ) { // eps //FIXME [R.K.03/2017] unused variable(s)
 
 	if (m != n) {
 		cerr << "ERROR: Trying to LU decompose a matrix of size (" << m << "x" << n << ")" << endl;

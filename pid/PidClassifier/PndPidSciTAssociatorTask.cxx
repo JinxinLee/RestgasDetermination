@@ -24,6 +24,7 @@ PndPidSciTAssociatorTask::PndPidSciTAssociatorTask(const char *name, const char 
 {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
+  SetTitle(title);
 }
 
 //___________________________________________________________
@@ -51,7 +52,7 @@ void PndPidSciTAssociatorTask::SetParContainers() {
   //--
 }
 //______________________________________________________
-void PndPidSciTAssociatorTask::Exec(Option_t * option) {
+void PndPidSciTAssociatorTask::Exec(Option_t *) {
   if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
   if(fVerbose>1) std::cout << "-I- Start PndPidSciTAssociatorTask. "<<std::endl;
 

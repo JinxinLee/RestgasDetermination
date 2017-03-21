@@ -26,6 +26,7 @@ PndPidEmcBayesAssociatorTask::PndPidEmcBayesAssociatorTask(const char *name, con
 {
   //---
   fPidChargedProb = new TClonesArray("PndPidProbability");
+  SetTitle(title);
 }
 
 //___________________________________________________________
@@ -107,7 +108,7 @@ void PndPidEmcBayesAssociatorTask::SetParContainers() {
   //--
 }
 //______________________________________________________
-void PndPidEmcBayesAssociatorTask::Exec(Option_t * option) {
+void PndPidEmcBayesAssociatorTask::Exec(Option_t *) {
   if (fPidChargedProb->GetEntriesFast() != 0) fPidChargedProb->Clear();
   if(fVerbose>1) std::cout << "-I- Start PndPidEmcBayesAssociatorTask. "<<std::endl;
   if(fVerbose>1) std::cout << "-I- counter: "<< fevcounter <<std::endl;

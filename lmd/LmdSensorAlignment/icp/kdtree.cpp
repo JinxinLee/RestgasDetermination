@@ -351,7 +351,7 @@ public:
 
 };
 
-void KDTree::n_nearest_brute_force(std::vector<double>& qv, int nn, KDTreeResultVector& result) {
+void KDTree::n_nearest_brute_force(std::vector<double>& qv, int , KDTreeResultVector& result) { //  nn//FIXME [R.K.03/2017] unused variable(s)
 
 	result.clear();
 

@@ -44,7 +44,7 @@ public:
 
     /// Per pixel deviations of the PDE can be taken into account by including them in
     /// a individual pixel efficiency.
-    virtual double GetPDE(const double & wavelength_nm) const {return 1.0;}
+    virtual double GetPDE(const double & ) const {return 1.0;} //FIXME // wavelength_nm //[R.K.03/2017] unused variable(s)
 
 
     /// Derived classes should override this function to account for spatial PDE deviations (e.g. due to gain inhomgenity)
@@ -52,7 +52,7 @@ public:
     /// This function is used to implement inhomogenitites over the whole sensor, which cannot
     /// be treated as single pixel efficiencies, e.g. if the pixels are large compared to the
     /// spatial deviation of the inhomogenity.
-    virtual double GetInhomegenityFactor(double const & hit_pos_x, double const & hit_pos_y) const {return 1.0;}
+    virtual double GetInhomegenityFactor(double const & , double const & ) const {return 1.0;} //FIXME//hit_pos_x  hit_pos_y//[R.K.03/2017] unused variable(s)
 
     /// Apply time smearing
     double GetSmearedTime(double const & time_value, PixelInfo const & pixel_info) const;

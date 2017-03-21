@@ -36,6 +36,7 @@ PndPidIdealAssociatorTask::PndPidIdealAssociatorTask(const char *name, const cha
   fChargedBranchName="PidAlgoIdealCharged";
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
+  SetTitle(title);
 }
 
 void PndPidIdealAssociatorTask::SetToOnlyOne()
@@ -83,7 +84,7 @@ void PndPidIdealAssociatorTask::SetParContainers() {
   //--
 }
 //______________________________________________________
-void PndPidIdealAssociatorTask::Exec(Option_t * option) {
+void PndPidIdealAssociatorTask::Exec(Option_t *) {
   // CAUTION We use Monte-Carlo info here!
 
   if(fVerbose>1) std::cout << "-I- Start PndPidIdealAssociatorTask. "<<std::endl;

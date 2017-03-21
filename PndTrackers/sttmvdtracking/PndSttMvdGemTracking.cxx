@@ -1118,7 +1118,7 @@ Bool_t PndSttMvdGemTracking::PropagateToGemPlaneAsHelix(PndTrack *sttmvd, FairTr
 }
 
 // assign each it to at most one track!              CHECK CHECK CHECK
-void PndSttMvdGemTracking::ForbidMultiAssignedHits(Int_t nhits, Int_t ntracks)
+void PndSttMvdGemTracking::ForbidMultiAssignedHits(Int_t nhits, Int_t ) // ntracks //[R.K.03/2017] unused variable(s)
 {
   if(fVerbose > 0) cout << "FORBID MULTI ASSIGNED HITS : DELETING HITS" << endl;
   // ... use distancemap[itrk][ihit]
@@ -1158,7 +1158,7 @@ void PndSttMvdGemTracking::ForbidMultiAssignedHits(Int_t nhits, Int_t ntracks)
 }
 
 // assign to each track ONLY one hit on each gem plane!              CHECK CHECK CHECK
-void PndSttMvdGemTracking::OnlyOneHitToEachTrack(Int_t nhits, Int_t ntracks)
+void PndSttMvdGemTracking::OnlyOneHitToEachTrack(Int_t , Int_t ) //nhits  ntracks//[R.K.03/2017] unused variable(s)
 {
   if(fVerbose > 0) cout << "ONLY ONE HIT FOR EACH TRACK : DELETING HITS" << endl;
 
@@ -1396,7 +1396,7 @@ Int_t PndSttMvdGemTracking::GetPosIndex(PndGemHit *hit) {
 }
 
 
-void PndSttMvdGemTracking::AddRemainingHits(Int_t ntracks) {
+void PndSttMvdGemTracking::AddRemainingHits(Int_t ) { // ntracks //[R.K.03/2017] unused variable(s)
 
   if(fVerbose > 0) cout << "ADD REMAINING HITS to " << CountTracks() << " tracks " << endl;
   

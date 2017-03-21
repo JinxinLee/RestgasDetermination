@@ -116,15 +116,15 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 	Double_t *ErrorDriftRadiusconformal,
 	Double_t rotationangle,
 	Double_t trajectory_vertex[2],
-	Short_t NMAX,
+	Short_t , // NMAX //[R.K.03/2017] unused variable(s)
 	Double_t *emme,
 	Double_t *qu,
 	Double_t *pAlfa, // this is input and output;
 	Double_t *pBeta, // this is input and output;
 	Double_t *pGamma, // this is input and output;
 	bool *Type,
-	int istampa,
-	int IVOLTE
+	int , // istampa //[R.K.03/2017] unused variable(s)
+	int  //  IVOLTE//[R.K.03/2017] unused variable(s)
 	)
 {
 
@@ -307,7 +307,7 @@ Short_t PndTrkChi2Fits::FitHelixCylinder(
 	Double_t FInot,
 	Short_t NMAX,
 	Double_t *emme,
-	int IVOLTE
+	int  // IVOLTE //[R.K.03/2017] unused variable(s)
 	)
 {
 
@@ -509,7 +509,7 @@ return 1;
 	Double_t FInot,
 	Short_t NMAX,
 	Double_t *emme,
-	int IVOLTE
+	int  // IVOLTE //[R.K.03/2017] unused variable(s)
 	)
 {
   bool

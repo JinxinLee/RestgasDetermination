@@ -374,7 +374,7 @@ void PndLmdLinFitTask::SumDistance2(int &, double *, double & sum, double * par,
 }
 
 // calculate distance line-point in local coordinates
-double PndLmdLinFitTask::distance_perp(double x,double y,double z, double errx,double erry,double errz, double *p) { 
+double PndLmdLinFitTask::distance_perp(double x,double y,double z, double errx,double erry,double , double *p) {  // errz // [R.K.03/2017] unused variable(s)
   Double_t t_min = (z-p[4]);
   Double_t fdx = pow((p[0]+p[1]*t_min-x)/errx,2);
   Double_t fdy = pow((p[2]+p[3]*t_min-y)/erry,2);
@@ -417,7 +417,7 @@ void PndLmdLinFitTask::LocalFCN(int &, double *, double & sum, double * par, int
 }
 
 // calculate distance line-point in local coordinates
-double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,double erry,double errz, double *p, double *zpr) { 
+double PndLmdLinFitTask::distance_MS(double x,double y,double z, double errx,double erry,double , double *p, double *zpr) {  // errz // [R.K.03/2017] unused variable(s)
   double THfunc[8] = {1,1,1,1,1,1,1,1};
   //  p[5] = sqrt(1-p[1]*p[1]-p[3]*p[3]);
   //Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
@@ -481,7 +481,7 @@ void PndLmdLinFitTask::LocalFCN_MS(int &, double *, double & sum, double * par, 
   sum +=fdal;
 }
 
-double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparerr)
+double PndLmdLinFitTask::line3Dfit(Int_t , TGraph2DErrors* gr, Double_t* fitpar, Double_t* fitparerr) // nd // [R.K.03/2017] unused variable(s)
 {
   Int_t Npoint = gr->GetN();
 
@@ -520,7 +520,7 @@ double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpa
    return chi2; 
 }
 
-double PndLmdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix)
+double PndLmdLinFitTask::line3Dfit(Int_t , TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix) // nd // [R.K.03/2017] unused variable(s)
 {
   if(fVerbose>2) cout<<"PndLmdLinFitTask::line3Dfit with SEED is used"<<endl;
   Int_t Npoint = gr->GetN();
@@ -628,7 +628,7 @@ double PndLmdLinFitTask::ScatteredAngle(double radLen){
 }
 
 //chi2 with kink angles fit [G.Lutz, NIM A273 (1988)]
-double PndLmdLinFitTask::line3DfitMS(Int_t nd, TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix)
+double PndLmdLinFitTask::line3DfitMS(Int_t , TGraph2DErrors* gr, TVector3 posSeed, TVector3 dirSeed, Double_t* fitpar, TMatrixDSym *covmatrix) // nd // [R.K.03/2017] unused variable(s)
 {
   fmin->Clear();
   const int nparams = 22;

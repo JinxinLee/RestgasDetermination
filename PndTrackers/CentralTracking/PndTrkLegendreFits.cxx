@@ -71,16 +71,16 @@ Short_t PndTrkLegendreFits::FitHelixCylinder(
 	Double_t *Yconformal,
 	Double_t *DriftRadiusconformal,
 	Double_t *ErrorDriftRadiusconformal,
-	Double_t rotationangle,
+	Double_t , // rotationangle //[R.K.03/2017] unused variable(s)
 	Double_t trajectory_vertex[2],
-	Short_t NMAX,
+	Short_t , //  NMAX//[R.K.03/2017] unused variable(s)
 	Double_t *emme,
 	Double_t *qu,
 	Double_t *pAlfa,
 	Double_t *pBeta,
 	Double_t *pGamma,
 	bool *Type,
-	int istampa,
+	int , // istampa //[R.K.03/2017] unused variable(s)
 	int IVOLTE
 	)
 {
@@ -174,19 +174,19 @@ Short_t PndTrkLegendreFits::FitHelixCylinder2(
 	Double_t *Yconformal,
 	Double_t *DriftRadiusconformal,
 	Double_t *ErrorDriftRadiusconformal,
-	Double_t rotationangle,
+	Double_t , // rotationangle //[R.K.03/2017] unused variable(s)
 	Double_t *Sinus,
 	Double_t THETAMAX,
 	Double_t THETAMIN,
 	Double_t trajectory_vertex[2],
-	Short_t NMAX,
+	Short_t , //  NMAX//[R.K.03/2017] unused variable(s)
 	Double_t *emme,
 	Double_t *qu,
 	Double_t *pAlfa,
 	Double_t *pBeta,
 	Double_t *pGamma,
 	bool *Type,
-	int istampa,
+	int , //istampa  //[R.K.03/2017] unused variable(s)
 	int IVOLTE
 	)
 {
@@ -294,9 +294,9 @@ Short_t PndTrkLegendreFits::FitSZspace(
 	Double_t *S,
 	Double_t *Z, //
 	Double_t *DriftRadiusProjected,
-	Double_t *ErrorDriftRadiusProjected, //
+	Double_t *, // // ErrorDriftRadiusProjected //[R.K.03/2017] unused variable(s)
 	Double_t FInot,
-	Short_t NMAX,
+	Short_t , // NMAX //[R.K.03/2017] unused variable(s)
 	Double_t *emme,
 	int PlotNumber
 	)

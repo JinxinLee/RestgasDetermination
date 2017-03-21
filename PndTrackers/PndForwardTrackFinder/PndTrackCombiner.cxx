@@ -85,7 +85,7 @@ vector<PndLineApproximation> PndTrackCombiner::combine
 		(vector<PndFtsExpandedTrackCand> cands1, vector<PndFtsExpandedTrackCand> cands2, Int_t layer1, Int_t layer2){
 	vector<PndLineApproximation> result;
 	for(size_t i=0;i<cands1.size();i++){
-		Int_t resultSizeBefore = result.size();
+		size_t resultSizeBefore = result.size();
 		PndFtsExpandedTrackCand cand1 = cands1[i];
 		for(size_t j=0;j<cands2.size();j++){
 			PndFtsExpandedTrackCand cand2 = cands2[j];

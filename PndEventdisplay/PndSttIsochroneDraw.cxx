@@ -33,7 +33,7 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndSttIsochroneDraw::PndSttIsochroneDraw(Bool_t propagate)
+PndSttIsochroneDraw::PndSttIsochroneDraw(Bool_t ) // propagate //[R.K.03/2017] unused variable(s)
    : fTimeWindowPlus(0.), fTimeWindowMinus(0.), fStartTime(-1), fUseEventTime(kTRUE), fUseIsochroneTime(kFALSE),
 	 fSttHitArray(0), fSttTubeArray(0), fSttParameters(0), fEventManager(0), fEveTrList(0), fListOfIsochrones(0), fListOfTiltedIsochrones(0), fListOfParallelIsochrones(0),
 	 fStartFunctor(0), fStopFunctor(0), fEventHeaderBranch(0)
@@ -43,7 +43,7 @@ PndSttIsochroneDraw::PndSttIsochroneDraw(Bool_t propagate)
 
 
 // -----   Standard constructor   ------------------------------------------
-PndSttIsochroneDraw::PndSttIsochroneDraw(const char* name, Bool_t propagate, Int_t iVerbose)
+PndSttIsochroneDraw::PndSttIsochroneDraw(const char* name, Bool_t , Int_t iVerbose) // propagate //[R.K.03/2017] unused variable(s)
   : FairTask(name, iVerbose), fTimeWindowPlus(0.), fTimeWindowMinus(0.), fStartTime(-1), fUseEventTime(kTRUE), fUseIsochroneTime(kFALSE),
 	 fSttHitArray(0), fSttTubeArray(0), fSttParameters(0), fEventManager(0), fEveTrList(0), fListOfIsochrones(0), fListOfTiltedIsochrones(0), fListOfParallelIsochrones(0),
 	 fStartFunctor(0), fStopFunctor(0), fEventHeaderBranch(0)
@@ -95,7 +95,7 @@ PndSttIsochroneDraw::~PndSttIsochroneDraw()
 		delete (fStopFunctor);
 }
 // -------------------------------------------------------------------------
-void PndSttIsochroneDraw::Exec(Option_t*ion)
+void PndSttIsochroneDraw::Exec(Option_t*)
 {
 
 	if (IsActive()) {

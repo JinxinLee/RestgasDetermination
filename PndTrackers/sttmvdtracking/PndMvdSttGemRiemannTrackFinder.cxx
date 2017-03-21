@@ -865,7 +865,7 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitStt(PndRiemannTrack* track, 
 	return true;
 }
 
-bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitSkewedStt(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit)
+bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitSkewedStt(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* ) // fairHit //[R.K.03/2017] unused variable(s)
 {
 
 
@@ -939,7 +939,7 @@ bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitGem(PndRiemannTrack* track, 
 	return true;
 }
 
-bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitMvd(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* fairHit)
+bool PndMvdSttGemRiemannTrackFinder::CheckRiemannHitMvd(PndRiemannTrack* track, PndRiemannHit* hit, FairHit* ) // fairHit //[R.K.03/2017] unused variable(s)
 {
 	//double oldSZChi2 = track->szChi2(); //[R.K. 01/2017] unused variable?
 	double dist = track->dist(hit);
