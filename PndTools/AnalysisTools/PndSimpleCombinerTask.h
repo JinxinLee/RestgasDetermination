@@ -85,6 +85,7 @@ class PndSimpleCombinerTask : public FairTask
 	TString        fPidAlgo;          // PID algo name 
 	bool           fQaMC;             // flag to store MC list
 	bool           fQaEventShape;     // flag to store event shape variables
+	bool           fQaEvShapeNtp;     // flag to store event shape variables in an extra ntuple
 	bool           fFit4C;            // flag to perform 4C fit
 	bool           fBest4C;           // flag to only store best 4C fitted candidate
 	bool           fFitVtx;           // flag to perform vtx fit
@@ -99,6 +100,7 @@ class PndSimpleCombinerTask : public FairTask
 	std::vector<RhoTuple*> vntp;   // ntuples for the composites
 	unsigned int fNodump;          // bit marker for ntuples not to be dumped (to save disc space); e.g. 101 -> don't dump ntp0 & ntp2
 	RhoTuple *nmc;                 // MC ntuple
+	RhoTuple *nevt;                // MC ntuple
 		
 	TClonesArray *fOnlineFilterInfo;	
 	

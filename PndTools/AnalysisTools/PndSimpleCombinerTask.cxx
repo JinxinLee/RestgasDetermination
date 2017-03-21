@@ -72,7 +72,8 @@ PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms,
   FairTask("PndSimpleCombinerTask"), fVerbose(0), fEvtCount(0), fRun(run), fMode(mode), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
   fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT;PidAlgoRich"),
-  fQaMC(false), fQaEventShape(false), fFit4C(false), fBest4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), fNodump(0), nmc(0)
+  fQaMC(false), fQaEventShape(false), fQaEvShapeNtp(false), fFit4C(false), fBest4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), 
+  fAnalysis(0), fSimpleCombiner(0), fNodump(0), nmc(0), nevt(0)
 { 
 	fIni.SetXYZT(0,0,0,0);
 	double mp = 0.938272;
@@ -84,7 +85,7 @@ PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms,
 // -----   Destructor   ----------------------------------------------------
 PndSimpleCombinerTask::~PndSimpleCombinerTask() 
 { 
-	delete fSimpleCombiner;
+	if (fSimpleCombiner) delete fSimpleCombiner;
 	delete fAnalysis;
 }
 // -------------------------------------------------------------------------
@@ -102,16 +103,18 @@ void PndSimpleCombinerTask::InitParms()
 		bool taskparm = false;
 		
 		// simple parameter flag
-		if (pars[i]=="qamc")               { fQaMC         = true; taskparm = true; } // write mc information
-		if (pars[i]=="qaevtshape")         { fQaEventShape = true; taskparm = true; } // write event shape info
-		if (pars[i].Contains("fit4c"))     { fFit4C        = true; taskparm = true; } // perform 4c fit for last particle (usually pbarpSystemX)
-		if (pars[i].Contains("fit4cbest")) { fBest4C       = true; taskparm = true; } // only store best 4C fitted candidate
-		if (pars[i].Contains("fitvtx"))    { fFitVtx       = true; taskparm = true; } // perform vertex fit if possible (not cascaded)
+		if (pars[i]=="qamc")                { fQaMC 		= true; taskparm = true; } // write mc information
+		if (pars[i]=="qaevtshape")          { fQaEventShape = true; taskparm = true; } // write event shape info
+		if (pars[i]=="qaevs")               { fQaEventShape = true; taskparm = true; } // write event shape info
+		if (pars[i]=="nevt")                { fQaEvShapeNtp = true; taskparm = true; } // write event shape info to extra ntuple
+		if (pars[i].Contains("fit4c"))      { fFit4C		= true; taskparm = true; } // perform 4c fit for last particle (usually pbarpSystemX)
+		if (pars[i].Contains("fit4cbest"))  { fBest4C		= true; taskparm = true; } // only store best 4C fitted candidate
+		if (pars[i].Contains("fitvtx"))     { fFitVtx		= true; taskparm = true; } // perform vertex fit if possible (not cascaded)
 		
-		if (pars[i].BeginsWith("!ntp"))                                               // !ntpX avoids dump of ntuple of X-th resonance to save disc space (for e.g. subresonances of decay tree)
+		if (pars[i].BeginsWith("!ntp"))                                                // !ntpX avoids dump of ntuple of X-th resonance to save disc space (for e.g. subresonances of decay tree)
 		{
 			int ntpnum = ((TString)(pars[i](4,100))).Atoi();
-			if (ntpnum>=0 && ntpnum<32) fNodump |= (1<<ntpnum);                       // this is a bit marker; if i-th bit set, dump of ntpi is skipped
+			if (ntpnum>=0 && ntpnum<32) fNodump |= (1<<ntpnum);                        // this is a bit marker; if i-th bit set, dump of ntpi is skipped
 			taskparm = true;
 		}
 			
@@ -142,11 +145,14 @@ InitStatus PndSimpleCombinerTask::Init()
 	
 	// *** initialize PndAnalysis object and SimpleCombiner
 	fAnalysis         = new PndAnalysis();
-	fSimpleCombiner   = new PndSimpleCombiner(fAnalysis, fAnaDecay, fAnaParms);
 	
-	fSimpleCombiner->SetVerbose(fVerbose);
-	fSimpleCombiner->Print();
-
+	if (fAnaDecay!="")
+	{
+		fSimpleCombiner   = new PndSimpleCombiner(fAnalysis, fAnaDecay, fAnaParms);
+	
+		fSimpleCombiner->SetVerbose(fVerbose);
+		fSimpleCombiner->Print();
+	}
 	
 	// *******
 	// ******* PREPARE/CREATE THE STUFF YOU NEED
@@ -179,9 +185,13 @@ InitStatus PndSimpleCombinerTask::Init()
 		if (TDatabasePDG::Instance()->GetParticle(pname)) {vmpdg.push_back(TDatabasePDG::Instance()->GetParticle(pname)->PdgCode());}
 	}
 	
-	// *** create MC ntuples
+	// *** create MC ntuple
 	if (fQaMC) nmc  = new RhoTuple("nmc",  "mctruth info");
-	if (nmc)  nmc->GetInternalTree()->SetDirectory(gDirectory);
+	if (nmc)   nmc->GetInternalTree()->SetDirectory(gDirectory);
+	
+	// *** create EventShape ntuple
+	if (fQaEvShapeNtp)  nevt  = new RhoTuple("nevt", "event shape info");
+	if (nevt)           nevt->GetInternalTree()->SetDirectory(gDirectory);
 
 	// *** restore original gDirectory
 	dir->cd();
@@ -198,7 +208,8 @@ InitStatus PndSimpleCombinerTask::Init()
 	cout <<endl;
 	
 	cout <<"Ntuple output : ";
-	if (fQaMC) cout <<"nmc  ";
+	if (fQaMC)         cout <<"nmc  ";
+	if (fQaEvShapeNtp) cout <<"nevt  ";
 	for (int i=0;i<fNntp;++i) if (!(fNodump & (1<<i))) cout <<"ntp"<<i<<"("<<TDatabasePDG::Instance()->GetParticle(vmpdg[i])->GetName()<<")  ";
 	cout <<endl<<endl;
 
@@ -292,147 +303,165 @@ void PndSimpleCombinerTask::Exec(Option_t*)
 	// *** Setup event shape object
 	PndEventShape *evsh = 0;
 
-	if (fQaEventShape) 
+	if (fQaEventShape || fQaEvShapeNtp) 
 	{
 		fAnalysis->FillList(all,   "All", fPidAlgo);
 		evsh = new PndEventShape(all, fIni, 0.05, 0.1);
+	}
+	
+	// *** Store event shape info in ntuple
+	if (fQaEvShapeNtp)
+	{
+		nevt->Column("ev",		(Int_t) fEvtCount);
+		nevt->Column("run",     (Int_t) fRun);
+		nevt->Column("uid",     (Int_t) fRun*fRunMult+fEvtCount);
+		nevt->Column("mode",    (Int_t) fMode);
+		
+		qa.qaP4("beam", fIni, nevt);
+		qa.qaEventShape("es", evsh, nevt);
+		
+		nevt->DumpData();
 	}
 	
 	// *****
 	// *** combinatorics 
 	// *****
 	
-	fSimpleCombiner->Combine();
-	
-	// ntuple dump
-	for (i=0;i<fNntp;++i)
+	if (fSimpleCombiner)
 	{
-		if (fNodump & (1<<i)) continue; // if dump of ntuple 'ntpi' is skipped continue
-						  
-		int pdg  = vmpdg[i];
-		int apdg = 0;
-		if (TDatabasePDG::Instance()->GetParticle(pdg)->AntiParticle()) apdg = TDatabasePDG::Instance()->GetParticle(pdg)->AntiParticle()->PdgCode();
-		
-		// check whether there is an own ntuple connected to the anti-particle pdg; if yes, reset apdg
-		for (j=0; j<fNntp; ++j) if (vmpdg[j]==apdg) {apdg=0; j=fNntp+1;}
-		
-		// merge list from particles and anti-particles
-		fSimpleCombiner->GetList(l1, pdg);
-		if (apdg!=0 && fSimpleCombiner->GetList(l2, apdg)) l1.Append(l2);
+	  fSimpleCombiner->Combine();
 
-		//RhoMassParticleSelector msel("msel",TDatabasePDG::Instance()->GetParticle(pdg)->Mass(),0.2);
-		//l1.Select(&msel);
-		
-		// number of charged daughters for vtx fit
-		int ncdau = -1;
-		
-		// determine the best chi2 from 4C fit in case we only want to store the best candidate
-		double best4cChi2 = 1e10;
-	
-		for (j=0;j<l1.GetLength();++j) 
-		{
-			if (ncdau<0) ncdau = CountChargedDaughters(l1[j]);
-				
-			Float_t mmiss = (fIni-(l1[j]->P4())).M();
-			Float_t msum  = l1[j]->M() + mmiss;
-			
-			// in case we do 4C fit, we need to do determine first, whether the candidate is the best one
-			// flag whether the fit is accepted
-			bool fitaccept = true;
-			
-			// for the last list we perform a 4C fit
-			if (fFit4C && i==fNntp-1)
-			{
-				PndKinFitter fit4c(l1[j]);
-				fit4c.Add4MomConstraint(fIni);
-				fit4c.Fit();
-				
-				double chi2_4c = fit4c.GetChi2();   
-				
-				if (chi2_4c>=fFit4CChiCut) fitaccept = false;
-				if (chi2_4c>best4cChi2 || !fitaccept) continue;
-				
-				best4cChi2 = chi2_4c;
+	  // ntuple dump
+	  for (i=0;i<fNntp;++i)
+	  {
+		  if (fNodump & (1<<i)) continue; // if dump of ntuple 'ntpi' is skipped continue
 
-				RhoCandidate *cfit   = l1[j]->GetFit();
-				
-				vntp[i]->Column("chi24c", (Float_t) chi2_4c);
-				qa.qaP4("f4cx", cfit->P4(), vntp[i]);
-				
-				for (int k=0;k<cfit->NDaughters();++k)
-				{
-					RhoCandidate *d0fit = cfit->Daughter(k);
-					qa.qaP4(TString::Format("f4cxd%d",k),d0fit->P4(),vntp[i]);
-					
-					for (int k2=0;k2<d0fit->NDaughters();++k2)
-					{
-						RhoCandidate *ddfit = d0fit->Daughter(k2);
-						qa.qaP4(TString::Format("f4cxd%dd%d",k,k2),ddfit->P4(),vntp[i]);
-					}
-				}
-			}
+		  int pdg  = vmpdg[i];
+		  int apdg = 0;
+		  if (TDatabasePDG::Instance()->GetParticle(pdg)->AntiParticle()) apdg = TDatabasePDG::Instance()->GetParticle(pdg)->AntiParticle()->PdgCode();
 
-			vntp[i]->Column("ev",		(Int_t) fEvtCount);
-			vntp[i]->Column("cand",	    (Int_t) j);
-			vntp[i]->Column("ncand",    (Int_t) l1.GetLength());
-			vntp[i]->Column("run",      (Int_t) fRun);
-			vntp[i]->Column("uid",      (Int_t) fRun*fRunMult+fEvtCount);
-			vntp[i]->Column("mode",     (Int_t) fMode);
+		  // check whether there is an own ntuple connected to the anti-particle pdg; if yes, reset apdg
+		  for (j=0; j<fNntp; ++j) if (vmpdg[j]==apdg) {apdg=0; j=fNntp+1;}
 
-			vntp[i]->Column("mmiss",	(Float_t) mmiss);
-			vntp[i]->Column("msum",	    (Float_t) msum);
-			
-			qa.qaP4("beam", fIni, vntp[i]);
-			
-			// store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
-			qa.qaComp("x", l1[j], vntp[i]);
-			
-			// store info about event shapes
-			if (fQaEventShape) qa.qaEventShapeShort("es",evsh, vntp[i]);
-			
-			// *** store info from trigger
-			if (stInfo)
-			{
-				vntp[i]->Column("trig",    (Int_t) stInfo->Tagged() );       // event triggered
-				vntp[i]->Column("ntrig",   (Int_t) stInfo->GetNTagTotal());  // total number of triggered candidates from all active lines
-			}
-		
-			// store the 4-vector of the truth matched candidate (or a dummy, if not matched to keep ntuple consistent)
-			RhoCandidate *truth = l1[j]->GetMcTruth();		
-			TLorentzVector lv;
-			if (truth) lv = truth->P4();
-			qa.qaP4("trx", lv, vntp[i]);
-			
-			
-			// shall we do a vertex fit?
-			if (fFitVtx && ncdau>1)
-			{
-				PndKinVtxFitter vtxfitter(l1[j]);        // *** instantiate the vertex fitter; input is the object to be fitted      
-				vtxfitter.Fit();                           // *** perform fit
+		  // merge list from particles and anti-particles
+		  fSimpleCombiner->GetList(l1, pdg);
+		  if (apdg!=0 && fSimpleCombiner->GetList(l2, apdg)) l1.Append(l2);
 
-				RhoCandidate *cfit = l1[j]->GetFit();      // *** get the fitted candidate
-				
-				qa.qaVtx("fvxx",cfit,vntp[i]);
-				qa.qaP4("fvxx", cfit->P4(), vntp[i]);
-				double chi2_vtx = vtxfitter.GetChi2();     // *** and the chi^2 of the fit
-				vntp[i]->Column("chi2vx", (Float_t) chi2_vtx);
-				
-				if (chi2_vtx>=fFitVtxChiCut) fitaccept = false;
-			}	
-	
-			if (fitaccept && ((i<fNntp-1) || !fBest4C )) vntp[i]->DumpData();
-		}
-		
-		if (fBest4C && i==fNntp-1 && best4cChi2<1e10) { vntp[i]->DumpData();}
+		  //RhoMassParticleSelector msel("msel",TDatabasePDG::Instance()->GetParticle(pdg)->Mass(),0.2);
+		  //l1.Select(&msel);
+
+		  // number of charged daughters for vtx fit
+		  int ncdau = -1;
+
+		  // determine the best chi2 from 4C fit in case we only want to store the best candidate
+		  double best4cChi2 = 1e10;
+
+		  for (j=0;j<l1.GetLength();++j) 
+		  {
+			  if (ncdau<0) ncdau = CountChargedDaughters(l1[j]);
+
+			  Float_t mmiss = (fIni-(l1[j]->P4())).M();
+			  Float_t msum  = l1[j]->M() + mmiss;
+
+			  // in case we do 4C fit, we need to do determine first, whether the candidate is the best one
+			  // flag whether the fit is accepted
+			  bool fitaccept = true;
+
+			  // for the last list we perform a 4C fit
+			  if (fFit4C && i==fNntp-1)
+			  {
+				  PndKinFitter fit4c(l1[j]);
+				  fit4c.Add4MomConstraint(fIni);
+				  fit4c.Fit();
+
+				  double chi2_4c = fit4c.GetChi2();   
+
+				  if (chi2_4c>=fFit4CChiCut) fitaccept = false;
+				  if (chi2_4c>best4cChi2 || !fitaccept) continue;
+
+				  best4cChi2 = chi2_4c;
+
+				  RhoCandidate *cfit   = l1[j]->GetFit();
+
+				  vntp[i]->Column("chi24c", (Float_t) chi2_4c);
+				  qa.qaP4("f4cx", cfit->P4(), vntp[i]);
+
+				  for (int k=0;k<cfit->NDaughters();++k)
+				  {
+					  RhoCandidate *d0fit = cfit->Daughter(k);
+					  qa.qaP4(TString::Format("f4cxd%d",k),d0fit->P4(),vntp[i]);
+
+					  for (int k2=0;k2<d0fit->NDaughters();++k2)
+					  {
+						  RhoCandidate *ddfit = d0fit->Daughter(k2);
+						  qa.qaP4(TString::Format("f4cxd%dd%d",k,k2),ddfit->P4(),vntp[i]);
+					  }
+				  }
+			  }
+
+			  vntp[i]->Column("ev",		(Int_t) fEvtCount);
+			  vntp[i]->Column("cand",	    (Int_t) j);
+			  vntp[i]->Column("ncand",    (Int_t) l1.GetLength());
+			  vntp[i]->Column("run",      (Int_t) fRun);
+			  vntp[i]->Column("uid",      (Int_t) fRun*fRunMult+fEvtCount);
+			  vntp[i]->Column("mode",     (Int_t) fMode);
+
+			  vntp[i]->Column("mmiss",	(Float_t) mmiss);
+			  vntp[i]->Column("msum",	    (Float_t) msum);
+
+			  qa.qaP4("beam", fIni, vntp[i]);
+
+			  // store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
+			  qa.qaComp("x", l1[j], vntp[i]);
+
+			  // store info about event shapes
+			  if (fQaEventShape) qa.qaEventShapeShort("es",evsh, vntp[i]);
+
+			  // *** store info from trigger
+			  if (stInfo)
+			  {
+				  vntp[i]->Column("trig",    (Int_t) stInfo->Tagged() );       // event triggered
+				  vntp[i]->Column("ntrig",   (Int_t) stInfo->GetNTagTotal());  // total number of triggered candidates from all active lines
+			  }
+
+			  // store the 4-vector of the truth matched candidate (or a dummy, if not matched to keep ntuple consistent)
+			  RhoCandidate *truth = l1[j]->GetMcTruth();		
+			  TLorentzVector lv;
+			  if (truth) lv = truth->P4();
+			  qa.qaP4("trx", lv, vntp[i]);
+
+
+			  // shall we do a vertex fit?
+			  if (fFitVtx && ncdau>1)
+			  {
+				  PndKinVtxFitter vtxfitter(l1[j]);        // *** instantiate the vertex fitter; input is the object to be fitted      
+				  vtxfitter.Fit();                           // *** perform fit
+
+				  RhoCandidate *cfit = l1[j]->GetFit();      // *** get the fitted candidate
+
+				  qa.qaVtx("fvxx",cfit,vntp[i]);
+				  qa.qaP4("fvxx", cfit->P4(), vntp[i]);
+				  double chi2_vtx = vtxfitter.GetChi2();     // *** and the chi^2 of the fit
+				  vntp[i]->Column("chi2vx", (Float_t) chi2_vtx);
+
+				  if (chi2_vtx>=fFitVtxChiCut) fitaccept = false;
+			  }	
+
+			  if (fitaccept && ((i<fNntp-1) || !fBest4C )) vntp[i]->DumpData();
+		  }
+
+		  if (fBest4C && i==fNntp-1 && best4cChi2<1e10) { vntp[i]->DumpData();}
+	  }
 	}
 	
-	delete evsh;
+	if (evsh) delete evsh;
 }
 
 
 void PndSimpleCombinerTask::Finish()
 {
-	if (nmc) nmc->GetInternalTree()->Write();
+	if (nmc)  nmc->GetInternalTree()->Write();
+	if (nevt) nevt->GetInternalTree()->Write();
 	
 	for (int i=0;i<fNntp;++i) if (!(fNodump & (1<<i))) vntp[i]->GetInternalTree()->Write();
 }
