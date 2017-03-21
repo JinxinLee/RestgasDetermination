@@ -155,13 +155,13 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
     PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
     primGen->AddGenerator(Dpm);
   }
-  if(UseFtf){
-    //          TString macfile = gSystem->Getenv("VMCWORKDIR");
-    //	  macfile += "/pgenerators/FtfEvtGen/PbarP.mac";
-    //	  PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());
-    PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", mom, 123456);
-    primGen->AddGenerator(Ftf);
-  }
+  if(UseFtf){																				//the lines of Ftf have to be commented out if
+    //          TString macfile = gSystem->Getenv("VMCWORKDIR");							//you want to run Geant4 with this macro
+    //	  macfile += "/pgenerators/FtfEvtGen/PbarP.mac";									//
+    //	  PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());								//
+    PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", mom, 123456);	//
+    primGen->AddGenerator(Ftf);																//
+  }																							//
   if(UseEvtGenDirect){
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
     EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
