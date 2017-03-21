@@ -6,7 +6,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete_vis.C"(100, "TGeant4",2)"
 
-sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
+int sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom = 7.24)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -16,11 +16,11 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly
                                        // choose your event generator
-  Bool_t UseEvtGen	      =kTRUE;
+  Bool_t UseEvtGen	      =kFALSE;
   Bool_t UseEvtGenDirect      =kFALSE;
   Bool_t UseDpm 	      =kFALSE;
   Bool_t UseFtf 	      =kFALSE;
-  Bool_t UseBoxGenerator      =kFALSE;
+  Bool_t UseBoxGenerator      =kTRUE;
   
   //------------------------------------------------------------------
   
@@ -133,10 +133,10 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->SetGenerator(primGen);
 	 
   if(UseBoxGenerator){	// Box Generator
-    FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
-    boxGen->SetPtRange(mom,mom); // GeV/c
+    FairBoxGenerator* boxGen = new FairBoxGenerator(13, 3); // 13 = muon; 1 = multipl.
+    boxGen->SetPRange(0.5,4); // GeV/c
     boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-    boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
+    boxGen->SetThetaRange(0., 10.); // Polar angle in lab system range [degree]
     boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
     primGen->AddGenerator(boxGen);
   }
@@ -144,13 +144,13 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
     PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
     primGen->AddGenerator(Dpm);
   }
-  if(UseFtf){
-    //	TString macfile = gSystem->Getenv("VMCWORKDIR");
-    //	macfile += "/pgenerators/FtfEvtGen/PbarP.mac";
-    //	PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());
-    PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", mom, 123456);
-    primGen->AddGenerator(Ftf);
-  }
+  if(UseFtf){																				//the lines of Ftf have to be commented out if
+    //          TString macfile = gSystem->Getenv("VMCWORKDIR");							//you want to run Geant4 with this macro
+    //	  macfile += "/pgenerators/FtfEvtGen/PbarP.mac";									//
+    //	  PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());								//
+    PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", mom, 123456);	//
+    primGen->AddGenerator(Ftf);																//
+  }																							//
   if(UseEvtGen){
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
     EvtInput+="/input/psi2s_jpsi2pi_1k.evt";
@@ -200,7 +200,8 @@ sim_complete_vis(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
   
-  exit(0);
+//  exit(0);
+  return 0;
   
 }  
 
