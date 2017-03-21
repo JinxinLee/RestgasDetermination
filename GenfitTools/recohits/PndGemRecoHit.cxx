@@ -200,8 +200,8 @@ PndGemRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
 }
 
 Double_t
-PndGemRecoHit::residualScalar(GFAbsTrackRep* stateVector,
-          const TMatrixT<Double_t>& state)
+PndGemRecoHit::residualScalar(GFAbsTrackRep* ,
+          const TMatrixT<Double_t>& ) // stateVector state // [R.K.03/2017] unused variable(s)
 {
   throw;
 }
