@@ -145,7 +145,6 @@ void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 		}
 
 	}
-
 }
 
 FairMultiLinkedData PndTrackingQA::GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand)
