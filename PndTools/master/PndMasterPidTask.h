@@ -28,6 +28,7 @@ class PndMasterPidTask : public PndMasterTask
    * "day1"                      -> Setup for day1 experiment: no GEM, FTS1234, NO DISC, NO RICH
    * "gem" (added to "day1")     -> Setup for day1 experiment with 3 GEM planes
    * "fts1256" (added to "day1") -> Setup for day1 experiment with FTS1256 insted of FTS1234
+   * "filtered"					 -> the option filtered was used in the reco stage to remove tracks with wrong Pz
    * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256 
    */
   PndMasterPidTask(TString options="");

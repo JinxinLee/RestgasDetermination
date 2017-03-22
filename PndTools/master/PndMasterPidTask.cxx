@@ -39,12 +39,20 @@ PndMasterPidTask::PndMasterPidTask(TString options) :
   pid.kPndPidCorrelator = GetListOfTasks()->GetSize()-1;
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
     {
-      corr->SetInputBranch("SttMvdGemGenTrack");
+	  if (fOptions.Contains("filtered")){
+		  corr->SetInputBranch("SttMvdGemGenTrack_filtered");
+	  } else {
+		  corr->SetInputBranch("SttMvdGemGenTrack");
+	  }
 //      corr->SetInputIDBranch("SttMvdGemGenTrackID");
     }
   else
     {
-      corr->SetInputBranch("SttMvdGenTrack");
+	  if (fOptions.Contains("filtered")){
+		  corr->SetInputBranch("SttMvdGenTrack_filtered");
+	  } else {
+		  corr->SetInputBranch("SttMvdGenTrack");
+	  }
 //      corr->SetInputIDBranch("SttMvdGenTrackID");
     }
   corr->SetInputBranch2("FtsIdealGenTrack");

@@ -53,13 +53,10 @@ class PndMasterRecoTask : public PndMasterTask
   struct recoTaskList {
     Short_t kPndTrkTracking2;
     Short_t kPndSttMvdGemTracking;
-    Short_t kPndMCTrackAssociator1;
     Short_t kPndRecoKalmanTask1;
-    Short_t kPndMCTrackAssociator2;
+    Short_t kPndTrackCleaner;
     Short_t kPndFtsTrackerIdeal;
-    Short_t kPndMCTrackAssociator3;
     Short_t kPndRecoKalmanTask2;
-    Short_t kPndMCTrackAssociator4;
   } reco;
   
   TString fOptions;          ///< Options parsed to the reconstruction

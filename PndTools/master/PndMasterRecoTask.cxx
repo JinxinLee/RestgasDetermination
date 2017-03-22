@@ -11,8 +11,8 @@
 
 #include "PndTrkTracking2.h"
 #include "PndSttMvdGemTracking.h"
-//#include "PndMCTrackAssociator.h"
 #include "PndRecoKalmanTask.h"
+#include "PndMissingPzCleanerTask.h"
 //#include "PndFtsTrackerIdeal.h"
 
 /**
@@ -24,7 +24,7 @@
 PndMasterRecoTask::PndMasterRecoTask(TString options) :
   PndMasterTask("Master Reconstruction Task"), fOptions(options)
 {
-  reco = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+	reco = {-1, -1, -1, -1, -1, -1};
  
   // -----  MVD + STT Pattern Recognition -----------------------------------
   //  use the constructor with input :
@@ -52,7 +52,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   
   // ----- Barrel Kalman Task     ----------------------------
   PndRecoKalmanTask* recoKalman = NULL;
-  this->Add(recoKalman = new PndRecoKalmanTask()); // 4
+  this->Add(recoKalman = new PndRecoKalmanTask()); // 3
   reco.kPndRecoKalmanTask1 = GetListOfTasks()->GetSize()-1;
   if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
     {
@@ -72,10 +72,24 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   recoKalman->SetTrackRep(0); // 0 Geane (default), 1 RK
   //recoKalman->SetPropagateToIP(kFALSE);
   
+  if (fOptions.Contains("filtered")){
+	  PndMissingPzCleanerTask* cleaner = NULL;
+	  this->Add(cleaner = new PndMissingPzCleanerTask()); //4
+	  reco.kPndTrackCleaner = GetListOfTasks()->GetSize()-1;
+	  if ( (!fOptions.Contains("day1")) || (fOptions.Contains("gem")) )
+	  {
+		  cleaner->SetInputTrackBranch("SttMvdGemGenTrack");
+	  } else {
+		  cleaner->SetInputTrackBranch("SttMvdGenTrack");
+	  }
+	  cleaner->SetRemoveTrack(kTRUE);
+  }
+
   
+
   // -----  FTS Ideal Tracking    ----------------------------
   PndIdealTrackFinder* trackFts = NULL;
-  this->Add(trackFts = new PndIdealTrackFinder()); // 6
+  this->Add(trackFts = new PndIdealTrackFinder()); // 5
   reco.kPndFtsTrackerIdeal = GetListOfTasks()->GetSize()-1;
   trackFts->SetTrackSelector("FtsTrackFunctor");
   trackFts->SetRelativeMomentumSmearing(0.05);
@@ -84,9 +98,10 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   trackFts->SetOutputBranchName("FtsIdealTrack");
   trackFts->SetPersistence(kFALSE);
 
+
   // ----- Forward Kalman Task     ---------------------------
   PndRecoKalmanTask* recoKalmanFwd = NULL;
-  this->Add(recoKalmanFwd = new PndRecoKalmanTask()); // 8
+  this->Add(recoKalmanFwd = new PndRecoKalmanTask()); // 6
   reco.kPndRecoKalmanTask2 = GetListOfTasks()->GetSize()-1;
   recoKalmanFwd->SetTrackInBranchName("FtsIdealTrack");
   //recoKalmanFwd->SetTrackInIDBranchName("FtsIdealTrackID");
@@ -96,6 +111,7 @@ PndMasterRecoTask::PndMasterRecoTask(TString options) :
   //recoKalmanFwd->SetNumIterations(3);
   recoKalmanFwd->SetTrackRep(0); // 0 Geane (default), 1 RK
   //recoKalmanFwd->SetPropagateToIP(kFALSE);
+
 
   SetVerbose(0);
 }
@@ -113,26 +129,21 @@ void PndMasterRecoTask::SetPersistency(Bool_t pers)
       ((PndSttMvdGemTracking*)GetListOfTasks()->At(reco.kPndSttMvdGemTracking))->SetPersistence(pers);
     }
   
-  // ----- MC Association #1 ---------------------------------
-//  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator1))->SetPersistence(pers);
   
   // ----- Barrel Kalman Task     ----------------------------
   ((PndRecoKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask1))->SetPersistence(pers);
-  
-  // ----- MC Association #2 ---------------------------------
-//  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator2))->SetPersistence(pers);
+
+  ((PndMissingPzCleanerTask*)GetListOfTasks()->At(reco.kPndTrackCleaner))->SetPersistence(pers);
+
+
   
   // -----  FTS Ideal Tracking    ----------------------------
   ((PndIdealTrackFinder*)GetListOfTasks()->At(reco.kPndFtsTrackerIdeal))->SetPersistence(pers);
 
-  // ----- MC Association #3 ---------------------------------
-//  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator3))->SetPersistence(pers);
 
   // ----- Forward Kalman Task     ---------------------------
   ((PndRecoKalmanTask*)GetListOfTasks()->At(reco.kPndRecoKalmanTask2))->SetPersistence(pers);
 
-  // ----- MC Association #4 ---------------------------------
-//  ((PndMCTrackAssociator*)GetListOfTasks()->At(reco.kPndMCTrackAssociator4))->SetPersistence(pers);
 
   return;
 }

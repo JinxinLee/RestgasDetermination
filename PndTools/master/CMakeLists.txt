@@ -12,6 +12,10 @@ Set(SYSTEM_INCLUDE_DIRECTORIES
 Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/PndTools/master
   ${CMAKE_SOURCE_DIR}/PndTools/generalTools
+  ${CMAKE_SOURCE_DIR}/PndTrackers/PndTrackingTools
+  ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
+  ${CMAKE_SOURCE_DIR}/PndTrackers/CentralTracking
+  ${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/pgenerators
   ${CMAKE_SOURCE_DIR}/pgenerators/eventFilter
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00	
@@ -52,10 +56,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pnddata/FtsData
   ${CMAKE_SOURCE_DIR}/pnddata/PidData
   ${CMAKE_SOURCE_DIR}/pnddata/RichData
-  ${CMAKE_SOURCE_DIR}/PndTrackers/CentralTracking
-  ${CMAKE_SOURCE_DIR}/PndTrackers/sttmvdtracking
   ${CMAKE_SOURCE_DIR}/fts/FtsTracking
-  ${CMAKE_SOURCE_DIR}/PndTrackers/PndIdealTrackFinder
+  ${CMAKE_SOURCE_DIR}/PndMCMatchNewLinks
   ${CMAKE_SOURCE_DIR}/GenfitTools/recotasks
   ${CMAKE_SOURCE_DIR}/genfit
   ${CMAKE_SOURCE_DIR}/pid/PidCorr
@@ -91,6 +93,6 @@ set(LINKDEF  MasterLinkDef.h)
 set(LIBRARY_NAME Master)
 
 # set(DEPENDENCIES Base generalTools MvdReco Tracking SttMvdTracking MCMatch RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect FtfGenDirect)
-set(DEPENDENCIES Base generalTools MvdReco CentralTracking SttMvdTracking IdealTrackFinder RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect)
+set(DEPENDENCIES Base generalTools MvdReco CentralTracking IdealTrackFinder SttMvdTracking MCMatchNewLinks RecoTasks Pid Field Mvd SciT Drc Dsk Mdt Rich PGen EvtGenDirect TrackingTools)
 
 GENERATE_LIBRARY() 
