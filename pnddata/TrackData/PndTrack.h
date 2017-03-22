@@ -97,7 +97,7 @@ private:
 	TRef fRefToPndTrackCand;
 
 	Int_t fPidHypo;
-	Int_t fFlag;
+	Int_t fFlag;		///< recotasks: -10 if Pz < 1e-9, -2 if conversion error, -22 if PdgCode == 0
 	Double_t fChi2;
 	Int_t fNDF;
         Int_t fRefIndex;
