@@ -69,7 +69,7 @@ include(CheckCompiler)
 include(CheckFortran)
 
 
-Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wall -Wextra")
+Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wall -Wextra -Wnon-virtual-dtor")
 #Check the compiler and set the compile and link flags
 If(NOT CMAKE_BUILD_TYPE)
   Message("Set BuildType DEBUG")
