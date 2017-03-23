@@ -42,7 +42,7 @@ class StandardTrackFunctor : public PndTrackFunctor
 	}
 
 	void Print(){
-		std::cout << "StandardTrackFunctor: > 3 Hits in MVD or > 5 Hits in (MVD+Stt)" << std::endl;
+		std::cout << "StandardTrackFunctor: > 3 Hits in MVD or > 5 Hits in (MVD+Stt+GEM)" << std::endl;
 	}
 };
 
