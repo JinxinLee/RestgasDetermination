@@ -176,6 +176,7 @@ LmdPairFinderTask::LmdPairFinderTask() : PndSdsTask("pairfinder") {
 
 LmdPairFinderTask::LmdPairFinderTask(const char* name)  : PndSdsTask("pairfinder with name") {
 	mcPixels = NULL;
+  if(name!="") SetName(name);
 }
 
 LmdPairFinderTask::~LmdPairFinderTask() {

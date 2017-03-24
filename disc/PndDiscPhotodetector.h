@@ -23,6 +23,7 @@ public:
 
     DiscDIRC_Photodetector();
     DiscDIRC_Photodetector(DesignID id);
+    virtual ~DiscDIRC_Photodetector(){};
 
     void SetPDE(int n_entries, const double * wavelength_nm, const double * pde)
     {

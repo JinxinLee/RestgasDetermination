@@ -46,7 +46,7 @@ InitStatus PndMissingPzCleanerTask::Init() {
 
 }
 
-void PndMissingPzCleanerTask::Exec(Option_t *opt) {
+void PndMissingPzCleanerTask::Exec(Option_t *) {
 
 //	if (fVerbose > 0) {
 //		std::cout << "============= Begin PndMissingPzCleanerTask::Exec" << std::endl;

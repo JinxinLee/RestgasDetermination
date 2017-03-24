@@ -244,8 +244,8 @@ Int_t PndTrackingQA::AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& tr
 			FairLink myLink = sortedMCTracks[j];
             if (fMCIdIdealTrackId.count(myLink.GetIndex()) > 0){
                 PndTrackCand* myIdealTrack = ((PndTrack*)fIdealTrack->At(fMCIdIdealTrackId[myLink.GetIndex()]))->GetTrackCandPtr();
-//                std::cout << "Ideal Tracking: Track " << myLink.GetIndex() << ": ";
-//                PrintTrackDataSummary(*myIdealTrack->GetPointerToLinks());
+                if (fVerbose > 1) std::cout << "Ideal Tracking: Track " << myLink.GetIndex() << ": ";
+                if (fVerbose > 2) PrintTrackDataSummary(*myIdealTrack->GetPointerToLinks());
             } else {
                 std::cout << "Ideal Tracking: Track " << myLink.GetIndex() << " not available" << std::endl;
             }

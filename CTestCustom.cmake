@@ -34,15 +34,13 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "ignoring return value of 'char* fgets(char*, int, FILE*)'"
         "ignoring return value of 'char* fscanf(char*, int, FILE*)'"
 
-       # -- EvtGen source code, cannot be touched by us 
+        # -- EvtGen source code, cannot be touched by us 
         "pgenerators/EvtGen/EvtGen/R01-03-00/"
         "pgenerators/EvtGen/Photos/"
         "genfit/"
         "genfit2/"
         "Pythia"
         "Weffc"
-#        "lmd/LmdFit/"
-#        "lmd/G__LmdFitDict.cxx"
         "/include/HepMC/"
   )
 

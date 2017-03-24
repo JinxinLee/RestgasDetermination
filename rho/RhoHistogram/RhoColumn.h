@@ -109,7 +109,7 @@ class RhoHTAbsValVector
 
     // This must return the number of the stored elements
     virtual size_t length() const = 0 ;
-
+    virtual ~RhoHTAbsValVector(){};
     // This provides access to the indifidual elements.
     // Index runs from 0 to length()-1. Here () means that we do not requre
     // index checking from it, though the real classe may do what they like.

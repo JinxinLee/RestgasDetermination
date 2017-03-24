@@ -25,7 +25,8 @@ public:
                        double const & pde_init, double const & noise_rate_init, double const & time_res_init);
 
 protected:
-    SensorGridPhotodetector() {} // for use in derived classes
+    SensorGridPhotodetector() {}; // for use in derived classes
+    virtual ~SensorGridPhotodetector() {};
     void Init(SensorGridBase* sensor_grid_, bool per_pixel_traits_, double const & efficiency_init, double const & noise_rate_init, double const & time_res_init);
 
 public:

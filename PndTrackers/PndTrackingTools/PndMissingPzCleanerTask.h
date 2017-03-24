@@ -25,10 +25,10 @@ class PndMissingPzCleanerTask: public FairTask {
 public:
 	PndMissingPzCleanerTask()
 		: FairTask("Missing Pz Track Cleaner Task"), fInputTrackBranch(""), fOutputTrackBranch(""),
-		  fRemoveTrack(kFALSE), fTracks(0), fFilteredTracks(0), fPersistence(kTRUE){ };
+		  fTracks(0), fFilteredTracks(0), fRemoveTrack(kFALSE), fPersistence(kTRUE){ };
 	PndMissingPzCleanerTask(const TString& branchName)
 		: FairTask("Missing Pz Track Cleaner Task"), fInputTrackBranch(branchName), fOutputTrackBranch(""),
-		  fRemoveTrack(kFALSE), fTracks(0), fFilteredTracks(0), fPersistence(kTRUE){ };
+		  fTracks(0), fFilteredTracks(0), fRemoveTrack(kFALSE), fPersistence(kTRUE){ };
 	virtual ~PndMissingPzCleanerTask(){};
 
 	/** Virtual method Init **/
@@ -46,11 +46,11 @@ public:
     void SetPersistence(const Bool_t& val) { fPersistence = val; }
 
 private:
-    TClonesArray* fTracks;
-    TClonesArray* fFilteredTracks;
-
     TString fInputTrackBranch;
     TString fOutputTrackBranch;
+
+    TClonesArray* fTracks;
+    TClonesArray* fFilteredTracks;
 
     Bool_t fRemoveTrack; ///< if this flag is set than the track will not be written to the output branch. Otherwise the flag -30 will be set.
     Bool_t fPersistence; ///< sets if the track is stored in the output root tree or not.
