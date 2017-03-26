@@ -17,7 +17,7 @@
 #include <PndLmdAlignManager.h>
 #include <matrix.h>
 
-enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals};
+enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals, kHistPixelDistances};
 
 struct histParams{
 	bool printCMPXinPathName=true;

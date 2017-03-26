@@ -64,8 +64,8 @@ public:
 	// add pair, make to vector
 	//void addPair(PndLmdHitPair &pair);
 
-	// add simplified pair, for size and perfomance reasons
-	void addSimplePair(PndLmdHitPair &pair);
+	// add simplified pair, for size and perfomance reasons, return false if aligner has enough pairs, return true if successful
+	bool addSimplePair(PndLmdHitPair &pair);
 
 	//TODO: remove this after checks
 	// add simplified pair, for size and perfomance reasons

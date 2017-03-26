@@ -38,6 +38,15 @@ using std::string;
 
 boost::mutex incrementMutex;
 
+boost::thread_group alignerThreadGroup;
+
+//static boost::mutex addPairMutex;
+
+//good idea, but doesn't work as expected. remove as soon as possible
+//boost::shared_ptr< boost::asio::io_service > manIOService(new boost::asio::io_service);
+//boost::shared_ptr< boost::asio::io_service::work > manWork(new boost::asio::io_service::work( *manIOService ));
+//boost::thread_group manWorkerThreads;
+
 void PndLmdAlignManager::resetMTLB(int n, int r, int w){
 	_i=0;
 	_n=n;
@@ -98,7 +107,7 @@ void PndLmdAlignManager::init(){
 
 	_zIsTimestamp=true;
 	_allFilesAdded=false;
-	_useSimpleStorage=true;
+	useSimpleStorage=true;
 	_singleAligner=true;
 	_pretend=false;
 	_inCentimeters=false;
@@ -106,8 +115,8 @@ void PndLmdAlignManager::init(){
 	_multithreaded=true;
 
 	//int overlapId=-1;
-	_fileNames.clear();
-	_aligners.clear();
+	fileNames.clear();
+	aligners.clear();
 
 	/*FIXME: this old code was used to add another, random transformation matrix. It should no longer be needed.
 	Matrix matrix1 = Matrix::rotMatX(M_PI/16);
@@ -138,7 +147,12 @@ void PndLmdAlignManager::init(){
 		tempAligner.setZasTimetamp(_zIsTimestamp);
 		tempAligner.setNumericCorrection(_enableHelperMatrix);
 		tempAligner.setInCentimeters(_inCentimeters);
-		_aligners[overlapId]=tempAligner;
+		aligners[overlapId]=tempAligner;
+	}
+
+	// we just started, all aligners are empty
+	for(size_t i=0; i<overlapIDs.size(); i++){
+		alignersFull[overlapIDs[i]] = false;
 	}
 
 	outFilename="";
@@ -151,16 +165,19 @@ PndLmdAlignManager::~PndLmdAlignManager(){
 
 bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 
-	//TODO: add mutex for multi threaded operation AFTER check, only for storing
-	/*
-	 * multi threaded hint: the map is always only read, not written to. there should be
-	 * no race conditions. instead, move the mutex to the actual aligner. it should be local to an aligner,
-	 * so that aligner A doesnt block aligner B.
-	 */
+	bool success = false;
+
+	// check if the aligner for that pair is full. if yes, skip this pair.
+	// do this even before checking that pair, saves on cpu time.
+	if(alignersFull[pair.getOverlapId()]){
+		return false;
+	}
+
 	pair.check();
 	if(pair.isSane() ){
-		if(_useSimpleStorage){
-			_aligners[pair.getOverlapId()].addSimplePair(pair);
+		if(useSimpleStorage){
+			success = aligners[pair.getOverlapId()].addSimplePair(pair);	//returns true if addPair succeeded
+			alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
 		}
 		else{
 			//_aligners[pair.getOverlapId()].addPair(pair);
@@ -168,14 +185,68 @@ bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 		}
 	}
 	else{
-		cout << "pair failed.\n";
+		cout << "pair is not sane. processing failed.\n";
+		success = false;
 	}
-	return true;
+
+	return success;
+}
+
+bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair){
+
+	bool success = false;
+
+	// check if the aligner for that pair is full. if yes, skip this pair.
+	// do this even before checking that pair, saves on cpu time.
+	if(alignersFull[pair.getOverlapId()]){
+		return false;
+	}
+
+	pair.check();
+	if(pair.isSane() ){
+		if(useSimpleStorage){
+			success = aligners[pair.getOverlapId()].addSimplePair(pair);	//returns true if addPair succeeded
+			alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
+		}
+		else{
+			//_aligners[pair.getOverlapId()].addPair(pair);
+			cout << "WARNING! Legacy storage mode is no longer supported.";
+		}
+	}
+	else{
+		cout << "pair is not sane. processing failed.\n";
+	}
+
+	//if pair could not be added, aligner is full. start thread directly.
+	if(!success){
+		//cout << "Aligner " << pair.getOverlapId() << " full. starting!\n";
+		alignerThreadGroup.create_thread(
+				boost::bind(
+						&PndLmdAlignManager::alignOne, this, boost::ref(
+								aligners[pair.getOverlapId()]
+						)
+				)
+		);
+	}
+
+	//check if all aligners are done
+	allAlignersDone=true;
+	for(map<int, bool>::iterator it = alignersFull.begin(); it != alignersFull.end(); it++){
+		if(!(it->second)){
+			allAlignersDone=false;
+			break;
+		}
+	}
+	if(allAlignersDone){
+		cout << "all aligners are already full. no further files will be read.\n";
+	}
+
+	return success;
 }
 
 void PndLmdAlignManager::validate() {
-	std::cout << "using " << _aligners.size() << " aligners, which have:\n";
-	for(mapIt it = _aligners.begin();  it != _aligners.end(); it++){
+	std::cout << "using " << aligners.size() << " aligners, which have:\n";
+	for(mapIt it = aligners.begin();  it != aligners.end(); it++){
 		cout << "id: " << it->second.getModuleID() << " has " << it->second.getNoOfPairs() << " pairs." << std::endl;
 	}
 }
@@ -191,7 +262,7 @@ bool PndLmdAlignManager::addFile(std::string filename) {
 		return false;
 	}
 	else{
-		_fileNames.push_back(filename);
+		fileNames.push_back(filename);
 		return true;
 	}
 }
@@ -203,20 +274,20 @@ int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFile
 	}
 
 	if(_allFilesAdded){
-		return _fileNames.size();
+		return fileNames.size();
 	}
 	else{
 		std::vector<string> list;
 		searchFiles(directory, list, ".root", false);
 		for(size_t i=0;i<list.size();i++){
-			_fileNames.push_back(list[i]);
+			fileNames.push_back(list[i]);
 			if((int)i==maxFiles-1){			//we use == instead of >= so that maxFiles=0 always chooses all files
 				break;
 			}
 		}
 		_allFilesAdded=true;
-		cout << "looking for files in " << directory << ". choose " << _fileNames.size() << " files of maximum of " << maxFiles <<".\n";
-		return _fileNames.size();
+		cout << "looking for files in " << directory << ". choose " << fileNames.size() << " files of maximum of " << maxFiles <<".\n";
+		return fileNames.size();
 	}
 
 }
@@ -234,7 +305,7 @@ void PndLmdAlignManager::readFiles(){
 
 	_allFilesAdded=true;
 
-	int noOfFiles = _fileNames.size();
+	int noOfFiles = fileNames.size();
 	if(noOfFiles > 0){
 		cout << "found " << noOfFiles << " file(s). reading...\n";
 	}
@@ -243,15 +314,11 @@ void PndLmdAlignManager::readFiles(){
 		exit(0);
 	}
 
-	/*
-	 * create multiple chains for multi threaded operation here
-	 */
-
 	TChain* chainPairs = new TChain("cbmsim");
-	for(size_t i=0; i<_fileNames.size(); i++){
+	for(size_t i=0; i<fileNames.size(); i++){
 		//cout << files[i] << endl;
-		if( _fileNames[i].find("Lumi_Pairs") != std::string::npos ){
-			chainPairs->Add(_fileNames[i].c_str());
+		if( fileNames[i].find("Lumi_Pairs") != std::string::npos ){
+			chainPairs->Add(fileNames[i].c_str());
 		}
 	}
 
@@ -260,10 +327,6 @@ void PndLmdAlignManager::readFiles(){
 	chainPairs->SetBranchAddress("PndLmdHitPair", &hitPairs);
 	int nEntries = chainPairs->GetEntries();
 	cout << "HitPairs no of entries: " << nEntries << endl;
-
-	/*
-	 * do this multi threaded over multiple chains
-	 */
 
 	cout << "Sorting Pairs to Manager...\n";
 	int totalPairs=0;
@@ -290,11 +353,212 @@ void PndLmdAlignManager::readFiles(){
 	delete hitPairs;
 }
 
+
+void PndLmdAlignManager::readFilesAndAlign(){
+
+	if(!_firstInitDone){
+		init();
+	}
+
+	if(_pretend){
+		cout << "pretending to read files...\n";
+		return;
+	}
+
+	_allFilesAdded=true;
+
+	int noOfFiles = fileNames.size();
+	if(noOfFiles > 0){
+		cout << "found " << noOfFiles << " file(s). reading...\n";
+	}
+	else{
+		cout << "no files found. exiting.\n";
+		exit(0);
+	}
+
+	TChain* chainPairs = new TChain("cbmsim");
+	for(size_t i=0; i<fileNames.size(); i++){
+		//cout << files[i] << endl;
+		if( fileNames[i].find("Lumi_Pairs") != std::string::npos ){
+			chainPairs->Add(fileNames[i].c_str());
+		}
+	}
+
+	//pairs of sensors in LMD coordinates
+	TClonesArray* hitPairs = new TClonesArray("PndLmdHitPair");
+	chainPairs->SetBranchAddress("PndLmdHitPair", &hitPairs);
+	int nEntries = chainPairs->GetEntries();
+	cout << "HitPairs no of entries: " << nEntries << endl;
+
+	cout << "Sorting Pairs to Manager...\n";
+	int totalPairs=0;
+	for(int i_event=0; i_event<nEntries; i_event++ ){
+
+		loadBar(i_event, nEntries, 1000,60);
+		chainPairs->GetEntry(i_event);
+		int nPairs = hitPairs->GetEntries();
+
+		//loop over hitPairs per Event
+		for(int i_Pair=0; i_Pair<nPairs;i_Pair++){
+			PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs->At(i_Pair);
+
+			
+			if(currentPair->getOverlapId() == 0){
+				cout << "testpair\n";
+				cout << "col1: " << currentPair->getCol1() << "\n";
+				cout << "row1: " << currentPair->getRow1() << "\n";
+				cout << "col2: " << currentPair->getCol2() << "\n";
+				cout << "row2: " << currentPair->getRow2() << "\n";
+			}
+			
+
+
+			addPairAndStartAligner(*currentPair);
+			totalPairs++;
+
+			if(allAlignersDone){
+				return;
+			}
+		}
+	}
+
+	cout << "================================\n";
+	cout << "total Pairs: " << totalPairs << endl;
+	cout << "All done. Running Align Manager.\n";
+	cout << "================================\n";
+
+	delete chainPairs;
+	delete hitPairs;
+}
+
+
+void PndLmdAlignManager::readFilesMT(){
+
+
+	//read N=noOfThreads
+
+	int noOfThreads=1;
+	//noOfThreads = boost::thread::hardware_concurrency();
+	if(noOfThreads<1){
+		noOfThreads=4;
+	}
+
+	//make N vector<string>
+
+	vector< vector<string> > allFiles;
+
+	for(int i=0; i<noOfThreads; i++){
+		allFiles.push_back(vector<string>());
+	}
+
+	int iteratorVec=0;
+	int iteratorFile=0;
+	while(true){
+
+		allFiles[iteratorVec].push_back(fileNames[iteratorFile]);
+
+		//iterate both iterators
+		iteratorFile++;
+		iteratorVec++;
+
+		//check if we are done
+		if(iteratorVec==noOfThreads){
+			iteratorVec=0;
+		}
+		if(iteratorFile==fileNames.size()){
+			break;
+		}
+	}
+
+	int totalFiles=0;
+	for(int i=0; i<allFiles.size(); i++){
+		//cout << "vector " << i << ": " << allFiles[i].size() << "\n";
+		totalFiles += allFiles[i].size();
+	}
+
+	//cout << "we have " << allFiles.size() << " vectors. Total number of files in vectors: " << totalFiles << " \n";
+
+	boost::thread_group threads;
+	for(int i=0; i<noOfThreads; i++){
+		threads.create_thread(
+				boost::bind(
+						readPairsFromChainMT, allFiles[i], boost::ref(aligners), boost::ref(*this)
+				)
+		);
+	}
+	threads.join_all();
+	cout << "all threads done.\n";
+
+	//create N TChains and distribute input files to N TChains
+
+	//concurrently work every TChain
+
+	//every TChain function has its own (reasonably large) buffer for all overlapIDs and 1k pairs
+
+	//if one buffer gets full, flush it to disk (use mutexes)
+
+
+
+
+}
+
+void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager){
+
+	cout << "i am a thread. I have " << files.size() << " files\n";
+
+	int noOfFiles = files.size();
+
+	//for(int i=0; i<files.size(); i++){
+	//	cout << files[i] << "\n";
+	//}
+
+	//return;
+
+	cout << "creating TChain...\n";
+
+	TChain chainPairs("cbmsim");
+	for(size_t i=0; i<files.size(); i++){
+		//cout << files[i] << endl;
+		if( files[i].find("Lumi_Pairs") != std::string::npos ){
+			chainPairs.Add(files[i].c_str());
+		}
+	}
+
+	cout << "creating TClonesArray...\n";
+
+	//pairs of sensors in LMD coordinates
+	TClonesArray hitPairs("PndLmdHitPair");
+	chainPairs.SetBranchAddress("PndLmdHitPair", &hitPairs);
+	int nEntries = chainPairs.GetEntries();
+
+	cout << "looping over events...\n";
+
+	//cout << "Sorting Pairs to Manager...\n";
+	for(int i_event=0; i_event<nEntries; i_event++ ){
+
+		//loadBar(i_event, nEntries, 1000,60);
+		chainPairs.GetEntry(i_event);
+		int nPairs = hitPairs.GetEntries();
+
+		cout << "looping over pairs...\n";
+
+		//loop over hitPairs per Event
+		for(int i_Pair=0; i_Pair<nPairs;i_Pair++){
+			PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs.At(i_Pair);
+			cout << "trying to add pair...\n";
+			//addPairMutex.lock();
+			//manager.addPair(*currentPair);
+			//addPairMutex.unlock();
+		}
+	}
+}
+
+
 void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner){
 	//start aligner, this can be done concurrently
 	aligner.calculateMatrix();
 	//when done, set loadBar +1
-	incrementMTLB();
+	//incrementMTLB();
 }
 
 void WorkerThread( boost::shared_ptr< boost::asio::io_service > io_service ){
@@ -305,9 +569,9 @@ void PndLmdAlignManager::alignST() {
 
 	int cur, tot;
 	cur=0;
-	tot=_aligners.size();
+	tot=aligners.size();
 
-	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 		loadBar(cur++, tot, 1000, 60);
 		it->second.calculateMatrix();
 		if(it->second.successful()){
@@ -327,11 +591,60 @@ void PndLmdAlignManager::alignST() {
 	}
 }
 
+/*
+
+void PndLmdAlignManager::prepareJobQueue(){
+
+
+	//make threads, n is number of threads:
+	int nThreads;
+	nThreads = boost::thread::hardware_concurrency();
+
+	//sometimes hardware_concurrency returns 0 if it can't detect.
+	if(nThreads < 1){
+		cout << "INFO:: could not detect number of cores. assuming 4.\n";
+		nThreads = 4;
+	}
+
+	//create worker threads
+	for(int i=0; i<nThreads; i++){
+		manWorkerThreads.create_thread( boost::bind( &WorkerThread, manIOService) );
+	}
+}
+
+void PndLmdAlignManager::waitForJobQueue(){
+
+	manWork.reset();
+	manWorkerThreads.join_all();
+
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
+		if(it->second.successful()){
+
+			Matrix result = it->second.getResultMatrix();
+			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
+
+			if(!writeMatrix(result, matrixFilename)){
+				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
+			}
+
+			_info << "aligner " << it->second.getOverlapId() << ":\n";
+			_info << "area " << it->second.getId1() << " to " << it->second.getId2() << "\n";
+			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
+			_info << "\n";
+		}
+		else{
+			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
+		}
+	}
+}
+
+ */
+
 void PndLmdAlignManager::alignMT() {
 
-	//new version, multi threaded using thread pool model and boost::asio implementation
+	//new version, multithreaded using thread pool model and boost::asio implementation
 
-	//shared pointer, since io_services cant' be copied
+	//shared pointer, since io_services can't be copied
 	boost::shared_ptr< boost::asio::io_service > io_service(new boost::asio::io_service);
 	boost::shared_ptr< boost::asio::io_service::work > work(new boost::asio::io_service::work( *io_service ));
 
@@ -353,10 +666,10 @@ void PndLmdAlignManager::alignMT() {
 		worker_threads.create_thread( boost::bind( &WorkerThread, io_service ) );
 	}
 
-	resetMTLB(_aligners.size(), _aligners.size(), 60);
+	resetMTLB(aligners.size(), aligners.size(), 60);
 
 	//post work for threads
-	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 
 		/*
 		 * when binding member classes, boost::bind needs the namespace AND the pointer to an object
@@ -369,7 +682,7 @@ void PndLmdAlignManager::alignMT() {
 	work.reset();
 	worker_threads.join_all();
 
-	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 		if(it->second.successful()){
 
 			Matrix result = it->second.getResultMatrix();
@@ -420,7 +733,7 @@ void PndLmdAlignManager::alignAllSensors() {
 	else{
 		of.open(( _matrixOutDir + "/info-px.txt").c_str());
 	}
-	
+
 	of << _info.str();
 	of.close();
 	cout << "all aligners done.\n";
@@ -457,10 +770,10 @@ void PndLmdAlignManager::writeDebugInfoOnAllSensors() {
 
 	int cur, tot;
 	cur=0;
-	tot=_aligners.size();
+	tot=aligners.size();
 
 	//maybe do this multithreaded?
-	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 
 		loadBar(cur++, tot, 1000, 30);
 
@@ -644,13 +957,13 @@ void PndLmdAlignManager::loadBar(int i, int n, int r, int w, std::string message
 
 void PndLmdAlignManager::checkIOpaths() {
 
-	if(_fileNames.size()==0 ){
+	if(fileNames.size()==0 ){
 		//cout << "no pair files specified, are we using binary data?\n";
 	}
-	for(size_t iFile=0; iFile<_fileNames.size(); iFile++){
-		if(!boost::filesystem::exists(_fileNames[iFile])){
+	for(size_t iFile=0; iFile<fileNames.size(); iFile++){
+		if(!boost::filesystem::exists(fileNames[iFile])){
 			cout << "error opening file:";
-			cout << _fileNames[iFile] << "\n";
+			cout << fileNames[iFile] << "\n";
 			exit(1);
 		}
 	}
@@ -849,7 +1162,7 @@ int PndLmdAlignManager::searchDirectories(std::string curr_directory, std::vecto
 
 void PndLmdAlignManager::enableHelperMatrix(bool enable) {
 	_enableHelperMatrix = enable;
-	for(mapIt it = _aligners.begin();  it != _aligners.end(); it++){
+	for(mapIt it = aligners.begin();  it != aligners.end(); it++){
 		it->second.setNumericCorrection(_enableHelperMatrix);
 	}
 	if(_enableHelperMatrix){
@@ -859,14 +1172,14 @@ void PndLmdAlignManager::enableHelperMatrix(bool enable) {
 
 void PndLmdAlignManager::setInCentimeters(bool inCentimeters) {
 	_inCentimeters = inCentimeters;
-	for(mapIt it = _aligners.begin();  it != _aligners.end(); it++){
+	for(mapIt it = aligners.begin();  it != aligners.end(); it++){
 		it->second.setInCentimeters(_inCentimeters);
 	}
 }
 
 void PndLmdAlignManager::setZasTimestamp(bool timestamp) {
 	_zIsTimestamp = timestamp;
-	for(mapIt it = _aligners.begin();  it != _aligners.end(); it++){
+	for(mapIt it = aligners.begin();  it != aligners.end(); it++){
 		it->second.setZasTimetamp(_zIsTimestamp);
 	}
 }
@@ -902,6 +1215,20 @@ void PndLmdAlignManager::transformFromSensorToLmdLocal(Matrix& matrix, int senso
 	Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
 
 	matrix = matLmdToSensor * matrix * matSensorToLmd;
+}
+
+void PndLmdAlignManager::transformFromLmdLocalToSensor(Matrix& matrix, int sensorId, bool aligned) {
+	//create local copy
+	Matrix tempmatrix = Matrix(matrix);
+
+	int half, plane, module, side, die, sensor;
+	dimension->Get_sensor_by_id(sensorId, half, plane, module, side, die, sensor);
+
+	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, aligned);
+	Matrix matSensorToLmd = castTGeoHMatrixToMatrix(sensorToLmd);
+	Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
+
+	matrix = matSensorToLmd *  matrix * matLmdToSensor;
 }
 
 /*
@@ -1244,7 +1571,7 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 void PndLmdAlignManager::setMaxPairs(int maxPairs) {
 
 	if(maxPairs > 0){
-		for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+		for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 			it->second.setMaximumNumberOfHitPairs(maxPairs);
 		}
 		return;
@@ -1296,11 +1623,88 @@ void PndLmdAlignManager::compareCombinedMatrices() {
 }
 
 void PndLmdAlignManager::computeCombinedMatrices() {
-
+	cout << "PndLmdAlignManager::computeCombinedMatrices(): feature not implemented yet.\n";
 
 }
 
-void PndLmdAlignManager::xOption(int ) { // option //FIXME [R.K.03/2017] unused variable(s)
+void PndLmdAlignManager::waitForCompletion() {
+
+	//start all alignsers that have not already started (i.e. don't have required no of Pairs)
+
+	int notStarted=0;
+
+	cout << "starting remaining aligners.\n";
+	for(map<int, bool>::iterator it=alignersFull.begin(); it != alignersFull.end(); it++){
+		if(!(it->second)){
+
+
+			//cout << "starting aligner " << it->first << "\n";
+			//if pair could not be added, aligner is full. start thread directly.
+			alignerThreadGroup.create_thread(
+					boost::bind(
+							&PndLmdAlignManager::alignOne, this, boost::ref(
+									aligners[it->first]
+							)
+					)
+			);
+
+			notStarted++;
+		}
+
+	}
+	cout << notStarted << " aligners remained.\n";
+
+	cout << "jobs queue size : " << alignerThreadGroup.size() << "/360\n";
+	cout << "waiting for all aligners to finish...";
+	//wait for all threads to complete
+	alignerThreadGroup.join_all();
+	cout << "done!\n";
+
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
+		if(it->second.successful()){
+
+			Matrix result = it->second.getResultMatrix();
+			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
+
+			if(!writeMatrix(result, matrixFilename)){
+				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
+			}
+
+			_info << "aligner " << it->second.getOverlapId() << ":\n";
+			_info << "area " << it->second.getId1() << " to " << it->second.getId2() << "\n";
+			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
+			_info << "\n";
+		}
+		else{
+			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
+		}
+	}
+}
+
+Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
+
+	Matrix result = Matrix::eye(4);
+	Matrix shift = Matrix::eye(4);
+	Matrix scale = Matrix::eye(4);
+
+	//correct for pixel corner to center
+	shift.val[0][3] += 0.5;
+	shift.val[1][3] += 0.5;
+
+	//shift from corner to center (this considers inactive area!)
+	shift.val[0][3] -= (247.5 / 2.0);
+	shift.val[1][3] -= (242.5 / 2.0);
+
+	//scale for pixel size
+	scale.val[0][0]  *= 80e-4;
+	scale.val[1][1]  *= 80e-4;
+
+	result = scale * shift;
+
+	return result;
+}
+
+void PndLmdAlignManager::xOption(int option) {
 
 	if(false){
 
@@ -1321,14 +1725,14 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
 	int cur, tot;
 	cur=0;
-	tot=_aligners.size();
+	tot=aligners.size();
 	bool success = true;
 
 	cout << "writing all pairs to binary files\n";
 	mkdir(_binaryPairFileDirectory);
 
 	//maybe do this multithreaded?
-	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 		loadBar(cur++, tot, 1000, 60);
 		if(!it->second.writePairsToBinary(_binaryPairFileDirectory)){
 			success=false;
@@ -1347,13 +1751,13 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 
 	int cur, tot;
 	cur=0;
-	tot=_aligners.size();
+	tot=aligners.size();
 	bool success = true;
 
 	cout << "reading all pairs from binary files\n";
 
 	//maybe do this multithreaded?
-	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 		loadBar(cur++, tot, 1000, 60);
 		if(!it->second.readPairsFromBinary(_binaryPairFileDirectory)){
 			success=false;
@@ -1366,7 +1770,7 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 }
 
 void PndLmdAlignManager::clearPairs() {
-	for(mapIt it=_aligners.begin(); it != _aligners.end(); it++){
+	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 		it->second.clearPairs();
 	}
 }

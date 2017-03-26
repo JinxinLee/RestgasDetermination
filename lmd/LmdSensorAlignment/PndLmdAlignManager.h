@@ -20,6 +20,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 #endif
 
 #include <matrix.h>
@@ -43,22 +44,33 @@ private:
 
 	stringstream _info;
 
-	std::map<int, PndLmdSensorAligner> _aligners;
+	std::map<int, PndLmdSensorAligner> aligners;
+	std::map<int, bool> alignersFull;
 	Matrix helperMatrix;
 	PndLmdDim *dimension;
-	bool _allFilesAdded, _pretend;
-	std::vector<std::string> _fileNames;
-	bool _useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp;
+	bool _allFilesAdded, _pretend, allAlignersDone;
+	std::vector<std::string> fileNames;
+	bool useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp, startAlignerWhenFull;
 	std::string outFilename, _matrixOutDir, _binaryPairFileDirectory;
 	bool _firstInitDone;
 	bool _multithreaded;
 
 	void alignST();
 	void alignMT();
+
+	//   bad idea, remove as soon as possible
+	//void prepareJobQueue();
+	//void waitForJobQueue();
+	//  /bad idea, remove as soon as possible
+
+
 	void alignOne(PndLmdSensorAligner &aligner);
 	void resetMTLB(int n, int r, int w);
 	void incrementMTLB();
 	void checkIOpaths();
+
+	//don't use, doesn't work with root like that
+	static void readPairsFromChainMT(std::vector<std::string> files, std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
 
 	Matrix combineMatrix(int id1, int id2);
 
@@ -77,11 +89,21 @@ public:
 	// initializes Manager on construction or RESETS every value to default
 	void init();
 
+	// returns true if successful or false if aligner has enough pairs
 	bool addPair(PndLmdHitPair &pair);
+
+	//adds pairs just like the other function but starts an aligner if it is full
+	bool addPairAndStartAligner(PndLmdHitPair &pair);
 
 	//add filename, so the aligner adds the pairs itself
 	bool addFile(std::string filename);
 	void readFiles();
+	void readFilesAndAlign();
+	void waitForCompletion();
+
+	//don't use, doesn't work with root like this
+	void readFilesMT();
+
 	bool writePairsToBinaryFiles();
 	bool readPairsFromBinaryFiles();
 	bool checkForBinaryFiles();
@@ -107,8 +129,8 @@ public:
 
 	static void loadBar(int current, int total, int resolution, int width, std::string message="");
 
-	void setSimpleStorage(bool useSimpleStorage) {
-		_useSimpleStorage = useSimpleStorage;
+	void setSimpleStorage(bool val) {
+		useSimpleStorage =  val;
 	}
 	void setMaxPairs(int maxPairs);
 
@@ -125,11 +147,16 @@ public:
 	//only when comparing matrices from misaligned geometry
 	void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId, bool aligned=true);
 
+	void transformFromLmdLocalToSensor(Matrix &matrix, int sensorId, bool aligned=true);
+
 	//returns a Matrix(4,4) from a TGeoHMatrix
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
 
 	//returns a Matrix(4,1) to use with homogenous matrices
 	static Matrix castTVector3toMatrix(const TVector3 &vec);
+
+	//returns a Matrix(4,4) that transforms PX coordinates to CM in teh system of a sensor
+	static Matrix getPixelToCentimeterTransformation();
 
 	//returns the actual matrices from PndLmdDim in LMD Local coordinate system
 	Matrix getMatrixOfficialGeometry(int fromSensor, int toSensor, bool misaligned);
@@ -224,6 +251,10 @@ public:
 
 	void setBinaryPairFileDirectory(const std::string& binaryPairFileDirectory){
 		_binaryPairFileDirectory = binaryPairFileDirectory;
+	}
+
+	void setStartAlignerWhenFull(bool value) {
+		startAlignerWhenFull = value;
 	}
 };
 

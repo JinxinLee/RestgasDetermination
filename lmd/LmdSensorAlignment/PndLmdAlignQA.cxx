@@ -180,7 +180,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.bins=25;
 
 		//for DX
-		parameters.path = pdfdir;
+		parameters.path = pdfdir + "/residuals/";
 		parameters.title = "matrixCM - correctionTarget, #DeltaX";
 		parameters.xtitle = "dX [#mum]";
 		parameters.ytitle = "entries";
@@ -193,7 +193,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 		//for DY
-		parameters.path = pdfdir;
+		//parameters.path = pdfdir;
 		parameters.title = "matrixCM - correctionTarget, #DeltaY";
 		parameters.xtitle = "dY [#mum]";
 		parameters.ytitle = "entries";
@@ -206,7 +206,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 		//for DAlpha
-		parameters.path = pdfdir;
+		//parameters.path = pdfdir;
 		parameters.title = "matrixCM - correctionTarget, #Delta#alpha";
 		parameters.xtitle = "d#alpha [#murad]";
 		parameters.ytitle = "entries";
@@ -261,7 +261,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.bins=25;
 
 		//for DX
-		parameters.path = pdfdir;
+		parameters.path = pdfdir + "/residuals/";
 		parameters.title = "matrixPX(transformed) - senToSenTarget, #DeltaX";
 		parameters.xtitle = "dX [#mum]";
 		parameters.ytitle = "entries";
@@ -274,7 +274,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 		//for DY
-		parameters.path = pdfdir;
+		//parameters.path = pdfdir;
 		parameters.title = "matrixPX(transformed) - senToSenTarget, #DeltaY";
 		parameters.xtitle = "dY [#mum]";
 		parameters.ytitle = "entries";
@@ -287,7 +287,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 		//for DAlpha
-		parameters.path = pdfdir;
+		//parameters.path = pdfdir;
 		parameters.title = "matrixPX(transformed) - senToSenTarget, #Delta#alpha";
 		parameters.xtitle = "d#alpha [#murad]";
 		parameters.ytitle = "entries";
@@ -354,7 +354,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		histParams parameters;
 
 		//for DX
-		parameters.path = pdfdir;
+		parameters.path = pdfdir + "/PXvsCM/";
 		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaX (10u)";
 		parameters.xtitle = "dX [nm]";
 		parameters.ytitle = "entries";
@@ -367,7 +367,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 		//for DY
-		parameters.path = pdfdir;
+		//parameters.path = pdfdir;
 		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaY (10u)";
 		parameters.xtitle = "dY [nm]";
 		parameters.ytitle = "entries";
@@ -380,7 +380,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 		//for DAlpha
-		parameters.path = pdfdir;
+		//parameters.path = pdfdir;
 		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #Delta#alpha (10u)";
 		parameters.xtitle = "d#alpha [nrad]";
 		parameters.ytitle = "entries";
@@ -518,7 +518,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.bins=25;
 
 		//for DX
-		parameters.path = pdfOutPath;
+		parameters.path = pdfOutPath + "/PXvsCMresiduals/";
 		parameters.title = "PXresiduals - CMresiduals, #DeltaX (0u)";
 		parameters.xtitle = "dX [#mum]";
 		parameters.ytitle = "entries";
@@ -531,7 +531,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 		//for DY
-		parameters.path = pdfOutPath;
+		//parameters.path = pdfOutPath;
 		parameters.title = "PXresiduals - CMresiduals, #DeltaY (0u)";
 		parameters.xtitle = "dY [#mum]";
 		parameters.ytitle = "entries";
@@ -544,7 +544,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 		//for DAlpha
-		parameters.path = pdfOutPath;
+		//parameters.path = pdfOutPath;
 		parameters.title = "PXresiduals - CMresiduals, #Delta#alpha (0u)";
 		parameters.xtitle = "d#alpha [#murad]";
 		parameters.ytitle = "entries";
@@ -557,6 +557,54 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		createHist(data, parameters);
 
 	}
+	else if(param==kHistPixelDistances){
+
+		//first, test this
+		int sensorID1=0, sensorID2=5;
+		int col1=22, row1=92;
+                
+                //test pairs;
+		//4,89 - 7,99
+		//10,99 - 6,87
+		//22,92 - 20,86
+
+
+		//this is what we are aiming for
+		int col2=20, row2=86;
+
+		Matrix id = Matrix::eye(4);
+
+		Matrix hit1PX = PndLmdAlignManager::castTVector3toMatrix(TVector3(col1,row1,0));
+		cout << "hit1px is:\n" << hit1PX << "\n";
+
+		Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
+		Matrix CMtoPX = Matrix::inv(PXtoCM);
+
+		Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, true);
+		manager.transformFromLmdLocalToSensor(sen1ToSen2,sensorID1,true);
+		sen1ToSen2.val[2][2]=1.0;
+		sen1ToSen2.val[2][3]=0;
+		Matrix sen1ToSen2inv = Matrix::inv(sen1ToSen2);
+
+		//cout << "you are looking for:\n" << sen1ToSen2 << "\n";
+
+		id.val[0][3]=4;
+		id.val[1][3]=89;
+
+		Matrix hit2PX = CMtoPX * sen1ToSen2 * PXtoCM  * hit1PX;
+		cout << "hit2px is:\n" << hit2PX << "\n";
+		cout << "should be:\n";
+		cout << manager.castTVector3toMatrix(TVector3(col2, row2, 0)) << "\n";
+
+
+
+
+
+
+
+	}
+
+
 
 	/*
 	 * test functions and sandbox

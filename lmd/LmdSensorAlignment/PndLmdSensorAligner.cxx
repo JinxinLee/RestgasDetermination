@@ -440,6 +440,10 @@ void PndLmdSensorAligner::calculateMatrix() {
 	delete tempT;
 	delete finalMatrix;
 
+	//aligner is done, pairs can be cleared.
+	//cout << "aligner done, clearing.\n";
+	clearPairs();
+
 	return;
 }
 
@@ -497,24 +501,24 @@ void PndLmdSensorAligner::addPair(PndLmdHitPair &pair){
 }
  */
 
-void PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
+bool PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 
 	//only one kind of pairs is allowed
 	if(!_simpleStorage){
-		return;
+		return false;
 	}
 
 	if((int)simpleSensorOneX.size() >= _maxNoOfPairs){
 		// add no more
-		return;
+		return false;
 	}
 
-	pair.check();
-	if(!pair.isSane()){
-		//cerr << "Warning! HitPair is not sane.\n";
-		nonSanePairs++;
-		return;
-	}
+	//pair.check();		//not needed anymore, Alignmanger does this
+	//if(!pair.isSane()){
+	//	//cerr << "Warning! HitPair is not sane.\n";
+	//	nonSanePairs++;
+	//	return false;
+	//}
 
 	//use ID info from first pair
 	if(simplePairsSensorOne.size()==0){
@@ -534,7 +538,7 @@ void PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 		else{
 			cout << "invalid pair! need to skip. \n";
 			skippedPairs++;
-			return;
+			return false;
 		}
 	}
 
@@ -557,6 +561,7 @@ void PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 		simpleSensorTwoY.push_back(pair.getRow2());
 		simpleSensorTwoZ.push_back(simpleSensorTwoZ.size());	//vecor grows, so this is okay
 	}
+	return true;
 }
 
 //TODO: this code is old an can go
