@@ -437,7 +437,7 @@ void PndLmdAlignManager::readFilesMT(){
 
 	//read N=noOfThreads
 
-	int noOfThreads=1;
+	size_t noOfThreads=1;
 	//noOfThreads = boost::thread::hardware_concurrency();
 	if(noOfThreads<1){
 		noOfThreads=4;
@@ -447,12 +447,12 @@ void PndLmdAlignManager::readFilesMT(){
 
 	vector< vector<string> > allFiles;
 
-	for(int i=0; i<noOfThreads; i++){
+	for(size_t i=0; i<noOfThreads; i++){
 		allFiles.push_back(vector<string>());
 	}
 
-	int iteratorVec=0;
-	int iteratorFile=0;
+	size_t iteratorVec=0;
+	size_t iteratorFile=0;
 	while(true){
 
 		allFiles[iteratorVec].push_back(fileNames[iteratorFile]);
@@ -471,7 +471,7 @@ void PndLmdAlignManager::readFilesMT(){
 	}
 
 	int totalFiles=0;
-	for(int i=0; i<allFiles.size(); i++){
+	for(size_t i=0; i<allFiles.size(); i++){
 		//cout << "vector " << i << ": " << allFiles[i].size() << "\n";
 		totalFiles += allFiles[i].size();
 	}
@@ -479,7 +479,7 @@ void PndLmdAlignManager::readFilesMT(){
 	//cout << "we have " << allFiles.size() << " vectors. Total number of files in vectors: " << totalFiles << " \n";
 
 	boost::thread_group threads;
-	for(int i=0; i<noOfThreads; i++){
+	for(size_t i=0; i<noOfThreads; i++){
 		threads.create_thread(
 				boost::bind(
 						readPairsFromChainMT, allFiles[i], boost::ref(aligners), boost::ref(*this)
@@ -502,11 +502,11 @@ void PndLmdAlignManager::readFilesMT(){
 
 }
 
-void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager){
+void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &, PndLmdAlignManager &){//PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager  //[R.K.03/2017] unused
 
 	cout << "i am a thread. I have " << files.size() << " files\n";
 
-	int noOfFiles = files.size();
+	//int noOfFiles = files.size(); //[R.K.03/2017] unused
 
 	//for(int i=0; i<files.size(); i++){
 	//	cout << files[i] << "\n";
@@ -544,7 +544,7 @@ void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, Pnd
 
 		//loop over hitPairs per Event
 		for(int i_Pair=0; i_Pair<nPairs;i_Pair++){
-			PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs.At(i_Pair);
+			//PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs.At(i_Pair); //[R.K.03/2017] unused
 			cout << "trying to add pair...\n";
 			//addPairMutex.lock();
 			//manager.addPair(*currentPair);
@@ -1704,7 +1704,7 @@ Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
 	return result;
 }
 
-void PndLmdAlignManager::xOption(int option) {
+void PndLmdAlignManager::xOption(int ) {//option //[R.K.03/2017] unused
 
 	if(false){
 
