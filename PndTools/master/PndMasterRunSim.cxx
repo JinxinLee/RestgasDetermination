@@ -226,7 +226,7 @@ void PndMasterRunSim::CreateGeometryDay1()
   AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+  Drc->SetGeometryFileName("dirc_e3_b3_l6_m40.root");
   Drc->SetRunCherenkov(kFALSE);
   AddModule(Drc);
   //-------------------------  MDT       -----------------

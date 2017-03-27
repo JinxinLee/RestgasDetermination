@@ -5,7 +5,7 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+void sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
   TString  OutputFile     ="sim_complete.root";
@@ -16,7 +16,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
                                        // choose your event generator
   Bool_t UseEvtGenDirect      =kTRUE;
   Bool_t UseDpm 	      =kFALSE;
-  Bool_t UseFtf 	      =kFALSE;
+  Bool_t UseFtf 	      =kFALSE;  // if Geant4 is used, the FTF part has to be commented out!
   Bool_t UseBoxGenerator      =kFALSE;
   
   Double_t BeamMomentum = 0.; // beam momentum ONLY for the scaling of the dipole field.
@@ -107,7 +107,7 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+  Drc->SetGeometryFileName("dirc_e3_b3_l6_m40.root");
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc);
   //-------------------------  DISC      -----------------
@@ -155,13 +155,13 @@ sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6
     PndDpmDirect *Dpm= new PndDpmDirect(mom,1);
     primGen->AddGenerator(Dpm);
   }
-  if(UseFtf){																				//the lines of Ftf have to be commented out if
-    //          TString macfile = gSystem->Getenv("VMCWORKDIR");							//you want to run Geant4 with this macro
-    //	  macfile += "/pgenerators/FtfEvtGen/PbarP.mac";									//
-    //	  PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());								//
-    PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", mom, 123456);	//
-    primGen->AddGenerator(Ftf);																//
-  }																							//
+  if(UseFtf){													//the lines of Ftf have to be commented out if
+    //  TString macfile = gSystem->Getenv("VMCWORKDIR");	    //you want to run Geant4 with this macro
+    //	macfile += "/pgenerators/FtfEvtGen/PbarP.mac";			//
+    //	PndFtfDirect *Ftf = new PndFtfDirect(macfile.Data());	//
+    //PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", mom, 123456);	//
+    //primGen->AddGenerator(Ftf);								       	//
+  }										        	//
   if(UseEvtGenDirect){
     TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
     EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
