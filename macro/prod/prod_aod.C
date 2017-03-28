@@ -10,6 +10,7 @@ int prod_aod(TString prefix="")
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
   TString  output         = "pid";
+  TString  opt            = "";
   
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
@@ -17,6 +18,7 @@ int prod_aod(TString prefix="")
   fRun->SetOutput(output);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
+  if (opt!="") fRun->SetOptions(opt);
 
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddDigiTasks(kFALSE);

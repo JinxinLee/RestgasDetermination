@@ -23,6 +23,7 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
     cout << "                FTF settings: FTF  = inel. + elastic, FTF1 = inelastic only\n";
     cout << "                BOX settings: type[pdgcode,mult] and optional ranges 'p/tht/phi[min,max]' separated with colon; example: 'BOX:type[211,1]:p[1,5]:tht[45]:phi[90,210]'\n";    
     cout << "   <pbeam>    : pbar momentum (for BOX generator it still controls the magnetic field) \n\n";
+    //    cout << "   <opt>      : option string for PndRunAna (e.g. \"day1\")\n\n";
     cout << "Example 1 : root -l -b -q 'prod_sim.C(\"EvtD0D0b\", 100, \"D0toKpi.dec:pbarpSystem0\", 12.)'\n";
     cout << "Example 2 : root -l -b -q 'prod_sim.C(\"DpmInel\",  100, \"DPM\", 12.)'\n";
     cout << "Example 3 : root -l -b -q 'prod_sim.C(\"SingleK\",  100, \"BOX:type[321,1]:p[0.1,10]:tht[22,140]:phi[0,360]\", 12.)'\n\n";
@@ -32,6 +33,9 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
 
   // set random random seed
   gRandom->SetSeed();
+
+  // runsim option
+  TString opt="";
   
   double mp = 0.938272;
 	
@@ -65,6 +69,7 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->SetNumberOfEvents(nEvents);
   fRun->SetBeamMom(pbeam);
+  if (opt!="") fRun->SetOptions(opt);
   // -----  Initialization   ------------------------------------------------
   fRun->Setup(prefix);
   // -----   Geometry   -----------------------------------------------------

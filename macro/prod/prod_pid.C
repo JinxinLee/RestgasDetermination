@@ -5,6 +5,7 @@ int prod_pid(TString prefix="")
   TString  output         = "pid";
   TString  friend1        = "digi";
   TString  friend2        = "reco";
+  TString  opt            = "";
   
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
@@ -14,6 +15,7 @@ int prod_pid(TString prefix="")
   fRun->SetFriend2(friend2);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
+  if (opt!="") fRun->SetOptions(opt);
   
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddPidTasks();

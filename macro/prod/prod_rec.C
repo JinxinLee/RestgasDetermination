@@ -4,6 +4,7 @@ int prod_rec(TString prefix="")
   TString  parAsciiFile   = "all.par";
   TString  output         = "reco";
   TString  friend1        = "digi";
+  TString  opt            = "";
  
   // -----   Initial Settings   --------------------------------------------
   PndMasterRunAna *fRun= new PndMasterRunAna();
@@ -12,6 +13,7 @@ int prod_rec(TString prefix="")
   fRun->SetFriend1(friend1);
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->Setup(prefix);
+  if (opt!="") fRun->SetOptions(opt);
   
   // -----   Add tasks   ----------------------------------------------------
   fRun->AddRecoTasks();
