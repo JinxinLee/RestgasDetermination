@@ -28,10 +28,13 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-
+# the working directory
 nyx=$VMCWORKDIR"/macro/prod"
+
+# the data store
 _target=$nyx"/data/"
 
+# default parameter settings
 prefix=mysim
 nevt=20
 dec="D0toKpi.dec"
@@ -40,9 +43,13 @@ ana=""
 mode=0
 run=$SLURM_ARRAY_TASK_ID
 
+#create and change to a temporary directory to run root 
 tmpdir="/tmp/"$USER"_"$SLURM_JOB_ID"/"
 mkdir $tmpdir
+cd $tmpdir
 
+
+# check which parameters are set
 if test "$1" != ""; then
   prefix=$1
 fi
@@ -67,28 +74,37 @@ if test "$6" != ""; then
   mode=$6
 fi
 
-outprefix=$tmpdir$prefix"_"$run
+# if local dec-file given, prepend the absolute path to it
+if test "$dec" != ""; then
+  if [[ $dec != \/* ]] ; then
+	dec=$nyx"/"$dec
+  fi
+fi
+
+# the prefix with appendend run number ($SLURM_ARRAY_TASK_ID)
+outprefix=$prefix"_"$run
 pidfile=$outprefix"_fsim.root"
 
+#
+# run the simulation
+#
 root -l -q -b $nyx"/"prod_fsim.C\(\"$outprefix\",$nevt,\"$dec\",$mom\) &> $outprefix"_fsim.log"
 
-# run analysis stage in addition
+# optionally run analysis stage in addition
 if [[ $ana == *"ana"* ]]; then
     root -l -q -b $nyx"/"prod_ana.C\(\"$pidfile\",0,0,$mode,0\) &> $outprefix"_fana.log"
-
+	
     cp  $outprefix"_fana.log" $_target
     cp  $outprefix"_fsim_ana.root" $_target
-    
-    # tidy up
-    rm  $outprefix"_fana.log"
-    rm  $outprefix"_fsim_ana.root"
 fi
    
-cp  $outprefix"_fsim.log" $_target
-cp  $outprefix"_fsim.root" $_target
+# ls in tmpdir to appear in slurmlog
+ls -ltrh $tmpdir
+   
+# move outputs to target dir
+mv  $outprefix"_fsim.log" $_target
+mv  $outprefix"_fsim.root" $_target
 
 # tidy up
-rm  $outprefix"_fsim.log"
-rm  $outprefix"_fsim.root"
-
+rm -rf $tmpdir
 

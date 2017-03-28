@@ -11,7 +11,7 @@ int merge(TString ntp="", TString fout="", TString f1="", TString f2="", TString
 		cout <<"   ...\n";
 		cout <<"   filepattern 2 : 5th file pattern (optional).\n\n";
 		
-		return;
+		return 0;
 	}
 	
 	TChain n(ntp);
@@ -23,5 +23,6 @@ int merge(TString ntp="", TString fout="", TString f1="", TString f2="", TString
 	if (f5!="") n.Add(f5);
 	
 	n.Merge(fout);
-  return 0;
+    
+	return 0;
 }

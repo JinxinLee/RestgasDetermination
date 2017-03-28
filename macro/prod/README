@@ -251,7 +251,8 @@ with parameters
  [mode]      - Optional mode number for analysis. Stored in TTree produced by PndSimpleCombinerTask when using ana_prod.C.
 
 
-Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if save=="saveall") and log files,
+Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if opt "savesim" specified, and 
+data<prefix>_<run>_pid_ana.root, if save=="savesim") and log files,
 with <run> running from <min> to <max>. 
 
 

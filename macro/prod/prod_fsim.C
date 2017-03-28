@@ -28,7 +28,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 		cout << "Example 2 : root -l -b -q 'prod_fsim.C(\"DpmInel\",  100, \"DPM\", 12.)'\n";
 		cout << "Example 3 : root -l -b -q 'prod_fsim.C(\"SingleK\",  100, \"BOX:type[321,1]:p[0.1,10]:tht[22,140]:phi[0,360]\", 12.)'\n\n";
 		
-		return;
+		return 0;
 	}
 	
 	// persist fast sim output?

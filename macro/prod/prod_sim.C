@@ -28,7 +28,7 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
     cout << "Example 2 : root -l -b -q 'prod_sim.C(\"DpmInel\",  100, \"DPM\", 12.)'\n";
     cout << "Example 3 : root -l -b -q 'prod_sim.C(\"SingleK\",  100, \"BOX:type[321,1]:p[0.1,10]:tht[22,140]:phi[0,360]\", 12.)'\n\n";
     
-    return;
+    return 0;
   }
 
   // set random random seed
@@ -91,6 +91,7 @@ int prod_sim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_
   fRun->Init();
   fRun->Run(nEvents); 
   fRun->Finish();
+  
   return 0;
 }  
   

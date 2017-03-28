@@ -22,7 +22,7 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 		cout << "   <to>       : last run number\n";
 		cout << "   [mode]     : arbitrary mode number; default: 0\n";
 		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
-		return;
+		return 0;
 	}
 	
 	// ****************************************

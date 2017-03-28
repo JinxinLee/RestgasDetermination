@@ -5,7 +5,7 @@ int prod_aod(TString prefix="")
     cout << "USAGE:\n";
     cout << "prod_aod.C( <pref> )\n\n";
     cout << "   <pref>     : input/output file names prefix\n\n";    
-    return;
+    return 0;
   }
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";

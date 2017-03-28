@@ -34,13 +34,13 @@ int compress(TString ntp="", TString fnamein="", TString fnameout="", TString bn
 		cout <<"  bnames  : blank separated list of branch variable names to be copied; can make use of name* / *name /*name*; !(*)name(*) excludes variables (default = \"*\").\n";
 		cout <<"  precut  : cut to be applied before compressing branches (default = \"\"). Either bnames!=\"*\" or precut!=\"\".\n\n";
 	
-		return;
+		return 0;
 	}
 	
 	if (bnames=="*" && precut=="") 
 	{
 		cout <<"Nothing to compress. Exiting."<<endl;
-		return;
+		return 0;
 	}
 	
 	TFile *fi = new TFile(fnamein,"READ");
@@ -91,5 +91,6 @@ int compress(TString ntp="", TString fnamein="", TString fnameout="", TString bn
 	fo->Write();
 	fo->Close();
 	fi->Close();
-  return 0;
+    
+	return 0;
 }

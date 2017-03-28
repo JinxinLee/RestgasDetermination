@@ -28,10 +28,13 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-
+# the working directory
 nyx=$VMCWORKDIR"/macro/prod"
+
+# the data store
 _target=$nyx"/data/"
 
+# default parameter settings
 prefix=mysim
 nevt=20
 dec="D0toKpi.dec"
@@ -40,9 +43,12 @@ opt=""
 mode=0
 run=$SLURM_ARRAY_TASK_ID
 
+#create and change to a temporary directory to run root 
 tmpdir="/tmp/"$USER"_"$SLURM_JOB_ID"/"
 mkdir $tmpdir
+cd $tmpdir
 
+# check which parameters are set
 if test "$1" != ""; then
   prefix=$1
 fi
@@ -67,23 +73,37 @@ if test "$6" != ""; then
   mode=$6
 fi
 
+# if local dec-file given, prepend the absolute path to it
+if test "$dec" != ""; then
+  if [[ $dec != \/* ]] ; then
+	dec=$nyx"/"$dec
+  fi
+fi
 
-outprefix=$tmpdir$prefix"_"$run
+# the prefix with appendend run number ($SLURM_ARRAY_TASK_ID)
+outprefix=$prefix"_"$run
 pidfile=$outprefix"_pid.root"
 
+#
+# run the simulation
+#
 root -l -q -b $nyx"/"prod_sim.C\(\"$outprefix\",$nevt,\"$dec\",$mom\) &> $outprefix"_sim.log"
 
-# copy output to storage element
+# optionally copy output to storage element
 if [[ $opt == *"savesim"* ]]; then
    cp  $outprefix"_sim.log" $_target
    cp  $outprefix"_sim.root" $_target
 fi
    
+#
+# run the reco
+#
 root -l -b -q $nyx"/"prod_aod.C\(\"$outprefix\"\) &> $outprefix"_pid.log"
 
 # if opt contains 'ana', also run analysis
 if [[ $opt == *"ana"* ]]; then
    root -l -q -b $nyx"/"prod_ana.C\(\"$pidfile\",0,0,$mode,0\) &> $outprefix"_ana.log"
+   
    cp $outprefix"_ana.log" $_target
    cp $outprefix"_pid_ana.root" $_target
 fi
@@ -91,20 +111,16 @@ fi
 # copy number of generated events from FairFilteredPrimaryGenerator in ...sim.log to ...pid.log
 NUMEV=`grep 'Generated Events' $outprefix"_sim.log"`
 echo $NUMEV >> $outprefix"_pid.log"
+
+# ls in tmpdir to appear in slurmlog
+ls -ltrh $tmpdir
    
-cp  $outprefix"_par.root" $_target
-cp  $outprefix"_pid.log" $_target
-cp  $outprefix"_pid.root" $_target
+# move outputs to target dir
+mv  $outprefix"_par.root" $_target
+mv  $outprefix"_pid.log" $_target
+mv  $outprefix"_pid.root" $_target
 
 # tidy up
-rm  $outprefix"_par.root"
-rm  $outprefix"_sim.log"
-rm  $outprefix"_pid.log"
-rm  $outprefix"_sim.root"
-rm  $outprefix"_pid.root"
+rm -rf $tmpdir
 
-if [[ $opt == *"ana"* ]]; then
-   rm  $outprefix"_pid_ana.root"
-   rm  $outprefix"_ana.log"
-fi
 

@@ -22,7 +22,7 @@ int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 		cout << "   <to>       : last run number\n";
 		cout << "   [mode]     : arbitrary mode number; default: 0\n";
 		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
-		return;
+		return 0;
 	}
 	
 	bool fastsim = true;	
@@ -115,5 +115,6 @@ int prod_myana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	cout << "[INFO   ] CPU usage        : " << cpuUsage*100. << "%" << endl;
 	cout << "[INFO   ] Max Memory       : " << maxMemory << " MB" << endl;
 	cout << "[INFO   ] Macro finished successfully." << endl<<endl;
-  return 0;
+    
+	return 0;
 }
