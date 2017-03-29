@@ -50,3 +50,7 @@ root -l -b -q 'quickana.C("signal_fast.root", 6.232, "J/psi->mu+ mu-;pbarpSystem
 root -l -b -q 'quickfsimana.C("signal", "pp_jpsi2pi_jpsi_mumu.dec", 6.232, "J/psi -> mu+ mu-; pbarpSystem -> J/psi pi+ pi-", 1000, "fit4c:fitvtx:mwin=0.8")' # ==> signal_0_ana.root  (1000 ev)
 root -l -b -q 'quickfsimana.C("bkg", "DPM", 6.232, "J/psi -> mu+ mu-; pbarpSystem -> J/psi pi+ pi-", 10000, "fit4c:fitvtx:mwin=0.8")'                        # ==> bkg_o_ana.root    (10000 ev)
 
+# Submit quickfsimana jobs to kronos
+sbatch -a1-10 jobquickfa_kronos.sh MySig 'quickfsimana.C("PREFIX","pp_jpsi2pi_jpsi_mumu.dec",7.0,"J/psi->e+ e-;pbp0->J/psi pi+ pi-",10,"fit4c:fitvtx:mwin=0.8",0,RUN)'
+sbatch -a1-10 jobquickfa_kronos.sh MyBkg 'quickfsimana.C("PREFIX","DPM",7.0,"J/psi->e+ e-;pbp0->J/psi pi+ pi-",10,"fit4c:fitvtx:mwin=0.8",0,RUN)'
+
