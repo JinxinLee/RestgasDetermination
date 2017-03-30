@@ -44,10 +44,10 @@ mode=0
 run=$SLURM_ARRAY_TASK_ID
 
 #create and change to a temporary directory to run root 
-tmpdir="/tmp/"$USER"_"$SLURM_JOB_ID"/"
+tmpdir="/tmp/"$USER"_"$SLURM_JOB_ID"_"$run"/"
 mkdir $tmpdir
 cd $tmpdir
-
+echo "tmpdir is "$tmpdir
 
 # check which parameters are set
 if test "$1" != ""; then
@@ -80,6 +80,8 @@ if test "$dec" != ""; then
 	dec=$nyx"/"$dec
   fi
 fi
+
+echo "Using decay file "$dec
 
 # the prefix with appendend run number ($SLURM_ARRAY_TASK_ID)
 outprefix=$prefix"_"$run

@@ -43,6 +43,7 @@ else
 
 my $linecnt=0;
 my $totresub=0;
+my @resubs;
 
 # for each entry in the commands array
 foreach my $cmd (@commands)
@@ -127,10 +128,19 @@ foreach my $cmd (@commands)
 		# print out the submit command
 		my $recmd = "sbatch -a$nums\-$nums$parms$script $pref $rest";
 		print "$recmd\n";
+		
+		push @resubs, $recmd;
 
 		# if not in check mode, re-submit the jobs 
 		if (!$check) {system($recmd);}
     	}
 	}
 }
-print "\n**** Total number of resub jobs: $totresub\n\n";
+print "\n**** Re-submit summary:\n\n";
+
+foreach my $c (@resubs) {print "$c\n";}
+print "\n\n";
+
+if ($check) {print "****  Total number of jobs to be re-submitted: $totresub  ****";}
+else {print "****  Re-submitted $totresub jobs  ****";}
+print "\n\n";

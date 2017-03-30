@@ -25,24 +25,36 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 		return 0;
 	}
 	
+	
 	// ****************************************
 	// configuration for PndSimpleCombinerTask
+	//
+	//           APPLY CHANGES HERE!
 	// ****************************************
 
 	double   Mom      = 12.;
 	
 	TString  anadecay = "D0->K- pi+";
 	TString  anaparms = "qamc:fitvtx:mwin(D0)=1.0";
-		
-	bool     fastsim  = false;
+	
+	// this sets fast/full sim mode automatically by checking for input file name suffix
+	// --> if not wanted, set to either true or false	
+	bool     fastsim  = (prefix.EndsWith(".root") && prefix.Contains("_fsim"))  // prefix is full input file name
+						|| gSystem->AccessPathName(Form("%s_%d_pid.root",prefix.Data(),from)); 
+	
+	// the run number for PndSimpleAnalysis task; 
+	// running over multiple files sets run number to first input file number
 	int      run      = from;	
 	
 	// run software trigger (trigger definition might be outdated)
 	bool     runST    = false;
 	
 	// ****************************************
+	//           APPLY CHANGES HERE!
+	//
 	// configuration for PndSimpleCombinerTask
 	// ****************************************
+	
 	
 	TString suffix = fastsim ? "fsim" : "pid";
 
@@ -54,12 +66,13 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	if (prefix.EndsWith(".root"))
 	{
 		firstFile = prefix; 
-	        outFile   = prefix; outFile.ReplaceAll(".root","_ana.root");
+	    outFile   = prefix; 
+		outFile.ReplaceAll(".root","_ana.root");
 		//inParFile = prefix; inParFile.ReplaceAll("_pid.root","_par.root");
 		to = from;
 	}
 	// if only one file, we name outfile to 'prefix_<run>_ana.root'
-	else if (from==to)  outFile = TString::Format("%s_%d_ana.root", prefix.Data(), from);
+	else if (from>=to)  outFile = TString::Format("%s_%d_ana.root", prefix.Data(), from);
 
 	
 	// Start a stop watch
