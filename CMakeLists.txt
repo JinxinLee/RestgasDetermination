@@ -246,6 +246,8 @@ EndIf(NO_PrintLinkInfo)
 # cause another cmake executable to run.  The same process will walk through
 # the project's entire directory structure.
 
+add_subdirectory(external)
+
 IF(NOT FAIRROOT_FOUND)
 
 add_subdirectory (fairtools)
