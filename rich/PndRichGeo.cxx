@@ -1,5 +1,6 @@
 #include "PndRichGeo.h"
 #include "FairGeoNode.h"
+#include "TRandom.h"
 
 ClassImp(PndRichGeo)
 
@@ -39,6 +40,43 @@ PndRichGeo::PndRichGeo()
    fFlatMirrorYGlob = std::vector<Double_t>(2);
    fPhDetZ = std::vector<Double_t>(2);
    fPhDetY = std::vector<Double_t>(2);
+
+   fSenseLevel = 2;
+   fSensorsPerDevice = 1<<(fSenseLevel-1); // number of sensores per device in one direction
+   // Quantum efficiency
+   fPhDetDev = 0; // pde_dpc3200_22.dat
+   fPhDetDev = 1; // pde_h12700.dat
+   std::string workdir(getenv( "VMCWORKDIR" ));
+   std::string effFileName = workdir;
+   Double_t keff;
+   if (fPhDetDev==0)
+   {
+      effFileName += "/rich/pde_dpc3200_22.dat";
+      fPhDetSizeX = 3.26;
+      fPhDetSizeY = 3.26;
+      fPhDetGapX = 0.01;
+      fPhDetGapY = 0.01;
+      keff = 1.7; // measured difference MC-EXP
+   }
+   if (fPhDetDev==1)
+   {
+      effFileName += "/rich/pde_h12700.dat";
+      fPhDetSizeX = 5.2;
+      fPhDetSizeY = 5.2;
+      fPhDetGapX = 0.01;
+      fPhDetGapY = 0.01;
+      keff = 1;
+   }
+   std::ifstream from( effFileName.c_str() );
+   Double_t wli, pdei;
+   from >> wli >> pdei;
+   while( !from.eof() ) {
+      fWlPhoton.push_back(wli); // nm
+      fPDE.push_back(pdei/100.0/keff); // %/100
+      from >> wli >> pdei;
+   };
+   fPhDetEff = new TGraph(fWlPhoton.size(),fWlPhoton.data(),fPDE.data());
+
 }
 
 void PndRichGeo::init(size_t ver0) {
@@ -481,6 +519,18 @@ void PndRichGeo::init(size_t ver0) {
    fPhDetNzD = fPhDetNxD.Cross(fPhDetNyD).Unit();
    fiYmax = (int)(2*std::sqrt((fPhDetY[1]-fPhDetY[0])*(fPhDetY[1]-fPhDetY[0])+
                              (fPhDetZ[1]-fPhDetZ[0])*(fPhDetZ[1]-fPhDetZ[0]))/fdY);
+   // number of photo-devices
+   Double_t phDetWidth = std::sqrt((fPhDetY[1]-fPhDetY[0])*(fPhDetY[1]-fPhDetY[0])+
+                                   (fPhDetZ[1]-fPhDetZ[0])*(fPhDetZ[1]-fPhDetZ[0]));
+   fPhDetNumX = 2*(int)(fMirrorLength/2/(fPhDetSizeX + fPhDetGapX)+1);
+   fPhDetNumY = 2*(int)(phDetWidth/(fPhDetSizeY + fPhDetGapY)+1);
+   fPhDetPixelNumX = fSensorsPerDevice*fPhDetNumX;
+   fPhDetPixelNumY = fSensorsPerDevice*fPhDetNumY;
+}
+
+Double_t PndRichGeo::phDetQEff(Double_t wl)
+{
+   return (( wl >= fWlPhoton.front() )&&( wl <= fWlPhoton.back() )) ? fPhDetEff->Eval(wl) : 0 ;
 }
 
 TVector3 PndRichGeo::PhDetPositionLocal(TVector3 pos)
@@ -504,11 +554,217 @@ TVector3 PndRichGeo::PhDetPositionGlobal(TVector3 pos)
       return fPhDetP0D + pos.X()*fPhDetNxD + pos.Y()*fPhDetNyD + pos.Z()*fPhDetNzD;
 }
 
-TVector3 PndRichGeo::PositionDiscretization(TVector3 pos,
-                                            Double_t dX,
-                                            Double_t dY,
-                                            Double_t dZ)
+TVector3 PndRichGeo::PositionDiscretization(TVector3 pos, bool cell)
 {
+   // full variant
+   TVector3 posl = PhDetPositionLocal(pos);
+   Double_t xl = posl.X();
+   Double_t yl = posl.Y();
+   // to local coordinate system of the device
+   Double_t wx = fPhDetSizeX + fPhDetGapX;
+   UInt_t Ix = xl/wx + fPhDetNumX/2;
+   Double_t xlc = wx*(Ix + 0.5 - fPhDetNumX/2);
+   Double_t wy = fPhDetSizeY + fPhDetGapY;
+   UInt_t Iy = yl/wy + fPhDetNumY/2;
+   Double_t ylc = wy*(Iy + 0.5 - fPhDetNumY/2);
+   xl -= xlc;
+   yl -= ylc;
+   //
+   Double_t xc[4];
+   Double_t yc[4];
+   Double_t dxc[4];
+   Double_t dyc[4];
+   Double_t xcl3[2];
+   Double_t ycl3[2];
+   Double_t xcl2;
+   Double_t ycl2;
+   Double_t dx;
+   Double_t dy;
+   bool gep;
+   // dpc3200-22
+   // http://www.digitalphotoncounting.com/wp-content/uploads/PDPC_leaflet_A4_2015_10.pdf
+   if (fPhDetDev==0)
+   {
+      // pixel center x,y, pixel half widths wx,wy
+      xc[0] = 0.23; yc[0] = 0.195; dxc[0] = 0.16; dyc[0] = 0.19;
+      xc[1] = 0.56; yc[1] = 0.585; dxc[1] = 0.16; dyc[1] = 0.19;
+      xc[2] = 1.02; yc[2] = 0.975; dxc[2] = 0.16; dyc[2] = 0.19;
+      xc[3] = 1.35; yc[3] = 1.365; dxc[3] = 0.16; dyc[3] = 0.19;
+      // die center x,y
+      xcl3[0] = 0.395; ycl3[0] = 0.39; // {(xc[0]+xc[1])/2,(xc[2]+xc[3])/2}
+      xcl3[1] = 1.185; ycl3[1] = 1.17; // {(yc[0]+yc[1])/2,(yc[2]+yc[3])/2}
+      // quarter center x,y
+      xcl2 = 0.79; // (xc[1]+xc[2])/2
+      ycl2 = 0.78; // (yc[1]+yc[2])/2
+      //
+      dx = 0.395;
+      dy = 0.39;
+      // geometrical efficiency of pixel (cell filling)
+      gep = gRandom->Uniform()<=(cell?0.74:1);
+   }   
+   // h12700
+   // https://www.hamamatsu.com/resources/pdf/etd/H12700_TPMH1348E.pdf
+   if (fPhDetDev==1)
+   {
+      // pixel center x,y, pixel half widths wx,wy
+      xc[0] = 0.3; yc[0] = 0.3; dxc[0] = 0.3; dyc[0] = 0.3;
+      xc[1] = 0.9; yc[1] = 0.9; dxc[1] = 0.3; dyc[1] = 0.3;
+      xc[2] = 1.5; yc[2] = 1.5; dxc[2] = 0.3; dyc[2] = 0.3;
+      xc[3] = 2.1125; yc[3] = 2.1125; dxc[3] = 0.3125; dyc[3] = 0.3125;
+      // die center x,y
+      xcl3[0] = 0.6; ycl3[0] = 0.6; // {(xc[0]+xc[1])/2,(xc[2]+xc[3])/2}
+      xcl3[1] = 1.8125; ycl3[1] = 1.8125; // {(yc[0]+yc[1])/2,(yc[2]+yc[3])/2}
+      // quarter center x,y
+      xcl2 = 1.2125; // ~(xc[1]+xc[2])/2
+      ycl2 = 1.2125; // ~(yc[1]+yc[2])/2
+      //
+      dx = 0.6;
+      dy = 0.6;
+      // geometrical efficiency of pixel (cell filling)
+      gep = true;
+   }
+   Int_t sx = xl>0?1:-1;
+   Int_t sy = yl>0?1:-1;
+   UInt_t ix = (sx*xl)/dx;
+   UInt_t iy = (sy*yl)/dy;
+   ix = ix>3?3:ix;
+   iy = iy>3?3:iy;
+   //pixel level = 4
+   Double_t hx = sx*xc[ix];
+   Double_t hy = sy*yc[iy];
+   if ((std::fabs(xl-hx)<dxc[ix])&&
+       (std::fabs(yl-hy)<dyc[iy])&&
+       gep)
+   {
+      //tile level = 1
+      if (fSenseLevel==1) {
+         hx = 0;
+         hy = 0;
+         fSensorIndexX = Ix;
+         fSensorIndexY = Iy;
+      } 
+      //qurter level = 2
+      if (fSenseLevel==2) {
+         hx = sx*xcl2;
+         hy = sy*ycl2;
+         fSensorIndexX = Ix*fSensorsPerDevice + (sx<0?0:1);
+         fSensorIndexY = Iy*fSensorsPerDevice + (sy<0?0:1);
+      }
+      //die level = 3
+      if (fSenseLevel==3) {
+         UInt_t ixx = ix/2;
+         UInt_t iyy = iy/2;
+         hx = sx*xcl3[ixx];
+         hy = sy*ycl3[iyy];
+         fSensorIndexX = Ix*fSensorsPerDevice + (sx<0?1:2) + sx*ixx;
+         fSensorIndexY = Iy*fSensorsPerDevice + (sy<0?1:2) + sy*iyy;
+      }
+      //pixel level = 4
+      if (fSenseLevel==4) {
+         fSensorIndexX = Ix*fSensorsPerDevice + (sx<0?3:4) + sx*ix;
+         fSensorIndexY = Iy*fSensorsPerDevice + (sy<0?3:4) + sy*iy;
+      }
+      fSensorIndex = fPhDetNumX*fSensorIndexY + fSensorIndexX;
+      fSensorPosition = PhDetPositionGlobal(TVector3(hx+xlc,hy+ylc,posl.Z()));
+      return fSensorPosition; // photon hits a phdet
+   }
+   else
+   {
+      fSensorIndexX = -1;
+      fSensorIndexY = -1;
+      fSensorIndex = -1;
+      fSensorPosition = TVector3(0,0,0);
+      return fSensorPosition; // photon conversion out of sensitive region
+   }
+}
+
+TVector3 PndRichGeo::PixelPosition(UInt_t ix, UInt_t iy)
+{
+   UInt_t Ix = ix/fSensorsPerDevice; // device intex 
+   UInt_t Iy = iy/fSensorsPerDevice; // device index
+   UInt_t ixl = ix - Ix*fSensorsPerDevice; // local index
+   UInt_t iyl = iy - Iy*fSensorsPerDevice; // local index
+   UInt_t nsh = fSensorsPerDevice/2;
+   Int_t sx = ixl<nsh?-1:1;
+   Int_t sy = iyl<nsh?-1:1;
+   UInt_t ixm = ixl<nsh?nsh-ixl-1:ixl-nsh;
+   UInt_t iym = iyl<nsh?nsh-iyl-1:iyl-nsh;
+   //
+   Double_t hx = (Ix+0.5-fPhDetNumX/2)*(fPhDetSizeX + fPhDetGapX); // div. center position (x)
+   Double_t hy = (Iy+0.5-fPhDetNumY/2)*(fPhDetSizeY + fPhDetGapY); // div. center position (y)
+   //
+   Double_t xc[4];
+   Double_t yc[4];
+   Double_t dxc[4];
+   Double_t dyc[4];
+   Double_t xcl3[2];
+   Double_t ycl3[2];
+   Double_t xcl2;
+   Double_t ycl2;
+   // dpc3200-22
+   // http://www.digitalphotoncounting.com/wp-content/uploads/PDPC_leaflet_A4_2015_10.pdf
+   if (fPhDetDev==0)
+   {
+      // pixel center x,y, pixel half widths wx,wy
+      xc[0] = 0.23; yc[0] = 0.195; dxc[0] = 0.16; dyc[0] = 0.19;
+      xc[1] = 0.56; yc[1] = 0.585; dxc[1] = 0.16; dyc[1] = 0.19;
+      xc[2] = 1.02; yc[2] = 0.975; dxc[2] = 0.16; dyc[2] = 0.19;
+      xc[3] = 1.35; yc[3] = 1.365; dxc[3] = 0.16; dyc[3] = 0.19;
+      // die center x,y
+      xcl3[0] = 0.395; ycl3[0] = 0.39; // {(xc[0]+xc[1])/2,(xc[2]+xc[3])/2}
+      xcl3[1] = 1.185; ycl3[1] = 1.17; // {(yc[0]+yc[1])/2,(yc[2]+yc[3])/2}
+      // quarter center x,y
+      xcl2 = 0.79; // (xc[1]+xc[2])/2
+      ycl2 = 0.78; // (yc[1]+yc[2])/2
+   }   
+   // h12700
+   // https://www.hamamatsu.com/resources/pdf/etd/H12700_TPMH1348E.pdf
+   if (fPhDetDev==1)
+   {
+      // pixel center x,y, pixel half widths wx,wy
+      xc[0] = 0.3; yc[0] = 0.3; dxc[0] = 0.3; dyc[0] = 0.3;
+      xc[1] = 0.9; yc[1] = 0.9; dxc[1] = 0.3; dyc[1] = 0.3;
+      xc[2] = 1.5; yc[2] = 1.5; dxc[2] = 0.3; dyc[2] = 0.3;
+      xc[3] = 2.1125; yc[3] = 2.1125; dxc[3] = 0.3125; dyc[3] = 0.3125;
+      // die center x,y
+      xcl3[0] = 0.6; ycl3[0] = 0.6; // {(xc[0]+xc[1])/2,(xc[2]+xc[3])/2}
+      xcl3[1] = 1.8125; ycl3[1] = 1.8125; // {(yc[0]+yc[1])/2,(yc[2]+yc[3])/2}
+      // quarter center x,y
+      xcl2 = 1.2125; // ~(xc[1]+xc[2])/2
+      ycl2 = 1.2125; // ~(yc[1]+yc[2])/2
+   }
+   //tile level = 1
+   if (fSenseLevel==1) {
+      hx += 0;
+      hy += 0;
+   } 
+   //qurter level = 2
+   if (fSenseLevel==2) {
+      hx += sx*xcl2;
+      hy += sy*ycl2;
+   }
+   //die level = 3
+   if (fSenseLevel==3) {
+      hx += sx*xcl3[ixm];
+      hy += sy*ycl3[iym];
+   }
+   //pixel level = 4
+   if (fSenseLevel==4) {
+      hx += sx*xc[ixm];
+      hy += sy*yc[iym];
+   }
+   fSensorIndexX = ix;
+   fSensorIndexY = iy;
+   fSensorIndex = fPhDetNumX*fSensorIndexY + fSensorIndexX;
+   return PhDetPositionGlobal(TVector3(hx,hy,0));
+}
+
+TVector3 PndRichGeo::LocalPositionDiscretization(TVector3 pos,
+                                                 Double_t dX,
+                                                 Double_t dY,
+                                                 Double_t dZ)
+{
+   // simple variant
    Double_t dX_ = dX>0 ? dX : fdX;
    Double_t dY_ = dY>0 ? dY : fdY;
    Double_t dZ_ = dZ>0 ? dZ : fdZ;
@@ -523,12 +779,16 @@ TVector3 PndRichGeo::PositionDiscretization(TVector3 pos,
 
 UInt_t PndRichGeo::IndexX(TVector3 pos)
 {
-   return (int)((pos.X()+fdX*fiXmax/2)/fdX);
+   if (pos!=fSensorPosition) PositionDiscretization(pos,false);
+   return fSensorIndexX;
+   //return (int)((pos.X()+fdX*fiXmax/2)/fdX);
 }
 
 UInt_t PndRichGeo::IndexY(TVector3 pos)
 {
-   return (int)((pos.Y()+fdY*fiXmax/2)/fdY);
+   if (pos!=fSensorPosition) PositionDiscretization(pos,false);
+   return fSensorIndexY;
+   //return (int)((pos.Y()+fdY*fiXmax/2)/fdY);
 }
 
 TVector3 PndRichGeo::PixelPositionLocal(UInt_t ix, UInt_t iy)

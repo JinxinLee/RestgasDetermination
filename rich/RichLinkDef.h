@@ -16,5 +16,8 @@
 #pragma link C++ class PndRichCalDb+;
 #pragma link C++ class PndRichCalDbData+;
 #pragma link C++ class PndRichCalDbPar+;
+#pragma link C++ class PndRichHitWriteoutBuffer+;
+#pragma link C++ class PndRichHitRingSorter+;
+#pragma link C++ class PndRichHitSorterTask+;
 
 #endif

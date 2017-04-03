@@ -592,7 +592,7 @@ void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir0, Float_t t
    // randomization with correlation of ideal track parameters (for test)
    TVectorT<double> evt(4), evto(4);
    for(int i=0;i<4;i++)
-      evt[i] = gRandom->Gaus(0,sqrt(gResVect[i]));
+      evt[i] = 0*gRandom->Gaus(0,sqrt(gResVect[i]));
    evto = gRotMatr*evt;
    
    // finding position of the track in middle depth of the aerogel bar
@@ -644,7 +644,7 @@ void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir0, Float_t t
          dyTrack_ = 0.001;
          dtTrack_ = 0.001;
          dfTrack_ = 0.001;
-         Minimizer_v2();
+         //Minimizer_v2();
       }
 
       chi2 = chi2_;

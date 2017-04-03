@@ -6,10 +6,12 @@
 #include "PndRichHit.h"
 #include "PndRichGeo.h"
 #include "PndRichPDHit.h"
+#include "PndRichTSPDHit.h"
 #include "PndRichResolution.h"
 #include "TVector3.h"
 
 class TClonesArray;
+class PndRichHitWriteoutBuffer;
 
 class PndRichHitProducer : public FairTask
 {
@@ -31,7 +33,9 @@ class PndRichHitProducer : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  PndRichPDHit* AddPDHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Double_t time );
+  void AddXPDHit(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos, Int_t index, Double_t time );
+  PndRichPDHit* AddTSPDHit(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos, Int_t index, Double_t time );
+  PndRichPDHit* AddPDHit(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos, Int_t index, Double_t time );
   PndRichHit* AddHit(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos,
                      Double_t thetaC, Double_t errThetaC, Int_t index);
 
@@ -45,6 +49,8 @@ class PndRichHitProducer : public FairTask
   void FinishTask();
   void SetPersistency(Bool_t v = kTRUE) { fPersistency = v; }
 
+  void RunTimeBased(){fTimeOrderedDigi = kTRUE;}  
+
  private: 
 
   PndRichGeo* fGeo;
@@ -52,6 +58,7 @@ class PndRichHitProducer : public FairTask
   Bool_t fPhDetNoise;
   UInt_t fNumRand;
   Bool_t fPersistency;
+  Bool_t fTimeOrderedDigi;
   
   Float_t fPosResolution;                    // Position smearing [cm]
   PndRichResolution* fRichResolution;
@@ -64,10 +71,9 @@ class PndRichHitProducer : public FairTask
   TClonesArray* fPDHitArray;
   TClonesArray* fHitArray;
 
-    std::vector<Double_t> fWlPhoton;
-    std::vector<Double_t> fPDE;
+  std::vector<Double_t> PhDetNoise();
 
-    std::vector<Double_t> PhDetNoise();
+  PndRichHitWriteoutBuffer* fDataBuffer;
    
   ClassDef(PndRichHitProducer,1);
 

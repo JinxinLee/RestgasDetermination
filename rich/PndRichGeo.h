@@ -3,6 +3,7 @@
 
 #include "FairGeoSet.h"
 #include "TVector3.h"
+#include "TGraph.h"
 
 class  PndRichGeo : public FairGeoSet
 {
@@ -53,6 +54,28 @@ class  PndRichGeo : public FairGeoSet
    /*! PhotoDet parameters */
     std::vector<Double_t> fPhDetZ;            //!< No idea (SS)
     std::vector<Double_t> fPhDetY;            //!< No idea (SS)
+    std::vector<Double_t> fWlPhoton;
+    std::vector<Double_t> fPDE;
+    TGraph *fPhDetEff;
+
+    UInt_t fSenseLevel;
+    UInt_t fSensorsPerDevice;
+    Int_t fSensorIndexX;
+    Int_t fSensorIndexY;
+    Int_t fSensorIndex;
+    TVector3 fSensorPosition;
+    
+    /*! PhDet parameters */
+    Double_t fPhDetSizeX;
+    Double_t fPhDetSizeY;
+    Double_t fPhDetGapX;
+    Double_t fPhDetGapY;
+    UInt_t fPhDetNumX;
+    UInt_t fPhDetNumY;
+    UInt_t fPhDetPixelNumX;
+    UInt_t fPhDetPixelNumY;
+    
+    UInt_t fPhDetDev;
     Double_t fPhDetAngle;
     TVector3 fPhDetP0U, fPhDetNxU, fPhDetNyU, fPhDetNzU;
     TVector3 fPhDetP0D, fPhDetNxD, fPhDetNyD, fPhDetNzD;
@@ -79,12 +102,14 @@ class  PndRichGeo : public FairGeoSet
     Double_t phDetAngle() {return fPhDetAngle;};
     TVector3 PhDetPositionLocal(TVector3 pos);
     TVector3 PhDetPositionGlobal(TVector3 pos);
-    TVector3 PositionDiscretization(TVector3 pos,
-                                    Double_t dX = -1,
-                                    Double_t dY = -1,
-                                    Double_t dZ = -1);
+    TVector3 PositionDiscretization(TVector3 pos, bool cell = true);
+    TVector3 LocalPositionDiscretization(TVector3 pos,
+                                         Double_t dX = -1,
+                                         Double_t dY = -1,
+                                         Double_t dZ = -1);
     UInt_t IndexX(TVector3 pos);
     UInt_t IndexY(TVector3 pos);
+    TVector3 PixelPosition(UInt_t ix, UInt_t iy);
     TVector3 PixelPositionLocal(UInt_t ix, UInt_t iy);
     TVector3 PixelPositionGlobal(UInt_t ix, UInt_t iy);
 
@@ -158,10 +183,34 @@ class  PndRichGeo : public FairGeoSet
     std::vector<Double_t> phDetZ() {return fPhDetZ;}
    
      /*! */
-    UInt_t phDetNPixelMaxX() {return fiXmax;}
+    UInt_t sensorIndex() {return fSensorIndex;}
    
      /*! */
-    UInt_t phDetNPixelMaxY() {return fiYmax;}
+    UInt_t phDetNPixelMaxX() {return fPhDetPixelNumX;}
+   
+     /*! */
+    UInt_t phDetNPixelMaxY() {return fPhDetPixelNumY;}
+   
+     /*! */
+    Double_t phDetQEff(Double_t wl);
+   
+     /*! */
+    Double_t phDetSizeX() {return fPhDetSizeX;}
+   
+     /*! */
+    Double_t phDetSizeY() {return fPhDetSizeY;}
+   
+     /*! */
+    Double_t phDetGapX() {return fPhDetGapX;}
+   
+     /*! */
+    Double_t phDetGapY() {return fPhDetGapY;}
+   
+     /*! */
+    UInt_t phDetNumX() {return fPhDetNumX;}
+   
+     /*! */
+    UInt_t phDetNumY() {return fPhDetNumY;}
    
     ClassDef(PndRichGeo,1)
 };
