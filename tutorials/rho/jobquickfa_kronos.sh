@@ -6,16 +6,17 @@
 #SBATCH -o data/slurmlog/slurm_%j_errout.log
 
 if [ $# -lt 1 ]; then
-  echo -e "\nJob script for submission of PandaRoot quickfsimana jobs based on macro 'quickfsimana.C' on KRONOS. *The macro needs to configured beforehand!*\n"
+  echo -e "\nJob script for submission of PandaRoot FastSim with analysis jobs based on macro 'quickfsimana.C' on KRONOS. *The macro needs to configured beforehand!*\n"
 #  echo -e "   ********************************************************"  
 #  echo -e "   *** RECOMMENDED: Use anasub.pl for easier submission ***"  
 #  echo -e "   *********************************************************\n"  
-  echo -e "USAGE: sbatch -a<min>-<max> jobquickfa_kronos.sh <prefix> \"<macro>\"\n"
+  echo -e "USAGE: sbatch -a<min>-<max> jobquickfa_kronos.sh <prefix> '<macro>'\n"
   echo -e " <min>     : Minimum job number of files data/<prefix>_<min>_pid.root"
   echo -e " <max>     : Maximum job number of files data/<prefix>_<max>_pid.root"
-  echo -e " <prefix>  : Prefix of input files"
-  echo -e " <macro>   : Complete call of quickfsimana.C() macro with parameters. Runnumber should be given as RUN.\n"
-  echo -e "Example : sbatch -a1-10 jobquickfa_kronos.sh 'quickfsimana.C(\"dpmbkg\", \"DPM\", 6.23, \"J/psi -> mu+ mu-; pbp -> J/psi pi+ pi-\", 1000,\"\",0,RUN)'\n"
+  echo -e " <prefix>  : Prefix of output files"
+  echo -e " <macro>   : Complete call of quickfsimana.C() macro with parameters. Prefix should be PREFIX, run number should be RUN.\n"
+  echo -e "Example 1 : sbatch -a1-10 jobquickfa_kronos.sh signal 'quickfsimana.C(\"PREFIX\",\"jpsi2pi.dec\",6.23,\"J/psi->mu+ mu-;pbp->J/psi pi+ pi-\",1000,\"fit4c:mwin=0.6:pidmu=Loose\",0,RUN,1)'"
+  echo -e "Example 2 : sbatch -a1-10 jobquickfa_kronos.sh dpmbkg 'quickfsimana.C(\"PREFIX\",\"DPM\",6.23,\"J/psi->mu+ mu-;pbp->J/psi pi+ pi-\",1000,\"fit4c:mwin=0.6:pidmu=Loose\",0,RUN,0)'\n"
   
   exit 1
 fi
