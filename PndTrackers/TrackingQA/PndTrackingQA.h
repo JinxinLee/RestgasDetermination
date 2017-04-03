@@ -92,8 +92,11 @@ public:
 	std::map<Int_t, TVector3> GetP()								{return fMapP;}
 	std::map<Int_t, Double_t> GetPtResolution()						{return fMapPtResolution;}
 	std::map<Int_t, Double_t> GetPt()								{return fMapPt;}
+	std::map<Int_t, Double_t> GetPlResolution()						{return fMapPlResolution;}
+	std::map<Int_t, Double_t> GetPl()								{return fMapPl;}
 	std::map<Int_t, Double_t> GetPResolutionRel()					{return fMapPResolutionRel;}
 	std::map<Int_t, Double_t> GetPtResolutionRel()					{return fMapPtResolutionRel;}
+	std::map<Int_t, Double_t> GetPlResolutionRel()					{return fMapPlResolutionRel;}
 	std::map<Int_t, Int_t> GetTrackIdMCId()							{return fTrackIdMCId;}
 	Int_t GetNGhosts()												{return fNGhosts;}
 
@@ -161,6 +164,9 @@ private:
 	std::map<Int_t, Double_t> fMapPt;                               //!
 	std::map<Int_t, Double_t> fMapPResolutionRel;                   //!
 	std::map<Int_t, Double_t> fMapPtResolutionRel;                  //!
+	std::map<Int_t, Double_t> fMapPlResolution;                     //!
+	std::map<Int_t, Double_t> fMapPl;                               //!
+	std::map<Int_t, Double_t> fMapPlResolutionRel;                  //!
 
 	TClonesArray* fTrack;
 	TClonesArray* fMCTrack;

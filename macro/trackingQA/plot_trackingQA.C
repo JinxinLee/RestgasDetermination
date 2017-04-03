@@ -37,10 +37,13 @@ int plot_trackingQA(TString fileName){
 	TH1* histoPRel = (TH1*)f->Get("fPRelHisto");
 	TH1* histoPt = (TH1*)f->Get("fPtHisto");
 	TH1* histoPtRel = (TH1*)f->Get("fPtRelHisto");
+	TH1* histoPl = (TH1*)f->Get("fPlHisto");
+	TH1* histoPlRel = (TH1*)f->Get("fPlRelHisto");
+
 
 
 	TCanvas* c2 = new TCanvas();
-	c2->Divide(2,2);
+	c2->Divide(2,3);
 	c2->cd(1);
 	histoP->Draw();
 	c2->cd(2);
@@ -49,6 +52,10 @@ int plot_trackingQA(TString fileName){
 	histoPt->Draw();
 	c2->cd(4);
 	histoPtRel->Draw();
+	c2->cd(5);
+	histoPl->Draw();
+	c2->cd(6);
+	histoPlRel->Draw();
 
 	TH1* histoQualy = (TH1*)f->Get("fQualyHisto");
 	TH1* histoQualyColor = (TH1*)f->Get("fQualyHistoColor");

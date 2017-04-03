@@ -119,6 +119,12 @@ void PndTrackingQATask::InitializeHistograms() {
 	fPtRelHisto = new TH1D("fPtRelHisto", "Relative Transverse Momentum Resolution", 1000, -1, 1);
 	fPtRelHisto->GetXaxis()->SetTitle("(p_{t}^{RECO} - p_{t}^{MC}) / p_{t}^{MC}");
 	fPtRelHisto->GetYaxis()->SetTitle("counts");
+	fPlHisto = new TH1D("fPlHisto", "Longitudinal Momentum Resolution", 1000, -1, 1);
+	fPlHisto->GetXaxis()->SetTitle("p_{l}^{RECO} - p_{l}^{MC} / GeV");
+	fPlHisto->GetYaxis()->SetTitle("counts");
+	fPlRelHisto = new TH1D("fPlRelHisto", "Relative Longitudinal Momentum Resolution", 1000, -1, 1);
+	fPlRelHisto->GetXaxis()->SetTitle("(p_{l}^{RECO} - p_{l}^{MC}) / p_{l}^{MC}");
+	fPlRelHisto->GetYaxis()->SetTitle("counts");
 
 	fQualyHisto = new TH1I("fQualyHisto", "Quality of Trackfinding;;Counts", 26, -15.5, 10.5);
 	fQualyHisto->SetDrawOption("TEXT HIST");
@@ -203,6 +209,8 @@ void PndTrackingQATask::Exec(Option_t*) {
 	MapToHist(qaAna.GetPResolutionRel(), fPRelHisto);
 	MapToHist(qaAna.GetPtResolution(), fPtHisto);
 	MapToHist(qaAna.GetPtResolutionRel(), fPtRelHisto);
+	MapToHist(qaAna.GetPlResolution(), fPlHisto);
+	MapToHist(qaAna.GetPlResolutionRel(), fPlRelHisto);
 
 	// fill MC Track Info ......................................
 	for (std::map<Int_t, Int_t>::iterator iter = qualiMap.begin(); iter != qualiMap.end(); iter++) {
@@ -368,9 +376,10 @@ void PndTrackingQATask::Finish() {
 	fPRelHisto->Write();
 	fPtHisto->Write();
 	fPtRelHisto->Write();
+	fPlHisto->Write();
+	fPlRelHisto->Write();
 	fQualyHisto->Write();
 	fQualyStack->Write();
-	fTuple->GetInternalTree()->Write();
 	
 	Int_t allTracks = 0;
 	Int_t allTracksWithHits = 0;
@@ -450,17 +459,26 @@ void PndTrackingQATask::Finish() {
 	fQualyHisto_rel_all->Fill(qualityNumbers::kMcPossibleSec, (Double_t)mcPossibleSec / allTracks * 100);
 	fQualyHisto_rel_possible->Fill(qualityNumbers::kMcPossibleSec, (Double_t)mcPossibleSec / allTracks * 100);
 
-	fQualyHisto_rel_all->Fill(qualityNumbers::kLessThanThreePrim, (Double_t)(mcLessThanThreePrim - lessThanThreePrim) / mcLessThanThreePrim * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kLessThanThreePrim, (Double_t)(mcLessThanThreePrim - lessThanThreePrim) / mcLessThanThreePrim * 100);
-	fQualyHisto_rel_all->Fill(qualityNumbers::kAtLeastThreePrim, (Double_t)(mcAtLeastThreePrim - atLeastThreePrim) / mcAtLeastThreePrim * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kAtLeastThreePrim, (Double_t)(mcAtLeastThreePrim - atLeastThreePrim) / mcAtLeastThreePrim * 100);
-	fQualyHisto_rel_all->Fill(qualityNumbers::kAtLeastThreeSec, (Double_t)(Double_t)(mcAtLeastThreeSec - atLeastThreeSec) / mcAtLeastThreeSec * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kAtLeastThreeSec, (Double_t)(mcAtLeastThreeSec - atLeastThreeSec) / mcAtLeastThreeSec * 100);
-	fQualyHisto_rel_all->Fill(qualityNumbers::kPossiblePrim, (Double_t)(mcPossiblePrim - possiblePrim) / mcPossiblePrim * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kPossiblePrim, (Double_t)(mcPossiblePrim - possiblePrim) / mcPossiblePrim * 100);
-	fQualyHisto_rel_all->Fill(qualityNumbers::kPossibleSec, (Double_t)(mcPossibleSec - possibleSec) / mcPossibleSec * 100);
-	fQualyHisto_rel_possible->Fill(qualityNumbers::kPossibleSec, (Double_t)(mcPossibleSec - possibleSec) / mcPossibleSec * 100);
-
+	if (mcLessThanThreePrim > 0){
+		fQualyHisto_rel_all->Fill(qualityNumbers::kLessThanThreePrim, (Double_t)(mcLessThanThreePrim - lessThanThreePrim) / mcLessThanThreePrim * 100);
+		fQualyHisto_rel_possible->Fill(qualityNumbers::kLessThanThreePrim, (Double_t)(mcLessThanThreePrim - lessThanThreePrim) / mcLessThanThreePrim * 100);
+	}
+	if (mcAtLeastThreePrim > 0) {
+		fQualyHisto_rel_all->Fill(qualityNumbers::kAtLeastThreePrim, (Double_t)(mcAtLeastThreePrim - atLeastThreePrim) / mcAtLeastThreePrim * 100);
+		fQualyHisto_rel_possible->Fill(qualityNumbers::kAtLeastThreePrim, (Double_t)(mcAtLeastThreePrim - atLeastThreePrim) / mcAtLeastThreePrim * 100);
+	}
+	if (mcAtLeastThreeSec > 0){
+		fQualyHisto_rel_all->Fill(qualityNumbers::kAtLeastThreeSec, (Double_t)(Double_t)(mcAtLeastThreeSec - atLeastThreeSec) / mcAtLeastThreeSec * 100);
+		fQualyHisto_rel_possible->Fill(qualityNumbers::kAtLeastThreeSec, (Double_t)(mcAtLeastThreeSec - atLeastThreeSec) / mcAtLeastThreeSec * 100);
+	}
+	if (mcPossiblePrim > 0){
+		fQualyHisto_rel_all->Fill(qualityNumbers::kPossiblePrim, (Double_t)(mcPossiblePrim - possiblePrim) / mcPossiblePrim * 100);
+		fQualyHisto_rel_possible->Fill(qualityNumbers::kPossiblePrim, (Double_t)(mcPossiblePrim - possiblePrim) / mcPossiblePrim * 100);
+	}
+	if (mcPossibleSec > 0){
+		fQualyHisto_rel_all->Fill(qualityNumbers::kPossibleSec, (Double_t)(mcPossibleSec - possibleSec) / mcPossibleSec * 100);
+		fQualyHisto_rel_possible->Fill(qualityNumbers::kPossibleSec, (Double_t)(mcPossibleSec - possibleSec) / mcPossibleSec * 100);
+	}
 	fQualyHisto_rel_all->Fill(qualityNumbers::kFullyFound, fullyFound / allTracksWithHits * 100);
 	fQualyHisto_rel_possible->Fill(qualityNumbers::kFullyFound, fullyFound / allPossibleTracksWithHits * 100);
 	fQualyHisto_rel_all->Fill(qualityNumbers::kPartiallyFound, partiallyFound / allTracksWithHits * 100);
@@ -474,6 +492,7 @@ void PndTrackingQATask::Finish() {
 
 	fQualyHisto_rel_all->Write();
 	fQualyHisto_rel_possible->Write();
+	fTuple->GetInternalTree()->Write();
 }
 
 void PndTrackingQATask::ColorHistogram() {

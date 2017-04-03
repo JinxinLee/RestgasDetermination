@@ -137,10 +137,14 @@ void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 				fMapP[iter->first] = mom;
 				fMapPtResolution[iter->first] = (mom.Pt() - McMom.Pt());
 				fMapPt[iter->first] = mom.Pt();
+				fMapPlResolution[iter->first] = (mom.Pz() - McMom.Pz());
+				fMapPl[iter->first] = mom.Pz();
 				fMapPResolutionRel[iter->first] = (mom.Mag() - McMom.Mag())
 						/ McMom.Mag();
 				fMapPtResolutionRel[iter->first] = (mom.Pt() - McMom.Pt())
 						/ McMom.Pt();
+				fMapPlResolutionRel[iter->first] = (mom.Pz() - McMom.Pz())
+						/ McMom.Pz();
 			}
 		}
 

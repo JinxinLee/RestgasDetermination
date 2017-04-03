@@ -141,6 +141,8 @@ class PndTrackingQATask : public FairTask
   TH1* fPRelHisto;
   TH1* fPtHisto;
   TH1* fPtRelHisto;
+  TH1* fPlHisto;
+  TH1* fPlRelHisto;
   TH1* fQualyHisto;
   THStack * fQualyStack;
   TH1 * fQualyHisto_mc;
