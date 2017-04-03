@@ -251,7 +251,7 @@ private:
 	FairFilteredPrimaryGenerator& operator=(const  FairFilteredPrimaryGenerator&);
 
 
-	ClassDef(FairFilteredPrimaryGenerator,1);
+	ClassDef(FairFilteredPrimaryGenerator,2);
 };
 
 #endif
