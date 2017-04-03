@@ -695,8 +695,8 @@ TVector3 PndRichGeo::PixelPosition(UInt_t ix, UInt_t iy)
    //
    Double_t xc[4];
    Double_t yc[4];
-   Double_t dxc[4];
-   Double_t dyc[4];
+   //Double_t dxc[4]; //[R.K.04/2017] unused 
+   //Double_t dyc[4]; //[R.K.04/2017] unused 
    Double_t xcl3[2];
    Double_t ycl3[2];
    Double_t xcl2;
@@ -706,10 +706,10 @@ TVector3 PndRichGeo::PixelPosition(UInt_t ix, UInt_t iy)
    if (fPhDetDev==0)
    {
       // pixel center x,y, pixel half widths wx,wy
-      xc[0] = 0.23; yc[0] = 0.195; dxc[0] = 0.16; dyc[0] = 0.19;
-      xc[1] = 0.56; yc[1] = 0.585; dxc[1] = 0.16; dyc[1] = 0.19;
-      xc[2] = 1.02; yc[2] = 0.975; dxc[2] = 0.16; dyc[2] = 0.19;
-      xc[3] = 1.35; yc[3] = 1.365; dxc[3] = 0.16; dyc[3] = 0.19;
+      xc[0] = 0.23; yc[0] = 0.195; //dxc[0] = 0.16; dyc[0] = 0.19; //[R.K.04/2017] unused 
+      xc[1] = 0.56; yc[1] = 0.585; //dxc[1] = 0.16; dyc[1] = 0.19; //[R.K.04/2017] unused 
+      xc[2] = 1.02; yc[2] = 0.975; //dxc[2] = 0.16; dyc[2] = 0.19; //[R.K.04/2017] unused 
+      xc[3] = 1.35; yc[3] = 1.365; //dxc[3] = 0.16; dyc[3] = 0.19; //[R.K.04/2017] unused 
       // die center x,y
       xcl3[0] = 0.395; ycl3[0] = 0.39; // {(xc[0]+xc[1])/2,(xc[2]+xc[3])/2}
       xcl3[1] = 1.185; ycl3[1] = 1.17; // {(yc[0]+yc[1])/2,(yc[2]+yc[3])/2}
@@ -722,10 +722,10 @@ TVector3 PndRichGeo::PixelPosition(UInt_t ix, UInt_t iy)
    if (fPhDetDev==1)
    {
       // pixel center x,y, pixel half widths wx,wy
-      xc[0] = 0.3; yc[0] = 0.3; dxc[0] = 0.3; dyc[0] = 0.3;
-      xc[1] = 0.9; yc[1] = 0.9; dxc[1] = 0.3; dyc[1] = 0.3;
-      xc[2] = 1.5; yc[2] = 1.5; dxc[2] = 0.3; dyc[2] = 0.3;
-      xc[3] = 2.1125; yc[3] = 2.1125; dxc[3] = 0.3125; dyc[3] = 0.3125;
+      xc[0] = 0.3; yc[0] = 0.3; //dxc[0] = 0.3; dyc[0] = 0.3; //[R.K.04/2017] unused 
+      xc[1] = 0.9; yc[1] = 0.9; //dxc[1] = 0.3; dyc[1] = 0.3; //[R.K.04/2017] unused 
+      xc[2] = 1.5; yc[2] = 1.5; //dxc[2] = 0.3; dyc[2] = 0.3; //[R.K.04/2017] unused 
+      xc[3] = 2.1125; yc[3] = 2.1125; //dxc[3] = 0.3125; dyc[3] = 0.3125; //[R.K.04/2017] unused 
       // die center x,y
       xcl3[0] = 0.6; ycl3[0] = 0.6; // {(xc[0]+xc[1])/2,(xc[2]+xc[3])/2}
       xcl3[1] = 1.8125; ycl3[1] = 1.8125; // {(yc[0]+yc[1])/2,(yc[2]+yc[3])/2}

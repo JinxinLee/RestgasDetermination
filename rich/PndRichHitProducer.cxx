@@ -131,8 +131,8 @@ InitStatus PndRichHitProducer::Init() {
          " " << posl.X() << " " << posl.Y() << " " << pos.Z() << std::endl;
    }
 */
-/*   Double_t xmax = (fGeo->phDetSizeX() + fGeo->phDetGapX())*2;//*fGeo->phDetNumX();
-   Double_t ymax = (fGeo->phDetSizeY() + fGeo->phDetGapY())*2;//*fGeo->phDetNumY();
+/*   Double_t xmax = (fGeo->phDetSizeX() + fGeo->phDetGapX())*2;// *fGeo->phDetNumX();
+   Double_t ymax = (fGeo->phDetSizeY() + fGeo->phDetGapY())*2;// *fGeo->phDetNumY();
    for(Double_t x=-xmax;x<xmax;x+=0.1)
    {
       for(Double_t y=-ymax;y<ymax;y+=0.1)
@@ -154,7 +154,7 @@ InitStatus PndRichHitProducer::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndRichHitProducer::Exec(Option_t* opt) {
+void PndRichHitProducer::Exec(Option_t* ) {
   
   // Reset output array
   //if ( ! fPDHitArray ) Fatal("Exec", "No HitArray");
@@ -187,7 +187,7 @@ void PndRichHitProducer::Exec(Option_t* opt) {
            Double_t t = gRandom->Gaus(point->GetTime(),0.05); //ns
            if (fPhDetNoise) { // add noise
               std::vector<Double_t> tn = PhDetNoise();
-              for (Int_t i=0; i<tn.size(); i++)
+              for (size_t i=0; i<tn.size(); i++)
                  if (t-tn.at(i)<720&&t>tn.at(i)) t = tn.at(i);
            }
            AddXPDHit(point->GetDetectorID(), fGeo->sensorIndex(), posd, sig, iPoint, t );
