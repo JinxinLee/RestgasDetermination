@@ -13,29 +13,54 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndRichPDHit::PndRichPDHit()
-   :FairHit(),
+   :FairTimeStamp(0),
    fSensorId(-1),
    fTime(-999.),
    fTimeThreshold(-999.)
 {  
+   SetTimeStamp(0);
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Standard constructor   ------------------------------------------
 
-PndRichPDHit::PndRichPDHit(Int_t detID, 
+PndRichPDHit::PndRichPDHit(Int_t index,
+                           Int_t detID, 
                            Int_t sensorId, 
                            TVector3& pos, 
                            TVector3& dpos,
                            Double_t time,
                            Double_t timeThreshold,
-                           Int_t index)
-:FairHit(detID, pos, dpos, index),  
-   fSensorId (sensorId), 
+                           Double_t timeStamp)
+:FairTimeStamp(timeStamp),
+   fSensorId (sensorId),
    fTime       (time),
    fTimeThreshold (timeThreshold)
-{    
+{
+   AddIndex(index);
+   fX = pos.X();
+   fY = pos.Y();
+   fZ = pos.Z();
+}
+
+PndRichPDHit::PndRichPDHit(std::vector<Int_t> index,
+                           Int_t detID, 
+                           Int_t sensorId, 
+                           TVector3& pos, 
+                           TVector3& dpos,
+                           Double_t time,
+                           Double_t timeThreshold,
+                           Double_t timeStamp)
+:FairTimeStamp(timeStamp),
+   fSensorId (sensorId),
+   fTime       (time),
+   fTimeThreshold (timeThreshold)
+{
+   AddIndex(index);
+   fX = pos.X();
+   fY = pos.Y();
+   fZ = pos.Z();
 }
 
 // -----   Destructor   ----------------------------------------------------

@@ -1,22 +1,21 @@
 // -------------------------------------------------------------------------
-// -----                     PndRichPDHit header file                  -----
+// -----                     PndRichTSPDHit header file                  -----
 // -----               Created 01/11/14 by Konstantin Beloborodov      -----
 // -----                                                               -----
 // -------------------------------------------------------------------------
 
 
-#ifndef PNDRICHPDHIT_H
-#define PNDRICHPDHIT_H
+#ifndef PNDRICHTSPDHIT_H
+#define PNDRICHTSPDHIT_H
 
 #include "TVector3.h"
-#include "FairHit.h"
 #include "FairTimeStamp.h"
 
-class PndRichPDHit : public FairTimeStamp {
+class PndRichTSPDHit : public FairTimeStamp {
 
 public:    
-  friend std::ostream& operator<< (std::ostream& out, PndRichPDHit& hit){
-    out << "PndRichPDHi in: " << hit.GetSensorId()
+  friend std::ostream& operator<< (std::ostream& out, PndRichTSPDHit& hit){
+    out << "PndRichTSPDHi in: " << hit.GetSensorId()
 	<< ", from Point(s) ";
     std::vector<Int_t>indices = hit.GetIndices();
     for (unsigned int i = 0; i < indices.size(); i++){
@@ -30,36 +29,17 @@ public:
 public:    
   
   /** Default constructor **/
-  PndRichPDHit();
+  PndRichTSPDHit();
 
-  PndRichPDHit(Int_t index,
-               Int_t detID, 
-               Int_t sensorId, 
-               TVector3& pos, 
-               TVector3& dpos,
+  PndRichTSPDHit(Int_t detID,
+               Int_t sensorId,
+               TVector3 pos,
+               TVector3 dpos,
                Double_t time,
-               Double_t timeThreshold,
-               Double_t timeStamp); 
-   
-  PndRichPDHit(std::vector<Int_t> index,
-               Int_t detID, 
-               Int_t sensorId, 
-               TVector3& pos, 
-               TVector3& dpos,
-               Double_t time,
-               Double_t timeThreshold,
-               Double_t timeStamp); 
-  
-
-/** Copy constructor **/
-/*  PndRichPDHit(const PndRichPDHit& hit) : FairHit(hit),
-  fSensorId(hit.fSensorId),
-  fTime(hit.fTime),
-  fTimeThreshold(hit.fTimeThreshold)
-  { *this = hit; };
-*/
+               Double_t timeThreshold);
+    
   /** Destructor **/
-  virtual ~PndRichPDHit();    
+  virtual ~PndRichTSPDHit();    
   
   /** Output to screen **/
   virtual void Print(const Option_t* opt ="") const;
@@ -70,8 +50,8 @@ public:
   /** Accessors **/
   virtual Double_t GetTime()  {return fTime;}
   virtual Double_t GetTimeThreshold()  {return fTimeThreshold;}
-  virtual Int_t GetRefIndex()  {return fRefIndex;}
-  TVector3 GetPosition()	  const { return TVector3(fX, fY, fZ);	  }
+  //virtual Int_t GetRefIndex()  {return fRefIndex;}
+  //TVector3 GetPosition()	  const { return TVector3(fX, fY, fZ);	  }
   Int_t GetSensorId() const {return fSensorId;}
   std::vector<Int_t> GetIndices() const { return fIndex;}
 
@@ -88,22 +68,22 @@ public:
   }	
 		  
   virtual bool equal(FairTimeStamp* data){
-    PndRichPDHit* hit = dynamic_cast <PndRichPDHit*> (data);
+    PndRichTSPDHit* hit = dynamic_cast <PndRichTSPDHit*> (data);
     if (hit != 0){ 
       if (fSensorId == hit->GetSensorId()) return true; 
     }	    
     return false;
   }
 
-  virtual bool operator<(const PndRichPDHit& hit) const{
+  virtual bool operator<(const PndRichTSPDHit& hit) const{
     if (fSensorId < hit.GetSensorId()) return true;
     return false;
   }
-  virtual bool operator>(const PndRichPDHit& hit) const{
+  virtual bool operator>(const PndRichTSPDHit& hit) const{
     if (fSensorId > hit.GetSensorId()) return true; 
     return false;
   }
-  virtual bool operator==(const PndRichPDHit& hit) const{	  
+  virtual bool operator==(const PndRichTSPDHit& hit) const{	  
     if (fSensorId == hit.GetSensorId()) return true;
     return false;
   }
@@ -111,12 +91,13 @@ public:
  protected:
   
   std::vector<Int_t> fIndex;   // indice of mc points contributing to this digi
+  Int_t fDetID;
   Int_t fSensorId;
-  Int_t fRefIndex;
-  Double_t fX, fY, fZ;
+  TVector3 fPos;
+  TVector3 fdPos;
   Double_t fTime,  fTimeThreshold;
    
-  ClassDef(PndRichPDHit,1)
+  ClassDef(PndRichTSPDHit,1)
 };
 
-#endif //PNDRICHPDHIT_H
+#endif //PNDRICHTSPDHIT_H
