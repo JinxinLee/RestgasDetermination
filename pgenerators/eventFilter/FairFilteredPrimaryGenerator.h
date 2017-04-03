@@ -137,6 +137,12 @@ public:
 		return fEvtFilterStat.fGeneratedEvents;
 	}
 
+	/** @brief Sets the frequency (accepted events) for printout (verbose>0) of accepted and generated events. */
+	void SetEventPrintFrequency(int freq)
+	{
+		fEventPrintFreq = freq;
+	}
+
 	/** @brief Returns the number of cases in which no matching event was found within the set max. tries.
 	 *
 		 This method returns 0 if everything works fine.
@@ -219,6 +225,9 @@ protected:
 
 	/** @brief Event number (Set by the filtered primary generator **/
 	Int_t fEventNrFiltered;
+
+	/** @brief Print frequency for filtered events **/
+	Int_t fEventPrintFreq; // KG, added 03/2017
 
 
 	/** @brief Registers a regular (non-veto) filter. This method is not supposed to be directly used by the user. See public methods for user interfaces to this method. */

@@ -37,7 +37,8 @@ FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator()
   fEventVetoFilterActive(kFALSE),
   fEventFilterActive(kFALSE),
   filterAcceptEvent(),fLogicalFilterOperation(),fFilterNegation(),
-  fEventNrFiltered(0)
+  fEventNrFiltered(0),
+  fEventPrintFreq(100)
 {
 }
 // -------------------------------------------------------------------------
@@ -57,7 +58,8 @@ FairFilteredPrimaryGenerator::FairFilteredPrimaryGenerator(const char* name, con
   fEventVetoFilterActive(kFALSE),
   fEventFilterActive(kFALSE),
   filterAcceptEvent(),fLogicalFilterOperation(),fFilterNegation(),
-  fEventNrFiltered(0)
+  fEventNrFiltered(0),
+  fEventPrintFreq(100)
 {
 }
 // -------------------------------------------------------------------------
@@ -240,7 +242,7 @@ Bool_t FairFilteredPrimaryGenerator::GenerateEvent(FairGenericStack* pStack)
 		}
 	}
 
-	if (0 < fVerbose) cout << fEventNrFiltered << " of " << fEvtFilterStat.fGeneratedEvents << " generated events accepted.\n";
+	if (0 < fVerbose && (fEventNrFiltered%fEventPrintFreq)==0) cout << fEventNrFiltered << " of " << fEvtFilterStat.fGeneratedEvents << " generated events accepted.\n";
 
 	return kTRUE;
 }
