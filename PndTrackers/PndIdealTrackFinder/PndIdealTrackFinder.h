@@ -31,6 +31,8 @@ public:
 //	  virtual void SetParContainers();
 	  virtual InitStatus Init();
 	  virtual void AddBranchName(TString name){ fBranchNames.push_back(name);} ///< Search for tracks only in given branches. If no BranchName is given all tracking detectors are taken
+	  virtual void AddBranchName(TString name, TString mcName){ fBranchNames.push_back(name);	fPointBranchMap[name] = mcName;} ///< Search for tracks only in given branches. If no BranchName is given all tracking detectors are taken
+
 	  virtual void SetOutputBranchName(TString name){ fOutBranchName = name; };
 
 	  /** Virtual method Exec **/
@@ -65,7 +67,7 @@ protected:
 	  virtual void CreateTrackCands();
 	  virtual void CreateTracks();
 	  virtual void FilterTrackCands();
-	  virtual FairMCPoint* GetFairMCPoint(FairMultiLinkedData_Interface* links, FairMultiLinkedData& array);
+	  virtual FairMCPoint* GetFairMCPoint(TString hitBranch, FairMultiLinkedData_Interface* links, FairMultiLinkedData& array);
 	  // taken from sttmvdtracking/PndSttMvdGemTrackingIdeal.h
 	  virtual void SmearVector(TVector3 &vec, const TVector3 &sigma);
 
@@ -80,6 +82,7 @@ protected:
 	  std::map<FairLink, PndTrackCand> fTrackCandMap;
 	  std::map<FairLink, FairMCPoint > fFirstPointMap;
 	  std::map<FairLink, FairMCPoint > fLastPointMap;
+	  std::map<TString, TString> fPointBranchMap;
 
 	  TDatabasePDG *fPdg;            //!<! Particle DB
 

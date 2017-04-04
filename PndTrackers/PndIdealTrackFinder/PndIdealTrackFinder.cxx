@@ -22,8 +22,18 @@ ClassImp(PndIdealTrackFinder);
 PndIdealTrackFinder::PndIdealTrackFinder() :
   fOutBranchName("IdealTrack"), fTrackCand(0), fTrack(0), fMCTrack(0), fTrackSelector(0), fPdg(0), fHitCount(0), fPersistence(kTRUE), fMomSigma(0,0,0), fDPoP(0.), fRelative (kFALSE), fVtxSigma(0,0,0), fEfficiency(1.)
 {
-	// TODO Auto-generated constructor stub
+	fPointBranchMap["MVDHitsPixel"] = "MVDPoint";
+	fPointBranchMap["MVDHitsStrip"] = "MVDPoint";
+	fPointBranchMap["STTHit"] = "STTPoint";
+	fPointBranchMap["GEMHit"] = "GEMPoint";
+	fPointBranchMap["FTSHit"] = "FTSPoint";
 
+	fPointBranchMap["SciTHit"] = "SciTPoint";
+	fPointBranchMap["MdtHit"] = "MdtPoint";
+
+	fPointBranchMap["DircHit"] = "";	 // no FairLinks Provided!
+	fPointBranchMap["FTofHit"] = "";	 // no FairLinks Provided!
+	fPointBranchMap["RichHit"] = "";	 // no FairLinks Provided!
 }
 
 PndIdealTrackFinder::~PndIdealTrackFinder() {
@@ -54,15 +64,11 @@ InitStatus PndIdealTrackFinder::Init()
 	for (size_t i = 0; i < fBranchNames.size(); i++){
 		if (ioman->GetObject(fBranchNames[i]) != 0){
 			fBranchMap[fBranchNames[i]] = (TClonesArray*)ioman->GetObject(fBranchNames[i]);
+		 	ioman->GetObject(fPointBranchMap[fBranchNames[i]]);  // initialise the used FairMcPoint Branches
 		}
 	}
-
   	fMCTrack = (TClonesArray*)ioman->GetObject("MCTrack");
 
-  	ioman->GetObject("MVDPoint");
-	ioman->GetObject("STTPoint");
-    ioman->GetObject("GEMPoint");
-    ioman->GetObject("FTSPoint");
 
 	fTrackCand = new TClonesArray("PndTrackCand");
  	ioman->Register(fOutBranchName + "Cand", "MC", fTrackCand, fPersistence);
@@ -101,8 +107,12 @@ void PndIdealTrackFinder::CreateTrackCands()
 			
 			FairMultiLinkedData array;
 			FairMultiLinkedData_Interface* links = (FairMultiLinkedData_Interface*)iter->second->At(i);
-			FairMCPoint *point = GetFairMCPoint(links, array);
-			if (point == 0) continue;
+			TString hitBranch = iter->first;
+
+			FairMCPoint *point = GetFairMCPoint(hitBranch, links, array);
+			if (point == 0) {
+				continue;
+			}
 			FairMCPoint firstpoint = *point;
 			FairMCPoint lastpoint = *point;
 
@@ -148,8 +158,9 @@ void PndIdealTrackFinder::CreateTrackCands()
 
 void PndIdealTrackFinder::FilterTrackCands()
 {
-	if (fTrackSelector == 0)
+	if (fTrackSelector == 0){
 		return;
+	}
 	for (std::map<FairLink, PndTrackCand>::iterator iter = fTrackCandMap.begin(); iter != fTrackCandMap.end();){
 		if (!(*fTrackSelector)(iter->second.GetPointerToLinks(), true)){
 			fTrackCandMap.erase(iter++);
@@ -239,29 +250,26 @@ void PndIdealTrackFinder::CreateTracks()
 	}
 }
 
-FairMCPoint* PndIdealTrackFinder::GetFairMCPoint(FairMultiLinkedData_Interface* links, FairMultiLinkedData& array)
+FairMCPoint* PndIdealTrackFinder::GetFairMCPoint(TString hitBranch, FairMultiLinkedData_Interface* links, FairMultiLinkedData& array)
 {
 	// get the mc point(s) from each reco hit ......
-	FairMultiLinkedData mvdpoints = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MVDPoint"));
-	FairMultiLinkedData sttpoints = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("STTPoint"));
-	FairMultiLinkedData gempoints = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("GEMPoint"));
-	FairMultiLinkedData ftspoints = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId("FTSPoint"));
+	FairMultiLinkedData mcpoints = links->GetLinksWithType(FairRootManager::Instance()->GetBranchId(fPointBranchMap[hitBranch]));
 	// std::cout << "hit " << i << " connected to points " << mvdpoints.GetNLinks() << " " << sttpoints.GetNLinks() << " " << gempoints.GetNLinks() << std::endl;
 
 	// There seems to be a bug with ghost hits from the GEM stations. If more than one
 	// MC point is associated to a hit, there is a good chance for false assignments
 	// leading to wrong tracks. For the moment, skip hits with more than 1 GEM point.
-	if (gempoints.GetNLinks() > 1) return 0;
+
+	if (hitBranch == "GEMHit" && mcpoints.GetNLinks() > 1) return 0;
 //	if ((*iter).first == "MVDHitsStrip" && mvdpoints.GetNLinks() > 1) return 0;
 
-	if(mvdpoints.GetNLinks() > 0) array = mvdpoints;
-	else if(sttpoints.GetNLinks() > 0) array = sttpoints;
-	else if(gempoints.GetNLinks() > 0) array = gempoints;
-	else if(ftspoints.GetNLinks() > 0) array = ftspoints;
+	array = mcpoints;
 
-	if (array.GetNLinks() == 0)
+
+	if (array.GetNLinks() == 0){
+
 		return 0;
-
+	}
 	return (FairMCPoint *) FairRootManager::Instance()->GetCloneOfLinkData(array.GetLink(0));
 }
 

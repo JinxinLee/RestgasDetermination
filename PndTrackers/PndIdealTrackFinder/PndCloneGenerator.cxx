@@ -81,17 +81,20 @@ void PndCloneGenerator::SetFirstLastHit(std::map<FairLink, PndTrackCand>& trackC
 
 		FairMultiLinkedData array;
         FairMultiLinkedData_Interface* links = 0;
-        links = (FairMultiLinkedData_Interface*)fBranchMap[FairRootManager::Instance()->GetBranchName(first.GetType())]->At(first.GetIndex());
+        TString hitBranchName;
+        hitBranchName = FairRootManager::Instance()->GetBranchName(first.GetType());
+        links = (FairMultiLinkedData_Interface*)fBranchMap[hitBranchName]->At(first.GetIndex());
         FairMCPoint *firstpoint = 0;
         if (links != 0){
-            firstpoint = GetFairMCPoint(links, array);
+            firstpoint = GetFairMCPoint(hitBranchName,links, array);
             if (firstpoint != 0)
             	fFirstPointMap[links->GetSortedMCTracks().front()] = *firstpoint;
         }
-		links = (FairMultiLinkedData_Interface*)fBranchMap[FairRootManager::Instance()->GetBranchName(last.GetType())]->At(last.GetIndex());
+        hitBranchName = FairRootManager::Instance()->GetBranchName(last.GetType());
+		links = (FairMultiLinkedData_Interface*)fBranchMap[hitBranchName]->At(last.GetIndex());
         FairMCPoint *lastpoint = 0;
 		if (links != 0){
-            lastpoint = GetFairMCPoint(links,array);
+            lastpoint = GetFairMCPoint(hitBranchName,links,array);
 			if (lastpoint != 0)
 				fLastPointMap[links->GetSortedMCTracks().front()]  = *lastpoint;
 		}

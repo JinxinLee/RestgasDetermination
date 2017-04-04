@@ -128,12 +128,13 @@ class NoFtsTrackFunctor : public PndTrackFunctor
 		possibleTrack = (possibleTrack | !(a->GetLinksWithType(ioman->GetBranchId("FTSHit")).GetNLinks() > 0));
 		if (possibleTrack == kFALSE) return kFALSE;
 		StandardTrackFunctor standard;
+		possibleTrack = kFALSE;
 		possibleTrack = (possibleTrack | standard(a, primary));
 
 		return possibleTrack;
 	}
 	void Print() {
-		std::cout << "FTSTrackFunctor: > 5 Hits in Fts" << std::endl;
+		std::cout << "noFTSTrackFunctor: no Hits in Fts + standardFunctor!" << std::endl;
 	}
 };
 
