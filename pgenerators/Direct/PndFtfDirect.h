@@ -87,7 +87,7 @@ private:
   void InitZero(); // initialize numbers etc. to defaults
   void parseConfigfile(); // parse the configuration file
   void Setup(); // setup
-
+  bool fDoSetup;
   /**
    * P_lab(GeV/c)
    */

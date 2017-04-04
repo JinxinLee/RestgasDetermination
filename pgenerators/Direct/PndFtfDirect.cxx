@@ -137,6 +137,7 @@ const G4ParticleDefinition* PndFtfDirect::anti_alpha    = G4AntiAlpha::AntiAlpha
 
 // -----   Default constructor   ------------------------------------------
 PndFtfDirect::PndFtfDirect() :
+fDoSetup(true),
 fMom(0.),
 fMode(0.),
 fSeed(0.),
@@ -191,6 +192,7 @@ part(0)
 // ------------------------------------------------------------------------
 PndFtfDirect::PndFtfDirect(const PndFtfDirect& other) :
 FairGenerator(other),
+fDoSetup(true),
 fMom(other.fMom),
 fMode(other.fMode),
 fSeed(other.fSeed),
@@ -246,6 +248,7 @@ part(other.part)
 // -----   Standard constructor   -----------------------------------------
 
 PndFtfDirect::PndFtfDirect(const char * configfile) :
+fDoSetup(true),
 fMom(0.),
 fMode(0.),
 fSeed(0.),
@@ -318,7 +321,7 @@ part(0)
 
   parseConfigfile();
 
-  Setup();
+  //Setup();
 
   // Calculate ThtMin first. For this we make a cut-off on the value of -t of 1e-2 GeV^2 (~100 MeV/c momentum)
   // This estimated from a parametrization found in thesis of Thomas Wuerschig (figure 6.4, page 121):
@@ -331,6 +334,7 @@ part(0)
 
 
 PndFtfDirect::PndFtfDirect(const char * particle, const char * material, int targetA, const char * generator, double mom, int seed, bool noelastic) :
+fDoSetup(true),
 fMom(0.),
 fMode(0.),
 fSeed(0.),
@@ -403,7 +407,7 @@ part(0)
   fPlab=mom;
   fPlab *= GeV;
 
-  Setup();
+  //Setup();
 
 }
 
@@ -467,6 +471,7 @@ PndFtfDirect::~PndFtfDirect() {
 
 void PndFtfDirect::InitZero()
 {
+  std::cout<<"PndFtfDirect::InitZero()  $$$$$$$$$$$$$$$$$$$$$$$$$  "<<std::endl;
   //-----------------------------------------------------------------------
   // ------- Initialisation
   fverbose  = 0;
@@ -511,11 +516,11 @@ void PndFtfDirect::InitZero()
   fphys = new Test30Physics();
 
 
-  G4DecayPhysics decays;
-  decays.ConstructParticle();
+  //////G4DecayPhysics decays;
+  //////decays.ConstructParticle();
 
-  fpartTable = G4ParticleTable::GetParticleTable();
-  fpartTable->SetReadiness();
+  //////fpartTable = G4ParticleTable::GetParticleTable();
+  //////fpartTable->SetReadiness();
 
   //--------- Geometry definition
 
@@ -547,6 +552,14 @@ void PndFtfDirect::InitZero()
 
 void PndFtfDirect::Setup()
 {
+  std::cout<<"PndFtfDirect::Setup()  $$$$$$$$$$$$$$$$$$$$$$$$$  "<<std::endl;
+  // Protect against unpurpousful multiple execution
+  if (fDoSetup == false) return;
+  fDoSetup=false;
+  
+  fpartTable = G4ParticleTable::GetParticleTable();
+  
+  //
   G4StateManager* g4State=G4StateManager::GetStateManager();
   if (! g4State->SetNewState(G4State_Init)) {
     G4cout << "error changing G4state"<< G4endl;;
@@ -827,6 +840,8 @@ void PndFtfDirect::Setup()
 // -----   Public method ReadEvent   --------------------------------------
 Bool_t PndFtfDirect::ReadEvent(FairPrimaryGenerator* primGen)
 {
+  Setup();
+
   // capsulate to get each event somthing sensible, even if it "failed".
   // I.e. when elastics are produced  by the generator and shall not be stored.
   int tryno=0;
@@ -975,7 +990,7 @@ Bool_t PndFtfDirect::ProcessEvent(FairPrimaryGenerator* primGen)
         //      TParticle  fparticle(id,1,0,0,0,0,Mom,V);
         //      new((*fEvt)[cnt++]) TParticle(fparticle);
         // add track
-        //printf("- I -: new particle at: %f, %f, %f ...\n", fX, fY, fZ);
+        printf("- I -: new particle with: %i, %f, %f, %f ...\n", id, px, py, pz);
         primGen->AddTrack(id, px, py, pz, 0.,0.,0.); //fX, fY, fZ);
 
       }

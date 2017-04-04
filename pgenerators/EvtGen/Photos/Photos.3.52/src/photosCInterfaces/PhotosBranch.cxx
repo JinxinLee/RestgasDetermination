@@ -113,9 +113,9 @@ vector<PhotosBranch *> PhotosBranch::createBranches(vector<PhotosParticle *> par
 				if(forcing==2)
 				{
 					PhotosParticle *p = branch->getDecayingParticle();
-					if(!p)
+					if(!p){
 						if(branch->getMothers().size()>0) p = branch->getMothers().at(0);
-						else continue;
+						}else {continue;}
 					vector<PhotosParticle *> tree = p->getDecayTree();
 					//Add branches for all particles from the list - max O(n*m)
 					std::list<PhotosParticle *>::iterator it2;
@@ -159,9 +159,9 @@ vector<PhotosBranch *> PhotosBranch::createBranches(vector<PhotosParticle *> par
 			if(suppression==2)
 			{
 				PhotosParticle *p = branch->getDecayingParticle();
-				if(!p)
+				if(!p){
 					if(branch->getMothers().size()>0) p = branch->getMothers().at(0);
-					else continue;
+					}else {continue;}
 				vector<PhotosParticle *> tree = p->getDecayTree();
 				//Remove all particles from the list - max O(n*m)
 				std::list<PhotosParticle *>::iterator it;

@@ -17,7 +17,7 @@ const double PhotosRandom::cmran   = 16777213.0/16777216.0;
 
 /* PHORANC definition.
    Thanks to this function, this generator can be used by PHOTOS FORTRAN */
-extern "C" double phoranc_(int *idum)
+extern "C" double phoranc_(int *) //phoranc_(int *idum)
 {
 	return Photos::randomDouble();
 }

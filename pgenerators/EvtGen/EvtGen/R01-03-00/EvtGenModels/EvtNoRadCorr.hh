@@ -35,7 +35,7 @@ public:
   EvtNoRadCorr() {;}
   virtual ~EvtNoRadCorr() {;}
 
-  virtual void doRadCorr(EvtParticle *p) {;}
+  virtual void doRadCorr(EvtParticle *) {;}
 
 private:
 

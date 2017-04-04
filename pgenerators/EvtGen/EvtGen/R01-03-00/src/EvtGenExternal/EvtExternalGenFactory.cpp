@@ -112,7 +112,7 @@ void EvtExternalGenFactory::definePhotosGenerator(std::string photonType, bool u
 
 }
 
-void EvtExternalGenFactory::defineTauolaGenerator(bool useEvtGenRandom) {
+void EvtExternalGenFactory::defineTauolaGenerator(bool) {  //(bool useEvtGenRandom)
 
 #ifdef EVTGEN_TAUOLA
 
