@@ -150,7 +150,7 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t*)
 
   PndMvdSttGemRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
-//  trackFinder.SetSttTubeArray(fTubeArray);
+  trackFinder.SetSttTubeArray(fTubeArray);
 
   FillHitArray();
 
@@ -203,7 +203,7 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t*)
 		  myTrack->SetTimeStampError(myCand->GetTimeStampError());
 	  }
 	  myTrack->SetLink(FairLink("MVDRiemannTrackCand", i));
-	  myTrack->SetTrackCandRef(myCand);
+	  myTrack->SetTrackCand(*myCand);
 
 	  if (fVerbose > 1) {
 		  std::cout << i << ": ";
