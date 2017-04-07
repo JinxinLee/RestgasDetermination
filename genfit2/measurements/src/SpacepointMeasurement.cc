@@ -25,6 +25,8 @@
 #include "HMatrixUV.h"
 #include "MeasurementOnPlane.h"
 
+#include "TBuffer.h"
+
 #include <cassert>
 
 

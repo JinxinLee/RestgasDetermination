@@ -18,6 +18,8 @@
 */
 
 #include "HMatrixPhi.h"
+
+#include "TBuffer.h"
 #include <cassert>
 #include <alloca.h>
 #include <math.h>

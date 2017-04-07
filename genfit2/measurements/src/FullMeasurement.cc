@@ -23,6 +23,8 @@
 #include <RKTrackRep.h>
 #include <HMatrixUnit.h>
 
+#include "TBuffer.h"
+
 #include <cassert>
 
 

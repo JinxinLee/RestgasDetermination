@@ -33,6 +33,7 @@
 #include <Math/ProbFunc.h>
 #include <TDecompChol.h>
 #include <TMatrixDSymEigen.h>
+#include "TBuffer.h"
 #include <algorithm>
 
 using namespace genfit;

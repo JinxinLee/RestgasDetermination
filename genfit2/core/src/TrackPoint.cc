@@ -23,6 +23,8 @@
 #include "Exception.h"
 #include "KalmanFitterInfo.h"
 
+#include "TBuffer.h"
+
 #include <iostream>
 
 

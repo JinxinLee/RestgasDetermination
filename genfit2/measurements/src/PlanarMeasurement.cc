@@ -25,6 +25,8 @@
 #include <HMatrixV.h>
 #include <HMatrixUV.h>
 
+#include "TBuffer.h"
+
 #include <cassert>
 
 

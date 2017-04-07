@@ -19,6 +19,8 @@
 
 #include "KalmanFitterInfo.h"
 
+#include "TBuffer.h"
+
 #include <cassert>
 #include <iostream>
 

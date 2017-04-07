@@ -19,6 +19,8 @@
 
 #include "ThinScatterer.h"
 
+#include "TBuffer.h"
+
 #include <iostream>
 
 

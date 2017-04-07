@@ -20,6 +20,8 @@
 #include "StateOnPlane.h"
 #include "AbsTrackRep.h"
 
+#include "TBuffer.h"
+
 #include <cassert>
 #include <iostream>
 
