@@ -11,6 +11,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "RhoVector3Err.h"
+#include "TBuffer.h"
 #include <float.h>
 
 ClassImp ( RhoVector3Err )

@@ -268,6 +268,7 @@ class GFAbsTrackRep : public TObject{
     fState=st;
     fRefPlane=pl;
     if(cov!=NULL) fCov=*cov;
+    if(aux!=NULL) {;}
   }
   inline void setCov(const TMatrixT<double>& aCov) {
     fCov=aCov;
@@ -338,7 +339,7 @@ class GFAbsTrackRep : public TObject{
    * debugging information if needed. See also the documentation of 
    * GFAbsTrackRep::setData().
    */
-  virtual const TMatrixT<double>* getAuxInfo(const GFDetPlane& pl) {
+  virtual const TMatrixT<double>* getAuxInfo(const GFDetPlane&) { //(const GFDetPlane& pl)
 	  return NULL;
   }
 

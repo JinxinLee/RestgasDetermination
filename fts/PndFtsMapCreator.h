@@ -8,6 +8,8 @@
 class PndFtsTube;
 class PndGeoFtsPar;
 
+class TClonesArray;
+
 class PndFtsMapCreator : public TObject
 {
  public:

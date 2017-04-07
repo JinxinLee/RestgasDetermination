@@ -61,6 +61,7 @@
 #include <math.h>
 #include "TLorentzVector.h"
 #include "TVector3.h"
+#include "TBuffer.h"
 
 ClassImp ( RhoFindOmittedParticle )
 

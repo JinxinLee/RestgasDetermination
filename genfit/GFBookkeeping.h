@@ -80,7 +80,7 @@ class GFBookkeeping : public TObject {
 
  private:
   //protect from call of net yet defined assignement operator
-  GFBookkeeping& operator=(const GFBookkeeping& rhs){return *this;}
+  GFBookkeeping& operator=(const GFBookkeeping&){return *this;}
 
  public:
   ClassDef(GFBookkeeping,2)

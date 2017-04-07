@@ -20,6 +20,7 @@
 #include"GFException.h"
 #include<sstream>
 #include"TString.h"
+#include "TBuffer.h"
 
 
 GFBookkeeping::GFBookkeeping(const GFBookkeeping& bk) : TObject(bk) {

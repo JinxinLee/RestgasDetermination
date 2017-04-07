@@ -74,9 +74,9 @@ TMVAkd_KNN/PndKnnTrain.cpp
 )
 # MCL TMVA Sources.
 SET (TMVA_ALG_SOURCE
-TMVA_MCL/PndMultiClassMlpTrain.cpp
+#TMVA_MCL/PndMultiClassMlpTrain.cpp
 TMVA_MCL/PndMultiClassMlpClassify.cpp
-TMVA_MCL/PndMultiClassBdtTrain.cpp
+#TMVA_MCL/PndMultiClassBdtTrain.cpp
 TMVA_MCL/PndMultiClassBdtClassify.cpp
 )
 

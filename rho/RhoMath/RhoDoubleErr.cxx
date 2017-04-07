@@ -11,7 +11,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "RhoDoubleErr.h"
-
+#include "TBuffer.h"
 #include <math.h>
 
 ClassImp ( RhoDoubleErr )

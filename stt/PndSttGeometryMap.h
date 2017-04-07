@@ -14,8 +14,9 @@ class PndGeoSttPar;
 class PndSttHit;
 class FairGeoNode;
 
-
 class FairHit;
+
+class TClonesArray;
 
 using std::map;
 using std::vector;

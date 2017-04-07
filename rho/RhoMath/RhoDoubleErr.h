@@ -26,6 +26,7 @@
 // the wrong covariance, since the algorithm assumes that the two arguments
 // of the operator* are independent.
 
+#include "TBuffer.h"
 #include "TObject.h"
 #include "RhoError.h"       // for chisqUndef only
 

@@ -12,6 +12,7 @@
 
 #include "RhoLorentzVectorErr.h"
 #include "RhoVector3Err.h"
+#include "TBuffer.h"
 
 ClassImp ( RhoLorentzVectorErr )
 
