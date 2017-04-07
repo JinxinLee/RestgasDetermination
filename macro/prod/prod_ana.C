@@ -1,3 +1,18 @@
+// --------------------------------------------------------------------------------------
+//
+// Example analysis macro using PndSimpleCombiner(Task). !! MODIFY for your purpose !!
+// 
+// USAGE:
+// prod_ana.C( <pref>, <from>, <to>, [nevt] )
+// 
+//    <pref>     : input/output file names prefix or full input file name
+//    <from>     : first run number
+//    <to>       : last run number
+//    [mode]     : arbitrary mode number; default: 0
+//    [nevt]     : number of events; default: 0 = all
+// 
+// --------------------------------------------------------------------------------------
+
 bool checkfile(TString fn)
 {
 	bool fileok=true;
@@ -12,35 +27,23 @@ bool checkfile(TString fn)
 
 int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 {
- 	if (prefix=="") 
-	{
-		cout << "Example analysis macro using PndSimpleCombiner(Task). !! MODIFY for your purpose !!\n\n";
-		cout << "USAGE:\n";
-		cout << "prod_ana.C( <pref>, <from>, <to>, [nevt] )\n\n";
-		cout << "   <pref>     : output file names prefix\n";
-		cout << "   <from>     : first run number\n";
-		cout << "   <to>       : last run number\n";
-		cout << "   [mode]     : arbitrary mode number; default: 0\n";
-		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
-		return 0;
-	}
-	
-	
+
 	// ****************************************
 	// configuration for PndSimpleCombinerTask
 	//
 	//           APPLY CHANGES HERE!
 	// ****************************************
 
-	double   Mom      = 12.;
+	double   Mom      = 6.569;
 	
-	TString  anadecay = "D0->K- pi+";
-	TString  anaparms = "qamc:fitvtx:mwin(D0)=1.0";
+	TString  anadecay = "D0 -> K- pi+; pbp->D0 D0_bar";
+	TString  anaparms = "fit4cbest:mwin=0.8";
 	
 	// this sets fast/full sim mode automatically by checking for input file name suffix
-	// --> if not wanted, set to either true or false	
-	bool     fastsim  = (prefix.EndsWith(".root") && prefix.Contains("_fsim"))  // prefix is full input file name
-						|| gSystem->AccessPathName(Form("%s_%d_pid.root",prefix.Data(),from)); 
+	//bool     fastsim  = (prefix.EndsWith(".root") && prefix.Contains("_fsim")) || gSystem->AccessPathName(Form("%s_%d_pid.root",prefix.Data(),from));	
+
+	// --> if not wanted, set to either true or false
+	bool     fastsim  = false;
 	
 	// the run number for PndSimpleAnalysis task; 
 	// running over multiple files sets run number to first input file number
@@ -49,11 +52,57 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// run software trigger (trigger definition might be outdated)
 	bool     runST    = false;
 	
+	
+	
 	// ****************************************
 	//           APPLY CHANGES HERE!
 	//
 	// configuration for PndSimpleCombinerTask
 	// ****************************************
+
+
+	// Print some help text
+ 	if (prefix=="") 
+	{
+		cout << "Example analysis macro using PndSimpleCombiner(Task). !! MODIFY for your purpose !!\n\n";
+		cout << "USAGE:\n";
+		cout << "prod_ana.C( <pref>, <from>, <to>, [nevt] )\n\n";
+		cout << "   <pref>     : input/output file names prefix or full input file name\n";
+		cout << "   <from>     : first run number\n";
+		cout << "   <to>       : last run number\n";
+		cout << "   [mode]     : arbitrary mode number; default: 0\n";
+		cout << "   [nevt]     : number of events; default: 0 = all\n\n";
+	}	
+	
+	// if Mom<0, interprete as -E_cm
+	double mp = 0.938272;
+	double Ecm = 0;
+	
+	// if mom<0, it's -E_cm -> compute mom
+	if (Mom<0)
+	{
+		Ecm = -Mom;
+		double X = (Mom*Mom-2*mp*mp)/(2*mp);
+		Mom = sqrt(X*X-mp*mp);
+	}
+	else
+	{
+		Ecm = sqrt(pow(sqrt(Mom*Mom + mp*mp) + mp,2) - Mom*Mom);
+	}
+	
+	// Print current analysis configuration
+	cout << "------------------------------------------------\n";
+	cout << "        Current analysis configuration\n";
+	cout << "------------------------------------------------\n";
+	printf( " p_beam   : %.3f GeV/c\n",Mom);
+	printf( " E_cm     : %.3f GeV\n",Ecm);
+	cout << " reco     : "<<anadecay<<endl;
+	cout << " params   : "<<anaparms<<endl;
+	cout << " softtrig : "<<(runST?"yes":"no")<<endl;
+	cout << "------------------------------------------------\n\n";
+	
+	// if started without parameters -> stop here
+	if (prefix=="") return 0;
 	
 	
 	TString suffix = fastsim ? "fsim" : "pid";
@@ -135,16 +184,6 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// *** PndSimpleCombinerTask ***
 	// *****************************
 		
-	// if Mom<0, interprete as -E_cm
-	double mp = 0.938272;
-	
-	// if mom<0, it's -E_cm -> compute mom
-	if (Mom<0)
-	{
-		double X = (Mom*Mom-2*mp*mp)/(2*mp);
-		Mom = sqrt(X*X-mp*mp);
-	}
-	
 	// PID algorithm for the PndSimpleCombinerTask (for Eventshape variables)
 	TString pidalgo = "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoRich;PidAlgoSciT";
 	if (fastsim) pidalgo = "PidChargedProbability";
@@ -152,6 +191,8 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	// allow shortcuts
 	anadecay.ReplaceAll("pbp","pbarpSystem");
 	anadecay.ReplaceAll("pbp0","pbarpSystem0");
+	anaparms.ReplaceAll("pbp","pbarpSystem");
+	anaparms.ReplaceAll("pbp0","pbarpSystem0");
 	
 	// Prevent generator from throwing a lot of warnings
 	//TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
