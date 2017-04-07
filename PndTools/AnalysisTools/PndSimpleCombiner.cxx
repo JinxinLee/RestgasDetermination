@@ -52,9 +52,9 @@ using std::endl;
 // -------------------------------------------------------------------------
 //  constructor
 // -------------------------------------------------------------------------
-PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params) : 
+PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params, double Ecm) : 
 	fAnalysis(fAna), fDecay(decay), fGlobParams(params), fNLists(11), fVerbose(0), 
-	fEmin(0.), fPmin(0.), fESel(0), fPSel(0)		
+	fEmin(0.), fPmin(0.), fESel(0), fPSel(0), fEcm(Ecm)		
 {	
 	// initialize mapping pdg -> list index and list name
 	int pdgcodes[]     = {    -11,              11,           -13,         13,         211,        -211,        321,        -321,        2212,         -2212,         22};
@@ -71,7 +71,9 @@ PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString p
 		fIdxListNameMap[i]       = pdgnames[i];   // maps list index -> generic list name (ElectronPlus, PionMinus, ...; see above)
 	}
 	// set initial pid configuration
-	SetPid("All", "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT;PidAlgoRich");
+	SetPid("All", "PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT;PidAlgoRich;PidAlgoFtof");
+	
+	if (fEcm==0) fEcm=-999;
 	
 	assert(ParseDecay(decay));
 	ParseParams(params);
@@ -111,13 +113,15 @@ int PndSimpleCombiner::SplitString(TString s, TString delim, StringList &toks)
 
 void PndSimpleCombiner::InitDecayInfo(SCDecayInfo &info, int pdg, int idx)
 {
-	info.mpdg  = pdg;     // mother(composite) pdg code
-	info.midx  = idx;     // add another list for the new composite
-	info.daucc = false;   // in case only the daughters have a cc, but not the mother, we have to care (e.g. etac -> Ks K+ pi-)
-	info.mwin  = 0;       // default: no mass selection
-	info.msel  = 0;       // default: no mass selection
-	info.dpdg.clear();    // pdgs of daughters
-	info.didx.clear();    // list index of daughters
+	info.mpdg   = pdg;     // mother(composite) pdg code
+	info.midx   = idx;     // add another list for the new composite
+	info.daucc  = false;   // in case only the daughters have a cc, but not the mother, we have to care (e.g. etac -> Ks K+ pi-)
+	info.mwin   = 0;       // default: no mass selection
+	info.mwinlo = 0;       // default: no mass selection
+	info.mwinhi = 0;       // default: no mass selection
+	info.msel   = 0;       // default: no mass selection
+	info.dpdg.clear();     // pdgs of daughters
+	info.didx.clear();     // list index of daughters
 }
 
 // -------------------------------------------------------------------------
@@ -254,8 +258,23 @@ bool PndSimpleCombiner::ParseParams(TString params)
 			{
 				SCDecayInfo &info = fDecayInfoArray[j];
 				if (info.msel) delete info.msel;
-				info.mwin = window;
-				info.msel = new RhoMassParticleSelector("msel",TDatabasePDG::Instance()->GetParticle(info.mpdg)->Mass(),window);
+				
+				// fetch center as nominal pdg mass; if pbarpSystemX (8888x) set center to Ecm
+				double mean = TDatabasePDG::Instance()->GetParticle(info.mpdg)->Mass();
+
+				if (info.mpdg/10 == 8888) { mean = fEcm;}
+				
+				info.mwin   = window;
+				info.mwinlo = mean - window/2; 
+				info.mwinhi = mean + window/2; 
+				
+				// check if Ecm was not set and particle is pbarpSystem
+				if (mean>-999)
+					info.msel = new RhoMassParticleSelector("msel",mean,window);
+				else
+				{
+					info.mwin = -1; // indicates that we skip the mass window cut for pbarpSystem if Ecm was not set
+				}
 			}
 		}
 		// ****
@@ -263,7 +282,7 @@ bool PndSimpleCombiner::ParseParams(TString params)
 		// ****
 		else if (pair[0].BeginsWith("mwin"))
 		{
-			// extract particle name from string 'mwin(D0)'
+			// extract particle name from strings like 'mwin(D0)'
 			pair[0] = pair[0](5,pair[0].Length()-6);
 			
 			if (!TDatabasePDG::Instance()->GetParticle(pair[0])) {cout <<"[PndSimpleCombiner] **** WARNING : Unknown particle type '"<<pair[0]<<"'"<<endl;continue;}
@@ -273,6 +292,7 @@ bool PndSimpleCombiner::ParseParams(TString params)
 			
 			// set default mean and window
 			double mean = TDatabasePDG::Instance()->GetParticle(pdg)->Mass(), window = 0;
+			if (pdg/10 == 8888) { mean = fEcm; }
 			
 			// range setting like 1.2|1.6 ?
 			if (pair[1].Contains("|"))
@@ -294,8 +314,17 @@ bool PndSimpleCombiner::ParseParams(TString params)
 				if (abs(info.mpdg) == abs(pdg))
 				{
 					if (info.msel) delete info.msel;
-					info.mwin = window;
-					info.msel = new RhoMassParticleSelector("msel",mean,window);
+					info.mwin   = window;
+					info.mwinlo = mean - window/2;
+					info.mwinhi = mean + window/2;
+					
+					// check if Ecm was not set and particle is pbarpSystem
+					if (mean>-999)
+						info.msel = new RhoMassParticleSelector("msel",mean,window);
+					else
+					{
+						info.mwin = -1; // indicates that we skip the mass window cut for pbarpSystem if Ecm was not set
+					}
 				}
 			}	
 		}
@@ -458,8 +487,9 @@ int  PndSimpleCombiner::AntiPdg(int pdg)
 // Prints the configuration
 void PndSimpleCombiner::Print()
 {
-	cout <<endl<<"[PndSimpleCombiner] **** Configuration"<<endl<<"---------------------------"<<endl;
+	cout <<"\n------------------------------------------"<<endl<<"[PndSimpleCombiner] **** Configuration"<<endl<<"------------------------------------------"<<endl;
 	
+	cout <<"E_cm           = "<<fEcm<<endl<<endl;
 	cout <<"Neutrals E_min = "<<fEmin<<endl;
 	cout <<"Charged  p_min = "<<fPmin<<endl<<endl;
 	
@@ -472,8 +502,11 @@ void PndSimpleCombiner::Print()
 		cout <<"Decay "<<i<<" : " << TDatabasePDG::Instance()->GetParticle(info.mpdg)->GetName()<<"("<<info.mpdg<<"/"<<info.midx<<") -> ";
 		for (size_t j=0;j<info.dpdg.size();++j) cout << TDatabasePDG::Instance()->GetParticle(info.dpdg[j])->GetName()<<"("<<info.dpdg[j]<<"/"<<info.didx[j]<<") ";
 		
-		cout <<"  daucc: "<<info.daucc;
-		cout <<"  mass window:"<<info.mwin;
+		cout <<" //  daucc: "<<info.daucc;
+		cout <<"  //  mass window: ";
+		if (info.mwin>0) cout <<" ["<<info.mwinlo<<" ; "<<info.mwinhi<<"] = "<<info.mwin<<" GeV/c²"<<endl;
+		else if (info.mwin<0) cout <<" *** skipped due to missing Ecm setting *** "<<endl;
+		else cout <<"none"<<endl;
 		cout <<endl;
 	}
 	cout <<endl;
@@ -482,7 +515,7 @@ void PndSimpleCombiner::Print()
 		printf("%-16s : %s, %s\n",fIdxListNameMap[i].Data(),fIdxPidCritMap[i].Data(),fIdxPidAlgoMap[i].Data());
 	}
 	
-	cout <<endl;
+	cout <<"\n------------------------------------------\n\n"<<endl;
 }
 
 // -------------------------------------------------------------------------

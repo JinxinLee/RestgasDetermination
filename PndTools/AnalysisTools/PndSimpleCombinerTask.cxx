@@ -71,7 +71,7 @@ using std::endl;
 PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms, double p, int run, int mode) :
   FairTask("PndSimpleCombinerTask"), fVerbose(0), fEvtCount(0), fRun(run), fMode(mode), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
-  fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT;PidAlgoRich"),
+  fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT;PidAlgoRich;PidAlgoFtof"),
   fQaMC(false), fQaEventShape(false), fQaEvShapeNtp(false), fFit4C(false), fBest4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), 
   fAnalysis(0), fSimpleCombiner(0), fNodump(0), nmc(0), nevt(0)
 { 
@@ -148,7 +148,7 @@ InitStatus PndSimpleCombinerTask::Init()
 	
 	if (fAnaDecay!="")
 	{
-		fSimpleCombiner   = new PndSimpleCombiner(fAnalysis, fAnaDecay, fAnaParms);
+		fSimpleCombiner   = new PndSimpleCombiner(fAnalysis, fAnaDecay, fAnaParms, fIni.M());
 	
 		fSimpleCombiner->SetVerbose(fVerbose);
 		fSimpleCombiner->Print();
@@ -201,7 +201,7 @@ InitStatus PndSimpleCombinerTask::Init()
 	
 	
 		// ****** Print out some info from PndSimpleCombinerTask
-	cout <<endl<<"[PndSimpleCombinerTask] **** Configuration"<<endl<<"---------------------------"<<endl;
+	cout <<"\n------------------------------------------"<<endl<<"[PndSimpleCombinerTask] **** Configuration"<<endl<<"------------------------------------------"<<endl;
 	cout <<"Fitting       : ";
 	if (fFit4C)  cout <<"4-C ( chi^2 < "<<fFit4CChiCut<<")";
 	if (fFitVtx) cout <<"  Vertex ( chi^2 < "<<fFitVtxChiCut<<")";
@@ -211,7 +211,7 @@ InitStatus PndSimpleCombinerTask::Init()
 	if (fQaMC)         cout <<"nmc  ";
 	if (fQaEvShapeNtp) cout <<"nevt  ";
 	for (int i=0;i<fNntp;++i) if (!(fNodump & (1<<i))) cout <<"ntp"<<i<<"("<<TDatabasePDG::Instance()->GetParticle(vmpdg[i])->GetName()<<")  ";
-	cout <<endl<<endl;
+	cout <<"\n------------------------------------------\n\n"<<endl;
 
 	
 	return kSUCCESS;

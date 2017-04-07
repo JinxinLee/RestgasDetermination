@@ -44,21 +44,23 @@ typedef std::vector<TString> StringList;
 
 struct SCDecayInfo
 {
-	int mpdg;
-	int midx;
-	int ndaug;
-	bool daucc;
-	double mwin;
-	RhoMassParticleSelector *msel;
-	std::vector<int> dpdg;
-	std::vector<int> didx;
+	int mpdg;                       // mother(this) pdg code
+	int midx;                       // list index
+	int ndaug;                      // number of daughters
+	bool daucc;                     // do daughters have a cc?
+	double mwin;                    // mass selection window width
+	double mwinlo;                  // selection window low edge
+	double mwinhi;                  // selection window high edge
+	RhoMassParticleSelector *msel;  // mass selector
+	std::vector<int> dpdg;          // pdg codes of daughters
+	std::vector<int> didx;          // list indeces of daughters
 };
 
 class PndSimpleCombiner
 {
 public:
 	// *** Constructors   
-	PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params="");
+	PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params="", double Ecm=0);
 	
 	// *** Destructor 
 	~PndSimpleCombiner();	
@@ -98,6 +100,7 @@ private:
 	int          fVerbose;
 	double       fEmin;
 	double       fPmin;
+	double       fEcm;
 	
 	RhoEnergyParticleSelector   *fESel;
 	RhoMomentumParticleSelector *fPSel;
