@@ -54,7 +54,7 @@ using std::endl;
 // -------------------------------------------------------------------------
 PndSimpleCombiner::PndSimpleCombiner(PndAnalysis *fAna, TString decay, TString params, double Ecm) : 
 	fAnalysis(fAna), fDecay(decay), fGlobParams(params), fNLists(11), fVerbose(0), 
-	fEmin(0.), fPmin(0.), fESel(0), fPSel(0), fEcm(Ecm)		
+	fEmin(0.), fPmin(0.), fEcm(Ecm), fESel(0), fPSel(0)		
 {	
 	// initialize mapping pdg -> list index and list name
 	int pdgcodes[]     = {    -11,              11,           -13,         13,         211,        -211,        321,        -321,        2212,         -2212,         22};
