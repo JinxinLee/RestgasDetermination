@@ -121,6 +121,7 @@ SdsData/PndSdsDigiPixelMCInfo.cxx
 RichData/PndRichPhoton.cxx
 RichData/PndRichPDPoint.cxx
 RichData/PndRichBarPoint.cxx
+RichData/PndRichDigi.cxx
 RichData/PndRichHit.cxx
 RichData/PndRichPDHit.cxx
 RichData/PndRichTSPDHit.cxx
@@ -226,6 +227,7 @@ SdsData/PndSdsDigiPixelMCInfo.h
 RichData/PndRichPhoton.h
 RichData/PndRichPDPoint.h
 RichData/PndRichBarPoint.h
+RichData/PndRichDigi.h
 RichData/PndRichHit.h
 RichData/PndRichPDHit.h
 RichData/PndRichTSPDHit.h

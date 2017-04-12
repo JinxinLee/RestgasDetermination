@@ -68,6 +68,7 @@
 #pragma link C++ class  PndRichPhoton+;
 #pragma link C++ class  PndRichPDPoint+;
 #pragma link C++ class  PndRichBarPoint+;
+#pragma link C++ class  PndRichDigi+;
 #pragma link C++ class  PndRichHit+;
 #pragma link C++ class  PndRichPDHit+;
 #pragma link C++ class  PndRichTSPDHit+;
