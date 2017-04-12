@@ -13,6 +13,7 @@
 #include "PndRichPhoton.h"
 #include "PndRichPDHit.h"
 #include "PndRichMirrorSegment.h"
+#include "PndRichHitFinder.h"
 
 #include "TH1F.h"
 #include "TF1.h"

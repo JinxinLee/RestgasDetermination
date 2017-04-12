@@ -88,6 +88,7 @@ PndRich::PndRich(const char* name, Bool_t active)
    if ( fGeoH == NULL )
       fGeoH = PndGeoHandling::Instance();
    fGeoVersion = 313; //default geometry
+   std::cout<<"-I- PndRich:"<<std::endl;
 }
 
 PndRich::~PndRich()

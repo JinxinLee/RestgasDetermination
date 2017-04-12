@@ -212,6 +212,9 @@ class  PndRichGeo : public FairGeoSet
      /*! */
     UInt_t phDetNumY() {return fPhDetNumY;}
    
+     /*! */
+    UInt_t sensorsPerDevice() {return fSensorsPerDevice;}
+   
     ClassDef(PndRichGeo,1)
 };
 

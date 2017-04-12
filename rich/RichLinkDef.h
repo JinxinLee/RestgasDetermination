@@ -19,5 +19,6 @@
 #pragma link C++ class PndRichHitWriteoutBuffer+;
 #pragma link C++ class PndRichHitRingSorter+;
 #pragma link C++ class PndRichHitSorterTask+;
+#pragma link C++ class PndRichHitFinder+;
 
 #endif

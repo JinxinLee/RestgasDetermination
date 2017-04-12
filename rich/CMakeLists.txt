@@ -45,6 +45,7 @@ PndRichCalDbPar.cxx
 PndRichHitWriteoutBuffer.cxx
 PndRichHitRingSorter.cxx
 PndRichHitSorterTask.cxx
+PndRichHitFinder.cxx
 )
 
 set(LINKDEF RichLinkDef.h)

@@ -9,7 +9,7 @@
 #define PndRichHitWRITEOUTBUFFER_H_
 
 #include "FairWriteoutBuffer.h"
-#include "PndRichPDHit.h"
+#include "PndRichDigi.h"
 
 class FairTimeStamp;
 
@@ -28,7 +28,7 @@ public:
 	virtual void EraseDataFromDataMap(FairTimeStamp* data);
 protected:	
 
-	std::map<PndRichPDHit, double> fData_map;
+	std::map<PndRichDigi, double> fData_map;
 	
 	ClassDef(PndRichHitWriteoutBuffer, 1);
 };

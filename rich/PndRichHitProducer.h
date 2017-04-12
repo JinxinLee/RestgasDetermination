@@ -3,10 +3,11 @@
 
 
 #include "FairTask.h"
+#include "PndRichDigi.h"
 #include "PndRichHit.h"
 #include "PndRichGeo.h"
 #include "PndRichPDHit.h"
-#include "PndRichTSPDHit.h"
+//#include "PndRichTSPDHit.h"
 #include "PndRichResolution.h"
 #include "TVector3.h"
 
@@ -34,7 +35,7 @@ class PndRichHitProducer : public FairTask
   virtual void Exec(Option_t* opt);
 
   void AddXPDHit(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos, Int_t index, Double_t time );
-  PndRichPDHit* AddTSPDHit(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos, Int_t index, Double_t time );
+  PndRichDigi* AddDigi(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos, Int_t index, Double_t time );
   PndRichPDHit* AddPDHit(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos, Int_t index, Double_t time );
   PndRichHit* AddHit(Int_t detID, Int_t sensorId, TVector3& pos, TVector3& dpos,
                      Double_t thetaC, Double_t errThetaC, Int_t index);
@@ -59,6 +60,9 @@ class PndRichHitProducer : public FairTask
   UInt_t fNumRand;
   Bool_t fPersistency;
   Bool_t fTimeOrderedDigi;
+  Double_t fDeadTime;
+  Double_t fEventTime;
+  Double_t fPreviousEventTime;
   
   Float_t fPosResolution;                    // Position smearing [cm]
   PndRichResolution* fRichResolution;

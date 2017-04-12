@@ -11,7 +11,7 @@
 
 #include <PndRichHitSorterTask.h>
 
-#include "PndRichPDHit.h"
+#include "PndRichDigi.h"
 #include "PndRichHitRingSorter.h"
 
 ClassImp(PndRichHitSorterTask);
@@ -32,9 +32,9 @@ void PndRichHitSorterTask::AddNewDataToTClonesArray(FairTimeStamp* data)
 	 TClonesArray* myArray = ioman->GetTClonesArray(fOutputBranch);
 	 if (fVerbose > 1){
 		 std::cout << "-I- PndRichHitSorterTask::AddNewDataToTClonesArray Data: " ;
-		 std::cout <<  *(PndRichPDHit*)(data) << std::endl;
+		 std::cout <<  *(PndRichDigi*)(data) << std::endl;
 	 }
-	 new ((*myArray)[myArray->GetEntries()]) PndRichPDHit(*(PndRichPDHit*)(data));
+	 new ((*myArray)[myArray->GetEntries()]) PndRichDigi(*(PndRichDigi*)(data));
 }
 
 FairRingSorter* PndRichHitSorterTask::InitSorter(Int_t numberOfCells, Double_t widthOfCells) const{

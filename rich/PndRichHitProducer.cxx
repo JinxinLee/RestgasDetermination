@@ -7,6 +7,7 @@
 
 #include "FairTask.h"
 
+#include "PndRichDigi.h"
 #include "PndRichHit.h"
 #include "PndRichPDHit.h"
 #include "PndRichPDPoint.h"
@@ -43,6 +44,7 @@ PndRichHitProducer::PndRichHitProducer() :
   fNumRand = 0;
   fPersistency = kTRUE;
   fTimeOrderedDigi = kFALSE;
+  fPreviousEventTime = -1;
 }
 // -------------------------------------------------------------------------
 
@@ -98,8 +100,8 @@ InitStatus PndRichHitProducer::Init() {
   // Create and register output array
   //if (fTimeOrderedDigi)
    {
-      fDataBuffer = new PndRichHitWriteoutBuffer("RichPDHit", "PndRich", fPersistency);
-      fDataBuffer = (PndRichHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer("RichPDHit", fDataBuffer);
+      fDataBuffer = new PndRichHitWriteoutBuffer("RichDigi", "PndRich", fPersistency);
+      fDataBuffer = (PndRichHitWriteoutBuffer*)ioman->RegisterWriteoutBuffer("RichDigi", fDataBuffer);
       fDataBuffer->ActivateBuffering(fTimeOrderedDigi);    
    }
    //else
@@ -155,7 +157,10 @@ InitStatus PndRichHitProducer::Init() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndRichHitProducer::Exec(Option_t* ) {
-  
+
+   fEventTime = FairRootManager::Instance()->GetEventTime();
+   std::cout << "FairRootManager::Instance()->GetEventTime() = " << fEventTime << " " << fPreviousEventTime << " " << fGeo->sensorsPerDevice() << std::endl;
+   
   // Reset output array
   //if ( ! fPDHitArray ) Fatal("Exec", "No HitArray");
   
@@ -164,11 +169,11 @@ void PndRichHitProducer::Exec(Option_t* ) {
    //pixels of PhDet
    UInt_t iXmax = fGeo->phDetNPixelMaxX();
    UInt_t iYmax = fGeo->phDetNPixelMaxY();
-   UInt_t map[iXmax][iYmax];
+/*   UInt_t map[iXmax][iYmax];
    for (UInt_t ix=0; ix<iXmax; ix++)
       for (UInt_t iy=0; iy<iYmax; iy++)
          map[ix][iy] = 0;
-  
+  */
   // Loop over RichPDpoints
   Int_t nPoints = fPDPointArray->GetEntriesFast();
   PndRichPDPoint *point = 0;
@@ -184,30 +189,43 @@ void PndRichHitProducer::Exec(Option_t* ) {
         TVector3 posd = fGeo->PositionDiscretization(pos);
         if (posd.Z())
         {
-           Double_t t = gRandom->Gaus(point->GetTime(),0.05); //ns
-           if (fPhDetNoise) { // add noise
+           Double_t t = gRandom->Gaus(point->GetTime(),0.5); //ns
+/*           if (fPhDetNoise) { // add noise
               std::vector<Double_t> tn = PhDetNoise();
-              for (size_t i=0; i<tn.size(); i++)
+              for (UInt_t i=0; i<tn.size(); i++)
                  if (t-tn.at(i)<720&&t>tn.at(i)) t = tn.at(i);
-           }
-           AddXPDHit(point->GetDetectorID(), fGeo->sensorIndex(), posd, sig, iPoint, t );
-           UInt_t ix = fGeo->IndexX(posd);
-           UInt_t iy = fGeo->IndexY(posd);
-           if ( ix<iXmax && iy<iYmax )
-              map[ix][iy] = 1;
+           }*/
+           AddDigi(point->GetDetectorID(), fGeo->sensorIndex(), posd, sig, iPoint, t );
+//           UInt_t ix = fGeo->IndexX(posd);
+//           UInt_t iy = fGeo->IndexY(posd);
+//           if ( ix<iXmax && iy<iYmax )
+//              map[ix][iy] = 1;
         }
      }
   } // Loop over MCPoints
    if (fPhDetNoise) {
-      for (UInt_t ix=0; ix<iXmax; ix++)
+/*      for (UInt_t ix=0; ix<iXmax; ix++)
          for (UInt_t iy=0; iy<iYmax; iy++)
             if (!map[ix][iy]) {
                std::vector<Double_t> tn = PhDetNoise();
                if (tn.size()&&tn.back()>-50) {
                   pos = fGeo->PixelPosition(ix,iy);
-                  AddXPDHit(0, fGeo->sensorIndex(), pos, sig, 0, tn.back() );
+                  AddDigi(0, fGeo->sensorIndex(), pos, sig, 0, tn.back() );
                }
-            }
+            }*/
+      Int_t ncell = fGeo->sensorsPerDevice(); // in one direction
+      Double_t fnoise = 1e4*1e-9*ncell*ncell; //GHz(=1/ns) per pixel
+      Double_t dt = fEventTime - fPreviousEventTime; //ns
+      Int_t nn = gRandom->Poisson(iXmax*iYmax*fnoise*dt); //number of fired pixels
+      for (Int_t i=0; i<nn; i++)
+      {
+         Int_t gind = gRandom->Integer(iXmax*iYmax);
+         Int_t ix = gind%iXmax;
+         Int_t iy = gind/iXmax;
+         pos = fGeo->PixelPosition(ix,iy);
+         Double_t t = -dt*gRandom->Uniform();
+         AddDigi(0, fGeo->sensorIndex(), pos, sig, 0, t );
+      }
    }
   
 /*   if (!fTimeOrderedDigi)
@@ -244,6 +262,7 @@ void PndRichHitProducer::Exec(Option_t* ) {
       }
    } // Loop over MCPoints
    }*/
+   fPreviousEventTime = FairRootManager::Instance()->GetEventTime();
 }
 // -------------------------------------------------------------------------
 
@@ -271,18 +290,19 @@ std::vector<Double_t> PndRichHitProducer::PhDetNoise()
 void PndRichHitProducer::AddXPDHit(Int_t detID, Int_t sensorId,
                                    TVector3& pos, TVector3& dpos, 
                                    Int_t index, Double_t time ){
-   //if (fTimeOrderedDigi) AddTSPDHit(detID,sensorId,pos,dpos,index,time);
+   //if (fTimeOrderedDigi) AddDigi(detID,sensorId,pos,dpos,index,time);
    //else AddTSPDHit(detID,sensorId,pos,dpos,index,time);
-   AddTSPDHit(detID,sensorId,pos,dpos,index,time);
+   AddDigi(detID,sensorId,pos,dpos,index,time);
 }
 
-PndRichPDHit* PndRichHitProducer::AddTSPDHit(Int_t detID, Int_t sensorId,
-                                             TVector3& pos, TVector3& dpos, 
-                                             Int_t index, Double_t time ){
+PndRichDigi* PndRichHitProducer::AddDigi(Int_t detID, Int_t sensorId,
+                                          TVector3& pos, TVector3& dpos, 
+                                          Int_t index, Double_t time ){
    Double_t EventTime = FairRootManager::Instance()->GetEventTime();
+   fDeadTime = 100; // ns;
 
    Double_t timeThreshold=-999; //[R.K.Jan/2017] Variable was not initialized!
-   PndRichPDHit *hitnew =  new PndRichPDHit(index,detID, sensorId, pos, dpos, time+EventTime, timeThreshold, EventTime+time);
+   PndRichDigi *hitnew =  new PndRichDigi(index,detID, sensorId, pos, dpos, time+EventTime, timeThreshold, EventTime+time);
    if (fTimeOrderedDigi){
       hitnew->ResetLinks();
       FairEventHeader* evtHeader = (FairEventHeader*)FairRootManager::Instance()->GetObject("EventHeader.");
@@ -291,7 +311,7 @@ PndRichPDHit* PndRichHitProducer::AddTSPDHit(Int_t detID, Int_t sensorId,
       PndRichPDPoint* point  = (PndRichPDPoint*) fPDPointArray->At(index);
       hitnew->AddLinks(*(point->GetPointerToLinks()));
    }
-   fDataBuffer->FillNewData(hitnew, EventTime+time, EventTime+time);
+   fDataBuffer->FillNewData(hitnew, EventTime+time, EventTime+time+fDeadTime);
    return hitnew;
 }
 // ----
@@ -304,9 +324,10 @@ PndRichPDHit* PndRichHitProducer::AddPDHit(Int_t detID, Int_t sensorId,
   Double_t timeThreshold=-999; //[R.K.Jan/2017] Variable was not initialized!
   TClonesArray& clref = *fPDHitArray;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndRichPDHit(index, detID, sensorId, pos, dpos, time, timeThreshold, 0);
+  return new(clref[size]) PndRichPDHit(index, detID, sensorId, pos, dpos, time, timeThreshold);
 }
 // ----
+
 
 // -----   Private method AddHit   --------------------------------------------
 PndRichHit* PndRichHitProducer::AddHit(Int_t detID, Int_t sensorId,
