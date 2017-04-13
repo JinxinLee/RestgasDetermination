@@ -364,6 +364,7 @@ void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
   Double_t BoxPhiMin  = 0. ;    // minimum phi for box generator
   Double_t BoxPhiMax  = 360.;   // maximum   "       "
   Bool_t   BoxCosTht  = false;  // isotropic in cos(theta) instead theta
+  Bool_t   BoxPt	  = false;  // is pt given instead of p
   
   Int_t    BoxType    = 13;     // default particle muon
   Int_t    BoxMult    = 1;      // default particle multiplicity
@@ -386,6 +387,7 @@ void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
       
       if (curpar.BeginsWith("type(")) {GetRange(curpar,type,mult); BoxType = (Int_t)type; BoxMult = (Int_t)mult; }
       if (curpar.BeginsWith("p("))    GetRange(curpar,BoxMomMin,BoxMomMax);
+      if (curpar.BeginsWith("pt("))    {GetRange(curpar,BoxMomMin,BoxMomMax); BoxPt = true;}
       if (curpar.BeginsWith("tht("))   GetRange(curpar,BoxThtMin,BoxThtMax);
       if (curpar.BeginsWith("ctht(")) {GetRange(curpar,BoxThtMin,BoxThtMax); BoxCosTht=true;}
       if (curpar.BeginsWith("phi("))   GetRange(curpar,BoxPhiMin,BoxPhiMax);
@@ -395,7 +397,11 @@ void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
   PndBoxGenerator* boxGen = new PndBoxGenerator(BoxType, BoxMult);
   boxGen->SetDebug(0);
   
-  boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
+  if (BoxPt == true){
+	  boxGen->SetPtRange(BoxMomMin, BoxMomMax);
+  } else {
+	  boxGen->SetPRange(BoxMomMin,BoxMomMax);      // GeV/c
+  }
   boxGen->SetPhiRange(BoxPhiMin, BoxPhiMax);   // Azimuth angle range [degree]
   boxGen->SetThetaRange(BoxThtMin, BoxThtMax); // Polar angle in lab system range [degree]
   
