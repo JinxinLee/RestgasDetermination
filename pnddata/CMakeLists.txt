@@ -124,7 +124,6 @@ RichData/PndRichBarPoint.cxx
 RichData/PndRichDigi.cxx
 RichData/PndRichHit.cxx
 RichData/PndRichPDHit.cxx
-RichData/PndRichTSPDHit.cxx
 RichData/PndRichMirrorSegment.cxx
  
 MvdData/PndMvdApvHit.cxx
@@ -230,7 +229,6 @@ RichData/PndRichBarPoint.h
 RichData/PndRichDigi.h
 RichData/PndRichHit.h
 RichData/PndRichPDHit.h
-RichData/PndRichTSPDHit.h
 RichData/PndRichMirrorSegment.h
  
 MvdData/PndMvdApvHit.h
