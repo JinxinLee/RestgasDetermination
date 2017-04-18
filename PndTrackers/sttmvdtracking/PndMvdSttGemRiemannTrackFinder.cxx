@@ -129,6 +129,10 @@ void PndMvdSttGemRiemannTrackFinder::AddHits(TClonesArray* hits, Int_t branchId)
 	}
 
 	if(branchId == man->GetBranchId("STTCombinedSkewedHits")){
+		if (hits == 0){
+			std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits: no SkewedHits Branch" << std::endl;
+			return;
+		}
 		std::cout << "PndMvdSttGemRiemannTrackFinder::AddHits: SkewedHits " << hits->GetEntriesFast() << std::endl;
 		fSkewedSttHits = hits;
 		for (int i = 0; i < fSkewedSttHits->GetEntries(); i++){
