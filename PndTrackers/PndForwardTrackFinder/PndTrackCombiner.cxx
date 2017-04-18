@@ -27,10 +27,10 @@ vector<PndLineApproximation> PndTrackCombiner::combine(Int_t bigLayer){
 	arr[1] = combine(layer1a4,fExpandedTrackCands[l3],0,2);
 	arr[2] = combine(fExpandedTrackCands[l2],fExpandedTrackCands[l3],1,2);
 
-	cout << "firstAndLast=" << layer1a4.size() << endl;
-	cout << "arr[0]=" << arr[0].size() << endl;
-	cout << "arr[1]=" << arr[1].size() << endl;
-	cout << "arr[2]=" << arr[2].size() << endl;
+//	cout << "firstAndLast=" << layer1a4.size() << endl;
+//	cout << "arr[0]=" << arr[0].size() << endl;
+//	cout << "arr[1]=" << arr[1].size() << endl;
+//	cout << "arr[2]=" << arr[2].size() << endl;
 
 	//new implementation
 	vector<PndLineCombination> combindedLines;

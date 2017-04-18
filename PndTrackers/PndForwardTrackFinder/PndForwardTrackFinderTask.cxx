@@ -77,7 +77,7 @@ void PndForwardTrackFinderTask::Exec(Option_t*) {
 		for(size_t i=0;i<it->second.size();i++)
 			fFirstTrackCand.push_back(it->second[i]);
 	}
-	cout << fFirstTrackCand.size() << " Tracks found " << endl;
+//	cout << fFirstTrackCand.size() << " Tracks found " << endl;
 	if(fFirstTrackCand.size() > 100){
 		fFirstTrackCand.clear();
 		result.clear();
@@ -105,18 +105,18 @@ void PndForwardTrackFinderTask::Exec(Option_t*) {
 
 	//combine the expanded track cands
 	fPndTrackCombiner->init(expandedTrackCands);
-	cout << "----------------------combine module 1" << endl;
+	// cout << "----------------------combine module 1" << endl;
 	vector<PndLineApproximation> combined1 = fPndTrackCombiner->combine(0);
-	cout << "-------------------------combine module 2" << endl;
+	// cout << "-------------------------combine module 2" << endl;
 	vector<PndLineApproximation> combined2 = fPndTrackCombiner->combine(1);
-	cout << "-----------------------------combine module 5" << endl;
+	// cout << "-----------------------------combine module 5" << endl;
 	vector<PndLineApproximation> combined5 = fPndTrackCombiner->combine(4);
-	cout << "-------------------------------combine module 6" << endl;
+	// cout << "-------------------------------combine module 6" << endl;
 	vector<PndLineApproximation> combined6 = fPndTrackCombiner->combine(5);
 
 	combinedTracksHitNum = 0;
 	combinedTracksTrackNum = 0;
-	cout << "save layer tracks " << endl;
+	// cout << "save layer tracks " << endl;
 	saveCombined(combined1,0,fIoman->GetBranchId("LayerTracksHits"),kFALSE);
 	saveCombined(combined2,0,fIoman->GetBranchId("LayerTracksHits"),kFALSE);
 	saveCombined(combined5,0,fIoman->GetBranchId("LayerTracksHits"),kFALSE);
@@ -138,9 +138,9 @@ void PndForwardTrackFinderTask::Exec(Option_t*) {
 	//save
 	combinedTracksHitNum = 0;
 	combinedTracksTrackNum = 0;
-	cout << "save global " << endl;
+	// cout << "save global " << endl;
 	saveCombined(m12,2,fIoman->GetBranchId("GlobalTracksHits"),kFALSE);
-	cout << "save final solution" << endl;
+	// cout << "save final solution" << endl;
 	saveTrackCollection(ptc,kTRUE);
 
 
@@ -161,10 +161,12 @@ void PndForwardTrackFinderTask::FinishEvent() {
 }
 
 void PndForwardTrackFinderTask::Finish() {
-	cout << "Dists:" << endl;
-	for(int i=0;i<20;i++) cout << dists[i] <<";";
-	cout << endl <<"Angles:" << endl;
-	for(int i=0;i<20;i++) cout << angles[i] <<";";
+//	cout << "Dists:" << endl;
+//	for(int i=0;i<20;i++)
+//		cout << dists[i] <<";";
+//	cout << endl <<"Angles:" << endl;
+//	for(int i=0;i<20;i++)
+//		cout << angles[i] <<";";
 }
 
 void PndForwardTrackFinderTask::saveCombined(vector<PndLineApproximation> combined,Int_t branch,Int_t branchID,Bool_t useOrgHits){
@@ -214,7 +216,7 @@ void PndForwardTrackFinderTask::saveCorrectedTracklets(map<Int_t, vector<PndFtsE
 						3 * approx.getLine().getDir().Unit(), v, v, 1, v, v, v);
 				FairTrackParP tp2(v, 2 * v, v, v, 1, v, v, v);
 				PndTrack* myCand = new ((*correctedTracklets)[trackNum++]) PndTrack(tp1, tp2, trackCand);
-				std::cout << "PndForwardTrackFinderTask::saveCorrectedTracklets myCand: " << *myCand << std::endl;
+//				std::cout << "PndForwardTrackFinderTask::saveCorrectedTracklets myCand: " << *myCand << std::endl;
 			}
 		}
 	}
@@ -262,8 +264,8 @@ void PndForwardTrackFinderTask::createStatictcs(vector<PndTrackCollection> c,vec
 		comparator.setZValue((l1.getP1()[2]+l2.getP1()[2])/2);
 		Double_t dist = comparator.getDist2D(l1.getP1(),l2.getP1(),l1.getDir(),l2.getDir());
 		Double_t angle = comparator.getAngle2D(l1.getDir(),l2.getDir());
-		cout << "Dist=" << (Int_t)(dist/5) << endl;
-		cout << "Angle=" << (Int_t)(angle/5) << endl;;
+//		cout << "Dist=" << (Int_t)(dist/5) << endl;
+//		cout << "Angle=" << (Int_t)(angle/5) << endl;;
 		if(dist>=100) dists[19]++;
 		else dists[(Int_t)(dist/5)]++;
 		if(angle>=100) angles[19]++;
