@@ -76,6 +76,9 @@ class PndTrackingQualityMCInfo : public TObject
   void SetQuality(int quality) { fQuality = quality; }
   Int_t GetQuality() { return fQuality; }
 
+  void SetMCQuality(int mcquality) { fMCQuality = mcquality; }
+  Int_t GetMCQuality() { return fMCQuality; }
+
  protected:
  
   Int_t fNofMvdPixelPoints,  fNofMvdStripPoints,  fNofSttParalPoints, fNofSttSkewPoints, fNofGemPoints, fNofFtsPoints;
@@ -90,6 +93,7 @@ class PndTrackingQualityMCInfo : public TObject
   Int_t fPDGCode;
 
   Int_t fQuality;
+  Int_t fMCQuality;
   Int_t fAssoRecoTrackID;
 
   ClassDef(PndTrackingQualityMCInfo,2);

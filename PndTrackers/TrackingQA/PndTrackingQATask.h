@@ -88,6 +88,8 @@ class PndTrackingQATask : public FairTask
   virtual void FillEfficiencies(std::map<Int_t, std::map<TString, std::pair<Double_t, Int_t > > > efficiencies);
   virtual void MapToHist(std::map<Int_t, Double_t>, TH1*);
 
+  virtual void SetQualyHisto(TH1* histo, Bool_t relative, Int_t base=1);
+
   virtual Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 
 
