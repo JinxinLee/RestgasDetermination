@@ -42,6 +42,8 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION
         "Pythia"
         "Weffc"
         "/include/HepMC/"
+        "/include/root/"
+        "/include/Fair"
   )
 
 # -----------------------------------------------------------
