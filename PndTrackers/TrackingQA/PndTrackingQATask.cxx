@@ -515,7 +515,7 @@ void PndTrackingQATask::Finish() {
 	Double_t fullyFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kFullyFound));
 	Double_t partiallyFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kPartiallyFound));
 	Double_t spuriousFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kSpuriousFound));
-	Double_t allFound = fullyFound + partiallyFound + spuriousFound;
+	//Double_t allFound = fullyFound + partiallyFound + spuriousFound; //[R.K.04/2017] unused variable
 	//Double_t notFound = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kNotFound)); //[R.K.03/2017] unused variable
 
 	Double_t ghosts = fQualyHisto->GetBinContent(fQualyHisto->FindFixBin(qualityNumbers::kGhost));

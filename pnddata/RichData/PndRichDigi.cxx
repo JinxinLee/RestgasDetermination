@@ -26,10 +26,10 @@ PndRichDigi::PndRichDigi()
 // -----   Standard constructor   ------------------------------------------
 
 PndRichDigi::PndRichDigi(Int_t index,
-                           Int_t detID, 
+                           Int_t,// detID, //[R.K. 04/2017] unused parameter
                            Int_t sensorId, 
                            TVector3& pos, 
-                           TVector3& dpos,
+                           TVector3&,// dpos, //[R.K. 04/2017] unused parameter
                            Double_t time,
                            Double_t timeThreshold,
                            Double_t timeStamp)
@@ -45,10 +45,10 @@ PndRichDigi::PndRichDigi(Int_t index,
 }
 
 PndRichDigi::PndRichDigi(std::vector<Int_t> index,
-                           Int_t detID, 
+                           Int_t, // detID,  //[R.K. 04/2017] unused parameter
                            Int_t sensorId, 
                            TVector3& pos, 
-                           TVector3& dpos,
+                           TVector3&, // dpos, //[R.K. 04/2017] unused parameter
                            Double_t time,
                            Double_t timeThreshold,
                            Double_t timeStamp)

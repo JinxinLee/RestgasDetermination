@@ -1301,24 +1301,24 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonLeft2(
 //
 
 
-//	      /|
-//	     / |
-//	    /  |
-//	   /  /
-//	  /  / 
-//	 /  /  
-//	/  /   
-//	|  |   
-//	|  |   
-//	|  |   
-//	|  |   
-//	\  \   
-//	 \  \  
-//	  \  \ 
-//	   \  \
-//	    \  |
-//	     \ |
-//	      \|
+//	      /|   //
+//	     / |   //
+//	    /  |   //
+//	   /  /    //
+//	  /  /     //
+//	 /  /      //
+//	/  /       //
+//	|  |       //
+//	|  |       //
+//	|  |       //
+//	|  |       //
+//	\  \       //
+//	 \  \      //
+//	  \  \     //
+//	   \  \    //
+//	    \  |   //
+//	     \ |   //
+//	      \|   //
 
 
 // finding all possible intersections with inner parallel straw region.
@@ -1417,19 +1417,19 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight(
 // geometrical shape considered in this method :
 //
 //
-//	|\
-//	| \
-//	|  \
-//	 \  \
-//	  \  \
-//	   |  |
-//	   |  |
-//	   /  /
-//	  /  /
-//	 /  /
-//	|  /
-//	| /
-//	|/
+//	|\         //
+//	| \        //
+//	|  \       //
+//	 \  \      // 
+//	  \  \     //
+//	   |  |    //
+//	   |  |    //
+//	   /  /    //
+//	  /  /     //
+//	 /  /      //
+//	|  /       //
+//	| /        //
+//	|/         //
 //
 
 // finding all possible intersections with inner parallel straw region.
@@ -1526,19 +1526,19 @@ Short_t PndTrkCTGeometryCalculations::FindTrackEntranceExitbiHexagonRight2(
 // geometrical shape considered in this method :
 //
 //
-//	|\
-//	| \
-//	|  \
-//	 \  \
-//	  \  \
-//	   |  |
-//	   |  |
-//	   /  /
-//	  /  /
-//	 /  /
-//	|  /
-//	| /
-//	|/
+//	|\        //
+//	| \       //
+//	|  \      //
+//	 \  \     //
+//	  \  \    //
+//	   |  |   //
+//	   |  |   //
+//	   /  /   //
+//	  /  /    //
+//	 /  /     //
+//	|  /      //
+//	| /       //
+//	|/        //
 //
 
 // finding all possible intersections with inner parallel straw region.

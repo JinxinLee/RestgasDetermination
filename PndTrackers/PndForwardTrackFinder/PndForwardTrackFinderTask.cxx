@@ -215,7 +215,8 @@ void PndForwardTrackFinderTask::saveCorrectedTracklets(map<Int_t, vector<PndFtsE
 				FairTrackParP tp1(approx.getLine().getP1(),
 						3 * approx.getLine().getDir().Unit(), v, v, 1, v, v, v);
 				FairTrackParP tp2(v, 2 * v, v, v, 1, v, v, v);
-				PndTrack* myCand = new ((*correctedTracklets)[trackNum++]) PndTrack(tp1, tp2, trackCand);
+				//PndTrack* myCand = 
+        new ((*correctedTracklets)[trackNum++]) PndTrack(tp1, tp2, trackCand);
 //				std::cout << "PndForwardTrackFinderTask::saveCorrectedTracklets myCand: " << *myCand << std::endl;
 			}
 		}
