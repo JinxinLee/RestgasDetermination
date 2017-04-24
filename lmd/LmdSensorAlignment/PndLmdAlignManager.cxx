@@ -558,6 +558,9 @@ void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, Pnd
 
 void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner){
 
+	cout << "Aligner " << aligner.getOverlapId() << " starting.\n";
+	//cout << "Saving binaries to: " << _binaryPairFileDirectory << "!\n";
+
 	//start aligner, this can be done concurrently
 	aligner.calculateMatrix();
 
@@ -1742,7 +1745,14 @@ Matrix PndLmdAlignManager::makeFourVector(double x, double y, double z) {
 
 void PndLmdAlignManager::xOption(int option) {
 
-	if(false){
+	if(option==15){
+		cout << "checking if cm and x are about the same data.\n";
+
+		//load pairs.root, it has (row,col) info and (x,y) info
+
+		//check if (x,y)... ell, not. this won't work...
+
+
 
 	}
 	else{

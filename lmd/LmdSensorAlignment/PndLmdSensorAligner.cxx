@@ -519,7 +519,7 @@ bool PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 	//}
 
 	//use ID info from first pair
-	if(simplePairsSensorOne.size()==0){
+	if(simpleSensorOneX.size()==0){
 		ID1 = pair.getId1();
 		ID2 = pair.getId2();
 
@@ -652,7 +652,7 @@ void PndLmdSensorAligner::printAllPairs() {
 	//double avgHit2z=0; //[R.K.03/2017] unused variable
 
 	cout << "pairs simple: " << _simpleStorage << "\n";
-	cout << "number of pairs normal: " << pairs.size() << ", number of simple pairs: " << simpleSensorOneX.size() << "\n";
+	//cout << "number of pairs normal: " << pairs.size() << ", number of simple pairs: " << simpleSensorOneX.size() << "\n";
 
 	/*
 	if(_pairsNormal){
@@ -752,7 +752,9 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 		nPairs = simpleSensorOneX.size();				//number of pairs, TODO: check if all vectors have same size!
 	}
 	else{
-		nPairs = pairs.size();
+		cout << "FATAL: non simple pair storage is no longer supported!\n";
+		exit(1);
+		//nPairs = pairs.size();
 	}
 
 	if(nPairs==0){
@@ -783,7 +785,7 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	//save data
 	int currentIndex=6;				//data starts here
 
-	if(_simpleStorage){
+//	if(_simpleStorage){
 		for(int i=0; i<nPairs; i++){
 			//first, only assume simple storage
 			pdata[currentIndex+0]=simpleSensorOneX[i];
@@ -794,19 +796,19 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 			pdata[currentIndex+5]=simpleSensorTwoZ[i];
 			currentIndex+=6;
 		}
-	}
-	else{
-		for(int i=0; i<nPairs; i++){
-			//first, only assume simple storage
-			pdata[currentIndex+0]=pairs[i].getCol1();
-			pdata[currentIndex+1]=pairs[i].getRow1();
-			pdata[currentIndex+2]=-1;
-			pdata[currentIndex+3]=pairs[i].getCol2();
-			pdata[currentIndex+4]=pairs[i].getRow2();
-			pdata[currentIndex+5]=-1;
-			currentIndex+=6;
-		}
-	}
+//	}
+//	else{
+//		for(int i=0; i<nPairs; i++){
+//			//first, only assume simple storage
+//			pdata[currentIndex+0]=pairs[i].getCol1();
+//			pdata[currentIndex+1]=pairs[i].getRow1();
+//			pdata[currentIndex+2]=-1;
+//			pdata[currentIndex+3]=pairs[i].getCol2();
+//			pdata[currentIndex+4]=pairs[i].getRow2();
+//			pdata[currentIndex+5]=-1;
+//			currentIndex+=6;
+//		}
+//	}
 
 	/*
 	 * the write part is easy, just dump everything. read part is more difficult,
@@ -818,7 +820,8 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 		return false;
 	os.write(reinterpret_cast<const char*>(pdata), std::streamsize(length*sizeof(double)));
 	os.close();
-	delete[] pdata; delete[] header;
+	delete[] pdata;
+	delete[] header;
 	return true;
 }
 
@@ -826,7 +829,8 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
 	//TODO: shouldn't we check if this aligner is even using simpleStorage?
 	if(!_simpleStorage){
-		//cout << "ERROR. reading binary pairs and storing in legacy mode is no longer supported.\n";
+		cout << "ERROR. reading binary pairs and storing in legacy mode is no longer supported.\n";
+		exit(1);
 		return false;
 	}
 
@@ -1028,17 +1032,28 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
 void PndLmdSensorAligner::clearPairs() {
 
-	if(_simpleStorage){
+//	if(_simpleStorage){
 		lastNoOfPairs=simpleSensorOneX.size();
+
+		//call destructors of the member objects (well, they're doubles, so... yeah.)
 		simpleSensorOneX.clear();
 		simpleSensorOneY.clear();
 		simpleSensorOneZ.clear();
 		simpleSensorTwoX.clear();
 		simpleSensorTwoY.clear();
 		simpleSensorTwoZ.clear();
-	}
-	else{
-		lastNoOfPairs=pairs.size();
-		pairs.clear();
-	}
+
+		//force release of allocated memory by vectors
+		vector<double>().swap(simpleSensorOneX);
+		vector<double>().swap(simpleSensorOneY);
+		vector<double>().swap(simpleSensorOneZ);
+		vector<double>().swap(simpleSensorTwoX);
+		vector<double>().swap(simpleSensorTwoY);
+		vector<double>().swap(simpleSensorTwoZ);
+
+//	}
+//	else{
+//		lastNoOfPairs=pairs.size();
+//		pairs.clear();
+//	}
 }

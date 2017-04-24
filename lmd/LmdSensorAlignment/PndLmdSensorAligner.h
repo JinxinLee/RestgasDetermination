@@ -32,12 +32,12 @@ private:
 	int nonSanePairs, skippedPairs, swappedPairs, _verbose;
 	int ID1, ID2;
 
-	//complete Pairs
-	std::vector<PndLmdHitPair> pairs;
+	//complete Pairs, DEPRECATED
+	//std::vector<PndLmdHitPair> pairs;
 
-	//simple pairs old
-	std::vector<std::pair<double, double> > simplePairsSensorOne;
-	std::vector<std::pair<double, double> > simplePairsSensorTwo;
+	//simple pairs old UPDATE: this can go, refactoring
+	//std::vector<std::pair<double, double> > simplePairsSensorOne;
+	//std::vector<std::pair<double, double> > simplePairsSensorTwo;
 
 	//simple pairs new
 	std::vector<double> simpleSensorOneX;
@@ -96,12 +96,12 @@ public:
 		return _moduleID;
 	}
 	int getNoOfPairs(){
-		if(_simpleStorage){
+//		if(_simpleStorage){
 			return std::max(simpleSensorOneX.size(),(size_t)lastNoOfPairs);
-		}
-		else{
-			return pairs.size();
-		}
+//		}
+//		else{
+//			return pairs.size();
+//		}
 	}
 
 	void calculateMatrix();
