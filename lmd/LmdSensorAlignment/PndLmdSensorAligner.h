@@ -26,7 +26,7 @@ class PndLmdSensorAligner{
 
 private:
 	bool _forceInstant;
-	int _maxNoOfPairs;
+	int _maxNoOfPairs, lastNoOfPairs;
 	std::string _inputFilename;
 	int _moduleID, overlapID;
 	int nonSanePairs, skippedPairs, swappedPairs, _verbose;
@@ -97,7 +97,7 @@ public:
 	}
 	int getNoOfPairs(){
 		if(_simpleStorage){
-			return simpleSensorOneX.size();
+			return std::max(simpleSensorOneX.size(),(size_t)lastNoOfPairs);
 		}
 		else{
 			return pairs.size();

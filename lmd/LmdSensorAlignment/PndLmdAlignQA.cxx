@@ -520,9 +520,9 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		//for DX
 		parameters.path = pdfOutPath + "/PXvsCMresiduals/";
 		parameters.title = "PXresiduals - CMresiduals, #DeltaX (0u)";
-		parameters.xtitle = "dX [#mum]";
+		parameters.xtitle = "dX [nm]";
 		parameters.ytitle = "entries";
-		parameters.scaleFactor = 1e4;
+		parameters.scaleFactor = 1e7;
 		parameters.fileName = "dx.pdf";
 		parameters.vectorIndex = 3;
 		parameters.xMin=-1;
@@ -533,9 +533,9 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		//for DY
 		//parameters.path = pdfOutPath;
 		parameters.title = "PXresiduals - CMresiduals, #DeltaY (0u)";
-		parameters.xtitle = "dY [#mum]";
+		parameters.xtitle = "dY [nm]";
 		parameters.ytitle = "entries";
-		parameters.scaleFactor = 1e4;
+		parameters.scaleFactor = 1e7;
 		parameters.fileName = "dy.pdf";
 		parameters.vectorIndex = 4;
 		parameters.xMin=-1;
@@ -558,50 +558,15 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 	}
 	else if(param==kHistPixelDistances){
-
-		//first, test this
-		int sensorID1=0, sensorID2=5;
-		int col1=22, row1=92;
-                
-                //test pairs;
-		//4,89 - 7,99
-		//10,99 - 6,87
-		//22,92 - 20,86
-
-
-		//this is what we are aiming for
-		int col2=20, row2=86;
-
-		Matrix id = Matrix::eye(4);
-
-		Matrix hit1PX = PndLmdAlignManager::castTVector3toMatrix(TVector3(col1,row1,0));
-		cout << "hit1px is:\n" << hit1PX << "\n";
-
-		Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
-		Matrix CMtoPX = Matrix::inv(PXtoCM);
-
-		Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, true);
-		manager.transformFromLmdLocalToSensor(sen1ToSen2,sensorID1,true);
-		sen1ToSen2.val[2][2]=1.0;
-		sen1ToSen2.val[2][3]=0;
-		Matrix sen1ToSen2inv = Matrix::inv(sen1ToSen2);
-
-		//cout << "you are looking for:\n" << sen1ToSen2 << "\n";
-
-		id.val[0][3]=4;
-		id.val[1][3]=89;
-
-		Matrix hit2PX = CMtoPX * sen1ToSen2 * PXtoCM  * hit1PX;
-		cout << "hit2px is:\n" << hit2PX << "\n";
-		cout << "should be:\n";
-		cout << manager.castTVector3toMatrix(TVector3(col2, row2, 0)) << "\n";
-
-
-
-
-
-
-
+		histPixelDistances(0,5);
+		histPixelDistances(1,8);
+		histPixelDistances(2,8);
+		histPixelDistances(2,9);
+		histPixelDistances(3,6);
+		histPixelDistances(3,7);
+		histPixelDistances(3,8);
+		histPixelDistances(4,7);
+		histPixelDistances(4,9);
 	}
 
 
@@ -694,6 +659,118 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		return;
 	}
+}
+
+void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2){
+
+	int sensorID1=sensor1, sensorID2=sensor2;
+
+	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
+	Matrix CMtoPX = Matrix::inv(PXtoCM);
+	Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, true);
+	manager.transformFromLmdLocalToSensor(sen1ToSen2,sensorID1,true);
+	Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
+
+	//histogram those distances
+	double colTest2=0, rowTest2=0;
+
+	TH1D hist("Pixel Distances", "Pixel Distances",300,-1,-1);
+
+	int valid=0;
+
+	//for every sensor pair on ONE module (all modules are equal, none are more equal than others)
+
+
+	//for every pixel (250*250) find all 4 overlap pixels (cutoff at 100 microns, pixels can't be that far away on perfect geometry)
+	for(int colTest1=0; colTest1<250; colTest1++){
+		for(int rowTest1=0; rowTest1 < 250; rowTest1++){
+
+			//create hit on sensor1 and compute corresponding hit on sensor2
+			Matrix hit1 = manager.makeFourVector(colTest1, rowTest1, 0);
+			Matrix hit2 = matSensorOneToSensorTwo * hit1;
+			colTest2 = hit2.val[0][0];
+			rowTest2 = hit2.val[1][0];
+
+			//also, check if overlap pixel even exists. must be row elem [0,250], col elem [0,250]
+			//are we still overlapping area?
+			if(colTest2 < 0 || colTest2 > 247
+					){
+				continue;
+			}
+			if(rowTest2 < 0 || rowTest2 > 242){
+				continue;
+			}
+
+			//count for statistics
+			valid++;
+
+			//four possible neighbors
+			double colTest2Floor = floor(colTest2);
+			double colTest2Ceil = ceil(colTest2);
+			double rowTest2Floor = floor(rowTest2);
+			double rowTest2Ceil = ceil(rowTest2);
+
+			//only in verbose mode
+			if(false){
+				cout << "=== h1: ===\n" << hit1 << "\n";
+				cout << "=== h2: ===\n" << hit2 << "\n";
+				cout << "c1: " << colTest1 << "\n";
+				cout << "r1: " << rowTest1 << "\n";
+				cout << "c2: " << colTest2 << ", floor: " << colTest2Floor << ", ceil: " << colTest2Ceil << "\n";
+				cout << "r2: " << rowTest2 << ", floor: " << rowTest2Floor << ", ceil: " << rowTest2Ceil << "\n";
+			}
+
+			//make all possible hit2's:
+			vector<Matrix> hit2Candidates;
+			hit2Candidates.push_back(manager.makeFourVector(colTest2Floor, rowTest2Floor, -0.025));
+			hit2Candidates.push_back(manager.makeFourVector(colTest2Ceil, rowTest2Floor, -0.025));
+			hit2Candidates.push_back(manager.makeFourVector(colTest2Floor, rowTest2Ceil, -0.025));
+			hit2Candidates.push_back(manager.makeFourVector(colTest2Ceil, rowTest2Ceil, -0.025));
+
+			//OR use matrices directly. actually, maybe use matrix directly
+
+			//now, transform everything to cm in sensor coordinate system
+			hit1 = PXtoCM * hit1;
+
+			//cout << "=== start ===\n";
+			for(int i=0; i<hit2Candidates.size(); i++){
+				double distance;
+				hit2Candidates[i] = PXtoCM * Matrix::inv(matSensorOneToSensorTwo) * hit2Candidates[i];
+				distance = (hit1 - hit2Candidates[i]).l2norm()*1e4;		//convert to microns
+
+				//if(distance > 100){
+				//continue;
+				//}
+				//else{
+				//fill already
+				//cout << "distance: " << distance << "\n";
+				hist.Fill(distance);
+				//}
+			}
+		}
+	}
+	double coverage = (double)valid/(250.0*250.0)*100;
+	cout << "overlap: " << coverage << "\n";
+
+	stringstream ss;
+	ss << "Pixel Distances Area " << sensorID1 << " to " << sensorID2 << ", " << coverage << "% coverage." ;
+	hist.SetTitle(ss.str().c_str());
+	ss.str("");
+	ss << "d [#mum]";
+	hist.GetXaxis()->SetTitle(ss.str().c_str());
+	ss.str("");
+	ss << "Entries";
+	hist.GetYaxis()->SetTitle(ss.str().c_str());
+
+
+
+
+	stringstream filename;
+	filename << pdfOutPath  << "/AreaPixelDistances" << sensor1 << "to" << sensor2 << ".pdf";
+	TCanvas canvas;
+	canvas.cd();
+	hist.Draw();
+	canvas.Print(filename.str().c_str());
 }
 
 void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vector<double> > &vec) {

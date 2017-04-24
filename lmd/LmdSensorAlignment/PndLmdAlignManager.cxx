@@ -143,6 +143,8 @@ void PndLmdAlignManager::init(){
 		PndLmdSensorAligner tempAligner;
 		tempAligner.setOverlapId(overlapId);
 		tempAligner.setModuleID(dimension->makeModuleID(overlapId));
+		tempAligner.setId1(dimension->getID1fromOverlapID(overlapId));
+		tempAligner.setId2(dimension->getID2fromOverlapID(overlapId));
 		tempAligner.setHelperMatrix(helperMatrix);
 		tempAligner.setZasTimetamp(_zIsTimestamp);
 		tempAligner.setNumericCorrection(_enableHelperMatrix);
@@ -402,7 +404,7 @@ void PndLmdAlignManager::readFilesAndAlign(){
 		for(int i_Pair=0; i_Pair<nPairs;i_Pair++){
 			PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs->At(i_Pair);
 
-			
+			/*
 			if(currentPair->getOverlapId() == 0){
 				cout << "testpair\n";
 				cout << "col1: " << currentPair->getCol1() << "\n";
@@ -410,7 +412,7 @@ void PndLmdAlignManager::readFilesAndAlign(){
 				cout << "col2: " << currentPair->getCol2() << "\n";
 				cout << "row2: " << currentPair->getRow2() << "\n";
 			}
-			
+			 */
 
 
 			addPairAndStartAligner(*currentPair);
@@ -437,7 +439,7 @@ void PndLmdAlignManager::readFilesMT(){
 
 	//read N=noOfThreads
 
-	size_t noOfThreads=1;
+	int noOfThreads=1;
 	//noOfThreads = boost::thread::hardware_concurrency();
 	if(noOfThreads<1){
 		noOfThreads=4;
@@ -447,12 +449,12 @@ void PndLmdAlignManager::readFilesMT(){
 
 	vector< vector<string> > allFiles;
 
-	for(size_t i=0; i<noOfThreads; i++){
+	for(int i=0; i<noOfThreads; i++){
 		allFiles.push_back(vector<string>());
 	}
 
-	size_t iteratorVec=0;
-	size_t iteratorFile=0;
+	int iteratorVec=0;
+	int iteratorFile=0;
 	while(true){
 
 		allFiles[iteratorVec].push_back(fileNames[iteratorFile]);
@@ -471,7 +473,7 @@ void PndLmdAlignManager::readFilesMT(){
 	}
 
 	int totalFiles=0;
-	for(size_t i=0; i<allFiles.size(); i++){
+	for(int i=0; i<allFiles.size(); i++){
 		//cout << "vector " << i << ": " << allFiles[i].size() << "\n";
 		totalFiles += allFiles[i].size();
 	}
@@ -479,7 +481,7 @@ void PndLmdAlignManager::readFilesMT(){
 	//cout << "we have " << allFiles.size() << " vectors. Total number of files in vectors: " << totalFiles << " \n";
 
 	boost::thread_group threads;
-	for(size_t i=0; i<noOfThreads; i++){
+	for(int i=0; i<noOfThreads; i++){
 		threads.create_thread(
 				boost::bind(
 						readPairsFromChainMT, allFiles[i], boost::ref(aligners), boost::ref(*this)
@@ -502,11 +504,11 @@ void PndLmdAlignManager::readFilesMT(){
 
 }
 
-void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &, PndLmdAlignManager &){//PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager  //[R.K.03/2017] unused
+void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager){
 
 	cout << "i am a thread. I have " << files.size() << " files\n";
 
-	//int noOfFiles = files.size(); //[R.K.03/2017] unused
+	int noOfFiles = files.size();
 
 	//for(int i=0; i<files.size(); i++){
 	//	cout << files[i] << "\n";
@@ -544,7 +546,7 @@ void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, Pnd
 
 		//loop over hitPairs per Event
 		for(int i_Pair=0; i_Pair<nPairs;i_Pair++){
-			//PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs.At(i_Pair); //[R.K.03/2017] unused
+			PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs.At(i_Pair);
 			cout << "trying to add pair...\n";
 			//addPairMutex.lock();
 			//manager.addPair(*currentPair);
@@ -555,10 +557,15 @@ void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, Pnd
 
 
 void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner){
+
 	//start aligner, this can be done concurrently
 	aligner.calculateMatrix();
-	//when done, set loadBar +1
-	//incrementMTLB();
+
+	//write binary file
+	aligner.writePairsToBinary(_binaryPairFileDirectory);
+
+	//free memory
+	aligner.clearPairs();
 }
 
 void WorkerThread( boost::shared_ptr< boost::asio::io_service > io_service ){
@@ -1339,8 +1346,15 @@ Matrix PndLmdAlignManager::castTVector3toMatrix(const TVector3& vec) {
 
 //FIXME: no de-homogenizeation, use only for rigid transformations
 TVector3 PndLmdAlignManager::castMatrixToTVector3(const Matrix& vec) {
+
 	TVector3 result;
-	result.SetXYZ(vec.val[0][0], vec.val[1][0], vec.val[2][0]);
+	if(vec.val[3][0] < 1e-11){
+		cout << "ERROR: castMatrixToTVector3: matrix can not be dehomogenized.\n";
+
+	}
+	else{
+		result.SetXYZ(vec.val[0][0]/vec.val[3][0], vec.val[1][0]/vec.val[3][0], vec.val[2][0]/vec.val[3][0]);
+	}
 	return result;
 }
 
@@ -1679,6 +1693,19 @@ void PndLmdAlignManager::waitForCompletion() {
 			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
 		}
 	}
+
+	//write matrix info
+	ofstream of;
+	if(_inCentimeters){
+		of.open(( _matrixOutDir + "/info-cm.txt").c_str());
+	}
+	else{
+		of.open(( _matrixOutDir + "/info-px.txt").c_str());
+	}
+
+	of << _info.str();
+	of.close();
+	cout << "all aligners done.\n";
 }
 
 Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
@@ -1704,7 +1731,16 @@ Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
 	return result;
 }
 
-void PndLmdAlignManager::xOption(int ) {//option //[R.K.03/2017] unused
+Matrix PndLmdAlignManager::makeFourVector(double x, double y, double z) {
+	Matrix result(4,1);
+	result.val[0][0] = x;
+	result.val[1][0] = y;
+	result.val[2][0] = z;
+	result.val[3][0] = 1.0;
+	return result;
+}
+
+void PndLmdAlignManager::xOption(int option) {
 
 	if(false){
 

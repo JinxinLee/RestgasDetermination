@@ -180,6 +180,8 @@ public:
 	Matrix getMatrixLmdToGlobal(){
 		return Matrix::inv(castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true)))));
 	}
+
+	static Matrix makeFourVector(double x, double y, double z);
 	static TVector3 castMatrixToTVector3(const Matrix &vec);
 	static Matrix readMatrix(std::string filename);
 	bool writeMatrix(Matrix &mat, std::string filename);

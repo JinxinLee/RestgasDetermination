@@ -52,6 +52,8 @@ private:
 	void createThreeHistsVeryDirty(int id1, int id2, int module, std::vector<std::vector<double> > &vec, runParameter param);
 	void createHist(std::vector<std::vector<double> > &vec, histParams &parameters);
 
+	void histPixelDistances(int sen1, int sen2);
+
 	int noOfPairs(int id1, int id2);
 
 	//get matrix residuals for matrix id1->id2 from icp and target matrix

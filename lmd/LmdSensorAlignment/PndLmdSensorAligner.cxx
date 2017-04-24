@@ -441,8 +441,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 	delete finalMatrix;
 
 	//aligner is done, pairs can be cleared.
-	//cout << "aligner done, clearing.\n";
-	clearPairs();
 
 	return;
 }
@@ -979,7 +977,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 			simpleSensorTwoX.push_back(pdata[currentIndex+3]);
 			simpleSensorTwoY.push_back(pdata[currentIndex+4]);
 			simpleSensorTwoZ.push_back(pdata[currentIndex+5]);
-		}\
+		}
 		//check read data
 		else{
 			if(pdata[currentIndex+0]!=simpleSensorOneX[i])
@@ -1029,7 +1027,9 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 }
 
 void PndLmdSensorAligner::clearPairs() {
+
 	if(_simpleStorage){
+		lastNoOfPairs=simpleSensorOneX.size();
 		simpleSensorOneX.clear();
 		simpleSensorOneY.clear();
 		simpleSensorOneZ.clear();
@@ -1038,6 +1038,7 @@ void PndLmdSensorAligner::clearPairs() {
 		simpleSensorTwoZ.clear();
 	}
 	else{
+		lastNoOfPairs=pairs.size();
 		pairs.clear();
 	}
 }
