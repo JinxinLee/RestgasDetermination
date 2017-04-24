@@ -9,7 +9,7 @@ using namespace std;
 
 #include <string>
 
-int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/", TString binaryPairFilePath="test/boxtest-aligned-1.5/binaryFiles", TString geometryDir="", bool incentimeters=true, const int verboseLevel=0)
+int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/", TString binaryPairFilePath="test/boxtest-aligned-1.5/binaryFiles", TString LMDmatrixDir="", bool incentimeters=true, const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
@@ -21,16 +21,16 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 
 	bool simplestorage=true;
 	string matrixDir;
-	
-	if(geometryDir==""){
+
+	if(LMDmatrixDir==""){
 		matrixDir=pandaDir + "/geometry/LMDmatrices";
 	}
 	else{
-		matrixDir=geometryDir.Data();
+		matrixDir=LMDmatrixDir.Data();
 	}
 	string pairFilesDir=pairFilePath.Data();
 	string binaryFilesDir=binaryPairFilePath.Data();
-	int readNoOfFiles=0;			//assuming each pair file is about 64 MB in size FIXME: maybe don't restrict at all
+	int readNoOfFiles=0;			//how many files should be processed? 0 for all
 
 
 	// ---------------------- init Matrix Finder
@@ -51,26 +51,56 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 
 	// ---------------------- check for binary files and sort/write, if necessary
 
+	//TODO: this current setup does not work anymore, because the readFiles() function clears data at the end!
+
+	//new version, check for binary files, then read pairs!
+	//if(true){
+	//	manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
+	//	manager.setMatrixOutDir(matrixDir);
+	//	manager.readFilesAndAlign();
+	//	manager.waitForCompletion();
+	//	return 0;
+	//}
+
+	bool binaryPairsPresent = manager.checkForBinaryFiles();
+	if(!binaryPairsPresent){
+		manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
+		manager.setMatrixOutDir(matrixDir);
+		manager.readFilesAndAlign();
+		manager.waitForCompletion();
+		return 0;
+	}
+	else{
+		cout << "reading binary pair files.\n";
+		manager.setMatrixOutDir(matrixDir);
+		manager.readPairsFromBinaryFiles();
+		manager.alignAllSensors();		//no longer needed, aligners start as soon as they are full.
+	}
+
+
+	// Old, don't use anymore!
+	/*
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
 	if(!binaryPairsPresent){
 		cout << "no binary pair files found, creating...\n";
 		manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
+		manager.setMatrixOutDir(matrixDir);
 		manager.readFiles();
 		manager.writePairsToBinaryFiles();
+		manager.alignAllSensors();
 		manager.clearPairs();				//free memory
 	}
 
 	// ---------------------- find overlap matrices and store to (overlap) matrix files
-	binaryPairsPresent = manager.checkForBinaryFiles();
-	if(binaryPairsPresent){
-		cout << "reading binary pair files.\n";
-		manager.readPairsFromBinaryFiles();
-		manager.setMatrixOutDir(matrixDir);
-		manager.alignAllSensors();
-	}
+
 	else{
-		cout << "something went wrong. still not all binary files found.\n";
+		cout << "reading binary pair files.\n";
+		manager.setMatrixOutDir(matrixDir);
+		manager.readPairsFromBinaryFiles();
+		manager.alignAllSensors();		//no longer needed, aligners start as soon as they are full.
 	}
+	 */
+
 
 	manager.computeCombinedMatrices();
 
@@ -96,5 +126,5 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 	cout << "Macro finished successfully." << endl;
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
 	cout << endl;
-  return 0;
+	return 0;
 }

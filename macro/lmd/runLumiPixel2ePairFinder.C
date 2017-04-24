@@ -98,5 +98,5 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
 	cout << endl;
 
-  return 0;
+  return;
 }
