@@ -51,17 +51,6 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 
 	// ---------------------- check for binary files and sort/write, if necessary
 
-	//TODO: this current setup does not work anymore, because the readFiles() function clears data at the end!
-
-	//new version, check for binary files, then read pairs!
-	//if(true){
-	//	manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
-	//	manager.setMatrixOutDir(matrixDir);
-	//	manager.readFilesAndAlign();
-	//	manager.waitForCompletion();
-	//	return 0;
-	//}
-
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
 	if(!binaryPairsPresent){
 		manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
@@ -74,33 +63,8 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 		cout << "reading binary pair files.\n";
 		manager.setMatrixOutDir(matrixDir);
 		manager.readPairsFromBinaryFiles();
-		manager.alignAllSensors();		//no longer needed, aligners start as soon as they are full.
-	}
-
-
-	// Old, don't use anymore!
-	/*
-	bool binaryPairsPresent = manager.checkForBinaryFiles();
-	if(!binaryPairsPresent){
-		cout << "no binary pair files found, creating...\n";
-		manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
-		manager.setMatrixOutDir(matrixDir);
-		manager.readFiles();
-		manager.writePairsToBinaryFiles();
 		manager.alignAllSensors();
-		manager.clearPairs();				//free memory
 	}
-
-	// ---------------------- find overlap matrices and store to (overlap) matrix files
-
-	else{
-		cout << "reading binary pair files.\n";
-		manager.setMatrixOutDir(matrixDir);
-		manager.readPairsFromBinaryFiles();
-		manager.alignAllSensors();		//no longer needed, aligners start as soon as they are full.
-	}
-	 */
-
 
 	manager.computeCombinedMatrices();
 
