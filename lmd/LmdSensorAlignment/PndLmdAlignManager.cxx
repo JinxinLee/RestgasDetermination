@@ -40,13 +40,6 @@ boost::mutex incrementMutex;
 
 boost::thread_group alignerThreadGroup;
 
-//static boost::mutex addPairMutex;
-
-//good idea, but doesn't work as expected. remove as soon as possible
-//boost::shared_ptr< boost::asio::io_service > manIOService(new boost::asio::io_service);
-//boost::shared_ptr< boost::asio::io_service::work > manWork(new boost::asio::io_service::work( *manIOService ));
-//boost::thread_group manWorkerThreads;
-
 void PndLmdAlignManager::resetMTLB(int n, int r, int w){
 	_i=0;
 	_n=n;
@@ -118,24 +111,6 @@ void PndLmdAlignManager::init(){
 	fileNames.clear();
 	aligners.clear();
 
-	/*FIXME: this old code was used to add another, random transformation matrix. It should no longer be needed.
-	Matrix matrix1 = Matrix::rotMatX(M_PI/16);
-	Matrix matrix2 = Matrix::rotMatY(M_PI/16);
-	Matrix matrix3 = Matrix::rotMatZ(M_PI/16);
-	Matrix hmatrix1 = matrix3 * matrix2 * matrix1;
-	//Matrix hmatrix1 = Matrix::eye(4);
-
-	Matrix hmatrix2(3,1);
-	hmatrix2.val[0][0] = -26.85;
-	hmatrix2.val[1][0] = 0.0;
-	hmatrix2.val[2][0] = -1147.0;
-
-	hmatrix1 = Matrix::homogenize(hmatrix1);
-	hmatrix2 = Matrix::homogenize(hmatrix2);
-
-	helperMatrix = hmatrix2 * hmatrix1;
-	 */
-
 	vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
 	for(size_t i=0; i<overlapIDs.size(); i++){
 		int overlapId = overlapIDs[i];
@@ -168,7 +143,6 @@ PndLmdAlignManager::~PndLmdAlignManager(){
 bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 
 	bool success = false;
-
 	// check if the aligner for that pair is full. if yes, skip this pair.
 	// do this even before checking that pair, saves on cpu time.
 	if(alignersFull[pair.getOverlapId()]){
@@ -652,7 +626,7 @@ void PndLmdAlignManager::waitForJobQueue(){
 
 void PndLmdAlignManager::alignMT() {
 
-	//new version, multithreaded using thread pool model and boost::asio implementation
+	//new version, multi threaded using thread pool model and boost::asio implementation
 
 	//shared pointer, since io_services can't be copied
 	boost::shared_ptr< boost::asio::io_service > io_service(new boost::asio::io_service);
@@ -1347,7 +1321,6 @@ Matrix PndLmdAlignManager::castTVector3toMatrix(const TVector3& vec) {
 	return result;
 }
 
-//FIXME: no de-homogenizeation, use only for rigid transformations
 TVector3 PndLmdAlignManager::castMatrixToTVector3(const Matrix& vec) {
 
 	TVector3 result;
@@ -1405,7 +1378,7 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 	return true;
 }
 
-std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters, bool ) { // correctionMatrix //FIXME [R.K.03/2017] unused variable(s)
+std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters, bool ) {
 	std::stringstream filename;
 	filename << "/pairs-";
 	filename << overlapId;
@@ -1419,14 +1392,14 @@ std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incen
 	return filename.str();
 }
 
-std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters, bool ) { // correctionMatrix //FIXME [R.K.03/2017] unused variable(s)
+std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters, bool ) {
 	int overlapId;
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
 	return makeBinaryPairFileName(overlapId, incentimeters);
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters, bool ) { // correctionMatrix //FIXME [R.K.03/2017] unused variable(s)
+std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters, bool ) {
 	stringstream matrixName;
 	matrixName << "/m";
 	if(incentimeters){
@@ -1438,7 +1411,7 @@ std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentime
 	return matrixName.str();
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters, bool ) { // correctionMatrix //FIXME [R.K.03/2017] unused variable(s)
+std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters, bool ) {
 	int overlapId;
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
@@ -1654,7 +1627,6 @@ void PndLmdAlignManager::waitForCompletion() {
 	for(map<int, bool>::iterator it=alignersFull.begin(); it != alignersFull.end(); it++){
 		if(!(it->second)){
 
-
 			//cout << "starting aligner " << it->first << "\n";
 			//if pair could not be added, aligner is full. start thread directly.
 			alignerThreadGroup.create_thread(
@@ -1664,7 +1636,6 @@ void PndLmdAlignManager::waitForCompletion() {
 							)
 					)
 			);
-
 			notStarted++;
 		}
 
@@ -1750,7 +1721,7 @@ void PndLmdAlignManager::xOption(int option) {
 
 		//load pairs.root, it has (row,col) info and (x,y) info
 
-		//check if (x,y)... ell, not. this won't work...
+		//check if (x,y)... well, no. this won't work...
 
 
 
@@ -1808,10 +1779,12 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 		if(!it->second.readPairsFromBinary(_binaryPairFileDirectory)){
 			success=false;
 		}
+		else{
+			//generate ID1 and ID2 from overlapID;
+			it->second.setId1(dimension->getID1fromOverlapID(it->second.getOverlapId()));
+			it->second.setId2(dimension->getID2fromOverlapID(it->second.getOverlapId()));
+		}
 	}
-
-	//generate ID1 and ID2 from overlapID;
-
 	return success;
 }
 

@@ -341,12 +341,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	double* finalMatrix = new double[16];
 
-	/*
-	 * TODO: matrices do NOT commute. That means applying translation THEN rotation is something different
-	 * than applying rotation THEN translation. What is done here? Is this even correct? Maybe this was the
-	 * bug all along?
-	 */
-
 	//okay, this is the version that FIRST rotates, THEN translates.
 	finalMatrix[0] = tempR[0];
 	finalMatrix[1] = tempR[1];
@@ -445,60 +439,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 	return;
 }
 
-/*
-void PndLmdSensorAligner::addPair(PndLmdHitPair &pair){
-
-	cout << "WARNING. using legacy mode of stroring pairs!\n";
-
-	//TODO: we don't want to allow this in the future because it consumes vast amounts of memory.
-
-	//only one kind of pairs is allowed
-	if(!_pairsNormal && !_simpleStorage){
-		_pairsNormal=true;
-		_simpleStorage=false;
-	}
-
-	//only one kind of pairs is allowed
-	else if(!_pairsNormal && _simpleStorage){
-		return;
-	}
-
-	//this is done elsewhere already
-
-	pair.check();
-	if(!pair.isSane()){
-		//cerr << "Warning! HitPair is not sane.\n";
-		nonSanePairs++;
-		return;
-	}
-
-
-	//use ID info from first pair
-	if(pairs.size()==0){
-		ID1 = pair.getId1();
-		ID2 = pair.getId2();
-		pairs.push_back(pair);
-	}
-	if(pairs.size()>0){
-
-		//check if pair order is ok
-		if(pair.getId1()==ID1 && pair.getId2()==ID2){
-			//nothing, all cool
-			pairs.push_back(pair);
-		}
-		else if(pair.getId2()==ID1 && pair.getId1()==ID2){
-			pair.swapHits();
-			swappedPairs++;
-			pairs.push_back(pair);
-		}
-		else{
-			cout << "invalid pair! need to skip. \n";
-			skippedPairs++;
-		}
-	}
-}
- */
-
 bool PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 
 	//only one kind of pairs is allowed
@@ -510,13 +450,6 @@ bool PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 		// add no more
 		return false;
 	}
-
-	//pair.check();		//not needed anymore, Alignmanger does this
-	//if(!pair.isSane()){
-	//	//cerr << "Warning! HitPair is not sane.\n";
-	//	nonSanePairs++;
-	//	return false;
-	//}
 
 	//use ID info from first pair
 	if(simpleSensorOneX.size()==0){
@@ -561,83 +494,6 @@ bool PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 	}
 	return true;
 }
-
-//TODO: this code is old an can go
-/*
-void PndLmdSensorAligner::addSimplePairOld(PndLmdHitPair &pair){
-
-	//only one kind of pairs is allowed
-	if(!_pairsNormal && !_pairsSimple){
-		_pairsSimple=true;
-		_pairsNormal=false;
-	}
-
-	//only one kind of pairs is allowed
-	if(_pairsNormal && !_pairsSimple){
-		return;
-	}
-
-	if((int)simplePairsSensorOne.size() >= _maxNoOfPairs){
-		// add no more
-		return;
-	}
-
-	pair.check();
-	if(!pair.isSane()){
-		//cerr << "Warning! HitPair is not sane.\n";
-		nonSanePairs++;
-		return;
-	}
-
-	//use ID info from first pair
-	if(simplePairsSensorOne.size()==0){
-		ID1 = pair.getId1();
-		ID2 = pair.getId2();
-
-		if(_inCentimeters){
-			simplePairsSensorOne.push_back(make_pair(pair.getHit1().x(), pair.getHit1().y()));
-			simplePairsSensorTwo.push_back(make_pair(pair.getHit2().x(), pair.getHit2().y()));
-		}
-		else{
-			simplePairsSensorOne.push_back(make_pair(pair.getCol1(), pair.getRow1()));
-			simplePairsSensorTwo.push_back(make_pair(pair.getCol2(), pair.getRow2()));
-		}
-
-	}
-	if(simplePairsSensorOne.size()>0){
-
-		if(pair.getId1()==ID1 && pair.getId2()==ID2){
-			//nothing, all cool
-			if(_inCentimeters){
-				simplePairsSensorOne.push_back(make_pair(pair.getHit1().x(), pair.getHit1().y()));
-				simplePairsSensorTwo.push_back(make_pair(pair.getHit2().x(), pair.getHit2().y()));
-			}
-			else{
-				simplePairsSensorOne.push_back(make_pair(pair.getCol1(), pair.getRow1()));
-				simplePairsSensorTwo.push_back(make_pair(pair.getCol2(), pair.getRow2()));
-			}
-		}
-		else if(pair.getId2()==ID1 && pair.getId1()==ID2){
-			pair.swapHits();
-			swappedPairs++;
-
-			if(_inCentimeters){
-				simplePairsSensorOne.push_back(make_pair(pair.getHit1().x(), pair.getHit1().y()));
-				simplePairsSensorTwo.push_back(make_pair(pair.getHit2().x(), pair.getHit2().y()));
-			}
-			else{
-				simplePairsSensorOne.push_back(make_pair(pair.getCol1(), pair.getRow1()));
-				simplePairsSensorTwo.push_back(make_pair(pair.getCol2(), pair.getRow2()));
-			}
-		}
-		else{
-			cout << "invalid pair! need to skip. \n";
-			skippedPairs++;
-		}
-	}
-}
-
- */
 
 void PndLmdSensorAligner::printAllPairs() {
 
@@ -699,7 +555,7 @@ void PndLmdSensorAligner::printAllPairs() {
 	}
 	cout << "======================== \n";
 	cout << "avg. dist: " << avgDist/simpleSensorOneX.size() << "\n";
-	//TODO: overlap ID
+
 	cout << "avg ID1 : " << ID1 << "\n";
 	cout << "avg ID2 : " << ID2 << "\n";
 	cout << "---\n";
@@ -727,8 +583,6 @@ void PndLmdSensorAligner::printAllPairs() {
 
 bool PndLmdSensorAligner::isValid(double val) {
 
-	//bool result=false; //[R.K. 01/2017] unused variable
-
 	if(std::isinf(val)){
 		cout << "value is invalid! is inf\n";
 		return false;
@@ -749,12 +603,19 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	int nPairs=0;
 
 	if(_simpleStorage){
-		nPairs = simpleSensorOneX.size();				//number of pairs, TODO: check if all vectors have same size!
+
+		if(simpleSensorOneX.size() == simpleSensorOneY.size() == simpleSensorOneZ.size() ==
+				simpleSensorTwoX.size() == simpleSensorTwoY.size() == simpleSensorTwoZ.size() ){
+			nPairs = simpleSensorOneX.size();
+		}
+		else{
+			cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries.\n";
+		}
+
 	}
 	else{
 		cout << "FATAL: non simple pair storage is no longer supported!\n";
 		exit(1);
-		//nPairs = pairs.size();
 	}
 
 	if(nPairs==0){
@@ -827,7 +688,7 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 
 bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
-	//TODO: shouldn't we check if this aligner is even using simpleStorage?
+	//check if this aligner is using simpleStorage
 	if(!_simpleStorage){
 		cout << "ERROR. reading binary pairs and storing in legacy mode is no longer supported.\n";
 		exit(1);
@@ -1025,8 +886,8 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	//delete array!
 	delete[] pdata;
 
-	//TODO:
 	//now, check if ID1 and ID2 can be generated from overlapID
+	// wel, thy can, but only from dimension->, so this is done in manager, not here
 	return true;
 }
 
