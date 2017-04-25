@@ -105,7 +105,11 @@ void PndLmdSensorAligner::calculateMatrix() {
 	//TODO: set from Manager or parameter file!
 	bool eventTimeCheck = true;
 	double minDelta = 1e-6;
-	int dim = 3;
+
+	/*
+	 * =============== case switch:  2D or 3D ===================
+	 */
+	int dim = 2;
 
 	// only allow max Pairs!
 	if(nPairs > _maxNoOfPairs){
@@ -128,28 +132,166 @@ void PndLmdSensorAligner::calculateMatrix() {
 	if(_verbose==3)
 		cout << "arranging pairs...\n";
 
-	//mind this layout: prefer no if conditions inside a for loop, use loops inside ifs if possible.
-	if(_simpleStorage){
-		if(_inCentimeters){
-			for(int ipair=0; ipair<nPairs; ipair++){
-				Model[ipair*3+0] = simpleSensorOneX[ipair];
-				Model[ipair*3+1] = simpleSensorOneY[ipair];
-				//Model[ipair*3+2] = simpleSensorOneZ[ipair];
-				Template[ipair*3+0] = simpleSensorTwoX[ipair];
-				Template[ipair*3+1] = simpleSensorTwoY[ipair];
-				//Template[ipair*3+2] = simpleSensorTwoZ[ipair];
+	if(dim==2){
+		//mind this layout: prefer no if conditions inside a for loop, use loops inside ifs if possible.
+		if(_simpleStorage){
+			if(_inCentimeters){
+				for(int ipair=0; ipair<nPairs; ipair++){
+					Model[ipair*dim+0] = simpleSensorOneX[ipair];
+					Model[ipair*dim+1] = simpleSensorOneY[ipair];
+					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
+					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
 			}
-			_zIsTimestamp = true;
+				_zIsTimestamp = true;
+			}
+			else{
+				for(int ipair=0; ipair<nPairs; ipair++){
+					Model[ipair*dim+0] = simpleSensorOneX[ipair];
+					Model[ipair*dim+1] = simpleSensorOneY[ipair];
+					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
+					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
+				}
+			}
 		}
-		else{
-			for(int ipair=0; ipair<nPairs; ipair++){
-				Model[ipair*3+0] = simpleSensorOneX[ipair];
-				Model[ipair*3+1] = simpleSensorOneY[ipair];
-				Model[ipair*3+2] = simpleSensorOneZ[ipair];
-				Template[ipair*3+0] = simpleSensorTwoX[ipair];
-				Template[ipair*3+1] = simpleSensorTwoY[ipair];
-				Template[ipair*3+2] = simpleSensorTwoZ[ipair];
+	}
+
+	else if(dim==3){
+
+		//mind this layout: prefer no if conditions inside a for loop, use loops inside ifs if possible.
+		if(_simpleStorage){
+			if(_inCentimeters){
+				for(int ipair=0; ipair<nPairs; ipair++){
+					Model[ipair*dim+0] = simpleSensorOneX[ipair];
+					Model[ipair*dim+1] = simpleSensorOneY[ipair];
+					//Model[ipair*3+2] = simpleSensorOneZ[ipair];
+					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
+					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
+					//Template[ipair*3+2] = simpleSensorTwoZ[ipair];
+				}
+				_zIsTimestamp = true;
 			}
+			else{
+				for(int ipair=0; ipair<nPairs; ipair++){
+					Model[ipair*dim+0] = simpleSensorOneX[ipair];
+					Model[ipair*dim+1] = simpleSensorOneY[ipair];
+					Model[ipair*dim+2] = simpleSensorOneZ[ipair];
+					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
+					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
+					Template[ipair*dim+2] = simpleSensorTwoZ[ipair];
+				}
+			}
+		}
+
+		//artificial z component, only really relevant if using cm coordinate system
+		// UPDATE: well that's not exactly true. If using CM coordinates, the z is artificial
+		// as well. So to get comparable results of CM vs PX, we should use this in BOTH cases
+		if(_zIsTimestamp){
+			if(_verbose==3)
+				cout << "applying artificial Z coordinate...\n";
+
+			for(int ipair=0; ipair<nPairs; ipair++){
+				Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e3 );
+				Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e3 );
+			}
+		}
+
+		if(_numericCorrection){
+
+			if(_verbose==3)
+				cout << "applying numeric correction matrix...\n";
+
+			//rotation matrix for numerical stability
+			for(int ipairs=0; ipairs<nPairs; ipairs++){
+				Matrix vec(4,1);
+				vec.val[0][0] = Template[ipairs*3+0];
+				vec.val[1][0] = Template[ipairs*3+1];
+				vec.val[2][0] = Template[ipairs*3+2];
+				vec.val[3][0] = 1;
+				vec = _helperMatrix * vec;
+				Template[ipairs*3+0] = vec.val[0][0];
+				Template[ipairs*3+1] = vec.val[1][0];
+				Template[ipairs*3+2] = vec.val[2][0];
+			}
+		}
+
+		int zeroVals=0;
+		int modxinv=0, modyinv=0, modzinv=0;
+		int temxinv=0, temyinv=0, temzinv=0;
+
+		/*
+		 * zero factor had to be introduced because a bug in earlier versions led to many entries
+		 * being filled with zeros. it shouldn't be needed anymore, but it doesn't cost much and
+		 * could still be useful.
+		 */
+
+		if(_verbose==3)
+			cout << "checking for zero values...\n";
+
+		for(int iCheck=0; iCheck<dim*nPairs; iCheck++){
+			double val1 = abs(Model[iCheck]);
+			double val2 = abs(Template[iCheck]);
+			if(val1 < 1e-15){
+				if(iCheck%3==0){
+					//cout << "model xval invalid: " << val1 << "\n";
+					modxinv++;
+				}
+				if(iCheck%3==1){
+					//cout << "model yval invalid\n";
+					modyinv++;
+				}
+				if(iCheck%3==2){
+					//cout << "model zval invalid\n";
+					modzinv++;
+				}
+				zeroVals++;
+				//cout << val1 << "\n";
+			}
+			if(val2 < 1e-15){
+				if(iCheck%3==0){
+					//cout << "template xval invalid: " << val2 << "\n";
+					temxinv++;
+				}
+				if(iCheck%3==1){
+					//cout << "template yval invalid\n";
+					temyinv++;
+				}
+				if(iCheck%3==2){
+					//cout << "template zval invalid\n";
+					temzinv++;
+				}
+				zeroVals++;
+				//cout << val2 << "\n";
+			}
+		}
+
+		// 3 dimension and 2 arrays = 6
+		double zeroFactor = zeroVals/((double)nPairs*6.0);
+		if(zeroFactor > 0.1 && zeroFactor < 0.3){
+			cout << "WARNING. More than 10 % of your entries is zero. That must be a mistake. \n";
+			cout << "Also, the kdtree creation could crash. Keep an eye out for that...\n";
+			cout << "Zero factor: " << zeroFactor << "\n";
+			cout << "model x vals invalid: " << modxinv/(double)nPairs << "\n";
+			cout << "model y vals invalid: " << modyinv/(double)nPairs << "\n";
+			cout << "model z vals invalid: " << modzinv/(double)nPairs << "\n";
+			cout << "templ x vals invalid: " << temxinv/(double)nPairs << "\n";
+			cout << "templ y vals invalid: " << temyinv/(double)nPairs << "\n";
+			cout << "templ z vals invalid: " << temzinv/(double)nPairs << "\n";
+
+		}
+		if(zeroFactor > 0.3){
+			cout << "ERROR. More than 30 % of your entries is zero. That must be a mistake. \n";
+			cout << "Also, the kdtree creation will crash. Exiting.\n";
+			cout << "Zero factor: " << zeroFactor << "\n";
+			cout << "model x vals invalid: " << modxinv/(double)nPairs << "\n";
+			cout << "model y vals invalid: " << modyinv/(double)nPairs << "\n";
+			cout << "model z vals invalid: " << modzinv/(double)nPairs << "\n";
+			cout << "templ x vals invalid: " << temxinv/(double)nPairs << "\n";
+			cout << "templ y vals invalid: " << temyinv/(double)nPairs << "\n";
+			cout << "templ z vals invalid: " << temzinv/(double)nPairs << "\n";
+			cout << "=== additional data ===\n";
+			cout << "overlap id: " << overlapID << "\n";
+			cout << "no of Pairs: " << nPairs << "\n";
+			exit(1);
 		}
 	}
 
@@ -163,128 +305,16 @@ void PndLmdSensorAligner::calculateMatrix() {
 	_zIsTimestamp=true;
 	_verbose = 3;
 
-	//artificial z component, only really relevant if using cm coordinate system
-	// UPDATE: well that's not exactly true. If using CM coordinates, the z is artificial
-	// as well. So to get comparable results of CM vs PX, we should use this in BOTH cases
-	if(_zIsTimestamp){
-		if(_verbose==3)
-			cout << "applying artificial Z coordinate...\n";
-
-		for(int ipair=0; ipair<nPairs; ipair++){
-			Model[ipair*3+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e5 );
-			Template[ipair*3+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e5 );
-		}
-	}
-
-	if(_numericCorrection){
-
-		if(_verbose==3)
-			cout << "applying numeric correction matrix...\n";
-
-		//rotation matrix for numerical stability
-		for(int ipairs=0; ipairs<nPairs; ipairs++){
-			Matrix vec(4,1);
-			vec.val[0][0] = Template[ipairs*3+0];
-			vec.val[1][0] = Template[ipairs*3+1];
-			vec.val[2][0] = Template[ipairs*3+2];
-			vec.val[3][0] = 1;
-			vec = _helperMatrix * vec;
-			Template[ipairs*3+0] = vec.val[0][0];
-			Template[ipairs*3+1] = vec.val[1][0];
-			Template[ipairs*3+2] = vec.val[2][0];
-		}
-	}
-
-	int zeroVals=0;
-	int modxinv=0, modyinv=0, modzinv=0;
-	int temxinv=0, temyinv=0, temzinv=0;
-
-	/*
-	 * zero factor had to be introduced because a bug in earlier versions led to many entries
-	 * being filled with zeros. it shouldn't be needed anymore, but it doesn't cost much and
-	 * could still be useful.
-	 */
-
-	if(_verbose==3)
-		cout << "checking for zero values...\n";
-
-	for(int iCheck=0; iCheck<dim*nPairs; iCheck++){
-		double val1 = abs(Model[iCheck]);
-		double val2 = abs(Template[iCheck]);
-		if(val1 < 1e-15){
-			if(iCheck%3==0){
-				//cout << "model xval invalid: " << val1 << "\n";
-				modxinv++;
-			}
-			if(iCheck%3==1){
-				//cout << "model yval invalid\n";
-				modyinv++;
-			}
-			if(iCheck%3==2){
-				//cout << "model zval invalid\n";
-				modzinv++;
-			}
-			zeroVals++;
-			//cout << val1 << "\n";
-		}
-		if(val2 < 1e-15){
-			if(iCheck%3==0){
-				//cout << "template xval invalid: " << val2 << "\n";
-				temxinv++;
-			}
-			if(iCheck%3==1){
-				//cout << "template yval invalid\n";
-				temyinv++;
-			}
-			if(iCheck%3==2){
-				//cout << "template zval invalid\n";
-				temzinv++;
-			}
-			zeroVals++;
-			//cout << val2 << "\n";
-		}
-	}
-
-	// 3 dimension and 2 arrays = 6
-	double zeroFactor = zeroVals/((double)nPairs*6.0);
-	if(zeroFactor > 0.1 && zeroFactor < 0.3){
-		cout << "WARNING. More than 10 % of your entries is zero. That must be a mistake. \n";
-		cout << "Also, the kdtree creation could crash. Keep an eye out for that...\n";
-		cout << "Zero factor: " << zeroFactor << "\n";
-		cout << "model x vals invalid: " << modxinv/(double)nPairs << "\n";
-		cout << "model y vals invalid: " << modyinv/(double)nPairs << "\n";
-		cout << "model z vals invalid: " << modzinv/(double)nPairs << "\n";
-		cout << "templ x vals invalid: " << temxinv/(double)nPairs << "\n";
-		cout << "templ y vals invalid: " << temyinv/(double)nPairs << "\n";
-		cout << "templ z vals invalid: " << temzinv/(double)nPairs << "\n";
-
-	}
-	if(zeroFactor > 0.3){
-		cout << "ERROR. More than 30 % of your entries is zero. That must be a mistake. \n";
-		cout << "Also, the kdtree creation will crash. Exiting.\n";
-		cout << "Zero factor: " << zeroFactor << "\n";
-		cout << "model x vals invalid: " << modxinv/(double)nPairs << "\n";
-		cout << "model y vals invalid: " << modyinv/(double)nPairs << "\n";
-		cout << "model z vals invalid: " << modzinv/(double)nPairs << "\n";
-		cout << "templ x vals invalid: " << temxinv/(double)nPairs << "\n";
-		cout << "templ y vals invalid: " << temyinv/(double)nPairs << "\n";
-		cout << "templ z vals invalid: " << temzinv/(double)nPairs << "\n";
-		cout << "=== additional data ===\n";
-		cout << "overlap id: " << overlapID << "\n";
-		cout << "no of Pairs: " << nPairs << "\n";
-		exit(1);
-	}
-
 	if(_verbose==3)
 		//printAllPairs();
 
-	if(_verbose==3)
-		cout << "creating ICP...\n";
+		if(_verbose==3)
+			cout << "creating ICP...\n";
 
 	// start with identity as initial transformation
 	// in practice you might want to use some kind of prediction here
-	Matrix Rotation = Matrix::eye(3);
-	Matrix translation(3,1);
+	Matrix Rotation;
+	Matrix translation;
 
 	//perform ICP and store quality parameters
 	//attention! dim * nPairs must equal size of model!
@@ -293,11 +323,86 @@ void PndLmdSensorAligner::calculateMatrix() {
 	if(_verbose==3)
 		cout << "ICP and model created...\n";
 
+	//TODO: clean this up!
+	//prepare Matrices
+	if(dim==2){
+		Rotation = Matrix::eye(2);
+		translation = Matrix(2,1);
+	}
+	else if(dim==3){
+		Rotation = Matrix::eye(3);
+		translation = Matrix(3,1);
+	}
+
+
 	icp.forceInstantResult(_forceInstant);
 	icp.fit(Template,nPairs,Rotation,translation,-1);
 
 	if(_verbose==3)
 		cout << "ICP fit step done.\n";
+
+	if(dim==2){
+
+		//make 4x4 matrix
+			double* tempR = new double[4];
+			double* tempT = new double[2];
+
+			Rotation.getData(tempR);
+			translation.getData(tempT);
+
+			double* finalMatrix = new double[16];
+
+			//okay, this is the version that FIRST rotates, THEN translates.
+			finalMatrix[0] = tempR[0];
+			finalMatrix[1] = tempR[1];
+			finalMatrix[2] = 0;
+			finalMatrix[3] = tempT[0];
+			finalMatrix[4] = tempR[2];
+			finalMatrix[5] = tempR[3];
+			finalMatrix[6] = 0;
+			finalMatrix[7] = tempT[1];
+			finalMatrix[8] = 0;
+			finalMatrix[9] = 0;
+			finalMatrix[10] = 1.0;
+			finalMatrix[11] = 0;
+			finalMatrix[12] = 0;
+			finalMatrix[13] = 0;
+			finalMatrix[14] = 0;
+			finalMatrix[15] = 1.0;
+			resultMatrix = Matrix(4,4);
+
+	}
+	else if (dim==3){
+
+		//make 4x4 matrix
+			double* tempR = new double[9];
+			double* tempT = new double[3];
+
+			Rotation.getData(tempR);
+			translation.getData(tempT);
+
+			double* finalMatrix = new double[16];
+
+			//okay, this is the version that FIRST rotates, THEN translates.
+			finalMatrix[0] = tempR[0];
+			finalMatrix[1] = tempR[1];
+			finalMatrix[2] = tempR[2];
+			finalMatrix[3] = tempT[0];
+			finalMatrix[4] = tempR[3];
+			finalMatrix[5] = tempR[4];
+			finalMatrix[6] = tempR[5];
+			finalMatrix[7] = tempT[1];
+			finalMatrix[8] = tempR[6];
+			finalMatrix[9] = tempR[7];
+			finalMatrix[10] = tempR[8];
+			finalMatrix[11] = tempT[2];
+			finalMatrix[12] = 0;
+			finalMatrix[13] = 0;
+			finalMatrix[14] = 0;
+			finalMatrix[15] = 1;
+
+			resultMatrix = Matrix(4,4);
+	}
 
 	//make 4x4 matrix
 	double* tempR = new double[9];
@@ -578,17 +683,17 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	//save data
 	int currentIndex=6;				//data starts here
 
-//	if(_simpleStorage){
-		for(int i=0; i<nPairs; i++){
-			//first, only assume simple storage
-			pdata[currentIndex+0]=simpleSensorOneX[i];
-			pdata[currentIndex+1]=simpleSensorOneY[i];
-			pdata[currentIndex+2]=simpleSensorOneZ[i];
-			pdata[currentIndex+3]=simpleSensorTwoX[i];
-			pdata[currentIndex+4]=simpleSensorTwoY[i];
-			pdata[currentIndex+5]=simpleSensorTwoZ[i];
-			currentIndex+=6;
-		}
+	//	if(_simpleStorage){
+	for(int i=0; i<nPairs; i++){
+		//first, only assume simple storage
+		pdata[currentIndex+0]=simpleSensorOneX[i];
+		pdata[currentIndex+1]=simpleSensorOneY[i];
+		pdata[currentIndex+2]=simpleSensorOneZ[i];
+		pdata[currentIndex+3]=simpleSensorTwoX[i];
+		pdata[currentIndex+4]=simpleSensorTwoY[i];
+		pdata[currentIndex+5]=simpleSensorTwoZ[i];
+		currentIndex+=6;
+	}
 
 	/*
 	 * the write part is easy, just dump everything. read part is more difficult,
@@ -812,28 +917,28 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 
 void PndLmdSensorAligner::clearPairs() {
 
-//	if(_simpleStorage){
-		lastNoOfPairs=simpleSensorOneX.size();
+	//	if(_simpleStorage){
+	lastNoOfPairs=simpleSensorOneX.size();
 
-		//call destructors of the member objects (well, they're doubles, so... yeah.)
-		simpleSensorOneX.clear();
-		simpleSensorOneY.clear();
-		simpleSensorOneZ.clear();
-		simpleSensorTwoX.clear();
-		simpleSensorTwoY.clear();
-		simpleSensorTwoZ.clear();
+	//call destructors of the member objects (well, they're doubles, so... yeah.)
+	simpleSensorOneX.clear();
+	simpleSensorOneY.clear();
+	simpleSensorOneZ.clear();
+	simpleSensorTwoX.clear();
+	simpleSensorTwoY.clear();
+	simpleSensorTwoZ.clear();
 
-		//force release of allocated memory by vectors
-		vector<double>().swap(simpleSensorOneX);
-		vector<double>().swap(simpleSensorOneY);
-		vector<double>().swap(simpleSensorOneZ);
-		vector<double>().swap(simpleSensorTwoX);
-		vector<double>().swap(simpleSensorTwoY);
-		vector<double>().swap(simpleSensorTwoZ);
+	//force release of allocated memory by vectors
+	vector<double>().swap(simpleSensorOneX);
+	vector<double>().swap(simpleSensorOneY);
+	vector<double>().swap(simpleSensorOneZ);
+	vector<double>().swap(simpleSensorTwoX);
+	vector<double>().swap(simpleSensorTwoY);
+	vector<double>().swap(simpleSensorTwoZ);
 
-//	}
-//	else{
-//		lastNoOfPairs=pairs.size();
-//		pairs.clear();
-//	}
+	//	}
+	//	else{
+	//		lastNoOfPairs=pairs.size();
+	//		pairs.clear();
+	//	}
 }

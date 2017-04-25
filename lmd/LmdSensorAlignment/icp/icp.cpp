@@ -121,13 +121,14 @@ bool Icp::fitIterate(double *T,const int32_t T_number,Matrix &R,Matrix &t,const 
 		if (current_delta<min_delta){
 			euclidean_fitness = computeFitnessRMSE(T,R,t);
 
-			if(checkEventTime){
-				if(abs(t.val[2][0]) > 1){
-					cout << "false convergence, event id drift is too large!" << endl;
-					hasConvergedBool = false;
-					return false;
-				}
-			}
+			//TODO: implement for 2D!
+//			if(checkEventTime){
+//				if(abs(t.val[2][0]) > 1){
+//					cout << "false convergence, event id drift is too large!" << endl;
+//					hasConvergedBool = false;
+//					return false;
+//				}
+//			}
 
 			hasConvergedBool=true;
 			iterations = iter+1;
