@@ -733,7 +733,7 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2){
 			hit1 = PXtoCM * hit1;
 
 			//cout << "=== start ===\n";
-			for(int i=0; i<hit2Candidates.size(); i++){
+			for(size_t i=0; i<hit2Candidates.size(); i++){
 				double distance;
 				hit2Candidates[i] = PXtoCM * Matrix::inv(matSensorOneToSensorTwo) * hit2Candidates[i];
 				distance = (hit1 - hit2Candidates[i]).l2norm()*1e4;		//convert to microns

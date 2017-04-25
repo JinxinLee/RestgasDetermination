@@ -428,7 +428,7 @@ void PndLmdAlignManager::readFilesMT(){
 	}
 
 	int iteratorVec=0;
-	int iteratorFile=0;
+	size_t iteratorFile=0;
 	while(true){
 
 		allFiles[iteratorVec].push_back(fileNames[iteratorFile]);
@@ -447,7 +447,7 @@ void PndLmdAlignManager::readFilesMT(){
 	}
 
 	int totalFiles=0;
-	for(int i=0; i<allFiles.size(); i++){
+	for(size_t i=0; i<allFiles.size(); i++){
 		//cout << "vector " << i << ": " << allFiles[i].size() << "\n";
 		totalFiles += allFiles[i].size();
 	}
@@ -478,11 +478,11 @@ void PndLmdAlignManager::readFilesMT(){
 
 }
 
-void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager){
+void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &/*aligners*/, PndLmdAlignManager &/*manager*/){
 
 	cout << "i am a thread. I have " << files.size() << " files\n";
 
-	int noOfFiles = files.size();
+	//size_t noOfFiles = files.size(); //[R.K. 04/2017] unused
 
 	//for(int i=0; i<files.size(); i++){
 	//	cout << files[i] << "\n";
@@ -520,7 +520,7 @@ void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, Pnd
 
 		//loop over hitPairs per Event
 		for(int i_Pair=0; i_Pair<nPairs;i_Pair++){
-			PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs.At(i_Pair);
+			//PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs.At(i_Pair); //[R.K. 04/2017] unused
 			cout << "trying to add pair...\n";
 			//addPairMutex.lock();
 			//manager.addPair(*currentPair);

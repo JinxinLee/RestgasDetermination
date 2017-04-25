@@ -604,9 +604,14 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 
 	if(_simpleStorage){
 
-		if(simpleSensorOneX.size() == simpleSensorOneY.size() == simpleSensorOneZ.size() ==
-				simpleSensorTwoX.size() == simpleSensorTwoY.size() == simpleSensorTwoZ.size() ){
-			nPairs = simpleSensorOneX.size();
+    size_t tmpsize=simpleSensorOneX.size();
+		if(//simpleSensorOneX.size() == tmpsize && 
+       simpleSensorOneY.size() == tmpsize && 
+       simpleSensorOneZ.size() == tmpsize && 
+       simpleSensorTwoX.size() == tmpsize && 
+       simpleSensorTwoY.size() == tmpsize && 
+       simpleSensorTwoZ.size() == tmpsize){
+			nPairs = tmpsize;
 		}
 		else{
 			cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries.\n";
