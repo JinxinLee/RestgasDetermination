@@ -102,7 +102,7 @@ public:
 	void waitForCompletion();
 
 	//don't use, doesn't work with root like this
-	void readFilesMT();
+	//void readFilesMT();
 
 	bool writePairsToBinaryFiles();
 	bool readPairsFromBinaryFiles();

@@ -407,7 +407,7 @@ void PndLmdAlignManager::readFilesAndAlign(){
 	delete hitPairs;
 }
 
-
+/* doesn' work, ROOT won't allow for cuncurrent TChains (some sort of segfault)
 void PndLmdAlignManager::readFilesMT(){
 
 
@@ -472,12 +472,11 @@ void PndLmdAlignManager::readFilesMT(){
 	//every TChain function has its own (reasonably large) buffer for all overlapIDs and 1k pairs
 
 	//if one buffer gets full, flush it to disk (use mutexes)
-
-
-
-
 }
+*/
 
+
+/* doesn' work, ROOT won't allow for cuncurrent TChains (some sort of segfault)
 void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &/*aligners*/, PndLmdAlignManager &/*manager*/){
 
 	cout << "i am a thread. I have " << files.size() << " files\n";
@@ -528,18 +527,20 @@ void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, Pnd
 		}
 	}
 }
-
+*/
 
 void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner){
 
-	cout << "Aligner " << aligner.getOverlapId() << " starting.\n";
+	//cout << "Aligner " << aligner.getOverlapId() << " starting.\n";
 	//cout << "Saving binaries to: " << _binaryPairFileDirectory << "!\n";
 
 	//start aligner, this can be done concurrently
 	aligner.calculateMatrix();
 
-	//write binary file
-	aligner.writePairsToBinary(_binaryPairFileDirectory);
+	//write binary file only if not already present
+	if(!checkForBinaryFiles()){
+		aligner.writePairsToBinary(_binaryPairFileDirectory);
+	}
 
 	//free memory
 	aligner.clearPairs();

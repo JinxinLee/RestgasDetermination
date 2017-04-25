@@ -177,7 +177,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		}
 
 		histParams parameters;
-		parameters.bins=25;
+		//parameters.bins=25;
 
 		//for DX
 		parameters.path = pdfdir + "/residuals/";
@@ -258,7 +258,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		}
 
 		histParams parameters;
-		parameters.bins=25;
+		//parameters.bins=25;
 
 		//for DX
 		parameters.path = pdfdir + "/residuals/";
@@ -355,40 +355,40 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//for DX
 		parameters.path = pdfdir + "/PXvsCM/";
-		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaX (10u)";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaX)";
 		parameters.xtitle = "dX [nm]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e4*1e3;
 		parameters.fileName = "dx.pdf";
 		parameters.vectorIndex = 3;
-		parameters.xMin=-50;
-		parameters.xMax=50;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
 		parameters.printCMPXinPathName = false;
 		createHist(data, parameters);
 
 		//for DY
 		//parameters.path = pdfdir;
-		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaY (10u)";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #DeltaY)";
 		parameters.xtitle = "dY [nm]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e4*1e3;
 		parameters.fileName = "dy.pdf";
 		parameters.vectorIndex = 4;
-		parameters.xMin=-50;
-		parameters.xMax=50;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
 		parameters.printCMPXinPathName = false;
 		createHist(data, parameters);
 
 		//for DAlpha
 		//parameters.path = pdfdir;
-		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #Delta#alpha (10u)";
+		parameters.title = "matrixCM*matrixTarget - matrixPX(transformed), #Delta#alpha";
 		parameters.xtitle = "d#alpha [nrad]";
 		parameters.ytitle = "entries";
 		parameters.scaleFactor = 1e9;
 		parameters.fileName = "dalpha.pdf";
 		parameters.vectorIndex = 2;
-		parameters.xMin=-500;
-		parameters.xMax=500;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
 		parameters.printCMPXinPathName = false;
 		createHist(data, parameters);
 	}
@@ -515,7 +515,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		//plot difference
 		histParams parameters;
-		parameters.bins=25;
+		//parameters.bins=25;
 
 		//for DX
 		parameters.path = pdfOutPath + "/PXvsCMresiduals/";

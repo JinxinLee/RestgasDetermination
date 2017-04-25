@@ -128,41 +128,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	if(_verbose==3)
 		cout << "arranging pairs...\n";
 
-	//ToDO: change the loop layout, there should be no if conditions inside that loop
-	// (branch prediction), instead make the if condition outside and the loop inside the ifs.
-	//loop over all available pairs and sort them to arrays
-	/*
-	for(int ipair=0; ipair<nPairs; ipair++){
-		if(_simpleStorage){
-			Model[ipair*3+0] = simpleSensorOneX[ipair];
-			Model[ipair*3+1] = simpleSensorOneY[ipair];
-			Model[ipair*3+2] = simpleSensorOneZ[ipair];
-			Template[ipair*3+0] = simpleSensorTwoX[ipair];
-			Template[ipair*3+1] = simpleSensorTwoY[ipair];
-			Template[ipair*3+2] = simpleSensorTwoZ[ipair];
-		}
-		else{
-			if(_inCentimeters){
-				Model[ipair*3+0] = pairs[ipair].getHit1().x();
-				Model[ipair*3+1] = pairs[ipair].getHit1().y();
-				Model[ipair*3+2] = pairs[ipair].getHit1().z();
-				Template[ipair*3+0] = pairs[ipair].getHit2().x();
-				Template[ipair*3+1] = pairs[ipair].getHit2().y();
-				Template[ipair*3+2] = pairs[ipair].getHit2().z();
-			}
-			else{
-				Model[ipair*3+0] = pairs[ipair].getCol1();
-				Model[ipair*3+1] = pairs[ipair].getRow1();
-				Model[ipair*3+2] = ipair;
-				Template[ipair*3+0] = pairs[ipair].getCol2();
-				Template[ipair*3+1] = pairs[ipair].getRow2();
-				Template[ipair*3+2] = ipair;
-			}
-		}
-	}
-	 */
-
-	//new layout
+	//mind this layout: prefer no if conditions inside a for loop, use loops inside ifs if possible.
 	if(_simpleStorage){
 		if(_inCentimeters){
 			for(int ipair=0; ipair<nPairs; ipair++){
@@ -194,18 +160,19 @@ void PndLmdSensorAligner::calculateMatrix() {
 	}
 
 	//if we are in px coordinates, always use time stamp as z!
-	if(!_inCentimeters){
-		//	_zIsTimestamp=true;
-	}
+	_zIsTimestamp=true;
+	_verbose = 3;
 
 	//artificial z component, only really relevant if using cm coordinate system
+	// UPDATE: well that's not exactly true. If using CM coordinates, the z is artificial
+	// as well. So to get comparable results of CM vs PX, we should use this in BOTH cases
 	if(_zIsTimestamp){
 		if(_verbose==3)
-			cout << "applying z coordinate...\n";
+			cout << "applying artificial Z coordinate...\n";
 
 		for(int ipair=0; ipair<nPairs; ipair++){
-			Model[ipair*3+2] = ipair;
-			Template[ipair*3+2] = ipair;
+			Model[ipair*3+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e5 );
+			Template[ipair*3+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e5 );
 		}
 	}
 
@@ -309,7 +276,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	}
 
 	if(_verbose==3)
-		printAllPairs();
+		//printAllPairs();
 
 	if(_verbose==3)
 		cout << "creating ICP...\n";
@@ -497,46 +464,9 @@ bool PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair){
 
 void PndLmdSensorAligner::printAllPairs() {
 
-	//double avgID1 =0; //[R.K.03/2017] unused variable
-	//double avgID2 =0; //[R.K.03/2017] unused variable
 	double avgDist=0;
-	//double avgHit1x=0; //[R.K.03/2017] unused variable
-	//double avgHit1y=0; //[R.K.03/2017] unused variable
-	//double avgHit1z=0; //[R.K.03/2017] unused variable
-	//double avgHit2x=0; //[R.K.03/2017] unused variable
-	//double avgHit2y=0; //[R.K.03/2017] unused variable
-	//double avgHit2z=0; //[R.K.03/2017] unused variable
 
 	cout << "pairs simple: " << _simpleStorage << "\n";
-	//cout << "number of pairs normal: " << pairs.size() << ", number of simple pairs: " << simpleSensorOneX.size() << "\n";
-
-	/*
-	if(_pairsNormal){
-		for(size_t i=0; i<pairs.size(); i++){
-			//pairs[i].Print();
-			avgID1+=pairs[i].getId1();
-			avgID2+=pairs[i].getId2();
-			avgDist+=pairs[i].getDistance();
-			avgHit1x+=pairs[i].getHit1().x();
-			avgHit1y+=pairs[i].getHit1().y();
-			avgHit1z+=pairs[i].getHit1().z();
-			avgHit2x+=pairs[i].getHit2().x();
-			avgHit2y+=pairs[i].getHit2().y();
-			avgHit2z+=pairs[i].getHit2().z();
-		}
-		cout << "======================== \n";
-		cout << "avg. dist: " << avgDist/pairs.size() << "\n";
-		cout << "avg ID1 : " << avgID1/pairs.size() << "\n";
-		cout << "avg ID2 : " << avgID2/pairs.size() << "\n";
-		cout << "avg hit 1 x : " << avgHit1x/pairs.size() << "\n";
-		cout << "avg hit 1 y : " << avgHit1y/pairs.size() << "\n";
-		cout << "avg hit 1 z : " << avgHit1z/pairs.size() << "\n";
-		cout << "avg hit 2 x : " << avgHit2x/pairs.size() << "\n";
-		cout << "avg hit 2 y : " << avgHit2y/pairs.size() << "\n";
-		cout << "avg hit 2 z : " << avgHit2z/pairs.size() << "\n";
-	}
-	 */
-	//else if(_simpleStorage){
 
 	RunningStats statsX1;
 	RunningStats statsY1;
@@ -578,7 +508,6 @@ void PndLmdSensorAligner::printAllPairs() {
 	cout << "---\n";
 	cout << "avg hit 2 z : " << statsZ2.Mean() << "\n";
 	cout << "sig hit 2 z : " << statsZ2.StandardDeviation() << "\n";
-	//}
 }
 
 bool PndLmdSensorAligner::isValid(double val) {
@@ -596,7 +525,6 @@ bool PndLmdSensorAligner::isValid(double val) {
 
 bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 
-	//std::stringstream file_path;		//target directory	DO NOT USE ANYMORE
 	string filename;					//target directory
 	double* pdata;						//array with pairs
 	int doublesPerPair=6;				//well, doubles per Pair
@@ -604,14 +532,13 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 
 	if(_simpleStorage){
 
-    size_t tmpsize=simpleSensorOneX.size();
-		if(//simpleSensorOneX.size() == tmpsize && 
-       simpleSensorOneY.size() == tmpsize && 
-       simpleSensorOneZ.size() == tmpsize && 
-       simpleSensorTwoX.size() == tmpsize && 
-       simpleSensorTwoY.size() == tmpsize && 
-       simpleSensorTwoZ.size() == tmpsize){
-			nPairs = tmpsize;
+		if(simpleSensorOneX.size() == 0){
+			nPairs=0;
+		}
+
+		else if(simpleSensorOneX.size() == simpleSensorOneY.size() == simpleSensorOneZ.size() ==
+				simpleSensorTwoX.size() == simpleSensorTwoY.size() == simpleSensorTwoZ.size() ){
+			nPairs = simpleSensorOneX.size();
 		}
 		else{
 			cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries.\n";
@@ -662,19 +589,6 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 			pdata[currentIndex+5]=simpleSensorTwoZ[i];
 			currentIndex+=6;
 		}
-//	}
-//	else{
-//		for(int i=0; i<nPairs; i++){
-//			//first, only assume simple storage
-//			pdata[currentIndex+0]=pairs[i].getCol1();
-//			pdata[currentIndex+1]=pairs[i].getRow1();
-//			pdata[currentIndex+2]=-1;
-//			pdata[currentIndex+3]=pairs[i].getCol2();
-//			pdata[currentIndex+4]=pairs[i].getRow2();
-//			pdata[currentIndex+5]=-1;
-//			currentIndex+=6;
-//		}
-//	}
 
 	/*
 	 * the write part is easy, just dump everything. read part is more difficult,
