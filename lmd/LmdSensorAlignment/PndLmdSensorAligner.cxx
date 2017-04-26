@@ -29,6 +29,7 @@ using std::make_pair;
 
 void PndLmdSensorAligner::init(){
 	_maxNoOfPairs=3e5;
+
 	_forceInstant=true;
 	_moduleID=-1;
 	nonSanePairs=0;
@@ -109,7 +110,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	/*
 	 * =============== case switch:  2D or 3D ===================
 	 */
-	int dim = 2;
+	int dim = 3;
 
 	// only allow max Pairs!
 	if(nPairs > _maxNoOfPairs){
@@ -190,8 +191,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 				cout << "applying artificial Z coordinate...\n";
 
 			for(int ipair=0; ipair<nPairs; ipair++){
-				Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e3 );
-				Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e3 );
+				Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 5e4 );
+				Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 5e4 );
 			}
 		}
 
@@ -303,7 +304,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	//if we are in px coordinates, always use time stamp as z!
 	_zIsTimestamp=true;
-	_verbose = 3;
+	//_verbose = 3;
 
 	if(_verbose==3)
 		//printAllPairs();

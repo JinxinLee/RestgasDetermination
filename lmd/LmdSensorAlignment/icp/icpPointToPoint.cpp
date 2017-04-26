@@ -138,8 +138,6 @@ double IcpPointToPoint::fitInstant(double* T, const int32_t T_numA, Matrix& R,Ma
 
 	std::vector<double>         query(dim);
 
-
-
 	if(dim==2){
 
 		// extract matrix and translation vector
