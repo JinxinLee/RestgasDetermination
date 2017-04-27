@@ -1,40 +1,41 @@
 #include "iomanip.h"
 
 void create1StationGem_lastStation_v2()
-{ // create only GEM with one station (v2)
+{
+  // create only GEM with one station (v2)
   //----------------------------------------------------------------------------------------------------------------------------------------------
   // Gem disk geometry parameters (R.Karabowicz) 
   //----------------------------------------------------------------------------------------------------------------------------------------------
   // Done Some Changes By Nazila Divani ( since  May 2015 ... ) (v2)---> updated 1Station GEM geometry (April 2017)
   //----------------------------------------------------------------------------------------------------------------------------------------------
-  // created GEM last station at the ZPosition=188.50cm , (This is the biggest GEM station)
+  // created GEM last station at the ZPosition=155.40cm , (This is the biggest GEM station)
   //----------------------------------------------------------------------------------------------------------------------------------------------
-  // Tried to get close to the CAD Geometry as the realistic one ( After could not use CadConverter ) //Some parameters from DL.
+  // Tried to get close to the CAD Geometry as the realistic one ( After could not use CadConverter to convert CAD to ROOT ) //Some parameters from DL.
   //----------------------------------------------------------------------------------------------------------------------------------------------
   // Units are in [cm]
-  //-----------------------------------------------------------------------------------------------------------------------------------------------
-    
+  //---------------------------------------------------------------------------------------------------------------------------------------------
+
     const Int_t     NofDisks = 1;   //number of GEM station in form of disk
 
-    const Double_t  DiskVolInnerRadius[NofDisks]    = {   4.50  };   // InnerRadius for 1 Station in form of disk
-    const Double_t  DiskVolOuterRadius[NofDisks]    = {   74.0  };   // OuterRadius for 1 Station in form of disk
-    const Double_t  DiskZPosition  [NofDisks]    = {  188.50 };   // ZPosition for 1 Station in form of disk           
+    const Double_t  DiskVolInnerRadius[NofDisks]    = { 4.50  };   // InnerRadius for 1 Station in form of disk
+    const Double_t  DiskVolOuterRadius[NofDisks]    = { 74.06  };   // OuterRadius for 1 Station in form of disk
+    const Double_t  DiskZPosition  [NofDisks]    = { 188.50 };   // ZPosition   for 1 Station in form of disk           
  
 
-    const Int_t     DiskNFoils     [NofDisks]    = {    4  };   // For modifying misalignment
-    const Double_t  MiddleROBarHfTh[NofDisks]    = {   2.35 }; // half thickness of space in the middle of foils [cm]
-    const Double_t  HalfStationThickness = 6.00;
+    const Int_t     DiskNFoils     [NofDisks]    = {   4  };   // For modifying misalignment
+    const Double_t  MiddleROBarHfTh[NofDisks]    = {  2.35 }; // half thickness of space in the middle of foils [cm]
+    const Double_t  HalfStationThickness = 8.003;
 
-    const Double_t  carbonRingInnerRadius[NofDisks]    = {  68.95 };
-    const Double_t  carbonRingOuterRadius[NofDisks]    = {  69.15 };
+    const Double_t  carbonRingInnerRadius[NofDisks]    = {  68.97 };
+    const Double_t  carbonRingOuterRadius[NofDisks]    = {  69.17 };
     const Double_t  carbonRingHalfThickness = 1.50; 
 
-    const Double_t  copperRingInnerRadius[NofDisks]    = {  68.45 };
-    const Double_t  copperRingOuterRadius[NofDisks]    = {  68.65 };
+    const Double_t  copperRingInnerRadius[NofDisks]    = {  68.47 };
+    const Double_t  copperRingOuterRadius[NofDisks]    = {  68.67 };
     const Double_t  copperRingHalfThickness = 3.75;
 
-    const Double_t  AlRingInnerRadius[NofDisks]    = {  68.45 };
-    const Double_t  AlRingOuterRadius[NofDisks]    = {  73.75 };
+    const Double_t  AlRingInnerRadius[NofDisks]    = {  68.70 };
+    const Double_t  AlRingOuterRadius[NofDisks]    = {  73.70 };
     const Double_t  AlRingHalfThickness = 3.75;
 
     const Double_t  SegmentHalfThickness = 0.25; 
@@ -45,7 +46,7 @@ void create1StationGem_lastStation_v2()
                                                  "seg9" ,"seg10","seg11","seg12","seg13","seg14","seg15","seg16",
                                                  "seg17","seg18","seg19","seg20","seg21","seg22","seg23","seg24"  };
 
-    const Double_t moduleRingInnerRadius[NofDisks]    = {  69.15 };
+    const Double_t moduleRingInnerRadius[NofDisks]    = {  68.70 };
     const Double_t moduleRingOuterRadius[NofDisks]    = {  73.65 };
     const Double_t moduleRingHalfThickness = 3.75;
 
@@ -61,149 +62,169 @@ void create1StationGem_lastStation_v2()
     const Double_t AlumiRingOuterRadius[NofDisks]    = {  74.0 };
     const Double_t AlumiRingHalfThickness = 3.75;
     
-    const Double_t coverRingInnerRadius[NofDisks]    = {  68.45 };
+    const Double_t coverRingInnerRadius[NofDisks]    = {  68.70 };
     const Double_t coverRingOuterRadius[NofDisks]    = {  74.00 };
     const Double_t coverRingHalfThickness = 0.2;
 
-    const Double_t rcopperbarx    = 5.50;   ////// right copper bar for cables
-    const Double_t rcopperbary    = 1.00;
-    const Double_t rcopperbarHalfThickness = 13.6;
+    const Double_t rcopperbarx    = 1.90;   ////// right copper bar for cables
+    const Double_t rcopperbary    = 5.50;
+    const Double_t rcopperbarHalfThickness = 8.40;
 
-    const Double_t lcopperbarx    = 5.50;   ////// left copper bar for cables
-    const Double_t lcopperbary    = 0.95;
-    const Double_t lcopperbarHalfThickness = 15.2;
+    const Double_t lcopperbarx    = 0.95;   ////// left copper bar for cables    
+    const Double_t lcopperbary    = 5.50;    
+    const Double_t lcopperbarHalfThickness = 13.80;
  
   //------------------------------------------------------------ main layers in shape of Disk----------------------------------------------------------------------
-    const Int_t     NofLayers = 49; 
+    const Int_t     NofLayers = 49+48; //51+48; 
     
-    const TString   LayerName [NofLayers] = {   "space",                                           // these "spaces" belong to holding structure layers
-                                                "window1_foil_out_aluminium", "WindowF_kapton", "window2_foil_out_aluminium",               
-    					        "space",                                           // these "spaces" belong to holding structure layers
-                                                "WindowF_aluminium", "CathodeF_kapton", "CathodeF_aluminium", 
-                                                "space",                                           //
-    					        //"Gem1_Sensor_GEMmixture",    // sensitive layer
-    					        "space",                                           //
-                                                "Gem1F_copper", "Gem1_kapton", "Gem1B_copper",             
-    					        "space",                                           //
-    					        "Gem2F_copper", "Gem2_kapton", "Gem2B_copper",                                   
-    					        "space",                                           //
-    					        "Gem3F_copper", "Gem3_kapton", "Gem3B_copper",                                   
-    					        "space",                                           //
-					        "space",                                           //
-    					        "PadF_copper", "Pad_kapton", "PadB_copper", 
-    					        "space",                                           //
-					        "space",                                           //
-    					        "Gem4F_copper", "Gem4_kapton", "Gem4B_copper",             
-    					        "space",                                           //
-    					        "Gem5F_copper", "Gem5_kapton", "Gem5B_copper",                                  
-    					        "space",                                           //
-    					        "Gem6F_copper", "Gem6_kapton", "Gem6B_copper", 
-					        "space",                                           //                               
-    					        //"Gem6_Sensor_GEMmixture",    // sensitive layer
-					        "space",                                           //
-					        "CathodeB_aluminium", "CathodeB_kapton", "WindowB_aluminium",                                   
-    					        "space",                                           //
-    					        "window1_foil_in_aluminium", "WindowB_kapton", "window2_foil_in_aluminium",
-                                                "space"   };
+  const TString   LayerName [NofLayers] = {"space",                                           // these "spaces" belong to holding structure layers
+                                           "gap_air",  "window1_foil_out_aluminium",  "gap_air",  "WindowF_kapton",  "gap_air",  "window2_foil_out_aluminium", "gap_air",             
+    					   "space",                                           // these "spaces" belong to holding structure layers
+                                           "gap_air",  "WindowF_aluminium",  "gap_air",  "CathodeF_kapton",  "gap_air",  "CathodeF_aluminium",  "gap_air", 
+                                           "space",                                           //
+    					   //"Gem1_Sensor_GEMmixture",    // sensitive layer
+    					   "gap_air",
+					   "space",                                          //
+                                           "gap_air",  "Gem1F_copper",  "gap_air",  "Gem1_kapton",  "gap_air",  "Gem1B_copper",  "gap_air",             
+    					   "space",                                           //
+    					   "gap_air",  "Gem2F_copper",  "gap_air",  "Gem2_kapton",  "gap_air",  "Gem2B_copper",  "gap_air",                                   
+    					   "space",                                           //
+    					   "gap_air",  "Gem3F_copper",  "gap_air",  "Gem3_kapton",  "gap_air",  "Gem3B_copper",  "gap_air",                                   
+    					   "space",                                           //
+					   "gap_air",                                   
+					   "space",                                           //
+    					   "gap_air",  "PadF_copper",  "gap_air",  "Pad_kapton",  "gap_air",  "PadB_copper",  "gap_air",
+    					   "space",                                           //
+					   "gap_air",
+					   "space",                                           //
+    					   "gap_air",  "Gem4F_copper",  "gap_air",  "Gem4_kapton",  "gap_air",  "Gem4B_copper",  "gap_air",             
+    					   "space",                                           //
+    					   "gap_air",  "Gem5F_copper",  "gap_air",  "Gem5_kapton",  "gap_air",  "Gem5B_copper",  "gap_air",                                  
+    					   "space",                                           //
+    					   "gap_air",  "Gem6F_copper",  "gap_air",  "Gem6_kapton",  "gap_air",  "Gem6B_copper",  "gap_air", 
+					   "space",                                           //                               
+    					   //"Gem6_Sensor_GEMmixture",    // sensitive layer
+					   "gap_air",
+					   "space",                                           //
+					   "gap_air",  "CathodeB_aluminium",  "gap_air",  "CathodeB_kapton",  "gap_air",   "WindowB_aluminium",  "gap_air",                          
+    					   "space",                                           //
+    					   "gap_air",  "window1_foil_in_aluminium",  "gap_air",  "WindowB_kapton",  "gap_air",  "window2_foil_in_aluminium",  "gap_air",
+                                           "space"   };
 						 
     
     const Double_t LayerThick[NofLayers] = {    1.0,                       // windowF1_ring_carbon=holding structure           //  1 = 1   space
-                                                0.0001,   0.0007,   0.0001,                                                    // +3 = 4   window
+                                                0.00001,  0.0001,    0.00001,     0.0007,    0.00001,    0.0001,     0.00001,  // +3 = 4   window  + 4 gap_air
 					        1.00,                      // windowF2_ring_carbon=holding structure           // +1 = 5   space
-                                                0.0001,   0.0007,   0.0001,                                                    // +3 = 8   cathode
+                                                0.00001,  0.0001,    0.00001,     0.0007,    0.00001,    0.0001,     0.00001,  // +3 = 8   cathode + 4 gap_air
     					        0.80,                      // cathodeF_ring_GlassFiber=holding structure       // +1 = 9   space
-    					      //1.0020/Sens                                                                    // +1 = 10  SENSOR
-					        0.050,                     // gem_ring1_GlassFiber=holding structure           // +1 = 11  space
-                                                0.0005,   0.0050,   0.0005,                                                    // +3 = 14  GEM Foil
+    					      //1.0020, //Sens                                                                 // +1 = 10  SENSOR
+					        0.00001,                                                                       // +0 = 10 + 1 gap_air
+						0.050,                    // gem_ring1_GlassFiber=holding structure            // +1 = 11  space
+                                                0.00001,  0.0005,    0.00001,     0.0050,    0.00001,    0.0005,     0.00001,  // +3 = 14  GEM Foil + 4 gap_air
     					        0.050,                     // gem_ring2_GlassFiber=holding structure           // +1 = 15  space                
-    					        0.0005,   0.0050,   0.0005,                                                    // +3 = 18  GEM Foil
+    					        0.00001,  0.0005,    0.00001,     0.0050,    0.00001,    0.0005,     0.00001,  // +3 = 18  GEM Foil + 4 gap_air
                                                 0.050,                     // gem_ring3_GlassFiber=holding structure           // +1 = 19  space             
-    					        0.0005,   0.0050,   0.0005,                                                    // +3 = 22  GEM Foil
+    					        0.00001,  0.0005,    0.00001,     0.0050,    0.00001,    0.0005,     0.00001,  // +3 = 22  GEM Foil + 4 gap_air
                                                 0.050,                     // gem_ring4_GlassFiber=holding structure           // +1 = 23  space
+						0.00001,                                                                       // +0 = 23 + 1 gap_air
                                                 0.10,                      // padplaneF_support_GlassFiber=holding structure   // +1 = 24  space
-                                                0.001,    0.001,    0.001,                                                     // +3 = 27  PAD plane
+                                                0.00001,  0.001,     0.00001,     0.001,     0.00001,    0.001,      0.00001,  // +3 = 27  PAD plane + 4 gap_air
 					        0.10,                      // padplaneB_support_GlassFiber=holding structure   // +1 = 28  space
+						0.00001,                                                                       // +0 = 28 + 1 gap_air
     					        0.050,                     // gem_ring5_GlassFiber=holding structure           // +1 = 29  space
-                                                0.0005,   0.0050,   0.0005,                                                    // +3 = 32  GEM Foil
+                                                0.00001,  0.0005,    0.00001,     0.0050,    0.00001,    0.0005,     0.00001,  // +3 = 32  GEM Foil + 4 gap_air
                                                 0.050,                     // gem_ring6_GlassFiber=holding structure           // +1 = 33  space
-                                                0.0005,   0.0050,   0.0005,                                                    // +3 = 36  GEM Foil
+                                                0.00001,  0.0005,    0.00001,     0.0050,    0.00001,    0.0005,     0.00001,  // +3 = 36  GEM Foil + 4 gap_air
     					        0.050,                     // gem_ring7_GlassFiber=holding structure           // +1 = 37  space
-                                                0.0005,   0.0050,   0.0005,                                                    // +3 = 40  GEM Foil
+                                                0.00001,  0.0005,    0.00001,     0.0050,    0.00001,    0.0005,     0.00001,  // +3 = 40  GEM Foil + 4 gap_air
                                                 0.050,                     // gem_ring8_GlassFiber=holding structure           // +1 = 41  space
-                                              //1.0020/Sens                                                                    // +1 = 42  SENSOR
-                                                0.80,                      // cathodeB_ring_GlassFiber=holding structure       // +1 = 43  space
-                                                0.0001,   0.0007,   0.0001,                                                    // +3 = 46  cathode
+                                              //1.0020, //Sens                                                                 // +1 = 42  SENSOR
+                                                0.00001,                                                                       // +0 = 42 + 1 gap_air
+						0.80,                      // cathodeB_ring_GlassFiber=holding structure       // +1 = 43  space
+                                                0.00001,  0.0001,    0.00001,     0.0007,    0.00001,    0.0001,     0.00001,  // +3 = 46  cathode + 4 gap_air
                                                 1.00,                      // windowB1_ring_carbon=holding structure           // +1 = 47  space 
-                                                0.0001,   0.0007,   0.0001,                                                    // +3 = 50  window
+                                                0.00001,  0.0001,    0.00001,     0.0007,    0.00001,    0.0001,     0.00001,  // +3 = 50  window + 4 gap_air
                                                 1.0   };                   // windowB2_ring_carbon=holding structure           // +3 = 51  space
+                                                                                                                               // 51 layers + 48 gap_air
                                                
     
-   const Double_t DiskOuterRadius[NofLayers][NofDisks] = {     68.90,
-                                                               67.95,       68.40,     67.95,
-							       68.90,
-							       67.45,       68.40,     67.45,
-							       68.40,
-							    // 67.00,
-							       68.40,
-							       67.45,       68.05,     67.45,
-							       68.40,
-							       67.45,       68.05,     67.45,
-							       68.40,
-							       67.45,       68.05,     67.45,
-							       68.40,                                                   
-							       74.00,
-							       73.90,       73.90,     73.90,
-							       74.00,
-							       68.40,
-							       67.45,       68.05,     67.45,
-							       68.40,
-							       67.45,       68.05,     67.45,
-							       68.40,
-							       67.45,       68.05,     67.45,
-							       68.40,                                                        
-							    // 67.00,
-							       68.40,
-							       67.45,       68.40,     67.45,
-							       68.40,
-							       68.40,       67.95,     68.40,
-                                                               68.40    }; 
+ const Double_t DiskOuterRadius[NofLayers][NofDisks] = {
+  68.90,
+  67.95,       67.95,       68.40,       68.40,      67.95,      67.95,      67.95,
+  68.90,
+  67.45,       67.45,       68.40,       68.40,      67.45,      67.45,      67.45,
+  68.40,
+ // 67.00,
+  68.40,
+  68.40,
+  67.45,       67.45,       68.05,       68.05,      67.45,      67.45,     67.45,
+  68.40,
+  67.45,       67.45,       68.05,       68.05,      67.45,      67.45,     67.45,
+  68.40,
+  67.45,       67.45,       68.05,       68.05,      67.45,      67.45,     67.45,
+  68.40,
+  68.40,
+  74.00,
+  73.90,       73.90,       73.90,       73.90,      73.90,      73.90,     68.40,
+  74.00,
+  68.40,
+  68.40,     
+  67.45,       67.45,       68.05,       68.05,      67.45,      67.45,     67.45,
+  68.40,
+  67.45,       67.45,       68.05,       68.05,      67.45,      67.45,     67.45,
+  68.40,
+  67.45,       67.45,       68.05,       68.05,      67.45,      67.45,     67.45,
+  68.40,                                                        
+ //67.00,
+  68.40,
+  68.40,
+  67.45,       67.45,       68.40,       68.40,      67.45,     67.45,      67.45,
+  68.40,
+  68.40,       68.40,       67.95,       67.95,      68.40,     68.40,      68.40,
+  68.40    }; 
                                                                
    
-   const Double_t DiskInnerRadius[NofLayers][NofDisks] = {      4.50,
-                                                                4.50,         4.50,        4.50,
-      							        4.50,
-      							        4.50,         4.50,        4.50,
-      							        4.50,
-      							     // 4.50,
-      							        4.50,
-      							        4.50,         4.50,        4.50,
-     							        4.50,
-      							        4.50,         4.50,        4.50,
-      							        4.50,
-     							        4.50,         4.50,        4.50,
-      							        4.50,                                                   
-      							        4.50,
-      							        4.50,         4.50,        4.50,
-      							        4.50,
-      							        4.50,
-     							        4.50,         4.50,        4.50,
-     							        4.50,
-     							        4.50,         4.50,        4.50,
-      							        4.50,
-      							        4.50,         4.50,        4.50,
-      							        4.50,                                                        
-     							     // 4.50, 
-      							        4.50,
-     							        4.50,         4.50,        4.50,
-     							        4.50,
-      							        4.50,         4.50,        4.50,
-                                                                4.50   };
+   const Double_t DiskInnerRadius[NofLayers][NofDisks] = {
+ 4.50,   
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,  
+ 4.50,   
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,  
+ 4.50,   
+ //4.50,   
+ 67.50,  
+ 4.50,   
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,    
+ 4.50,   
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,   
+ 4.50,   
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,   
+ 4.50,   
+ 4.50,   
+ 4.50,          
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,   
+ 4.50,   
+ 4.50,   
+ 4.50,          
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,   
+ 4.50,    
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,   
+ 4.50,   
+ 4.50,         4.50,           4.50,          4.50,          4.50,         4.50,         4.50,   
+ 4.50,                                                           
+ //4.50,   
+ 67.50,
+ 4.50,   
+ 4.50,         4.50,           4.50,         4.50,          4.50,        4.50,          4.50, 
+ 4.50,   
+ 4.50,         4.50,           4.50,         4.50,          4.50,        4.50,          4.50,  
+ 4.50      };
                                                                
 
   const Double_t  HoleTZ = 0.0;  // (top and down) holes Translation parameters
   const Double_t  HoleTX = 0.0;
-  const Double_t  HoleTY = 53.50;
+  const Double_t  HoleTY = 33.00;
 //------------------------------------ sensitive layers ---------------------------------------------------------------------------------------
+
   const Int_t    NofSensLayers = 2;
   
   const Double_t  sMiddleROBarHfTh[NofDisks]  = { 2.35 }; // half thickness of space in the middle of Sens [cm]
@@ -214,14 +235,14 @@ void create1StationGem_lastStation_v2()
   const Double_t SensLayerThick[NofSensLayers] =  {   0.85,
 						      0.85  };
   
-  const Double_t SensZPosition[NofSensLayers][NofDisks] = {  -0.6942,
-							      0.6948 };  
+  const Double_t SensZPosition[NofSensLayers][NofDisks] = {   -0.69412,   
+							       0.69520 }; 
   
-  const Double_t SensOuterRadius[NofSensLayers][NofDisks] = {   67.15,
-							        67.15  };
+  const Double_t SensOuterRadius[NofSensLayers][NofDisks] = {     67.15,
+								  67.15  };
   
-  const Double_t SensInnerRadius[NofSensLayers][NofDisks] = {    5.00,
-      							         5.00   };
+  const Double_t SensInnerRadius[NofSensLayers][NofDisks] = {     5.00,
+      							          5.00   };
   
   const Double_t  sHoleTZ = 0.0;  // (top and down) holes Translation parameters
   const Double_t  sHoleTX = 0.0;
@@ -260,98 +281,98 @@ void create1StationGem_lastStation_v2()
                                                   //"space",
                                                   "windowB2_ring_carbon"      };
     
-    const Double_t HLayersThick[NofHLayers] =  {    1.00,                                                    
+    const Double_t HLayersThick[NofHLayers] =  {    1.00,                                                   
                                                     1.00,						    
-    					            0.80,						   
+    					            0.80,						    
+    					            0.050,						    
     					            0.050,						   
-    					            0.050,						   
-    					            0.050,						   
+    					            0.050,						    
     					            0.050,                                   
-    					            0.10,						   
+    					            0.10,						    
     					            0.10,                                   
     					            0.050,						   
-    					            0.050,						   
-    				                    0.050,						    
     					            0.050,						    
-    					            0.80,						   
+    				                    0.050,						   
+    					            0.050,						   
+    					            0.80,						    
 						    1.00,                                                    
                                                     1.00     };						    
     					               
        
-    const Double_t  HZPosition[NofHLayers][NofDisks] = {       -2.6216,                                                                
-                                                               -1.6201,						                     
-							       -0.7192,							           
-							       -0.2942,						                
-							       -0.2382,						                  
-							       -0.1822,						                          
-							       -0.1262,              
-							       -0.0512,					                     
-							        0.0518,          
-							        0.1268,							               
-							        0.1828,							                  
-						                0.2388,						                  
-							        0.2948,						                 
-							        0.7198,							              
-                                                                1.6207,                                                                
-							        2.6216    };     
+    const Double_t  HZPosition[NofHLayers][NofDisks] = { -2.62100,	                                                            
+                                                         -1.62006,	 							     
+							 -0.71912,       							        
+							 -0.29411,       						        
+							 -0.23807,       							             
+							 -0.18203,       						                    
+							 -0.12599,                     
+							 -0.05098,      					                
+							  0.05206,                      
+							  0.12707,        						              
+							  0.18311,        							            
+							  0.23915,        							               
+							  0.29519,  	  							             
+							  0.72020,  	  							          
+                                                          1.62114,                                                                     
+						 	  2.62208   };         
                                                                     
     
-   const Double_t HOuterRadius[NofHLayers][NofDisks] = {       68.90,                                                          
-                                                               68.90,							   
-							       68.40,						  
-							       68.05,							   
-							       68.05,							   
-							       68.05,							  
-							       68.05,
-                                                               74.00,							  
-							       74.00,
-                                                               68.05,							  
-							       68.05,							  
-							       68.05,							   
-							       68.05,						   
-							       68.40,							  
-							       68.40,                                                          
-                                                               68.40  };
+   const Double_t HOuterRadius[NofHLayers][NofDisks] = {         68.90,                                                          
+                                                                 68.90,							  
+							         68.40,						  
+							         68.05,							  
+							         68.05,							  
+							         68.05,							  
+							         68.05,
+                                                                 74.00,							  
+							         74.00,
+                                                                 68.05,							  
+							         68.05,							  
+							         68.05,							  
+							         68.05,						   
+							         68.40,							  
+							         68.40,                                                           
+                                                                 68.40  };
    
-   const Double_t HInnerRadius[NofHLayers][NofDisks] = {       67.50,                                                          
-                                                               67.50,							 
-							       67.50,						 
-							       67.15,						 
-						               67.15,							  
-							       67.15,							 
-							       67.15,
-							       67.50,							  
-							       67.50,
-							       67.15,							  
-							       67.15,							  
-							       67.15,							  
-							       67.15,							 
-							       67.50,							 
-                                                               67.00,                                                         
-                                                               67.00   };    
+   const Double_t HInnerRadius[NofHLayers][NofDisks] = {         67.50,                                                          
+                                                                 67.50,							  
+							         67.50, 
+							         67.15,							 
+							         67.15,							 
+							         67.15,							  
+							         67.15,
+							         67.50,							 
+							         67.50,
+							         67.15,							  
+							         67.15,							  
+							         67.15,							 
+							         67.15,							 
+							         67.50,							 
+                                                                 67.00,                                                          
+                                                                 67.00   };    
  
-   const Double_t  HXBoxWidth = 2.30;  // Using to define vertical holes for the holding structure layers 
+   const Double_t  HXBoxWidth = 2.30;  // Using to define holes for the holding structure layers 
    const Double_t  HXPlateWidth = 1.90;
-   const Double_t  HYPlateWidth = 10.00;
+   const Double_t  HYPlateWidth = 9.30;
 
    const Double_t  HTZ = 0.0;         // Translation parameters for vertical holes
    const Double_t  HTX = 0.0;    
-   const Double_t  HTY[NofHLayers][NofDisks] = {     45.0,						  
-                                                     45.0,						 
-						     45.0,						 
-						     45.0,						  
-						     45.0,						 
-						     45.0,						  
-						     45.0,
-						     45.0,						  
-						     45.0,
-						     45.0,						 
-                                                     45.0,                                                 
-                                                     45.0,                                                 
-                                                     45.0,                                                 
-                                                     45.0,                                                  
-                                                     45.0,						 
-                                                     45.0  };
+   const Double_t  HTY[NofHLayers][NofDisks] = {    65.0,
+						    65.0,
+						    65.0,						  
+						    65.0,						  
+						    65.0,						  
+						    65.0,						  
+						    65.0,
+						    65.0,						 
+						    65.0,
+						    65.0,						  
+                                                    65.0, 
+                                                    65.0,                                                 
+                                                    65.0,                                                  
+                                                    65.0,    
+                                                    65.0,						 
+                                                    65.0  };
                                                    
    
 //-------------------------------------------------------------------------------------------------------------------------------------------------
@@ -571,7 +592,7 @@ void create1StationGem_lastStation_v2()
 
   pout << "#################################################################" << endl;
   pout << "# Digitization parameters for GEM                                " << endl;
-  pout << "# with 1 Station                                                 " << endl;
+  pout << "# with  Station                                                " << endl;
   pout << "# Format:                                                        " << endl;
   pout << "# Description of parameters:                                     " << endl;
   pout << "# [PndGemDetectors]                                              " << endl;
@@ -599,7 +620,7 @@ void create1StationGem_lastStation_v2()
     DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*dummyrot);
     else
     {
-    DiskRotat[istat] = new TGeoRotation(Form("disk%drotat"), 0.0, 180.0, 0.0);  /// turned over the 3rd station because of the position of the electronic devices
+    DiskRotat[istat] = new TGeoRotation(Form("disk%drotat"), 0.0, 180.0, 0.0); //turned over the 3rd station because of the position of the electronic devices
     DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*DiskRotat[istat]);
     }
     //DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*dummyrot);
@@ -622,7 +643,7 @@ void create1StationGem_lastStation_v2()
     //------------------------- Gas container Ring top -----------------------------------------------------------------------------------------
     copperRingShape[istat] = new TGeoTube  (Form("copperRing%dshape",istat+1),copperRingInnerRadius[istat],copperRingOuterRadius[istat],copperRingHalfThickness);
     copperRingVol  [istat] = new TGeoVolume(Form("Gem_copperRing%d_Volume",istat+1),copperRingShape[istat],gGeoMan->GetMedium("copper"));
-    copperRingTrans[istat] = new TGeoTranslation(0.,0.,3.85);
+    copperRingTrans[istat] = new TGeoTranslation(0.,0.,3.853);
     cout << "copperRing " << copperRingInnerRadius[istat] << " " << copperRingOuterRadius[istat] << endl;
     copperRingCombi[istat] = new TGeoCombiTrans(*copperRingTrans[istat],*dummyrot); 
     copperRingCombi[istat]->SetName(Form("Gem_copperRing%d_Volume",istat+1));
@@ -637,7 +658,7 @@ void create1StationGem_lastStation_v2()
       		 cout << " Segment " << isegm << " with name " << newsegment[isegm] << " will be put at " << FirstSegmentAngle+isegm*SegmentDeltaAngle << " (in fact from " << FirstSegmentAngle+isegm*SegmentDeltaAngle-segmentAngularSize/2. << " to " << FirstSegmentAngle+isegm*SegmentDeltaAngle+segmentAngularSize/2. << ")" << endl;
       	   AlRingShape[istat][isegm] = new TGeoTubeSeg (Form("AlRing%dshape",istat+1,isegm+1),AlRingInnerRadius[istat],AlRingOuterRadius[istat],AlRingHalfThickness,FirstSegmentAngle+isegm*SegmentDeltaAngle-segmentAngularSize/2.,FirstSegmentAngle+isegm*SegmentDeltaAngle+segmentAngularSize/2. );
       	   AlRingVol[istat][isegm]   = new TGeoVolume (Form("Gem_AlRing%d_Volume",istat+1,isegm+1),AlRingShape[istat][isegm],gGeoMan->GetMedium("aluminium")); 
-           AlRingTrans[istat][isegm] = new TGeoTranslation (0.,0.,3.85);
+           AlRingTrans[istat][isegm] = new TGeoTranslation (0.,0.,3.853);
             cout << "AlRing " << AlRingInnerRadius[istat] << " " << AlRingOuterRadius[istat] << endl;
            AlRingCombi[istat][isegm] = new TGeoCombiTrans (*AlRingTrans[istat][isegm],*dummyrot);
            AlRingCombi[istat][isegm]->SetName(Form("Gem_AlRing%d_Volume",istat+1,isegm+1));
@@ -654,7 +675,7 @@ void create1StationGem_lastStation_v2()
       		 cout << " moduleSegment " << imodulesegm << " with name " << newmodulesegment[imodulesegm] << " will be put at " << FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle << " (in fact from " << FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle-modulesegmentAngularSize/2. << " to " << FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle+modulesegmentAngularSize/2. << ")" << endl;
       	  moduleRingShape[istat][imodulesegm] = new TGeoTubeSeg (Form("moduleRing%dshape",istat+1,imodulesegm+1),moduleRingInnerRadius[istat],moduleRingOuterRadius[istat],moduleRingHalfThickness,FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle-modulesegmentAngularSize/2.,FirstmoduleSegmentAngle+imodulesegm*moduleSegmentDeltaAngle+modulesegmentAngularSize/2. );
       	  moduleRingVol[istat][imodulesegm]   = new TGeoVolume (Form("Gem_moduleRing%d_Volume",istat+1,imodulesegm+1),moduleRingShape[istat][imodulesegm],gGeoMan->GetMedium("copper")); 
-          moduleRingTrans[istat][imodulesegm] = new TGeoTranslation (0.,0.,3.85);
+          moduleRingTrans[istat][imodulesegm] = new TGeoTranslation (0.,0.,3.853);
             cout << "moduleRing " << moduleRingInnerRadius[istat] << " " << moduleRingOuterRadius[istat] << endl;
           moduleRingCombi[istat][imodulesegm] = new TGeoCombiTrans (*moduleRingTrans[istat][imodulesegm],*dummyrot);
           moduleRingCombi[istat][imodulesegm]->SetName(Form("Gem_moduleRing%d_Volume",istat+1,imodulesegm+1));
@@ -667,7 +688,7 @@ void create1StationGem_lastStation_v2()
    //---------------------------------Cooling Ring-------------------------------------------------------------------------------------------------------------
      AlumiRingShape[istat] = new TGeoTube  (Form("AlumiRing%dshape",istat+1),AlumiRingInnerRadius[istat],AlumiRingOuterRadius[istat],AlumiRingHalfThickness);
      AlumiRingVol  [istat] = new TGeoVolume(Form("Gem_AlumiRing%d_Volume",istat+1),AlumiRingShape[istat],gGeoMan->GetMedium("aluminium"));
-     AlumiRingTrans[istat] = new TGeoTranslation(0.,0.,3.85);
+     AlumiRingTrans[istat] = new TGeoTranslation(0.,0.,3.853);
      cout << "AlumiRing " << AlumiRingInnerRadius[istat] << " " << AlumiRingOuterRadius[istat] << endl;
      AlumiRingCombi[istat] = new TGeoCombiTrans(*AlumiRingTrans[istat],*dummyrot); 
      AlumiRingCombi[istat]->SetName(Form("Gem_AlumiRing%d_Volume",istat+1));
@@ -679,7 +700,7 @@ void create1StationGem_lastStation_v2()
  //------------------------- GEM tracker cover electronic module  -----------------------------------------------------------------------------------------
     coverRingShape[istat] = new TGeoTube  (Form("coverRing%dshape",istat+1),coverRingInnerRadius[istat],coverRingOuterRadius[istat],coverRingHalfThickness);
     coverRingVol  [istat] = new TGeoVolume(Form("Gem_coverRing%d_Volume",istat+1),coverRingShape[istat],gGeoMan->GetMedium("GlassFiber"));
-    coverRingTrans[istat] = new TGeoTranslation(0.,0.,7.81);
+    coverRingTrans[istat] = new TGeoTranslation(0.,0.,7.803);
     cout << "coverRing " << coverRingInnerRadius[istat] << " " << coverRingOuterRadius[istat] << endl;
     coverRingCombi[istat] = new TGeoCombiTrans(*coverRingTrans[istat],*dummyrot); 
     coverRingCombi[istat]->SetName(Form("Gem_coverRing%d_Volume",istat+1));
@@ -689,7 +710,7 @@ void create1StationGem_lastStation_v2()
     DiskVol[istat]->AddNode(coverRingVol[istat],0,coverRingCombi[istat]);
     //----------------------------------------------------------------------------------------------------------------------------------------        
   ///////////////////////////////////////////////holding structure layers////////////////////////////////////////////////////////////////////////////////////////////////
-    //Double_t firstHLayersOffset = 0.;   
+   //Double_t firstHLayersOffset = 0.;   
 
    //  for ( Int_t jlay = 0 ; jlay < NofHLayers ; jlay++ ) {
    //    cout << HLayersName[jlay].Data() << " -> " << HLayersThick[jlay] << endl;
@@ -698,12 +719,13 @@ void create1StationGem_lastStation_v2()
 
    //  cout << "total Hlayers thickness is " << firstHLayersOffset << endl;
    //  firstHLayersOffset = firstHLayersOffset/2.;
-   //  firstHLayersOffset = -0.001*(TMath::Floor(1000.*firstHLayersOffset));//floor: round to nearest integer
+   //  firstHLayersOffset = -0.001*(TMath::Floor(1000.*firstHLayersOffset)); //floor: round to nearest integer
    //  cout << "first Hlayer offset is " << firstHLayersOffset << endl;
 
    //  Double_t HZPosition = firstHLayersOffset;
 
     for ( Int_t jlay = 0 ; jlay < NofHLayers ; jlay++ ) {
+     //    for ( Int_t jlay = 7 ; jlay < 8 ; jlay++ ) { 
     cout << "doing Hlayers " << jlay << endl;            
        
     // HZPosition += HLayersThick[jlay]/2.;
@@ -715,7 +737,7 @@ void create1StationGem_lastStation_v2()
     //  	  HZPosition += LayerThick[jlay]/2.;
     //  	continue;
     //    }
-      
+     
     cout << "  got Hlayer " << HLayersName[jlay].Data() << endl;
     	
     HLayersShapeTube[jlay][istat] = new TGeoTube  (Form("T%dT%s",istat+1,HLayersName[jlay].Data()),HInnerRadius[jlay][istat],HOuterRadius[jlay][istat],HLayersThick[jlay]/2.);
@@ -859,7 +881,7 @@ void create1StationGem_lastStation_v2()
 	      << setw(9) << SensOuterRadius[slay][istat] << ",  "
 	      << setw(9) << SensLayerThick[slay] << ",  "
 	      << setw(9) << SensorStripAngle[sensorNumber][0] << ",  "
-	    //<< setw(9) << SensorStripAngle[sensorNumber][1] << ",  "
+	     //<< setw(9) << SensorStripAngle[sensorNumber][1] << ",  "
 	      << setw(9) << sMiddleROBarHfTh[istat] << ",  "
 	      << setw(9) << SensorStripPitch[sensorNumber][0] << ",  "
 	      << setw(9) << SensorStripPitch[sensorNumber][1] << ((istat==NofDisks-1 && sensorNumber==1)?"":", \\") 
@@ -930,7 +952,7 @@ void create1StationGem_lastStation_v2()
 
  	cout << "layer material = " << layerMaterial.Data() << endl;
 	if ( layerMaterial.Contains("air" ) )
-	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kGray+1);
+	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kWhite);kGray+1);
 	if ( layerMaterial.Contains("copper" ) )
 	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kOrange+1);
 	if ( layerMaterial.Contains("kapton" ) )
@@ -967,7 +989,7 @@ void create1StationGem_lastStation_v2()
        	}
        	cout << "!!!! " << istat << " " << ilay << " > there shall be " << mnofStrips << " strips here so the radius should be " << mnewRadius << endl;
        	pout << "                        " << msensorNumber+1 << ",  " << SensorStripType[msensorNumber] << ",  " 
-       	     << setw(9) << 0. << ",  "   // sets the field width to be used on output operations
+       	     << setw(9) << 0. << ",  "   // setw:sets the field width to be used on output operations
        	     << setw(9) << 0. << ",  " 
        	     << setw(9) << DiskZPosition[istat]+layerPosition << ",  "
        	     << setw(9) << 0. << ",  "
@@ -986,28 +1008,11 @@ void create1StationGem_lastStation_v2()
        	layerPosition += LayerThick[ilay]/2.;
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
-    SubunitVol->AddNode(DiskVol[istat],0,DiskCombi[istat]);
+       SubunitVol->AddNode(DiskVol[istat],0,DiskCombi[istat]);
       
        }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-  pout << "TrackFinderOnHits_ParThetaA: Double_t  59.4" << endl
-       << "TrackFinderOnHits_ParThetaB: Double_t -0.02" << endl
-       << "TrackFinderOnHits_ParTheta0: Double_t  56.1372" << endl
-       << "TrackFinderOnHits_ParTheta1: Double_t -0.000564362" << endl
-       << "TrackFinderOnHits_ParTheta2: Double_t -0.181828" << endl
-       << "TrackFinderOnHits_ParTheta3: Double_t  0.284289" << endl
-       << "TrackFinderOnHits_ParRadPhi0:Double_t  0.9944432" << endl
-       << "TrackFinderOnHits_ParRadPhi2:Double_t -0.000590706" << endl
-       << "TrackFinderOnHits_ParMat0:   Double_t \\" << endl
-    // << "                                   -2.31333e-6,    0.00067035,    0.10173" << endl
-       << "                                   -2.35034328e-6,    0.0006810756,    0.10335768" << endl   
-       << "TrackFinderOnHits_ParMat1:   Double_t \\" << endl
-    // << "                                   -7.46844e-10,   -6.6696e-7,    0.000736672" << endl
-       << "                                   -7.58793504e-10,   -6.7763136e-7,    0.000748458752" << endl  
-       << "##########################################################################################" << flush;
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   
-  top->AddNode(SubunitVol,0,new TGeoCombiTrans());
+    top->AddNode(SubunitVol,0,new TGeoCombiTrans());
   
    // top->CheckOverlaps(0.0001, "");
    // gGeoManager->CheckOverlaps(0.0001,""); // [cm]

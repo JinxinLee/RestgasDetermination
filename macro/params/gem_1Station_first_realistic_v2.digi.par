@@ -1,6 +1,6 @@
 #################################################################
 # Digitization parameters for GEM                                
-# with 1 Station                                                 
+# with 1 Station                                                
 # Format:                                                        
 # Description of parameters:                                     
 # [PndGemDetectors]                                              
@@ -12,8 +12,8 @@
 [PndGemDetectors]
 parameters:Double_t \
                    1,   119.4000,  0.0, 2, \
-                        1,  3,     0.0000,     0.0000,   118.7058,     0.0000,     5.0038,    38.1500,     0.8500,     0.0000,     2.3500,     0.0400,     0.0400, \
-                        2,  2,     0.0000,     0.0000,   120.0948,     0.0000,     5.0000,    38.1500,     0.8500,     0.0000,     2.3500,     0.0400,     0.0400
+                        1,  3,     0.0000,     0.0000,   118.7059,     0.0000,     5.0038,    38.1500,     0.8500,     0.0000,     2.3500,     0.0400,     0.0400, \
+                        2,  2,     0.0000,     0.0000,   120.0952,     0.0000,     5.0000,    38.1500,     0.8500,     0.0000,     2.3500,     0.0400,     0.0400
 TrackFinderOnHits_ParThetaA: Double_t  59.4
 TrackFinderOnHits_ParThetaB: Double_t -0.02
 TrackFinderOnHits_ParTheta0: Double_t  56.1372
