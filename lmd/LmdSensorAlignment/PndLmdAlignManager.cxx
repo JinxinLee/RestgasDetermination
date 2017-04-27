@@ -640,6 +640,9 @@ void PndLmdAlignManager::alignMT() {
 	int nThreads;
 	nThreads = boost::thread::hardware_concurrency();
 
+	//FIXME: remove after debug!
+	nThreads =1;
+
 	//sometimes hardware_concurrency returns 0 if it can't detect.
 	if(nThreads < 1){
 		cout << "INFO:: could not detect number of cores. assuming 4.\n";

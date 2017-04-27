@@ -30,7 +30,7 @@ using std::make_pair;
 void PndLmdSensorAligner::init(){
 	_maxNoOfPairs=3e5;
 
-	_forceInstant=true;
+	forceInstant=true;
 	_moduleID=-1;
 	nonSanePairs=0;
 	skippedPairs=0;
@@ -80,7 +80,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 			nPairs=simpleSensorOneX.size();
 		}
 		else{
-			cout << "FATAL. Pair sorting error, pairs vectors have different sizes.\n";
+			cout << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
 			cout << "s1: " << s1 << "\n";
 			cout << "s2: " << s2 << "\n";
 			cout << "s3: " << s3 << "\n";
@@ -106,6 +106,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	//TODO: set from Manager or parameter file!
 	bool eventTimeCheck = true;
 	double minDelta = 1e-6;
+	reshapePointClouds = true;
 
 	/*
 	 * =============== case switch:  2D or 3D ===================
@@ -142,7 +143,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 					Model[ipair*dim+1] = simpleSensorOneY[ipair];
 					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
 					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
-			}
+				}
 				_zIsTimestamp = true;
 			}
 			else{
@@ -181,6 +182,17 @@ void PndLmdSensorAligner::calculateMatrix() {
 					Template[ipair*dim+2] = simpleSensorTwoZ[ipair];
 				}
 			}
+
+		}
+
+		Mreshape = computeReshapeMatrix(Model, nPairs, dim);
+
+		if(reshapePointClouds){
+			reshapePointCloud(Model, nPairs, dim, Mreshape);
+			reshapePointCloud(Template, nPairs, dim, Mreshape);
+			cout << "Mreshapre before reshape:\n" << Mreshape << "\n";
+			cout << "Mreshapre (Model) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim) << "\n";
+			cout << "Mreshapre (Templ) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim) << "\n";
 		}
 
 		//artificial z component, only really relevant if using cm coordinate system
@@ -191,8 +203,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 				cout << "applying artificial Z coordinate...\n";
 
 			for(int ipair=0; ipair<nPairs; ipair++){
-				Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 5e4 );
-				Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 5e4 );
+				Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e3 );
+				Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e3 );
 			}
 		}
 
@@ -335,8 +347,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		translation = Matrix(3,1);
 	}
 
-
-	icp.forceInstantResult(_forceInstant);
+	icp.forceInstantResult(forceInstant);
 	icp.fit(Template,nPairs,Rotation,translation,-1);
 
 	if(_verbose==3)
@@ -345,64 +356,64 @@ void PndLmdSensorAligner::calculateMatrix() {
 	if(dim==2){
 
 		//make 4x4 matrix
-			double* tempR = new double[4];
-			double* tempT = new double[2];
+		double* tempR = new double[4];
+		double* tempT = new double[2];
 
-			Rotation.getData(tempR);
-			translation.getData(tempT);
+		Rotation.getData(tempR);
+		translation.getData(tempT);
 
-			double* finalMatrix = new double[16];
+		double* finalMatrix = new double[16];
 
-			//okay, this is the version that FIRST rotates, THEN translates.
-			finalMatrix[0] = tempR[0];
-			finalMatrix[1] = tempR[1];
-			finalMatrix[2] = 0;
-			finalMatrix[3] = tempT[0];
-			finalMatrix[4] = tempR[2];
-			finalMatrix[5] = tempR[3];
-			finalMatrix[6] = 0;
-			finalMatrix[7] = tempT[1];
-			finalMatrix[8] = 0;
-			finalMatrix[9] = 0;
-			finalMatrix[10] = 1.0;
-			finalMatrix[11] = 0;
-			finalMatrix[12] = 0;
-			finalMatrix[13] = 0;
-			finalMatrix[14] = 0;
-			finalMatrix[15] = 1.0;
-			resultMatrix = Matrix(4,4);
+		//okay, this is the version that FIRST rotates, THEN translates.
+		finalMatrix[0] = tempR[0];
+		finalMatrix[1] = tempR[1];
+		finalMatrix[2] = 0;
+		finalMatrix[3] = tempT[0];
+		finalMatrix[4] = tempR[2];
+		finalMatrix[5] = tempR[3];
+		finalMatrix[6] = 0;
+		finalMatrix[7] = tempT[1];
+		finalMatrix[8] = 0;
+		finalMatrix[9] = 0;
+		finalMatrix[10] = 1.0;
+		finalMatrix[11] = 0;
+		finalMatrix[12] = 0;
+		finalMatrix[13] = 0;
+		finalMatrix[14] = 0;
+		finalMatrix[15] = 1.0;
+		resultMatrix = Matrix(4,4);
 
 	}
 	else if (dim==3){
 
 		//make 4x4 matrix
-			double* tempR = new double[9];
-			double* tempT = new double[3];
+		double* tempR = new double[9];
+		double* tempT = new double[3];
 
-			Rotation.getData(tempR);
-			translation.getData(tempT);
+		Rotation.getData(tempR);
+		translation.getData(tempT);
 
-			double* finalMatrix = new double[16];
+		double* finalMatrix = new double[16];
 
-			//okay, this is the version that FIRST rotates, THEN translates.
-			finalMatrix[0] = tempR[0];
-			finalMatrix[1] = tempR[1];
-			finalMatrix[2] = tempR[2];
-			finalMatrix[3] = tempT[0];
-			finalMatrix[4] = tempR[3];
-			finalMatrix[5] = tempR[4];
-			finalMatrix[6] = tempR[5];
-			finalMatrix[7] = tempT[1];
-			finalMatrix[8] = tempR[6];
-			finalMatrix[9] = tempR[7];
-			finalMatrix[10] = tempR[8];
-			finalMatrix[11] = tempT[2];
-			finalMatrix[12] = 0;
-			finalMatrix[13] = 0;
-			finalMatrix[14] = 0;
-			finalMatrix[15] = 1;
+		//okay, this is the version that FIRST rotates, THEN translates.
+		finalMatrix[0] = tempR[0];
+		finalMatrix[1] = tempR[1];
+		finalMatrix[2] = tempR[2];
+		finalMatrix[3] = tempT[0];
+		finalMatrix[4] = tempR[3];
+		finalMatrix[5] = tempR[4];
+		finalMatrix[6] = tempR[5];
+		finalMatrix[7] = tempT[1];
+		finalMatrix[8] = tempR[6];
+		finalMatrix[9] = tempR[7];
+		finalMatrix[10] = tempR[8];
+		finalMatrix[11] = tempT[2];
+		finalMatrix[12] = 0;
+		finalMatrix[13] = 0;
+		finalMatrix[14] = 0;
+		finalMatrix[15] = 1;
 
-			resultMatrix = Matrix(4,4);
+		resultMatrix = Matrix(4,4);
 	}
 
 	//make 4x4 matrix
@@ -443,6 +454,10 @@ void PndLmdSensorAligner::calculateMatrix() {
 		//save matrix!
 		resultMatrix.setVal(4,4,finalMatrix);
 
+		if(reshapePointClouds){
+			resultMatrix = Matrix::inv(Mreshape) * resultMatrix * Mreshape;
+		}
+
 		if(!_inCentimeters){
 			//store matrix file already transformed to cm!
 			resultMatrix = PndLmdAlignManager::transformMatrixFromPixelsToCm(resultMatrix);
@@ -475,7 +490,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 			alignlog << "off\n";
 		}
 		alignlog << "Force Instant: ";
-		if(_forceInstant){
+		if(forceInstant){
 			alignlog << "on\n";
 		}
 		else{
@@ -942,4 +957,93 @@ void PndLmdSensorAligner::clearPairs() {
 	//		lastNoOfPairs=pairs.size();
 	//		pairs.clear();
 	//	}
+}
+
+Matrix PndLmdSensorAligner::computeReshapeMatrix(double* pointCloud, int nPairs, int dim) {
+
+	Matrix result;
+
+	if(_verbose==3){
+		cout << "calculating reshape matrix...\n";
+	}
+
+	if(dim==2){
+		//TODO: skip for now
+	}
+
+	else if(dim==3){
+
+		//measure xmin, xmax, ymin, ymax;
+		double xmin = pointCloud[0];
+		double xmax = xmin;
+		double ymin = pointCloud[1];
+		double ymax = ymin;
+
+		//TODO: dowe really need all pairs? isn't e.g. 1/10th enough?
+		for(int iPair=1; iPair<nPairs; iPair++){
+			xmin = min(xmin, pointCloud[iPair*dim+0]);
+			xmax = max(xmax, pointCloud[iPair*dim+0]);
+			ymin = min(ymin, pointCloud[iPair*dim+1]);
+			ymax = max(ymax, pointCloud[iPair*dim+1]);
+		}
+
+		double xSpan = xmax - xmin;
+		double ySpan = ymax - ymin;
+
+		if(_verbose == 3){
+			cout << "reshape parameters:\n";
+			cout << "xmin, xmax: " << xmin << "," << xmax << "\n";
+			cout << "ymin, ymax: " << ymin << "," << ymax << "\n";
+			cout << "xSpan, ySpan: " << xSpan << "," << ySpan << "\n";
+		}
+
+		//create scaling matrix, translation matrix and complete reshaping matrix here
+
+		Matrix Mshift = Matrix::eye(4);
+		Matrix Mscale = Matrix::eye(4);
+
+		Mshift.val[0][3] -= (xmin + xmax)/2;	//x shift
+		Mshift.val[1][3] -= (ymin + ymax)/2;	//y shift
+
+		Mscale.val[0][0] /= (xSpan*0.5) * 1.0;	//x scale
+		Mscale.val[1][1] /= (ySpan*0.5) * 1.0;	//y scale
+
+		result = Mscale * Mshift;
+	}
+
+	return result;
+
+}
+
+//TODO: complete this for z dimension!
+void PndLmdSensorAligner::reshapePointCloud(double* pointcloud, int nPairs, int dim, Matrix reshapeMatrix) {
+
+	if(_verbose==3){
+		cout << "reshaping point cloud...\n";
+	}
+
+
+	if(dim==2){
+		//TODO: skip for now
+	}
+
+	else if(dim==3){
+
+		//reshape point clouds
+		//TODO: this can be optimized by calculating on the values directly and not creating a Matrix object.
+		Matrix p1 = Matrix(4,1);
+
+		for(int iPair=0; iPair < nPairs; iPair++){
+
+			p1.val[0][0] =  pointcloud[iPair*dim+0];
+			p1.val[1][0] =  pointcloud[iPair*dim+1];
+			p1.val[2][0] =  0.0;
+			p1.val[3][0] =  1.0;
+
+			p1 = reshapeMatrix * p1;
+
+			pointcloud[iPair*dim+0] = p1.val[0][0];
+			pointcloud[iPair*dim+1] = p1.val[1][0];
+		}
+	}
 }

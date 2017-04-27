@@ -25,7 +25,7 @@
 class PndLmdSensorAligner{
 
 private:
-	bool _forceInstant;
+	bool forceInstant, reshapePointClouds;
 	int _maxNoOfPairs, lastNoOfPairs;
 	std::string _inputFilename;
 	int _moduleID, overlapID;
@@ -49,7 +49,7 @@ private:
 
 	bool _simpleStorage, _inCentimeters, _success, _numericCorrection, _zIsTimestamp;
 
-	Matrix resultMatrix, _helperMatrix;
+	Matrix resultMatrix, _helperMatrix, Mreshape;
 
 public:
 
@@ -85,8 +85,8 @@ public:
 	void clearPairs();
 
 	//deactivate iterative part, use for debug only
-	void forceInstant(Bool_t instant){
-		_forceInstant=instant;
+	void setForceInstant(Bool_t instant){
+		forceInstant=instant;
 	}
 
 	void setModuleID(Int_t ID){
@@ -158,6 +158,15 @@ public:
 	void setZasTimetamp(bool value){
 		_zIsTimestamp=value;
 	}
+
+	void setReshapePointClouds(bool value) {
+		reshapePointClouds = value;
+	}
+
+	Matrix computeReshapeMatrix(double* pointCloud, int nPairs, int dim);
+
+	void reshapePointCloud(double* pointcloud, int nPairs, int dim, Matrix reshapeMatrix);
+
 };
 
 #endif /* LMD_LMDSENSORALIGNMENT_PNDLMDSENSORALIGNER_H_ */
