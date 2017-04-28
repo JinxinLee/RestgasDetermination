@@ -173,6 +173,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			result.push_back(matrixDif.val[0][1]);		// sin(alpha)
 			result.push_back(matrixDif.val[0][3]);		// tx
 			result.push_back(matrixDif.val[1][3]);		// ty
+			result.push_back(matrixCM.val[2][3]);		// tz
 			data.push_back(result);
 		}
 
@@ -204,6 +205,21 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.xMax=-1;
 		parameters.printCMPXinPathName = true;
 		createHist(data, parameters);
+
+		if(true){
+			//for DZ
+			//parameters.path = pdfdir;
+			parameters.title = "#DeltaZ of HitPairs";
+			parameters.xtitle = "dZ [nm]";
+			parameters.ytitle = "entries";
+			parameters.scaleFactor = 1e4*1e3;
+			parameters.fileName = "dz.pdf";
+			parameters.vectorIndex = 5;
+			parameters.xMin=-1;
+			parameters.xMax=-1;
+			parameters.printCMPXinPathName = false;
+			createHist(data, parameters);
+		}
 
 		//for DAlpha
 		//parameters.path = pdfdir;
@@ -254,6 +270,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			result.push_back(matrixDif.val[0][1]);		// sin(alpha)
 			result.push_back(matrixDif.val[0][3]);		// tx
 			result.push_back(matrixDif.val[1][3]);		// ty
+			result.push_back(matrixPX.val[2][3]);		// tz
 			data.push_back(result);
 		}
 
@@ -285,6 +302,21 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		parameters.xMax=-1;
 		parameters.printCMPXinPathName = true;
 		createHist(data, parameters);
+
+		if(true){
+			//for DZ
+			//parameters.path = pdfdir;
+			parameters.title = "#DeltaZ of HitPairs";
+			parameters.xtitle = "dZ [nm]";
+			parameters.ytitle = "entries";
+			parameters.scaleFactor = 1e4*1e3;
+			parameters.fileName = "dz.pdf";
+			parameters.vectorIndex = 5;
+			parameters.xMin=-1;
+			parameters.xMax=-1;
+			parameters.printCMPXinPathName = false;
+			createHist(data, parameters);
+		}
 
 		//for DAlpha
 		//parameters.path = pdfdir;
@@ -333,13 +365,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			Matrix senToSen = manager.getMatrixOfficialGeometry(id1,id2,true);
 			Matrix senToSenWithCorr = matrixCM * senToSen;  //this is now the total matrix from sen1 to sen2
 			Matrix matrixDif = senToSenWithCorr - matrixPX;
-
-			/*
-			cout << "after transformation:\n";
-			cout << "matrixCM:\n" << matrixCM << "\n\n";
-			cout << "matrixPX:\n" << matrixPX << "\n\n";
-			cout << "matrix residual:\n" << matrixDif << "\n\n";
-			 */
 
 			//store this residual tuple to data
 			std::vector<double> result;
@@ -510,7 +535,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			}
 
 			data.push_back(interimData);
-
 		}
 
 		//plot difference
@@ -568,8 +592,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		histPixelDistances(4,7);
 		histPixelDistances(4,9);
 	}
-
-
 
 	/*
 	 * test functions and sandbox
@@ -694,7 +716,7 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2){
 			//also, check if overlap pixel even exists. must be row elem [0,250], col elem [0,250]
 			//are we still overlapping area?
 			if(colTest2 < 0 || colTest2 > 247
-					){
+			){
 				continue;
 			}
 			if(rowTest2 < 0 || rowTest2 > 242){

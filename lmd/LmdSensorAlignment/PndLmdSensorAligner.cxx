@@ -14,6 +14,11 @@
 #include <string>
 #include <sstream>
 
+#include "Eigen/Core"
+#include "Eigen/LU"
+#include "Eigen/SVD"
+#include "Eigen/src/Geometry/Umeyama.h"
+
 #include <icpPointToPoint.h>
 #include <matrix.h>
 #include <PndLmdAlignManager.h>
@@ -25,7 +30,6 @@ using std::abs;
 using std::cerr;
 using std::cout;
 using std::make_pair;
-
 
 void PndLmdSensorAligner::init(){
 	_maxNoOfPairs=3e5;
@@ -65,463 +69,489 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	int nPairs;
 
-	if(_simpleStorage){
+	bool debug=false;
 
-		//check if all vectors have the same size
-		int s1 = simpleSensorOneX.size();
-		int s2 = simpleSensorOneY.size();
-		int s3 = simpleSensorOneZ.size();
+	if(debug){
 
-		int s4 = simpleSensorTwoX.size();
-		int s5 = simpleSensorTwoY.size();
-		int s6 = simpleSensorTwoZ.size();
+		int dim = 3;
+		Matrix resultUme = Matrix::eye(4);
+		nPairs=simpleSensorOneX.size();
 
-		if(s1==s2 && s2==s3 && s3==s4 && s4==s5 && s5==s6){
-			nPairs=simpleSensorOneX.size();
-		}
-		else{
-			cout << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
-			cout << "s1: " << s1 << "\n";
-			cout << "s2: " << s2 << "\n";
-			cout << "s3: " << s3 << "\n";
-			cout << "s4: " << s4 << "\n";
-			cout << "s5: " << s5 << "\n";
-			cout << "s6: " << s6 << "\n";
-			exit(1);
-		}
-	}
-	else{
-		//nPairs=pairs.size();
-		cout << "WARNING! non-simpleStorage no longer supported!\n";
-		return;
-	}
+		Eigen::MatrixXd cloudOne(dim, nPairs);
+		Eigen::MatrixXd cloudTwo(dim, nPairs);
 
-	if(skippedPairs>0){
-		cout << "=====================================================\n";
-		cout << "WARNING! Invalid pairs in pair file, check your data!\n";
-		cout << "=====================================================\n";
-	}
+		for(int iPair=0; iPair < nPairs; iPair++){
 
-	//parameters
-	//TODO: set from Manager or parameter file!
-	bool eventTimeCheck = true;
-	double minDelta = 1e-6;
-	reshapePointClouds = true;
-
-	/*
-	 * =============== case switch:  2D or 3D ===================
-	 */
-	int dim = 3;
-
-	// only allow max Pairs!
-	if(nPairs > _maxNoOfPairs){
-		nPairs=_maxNoOfPairs;
-	}
-
-	//check if maxPairs > 0
-	if(nPairs<5){
-		cerr << "PndLmdSensrAligner::Error: Trying to use less than 5 pairs! (And that's not going to work.) Aborting.\n";
-		_success=false;
-		return;
-	}
-	else{
-		//	cout << "PndLmdSensrAligner::CalculateMatrix: Using " << nPairs << " pairs.\n";
-	}
-
-	double* Model = new double[dim*nPairs];
-	double* Template = new double[dim*nPairs];
-
-	if(_verbose==3)
-		cout << "arranging pairs...\n";
-
-	if(dim==2){
-		//mind this layout: prefer no if conditions inside a for loop, use loops inside ifs if possible.
-		if(_simpleStorage){
-			if(_inCentimeters){
-				for(int ipair=0; ipair<nPairs; ipair++){
-					Model[ipair*dim+0] = simpleSensorOneX[ipair];
-					Model[ipair*dim+1] = simpleSensorOneY[ipair];
-					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
-					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
-				}
-				_zIsTimestamp = true;
-			}
-			else{
-				for(int ipair=0; ipair<nPairs; ipair++){
-					Model[ipair*dim+0] = simpleSensorOneX[ipair];
-					Model[ipair*dim+1] = simpleSensorOneY[ipair];
-					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
-					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
-				}
-			}
-		}
-	}
-
-	else if(dim==3){
-
-		//mind this layout: prefer no if conditions inside a for loop, use loops inside ifs if possible.
-		if(_simpleStorage){
-			if(_inCentimeters){
-				for(int ipair=0; ipair<nPairs; ipair++){
-					Model[ipair*dim+0] = simpleSensorOneX[ipair];
-					Model[ipair*dim+1] = simpleSensorOneY[ipair];
-					//Model[ipair*3+2] = simpleSensorOneZ[ipair];
-					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
-					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
-					//Template[ipair*3+2] = simpleSensorTwoZ[ipair];
-				}
-				_zIsTimestamp = true;
-			}
-			else{
-				for(int ipair=0; ipair<nPairs; ipair++){
-					Model[ipair*dim+0] = simpleSensorOneX[ipair];
-					Model[ipair*dim+1] = simpleSensorOneY[ipair];
-					Model[ipair*dim+2] = simpleSensorOneZ[ipair];
-					Template[ipair*dim+0] = simpleSensorTwoX[ipair];
-					Template[ipair*dim+1] = simpleSensorTwoY[ipair];
-					Template[ipair*dim+2] = simpleSensorTwoZ[ipair];
-				}
-			}
+			cloudOne(0,iPair) = simpleSensorOneX[iPair];
+			cloudOne(1,iPair) = simpleSensorOneY[iPair];
+			cloudOne(2,iPair) = 0;
+			cloudTwo(0,iPair) = simpleSensorTwoX[iPair];
+			cloudTwo(1,iPair) = simpleSensorTwoY[iPair];
+			cloudTwo(2,iPair) = 0;
 
 		}
 
-		Mreshape = computeReshapeMatrix(Model, nPairs, dim);
+		Eigen::MatrixXd resultEigen = Eigen::umeyama(cloudOne, cloudTwo, true);
 
-		if(reshapePointClouds){
-			reshapePointCloud(Model, nPairs, dim, Mreshape);
-			reshapePointCloud(Template, nPairs, dim, Mreshape);
-			cout << "Mreshapre before reshape:\n" << Mreshape << "\n";
-			cout << "Mreshapre (Model) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim) << "\n";
-			cout << "Mreshapre (Templ) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim) << "\n";
-		}
+		resultUme.val[0][0] = resultEigen(0,0);
+		resultUme.val[0][1] = resultEigen(0,1);
+		resultUme.val[0][2] = resultEigen(0,2);
+		resultUme.val[0][3] = resultEigen(0,3);
+		resultUme.val[1][0] = resultEigen(1,0);
+		resultUme.val[1][1] = resultEigen(1,1);
+		resultUme.val[1][2] = resultEigen(1,2);
+		resultUme.val[1][3] = resultEigen(1,3);
+		resultUme.val[2][0] = resultEigen(2,0);
+		resultUme.val[2][1] = resultEigen(2,1);
+		resultUme.val[2][2] = resultEigen(2,2);
+		resultUme.val[2][3] = resultEigen(2,3);
+		resultUme.val[3][0] = resultEigen(3,0);
+		resultUme.val[3][1] = resultEigen(3,1);
+		resultUme.val[3][2] = resultEigen(3,2);
+		resultUme.val[3][3] = resultEigen(3,3);
 
-		//artificial z component, only really relevant if using cm coordinate system
-		// UPDATE: well that's not exactly true. If using CM coordinates, the z is artificial
-		// as well. So to get comparable results of CM vs PX, we should use this in BOTH cases
-		if(_zIsTimestamp){
-			if(_verbose==3)
-				cout << "applying artificial Z coordinate...\n";
-
-			for(int ipair=0; ipair<nPairs; ipair++){
-				Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e3 );
-				Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e3 );
-			}
-		}
-
-		if(_numericCorrection){
-
-			if(_verbose==3)
-				cout << "applying numeric correction matrix...\n";
-
-			//rotation matrix for numerical stability
-			for(int ipairs=0; ipairs<nPairs; ipairs++){
-				Matrix vec(4,1);
-				vec.val[0][0] = Template[ipairs*3+0];
-				vec.val[1][0] = Template[ipairs*3+1];
-				vec.val[2][0] = Template[ipairs*3+2];
-				vec.val[3][0] = 1;
-				vec = _helperMatrix * vec;
-				Template[ipairs*3+0] = vec.val[0][0];
-				Template[ipairs*3+1] = vec.val[1][0];
-				Template[ipairs*3+2] = vec.val[2][0];
-			}
-		}
-
-		int zeroVals=0;
-		int modxinv=0, modyinv=0, modzinv=0;
-		int temxinv=0, temyinv=0, temzinv=0;
-
-		/*
-		 * zero factor had to be introduced because a bug in earlier versions led to many entries
-		 * being filled with zeros. it shouldn't be needed anymore, but it doesn't cost much and
-		 * could still be useful.
-		 */
-
-		if(_verbose==3)
-			cout << "checking for zero values...\n";
-
-		for(int iCheck=0; iCheck<dim*nPairs; iCheck++){
-			double val1 = abs(Model[iCheck]);
-			double val2 = abs(Template[iCheck]);
-			if(val1 < 1e-15){
-				if(iCheck%3==0){
-					//cout << "model xval invalid: " << val1 << "\n";
-					modxinv++;
-				}
-				if(iCheck%3==1){
-					//cout << "model yval invalid\n";
-					modyinv++;
-				}
-				if(iCheck%3==2){
-					//cout << "model zval invalid\n";
-					modzinv++;
-				}
-				zeroVals++;
-				//cout << val1 << "\n";
-			}
-			if(val2 < 1e-15){
-				if(iCheck%3==0){
-					//cout << "template xval invalid: " << val2 << "\n";
-					temxinv++;
-				}
-				if(iCheck%3==1){
-					//cout << "template yval invalid\n";
-					temyinv++;
-				}
-				if(iCheck%3==2){
-					//cout << "template zval invalid\n";
-					temzinv++;
-				}
-				zeroVals++;
-				//cout << val2 << "\n";
-			}
-		}
-
-		// 3 dimension and 2 arrays = 6
-		double zeroFactor = zeroVals/((double)nPairs*6.0);
-		if(zeroFactor > 0.1 && zeroFactor < 0.3){
-			cout << "WARNING. More than 10 % of your entries is zero. That must be a mistake. \n";
-			cout << "Also, the kdtree creation could crash. Keep an eye out for that...\n";
-			cout << "Zero factor: " << zeroFactor << "\n";
-			cout << "model x vals invalid: " << modxinv/(double)nPairs << "\n";
-			cout << "model y vals invalid: " << modyinv/(double)nPairs << "\n";
-			cout << "model z vals invalid: " << modzinv/(double)nPairs << "\n";
-			cout << "templ x vals invalid: " << temxinv/(double)nPairs << "\n";
-			cout << "templ y vals invalid: " << temyinv/(double)nPairs << "\n";
-			cout << "templ z vals invalid: " << temzinv/(double)nPairs << "\n";
-
-		}
-		if(zeroFactor > 0.3){
-			cout << "ERROR. More than 30 % of your entries is zero. That must be a mistake. \n";
-			cout << "Also, the kdtree creation will crash. Exiting.\n";
-			cout << "Zero factor: " << zeroFactor << "\n";
-			cout << "model x vals invalid: " << modxinv/(double)nPairs << "\n";
-			cout << "model y vals invalid: " << modyinv/(double)nPairs << "\n";
-			cout << "model z vals invalid: " << modzinv/(double)nPairs << "\n";
-			cout << "templ x vals invalid: " << temxinv/(double)nPairs << "\n";
-			cout << "templ y vals invalid: " << temyinv/(double)nPairs << "\n";
-			cout << "templ z vals invalid: " << temzinv/(double)nPairs << "\n";
-			cout << "=== additional data ===\n";
-			cout << "overlap id: " << overlapID << "\n";
-			cout << "no of Pairs: " << nPairs << "\n";
-			exit(1);
-		}
-	}
-
-	//no simple storage, legcay!
-	else{
-		cout << "WARNING. Legacy storage mode is no longer supported.";
-		return;
-	}
-
-	//if we are in px coordinates, always use time stamp as z!
-	_zIsTimestamp=true;
-	//_verbose = 3;
-
-	if(_verbose==3)
-		//printAllPairs();
-
-		if(_verbose==3)
-			cout << "creating ICP...\n";
-
-	// start with identity as initial transformation
-	// in practice you might want to use some kind of prediction here
-	Matrix Rotation;
-	Matrix translation;
-
-	//perform ICP and store quality parameters
-	//attention! dim * nPairs must equal size of model!
-	IcpPointToPoint icp(Model,nPairs,dim);
-
-	if(_verbose==3)
-		cout << "ICP and model created...\n";
-
-	//TODO: clean this up!
-	//prepare Matrices
-	if(dim==2){
-		Rotation = Matrix::eye(2);
-		translation = Matrix(2,1);
-	}
-	else if(dim==3){
-		Rotation = Matrix::eye(3);
-		translation = Matrix(3,1);
-	}
-
-	icp.forceInstantResult(forceInstant);
-	icp.fit(Template,nPairs,Rotation,translation,-1);
-
-	if(_verbose==3)
-		cout << "ICP fit step done.\n";
-
-	if(dim==2){
-
-		//make 4x4 matrix
-		double* tempR = new double[4];
-		double* tempT = new double[2];
-
-		Rotation.getData(tempR);
-		translation.getData(tempT);
-
-		double* finalMatrix = new double[16];
-
-		//okay, this is the version that FIRST rotates, THEN translates.
-		finalMatrix[0] = tempR[0];
-		finalMatrix[1] = tempR[1];
-		finalMatrix[2] = 0;
-		finalMatrix[3] = tempT[0];
-		finalMatrix[4] = tempR[2];
-		finalMatrix[5] = tempR[3];
-		finalMatrix[6] = 0;
-		finalMatrix[7] = tempT[1];
-		finalMatrix[8] = 0;
-		finalMatrix[9] = 0;
-		finalMatrix[10] = 1.0;
-		finalMatrix[11] = 0;
-		finalMatrix[12] = 0;
-		finalMatrix[13] = 0;
-		finalMatrix[14] = 0;
-		finalMatrix[15] = 1.0;
-		resultMatrix = Matrix(4,4);
-
-	}
-	else if (dim==3){
-
-		//make 4x4 matrix
-		double* tempR = new double[9];
-		double* tempT = new double[3];
-
-		Rotation.getData(tempR);
-		translation.getData(tempT);
-
-		double* finalMatrix = new double[16];
-
-		//okay, this is the version that FIRST rotates, THEN translates.
-		finalMatrix[0] = tempR[0];
-		finalMatrix[1] = tempR[1];
-		finalMatrix[2] = tempR[2];
-		finalMatrix[3] = tempT[0];
-		finalMatrix[4] = tempR[3];
-		finalMatrix[5] = tempR[4];
-		finalMatrix[6] = tempR[5];
-		finalMatrix[7] = tempT[1];
-		finalMatrix[8] = tempR[6];
-		finalMatrix[9] = tempR[7];
-		finalMatrix[10] = tempR[8];
-		finalMatrix[11] = tempT[2];
-		finalMatrix[12] = 0;
-		finalMatrix[13] = 0;
-		finalMatrix[14] = 0;
-		finalMatrix[15] = 1;
-
-		resultMatrix = Matrix(4,4);
-	}
-
-	//make 4x4 matrix
-	double* tempR = new double[9];
-	double* tempT = new double[3];
-
-	Rotation.getData(tempR);
-	translation.getData(tempT);
-
-	double* finalMatrix = new double[16];
-
-	//okay, this is the version that FIRST rotates, THEN translates.
-	finalMatrix[0] = tempR[0];
-	finalMatrix[1] = tempR[1];
-	finalMatrix[2] = tempR[2];
-	finalMatrix[3] = tempT[0];
-	finalMatrix[4] = tempR[3];
-	finalMatrix[5] = tempR[4];
-	finalMatrix[6] = tempR[5];
-	finalMatrix[7] = tempT[1];
-	finalMatrix[8] = tempR[6];
-	finalMatrix[9] = tempR[7];
-	finalMatrix[10] = tempR[8];
-	finalMatrix[11] = tempT[2];
-	finalMatrix[12] = 0;
-	finalMatrix[13] = 0;
-	finalMatrix[14] = 0;
-	finalMatrix[15] = 1;
-
-	resultMatrix = Matrix(4,4);
-
-	std::stringstream alignlog;
-
-	if(icp.hasConverged()){
-
-		_success=true;
-
-		//save matrix!
-		resultMatrix.setVal(4,4,finalMatrix);
-
-		if(reshapePointClouds){
-			resultMatrix = Matrix::inv(Mreshape) * resultMatrix * Mreshape;
-		}
+		resultMatrix = resultUme;
 
 		if(!_inCentimeters){
-			//store matrix file already transformed to cm!
 			resultMatrix = PndLmdAlignManager::transformMatrixFromPixelsToCm(resultMatrix);
 		}
 
-		//and say a few words for the log
-		alignlog << "\n";
-		alignlog << "====================================================\n";
-		alignlog << "icp converged for area " << ID1 << " to " << ID2 << "(overlapID "<< overlapID << ")" << " in " << icp.getInterations() << " iterations.\n";
-		alignlog << "pairs available: " << nPairs;
-		if(nPairs < 100000){
-			alignlog << " (WARNING! This is not enough for accurate alignment!)\n";
+		_success = true;
+	}
+	else{
+
+		if(_simpleStorage){
+
+			//check if all vectors have the same size
+			int s1 = simpleSensorOneX.size();
+			int s2 = simpleSensorOneY.size();
+			int s3 = simpleSensorOneZ.size();
+
+			int s4 = simpleSensorTwoX.size();
+			int s5 = simpleSensorTwoY.size();
+			int s6 = simpleSensorTwoZ.size();
+
+			if(s1==s2 && s2==s3 && s3==s4 && s4==s5 && s5==s6){
+				nPairs=simpleSensorOneX.size();
+			}
+			else{
+				cout << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
+				cout << "s1: " << s1 << "\n";
+				cout << "s2: " << s2 << "\n";
+				cout << "s3: " << s3 << "\n";
+				cout << "s4: " << s4 << "\n";
+				cout << "s5: " << s5 << "\n";
+				cout << "s6: " << s6 << "\n";
+				exit(1);
+			}
+		}
+		else{
+			//nPairs=pairs.size();
+			cout << "WARNING! non-simpleStorage no longer supported!\n";
+			return;
+		}
+
+		if(skippedPairs>0){
+			cout << "=====================================================\n";
+			cout << "WARNING! Invalid pairs in pair file, check your data!\n";
+			cout << "=====================================================\n";
+		}
+
+		//TODO: set from Manager or parameter file!
+		/*
+		 * =============== Global Parameters, from file in the future ===================
+		 */
+		int dim = 3;
+		bool eventTimeCheck = true;
+		double minDelta = 1e-6;
+		reshapePointClouds = false;
+		_zIsTimestamp = true;
+
+		// only allow max Pairs!
+		if(nPairs > _maxNoOfPairs){
+			nPairs=_maxNoOfPairs;
+		}
+
+		//check if maxPairs > 0
+		if(nPairs<5){
+			cerr << "PndLmdSensrAligner::Error: Trying to use less than 5 pairs! (And that's not going to work.) Aborting.\n";
+			_success=false;
+			return;
+		}
+		else{
+			//	cout << "PndLmdSensrAligner::CalculateMatrix: Using " << nPairs << " pairs.\n";
+		}
+
+		double* Model = new double[dim*nPairs];
+		double* Template = new double[dim*nPairs];
+
+		if(_verbose==3)
+			cout << "arranging pairs...\n";
+
+		if(dim==2){
+			for(int ipair=0; ipair<nPairs; ipair++){
+				Model[ipair*dim+0] = simpleSensorOneX[ipair];
+				Model[ipair*dim+1] = simpleSensorOneY[ipair];
+				Template[ipair*dim+0] = simpleSensorTwoX[ipair];
+				Template[ipair*dim+1] = simpleSensorTwoY[ipair];
+			}
+		}
+
+		else if(dim==3){
+			for(int ipair=0; ipair<nPairs; ipair++){
+				Model[ipair*dim+0] = simpleSensorOneX[ipair];
+				Model[ipair*dim+1] = simpleSensorOneY[ipair];
+				Model[ipair*dim+2] = (double)ipair;
+				Template[ipair*dim+0] = simpleSensorTwoX[ipair];
+				Template[ipair*dim+1] = simpleSensorTwoY[ipair];
+				Template[ipair*dim+2] = (double)ipair;
+			}
+
+			Mreshape = computeReshapeMatrix(Model, nPairs, dim);
+
+			if(reshapePointClouds){
+				reshapePointCloud(Model, nPairs, dim, Mreshape);
+				reshapePointCloud(Template, nPairs, dim, Mreshape);
+
+				if(_verbose==3){
+					cout << "Mreshapre before reshape:\n" << Mreshape << "\n";
+					cout << "Mreshapre (Model) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim) << "\n";
+					cout << "Mreshapre (Templ) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim) << "\n";
+				}
+			}
+
+			//artificial z component, only really relevant if using cm coordinate system
+			// UPDATE: well that's not exactly true. If using CM coordinates, the z is artificial
+			// as well. So to get comparable results of CM vs PX, we should use this in BOTH cases
+
+			if(_zIsTimestamp){
+				if(_verbose==3)
+					cout << "applying artificial Z coordinate...\n";
+
+				for(int ipair=0; ipair<nPairs; ipair++){
+					Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e2 );
+					Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e2 );
+				}
+			}
+
+
+			if(_numericCorrection){
+
+				if(_verbose==3)
+					cout << "applying numeric correction matrix...\n";
+
+				//rotation matrix for numerical stability
+				for(int ipairs=0; ipairs<nPairs; ipairs++){
+					Matrix vec(4,1);
+					vec.val[0][0] = Template[ipairs*3+0];
+					vec.val[1][0] = Template[ipairs*3+1];
+					vec.val[2][0] = Template[ipairs*3+2];
+					vec.val[3][0] = 1;
+					vec = _helperMatrix * vec;
+					Template[ipairs*3+0] = vec.val[0][0];
+					Template[ipairs*3+1] = vec.val[1][0];
+					Template[ipairs*3+2] = vec.val[2][0];
+				}
+			}
+
+			int zeroVals=0;
+			int modxinv=0, modyinv=0, modzinv=0;
+			int temxinv=0, temyinv=0, temzinv=0;
+
+			/*
+			 * zero factor had to be introduced because a bug in earlier versions led to many entries
+			 * being filled with zeros. it shouldn't be needed anymore, but it doesn't cost much and
+			 * could still be useful.
+			 */
+
+			if(_verbose==3)
+				cout << "checking for zero values...\n";
+
+			for(int iCheck=0; iCheck<dim*nPairs; iCheck++){
+				double val1 = abs(Model[iCheck]);
+				double val2 = abs(Template[iCheck]);
+				if(val1 < 1e-15){
+					if(iCheck%3==0){
+						//cout << "model xval invalid: " << val1 << "\n";
+						modxinv++;
+					}
+					if(iCheck%3==1){
+						//cout << "model yval invalid\n";
+						modyinv++;
+					}
+					if(iCheck%3==2){
+						//cout << "model zval invalid\n";
+						modzinv++;
+					}
+					zeroVals++;
+					//cout << val1 << "\n";
+				}
+				if(val2 < 1e-15){
+					if(iCheck%3==0){
+						//cout << "template xval invalid: " << val2 << "\n";
+						temxinv++;
+					}
+					if(iCheck%3==1){
+						//cout << "template yval invalid\n";
+						temyinv++;
+					}
+					if(iCheck%3==2){
+						//cout << "template zval invalid\n";
+						temzinv++;
+					}
+					zeroVals++;
+					//cout << val2 << "\n";
+				}
+			}
+
+			// 3 dimension and 2 arrays = 6
+			double zeroFactor = zeroVals/((double)nPairs*6.0);
+			if(zeroFactor > 0.1 && zeroFactor < 0.3){
+				cout << "WARNING. More than 10 % of your entries is zero. That must be a mistake. \n";
+				cout << "Also, the kdtree creation could crash. Keep an eye out for that...\n";
+				cout << "Zero factor: " << zeroFactor << "\n";
+				cout << "model x vals invalid: " << modxinv/(double)nPairs << "\n";
+				cout << "model y vals invalid: " << modyinv/(double)nPairs << "\n";
+				cout << "model z vals invalid: " << modzinv/(double)nPairs << "\n";
+				cout << "templ x vals invalid: " << temxinv/(double)nPairs << "\n";
+				cout << "templ y vals invalid: " << temyinv/(double)nPairs << "\n";
+				cout << "templ z vals invalid: " << temzinv/(double)nPairs << "\n";
+
+			}
+			if(zeroFactor > 0.3){
+				cout << "ERROR. More than 30 % of your entries is zero. That must be a mistake. \n";
+				cout << "Also, the kdtree creation will crash. Exiting.\n";
+				cout << "Zero factor: " << zeroFactor << "\n";
+				cout << "model x vals invalid: " << modxinv/(double)nPairs << "\n";
+				cout << "model y vals invalid: " << modyinv/(double)nPairs << "\n";
+				cout << "model z vals invalid: " << modzinv/(double)nPairs << "\n";
+				cout << "templ x vals invalid: " << temxinv/(double)nPairs << "\n";
+				cout << "templ y vals invalid: " << temyinv/(double)nPairs << "\n";
+				cout << "templ z vals invalid: " << temzinv/(double)nPairs << "\n";
+				cout << "=== additional data ===\n";
+				cout << "overlap id: " << overlapID << "\n";
+				cout << "no of Pairs: " << nPairs << "\n";
+				exit(1);
+			}
+		}
+
+		if(_verbose==3){
+			cout << "creating ICP...\n";
+		}
+
+		// start with identity as initial transformation
+		// in practice you might want to use some kind of prediction here
+		Matrix Rotation;
+		Matrix translation;
+
+		//perform ICP and store quality parameters
+		//attention! dim * nPairs must equal size of model!
+		IcpPointToPoint icp(Model,nPairs,dim);
+
+		if(_verbose==3)
+			cout << "ICP and model created...\n";
+
+		//TODO: clean this up!
+		//prepare Matrices
+		if(dim==2){
+			Rotation = Matrix::eye(2);
+			translation = Matrix(2,1);
+		}
+		else if(dim==3){
+			Rotation = Matrix::eye(3);
+			translation = Matrix(3,1);
+		}
+
+		icp.forceInstantResult(forceInstant);
+		icp.fit(Template,nPairs,Rotation,translation,-1);
+
+		if(_verbose==3)
+			cout << "ICP fit step done.\n";
+
+		if(dim==2){
+
+			//make 4x4 matrix
+			double* tempR = new double[4];
+			double* tempT = new double[2];
+
+			Rotation.getData(tempR);
+			translation.getData(tempT);
+
+			double* finalMatrix = new double[16];
+
+			//okay, this is the version that FIRST rotates, THEN translates.
+			finalMatrix[0] = tempR[0];
+			finalMatrix[1] = tempR[1];
+			finalMatrix[2] = 0;
+			finalMatrix[3] = tempT[0];
+			finalMatrix[4] = tempR[2];
+			finalMatrix[5] = tempR[3];
+			finalMatrix[6] = 0;
+			finalMatrix[7] = tempT[1];
+			finalMatrix[8] = 0;
+			finalMatrix[9] = 0;
+			finalMatrix[10] = 1.0;
+			finalMatrix[11] = 0;
+			finalMatrix[12] = 0;
+			finalMatrix[13] = 0;
+			finalMatrix[14] = 0;
+			finalMatrix[15] = 1.0;
+			resultMatrix = Matrix(4,4);
+
+			//save matrix!
+			resultMatrix.setVal(4,4,finalMatrix);
+
+			delete tempR;
+			delete tempT;
+			delete finalMatrix;
+
+		}
+		else if (dim==3){
+
+			//make 4x4 matrix
+			double* tempR = new double[9];
+			double* tempT = new double[3];
+
+			Rotation.getData(tempR);
+			translation.getData(tempT);
+
+			double* finalMatrix = new double[16];
+
+			//okay, this is the version that FIRST rotates, THEN translates.
+			finalMatrix[0] = tempR[0];
+			finalMatrix[1] = tempR[1];
+			finalMatrix[2] = tempR[2];
+			finalMatrix[3] = tempT[0];
+			finalMatrix[4] = tempR[3];
+			finalMatrix[5] = tempR[4];
+			finalMatrix[6] = tempR[5];
+			finalMatrix[7] = tempT[1];
+			finalMatrix[8] = tempR[6];
+			finalMatrix[9] = tempR[7];
+			finalMatrix[10] = tempR[8];
+			finalMatrix[11] = tempT[2];
+			finalMatrix[12] = 0;
+			finalMatrix[13] = 0;
+			finalMatrix[14] = 0;
+			finalMatrix[15] = 1;
+
+			resultMatrix = Matrix(4,4);
+
+			//save matrix!
+			resultMatrix.setVal(4,4,finalMatrix);
+
+			delete tempR;
+			delete tempT;
+			delete finalMatrix;
+		}
+		//
+		//		//make 4x4 matrix
+		//		double* tempR = new double[9];
+		//		double* tempT = new double[3];
+		//
+		//		Rotation.getData(tempR);
+		//		translation.getData(tempT);
+		//
+		//		double* finalMatrix = new double[16];
+		//
+		//		//okay, this is the version that FIRST rotates, THEN translates.
+		//		finalMatrix[0] = tempR[0];
+		//		finalMatrix[1] = tempR[1];
+		//		finalMatrix[2] = tempR[2];
+		//		finalMatrix[3] = tempT[0];
+		//		finalMatrix[4] = tempR[3];
+		//		finalMatrix[5] = tempR[4];
+		//		finalMatrix[6] = tempR[5];
+		//		finalMatrix[7] = tempT[1];
+		//		finalMatrix[8] = tempR[6];
+		//		finalMatrix[9] = tempR[7];
+		//		finalMatrix[10] = tempR[8];
+		//		finalMatrix[11] = tempT[2];
+		//		finalMatrix[12] = 0;
+		//		finalMatrix[13] = 0;
+		//		finalMatrix[14] = 0;
+		//		finalMatrix[15] = 1;
+
+		//resultMatrix = Matrix(4,4);
+
+		std::stringstream alignlog;
+
+		if(icp.hasConverged()){
+
+			_success=true;
+
+			//save matrix!
+			//resultMatrix.setVal(4,4,finalMatrix);
+
+			if(reshapePointClouds){
+				resultMatrix = Matrix::inv(Mreshape) * resultMatrix * Mreshape;
+			}
+
+			if(!_inCentimeters){
+				//store matrix file already transformed to cm!
+				resultMatrix = PndLmdAlignManager::transformMatrixFromPixelsToCm(resultMatrix);
+			}
+
+			//and say a few words for the log
+			alignlog << "\n";
+			alignlog << "====================================================\n";
+			alignlog << "icp converged for area " << ID1 << " to " << ID2 << "(overlapID "<< overlapID << ")" << " in " << icp.getInterations() << " iterations.\n";
+			alignlog << "pairs available: " << nPairs;
+			if(nPairs < 100000){
+				alignlog << " (WARNING! This is not enough for accurate alignment!)\n";
+			}
+			else{
+				alignlog << "\n";
+			}
+			//log << "euclidean fitness score: " << icp.getFitnessScore() << " (that is " << icp.getFitnessScore()/8e-4 << " pixels)"<< "\n";
+			alignlog << "euclidean fitness score: " << icp.getFitnessScore();
+			if(icp.getFitnessScore() > 0.55){
+				alignlog << " (WARNING! This is bad! Should be ~0.55)"; //FIXME: no it should not
+			}
+			alignlog << "\n";
+			alignlog << "minDelta: " << minDelta << "\n";
+
+			alignlog << "EventTimeCheck: ";
+			if(eventTimeCheck){
+				alignlog << "on (and passed)\n";
+			}
+			else{
+				alignlog << "off\n";
+			}
+			alignlog << "Force Instant: ";
+			if(forceInstant){
+				alignlog << "on\n";
+			}
+			else{
+				alignlog << "off\n";
+			}
+			alignlog << "====================================================\n";
+			alignlog << "grepLine: " << ID1 << "to" << ID2 << "(overlapID "<< overlapID << ")" << ": \t efs=" << icp.getFitnessScore() << " \t nPairs=" << nPairs << "\n";
+			alignlog << "====================================================\n";
+			if(_verbose==3)
+				cout << "ICP convergence ok.\n";
 		}
 		else{
 			alignlog << "\n";
+			alignlog << "====================================================\n";
+			alignlog << "CRITICAL ERROR:\n";
+			alignlog << "no convergence for sensors " << ID1 << " to " << ID2 << "(overlapID "<< overlapID << ")" << "."<< "\n";
+			alignlog << "====================================================\n";
+			alignlog << "\n";
+			if(_verbose==3)
+				cout << "ICP did not converge!\n";
+			_success=false;
 		}
-		//log << "euclidean fitness score: " << icp.getFitnessScore() << " (that is " << icp.getFitnessScore()/8e-4 << " pixels)"<< "\n";
-		alignlog << "euclidean fitness score: " << icp.getFitnessScore();
-		if(icp.getFitnessScore() > 0.55){
-			alignlog << " (WARNING! This is bad! Should be ~0.55)"; //FIXME: no it should not
-		}
-		alignlog << "\n";
-		alignlog << "minDelta: " << minDelta << "\n";
-
-		alignlog << "EventTimeCheck: ";
-		if(eventTimeCheck){
-			alignlog << "on (and passed)\n";
-		}
-		else{
-			alignlog << "off\n";
-		}
-		alignlog << "Force Instant: ";
-		if(forceInstant){
-			alignlog << "on\n";
-		}
-		else{
-			alignlog << "off\n";
-		}
-		alignlog << "====================================================\n";
-		alignlog << "grepLine: " << ID1 << "to" << ID2 << "(overlapID "<< overlapID << ")" << ": \t efs=" << icp.getFitnessScore() << " \t nPairs=" << nPairs << "\n";
-		alignlog << "====================================================\n";
 		if(_verbose==3)
-			cout << "ICP convergence ok.\n";
-	}
-	else{
-		alignlog << "\n";
-		alignlog << "====================================================\n";
-		alignlog << "CRITICAL ERROR:\n";
-		alignlog << "no convergence for sensors " << ID1 << " to " << ID2 << "(overlapID "<< overlapID << ")" << "."<< "\n";
-		alignlog << "====================================================\n";
-		alignlog << "\n";
-		if(_verbose==3)
-			cout << "ICP did not converge!\n";
-		_success=false;
-	}
-	if(_verbose==3)
-		cout << alignlog.str();
+			cout << alignlog.str();
 
-	delete[] Model;
-	delete[] Template;
-	delete tempR;
-	delete tempT;
-	delete finalMatrix;
+		delete[] Model;
+		delete[] Template;
+		//		delete tempR;
+		//		delete tempT;
+		//		delete finalMatrix;
 
+	}
 	//aligner is done, pairs can be cleared.
 
 	return;
@@ -978,6 +1008,8 @@ Matrix PndLmdSensorAligner::computeReshapeMatrix(double* pointCloud, int nPairs,
 		double xmax = xmin;
 		double ymin = pointCloud[1];
 		double ymax = ymin;
+		double zmin = pointCloud[2];
+		double zmax = zmin;
 
 		//TODO: dowe really need all pairs? isn't e.g. 1/10th enough?
 		for(int iPair=1; iPair<nPairs; iPair++){
@@ -985,16 +1017,20 @@ Matrix PndLmdSensorAligner::computeReshapeMatrix(double* pointCloud, int nPairs,
 			xmax = max(xmax, pointCloud[iPair*dim+0]);
 			ymin = min(ymin, pointCloud[iPair*dim+1]);
 			ymax = max(ymax, pointCloud[iPair*dim+1]);
+			zmin = min(zmin, pointCloud[iPair*dim+2]);
+			zmax = max(zmax, pointCloud[iPair*dim+2]);
 		}
 
 		double xSpan = xmax - xmin;
 		double ySpan = ymax - ymin;
+		double zSpan = zmax - zmin;
 
 		if(_verbose == 3){
 			cout << "reshape parameters:\n";
 			cout << "xmin, xmax: " << xmin << "," << xmax << "\n";
 			cout << "ymin, ymax: " << ymin << "," << ymax << "\n";
-			cout << "xSpan, ySpan: " << xSpan << "," << ySpan << "\n";
+			cout << "zmin, zmax: " << zmin << "," << zmax << "\n";
+			cout << "xSpan, ySpan, zSpan: " << xSpan << "," << ySpan << "," << zSpan << "\n";
 		}
 
 		//create scaling matrix, translation matrix and complete reshaping matrix here
@@ -1002,11 +1038,13 @@ Matrix PndLmdSensorAligner::computeReshapeMatrix(double* pointCloud, int nPairs,
 		Matrix Mshift = Matrix::eye(4);
 		Matrix Mscale = Matrix::eye(4);
 
-		Mshift.val[0][3] -= (xmin + xmax)/2;	//x shift
-		Mshift.val[1][3] -= (ymin + ymax)/2;	//y shift
+		Mshift.val[0][3] -= (xmin + xmax)/2.0;	//x shift
+		Mshift.val[1][3] -= (ymin + ymax)/2.0;	//y shift
+		Mshift.val[2][3] -= (zmin + zmax)/2.0;	//z shift
 
-		Mscale.val[0][0] /= (xSpan*0.5) * 1.0;	//x scale
-		Mscale.val[1][1] /= (ySpan*0.5) * 1.0;	//y scale
+		//		Mscale.val[0][0] *= 10.0 / (xSpan*0.5);	//x scale
+		//		Mscale.val[1][1] *= 10.0 / (ySpan*0.5);	//y scale
+		//		Mscale.val[2][2] *= 10000.0 / (zSpan*0.5);	//z scale
 
 		result = Mscale * Mshift;
 	}
@@ -1022,7 +1060,6 @@ void PndLmdSensorAligner::reshapePointCloud(double* pointcloud, int nPairs, int 
 		cout << "reshaping point cloud...\n";
 	}
 
-
 	if(dim==2){
 		//TODO: skip for now
 	}
@@ -1037,13 +1074,14 @@ void PndLmdSensorAligner::reshapePointCloud(double* pointcloud, int nPairs, int 
 
 			p1.val[0][0] =  pointcloud[iPair*dim+0];
 			p1.val[1][0] =  pointcloud[iPair*dim+1];
-			p1.val[2][0] =  0.0;
+			p1.val[2][0] =  pointcloud[iPair*dim+2];
 			p1.val[3][0] =  1.0;
 
 			p1 = reshapeMatrix * p1;
 
-			pointcloud[iPair*dim+0] = p1.val[0][0];
-			pointcloud[iPair*dim+1] = p1.val[1][0];
+			pointcloud[iPair*dim+0] = p1.val[0][0] / p1.val[3][0];
+			pointcloud[iPair*dim+1] = p1.val[1][0] / p1.val[3][0];
+			pointcloud[iPair*dim+2] = p1.val[2][0] / p1.val[3][0];
 		}
 	}
 }

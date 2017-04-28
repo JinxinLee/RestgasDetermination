@@ -407,128 +407,6 @@ void PndLmdAlignManager::readFilesAndAlign(){
 	delete hitPairs;
 }
 
-/* doesn' work, ROOT won't allow for cuncurrent TChains (some sort of segfault)
-void PndLmdAlignManager::readFilesMT(){
-
-
-	//read N=noOfThreads
-
-	int noOfThreads=1;
-	//noOfThreads = boost::thread::hardware_concurrency();
-	if(noOfThreads<1){
-		noOfThreads=4;
-	}
-
-	//make N vector<string>
-
-	vector< vector<string> > allFiles;
-
-	for(int i=0; i<noOfThreads; i++){
-		allFiles.push_back(vector<string>());
-	}
-
-	int iteratorVec=0;
-	int iteratorFile=0;
-	while(true){
-
-		allFiles[iteratorVec].push_back(fileNames[iteratorFile]);
-
-		//iterate both iterators
-		iteratorFile++;
-		iteratorVec++;
-
-		//check if we are done
-		if(iteratorVec==noOfThreads){
-			iteratorVec=0;
-		}
-		if(iteratorFile==fileNames.size()){
-			break;
-		}
-	}
-
-	int totalFiles=0;
-	for(int i=0; i<allFiles.size(); i++){
-		//cout << "vector " << i << ": " << allFiles[i].size() << "\n";
-		totalFiles += allFiles[i].size();
-	}
-
-	//cout << "we have " << allFiles.size() << " vectors. Total number of files in vectors: " << totalFiles << " \n";
-
-	boost::thread_group threads;
-	for(int i=0; i<noOfThreads; i++){
-		threads.create_thread(
-				boost::bind(
-						readPairsFromChainMT, allFiles[i], boost::ref(aligners), boost::ref(*this)
-				)
-		);
-	}
-	threads.join_all();
-	cout << "all threads done.\n";
-
-	//create N TChains and distribute input files to N TChains
-
-	//concurrently work every TChain
-
-	//every TChain function has its own (reasonably large) buffer for all overlapIDs and 1k pairs
-
-	//if one buffer gets full, flush it to disk (use mutexes)
-}
-*/
-
-
-/* doesn' work, ROOT won't allow for cuncurrent TChains (some sort of segfault)
-void PndLmdAlignManager::readPairsFromChainMT(vector<string> files, map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager){
-
-	cout << "i am a thread. I have " << files.size() << " files\n";
-
-	int noOfFiles = files.size();
-
-	//for(int i=0; i<files.size(); i++){
-	//	cout << files[i] << "\n";
-	//}
-
-	//return;
-
-	cout << "creating TChain...\n";
-
-	TChain chainPairs("cbmsim");
-	for(size_t i=0; i<files.size(); i++){
-		//cout << files[i] << endl;
-		if( files[i].find("Lumi_Pairs") != std::string::npos ){
-			chainPairs.Add(files[i].c_str());
-		}
-	}
-
-	cout << "creating TClonesArray...\n";
-
-	//pairs of sensors in LMD coordinates
-	TClonesArray hitPairs("PndLmdHitPair");
-	chainPairs.SetBranchAddress("PndLmdHitPair", &hitPairs);
-	int nEntries = chainPairs.GetEntries();
-
-	cout << "looping over events...\n";
-
-	//cout << "Sorting Pairs to Manager...\n";
-	for(int i_event=0; i_event<nEntries; i_event++ ){
-
-		//loadBar(i_event, nEntries, 1000,60);
-		chainPairs.GetEntry(i_event);
-		int nPairs = hitPairs.GetEntries();
-
-		cout << "looping over pairs...\n";
-
-		//loop over hitPairs per Event
-		for(int i_Pair=0; i_Pair<nPairs;i_Pair++){
-			PndLmdHitPair* currentPair = (PndLmdHitPair*)hitPairs.At(i_Pair);
-			cout << "trying to add pair...\n";
-			//addPairMutex.lock();
-			//manager.addPair(*currentPair);
-			//addPairMutex.unlock();
-		}
-	}
-}
-*/
-
 void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner){
 
 	//cout << "Aligner " << aligner.getOverlapId() << " starting.\n";
@@ -540,6 +418,10 @@ void PndLmdAlignManager::alignOne(PndLmdSensorAligner &aligner){
 	//write binary file only if not already present
 	if(!checkForBinaryFiles()){
 		aligner.writePairsToBinary(_binaryPairFileDirectory);
+	}
+	//if binary files already present, then they have been read earliert and we can display a progress bar for the aliners
+	else{
+		incrementMTLB();
 	}
 
 	//free memory
@@ -576,55 +458,6 @@ void PndLmdAlignManager::alignST() {
 	}
 }
 
-/*
-
-void PndLmdAlignManager::prepareJobQueue(){
-
-
-	//make threads, n is number of threads:
-	int nThreads;
-	nThreads = boost::thread::hardware_concurrency();
-
-	//sometimes hardware_concurrency returns 0 if it can't detect.
-	if(nThreads < 1){
-		cout << "INFO:: could not detect number of cores. assuming 4.\n";
-		nThreads = 4;
-	}
-
-	//create worker threads
-	for(int i=0; i<nThreads; i++){
-		manWorkerThreads.create_thread( boost::bind( &WorkerThread, manIOService) );
-	}
-}
-
-void PndLmdAlignManager::waitForJobQueue(){
-
-	manWork.reset();
-	manWorkerThreads.join_all();
-
-	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
-		if(it->second.successful()){
-
-			Matrix result = it->second.getResultMatrix();
-			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
-
-			if(!writeMatrix(result, matrixFilename)){
-				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
-			}
-
-			_info << "aligner " << it->second.getOverlapId() << ":\n";
-			_info << "area " << it->second.getId1() << " to " << it->second.getId2() << "\n";
-			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
-			_info << "\n";
-		}
-		else{
-			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
-		}
-	}
-}
-
- */
-
 void PndLmdAlignManager::alignMT() {
 
 	//new version, multi threaded using thread pool model and boost::asio implementation
@@ -639,9 +472,7 @@ void PndLmdAlignManager::alignMT() {
 	//make threads, n is number of threads:
 	int nThreads;
 	nThreads = boost::thread::hardware_concurrency();
-
-	//FIXME: remove after debug!
-	nThreads =1;
+	//nThreads =1;
 
 	//sometimes hardware_concurrency returns 0 if it can't detect.
 	if(nThreads < 1){
