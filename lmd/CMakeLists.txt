@@ -124,7 +124,7 @@ GENERATE_LIBRARY()
 #GENERATE_LIBRARY()
 
 ########################### create PndLmdSensorAligner ######################################
-set(SRCS
+#set(SRCS
 #LmdSensorAlignment/PndLmdAlignManager.cxx
 #LmdSensorAlignment/PndLmdSensorAligner.cxx
 #LmdSensorAlignment/PndLmdAlignQA.cxx
