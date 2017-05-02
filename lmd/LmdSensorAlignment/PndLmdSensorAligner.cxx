@@ -121,9 +121,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 		exit(0);
 
-
-
-
 		Eigen::MatrixXd cloudOne(dim, nPairs);
 		Eigen::MatrixXd cloudTwo(dim, nPairs);
 

@@ -106,66 +106,66 @@ set(DEPENDENCIES SdsReco Lmd)
 GENERATE_LIBRARY()
 
 ########################### create PndLmdPairFinderTask ######################################
-set(SRCS
-LmdSensorAlignment/LmdPairFinderTask.cxx
-LmdSensorAlignment/PndLmdHitPair.cxx
-)
+#set(SRCS
+#LmdSensorAlignment/LmdPairFinderTask.cxx
+#LmdSensorAlignment/PndLmdHitPair.cxx
+#)
 
-set(HEADERS
-LmdSensorAlignment/LmdPairFinderTask.h
-LmdSensorAlignment/PndLmdHitPair.h
-)
+#set(HEADERS
+#LmdSensorAlignment/LmdPairFinderTask.h
+#LmdSensorAlignment/PndLmdHitPair.h
+#)
 
-set(LINKDEF  LmdPairFinderLinkDef.h)
-set(LIBRARY_NAME LmdPairFinder)
+#set(LINKDEF  LmdPairFinderLinkDef.h)
+#set(LIBRARY_NAME LmdPairFinder)
 
-set(DEPENDENCIES Base Sds Lmd boost_filesystem)
+#set(DEPENDENCIES Base Sds Lmd boost_filesystem)
 
-GENERATE_LIBRARY()
+#GENERATE_LIBRARY()
 
 ########################### create PndLmdSensorAligner ######################################
 set(SRCS
-LmdSensorAlignment/PndLmdAlignManager.cxx
-LmdSensorAlignment/PndLmdSensorAligner.cxx
-LmdSensorAlignment/PndLmdAlignQA.cxx
-)
+#LmdSensorAlignment/PndLmdAlignManager.cxx
+#LmdSensorAlignment/PndLmdSensorAligner.cxx
+#LmdSensorAlignment/PndLmdAlignQA.cxx
+#)
 
-set(HEADERS
-LmdSensorAlignment/PndLmdAlignManager.h
-LmdSensorAlignment/PndLmdSensorAligner.h
-LmdSensorAlignment/PndLmdAlignQA.h
-)
+#set(HEADERS
+#LmdSensorAlignment/PndLmdAlignManager.h
+#LmdSensorAlignment/PndLmdSensorAligner.h
+#LmdSensorAlignment/PndLmdAlignQA.h
+#)
 
-set(LINKDEF  LmdSensorAlignerLinkDef.h)
-set(LIBRARY_NAME LmdSensorAligner)
+#set(LINKDEF  LmdSensorAlignerLinkDef.h)
+#set(LIBRARY_NAME LmdSensorAligner)
 
-set(DEPENDENCIES Base Sds Lmd boost_system boost_thread boost_regex boost_filesystem LmdPairFinder LmdSensorAlignerTools)
+#set(DEPENDENCIES Base Sds Lmd boost_system boost_thread boost_regex boost_filesystem LmdPairFinder LmdSensorAlignerTools)
 
-GENERATE_LIBRARY()
+#GENERATE_LIBRARY()
 
 ########################### create PndLmdSensorAlignerTools ######################################
 
-set(SRCS
-LmdSensorAlignment/icp/matrix.cpp
-LmdSensorAlignment/icp/kdtree.cpp
-LmdSensorAlignment/icp/icpPointToPoint.cpp
-LmdSensorAlignment/icp/icp.cpp
-LmdSensorAlignment/RunningStats.cpp
-)
+#set(SRCS
+#LmdSensorAlignment/icp/matrix.cpp
+#LmdSensorAlignment/icp/kdtree.cpp
+#LmdSensorAlignment/icp/icpPointToPoint.cpp
+#LmdSensorAlignment/icp/icp.cpp
+#LmdSensorAlignment/RunningStats.cpp
+#)
 
-set(HEADERS
-LmdSensorAlignment/icp/matrix.h
-LmdSensorAlignment/icp/kdtree.h
-LmdSensorAlignment/icp/icpPointToPoint.h
-LmdSensorAlignment/icp/icp.h
-LmdSensorAlignment/RunningStats.h
-)
+#set(HEADERS
+#LmdSensorAlignment/icp/matrix.h
+#LmdSensorAlignment/icp/kdtree.h
+#LmdSensorAlignment/icp/icpPointToPoint.h
+#LmdSensorAlignment/icp/icp.h
+#LmdSensorAlignment/RunningStats.h
+#)
 
-set(LIBRARY_NAME LmdSensorAlignerTools)
+#set(LIBRARY_NAME LmdSensorAlignerTools)
 
-set(DEPENDENCIES boost_filesystem)
+#set(DEPENDENCIES boost_filesystem)
 
-GENERATE_LIBRARY()
+#GENERATE_LIBRARY()
 
 ########################### create libLmdTrk ##################################
 set(SRCS
