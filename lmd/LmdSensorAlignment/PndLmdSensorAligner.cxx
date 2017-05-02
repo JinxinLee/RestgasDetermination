@@ -69,26 +69,71 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	int nPairs;
 
-	bool debug=false;
+	bool debug=true;
 
 	if(debug){
 
-		int dim = 3;
+		const int dim = 3;
 		Matrix resultUme = Matrix::eye(4);
 		nPairs=simpleSensorOneX.size();
+
+		// Convert to Eigen format
+		const int npts = nPairs;
+
+		Eigen::Matrix<double, dim, Eigen::Dynamic> cloud_src (dim, npts);
+		Eigen::Matrix<double, dim, Eigen::Dynamic> cloud_tgt (dim, npts);
+
+		for (int i = 0; i < npts; ++i)
+		{
+			cloud_src (0, i) = simpleSensorOneX[i];
+			cloud_src (1, i) = simpleSensorOneY[i];
+			cloud_src (2, i) = 0.0;
+
+			cloud_tgt (0, i) = simpleSensorTwoX[i];
+			cloud_tgt (1, i) = simpleSensorTwoY[i];
+			cloud_tgt (2, i) = 0.0;
+		}
+
+		// Call Umeyama directly from Eigen (PCL patched version until Eigen is released)
+		auto ume = Eigen::umeyama (cloud_src, cloud_tgt, true);
+
+		resultMatrix = Matrix::eye(4);
+		resultMatrix.val[0][0] =  ume(0,0);
+		resultMatrix.val[0][1] =  ume(0,1);
+		resultMatrix.val[0][2] =  ume(0,2);
+		//resultMatrix.val[0][3] =  ume(0,3);
+		resultMatrix.val[1][0] =  ume(1,0);
+		resultMatrix.val[1][1] =  ume(1,1);
+		resultMatrix.val[1][2] =  ume(1,2);
+		//resultMatrix.val[1][3] =  ume(1,3);
+		resultMatrix.val[2][0] =  ume(2,0);
+		resultMatrix.val[2][1] =  ume(2,1);
+		resultMatrix.val[2][2] =  ume(2,2);
+		//resultMatrix.val[2][3] =  ume(2,3);
+		//resultMatrix.val[3][0] =  ume(3,0);
+		//resultMatrix.val[3][1] =  ume(3,1);
+		//resultMatrix.val[3][2] =  ume(3,2);
+		//resultMatrix.val[3][3] =  ume(3,3);
+
+
+		resultMatrix = PndLmdAlignManager::transformMatrixFromPixelsToCm(resultMatrix);
+		cout << resultMatrix;
+
+		exit(0);
+
+
+
 
 		Eigen::MatrixXd cloudOne(dim, nPairs);
 		Eigen::MatrixXd cloudTwo(dim, nPairs);
 
 		for(int iPair=0; iPair < nPairs; iPair++){
-
 			cloudOne(0,iPair) = simpleSensorOneX[iPair];
 			cloudOne(1,iPair) = simpleSensorOneY[iPair];
-			cloudOne(2,iPair) = 0;
+			//cloudOne(2,iPair) = 0.0;
 			cloudTwo(0,iPair) = simpleSensorTwoX[iPair];
 			cloudTwo(1,iPair) = simpleSensorTwoY[iPair];
-			cloudTwo(2,iPair) = 0;
-
+			//cloudTwo(2,iPair) = 0.0;
 		}
 
 		Eigen::MatrixXd resultEigen = Eigen::umeyama(cloudOne, cloudTwo, true);
@@ -96,19 +141,19 @@ void PndLmdSensorAligner::calculateMatrix() {
 		resultUme.val[0][0] = resultEigen(0,0);
 		resultUme.val[0][1] = resultEigen(0,1);
 		resultUme.val[0][2] = resultEigen(0,2);
-		resultUme.val[0][3] = resultEigen(0,3);
+		resultUme.val[0][3] = 0.0;
 		resultUme.val[1][0] = resultEigen(1,0);
 		resultUme.val[1][1] = resultEigen(1,1);
 		resultUme.val[1][2] = resultEigen(1,2);
-		resultUme.val[1][3] = resultEigen(1,3);
+		resultUme.val[1][3] = 0.0;
 		resultUme.val[2][0] = resultEigen(2,0);
 		resultUme.val[2][1] = resultEigen(2,1);
 		resultUme.val[2][2] = resultEigen(2,2);
-		resultUme.val[2][3] = resultEigen(2,3);
-		resultUme.val[3][0] = resultEigen(3,0);
-		resultUme.val[3][1] = resultEigen(3,1);
-		resultUme.val[3][2] = resultEigen(3,2);
-		resultUme.val[3][3] = resultEigen(3,3);
+		resultUme.val[2][3] = 0.0;
+		resultUme.val[3][0] = 0.0;
+		resultUme.val[3][1] = 0.0;
+		resultUme.val[3][2] = 0.0;
+		resultUme.val[3][3] = 1.0;
 
 		resultMatrix = resultUme;
 
@@ -116,7 +161,11 @@ void PndLmdSensorAligner::calculateMatrix() {
 			resultMatrix = PndLmdAlignManager::transformMatrixFromPixelsToCm(resultMatrix);
 		}
 
+		cout << resultMatrix << "\n";
+
 		_success = true;
+		exit(0);
+		return;
 	}
 	else{
 
@@ -229,8 +278,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 					cout << "applying artificial Z coordinate...\n";
 
 				for(int ipair=0; ipair<nPairs; ipair++){
-					Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e2 );
-					Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e2 );
+					Model[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e5 );
+					Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e5 );
 				}
 			}
 
@@ -444,35 +493,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 			delete tempT;
 			delete finalMatrix;
 		}
-		//
-		//		//make 4x4 matrix
-		//		double* tempR = new double[9];
-		//		double* tempT = new double[3];
-		//
-		//		Rotation.getData(tempR);
-		//		translation.getData(tempT);
-		//
-		//		double* finalMatrix = new double[16];
-		//
-		//		//okay, this is the version that FIRST rotates, THEN translates.
-		//		finalMatrix[0] = tempR[0];
-		//		finalMatrix[1] = tempR[1];
-		//		finalMatrix[2] = tempR[2];
-		//		finalMatrix[3] = tempT[0];
-		//		finalMatrix[4] = tempR[3];
-		//		finalMatrix[5] = tempR[4];
-		//		finalMatrix[6] = tempR[5];
-		//		finalMatrix[7] = tempT[1];
-		//		finalMatrix[8] = tempR[6];
-		//		finalMatrix[9] = tempR[7];
-		//		finalMatrix[10] = tempR[8];
-		//		finalMatrix[11] = tempT[2];
-		//		finalMatrix[12] = 0;
-		//		finalMatrix[13] = 0;
-		//		finalMatrix[14] = 0;
-		//		finalMatrix[15] = 1;
-
-		//resultMatrix = Matrix(4,4);
 
 		std::stringstream alignlog;
 

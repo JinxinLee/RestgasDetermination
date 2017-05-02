@@ -210,14 +210,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//for DZ
 			//parameters.path = pdfdir;
 			parameters.title = "#DeltaZ of HitPairs";
-			parameters.xtitle = "dZ [nm]";
+			parameters.xtitle = "dZ [pair Steps]";
 			parameters.ytitle = "entries";
-			parameters.scaleFactor = 1e4*1e3;
+			parameters.scaleFactor = 1.0;
 			parameters.fileName = "dz.pdf";
 			parameters.vectorIndex = 5;
 			parameters.xMin=-1;
 			parameters.xMax=-1;
-			parameters.printCMPXinPathName = false;
+			parameters.printCMPXinPathName = true;
 			createHist(data, parameters);
 		}
 
@@ -307,14 +307,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//for DZ
 			//parameters.path = pdfdir;
 			parameters.title = "#DeltaZ of HitPairs";
-			parameters.xtitle = "dZ [nm]";
+			parameters.xtitle = "dZ [pair Steps]";
 			parameters.ytitle = "entries";
-			parameters.scaleFactor = 1e4*1e3;
+			parameters.scaleFactor = 1.0;
 			parameters.fileName = "dz.pdf";
 			parameters.vectorIndex = 5;
 			parameters.xMin=-1;
 			parameters.xMax=-1;
-			parameters.printCMPXinPathName = false;
+			parameters.printCMPXinPathName = true;
 			createHist(data, parameters);
 		}
 

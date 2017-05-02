@@ -472,7 +472,9 @@ void PndLmdAlignManager::alignMT() {
 	//make threads, n is number of threads:
 	int nThreads;
 	nThreads = boost::thread::hardware_concurrency();
-	//nThreads =1;
+
+	//FIXME: remove after debug!
+	nThreads =1;
 
 	//sometimes hardware_concurrency returns 0 if it can't detect.
 	if(nThreads < 1){
@@ -1618,6 +1620,9 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 			//generate ID1 and ID2 from overlapID;
 			it->second.setId1(dimension->getID1fromOverlapID(it->second.getOverlapId()));
 			it->second.setId2(dimension->getID2fromOverlapID(it->second.getOverlapId()));
+
+			//FIXME: remove after debugging!
+			return true;
 		}
 	}
 	return success;
