@@ -32,8 +32,10 @@ public:
 
   // Constructors/Destructors ---------
   PndLmdLineTask(TString hitBranch="LMDHitsStrip");
+#ifndef __CINT__
   PndLmdLineTask(const PndLmdLineTask& ) = delete;
   PndLmdLineTask& operator=(const PndLmdLineTask& ) = delete;
+#endif
   virtual ~PndLmdLineTask();
 
   virtual InitStatus Init();

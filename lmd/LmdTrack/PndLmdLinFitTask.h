@@ -37,8 +37,10 @@ public:
   // Constructors/Destructors ---------
   PndLmdLinFitTask();
   PndLmdLinFitTask(TString tTCandBranchName, TString tRecoBranchName, TString tOutputBranchName = "LMDPndTrack", TString tOutputFolder = "PndLmd");
+#ifndef __CINT__
   PndLmdLinFitTask(const PndLmdLinFitTask& ) = delete;
   PndLmdLinFitTask& operator=(const PndLmdLinFitTask& ) = delete;
+#endif
   virtual ~PndLmdLinFitTask();
 
   virtual InitStatus Init();

@@ -30,8 +30,10 @@ public:
 
   // Constructors/Destructors ---------
   PndLmdTrksFilterTask();
+  #ifndef __CINT__
   PndLmdTrksFilterTask (const PndLmdTrksFilterTask&) = delete;
   PndLmdTrksFilterTask& operator=(const PndLmdTrksFilterTask& ) = delete;
+  #endif
   virtual ~PndLmdTrksFilterTask();
   void SetVerboseLevel(int verbose){verboseLevel = verbose;};
   virtual InitStatus Init();
