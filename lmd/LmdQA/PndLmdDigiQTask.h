@@ -36,7 +36,9 @@ class PndLmdDigiQTask : public FairTask
 
   /** Default constructor **/  
   //  PndLmdDigiQTask();
+#ifndef __CINT__
   PndLmdDigiQTask(const PndLmdDigiQTask& ) = delete;
+#endif
   PndLmdDigiQTask(TString digiBranch="LMDPixelDigis");
 
   /** Destructor **/

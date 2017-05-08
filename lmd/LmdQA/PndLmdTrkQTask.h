@@ -36,7 +36,9 @@ class PndLmdTrkQTask : public FairTask
 
   /** Default constructor **/  
   //  PndLmdTrkQTask();
+#ifndef __CINT__
   PndLmdTrkQTask(const PndLmdTrkQTask& ) = delete;
+#endif
   ///Set up beam momuntum value
   PndLmdTrkQTask(Double_t pBeam=0, TString geaneBranch="GeaneTrackFinal", TString trackBranch="LMDPndTrackFilt");
 

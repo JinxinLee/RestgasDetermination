@@ -31,8 +31,10 @@ public:
 
   // Constructors/Destructors ---------
   PndLmdQATask(TString mcHitBranch="LMDPoint", TString mcTrkBranch="MCTrack", TString clusterBranch="LMDPixelClusterCand", TString digiBrunch="LMDPixelDigis", TString hitBranch="LmdHits", TString TrkCandBranch="LMDTrackCand", TString trackBranch="LMDTrack", TString geaneBranch="GeaneTrackFinal", TString outFile="tmpOutput/QA.root");
+#ifndef __CINT__
   PndLmdQATask(const PndLmdQATask& ) = delete;
   PndLmdQATask& operator=(const PndLmdQATask& ) = delete;
+#endif
   virtual ~PndLmdQATask();
   void SetVerboseLevel(int verbose){verboseLevel = verbose;};
   void WriteHists();
