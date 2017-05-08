@@ -1,6 +1,6 @@
-#include "iomanip.h"
+//#include "iomanip.h"
 
-void create1StationGem_firstStation_v2()
+Int_t create1StationGem_firstStation_v2()
 {
   // create only GEM with one station (v2)
   //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -147,76 +147,74 @@ void create1StationGem_firstStation_v2()
                                                                                                                                // 51 layers + 48 gap_air
                                                
     
- const Double_t DiskOuterRadius[NofLayers][NofDisks] = {
- 39.90, 
- 38.95,       38.95,       39.40,       39.40,       38.95,      38.95,      38.95, 
- 39.90,  
- 38.45,       38.45,       39.40,       39.40,       38.45,      38.45,      38.45, 
- 39.40,  
- //38.00, 
- 39.05,  
- 39.05,  
- 38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10,  
- 39.05,  
- 38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
- 39.05,  
- 38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
- 39.05,  
- 39.05,  
- 45.00,  
- 44.90,       44.90,       44.90,       44.90,       44.90,      44.90,      39.05, 
- 45.00,  
- 39.05,  
- 39.05,       
- 38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
- 39.05,  
- 38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
- 39.05,  
- 38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
- 39.05,                                                          
- //38.00, 
- 39.40,  
- 39.40, 
- 38.45,       38.45,       39.40,       39.40,       38.45,      38.45,      38.45, 
- 39.40,  
- 39.40,       39.40,       38.95,       38.95,       39.40,      39.40,      39.40, 
- 39.40    }; 
+ const Double_t DiskOuterRadius[NofLayers][NofDisks] = { 39.90, 
+                                                         38.95,       38.95,       39.40,       39.40,       38.95,      38.95,      38.95, 
+                                                         39.90,  
+                                                         38.45,       38.45,       39.40,       39.40,       38.45,      38.45,      38.45, 
+                                                         39.40,  
+                                                       //38.00, 
+                                                         39.05,  
+                                                         39.05,  
+                                                         38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10,  
+                                                         39.05,  
+                                                         38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
+                                                         39.05,  
+                                                         38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
+                                                         39.05,  
+                                                         39.05,  
+                                                         45.00,  
+                                                         44.90,       44.90,       44.90,       44.90,       44.90,      44.90,      39.05, 
+                                                         45.00,  
+                                                         39.05,  
+                                                         39.05,       
+                                                         38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
+                                                         39.05,  
+                                                         38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
+                                                         39.05,  
+                                                         38.10,       38.10,       39.05,       39.05,       38.10,      38.10,      38.10, 
+                                                         39.05,                                                          
+                                                       //38.00, 
+                                                         39.40,  
+                                                         39.40, 
+                                                         38.45,       38.45,       39.40,       39.40,       38.45,      38.45,      38.45, 
+                                                         39.40,  
+                                                         39.40,       39.40,       38.95,       38.95,       39.40,      39.40,      39.40, 
+                                                         39.40    }; 
                                                                
    
-   const Double_t DiskInnerRadius[NofLayers][NofDisks] = {
- 4.50,   
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,  
- 4.50,   
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
- 4.50,  
- //4.50,   
- 38.50,  
- 4.50,   
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,    
- 4.50,   
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,          
- 4.50,   
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
- 4.50,   
- 4.50,   
- 4.50,          
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
- 4.50,   
- 4.50,  
- 4.50,          
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
- 4.50,    
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
- 4.50,  
- 4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
- 4.50,                                                          
- //4.50,   
- 38.50,  
- 4.50,   
- 4.50,         4.50,           4.50,        4.50,          4.50,        4.50,         4.50,  
- 4.50,   
- 4.50,         4.50,           4.50,        4.50,          4.50,        4.50,         4.50,  
- 4.50   };
+   const Double_t DiskInnerRadius[NofLayers][NofDisks] = { 4.50,   
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,  
+                                                           4.50,   
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
+                                                           4.50,  
+                                                         //4.50,   
+                                                           38.50,  
+                                                           4.50,   
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,    
+                                                           4.50,   
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,          
+                                                           4.50,   
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
+                                                           4.50,   
+                                                           4.50,   
+                                                           4.50,          
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
+                                                           4.50,   
+                                                           4.50,  
+                                                           4.50,          
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
+                                                           4.50,    
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
+                                                           4.50,  
+                                                           4.50,         4.50,           4.50,         4.50,         4.50,         4.50,         4.50,   
+                                                           4.50,                                                          
+                                                         //4.50,   
+                                                           38.50,  
+                                                           4.50,   
+                                                           4.50,         4.50,           4.50,        4.50,          4.50,        4.50,         4.50,  
+                                                           4.50,   
+                                                           4.50,         4.50,           4.50,        4.50,          4.50,        4.50,         4.50,  
+                                                           4.50   };
                                                                
 
   const Double_t  HoleTZ = 0.0;  // (top and down) holes Translation parameters
@@ -745,8 +743,8 @@ void create1StationGem_firstStation_v2()
     HLayersShapeHTD[jlay][istat]  = new TGeoTube  (Form("HTD%dHTD%s",istat+1,HLayersName[jlay].Data()),0.0,1.90,HLayersThick[jlay]/2.+0.0001);
 	       cout << "Tube name is " << HLayersShapeTube[jlay][istat]->GetName() << endl;
 	       //	       cout << "TubeHTM name is " << HLayersShapeHTM[jlay][istat]->GetName() << endl;
-    HLayersShapeBox[jlay][istat]   = new TGeoBBox(Form("B%dB%s",istat+1,HLayersName[jlay].Data()),HXBoxWidth[jlay][istat],HOuterRadius[jlay][istat],HLayersThick[jlay]/2.);
-    HLayersShapePlate[jlay][istat] = new TGeoBBox(Form("P%dP%s",istat+1,HLayersName[jlay].Data()),HXPlateWidth[jlay][istat],HYPlateWidth[jlay][istat],HLayersThick[jlay]/2.+0.0001);
+    HLayersShapeBox[jlay][istat]   = new TGeoBBox(Form("B%dB%s",istat+1,HLayersName[jlay].Data()),HXBoxWidth,HOuterRadius[jlay][istat],HLayersThick[jlay]/2.);
+    HLayersShapePlate[jlay][istat] = new TGeoBBox(Form("P%dP%s",istat+1,HLayersName[jlay].Data()),HXPlateWidth,HYPlateWidth,HLayersThick[jlay]/2.+0.0001);
 
     HLayersTranstA[jlay][istat] = new TGeoTranslation("tA",HTX,HTY[jlay][istat],HTZ);
      HLayersTranstA[jlay][istat] ->RegisterYourself();
@@ -961,9 +959,9 @@ void create1StationGem_firstStation_v2()
 	if ( layerMaterial.Contains("GEMmixture" ) )
 	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kYellow);
         if ( layerMaterial.Contains("carbon" ) )
-       	  DiskLayersVol[jlay][istat][miseg]->SetLineColor(kPink);
+       	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kPink);
        	if ( layerMaterial.Contains("GlassFiber" ) )
-       	  DiskLayersVol[jlay][istat][miseg]->SetLineColor(kGreen+3);
+       	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kGreen+3);
 
 	DiskLayersTrans[ilay][istat][miseg] = new TGeoTranslation(0.,0.,layerPosition);
 	DiskLayersCombi[ilay][istat][miseg] = new TGeoCombiTrans(*DiskLayersTrans[ilay][istat][miseg],*dummyrot);

@@ -1,6 +1,6 @@
-#include "iomanip.h"
+//#include "iomanip.h"
 
-void create3StationsGem_v2_1()
+Int_t create3StationsGem_v2_1()
 {
   // Gem disk geometry parameters (R.Karabowicz) 
   //----------------------------------------------------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ void create3StationsGem_v2_1()
     const Double_t rcopperbary    = 5.50;
     const Double_t rcopperbarHalfThickness = 8.40;
 
-    const Double_t lcopperbarx    = 0.95;   ////// left copper bar for cables    
+    const Double_t lcopperbarx    = 0.90;   ////// left copper bar for cables    
     const Double_t lcopperbary    = 5.50;    
     const Double_t lcopperbarHalfThickness = 13.80;
  
@@ -742,8 +742,8 @@ void create3StationsGem_v2_1()
     HLayersShapeHTD[jlay][istat]  = new TGeoTube  (Form("HTD%dHTD%s",istat+1,HLayersName[jlay].Data()),0.0,1.90,HLayersThick[jlay]/2.+0.0001);
 	       cout << "Tube name is " << HLayersShapeTube[jlay][istat]->GetName() << endl;
 	       //	       cout << "TubeHTM name is " << HLayersShapeHTM[jlay][istat]->GetName() << endl;
-    HLayersShapeBox[jlay][istat]   = new TGeoBBox(Form("B%dB%s",istat+1,HLayersName[jlay].Data()),HXBoxWidth[jlay][istat],HOuterRadius[jlay][istat],HLayersThick[jlay]/2.);
-    HLayersShapePlate[jlay][istat] = new TGeoBBox(Form("P%dP%s",istat+1,HLayersName[jlay].Data()),HXPlateWidth[jlay][istat],HYPlateWidth[jlay][istat],HLayersThick[jlay]/2.+0.0001);
+    HLayersShapeBox[jlay][istat]   = new TGeoBBox(Form("B%dB%s",istat+1,HLayersName[jlay].Data()),HXBoxWidth,HOuterRadius[jlay][istat],HLayersThick[jlay]/2.);
+    HLayersShapePlate[jlay][istat] = new TGeoBBox(Form("P%dP%s",istat+1,HLayersName[jlay].Data()),HXPlateWidth,HYPlateWidth,HLayersThick[jlay]/2.+0.0001);
 
     HLayersTranstA[jlay][istat] = new TGeoTranslation("tA",HTX,HTY[jlay][istat],HTZ);
      HLayersTranstA[jlay][istat] ->RegisterYourself();
@@ -958,9 +958,9 @@ void create3StationsGem_v2_1()
 	if ( layerMaterial.Contains("GEMmixture" ) )
 	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kYellow);
         if ( layerMaterial.Contains("carbon" ) )
-       	  DiskLayersVol[jlay][istat][miseg]->SetLineColor(kPink);
+       	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kPink);
        	if ( layerMaterial.Contains("GlassFiber" ) )
-       	  DiskLayersVol[jlay][istat][miseg]->SetLineColor(kGreen+3);
+       	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kGreen+3);
 
 	DiskLayersTrans[ilay][istat][miseg] = new TGeoTranslation(0.,0.,layerPosition);
 	DiskLayersCombi[ilay][istat][miseg] = new TGeoCombiTrans(*DiskLayersTrans[ilay][istat][miseg],*dummyrot);
