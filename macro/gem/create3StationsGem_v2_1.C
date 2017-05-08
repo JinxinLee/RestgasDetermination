@@ -1170,5 +1170,6 @@ Int_t create3StationsGem_v2_1()
 
   pout.close();
 
+return 0;
 }
 
