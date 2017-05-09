@@ -137,7 +137,7 @@ void PndTrackCand::CalcTimeStamp()
 					delete myData;
 				}
 				else {
-					std::cout << "Data not found: " << FairRootManager::Instance()->GetBranchName(myLink.GetType()) << "/" << myLink.GetIndex() << std::endl;
+					std::cout << "Data not found: " << FairRootManager::Instance()->GetBranchName(myLink.GetType()) << "/" << myLink << std::endl;
 				}
 			}
 			else {

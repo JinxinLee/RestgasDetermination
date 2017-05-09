@@ -2,7 +2,7 @@
 #include "PndTrackCandHit.h"
 
 void PndTrackCandHit::Print() const {
-	FairLink::Print();
+//	FairLink::Print();
 	std::cout << " Rho: " << fRho << std::endl;
 }
 
