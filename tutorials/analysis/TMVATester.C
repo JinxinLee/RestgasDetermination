@@ -29,7 +29,8 @@ typedef std::map<int, int> CountMap;
 typedef std::vector<pair<float, int> > ValueMap;
 
 // ---------------------------------------------------------------
-
+#ifndef TMVAgettype
+#define TMVAgettype
 int gettype(TTree *t, TString varname)
 {
 	if (t->GetBranch(varname)==0) return -1;
@@ -42,7 +43,6 @@ int gettype(TTree *t, TString varname)
 	
 	return -1;
 }
-
 // ---------------------------------------------------------------
 
 int SplitString(TString s, TString delim, TString *toks, int maxtoks)
@@ -58,30 +58,6 @@ int SplitString(TString s, TString delim, TString *toks, int maxtoks)
 		}
 	return N;
 }
-
-// ---------------------------------------------------------------
-
-int init(TTree *t, TString vars)
-{
-	TString toks[30];
-	int N = SplitString(vars," ",toks,30);
-	
-	for (int i=0;i<N;++i)
-	{
-		TString v = toks[i];
-		types[i] = gettype(t, v);
-		switch (types[i])
-		{
-			case 0: t->SetBranchAddress(v, &(fbranch[i])); break;
-			case 1: t->SetBranchAddress(v, &(ibranch[i])); break;
-			case 2: t->SetBranchAddress(v, &(bbranch[i])); break;
-		}
-		//cout <<toks[i]<<" of type "<<types[i]<<endl;
-	}   
-	
-	return N;
-}
-
 // ---------------------------------------------------------------
 
 TString getFromCut(TString vars)
@@ -106,6 +82,31 @@ TString getFromCut(TString vars)
 	
 	return res;
 }
+#endif
+
+// ---------------------------------------------------------------
+
+int init(TTree *t, TString vars)
+{
+	TString toks[30];
+	int N = SplitString(vars," ",toks,30);
+	
+	for (int i=0;i<N;++i)
+	{
+		TString v = toks[i];
+		types[i] = gettype(t, v);
+		switch (types[i])
+		{
+			case 0: t->SetBranchAddress(v, &(fbranch[i])); break;
+			case 1: t->SetBranchAddress(v, &(ibranch[i])); break;
+			case 2: t->SetBranchAddress(v, &(bbranch[i])); break;
+		}
+		//cout <<toks[i]<<" of type "<<types[i]<<endl;
+	}   
+	
+	return N;
+}
+
 // --------------------------------------------------------------- 
 TString getFromWeightFile(TString wfile)
 {
@@ -127,6 +128,7 @@ TString getFromWeightFile(TString wfile)
 	return res;
 }
 // ---------------------------------------------------------------
+// ---------------------------------------------------------------
 
 void TMVATester(TString fname="", TString treename="", TString sigcut="", TString wfile="",  TString precut="")
 {
@@ -141,6 +143,8 @@ void TMVATester(TString fname="", TString treename="", TString sigcut="", TStrin
 		cout << "   <sigcut>  : cut separating signal from background -> bgcut = !(sigcut)\n";
 		cout << "   <weights> : file containing the weights from training, usually stored in weights/...\n";
 		cout << "   [precut]  : optional precut before training; should be the same as for training!'\n\n";
+		cout << "EXAMPLE:\n";
+		cout << "root -l -b -q 'TMVATester.C(\"demodata.root\",\"ntp\",\"signal>0\",\"weights/demodata_ntp_MLP.weights.xml\",\"\")'\n\n";
 		return;
 	}
 	
@@ -168,7 +172,16 @@ void TMVATester(TString fname="", TString treename="", TString sigcut="", TStrin
 	// prepare TMVA reader
 	TMVA::Reader *reader = new TMVA::Reader("Silent");
 	for (int i=0;i<Nbr;++i) reader->AddVariable(varname[i], &freader[i]);
-	reader->BookMVA("BDT",wfile);
+	
+	TString mvatype="";
+	
+	if (wfile.Contains("BDT")) mvatype = "BDT";
+	else if (wfile.Contains("MLP")) mvatype = "MLP";
+	else if (wfile.Contains("Likelihood")) mvatype = "Likelihood";
+	else {cout <<"Unconfigured method in w-file "<<wfile<<endl; return;}
+	
+	reader->BookMVA(mvatype, wfile);
+	
 	
 	// apply precut cut and create signal and background event lists
 	t->Draw(">>els",sigcut);
@@ -179,9 +192,12 @@ void TMVATester(TString fname="", TString treename="", TString sigcut="", TStrin
 	int Ns = els->GetN();
 	int Nb = elb->GetN();
 	
-	TH1F *hs=new TH1F("hs","network output: signal(blue), bkg(red)",50,-1,1);
-	TH1F *hb=new TH1F("hb","network output background",50,-1,1);
-	hb->SetLineColor(2);
+	TH1F *hs=new TH1F("hs",Form("%s : output",mvatype.Data()),50,mvatype=="BDT"?-1:0,1);
+	TH1F *hb=new TH1F("hb","output background",50,mvatype=="BDT"?-1:0,1);
+	hb->SetLineColor(kRed+1);
+	hs->SetLineColor(kGreen+2);
+	hs->SetLineWidth(2);
+	hb->SetLineWidth(2);
 
 	TString friendname = fname;
 	friendname.ReplaceAll(".root","_tmvaout.root");
@@ -198,7 +214,7 @@ void TMVATester(TString fname="", TString treename="", TString sigcut="", TStrin
 			switch (types[j]) {case 2: var = (Float_t)bbranch[j]; break; case 1: var = (Float_t) ibranch[j]; break; default: var=fbranch[j]; }
 			freader[j] = var;
 		}
-		float resp=reader->EvaluateMVA("BDT");
+		float resp=reader->EvaluateMVA(mvatype);
 		tf->Fill(resp);
 	}	
 	
@@ -216,7 +232,7 @@ void TMVATester(TString fname="", TString treename="", TString sigcut="", TStrin
 			switch (types[j]) {case 2: var = (Float_t)bbranch[j]; break; case 1: var = (Float_t) ibranch[j]; break; default: var=fbranch[j]; }
 			freader[j] = var;
 		}
-		double resp=reader->EvaluateMVA("BDT");
+		double resp=reader->EvaluateMVA(mvatype);
 		hs->Fill(resp);
 	}	
 	// loop through backgound event list
@@ -230,7 +246,7 @@ void TMVATester(TString fname="", TString treename="", TString sigcut="", TStrin
 			switch (types[j]) {case 2: var = (Float_t)bbranch[j]; break; case 1: var = (Float_t) ibranch[j]; break; default: var=fbranch[j]; }
 			freader[j] = var;
 		}
-		double resp=reader->EvaluateMVA("BDT");
+		double resp=reader->EvaluateMVA(mvatype);
 		hb->Fill(resp);
 	}	
 	
@@ -249,23 +265,46 @@ void TMVATester(TString fname="", TString treename="", TString sigcut="", TStrin
 	hs->DrawCopy();
 	hb->DrawCopy("same");
 	
+	TLegend *leg=new TLegend(0.3,0.7,0.6,0.85);
+	leg->SetBorderSize(0);
+	leg->AddEntry(hs, "signal","l");
+	leg->AddEntry(hb, "background","l");
+	leg->Draw();
+	
 	c1->cd(2);
 	double sums=1., sumb=0.;
 	
+	// create the ROC curve graph
 	TGraph *gr=new TGraph();
+	// add points to get a closed curve for Integral
+	gr->SetPoint(0,0,0);  
+	gr->SetPoint(1,0,1);
 	
 	for (int i=0;i<=hs->GetNbinsX();++i)
 	{
 		sums-=hs->GetBinContent(i);
 		sumb+=hb->GetBinContent(i);
-		gr->SetPoint(i,sumb,sums);
+		gr->SetPoint(i+2,sumb,sums);
 	}
+	// add point to get a closed curve for Integral
+	gr->SetPoint(hs->GetNbinsX()+3,1,0);
+	
+	// configure graph style
 	gr->Draw("ALP");	
 	gr->SetMarkerStyle(20);
 	gr->SetMarkerSize(0.7);
-	gr->GetHistogram()->SetTitle("ROC curve");
-	gr->GetHistogram()->SetXTitle("Background suppression");
-	gr->GetHistogram()->SetYTitle("Signal Efficiency");
+	gr->GetHistogram()->SetTitle(Form("%s : ROC curve;Background suppression;Signal Efficiency",mvatype.Data()));
+	gr->GetHistogram()->SetMinimum(0);
+	gr->GetHistogram()->SetMaximum(1.05);
+	
+	// print the method and integral on the canvas
+	TLatex lat;
+	lat.SetTextSize(0.045);
+	lat.SetNDC();
+	lat.SetTextColor(4);
+	lat.DrawLatex(0.2,0.2,Form("ROC integral = %.3f",gr->Integral()));
+	
+	cout <<"Integral of ROC curve (0.5 = useless ... 1.0 = perfect separation): "<<gr->Integral()<<endl;
 }
 
 

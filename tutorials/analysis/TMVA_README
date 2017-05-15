@@ -11,10 +11,13 @@ you can train a BDT (boosted decision tree) TMVA with
 root [0] .x TMVATrainer.C+("input.root", "ntp",
                            <signal cut>,
                            <variables>,
-                           [precut]) 
+                           [precut],
+						   [method]) 
 
 where <signal cut> is the cut separating good from bad candidates, and <variables> is a blank 
-separated list of the variables which should be used for the training. Also an opional precut can be applied.
+separated list of the variables which should be used for the training. Also an opional precut can be applied, and
+the TMVA-methods available are "BDT" (boosted decision tree), "MLP" (multi layer perceptron) and "Likelihood"
+(conventional likelihood method).
 
 To test and write out a friend tree 'tf' to a file 'input_tmvaout.root' with the network output, execute:
 
@@ -24,13 +27,40 @@ root [0] .x TMVATester.C+("input.root", "ntp",
                            [precut]) 
 
 Here, <weights file> is the output of the training process, in our example in the new created subfolder weights/ 
-named input_ntp_BDT.weights.xml. If a precut was used for training, the same should be applied here. The tester
-shows the network output for signal and background and a ROC curve.
+named input_ntp_METHODE.weights.xml, where METHOD = BDT, MLP or Likelihood. If a precut was used for training, 
+the same should be applied here. The tester shows the network output for signal and background and a ROC curve.
 
 It can be used interactively by this commands:
 
 root [0] TFile f("input.root")
-root [1] ntp.AddFriend("tf","input_tmvaout.root")
-root [2] ntp.Draw(<your variable>,"tmvaout>0");
+root [1] ntp->AddFriend("tf","input_tmvaout.root")
+root [2] ntp->Draw(<your variable>,"tmvaout>0");
+
+
+------------------
+
+EXAMPLE:
+
+With help of the macro 'makeTMVADemoData.C' you can create some dataset containing artifical signal and background together
+with 5 gaussian distributed variables (v1, v2, ... , v5) as input for the TMVATrainer. The branches are
+
+m        : the (artificial mass; signal is gaussian around 1.864, background is flat)
+ev       : event number
+signal   : flag for signal (=1.0) and background (=0.0)
+v1,..,v5 : the variables to distinguish the signal from background
+
+
+Run the full example with: 
+
+root -l -b -q makeTMVADemoData.C
+root -l -b -q 'TMVATrainer.C("demodata.root","ntp","signal>0","v1 v2 v3 v4 v5")'
+root -l 'TMVATester.C("demodata.root","ntp","signal>0","weights/demodata_ntp_BDT.weights.xml")'
+
+This prints the TMVA output and ROC curve. To attach the TMVA output to the n-Tuple, use (see above)
+
+root [0] TFile f("demodata.root")
+root [1] ntp->AddFriend("tf","demodata_tmvaout.root")
+root [2] ntp->Draw("m","tmvaout>0");
+
 
 

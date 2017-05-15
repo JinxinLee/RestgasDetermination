@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <utility>
 
+#ifndef TMVAgettype
+#define TMVAgettype
 
 int gettype(TTree *t, TString varname)
 {
@@ -67,22 +69,28 @@ TString getFromCut(TString vars)
 	
 	return res;
 }
+#endif
 
 // ---------------------------------------------------------------
 
-void TMVATrainer(TString fname="", TString treename="", TString sigcut="", TString vars="", TString precut="")
+void TMVATrainer(TString fname="", TString treename="", TString sigcut="", TString vars="", TString algo="BDT", TString precut="")
 {
 	if ( fname=="" || treename=="" || sigcut=="" || vars=="" ) 
 	{
 		cout << "USAGE:\n";
-		cout << "TMVATrainer.C( <input>, <tree>, <sigcut>, <vars>, [precut] )\n\n";
+		cout << "TMVATrainer.C( <input>, <tree>, <sigcut>, <vars>, [method], [precut] )\n\n";
 		cout << "   <input>   : input file name containing TTree <tree>\n";
 		cout << "   <tree>    : name of the TTree containing signal and background\n";
 		cout << "   <sigcut>  : cut separating signal from background -> bgcut = !(sigcut)\n";
-		cout << "   <vars>    : list with variables for training\n";
-		cout << "   [precut]  : optional precut before training; has to be applied also before testing!'\n\n";
+		cout << "   <vars>    : blank separated list with variables for training\n";
+		cout << "   [method]  : optional method: 'BDT' (default), 'MLP' or 'LH'\n";
+		cout << "   [precut]  : optional precut before training; has to be applied also before testing!\n\n";
+		cout << "EXAMPLE:\n";
+		cout << "root -l -b -q 'TMVATrainer.C(\"demodata.root\",\"ntp\",\"signal>0\",\"v1 v2 v3 v4 v5\",\"\",\"MLP\")'\n\n";
 		return;
 	}
+	
+	if (algo=="LH") algo="Likelihood";
 	
 	if (vars.Contains("&&")) vars = getFromCut(vars);
 	cout <<"Vars : "<<vars<<endl;
@@ -125,14 +133,14 @@ void TMVATrainer(TString fname="", TString treename="", TString sigcut="", TStri
 	int nbkg = t->GetEntries(bkgcut);
 	
 	factory->PrepareTrainingAndTestTree( "", int(nsig*0.8), int(nbkg*0.8), int(nsig*0.19), int(nbkg*0.19)); 
-
-//  	factory->BookMethod( TMVA::Types::kLikelihood, "Likelihood","!V:NAvEvtPerBin=50" );
-//     factory->BookMethod( TMVA::Types::kMLP, "MLP", "!V:NCycles=50:HiddenLayers=10,10:TestRate=5" );
-
-	// new verion 4.2.0
-//	factory->BookMethod( TMVA::Types::kBDT, "BDT", "!V:nTrees=400:BoostType=AdaBoost:nCuts=10:MaxDepth=3:UseFisherCuts:DoPreselection" );
+	
 	// old verion 4.1.3
-	factory->BookMethod( TMVA::Types::kBDT, "BDT", "!V:nTrees=400:BoostType=AdaBoost:nCuts=10:NNodesMax=10" );
+	if (algo=="BDT") factory->BookMethod( TMVA::Types::kBDT, "BDT", "!V:nTrees=400:BoostType=AdaBoost:nCuts=10:NNodesMax=10" );
+	// new verion 4.2.0
+	// if (algo=="BDT") factory->BookMethod( TMVA::Types::kBDT, "BDT", "!V:nTrees=400:BoostType=AdaBoost:nCuts=10:MaxDepth=3:UseFisherCuts:DoPreselection" );
+	else if (algo=="MLP") factory->BookMethod( TMVA::Types::kMLP, "MLP", "!V:NCycles=50:HiddenLayers=10,10:TestRate=5" );
+	else if (algo=="Likelihood") factory->BookMethod( TMVA::Types::kLikelihood, "Likelihood","!V:NAvEvtPerBin=50" );
+	else {cout <<"Unconfigured algorithm! Exiting..."<<endl; return;}
 	
 	factory->TrainAllMethods();  
 	//factory->TestAllMethods();
