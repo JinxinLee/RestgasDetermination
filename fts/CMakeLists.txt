@@ -15,7 +15,6 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/pnddata/TrackData
   ${CMAKE_SOURCE_DIR}/fts
-  ${CMAKE_SOURCE_DIR}/fts/FtsTracking
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})
@@ -47,23 +46,11 @@ PndFtsDataAccessor.cxx
 PndFtsHitRingSorter.cxx
 PndFtsHitWriteoutBuffer.cxx
 PndFtsHitSorterTask.cxx
-FtsTracking/PndFtsTrackerIdeal.cxx
-FtsTracking/PndFtsHoughTracklet.cxx
-FtsTracking/PndFtsHoughTrackCand.cxx
-FtsTracking/PndFtsHoughSpace.cxx
-FtsTracking/PndFtsHoughSpaceBinning.cxx
-FtsTracking/PndFtsHoughSpacePeak.cxx
-FtsTracking/PndFtsHoughTrackFinderParams.cxx
-FtsTracking/PndFtsHoughTrackFinder.cxx
-FtsTracking/PndFtsHoughTrackFinderQA.cxx
-FtsTracking/PndFtsHoughTrackerTask.cxx
-FtsTracking/PndFtsHoughTrackerTaskQA.cxx
-FtsTracking/PndFtsHitProducerMcPointCoordinates.cxx
 )
 
 set(LINKDEF  FtsLinkDef.h)
 set(LIBRARY_NAME Fts)
 
-set(DEPENDENCIES Base GeoBase ParBase PndData TrkBase Spectrum)
+set(DEPENDENCIES Base GeoBase ParBase PndData Spectrum)
 
 GENERATE_LIBRARY()

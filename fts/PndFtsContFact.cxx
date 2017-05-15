@@ -18,7 +18,7 @@ ClassImp(PndFtsContFact)
 
 static PndFtsContFact gPndFtsContFact;
 
-PndFtsContFact::PndFtsContFact() 
+PndFtsContFact::PndFtsContFact()
 {
   // Constructor (called when the library is loaded)
   fName="PndFtsContFact";
@@ -27,19 +27,18 @@ PndFtsContFact::PndFtsContFact()
   FairRuntimeDb::instance()->addContFactory(this);
 }
 
-void PndFtsContFact::setAllContainers() 
+void PndFtsContFact::setAllContainers()
 {
     /** Creates the Container objects with all accepted contexts and adds them to
      *  the list of containers for the FTS library.*/
-    FairContainer* p2= new FairContainer("PndGeoFtsPar",
-				       "Fts Geometry Parameters",
-				       "TestDefaultContext");
-    p2->addContext("TestNonDefaultContext");
-    
-    containers->Add(p2);
+    FairContainer* p1= new FairContainer("PndGeoFtsPar",
+               "Fts Geometry Parameters",
+               "TestDefaultContext");
+    p1->addContext("TestNonDefaultContext");
+    containers->Add(p1);
 }
 
-FairParSet* PndFtsContFact::createContainer(FairContainer* c) 
+FairParSet* PndFtsContFact::createContainer(FairContainer* c)
 {
   /** Calls the constructor of the corresponding parameter container.
    * For an actual context, which is not an empty string and not the default context

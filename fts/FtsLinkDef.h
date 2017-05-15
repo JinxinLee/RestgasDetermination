@@ -16,17 +16,6 @@
 #pragma link C++ class PndFtsSignalOverlap+;
 #pragma link C++ class PndFtsHitProducerRealFast+;
 #pragma link C++ class PndFtsHitProducerIdeal+;
-#pragma link C++ class PndFtsHoughTracklet+;
-#pragma link C++ class PndFtsHoughTrackCand+;
-#pragma link C++ class PndFtsHoughSpace+;
-#pragma link C++ class PndFtsHoughSpaceBinning+;
-#pragma link C++ class PndFtsHoughSpacePeak+;
-#pragma link C++ class PndFtsHoughTrackFinder+;
-#pragma link C++ class PndFtsHoughTrackFinderParams+;
-#pragma link C++ class PndFtsHoughTrackFinderQA+;
-#pragma link C++ class PndFtsHoughTrackerTask+;
-#pragma link C++ class PndFtsHoughTrackerTaskQA+;
-#pragma link C++ class PndFtsHitProducerMcPointCoordinates+;
 #pragma link C++ class PndFtsHitProducerRealFull+;
 #pragma link C++ class PndFtsTrackerIdeal+;
 #pragma link C++ class PndFtsDataAccessor+;
