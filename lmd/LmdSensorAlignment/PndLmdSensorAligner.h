@@ -25,7 +25,7 @@
 class PndLmdSensorAligner{
 
 private:
-	bool forceInstant, reshapePointClouds;
+	bool forceInstant, reshapePointClouds, debug;
 	int _maxNoOfPairs, lastNoOfPairs;
 	std::string _inputFilename;
 	int _moduleID, overlapID;
