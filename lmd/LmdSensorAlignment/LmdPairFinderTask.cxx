@@ -281,7 +281,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 		row = mcPixel->GetPixelRow();
 
 		//skip decoding errors
-		if(col < 0 || row < 0){ //FIXME this expression was 'col < 0 | row < 0' and caused a warning
+		if(col < 0 || row < 0){
 			continue;
 		}
 		else{
@@ -371,8 +371,6 @@ void LmdPairFinderTask::Exec(Option_t*) {
 	Double_t col1, col2, row1, row2;
 	Int_t id1, id2;
 	Int_t storedPairsPerEvent=0;
-	//Int_t moduleId; //[R.K.03/2017] unused variable
-	//Int_t storedForBranch; //[R.K.03/2017] unused variable
 
 	//try every cluster combination and check
 	for(size_t i=0; i<clusters.size(); i++){
@@ -437,7 +435,6 @@ void LmdPairFinderTask::FinishEvent() {
 
 void LmdPairFinderTask::FinishTask() {
 
-	//Int_t sumOfEvents; //[R.K. 01/2017] unused variable?
 	Int_t sumOfAllPlanes=plane0+plane1+plane2+plane3;
 	double plane0Percent = ((double)plane0/noOfGoodPairs)*100;
 	double plane1Percent = ((double)plane1/noOfGoodPairs)*100;
