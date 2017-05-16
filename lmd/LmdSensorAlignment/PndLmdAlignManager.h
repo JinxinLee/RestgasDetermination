@@ -48,7 +48,7 @@ private:
 	std::map<int, bool> alignersFull;
 	Matrix helperMatrix;
 	PndLmdDim *dimension;
-	bool _allFilesAdded, _pretend, allAlignersDone;
+	bool _allFilesAdded, _pretend, allAlignersDone, debug;
 	std::vector<std::string> fileNames;
 	bool useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp, startAlignerWhenFull;
 	std::string outFilename, _matrixOutDir, _binaryPairFileDirectory;

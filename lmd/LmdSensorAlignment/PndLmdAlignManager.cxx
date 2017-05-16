@@ -94,6 +94,10 @@ PndLmdAlignManager::PndLmdAlignManager() {
 
 void PndLmdAlignManager::init(){
 
+	debug=false;
+
+
+
 	dimension = PndLmdDim::Instance();
 
 	_info << "info for aligned areas\n";
@@ -473,13 +477,14 @@ void PndLmdAlignManager::alignMT() {
 	int nThreads;
 	nThreads = boost::thread::hardware_concurrency();
 
-	//FIXME: remove after debug!
-	nThreads =1;
-
 	//sometimes hardware_concurrency returns 0 if it can't detect.
 	if(nThreads < 1){
 		cout << "INFO:: could not detect number of cores. assuming 4.\n";
 		nThreads = 4;
+	}
+
+	if(debug){
+		nThreads=1;
 	}
 
 	//create worker threads
@@ -1452,6 +1457,10 @@ void PndLmdAlignManager::compareCombinedMatrices() {
 void PndLmdAlignManager::computeCombinedMatrices() {
 	cout << "PndLmdAlignManager::computeCombinedMatrices(): feature not implemented yet.\n";
 
+	// for every module
+
+		// gett all overlapping matrices for module and compute 0->[1-9]
+
 }
 
 void PndLmdAlignManager::waitForCompletion() {
@@ -1621,8 +1630,9 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 			it->second.setId1(dimension->getID1fromOverlapID(it->second.getOverlapId()));
 			it->second.setId2(dimension->getID2fromOverlapID(it->second.getOverlapId()));
 
-			//FIXME: remove after debugging!
-			return true;
+			if(debug){
+				return true;
+			}
 		}
 	}
 	return success;
