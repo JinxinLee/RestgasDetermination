@@ -192,160 +192,167 @@ void PndParticleQATask::Exec(Option_t*)
 	  nmc->DumpData();
 	}
 	
-	// *** Select with no PID info ('All'); type and mass are set 		
-	if (fDumpNeut) fAnalysis->FillList( neut,    "Neutral" );
-
-	// *** Fill the lists with different pid algos
-	// *** the first element should contain the full combination exept element 0
-	
-	int nalgos = fPidList.size();
-	for (i=0;i<nalgos;++i)
-	  fAnalysis->FillList(chrpid[i], "Charged", fPidList[i]);
-
-	
-	int ntrk = chrpid[0].GetLength();
-	
-	TLorentzVector chrgP4=dummy;
-	
-	// *******************************
-	// *** Loop over CHARGED particles
-	// *******************************
-	for (j=0; j<ntrk; ++j)
+	if (fDumpChrg)
 	{
-		RhoCandidate *truth = chrpid[0][j]->GetMcTruth();
-		
-		ntp->Column("mode", (Int_t)    fMode,		        0 );
-		ntp->Column("ev",   (Int_t)    fEvtCount,		0 );
-		ntp->Column("trk",  (Int_t)    j,     			0 );
-		ntp->Column("ntrk", (Int_t)    ntrk,     		0 );
-		ntp->Column("chrg", (Float_t)  chrpid[0][j]->Charge(),  0.0f );
 
-		qa.qaP4(  "",		chrpid[0][j]->P4(),     ntp);
-    qa.qaPull( "" , chrpid[0][j] ,     ntp);
+		// *** Fill the lists with different pid algos
+		// *** the first element should contain the full combination exept element 0
 
-		// all the pid stuff now
-		qa.qaPid("idl", chrpid[0][j],        ntp);
-		qa.qaPid("",    chrpid[nalgos-1][j], ntp);
+		int nalgos = fPidList.size();
+		for (i=0;i<nalgos;++i)
+		  fAnalysis->FillList(chrpid[i], "Charged", fPidList[i]);
 
-		for (i=1; i<nalgos-1; ++i)
+
+		int ntrk = chrpid[0].GetLength();
+
+		TLorentzVector chrgP4=dummy;
+
+		// *******************************
+		// *** Loop over CHARGED particles
+		// *******************************
+		for (j=0; j<ntrk; ++j)
 		{
-		  int nidx        = (nalgos-2)/2;
-		  int algidx      = (i-1)%nidx;
-		  TString algname = fPidList[algidx+1];
-		  
-		  //cout <<nalgos<<"  "<<nidx<<"  ";
+			RhoCandidate *truth = chrpid[0][j]->GetMcTruth();
 
-		  if (algname.Contains(";")) algname.Remove(algname.First(";"),1000);
-		  algname.ReplaceAll("Pid","");
-		  algname.ReplaceAll("Algo","");
-		  algname.ReplaceAll("Probability","");
-		  algname.ToLower();
-		  algname=algname(0,10);
-		  
-		  TString smpname = Form("a%d",algidx);
-		  if ((i-1)>=nidx)
-		  {
-		    smpname = "n" + smpname;
-		    algname = "n" + algname;
-		  }
+			ntp->Column("mode", (Int_t)    fMode,		        0 );
+			ntp->Column("ev",   (Int_t)    fEvtCount,		0 );
+			ntp->Column("trk",  (Int_t)    j,     			0 );
+			ntp->Column("ntrk", (Int_t)    ntrk,     		0 );
+			ntp->Column("chrg", (Float_t)  chrpid[0][j]->Charge(),  0.0f );
 
-		  //cout <<i<<"  idx:"<<algidx<<"  "<<smpname<<" / "<<algname<<endl;
-		  
-		  qa.qaPid(smpname, chrpid[i][j], ntp);
-		  qa.qaPid(algname, chrpid[i][j], ntp);
-		}
-		
-		qa.qaEmc( "",		chrpid[0][j], 		ntp);
-		qa.qaMvd( "",		chrpid[0][j], 		ntp);
-		qa.qaStt( "",		chrpid[0][j], 		ntp);
-		qa.qaDrc( "",		chrpid[0][j], 		ntp);
-		qa.qaDsc( "",		chrpid[0][j], 		ntp);
-		qa.qaTof( "",		chrpid[0][j], 		ntp);
-		qa.qaMuo( "",		chrpid[0][j], 		ntp);
-		qa.qaTrk( "",		chrpid[0][j], 		ntp);
-		qa.qaRich("",           chrpid[0][j],           ntp);
-		
-		float mct = 0.0;
-		float prim = 0.0;
-		
-		if (truth)
-		{
-			mct = 1.0;
-			RhoCandidate *moth = truth->TheMother();
-			if (!moth || abs(moth->PdgCode()-88850)<100 ) 
+			qa.qaP4(  "",		chrpid[0][j]->P4(),     ntp);
+    		qa.qaPull( "" , chrpid[0][j] ,     ntp);
+
+			// all the pid stuff now
+			qa.qaPid("idl", chrpid[0][j],        ntp);
+			qa.qaPid("",    chrpid[nalgos-1][j], ntp);
+
+			for (i=1; i<nalgos-1; ++i)
 			{
-				prim = 1.0;
-				chrgP4 = truth->P4();
+			  int nidx        = (nalgos-2)/2;
+			  int algidx      = (i-1)%nidx;
+			  TString algname = fPidList[algidx+1];
+
+			  //cout <<nalgos<<"  "<<nidx<<"  ";
+
+			  if (algname.Contains(";")) algname.Remove(algname.First(";"),1000);
+			  algname.ReplaceAll("Pid","");
+			  algname.ReplaceAll("Algo","");
+			  algname.ReplaceAll("Probability","");
+			  algname.ToLower();
+			  algname=algname(0,10);
+
+			  TString smpname = Form("a%d",algidx);
+			  if ((i-1)>=nidx)
+			  {
+		    	smpname = "n" + smpname;
+		    	algname = "n" + algname;
+			  }
+
+			  //cout <<i<<"  idx:"<<algidx<<"  "<<smpname<<" / "<<algname<<endl;
+
+			  qa.qaPid(smpname, chrpid[i][j], ntp);
+			  qa.qaPid(algname, chrpid[i][j], ntp);
 			}
-			
-			qa.qaP4( "tr",				chrgP4,		ntp);
-			ntp->Column("trpdg", 	(Float_t) truth->PdgCode(),		0.0f );
+
+			qa.qaEmc( "",		chrpid[0][j], 		ntp);
+			qa.qaMvd( "",		chrpid[0][j], 		ntp);
+			qa.qaStt( "",		chrpid[0][j], 		ntp);
+			qa.qaDrc( "",		chrpid[0][j], 		ntp);
+			qa.qaDsc( "",		chrpid[0][j], 		ntp);
+			qa.qaTof( "",		chrpid[0][j], 		ntp);
+			qa.qaMuo( "",		chrpid[0][j], 		ntp);
+			qa.qaTrk( "",		chrpid[0][j], 		ntp);
+			qa.qaRich("",           chrpid[0][j],           ntp);
+
+			float mct = 0.0;
+			float prim = 0.0;
+
+			if (truth)
+			{
+				mct = 1.0;
+				RhoCandidate *moth = truth->TheMother();
+				if (!moth || abs(moth->PdgCode()-88850)<100 ) 
+				{
+					prim = 1.0;
+					chrgP4 = truth->P4();
+				}
+
+				qa.qaP4( "tr",				chrgP4,		ntp);
+				ntp->Column("trpdg", 	(Float_t) truth->PdgCode(),		0.0f );
+			}
+			else
+			{
+				qa.qaP4( "tr", 			dummy,			ntp, 		true);
+				ntp->Column("trpdg", 	(Float_t) 0.,	0.0f );
+			}
+
+			ntp->Column("prim",  	(Float_t)  prim,    0.0f );
+			ntp->Column("mct",  	(Float_t)  mct,    	0.0f );
+
+			ntp->DumpData();
 		}
-		else
-		{
-			qa.qaP4( "tr", 			dummy,			ntp, 		true);
-			ntp->Column("trpdg", 	(Float_t) 0.,	0.0f );
-		}
-		
-		ntp->Column("prim",  	(Float_t)  prim,    0.0f );
-		ntp->Column("mct",  	(Float_t)  mct,    	0.0f );
-		
-		ntp->DumpData();
-	}
-	
+	}	
 
 	// *******************************
 	// *** Loop over NEUTRAL particles
 	// *******************************
-	ntrk = neut.GetLength();
-	for (j=0; j<ntrk; ++j)
+
+	if (fDumpNeut)
 	{
-		RhoCandidate *truth = neut[j]->GetMcTruth();
-		
-		ntpn->Column("mode", (Int_t)    fMode,		        0 );
-		ntpn->Column("ev",   (Int_t)    fEvtCount,		0 );
-		ntpn->Column("trk",  (Int_t)    j,     			0 );
-		ntpn->Column("ntrk", (Int_t)    ntrk,     		0 );
-		ntpn->Column("chrg", (Float_t)  neut[j]->Charge(),  0.0f );
-		
-		qa.qaP4(  "",			neut[j]->P4(),	ntpn);
-		qa.qaEmc( "",		neut[j], 		ntpn);
-		qa.qaP4(  "primlv",     chrgP4,  ntpn);
-		
-		float mct = 0.0;
-		float prim = 0.0;
-		
-		if (truth)
+		// *** Select with no PID info ('All'); type and mass are set 		
+		fAnalysis->FillList( neut,    "Neutral" );
+
+		int ntrk = neut.GetLength();
+		for (j=0; j<ntrk; ++j)
 		{
-			mct = 1.0;
-			RhoCandidate *moth = truth->TheMother();
-			if (!moth || abs(moth->PdgCode()-88850)<100 ) prim = 1.0;
-			if (moth) 
+			RhoCandidate *truth = neut[j]->GetMcTruth();
+
+			ntpn->Column("mode", (Int_t)    fMode,		        0 );
+			ntpn->Column("ev",   (Int_t)    fEvtCount,		0 );
+			ntpn->Column("trk",  (Int_t)    j,     			0 );
+			ntpn->Column("ntrk", (Int_t)    ntrk,     		0 );
+			ntpn->Column("chrg", (Float_t)  neut[j]->Charge(),  0.0f );
+
+			qa.qaP4(  "",			neut[j]->P4(),	ntpn);
+			qa.qaEmc( "",		neut[j], 		ntpn);
+			//qa.qaP4(  "primlv",     chrgP4,  ntpn);
+
+			float mct = 0.0;
+			float prim = 0.0;
+
+			if (truth)
 			{
-				qa.qaP4( "moth", moth->P4(), ntpn);
-				ntpn->Column("mothpdg", (Float_t) moth->PdgCode(), -999.f);
+				mct = 1.0;
+				RhoCandidate *moth = truth->TheMother();
+				if (!moth || abs(moth->PdgCode()-88850)<100 ) prim = 1.0;
+				if (moth) 
+				{
+					qa.qaP4( "moth", moth->P4(), ntpn);
+					ntpn->Column("mothpdg", (Float_t) moth->PdgCode(), -999.f);
+				}
+				else
+				{
+					qa.qaP4( "moth", dummy, ntpn, true);
+					ntpn->Column("mothpdg", (Float_t) -1., -999.f);
+				}
+
+				qa.qaP4( "tr",				truth->P4(),		ntpn);
+				ntpn->Column("trpdg", 	(Float_t) truth->PdgCode(),		0.0f );
 			}
 			else
 			{
-				qa.qaP4( "moth", dummy, ntpn, true);
-				ntpn->Column("mothpdg", (Float_t) -1., -999.f);
+				qa.qaP4( "moth", 		dummy, 			ntpn, 		true);
+				qa.qaP4( "tr", 			dummy,			ntpn, 		true);
+				ntpn->Column("trpdg", 	(Float_t)  0.,	0.0f );
+				ntpn->Column("mothpdg", (Float_t) -1, -999.f);
 			}
-			
-			qa.qaP4( "tr",				truth->P4(),		ntpn);
-			ntpn->Column("trpdg", 	(Float_t) truth->PdgCode(),		0.0f );
+
+			ntpn->Column("prim",  	(Float_t)  prim,    0.0f );
+			ntpn->Column("mct",  	(Float_t)  mct,    	0.0f );
+
+			ntpn->DumpData();
 		}
-		else
-		{
-			qa.qaP4( "moth", 		dummy, 			ntpn, 		true);
-			qa.qaP4( "tr", 			dummy,			ntpn, 		true);
-			ntpn->Column("trpdg", 	(Float_t)  0.,	0.0f );
-			ntpn->Column("mothpdg", (Float_t) -1, -999.f);
-		}
-		
-		ntpn->Column("prim",  	(Float_t)  prim,    0.0f );
-		ntpn->Column("mct",  	(Float_t)  mct,    	0.0f );
-		
-		ntpn->DumpData();
 	}
 }
 

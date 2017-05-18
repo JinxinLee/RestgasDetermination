@@ -146,8 +146,8 @@ bool PndSimpleCombiner::ParseDecay(TString decay)
 		TString curstr = dectoks[0]+" "+dectoks[1];
 		SplitString(curstr," ",dectoks);
 		
-		// too many daughters (>5)
-		if (dectoks.size()>6) {cout <<"[PndSimpleCombiner] **** ERROR : Exceeding max number of daughters (5): '"<<subdec[i].Data()<<"'"<<endl; return false;}
+		// too many daughters (>10)
+		if (dectoks.size()>11) {cout <<"[PndSimpleCombiner] **** ERROR : Exceeding max number of daughters (10): '"<<subdec[i].Data()<<"'"<<endl; return false;}
 		
 		SCDecayInfo info;
 		InitDecayInfo(info, TDatabasePDG::Instance()->GetParticle(dectoks[0])->PdgCode(), fNLists++);
@@ -568,6 +568,12 @@ int PndSimpleCombiner::CombineList(RhoCandList &l, int mpdg, std::vector<int> &i
 	case 3: l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], mpdg); break;	
 	case 4: l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], mpdg); break;
 	case 5:	l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], fList[idx[4]], mpdg); break;
+	
+	case 6:	l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], fList[idx[4]], fList[idx[5]], mpdg); break;
+	case 7:	l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], fList[idx[4]], fList[idx[5]], fList[idx[6]], mpdg); break;
+	case 8:	l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], fList[idx[4]], fList[idx[5]], fList[idx[6]], fList[idx[7]], mpdg); break;
+	case 9:	l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], fList[idx[4]], fList[idx[5]], fList[idx[6]], fList[idx[7]], fList[idx[8]], mpdg); break;
+	case 10:l.Combine(fList[idx[0]], fList[idx[1]], fList[idx[2]], fList[idx[3]], fList[idx[4]], fList[idx[5]], fList[idx[6]], fList[idx[7]], fList[idx[8]], fList[idx[9]], mpdg); break;
 	}
 	
 	return l.GetLength();

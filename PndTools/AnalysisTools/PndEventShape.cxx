@@ -172,7 +172,7 @@ void PndEventShape::ComputeSphericity()
   fsph = 1.5 * (eiv(1,1) + eiv(2,2));		// 3/2 (lam_2+lam_3)
   fapl = 1.5 * eiv(2,2); 					// 3/2 lam_3
   fpla = eiv(1,1) - eiv(2,2);  				// lam_2-lam_3
-  fcir = 2.*eiv(1,1)/(eiv(1,1)+eiv(0,0));	// 2* min(lam_1, lam_2)/(lam_1+lam_2)
+  fcir = 2.*std::min(eiv(1,1),eiv(0,0))/(eiv(1,1)+eiv(0,0));	// 2* min(lam_1, lam_2)/(lam_1+lam_2)
 }
 
 // ---------------------------------
