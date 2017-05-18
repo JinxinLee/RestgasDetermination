@@ -34,14 +34,16 @@ void makeTMVADemoData(int S = 10000, int B = 100000, double fac=3.0)
 	{
 		if (i%1000 == 0) cout <<i<<endl;
 		double m  = gRandom->Gaus(m0,sig0);
-		double v1 = gRandom->Gaus(sv1m,sv1s*fac);
 		
-		double c1 = gRandom->Gaus(0,1); // correlation of v2 v3
+		double c1 = gRandom->Exp(3); // correlation of v2 v3
+		double c2 = gRandom->Gaus(1,2); // correlation of v2 v3
+		
+		double v1 = gRandom->Gaus(sv1m,sv1s*fac);		
 		double v2 = gRandom->Gaus(sv2m+c1,sv2s*fac);
 		double v3 = gRandom->Gaus(sv3m-c1,sv3s*fac);
 		
-		double v4 = gRandom->Gaus(sv4m,sv4s*fac);
-		double v5 = gRandom->Gaus(sv5m,sv5s*fac);
+		double v4 = gRandom->Gaus(sv4m-c2,sv4s*fac);
+		double v5 = gRandom->Gaus(sv5m*c2-2*c1,sv5s*fac);
 		
 		ntp->Fill(m, i, v1, v2, v3, v4, v5, 1.0);
 	}
@@ -50,14 +52,14 @@ void makeTMVADemoData(int S = 10000, int B = 100000, double fac=3.0)
 	{
 		if (i%1000 == 0) cout <<i<<endl;
 		double m  = gRandom->Rndm()*(mmax-mmin) + mmin;
-		double v1 = gRandom->Gaus(bv1m,bv1s*fac);
-		
 		double c1 = gRandom->Gaus(0,1); // correlation of v2 v3
-		double v2 = gRandom->Gaus(bv2m+c1,bv2s*fac);
-		double v3 = gRandom->Gaus(bv3m+c1,bv3s*fac);
-		
-		double v4 = gRandom->Gaus(bv4m,bv4s*fac);
-		double v5 = gRandom->Gaus(bv5m,bv5s*fac);
+		double c2 = gRandom->Gaus(3,3); // correlation of v2 v3
+
+		double v1 = gRandom->Gaus(bv1m,bv1s*fac);
+		double v2 = gRandom->Gaus(bv2m+c1+c2,bv2s*fac);
+		double v3 = gRandom->Exp(bv3s*fac+c1);
+		double v4 = gRandom->Gaus(bv4m+(c2*c1),bv4s*fac);
+		double v5 = gRandom->Gaus(bv5m*c1-c2,bv5s*fac);
 		
 		ntp->Fill(m, i+S, v1, v2, v3, v4, v5, 0.0);
 	}
