@@ -19,6 +19,11 @@
 // provided "as is" without express or implied warranty.                    *
 //                                                                          *
 //***************************************************************************
+// List of most recent changes:                                             *
+//                                                                          *
+// 29-05-17 Adjustment of initialization for PANDA data (Irina Rostovtseva) *
+//***************************************************************************
+
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
 
 #include "PndCACounters.h"
@@ -84,7 +89,7 @@ void PndCAGlobalPerformance::CheckMCTracks()
     mc.SetNReconstructed( 0 );
     mc.SetNTurns( 1 );
     if ( mc.NHitRows() >= PParameters::MinimumHitsForMCTrack)
-    if ( mc.NHits() == mc.NHitRows() )
+    //if ( mc.NHits() == mc.NHitRows() )
 //    if ( mc.NMCPoints() >= PParameters::MinimumMCPointsForMCTrack )
     if ( mc.NMCRows() >= PParameters::MinimumMCPointsForMCTrack )
       mcTrackData.SetAsReconstructable();

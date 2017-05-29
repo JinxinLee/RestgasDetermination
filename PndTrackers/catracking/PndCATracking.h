@@ -1,5 +1,10 @@
 //-----------------------------------------------------------
 //-----------------------------------------------------------
+//*******************************************************************************
+// List of most recent changes:                                                 *
+// 29-05-17  Correction of booking and saving of histograms (Irina Rostovtseva) *
+//                                                                              *
+//*******************************************************************************
 
 #ifndef PndCATracking_HH
 #define PndCATracking_HH
@@ -19,6 +24,7 @@ class TClonesArray;
 class PndCATrackParam;
 class FairTrackParP;
 class PndGeoHandling;
+class PndCAPerformance;
 
 class PndCATracking : public FairTask {
  public:
@@ -27,6 +33,11 @@ class PndCATracking : public FairTask {
   PndCATracking(const char* name = "TrackingCA", Int_t iVerbose = 0);
   ~PndCATracking();
 
+     /// Instance
+    static PndCAPerformance &Instance();
+
+
+
   void SetMvdPixelHitsBranchName(const TString& name)   { fMvdPixelHitsBranchName = name;  }
   void SetMvdStripHitsBranchName(const TString& name)   { fMvdStripHitsBranchName = name;  }
   void SetSttHitsBranchName(const TString& name)        { fSttHitsBranchName = name;  }
@@ -34,7 +45,8 @@ class PndCATracking : public FairTask {
   virtual InitStatus Init();
   void SetParContainers();
   virtual void Exec(Option_t* opt);
-  
+  virtual void Finish();
+
  private:
    
   TString fMvdPixelHitsBranchName;
@@ -69,6 +81,13 @@ class PndCATracking : public FairTask {
 
   /** Output array of PndSttMvd   PndTrack **/
   TClonesArray *fSttMvdPndTrackArray;
+
+  #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
+  PndCAPerformance *perf;
+  #endif
+
+
+
 
   bool fDoPerformance;
   void WriteMVDHits(   std::vector<PndCAGBHit> &vHits,

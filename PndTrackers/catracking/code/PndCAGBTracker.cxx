@@ -19,8 +19,9 @@
 // provided "as is" without express or implied warranty.                    *
 //                                                                          *
 //***************************************************************************
-
-
+// List of most recent changes:                                             *
+// 29-05-17 Adjustment of initialization for PANDA data (Irina Rostovtseva) *
+//***************************************************************************
 #include "PndCAStationSTT.h"
 #include "PndCAGBTracker.h"
 #include "PndCAGBHit.h"
@@ -624,8 +625,10 @@ void PndCAGBTracker::CATrackFinder()
   // The reason is that low momentum tracks are too curved and goes not from target direction. That's why hit sort is not work idealy
   fMaxDX0 = 0;
 
-  fMaxInvMom = 2;
-  fTarget = PndCATarget( xT, yT, zT, 1, 1, fMaxInvMom/3.f, GetParameters().VtxFieldValue(), 3 ); // 3 so triplets can have NDF=1
+//fMaxInvMom = 2;
+  fMaxInvMom = 5;
+//fTarget = PndCATarget( xT, yT, zT, 1, 1, fMaxInvMom/3.f, GetParameters().VtxFieldValue(), 3 ); // 3 so triplets can have NDF=1
+  fTarget = PndCATarget( xT, yT, zT, 1, 1, fMaxInvMom, GetParameters().VtxFieldValue(), 3 ); // 3 so triplets can have NDF=1
   fMaxDX0 = 0;
   
 #ifdef USE_DBG_TIMERS
@@ -1306,6 +1309,8 @@ void PndCAGBTracker::Create1Plets( const PndCATarget& target, const PndCAHits& h
 
     if(1){ // start from target
 
+      //float_v d2QMom_Init=float_v(25.0);
+      //param.InitCovMatrix(d2QMom_Init);
       param.InitByTarget(target);
       param.InitDirection( hit.X0() - target.X0(), hit.X1() - target.X1(), hit.X2() - target.X2() );
       
@@ -1394,7 +1399,8 @@ void PndCAGBTracker::PickUpHits( PndCAElementsOnStation<PndCANPletV>& a, PndCAEl
   
   r.reserve(5*a.size());
   
-  const float_v Pick2 = float_v(3.5*3.5);//fPick*fPick;
+  //const float_v Pick2 = float_v(3.5*3.5);//fPick*fPick;
+  const float_v Pick2 = float_v(10.0*10.0);//fPick*fPick;
 
   //int iS = a.IStation()+ N-1;
 
@@ -1457,8 +1463,7 @@ void PndCAGBTracker::PickUpHits( PndCAElementsOnStation<PndCANPletV>& a, PndCAEl
 	
 	PndCAStationSTTSector &sector = stationMy.fSectors[iSec];
 
-	if( sector.fNHits>30 ) continue; //SG!!!
-
+	//if( sector.fNHits>30 ) continue; //SG!!!
 	for( int jh=0; jh<sector.fNHits; jh++ ){
 	  PndCAHitSTT &h1d = stationMy.fHits1D[sector.fFirstHit + jh];
 	  //if( iS==18+4 ) cout<<iSec<<" "<<jh<<" "<<h1d.fU<<" "<<h1d.fDR<<endl;

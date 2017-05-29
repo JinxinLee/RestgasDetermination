@@ -1,6 +1,11 @@
 //-----------------------------------------------------------
 //-----------------------------------------------------------
-
+//***************************************************************************
+// List of most recent changes:                                             *
+// 29-05-17 Adjustment of initialization for PANDA data (Irina Rostovtseva) *
+//          Correction of booking and saving of histograms (IR)             *
+//***************************************************************************
+//
 // Panda Headers ----------------------
 
 #include "PndCATracking.h"
@@ -82,6 +87,8 @@ PndCATracking::~PndCATracking()
 
 InitStatus PndCATracking::Init()
 {
+  perf = &PndCAPerformance::Instance();
+
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
   
@@ -645,8 +652,8 @@ void PndCATracking::Exec(Option_t*)
         else if ( iS-1.4556 < 15.5 ) iSta = floor(iS-1.4556+0.5);
         else iSta = floor(iS-2+0.5);
       }
-      iSta += 6; // 6 MVD stations
-
+//      iSta += 6; // 6 MVD stations
+      iSta += 4; // 4 MVD barrel stations
       Double_t px = point->GetPx();
       Double_t py = point->GetPy();
       Double_t pz = point->GetPz();
@@ -745,10 +752,10 @@ void PndCATracking::Exec(Option_t*)
  std::string str = 
 "30 \
 -20 \
-0 2 0.0048 1.6 0 2 3 \
-1 4 0.0048 1.6 0 2 3 \
-2 9 0.0048 1.6 0 2 4 \
-3 12 0.0048 1.6 0 2 4 \
+0 2 0.0048 1.6 0 2 2 \
+1 4 0.0048 1.6 0 2 2 \
+2 9 0.0048 1.6 0 2 2 \
+3 12 0.0048 1.6 0 2 2 \
 4 16.619 0.0006 0.016 0 1 4 \
 5 17.4937 0.0006 0.016 0 1 4 \
 6 18.3684 0.0006 0.016 0 1 4 \
@@ -904,14 +911,22 @@ void PndCATracking::Exec(Option_t*)
 
   } while(0);
             
+  delete tracker;
+}
+
+
+void PndCATracking::Finish()
+{
 #ifdef DO_TPCCATRACKER_EFF_PERFORMANCE
   if ( fDoPerformance && perf ) {
     perf->WriteHistos();
   }
   //perfHistoFile->Close();
-#endif    
-  delete tracker;
+#endif
 }
+
+
+
 
 void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
 				    std::fstream &outH, std::fstream &outHL, std::fstream &outMCT, std::fstream &outMCP, int &iHit, map<int, unsigned int> &nHitsInMCTrack, bool isPixel)
@@ -959,6 +974,7 @@ void PndCATracking::WriteMVDHits(   std::vector<PndCAGBHit> &vHits,
 
     // get station angle A and station index iSta
 
+    if( fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 ) continue; 
     if( fabs(mmm[6]) < 0.999 && fabs(mmm[7]) < 0.999 ){ // forward detector, perpendicular to beam axis Z
       //cout<<"forward detector!!??"<<endl;
       //Double_t sinA = mmm[2];

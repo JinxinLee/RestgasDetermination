@@ -26,7 +26,8 @@ struct PndCAParameters
     NMVDStations = 4,
     MinimumHitsForRecoTrack = 3,
     MaxCellLength = 6,
-    LastCellLength = 4 // length of rightmost cell
+//    LastCellLength = 4 // length of rightmost cell
+    LastCellLength = 3  
   };
 
     // Transform CALocal coordinates in global x y z coordinates and back
