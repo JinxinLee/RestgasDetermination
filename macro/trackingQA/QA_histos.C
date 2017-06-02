@@ -7,10 +7,21 @@
    @date Jun 15, 2015
 **/
 
-int QA_histos(TString prefix, TString trackBranch) {
+void LabelQualyHistogram(TH1 * hist) {
+	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(1), "Spurious found");
+	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(2), "Partially found");
+	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(3), "Fully found");
+	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(-1), "Not found secondary");
+	hist->GetXaxis()->SetBinLabel(hist->FindFixBin(-2), "Not found primary");
+}
+
+int QA_histos(TString prefix, TString trackBranch, Bool_t forward = kFALSE) {
 
 	PndFileNameCreator creator(prefix.Data());
-	TString extension("trackingQA_");
+	TString extension;
+	if (forward == kFALSE)
+		extension = "trackingQA_";
+	else extension = "trackingQAfwd_";
 	extension.Append(trackBranch);
 	TString simFile = creator.GetSimFileName();
 	TString trackQAFile = creator.GetCustomFileName(extension.Data());
@@ -21,7 +32,7 @@ int QA_histos(TString prefix, TString trackBranch) {
   TTree *cbmsim = (TTree*) fileqa.Get("cbmsim");
   cbmsim->AddFriend("cbmsim", simFile.Data());
 
-  TCut cut = "";
+  TCut cut = "RecoTrackInfo.GetMCTrackInfo().GetQuality() > 0";
 
   /**
      7 histos: Global efficiency (#true hits/#totaltruehits), for all the primary tracks, for all the detectors:
@@ -194,6 +205,11 @@ int QA_histos(TString prefix, TString trackBranch) {
   cut_rec = cut_rec && "RecoTrackInfo[MCTrackInfo.GetRecoTrackID()].GetEfficiency() > 0.8";
   cut_rec = cut_rec && "RecoTrackInfo[MCTrackInfo.GetRecoTrackID()].IsClone() == 0";
 
+  TCut cut_mc_prim = cut_mc && "MCTrackInfo.GetMCQuality() == -2";
+  TCut cut_mc_sec = cut_mc && "MCTrackInfo.GetMCQuality() == -1";
+  TCut cut_rec_prim = cut_rec && cut_mc_prim;
+  TCut cut_rec_sec = cut_rec && cut_mc_sec;
+
   cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Theta() * TMath::RadToDeg() >> hthetagen", cut_mc, "goff");
   cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Theta() * TMath::RadToDeg() >> heffintheta", cut_rec, "goff");
   
@@ -231,12 +247,33 @@ int QA_histos(TString prefix, TString trackBranch) {
   **/
   TH1F *hptgen = new TH1F("hptgen", "mc pt dist", 100, 0, 3);
   TH1F *heffinpt = new TH1F("heffinpt", "efficiency vs pt", 100, 0, 3);
+
   cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> hptgen", cut_mc, "goff");
   cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> heffinpt", cut_rec, "goff");
   
   hptgen->Sumw2();
   heffinpt->Sumw2();
   heffinpt->Divide(hptgen);
+
+  TH1F *hptgenprim = new TH1F("hptgenprim", "mc pt dist prim", 100, 0, 3);
+  TH1F *heffinptprim = new TH1F("heffinptprim", "efficiency vs pt prim", 100, 0, 3);
+
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> hptgenprim", cut_mc_prim, "goff");
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> heffinptprim", cut_rec_prim, "goff");
+
+  hptgenprim->Sumw2();
+  heffinptprim->Sumw2();
+  heffinptprim->Divide(hptgenprim);
+
+  TH1F *hptgensec = new TH1F("hptgensec", "mc pt dist sec", 100, 0, 3);
+  TH1F *heffinptsec = new TH1F("heffinptsec", "efficiency vs pt sec", 100, 0, 3);
+
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> hptgensec", cut_mc_sec, "goff");
+  cbmsim->Draw("MCTrack[MCTrackInfo.GetMCTrackID()].GetMomentum().Perp() >> heffinptsec", cut_rec_sec, "goff");
+
+  hptgensec->Sumw2();
+  heffinptsec->Sumw2();
+  heffinptsec->Divide(hptgensec);
 
   /** 
       efficiency vs pl
@@ -249,6 +286,16 @@ int QA_histos(TString prefix, TString trackBranch) {
   hplgen->Sumw2();
   heffinpl->Sumw2();
   heffinpl->Divide(hplgen);
+
+  TH1F* hQualityPrim = new TH1F("hQualityPrim", "Quality for possible primary tracks", 8, -3.5, 4.5);
+  TH1F* hQualitySec = new TH1F("hQualitySec", "Quality for possible secondary tracks", 8, -3.5, 4.5);
+
+  LabelQualyHistogram(hQualityPrim);
+  LabelQualyHistogram(hQualitySec);
+
+  cbmsim->Draw("MCTrackInfo.GetQuality()>>hQualityPrim", cut_mc_prim,"goff");
+  cbmsim->Draw("MCTrackInfo.GetQuality()>>hQualitySec", cut_mc_sec,"goff");
+
 
 
 
@@ -301,7 +348,12 @@ int QA_histos(TString prefix, TString trackBranch) {
   heffinphi->Write();
   heffinmom->Write();
   heffinpt->Write();
+  heffinptprim->Write();
+  heffinptsec->Write();
   heffinpl->Write();
+
+  hQualityPrim->Write();
+  hQualitySec->Write();
 
   cout << " Test passed" << endl;
   cout << " All ok " << endl;

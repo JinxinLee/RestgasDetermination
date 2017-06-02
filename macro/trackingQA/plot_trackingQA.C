@@ -73,6 +73,10 @@ int plot_trackingQA(TString fileName){
 	c3->cd(4);
 	histoQualyRelPos->Draw("TEXT HISTO");
 
+	TCanvas* c4 = new TCanvas();
+	c4->cd(1);
+	histoQualyRelPos->Draw("TEXT HISTO");
+
 
 
 
