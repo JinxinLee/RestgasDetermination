@@ -110,7 +110,8 @@ void PndTrackingQA::AnalyseEvent(TClonesArray *recoTrackInfo)
 		fTrackIdMCId[i] = mostProbableTrack;
 		CalcEfficiencies(mostProbableTrack, trackInfo);
 
-		fMCTrackFound[mostProbableTrack]++;
+		if (fMapTrackQualification[mostProbableTrack] > 0)
+			fMCTrackFound[mostProbableTrack]++;
 
 		PndTrackingQualityRecoInfo recoinfo = GetRecoInfoFromRecoTrack(i, mostProbableTrack);
 		int nof_asso_mctracks = trackInfo["AllHits"].GetNLinks();
@@ -166,6 +167,7 @@ FairMultiLinkedData PndTrackingQA::GetMCInfoForBranch(TString branchName, PndTra
 			FairMultiLinkedData linkDataType = linkData->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
 			linkDataType.SetAllWeights(1.);
 			result.AddLinks(linkDataType);
+			linkData->Delete();
 		}
 	}
 	return result;
@@ -412,14 +414,31 @@ void PndTrackingQA::PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t
 	std::cout << std::endl;
 }
 
+void PndTrackingQA::PrintTrackDataSummaryCompare(FairMultiLinkedData& recoTrackData, FairMultiLinkedData& idealTrackData)
+{
+	for (size_t branchIndex = 0; branchIndex < fBranchNames.size(); branchIndex++){
+		TString branchName = fBranchNames[branchIndex];
+		std::cout << branchName << " " << GetNIdealHits(recoTrackData, branchName);
+		std::cout << "/" << GetNIdealHits(idealTrackData, branchName);
+			std::cout << " | ";
+	}
+	std::cout << std::endl;
+}
+
 
 void PndTrackingQA::PrintTrackQualityMap(Bool_t detailedInfo)
 {
 	for (std::map<Int_t, Int_t>::iterator iter = fMapTrackQualification.begin(); iter != fMapTrackQualification.end(); iter++){
-		std::cout << "TrackID: " << iter->first << " MCQuality: "  << fMapTrackMCStatus[iter->first] << " Quality: " << iter->second << " Found: " << fMCTrackFound[iter->first] << " MCData: ";
+		std::cout << "TrackID: " << iter->first << " MCQuality: "  << fMapTrackMCStatus[iter->first] << " Quality: " << iter->second << " Found: " << fMCTrackFound[iter->first];
+		std::cout << " MCData: ";
 		if (fMCIdIdealTrackId.count(iter->first) > 0){
-			PndTrackCand* trackCand = ((PndTrack*)fIdealTrack->At(fMCIdIdealTrackId[iter->first]))->GetTrackCandPtr();
-			PrintTrackDataSummary(*trackCand->GetPointerToLinks(), detailedInfo);
+			PndTrackCand* idealTrackCand = ((PndTrack*)fIdealTrack->At(fMCIdIdealTrackId[iter->first]))->GetTrackCandPtr();
+			if (iter->second < 0)
+				PrintTrackDataSummary(*idealTrackCand->GetPointerToLinks(), detailedInfo);
+			else {
+				PndTrackCand* recoTrackCand = ((PndTrack*)fTrack->At(fMCIdTrackId[iter->first]))->GetTrackCandPtr();
+				PrintTrackDataSummaryCompare(*recoTrackCand->GetPointerToLinks(), *idealTrackCand->GetPointerToLinks());
+			}
 		}
 	}
 	std::cout << std::endl;

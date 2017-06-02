@@ -103,6 +103,7 @@ public:
 
 
 	void PrintTrackDataSummary(FairMultiLinkedData& trackData, Bool_t detailedInfo = kFALSE);
+	void PrintTrackDataSummaryCompare(FairMultiLinkedData& recoTrackData, FairMultiLinkedData& idealTrackData);
 
 	/**
 	 * The description of the quality map IDs is now located a but further up, at struct qualityNumbers	
@@ -128,7 +129,7 @@ private:
 	Int_t GetSumOfAllValidMCHits(FairMultiLinkedData* trackData);
 	virtual Int_t AnalyseTrackInfo(std::map<TString, FairMultiLinkedData>& trackInfo, Int_t trackId);
 	virtual void CalcEfficiencies(Int_t mostProbableTrack, std::map<TString, FairMultiLinkedData>& trackInfo);
-	FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand);
+	FairMultiLinkedData GetMCInfoForBranch(TString branchName, PndTrackCand* trackCand); ///< returns how often a MCTrack (marked by a FairLink) was seen by the hits of a PndTrackCand
 	std::map<TString, FairMultiLinkedData> AnalyseTrackCand(PndTrackCand* trackCand);
 
 //	virtual Bool_t IsCorrectGemHit(FairLink& gemLink);

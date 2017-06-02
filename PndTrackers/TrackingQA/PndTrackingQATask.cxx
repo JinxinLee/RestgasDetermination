@@ -400,7 +400,7 @@ void PndTrackingQATask::SetQualyHisto(TH1* histo, Bool_t relative, Int_t base)
 
 	Double_t divisor = 1.0;
 	if (relative == kTRUE){
-		divisor = allTracks / 100;
+		divisor = allTracks / 100.0;
 	}
 
 	histo->Fill(qualityNumbers::kMcAllTracksWithHits, (Double_t)allTracksWithHits / divisor);
@@ -414,39 +414,55 @@ void PndTrackingQATask::SetQualyHisto(TH1* histo, Bool_t relative, Int_t base)
 
 	if (mcLessThanThreePrim > 0){
 		if (relative == kTRUE){
-				divisor = mcLessThanThreePrim / 100;
+				divisor = mcLessThanThreePrim / 100.0;
 		}
 		histo->Fill(qualityNumbers::kLessThanThreePrim, (Double_t)(mcLessThanThreePrim - lessThanThreePrim) /divisor);
 	}
+
+	divisor = 1.0;
+
 	if (mcAtLeastThreePrim > 0) {
 		if (relative == kTRUE){
-				divisor = mcAtLeastThreePrim / 100;
+				divisor = mcAtLeastThreePrim / 100.0;
 		}
 		histo->Fill(qualityNumbers::kAtLeastThreePrim, (Double_t)(mcAtLeastThreePrim - atLeastThreePrim) / divisor);
 	}
+
+	divisor = 1.0;
+
 	if (mcAtLeastThreeSec > 0){
 		if (relative == kTRUE){
-				divisor = mcAtLeastThreeSec / 100;
+				divisor = mcAtLeastThreeSec / 100.0;
 		}
 		histo->Fill(qualityNumbers::kAtLeastThreeSec, (Double_t)(Double_t)(mcAtLeastThreeSec - atLeastThreeSec) / divisor);
 	}
+
+	divisor = 1.0;
+
 	if (mcPossiblePrim > 0){
 		if (relative == kTRUE){
-				divisor = mcPossiblePrim / 100;
+				divisor = mcPossiblePrim / 100.0;
 		}
 		histo->Fill(qualityNumbers::kPossiblePrim, (Double_t)(mcPossiblePrim - possiblePrim) / divisor);
 	}
+
+	divisor = 1.0;
+
 	if (mcPossibleSec > 0){
 		if (relative == kTRUE){
-				divisor = mcPossibleSec / 100;
+				divisor = mcPossibleSec / 100.0;
 		}
 		histo->Fill(qualityNumbers::kPossibleSec, (Double_t)(mcPossibleSec - possibleSec) / divisor);
 	}
 
 	Double_t baseDouble = base;
 	if (relative == kTRUE){
-		baseDouble /= 100;
+		baseDouble /= 100.0;
 	}
+
+	if (base == 0)
+		return;
+
 	histo->Fill(qualityNumbers::kFullyFound, fullyFound / baseDouble);
 	histo->Fill(qualityNumbers::kPartiallyFound, partiallyFound / baseDouble);
 	histo->Fill(qualityNumbers::kSpuriousFound, spuriousFound / baseDouble);
@@ -527,22 +543,23 @@ void PndTrackingQATask::Finish() {
 			  << " Secondary Tracks with >= 3 hits, but not a possible track: " << mcAtLeastThreeSec << ". Not Found: " << atLeastThreeSec << std::endl
 			  << " Primary Tracks possible: " << mcPossiblePrim << ". Not Found: " << possiblePrim << std::endl
 			  << " Secondary Tracks possible: " << mcPossibleSec << ". Not Found: " << possibleSec << std::endl
+			  << " All Possible Tracks with hits: " << allPossibleTracksWithHits << std::endl
 
 			  << " FullyFound: "    << fullyFound 	<< " "
-			  << fullyFound / allTracksWithHits * 100 << "% (of all tracks), "
-			  << fullyFound / allPossibleTracksWithHits * 100 << "% (of all tracks possible)"
+			  << fullyFound / allTracksWithHits * 100.0 << "% (of all tracks), "
+			  << fullyFound / allPossibleTracksWithHits * 100.0 << "% (of all tracks possible)"
 
 			  << " PartlyFound: "  << partiallyFound 	<< " "
-			  << partiallyFound / allTracksWithHits * 100 << "% "
-			  << partiallyFound / allPossibleTracksWithHits * 100 << "% "
+			  << partiallyFound / allTracksWithHits * 100.0 << "% "
+			  << partiallyFound / allPossibleTracksWithHits * 100.0 << "% "
 
 			  << " Spurious: " 	<< spuriousFound 		<< " "
-			  << spuriousFound / allTracksWithHits * 100 << "% "
-			  << spuriousFound / allPossibleTracksWithHits * 100 << "% "
+			  << spuriousFound / allTracksWithHits * 100.0 << "% "
+			  << spuriousFound / allPossibleTracksWithHits * 100.0 << "% "
 
 			  << " Ghosts: "	<< ghosts		<< " "
-			  << ghosts / allTracksWithHits * 100 << "% "
-			  << ghosts / allPossibleTracksWithHits * 100 << "% " << std::endl;
+			  << ghosts / allTracksWithHits * 100.0 << "% "
+			  << ghosts / allPossibleTracksWithHits * 100.0 << "% " << std::endl;
 
 	SetQualyHisto(fQualyHisto_rel_all, kTRUE, allTracksWithHits);
 	SetQualyHisto(fQualyHisto_rel_possible, kTRUE, allPossibleTracksWithHits);
@@ -558,6 +575,8 @@ void PndTrackingQATask::Finish() {
 	fQualyHisto_rel_possible->Write();
 	fQualyHisto->Write();
 	fTuple->GetInternalTree()->Write();
+
+	std::cout << "Finish finished!" << std::endl;
 }
 
 void PndTrackingQATask::ColorHistogram() {
