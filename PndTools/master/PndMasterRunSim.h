@@ -143,9 +143,9 @@ class PndMasterRunSim : public FairRunSim
    * This call set EvtGen as event generator. The user should set the 
    * .dec file, and the function will retrieve automaticall beam 
    * momentum and initial state.
-   * @param fEvtGenFile Filename of the .dec file
+   * @param EvtGenFile Filename of the .dec file
    */
-  void UseEvtGenGenerator(TString fEvtGenFile);
+  void UseEvtGenGenerator(TString EvtGenFile);
 
   /** 
    * @brief Use BoxGen as event generator
@@ -156,9 +156,29 @@ class PndMasterRunSim : public FairRunSim
    *   for isotrop events in cos(theta): 'BOX:type(pdg,mult):p(min,max):phi(min,max):ctht(min,max)'
    * Instead of range 'var(min,max)' also a fixed value can be set with 'var(value)'
    * All variables left out are set to defaults.
-   * @param fBoxConfig configuration string of the BOX generator
+   * @param BoxConfig configuration string of the BOX generator
    */
-  void UseBoxGenerator(TString fBoxConfig);
+  void UseBoxGenerator(TString BoxConfig);
+
+  /**
+   * @brief Use PiPiGenerator as event generator
+   * @details # PiPi event generator
+   * This call sets the PndPiPiGenerator as event generator.
+   * The format of the config string is:
+   *  'PIPI:cosTheta(min, max)'
+   *  @param pipiConfig configuration string of the PiPi generator
+   */
+  void UsePiPiGenerator(TString pipiConfig);
+
+  /**
+   * @brief Use LepLepGenerator as event generator
+   * @details # LepLep event generator
+   * This call sets the PndLepLepGenerator as event generator.
+   * The format of the config string is:
+   *  'LEPLEP:pid(value):gegm(value):cosTheta(min, max)'
+   *  @param leplepConfig configuration string of the LepLep generator
+   */
+  void UseLepLepGenerator(TString leplepConfig);
 
   /**
    * @brief Input of the simulation

@@ -21,6 +21,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGen/R01-03-00	
   ${CMAKE_SOURCE_DIR}/pgenerators/EvtGen/EvtGenDirect
   ${CMAKE_SOURCE_DIR}/pgenerators/Direct
+  ${CMAKE_SOURCE_DIR}/pgenerators/EMFFgenerators
   ${CMAKE_SOURCE_DIR}/stt
   ${CMAKE_SOURCE_DIR}/sds/SdsMC
   ${CMAKE_SOURCE_DIR}/mvd/MvdMC

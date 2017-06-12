@@ -20,6 +20,8 @@
 #include "PndFtfDirect.h"
 #include "PndBoxGenerator.h"
 #include "PndEvtGenDirect.h"
+#include "PndPiPiGenerator.h"
+#include "PndLepLepGenerator.h"
 #include "PndMasterSimTask.h"
 #include "PndEventCounterTask.h"
 #include "PndFileNameCreator.h"
@@ -345,7 +347,11 @@ void PndMasterRunSim::SetGenerator()
   else if (input.BeginsWith("box"))
     {
       UseBoxGenerator(fInput);
-    }  
+    }
+  else if (input.BeginsWith("pipi"))
+  {
+	  UsePiPiGenerator(fInput);
+  }
   else 
     {
       LOG(FATAL)<< "Generator could not be identified from input '"<<fInput.Data()<<"'!!" <<  FairLogger::endl;
@@ -353,7 +359,7 @@ void PndMasterRunSim::SetGenerator()
   
 }
 
-void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
+void PndMasterRunSim::UseBoxGenerator(TString BoxConfig)
 {
   // use BOX generator; defaults
 
@@ -370,18 +376,18 @@ void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
   Int_t    BoxMult    = 1;      // default particle multiplicity
   Double_t type=0,mult=0;       // ref. parameters for range function
   
-  fBoxConfig.ToLower();
+  BoxConfig.ToLower();
   
-  if (fBoxConfig!="box")
+  if (BoxConfig!="box")
   {
-    fBoxConfig.ReplaceAll("box","");
-    fBoxConfig.ReplaceAll(" ","");
-    fBoxConfig += ":";
+    BoxConfig.ReplaceAll("box","");
+    BoxConfig.ReplaceAll(" ","");
+    BoxConfig += ":";
     
-    while (fBoxConfig.Contains(":"))
+    while (BoxConfig.Contains(":"))
     {
-      TString curpar = fBoxConfig(0,fBoxConfig.Index(":"));
-      fBoxConfig = fBoxConfig(fBoxConfig.Index(":")+1,1000);
+      TString curpar = BoxConfig(0,BoxConfig.Index(":"));
+      BoxConfig = BoxConfig(BoxConfig.Index(":")+1,1000);
       curpar.ReplaceAll("[","(");
       curpar.ReplaceAll("]",")");
       
@@ -415,6 +421,90 @@ void PndMasterRunSim::UseBoxGenerator(TString fBoxConfig)
   //  cout <<"BOX generator range: p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
   
   fGen->AddGenerator(boxGen);
+}
+
+void PndMasterRunSim::UsePiPiGenerator(TString pipiConfig)
+{
+  // use BOX generator; defaults
+
+  Double_t cosThetaMin = 0.0;
+  Double_t cosThetaMax = 1.0;
+
+  pipiConfig.ToLower();
+
+  if (pipiConfig!="pipi")
+  {
+    pipiConfig.ReplaceAll("pipi","");
+    pipiConfig.ReplaceAll(" ","");
+    pipiConfig += ":";
+
+    while (pipiConfig.Contains(":"))
+    {
+      TString curpar = pipiConfig(0,pipiConfig.Index(":"));
+      pipiConfig = pipiConfig(pipiConfig.Index(":")+1,1000);
+      curpar.ReplaceAll("[","(");
+      curpar.ReplaceAll("]",")");
+
+      if (curpar.BeginsWith("cosTheta(")) GetRange(curpar, cosThetaMin, cosThetaMax);
+    }
+  }
+
+  PndPiPiGenerator* pipiGen = new PndPiPiGenerator();
+  pipiGen->SetBeamMom(GetBeamMom());
+  pipiGen->SetCosThetaMin(cosThetaMin);
+  pipiGen->SetCosThetaMax(cosThetaMax);
+
+
+  LOG(INFO) << "Using PndPiPiGenerator(BeamMom = " << GetBeamMom() << " GeV/c, cosThetaRange = "<< cosThetaMin << " : " << cosThetaMax << ")" << FairLogger::endl;
+
+  //  cout <<"BOX generator range: p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
+
+  fGen->AddGenerator(pipiGen);
+}
+
+void PndMasterRunSim::UseLepLepGenerator(TString leplepConfig)
+{
+  // use BOX generator; defaults
+
+  Double_t cosThetaMin = 0.0;
+  Double_t cosThetaMax = 1.0;
+  Double_t pid = -1.0;
+  Double_t GeGmRatio = -1.0;
+  Double_t dummy = 1.0;
+
+  leplepConfig.ToLower();
+
+  if (leplepConfig!="")
+  {
+    leplepConfig.ReplaceAll("leplep","");
+    leplepConfig.ReplaceAll(" ","");
+    leplepConfig += ":";
+
+    while (leplepConfig.Contains(":"))
+    {
+      TString curpar = leplepConfig(0,leplepConfig.Index(":"));
+      leplepConfig = leplepConfig(leplepConfig.Index(":")+1,1000);
+      curpar.ReplaceAll("[","(");
+      curpar.ReplaceAll("]",")");
+
+      if (curpar.BeginsWith("pid(")) GetRange(curpar, pid, dummy);
+      if (curpar.BeginsWith("gegm(")) GetRange(curpar, GeGmRatio, dummy);
+      if (curpar.BeginsWith("cosTheta(")) GetRange(curpar, cosThetaMin, cosThetaMax);
+    }
+  }
+
+  PndLepLepGenerator* leplepGen = new PndLepLepGenerator();
+  leplepGen->SetBeamMom(GetBeamMom());
+
+  leplepGen->SetCosThetaMin(cosThetaMin);
+  leplepGen->SetCosThetaMax(cosThetaMax);
+
+
+  LOG(INFO) << "Using PndleplepGenerator(BeamMom = " << GetBeamMom() << " GeV/c, cosThetaRange = "<< cosThetaMin << " : " << cosThetaMax << ")" << FairLogger::endl;
+
+  //  cout <<"BOX generator range: p["<<BoxMomMin<<","<<BoxMomMax<<"]  tht["<<BoxThtMin<<","<<BoxThtMax<<"]"<<(BoxCosTht?"*":"")<<"  phi["<<BoxPhiMin<<","<<BoxPhiMax<<"]"<<endl;
+
+  fGen->AddGenerator(leplepGen);
 }
 
 // -----   SetGenerator   --------------------------------------------------
@@ -451,20 +541,20 @@ void PndMasterRunSim::UseFtfGenerator()
 }
 
 // -----   UseEvtGenGenerator   --------------------------------------------
-void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
+void PndMasterRunSim::UseEvtGenGenerator(TString EvtGenFile)
 {
   
   TString IniRes="";
   
-  if (fEvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ? 
+  if (EvtGenFile.Contains(":")) // is the initial resonance provide as <decfile>.dec:iniRes ?
   {
-    IniRes = fEvtGenFile(fEvtGenFile.Index(":")+1,1000);
-    fEvtGenFile = fEvtGenFile(0,fEvtGenFile.Index(":"));
+    IniRes = EvtGenFile(EvtGenFile.Index(":")+1,1000);
+    EvtGenFile = EvtGenFile(0,EvtGenFile.Index(":"));
   }
   
   if (IniRes=="") // we need to search the decay file
   {
-    TString fnamepath=fInputDir+fEvtGenFile;
+    TString fnamepath=fInputDir+EvtGenFile;
     std::ifstream fs(fnamepath.Data());	
     char line[250];
   
@@ -486,8 +576,8 @@ void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
   /*
   // Looping over the dec file trying to find the first string "Decay", in order to find the initai
   // state as the following string
-  FILE *dec = fopen(fInputDir+fEvtGenFile,"r");
-  if (dec==NULL) LOG(FATAL) << "The EvtGen dec file does not exist!! " << fEvtGenFile << FairLogger::endl;
+  FILE *dec = fopen(fInputDir+EvtGenFile,"r");
+  if (dec==NULL) LOG(FATAL) << "The EvtGen dec file does not exist!! " << EvtGenFile << FairLogger::endl;
   
   char temp[6], particle[20];
   Bool_t found = kFALSE;
@@ -506,8 +596,8 @@ void PndMasterRunSim::UseEvtGenGenerator(TString fEvtGenFile)
   
     //   TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
   //   EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  LOG(INFO) << "Using PndEvtGenDirect(" <<IniRes << ", " << (fInputDir+fEvtGenFile).Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
-  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(IniRes, (fInputDir+fEvtGenFile).Data(), GetBeamMom());
+  LOG(INFO) << "Using PndEvtGenDirect(" <<IniRes << ", " << (fInputDir+EvtGenFile).Data() << ", " << GetBeamMom() << ") generator" << FairLogger::endl;
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect(IniRes, (fInputDir+EvtGenFile).Data(), GetBeamMom());
   EvtGen->SetStoreTree(kTRUE);
   fGen->AddGenerator(EvtGen);
   

@@ -8,6 +8,7 @@
 int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
 {
   //-----User Settings:------------------------------------------------------
+//  gDebug=5;
   TString parAsciiFile   = "all.par";
   
   TString prefix         = "evtcomplete";     // prefix string for output files
@@ -17,9 +18,11 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
   // DPM    -> "dpm_xxxxx"
   // FTF    -> "ftf_xxxxx"
   // BOX    -> "box:type(pdgcode,mult):p(min,max):tht(min,max):phi(min,max)"
+  // PIPI   -> "pipi:cosTheta(min,max)"
+  // LEP    -> "leplep:pid(value):gegm(value):cosTheta(min,max)"
 
-  TString inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
-  //TString inputGenerator = "dpm";
+  //TString inputGenerator = "psi2s_Jpsi2pi_Jpsi_mumu.dec";
+  TString inputGenerator = "dpm";
   //TString inputGenerator = "ftf";
   //TString inputGenerator = "box:type(211,1):p(1,1):tht(10,120):phi(0,360)";
  
@@ -31,6 +34,7 @@ int sim_complete(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Double_t Be
   fRun->SetParamAsciiFile(parAsciiFile);
   fRun->SetNumberOfEvents(nEvents);
   fRun->SetBeamMom(BeamMomentum);
+  fRun->SetStoreTraj(kTRUE);
   // -----  Initialization   ------------------------------------------------
   fRun->Setup(prefix);
   // -----   Geometry   -----------------------------------------------------
