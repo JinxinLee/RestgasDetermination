@@ -1,0 +1,258 @@
+.x quickana.C
+.q
+.x quickana.C("data/M2_Jpsi2pi_E40_1_pid.root",-4.0,"J/psi -> e+ e-; pbp0->J/psi pi+ pi-",0,"mwin=0.6:fit4c",0,0,0,2)
+TFile *_file0 = TFile::Open("data/M2_Jpsi2pi_E40_1_pid_ana.root")
+.ls
+npt0.Draw("xm")
+npt0->Draw("xm")
+ntp0->Draw("xm")
+ntp1->Draw("xm")
+ntp1->Draw("xd0m")
+ntp1->Draw("f4cxd0m")
+ntp1->Draw("f4cxd0m>>(100,2.6,3.3)")
+ntp1->Draw("f4cxd0m>>(100,2.9,3.3)")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)")
+fitsb(h)
+fitsb(h,"dgaus")
+fitsb(h,"bw")
+fitsb(h,"dgaus")
+fitsb(h,"dgaus","3.09634,0.00900065,0.01|0.05,1.63786")
+fitsb(h,"dgaus","3.09634,0.00900065,r0.01|0.05,1.63786")
+fitsb(h,"dgaus","3.09634,r0.002|0.02,r0.01|0.05,1.63786")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)","xd0mct")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)","xmct")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)","")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)","xd0d0mct")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)","xd0d1mct")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)","txd0d0pid")
+ntp1->Draw("f4cxd0m>>h(100,2.9,3.3)","txd0d0pgd")
+ntp1->Print("*pdg*")
+ntp1->Draw("xd0d1ztrpdg")
+ntp1->Draw("xd0d1trpdg")
+ntp1->Draw("xd0d1trpdg>>(100,0,20)")
+ntp1->Draw("xd0d0trpdg>>(100,0,20)")
+ntp1->Draw("xd0d0trpdg>>(100,-20,20)")
+.q
+.x quickana.C("data/M2_Jpsi2pi_E40_1_pid.root",-4.0,"J/psi -> mu+ mu-; pbp0->J/psi pi+ pi-",0,"mwin=0.6:fit4c:pid==Loose",0,0,0,2)
+TFile *_file0 = TFile::Open("data/M2_Jpsi2pi_E40_1_pid_ana.root")
+ntp1->Draw("xd0d0trpdg>>(100,-20,20)")
+ntp1->Draw("xd0d1trpdg>>(100,-20,20)")
+ntp0->Draw("xm")
+ntp0->Draw("xm","xmct")
+ntp0->Draw("xm","!xmct")
+ntp0->Draw("xm","xmct")
+.q
+.x quickana.C("data/M3_DpDm_E40_1",-4.0,"D0->K- pi+",0,"mwin=0.6:fit4c:pid==Loose",0,0,0,2)
+.x tut_ana_fit.C
+.q
+.x tut_sim.C(1000,"signal","pp_jpsi2pi_jpsi_mumu.dec",6.231552)
+.x tut_sim.C(1000,"signal","pp_jpsi2pi_jpsi_mumu.dec",6.231552)
+.x tut_aod.C(1000,"signal")
+.x tut_sim.C(100,"signal","pp_jpsi2pi_jpsi_mumu.dec",6.231552)
+.x tut_sim.C(100,"signal","pp_jpsi2pi_jpsi_mumu.dec",6.231552)
+.x tut_aod.C(100,"signal")
+.x tut_ana_fit.C
+ls -lrt 
+.ls
+TBrowser t
+.q
+.x tut_sim.C(1000,"signal","pp_jpsi2pi_jpsi_mumu.dec",6.231552)
+.x tut_aod.C(1000,"signal")
+.x tut_ana_fit.C
+.ls
+hjpsim_all->Draw()
+.q
+.x tut_ana_fit.C
+.q
+.x tut_ana_fit.C
+.qqqqq
+.x tut_ana_fit.C
+.q
+.x tut_ana_fit.C
+.q
+.x tut_ana_fit.C
+qqqGgg
+.x tut_ana_fit.C
+.x tut_ana_fit.C
+.q
+.x tut_ana_fit.C
+.q
+.x tut_ana_fit.C
+.q
+.x tut_ana_fit.C
+.q
+.x tut_ana_fit.C
+.ls
+hjpsi_prob_vf->Draw()
+.q
+.x tut_ana_fit.C
+.q
+.x tut_ana.C
+.ls
+TBrowser t
+.q
+.x tut_ana_comb.C
+.x tut_ana_comb.C
+.x tut_ana_comb.C
+.x tut_ana_fast.C
+.x tut_fastsim.C
+.x tut_ana_fast.C
+TFile *_file0 = TFile::Open("signal_ana_fast.root")
+.ls
+TBrowser t
+.q
+.x tut_ana_mclist.C
+.x tut_ana_mcmatch.C
+.x tut_ana_ntp.C
+TFile *_file0 = TFile::Open("signal_ana_ntp.root")
+.ls
+njpsi->Print()
+njpsi->Draw("jpsim")
+njpsi->Draw("trjpsim")
+njpsi->Draw("tjpsim")
+njpsi->Draw("jpsim","mct")
+njpsi->Draw("jpsim","!mct")
+.q
+.x tut_ana_pid.C
+.x tut_ana_task.C
+.x tut_ana_task.C
+.x tut_ana_task.C
+.x tut_ana_task.C
+.x tut_ana_task.C
+.x tut_ana_task.C
+.x tut_ana_task.C
+.q
+.x tut_ana_task.C
+.q
+.x tut_ana_task.C
+.ls
+.q
+.x tut_ana.C
+.x tut_ana_comb.C
+.x tut_ana_fit.C
+.x tut_ana_mcmatch.C
+.x tut_ana_ntp.C
+.x tut_ana.C
+for (int i=1;i<30;++i) {int nx= int(sqrt(double(i))+1);ny=int(sqrt(double(i))+1); cout <<"nx="<<nx<<"  ny="<<ny<<"  nx*ny="<<nx*ny<<"  N-nx*ny="<<N-nx*ny<<endl;}
+for (int i=1;i<30;++i) {int nx= int(sqrt(double(i))+1);int ny=int(sqrt(double(i))+1); cout <<"nx="<<nx<<"  ny="<<ny<<"  nx*ny="<<nx*ny<<"  N-nx*ny="<<N-nx*ny<<endl;}
+for (int i=1;i<30;++i) {int nx= int(sqrt(double(i))+1);int ny=int(sqrt(double(i))+1); cout <<"nx="<<nx<<"  ny="<<ny<<"  nx*ny="<<nx*ny<<"  i-nx*ny="<<i-nx*ny<<endl;}
+for (int i=1;i<30;++i) {int nx= int(sqrt(double(i))+1);int ny=int(sqrt(double(i))+1); cout <<"nx="<<nx<<"  ny="<<ny<<"  nx*ny="<<nx*ny<<"  i-nx*ny="<<nx*ny-i<<endl;}
+for (int i=1;i<30;++i) {int nx=ny=sqrt(i); while(nx*ny<i) nx++; cout <<"nx="<<nx<<"  ny="<<ny<<"  nx*ny="<<nx*ny<<"  i-nx*ny="<<nx*ny-i<<endl;}
+for (int i=1;i<30;++i) {int nx=sqrt(i); int ny=nx; while(nx*ny<i) nx++; cout <<"nx="<<nx<<"  ny="<<ny<<"  nx*ny="<<nx*ny<<"  i-nx*ny="<<nx*ny-i<<endl;}
+.q
+.x tut_ana.C
+.x tut_ana.C
+.x tut_ana.C
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana_comb.C
+.q
+.x tut_ana_comb.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana_fit.C
+.q
+.x tut_ana_mcmatch.C
+.q
+.x tut_ana_pid.C
+.q
+.x tut_ana.C
+gDirectory->GetListOfKeys()
+gDirectory->GetListOfKeys()->Print()
+gDirectory->GetList()->Print()
+gDirectory->FindObject()
+.ls
+.ls
+.q
+.x tut_ana.C
+.ls
+.q
+.x tut_ana.C
+.ls
+.q
+.x tut_ana.C
+.ls
+gDirectory->GetListOfKeys()
+gDirectory->GetListOfKeys()->Print()
+gDirectory->GetList()->Print()
+TList *l=gDirectory->GetList()
+l->At(0)->Print()
+l->At(0)->ClassName()
+l->At(1)->ClassName()
+l->GetSize()
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.ls
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.ls
+.q
+TFile *_file0 = TFile::Open("signal_ana.root")
+.ls
+.q
+TFile *_file0 = TFile::Open("signal_ana.root")
+.q
+.x tut_ana.C
+.q
+.x tut_ana.C
+.q
+TFile *_file0 = TFile::Open("signal_ana.root")
+.ls
+.q
+.x tut_ana_comb.C
+.q
+TFile *_file0 = TFile::Open("signal_ana_comb.root")
+.ls
+.q
+.x tut_ana_fast.C
+.q
+TFile *_file0 = TFile::Open("signal_ana_fast.root")
+.ls
+hjpsim_nm->Draw()
+.q
+.x tut_ana_mcmatch.C
+.q
+.x tut_ana_pid.C
+.q
+.x tut_ana_comb.C
+.q
+.x tut_ana_comb.C
+.ls
+hjpsim_pcut->Draw()
+hjpsim_pcut->Draw("e")
+.q
+.x tut_ana.C
+.q
+.x tut_ana_comb.C
+.q
+.x tut_ana_fast.C
+.q
+.x tut_ana_mcmatch.C
+.q
+.x tut_ana_ntp.C
+.q
+.q
