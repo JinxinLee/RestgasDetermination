@@ -14,7 +14,7 @@ class PndAnalysis;
 
 
 // *** routine to only keep PID matched candidates in list
-int SelectTruePid(PndAnalysis *ana, RhoCandList &l)
+int SelectTruePid(PndAnalysis *ana, RhoCandList &l);
 
 void tut_ana(int nevts = 0, TString prefix = "signal")
 {

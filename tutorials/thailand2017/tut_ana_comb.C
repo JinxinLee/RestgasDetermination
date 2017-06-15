@@ -55,7 +55,7 @@ void tut_ana_comb(int nevts = 0, TString prefix = "signal")
 				
 		// #### EXERCISE: ---> Fill mu+, mu-, pi+ and pi- lists 
 
-		theAnalysis->FillList(muplus,  "MuonAllPlus");
+		// theAnalysis->FillList(muplus,  "MuonAllPlus");
 		// ....
 		
 		// #### EXERCISE:  Do combinatorics with the generic lists to form J/psi -> mu+ mu- and pbarp -> J/psi pi+ pi-

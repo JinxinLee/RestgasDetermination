@@ -78,11 +78,13 @@ void plotmyhistos(int maxy=800, double asp = 1.1)
 	}
 
 	int N = h.size();	
+	if (N==0) return;
 	int nx=sqrt(N);
 	int ny=nx; 
 	while(nx*ny<N) nx++;
 
 	int dim = maxy/ny;
+	if (dim>500) dim=500;
 	
 	TCanvas *c=new TCanvas("c","c",10,10,dim*nx*asp, dim*ny);
 	
@@ -106,6 +108,7 @@ int writemyhistos(int maxy=800, double asp = 1.1)
 	}
 
 	int N = h.size();
+	if (N==0) return 0;
 	
 	for (int i=0;i<N;++i) h[i]->Write();
 	
