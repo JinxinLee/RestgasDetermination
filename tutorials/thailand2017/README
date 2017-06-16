@@ -83,10 +83,10 @@ EXERCISES are:
    Task : Modify the class PndTutThaiTask in order to perform analysis in task rather than in macro
    
    Preparation:  
-	 -> Add line 'add_subdirectory(tutorials/thailand2017)' in global CMakeLists.txt somewhere after line 260ff
+     -> Add line 'add_subdirectory(tutorials/thailand2017)' in global CMakeLists.txt somewhere after line 260ff
      -> For sample solution: cp solution/PndTutThaiTask.* . (!!! backup your own files before !!!)
      -> cd your/build/directory; make; cd -
-	 -> root -l tut_ana_task.C
+     -> root -l tut_ana_task.C
 
    
 7. TTree Output with RhoTuple/PndRhoTupleQA
@@ -103,7 +103,7 @@ EXERCISES are:
    
    Task : - Write .dec file with desired decay channel and produce some events
           - Call ./simpleEvtGenRO without argument and follow parameter instructions 
-		  - Open output file with 'root -l evtOutput.root' and inspect
+          - Open output file with 'root -l evtOutput.root' and inspect
 
 
 9. Standalone DPMGen Generation
@@ -120,7 +120,7 @@ EXERCISES are:
 11. Using Quick Analysis Tools 
     Code : quickana.C, quickfsimana.C
     Task : - Call macros without arguments (-> root -l -b -q quickfsimana.C) to get parameter instructions
-	       - Use quickana.C tool to produce TTree output from any of the prepared data sets under data/ for signal and background
+           - Use quickana.C tool to produce TTree output from any of the prepared data sets under data/ for signal and background
            - Use quickfsimana.C tool to produce TTree output directly from EvtGen .dec file or with keywords 'DPM', 'FTF', 'BOX'
 
 
