@@ -1,0 +1,13 @@
+Decay pbarpSystem
+  1.0 Lambda_c+ anti-Lambda_c-  PHSP;
+Enddecay
+
+Decay Lambda_c+
+  1.0  p+ K- pi+      PHSP;
+Enddecay
+
+Decay anti-Lambda_c-
+  1.0  anti-p- K+ pi-      PHSP;
+Enddecay
+
+End

@@ -1,0 +1,197 @@
+This is the README file for the Thailand Computing Workshop 2017. 
+
+The exercises/macros are based on the general PandaRoot Rho Computing Tutorial documented under:
+
+http://panda-wiki.gsi.de/cgi-bin/view/Computing/PandaRootRhoTutorial
+
+
+
+#################
+# PREPARED DATA #
+#################
+
+- There are datasets for different channels in folder 'data/'; the corresponding EvtGen .dec files are in folder 'decfiles/'.
+
+- In order to use one of those datasets as input file, call the macro with the prefix (leaving out _pid.root) as input parameter, e.g.
+
+  > root -l 'tut_ana.C(0,"data/M00_2phi_25_1")'
+  
+- Available data (prefixes without run numbers):
+
+  - M00_phi_25       : pbar p -> 2 phi(K+ K-)               @ Ecm = 2.5 GeV (decfiles/pp_2phi.dec)
+  - M01_phi_38       : pbar p -> 2 phi(K+ K-)               @ Ecm = 3.8 GeV ('')
+  - M02_jpsimm_38    : pbar p -> J/psi(mu+ mu-) pi+ pi-     @ Ecm = 3.8 GeV (decfiles/pp_Jpsi2pi_Jpsi_mm.dec)
+  - M03_jpsiee_38    : pbar p -> J/psi(e+ e-) pi+ pi-       @ Ecm = 3.8 GeV (decfiles/pp_Jpsi2pi_Jpsi_ee.dec)
+  - M04_jpsieenph_38 : pbar p -> J/psi(e+ e-) pi+ pi-       @ Ecm = 3.8 GeV (decfiles/pp_Jpsi2pi_Jpsi_ee_nophot.dec; noPhotos)
+  - M05_D0Kpi_38     : pbar p -> D0(K-pi+) +cc              @ Ecm = 3.8 GeV (decfiles/pp_D0D0b_Kpi.dec)
+  - M06_DpDmK2pi_38  : pbar p -> D+(K- pi+ pi+) + cc        @ Ecm = 3.8 GeV (decfiles/pp_DpDm_Kpipi.dec)
+  - M07_DstD0pi_41   : pbar p -> D*+(D0(K-pi+) pi+) + cc    @ Ecm = 4.1 GeV (decfiles/pp_DstpDstm.dec)
+  - M08_LamLam_25    : pbar p -> Lambda (p pi-) + cc        @ Ecm = 2.5 GeV (decfiles/pp_LLbar.dec)
+  - M09_LcLc_46      : pbar p -> Lambda_c(p K- pi+) + cc    @ Ecm = 4.6 GeV (decfiles/pp_LcLcbar.dec)
+  - M10_OmOm_46      : pbar p -> Omega(Lam(p pi-) K-) + cc  @ Ecm = 4.6 GeV (decfiles/pp_OmpOmm.dec)
+  
+  - DPM25            : generic DPM  @ Ecm = 2.5 GeV
+  - DPM38            : generic DPM  @ Ecm = 3.8 GeV
+  - DPM41            : generic DPM  @ Ecm = 4.1 GeV
+  - DPM46            : generic DPM  @ Ecm = 4.5 GeV
+  
+
+#############
+# EXERCISES #
+#############
+
+- All macros named 'tut_ana...C' are stubs and should be completed/modified by you. They address the different aspects
+  of phyiscs analysis with PandaRoot/Rho.
+  
+- At places marked with the comment ' #### EXERCISE: ...' some code needs to be added; there is a hint in the comment.
+
+- If getting stuck, there are sample solutions for all macros in the subfolder 'solution' with the same names.
+
+
+---------------
+EXERCISES are:
+---------------
+
+
+1. Combinatorics 
+   Code : tut_ana_comb.C
+   Task : Perform combinatorics using RhoCandList and RhoCandidate; try for different decay channels under data/
+   
+   
+2. Monte Carlo Truth matching
+   Code : tut_ana_mcmatch.C
+   Task : Apply MC-Truth match for your reconstructed decay topologies from above
+   
+   
+3. Particle Identification
+   Code : tut_ana_pid.C
+   Task : Try different PID algorithms and PID selections for reconstruction. Compare results on signal/background.
+
+
+4. Kinematic and Vertex Fitting
+   Code : tut_ana_fit.C
+   Task : Perform different kinds of fitting (4C, vertex, mass constraint)
+
+   
+5. Complete Analysis 
+   Code : tut_ana.C
+   Task : Do all above at once
+
+   
+6. Analysis in a FairTask
+   Code : tut_ana_task.C, PndTutThaiTask.*
+   Task : Modify the class PndTutThaiTask in order to perform analysis in task rather than in macro
+   
+   Preparation:  
+	 -> Add line 'add_subdirectory(tutorials/thailand2017)' in global CMakeLists.txt somewhere after line 260ff
+     -> For sample solution: cp solution/PndTutThaiTask.* . (!!! backup your own files before !!!)
+     -> cd your/build/directory; make; cd -
+	 -> root -l tut_ana_task.C
+
+   
+7. TTree Output with RhoTuple/PndRhoTupleQA
+   Code : tut_ana_ntp.C
+   Task : Prepare TTree output instead histograms by using RhoTuple and PndRhoTupleQA
+   
+   
+8. Standalone EvtGen Generation from Decay File
+
+   Preparation:
+    > cd $FAIRLIBDIR/../bin
+    > cp $VMCWORKDIR/pgenerators/EvtGen/EvtGen/Private/DECAY.DEC .
+    > cp $VMCWORKDIR/pgenerators/EvtGen/EvtGen/Private/evt.pdl .
+   
+   Task : - Write .dec file with desired decay channel and produce some events
+          - Call ./simpleEvtGenRO without argument and follow parameter instructions 
+		  - Open output file with 'root -l evtOutput.root' and inspect
+
+
+9. Standalone DPMGen Generation
+   Task : - Call 'DPMGen' and follow instructions 
+          - Open output file 'backgroundMicro.root and inspect
+
+
+10. Running Fast Simulations
+    Code : tut_fastsim.C
+    Task : - Run FastSim to produce some events and reconstruct output
+	       - Modify FastSim setup (switch off detectors or modify eff/resolution parameters) and compare results
+
+
+11. Using Quick Analysis Tools 
+    Code : quickana.C, quickfsimana.C
+    Task : - Call macros without arguments (-> root -l -b -q quickfsimana.C) to get parameter instructions
+	       - Use quickana.C tool to produce TTree output from any of the prepared data sets under data/ for signal and background
+           - Use quickfsimana.C tool to produce TTree output directly from EvtGen .dec file or with keywords 'DPM', 'FTF', 'BOX'
+
+
+12. Multi Variate Analyis
+    Task : - Create TTree output for signal and background (DPM) data, e.g. with help of quick analysis tools.
+	       - Add variables allowing to distinguish signal from background (e.g. event shape variables using PndEventShape)
+		   
+          
+
+-----------------------------
+-----------------------------
+-----------------------------
+
+QUICK START:
+
+###################################
+## Simulation and reconstruction ##
+###################################
+
+root -l -b -q tut_sim.C         # full simulation of 100 events;    ==> signal_sim.root, signal_par.root
+root -l -b -q tut_aod.C         # reconstruction of the 100 events; ==> signal_pid.root
+
+./tut_runall.sh 100             # run both above
+
+root -l -b -q tut_fastsim.C     # fast simulation of 1000 events;   ==> signal_fast.root
+
+
+##############
+## Analysis ##
+##############
+
+root -l -b -q solution/tut_ana.C         # analysis of full sim events;      ==> signal_ana.root
+root -l -b -q solution/tut_ana_fast.C    # analysis of fast sim events       ==> signal_ana_fast.root
+
+root -l -b -q solution/tut_ana_pid.C     # analysis, PID by hand             ==> signal_ana_pid.root
+root -l -b -q solution/tut_ana_comb.C    # analysis, combinatorics by hand   ==> signal_ana_comb.root
+root -l -b -q solution/tut_ana_mcmatch.C # analysis, MC truth match          ==> signal_ana_mcmatch.root
+root -l -b -q solution/tut_ana_mclist.C  # print out MC truth list infos     ==> console text output 
+root -l -b -q solution/tut_ana_fit.C     # analysis, fitting                 ==> signal_ana_fit.root
+root -l -b -q solution/tut_ana_ntp.C     # analysis, n-Tuple output          ==> signal_ana_ntp.root
+
+
+######################
+## Analysis in task ##
+######################
+
+-> Add line 'add_subdirectory(tutorials/thailand2017)' in $VMCWORKDIR/CMakeLists.txt somewhere after line 260ff
+-> For sample solution: cp solution/PndTutThaiTask.* . (!!! backup your own files before !!!)
+-> cd your/build/directory; make; cd -
+
+root -l -b -q tut_ana_task.C    # analysis running in a task        ==> signal_ana_task.root
+
+
+##########################
+## Quick analysis tools ##
+##########################
+
+# Running on full sim output
+root -l -b -q 'quickana.C("signal_pid.root", 6.232, "J/psi->mu+ mu-;pbarpSystem->J/psi pi+ pi-", 0, "fit4c:fitvtx:mwin(J/psi)=0.8")'    #  ==> signal_pid_ana.root
+
+# Running on fast sim output
+root -l -b -q 'quickana.C("signal_fast.root", 6.232, "J/psi->mu+ mu-;pbarpSystem->J/psi pi+ pi-", 0, "fit4c:fitvtx:mwin(J/psi)=0.8",1)' #  ==> signal_fast_ana.root
+
+# Simulating and analysing fast simulation
+root -l -b -q 'quickfsimana.C("signal", "pp_jpsi2pi_jpsi_mumu.dec", 6.232, "J/psi -> mu+ mu-; pbarpSystem -> J/psi pi+ pi-", 1000, "fit4c:fitvtx:mwin=0.8")' # ==> signal_0_ana.root  (1000 ev)
+root -l -b -q 'quickfsimana.C("bkg", "DPM", 6.232, "J/psi -> mu+ mu-; pbarpSystem -> J/psi pi+ pi-", 10000, "fit4c:fitvtx:mwin=0.8")'                        # ==> bkg_o_ana.root    (10000 ev)
+
+
+!!! Below only works when logged in to kronos cluster @ GSI !!!
+
+# Submit quickfsimana jobs to kronos (!!! only when logged in to kronos cluster @ GSI !!!)
+sbatch -a1-10 jobquickfa_kronos.sh MySig 'quickfsimana.C("PREFIX","pp_jpsi2pi_jpsi_mumu.dec",7.0,"J/psi->e+ e-;pbp0->J/psi pi+ pi-",10,"fit4c:fitvtx:mwin=0.8",0,RUN)'
+sbatch -a1-10 jobquickfa_kronos.sh MyBkg 'quickfsimana.C("PREFIX","DPM",7.0,"J/psi->e+ e-;pbp0->J/psi pi+ pi-",10,"fit4c:fitvtx:mwin=0.8",0,RUN)'
+

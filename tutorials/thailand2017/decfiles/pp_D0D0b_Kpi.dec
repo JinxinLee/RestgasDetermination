@@ -1,0 +1,13 @@
+Decay pbarpSystem
+  1.0 	D0 anti-D0	PHSP;
+Enddecay
+
+Decay D0
+  1.0 	K- pi+	PHSP;
+Enddecay
+
+Decay anti-D0
+  1.0 	K+ pi-	PHSP;
+Enddecay
+
+End
