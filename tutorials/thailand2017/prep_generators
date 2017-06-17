@@ -1,0 +1,7 @@
+mkdir generators
+ln -s $FAIRLIBDIR/../bin/simpleEvtGenRO generators/
+ln -s $FAIRLIBDIR/../bin/DPMGen generators/
+ln -s $FAIRLIBDIR/../bin/FTFGen generators/
+cp $VMCWORKDIR/pgenerators/EvtGen/EvtGen/Private/evt.pdl generators/
+cp $VMCWORKDIR/pgenerators/EvtGen/EvtGen/Private/DECAY.DEC generators/
+cp $VMCWORKDIR/pgenerators/FtfEvtGen/Pbar*.mac generators/

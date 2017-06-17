@@ -91,19 +91,23 @@ EXERCISES are:
    
 7. TTree Output with RhoTuple/PndRhoTupleQA
    Code : tut_ana_ntp.C
-   Task : Prepare TTree output instead histograms by using RhoTuple and PndRhoTupleQA
+   Task : - Prepare TTree output instead histograms by using RhoTuple and PndRhoTupleQA
+          - Get familiar with TTree->Draw() command; 
+          - plot variable vs. another variable, or perform cuts
    
    
-8. Standalone EvtGen Generation from Decay File
+########################################################################
+###  Preparation for standalone generators: source prep_generators   ###
+###  This creates a subfolder 'generators' with all necessary items  ###
+########################################################################
 
-   Preparation:
-    > cd $FAIRLIBDIR/../bin
-    > cp $VMCWORKDIR/pgenerators/EvtGen/EvtGen/Private/DECAY.DEC .
-    > cp $VMCWORKDIR/pgenerators/EvtGen/EvtGen/Private/evt.pdl .
    
-   Task : - Write .dec file with desired decay channel and produce some events
-          - Call ./simpleEvtGenRO without argument and follow parameter instructions 
+8. Standalone EvtGen Generation with Decay File
+
+   Task : - Write .dec file for desired decay channel or use predefined file from folder decfiles/
+          - Use ./simpleEvtGenRO to generate some events (--> w/o argument prints usage)
           - Open output file with 'root -l evtOutput.root' and inspect
+          - Do for different decay files and beam momenta
 
 
 9. Standalone DPMGen Generation
@@ -114,7 +118,7 @@ EXERCISES are:
 10. Running Fast Simulations
     Code : tut_fastsim.C
     Task : - Run FastSim to produce some events and reconstruct output
-	       - Modify FastSim setup (switch off detectors or modify eff/resolution parameters) and compare results
+           - Modify FastSim setup (switch off detectors or modify eff/resolution parameters) and compare results
 
 
 11. Using Quick Analysis Tools 
@@ -126,7 +130,7 @@ EXERCISES are:
 
 12. Multi Variate Analyis
     Task : - Create TTree output for signal and background (DPM) data, e.g. with help of quick analysis tools.
-	       - Add variables allowing to distinguish signal from background (e.g. event shape variables using PndEventShape)
+           - Add variables allowing to distinguish signal from background (e.g. event shape variables using PndEventShape)
 		   
           
 
