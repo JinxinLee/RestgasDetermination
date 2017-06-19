@@ -106,37 +106,36 @@ EXERCISES are:
      -> root -l tut_ana_task.C
 
    
-7. TTree Output with RhoTuple/PndRhoTupleQA
-   Code : tut_ana_ntp.C
-   Task : - Prepare TTree output instead histograms by using RhoTuple and PndRhoTupleQA
-          - Get familiar with TTree->Draw() command; 
-          - plot variable vs. another variable, or perform cuts
-   
-   
 ########################################################################
 ###  Preparation for standalone generators: source prep_generators   ###
 ###  This creates a subfolder 'generators' with all necessary items  ###
 ########################################################################
 
    
-8. Standalone EvtGen Generation with Decay File
-
+7. Standalone EvtGen Generation with Decay File
    Task : - Write .dec file for desired decay channel or use predefined file from folder decfiles/
           - Use ./simpleEvtGenRO to generate some events (--> w/o argument prints usage)
           - Open output file with 'root -l evtOutput.root' and inspect
           - Do for different decay files and beam momenta
 
 
-9. Standalone DPMGen Generation
+8. Standalone DPMGen Generation
    Task : - Call 'DPMGen' and follow instructions 
           - Open output file 'backgroundMicro.root and inspect
 
 
-10. Running Fast Simulations
-    Code : tut_fastsim.C
-    Task : - Run FastSim to produce some events and reconstruct output
+9. Running Fast Simulations
+   Code : tut_fastsim.C
+   Task : - Run FastSim to produce some events and reconstruct output
            - Modify FastSim setup (switch off detectors or modify eff/resolution parameters) and compare results
 
+
+10. TTree Output with RhoTuple/PndRhoTupleQA
+    Code : tut_ana_ntp.C
+    Task : - Prepare TTree output instead histograms by using RhoTuple and PndRhoTupleQA
+          - Get familiar with TTree->Draw() command; 
+          - plot variable vs. another variable, or perform cuts
+   
 
 11. Using Quick Analysis Tools 
     Code : quickana.C, quickfsimana.C
