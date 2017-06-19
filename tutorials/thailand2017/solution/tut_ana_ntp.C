@@ -44,13 +44,12 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 	// Now the analysis stuff comes...
 	//
 	
-	
 	// *** the data reader object
 	PndAnalysis* theAnalysis = new PndAnalysis();
 	if (nevts==0) nevts= theAnalysis->GetEntries();
-	
+		
 	// *** RhoCandLists for the analysis
-	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s;
+	RhoCandList muplus, muminus, piplus, piminus, jpsi, psi2s, allpart;
 	
 	// *** Mass selector for the jpsi cands
 	double m0_jpsi = TDatabasePDG::Instance()->GetParticle("J/psi")->Mass();   // Get nominal PDG mass of the J/psi
@@ -61,6 +60,10 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 	
 	// *** the lorentz vector of the initial psi(2S)
 	TLorentzVector ini(0, 0, 6.231552, 7.240065);
+	
+	// *** the QA tool for easy ntuple output
+	PndRhoTupleQA qa(theAnalysis,ini.P());
+
 	
 	// ***
 	// the event loop
@@ -74,6 +77,10 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 		theAnalysis->FillList(muminus, "MuonAllMinus",	pidSelection);
 		theAnalysis->FillList(piplus,  "PionAllPlus",	pidSelection);
 		theAnalysis->FillList(piminus, "PionAllMinus",	pidSelection);
+		
+		// *** prepare PndEventShape
+		theAnalysis->FillList(allpart, "All", pidSelection);
+		PndEventShape evtsh(allpart, ini, 0.05, 0.1);
 		
 		// *** combinatorics for J/psi -> mu+ mu-
 		jpsi.Combine(muplus, muminus);
@@ -178,6 +185,8 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 			RhoCandidate *jp =  psi2s[j]->Daughter(0);
 			RhoCandidate *pip = psi2s[j]->Daughter(1);
 			RhoCandidate *pim = psi2s[j]->Daughter(2);
+			RhoCandidate *mup = psi2s[j]->Daughter(0)->Daughter(0);
+			RhoCandidate *mum = psi2s[j]->Daughter(0)->Daughter(1);
 			
 			PndPidCandidate *pip_rec = (PndPidCandidate*)pip->GetRecoCandidate();
 			PndPidCandidate *pim_rec = (PndPidCandidate*)pim->GetRecoCandidate();
@@ -200,18 +209,11 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 			npsip->Column("cand",   (Float_t) j,                        -999.9f);
 			
 			// *** basic psi(2s) info
-			npsip->Column("psim",   (Float_t) psi2s[j]->M(),            -999.9f); 
-			npsip->Column("psip",   (Float_t) psi2s[j]->P(),            -999.9f); 
-			npsip->Column("psipt",  (Float_t) psi2s[j]->P3().Pt(),      -999.9f); 
-			npsip->Column("psitht", (Float_t) psi2s[j]->P3().Theta(),   -999.9f); 
+			qa.qaCand("psi", psi2s[j], npsip);
 			
 			// *** basic J/psi info
-			npsip->Column("jpsim",  (Float_t) jp->M(),                  -999.9f); 
-			npsip->Column("jpsip",  (Float_t) jp->P(),                  -999.9f); 
-			npsip->Column("jpsipt", (Float_t) jp->P3().Pt(),            -999.9f); 
-			npsip->Column("jpsitht",(Float_t) jp->P3().Theta(),         -999.9f); 
-			
-			npsip->Column("jpsim4c",(Float_t) fit4c_jpsi->M(),          -999.9f);
+			qa.qaCand("jpsi"     , jp        , npsip);
+			qa.qaCand("jpsi4cfit", fit4c_jpsi, npsip);
 			
 			// *** MC truth info
 			npsip->Column("mct",    (Float_t) mct,                      -999.9f);
@@ -223,18 +225,18 @@ void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
 			}
 			
 			// *** kinematic info of daughters
-			npsip->Column("pipp",   (Float_t) pip->P(),                 -999.9f);
-			npsip->Column("pippt",  (Float_t) pip->P3().Pt(),           -999.9f);
-			npsip->Column("piptht", (Float_t) pip->P3().Theta(),        -999.9f);
-			
-			npsip->Column("pimp",   (Float_t) pim->P(),                 -999.9f);
-			npsip->Column("pimpt",  (Float_t) pim->P3().Pt(),           -999.9f);
-			npsip->Column("pimtht", (Float_t) pim->P3().Theta(),        -999.9f);
+			qa.qaCand("pip",  pip,  npsip);
+			qa.qaCand("pim",  pip,  npsip);
 			
 			// *** PID info of daughters
-			npsip->Column("pippid", (Float_t) pip->GetPidInfo(2),       -999.9f);
-			npsip->Column("pimpid", (Float_t) pim->GetPidInfo(2),       -999.9f);
+			qa.qaPid("pip",   pip,  npsip);
+			qa.qaPid("pim",   pip,  npsip);
+			qa.qaPid("mup",   mup,  npsip);
+			qa.qaPid("mum",   mum,  npsip);
 			
+			// *** Event shape info
+			qa.qaEventShapeShort("evtsh", &evtsh, npsip);
+
 			// *** and finally FILL Ntuple
 			npsip->DumpData();
 		}		
