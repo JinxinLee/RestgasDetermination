@@ -41,11 +41,28 @@ http://panda-wiki.gsi.de/cgi-bin/view/Computing/PandaRootRhoTutorial
 #############
 
 - All macros named 'tut_ana...C' are stubs and should be completed/modified by you. They address the different aspects
-  of phyiscs analysis with PandaRoot/Rho.
+  of phyiscs analysis with PandaRoot/Rho.  
+  
   
 - At places marked with the comment ' #### EXERCISE: ...' some code needs to be added; there is a hint in the comment.
 
+  Run macros (on either default or alternative input data) with
+  
+  > root -l tut_ana...C                  # default input   : signal_pid.root, signal_par.root 
+  > root -l 'tut_ana...C(100,"mydata")'  # different input : mydata_pid.root, mydata_par.root; only run on first 100 events (0 = all events)
+
+
 - If getting stuck, there are sample solutions for all macros in the subfolder 'solution' with the same names.
+
+  Run solution macros directly (on either default or alternative input data) with
+  
+  > root -l solution/tut_ana...C                  # default input   : signal_pid.root, signal_par.root 
+  > root -l 'solution/tut_ana...C(100,"mydata")'  # different input : mydata_pid.root, mydata_par.root; only run on first 100 events (0 = all events)
+
+
+- In order to have some data for the tutorial macros, do one of the following things
+  a) . ./tut_runall.sh 1000   # this simulates and reconstructs 1000 events pbarp -> J/psi pi+ pi- based on pp_jpsi2pi_jpsi_mumu.dec; takes a while
+  b) cp data/signal_p*root .  # preproduced default data (signal_pid.root, signal_par.root)
 
 
 ---------------
@@ -58,14 +75,14 @@ EXERCISES are:
    Task : Perform combinatorics using RhoCandList and RhoCandidate; try for different decay channels under data/
    
    
-2. Monte Carlo Truth matching
-   Code : tut_ana_mcmatch.C
-   Task : Apply MC-Truth match for your reconstructed decay topologies from above
-   
-   
-3. Particle Identification
+2. Particle Identification
    Code : tut_ana_pid.C
    Task : Try different PID algorithms and PID selections for reconstruction. Compare results on signal/background.
+
+
+3. Monte Carlo Truth matching
+   Code : tut_ana_mcmatch.C
+   Task : Apply MC-Truth match for your reconstructed decay topologies from above   
 
 
 4. Kinematic and Vertex Fitting
