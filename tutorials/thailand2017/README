@@ -5,6 +5,15 @@ The exercises/macros are based on the general PandaRoot Rho Computing Tutorial d
 http://panda-wiki.gsi.de/cgi-bin/view/Computing/PandaRootRhoTutorial
 
 
+#####################
+# WORKING DIRECTORY #
+#####################
+
+All files for the tutorial are located in:
+
+>>> tutorials/thailand2017 <<<
+
+
 
 #################
 # PREPARED DATA #
