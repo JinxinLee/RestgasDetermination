@@ -201,7 +201,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 		/*
 		 * =============== Global Parameters, from file in the future ===================
 		 */
-		int dim = 3;
+		int dim = 2;
 		bool eventTimeCheck = true;
 		double minDelta = 1e-6;
 		reshapePointClouds = false;
@@ -273,7 +273,6 @@ void PndLmdSensorAligner::calculateMatrix() {
 					Template[ipair*dim+2] = ((2.0*ipair / (double)nPairs - 1.0) * 1e4 );
 				}
 			}
-
 
 			if(_numericCorrection){
 
@@ -698,14 +697,23 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 			nPairs=0;
 		}
 
-		else if(simpleSensorOneX.size() == simpleSensorOneY.size() == simpleSensorOneZ.size() ==
-				simpleSensorTwoX.size() == simpleSensorTwoY.size() == simpleSensorTwoZ.size() ){
+		if(		simpleSensorOneX.size() == simpleSensorOneY.size() &&
+				simpleSensorOneX.size() == simpleSensorOneZ.size() &&
+				simpleSensorOneX.size() == simpleSensorTwoX.size() &&
+				simpleSensorOneX.size() == simpleSensorTwoY.size() &&
+				simpleSensorOneX.size() == simpleSensorTwoZ.size() )
+		{
 			nPairs = simpleSensorOneX.size();
 		}
 		else{
-			cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries.\n";
+			cout << "PndLmdSensorAligner::ERROR: x, y and z have different amounts of entries!\n";
+			cout << "oneX: " << simpleSensorOneX.size() << "\n";
+			cout << "oneY: " << simpleSensorOneY.size() << "\n";
+			cout << "oneZ: " << simpleSensorOneZ.size() << "\n";
+			cout << "twoX: " << simpleSensorTwoX.size() << "\n";
+			cout << "twoY: " << simpleSensorTwoY.size() << "\n";
+			cout << "twoZ: " << simpleSensorTwoZ.size() << "\n";
 		}
-
 	}
 	else{
 		cout << "FATAL: non simple pair storage is no longer supported!\n";

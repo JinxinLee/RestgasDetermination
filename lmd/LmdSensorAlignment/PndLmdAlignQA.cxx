@@ -482,7 +482,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 			//only select overlap areas with more than 2e5 pairs
 			int overlapID = dimension->makeOverlapID(id1, id2);
-			if( matrixInfo[overlapID] < 250e3){
+			if( matrixInfo[overlapID] < pairsRequired){
 				continue;
 			}
 

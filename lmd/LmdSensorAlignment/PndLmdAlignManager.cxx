@@ -1220,7 +1220,50 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 	return true;
 }
 
-std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters, bool ) {
+bool PndLmdAlignManager::checkForLmdMatrixFiles() {
+
+	//list all IDs that SHOULD be there
+	vector<int> availableIds = dimension->getAvailableOverlapIDs();
+
+	vector<string> files;
+	searchFiles(_binaryPairFileDirectory, files, "mat", false);
+	int foundFiles=0;
+
+	//no binary files at all!
+	if(files.size()==0){
+		return false;
+	}
+
+	string matrixName1, matrixName2;
+	bool tempfilefound=false;
+
+	//check for every ID that should be there if there is a corresponding file
+	for(size_t i=0; i<availableIds.size(); i++){
+
+		//reset counter
+		tempfilefound=false;
+		matrixName1 = makeMatrixFileName(availableIds[i], true);
+		matrixName1 = makeMatrixFileName(availableIds[i], false);
+
+		for(size_t j=0; j<files.size(); j++){
+			if(files[j].find(matrixName1)!=string::npos){
+				//file is present
+				//cout << "file: " << files[j] << ", id: " << availableIds[i] << "\n";
+				tempfilefound=true;
+				foundFiles++;
+			}
+		}
+
+		//file not found? then at least one is missing, return false
+		if(!tempfilefound){
+			return tempfilefound;
+		}
+	}
+	//cout << "found " << foundFiles << "\n";
+	return true;
+}
+
+std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters, bool correctionMatrix) {
 	std::stringstream filename;
 	filename << "/pairs-";
 	filename << overlapId;
@@ -1234,14 +1277,14 @@ std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incen
 	return filename.str();
 }
 
-std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters, bool ) {
+std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters, bool correctionMatrix) {
 	int overlapId;
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
 	return makeBinaryPairFileName(overlapId, incentimeters);
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters, bool ) {
+std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters, bool correctionMatrix) {
 	stringstream matrixName;
 	matrixName << "/m";
 	if(incentimeters){
@@ -1253,7 +1296,7 @@ std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentime
 	return matrixName.str();
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters, bool ) {
+std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters, bool correctionMatrix) {
 	int overlapId;
 	PndLmdDim *dimension = PndLmdDim::Instance();
 	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
@@ -1459,7 +1502,7 @@ void PndLmdAlignManager::computeCombinedMatrices() {
 
 	// for every module
 
-		// gett all overlapping matrices for module and compute 0->[1-9]
+		// get all overlapping matrices for module and compute 0->[1-9]
 
 }
 

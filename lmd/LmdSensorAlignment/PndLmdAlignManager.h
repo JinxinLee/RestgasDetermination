@@ -107,6 +107,7 @@ public:
 	bool writePairsToBinaryFiles();
 	bool readPairsFromBinaryFiles();
 	bool checkForBinaryFiles();
+	bool checkForLmdMatrixFiles();
 	void clearPairs();
 
 	//add all pair files that can be found in directory, up to a maximum of maxFiles
