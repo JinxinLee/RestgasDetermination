@@ -147,7 +147,7 @@ KDTreeNode* KDTree::build_tree_for_range(int l, int u, KDTreeNode* parent) {
 		// That, we recompute ourself.
 		//
 		int c = -1;
-		double maxspread = 0.0;
+		double maxspread = 1e-14;
 		int m;
 		for (int i=0;i<dim;i++) {
 			if ((parent == NULL) || (parent->cut_dim == i)) {
@@ -156,7 +156,7 @@ KDTreeNode* KDTree::build_tree_for_range(int l, int u, KDTreeNode* parent) {
 					node->box[i] = parent->box[i];
 			}
 			double spread = node->box[i].upper - node->box[i].lower;
-			if ( (spread - maxspread) > 1e-10){
+			if ( (spread - maxspread) > 1e-14){
 				maxspread = spread;
 				c=i;
 			}

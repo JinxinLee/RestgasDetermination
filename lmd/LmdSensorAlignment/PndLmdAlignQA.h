@@ -17,7 +17,7 @@
 #include <PndLmdAlignManager.h>
 #include <matrix.h>
 
-enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals, kHistPixelDistances};
+enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals, kHistPixelDistances, kCalcOverlap};
 
 struct histParams{
 	bool printCMPXinPathName=true;
@@ -52,7 +52,8 @@ private:
 	void createThreeHistsVeryDirty(int id1, int id2, int module, std::vector<std::vector<double> > &vec, runParameter param);
 	void createHist(std::vector<std::vector<double> > &vec, histParams &parameters);
 
-	void histPixelDistances(int sen1, int sen2);
+	void histPixelDistances(int sen1, int sen2, bool aligned=true);
+	double calculateOverlappingArea(int id1, int id2, bool aligned=true);
 
 	int noOfPairs(int id1, int id2);
 

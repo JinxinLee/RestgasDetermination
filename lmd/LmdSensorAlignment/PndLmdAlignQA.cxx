@@ -593,6 +593,31 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		histPixelDistances(4,9);
 	}
 
+	else if(param==kCalcOverlap){
+		//get all available overlapping areas
+
+		cout << "------------ TESTING --------------\n";
+		cout << "\\AtoB{4}{9} & " << calculateOverlappingArea(4, 9, false) << "\\\\\n";
+		cout << "\\AtoB{0}{1} & " << calculateOverlappingArea(0, 1, false) << "\\\\\n";
+		cout << "\\AtoB{0}{2} & " << calculateOverlappingArea(0, 2, false) << "\\\\\n";
+		cout << "\\AtoB{0}{9} & " << calculateOverlappingArea(0, 9, false) << "\\\\\n";
+		cout << "------------  DONE --------------\n";
+
+		vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
+		int id1, id2;
+		double areaPercent=0;
+
+		//get id1 and id2 from them and calc
+		for(int i=0; i<overlapIDs.size(); i++){
+			id1 = dimension->getID1fromOverlapID(overlapIDs[i]);
+			id2 = dimension->getID2fromOverlapID(overlapIDs[i]);
+
+			areaPercent = calculateOverlappingArea(id1, id2, false);
+			cout << "\\AtoB{" << id1 << "}{" << id2 << "} & " << areaPercent << "\\\\\n";
+		}
+		exit(0);
+	}
+
 	/*
 	 * test functions and sandbox
 	 */
@@ -683,14 +708,14 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 	}
 }
 
-void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2){
+void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned){
 
 	int sensorID1=sensor1, sensorID2=sensor2;
 
 	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
 	Matrix CMtoPX = Matrix::inv(PXtoCM);
-	Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, true);
-	manager.transformFromLmdLocalToSensor(sen1ToSen2,sensorID1,true);
+	Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, aligned);
+	manager.transformFromLmdLocalToSensor(sen1ToSen2,sensorID1,aligned);
 	Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
 
 	//histogram those distances
@@ -793,6 +818,107 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2){
 	canvas.cd();
 	hist.Draw();
 	canvas.Print(filename.str().c_str());
+}
+
+double PndLmdAlignQA::calculateOverlappingArea(int sensor1, int sensor2, bool aligned){
+
+	int sensorID1=sensor1, sensorID2=sensor2;
+
+	Matrix PXtoCM = manager.getPixelToCentimeterTransformation();
+	Matrix CMtoPX = Matrix::inv(PXtoCM);
+	Matrix sen1ToSen2 = manager.getMatrixOfficialGeometry(sensorID1, sensorID2, aligned);
+	manager.transformFromLmdLocalToSensor(sen1ToSen2,sensorID1,aligned);
+	Matrix matSensorOneToSensorTwo = CMtoPX * sen1ToSen2 * PXtoCM;
+
+	Matrix sen2toSen1 = PXtoCM * Matrix::inv(matSensorOneToSensorTwo);
+
+	//histogram those distances
+	double colTest2=0, rowTest2=0;
+	int valid=0;
+
+	//for every pixel (250*250) find all 4 overlap pixels (cutoff at 100 microns, pixels can't be that far away on perfect geometry)
+	for(int colTest1=0; colTest1<247; colTest1++){
+		for(int rowTest1=0; rowTest1 < 242; rowTest1++){
+
+			//create hit on sensor1 and compute corresponding hit on sensor2
+			Matrix hit1 = manager.makeFourVector(colTest1, rowTest1, 0);
+			Matrix hit2 = matSensorOneToSensorTwo * hit1;
+			colTest2 = hit2.val[0][0];
+			rowTest2 = hit2.val[1][0];
+
+			//also, check if overlap pixel even exists. must be row elem [0,250], col elem [0,250]
+			//are we still overlapping area?
+			if(colTest2 < 0 || colTest2 > 247
+			){
+				continue;
+			}
+			if(rowTest2 < 0 || rowTest2 > 242){
+				continue;
+			}
+
+			//we are still on overlapping area
+			valid++;
+		}
+	}
+	double coverage = (double)valid/(250.0*250.0)*100;
+
+
+	//	Matrix hit1 = Matrix(4,1);
+	//	Matrix hit2 = Matrix(4,1);
+	//	Matrix hitDist;
+	//
+	//	//histogram those distances
+	//	//double colTest2=0, rowTest2=0;
+	//
+	//	int valid=0;
+	//
+	//	int stepSize=5;
+	//	long steps=0;
+	//
+	//	for(int colTest1=0; colTest1<247; colTest1+=stepSize){
+	//		for(int rowTest1=0; rowTest1 < 242; rowTest1+=stepSize){
+	//
+	//			//assign hit1
+	//			hit1.val[0][0] = (double)colTest1;
+	//			hit1.val[1][0] = (double)rowTest1;
+	//			hit1.val[2][0] = 0.0;
+	//			hit1.val[2][0] = 1.0;
+	//
+	//			hit1 = PXtoCM * hit1;
+	//
+	//			//compare with ALL other Pixels
+	//
+	//			for(int colTest2=0; colTest2<247; colTest2+=stepSize){
+	//				for(int rowTest2=0; rowTest2 < 242; rowTest2+=stepSize){
+	//
+	//					steps++;
+	//
+	//					//assign hit2
+	//					hit2.val[0][0] = (double)colTest2;
+	//					hit2.val[1][0] = (double)rowTest2;
+	//					hit2.val[2][0] = -0.250;
+	//					hit2.val[2][0] = 1.0;
+	//
+	//					hit2 = sen2toSen1 * hit2;
+	//
+	//					hitDist = hit1-hit2;
+	//
+	//					//cout << "hit1: \n" << hit1 << "\nhit2:\n" << hit2 << "\nhitDist:\n" << hitDist << "\n";
+	//
+	//					double distance = hitDist.val[0][0] * hitDist.val[0][0] + hitDist.val[1][0] * hitDist.val[1][0];
+	//					distance *=1e4;
+	//					//distance += hitDist.val[2][0] * hitDist.val[2][0] + hitDist.val[3][0] * hitDist.val[3][0];
+	//					if(distance < (4*40*40)){
+	//						valid++;
+	//						break;
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//cout << "made " << steps << " steps\n";
+
+	return coverage;
 }
 
 void PndLmdAlignQA::histDeltaCorrection(int id1, int id2, std::vector<std::vector<double> > &vec) {
