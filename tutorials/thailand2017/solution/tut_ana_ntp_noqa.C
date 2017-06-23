@@ -14,7 +14,7 @@ class RhoTuple;
 // **** some auxilliary functions in auxtut.C ****
 #include "auxtut.C"
 
-void tut_ana_ntp(int nevts = 0, TString prefix = "signal")
+void tut_ana_ntp_noqa(int nevts = 0, TString prefix = "signal")
 {
  	// *** some variables
 	int i=0,j=0, k=0, l=0;
