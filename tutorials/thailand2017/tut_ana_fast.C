@@ -9,6 +9,7 @@ class PndAnalysis;
 // - plotmyhistos()               --> Plots all histograms in current TDirectory on a autosized canvas
 // - writemyhistos()              --> Writes all histos in current TFile 
 // - fillM(RhoCandList l, TH1* h) --> Fill mass histogram h with masses of candidates in l
+// - RemoveGeoManager()           --> Temporary fix for error on macro exit   
 // **** some auxilliary functions in auxtut.C ****
 #include "auxtut.C"
 
@@ -47,23 +48,10 @@ void tut_ana_fast(int nevts = 0, TString prefix = "signal")
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
 	
 	// *** initialization
-	//FairLogger::GetLogger()->SetLogToFile(kFALSE);
 	FairRunAna* fRun = new FairRunAna();
-	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	fRun->SetSource(new FairFileSource(inPidFile));
 	fRun->SetOutputFile(OutFile);
 	
-	// *** setup parameter database 	
-	FairParRootFileIo* parIO = new FairParRootFileIo();
-	//parIO->open(inParFile);
-	FairParAsciiFileIo* parIOPid = new FairParAsciiFileIo();
-	parIOPid->open(pidParFile.Data(),"in");
-	
-	rtdb->setFirstInput(parIO);
-	rtdb->setSecondInput(parIOPid);
-	rtdb->setOutput(parIO);  
-	
-	fRun->SetOutputFile(OutFile);
 	// *** take constant field; needed for PocaVtx
 	RhoCalculationTools::ForceConstantBz(20.0);
 	
@@ -119,4 +107,7 @@ void tut_ana_fast(int nevts = 0, TString prefix = "signal")
 	int nhist = writemyhistos();
 	cout<<"Writing "<<nhist<<" histograms to file"<<endl;		
 	out->Save();	
+	
+	// *** temporaty fix to avoid error on macro exit
+	//RemoveGeoManager();
 }

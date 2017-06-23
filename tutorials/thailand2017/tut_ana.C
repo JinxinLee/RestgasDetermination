@@ -9,6 +9,7 @@ class PndAnalysis;
 // - plotmyhistos()               --> Plots all histograms in current TDirectory on a autosized canvas
 // - writemyhistos()              --> Writes all histos in current TFile 
 // - fillM(RhoCandList l, TH1* h) --> Fill mass histogram h with masses of candidates in l
+// - RemoveGeoManager()           --> Temporary fix for error on macro exit   
 // **** some auxilliary functions in auxtut.C ****
 #include "auxtut.C"
 
@@ -74,6 +75,9 @@ void tut_ana(int nevts = 0, TString prefix = "signal")
 	int nhist = writemyhistos();
 	cout<<"Writing "<<nhist<<" histograms to file"<<endl;		
 	out->Save();	
+	
+	// *** temporaty fix to avoid error on macro exit
+	RemoveGeoManager();
 }
 
 int SelectTruePid(PndAnalysis *ana, RhoCandList &l)

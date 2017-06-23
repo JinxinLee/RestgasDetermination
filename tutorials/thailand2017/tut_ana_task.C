@@ -4,13 +4,14 @@
 // - plotmyhistos()               --> Plots all histograms in current TDirectory on a autosized canvas
 // - writemyhistos()              --> Writes all histos in current TFile 
 // - fillM(RhoCandList l, TH1* h) --> Fill mass histogram h with masses of candidates in l
+// - RemoveGeoManager()           --> Temporary fix for error on macro exit   
 // **** some auxilliary functions in auxtut.C ****
 #include "auxtut.C"
 
 void tut_ana_task(int nevts = 0, TString prefix = "signal")
 {
 	// *** Initialize FairRunAna with defaults	
-	TString OutFile="out_dummy.root";  
+	TString OutFile=prefix+"_ana_task.root";  
 	FairRunAna* fRun = initrun(prefix, OutFile);
 	
 	// *** HERE OUR TASK GOES!
@@ -20,4 +21,7 @@ void tut_ana_task(int nevts = 0, TString prefix = "signal")
 	// *** and run analysis
 	fRun->Init();
 	fRun->Run(0,nevts);
+
+	// *** temporaty fix to avoid error on macro exit
+	RemoveGeoManager();
 }

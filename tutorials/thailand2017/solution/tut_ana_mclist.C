@@ -9,6 +9,7 @@ class PndAnalysis;
 // - plotmyhistos()               --> Plots all histograms in current TDirectory on a autosized canvas
 // - writemyhistos()              --> Writes all histos in current TFile 
 // - fillM(RhoCandList l, TH1* h) --> Fill mass histogram h with masses of candidates in l
+// - RemoveGeoManager()           --> Temporary fix for error on macro exit   
 // **** some auxilliary functions in auxtut.C ****
 #include "auxtut.C"
 
@@ -65,5 +66,7 @@ void tut_ana_mclist(int nevts = 0, TString prefix = "signal")
 		}
 		cout <<endl;
 	}
-		
+	
+	// *** temporaty fix to avoid error on macro exit
+	RemoveGeoManager();
 }

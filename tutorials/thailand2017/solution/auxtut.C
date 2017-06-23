@@ -3,7 +3,19 @@
 // - plotmyhistos()               --> Plots all histograms in current TDirectory on a autosized canvas
 // - writemyhistos()              --> Writes all histos in current TFile 
 // - fillM(RhoCandList l, TH1* h) --> Fill mass histogram h with masses of candidates in l
+// - RemoveGeoManager()           --> Temporary fix for error on macro exit   
 // **** some auxilliary functions in auxtut.C ****
+
+#include "TGeoManager.h"
+
+void RemoveGeoManager()
+{
+  if (gROOT->GetVersionInt() >= 60602) {
+    gGeoManager->GetListOfVolumes()->Delete();
+    gGeoManager->GetListOfShapes()->Delete();
+    delete gGeoManager;
+  }
+}
 
 bool checkfile(TString fn)
 {
@@ -47,14 +59,17 @@ FairRunAna* initrun(TString prefix, TString outfile, int min=-1, int max=-1)
 	return fRun;
 }
 
-void plotmyhistos(std::vector<TH1*> h, int maxy=800, double asp = 1.1)
+void plotmyhistos(std::vector<TH1*> h, int maxy=700, double asp = 1.1)
 {
 	int N = h.size();
+	if (N<=0) return;
+	
 	int nx=sqrt(N);
 	int ny=nx; 
 	while(nx*ny<N) nx++;
 
 	int dim = maxy/ny;
+	if (dim>400) dim=400;
 	
 	TCanvas *c=new TCanvas("c","c",10,10,dim*nx*asp, dim*ny);
 	
@@ -67,34 +82,40 @@ void plotmyhistos(std::vector<TH1*> h, int maxy=800, double asp = 1.1)
 	}
 }
 
-void plotmyhistos(int maxy=800, double asp = 1.1)
+void plotmyhistos(int maxy=700, double asp = 1.1)
 {
-	TList *hl=gDirectory->GetList();
-	std::vector<TH1*> h;
-	for (int i=0;i<hl->GetSize();++i)
-	{
-		TString cn = hl->At(i)->ClassName();
-		if (cn.BeginsWith("TH1") || cn.BeginsWith("TH2")) h.push_back((TH1*)hl->At(i));
-	}
-
-	int N = h.size();	
-	if (N==0) return;
-	int nx=sqrt(N);
-	int ny=nx; 
-	while(nx*ny<N) nx++;
-
-	int dim = maxy/ny;
-	if (dim>500) dim=500;
-	
-	TCanvas *c=new TCanvas("c","c",10,10,dim*nx*asp, dim*ny);
-	
-	c->Divide(nx,ny, 0.0005,0.0005);
-	
-	for (int i=0;i<N;++i)
-	{
-		c->cd(i+1);
-		h[i]->Draw();
-	}
+    std::vector<TH1*> h;
+    
+    //somehow either one or the other is filled, depending on
+    // whether a TFile was opened, or we write to one
+    int Nkey = gDirectory->GetListOfKeys()->GetSize();
+    int Nlst = gDirectory->GetList()->GetSize();
+    
+    if( Nkey==0 && Nlst==0) return;
+    
+    if (Nkey>0)
+    {
+        TIter next(gDirectory->GetListOfKeys());
+        TKey *key;
+        while ((key = (TKey*)next())) 
+        {
+            TClass *cl = gROOT->GetClass(key->GetClassName());
+            if (!cl->InheritsFrom("TH1")) continue;
+            TH1 *hist = (TH1*)key->ReadObj();
+            h.push_back(hist);
+        }
+    }
+    else 
+    {
+        TList *hl=gDirectory->GetList();
+        for (int i=0;i<hl->GetSize();++i)
+        {
+            TString cn = hl->At(i)->ClassName();
+            if (cn.BeginsWith("TH1") || cn.BeginsWith("TH2")) h.push_back((TH1*)hl->At(i));
+        }		
+    }
+    
+    plotmyhistos(h, maxy, asp);
 }
 
 int writemyhistos(int maxy=800, double asp = 1.1)
