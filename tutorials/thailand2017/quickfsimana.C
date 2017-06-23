@@ -58,7 +58,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	bool chrg    = !(anaparms.Contains("!chrg"));
 		
 	// for submission to queue all blanks in decay string were replaced by '§'; now we replace again the other way around
-	anadecay.ReplaceAll("§"," ");
+	anadecay.ReplaceAll("#"," ");
 	
 	// if Mom<0, interprete as -E_cm
 	double mp = 0.938272;
