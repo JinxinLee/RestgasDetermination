@@ -130,21 +130,21 @@ TString getFromWeightFile(TString wfile)
 // ---------------------------------------------------------------
 // ---------------------------------------------------------------
 
-void TMVATester(TString fname="", TString treename="", TString sigcut="", TString wfile="",  TString precut="")
+void TMVATester_608(TString fname="", TString treename="", TString sigcut="", TString wfile="",  TString precut="")
 {
 	TString vars="";
 	
 	if ( fname=="" || treename=="" || wfile=="" || sigcut==""  ) 
 	{
 		cout << "USAGE:\n";
-		cout << "TMVATester.C( <input>, <tree>, <sigcut>, <weights>, [precut] )\n\n";
+		cout << "TMVATester_608.C( <input>, <tree>, <sigcut>, <weights>, [precut] )\n\n";
 		cout << "   <input>   : input file name containing TTree <tree>\n";
 		cout << "   <tree>    : name of the TTree containing signal and background\n";
 		cout << "   <sigcut>  : cut separating signal from background -> bgcut = !(sigcut)\n";
 		cout << "   <weights> : file containing the weights from training, usually stored in weights/...\n";
 		cout << "   [precut]  : optional precut before training; should be the same as for training!'\n\n";
 		cout << "EXAMPLE:\n";
-		cout << "root -l 'TMVATester.C(\"demodata.root\",\"ntp\",\"signal>0\",\"weights/demodata_ntp_MLP.weights.xml\",\"\")'\n\n";
+		cout << "root -l 'TMVATester_608.C(\"demodata.root\",\"ntp\",\"signal>0\",\"dataset/weights/demodata_ntp_MLP.weights.xml\",\"\")'\n\n";
 		return;
 	}
 	

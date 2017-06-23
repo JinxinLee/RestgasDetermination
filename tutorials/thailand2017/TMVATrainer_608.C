@@ -72,13 +72,13 @@ TString getFromCut(TString vars)
 #endif
 
 // ---------------------------------------------------------------
-
-void TMVATrainer(TString fname="", TString treename="", TString sigcut="", TString vars="", TString algo="BDT", TString precut="")
+// TMVA trainer for ROOT 6.08 (TMVA interface changes)
+void TMVATrainer_608(TString fname="", TString treename="", TString sigcut="", TString vars="", TString algo="BDT", TString precut="")
 {
 	if ( fname=="" || treename=="" || sigcut=="" || vars=="" ) 
 	{
 		cout << "USAGE:\n";
-		cout << "TMVATrainer.C( <input>, <tree>, <sigcut>, <vars>, [method], [precut] )\n\n";
+		cout << "TMVATrainer_608.C( <input>, <tree>, <sigcut>, <vars>, [method], [precut] )\n\n";
 		cout << "   <input>   : input file name containing TTree <tree>\n";
 		cout << "   <tree>    : name of the TTree containing signal and background\n";
 		cout << "   <sigcut>  : cut separating signal from background -> bgcut = !(sigcut)\n";
@@ -86,7 +86,7 @@ void TMVATrainer(TString fname="", TString treename="", TString sigcut="", TStri
 		cout << "   [method]  : optional method: 'BDT' (default), 'MLP' or 'LH'\n";
 		cout << "   [precut]  : optional precut before training; has to be applied also before testing!\n\n";
 		cout << "EXAMPLE:\n";
-		cout << "root -l -b -q 'TMVATrainer.C(\"demodata.root\",\"ntp\",\"signal>0\",\"v1 v2 v3 v4 v5\",\"MLP\",\"\")'\n\n";
+		cout << "root -l -b -q 'TMVATrainer_608.C(\"demodata.root\",\"ntp\",\"signal>0\",\"v1 v2 v3 v4 v5\",\"MLP\",\"\")'\n\n";
 		return;
 	}
 	
@@ -114,7 +114,8 @@ void TMVATrainer(TString fname="", TString treename="", TString sigcut="", TStri
 	
 	TFile* outputFile = TFile::Open(outfname, "RECREATE" );
 	
-	TMVA::Factory *factory = new TMVA::Factory( tmvaname, outputFile, "Silent:!V:Transformations=I;N;D");
+	TMVA::Factory *factory = new TMVA::Factory( tmvaname, outputFile, "Silent:!V:Transformations=I;N;D:AnalysisType=Classification");
+        TMVA::DataLoader *dataloader=new TMVA::DataLoader("dataset");
 
 	TString toks[30];
 	int N = SplitString(vars," ",toks,30);
@@ -123,23 +124,23 @@ void TMVATrainer(TString fname="", TString treename="", TString sigcut="", TStri
 	{
 		int btype = gettype(t, toks[i]);
 		if (btype==0 || btype==1)
-			factory->AddVariable(toks[i], btype==0?'F':'I');
+			dataloader->AddVariable(toks[i], btype==0?'F':'I');
 	}   
 	
-	factory->AddTree( t, "Signal",     1.0, sigcut.Data());
-	factory->AddTree( t, "Background", 1.0, bkgcut.Data());
+	dataloader->AddTree( t, "Signal",     1.0, sigcut.Data());
+	dataloader->AddTree( t, "Background", 1.0, bkgcut.Data());
 	
 	int nsig = t->GetEntries(sigcut);
 	int nbkg = t->GetEntries(bkgcut);
 	
-	factory->PrepareTrainingAndTestTree( "", int(nsig*0.8), int(nbkg*0.8), int(nsig*0.19), int(nbkg*0.19)); 
+	dataloader->PrepareTrainingAndTestTree( "", int(nsig*0.8), int(nbkg*0.8), int(nsig*0.19), int(nbkg*0.19)); 
 	
 	// old verion 4.1.3
-	if (algo=="BDT") factory->BookMethod( TMVA::Types::kBDT, "BDT", "!V:nTrees=400:BoostType=AdaBoost:nCuts=10:NNodesMax=10" );
+	if (algo=="BDT") factory->BookMethod( dataloader, TMVA::Types::kBDT, "BDT", "!V:nTrees=400:BoostType=AdaBoost:nCuts=10:NNodesMax=10" );
 	// new verion 4.2.0
 	// if (algo=="BDT") factory->BookMethod( TMVA::Types::kBDT, "BDT", "!V:nTrees=400:BoostType=AdaBoost:nCuts=10:MaxDepth=3:UseFisherCuts:DoPreselection" );
-	else if (algo=="MLP") factory->BookMethod( TMVA::Types::kMLP, "MLP", "!V:NCycles=50:HiddenLayers=10,10:TestRate=5" );
-	else if (algo=="Likelihood") factory->BookMethod( TMVA::Types::kLikelihood, "Likelihood","!V:NAvEvtPerBin=50" );
+	else if (algo=="MLP") factory->BookMethod( dataloader, TMVA::Types::kMLP, "MLP", "!V:NCycles=50:HiddenLayers=10,10:TestRate=5" );
+	else if (algo=="Likelihood") factory->BookMethod( dataloader, TMVA::Types::kLikelihood, "Likelihood","!V:NAvEvtPerBin=50" );
 	else {cout <<"Unconfigured algorithm! Exiting..."<<endl; return;}
 	
 	factory->TrainAllMethods();  
