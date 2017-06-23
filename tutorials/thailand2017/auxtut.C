@@ -47,7 +47,7 @@ FairRunAna* initrun(TString prefix, TString outfile, int min=-1, int max=-1)
 	return fRun;
 }
 
-void plotmyhistos(std::vector<TH1*> h, int maxy=800, double asp = 1.1)
+void plotmyhistos(std::vector<TH1*> h, int maxy=700, double asp = 1.1)
 {
 	int N = h.size();
 	int nx=sqrt(N);
@@ -55,6 +55,7 @@ void plotmyhistos(std::vector<TH1*> h, int maxy=800, double asp = 1.1)
 	while(nx*ny<N) nx++;
 
 	int dim = maxy/ny;
+	if (dim>400) dim=400;
 	
 	TCanvas *c=new TCanvas("c","c",10,10,dim*nx*asp, dim*ny);
 	
@@ -67,34 +68,20 @@ void plotmyhistos(std::vector<TH1*> h, int maxy=800, double asp = 1.1)
 	}
 }
 
-void plotmyhistos(int maxy=800, double asp = 1.1)
+void plotmyhistos(int maxy=700, double asp = 1.1)
 {
-	TList *hl=gDirectory->GetList();
-	std::vector<TH1*> h;
-	for (int i=0;i<hl->GetSize();++i)
-	{
-		TString cn = hl->At(i)->ClassName();
-		if (cn.BeginsWith("TH1") || cn.BeginsWith("TH2")) h.push_back((TH1*)hl->At(i));
-	}
-
-	int N = h.size();	
-	if (N==0) return;
-	int nx=sqrt(N);
-	int ny=nx; 
-	while(nx*ny<N) nx++;
-
-	int dim = maxy/ny;
-	if (dim>500) dim=500;
-	
-	TCanvas *c=new TCanvas("c","c",10,10,dim*nx*asp, dim*ny);
-	
-	c->Divide(nx,ny, 0.0005,0.0005);
-	
-	for (int i=0;i<N;++i)
-	{
-		c->cd(i+1);
-		h[i]->Draw();
-	}
+    std::vector<TH1*> h;
+    TIter next(gDirectory->GetListOfKeys());
+    TKey *key;
+    while ((key = (TKey*)next())) 
+    {
+        TClass *cl = gROOT->GetClass(key->GetClassName());
+        if (!cl->InheritsFrom("TH1")) continue;
+        TH1 *hist = (TH1*)key->ReadObj();
+        h.push_back(hist);
+    }
+ 
+    plotmyhistos(h, maxy, asp);
 }
 
 int writemyhistos(int maxy=800, double asp = 1.1)
