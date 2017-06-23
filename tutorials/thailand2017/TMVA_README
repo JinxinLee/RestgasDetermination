@@ -9,7 +9,7 @@ a file containing a TNtuple with the network output, which can be added as a fri
 - Relevant files:
   - makeTMVADemoData.C (produces demodata.root)
   - TMVATrainer.C (ROOTVER < 6.08),  TMVATrainer_608.C (ROOTVER >= 6.08)
-  - TMVATester.C  (ROOTVER < 6.08),  TMVATester_608.C  (ROOTVER >= 6.08)
+  - TMVATester.C 
 ################
 
 
@@ -58,20 +58,25 @@ signal   : flag for signal (=1.0) and background (=0.0)
 v1,..,v5 : the variables to distinguish the signal from background
 
 
+
 Run the full example with: 
 
+# Create demo data
 root -l -b -q makeTMVADemoData.C
 
-# older ROOT versions #
+# Training for older ROOT versions #
 root -l -b -q 'TMVATrainer.C("demodata.root","ntp","signal>0","v1 v2 v3 v4 v5")'
-root -l 'TMVATester.C("demodata.root","ntp","signal>0","weights/demodata_ntp_BDT.weights.xml")'
 
-# For ROOT version >= 6.08 #
+# Training for ROOT version >= 6.08 #
 root -l -b -q 'TMVATrainer_608.C("demodata.root","ntp","signal>0","v1 v2 v3 v4 v5")'
-root -l 'TMVATester_608.C("demodata.root","ntp","signal>0","weights/demodata_ntp_BDT.weights.xml")'
+
+# Test the MVAs
+root -l 'TMVATester.C("demodata.root","ntp","signal>0","weights/demodata_ntp_BDT.weights.xml")'
 
 
 This prints the TMVA output and ROC curve. To attach the TMVA output to the n-Tuple, use (see above)
+
+# Using the TMVA output for your input NTuple
 
 root [0] TFile f("demodata.root")
 root [1] ntp->AddFriend("tf","demodata_tmvaout.root")
