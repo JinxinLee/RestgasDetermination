@@ -19,8 +19,8 @@ you can train a BDT (boosted decision tree) TMVA with
 root [0] .x TMVATrainer.C+("input.root", "ntp",
                            <signal cut>,
                            <variables>,
-                           [precut],
-						   [method]) 
+                           [method],
+                           [precut]) 
 
 where <signal cut> is the cut separating good from bad candidates, and <variables> is a blank 
 separated list of the variables which should be used for the training. Also an opional precut can be applied, and
