@@ -1,6 +1,14 @@
 // Macro for running Panda digitization, reconstruction and pid tasks
 // to run the macro:
-// root  full_complete.C  or in root session root>.x  full_complete.C
+//
+// root -l -b -q tut_aod.C
+// 
+// to run with different input prefix (0 = all events)
+//
+// root -l -b -q 'tut_aud.C(0,"mydata")'
+
+#include "auxtut.C"
+
 void tut_aod(Int_t nEvents = 0, TString prefix = "signal")
 {
   //-----User Settings:------------------------------------------------------
@@ -23,4 +31,7 @@ void tut_aod(Int_t nEvents = 0, TString prefix = "signal")
   fRun->Init();
   fRun->Run(0, nEvents);
   fRun->Finish();
+  
+  // *** temporaty fix to avoid error on macro exit
+  RemoveGeoManager();
 }

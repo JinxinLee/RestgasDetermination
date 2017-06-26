@@ -1,9 +1,12 @@
-// Macro for running Panda simulation  with Geant3  or Geant4 (M. Al-Turany)
+// Macro for running Panda simulation  with Geant3  or Geant4
 // This macro is supposed to run the full simulation of the panda detector
 // to run the macro:
-// root  sim_complete.C  or in root session root>.x  sim_complete.C
+//
+// root -l -b -q tut_sim.C 
+//
 // to run with different options:(e.g more events, different momentum, Geant4)
-// root  sim_complete.C"(100, "TGeant4",2)"
+//
+// root -l -b -q 'tut_sim.C(1000,"mydata","mydecay.dec",10.0,"TGeant4")'
 
 void tut_sim(Int_t nEvents = 100,  TString prefix = "signal", TString inputGenerator="pp_jpsi2pi_jpsi_mumu.dec", Double_t BeamMomentum = 6.231552, TString  SimEngine ="TGeant3")
 {
@@ -39,7 +42,9 @@ void tut_sim(Int_t nEvents = 100,  TString prefix = "signal", TString inputGener
   // -----   Event filter setup   -------------------------------------------
   FairFilteredPrimaryGenerator *primGen = fRun->GetFilteredPrimaryGenerator();
   primGen->SetVerbose(0);
+  
   // ---- Example configuration for the event filter ------------------------
+  
   //FairEvtFilterOnSingleParticleCounts* chrgFilter = new FairEvtFilterOnSingleParticleCounts("chrgFilter");
   //chrgFilter->AndMinCharge(4, FairEvtFilter::kCharged);
   //primGen->AndFilter(chrgFilter);  

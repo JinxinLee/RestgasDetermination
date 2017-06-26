@@ -115,7 +115,7 @@ void TMVATrainer_608(TString fname="", TString treename="", TString sigcut="", T
 	TFile* outputFile = TFile::Open(outfname, "RECREATE" );
 	
 	TMVA::Factory *factory = new TMVA::Factory( tmvaname, outputFile, "Silent:!V:Transformations=I;N;D:AnalysisType=Classification");
-        TMVA::DataLoader *dataloader=new TMVA::DataLoader(".");
+    TMVA::DataLoader *dataloader=new TMVA::DataLoader(".");
 
 	TString toks[30];
 	int N = SplitString(vars," ",toks,30);
