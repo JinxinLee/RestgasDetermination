@@ -14,10 +14,10 @@
 #include <string>
 #include <sstream>
 
-#include "Eigen/Core"
-#include "Eigen/LU"
-#include "Eigen/SVD"
-#include "Eigen/src/Geometry/Umeyama.h"
+//#include "Eigen/Core"
+//#include "Eigen/LU"
+//#include "Eigen/SVD"
+//#include "Eigen/src/Geometry/Umeyama.h"
 
 #include <icpPointToPoint.h>
 #include <matrix.h>
@@ -73,7 +73,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 	int nPairs;
 
 	if(false){
-
+/*
 		const int dim = 3;
 		Matrix resultUme = Matrix::eye(4);
 		nPairs=simpleSensorOneX.size();
@@ -156,7 +156,7 @@ void PndLmdSensorAligner::calculateMatrix() {
 			cout << resultMatrix << "\n";
 			//exit(1);
 		}
-
+*/
 	}
 	else{
 
