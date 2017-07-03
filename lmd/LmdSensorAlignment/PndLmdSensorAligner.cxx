@@ -765,9 +765,15 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	 * need to check file first
 	 */
 
+	//TODO: abstract this to Manager!
+	//create directory if not already present
+	PndLmdAlignManager::mkdir(directory);
 	std::ofstream os(filename.c_str(), std::ios::binary | std::ios::out);
-	if ( !os.is_open() )
+	if ( !os.is_open() ){
+		cout << "ERROR! Could not write to " << filename << "!\n";
 		return false;
+	}
+
 	os.write(reinterpret_cast<const char*>(pdata), std::streamsize(length*sizeof(double)));
 	os.close();
 	delete[] pdata;
