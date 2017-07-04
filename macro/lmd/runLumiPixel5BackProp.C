@@ -2,7 +2,7 @@ int runLumiPixel5BackProp(const int nEvents = 10, const int startEvent = 0,
 		TString storePath = "tmpOutput", const int verboseLevel = 0,
 		const TString Method = "Geane", const bool mergedHits = true,
 		const double mom = 15, double ipc_x = 0.0, double ipc_y = 0.0,
-		double ipc_z = 0.0) {
+		double ipc_z = 0.0, bool is_prefiltered=true) {
 	// ========================================================================
 	// Input file (MC events)
 	TString MCFile = storePath + "/Lumi_MC_";
@@ -88,7 +88,7 @@ int runLumiPixel5BackProp(const int nEvents = 10, const int startEvent = 0,
 	if (Method == "Geane") {
 		FairGeane *Geane = new FairGeane();
 		fRun->AddTask(Geane);
-		PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask(fpBeam, IP);
+		PndLmdGeaneTask* lmdgeane = new PndLmdGeaneTask(fpBeam, IP, is_prefiltered);
 		lmdgeane->SetVerbose(verboseLevel);
 		fRun->AddTask(lmdgeane);
 	} else {

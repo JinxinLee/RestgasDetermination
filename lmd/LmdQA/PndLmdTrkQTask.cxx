@@ -50,7 +50,7 @@ PndLmdTrkQTask::PndLmdTrkQTask(Double_t pBeam,TString geaneBranch, TString track
   fWriteAllMC = false;
   fPbeam = pBeam;
   fGeaneName = geaneBranch;
-  fTrackName = trackBranch;
+  fTrackBranchName = trackBranch;
   //cout<<"Beam Momentum for particle with PDGid#"<<fPDGid<<" this run is "<<fPbeam<<endl;
   // vtx = IP;
   // cout<<"Interaction Point:"<<endl;
@@ -121,7 +121,7 @@ InitStatus PndLmdTrkQTask::Init()
     return kERROR;
   }
   //Get rec.tracks before back propagation
-  fRecTracks = (TClonesArray*) ioman->GetObject(fTrackName);
+  fRecTracks = (TClonesArray*) ioman->GetObject(fTrackBranchName);
   if (!fRecTracks){
     std::cout << "-W- PndLmdTrkQTask::Init: "<< "No LMDPndTrackFilt" << " array!" << std::endl;
     return kERROR;
@@ -160,7 +160,7 @@ InitStatus PndLmdTrkQTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdTrkQTask::Exec(Option_t*)
+void PndLmdTrkQTask::Exec(Option_t* opt)
  {
   
   fTrackQ->Delete();
@@ -434,7 +434,7 @@ void PndLmdTrkQTask::Exec(Option_t*)
 	  if (MCtrkID[m]<x){
 	    k=m; x=MCtrkID[m];	        // k - index for the least element
 	    //ch=true;  //[R.K. 01/2017] unused variable
-      nch++;
+            nch++;
 	  }
 	MCtrkID[k] = MCtrkID[n]; MCtrkID[n] = x; // change position between the least and current elements
       }

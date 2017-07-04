@@ -76,6 +76,7 @@ int runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStrin
 
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(GeaFile);
+
   fRun->AddFriend(TrkFile);
   fRun->AddFriend(CandFile);
   fRun->AddFriend(RecoFile);
@@ -92,10 +93,10 @@ int runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStrin
 
   PndLmdTrkQTask *lmdqa;
   if(isClean){
-    lmdqa = new PndLmdTrkQTask(Plab,"LMDCleanTrack");//clean reconstructed (with runLumiPixel5bCleanSig.C applied before!)
+    lmdqa = new PndLmdTrkQTask(Plab,"LMDCleanTrack", "LMDPndTrackFilt");//clean reconstructed (with runLumiPixel5bCleanSig.C applied before!)
   }
   else{
-    lmdqa = new PndLmdTrkQTask(Plab,"GeaneTrackFinal");//raw reconstructed
+    lmdqa = new PndLmdTrkQTask(Plab,"GeaneTrackFinal", "LMDPndTrack");//raw reconstructed
   }
   //PndLmdTrkQTask *lmdqa = new PndLmdTrkQTask(Plab,"GeaneTrackFinal");//raw reconstructed
   //  PndLmdTrkQTask *lmdqa = new PndLmdTrkQTask(Plab,"LMDCleanTrack");//clean reconstructed (with runLumiPixel5bCleanSig.C applied before!)
@@ -106,11 +107,8 @@ int runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStrin
   fRun->SetGenerateRunInfo(kFALSE);
   //rtdb->setOutput(parInput1);
   //  rtdb->print();
-
   fRun->Init();
-
   fRun->Run(0,nEvents);
-
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

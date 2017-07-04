@@ -42,7 +42,7 @@
 // -----   Default constructor   -------------------------------------------
 PndLmdGeaneTask::PndLmdGeaneTask() : FairTask("Geane Task for PANDA Lmd"), fEventNr(0), fUseMVDPoint(false)
 {
- 
+	track_branch_name="LMDPndTrackFilt";
 }
 // -------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ PndLmdGeaneTask::PndLmdGeaneTask(Double_t pBeam,TVector3 IP, bool is_prefiltered
   vtx = IP;
   cout<<"Interaction Point:"<<endl;
   vtx.Print();
-  
+
   if(is_prefiltered)
     track_branch_name="LMDPndTrackFilt";
   else
@@ -148,7 +148,7 @@ void PndLmdGeaneTask::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndLmdGeaneTask::Exec(Option_t*)
+void PndLmdGeaneTask::Exec(Option_t* opt)
 {
   // if(fVerbose>5){
   //   if((fTracks->GetEntries())!=(fMCTracks->GetEntries()))
@@ -380,7 +380,7 @@ FairTrackParP* PndLmdGeaneTask::PropToXZPlane(FairTrackParP* fStartPst, double y
 	return fResPst;
 }
 
-FairTrackParH* PndLmdGeaneTask::PropToLine(FairTrackParH* fStartPst, double ,int , bool& isProp){ // ypos dir // [R.K.03/2017] unused variable(s)
+FairTrackParH* PndLmdGeaneTask::PropToLine(FairTrackParH* fStartPst, double ypos,int dir, bool& isProp){
   // ... the line with the extremities
   //  TVector3 extremity1(0,0,-5), extremity2(0,0,5);
   TVector3 extremity1(0,0,-100.), extremity2(0,0,100.);

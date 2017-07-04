@@ -7,6 +7,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 		const double target_width_Z = 0.0, // beam offset and smearing parameters
 		const double beam_grad_X = 0.0, const double beam_grad_Y = 0.0,
 		const double beam_grad_sigma_X = 0.0, const double beam_grad_sigma_Y = 0.0, // beam gradiant parameters
+		const TString lmd_geometry_filename = "Luminosity-Detector.root",
 		const int verboseLevel = 0) {
 	// gRandom->SetSeed(seed);
 	Int_t mode = 1;
@@ -105,7 +106,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 
 	PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
 	Lum->SetExclusiveSensorType("LumActive"); //ignore MVD
-	Lum->SetGeometryFileName("Luminosity-Detector.root"); // new sensors
+	Lum->SetGeometryFileName(lmd_geometry_filename); // new sensors
 	Lum->SetVerboseLevel(verboseLevel);
 	fRun->AddModule(Lum);
 
