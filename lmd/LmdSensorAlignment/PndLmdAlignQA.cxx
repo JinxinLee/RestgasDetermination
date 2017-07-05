@@ -272,6 +272,12 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			result.push_back(matrixDif.val[1][3]);		// ty
 			result.push_back(matrixPX.val[2][3]);		// tz
 			data.push_back(result);
+
+			if(abs(matrixDif.val[0][3]) >= 25e-4 || abs(matrixDif.val[1][3]) >= 25e-4 ){
+				cout << "WARNING. ID: " << dimension->makeOverlapID(id1, id2) << " is off! x: ";
+				cout << matrixDif.val[0][3]*1e4 << ", y: " << matrixDif.val[1][3]*1e4 << "\n";
+			}
+
 		}
 
 		histParams parameters;
@@ -508,7 +514,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 		}
 
 		//we now have two data sets, dataCM and dataPX. combine!
-
 		if(dataCM.size() != dataPX.size()){
 			cout << "ERROR. the two data sets are not equally large! exiting!\n";
 			exit(1);
@@ -529,10 +534,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			interimData.push_back(dataPX[i][2] - dataCM[i][2]);		// sin(alpha)
 			interimData.push_back(dataPX[i][3] - dataCM[i][3]);		// tx
 			interimData.push_back(dataPX[i][4] - dataCM[i][4]);		// ty
-
-			if(abs(interimData[2]) > 2e-6 || abs(interimData[3]) > 0.2e-4 || abs(interimData[4]) > 0.2e-4 ){
-				cout << "offender: id: " << interimData[0] << "to" << interimData[1] << "\n";
-			}
 
 			data.push_back(interimData);
 		}

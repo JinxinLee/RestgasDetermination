@@ -59,7 +59,16 @@ void PndLmdHitPair::PrintPair() const {
   std::cout << "z: " << _hit2.z() << std::endl;
 }
 
+/*
+ * checks this pair for decing errors.
+ * this does not apply any cuts, the PairFinderTask is responsible for that.
+ */
 void PndLmdHitPair::check() {
+
+	//did we check this one already? save the cpu time.
+	if(checked){
+		return;
+	}
 
 	bool colSane=false, rowSane=false, idsane=false, allVarsSet=false, distanceOk=false;
 	if(std::isinf(_col1) || std::isinf(_col2) || std::isnan(_col1) || std::isnan (_col2)){
@@ -112,7 +121,7 @@ void PndLmdHitPair::check() {
 	calculateDistance();
 
 	if(hit1present && hit2present){
-		if(_distance > 0){
+		if(_distance >= 0){
 			distanceOk=true;
 		}
 		else{
@@ -192,6 +201,9 @@ bool PndLmdHitPair::hitSensors(Int_t first, Int_t second) {
 
 void PndLmdHitPair::calculateDistance() {
 
+	/*
+	 * push both hits on the same z plane, z distance is irrelevant.
+	 */
 	if(hit1present && hit2present){
 		TVector3 backHit = TVector3(_hit2);
 		backHit.SetZ(_hit1.z());

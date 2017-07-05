@@ -61,8 +61,9 @@ public:
 	//	_sortByModule = value;
 	//}
 
+	// apply distance cut (used squred internally)
 	void setMaxDistance(Double_t value) {
-		_maxDistance = value;
+		_maxDistance = value*value;
 	}
 
 	void ignoreClusters(Bool_t value){
@@ -84,7 +85,7 @@ protected:
 
 	void transformToLMDlocal(PndLmdHitPair &pair);
 
-	//function to return result of all checks
+	//function to return result of all checks, distance cut etc.
 	bool isSuitable(PndLmdHitPair &candidate);
 
 	//self explanatory

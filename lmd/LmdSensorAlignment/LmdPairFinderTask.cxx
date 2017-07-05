@@ -392,7 +392,8 @@ void LmdPairFinderTask::Exec(Option_t*) {
 				/*
 				 * choose coordinate system and store moduleID. This must be done
 				 * prior to suitability check, because that relies on the TVector3s
-				 * in the HitPair in LMD Coordinates
+				 * in the HitPair in LMD Coordinates. This is using the perfect geometry,
+				 * since we don't know the misalignment at this point.
 				 */
 				transformToLMDlocal(pairCanditate);
 
