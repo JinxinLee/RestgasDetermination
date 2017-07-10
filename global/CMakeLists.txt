@@ -49,8 +49,8 @@ set(SRCS
 #PndEventBuilderManager.cxx
 #PndEventBuilderOnMCEvents.cxx
 #PndGlobalIdealTrackMerger.cxx
-PndGlobalTrackFitQA.cxx
-PndGlobalTrackMergerQA.cxx
+#PndGlobalTrackFitQA.cxx
+#PndGlobalTrackMergerQA.cxx
 PndMvdGemTrackFinderOnHits.cxx
 )
 
