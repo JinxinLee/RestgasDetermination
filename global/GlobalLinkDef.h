@@ -9,7 +9,7 @@
 
 //data
 
-#pragma link C++ class PndBarrelTrackFinder+;
+//#pragma link C++ class PndBarrelTrackFinder+;
 #pragma link C++ class PndBarrelTrackFinderQA+;
 //#pragma link C++ class PndEventBuilderManager+;
 //#pragma link C++ class PndEventBuilderOnMCEvents+;
