@@ -54,6 +54,26 @@ InitStatus PndMCTruthMatch::Init()
   	return kSUCCESS;
 }
 
+//void PndMCTruthMatch::Exec(Option_t*)
+//{
+//	std::cout << "------------ EventNr " << FairRootManager::Instance()->GetEntryNr() << " ------------" << std::endl;
+//	std::cout << FairRootManager::Instance()->GetBranchId(fInBranchName) << " : " << fInBranchName << " Entries: " << fInBranch->GetEntriesFast() << std::endl;
+//
+//	for (int i = 0; i < fInBranch->GetEntriesFast(); i++)
+//	{
+//		FairMultiLinkedData_Interface* myData = (FairMultiLinkedData_Interface*)fInBranch->At(i);
+//		std::cout << i << " : " << *myData << std::endl;
+//		FairMultiLinkedData myLinks = myData->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
+//		for (int trackIndex = 0; trackIndex < myLinks.GetNLinks(); trackIndex++)
+//		{
+//			PndMCTrack* myTrack = (PndMCTrack*)FairRootManager::Instance()->GetCloneOfLinkData(myLinks.GetLink(trackIndex));
+//			std::cout << myLinks.GetLink(trackIndex) << " : " << *myTrack;
+//			delete (myTrack);
+//		}
+//		std::cout << std::endl;
+//	}
+//}
+
 void PndMCTruthMatch::Exec(Option_t*)
 {
 	std::cout << "------------ EventNr " << FairRootManager::Instance()->GetEntryNr() << " ------------" << std::endl;
@@ -63,11 +83,12 @@ void PndMCTruthMatch::Exec(Option_t*)
 	{
 		FairMultiLinkedData_Interface* myData = (FairMultiLinkedData_Interface*)fInBranch->At(i);
 		std::cout << i << " : " << *myData << std::endl;
-		FairMultiLinkedData myLinks = myData->GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
-		for (int trackIndex = 0; trackIndex < myLinks.GetNLinks(); trackIndex++)
+		std::vector<FairLink> myLinks = myData->GetSortedMCTracks();
+		for (int trackIndex = 0; trackIndex < myLinks.size(); trackIndex++)
 		{
-			PndMCTrack* myTrack = (PndMCTrack*)FairRootManager::Instance()->GetCloneOfLinkData(myLinks.GetLink(trackIndex));
-			std::cout << myLinks.GetLink(trackIndex) << " : " << *myTrack;
+			PndMCTrack* myTrack = (PndMCTrack*)FairRootManager::Instance()->GetCloneOfLinkData(myLinks[trackIndex]);
+			std::cout << myLinks[trackIndex] << " : " << *myTrack;
+			delete (myTrack);
 		}
 		std::cout << std::endl;
 	}
