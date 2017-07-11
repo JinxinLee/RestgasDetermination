@@ -167,7 +167,8 @@ KDTreeNode* KDTree::build_tree_for_range(int l, int u, KDTreeNode* parent) {
 		//
 		if(c<0){
 			std::cout << "FATAL in kdTree creation: empty node caused crash, c is " << c << "\n";
-			exit(1);
+			std::cout << "using workaround and assuming node is empty.\n";
+			return NULL;
 		}
 
 		if (false) {
