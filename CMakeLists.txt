@@ -307,6 +307,8 @@ add_subdirectory (PndTrackers/TrackingQA)
 add_subdirectory (PndTrackers/PndForwardTrackFinder)
 add_subdirectory (PndTrackers/PndIdealTrackFinder)
 add_subdirectory (PndTrackers/PndTrackingTools)
+add_subdirectory (PndTrackers/PndBarrelTrackFinder)
+add_subdirectory (PndTrackers/PndMvdGemTrackFinderOnHits)
 
 #add_subdirectory(online)
 #add_subdirectory(tracking/online/CircleHough)

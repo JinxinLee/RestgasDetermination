@@ -16,7 +16,7 @@
 //#pragma link C++ class PndGlobalIdealTrackMerger+;
 //#pragma link C++ class PndGlobalTrackFitQA+;
 //#pragma link C++ class PndGlobalTrackMergerQA+;
-//#pragma link C++ class PndMvdGemTrackFinderOnHits+;
+#pragma link C++ class PndMvdGemTrackFinderOnHits+;
 //#pragma link C++ class PndFitMCCircle+;
 
 #endif
