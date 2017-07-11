@@ -4,21 +4,13 @@
  *  Created on: Mar 21, 2013
  *      Author: stockman
  */
-CreateLambdaGeometry()
+int CreateLambdaGeometry()
 {
 	  //-----------------------------
 	Double_t positionOfDisk1inZ = 47.0;		//in cm
 	Double_t positionOfDisk2inZ = 53.0;		//in cm
 
 	  //--------------------------------------------------------------------
-	  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-	  
-	  // Load this libraries
-	  gSystem->Load("libGeoBase");
-	  gSystem->Load("libParBase");
-	  gSystem->Load("libBase");
-	  gSystem->Load("libPndData");
-	  gSystem->Load("libPassive");
 	  
 	  TString outfile= "../../geometry/LambdaDisksNew.root";
 	  TFile* fi = new TFile(outfile,"RECREATE");  
@@ -185,6 +177,8 @@ CreateLambdaGeometry()
 	//   gGeoManager->Export(outfile);
 	  gGeoManager->SetVisLevel(30);
 	  top->Draw("ogl"); 
+
+	  return 0;
 }
 	
 	
