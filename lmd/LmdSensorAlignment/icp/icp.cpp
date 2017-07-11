@@ -23,11 +23,11 @@ Street, Fifth Floor, Boston, MA 02110-1301, USA
 using namespace std;
 
 Icp::Icp (double *M,const int32_t M_num,const int32_t dimension) :
-		  dim(dimension), sub_step(10), max_iter(200),  
-      T_num(0),iterations(0),min_delta(1e-6),
-		  current_delta(1), euclidean_fitness(1e14),
-		  hasConvergedBool(false), checkEventTime(false),
-      giveOutputIfNotConvergedB(false),instantForce(false)      {
+						  dim(dimension), sub_step(10), max_iter(200),
+						  T_num(0),iterations(0),min_delta(1e-6),
+						  current_delta(1), euclidean_fitness(1e14),
+						  hasConvergedBool(false), checkEventTime(false),
+						  giveOutputIfNotConvergedB(false),instantForce(false)      {
 
 	// check for correct dimensionality
 	if (dimension!=2 && dimension!=3) {
@@ -43,6 +43,8 @@ Icp::Icp (double *M,const int32_t M_num,const int32_t dimension) :
 		return;
 	}
 
+	// excldue kdTree generation as long as we are fitting non-iteratively
+	/*
 	// copy model points to M_data
 	M_data.resize(boost::extents[M_num][dimension]);
 	for (int32_t m=0; m<M_num; m++)
@@ -50,7 +52,7 @@ Icp::Icp (double *M,const int32_t M_num,const int32_t dimension) :
 			M_data[m][n] = (double)M[m*dimension+n];
 	// build a kd tree from the model point cloud
 	M_tree = new kdtree::KDTree(M_data);
-
+	 */
 	M_ = M;
 
 }
@@ -65,6 +67,20 @@ double Icp::fit (double *T,const int32_t T_number,Matrix &R,Matrix &t,const doub
 	vector<int32_t> active;
 	this->T_num = T_number;
 
+	//we don't need a model if fitInstant is called
+	if(instantForce){
+		active.clear();
+		for (int32_t i=0; i<T_number; i++){
+			active.push_back(i);
+		}
+		//cout << "instant fit!" << endl;
+		fitInstant(T,T_number,R,t,active);
+		hasConvergedBool = true;
+		iterations = 1;
+		euclidean_fitness = computeFitnessRMSE(T,R,t);
+		return current_delta;
+	}
+
 	// make sure we have a model tree
 	if (!M_tree) {
 		cout << "ERROR: No model available." << endl;
@@ -76,17 +92,7 @@ double Icp::fit (double *T,const int32_t T_number,Matrix &R,Matrix &t,const doub
 		cout << "ERROR: Icp works only with at least 5 template points" << endl;
 		return 1;
 	}
-	if(instantForce){
-		active.clear();
-		for (int32_t i=0; i<T_number; i++)
-			active.push_back(i);
-		//cout << "instant fit!" << endl;
-		fitInstant(T,T_number,R,t,active);
-		hasConvergedBool = true;
-		iterations = 1;
-		euclidean_fitness = computeFitnessRMSE(T,R,t);
-		return current_delta;
-	}
+
 	// coarse matching
 	active.clear();
 	for (int32_t i=0; i<T_number; i+=sub_step)
@@ -122,13 +128,13 @@ bool Icp::fitIterate(double *T,const int32_t T_number,Matrix &R,Matrix &t,const 
 			euclidean_fitness = computeFitnessRMSE(T,R,t);
 
 			//TODO: implement for 2D!
-//			if(checkEventTime){
-//				if(abs(t.val[2][0]) > 1){
-//					cout << "false convergence, event id drift is too large!" << endl;
-//					hasConvergedBool = false;
-//					return false;
-//				}
-//			}
+			//			if(checkEventTime){
+			//				if(abs(t.val[2][0]) > 1){
+			//					cout << "false convergence, event id drift is too large!" << endl;
+			//					hasConvergedBool = false;
+			//					return false;
+			//				}
+			//			}
 
 			hasConvergedBool=true;
 			iterations = iter+1;

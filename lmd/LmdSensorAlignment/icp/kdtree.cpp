@@ -155,7 +155,7 @@ KDTreeNode* KDTree::build_tree_for_range(int l, int u, KDTreeNode* parent) {
 			} else {
 					node->box[i] = parent->box[i];
 			}
-			double spread = node->box[i].upper - node->box[i].lower;
+			double spread = std::abs(node->box[i].upper - node->box[i].lower);
 			if ( (spread - maxspread) > 1e-14){
 				maxspread = spread;
 				c=i;
@@ -168,7 +168,7 @@ KDTreeNode* KDTree::build_tree_for_range(int l, int u, KDTreeNode* parent) {
 		if(c<0){
 			std::cout << "FATAL in kdTree creation: empty node caused crash, c is " << c << "\n";
 			std::cout << "using workaround and assuming node is empty.\n";
-			return NULL;
+			c=1;	// workaround for now
 		}
 
 		if (false) {
