@@ -906,7 +906,7 @@ vector<vector<double> > PndLmdAlignManager::readFromCSVFile(std::string filename
 	return data;
 }
 
-int PndLmdAlignManager::searchFiles(std::string path, std::vector<std::string> &list, std::string extension, bool includeSubDirs) {
+int PndLmdAlignManager::searchFiles(std::string path, std::vector<std::string> &list, std::string detail, bool includeSubDirs) {
 
 	if(!boost::filesystem::exists(path)){
 		return 0;
@@ -915,10 +915,10 @@ int PndLmdAlignManager::searchFiles(std::string path, std::vector<std::string> &
 	for(; iterator != boost::filesystem::directory_iterator(); ++iterator){
 		if(boost::filesystem::is_directory(iterator->path()) && includeSubDirs){
 			list.push_back(iterator->path().string());
-			searchFiles(iterator->path().string(), list, extension, includeSubDirs);
+			searchFiles(iterator->path().string(), list, detail, includeSubDirs);
 		}
 		else if(boost::filesystem::is_regular_file(iterator->path())){
-			if( iterator->path().string().find(extension, (iterator->path().string().length() - extension.length())) != std::string::npos ){
+			if( iterator->path().string().find(detail) != std::string::npos ){
 				list.push_back(iterator->path().string());
 			}
 		}

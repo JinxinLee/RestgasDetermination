@@ -77,7 +77,8 @@ double Icp::fit (double *T,const int32_t T_number,Matrix &R,Matrix &t,const doub
 		fitInstant(T,T_number,R,t,active);
 		hasConvergedBool = true;
 		iterations = 1;
-		euclidean_fitness = computeFitnessRMSE(T,R,t);
+		//euclidean_fitness = computeFitnessRMSE(T,R,t); \\that only works if kdTree is present!
+		euclidean_fitness = 1.0;	//workaround for now
 		return current_delta;
 	}
 
