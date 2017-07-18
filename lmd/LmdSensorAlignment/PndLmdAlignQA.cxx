@@ -278,6 +278,11 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 				cout << matrixDif.val[0][3]*1e4 << ", y: " << matrixDif.val[1][3]*1e4 << "\n";
 			}
 
+			//notify of pair drift
+			if(abs(matrixPX.val[2][3]) >= 0.5 ){
+				cout << "WARNING. ID: " << dimension->makeOverlapID(id1, id2) << " has pair drift of: ";
+				cout << matrixPX.val[2][3] << "\n";
+			}
 		}
 
 		histParams parameters;
@@ -862,62 +867,6 @@ double PndLmdAlignQA::calculateOverlappingArea(int sensor1, int sensor2, bool al
 		}
 	}
 	double coverage = (double)valid/(250.0*250.0)*100;
-
-
-	//	Matrix hit1 = Matrix(4,1);
-	//	Matrix hit2 = Matrix(4,1);
-	//	Matrix hitDist;
-	//
-	//	//histogram those distances
-	//	//double colTest2=0, rowTest2=0;
-	//
-	//	int valid=0;
-	//
-	//	int stepSize=5;
-	//	long steps=0;
-	//
-	//	for(int colTest1=0; colTest1<247; colTest1+=stepSize){
-	//		for(int rowTest1=0; rowTest1 < 242; rowTest1+=stepSize){
-	//
-	//			//assign hit1
-	//			hit1.val[0][0] = (double)colTest1;
-	//			hit1.val[1][0] = (double)rowTest1;
-	//			hit1.val[2][0] = 0.0;
-	//			hit1.val[2][0] = 1.0;
-	//
-	//			hit1 = PXtoCM * hit1;
-	//
-	//			//compare with ALL other Pixels
-	//
-	//			for(int colTest2=0; colTest2<247; colTest2+=stepSize){
-	//				for(int rowTest2=0; rowTest2 < 242; rowTest2+=stepSize){
-	//
-	//					steps++;
-	//
-	//					//assign hit2
-	//					hit2.val[0][0] = (double)colTest2;
-	//					hit2.val[1][0] = (double)rowTest2;
-	//					hit2.val[2][0] = -0.250;
-	//					hit2.val[2][0] = 1.0;
-	//
-	//					hit2 = sen2toSen1 * hit2;
-	//
-	//					hitDist = hit1-hit2;
-	//
-	//					//cout << "hit1: \n" << hit1 << "\nhit2:\n" << hit2 << "\nhitDist:\n" << hitDist << "\n";
-	//
-	//					double distance = hitDist.val[0][0] * hitDist.val[0][0] + hitDist.val[1][0] * hitDist.val[1][0];
-	//					distance *=1e4;
-	//					//distance += hitDist.val[2][0] * hitDist.val[2][0] + hitDist.val[3][0] * hitDist.val[3][0];
-	//					if(distance < (4*40*40)){
-	//						valid++;
-	//						break;
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//cout << "made " << steps << " steps\n";
 
 	return coverage;
 }

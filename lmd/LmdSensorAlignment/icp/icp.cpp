@@ -180,8 +180,9 @@ double Icp::computeFitnessRMSE(const double *T, const Matrix &R,const Matrix &t)
 			x0 = r00*T[idx*2+0] + r01*T[idx*2+1] + t0;
 			y0 = r10*T[idx*2+0] + r11*T[idx*2+1] + t1;
 
-			x1 = M_data[idx][0];
-			y1 = M_data[idx][1];
+			//TODO: check if this works
+			x1 = M_[idx*3 + 0];
+			y1 = M_[idx*3 + 1];
 
 			d = pow(x0-x1,2) + pow(y0-y1,2);
 			s += d/T_num;
@@ -204,9 +205,10 @@ double Icp::computeFitnessRMSE(const double *T, const Matrix &R,const Matrix &t)
 			y0 = r10*T[idx*3+0] + r11*T[idx*3+1] + r12*T[idx*3+2] + t1;
 			z0 = r20*T[idx*3+0] + r21*T[idx*3+1] + r22*T[idx*3+2] + t2;
 
-			x1 = M_data[idx][0];
-			y1 = M_data[idx][1];
-			z1 = M_data[idx][2];
+			//TODO: check if this works
+			x1 = M_[idx*3 + 0];
+			y1 = M_[idx*3 + 1];
+			z1 = M_[idx*3 + 2];
 
 			d = pow(x0-x1,2) + pow(y0-y1,2) + pow(z0-z1, 2);
 			s += d/T_num;
