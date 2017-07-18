@@ -147,7 +147,7 @@ public:
 
 	// apply distance cut (used squred internally), will be ignored when using dynamic cut
 	void setMaxDistance(Double_t value) {
-		_maxDistance = value*value;
+		_maxDistance = value;
 	}
 
 	void ignoreClusters(Bool_t value){
