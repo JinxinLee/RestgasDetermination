@@ -161,11 +161,6 @@ struct pixelCluster{
 
 };
 
-// -----   Default constructor   -------------------------------------------
-//PairFinderTask::PairFinderTask() : PndSdsTask("SDS Hybrid Hit Producer") {
-//	std::cout << "CONSTRUCTED IN FIRE!!" << std::endl;
-//}
-
 /*
  * actually I don't need empty constructors, but fkn root crashes if no empty constructor is present
  */
@@ -176,7 +171,7 @@ LmdPairFinderTask::LmdPairFinderTask() : PndSdsTask("pairfinder") {
 
 LmdPairFinderTask::LmdPairFinderTask(const char* name)  : PndSdsTask("pairfinder with name") {
 	mcPixels = NULL;
-  if(!strcmp(name,"")) SetName(name);
+	if(!strcmp(name,"")) SetName(name);
 }
 
 LmdPairFinderTask::~LmdPairFinderTask() {
@@ -184,16 +179,6 @@ LmdPairFinderTask::~LmdPairFinderTask() {
 }
 
 InitStatus LmdPairFinderTask::Init() {
-
-	/* this function is deprecated
-	//for now, disregard sorting option, always store unsorted (data will be supplied in the future sorted anyway)
-	if(_sortByModule){
-		cerr << "============================================================\n";
-		cerr << "WARNING. soreted storage is deprecated and will not be used!\n";
-		cerr << "============================================================\n";
-	}
-	_sortByModule=false;
-	 */
 
 	noOfGoodPairs=0;
 	noOfEvents=noOfCombos=0;
@@ -205,6 +190,9 @@ InitStatus LmdPairFinderTask::Init() {
 	fInBranchName = "LMDPixelDigis";
 	fOutBranchName = "LMDPixelPairs";
 	fFolderName = "cbmsim";
+	_minDistance = 0.0;
+	_useDynamicCut=false;
+
 	SetBranchNames();
 
 	FairRootManager* ioman = FairRootManager::Instance();
@@ -267,7 +255,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 
 	//display some kind of progress
 	if((noOfEvents%10000)==0){
-		cout << "processed " << noOfEvents << endl;
+		cout << "processed " << noOfEvents << "\n";
 	}
 
 	//make firing pixels to clusters
@@ -277,6 +265,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 
 		PndSdsDigiPixel* mcPixel = (PndSdsDigiPixel*)mcPixels->At(i_Pixel);
 		hitSensorId = mcPixel->GetSensorID();
+		col = mcPixel->GetPixelColumn();
 		col = mcPixel->GetPixelColumn();
 		row = mcPixel->GetPixelRow();
 
@@ -360,7 +349,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 	 * and check if candidates are realistic. if not, discard,
 	 * otherwise save candidate to disk!
 	 *
-	 * TODO: I don't know how many tracks a single event will have. up until now,
+	 * I don't know how many tracks a single event will have. up until now,
 	 * there are about 8 clusters from 1 track which make 28 possible combinations. if we were to have
 	 * 80 clusters, that would make 3160 combinations. this may be slow.
 	 *
@@ -384,48 +373,68 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			id2=clusters[j]._sensorId;
 			noOfCombos++;
 
-			//check if the two sensor IDs can be overlapping
-			if(candHitsOverlappingArea(id1, id2)){
-				// make PndLmdHitPair and check for data sanity, then store to vector
-				PndLmdHitPair pairCanditate(col1, row1, id1, col2, row2, id2);
+			//make PndLmdHitPair and check for data sanity, then store to vector
+			PndLmdHitPair pairCanditate(col1, row1, id1, col2, row2, id2);
 
-				/*
-				 * choose coordinate system and store moduleID. This must be done
-				 * prior to suitability check, because that relies on the TVector3s
-				 * in the HitPair in LMD Coordinates. This is using the perfect geometry,
-				 * since we don't know the misalignment at this point.
-				 */
-				transformToLMDlocal(pairCanditate);
+			//is the candidate even on an overlapping area?
+			if(!candHitsOverlappingArea(pairCanditate)){
+				noOverlap++;
+				continue;
+			}
 
-				/*
-				 * ============ apply filters ============
-				 */
-				pairCanditate.check();
-				if(pairCanditate.isSane()){
+			/*
+			 * choose coordinate system and store moduleID. This must be done
+			 * prior to suitability check, because that relies on the TVector3s
+			 * in the HitPair in LMD Coordinates. This is using the perfect geometry,
+			 * since we don't know the misalignment at this point. This also sets
+			 * overlapID, moduleID and the TVector3 for hit1 and hit2
+			 */
+			transformToLMDlocal(pairCanditate);
+			pairCanditate.check();
 
-					if(isSuitable(pairCanditate)){
-						/*
-						 * ============ store pairs ============
-						 */
-						//actually store pair to root file
-						new((*hitPairArray)[storedPairsPerEvent]) PndLmdHitPair(pairCanditate);
-						storedPairsPerEvent++;
-					}
-					else{
-						unsuitable++;
-					}
+			if(!pairCanditate.isSane()){
+				pairCanditate.PrintPair();
+				cerr << "====              WARNING:                 ====" << endl;
+				cerr << "pair seems valid but did not pass sanity check!" << endl;
+				cerr << "===============================================" << endl;
+				continue;
+			}
+
+			//pair must now be sane, in LMD local and has overlapID et al.
+			//choose whether to apply dynamic cut or simple cut.
+
+			if(!_useDynamicCut){
+				if(!applyStaticDistanceCut(pairCanditate)){
+					unsuitable++;
+					continue;
 				}
-				else{
-					pairCanditate.PrintPair();
-					cerr << "===               WARNING:                 ====" << endl;
-					cerr << "pair seems valid but did not pass sanity check!" << endl;
-					cerr << "===============================================" << endl;
-					exit(1);
-				}
+				//pair survived distance cut? great, store!
 			}
 			else{
-				noOverlap++;
+
+				//is the cutHandler ready for this overlapID? if not, add sample.
+				if(!cutHandlers[pairCanditate.getOverlapId()].ready()){
+					cutHandlers[pairCanditate.getOverlapId()].addToSamples(pairCanditate);
+
+					//we don't save the samples.
+					continue;
+				}
+
+				//the cutHandler is ready, apply distance cut
+				if(!applyDynamicDistanceCut(pairCanditate)){
+					distanceTooHigh++;
+					continue;
+				}
+				//pair survived distance cut? great, store!
 			}
+
+			/*
+			 * if the pair survived to this point, it's valid. store!
+			 */
+
+			getStatistics(pairCanditate);
+			new((*hitPairArray)[storedPairsPerEvent]) PndLmdHitPair(pairCanditate);
+			storedPairsPerEvent++;
 		}
 	}
 	return;
@@ -504,23 +513,40 @@ void LmdPairFinderTask::transformToLMDlocal(PndLmdHitPair &pair) {
 	pair.setOverlapId(dimension->makeOverlapID(fid, bid));
 }
 
-bool LmdPairFinderTask::isSuitable(PndLmdHitPair &candidate) {
 
-	if(!candDistanceIsGood(candidate)){
+bool LmdPairFinderTask::applyDynamicDistanceCut(PndLmdHitPair &candidate) {
+
+	int overlapID = candidate.getOverlapId();
+
+	//use distance squared
+	double distance = candidate.getDistance();
+	if(distance < cutHandlers[overlapID].getMinDist() || distance > cutHandlers[overlapID].getMaxDist()){
+		return false;
+	}
+	noOfGoodPairs++;
+	return true;
+}
+
+bool LmdPairFinderTask::applyStaticDistanceCut(PndLmdHitPair &candidate) {
+
+	//check distance squared
+	double distance = candidate.getDistance();
+	if(distance > _maxDistance){
 		distanceTooHigh++;
 		return false;
 	}
+	return true;
+}
 
+
+void LmdPairFinderTask::getStatistics(PndLmdHitPair &candidate) {
+
+	//check for overlap
 	int fhalf, fplane, fmodule, fside, fdie, fsensor;
 	int bhalf, bplane, bmodule, bside, bdie, bsensor;
 
 	dimension->Get_sensor_by_id(candidate.getId1(), fhalf, fplane, fmodule, fside, fdie, fsensor);
 	dimension->Get_sensor_by_id(candidate.getId2(), bhalf, bplane, bmodule, bside, bdie, bsensor);
-
-	//pair must be on same plane
-	if(fplane!=bplane){
-		return false;
-	}
 
 	//count events per plane
 	switch(fplane){
@@ -541,14 +567,7 @@ bool LmdPairFinderTask::isSuitable(PndLmdHitPair &candidate) {
 		cerr << "WARNING: hit was deemed suitable but plane number is " << fplane << endl;
 		cerr << "This should not happen!" << endl;
 	}
-
-	//sort them that hit0 is always upstream
-	if(bside < fside){
-		candidate.swapHits();
-	}
-
 	noOfGoodPairs++;
-	return true;
 }
 
 //depends only on PndLmdDim, so should work
@@ -556,11 +575,6 @@ bool LmdPairFinderTask::candHitsOverlappingArea(PndLmdHitPair &candidate) {
 	int firstSensorId, secondSensorId;
 	firstSensorId=candidate.getId1();
 	secondSensorId=candidate.getId2();
-	return candHitsOverlappingArea(firstSensorId, secondSensorId);
-}
-
-//depends only on PndLmdDim, so should work
-bool LmdPairFinderTask::candHitsOverlappingArea(Int_t firstSensorId, Int_t secondSensorId) {
 
 	//same sensor hit?
 	if(firstSensorId==secondSensorId){
@@ -577,6 +591,14 @@ bool LmdPairFinderTask::candHitsOverlappingArea(Int_t firstSensorId, Int_t secon
 
 	dimension->Get_sensor_by_id(firstSensorId, fhalf, fplane, fmodule, fside, fdie, fsensor);
 	dimension->Get_sensor_by_id(secondSensorId, bhalf, bplane, bmodule, bside, bdie, bsensor);
+
+
+	//sort them that hit0 is always upstream
+	if(bside < fside){
+		candidate.swapHits();
+		dimension->Get_sensor_by_id(firstSensorId, fhalf, fplane, fmodule, fside, fdie, fsensor);
+		dimension->Get_sensor_by_id(secondSensorId, bhalf, bplane, bmodule, bside, bdie, bsensor);
+	}
 
 	//the necessities for overlapping, must be on same half, plane, module and other side
 	if(bhalf != fhalf){
@@ -630,16 +652,6 @@ bool LmdPairFinderTask::candHitsOverlappingArea(Int_t firstSensorId, Int_t secon
 	}
 	//all other checks are negative? then the sensors don't overlap!
 	return false;
-}
-
-bool LmdPairFinderTask::candDistanceIsGood(PndLmdHitPair &candidate) {
-
-	//use distance squared
-	double distance = candidate.getDistance();
-	if(distance > _maxDistance){
-		return false;
-	}
-	return true;
 }
 
 void LmdPairFinderTask::Reset() {

@@ -51,7 +51,7 @@ private:
 	bool sane, checked, hit1present, hit2present;
 
 public:
-	ClassDef(PndLmdHitPair,14);
+	ClassDef(PndLmdHitPair,15);
 
 	Int_t getId1() const {
 		return _id1;
@@ -72,9 +72,6 @@ public:
 
 	//sanity check applies only to valid numeric entries, so no entries are nan. or the like
   bool isSane() const{
-		//if(!checked){
-		//	check();
-		//}
 		return sane;
 	}
 

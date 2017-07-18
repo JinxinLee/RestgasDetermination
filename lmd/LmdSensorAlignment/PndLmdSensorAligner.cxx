@@ -870,7 +870,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		size_t filesizeMust = sizeof(double) * (noOfDoubles);
 
 		if(doublesize != header[3]){
-			cout << "warning! sizeof(double) on this system is different than on system that made this binary!\n";
+			cout << "warning! sizeof(double) on this system is different than on the system that made this binary!\n";
 			//TODO: decide what to do in this case
 			exit(1);
 			doublesize = header[3];
@@ -926,7 +926,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	}
 
 	//from here on, only simpleStorage is supported
-	//TODO: 4 doubles per pair (eq in px) is not supported yet
+	//TODO: 4 doubles per pair (eq in px) is not supported yet, or other storage options like distance
 	for(int i=0; i<nPairs; i++){
 		//assign pair data
 		if(!compareBinaryToStored){
@@ -982,7 +982,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 	delete[] pdata;
 
 	//now, check if ID1 and ID2 can be generated from overlapID
-	// wel, thy can, but only from dimension->, so this is done in manager, not here
+	// well, they can, but only from dimension->, so this is done in manager, not here
 	return true;
 }
 

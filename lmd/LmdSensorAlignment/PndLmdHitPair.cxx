@@ -65,11 +65,6 @@ void PndLmdHitPair::PrintPair() const {
  */
 void PndLmdHitPair::check() {
 
-	//did we check this one already? save the cpu time.
-	if(checked){
-		return;
-	}
-
 	bool colSane=false, rowSane=false, idsane=false, allVarsSet=false, distanceOk=false;
 	if(std::isinf(_col1) || std::isinf(_col2) || std::isnan(_col1) || std::isnan (_col2)){
 		colSane=false;
@@ -89,20 +84,6 @@ void PndLmdHitPair::check() {
 	else{
 		idsane=true;
 	}
-
-	/*
-	//no row and col info, but hits are there (supplied externally) //FIXME: hm, this is dangerous, produced errors in the past
-	if(_row1 < 0 || _row2 < 0 || _col1 < 0 || _col2 < 0){
-		if(hit1present && hit2present){
-			sane=true;
-			checked=true;
-			return;
-		}
-		else{
-			sane=false;
-		}
-	}
-	*/
 
 	//no row and col info, no valid pair
 	if(_row1 < 0 || _row2 < 0 || _col1 < 0 || _col2 < 0){
