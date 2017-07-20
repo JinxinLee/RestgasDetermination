@@ -167,6 +167,7 @@ struct pixelCluster{
 LmdPairFinderTask::LmdPairFinderTask() : PndSdsTask("pairfinder") {
 	mcPixels = NULL;
 	unsuitable=0;
+	_useDynamicCut=false;
 }
 
 LmdPairFinderTask::LmdPairFinderTask(const char* name)  : PndSdsTask("pairfinder with name") {
@@ -190,8 +191,6 @@ InitStatus LmdPairFinderTask::Init() {
 	fInBranchName = "LMDPixelDigis";
 	fOutBranchName = "LMDPixelPairs";
 	fFolderName = "cbmsim";
-	_minDistance = 0.0;
-	_useDynamicCut=false;
 
 	SetBranchNames();
 
@@ -212,6 +211,9 @@ InitStatus LmdPairFinderTask::Init() {
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat",true);
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat",false);
 
+	if(!_findDynamicCutParameters){
+		// TODO: read dynamic cut parameters from disk
+	}
 
 	cout << "====== STORING UNSORTED =========" << endl;
 	hitPairArray = new TClonesArray("PndLmdHitPair");
@@ -401,8 +403,15 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			}
 
 			//pair must now be sane, in LMD local and has overlapID et al.
-			//choose whether to apply dynamic cut or simple cut.
 
+			//are we still looking for the dynamic cut values?
+			if(_findDynamicCutParameters){
+				dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
+				handler.addToSamples(pairCanditate);
+				continue;
+			}
+
+			//choose whether to apply dynamic cut or simple cut.
 			if(!_useDynamicCut){
 				if(!applyStaticDistanceCut(pairCanditate)){
 					unsuitable++;
@@ -411,12 +420,8 @@ void LmdPairFinderTask::Exec(Option_t*) {
 				//pair survived distance cut? great, store!
 			}
 			else{
-
-				//is the cutHandler ready for this overlapID? if not, add sample.
+				//is the cutHandler ready for this overlapID? if not, something went wrong.
 				if(!cutHandlers[pairCanditate.getOverlapId()].ready()){
-					cutHandlers[pairCanditate.getOverlapId()].addToSamples(pairCanditate);
-
-					//we don't save the samples.
 					continue;
 				}
 
@@ -444,6 +449,36 @@ void LmdPairFinderTask::FinishEvent() {
 }
 
 void LmdPairFinderTask::FinishTask() {
+
+	int notReady=0;
+
+	//were we looking for dynamic cut parameters? write them to disk
+	if(_findDynamicCutParameters){
+		//TODO: write all cutHandlers Data to disk
+		cout << "writing cut parameters to disk...\n";
+
+		for (auto &handlerIt : cutHandlers){
+
+			dynamicCutHandler &handler = handlerIt.second;
+			handler.calcMinAndMax();
+
+			if(!handler._ready){
+				notReady++;
+				cout << "Warning! handler " << handler._overlapID << " only has  "<< handler.samples.size() << " pairs!\n";
+				continue;
+			}
+
+		    std::cout << handler._overlapID // int (key)
+		              << ':'
+		              << handler._minDist // string's value
+					  << " - "
+		    		  << handler._maxDist
+		              << std::endl ;
+		}
+		cout << "Attention! " << notReady << " handlers don't have enough pairs.\n";
+
+		return;
+	}
 
 	Int_t sumOfAllPlanes=plane0+plane1+plane2+plane3;
 	double plane0Percent = ((double)plane0/noOfGoodPairs)*100;
@@ -483,6 +518,7 @@ void LmdPairFinderTask::FinishTask() {
 	printf("hits on all planes: %.2f %% \n", allPlanesPercent);
 	cout << endl;
 	cout << "*************************************************************" << endl;
+	return;
 }
 
 void LmdPairFinderTask::Register() {
@@ -511,6 +547,7 @@ void LmdPairFinderTask::transformToLMDlocal(PndLmdHitPair &pair) {
 
 	pair.setModuleId(dimension->makeModuleID(dimension->makeOverlapID(fid, bid)));
 	pair.setOverlapId(dimension->makeOverlapID(fid, bid));
+	return;
 }
 
 
@@ -537,7 +574,6 @@ bool LmdPairFinderTask::applyStaticDistanceCut(PndLmdHitPair &candidate) {
 	}
 	return true;
 }
-
 
 void LmdPairFinderTask::getStatistics(PndLmdHitPair &candidate) {
 
