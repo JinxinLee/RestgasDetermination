@@ -313,21 +313,20 @@ struct Ascend
 };
 const std::vector<Int_t>& PndEmcCluster::GetMcList() const {
 	std::vector< map_ele > sortedVec;
-	std::map<Int_t, Int_t> linkMap;
-	FairMultiLinkedData mcLinks = GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
-	for (int i = 0; i < mcLinks.GetNLinks(); i++){
-		linkMap[mcLinks.GetLink(i).GetIndex()] = mcLinks.GetLink(i).GetWeight();
+	std::vector<FairLink> mcLinks;
+	FairMultiLinkedData mcFairLinks = GetLinksWithType(FairRootManager::Instance()->GetBranchId("MCTrack"));
+
+	for (int i = 0; i < mcFairLinks.GetNLinks(); i++){
+		mcLinks.push_back(mcFairLinks.GetLink(i));
 	}
-	std::map<Int_t,Int_t>::iterator it = linkMap.begin();
-	std::map<Int_t,Int_t>::iterator end = linkMap.end();
-	//std::cout<<"fMCTruthMap #"<<fMcMap.size()<<std::endl;
-	for(; it != end; ++it){
-		//std::cout<<"track #"<<(*it).first<<endl;
-		sortedVec.push_back( *it);
-	}
-	sort(sortedVec.begin(), sortedVec.end(), Ascend());
+
+	std::sort(mcLinks.begin(), mcLinks.end(), [](const FairLink& a, const FairLink& b) -> bool {
+		return a.GetIndex() < b.GetIndex();
+	});
+
 	fMcList.clear();
-	for(size_t i=0;i<sortedVec.size();++i) fMcList.push_back(sortedVec[i].first);
+	for (auto link : mcLinks)
+		fMcList.push_back(link.GetIndex());
 	return fMcList;
 }
 
