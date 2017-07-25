@@ -12,110 +12,17 @@
 
 #include "PndSdsTask.h"
 #include "PndLmdDim.h"
+#include "PndLmdAlignManager.h"
+#include "PndLmdAlignStructs.h"
 #include <PndLmdHitPair.h>
+
+//apparently, CINT has a problem with some boost classes
+#ifndef __CINT__
+#include <boost/property_tree/ptree.hpp>
+#endif
 
 #include <string>
 #include <vector>
-
-struct dynamicCutHandler{
-	int _overlapID;
-	bool _ready;
-
-	std::vector<double> samples;
-
-	double _minDist, _maxDist, _hardMax, _curveWidth;
-
-	dynamicCutHandler(){
-		_overlapID = 0;
-		_minDist = _maxDist = 0.0;
-		_hardMax = 32*80e-4;	//sensors should not be farther than 32 pixels, 2,5mm!
-		_curveWidth = 100e-4;	//empirical value, see report march 26th 2017
-		_ready = false;
-	}
-
-	void addToSamples(PndLmdHitPair pair){
-
-		//set first sample data
-		if(samples.size() == 0){
-			_overlapID = pair.getOverlapId();
-			_minDist = pair.getDistance();
-		}
-		else{
-			if(_overlapID != pair.getOverlapId()){
-				cout << "something is wrong! stored OverlapID does not match added ID!\n";
-				return;
-			}
-		}
-
-		//100 should suffice, but more is always better
-		if(samples.size() > 150){
-			_ready = true;
-		}
-
-		double thisDistance=pair.getDistance();
-
-		_minDist = std::min(_minDist, thisDistance);
-		_maxDist = std::max(_maxDist, std::min(thisDistance, _hardMax) ); //never choose maximum higher than hardMax
-
-		// store distance only if in valid range, some distances are too large
-		if(thisDistance >= _minDist && thisDistance <= _maxDist){
-			samples.push_back(pair.getDistance());
-		}
-
-		return;
-	}
-
-	void calcMinAndMax(){
-		int noOfBuckets = 256;
-		std::vector<int> buckets(noOfBuckets);
-
-		for(int iSample=0; iSample<samples.size(); iSample++){
-
-			int bucket=-1;
-
-			//what bucket is this distance in?
-			bucket = (int) floor(( samples[iSample]/_maxDist)*(noOfBuckets-1) );
-
-			if(bucket >= 0 && bucket < noOfBuckets){
-				//increment that bucket
-				buckets[bucket]++;
-			}
-			else{
-				cout << "I screwed up, this should not happen.\n";
-			}
-		}
-
-		//find max bucket:
-		int bucket=0;
-		int maxentries = buckets[0];
-
-
-		for(int iBucket=1; iBucket<buckets.size(); iBucket++){
-			if(buckets[iBucket] >= maxentries ){
-				maxentries = buckets[iBucket];
-				bucket = iBucket;
-			}
-		}
-
-		//calc min and max distance
-		_minDist = std::max( ((bucket * _maxDist) / noOfBuckets ) - _curveWidth, 0.0 );			//in case min is negative
-		_maxDist = std::min( ((bucket * _maxDist) / noOfBuckets ) + _curveWidth , _hardMax);	//in case max overflows
-
-		return;
-	}
-
-	bool ready(){
-		return _ready;
-	}
-
-	double getMinDist(){
-		return _minDist;
-	}
-	double getMaxDist(){
-		return _maxDist;
-	}
-
-};
 
 class LmdPairFinderTask: public PndSdsTask {
 
@@ -138,7 +45,12 @@ private:
 	//data for dynamic cut
 	Bool_t _findDynamicCutParameters;
 	Bool_t _useDynamicCut;
+	std::string _cutParameterFile;
 	std::map<int, dynamicCutHandler> cutHandlers;
+
+	#ifndef __CINT__
+	boost::property_tree::ptree config;
+	#endif
 
 public:
 
@@ -160,13 +72,15 @@ public:
 	virtual void FinishTask();
 
 	//find the minDistance and maxDistance for dynamic cut
-	void findDynamicCutParameters(Bool_t value){
+	void findDynamicCutParameters(Bool_t value, std::string parameterFile){
 		_findDynamicCutParameters = value;
+		_cutParameterFile = parameterFile;
 	}
 
 	//apply a dynamic cut. uses the first N pairs to decide what min and max distance should be.
-	void useDynamicCut(Bool_t value){
+	void useDynamicCut(Bool_t value, std::string parameterFile){
 		_useDynamicCut = value;
+		_cutParameterFile = parameterFile;
 	}
 
 	// apply distance cut, will be ignored when using dynamic cut
@@ -205,7 +119,7 @@ protected:
 	//means two clusters can reasonably belong to a single track
 	bool candDistanceIsGood(PndLmdHitPair &candidate);
 
-	ClassDef(LmdPairFinderTask,8);
+	ClassDef(LmdPairFinderTask,9);
 };
 
 #endif /* PAIRFINDERTASK_H_ */

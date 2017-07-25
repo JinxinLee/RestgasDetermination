@@ -19,160 +19,25 @@
 
 ClassImp(LmdPairFinderTask);
 
-//simple pixel hit, maybe not even necessary
-struct pixelHit{
-	int _sensorId;
-	double _col;
-	double _row;
-
-	double x() const{
-		return _col;
-	}
-
-	pixelHit(int idVal, double colVal, double rowVal){
-		_sensorId = idVal;
-		_col=colVal;
-		_row=rowVal;
-	}
-
-	pixelHit(){
-		_col=-1;
-		_row=-1;
-		_sensorId=-1;
-	}
-};
-
-/*
- * contains multiple pixelHits that form a cluster. most routines are for checking,
- * if two separate pixelHits belong to the same cluster
- */
-struct pixelCluster{
-	int _sensorId;
-	double centerCol, centerRow;//,centerZ;
-	double clusterSize;
-	vector<pixelHit> pixelHits;
-	bool clusterReady;
-
-	pixelCluster(){
-		_sensorId=-1;
-		centerCol=-1; centerRow=-1;//centerZ=-1;
-		clusterSize=-1;
-		clusterReady=false;
-	}
-
-	pixelCluster(const pixelHit &hit){
-		_sensorId=hit._sensorId;
-		pixelHits.push_back(hit);
-
-		centerCol=-1; centerRow=-1;//centerZ=-1;
-		clusterSize=-1;
-		clusterReady=false;
-	}
-
-	pixelCluster(const pixelCluster& copy){
-		_sensorId=copy._sensorId;
-		for(size_t i=0; i<copy.pixelHits.size(); i++){
-			pixelHits.push_back(copy.pixelHits[i]);
-		}
-
-		centerCol=-1; centerRow=-1;//centerZ=-1;
-		clusterSize=-1;
-		clusterReady=false;
-	}
-
-	//checks, if two clusters lie DIRECTLY next to each other, that means any two pixels
-	//must be directly next to each other
-	//TODO: inefficient code, may be improved
-	bool isNeighbour(pixelCluster &other){
-		//first, they must be on same sensor
-		if(_sensorId!=other._sensorId){
-			return false;
-		}
-		double _col1,_col2,_row1,_row2;
-		for(size_t i=0; i<this->pixelHits.size(); i++){
-			_col1 = this->pixelHits[i]._col;
-			_row1 = this->pixelHits[i]._row;
-			for(size_t j=0; j<other.pixelHits.size(); j++){
-				_col2 = other.pixelHits[j]._col;
-				_row2 = other.pixelHits[j]._row;
-				//check if neighboring, that means distance of pixels is smaller than 1.5 pixels
-				if( (_col2-_col1)*(_col2-_col1)+(_row2-_row1)*(_row2-_row1) < 2.25){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	//merges other to this one
-	void merge(pixelCluster &other){
-		for(size_t i=0; i<other.pixelHits.size(); i++){
-			pixelHits.push_back(other.pixelHits[i]);
-		}
-	}
-
-	void calculateCenter(){
-		centerCol=0;
-		centerRow=0;
-		for(size_t i=0; i<pixelHits.size(); i++){
-			centerCol+=pixelHits[i]._col;
-			centerRow+=pixelHits[i]._row;
-		}
-		centerCol /= pixelHits.size();
-		centerRow /= pixelHits.size();
-		double tempDistance;
-		//calaculate size, go from corner to corner for clusters larger than 2 pixels
-		if(pixelHits.size()==1){
-			clusterSize=1;
-		}
-		else{
-			for(size_t i=0; i<pixelHits.size(); i++){
-				for(size_t j=i+1; j<pixelHits.size(); j++){
-					double deltax=(pixelHits[i]._col-pixelHits[j]._col);
-					if(deltax>0){
-						deltax=deltax+1;
-					}
-					if(deltax<0){
-						deltax=deltax-1;
-					}
-					double deltay=(pixelHits[i]._row-pixelHits[j]._row);
-					if(deltay>0){
-						deltay=deltay+1;
-					}
-					if(deltay<0){
-						deltay=deltay-1;
-					}
-					tempDistance = sqrt(deltax*deltax + deltay*deltay);
-					clusterSize=max(clusterSize, tempDistance);
-				}
-			}
-		}
-		clusterReady=true;
-	}
-
-	void printPixels(){
-		for(size_t i=0; i<pixelHits.size(); i++){
-			cout << "pixelHit x:" << pixelHits[i]._col << ", y:" << pixelHits[i]._row << " on sensor " << pixelHits[i]._sensorId << endl;
-		}
-	}
-	void printCenter(){
-		cout << "clusterCenter x:" << centerCol << ", y:" << centerRow << " on sensor " << _sensorId << ", contains " << pixelHits.size() << " pixels and is " << clusterSize << " pixels in diameter."<< endl;
-	}
-
-};
-
 /*
  * actually I don't need empty constructors, but fkn root crashes if no empty constructor is present
  */
 LmdPairFinderTask::LmdPairFinderTask() : PndSdsTask("pairfinder") {
 	mcPixels = NULL;
 	unsuitable=0;
-	_useDynamicCut=false;
+	_useDynamicCut = false;
+	_findDynamicCutParameters = false;
+	_cutParameterFile = "";
+	_ignoreClusters = false;
 }
 
 LmdPairFinderTask::LmdPairFinderTask(const char* name)  : PndSdsTask("pairfinder with name") {
 	mcPixels = NULL;
 	if(!strcmp(name,"")) SetName(name);
+	_useDynamicCut = false;
+	_findDynamicCutParameters = false;
+	_cutParameterFile = "";
+	_ignoreClusters = false;
 }
 
 LmdPairFinderTask::~LmdPairFinderTask() {
@@ -211,11 +76,45 @@ InitStatus LmdPairFinderTask::Init() {
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat",true);
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat",false);
 
-	if(!_findDynamicCutParameters){
+	if(!_findDynamicCutParameters && _useDynamicCut){
 		// TODO: read dynamic cut parameters from disk
+		cout << "PndLmdSensorAligner: reading dynamic cut Parameters from file... ";
+		std::vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
+
+		if(!PndLmdAlignManager::exists(_cutParameterFile)){
+			cout << "cut parameter file does not exist! using static cut instead.\n";
+			_useDynamicCut = false;
+		}
+		else{
+			config = PndLmdAlignManager::readConfigFile(_cutParameterFile);
+
+			for(int i=0; i<overlapIDs.size(); i++){
+				int overlapID = overlapIDs[i];
+				dynamicCutHandler &handler = cutHandlers[overlapID];
+				handler._overlapID = overlapIDs[i];
+
+				std::stringstream configput("");
+				configput << "dynamicCut.aligners." << handler._overlapID <<".";
+
+				try{
+					handler._minDist = config.get<double>(configput.str() + "minDist");
+					handler._maxDist = config.get<double>(configput.str() + "maxDist");
+				}
+				catch(exception e){
+					cerr << "PndLmdSensorAligner: ERROR! Parameter not found in config file!\n";
+				}
+				handler._ready = true;
+
+				//cout << "reading for aligner " << handler._overlapID << ": min: " << handler._minDist << ", max: " << handler._maxDist << "\n";
+			}
+			cout << "done.\n";
+		}
 	}
 
-	cout << "====== STORING UNSORTED =========" << endl;
+	if(_findDynamicCutParameters){
+		cout << "PndLmdSensorAligner: trying to find dynamic cut Parameters.\n";
+	}
+
 	hitPairArray = new TClonesArray("PndLmdHitPair");
 	ioman->Register("PndLmdHitPair", "PndLmd", hitPairArray, kTRUE);
 
@@ -240,7 +139,6 @@ InitStatus LmdPairFinderTask::ReInit() {
 void LmdPairFinderTask::Exec(Option_t*) {
 
 	//clear temporary array for next event
-
 	hitPairArray->Clear();
 
 	Int_t nPixels = mcPixels->GetEntriesFast();
@@ -363,6 +261,8 @@ void LmdPairFinderTask::Exec(Option_t*) {
 	Int_t id1, id2;
 	Int_t storedPairsPerEvent=0;
 
+	//cout << "find cut: " << _findDynamicCutParameters << ", use cut: " << _useDynamicCut << "\n";
+
 	//try every cluster combination and check
 	for(size_t i=0; i<clusters.size(); i++){
 		for(size_t j=i+1; j<clusters.size(); j++){
@@ -413,24 +313,30 @@ void LmdPairFinderTask::Exec(Option_t*) {
 
 			//choose whether to apply dynamic cut or simple cut.
 			if(!_useDynamicCut){
+				//cout << "using static cut.\n";
 				if(!applyStaticDistanceCut(pairCanditate)){
 					unsuitable++;
 					continue;
 				}
 				//pair survived distance cut? great, store!
 			}
-			else{
+
+			if(_useDynamicCut){
 				//is the cutHandler ready for this overlapID? if not, something went wrong.
-				if(!cutHandlers[pairCanditate.getOverlapId()].ready()){
+				dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
+				if(!handler.ready()){
+					//cout << "handler not ready.\n";
 					continue;
 				}
-
+				//cout << "applying cut.\n";
 				//the cutHandler is ready, apply distance cut
 				if(!applyDynamicDistanceCut(pairCanditate)){
+
 					distanceTooHigh++;
 					continue;
 				}
 				//pair survived distance cut? great, store!
+				//cout << "pair survived.\n";
 			}
 
 			/*
@@ -455,28 +361,36 @@ void LmdPairFinderTask::FinishTask() {
 	//were we looking for dynamic cut parameters? write them to disk
 	if(_findDynamicCutParameters){
 		//TODO: write all cutHandlers Data to disk
-		cout << "writing cut parameters to disk...\n";
+		cout << "PndLmdSensorAligner: writing cut parameters to disk...\n";
 
 		for (auto &handlerIt : cutHandlers){
 
 			dynamicCutHandler &handler = handlerIt.second;
-			handler.calcMinAndMax();
-
 			if(!handler._ready){
 				notReady++;
 				cout << "Warning! handler " << handler._overlapID << " only has  "<< handler.samples.size() << " pairs!\n";
 				continue;
 			}
+			handler.calcMinAndMax();
 
-		    std::cout << handler._overlapID // int (key)
-		              << ':'
-		              << handler._minDist // string's value
-					  << " - "
-		    		  << handler._maxDist
-		              << std::endl ;
+			std::stringstream configput("");
+			configput << "dynamicCut.aligners." << handler._overlapID <<".";
+			config.put(configput.str() + "minDist", handler._minDist);
+			config.put(configput.str() + "maxDist", handler._maxDist);
+
 		}
-		cout << "Attention! " << notReady << " handlers don't have enough pairs.\n";
+		if(notReady > 0){
+			cout << "PndLmdSensorAligner: Attention! " << notReady << " handlers don't have enough pairs.\n";
 
+		}
+
+		if(PndLmdAlignManager::writeConfigFile(config, _cutParameterFile, false)){
+			cout << "PndLmdSensorAligner: Successfully written cutParameters to " << _cutParameterFile << "\n";
+			return;
+		}
+		cout << "PndLmdSensorAligner: could not write cut parameters to disk!\n";
+
+		//exit after parameters are found and stored
 		return;
 	}
 
@@ -555,9 +469,12 @@ bool LmdPairFinderTask::applyDynamicDistanceCut(PndLmdHitPair &candidate) {
 
 	int overlapID = candidate.getOverlapId();
 
-	//use distance squared
 	double distance = candidate.getDistance();
-	if(distance < cutHandlers[overlapID].getMinDist() || distance > cutHandlers[overlapID].getMaxDist()){
+	dynamicCutHandler &handler = cutHandlers[overlapID];
+
+	//cout << "dist: " << distance << ", min: " << handler.getMinDist() << " max: " << handler.getMaxDist() << "\n";
+
+	if(distance < handler.getMinDist() || distance > handler.getMaxDist()){
 		return false;
 	}
 	noOfGoodPairs++;

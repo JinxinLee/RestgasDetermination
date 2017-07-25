@@ -21,13 +21,17 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #endif
+
+#include <PndLmdAlignStructs.h>
+#include <PndLmdDim.h>
+#include <PndLmdSensorAligner.h>
 
 #include <matrix.h>
 #include <string>
 #include <sstream>
-#include <PndLmdSensorAligner.h>
-#include <PndLmdDim.h>
 
 class PndLmdAlignManager {
 
@@ -184,8 +188,10 @@ public:
 
 	static Matrix makeFourVector(double x, double y, double z);
 	static TVector3 castMatrixToTVector3(const Matrix &vec);
+
+	// read and write matrix files to and from disk
 	static Matrix readMatrix(std::string filename);
-	bool writeMatrix(Matrix &mat, std::string filename);
+	static bool writeMatrix(Matrix &mat, std::string filename);
 
 	const Matrix& getHelperMatrix() const {
 		return helperMatrix;
@@ -221,6 +227,7 @@ public:
 	//searches directories in curr_directory, adds to list
 	static int searchDirectories(std::string curr_directory, std::vector<std::string> &list, bool includeSubDirs = true);
 	static bool mkdir(std::string path);
+	static bool exists(std::string file);
 	static std::vector<std::string> findRegex(std::string source, std::string regex);
 
 	void setMatrixOutDir(std::string matrixOutDir) {
@@ -247,10 +254,17 @@ public:
 	 */
 	void xOption(int option);
 
-#ifndef __CINT__
+	// hide all boost related things from ROOT
+	#ifndef __CINT__
 	//when supplied with a function object, this function executes in a new thread
 	void workerThread( boost::shared_ptr< boost::asio::io_service > io_service );
-#endif
+
+	//write config file
+	static bool writeConfigFile(boost::property_tree::ptree configTree, std::string filename, bool replaceExisting=true);
+
+	//read json config file
+	static boost::property_tree::ptree readConfigFile(std::string filename);
+	#endif
 
 	void setBinaryPairFileDirectory(const std::string& binaryPairFileDirectory){
 		_binaryPairFileDirectory = binaryPairFileDirectory;

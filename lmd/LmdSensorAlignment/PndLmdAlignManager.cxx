@@ -95,9 +95,6 @@ PndLmdAlignManager::PndLmdAlignManager() {
 void PndLmdAlignManager::init(){
 
 	debug=false;
-
-
-
 	dimension = PndLmdDim::Instance();
 
 	_info << "info for aligned areas\n";
@@ -866,7 +863,12 @@ Matrix PndLmdAlignManager::readMatrix(std::string filename) {
 //TODO: Error reporting to log and handling
 bool PndLmdAlignManager::writeMatrix(Matrix &mat, std::string filename){
 
-	checkIOpaths();
+	if(!(filename=="")){
+		boost::filesystem::path outPath(filename);
+		if(!boost::filesystem::exists(outPath.parent_path())){
+			boost::filesystem::create_directories(outPath.parent_path());
+		}
+	}
 
 	//cout << "writing matrix " << filename << "\n";
 	std::ofstream outFileStream;
@@ -934,6 +936,14 @@ bool PndLmdAlignManager::mkdir(std::string path) {
 		return true;
 	}
 	return boost::filesystem::create_directories(bpath);
+}
+
+bool PndLmdAlignManager::exists(std::string path) {
+	boost::filesystem::path bpath(path);
+	if(boost::filesystem::exists(bpath)){
+		return true;
+	}
+	return false;
 }
 
 vector<string> PndLmdAlignManager::findRegex(std::string source, std::string regex){
@@ -1502,7 +1512,7 @@ void PndLmdAlignManager::computeCombinedMatrices() {
 
 	// for every module
 
-		// get all overlapping matrices for module and compute 0->[1-9]
+	// get all overlapping matrices for module and compute 0->[1-9]
 
 }
 
@@ -1632,7 +1642,6 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 	int cur, tot;
 	cur=0;
 	tot=aligners.size();
-	bool success = true;
 
 	cout << "writing all pairs to binary files\n";
 	mkdir(_binaryPairFileDirectory);
@@ -1641,11 +1650,11 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 		loadBar(cur++, tot, 1000, 60);
 		if(!it->second.writePairsToBinary(_binaryPairFileDirectory)){
-			success=false;
+			return false;
 		}
 
 	}
-	return success;
+	return true;
 }
 
 bool PndLmdAlignManager::readPairsFromBinaryFiles() {
@@ -1680,6 +1689,45 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 	}
 	return success;
 }
+
+
+boost::property_tree::ptree PndLmdAlignManager::readConfigFile(std::string filename){
+
+	//check if file exists
+	if(!boost::filesystem::exists(filename)){
+		cerr << "PndLmdAlignManager::readConfig: ERROR! File " << filename << " not found!\n";
+	}
+
+	std::ifstream is(filename);
+	boost::property_tree::ptree root;
+	try{
+		boost::property_tree::read_json(is, root);
+	}
+	catch(exception e){
+		cerr << "PndLmdAlignManager::readConfig: ERROR! Can't parse json file " << filename << ".\n";
+	}
+	return root;
+}
+
+bool PndLmdAlignManager::writeConfigFile(boost::property_tree::ptree configTree, std::string filename, bool replaceExisting){
+
+	//replace logic
+
+	if(boost::filesystem::exists(filename) && !replaceExisting){
+		cerr << "PndLmdAlignManager::writeConfig: Config already exists, will not be replaced.\n";
+		return false;
+	}
+
+	boost::filesystem::path outPath(filename);
+	if(!boost::filesystem::exists(outPath.parent_path())){
+		boost::filesystem::create_directories(outPath.parent_path());
+	}
+
+	std::ofstream os(filename);
+	boost::property_tree::write_json(os, configTree);
+	return true;
+}
+
 
 void PndLmdAlignManager::clearPairs() {
 	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
