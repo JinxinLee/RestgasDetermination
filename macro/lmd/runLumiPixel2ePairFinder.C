@@ -25,25 +25,25 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	TStopwatch timer;
 	timer.Start();
 
-	// -----   Initialize Shit   ----------------------------------------------
-	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+	gSystem->Load("libLmd");
+	gSystem->Load("libLmdPairFinder");
+	gSystem->Load("libLmdSensorAligner");
 
-	//gSystem->Load("libLmd");
-	//gSystem->Load("libLmdPairFinder");
-
-
-	cout << "Running PairFinder in Task." << endl;
+	cout << "***********************\n";
+	cout << "Running PairFinderTask.\n";
+	cout << "***********************\n";
 
 	// -----   Input File   ----------------------------------------------------
 	TString inFile=storePath+"/Lumi_digi_";
 	inFile += startEvent;
 	inFile += ".root";
 
-	// -----   Parameter File   ------------------------------------------------
+	// -----   Parameter Files   ------------------------------------------------
 	TString parFile=storePath+"/Lumi_Params_";
 	parFile += startEvent;
 	parFile += ".root";
 	TString digiparFile = "lumi.digi.par";
+	std::string cutParameterfile = storePath + "/cutParameters.json";
 
 	// -----   Output File   --------------------------------------------------
 	TString outFile = storePath+"/Lumi_Pairs_";
@@ -51,7 +51,7 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	outFile += ".root";
 	std::cout << "DigiFileName: " << outFile.Data() << std::endl;
 
-	// -----   Reconstruction run   -------------------------------------------
+	// -----   Pair Finder / Cut Finder Runs   -------------------------------------------
 	FairRunAna *fRun= new FairRunAna();
 	fRun->SetInputFile(inFile);
 	fRun->SetOutputFile(outFile);
@@ -70,9 +70,9 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	// =====                 Start of PairFinder                           =====
 	// -----   Actual Task   --------------------------------------------------
 
+	//use dynamic cut parameters
 	LmdPairFinderTask* lmdPairFinder = new LmdPairFinderTask();
-	lmdPairFinder->setMaxDistance(160e-4);		//two pixels
-	lmdPairFinder->ignoreClusters(false);
+	lmdPairFinder->useDynamicCut(true, cutParameterfile);
 	fRun->AddTask(lmdPairFinder);
 
 	rtdb->setOutput(parInput1);
@@ -83,7 +83,7 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	// -----   No Idea what this does   ----------------------------------------
 	PndSdsGeoPar* geoPar  = (PndSdsGeoPar*)(rtdb->getContainer("PndSdsGeoPar"));
 
-	// -----   Initialize and run   --------------------------------------------
+	// -----   Initialize and run PairFinder ----------------------------------
 	fRun->Init();
 	fRun->Run(0,nEvents);
 	rtdb->saveOutput();
