@@ -8,6 +8,10 @@ int runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString store
   // TProof::Open("");
 
 
+  if(geometryFile==""){
+    geometryFile="Luminosity-Detector.root";
+  }
+
   gRandom->SetSeed(seed);
   //gRandom->SetSeed(0);
   TStopwatch timer;
@@ -66,7 +70,7 @@ int runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString store
   Lum->SetExclusiveSensorType("LumActive");  //ignore MVD
   //  Lum->SetGeometryFileName("../macro/lmd/geo/Test-Dipol-Design.root"); //sensors with trap shape
   //  Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-29052013.root"); // LMD including box etc
-  Lum->SetGeometryFileName("Luminosity-Detector.root");
+  Lum->SetGeometryFileName(geometryFile);
   //Lum->SetGeometryFileName("../macro/lmd/geo/HV_MAPS-Design-SensorsOnly.root"); // LMD, sensors only
   Lum->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Lum);
@@ -146,9 +150,9 @@ int runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString store
   //  fBox->SetThetaRange(0.52,0.63); // 9 ... 11 mrad
   //  fBox->SetThetaRange(0.12,0.7); // 2... 12 mrad
   //  fBox->SetThetaRange(1.3,1.4); // mrad outside of the detector geometry by purpose
-  //fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
+  fBox->SetThetaRange(0.13,0.65); // 2... 11 mrad
   //fBox->SetThetaRange(0.12,0.65); // 2... 11 mrad
-    fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
+  //fBox->SetThetaRange(0.229183, 0.458366); //4 ... 8 mrad
   // //  fBox->SetThetaRange(0.229183,0.31512);//4..5.5 mrad
   // //fBox->SetThetaRange(0.229,0.229);//4..mrad
   // //  fBox->SetThetaRange(0.458366, 0.458366); //!!! 8 mrad
