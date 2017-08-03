@@ -23,7 +23,6 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 	parOutput += startEvent;
 	parOutput += ".root";
 	//Load basic libraries
-	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libSds");
 	gSystem->Load("libLmd");
 	FairRunSim *fRun = new FairRunSim();
@@ -41,8 +40,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 // //-------------------------  CAVE      -----------------
 
 	FairModule *Cave = new PndCave("CAVE");
-	// Cave->SetGeometryFileName("pndcave.geo");
-	Cave->SetGeometryFileName("pndcaveVAC.geo"); //vac cave is not really necessary 
+	Cave->SetGeometryFileName("pndcave.geo");
 	fRun->AddModule(Cave);
 	//-------------------------  Magnet   -----------------
 	FairModule *Magnet = new PndMagnet("MAGNET");
