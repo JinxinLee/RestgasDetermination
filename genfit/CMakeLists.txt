@@ -1,7 +1,8 @@
-# The SIMPATH variable is defined in the PANDAroot environment.
-# It is used here to determine which CMakeLists to use.
-IF(DEFINED ENV{SIMPATH})
+MESSAGE(STATUS "starting genfit ${PROJECT_NAME}")
+IF(${PROJECT_NAME} STREQUAL "PANDAROOT")
+MESSAGE(STATUS "genfit for panda")
    include(CMakeLists_panda.txt)
-ELSE(DEFINED ENV{SIMPATH})
+ELSE(${PROJECT_NAME} STREQUAL "PANDAROOT")
+MESSAGE(STATUS "genfit standalone")
    include(CMakeLists_standalone.txt)
-ENDIF(DEFINED ENV{SIMPATH})
+ENDIF(${PROJECT_NAME} STREQUAL "PANDAROOT")
