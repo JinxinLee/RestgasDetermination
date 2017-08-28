@@ -37,6 +37,7 @@
 #pragma link C++ class PndParticleQATask+;
 #pragma link C++ class PndSimpleCombiner+;
 #pragma link C++ class PndSimpleCombinerTask+;
+#pragma link C++ class PndSimpleNtuple+;
 
 
 #pragma link C++ class  CStrTok+;

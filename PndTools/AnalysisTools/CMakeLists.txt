@@ -66,6 +66,7 @@ PndRhoTupleQA.cxx
 PndParticleQATask.cxx
 PndSimpleCombiner.cxx
 PndSimpleCombinerTask.cxx
+PndSimpleNtuple.cxx
 ##Fitter/PndVtxFitterParticle.cxx
 ##Fitter/PndVtxFitter_Init.cxx
 ##Fitter/PndVtxFitterError.cxx

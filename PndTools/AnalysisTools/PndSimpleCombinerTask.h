@@ -85,6 +85,7 @@ class PndSimpleCombinerTask : public FairTask
 	TString        fPidAlgo;          // PID algo name 
 	bool           fQaMC;             // flag to store MC list
 	bool           fQaEventShape;     // flag to store event shape variables
+	int            fQaRecoInfo;       // flag to store shotr (==1) or full (==2) reco info
 	bool           fQaEvShapeNtp;     // flag to store event shape variables in an extra ntuple
 	bool           fFit4C;            // flag to perform 4C fit
 	bool           fBest4C;           // flag to only store best 4C fitted candidate

@@ -62,7 +62,9 @@ public:
 	void qaRich(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaTof(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaMuo(TString pre, RhoCandidate *c, RhoTuple *n);
-
+	
+	void qaRecoShort(TString pre, RhoCandidate *c, RhoTuple *n);
+	void qaRecoShortTree(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n);
 	void qaRecoFullTree(TString pre, RhoCandidate *c, RhoTuple *n);
 

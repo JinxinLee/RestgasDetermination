@@ -962,6 +962,63 @@ void PndRhoTupleQA::qaTof(TString pre, RhoCandidate *c, RhoTuple *n)
 }
 
 // -------------------------------------------------------------------------
+void PndRhoTupleQA::qaRecoShort(TString pre, RhoCandidate *c, RhoTuple *n)
+{
+  if (n==0) return;
+
+  PndPidCandidate *mic = (PndPidCandidate*)c->GetRecoCandidate();
+
+  if (mic)
+  {
+    n->Column(pre+"emcecal",  (Float_t) mic->GetEmcCalEnergy(),			0.0f );
+    n->Column(pre+"emcnx",    (Int_t)   mic->GetEmcNumberOfCrystals(),	0 );
+    n->Column(pre+"emcnb",    (Int_t)   mic->GetEmcNumberOfBumps(),   	0 );
+
+    n->Column(pre+"gemnhits",  (Int_t) mic->GetGemHits(),			    0 );
+
+    n->Column(pre+"mvddedx",  (Float_t) mic->GetMvdDEDX(),			    0.0f );
+    n->Column(pre+"mvdhits",  (Int_t)   mic->GetMvdHits(),			    0 );
+	
+    n->Column(pre+"sttdedx",  (Float_t) mic->GetSttMeanDEDX(),		    0.0f );
+    n->Column(pre+"stthits",  (Int_t)   mic->GetSttHits(),			    0 );
+	
+    n->Column(pre+"drcthtc",  	(Float_t) mic->GetDrcThetaC(),			0.0f );
+    n->Column(pre+"drcnphot",  	(Int_t)   mic->GetDrcNumberOfPhotons(),	0 );
+
+    n->Column(pre+"dscthtc",  	(Float_t) mic->GetDiscThetaC(),			0.0f );
+    n->Column(pre+"dscnphot",  	(Int_t)   mic->GetDiscNumberOfPhotons(),0 );
+
+    n->Column(pre+"richthtc",  	(Float_t) mic->GetRichThetaC(),			0.0f );
+    n->Column(pre+"richnphot",  (Int_t)   mic->GetRichNumberOfPhotons(),0 );
+
+    n->Column(pre+"muonlay",  	(Int_t)   mic->GetMuoNumberOfLayers(),	0 );;
+    n->Column(pre+"muoiron",  	(Float_t) mic->GetMuoIron() ,			0.0f );  ;
+
+    n->Column(pre+"tofm2",  	(Float_t) mic->GetTofM2(),			    0.0f );
+    n->Column(pre+"tofbeta",  	(Float_t) mic->GetTofBeta(),		    0.0f );
+  }
+}
+
+// -------------------------------------------------------------------------
+void PndRhoTupleQA::qaRecoShortTree(TString pre, RhoCandidate *c, RhoTuple *n)
+{
+  if (n==0) return;
+  if (c==0) return;
+  int nd = c->NDaughters();
+  if (nd>0)  {
+    for (int i=0; i<nd; ++i)
+    {
+      RhoCandidate *dau = c->Daughter(i);
+      TString name=TString::Format("%sd%d",pre.Data(),i);
+      qaRecoShortTree(name,dau,n);
+    }
+  } else {
+    qaRecoShort(pre,c,n);
+  }
+}
+
+
+// -------------------------------------------------------------------------
 void PndRhoTupleQA::qaRecoFull(TString pre, RhoCandidate *c, RhoTuple *n)
 {
   if (n==0) return;

@@ -72,7 +72,8 @@ PndSimpleCombinerTask::PndSimpleCombinerTask(TString anadecay, TString anaparms,
   FairTask("PndSimpleCombinerTask"), fVerbose(0), fEvtCount(0), fRun(run), fMode(mode), fRunMult(10000),
   fAnaDecay(anadecay), fAnaParms(anaparms), fNntp(0), 
   fPidAlgo("PidAlgoEmcBayes;PidAlgoDrc;PidAlgoDisc;PidAlgoStt;PidAlgoMdtHardCuts;PidAlgoSciT;PidAlgoRich;PidAlgoFtof"),
-  fQaMC(false), fQaEventShape(false), fQaEvShapeNtp(false), fFit4C(false), fBest4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), 
+  fQaMC(false), fQaEventShape(false),  fQaRecoInfo(0), fQaEvShapeNtp(false), fFit4C(false), 
+  fBest4C(false), fFitVtx(false), fFit4CChiCut(1e15), fFitVtxChiCut(1e8), 
   fAnalysis(0), fSimpleCombiner(0), fNodump(0), nmc(0), nevt(0)
 { 
 	fIni.SetXYZT(0,0,0,0);
@@ -106,6 +107,9 @@ void PndSimpleCombinerTask::InitParms()
 		if (pars[i]=="qamc")                { fQaMC 		= true; taskparm = true; } // write mc information
 		if (pars[i]=="qaevtshape")          { fQaEventShape = true; taskparm = true; } // write event shape info
 		if (pars[i]=="qaevs")               { fQaEventShape = true; taskparm = true; } // write event shape info
+		if (pars[i]=="qarec")               { fQaRecoInfo   = 1   ; taskparm = true; } // write reco info summary (EMC, STT, ...)
+		if (pars[i]=="qarecfull")           { fQaRecoInfo   = 2   ; taskparm = true; } // write full reco info
+
 		if (pars[i]=="nevt")                { fQaEvShapeNtp = true; taskparm = true; } // write event shape info to extra ntuple
 		if (pars[i].Contains("fit4c"))      { fFit4C		= true; taskparm = true; } // perform 4c fit for last particle (usually pbarpSystemX)
 		if (pars[i].Contains("fit4cbest"))  { fBest4C		= true; taskparm = true; } // only store best 4C fitted candidate
@@ -413,6 +417,9 @@ void PndSimpleCombinerTask::Exec(Option_t*)
 
 			  // store information about composite candidate tree recursively (see PndTools/AnalysisTools/PndRhoTupleQA)
 			  qa.qaComp("x", l1[j], vntp[i]);
+			  // also optional for reco info
+			  if (fQaRecoInfo==1) qa.qaRecoShortTree("x", l1[j], vntp[i]);
+			  else if (fQaRecoInfo==2) qa.qaRecoFullTree("x", l1[j], vntp[i]);
 
 			  // store info about event shapes
 			  if (fQaEventShape) qa.qaEventShapeShort("es",evsh, vntp[i]);
