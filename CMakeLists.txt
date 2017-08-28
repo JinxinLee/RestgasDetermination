@@ -26,29 +26,42 @@ project(PANDAROOT)
 
 ENABLE_LANGUAGE(Fortran)
 
-FIND_PATH(FAIRBASE NAMES FairRun.h  PATHS
-  ${CMAKE_SOURCE_DIR}/base/steer
-  NO_DEFAULT_PATH
-)
+Option(PANDAROOT_MODULAR_BUILD "Modular build without environment variables" OFF)
 
-If (FAIRBASE)
-  Message(STATUS "Found FAIRBASE")
-  SET(FAIRBASE ${FAIRBASE})
-Else (FAIRBASE)
-  Message(STATUS "NOT Found FAIRBASE")
-  IF(NOT DEFINED ENV{FAIRROOTPATH})
-     MESSAGE(FATAL_ERROR "You did not define the environment variable FAIRROOTPATH which is needed to find FairRoot. Please set this variable and execute cmake again.")
-  ENDIF(NOT DEFINED ENV{FAIRROOTPATH})
-  SET(FAIRROOTPATH $ENV{FAIRROOTPATH})
+If(PANDAROOT_MODULAR_BUILD)
+  If(FAIR_ROOT_PATH)
+    Set(ENV{FAIRROOTPATH} ${FAIR_ROOT_PATH})
+    Set(FAIRROOTPATH ${FAIR_ROOT_PATH})
+    Set(FAIRROOT_FOUND TRUE)
+    MESSAGE(STATUS "Took FAIRROOTPATH from command line: >>${FAIRROOTPATH}<<.")
+  EndIf(FAIR_ROOT_PATH)
+Else(PANDAROOT_MODULAR_BUILD)
+  FIND_PATH(FAIRBASE NAMES FairRun.h  PATHS
+    ${CMAKE_SOURCE_DIR}/base/steer
+    NO_DEFAULT_PATH
+  )
 
-EndIf (FAIRBASE)
+  If (FAIRBASE)
+    Message(STATUS "Found FAIRBASE")
+    SET(FAIRBASE ${FAIRBASE})
+  Else (FAIRBASE)
+    Message(STATUS "NOT Found FAIRBASE")
+    IF(NOT DEFINED ENV{FAIRROOTPATH})
+       MESSAGE(FATAL_ERROR "You did not define the environment variable FAIRROOTPATH which is needed to find FairRoot. Please set this variable and execute cmake again.")
+    ENDIF(NOT DEFINED ENV{FAIRROOTPATH})
+    SET(FAIRROOTPATH $ENV{FAIRROOTPATH})
+
+  EndIf (FAIRBASE)
+EndIf(PANDAROOT_MODULAR_BUILD)
 
 
 # where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/
 # is checked
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 set(CMAKE_MODULE_PATH "${FAIRROOTPATH}/share/fairbase/cmake/modules"  ${CMAKE_MODULE_PATH})
-set(CMAKE_MODULE_PATH "${FAIRROOTPATH}/share/fairbase/cmake/modules_old"  ${CMAKE_MODULE_PATH})
+If(NOT PANDAROOT_MODULAR_BUILD)
+  set(CMAKE_MODULE_PATH "${FAIRROOTPATH}/share/fairbase/cmake/modules_old"  ${CMAKE_MODULE_PATH})
+EndIf(NOT PANDAROOT_MODULAR_BUILD)
 
 IF(FAIRROOTPATH)
   Set(CheckSrcDir "${FAIRROOTPATH}/share/fairbase/cmake/checks")
@@ -70,6 +83,7 @@ include(CheckFortran)
 
 
 Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wall -Wextra -Wnon-virtual-dtor")
+
 #Check the compiler and set the compile and link flags
 If(NOT CMAKE_BUILD_TYPE)
   Message("Set BuildType DEBUG")
@@ -81,7 +95,12 @@ Check_Compiler()
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
-Set(VMCWORKDIR ${PANDAROOT_SOURCE_DIR})
+If(PANDAROOT_MODULAR_BUILD)
+  Set(VMCWORKDIR ${CMAKE_BINARY_DIR}/vmcworkdir)
+Else(PANDAROOT_MODULAR_BUILD)
+  Set(VMCWORKDIR ${PANDAROOT_SOURCE_DIR})
+EndIf(PANDAROOT_MODULAR_BUILD)
+
 Option(USE_PATH_INFO "Information from PATH and LD_LIBRARY_PATH are
 used." OFF)
 If(USE_PATH_INFO)
@@ -106,13 +125,110 @@ IF(NOT UNIX)
   MESSAGE(FATAL_ERROR "You're not on an UNIX system. The project was up to now only tested on UNIX systems, so we break here. If you want to go on please edit the CMakeLists.txt in the source directory.")
 ENDIF(NOT UNIX)
 
-# Check if we are at GSI
-# If we are GSI set some variables
-IF(NOT DEFINED ENV{SIMPATH})
-   MESSAGE(FATAL_ERROR "You did not define the environment variable SIMPATH which is nedded to find the external packages. Please set this variable and execute cmake again.")
-ENDIF(NOT DEFINED ENV{SIMPATH})
 
-SET(SIMPATH $ENV{SIMPATH})
+
+if(PANDAROOT_MODULAR_BUILD)
+  Set(ENV{ROOTSYS} "${ROOTSYS}")
+  find_package(ROOT 5.32.00 REQUIRED)
+  find_package(Pythia8)
+  # Geant3, Geant4 installed via cmake
+  Message(STATUS "Looking for GEANT3...")
+  set(GEANT3_PATH "${Geant3_DIR}")
+  Find_Package(Geant3)
+  # Fill the variables needed to create the config script  
+  If(Geant3_DIR)
+    Set(GEANT3_INCLUDE_DIR ${Geant3_INCLUDE_DIRS})
+    Set(GEANT3_LIBRARIES ${Geant3_LIBRARIES})
+    Set(GEANT3_LIBRARY_DIR ${Geant3_DIR}/..)
+    SET(LD_LIBRARY_PATH ${LD_LIBRARY_PATH} ${GEANT3_LIBRARY_DIR})
+    FIND_PATH(GEANT3_SYSTEM_DIR NAMES data PATHS
+              ${Geant3_DIR}/../../share/geant3
+              NO_DEFAULT_PATH
+             )
+    Set(GEANT3_FOUND TRUE)
+    Message(STATUS "!!!! Looking for GEANT3... - found ${GEANT3_LIBRARIES}")
+  Else()
+    Set(GEANT3_FOUND FALSE)
+    Message(FATAL_ERROR "Looking for GEANT3... - Not found ")
+  EndIf()
+  Message(STATUS "Looking for GEANT4...")
+  Find_Package(Geant4)
+  If(Geant4_DIR)
+    Set(GEANT4_INCLUDE_DIR ${Geant4_INCLUDE_DIRS})
+    Set(GEANT4_LIBRARY_DIR "${Geant4_DIR}/..")
+    Set(LD_LIBRARY_PATH ${LD_LIBRARY_PATH} ${GEANT4_LIBRARY_DIR})
+    Set(GEANT4_SHARE_DIR "${Geant4_DIR}/../../share")
+    Set(GEANT4_FOUND TRUE)
+    Message(STATUS "Looking for GEANT4... - includes  ${GEANT4_INCLUDE_DIR}")
+    Message(STATUS "Looking for GEANT4... - libraries ${GEANT4_LIBRARY_DIR}")
+    Message(STATUS "Looking for GEANT4... - share     ${GEANT4_SHARE_DIR}")
+    Message(STATUS "looking for Geant4 data module in ${FAIRROOTPATH}/share/fairbase/cmake/modules_old")
+    Set(CMAKE_MODULE_PATH "${FAIRROOTPATH}/share/fairbase/cmake/modules_old"  ${CMAKE_MODULE_PATH})
+    Find_Package(GEANT4DATA)
+  Else()
+    Set(GEANT4_FOUND FALSE)
+    Message(Status "Looking for GEANT4... - Not found ")
+  EndIf()
+  # Checking for Genat4VMC has to be done in a better way.
+  # In the moment the Geant4VMC version is hardcoded
+  Message(STATUS "Looking for GEANT4VMC...")
+  Find_Package(Geant4VMC)
+  If(Geant4VMC_DIR)
+    Set(GEANT4VMC_INCLUDE_DIR ${Geant4VMC_INCLUDE_DIRS})
+    Set(GEANT4VMC_LIBRARY_DIR "${Geant4VMC_DIR}/..")
+    Set(LD_LIBRARY_PATH ${LD_LIBRARY_PATH} ${GEANT4VMC_LIBRARY_DIR})
+    Set(GEANT4VMC_SHARE_DIR "${Geant4VMC_DIR}/../../share")
+    Find_Path(GEANT4VMC_MACRO_DIR NAMES g4libs.C PATHS
+       ${GEANT4VMC_SHARE_DIR}/Geant4VMC-3.3.0/examples/macro
+       NO_DEFAULT_PATH
+    )
+    Set(GEANT4VMC_FOUND TRUE)
+    Message(STATUS "Looking for GEANT4VMC... - found ${GEANT4VMC_LIBRARY_DIR}")
+  EndIf()
+  Message(STATUS "Looking for VGM...")
+  Find_Package(VGM)
+  If(VGM_DIR)
+    Set(VGM_INCLUDE_DIR ${VGM_INCLUDE_DIRS})
+    Set(VGM_LIBRARY_DIR "${VGM_DIR}/..")
+    Set(LD_LIBRARY_PATH ${LD_LIBRARY_PATH} ${VGM_LIBRARY_DIR})
+    Set(VGM_FOUND TRUE)
+    Message(STATUS "Looking for VGM... - found ${VGM_LIBRARY_DIR}")
+  EndIf()
+  Message(STATUS "Looking for HEPMC...")
+  find_package(HEPMC)
+Else(PANDAROOT_MODULAR_BUILD)
+  # Check if we are at GSI
+  # If we are GSI set some variables
+  IF(NOT DEFINED ENV{SIMPATH})
+     MESSAGE(FATAL_ERROR "You did not define the environment variable SIMPATH which is nedded to find the external packages. Please set this variable and execute cmake again.")
+  ENDIF(NOT DEFINED ENV{SIMPATH})
+
+  SET(SIMPATH $ENV{SIMPATH})
+
+  find_package(ROOT 5.32.00 REQUIRED)
+  #find_package(PLUTO REQUIRED)
+  #find_package(glpk REQUIRED)
+  find_package(Pythia8 REQUIRED)
+  find_package(GENERATORS REQUIRED)
+  find_package(GEANT3 REQUIRED)
+  find_package(GEANT4)
+  find_package(GEANT4DATA)
+  find_package(GEANT4VMC)
+  find_package(CLHEP)
+  find_package(CERNLIB)
+  find_package(HEPMC)
+EndIf(PANDAROOT_MODULAR_BUILD)
+
+SET (PYTHIA8_INCLUDE_DIR
+  ${PYTHIA8_INCLUDE_DIR}
+  ${PYTHIA8_INCLUDE_DIR}/../
+)
+
+If(WITH_DBASE)
+  find_package(MYSQL)
+  find_package(PGSQL)
+  find_package(SQLITE)
+EndIf(WITH_DBASE)
 
 # Check if the external packages are installed into a separate install
 # directory
@@ -126,19 +242,6 @@ CHECK_EXTERNAL_PACKAGE_INSTALL_DIR()
 # REQUIRED means that cmake will stop if this packages are not found
 # For example the framework can run without GEANT4, but ROOT is
 # mandatory
-
-find_package(ROOT 5.32.00 REQUIRED)
-#find_package(PLUTO REQUIRED)
-#find_package(glpk REQUIRED)
-find_package(Pythia8 REQUIRED)
-find_package(GENERATORS REQUIRED)
-find_package(GEANT3 REQUIRED)
-find_package(GEANT4)
-find_package(GEANT4DATA)
-find_package(GEANT4VMC)
-find_package(CLHEP)
-find_package(CERNLIB)
-find_package(HEPMC)
 
 Set(Boost_NO_SYSTEM_PATHS TRUE)
 Set(Boost_NO_BOOST_CMAKE TRUE)
