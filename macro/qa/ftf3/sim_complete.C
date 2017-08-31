@@ -7,14 +7,14 @@
 
 int sim_complete(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Double_t BeamMomentum = 6.231552)
 {
-  gSystem->Load("libFtfGenDirect.so");
+//  gSystem->Load("libFtfGenDirect.so");
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
   // TString inputGenerator = 
   // EvtGen -> "xxxxxxxx.dec"
   // DPM    -> "dpm_xxxxx"
   // FTF    -> "ftf_xxxxx"
-  TString  inputGenerator = "ftf_qa"; 
+  TString  inputGenerator = "FTF.root";
   gRandom->SetSeed(1234);
   //-------------------------------------------------------------------------
   // -----   Create the Simulation run manager ------------------------------
