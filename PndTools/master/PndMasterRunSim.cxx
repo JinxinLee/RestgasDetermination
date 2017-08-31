@@ -18,6 +18,7 @@
 #include "PndEmcHitProducer.h"
 #include "PndDpmDirect.h"
 #include "PndFtfDirect.h"
+#include "PndFtfGenerator.h"
 #include "PndBoxGenerator.h"
 #include "PndEvtGenDirect.h"
 #include "PndPiPiGenerator.h"
@@ -342,7 +343,7 @@ void PndMasterRunSim::SetGenerator()
     }
   else if (input.BeginsWith("ftf"))
     {
-      UseFtfGenerator();
+      UseFtfGenerator(fInput);
     }
   else if (input.BeginsWith("box"))
     {
@@ -532,12 +533,18 @@ void PndMasterRunSim::UseDpmGenerator()
 }
  
 // -----   UseFtfGenerator   -----------------------------------------------
-void PndMasterRunSim::UseFtfGenerator()
+void PndMasterRunSim::UseFtfGenerator(TString ftfData)
 {
   //if ( strncmp(fName,"TGeant4",7 ) == 0 ) LOG(FATAL) << "FTF does not run with Geant4 !!!"  << FairLogger::endl;
-  LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() <<", "<<fFtfFlag<< ") generator" << FairLogger::endl;
-  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed(), fFtfFlag);
-  fGen->AddGenerator(Ftf);
+  if (ftfData.Contains(".root")){
+	  LOG(INFO) << "Using PndFtfGenerator with input file " << ftfData << FairLogger::endl;
+	  PndFtfGenerator* Ftf = new PndFtfGenerator(ftfData);
+	  fGen->AddGenerator(Ftf);
+  } else {
+	  LOG(INFO) << "Using PndFtfDirect(anti_proton, G4_H, 1, ftfp, " << GetBeamMom() << ", " << gRandom->GetSeed() <<", "<<fFtfFlag<< ") generator" << FairLogger::endl;
+	  PndFtfDirect *Ftf = new PndFtfDirect("anti_proton", "G4_H", 1, "ftfp", GetBeamMom(), gRandom->GetSeed(), fFtfFlag);
+	  fGen->AddGenerator(Ftf);
+  }
 }
 
 // -----   UseEvtGenGenerator   --------------------------------------------

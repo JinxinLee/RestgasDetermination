@@ -134,8 +134,10 @@ class PndMasterRunSim : public FairRunSim
    * @brief Use FTF as event generator
    * @details # FTF event generator
    * This call set FTF as event generator.
+   * If no input file is given FtfDirect is used.
+   * With input file the events are taken from ftfData.
    */
-  void UseFtfGenerator();
+  void UseFtfGenerator(TString ftfData);
 
   /** 
    * @brief Use EvtGen as event generator
