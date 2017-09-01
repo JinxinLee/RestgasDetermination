@@ -5,7 +5,7 @@ int reco_complete(Int_t nEvents = 0)
 {
   //-----User Settings:------------------------------------------------------
   TString  parAsciiFile   = "all.par";
-  TString  input          = "ftf_qa"; 
+  TString  input          = "ftf";
   TString  output         = "reco";
   TString  friend1        = "digi";
   TString  friend2        = "";

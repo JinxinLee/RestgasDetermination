@@ -65,8 +65,8 @@ int ana_complete(int nevts=0)
 	TString OutFile="output.root";  
 					
 	// *** the files coming from the simulation
-	TString inPidFile  = "ftf_qa_pid.root";    // this file contains the PndPidCandidates and McTruth
-	TString inParFile  = "ftf_qa_par.root";
+	TString inPidFile  = "ftf_pid.root";    // this file contains the PndPidCandidates and McTruth
+	TString inParFile  = "ftf_par.root";
 	
 	// *** PID table with selection thresholds; can be modified by the user
 	TString pidParFile = TString(gSystem->Getenv("VMCWORKDIR"))+"/macro/params/all.par";	
