@@ -306,11 +306,11 @@ int QAmacro_mvd_ana()
   str += " #mum";
 //  DrawText( 0.2, 0.7, str.Data(),0.05,1);
   std::cout<< str.Data();
-  if( fabs(10000*par[5]) < 50 ){
-    std::cout<< " Passed a 50um window.";
+  if( fabs(10000*par[5]) < 100 ){
+    std::cout<< " Passed a 100um window.";
     test2=test2 && kTRUE;
   } else {
-    std::cout<<" Didn't pass a 50um window.";
+    std::cout<<" Didn't pass a 100um window.";
     test2=kFALSE;
   } std::cout<<std::endl;
 
