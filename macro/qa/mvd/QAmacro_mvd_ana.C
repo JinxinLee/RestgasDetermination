@@ -264,23 +264,36 @@ int QAmacro_mvd_ana()
   TString str="";
   std::cout<<" --- Test resolution ---"<<std::endl;
 
+  Float_t mean1=10000*par[1];
+  Float_t sigma1=10000*par[2];
+  Float_t mean2=10000*par[4];
+  Float_t sigma2=10000*par[5];
+
+  cout << "<DartMeasurement name=\"mean_1 [um]\" type=\"numeric/double\">";
+  cout << mean1;
+  cout << "</DartMeasurement>" << endl;
+
   str = "Mean_{1} = ";
-  str += (10000*par[1]); for (int i=0;i<6;i++) str.Chop();
+  str += (mean1); for (int i=0;i<6;i++) str.Chop();
   str += " #mum";
   std::cout<<str.Data()<<" is ";
-  if( fabs(10000*par[1]) < 2*(10000*par[2]) ){
+  if( fabs(mean1) < 2*sigma1 ){
     std::cout<<"less";
     test1=test1 && kTRUE;
   } else {
     std::cout<<"MORE";
     test1=kFALSE;
   } std::cout<<" than 2 #sigma away from 0"<<std::endl;
+
+  cout << "<DartMeasurement name=\"mean_2 [um]\" type=\"numeric/double\">";
+  cout << mean2;
+  cout << "</DartMeasurement>" << endl;
 
   str = "Mean_{2} = ";
-  str += (10000*par[4]); for (int i=0;i<6;i++) str.Chop();
+  str += (mean2); for (int i=0;i<6;i++) str.Chop();
   str += " #mum";
   std::cout<<str.Data()<<" is ";
-  if( fabs(10000*par[4]) < 2*(10000*par[5]) ){
+  if( fabs(mean2) < 2*sigma2 ){
     std::cout<<"less";
     test1=test1 && kTRUE;
   } else {
@@ -288,12 +301,16 @@ int QAmacro_mvd_ana()
     test1=kFALSE;
   } std::cout<<" than 2 #sigma away from 0"<<std::endl;
 
+  cout << "<DartMeasurement name=\"sigma_1 [um]\" type=\"numeric/double\">";
+  cout << sigma1;
+  cout << "</DartMeasurement>" << endl;
+
   str = "#sigma_{1} = ";
-  str += (10000*par[2]); for (int i=0;i<6;i++) str.Chop();
+  str += (sigma1); for (int i=0;i<6;i++) str.Chop();
   str += " #mum";
 //  DrawText( 0.2, 0.8, str.Data(),0.05,1);
   std::cout<< str.Data();
-  if( fabs(10000*par[2]) < 10 ){
+  if( fabs(sigma1) < 10 ){
     std::cout<< " Passed a 10um window.";
     test2=test2 && kTRUE;
   } else {
@@ -301,12 +318,18 @@ int QAmacro_mvd_ana()
     test2=kFALSE;
   } std::cout<<std::endl;
 
+  Float_t sigma2=10000*par[5];
+  cout << "<DartMeasurement name=\"sigma_2 [um]\" type=\"numeric/double\">";
+  cout << sigma2;
+  cout << "</DartMeasurement>" << endl;
+
   str = "#sigma_{2} = ";
-  str += (10000*par[5]); for (int i=0;i<6;i++) str.Chop();
+  str += (sigma2); for (int i=0;i<6;i++) str.Chop();
   str += " #mum";
 //  DrawText( 0.2, 0.7, str.Data(),0.05,1);
   std::cout<< str.Data();
-  if( fabs(10000*par[5]) < 100 ){
+
+  if( fabs(sigma2) < 100 ){
     std::cout<< " Passed a 100um window.";
     test2=test2 && kTRUE;
   } else {
