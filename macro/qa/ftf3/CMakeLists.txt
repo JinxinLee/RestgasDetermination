@@ -1,3 +1,5 @@
+configure_file(${CMAKE_SOURCE_DIR}/macro/qa/ftf3/FTF.root ${CMAKE_BINARY_DIR}/macro/qa/ftf3/FTF.root COPYONLY)
+
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/ftf3/sim_complete.C)
 add_test(sim_ftf3 ${PANDAROOT_BINARY_DIR}/macro/qa/ftf3/sim_complete.sh)
 SET_TESTS_PROPERTIES(sim_ftf3 PROPERTIES TIMEOUT "400")
