@@ -318,7 +318,6 @@ int QAmacro_mvd_ana()
     test2=kFALSE;
   } std::cout<<std::endl;
 
-  Float_t sigma2=10000*par[5];
   cout << "<DartMeasurement name=\"sigma_2 [um]\" type=\"numeric/double\">";
   cout << sigma2;
   cout << "</DartMeasurement>" << endl;
