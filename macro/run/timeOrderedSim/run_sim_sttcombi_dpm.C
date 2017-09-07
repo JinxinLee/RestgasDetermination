@@ -1,6 +1,6 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0){
+int run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t seed=0){
   gRandom->SetSeed(seed);
   TStopwatch timer;
   timer.Start();
@@ -13,8 +13,8 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
 
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+//  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//  rootlogon();
   
   PndFileNameCreator creator(simOutput.Data());
   TString parFile = creator.GetParFileName().c_str();
@@ -89,7 +89,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   fRun->AddModule(Emc);
 
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_Barrel_woPCB.root");
+  SciT->SetGeometryFileName("SciTil_201601.root");
   fRun->AddModule(SciT);
 
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
@@ -129,8 +129,14 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  PndDpmDirect *dpmGen = new PndDpmDirect(mom, mode, gRandom->GetSeed(), 2.);
-  primGen->AddGenerator(dpmGen);
+  TString  EvtInput =gSystem->Getenv("VMCWORKDIR");
+  EvtInput+="/macro/run/psi2s_Jpsi2pi_Jpsi_mumu.dec";
+  PndEvtGenDirect *EvtGen = new PndEvtGenDirect("pbarpSystem", EvtInput.Data(), mom);
+  EvtGen->SetStoreTree(kTRUE);
+  primGen->AddGenerator(EvtGen);
+
+//  PndDpmDirect *dpmGen = new PndDpmDirect(mom, mode, gRandom->GetSeed(), 2.);
+//  primGen->AddGenerator(dpmGen);
 
   // Create and Set Magnetic Field
   //-------------------------------
@@ -162,5 +168,7 @@ run_sim_sttcombi_dpm(Int_t nEvents=10, Float_t mom = 5., Int_t mode =1, UInt_t s
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+
+  return 0;
 
 }

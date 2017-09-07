@@ -1,4 +1,4 @@
-{
+int run_tracking_sttcombi_timebased(){
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -8,10 +8,6 @@
 
   // Number of events to process
   Int_t nEvents = 0;
- 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
 
   PndFileNameCreator creator(MCFile.Data());
   TString DigiFile = creator.GetDigiFileName("timebased").c_str();
@@ -145,5 +141,6 @@
   cout << endl;
   // ------------------------------------------------------------------------
 
+  return 0;
 
 }

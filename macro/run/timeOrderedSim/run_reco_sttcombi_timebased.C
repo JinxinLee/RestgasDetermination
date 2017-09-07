@@ -1,4 +1,4 @@
-{
+int run_reco_sttcombi_timebased(){
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
@@ -9,10 +9,7 @@
 
   // Number of events to process
   Int_t nEvents = 0;
- 
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
+
 
   PndFileNameCreator creator(MCFile.Data());
   TString DigiFile = creator.GetDigiFileName("timebased").c_str();
@@ -63,14 +60,14 @@
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
 
-  PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
-  fRun->AddTask(emcMakeCluster);
-
-  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
-  fRun->AddTask(emcMakeBump);
-
-  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  fRun->AddTask(emcHdrFiller); // ECM header
+//  PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
+//  fRun->AddTask(emcMakeCluster);
+//
+//  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
+//  fRun->AddTask(emcMakeBump);
+//
+//  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+//  fRun->AddTask(emcHdrFiller); // ECM header
   
   PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
@@ -101,5 +98,5 @@
   cout << endl;
   // ------------------------------------------------------------------------
 
-
+ return 0;
 }

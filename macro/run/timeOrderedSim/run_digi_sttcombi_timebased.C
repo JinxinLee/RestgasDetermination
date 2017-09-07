@@ -1,3 +1,4 @@
+int run_digi_sttcombi_timebased()
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -10,9 +11,6 @@
   // Number of events to process
   Int_t nEvents = 100;
  
-  // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
 
@@ -124,14 +122,14 @@
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
-  Double_t ctime = timer.CpuTime();
+  Double_t cputime = timer.CpuTime();
   cout << endl << endl;
   cout << "Macro finished succesfully." << endl;
   cout << "Output file is "    << outFile << endl;
   cout << "Parameter file is " << parFile << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
+  cout << "Real time " << rtime << " s, CPU time " << cputime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
 
-
+  return 0;
 }
