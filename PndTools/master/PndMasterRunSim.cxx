@@ -215,9 +215,15 @@ void PndMasterRunSim::CreateGeometryDay1()
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   AddModule(Stt);
   //-------------------------  MVD       -----------------
-  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
-  AddModule(Mvd);
+  if (fOptions.Contains("strip")){
+	  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+	  Mvd->SetGeometryFileName("Mvd-2.1-Strips.root");
+	  AddModule(Mvd);
+  } else {
+	  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+	  Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+	  AddModule(Mvd);
+  }
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryVersion(1);
