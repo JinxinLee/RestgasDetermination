@@ -9,7 +9,7 @@
 using std::cout;
 using std::endl;
 
-bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target.root", double minP = 0.03, int minev = 3, int maxfail=3)
+bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target_G3.root", double minP = 0.03, int minev = 3, int maxfail=3)
 {
         TStopwatch fTimer;
 	bool fTest=kFALSE;
