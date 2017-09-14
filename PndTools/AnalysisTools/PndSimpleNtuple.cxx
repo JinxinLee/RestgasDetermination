@@ -36,368 +36,161 @@
 using std::cout;
 using std::endl;
 
-#define MAXBR 1000000  // maximum number per type; 
-
 TString typearr[8] = {"D","F","I","B","D[]","F[]","I[]","B[]"};
 
 
 // -------------------------------------------------------------------------------
 
-PndSimpleNtuple::PndSimpleNtuple(TString name, TString title, TString precut, int maxsize) :
-	fTree(new TTree(name, title)), fGrowBuf(maxsize),
-	fPrecut(precut), fIsConfigured(false)
+PndSimpleNtuple::PndSimpleNtuple(TString name, TString title, TString precut) :
+	fTree(new TTree(name, title)),fTmpTree(new TTree("tmp", "")), fPrecut(precut), fFml(0)
 {
 	fTree->SetDirectory(0);
-	
-	fDValues  = new Double_t[fGrowBuf];
-	fFValues  = new Float_t[fGrowBuf];
-	fIValues  = new Int_t[fGrowBuf];
-	fBValues  = new Char_t[fGrowBuf];
-	
-	//fDPointers  = new Double_t*[fGrowBuf];
-	//fFPointers  = new Float_t*[fGrowBuf];
-	//fIPointers  = new Int_t*[fGrowBuf];
-	//fBPointers  = new Char_t*[fGrowBuf];
-		
-	// this is the portion fMax for the different arrays grows by, if hitting the current limit
-	for (int i=0;i<8;++i) 
-	{
-		fMax[i]  = fGrowBuf;
-		fSize[i] = 0;
-	}
-	
-	fBranchMap.clear();
+	fTmpTree->SetDirectory(0);
 };
 
 // ----------------------------------
 //          DOUBLE VALUES
 // ----------------------------------
-void PndSimpleNtuple::Column(TString name, Double_t value)
+void PndSimpleNtuple::Column(const TString &name, double value)
 {
-	int curtype = 0; // Double_t 
-	int cursize = fSize[curtype];
-	int curmax  = fMax[curtype];
-	
-	// if existing, should be 0 <= bridx < 1e6 for double
-	int bridx = BranchIndex(name);	
-	int datatype = bridx>=0 ? bridx/MAXBR : curtype;
-	bridx = bridx>=0 ? bridx%MAXBR : -1;
-	
-	// new branch to be created
-	if (bridx<0)
+	// new branch?
+	if (fBrTypes.find(name) == fBrTypes.end())
 	{
-		// do we need to expand the array?
-		if (cursize>=curmax)
-		{
-			fMax[curtype] += fGrowBuf;
-			//std::cout <<" [INFO] PndSimpleNtuple : GROWING array Double_t by "<< fGrowBuf <<" to max="<<fMax[curtype]<<std::endl;
-			
-			// create temp array (we'll keep this and delete the old one)
-			Double_t *tmpD = new Double_t[fMax[curtype]];
-			for (int i=0;i<curmax;++i) tmpD[i] = fDValues[i];
-			delete[] fDValues;
-			fDValues = tmpD;
-			
-			// take over and update branch addresses
-			for ( std::map<TString, Int_t>::iterator it = fBranchMap.begin(); it != fBranchMap.end(); it++ )
-				if (it->second/MAXBR == curtype)
-					fTree->SetBranchAddress(it->first.Data(), &(fDValues[it->second%MAXBR]));		
-		}
-		
-		// create the new branch
-		fTree->Branch(name.Data(),&(fDValues[cursize]),(name+"/D").Data());
-		bridx = fSize[curtype]++;
-		fBranchMap[name] = bridx + MAXBR*curtype;
+		fBrTypes[name] = 0;  // type double
+		fDValues[name] = value;
+		fTree->Branch(name.Data(), &(fDValues[name]), (name+"/D").Data());
+		fTmpTree->Branch(name.Data(), &(fDValues[name]), (name+"/D").Data());
 	}
-	
-	//wrong type (no double)
-	if (datatype != curtype)
+	else if ( fBrTypes[name] != 0)
 	{
-		std::cout<<" - WARNING - Type mismatch of branch "<<name<<" ("<<typearr[curtype]<<" -> "<<typearr[datatype]<<")!"<<std::endl;
-		return;
+		std::cout<<" - WARNING - Type mismatch of branch '"<<name<<"/"<<typearr[fBrTypes[name]]<<"' with type '"<<typearr[0]<<"'"<<std::endl;
+		return;		
 	}
-	
-	fDValues[bridx] = value;
+	else
+		fDValues[name] = value;
 }
 
 // ----------------------------------
-//           FLOAT VALUES
+//          FLOAT VALUES
 // ----------------------------------
-void PndSimpleNtuple::Column(TString name, Float_t value)
+void PndSimpleNtuple::Column(const TString &name, float value)
 {
-	int curtype = 1; // Float_t 
-	int cursize = fSize[curtype];
-	int curmax  = fMax[curtype];
-	
-	// if existing, should be 1e6 <= bridx < 2e6 for float
-	int bridx = BranchIndex(name);
-	int datatype = bridx>=0 ? bridx/MAXBR : curtype;
-	bridx = bridx>=0 ? bridx%MAXBR : -1;
-	
-	if (bridx<0)
+	// new branch?
+	if (fBrTypes.find(name) == fBrTypes.end())
 	{
-		// do we need to expand the array?
-		if (cursize>=curmax)
-		{
-			fMax[curtype] += fGrowBuf;
-			//std::cout <<" [INFO] PndSimpleNtuple : GROWING array Double_t by "<< fGrowBuf <<" to max="<<fMax[curtype]<<std::endl;
-			
-			// create temp array (we'll keep this and delete the old one)
-			Float_t *tmpD = new Float_t[fMax[curtype]];
-			for (int i=0;i<curmax;++i) tmpD[i] = fFValues[i];
-			delete[] fFValues;
-			fFValues = tmpD;
-			
-			// take over and update branch addresses
-			for ( std::map<TString, Int_t>::iterator it = fBranchMap.begin(); it != fBranchMap.end(); it++ )
-				if (it->second/MAXBR == curtype)
-					fTree->SetBranchAddress(it->first.Data(), &(fFValues[it->second%MAXBR]));		
-		}
-		
-		// create the new branch
-		fTree->Branch(name.Data(),&(fFValues[cursize]),(name+"/F").Data());
-		bridx = fSize[curtype]++;
-		fBranchMap[name] = bridx + MAXBR*curtype;
+		fBrTypes[name] = 1;  // type double
+		fFValues[name] = value;
+		fTree->Branch(name.Data(), &(fFValues[name]), (name+"/F").Data());
+		fTmpTree->Branch(name.Data(), &(fFValues[name]), (name+"/F").Data());
 	}
-	
-	//wrong type (no float) 
-	if (datatype != curtype)
+	else if ( fBrTypes[name] != 1)
 	{
-		std::cout<<" - WARNING - Type mismatch of branch "<<name<<" ("<<typearr[curtype]<<" -> "<<typearr[datatype]<<")!"<<std::endl;
-		return;
+		std::cout<<" - WARNING - Type mismatch of branch '"<<name<<"/"<<typearr[fBrTypes[name]]<<"' with type '"<<typearr[1]<<"'"<<std::endl;
+		return;		
 	}
-	
-	fFValues[bridx] = value;
+	else
+		fFValues[name] = value;
 }
 
 // ----------------------------------
-//           INT VALUES
+//          INT VALUES
 // ----------------------------------
-void PndSimpleNtuple::Column(TString name, Int_t value)
+void PndSimpleNtuple::Column(const TString &name, int value)
 {
-	int curtype = 2; // Int_t 
-	int cursize = fSize[curtype];
-	int curmax  = fMax[curtype];
-	
-	// if existing, should be 2e6 <= bridx < 3e6 for int
-	int bridx = BranchIndex(name);
-	int datatype = bridx>=0? bridx/MAXBR : curtype;
-	bridx = bridx>=0 ? bridx%MAXBR : -1;
-	
-	if (bridx<0)
+	// new branch?
+	if (fBrTypes.find(name) == fBrTypes.end())
 	{
-		// do we need to expand the array?
-		if (cursize>=curmax)
-		{
-			fMax[curtype] += fGrowBuf;
-			//std::cout <<" [INFO] PndSimpleNtuple : GROWING array Double_t by "<< fGrowBuf <<" to max="<<fMax[curtype]<<std::endl;
-			
-			// create temp array (we'll keep this and delete the old one)
-			Int_t *tmpD = new Int_t[fMax[curtype]];
-			for (int i=0;i<curmax;++i) tmpD[i] = fIValues[i];
-			delete[] fIValues;
-			fIValues = tmpD;
-			
-			// take over and update branch addresses
-			for ( std::map<TString, Int_t>::iterator it = fBranchMap.begin(); it != fBranchMap.end(); it++ )
-				if (it->second/MAXBR == curtype)
-					fTree->SetBranchAddress(it->first.Data(), &(fIValues[it->second%MAXBR]));		
-		}
-		
-		// create the new branch
-		fTree->Branch(name.Data(),&(fIValues[cursize]),(name+"/I").Data());
-		bridx = fSize[curtype]++;
-		fBranchMap[name] = bridx + MAXBR*curtype;
+		fBrTypes[name] = 2;  // type double
+		fIValues[name] = value;
+		fTree->Branch(name.Data(), &(fIValues[name]), (name+"/I").Data());
+		fTmpTree->Branch(name.Data(), &(fIValues[name]), (name+"/I").Data());
 	}
-	
-	//wrong type (no int) 
-	if (datatype != curtype)
+	else if ( fBrTypes[name] != 2)
 	{
-		std::cout<<" - WARNING - Type mismatch of branch "<<name<<" ("<<typearr[curtype]<<" -> "<<typearr[datatype]<<")!"<<std::endl;
-		return;
+		std::cout<<" - WARNING - Type mismatch of branch '"<<name<<"/"<<typearr[fBrTypes[name]]<<"' with type '"<<typearr[2]<<"'"<<std::endl;
+		return;		
 	}
-	
-	fIValues[bridx] = value;
+	else
+		fIValues[name] = value;
 }
 
 // ----------------------------------
-//           BOOL VALUES
+//          BOOL VALUES
 // ----------------------------------
-void PndSimpleNtuple::Column(TString name, Bool_t value)
+void PndSimpleNtuple::Column(const TString &name, bool value)
 {
-	int curtype = 3; // Bool_t 
-	int cursize = fSize[curtype];
-	int curmax  = fMax[curtype];
-	
-	// if existing, should be 3e6fMax <= bridx < 4e6 for bool
-	int bridx = BranchIndex(name);
-	int datatype = bridx>=0 ? bridx/MAXBR : curtype;
-	bridx = bridx>=0 ? bridx%MAXBR : -1;
-	
-	if (bridx<0)
+	// new branch?
+	if (fBrTypes.find(name) == fBrTypes.end())
 	{
-		// do we need to expand the array?
-		if (cursize>=curmax)
-		{
-			fMax[curtype] += fGrowBuf;
-			//std::cout <<" [INFO] PndSimpleNtuple : GROWING array Double_t by "<< fGrowBuf <<" to max="<<fMax[curtype]<<std::endl;
-			
-			// create temp array (we'll keep this and delete the old one)
-			Char_t *tmpD = new Char_t[fMax[curtype]];
-			for (int i=0;i<curmax;++i) tmpD[i] = fBValues[i];
-			delete[] fBValues;
-			fBValues = tmpD;
-			
-			// take over and update branch addresses
-			for ( std::map<TString, Int_t>::iterator it = fBranchMap.begin(); it != fBranchMap.end(); it++ )
-				if (it->second/MAXBR == curtype)
-					fTree->SetBranchAddress(it->first.Data(), &(fBValues[it->second%MAXBR]));		
-		}
-		
-		// create the new branch
-		fTree->Branch(name.Data(),&(fBValues[cursize]),(name+"/B").Data());
-		bridx = fSize[curtype]++;
-		fBranchMap[name] = bridx + MAXBR*curtype;
+		fBrTypes[name] = 3;  // type double
+		fBValues[name] = value;
+		fTree->Branch(name.Data(), &(fBValues[name]), (name+"/B").Data());
+		fTmpTree->Branch(name.Data(), &(fBValues[name]), (name+"/B").Data());
 	}
-	
-	//wrong type (no bool) 
-	if (datatype != curtype)
+	else if ( fBrTypes[name] != 3)
 	{
-		std::cout<<" - WARNING - Type mismatch of branch "<<name<<" ("<<typearr[curtype]<<" -> "<<typearr[datatype]<<")!"<<std::endl;
-		return;
+		std::cout<<" - WARNING - Type mismatch of branch '"<<name<<"/"<<typearr[fBrTypes[name]]<<"' with type '"<<typearr[3]<<"'"<<std::endl;
+		return;		
 	}
-	
-	fBValues[bridx] = value;
+	else
+		fBValues[name] = value;
 }
 
-
 // ----------------------------------
-// sets double value array of a variable 'name', index variable 'idxvar'
-void PndSimpleNtuple::Column(TString name, Double_t *vpointer, TString idxvar) 
+
+double PndSimpleNtuple::GetCurrentValue(TString name)
 {
-	int curtype = 4; // Double_t* (array var) 
+	// branch does not exist
+	if (fBrTypes.find(name)==fBrTypes.end()) return sqrt(-1.);
 	
-	// if existing, should be 4e6fMax <= bridx < 5e6 for double*
-	int bridx = BranchIndex(name);
-	int datatype = bridx>=0 ? bridx/MAXBR : curtype;
-	bridx = bridx>=0 ? bridx%MAXBR : -1;
+	int brtype = fBrTypes[name];
 	
-	if (bridx<0)
+	switch (brtype) 
 	{
-		// create the new branch
-		fTree->Branch(name.Data(),vpointer,(name+"["+idxvar+"]/D").Data());
-		bridx = fSize[curtype]++;
-		fBranchMap[name] = bridx + MAXBR*curtype;
-	}
-	else 
-		fTree->SetBranchAddress(name.Data(), vpointer);
-	
-	//wrong type (no double*) 
-	if (datatype != curtype)
-	{
-		std::cout<<" - WARNING - Type mismatch of branch "<<name<<" ("<<typearr[curtype]<<" -> "<<typearr[datatype]<<")!"<<std::endl;
-		return;
+		case 0: return fDValues[name]; 
+		case 1: return (double) fFValues[name]; 
+		case 2: return (double) fIValues[name]; 
+		case 3: return (double) fBValues[name]; 
 	}
 		
-	//fDPointers[bridx] = vpointer;
-}
-
-//// ----------------------------------
-//// sets float value array of a variable 'name', index variable 'idxvar'
-//void PndSimpleNtuple::Column(TString name, Float_t *vpointer,  TString idxvar) 
-//{
-//}
-
-//// ----------------------------------
-//// sets integer value array of a variable 'name', index variable 'idxvar'
-//void PndSimpleNtuple::Column(TString name, Int_t *vpointer,    TString idxvar)
-//{
-//}
-
-//// ----------------------------------
-//// sets bool value of array a variable 'name', index variable 'idxvar'
-//void PndSimpleNtuple::Column(TString name, Bool_t *vpointer,   TString idxvar)
-//{
-//}
-
-// ----------------------------------
-
-Double_t PndSimpleNtuple::GetCurrentValue(TString name)
-{
-	int bridx = BranchIndex(name);
-	int datatype = bridx/MAXBR;
-	bridx = bridx%MAXBR;
-	
-	// branch doesn't exist
-	if (bridx<0) return sqrt(-1);
-	
-	switch (datatype)
-	{
-	case 0 : return fDValues[bridx]; break; // double 
-	case 1 : return fFValues[bridx]; break; // float 
-	case 2 : return fIValues[bridx]; break; // int 
-	case 3 : return fBValues[bridx]; break; // bool 
-	
-	default : return sqrt(-1);
-	}
-	
+	return sqrt(-1);
 }
 
 // ----------------------------------
 
 bool PndSimpleNtuple::Accept()
 {
-	if (fIsConfigured && fFml.GetNpar()==0) return true;
+	if (fPrecut=="") return true;
 	
-	if (!fIsConfigured)
-	{
-		fIsConfigured = true;
-		fPrecutVars.clear();
-		fFml.Clear();
-		
-		if (fPrecut=="") return true;
-		
-		std::vector<TString> svec;
-		TRegexp rvar("[a-zA-Z_][a-zA-Z0-9_]*");
-		
-		TString tmp=fPrecut, mtch=tmp(rvar);
-
-		while (mtch!="") 
-		{
-			tmp.ReplaceAll(mtch,"");
-			if (BranchExists(mtch))
-			{
-				fPrecutVars.push_back(mtch);		
-			}
-			mtch = tmp(rvar);
-		}
-		tmp = fPrecut;
-		for (uint i=0;i<fPrecutVars.size();++i) tmp.ReplaceAll(fPrecutVars[i],TString::Format("[%d]",i));
-		if (fPrecutVars.size()>0 && fFml.Compile(tmp)==0) fFml.SetTitle(""); else fFml.Clear();
-		cout <<"PndSimpleNtuple - TFormula : "<<fFml.GetExpFormula()<<endl;
-	}	
+	if (fFml==0) fFml = new TTreeFormula("fFml", fPrecut, fTmpTree);
 	
-	for (uint i=0;i<fPrecutVars.size();++i) fFml.SetParameter(i,GetCurrentValue(fPrecutVars[i]));
-	
-	if (fFml.Eval(0)) return true;
-	
-	return false;
+	fTmpTree->Fill();
+	fTmpTree->GetEntry(fTmpTree->GetEntriesFast()-1);
+	return fFml->EvalInstance();
 }
 
 // ----------------------------------
 
 int PndSimpleNtuple::ShowBranches()
 {
-	std::map<TString, Int_t>::iterator it;
-
-	for ( it = fBranchMap.begin(); it != fBranchMap.end(); it++ )
+	int cnt=0;
+	for (auto x: fBrTypes)
 	{
-		int type = it->second / MAXBR;
-		std::cout << it->first<<"/"<<typearr[type]  // string (key)
-				  << " : "
-				  << it->second   // string's value 
-				  << std::endl ;
-	}	
+		cout <<cnt++<<" : "<<x.first<<"/"<<typearr[x.second]<<endl;
+	}
 	
-	return (int)fBranchMap.size();
+	return fBrTypes.size();
 }
+
+// ----------------------------------
+
+void PndSimpleNtuple::SetPrecut(TString precut) //{ if (fFml) delete fFml; fFml = 0; if (precut!="") fFml = new TTreeFormula("fFml",precut,fTmpTree);}
+{
+	if (precut!=fPrecut)
+	{
+		if (fFml!=0) {delete fFml; fFml=0;}
+		fPrecut=precut;
+	}
+}
+
+
