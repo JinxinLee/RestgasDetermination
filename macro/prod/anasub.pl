@@ -49,7 +49,7 @@ if ( $para =~ m/\.jobs$/ )
     foreach my $cmd (@commands)
     {
 	chomp $cmd;
-	if ( $cmd =~ m/^#/) {next;}
+	if ( $cmd =~ m/^#/ || $cmd !~ /\S/ ) {next;}
     
 	print "reading: ".$cmd."\n";
 	$cmd =~ m/(\d+)-(\d+)(.+)(job.*\.sh)\s+([\w,\/]+)\s+(.*)/;
@@ -61,6 +61,9 @@ else
 {
     push(@prefs, $para);
 }
+
+print "\n";
+
 
 # if mode not yet defined, set to default
 if (!defined($mode)) {$mode=0;}
