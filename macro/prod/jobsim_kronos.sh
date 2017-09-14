@@ -48,6 +48,9 @@ tmpdir="/tmp/"$USER"_"$SLURM_JOB_ID"_"$run"/"
 mkdir $tmpdir
 cd $tmpdir
 echo "tmpdir is "$tmpdir
+echo "SIMPATH is "$SIMPATH
+echo "FAIRROOTPATH is "$FAIRROOTPATH
+
 
 # check which parameters are set
 if test "$1" != ""; then
@@ -75,7 +78,13 @@ if test "$6" != ""; then
 fi
 
 # if local dec-file given, prepend the absolute path to it
-if test "$dec" != ""; then
+if [[ $dec == *".dec"* ]]; then
+  if [[ $dec != \/* ]] ; then
+	dec=$nyx"/"$dec
+  fi
+fi
+
+if [[ $dec == *".DEC"* ]]; then
   if [[ $dec != \/* ]] ; then
 	dec=$nyx"/"$dec
   fi

@@ -17,7 +17,7 @@
 //    [mode]    : arbitrary mode number (default: 0)
 // -------------------
 
-int quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0, int runmode=0)
+void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, TString anaparms="", bool fastsim=false, bool runST=false, int run=0, int runmode=0)
 {
 	if (Fname=="" || Mom==0) 
 	{
@@ -32,11 +32,11 @@ int quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, T
 		cout << "   [runST]   : if 'true' runs Software Trigger (default: false)\n";
 		cout << "   [runnum]  : integer run number (default: 0)\n";
 		cout << "   [mode]    : arbitrary mode number (default: 0)\n\n";
-		return 0;
+		return;
 	}
 	
 	// do some reconstruction ?
-	bool doreco  = (anadecay != "");
+	bool doreco  = (anadecay != "" || anaparms.Contains("nevt"));
 
 	// do particle QA?
 	bool partQA  = (anaparms.Contains("qapart"));
@@ -134,6 +134,4 @@ int quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, T
 	// *** and run analysis
 	fRun->Init(); 
 	fRun->Run(0,nevts);	
-    
-	return 0;
 }

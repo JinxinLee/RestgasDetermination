@@ -75,7 +75,13 @@ if test "$6" != ""; then
 fi
 
 # if local dec-file given, prepend the absolute path to it
-if test "$dec" != ""; then
+if [[ $dec == *".dec"* ]]; then
+  if [[ $dec != \/* ]] ; then
+	dec=$nyx"/"$dec
+  fi
+fi
+
+if [[ $dec == *".DEC"* ]]; then
   if [[ $dec != \/* ]] ; then
 	dec=$nyx"/"$dec
   fi

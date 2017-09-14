@@ -122,17 +122,17 @@ foreach my $cmd (@commands)
 	{
     	if ($check) {print "Would ";}
     	print "Re-submit : \n";
-
+		
     	foreach my $nums (@broken)
     	{
-		# print out the submit command
-		my $recmd = "sbatch -a$nums\-$nums$parms$script $pref $rest";
-		print "$recmd\n";
-		
-		push @resubs, $recmd;
+			# print out the submit command
+			my $recmd = "sbatch -a$nums\-$nums$parms$script $pref $rest";
+			print "$recmd\n";
 
-		# if not in check mode, re-submit the jobs 
-		if (!$check) {system($recmd);}
+			push @resubs, $recmd;
+
+			# if not in check mode, re-submit the jobs 
+			if (!$check) {system($recmd);}
     	}
 	}
 }
