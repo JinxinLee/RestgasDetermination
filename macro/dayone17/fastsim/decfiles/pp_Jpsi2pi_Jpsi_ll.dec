@@ -1,0 +1,10 @@
+Decay pbarpSystem0
+  1.0 	J/psi pi+ pi-	PHSP;
+Enddecay
+
+Decay J/psi
+  0.5 	e+ e-		PHOTOS  VLL;
+  0.5   mu+ mu-     PHOTOS  VLL;
+Enddecay
+
+End

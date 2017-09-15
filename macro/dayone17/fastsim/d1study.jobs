@@ -1,0 +1,144 @@
+# -------------------------------------------------------------------
+# Supermodul              |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
+# num Alveolen in theta   |  1  |  3  |  3  |  3  |  3  |  3  |  2  |
+# coverage from 22 to     |140.0|133.4|113.8| 94.1| 74.4| 54.8| 35.1|
+# -------------------------------------------------------------------
+
+#
+# phi -> K+ K-; pbp -> 2 phi (SIGNAL)
+#
+sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC1 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-140] ana 0
+sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC2 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-133] ana 1
+sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC3 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-114] ana 2
+sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC4 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-94]  ana 3
+sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC5 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-74]  ana 4
+sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC6 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-55]  ana 5
+sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC7 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-35]  ana 6
+sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC8 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-20]  ana 7
+
+sbatch -a1-10  jobfsim_kronos.sh M2phi_B_EMC1 10000  decfiles/pp_2phi.dec  -2.3 SetupB:Filter2:EMC[22-140] ana 20
+sbatch -a1-10  jobfsim_kronos.sh M2phi_B_EMC2 10000  decfiles/pp_2phi.dec  -2.3 SetupB:Filter2:EMC[22-133] ana 21
+sbatch -a1-10  jobfsim_kronos.sh M2phi_B_EMC3 10000  decfiles/pp_2phi.dec  -2.3 SetupB:Filter2:EMC[22-114] ana 22
+sbatch -a1-10  jobfsim_kronos.sh M2phi_B_EMC4 10000  decfiles/pp_2phi.dec  -2.3 SetupB:Filter2:EMC[22-94]  ana 23
+sbatch -a1-10  jobfsim_kronos.sh M2phi_B_EMC5 10000  decfiles/pp_2phi.dec  -2.3 SetupB:Filter2:EMC[22-74]  ana 24
+sbatch -a1-10  jobfsim_kronos.sh M2phi_B_EMC6 10000  decfiles/pp_2phi.dec  -2.3 SetupB:Filter2:EMC[22-55]  ana 25
+sbatch -a1-10  jobfsim_kronos.sh M2phi_B_EMC7 10000  decfiles/pp_2phi.dec  -2.3 SetupB:Filter2:EMC[22-35]  ana 26
+sbatch -a1-10  jobfsim_kronos.sh M2phi_B_EMC8 10000  decfiles/pp_2phi.dec  -2.3 SetupB:Filter2:EMC[22-20]  ana 27
+
+
+#
+# phi -> K+ K-; pbp -> 2 phi (BACKGROUND)
+#
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC1 100000  DPM  -2.3 SetupA:Filter2:EMC[22-140] ana 1000
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC2 100000  DPM  -2.3 SetupA:Filter2:EMC[22-134] ana 1001
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC3 100000  DPM  -2.3 SetupA:Filter2:EMC[22-114] ana 1002
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC4 100000  DPM  -2.3 SetupA:Filter2:EMC[22-94]  ana 1003
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC5 100000  DPM  -2.3 SetupA:Filter2:EMC[22-74]  ana 1004
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC6 100000  DPM  -2.3 SetupA:Filter2:EMC[22-55]  ana 1005
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC7 100000  DPM  -2.3 SetupA:Filter2:EMC[22-35]  ana 1006
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC8 100000  DPM  -2.3 SetupA:Filter2:EMC[22-20]  ana 1007
+
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC1 100000  DPM  -2.3 SetupB:Filter2:EMC[22-140] ana 1020
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC2 100000  DPM  -2.3 SetupB:Filter2:EMC[22-134] ana 1021
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC3 100000  DPM  -2.3 SetupB:Filter2:EMC[22-114] ana 1022
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC4 100000  DPM  -2.3 SetupB:Filter2:EMC[22-94]  ana 1023
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC5 100000  DPM  -2.3 SetupB:Filter2:EMC[22-74]  ana 1024
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC6 100000  DPM  -2.3 SetupB:Filter2:EMC[22-55]  ana 1025
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC7 100000  DPM  -2.3 SetupB:Filter2:EMC[22-35]  ana 1026
+sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC8 100000  DPM  -2.3 SetupB:Filter2:EMC[22-20]  ana 1027
+
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+
+#
+# J/psi -> e+ e-; pbp -> J/psi pi+ pi- (SIGNAL)
+#
+sbatch -a1-10  jobfsim_kronos.sh MJee_A_EMC1 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupA:Filter0:EMC[22-140] ana 100
+sbatch -a1-10  jobfsim_kronos.sh MJee_A_EMC2 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupA:Filter0:EMC[22-133] ana 101
+sbatch -a1-10  jobfsim_kronos.sh MJee_A_EMC3 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupA:Filter0:EMC[22-114] ana 102
+sbatch -a1-10  jobfsim_kronos.sh MJee_A_EMC4 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupA:Filter0:EMC[22-94]  ana 103
+sbatch -a1-10  jobfsim_kronos.sh MJee_A_EMC5 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupA:Filter0:EMC[22-74]  ana 104
+sbatch -a1-10  jobfsim_kronos.sh MJee_A_EMC6 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupA:Filter0:EMC[22-55]  ana 105
+sbatch -a1-10  jobfsim_kronos.sh MJee_A_EMC7 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupA:Filter0:EMC[22-35]  ana 106
+sbatch -a1-10  jobfsim_kronos.sh MJee_A_EMC8 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupA:Filter0:EMC[22-20]  ana 107
+
+sbatch -a1-10  jobfsim_kronos.sh MJee_B_EMC1 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupB:Filter0:EMC[22-140] ana 120 
+sbatch -a1-10  jobfsim_kronos.sh MJee_B_EMC2 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupB:Filter0:EMC[22-133] ana 121
+sbatch -a1-10  jobfsim_kronos.sh MJee_B_EMC3 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupB:Filter0:EMC[22-114] ana 122
+sbatch -a1-10  jobfsim_kronos.sh MJee_B_EMC4 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupB:Filter0:EMC[22-94]  ana 123
+sbatch -a1-10  jobfsim_kronos.sh MJee_B_EMC5 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupB:Filter0:EMC[22-74]  ana 124
+sbatch -a1-10  jobfsim_kronos.sh MJee_B_EMC6 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupB:Filter0:EMC[22-55]  ana 125
+sbatch -a1-10  jobfsim_kronos.sh MJee_B_EMC7 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupB:Filter0:EMC[22-35]  ana 126
+sbatch -a1-10  jobfsim_kronos.sh MJee_B_EMC8 10000  decfiles/pp_Jpsi2pi_Jpsi_ee.dec  -3.872 SetupB:Filter0:EMC[22-20]  ana 127
+
+#
+# J/psi -> e+ e-; pbp -> J/psi pi+ pi- (BACKGROUND)
+#
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_A_EMC1 100000  DPM  -3.872 SetupA:Filter0:EMC[22-140] ana 1100
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_A_EMC2 100000  DPM  -3.872 SetupA:Filter0:EMC[22-133] ana 1101
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_A_EMC3 100000  DPM  -3.872 SetupA:Filter0:EMC[22-114] ana 1102
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_A_EMC4 100000  DPM  -3.872 SetupA:Filter0:EMC[22-94]  ana 1103
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_A_EMC5 100000  DPM  -3.872 SetupA:Filter0:EMC[22-74]  ana 1104
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_A_EMC6 100000  DPM  -3.872 SetupA:Filter0:EMC[22-55]  ana 1105
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_A_EMC7 100000  DPM  -3.872 SetupA:Filter0:EMC[22-35]  ana 1106
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_A_EMC8 100000  DPM  -3.872 SetupA:Filter0:EMC[22-20]  ana 1107
+
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_B_EMC1 100000  DPM  -3.872 SetupB:Filter0:EMC[22-140] ana 1121
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_B_EMC2 100000  DPM  -3.872 SetupB:Filter0:EMC[22-133] ana 1122
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_B_EMC3 100000  DPM  -3.872 SetupB:Filter0:EMC[22-114] ana 1123
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_B_EMC4 100000  DPM  -3.872 SetupB:Filter0:EMC[22-94]  ana 1124
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_B_EMC5 100000  DPM  -3.872 SetupB:Filter0:EMC[22-74]  ana 1125
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_B_EMC6 100000  DPM  -3.872 SetupB:Filter0:EMC[22-55]  ana 1126
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_B_EMC7 100000  DPM  -3.872 SetupB:Filter0:EMC[22-35]  ana 1127
+sbatch -a1-250  jobfsim_kronos.sh DPMJee_B_EMC8 100000  DPM  -3.872 SetupB:Filter0:EMC[22-20]  ana 1128
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+
+#
+# J/psi -> mu+ mu-; pbp -> J/psi pi+ pi- (SIGNAL)
+#
+sbatch -a1-10  jobfsim_kronos.sh MJmm_A_EMC1 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupA:Filter1:EMC[22-140] ana 200
+sbatch -a1-10  jobfsim_kronos.sh MJmm_A_EMC2 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupA:Filter1:EMC[22-133] ana 201
+sbatch -a1-10  jobfsim_kronos.sh MJmm_A_EMC3 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupA:Filter1:EMC[22-114] ana 202
+sbatch -a1-10  jobfsim_kronos.sh MJmm_A_EMC4 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupA:Filter1:EMC[22-94]  ana 203
+sbatch -a1-10  jobfsim_kronos.sh MJmm_A_EMC5 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupA:Filter1:EMC[22-74]  ana 204
+sbatch -a1-10  jobfsim_kronos.sh MJmm_A_EMC6 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupA:Filter1:EMC[22-55]  ana 205
+sbatch -a1-10  jobfsim_kronos.sh MJmm_A_EMC7 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupA:Filter1:EMC[22-35]  ana 206
+sbatch -a1-10  jobfsim_kronos.sh MJmm_A_EMC8 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupA:Filter1:EMC[22-20]  ana 207
+
+sbatch -a1-10  jobfsim_kronos.sh MJmm_B_EMC1 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupB:Filter1:EMC[22-140] ana 220 
+sbatch -a1-10  jobfsim_kronos.sh MJmm_B_EMC2 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupB:Filter1:EMC[22-133] ana 221
+sbatch -a1-10  jobfsim_kronos.sh MJmm_B_EMC3 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupB:Filter1:EMC[22-114] ana 222
+sbatch -a1-10  jobfsim_kronos.sh MJmm_B_EMC4 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupB:Filter1:EMC[22-94]  ana 223
+sbatch -a1-10  jobfsim_kronos.sh MJmm_B_EMC5 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupB:Filter1:EMC[22-74]  ana 224
+sbatch -a1-10  jobfsim_kronos.sh MJmm_B_EMC6 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupB:Filter1:EMC[22-55]  ana 225
+sbatch -a1-10  jobfsim_kronos.sh MJmm_B_EMC7 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupB:Filter1:EMC[22-35]  ana 226
+sbatch -a1-10  jobfsim_kronos.sh MJmm_B_EMC8 10000  decfiles/pp_Jpsi2pi_Jpsi_mm.dec  -3.872 SetupB:Filter1:EMC[22-20]  ana 227
+
+#
+# J/psi -> mu+ mu-; pbp -> J/psi pi+ pi- (BACKGROUND)
+#
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_A_EMC1 100000  DPM  -3.872 SetupA:Filter1:EMC[22-140] ana 1200
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_A_EMC2 100000  DPM  -3.872 SetupA:Filter1:EMC[22-133] ana 1201
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_A_EMC3 100000  DPM  -3.872 SetupA:Filter1:EMC[22-114] ana 1202
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_A_EMC4 100000  DPM  -3.872 SetupA:Filter1:EMC[22-94]  ana 1203
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_A_EMC5 100000  DPM  -3.872 SetupA:Filter1:EMC[22-74]  ana 1204
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_A_EMC6 100000  DPM  -3.872 SetupA:Filter1:EMC[22-55]  ana 1205
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_A_EMC7 100000  DPM  -3.872 SetupA:Filter1:EMC[22-35]  ana 1206
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_A_EMC8 100000  DPM  -3.872 SetupA:Filter1:EMC[22-20]  ana 1207
+
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_B_EMC1 100000  DPM  -3.872 SetupB:Filter1:EMC[22-140] ana 1221
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_B_EMC2 100000  DPM  -3.872 SetupB:Filter1:EMC[22-133] ana 1222
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_B_EMC3 100000  DPM  -3.872 SetupB:Filter1:EMC[22-114] ana 1223
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_B_EMC4 100000  DPM  -3.872 SetupB:Filter1:EMC[22-94]  ana 1224
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_B_EMC5 100000  DPM  -3.872 SetupB:Filter1:EMC[22-74]  ana 1225
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_B_EMC6 100000  DPM  -3.872 SetupB:Filter1:EMC[22-55]  ana 1226
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_B_EMC7 100000  DPM  -3.872 SetupB:Filter1:EMC[22-35]  ana 1227
+sbatch -a1-250  jobfsim_kronos.sh DPMJmm_B_EMC8 100000  DPM  -3.872 SetupB:Filter1:EMC[22-20]  ana 1228
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+
+

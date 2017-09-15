@@ -1,0 +1,6 @@
+Decay pbarpSystem
+#  1.0 	e+ e-	LeptonLepton 1.5 -0.8 0.8 1.0 2000;
+	1.0 e+ e- PHSP;
+Enddecay
+
+End

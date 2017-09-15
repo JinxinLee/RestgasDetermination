@@ -1,0 +1,7 @@
+
+Decay pbarpSystem
+  1.0 e+ e- pi0   PHSP;
+Enddecay
+
+
+End

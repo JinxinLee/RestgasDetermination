@@ -1,0 +1,365 @@
+-----------------------
+ README for macro/dayone17/fastsim
+-----------------------
+
+A set of macros to run some day one FastSim studies for the channels
+
+- pbp -> phi phi @ 2.3 GeV
+- pbp -> J/psi pi+ pi-; J/psi -> e+ e- @ 3.872 GeV
+- pbp -> J/psi pi+ pi-; J/psi -> mu+ mu- @ 3.872 GeV
+- pbp -> e+ e- @ p = 1.5 GeV/c
+
+Runs everything for the two setups
+
+- Setup A: Full with 75% GEM, 35% FTS, no EMC Barrel Xtals, no TOF Fwd, no MVD Pixels
+- Setup B: Full with 75% GEM, 35% FTS, no EMC Barrel Xtals, no TOF Fwd, no MVD Pixels, no Muon, no Shashlyk
+
+as a function of reducing the EMC barrel x-tals polar angle theta wise
+
+  ---------------------------------------------------------------------------------
+  Supermodul              |   1   |   2   |   3   |   4   |   5   |   6   |   7   |
+  num Alveolen in theta   |   1   |   3   |   3   |   3   |   3   |   3   |   2   |
+  coverage from 22 to     | 140.0 | 133.4 | 113.8 |  94.1 |  74.4 |  54.8 |  35.1 |
+  ---------------------------------------------------------------------------------
+
+
+############
+  CONTENTS
+############
+
+- Files in directory
+
+- Data production
+
+- Submit to cluster
+
+
+
+######################
+  FILES IN DIRECTORY
+######################
+
+Simulation
+- prod_fsim.C                        # run simulation
+ 
+Analysis macros 
+- prod_ana.C                         # run predefined analysis
+- quickana.C                         # run quick analysis
+- quickfsimana.C                     # run fast sim and analysis in one go
+
+Decay files (in sub dir decfiles/)
+	pp_2phi.dec                      # pbp -> 2phi, phi -> K+ K-
+	pp_4pi.dec                       # pbp -> 2pi+ 2pi-
+	pp_4pipi0.dec                    # pbp -> 2pi+ 2pi- pi0
+	pp_ee.dec                        # pbp -> e+ e-
+	pp_eepi0.dec                     # pbp -> e+ e- pi0
+	pp_Jpsi2pi_Jpsi_ee.dec           # pbp -> J/psi pi+ pi-, J/psi -> e+ e-
+	pp_Jpsi2pi_Jpsi_ee_nophot.dec    # pbp -> J/psi pi+ pi-, J/psi -> e+ e- (PHOTOS off)
+	pp_Jpsi2pi_Jpsi_ll.dec           # pbp -> J/psi pi+ pi-, J/psi -> e+ e-/mu+ mu-
+	pp_Jpsi2pi_Jpsi_mm.dec           # pbp -> J/psi pi+ pi-, J/psi -> mu+ mu-
+	pp_Jpsi2pi_Jpsi_mm_nophot.dec    # pbp -> J/psi pi+ pi-, J/psi -> mu+ mu- (PHOTOS off)
+
+Job scripts for kronos
+- jobfsim_kronos.sh                  # submit simulation (prod_fsim.C) and optional analysis jobs (prod_ana.C)
+- jobana_kronos.sh                   # submit analysis only jobs (prod_ana.C; used by anasub.pl)
+- jobquickfa_kronos.sh               # submit quickfsimana.C jobs
+- job_rootmacro.sh                   # submit arbitrary ROOT macro
+
+Perl-scripts 
+- resub.pl                           # re-submit jobs 
+- resub_arr.pl                       # re-submit jobs (as arrays if possible)
+- anasub.pl                          # submit analysis jobs
+
+Job-file
+- d1study.jobs                       # contains all submit commands for data production
+
+
+
+########################
+     DATA PRODUCTION
+########################
+
+Simply source the file d1study.jobs by
+
+  > . d1study.jobs
+
+or by pasting individual lines from file in shell prompt
+
+  > sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC3 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-114] ana 2
+
+#####################
+  SUBMIT TO CLUSTER
+#####################
+
+General information about submitting jobs on the Prometheus/ cluster can be found here:
+https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootSimulationPrometheus
+http://wiki.gsi.de/cgi-bin/view/Linux/GridEngine
+
+** For Kronos cluster take a look here: **
+https://panda-wiki.gsi.de/foswiki/bin/view/Computing/PandaRootSimulationKronos
+https://wiki.gsi.de/foswiki/bin/view/Linux/KronosCluster
+https://wiki.gsi.de/foswiki/bin/view/Linux/SlurmUsage
+
+
+**************************************************************************************************************************
+*** In the following the actions to be taken for KRONOS are given only, since Prometheus will be decommissioned soon.  ***
+*** Refer to an older revision of this README file for information about Prometheus usage.                             *** 
+**************************************************************************************************************************
+
+--------------
+ Prerequisits
+--------------
+
+
+BEFORE being able to submit jobs to Kronos, you have to 
+
+1. Login to an lxbk machine by ssh yourname@kronos.hpc.gsi.de locally from a lxpool.gsi.de machine.  
+
+2. Create a work directory on the data storage element NYX, e.g. /lustre/nyx/panda/yourname/pandaroot
+
+3. Install PandaRoot in that place, since your GSI linux home directory is not mounted on Kronos nodes.
+
+   There are several versions of the external packages and FairRoot pre-installed under /cvmfs. Take a look with
+   
+   > ls /cvmfs/fairroot.gsi.de/fairsoft/
+   > ls /cvmfs/fairroot.gsi.de/fairroot/
+
+   and set the environment variables SIMPATH to an appropriate fairsoft and FAIRROOTPATH to a corresponding fairroot
+   version before compiling PandaRoot.
+
+
+-------------------------------
+ Most important slurm commands
+-------------------------------
+
+Some nice condensed information about slurm can be found under
+https://rc.fas.harvard.edu/resources/documentation/convenient-slurm-commands/
+
+
+- Job array submission with time setting, partition (sth like queue) setting 
+
+  > sbatch --time=01:00:00 --partition=debug --array=1-10 my_slurm_job_script.sh <parameters> <for> <job> <script>
+
+- Check job status
+
+  > squeue -u <your_user_name>
+
+- Cancel (kill) jobs
+
+  > scancel -u <username>             # kills all your jobs
+  > scancel <jobid>                   # kills a single job with id <jobid>
+  > scancel -t PENDING -u <username>  # kills all your pending jobs
+   
+
+-----------------
+ Full Simulation
+-----------------
+
+This command submit jobs with number <min> ... <max>:
+
+-> sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <nevts> <gen> <pbeam> [opt] [mode]
+
+with parameters
+
+ <min>       - Minimum job number
+ <max>       - Maximum job number
+ <prefix>    - Prefix for output files
+ <nevts>     - Number of events to simulate
+ <gen>       - Generator setting (see above)
+ <pbeam>     - Beam momentum in GeV/c
+ [opt]       - Optional options: if contains 'savesim', sim output is copied as well, 'ana' runs prod_ana.C in addition.
+ [mode]      - Optional mode number for analysis. Stored in TTree produced by PndSimpleCombinerTask when using ana_prod.C.
+
+
+Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if opt "savesim" specified, and 
+data<prefix>_<run>_pid_ana.root, if save=="savesim") and log files,
+with <run> running from <min> to <max>. 
+
+
+-----------------
+ Fast Simulation
+-----------------
+
+Submission of fast simulation jobs works in exactly the same way with script jobfsim_kronos.sh.
+
+-> sbatch -a<min>-<max> jobfsim_kronos.sh <prefix> <nevts> <gen> <pbeam> [opt] [mode]
+
+with same parameters
+
+ <min>       - Minimum job number
+ <max>       - Maximum job number
+ <prefix>    - Prefix for output files
+ <nevts>     - Number of events to simulate
+ <gen>       - Generator setting (see above)
+ <pbeam>     - Beam momentum in GeV/c
+ [opt]       - Optional options: if contains 'ana', runs prod_ana.C in addition.
+ [mode]      - Optional mode number for analysis. Stored in TTree produced by PndSimpleCombinerTask when using ana_prod.C.
+
+
+Produces output files data/<prefix>_<run>_fsim.root and log files, with <run> running from <min> to <max>. 
+
+
+----------
+ Examples
+----------
+
+Full Sim:
+
+> sbatch -a1-20 jobsim_kronos.sh PiPlus  1000 BOX:type[211,1]:p[0.05,8]
+> sbatch -a1-20 jobsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12. savesim:ana 10
+> sbatch -a1-20 jobsim_kronos.sh DpmBkg  1000 DPM                       12. ana 20
+> sbatch -a1-20 jobsim_kronos.sh FtfInel 1000 FTF1                      12. 
+
+Fast Sim: (just replace jobsim... with jobfsim...)
+
+> sbatch -a1-20 jobfsim_kronos.sh PiPlus  1000 BOX:type[211,1]:p[0.05,8]
+> sbatch -a1-20 jobfsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12. savesim:ana 10
+> sbatch -a1-20 jobfsim_kronos.sh DpmBkg  1000 DPM                       12. ana 20
+> sbatch -a1-20 jobfsim_kronos.sh FtfInel 1000 FTF1                      12. 
+
+
+----------------------
+ Resubmission of jobs
+----------------------
+
+When submitting many jobs/job arrays, it sometimes happens that some of the jobs randomly fail. Usually resubmitting the same jobs
+again leads to success. In order to automatically resubmit only the failed jobs the perl script 'resub.pl' can be used.
+
+It looks for missing output files and output files being too small (size < 10kB) to contain reasonable output and resubmits exactly 
+the according jobs. The input parameter either is the complete sbatch command in quotos "sbatch -a...", or a ascii file containing
+a bunch of sbatch commands. The file has to have the ending '.jobs'
+
+NOTE: In case some jobs got stuck in the queue, delete them with 'scancel -u <username>' before using resub.pl.
+
+-> ./resub.pl "<cmd>" [check]
+
+Parameters:
+
+  "<cmd>"  : full sbatch command line in quotes. The first parameters must be '-a', the job script has to have a name matching 'job...sh'
+             it's also possible to give the name of a file 'somename.jobs' containing sbatch commands, then resub is applied to all of them (except commented by #) 
+  [check]  : optional parameter; if set to 'check', only prints the resubmission commands for checking.
+  
+
+----------
+ Examples
+----------
+
+Full Sim
+
+> ./resub.pl "sbatch -a1-20 jobsim_kronos.sh  DPM10GeV 1000 DPM 10.0 saveall" check
+> ./resub.pl "sbatch -a1-20 jobsim_kronos.sh  FftInel  1000 FTF1 10.0 saveall" 
+
+Fast Sim
+
+> ./resub.pl "sbatch -a1-20 jobfsim_kronos.sh SingleK  1000 box:type[321,1] 10.0 saveall" 
+> ./resub.pl my_fsim_study.jobs
+
+
+
+##################
+  ANALYSING DATA
+##################
+
+-------------
+ Run Locally
+-------------
+
+In order to run over a number of your resulting output (_pid.root) files, the macro prod_ana.C can be used as follows:
+
+-> root -l -b -q 'prod_ana.C("data/<prefix>", <min>, <max>, <mode>, <nevts>)'
+
+Adds several input files <prefix>_<min>_pid.root, ... , <prefix>_<max>_pid.root and <prefix>_<min>_par.root as par file to FairRunAna to run analysis.
+Broken or missing files are skipped automatically. The macro is suitable for both full and fast sim.
+
+***                                                                                                 ***
+*** The macro has to be configured for reconstruction, and the fastsim flag has to be set properly. ***
+***                                                                                                 ***
+
+Parameters:
+
+ <prefix>    - Prefix for output files, or ROOT file name
+ <min>       - Mininum run number
+ <max>       - Maximum run number
+ <mode>      - Arbitrary mode number; default=0. Stored in TTree produced by PndSimpleCombinerTask.
+ <nevts>     - Number of events to analyze, 0 = default -> all events
+
+The format of the output file name depends on the input <prefix>
+
+- "myinput", min=1, max=10               -> myinput_ana_1_10.root 
+- "myinput_2_pid.root", min/max ignored  -> myinput_2_pid_ana.root
+- "myinput", min = max = 3               -> myinput_3_ana.root                       
+
+
+----------
+ Examples
+----------
+
+> root -l -b -q  'prod_ana.C("DPM10GeV", 1, 10)' 
+> root -l -b -q  'prod_ana.C("D0Sim",    1, 20, 1)' 
+
+
+--------------------------
+ Submitting analysis jobs
+--------------------------
+
+Submitting the analysis macro from above as job to Kronos (e.g. to split to several jobs) can be done from macro/prod by
+
+-> sbatch jobana_kronos.sh <prefix> <min> <max> <mode>
+
+***                                                                                                  ***
+*** prod_ana.C has to be configured for reconstruction, and the fastsim flag has to be set properly. ***
+***                                                                                                  ***
+
+Parameters:
+
+ <prefix>    - Prefix for output files
+ <min>       - run from this job number (default: 1)
+ <max>       - .. to this (default: 20)
+ <mode>      - arbitrary mode number; default=0. Stored in TTree produced by PndSimpleCombinerTask.
+
+
+----------
+ Examples
+----------
+
+> sbatch jobana_kronos.sh DPM10GeV 1 10 
+> sbatch jobana_kronos.sh D0Sim    1 20 1 
+
+
+
+---------------------------------
+ Split to multiple analysis jobs
+---------------------------------
+
+In case a large number of output files have to be analysed, so that it is reasonable to split into several jobs,
+the perl script 'anasub.pl' is useful. It works for both full and fast simulation input.
+
+
+-> ./anasub.pl <pref> [mode] [num] [min] [max]
+
+Parameters:
+  <pref>  : prefix of output filenames of pattern 'data/<pref>_<run>_pid.root; if 'check_' is prepended only prints commands
+            if the name of a file 'some_name.jobs' containing many sbatch commands is given, analysis submission is performed for all of them.
+  [mode]  : mode number to be written in TTree; default: 0. mode = -1 counts up the mode for each line if filename is given as input
+  [num]   : number of runs per job to be analysed; default: 50
+  [min]   : first run number; if omitted all found files are considered
+  [max]   : last run number; if omitted, all runs starting from [min] are considered
+
+
+When parameters [min] and [max] are not given, the scripts searches for all files with the according pattern and finds limiting numbers automatically.
+
+
+----------
+ Examples
+----------
+
+> ./anasub.pl check_DPM10GeV             // prints all submit commands for available files 
+> ./anasub.pl DPM10GeV 0 20              // submits analysis jobs on bunches of 20 inputs each
+> ./anasub.pl DPM10GeV 0 25 201 400      // submits jobs in bunches of 25 for runs 201 to 400
+> ./anasub.pl mystudy.jobs -1            // submits jobs according to all sbatch commands in file mystudy.jobs; run mode increased automatically 
+
+
+
+
+
+

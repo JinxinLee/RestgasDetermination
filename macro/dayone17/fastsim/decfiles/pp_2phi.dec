@@ -1,0 +1,11 @@
+
+Decay pbarpSystem
+  1.0 phi phi   PHSP;
+Enddecay
+
+Decay phi
+  1.0 K+ K-  VSS;
+Enddecay 
+
+
+End
