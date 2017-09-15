@@ -29,9 +29,11 @@ as a function of reducing the EMC barrel x-tals polar angle theta wise
 
 - Files in directory
 
+- Simulation and Analysis
+
 - Data production
 
-- Submit to cluster
+- Submit to cluster (general info)
 
 
 
@@ -75,9 +77,125 @@ Job-file
 
 
 
+#########################
+ SIMULATION AND ANALYSIS
+#########################
+
+--------------------
+    Simulation
+--------------------
+
+  > root -l -b -q prod_fsim.C("<prefix>", <nevts>, "<gen>", <pbeam/-Ecm>, "<simopt>")
+
+with parameters
+
+ <prefix>    - Prefix for output files
+ <nevts>     - Number of events to simulate
+ <gen>       - Generator setting (see above)
+ <pbeam>     - Beam momentum in GeV/c, of if <0 interpreted as -E_cm
+ 
+ <simopt>    - option like e.g. "SetupB:Filter2:EMC[22-120]"
+               + SetupA/SetupB as described above
+               + Filter0 [J/psi -> e+ e-], Filter1 [J/psi -> mu+ mu-], Filter2 [2 phi -> K+ K-], Filter3 [pbp -> e+ e-]
+               + EMC[x-y] defines theta range x < theta[deg] < y, x and y being integer numbers
+
+Examples:
+  > root -l -b -q 'prod_fsim.C("sig_2phi_A_EMC1",10000,"decfiles/pp_2phi.dec",-2.3,"SetupA:Filter2:EMC[22-140]")'
+  > root -l -b -q 'prod_fsim.C("bkg_2phi_B_EMC3",10000,"DPM",-2.3,"SetupB:Filter2:EMC[22-114]")'
+
+
+--------------------
+      Analysis
+--------------------
+
+  > root -l -b -q 'prod_ana.C("<prefix/filename>", <min>, <max>, <mode>, <nevts>)'
+  
+***                                                      ***
+*** The macro has been pre-configured for reconstruction ***
+*** of the modes above, triggered by keywords in prefix  ***
+***                                                      ***
+
+Parameters:
+
+ <prefix>    - Prefix for output files, or ROOT file name 
+               + if contains 'phi',  reco = "phi -> K+ K-; pbp -> phi phi"
+               + if contains 'Jee',  reco = "J/psi -> e+ e-; pbp -> J/psi pi+ pi-"
+               + if contains 'Jmm',  reco = "J/psi -> mu+ mu-; pbp -> J/psi pi+ pi-"
+               + if contains 'ppee', reco = "pbp -> e+ e-"
+			   
+ <min>       - Mininum run number
+ <max>       - Maximum run number
+ <mode>      - Arbitrary mode number; default=0. Stored in TTree produced by PndSimpleCombinerTask.
+ <nevts>     - Number of events to analyze, 0 = default -> all events
+  
+
+Examples:
+  > root -l -b -q prod_ana.C("sig_2phi_A_EMC1_fsim.root") 
+  > root -l -b -q prod_ana.C("data/bkg_Jee_B_EMC3",1,20,100) 
+  
+  
+--------------------------
+ Submitting analysis jobs
+--------------------------
+
+Submitting the analysis macro from above as job to Kronos (e.g. to split to several jobs) can be done from macro/prod by
+
+-> sbatch jobana_kronos.sh <prefix> <min> <max> <mode>
+
+***                                                                                                  ***
+*** prod_ana.C has to be configured for reconstruction, and the fastsim flag has to be set properly. ***
+***                                                                                                  ***
+
+Parameters:
+
+ <prefix>    - Prefix for output files
+ <min>       - run from this job number (default: 1)
+ <max>       - .. to this (default: 20)
+ <mode>      - arbitrary mode number; default=0. Stored in TTree produced by PndSimpleCombinerTask.
+
+
+Examples:
+> sbatch jobana_kronos.sh bkg_Jee_B_EMC3 1 20 
+
+
+
+---------------------------------
+ Split to multiple analysis jobs
+---------------------------------
+
+In case a large number of output files have to be analysed, so that it is reasonable to split into several jobs,
+the perl script 'anasub.pl' is useful. It works for both full and fast simulation input.
+
+
+-> ./anasub.pl <pref> [mode] [num] [min] [max]
+
+Parameters:
+  <pref>  : prefix of output filenames of pattern 'data/<pref>_<run>_pid.root; if 'check_' is prepended only prints commands
+            if the name of a file 'some_name.jobs' containing many sbatch commands is given, analysis submission is performed for all of them.
+  [mode]  : mode number to be written in TTree; default: 0. mode = -1 counts up the mode for each line if filename is given as input
+  [num]   : number of runs per job to be analysed; default: 50
+  [min]   : first run number; if omitted all found files are considered
+  [max]   : last run number; if omitted, all runs starting from [min] are considered
+
+
+When parameters [min] and [max] are not given, the scripts searches for all files with the according pattern and finds limiting numbers automatically.
+
+
+ Examples:
+
+  > ./anasub.pl check_bkg_Jee_B_EMC3         // prints all submit commands for available files 
+  > ./anasub.pl bkg_Jee_B_EMC3 0 20          // submits analysis jobs on bunches of 20 inputs each
+  > ./anasub.pl bkg_Jee_B_EMC3 0 25 201 400  // submits jobs in bunches of 25 for runs 201 to 400
+  > ./anasub.pl d1study.jobs -1              // submits jobs according to all sbatch commands in file mystudy.jobs; run mode increased automatically 
+
+
 ########################
      DATA PRODUCTION
 ########################
+
+--------------------
+ Initial production
+--------------------
 
 Simply source the file d1study.jobs by
 
@@ -86,6 +204,23 @@ Simply source the file d1study.jobs by
 or by pasting individual lines from file in shell prompt
 
   > sbatch -a1-10  jobfsim_kronos.sh M2phi_A_EMC3 10000  decfiles/pp_2phi.dec  -2.3 SetupA:Filter2:EMC[22-114] ana 2
+  
+
+--------------------
+ Re-submission  
+--------------------
+
+Check failed jobs by 
+
+  > ./resub_arr.pl d1study.jobs check
+
+Failed jobs can be resubmitted with
+
+  > ./resub_arr.pl d1study.jobs check
+  
+    
+
+  
 
 #####################
   SUBMIT TO CLUSTER
@@ -152,31 +287,6 @@ https://rc.fas.harvard.edu/resources/documentation/convenient-slurm-commands/
    
 
 -----------------
- Full Simulation
------------------
-
-This command submit jobs with number <min> ... <max>:
-
--> sbatch -a<min>-<max> jobsim_kronos.sh <prefix> <nevts> <gen> <pbeam> [opt] [mode]
-
-with parameters
-
- <min>       - Minimum job number
- <max>       - Maximum job number
- <prefix>    - Prefix for output files
- <nevts>     - Number of events to simulate
- <gen>       - Generator setting (see above)
- <pbeam>     - Beam momentum in GeV/c
- [opt]       - Optional options: if contains 'savesim', sim output is copied as well, 'ana' runs prod_ana.C in addition.
- [mode]      - Optional mode number for analysis. Stored in TTree produced by PndSimpleCombinerTask when using ana_prod.C.
-
-
-Produces output files data/<prefix>_<run>_pid.root (and data/<prefix>_<run>_sim.root, if opt "savesim" specified, and 
-data<prefix>_<run>_pid_ana.root, if save=="savesim") and log files,
-with <run> running from <min> to <max>. 
-
-
------------------
  Fast Simulation
 -----------------
 
@@ -202,13 +312,6 @@ Produces output files data/<prefix>_<run>_fsim.root and log files, with <run> ru
 ----------
  Examples
 ----------
-
-Full Sim:
-
-> sbatch -a1-20 jobsim_kronos.sh PiPlus  1000 BOX:type[211,1]:p[0.05,8]
-> sbatch -a1-20 jobsim_kronos.sh D0Sim   1000 D0toKpi.dec:pbarpSystem   12. savesim:ana 10
-> sbatch -a1-20 jobsim_kronos.sh DpmBkg  1000 DPM                       12. ana 20
-> sbatch -a1-20 jobsim_kronos.sh FtfInel 1000 FTF1                      12. 
 
 Fast Sim: (just replace jobsim... with jobfsim...)
 

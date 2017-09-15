@@ -16,7 +16,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	if (prefix=="" || inputGen=="" || pbeam==0.) 
 	{
 		cout << "USAGE:\n";
-		cout << "prod_fsim.C( <pref>,  <nevt>, <gen>, <pbeam>, <filter> )\n\n";
+		cout << "prod_fsim.C( <pref>,  <nevt>, <gen>, <pbeam>, <simopt> )\n\n";
 		cout << "   <pref>     : output file names prefix\n";
 		cout << "   <nevt>     : number of events\n";
 		cout << "   <gen>      : generator input: EvtGen decfile; DPM/FTF/BOX uses DPM/FTF generator (inelastic mode) or BOX generator instead\n";
