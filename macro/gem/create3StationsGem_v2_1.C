@@ -10,11 +10,12 @@ Int_t create3StationsGem_v2_1()
   //----------------------------------------------------------------------------------------------------------------------------------------------
   // Units are in [cm]
   //---------------------------------------------------------------------------------------------------------------------------------------------
+  Bool_t doRiddle = kTRUE;
 
     const Int_t     NofDisks = 3;   //number of GEM stations in form of disk
 
     const Double_t  DiskVolInnerRadius[NofDisks]    = { 4.50,  4.50,  4.50  };   // InnerRadius for 3 Stations in form of disk
-    const Double_t  DiskVolOuterRadius[NofDisks]    = { 45.06, 56.06, 74.06  };   // OuterRadius for 3 Stations in form of disk
+    const Double_t  DiskVolOuterRadius[NofDisks]    = { 44.06, 56.06, 74.06  };   // OuterRadius for 3 Stations in form of disk   // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
     const Double_t  DiskZPosition  [NofDisks]    = { 119.40, 155.40, 188.50 };   // ZPosition   for 3 Stations in form of disk           
  
 
@@ -31,7 +32,7 @@ Int_t create3StationsGem_v2_1()
     const Double_t  copperRingHalfThickness = 3.75;
 
     const Double_t  AlRingInnerRadius[NofDisks]    = { 39.70, 50.70, 68.70 };
-    const Double_t  AlRingOuterRadius[NofDisks]    = { 44.70, 55.70, 73.70 };
+    const Double_t  AlRingOuterRadius[NofDisks]    = { 43.70, 55.70, 73.70 };   // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
     const Double_t  AlRingHalfThickness = 3.75;
 
     const Double_t  SegmentHalfThickness = 0.25; 
@@ -43,7 +44,7 @@ Int_t create3StationsGem_v2_1()
                                                  "seg17","seg18","seg19","seg20","seg21","seg22","seg23","seg24"  };
 
     const Double_t moduleRingInnerRadius[NofDisks]    = { 39.70, 50.70, 68.70 };
-    const Double_t moduleRingOuterRadius[NofDisks]    = { 44.65, 55.65, 73.65 };
+    const Double_t moduleRingOuterRadius[NofDisks]    = { 43.65, 55.65, 73.65 };   // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
     const Double_t moduleRingHalfThickness = 3.75;
 
     const Double_t  moduleSegmentHalfThickness = 1.30; 
@@ -54,21 +55,26 @@ Int_t create3StationsGem_v2_1()
                                                              "moduleseg9" ,"moduleseg10","moduleseg11","moduleseg12","moduleseg13","moduleseg14","moduleseg15","moduleseg16",
                                                              "moduleseg17","moduleseg18","moduleseg19","moduleseg20","moduleseg21","moduleseg22","moduleseg23","moduleseg24"  };
 
-    const Double_t AlumiRingInnerRadius[NofDisks]    = { 44.7, 55.7, 73.7 };
-    const Double_t AlumiRingOuterRadius[NofDisks]    = { 45.0, 56.0, 74.0 };
+    const Double_t AlumiRingInnerRadius[NofDisks]    = { 43.7, 55.7, 73.7 };  // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
+    const Double_t AlumiRingOuterRadius[NofDisks]    = { 44.0, 56.0, 74.0 };  // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
     const Double_t AlumiRingHalfThickness = 3.75;
     
     const Double_t coverRingInnerRadius[NofDisks]    = { 39.70, 50.70, 68.70 };
-    const Double_t coverRingOuterRadius[NofDisks]    = { 45.00, 56.00, 74.00 };
+    const Double_t coverRingOuterRadius[NofDisks]    = { 44.00, 56.00, 74.00 };  // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
     const Double_t coverRingHalfThickness = 0.2;
 
-    const Double_t rcopperbarx    = 1.90;   ////// right copper bar for cables
+    const Double_t rcopperbarx    = 1.90;   ////// right copper bar for cables // RK OUTER
     const Double_t rcopperbary    = 5.50;
     const Double_t rcopperbarHalfThickness = 8.40;
 
-    const Double_t lcopperbarx    = 0.90;   ////// left copper bar for cables    
+    const Double_t lcopperbarx    = 0.90;   ////// left copper bar for cables  // RK INNER
     const Double_t lcopperbary    = 5.50;    
-    const Double_t lcopperbarHalfThickness = 13.80;
+    const Double_t lcopperbarHalfThickness = 4.00; // RK half-length in Z!!!
+
+    // RK I know. Sorry for that. Just tring to fix it in few hours
+    const Double_t mcopperbarx    = 0.90;   ////// middle copper bar for cables  // RK MIDDLE
+    const Double_t mcopperbary    = 5.50;    // RK 
+    const Double_t mcopperbarHalfThickness = 9.80; // RK half-length in Z!!!
  
   //------------------------------------------------------------ main layers in shape of Disk----------------------------------------------------------------------
     const Int_t     NofLayers = 49+48; //51+48; 
@@ -160,9 +166,9 @@ Int_t create3StationsGem_v2_1()
  38.10,  49.45,  67.45,     38.10,  49.45,  67.45,     39.05,  50.05,  68.05,     39.05,  50.05,  68.05,     38.10,  49.45, 67.45,    38.10,  49.45, 67.45,    38.10,  49.45, 67.45,
  39.05,  50.40,  68.40,
  39.05,  50.40,  68.40,
- 45.00,  56.00,  74.00,
- 44.90,  55.90,  73.90,     44.90,  55.90,  73.90,     44.90,  55.90,  73.90,     44.90,  55.90,  73.90,     44.90,  55.90,  73.90,   44.90,  55.90, 73.90,    39.05,  50.40,  68.40,
- 45.00,  56.00,  74.00,
+ 44.00,  56.00,  74.00,   // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
+ 43.90,  55.90,  73.90,     43.90,  55.90,  73.90,     43.90,  55.90,  73.90,     43.90,  55.90,  73.90,     43.90,  55.90,  73.90,   43.90,  55.90, 73.90,    39.05,  50.40,  68.40,  // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
+ 44.00,  56.00,  74.00,  // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm				      
  39.05,  50.40,  68.40,
  39.05,  50.40,  68.40,     
  38.10,  49.45,  67.45,     38.10,  49.45,  67.45,     39.05,  50.05,  68.05,     39.05,  50.05,  68.05,     38.10,  49.45, 67.45,    38.10,  49.45, 67.45,    38.10,  49.45, 67.45,
@@ -320,8 +326,8 @@ Int_t create3StationsGem_v2_1()
 							   39.05,     50.05,      68.05,							  
 							   39.05,     50.05,      68.05,							  
 							   39.05,     50.05,      68.05,
-                                                           45.00,     56.00,      74.00,							  
-							   45.00,     56.00,      74.00,
+                                                           44.00,     56.00,      74.00,  // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
+							   44.00,     56.00,      74.00,  // RK // DIRC PROBLEM, DISK 1 REDUCED BY 1cm
                                                            39.05,     50.05,      68.05,							  
 							   39.05,     50.05,      68.05,							  
 							   39.05,     50.05,      68.05,							  
@@ -344,8 +350,8 @@ Int_t create3StationsGem_v2_1()
 							   38.15,     49.15,      67.15,							 
 							   38.15,     49.15,      67.15,							 
 							   38.50,     49.50,      67.50,							 
-                                                           38.00,     49.00,      67.00,                                                          
-                                                           38.00,     49.00,      67.00   };    
+                                                           38.50,     49.50,      67.50,          // RK // window support reduced
+                                                           38.50,     49.50,      67.50   };      // RK // window support reduced
  
    const Double_t  HXBoxWidth = 2.30;  // Using to define holes for the holding structure layers 
    const Double_t  HXPlateWidth = 1.90;
@@ -480,6 +486,12 @@ Int_t create3StationsGem_v2_1()
    TGeoRotation       *tAcopperbarRot;
    TGeoCombiTrans     *tAcopperbarCombi;
   //-----------------------------------------------------------------------------------------
+   TGeoShape          *tMcopperbarShape;
+   TGeoVolume         *tMcopperbarVol  ;  
+   TGeoTranslation    *tMcopperbarTrans;
+   TGeoRotation       *tMcopperbarRot;
+   TGeoCombiTrans     *tMcopperbarCombi;
+  //-----------------------------------------------------------------------------------------
    TGeoShape          *tBcopperbarShape;
    TGeoVolume         *tBcopperbarVol  ;  
    TGeoTranslation    *tBcopperbarTrans;
@@ -492,6 +504,12 @@ Int_t create3StationsGem_v2_1()
    TGeoRotation       *dAcopperbarRot;
    TGeoCombiTrans     *dAcopperbarCombi;
  //-----------------------------------------------------------------------------------------
+   TGeoShape          *dMcopperbarShape;
+   TGeoVolume         *dMcopperbarVol  ;  
+   TGeoTranslation    *dMcopperbarTrans;
+   TGeoRotation       *dMcopperbarRot;
+   TGeoCombiTrans     *dMcopperbarCombi;
+  //-----------------------------------------------------------------------------------------
    TGeoShape          *dBcopperbarShape;
    TGeoVolume         *dBcopperbarVol  ;  
    TGeoTranslation    *dBcopperbarTrans;
@@ -601,7 +619,8 @@ Int_t create3StationsGem_v2_1()
 
   pout << "parameters:Double_t \\" << endl;
 
-       for ( Int_t istat = 0 ; istat < NofDisks ; istat++ ) {
+  for ( Int_t istat = 0 ; istat < NofDisks ; istat++ ) {
+    //    for ( Int_t istat = 0 ; istat < 2 ; istat++ ) {
 
          pout << "                   " << istat+1 << ",  "
        	 << setw(9) << DiskZPosition[istat]
@@ -885,7 +904,7 @@ Int_t create3StationsGem_v2_1()
 	 sensorNumber++;
 	   }
 	   
-	   SensZPosition[slay][istat] ++ ;
+           //	   SensZPosition[slay][istat] ++ ; // RK - removed this line, as it seems wrong
 	   
     }
 ///////////////////////////////////////////////////////main layers////////////////////////////////////////////////////////////////////////////////////////////////
@@ -948,7 +967,7 @@ Int_t create3StationsGem_v2_1()
 
  	cout << "layer material = " << layerMaterial.Data() << endl;
 	if ( layerMaterial.Contains("air" ) )
-	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kWhite);kGray+1);
+	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kWhite);//kGray+1);
 	if ( layerMaterial.Contains("copper" ) )
 	  DiskLayersVol[ilay][istat][miseg]->SetLineColor(kOrange+1);
 	if ( layerMaterial.Contains("kapton" ) )
@@ -1025,10 +1044,12 @@ Int_t create3StationsGem_v2_1()
        << "##########################################################################################" << flush;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  if ( doRiddle )
+    {
   // ----------------------- Riddle shell -------------------------------------------------------------------------------------------------------------------------------
-  RiddleShapeTubeA = new TGeoTube  ("TubeA" , 43.3, 46.3, 0.10 );  
-  RiddleShapeTubeB = new TGeoTube  ("TubeB" , 46.2, 46.3, 9.10 ); 
-  RiddleShapeCone  = new TGeoCone  ("Cone"  , 18.2, 46.2, 46.3, 69.0, 69.1 );  
+  RiddleShapeTubeA = new TGeoTube  ("TubeA" , 43.3, 44.9, 0.10 );     // RK // DIRC PROBLEM, 46.3 -> 44.9
+  RiddleShapeTubeB = new TGeoTube  ("TubeB" , 44.8, 44.9, 9.10 );     // RK // DIRC PROBLEM, 46.3 -> 44.9
+  RiddleShapeCone  = new TGeoCone  ("Cone"  , 18.2, 44.8, 44.9, 69.0, 69.1 );  
   RiddleShapeTubeC = new TGeoTube  ("TubeC" , 69.0, 75.4, 0.10 );  
   RiddleShapeTubeD = new TGeoTube  ("TubeD" , 75.4, 75.5, 10.4 ); 
   RiddleShapeTubeE = new TGeoTube  ("TubeE" , 72.5, 75.4, 0.10 );  
@@ -1053,7 +1074,7 @@ Int_t create3StationsGem_v2_1()
       const Double_t  rotDeltaAngle = 360.0/(Double_t(NofHoles));
       const Int_t NofHolesRows = 4;
 
-      Double_t holePosR[4] = {46,52,64,75}; // holes X position
+      Double_t holePosR[4] = {44,52,64,75}; // holes X position
       Double_t holePosD[4] = {90,-60,-60,90}; // holes angles
       Double_t holePosZ[4] = {9,28,45,65}; // holes Z position
 
@@ -1099,9 +1120,9 @@ Int_t create3StationsGem_v2_1()
           SubunitVol->AddNode(RiddleVolcomp,0,RiddleCombi);
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //------------------ cables top 1 --------------------------------------------------------------------------------------------------------------------------
-     tAcopperbarShape = new TGeoPara  ("tAcopperbarshape",lcopperbarx,lcopperbary,lcopperbarHalfThickness, 0.0, -24.0, 0.0);
+     tAcopperbarShape = new TGeoPara  ("tAcopperbarshape",lcopperbarx,lcopperbary,lcopperbarHalfThickness, 0.0, 0.0, 0.0);
      tAcopperbarVol   = new TGeoVolume("GEM_tAcopperbarVolume",tAcopperbarShape,gGeoMan->GetMedium("copper"));
-     tAcopperbarTrans = new TGeoTranslation(0.,47.3,141.35);
+     tAcopperbarTrans = new TGeoTranslation(0.,41.7,131.55);
      tAcopperbarRot   = new TGeoRotation("tAcopperbarrot",-90.0,0.0,0.0);
      tAcopperbarRot ->RegisterYourself();
      tAcopperbarCombi = new TGeoCombiTrans(*tAcopperbarTrans,*tAcopperbarRot); 
@@ -1109,6 +1130,17 @@ Int_t create3StationsGem_v2_1()
      tAcopperbarCombi->RegisterYourself();
      tAcopperbarVol->SetLineColor(kOrange+1);
      SubunitVol->AddNode(tAcopperbarVol,0,tAcopperbarCombi);
+//------------------ cables top 1a --------------------------------------------------------------------------------------------------------------------------
+      tMcopperbarShape = new TGeoPara  ("tMcopperbarshape",mcopperbarx,mcopperbary,mcopperbarHalfThickness, 0.0, -32.0, 0.0);
+      tMcopperbarVol   = new TGeoVolume("GEM_tMcopperbarVolume",tMcopperbarShape,gGeoMan->GetMedium("copper"));
+      tMcopperbarTrans = new TGeoTranslation(0.,47.8,145.35);
+      tMcopperbarRot   = new TGeoRotation("tMcopperbarrot",-90.0,0.0,0.0);
+      tMcopperbarRot ->RegisterYourself();
+      tMcopperbarCombi = new TGeoCombiTrans(*tMcopperbarTrans,*tMcopperbarRot); 
+      tMcopperbarCombi->SetName("GEM_tMcopperbar_Volume");
+      tMcopperbarCombi->RegisterYourself();
+      tMcopperbarVol->SetLineColor(kOrange+1);
+      SubunitVol->AddNode(tMcopperbarVol,0,tMcopperbarCombi);
 //------------------------ cables top 2 -------------------------------------------------------------------------------------------------------------------------
      tBcopperbarShape = new TGeoPara  ("tBcopperbarshape",rcopperbarx,rcopperbary,rcopperbarHalfThickness, 0.0, -45.0, 0.0);
      tBcopperbarVol   = new TGeoVolume("GEM_tBcopperbarVolume",tBcopperbarShape,gGeoMan->GetMedium("copper"));
@@ -1120,10 +1152,10 @@ Int_t create3StationsGem_v2_1()
      tBcopperbarCombi->RegisterYourself();
      tBcopperbarVol->SetLineColor(kOrange+1);
      SubunitVol->AddNode(tBcopperbarVol,0,tBcopperbarCombi);
- //------------------ cables down 1 --------------------------------------------------------------------------------------------------------------------------
-     dAcopperbarShape = new TGeoPara  ("dAcopperbarshape",lcopperbarx,lcopperbary,lcopperbarHalfThickness, 0.0, -24.0, 0.0); 
+ //------------------ cables down 1a --------------------------------------------------------------------------------------------------------------------------
+     dAcopperbarShape = new TGeoPara  ("dAcopperbarshape",lcopperbarx,lcopperbary,lcopperbarHalfThickness, 0.0, 0.0, 0.0); 
      dAcopperbarVol   = new TGeoVolume("GEM_dAcopperbarVolume",dAcopperbarShape,gGeoMan->GetMedium("copper"));
-     dAcopperbarTrans = new TGeoTranslation(0.,-47.3,141.35);
+     dAcopperbarTrans = new TGeoTranslation(0.,-41.7,131.55);
      dAcopperbarRot   = new TGeoRotation("dAcopperbarrot",90.0,0.0,0.0);
      dAcopperbarRot ->RegisterYourself();
      dAcopperbarCombi = new TGeoCombiTrans(*dAcopperbarTrans,*dAcopperbarRot); 
@@ -1131,6 +1163,17 @@ Int_t create3StationsGem_v2_1()
      dAcopperbarCombi->RegisterYourself();
      dAcopperbarVol->SetLineColor(kOrange+1);
      SubunitVol->AddNode(dAcopperbarVol,0,dAcopperbarCombi);
+//------------------------ cables down 1b -------------------------------------------------------------------------------------------------------------------------
+      dMcopperbarShape = new TGeoPara  ("dMcopperbarshape",mcopperbarx,mcopperbary,mcopperbarHalfThickness, 0.0, -32.0, 0.0);
+      dMcopperbarVol   = new TGeoVolume("GEM_dMcopperbarVolume",dMcopperbarShape,gGeoMan->GetMedium("copper"));
+      dMcopperbarTrans = new TGeoTranslation(0.,-47.8,145.35);
+      dMcopperbarRot   = new TGeoRotation("dMcopperbarrot",90.0,0.0,0.0);
+      dMcopperbarRot ->RegisterYourself();
+      dMcopperbarCombi = new TGeoCombiTrans(*dMcopperbarTrans,*dMcopperbarRot); 
+      dMcopperbarCombi->SetName("GEM_dMcopperbar_Volume");
+      dMcopperbarCombi->RegisterYourself();
+      dMcopperbarVol->SetLineColor(kOrange+1);
+      SubunitVol->AddNode(dMcopperbarVol,0,dMcopperbarCombi);
 //------------------------ cables down 2 -------------------------------------------------------------------------------------------------------------------------
      dBcopperbarShape = new TGeoPara  ("dBcopperbarshape",rcopperbarx,rcopperbary,rcopperbarHalfThickness, 0.0, -45.0, 0.0);
      dBcopperbarVol   = new TGeoVolume("GEM_dBcopperbarVolume",dBcopperbarShape,gGeoMan->GetMedium("copper"));
@@ -1143,7 +1186,7 @@ Int_t create3StationsGem_v2_1()
      dBcopperbarVol->SetLineColor(kOrange+1);
      SubunitVol->AddNode(dBcopperbarVol,0,dBcopperbarCombi);
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+ }
   top->AddNode(SubunitVol,0,new TGeoCombiTrans());
   
    // top->CheckOverlaps(0.0001, "");
@@ -1156,8 +1199,8 @@ Int_t create3StationsGem_v2_1()
    // listOfOverlaps->Print();
    // cout << "************************************************" << endl;
 
-   // gGeoManager->CheckOverlaps();
-   // gGeoManager->PrintOverlaps();
+  gGeoManager->CheckOverlaps();
+  gGeoManager->PrintOverlaps();
   
   gGeoMan->CloseGeometry();
   top->Write();
