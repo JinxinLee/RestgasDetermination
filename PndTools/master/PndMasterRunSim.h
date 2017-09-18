@@ -212,7 +212,8 @@ class PndMasterRunSim : public FairRunSim
    * @detail This string can be:
    * ""                          -> default settings full setup
    * "day1"                      -> Setup for day1 experiment: no GEM, FTS1234, NO DISC, NO RICH
-   * "gem" (added to "day1")     -> Setup for day1 experiment with 3 GEM planes
+   * "gem2" (added to "day1")    -> Setup for day1 experiment with 2 GEM planes (first two)
+   * "gem3" (added to "day1")	 -> Setup for day1 experiment with 3 GEM planes
    * "fts1256" (added to "day1") -> Setup for day1 experiment with FTS1256 insted of FTS1234
    * "strip" (added to "day1")   -> Setup for day1 experiment with only the strip part of the MVD instead of the full MVD
    * Example: "day1+gem+fts1256" means day1 setup + GEM planes + fst1256 

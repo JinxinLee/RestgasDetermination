@@ -145,7 +145,7 @@ void PndMasterRunSim::CreateGeometryDefault()
   AddModule(Mvd);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName("gem_3Stations_Tube.root");
+  Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
   AddModule(Gem);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
@@ -253,14 +253,21 @@ void PndMasterRunSim::CreateGeometryDay1()
   FTof->SetGeometryFileName("ftofwall.root");
   AddModule(FTof);
    
-  if (fOptions.Contains("gem"))
+  if (fOptions.Contains("gem2"))
     {
       //-------------------------  GEM       -----------------
       FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-      Gem->SetGeometryFileName("gem_3Stations_Tube.root");
+      Gem->SetGeometryFileName("gem_2Stations_realistic_v2.root");
       AddModule(Gem);
     }
   
+  else if (fOptions.Contains("gem3"))
+  {
+	  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+	  Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
+	  AddModule(Gem);
+  }
+
   if (fOptions.Contains("fts1256"))
     {
       //-------------------------  FTS       -----------------
