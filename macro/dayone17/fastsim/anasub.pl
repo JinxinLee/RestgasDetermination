@@ -117,7 +117,8 @@ foreach my $pref (@prefs)
 	if ($up>$max) {$up=$max;}
 	
 	# the command line
-	my $cmd = "sbatch -pdebug -t20 jobana_kronos.sh $pref $curr $up $currmode";
+	#my $cmd = "sbatch -pdebug -t20 jobana_kronos.sh $pref $curr $up $currmode";
+	my $cmd = "sbatch jobana_kronos.sh $pref $curr $up $currmode";
 	
 	# the output file name
 	my $filename="$pref\_ana_$curr\_$up.root";

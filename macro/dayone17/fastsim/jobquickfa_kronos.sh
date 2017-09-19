@@ -21,7 +21,7 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-nyx=$VMCWORKDIR"/tutorials/rho"
+nyx=$VMCWORKDIR"/macro/dayone17/fastsim"
 _target=$nyx"/data/"
 
 prefix=""

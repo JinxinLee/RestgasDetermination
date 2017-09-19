@@ -20,7 +20,7 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-nyx=$VMCWORKDIR"/macro/prod"
+nyx=$VMCWORKDIR"/macro/dayone17/fastsim"
 _target=$nyx"/data/"
 
 prefix="mysim"
@@ -44,5 +44,7 @@ if test "$4" != ""; then
   mode=$4
 fi
 
+echo "Running command "
+echo "root -l -b -q $nyx/prod_ana.C\(\"$_target$prefix\",$from,$to,$mode\)  &> $_target$prefix""_$from""_$to""_ana.log"
 root -l -b -q $nyx"/"prod_ana.C\(\"$_target$prefix\",$from,$to,$mode\)  &> $_target$prefix"_"$from"_"$to"_ana.log"
 

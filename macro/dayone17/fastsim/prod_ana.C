@@ -138,6 +138,8 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	TString outFile    = TString::Format("%s_ana_%d_%d.root",prefix.Data(), from, to);
 	//TString inParFile  = TString::Format("%s_%d_par.root",prefix.Data(),from);
 	TString firstFile  = TString::Format("%s_%d_%s.root",prefix.Data(),from,suffix.Data());
+	int ffidx = from;
+	while (!checkfile(firstFile) && ffidx<=to) {ffidx++; firstFile = TString::Format("%s_%d_%s.root",prefix.Data(),ffidx,suffix.Data());}
 
 	// if prefix is a full file name, we skip the run number in the name
 	if (prefix.EndsWith(".root"))
@@ -163,7 +165,7 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	FairFileSource *fSrc = new FairFileSource(firstFile);
 		
   	// *** Add pid files
-  	for (int i=from+1;i<=to;++i)
+  	for (int i=ffidx+1;i<=to;++i)
   	{
 	  TString fname = TString::Format("%s_%d_%s.root",prefix.Data(),i,suffix.Data());
 		if ( checkfile(fname) ) fSrc->AddFile(fname);
