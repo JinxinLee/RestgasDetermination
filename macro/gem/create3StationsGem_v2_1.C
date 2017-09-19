@@ -620,7 +620,7 @@ Int_t create3StationsGem_v2_1()
   pout << "parameters:Double_t \\" << endl;
 
   for ( Int_t istat = 0 ; istat < NofDisks ; istat++ ) {
-    //    for ( Int_t istat = 0 ; istat < 2 ; istat++ ) {
+    //for ( Int_t istat = 0 ; istat < 2 ; istat++ ) {
 
          pout << "                   " << istat+1 << ",  "
        	 << setw(9) << DiskZPosition[istat]
@@ -858,7 +858,7 @@ Int_t create3StationsGem_v2_1()
 	TString SenslayerMaterial = SensLayerName[slay].Data();
 	SenslayerMaterial.Remove(0,SenslayerMaterial.Last('_')+1);
 		cout << "THE MATERIAL IS \"" << SenslayerMaterial.Data() << "\"" << endl;
-	SensDiskLayersVol[slay][istat][iseg] = new TGeoVolume(Form("GemSen_Disk%d_Seg%d_%s",istat+1,iseg+1,SensLayerName[slay].Data()),
+	SensDiskLayersVol[slay][istat][iseg] = new TGeoVolume(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,SensLayerName[slay].Data()),
 							    SensDiskLayersShapecompos[slay][istat][iseg],
 							    gGeoMan->GetMedium(SenslayerMaterial.Data()));
 	
@@ -868,7 +868,7 @@ Int_t create3StationsGem_v2_1()
 
 	SensDiskLayersTrans[slay][istat][iseg] = new TGeoTranslation(0.,0.,SensZPosition[slay][istat]);
 	SensDiskLayersCombi[slay][istat][iseg] = new TGeoCombiTrans(*SensDiskLayersTrans[slay][istat][iseg],*dummyrot);
-	SensDiskLayersCombi[slay][istat][iseg]->SetName(Form("GemSen_Disk%d_Seg%d_%s",istat+1,iseg+1,SensLayerName[slay].Data()));
+	SensDiskLayersCombi[slay][istat][iseg]->SetName(Form("Gem_Disk%d_Seg%d_%s",istat+1,iseg+1,SensLayerName[slay].Data()));
 	SensDiskLayersCombi[slay][istat][iseg]->RegisterYourself();
 	DiskVol[istat]->AddNode(SensDiskLayersVol[slay][istat][iseg],0,SensDiskLayersCombi[slay][istat][iseg]);
     }
