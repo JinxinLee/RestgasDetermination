@@ -149,7 +149,7 @@ void PndAnalysis::Init()
       fMcCands = new TClonesArray ( "RhoCandidate" );
       // next line commented by KG, 07/2012
       fRootManager->Register ( "PndMcTracks","PndMcTracksFolder", fMcCands, kFALSE );
-	}
+  }
 
   }
 
@@ -248,10 +248,10 @@ FairMCEventHeader* PndAnalysis::GetEventHeader()
   return evthead;
 }
 
-Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNames )
+Bool_t PndAnalysis::FillList ( RhoCandList& resultList, TString listkey, TString pidTcaNames )
 {
   // Reads the specified List for the current event
-  l.Cleanup();
+  resultList.Cleanup();
 
   // Set which PID information should be used.
   if ( pidTcaNames!="" ) {
@@ -262,26 +262,26 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
 
   // Get or build Monte-Carlo truth list
   if ( listkey=="McTruth" ) {
-    return GetMcCandList(l);
+    return GetMcCandList(resultList);
   }
 
   //Info("PndAnalysis::FillList","key=%s",listkey.Data());
   // acceleration: just give the large lists directly
   if ( listkey=="All" ) {
     fPidCombiner->Apply ( fAllCandList );
-    l=fAllCandList;
+    resultList=fAllCandList;
     return kTRUE;
   }
 
   if ( listkey=="Neutral" ) {
     fPidCombiner->Apply(fNeutralCandList);
-    l=fNeutralCandList;
+    resultList=fNeutralCandList;
     return kTRUE;
   }
 
   if ( listkey=="Charged" ) {
     fPidCombiner->Apply ( fChargedCandList );
-    l=fChargedCandList;
+    resultList=fChargedCandList;
     return kTRUE;
   }
 
@@ -297,32 +297,34 @@ Bool_t PndAnalysis::FillList ( RhoCandList& l, TString listkey, TString pidTcaNa
        || listkey.Contains ( "Kaon" ) ||listkey.Contains ( "Proton" )
        || listkey.Contains ( "Plus" ) ||listkey.Contains ( "Minus" ) ||listkey.Contains ( "Charged" ) ) {
 
+    // We create a copy of all charged candidates
+    resultList=fChargedCandList;
+
+    // Correction for Bremsstrahlung, if desired
     if ( doBremCorr ) {
       if (fBremCorr==0) {
-      	if(fVerbose) Warning("PndAnalysis::FillList","Brem requested but no PndPidBremCorrected4Mom found on input file. Brem Correction can't be done.");
+        if(fVerbose) Warning("PndAnalysis::FillList","Brem requested but no PndPidBremCorrected4Mom found on input file. Brem Correction can't be done.");
       } else {
-    	  for (int j=0; j<fChargedCandList.GetLength(); ++j) 
+        for (int j=0; j<resultList.GetLength(); ++j)
         {
-      	  int trk_id = fChargedCandList[j]->GetTrackNumber();
-      	  int nBremCorr = fBremCorr->GetEntriesFast();
-      	  if (nBremCorr!=fChargedCandList.GetLength())
-            if(fVerbose) 
+          int trk_id = resultList[j]->GetTrackNumber();
+          int nBremCorr = fBremCorr->GetEntriesFast();
+          if (nBremCorr!=resultList.GetLength())
+            if(fVerbose)
               Warning("PndAnalysis::FillList","Warning: BermCorr list size diff. from chargeCandList");
-      	  PndPidBremCorrected4Mom *bremCorr = (PndPidBremCorrected4Mom*) fBremCorr->At(trk_id);
-      	  fChargedCandList[j]->SetP3(bremCorr->GetMomentum());
-      	}
+          PndPidBremCorrected4Mom *bremCorr = (PndPidBremCorrected4Mom*) fBremCorr->At(trk_id);
+          resultList[j]->SetP3(bremCorr->GetMomentum());
+        }
       }
     }
-
-    l=fChargedCandList;
-    fPidCombiner->Apply ( l );
-    l.Select(fPidSelector);
+    fPidCombiner->Apply ( resultList );
+    resultList.Select(fPidSelector);
     return kTRUE;
   }
 
   if ( listkey.Contains ( "Neutral" ) ) {
     fPidCombiner->Apply ( fNeutralCandList );
-    fPidSelector->Select ( fNeutralCandList,l );
+    fPidSelector->Select ( fNeutralCandList,resultList );
     return kTRUE;
   }
 
@@ -951,7 +953,7 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
     }
     if(mcdaumother!=mcdauzeromother){
       if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by mc mother of daughter %i(%p) is different to mc mother of daughter zero(%p) -> Tree does not match"
-       			,idau,mcdaumother,mcdauzeromother);
+            ,idau,mcdaumother,mcdauzeromother);
       return false;
     }
 
@@ -961,8 +963,8 @@ Bool_t PndAnalysis::MctMatch ( RhoCandidate* c, RhoCandList& mct, Int_t level, b
   // difference in #phot<max allowed and has to be exactly the total number of particle difference
   if ( (nphall-nphreco)>fPhotosMax || (nphall-nphreco)!=ndaudiff )
   {
-	if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by differing daughter count not being photos photons: cand:%i mc:%i",c->NDaughters(),mcdauzeromother->NDaughters());
-	return false;
+  if(verbose) Info("PndMcTruthMatch::MctMatch","rejected by differing daughter count not being photos photons: cand:%i mc:%i",c->NDaughters(),mcdauzeromother->NDaughters());
+  return false;
   }
 
   // ***
