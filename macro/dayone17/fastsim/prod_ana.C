@@ -66,6 +66,13 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 		anadecay = "pbp -> e+ e-";
 		anaparms = "mwin(pbp)=1.5|2.5:qaevs:qarec:fit4c:pide=Loose";
 	}
+	// for pbar p -> e+ e- @ 5.5 GeV
+	else if (prefix.Contains("etac1"))
+	{
+		Mom 	 = -5.5;
+		anadecay = "pi0->gamma gamma; eta->gamma gamma; J/psi->e+ e-; chi_1c -> J/psi gamma; eta_c1 -> chi_1c pi0 pi0; pbp -> eta_c1 eta";
+		anaparms = "mwin=0.8:mwin(pi0)=0.024:mwin(eta)=0.048:qaevs:qarec:fit4cbest<200:pide=Loose:!ntp0:!ntp1";
+	}
 	
 	// this sets fast/full sim mode automatically by checking for input file name suffix
 	//bool     fastsim  = (prefix.EndsWith(".root") && prefix.Contains("_fsim")) || gSystem->AccessPathName(Form("%s_%d_pid.root",prefix.Data(),from));	
@@ -138,8 +145,6 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	TString outFile    = TString::Format("%s_ana_%d_%d.root",prefix.Data(), from, to);
 	//TString inParFile  = TString::Format("%s_%d_par.root",prefix.Data(),from);
 	TString firstFile  = TString::Format("%s_%d_%s.root",prefix.Data(),from,suffix.Data());
-	int ffidx = from;
-	while (!checkfile(firstFile) && ffidx<=to) {ffidx++; firstFile = TString::Format("%s_%d_%s.root",prefix.Data(),ffidx,suffix.Data());}
 
 	// if prefix is a full file name, we skip the run number in the name
 	if (prefix.EndsWith(".root"))
@@ -152,6 +157,9 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	}
 	// if only one file, we name outfile to 'prefix_<run>_ana.root'
 	else if (from>=to)  outFile = TString::Format("%s_%d_ana.root", prefix.Data(), from);
+	
+	int ffidx = from;
+	while (!checkfile(firstFile) && ffidx<=to) {ffidx++; firstFile = TString::Format("%s_%d_%s.root",prefix.Data(),ffidx,suffix.Data());}
 
 	
 	// Start a stop watch
@@ -228,6 +236,7 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	//TLorentzVector fIni(0,0,Mom,0.938272+sqrt(Mom*Mom+0.938272*0.938272));
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",3,kFALSE,0.1,0, "",88888);
 	TDatabasePDG::Instance()->AddParticle("pbarpSystem0","pbarpSystem0",3,kFALSE,0.1,0, "",88880);
+	TDatabasePDG::Instance()->AddParticle("eta_c1","eta_c1",4.3,kFALSE,0.02,0,"",999441);
 
 	if (anadecay!="")
 	{

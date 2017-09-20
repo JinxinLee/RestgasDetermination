@@ -82,6 +82,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	TDatabasePDG *pdg = TDatabasePDG::Instance();
 	pdg->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
 	pdg->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
+	pdg->AddParticle("eta_c1","eta_c1",4.3,kFALSE,0.02,0,"",999441);
 
 	
 	//----- Switches for Simulation Options ------------------------------
@@ -321,6 +322,17 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 				eeInv->SetMinMaxInvMass( Ecm-0.5, Ecm+0.5 );
 				eeInv->SetMinMaxCounts(1,10000);
  				primGen->AndFilter(eeInv);  //add filter to fFilterList	
+			}
+			break;
+			
+		case 4: // ******* pbar p -> eta_c1 eta, eta_c1->chi_c 2pi0, chi_c -> J/psi gamma, => J/psi -> e+ e- filter 
+			{
+				// require 1 ee combination in the mass range 2.6 < m(ee) < 3.5 GeV
+				PndEvtFilterOnInvMassCounts* eeInv= new PndEvtFilterOnInvMassCounts("eeInvMFilter");
+				eeInv->SetPdgCodesToCombine( 11, -11);
+				eeInv->SetMinMaxInvMass( 2.6, 3.6);
+				eeInv->SetMinMaxCounts(1,10000);
+ 				primGen->AndFilter(eeInv);  //add filter to fFilterList					
 			}
 			break;
 		}

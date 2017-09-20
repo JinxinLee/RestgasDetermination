@@ -76,6 +76,7 @@ void quickfsimana(TString Prefix="", TString Decfile="", Float_t Mom=0., TString
 	TDatabasePDG *pdg=TDatabasePDG::Instance();
 	pdg->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888,0);
 	pdg->AddParticle("pbarpSystem0","pbarpSystem0",fIni.M(),kFALSE,0.1,0, "",88880,0);
+	pdg->AddParticle("eta_c1","eta_c1",4.3,kFALSE,0.02,0,"",999441);
 
 	//-----Evaluate Detector Setup ---------------------------------------
 	bool SwMvdGem  = true;  // Enable MVD and GEM for central tracking in addition to STT
