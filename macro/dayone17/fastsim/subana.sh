@@ -33,3 +33,22 @@
 ./anasub.pl DPMJmm_B_EMC6 1225 25
 ./anasub.pl DPMJmm_B_EMC7 1226 25
 ./anasub.pl DPMJmm_B_EMC8 1227 25
+
+./anasub.pl DPMetac1_A_EMC1 1300 25
+./anasub.pl DPMetac1_A_EMC2 1301 25
+./anasub.pl DPMetac1_A_EMC3 1302 25
+./anasub.pl DPMetac1_A_EMC4 1303 25
+./anasub.pl DPMetac1_A_EMC5 1304 25
+./anasub.pl DPMetac1_A_EMC6 1305 25
+./anasub.pl DPMetac1_A_EMC7 1306 25
+./anasub.pl DPMetac1_A_EMC8 1307 25
+
+./anasub.pl DPMetac1_B_EMC1 1320 25
+./anasub.pl DPMetac1_B_EMC2 1321 25
+./anasub.pl DPMetac1_B_EMC3 1322 25
+./anasub.pl DPMetac1_B_EMC4 1323 25
+./anasub.pl DPMetac1_B_EMC5 1324 25
+./anasub.pl DPMetac1_B_EMC6 1325 25
+./anasub.pl DPMetac1_B_EMC7 1326 25
+./anasub.pl DPMetac1_B_EMC8 1327 25
+
