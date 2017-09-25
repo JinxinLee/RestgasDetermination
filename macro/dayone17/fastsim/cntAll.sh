@@ -1,3 +1,8 @@
+./cntEvts.sh data/DPM2phi_A_EMC1
+./cntEvts.sh data/DPM2phi_A_EMC5
+./cntEvts.sh data/DPM2phi_A_EMC8
+./cntEvts.sh data/DPM2phi_B_EMC1
+./cntEvts.sh data/DPM2phi_B_EMC5
 ./cntEvts.sh data/DPM2phi_B_EMC8
 
 echo "--------------------"

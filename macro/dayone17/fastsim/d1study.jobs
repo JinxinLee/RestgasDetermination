@@ -29,23 +29,23 @@
 #
 # phi -> K+ K-; pbp -> 2 phi (BACKGROUND)
 #
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC1 100000  DPM  -2.3 SetupA:Filter2:EMC[22-140] ana 1000
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC2 100000  DPM  -2.3 SetupA:Filter2:EMC[22-134] ana 1001
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC3 100000  DPM  -2.3 SetupA:Filter2:EMC[22-114] ana 1002
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC4 100000  DPM  -2.3 SetupA:Filter2:EMC[22-94]  ana 1003
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC5 100000  DPM  -2.3 SetupA:Filter2:EMC[22-74]  ana 1004
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC6 100000  DPM  -2.3 SetupA:Filter2:EMC[22-55]  ana 1005
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_A_EMC7 100000  DPM  -2.3 SetupA:Filter2:EMC[22-35]  ana 1006
-##sbatch -a1-500 jobfsim_kronos.sh DPM2phi_A_EMC8 100000  DPM  -2.3 SetupA:Filter2:EMC[22-20]  ana 1007
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_A_EMC1 500000  DPM  -2.3 SetupA:Filter2:EMC[22-140] ana 1000
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_A_EMC2 500000  DPM  -2.3 SetupA:Filter2:EMC[22-134] ana 1001
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_A_EMC3 500000  DPM  -2.3 SetupA:Filter2:EMC[22-114] ana 1002
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_A_EMC4 500000  DPM  -2.3 SetupA:Filter2:EMC[22-94]  ana 1003
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_A_EMC5 500000  DPM  -2.3 SetupA:Filter2:EMC[22-74]  ana 1004
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_A_EMC6 500000  DPM  -2.3 SetupA:Filter2:EMC[22-55]  ana 1005
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_A_EMC7 500000  DPM  -2.3 SetupA:Filter2:EMC[22-35]  ana 1006
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_A_EMC8 500000  DPM  -2.3 SetupA:Filter2:EMC[22-20]  ana 1007
 
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC1 100000  DPM  -2.3 SetupB:Filter2:EMC[22-140] ana 1020
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC2 100000  DPM  -2.3 SetupB:Filter2:EMC[22-134] ana 1021
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC3 100000  DPM  -2.3 SetupB:Filter2:EMC[22-114] ana 1022
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC4 100000  DPM  -2.3 SetupB:Filter2:EMC[22-94]  ana 1023
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC5 100000  DPM  -2.3 SetupB:Filter2:EMC[22-74]  ana 1024
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC6 100000  DPM  -2.3 SetupB:Filter2:EMC[22-55]  ana 1025
-##sbatch -a1-250 jobfsim_kronos.sh DPM2phi_B_EMC7 100000  DPM  -2.3 SetupB:Filter2:EMC[22-35]  ana 1026
-#sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC8 500000  DPM  -2.3 SetupB:Filter2:EMC[22-20]  ana 1027
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC1 500000  DPM  -2.3 SetupB:Filter2:EMC[22-140] ana 1020
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC2 500000  DPM  -2.3 SetupB:Filter2:EMC[22-134] ana 1021
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC3 500000  DPM  -2.3 SetupB:Filter2:EMC[22-114] ana 1022
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC4 500000  DPM  -2.3 SetupB:Filter2:EMC[22-94]  ana 1023
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC5 500000  DPM  -2.3 SetupB:Filter2:EMC[22-74]  ana 1024
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC6 500000  DPM  -2.3 SetupB:Filter2:EMC[22-55]  ana 1025
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC7 500000  DPM  -2.3 SetupB:Filter2:EMC[22-35]  ana 1026
+sbatch -a1-1000 jobfsim_kronos.sh DPM2phi_B_EMC8 500000  DPM  -2.3 SetupB:Filter2:EMC[22-20]  ana 1027
 
 
 

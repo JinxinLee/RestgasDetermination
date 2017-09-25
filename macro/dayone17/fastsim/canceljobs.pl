@@ -18,8 +18,8 @@ if (!defined($opt))
     print "\nChecks the jobs output (<prefix>_<num>_<suff>.root existing and reasonable in size) and resubmits all failed ones (KRONOS version).\n\n";
     print "USAGE:\n";
     print 'canceljobs.pl <opt> <par> [check]'."\n";
-    print "  <opt>   : Option, like name, time, id\n";
-    print "  <par>   : value of option\n";
+    print "  <opt>   : Option -timelower, -timelarger\n";
+    print "  <par>   : value of option (time in hrs)\n";
     print "  [check] : Optional parameter 'check', which just prints out what would be resubmitted\n\n";
     print "  Example\n > canceljobs.pl time 02:00\n\n";
     exit(0);
