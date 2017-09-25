@@ -113,7 +113,8 @@ MvdDAQ/PndMvdCreateDefaultApvMap.cxx
 #MvdOfflineTBAnalysis_Topix4/PndStraightLineTrackFinderTask.cxx
 #MvdOfflineTBAnalysis_Topix4/PndXYResidualTask.cxx
 #MvdOfflineTBAnalysis_Topix4/PndPosCorrectorTask.cxx
-#MvdOfflineTBAnalysis_Topix4/PndHammingDecoder.cxx
+MvdOfflineTBAnalysis_Topix4/PndHammingDecoder.cxx
+MvdOfflineTBAnalysis_Topix4/PndCRCCalculator.cxx
 #MvdOfflineTBAnalysis_Topix4/PndTopix4.cxx
 )
 
