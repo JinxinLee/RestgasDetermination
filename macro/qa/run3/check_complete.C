@@ -46,6 +46,9 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root",
 			else  
 			{
 				double P = h2->KolmogorovTest(h);
+        		cout << "<DartMeasurement name=\""<<h2->GetTitle()<<"\" type=\"numeric/double\">";
+        		cout << P;
+        		cout << "</DartMeasurement>" << endl;
 				if ( P<minP )
 				{
 					cout << "Incompatible distribution: " << name << " \"" << h2->GetTitle() << "\":  P = " << P << endl;
@@ -56,6 +59,7 @@ bool check_complete(TString fn="output_ana.root", TString fn2="ana_target.root",
 		}
 		
 		if (failcount<maxfail) fTest = kTRUE;
+    	cout << "<DartMeasurement name=\"failcount\" type=\"numeric/int\">"<<failcount<<"</DartMeasurement>"<<endl;
 	}
 
 	// Extract the maximal used memory an add is as Dart measurement
