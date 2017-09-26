@@ -13,6 +13,8 @@
 	unsigned int oldFrameCount = 0;
 	ULong64_t framesSinceLastData = 0;
 	ULong64_t allCountedFrames = 0;
+	ULong64_t diffAllFrameCount = 0;
+	int oldDiffAllFrameCount = 0;
 	int wrongHitCount = 0;
 	int wrongFrameCount = 0;
 	int missingFrames = 0;
@@ -47,19 +49,31 @@ bool CheckFrameCount(std::vector<ULong64_t> frame)
 	unsigned int frameCount = header & 0xffffffff;
 	ULong64_t calcFrameCount = oldFrameCount + framesSinceLastData;
 
+	if (oldFrameCount == 0)
+		allCountedFrames = frameCount;			//sets the first "allCountedFrames" to the start value
+	else if (calcFrameCount > frameCount)
+		allCountedFrames = frameCount;			//if a partial reset has happened the allCountedFrames has to be corrected
+
 	std::cout << "oldFrameCount " << oldFrameCount << " framesSince: " << framesSinceLastData << " newFrame " << frameCount <<
-			" difference: " << std::dec << frameCount - calcFrameCount << std::endl;
+			" difference: " << std::dec << frameCount - calcFrameCount <<
+			" allFrameCount " << std::hex << allCountedFrames << std::dec <<
+			" difference " << frameCount - allCountedFrames << std::endl;
+	if (frameCount - allCountedFrames != oldDiffAllFrameCount){
+		std::cout << "Error allCountedFrames does not match!" << std::endl;
+		if (frameCount - allCountedFrames < 1000000)
+			oldDiffAllFrameCount = (frameCount - allCountedFrames);
+	}
 
 	if (oldFrameCount > 0)
 		missingFrames += frameCount - calcFrameCount;
+
 	if (calcFrameCount > 0x100000000){
 		std::cout << "New Super Frame: calcFrame " << calcFrameCount << std::endl;
 		superFrameCount ++;
 		calcFrameCount = calcFrameCount & 0xffffffff;
 	}
+
 	if (calcFrameCount == frameCount){
-		if (oldFrameCount == 0)
-			allCountedFrames = frameCount;			//sets the first "allCountedFrames" to the start value
 		oldFrameCount = frameCount;
 		return true;
 	}
