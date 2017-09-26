@@ -14,7 +14,7 @@ std::vector<TH1*> CreateChannelHistos(int channelNr, TTree* t){
 	std::cout << "Cut: " << cutstream.str() << std::endl;
 
 	std::stringstream hstream;
-	hstream << "hToT" << channelNr;
+	hstream << "hToT_" << channelNr;
 	TH1* tot = new TH1D(hstream.str().c_str(),"ToT Histogram ", 1025,-0.5,1024.5);
 	std::stringstream tstream;
 	tstream << "data.fToT >> " << hstream.str();
@@ -22,7 +22,7 @@ std::vector<TH1*> CreateChannelHistos(int channelNr, TTree* t){
 	histos.push_back(tot);
 
 	std::stringstream hstream1;
-	hstream1 << "hECoarse" << channelNr;
+	hstream1 << "hECoarse_" << channelNr;
 	TH1* eCoarse = new TH1D(hstream1.str().c_str(),"Coarse Energy : EnergyBranch", 1025,-0.5,1024.5);
 	std::stringstream tstream1;
 	tstream1 << "data.fEnergyBranch.t_coarse >> " << hstream1.str();
@@ -30,7 +30,7 @@ std::vector<TH1*> CreateChannelHistos(int channelNr, TTree* t){
 	histos.push_back(eCoarse);
 
 	std::stringstream hstream2;
-	hstream2 << "hTCoarse" << channelNr;
+	hstream2 << "hTCoarse_" << channelNr;
 	TH1* tCoarse = new TH1D(hstream2.str().c_str(),"Coarse Energy : TimeBranch", 1025,-0.5,1024.5);
 	std::stringstream tstream2;
 	tstream2 << "data.fTimeBranch.t_coarse >> " << hstream2.str();
@@ -44,7 +44,10 @@ int timeStructurePasta(TString fileName)
 {
 	TFile* f = new TFile(fileName, "READ");
 
-	TFile* fOut = new TFile("output.root","RECREATE");
+	PndFileNameCreator creator(fileName.Data());
+	std::string output = creator.GetCustomFileName("histos");
+
+	TFile* fOut = new TFile(output.c_str(),"RECREATE");
 
 	TTree* t = (TTree*)f->Get("PastaTB");
 	TClonesArray* pastadata = new TClonesArray("PndMvdPastaDigi");
@@ -65,45 +68,38 @@ int timeStructurePasta(TString fileName)
 		}
 	}
 
-	std::vector<TCanvas*> canvasses;
 	for(int i = 0; i < 64; i++){
 		std::stringstream channel;
-		channel << "Channel: " << i;
-		TCanvas* c2 = new TCanvas(channel.str().c_str());
-		c2->Divide(2,2);
-		canvasses.push_back(c2);
 		std::vector<TH1*> channelResult = CreateChannelHistos(i, t);
 		for (int j = 0; j < channelResult.size(); j++){
-			c2->cd(j+1);
-//			channelResult[j]->Draw();
 			channelResult[j]->Write();
 		}
 
 	}
-	int y[times.size()];
-	int x[times.size()];
-	int channelId[times.size()];
+	const int sizeArray = times.size();
+	std::cout << "SizeArray " << sizeArray << std::endl;
 
-	for (int n = 0; n < times.size(); n++){
-		if ((int)times[n] > 0)
-			y[n] = times[n];
-		else y[n] = 0;
-		channelId[n] = stripNr[n];
-		x[n] = n;
+	TGraph* g = new TGraph(sizeArray);
+	TGraph* g2 = new TGraph(sizeArray);
+	std::cout << "After creating graph" << std::endl;
+	for (int n = 0; n < sizeArray; n++){
+		g->SetPoint(n, n, times[n]);
+		g2->SetPoint(n,n,stripNr[n]);
 	}
+	hEvents->Write();
+	g->Write();
+	g2->Write();
+
 	TCanvas* c1 = new TCanvas();
 	c1->Divide(2,1);
 	c1->cd(1);
-	TGraph* g = new TGraph(times.size(), x, y);
 	g->Draw("AP");
-	g->Write();
+
 
 	c1->cd(2);
-	TGraph* g2 = new TGraph(times.size(), x, channelId);
 	g2->Draw("AP");
-	g2->Write();
+	std::cout << "Writing Channel Structure" << std::endl;
 
-	hEvents->Write();
 
 	f->Close();
 	fOut->Close();
