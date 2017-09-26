@@ -45,6 +45,9 @@ bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target.root", double
 			else  
 			{
 				double P = h2->KolmogorovTest(h);
+       			cout << "<DartMeasurement name=\""<<h2->GetTitle()<<"\" type=\"numeric/double\">";
+        		cout << P;
+        		cout << "</DartMeasurement>" << endl;
 				if ( P<minP )
 				{
 					cout << "Incompatible distribution: " << name << " \"" << h2->GetTitle() << "\":  P = " << P << endl;
@@ -55,6 +58,7 @@ bool check_pid(TString fn="pid_plot.root", TString fn2="pid_target.root", double
 		}
 		
 		if (failcount<maxfail) fTest = kTRUE;
+    	cout << "<DartMeasurement name=\"failcount\" type=\"numeric/int\">"<<failcount<<"</DartMeasurement>"<<endl;
 	}
 	
 	if (fTest){
