@@ -20,6 +20,8 @@
 	int missingFrames = 0;
 	int superFrameCount = 0;
 
+	int verbose = 0;
+
 
 
 bool CheckHitCount(std::vector<ULong64_t> frame)
@@ -31,7 +33,7 @@ bool CheckHitCount(std::vector<ULong64_t> frame)
 		return false;
 
 	unsigned int nHits = (header >> 32) & 0xff;
-	std::cout << "Hits in Frame: " << nHits << std::endl;
+	if (verbose > 0) std::cout << "Hits in Frame: " << nHits << std::endl;
 	if (nHits == frame.size() - 2){
 		return true;
 	}
@@ -54,12 +56,12 @@ bool CheckFrameCount(std::vector<ULong64_t> frame)
 	else if (calcFrameCount > frameCount)
 		allCountedFrames = frameCount;			//if a partial reset has happened the allCountedFrames has to be corrected
 
-	std::cout << "oldFrameCount " << oldFrameCount << " framesSince: " << framesSinceLastData << " newFrame " << frameCount <<
+	if (verbose > 0) std::cout << "oldFrameCount " << oldFrameCount << " framesSince: " << framesSinceLastData << " newFrame " << frameCount <<
 			" difference: " << std::dec << frameCount - calcFrameCount <<
 			" allFrameCount " << std::hex << allCountedFrames << std::dec <<
 			" difference " << frameCount - allCountedFrames << std::endl;
 	if (frameCount - allCountedFrames != oldDiffAllFrameCount){
-		std::cout << "Error allCountedFrames does not match!" << std::endl;
+		if (verbose > 0) std::cout << "Error allCountedFrames does not match!" << std::endl;
 		if (frameCount - allCountedFrames < 1000000)
 			oldDiffAllFrameCount = (frameCount - allCountedFrames);
 	}
@@ -68,7 +70,7 @@ bool CheckFrameCount(std::vector<ULong64_t> frame)
 		missingFrames += frameCount - calcFrameCount;
 
 	if (calcFrameCount > 0x100000000){
-		std::cout << "New Super Frame: calcFrame " << calcFrameCount << std::endl;
+		if (verbose > 0) std::cout << "New Super Frame: calcFrame " << calcFrameCount << std::endl;
 		superFrameCount ++;
 		calcFrameCount = calcFrameCount & 0xffffffff;
 	}
@@ -87,7 +89,7 @@ bool CheckCRC(std::vector<ULong64_t> frame)
 //		std::cout << i << " : " << std::hex << setw(2) << setfill('0') << (int)frameInChar[i] << " - ";
 //	std::cout << std::endl;
 	ULong64_t calculatedCRC = decoder.CalculateCRCTableFast(frameInChar, frameInChar.size());
-	std::cout << "CalculatedCRC: " << hex << calculatedCRC << std::endl;
+	if (verbose > 0) std::cout << "CalculatedCRC: " << hex << calculatedCRC << std::endl;
 	if (calculatedCRC == frame.back()){
 		return true;
 	} else {
@@ -109,30 +111,30 @@ std::vector<PndMvdPastaDigi> ProcessFrame(std::vector<ULong64_t> frame)
 	bool FrameCount_Ok = CheckFrameCount(frame);
 
 	if (CRC_Ok == true){
-		std::cout << "CRC match!" << std::endl;
+		if (verbose > 0) std::cout << "CRC match!" << std::endl;
 		crcMatchCount++;
 	} else {
-		std::cout << "*********** CRC error *************" << std::endl;
+		if (verbose > 0) std::cout << "*********** CRC error *************" << std::endl;
 		crcErrorCount++;
 	}
 	if (HitCount_Ok == true){
-		std::cout << "Correct Hit Count!" << std::endl;
+		if (verbose > 0) std::cout << "Correct Hit Count!" << std::endl;
 	} else {
-		std::cout << "************* Wrong Hit Counts ***************" << std::endl;
+		if (verbose > 0) std::cout << "************* Wrong Hit Counts ***************" << std::endl;
 		wrongHitCount++;
 	}
 	if (FrameCount_Ok == true){
-		std::cout << "Correct Frame Count!" << std::endl;
+		if (verbose > 0) std::cout << "Correct Frame Count!" << std::endl;
 	} else {
-		std::cout << "************** Wrong Frame Count *************" << std::endl;
+		if (verbose > 0) std::cout << "************** Wrong Frame Count *************" << std::endl;
 		wrongFrameCount++;
 	}
-	std::cout << std::endl;
+	if (verbose > 0) std::cout << std::endl;
 
 	if (CRC_Ok && HitCount_Ok && FrameCount_Ok && (frame.size() % 2 == 0)){
 		for (int i = 1; i < frame.size() -1; i+=2){
 			PndMvdPastaDigi newDigi(header, pastaConv.AnalyzeThresholdWordFull(frame[i]), pastaConv.AnalyzeThresholdWordFull(frame[i+1]));
-			std::cout << newDigi;
+			if (verbose > 0) std::cout << newDigi;
 			digis.push_back(newDigi);
 		}
 	}
@@ -156,7 +158,7 @@ int PastaTBRawToRoot(TString fileName)
 
 	while (!(inputFile.eof())){
 		inputFile >> std::hex >> data;
-		std::cout << std::hex << data << std::endl;
+		if (verbose > 0) std::cout << std::hex << data << std::endl;
 		if (data == 0xffffffffff){
 			if (frame.size() > 1){
 				std::vector<PndMvdPastaDigi> pastavec = ProcessFrame(frame);

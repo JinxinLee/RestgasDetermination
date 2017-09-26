@@ -64,7 +64,7 @@ int timeStructurePasta(TString fileName)
 			PndMvdPastaDigi* digi = (PndMvdPastaDigi*)pastadata->At(j);
 			times.push_back(digi->GetTimeStamp());
 			stripNr.push_back(digi->GetChannelId(PndMvdPastaDigi::ENERGY));
-			std::cout << "TimeStamp: " << digi->GetTimeStamp() << std::endl;
+//			std::cout << "TimeStamp: " << digi->GetTimeStamp() << std::endl;
 		}
 	}
 
@@ -77,11 +77,11 @@ int timeStructurePasta(TString fileName)
 
 	}
 	const int sizeArray = times.size();
-	std::cout << "SizeArray " << sizeArray << std::endl;
+//	std::cout << "SizeArray " << sizeArray << std::endl;
 
 	TGraph* g = new TGraph(sizeArray);
 	TGraph* g2 = new TGraph(sizeArray);
-	std::cout << "After creating graph" << std::endl;
+//	std::cout << "After creating graph" << std::endl;
 	for (int n = 0; n < sizeArray; n++){
 		g->SetPoint(n, n, times[n]);
 		g2->SetPoint(n,n,stripNr[n]);
@@ -98,11 +98,13 @@ int timeStructurePasta(TString fileName)
 
 	c1->cd(2);
 	g2->Draw("AP");
-	std::cout << "Writing Channel Structure" << std::endl;
+//	std::cout << "Writing Channel Structure" << std::endl;
 
 
 	f->Close();
 	fOut->Close();
+
+	std::cout << "Finished conversion" << std::endl;
 
 	return 0;
 }
