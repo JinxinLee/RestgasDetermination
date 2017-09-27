@@ -12,13 +12,13 @@ ClassImp(ThresholdDataFullMode);
 ClassImp(FrameHeader);
 
 
-FrameHeader::FrameHeader(){}
+FrameHeader::FrameHeader() : frameId(0), nEvents(0){}
 
-ThresholdDataFullMode::ThresholdDataFullMode(){}
+ThresholdDataFullMode::ThresholdDataFullMode() : t_coarse(0), t_soc(0), t_eoc(0), channelId(0), tacId(0)
+{}
 
-PndMvdPastaDigi::PndMvdPastaDigi() {
-	// TODO Auto-generated constructor stub
-
+PndMvdPastaDigi::PndMvdPastaDigi() : fTimeBranch(), fEnergyBranch(), fFrameHeader(), fTimeStamp(0), fToT(0)
+{
 }
 
 PndMvdPastaDigi::~PndMvdPastaDigi() {

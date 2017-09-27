@@ -35,6 +35,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(SRCS
   PndMvdPastaDigi.cxx
   PndMvdPasta.cxx
+  PndMvdPastaTorino.cxx
 )
 
 set(LINKDEF MvdPastaLinkDef.h)

@@ -61,9 +61,12 @@ public:
 
 	void SetTimeBranch  (ThresholdDataFullMode time)   { fTimeBranch = time; }
 	void SetEnergyBranch(ThresholdDataFullMode energy) { fEnergyBranch = energy; }
+	void SetHeader (FrameHeader header) { fFrameHeader = header; }
 
 	ULong64_t CalcTimeStamp(){
-		return fFrameHeader.frameId * 1024 + fTimeBranch.t_coarse;
+		ULong64_t timeStamp = fFrameHeader.frameId * 1024 + fTimeBranch.t_coarse;
+		fTimeStamp = timeStamp;
+		return timeStamp;
 	}
 
 	int CalcTot(){
@@ -72,6 +75,7 @@ public:
 		if (tot < 0){
 			tot += 1024;
 		}
+		fToT = tot;
 		return tot;
 	}
 

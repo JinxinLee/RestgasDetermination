@@ -10,5 +10,6 @@
 #pragma link C++ class ThresholdDataFullMode+;
 
 #pragma link C++ class PndMvdPasta;
+#pragma link C++ class PndMvdPastaTorino;
 
 #endif
