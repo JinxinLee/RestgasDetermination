@@ -11,7 +11,7 @@ std::vector<TH1*> CreateChannelHistos(int channelNr, TTree* t){
 	std::stringstream cutstream;
 	cutstream << "data.fTimeBranch.channelId == " << channelNr;
 	TCut cut = cutstream.str().c_str();
-	std::cout << "Cut: " << cutstream.str() << std::endl;
+//	std::cout << "Cut: " << cutstream.str() << std::endl;
 
 	std::stringstream hstream;
 	hstream << "hToT_" << channelNr;
@@ -90,14 +90,14 @@ int timeStructurePasta(TString fileName)
 	g->Write();
 	g2->Write();
 
-	TCanvas* c1 = new TCanvas();
-	c1->Divide(2,1);
-	c1->cd(1);
-	g->Draw("AP");
+//	TCanvas* c1 = new TCanvas();
+//	c1->Divide(2,1);
+//	c1->cd(1);
+//	g->Draw("AP");
 
 
-	c1->cd(2);
-	g2->Draw("AP");
+//	c1->cd(2);
+//	g2->Draw("AP");
 //	std::cout << "Writing Channel Structure" << std::endl;
 
 
