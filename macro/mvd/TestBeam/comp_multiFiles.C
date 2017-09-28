@@ -19,6 +19,18 @@ TCanvas* createCanvas(int picpercan){
 	return newCan;
 }
 
+int GetMaxHisto(std::vector<TH1*> histos){
+	int index = -1;
+	int oldMax = 0;
+	for (int i = 0; i < histos.size(); i++){
+		if (histos[i]->GetMaximum() > oldMax){
+			oldMax = histos[i]->GetMaximum();
+			index = i;
+		}
+	}
+	return index;
+}
+
 std::vector<std::string> GetFileNames(std::string inputFile)
 {
 	std::vector<std::string> listOfFiles;
@@ -80,15 +92,22 @@ int comp_multiFiles(std::string listOfFiles_File = "inputFiles.txt", int picperc
 			//if (!name.Contains("fP")) continue;
 
 			TH1* h = (TH1*) obj;
-			h->Draw();
 			h->SetLineWidth(2);
+			std::vector<TH1*> histos;
+			histos.push_back(h);
 			for (int i = 1; i < files.size(); i++){
-				std::vector<TH1*> histos;
 				TH1* currentHisto = (TH1*)files[i]->Get(name);
 				histos.push_back(currentHisto);
 				currentHisto->SetLineColor(i);
 				currentHisto->SetLineWidth(2);
-				currentHisto->Draw("same");
+			}
+			int maxHisto = GetMaxHisto(histos);
+			if (maxHisto > -1){
+				histos[maxHisto]->Draw();
+				for (int j = 0; j < histos.size(); j++){
+					if (j != maxHisto)
+						histos[j]->Draw("same");
+				}
 			}
 		}
 	}
