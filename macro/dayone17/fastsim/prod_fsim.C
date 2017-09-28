@@ -10,6 +10,7 @@
 
 void    getRange(TString par, double &min, double &max);
 TString getInitialResonance(TString &fEvtGenFile);
+int SplitString(TString s, TString delim, std::vector<TString> &toks);
 
 int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float_t pbeam = 0. , TString simopt="")
 {
@@ -34,32 +35,53 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	
 	// ----- BEGIN EVALUATE simopt string -----------
 	// set the detector day1 setup (further reduction of phase 1 setup)
-	int setupmode = 0;                          // Setup A: Full with 75% GEM, 35% FTS, no EMC Barrel Xtals, no TOF Fwd, no MVD Pixels
-	if (simopt.Contains("SetupB")) setupmode=1; // Setup B: Full with 75% GEM, 35% FTS, no EMC Barrel Xtals, no TOF Fwd, no MVD Pixels, no Muon, no Shashlyk
-	
-	simopt.ReplaceAll("SetupA",""); simopt.ReplaceAll("SetupB",""); 
-	
-	// event filter
-	int filtermode = -1;
-	if (simopt.Contains("Filter")) filtermode = ((TString)simopt(simopt.Index("Filter")+6,1)).Atoi();
-	
-	// EMC barrel tht range
-	simopt.ReplaceAll("[","(");simopt.ReplaceAll("]",")");
-	TRegexp remctht("EMC([0-9]+-[0-9]+)");
-	double thtmin = 22;
-	double thtmax = 142;
-	TString opttht = simopt(remctht);
-	
-	if (opttht!="")
-	{
-		thtmin = ((TString) opttht(opttht.Index("(")+1,opttht.Index("-")-opttht.Index("(")-1)).Atof();
-		thtmax = ((TString) opttht(opttht.Index("-")+1,opttht.Index(")")-opttht.Index("-")-1)).Atof();
-	}
+	// defaults
+	int setupmode  = 0;    // Setup A or B                  
+	double thtmin  = 22;   // min polar angle of EMC barrel
+	double thtmax  = 142;  // max polar angle of EMC barrel 
+	int filtermode = -1;   // event filter (-1 = no filter)
+	int rndseed    = 0;    // random seed
 
+	simopt.ToLower();
+	std::vector<TString> opts;
+	SplitString(simopt,":",opts);
+	
+	for (auto op:opts)
+	{
+		// Setup A: Full with 75% GEM, 35% FTS, no EMC Barrel Xtals, no TOF Fwd, no MVD Pixels
+		// Setup B: Full with 75% GEM, 35% FTS, no EMC Barrel Xtals, no TOF Fwd, no MVD Pixels, no Muon, no Shashlyk
+		if (op=="setupb") setupmode=1;
+		
+		// tht range 
+		if (op.BeginsWith("emc"))
+		{
+			op.ReplaceAll("emc[","");
+			op.ReplaceAll("]","");
+			
+			thtmin = ((TString)op(0,op.Index("-"))).Atof();
+			thtmax = ((TString)op(op.Index("-")+1,1000)).Atof();
+		}
+		
+		// event filter
+		if (op.BeginsWith("filter"))
+		{
+			op.ReplaceAll("filter","");
+			filtermode = op.Atoi();
+		}
+		
+		// random seed
+		if (op.BeginsWith("seed"))
+		{
+			op.ReplaceAll("seed","");
+			rndseed = op.Atoi();
+		}
+	}
+	
 	cout <<"------------------------------"<<endl;	
 	cout <<"Setup      : "<<(setupmode==0?"A":"B")<<endl;
 	cout <<"Filter     : "<<filtermode<<endl;
 	cout <<"EMC Barrel : "<<thtmin<<" < tht < "<<thtmax<<endl;
+	cout <<"Rndm seed  : "<<rndseed<<endl;
 	cout <<"------------------------------"<<endl;	
 
 	// ----- END EVALUATE simopt string -----------
@@ -97,7 +119,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 	TString splitpars = BaseDir+"/fsim/splitpars.dat";
-	gRandom->SetSeed();
+	gRandom->SetSeed(rndseed);
 
 	//-----User Settings:-------------------------------------------------
 	TString  OutputFile     = prefix+"_fsim.root";
@@ -534,4 +556,18 @@ TString getInitialResonance(TString &fEvtGenFile)
 	}
 
 	return IniRes;
+}
+// -------------------------------------------
+// Splits a TString into vector of strings; separation character contained in delim 
+int SplitString(TString s, TString delim, std::vector<TString> &toks)
+{
+	toks.clear();
+	TObjArray *tok = s.Tokenize(delim);
+	int N = tok->GetEntries();	
+	for (int i=0;i<N;++i) 
+	{
+		TString token = (((TObjString*)tok->At(i))->String()).Strip(TString::kBoth);
+		toks.push_back(token);
+	}
+	return toks.size();
 }
