@@ -17,12 +17,11 @@ using namespace std;
 
 ClassImp(PndSttCellTrackFinder);
 
-void PndSttCellTrackFinder::AddHits(TClonesArray* hits, Int_t branchId) {
+void PndSttCellTrackFinder::AddHits(TClonesArray* hits, TString branchName) {
 
-	if (branchId == -1)
-		return;
-
-	fTrackFinderData->AddHits(hits, branchId);
+	//std::cout << "hits added!  branch name: " << branchName << "#################################################################"<<std::endl;
+	//std::cout << "size of tconesarray: " << hits->GetEntriesFast() << "#################################################################"<<std::endl;
+	fTrackFinderData->AddHits(hits, branchName);
 
 }
 
@@ -41,6 +40,7 @@ void PndSttCellTrackFinder::FindTracks() {
 	fTrackletGenerator = new PndSttCellTrackletGenerator(fTrackFinderData);
 	fTrackletGenerator->SetCalcFirstTrackletInf(fCalcFirstTrackletInf);
 	fTrackletGenerator->SetVerbose(fVerbose);
+	fTrackletGenerator->SetBz(fBz);
 
 	//calculation on GPU is only possible without multiple STTHits and a maximum number of MAX_THREADS_PER_BLOCK
 	if (fUseGPU && (fTrackFinderData->GetAllowDoubleHits() == kFALSE)

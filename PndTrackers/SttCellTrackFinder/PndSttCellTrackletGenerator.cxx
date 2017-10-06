@@ -230,7 +230,9 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 		fCombiTrackCand.push_back(trackCand);
 		fCombiRiemannTrack.push_back(fCombinedData[i].trackletInf.riemannTrack);
 		fCombiTrack.push_back(
-				fCombinedData[i].trackletInf.riemannTrack.getPndTrack(2.0)); //TODO replace fixed magnetic field with info from simulation
+				fCombinedData[i].trackletInf.riemannTrack.getPndTrack(fBz));
+		fCombiTrack.back().SetLinks(*(trackCand.GetPointerToLinks()));
+				//fCombinedData[i].trackletInf.riemannTrack.getPndTrack(2.0)); //TODO replace fixed magnetic field with info from simulation
 
 		if (fVerbose > 2) {
 			cout << "TrackletInf of tracklet-combination: ";
@@ -239,7 +241,7 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 
 			cout << "Created PndTrack " << i << " :"
 					<< fCombinedData[i].trackletInf.riemannTrack.getPndTrack(
-							2.0) << endl;
+							fBz) << endl;
 		}
 	}
 
@@ -269,7 +271,8 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 
 			fCombiTrackCand.push_back(trackCand);
 			fCombiRiemannTrack.push_back(trackRefit);
-			fCombiTrack.push_back(trackRefit.getPndTrack(2.0));
+			fCombiTrack.push_back(trackRefit.getPndTrack(fBz));
+			fCombiTrack.back().SetLinks(*(trackCand.GetPointerToLinks()));
 
 			if (fVerbose > 2) {
 				cout << "TrackletInf of tracklet without combination: ";
@@ -277,7 +280,7 @@ void PndSttCellTrackletGenerator::CreatePndTrackCands() {
 				cout << endl;
 
 				cout << "Created PndTrack " << fCombiTrack.size() - 1 << " :"
-						<< trackRefit.getPndTrack(2.0) << endl;
+						<< trackRefit.getPndTrack(fBz) << endl;
 			}
 		}
 	}

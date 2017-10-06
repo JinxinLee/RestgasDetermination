@@ -69,12 +69,33 @@ PndSttCellTrackFinderData::PndSttCellTrackFinderData(
 
 }
 
-void PndSttCellTrackFinderData::AddHits(TClonesArray* hits, Int_t branchId) {
+void PndSttCellTrackFinderData::AddHits(TClonesArray* hits, TString branchName) {
 
 	PndSttHit* myHit;
 	FairLink myID;
+	Int_t branchId = FairRootManager::Instance()->GetBranchId("STTHit");
+// only STTHits are passed to this functions, but we have to check if SkewedHits are present.
 
-	if (branchId == FairRootManager::Instance()->GetBranchId("STTHit")) {
+	if (branchName.Contains("skewed", TString::kIgnoreCase)){
+		// I'm not sure if this part of the code really does what it should!
+		// since skewed straw tubes are not really used at the moment I can not tell.
+
+		fCombinedSkewedHits.clear();
+
+		for (int i = 0; i < hits->GetEntries(); i++) {
+			PndSttSkewedHit* skewedHit = (PndSttSkewedHit*) (hits->At(i));
+			int tubeId = skewedHit->GetTubeIDs().first;
+			fCombinedSkewedHits.insert(
+					std::pair<int, PndSttSkewedHit*>(tubeId, skewedHit));
+			if (skewedHit->GetEntryNr().GetIndex() < 0) {
+				myID = FairLink(branchId, i);
+				skewedHit->SetEntryNr(FairLink(branchId, i));
+			} else
+				myID = skewedHit->GetEntryNr();
+		}
+
+	}
+	else {  //"normal" stt htis are added to the Data map
 
 		fMapHitToFairLinkOrig.clear();
 		fHitsOrig.clear();
@@ -90,25 +111,6 @@ void PndSttCellTrackFinderData::AddHits(TClonesArray* hits, Int_t branchId) {
 			myHit->SetDxyz(myHit->GetIsochrone(), myHit->GetIsochrone(), 100);
 			fMapHitToFairLinkOrig[i] = myID;
 			fHitsOrig.push_back((FairHit*) myHit);
-
-		}
-
-	} else if (branchId
-			== FairRootManager::Instance()->GetBranchId(
-					"STTCombinedSkewedHits")) {
-
-		fCombinedSkewedHits.clear();
-
-		for (int i = 0; i < hits->GetEntries(); i++) {
-			PndSttSkewedHit* skewedHit = (PndSttSkewedHit*) (hits->At(i));
-			int tubeId = skewedHit->GetTubeIDs().first;
-			fCombinedSkewedHits.insert(
-					std::pair<int, PndSttSkewedHit*>(tubeId, skewedHit));
-			if (skewedHit->GetEntryNr().GetIndex() < 0) {
-				myID = FairLink(branchId, i);
-				skewedHit->SetEntryNr(FairLink(branchId, i));
-			} else
-				myID = skewedHit->GetEntryNr();
 		}
 	}
 

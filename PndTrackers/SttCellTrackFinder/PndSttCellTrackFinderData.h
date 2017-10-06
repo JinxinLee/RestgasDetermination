@@ -34,8 +34,8 @@ public:
 			delete fHitsOrig.at(i);
 
 	}
-
-	void AddHits(TClonesArray* hits, Int_t branchId);
+// only support STTHits , uses brachNAme to distinguish between normal and skewed straws
+	void AddHits(TClonesArray* hits, TString branchName);
 
 	void GenerateNeighborhoodData();
 

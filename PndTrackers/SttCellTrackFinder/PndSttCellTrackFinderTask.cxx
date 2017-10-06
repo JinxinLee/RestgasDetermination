@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Root includes
 #include "TROOT.h"
@@ -16,6 +17,7 @@
 #include "FairRuntimeDb.h"
 #include "FairRunAna.h"
 #include "FairEventHeader.h"
+#include "FairField.h"
 
 // PndMvd includes
 #include "PndTrackCand.h"
@@ -57,13 +59,27 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 		std::cout << "-W- PndSttCellTrackFinderTask::Init: "
 				<< "No Branch Names given with AddHitBranch(TString branchName)! Standard BranchNames taken!"
 				<< std::endl;
-		fHitBranch.push_back("STTHit");
-		fHitBranch.push_back("STTCombinedSkewedHits");
+		fHitBranch.push_back(fInBranchNamePrefix+"STTHit");
+		//fHitBranch.push_back("STTParalHit");
+		//fHitBranch.push_back("STTSkewHit");
+		fHitBranch.push_back("fInBranchNamePrefix+STTCombinedSkewedHits");
 	}
 
 	for (int i = 0; i < (int) fHitBranch.size(); i++) {
 		InitHitArray(fHitBranch[i]);
 	}
+	if(fSTTHitArray.size()==0) {
+		std::cout << "No InputBranches containing STTHit data are initialised for the PndSttCellTrackFinderTask" << std::endl;
+		return kERROR;
+	}
+
+	FairField* Field = FairRunAna::Instance()->GetField();
+	Double_t po[3], BB[3];
+	po[0]=0.;
+	po[1]=0.;
+	po[2]=0.;
+	Field->GetFieldValue(po,BB);
+	cout<<"Field Strength: "<<BB[2]/10.<<endl;
 
 	PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
 
@@ -73,6 +89,7 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 	fTrackFinder->SetCalcFirstTrackletInf(fAnalyseSteps);
 	fTrackFinder->SetUseGPU(fUseGPU);
 	fTrackFinder->SetVerbose(fVerbose);
+	fTrackFinder->SetBz(BB[2]/10.);
 	fTrackFinder->SetCalcWithCorrectedIsochrones(fCalcWithCorrectedIsochrones);
 
 	if (fUseGPU) {
@@ -134,25 +151,25 @@ InitStatus PndSttCellTrackFinderTask::Init() {
 
 	if (fAnalyseSteps) {
 		//store information of primary tracklets
-		fFirstTrackCandArray = ioman->Register("FirstTrackCand", "PndTrackCand",
+		fFirstTrackCandArray = ioman->Register(fOutBranchNamePrefix+"FirstTrackCand", "PndTrackCand",
 				"STT", fPersistence);
-		fFirstTrackArray = ioman->Register("FirstTrack", "PndTrack", "STT",
+		fFirstTrackArray = ioman->Register(fOutBranchNamePrefix+"FirstTrack", "PndTrack", "STT",
 				fPersistence);
-		fFirstRiemannTrackArray = ioman->Register("FirstRiemannTrack",
+		fFirstRiemannTrackArray = ioman->Register(fOutBranchNamePrefix+"FirstRiemannTrack",
 				"PndRiemannTrack", "STT", fPersistence);
 
 	}
 
-	fCombiTrackCandArray = ioman->Register("CombiTrackCand", "PndTrackCand",
+	fCombiTrackCandArray = ioman->Register(fOutBranchNamePrefix+"CombiTrackCand", "PndTrackCand",
 			"STT", fPersistence);
-	fCombiTrackArray = ioman->Register("CombiTrack", "PndTrack", "STT",
+	fCombiTrackArray = ioman->Register(fOutBranchNamePrefix+"CombiTrack", "PndTrack", "STT",
 			fPersistence);
-	fCombiRiemannTrackArray = ioman->Register("CombiRiemannTrack",
+	fCombiRiemannTrackArray = ioman->Register(fOutBranchNamePrefix+"CombiRiemannTrack",
 			"PndRiemannTrack", "STT", fPersistence);
 
 	if (fCalcWithCorrectedIsochrones) {
 
-		fCorrectedIsochronesArray = ioman->Register("CorrectedIsochrones",
+		fCorrectedIsochronesArray = ioman->Register(fOutBranchNamePrefix+"CorrectedIsochrones",
 				"FairHit", "STT", fPersistence);
 	}
 
@@ -183,10 +200,9 @@ void PndSttCellTrackFinderTask::Exec(Option_t*) {
 
 	fTrackFinder->Reset();
 
-	FairRootManager *ioman = FairRootManager::Instance();
 
-	for (int i = 0; i < (int) fHitBranch.size(); i++) {
-		fTrackFinder->AddHits(fHitArray[i], ioman->GetBranchId(fHitBranch[i]));
+	for (int i = 0; i < (int) fSTTHitBranch.size(); i++) {
+		fTrackFinder->AddHits(fSTTHitArray[i], fSTTHitBranch[i]);
 	}
 
 	fTrackFinder->FindTracks();
@@ -239,8 +255,8 @@ void PndSttCellTrackFinderTask::Exec(Option_t*) {
 				<< ", #CombinedTracklets: " << fTrackFinder->NumCombinedTracks()
 				<< endl;
 
-	fCombiTrackCandArray->Sort();
-	fCombiTrackArray->Sort();
+	//fCombiTrackCandArray->Sort();	//WALTER CHANGED HERE!!!!!!!!!!!!!!!!
+	//fCombiTrackArray->Sort();		//WALTER CHANGED HERE!!!!!!!!!!!!!!!!
 
 }
 
@@ -307,9 +323,12 @@ void PndSttCellTrackFinderTask::InitHitArray(TString branchName) {
 			(TClonesArray*) FairRootManager::Instance()->GetObject(branchName);
 	if (tempArray == 0) {
 		std::cout << "-W- PndSttCellTrackFinderTask::Init: "
-				<< "No hitArray for BranchName " << branchName.Data()
+				<< "No hitArray for BranchName #############################################" << branchName.Data()
 				<< std::endl;
 	}
-	fHitArray.push_back(tempArray);
+	if ( strcmp(tempArray->GetClass()->GetName(), "PndSttHit") == 0){
+		fSTTHitArray.push_back(tempArray);
+		fSTTHitBranch.push_back(branchName);
+	}
 }
 

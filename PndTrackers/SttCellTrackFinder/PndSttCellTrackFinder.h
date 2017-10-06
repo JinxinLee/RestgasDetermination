@@ -17,12 +17,14 @@
 #include "PndSttHitCorrector.h"
 #include "PndSttSkewedHit.h"
 
+#include <vector>
+
 class TClonesArray;
 
 class PndSttCellTrackFinder {
 public:
 	PndSttCellTrackFinder(TClonesArray *tubeArray) :
-			fVerbose(0), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fCalcWithCorrectedIsochrones(kFALSE), fCalcFirstTrackletInf(kFALSE), fTrackFinderData(0), fTrackletGenerator(0), fHitCorrector(0) {
+			fVerbose(0), fBz(2.), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fCalcWithCorrectedIsochrones(kFALSE), fCalcFirstTrackletInf(kFALSE), fTrackFinderData(0), fTrackletGenerator(0), fHitCorrector(0) {
 
 		//Generate TrackFinderData-Object
 		fTrackFinderData= new PndSttCellTrackFinderData(tubeArray);
@@ -42,12 +44,11 @@ public:
 				++it) {
 			delete (*it).second;
 		}
-
 	}
 
 	void FindTracks();
-
-	void AddHits(TClonesArray* hits, Int_t branchId);
+	// so far only supports STTHits type of data. Uses the name of the Branch to distinguish between normal and Skewed.
+	void AddHits(TClonesArray* hits, TString branchName);
 
 	void SetUseGPU(Bool_t val) {
 		fUseGPU = val;
@@ -156,6 +157,11 @@ public:
 	}
 	;
 
+	void SetBz(Double_t val) {
+		fBz = val;
+	}
+	;
+
 	void StoreTrackData() {
 		fFirstTrackCand = fTrackletGenerator->GetFirstTrackCands();
 
@@ -191,6 +197,7 @@ private:
 	std::vector<std::vector<Double_t> > fTimeStampsGenerateNeighborhoodData;
 
 	Int_t fVerbose;
+	Double_t fBz;
 
 	Bool_t fUseGPU;
 	int* fDev_tubeNeighborings;

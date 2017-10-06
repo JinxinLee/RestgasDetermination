@@ -72,7 +72,7 @@ struct Combination_t {
 class PndSttCellTrackletGenerator {
 public:
 	PndSttCellTrackletGenerator(const PndSttCellTrackFinderData* data) :
-			fTimeStamps(20),fVerbose(0), fCalcFirstTrackletInf(false), fCalcWithCorrectedHits(
+			fTimeStamps(20),fVerbose(0), fBz(2.), fCalcFirstTrackletInf(false), fCalcWithCorrectedHits(
 					false), fTUBE_RADIUS(0.5005),  fUseGPU(false), fDev_tubeNeighborings(0), 
           fHits(data->GetHits()), fCombinedSkewedHits(data->GetCombinedSkewedHits()), 
           fStrawMap(data->GetStrawMap()), fMapTubeIdToHit(data->GetMapTubeIdToHit()), 
@@ -152,6 +152,11 @@ public:
 	}
 	;
 
+	void SetBz(Double_t val) {
+		fBz = val;
+	}
+	;
+
 	std::vector<Double_t> GetTimeStamps() {
 		return fTimeStamps;
 	}
@@ -162,6 +167,7 @@ private:
 	std::vector<Double_t> fTimeStamps;
 
 	Int_t fVerbose;
+	Double_t fBz;
 	bool fCalcFirstTrackletInf;
 	bool fCalcWithCorrectedHits;
 	double fTUBE_RADIUS;

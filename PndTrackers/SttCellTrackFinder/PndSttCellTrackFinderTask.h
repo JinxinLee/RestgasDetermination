@@ -18,6 +18,8 @@ public:
 	PndSttCellTrackFinderTask() :
 			FairTask("Stt Cell Track Finder"), fUseGPU(kFALSE), fDev_tubeNeighborings(0), fCalcWithCorrectedIsochrones(kFALSE), fVerbose(0), fPersistence(kTRUE), fAnalyseSteps(
 					kFALSE) , fTrackFinder(0){
+		fOutBranchNamePrefix = "";
+		fInBranchNamePrefix = "";
 	}
 	;
 
@@ -58,7 +60,14 @@ public:
 	void SetCalcWithCorrectedIsochrones(Bool_t val){
 		fCalcWithCorrectedIsochrones=val;
 	}
-
+	// define a Prefix for the Output in case you run more Instances of the CellTrackFinderTask
+	void SetOutBranchNamePrefix(TString prefix){fOutBranchNamePrefix = prefix+"_";};
+	// set a prefix for the defoult inbut Branch names
+	void SetInBranchNamePrefix(TString prefix){fInBranchNamePrefix = prefix+"_";};
+	//if nothing is defined, the standard STTHit branches are used.
+	//If InputBranches are defined, so far only Branches holding data of type STTHit are further processed (See "initHitArray" method)
+	void AddHitBranch(TString branchName){fHitBranch.push_back(branchName);};
+	// initialise all STTHit type data,  If someone wants to change this also the "Addhit" method of the Trackfinder must be adapted!
 	void InitHitArray(TString branchName);
 
 private:
@@ -69,10 +78,14 @@ private:
 
 	Bool_t fCalcWithCorrectedIsochrones;
 
+	TString fOutBranchNamePrefix;
+	TString fInBranchNamePrefix;
+
 	std::vector<TString> fHitBranch;
+	std::vector<TString> fSTTHitBranch;
 	//TString fTrackBranch;
 
-	std::vector<TClonesArray*> fHitArray;
+	std::vector<TClonesArray*> fSTTHitArray;
 
 	// first step of trackfinding
 	TClonesArray* fFirstTrackCandArray;
