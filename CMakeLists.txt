@@ -407,6 +407,8 @@ add_subdirectory (tracking/PndBarrelTrackFinder)
 add_subdirectory (tracking/PndMvdGemTrackFinderOnHits)
 add_subdirectory (tracking/riemannfit)
 add_subdirectory (tracking/HelixPropagator)
+add_subdirectory (tracking/PndPatternMatcher)
+
 #add_subdirectory(tracking/online/CircleHough)
 
 add_subdirectory (analysis/rho)
