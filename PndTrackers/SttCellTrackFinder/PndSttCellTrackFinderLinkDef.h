@@ -10,13 +10,9 @@
 #pragma link C++ class PndSttCellTrackFinder+;
 #pragma link C++ class PndSttCellTrackFinderData+;
 #pragma link C++ class PndSttCellTrackletGenerator+;
-#pragma link C++ class PndSttCellTrackingTestTask+;
 #pragma link C++ class PndSttHitCorrector+;
 //#pragma link C++ class PndSttCellTrackFinderAnalysisTask+;
 #pragma link C++ class PndSttSkewedCombineTask+;
-#pragma link C++ class PndSttSkewStrawPzFinderData+;
-#pragma link C++ class PndSttSkewStrawPzFinderTask+;
-#pragma link C++ class PndSttSkewStrawPzFinderAnalysisTask+;
-#pragma link C++ class PndSttSkewStrawPzFinder+;
+
 #endif
 
