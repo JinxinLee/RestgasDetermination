@@ -13,6 +13,24 @@
 
 #include <ostream>
 
+    class RunSummary : public TObject
+    {
+    public :
+    		RunSummary();
+    		~RunSummary(){};
+    		int fCrcMatchCount;		///< count of all frames with correct CRC
+    		int fCrcErrorCount;		///< count of all frames with wrong CRC
+    		int fSingleWordFrames;	///< count of all frames with just one word. This is an error a frame has at least two words
+    		std::vector<ULong64_t> fAllCountedFrames;	///< counts all frames within a partial reset
+    		int fAllPartialResets; ///< count of all partial resets detected
+
+    		int fWrongHitCount;		///< count of all frames where the hits in the header do not match the data
+    		int fWrongFrameCount;	///< count of all frames where the expected frame ID did not match the frameID in the header
+    		int fMissingFrames;		///< count of all missing frames (not very reliable)
+    		int fSuperFrameCount;	///< count of frame counter overflow (should not happen because the frame counter is HUGE
+
+    		ClassDef(RunSummary, 1);
+    };
 
 	class ThresholdDataFullMode : public TObject
 	{

@@ -8,6 +8,8 @@
 #pragma link C++ class PndMvdPastaDigi+;
 #pragma link C++ class FrameHeader+;
 #pragma link C++ class ThresholdDataFullMode+;
+#pragma link C++ class RunSummary+;
+
 
 #pragma link C++ class PndMvdPasta;
 #pragma link C++ class PndMvdPastaTorino;

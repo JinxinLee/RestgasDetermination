@@ -7,18 +7,12 @@
 
 	PndCRCCalculator decoder(16, 0x1021, 0, 0 ,0, 0x0F4A);
 	PndMvdPasta pastaConv;
-	int crcMatchCount = 0;
-	int crcErrorCount = 0;
-	int singleWordFrames = 0;
+	RunSummary summary;
+
 	unsigned int oldFrameCount = 0;
 	ULong64_t framesSinceLastData = 0;
-	ULong64_t allCountedFrames = 0;
 	ULong64_t diffAllFrameCount = 0;
 	int oldDiffAllFrameCount = 0;
-	int wrongHitCount = 0;
-	int wrongFrameCount = 0;
-	int missingFrames = 0;
-	int superFrameCount = 0;
 
 	int verbose = 1;
 
@@ -62,29 +56,32 @@ bool CheckFrameCount(std::vector<ULong64_t> frame)
 	ULong64_t calcFrameCount = oldFrameCount + framesSinceLastData;
 
 	if (oldFrameCount == 0){
-		allCountedFrames = frameCount;			//sets the first "allCountedFrames" to the start value
-		if (verbose > 0) std::cout << "****** Info Setting allCountedFrames to start frames ***** " << allCountedFrames << std::endl;
+		summary.fAllCountedFrames.push_back(frameCount);			//sets the first "allCountedFrames" to the start value
+		if (verbose > 0) std::cout << "****** Info Setting allCountedFrames to start frames ***** " << summary.fAllCountedFrames.back() << std::endl;
 	}
 	else if (calcFrameCount > frameCount) {
 		if (verbose > 0) std::cout << "***** Info PartialReset? calcFrameCount " << calcFrameCount << " > frameCount " << frameCount << std::endl; 
-		allCountedFrames = frameCount;			//if a partial reset has happened the allCountedFrames has to be corrected
+		summary.fAllCountedFrames.push_back(frameCount);			//sets the first "allCountedFrames" to the start value
+		summary.fAllPartialResets++;														//if a partial reset has happened the allCountedFrames has to be corrected
 	}
-	if (verbose > 1) std::cout << "oldFrameCount " << oldFrameCount << " framesSince: " << framesSinceLastData << " newFrame " << frameCount <<
-			" difference: " << std::dec << frameCount - calcFrameCount <<
-			" allFrameCount " << std::hex << allCountedFrames << std::dec <<
-			" difference " << frameCount - allCountedFrames << std::endl;
-	if (frameCount - allCountedFrames != oldDiffAllFrameCount){
+	if (frameCount - summary.fAllCountedFrames.back() != oldDiffAllFrameCount){
 		if (verbose > 0) std::cout << "Error allCountedFrames does not match!" << std::endl;
-		if (frameCount - allCountedFrames < 1000000)
-			oldDiffAllFrameCount = (frameCount - allCountedFrames);
+		if (frameCount - summary.fAllCountedFrames.back() < 1000000)
+			oldDiffAllFrameCount = (frameCount - summary.fAllCountedFrames.back());
 	}
 
-	if (oldFrameCount > 0)
-		missingFrames += frameCount - calcFrameCount;
+	if ((oldFrameCount > 0) && (frameCount > calcFrameCount))
+		summary.fMissingFrames += frameCount - calcFrameCount;
+
+	if (verbose > 1) std::cout << "oldFrameCount " << oldFrameCount << " framesSince: " << framesSinceLastData << " newFrame " << frameCount <<
+				" difference: " << std::dec << frameCount - calcFrameCount <<
+				" allFrameCount " << std::hex << summary.fAllCountedFrames.back() << std::dec <<
+				" difference " << frameCount - summary.fAllCountedFrames.back() <<
+				" total missing Frames: " << summary.fMissingFrames << std::endl;
 
 	if (calcFrameCount > 0x100000000){
 		if (verbose > 0) std::cout << "New Super Frame: calcFrame " << calcFrameCount << std::endl;
-		superFrameCount ++;
+		summary.fSuperFrameCount ++;
 		calcFrameCount = calcFrameCount & 0xffffffff;
 	}
 
@@ -93,7 +90,7 @@ bool CheckFrameCount(std::vector<ULong64_t> frame)
 		return true;
 	}
         if (verbose > 0){
-                std::cout << "***** Error Frame Count ***** : calcFrameCount " << calcFrameCount << " frameCount " << frameCount << " allCountedFrames " << allCountedFrames << std::endl;
+                std::cout << "***** Error Frame Count ***** : calcFrameCount " << calcFrameCount << " frameCount " << frameCount << " allCountedFrames " << summary.fAllCountedFrames.back() << std::endl;
                 PrintFrame(frame);
         }
 
@@ -127,27 +124,31 @@ std::vector<PndMvdPastaDigi> ProcessFrame(std::vector<ULong64_t> frame)
 		pastaConv.AnalyzeHeader(frame[0]);
 	}
 	bool CRC_Ok = CheckCRC(frame);
-	bool HitCount_Ok = CheckHitCount(frame);
-	bool FrameCount_Ok = CheckFrameCount(frame);
 
 	if (CRC_Ok == true){
 		if (verbose > 1) std::cout << "CRC match!" << std::endl;
-		crcMatchCount++;
+		summary.fCrcMatchCount++;
 	} else {
 		if (verbose > 0) std::cout << "*********** CRC error *************" << std::endl;
-		crcErrorCount++;
+		summary.fCrcErrorCount++;
+		framesSinceLastData++;
+		return digis;	// if CRC is corrupt then the analysis of the other data does not make sense!
 	}
+
+	bool HitCount_Ok = CheckHitCount(frame);
+	bool FrameCount_Ok = CheckFrameCount(frame);
+
 	if (HitCount_Ok == true){
 		if (verbose > 1) std::cout << "Correct Hit Count!" << std::endl;
 	} else {
 		if (verbose > 0) std::cout << "************* Wrong Hit Counts ***************" << std::endl;
-		wrongHitCount++;
+		summary.fWrongHitCount++;
 	}
 	if (FrameCount_Ok == true){
 		if (verbose > 1) std::cout << "Correct Frame Count!" << std::endl;
 	} else {
 		if (verbose > 0) std::cout << "************** Wrong Frame Count *************" << std::endl;
-		wrongFrameCount++;
+		summary.fWrongFrameCount++;
 	}
 	if (verbose > 1) std::cout << std::endl;
 
@@ -170,6 +171,7 @@ int PastaTBRawToRoot(TString fileName)
 
 	TClonesArray* pastadata = new TClonesArray("PndMvdPastaDigi");
 	t.Branch("data", &pastadata);
+//	t.Branch("header", &summary);
 
 
 	std::ifstream inputFile(fileName.Data());
@@ -184,30 +186,33 @@ int PastaTBRawToRoot(TString fileName)
 				std::vector<PndMvdPastaDigi> pastavec = ProcessFrame(frame);
 				for (int i = 0; i < pastavec.size(); i++)
 					new((*pastadata)[pastadata->GetEntries()]) PndMvdPastaDigi(pastavec[i]);
-				t.Fill();
-				pastadata->Delete();
+				if (pastavec.size() > 0){
+					t.Fill();
+					pastadata->Delete();
+				}
 				framesSinceLastData = 0;
 			}
 			else if (frame.size() == 1) {
-				singleWordFrames++;
+				summary.fSingleWordFrames++;
 			}
 			frame.erase(frame.begin(), frame.end());
 			framesSinceLastData++;
-			allCountedFrames++;
+			if (summary.fAllCountedFrames.size() > 0)
+				summary.fAllCountedFrames.back()++;
 		} else {
 			frame.push_back(data);
 		}
 	}
 	std::cout << "*************** Summary **************" << std::endl;
-	std::cout << std::dec << "CRCMatch: " << crcMatchCount <<
-			" CRCErrors: " << crcErrorCount <<
-			" singleWordFrames: " << singleWordFrames <<
-			" wrongHitCount: " << wrongHitCount <<
-			" wrongFrameCount: " << wrongFrameCount <<
-			" missing Frames: " << missingFrames <<
-			" superFrameCount: " << superFrameCount <<
+	std::cout << std::dec << "CRCMatch: " << summary.fCrcMatchCount <<
+			" CRCErrors: " << summary.fCrcErrorCount <<
+			" SingleWordFrames: " << summary.fSingleWordFrames <<
+			" WrongHitCount: " << summary.fWrongHitCount <<
+			" WrongFrameCount: " << summary.fWrongFrameCount <<
+			" missing Frames: " << summary.fMissingFrames <<
+			" SuperFrameCount: " << summary.fSuperFrameCount <<
 			std::endl;
-
+	summary.Write();
 	f.Write();
 	return 0;
 }
