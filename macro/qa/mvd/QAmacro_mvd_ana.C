@@ -4,16 +4,16 @@
 int QAmacro_mvd_ana()
 {
   cout << "QA Analysis module for the MVD - Hit resolution check." << endl;
-  
+
   TString inFile = "mvdqasim.root";
   TString recoFile = "mvdqarec.root";
   TString parFile = "mvdqapar.root";
-  
+
   Int_t nEvents = 100;
   Bool_t verbose = kTRUE;
   Bool_t isSuccessful = kFALSE;
-  Bool_t test1=kTRUE, test2=kTRUE, test3=kTRUE;  
-  
+  Bool_t test1=kTRUE, test2=kTRUE, test3=kTRUE;
+
 //  cout << "$VMCWORKDIR" << endl;
 //  gROOT->LoadMacro("$VMCWORKDIR/macro/run/Tools.C");
 //  LoadPandaStyle();
@@ -36,19 +36,19 @@ int QAmacro_mvd_ana()
   PndGeoHandling* fGeoH = new PndGeoHandling(inFile,parFile);
 
   TGeoManager *geoMan;
-  if (!gGeoManager) {      
-    dbfile->Get("FairBaseParSet");      
+  if (!gGeoManager) {
+    dbfile->Get("FairBaseParSet");
     geoMan = gGeoManager;
-    if(!geoMan) {      
-      dbfile->Get("FairGeoParSet");      
-      geoMan = gGeoManager;      
-      if(!geoMan) {      
-        std::cout<<"Could not find valid GeoManager. Abort now!"<<std::endl;      
-        exit(1);      
-      }      
-    }      
-  }      
-  
+    if(!geoMan) {
+      dbfile->Get("FairGeoParSet");
+      geoMan = gGeoManager;
+      if(!geoMan) {
+        std::cout<<"Could not find valid GeoManager. Abort now!"<<std::endl;
+        exit(1);
+      }
+    }
+  }
+
   TClonesArray* mc_array=new TClonesArray("PndSdsMCPoint");
   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
@@ -146,7 +146,7 @@ int QAmacro_mvd_ana()
     {
 
       PndSdsHit *hit=(PndSdsHit*)pixhit_array->At(ii);
-	    if(verbose) cout <<ii<< ".";
+      if(verbose) cout <<ii<< ".";
       detname = fGeoH->GetPath( hit->GetSensorID());
       geoMan->cd( detname.Data() );
       currentTransMat = geoMan->GetCurrentMatrix();
@@ -181,7 +181,7 @@ int QAmacro_mvd_ana()
 
       hisDiff->Fill(vecdiff.X());
     }//end for ii (pixel hits in event)
-	  if(verbose) cout <<endl;
+    if(verbose) cout <<endl;
 
 
 
@@ -269,7 +269,7 @@ int QAmacro_mvd_ana()
   Float_t mean2=10000*par[4];
   Float_t sigma2=10000*par[5];
 
-  cout << "<DartMeasurement name=\"mean_1 [um]\" type=\"numeric/double\">";
+  cout << "<DartMeasurement name=\"mean1\" type=\"numeric/double\">";
   cout << mean1;
   cout << "</DartMeasurement>" << endl;
 
@@ -285,7 +285,7 @@ int QAmacro_mvd_ana()
     test1=kFALSE;
   } std::cout<<" than 2 #sigma away from 0"<<std::endl;
 
-  cout << "<DartMeasurement name=\"mean_2 [um]\" type=\"numeric/double\">";
+  cout << "<DartMeasurement name=\"mean2\" type=\"numeric/double\">";
   cout << mean2;
   cout << "</DartMeasurement>" << endl;
 
@@ -301,7 +301,7 @@ int QAmacro_mvd_ana()
     test1=kFALSE;
   } std::cout<<" than 2 #sigma away from 0"<<std::endl;
 
-  cout << "<DartMeasurement name=\"sigma_1 [um]\" type=\"numeric/double\">";
+  cout << "<DartMeasurement name=\"sigma1\" type=\"numeric/double\">";
   cout << sigma1;
   cout << "</DartMeasurement>" << endl;
 
@@ -318,7 +318,7 @@ int QAmacro_mvd_ana()
     test2=kFALSE;
   } std::cout<<std::endl;
 
-  cout << "<DartMeasurement name=\"sigma_2 [um]\" type=\"numeric/double\">";
+  cout << "<DartMeasurement name=\"sigma2\" type=\"numeric/double\">";
   cout << sigma2;
   cout << "</DartMeasurement>" << endl;
 
@@ -360,11 +360,11 @@ int QAmacro_mvd_ana()
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
-	Double_t ctime = timer.CpuTime();
-	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  Double_t ctime = timer.CpuTime();
+  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   isSuccessful = test1 && test2 && test3;
   if(isSuccessful){
-	  std::cout << " Test passed" << std::endl;
+    std::cout << " Test passed" << std::endl;
     std::cout << " All ok " << std::endl;
   } else {
     std::cout<<"Something is worong:"<<endl;
@@ -374,5 +374,5 @@ int QAmacro_mvd_ana()
   }
   std::cout<<std::endl;
   return 0;
-   
+
 }
