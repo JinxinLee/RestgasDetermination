@@ -11,6 +11,8 @@ std::vector<TH1*> CreateChannelHistos(int channelNr, TTree* t){
 	std::stringstream cutstream;
 	cutstream << "data.fTimeBranch.channelId == " << channelNr;
 	TCut cut = cutstream.str().c_str();
+	if (channelNr == -1)			// -1 creates global histograms for all channels
+		cut = "";
 //	std::cout << "Cut: " << cutstream.str() << std::endl;
 
 	std::stringstream hstream;
@@ -40,6 +42,21 @@ std::vector<TH1*> CreateChannelHistos(int channelNr, TTree* t){
 	return histos;
 }
 
+TH1* CreateErrorHisto(TFile* f){
+	RunSummary* summary = (RunSummary*)f->Get("RunSummary");
+	TH1D* histo = new TH1D("hOverview","Overview",9,-0.5,8.5);
+	histo->Fill((int)0, summary->fCrcMatchCount);
+	histo->Fill(1, summary->fCrcErrorCount);
+	histo->Fill(2, summary->fSingleWordFrames);
+	histo->Fill(3, summary->fAllPartialResets);
+	histo->Fill(4, summary->fWrongHitCount);
+	histo->Fill(5, summary->fWrongFrameCount);
+	histo->Fill(6, summary->fMissingFrames);
+	histo->Fill(7, summary->fSuperFrameCount);
+
+	return histo;
+}
+
 int timeStructurePasta(TString fileName)
 {
 	TFile* f = new TFile(fileName, "READ");
@@ -54,7 +71,7 @@ int timeStructurePasta(TString fileName)
 	t->SetBranchAddress("data", &pastadata);
 
 	TH1* hEvents = new TH1D("hEvents","Events per Channel", 65,-0.5,64.5);
-	t->Draw("data.fTimeBranch.channelId >> hEvents");
+	t->Draw("data.fTimeBranch.channelId >> hEvents","","goff");
 
 	std::vector<ULong64_t> times;
 	std::vector<int> stripNr;
@@ -68,7 +85,7 @@ int timeStructurePasta(TString fileName)
 		}
 	}
 
-	for(int i = 0; i < 64; i++){
+	for(int i = -1; i < 64; i++){
 		std::stringstream channel;
 		std::vector<TH1*> channelResult = CreateChannelHistos(i, t);
 		for (int j = 0; j < channelResult.size(); j++){
@@ -76,11 +93,17 @@ int timeStructurePasta(TString fileName)
 		}
 
 	}
+
+	TH1* errorHisto = CreateErrorHisto(f);
+	errorHisto->Write();
+
 	const int sizeArray = times.size();
 //	std::cout << "SizeArray " << sizeArray << std::endl;
 
 	TGraph* g = new TGraph(sizeArray);
+	g->SetName("GraphTimeVsIndex");
 	TGraph* g2 = new TGraph(sizeArray);
+	g2->SetName("GraphStripVsIndex");
 //	std::cout << "After creating graph" << std::endl;
 	for (int n = 0; n < sizeArray; n++){
 		g->SetPoint(n, n, times[n]);

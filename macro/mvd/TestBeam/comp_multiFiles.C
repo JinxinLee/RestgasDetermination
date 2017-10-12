@@ -5,6 +5,7 @@
 #include <iostream>
 #include "TH1F.h"
 #include "TRandom.h"
+#include <utility>
 
 using std::cout;
 using std::endl;
@@ -31,14 +32,23 @@ int GetMaxHisto(std::vector<TH1*> histos){
 	return index;
 }
 
-std::vector<std::string> GetFileNames(std::string inputFile)
+struct fileData {
+	fileData(std::string fileName, std::string parameter, double scaling) : fFileName(fileName), fParameter(parameter), fScalingFactor(scaling) {};
+	std::string fFileName;
+	std::string fParameter;
+	double fScalingFactor;
+};
+
+std::vector<fileData> GetFileNames(std::string inputFile)
 {
-	std::vector<std::string> listOfFiles;
-	std::string data;
+	std::vector<fileData> listOfFiles;
+	std::string fileName;
+	std::string parameter;
+	double scalingFactor;
 
 	std::ifstream in(inputFile);
-	while(in >> data){
-		listOfFiles.push_back(data);
+	while(in >> fileName >> parameter >> scalingFactor){
+		listOfFiles.push_back(fileData(fileName, parameter, scalingFactor));
 	}
 	return listOfFiles;
 }
@@ -48,13 +58,14 @@ int comp_multiFiles(std::string listOfFiles_File = "inputFiles.txt", int picperc
 	// fn   -> red
 	// fn2 -> blue
 	std::vector<TCanvas*> canvasses;
+	std::string filter = "";
 //	TCanvas *c1 = new TCanvas();
 //	c1->Divide(6, 6);
 
-	std::vector<std::string> fileNames = GetFileNames(listOfFiles_File);
+	std::vector<fileData> fileNames = GetFileNames(listOfFiles_File);
 	std::vector<TFile*> files;
 	for (auto name : fileNames){
-		files.push_back(new TFile(name.c_str(), "READ"));
+		files.push_back(new TFile(name.fFileName.c_str(), "READ"));
 	}
 
 	if (files.size() < 2)
@@ -70,6 +81,12 @@ int comp_multiFiles(std::string listOfFiles_File = "inputFiles.txt", int picperc
 		Int_t actualPad = 0;
 		Int_t i = 0;
 		while ((key = (TKey*) next())) {
+
+			TObject *obj = key->ReadObj();
+			TString name = obj->GetName();
+			std::cout << name << std::endl;
+			if (!name.Contains(filter.c_str())) continue;
+
 			actualCanvas = TMath::Floor((double)yy / picpercan);
 			actualPad = (yy % picpercan) + 1;
 			cout << yy << " : " << actualCanvas << "/" << actualPad << endl;
@@ -79,35 +96,54 @@ int comp_multiFiles(std::string listOfFiles_File = "inputFiles.txt", int picperc
 			}
 			canvasses[actualCanvas]->cd(actualPad);
 			yy++;
-			TObject *obj = key->ReadObj();
 
 			// only check TH1Fs
-			if (!obj->InheritsFrom("TH1")){
-				cout << "Wrong Inheritance" << endl;
-				continue;
-			}
-
-			TString name = obj->GetName();
-			std::cout << name << std::endl;
-			//if (!name.Contains("fP")) continue;
-
-			TH1* h = (TH1*) obj;
-			h->SetLineWidth(2);
-			std::vector<TH1*> histos;
-			histos.push_back(h);
-			for (int i = 1; i < files.size(); i++){
-				TH1* currentHisto = (TH1*)files[i]->Get(name);
-				histos.push_back(currentHisto);
-				currentHisto->SetLineColor(i);
-				currentHisto->SetLineWidth(2);
-			}
-			int maxHisto = GetMaxHisto(histos);
-			if (maxHisto > -1){
-				histos[maxHisto]->Draw();
-				for (int j = 0; j < histos.size(); j++){
-					if (j != maxHisto)
-						histos[j]->Draw("same");
+			if (obj->InheritsFrom("TH1")){
+				TH1* h = (TH1*) obj;
+				h->Scale(fileNames[0].fScalingFactor);
+				h->SetLineWidth(2);
+				std::vector<TH1*> histos;
+				histos.push_back(h);
+				for (int i = 1; i < files.size(); i++){
+					TH1* currentHisto = (TH1*)files[i]->Get(name);
+					currentHisto->Scale(fileNames[i].fScalingFactor);
+					histos.push_back(currentHisto);
+					currentHisto->SetLineColor(i);
+					currentHisto->SetLineWidth(2);
 				}
+				int maxHisto = GetMaxHisto(histos);
+				if (maxHisto > -1){
+					TLegend* theLegend = new TLegend(0.5,0.55,0.9,0.75);
+					histos[maxHisto]->Draw();
+					theLegend->AddEntry(histos[maxHisto], fileNames[maxHisto].fParameter.c_str(),"l");
+					for (int j = 0; j < histos.size(); j++){
+						if (j != maxHisto){
+							histos[j]->Draw("same");
+							theLegend->AddEntry(histos[j], fileNames[j].fParameter.c_str(),"l");
+						}
+					}
+					theLegend->Draw();
+				}
+			}
+			if (obj->InheritsFrom("TGraph")){
+				TString name = obj->GetName();
+				TLegend* aLegend = new TLegend(0.5,0.55,0.9,0.75);
+				TGraph* g = (TGraph*)obj;
+				g->SetMarkerStyle(6);
+				g->Draw("AL");
+				aLegend->AddEntry(g, fileNames[0].fParameter.c_str(),"l");
+				std::vector<TGraph*> graphs;
+				graphs.push_back(g);
+				for (int i = 1; i < files.size(); i++){
+					TGraph* currentGraph = (TGraph*)files[i]->Get(name);
+					graphs.push_back(currentGraph);
+					currentGraph->SetMarkerStyle(6);
+					currentGraph->SetMarkerColor(i+1);
+					currentGraph->SetLineColor(i+1);
+					currentGraph->Draw("L");
+					aLegend->AddEntry(currentGraph, fileNames[i].fParameter.c_str(),"l");
+				}
+
 			}
 		}
 	}
