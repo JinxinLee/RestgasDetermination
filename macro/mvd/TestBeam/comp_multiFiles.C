@@ -1,14 +1,18 @@
-#include "TString.h"
-#include "TFile.h"
-#include "TCanvas.h"
-#include "TKey.h"
 #include <iostream>
-#include "TH1F.h"
-#include "TRandom.h"
 #include <utility>
+#include <algorithm>
 
 using std::cout;
 using std::endl;
+
+//* comp_multiFiles.C is a macro to combine identical histograms or graphs from different files in combined histograms.
+//* The macro needs an input file (default is "inputFiles.txt") which contains the following information
+//* Per line: - file name (optional with complete path) as string which contains the histograms to combine
+//*           - identifier used in TLegend of histograms as string
+//*           - scaling of histograms as double (to overlay the histograms they can be scaled to match to the same basis)
+//*                                             (the macro takes the maximum number and scales all other histograms with maxScale/individualScale)
+//* The second input parameter of the macro is the number of histograms to be shown on one canvas (default 9). The position of the canvas is the automatically calculated
+//* and new canvasses are automatically created
 
 TCanvas* createCanvas(int picpercan){
 	double division = TMath::Sqrt((double)picpercan);
@@ -53,14 +57,10 @@ std::vector<fileData> GetFileNames(std::string inputFile)
 	return listOfFiles;
 }
 
-int comp_multiFiles(std::string listOfFiles_File = "inputFiles.txt", int picpercan = 9, double minP = 0.03, int minev = 3,
-		int maxfail = 3) {
-	// fn   -> red
-	// fn2 -> blue
+int comp_multiFiles(std::string listOfFiles_File = "inputFiles.txt", int picpercan = 9) {
+
 	std::vector<TCanvas*> canvasses;
 	std::string filter = "";
-//	TCanvas *c1 = new TCanvas();
-//	c1->Divide(6, 6);
 
 	std::vector<fileData> fileNames = GetFileNames(listOfFiles_File);
 	std::vector<TFile*> files;
@@ -68,6 +68,10 @@ int comp_multiFiles(std::string listOfFiles_File = "inputFiles.txt", int picperc
 		files.push_back(new TFile(name.fFileName.c_str(), "READ"));
 	}
 
+	auto maxScalingFactor = std::max_element(fileNames.begin(), fileNames.end(), [](fileData const& lhs, fileData  const& rhs){return lhs.fScalingFactor < rhs.fScalingFactor;});
+	double maxScaling = maxScalingFactor->fScalingFactor;
+
+	std::cout << "Max Scaling Factor: " << maxScalingFactor->fScalingFactor << std::endl;
 	if (files.size() < 2)
 		return 1;
 	TFile *f = files[0];
@@ -100,13 +104,13 @@ int comp_multiFiles(std::string listOfFiles_File = "inputFiles.txt", int picperc
 			// only check TH1Fs
 			if (obj->InheritsFrom("TH1")){
 				TH1* h = (TH1*) obj;
-				h->Scale(fileNames[0].fScalingFactor);
+				h->Scale(maxScaling/fileNames[0].fScalingFactor);
 				h->SetLineWidth(2);
 				std::vector<TH1*> histos;
 				histos.push_back(h);
 				for (int i = 1; i < files.size(); i++){
 					TH1* currentHisto = (TH1*)files[i]->Get(name);
-					currentHisto->Scale(fileNames[i].fScalingFactor);
+					currentHisto->Scale(maxScaling/fileNames[i].fScalingFactor);
 					histos.push_back(currentHisto);
 					currentHisto->SetLineColor(i);
 					currentHisto->SetLineWidth(2);
