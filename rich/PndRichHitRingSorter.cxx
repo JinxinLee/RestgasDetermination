@@ -9,7 +9,7 @@
 // -------------------------------------------------------------------------
 
 #include <PndRichHitRingSorter.h>
-#include "PndRichPDHit.h"
+#include "PndRichDigi.h"
 
 
 ClassImp(PndRichHitRingSorter);
@@ -20,5 +20,5 @@ PndRichHitRingSorter::~PndRichHitRingSorter() {
 }
 
 FairTimeStamp* PndRichHitRingSorter::CreateElement(FairTimeStamp* data) {
-	return new PndRichPDHit(*(PndRichPDHit*)data);
+	return new PndRichDigi(*(PndRichDigi*)data);
 }

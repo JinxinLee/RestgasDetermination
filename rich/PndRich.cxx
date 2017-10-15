@@ -233,11 +233,13 @@ Bool_t  PndRich::ProcessHits(FairVolume* vol)
 
   // Create PndRichPoint at exit of active volume
    if ( fPdgCode == 50000050 ) {
+      // Efficiency of photodetector
+      Double_t eff = fGeo->phDetQEff(2*3.1415927*197.3269602e-9/fMom.Vect().Mag());
       if (fRunCherenkov==kFALSE ) {
          if (fVerboseLevel >0) cout<< "Photon killed" << endl;
          gMC->StopTrack();
       }
-      else if ( nam.BeginsWith("RichPhDetSi") && gMC->IsTrackEntering()==1 ){
+      else if ( nam.BeginsWith("RichPhDetSi") && (gMC->IsTrackEntering()==1) && (gRandom->Uniform()<eff) ){
          fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
          fVolumeID = vol->getMCid();
          AddPDPoint(fTrackID, fVolumeID, fPos.Vect(), fMom.Vect(),

@@ -605,6 +605,8 @@ void PndRichReco::RichFullReconstruction(TVector3 pos0, TVector3 dir0, Float_t t
    dir.SetPhi(dir0.Phi()+evto[3]);
    dir = dir.Unit();
 
+   fTrackTime = ts;
+   
    track = new PndRichBarPoint(pos,dir,ts);
    xTrack = pos.X();
    yTrack = pos.Y();
@@ -682,7 +684,7 @@ double PndRichReco::BetaPeakFinding(std::vector<PndRichPhoton> photons,
    //Double_t thcmax = std::acos(bmin); //[R.K. 01/2017] unused variable?
    Double_t bim = 0;
    Int_t ibm = -1;
-   Double_t dtm = 0.5;
+   Double_t dtm = 3;//0.5;
    int nph = 0;
    for(size_t j=0; j<2; j++) {
       std::vector<Double_t> bi(nch,0);
@@ -695,7 +697,7 @@ double PndRichReco::BetaPeakFinding(std::vector<PndRichPhoton> photons,
          Double_t thcm = thc(phcc,nopt,beta,nnz);
          Double_t b = bmin+thcc*(beta-bmin)/thcm;
          Int_t ib = (b-bmin)/(bmax-bmin)*nch;
-         Double_t dt = photons.at(i).GetTime()-0.1;
+         Double_t dt = photons.at(i).GetTime() - fTrackTime;
          if ((ib>=0)&&(ib<nch)&&std::fabs(dt)<dtm) {
             nph++;
             bi.at(ib)++;
@@ -728,7 +730,7 @@ void PndRichReco::HitSelection(std::vector<size_t> &it,
    size_t itccc;
    Double_t dt = 0;
    Int_t ind = 0;
-   Double_t dtm = 0.5;
+   Double_t dtm = 3;
    for(UInt_t i=0; i<photons.size(); i++) {
       TVector3 hit = photons.at(i).GetHitPos();
       //th.at(ind) = photons.at(i).GetTheta();
@@ -753,7 +755,7 @@ void PndRichReco::HitSelection(std::vector<size_t> &it,
          dthccc = dthccl;
          thccc = thcc;
          phccc = phcc;
-         dt = photons.at(i).GetTime()-0.1;
+         dt = photons.at(i).GetTime() - fTrackTime;
       }
       hitx = hit.X();
       hity = hit.Y();

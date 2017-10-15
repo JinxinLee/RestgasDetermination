@@ -49,6 +49,8 @@ class PndRichBarPoint : public FairMCPoint
   Double_t GetThetaC()     const { return fThetaC; };
   Double_t GetMass()       const { return fMass;};
   Int_t    GetTrackStatus()    const { return fTrackStatus;};
+  //TVector3 GetPosition()   const { return TVector3(fX,fY,fZ);};
+  //TVector3 GetMomentum()   const { return TVector3(fPx,fPy,fPz);};
   TVector3 GetPosition0()  const { return fTrackPos0;};
   TVector3 GetMomentum0()  const { return fTrackMom0;};
   Double_t GetTime0()      const { return fTime;};

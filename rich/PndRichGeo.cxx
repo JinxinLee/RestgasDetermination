@@ -41,7 +41,7 @@ PndRichGeo::PndRichGeo()
    fPhDetZ = std::vector<Double_t>(2);
    fPhDetY = std::vector<Double_t>(2);
 
-   fSenseLevel = 2;
+   fSenseLevel = 4;
    fSensorsPerDevice = 1<<(fSenseLevel-1); // number of sensores per device in one direction
    // Quantum efficiency
    fPhDetDev = 0; // pde_dpc3200_22.dat

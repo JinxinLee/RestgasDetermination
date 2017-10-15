@@ -8,6 +8,7 @@
 #include "TH1F.h"
 #include "TF1.h"
 #include <vector>
+#include "PndRichResolution.h"
 
 class TClonesArray;
 
@@ -62,6 +63,8 @@ class PndRichRecoTask : public FairTask {
   std::vector<Double_t> vdth;
   std::vector<Double_t> vmean;
   std::vector<Double_t> vsigma;
+
+  PndRichResolution* fRichResolution;
 
   TClonesArray* fRichBarPoint;      //! PndRichBarPoint TCA
 

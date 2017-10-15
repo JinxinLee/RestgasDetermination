@@ -107,9 +107,9 @@ InitStatus PndRichHitProducer::Init() {
    //else
    //{
    //   fPDHitArray = new TClonesArray("PndRichPDHit");
-   //   fHitArray = new TClonesArray("PndRichHit");
+      fHitArray = new TClonesArray("PndRichHit");
    //   ioman->Register("RichPDHit","PndRich",fPDHitArray,kTRUE);
-   //   ioman->Register("RichHit","PndRich",fHitArray,kTRUE);
+      ioman->Register("RichHit","PndRich",fHitArray,kTRUE);
    //}
 
   if (fPosResolution>0.)
@@ -179,12 +179,12 @@ void PndRichHitProducer::Exec(Option_t* ) {
   PndRichPDPoint *point = 0;
   TVector3 pos, mom;
   TVector3 sig(fPosResolution, fPosResolution, fPosResolution);
-   Double_t k = 2*3.1415927*197.3269602e-9;
+//   Double_t k = 2*3.1415927*197.3269602e-9;
 
   for (Int_t iPoint=0; iPoint<nPoints; iPoint++) {
      point  = (PndRichPDPoint*) fPDPointArray->At(iPoint);
      point->Momentum(mom);
-     if ( gRandom->Uniform() < fGeo->phDetQEff(k/mom.Mag()) ) {
+//     if ( gRandom->Uniform() < fGeo->phDetQEff(k/mom.Mag()) ) {
         point->Position(pos);
         TVector3 posd = fGeo->PositionDiscretization(pos);
         if (posd.Z())
@@ -201,7 +201,7 @@ void PndRichHitProducer::Exec(Option_t* ) {
 //           if ( ix<iXmax && iy<iYmax )
 //              map[ix][iy] = 1;
         }
-     }
+//     }
   } // Loop over MCPoints
    if (fPhDetNoise) {
 /*      for (UInt_t ix=0; ix<iXmax; ix++)
@@ -213,22 +213,23 @@ void PndRichHitProducer::Exec(Option_t* ) {
                   AddDigi(0, fGeo->sensorIndex(), pos, sig, 0, tn.back() );
                }
             }*/
-      Int_t ncell = fGeo->sensorsPerDevice(); // in one direction
-      Double_t fnoise = 1e4*1e-9*ncell*ncell; //GHz(=1/ns) per pixel
-      Double_t dt = fEventTime - fPreviousEventTime; //ns
+      Int_t kcell = 8/fGeo->sensorsPerDevice(); // in one direction
+      Double_t fnoise = 1e3*1e-9*kcell*kcell; //GHz(=1/ns) per pixel
+      Double_t dt = fTimeOrderedDigi ? fEventTime - fPreviousEventTime : 50; //ns
       Int_t nn = gRandom->Poisson(iXmax*iYmax*fnoise*dt); //number of fired pixels
+      std::cout << "nn = " << nn << " " << iXmax << " " << iYmax << " " << kcell << std::endl;
       for (Int_t i=0; i<nn; i++)
       {
          Int_t gind = gRandom->Integer(iXmax*iYmax);
          Int_t ix = gind%iXmax;
          Int_t iy = gind/iXmax;
          pos = fGeo->PixelPosition(ix,iy);
-         Double_t t = -dt*gRandom->Uniform();
+         Double_t t = (fTimeOrderedDigi?0:25)-dt*gRandom->Uniform();
          AddDigi(0, fGeo->sensorIndex(), pos, sig, 0, t );
       }
    }
   
-/*   if (!fTimeOrderedDigi)
+//   if (!fTimeOrderedDigi)
    {
    fHitArray->Clear();
 
@@ -261,7 +262,7 @@ void PndRichHitProducer::Exec(Option_t* ) {
          AddHit(detID, sensorId, pos, dpos, thetaC, errThetaC, iBarPoint);
       }
    } // Loop over MCPoints
-   }*/
+   }
    fPreviousEventTime = FairRootManager::Instance()->GetEventTime();
 }
 // -------------------------------------------------------------------------
@@ -290,9 +291,9 @@ std::vector<Double_t> PndRichHitProducer::PhDetNoise()
 void PndRichHitProducer::AddXPDHit(Int_t detID, Int_t sensorId,
                                    TVector3& pos, TVector3& dpos, 
                                    Int_t index, Double_t time ){
-   //if (fTimeOrderedDigi) AddDigi(detID,sensorId,pos,dpos,index,time);
-   //else AddTSPDHit(detID,sensorId,pos,dpos,index,time);
-   AddDigi(detID,sensorId,pos,dpos,index,time);
+   if (fTimeOrderedDigi) AddDigi(detID,sensorId,pos,dpos,index,time);
+   else AddPDHit(detID,sensorId,pos,dpos,index,time);
+   //AddDigi(detID,sensorId,pos,dpos,index,time);
 }
 
 PndRichDigi* PndRichHitProducer::AddDigi(Int_t detID, Int_t sensorId,
@@ -309,7 +310,7 @@ PndRichDigi* PndRichHitProducer::AddDigi(Int_t detID, Int_t sensorId,
       hitnew->AddLink(FairLink(evtHeader->GetInputFileId(), evtHeader->GetMCEntryNumber(),  "RichPDPoint", index));
       hitnew->AddLink(FairLink(-1, FairRootManager::Instance()->GetEntryNr(), "EventHeader.", -1));
       PndRichPDPoint* point  = (PndRichPDPoint*) fPDPointArray->At(index);
-      hitnew->AddLinks(*(point->GetPointerToLinks()));
+      if (point) hitnew->AddLinks(*(point->GetPointerToLinks()));
    }
    fDataBuffer->FillNewData(hitnew, EventTime+time, EventTime+time+fDeadTime);
    return hitnew;

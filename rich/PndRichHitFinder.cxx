@@ -169,6 +169,7 @@ InitStatus PndRichHitFinder::Init(){
     return kFATAL;
   }
 
+   std::cout << "FairRunAna::Instance()->IsTimeStamp() = " << FairRunAna::Instance()->IsTimeStamp() << std::endl;
   if (FairRunAna::Instance()->IsTimeStamp())
       fInBranchName = "RichDigiSorted";
   else
@@ -200,105 +201,107 @@ void PndRichHitFinder::Exec(Option_t*){
 
   Double_t etime = FairRootManager::Instance()->GetEventTime();
   if (FairRunAna::Instance()->IsTimeStamp()){
-    //fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStopFunctor, etime, fStopFunctor, etime+100);
-    fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fGapFunctor, 10);
-  }
+     //fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fStopFunctor, etime, fStopFunctor, etime+100);
+     fDigiArray = FairRootManager::Instance()->GetData(fInBranchName, fGapFunctor, 10);
 
-  Int_t nDigis = fDigiArray->GetEntriesFast();
-  Double_t  timef = ((PndRichDigi*)fDigiArray->At(0))->GetTime();
-  Double_t  timel = ((PndRichDigi*)fDigiArray->At(nDigis-1))->GetTime();
-  fBufferNumHits.at(fIBuffer) = (timel-fBufferStartTime.at(fIBuffer))/fTimeStep+1;
-  Double_t stopTime = fBufferStartTime.at(fIBuffer) + fBufferNumHits.at(fIBuffer)*fTimeStep;
-  if ((Int_t)fHitsBuffer.at(fIBuffer).size()<fBufferNumHits.at(fIBuffer))
-      fHitsBuffer.at(fIBuffer).resize(fBufferNumHits.at(fIBuffer));
-  for(Int_t i=0; i<fBufferNumHits.at(fIBuffer);i++)fHitsBuffer.at(fIBuffer).at(i)=0;
-  for (Int_t iDigi = 0; iDigi < nDigis; iDigi++)
-   {
-      Double_t  hitTime = ((PndRichDigi*)fDigiArray->At(iDigi))->GetTime();
-      Int_t ind = (hitTime-fBufferStartTime.at(fIBuffer))/fTimeStep;
-      if (hitTime>fBufferStartTime.at(fIBuffer))
-      {
-         fHitsBuffer.at(fIBuffer).at(ind)++;
-      }
-      else
-      {
-         ind += fBufferNumHits.at(fIBufferPrev)-1;
-         fHitsBuffer.at(fIBufferPrev).at(ind)++;
-      }
-   }
-  Int_t nbr = fBufferNumHits.at(fIBuffer);
-  Int_t nbrp = fBufferNumHits.at(fIBufferPrev);
-  Int_t im = nbr + nbrp - 3*fTimeGate;
-  Int_t imax_;
-  Int_t nhitsmax = 0;
-   std::vector< Int_t > nmax;
-   std::vector< Int_t > imax;
-   std::vector< Int_t > istart;
-   std::vector< Int_t > istop;
-   Int_t nhitsprev = 0;
-   Int_t ilast;
-//  for(Int_t i = fInd; i<im; i++)
-//   {
-//      std::cout << i << " " << (i<nbrp) << " "
-//         << ( i<nbrp ?
-//              fHitsBuffer.at(fIBufferPrev).at(i) :
-//              fHitsBuffer.at(fIBuffer).at(i-nbrp) ) << std::endl;
-//   }
-  for(Int_t i = fInd; i<im; i++)
-   {
-      Int_t nhits = 0;
-      for(Int_t j = i-fTimeGate; j<=i+fTimeGate; j++)
-         if (j>=0) nhits += j<nbrp ?
-                            fHitsBuffer.at(fIBufferPrev).at(j) :
-                            fHitsBuffer.at(fIBuffer).at(j-nbrp);
-//      std::cout << i << " " << (i<nbrp) << " "
-//         << ( i<nbrp ?
-//              fHitsBuffer.at(fIBufferPrev).at(i) :
- //             fHitsBuffer.at(fIBuffer).at(i-nbrp) ) << " " << nhits << " " << nhitsmax;
-      if ((nhits>fThreshold)&&(nhitsprev<=fThreshold)) istart.push_back(i);
-      if ((nhits>fThreshold)&&(nhits>nhitsmax))
-      {
-         nhitsmax = nhits;
-         imax_ = i;
-      }
-//      std::cout << std::endl;
-      if ((nhits<=fThreshold)&&(nhitsprev>fThreshold))
-      {
-         nmax.push_back(nhitsmax);
-         imax.push_back(imax_);
-         istop.push_back(i-1);
-         Double_t t = fBufferStartTime.at(fIBufferPrev) + imax_*fTimeStep;
-         std::cout << "peak = " << imax.size() << " " << imax_ << " " << nhitsmax << " "
-            << istop.back() << " " << istart.back() << " " << t << std::endl;
-         nhitsmax = 0;
-         imax_ = -1;
-      }
-      if (nhits<5) ilast = i;
-      nhitsprev = nhits;
-   }
-  fInd = ilast -  nbrp;
-   
-  if(fVerbose>1) std::cout<<"-I- PndRichHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
-  else if(fVerbose==1 && fEventNr%1000==0) std::cout<<"-I- PndRichHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
-   std::cout<<"-I- PndRichHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis.   "
-      << FairRunAna::Instance()->IsTimeStamp() << " " << etime << " "
-      << timel-timef << " " << etime << " " << timef << " " << timel << " " << petime << std::endl;
-
-   std::cout << "buffer: " << fIBuffer << " " << fBufferNumHits.at(fIBuffer) << " " <<
-      fBufferStartTime.at(fIBuffer) << std::endl;
- 
-  Int_t detID = 0;//, mcpID = 0, pixelID = 0;
-  TVector3 HitPosGlobal, HitPosLocal, dPosHit;
-  Double_t hitTime = 0.;
-  fHitNumber += nDigis;
-    
-  for (Int_t iDigi = 0; iDigi < nDigis; iDigi++){
-    fDigi = (PndRichDigi*) fDigiArray->At(iDigi); 
-    detID = -999;//fDigi->GetDetectorId();    
-//    pixelID = detID - 100*(Int_t)TMath::Floor((Double_t)detID/100.);
-//    mcpID = detID/100;
-    hitTime = fDigi->GetTime();
-     Int_t sensorId = -999;
+     Int_t nDigis = fDigiArray->GetEntriesFast();
+     std::cout << "nDigis = " << nDigis << " " << FairRunAna::Instance()->IsTimeStamp() << std::endl;
+     if (nDigis>0)
+     {
+        Double_t  timef = ((PndRichDigi*)fDigiArray->At(0))->GetTime();
+        Double_t  timel = ((PndRichDigi*)fDigiArray->At(nDigis-1))->GetTime();
+        fBufferNumHits.at(fIBuffer) = (timel-fBufferStartTime.at(fIBuffer))/fTimeStep+1;
+        Double_t stopTime = fBufferStartTime.at(fIBuffer) + fBufferNumHits.at(fIBuffer)*fTimeStep;
+        if ((Int_t)fHitsBuffer.at(fIBuffer).size()<fBufferNumHits.at(fIBuffer))
+           fHitsBuffer.at(fIBuffer).resize(fBufferNumHits.at(fIBuffer));
+        for(Int_t i=0; i<fBufferNumHits.at(fIBuffer);i++)fHitsBuffer.at(fIBuffer).at(i)=0;
+        for (Int_t iDigi = 0; iDigi < nDigis; iDigi++)
+        {
+           Double_t  hitTime = ((PndRichDigi*)fDigiArray->At(iDigi))->GetTime();
+           Int_t ind = (hitTime-fBufferStartTime.at(fIBuffer))/fTimeStep;
+           if (hitTime>fBufferStartTime.at(fIBuffer))
+           {
+              fHitsBuffer.at(fIBuffer).at(ind)++;
+           }
+           else
+           {
+              ind += fBufferNumHits.at(fIBufferPrev)-1;
+              fHitsBuffer.at(fIBufferPrev).at(ind)++;
+           }
+        }
+        Int_t nbr = fBufferNumHits.at(fIBuffer);
+        Int_t nbrp = fBufferNumHits.at(fIBufferPrev);
+        Int_t im = nbr + nbrp - 3*fTimeGate;
+        Int_t imax_;
+        Int_t nhitsmax = 0;
+        std::vector< Int_t > nmax;
+        std::vector< Int_t > imax;
+        std::vector< Int_t > istart;
+        std::vector< Int_t > istop;
+        Int_t nhitsprev = 0;
+        Int_t ilast;
+        //  for(Int_t i = fInd; i<im; i++)
+        //   {
+        //      std::cout << i << " " << (i<nbrp) << " "
+        //         << ( i<nbrp ?
+        //              fHitsBuffer.at(fIBufferPrev).at(i) :
+        //              fHitsBuffer.at(fIBuffer).at(i-nbrp) ) << std::endl;
+        //   }
+        for(Int_t i = fInd; i<im; i++)
+        {
+           Int_t nhits = 0;
+           for(Int_t j = i-fTimeGate; j<=i+fTimeGate; j++)
+              if (j>=0) nhits += j<nbrp ?
+              fHitsBuffer.at(fIBufferPrev).at(j) :
+              fHitsBuffer.at(fIBuffer).at(j-nbrp);
+           //      std::cout << i << " " << (i<nbrp) << " "
+           //         << ( i<nbrp ?
+           //              fHitsBuffer.at(fIBufferPrev).at(i) :
+           //             fHitsBuffer.at(fIBuffer).at(i-nbrp) ) << " " << nhits << " " << nhitsmax;
+           if ((nhits>fThreshold)&&(nhitsprev<=fThreshold)) istart.push_back(i);
+           if ((nhits>fThreshold)&&(nhits>nhitsmax))
+           {
+              nhitsmax = nhits;
+              imax_ = i;
+           }
+           //      std::cout << std::endl;
+           if ((nhits<=fThreshold)&&(nhitsprev>fThreshold))
+           {
+              nmax.push_back(nhitsmax);
+              imax.push_back(imax_);
+              istop.push_back(i-1);
+              Double_t t = fBufferStartTime.at(fIBufferPrev) + imax_*fTimeStep;
+              std::cout << "peak = " << imax.size() << " " << imax_ << " " << nhitsmax << " "
+                 << istop.back() << " " << istart.back() << " " << t << std::endl;
+              nhitsmax = 0;
+              imax_ = -1;
+           }
+           if (nhits<5) ilast = i;
+           nhitsprev = nhits;
+        }
+        fInd = ilast -  nbrp;
+        
+        if(fVerbose>1) std::cout<<"-I- PndRichHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
+        else if(fVerbose==1 && fEventNr%1000==0) std::cout<<"-I- PndRichHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis."<< std::endl;
+        std::cout<<"-I- PndRichHitFinder: Event # "<< fEventNr<<" has "<<nDigis<<" digis.   "
+           << FairRunAna::Instance()->IsTimeStamp() << " " << etime << " "
+           << timel-timef << " " << etime << " " << timef << " " << timel << " " << petime << std::endl;
+        
+        std::cout << "buffer: " << fIBuffer << " " << fBufferNumHits.at(fIBuffer) << " " <<
+           fBufferStartTime.at(fIBuffer) << std::endl;
+        
+        Int_t detID = 0;//, mcpID = 0, pixelID = 0;
+        TVector3 HitPosGlobal, HitPosLocal, dPosHit;
+        Double_t hitTime = 0.;
+        fHitNumber += nDigis;
+        
+        for (Int_t iDigi = 0; iDigi < nDigis; iDigi++){
+           fDigi = (PndRichDigi*) fDigiArray->At(iDigi); 
+           detID = -999;//fDigi->GetDetectorId();    
+           //    pixelID = detID - 100*(Int_t)TMath::Floor((Double_t)detID/100.);
+           //    mcpID = detID/100;
+           hitTime = fDigi->GetTime();
+           Int_t sensorId = -999;
         
     // the pixel number shows local coordinates of the hit:
 //    HitPosLocal.SetXYZ(fPixelStep*((Double_t)(pixelID % fNpix) - (Double_t)(fNpix/2) + 0.5),
@@ -316,16 +319,38 @@ void PndRichHitFinder::Exec(Option_t*){
 //    if(fPixelFactor==2)  dPosHit.SetXYZ(fPixelSize, fPixelSize/2., 0.);  
     
 
-    if(fDigi->GetTimeStamp()!=etime+hitTime) hitTime =  fDigi->GetTimeStamp() - etime;
-    PndRichPDHit pdhit = PndRichPDHit(iDigi, detID, sensorId , HitPosGlobal, dPosHit, hitTime, 0.);
-//    pdhit.SetPdgCode(fDigi->GetPdgCode());
-    pdhit.SetTimeStamp(fDigi->GetTimeStamp());
-//    pdhit.SetTimeAtBar(fDigi->GetTimeAtBar());
-    pdhit.SetLink(fDigi->GetLink(0)); // MCTrack
-    pdhit.AddLink(fDigi->GetLink(1)); // RichPDPoint
-    pdhit.AddLink(FairLink(-1,fEventNr, "RichDigi", iDigi));
-    //((FairMultiLinkedData)pdhit).Print(); std::cout<<std::endl;
-    new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndRichPDHit(pdhit); 
+           if(fDigi->GetTimeStamp()!=etime+hitTime) hitTime =  fDigi->GetTimeStamp() - etime;
+           PndRichPDHit pdhit = PndRichPDHit(iDigi, detID, sensorId , HitPosGlobal, dPosHit, hitTime, 0.);
+           //    pdhit.SetPdgCode(fDigi->GetPdgCode());
+           pdhit.SetTimeStamp(fDigi->GetTimeStamp());
+           //    pdhit.SetTimeAtBar(fDigi->GetTimeAtBar());
+           pdhit.SetLink(fDigi->GetLink(0)); // MCTrack
+           pdhit.AddLink(fDigi->GetLink(1)); // RichPDPoint
+           pdhit.AddLink(FairLink(-1,fEventNr, "RichDigi", iDigi));
+           //((FairMultiLinkedData)pdhit).Print(); std::cout<<std::endl;
+           new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndRichPDHit(pdhit); 
+        }
+        // switch between buffers
+        fIBufferPrev = fIBuffer;
+        fIBuffer = fIBuffer ? 0 : 1;
+        fBufferStartTime.at(fIBuffer) = stopTime;
+        petime = etime;
+     }
+  }
+  else
+  {
+     Int_t nDigis = fDigiArray->GetEntriesFast();
+     for (Int_t iDigi = 0; iDigi < nDigis; iDigi++){
+        fDigi = (PndRichDigi*) fDigiArray->At(iDigi);
+        Int_t detID = -999;
+        Int_t sensorId = fDigi->GetSensorId();
+        Double_t hitTime = fDigi->GetTime();
+        TVector3 pos = fDigi->GetPosition();
+        TVector3 dpos(0,0,0);
+        PndRichPDHit pdhit = PndRichPDHit(iDigi, detID, sensorId , pos, dpos, hitTime, 0.);
+        new((*fPdHitArray)[fPdHitArray->GetEntriesFast()]) PndRichPDHit(pdhit);
+     }
+     std::cout << "Event = " << fEventNr << "  nDigis = " << nDigis << " " << FairRunAna::Instance()->IsTimeStamp() << std::endl;
   }
   
   fEventNr++;
@@ -334,11 +359,6 @@ void PndRichHitFinder::Exec(Option_t*){
   fPdHitArray->Sort();
   fDigiArray->Delete();
 
-  // switch between buffers
-  fIBufferPrev = fIBuffer;
-  fIBuffer = fIBuffer ? 0 : 1;
-  fBufferStartTime.at(fIBuffer) = stopTime;
-  petime = etime;
 }
 
 

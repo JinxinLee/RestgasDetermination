@@ -40,6 +40,7 @@ class  PndRichReco //: public FairGeoSet
     
     Double_t fPhDetAngle;
     Double_t fZamid;
+    Double_t fTrackTime;
     TVectorT<double> gResVect;
     TMatrixT<double> gRotMatr;
 
