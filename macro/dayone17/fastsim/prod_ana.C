@@ -73,6 +73,14 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 		anadecay = "pi0->gamma gamma; eta->gamma gamma; J/psi->e+ e-; chi_1c -> J/psi gamma; eta_c1 -> chi_1c pi0 pi0; pbp -> eta_c1 eta";
 		anaparms = "mwin=0.8:mwin(pi0)=0.024:mwin(eta)=0.048:qaevs:qarec:fit4cbest<200:pide=Loose:!ntp0:!ntp1";
 	}
+	// default (for tests)
+	else
+	{
+		Mom 	 = -5.5;
+		anadecay = "pi0->gamma gamma";
+		anaparms = "mwin(pi0)=0.06";
+		
+	}
 	
 	// this sets fast/full sim mode automatically by checking for input file name suffix
 	//bool     fastsim  = (prefix.EndsWith(".root") && prefix.Contains("_fsim")) || gSystem->AccessPathName(Form("%s_%d_pid.root",prefix.Data(),from));	
@@ -267,6 +275,11 @@ int prod_ana(TString prefix="", int from=1, int to=1, int mode=0, int nevts=0)
 	if (partQA)
 	{
 		PndParticleQATask *partQaTask = new PndParticleQATask(fastsim, chrg, neut, mc, mode); // particle QA task
+		
+	    TString fPidArrayNames  = "IdealPidProbability : DrcBarrelProbability : MvdPidProbability : SttPidProbability : ";
+		fPidArrayNames += "ScEmcPidBarrel1Probability;ScEmcPidBarrel2Probability;ScEmcPidFwCapProbability;ScEmcPidBwCapProbability";
+		partQaTask->SetPidArrayNames(fPidArrayNames);
+		
 		fRun->AddTask(partQaTask);
 	}
 	

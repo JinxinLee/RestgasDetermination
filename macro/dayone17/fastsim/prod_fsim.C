@@ -37,9 +37,15 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	// set the detector day1 setup (further reduction of phase 1 setup)
 	// defaults
 	int setupmode  = 0;    // Setup A or B                  
-	double thtmin  = 22;   // min polar angle of EMC barrel
-	double thtmax  = 142;  // max polar angle of EMC barrel 
+	
+	double thtmin  = 22.;  // min polar angle of EMC barrel
+	double thtmax  = 142.; // max polar angle of EMC barrel 
+	
+	double phimin  = 0.;   // min phi angle of EMC barrel (adds opposite site +180 automatically)
+	double phimax  = 180.; // max phi angle of EMC barrel (adds opposite site +180 automatically)
+	
 	int filtermode = -1;   // event filter (-1 = no filter)
+	
 	int rndseed    = 0;    // random seed
 
 	simopt.ToLower();
@@ -62,6 +68,16 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 			thtmax = ((TString)op(op.Index("-")+1,1000)).Atof();
 		}
 		
+		// phi range 
+		if (op.BeginsWith("slc"))
+		{
+			op.ReplaceAll("slc[","");
+			op.ReplaceAll("]","");
+			
+			phimin = ((TString)op(0,op.Index("-"))).Atof();
+			phimax = ((TString)op(op.Index("-")+1,1000)).Atof();
+		}
+		
 		// event filter
 		if (op.BeginsWith("filter"))
 		{
@@ -77,11 +93,15 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 		}
 	}
 	
+	gRandom->SetSeed(rndseed);
+	
+	
 	cout <<"------------------------------"<<endl;	
-	cout <<"Setup      : "<<(setupmode==0?"A":"B")<<endl;
-	cout <<"Filter     : "<<filtermode<<endl;
-	cout <<"EMC Barrel : "<<thtmin<<" < tht < "<<thtmax<<endl;
-	cout <<"Rndm seed  : "<<rndseed<<endl;
+	cout <<"Setup          : "<<(setupmode==0?"A":"B")<<endl;
+	cout <<"Filter         : "<<filtermode<<endl;
+	cout <<"EMC Barrel tht : "<<thtmin<<" < tht < "<<thtmax<<endl;
+	cout <<"EMC Barrel phi : "<<phimin<<" < phi < "<<phimax<<" OR "<<phimin+180.<<" phi "<<phimax+180<<endl;
+	cout <<"Rndm seed      : "<<gRandom->GetSeed()<<endl;
 	cout <<"------------------------------"<<endl;	
 
 	// ----- END EVALUATE simopt string -----------
@@ -119,7 +139,6 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 	//-----General settings-----------------------------------------------
 	TString BaseDir =  gSystem->Getenv("VMCWORKDIR");
 	TString splitpars = BaseDir+"/fsim/splitpars.dat";
-	gRandom->SetSeed(rndseed);
 
 	//-----User Settings:-------------------------------------------------
 	TString  OutputFile     = prefix+"_fsim.root";
@@ -200,8 +219,8 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 		Double_t BoxMomMax  = pbeam;  // maximum   "       "
 		Double_t BoxThtMin  = 0. ;    // minimum theta for box generator
 		Double_t BoxThtMax  = 180.;   // maximum   "       "
-		Double_t BoxPhiMin  = 0. ;    // minimum phi for box generator
-		Double_t BoxPhiMax  = 360.;   // maximum   "       "
+		Double_t BoxPhiMin  = -180. ;    // minimum phi for box generator
+		Double_t BoxPhiMax  = 180.;   // maximum   "       "
 		Bool_t   BoxCosTht  = false;  // isotropic in cos(theta) instead theta
 		
 		Int_t    BoxType    = 13;     // default particle muon
@@ -357,6 +376,7 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
  				primGen->AndFilter(eeInv);  //add filter to fFilterList					
 			}
 			break;
+		default: break;
 		}
  	}
 	
@@ -425,8 +445,10 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 
 	// configure polar angle range of EMC
 	if (thtmin<thtmax)
-		fastSim->AddDetector("EmcBarrel", Form("thtMin=%.1f  thtMax=%.1f Emin=0.01 barrelRadius=0.5", thtmin, thtmax));
-
+	{
+		fastSim->AddDetector("EmcBarrel1", Form("thtMin=%.1f  thtMax=%.1f phiMin=%.1f phiMax=%.1f Emin=0.01 barrelRadius=0.5", thtmin, thtmax, phimin, phimax));
+		fastSim->AddDetector("EmcBarrel2", Form("thtMin=%.1f  thtMax=%.1f phiMin=%.1f phiMax=%.1f Emin=0.01 barrelRadius=0.5", thtmin, thtmax, phimin-180., phimax-180.));
+	}
 
 	// -----------------------------------------------------------------------------------
 	// PID
@@ -462,8 +484,10 @@ int prod_fsim(TString prefix="", Int_t nEvents = 100, TString inputGen="", Float
 
 	// configure polar angle range of EMC
 	if (thtmin<thtmax)
-		fastSim->AddDetector("ScEmcPidBarrel", Form("thtMin=%.1f  thtMax=%.1f ptmin=0.2 pmin=0.0 efficiency=1.0", thtmin, thtmax));
-
+	{
+		fastSim->AddDetector("ScEmcPidBarrel1", Form("thtMin=%.1f  thtMax=%.1f phiMin=%.1f phiMax=%.1f ptmin=0.2 pmin=0.0 efficiency=1.0", thtmin, thtmax, phimin, phimax));
+		fastSim->AddDetector("ScEmcPidBarrel2", Form("thtMin=%.1f  thtMax=%.1f phiMin=%.1f phiMax=%.1f ptmin=0.2 pmin=0.0 efficiency=1.0", thtmin, thtmax, phimin-180., phimax-180.));
+	}
 	
 	// -----------------------------------------------------------------------------------
 	// *********              END Fast Simulation Configuration                   ********

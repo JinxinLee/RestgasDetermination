@@ -44,7 +44,7 @@ ana=""
 simopt=""
 mode=0
 run=$SLURM_ARRAY_TASK_ID
-seed=":seed"$SLURM_JOB_ID$SLURM_ARRAY_TASK_ID
+seed=""
 
 #create and change to a temporary directory to run root 
 tmpdir="/tmp/"$USER"_"$SLURM_JOB_ID"_"$run"/"
@@ -81,6 +81,9 @@ if test "$7" != ""; then
   mode=$7
 fi
 
+#seed=":seed"$mode$SLURM_ARRAY_TASK_ID
+
+
 # if local dec-file given, prepend the absolute path to it
 if [[ $dec == *".dec"* ]]; then
   if [[ $dec != \/* ]] ; then
@@ -103,6 +106,7 @@ pidfile=$outprefix"_fsim.root"
 #
 # run the simulation
 #
+echo "parameters: "$outprefix", "$nevt", "$dec", "$mom", "$simopt$seed
 root -l -q -b $nyx"/"prod_fsim.C\(\"$outprefix\",$nevt,\"$dec\",$mom,\"$simopt$seed\"\) &> $outprefix"_fsim.log"
 
 # optionally run analysis stage in addition

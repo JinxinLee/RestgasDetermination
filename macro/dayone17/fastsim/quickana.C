@@ -127,6 +127,11 @@ void quickana(TString Fname="", double Mom=0, TString anadecay="", int nevts=0, 
 	if (partQA)
 	{
 		PndParticleQATask *partQaTask = new PndParticleQATask(fastsim,chrg,neut,mc); // particle QA task
+	    
+		TString fPidArrayNames  = "IdealPidProbability : DrcBarrelProbability : MvdPidProbability : SttPidProbability : ";
+		fPidArrayNames += "ScEmcPidBarrel1Probability;ScEmcPidBarrel2Probability;ScEmcPidFwCapProbability;ScEmcPidBwCapProbability";
+		partQaTask->SetPidArrayNames(fPidArrayNames);
+		
 		fRun->AddTask(partQaTask);
 	}
 		
