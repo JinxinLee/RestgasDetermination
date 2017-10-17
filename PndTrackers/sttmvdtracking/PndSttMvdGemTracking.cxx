@@ -3224,7 +3224,7 @@ void PndSttMvdGemTracking::CheckCombinatorial(Int_t nhits, Int_t ntracks)
 
     // init
     for(Int_t ipos = 0; ipos < fNPositions; ipos++) {
-      addhit[ipos] = 0;
+      addhit[ipos][0] = 0;
       for(size_t j = 0; j < thistrackhits.size(); j++) combi[ipos][j] = -1;
     }
 

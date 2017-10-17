@@ -73,11 +73,11 @@ PndFsmTrack::PndFsmTrack() {
   setGTrackId(0);
   setDetResponse(0);
   for (int i=0;i<15;i++)
-    fCov5[i]=0;
+    fCov5[i][0]=0;
   for (int i=0;i<5;i++)
     fPar5[i]=0;
   for (int i=0;i<28;i++)
-    fCov7[i]=0;
+    fCov7[i][0]=0;
 }
 
 PndFsmTrack::PndFsmTrack(TLorentzVector const inP4, TVector3 start, TVector3 stop, double inCharge, int inPdt, signed long trackId)
