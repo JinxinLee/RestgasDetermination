@@ -47,8 +47,8 @@ void Config()
 /// (verbose level, global range cut, ..)
 
    TString configm(gSystem->Getenv("VMCWORKDIR"));
-   configm1 = configm + "/gconfig/g4config.in";
-   cout << " -I g4Config() using g4conf  macro: " << configm1 << endl;
+   configm = configm + "/gconfig/g4config.in";
+   cout << " -I g4Config() using g4conf  macro: " << configm << endl;
 
      //set geant4 specific stuff
    geant4->SetMaxNStep(10000);  // default is 30000
@@ -57,7 +57,7 @@ void Config()
   sprintf(buffer,"/random/setSeeds %i  %i ",gRandom->GetSeed(), gRandom->GetSeed());
   geant4->ProcessGeantCommand(buffer);
  
-  geant4->ProcessGeantMacro(configm1.Data());
+  geant4->ProcessGeantMacro(configm.Data());
 
 
 }

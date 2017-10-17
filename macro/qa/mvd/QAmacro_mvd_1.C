@@ -14,7 +14,7 @@ int QAmacro_mvd_1(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly
                                        // choose your event generator
-    BeamMomentum   =15.0; // ** change HERE if you run Box generator
+  Double_t BeamMomentum   =15.0; // ** change HERE if you run Box generator
   //------------------------------------------------------------------
   TLorentzVector fIni(0, 0, mom, sqrt(mom*mom+9.3827203e-01*9.3827203e-01)+9.3827203e-01);
   TDatabasePDG::Instance()->AddParticle("pbarpSystem","pbarpSystem",fIni.M(),kFALSE,0.1,0, "",88888);

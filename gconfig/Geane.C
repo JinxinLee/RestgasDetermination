@@ -10,7 +10,7 @@ void Config()
   TGeoMedium *m3=gGeoManager->GetMedium("lead");
   if(m3 != NULL) m3->SetParam(6, 0.005); // epsil
 
-  gMC3= new  TGeant3TGeo("C++ Interface to Geant3");
+  TGeant3TGeo* gMC3= new  TGeant3TGeo("C++ Interface to Geant3");
   cout << "-I- G3Config: Geant3 with TGeo has been created for Geane."
        << endl;
   // create Cbm Specific Stack
