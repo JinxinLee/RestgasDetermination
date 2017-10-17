@@ -210,7 +210,7 @@ Found 213 files with pattern data/DPMJmm_B_EMC8 Sum of events = 7932457375
 	double emc_rmv[8] =    {   0.,   6.,  23.,  39.,  56.,  72.,  89., 100.};
 
 	//TString lab[4] = { ";supermodules missing;S/B", ";supermodules missing;significance [#sigma]", ";supermodules missing;signal efficiency [%]", ";supermodules missing;background efficiency [%]"};
-	TString lab[4] = {  ";EMC missing [%];signal efficiency [%]", ";EMC missing [%];background efficiency [%]", ";EMC missing [%];S/B", ";EMC missing [%];significance [#sigma]"};
+	TString lab[4] = {  ";EMC missing (polar #theta) [%];signal efficiency [%]", ";EMC missing (polar #theta) [%];background efficiency [%]", ";EMC missing (polar #theta) [%];S/B", ";EMC missing (polar #theta) [%];significance [#sigma]"};
 	
 	
 	TCanvas *c1 = new TCanvas("c1","c1",1000,800);

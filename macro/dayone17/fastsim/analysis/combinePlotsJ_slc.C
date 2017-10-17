@@ -62,7 +62,7 @@ TH1F* createHistoGraph(TGraph *g, TString tit="", double xmin=0, double xmax=0)
 
 // --------------------------------------------------------------------
 
-void combinePlotsJ(TString fname="anaJ.root")
+void combinePlotsJ_slc(TString fname="anaJ_slc.root")
 {
 	gStyle->SetOptStat(0);
 	gStyle->SetOptFit(0);
@@ -70,7 +70,7 @@ void combinePlotsJ(TString fname="anaJ.root")
 	TFile *f=new TFile(fname);
 	
 	TString plotnam[4]={"Jee_A","Jee_B","Jmm_A","Jmm_B"};
-	TString lab[4] = {  "signal efficiency;EMC missing (polar #theta) [%];signal efficiency [%]", "background efficiency;EMC missing (polar #theta) [%];background efficiency [%]", "signal to noise;EMC missing (polar #theta) [%];S/B", "significance;EMC missing (polar #theta) [%];significance [#sigma]"};
+	TString lab[4] = {  "signal efficiency;EMC missing (#phi) [%];signal efficiency [%]", "background efficiency;EMC missing (#phi) [%];background efficiency [%]", "signal to noise;EMC missing (#phi) [%];S/B", "significance;EMC missing (#phi) [%];significance [#sigma]"};
 	
 	TGraphErrors *geffs[4];
 	TGraphErrors *geffb[4];
@@ -150,5 +150,5 @@ void combinePlotsJ(TString fname="anaJ.root")
 	leg4->Draw();
 	
 	
-	c1->SaveAs("fig/comb_J.gif");
+	c1->SaveAs("fig/comb_J_slc.gif");
 }

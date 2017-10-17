@@ -88,83 +88,109 @@ TH1F* createHistoGraph(TGraph *g, TString tit="", double xmin=0, double xmax=0)
 
 // --------------------------------------------------------------------
 
-void analyse_phi_base(TString fname="ntp1_2phi_A.root", TString cut="abs(f4cxd0m+f4cxd1m-2.15)<0.15&&abs(f4cxd0m-1.02)<0.012&&abs(f4cxd1m-1.02)<0.012&chi24c<50", int sigmode=0, TString tit="")
+void analyse_etac1_slc(TString fname="ntp5_slc_etac1_A.root", TString cut="chi24c<50", int sigmode=300, TString tit="")
 {
 /*
-Found 553 files with pattern data/DPM2phi_A_EMC1 containing event info Sum of events = 859179654
-Found 327 files with pattern data/DPM2phi_A_EMC5 containing event info Sum of events = 508041001
-Found 294 files with pattern data/DPM2phi_A_EMC8 containing event info Sum of events = 456811794
-Found 308 files with pattern data/DPM2phi_B_EMC1 containing event info Sum of events = 478549190
-Found 346 files with pattern data/DPM2phi_B_EMC5 containing event info Sum of events = 537555935
-Found 541 files with pattern data/DPM2phi_B_EMC8 containing event info Sum of events = 840537554
+Found 244 files with pattern data/DPMetac1_A_EMC1 containing event info Sum of events = 781589138
+Found 243 files with pattern data/DPMetac1_A_EMC2 containing event info Sum of events = 778264034
+Found 247 files with pattern data/DPMetac1_A_EMC3 containing event info Sum of events = 791030134
+Found 244 files with pattern data/DPMetac1_A_EMC4 containing event info Sum of events = 781662143
+Found 248 files with pattern data/DPMetac1_A_EMC5 containing event info Sum of events = 794307759
+Found 243 files with pattern data/DPMetac1_A_EMC6 containing event info Sum of events = 778257467
+Found 242 files with pattern data/DPMetac1_A_EMC7 containing event info Sum of events = 775037895
+Found 242 files with pattern data/DPMetac1_A_EMC8 containing event info Sum of events = 775095496
+--------------------
+Found 241 files with pattern data/DPMetac1_B_EMC1 containing event info Sum of events = 771776262
+Found 242 files with pattern data/DPMetac1_B_EMC2 containing event info Sum of events = 775016383
+Found 244 files with pattern data/DPMetac1_B_EMC3 containing event info Sum of events = 781427165
+Found 235 files with pattern data/DPMetac1_B_EMC4 containing event info Sum of events = 752754673
+Found 247 files with pattern data/DPMetac1_B_EMC5 containing event info Sum of events = 791054235
+Found 242 files with pattern data/DPMetac1_B_EMC6 containing event info Sum of events = 775064262
+Found 241 files with pattern data/DPMetac1_B_EMC7 containing event info Sum of events = 771961964
+Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of events = 781628321
 */	
-	
+
+	//data/DPMetac1_A_SLC1      (  82/ 100 files) =   1313354597
+	//data/DPMetac1_A_SLC2      (  86/ 100 files) =   1377489004
+	//data/DPMetac1_A_SLC3      (  85/ 100 files) =   1361147492
+	//data/DPMetac1_A_SLC4      (  87/ 100 files) =   1393104477
+	//data/DPMetac1_A_SLC5      (  86/ 100 files) =   1377270184
+	//data/DPMetac1_A_SLC6      (  86/  98 files) =   1376947715
+	//data/DPMetac1_A_SLC7      (  84/  96 files) =   1345215200
+	//data/DPMetac1_A_SLC8      (  83/  95 files) =   1328843629
+	//data/DPMetac1_A_SLC9      (  83/ 100 files) =   1329393334
+	//--------------------
+	//data/DPMetac1_B_SLC1      (  87/ 100 files) =   1393415089
+	//data/DPMetac1_B_SLC2      (  89/ 100 files) =   1425022249
+	//data/DPMetac1_B_SLC3      (  84/ 100 files) =   1345470462
+	//data/DPMetac1_B_SLC4      (  82/  99 files) =   1313202603
+	//data/DPMetac1_B_SLC5      (  86/ 100 files) =   1377424566
+	//data/DPMetac1_B_SLC6      (  81/  97 files) =   1297113544
+	//data/DPMetac1_B_SLC7      (  87/  98 files) =   1393303719
+	//data/DPMetac1_B_SLC8      (  84/ 100 files) =   1345397603
+	//data/DPMetac1_B_SLC9      (  86/  98 files) =   1377182415
+
 	std::map<long int,long int> evcnts = 
-                           { {1000,859179654}, {1001,1}, {1002,1}, {1003,1}, {1004,508041001}, {1005,1}, {1006,1}, {1007,456811794},    // Setup A, pbp -> 2phi
-		                     {1020,478549190}, {1021,1}, {1022,1}, {1023,1}, {1024,537555935}, {1025,1}, {1026,1}, {1027,840537554}     // Setup B, pbp -> 2phi
+                           { {1300, 1313354597}, {1301, 1377489004}, {1302, 1361147492}, {1303, 1393104477}, {1304, 1377270184}, {1305, 1376947715}, {1306, 1345215200}, {1307, 1328843629}, {1308, 1329393334},   // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
+		                     {1320, 1393415089}, {1321, 1425022249}, {1322, 1345470462}, {1323, 1313202603}, {1324, 1377424566}, {1325, 1297113544}, {1326, 1393303719}, {1327, 1345397603}, {1328, 1377182415}
 		                     };
 		 
 		                 
 	//for ( auto x:evcnts) cout <<"mode "<<x.first<<" : "<<x.second<<endl;
 	//cout <<endl;
-		           
-	if (cut=="") cut="1";
 		                 
 	int bkgmode = sigmode+1000;
 	//if (sigmode%100>19) bkgmode+=1;
 	
 	TFile *f = new TFile(fname);
-	TTree *t = (TTree*)f->Get("ntp1");
+	TTree *t = (TTree*)f->Get("ntp5");
 	
-	TFile fana("anaPhi.root","UPDATE");
+	TFile fana("ana_etac_slc.root","UPDATE");
+
+	int Nred = 9;
 
 	TGraphErrors *g[4];
-	g[0] = new TGraphErrors(3);
-	g[1] = new TGraphErrors(3);
-	g[2] = new TGraphErrors(3); 
-	g[3] = new TGraphErrors(3); 
+	g[0] = new TGraphErrors(Nred);
+	g[1] = new TGraphErrors(Nred);
+	g[2] = new TGraphErrors(Nred); 
+	g[3] = new TGraphErrors(Nred); 
 	
 	confgraph(g[0], "signal to noise");
 	confgraph(g[1], "significance");
 	confgraph(g[2], "signal efficiency");
 	confgraph(g[3], "background efficiency");
 	
-	TF1 *f1=new TF1("f1","pol0",0,100.);	
-	f1->SetParLimits(2,15,100);	
+	TF1 *f1=new TF1("f1","0.5*[0]*(1.0-TMath::Erf((x-[1])/[2]))+[3]",0,100.);	
+	//TF1 *f1=new TF1("f1","0.5*[0]*(1.0-TMath::Erf((x-[1])/[2]))+pol2(3)",0,100.);	
+	//f1->SetParLimits(2,15,300);	
 	
 	// -------------------------------------------------------------------
-	// Supermodul              |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
-	// num Alveolen in theta   |  1  |  3  |  3  |  3  |  3  |  3  |  2  |
-	// coverage from 22 to     |140.0|133.4|113.8| 94.1| 74.4| 54.8| 35.1|
+	// 8x2 phi slices, symmetric
 	// -------------------------------------------------------------------
 
 	// missing fraction in [%] of EMC = [ 1.0 - (tht_max - 22°)/118° ]* 100
-	double emc_rmv[8] =    {   0.,   6.,  23.,  39.,  56.,  72.,  89., 100.};
+	double emc_rmv[9] =    {   0.,   12.5,  25.,  37.5,  50.,  62.5, 75., 87.5, 100. };
 
 	//TString lab[4] = { ";supermodules missing;S/B", ";supermodules missing;significance [#sigma]", ";supermodules missing;signal efficiency [%]", ";supermodules missing;background efficiency [%]"};
-	TString lab[4] = {  ";EMC missing (polar #theta) [%];signal efficiency [%]", ";EMC missing (polar #theta) [%];background efficiency [%]", ";EMC missing (polar #theta) [%];S/B", ";EMC missing (polar #theta) [%];significance [#sigma]"};
+	TString lab[4] = {  ";EMC missing [%];signal efficiency (#phi) [%]", ";EMC missing (#phi) [%];background efficiency [%]", ";EMC missing (#phi) [%];S/B", ";EMC missing (#phi) [%];significance [#sigma]"};
 	
 	
 	TCanvas *c1 = new TCanvas("c1","c1",1000,800);
 	c1->Divide(2,2,0.0001,0.0001);
 	
-	double sig_S = 100;
-	double sig_B = 60e6;
+	double sig_S = 50;
+	double sig_B = 42e6;
 	
-	double Lint  = 788*0.5;
-	double fBR   = 0.489*0.489;
+	double Lint  = 1220*10;
+	double fBR   = 0.06*0.339*0.394;  // BR_J * BR_chic * BR_eta
 	
 	double S_dat = sig_S * fBR * Lint;
 	double B_dat = sig_B * Lint;
 		
 	cout <<"S:B = "<<S_dat/B_dat<<"  mode_S="<<sigmode<<"  mode_B="<<bkgmode<<endl; 
 	
-	int idxx[3] = {0, 4, 7};
-	
-	for (int jj=0;jj<3;++jj)
+	for (int i=0;i<Nred;++i)
 	{
-		int i=idxx[jj];
-		
 		long int S0 = 1e5;
 		long int B0 = evcnts[sigmode+i+1000];
 	
@@ -173,12 +199,12 @@ Found 541 files with pattern data/DPM2phi_B_EMC8 containing event info Sum of ev
 		double fS = S_dat/S0;
 		double fB = B_dat/B0;
 		
-		TString sigcut = Form("%s && mode==%d", cut.Data(), sigmode+i);
+		TString sigcut = Form("%s && mode==%d && xmct", cut.Data(), sigmode+i);
 		TString bkgcut = Form("%s && mode==%d", cut.Data(), bkgmode+i);
 		
 		
 		double S  = (double) cntEvt(t, sigcut);
-		double B  = (double) cntEvt(t, bkgcut);
+		double B  = (double) cntEvt(t, bkgcut)+1;
 		double dS = sqrt(S);
 		double dB = sqrt(B);
 
@@ -187,29 +213,29 @@ Found 541 files with pattern data/DPM2phi_B_EMC8 containing event info Sum of ev
 		double SN  = S*fS/(B*fB);
 		double dSN = SN*sqrt(dS*dS/(S*S) + dB*dB/(B*B));
 		
-		g[2]->SetPoint(jj, emc_rmv[i], SN);
-		g[2]->SetPointError(jj, 0, dSN);
+		g[2]->SetPoint(i, emc_rmv[i], SN);
+		g[2]->SetPointError(i, 0, dSN);
 		
 		
 		double Z  = S*fS/sqrt(S*fS+B*fB);
 		double dZ = 0.5 * sqrt( ((fS*fS*S+2*fB*fS*B)*(fS*fS*S+2*fB*fS*B)*S + fS*fS*fB*fB*S*S*B)/pow(fS*S+fB*B,3)) ;//0.5 * sqrt( (pow(2*B*fB + S*fS,2)*S + fS*fS*S*S*B)/pow(fS*S+fB*B,3));
 		
-		g[3]->SetPoint(jj, emc_rmv[i], Z);
-		g[3]->SetPointError(jj, 0, dZ);
+		g[3]->SetPoint(i, emc_rmv[i], Z);
+		g[3]->SetPointError(i, 0, dZ);
 		
 		
 		double effS  = S/S0;
 		double deffS = effS*sqrt( 1./S + 1./S0 ); 
 		
-		g[0]->SetPoint(jj, emc_rmv[i], effS*100.);
-		g[0]->SetPointError(jj, 0, deffS*100.);
+		g[0]->SetPoint(i, emc_rmv[i], effS*100.);
+		g[0]->SetPointError(i, 0, deffS*100.);
 		
 		
 		double effB  = B/B0;
 		double deffB = effB*sqrt( 1./B + 1./B0 ); 
 		
-		g[1]->SetPoint(jj, emc_rmv[i], effB*100.);
-		g[1]->SetPointError(jj, 0, deffB*100.);
+		g[1]->SetPoint(i, emc_rmv[i], effB*100.);
+		g[1]->SetPointError(i, 0, deffB*100.);
 	}	
 	
 	TH1F *h[4];
@@ -228,17 +254,21 @@ Found 541 files with pattern data/DPM2phi_B_EMC8 containing event info Sum of ev
 		g[i]->Draw("P same");
 		
 		f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),70, 10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
-		if (i==1)
-		{
-			f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),120, -10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
-			f1->SetParLimits(1,110,200);
-		}	
+		f1->SetParLimits(2,50,200);
+		
+		//if (i==1)
+		//{
+			//f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),120, -10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
+			//f1->SetParLimits(1,110,200);
+		//}	
 		
 		
 		//if (i<3) 
+		//if (i>0) 
 		g[i]->Fit("f1","q");
+		//else g[i]->Fit("f1","q","",0,95);
 		//else g[i]->Fit("f2");
-		g[i]->SetName(plotnam[i]+"_"+((TString)fname(6,5)));
+		g[i]->SetName(plotnam[i]+"_"+((TString)fname(9,7)));
 		g[i]->Write();
 	}
 	

@@ -70,7 +70,7 @@ void combinePlotsEtac(TString fname="ana_etac.root")
 	TFile *f=new TFile(fname);
 	
 	TString plotnam[2]={"etac1_A","etac1_B"};
-	TString lab[4] = {  "signal efficiency;EMC missing [%];signal efficiency [%]", "background efficiency;EMC missing [%];background efficiency [%]", "signal to noise;EMC missing [%];S/B", "significance;EMC missing [%];significance [#sigma]"};
+	TString lab[4] = {  "signal efficiency;EMC missing (polar #theta) [%];signal efficiency [%]", "background efficiency;EMC missing (polar #theta) [%];background efficiency [%]", "signal to noise;EMC missing (polar #theta) [%];S/B", "significance;EMC missing (polar #theta) [%];significance [#sigma]"};
 	
 	TGraphErrors *geffs[2];
 	TGraphErrors *geffb[2];

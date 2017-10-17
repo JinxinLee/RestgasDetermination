@@ -109,7 +109,7 @@ Found 242 files with pattern data/DPMetac1_B_EMC6 containing event info Sum of e
 Found 241 files with pattern data/DPMetac1_B_EMC7 containing event info Sum of events = 771961964
 Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of events = 781628321
 */	
-	
+
 	std::map<long int,long int> evcnts = 
                            { {1300,781589138}, {1301,778264034}, {1302,791030134},  {1303,781662143}, {1304,794307759}, {1305,778257467}, {1306,775037895}, {1307,775095496},    // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
 		                     {1320,771776262}, {1321,775016383}, {1322,781427165}, {1323,752754673}, {1324,791054235}, {1325,775064262}, {1326,771961964},  {1327,781628321}
@@ -152,7 +152,7 @@ Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of e
 	double emc_rmv[8] =    {   0.,   6.,  23.,  39.,  56.,  72.,  89., 100.};
 
 	//TString lab[4] = { ";supermodules missing;S/B", ";supermodules missing;significance [#sigma]", ";supermodules missing;signal efficiency [%]", ";supermodules missing;background efficiency [%]"};
-	TString lab[4] = {  ";EMC missing [%];signal efficiency [%]", ";EMC missing [%];background efficiency [%]", ";EMC missing [%];S/B", ";EMC missing [%];significance [#sigma]"};
+	TString lab[4] = {  ";EMC missing (polar #theta) [%];signal efficiency [%]", ";EMC missing (polar #theta) [%];background efficiency [%]", ";EMC missing (polar #theta) [%];S/B", ";EMC missing (polar #theta) [%];significance [#sigma]"};
 	
 	
 	TCanvas *c1 = new TCanvas("c1","c1",1000,800);

@@ -62,29 +62,30 @@ TH1F* createHistoGraph(TGraph *g, TString tit="", double xmin=0, double xmax=0)
 
 // --------------------------------------------------------------------
 
-void combinePlotsJ(TString fname="anaJ.root")
+void combinePlotsEtac_slc(TString fname="ana_etac_slc.root")
 {
 	gStyle->SetOptStat(0);
 	gStyle->SetOptFit(0);
 	
 	TFile *f=new TFile(fname);
 	
-	TString plotnam[4]={"Jee_A","Jee_B","Jmm_A","Jmm_B"};
-	TString lab[4] = {  "signal efficiency;EMC missing (polar #theta) [%];signal efficiency [%]", "background efficiency;EMC missing (polar #theta) [%];background efficiency [%]", "signal to noise;EMC missing (polar #theta) [%];S/B", "significance;EMC missing (polar #theta) [%];significance [#sigma]"};
+	TString plotnam[2]={"etac1_A","etac1_B"};
+	TString lab[4] = {  "signal efficiency;EMC missing (#phi) [%];signal efficiency [%]", "background efficiency;EMC missing (#phi) [%];background efficiency [%]", "signal to noise;EMC missing (#phi) [%];S/B", "significance;EMC missing (#phi) [%];significance [#sigma]"};
 	
-	TGraphErrors *geffs[4];
-	TGraphErrors *geffb[4];
-	TGraphErrors *gston[4];
-	TGraphErrors *gsign[4];
+	TGraphErrors *geffs[2];
+	TGraphErrors *geffb[2];
+	TGraphErrors *gston[2];
+	TGraphErrors *gsign[2];
 
 	TCanvas *c1=new TCanvas("c1","c1",10,10,1300,1000);
 	c1->Divide(2,2,0.0001,0.0001);
 
-	int colors[4] = {kBlue,kCyan-2,2,kRed-7};
+	int colors[2] = {kBlue,kCyan-2};
+	//int colors[2] = {2,kRed-7};
 
 	TH1F *h[4]={0};
 
-	for (int i=0;i<4;++i)
+	for (int i=0;i<2;++i)
 	{
 		c1->cd(1);
 		geffs[i]=(TGraphErrors*)f->Get(Form("effs_%s",plotnam[i].Data()));
@@ -118,37 +119,28 @@ void combinePlotsJ(TString fname="anaJ.root")
 	}
 	
 	c1->cd(1);
-	TLegend *leg1=new TLegend(0.16,0.18,0.6,0.38);
-	leg1->AddEntry(geffs[0],"J/#psi(ee) - Setup A","lep");
-	leg1->AddEntry(geffs[1],"J/#psi(ee) - Setup B","lep");
-	leg1->AddEntry(geffs[2],"J/#psi(#mu#mu) - Setup A","lep");
-	leg1->AddEntry(geffs[3],"J/#psi(#mu#mu) - Setup B","lep");	
+	TLegend *leg1=new TLegend(0.6,0.8,0.94,0.92);
+	leg1->AddEntry(geffs[0],"#eta_{c1}#eta - Setup A","lep");
+	leg1->AddEntry(geffs[1],"#eta_{c1}#eta - Setup B","lep");
 	leg1->Draw();
 
 	c1->cd(2);
-	TLegend *leg2=new TLegend(0.16,0.48,0.6,0.68);
-	leg2->AddEntry(geffb[0],"J/#psi(ee) - Setup A","lep");
-	leg2->AddEntry(geffb[1],"J/#psi(ee) - Setup B","lep");
-	leg2->AddEntry(geffb[2],"J/#psi(#mu#mu) - Setup A","lep");
-	leg2->AddEntry(geffb[3],"J/#psi(#mu#mu) - Setup B","lep");	
+	TLegend *leg2=new TLegend(0.6,0.8,0.94,0.92);
+	leg2->AddEntry(geffb[0],"#eta_{c1}#eta - Setup A","lep");
+	leg2->AddEntry(geffb[1],"#eta_{c1}#eta - Setup B","lep");
 	leg2->Draw();
 	
 	c1->cd(3);
-	TLegend *leg3=new TLegend(0.5,0.72,0.94,0.92);
-	leg3->AddEntry(gston[0],"J/#psi(ee) - Setup A","lep");
-	leg3->AddEntry(gston[1],"J/#psi(ee) - Setup B","lep");
-	leg3->AddEntry(gston[2],"J/#psi(#mu#mu) - Setup A","lep");
-	leg3->AddEntry(gston[3],"J/#psi(#mu#mu) - Setup B","lep");	
+	TLegend *leg3=new TLegend(0.6,0.8,0.94,0.92);
+	leg3->AddEntry(gston[0],"#eta_{c1}#eta - Setup A","lep");
+	leg3->AddEntry(gston[1],"#eta_{c1}#eta - Setup B","lep");
 	leg3->Draw();
 	
 	c1->cd(4);
-	TLegend *leg4=new TLegend(0.16,0.18,0.6,0.38);
-	leg4->AddEntry(gsign[0],"J/#psi(ee) - Setup A","lep");
-	leg4->AddEntry(gsign[1],"J/#psi(ee) - Setup B","lep");
-	leg4->AddEntry(gsign[2],"J/#psi(#mu#mu) - Setup A","lep");
-	leg4->AddEntry(gsign[3],"J/#psi(#mu#mu) - Setup B","lep");	
+	TLegend *leg4=new TLegend(0.6,0.8,0.94,0.92);
+	leg4->AddEntry(gsign[0],"#eta_{c1}#eta - Setup A","lep");
+	leg4->AddEntry(gsign[1],"#eta_{c1}#eta - Setup B","lep");
 	leg4->Draw();
 	
-	
-	c1->SaveAs("fig/comb_J.gif");
+	c1->SaveAs("fig/comb_etac_slc.gif");
 }

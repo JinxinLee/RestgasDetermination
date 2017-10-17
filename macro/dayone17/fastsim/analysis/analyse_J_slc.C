@@ -88,27 +88,26 @@ TH1F* createHistoGraph(TGraph *g, TString tit="", double xmin=0, double xmax=0)
 
 // --------------------------------------------------------------------
 
-void analyse_phi_base(TString fname="ntp1_2phi_A.root", TString cut="abs(f4cxd0m+f4cxd1m-2.15)<0.15&&abs(f4cxd0m-1.02)<0.012&&abs(f4cxd1m-1.02)<0.012&chi24c<50", int sigmode=0, TString tit="")
+void analyse_J_slc(TString fname="ntp1_slc_Jee_A.root", TString cut="xd0d0pide>0.5&&xd0d1pide>0.5&&chi24c<50", int sigmode=100, TString tit="")
 {
-/*
-Found 553 files with pattern data/DPM2phi_A_EMC1 containing event info Sum of events = 859179654
-Found 327 files with pattern data/DPM2phi_A_EMC5 containing event info Sum of events = 508041001
-Found 294 files with pattern data/DPM2phi_A_EMC8 containing event info Sum of events = 456811794
-Found 308 files with pattern data/DPM2phi_B_EMC1 containing event info Sum of events = 478549190
-Found 346 files with pattern data/DPM2phi_B_EMC5 containing event info Sum of events = 537555935
-Found 541 files with pattern data/DPM2phi_B_EMC8 containing event info Sum of events = 840537554
-*/	
-	
+
 	std::map<long int,long int> evcnts = 
-                           { {1000,859179654}, {1001,1}, {1002,1}, {1003,1}, {1004,508041001}, {1005,1}, {1006,1}, {1007,456811794},    // Setup A, pbp -> 2phi
-		                     {1020,478549190}, {1021,1}, {1022,1}, {1023,1}, {1024,537555935}, {1025,1}, {1026,1}, {1027,840537554}     // Setup B, pbp -> 2phi
+                           //{ {1100,24342651889}, {1101,23723523588}, {1102,21921465124},  {1103,21192161015}, {1104,20899111775}, {1105,21264224163}, {1106,21918977223}, {1107,20327238649},    // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
+		                     //{1120,21266925718}, {1121,21721036293}, {1122,21144322234}, {1123,20364376890}, {1124,20899648526}, {1125,21667979271}, {1126,22088200372},  {1127,21308984620},    // Setup B, pbp -> J/psi (-> e+ e-) pi+ pi-  //FIXME modes 1120 ...
+		                 
+		                     //{1200,8821819045}, {1201,9010185209}, {1202,7969422935},  {1203,8081829652}, {1204,7707163073}, {1205,7482700194}, {1206,7781565342},  {1207,7967077007},    // Setup A, pbp -> J/psi (-> mu+ mu-) pi+ pi- 
+		                     //{1220,8229011119}, {1221,7705315505}, {1222,8043282415},  {1223,7780855820}, {1224,8230265044}, {1225,8005672265}, {1226,7407676699},  {1227,7932457375}     // Setup B, pbp -> J/psi (-> mu+ mu-) pi+ pi-  //FIXME modes 1220...
+		                     //};
+                           { {1100, 15245616034}, {1101, 15245616034}, {1102, 15245616034},  {1103, 15245616034}, {1104, 15245616034}, {1105, 15245616034}, {1106, 7000000000}, {1107, 1},    // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
+		                     {1120, 1}, {1121, 1}, {1122, 1}, {1123,1}, {1124,1}, {1125,1}, {1126,1},  {1127,1},    // Setup B, pbp -> J/psi (-> e+ e-) pi+ pi-  //FIXME modes 1120 ...
+		                 
+		                     {1200, 1}, {1201, 1}, {1202, 1},  {1203, 1}, {1204, 1}, {1205, 1}, {1206, 1},  {1207, 1},    // Setup A, pbp -> J/psi (-> mu+ mu-) pi+ pi- 
+		                     {1220, 1}, {1221, 1}, {1222, 1},  {1223, 1}, {1224, 1}, {1225, 1}, {1226, 1},  {1227, 1}     // Setup B, pbp -> J/psi (-> mu+ mu-) pi+ pi-  //FIXME modes 1220...
 		                     };
 		 
 		                 
 	//for ( auto x:evcnts) cout <<"mode "<<x.first<<" : "<<x.second<<endl;
 	//cout <<endl;
-		           
-	if (cut=="") cut="1";
 		                 
 	int bkgmode = sigmode+1000;
 	//if (sigmode%100>19) bkgmode+=1;
@@ -116,55 +115,68 @@ Found 541 files with pattern data/DPM2phi_B_EMC8 containing event info Sum of ev
 	TFile *f = new TFile(fname);
 	TTree *t = (TTree*)f->Get("ntp1");
 	
-	TFile fana("anaPhi.root","UPDATE");
-
+	TFile fana("anaJ_slc.root","UPDATE");
+	
+	int Nred = 7;
+	
 	TGraphErrors *g[4];
-	g[0] = new TGraphErrors(3);
-	g[1] = new TGraphErrors(3);
-	g[2] = new TGraphErrors(3); 
-	g[3] = new TGraphErrors(3); 
+	g[0] = new TGraphErrors(Nred);
+	g[1] = new TGraphErrors(Nred);
+	g[2] = new TGraphErrors(Nred); 
+	g[3] = new TGraphErrors(Nred); 
 	
 	confgraph(g[0], "signal to noise");
 	confgraph(g[1], "significance");
 	confgraph(g[2], "signal efficiency");
 	confgraph(g[3], "background efficiency");
 	
-	TF1 *f1=new TF1("f1","pol0",0,100.);	
-	f1->SetParLimits(2,15,100);	
+	TF1 *f1[4];
+	
+	f1[0]=new TF1("f0","0.5*[0]*(1.0-TMath::Erf((x-[1])/[2]))+[3]",0,100.);	
+	f1[0]->SetParameters(10,70, 10, 5);
+	
+	f1[1]=new TF1("f1","0.5*[0]*(1.0-TMath::Erf((x-[1])/[2]))+[3]",0,100.);	
+	f1[1]->SetParameters(1e-7, 120, -10, 1e-8);
+	f1[1]->SetParLimits(1,20,200);
+
+	f1[2]=new TF1("f2","expo(0)+pol1(3)",0,100.);	
+	f1[2]->SetParameters(1,1,1,1,1,1);
+	
+	f1[3]=new TF1("f3","expo(0)+expo(3)",0,100.);	
+	f1[3]->SetParameters(1,1,1,1,1);
+	
+
+	//f1->SetParLimits(2,15,100);	
+	//TF1 *f1=new TF1("f1","pol2(0)",0,100.);
+	//f1->SetParameters(1,1,1);	
 	
 	// -------------------------------------------------------------------
-	// Supermodul              |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
-	// num Alveolen in theta   |  1  |  3  |  3  |  3  |  3  |  3  |  2  |
-	// coverage from 22 to     |140.0|133.4|113.8| 94.1| 74.4| 54.8| 35.1|
+	// 8x2 phi slices, symmetric
 	// -------------------------------------------------------------------
 
 	// missing fraction in [%] of EMC = [ 1.0 - (tht_max - 22°)/118° ]* 100
-	double emc_rmv[8] =    {   0.,   6.,  23.,  39.,  56.,  72.,  89., 100.};
+	double emc_rmv[7] =    {   0.,   12.5,  25.,  37.5,  50.,  62.5, 75.};//, 87.5 };
 
 	//TString lab[4] = { ";supermodules missing;S/B", ";supermodules missing;significance [#sigma]", ";supermodules missing;signal efficiency [%]", ";supermodules missing;background efficiency [%]"};
-	TString lab[4] = {  ";EMC missing (polar #theta) [%];signal efficiency [%]", ";EMC missing (polar #theta) [%];background efficiency [%]", ";EMC missing (polar #theta) [%];S/B", ";EMC missing (polar #theta) [%];significance [#sigma]"};
+	TString lab[4] = {  ";EMC missing [%];signal efficiency (#phi) [%]", ";EMC missing (#phi) [%];background efficiency [%]", ";EMC missing (#phi) [%];S/B", ";EMC missing (#phi) [%];significance [#sigma]"};
 	
 	
 	TCanvas *c1 = new TCanvas("c1","c1",1000,800);
 	c1->Divide(2,2,0.0001,0.0001);
 	
-	double sig_S = 100;
-	double sig_B = 60e6;
+	double sig_S = 50;
+	double sig_B = 46e6;
 	
-	double Lint  = 788*0.5;
-	double fBR   = 0.489*0.489;
+	double Lint  = 1170*2;
+	double fBR   = 0.05*0.06;
 	
 	double S_dat = sig_S * fBR * Lint;
 	double B_dat = sig_B * Lint;
 		
 	cout <<"S:B = "<<S_dat/B_dat<<"  mode_S="<<sigmode<<"  mode_B="<<bkgmode<<endl; 
 	
-	int idxx[3] = {0, 4, 7};
-	
-	for (int jj=0;jj<3;++jj)
+	for (int i=0;i<Nred;++i)
 	{
-		int i=idxx[jj];
-		
 		long int S0 = 1e5;
 		long int B0 = evcnts[sigmode+i+1000];
 	
@@ -187,29 +199,29 @@ Found 541 files with pattern data/DPM2phi_B_EMC8 containing event info Sum of ev
 		double SN  = S*fS/(B*fB);
 		double dSN = SN*sqrt(dS*dS/(S*S) + dB*dB/(B*B));
 		
-		g[2]->SetPoint(jj, emc_rmv[i], SN);
-		g[2]->SetPointError(jj, 0, dSN);
+		g[2]->SetPoint(i, emc_rmv[i], SN);
+		g[2]->SetPointError(i, 0, dSN);
 		
 		
 		double Z  = S*fS/sqrt(S*fS+B*fB);
 		double dZ = 0.5 * sqrt( ((fS*fS*S+2*fB*fS*B)*(fS*fS*S+2*fB*fS*B)*S + fS*fS*fB*fB*S*S*B)/pow(fS*S+fB*B,3)) ;//0.5 * sqrt( (pow(2*B*fB + S*fS,2)*S + fS*fS*S*S*B)/pow(fS*S+fB*B,3));
 		
-		g[3]->SetPoint(jj, emc_rmv[i], Z);
-		g[3]->SetPointError(jj, 0, dZ);
+		g[3]->SetPoint(i, emc_rmv[i], Z);
+		g[3]->SetPointError(i, 0, dZ);
 		
 		
 		double effS  = S/S0;
 		double deffS = effS*sqrt( 1./S + 1./S0 ); 
 		
-		g[0]->SetPoint(jj, emc_rmv[i], effS*100.);
-		g[0]->SetPointError(jj, 0, deffS*100.);
+		g[0]->SetPoint(i, emc_rmv[i], effS*100.);
+		g[0]->SetPointError(i, 0, deffS*100.);
 		
 		
 		double effB  = B/B0;
 		double deffB = effB*sqrt( 1./B + 1./B0 ); 
 		
-		g[1]->SetPoint(jj, emc_rmv[i], effB*100.);
-		g[1]->SetPointError(jj, 0, deffB*100.);
+		g[1]->SetPoint(i, emc_rmv[i], effB*100.);
+		g[1]->SetPointError(i, 0, deffB*100.);
 	}	
 	
 	TH1F *h[4];
@@ -222,23 +234,20 @@ Found 541 files with pattern data/DPM2phi_B_EMC8 containing event info Sum of ev
 	for (int i=0;i<4;++i) 
 	{
 		c1->cd(i+1);
-		gPad->SetTopMargin(0.10);
 		h[i] = createHistoGraph(g[i],tit+lab[i]);
 		h[i]->Draw();
 		g[i]->Draw("P same");
 		
-		f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),70, 10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
+		//f1[i]->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),70, 10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
 		if (i==1)
 		{
-			f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),120, -10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
-			f1->SetParLimits(1,110,200);
+			f1[i]->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),120, -10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
+			f1[i]->SetParLimits(1,20,200);
 		}	
 		
-		
-		//if (i<3) 
-		g[i]->Fit("f1","q");
-		//else g[i]->Fit("f2");
-		g[i]->SetName(plotnam[i]+"_"+((TString)fname(6,5)));
+		g[i]->Fit(Form("f%d",i),"q");
+			
+		g[i]->SetName(plotnam[i]+"_"+((TString)fname(5,5)));
 		g[i]->Write();
 	}
 	
