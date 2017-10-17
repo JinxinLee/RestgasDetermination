@@ -45,6 +45,10 @@ my $linecnt=0;
 my $totresub=0;
 my @resubs;
 
+sub trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
+
+my @runjobs = `squeue -u \$USER`;
+
 # for each entry in the commands array
 foreach my $cmd (@commands)
 {
@@ -76,16 +80,70 @@ foreach my $cmd (@commands)
     }
     print "Checking for files \"data/$pref"."_<run>_$suff.root\" for runs $min - $max (cmd opt: \"-a$min-$max $parms $script $pref $rest\")\n\n";
     
+    my @running=(), @queued=(), @runque=();
+    
+    my $name="";
+    
+    # do our jobs have a name?
+    if ($parms =~ /-J(\w+)/)
+    {
+		$name = $1;
+		# find numbers of jobs with that name already queued or running ==> won't be resubmitted 
+		foreach my $ljob (@runjobs)
+		{
+			my $ss = trim($ljob);
+			
+			if ($ss =~ m/^\d+_(\d+)\s+\w+\s+(\w+)/)
+			{
+				if ($name eq $2) { push @running, $1;push @runque, $1;}
+			}
+			
+			if ($ss =~ m/^\d+_\[(\d+)-(\d+)\]\s+\w+\s+(\w+)/)
+			{
+				if ($name eq $3)
+				{
+					for (my $ii=$1; $ii<=$2; ++$ii) {push @queued, $ii;push @runque, $ii;}
+				}
+			}
+		} 
+	}
+	
+	@running = sort {$a <=> $b} @running;
+	@queued  = sort {$a <=> $b} @queued;
+	@runque  = sort {$a <=> $b} @runque;
+	
+	my $nrunning = scalar @running;
+	my $nqueued  = scalar @queued;
+	my $runque   = scalar @runque;
+	
+	# print info about running jobs
+	if ($nrunning>0)
+	{
+		print "Running '".$name."' : ";
+		foreach my $jnum (@running) {print $jnum." ";}
+		print "\n";
+	}
+
+	# print info about queued (not yet running) jobs
+	if ($nqueued>0)
+	{
+		print "Queued '".$name."'  : ";
+		foreach my $jnum (@queued) {print $jnum." ";}
+		print "\n\n";
+	}
+	
     my @broken=(), @nexist=(), @small=();
 
     # find run numbers of non-existing and too small file
     for (my $i=$min; $i<=$max; $i++)
     {
+		my $inque = grep( /^$i$/, @runque );
+		
 		my $fname = "data/".$pref."_".$i."_$suff.root";
 
 		if (!-e $fname) 
 		{
-	    	push(@broken,$i);
+	    	if (!$inque) {push(@broken, $i); }
 	    	push(@nexist, $i);
 		}
 		else
@@ -93,8 +151,8 @@ foreach my $cmd (@commands)
 	    	my $filesize = -s $fname;
 	    	if ($filesize<10000)
 	    	{
-			push(@broken,$i);
-			push(@small,$i);
+				if (!$inque) {push(@broken, $i);}
+				push(@small,  $i);
 	    	}
 		}
     } 
@@ -105,20 +163,29 @@ foreach my $cmd (@commands)
 	my $nnexist = scalar @nexist;
 	my $nsmall  = scalar @small;
 	
+	my $locresub = scalar @broken;
+	
 	if ($nnexist+$nsmall==0) 
 	{
 		print "--> All ok!";
 	}
 	else
 	{
-    	print "Not existing : ";
+    	print "Not existing     : ";
     	foreach my $run (@nexist) {print "$run ";}
-    	print "\nSmall file   : ";
+    	print "\nSmall file       : ";
     	foreach my $run (@small) {print "$run ";}
+    	
+    	if ($locresub==0)
+    	{
+			print "\n--> Nothing to re-submit...";
+		}
     }
+	
 	print "\n\n";
     
-	if ($nnexist+$nsmall>0)
+   
+	if ($locresub>0)
 	{
     	if ($check) {print "Would ";}
     	print "Re-submit : \n";
