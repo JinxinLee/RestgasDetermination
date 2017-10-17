@@ -98,7 +98,7 @@ foreach my $cmd (@commands)
 				if ($name eq $2) { push @running, $1;push @runque, $1;}
 			}
 			
-			if ($ss =~ m/^\d+_\[(\d+)-(\d+)\]\s+\w+\s+(\w+)/)
+			if ($ss =~ m/^\d+_\[(\d+)-(\d+)\]*\s+\w+\s+(\w+)/)
 			{
 				if ($name eq $3)
 				{
@@ -178,7 +178,7 @@ foreach my $cmd (@commands)
     	
     	if ($locresub==0)
     	{
-			print "\n--> Nothing to re-submit...";
+			print "\n\n--> Nothing to re-submit...";
 		}
     }
 	

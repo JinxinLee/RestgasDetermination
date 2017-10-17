@@ -53,6 +53,7 @@ echo "--------------------"
 ./cntEvts.sh data/DPMetac1_A_SLC7
 ./cntEvts.sh data/DPMetac1_A_SLC8
 echo "--------------------"
+
 ./cntEvts.sh data/DPMetac1_B_SLC1
 ./cntEvts.sh data/DPMetac1_B_SLC2
 ./cntEvts.sh data/DPMetac1_B_SLC3

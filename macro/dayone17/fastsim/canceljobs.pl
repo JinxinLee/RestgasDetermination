@@ -18,10 +18,10 @@ if (!defined($opt))
     print "\nChecks the jobs output (<prefix>_<num>_<suff>.root existing and reasonable in size) and resubmits all failed ones (KRONOS version).\n\n";
     print "USAGE:\n";
     print 'canceljobs.pl <opt> <par> [check]'."\n";
-    print "  <opt>   : Option -timelower, -timelarger\n";
+    print "  <opt>   : Option -tlt (lower than), -tgt (greater than)\n";
     print "  <par>   : value of option (time in hrs)\n";
     print "  [check] : Optional parameter 'check', which just prints out what would be resubmitted\n\n";
-    print "  Example\n > canceljobs.pl time 02:00\n\n";
+    print "  Example\n > canceljobs.pl -tgt 02:00\n\n";
     exit(0);
 }
 
@@ -52,12 +52,12 @@ foreach my $line (@jobs)
 	
 	my $cmd;
 		
-	if ($opt eq "-timelarger" && ($par<$hrs))
+	if ($opt eq "-tgt" && ($par<$hrs))
 	{
 		$cmd = "scancel $jobid";
 	}
 	
-	if ($opt eq "-timelower" && ($par>$hrs))
+	if ($opt eq "-tlt" && ($par>$hrs))
 	{
 		$cmd = "scancel $jobid";
 	}
