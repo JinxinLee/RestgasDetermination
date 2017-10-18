@@ -6,22 +6,17 @@ my $check = defined($ARGV[2]);
 
 if (!defined($par)) {$par="";}
 
-if ($par eq "check") {$check = true; $suff ="";}
-
-# Example commands
-# DPM:    sbatch -a1-20 jobsim_kronos.sh DPM10GeV 1000 DPM         10.0 saveall
-# EvtGen: sbatch -a1-20 jobsim_kronos.sh D0Kpi    1000 D0toKpi.dec 10.0 saveall
 
 # print some usage information
-if (!defined($opt))
+if (!defined($opt) || $par eq "")
 {
     print "\nChecks the jobs output (<prefix>_<num>_<suff>.root existing and reasonable in size) and resubmits all failed ones (KRONOS version).\n\n";
     print "USAGE:\n";
     print 'canceljobs.pl <opt> <par> [check]'."\n";
     print "  <opt>   : Option -tlt (lower than), -tgt (greater than)\n";
     print "  <par>   : value of option (time in hrs)\n";
-    print "  [check] : Optional parameter 'check', which just prints out what would be resubmitted\n\n";
-    print "  Example\n > canceljobs.pl -tgt 02:00\n\n";
+    print "  [check] : Optional parameter 'check', which just prints out what would be cancelled\n\n";
+    print "  Example\n > canceljobs.pl -tgt 02:00 \n\n";
     exit(0);
 }
 

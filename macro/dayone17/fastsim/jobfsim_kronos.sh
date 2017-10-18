@@ -4,7 +4,7 @@
 # sbatch -a<min>-<max> jobfsim_kronos.sh <pref> <nevt> <dec> <mom> <saveall>
 #
 #SBATCH -J pndfsim
-#SBATCH --time=8:00:00
+#SBATCH --time=3:00:00
 #SBATCH --get-user-env
 #SBATCH -e data/slurmlog/slurm_%j_errout.log
 #SBATCH -o data/slurmlog/slurm_%j_errout.log

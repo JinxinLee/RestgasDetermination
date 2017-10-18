@@ -94,11 +94,11 @@ sbatch -a1-10 -Jsetb9 jobfsim_kronos.sh Metac1_B_SLC9 10000  decfiles/pp_etactil
 sbatch -a1-100 -Jsbeta1 jobfsim_kronos.sh DPMetac1_A_SLC1 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-180] ana 1300
 sbatch -a1-100 -Jsbetb1 jobfsim_kronos.sh DPMetac1_B_SLC1 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-180] ana 1320
 
-sbatch -a1-500 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 200000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100
-sbatch -a1-500 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 200000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120
+sbatch -a1-700 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100
+sbatch -a1-700 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120
 
-sbatch -a1-500 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 200000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200
-sbatch -a1-500 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 200000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220
+sbatch -a1-700 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200
+sbatch -a1-700 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------
@@ -129,31 +129,31 @@ sbatch -a1-100 -Jsbetb9 jobfsim_kronos.sh DPMetac1_B_SLC9 1000000  DPM  -5.5 Set
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------
+# FIRST ROUND
+# ---------------------------------------------------------------------------------------------------------------------------------
 
 #
 # J/psi -> e+ e-; pbp -> J/psi pi+ pi- (BACKGROUND)
 #
-#sbatch -a1-500 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 200000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100
-sbatch -a1-500 -Jsbjea2 jobfsim_kronos.sh DPMJee_A_SLC2 200000  DPM  -3.872 SetupA:Filter0:SLC[0-158] ana 1101
-sbatch -a1-500 -Jsbjea3 jobfsim_kronos.sh DPMJee_A_SLC3 200000  DPM  -3.872 SetupA:Filter0:SLC[0-135] ana 1102
-sbatch -a1-500 -Jsbjea4 jobfsim_kronos.sh DPMJee_A_SLC4 200000  DPM  -3.872 SetupA:Filter0:SLC[0-113] ana 1103
-# up to here submitted
-
-sbatch -a1-500 -Jsbjea5 jobfsim_kronos.sh DPMJee_A_SLC5 200000  DPM  -3.872 SetupA:Filter0:SLC[0-90]  ana 1104
-sbatch -a1-500 -Jsbjea6 jobfsim_kronos.sh DPMJee_A_SLC6 200000  DPM  -3.872 SetupA:Filter0:SLC[0-68]  ana 1105
-sbatch -a1-500 -Jsbjea7 jobfsim_kronos.sh DPMJee_A_SLC7 200000  DPM  -3.872 SetupA:Filter0:SLC[0-45]  ana 1106
-sbatch -a1-500 -Jsbjea8 jobfsim_kronos.sh DPMJee_A_SLC8 200000  DPM  -3.872 SetupA:Filter0:SLC[0-23]  ana 1107
-sbatch -a1-500 -Jsbjea9 jobfsim_kronos.sh DPMJee_A_SLC9 200000  DPM  -3.872 SetupA:Filter0:EMC[22-20] ana 1108
+#sbatch -a1-350 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100
+sbatch -a1-350 -Jsbjea2 jobfsim_kronos.sh DPMJee_A_SLC2 100000  DPM  -3.872 SetupA:Filter0:SLC[0-158] ana 1101
+sbatch -a1-350 -Jsbjea3 jobfsim_kronos.sh DPMJee_A_SLC3 100000  DPM  -3.872 SetupA:Filter0:SLC[0-135] ana 1102
+sbatch -a1-350 -Jsbjea4 jobfsim_kronos.sh DPMJee_A_SLC4 100000  DPM  -3.872 SetupA:Filter0:SLC[0-113] ana 1103
+sbatch -a1-350 -Jsbjea5 jobfsim_kronos.sh DPMJee_A_SLC5 100000  DPM  -3.872 SetupA:Filter0:SLC[0-90]  ana 1104
+sbatch -a1-350 -Jsbjea6 jobfsim_kronos.sh DPMJee_A_SLC6 100000  DPM  -3.872 SetupA:Filter0:SLC[0-68]  ana 1105
+sbatch -a1-350 -Jsbjea7 jobfsim_kronos.sh DPMJee_A_SLC7 100000  DPM  -3.872 SetupA:Filter0:SLC[0-45]  ana 1106
+sbatch -a1-350 -Jsbjea8 jobfsim_kronos.sh DPMJee_A_SLC8 100000  DPM  -3.872 SetupA:Filter0:SLC[0-23]  ana 1107
+sbatch -a1-350 -Jsbjea9 jobfsim_kronos.sh DPMJee_A_SLC9 100000  DPM  -3.872 SetupA:Filter0:EMC[22-20] ana 1108
                                                                                    
-#sbatch -a1-500 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 200000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120
-sbatch -a1-500 -Jsbjeb2 jobfsim_kronos.sh DPMJee_B_SLC2 200000  DPM  -3.872 SetupB:Filter0:SLC[0-158] ana 1121
-sbatch -a1-500 -Jsbjeb3 jobfsim_kronos.sh DPMJee_B_SLC3 200000  DPM  -3.872 SetupB:Filter0:SLC[0-135] ana 1122
-sbatch -a1-500 -Jsbjeb4 jobfsim_kronos.sh DPMJee_B_SLC4 200000  DPM  -3.872 SetupB:Filter0:SLC[0-113] ana 1123
-sbatch -a1-500 -Jsbjeb5 jobfsim_kronos.sh DPMJee_B_SLC5 200000  DPM  -3.872 SetupB:Filter0:SLC[0-90]  ana 1124
-sbatch -a1-500 -Jsbjeb6 jobfsim_kronos.sh DPMJee_B_SLC6 200000  DPM  -3.872 SetupB:Filter0:SLC[0-68]  ana 1125
-sbatch -a1-500 -Jsbjeb7 jobfsim_kronos.sh DPMJee_B_SLC7 200000  DPM  -3.872 SetupB:Filter0:SLC[0-45]  ana 1126
-sbatch -a1-500 -Jsbjeb8 jobfsim_kronos.sh DPMJee_B_SLC8 200000  DPM  -3.872 SetupB:Filter0:SLC[0-23]  ana 1127
-sbatch -a1-500 -Jsbjeb9 jobfsim_kronos.sh DPMJee_B_SLC9 200000  DPM  -3.872 SetupB:Filter0:EMC[22-20] ana 1128
+#sbatch -a1-350 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120
+sbatch -a1-350 -Jsbjeb2 jobfsim_kronos.sh DPMJee_B_SLC2 100000  DPM  -3.872 SetupB:Filter0:SLC[0-158] ana 1121
+sbatch -a1-350 -Jsbjeb3 jobfsim_kronos.sh DPMJee_B_SLC3 100000  DPM  -3.872 SetupB:Filter0:SLC[0-135] ana 1122
+sbatch -a1-350 -Jsbjeb4 jobfsim_kronos.sh DPMJee_B_SLC4 100000  DPM  -3.872 SetupB:Filter0:SLC[0-113] ana 1123
+sbatch -a1-350 -Jsbjeb5 jobfsim_kronos.sh DPMJee_B_SLC5 100000  DPM  -3.872 SetupB:Filter0:SLC[0-90]  ana 1124
+sbatch -a1-350 -Jsbjeb6 jobfsim_kronos.sh DPMJee_B_SLC6 100000  DPM  -3.872 SetupB:Filter0:SLC[0-68]  ana 1125
+sbatch -a1-350 -Jsbjeb7 jobfsim_kronos.sh DPMJee_B_SLC7 100000  DPM  -3.872 SetupB:Filter0:SLC[0-45]  ana 1126
+sbatch -a1-350 -Jsbjeb8 jobfsim_kronos.sh DPMJee_B_SLC8 100000  DPM  -3.872 SetupB:Filter0:SLC[0-23]  ana 1127
+sbatch -a1-350 -Jsbjeb9 jobfsim_kronos.sh DPMJee_B_SLC9 100000  DPM  -3.872 SetupB:Filter0:EMC[22-20] ana 1128
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------
@@ -161,25 +161,80 @@ sbatch -a1-500 -Jsbjeb9 jobfsim_kronos.sh DPMJee_B_SLC9 200000  DPM  -3.872 Setu
 #
 # J/psi -> mu+ mu-; pbp -> J/psi pi+ pi- (BACKGROUND)
 #
-#sbatch -a1-500 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 200000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200
-sbatch -a1-500 -Jsbjma2 jobfsim_kronos.sh DPMJmm_A_SLC2 200000  DPM  -3.872 SetupA:Filter1:SLC[0-158] ana 1201
-sbatch -a1-500 -Jsbjma3 jobfsim_kronos.sh DPMJmm_A_SLC3 200000  DPM  -3.872 SetupA:Filter1:SLC[0-135] ana 1202
-sbatch -a1-500 -Jsbjma4 jobfsim_kronos.sh DPMJmm_A_SLC4 200000  DPM  -3.872 SetupA:Filter1:SLC[0-113] ana 1203
-sbatch -a1-500 -Jsbjma5 jobfsim_kronos.sh DPMJmm_A_SLC5 200000  DPM  -3.872 SetupA:Filter1:SLC[0-90]  ana 1204
-sbatch -a1-500 -Jsbjma6 jobfsim_kronos.sh DPMJmm_A_SLC6 200000  DPM  -3.872 SetupA:Filter1:SLC[0-68]  ana 1205
-sbatch -a1-500 -Jsbjma7 jobfsim_kronos.sh DPMJmm_A_SLC7 200000  DPM  -3.872 SetupA:Filter1:SLC[0-45]  ana 1206
-sbatch -a1-500 -Jsbjma8 jobfsim_kronos.sh DPMJmm_A_SLC8 200000  DPM  -3.872 SetupA:Filter1:SLC[0-23]  ana 1207
-sbatch -a1-500 -Jsbjma9 jobfsim_kronos.sh DPMJmm_A_SLC9 200000  DPM  -3.872 SetupA:Filter1:EMC[22-20] ana 1208
+#sbatch -a1-350 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200
+sbatch -a1-350 -Jsbjma2 jobfsim_kronos.sh DPMJmm_A_SLC2 100000  DPM  -3.872 SetupA:Filter1:SLC[0-158] ana 1201
+sbatch -a1-350 -Jsbjma3 jobfsim_kronos.sh DPMJmm_A_SLC3 100000  DPM  -3.872 SetupA:Filter1:SLC[0-135] ana 1202
+sbatch -a1-350 -Jsbjma4 jobfsim_kronos.sh DPMJmm_A_SLC4 100000  DPM  -3.872 SetupA:Filter1:SLC[0-113] ana 1203
+sbatch -a1-350 -Jsbjma5 jobfsim_kronos.sh DPMJmm_A_SLC5 100000  DPM  -3.872 SetupA:Filter1:SLC[0-90]  ana 1204
+sbatch -a1-350 -Jsbjma6 jobfsim_kronos.sh DPMJmm_A_SLC6 100000  DPM  -3.872 SetupA:Filter1:SLC[0-68]  ana 1205
+sbatch -a1-350 -Jsbjma7 jobfsim_kronos.sh DPMJmm_A_SLC7 100000  DPM  -3.872 SetupA:Filter1:SLC[0-45]  ana 1206
+sbatch -a1-350 -Jsbjma8 jobfsim_kronos.sh DPMJmm_A_SLC8 100000  DPM  -3.872 SetupA:Filter1:SLC[0-23]  ana 1207
+sbatch -a1-350 -Jsbjma9 jobfsim_kronos.sh DPMJmm_A_SLC9 100000  DPM  -3.872 SetupA:Filter1:EMC[22-20] ana 1208
                                                                                    
-#sbatch -a1-500 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 200000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220
-sbatch -a1-500 -Jsbjmb2 jobfsim_kronos.sh DPMJmm_B_SLC2 200000  DPM  -3.872 SetupB:Filter1:SLC[0-158] ana 1221
-sbatch -a1-500 -Jsbjmb3 jobfsim_kronos.sh DPMJmm_B_SLC3 200000  DPM  -3.872 SetupB:Filter1:SLC[0-135] ana 1222
-sbatch -a1-500 -Jsbjmb4 jobfsim_kronos.sh DPMJmm_B_SLC4 200000  DPM  -3.872 SetupB:Filter1:SLC[0-113] ana 1223
-sbatch -a1-500 -Jsbjmb5 jobfsim_kronos.sh DPMJmm_B_SLC5 200000  DPM  -3.872 SetupB:Filter1:SLC[0-90]  ana 1224
-sbatch -a1-500 -Jsbjmb6 jobfsim_kronos.sh DPMJmm_B_SLC6 200000  DPM  -3.872 SetupB:Filter1:SLC[0-68]  ana 1225
-sbatch -a1-500 -Jsbjmb7 jobfsim_kronos.sh DPMJmm_B_SLC7 200000  DPM  -3.872 SetupB:Filter1:SLC[0-45]  ana 1226
-sbatch -a1-500 -Jsbjmb8 jobfsim_kronos.sh DPMJmm_B_SLC8 200000  DPM  -3.872 SetupB:Filter1:SLC[0-23]  ana 1227
-sbatch -a1-500 -Jsbjmb9 jobfsim_kronos.sh DPMJmm_B_SLC9 200000  DPM  -3.872 SetupB:Filter1:EMC[22-20] ana 1228
+#sbatch -a1-350 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220
+sbatch -a1-350 -Jsbjmb2 jobfsim_kronos.sh DPMJmm_B_SLC2 100000  DPM  -3.872 SetupB:Filter1:SLC[0-158] ana 1221
+sbatch -a1-350 -Jsbjmb3 jobfsim_kronos.sh DPMJmm_B_SLC3 100000  DPM  -3.872 SetupB:Filter1:SLC[0-135] ana 1222
+sbatch -a1-350 -Jsbjmb4 jobfsim_kronos.sh DPMJmm_B_SLC4 100000  DPM  -3.872 SetupB:Filter1:SLC[0-113] ana 1223
+sbatch -a1-350 -Jsbjmb5 jobfsim_kronos.sh DPMJmm_B_SLC5 100000  DPM  -3.872 SetupB:Filter1:SLC[0-90]  ana 1224
+sbatch -a1-350 -Jsbjmb6 jobfsim_kronos.sh DPMJmm_B_SLC6 100000  DPM  -3.872 SetupB:Filter1:SLC[0-68]  ana 1225
+sbatch -a1-350 -Jsbjmb7 jobfsim_kronos.sh DPMJmm_B_SLC7 100000  DPM  -3.872 SetupB:Filter1:SLC[0-45]  ana 1226
+sbatch -a1-350 -Jsbjmb8 jobfsim_kronos.sh DPMJmm_B_SLC8 100000  DPM  -3.872 SetupB:Filter1:SLC[0-23]  ana 1227
+sbatch -a1-350 -Jsbjmb9 jobfsim_kronos.sh DPMJmm_B_SLC9 100000  DPM  -3.872 SetupB:Filter1:EMC[22-20] ana 1228
+
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# SECOND ROUND
+# ---------------------------------------------------------------------------------------------------------------------------------
+
+#
+# J/psi -> e+ e-; pbp -> J/psi pi+ pi- (BACKGROUND)
+#
+#sbatch -a351-700 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100
+sbatch -a351-700 -Jsbjea2 jobfsim_kronos.sh DPMJee_A_SLC2 100000  DPM  -3.872 SetupA:Filter0:SLC[0-158] ana 1101
+sbatch -a351-700 -Jsbjea3 jobfsim_kronos.sh DPMJee_A_SLC3 100000  DPM  -3.872 SetupA:Filter0:SLC[0-135] ana 1102
+sbatch -a351-700 -Jsbjea4 jobfsim_kronos.sh DPMJee_A_SLC4 100000  DPM  -3.872 SetupA:Filter0:SLC[0-113] ana 1103
+sbatch -a351-700 -Jsbjea5 jobfsim_kronos.sh DPMJee_A_SLC5 100000  DPM  -3.872 SetupA:Filter0:SLC[0-90]  ana 1104
+sbatch -a351-700 -Jsbjea6 jobfsim_kronos.sh DPMJee_A_SLC6 100000  DPM  -3.872 SetupA:Filter0:SLC[0-68]  ana 1105
+sbatch -a351-700 -Jsbjea7 jobfsim_kronos.sh DPMJee_A_SLC7 100000  DPM  -3.872 SetupA:Filter0:SLC[0-45]  ana 1106
+sbatch -a351-700 -Jsbjea8 jobfsim_kronos.sh DPMJee_A_SLC8 100000  DPM  -3.872 SetupA:Filter0:SLC[0-23]  ana 1107
+sbatch -a351-700 -Jsbjea9 jobfsim_kronos.sh DPMJee_A_SLC9 100000  DPM  -3.872 SetupA:Filter0:EMC[22-20] ana 1108
+                                                                                   
+#sbatch -a351-700 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120
+sbatch -a351-700 -Jsbjeb2 jobfsim_kronos.sh DPMJee_B_SLC2 100000  DPM  -3.872 SetupB:Filter0:SLC[0-158] ana 1121
+sbatch -a351-700 -Jsbjeb3 jobfsim_kronos.sh DPMJee_B_SLC3 100000  DPM  -3.872 SetupB:Filter0:SLC[0-135] ana 1122
+sbatch -a351-700 -Jsbjeb4 jobfsim_kronos.sh DPMJee_B_SLC4 100000  DPM  -3.872 SetupB:Filter0:SLC[0-113] ana 1123
+sbatch -a351-700 -Jsbjeb5 jobfsim_kronos.sh DPMJee_B_SLC5 100000  DPM  -3.872 SetupB:Filter0:SLC[0-90]  ana 1124
+sbatch -a351-700 -Jsbjeb6 jobfsim_kronos.sh DPMJee_B_SLC6 100000  DPM  -3.872 SetupB:Filter0:SLC[0-68]  ana 1125
+sbatch -a351-700 -Jsbjeb7 jobfsim_kronos.sh DPMJee_B_SLC7 100000  DPM  -3.872 SetupB:Filter0:SLC[0-45]  ana 1126
+sbatch -a351-700 -Jsbjeb8 jobfsim_kronos.sh DPMJee_B_SLC8 100000  DPM  -3.872 SetupB:Filter0:SLC[0-23]  ana 1127
+sbatch -a351-700 -Jsbjeb9 jobfsim_kronos.sh DPMJee_B_SLC9 100000  DPM  -3.872 SetupB:Filter0:EMC[22-20] ana 1128
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+
+#
+# J/psi -> mu+ mu-; pbp -> J/psi pi+ pi- (BACKGROUND)
+#
+#sbatch -a351-700 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200
+sbatch -a351-700 -Jsbjma2 jobfsim_kronos.sh DPMJmm_A_SLC2 100000  DPM  -3.872 SetupA:Filter1:SLC[0-158] ana 1201
+sbatch -a351-700 -Jsbjma3 jobfsim_kronos.sh DPMJmm_A_SLC3 100000  DPM  -3.872 SetupA:Filter1:SLC[0-135] ana 1202
+sbatch -a351-700 -Jsbjma4 jobfsim_kronos.sh DPMJmm_A_SLC4 100000  DPM  -3.872 SetupA:Filter1:SLC[0-113] ana 1203
+sbatch -a351-700 -Jsbjma5 jobfsim_kronos.sh DPMJmm_A_SLC5 100000  DPM  -3.872 SetupA:Filter1:SLC[0-90]  ana 1204
+sbatch -a351-700 -Jsbjma6 jobfsim_kronos.sh DPMJmm_A_SLC6 100000  DPM  -3.872 SetupA:Filter1:SLC[0-68]  ana 1205
+sbatch -a351-700 -Jsbjma7 jobfsim_kronos.sh DPMJmm_A_SLC7 100000  DPM  -3.872 SetupA:Filter1:SLC[0-45]  ana 1206
+sbatch -a351-700 -Jsbjma8 jobfsim_kronos.sh DPMJmm_A_SLC8 100000  DPM  -3.872 SetupA:Filter1:SLC[0-23]  ana 1207
+sbatch -a351-700 -Jsbjma9 jobfsim_kronos.sh DPMJmm_A_SLC9 100000  DPM  -3.872 SetupA:Filter1:EMC[22-20] ana 1208
+                                                                                   
+#sbatch -a351-700 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220
+sbatch -a351-700 -Jsbjmb2 jobfsim_kronos.sh DPMJmm_B_SLC2 100000  DPM  -3.872 SetupB:Filter1:SLC[0-158] ana 1221
+sbatch -a351-700 -Jsbjmb3 jobfsim_kronos.sh DPMJmm_B_SLC3 100000  DPM  -3.872 SetupB:Filter1:SLC[0-135] ana 1222
+sbatch -a351-700 -Jsbjmb4 jobfsim_kronos.sh DPMJmm_B_SLC4 100000  DPM  -3.872 SetupB:Filter1:SLC[0-113] ana 1223
+sbatch -a351-700 -Jsbjmb5 jobfsim_kronos.sh DPMJmm_B_SLC5 100000  DPM  -3.872 SetupB:Filter1:SLC[0-90]  ana 1224
+sbatch -a351-700 -Jsbjmb6 jobfsim_kronos.sh DPMJmm_B_SLC6 100000  DPM  -3.872 SetupB:Filter1:SLC[0-68]  ana 1225
+sbatch -a351-700 -Jsbjmb7 jobfsim_kronos.sh DPMJmm_B_SLC7 100000  DPM  -3.872 SetupB:Filter1:SLC[0-45]  ana 1226
+sbatch -a351-700 -Jsbjmb8 jobfsim_kronos.sh DPMJmm_B_SLC8 100000  DPM  -3.872 SetupB:Filter1:SLC[0-23]  ana 1227
+sbatch -a351-700 -Jsbjmb9 jobfsim_kronos.sh DPMJmm_B_SLC9 100000  DPM  -3.872 SetupB:Filter1:EMC[22-20] ana 1228
 
 
 

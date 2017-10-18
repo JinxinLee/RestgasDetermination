@@ -45,16 +45,29 @@ my $linecnt=0;
 my $totresub=0;
 my @resubs;
 
+# little helper function to remove whitespace at begin/end of string
 sub trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
 
+# read out the queued jobs for this user
 my @runjobs = `squeue -u \$USER`;
 
-# for each entry in the commands array
+
+
+# ----------------------------------------------------------
+#  loop over all sbatch commands
+# ----------------------------------------------------------
+
+
 foreach my $cmd (@commands)
 {
-    # cut away the CR and NL
+ 	# ----------------------------------------------------------
+	#  analyse sbatch command
+	# ----------------------------------------------------------
+
+   	# cut away the CR and NL
     chomp $cmd;
 	
+	# empty line only consisting of whitespace?
 	if ( $cmd =~ m/^\s*$/) {next;}
     
 	# if commented line (first char = '#'), skip
@@ -63,41 +76,60 @@ foreach my $cmd (@commands)
     print "\n\n** LINE $linecnt: ".$cmd."\n";
 	$linecnt+=1;
 	
+	# analyse sbatch command
     $cmd =~ m/(\d+)-(\d+)(.+)(job.*\.sh)\s+(\w+)\s+(.*)/;
 
-    my $min     = $1;
-    my $max     = $2;
-    my $parms   = $3;
-    my $script  = $4;
-    my $pref    = $5;
-    my $rest    = $6;
+    my $min     = $1; # min array number
+    my $max     = $2; # max array number
+    my $parms   = $3; # further parameters of sbatch
+    my $script  = $4; # the job script
+    my $pref    = $5; # prefix (for file names to look for)
+    my $rest    = $6; # the whole rest of the sbatch command line
     
+    # what kind of output suffix: full sim, fast sim, quick ana tool?
+    # this is determined by the name of the job submission script (not so robust somehow) --> FIXME for better solution
 	if ($suff eq "")
 	{
     	$suff    = "pid";
     	if ($script =~ /jobfsim/) {$suff = "fsim";}   # do we have fast sim output
     	if ($script =~ /jobquickfa/) {$suff = "ana";} # do we have ana output from quickana tool
     }
+    
     print "Checking for files \"data/$pref"."_<run>_$suff.root\" for runs $min - $max (cmd opt: \"-a$min-$max $parms $script $pref $rest\")\n\n";
     
+	
+	# --------------------------------------------------------------
+	#  find all numbers from queued/running jobs with name if given
+	# --------------------------------------------------------------
+   
     my @running=(), @queued=(), @runque=();
     
+    # are the jobs named, and we can check the queue for running/queued jobs?
     my $name="";
-    
-    # do our jobs have a name?
-    if ($parms =~ /-J(\w+)/)
+	
+	if ($parms =~ /-J(\w+)/)
     {
 		$name = $1;
 		# find numbers of jobs with that name already queued or running ==> won't be resubmitted 
 		foreach my $ljob (@runjobs)
 		{
+			# outline of squeue command
 			my $ss = trim($ljob);
 			
+			# something like 1221987_273 could be running or queued
 			if ($ss =~ m/^\d+_(\d+)\s+\w+\s+(\w+)/)
 			{
-				if ($name eq $2) { push @running, $1;push @runque, $1;}
+				# with correct name?
+				if ($name eq $2) 
+				{
+					# is it of status ... R ... (running)?
+					if ($ss =~ m/\s+R\s+/) {push @running, $1;push @runque, $1;}
+					# or not
+					else {push @queued, $1;push @runque, $1;}
+				}
 			}
 			
+			# something like 1221987_[56-29] or 1221987_[56-29 (missing ] bug in output?) is queued
 			if ($ss =~ m/^\d+_\[(\d+)-(\d+)\]*\s+\w+\s+(\w+)/)
 			{
 				if ($name eq $3)
@@ -108,10 +140,12 @@ foreach my $cmd (@commands)
 		} 
 	}
 	
+	# sort array numbers
 	@running = sort {$a <=> $b} @running;
 	@queued  = sort {$a <=> $b} @queued;
 	@runque  = sort {$a <=> $b} @runque;
 	
+	# get numbers of running, queued and both
 	my $nrunning = scalar @running;
 	my $nqueued  = scalar @queued;
 	my $runque   = scalar @runque;
@@ -119,7 +153,7 @@ foreach my $cmd (@commands)
 	# print info about running jobs
 	if ($nrunning>0)
 	{
-		print "Running '".$name."' : ";
+		printf "Running '%s' (%4d) : ", $name, $nrunning;
 		foreach my $jnum (@running) {print $jnum." ";}
 		print "\n";
 	}
@@ -127,23 +161,32 @@ foreach my $cmd (@commands)
 	# print info about queued (not yet running) jobs
 	if ($nqueued>0)
 	{
-		print "Queued '".$name."'  : ";
+		printf "Queued '%s' (%4d)  : ", $name, $nqueued;
 		foreach my $jnum (@queued) {print $jnum." ";}
 		print "\n\n";
 	}
 	
+	
+	# ----------------------------------------------------------
+	#  now check for output files
+	# ----------------------------------------------------------
+    
     my @broken=(), @nexist=(), @small=();
 
     # find run numbers of non-existing and too small file
     for (my $i=$min; $i<=$max; $i++)
     {
+		# check whether missing number is already queued or running 
 		my $inque = grep( /^$i$/, @runque );
 		
+		# this is the output name we are looking for
 		my $fname = "data/".$pref."_".$i."_$suff.root";
 
 		if (!-e $fname) 
 		{
+			# only add to broken numbers, if not queued/running
 	    	if (!$inque) {push(@broken, $i); }
+	    	# however store as not-existing
 	    	push(@nexist, $i);
 		}
 		else
@@ -151,7 +194,9 @@ foreach my $cmd (@commands)
 	    	my $filesize = -s $fname;
 	    	if ($filesize<10000)
 	    	{
+				# only add to broken numbers, if not queued/running
 				if (!$inque) {push(@broken, $i);}
+	    		# however store as too small file
 				push(@small,  $i);
 	    	}
 		}
@@ -163,19 +208,24 @@ foreach my $cmd (@commands)
 	my $nnexist = scalar @nexist;
 	my $nsmall  = scalar @small;
 	
+	# the current number of job number to be resubmitted (non-existing/too small and NOT queued/running)
 	my $locresub = scalar @broken;
 	
+	# all files are there -> fine!
 	if ($nnexist+$nsmall==0) 
 	{
 		print "--> All ok!";
 	}
 	else
 	{
-    	print "Not existing     : ";
+		# print non-exist numbers
+    	printf "Not existing (%4d) : ", $nnexist;
     	foreach my $run (@nexist) {print "$run ";}
-    	print "\nSmall file       : ";
+		# print too small file numbers
+    	printf "\nSmall file   (%4d) : ", $nsmall;
     	foreach my $run (@small) {print "$run ";}
     	
+		# if all missing files have a queued/running job, do nothing
     	if ($locresub==0)
     	{
 			print "\n\n--> Nothing to re-submit...";
@@ -184,9 +234,14 @@ foreach my $cmd (@commands)
 	
 	print "\n\n";
     
-   
+    
+	# ----------------------------------------------------------
+   	#  re-submit jobs
+	# ----------------------------------------------------------
+	
 	if ($locresub>0)
 	{
+		# only print-out what would be done?
     	if ($check) {print "Would ";}
     	print "Re-submit : \n";
 		
@@ -224,6 +279,12 @@ foreach my $cmd (@commands)
 		
 	}
 }
+
+
+# ----------------------------------------------------------
+#  print a summary of all (to be) submitted jobs
+# ----------------------------------------------------------
+
 print "\n**** Re-submit summary:\n\n";
 
 foreach my $c (@resubs) {print "$c\n";}
