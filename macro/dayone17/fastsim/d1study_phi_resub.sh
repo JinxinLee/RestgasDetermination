@@ -102,23 +102,26 @@ echo $par
 
 # Full EMC simulations first
 
-./resub_arr.pl "sbatch -a1-100 -Jsbeta1 jobfsim_kronos.sh DPMetac1_A_SLC1 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-180] ana 1300" $par
-./resub_arr.pl "sbatch -a1-100 -Jsbetb1 jobfsim_kronos.sh DPMetac1_B_SLC1 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-180] ana 1320" $par
+#./resub_arr.pl "sbatch -a1-100 -Jsbeta1 jobfsim_kronos.sh DPMetac1_A_SLC1 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-180] ana 1300" $par
+#./resub_arr.pl "sbatch -a1-100 -Jsbetb1 jobfsim_kronos.sh DPMetac1_B_SLC1 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-180] ana 1320" $par
 
-./resub_arr.pl "sbatch -a1-700 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100" $par
-./resub_arr.pl "sbatch -a1-700 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120" $par
+#./resub_arr.pl "sbatch -a1-700 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100" $par
+#./resub_arr.pl "sbatch -a1-700 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120" $par
 
-./resub_arr.pl "sbatch -a1-700 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200" $par
-./resub_arr.pl "sbatch -a1-700 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220" $par
+#./resub_arr.pl "sbatch -a1-700 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200" $par
+#./resub_arr.pl "sbatch -a1-700 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220" $par
 
 
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# FIRST ROUND
 # ---------------------------------------------------------------------------------------------------------------------------------
 
 #
 # ppb -> eta_c1 eta; eta_c1 -> chi_c1 pi0 pi0; chi_c1 -> J/psi gamma; J/psi -> e+ e- (BACKGROUND)
 #
 
-#sbatch -a1-100 -Jsbeta1 jobfsim_kronos.sh DPMetac1_A_SLC1 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-180] ana 1300
+./resub_arr.pl "sbatch -a1-100 -Jsbeta1 jobfsim_kronos.sh DPMetac1_A_SLC1 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-180] ana 1300" $par 
 ./resub_arr.pl "sbatch -a1-100 -Jsbeta2 jobfsim_kronos.sh DPMetac1_A_SLC2 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-158] ana 1301" $par
 ./resub_arr.pl "sbatch -a1-100 -Jsbeta3 jobfsim_kronos.sh DPMetac1_A_SLC3 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-135] ana 1302" $par
 ./resub_arr.pl "sbatch -a1-100 -Jsbeta4 jobfsim_kronos.sh DPMetac1_A_SLC4 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-113] ana 1303" $par
@@ -128,7 +131,7 @@ echo $par
 ./resub_arr.pl "sbatch -a1-100 -Jsbeta8 jobfsim_kronos.sh DPMetac1_A_SLC8 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-23]  ana 1307" $par
 ./resub_arr.pl "sbatch -a1-100 -Jsbeta9 jobfsim_kronos.sh DPMetac1_A_SLC9 1000000  DPM  -5.5 SetupA:Filter4:EMC[22-20] ana 1308" $par
                                                                                    
-#sbatch -a1-100 -Jsbetb1 jobfsim_kronos.sh DPMetac1_B_SLC1 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-180] ana 1320
+./resub_arr.pl "sbatch -a1-100 -Jsbetb1 jobfsim_kronos.sh DPMetac1_B_SLC1 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-180] ana 1320" $par 
 ./resub_arr.pl "sbatch -a1-100 -Jsbetb2 jobfsim_kronos.sh DPMetac1_B_SLC2 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-158] ana 1321" $par
 ./resub_arr.pl "sbatch -a1-100 -Jsbetb3 jobfsim_kronos.sh DPMetac1_B_SLC3 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-135] ana 1322" $par
 ./resub_arr.pl "sbatch -a1-100 -Jsbetb4 jobfsim_kronos.sh DPMetac1_B_SLC4 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-113] ana 1323" $par
@@ -138,15 +141,12 @@ echo $par
 ./resub_arr.pl "sbatch -a1-100 -Jsbetb8 jobfsim_kronos.sh DPMetac1_B_SLC8 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-23]  ana 1327" $par
 ./resub_arr.pl "sbatch -a1-100 -Jsbetb9 jobfsim_kronos.sh DPMetac1_B_SLC9 1000000  DPM  -5.5 SetupB:Filter4:EMC[22-20] ana 1328" $par
 
-
-# ---------------------------------------------------------------------------------------------------------------------------------
-# FIRST ROUND
 # ---------------------------------------------------------------------------------------------------------------------------------
 
 #
 # J/psi -> e+ e-; pbp -> J/psi pi+ pi- (BACKGROUND)
 #
-#sbatch -a1-350 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100
+./resub_arr.pl "sbatch -a1-350 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100" $par 
 ./resub_arr.pl "sbatch -a1-350 -Jsbjea2 jobfsim_kronos.sh DPMJee_A_SLC2 100000  DPM  -3.872 SetupA:Filter0:SLC[0-158] ana 1101" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjea3 jobfsim_kronos.sh DPMJee_A_SLC3 100000  DPM  -3.872 SetupA:Filter0:SLC[0-135] ana 1102" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjea4 jobfsim_kronos.sh DPMJee_A_SLC4 100000  DPM  -3.872 SetupA:Filter0:SLC[0-113] ana 1103" $par
@@ -156,7 +156,7 @@ echo $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjea8 jobfsim_kronos.sh DPMJee_A_SLC8 100000  DPM  -3.872 SetupA:Filter0:SLC[0-23]  ana 1107" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjea9 jobfsim_kronos.sh DPMJee_A_SLC9 100000  DPM  -3.872 SetupA:Filter0:EMC[22-20] ana 1108" $par
                                                                                                                                
-#sbatch -a1-350 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120                
+./resub_arr.pl "sbatch -a1-350 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120" $par                 
 ./resub_arr.pl "sbatch -a1-350 -Jsbjeb2 jobfsim_kronos.sh DPMJee_B_SLC2 100000  DPM  -3.872 SetupB:Filter0:SLC[0-158] ana 1121" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjeb3 jobfsim_kronos.sh DPMJee_B_SLC3 100000  DPM  -3.872 SetupB:Filter0:SLC[0-135] ana 1122" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjeb4 jobfsim_kronos.sh DPMJee_B_SLC4 100000  DPM  -3.872 SetupB:Filter0:SLC[0-113] ana 1123" $par
@@ -172,7 +172,7 @@ echo $par
 #
 # J/psi -> mu+ mu-; pbp -> J/psi pi+ pi- (BACKGROUND)
 #
-#sbatch -a1-350 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200
+./resub_arr.pl "sbatch -a1-350 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200" $par 
 ./resub_arr.pl "sbatch -a1-350 -Jsbjma2 jobfsim_kronos.sh DPMJmm_A_SLC2 100000  DPM  -3.872 SetupA:Filter1:SLC[0-158] ana 1201" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjma3 jobfsim_kronos.sh DPMJmm_A_SLC3 100000  DPM  -3.872 SetupA:Filter1:SLC[0-135] ana 1202" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjma4 jobfsim_kronos.sh DPMJmm_A_SLC4 100000  DPM  -3.872 SetupA:Filter1:SLC[0-113] ana 1203" $par
@@ -182,7 +182,7 @@ echo $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjma8 jobfsim_kronos.sh DPMJmm_A_SLC8 100000  DPM  -3.872 SetupA:Filter1:SLC[0-23]  ana 1207" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjma9 jobfsim_kronos.sh DPMJmm_A_SLC9 100000  DPM  -3.872 SetupA:Filter1:EMC[22-20] ana 1208" $par
                                                                                                                                
-#sbatch -a1-350 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220                
+./resub_arr.pl "sbatch -a1-350 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220" $par                 
 ./resub_arr.pl "sbatch -a1-350 -Jsbjmb2 jobfsim_kronos.sh DPMJmm_B_SLC2 100000  DPM  -3.872 SetupB:Filter1:SLC[0-158] ana 1221" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjmb3 jobfsim_kronos.sh DPMJmm_B_SLC3 100000  DPM  -3.872 SetupB:Filter1:SLC[0-135] ana 1222" $par
 ./resub_arr.pl "sbatch -a1-350 -Jsbjmb4 jobfsim_kronos.sh DPMJmm_B_SLC4 100000  DPM  -3.872 SetupB:Filter1:SLC[0-113] ana 1223" $par
@@ -198,10 +198,33 @@ echo $par
 # SECOND ROUND
 # ---------------------------------------------------------------------------------------------------------------------------------
 
+
+./resub_arr.pl "sbatch -a101-200 -Jsbeta1 jobfsim_kronos.sh DPMetac1_A_SLC1 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-180] ana 1300" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbeta2 jobfsim_kronos.sh DPMetac1_A_SLC2 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-158] ana 1301" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbeta3 jobfsim_kronos.sh DPMetac1_A_SLC3 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-135] ana 1302" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbeta4 jobfsim_kronos.sh DPMetac1_A_SLC4 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-113] ana 1303" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbeta5 jobfsim_kronos.sh DPMetac1_A_SLC5 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-90]  ana 1304" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbeta6 jobfsim_kronos.sh DPMetac1_A_SLC6 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-68]  ana 1305" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbeta7 jobfsim_kronos.sh DPMetac1_A_SLC7 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-45]  ana 1306" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbeta8 jobfsim_kronos.sh DPMetac1_A_SLC8 1000000  DPM  -5.5 SetupA:Filter4:SLC[0-23]  ana 1307" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbeta9 jobfsim_kronos.sh DPMetac1_A_SLC9 1000000  DPM  -5.5 SetupA:Filter4:EMC[22-20] ana 1308" $par
+                                                                                   
+./resub_arr.pl "sbatch -a101-200 -Jsbetb1 jobfsim_kronos.sh DPMetac1_B_SLC1 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-180] ana 1320" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbetb2 jobfsim_kronos.sh DPMetac1_B_SLC2 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-158] ana 1321" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbetb3 jobfsim_kronos.sh DPMetac1_B_SLC3 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-135] ana 1322" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbetb4 jobfsim_kronos.sh DPMetac1_B_SLC4 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-113] ana 1323" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbetb5 jobfsim_kronos.sh DPMetac1_B_SLC5 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-90]  ana 1324" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbetb6 jobfsim_kronos.sh DPMetac1_B_SLC6 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-68]  ana 1325" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbetb7 jobfsim_kronos.sh DPMetac1_B_SLC7 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-45]  ana 1326" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbetb8 jobfsim_kronos.sh DPMetac1_B_SLC8 1000000  DPM  -5.5 SetupB:Filter4:SLC[0-23]  ana 1327" $par
+./resub_arr.pl "sbatch -a101-200 -Jsbetb9 jobfsim_kronos.sh DPMetac1_B_SLC9 1000000  DPM  -5.5 SetupB:Filter4:EMC[22-20] ana 1328" $par
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+
 #
 # J/psi -> e+ e-; pbp -> J/psi pi+ pi- (BACKGROUND)
 #
-#sbatch -a351-700 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100
+./resub_arr.pl "sbatch -a351-700 -Jsbjea1 jobfsim_kronos.sh DPMJee_A_SLC1 100000  DPM  -3.872 SetupA:Filter0:SLC[0-180] ana 1100" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjea2 jobfsim_kronos.sh DPMJee_A_SLC2 100000  DPM  -3.872 SetupA:Filter0:SLC[0-158] ana 1101" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjea3 jobfsim_kronos.sh DPMJee_A_SLC3 100000  DPM  -3.872 SetupA:Filter0:SLC[0-135] ana 1102" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjea4 jobfsim_kronos.sh DPMJee_A_SLC4 100000  DPM  -3.872 SetupA:Filter0:SLC[0-113] ana 1103" $par
@@ -211,7 +234,7 @@ echo $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjea8 jobfsim_kronos.sh DPMJee_A_SLC8 100000  DPM  -3.872 SetupA:Filter0:SLC[0-23]  ana 1107" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjea9 jobfsim_kronos.sh DPMJee_A_SLC9 100000  DPM  -3.872 SetupA:Filter0:EMC[22-20] ana 1108" $par
                                                                                                                                  
-#sbatch -a351-700 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120                
+./resub_arr.pl "sbatch -a351-700 -Jsbjeb1 jobfsim_kronos.sh DPMJee_B_SLC1 100000  DPM  -3.872 SetupB:Filter0:SLC[0-180] ana 1120" $par              
 ./resub_arr.pl "sbatch -a351-700 -Jsbjeb2 jobfsim_kronos.sh DPMJee_B_SLC2 100000  DPM  -3.872 SetupB:Filter0:SLC[0-158] ana 1121" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjeb3 jobfsim_kronos.sh DPMJee_B_SLC3 100000  DPM  -3.872 SetupB:Filter0:SLC[0-135] ana 1122" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjeb4 jobfsim_kronos.sh DPMJee_B_SLC4 100000  DPM  -3.872 SetupB:Filter0:SLC[0-113] ana 1123" $par
@@ -227,7 +250,7 @@ echo $par
 #
 # J/psi -> mu+ mu-; pbp -> J/psi pi+ pi- (BACKGROUND)
 #
-#sbatch -a351-700 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200
+./resub_arr.pl "sbatch -a351-700 -Jsbjma1 jobfsim_kronos.sh DPMJmm_A_SLC1 100000  DPM  -3.872 SetupA:Filter1:SLC[0-180] ana 1200" $par 
 ./resub_arr.pl "sbatch -a351-700 -Jsbjma2 jobfsim_kronos.sh DPMJmm_A_SLC2 100000  DPM  -3.872 SetupA:Filter1:SLC[0-158] ana 1201" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjma3 jobfsim_kronos.sh DPMJmm_A_SLC3 100000  DPM  -3.872 SetupA:Filter1:SLC[0-135] ana 1202" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjma4 jobfsim_kronos.sh DPMJmm_A_SLC4 100000  DPM  -3.872 SetupA:Filter1:SLC[0-113] ana 1203" $par
@@ -237,7 +260,7 @@ echo $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjma8 jobfsim_kronos.sh DPMJmm_A_SLC8 100000  DPM  -3.872 SetupA:Filter1:SLC[0-23]  ana 1207" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjma9 jobfsim_kronos.sh DPMJmm_A_SLC9 100000  DPM  -3.872 SetupA:Filter1:EMC[22-20] ana 1208" $par
                                                                                                                                  
-#sbatch -a351-700 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220                
+./resub_arr.pl "sbatch -a351-700 -Jsbjmb1 jobfsim_kronos.sh DPMJmm_B_SLC1 100000  DPM  -3.872 SetupB:Filter1:SLC[0-180] ana 1220" $par                 
 ./resub_arr.pl "sbatch -a351-700 -Jsbjmb2 jobfsim_kronos.sh DPMJmm_B_SLC2 100000  DPM  -3.872 SetupB:Filter1:SLC[0-158] ana 1221" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjmb3 jobfsim_kronos.sh DPMJmm_B_SLC3 100000  DPM  -3.872 SetupB:Filter1:SLC[0-135] ana 1222" $par
 ./resub_arr.pl "sbatch -a351-700 -Jsbjmb4 jobfsim_kronos.sh DPMJmm_B_SLC4 100000  DPM  -3.872 SetupB:Filter1:SLC[0-113] ana 1223" $par
