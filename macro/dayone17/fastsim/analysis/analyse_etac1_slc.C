@@ -90,51 +90,75 @@ TH1F* createHistoGraph(TGraph *g, TString tit="", double xmin=0, double xmax=0)
 
 void analyse_etac1_slc(TString fname="ntp5_slc_etac1_A.root", TString cut="chi24c<50", int sigmode=300, TString tit="")
 {
-/*
-Found 244 files with pattern data/DPMetac1_A_EMC1 containing event info Sum of events = 781589138
-Found 243 files with pattern data/DPMetac1_A_EMC2 containing event info Sum of events = 778264034
-Found 247 files with pattern data/DPMetac1_A_EMC3 containing event info Sum of events = 791030134
-Found 244 files with pattern data/DPMetac1_A_EMC4 containing event info Sum of events = 781662143
-Found 248 files with pattern data/DPMetac1_A_EMC5 containing event info Sum of events = 794307759
-Found 243 files with pattern data/DPMetac1_A_EMC6 containing event info Sum of events = 778257467
-Found 242 files with pattern data/DPMetac1_A_EMC7 containing event info Sum of events = 775037895
-Found 242 files with pattern data/DPMetac1_A_EMC8 containing event info Sum of events = 775095496
---------------------
-Found 241 files with pattern data/DPMetac1_B_EMC1 containing event info Sum of events = 771776262
-Found 242 files with pattern data/DPMetac1_B_EMC2 containing event info Sum of events = 775016383
-Found 244 files with pattern data/DPMetac1_B_EMC3 containing event info Sum of events = 781427165
-Found 235 files with pattern data/DPMetac1_B_EMC4 containing event info Sum of events = 752754673
-Found 247 files with pattern data/DPMetac1_B_EMC5 containing event info Sum of events = 791054235
-Found 242 files with pattern data/DPMetac1_B_EMC6 containing event info Sum of events = 775064262
-Found 241 files with pattern data/DPMetac1_B_EMC7 containing event info Sum of events = 771961964
-Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of events = 781628321
-*/	
+	//---------------------------------------------------------------------------------------------------------------------------------
+	//Processing analyse_etac1_slc.C("ntp5_slc_etac1_A.root","chi24c<50",300, "Setup A, #bar{p}p#rightarrow#tilde{#eta_{c1}}#eta")...
+	//---------------------------------------------------------------------------------------------------------------------------------
+	 //i  |    S0    |     B0     |     S    |    B   |    fS    |    fB     |    S*   |    B*   |
+	//----+----------+------------+----------+--------+----------+-----------+---------+---------+
+	 //0  |  100000  |   2.691 G  |   17743  |    17  |  0.0098  |  95.2150  |    173  |   1619  |
+	 //8  |  100000  |   2.690 G  |     142  |     4  |  0.0098  |  95.2268  |      1  |    381  |
+	//---------------------------------------------------------------------------------------------------------------------------------
+	//Processing analyse_etac1_slc.C("ntp5_slc_etac1_B.root","chi24c<50",320, "Setup B, #bar{p}p#rightarrow#tilde{#eta_{c1}}#eta")...
+	//----+----------+------------+----------+--------+----------+-----------+---------+---------+
+	 //0  |  100000  |   2.675 G  |    3503  |    11  |  0.0098  |  95.7917  |     34  |   1054  |
+	 //8  |  100000  |   2.819 G  |       2  |     1  |  0.0098  |  90.8956  |      0  |     91  |
+	//######################################################################
+	//---------------------------------------------------------------------------------------------------------------------------------
+	//Processing analyse_etac1.C("ntp5_etac1_A.root","chi24c<50",300, "Setup A, #bar{p}p#rightarrow#tilde{#eta_{c1}}#eta")...
+	//---------------------------------------------------------------------------------------------------------------------------------
+	 //i  |    S0    |     B0     |     S    |    B   |    fS    |    fB     |    S*   |    B*   |
+	//----+----------+------------+----------+--------+----------+-----------+---------+---------+
+	 //0  |  100000  |   2.866 G  |   17744  |    12  |  0.0098  |  89.3904  |    173  |   1073  |
+	 //7  |  100000  |   2.706 G  |     131  |     1  |  0.0098  |  94.6622  |      1  |     95  |
+	//---------------------------------------------------------------------------------------------------------------------------------
+	//Processing analyse_etac1.C("ntp5_etac1_B.root","chi24c<50",320, "Setup B, #bar{p}p#rightarrow#tilde{#eta_{c1}}#eta")...
+	//----+----------+------------+----------+--------+----------+-----------+---------+---------+
+	 //0  |  100000  |   2.931 G  |    3617  |    14  |  0.0098  |  87.4188  |     35  |   1224  |
+	 //7  |  100000  |   2.739 G  |       5  |     1  |  0.0098  |  93.5508  |      0  |     94  |
 
-	//data/DPMetac1_A_SLC1      (  82/ 100 files) =   1313354597
-	//data/DPMetac1_A_SLC2      (  86/ 100 files) =   1377489004
-	//data/DPMetac1_A_SLC3      (  85/ 100 files) =   1361147492
-	//data/DPMetac1_A_SLC4      (  87/ 100 files) =   1393104477
-	//data/DPMetac1_A_SLC5      (  86/ 100 files) =   1377270184
-	//data/DPMetac1_A_SLC6      (  86/  98 files) =   1376947715
-	//data/DPMetac1_A_SLC7      (  84/  96 files) =   1345215200
-	//data/DPMetac1_A_SLC8      (  83/  95 files) =   1328843629
-	//data/DPMetac1_A_SLC9      (  83/ 100 files) =   1329393334
+	//data/DPMetac1_A_SLC1      ( 168/ 200 files) =   2690752186
+	//data/DPMetac1_A_SLC2      ( 182/ 200 files) =   2914674237
+	//data/DPMetac1_A_SLC3      ( 174/ 200 files) =   2786406995
+	//data/DPMetac1_A_SLC4      ( 171/ 200 files) =   2738298947
+	//data/DPMetac1_A_SLC5      ( 176/ 200 files) =   2818739807
+	//data/DPMetac1_A_SLC6      ( 179/ 200 files) =   2866193988
+	//data/DPMetac1_A_SLC7      ( 169/ 200 files) =   2706488227
+	//data/DPMetac1_A_SLC8      ( 175/ 200 files) =   2801957793
+	//data/DPMetac1_A_SLC9      ( 168/ 200 files) =   2690419363
 	//--------------------
-	//data/DPMetac1_B_SLC1      (  87/ 100 files) =   1393415089
-	//data/DPMetac1_B_SLC2      (  89/ 100 files) =   1425022249
-	//data/DPMetac1_B_SLC3      (  84/ 100 files) =   1345470462
-	//data/DPMetac1_B_SLC4      (  82/  99 files) =   1313202603
-	//data/DPMetac1_B_SLC5      (  86/ 100 files) =   1377424566
-	//data/DPMetac1_B_SLC6      (  81/  97 files) =   1297113544
-	//data/DPMetac1_B_SLC7      (  87/  98 files) =   1393303719
-	//data/DPMetac1_B_SLC8      (  84/ 100 files) =   1345397603
-	//data/DPMetac1_B_SLC9      (  86/  98 files) =   1377182415
+	//data/DPMetac1_B_SLC1      ( 167/ 200 files) =   2674554579
+	//data/DPMetac1_B_SLC2      ( 172/ 200 files) =   2754101731
+	//data/DPMetac1_B_SLC3      ( 172/ 200 files) =   2754649841
+	//data/DPMetac1_B_SLC4      ( 171/ 200 files) =   2738459876
+	//data/DPMetac1_B_SLC5      ( 177/ 200 files) =   2834829596
+	//data/DPMetac1_B_SLC6      ( 173/ 200 files) =   2770416159
+	//data/DPMetac1_B_SLC7      ( 175/ 200 files) =   2802568964
+	//data/DPMetac1_B_SLC8      ( 174/ 200 files) =   2786802048
+	//data/DPMetac1_B_SLC9      ( 176/ 200 files) =   2818616809
 
 	std::map<long int,long int> evcnts = 
-                           { {1300, 1313354597}, {1301, 1377489004}, {1302, 1361147492}, {1303, 1393104477}, {1304, 1377270184}, {1305, 1376947715}, {1306, 1345215200}, {1307, 1328843629}, {1308, 1329393334},   // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
-		                     {1320, 1393415089}, {1321, 1425022249}, {1322, 1345470462}, {1323, 1313202603}, {1324, 1377424566}, {1325, 1297113544}, {1326, 1393303719}, {1327, 1345397603}, {1328, 1377182415}
+                           { {1300, 2690752186}, {1301, 2914674237}, {1302, 2786406995}, {1303, 2738298947}, {1304, 2818739807}, {1305, 2866193988}, {1306, 2706488227}, {1307, 2801957793}, {1308, 2690419363},   // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
+		                     {1320, 2674554579}, {1321, 2754101731}, {1322, 2754649841}, {1323, 2738459876}, {1324,2834829596 }, {1325, 2770416159}, {1326, 2802568964}, {1327, 2786802048}, {1328, 2818616809}
 		                     };
-		 
+
+
+	// we merge the values at 0% and 100% from both studies by hand...
+	// **** from theta study
+	//data/DPMetac1_A_EMC1      ( 179/ 199 files) =   2866079091
+	//data/DPMetac1_A_EMC8      ( 169/ 199 files) =   2706466096
+	//--------------------
+	//data/DPMetac1_B_EMC1      ( 183/ 198 files) =   2930718917
+	//data/DPMetac1_B_EMC8      ( 171/ 198 files) =   2738620309
+	
+	evcnts[1300] += 2866079091;
+	evcnts[1320] += 2706466096;
+	evcnts[1308] += 2930718917;
+	evcnts[1328] += 2738620309;
+	
+	std::map<long int,long int> mrgB = 
+                           { {1300, 17+12},  {1308, 4+1},   
+		                     {1320, 11+14},  {1328, 1+1}
+		                     };
 		                 
 	//for ( auto x:evcnts) cout <<"mode "<<x.first<<" : "<<x.second<<endl;
 	//cout <<endl;
@@ -178,10 +202,10 @@ Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of e
 	TCanvas *c1 = new TCanvas("c1","c1",1000,800);
 	c1->Divide(2,2,0.0001,0.0001);
 	
-	double sig_S = 50;
+	double sig_S = 20;
 	double sig_B = 42e6;
 	
-	double Lint  = 1220*10;
+	double Lint  = 1220*5;
 	double fBR   = 0.06*0.339*0.394;  // BR_J * BR_chic * BR_eta
 	
 	double S_dat = sig_S * fBR * Lint;
@@ -189,12 +213,14 @@ Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of e
 		
 	cout <<"S:B = "<<S_dat/B_dat<<"  mode_S="<<sigmode<<"  mode_B="<<bkgmode<<endl; 
 	
+	printf (" i  |    S0    |     B0     |     S    |    B   |    fS    |    fB     |    S*   |    B*   |\n");
+	printf ("----+----------+------------+----------+--------+----------+-----------+---------+---------+\n");
 	for (int i=0;i<Nred;++i)
 	{
 		long int S0 = 1e5;
-		long int B0 = evcnts[sigmode+i+1000];
+		long int B0 =evcnts[sigmode+i+1000];
 	
-		cout <<"S0 = "<<S0<<"  B0 = "<<B0<<endl;
+		//cout <<"S0 = "<<S0<<"  B0 = "<<B0<<endl;
 		
 		double fS = S_dat/S0;
 		double fB = B_dat/B0;
@@ -204,11 +230,14 @@ Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of e
 		
 		
 		double S  = (double) cntEvt(t, sigcut);
-		double B  = (double) cntEvt(t, bkgcut)+1;
+		double B  = (double) (mrgB.find(sigmode+i+1000) == mrgB.end() ? cntEvt(t, bkgcut)+1 : mrgB[sigmode+i+1000]);
+		
+		(double) cntEvt(t, bkgcut)+1;
 		double dS = sqrt(S);
 		double dB = sqrt(B);
 
-		cout <<i<<":  S="<<S<<"  B="<<B<<"  -->  S*"<<fS<<"="<<S*fS<<"  B*"<<fB<<"="<<B*fB<<endl;
+		printf("%2d  |  %6ld  |  %6.3f G  |  %6d  |  %4d  |  %6.4f  |  %6.4f  |  %5.0f  |  %5.0f  |\n", i, S0, (double)B0/1e9, (int)S, (int)B, fS, fB, S*fS, B*fB);
+		//cout <<i<<":  S="<<S<<"  B="<<B<<"  -->  S*"<<fS<<"="<<S*fS<<"  B*"<<fB<<"="<<B*fB<<endl;
 		
 		double SN  = S*fS/(B*fB);
 		double dSN = SN*sqrt(dS*dS/(S*S) + dB*dB/(B*B));
@@ -286,4 +315,48 @@ Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of e
 	fana.Close();
 }
 
+/*
+Found 244 files with pattern data/DPMetac1_A_EMC1 containing event info Sum of events = 781589138
+Found 243 files with pattern data/DPMetac1_A_EMC2 containing event info Sum of events = 778264034
+Found 247 files with pattern data/DPMetac1_A_EMC3 containing event info Sum of events = 791030134
+Found 244 files with pattern data/DPMetac1_A_EMC4 containing event info Sum of events = 781662143
+Found 248 files with pattern data/DPMetac1_A_EMC5 containing event info Sum of events = 794307759
+Found 243 files with pattern data/DPMetac1_A_EMC6 containing event info Sum of events = 778257467
+Found 242 files with pattern data/DPMetac1_A_EMC7 containing event info Sum of events = 775037895
+Found 242 files with pattern data/DPMetac1_A_EMC8 containing event info Sum of events = 775095496
+--------------------
+Found 241 files with pattern data/DPMetac1_B_EMC1 containing event info Sum of events = 771776262
+Found 242 files with pattern data/DPMetac1_B_EMC2 containing event info Sum of events = 775016383
+Found 244 files with pattern data/DPMetac1_B_EMC3 containing event info Sum of events = 781427165
+Found 235 files with pattern data/DPMetac1_B_EMC4 containing event info Sum of events = 752754673
+Found 247 files with pattern data/DPMetac1_B_EMC5 containing event info Sum of events = 791054235
+Found 242 files with pattern data/DPMetac1_B_EMC6 containing event info Sum of events = 775064262
+Found 241 files with pattern data/DPMetac1_B_EMC7 containing event info Sum of events = 771961964
+Found 244 files with pattern data/DPMetac1_B_EMC8 containing event info Sum of events = 781628321
+*/	
 
+	//data/DPMetac1_A_SLC1      (  82/ 100 files) =   1313354597
+	//data/DPMetac1_A_SLC2      (  86/ 100 files) =   1377489004
+	//data/DPMetac1_A_SLC3      (  85/ 100 files) =   1361147492
+	//data/DPMetac1_A_SLC4      (  87/ 100 files) =   1393104477
+	//data/DPMetac1_A_SLC5      (  86/ 100 files) =   1377270184
+	//data/DPMetac1_A_SLC6      (  86/  98 files) =   1376947715
+	//data/DPMetac1_A_SLC7      (  84/  96 files) =   1345215200
+	//data/DPMetac1_A_SLC8      (  83/  95 files) =   1328843629
+	//data/DPMetac1_A_SLC9      (  83/ 100 files) =   1329393334
+	//--------------------
+	//data/DPMetac1_B_SLC1      (  87/ 100 files) =   1393415089
+	//data/DPMetac1_B_SLC2      (  89/ 100 files) =   1425022249
+	//data/DPMetac1_B_SLC3      (  84/ 100 files) =   1345470462
+	//data/DPMetac1_B_SLC4      (  82/  99 files) =   1313202603
+	//data/DPMetac1_B_SLC5      (  86/ 100 files) =   1377424566
+	//data/DPMetac1_B_SLC6      (  81/  97 files) =   1297113544
+	//data/DPMetac1_B_SLC7      (  87/  98 files) =   1393303719
+	//data/DPMetac1_B_SLC8      (  84/ 100 files) =   1345397603
+	//data/DPMetac1_B_SLC9      (  86/  98 files) =   1377182415
+
+	//std::map<long int,long int> evcnts = 
+                           //{ {1300, 1313354597}, {1301, 1377489004}, {1302, 1361147492}, {1303, 1393104477}, {1304, 1377270184}, {1305, 1376947715}, {1306, 1345215200}, {1307, 1328843629}, {1308, 1329393334},   // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
+		                     //{1320, 1393415089}, {1321, 1425022249}, {1322, 1345470462}, {1323, 1313202603}, {1324, 1377424566}, {1325, 1297113544}, {1326, 1393303719}, {1327, 1345397603}, {1328, 1377182415}
+		                     //};
+		 

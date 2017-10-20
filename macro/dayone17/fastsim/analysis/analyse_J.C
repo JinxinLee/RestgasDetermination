@@ -90,6 +90,200 @@ TH1F* createHistoGraph(TGraph *g, TString tit="", double xmin=0, double xmax=0)
 
 void analyse_J(TString fname="ntp1_Jee_A.root", TString cut="xd0d0pide>0.5&&xd0d1pide>0.5&&chi24c<50", int sigmode=100, TString tit="")
 {
+	//data/DPMJee_A_EMC1        ( 421/ 423 files) =  24342651889
+	//data/DPMJee_A_EMC2        ( 412/ 413 files) =  23723523588
+	//data/DPMJee_A_EMC3        ( 392/ 394 files) =  21921465124
+	//data/DPMJee_A_EMC4        ( 382/ 386 files) =  21192161015
+	//data/DPMJee_A_EMC5        ( 379/ 380 files) =  20899111775
+	//data/DPMJee_A_EMC6        ( 382/ 383 files) =  21264224163
+	//data/DPMJee_A_EMC7        ( 391/ 394 files) =  21918977223
+	//data/DPMJee_A_EMC8        ( 371/ 375 files) =  20327238649
+	//--------------------
+	//data/DPMJee_B_EMC1        ( 383/ 386 files) =  21266925718
+	//data/DPMJee_B_EMC2        ( 388/ 392 files) =  21721036293
+	//data/DPMJee_B_EMC3        ( 381/ 383 files) =  21144322234
+	//data/DPMJee_B_EMC4        ( 373/ 375 files) =  20364376890
+	//data/DPMJee_B_EMC5        ( 379/ 379 files) =  20899648526
+	//data/DPMJee_B_EMC6        ( 387/ 389 files) =  21667979271
+	//data/DPMJee_B_EMC7        ( 393/ 397 files) =  22088200372
+	//data/DPMJee_B_EMC8        ( 383/ 386 files) =  21308984620
+	//--------------------
+	//--------------------
+	//data/DPMJmm_A_EMC1        ( 403/ 406 files) =  20850842535
+	//data/DPMJmm_A_EMC2        ( 398/ 399 files) =  20440294344
+	//data/DPMJmm_A_EMC3        ( 392/ 394 files) =  20333763226
+	//data/DPMJmm_A_EMC4        ( 361/ 362 files) =  18321499510
+	//data/DPMJmm_A_EMC5        ( 343/ 343 files) =  16868152786
+	//data/DPMJmm_A_EMC6        ( 336/ 338 files) =  16530666389
+	//data/DPMJmm_A_EMC7        ( 329/ 329 files) =  15753960106
+	//data/DPMJmm_A_EMC8        ( 316/ 317 files) =  14926218316
+	//--------------------
+	//data/DPMJmm_B_EMC1        ( 332/ 333 files) =  15939265122
+	//data/DPMJmm_B_EMC2        ( 330/ 333 files) =  15935942596
+	//data/DPMJmm_B_EMC3        ( 327/ 328 files) =  15490042463
+	//data/DPMJmm_B_EMC4        ( 237/ 238 files) =   8823408092
+	//data/DPMJmm_B_EMC5        ( 236/ 237 files) =   8789625908
+	//data/DPMJmm_B_EMC6        ( 236/ 236 files) =   8787703243
+	//data/DPMJmm_B_EMC7        ( 235/ 235 files) =   8748201639
+	//data/DPMJmm_B_EMC8        ( 232/ 232 files) =   8639730623
+	
+	std::map<long int,long int> evcnts = 
+                           { {1100,24342651889}, {1101,23723523588}, {1102,21921465124},  {1103,21192161015}, {1104,20899111775}, {1105,21264224163}, {1106,21918977223}, {1107,20327238649},    // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
+		                     {1120,21266925718}, {1121,21721036293}, {1122,21144322234}, {1123,20364376890}, {1124,20899648526}, {1125,21667979271}, {1126,22088200372},  {1127,21308984620},    // Setup B, pbp -> J/psi (-> e+ e-) pi+ pi-  //FIXME modes 1120 ...
+		                 
+		                     {1200,8821819045}, {1201,9010185209}, {1202,7969422935},  {1203,8081829652}, {1204,7707163073}, {1205,7482700194}, {1206,7781565342},  {1207,7967077007},    // Setup A, pbp -> J/psi (-> mu+ mu-) pi+ pi- 
+		                     {1220,8229011119}, {1221,7705315505}, {1222,8043282415},  {1223,7780855820}, {1224,8230265044}, {1225,8005672265}, {1226,7407676699},  {1227,7932457375}     // Setup B, pbp -> J/psi (-> mu+ mu-) pi+ pi-  //FIXME modes 1220...
+		                     };
+		 
+		                 
+	//for ( auto x:evcnts) cout <<"mode "<<x.first<<" : "<<x.second<<endl;
+	//cout <<endl;
+		                 
+	int bkgmode = sigmode+1000;
+	//if (sigmode%100>19) bkgmode+=1;
+	
+	TFile *f = new TFile(fname);
+	TTree *t = (TTree*)f->Get("ntp1");
+	
+	TFile fana("anaJ.root","UPDATE");
+
+	TGraphErrors *g[4];
+	g[0] = new TGraphErrors(8);
+	g[1] = new TGraphErrors(8);
+	g[2] = new TGraphErrors(8); 
+	g[3] = new TGraphErrors(8); 
+	
+	confgraph(g[0], "signal to noise");
+	confgraph(g[1], "significance");
+	confgraph(g[2], "signal efficiency");
+	confgraph(g[3], "background efficiency");
+	
+	TF1 *f1=new TF1("f1","0.5*[0]*(1.0-TMath::Erf((x-[1])/[2]))+[3]",0,100.);	
+	f1->SetParLimits(2,15,100);	
+	
+	// -------------------------------------------------------------------
+	// Supermodul              |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
+	// num Alveolen in theta   |  1  |  3  |  3  |  3  |  3  |  3  |  2  |
+	// coverage from 22 to     |140.0|133.4|113.8| 94.1| 74.4| 54.8| 35.1|
+	// -------------------------------------------------------------------
+
+	// missing fraction in [%] of EMC = [ 1.0 - (tht_max - 22°)/118° ]* 100
+	double emc_rmv[8] =    {   0.,   6.,  23.,  39.,  56.,  72.,  89., 100.};
+
+	//TString lab[4] = { ";supermodules missing;S/B", ";supermodules missing;significance [#sigma]", ";supermodules missing;signal efficiency [%]", ";supermodules missing;background efficiency [%]"};
+	TString lab[4] = {  ";EMC missing (polar #theta) [%];signal efficiency [%]", ";EMC missing (polar #theta) [%];background efficiency [%]", ";EMC missing (polar #theta) [%];S/B", ";EMC missing (polar #theta) [%];significance [#sigma]"};
+	
+	
+	TCanvas *c1 = new TCanvas("c1","c1",1000,800);
+	c1->Divide(2,2,0.0001,0.0001);
+	
+	double sig_S = 50;
+	double sig_B = 46e6;
+	
+	double Lint  = 1170*2;
+	double fBR   = 0.05*0.06;
+	
+	double S_dat = sig_S * fBR * Lint;
+	double B_dat = sig_B * Lint;
+		
+	cout <<"S:B = "<<S_dat/B_dat<<"  mode_S="<<sigmode<<"  mode_B="<<bkgmode<<endl; 
+	
+	printf (" i  |    S0    |     B0     |     S    |    B    |    fS    |     fB     |    S*   |    B*   |\n");
+	printf ("----+----------+------------+----------+---------+----------+------------+---------+---------+\n");
+	for (int i=0;i<8;++i)
+	{
+		long int S0 = 1e5;
+		long int B0 = evcnts[sigmode+i+1000];
+	
+		//cout <<"S0 = "<<S0<<"  B0 = "<<B0<<endl;
+		
+		double fS = S_dat/S0;
+		double fB = B_dat/B0;
+		
+		TString sigcut = Form("%s && mode==%d", cut.Data(), sigmode+i);
+		TString bkgcut = Form("%s && mode==%d", cut.Data(), bkgmode+i);
+		
+		
+		double S  = (double) cntEvt(t, sigcut);
+		double B  = (double) cntEvt(t, bkgcut);
+		double dS = sqrt(S);
+		double dB = sqrt(B);
+
+		printf("%2d  |  %6ld  |  %6.3f G  |  %6d  |  %5d  |  %6.4f  |  %7.4f  |  %5.0f  |  %5.0f  |\n", i, S0, (double)B0/1e9, (int)S, (int)B, fS, fB, S*fS, B*fB);
+		//cout <<i<<":  S="<<S<<"  B="<<B<<"  -->  S*"<<fS<<"="<<S*fS<<"  B*"<<fB<<"="<<B*fB<<endl;
+		
+		double SN  = S*fS/(B*fB);
+		double dSN = SN*sqrt(dS*dS/(S*S) + dB*dB/(B*B));
+		
+		g[2]->SetPoint(i, emc_rmv[i], SN);
+		g[2]->SetPointError(i, 0, dSN);
+		
+		
+		double Z  = S*fS/sqrt(S*fS+B*fB);
+		double dZ = 0.5 * sqrt( ((fS*fS*S+2*fB*fS*B)*(fS*fS*S+2*fB*fS*B)*S + fS*fS*fB*fB*S*S*B)/pow(fS*S+fB*B,3)) ;//0.5 * sqrt( (pow(2*B*fB + S*fS,2)*S + fS*fS*S*S*B)/pow(fS*S+fB*B,3));
+		
+		g[3]->SetPoint(i, emc_rmv[i], Z);
+		g[3]->SetPointError(i, 0, dZ);
+		
+		
+		double effS  = S/S0;
+		double deffS = effS*sqrt( 1./S + 1./S0 ); 
+		
+		g[0]->SetPoint(i, emc_rmv[i], effS*100.);
+		g[0]->SetPointError(i, 0, deffS*100.);
+		
+		
+		double effB  = B/B0;
+		double deffB = effB*sqrt( 1./B + 1./B0 ); 
+		
+		g[1]->SetPoint(i, emc_rmv[i], effB*100.);
+		g[1]->SetPointError(i, 0, deffB*100.);
+	}	
+	
+	TH1F *h[4];
+	
+	gStyle->SetOptFit(0);
+	gStyle->SetOptStat(0);
+	
+	TString plotnam[4]={"effs","effb","sn","sign"};
+	
+	for (int i=0;i<4;++i) 
+	{
+		c1->cd(i+1);
+		h[i] = createHistoGraph(g[i],tit+lab[i]);
+		h[i]->Draw();
+		g[i]->Draw("P same");
+		
+		f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),70, 10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
+		if (i==1)
+		{
+			f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),120, -10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
+			f1->SetParLimits(1,110,200);
+		}	
+		
+		
+		//if (i<3) 
+		g[i]->Fit("f1","q");
+		//else g[i]->Fit("f2");
+		g[i]->SetName(plotnam[i]+"_"+((TString)fname(5,5)));
+		g[i]->Write();
+	}
+	
+	fname.ReplaceAll(".root","");
+	cut.ReplaceAll("&&","_AND_");
+	cut.ReplaceAll("||","_OR_");
+	cut.ReplaceAll("!","_NOT_");
+	cut.ReplaceAll(">","_lg_");
+	cut.ReplaceAll("<","_sm_");
+	cut.ReplaceAll(".","_");
+	
+	c1->SaveAs(Form("fig/%s__%03d__%s.gif",fname.Data(), sigmode, cut.Data()));
+	c1->SaveAs(Form("fig/%s__%03d__%s.C",fname.Data(), sigmode, cut.Data()));
+	
+	fana.Close();
+}
+
+
 /*
 Found 421 files with pattern data/DPMJee_A_EMC1 containing event info Sum of events = 24342651889
 Found 412 files with pattern data/DPMJee_A_EMC2 containing event info Sum of events = 23723523588
@@ -165,158 +359,3 @@ Found 215 files with pattern data/DPMJmm_B_EMC6 Sum of events = 8005672265
 Found 199 files with pattern data/DPMJmm_B_EMC7 Sum of events = 7407676699
 Found 213 files with pattern data/DPMJmm_B_EMC8 Sum of events = 7932457375
 */	
-	
-	std::map<long int,long int> evcnts = 
-                           { {1100,24342651889}, {1101,23723523588}, {1102,21921465124},  {1103,21192161015}, {1104,20899111775}, {1105,21264224163}, {1106,21918977223}, {1107,20327238649},    // Setup A, pbp -> J/psi (-> e+ e-) pi+ pi-
-		                     {1120,21266925718}, {1121,21721036293}, {1122,21144322234}, {1123,20364376890}, {1124,20899648526}, {1125,21667979271}, {1126,22088200372},  {1127,21308984620},    // Setup B, pbp -> J/psi (-> e+ e-) pi+ pi-  //FIXME modes 1120 ...
-		                 
-		                     {1200,8821819045}, {1201,9010185209}, {1202,7969422935},  {1203,8081829652}, {1204,7707163073}, {1205,7482700194}, {1206,7781565342},  {1207,7967077007},    // Setup A, pbp -> J/psi (-> mu+ mu-) pi+ pi- 
-		                     {1220,8229011119}, {1221,7705315505}, {1222,8043282415},  {1223,7780855820}, {1224,8230265044}, {1225,8005672265}, {1226,7407676699},  {1227,7932457375}     // Setup B, pbp -> J/psi (-> mu+ mu-) pi+ pi-  //FIXME modes 1220...
-		                     };
-		 
-		                 
-	//for ( auto x:evcnts) cout <<"mode "<<x.first<<" : "<<x.second<<endl;
-	//cout <<endl;
-		                 
-	int bkgmode = sigmode+1000;
-	//if (sigmode%100>19) bkgmode+=1;
-	
-	TFile *f = new TFile(fname);
-	TTree *t = (TTree*)f->Get("ntp1");
-	
-	TFile fana("anaJ.root","UPDATE");
-
-	TGraphErrors *g[4];
-	g[0] = new TGraphErrors(8);
-	g[1] = new TGraphErrors(8);
-	g[2] = new TGraphErrors(8); 
-	g[3] = new TGraphErrors(8); 
-	
-	confgraph(g[0], "signal to noise");
-	confgraph(g[1], "significance");
-	confgraph(g[2], "signal efficiency");
-	confgraph(g[3], "background efficiency");
-	
-	TF1 *f1=new TF1("f1","0.5*[0]*(1.0-TMath::Erf((x-[1])/[2]))+[3]",0,100.);	
-	f1->SetParLimits(2,15,100);	
-	
-	// -------------------------------------------------------------------
-	// Supermodul              |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
-	// num Alveolen in theta   |  1  |  3  |  3  |  3  |  3  |  3  |  2  |
-	// coverage from 22 to     |140.0|133.4|113.8| 94.1| 74.4| 54.8| 35.1|
-	// -------------------------------------------------------------------
-
-	// missing fraction in [%] of EMC = [ 1.0 - (tht_max - 22°)/118° ]* 100
-	double emc_rmv[8] =    {   0.,   6.,  23.,  39.,  56.,  72.,  89., 100.};
-
-	//TString lab[4] = { ";supermodules missing;S/B", ";supermodules missing;significance [#sigma]", ";supermodules missing;signal efficiency [%]", ";supermodules missing;background efficiency [%]"};
-	TString lab[4] = {  ";EMC missing (polar #theta) [%];signal efficiency [%]", ";EMC missing (polar #theta) [%];background efficiency [%]", ";EMC missing (polar #theta) [%];S/B", ";EMC missing (polar #theta) [%];significance [#sigma]"};
-	
-	
-	TCanvas *c1 = new TCanvas("c1","c1",1000,800);
-	c1->Divide(2,2,0.0001,0.0001);
-	
-	double sig_S = 50;
-	double sig_B = 46e6;
-	
-	double Lint  = 1170*2;
-	double fBR   = 0.05*0.06;
-	
-	double S_dat = sig_S * fBR * Lint;
-	double B_dat = sig_B * Lint;
-		
-	cout <<"S:B = "<<S_dat/B_dat<<"  mode_S="<<sigmode<<"  mode_B="<<bkgmode<<endl; 
-	
-	for (int i=0;i<8;++i)
-	{
-		long int S0 = 1e5;
-		long int B0 = evcnts[sigmode+i+1000];
-	
-		cout <<"S0 = "<<S0<<"  B0 = "<<B0<<endl;
-		
-		double fS = S_dat/S0;
-		double fB = B_dat/B0;
-		
-		TString sigcut = Form("%s && mode==%d", cut.Data(), sigmode+i);
-		TString bkgcut = Form("%s && mode==%d", cut.Data(), bkgmode+i);
-		
-		
-		double S  = (double) cntEvt(t, sigcut);
-		double B  = (double) cntEvt(t, bkgcut);
-		double dS = sqrt(S);
-		double dB = sqrt(B);
-
-		cout <<i<<":  S="<<S<<"  B="<<B<<"  -->  S*"<<fS<<"="<<S*fS<<"  B*"<<fB<<"="<<B*fB<<endl;
-		
-		double SN  = S*fS/(B*fB);
-		double dSN = SN*sqrt(dS*dS/(S*S) + dB*dB/(B*B));
-		
-		g[2]->SetPoint(i, emc_rmv[i], SN);
-		g[2]->SetPointError(i, 0, dSN);
-		
-		
-		double Z  = S*fS/sqrt(S*fS+B*fB);
-		double dZ = 0.5 * sqrt( ((fS*fS*S+2*fB*fS*B)*(fS*fS*S+2*fB*fS*B)*S + fS*fS*fB*fB*S*S*B)/pow(fS*S+fB*B,3)) ;//0.5 * sqrt( (pow(2*B*fB + S*fS,2)*S + fS*fS*S*S*B)/pow(fS*S+fB*B,3));
-		
-		g[3]->SetPoint(i, emc_rmv[i], Z);
-		g[3]->SetPointError(i, 0, dZ);
-		
-		
-		double effS  = S/S0;
-		double deffS = effS*sqrt( 1./S + 1./S0 ); 
-		
-		g[0]->SetPoint(i, emc_rmv[i], effS*100.);
-		g[0]->SetPointError(i, 0, deffS*100.);
-		
-		
-		double effB  = B/B0;
-		double deffB = effB*sqrt( 1./B + 1./B0 ); 
-		
-		g[1]->SetPoint(i, emc_rmv[i], effB*100.);
-		g[1]->SetPointError(i, 0, deffB*100.);
-	}	
-	
-	TH1F *h[4];
-	
-	gStyle->SetOptFit(0);
-	gStyle->SetOptStat(0);
-	
-	TString plotnam[4]={"effs","effb","sn","sign"};
-	
-	for (int i=0;i<4;++i) 
-	{
-		c1->cd(i+1);
-		h[i] = createHistoGraph(g[i],tit+lab[i]);
-		h[i]->Draw();
-		g[i]->Draw("P same");
-		
-		f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),70, 10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
-		if (i==1)
-		{
-			f1->SetParameters(TMath::MaxElement(g[i]->GetN(), g[i]->GetY()),120, -10, TMath::MinElement(g[i]->GetN(), g[i]->GetY()));
-			f1->SetParLimits(1,110,200);
-		}	
-		
-		
-		//if (i<3) 
-		g[i]->Fit("f1","q");
-		//else g[i]->Fit("f2");
-		g[i]->SetName(plotnam[i]+"_"+((TString)fname(5,5)));
-		g[i]->Write();
-	}
-	
-	fname.ReplaceAll(".root","");
-	cut.ReplaceAll("&&","_AND_");
-	cut.ReplaceAll("||","_OR_");
-	cut.ReplaceAll("!","_NOT_");
-	cut.ReplaceAll(">","_lg_");
-	cut.ReplaceAll("<","_sm_");
-	cut.ReplaceAll(".","_");
-	
-	c1->SaveAs(Form("fig/%s__%03d__%s.gif",fname.Data(), sigmode, cut.Data()));
-	c1->SaveAs(Form("fig/%s__%03d__%s.C",fname.Data(), sigmode, cut.Data()));
-	
-	fana.Close();
-}
-
-

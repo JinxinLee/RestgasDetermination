@@ -11,7 +11,7 @@ void confgraph(TGraph *g, TString tit, int col=1, int marker=20, double shift=0.
 	g->SetMarkerSize(1.5);
 	g->SetLineWidth(2);
 	
-	TF1 *f1 = g->GetFunction("f1");
+	TF1 *f1 = (TF1*)g->GetListOfFunctions()->At(0);//("f1");
 	
 	if (f1)
 	{
@@ -31,7 +31,8 @@ void confgraph(TGraph *g, TString tit, int col=1, int marker=20, double shift=0.
 
 // --------------------------------------------------------------------
 
-TH1F* createHistoGraph(TGraph *g, TString tit="", double xmin=0, double xmax=0)
+
+TH1F* createHistoGraph(TGraph *g, TString tit="", double yymax=0, double xmin=0, double xmax=0)
 {
 	static int cnt=0;
 	if (tit=="") tit=g->GetTitle();
@@ -52,7 +53,8 @@ TH1F* createHistoGraph(TGraph *g, TString tit="", double xmin=0, double xmax=0)
 	h->GetYaxis()->SetTitleSize(0.05);
 	h->GetYaxis()->SetTitleOffset(1.4);
 	
-	h->SetMaximum((ymax+dymax)*1.05);
+	if (yymax==0) h->SetMaximum((ymax+dymax)*1.05);
+	else h->SetMaximum(yymax);
 	h->SetMinimum(0);
 	
 	h->SetStats(0);
@@ -83,37 +85,39 @@ void combinePlotsJ_slc(TString fname="anaJ_slc.root")
 	int colors[4] = {kBlue,kCyan-2,2,kRed-7};
 
 	TH1F *h[4]={0};
+	double hmaxy[4] = {14., 3e-4, 2.5, 6.};
 
-	for (int i=0;i<4;++i)
+	int imin = 0, imax=4;
+	for (int i=imin;i<imax;++i)
 	{
 		c1->cd(1);
 		geffs[i]=(TGraphErrors*)f->Get(Form("effs_%s",plotnam[i].Data()));
 		confgraph(geffs[i],"",colors[i],20+(i%2)*3,i);
-		if (h[0]==0) h[0]=createHistoGraph(geffs[i],lab[0]);
-		if (i==0) h[0]->Draw();
+		if (h[0]==0) h[0]=createHistoGraph(geffs[i],lab[0], hmaxy[0]);
+		if (i==imin) h[0]->Draw();
 		geffs[i]->Draw("P same");
 		
 		c1->cd(2);	gPad->SetLogy();
 		geffb[i]=(TGraphErrors*)f->Get(Form("effb_%s",plotnam[i].Data()));
 		confgraph(geffb[i],"",colors[i],20+(i%2)*3,i);
-		if (h[1]==0) h[1]=createHistoGraph(geffb[i],lab[1]);
-		h[1]->SetMinimum(1e-8);
+		if (h[1]==0) h[1]=createHistoGraph(geffb[i],lab[1], hmaxy[1]);
+		h[1]->SetMinimum(0.5e-8);
 		h[1]->SetMaximum(0.0002);
-		if (i==0) h[1]->Draw();
+		if (i==imin) h[1]->Draw();
 		geffb[i]->Draw("P same");
 		
 		c1->cd(3);	
 		gston[i]=(TGraphErrors*)f->Get(Form("sn_%s",plotnam[i].Data()));
 		confgraph(gston[i],"",colors[i],20+(i%2)*3,i);
-		if (h[2]==0) h[2]=createHistoGraph(gston[i],lab[2]);
-		if (i==0) h[2]->Draw();
+		if (h[2]==0) h[2]=createHistoGraph(gston[i],lab[2], hmaxy[2]);
+		if (i==imin) h[2]->Draw();
 		gston[i]->Draw("P same");
 		
 		c1->cd(4);	
 		gsign[i]=(TGraphErrors*)f->Get(Form("sign_%s",plotnam[i].Data()));	
 		confgraph(gsign[i],"",colors[i],20+(i%2)*3,i);
-		if (h[3]==0) h[3]=createHistoGraph(gsign[i],lab[3]);
-		if (i==0) h[3]->Draw();
+		if (h[3]==0) h[3]=createHistoGraph(gsign[i],lab[3], hmaxy[3]);
+		if (i==imin) h[3]->Draw();
 		gsign[i]->Draw("P same");
 	}
 	
