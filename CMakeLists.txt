@@ -135,7 +135,7 @@ if(PANDAROOT_MODULAR_BUILD)
   Message(STATUS "Looking for GEANT3...")
   set(GEANT3_PATH "${Geant3_DIR}")
   Find_Package(Geant3)
-  # Fill the variables needed to create the config script  
+  # Fill the variables needed to create the config script
   If(Geant3_DIR)
     Set(GEANT3_INCLUDE_DIR ${Geant3_INCLUDE_DIRS})
     Set(GEANT3_LIBRARIES ${Geant3_LIBRARIES})
@@ -330,7 +330,7 @@ string(FIND " ${CMAKE_CXX_FLAGS} " "-std=c++11" POS_C++11)
 #Test if FairMultiLinkData has the old (2015) version
 #of Print(), or is the new (2016->) PrintLinkInfo implemented
 Message(STATUS "Checking for FairMultiLinkedData::PrintLinkInfo() function")
-Execute_process(COMMAND ${CMAKE_CXX_COMPILER} -c 
+Execute_process(COMMAND ${CMAKE_CXX_COMPILER} -c
                 ${CMAKE_SOURCE_DIR}/PndTools/test/testFairMultiLinkedData.cpp
         	-I${ROOT_INCLUDE_DIR} -I${FAIRROOTPATH}/include
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -406,6 +406,7 @@ add_subdirectory (PndTrackers/CentralTracking)
 add_subdirectory (PndTrackers/SecondariesTracking)
 add_subdirectory (PndTrackers/SttCellTrackFinder)
 add_subdirectory (PndTrackers/catracking)
+add_subdirectory (PndTrackers/ftscatracking)
 add_subdirectory (PndTrackers/TrackingQA)
 add_subdirectory (PndTrackers/PndForwardTrackFinder)
 add_subdirectory (PndTrackers/PndIdealTrackFinder)
