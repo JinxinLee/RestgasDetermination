@@ -14,14 +14,17 @@
 #include "PndFTSCADef.h"
 #include "PndFTSCATrackParam.h"
 
-namespace std
-{
-  template<typename T> struct char_traits;
-  template<typename _CharT, typename _Traits> class basic_istream;
-  typedef basic_istream<char, char_traits<char> > istream;
-  template<typename _CharT, typename _Traits> class basic_ostream;
-  typedef basic_ostream<char, char_traits<char> > ostream;
-} // namespace std
+#include <ostream>
+#include <istream>
+
+//namespace std
+//{
+//  template<typename T> struct char_traits;
+//  template<typename _CharT, typename _Traits> class basic_istream;
+//  typedef basic_istream<char, char_traits<char> > std::istream;
+//  template<typename _CharT, typename _Traits> class basic_ostream;
+//  typedef basic_ostream<char, char_traits<char> > std::ostream;
+//} // namespace std
 
 /**
  * @class PndFTSCAGBTrack

@@ -34,9 +34,9 @@
 
 #include <iostream>
 #include <iomanip>
-#ifndef NVALGRIND
-#include <valgrind/memcheck.h>
-#endif
+//#ifndef NVALGRIND
+//#include <valgrind/memcheck.h>
+//#endif
 #include <assert.h>
 #include "debug.h"
 #ifdef DRAW
