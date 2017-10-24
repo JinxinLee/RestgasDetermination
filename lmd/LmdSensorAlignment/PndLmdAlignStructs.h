@@ -13,7 +13,7 @@
 #include "PndLmdHitPair.h"
 
 #include <TH1D.h>
-#include <TCanvas.h>
+//#include <TCanvas.h>
 
 #include <cmath>
 #include <iostream>
@@ -25,6 +25,7 @@ using std::min;
 using std::cout;
 using std::vector;
 
+//calculates dynamic cut parameters for each overlapping area
 struct dynamicCutHandler
 {
 	int _overlapID;

@@ -394,6 +394,7 @@ void LmdPairFinderTask::FinishTask() {
 		return;
 	}
 
+	//else, write statistics
 	Int_t sumOfAllPlanes=plane0+plane1+plane2+plane3;
 	double plane0Percent = ((double)plane0/noOfGoodPairs)*100;
 	double plane1Percent = ((double)plane1/noOfGoodPairs)*100;
