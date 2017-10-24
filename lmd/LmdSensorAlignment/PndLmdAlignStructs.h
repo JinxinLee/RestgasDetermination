@@ -98,12 +98,12 @@ struct dynamicCutHandler
 		double RMS = hist.GetRMS(0);
 
 		_minDist = std::max(0.0, (mean-3*RMS));			//should not underflow 0
-		_maxDist = std::min(_hardMax, mean+3*RMS);	//should not overflow _hardMax
+		_maxDist = std::min(_hardMax, mean+3*RMS);		//should not overflow _hardMax
 
-		TCanvas canvas;
-		canvas.cd();
-		hist.Draw();
-		canvas.Print("hist-0.pdf");
+		//TCanvas canvas;
+		//canvas.cd();
+		//hist.Draw();
+		//canvas.Print("hist-0.pdf");
 
 		//ghetto histogram for mean and sigma
 		/*
