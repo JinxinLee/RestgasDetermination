@@ -18,6 +18,8 @@
 // #include<PndLmdAlignPar.h>
 PndLmdDim* PndLmdDim::pinstance = 0;
 
+#include <cmath>
+
 // version 3: navigation path names changed
 int PndLmdDim::geometry_version = 3;
 
@@ -25,7 +27,6 @@ int PndLmdDim::geometry_version = 3;
 PndLmdDim::PndLmdDim() {
 	sensIDoffset = 0;
 	double test_mult_fact = 1.; //100.; // should be 1 when not debugging code
-	// pi
 	pi = 3.141592654;
 	// number of detector planes
 	n_planes = 4;
@@ -3965,8 +3966,8 @@ std::vector<int> PndLmdDim::getAvailableOverlapIDs() {
 	int overlapID;
 
 	for (int iHalf = 0; iHalf < 2; iHalf++) {
-		for (int iPlane = 0; iPlane < 4; iPlane++) {
-			for (int iModule = 0; iModule < 5; iModule++) {
+		for (int iPlane = 0; iPlane < n_planes; iPlane++) {
+			for (int iModule = 0; iModule < nmodules; iModule++) {
 				for (int iOverlap = 0; iOverlap < 9; iOverlap++) {
 					overlapID = 1000 * iHalf + 100 * iPlane + 10 * iModule + iOverlap;
 					result.push_back(overlapID);

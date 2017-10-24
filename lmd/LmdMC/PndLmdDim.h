@@ -2,7 +2,8 @@
  * PndLmdDim.h
  *
  * this class gives you methods to retrieve parameters of the geometry
- * dimensions are in cm and radian
+ * dimensions are in cm and radian. this is a singleton and must be called
+ * with PndLmdDim::Instance()
  *
  * Global comments:
  *

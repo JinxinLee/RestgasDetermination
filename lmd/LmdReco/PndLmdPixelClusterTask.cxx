@@ -24,6 +24,7 @@ PndSdsPixelClusterTask("LMD Clustertisation Task")
   //flagMS = true;
   //  mtxpath = "../../../pandaroot/input/";
   //  mtxpath = "";
+  // TODO: use env variables, not relative paths
   mtxpath = "../../geometry/";
   lmddim = NULL;
 }
