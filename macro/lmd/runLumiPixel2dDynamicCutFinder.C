@@ -50,7 +50,9 @@ void runLumiPixel2dDynamicCutFinder(const int nEvents=0, const int startEvent=00
 	parFile += startEvent;
 	parFile += ".root";
 	TString digiparFile = "lumi.digi.par";
-	std::string cutParameterfile = storePath + "/cutParameters.json";
+	std::string cutParameterfile = storePath.Data() + "/cutParameters.json";
+
+	cout << "===================\ncut parameter file: "<< cutParameterfile << "\n===================\n";
 
 	// -----   Output File   --------------------------------------------------
 	TString outFile = storePath+"/Lumi_TEMP_";

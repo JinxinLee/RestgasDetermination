@@ -43,7 +43,7 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	parFile += startEvent;
 	parFile += ".root";
 	TString digiparFile = "lumi.digi.par";
-	std::string cutParameterfile = storePath + "/cutParameters.json";
+	std::string cutParameterfile = storePath.Data() + "/cutParameters.json";
 
 	// -----   Output File   --------------------------------------------------
 	TString outFile = storePath+"/Lumi_Pairs_";

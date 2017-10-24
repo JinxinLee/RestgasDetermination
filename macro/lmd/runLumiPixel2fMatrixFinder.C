@@ -32,7 +32,6 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 	string binaryFilesDir=binaryPairFilePath.Data();
 	int readNoOfFiles=0;			//how many files should be processed? 0 for all
 
-
 	// ---------------------- init Matrix Finder
 
 	cout << "searching available files...\n";
@@ -52,14 +51,21 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 	// ---------------------- check for binary files and sort/write, if necessary
 
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
+
 	if(!binaryPairsPresent){
 		manager.addFilesFromDirectory(pairFilesDir, readNoOfFiles);
 		manager.setMatrixOutDir(matrixDir);
+
+		//manager.setZasTimestamp(true);	//TODO: remove after testing, or leave in depending on test result!
+
 		manager.readFilesAndAlign();
 		manager.waitForCompletion();
 		return 0;
 	}
-	else{
+
+	//check for LMD Matrix Files
+	bool LMDMatrixFilesPresent = manager.checkForLmdMatrixFiles();
+	if(!LMDMatrixFilesPresent){
 		cout << "reading binary pair files.\n";
 		manager.setMatrixOutDir(matrixDir);
 		manager.readPairsFromBinaryFiles();
