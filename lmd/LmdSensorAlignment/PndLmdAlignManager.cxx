@@ -1373,7 +1373,17 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 	string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
 
 	//god gave us this matrix:
-	Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, false);
+	// BUT WAIT! is this transformed from Sensor to lmd? Depends on inCm!!
+	//TODO: check here for m01 or m56 presence, we only need one.
+	Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, true);
+	//Matrix m56 = m50*m01*m18*m83*m36;		//TODO: check if this is correct!
+	Matrix m56 = getMatrixOfficialGeometry(id1+5,id1+6, true);
+	//cout << "drum roll:\n " << m56-m56s << "\n end of drum roll \n"; //seems to work
+
+	if(!_inCentimeters){
+		transformFromLmdLocalToSensor(m01, id1, true);
+		transformFromLmdLocalToSensor(m56, id1+5, true);
+	}
 
 	//cout << "m01: \n" << m01 << "\n";
 
@@ -1391,6 +1401,21 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 	Matrix m47 = readMatrix(m47f);
 	Matrix m49 = readMatrix(m49f);
 
+	if(_inCentimeters){
+		// since we read only correction matrices in cm, we must multiply them 
+		// with the ideal senToSen to get the complete misaligned senToSen
+		m05 = m05 * getMatrixOfficialGeometry(0, 5, true);
+		m18 = m18 * getMatrixOfficialGeometry(1, 8, true);
+		m28 = m28 * getMatrixOfficialGeometry(2, 8, true);
+		m29 = m29 * getMatrixOfficialGeometry(2, 9, true);
+		m36 = m36 * getMatrixOfficialGeometry(3, 6, true);
+		m37 = m37 * getMatrixOfficialGeometry(3, 7, true);
+		m38 = m38 * getMatrixOfficialGeometry(3, 8, true);
+		m47 = m47 * getMatrixOfficialGeometry(4, 7, true);
+		m49 = m49 * getMatrixOfficialGeometry(4, 9, true);
+	}
+
+	Matrix m10 = m01.inv(m01);
 	Matrix m50 = m05.inv(m05);
 	Matrix m81 = m18.inv(m18);
 	Matrix m82 = m28.inv(m28);
@@ -1401,20 +1426,21 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 	Matrix m74 = m47.inv(m47);
 	Matrix m94 = m49.inv(m49);
 
-	//TODO: check here for m01 or m56 presence, we only need one.
-
-	Matrix m56 = m50*m01*m18*m83*m36;		//TODO: check if this is correct!
-	//Matrix m56s = getMatrixOfficialGeometry(5,6, false);
-	//cout << "drum roll:\n " << m56-m56s << "\n end of drum roll \n"; //seems to work
-
 	id2 %= 10;
-
-	//TODO: check again, something doesn't work
-
 
 	//finally, if cascade:
 	//TODO: check if this is not backwards again.  multiplication goes from right to left!
+	// so, yeah. no. this is actually the inverse of the desired matrix.
+	// remember, (A*B)^-1 = B^-1 * A^-1
+	// for some reason, every matrix in px is inverted.
 	switch(id2){
+
+	case 0:
+		result = m05*m56*m63*m38*m81*m10;
+		break;
+	case 1:
+		result = m01;
+		break;
 	case 2:
 		result = m01*m18*m82;
 		break;
@@ -1505,15 +1531,6 @@ void PndLmdAlignManager::compareCombinedMatrices() {
 			}
 		}
 	}
-}
-
-void PndLmdAlignManager::computeCombinedMatrices() {
-	cout << "PndLmdAlignManager::computeCombinedMatrices(): feature not implemented yet.\n";
-
-	// for every module
-
-	// get all overlapping matrices for module and compute 0->[1-9]
-
 }
 
 void PndLmdAlignManager::waitForCompletion() {

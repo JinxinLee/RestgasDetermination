@@ -120,11 +120,6 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			int sensorID, half, plane, module, side, die, sensor;
 			sensorID = idPairs[i].first;
 			dimension->Get_sensor_by_id(sensorID, half, plane, module, side, die, sensor);
-
-			//for(int j=0; j<10; j++){
-			//	createThreeHistsVeryDirty(idPairs[i].first, idPairs[i].second, j, data, param);
-			//}
-
 		}
 	}
 
@@ -273,7 +268,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			result.push_back(matrixPX.val[2][3]);		// tz
 			data.push_back(result);
 
-			if(abs(matrixDif.val[0][3]) >= 25e-4 || abs(matrixDif.val[1][3]) >= 25e-4 ){
+			if(abs(matrixDif.val[0][3]) >= 20e-4 || abs(matrixDif.val[1][3]) >= 20e-4 ){
 				cout << "WARNING. ID: " << dimension->makeOverlapID(id1, id2) << " is off! x: ";
 				cout << matrixDif.val[0][3]*1e4 << ", y: " << matrixDif.val[1][3]*1e4 << "\n";
 			}
@@ -328,6 +323,277 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			parameters.printCMPXinPathName = true;
 			createHist(data, parameters);
 		}
+
+		//for DAlpha
+		//parameters.path = pdfdir;
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #Delta#alpha";
+		parameters.xtitle = "d#alpha [#murad]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e6;
+		parameters.fileName = "dalpha.pdf";
+		parameters.vectorIndex = 2;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
+	}
+
+	// DEFER this, I have problems with mirrored matrices
+	//TODO: implement this correctly
+	else if(param == kPlotCombinedCMResiduals){
+
+		manager.setMatrixOutDir(LMDMatPath);
+		manager.setInCentimeters(true);
+		Matrix m6to7target = manager.getMatrixOfficialGeometry(6,7,true);
+		Matrix m6to7man = manager.combineMatrix(6,7);
+
+		Matrix m63 = manager.getMatrixOfficialGeometry(6,3,true);
+		Matrix m37 = manager.getMatrixOfficialGeometry(3,7,true);
+		Matrix m67manual = m37*m63;
+
+
+		cout << "m6to7 target:\n" << m6to7target << "\n";
+		cout << "m6to7 manual:\n" << m67manual << "\n";
+		cout << "------------\n";
+		cout << "diff:\n" << m67manual - m6to7target << "\n";
+
+		return;
+
+		string pdfdir = pdfOutPath;
+		_inCentimeters = true;
+
+		for(size_t i=0; i<idPairs.size(); i++){
+
+			int id1 = idPairs[i].first;
+			int id2 = idPairs[i].second;
+
+			//only select overlap areas with more than 2e5 pairs
+			int overlapID = dimension->makeOverlapID(id1, id2);
+			if( matrixInfo[overlapID] < pairsRequired){
+				continue;
+			}
+
+			//prepare
+			string matrixNameCM = manager.makeMatrixFileName(id1,id2,true,false);
+			string path = LMDMatPath;
+			matrixNameCM = path + matrixNameCM;
+
+			//read matrices from disk
+			Matrix matrixCM = manager.readMatrix(matrixNameCM);
+
+			Matrix senToSenCorrTarget;
+			if(alignOptionBool){
+				senToSenCorrTarget = Matrix::eye(4);
+			}
+			else{
+				senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
+			}
+
+			//transform both correction matrices to full sensor to sensor matrices
+			Matrix senToSenIdeal = manager.getMatrixOfficialGeometry(id1, id2, true);
+
+			Matrix matrixDif = (matrixCM*senToSenIdeal) - (senToSenCorrTarget*senToSenIdeal);
+
+			//store this residual tuple to data
+			std::vector<double> result;
+			result.push_back(id1);
+			result.push_back(id2);
+			result.push_back(matrixDif.val[0][1]);		// sin(alpha)
+			result.push_back(matrixDif.val[0][3]);		// tx
+			result.push_back(matrixDif.val[1][3]);		// ty
+			result.push_back(matrixCM.val[2][3]);		// tz
+			data.push_back(result);
+		}
+
+		histParams parameters;
+		//parameters.bins=25;
+
+		//for DX
+		parameters.path = pdfdir + "/residuals/";
+		parameters.title = "matrixCM - correctionTarget, #DeltaX";
+		parameters.xtitle = "dX [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dx.pdf";
+		parameters.vectorIndex = 3;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
+
+		//for DY
+		//parameters.path = pdfdir;
+		parameters.title = "matrixCM - correctionTarget, #DeltaY";
+		parameters.xtitle = "dY [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dy.pdf";
+		parameters.vectorIndex = 4;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
+
+		if(true){
+			//for DZ
+			//parameters.path = pdfdir;
+			parameters.title = "#DeltaZ of HitPairs";
+			parameters.xtitle = "dZ [pair Steps]";
+			parameters.ytitle = "entries";
+			parameters.scaleFactor = 1.0;
+			parameters.fileName = "dz.pdf";
+			parameters.vectorIndex = 5;
+			parameters.xMin=-1;
+			parameters.xMax=-1;
+			parameters.printCMPXinPathName = true;
+			createHist(data, parameters);
+		}
+
+		//for DAlpha
+		//parameters.path = pdfdir;
+		parameters.title = "matrixCM - correctionTarget, #Delta#alpha";
+		parameters.xtitle = "d#alpha [#murad]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e6;
+		parameters.fileName = "dalpha.pdf";
+		parameters.vectorIndex = 2;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
+	}
+
+	else if(param==77){
+		Int_t myVAr = TRandom(15).Integer(10);
+			cout << "myVAl is :" << myVAr << "\n";
+	}
+
+	//TODO: implement this correctly
+	else if(param == kPlotCombinedPXResiduals){
+
+		/* KEEP THIS CODE UNTIL YOU ARE SURE!
+		//check 1->2 by hand. should be easy enough
+		int id1 = 1;
+		int id2 = 2;
+
+		//prepare
+		string path = LMDMatPath;
+		manager.setMatrixOutDir(path);
+		string matrixNamePX1t8 = path + manager.makeMatrixFileName(id1, 8, false, false);
+		string matrixNamePX2t8 = path + manager.makeMatrixFileName(id2, 8, false, false);
+		
+		//read matrices from disk
+		Matrix matrixPX1t8 = manager.readMatrix(matrixNamePX1t8);
+		Matrix matrixPX2t8 = manager.readMatrix(matrixNamePX2t8);
+
+		//transform matrixPX to lmd local
+		//manager.transformFromSensorToLmdLocal(matrixPX1t8, id1);
+		//manager.transformFromSensorToLmdLocal(matrixPX2t8, id1);
+
+		Matrix matrixPX8t2 = matrixPX2t8.inv(matrixPX2t8);
+
+		//construct combined matrix
+		Matrix matrixPX1t2 = matrixPX1t8 * matrixPX8t2; 
+
+		//it's okay, either do it here or every px matrix individually
+		manager.transformFromSensorToLmdLocal(matrixPX1t2, id1);
+
+		Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, true);
+		// the matrices are completely comparable now
+		//Matrix matrixDif = senToSenWithCorr - matrixPX;
+
+		cout << "========== transform every px matrix ==========\n";
+
+		cout << "from ICP:\n" << matrixPX1t2 << "\n";
+		cout << "from Dim:\n" << senToSen << "\n"; // this is the final matrix in cm!
+		cout << "-----------------\n";
+		cout << "Difference:\n" << matrixPX1t2 - senToSen << "\n"; // this is the final matrix in cm!
+
+		cout << "========== next step: add 5->6 ==========\n";
+		Matrix m01 = manager.getMatrixOfficialGeometry(0, 1, true);
+		Matrix mManager = manager.combineMatrix(0,2);
+		manager.transformFromSensorToLmdLocal(mManager,1,true);
+		cout << "from ICP:\n" << m01*matrixPX1t2 << "\n";
+		cout << "from Dim:\n" << m01*senToSen << "\n"; // this is the final matrix in cm!
+		cout << "-----------------\n";
+		cout << "from Manager:\n" << mManager << "\n";
+		cout << "-----------------\n";
+		cout << "Difference:\n" << mManager - m01*senToSen << "\n"; // this is the final matrix in cm!
+
+		cout << "========== ONE BIG STEP ==========\n";
+		Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(0, 2, true);
+		cout << "Difference:\n" << mManager - senToSenOneStep << "\n"; // this is the final matrix in cm!
+		*/
+		string path = LMDMatPath;
+		manager.setMatrixOutDir(path);
+	
+		/*
+		int idH1=0, idH2=4;
+		Matrix m05man = manager.combineMatrix(0,5);
+		manager.transformFromSensorToLmdLocal(m05man,0,true);
+		Matrix m05px = manager.getMatrixOfficialGeometry(0, 5, true);
+		cout << "from Man:\n" << m05man << "\n";
+		cout << "from Dim:\n" << m05px << "\n"; // this is the final matrix in cm!
+		cout << "-----------------\n";
+		cout << "Difference:\n" << m05man - m05px << "\n"; // this is the final matrix in cm!
+		return;
+		*/
+
+		string pdfdir = pdfOutPath;
+		_inCentimeters = false;
+
+		for (size_t id1 = 0; id1 < 400 ; id1+=10){
+
+			for (int id2 = id1 + 1; id2 < id1 + 10; id2++){
+
+				Matrix mManager = manager.combineMatrix(id1, id2);
+				manager.transformFromSensorToLmdLocal(mManager, id1, false);
+
+				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2, false);
+				//cout << "Difference to " << id2 << ":\n" << mManager - senToSenOneStep << "\n"; // this is the final matrix in cm!
+
+				Matrix matrixDif = mManager - senToSenOneStep;
+
+				//store this residual tuple to data
+				std::vector<double> result;
+				result.push_back(id1);
+				result.push_back(id2);
+				result.push_back(matrixDif.val[0][1]); // sin(alpha)
+				result.push_back(matrixDif.val[0][3]); // tx
+				result.push_back(matrixDif.val[1][3]); // ty
+				//result.push_back(matrixPX.val[2][3]);  // tz
+				data.push_back(result);
+			}
+		}
+
+		histParams parameters;
+		//parameters.bins=25;
+
+		//for DX
+		parameters.path = pdfdir + "/residualsCombined/";
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #DeltaX";
+		parameters.xtitle = "dX [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dx.pdf";
+		parameters.vectorIndex = 3;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
+
+		//for DY
+		//parameters.path = pdfdir;
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #DeltaY";
+		parameters.xtitle = "dY [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dy.pdf";
+		parameters.vectorIndex = 4;
+		parameters.xMin=-1;
+		parameters.xMax=-1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
 
 		//for DAlpha
 		//parameters.path = pdfdir;
@@ -622,6 +888,85 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			cout << "\\AtoB{" << id1 << "}{" << id2 << "} & " << areaPercent << "\\\\\n";
 		}
 		exit(0);
+	}
+
+	else if (param == kCyclicCheckPX){
+
+		//prepare
+		cout << "comparing 0 to 0 (yes, I know...)\n";
+		string path = LMDMatPath;
+		string pdfdir = pdfOutPath;
+		manager.setMatrixOutDir(path);
+
+
+		for(int iModule=0; iModule<40; iModule++){
+
+			//start in px
+			Matrix m1to2reference = manager.getMatrixOfficialGeometry(0, 0, true);
+		
+			Matrix mManager = manager.combineMatrix(0, 0);
+			manager.transformFromSensorToLmdLocal(mManager, 0, false);
+		
+			Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(0, 0, false);
+			cout << "Difference to " << 0 << ":\n" << mManager - senToSenOneStep << "\n"; // this is the final matrix in cm!
+		
+			Matrix matrixDif = mManager - senToSenOneStep;
+		
+			return;
+
+			//store this residual tuple to data
+			std::vector<double> result;
+			result.push_back(0);
+			result.push_back(0);
+			result.push_back(matrixDif.val[0][1]); // sin(alpha)
+			result.push_back(matrixDif.val[0][3]); // tx
+			result.push_back(matrixDif.val[1][3]); // ty
+			//result.push_back(matrixPX.val[2][3]);  // tz
+			data.push_back(result);
+		}
+
+		histParams parameters;
+
+		//parameters.bins=25;
+
+		//for DX
+		parameters.path = pdfdir + "/cyclicChecks/";
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #DeltaX";
+		parameters.xtitle = "dX [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dx.pdf";
+		parameters.vectorIndex = 3;
+		parameters.xMin = -1;
+		parameters.xMax = -1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
+
+		//for DY
+		//parameters.path = pdfdir;
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #DeltaY";
+		parameters.xtitle = "dY [#mum]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e4;
+		parameters.fileName = "dy.pdf";
+		parameters.vectorIndex = 4;
+		parameters.xMin = -1;
+		parameters.xMax = -1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
+
+		//for DAlpha
+		//parameters.path = pdfdir;
+		parameters.title = "matrixPX(transformed) - senToSenTarget, #Delta#alpha";
+		parameters.xtitle = "d#alpha [#murad]";
+		parameters.ytitle = "entries";
+		parameters.scaleFactor = 1e6;
+		parameters.fileName = "dalpha.pdf";
+		parameters.vectorIndex = 2;
+		parameters.xMin = -1;
+		parameters.xMax = -1;
+		parameters.printCMPXinPathName = true;
+		createHist(data, parameters);
 	}
 
 	/*

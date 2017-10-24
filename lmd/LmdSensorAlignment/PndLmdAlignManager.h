@@ -126,9 +126,6 @@ public:
 
 	void writeDebugInfoOnAllSensors();
 
-	//compute combined matrices
-	void computeCombinedMatrices();
-
 	//compare combined with target matrices
 	void compareCombinedMatrices();
 
