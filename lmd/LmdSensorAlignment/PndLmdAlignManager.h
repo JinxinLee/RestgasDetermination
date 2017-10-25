@@ -76,7 +76,11 @@ private:
 	//don't use, doesn't work with root like that
 	static void readPairsFromChainMT(std::vector<std::string> files, std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
 
-	Matrix combineMatrix(int id1, int id2);
+	//produces matrices 0 -> 1,2,3,4,5,6,7,8,9
+	Matrix combineMatrix(int id1, int id2, bool aligned);
+
+	//produces matrices i -> ... -> i (should be almost identity matrix)
+	Matrix combineCyclicMatrix(int id, bool aligned);
 
 	//generate the file name of a matrix or pair file, so changes must only be made once
 	static std::string makeBinaryPairFileName(int overlapId=0, bool incentimeters=true, bool correctionMatrix=false);
@@ -126,9 +130,6 @@ public:
 
 	void writeDebugInfoOnAllSensors();
 
-	//compare combined with target matrices
-	void compareCombinedMatrices();
-
 	static void loadBar(int current, int total, int resolution, int width, std::string message="");
 
 	void setSimpleStorage(bool val) {
@@ -143,7 +144,7 @@ public:
 	void transformGlobalToLmd(Matrix &matrix);
 
 	//helper transformation, since all px matrices are local to the system of
-	//the first sensor. they need to be transformed to lmd local so we can compare
+	//the sensor they are from. they need to be transformed to lmd local so we can compare
 	//them to the matrices from pndlmddim. aligned should be true, since we don't
 	//actually have the misaligned matrices on the real geometry. use aligned=false
 	//only when comparing matrices from misaligned geometry
@@ -245,11 +246,6 @@ public:
 	void readTrafoMatrix(std::string filename, bool aligned){
 		dimension->Read_transformation_matrices(filename, aligned);
 	}
-
-	/*
-	 * for debug only, don't use these in production
-	 */
-	void xOption(int option);
 
 	// hide all boost related things from ROOT
 	#ifndef __CINT__

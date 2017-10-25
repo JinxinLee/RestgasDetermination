@@ -17,7 +17,7 @@
 #include <PndLmdAlignManager.h>
 #include <matrix.h>
 
-enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCombinedPXResiduals, kPlotCombinedCMResiduals, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals, kHistPixelDistances, kCalcOverlap, kCyclicCheckCM, kCyclicCheckPX};
+enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals, kHistPixelDistances, kCalcOverlap};
 
 struct histParams{
 	bool printCMPXinPathName=true;
@@ -41,7 +41,6 @@ private:
 	bool infoAbsolute, infoRelative, byPlane, _inCentimeters, _enableHelperMatrix;
 	bool alignOptionBool;
 	int curPlane;
-	int alignOption;	// 0: aligned, others in um: 10, 50, 100, 200
 	int pairsRequired;
 	PndLmdAlignManager manager;
 
@@ -63,7 +62,21 @@ private:
 
 	PndLmdDim *dimension;
 
+
+	// helper functions to avoid code duplication
+
+
+
 public:
+
+
+	// ========== QA functions
+
+	void checkCyclicMatrices(bool inCentimeters=true);
+	void checkCombinedMatrices(bool inCentimeters=true);
+
+	// ========== end of QA
+
 
 	void readMatrixInfo();
 
@@ -112,14 +125,8 @@ public:
 		pdfOutPath = path;
 	}
 
-	void setAlignOption(int align) {
-		if(align == 0){
-			alignOptionBool = true;
-		}
-		else{
-			alignOptionBool = false;
-		}
-		alignOption = align;
+	void setAlignedGeometry(bool aligned) {
+		alignOptionBool = aligned;
 	}
 
 	void setPairsRequired(int number) {

@@ -1152,7 +1152,7 @@ Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 	finalMatrix[12] = homogenousMatrix[3];
 	finalMatrix[13] = homogenousMatrix[7];
 	finalMatrix[14] = homogenousMatrix[11];
-	//finalMatrix[15] = homogenousMatrix[15];	//don't really need to do this anymore
+	//finalMatrix[15] = homogenousMatrix[15];
 	finalMatrix[15] = 1.0;
 
 	//create matrix and clean up
@@ -1313,7 +1313,176 @@ std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo,
 	return makeMatrixFileName(overlapId, incentimeters);
 }
 
-Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
+Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
+
+	Matrix result = Matrix::eye(4);
+	bool success = false;
+
+	// get id of first sensor on module
+	int id1 = (std::floor(id/10.0))*10;
+	int id2 = id%10;
+
+	//what module are we on?
+	int fhalf, fplane, fmodule, fside, fdie, fsensor;
+	dimension->Get_sensor_by_id(id, fhalf, fplane, fmodule, fside, fdie, fsensor);
+
+	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
+	string m05f = _matrixOutDir + makeMatrixFileName(id1+0, id1+5, _inCentimeters);
+	string m18f = _matrixOutDir + makeMatrixFileName(id1+1, id1+8, _inCentimeters);
+	string m28f = _matrixOutDir + makeMatrixFileName(id1+2, id1+8, _inCentimeters);
+	string m29f = _matrixOutDir + makeMatrixFileName(id1+2, id1+9, _inCentimeters);
+	string m36f = _matrixOutDir + makeMatrixFileName(id1+3, id1+6, _inCentimeters);
+	string m37f = _matrixOutDir + makeMatrixFileName(id1+3, id1+7, _inCentimeters);
+	string m38f = _matrixOutDir + makeMatrixFileName(id1+3, id1+8, _inCentimeters);
+	string m47f = _matrixOutDir + makeMatrixFileName(id1+4, id1+7, _inCentimeters);
+	string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
+
+	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
+	Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, aligned);
+	Matrix m56 = getMatrixOfficialGeometry(id1+5,id1+6, aligned);
+
+	// remember, CM matrices are in LMD local, px matrices are in sensor local!
+	// and since we know those from external measurements, we have those
+	if(!_inCentimeters){
+		transformFromLmdLocalToSensor(m01, id1+0, aligned);
+		transformFromLmdLocalToSensor(m56, id1+5, aligned);
+	}
+
+	// are all px matrices inverted?
+	//	if(!_inCentimeters){
+	//		m01 = m01.inv(m01);
+	//		m56 = m56.inv(m56);
+	//	}
+
+	Matrix m05 = readMatrix(m05f);
+	Matrix m18 = readMatrix(m18f);
+	Matrix m28 = readMatrix(m28f);
+	Matrix m29 = readMatrix(m29f);
+	Matrix m36 = readMatrix(m36f);
+	Matrix m37 = readMatrix(m37f);
+	Matrix m38 = readMatrix(m38f);
+	Matrix m47 = readMatrix(m47f);
+	Matrix m49 = readMatrix(m49f);
+
+	// I think all px matrices are inverted
+	if(!_inCentimeters){
+		m01.inv();
+		m56.inv();
+		m05.inv();
+		m18.inv();
+		m28.inv();
+		m29.inv();
+		m36.inv();
+		m37.inv();
+		m38.inv();
+		m47.inv();
+		m49.inv();
+	}
+
+
+	// since we read only correction matrices in cm, we must multiply them
+	// with the ideal senToSen to get the complete misaligned senToSen.
+	// this isn't cheating as we are only using ideal matrices, which we should
+	// always have.
+	// but remember, they still live on separate modules.
+	if(_inCentimeters){
+		m05 = m05 * getMatrixOfficialGeometry(id1+0, id1+5, true);
+		m18 = m18 * getMatrixOfficialGeometry(id1+1, id1+8, true);
+		m28 = m28 * getMatrixOfficialGeometry(id1+2, id1+8, true);
+		m29 = m29 * getMatrixOfficialGeometry(id1+2, id1+9, true);
+		m36 = m36 * getMatrixOfficialGeometry(id1+3, id1+6, true);
+		m37 = m37 * getMatrixOfficialGeometry(id1+3, id1+7, true);
+		m38 = m38 * getMatrixOfficialGeometry(id1+3, id1+8, true);
+		m47 = m47 * getMatrixOfficialGeometry(id1+4, id1+7, true);
+		m49 = m49 * getMatrixOfficialGeometry(id1+4, id1+9, true);
+	}
+
+	//prepare inverted matrices
+	Matrix m10 = m01.inv(m01);
+	Matrix m50 = m05.inv(m05);
+	Matrix m65 = m56.inv(m56);
+	Matrix m81 = m18.inv(m18);
+	Matrix m82 = m28.inv(m28);
+	Matrix m92 = m29.inv(m29);
+	Matrix m63 = m36.inv(m36);
+	Matrix m73 = m37.inv(m37);
+	Matrix m83 = m38.inv(m38);
+	Matrix m74 = m47.inv(m47);
+	Matrix m94 = m49.inv(m49);
+
+
+	//wait, this is ALL backwards, I checked. This can only be if EVERY px matrix is inverted
+	//		switch(id2){
+	//		case 0:
+	//			result = m05*m56*m63*m38*m81*m10;		//uses hand-measured matrices m01 and m56
+	//			break;
+	//		case 1:
+	//			result = m18*m82*m29*m94*m47*m73*m38*m81;
+	//			break;
+	//		case 2:
+	//			result = m29*m94*m47*m73*m38*m82;
+	//			break;
+	//		case 3:
+	//			result = m37*m74*m49*m92*m28*m83;
+	//			break;
+	//		case 4:
+	//			result = m47*m73*m38*m82*m29*m94;
+	//			break;
+	//		case 5:
+	//			result = m56*m63*m38*m81*m10*m05;		//uses hand-measured matrices m01 and m56
+	//			break;
+	//		case 6:
+	//			result = m63*m37*m74*m49*m92*m28*m83*m36;
+	//			break;
+	//		case 7:
+	//			result = m73*m38*m82*m29*m94*m47;
+	//			break;
+	//		case 8:
+	//			result = m82*m29*m94*m47*m73*m38;
+	//			break;
+	//		case 9:
+	//			result = m94*m47*m73*m38*m82*m29;
+	//			break;
+	//		}
+
+	switch(id2){
+	case 0:
+		result = m10*m81*m38*m63*m56*m05;		//uses hand-measured matrices m01 and m56
+		break;
+	case 1:
+		result = m81*m38*m73*m47*m94*m29*m82*m18;
+		break;
+	case 2:
+		result = m82*m38*m73*m47*m94*m29;
+		break;
+	case 3:
+		result = m83*m28*m92*m49*m74*m37;
+		break;
+	case 4:
+		result = m94*m29*m82*m38*m73*m47;
+		break;
+	case 5:
+		result = m05*m10*m81*m38*m63*m56;		//uses hand-measured matrices m01 and m56
+		break;
+	case 6:
+		result = m36*m83*m28*m92*m49*m74*m37*m63;
+		break;
+	case 7:
+		result = m47*m94*m29*m82*m38*m73;
+		break;
+	case 8:
+		result = m38*m73*m47*m94*m29*m82;
+		break;
+	case 9:
+		result = m29*m82*m38*m73*m47*m94;
+		break;
+	}
+
+
+	return result;
+}
+
+Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 
 	bool success = false;
 
@@ -1373,19 +1542,14 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 	string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
 
 	//god gave us this matrix:
-	// BUT WAIT! is this transformed from Sensor to lmd? Depends on inCm!!
-	//TODO: check here for m01 or m56 presence, we only need one.
-	Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, true);
-	//Matrix m56 = m50*m01*m18*m83*m36;		//TODO: check if this is correct!
-	Matrix m56 = getMatrixOfficialGeometry(id1+5,id1+6, true);
-	//cout << "drum roll:\n " << m56-m56s << "\n end of drum roll \n"; //seems to work
+	Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, aligned);
+	Matrix m56 = getMatrixOfficialGeometry(id1+5,id1+6, aligned);
 
+	//remember, CM matrices are in LMD local, px matrices are in sensor local!
 	if(!_inCentimeters){
-		transformFromLmdLocalToSensor(m01, id1, true);
-		transformFromLmdLocalToSensor(m56, id1+5, true);
+		transformFromLmdLocalToSensor(m01, id1, aligned);
+		transformFromLmdLocalToSensor(m56, id1+5, aligned);
 	}
-
-	//cout << "m01: \n" << m01 << "\n";
 
 	// TODO: the following code can be optimized, as it currently computes the inverse of 9 matrices.
 	// also, only read matrices from disk that are required here.
@@ -1401,18 +1565,31 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 	Matrix m47 = readMatrix(m47f);
 	Matrix m49 = readMatrix(m49f);
 
+	// since we read only correction matrices in cm, we must multiply them
+	// with the ideal senToSen to get the complete misaligned senToSen.
+	// this isn't cheating as we are only using ideal matrices, which we should
+	// always have.
+	// but remember, they still live on separate modules.
 	if(_inCentimeters){
-		// since we read only correction matrices in cm, we must multiply them 
-		// with the ideal senToSen to get the complete misaligned senToSen
-		m05 = m05 * getMatrixOfficialGeometry(0, 5, true);
-		m18 = m18 * getMatrixOfficialGeometry(1, 8, true);
-		m28 = m28 * getMatrixOfficialGeometry(2, 8, true);
-		m29 = m29 * getMatrixOfficialGeometry(2, 9, true);
-		m36 = m36 * getMatrixOfficialGeometry(3, 6, true);
-		m37 = m37 * getMatrixOfficialGeometry(3, 7, true);
-		m38 = m38 * getMatrixOfficialGeometry(3, 8, true);
-		m47 = m47 * getMatrixOfficialGeometry(4, 7, true);
-		m49 = m49 * getMatrixOfficialGeometry(4, 9, true);
+		m05 = m05 * getMatrixOfficialGeometry(id1+0, id1+5, true);
+		m18 = m18 * getMatrixOfficialGeometry(id1+1, id1+8, true);
+		m28 = m28 * getMatrixOfficialGeometry(id1+2, id1+8, true);
+		m29 = m29 * getMatrixOfficialGeometry(id1+2, id1+9, true);
+		m36 = m36 * getMatrixOfficialGeometry(id1+3, id1+6, true);
+		m37 = m37 * getMatrixOfficialGeometry(id1+3, id1+7, true);
+		m38 = m38 * getMatrixOfficialGeometry(id1+3, id1+8, true);
+		m47 = m47 * getMatrixOfficialGeometry(id1+4, id1+7, true);
+		m49 = m49 * getMatrixOfficialGeometry(id1+4, id1+9, true);
+
+		//		m05 = m05 * getMatrixOfficialGeometry(0, 5, true);
+		//		m18 = m18 * getMatrixOfficialGeometry(1, 8, true);
+		//		m28 = m28 * getMatrixOfficialGeometry(2, 8, true);
+		//		m29 = m29 * getMatrixOfficialGeometry(2, 9, true);
+		//		m36 = m36 * getMatrixOfficialGeometry(3, 6, true);
+		//		m37 = m37 * getMatrixOfficialGeometry(3, 7, true);
+		//		m38 = m38 * getMatrixOfficialGeometry(3, 8, true);
+		//		m47 = m47 * getMatrixOfficialGeometry(4, 7, true);
+		//		m49 = m49 * getMatrixOfficialGeometry(4, 9, true);
 	}
 
 	Matrix m10 = m01.inv(m01);
@@ -1498,45 +1675,9 @@ void PndLmdAlignManager::clearScreen() {
 	cout << "\x1B[2J\x1B[H";
 }
 
-void PndLmdAlignManager::compareCombinedMatrices() {
-
-	// for every half
-	// for every plane
-	// for every module
-
-	//double avgX=0, avgY=0, avgA=0; //[R.K. 01/2017] unused variable
-
-	for(int iHalf=0; iHalf < 2; iHalf++){
-		for(int iPlane=0; iPlane < 4; iPlane++){
-			for(int iModule=0; iModule < 5; iModule++){
-				// calculate all combined matrices
-				// compare with target matrices
-				// histogram dat shit on a per-module basis
-				// if results are good and consistent, on a corridor and/or half plane basis
-
-				int firstID=0;
-				firstID = dimension->Get_sensor_id(iHalf, iPlane, iModule, 0, 0, 0);
-
-				if(firstID % 10 !=0 ){
-					cout << "WARNING. something went wrong. first sensor of module should be mod 10";
-					cout << ", but is actually " << firstID << "\n";
-				}
-
-				for(int iSecondSensor=1; iSecondSensor<9; iSecondSensor++){
-					cout << "-------------------------------\n";
-					Matrix thisCombined = combineMatrix(firstID, iSecondSensor);
-					Matrix targetCombined = getMatrixOfficialGeometry(firstID, iSecondSensor, true);
-					cout << "thismat:\n" << thisCombined << "\ntargetmat:\n" << targetCombined << "\n";
-				}
-			}
-		}
-	}
-}
-
 void PndLmdAlignManager::waitForCompletion() {
 
 	//start all alignsers that have not already started (i.e. don't have required no of Pairs)
-
 	int notStarted=0;
 
 	cout << "starting remaining aligners.\n";
@@ -1554,7 +1695,6 @@ void PndLmdAlignManager::waitForCompletion() {
 			);
 			notStarted++;
 		}
-
 	}
 	cout << notStarted << " aligners remained.\n";
 
@@ -1617,7 +1757,6 @@ Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
 	scale.val[1][1]  *= 80e-4;
 
 	result = scale * shift;
-
 	return result;
 }
 
@@ -1628,25 +1767,6 @@ Matrix PndLmdAlignManager::makeFourVector(double x, double y, double z) {
 	result.val[2][0] = z;
 	result.val[3][0] = 1.0;
 	return result;
-}
-
-void PndLmdAlignManager::xOption(int option) {
-
-	if(option==15){
-		cout << "checking if cm and x are about the same data.\n";
-
-		//load pairs.root, it has (row,col) info and (x,y) info
-
-		//check if (x,y)... well, no. this won't work...
-
-
-
-	}
-	else{
-		cout << "invalid selection\n";
-		exit(0);
-	}
-
 }
 
 bool PndLmdAlignManager::writePairsToBinaryFiles() {
