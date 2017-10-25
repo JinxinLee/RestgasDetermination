@@ -730,13 +730,18 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters){
 
 		for (int id2 = id1 + 1; id2 < id1 + 10; id2++){
 
-			Matrix mManager = manager.combineMatrix(id1, id2, alignOptionBool);
-			manager.transformFromSensorToLmdLocal(mManager, id1, alignOptionBool);
-
-			Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
-			//cout << "Difference to " << id2 << ":\n" << mManager - senToSenOneStep << "\n"; // this is the final matrix in cm!
-
-			Matrix matrixDif = mManager - senToSenOneStep;
+			Matrix matrixDif;
+			if(inCentimeters){
+				Matrix mCombined = manager.combineMatrix(id1, id2, alignOptionBool);
+				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
+				matrixDif = mCombined - senToSenOneStep;
+			}
+			else{
+				Matrix mCombined = manager.combineMatrix(id1, id2, alignOptionBool);
+				manager.transformFromSensorToLmdLocal(mCombined, id1, alignOptionBool);
+				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
+				matrixDif = mCombined - senToSenOneStep;
+			}
 
 			//store this residual tuple to data
 			std::vector<double> result;
@@ -755,7 +760,7 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters){
 
 	//for DX
 	parameters.path = pdfdir + "/residualsCombined/";
-	parameters.title = "matrix combined 0-9 PX - Target, #DeltaX";
+	inCentimeters ? parameters.title = "matrix combined 0-9 CM - Target, #DeltaX" : parameters.title = "matrix combined 0-9 PX - Target, #DeltaX";
 	parameters.xtitle = "dX [#mum]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e4;
@@ -768,7 +773,7 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters){
 
 	//for DY
 	//parameters.path = pdfdir;
-	parameters.title = "matrix combined 0-9 PX - Target, #DeltaY";
+	inCentimeters ? parameters.title = "matrix combined 0-9 CM - Target, #DeltaY" : parameters.title = "matrix combined 0-9 PX - Target, #DeltaY";
 	parameters.xtitle = "dY [#mum]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e4;
@@ -781,7 +786,7 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters){
 
 	//for DAlpha
 	//parameters.path = pdfdir;
-	parameters.title = "matrix combined 0-9 PX - Target, #Delta#alpha";
+	inCentimeters ? parameters.title = "matrix combined 0-9 CM - Target, #Delta#alpha" : parameters.title = "matrix combined 0-9 PX - Target, #Delta#alpha";
 	parameters.xtitle = "d#alpha [#murad]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e6;

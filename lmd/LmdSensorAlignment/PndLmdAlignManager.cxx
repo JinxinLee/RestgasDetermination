@@ -1348,12 +1348,6 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 		transformFromLmdLocalToSensor(m56, id1+5, aligned);
 	}
 
-	// are all px matrices inverted?
-	//	if(!_inCentimeters){
-	//		m01 = m01.inv(m01);
-	//		m56 = m56.inv(m56);
-	//	}
-
 	Matrix m05 = readMatrix(m05f);
 	Matrix m18 = readMatrix(m18f);
 	Matrix m28 = readMatrix(m28f);
@@ -1378,7 +1372,6 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 		m47.inv();
 		m49.inv();
 	}
-
 
 	// since we read only correction matrices in cm, we must multiply them
 	// with the ideal senToSen to get the complete misaligned senToSen.
@@ -1411,40 +1404,7 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 	Matrix m94 = m49.inv(m49);
 
 
-	//wait, this is ALL backwards, I checked. This can only be if EVERY px matrix is inverted
-	//		switch(id2){
-	//		case 0:
-	//			result = m05*m56*m63*m38*m81*m10;		//uses hand-measured matrices m01 and m56
-	//			break;
-	//		case 1:
-	//			result = m18*m82*m29*m94*m47*m73*m38*m81;
-	//			break;
-	//		case 2:
-	//			result = m29*m94*m47*m73*m38*m82;
-	//			break;
-	//		case 3:
-	//			result = m37*m74*m49*m92*m28*m83;
-	//			break;
-	//		case 4:
-	//			result = m47*m73*m38*m82*m29*m94;
-	//			break;
-	//		case 5:
-	//			result = m56*m63*m38*m81*m10*m05;		//uses hand-measured matrices m01 and m56
-	//			break;
-	//		case 6:
-	//			result = m63*m37*m74*m49*m92*m28*m83*m36;
-	//			break;
-	//		case 7:
-	//			result = m73*m38*m82*m29*m94*m47;
-	//			break;
-	//		case 8:
-	//			result = m82*m29*m94*m47*m73*m38;
-	//			break;
-	//		case 9:
-	//			result = m94*m47*m73*m38*m82*m29;
-	//			break;
-	//		}
-
+	// case switch, conctruct all cyclic matrices
 	switch(id2){
 	case 0:
 		result = m10*m81*m38*m63*m56*m05;		//uses hand-measured matrices m01 and m56
@@ -1541,19 +1501,16 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 	string m47f = _matrixOutDir + makeMatrixFileName(id1+4, id1+7, _inCentimeters);
 	string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
 
-	//god gave us this matrix:
+	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
 	Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, aligned);
 	Matrix m56 = getMatrixOfficialGeometry(id1+5,id1+6, aligned);
 
-	//remember, CM matrices are in LMD local, px matrices are in sensor local!
+	// remember, CM matrices are in LMD local, px matrices are in sensor local!
+	// and since we know those from external measurements, we have those
 	if(!_inCentimeters){
-		transformFromLmdLocalToSensor(m01, id1, aligned);
+		transformFromLmdLocalToSensor(m01, id1+0, aligned);
 		transformFromLmdLocalToSensor(m56, id1+5, aligned);
 	}
-
-	// TODO: the following code can be optimized, as it currently computes the inverse of 9 matrices.
-	// also, only read matrices from disk that are required here.
-	// but that's not really a priority right now
 
 	Matrix m05 = readMatrix(m05f);
 	Matrix m18 = readMatrix(m18f);
@@ -1564,6 +1521,21 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 	Matrix m38 = readMatrix(m38f);
 	Matrix m47 = readMatrix(m47f);
 	Matrix m49 = readMatrix(m49f);
+
+	// I think all px matrices are inverted
+	if(!_inCentimeters){
+		m01.inv();
+		m56.inv();
+		m05.inv();
+		m18.inv();
+		m28.inv();
+		m29.inv();
+		m36.inv();
+		m37.inv();
+		m38.inv();
+		m47.inv();
+		m49.inv();
+	}
 
 	// since we read only correction matrices in cm, we must multiply them
 	// with the ideal senToSen to get the complete misaligned senToSen.
@@ -1580,20 +1552,12 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 		m38 = m38 * getMatrixOfficialGeometry(id1+3, id1+8, true);
 		m47 = m47 * getMatrixOfficialGeometry(id1+4, id1+7, true);
 		m49 = m49 * getMatrixOfficialGeometry(id1+4, id1+9, true);
-
-		//		m05 = m05 * getMatrixOfficialGeometry(0, 5, true);
-		//		m18 = m18 * getMatrixOfficialGeometry(1, 8, true);
-		//		m28 = m28 * getMatrixOfficialGeometry(2, 8, true);
-		//		m29 = m29 * getMatrixOfficialGeometry(2, 9, true);
-		//		m36 = m36 * getMatrixOfficialGeometry(3, 6, true);
-		//		m37 = m37 * getMatrixOfficialGeometry(3, 7, true);
-		//		m38 = m38 * getMatrixOfficialGeometry(3, 8, true);
-		//		m47 = m47 * getMatrixOfficialGeometry(4, 7, true);
-		//		m49 = m49 * getMatrixOfficialGeometry(4, 9, true);
 	}
 
+	//prepare inverted matrices
 	Matrix m10 = m01.inv(m01);
 	Matrix m50 = m05.inv(m05);
+	Matrix m65 = m56.inv(m56);
 	Matrix m81 = m18.inv(m18);
 	Matrix m82 = m28.inv(m28);
 	Matrix m92 = m29.inv(m29);
@@ -1606,41 +1570,36 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 	id2 %= 10;
 
 	//finally, if cascade:
-	//TODO: check if this is not backwards again.  multiplication goes from right to left!
-	// so, yeah. no. this is actually the inverse of the desired matrix.
-	// remember, (A*B)^-1 = B^-1 * A^-1
-	// for some reason, every matrix in px is inverted.
 	switch(id2){
-
 	case 0:
-		result = m05*m56*m63*m38*m81*m10;
+		result = m10*m81*m38*m63*m56*m05;
 		break;
 	case 1:
 		result = m01;
 		break;
 	case 2:
-		result = m01*m18*m82;
+		result = m82*m18*m01;
 		break;
 	case 3:
-		result = m01*m18*m83;
+		result = m83*m18*m01;
 		break;
 	case 4:
-		result = m01*m18*m82*m29*m94;		//TODO: case 4 can have two differnt paths, check both!
+		result = m94*m29*m82*m18*m01;
 		break;
 	case 5:
 		result = m05;
 		break;
 	case 6:
-		result = m05*m56;
+		result = m56*m05;
 		break;
 	case 7:
-		result = m05*m56*m63*m37;
+		result = m37*m63*m56*m05;
 		break;
 	case 8:
-		result = m05*m56*m63*m38;
+		result = m38*m63*m56*m05;
 		break;
 	case 9:
-		result = m05*m56*m63*m38*m82*m29;	//TODO: case 9 can have two differnt paths, check both!
+		result = m29*m82*m38*m63*m56*m05;
 		break;
 	default:
 		result = Matrix::eye(4);
@@ -1649,6 +1608,9 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 
 	//return successfully combined matrix
 	if(success){
+		if(!_inCentimeters){
+			result.inv();		//FIXME: this is from a bug where all PX matrices are inverted
+		}
 		return result;
 	}
 	//else return unity matrix
