@@ -128,6 +128,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 
 		string pdfdir = pdfOutPath;
 		_inCentimeters = true;
+		manager.setInCentimeters(true);
 
 		for(size_t i=0; i<idPairs.size(); i++){
 
@@ -148,18 +149,38 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//read matrices from disk
 			Matrix matrixCM = manager.readMatrix(matrixNameCM);
 
-			Matrix senToSenCorrTarget;
-			if(alignOptionBool){
-				senToSenCorrTarget = Matrix::eye(4);
-			}
-			else{
-				senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
-			}
-
+			Matrix matrixDif;
 			//transform both correction matrices to full sensor to sensor matrices
 			Matrix senToSenIdeal = manager.getMatrixOfficialGeometry(id1, id2, true);
 
-			Matrix matrixDif = (matrixCM*senToSenIdeal) - (senToSenCorrTarget*senToSenIdeal);
+			if(false){	//this one uses get Correction Matrix, tested and works
+
+				Matrix senToSenCorrTarget;
+				if(alignOptionBool){
+					senToSenCorrTarget = Matrix::eye(4);
+				}
+				else{
+					senToSenCorrTarget = manager.getCorrectionMatrix(id1, id2);
+				}
+				matrixDif = (matrixCM*senToSenIdeal) - (senToSenCorrTarget*senToSenIdeal);
+			}
+
+			else{		//this one uses the complete matrix AND DOES NOT WORK (don't know why)
+
+				Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
+
+				//these two lines are magic as far as I'm concerned
+				//manager.transformFromLmdLocalToSensor(senToSen, id1, alignOptionBool);	// THIS IS THE MAGIC BEAN
+				//manager.transformFromSensorToLmdLocal(senToSen, id1, true);
+
+				//next try, I think I'm onto it...
+				manager.transformFromLmdLocalToSensor(senToSenIdeal, id1, true);	// THIS IS THE MAGIC BEAN
+				manager.transformFromSensorToLmdLocal(senToSenIdeal, id1, alignOptionBool);
+
+				Matrix ICPcomplete = matrixCM*senToSenIdeal;
+
+				matrixDif = ICPcomplete - senToSen;
+			}
 
 			//store this residual tuple to data
 			std::vector<double> result;
@@ -254,6 +275,7 @@ void PndLmdAlignQA::compareMatrices(runParameter param){
 			//read matrices from disk
 			Matrix matrixPX = manager.readMatrix(matrixNamePX);
 			manager.transformFromSensorToLmdLocal(matrixPX, id1, alignOptionBool); // false = misaligned geometry
+
 			Matrix matrixDif = matrixPX - target;
 
 			//store this residual tuple to data
@@ -756,7 +778,7 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters){
 	}
 
 	histParams parameters;
-	//parameters.bins=25;
+	parameters.bins=20;
 
 	//for DX
 	parameters.path = pdfdir + "/residualsCombined/";
@@ -820,7 +842,10 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters){
 
 	Matrix cycle;
 	for(int i=0;i<400;i++){
+
+		// does not matter if in LMC local or sensor local, should always be identity matrix!
 		cycle = manager.combineCyclicMatrix(i, alignOptionBool);
+
 		//store this residual tuple to data
 		std::vector<double> result;
 		result.push_back(0);
@@ -833,7 +858,7 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters){
 
 	histParams parameters;
 
-	//parameters.bins=25;
+	parameters.bins=20;
 
 	//for DX
 	parameters.path = pdfdir + "/cyclicChecks/";

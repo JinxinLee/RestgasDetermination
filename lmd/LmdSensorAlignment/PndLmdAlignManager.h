@@ -62,12 +62,6 @@ private:
 	void alignST();
 	void alignMT();
 
-	//   bad idea, remove as soon as possible
-	//void prepareJobQueue();
-	//void waitForJobQueue();
-	//  /bad idea, remove as soon as possible
-
-
 	void alignOne(PndLmdSensorAligner &aligner);
 	void resetMTLB(int n, int r, int w);
 	void incrementMTLB();
@@ -87,6 +81,8 @@ private:
 	static std::string makeBinaryPairFileName(int sensorOne=0, int sensorTwo=0, bool incentimeters=true, bool correctionMatrix=false);
 	static std::string makeMatrixFileName(int overlapId=0, bool incentimeters=true, bool correctionMatrix=false);
 	static std::string makeMatrixFileName(int sensorOne=0, int sensorTwo=0, bool incentimeters=true, bool correctionMatrix=false);
+
+	void invertPXMatrixInLMD(Matrix &matrix, int startId, bool aligned);
 
 public:
 

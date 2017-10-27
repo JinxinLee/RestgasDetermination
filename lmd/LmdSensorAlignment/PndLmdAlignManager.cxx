@@ -1090,7 +1090,7 @@ Matrix PndLmdAlignManager::getCorrectionMatrix(int id) {
 Matrix PndLmdAlignManager::getCorrectionMatrix(int id1, int id2) {
 	Matrix corrId1 = getCorrectionMatrix(id1);
 	Matrix corrId2 = getCorrectionMatrix(id2);
-	return corrId2 * corrId1.inv(corrId1);
+	return corrId2 * Matrix::inv(corrId1);
 }
 
 Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
@@ -1313,6 +1313,13 @@ std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo,
 	return makeMatrixFileName(overlapId, incentimeters);
 }
 
+//FIXME: this method must go after the other bug is fixed
+void PndLmdAlignManager::invertPXMatrixInLMD(Matrix &matrix, int startId, bool aligned){
+
+	transformFromLmdLocalToSensor(matrix, startId, true);
+	transformFromSensorToLmdLocal(matrix, startId, aligned);
+}
+
 Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 
 	Matrix result = Matrix::eye(4);
@@ -1379,15 +1386,48 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 	// always have.
 	// but remember, they still live on separate modules.
 	if(_inCentimeters){
-		m05 = m05 * getMatrixOfficialGeometry(id1+0, id1+5, true);
-		m18 = m18 * getMatrixOfficialGeometry(id1+1, id1+8, true);
-		m28 = m28 * getMatrixOfficialGeometry(id1+2, id1+8, true);
-		m29 = m29 * getMatrixOfficialGeometry(id1+2, id1+9, true);
-		m36 = m36 * getMatrixOfficialGeometry(id1+3, id1+6, true);
-		m37 = m37 * getMatrixOfficialGeometry(id1+3, id1+7, true);
-		m38 = m38 * getMatrixOfficialGeometry(id1+3, id1+8, true);
-		m47 = m47 * getMatrixOfficialGeometry(id1+4, id1+7, true);
-		m49 = m49 * getMatrixOfficialGeometry(id1+4, id1+9, true);
+
+		// lets see if this works at all
+		//				m05 = Matrix::eye(4);
+		//				m18 = Matrix::eye(4);
+		//				m28 = Matrix::eye(4);
+		//				m29 = Matrix::eye(4);
+		//				m36 = Matrix::eye(4);
+		//				m37 = Matrix::eye(4);
+		//				m38 = Matrix::eye(4);
+		//				m47 = Matrix::eye(4);
+		//				m49 = Matrix::eye(4);
+
+		Matrix m05ideal = getMatrixOfficialGeometry(id1+0, id1+5, true);
+		Matrix m18ideal = getMatrixOfficialGeometry(id1+1, id1+8, true);
+		Matrix m28ideal = getMatrixOfficialGeometry(id1+2, id1+8, true);
+		Matrix m29ideal = getMatrixOfficialGeometry(id1+2, id1+9, true);
+		Matrix m36ideal = getMatrixOfficialGeometry(id1+3, id1+6, true);
+		Matrix m37ideal = getMatrixOfficialGeometry(id1+3, id1+7, true);
+		Matrix m38ideal = getMatrixOfficialGeometry(id1+3, id1+8, true);
+		Matrix m47ideal = getMatrixOfficialGeometry(id1+4, id1+7, true);
+		Matrix m49ideal = getMatrixOfficialGeometry(id1+4, id1+9, true);
+
+		//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
+		invertPXMatrixInLMD(m05ideal, id1+0, aligned);
+		invertPXMatrixInLMD(m18ideal, id1+1, aligned);
+		invertPXMatrixInLMD(m28ideal, id1+2, aligned);
+		invertPXMatrixInLMD(m29ideal, id1+2, aligned);
+		invertPXMatrixInLMD(m36ideal, id1+3, aligned);
+		invertPXMatrixInLMD(m37ideal, id1+3, aligned);
+		invertPXMatrixInLMD(m38ideal, id1+3, aligned);
+		invertPXMatrixInLMD(m47ideal, id1+4, aligned);
+		invertPXMatrixInLMD(m49ideal, id1+4, aligned);
+
+		m05 = m05 * m05ideal;
+		m18 = m18 * m18ideal;
+		m28 = m28 * m28ideal;
+		m29 = m29 * m29ideal;
+		m36 = m36 * m36ideal;
+		m37 = m37 * m37ideal;
+		m38 = m38 * m38ideal;
+		m47 = m47 * m47ideal;
+		m49 = m49 * m49ideal;
 	}
 
 	//prepare inverted matrices
@@ -1410,7 +1450,7 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 		result = m10*m81*m38*m63*m56*m05;		//uses hand-measured matrices m01 and m56
 		break;
 	case 1:
-		result = m81*m38*m73*m47*m94*m29*m82*m18;
+		result = m81*m38*m73*m47*m94*m29*m82*m18;	//FIXME: change to other path with self inverse
 		break;
 	case 2:
 		result = m82*m38*m73*m47*m94*m29;
@@ -1425,7 +1465,7 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 		result = m05*m10*m81*m38*m63*m56;		//uses hand-measured matrices m01 and m56
 		break;
 	case 6:
-		result = m36*m83*m28*m92*m49*m74*m37*m63;
+		result = m36*m83*m28*m92*m49*m74*m37*m63;	//FIXME: change to other path with self inverse
 		break;
 	case 7:
 		result = m47*m94*m29*m82*m38*m73;
@@ -1491,81 +1531,114 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 	}
 
 	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
-	string m05f = _matrixOutDir + makeMatrixFileName(id1+0, id1+5, _inCentimeters);
-	string m18f = _matrixOutDir + makeMatrixFileName(id1+1, id1+8, _inCentimeters);
-	string m28f = _matrixOutDir + makeMatrixFileName(id1+2, id1+8, _inCentimeters);
-	string m29f = _matrixOutDir + makeMatrixFileName(id1+2, id1+9, _inCentimeters);
-	string m36f = _matrixOutDir + makeMatrixFileName(id1+3, id1+6, _inCentimeters);
-	string m37f = _matrixOutDir + makeMatrixFileName(id1+3, id1+7, _inCentimeters);
-	string m38f = _matrixOutDir + makeMatrixFileName(id1+3, id1+8, _inCentimeters);
-	string m47f = _matrixOutDir + makeMatrixFileName(id1+4, id1+7, _inCentimeters);
-	string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
+		string m05f = _matrixOutDir + makeMatrixFileName(id1+0, id1+5, _inCentimeters);
+		string m18f = _matrixOutDir + makeMatrixFileName(id1+1, id1+8, _inCentimeters);
+		string m28f = _matrixOutDir + makeMatrixFileName(id1+2, id1+8, _inCentimeters);
+		string m29f = _matrixOutDir + makeMatrixFileName(id1+2, id1+9, _inCentimeters);
+		string m36f = _matrixOutDir + makeMatrixFileName(id1+3, id1+6, _inCentimeters);
+		string m37f = _matrixOutDir + makeMatrixFileName(id1+3, id1+7, _inCentimeters);
+		string m38f = _matrixOutDir + makeMatrixFileName(id1+3, id1+8, _inCentimeters);
+		string m47f = _matrixOutDir + makeMatrixFileName(id1+4, id1+7, _inCentimeters);
+		string m49f = _matrixOutDir + makeMatrixFileName(id1+4, id1+9, _inCentimeters);
 
-	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
-	Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, aligned);
-	Matrix m56 = getMatrixOfficialGeometry(id1+5,id1+6, aligned);
+		// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
+		Matrix m01 = getMatrixOfficialGeometry(id1, id1+1, aligned);
+		Matrix m56 = getMatrixOfficialGeometry(id1+5,id1+6, aligned);
 
-	// remember, CM matrices are in LMD local, px matrices are in sensor local!
-	// and since we know those from external measurements, we have those
-	if(!_inCentimeters){
-		transformFromLmdLocalToSensor(m01, id1+0, aligned);
-		transformFromLmdLocalToSensor(m56, id1+5, aligned);
-	}
+		// remember, CM matrices are in LMD local, px matrices are in sensor local!
+		// and since we know those from external measurements, we have those
+		if(!_inCentimeters){
+			transformFromLmdLocalToSensor(m01, id1+0, aligned);
+			transformFromLmdLocalToSensor(m56, id1+5, aligned);
+		}
 
-	Matrix m05 = readMatrix(m05f);
-	Matrix m18 = readMatrix(m18f);
-	Matrix m28 = readMatrix(m28f);
-	Matrix m29 = readMatrix(m29f);
-	Matrix m36 = readMatrix(m36f);
-	Matrix m37 = readMatrix(m37f);
-	Matrix m38 = readMatrix(m38f);
-	Matrix m47 = readMatrix(m47f);
-	Matrix m49 = readMatrix(m49f);
+		Matrix m05 = readMatrix(m05f);
+		Matrix m18 = readMatrix(m18f);
+		Matrix m28 = readMatrix(m28f);
+		Matrix m29 = readMatrix(m29f);
+		Matrix m36 = readMatrix(m36f);
+		Matrix m37 = readMatrix(m37f);
+		Matrix m38 = readMatrix(m38f);
+		Matrix m47 = readMatrix(m47f);
+		Matrix m49 = readMatrix(m49f);
 
-	// I think all px matrices are inverted
-	if(!_inCentimeters){
-		m01.inv();
-		m56.inv();
-		m05.inv();
-		m18.inv();
-		m28.inv();
-		m29.inv();
-		m36.inv();
-		m37.inv();
-		m38.inv();
-		m47.inv();
-		m49.inv();
-	}
+		// I think all px matrices are inverted
+		if(!_inCentimeters){
+			m01.inv();
+			m56.inv();
+			m05.inv();
+			m18.inv();
+			m28.inv();
+			m29.inv();
+			m36.inv();
+			m37.inv();
+			m38.inv();
+			m47.inv();
+			m49.inv();
+		}
 
-	// since we read only correction matrices in cm, we must multiply them
-	// with the ideal senToSen to get the complete misaligned senToSen.
-	// this isn't cheating as we are only using ideal matrices, which we should
-	// always have.
-	// but remember, they still live on separate modules.
-	if(_inCentimeters){
-		m05 = m05 * getMatrixOfficialGeometry(id1+0, id1+5, true);
-		m18 = m18 * getMatrixOfficialGeometry(id1+1, id1+8, true);
-		m28 = m28 * getMatrixOfficialGeometry(id1+2, id1+8, true);
-		m29 = m29 * getMatrixOfficialGeometry(id1+2, id1+9, true);
-		m36 = m36 * getMatrixOfficialGeometry(id1+3, id1+6, true);
-		m37 = m37 * getMatrixOfficialGeometry(id1+3, id1+7, true);
-		m38 = m38 * getMatrixOfficialGeometry(id1+3, id1+8, true);
-		m47 = m47 * getMatrixOfficialGeometry(id1+4, id1+7, true);
-		m49 = m49 * getMatrixOfficialGeometry(id1+4, id1+9, true);
-	}
+		// since we read only correction matrices in cm, we must multiply them
+		// with the ideal senToSen to get the complete misaligned senToSen.
+		// this isn't cheating as we are only using ideal matrices, which we should
+		// always have.
+		// but remember, they still live on separate modules.
+		if(_inCentimeters){
 
-	//prepare inverted matrices
-	Matrix m10 = m01.inv(m01);
-	Matrix m50 = m05.inv(m05);
-	Matrix m65 = m56.inv(m56);
-	Matrix m81 = m18.inv(m18);
-	Matrix m82 = m28.inv(m28);
-	Matrix m92 = m29.inv(m29);
-	Matrix m63 = m36.inv(m36);
-	Matrix m73 = m37.inv(m37);
-	Matrix m83 = m38.inv(m38);
-	Matrix m74 = m47.inv(m47);
-	Matrix m94 = m49.inv(m49);
+			// lets see if this works at all
+			//				m05 = Matrix::eye(4);
+			//				m18 = Matrix::eye(4);
+			//				m28 = Matrix::eye(4);
+			//				m29 = Matrix::eye(4);
+			//				m36 = Matrix::eye(4);
+			//				m37 = Matrix::eye(4);
+			//				m38 = Matrix::eye(4);
+			//				m47 = Matrix::eye(4);
+			//				m49 = Matrix::eye(4);
+
+			Matrix m05ideal = getMatrixOfficialGeometry(id1+0, id1+5, true);
+			Matrix m18ideal = getMatrixOfficialGeometry(id1+1, id1+8, true);
+			Matrix m28ideal = getMatrixOfficialGeometry(id1+2, id1+8, true);
+			Matrix m29ideal = getMatrixOfficialGeometry(id1+2, id1+9, true);
+			Matrix m36ideal = getMatrixOfficialGeometry(id1+3, id1+6, true);
+			Matrix m37ideal = getMatrixOfficialGeometry(id1+3, id1+7, true);
+			Matrix m38ideal = getMatrixOfficialGeometry(id1+3, id1+8, true);
+			Matrix m47ideal = getMatrixOfficialGeometry(id1+4, id1+7, true);
+			Matrix m49ideal = getMatrixOfficialGeometry(id1+4, id1+9, true);
+
+			//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
+			invertPXMatrixInLMD(m05ideal, id1+0, aligned);
+			invertPXMatrixInLMD(m18ideal, id1+1, aligned);
+			invertPXMatrixInLMD(m28ideal, id1+2, aligned);
+			invertPXMatrixInLMD(m29ideal, id1+2, aligned);
+			invertPXMatrixInLMD(m36ideal, id1+3, aligned);
+			invertPXMatrixInLMD(m37ideal, id1+3, aligned);
+			invertPXMatrixInLMD(m38ideal, id1+3, aligned);
+			invertPXMatrixInLMD(m47ideal, id1+4, aligned);
+			invertPXMatrixInLMD(m49ideal, id1+4, aligned);
+
+			m05 = m05 * m05ideal;
+			m18 = m18 * m18ideal;
+			m28 = m28 * m28ideal;
+			m29 = m29 * m29ideal;
+			m36 = m36 * m36ideal;
+			m37 = m37 * m37ideal;
+			m38 = m38 * m38ideal;
+			m47 = m47 * m47ideal;
+			m49 = m49 * m49ideal;
+		}
+
+		//prepare inverted matrices
+		Matrix m10 = m01.inv(m01);
+		Matrix m50 = m05.inv(m05);
+		Matrix m65 = m56.inv(m56);
+		Matrix m81 = m18.inv(m18);
+		Matrix m82 = m28.inv(m28);
+		Matrix m92 = m29.inv(m29);
+		Matrix m63 = m36.inv(m36);
+		Matrix m73 = m37.inv(m37);
+		Matrix m83 = m38.inv(m38);
+		Matrix m74 = m47.inv(m47);
+		Matrix m94 = m49.inv(m49);
 
 	id2 %= 10;
 
