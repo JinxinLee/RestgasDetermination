@@ -45,14 +45,14 @@ class PndFTSCAGBHit
     float Err2X() const { return fErr2X0; }
     float Err2Y() const { return fErr2X1; }
     float Err2Z() const { return fErr2X2; }
-  
+
     void GetLocalX0X1X2( float& x0, float& x1, float &x2 ) const;
 
     float Err2X0() const { return fErr2X0; }
     float Err2X1() const { return fErr2X1; }
     float ErrX12() const { return fErrX12; }
     float Err2X2() const { return fErr2X2; }
-  
+
     int IRow() const { return fIRow; }
     int ID() const { return fID; }
 
@@ -71,7 +71,7 @@ class PndFTSCAGBHit
     const float productZ = dx*fEY - dy*fEX;
     return sqrt( productX*productX + productY*productY + productZ*productZ ) / sqrt( fEX*fEX + fEY*fEY + fEZ*fEZ );
   }
-  
+
   bool IsLeft() const { return fIsLeft; }
   bool IsPileduped() const { return fIsPileuped; }
 
@@ -81,10 +81,10 @@ class PndFTSCAGBHit
 
   float C(int i1, int i2) const { return fC[i1][i2]; }
 #endif
-  
+
     FTSCAStrip* BStripP() const {  return fBStripP; }
     FTSCAStrip* FStripP() const {  return fFStripP; }
-  
+
     void SetX( float v ) {  fX = v; }
     void SetY( float v ) {  fY = v; }
     void SetZ( float v ) {  fZ = v; }
@@ -99,21 +99,21 @@ class PndFTSCAGBHit
     void SetErr2X1( float v ) {  fErr2X1 = v; }
     void SetErrX12( float v ) {  fErrX12 = v; }
     void SetErr2X2( float v ) {  fErr2X2 = v; }
-  
+
     void SetFStripP( FTSCAStrip* s ) {  fFStripP = s; }
     void SetBStripP( FTSCAStrip* s ) {  fBStripP = s; }
 
     void SetAngle( float v ) {  fPhi = v; }
     float Angle() const { return fPhi; }
 
-    void SetTubeR( float v ){ fTubeR = v; }
-    void SetTubeHalfLength( float v ){ fHalfLength = v; }
-  
-    void SetC( const TMatrixT<Double_t> c ) {  
-    for( int i=0; i<3; i++ ) 
-      for( int j=0; j<3; j++) fC[i][j] = c[i][j]; 
+    void SetC( const TMatrixT<Double_t> c ) {
+    for( int i=0; i<3; i++ )
+      for( int j=0; j<3; j++) fC[i][j] = c[i][j];
     }
 #if defined(DRIFT_TUBES)
+  void SetTubeR( float v ){ fTubeR = v; }
+  void SetTubeHalfLength( float v ){ fHalfLength = v; }
+
   void SetR(float v)      { fR = v; }
   void SetErr2R(float v)  { fErr2R = v; }
   void SetIsLeft(bool v)  { fIsLeft = v; }
@@ -129,7 +129,7 @@ class PndFTSCAGBHit
 
   void SetC( float v, int i1, int i2 ) {  fC[i1][i2] = v; }
 #endif
-  
+
     static bool Compare( const PndFTSCAGBHit &a, const PndFTSCAGBHit &b );
 
 /// \brief Hits reordering  in accordance with the geometry and the track-finder needs:
@@ -137,19 +137,19 @@ class PndFTSCAGBHit
 
     static bool CompareRowDown( const PndFTSCAGBHit &a, const PndFTSCAGBHit &b ) {
       return ( a.fIRow > b.fIRow );
-      
-/// Hits are sorted by  row number 
+
+/// Hits are sorted by  row number
     }
     static bool ComparePRowDown( const PndFTSCAGBHit *a, const PndFTSCAGBHit *b ) {
       return ( a->fIRow > b->fIRow );
-/// Hits are sorted by  row number 
+/// Hits are sorted by  row number
     }
 
   void SetPndDetID( int v ) { fPndDetID = v; }
   void SetPndHitID( int v ) { fPndHitID = v; }
   int PndDetID() const { return fPndDetID; }
   int PndHitID() const { return fPndHitID; }
-  
+
   friend ostream& operator<<(ostream& out, const PndFTSCAGBHit &a);
   friend istream& operator>>(istream& in, PndFTSCAGBHit &a);
 
@@ -164,7 +164,7 @@ class PndFTSCAGBHit
 
   protected:
     FTSCAStrip* fFStripP, *fBStripP;
-  
+
     double fX; //* X position
     double fY; //* Y position
     double fZ; //* Z position
