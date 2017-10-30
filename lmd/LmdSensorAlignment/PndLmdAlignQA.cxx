@@ -12,7 +12,11 @@
 
 #include <boost/filesystem.hpp>
 
-#include <boost/serialization/array_wrapper.hpp>
+#if BOOST_VERSION < 106400
+  #include <boost/serialization/array.hpp>
+#else
+  #include <boost/serialization/array_wrapper.hpp>
+#endif
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/lu.hpp>
 #include <boost/numeric/ublas/io.hpp>
