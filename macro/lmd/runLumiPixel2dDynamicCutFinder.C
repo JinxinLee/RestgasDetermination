@@ -50,7 +50,7 @@ void runLumiPixel2dDynamicCutFinder(const int nEvents=0, const int startEvent=00
 	parFile += startEvent;
 	parFile += ".root";
 	TString digiparFile = "lumi.digi.par";
-	std::string cutParameterfile = storePath.Data() + "/cutParameters.json";
+	TString cutParameterfile = storePath + TString("/cutParameters.json");
 
 	cout << "===================\ncut parameter file: "<< cutParameterfile << "\n===================\n";
 
@@ -81,7 +81,7 @@ void runLumiPixel2dDynamicCutFinder(const int nEvents=0, const int startEvent=00
 
 	//find dynamic cut parameters
 	LmdPairFinderTask* lmdPairFinder = new LmdPairFinderTask();
-	lmdPairFinder->findDynamicCutParameters(true, cutParameterfile);
+	lmdPairFinder->findDynamicCutParameters(true, cutParameterfile.Data() );
 	fRun->AddTask(lmdPairFinder);
 
 	//rtdb->setOutput(parInput1);
