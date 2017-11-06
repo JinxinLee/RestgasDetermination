@@ -7,18 +7,6 @@
  
 using namespace std;
 
-/*
-#include <TROOT.h>
-#include <TString.h>
-#include <TStopwatch.h>
-#include <FairRunAna.h>
-#include <FairRuntimeDb.h>
-#include <FairParRootFileIo.h>
-#include <FairParAsciiFileIo.h>
-#include <LmdPairFinderTask.h>
-#include <PndSdsGeoPar.h>
-*/
-
 void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
@@ -39,11 +27,11 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	inFile += ".root";
 
 	// -----   Parameter Files   ------------------------------------------------
-	TString parFile=storePath+"/Lumi_Params_";
+	TString parFile=storePath + TString("/Lumi_Params_");
 	parFile += startEvent;
 	parFile += ".root";
 	TString digiparFile = "lumi.digi.par";
-	std::string cutParameterfile = storePath.Data() + "/cutParameters.json";
+	TString cutParameterfile = storePath + TString("/cutParameters.json");
 
 	// -----   Output File   --------------------------------------------------
 	TString outFile = storePath+"/Lumi_Pairs_";
@@ -72,7 +60,7 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 
 	//use dynamic cut parameters
 	LmdPairFinderTask* lmdPairFinder = new LmdPairFinderTask();
-	lmdPairFinder->useDynamicCut(true, cutParameterfile);
+	lmdPairFinder->useDynamicCut(true, cutParameterfile.Data() );
 	fRun->AddTask(lmdPairFinder);
 
 	rtdb->setOutput(parInput1);
