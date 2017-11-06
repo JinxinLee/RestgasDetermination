@@ -40,16 +40,9 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 	manager.setSimpleStorage(simplestorage);
 	manager.setInCentimeters(incentimeters);
 	manager.setBinaryPairFileDirectory(binaryFilesDir);
-	manager.setMaxPairs(300e3);
-
-	// DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE ---
-	//manager.setMatrixOutDir(matrixDir);
-	//manager.compareCombinedMatrices();
-	//return;
-	// DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE --- DELETE THIS LINE ---
+	manager.setMaxPairs(600e3);
 
 	// ---------------------- check for binary files and sort/write, if necessary
-
 	bool binaryPairsPresent = manager.checkForBinaryFiles();
 
 	if(!binaryPairsPresent){
@@ -72,7 +65,7 @@ int runLumiPixel2fMatrixFinder(TString pairFilePath="test/boxtest-aligned-1.5/",
 		manager.alignAllSensors();
 	}
 
-	manager.computeCombinedMatrices();
+	//manager.computeCombinedMatrices();
 
 	// ---------------------- compute absolute correction matrices from overlap matrices and store to PndLmdDim format, compare to pndLmdDim
 
