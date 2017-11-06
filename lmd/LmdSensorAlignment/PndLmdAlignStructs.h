@@ -13,7 +13,7 @@
 #include "PndLmdHitPair.h"
 
 #include <TH1D.h>
-//#include <TCanvas.h>
+#include <TCanvas.h>
 
 #include <cmath>
 #include <iostream>
@@ -33,15 +33,16 @@ struct dynamicCutHandler
 
 	std::vector<double> samples;
 
-	double _minDist, _maxDist, _hardMax, _curveWidth;
+	double _minDist, _maxDist, _hardMax, _mean, _RMS;
 
 	dynamicCutHandler()
 	{
 		_overlapID = 0;
 		_minDist = _maxDist = 0.0;
 		_hardMax = 32 * 80e-4; //sensors should not be farther than 32 pixels, 2,5mm!
-		_curveWidth = 150e-4;  //empirical value, see report march 26th 2017
 		_ready = false;
+		_mean=0;
+		_RMS=0;
 	}
 
 	void addToSamples(PndLmdHitPair pair)
@@ -85,68 +86,52 @@ struct dynamicCutHandler
 	void calcMinAndMax()
 	{
 
-		int noOfBuckets = 128;
+		// choose 80 percent confidence interval:
+		std::sort(samples.begin(), samples.end());
+		int quantileMargin = samples.size()/10;
 
-		//try ROOT hist fit here
-		TH1D hist("hist", "hist", noOfBuckets, 0, 2560e-4);
+		vector<double>::const_iterator first = samples.begin() + quantileMargin;
+		vector<double>::const_iterator last = samples.end() - quantileMargin;
+		vector<double> confidenceInterval(first, last);
 
-		for (int iSample = 0; iSample < samples.size(); iSample++)
-		{
-			hist.Fill(samples[iSample]);
-		}
+		_minDist = confidenceInterval[0];			//should not underflow 0
+		_maxDist = confidenceInterval[confidenceInterval.size()-1];		//should not overflow _hardMax
 
-		double mean = hist.GetMean(1);
-		double RMS = hist.GetRMS(1);
+		// leave a little safety margin:
+		double spread = _maxDist-_minDist;
+		_minDist = std::max(0.0, confidenceInterval[0]-spread);			//should not underflow 0
+		_maxDist = std::min(_hardMax, confidenceInterval[confidenceInterval.size()-1] + spread);		//should not overflow _hardMax
 
-		_minDist = std::max(0.0, (mean-3*RMS));			//should not underflow 0
-		_maxDist = std::min(_hardMax, mean+3*RMS);		//should not overflow _hardMax
-
-		//TCanvas canvas;
-		//canvas.cd();
-		//hist.Draw();
-		//canvas.Print("hist-0.pdf");
-
-		//ghetto histogram for mean and sigma
-		/*
-		std::vector<int> buckets(noOfBuckets);
-
-		for (int iSample = 0; iSample < samples.size(); iSample++)
-		{
-			int bucket = -1;
-
-			//what bucket is this distance in?
-			bucket = (int)floor((samples[iSample] / _maxDist) * (noOfBuckets - 1));
-
-			if (bucket >= 0 && bucket < noOfBuckets)
-			{
-				//increment that bucket
-				buckets[bucket]++;
-			}
-			else
-			{
-				cout << "I screwed up, this should not happen.\n";
-			}
-		}
-
-		//find max bucket:
-		int bucket = 0;
-		int maxentries = buckets[0];
-
-		for (int iBucket = 1; iBucket < buckets.size(); iBucket++)
-		{
-			if (buckets[iBucket] >= maxentries)
-			{
-				maxentries = buckets[iBucket];
-				bucket = iBucket;
-			}
-		}
-
-		//calc min and max distance
-		_minDist = std::max(((bucket * _maxDist) / noOfBuckets) - _curveWidth, 0.0);	  //in case min is negative
-		_maxDist = std::min(((bucket * _maxDist) / noOfBuckets) + _curveWidth, _hardMax); //in case max overflows
-
-		*/
 		return;
+
+		//_minDist = std::max(0.0, (_mean-3*_RMS));			//should not underflow 0
+		//_maxDist = std::min(_hardMax, _mean+3*_RMS);		//should not overflow _hardMax
+
+//		int noOfBuckets = 128;
+//
+//		//try ROOT hist here
+//		TH1D hist("hist", "hist", noOfBuckets, _minDist, _maxDist);
+//		for (int iSample = 0; iSample < samples.size(); iSample++){
+//
+//			double value = samples[iSample];
+//			if(value > _maxDist){
+//				continue;
+//			}
+//			else{
+//				hist.Fill(value);
+//			}
+//		}
+//
+//		_mean = hist.GetMean(1);
+//		_RMS = hist.GetRMS(1);
+//
+//		if(_overlapID == 33){
+//			TCanvas canvas;
+//			canvas.cd();
+//			hist.Draw();
+//			canvas.Print("/home/arbeit/fairsoft_may16p1/pandaroot/macro/lmd/test/33.pdf");
+//		}
+//		return;
 	}
 
 	bool ready()
@@ -334,7 +319,7 @@ struct pixelCluster
 	void printCenter()
 	{
 		cout << "clusterCenter x:" << centerCol << ", y:" << centerRow << " on sensor " << _sensorId << ", contains " << pixelHits.size() << " pixels and is " << clusterSize << " pixels in diameter."
-			 << "\n";
+				<< "\n";
 	}
 };
 
