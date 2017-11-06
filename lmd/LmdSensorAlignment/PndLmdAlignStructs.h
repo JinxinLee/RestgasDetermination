@@ -95,8 +95,8 @@ struct dynamicCutHandler
 			hist.Fill(samples[iSample]);
 		}
 
-		double mean = hist.GetMean(0);
-		double RMS = hist.GetRMS(0);
+		double mean = hist.GetMean(1);
+		double RMS = hist.GetRMS(1);
 
 		_minDist = std::max(0.0, (mean-3*RMS));			//should not underflow 0
 		_maxDist = std::min(_hardMax, mean+3*RMS);		//should not overflow _hardMax
