@@ -377,6 +377,8 @@ void LmdPairFinderTask::FinishTask() {
 			configput << "dynamicCut.aligners." << handler._overlapID <<".";
 			config.put(configput.str() + "minDist", handler._minDist);
 			config.put(configput.str() + "maxDist", handler._maxDist);
+			config.put(configput.str() + "mean", handler._mean);
+			config.put(configput.str() + "RMS", handler._RMS);
 
 		}
 		if(notReady > 0){
@@ -430,7 +432,7 @@ void LmdPairFinderTask::FinishTask() {
 	printf("hits on plane 1: %.2f %%\n", plane1Percent);
 	printf("hits on plane 2: %.2f %%\n", plane2Percent);
 	printf("hits on plane 3: %.2f %%\n", plane3Percent);
-	printf("hits on all planes: %.2f %% \n", allPlanesPercent);
+	printf("hits on all planes: %.2f %% (should be 100%!) \n", allPlanesPercent);
 	cout << endl;
 	cout << "*************************************************************" << endl;
 	return;
@@ -478,7 +480,6 @@ bool LmdPairFinderTask::applyDynamicDistanceCut(PndLmdHitPair &candidate) {
 	if(distance < handler.getMinDist() || distance > handler.getMaxDist()){
 		return false;
 	}
-	noOfGoodPairs++;
 	return true;
 }
 
