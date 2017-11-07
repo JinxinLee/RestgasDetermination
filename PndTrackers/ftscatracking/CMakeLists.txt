@@ -1,5 +1,5 @@
 Set(SYSTEM_INCLUDE_DIRECTORIES
-  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${SYSTEM_INCLUDE_DIRECTORIES}
   ${BASE_INCLUDE_DIRECTORIES}
 )
 
@@ -13,11 +13,11 @@ EndIf()
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
-${BASE_INCLUDE_DIRECTORIES} 
-${CMAKE_SOURCE_DIR}/pnddata 
+${BASE_INCLUDE_DIRECTORIES}
+${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
-${CMAKE_SOURCE_DIR}/field 
+${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/FtsData
@@ -37,7 +37,7 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES} )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
@@ -63,20 +63,20 @@ code/PndFTSCATrackParamVector.cxx
 code/CAFunctionality.cxx
 
 code/Performance/PndFTSCAPerformance.cxx
-code/Performance/PndFTSPerformanceBase.cxx  
+code/Performance/PndFTSPerformanceBase.cxx
 code/Performance/PndFTSCATrackPerformanceBase.cxx
 code/Performance/PndFTSCAGlobalPerformance.cxx
 code/Performance/PndFTSCAMCTrack.cxx
 code/Performance/PndFTSCAMCPoint.cxx
-code/Performance/PndCATrackFtsMCPointContainer.cxx 
+code/Performance/PndCATrackFtsMCPointContainer.cxx
 )
 
 #add_definitions(-DENABLE_VECTORIZATION)
 #If(APPLE)
-#  ADD_DEFINITIONS( -Wall -Wabi -Wsign-promo -Wno-pmf-conversions -Wctor-dtor-privacy -Wreorder -Wno-deprecated -Wstrict-null-sentinel -Wno-parentheses -DSTAR_HFT -DDRAW -DALICE_ITS -DUSE_MC_PV -DDRIFT_TUBES 
+#  ADD_DEFINITIONS( -Wall -Wabi -Wsign-promo -Wno-pmf-conversions -Wctor-dtor-privacy -Wreorder -Wno-deprecated -Wstrict-null-sentinel -Wno-parentheses -DSTAR_HFT -DDRAW -DALICE_ITS -DUSE_MC_PV -DDRIFT_TUBES
 #  -DPANDA_FTS -DDRIFT_TUBES -DKFPARTICLE -DKFPARTICLEFINDER -DCONVERTER -DDO_TPCCATRACKER_EFF_PERFORMANCE) #-DPANDA_STT
 #Else()
-#  ADD_DEFINITIONS( -Wall -Wabi -fabi-version=0 -Wsign-promo -Wno-pmf-conversions -Wctor-dtor-privacy -Wreorder -Wno-deprecated -Wstrict-null-sentinel -Wno-parentheses -DSTAR_HFT -DDRAW -DALICE_ITS -DUSE_MC_PV -DDRIFT_TUBES 
+#  ADD_DEFINITIONS( -Wall -Wabi -fabi-version=0 -Wsign-promo -Wno-pmf-conversions -Wctor-dtor-privacy -Wreorder -Wno-deprecated -Wstrict-null-sentinel -Wno-parentheses -DSTAR_HFT -DDRAW -DALICE_ITS -DUSE_MC_PV -DDRIFT_TUBES
 #  -DPANDA_FTS -DDRIFT_TUBES -DKFPARTICLE -DKFPARTICLEFINDER -DCONVERTER -DDO_TPCCATRACKER_EFF_PERFORMANCE) #-DPANDA_STT
 #EndIf()
 
@@ -92,6 +92,6 @@ EndIf()
 set(LINKDEF  FtsCATrackingLinkDef.h)
 set(LIBRARY_NAME CAFtsTracking)
 
-set(DEPENDENCIES PndData Vc.a)
+set(DEPENDENCIES PndData Vc)
 
 GENERATE_LIBRARY()
