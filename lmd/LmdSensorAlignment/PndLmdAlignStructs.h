@@ -88,25 +88,25 @@ struct dynamicCutHandler
 
 		// choose 80 percent confidence interval:
 		std::sort(samples.begin(), samples.end());
-		int quantileMargin = samples.size()/10;
+		int quantileMargin = samples.size()/10;			// shave 10% from front and back
 
 		vector<double>::const_iterator first = samples.begin() + quantileMargin;
 		vector<double>::const_iterator last = samples.end() - quantileMargin;
 		vector<double> confidenceInterval(first, last);
 
-		_minDist = confidenceInterval[0];			//should not underflow 0
-		_maxDist = confidenceInterval[confidenceInterval.size()-1];		//should not overflow _hardMax
+		_minDist = confidenceInterval[0];
+		_maxDist = confidenceInterval[confidenceInterval.size()-1];
 
 		// leave a little safety margin:
 		double spread = _maxDist-_minDist;
-		_minDist = std::max(0.0, confidenceInterval[0]-spread);			//should not underflow 0
-		_maxDist = std::min(_hardMax, confidenceInterval[confidenceInterval.size()-1] + spread);		//should not overflow _hardMax
+		_minDist = std::max(0.0, confidenceInterval[0]-spread);										//should not underflow 0
+		_maxDist = std::min(_hardMax, confidenceInterval[confidenceInterval.size()-1] + spread);	//should not overflow _hardMax
 
 		return;
 
-		//_minDist = std::max(0.0, (_mean-3*_RMS));			//should not underflow 0
-		//_maxDist = std::min(_hardMax, _mean+3*_RMS);		//should not overflow _hardMax
-
+//		_minDist = std::max(0.0, (_mean-3*_RMS));			//should not underflow 0
+//		_maxDist = std::min(_hardMax, _mean+3*_RMS);		//should not overflow _hardMax
+//
 //		int noOfBuckets = 128;
 //
 //		//try ROOT hist here

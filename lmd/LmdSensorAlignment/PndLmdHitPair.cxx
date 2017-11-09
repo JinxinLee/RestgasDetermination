@@ -183,7 +183,8 @@ bool PndLmdHitPair::hitSensors(Int_t first, Int_t second) {
 void PndLmdHitPair::calculateDistance() {
 
 	/*
-	 * push both hits on the same z plane, z distance is irrelevant.
+	 * push both hits on the same z plane, z distance is irrelevant. This works only in LmdLocal!
+	 * In PndGlobal, there is also a 40mrad rotation involved!
 	 */
 	if(hit1present && hit2present){
 		TVector3 backHit = TVector3(_hit2);

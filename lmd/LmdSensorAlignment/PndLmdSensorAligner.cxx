@@ -866,6 +866,7 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		//check header
 		doublesPerPair = header[1];
 		nPairs = header[2];
+		numberOfPairs = nPairs;
 		noOfDoubles = nPairs * doublesPerPair + headersize;
 		size_t filesizeMust = sizeof(double) * (noOfDoubles);
 

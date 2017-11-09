@@ -22,11 +22,18 @@
 
 #include <matrix.h>
 
+struct allPairs{
+
+};
+
 class PndLmdSensorAligner{
 
 private:
+
+	friend class PndLmdAlignQA;
+
 	bool forceInstant, reshapePointClouds, debug;
-	int _maxNoOfPairs, lastNoOfPairs;
+	int _maxNoOfPairs, numberOfPairs, lastNoOfPairs;
 	std::string _inputFilename;
 	int _moduleID, overlapID;
 	int nonSanePairs, skippedPairs, swappedPairs, _verbose;
@@ -60,16 +67,9 @@ public:
 	//every constructor should call this, also resets aligner (even though that never happens in normal use)
 	void init();
 
-	//legacy function, no longer supported
-	// add pair, make to vector
-	//void addPair(PndLmdHitPair &pair);
 
-	// add simplified pair, for size and perfomance reasons, return false if aligner has enough pairs, return true if successful
+	// add simplified pair, for size and performance reasons, return false if aligner has enough pairs, return true if successful
 	bool addSimplePair(PndLmdHitPair &pair);
-
-	//TODO: remove this after checks
-	// add simplified pair, for size and perfomance reasons
-	//void addSimplePairOld(PndLmdHitPair &pair);
 
 	bool writePairsToBinary(std::string directory);
 	bool readPairsFromBinary(std::string directory);
@@ -78,7 +78,14 @@ public:
 	void setMaximumNumberOfHitPairs(Int_t maxPais){
 		if(maxPais > 0){
 			_maxNoOfPairs=maxPais;
+
 			//check vector capacity to avoid constant re-allocation, use max pairs
+			simpleSensorOneX.reserve(maxPais);
+			simpleSensorOneY.reserve(maxPais);
+			simpleSensorOneZ.reserve(maxPais);
+			simpleSensorTwoX.reserve(maxPais);
+			simpleSensorTwoY.reserve(maxPais);
+			simpleSensorTwoZ.reserve(maxPais);
 		}
 	}
 
@@ -96,12 +103,7 @@ public:
 		return _moduleID;
 	}
 	int getNoOfPairs(){
-//		if(_simpleStorage){
 			return std::max(simpleSensorOneX.size(),(size_t)lastNoOfPairs);
-//		}
-//		else{
-//			return pairs.size();
-//		}
 	}
 
 	void calculateMatrix();
@@ -124,7 +126,6 @@ public:
 	}
 
 	//true in cm, false in pixels
-	//FIXME: only works with non-simplified pairs, fix this!
 	void setInCentimeters(bool inCentimeters) {
 		_inCentimeters = inCentimeters;
 	}

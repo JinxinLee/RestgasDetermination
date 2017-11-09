@@ -1314,7 +1314,7 @@ std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo,
 }
 
 //FIXME: this method must go after the other bug is fixed
-void PndLmdAlignManager::invertPXMatrixInLMD(Matrix &matrix, int startId, bool aligned){
+void PndLmdAlignManager::realignMatrixInLmd(Matrix &matrix, int startId, bool aligned){
 
 	transformFromLmdLocalToSensor(matrix, startId, true);
 	transformFromSensorToLmdLocal(matrix, startId, aligned);
@@ -1387,17 +1387,6 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 	// but remember, they still live on separate modules.
 	if(_inCentimeters){
 
-		// lets see if this works at all
-		//				m05 = Matrix::eye(4);
-		//				m18 = Matrix::eye(4);
-		//				m28 = Matrix::eye(4);
-		//				m29 = Matrix::eye(4);
-		//				m36 = Matrix::eye(4);
-		//				m37 = Matrix::eye(4);
-		//				m38 = Matrix::eye(4);
-		//				m47 = Matrix::eye(4);
-		//				m49 = Matrix::eye(4);
-
 		Matrix m05ideal = getMatrixOfficialGeometry(id1+0, id1+5, true);
 		Matrix m18ideal = getMatrixOfficialGeometry(id1+1, id1+8, true);
 		Matrix m28ideal = getMatrixOfficialGeometry(id1+2, id1+8, true);
@@ -1409,15 +1398,15 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 		Matrix m49ideal = getMatrixOfficialGeometry(id1+4, id1+9, true);
 
 		//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
-		invertPXMatrixInLMD(m05ideal, id1+0, aligned);
-		invertPXMatrixInLMD(m18ideal, id1+1, aligned);
-		invertPXMatrixInLMD(m28ideal, id1+2, aligned);
-		invertPXMatrixInLMD(m29ideal, id1+2, aligned);
-		invertPXMatrixInLMD(m36ideal, id1+3, aligned);
-		invertPXMatrixInLMD(m37ideal, id1+3, aligned);
-		invertPXMatrixInLMD(m38ideal, id1+3, aligned);
-		invertPXMatrixInLMD(m47ideal, id1+4, aligned);
-		invertPXMatrixInLMD(m49ideal, id1+4, aligned);
+		realignMatrixInLmd(m05ideal, id1+0, aligned);
+		realignMatrixInLmd(m18ideal, id1+1, aligned);
+		realignMatrixInLmd(m28ideal, id1+2, aligned);
+		realignMatrixInLmd(m29ideal, id1+2, aligned);
+		realignMatrixInLmd(m36ideal, id1+3, aligned);
+		realignMatrixInLmd(m37ideal, id1+3, aligned);
+		realignMatrixInLmd(m38ideal, id1+3, aligned);
+		realignMatrixInLmd(m47ideal, id1+4, aligned);
+		realignMatrixInLmd(m49ideal, id1+4, aligned);
 
 		m05 = m05 * m05ideal;
 		m18 = m18 * m18ideal;
@@ -1584,17 +1573,6 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 		// but remember, they still live on separate modules.
 		if(_inCentimeters){
 
-			// lets see if this works at all
-			//				m05 = Matrix::eye(4);
-			//				m18 = Matrix::eye(4);
-			//				m28 = Matrix::eye(4);
-			//				m29 = Matrix::eye(4);
-			//				m36 = Matrix::eye(4);
-			//				m37 = Matrix::eye(4);
-			//				m38 = Matrix::eye(4);
-			//				m47 = Matrix::eye(4);
-			//				m49 = Matrix::eye(4);
-
 			Matrix m05ideal = getMatrixOfficialGeometry(id1+0, id1+5, true);
 			Matrix m18ideal = getMatrixOfficialGeometry(id1+1, id1+8, true);
 			Matrix m28ideal = getMatrixOfficialGeometry(id1+2, id1+8, true);
@@ -1606,15 +1584,15 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 			Matrix m49ideal = getMatrixOfficialGeometry(id1+4, id1+9, true);
 
 			//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
-			invertPXMatrixInLMD(m05ideal, id1+0, aligned);
-			invertPXMatrixInLMD(m18ideal, id1+1, aligned);
-			invertPXMatrixInLMD(m28ideal, id1+2, aligned);
-			invertPXMatrixInLMD(m29ideal, id1+2, aligned);
-			invertPXMatrixInLMD(m36ideal, id1+3, aligned);
-			invertPXMatrixInLMD(m37ideal, id1+3, aligned);
-			invertPXMatrixInLMD(m38ideal, id1+3, aligned);
-			invertPXMatrixInLMD(m47ideal, id1+4, aligned);
-			invertPXMatrixInLMD(m49ideal, id1+4, aligned);
+			realignMatrixInLmd(m05ideal, id1+0, aligned);
+			realignMatrixInLmd(m18ideal, id1+1, aligned);
+			realignMatrixInLmd(m28ideal, id1+2, aligned);
+			realignMatrixInLmd(m29ideal, id1+2, aligned);
+			realignMatrixInLmd(m36ideal, id1+3, aligned);
+			realignMatrixInLmd(m37ideal, id1+3, aligned);
+			realignMatrixInLmd(m38ideal, id1+3, aligned);
+			realignMatrixInLmd(m47ideal, id1+4, aligned);
+			realignMatrixInLmd(m49ideal, id1+4, aligned);
 
 			m05 = m05 * m05ideal;
 			m18 = m18 * m18ideal;
@@ -1843,7 +1821,6 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 
 	cout << "reading all pairs from binary files\n";
 
-	//maybe do this multithreaded?
 	for(mapIt it=aligners.begin(); it != aligners.end(); it++){
 		loadBar(cur++, tot, 1000, 60);
 		if(!it->second.readPairsFromBinary(_binaryPairFileDirectory)){
@@ -1875,7 +1852,7 @@ boost::property_tree::ptree PndLmdAlignManager::readConfigFile(std::string filen
 	try{
 		boost::property_tree::read_json(is, root);
 	}
-	catch(exception e){
+	catch(exception &e){
 		cerr << "PndLmdAlignManager::readConfig: ERROR! Can't parse json file " << filename << ".\n";
 	}
 	return root;

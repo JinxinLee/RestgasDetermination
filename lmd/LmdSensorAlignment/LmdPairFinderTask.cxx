@@ -77,7 +77,6 @@ InitStatus LmdPairFinderTask::Init() {
 	dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat",false);
 
 	if(!_findDynamicCutParameters && _useDynamicCut){
-		// TODO: read dynamic cut parameters from disk
 		cout << "PndLmdSensorAligner: reading dynamic cut Parameters from file... ";
 		std::vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
 
@@ -100,7 +99,7 @@ InitStatus LmdPairFinderTask::Init() {
 					handler._minDist = config.get<double>(configput.str() + "minDist");
 					handler._maxDist = config.get<double>(configput.str() + "maxDist");
 				}
-				catch(exception e){
+				catch(exception &e){
 					cerr << "PndLmdSensorAligner: ERROR! Parameter not found in config file!\n";
 				}
 				handler._ready = true;
@@ -289,7 +288,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			 * prior to suitability check, because that relies on the TVector3s
 			 * in the HitPair in LMD Coordinates. This is using the perfect geometry,
 			 * since we don't know the misalignment at this point. This also sets
-			 * overlapID, moduleID and the TVector3 for hit1 and hit2
+			 * overlapID, moduleID and the TVector3 for hit1 and hit2.
 			 */
 			transformToLMDlocal(pairCanditate);
 			pairCanditate.check();
@@ -360,11 +359,8 @@ void LmdPairFinderTask::FinishTask() {
 
 	//were we looking for dynamic cut parameters? write them to disk
 	if(_findDynamicCutParameters){
-		//TODO: write all cutHandlers Data to disk
 		cout << "PndLmdSensorAligner: writing cut parameters to disk...\n";
-
 		for (auto &handlerIt : cutHandlers){
-
 			dynamicCutHandler &handler = handlerIt.second;
 			if(!handler._ready){
 				notReady++;

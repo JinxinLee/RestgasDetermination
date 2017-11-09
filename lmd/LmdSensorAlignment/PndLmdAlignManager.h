@@ -82,7 +82,7 @@ private:
 	static std::string makeMatrixFileName(int overlapId=0, bool incentimeters=true, bool correctionMatrix=false);
 	static std::string makeMatrixFileName(int sensorOne=0, int sensorTwo=0, bool incentimeters=true, bool correctionMatrix=false);
 
-	void invertPXMatrixInLMD(Matrix &matrix, int startId, bool aligned);
+	void realignMatrixInLmd(Matrix &matrix, int startId, bool aligned);
 
 public:
 
