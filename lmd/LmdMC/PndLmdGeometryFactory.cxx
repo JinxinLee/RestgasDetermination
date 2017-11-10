@@ -28,10 +28,7 @@ using boost::property_tree::ptree;
 PndLmdGeometryFactory::PndLmdGeometryFactory(
 		const ptree& geometry_property_tree_) :
 		geometry_property_tree(geometry_property_tree_), gGeoMan(
-				(TGeoManager*) gROOT->FindObject("FAIRGeom")), active_sensor_volume(
-		nullptr), passive_sensor_volume(nullptr), aluminum_support_volume(
-		nullptr), cvd_disc_volume(nullptr), sensor_cables_volume(nullptr), global_sensor_id_counter(0), global_aluminum_support_counter(
-				0), global_cvd_disc_counter(0) {
+				(TGeoManager*) gROOT->FindObject("FAIRGeom")) {
 
 	auto pt_general = geometry_property_tree.get_child("general");
 	for (ptree::value_type &nav_path : pt_general.get_child("navigation_paths")) {
@@ -44,9 +41,6 @@ PndLmdGeometryFactory::~PndLmdGeometryFactory() {
 
 void PndLmdGeometryFactory::init(FairGeoLoader* geoLoad) {
 	retrieveMaterial(geoLoad);
-
-	generateSensor();
-	generateCoolingStructures();
 }
 
 void PndLmdGeometryFactory::retrieveMaterial(FairGeoLoader* geoLoad) {
@@ -102,11 +96,10 @@ void PndLmdGeometryFactory::generateLmdGeometry(
 	// generate beam pipe segment
 	generateBeamPipe(*lmd_vac_box);
 
-	// generate upper detector half
-	generateDetectorHalf(true);
-
-	// generate lower detector half
-	generateDetectorHalf(false);
+	lmd_vac_box->AddNode(generateSensorModule(), 0);
+	// generate upper detector halves
+	//TGeoVolume *lmd_det_half = generateDetectorHalf();
+	// add it twice to the geometry...
 
 	// place correctly in mother volume
 	mother_volume.AddNode(lmd_vac_box, 1, lmd_frame_transformation);
@@ -413,461 +406,270 @@ void PndLmdGeometryFactory::generateBeamPipe(TGeoVolume& mother_volume) const {
 	mother_volume.AddNode(vlum_pipe_box_do, 0);
 }
 
-TGeoVolume* PndLmdGeometryFactory::generateDetectorHalf(
-		bool is_upper_half) const {
-
-	// make four half planes
-	// for loop
-	// step 1: AddNode of cooling support to mother volume
-	// step 2: equip this cooling support with sensors for loop over number of sensors per half plane
-
-}
-
-/*TGeoVolume* PndLmdGeometryFactory::generateDetectorHalfPlane(
-		unsigned int plane_index) const {
-
-}*/
-
-void PndLmdGeometryFactory::generateCoolingStructures() {
-	if (nullptr == aluminum_support_volume) {
-		auto pt_cool_support = geometry_property_tree.get_child("cooling_support");
-
-		double outer_radius(pt_cool_support.get<double>("outer_radius"));
-		double inner_radius(pt_cool_support.get<double>("inner_radius"));
-		double radius_diff(outer_radius - inner_radius);
-
-		// construct first a tube segment
-		TGeoTubeSeg* cool_support_tube_segment = new TGeoTubeSeg(
-				"cool_support_tube_segment", inner_radius, outer_radius,
-				pt_cool_support.get<double>("thickness") / 2.0, 0, 180);
-
-		// to cut off little bit below to adapt to clash planes
-		double clash_plane_thickness(
-				geometry_property_tree.get<double>(
-						"vacuum_box.horizontal_detector_half_clash_plates.thickness"));
-
-		TGeoBBox* clash_plane_cut = new TGeoBBox("cool_support_clash_plane_cutoff",
-				radius_diff + 0.1, clash_plane_thickness / 2.0 + 0.001,
-				pt_cool_support.get<double>("thickness") + 0.1);
-
-		/*
-		 // We need some cut outs for the modules and the outer structure
-		 // we give them a little bit more space for misalignment studies without clashing volumes
-		 TGeoTube* shape_module_cutout = new TGeoTube("shape_module_cutout", 0., cvd_disc_rad + 0.05,
-		 cvd_disc_thick_half + 2 * kapton_disc_thick_half + 0.01);
-		 for (size_t imodule = 0; imodule < nmodules * 2; imodule++) {
-		 double angle = delta_phi / 2. + imodule * delta_phi;
-		 double add_z = cvd_disc_even_odd_offset;
-		 // the offset of the modules in the upper and lower halfs
-		 // are opposite
-		 if (((imodule) % 2) == 0)
-		 add_z = -add_z;
-		 double _x = cos(angle) * cvd_disc_dist;
-		 double _y = sin(angle) * cvd_disc_dist;
-		 TGeoTranslation* trans_shape_module_cutout = new TGeoTranslation(_x, _y,
-		 add_z);
-		 TGeoCombiTrans* combtrans_shape_module_cutout = new TGeoCombiTrans(
-		 *trans_shape_module_cutout, *rot_no);
-		 stringstream _cutout_name;
-		 _cutout_name << "rottrans_cutout_" << imodule;
-		 combtrans_shape_module_cutout->SetName(_cutout_name.str().c_str());
-		 combtrans_shape_module_cutout->RegisterYourself();
-
-		 _x = cos(angle) * (lmd_cool_sup_outer_cut + lmd_cool_sup_outer_rad);
-		 _y = sin(angle) * (lmd_cool_sup_outer_cut + lmd_cool_sup_outer_rad);
-		 TGeoTranslation* trans_cool_sup_cut_outer = new TGeoTranslation(_x, _y, 0.);
-		 stringstream _cutshape_rot_name;
-		 _cutshape_rot_name << "cutshaperot_" << imodule;
-		 TGeoRotation* rot_cool_sup_cut_outer = new TGeoRotation(
-		 _cutshape_rot_name.str().c_str(), angle / pi * 180., 0., 0.);
-		 TGeoCombiTrans* combtrans_cool_sup_cut_outer = new TGeoCombiTrans(
-		 *trans_cool_sup_cut_outer, *rot_cool_sup_cut_outer);
-		 stringstream _cutshape_name;
-		 _cutshape_name << "cutshape_" << imodule;
-		 combtrans_cool_sup_cut_outer->SetName(_cutshape_name.str().c_str());
-		 combtrans_cool_sup_cut_outer->RegisterYourself();
-		 }*/
-
-		TGeoTranslation* trans_clash_cut_left = new TGeoTranslation(
-				"trans_clash_cut_left", -inner_radius - radius_diff / 2.0, 0.0, 0.);
-		trans_clash_cut_left->RegisterYourself();
-		TGeoTranslation* trans_clash_cut_right = new TGeoTranslation(
-				"trans_clash_cut_right", +inner_radius + radius_diff / 2.0, 0.0, 0.);
-		trans_clash_cut_right->RegisterYourself();
-
-		// construct the support from basic shape and it's cut outs
-		TGeoCompositeShape *cool_support =
-				new TGeoCompositeShape("cool_support",
-						"cool_support_tube_segment-cool_support_clash_plane_cutoff:trans_clash_cut_left-cool_support_clash_plane_cutoff:trans_clash_cut_right");
-
-		aluminum_support_volume = new TGeoVolume("vol_cool_support", cool_support,
-				gGeoMan->GetMedium("Aluminum"));
-		aluminum_support_volume->SetLineColor(kGray);
-
-		// cvd disc
-		auto pt_cvd_disc = pt_cool_support.get_child("cvd_disc");
-		unsigned int num_modules_per_plane(
-				geometry_property_tree.get<double>("general.modules_per_half_plane"));
-		double gap_between_disc_and_support_structure(0.1);
-		TGeoTubeSeg* cvd_disc = new TGeoTubeSeg("cvd_disc",
-				pt_cvd_disc.get<double>("inner_radius"),
-				inner_radius - gap_between_disc_and_support_structure,
-				pt_cvd_disc.get<double>("thickness"), 0.0,
-				180.0 / num_modules_per_plane);
-
-		cvd_disc_volume = new TGeoVolume("lmd_vol_cvd_disc", cvd_disc,
-				gGeoMan->GetMedium("HYPdiamond"));
-		cvd_disc_volume->SetLineColor(9);
+TGeoVolume* PndLmdGeometryFactory::generateDetectorHalf() const {
+	std::vector<double> plane_z_positions;
+	auto pt_general = geometry_property_tree.get_child("general");
+	for (ptree::value_type &plane_z : pt_general.get_child("plane_z_positions")) {
+		plane_z_positions.push_back(plane_z.second.get_value<double>());
 	}
-}
 
-void PndLmdGeometryFactory::generateSensorModule(
-		TGeoVolume& mother_volume) const {
-	/*	// ****************************** luminosity detector reference system ************************
-	 // definition of the luminosity detector local system
-	 TGeoCombiTrans* rottrans_lmd_in_box = new TGeoCombiTrans(
-	 "rottrans_lmd_in_box", 0., 0., pos_plane_0, rot_no);
-	 TGeoVolumeAssembly* lmd_vol_ref_sys = new TGeoVolumeAssembly(
-	 nav_paths[1].c_str());
-	 // definition of the retractable luminosity detector halves
+	TGeoVolumeAssembly* lmd_vol_half = new TGeoVolumeAssembly(
+			navigation_paths[1].c_str());
 
-
-	 // *********************************** HV-MAPS *************************************
-
-
-	 // **************************************************************
-
-	 // ****************************** loops in the luminosity detector ************************
-	 stringstream name;
-	 stringstream uniqueid; // seems pandaroot has problems when volumes are not uniquely named
-	 double _x(0), _y(0), _z(0), _rotphi(0), _rottheta(0), _rotpsi(0);
-	 double _offset_x(0), _offset_y(0), _offset_z(0), _offset_phi(0),
-	 _offset_theta(0), _offset_psi(0);
-	 unsigned int sensor_id(0);
-	 unsigned int module_id(0);
-	 for (unsigned int ihalf = 0; ihalf < 2; ihalf++) { // loop over detector halves
-	 // in order do be able to displace the detector halves those are introduced as
-	 // separate volume assemblies
-	 name.str("");
-	 name << nav_paths[2];		// << ihalf;
-	 uniqueid.str("");
-	 //uniqueid << "_" << ihalf;
-	 TGeoVolumeAssembly* lmd_vol_half_ = new TGeoVolumeAssembly(
-	 name.str().c_str());
-	 //mothervol.AddNode(lmd_vol_half_, 0, rottrans_no);
-	 for (unsigned int iplane = 0; iplane < n_planes; iplane++) { // loop over planes
-	 name.str("");
-	 name << nav_paths[3]; // << iplane;
-	 uniqueid.str("");
-	 //uniqueid << "_" << ihalf << iplane;
-	 TGeoVolumeAssembly* lmd_vol_plane_ = new TGeoVolumeAssembly(
-	 (name.str() + uniqueid.str()).c_str());
-	 // move to the position of the corresponding plane
-	 TGeoMatrix* rottrans_plane = new TGeoCombiTrans(0., 0.,
-	 plane_pos_z[iplane], rot_no);
-	 if (misaligned) {
-	 Get_offset(ihalf, iplane, -1, -1, -1, -1, _offset_x, _offset_y,
-	 _offset_z, _offset_phi, _offset_theta, _offset_psi, true);
-	 TGeoRotation* rot_plane_offset = new TGeoRotation("rot_plane_offset",
-	 _offset_phi / pi * 180., _offset_theta / pi * 180.,
-	 _offset_psi / pi * 180.);
-	 TGeoCombiTrans* rottrans_plane_offset = new TGeoCombiTrans(_offset_x,
-	 _offset_y, _offset_z, rot_plane_offset);
-	 //	rottrans_plane = new TGeoHMatrix(*rottrans_plane * *rottrans_plane_offset);
-	 rottrans_plane = new TGeoHMatrix(
-	 *rottrans_plane_offset * *rottrans_plane);
-	 }
-	 for (unsigned int imodule = 0; imodule < nmodules; imodule++) { // loop over modules
-	 name.str("");
-	 name << nav_paths[4]; // << imodule;
-	 uniqueid.str("");
-	 //uniqueid << "_" << ihalf << iplane << imodule;
-	 TGeoVolumeAssembly* lmd_vol_module_ = new TGeoVolumeAssembly(
-	 (name.str() + uniqueid.str()).c_str());
-	 double angle = delta_phi / 2. + ihalf * pi + imodule * delta_phi;
-	 double add_z = cvd_disc_even_odd_offset;
-	 // the offset of the modules in the upper and lower halfs
-	 // are opposite
-	 if (((imodule + ihalf) % 2) == 0)
-	 add_z = -add_z;
-	 _x = cos(angle) * cvd_disc_dist;
-	 _y = sin(angle) * cvd_disc_dist;
-	 _z = add_z;
-	 _rotphi = 0.;
-	 _rottheta = 0.;
-	 _rotpsi = angle / pi * 180.;
-	 TGeoRotation* rot_module = new TGeoRotation("rot_module", _rotphi,
-	 _rottheta, _rotpsi);
-	 TGeoMatrix* rottrans_module = new TGeoCombiTrans(_x, _y, _z,
-	 rot_module);
-	 if (misaligned) {
-	 Get_offset(ihalf, iplane, imodule, -1, -1, -1, _offset_x, _offset_y,
-	 _offset_z, _offset_phi, _offset_theta, _offset_psi, true);
-	 TGeoRotation* rot_module_offset = new TGeoRotation(
-	 "rot_module_offset", _offset_phi / pi * 180.,
-	 _offset_theta / pi * 180., _offset_psi / pi * 180.);
-	 TGeoCombiTrans* rottrans_module_offset = new TGeoCombiTrans(_offset_x,
-	 _offset_y, _offset_z, rot_module_offset);
-	 rottrans_module = new TGeoHMatrix(
-	 *rottrans_module_offset * *rottrans_module);
-	 }
-
-	 // add the cvd disc into that assembly
-	 //TGeoVolume* lmd_vol_cvd_disc = new TGeoVolume("lmd_vol_cvd_disc",
-	 //						shape_cvd_support, fgGeoMan->GetMedium("HYPdiamond"));
-	 lmd_vol_module_->AddNode(lmd_vol_cvd_disc, module_id, rottrans_no);
-	 module_id++;
-	 for (unsigned int iside = 0; iside < 2; iside++) { // loop over the two sides of the modules
-	 name.str("");
-	 name << nav_paths[5]; // << iside;
-	 uniqueid.str("");
-	 //uniqueid << "_" << ihalf << iplane << imodule << iside;
-	 TGeoVolumeAssembly* lmd_vol_side_ = new TGeoVolumeAssembly(
-	 (name.str() + uniqueid.str()).c_str());
-	 // rotation around the y axis for the upstream side
-	 // side 0 is downstream! what may be not so obvious
-	 _x = 0.;
-	 _y = 0.;
-	 _z = 0.;
-	 if (iside == 0) {
-	 _rotphi = 0.;
-	 _rottheta = 0.;
-	 _rotpsi = 0.;
-	 } else {
-	 _rotphi = 0.;
-	 _rottheta = 180.;
-	 _rotpsi = 0.;
-	 }
-	 TGeoRotation* rot_side = new TGeoRotation("rot_side", _rotphi,
-	 _rottheta, _rotpsi);
-	 TGeoMatrix* rottrans_side = new TGeoCombiTrans(_x, _y, _z, rot_side);
-	 if (misaligned) {
-	 Get_offset(ihalf, iplane, imodule, iside, -1, -1, _offset_x,
-	 _offset_y, _offset_z, _offset_phi, _offset_theta, _offset_psi,
-	 true);
-	 TGeoRotation* rot_side_offset = new TGeoRotation("rot_side_offset",
-	 _offset_phi / pi * 180., _offset_theta / pi * 180.,
-	 _offset_psi / pi * 180.);
-	 TGeoCombiTrans* rottrans_side_offset = new TGeoCombiTrans(_offset_x,
-	 _offset_y, _offset_z, rot_side_offset);
-	 rottrans_side = new TGeoHMatrix(
-	 *rottrans_side_offset * *rottrans_side);
-	 }
-	 // glue the HV-MAPS to the cvd surface
-	 for (unsigned int idie = 0; idie < 2; idie++) { // loop over dies
-	 // it seems we will have only 2 sensors on a die and only a few of them
-	 // -> term die will stay as it is, but may be different from the reality
-	 name.str("");
-	 name << nav_paths[6];						// << idie;
-	 uniqueid.str("");
-	 //uniqueid << "_" << ihalf << iplane << imodule << iside << idie;
-	 TGeoVolumeAssembly* lmd_vol_die_ = new TGeoVolumeAssembly(
-	 (name.str() + uniqueid.str()).c_str());
-	 // rotation to the cut side of the cvd_disc
-	 // the origin is the inner edge
-	 const double _sinhalf = sin(delta_phi / 2.);
-	 //const double _coshalf = cos (delta_phi/2.);
-	 const double _edge_y = +_sinhalf * inner_rad;
-	 // angle between the edge and the half of the cvd disc
-	 const double _edgeangle = asin(-_edge_y / cvd_disc_rad);
-	 const double _edge_x = -cvd_disc_rad * cos(_edgeangle);
-	 _x = _edge_x;
-	 _y = _edge_y;
-	 _z = +cvd_disc_thick_half + maps_thickness; // move to the surface
-	 _rotphi = +delta_phi / 2. / pi * 180.;
-	 _rottheta = 0.;
-	 _rotpsi = 0.; // rotate to the cut edge
-	 TGeoRotation* rot_die = new TGeoRotation("rot_die", _rotphi,
-	 _rottheta, _rotpsi);
-	 TGeoCombiTrans* rottrans_die = new TGeoCombiTrans(_x, _y, _z,
-	 rot_die);
-	 // construct now the sensors on the two dies
-	 for (unsigned int isensor = 0; isensor < 3; isensor++) { // loop over sensors
-	 // the 0th die is oriented at the inner edge
-	 _x = +maps_width + maps_width * 2. * isensor;
-	 _y = -maps_height;
-	 _z = 0.;
-	 // only the inner two sensors will possibly on one physical die
-	 // so take an offset into account
-	 if (isensor == 2)
-	 _x = _x + die_gap;
-	 // next row
-	 if (idie == 1) {
-	 if (isensor == 0)
-	 continue;
-	 _y -= die_gap + 2. * maps_height;
-	 _rotphi = 0.;
-	 } else {
-	 _rotphi = 0.;
-	 }
-	 _rottheta = 0.;
-	 _rotpsi = 0.;
-	 //"LumActiveRect" is the keyword for digitization of hits
-
-	 TGeoRotation* rot_sensor = new TGeoRotation("rot_sensor", _rotphi,
-	 _rottheta, _rotpsi);
-	 TGeoMatrix* rottrans_sensor = new TGeoCombiTrans(_x, _y, _z,
-	 rot_sensor);
-	 if (misaligned) {
-	 Get_offset(ihalf, iplane, imodule, iside, idie, isensor,
-	 _offset_x, _offset_y, _offset_z, _offset_phi, _offset_theta,
-	 _offset_psi, true);
-	 TGeoRotation* rot_sensor_offset = new TGeoRotation(
-	 "rot_sensor_offset", _offset_phi / pi * 180.,
-	 _offset_theta / pi * 180., _offset_psi / pi * 180.);
-	 TGeoCombiTrans* rottrans_sensor_offset = new TGeoCombiTrans(
-	 _offset_x, _offset_y, _offset_z, rot_sensor_offset);
-	 rottrans_sensor = new TGeoHMatrix(
-	 *rottrans_sensor_offset * *rottrans_sensor);
-	 }
-	 lmd_vol_die_->AddNode(_vol_active, sensor_id, rottrans_sensor);
-	 lmd_vol_die_->AddNode(_vol_passive, sensor_id, rottrans_sensor);
-	 //cout << sensor_id << " " << _vol_active->GetName() << endl << endl;
-	 // save the transformation from the cvd_side reference frame
-	 // into the local frame of the sensors
-	 transformation_matrices[Tkey(ihalf, iplane, imodule, iside, idie,
-	 isensor)] = new TGeoHMatrix(
-	 (*rottrans_die) * (*rottrans_sensor));
-
-	 if (0) { // some tests for debugging
-	 unsigned int _sensor_id = Get_sensor_id(ihalf, iplane, imodule,
-	 iside, idie, isensor);
-	 if (sensor_id != _sensor_id) {
-	 cout << " wrong sensor id " << _sensor_id << " != "
-	 << sensor_id << endl;
-	 }
-	 int _ihalf, _iplane, _imodule, _iside, _idie, _isensor;
-	 Get_sensor_by_id(sensor_id, _ihalf, _iplane, _imodule, _iside,
-	 _idie, _isensor);
-	 if ((signed) ihalf != _ihalf)
-	 cout << " wrong half " << _ihalf << endl;
-	 if ((signed) iplane != _iplane)
-	 cout << " wrong plane " << _iplane << endl;
-	 if ((signed) imodule != _imodule)
-	 cout << " wrong module " << _imodule << endl;
-	 if ((signed) iside != _iside)
-	 cout << " wrong side " << _iside << endl;
-	 if ((signed) idie != _idie)
-	 cout << " wrong die " << _idie << endl;
-	 if ((signed) isensor != _isensor)
-	 cout << " wrong sensor " << _isensor << endl;
-	 }
-	 sensor_id++;
-	 } // loop over sensors
-	 lmd_vol_side_->AddNode(lmd_vol_die_, idie, rottrans_die);
-	 } // loop over dies
-	 _x = 0;
-	 _y = 0;
-	 _z = +cvd_disc_thick_half + maps_thickness * 2.
-	 + kapton_disc_thick_half; // move to the surface
-	 _rotphi = 0.;
-	 _rottheta = 0.;
-	 _rotpsi = 0.; // rotate to the cut edge
-	 TGeoRotation* rot_kapton = new TGeoRotation("rot_kapton", _rotphi,
-	 _rottheta, _rotpsi);
-	 TGeoCombiTrans* rottrans_kapton = new TGeoCombiTrans(_x, _y, _z,
-	 rot_kapton);
-	 lmd_vol_side_->AddNode(lmd_vol_kapton_disc, 0, rottrans_kapton); // GGenerate_Tkeyumber(ihalf,iplane, imodule, iside)
-	 lmd_vol_module_->AddNode(lmd_vol_side_, iside, rottrans_side);
-	 // save the transformation from the lumi reference frame
-	 // into the local cvd side reference frame
-	 transformation_matrices[Tkey(ihalf, iplane, imodule, iside, -1, -1)] =
-	 new TGeoHMatrix(
-	 (*rottrans_plane) * (*rottrans_module) * (*rottrans_side));
-	 } // loop over the two sides of the modules
-	 lmd_vol_plane_->AddNode(lmd_vol_module_, imodule, rottrans_module);
-	 // transformation_matrices[Generate_Tkey(ihalf, iplane, imodule, -1, -1, -1)] =
-	 //   new TGeoHMatrix((*rottrans_plane) * (*rottrans_module));
-	 } // loop over modules
-	 if (ihalf == 0)
-	 lmd_vol_plane_->AddNode(lmd_vol_cool_sup_up, iplane, rottrans_no);
-	 else
-	 lmd_vol_plane_->AddNode(lmd_vol_cool_sup_down, iplane, rottrans_no);
-	 lmd_vol_half_->AddNode(lmd_vol_plane_, iplane, rottrans_plane);
-	 // // save the transformation from the lumi reference frame
-	 // // into the plane reference frame
-	 // transformation_matrices[Generate_Tkey(ihalf, iplane, -1, -1, -1, -1)] =
-	 //   new TGeoHMatrix((*rottrans_plane));
-	 } // loop over planes
-	 lmd_vol_ref_sys->AddNode(lmd_vol_half_, ihalf, rottrans_no);
-	 // save the transformation into the lumi reference frame
-	 transformation_matrices[Tkey(-1, -1, -1, -1, -1, -1)] = new TGeoHMatrix(
-	 (*lmd_transrot) * (*rottrans_lmd_in_box));
-	 } // loop over detector halves
-	 // code geometry version in the node title
-	 stringstream nodetitle;
-	 nodetitle << "version " << geometry_version << endl;
-	 lmd_vol_vac->SetTitle(nodetitle.str().c_str());
-	 lmd_vol_vac->AddNode(lmd_vol_ref_sys, 0, rottrans_lmd_in_box);
-	 mothervol.AddNode(lmd_vol_vac, geometry_version, lmd_transrot);*/
-}
-
-void PndLmdGeometryFactory::generateSensor() {
-	if (nullptr == active_sensor_volume) {
-		auto pt_sensors = geometry_property_tree.get_child("sensors");
-		auto pt_active_part = pt_sensors.get_child("active_part");
-
-		double sensor_dim_x(pt_sensors.get<double>("dimension_x"));
-		double sensor_dim_y(pt_sensors.get<double>("dimension_x"));
-		double thickness(pt_sensors.get<double>("thickness"));
-
-		double active_part_dim_x(pt_active_part.get<double>("dimension_x"));
-		double active_part_dim_y(pt_active_part.get<double>("dimension_y"));
-		double active_part_offset_x(pt_active_part.get<double>("offset_x"));
-		double active_part_offset_y(pt_active_part.get<double>("offset_y"));
-
-		TGeoBBox *sensor_full_centered = new TGeoBBox("sensor_full_centered",
-				sensor_dim_x / 2.0, sensor_dim_y / 2.0, thickness / 2.0);
-
-		TGeoBBox *sensor_active_centered = new TGeoBBox("sensor_active_centered",
-				active_part_dim_x / 2.0, active_part_dim_y / 2.0, thickness / 2.0);
-
-		TGeoTranslation* trans_sensor_active = new TGeoTranslation(
-				"trans_sensor_active",
-				-sensor_dim_x / 2.0 + active_part_dim_x / 2.0 + active_part_offset_x,
-				-sensor_dim_y / 2.0 + active_part_dim_y / 2.0 + active_part_offset_y,
-				0.);
-		trans_sensor_active->RegisterYourself();
-
-		TGeoCompositeShape *sensor_passive_centered = new TGeoCompositeShape(
-				"sensor_passive_centered",
-				"(sensor_full_centered-trans_sensor_active:trans_sensor_active)");
-
-		passive_sensor_volume = new TGeoVolume("LumPassiveRect",
-				sensor_passive_centered, gGeoMan->GetMedium("silicon"));
-		passive_sensor_volume->SetLineColor(30);
-
-		active_sensor_volume = new TGeoVolume(navigation_paths[7].c_str(),
-				sensor_active_centered, gGeoMan->GetMedium("silicon"));
-		active_sensor_volume->SetLineColor(36);
-
-		// put cable on top of the sensor
-		/*TGeoTubeSeg* shape_kapton_disc = new TGeoTubeSeg("shape_kapton_disc",
-				inner_rad,
-				lmd_cool_sup_inner_rad - gap_between_disc_and_support_structure,
-				kapton_disc_thick_half, -delta_phi / 2. / pi * 180.,
-				+delta_phi / 2. / pi * 180.);
-
-		TGeoRotation* kapton_rotation = new TGeoRotation("kapton_rotation", 0, 0,
-				0);
-		TGeoTranslation* kapton_translation = new TGeoTranslation(
-				"kapton_translation", -cvd_disc_dist, 0, 0);
-		TGeoCombiTrans* kapton_combtrans = new TGeoCombiTrans(*kapton_translation,
-				*kapton_rotation);
-		kapton_combtrans->SetName("kapton_combtrans");
-		kapton_combtrans->RegisterYourself();
-
-		//this next line is pretty stupid but it made the work for the better geometry minimal
-		//otherwise I would have to do some deeper digging and reworking...
-		TGeoCompositeShape *shape_kapton_support =
-				new TGeoCompositeShape("shape_kapton_support",
-						"(shape_kapton_disc:kapton_combtrans+shape_kapton_disc:kapton_combtrans)");
-
-		TGeoVolume* lmd_vol_kapton_disc = new TGeoVolume("lmd_vol_kapton_disc",
-				shape_kapton_support, fgGeoMan->GetMedium("Aluminum"));	//kapton")); // changed to equivalent for glue/flex cable etc.
-		lmd_vol_kapton_disc->SetLineColor(kRed);
-		//lmd_vol_kapton_disc->SetTransparency(50);
-		lmd_vol_kapton_disc->SetVisibility(false);*/
+	// create a detector plane volume
+	TGeoVolume* lmd_vol_plane = generateDetectorHalfPlane();
+	// now loop over number of planes and make copies of the plane
+	// and align them correctly
+	for (unsigned int i = 0; i < plane_z_positions.size(); ++i) {
 
 	}
+
+	return lmd_vol_half;
 }
+
+TGeoVolume* PndLmdGeometryFactory::generateDetectorHalfPlane() const {
+	TGeoVolumeAssembly* lmd_vol_half = new TGeoVolumeAssembly(
+			navigation_paths[2].c_str());
+
+}
+
+TGeoVolume* PndLmdGeometryFactory::generateAluminumCoolingStructure() const {
+	auto pt_cool_support = geometry_property_tree.get_child("cooling_support");
+
+	double outer_radius(pt_cool_support.get<double>("outer_radius"));
+	double inner_radius(pt_cool_support.get<double>("inner_radius"));
+	double radius_diff(outer_radius - inner_radius);
+
+	// construct first a tube segment
+	TGeoTubeSeg* cool_support_tube_segment = new TGeoTubeSeg(
+			"cool_support_tube_segment", inner_radius, outer_radius,
+			pt_cool_support.get<double>("thickness") / 2.0, 0, 180);
+
+	// to cut off little bit below to adapt to clash planes
+	double clash_plane_thickness(
+			geometry_property_tree.get<double>(
+					"vacuum_box.horizontal_detector_half_clash_plates.thickness"));
+
+	TGeoBBox* clash_plane_cut = new TGeoBBox("cool_support_clash_plane_cutoff",
+			radius_diff + 0.1, clash_plane_thickness / 2.0 + 0.001,
+			pt_cool_support.get<double>("thickness") + 0.1);
+
+	TGeoTranslation* trans_clash_cut_left = new TGeoTranslation(
+			"trans_clash_cut_left", -inner_radius - radius_diff / 2.0, 0.0, 0.);
+	trans_clash_cut_left->RegisterYourself();
+	TGeoTranslation* trans_clash_cut_right = new TGeoTranslation(
+			"trans_clash_cut_right", +inner_radius + radius_diff / 2.0, 0.0, 0.);
+	trans_clash_cut_right->RegisterYourself();
+
+	// construct the support from basic shape and it's cut outs
+	TGeoCompositeShape *cool_support =
+			new TGeoCompositeShape("cool_support",
+					"cool_support_tube_segment-cool_support_clash_plane_cutoff:trans_clash_cut_left-cool_support_clash_plane_cutoff:trans_clash_cut_right");
+
+	TGeoVolume* aluminum_support_volume = new TGeoVolume("vol_cool_support",
+			cool_support, gGeoMan->GetMedium("Aluminum"));
+	aluminum_support_volume->SetLineColor(kGray);
+	return aluminum_support_volume;
+}
+
+TGeoVolume* PndLmdGeometryFactory::generateSensorModule() const {
+	TGeoVolumeAssembly* lmd_vol_module = new TGeoVolumeAssembly(
+			navigation_paths[3].c_str());
+
+	// generate cvd cooling disk
+	TGeoVolume* cvd_disc = generateCVDCoolingDisc();
+	lmd_vol_module->AddNode(cvd_disc, 0);
+
+	// generate a sensor and replicate it on the module
+	TGeoVolume* sensor = generateSensor();
+
+	unsigned int num_modules_per_plane(
+			geometry_property_tree.get<double>("general.modules_per_half_plane"));
+	double cvd_disc_inner_radius(
+			geometry_property_tree.get<double>(
+					"cooling_support.cvd_disc.inner_radius"));
+	double cvd_disc_outer_radius(
+			geometry_property_tree.get<double>("cooling_support.inner_radius"));
+	double cvd_disc_thickness(
+			geometry_property_tree.get<double>("cooling_support.cvd_disc.thickness"));
+	double sensor_dim_x(
+			geometry_property_tree.get<double>("sensors.dimension_x"));
+	double sensor_dim_y(
+			geometry_property_tree.get<double>("sensors.dimension_y"));
+	double sensor_thickness(
+			geometry_property_tree.get<double>("sensors.thickness"));
+
+	TGeoRotation* rot_all_sensors = new TGeoRotation("rot_all_sensors", 0.0, 0.0,
+			0.0);
+
+	unsigned int column_counter(0);
+	double current_row_x_shift(0.0);
+	double current_row_y_shift(0.0);
+	for (unsigned int i = 0;
+			i
+					< geometry_property_tree.get<unsigned int>(
+							"general.sensors_per_module_side"); ++i) {
+		//check if sensors overlap the cvd disc and if so start a new row
+		if (current_row_x_shift + sensor_dim_x * (column_counter + 1)
+				> cvd_disc_outer_radius - cvd_disc_inner_radius) {
+			current_row_x_shift += geometry_property_tree.get<double>(
+					"general.offset_second_row_sensors_x");
+			current_row_y_shift += sensor_dim_y;
+
+			//reset column counter
+			column_counter = 0;
+		}
+
+		TGeoCombiTrans* rottrans_side_offset = new TGeoCombiTrans(
+				(current_row_x_shift + 0.5 * sensor_dim_x + cvd_disc_inner_radius
+						+ sensor_dim_x * column_counter),
+				0.5 * sensor_dim_y + current_row_y_shift,
+				-0.5 * sensor_thickness - 0.5 * cvd_disc_thickness, rot_all_sensors);
+		lmd_vol_module->AddNode(sensor, i, rottrans_side_offset);
+
+		++column_counter;
+	}
+
+	// now sensors on back (they need a flip rotation)
+	rot_all_sensors->RotateX(180.0);
+	rot_all_sensors->RotateZ(180.0 / num_modules_per_plane);
+
+	column_counter = 0;
+	current_row_x_shift = 0.0;
+	current_row_y_shift = 0.0;
+	for (unsigned int i = 0;
+			i
+					< geometry_property_tree.get<unsigned int>(
+							"general.sensors_per_module_side"); ++i) {
+		//check if sensors overlap the cvd disc and if so start a new row
+		if (current_row_x_shift + sensor_dim_x * (column_counter + 1)
+				> cvd_disc_outer_radius - cvd_disc_inner_radius) {
+			current_row_x_shift += geometry_property_tree.get<double>(
+					"general.offset_second_row_sensors_x");
+			current_row_y_shift -= sensor_dim_y;
+
+			//reset column counter
+			column_counter = 0;
+		}
+
+		//corrections from rotation
+		double x_center(
+				current_row_x_shift + cvd_disc_inner_radius
+						+ sensor_dim_x * column_counter + 0.5 * sensor_dim_x);
+		double dx = -(1.0 - std::cos(TMath::Pi() / num_modules_per_plane))
+				* x_center;
+		double dy = std::sin(TMath::Pi() / num_modules_per_plane) * x_center;
+
+		// calculate corrections
+		TGeoHMatrix rot1;
+		rot1.RotateZ(180.0 / num_modules_per_plane);
+		TGeoHMatrix trans;
+		trans.SetDx(x_center);
+		trans.SetDy(-0.5 * sensor_dim_y + current_row_y_shift);
+		rot1.Multiply(&trans);
+
+		TGeoCombiTrans* rottrans_side_offset = new TGeoCombiTrans(
+				rot1.GetTranslation()[0], rot1.GetTranslation()[1],
+				0.5 * sensor_thickness + 0.5 * cvd_disc_thickness, rot_all_sensors);
+		lmd_vol_module->AddNode(sensor, i, rottrans_side_offset);
+
+		++column_counter;
+	}
+
+	return lmd_vol_module;
+}
+
+TGeoVolume* PndLmdGeometryFactory::generateCVDCoolingDisc() const {
+	auto pt_cool_support = geometry_property_tree.get_child("cooling_support");
+	double alu_support_inner_radius(pt_cool_support.get<double>("inner_radius"));
+	auto pt_cvd_disc = pt_cool_support.get_child("cvd_disc");
+	unsigned int num_modules_per_plane(
+			geometry_property_tree.get<double>("general.modules_per_half_plane"));
+	double gap_between_disc_and_support_structure(0.1);
+	TGeoTubeSeg* cvd_disc = new TGeoTubeSeg("cvd_disc",
+			pt_cvd_disc.get<double>("inner_radius"),
+			alu_support_inner_radius - gap_between_disc_and_support_structure,
+			pt_cvd_disc.get<double>("thickness")/2.0, 0.0, 180.0 / num_modules_per_plane);
+
+	TGeoVolume* cvd_disc_volume = new TGeoVolume("lmd_vol_cvd_disc", cvd_disc,
+			gGeoMan->GetMedium("HYPdiamond"));
+	cvd_disc_volume->SetLineColor(9);
+	return cvd_disc_volume;
+}
+
+TGeoVolume* PndLmdGeometryFactory::generateSensor() const {
+	TGeoVolumeAssembly* lmd_vol_sensor = new TGeoVolumeAssembly(
+			navigation_paths[4].c_str());
+
+	auto pt_sensors = geometry_property_tree.get_child("sensors");
+	auto pt_active_part = pt_sensors.get_child("active_part");
+
+	double sensor_dim_x(pt_sensors.get<double>("dimension_x"));
+	double sensor_dim_y(pt_sensors.get<double>("dimension_x"));
+	double thickness(pt_sensors.get<double>("thickness"));
+
+	double active_part_dim_x(pt_active_part.get<double>("dimension_x"));
+	double active_part_dim_y(pt_active_part.get<double>("dimension_y"));
+	double active_part_offset_x(pt_active_part.get<double>("offset_x"));
+	double active_part_offset_y(pt_active_part.get<double>("offset_y"));
+
+	TGeoBBox *sensor_full_centered = new TGeoBBox("sensor_full_centered",
+			sensor_dim_x / 2.0, sensor_dim_y / 2.0, thickness / 2.0);
+
+	TGeoBBox *sensor_active_centered = new TGeoBBox("sensor_active_centered",
+			active_part_dim_x / 2.0, active_part_dim_y / 2.0, thickness / 2.0);
+	TGeoBBox *sensor_active_centered_cutout = new TGeoBBox(
+			"sensor_active_centered_cutout", active_part_dim_x / 2.0,
+			active_part_dim_y / 2.0, thickness / 2.0 + 0.1);
+
+	TGeoTranslation* trans_sensor_active = new TGeoTranslation(
+			"trans_sensor_active",
+			-sensor_dim_x / 2.0 + active_part_dim_x / 2.0 + active_part_offset_x,
+			-sensor_dim_y / 2.0 + active_part_dim_y / 2.0 + active_part_offset_y, 0.);
+	trans_sensor_active->RegisterYourself();
+
+	TGeoCompositeShape *sensor_passive_centered =
+			new TGeoCompositeShape("sensor_passive_centered",
+					"(sensor_full_centered-sensor_active_centered_cutout:trans_sensor_active)");
+
+	TGeoVolume* passive_sensor_volume = new TGeoVolume("LumPassiveRect",
+			sensor_passive_centered, gGeoMan->GetMedium("silicon"));
+	passive_sensor_volume->SetLineColor(30);
+
+	TGeoVolume* active_sensor_volume = new TGeoVolume(navigation_paths[5].c_str(),
+			sensor_active_centered, gGeoMan->GetMedium("silicon"));
+	active_sensor_volume->SetLineColor(kYellow);
+
+	// put cable on top of the sensor
+	/*TGeoTubeSeg* shape_kapton_disc = new TGeoTubeSeg("shape_kapton_disc",
+	 inner_rad,
+	 lmd_cool_sup_inner_rad - gap_between_disc_and_support_structure,
+	 kapton_disc_thick_half, -delta_phi / 2. / pi * 180.,
+	 +delta_phi / 2. / pi * 180.);
+
+	 TGeoRotation* kapton_rotation = new TGeoRotation("kapton_rotation", 0, 0,
+	 0);
+	 TGeoTranslation* kapton_translation = new TGeoTranslation(
+	 "kapton_translation", -cvd_disc_dist, 0, 0);
+	 TGeoCombiTrans* kapton_combtrans = new TGeoCombiTrans(*kapton_translation,
+	 *kapton_rotation);
+	 kapton_combtrans->SetName("kapton_combtrans");
+	 kapton_combtrans->RegisterYourself();
+
+	 //this next line is pretty stupid but it made the work for the better geometry minimal
+	 //otherwise I would have to do some deeper digging and reworking...
+	 TGeoCompositeShape *shape_kapton_support =
+	 new TGeoCompositeShape("shape_kapton_support",
+	 "(shape_kapton_disc:kapton_combtrans+shape_kapton_disc:kapton_combtrans)");
+
+	 TGeoVolume* lmd_vol_kapton_disc = new TGeoVolume("lmd_vol_kapton_disc",
+	 shape_kapton_support, fgGeoMan->GetMedium("Aluminum"));	//kapton")); // changed to equivalent for glue/flex cable etc.
+	 lmd_vol_kapton_disc->SetLineColor(kRed);
+	 //lmd_vol_kapton_disc->SetTransparency(50);
+	 lmd_vol_kapton_disc->SetVisibility(false);*/
+
+	lmd_vol_sensor->AddNode(passive_sensor_volume, 0);
+	lmd_vol_sensor->AddNode(active_sensor_volume, 0, trans_sensor_active);
+	return lmd_vol_sensor;
+}
+

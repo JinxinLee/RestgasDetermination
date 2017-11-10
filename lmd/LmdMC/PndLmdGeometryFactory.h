@@ -21,30 +21,21 @@ class PndLmdGeometryFactory {
 	std::vector<std::string> navigation_paths;
 	TGeoManager* gGeoMan;
 
-	// volumes which will be replicated
-	TGeoVolume* active_sensor_volume;
-	TGeoVolume* passive_sensor_volume;
-	TGeoVolume* sensor_cables_volume;
-	TGeoVolume* aluminum_support_volume;
-	TGeoVolume* cvd_disc_volume;
-	// replicated volume counters
-	unsigned int global_sensor_id_counter;
-	unsigned int global_aluminum_support_counter;
-	unsigned int global_cvd_disc_counter;
-
 	void retrieveMaterial(FairGeoLoader* geoLoad);
 
 	TGeoVolume* generateVacuumBox() const;
 	void generateBeamPipe(TGeoVolume& mother_volume) const;
 
-	TGeoVolume* generateDetectorHalf(bool is_upper_half) const;
-
-	void generateSensorModule(TGeoVolume& mother_volume) const;
-	void generateCoolingStructures();
-	void generateSensor();
+	TGeoVolume* generateDetectorHalf() const;
+	TGeoVolume* generateDetectorHalfPlane() const;
+	TGeoVolume* generateAluminumCoolingStructure() const;
+	TGeoVolume* generateSensorModule() const;
+	TGeoVolume* generateCVDCoolingDisc() const;
+	TGeoVolume* generateSensor() const;
 
 public:
-	PndLmdGeometryFactory(const boost::property_tree::ptree& geometry_property_tree_);
+	PndLmdGeometryFactory(
+			const boost::property_tree::ptree& geometry_property_tree_);
 	virtual ~PndLmdGeometryFactory();
 
 	void init(FairGeoLoader* geoLoad);
