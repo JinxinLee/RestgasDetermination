@@ -67,6 +67,9 @@ If(NOT $ENV{ctest_model} MATCHES Experimental)
 EndIf()
 Ctest_Configure(BUILD "${CTEST_BINARY_DIRECTORY}")
 Ctest_Build(BUILD "${CTEST_BINARY_DIRECTORY}")
+
+# introducing a second call of the build process because vc causes a crash if it is build only once
+Ctest_Build(BUILD "${CTEST_BINARY_DIRECTORY}")
 String(TOUPPER $ENV{ctest_model} MODEL)
 If(NOT ${MODEL} MATCHES CONTINUOUS)
   Ctest_Test(BUILD "${CTEST_BINARY_DIRECTORY}" PARALLEL_LEVEL $ENV{number_of_processors})
