@@ -1,5 +1,7 @@
 C------------ Common subroutines --------------------------------------
       FUNCTION AMASS(IND)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
 C
       COMMON/PART/ANAME(180),AM(180),GA(180),TAU(180),ICH(180),IBAR(180)
      ,           ,K1(180),K2(180)
@@ -32,7 +34,10 @@ C
       END
 
       SUBROUTINE SFECFE(SFE,CFE)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
       INTEGER V
+
       V=-1
     1 X=RNDM1(V)
       Y=RNDM1(V)
@@ -51,6 +56,9 @@ C
 C---------------------------------------------------------------------
       SUBROUTINE GOBSEC(NPS,NHAD)
 C---------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/FINPAR/PXF(10000),PYF(10000),PZF(10000),HEF(10000),
      *AMF(10000),ICHF(10000),IBARF(10000),ANF(10000),NREF(10000)
 
