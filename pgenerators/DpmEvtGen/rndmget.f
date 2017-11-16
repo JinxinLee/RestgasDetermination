@@ -2,6 +2,8 @@ C-----------------------------------------------------------------------
 c  Last date of change  25.08.03 V.Uzhinsky
 
       SUBROUTINE RNDMGET1(DSEED)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
       common/rndu/DS
       DOUBLE PRECISION    DS(2), DSEED, DX24
       DATA      DX24   /  1677 7216.D0  /
@@ -11,6 +13,8 @@ c  Last date of change  25.08.03 V.Uzhinsky
       END
 
       SUBROUTINE RNDMSET1(DSEED)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
       common/rndu/DS
       DOUBLE PRECISION    DS(2), DSEED, DX24
       DATA      DX24   /  1677 7216.D0  /
@@ -21,7 +25,9 @@ c  Last date of change  25.08.03 V.Uzhinsky
       END
 
 
-      REAL FUNCTION RNDM1(IX)
+      REAL*8 FUNCTION RNDM1(IX)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
 1     RNDM1  =  RANF1(1)
       if(RNDM1.eq.0.) go to 1
       RETURN
@@ -29,6 +35,8 @@ c  Last date of change  25.08.03 V.Uzhinsky
 
 C-----------------------------------------------------------------------
       FUNCTION RANF1(IX)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
 C     UNIFORM RANDOM NUMBER GENERATOR FROM CERN LIBRARY
 C-----------------------------------------------------------------------
       DOUBLE PRECISION    DS(2),    DM(2)
@@ -48,8 +56,8 @@ C-----------------------------------------------------------------------
       DS(2)  =  DU - DINT(DU/DX24)*DX24
       DS(1)  =  DL
       DR     =  (DS(2)*DX24 + DS(1)) / DX48
-      RANF1  =  SNGL(DR)
-*      RANF1  =  DR
+*      RANF1  =  SNGL(DR)
+      RANF1  =  DR
 
       RETURN
       END
