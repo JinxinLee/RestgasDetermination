@@ -20,20 +20,20 @@
 
 extern "C" struct {
     int n, k[2000];  
-    float p[5000];   	
+    double p[5000];   	
 } lujets_;
 
 // n   - number of produced particles, 
 // k[] - Pythia particle identifiers
 // p[] - kinematical characteristics of particles
 
-extern "C" int init1_(float* Plab, double* seed, float* Elastic, float* tetmin);   // to install DPM generator
-extern "C" int dpm_gen_(float* Generator, double* seed);  //to generate events
+extern "C" int init1_(double* Plab, double* seed, double* Elastic, double* tetmin);   // to install DPM generator
+extern "C" int dpm_gen_(double* Generator, double* seed);  //to generate events
 extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
  
  int main()
 {
- float Plab, Elastic, tetmin;          // Plab - PBAP momentum in Lab.Sys. 
+ double Plab, Elastic, tetmin;          // Plab - PBAP momentum in Lab.Sys. 
  double seed;
  int ntot, Ieven, npart, i;	
  double Px[1000],Py[1000],Pz[1000],E[1000]; //,Pm[1000],Wh[1000]; //[R.K. 01/2017] unused variables
@@ -47,7 +47,7 @@ extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
  //   Root initialization 
  TFile f1("Background-micro.root","RECREATE","ROOT_Tree"); 
 
- float Generator=0.;
+ double Generator=0.;
  Double_t weight = 1.0;
  Int_t activeCnt=0;
  TTree* fTree = new TTree("data","DPM Background");
