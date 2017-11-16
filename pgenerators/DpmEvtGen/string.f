@@ -1,6 +1,8 @@
 C=========================== STRING ===========================
 C LAST DATE OF CHANGE 2.03.2012 A. galoyan
       SUBROUTINE STRING(PROJ,TAR,NHAD)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
       DIMENSION PROJ(5),TAR(5)
       COMMON/MIDPAR/
      *PXF(1000),PYF(1000),PZF(1000),HEF(1000),AMF(1000),ICHF(1000),
@@ -290,9 +292,9 @@ C
       IF(AM0.LT.BM0) AM0=BM0
 
       EPS=RNDM1(-1)+1.0E-10
-      AMM=AM0-1./B1*ALOG(EPS)
+      AMM=AM0-1./B1*LOG(EPS)
       EPS=RNDM1(-1)+1.0E-10
-      ESA=AM0-1./B2*ALOG(EPS)
+      ESA=AM0-1./B2*LOG(EPS)
       PSA=SQRT(abs(ESA**2-AM0**2))
       EAB=SQRT(3./2.*PSA**2+AMM**2)
 
@@ -590,7 +592,7 @@ C
       EPS1=OPRMAX*RNDM1(-1)+PRMAX
       PR=EPS*EPS1
       IF(PR.LE.PRMAX) GO TO 250
-      ES=-1./B3*ALOG(PR)
+      ES=-1./B3*LOG(PR)
 
  260  CONTINUE
 C ===========================================================
@@ -1140,7 +1142,7 @@ C
       EPS1=OPRMAX*RNDM1(-1)+PRMAX
       PR=EPS*EPS1
       IF(PR.LE.PRMAX) GO TO 471
-      ES=-1./B3*ALOG(PR)
+      ES=-1./B3*LOG(PR)
       HPS=SQRT(ES**2+2.*ES*HMA)
       HPZ=SQRT(HE**2-HMA**2-HPS**2)
  472  CONTINUE
@@ -1246,6 +1248,8 @@ C     PRINT 525  ,SUMPZ
       END
 
       FUNCTION BETA(X1,X2,BET)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
       IF(X1.GT.X2) THEN
         AX=0
         IF(X1.LT.40.0) AX=-1./BET**2*(BET*X1+1.)*EXP(-BET*X1)
@@ -1258,6 +1262,8 @@ C     PRINT 525  ,SUMPZ
       END
 
       SUBROUTINE MESON(IDQ1,IDQ2,INDEX)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
 C
       COMMON/INPDAT/IMPS(6,6),IMVE(6,6),IB08(6,21),IB10(6,21),
      *IA08(6,21),IA10(6,21),A1,B1,B2,B3,ISU,BET,AS,B8,AME,DIQ
@@ -1299,6 +1305,8 @@ C
       END
 
       SUBROUTINE BARYON(IDQ1,IDQ2,IDQ3,INDEX)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
 C
       COMMON/INPDAT/IMPS(6,6),IMVE(6,6),IB08(6,21),IB10(6,21),
      *IA08(6,21),IA10(6,21),A1,B1,B2,B3,ISU,BET,AS,B8,AME,DIQ
@@ -1368,6 +1376,8 @@ C
       END
 
       SUBROUTINE INDEX2(KA,KB,IND)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
       KP=KA*KB
       KS=KA+KB
       IF(KP.EQ.1) IND=1
