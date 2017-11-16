@@ -1,6 +1,9 @@
 C------------ Decay --------------------------------------
 C LAST DATE OF CHANGE 20.03.08
       SUBROUTINE DECAY(IHAD)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/FINPAR/PXF(10000),PYF(10000),PZF(10000),HEF(10000),
      *AMF(10000),ICHF(10000),IBARF(10000),ANF(10000),NREF(10000)
 
@@ -213,6 +216,8 @@ C
 
       SUBROUTINE TWOPAD(UMO,ECM1,ECM2,PCM1,PCM2,COD1,COF1,SIF1,
      *COD2,COF2,SIF2,AM1,AM2)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
       COMMON/GAMRED/REDU,AMO,AMM(15)
 
       INTEGER X
@@ -237,6 +242,9 @@ C
 
       SUBROUTINE THREPD (UMO,ECM1,ECM2,ECM3,PCM1,PCM2,PCM3,COD1,COF1,
      *SIF1,COD2,COF2,SIF2,COD3,COF3,SIF3,AM1,AM2,AM3)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+      
       DIMENSION F(5),XX(5)
       COMMON/GAMRED/REDU,AMO,AMM(15)
 
@@ -349,10 +357,11 @@ C
   200 UW=RNDM1(V)
       COSTH=(UW-0.5)*2.
   300 CONTINUE
-      IF(ABS(COSTH).GT.0.99999) COSTH=SIGN(0.99999,COSTH)
+      ARGA=0.99999
+      IF(ABS(COSTH).GT.ARGA) COSTH=DSIGN(ARGA,COSTH)
       IF(REDU.LT.1.) RETURN
       COSTH2=(PCM3*PCM3+PCM2*PCM2-PCM1*PCM1)/(2.*PCM2*PCM3)
-      IF(ABS(COSTH2).GT.0.99999) COSTH2=SIGN(0.99999,COSTH2)
+      IF(ABS(COSTH2).GT.ARGA) COSTH2=DSIGN(ARGA,COSTH2)
       SINTH2=SQRT(1.-COSTH2**2)
       SINTH1=COSTH2*SQRT(1.-COSTH**2)-COSTH*SINTH2
       COSTH1=COSTH*COSTH2+SINTH2*SQRT(1.-COSTH**2)
@@ -391,6 +400,9 @@ C
       END
 
       FUNCTION XLAMB(X,Y,Z)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/IDGB/IDGB,IDG
 
       COMMON/GAMRED/REDU,AMO,AMM(15)
@@ -417,8 +429,11 @@ C
       END
 
       SUBROUTINE TRAFO(GAM,BGAM,CX,CY,CZ,COD,COF,SIF,P,ECM,
-     1PL,CXL,CYL,CZL,EL)
+     1 PL,CXL,CYL,CZL,EL)
 C    LORENTZ TRANSFORMATION INTO THE LAB -SYSTEM
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+ 
       SID=SQRT(1.-COD*COD)
       PLX=P*SID*COF
       PLY=P*SID*SIF
@@ -435,7 +450,9 @@ C    ROTATION INTO THE ORIGINAL DIRECTION
       END
 
       SUBROUTINE TRANS(XO,YO,ZO,CDE,SDE,SFE,CFE,X,Y,Z)
-      IF (ABS(XO)-0.0001) 1,1,2
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+       IF (ABS(XO)-0.0001) 1,1,2
  1    IF(ABS(YO)-0.0001) 3,3,2
  3    CONTINUE
       X=SDE*CFE
