@@ -1,6 +1,9 @@
 
 C-----------------A. Galoyan last edition 2 March 2012 -----
        SUBROUTINE INIT1(Plab, seed, Elastic, tetmin)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
 C-----------------------------------------------------------------------
        COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
      ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
@@ -13,6 +16,7 @@ C =========================================================================
 C-----------------------------------------------------------------------
 C             PARAMETERS OF PARTICLE DECAYS
 C-----------------------------------------------------------------------
+
       COMMON/LIMMAS/IDSTAB(180), SUMKM(533), AML(180), FI0ML(180)
 C
       COMMON/PRINT/ ISYS   /IDGB/ IDGB, IDG
@@ -35,12 +39,11 @@ c aida        print*, plab, seed, Elastic, tetmin
       Pcms=sqrt(Ecms**2-0.88)
       Vcms=Plab/(Elab+0.938)
       Gamma=(Elab+0.938)/SqrtS
-*      write(6,*)'" ',Plab,SqrtS,'Plab,SqrtS'
-*      write(6,*)'" ',Ecms,Pcms ,'Ecms,Pcms '
+c      write(6,*)'" ',Plab,SqrtS,'Plab,SqrtS'
+c      write(6,*)'" ',Ecms,Pcms ,'Ecms,Pcms '
 c-----------------------------------------------------------------------
 
       call RNDMSET1(seed)
-
 C=========================================================
 C FOR U, D, S, C, B, T QUARKS AND FOR ANTI-U, ANTI-D,
 C  ANTI-S, ANTI-C, ANTI-B, ANTI-T QUARKS WE USE
@@ -133,6 +136,7 @@ C
 C
  280  CONTINUE
 C
+
       CALL TOPITH(0) !*******************************
 C-----------------------------------------------------------------
 C    IF IT IS NEEDED TO POINT OUT THE OTHER STABLE
@@ -158,7 +162,7 @@ C-------------------------------------------------------------
 c   PDG parametrization of total and elastic Pbar+P X-sections
 c                 Phys. Rev. D54 (1996) 125.
 C-------------------------------------------------------------
-      ALOGp=Alog(Plab)
+       ALOGp=log(Plab)
 !      Xtotal=38.4+77.6*Plab**(-0.64)+0.260*ALOGp**2-1.20*ALOGp
 !      Xelast=10.2+52.7*Plab**(-1.16)+0.125*ALOGp**2-1.28*ALOGp
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -170,8 +174,8 @@ C-------------------------------------------------------------
        SqrtS0=20.74
        S0=33.0625
        
-       B=b0 + b2*(ALOG(SqrtS/SqrtS0))**2
-       SigAss=36.04+0.304*(alog(S/S0))**2
+       B=b0 + b2*(LOG(SqrtS/SqrtS0))**2
+       SigAss=36.04+0.304*(log(S/S0))**2
        R0=sqrt(0.40874044*SigAss - B)
 
         C=13.55
@@ -185,7 +189,7 @@ C-------------------------------------------------------------
         d1=-6.95
         d2=23.54
         d3=-25.34
-        SigAss = 4.5 +0.101*(alog(S/S0))**2
+        SigAss = 4.5 +0.101*(log(S/S0))**2
         Xelast =  SigAss*(1.+1./sqrt(S-4.*AMn**2)/R0**3 *
      *  C*(1.+D1/SqrtS+D2/SqrtS**2 + D3/SqrtS**3))
 
@@ -282,7 +286,7 @@ c       print*, 'dt=', dt
       enddo
 caida  PRINT *,'sig_inter',sig_inter, 'sig_iexact', sig_iexact
 !  numerical calculation of SIG_had using form.(1)
-      sig_had=dsig_had(0.)/parB-dsig_had(Tmax)/parB
+      sig_had=dsig_had(0.d0)/parB-dsig_had(Tmax)/parB
       PRINT *,'sig_had_el', sig_had
 !     calculation of sigma_hadron using our parametrization
       sig_had_p=SIG_HADi(Tmin)-SIG_HADi(Tmax)
@@ -351,10 +355,13 @@ c ---------------------------- Determination of processes prababilities
       END
 
       SUBROUTINE DATAR3
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       DIMENSION IV(36),IP(36),IB(126),IBB(126),IA(126),IAA(126)
 
       COMMON/INPDAT/IMPS(6,6),IMVE(6,6),IB08(6,21),IB10(6,21),
-     *IA08(6,21),IA10(6,21),A1,B1,B2,B3,ISU,BET,AS,B8,AME,DIQ
+     * IA08(6,21),IA10(6,21),A1,B1,B2,B3,ISU,BET,AS,B8,AME,DIQ
 C
       COMMON/PART/ANAME(180),AM(180),GA(180),TAU(180),ICH(180),IBAR(180)
      ,           ,K1(180),K2(180)
@@ -523,6 +530,9 @@ C
 
       BLOCK DATA
 C*****BLOCK DATA
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/PART/ANAME(115),ANAM1(65),AM(180),GA(180),TAU(180),ICH(180)
      *,IBAR(180),K1(180),K2(180)
 
@@ -966,6 +976,9 @@ C************NZK3
       END
 
       SUBROUTINE DATESS
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/DECAYC/ZKNAME(533),NZK(533,3),WT(533)
       COMMON/PART/ANAME(180),AM(180),GA(180),TAU(180),ICH(180),IBAR(180)
      *,K1(180),K2(180)
@@ -1037,6 +1050,9 @@ C************NZK3
       END
 
       FUNCTION DSIG_COL(T)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/ab/ aelm, betav, sigma_tot, parB, rho
       G4=((1+abs(T)/0.71)**(-2))**4 
       pkoef= 10./(5.0677**2)        !/10.  
@@ -1045,6 +1061,9 @@ C************NZK3
       END
 
       Function  DSIG_INTER(T)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/ab/ aelm, betav, sigma_tot, parB, rho
       G2=((1+abs(T)/0.71)**(-2))**2
       DSIG_INTER=aelm*sigma_tot*G2*exp(0.5*parB*T)*
@@ -1053,6 +1072,9 @@ C************NZK3
       END
 
       Function  DSIG_INT_Ex(T)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/ab/ aelm, betav, sigma_tot, parB, rho
       G2=((1+abs(T)/0.71)**(-2))**2
       delT=aelm*(0.577+log(parB*abs(T)/2.+ 4*abs(T)/0.71)+
@@ -1064,6 +1086,9 @@ C************NZK3
 
 
       FUNCTION SIG_HADi(T)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
      ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
       
@@ -1077,6 +1102,9 @@ C************NZK3
 
 
       FUNCTION DSIG_HAD(T)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
      ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
       COMMON/ab/ aelm, betav, sigma_tot, parB, rho
@@ -1087,6 +1115,9 @@ C************NZK3
 
 c**************************************************************
       subroutine ChStatus(iPDG,iStatus)
+      implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
+
       common/IDPITH/IDPITH(180)         ! ********************
 	save  /IDPITH/
 
