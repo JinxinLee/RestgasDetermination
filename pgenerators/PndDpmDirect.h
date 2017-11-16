@@ -58,17 +58,17 @@ class PndDpmDirect : public FairGenerator
   /**
    * P_lab(GeV/c)
   */
-  float fMom; 
+  double fMom; 
   /** 
   * 0. - No elastic scattering, only inelastic
   * 1. - Elastic and inelastic interactions
   * 2. - Only elastic scattering, no inelastic one
   */
-  float  fMode;    
+  double  fMode;    
   double fSeed;
   int    fGasmode;
 	double fRsigma;
-  float fThtMin;
+  double fThtMin;
   
   TF1*   fDensityFunction; //!
 	
