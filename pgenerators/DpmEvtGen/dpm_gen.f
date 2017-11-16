@@ -1,6 +1,8 @@
 C------Last edition 25.08.05 V.Uzhinsky--------------------
 C------modify by A.Galoyan 10.09.08--------------------
       subroutine DPM_GEN(Pluto, Seed)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
       
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
@@ -9,9 +11,9 @@ C------modify by A.Galoyan 10.09.08--------------------
       COMMON/AB/aelm,betav, sigma_tot, parB, rho      !aida
       COMMON /AGT/ TTR 
       double precision Seed
-
       call DPM_EVENT(Nhad)
-      IF (Pluto.eq.0) then
+
+      IF (Pluto.eq.0.0d0) then                  ! Uzhi Oct. 2017
          CALL TOPITH(Nhad)      ! To transfer to PITHYA format
       ELSE
          CALL TOPLUTO(Nhad)     ! To transfer to PLUTO format
@@ -24,6 +26,8 @@ C------modify by A.Galoyan 10.09.08--------------------
 
       SUBROUTINE DPM_EVENT(Nhad)
 C-----------------------------------------------------------------------
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
       
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
      ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
@@ -59,6 +63,8 @@ c-----------------------------------------------------------------------
       SS=SqrtS
       S=SS**2
 C--------------------------------------- Coise of a process ------------
+      Idebug=0
+
       EPS=RNDM1(-1)
       do I=1,7
         if(EPS.le.Proc_Prob(I)) go to 10
@@ -66,6 +72,7 @@ C--------------------------------------- Coise of a process ------------
 
  10   CONTINUE
 
+      if(Idebug.ne.0) write(6,*)'Process # aR ',I,ALPHAR
 *            I=1, 2, 3, 4, 5, 6 - Processes A, B, C, E, G, H, 7 -Elastic Sctr.
       goto(100,200,300,400,500,600,700), I
 
@@ -134,7 +141,6 @@ c ------------------------------------ Determination of P contants--
       endif
 
  109   continue
-
       Nrepit=0
       Bslp=Bslop*2.
  110  CONTINUE
@@ -147,10 +153,9 @@ c ------------------------------------ Determination of Pt_i and X_i -
 
       SumPx =0.
       SumPy =0.
-
       do i=1,N_QS
         FI=RNDM1(-1)*6.28318
-        Pt=-1./Bslp*ALOG(RNDM1(-1)*RNDM1(-1))
+        Pt=-1./Bslp*LOG(RNDM1(-1)*RNDM1(-1))
         Px_aQ(i)=Pt*Cos(Fi)                 ! Uzhi 0.
         Py_aQ(i)=Pt*Sin(Fi)                 ! Uzhi 0.
 **        X_aQ(i)=1./float(N_QS)
@@ -160,7 +165,7 @@ caida        X_aQ(i)=RNDM1(-1)              !1./float(N_QS) ! Uzhi   1/3
         SumPya=SumPya+Py_aQ(i)
 
         FI=RNDM1(-1)*6.28318
-        Pt=-1./Bslp*ALOG(RNDM1(-1)*RNDM1(-1))
+        Pt=-1./Bslp*LOG(RNDM1(-1)*RNDM1(-1))
         Px_Q(i) =Pt*Cos(Fi)                 ! Uzhi 0.
         Py_Q(i) =Pt*Sin(Fi)                 ! Uzhi 0.
 ***         X_Q(i)=1./float(N_QS) 
@@ -178,6 +183,7 @@ caida        X_Q(i)=RNDM1(-1)              !1./float(N_QS)   ! Uzhi  1/3
       SumPy =SumPy/float(N_QS)
       Sum_Mt=0.
 
+
       do i=1,N_QS
         Px_aQ(i)=Px_aQ(i)-SumPxa
         Py_aQ(i)=Py_aQ(i)-SumPya
@@ -189,14 +195,13 @@ caida        X_Q(i)=RNDM1(-1)              !1./float(N_QS)   ! Uzhi  1/3
         Mt_Q_2(i) =VQMASS**2+Px_Q(i)**2 +Py_Q(i)**2
         Sum_Mt=Sum_Mt+sqrt(Mt_Q_2(i))
       enddo
-
       if(Sum_Mt.ge.SS) go to 110
 
 120   CONTINUE
 
-      ALPHAR=2.0               !aida  changed quark mass distribution
-      Alfa=1./ALPHAR
-      BetaB=(ALPHAR-1.)+(N_QS-2)*ALPHAR
+      ALPHAq=2.0               !aida  changed quark mass distribution
+      Alfa=1./ALPHAq
+      BetaB=(ALPHAq-1.)+(N_QS-2)*ALPHAq
       N_QSm1=N_QS-1
 
       ProdXaq=1.
@@ -204,7 +209,6 @@ caida        X_Q(i)=RNDM1(-1)              !1./float(N_QS)   ! Uzhi  1/3
 
       ProdXq=1.
       Sum_Xq=0.
-
       do i=1,N_QSm1
       Beta=1./(BetaB+1.)
 130   R1=RNDM1(-1)
@@ -229,7 +233,7 @@ caida        X_Q(i)=RNDM1(-1)              !1./float(N_QS)   ! Uzhi  1/3
       ProdXq = ProdXq*Xq
       Sum_Xq = Sum_Xq+ Xq
       
-      BetaB=BetaB-ALPHAR
+      BetaB=BetaB-ALPHAq
       enddo
 
       X_aQ(N_QS)=1.-Sum_Xaq
@@ -237,10 +241,9 @@ caida        X_Q(i)=RNDM1(-1)              !1./float(N_QS)   ! Uzhi  1/3
 
       X_Q(N_QS) = 1.-Sum_Xq
       ProdXq = ProdXq*X_Q(N_QS)
-
       if(ProdXaq.eq.0.) go to 120
       if(ProdXq .eq.0.) go to 120
-
+	
       Alfa=0.
       Beta=0.
       do i=1,N_QS
@@ -248,14 +251,18 @@ caida        X_Q(i)=RNDM1(-1)              !1./float(N_QS)   ! Uzhi  1/3
         Beta=Beta+Mt_Q_2(i) /X_Q(i)
       enddo
 
+
       if(sqrt(Alfa)+sqrt(Beta).ge.SS) go to 110
 
       DET=S**2+Alfa**2+Beta**2-2.*S*Alfa-2.*S*Beta-2.*Alfa*Beta
+
       IF(DET.LT.0.)     GO TO 110
+
       DET=SQRT(DET)
 C
       WA=(S+Alfa-Beta+DET)/2./SS
       WB=(S-Alfa+Beta+DET)/2./SS
+
 
       IF((WA.LE.0.).OR.(WB.LE.0.))      GOTO 110
 
@@ -263,7 +270,6 @@ C
         Pz_aQ(i)= (WA*X_aQ(i)-Mt_aQ_2(i)/X_aQ(i)/WA)/2.
         Pz_Q(i) =-(WB*X_Q(i) -Mt_Q_2(i) /X_Q(i) /WB)/2.
       enddo
-
       SumPx=0.
       SumPy=0.
       SumPz=0.
@@ -272,7 +278,6 @@ C
         SumPy=SumPy+Py_aQ(i)
         SumPz=SumPz+Pz_aQ(i)
       enddo
-
       SumPx=0.
       SumPy=0.
       SumPz=0.
@@ -284,8 +289,9 @@ C
 
  150  CONTINUE
 
-      Nhad=0
+      if(Idebug.ne.0) write(6,*)' 150 continue '
 
+      Nhad=0
       do i=1,N_QS
         PROJ(1)=Typ_aQ(i)
         PROJ(2)=Px_aQ(i)
@@ -300,51 +306,56 @@ C
         TAR(5)= VQMASS
 
         CALL STRING(PROJ,TAR,NHADm) ! Fragmentation of string
-
         CALL GOBSEC(Nhad,NHADm) ! Storing of produced particles
 
+	if(Idebug.ne.0) write(6,*)'Nhad NhadM ',Nhad,NhadM
       enddo
-
+	
 c-------------------------------------------------------------
 c--------- Putting all hadrons on mass-shell -----------------
 
       Nrepeat=0.
  160  CONTINUE
+
+      if(Idebug.ne.0) write(6,*)' 160 cont Nrepeat ',Nrepeat 
       Nrepeat=Nrepeat+1
       if(Nrepeat.ge.100) go to 150
 
       SumMt=0.
       SumaPz=0.
-
       do i=1,Nhad
         if(AMF(i).le.0.) AMF(i)=-Amass(NREF(i))          ! Uzhi -Amass
         SumMt=SumMt+sqrt(AMF(i)**2+PXF(i)**2+PYF(i)**2)
         SumaPz=SumaPz+abs(PZF(i))
       enddo
-
       if(SumMt.gt.SS) go to 160
 
       if(SumaPz.le.0.2) then             ! Uzhi ???
  165    SumPz=0.
+
         do i=1,Nhad
           PZF(i)=RNDM1(-1)
           SumPz=SumPz+PZF(i)
         enddo
+
         SumPz=SumPz/float(Nhad)
 
         SumaPz=0.
+
+
         do i=1,Nhad
           PZF(i)=PZF(i)-SumPz
           SumaPz=SumaPz+abs(PZF(i))
         enddo
+
         if(SumaPz.eq.0.) go to 165
       endif
 
       Coefmax=SS/SumaPz  !SumMt
       Coefmin=0.
-
+	
  170  Coef=(Coefmin+Coefmax)/2.
-      SumMt=0.
+       SumMt=0.
 
       do i=1,Nhad
         SumMt=SumMt+sqrt(AMF(i)**2+PXF(i)**2+PYF(i)**2+
@@ -354,10 +365,14 @@ c--------- Putting all hadrons on mass-shell -----------------
       if(abs(SumMt-SS)/SS.gt.0.001) then
        if(SumMt.gt.SS) then
         Coefmax=Coef
-        go to 170
+ 
+       go to 170
+
        else
         Coefmin=Coef
+
         go to 170
+
        endif
       endif
 
@@ -378,13 +393,15 @@ c--------- Putting all hadrons on mass-shell -----------------
       CALL DECAY(Nhad)  ! Decays of the particles
 
       GO TO 800         ! to the end of the event simulation
-
  200  CONTINUE
+
 C--------------------------------------- Simulation of process B ------------
 C   q \bar q - annihilation, qq - \bar qq string
 C----------------------------------------------------------------------------
+      if(Idebug.ne.0) write(6,*)'qbar q - annihilation, qqbar qq string'
+
       Typ_aQ(1)=707
-      if(RNDM1(-1).ge.0.33333) Typ_aQ(1)=708
+      if(RNDM1(-1).ge.0.2) Typ_aQ(1)=708   ! Uzhi 18 May 2017 0.33333 -> 0.2
 
       Typ_Q(1)=Typ_aQ(1)-606
 
@@ -400,6 +417,7 @@ C
       TAR(4)=-Ecms
       TAR(5)= VQMASS
 
+      if(Idebug.ne.0) write(6,*)'QQ QQbar ',Typ_Q(1),Typ_aQ(1)
  210  continue
       Nhad=0
       CALL STRING(PROJ,TAR,NHADm) ! Fragmentation of string
@@ -432,6 +450,7 @@ C
       GO TO 800   ! to the end of the event simulation
 
  300  CONTINUE
+
 C--------------------------------------- Simulation of process C ------------
 C q \bar q and string-junctions annihilation, 2 q\bar q strings
 C----------------------------------------------------------------------------
@@ -439,7 +458,6 @@ C----------------------------------------------------------------------------
 
       TypeQ_ann=8
       if(RNDM1(-1).ge.0.33333) TypeQ_ann=7
-
       if(typeQ_ann.eq.7.) then
 c------------------------------------- \bar u \bar d +  u d
         if(RNDM1(-1).le.0.5) then
@@ -449,7 +467,6 @@ c------------------------------------- \bar u \bar d +  u d
           Typ_aQ(1)=8
           Typ_aQ(2)=7
         endif
-
          if(RNDM1(-1).le.0.5) then
           Typ_Q(1)=1
           Typ_Q(2)=2
@@ -468,6 +485,7 @@ c------------------------------------- \bar u \bar u + u u
 
       endif
 
+	if(Idebug.ne.0) write(6,*)'Generator go to 109' 
       GO TO 109
 
  400  CONTINUE
@@ -476,9 +494,11 @@ C           qq \bar qq annihilation, only q\bar q string
 C----------------------------------------------------------------------------
       Typ_aQ(1)=8
       if(RNDM1(-1).ge.0.33333) Typ_aQ(1)=7
-      Typ_aQ(1)=7
+***      Typ_aQ(1)=7                           ! Uzhi Oct. 2017
 
       Typ_Q(1)=Typ_aQ(1)-6
+
+      if(Idebug.ne.0) write(6,*)'Process 400 q-qbar',Typ_aQ(1),Typ_Q(1)
 
       PROJ(1)=Typ_aQ(1)
       PROJ(2)=0.
@@ -523,14 +543,14 @@ c ------------------------------------ Determination of Pt_i and X_i -
       N_QS=2
 
       FI=RNDM1(-1)*6.28318
-      Pt=-1./Bslp*ALOG(RNDM1(-1)*RNDM1(-1))
+      Pt=-1./Bslp*LOG(RNDM1(-1)*RNDM1(-1))
       Px_aQ(1)= Pt*Cos(Fi)
       Py_aQ(1)= Pt*Sin(Fi)
       Px_aQ(2)=-Pt*Cos(Fi)
       Py_aQ(2)=-Pt*Sin(Fi)
 
       FI=RNDM1(-1)*6.28318
-      Pt=-1./Bslp*ALOG(RNDM1(-1)*RNDM1(-1))
+      Pt=-1./Bslp*LOG(RNDM1(-1)*RNDM1(-1))
       Px_Q(1) = Pt*Cos(Fi)
       Py_Q(1) = Pt*Sin(Fi)
       Px_Q(2) =-Pt*Cos(Fi)
@@ -558,11 +578,15 @@ c ------------------------------------ Determination of Pt_i and X_i -
 
       if(Sum_Mt.ge.SS) go to 510
 
+	if(Idebug.ne.0) write(6,*)'Mt SS ',Sum_Mt,SS
 520   CONTINUE
 
       Alfa=1./ALPHAR
       BetaB=ALPHAR-2.*ALPHAN
       if(Typ_aQ(1).eq.708.) BetaB=BetaB+1.
+
+      if(Idebug.ne.0) write(6,*)'aR aN aQ ',ALPHAR,ALPHAN,Typ_aQ(1) ! #######################
+      if(Idebug.ne.0) write(6,*)'alfa BetaB ',Alfa,BetaB
 
       Beta=1./(BetaB+1.)
  530  R1=RNDM1(-1)
@@ -575,6 +599,8 @@ c ------------------------------------ Determination of Pt_i and X_i -
       X_aQ(1)=1.-Xa
       X_aQ(2)=Xa
       if(Xa.eq.0.) go to 530
+
+      if(Idebug.ne.0) write(6,*)'Xqqbar ',Xa,SS
 
       Alfa=1./ALPHAR
       BetaB=ALPHAR-2.*ALPHAN
@@ -591,6 +617,8 @@ c ------------------------------------ Determination of Pt_i and X_i -
       X_Q(1)=1.-Xa
       X_Q(2)=Xa
       if(Xa.eq.0.) go to 540
+
+      if(Idebug.ne.0) write(6,*)'Xqq    ',Xa,SS
 
       Alfa=0.
       Beta=0.
@@ -609,6 +637,8 @@ C
       WB=(S-Alfa+Beta+DET)/2./SS
 
       IF((WA.LE.0.).OR.(WB.LE.0.))      GOTO 520
+
+      if(Idebug.ne.0) write(6,*)'Wa Wb ',WA,WB
 
       do i=1,N_QS
         Pz_aQ(i)= (WA*X_aQ(i)-Mt_aQ_2(i)/X_aQ(i)/WA)/2.
@@ -646,7 +676,10 @@ C
       SumPx=SumPx+Proj(2)+Tar(2)
       SumPy=SumPy+Proj(3)+Tar(3)
       SumPz=SumPz+Proj(4)+Tar(4)
+
         CALL STRING(PROJ,TAR,NHADm) ! Fragmentation of string
+
+	if(NHADm.eq.0) goto 520                               ! Uzhi Oct. 2017
 
         CALL GOBSEC(Nhad,NHADm) ! Storing of produced particles
 
@@ -657,7 +690,7 @@ c--------- Putting all hadrons on mass-shell -----------------
       Nrepeat=0.
  560  CONTINUE
       Nrepeat=Nrepeat+1
-      if(Nrepeat.ge.100) go to 550
+      if(Nrepeat.ge.100) go to 520        ! Uzhi Oct. 2017  550 -> 520
 
       SumMt=0.
       SumaPz=0.
@@ -734,18 +767,18 @@ C----------------------------------------------------------------------------
 
 C---------------------- Momentum transfer --------------------------
       FI=RNDM1(-1)*6.28318
-      Pt=-0.05*ALOG(RNDM1(-1)*RNDM1(-1)) ! 1/2/Bslope
+      Pt=-0.05*LOG(RNDM1(-1)*RNDM1(-1)) ! 1/2/Bslope
       Px1=Pt*Cos(Fi)
       Py1=Pt*Sin(Fi)
 
       FI=RNDM1(-1)*6.28318
-      Pt=-0.05*ALOG(RNDM1(-1)*RNDM1(-1)) ! 1/2/Bslope
+      Pt=-0.05*LOG(RNDM1(-1)*RNDM1(-1)) ! 1/2/Bslope
       Px2=Pt*Cos(Fi)
       Py2=Pt*Sin(Fi)
 
 c ------------------------------------ Determination of Pt_i and X_i -
       FI=RNDM1(-1)*6.28318
-      Pt=-1./Bslp*ALOG(RNDM1(-1)*RNDM1(-1))
+      Pt=-1./Bslp*LOG(RNDM1(-1)*RNDM1(-1))
       Px_aQ(1)= Pt*Cos(Fi)+Px1
       Py_aQ(1)= Pt*Sin(Fi)+Py1
       Px_aQ(2)=-Pt*Cos(Fi)+Px2
@@ -886,7 +919,7 @@ c--------- Putting all hadrons on mass-shell -----------------
       Nrepeat=0.
  640  CONTINUE
       Nrepeat=Nrepeat+1
-      if(Nrepeat.ge.100) go to 630
+      if(Nrepeat.ge.100) go to 610                       ! Uzhi Oct. 2017  630 --> 610
 
       SumMt=0.
       SumaPz=0.
@@ -974,8 +1007,8 @@ c         print *, 'now is modeling interf part'
 c         print *, 'now is modelin hadron part' 
    
        IF(RNDM1(-1).le.Weight1) then    !model hadron elast 
-c       T=T2*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T2))) !Last exponent
-        T=T2*ALOG(exp(Tmin/T2)-
+c       T=T2*LOG(1.-RNDM1(-1)*(1.-exp(Tmax/T2))) !Last exponent
+        T=T2*LOG(exp(Tmin/T2)-
      & RNDM1(-1)*(exp(Tmin/T2)-exp(Tmax/T2))) ! Last exponent
 
       ELSE
@@ -989,12 +1022,12 @@ c     /  (A1*T1*(1.-exp(Tmax/T1))+A1*A2**2*T2*(1.-exp(Tmax/T2)))
 
  710    continue
         IF(RNDM1(-1).le.W1) then
-c        T=T1*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T1))) ! First exponent
-         T=T1*ALOG(exp(Tmin/T1)-
+c        T=T1*LOG(1.-RNDM1(-1)*(1.-exp(Tmax/T1))) ! First exponent
+         T=T1*LOG(exp(Tmin/T1)-
      &   RNDM1(-1)*(exp(Tmin/T1)-exp(Tmax/T1))) ! First exponent
         ELSE
-c        T=T2*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T2))) ! Second exponent
-         T=T2*ALOG(exp(Tmin/T2)-
+c        T=T2*LOG(1.-RNDM1(-1)*(1.-exp(Tmax/T2))) ! Second exponent
+         T=T2*LOG(exp(Tmin/T2)-
      &   RNDM1(-1)*(exp(Tmin/T2)-exp(Tmax/T2))) ! Second exponent
          ENDIF
         W2=(exp(T/2./T1)-A2*exp(T/2./T2))**2/(exp(T/T1)+A2**2*exp(T/T2))
@@ -1084,10 +1117,15 @@ c      Print *, i, NREF(i), PXF(i), PYF(i), PZF(i)
        
       enddo
 
+      if(Idebug.ne.0) write(6,*)'sumXYZ ',SumPx,SumPy,SumPz,SumE
+      if(Idebug.ne.0) pause
+
       RETURN
       END
 
       SUBROUTINE TOPITH(Nhad)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
 C =========================================================================
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
 C =========================================================================
@@ -1095,6 +1133,7 @@ C =========================================================================
      *AMF(10000),ICHF(10000),IBARF(10000),ANF(10000),NREF(10000)
 
       CHARACTER*8 ANF
+
 C
       common/IDPITH/IDPITH         ! ********************
 	save  /IDPITH/
@@ -1143,6 +1182,9 @@ C
       END
 
       SUBROUTINE TOPLUTO(Nhad)
+      IMPLICIT INTEGER (I-N)
+      IMPLICIT REAL *8 (A-H,O-Z)
+
 C =========================================================================
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
 C =========================================================================
