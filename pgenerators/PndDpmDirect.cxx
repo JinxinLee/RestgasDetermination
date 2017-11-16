@@ -27,7 +27,7 @@ extern "C" {
 
  typedef struct {
     int n, k[2000];  
-    float p[5000];   	
+    double p[5000];   	
   } lujets;
 
  #define LUJETS COMMON_BLOCK(LUJETS,lujets)
@@ -35,8 +35,8 @@ extern "C" {
 
 }
 
-extern "C" int init1_(float* Plab, double* seed, float* Elastic, float* tetmin );//install DPM 
-extern "C" int dpm_gen_(float* Generator, double* seed ); //to generate events
+extern "C" int init1_(double* Plab, double* seed, double* Elastic, double* tetmin );//install DPM 
+extern "C" int dpm_gen_(double* Generator, double* seed ); //to generate events
 extern "C" int chstatus_(int* iPDG, int* iStatus); //to change Particle status
 
 TF1 	 * fDensityFunction;
@@ -147,7 +147,7 @@ Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
   double Px[1000],Py[1000],Pz[1000];  //,E[1000],Pm[1000],Wh[1000];  //[R.K. 01/2017] unused variables
   int Id[1000];
   
-  float Generator=0.; //  Format in which events are produced (0=pythia, 1=pluto)
+  double Generator=0.; //  Format in which events are produced (0=pythia, 1=pluto)
 
   //Double_t weight = 1.0; //[R.K. 01/2017] unused variable?
   //Int_t activeCnt=0; //[R.K. 01/2017] unused variable?
