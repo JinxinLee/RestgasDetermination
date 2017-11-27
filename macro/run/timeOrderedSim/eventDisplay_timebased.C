@@ -1,24 +1,29 @@
 
 
-eventDisplay_timebased()
+int eventDisplay_timebased()
 {
     //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant3"; 
-  TString  InputFile     ="Mvd_Sim.root";
+  TString  InputFile     ="dpm_simulation.root";
   //------------------------------------------------------------------
 
 
 // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  rootlogon();
-  gSystem->Load("libEve");
-  gSystem->Load("libEventDisplay");
-  gSystem->Load("libPndEventDisplay");
+//  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+//  rootlogon();
+//  gSystem->Load("libEve");
+//  gSystem->Load("libEventDisplay");
+//  gSystem->Load("libPndEventDisplay");
+  FairLogger* logger = FairLogger::GetLogger();
+//  logger->SetLogToScreen(kTRUE);
+  logger->SetLogVerbosityLevel("LOW");
+  logger->SetLogScreenLevel("INFO");
+
 
   PndFileNameCreator creator(InputFile.Data());
   TString digiFile = creator.GetDigiFileName("timebased");
   TString recoFile = creator.GetRecoFileName("timebased");
-  TString trackF = creator.GetTrackFindingFileName("timebased");
+  TString trackF = creator.GetTrackFindingFileName("");
   TString ParFile = creator.GetParFileName();
                                      
   // -----   Reconstruction run   -------------------------------------------
@@ -26,7 +31,7 @@ eventDisplay_timebased()
   fRun->SetInputFile(InputFile.Data());
   fRun->AddFriend(recoFile.Data());
   fRun->AddFriend(digiFile.Data());
-  fRun->AddFriend(trackF.Data());
+//  fRun->AddFriend(trackF.Data());
   fRun->SetOutputFile("tst.root");
 
   fRun->RunWithTimeStamps();
@@ -59,9 +64,11 @@ eventDisplay_timebased()
 //  FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
 //  FairHitDraw *EMCRecoHit = new FairHitDraw("EmcRecoHit");
 //
-  PndTrackCandDraw* RiemannCand = new PndTrackCandDraw("MVDRiemannTrackCand");
-  RiemannCand->SetTimeWindowPlus(10);
-  RiemannCand->SetTimeWindowMinus(10);
+  PndTrackDraw* genfitTrack = new PndTrackDraw("BarrelTrack", kTRUE);
+  genfitTrack->SetTimeWindowPlus(5);
+  genfitTrack->SetTimeWindowMinus(5);
+  fMan->AddTask(genfitTrack);
+
   PndTrackDraw* PndTrackRiemann = new PndTrackDraw("MVDTrack");
   PndTrackRiemann->SetTimeWindowPlus(10);
   PndTrackRiemann->SetTimeWindowMinus(10);
@@ -70,11 +77,11 @@ eventDisplay_timebased()
 //  PndMvdDigiPixelDraw* MvdDigiPixel = new PndMvdDigiPixelDraw("MVDPixelDigis");
                                                             
   FairHitDraw *MvdRecoHit =   new FairHitDraw ("MVDHitsPixel");
-  MvdRecoHit->SetTimeWindowPlus(10);
-  MvdRecoHit->SetTimeWindowMinus(10);
+  MvdRecoHit->SetTimeWindowPlus(5);
+  MvdRecoHit->SetTimeWindowMinus(5);
   FairHitDraw *MvdRecoStrip = new FairHitDraw ("MVDHitsStrip");
-  MvdRecoStrip->SetTimeWindowPlus(10);
-  MvdRecoStrip->SetTimeWindowMinus(10);
+  MvdRecoStrip->SetTimeWindowPlus(5);
+  MvdRecoStrip->SetTimeWindowMinus(5);
   FairHitDraw *STTHits = new FairHitDraw ("STTSortedHits");
   STTHits->SetTimeWindowPlus(200);
   STTHits->SetTimeWindowMinus(1);
@@ -83,9 +90,9 @@ eventDisplay_timebased()
 
   PndSttIsochroneDraw* STTIsochrone = new PndSttIsochroneDraw("STTHit");
   STTIsochrone->SetTimeWindowPlus(250);
-  STTIsochrone->SetTimeWindowMinus(10);
+  STTIsochrone->SetTimeWindowMinus(1);
   STTIsochrone->UseIsochroneTime();
-//  fMan->AddTask(STTIsochrone);
+  fMan->AddTask(STTIsochrone);
 
 //  fMan->AddTask(MvdDigiPixel);
 //  fMan->AddTask(EMCPoints);
@@ -104,9 +111,10 @@ eventDisplay_timebased()
   fMan->AddTask(MvdRecoStrip);
   fMan->AddTask(STTHits);
   
-  fMan->AddTask(RiemannCand);
+//  fMan->AddTask(RiemannCand);
 //  fMan->AddTask(PndTrackRiemann);
 
   fMan->Init();
 
+  return 0;
 }

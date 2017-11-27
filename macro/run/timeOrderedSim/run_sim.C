@@ -5,10 +5,10 @@
 // to run with different options:(e.g more events, different momentum, Geant4)
 // root  sim_complete.C"(100, "TGeant4",2)"
 
-run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
+int run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.231552)
 {
   //-----User Settings:-----------------------------------------------
-  TString  OutputFile     ="sim_complete.root";
+  TString  OutputFile     ="dpm_simulation.root";
 
   PndFileNameCreator creator(OutputFile.Data());
   TString ParOutputfile = creator.GetParFileName().c_str();
@@ -17,8 +17,8 @@ run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.2315
   gDebug                  = 0;
   TString digiFile        = "all.par"; //The emc run the hit producer directly
                                        // choose your event generator
-  Bool_t UseEvtGenDirect      =kTRUE;
-  Bool_t UseDpm 	      =kFALSE;
+  Bool_t UseEvtGenDirect      =kFALSE;
+  Bool_t UseDpm 	      =kTRUE;
   Bool_t UseFtf 	      =kFALSE;
   Bool_t UseBoxGenerator      =kFALSE;
   
@@ -96,7 +96,7 @@ run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.2315
   fRun->AddModule(Mvd);
   //-------------------------  GEM       -----------------
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
-  Gem->SetGeometryFileName("gem_3Stations_Tube.root");
+  Gem->SetGeometryFileName("gem_3Stations_realistic_v2.root");
   fRun->AddModule(Gem);
   //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
@@ -105,11 +105,11 @@ run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.2315
   fRun->AddModule(Emc);
   //-------------------------  SCITIL    -----------------
   FairDetector *SciT = new PndSciT("SCIT",kTRUE);
-  SciT->SetGeometryFileName("SciTil_201504.root");
+  SciT->SetGeometryFileName("SciTil_201601.root");
   fRun->AddModule(SciT);
   //-------------------------  DRC       -----------------
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc_l0_p0_updated.root");
+  Drc->SetGeometryFileName("dirc_e3_b3_l6_m40.root");
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc);
   //-------------------------  DISC      -----------------
@@ -137,7 +137,7 @@ run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.2315
   fRun->AddModule(FTof);
   //-------------------------  RICH       ----------------
   FairDetector *Rich= new PndRich("RICH",kFALSE);
-  Rich->SetGeometryFileName("rich_v2_shift.geo");
+  Rich->SetGeometryFileName("rich_v313.root");
   fRun->AddModule(Rich);
   
   // Create and Set Event Generator
@@ -197,6 +197,6 @@ run_sim(Int_t nEvents = 100, TString  SimEngine ="TGeant3", Float_t mom = 6.2315
   cout << " All ok " << endl;
   
   //exit(0);
-  
+  return 0;
 };
 

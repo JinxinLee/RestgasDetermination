@@ -5,27 +5,42 @@ int run_digi()
 
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; // just forget about it, for the moment
-  
+  Bool_t timeBased = false;
   // Input file (MC events)
-  TString inFile = "sim_complete.root";
+  TString inFile = "dpm_simulation.root";
   Int_t nEvents = 0;
   
   PndFileNameCreator creator(inFile.Data());
   TString parFile = creator.GetParFileName().c_str();
-  TString outFile = creator.GetDigiFileName("timebased").c_str();
+  TString outFile;
+  if (timeBased)
+	  outFile= creator.GetDigiFileName("timebased").c_str();
+  else
+	  outFile= creator.GetDigiFileName().c_str();
   std::cout << "DigiFileName: " << outFile.Data() << std::endl;
   // Digitisation file (ascii)
   TString digiFile = "all.par";
+
+  FairLogger *logger = FairLogger::GetLogger();
+  logger->SetLogFileName("MyLog.log");
+  logger->SetLogToScreen(kTRUE);
+//  logger->SetLogToFile(kTRUE);
+  logger->SetLogVerbosityLevel("HIGH");
+//  logger->SetLogFileLevel("DEBUG4");
+  logger->SetLogScreenLevel("DEBUG");
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(inFile);
+  FairFileSource *fFileSource = new FairFileSource(inFile);
+//  fFileSource->ReadEventTimeFromFile("EventTimes.dat");
+  fFileSource->SetEventMeanTime(50);
+  fFileSource->SetBeamTime(1600, 400);
+  fRun->SetSource(fFileSource);
+
   fRun->SetOutputFile(outFile);
   fRun->SetGenerateRunInfo(kFALSE);
-  fRun->SetEventMeanTime(50);
-  fRun->SetBeamTime(400, 2000);
   fRun->SetUseFairLinks(kTRUE); 
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
@@ -44,26 +59,32 @@ int run_digi()
   
   // -----   STT digi producers   ---------------------------------
   PndSttHitProducerRealFull* sttHitProducer = new PndSttHitProducerRealFull();
-  sttHitProducer->RunTimeBased();
+  if (timeBased)
+	  sttHitProducer->RunTimeBased();
   fRun->AddTask(sttHitProducer);
   
-  PndSttHitSorterTask* sttSorter = new PndSttHitSorterTask(5000, 50, "STTHit", "STTSortedHits", "PndSTT");
-  fRun->AddTask(sttSorter);
+  if (timeBased) {
+	  PndSttHitSorterTask* sttSorter = new PndSttHitSorterTask(5000, 50, "STTHit", "STTSortedHits", "PndSTT");
+  	  fRun->AddTask(sttSorter);
+  }
 
-  // -----   MDV digi producers   ---------------------------------
+  // -----   MVD digi producers   ---------------------------------
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
-  mvddigi->RunTimeBased();
+  if (timeBased)
+	  mvddigi->RunTimeBased();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);
 
   // -----   EMC hit producers   ---------------------------------
   //wf simulation
+  if (timeBased){
     Bool_t storeWfDataClass = kTRUE;
     Bool_t storeWf = kTRUE;
     PndEmcFWEndcapTimebasedWaveforms* wfTask = new PndEmcFWEndcapTimebasedWaveforms(iVerbose);
     wfTask->StoreDataClass(storeWfDataClass);
     wfTask->SetStorageOfData(storeWf);
-    wfTask->RunTimebased();
+    if (timeBased)
+    	wfTask->RunTimebased();
 
     Bool_t storeUnsortedDigis = kTRUE;
     PndEmcFWEndcapDigi* digiTask = new PndEmcFWEndcapDigi(iVerbose, storeUnsortedDigis);
@@ -71,9 +92,19 @@ int run_digi()
     PndEmcDigiSorterTask* sorterTask = new PndEmcDigiSorterTask(10000, 1, "EmcDigi", "EmcDigiSorted", "Emc");
     sorterTask->SetVerbose(iVerbose);
 
+
     fRun->AddTask(wfTask);
     fRun->AddTask(digiTask);
     fRun->AddTask(sorterTask);
+  }
+  else {
+	  PndEmcHitsToWaveform* emcwf = new PndEmcHitsToWaveform();
+	  PndEmcWaveformToDigi* emcdigi = new PndEmcWaveformToDigi();
+
+	  fRun->AddTask(emcwf);
+	  fRun->AddTask(emcdigi);
+
+  }
 
   //PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   //fRun->AddTask(emcHdrFiller); // ECM header
@@ -86,7 +117,8 @@ int run_digi()
   SciTDigi->SetVerbose(iVerbose);
   SciTDigi->SetDeadTime(SciTDeadtime);
   SciTDigi->SetTimeResolution(SciTdt);
-  SciTDigi->RunTimeBased();
+  if (timeBased)
+	  SciTDigi->RunTimeBased();
   fRun->AddTask(SciTDigi);
 
   // -----   MDT hit producers   ---------------------------------
@@ -107,11 +139,14 @@ int run_digi()
 
   // -----   FTS hit producers   ---------------------------------
   PndFtsHitProducerRealFull* ftsHitProducer = new PndFtsHitProducerRealFull();
-  ftsHitProducer->RunTimeBased();
-  // fRun->AddTask(ftsHitProducer);
+  if (timeBased)
+	  ftsHitProducer->RunTimeBased();
+  fRun->AddTask(ftsHitProducer);
 
-  PndFtsHitSorterTask* ftsSorter = new PndFtsHitSorterTask(5000, 50, "FTSHit", "FTSSortedHits", "PndFTS");
-  //  fRun->AddTask(ftsSorter);
+  if (timeBased){
+	  PndFtsHitSorterTask* ftsSorter = new PndFtsHitSorterTask(5000, 50, "FTSHit", "FTSSortedHits", "PndFTS");
+	  fRun->AddTask(ftsSorter);
+  }
 
   // -----   Ftof hit producers   ---------------------------
   PndFtofHitProducerIdeal* ftofhit = new PndFtofHitProducerIdeal();
