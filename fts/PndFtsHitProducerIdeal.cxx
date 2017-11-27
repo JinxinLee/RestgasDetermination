@@ -36,7 +36,7 @@ using std::sqrt;
 #define longitudinalResolutionPolynomialConstant3 0.
 
 // TODO: read this from geant initialization
-#define innerStrawDiameter 1. 
+#define innerStrawDiameter 1.
 
 // -----   Default constructor   -------------------------------------------
 PndFtsHitProducerIdeal::PndFtsHitProducerIdeal() :
@@ -46,7 +46,7 @@ PndFtsHitProducerIdeal::PndFtsHitProducerIdeal() :
   fPointArray    = NULL;
   fHitArray      = NULL;
   fHitInfoArray  = NULL;
-  fTubeArray     = NULL; 
+  fTubeArray     = NULL;
   fFtsParameters =0;
 }
 // -------------------------------------------------------------------------
@@ -54,31 +54,31 @@ PndFtsHitProducerIdeal::PndFtsHitProducerIdeal() :
 
 
 // -----   Destructor   ----------------------------------------------------
-PndFtsHitProducerIdeal::~PndFtsHitProducerIdeal() 
-{ 
+PndFtsHitProducerIdeal::~PndFtsHitProducerIdeal()
+{
 }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndFtsHitProducerIdeal::Init() 
+InitStatus PndFtsHitProducerIdeal::Init()
 {
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
       cout << "-E- PndFtsHitProducerIdeal::Init: "
-	   << "RootManager not instantiated!" << endl;
+         << "RootManager not instantiated!" << endl;
       return kFATAL;
     }
 
   // Get input array
   fPointArray = (TClonesArray*) ioman->GetObject("FTSPoint");
-  if ( ! fPointArray ) 
+  if ( ! fPointArray )
     {
       cout << "-W- PndFtsHitProducerIdeal::Init: "
-	   << "No FTSPoint array!" << endl;
+         << "No FTSPoint array!" << endl;
       return kERROR;
   }
 
@@ -90,7 +90,7 @@ InitStatus PndFtsHitProducerIdeal::Init()
   fHitInfoArray = new TClonesArray("PndFtsHitInfo");
   ioman->Register("FTSHitInfo", "FTS", fHitInfoArray, kFALSE);
 
-  // CHECK added 
+  // CHECK added
   //PndFtsMapCreator *fMapper     = new PndFtsMapCreator(fFtsParameters);
   cout << "-I- PndFtsHitProducerIdeal: Intialisation successfull" << endl;
 
@@ -98,47 +98,47 @@ InitStatus PndFtsHitProducerIdeal::Init()
 }
 // -------------------------------------------------------------------------
 
-// CHECK added 
+// CHECK added
 void PndFtsHitProducerIdeal::SetParContainers() {
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   fFtsParameters = (PndGeoFtsPar*) rtdb->getContainer("PndGeoFtsPar");
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndFtsHitProducerIdeal::Exec(Option_t*) 
+void PndFtsHitProducerIdeal::Exec(Option_t*)
 {
   if(fTubeArray == NULL){
     PndFtsMapCreator *mapper = new PndFtsMapCreator(fFtsParameters);
     fTubeArray = mapper->FillTubeArray();
   }
   // Reset output array
-  if ( ! fHitArray ) 
+  if ( ! fHitArray )
     Fatal("Exec", "No HitArray");
-  
+
   fHitArray->Delete();
   fHitInfoArray->Delete();
-  
+
   // Declare some variables
   PndFtsPoint
     *point = NULL;
 
-  Int_t 
+  Int_t
     detID = 0,       // Detector ID
     trackID = 0;     // Track index
 
-  TVector3 
+  TVector3
     pos, dpos;       // Position and error vectors
 
   // Loop over FtsPoints
-  Int_t 
+  Int_t
     nPoints = fPointArray->GetEntriesFast();
   Int_t counter=0;
-  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) 
+  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
     {
       point = (PndFtsPoint*) fPointArray->At(iPoint);
 
-      if ( ! point) 
-	continue;
+      if ( ! point)
+      continue;
 
       // Detector ID
       detID = point->GetDetectorID();
@@ -164,18 +164,18 @@ void PndFtsHitProducerIdeal::Exec(Option_t*)
 
       // Determine hit position and isochrone (x,y of wire, measured z  position)
       TVector3
-	posInLocal(point->GetXInLocal(), point->GetYInLocal(), point->GetZInLocal()),
-	posOutLocal(point->GetXOutLocal(), point->GetYOutLocal(), point->GetZOutLocal());
+      posInLocal(point->GetXInLocal(), point->GetYInLocal(), point->GetZInLocal()),
+      posOutLocal(point->GetXOutLocal(), point->GetYOutLocal(), point->GetZOutLocal());
 
       TVector3 position = tube->GetPosition();
 
       Double_t
-	closestDistance,
-	closestDistanceError;
-      
-      //GetClostestApproachToWire(closestDistance, closestDistanceError, 
-      //				posInLocal, posOutLocal);
-  
+      closestDistance,
+      closestDistanceError;
+
+      //GetClostestApproachToWire(closestDistance, closestDistanceError,
+      //                        posInLocal, posOutLocal);
+
       //minimum distance ----------------
 
       //Double_t fd_in = sqrt(pow(point->GetXInLocal(),2)+pow(point->GetYInLocal(),2)); //[R.K. 01/2017] unused variable?
@@ -189,7 +189,7 @@ void PndFtsHitProducerIdeal::Exec(Option_t*)
       InOut[3] = point->GetXOutLocal();
       InOut[4] = point->GetYOutLocal();
       InOut[5] = point->GetZOutLocal();
-      
+
       PndFtsSingleStraw fts;
       fts.PutWireXYZ(0.,  0., -75., 0., 0., 75.);
       closestDistance  = fts.TrueDist(InOut);
@@ -199,23 +199,26 @@ void PndFtsHitProducerIdeal::Exec(Option_t*)
       //---------------------
 
       Double_t
-	zpos = position.Z() + ((posOutLocal.Z() + posInLocal.Z()) / 2.),
-	zposError;
-      
-      FoldZPosWithResolution(zpos, zposError, 
-			     posInLocal, posOutLocal);
- 
+          zpos = position.Z() + ((posOutLocal.Z() + posInLocal.Z()) / 2.),
+          zposError;
+
+      FoldZPosWithResolution(zpos, zposError,
+                       posInLocal, posOutLocal);
+
       // Create new hit
       //      pos.SetXYZ(position.X(), position.Y(), zpos);
       pos.SetXYZ(position.X(), position.Y(), position.Z()); // CHECK!
       dpos.SetXYZ(innerStrawDiameter / 2., innerStrawDiameter / 2., GetLongitudinalResolution(position.Z()));
 
       //  if(fabs(fd_in-0.5)>0.001) continue;
-          
-      new ((*fHitArray)[counter]) PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, 0, closestDistance, closestDistanceError, eloss * 1e6);
-     
+
+      Double_t eventTime = FairRootManager::Instance()->GetEventTime();
+      Double_t flightTime = point->GetTime();
+
+      new ((*fHitArray)[counter]) PndFtsHit(detID, tubeID, chamberID, layerID, skew, iPoint, pos, dpos, eventTime+flightTime, closestDistance, closestDistanceError, eloss * 1e6);
+
       new ((*fHitInfoArray)[counter]) PndFtsHitInfo(0, 0, trackID, iPoint,
-						   0, kFALSE);
+                                       0, kFALSE);
       counter++;
     }   // Loop over MCPoints
 
@@ -229,8 +232,8 @@ void PndFtsHitProducerIdeal::Exec(Option_t*)
 // -----   Private method GetRadialResolution-------------------------------
 Double_t PndFtsHitProducerIdeal::GetRadialResolution(Double_t radius)
 {
-  return radialResolutionPolynomialConstant1 + 
-    radius * radialResolutionPolynomialConstant2 + 
+  return radialResolutionPolynomialConstant1 +
+    radius * radialResolutionPolynomialConstant2 +
     radius * radius * radialResolutionPolynomialConstant3;
 }
 // -------------------------------------------------------------------------
@@ -240,31 +243,31 @@ Double_t PndFtsHitProducerIdeal::GetRadialResolution(Double_t radius)
 // -----   Private method GetLongitudinalResolution ------------------------
 Double_t PndFtsHitProducerIdeal::GetLongitudinalResolution(Double_t zpos)
 {
-  return longitudinalResolutionPolynomialConstant1 + 
-    zpos * longitudinalResolutionPolynomialConstant2 + 
+  return longitudinalResolutionPolynomialConstant1 +
+    zpos * longitudinalResolutionPolynomialConstant2 +
     zpos * zpos * longitudinalResolutionPolynomialConstant3;
 }
 // -------------------------------------------------------------------------
 
 // -----   Private method GetClostestApproachToWire ------------------------
-void PndFtsHitProducerIdeal::GetClostestApproachToWire(Double_t &closestDistance, 
-						       Double_t &closestDistanceError,
-						       TVector3 localInPos, 
-						       TVector3 localOutPos)
+void PndFtsHitProducerIdeal::GetClostestApproachToWire(Double_t &closestDistance,
+                                           Double_t &closestDistanceError,
+                                           TVector3 localInPos,
+                                           TVector3 localOutPos)
 {
   Double_t
     a = (localOutPos.X() - localInPos.X()),
     b = (localOutPos.Y() - localInPos.Y()),
     c = sqrt(a * a + b * b) / 2.;
-    
+
   // fold with Gaussian for resolution
 
-  if (c > innerStrawDiameter / 2.) 
+  if (c > innerStrawDiameter / 2.)
     {
       c = innerStrawDiameter / 2.;
     }
-                
-  closestDistance = sqrt((innerStrawDiameter / 2.) * (innerStrawDiameter / 2.) - c * c); 
+
+  closestDistance = sqrt((innerStrawDiameter / 2.) * (innerStrawDiameter / 2.) - c * c);
   closestDistanceError = 0.;
 
   if (foldResolution)
@@ -275,18 +278,18 @@ void PndFtsHitProducerIdeal::GetClostestApproachToWire(Double_t &closestDistance
 }
 // -------------------------------------------------------------------------
 
-void PndFtsHitProducerIdeal::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, 
-						    TVector3 localInPos, TVector3 localOutPos)
+void PndFtsHitProducerIdeal::FoldZPosWithResolution(Double_t &zpos, Double_t &zposError,
+                                        TVector3 localInPos, TVector3 localOutPos)
 {
   Double_t
     zPosInStrawFrame = (localOutPos.Z() - localInPos.Z()) / 2.;
- 
+
   zposError = gRandom->Gaus(0., GetLongitudinalResolution(zPosInStrawFrame));
 
   zpos += zposError;
   //  cout << "zpos in prod: " << zpos << endl;
 }
- 
+
 
 
 ClassImp(PndFtsHitProducerIdeal)
