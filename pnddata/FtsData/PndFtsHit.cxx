@@ -35,6 +35,7 @@ PndFtsHit::PndFtsHit(Int_t detID, Int_t tubeID, Int_t chamberID, Int_t layerID, 
   fLayerID(layerID),
   fSkewed(skew)
 {
+  SetTimeStamp(p);
   SetLink(FairLink("FTSPoint", mcindex));
 }
 
