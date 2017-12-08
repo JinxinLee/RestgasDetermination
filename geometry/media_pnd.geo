@@ -3368,6 +3368,30 @@ PWO               -3  207.19  15.99  183.85  82.  8.  74.  8.29  1.  4.  1.
 pwo               -3  207.19  15.99  183.85  82.  8.  74.  8.29  1.  4.  1.
 		   1  1  30.  .001 
                    0             
+// ------ Some materials for the (backward) EMC
+// Gas Nitrogen at -25°C, 1 bar
+Nitrogen 	   1  14.01  7.  0.00136
+                   0  1  30.  .001
+                   0
+
+// Cooling shells BWEC: 60% HDPE + 40% Water/Methanol @ rho = 0.93 g/cm3
+CoolingShellMix    3   12.01 15.9994 1.008   6. 8. 1.   0.954    0.557 0.310 0.133      
+                   0  1  30.  .001
+                   0
+
+// VIP material: fumed silica - Si02 @ rho = 0.2 g/cm3
+FumedSilica       -2    28.09 15.9994    14. 8.    0.2    1. 2.
+                   0  1  30.  .001
+                   0
+
+// Prepreg: 57% C + 43% Epoxy
+Prepreg            4    12.01 15.9994 1.008 35.45   6. 8. 1. 17.   1.8   0.846 0.088 0.028 0.038
+                   0  1  30.  .001
+                   0
+
+// ------ end EMC
+
+
 // Argon CO2 (70/30)
 GEMmixture	3  39.948 12.01 15.9994 18. 6. 8. 0.001843 0.7 0.1 0.2
 		0 1   20. 0.001 
