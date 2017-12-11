@@ -100,14 +100,17 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan): emcX(), emcY(), emcZ(), f
 	
 	TGeoIterator next(geoMan->GetTopVolume());
 	TGeoNode *node;
+
 	while ((node=next())) {
 		next.GetPath(node_path);
 
 		bool isEmcModule=crystal_name_analysis(node_path,module,copy,row,crystal);
 		if (!isEmcModule) continue;
+
 		
 		detId =  module*100000000 + row*1000000 + copy*10000 + crystal; 
-    
+
+		
 		PndEmcTwoCoordIndex *tci=fEmcMap->GetTCI(detId);
 		
 		if (tci==0)
@@ -124,10 +127,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan): emcX(), emcY(), emcZ(), f
 		emcX[detId] = pos.X(); 
 		emcY[detId] = pos.Y();
 		emcZ[detId] = pos.Z();
-		
-//		cout<<"emcX["<<detId<<"]="<< emcX[detId] <<endl;
-//		cout<<"emcY["<<detId<<"]="<< emcY[detId] <<endl;
-//		cout<<"emcZ["<<detId<<"]="<< emcZ[detId] <<endl;
+
 		geoRot.SetMatrix(crystal_matrix->GetRotationMatrix());
 		
 		PndEmcXtal *xtal;
@@ -189,6 +189,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan): emcX(), emcY(), emcZ(), f
 										  box->GetDY(), box->GetDX(), box->GetDX(), 0);
             
 			xtal = new PndEmcXtal(tci,*crystal_shape,pos,geoRot);
+			
 		} else {
 			cout << "Unknown geometry type " << shapeType << " in module " << module << endl;
 			abort();
@@ -196,6 +197,8 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan): emcX(), emcY(), emcZ(), f
 
 		fTciXtalMap[tci]=xtal;
 	}
+	
+	
 }
 
 bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &copy,int &row,int &crystal)
@@ -203,6 +206,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 	// The following code extracts information about module, copy, row and crystal number from the path name of the TGeoNode which corresponds to emc crystal
 	// Name convention is according to PndEmc.cxx
 
+  
 	if (!(node_path.Contains("emc") || node_path.Contains("Crystal") || node_path.Contains("FscModuleVolume"))) return false;
 	//cout << "node_path= " << node_path << endl;
 	///////////////////////////////////////////////////////////////////////////
@@ -804,6 +808,16 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 		module = 4;
 		row = nRow;
 		crystal = nCrys;
+	}
+	///////////////////////////////////////////////////////////////////////////
+	// Bwd Endcap geometry - 2017 version
+	// copy: quarter no. (0-4), row: submodule no. (0-9), crystal: cryst. no. (0-15)
+	///////////////////////////////////////////////////////////////////////////
+	else if(node_path.Contains("BWECinnerVol")){
+	  int submodType = -1;
+	  const char pathform[]="cave/Emc4_0/BWECouterVol_0/BWECinnerVol_0/BWECquarter_%d/BWECsubmodule%d_%d/PWOCrystal_%d";
+	  sscanf(node_path.Data(),pathform, &copy, &submodType, &row, &crystal);
+	  module = 4;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////

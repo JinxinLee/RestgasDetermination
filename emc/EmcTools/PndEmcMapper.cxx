@@ -35,7 +35,7 @@ void PndEmcMapper::Init(Int_t mapVersion)
 			case 1:
 				_instance = new PndEmcMapperGeo12Dat();
 				_instance->Add(new PndEmcMapperGeo3RootV2());
-				_instance->Add(new PndEmcMapperGeo4Root());
+				_instance->Add(new PndEmcMapperGeo4RootV2());
 				_instance->Add(new PndEmcMapperGeo5Root());
 				break;
 			case 2:
@@ -47,7 +47,7 @@ void PndEmcMapper::Init(Int_t mapVersion)
 			case 3:
 				_instance = new PndEmcMapperGeo12Dat();
 				_instance->Add(new PndEmcMapperGeo3Root());
-				_instance->Add(new PndEmcMapperGeo4Root());
+				_instance->Add(new PndEmcMapperGeo4RootV2());
 				_instance->Add(new PndEmcMapperGeo5Root());
 				break;
 			case 4:
@@ -61,6 +61,9 @@ void PndEmcMapper::Init(Int_t mapVersion)
 				break;
 			case 7:
 				_instance = new PndEmcMapperGeoProto60Root();
+				break;
+		        case 8: // old backward emc mappping (geom. version 2008)
+                                _instance = new PndEmcMapperGeo4Root();
 				break;
 			default :
 				cout<<"Emc Mapper version "<<mapVersion<<" is not defined"<<endl;
@@ -254,6 +257,49 @@ PndEmcMapperGeo4Root::PndEmcMapperGeo4Root()
 				fIntTwoCoordMap[detId]=_tci;
 	      }
 }
+
+PndEmcMapperGeo4RootV2::PndEmcMapperGeo4RootV2()
+{
+   // *** 2017 version of the BwEndCap geometry ***
+  	PndEmcTwoCoordIndex *_tci;
+	Int_t  detId, iX, iY, iXrel, iYrel, rowc; 
+	detId = iX = iY = iXrel = iYrel = rowc = 0;
+
+	Int_t module=4;
+
+	for (Int_t row=0; row<10;row++){ //-- loop over submodules in one quarter (called row to keep
+                                         //-- nomenclature of PndEmcStructure)
+	  for (Int_t crystal=0; crystal<16;crystal++){ //-- loop over crystals in one submodule
+
+	    if( row < 6 ){ // side submodules
+
+	      iXrel =  4*(row%3) + (crystal%4) -  6;
+	      iYrel = -4*(row/3) - (crystal/4) + 14;
+
+	    } else { // corner submodules
+	      rowc = row - 6;
+	      
+	      iXrel =  4*(rowc%2) + (crystal%4) +  6;
+	      iYrel = -4*(rowc/2) - (crystal/4) + 13;
+
+	    }
+
+	    for (Int_t copy=0; copy<4;copy++){ //-- loop over quarters
+	      
+	      if (copy==0) {  iX =  iXrel  ; iY =  iYrel  ; }
+	      if (copy==1) {  iX = -iYrel-1; iY =  iXrel  ; }
+	      if (copy==2) {  iX = -iXrel-1; iY = -iYrel-1; }
+	      if (copy==3) {  iX =  iYrel  ; iY = -iXrel-1; }
+				
+	      detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
+	      _tci=new PndEmcTwoCoordIndex(iX+351,iY+351,detId);
+	      fIntTwoCoordMap[detId]=_tci;
+	    }
+	  }
+	}
+}
+
+
 
 PndEmcMapperGeo5Dat::PndEmcMapperGeo5Dat()
 {

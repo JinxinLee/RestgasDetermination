@@ -85,6 +85,12 @@ class PndEmcMapperGeo4Root: public PndEmcMapper
 		PndEmcMapperGeo4Root();
 };
 
+class PndEmcMapperGeo4RootV2: public PndEmcMapper
+{
+	public:
+                PndEmcMapperGeo4RootV2();
+};
+
 class PndEmcMapperGeo5Dat: public PndEmcMapper
 {
 	public:

@@ -36,6 +36,7 @@
 #include "TGeoArb8.h"
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
+#include "TGeoCompositeShape.h"
 #include "PndDetectorList.h"
 #include "FairGeoMedium.h"
 #include "PndStack.h"
@@ -113,6 +114,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* ) {  // vol //[R.K.03/2017] unused variab
   
   TString nam = gMC->CurrentVolName();
 
+  
 //  if(gMC->IsTrackEntering()||gMC->IsTrackExiting()){
 //	  printf("\n###################\n");
 //	  if(gMC->IsTrackEntering()){
@@ -541,7 +543,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* ) {  // vol //[R.K.03/2017] unused variab
     
     else if (namQuar.Contains("Quarter4Vol")){
       // ----- NEW Backward EndCap - with the FwEndCap geometry ----
-       
+	 
       // Return the current volume off upward in the geometrical tree
       // ID and copy number
       idCrys = gMC->CurrentVolOffID(0,copyNoCrys);
@@ -609,8 +611,9 @@ Bool_t PndEmc::ProcessHits(FairVolume* ) {  // vol //[R.K.03/2017] unused variab
       nMod=4;
       copyNo = copyNoQuar;
     }
-      else if (namQuar.Contains("QuarterNewVol")){
+    else if (namQuar.Contains("QuarterNewVol")){
       // ----- NEW Backward EndCap - with the FwEndCap geometry ----
+
       nMod=4;
       
       // Return the current volume off upward in the geometrical tree
@@ -679,8 +682,21 @@ Bool_t PndEmc::ProcessHits(FairVolume* ) {  // vol //[R.K.03/2017] unused variab
       nMod=4;
       copyNo = copyNoQuar;
     }
+   
   } //if (nam.Contains("Vol"))
 
+  
+  // ----- Backward EndCap - 2017 version ----
+  if (nam.Contains("PWOCrystal") &&
+      TString(gMC->CurrentVolOffName(2)).Contains("BWECquarter") ){
+    nMod=4;
+    idCrys = gMC->CurrentVolOffID(0,nCrys);
+    idSub  = gMC->CurrentVolOffID(1,nRow);
+    idQuar = gMC->CurrentVolOffID(2,copyNo);
+    //printf("nMod=%d  nRow=%d  copyNo=%d  nCrys=%d\n",nMod,nRow,copyNo,nCrys);
+  }
+
+  
   // ---------------------------------------------------------------------------------
 
 
@@ -720,6 +736,7 @@ Bool_t PndEmc::ProcessHits(FairVolume* ) {  // vol //[R.K.03/2017] unused variab
   
   if (nam.BeginsWith("emc")) 
     {
+
       sscanf(nam,"emc%dr%dc%d", &nMod, &nRow, &nCrys);
       
       // Crys 1-5000; copyNo 1-20; nRow 1-100, nMod 1-6
@@ -922,22 +939,22 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 
   //TODO: Make  emc_mechanics_and_module5_fsc.root default after resolution of overlap with Forward MDT   
   case 1:
-	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2012_new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3_2012_new.root","emc_module4_2017.root","emc_module5_fsc.root");
 	MapperVersion =1;
 	break;
 	  
   case 2:
-	SetGeometryFileNameTriple("emc_module12.dat","emc_module3_2012_new.root","emc_module4_StraightGeo24.4.root");
+	SetGeometryFileNameTriple("emc_module12.dat","emc_module3_2012_new.root","emc_module4_2017.root");
 	MapperVersion =1;
 	break;
 
   case 3:
-	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_2017.root","emc_module5_fsc.root");
 	MapperVersion =3;
 	break;
 
   case 4:
-	SetGeometryFileNameTriple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root");
+	SetGeometryFileNameTriple("emc_module12.dat","emc_module3new.root","emc_module4_2017.root");
 	MapperVersion =3;
 	break;
 
@@ -972,8 +989,13 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
     break;
 
   case 11:
+    SetGeometryFileName("emc_module4_2017.root");
+    MapperVersion =1;
+    break;
+
+  case 112: // old (2008) version of backward emc geometry
     SetGeometryFileName("emc_module4_StraightGeo24.4.root");
-	MapperVersion =1;
+    MapperVersion =8;
     break;
 
   case 12:
@@ -1018,7 +1040,7 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
 
 
   default:
-	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root","emc_module5_fsc.root");
+	SetGeometryFileNameQuadruple("emc_module12.dat","emc_module3new.root","emc_module4_2017.root","emc_module5_fsc.root");
 	MapperVersion =1;
         break;
   }
@@ -1120,7 +1142,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m3 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
       ConstructRootGeometry();
-    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root") || fgeoName.EndsWith("4_StraightGeo26_Al.root") || fileName.EndsWith("4_StraightGeo24.4.root") || fileName.EndsWith("4_StraightGeo24.4_Al2.root")) {
+    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root") || fgeoName.EndsWith("4_StraightGeo26_Al.root") || fileName.EndsWith("4_StraightGeo24.4.root") || fileName.EndsWith("4_StraightGeo24.4_Al2.root") || fileName.EndsWith("4_2017.root")) {
        std::cout<< "                                              " <<std::endl;
        std::cout<< " ====== EMC::  ConstructROOTGeometry() m4 === " <<std::endl;
        std::cout<< " ============================================ " <<std::endl;
@@ -1151,7 +1173,7 @@ void PndEmc::ConstructGeometry() {
       ConstructRootGeometry();
       bEmc3 = kTRUE;
     }
-    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root") || fgeoName3.EndsWith("4_StraightGeo24.4.root") || fgeoName3.EndsWith("4_StraightGeo24.4_Al2.root")) {
+    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root") || fgeoName3.EndsWith("4_StraightGeo24.4.root") || fgeoName3.EndsWith("4_StraightGeo24.4_Al2.root") || fgeoName3.EndsWith("4_2017.root") ) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() m4a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
@@ -1264,8 +1286,27 @@ void PndEmc::ConstructRootGeomMod4() {
   // the position of the BwEndCap crystals (center of the crystal!!) 
   // is -69.4 cm : -(3.+0.2+0.2+56.)-10 cm, which correspods to: 
   //               -(insulation+carbon fiber+safety distance+front face of crystals)-half size of crystal
-  Cave->AddNode(BwEmc,0, new TGeoCombiTrans(0., 0., -69.4,new TGeoRotation(rotBwEmc)));
+  //--------------------------------------------------------------------
+  // 2017 geometry version: the distance from the interaction point to the
+  // outer surface of the bw EMC is fixed to 560 mm (could change in the future) 
+  static const Double_t distTargetBWEC = 56.0; // cm
+  // The position of the Node is calculated from the z dimension of the outer volume
+  TGeoNode *outerVol=BwEmc->FindNode("BWECouterVol_0");
+  if(outerVol != NULL){
 
+    TGeoCompositeShape* shape=(TGeoCompositeShape*)outerVol->GetVolume()->GetShape();
+    Double_t origin[3]={0,0,0}, zdir[3]={0,0,1};
+    Double_t halfLength = shape->DistFromInside(origin,zdir);
+    Double_t bwEmcZpos = - (distTargetBWEC + halfLength);
+    printf("PndEmc::ConstructRootGeomMod4: halfLength = %e, fullLength = %e, z-pos = %e, distTargetBWEC = %e\n",
+	   halfLength,2.*halfLength,bwEmcZpos,distTargetBWEC);
+    Cave->AddNode(BwEmc,0, new TGeoCombiTrans(0., 0., bwEmcZpos,new TGeoRotation(rotBwEmc)));
+
+  }else{ // for older geometry versions:
+    Cave->AddNode(BwEmc,0, new TGeoCombiTrans(0., 0., -69.4,new TGeoRotation(rotBwEmc)));
+  }
+
+  
   ExpandNode(BwEmc,Cave); 
 }
 

@@ -54,7 +54,12 @@ private:
 	// don't allow copying (-Weffc++)
 	PndEmcMakeDigi(const PndEmcMakeDigi&);	// no implementation
 	PndEmcMakeDigi& operator= (const PndEmcMakeDigi&);	// no implementation
+
+public:  // Set and Get methods
+  void SetDigiPosMethod(const std::string& digiPosMethod);
+  const std::string& GetDigiPosMethod() const;
   
+	
 private:
 	/** Input array of EmcWaveforms **/
 	TClonesArray* fHitArray;  

@@ -255,5 +255,17 @@ void PndEmcMakeDigi::SetStorageOfData(Bool_t val)
   fStoreDigis=val;
   return;
 }
-  
+
+
+
+void PndEmcMakeDigi::SetDigiPosMethod(const std::string& digiPosMethod)
+{
+  fDigiPosMethod = digiPosMethod;
+}
+const std::string& PndEmcMakeDigi::GetDigiPosMethod() const
+{
+  return fDigiPosMethod;
+}
+
+
 ClassImp(PndEmcMakeDigi)
