@@ -5,12 +5,12 @@ SET_TESTS_PROPERTIES(sim_timeOrdered PROPERTIES PASS_REGULAR_EXPRESSION "TestPas
 
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/timeOrdered/run_digi.C)
 add_test(digi_timeOrdered ${PANDAROOT_BINARY_DIR}/macro/qa/timeOrdered/run_digi.sh)
-SET_TESTS_PROPERTIES(digi_timeOrdered PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(digi_timeOrdered PROPERTIES TIMEOUT "600")
 SET_TESTS_PROPERTIES(digi_timeOrdered PROPERTIES DEPENDS sim_timeOrdered)
 SET_TESTS_PROPERTIES(digi_timeOrdered PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
 
 GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/timeOrdered/run_reco.C)
 add_test(reco_timeOrdered ${PANDAROOT_BINARY_DIR}/macro/qa/timeOrdered/run_reco.sh)
-SET_TESTS_PROPERTIES(reco_timeOrdered PROPERTIES TIMEOUT "200")
+SET_TESTS_PROPERTIES(reco_timeOrdered PROPERTIES TIMEOUT "600")
 SET_TESTS_PROPERTIES(reco_timeOrdered PROPERTIES DEPENDS digi_timeOrdered)
 SET_TESTS_PROPERTIES(reco_timeOrdered PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
