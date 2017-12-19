@@ -5,10 +5,10 @@ stages:
 cache:
   untracked: true
 
-job1:
+configure:
   stage: configure
   script: source generateDartConfig.sh
 
-job2:
+cdash:
   stage: test
   script: source runDart.sh
