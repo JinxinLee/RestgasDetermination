@@ -2,6 +2,9 @@ stages:
  - configure
  - test
 
+cache:
+  untracked: true
+
 job1:
   stage: configure
   script: source generateDartConfig.sh
