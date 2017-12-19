@@ -1,0 +1,14 @@
+stages:
+ - configure
+ - test
+
+cache:
+  untracked: true
+
+configure:
+  stage: configure
+  script: source generateDartConfig.sh
+
+cdash:
+  stage: test
+  script: source runDart.sh
