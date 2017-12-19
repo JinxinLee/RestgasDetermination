@@ -4,8 +4,8 @@ stages:
 
 job1:
   stage: configure
-  script: generateDartConfig.sh
+  script: source generateDartConfig.sh
 
 job2:
   stage: test
-  script: runDart.sh
+  script: source runDart.sh
