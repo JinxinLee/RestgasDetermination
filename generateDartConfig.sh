@@ -2,7 +2,7 @@
 unamestr=`uname`
 unameversion=`uname -r`
 echo "#!/bin/bash" > Dart.cfg
-echo "export LINUX_FLAVOR=$unamestr $unameversion" >> Dart.cfg
+echo "export LINUX_FLAVOR=$unamestr$unameversion" >> Dart.cfg
 echo "export BUILDDIR=$PWD/../build" >> Dart.cfg
 echo "export SOURCEDIR=$PWD" >> Dart.cfg
 echo "export SIMPATH=$SIMPATH" >> Dart.cfg
