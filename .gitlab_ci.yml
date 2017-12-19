@@ -1,0 +1,11 @@
+stages:
+ - configure
+ - test
+
+job1:
+  stage: configure
+  script: generateDartConfig.sh
+
+job2:
+  stage: test
+  script: runDart.sh
