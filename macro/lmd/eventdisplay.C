@@ -1,4 +1,4 @@
-eventdisplay(TString storePath="/panda/pandaroot/macro/lmd/testPixelNewGeo/mom_15/")
+void eventdisplay(TString storePath="/panda/pandaroot/macro/lmd/testPixelNewGeo/mom_15/")
 {
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libEve");

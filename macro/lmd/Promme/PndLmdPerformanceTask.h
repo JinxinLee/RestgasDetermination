@@ -30,7 +30,6 @@
 #include "PndGeoHandling.h"
 #include "FairGeanePro.h"
 #include "TGeoManager.h"
-#include "PndLmdDim.h"
 #include <vector>
 #include <map>
 
@@ -87,7 +86,6 @@ private:
 	FairGeanePro* fPro;
 	PndGeoHandling* fGeoH;
 	TGeoManager* fgGeoMan;
-	PndLmdDim* lmddim;
 	int fEventNr;
 	bool fUseMVDPoint;
 	Double_t fPbeam;

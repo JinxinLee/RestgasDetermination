@@ -43,7 +43,7 @@ using namespace std;
 
 int main(int nargs, char** args) {
 	//TApplication myapp("myapp",0,0);
-	TString storePath = ".";
+	TString storePath = "./tmpOutput";
 	// set the storepath to somewhere else, if provided
 	if (nargs == 2) {
 		storePath = args[1];
@@ -56,29 +56,29 @@ int main(int nargs, char** args) {
 		if (nargs > 2)
 			cout << " Error: too many arguments! " << endl;
 	}
-	TString startEvent = "_0";
+	TString startEvent = "0";
 	// ========================================================================
 	// Input file (MC events)
-	TString MCFile = storePath + "/Lumi_MC";
+	TString MCFile = storePath + "/Lumi_MC_";
 	MCFile += startEvent;
 	MCFile += ".root";
-	TString DigiFile = storePath + "/Lumi_digi";
+	TString DigiFile = storePath + "/Lumi_digi_";
 	DigiFile += startEvent;
 	DigiFile += ".root";
 	// Digi file
-	TString RecoFile = storePath + "/Lumi_reco";
+	TString RecoFile = storePath + "/Lumi_reco_";
 	RecoFile += startEvent;
 	RecoFile += ".root";
 	// TCand file
-	TString CandFile = storePath + "/Lumi_TCand";
+	TString CandFile = storePath + "/Lumi_TCand_";
 	CandFile += startEvent;
 	CandFile += ".root";
 	// Parameter file   << this one
-	TString parFile = storePath + "/Lumi_Params";
+	TString parFile = storePath + "/Lumi_Params_";
 	parFile += startEvent;
 	parFile += ".root";
 	// Track file
-	TString TrkFile = storePath + "/Lumi_Track";
+	TString TrkFile = storePath + "/Lumi_Track_";
 	TrkFile += startEvent;
 	TrkFile += ".root";
 
@@ -148,11 +148,12 @@ int main(int nargs, char** args) {
 	// PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
 	Double_t fpBeam = 1.5;
 	TVector3 IP(0, 0, 0);
-	PndLmdPerformanceTask* lmdperformance = new PndLmdPerformanceTask();
+	PndLmdPerformanceTask* lmdperformance = new PndLmdPerformanceTask(fpBeam,
+			IP);
 	lmdperformance->SetVerbose(0);
 	fRun->AddTask(lmdperformance);
 	rtdb->setOutput(parInput1);
-	//lmdperformance->SetHistFilename(outFilehist);
+	lmdperformance->SetHistFilename(outFilehist);
 	rtdb->print();
 	// =====                        End of Geane                           =====
 	// =========================================================================

@@ -44,8 +44,11 @@ int runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(RecoFile);
-  fRun->SetOutputFile(outFile);
+
+	FairFileSource input_source(RecoFile);
+	fRun->SetSource(&input_source);
+	fRun->SetOutputFile(outFile);
+
   // ------------------------------------------------------------------------
 
 
@@ -75,8 +78,6 @@ int runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString
  
   PndLmdHitMergeTask* lmdmccls = new PndLmdHitMergeTask();
   lmdmccls->SetVerbose(verboseLevel);
-  lmdmccls->SetAlignFlag(misalign);
-  if(misalign) lmdmccls->SetMtxPath(storePath);
   fRun->AddTask(lmdmccls);
 
  // PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(chargecut, MCFile);//, slx, sly, sthreshold, snoise);
@@ -112,6 +113,10 @@ int runLumiPixel2bHitMerge(const int nEvents=10, const int startEvent=0, TString
   cout << endl;
   // ------------------------------------------------------------------------
 
+	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
+	gGeoManager->GetListOfVolumes()->Delete();
+	gGeoManager->GetListOfShapes()->Delete();
+	delete gGeoManager;
 
   return 0;
 }

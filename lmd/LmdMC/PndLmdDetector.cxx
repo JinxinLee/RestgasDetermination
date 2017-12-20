@@ -1,68 +1,110 @@
 #include "PndLmdDetector.h"
 
 #include "TClonesArray.h"
-
+#include "TGeoPhysicalNode.h"
+#include "TVirtualMC.h"
 
 // -----   Default constructor   -------------------------------------------
-PndLmdDetector::PndLmdDetector() {
-  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
-  fPosIndex = 0;
-  fListOfSensitives.push_back("LumActive");//Lumi
-  //if (fVerboseLevel>0) {
-    std::cout<<"-I- PndLmdDetector: fListOfSensitives contains:";
-    for(size_t k=0;k<fListOfSensitives.size();k++)
-      std::cout<<"\n\t"<<fListOfSensitives[k];
-    std::cout<<std::endl;
-  //}
-}
-// -------------------------------------------------------------------------
-
-
+PndLmdDetector::PndLmdDetector() { SetDetectorID(kLUMI); }
 
 // -----   Standard constructor   ------------------------------------------
-PndLmdDetector::PndLmdDetector (const char* name, Bool_t active)
-  : PndSdsDetector(name, active) {
-  fPndSdsCollection = new TClonesArray("PndSdsMCPoint");
-  fPosIndex = 0;
-  fListOfSensitives.push_back("LumActive");//Lumi
-  //if (fVerboseLevel>0) {
-    std::cout<<"- I - PndLmdDetector: fListOfSensitives contains:";
-    for(size_t k=0;k<fListOfSensitives.size();k++)
-      std::cout<<"\n\t"<<fListOfSensitives[k];
-    std::cout<<std::endl;
-  //}
+PndLmdDetector::PndLmdDetector(const char* name, Bool_t active)
+    : PndSdsDetector(name, active) {
+  SetDetectorID(kLUMI);
 }
-// -------------------------------------------------------------------------
 
+// -----   Destructor   ----------------------------------------------------
+PndLmdDetector::~PndLmdDetector() {}
 
-void PndLmdDetector::SetBranchNames(char* outBranchname, char* folderName)
-{
+void PndLmdDetector::SetBranchNames(char* outBranchname, char* folderName) {
   fOutBranchName = outBranchname;
   fFolderName = folderName;
 }
 
-
-void PndLmdDetector::SetBranchNames()
-{
+void PndLmdDetector::SetBranchNames() {
   fOutBranchName = "LMDPoint";
   fFolderName = "PndLmd";
 }
 
-void PndLmdDetector::SetDefaultSensorNames()
-{
+void PndLmdDetector::SetDefaultSensorNames() {
   fListOfSensitives.push_back("LumActive");
 }
 
-// -----   Destructor   ----------------------------------------------------
-PndLmdDetector::~PndLmdDetector()
-{
-  if (fPndSdsCollection)
-    {
-      fPndSdsCollection->Delete();
-      delete fPndSdsCollection;
-    }
-  delete fGeoH;
+void PndLmdDetector::ModifiyGeometry() {
+  LOG(INFO) << "Misalign the geometry for the Lmd detector."
+            << FairLogger::endl;
+
+  TString detStr = "lmd";
+
+  TGeoPNEntry* entry = gGeoManager->GetAlignableEntry(detStr.Data());
+  if (entry) {
+    LOG(INFO) << "Misalign using symlinks." << FairLogger::endl;
+    ModifyGeometryBySymlink();
+  } else {
+    LOG(INFO) << "Misalign using full path." << FairLogger::endl;
+    ModifyGeometryByFullPath();
+  }
 }
-// -------------------------------------------------------------------------
+
+void PndLmdDetector::ModifyGeometryByFullPath() {
+  LOG(DEBUG) << "Modifying geometry of LMD" << FairLogger::endl;
+
+  TString volPath;
+
+  for (auto const& entry : fAlignmentMatrices) {
+    volPath = entry.first;
+
+    gGeoManager->cd(volPath);
+
+    TGeoNode* n3 = gGeoManager->GetCurrentNode();
+    TGeoMatrix* l3 = n3->GetMatrix();
+
+    TGeoHMatrix nlocal = *l3 * entry.second;
+    TGeoHMatrix* nl3 =
+        new TGeoHMatrix(nlocal);  // new matrix, representing real position
+                                  // (from new local mis RS to the global one)
+
+    TGeoPhysicalNode* pn3 = gGeoManager->MakePhysicalNode(volPath);
+
+    pn3->Align(nl3);
+  }
+  LOG(DEBUG) << "Align in total " << fAlignmentMatrices.size() << " detectors."
+             << FairLogger::endl;
+}
+
+void PndLmdDetector::ModifyGeometryBySymlink() {
+  LOG(DEBUG) << "Modifying geometry of LMD" << FairLogger::endl;
+  TString detStr;
+  for (auto const& alignment_matrix : fAlignmentMatrices) {
+    detStr = alignment_matrix.first;
+
+    TGeoPhysicalNode* node = NULL;
+    TGeoPNEntry* entry = gGeoManager->GetAlignableEntry(detStr);
+    if (entry) {
+      node = gGeoManager->MakeAlignablePN(entry);
+    }
+
+    TGeoMatrix* l3 = NULL;
+    if (node) {
+      l3 = node->GetMatrix();
+    } else {
+      continue;
+    }
+
+    TGeoHMatrix nlocal = *l3 * alignment_matrix.second;
+    TGeoHMatrix* nl3 =
+        new TGeoHMatrix(nlocal);  // new matrix, representing real position
+                                  // (from new local mis RS to the global one)
+
+    node->Align(nl3);
+  }
+  LOG(DEBUG) << "Align in total " << fAlignmentMatrices.size() << " detectors."
+             << FairLogger::endl;
+}
+
+void PndLmdDetector::SetMisalignmentMatrices(
+    const std::map<std::string, TGeoHMatrix>& alignmentMatrices) {
+  fAlignmentMatrices = alignmentMatrices;
+}
 
 ClassImp(PndLmdDetector);

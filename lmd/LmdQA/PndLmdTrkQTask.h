@@ -24,11 +24,10 @@
 #include <map>
 #include "TDatabasePDG.h"
 #include "LmdQA/PndLmdTrackQ.h"
-#include "PndLmdDim.h"
 
 class TClonesArray;
 class PndSdsCluster;
-
+class PndLmdGeometryHelper;
 
 class PndLmdTrkQTask : public FairTask
 {
@@ -64,13 +63,10 @@ class PndLmdTrkQTask : public FairTask
   TString fTrackBranchName;
   TClonesArray* fMCHits;
   TClonesArray* fMCTracks;
-  TClonesArray* fDigis;
-  TClonesArray* fClusters;
   TClonesArray* fRecHits;
   TClonesArray* fRecCandTracks;
   TClonesArray* fRecTracks;
   TClonesArray* fRecBPTracks;
-  TClonesArray* fMCHeader;
   // Output Data -------
   TClonesArray*  fTrackQ;		
  
@@ -81,13 +77,9 @@ class PndLmdTrkQTask : public FairTask
   // TVector3 vtx;
   bool fWriteAllMC;
 
-  //  TDatabasePDG *fdbPDG;
-  PndLmdDim* lmddim;
+  PndLmdGeometryHelper &lmd_geo_helper;
 
-
-  
-
-  ClassDef(PndLmdTrkQTask,1);
+  ClassDef(PndLmdTrkQTask,2);
 
 };
 

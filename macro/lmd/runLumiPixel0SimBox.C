@@ -1,7 +1,7 @@
 // Panda FullSim macro
 
 //void runLumi0SimBox(const int nEvents=10, const double mom=15, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-211)
-int runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, const double mom=15, const int trkNum=1, const int seed=0, const double dP=0)
+int runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString storePath="tmpOutput", const int verboseLevel=0, const int particle=-2212, double mom=15, const int trkNum=1, const int seed=0, const double dP=0, TString geometryFile="")
 {
 
   // ///PROOF lite
@@ -36,8 +36,8 @@ int runLumiPixel0SimBox(const int nEvents=10, const int startEv=0, TString store
   cout<<"All libraries succsesfully loaded!"<<endl;
 
   //set the MC version used
-  fRun->SetName("TGeant4");
-  //fRun->SetName("TGeant3");//GEANE uses GEANT3!
+//  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");//GEANE uses GEANT3!
   
   fRun->SetOutputFile(simOutput);
 

@@ -15,46 +15,42 @@
 
 // Collaborating Class Headers -------
 #include <map>
-#include "TString.h"
-#include "TH2.h"
 #include "TH1.h"
-#include "PndLmdDim.h"
-//#include "TNtuple.h"
+#include "TH2.h"
+#include "TString.h"
+
 // Collaborating Class Declarations --
 class TClonesArray;
 class TGeoManager;
+class PndLmdGeometryHelper;
 
-class PndLmdTrksFilterTask :public FairTask{
-
-public:
-
+class PndLmdTrksFilterTask : public FairTask {
+ public:
   // Constructors/Destructors ---------
   PndLmdTrksFilterTask();
-  #ifndef __CINT__
-  PndLmdTrksFilterTask (const PndLmdTrksFilterTask&) = delete;
-  PndLmdTrksFilterTask& operator=(const PndLmdTrksFilterTask& ) = delete;
-  #endif
+#ifndef __CINT__
+  PndLmdTrksFilterTask(const PndLmdTrksFilterTask&) = delete;
+  PndLmdTrksFilterTask& operator=(const PndLmdTrksFilterTask&) = delete;
+#endif
   virtual ~PndLmdTrksFilterTask();
-  void SetVerboseLevel(int verbose){verboseLevel = verbose;};
+  void SetVerboseLevel(int verbose) { verboseLevel = verbose; };
   virtual InitStatus Init();
   virtual void FinishTask();
 
   virtual void Exec(Option_t* opt);
-  void SetSkipKinFilt(bool fl){ flSkipKinFilt = fl; };
-  void SetBOXFilt(bool fl){ flBOXKinFilt = fl; };
-  void SetXThFilt(bool fl){ flXThKinFilt = fl; };
-  void SetYPhFilt(bool fl){ flYPhKinFilt = fl; };
-  void SetDX(double dx){ fdX = dx;}
-  void SetDY(double dy){ fdY = dy;}
+  void SetSkipKinFilt(bool fl) { flSkipKinFilt = fl; };
+  void SetBOXFilt(bool fl) { flBOXKinFilt = fl; };
+  void SetXThFilt(bool fl) { flXThKinFilt = fl; };
+  void SetYPhFilt(bool fl) { flYPhKinFilt = fl; };
+  void SetDX(double dx) { fdX = dx; }
+  void SetDY(double dy) { fdY = dy; }
 
-protected:
+ protected:
   int verboseLevel;
   // Input Data------------
-  TClonesArray* fHitArray;
   TClonesArray* fTrkCandArray;
   TClonesArray* fTrkArray;
   TClonesArray* fTrkOutArray;
-  TClonesArray* fMCHitArray;
 
   TString fHitName;
   TString fMCHitName;
@@ -62,17 +58,16 @@ protected:
   TString fTrkName;
   TString fTrkOutName;
   int fEventNr;
-  PndLmdDim* lmddim;
+  PndLmdGeometryHelper& lmd_geo_helper;
   bool flSkipKinFilt;
   bool flBOXKinFilt;
   bool flXThKinFilt;
   bool flYPhKinFilt;
 
-  double fdX; //beam shift in X
-  double fdY; //beam shift in Y
-  //  TNtuple *htthetatphiTrkFit;
-  ClassDef(PndLmdTrksFilterTask,2);
+  double fdX;  // beam shift in X
+  double fdY;  // beam shift in Y
+
+  ClassDef(PndLmdTrksFilterTask, 3);
 };
 
 #endif
-

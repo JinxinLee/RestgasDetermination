@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------
-// -----                         PndLmdDetector header file                    -----
+// -----                         PndLmdDetector header file -----
 // -----                  Created 6/04/06  by T. Stockmanns            -----
-// -----                          Based on PndMvdDetector                      -----
+// -----                          Based on PndMvdDetector -----
 // -------------------------------------------------------------------------
 
 /**  PndLmdDetector.h
@@ -13,8 +13,10 @@
  ** registers MCPoints.
  ** Notes on Jun 30,2010 by Huagen:
  ** To construct detector geometry from ASCII file the detector name shall be
- ** defined by users. The function of ConstructASCIIGeometry() should be reloaded
- ** by user who wants to define the DetName freely.Without reloading this function
+ ** defined by users. The function of ConstructASCIIGeometry() should be
+ *reloaded
+ ** by user who wants to define the DetName freely.Without reloading this
+ *function
  ** the detector name was defined by PndSdsGeo class anyway.
  **/
 
@@ -23,11 +25,10 @@
 
 #include "PndSdsDetector.h"
 
-class PndLmdDetector : public PndSdsDetector
-{
+class PndLmdDetector : public PndSdsDetector {
+  std::map<std::string, TGeoHMatrix> fAlignmentMatrices;
 
  public:
-
   /** Default constructor **/
   PndLmdDetector();
 
@@ -37,21 +38,23 @@ class PndLmdDetector : public PndSdsDetector
    **/
   PndLmdDetector(const char* name, Bool_t active);
 
-
   /** Destructor **/
   virtual ~PndLmdDetector();
 
-  virtual void SetBranchNames(char * outBranchname,char * folderName);
+  virtual void SetBranchNames(char* outBranchname, char* folderName);
   virtual void SetBranchNames();
   virtual void SetDefaultSensorNames();
 
-  //virtual void SetSpecialPhysicsCuts();
-  virtual void Initialize(){PndSdsDetector::Initialize();};
+  virtual void Initialize() { PndSdsDetector::Initialize(); };
   // virtual void ConstructASCIIGeometry();
 
-  ClassDef(PndLmdDetector,6);
+  void ModifiyGeometry();
+  void SetMisalignmentMatrices(
+      const std::map<std::string, TGeoHMatrix>& alignmentMatrices);
+  void ModifyGeometryByFullPath();
+  void ModifyGeometryBySymlink();
 
+  ClassDef(PndLmdDetector, 7);
 };
 
 #endif
-

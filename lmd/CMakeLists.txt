@@ -34,16 +34,8 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/lmd/LmdTools
   ${CMAKE_SOURCE_DIR}/lmd/LmdQA
   ${CMAKE_SOURCE_DIR}/lmd
-  ${CMAKE_SOURCE_DIR}/mvd/MvdDigi # to do: get rid of that dependency!
-#${CMAKE_SOURCE_DIR}/genfit
+#  ${CMAKE_SOURCE_DIR}/mvd/MvdDigi # to do: get rid of that dependency!
   ${CMAKE_SOURCE_DIR}/trackbase
-#${CMAKE_SOURCE_DIR}/recotasks
-#${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
-#${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-#${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKTrackRep
-#${CMAKE_SOURCE_DIR}/GenfitTools/recohits
-#${CMAKE_SOURCE_DIR}/GenfitTools/adapters
-#${CMAKE_SOURCE_DIR}/GenfitTools
   ${CMAKE_SOURCE_DIR}/geane
 )
 
@@ -65,22 +57,22 @@ set(SRCS
 
 LmdTools/PndLmdContFact.cxx
 LmdTools/PndLmdAlignPar.cxx
-LmdMC/PndLmdDim.cxx
 LmdDigi/PndLmdPixelHitProducerFast.cxx
 LmdDigi/PndLmdHybridHitProducer.cxx
 LmdDigi/PndLmdStripHitProducer.cxx
 LmdDigi/PndLmdHitProducerIdeal.cxx
 LmdDigi/PndLmdDigiTask.cxx 
-LmdDigi/PndLmdNoiseProducer.cxx
+#LmdDigi/PndLmdNoiseProducer.cxx
 LmdMC/PndLmdDetector.cxx
 LmdMC/PndLmdGeo.cxx
-
+LmdMC/PndLmdGeometryFactory.cxx
+LmdMC/PndLmdGeometryHelper.cxx
 )
 
 set(LINKDEF  LmdLinkDef.h)
 set(LIBRARY_NAME Lmd)
 
-set(DEPENDENCIES Base ParBase GeoBase TrkBase Sds Mvd PndData) # to do: Get rid of the Mvd dependency which is only due to the noise producer. It is not derived from SDS!
+set(DEPENDENCIES Base ParBase GeoBase TrkBase Sds PndData) # to do: Get rid of the Mvd dependency which is only due to the noise producer. It is not derived from SDS!
 
 GENERATE_LIBRARY()
 
@@ -95,7 +87,6 @@ LmdReco/PndLmdChargeWeightedPixelMapping.cxx
 LmdReco/PndSdsMergedHit.cxx
 LmdReco/PndSdsCell.cxx
 #LmdReco/PndLmdIdealRecoTask.cxx
-#LmdMC/PndLmdDim.cxx
 )
 
 set(LINKDEF  LmdRecoLinkDef.h)

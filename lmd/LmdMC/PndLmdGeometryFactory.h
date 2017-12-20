@@ -14,33 +14,43 @@
 
 class TGeoManager;
 class TGeoVolume;
+class TGeoVolumeAssembly;
 class FairGeoLoader;
+class TGeoNode;
+
+typedef std::pair<std::string, bool> StringBoolPair;
 
 class PndLmdGeometryFactory {
-	boost::property_tree::ptree geometry_property_tree;
-	std::vector<std::string> navigation_paths;
-	TGeoManager* gGeoMan;
+  boost::property_tree::ptree geometry_property_tree;
+  std::vector<StringBoolPair> navigation_paths;
+  TGeoManager* gGeoMan;
 
-	void retrieveMaterial(FairGeoLoader* geoLoad);
+  void retrieveMaterial(FairGeoLoader* geoLoad);
 
-	TGeoVolume* generateVacuumBox() const;
-	void generateBeamPipe(TGeoVolume& mother_volume) const;
+  TGeoVolume* generateLmdBox() const;
+  TGeoVolume* generateBeamPipe() const;
 
-	TGeoVolume* generateDetectorHalf() const;
-	TGeoVolume* generateDetectorHalfPlane() const;
-	TGeoVolume* generateAluminumCoolingStructure() const;
-	TGeoVolume* generateSensorModule() const;
-	TGeoVolume* generateCVDCoolingDisc() const;
-	TGeoVolume* generateSensor() const;
+  TGeoVolume* generateDetectorHalf(bool is_bottom_half) const;
+  TGeoVolume* generateDetectorHalfPlane(bool is_bottom_half) const;
+  TGeoVolume* generateAluminumCoolingStructure() const;
+  TGeoVolume* generateSensorModule() const;
+  TGeoVolume* generateCVDCoolingDisc() const;
+  TGeoVolume* generateSensor() const;
 
-public:
-	PndLmdGeometryFactory(
-			const boost::property_tree::ptree& geometry_property_tree_);
-	virtual ~PndLmdGeometryFactory();
+  TGeoVolume* generateBoxVacuum(const TGeoVolume* lmd_vol) const;
+  void recursiveNodeSubtraction(std::stringstream& ss, TGeoNode* node) const;
 
-	void init(FairGeoLoader* geoLoad);
+  void makeNodesAlignable(TGeoNode* node,
+                          unsigned int current_navigation_path_index) const;
 
-	void generateLmdGeometry(TGeoVolume& mother_volume) const;
+ public:
+  PndLmdGeometryFactory(
+      const boost::property_tree::ptree& geometry_property_tree_);
+  virtual ~PndLmdGeometryFactory();
+
+  void init(FairGeoLoader* geoLoad);
+
+  TGeoVolumeAssembly* generateLmdGeometry() const;
 };
 
 #endif /* LMD_LMDMC_PNDLMDGEOMETRYFACTORY_H_ */

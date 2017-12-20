@@ -21,53 +21,51 @@
 #include "PndLmdKalmanTask.h"
 
 // C/C++ Headers ----------------------
+#include <assert.h>
 #include <algorithm>
 #include <iostream>
-#include <assert.h>
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
-#include "TClonesArray.h"
 #include "GFTrack.h"
+#include "TClonesArray.h"
 #include "TDatabasePDG.h"
 
-#include "PndSdsHit.h"
 #include "FairMCPoint.h"
+#include "PndSdsHit.h"
 
-#include "PndSdsRecoHit.h"
-#include "PndGeoHandling.h"
-#include "GFRecoHitFactory.h"
-#include "GFKalman.h"
-#include "GFException.h"
-#include "TH1D.h"
-#include "TFile.h"
-#include "TGeoTrack.h"
-#include "TGeoManager.h"
-#include "TLorentzVector.h"
-#include "GFDetPlane.h"
-#include "FairTrackParH.h"
 #include "FairBaseParSet.h"
+#include "FairTrackParH.h"
+#include "GFDetPlane.h"
+#include "GFException.h"
+#include "GFKalman.h"
+#include "GFRecoHitFactory.h"
 #include "LSLTrackRep.h"
+#include "PndGeoHandling.h"
+#include "PndSdsRecoHit.h"
+#include "TFile.h"
+#include "TGeoManager.h"
+#include "TGeoTrack.h"
+#include "TH1D.h"
+#include "TLorentzVector.h"
 //#include "GeaneTrackRep2.h"
-#include "GeaneTrackRep.h"
 #include "FairGeanePro.h"
 #include "GFAbsTrackRep.h"
 #include "GFConstField.h"
+#include "GeaneTrackRep.h"
 #include "PndDetectorList.h"
 //#include "PndSdsRecoHit.h"
-#include "RKTrackRep.h"
-#include "PndTrackCand.h"
-#include "PndTrack.h"
 #include "PndGenfitAdapters.h"
+#include "PndTrack.h"
+#include "PndTrackCand.h"
+#include "RKTrackRep.h"
 #include "TMatrixFSym.h"
 //#include "GFPandaField.h"
 #include "PndGenfitField.h"
 // Class Member definitions -----------
 
-
 PndLmdKalmanTask::PndLmdKalmanTask()
-  : FairTask("Kalman Filter"), fPersistence(kFALSE)
-{
+    : FairTask("Kalman Filter"), fPersistence(kFALSE) {
   //  fTrackBranchName = "GFTrackCandLmd";
   fTrackBranchName = "LMDTrackCand";
   //  fSdsHitBranchName = "LMDHitsStrip";
@@ -83,12 +81,11 @@ PndLmdKalmanTask::PndLmdKalmanTask()
   flRK = false;
   fscaleP = 1;
   fscaleM = 1;
-  //rep = NULL;
+  // rep = NULL;
 }
 
 PndLmdKalmanTask::PndLmdKalmanTask(TString HitBranch, TString TrackBranch)
-  : FairTask("Kalman Filter"), fPersistence(kFALSE)
-{
+    : FairTask("Kalman Filter"), fPersistence(kFALSE) {
   fTrackBranchName = TrackBranch;
   fSdsHitBranchName = HitBranch;
   PndGeoHandling::Instance();
@@ -99,39 +96,34 @@ PndLmdKalmanTask::PndLmdKalmanTask(TString HitBranch, TString TrackBranch)
   // rep = NULL;
 }
 
-PndLmdKalmanTask::~PndLmdKalmanTask()
-{
+PndLmdKalmanTask::~PndLmdKalmanTask() {
   // if(fPH!=NULL)delete fPH;
   // if(fChi2H!=NULL)delete fChi2H;
   //  delete rep;
 }
 
-InitStatus
-PndLmdKalmanTask::Init()
-{
-  fTrackcount=0;
-  fsensType=0;
-  //Get ROOT Manager
-  FairRootManager* ioman= FairRootManager::Instance();
+InitStatus PndLmdKalmanTask::Init() {
+  fTrackcount = 0;
+  fsensType = 0;
+  // Get ROOT Manager
+  FairRootManager* ioman = FairRootManager::Instance();
 
-  if(ioman==0)
-    {
-      Error("PndLmdKalmanTask::Init","RootManager not instantiated!");
-      return kERROR;
-    }
+  if (ioman == 0) {
+    Error("PndLmdKalmanTask::Init", "RootManager not instantiated!");
+    return kERROR;
+  }
 
   // Get input collection
-  fTrackArray=(TClonesArray*) ioman->GetObject(fTrackBranchName);
+  fTrackArray = (TClonesArray*)ioman->GetObject(fTrackBranchName);
 
-  if(fTrackArray==0)
-    {
-      Error("PndLmdKalmanTask::Init","GFTrackCandLmd array not found!");
-      return kERROR;
-    }
+  if (fTrackArray == 0) {
+    Error("PndLmdKalmanTask::Init", "GFTrackCandLmd array not found!");
+    return kERROR;
+  }
 
-  fSdsHitsArray=(TClonesArray*) ioman->GetObject(fSdsHitBranchName);
+  fSdsHitsArray = (TClonesArray*)ioman->GetObject(fSdsHitBranchName);
 
-  //Set output collection
+  // Set output collection
   // fTrackTmpArray = new TClonesArray("PndLinTrack");
   // ioman->Register("LMDTrack", "PndLmd", fTrackTmpArray, kTRUE);
   fTrackTmpArray = new TClonesArray("PndTrack");
@@ -141,215 +133,229 @@ PndLmdKalmanTask::Init()
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
 
-  TClonesArray* stripar=(TClonesArray*) ioman->GetObject(fSdsHitBranchName);
-  if(stripar==0){ //TODO Convention on detector number needed
-    Error("PndLmdKalmanTask::Init","LMDHitsPixel array not found");
+  TClonesArray* stripar = (TClonesArray*)ioman->GetObject(fSdsHitBranchName);
+  if (stripar == 0) {  // TODO Convention on detector number needed
+    Error("PndLmdKalmanTask::Init", "LMDHitsPixel array not found");
   } else {
     int detID = ioman->GetBranchId(fSdsHitBranchName);
-    std::cout<<"detID = "<<detID<<std::endl;
-    //    fTheRecoHitFactory->addProducer(ioman->GetBranchId(fSdsHitBranchName),new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
-    fTheRecoHitFactory->addProducer(1,new GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
-    std::cout << "*** PndLmdKalmanTask::Init" << "\t" << "fSdsHitBranchName array found" << std::endl;
+    std::cout << "detID = " << detID << std::endl;
+    //    fTheRecoHitFactory->addProducer(ioman->GetBranchId(fSdsHitBranchName),new
+    //    GFRecoHitProducer<PndSdsHit,PndSdsRecoHit>(stripar));
+    fTheRecoHitFactory->addProducer(
+        1, new GFRecoHitProducer<PndSdsHit, PndSdsRecoHit>(stripar));
+    std::cout << "*** PndLmdKalmanTask::Init"
+              << "\t"
+              << "fSdsHitBranchName array found" << std::endl;
   }
 
-  //read beam momentum from base
+  // read beam momentum from base
   FairRun* fRun = FairRun::Instance();
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairBaseParSet* par=(FairBaseParSet*)
-    (rtdb->findContainer("FairBaseParSet"));
+  FairBaseParSet* par =
+      (FairBaseParSet*)(rtdb->findContainer("FairBaseParSet"));
   fPbeam = par->GetBeamMom();
-  //fPbeam -=8.77e-5;//TEST!!! energy loss for 11.91 GeV/c
+  // fPbeam -=8.77e-5;//TEST!!! energy loss for 11.91 GeV/c
   // fPbeam -=1e-4;//TEST!!! energy loss for 1.5 GeV/c
-  std::cout<<"Beam Momentum for this run is "<<fPbeam<<std::endl;
-  fPDGCode = -2212; //barp
-  fCharge = -1;//barp
+  std::cout << "Beam Momentum for this run is " << fPbeam << std::endl;
+  fPDGCode = -2212;  // barp
+  fCharge = -1;      // barp
 
   fGeoH = PndGeoHandling::Instance();
   fPro = new FairGeanePro();
-  if(flRK){
-    std::cout<<"RKTrackRep will be used for track representation"<<std::endl;
+  if (flRK) {
+    std::cout << "RKTrackRep will be used for track representation"
+              << std::endl;
     //  GFFieldManager::getInstance()->init(new GFPandaField());
     GFFieldManager::getInstance()->init(new PndGenfitField());
   }
-  if(flGEANE){
-    std::cout<<"GeaneTrackRep will be used for track representation"<<std::endl;
+  if (flGEANE) {
+    std::cout << "GeaneTrackRep will be used for track representation"
+              << std::endl;
     fPro = new FairGeanePro();
   }
-  lmddim = PndLmdDim::Instance();
 
-  // //for test purpose 
+  // //for test purpose
   // fMCHits = (TClonesArray*) ioman->GetObject("LMDPoint");
   // if ( !fMCHits)	{
-  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No LMDPoint"<<" array!" << std::endl;
+  //   std::cout << "-W- PndLmdGeaneTask::Init: "<< "No LMDPoint"<<" array!" <<
+  //   std::endl;
   //   return kERROR;
   // }
 
   return kSUCCESS;
 }
 
-
-void
-PndLmdKalmanTask::Exec(Option_t*)
-{
+void PndLmdKalmanTask::Exec(Option_t*) {
   fTrackTmpArray->Delete();
   fTrkOutArray->Delete();
-  if(fVerbose>1) std::cout<<"((((((((((((((((((((( PndLmdKalmanTask::Exec )))))))))))))))))))))"<<std::endl;
+  if (fVerbose > 1)
+    std::cout
+        << "((((((((((((((((((((( PndLmdKalmanTask::Exec )))))))))))))))))))))"
+        << std::endl;
   Int_t counterGeaneTrk = 0;
   Int_t rec_tkr_count = 0;
-  Int_t ntracks=fTrackArray->GetEntriesFast();
+  Int_t ntracks = fTrackArray->GetEntriesFast();
 
   // Detailed output
-  if(fVerbose>1) std::cout<<" -I- PndLmdKalmanTask: contains "<<ntracks<<" Tracks."<<std::endl;
+  if (fVerbose > 1)
+    std::cout << " -I- PndLmdKalmanTask: contains " << ntracks << " Tracks."
+              << std::endl;
   GFKalman fitter;
   int numIttr = 1;
   fitter.setNumIterations(numIttr);
-  for(Int_t itr=0;itr<ntracks;++itr){
-      if(fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
+  for (Int_t itr = 0; itr < ntracks; ++itr) {
+    if (fVerbose > 1) std::cout << "starting track" << itr << std::endl;
 
     PndTrackCand* trackCand = (PndTrackCand*)fTrackArray->At(itr);
-    const int Ntrkcandhits= trackCand->GetNHits();
-    //Read info about 1st plane(sensor)
-    PndTrackCandHit theHit = trackCand->GetSortedHit(0); //get 1st hit
+    const int Ntrkcandhits = trackCand->GetNHits();
+    // Read info about 1st plane(sensor)
+    PndTrackCandHit theHit = trackCand->GetSortedHit(0);  // get 1st hit
     Int_t hitID = theHit.GetHitId();
     PndSdsHit* myHit = (PndSdsHit*)(fSdsHitsArray->At(hitID));
-    TMatrixD  hitCov = myHit->GetCov();
-    if(fVerbose>1) std::cout<<"hitCov:"<<std::endl;
-    if(fVerbose>1) hitCov.Print();
-    Int_t id =  myHit->GetSensorID();
+    TMatrixD hitCov = myHit->GetCov();
+    if (fVerbose > 1) std::cout << "hitCov:" << std::endl;
+    if (fVerbose > 1) hitCov.Print();
+    Int_t id = myHit->GetSensorID();
     TString path = fGeoH->GetPath(id);
     TVector3 oo, uu, vv;
-     fGeoH->GetOUVShortId(id, oo,uu,vv);
-     if(fVerbose>1){
-       std::cout<<"oo:"<<std::endl;
-       oo.Print();
-       std::cout<<"uu:"<<std::endl;
-       uu.Print();
-       std::cout<<"vv:"<<std::endl;
-       vv.Print();
-     }
- 
+    fGeoH->GetOUVShortId(id, oo, uu, vv);
+    if (fVerbose > 1) {
+      std::cout << "oo:" << std::endl;
+      oo.Print();
+      std::cout << "uu:" << std::endl;
+      uu.Print();
+      std::cout << "vv:" << std::endl;
+      vv.Print();
+    }
 
-
-     GFTrackCand* GFtrkCand = PndTrackCand2GenfitTrackCand(trackCand);
-     TVector3 StartPos = GFtrkCand->getPosSeed();
-     TVector3 StartDir = GFtrkCand->getDirSeed();
-     // //shift start point out of plane on 300 mkm
-     // double xShift = StartPos.X() - StartDir.X()*0.0300;
-     // double yShift = StartPos.Y() - StartDir.Y()*0.0300;
-     // double zShift = StartPos.Z() - StartDir.Z()*0.0300;
-     // StartPos.SetXYZ(xShift,yShift,zShift);
-     TVector3 StartMom  = fPbeam*StartDir;
-     TVector3 StartPosErr(sqrt(hitCov[0][0]),sqrt(hitCov[1][1]),sqrt(hitCov[2][2]));
-     TVector3 StartDirErr(0.1*(sqrt(hitCov[0][0])),0.1*(sqrt(hitCov[1][1])),0.1*sqrt(hitCov[2][2]));//TODO: check this assumption (2*sigma_{x}/20cm)
-     TVector3 StartMomErr=fPbeam*StartDirErr;
-     //initial errors for Kalman must be large: this is usually done in order to give a low weight to the prefit
-      StartPosErr *=fscaleP;
-      StartMomErr *=fscaleM;
-     //     StartMomErr *=1;
-    if(fVerbose>2){
-      unsigned int detid=12345, index=12345;
-      std::cout<< "GFTrackCand no. "<<itr<<" has "<<GFtrkCand->getNHits()<<" hits."<<std::endl;
-      std::cout<<"[ ihit | detid | index";
-      for(unsigned int ihit=0;ihit<GFtrkCand->getNHits();ihit++){
-	GFtrkCand->getHit(ihit,  detid,index); //detid and index are written here
-	std::cout<<" ]\n[ "<<ihit<<" | "<<detid<<" | "<<index;
+    GFTrackCand* GFtrkCand = PndTrackCand2GenfitTrackCand(trackCand);
+    TVector3 StartPos = GFtrkCand->getPosSeed();
+    TVector3 StartDir = GFtrkCand->getDirSeed();
+    // //shift start point out of plane on 300 mkm
+    // double xShift = StartPos.X() - StartDir.X()*0.0300;
+    // double yShift = StartPos.Y() - StartDir.Y()*0.0300;
+    // double zShift = StartPos.Z() - StartDir.Z()*0.0300;
+    // StartPos.SetXYZ(xShift,yShift,zShift);
+    TVector3 StartMom = fPbeam * StartDir;
+    TVector3 StartPosErr(sqrt(hitCov[0][0]), sqrt(hitCov[1][1]),
+                         sqrt(hitCov[2][2]));
+    TVector3 StartDirErr(
+        0.1 * (sqrt(hitCov[0][0])), 0.1 * (sqrt(hitCov[1][1])),
+        0.1 *
+            sqrt(hitCov[2]
+                       [2]));  // TODO: check this assumption (2*sigma_{x}/20cm)
+    TVector3 StartMomErr = fPbeam * StartDirErr;
+    // initial errors for Kalman must be large: this is usually done in order to
+    // give a low weight to the prefit
+    StartPosErr *= fscaleP;
+    StartMomErr *= fscaleM;
+    //     StartMomErr *=1;
+    if (fVerbose > 2) {
+      unsigned int detid = 12345, index = 12345;
+      std::cout << "GFTrackCand no. " << itr << " has " << GFtrkCand->getNHits()
+                << " hits." << std::endl;
+      std::cout << "[ ihit | detid | index";
+      for (unsigned int ihit = 0; ihit < GFtrkCand->getNHits(); ihit++) {
+        GFtrkCand->getHit(ihit, detid,
+                          index);  // detid and index are written here
+        std::cout << " ]\n[ " << ihit << " | " << detid << " | " << index;
       }
-      std::cout<<" ]"<<std::endl;
-    }
- 
-    if(fVerbose>1){
-    std::cout<<"*** BEFORE ***"<<std::endl;
-    std::cout<<"StartPos:"<<std::endl;
-    StartPos.Print();
-    std::cout<<"StartPosErr:"<<std::endl;
-    StartPosErr.Print();
-    std::cout<<"StartMom:"<<std::endl;
-    StartMom.Print();
-    std::cout<<"StartMomErr:"<<std::endl;
-    StartMomErr.Print();
+      std::cout << " ]" << std::endl;
     }
 
-    GFAbsTrackRep *rep;
+    if (fVerbose > 1) {
+      std::cout << "*** BEFORE ***" << std::endl;
+      std::cout << "StartPos:" << std::endl;
+      StartPos.Print();
+      std::cout << "StartPosErr:" << std::endl;
+      StartPosErr.Print();
+      std::cout << "StartMom:" << std::endl;
+      StartMom.Print();
+      std::cout << "StartMomErr:" << std::endl;
+      StartMomErr.Print();
+    }
+
+    GFAbsTrackRep* rep;
     // // /// The Runge Kutta trk rep ---------------
-    if(flRK){
-      if(fVerbose>1)
-	std::cout<<"RKTrackRep will be used for track representation"<<std::endl;
-      rep = new RKTrackRep(StartPos,StartMom,StartPosErr,StartMomErr,fPDGCode);
+    if (flRK) {
+      if (fVerbose > 1)
+        std::cout << "RKTrackRep will be used for track representation"
+                  << std::endl;
+      rep = new RKTrackRep(StartPos, StartMom, StartPosErr, StartMomErr,
+                           fPDGCode);
     }
     // // /// The Runge Kutta trk rep (END) ---------
 
+    //  /// LinTrk rep ------------------
+    // // TVector3 StartPos = GFtrkCand->getPosSeed();
+    // // TVector3 StartDir = GFtrkCand->getDirSeed();
+    // //     TVector3 StartMom  = fPbeam*StartDir;
+    //    LSLTrackRep* rep = new
+    //    LSLTrackRep(StartPos.Z(),StartPos.X(),StartPos.Y(),StartDir.X(),StartDir.Y(),1/fPbeam,
+    // 				       StartPosErr.X(),StartPosErr.Y(),StartDirErr.X(),StartDirErr.Y(),
+    // 				       1e-23,magFieldConst);
+    //    //TODO: double siginvp = 1/1e-4 is it correct???
 
-   //  /// LinTrk rep ------------------
- // // TVector3 StartPos = GFtrkCand->getPosSeed();
- // // TVector3 StartDir = GFtrkCand->getDirSeed();
- // //     TVector3 StartMom  = fPbeam*StartDir;
- //    LSLTrackRep* rep = new LSLTrackRep(StartPos.Z(),StartPos.X(),StartPos.Y(),StartDir.X(),StartDir.Y(),1/fPbeam,
- // 				       StartPosErr.X(),StartPosErr.Y(),StartDirErr.X(),StartDirErr.Y(),
- // 				       1e-23,magFieldConst);
- //    //TODO: double siginvp = 1/1e-4 is it correct???
+    //    /// LinTrk rep (END) ------------------
 
- //    /// LinTrk rep (END) ------------------
-
-    ///GEANE track rep --------------------
-    if(flGEANE){
-      GFDetPlane start_pl(StartPos,uu,vv);//
-      rep = new GeaneTrackRep(fPro,
-			    start_pl,StartMom,
-			    StartPosErr,StartMomErr,
-			    fCharge,fPDGCode);
+    /// GEANE track rep --------------------
+    if (flGEANE) {
+      GFDetPlane start_pl(StartPos, uu, vv);  //
+      rep = new GeaneTrackRep(fPro, start_pl, StartMom, StartPosErr,
+                              StartMomErr, fCharge, fPDGCode);
     }
-    ///GEANE track rep (END) --------------------
+    /// GEANE track rep (END) --------------------
 
-
-    GFTrack* trk= new GFTrack(rep);
+    GFTrack* trk = new GFTrack(rep);
     trk->setCandidate(*GFtrkCand);
 
     // Load RecoHits
     try {
       trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
-      if(fVerbose>1){
-	std::cout<<trk->getNumHits()<<" hits in track "
-		 <<itr<<std::endl;
+      if (fVerbose > 1) {
+        std::cout << trk->getNumHits() << " hits in track " << itr << std::endl;
       }
-    }
-    catch(GFException& e) {
-      std::cout <<" *** PndLmdKalmanTask::Exec "<< "\t" << "Genfit Exception: trk->addHitVector " << e.what() << std::endl;
+    } catch (GFException& e) {
+      std::cout << " *** PndLmdKalmanTask::Exec "
+                << "\t"
+                << "Genfit Exception: trk->addHitVector " << e.what()
+                << std::endl;
       throw e;
     }
 
     // Start Fitter
-    try{
-      if(fVerbose>1){
-	std::cout<<" ... GFtrk BEFORE ..."<<std::endl;
-	trk->Print();
+    try {
+      if (fVerbose > 1) {
+        std::cout << " ... GFtrk BEFORE ..." << std::endl;
+        trk->Print();
       }
       fitter.processTrack(trk);
-      if(fVerbose>1){
-	std::cout<<" ... GFtrk AFTER ..."<<std::endl;
-	trk->Print();
+      if (fVerbose > 1) {
+        std::cout << " ... GFtrk AFTER ..." << std::endl;
+        trk->Print();
       }
+    } catch (GFException e) {
+      std::cout << "*** FITTER EXCEPTION ***" << std::endl;
+      std::cout << e.what() << std::endl;
     }
-    catch (GFException e){
-      std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
-      std::cout<<e.what()<<std::endl;
-    }
-    if (fVerbose>1) std::cout<<"successful FIT!"<<std::endl;
-  
+    if (fVerbose > 1) std::cout << "successful FIT!" << std::endl;
 
     // --- Get trk in  PndTrack format ---
     PndTrack* trkPnd = GenfitTrack2PndTrack(trk);
-    if(fVerbose>1){
-      std::cout<<"trkPnd AFTER GenFit "<<std::endl;
+    if (fVerbose > 1) {
+      std::cout << "trkPnd AFTER GenFit " << std::endl;
       trkPnd->Print();
-      std::cout<<"Number of hits in trk-cand: "<<trackCand->GetNHits()<<std::endl;
+      std::cout << "Number of hits in trk-cand: " << trackCand->GetNHits()
+                << std::endl;
     }
     trkPnd->SetTrackCand(*trackCand);
-    trkPnd->SetRefIndex(itr);//TODO: check is it correct set RefIn like ID of trk-cand???
+    trkPnd->SetRefIndex(
+        itr);  // TODO: check is it correct set RefIn like ID of trk-cand???
     trkPnd->SetChi2(trk->getChiSqu());
     // --- Save as PndTrack---
     TClonesArray& clref = *fTrackTmpArray;
     Int_t size = clref.GetEntriesFast();
-    PndTrack *trackfit = new(clref[size]) PndTrack(*trkPnd);
+    PndTrack* trackfit = new (clref[size]) PndTrack(*trkPnd);
 
     delete trkPnd;
     delete GFtrkCand;
@@ -372,24 +378,26 @@ PndLmdKalmanTask::Exec(Option_t*)
   //   vector<unsigned int> trkHn;//number of hits in trk
   //   vector<bool> trk_accept;
   //   vector<double> vchi2;
-  //   for (unsigned int i = 0; i<gll;i++){ 
+  //   for (unsigned int i = 0; i<gll;i++){
   //     trksH0[i]=-1;
   //     trksH1[i]=-1;
   //     trksH2[i]=-1;
   //     trksH3[i]=-1;
   //   }
   //   //fill vectors with trks hits
-  //   for (unsigned int i = 0; i<gll;i++){ 
+  //   for (unsigned int i = 0; i<gll;i++){
   //     PndTrack* trkpnd = (PndTrack*)(fTrackTmpArray->At(i));
   //     double chi2 = trkpnd->GetChi2();
   //     vchi2.push_back(chi2);
   //     trk_accept.push_back(true);
   //     int candID = trkpnd->GetRefIndex();
-  //     PndTrackCand *trkcand = (PndTrackCand*)fTrackArray->At(candID);    
+  //     PndTrackCand *trkcand = (PndTrackCand*)fTrackArray->At(candID);
   //     const unsigned int Ntrkcandhits= trkcand->GetNHits();
   //     trkHn.push_back(Ntrkcandhits);
-  //     for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over rec.hits
-  // 	PndTrackCandHit candhit = (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
+  //     for (Int_t iHit = 0; iHit < Ntrkcandhits; iHit++){ // loop over
+  //     rec.hits
+  // 	PndTrackCandHit candhit =
+  // (PndTrackCandHit)(trkcand->GetSortedHit(iHit));
   //     Int_t hitID = candhit.GetHitId();
   //     PndSdsHit* myHit = (PndSdsHit*)(fSdsHitsArray->At(hitID));
   //     Int_t sensid = myHit->GetSensorID();
@@ -412,8 +420,8 @@ PndLmdKalmanTask::Exec(Option_t*)
   //   }
   // }
   // //compare trks on hit level
-  // for (unsigned int i = 0; i<gll;i++){ 
-  //   for (unsigned int j = i+1; j<gll;j++){ 
+  // for (unsigned int i = 0; i<gll;i++){
+  //   for (unsigned int j = i+1; j<gll;j++){
   //   int coundduphit=4;//count dublicate hits
   //     if(trksH0[i]!=trksH0[j]) coundduphit--;
   //     if(trksH1[i]!=trksH1[j]) coundduphit--;
@@ -430,16 +438,20 @@ PndLmdKalmanTask::Exec(Option_t*)
   //     if(coundduphit>2){// if 3 and more hits are similar
   // 	if(vchi2[i]>vchi2[j]){
   // 	  if(fVerbose>4){
-  // 	    cout<<" trk#"<<i<<": has "<<trkHn[i]<<"hits;  trk#"<<j<<": has "<<trkHn[j]<<" hits"<<endl;
-  // 	    cout<<" trk#"<<i<<" has chi2="<<vchi2[i]<<" "<<" trk#"<<j<<" has chi2="<<vchi2[j]<<endl;
+  // 	    cout<<" trk#"<<i<<": has "<<trkHn[i]<<"hits;  trk#"<<j<<": has
+  // "<<trkHn[j]<<" hits"<<endl;
+  // 	    cout<<" trk#"<<i<<" has chi2="<<vchi2[i]<<" "<<" trk#"<<j<<" has
+  // chi2="<<vchi2[j]<<endl;
   // 	  }
   // 	  trk_accept[i]=false;
   // 	  trk_accept[j]=true;
   // 	}
   // 	else{
   // 	  if(fVerbose>4){
-  // 	    cout<<" trk#"<<i<<": has "<<trkHn[i]<<"hits;  trk#"<<j<<": has "<<trkHn[j]<<" hits"<<endl;
-  // 	    cout<<" trk#"<<i<<" has chi2="<<vchi2[i]<<" "<<" trk#"<<j<<" has chi2="<<vchi2[j]<<endl;
+  // 	    cout<<" trk#"<<i<<": has "<<trkHn[i]<<"hits;  trk#"<<j<<": has
+  // "<<trkHn[j]<<" hits"<<endl;
+  // 	    cout<<" trk#"<<i<<" has chi2="<<vchi2[i]<<" "<<" trk#"<<j<<" has
+  // chi2="<<vchi2[j]<<endl;
   // 	  }
   // 	  trk_accept[i]=true;
   // 	  trk_accept[j]=false;
@@ -449,7 +461,7 @@ PndLmdKalmanTask::Exec(Option_t*)
   // }
   // //save good trks
   // int rec_trk=0;
-  // for (unsigned int i = 0; i<gll;i++){ 
+  // for (unsigned int i = 0; i<gll;i++){
   //   if(trk_accept[i]){
   //     PndTrack* trkpnd = (PndTrack*)(fTrackTmpArray->At(i));
   //     new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
@@ -461,22 +473,23 @@ PndLmdKalmanTask::Exec(Option_t*)
   // else{
   //   if(fVerbose>4)
   //     cout<<"trk filter switched off!"<<endl;
-  //   for (unsigned int i = 0; i<gll;i++){ 
+  //   for (unsigned int i = 0; i<gll;i++){
   //     PndTrack* trkpnd = (PndTrack*)(fTrackTmpArray->At(i));
   //     new((*fTrkOutArray)[rec_trk]) PndTrack(*(trkpnd)); //save Track
   //     rec_trk++;
   //   }
   // }
   // //filter end ------------------------------------------------------------
-  for (unsigned int i = 0; i<fTrackTmpArray->GetEntriesFast();i++){ 
+  for (unsigned int i = 0; i < fTrackTmpArray->GetEntriesFast(); i++) {
     PndTrack* trkpnd = (PndTrack*)(fTrackTmpArray->At(i));
     TClonesArray& clref = *fTrkOutArray;
     Int_t size = clref.GetEntriesFast();
-    new(clref[size]) PndTrack(*(trkpnd)); //save Track
+    new (clref[size]) PndTrack(*(trkpnd));  // save Track
   }
-  if(fVerbose>1)
-    std::cout<<"Fitting done, result is "<<fTrkOutArray->GetEntriesFast()<<" fitted trks"<<std::endl;
-  //rep = NULL;
+  if (fVerbose > 1)
+    std::cout << "Fitting done, result is " << fTrkOutArray->GetEntriesFast()
+              << " fitted trks" << std::endl;
+  // rep = NULL;
   return;
 }
 ClassImp(PndLmdKalmanTask);

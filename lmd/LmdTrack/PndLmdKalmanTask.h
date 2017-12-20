@@ -22,14 +22,14 @@
 
 // Collaborating Class Headers -------
 #include <map>
-#include "TString.h"
 #include "FairGeanePro.h"
-#include "TMatrixD.h"
-#include "PndLinTrack.h"
-#include "GFTrack.h"
 #include "GFFieldManager.h"
+#include "GFTrack.h"
 #include "PndGeoHandling.h"
-#include "PndLmdDim.h"
+#include "PndLinTrack.h"
+#include "TMatrixD.h"
+#include "TString.h"
+
 // Collaborating Class Declarations --
 class TClonesArray;
 class GFRecoHitFactory;
@@ -37,8 +37,7 @@ class TH1D;
 class TGeoManager;
 
 class PndLmdKalmanTask : public FairTask {
-public:
-
+ public:
   // Constructors/Destructors ---------
   PndLmdKalmanTask();
   PndLmdKalmanTask(TString HitBranch, TString TrackBranch);
@@ -46,34 +45,31 @@ public:
 
   // Operators
 
-
   // Accessors -----------------------
 
-
   // Modifiers -----------------------
-  void SetTrackBranchName(const TString& name) {fTrackBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
+  void SetTrackBranchName(const TString& name) { fTrackBranchName = name; }
+  void SetPersistence(Bool_t opt = kTRUE) { fPersistence = opt; }
 
-  void SetGeaneTrkRep(Bool_t val=kTRUE){flGEANE = val;}
-  void SetRKTrkRep(Bool_t val=kTRUE){flRK = val;}
+  void SetGeaneTrkRep(Bool_t val = kTRUE) { flGEANE = val; }
+  void SetRKTrkRep(Bool_t val = kTRUE) { flRK = val; }
 
-  void SetScalePError(double sc){fscaleP = sc;}
-  void SetScaleMError(double sc){fscaleM = sc;}
+  void SetScalePError(double sc) { fscaleP = sc; }
+  void SetScaleMError(double sc) { fscaleM = sc; }
   // Operations ----------------------
 
   virtual InitStatus Init();
 
   virtual void Exec(Option_t* opt);
-  virtual void SetFilterFlag(bool val){flagFilter = val;};
+  virtual void SetFilterFlag(bool val) { flagFilter = val; };
   // void WriteHistograms(const TString& filename);
 
-private:
+ private:
+  bool flGEANE;  // if true use GEANE representation
+  bool flRK;     // if true use Runge-Kutta representation
 
-  bool flGEANE; //if true use GEANE representation
-  bool flRK; //if true use Runge-Kutta representation
-
-  double fscaleP;//scale factor for test initial Position errors
-  double fscaleM;//scale factor for test initial Momentum errors
+  double fscaleP;  // scale factor for test initial Position errors
+  double fscaleM;  // scale factor for test initial Momentum errors
   /* TH1D *hxpull; */
   /* TH1D *hypull; */
   /* TH1D *hzpull; */
@@ -81,7 +77,6 @@ private:
   /* TH1D *hpypull; */
   /* TH1D *hpzpull; */
 
- 
   // Private Data Members ------------
   TClonesArray* fTrackArray;
   // TClonesArray* fGFTrackArray;
@@ -105,19 +100,18 @@ private:
   Int_t fTrackcount;
 
   Int_t fEvent;
-  TGeant3 *gMC3;
-  FairGeanePro *fPro;
-  int fsensType;//0=strips sensors, 1=Pixel sensors
-  Double_t fPbeam;//beam momentum
+  TGeant3* gMC3;
+  FairGeanePro* fPro;
+  int fsensType;    // 0=strips sensors, 1=Pixel sensors
+  Double_t fPbeam;  // beam momentum
   Int_t fPDGCode;
   Double_t fCharge;
   // PndLinTrack* GenfitTrack2PndLinTrack(const GFTrack* tr);
-  GFFieldManager *gfMagField;
+  GFFieldManager* gfMagField;
   bool flagFilter;
-  PndLmdDim* lmddim;
-//public:
-  ClassDef(PndLmdKalmanTask,1);
 
+  // public:
+  ClassDef(PndLmdKalmanTask, 1);
 };
 
 #endif

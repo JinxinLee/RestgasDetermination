@@ -4,14 +4,12 @@
 // -----             Based on PndMvdIdealRecoTask by R.Kliemt          -----
 // -------------------------------------------------------------------------
 
-
 /** PndMvdIdealRecoTask.h
  *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
  **
  ** The ideal tracking produces tracks of type PndSdsHit by using MC information
  ** directly, but with the correct data interface.
  **/
-
 
 #ifndef PNDLMDIDEALRECOTASK_H
 #define PNDLMDIDEALRECOTASK_H
@@ -20,31 +18,26 @@
 
 class TClonesArray;
 
-class PndLmdIdealRecoTask : public PndSdsIdealRecoTask
-{
+class PndLmdIdealRecoTask : public PndSdsIdealRecoTask {
  public:
-
   /** Default constructor **/
   PndLmdIdealRecoTask();
 
   PndLmdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz);
 
-
   /** Destructor **/
   virtual ~PndLmdIdealRecoTask();
 
-   /** pure virtual method SetBranchNames
-   **
-   ** called by Init()
-   ** function to set individual branch names
-   **/
-  virtual void SetBranchNames(TString inBranchname, TString outHitBranchname, TString folderName);
+  /** pure virtual method SetBranchNames
+  **
+  ** called by Init()
+  ** function to set individual branch names
+  **/
+  virtual void SetBranchNames(TString inBranchname, TString outHitBranchname,
+                              TString folderName);
   virtual void SetBranchNames();
 
-
-
-  ClassDef(PndLmdIdealRecoTask,2);
-
+  ClassDef(PndLmdIdealRecoTask, 2);
 };
 
 #endif

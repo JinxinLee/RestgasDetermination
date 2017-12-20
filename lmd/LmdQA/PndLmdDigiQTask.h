@@ -24,11 +24,10 @@
 #include <map>
 #include "TDatabasePDG.h"
 #include "LmdQA/PndLmdDigiQ.h"
-#include "PndLmdDim.h"
 
 class TClonesArray;
 class PndSdsCluster;
-
+class PndLmdGeometryHelper;
 
 class PndLmdDigiQTask : public FairTask
 {
@@ -77,11 +76,9 @@ class PndLmdDigiQTask : public FairTask
   // Int_t fPDGid;
   // TVector3 vtx;
   bool fWriteAllMC;
-  PndLmdDim* lmddim;
-  //  TDatabasePDG *fdbPDG;
   
-
-  ClassDef(PndLmdDigiQTask,1);
+  PndLmdGeometryHelper &lmd_geo_helper;
+  ClassDef(PndLmdDigiQTask,2);
 
 };
 

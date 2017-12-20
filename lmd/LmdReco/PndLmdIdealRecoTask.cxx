@@ -8,40 +8,34 @@
 #include "PndLmdIdealRecoTask.h"
 
 // -----   Default constructor   -------------------------------------------
-PndLmdIdealRecoTask::PndLmdIdealRecoTask()
-{
-  fSigmaX=0.;
-  fSigmaY=0.;
-  fSigmaZ=0.;
+PndLmdIdealRecoTask::PndLmdIdealRecoTask() {
+  fSigmaX = 0.;
+  fSigmaY = 0.;
+  fSigmaZ = 0.;
 }
 // -------------------------------------------------------------------------
 
 // -----   Constructor   ---------------------------------------------------
-PndLmdIdealRecoTask::PndLmdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
-  PndSdsIdealRecoTask(sx, sy, sz)
-{
-  fSigmaX=sx;
-  fSigmaY=sy;
-  fSigmaZ=sz;
+PndLmdIdealRecoTask::PndLmdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz)
+    : PndSdsIdealRecoTask(sx, sy, sz) {
+  fSigmaX = sx;
+  fSigmaY = sy;
+  fSigmaZ = sz;
 }
 // -------------------------------------------------------------------------
 
-
 // -----   Destructor   ----------------------------------------------------
-PndLmdIdealRecoTask::~PndLmdIdealRecoTask()
-{
+PndLmdIdealRecoTask::~PndLmdIdealRecoTask() {}
 
-}
-
-void PndLmdIdealRecoTask::SetBranchNames(TString inBranchname, TString outHitBranchname, TString folderName)
-{
+void PndLmdIdealRecoTask::SetBranchNames(TString inBranchname,
+                                         TString outHitBranchname,
+                                         TString folderName) {
   fInBranchName = inBranchname;
   fOutBranchName = outHitBranchname;
   fFolderName = folderName;
 }
 
-void PndLmdIdealRecoTask::SetBranchNames()
-{
+void PndLmdIdealRecoTask::SetBranchNames() {
   fInBranchName = "LMDPoint";
   fOutBranchName = "LMDHit";
   fFolderName = "PndLmd";

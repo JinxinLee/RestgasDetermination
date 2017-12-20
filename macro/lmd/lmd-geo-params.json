@@ -1,0 +1,124 @@
+{
+  "general": {   
+    "navigation_paths":
+    [
+      {"name": "lmd_top", "is_alignable": false},
+      {"name": "lmd_root", "is_alignable": true},
+      {"name": "half", "is_alignable": true},
+      {"name": "plane", "is_alignable": true},
+      {"name": "module", "is_alignable": true},
+      {"name": "sensor", "is_alignable": true},
+      {"name": "LumActivePixelRect", "is_alignable": false}
+    ],
+    
+	"pipe_bend_start_position_z": 361.0,
+	"pipe_bend_radius": 5700.0,
+	"pipe_bend_segment_phi": 40e-3,
+	
+	"modules_per_half_plane": 5,
+	"sensors_per_module_side": 5,
+	"offset_second_row_sensors_x": 2.0,
+	"rotation_second_row_sensors_z": 0.0,
+	"relative_module_distance_z": 0.5,
+	"upstream_beampipe_connection_z_position": 1050.0,
+	"first_plane_position_z": 1097.48,
+	"plane_z_positions": [0.0, 20.0, 30.0, 40.0]
+  },
+
+  "vacuum_box": {
+    "dimension_x": 44.0,
+	"dimension_y": 60.0,
+	"dimension_z": 88.0,
+	"wall_thickness": 1.0,
+	"zplane_reinforcement_rib": {
+	  "inner_distance_to_box_front_plate": 20.25,
+	  "thickness": 1.0
+	},
+	"horizontal_detector_half_clash_plates" : {
+	  "comment": "regarding length (z-dim): the plates span the whole sensor chamber",
+	  "thickness": 1.0,
+	  "width": 9.0,
+	  "position_y": 0.0
+	}
+  },
+  
+  "beam_pipe": {
+	"entrance_pipe": {
+	  "inner_radius": 10.0, 
+	  "thickness": 0.225,
+	  "length": 15.13
+	},
+	
+    "transition_cone": {
+      "angle_in_degrees": 15.0,
+	  "aluminum_thickness": 0.001,
+	  "polyamide_thickness": 0.002
+	},
+	
+	"cone_clamp_ring": {
+	  "outer_radius": 13.0,
+	  "steel_part_thickness": 1.0,
+	  "aluminum_part_thickness": 2.0
+	},
+
+	"inner_pipe": {
+	  "outer_radius": 3.25,
+	  "thickness": 0.05,
+	  "length": 45.15,
+	  "length_cone_foil_attach_segment": 0.29,
+	  "start_position_z": 0.0
+    },
+    
+    "bellow": {
+      "inner_angle_in_degrees": 15.0,
+      "thickness": 0.05,
+      "flange_to_inner_beampipe": {
+        "thickness": 1.0,
+        "outer_radius_increase": 0.5
+      },
+      "flange_to_box": {
+        "thickness": 2.0,
+        "outer_radius_increase": 1.0
+      }
+    },
+	
+	"exit_pipe": {
+	  "inner_radius": 4.4,
+	  "thickness": 0.5,
+	  "length": 12.0,
+	  "flange_outer_radius": 7.0,
+	  "flange_thickness": 4.0
+	}
+  },
+  
+  "cooling_support": {
+	"inner_radius": 10.6,
+	"outer_radius":	16.0,
+	"outer_cut": 14.0,
+	"thickness": 2.0,
+    
+    "cvd_disc": {
+	  "inner_radius": 3.5,
+	  "thickness": 0.02,
+      "even_odd_offset": 0.05
+    }
+  },
+  
+  "sensors": {
+	"dimension_x": 2.0,
+	"dimension_y": 2.0,
+	"active_part": {
+	  "dimension_x": 2.0,
+	  "dimension_y": 1.96,
+	  "offset_x": 0.0,
+	  "offset_y": 0.0
+	},
+	"thickness": 0.005
+  },
+  
+  "cables": {
+    "comment": "the cables are assumed on top of the area of the sensors",
+	"kapton_part_thickness": 0.003,
+	"aluminum_part_thickness": 0.0014
+  }
+}

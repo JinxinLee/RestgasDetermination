@@ -1,35 +1,27 @@
 // -------------------------------------------------------------------------
-// -----                    PndSdsCell source file                              -----
-// -----                                                                                        -----
+// -----                    PndSdsCell source file -----
+// ----- -----
 // -------------------------------------------------------------------------
 
-#include "stdlib.h"
-#include <iostream>
 #include "PndSdsCell.h"
-
-
+#include <iostream>
+#include "stdlib.h"
 
 // -----   Default constructor   -------------------------------------------
-PndSdsCell::PndSdsCell() {
-}
+PndSdsCell::PndSdsCell() {}
 // -------------------------------------------------------------------------
 
-
-
 // -----   Standard constructor   ------------------------------------------
-PndSdsCell::PndSdsCell(unsigned int hitUp, unsigned int hitDw){
+PndSdsCell::PndSdsCell(unsigned int hitUp, unsigned int hitDw) {
   fhit_upstream = hitUp;
   fhit_downstream = hitDw;
   fpv = -1;
 }
 // -------------------------------------------------------------------------
 
-
-
 // -----   Destructor   ----------------------------------------------------
 PndSdsCell::~PndSdsCell() {}
 // -------------------------------------------------------------------------
-
 
 // -------------------------------------------------------------------------
 ClassImp(PndSdsCell);

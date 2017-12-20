@@ -1,6 +1,6 @@
 // Lmd DPM Sim macro
 int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
-		const double mom = 15, TString input, TString storePath = "tmpOutputDPM",
+		const double mom = 15, TString input = "input.root", TString storePath = "tmpOutputDPM",
 		const double beam_X0 = 0.0, const double beam_Y0 = 0.0,
 		const double target_Z0 = 0.0, const double beam_width_sigma_X = 0.0,
 		const double beam_width_sigma_Y = 0.0,
@@ -8,7 +8,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 		const double beam_grad_X = 0.0, const double beam_grad_Y = 0.0,
 		const double beam_grad_sigma_X = 0.0, const double beam_grad_sigma_Y = 0.0, // beam gradiant parameters
 		const TString lmd_geometry_filename = "Luminosity-Detector.root",
-		const int verboseLevel = 0) {
+		const int verboseLevel = 3) {
 	// gRandom->SetSeed(seed);
 	Int_t mode = 1;
 	TStopwatch timer;
@@ -23,10 +23,11 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 	parOutput += startEvent;
 	parOutput += ".root";
 	//Load basic libraries
-	gSystem->Load("libSds");
-	gSystem->Load("libLmd");
+	//gSystem->Load("libSds");
+	//gSystem->Load("libLmd");
+
+
 	FairRunSim *fRun = new FairRunSim();
-	cout << "All libraries succsesfully loaded!" << endl;
 
 	//set the MC version used
 	fRun->SetName("TGeant4");
@@ -36,6 +37,8 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 	//set material
 	fRun->SetMaterials("media_pnd.geo");
 
+	fRun->SetGenerateRunInfo(false);
+	fRun->SetUseFairLinks(true);
 	//  //create and add detectors
 // //-------------------------  CAVE      -----------------
 
@@ -43,9 +46,21 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 	Cave->SetGeometryFileName("pndcave.geo");
 	fRun->AddModule(Cave);
 	//-------------------------  Magnet   -----------------
+	// this part is commented because the solenoid magnet is contained in MDT geo
 	FairModule *Magnet = new PndMagnet("MAGNET");
 	Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
 	fRun->AddModule(Magnet);
+	//-------------------------  MDT       -----------------
+  /*PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("fast");
+  Muo->SetEndcap("fast");
+  Muo->SetMuonFilter("fast");
+  Muo->SetForward("fast");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtCoil(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  fRun->AddModule(Muo);*/
+
 	FairModule *Dipole = new PndMagnet("MAGNET");
 	Dipole->SetGeometryFileName("dipole.geo");
 	fRun->AddModule(Dipole);
@@ -60,6 +75,7 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 //   //-------------------------  MVD       -----------------
 //   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
 //   Mvd->SetGeometryFileName("Mvd-2.1_FullVersion.root");
+//   Mvd->SetVerboseLevel(verboseLevel);
 //   fRun->AddModule(Mvd);
 //   //-------------------------  GEM       -----------------
 //   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
@@ -103,10 +119,11 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 //   fRun->AddModule(Rich);
 
 	PndLmdDetector *Lum = new PndLmdDetector("LUM", kTRUE);
-	Lum->SetExclusiveSensorType("LumActive"); //ignore MVD
-	Lum->SetGeometryFileName(lmd_geometry_filename); // new sensors
+//	Lum->SetExclusiveSensorType("LumActive"); //ignore MVD
+	Lum->SetGeometryFileName(lmd_geometry_filename);
 	Lum->SetVerboseLevel(verboseLevel);
 	fRun->AddModule(Lum);
+
 
 	//particle generator
 	FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
@@ -125,74 +142,47 @@ int runLumiPixel0SimDPM(const int nEvents = 10, const int startEvent = 0,
 
 	fRun->SetGenerator(primGen);
 
-// DPM Generator
+  // DPM Generator
 	PndDpmGenerator* dpmGen = new PndDpmGenerator(input);
 	primGen->AddGenerator(dpmGen);
-// PndDpmDirect *dpmGen = new PndDpmDirect(mom, mode, gRandom->GetSeed(), 0.1);
-// primGen->AddGenerator(dpmGen);
+  // PndDpmDirect *dpmGen = new PndDpmDirect(mom, mode, gRandom->GetSeed(), 0.1);
+  // primGen->AddGenerator(dpmGen);
 
-//reading the new field map in the old format
+  //reading the new field map in the old format
 	fRun->SetBeamMom(mom);
- PndMultiField *fField= new PndMultiField("AUTO");
-// fRun->SetField(fField);
-	/*PndMultiField *fField = new PndMultiField();
-	PndTransMap *map_t = new PndTransMap("TransMap", "R");
-	PndDipoleMap *map_d1 = new PndDipoleMap("DipoleMap1", "R");
-	PndDipoleMap *map_d2 = new PndDipoleMap("DipoleMap2", "R");
-	PndSolenoidMap *map_s1 = new PndSolenoidMap("SolenoidMap1", "R");
-	PndSolenoidMap *map_s2 = new PndSolenoidMap("SolenoidMap2", "R");
-	PndSolenoidMap *map_s3 = new PndSolenoidMap("SolenoidMap3", "R");
-	PndSolenoidMap *map_s4 = new PndSolenoidMap("SolenoidMap4", "R");
+  PndMultiField *fField= new PndMultiField("AUTO");
+  fRun->SetField(fField);
 
-	fField->AddField(map_t);
-	fField->AddField(map_d1);
-	fField->AddField(map_d2);
-	fField->AddField(map_s1);
-	fField->AddField(map_s2);
-	fField->AddField(map_s3);
-	fField->AddField(map_s4);*/
+  fRun->SetStoreTraj(false); // toggle this for use with EVE
 
-	fRun->SetField(fField);
-
-	if (nEvents < 450)
-		fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
-	else
-		fRun->SetStoreTraj(kFALSE);
-
-//FairLogger
-// get handle
+  //FairLogger
+  // get handle
 	FairLogger *logger = FairLogger::GetLogger();
-//
-// log to screen and to file
+
+  // log to screen and to file
 	logger->SetLogToScreen(kTRUE);
 	logger->SetLogToFile(kFALSE);
 
 	logger->SetLogVerbosityLevel("LOW");
 
-// Set different levels of verbosity. In the example everything >=INFO goes to the
-// file and everything >= ERROR is printed on the screen
-// LogLevels are (FATAL, ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4)
+  // Set different levels of verbosity. In the example everything >=INFO goes to the
+  // file and everything >= ERROR is printed on the screen
+  // LogLevels are (FATAL, ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4)
 	logger->SetLogScreenLevel("ERROR"); //Only FATAL and ERROR to screen
 
 	fRun->Init();
 	((TGeant4*)gMC)->ProcessGeantCommand("/mcVerbose/eventAction 0");
 
-// // Fill the Parameter containers for this run
-// //-------------------------------------------
+  // // Fill the Parameter containers for this run
+  // //-------------------------------------------
 	FairRuntimeDb *rtdb = fRun->GetRuntimeDb();
 	Bool_t kParameterMerged = kTRUE;
 	FairParRootFileIo* output = new FairParRootFileIo(kParameterMerged);
 	output->open(parOutput.Data(), "RECREATE");
 	rtdb->setOutput(output);
 
-// PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-// if (fField) {  Par->SetParameters(fField); }
-// Par->setInputVersion(fRun->GetRunId(),1);
-// Par->setChanged();
-
-// Transport nEvents
-// -----------------
-
+  // Transport nEvents
+  // -----------------
 	fRun->Run(nEvents);
 
 	rtdb->saveOutput();

@@ -5,10 +5,6 @@ int runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStrin
   TString MCFile = storePath+"/Lumi_MC_";
   MCFile += startEvent;
   MCFile += ".root";
-  TString DigiFile = storePath+"/Lumi_digi_";
-  DigiFile += startEvent;
-  DigiFile += ".root";
-  // Digi file
   TString RecoMergedFile = storePath+"/Lumi_recoMerged_";
   RecoMergedFile += startEvent;
   RecoMergedFile += ".root";
@@ -44,11 +40,6 @@ int runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStrin
   DumFile += startEvent;
   DumFile += ".root";
 
-  // Par file
-  TString parFile = storePath+"/Lumi_Params_";
-  parFile += startEvent;
-  parFile += ".root";
-
   // // ----  Load libraries   -------------------------------------------------
 //   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 // //-lRooFit –lRooFitCore -lMinuit
@@ -62,7 +53,6 @@ int runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStrin
 //   // ------------------------------------------------------------------------
     
   std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
-  std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
   std::cout << "RecoFile: " << RecoFile.Data()<< std::endl;
   std::cout << "TCandFile: " << CandFile.Data()<< std::endl;
   std::cout << "TrackFile: " << TrkFile.Data()<< std::endl;
@@ -75,14 +65,14 @@ int runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStrin
   // ------------------------------------------------------------------------
 
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(GeaFile);
+  FairFileSource input_source(GeaFile);
+  input_source.AddFriend(TrkFile);
+  input_source.AddFriend(CandFile);
+  input_source.AddFriend(RecoFile);
+  input_source.AddFriend(MCFile);
+  input_source.AddFriend(RecoMergedFile);
 
-  fRun->AddFriend(TrkFile);
-  fRun->AddFriend(CandFile);
-  fRun->AddFriend(RecoFile);
-  fRun->AddFriend(DigiFile);
-  fRun->AddFriend(MCFile);
-  fRun->AddFriend(RecoMergedFile);
+  fRun->SetSource(&input_source);
   fRun->SetOutputFile(DumFile);
 
   // -----  Parameter database   --------------------------------------------
@@ -119,6 +109,11 @@ int runLumiPixel7TrksQA(const int nEvents=100000, const int startEvent=0, TStrin
   cout << endl;
   // ------------------------------------------------------------------------
 
+
+	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
+	gGeoManager->GetListOfVolumes()->Delete();
+	gGeoManager->GetListOfShapes()->Delete();
+	delete gGeoManager;
 
   return 0;
 }

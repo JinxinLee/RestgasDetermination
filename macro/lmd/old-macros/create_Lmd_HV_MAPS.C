@@ -23,10 +23,12 @@
 #include<PndLmdDim.h>
 #include<TGeoPhysicalNode.h>
 #include<TGeoCone.h>
+#include<TApplication.h>
 
 #include<iostream>
 #include<cmath>
 #include<sstream>
+#include <vector>
 
 //#include<TH2.h>
 //#include<TPad.h>
@@ -53,8 +55,6 @@ void Navigate_into(int depth = 0){
 	}
 }
 
-#include <sstream>
-#include <vector>
 
 int create_HV_MAPS(bool misalign = true) {
 	/*
@@ -341,8 +341,6 @@ int create_HV_MAPS(bool misalign = true) {
 	//top->RandomPoints(100000);
   return 0;
 }
-
-#include<TApplication.h>
 
 int main() {
 	TApplication myapp("myapp", 0, 0);
