@@ -8,7 +8,16 @@ cache:
 configure:
   stage: configure
   script: source generateDartConfig.sh
+  variables:
+    - FAIRSOFT_VERSION: may16p1
+    - FAIRROOT_VERSION: v-17.10b
+  tags:
+    - may16p1
+    - v-17.10
 
 cdash:
   stage: test
   script: source runDart.sh
+  tags:
+   - may16p1
+   - v-17.10
