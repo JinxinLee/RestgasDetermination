@@ -439,14 +439,14 @@ double PndLmdLinFitTask::line3DfitMS(
     dirSeed.Print();
   }
   double l = 1 / dirSeed.Mag();
-  double pStart[nparams] = {posSeed.X(), l * dirSeed.X(),
+  std::vector<double> pStart = {posSeed.X(), l * dirSeed.X(),
                             posSeed.Y(), l * dirSeed.Y(),
                             posSeed.Z(), l * dirSeed.Z(),
                             0,           0,
                             0,           0,
                             0,           0,
                             0,           0};
-  double pStartErr[nparams] = {ErrX1,
+  std::vector<double> pStartErr = {ErrX1,
                                errRx,
                                ErrY1,
                                errRy,
