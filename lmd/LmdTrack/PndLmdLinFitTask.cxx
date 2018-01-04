@@ -38,8 +38,8 @@
 #include "Math/Functor.h"
 #include "Math/Minimizer.h"
 
-using namespace ROOT::Math;
-using namespace std;
+using std::cout;
+using std::endl;
 
 PndLmdLinFitTask::PndLmdLinFitTask()
     : FairTask("3D-Straight-Line-Fit"),
@@ -61,11 +61,11 @@ PndLmdLinFitTask::PndLmdLinFitTask()
   fsigmaMSb = 0;
   ftotRadLen = 0;
 
-  min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
+  fmin = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
 
-  min->SetMaxFunctionCalls(1000000);
-  min->SetMaxIterations(100000);
-  min->SetTolerance(0.001);
+  fmin->SetMaxFunctionCalls(1000000);
+  fmin->SetMaxIterations(100000);
+  fmin->SetTolerance(0.001);
 
   for (int ih = 0; ih < 4; ih++) hitMergedfl[ih] = false;
 }
@@ -91,11 +91,11 @@ PndLmdLinFitTask::PndLmdLinFitTask(TString tTCandBranchName,
   fsigmaMSb = 0;
   ftotRadLen = 0;
 
-  min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
+  fmin = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
 
-  min->SetMaxFunctionCalls(1000000);
-  min->SetMaxIterations(100000);
-  min->SetTolerance(0.001);
+  fmin->SetMaxFunctionCalls(1000000);
+  fmin->SetMaxIterations(100000);
+  fmin->SetTolerance(0.001);
 
   for (int ih = 0; ih < 4; ih++) hitMergedfl[ih] = false;
 }
@@ -154,7 +154,7 @@ InitStatus PndLmdLinFitTask::Init() {
   totRadLenCable += 0.05;         // rest
   fsigmaMSa = ScatteredAngle(totRadLenCable);
 
-  min->SetPrintLevel(fVerbose);
+  fmin->SetPrintLevel(fVerbose);
 
   std::cout << "-I- PndLmdLinFitTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
@@ -244,7 +244,7 @@ void PndLmdLinFitTask::Exec(Option_t*) {
     TVector3 posSeed = hit0;
     // cout<<"DirSeed before fit and norm:"<<endl;
     // dirSeed.Print();
-    dirSeed *= 1. / dirSeed.Mag();
+    dirSeed = dirSeed.Unit();
     std::vector<double> fit_parameters(22);  // fit-parameter
     TMatrixDSym* COVmatrix = new TMatrixDSym(6);
     Double_t accuracy = line3DfitMS(&fitme, posSeed, dirSeed, fit_parameters,
@@ -310,13 +310,14 @@ void PndLmdLinFitTask::Exec(Option_t*) {
 
   // Done--------------------------------------------------------------------------------------
   if (fVerbose > 2) std::cout << "Fitting done" << std::endl;
+
   return;
 }
 
 // calculate distance line-point in local coordinates
-double PndLmdLinFitTask::distance_MS(
-    double x, double y, double z, double errx, double erry, const double* p,
-    double* zpr) {  // errz // [R.K.03/2017] unused variable(s)
+double PndLmdLinFitTask::distance_MS(double x, double y, double z, double errx,
+                                     double erry, const double* p,
+                                     double* zpr) {
   double THfunc[8] = {1, 1, 1, 1, 1, 1, 1, 1};
   //  p[5] = sqrt(1-p[1]*p[1]-p[3]*p[3]);
   // Double_t t_min = p[1]*(x-p[0])+p[3]*(y-p[2])+p[5]*(z-p[4]);
@@ -390,19 +391,18 @@ double PndLmdLinFitTask::ScatteredAngle(double radLen) {
   Double_t X_to_X0 = radLen;
   Double_t thetaMS = 13.6 * 1e-3 * TMath::Sqrt(X_to_X0) *
                      (1 + 0.038 * TMath::Log(X_to_X0)) / (beta * fPbeam);
-  // cout<<"for Pbeam = "<<fPbeam<<" thetaMS="<<thetaMS<<endl;
   return thetaMS;
 }
 
 // chi2 with kink angles fit [G.Lutz, NIM A273 (1988)]
-double PndLmdLinFitTask::line3DfitMS(
-    TGraph2DErrors* gr, const TVector3& posSeed, const TVector3& dirSeed,
-    std::vector<double>& fitpar,
-    TMatrixDSym* covmatrix)  // nd // [R.K.03/2017] unused variable(s)
-{
+double PndLmdLinFitTask::line3DfitMS(TGraph2DErrors* gr,
+                                     const TVector3& posSeed,
+                                     const TVector3& dirSeed,
+                                     std::vector<double>& fitpar,
+                                     TMatrixDSym* covmatrix) {
   const int nparams = fitpar.size();
   ROOT::Math::Functor f(this, &PndLmdLinFitTask::FCN_MS, nparams);
-  min->SetFunction(f);
+  fmin->SetFunction(f);
 
   if (fVerbose > 2)
     cout << "PndLmdLinFitTask::line3Dfit with SEED is used (multiple "
@@ -412,132 +412,74 @@ double PndLmdLinFitTask::line3DfitMS(
   Double_t ErrX1 = gr->GetErrorX(0);
   Double_t ErrY1 = gr->GetErrorY(0);
   Double_t ErrZ1 = gr->GetErrorZ(0);
-  TVector3 ErrPosSeed(ErrX1, ErrY1, ErrZ1);
+
   Double_t ErrX2 = gr->GetErrorX(2);
   Double_t ErrY2 = gr->GetErrorY(2);
-  Double_t ErrZ2 = gr->GetErrorY(2);
 
-  Double_t errRx = 1 * TMath::Hypot(ErrX1, ErrX2);
-  Double_t errRy = 1 * TMath::Hypot(ErrY1, ErrY2);
-  Double_t errRz = 1 * TMath::Hypot(ErrZ1, ErrZ2);
+  Double_t errRx = TMath::Hypot(ErrX1, ErrX2);
+  Double_t errRy = TMath::Hypot(ErrY1, ErrY2);
 
   fGraph2D = gr;
-  // fmin->SetObjectFit(gr);
-  // fmin->SetFCN(*LocalFCN_MS);
 
-  // Double_t arglist[100];
-  // arglist[0] = 1;
-  //  fmin->ExecuteCommand("SET PRINT",arglist,10);//output
-  //  fmin->ExecuteCommand("SET PRINT",arglist,0);//no output
   if (fVerbose > 5) {
     cout << "Number of hits = " << Npoint << endl;
     cout << "posSeed:" << endl;
     posSeed.Print();
+    TVector3 ErrPosSeed(ErrX1, ErrY1, ErrZ1);
     cout << "ErrposSeed:" << endl;
     ErrPosSeed.Print();
     cout << "dirSeed:" << endl;
     dirSeed.Print();
   }
-  double l = 1 / dirSeed.Mag();
-  std::vector<double> pStart = {posSeed.X(), l * dirSeed.X(),
-                            posSeed.Y(), l * dirSeed.Y(),
-                            posSeed.Z(), l * dirSeed.Z(),
-                            0,           0,
-                            0,           0,
-                            0,           0,
-                            0,           0};
-  std::vector<double> pStartErr = {ErrX1,
-                               errRx,
-                               ErrY1,
-                               errRy,
-                               ErrZ1,
-                               errRz,
-                               1e-2 * fsigmaMSa,
-                               1e-2 * fsigmaMSb,
-                               1e-2 * fsigmaMSa,
-                               1e-2 * fsigmaMSb,
-                               1e-2 * fsigmaMSa,
-                               1e-2 * fsigmaMSb,
-                               1e-2 * fsigmaMSa,
-                               1e-2 * fsigmaMSb,
-                               1e-2 * fsigmaMSb,
-                               1e-2 * fsigmaMSa,
-                               1e-2 * fsigmaMSb,
-                               1e-2 * fsigmaMSa,
-                               1e-2 * fsigmaMSb,
-                               1e-2 * fsigmaMSa,
-                               1e-2 * fsigmaMSb};
 
-  min->SetVariable(0, "x0", pStart[0], pStartErr[0]);
-  min->SetVariable(1, "Ax", pStart[1], pStartErr[1]);
-  min->SetVariable(2, "y0", pStart[2], pStartErr[2]);
-  min->SetVariable(3, "Ay", pStart[3], pStartErr[3]);
+  fmin->SetVariable(0, "x0", posSeed.X(), ErrX1);
+  fmin->SetVariable(1, "Ax", dirSeed.X(), errRx);
+  fmin->SetVariable(2, "y0", posSeed.Y(), ErrY1);
+  fmin->SetVariable(3, "Ay", dirSeed.Y(), errRy);
 
-  min->SetFixedVariable(4, "z0", pStart[4]);
-  min->SetFixedVariable(5, "Az", pStart[5]);
+  fmin->SetFixedVariable(4, "z0", posSeed.Z());
+  fmin->SetFixedVariable(5, "Az", dirSeed.Z());
 
-  //  min->SetVariable(5,"Az",pStart[5],pStartErr[1],0,0);//TEST
+  double scaling_factor(1e-4);
+  fmin->SetVariable(6, "al0x_a", 0.0, scaling_factor * fsigmaMSa);
+  fmin->SetVariable(7, "al0x_b", 0.0, scaling_factor * fsigmaMSb);
+  fmin->SetFixedVariable(8, "al1x_a", 0.0);
+  fmin->SetVariable(9, "al1x_b", 0.0, scaling_factor * fsigmaMSb);
+  fmin->SetFixedVariable(10, "al2x_a", 0.0);
+  fmin->SetVariable(11, "al2x_b", 0.0, scaling_factor * fsigmaMSb);
+  fmin->SetFixedVariable(12, "al3x_a", 0.0);
+  fmin->SetFixedVariable(13, "al3x_b", 0.0);
 
-  min->SetVariable(6, "al0x_a", pStart[6], 1e-4 * fsigmaMSa);
-  min->SetVariable(7, "al0x_b", pStart[7], 1e-4 * fsigmaMSb);
-  min->SetVariable(8, "al1x_a", pStart[8], 1e-4 * fsigmaMSa);
-  min->SetVariable(9, "al1x_b", pStart[9], 1e-4 * fsigmaMSb);
-  min->SetVariable(10, "al2x_a", pStart[10], 1e-4 * fsigmaMSa);
-  min->SetVariable(11, "al2x_b", pStart[11], 1e-4 * fsigmaMSb);
-  min->SetVariable(12, "al3x_a", pStart[12], 1e-4 * fsigmaMSa);
-  min->SetVariable(13, "al3x_b", pStart[13], 1e-4 * fsigmaMSb);
-
-  min->SetVariable(14, "al0y_a", pStart[14], 1e-4 * fsigmaMSa);
-  min->SetVariable(15, "al0y_b", pStart[15], 1e-4 * fsigmaMSb);
-  min->SetVariable(16, "al1y_a", pStart[16], 1e-4 * fsigmaMSa);
-  min->SetVariable(17, "al1y_b", pStart[17], 1e-4 * fsigmaMSb);
-  min->SetVariable(18, "al2y_a", pStart[18], 1e-4 * fsigmaMSa);
-  min->SetVariable(19, "al2y_b", pStart[19], 1e-4 * fsigmaMSb);
-  min->SetVariable(20, "al3y_a", pStart[20], 1e-4 * fsigmaMSa);
-  min->SetVariable(21, "al3y_b", pStart[21], 1e-4 * fsigmaMSb);
-
-  //	min->FixVariable(4);
-  //	min->FixVariable(5);
-  min->FixVariable(8);
-  min->FixVariable(10);
-  min->FixVariable(12);
-  min->FixVariable(16);
-  min->FixVariable(18);
-  min->FixVariable(20);
-
-  // min->FixVariable(6);
-  // min->FixVariable(7);
-  min->FixVariable(13);
-  //  min->FixVariable(14);
-  // min->FixVariable(15);
-  min->FixVariable(21);
-
-  // min->FixVariable(6);
-  // min->FixVariable(7);
-  // //min->FixVariable(13);
-  //  min->FixVariable(14);
-  // min->FixVariable(15);
-  // //min->FixVariable(21);
+  fmin->SetVariable(14, "al0y_a", 0.0, scaling_factor * fsigmaMSa);
+  fmin->SetVariable(15, "al0y_b", 0.0, scaling_factor * fsigmaMSb);
+  fmin->SetFixedVariable(16, "al1y_a", 0.0);
+  fmin->SetVariable(17, "al1y_b", 0.0, scaling_factor * fsigmaMSb);
+  fmin->SetFixedVariable(18, "al2y_a", 0.0);
+  fmin->SetVariable(19, "al2y_b", 0.0, scaling_factor * fsigmaMSb);
+  fmin->SetFixedVariable(20, "al3y_a", 0.0);
+  fmin->SetFixedVariable(21, "al3y_b", 0.0);
 
   if (Npoint < 4) {
-    min->FixVariable(11);
-    min->FixVariable(19);
+    fmin->FixVariable(11);
+    fmin->FixVariable(19);
   }
 
-  min->Minimize();
+  fmin->Minimize();
 
   double recpres = 1e-7;
 
-  if (min->Edm() > 1e2 * recpres) return 1e6;
+  if (fmin->Edm() > 1e2 * recpres) {
+    return 1e6;
+  }
 
   // get fit parameters
   for (int i = 0; i < nparams; ++i) {
-    fitpar[i] = min->X()[i];
+    fitpar[i] = fmin->X()[i];
   }
 
   for (size_t i = 0; i < 6; i++) {
     for (size_t j = 0; j < 6; j++) {
-      (*covmatrix)(i, j) = min->CovMatrix(i, j);
+      (*covmatrix)(i, j) = fmin->CovMatrix(i, j);
     }
   }
 
@@ -553,7 +495,7 @@ double PndLmdLinFitTask::line3DfitMS(
   (*covmatrix)(5, 5) = errdz2;
   //!!!!!!!!!!!!!!!!!!
 
-  Double_t chi2 = min->MinValue() / (2. * Npoint - 4);
+  Double_t chi2 = fmin->MinValue() / (2. * Npoint - 4);
 
   if (fVerbose > 2) {
     cout << " chi2 = " << chi2 << endl;

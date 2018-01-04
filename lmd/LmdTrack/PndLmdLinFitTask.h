@@ -80,7 +80,7 @@ class PndLmdLinFitTask : public FairTask {
   int fCharge;
   PndGeoHandling* fGeoH;
 
-  ROOT::Math::Minimizer* min;
+  ROOT::Math::Minimizer* fmin;
   TGraph2DErrors* fGraph2D;
 
   double ftotRadLen;  // X/X0
