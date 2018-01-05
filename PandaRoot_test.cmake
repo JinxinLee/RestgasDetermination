@@ -6,7 +6,7 @@ Set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 Set(CTEST_PROJECT_NAME "PandaRoot")
 Set(EXTRA_FLAGS $ENV{EXTRA_FLAGS})
 
-Set(CTEST_UPDATE_COMMAND "svn")
+Set(CTEST_UPDATE_COMMAND "git")
 
 If($ENV{ctest_model} MATCHES Continuous)
   Set(CTEST_SVN_UPDATE_OPTIONS "$ENV{REVISION}")
@@ -35,9 +35,9 @@ If($ENV{ctest_model} MATCHES Nightly OR $ENV{ctest_model} MATCHES Profile)
   # get the information about conflicting or localy modified files
   # from svn, extract the relavant information about the file name
   # and put the result in the output variable
-  Execute_Process(COMMAND svn stat -u  
+  Execute_Process(COMMAND git status -s  
                   COMMAND grep ^[CM]
-                  COMMAND cut -c21- 
+                  COMMAND cut -c4- 
                   OUTPUT_VARIABLE FILELIST
                   )
 
