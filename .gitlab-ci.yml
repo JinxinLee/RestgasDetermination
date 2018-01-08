@@ -5,7 +5,7 @@ stages:
 cache:
   untracked: true
 
-configure:
+configure:current:
   stage: configure
   script: source generateDartConfig.sh
   variables:
@@ -15,9 +15,30 @@ configure:
     - may16p1
     - v-17.10
 
-cdash:
+configure:future:
+  stage: configure
+  script: source generateDartConfig.sh
+  variables:
+    FAIRSOFT_VERSION: oct17
+    FAIRROOT_VERSION: dev
+  tags:
+   - oct17
+   - FairRoot_dev
+
+cdash:current:
   stage: test
   script: source runDart.sh
+  dependencies:
+   - configure:current
   tags:
    - may16p1
    - v-17.10
+
+cdash:future:
+  stage: test
+  script: source runDart.sh
+  dependencies:
+    - configure:future
+  tags:
+    - oct17
+    - FairRoot_dev
