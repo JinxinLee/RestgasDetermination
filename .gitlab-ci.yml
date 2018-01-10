@@ -25,18 +25,46 @@ configure:future:
    - oct17
    - FairRoot_dev
 
-cdash:current:
+cdash:current:full:
   stage: test
-  script: source runDart.sh
+  script: source Dart.sh Experimental Dart.cfg
+  only:
+  - branches@PandaRootGroup/PandaRoot
   dependencies:
    - configure:current
+  
   tags:
    - may16p1
    - v-17.10
 
-cdash:future:
+cdash:future:full:
   stage: test
-  script: source runDart.sh
+  script: source Dart.sh Experimental Dart.cfg
+  only:
+  - branches@PandaRootGroup/PandaRoot
+  dependencies:
+    - configure:future
+  tags:
+    - oct17
+    - FairRoot_dev
+
+cdash:current:continuous:
+  stage: test
+  script: source Dart.sh Continuous Dart.cfg
+  except:
+  - branches@PandaRootGroup/PandaRoot
+  dependencies:  
+   - configure:current
+  
+  tags:
+   - may16p1
+   - v-17.10
+
+cdash:future:continuous:
+  stage: test
+  script: source Dart.sh Continuous Dart.cfg
+  except:
+  - branche@PandaRootGroup/PandaRoot
   dependencies:
     - configure:future
   tags:
