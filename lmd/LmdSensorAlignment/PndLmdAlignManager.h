@@ -15,7 +15,7 @@
 #include "PndLmdHitPair.h"
 
 //apparently, CINT has a problem with some boost classes
-#ifndef __CINT__
+//#ifndef __CINT__
 #include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/thread/mutex.hpp>
@@ -23,7 +23,7 @@
 #include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#endif
+//#endif
 
 #include <PndLmdAlignStructs.h>
 #include <PndLmdDim.h>
@@ -244,7 +244,7 @@ public:
 	}
 
 	// hide all boost related things from ROOT
-	#ifndef __CINT__
+	//#ifndef __CINT__
 	//when supplied with a function object, this function executes in a new thread
 	void workerThread( boost::shared_ptr< boost::asio::io_service > io_service );
 
@@ -253,7 +253,7 @@ public:
 
 	//read json config file
 	static boost::property_tree::ptree readConfigFile(std::string filename);
-	#endif
+	//#endif
 
 	void setBinaryPairFileDirectory(const std::string& binaryPairFileDirectory){
 		_binaryPairFileDirectory = binaryPairFileDirectory;

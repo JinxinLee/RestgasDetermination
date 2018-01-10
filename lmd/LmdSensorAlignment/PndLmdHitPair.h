@@ -24,6 +24,7 @@
 
 // Root Class Headers ----------------
 //#include "FairTimeStamp.h"
+
 #include "TVector3.h"
 #include <TObject.h>
 #include <iostream>
@@ -51,7 +52,7 @@ private:
 	bool sane, checked, hit1present, hit2present;
 
 public:
-	ClassDef(PndLmdHitPair,15);
+	ClassDef(PndLmdHitPair,16);
 
 	Int_t getId1() const {
 		return _id1;
@@ -93,6 +94,14 @@ public:
 		_hit2 = hit2;
 		checked = false;
 		hit2present=true;
+	}
+
+	void setPixelHits(double col1, double row1, double col2, double row2){
+		_row1 = row1;
+		_col1 = col1;
+
+		_row2 = row2;
+		_col2 = col2;
 	}
 
 	void check();

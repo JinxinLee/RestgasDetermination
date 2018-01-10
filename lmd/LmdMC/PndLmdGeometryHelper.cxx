@@ -96,12 +96,141 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(
   }
 }
 
-const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(
-    int sensor_id) {
-  auto const& result = sensor_id_to_hit_info_mapping.find(sensor_id);
-  if (result != sensor_id_to_hit_info_mapping.end()) {
-    return result->second;
-  } else {
-    return createMappingEntry(sensor_id);
-  }
+const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(int sensor_id) {
+	auto const& result = sensor_id_to_hit_info_mapping.find(sensor_id);
+	if (result != sensor_id_to_hit_info_mapping.end()) {
+		return result->second;
+	} else {
+		return createMappingEntry(sensor_id);
+	}
+}
+
+std::vector<int> PndLmdGeometryHelper::getAvailableOverlapIDs() {
+	std::vector<int> result;
+	int overlapID;
+
+	for (int iHalf = 0; iHalf < 2; iHalf++) {
+		for (int iPlane = 0; iPlane < 4; iPlane++) {
+			for (int iModule = 0; iModule < 5; iModule++) {
+				for (int iOverlap = 0; iOverlap < 9; iOverlap++) {
+					overlapID = 1000 * iHalf + 100 * iPlane + 10 * iModule + iOverlap;
+					result.push_back(overlapID);
+				}
+			}
+		}
+	}
+	return result;
+}
+
+TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3& global, int sensor_id) {
+	Double_t result[3];
+	Double_t temp[3];
+
+	temp[0] = global.X();
+	temp[1] = global.Y();
+	temp[2] = global.Z();
+
+	//global.GetXYZ(temp);
+
+	TString actPath = fGeoManager->GetPath();
+
+	// first transform to master
+	//fGeoManager->cd(PndGeoHandling::Instance()->GetPath(sensor_id));
+
+
+	//fGeoManager->LocalToMaster(temp, result);
+	// and now transform to lmd local
+	// make local volume path
+	fGeoManager->cd(lmd_root_path.c_str());
+	TGeoMatrix *matrix(fGeoManager->GetCurrentNode()->GetMatrix());
+	matrix->MasterToLocal(temp, result);
+
+	//fGeoManager->MasterToTop(result, temp);
+	//fGeoManager->MasterToLocalVect(result, temp);
+
+	if (actPath != "" && actPath != " ")
+		fGeoManager->cd(actPath);
+
+	return TVector3(result);
+}
+
+int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
+
+	int fhalf, fplane, fmodule, fside, fsensor;
+	int bhalf, bplane, bmodule, bside, bsensor;
+
+	auto const &infoOne = getHitLocationInfo(id1);
+	auto const &infoTwo = getHitLocationInfo(id2);
+
+	int smalloverlap = -1;
+
+	fhalf = infoOne.detector_half;
+	bhalf = infoTwo.detector_half;
+
+	//the necessities for overlapping, must be on same half, plane, module and other side
+	if (bhalf != fhalf) {
+		return -1;
+	}
+
+	fside = infoOne.module_side;
+	bside = infoTwo.module_side;
+
+	fplane = infoOne.plane;
+	bplane = infoTwo.plane;
+
+	fmodule = infoOne.module;
+	bmodule = infoTwo.module;
+
+	fsensor = infoOne.module_sensor_id;
+	bsensor = infoTwo.module_sensor_id;
+
+	if (fside == bside) {
+		return -1;
+	}
+
+	if (bplane != fplane) {
+		return -1;
+	}
+	if (bmodule != fmodule) {
+		return -1;
+	}
+
+	//0to5
+	if (fsensor == 0 && bsensor == 5) {
+		smalloverlap = 0;
+	}
+	//3to8
+	else if (fsensor == 3 && bsensor == 8) {
+		smalloverlap = 1;
+	}
+	//4to9
+	else if (fsensor == 4 && bsensor == 9) {
+		smalloverlap = 2;
+	}
+	//3to6
+	else if (fsensor == 3 && bsensor == 6) {
+		smalloverlap = 3;
+	}
+	//1to8
+	else if (fsensor == 1 && bsensor == 8) {
+		smalloverlap = 4;
+	}
+	//2to8
+	else if (fsensor == 2 && bsensor == 8) {
+		smalloverlap = 5;
+	}
+	//2to9
+	else if (fsensor == 2 && bsensor == 9) {
+		smalloverlap = 6;
+	}
+	//3to7
+	else if (fsensor == 3 && bsensor == 7) {
+		smalloverlap = 7;
+	}
+	//4to7
+	else if (fsensor == 4 && bsensor == 7) {
+		smalloverlap = 8;
+	}
+	return 1000 * fhalf + 100 * fplane + 10 * fmodule + smalloverlap;
+
 }

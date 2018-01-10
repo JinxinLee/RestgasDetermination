@@ -92,34 +92,25 @@ void PndLmdHitPair::check() {
 		return;
 	}
 
-	if(_id1 > -1 && _id2 > -1 && _moduleId > -1 && _overlapID > -1){
-		allVarsSet = true;
-	}
-	else{
-		allVarsSet = false;
-	}
+//	if(_id1 > -1 && _id2 > -1 && _moduleId > -1 && _overlapID > -1){
+//		allVarsSet = true;
+//	}
+//	else{
+//		allVarsSet = false;
+//	}
 
-	calculateDistance();
-
-	if(hit1present && hit2present){
-		if(_distance >= 0){
-			distanceOk=true;
-		}
-		else{
-			distanceOk=false;
-		}
-	}
-	else{
-		distanceOk=false;
-	}
-
-	if(colSane && rowSane && idsane && allVarsSet && distanceOk){
+//	if(colSane && rowSane && idsane && allVarsSet){
+//		sane=true;
+//		checked = true;
+//		return;
+//	}
+	if(colSane && rowSane && idsane){
 		sane=true;
 		checked = true;
 		return;
 	}
 	else{
-		std::cerr << "colsane " << colSane << ", rowsane " << rowSane << ", idsane " << idsane << ", allVArsSet " << allVarsSet << ", distanceOk " << distanceOk << std::endl;
+		std::cerr << "colsane " << colSane << ", rowsane " << rowSane << ", idsane " << idsane << ", allVArsSet " << allVarsSet << std::endl;
 	}
 }
 
@@ -182,14 +173,14 @@ bool PndLmdHitPair::hitSensors(Int_t first, Int_t second) {
 
 void PndLmdHitPair::calculateDistance() {
 
-	/*
-	 * push both hits on the same z plane, z distance is irrelevant. This works only in LmdLocal!
-	 * In PndGlobal, there is also a 40mrad rotation involved!
-	 */
+/*
+ * calculate absolute distance between hit1 and hit2, keeping the z distance of 250 present.
+ * TODO: check if this significantly changes the shape of he distance histogram! and the dynamic
+ * cut finder quality.
+ */
 	if(hit1present && hit2present){
-		TVector3 backHit = TVector3(_hit2);
-		backHit.SetZ(_hit1.z());
-		TVector3 distV = _hit1 - backHit;
+		TVector3 distV = _hit1 - _hit2;
+		//distV.SetZ(0.0);
 		_distance = distV.Mag();
 	}
 	else{

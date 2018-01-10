@@ -11,18 +11,21 @@
 #include "TClonesArray.h"
 
 #include "PndSdsTask.h"
-#include "PndLmdDim.h"
+//#include "PndLmdDim.h"
 #include "PndLmdAlignManager.h"
 #include "PndLmdAlignStructs.h"
 #include <PndLmdHitPair.h>
+#include <PndSdsHit.h>
 
 //apparently, CINT has a problem with some boost classes
-#ifndef __CINT__
+//#ifndef __CINT__
 #include <boost/property_tree/ptree.hpp>
-#endif
+//#endif
 
 #include <string>
 #include <vector>
+
+class PndLmdGeometryHelper;
 
 class LmdPairFinderTask: public PndSdsTask {
 
@@ -48,11 +51,15 @@ private:
 	std::string _cutParameterFile;
 	std::map<int, dynamicCutHandler> cutHandlers;
 
-	#ifndef __CINT__
+	pixelHit getPixelHitFromSdsHit(PndSdsHit *sdsHit);
+
+	//#ifndef __CINT__
 	boost::property_tree::ptree config;
-	#endif
+	//#endif
 
 public:
+
+	void SetParContainers();
 
 	LmdPairFinderTask();
 	LmdPairFinderTask(const char* name);
@@ -95,17 +102,25 @@ public:
 
 protected:
 
-	PndLmdDim* dimension;
+	//PndLmdDim* dimension;
 
-	TClonesArray* mcPixels;
+	PndLmdGeometryHelper *helper;
+
+	TClonesArray* digiArray;
+	TClonesArray* recoArray;
 	TClonesArray* hitPairArray;
+	TClonesArray* clusterCandidateArray;
+
+	TString fInRecoBranchName;
+	TString fInClusterCandidates;
+
 	std::map<int, TClonesArray*> hitPairMap;
 	std::map<int, int> hitCountMap;
 
 	void Register();
 	void Reset();
 
-	void transformToLMDlocal(PndLmdHitPair &pair);
+	//void transformToLMDlocal(PndLmdHitPair &pair);
 
 	//function to return result of all checks, distance cut etc.
 	void getStatistics(PndLmdHitPair &candidate);
@@ -119,7 +134,7 @@ protected:
 	//means two clusters can reasonably belong to a single track
 	bool candDistanceIsGood(PndLmdHitPair &candidate);
 
-	ClassDef(LmdPairFinderTask,9);
+	ClassDef(LmdPairFinderTask,11);
 };
 
 #endif /* PAIRFINDERTASK_H_ */

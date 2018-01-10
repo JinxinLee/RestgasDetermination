@@ -8,6 +8,9 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include <TGeoManager.h>
+#include <TVector3.h>
+
 struct PndLmdHitLocationInfo {
   // we use small data types here as they can be packed into 8 bytes
   unsigned char detector_half;
@@ -35,6 +38,10 @@ class PndLmdGeometryHelper {
   std::map<std::string, PndLmdHitLocationInfo> volume_path_to_hit_info_mapping;
   std::map<int, PndLmdHitLocationInfo> sensor_id_to_hit_info_mapping;
 
+	std::string lmd_root_path;
+
+TGeoManager* fGeoManager;
+
   PndLmdGeometryHelper(
       const std::string& geo_params_config_file_url = "lmd-geo-params.json") {
     // load parameters
@@ -47,7 +54,18 @@ class PndLmdGeometryHelper {
         navigation_paths.push_back(nav_path.second.get<std::string>("name"));
       ++counter;
     }
+
+	TString actPath = fGeoManager->GetPath();
+		std::stringstream lmd_path;
+		fGeoManager->CdTop();
+		lmd_path << fGeoManager->GetPath() << "/" << navigation_paths[0] << "_0";
+		lmd_root_path = lmd_path.str();
+		if (actPath != "" && actPath != " ")
+				fGeoManager->cd(actPath);
+
   }
+
+
 
   const PndLmdHitLocationInfo& createMappingEntry(int sensor_id);
   const PndLmdHitLocationInfo& createMappingEntry(
@@ -70,7 +88,14 @@ class PndLmdGeometryHelper {
       const std::string& volume_path);
   // this function with the global sensor id is much faster for lookups
   // so use that if you need speed!
+
   const PndLmdHitLocationInfo& getHitLocationInfo(int sensor_id);
+
+	std::vector<int> getAvailableOverlapIDs();
+	int getOverlapIdFromSensorIDs(int id1, int id2);
+
+	TVector3 transformPndGlobalToLmdLocal(const TVector3 &vev, int sensorId);
+
 };
 
 #endif /* LMD_LMDMC_PNDLMDGEOMETRYHELPER_H_ */
