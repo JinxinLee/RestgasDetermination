@@ -64,7 +64,7 @@ cdash:future:continuous:
   stage: test
   script: source Dart.sh Continuous Dart.cfg
   except:
-  - branche@PandaRootGroup/PandaRoot
+  - branches@PandaRootGroup/PandaRoot
   dependencies:
     - configure:future
   tags:
