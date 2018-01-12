@@ -87,7 +87,8 @@ public:
 	std::vector<int> getAvailableOverlapIDs();
 	int getOverlapIdFromSensorIDs(int id1, int id2);
 
-	TVector3 transformPndGlobalToLmdLocal(const TVector3 &vev, int sensorId);
+	TVector3 transformPndGlobalToLmdLocal(const TVector3 &vec);
+	TVector3 transformPndGlobalToSensor(const TVector3 &vec, int sensorId);
 
 };
 

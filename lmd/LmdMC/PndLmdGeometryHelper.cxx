@@ -3,7 +3,8 @@
 
 #include <regex>
 
-PndLmdGeometryHelper::~PndLmdGeometryHelper() {}
+PndLmdGeometryHelper::~PndLmdGeometryHelper() {
+}
 
 /*
  * This function does all the important work of translating a lmd volume path to
@@ -19,81 +20,71 @@ PndLmdGeometryHelper::~PndLmdGeometryHelper() {}
  * -> sensor: sensor counter for a module. Total number of sensors per module is
  *    2x (modules per side). Counting starts on front (w.r.t. beam direction)
  */
-PndLmdHitLocationInfo
-PndLmdGeometryHelper::translateVolumePathToHitLocationInfo(
-    const std::string& volume_path) const {
-  PndLmdHitLocationInfo hit_info;
-  std::stringstream reg_exp;
-  for (auto const& nav_path : navigation_paths) {
-    reg_exp << "/" << nav_path << "_(\\d+)";
-  }
+PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo(const std::string& volume_path) const {
+	PndLmdHitLocationInfo hit_info;
+	std::stringstream reg_exp;
+	for (auto const& nav_path : navigation_paths) {
+		reg_exp << "/" << nav_path << "_(\\d+)";
+	}
 
-  std::smatch match;
+	std::smatch match;
 
-  if (std::regex_search(volume_path, match, std::regex(reg_exp.str()))) {
-    hit_info.detector_half = (unsigned char)std::stoul(match[2]);
-    hit_info.plane = (unsigned char)std::stoul(match[3]);
-    hit_info.module = (unsigned char)std::stoul(match[4]);
-    unsigned char sensor_id((unsigned char)std::stoul(match[5]));
-    hit_info.module_side = 0;
-    hit_info.module_sensor_id = sensor_id;
+	if (std::regex_search(volume_path, match, std::regex(reg_exp.str()))) {
+		hit_info.detector_half = (unsigned char) std::stoul(match[2]);
+		hit_info.plane = (unsigned char) std::stoul(match[3]);
+		hit_info.module = (unsigned char) std::stoul(match[4]);
+		unsigned char sensor_id((unsigned char) std::stoul(match[5]));
+		hit_info.module_side = 0;
+		hit_info.module_sensor_id = sensor_id;
 
-    unsigned int sensors_per_module_side =
-        geometry_properties.get<unsigned int>(
-            "general.sensors_per_module_side");
+		unsigned int sensors_per_module_side = geometry_properties.get<unsigned int>("general.sensors_per_module_side");
 
-    if (sensor_id > sensors_per_module_side - 1) {
-      hit_info.module_side = 1;
-      sensor_id = sensor_id % (sensors_per_module_side - 1);
-    }
-  } else {
-    throw std::runtime_error(
-        "PndLmdGeometryHelper::translateVolumePathToHitLocationInfo: geometry "
-        "navigation paths mismatch!"
-        " Seems like you used a different lmd geo config file to create a lmd "
-        "root geometry"
-        " which was use in your simulations...");
-  }
+		if (sensor_id > sensors_per_module_side - 1) {
+			hit_info.module_side = 1;
+			sensor_id = sensor_id % (sensors_per_module_side - 1);
+		}
+	} else {
+		throw std::runtime_error("PndLmdGeometryHelper::translateVolumePathToHitLocationInfo: geometry "
+				"navigation paths mismatch!"
+				" Seems like you used a different lmd geo config file to create a lmd "
+				"root geometry"
+				" which was use in your simulations...");
+	}
 
-  return hit_info;
+	return hit_info;
 }
 
-const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(
-    int sensor_id) {
-  PndGeoHandling* geo_handling = PndGeoHandling::Instance();
+const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(int sensor_id) {
+	PndGeoHandling* geo_handling = PndGeoHandling::Instance();
 
-  std::string vol_path(geo_handling->GetPath(sensor_id).Data());
+	std::string vol_path(geo_handling->GetPath(sensor_id).Data());
 
-  PndLmdHitLocationInfo hit_loc_info =
-      translateVolumePathToHitLocationInfo(vol_path);
-  volume_path_to_hit_info_mapping[vol_path] = hit_loc_info;
-  sensor_id_to_hit_info_mapping[sensor_id] = hit_loc_info;
+	PndLmdHitLocationInfo hit_loc_info = translateVolumePathToHitLocationInfo(vol_path);
+	volume_path_to_hit_info_mapping[vol_path] = hit_loc_info;
+	sensor_id_to_hit_info_mapping[sensor_id] = hit_loc_info;
 
-  return sensor_id_to_hit_info_mapping[sensor_id];
+	return sensor_id_to_hit_info_mapping[sensor_id];
 }
 
-const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(
-    const std::string& volume_path) {
-  PndGeoHandling* geo_handling = PndGeoHandling::Instance();
+const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(const std::string& volume_path) {
+	PndGeoHandling* geo_handling = PndGeoHandling::Instance();
 
-  int sensor_id(geo_handling->GetShortID(volume_path.c_str()));
+	int sensor_id(geo_handling->GetShortID(volume_path.c_str()));
 
-  PndLmdHitLocationInfo hit_loc_info =
-      translateVolumePathToHitLocationInfo(volume_path);
-  volume_path_to_hit_info_mapping[volume_path] = hit_loc_info;
-  sensor_id_to_hit_info_mapping[sensor_id] = hit_loc_info;
+	PndLmdHitLocationInfo hit_loc_info = translateVolumePathToHitLocationInfo(volume_path);
+	volume_path_to_hit_info_mapping[volume_path] = hit_loc_info;
+	sensor_id_to_hit_info_mapping[sensor_id] = hit_loc_info;
 
-  return volume_path_to_hit_info_mapping[volume_path];
+	return volume_path_to_hit_info_mapping[volume_path];
 }
 
-const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(
-    const std::string& volume_path) {
-  auto const& result = volume_path_to_hit_info_mapping.find(volume_path);
-  if (result != volume_path_to_hit_info_mapping.end()) {
-    return result->second;
-  } else {
-    return createMappingEntry(volume_path);
-  }
+const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(const std::string& volume_path) {
+	auto const& result = volume_path_to_hit_info_mapping.find(volume_path);
+	if (result != volume_path_to_hit_info_mapping.end()) {
+		return result->second;
+	} else {
+		return createMappingEntry(volume_path);
+	}
 }
 
 const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(int sensor_id) {
@@ -122,7 +113,7 @@ std::vector<int> PndLmdGeometryHelper::getAvailableOverlapIDs() {
 	return result;
 }
 
-TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3& global, int sensor_id) {
+TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3& global) {
 	Double_t result[3];
 	Double_t temp[3];
 
@@ -132,18 +123,64 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3& glob
 
 	TString actPath = fGeoManager->GetPath();
 
-	// first transform to master
-	//fGeoManager->cd(PndGeoHandling::Instance()->GetPath(sensor_id));
-
-	//fGeoManager->LocalToMaster(temp, result);
-	// and now transform to lmd local
-	// make local volume path
 	fGeoManager->cd(lmd_root_path.c_str());
 	TGeoMatrix *matrix(fGeoManager->GetCurrentNode()->GetMatrix());
 	matrix->MasterToLocal(temp, result);
 
-	//fGeoManager->MasterToTop(result, temp);
-	//fGeoManager->MasterToLocalVect(result, temp);
+	if (actPath != "" && actPath != " ")
+		fGeoManager->cd(actPath);
+
+	return TVector3(result);
+}
+
+TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global, int sensor_id) {
+	Double_t result[3];
+	Double_t temp[3];
+
+	temp[0] = global.X();
+	temp[1] = global.Y();
+	temp[2] = global.Z();
+
+	PndGeoHandling* geo_handling = PndGeoHandling::Instance();
+	std::string vol_path(geo_handling->GetPath(sensor_id).Data());
+
+	TString actPath = fGeoManager->GetPath();
+
+	fGeoManager->CdTop();
+	fGeoManager->cd(vol_path.c_str());
+
+	/*
+	// from active area to sensor
+	fGeoManager->CdUp();
+	TGeoMatrix *senToAct(fGeoManager->GetCurrentNode()->GetMatrix());
+
+	//from sensor to module
+	fGeoManager->CdUp();
+	TGeoMatrix *modToSen(fGeoManager->GetCurrentNode()->GetMatrix());
+
+	//from plane to module
+	fGeoManager->CdUp();
+	TGeoMatrix *plaToMod(fGeoManager->GetCurrentNode()->GetMatrix());
+
+	//from half to plane
+	fGeoManager->CdUp();
+	TGeoMatrix *halToPla(fGeoManager->GetCurrentNode()->GetMatrix());
+
+	//from lmd_local to plane
+	fGeoManager->CdUp();
+	TGeoMatrix *lmdToHal(fGeoManager->GetCurrentNode()->GetMatrix());
+
+	//from global to lmd_local
+	fGeoManager->CdUp();
+	TGeoMatrix *gloToLmd(fGeoManager->GetCurrentNode()->GetMatrix());
+
+	TGeoMatrix *matrix = &((*gloToLmd) * (*lmdToHal) * (*halToPla) * (*plaToMod) * (*modToSen) * (*senToAct));
+	//TGeoMatrix *matrix = &( (*modToSen) * (*plaToMod) * (*halToPla) * (*lmdToHal) * (*gloToLmd) );
+
+	matrix->MasterToLocal(temp, result);
+	*/
+
+	fGeoManager->LocalToMaster(temp, result);
 
 	if (actPath != "" && actPath != " ")
 		fGeoManager->cd(actPath);

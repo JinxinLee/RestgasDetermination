@@ -14,6 +14,7 @@
 #include <PndSdsDigiPixel.h>
 #include <PndLmdHitPair.h>
 #include <PndLmdGeometryHelper.h>
+#include <PndGeoHandling.h>
 #include <PndSdsClusterPixel.h>
 
 #include <vector>
@@ -186,7 +187,8 @@ void LmdPairFinderTask::SetParContainers() {
 		TString parsetname = contname->String();
 		Info("SetParContainers()", "%s", parsetname.Data());
 	}
-	// //
+
+	PndGeoHandling::Instance()->SetParContainers();
 }
 
 /*
@@ -242,8 +244,8 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			const TVector3 vecOneGlobal = hitOne->GetPosition();
 			const TVector3 vecTwoGlobal = hitTwo->GetPosition();
 
-			auto vecOneLocal = helper->transformPndGlobalToLmdLocal(vecOneGlobal, id1);
-			auto vecTwoLocal = helper->transformPndGlobalToLmdLocal(vecTwoGlobal, id2);
+			auto vecOneLocal = helper->transformPndGlobalToLmdLocal(vecOneGlobal);
+			auto vecTwoLocal = helper->transformPndGlobalToLmdLocal(vecTwoGlobal);
 
 			//make PndLmdHitPair and check for data sanity, then store to vector
 			PndLmdHitPair pairCanditate(vecOneGlobal, vecTwoGlobal, id1, id2);
@@ -267,19 +269,31 @@ void LmdPairFinderTask::Exec(Option_t*) {
 
 			if (pairCanditate.getDistance() <= 0.025) {
 
+				cout << std::setprecision(12);
+
 				PndLmdHitPair candGlobal = PndLmdHitPair(vecOneGlobal, vecTwoGlobal, id1, id2);
 				PndLmdHitPair candlocal = PndLmdHitPair(vecOneLocal, vecTwoLocal, id1, id2);
 
 				candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
 				candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
 
+				candGlobal.setOverlapId(overlapId);
+				candlocal.setOverlapId(overlapId);
+
 				candGlobal.check();
 				candGlobal.calculateDistance();
 				candlocal.check();
 				candlocal.calculateDistance();
 
+				auto hitOneInSensorOne = helper->transformPndGlobalToSensor(vecOneGlobal, id1);
+				auto hitTwoInSensorTwo = helper->transformPndGlobalToSensor(vecTwoGlobal, id2);
+
 				cout << "Suspect Pair:\nGloabal:\n";
 				candGlobal.PrintPair();
+				cout << "Hit1 in Sensor1:\n";
+				hitOneInSensorOne.Print();
+				cout << "Hit2 in Sensor2:\n";
+				hitTwoInSensorTwo.Print();
 				cout << "\bLocal:\n";
 				candlocal.PrintPair();
 				cout << "-=-=-=-=-=-=-=-=-=-= End of Suspect pair. =-=-=-=-=-=-=-=-=-=-\n";
