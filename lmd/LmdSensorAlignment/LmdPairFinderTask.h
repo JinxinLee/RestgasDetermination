@@ -11,8 +11,7 @@
 #include "TClonesArray.h"
 
 #include "PndSdsTask.h"
-//#include "PndLmdDim.h"
-#include "PndLmdAlignManager.h"
+//#include "PndLmdAlignManager.h"
 #include "PndLmdAlignStructs.h"
 #include <PndLmdHitPair.h>
 #include <PndSdsHit.h>
@@ -22,6 +21,7 @@
 #include <boost/property_tree/ptree.hpp>
 //#endif
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -59,6 +59,10 @@ private:
 
 public:
 
+	void version(){
+		std::cout << "hello, is it me you're looking for?\n";
+	}
+
 	void SetParContainers();
 
 	LmdPairFinderTask();
@@ -79,13 +83,13 @@ public:
 	virtual void FinishTask();
 
 	//find the minDistance and maxDistance for dynamic cut
-	void findDynamicCutParameters(Bool_t value, std::string parameterFile){
+	void findDynamicCutParameters(Bool_t value, std::string parameterFile) {
 		_findDynamicCutParameters = value;
 		_cutParameterFile = parameterFile;
 	}
 
 	//apply a dynamic cut. uses the first N pairs to decide what min and max distance should be.
-	void useDynamicCut(Bool_t value, std::string parameterFile){
+	void useDynamicCut(Bool_t value, std::string parameterFile) {
 		_useDynamicCut = value;
 		_cutParameterFile = parameterFile;
 	}
@@ -95,10 +99,9 @@ public:
 		_maxDistance = value;
 	}
 
-	void ignoreClusters(Bool_t value){
+	void ignoreClusters(Bool_t value) {
 		_ignoreClusters = value;
 	}
-
 
 protected:
 
@@ -129,12 +132,12 @@ protected:
 	bool applyStaticDistanceCut(PndLmdHitPair &candidate);
 
 	//self explanatory
-	bool candHitsOverlappingArea(PndLmdHitPair &candidate);
+	bool candHitsOverlappingArea(const PndLmdHitPair &candidate);
 
 	//means two clusters can reasonably belong to a single track
 	bool candDistanceIsGood(PndLmdHitPair &candidate);
 
-	ClassDef(LmdPairFinderTask,11);
+	ClassDef(LmdPairFinderTask,15);
 };
 
 #endif /* PAIRFINDERTASK_H_ */

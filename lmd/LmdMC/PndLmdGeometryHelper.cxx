@@ -130,13 +130,10 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3& glob
 	temp[1] = global.Y();
 	temp[2] = global.Z();
 
-	//global.GetXYZ(temp);
-
 	TString actPath = fGeoManager->GetPath();
 
 	// first transform to master
 	//fGeoManager->cd(PndGeoHandling::Instance()->GetPath(sensor_id));
-
 
 	//fGeoManager->LocalToMaster(temp, result);
 	// and now transform to lmd local

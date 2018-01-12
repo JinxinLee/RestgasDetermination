@@ -5,7 +5,7 @@
  *
  */
 
-using namespace std;
+//using namespace std;
 
 /*
 #include <TROOT.h>
@@ -27,25 +27,28 @@ void runLumiPixel2dDynamicCutFinder(const int nEvents=0, const int startEvent=00
 	TStopwatch timer;
 	timer.Start();
 
-	gSystem->Load("libLmd");
-	gSystem->Load("libLmdPairFinder");
+	//gSystem->Load("libLmd");
+	//gSystem->Load("libLmdPairFinder");
 	gSystem->Load("libLmdSensorAligner");
 
 	cout << "***********************\n";
 	cout << "Running PairFinderTask.\n";
 	cout << "***********************\n";
 
-//	// -----   Input File   ----------------------------------------------------
+	//	-----   Input File   ----------------------------------------------------
 	TString inFile=storePath+"/Lumi_digi_";
 	inFile += startEvent;
 	inFile += ".root";
+	TString inFileReco=storePath+"/Lumi_reco_";
+	inFileReco += startEvent;
+	inFileReco += ".root";
 
 
 	/*
 	 * This is very ugly. I don't need an output file here, but the FairRunAna segfaults when none is specified.
 	 * So I create a temp file and delete it afterwards.
 	 */
-//	// -----   Parameter Files   ------------------------------------------------
+	//	// -----   Parameter Files   ------------------------------------------------
 	TString parFile=storePath+"/Lumi_Params_";
 	parFile += startEvent;
 	parFile += ".root";
@@ -58,33 +61,45 @@ void runLumiPixel2dDynamicCutFinder(const int nEvents=0, const int startEvent=00
 	TString outFile = storePath+"/Lumi_TEMP_";
 	outFile += startEvent;
 	outFile += ".root";
-	std::cout << "DigiFileName: " << outFile.Data() << std::endl;
+	//std::cout << "DigiFileName: " << outFile.Data() << std::endl;
 
-	// -----   Pair Finder / Cut Finder Runs   -------------------------------------------
-	FairRunAna *fRun= new FairRunAna();
-	fRun->SetInputFile(inFile);
+
+	// -----   Reconstruction run   -------------------------------------------
+	FairRunAna *fRun = new FairRunAna();
+	FairFileSource input_source(inFile);
+	input_source.AddFriend(inFileReco);
+	fRun->SetSource(&input_source);
 	fRun->SetOutputFile(outFile);
-	fRun->SetEventMeanTime(50);// TODO: 50 ???
+	// ------------------------------------------------------------------------
+
+
+	//	// -----   Pair Finder / Cut Finder Runs   -------------------------------------------
+	//	FairRunAna *fRun= new FairRunAna();
+	//	fRun->SetInputFile(inFile);
+	//	fRun->SetOutputFile(outFile);
+	//	fRun->SetEventMeanTime(50);// TODO: 50 ???
 
 	// -----  Parameter database   --------------------------------------------
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
 	parInput1->open(parFile.Data(),"UPDATE");
 	rtdb->setFirstInput(parInput1);
-	FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-	parInput2->open(digiparFile.Data(),"in");
-	rtdb->setSecondInput(parInput2);
+	//FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+	//parInput2->open(digiparFile.Data(),"in");
+	//rtdb->setSecondInput(parInput2);
+
 
 	// =========================================================================
-	// =====                 Start of PairFinder                           =====
-	// -----   Actual Task   --------------------------------------------------
+	// =====                 Start of CutFinder                            =====
+	// -----   Actual Task   ---------------------------------------------------
 
 	//find dynamic cut parameters
 	LmdPairFinderTask* lmdPairFinder = new LmdPairFinderTask();
 	lmdPairFinder->findDynamicCutParameters(true, cutParameterfile.Data() );
 	fRun->AddTask(lmdPairFinder);
 
-	//rtdb->setOutput(parInput1);
+	// this line is important! is changes the param file for the next macro
+	rtdb->setOutput(parInput1);
 	//rtdb->print();
 	// =====                 End of PairFinder                             =====
 	// =========================================================================
@@ -97,7 +112,13 @@ void runLumiPixel2dDynamicCutFinder(const int nEvents=0, const int startEvent=00
 	fRun->Run(0,nEvents);
 	//rtdb->saveOutput();
 	//rtdb->print();
-	remove(outFile);
+	//remove(outFile);
+
+	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
+	gGeoManager->GetListOfVolumes()->Delete();
+	gGeoManager->GetListOfShapes()->Delete();
+	delete gGeoManager;
+
 
 	return;
 }

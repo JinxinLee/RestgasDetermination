@@ -70,10 +70,10 @@ void PndLmdAlignQA::calculateOverlapingAreas() {
 	//get all available overlapping areas
 
 	cout << "------------ TESTING --------------\n";
-	cout << "\\AtoB{4}{9} & " << calculateOverlappingArea(4, 9, false) << "\\\\\n";
-	cout << "\\AtoB{0}{1} & " << calculateOverlappingArea(0, 1, false) << "\\\\\n";
-	cout << "\\AtoB{0}{2} & " << calculateOverlappingArea(0, 2, false) << "\\\\\n";
-	cout << "\\AtoB{0}{9} & " << calculateOverlappingArea(0, 9, false) << "\\\\\n";
+	cout << "\\AtoB{4}{9} & " << calculateOverlappingArea(4, 9, false) << "\n";
+	cout << "\\AtoB{0}{1} & " << calculateOverlappingArea(0, 1, false) << "\n";
+	cout << "\\AtoB{0}{2} & " << calculateOverlappingArea(0, 2, false) << "\n";
+	cout << "\\AtoB{0}{9} & " << calculateOverlappingArea(0, 9, false) << "\n";
 	cout << "------------  DONE --------------\n";
 
 	vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
@@ -86,7 +86,7 @@ void PndLmdAlignQA::calculateOverlapingAreas() {
 		id2 = dimension->getID2fromOverlapID(overlapIDs[i]);
 
 		areaPercent = calculateOverlappingArea(id1, id2, false);
-		cout << "\\AtoB{" << id1 << "}{" << id2 << "} & " << areaPercent << "\\\\\n";
+		cout << "\\AtoB{" << id1 << "}{" << id2 << "} & " << areaPercent << "\n";
 	}
 	exit(0);
 

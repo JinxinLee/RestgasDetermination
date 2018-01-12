@@ -4,7 +4,7 @@
  *	Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  *
  */
- 
+
 using namespace std;
 
 void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0)
@@ -14,24 +14,27 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	timer.Start();
 
 	gSystem->Load("libLmd");
-	gSystem->Load("libLmdPairFinder");
 	gSystem->Load("libLmdSensorAligner");
 
 	cout << "***********************\n";
 	cout << "Running PairFinderTask.\n";
 	cout << "***********************\n";
 
-	// -----   Input File   ----------------------------------------------------
+	//	// -----   Input File   ----------------------------------------------------
 	TString inFile=storePath+"/Lumi_digi_";
 	inFile += startEvent;
 	inFile += ".root";
+	TString inFileReco=storePath+"/Lumi_reco_";
+	inFileReco += startEvent;
+	inFileReco += ".root";
 
-	// -----   Parameter Files   ------------------------------------------------
-	TString parFile=storePath + TString("/Lumi_Params_");
+	//	// -----   Parameter Files   ------------------------------------------------
+	TString parFile=storePath+"/Lumi_Params_";
 	parFile += startEvent;
 	parFile += ".root";
 	TString digiparFile = "lumi.digi.par";
 	TString cutParameterfile = storePath + TString("/cutParameters.json");
+
 
 	// -----   Output File   --------------------------------------------------
 	TString outFile = storePath+"/Lumi_Pairs_";
@@ -40,10 +43,12 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	std::cout << "DigiFileName: " << outFile.Data() << std::endl;
 
 	// -----   Pair Finder / Cut Finder Runs   -------------------------------------------
-	FairRunAna *fRun= new FairRunAna();
-	fRun->SetInputFile(inFile);
+	FairRunAna *fRun = new FairRunAna();
+	FairFileSource input_source(inFile);
+	input_source.AddFriend(inFileReco);
+	fRun->SetSource(&input_source);
 	fRun->SetOutputFile(outFile);
-	fRun->SetEventMeanTime(50);// TODO: 50 ???
+	// ------------------------------------------------------------------------
 
 	// -----  Parameter database   --------------------------------------------
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -53,6 +58,7 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
 	parInput2->open(digiparFile.Data(),"in");
 	rtdb->setSecondInput(parInput2);
+
 
 	// =========================================================================
 	// =====                 Start of PairFinder                           =====
@@ -86,5 +92,10 @@ void runLumiPixel2ePairFinder(const int nEvents=0, const int startEvent=00000, T
 	cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
 	cout << endl;
 
-  return;
+	// temporary fix to avoid double frees at the destruction of te program for pandaroot/fairroot with root6
+	gGeoManager->GetListOfVolumes()->Delete();
+	gGeoManager->GetListOfShapes()->Delete();
+	delete gGeoManager;
+
+	return;
 }

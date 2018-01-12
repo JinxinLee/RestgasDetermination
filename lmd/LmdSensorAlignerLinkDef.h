@@ -9,7 +9,9 @@
 //sensor Aligner
 #pragma link C++ class PndLmdAlignManager+;
 #pragma link C++ class PndLmdSensorAligner+;
-#pragma link C++ class PndLmdAlignQA+;
+//#pragma link C++ class PndLmdAlignQA+;
+#pragma link C++ class LmdPairFinderTask+;
+#pragma link C++ class PndLmdHitPair+;
 
 #endif
 

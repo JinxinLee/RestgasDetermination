@@ -5,6 +5,7 @@
  *      Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  */
 
+#include "PndLmdAlignManager.h"
 #include "LmdPairFinderTask.h"
 #include <FairRun.h>
 
@@ -241,26 +242,11 @@ void LmdPairFinderTask::Exec(Option_t*) {
 			const TVector3 vecOneGlobal = hitOne->GetPosition();
 			const TVector3 vecTwoGlobal = hitTwo->GetPosition();
 
-//			cout << " Vector One global:\n";
-//			vecOneGlobal.Print();
-//			cout << " Vector Two global:\n";
-//			vecTwoGlobal.Print();
-
-			//auto vecOneLocal = vecOneGlobal;
-			//auto vecTwoLocal = vecTwoGlobal;
-
 			auto vecOneLocal = helper->transformPndGlobalToLmdLocal(vecOneGlobal, id1);
 			auto vecTwoLocal = helper->transformPndGlobalToLmdLocal(vecTwoGlobal, id2);
 
-//			cout << " Vector One local:\n";
-//			vecOneLocal.Print();
-//			cout << " Vector Two local:\n";
-//			vecTwoLocal.Print();
-
-			//abort();
-
 			//make PndLmdHitPair and check for data sanity, then store to vector
-			PndLmdHitPair pairCanditate(vecOneLocal, vecTwoLocal, id1, id2);
+			PndLmdHitPair pairCanditate(vecOneGlobal, vecTwoGlobal, id1, id2);
 
 			//is the candidate even on an overlapping area? this swaps hits if necessary
 			if (!candHitsOverlappingArea(pairCanditate)) {
@@ -278,6 +264,27 @@ void LmdPairFinderTask::Exec(Option_t*) {
 
 			pairCanditate.calculateDistance();
 			pairCanditate.check();
+
+			if (pairCanditate.getDistance() <= 0.025) {
+
+				PndLmdHitPair candGlobal = PndLmdHitPair(vecOneGlobal, vecTwoGlobal, id1, id2);
+				PndLmdHitPair candlocal = PndLmdHitPair(vecOneLocal, vecTwoLocal, id1, id2);
+
+				candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
+				candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
+
+				candGlobal.check();
+				candGlobal.calculateDistance();
+				candlocal.check();
+				candlocal.calculateDistance();
+
+				cout << "Suspect Pair:\nGloabal:\n";
+				candGlobal.PrintPair();
+				cout << "\bLocal:\n";
+				candlocal.PrintPair();
+				cout << "-=-=-=-=-=-=-=-=-=-= End of Suspect pair. =-=-=-=-=-=-=-=-=-=-\n";
+
+			}
 
 			if (!pairCanditate.isSane()) {
 				pairCanditate.PrintPair();
@@ -334,217 +341,6 @@ void LmdPairFinderTask::Exec(Option_t*) {
 
 		}
 	}
-
-	//	Int_t nPixels = digiArray->GetEntriesFast();
-	//
-	//	// ========= skip this for now ========
-	//	// THIS IS ALL IN DIGIS, NOT RECOS
-	//	// ========= skip this for now ========
-	//	if(false){
-	//
-	//		// ========== loop over pixels in digiArray =========
-	//
-	//		//no pixel hits? no wörk!
-	//		if(nPixels <1){
-	//			eventMissedAllPlanes++;
-	//			return;
-	//		}
-	//		sumOfPixelHits +=nPixels;
-	//
-	//		//read pixel hits from root file
-	//		for(int i_Pixel=0; i_Pixel<nPixels;i_Pixel++){
-	//
-	//			PndSdsDigiPixel* mcPixel = (PndSdsDigiPixel*)digiArray->At(i_Pixel);
-	//			hitSensorId = mcPixel->GetSensorID();
-	//			col = mcPixel->GetPixelColumn();
-	//			row = mcPixel->GetPixelRow();
-	//
-	//			//skip decoding errors
-	//			if(col < 0 || row < 0){
-	//				continue;
-	//			}
-	//			else{
-	//				clusters.push_back(pixelCluster(pixelHit(hitSensorId, col, row)));
-	//			}
-	//		}
-	//
-	//		//all hits are present in clusters
-	//
-	//		/*
-	//		 * ============ find clusters ============
-	//		 * input: vector<pixelCluster>
-	//		 * output vector<pixelCluster>
-	//		 *
-	//		 * algorithm: Hierarchical Clustering Algorithm, see https://en.wikipedia.org/wiki/Hierarchical_clustering
-	//		 * start by putting every pixel hit in a separate cluster (done above).
-	//		 * then merge every two clusters that are close enough (1-2 pixels, may be open to adjustment).
-	//		 * terminate if no more clusters can be merged or after N iterations for N pixel hits.
-	//		 * all remaining clusters contain every pixel hit.
-	//		 */
-	//		bool actionDone;
-	//		for(int iRounds=0; iRounds<nPixels; iRounds++){
-	//			actionDone=false;
-	//			//for every cluster, check every other cluster
-	//			for(size_t i=0; i<clusters.size(); i++){
-	//				//clusters are interchangeable, check every pair only once
-	//				for(size_t j=i+1; j<clusters.size(); j++){
-	//
-	//					//clusters must be on same sensor
-	//					if(clusters[i]._sensorId != clusters[j]._sensorId){
-	//						continue;
-	//					}
-	//
-	//					if(clusters[i].isNeighbour(clusters[j])){
-	//						clusters[i].merge(clusters[j]);
-	//						clusters.erase(clusters.begin() + j);
-	//						j--;
-	//						actionDone=true;
-	//					}
-	//				}
-	//			}
-	//			//nothing done this iteration? then nothing can be merged and we are done
-	//			if(!actionDone){
-	//				break;
-	//			}
-	//		}
-	//		//calculate cluster centers and discard large clusters
-	//		//for statistis: count cluster ratio
-	//		for(size_t i=0; i<clusters.size();i++){
-	//			clusters[i].calculateCenter();
-	//
-	//			//FIXME: read from parameter file!
-	//			if(clusters[i].clusterSize > 1){
-	//				hitsClustered++;
-	//
-	//				//if ignoreClustres is set, skip clustered events
-	//				//FIXME: get maximum cluster size from config file
-	//				//TODO: deleting from vector is expensive, maybe do this another way?
-	//				if(_ignoreClusters || clusters[i].clusterSize > 3){
-	//					clusters.erase(clusters.begin()+i);
-	//					/*
-	//					 * this is important! when you erase cluster i, cluster i+1 becomes cluster i, but the first i
-	//					 * becomes i+1 itself.
-	//					 * that means, cluster i (former i+1) never gets checked in the first line of the outer for loop!
-	//					 */
-	//					i--;
-	//				}
-	//			}
-	//			else{
-	//				hitsSinglePixel++;
-	//			}
-	//		}
-	//
-	//
-	//
-	//		/*
-	//		 * ============ assign hitPairs ============
-	//		 * algorithm: make all possible combinations of two clusters
-	//		 * and check if candidates are realistic. if not, discard,
-	//		 * otherwise save candidate to disk!
-	//		 *
-	//		 * I don't know how many tracks a single event will have. up until now,
-	//		 * there are about 8 clusters from 1 track which make 28 possible combinations. if we were to have
-	//		 * 80 clusters, that would make 3160 combinations. this may be slow.
-	//		 *
-	//		 * I made a small improvement, cluster pairs are checked by ID before they are made to HitPair candidate.
-	//		 * That should save a lot of time since useless candidates are not produced. Depends on sensor ID,
-	//		 * so PndLmdDim must work correctly.
-	//		 */
-	//		Double_t col1, col2, row1, row2;
-	//		Int_t id1, id2;
-	//		Int_t storedPairsPerEvent=0;
-	//
-	//		//cout << "find cut: " << _findDynamicCutParameters << ", use cut: " << _useDynamicCut << "\n";
-	//
-	//		//try every cluster combination and check
-	//		for(size_t i=0; i<clusters.size(); i++){
-	//			for(size_t j=i+1; j<clusters.size(); j++){
-	//
-	//				col1=clusters[i].centerCol;
-	//				col2=clusters[j].centerCol;
-	//				row1=clusters[i].centerRow;
-	//				row2=clusters[j].centerRow;
-	//				id1=clusters[i]._sensorId;
-	//				id2=clusters[j]._sensorId;
-	//				noOfCombos++;
-	//
-	//				//make PndLmdHitPair and check for data sanity, then store to vector
-	//				PndLmdHitPair pairCanditate(col1, row1, id1, col2, row2, id2);
-	//
-	//
-	//				//is the candidate even on an overlapping area?
-	//				if(!candHitsOverlappingArea(pairCanditate)){
-	//					noOverlap++;
-	//					continue;
-	//				}
-	//
-	//				/*
-	//				 * choose coordinate system and store moduleID. This must be done
-	//				 * prior to suitability check, because that relies on the TVector3s
-	//				 * in the HitPair in LMD Coordinates. This is using the perfect geometry,
-	//				 * since we don't know the misalignment at this point. This also sets
-	//				 * overlapID, moduleID and the TVector3 for hit1 and hit2.
-	//				 */
-	//				//transformToLMDlocal(pairCanditate);
-	//
-	//				pairCanditate.calculateDistance();
-	//				pairCanditate.check();
-	//
-	//				if(!pairCanditate.isSane()){
-	//					pairCanditate.PrintPair();
-	//					cerr << "====              WARNING:                 ====" << endl;
-	//					cerr << "pair seems valid but did not pass sanity check!" << endl;
-	//					cerr << "===============================================" << endl;
-	//					continue;
-	//				}
-	//
-	//				//pair must now be sane, in LMD local and has overlapID et al.
-	//
-	//				//are we still looking for the dynamic cut values?
-	//				if(_findDynamicCutParameters){
-	//					dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
-	//					handler.addToSamples(pairCanditate);
-	//					continue;
-	//				}
-	//
-	//				//choose whether to apply dynamic cut or simple cut.
-	//				if(!_useDynamicCut){
-	//					//cout << "using static cut.\n";
-	//					if(!applyStaticDistanceCut(pairCanditate)){
-	//						unsuitable++;
-	//						continue;
-	//					}
-	//					//pair survived distance cut? great, store!
-	//				}
-	//
-	//				if(_useDynamicCut){
-	//					//is the cutHandler ready for this overlapID? if not, something went wrong.
-	//					dynamicCutHandler &handler = cutHandlers[pairCanditate.getOverlapId()];
-	//					if(!handler.ready()){
-	//						//cout << "handler not ready.\n";
-	//						continue;
-	//					}
-	//					//cout << "applying cut.\n";
-	//					//the cutHandler is ready, apply distance cut
-	//					if(!applyDynamicDistanceCut(pairCanditate)){
-	//
-	//						distanceTooHigh++;
-	//						continue;
-	//					}
-	//					//pair survived distance cut? great, store!
-	//					//cout << "pair survived.\n";
-	//				}
-	//
-	//				/*
-	//				 * if the pair survived to this point, it's valid. store!
-	//				 */
-	//
-	//				getStatistics(pairCanditate);
-	//				new((*hitPairArray)[storedPairsPerEvent]) PndLmdHitPair(pairCanditate);
-	//				storedPairsPerEvent++;
-	//			}
-	//		}
-	//	}
 
 	return;
 }
@@ -801,7 +597,7 @@ pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 
 }
 
-bool LmdPairFinderTask::candHitsOverlappingArea(PndLmdHitPair &candidate) {
+bool LmdPairFinderTask::candHitsOverlappingArea(const PndLmdHitPair &candidate) {
 	int firstSensorId, secondSensorId;
 	firstSensorId = candidate.getId1();
 	secondSensorId = candidate.getId2();
