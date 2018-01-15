@@ -25,8 +25,6 @@
 #include <string>
 #include <vector>
 
-//#include <PndLmdDim.h>
-
 #include <PndLmdSensorAligner.h>
 #include <PndLmdHitPair.h>
 #include <TChain.h>
@@ -34,6 +32,7 @@
 #include <TFile.h>
 #include <TGeoMatrix.h>
 
+using std::cerr;
 using std::cout;
 using std::ifstream;
 using std::map;
@@ -120,16 +119,16 @@ void PndLmdAlignManager::init() {
 	fileNames.clear();
 	aligners.clear();
 
-	vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
+	helper = &PndLmdGeometryHelper::getInstance();
+
+	vector<int> overlapIDs = helper->getAvailableOverlapIDs();
 	for (size_t i = 0; i < overlapIDs.size(); i++) {
 		int overlapId = overlapIDs[i];
 
 		PndLmdSensorAligner tempAligner;
 		tempAligner.setOverlapId(overlapId);
-		tempAligner.setModuleID(dimension->makeModuleID(overlapId));
 		tempAligner.setId1(dimension->getID1fromOverlapID(overlapId));
 		tempAligner.setId2(dimension->getID2fromOverlapID(overlapId));
-		tempAligner.setHelperMatrix(helperMatrix);
 		tempAligner.setZasTimetamp(_zIsTimestamp);
 		tempAligner.setNumericCorrection(_enableHelperMatrix);
 		tempAligner.setInCentimeters(_inCentimeters);
@@ -983,15 +982,16 @@ int PndLmdAlignManager::searchDirectories(std::string curr_directory, std::vecto
 
 }
 
-void PndLmdAlignManager::enableHelperMatrix(bool enable) {
-	_enableHelperMatrix = enable;
-	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
-		it->second.setNumericCorrection(_enableHelperMatrix);
-	}
-	if (_enableHelperMatrix) {
-		writeMatrix(helperMatrix, _matrixOutDir + "cmHelperMatrix.mat");
-	}
-}
+//TODO: remove!
+//void PndLmdAlignManager::enableHelperMatrix(bool enable) {
+//	_enableHelperMatrix = enable;
+//	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
+//		it->second.setNumericCorrection(_enableHelperMatrix);
+//	}
+//	if (_enableHelperMatrix) {
+//		writeMatrix(helperMatrix, _matrixOutDir + "cmHelperMatrix.mat");
+//	}
+//}
 
 void PndLmdAlignManager::setInCentimeters(bool inCentimeters) {
 	_inCentimeters = inCentimeters;
@@ -1006,7 +1006,8 @@ void PndLmdAlignManager::setZasTimestamp(bool timestamp) {
 		it->second.setZasTimetamp(_zIsTimestamp);
 	}
 }
-
+//TODO: remove with PndLmdDim Dependency
+/*
 void PndLmdAlignManager::transformGlobalToLmd(Matrix& matrix) {
 
 	cerr << "WARNING. You are using transformGlobalToLmd. This should not be needed anymore!\n";
@@ -1025,6 +1026,7 @@ void PndLmdAlignManager::transformGlobalToLmd(Matrix& matrix) {
 	//return result
 	matrix = lToG * tempmatrix * gToL;
 }
+*/
 
 void PndLmdAlignManager::transformFromSensorToLmdLocal(Matrix& matrix, int sensorId, bool aligned) {
 	//create local copy
@@ -1176,7 +1178,7 @@ TVector3 PndLmdAlignManager::castMatrixToTVector3(const Matrix& vec) {
 bool PndLmdAlignManager::checkForBinaryFiles() {
 
 	//list all IDs that SHOULD be there
-	vector<int> availableIds = dimension->getAvailableOverlapIDs();
+	vector<int> availableIds = helper->getAvailableOverlapIDs();
 
 	vector<string> files;
 	searchFiles(_binaryPairFileDirectory, files, "bin", false);
@@ -1220,7 +1222,7 @@ bool PndLmdAlignManager::checkForBinaryFiles() {
 bool PndLmdAlignManager::checkForLmdMatrixFiles() {
 
 	//list all IDs that SHOULD be there
-	vector<int> availableIds = dimension->getAvailableOverlapIDs();
+	vector<int> availableIds = helper->getAvailableOverlapIDs();
 
 	vector<string> files;
 	searchFiles(_binaryPairFileDirectory, files, "mat", false);
@@ -1460,7 +1462,7 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 
 	//FIXME: this is not the correct way to do this. better use the real int values below
 	if (id1 > id2) {
-		swap(id1, id2);
+		std::swap(id1, id2);
 	}
 
 	//what module are we on? are id1 and id2 on same module?

@@ -96,34 +96,6 @@ struct dynamicCutHandler {
 
 		return;
 
-//		_minDist = std::max(0.0, (_mean-3*_RMS));			//should not underflow 0
-//		_maxDist = std::min(_hardMax, _mean+3*_RMS);		//should not overflow _hardMax
-//
-//		int noOfBuckets = 128;
-//
-//		//try ROOT hist here
-//		TH1D hist("hist", "hist", noOfBuckets, _minDist, _maxDist);
-//		for (int iSample = 0; iSample < samples.size(); iSample++){
-//
-//			double value = samples[iSample];
-//			if(value > _maxDist){
-//				continue;
-//			}
-//			else{
-//				hist.Fill(value);
-//			}
-//		}
-//
-//		_mean = hist.GetMean(1);
-//		_RMS = hist.GetRMS(1);
-//
-//		if(_overlapID == 33){
-//			TCanvas canvas;
-//			canvas.cd();
-//			hist.Draw();
-//			canvas.Print("/home/arbeit/fairsoft_may16p1/pandaroot/macro/lmd/test/33.pdf");
-//		}
-//		return;
 	}
 
 	bool ready() {
