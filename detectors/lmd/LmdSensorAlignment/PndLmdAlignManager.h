@@ -26,6 +26,7 @@
 //#endif
 
 #include <PndLmdAlignStructs.h>
+#include <PndLmdGeometryHelper.h>
 
 // no more
 //#include <PndLmdDim.h>
@@ -55,7 +56,8 @@ private:
 
 	std::map<int, PndLmdSensorAligner> aligners;
 	std::map<int, bool> alignersFull;
-	Matrix helperMatrix;
+
+	//Matrix helperMatrix;
 
 	//PndLmdDim *dimension;
 
@@ -65,6 +67,8 @@ private:
 	std::string outFilename, _matrixOutDir, _binaryPairFileDirectory;
 	bool _firstInitDone;
 	bool _multithreaded;
+
+	PndLmdGeometryHelper *helper;
 
 	void alignST();
 	void alignMT();
@@ -143,8 +147,9 @@ public:
 	//considers inactive area, guard rings, pixel size etc
 	static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
 
+	//TODO: remove with PndLmdDim Dependency
 	//legacy function, should be deprecated and no longer used
-	void transformGlobalToLmd(Matrix &matrix);
+	//void transformGlobalToLmd(Matrix &matrix);
 
 	//helper transformation, since all px matrices are local to the system of
 	//the sensor they are from. they need to be transformed to lmd local so we can compare
@@ -194,9 +199,10 @@ public:
 	static Matrix readMatrix(std::string filename);
 	static bool writeMatrix(Matrix &mat, std::string filename);
 
-	const Matrix& getHelperMatrix() const {
-		return helperMatrix;
-	}
+	//TODO: remove!
+	//const Matrix& getHelperMatrix() const {
+	//	return helperMatrix;
+	//}
 
 	void setSingleAligner(bool singleAligner) {
 		_singleAligner = singleAligner;
@@ -244,7 +250,9 @@ public:
 	 */
 	void setInCentimeters(bool inCentimeters);
 	void setZasTimestamp(bool timestamp);
-	void enableHelperMatrix(bool enable);
+
+	//TODO: remove!
+	//void enableHelperMatrix(bool enable);
 
 	//void readTrafoMatrix(std::string filename, bool aligned){
 	//	dimension->Read_transformation_matrices(filename, aligned);

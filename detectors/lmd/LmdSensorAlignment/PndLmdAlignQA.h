@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <PndLmdAlignManager.h>
+
 #include <matrix.h>
 
 struct histParams{
@@ -38,6 +39,7 @@ private:
 	bool alignOptionBool;
 	int pairsRequired;
 	PndLmdAlignManager manager;
+	PndLmdGeometryHelper *helper;
 
 	//contains number of pairs on overlap area
 	std::map<int, int> matrixInfo;
@@ -49,14 +51,11 @@ private:
 
 	int noOfPairs(int id1, int id2);
 
-	//PndLmdDim *dimension;
-
 public:
 
 	PndLmdAlignQA();
 	virtual ~PndLmdAlignQA();
 	void init();
-
 
 	// ========== QA functions
 

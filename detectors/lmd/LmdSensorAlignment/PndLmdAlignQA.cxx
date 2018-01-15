@@ -7,21 +7,9 @@
 
 #include <PndLmdAlignQA.h>
 
-// we're saying farewell to PndLmdDim
-//#include <PndLmdDim.h>
 #include <TGeoManager.h>
 
 #include <boost/filesystem.hpp>
-
-#if BOOST_VERSION < 106400
-#include <boost/serialization/array.hpp>
-#else
-#include <boost/serialization/array_wrapper.hpp>
-#endif
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/lu.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <fstream>
 #include <iomanip>
@@ -58,11 +46,14 @@ void PndLmdAlignQA::init() {
 	byPlane = false;
 	_inCentimeters = false;
 	_enableHelperMatrix = false;
-	dimension = PndLmdDim::Instance();
 
+	helper = &PndLmdGeometryHelper::getInstance();
+
+	//TODO: remove completely
 	//FIXME: maybe don't do this hard-coded
-	manager.readTrafoMatrix("/geometry/trafo_matrices_lmd.dat", true);
-	manager.readTrafoMatrix("/geometry/trafo_matrices_lmd_misaligned.dat", false);
+	//dimension = PndLmdDim::Instance();
+	//manager.readTrafoMatrix("/geometry/trafo_matrices_lmd.dat", true);
+	//manager.readTrafoMatrix("/geometry/trafo_matrices_lmd_misaligned.dat", false);
 }
 
 void PndLmdAlignQA::calculateOverlapingAreas() {

@@ -33,7 +33,7 @@ ClassImp(LmdPairFinderTask);
 /*
  * actually I don't need empty constructors, but fkn root crashes if no empty constructor is present
  */
-LmdPairFinderTask::LmdPairFinderTask() :
+LmdPairFinderTask::LmdPairFinderTask() : // @suppress("Class members should be properly initialized")
 		PndSdsTask("pairfinder") {
 	digiArray = NULL;
 	recoArray = NULL;
@@ -44,9 +44,10 @@ LmdPairFinderTask::LmdPairFinderTask() :
 	_findDynamicCutParameters = false;
 	_cutParameterFile = "";
 	_ignoreClusters = false;
+
 }
 
-LmdPairFinderTask::LmdPairFinderTask(const char* name) :
+LmdPairFinderTask::LmdPairFinderTask(const char* name) : // @suppress("Class members should be properly initialized")
 		PndSdsTask("pairfinder with name") {
 	digiArray = NULL;
 	recoArray = NULL;
@@ -210,7 +211,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 	noOfEvents++;
 
 	//make firing pixels to clusters
-	vector<pixelCluster> clusters;
+	//vector<pixelCluster> clusters;
 
 	//display some kind of progress
 	if ((noOfEvents % 10000) == 0) {
