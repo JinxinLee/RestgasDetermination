@@ -26,8 +26,13 @@
 //#endif
 
 #include <PndLmdAlignStructs.h>
-#include <PndLmdDim.h>
+
+// no more
+//#include <PndLmdDim.h>
+
 #include <PndLmdSensorAligner.h>
+
+#include <TGeoMatrix.h>
 
 #include <matrix.h>
 #include <string>
@@ -44,14 +49,16 @@ private:
 	friend class PndLmdAlignQA;
 
 	//loadBarMultiThreaded
-	int _i,_r,_w,_n;
+	int _i, _r, _w, _n;
 
-	stringstream _info;
+	std::stringstream _info;
 
 	std::map<int, PndLmdSensorAligner> aligners;
 	std::map<int, bool> alignersFull;
 	Matrix helperMatrix;
-	PndLmdDim *dimension;
+
+	//PndLmdDim *dimension;
+
 	bool _allFilesAdded, _pretend, allAlignersDone, debug;
 	std::vector<std::string> fileNames;
 	bool useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp, startAlignerWhenFull;
@@ -77,10 +84,10 @@ private:
 	Matrix combineCyclicMatrix(int id, bool aligned);
 
 	//generate the file name of a matrix or pair file, so changes must only be made once
-	static std::string makeBinaryPairFileName(int overlapId=0, bool incentimeters=true, bool correctionMatrix=false);
-	static std::string makeBinaryPairFileName(int sensorOne=0, int sensorTwo=0, bool incentimeters=true, bool correctionMatrix=false);
-	static std::string makeMatrixFileName(int overlapId=0, bool incentimeters=true, bool correctionMatrix=false);
-	static std::string makeMatrixFileName(int sensorOne=0, int sensorTwo=0, bool incentimeters=true, bool correctionMatrix=false);
+	static std::string makeBinaryPairFileName(int overlapId = 0, bool incentimeters = true, bool correctionMatrix = false);
+	static std::string makeBinaryPairFileName(int sensorOne = 0, int sensorTwo = 0, bool incentimeters = true, bool correctionMatrix = false);
+	static std::string makeMatrixFileName(int overlapId = 0, bool incentimeters = true, bool correctionMatrix = false);
+	static std::string makeMatrixFileName(int sensorOne = 0, int sensorTwo = 0, bool incentimeters = true, bool correctionMatrix = false);
 
 	void realignMatrixInLmd(Matrix &matrix, int startId, bool aligned);
 
@@ -117,7 +124,7 @@ public:
 	//add all pair files that can be found in directory, up to a maximum of maxFiles
 	//returns number of files found (including 0 for no files) or -1 if "pretend" option is set
 	//set maxFiles=0 for all available files
-	int addFilesFromDirectory(std::string directory, int maxFiles=0);
+	int addFilesFromDirectory(std::string directory, int maxFiles = 0);
 
 	void validate();
 
@@ -126,10 +133,10 @@ public:
 
 	void writeDebugInfoOnAllSensors();
 
-	static void loadBar(int current, int total, int resolution, int width, std::string message="");
+	static void loadBar(int current, int total, int resolution, int width, std::string message = "");
 
 	void setSimpleStorage(bool val) {
-		useSimpleStorage =  val;
+		useSimpleStorage = val;
 	}
 	void setMaxPairs(int maxPairs);
 
@@ -144,9 +151,9 @@ public:
 	//them to the matrices from pndlmddim. aligned should be true, since we don't
 	//actually have the misaligned matrices on the real geometry. use aligned=false
 	//only when comparing matrices from misaligned geometry
-	void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId, bool aligned=true);
+	void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId, bool aligned = true);
 
-	void transformFromLmdLocalToSensor(Matrix &matrix, int sensorId, bool aligned=true);
+	void transformFromLmdLocalToSensor(Matrix &matrix, int sensorId, bool aligned = true);
 
 	//returns a Matrix(4,4) from a TGeoHMatrix
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
@@ -171,14 +178,14 @@ public:
 	//this matrix is essentially what the ICP finds (when operating in CM mode)
 	Matrix getCorrectionMatrix(int id1, int id2);
 
-	//helper matrix, should not be needed anymore
-	Matrix getMatrixGlobalToLmd(){
-		return castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true))));
-	}
-	//helper matrix, should not be needed anymore
-	Matrix getMatrixLmdToGlobal(){
-		return Matrix::inv(castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true)))));
-	}
+//	//helper matrix, should not be needed anymore
+//	Matrix getMatrixGlobalToLmd(){
+//		return castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true))));
+//	}
+//	//helper matrix, should not be needed anymore
+//	Matrix getMatrixLmdToGlobal(){
+//		return Matrix::inv(castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true)))));
+//	}
 
 	static Matrix makeFourVector(double x, double y, double z);
 	static TVector3 castMatrixToTVector3(const Matrix &vec);
@@ -213,7 +220,7 @@ public:
 	 * finds all extensions by default, but you can specify which extension
 	 * (or part of filename) you want
 	 */
-	static int searchFiles(std::string curr_directory, std::vector<std::string> &list, std::string extension="", bool includeSubDirs = true);
+	static int searchFiles(std::string curr_directory, std::vector<std::string> &list, std::string extension = "", bool includeSubDirs = true);
 
 	//clear console
 	static void clearScreen();
@@ -239,23 +246,23 @@ public:
 	void setZasTimestamp(bool timestamp);
 	void enableHelperMatrix(bool enable);
 
-	void readTrafoMatrix(std::string filename, bool aligned){
-		dimension->Read_transformation_matrices(filename, aligned);
-	}
+	//void readTrafoMatrix(std::string filename, bool aligned){
+	//	dimension->Read_transformation_matrices(filename, aligned);
+	//}
 
 	// hide all boost related things from ROOT
 	//#ifndef __CINT__
 	//when supplied with a function object, this function executes in a new thread
-	void workerThread( boost::shared_ptr< boost::asio::io_service > io_service );
+	void workerThread(boost::shared_ptr<boost::asio::io_service> io_service);
 
 	//write config file
-	static bool writeConfigFile(boost::property_tree::ptree configTree, std::string filename, bool replaceExisting=true);
+	static bool writeConfigFile(boost::property_tree::ptree configTree, std::string filename, bool replaceExisting = true);
 
 	//read json config file
 	static boost::property_tree::ptree readConfigFile(std::string filename);
 	//#endif
 
-	void setBinaryPairFileDirectory(const std::string& binaryPairFileDirectory){
+	void setBinaryPairFileDirectory(const std::string& binaryPairFileDirectory) {
 		_binaryPairFileDirectory = binaryPairFileDirectory;
 	}
 
