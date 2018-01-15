@@ -315,10 +315,10 @@ void PndLmdAlignManager::readFiles() {
 		}
 	}
 
-	cout << "================================\n";
+	cout << "================================ \n";
 	cout << "total Pairs: " << totalPairs << "\n";
-	cout << "All done. Running Align Manager.\n";
-	cout << "================================\n";
+	cout << "All done. Running Align Manager. \n";
+	cout << "================================ \n";
 
 	delete chainPairs;
 	delete hitPairs;
@@ -371,16 +371,6 @@ void PndLmdAlignManager::readFilesAndAlign() {
 		for (int i_Pair = 0; i_Pair < nPairs; i_Pair++) {
 			PndLmdHitPair* currentPair = (PndLmdHitPair*) hitPairs->At(i_Pair);
 
-			/*
-			 if(currentPair->getOverlapId() == 0){
-			 cout << "testpair\n";
-			 cout << "col1: " << currentPair->getCol1() << "\n";
-			 cout << "row1: " << currentPair->getRow1() << "\n";
-			 cout << "col2: " << currentPair->getCol2() << "\n";
-			 cout << "row2: " << currentPair->getRow2() << "\n";
-			 }
-			 */
-
 			addPairAndStartAligner(*currentPair);
 			totalPairs++;
 
@@ -390,10 +380,10 @@ void PndLmdAlignManager::readFilesAndAlign() {
 		}
 	}
 
-	cout << "================================\n";
+	cout << "================================ \n";
 	cout << "total Pairs: " << totalPairs << "\n";
-	cout << "All done. Running Align Manager.\n";
-	cout << "================================\n";
+	cout << "All done. Running Align Manager. \n";
+	cout << "================================ \n";
 
 	delete chainPairs;
 	delete hitPairs;
@@ -582,7 +572,6 @@ void PndLmdAlignManager::writeDebugInfoOnAllSensors() {
 	cur = 0;
 	tot = aligners.size();
 
-	//maybe do this multithreaded?
 	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
 
 		loadBar(cur++, tot, 1000, 30);

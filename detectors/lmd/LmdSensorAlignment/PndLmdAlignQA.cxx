@@ -7,8 +7,6 @@
 
 #include <PndLmdAlignQA.h>
 
-#include <TGeoManager.h>
-
 #include <boost/filesystem.hpp>
 
 #include <fstream>
@@ -19,14 +17,14 @@
 #include <string>
 #include <vector>
 
-#include <PndLmdAlignManager.h>
+//#include <PndLmdAlignManager.h>
 #include <TCanvas.h>
 #include <TH1D.h>
 #include <TGraph.h>
 #include <TChain.h>
 #include <TClonesArray.h>
 #include <TFile.h>
-#include <TGeoMatrix.h>
+#include <TGeoManager.h>
 
 using std::string;
 using std::vector;
@@ -67,7 +65,7 @@ void PndLmdAlignQA::calculateOverlapingAreas() {
 	cout << "\\AtoB{0}{9} & " << calculateOverlappingArea(0, 9, false) << "\n";
 	cout << "------------  DONE --------------\n";
 
-	vector<int> overlapIDs = dimension->getAvailableOverlapIDs();
+	vector<int> overlapIDs = helper->getAvailableOverlapIDs();
 	int id1, id2;
 	double areaPercent = 0;
 
@@ -580,7 +578,7 @@ int PndLmdAlignQA::noOfPairs(int id1, int id2) {
 bool PndLmdAlignQA::checkForMatrixFiles() {
 
 	//list all IDs that SHOULD be there
-	vector<int> availableIds = dimension->getAvailableOverlapIDs();
+	vector<int> availableIds = helper->getAvailableOverlapIDs();
 
 	vector < string > files;
 	manager.searchFiles(LMDMatPath, files, "mat", false);
