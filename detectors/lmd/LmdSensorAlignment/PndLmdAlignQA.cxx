@@ -7,7 +7,8 @@
 
 #include <PndLmdAlignQA.h>
 
-#include <PndLmdDim.h>
+// we're saying farewell to PndLmdDim
+//#include <PndLmdDim.h>
 #include <TGeoManager.h>
 
 #include <boost/filesystem.hpp>
