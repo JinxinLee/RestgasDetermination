@@ -150,7 +150,6 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global
 	fGeoManager->CdTop();
 	fGeoManager->cd(vol_path.c_str());
 
-
 	// from active area to sensor
 	fGeoManager->CdUp();
 	TGeoMatrix *senToAct(fGeoManager->GetCurrentNode()->GetMatrix());
