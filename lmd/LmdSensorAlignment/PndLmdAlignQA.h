@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <PndLmdAlignManager.h>
+#include <PndLmdGeometryHelper.h>
 
 #include <matrix.h>
 

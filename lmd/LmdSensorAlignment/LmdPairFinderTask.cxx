@@ -350,10 +350,7 @@ void LmdPairFinderTask::Exec(Option_t*) {
 				//cout << "pair survived.\n";
 			}
 
-			/*
-			 * if the pair survived to this point, it's valid. store!
-			 */
-
+			// if the pair survived to this point, it's valid. store!
 			getStatistics(pairCanditate);
 			new ((*hitPairArray)[storedPairsPerEvent]) PndLmdHitPair(pairCanditate);
 			storedPairsPerEvent++;
@@ -399,15 +396,10 @@ void LmdPairFinderTask::FinishTask() {
 
 		}
 
-		//TODO: check if we really want to overwrite here
 		if (PndLmdAlignManager::writeConfigFile(config, _cutParameterFile, true)) {
 			cout << "PndLmdSensorAligner: Successfully written cutParameters to " << _cutParameterFile << "\n";
-			//return;
 		}
 		cout << "PndLmdSensorAligner: could not write cut parameters to disk!\n";
-
-		//exit after parameters are found and stored
-		//return;
 	}
 
 	//also, write statistics
