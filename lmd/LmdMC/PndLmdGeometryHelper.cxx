@@ -143,13 +143,14 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global
 
 	PndGeoHandling* geo_handling = PndGeoHandling::Instance();
 	std::string vol_path(geo_handling->GetPath(sensor_id).Data());
+	//geo_handling->FillLevelNames();
 
 	TString actPath = fGeoManager->GetPath();
 
 	fGeoManager->CdTop();
 	fGeoManager->cd(vol_path.c_str());
 
-	/*
+
 	// from active area to sensor
 	fGeoManager->CdUp();
 	TGeoMatrix *senToAct(fGeoManager->GetCurrentNode()->GetMatrix());
@@ -178,9 +179,8 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global
 	//TGeoMatrix *matrix = &( (*modToSen) * (*plaToMod) * (*halToPla) * (*lmdToHal) * (*gloToLmd) );
 
 	matrix->MasterToLocal(temp, result);
-	*/
 
-	fGeoManager->LocalToMaster(temp, result);
+	//fGeoManager->LocalToMaster(temp, result);
 
 	if (actPath != "" && actPath != " ")
 		fGeoManager->cd(actPath);
