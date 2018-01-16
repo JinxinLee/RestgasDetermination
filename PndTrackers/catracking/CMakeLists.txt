@@ -4,7 +4,7 @@
 
 
 Set(SYSTEM_INCLUDE_DIRECTORIES
-  ${SYSTEM_INCLUDE_DIRECTORIES} 
+  ${SYSTEM_INCLUDE_DIRECTORIES}
   ${BASE_INCLUDE_DIRECTORIES}
 )
 
@@ -18,11 +18,11 @@ EndIf()
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
-${BASE_INCLUDE_DIRECTORIES} 
-${CMAKE_SOURCE_DIR}/pnddata 
+${BASE_INCLUDE_DIRECTORIES}
+${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
-${CMAKE_SOURCE_DIR}/field 
+${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools/
@@ -44,7 +44,7 @@ set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
 ${FAIRROOT_LIBRARY_DIR}
 )
- 
+
 link_directories( ${LINK_DIRECTORIES} )
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DDO_TPCCATRACKER_EFF_PERFORMANCE -DCATRACKER_DISPLAY -DCATRACKER_TIMING")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -DDO_TPCCATRACKER_EFF_PERFORMANCE -DCATRACKER_TIMING")
@@ -68,13 +68,13 @@ code/PndCAGBHit.cxx
 code/PndCAGBTracker.cxx
 code/PndCAParameters.cxx
 code/PndCATrackParamVector.cxx
-code/Performance/PndCAGlobalPerformance.cxx  
+code/Performance/PndCAGlobalPerformance.cxx
 code/Performance/PndCAPerformanceBase.cxx
-code/Performance/PndCAMCPoint.cxx            
+code/Performance/PndCAMCPoint.cxx
 code/Performance/PndCAPerformance.cxx
-code/Performance/PndCAMCTrack.cxx            
-code/Performance/PndCAMCVertex.cxx           
-code/Performance/PndCATrackMCPointContainer.cxx 
+code/Performance/PndCAMCTrack.cxx
+code/Performance/PndCAMCVertex.cxx
+code/Performance/PndCATrackMCPointContainer.cxx
 code/Performance/PndCATrackPerformanceBase.cxx
 code/Performance/PndCADisplay.cxx
 #PndTrackingQualityBarrelTaskNewLinks.cxx
@@ -89,5 +89,5 @@ set(DEPENDENCIES PndData Stt Vc Base IdealTrackFinder Rho TrackingQA)
 GENERATE_LIBRARY()
 
 # help to find the "external" vc
-Add_Dependencies(CATracking vc)
+#Add_Dependencies(CATracking Vc)
 
