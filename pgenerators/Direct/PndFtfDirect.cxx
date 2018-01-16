@@ -115,25 +115,6 @@ using namespace std;
 #include "TStopwatch.h"
 #include "TParticle.h"
 
-//  const G4ParticleDefinition* PndFtfDirect::gamma = G4Gamma::Gamma();
-const G4ParticleDefinition* PndFtfDirect::electron = G4Electron::Electron();
-const G4ParticleDefinition* PndFtfDirect::proton = G4Proton::Proton();
-const G4ParticleDefinition* PndFtfDirect::neutron = G4Neutron::Neutron();
-const G4ParticleDefinition* PndFtfDirect::pin = G4PionMinus::PionMinus();
-const G4ParticleDefinition* PndFtfDirect::pip = G4PionPlus::PionPlus();
-//  const G4ParticleDefinition* PndFtfDirect::pi0 = G4PionZero::PionZero();
-const G4ParticleDefinition* PndFtfDirect::deu = G4Deuteron::DeuteronDefinition();
-const G4ParticleDefinition* PndFtfDirect::tri = G4Triton::TritonDefinition();
-const G4ParticleDefinition* PndFtfDirect::he3 = G4He3::He3Definition();
-const G4ParticleDefinition* PndFtfDirect::alp = G4Alpha::AlphaDefinition();
-//  const G4ParticleDefinition* PndFtfDirect::ion = G4GenericIon::GenericIon();
-
-const G4ParticleDefinition* PndFtfDirect::anti_proton   = G4AntiProton::AntiProton();
-const G4ParticleDefinition* PndFtfDirect::anti_neutron  = G4AntiNeutron::AntiNeutron();
-const G4ParticleDefinition* PndFtfDirect::anti_deuteron = G4AntiDeuteron::AntiDeuteron();
-const G4ParticleDefinition* PndFtfDirect::anti_triton   = G4AntiTriton::AntiTriton();
-const G4ParticleDefinition* PndFtfDirect::anti_He3      = G4AntiHe3::AntiHe3();
-const G4ParticleDefinition* PndFtfDirect::anti_alpha    = G4AntiAlpha::AntiAlpha();
 
 // -----   Default constructor   ------------------------------------------
 PndFtfDirect::PndFtfDirect() :
@@ -242,6 +223,7 @@ step(other.step),
 gTrack(other.gTrack),
 part(other.part)
 {
+  InitZero();
 
 }
 // ------------------------------------------------------------------------
@@ -307,6 +289,7 @@ part(0)
   G4cout << "========================================================" << G4endl;
   G4cout << "======              FTF Test Start              ========" << G4endl;
   G4cout << "========================================================" << G4endl;
+  G4cout << "Input file <" << configfile << G4endl;
   // -------------------------------------------------------------------
   // Control on input
   fin = new std::ifstream();
@@ -384,19 +367,21 @@ step(0),
 gTrack(0),
 part(0)
 {
+
   fdefaultEngine = new CLHEP::RanluxEngine( seed, 4 );
   faPosition = new CLHEP::Hep3Vector(0.,0.,0.);
   faDirection      = new CLHEP::Hep3Vector(0.0,0.0,1.0);
+  InitZero();
 
 
   CLHEP::HepRandom::setTheEngine( fdefaultEngine );
   G4cout << "========================================================" << G4endl;
   G4cout << "======              FTF Test Start              ========" << G4endl;
   G4cout << "========================================================" << G4endl;
+  G4cout << "parameters: particle="<<particle<<", material="<<material<<", targetA="<<targetA<<", generator="<<generator<<", mom="<<mom<<", seed="<<seed<<", nonelastic="<<noelastic<<G4endl;
   // -------------------------------------------------------------------
   // Control on input
 
-  InitZero();
 
   fnamePart=particle;
   fionParticle= false;
@@ -505,9 +490,28 @@ void PndFtfDirect::InitZero()
   faDirection->set(0.0,0.0,1.0);
   fnx = 0.0, fny = 0.0, fnz = 0.0;
 
+  fsigTot = 0;
+  fsigEl  = 0;
+  fsigIn  = 0;
+
+  fnpart=0;
+  factiveCnt=0;
+
   G4cout.setf( std::ios::scientific, std::ios::floatfield );
 
-  // -------------------------------------------------------------------
+
+
+}
+
+void PndFtfDirect::Setup()
+{
+  // Protect against unpurpousful multiple execution
+  if (fDoSetup == false) return;
+  fDoSetup=false;
+
+  std::cout<<"PndFtfDirect::Setup()  $$$$$$$$$$$$$$$$$$$$$$$$$  "<<std::endl;
+  cout<<"INIT FTF Material and Processes"<<endl;
+    // -------------------------------------------------------------------
   //--------- Materials definition ---------
   fmate = new Test30Material();
   G4NistManager::Instance()->SetVerbose(0);
@@ -521,6 +525,13 @@ void PndFtfDirect::InitZero()
 
   //////fpartTable = G4ParticleTable::GetParticleTable();
   //////fpartTable->SetReadiness();
+  // construct pre-compound and deexcitation
+  ftheDeExcitation = new G4ExcitationHandler();
+  ftheEvaporation = new G4Evaporation();
+  ftheDeExcitation->SetEvaporation(ftheEvaporation);
+  fthePreCompound = new G4PreCompoundModel(ftheDeExcitation);
+  fphys->SetPreCompound(fthePreCompound);
+  fphys->SetDeExcitation(ftheDeExcitation);
 
   //--------- Geometry definition
 
@@ -533,32 +544,30 @@ void PndFtfDirect::InitZero()
   //G4PVPlacement* pFrame = new G4PVPlacement(0,G4ThreeVector(),"Box",
   //                                            lFrame,0,false,0);
 
-  // construct pre-compound and deexcitation
-  ftheDeExcitation = new G4ExcitationHandler();
-  ftheEvaporation = new G4Evaporation();
-  ftheDeExcitation->SetEvaporation(ftheEvaporation);
-  fthePreCompound = new G4PreCompoundModel(ftheDeExcitation);
-  fphys->SetPreCompound(fthePreCompound);
-  fphys->SetDeExcitation(ftheDeExcitation);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  fsigTot = 0;
-  fsigEl  = 0;
-  fsigIn  = 0;
 
-  fnpart=0;
-  factiveCnt=0;
+  cout<<"INIT FTF PARTICLES"<<endl;
+  //  gamma = G4Gamma::Gamma();
+  electron = G4Electron::Electron();
+  proton = G4Proton::Proton();
+  neutron = G4Neutron::Neutron();
+  pin = G4PionMinus::PionMinus();
+  pip = G4PionPlus::PionPlus();
+  //  pi0 = G4PionZero::PionZero();
+  deu = G4Deuteron::DeuteronDefinition();
+  tri = G4Triton::TritonDefinition();
+  he3 = G4He3::He3Definition();
+  alp = G4Alpha::AlphaDefinition();
+  //  ion = G4GenericIon::GenericIon();
 
-}
-
-void PndFtfDirect::Setup()
-{
-  std::cout<<"PndFtfDirect::Setup()  $$$$$$$$$$$$$$$$$$$$$$$$$  "<<std::endl;
-  // Protect against unpurpousful multiple execution
-  if (fDoSetup == false) return;
-  fDoSetup=false;
-  
+  anti_proton   = G4AntiProton::AntiProton();
+  anti_neutron  = G4AntiNeutron::AntiNeutron();
+  anti_deuteron = G4AntiDeuteron::AntiDeuteron();
+  anti_triton   = G4AntiTriton::AntiTriton();
+  anti_He3      = G4AntiHe3::AntiHe3();
+  anti_alpha    = G4AntiAlpha::AntiAlpha();
   fpartTable = G4ParticleTable::GetParticleTable();
-  
+
   //
   G4StateManager* g4State=G4StateManager::GetStateManager();
   if (! g4State->SetNewState(G4State_Init)) {
@@ -616,6 +625,7 @@ void PndFtfDirect::Setup()
 
   // ------- Select model
   proc = fphys->GetProcess(fnameGen, part, fmaterial);      // Uzhi 1.02.13
+  std::cout<<"PndFtfDirect::Setup(): got aprocess: proc = "<<proc<<"  fphys = "<<fphys<<std::endl;
 
   if(!proc) {
     G4cout << "For particle: " << part->GetParticleName()
@@ -841,7 +851,6 @@ void PndFtfDirect::Setup()
 Bool_t PndFtfDirect::ReadEvent(FairPrimaryGenerator* primGen)
 {
   Setup();
-
   // capsulate to get each event somthing sensible, even if it "failed".
   // I.e. when elastics are produced  by the generator and shall not be stored.
   int tryno=0;

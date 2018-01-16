@@ -29,8 +29,8 @@
 //
 //      History: based on object model of
 //      ---------- Test30Physics -------
-//                by Vladimir Ivanchenko, 12 March 2002 
-// 
+//                by Vladimir Ivanchenko, 12 March 2002
+//
 //    Modified:
 //  11.10.2007 Added INCL cascade and RPG parameterized model (V.Ivanchenko)
 //
@@ -104,16 +104,16 @@ G4VProcess* Test30Physics::GetProcess(const G4String& gen_name,
 				      G4Material* mat)
 {
   G4cout <<  "Test30Physics entry" << G4endl;
-  if(theProcess) { delete theProcess; }
+  if(theProcess) { G4cout<<"AAHHH theProcess is there and will be destroyed! " << theProcess<<G4endl; delete theProcess; }
   theProcess = 0;
 
   G4String part_name = part->GetParticleName();
   G4ProcessManager* man = new G4ProcessManager(part);
-  if(!man) { return 0; }
+  if(!man) { G4cout<<"Test30Physics::GetProcess(): ERROR G4ProcessManager is not there!"<< G4endl; return 0; }
 
   theProcess = new Test30HadronProduction();
- 
-  G4cout <<  "Process is created; gen= " << gen_name << G4endl;
+
+  G4cout <<  "Process is created ("<<theProcess<<"); gen= " << gen_name << G4endl;
 
   if(!theDeExcitation) {
     theDeExcitation = new G4ExcitationHandler();
@@ -152,10 +152,10 @@ G4VProcess* Test30Physics::GetProcess(const G4String& gen_name,
 
     G4TheoFSGenerator* theModel = new G4TheoFSGenerator;
     G4FTFModel* theStringModel = new G4FTFModel();
-    G4GeneratorPrecompoundInterface* theCascade = 
+    G4GeneratorPrecompoundInterface* theCascade =
       new G4GeneratorPrecompoundInterface;
     theCascade->SetDeExcitation(thePreCompound);
-    G4ExcitedStringDecay* theStringDecay = 
+    G4ExcitedStringDecay* theStringDecay =
       new G4ExcitedStringDecay(new G4LundStringFragmentation());
     theStringModel->SetFragmentationModel(theStringDecay);
 
@@ -173,7 +173,7 @@ G4VProcess* Test30Physics::GetProcess(const G4String& gen_name,
     G4FTFModel* theStringModel= new G4FTFModel();
     G4BinaryCascade* theCascade = new G4BinaryCascade();
     theCascade->SetDeExcitation(thePreCompound);
-    G4ExcitedStringDecay * theStringDecay = 
+    G4ExcitedStringDecay * theStringDecay =
       new G4ExcitedStringDecay(new G4LundStringFragmentation());
     theModel->SetHighEnergyGenerator(theStringModel);
     theStringModel->SetFragmentationModel(theStringDecay);
@@ -188,12 +188,12 @@ G4VProcess* Test30Physics::GetProcess(const G4String& gen_name,
 
   } else if(gen_name == "qgsp") {
     G4TheoFSGenerator* theModel = new G4TheoFSGenerator();
-    G4GeneratorPrecompoundInterface* theCascade = 
+    G4GeneratorPrecompoundInterface* theCascade =
       new G4GeneratorPrecompoundInterface();
-    theCascade->SetDeExcitation(thePreCompound);  
-    G4QGSModel< G4QGSParticipants > * theStringModel = 
+    theCascade->SetDeExcitation(thePreCompound);
+    G4QGSModel< G4QGSParticipants > * theStringModel =
       new G4QGSModel< G4QGSParticipants >;
-    G4ExcitedStringDecay* theQGStringDecay = 
+    G4ExcitedStringDecay* theQGStringDecay =
       new G4ExcitedStringDecay(new G4QGSMFragmentation());
     theStringModel->SetFragmentationModel(theQGStringDecay);
     theModel->SetTransport(theCascade);
@@ -209,10 +209,10 @@ G4VProcess* Test30Physics::GetProcess(const G4String& gen_name,
   } else if(gen_name == "qgsb") {
     G4TheoFSGenerator* theModel = new G4TheoFSGenerator();
     G4BinaryCascade* theCascade = new G4BinaryCascade();
-    theCascade->SetDeExcitation(thePreCompound);  
-    G4QGSModel< G4QGSParticipants > * theStringModel = 
+    theCascade->SetDeExcitation(thePreCompound);
+    G4QGSModel< G4QGSParticipants > * theStringModel =
       new G4QGSModel< G4QGSParticipants >;
-    G4ExcitedStringDecay* theQGStringDecay = 
+    G4ExcitedStringDecay* theQGStringDecay =
       new G4ExcitedStringDecay(new G4QGSMFragmentation());
     theStringModel->SetFragmentationModel(theQGStringDecay);
     theModel->SetTransport(theCascade);
@@ -257,17 +257,17 @@ G4VProcess* Test30Physics::GetProcess(const G4String& gen_name,
     for(size_t i=0; i<ne; i++) {
       G4Element* elm = (*ev)[i];
       wam->ActivateFor(elm);
-    }   
+    }
     sg = new Test30VSecondaryGenerator(wam, mat);
     theProcess->SetSecondaryGenerator(sg);
     man->AddDiscreteProcess(theProcess);
-    
+
   } else if(gen_name == "qmd") {
     G4QMDReaction* qmd = new G4QMDReaction();
     sg = new Test30VSecondaryGenerator(qmd, mat);
     theProcess->SetSecondaryGenerator(sg);
     man->AddDiscreteProcess(theProcess);
-    
+
   } else {
     G4cout << "WARNING: <" << gen_name << "> generator is unknown" << G4endl;
   }
@@ -275,12 +275,14 @@ G4VProcess* Test30Physics::GetProcess(const G4String& gen_name,
   G4cout <<  "Secondary generator <"
          << gen_name << "> is initialized"
          << G4endl;
+
+         TestPointers();
   return theProcess;
 
-}	
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-  
+
 
 
 

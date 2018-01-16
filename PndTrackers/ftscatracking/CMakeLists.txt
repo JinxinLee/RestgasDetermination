@@ -95,3 +95,6 @@ set(LIBRARY_NAME CAFtsTracking)
 set(DEPENDENCIES PndData Vc)
 
 GENERATE_LIBRARY()
+
+# help to find the "external" vc 
+Add_Dependencies(CAFtsTracking vc)

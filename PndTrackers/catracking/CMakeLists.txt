@@ -84,6 +84,10 @@ code/Performance/PndCADisplay.cxx
 set(LINKDEF  CATrackingLinkDef.h)
 set(LIBRARY_NAME CATracking)
 
-set(DEPENDENCIES PndData Stt Vc.a Base IdealTrackFinder Rho TrackingQA)
+set(DEPENDENCIES PndData Stt Vc Base IdealTrackFinder Rho TrackingQA)
 
 GENERATE_LIBRARY()
+
+# help to find the "external" vc
+Add_Dependencies(CATracking vc)
+

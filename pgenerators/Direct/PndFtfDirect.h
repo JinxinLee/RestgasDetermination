@@ -83,7 +83,6 @@ public:
   void SetNoElastic(bool n=true){fNoElastics=n;};
 
 private:
-
   void InitZero(); // initialize numbers etc. to defaults
   void parseConfigfile(); // parse the configuration file
   void Setup(); // setup
@@ -108,13 +107,13 @@ private:
   Test30Physics*   fphys;                   //!
   G4ParticleTable* fpartTable;              //!
 
-  CLHEP::RanluxEngine* fdefaultEngine;      //! 
+  CLHEP::RanluxEngine* fdefaultEngine;      //!
 
   G4int     fverbose;
   G4bool    fsaverand;
   G4bool    fNoElastics;
   //
-  G4String  fnamePart;                      //! 
+  G4String  fnamePart;                      //!
   G4bool    fionParticle;
   G4double  fPlab;   // VU
   G4double  fenergy;
@@ -122,16 +121,16 @@ private:
   //
   G4int     fionZ, fionA;
   G4int     ftargetA;
-  G4String  fnameMat;                       //! 
+  G4String  fnameMat;                       //!
   //
   G4bool    fShen;
-  G4String  fnameGen;                       //! 
+  G4String  fnameGen;                       //!
   //
   G4int     fnevt;
   G4int     fmodu;
   //
   G4double ftheStep;
-  G4Material* fmaterial;                    //! 
+  G4Material* fmaterial;                    //!
   //
   G4bool fxsbgg;
   //
@@ -169,26 +168,60 @@ private:
   G4ParticleDefinition* part;       //!
 
 
-  //  static const G4ParticleDefinition* gamma;
-  static const G4ParticleDefinition* electron;     //!
-  static const G4ParticleDefinition* proton;       //!
-  static const G4ParticleDefinition* neutron;      //!
-  static const G4ParticleDefinition* pin;          //!
-  static const G4ParticleDefinition* pip;          //!
-  //  static const G4ParticleDefinition* pi0;
-  static const G4ParticleDefinition* deu;          //!
-  static const G4ParticleDefinition* tri;          //!
-  static const G4ParticleDefinition* he3;          //!
-  static const G4ParticleDefinition* alp;          //!
-  //static const G4ParticleDefinition* ion;
+  //G4ParticleDefinition* gamma;
+  G4ParticleDefinition* electron;     //!
+  G4ParticleDefinition* proton;       //!
+  G4ParticleDefinition* neutron;      //!
+  G4ParticleDefinition* pin;          //!
+  G4ParticleDefinition* pip;          //!
+  //G4ParticleDefinition* pi0;
+  G4ParticleDefinition* deu;          //!
+  G4ParticleDefinition* tri;          //!
+  G4ParticleDefinition* he3;          //!
+  G4ParticleDefinition* alp;          //!
+  //G4ParticleDefinition* ion;
 
-  static const G4ParticleDefinition* anti_proton;  //!
-  static const G4ParticleDefinition* anti_neutron; //!
-  static const G4ParticleDefinition* anti_deuteron;//!
-  static const G4ParticleDefinition* anti_triton;  //!
-  static const G4ParticleDefinition* anti_He3;     //!
-  static const G4ParticleDefinition* anti_alpha;   //!
+  G4ParticleDefinition* anti_proton;  //!
+  G4ParticleDefinition* anti_neutron; //!
+  G4ParticleDefinition* anti_deuteron;//!
+  G4ParticleDefinition* anti_triton;  //!
+  G4ParticleDefinition* anti_He3;     //!
+  G4ParticleDefinition* anti_alpha;   //!
 
+  void TestPointers()
+  {
+    std::cout<<"PndFtfDirect::fin               -> "<< fin << std::endl;
+    std::cout<<"PndFtfDirect::fmate             -> "<< fmate << std::endl;
+    std::cout<<"PndFtfDirect::fphys             -> "<< fphys << std::endl;
+    std::cout<<"PndFtfDirect::fpartTable        -> "<< fpartTable << std::endl;
+    std::cout<<"PndFtfDirect::fdefaultEngine    -> "<< fdefaultEngine << std::endl;
+    std::cout<<"PndFtfDirect::fmaterial         -> "<< fmaterial << std::endl;
+    std::cout<<"PndFtfDirect::faPosition        -> "<< faPosition << std::endl;
+    std::cout<<"PndFtfDirect::faDirection       -> "<< faDirection << std::endl;
+    std::cout<<"PndFtfDirect::ftheDeExcitation  -> "<< ftheDeExcitation << std::endl;
+    std::cout<<"PndFtfDirect::ftheEvaporation   -> "<< ftheEvaporation << std::endl;
+    std::cout<<"PndFtfDirect::fthePreCompound   -> "<< fthePreCompound << std::endl;
+    std::cout<<"PndFtfDirect::dParticle         -> "<< dParticle << std::endl;
+    std::cout<<"PndFtfDirect::proc              -> "<< proc << std::endl;
+    std::cout<<"PndFtfDirect::step              -> "<< step << std::endl;
+    std::cout<<"PndFtfDirect::gTrack            -> "<< gTrack << std::endl;
+    std::cout<<"PndFtfDirect::part              -> "<< part << std::endl;
+    std::cout<<"PndFtfDirect::electron          -> "<< electron << std::endl;
+    std::cout<<"PndFtfDirect::proton            -> "<< proton << std::endl;
+    std::cout<<"PndFtfDirect::neutron           -> "<< neutron << std::endl;
+    std::cout<<"PndFtfDirect::pin               -> "<< pin << std::endl;
+    std::cout<<"PndFtfDirect::pip               -> "<< pip << std::endl;
+    std::cout<<"PndFtfDirect::deu               -> "<< deu << std::endl;
+    std::cout<<"PndFtfDirect::tri               -> "<< tri << std::endl;
+    std::cout<<"PndFtfDirect::he3               -> "<< he3 << std::endl;
+    std::cout<<"PndFtfDirect::alp               -> "<< alp << std::endl;
+    std::cout<<"PndFtfDirect::anti_proton       -> "<< anti_proton << std::endl;
+    std::cout<<"PndFtfDirect::anti_neutron      -> "<< anti_neutron << std::endl;
+    std::cout<<"PndFtfDirect::anti_deuteron     -> "<< anti_deuteron << std::endl;
+    std::cout<<"PndFtfDirect::anti_triton       -> "<< anti_triton << std::endl;
+    std::cout<<"PndFtfDirect::anti_He3          -> "<< anti_He3 << std::endl;
+    std::cout<<"PndFtfDirect::anti_alpha        -> "<< anti_alpha << std::endl;
+  };
 
 
   ClassDef(PndFtfDirect,1);
