@@ -419,7 +419,7 @@ void PndLmdAlignManager::alignST() {
 		it->second.calculateMatrix();
 		if (it->second.successful()) {
 			Matrix result = it->second.getResultMatrix();
-			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
+			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 			writeMatrix(result, matrixFilename);
 
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
@@ -482,7 +482,7 @@ void PndLmdAlignManager::alignMT() {
 		if (it->second.successful()) {
 
 			Matrix result = it->second.getResultMatrix();
-			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
+			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 
 			if (!writeMatrix(result, matrixFilename)) {
 				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
@@ -531,96 +531,97 @@ void PndLmdAlignManager::alignAllSensors() {
 	cout << "all aligners done.\n";
 }
 
-void PndLmdAlignManager::writeDebugInfoOnAllSensors() {
-
-	if (_pretend) {
-		cout << "pretending to align all sensors...\n";
-		ofstream of;
-		of.open(outFilename.c_str());
-		if (of.fail()) {
-			cout << "can't write to file \n";
-			return;
-		}
-
-		of << "merely pretending.";
-		of.close();
-		return;
-	}
-
-	//some checks still
-
-	ofstream of;
-	of.open(outFilename.c_str());
-	if (of.fail()) {
-		cout << "can't write to file \n";
-		return;
-	}
-	of << std::setprecision(16);
-
-	// csv types: 6 Fields
-	// moduleID, overlapID, nP, alpha, x, y
-
-	int cur, tot;
-	cur = 0;
-	tot = aligners.size();
-
-	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
-
-		loadBar(cur++, tot, 1000, 30);
-
-		it->second.calculateMatrix();
-
-		if (it->second.successful()) {
-			int id1, id2;
-			id1 = it->second.getId1();
-			id2 = it->second.getId2();
-
-			Matrix result = it->second.getResultMatrix();
-			Matrix real = getMatrixOfficialGeometry(id1, id2, true);
-			Matrix dif = real - transformMatrixFromPixelsToCm(result);
-
-			stringstream matrixfilename;
-			matrixfilename << _matrixOutDir << "/m" << id1 << "to" << id2 << ".mat";
-			writeMatrix(result, matrixfilename.str());
-
-			int overlapID, nPairs;
-			double sinAlphaAbs, sinAlphaRel, xAbs, xRel, yAbs, yRel;
-
-			overlapID = it->second.getOverlapId();
-			nPairs = it->second.getNoOfPairs();
-			sinAlphaRel = -dif.val[0][1] / 2.0 + dif.val[1][0] / 2.0;
-			sinAlphaRel = asin(sinAlphaRel);
-			xRel = dif.val[0][3];
-			yRel = dif.val[1][3];
-
-			sinAlphaAbs = -result.val[0][1] / 2.0 + result.val[1][0] / 2.0;
-			sinAlphaAbs = asin(sinAlphaAbs);
-			xAbs = result.val[0][3];
-			yAbs = result.val[1][3];
-
-			/*
-			 * scheme is overlapID, moduleID, id1, id2, nPairs, sinAlphaAbs, xAbs, yAbs, sinAlphaRel, xRel, yRel
-			 *
-			 * that means:
-			 *
-			 * nPairs = 4
-			 * aAbs = 5
-			 * xAbs = 6
-			 * yAbs = 7
-			 * aRel = 8
-			 * xRel = 9
-			 * yRel = 10
-			 */
-
-			of << overlapID << "," << "," << id1 << "," << id2 << "," << nPairs;
-			of << "," << sinAlphaAbs << "," << xAbs << "," << yAbs << ",";
-			of << sinAlphaRel << "," << xRel << "," << yRel << "\n";
-		} else {
-			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
-		}
-	}
-	of.close();
-}
+//TODO: remove
+//void PndLmdAlignManager::writeDebugInfoOnAllSensors() {
+//
+//	if (_pretend) {
+//		cout << "pretending to align all sensors...\n";
+//		ofstream of;
+//		of.open(outFilename.c_str());
+//		if (of.fail()) {
+//			cout << "can't write to file \n";
+//			return;
+//		}
+//
+//		of << "merely pretending.";
+//		of.close();
+//		return;
+//	}
+//
+//	//some checks still
+//
+//	ofstream of;
+//	of.open(outFilename.c_str());
+//	if (of.fail()) {
+//		cout << "can't write to file \n";
+//		return;
+//	}
+//	of << std::setprecision(16);
+//
+//	// csv types: 6 Fields
+//	// moduleID, overlapID, nP, alpha, x, y
+//
+//	int cur, tot;
+//	cur = 0;
+//	tot = aligners.size();
+//
+//	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
+//
+//		loadBar(cur++, tot, 1000, 30);
+//
+//		it->second.calculateMatrix();
+//
+//		if (it->second.successful()) {
+//			int id1, id2;
+//			id1 = it->second.getId1();
+//			id2 = it->second.getId2();
+//
+//			Matrix result = it->second.getResultMatrix();
+//			Matrix real = getMatrixSensorToSensor(id1, id2, true);
+//			Matrix dif = real - transformMatrixFromPixelsToCm(result);
+//
+//			stringstream matrixfilename;
+//			matrixfilename << _matrixOutDir << "/m" << id1 << "to" << id2 << ".mat";
+//			writeMatrix(result, matrixfilename.str());
+//
+//			int overlapID, nPairs;
+//			double sinAlphaAbs, sinAlphaRel, xAbs, xRel, yAbs, yRel;
+//
+//			overlapID = it->second.getOverlapId();
+//			nPairs = it->second.getNoOfPairs();
+//			sinAlphaRel = -dif.val[0][1] / 2.0 + dif.val[1][0] / 2.0;
+//			sinAlphaRel = asin(sinAlphaRel);
+//			xRel = dif.val[0][3];
+//			yRel = dif.val[1][3];
+//
+//			sinAlphaAbs = -result.val[0][1] / 2.0 + result.val[1][0] / 2.0;
+//			sinAlphaAbs = asin(sinAlphaAbs);
+//			xAbs = result.val[0][3];
+//			yAbs = result.val[1][3];
+//
+//			/*
+//			 * scheme is overlapID, moduleID, id1, id2, nPairs, sinAlphaAbs, xAbs, yAbs, sinAlphaRel, xRel, yRel
+//			 *
+//			 * that means:
+//			 *
+//			 * nPairs = 4
+//			 * aAbs = 5
+//			 * xAbs = 6
+//			 * yAbs = 7
+//			 * aRel = 8
+//			 * xRel = 9
+//			 * yRel = 10
+//			 */
+//
+//			of << overlapID << "," << "," << id1 << "," << id2 << "," << nPairs;
+//			of << "," << sinAlphaAbs << "," << xAbs << "," << yAbs << ",";
+//			of << sinAlphaRel << "," << xRel << "," << yRel << "\n";
+//		} else {
+//			cout << "Error: aligner for " << it->second.getOverlapId() << " failed.\n";
+//		}
+//	}
+//	of.close();
+//}
 
 //these parameters depend on sensor geometry. Use with caution!
 Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
@@ -671,42 +672,30 @@ Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
  * ATTENTION! set aligned flag true for perfect geometry, else use false!
  */
 /*
-Matrix PndLmdAlignManager::getMatrixOfficialGeometry(int fromSensor, int toSensor, bool aligned) {
+ Matrix PndLmdAlignManager::getMatrixSensorToSensor(int fromSensor, int toSensor, bool aligned) {
 
-	int fhalf, fplane, fmodule, fside, fdie, fsensor;
-	int bhalf, bplane, bmodule, bside, bdie, bsensor;
+ int fhalf, fplane, fmodule, fside, fdie, fsensor;
+ int bhalf, bplane, bmodule, bside, bdie, bsensor;
 
-	dimension->Get_sensor_by_id(fromSensor, fhalf, fplane, fmodule, fside, fdie, fsensor);
-	dimension->Get_sensor_by_id(toSensor, bhalf, bplane, bmodule, bside, bdie, bsensor);
+ dimension->Get_sensor_by_id(fromSensor, fhalf, fplane, fmodule, fside, fdie, fsensor);
+ dimension->Get_sensor_by_id(toSensor, bhalf, bplane, bmodule, bside, bdie, bsensor);
 
-	const TGeoHMatrix& matrixSen1ToLmd = dimension->Get_transformation_sensor_to_lmd_local(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
-	const TGeoHMatrix& matrixLmdToSen2 = dimension->Get_transformation_lmd_local_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
+ const TGeoHMatrix& matrixSen1ToLmd = dimension->Get_transformation_sensor_to_lmd_local(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
+ const TGeoHMatrix& matrixLmdToSen2 = dimension->Get_transformation_lmd_local_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
 
-	Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
-	Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
-	return matLmdToSen2 * matSen1ToLmd;
+ Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
+ Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
+ return matLmdToSen2 * matSen1ToLmd;
 
-}
-*/
+ }
+ */
 
 /*
  * get transformation matrix of fromSensor -> toSensor (PANDA global reference frame)
  * this is in cm and IN PANDA GLOBAL.
  * ATTENTION! set aligned flag true for perfect geometry, else use false!
  */
-Matrix PndLmdAlignManager::getMatrixOfficialGeometryGlobal(int fromSensor, int toSensor, bool aligned) {
-
-	int fhalf, fplane, fmodule, fside, fdie, fsensor;
-	int bhalf, bplane, bmodule, bside, bdie, bsensor;
-
-	auto infoOne = helper->getHitLocationInfo(fromSensor);
-	auto infoTwo = helper->getHitLocationInfo(toSensor);
-
-	//dimension->Get_sensor_by_id(fromSensor, fhalf, fplane, fmodule, fside, fdie, fsensor);
-	//dimension->Get_sensor_by_id(toSensor, bhalf, bplane, bmodule, bside, bdie, bsensor);
-
-	//const TGeoHMatrix& matrixSen1ToLmd = dimension->Get_transformation_sensor_to_global(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
-	//const TGeoHMatrix& matrixLmdToSen2 = dimension->Get_transformation_global_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
+Matrix PndLmdAlignManager::getMatrixSensorToSensor(int fromSensor, int toSensor) {
 
 	auto matrixSen1ToLmd = helper->getMatrixSensorToPndGlobal(fromSensor);
 	auto matrixLmdToSen2 = helper->getMatrixPndGlobalToSensor(toSensor);
@@ -980,54 +969,54 @@ void PndLmdAlignManager::setZasTimestamp(bool timestamp) {
 }
 //TODO: remove with PndLmdDim Dependency
 /*
-void PndLmdAlignManager::transformGlobalToLmd(Matrix& matrix) {
+ void PndLmdAlignManager::transformGlobalToLmd(Matrix& matrix) {
 
-	cerr << "WARNING. You are using transformGlobalToLmd. This should not be needed anymore!\n";
+ cerr << "WARNING. You are using transformGlobalToLmd. This should not be needed anymore!\n";
 
-	//make temp copy
-	Matrix tempmatrix = Matrix(matrix);
+ //make temp copy
+ Matrix tempmatrix = Matrix(matrix);
 
-	//get appropriate matrices
-	TGeoHMatrix lmdToGlobal = dimension->Get_transformation_lmd_local_to_global(true);
-	TGeoHMatrix globalToLmd = dimension->Get_transformation_global_to_lmd_local(true);
+ //get appropriate matrices
+ TGeoHMatrix lmdToGlobal = dimension->Get_transformation_lmd_local_to_global(true);
+ TGeoHMatrix globalToLmd = dimension->Get_transformation_global_to_lmd_local(true);
 
-	//use existing casting function
-	Matrix lToG = castTGeoHMatrixToMatrix(lmdToGlobal);
-	Matrix gToL = castTGeoHMatrixToMatrix(globalToLmd);
+ //use existing casting function
+ Matrix lToG = castTGeoHMatrixToMatrix(lmdToGlobal);
+ Matrix gToL = castTGeoHMatrixToMatrix(globalToLmd);
 
-	//return result
-	matrix = lToG * tempmatrix * gToL;
-}
-*/
+ //return result
+ matrix = lToG * tempmatrix * gToL;
+ }
+ */
 /*
-void PndLmdAlignManager::transformFromSensorToLmdLocal(Matrix& matrix, int sensorId, bool aligned) {
-	//create local copy
-	Matrix tempmatrix = Matrix(matrix);
+ void PndLmdAlignManager::transformFromSensorToLmdLocal(Matrix& matrix, int sensorId, bool aligned) {
+ //create local copy
+ Matrix tempmatrix = Matrix(matrix);
 
-	int half, plane, module, side, die, sensor;
-	dimension->Get_sensor_by_id(sensorId, half, plane, module, side, die, sensor);
+ int half, plane, module, side, die, sensor;
+ dimension->Get_sensor_by_id(sensorId, half, plane, module, side, die, sensor);
 
-	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, aligned);
-	Matrix matSensorToLmd = castTGeoHMatrixToMatrix(sensorToLmd);
-	Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
+ TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, aligned);
+ Matrix matSensorToLmd = castTGeoHMatrixToMatrix(sensorToLmd);
+ Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
 
-	matrix = matLmdToSensor * matrix * matSensorToLmd;
-}
+ matrix = matLmdToSensor * matrix * matSensorToLmd;
+ }
 
-void PndLmdAlignManager::transformFromLmdLocalToSensor(Matrix& matrix, int sensorId, bool aligned) {
-	//create local copy
-	Matrix tempmatrix = Matrix(matrix);
+ void PndLmdAlignManager::transformFromLmdLocalToSensor(Matrix& matrix, int sensorId, bool aligned) {
+ //create local copy
+ Matrix tempmatrix = Matrix(matrix);
 
-	int half, plane, module, side, die, sensor;
-	dimension->Get_sensor_by_id(sensorId, half, plane, module, side, die, sensor);
+ int half, plane, module, side, die, sensor;
+ dimension->Get_sensor_by_id(sensorId, half, plane, module, side, die, sensor);
 
-	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, aligned);
-	Matrix matSensorToLmd = castTGeoHMatrixToMatrix(sensorToLmd);
-	Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
+ TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, aligned);
+ Matrix matSensorToLmd = castTGeoHMatrixToMatrix(sensorToLmd);
+ Matrix matLmdToSensor = Matrix::inv(matSensorToLmd);
 
-	matrix = matSensorToLmd * matrix * matLmdToSensor;
-}
-*/
+ matrix = matSensorToLmd * matrix * matLmdToSensor;
+ }
+ */
 
 /*
  * returns the matrix needed to transform the position measured by the MISALIGNED lumi (aka measured position)
@@ -1035,26 +1024,26 @@ void PndLmdAlignManager::transformFromLmdLocalToSensor(Matrix& matrix, int senso
  * (see interim reports).
  * This is in lmd local frame of reference
  */
-Matrix PndLmdAlignManager::getCorrectionMatrix(int id) {
-
-	int half, plane, module, side, die, sensor;
-	dimension->Get_sensor_by_id(id, half, plane, module, side, die, sensor);
-
-	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, true);
-	TGeoHMatrix lmdToSensor = dimension->Get_transformation_lmd_local_to_sensor(half, plane, module, side, die, sensor, false);
-
-	Matrix sensorToLmdMat = castTGeoHMatrixToMatrix(sensorToLmd);
-	Matrix lmdToSensorMat = castTGeoHMatrixToMatrix(lmdToSensor);
-
-	return lmdToSensorMat * sensorToLmdMat;
-}
-
-Matrix PndLmdAlignManager::getCorrectionMatrix(int id1, int id2) {
-	Matrix corrId1 = getCorrectionMatrix(id1);
-	Matrix corrId2 = getCorrectionMatrix(id2);
-	return corrId2 * Matrix::inv(corrId1);
-}
-
+//TODO: remove, will be replaced with new alignment system
+//Matrix PndLmdAlignManager::getCorrectionMatrix(int id) {
+//
+//	int half, plane, module, side, die, sensor;
+//	dimension->Get_sensor_by_id(id, half, plane, module, side, die, sensor);
+//
+//	TGeoHMatrix sensorToLmd = dimension->Get_transformation_sensor_to_lmd_local(half, plane, module, side, die, sensor, true);
+//	TGeoHMatrix lmdToSensor = dimension->Get_transformation_lmd_local_to_sensor(half, plane, module, side, die, sensor, false);
+//
+//	Matrix sensorToLmdMat = castTGeoHMatrixToMatrix(sensorToLmd);
+//	Matrix lmdToSensorMat = castTGeoHMatrixToMatrix(lmdToSensor);
+//
+//	return lmdToSensorMat * sensorToLmdMat;
+//}
+//TODO: remove, will be replaced with new alignment system
+//Matrix PndLmdAlignManager::getCorrectionMatrix(int id1, int id2) {
+//	Matrix corrId1 = getCorrectionMatrix(id1);
+//	Matrix corrId2 = getCorrectionMatrix(id2);
+//	return corrId2 * Matrix::inv(corrId1);
+//}
 Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 
 	//allocate memory for matrix elements
@@ -1125,28 +1114,28 @@ Matrix PndLmdAlignManager::castTGeoHMatrixToMatrix(const TGeoHMatrix& matrix) {
 
 }
 
-Matrix PndLmdAlignManager::castTVector3toMatrix(const TVector3& vec) {
-	Matrix result(4, 1);
-	double values[3];
-	vec.GetXYZ(values);
-	result.val[0][0] = values[0];
-	result.val[1][0] = values[1];
-	result.val[2][0] = values[2];
-	result.val[3][0] = 1.0;
-	return result;
-}
+//Matrix PndLmdAlignManager::castTVector3toMatrix(const TVector3& vec) {
+//	Matrix result(4, 1);
+//	double values[3];
+//	vec.GetXYZ(values);
+//	result.val[0][0] = values[0];
+//	result.val[1][0] = values[1];
+//	result.val[2][0] = values[2];
+//	result.val[3][0] = 1.0;
+//	return result;
+//}
 
-TVector3 PndLmdAlignManager::castMatrixToTVector3(const Matrix& vec) {
-
-	TVector3 result;
-	if (vec.val[3][0] < 1e-11) {
-		cout << "ERROR: castMatrixToTVector3: matrix can not be dehomogenized.\n";
-
-	} else {
-		result.SetXYZ(vec.val[0][0] / vec.val[3][0], vec.val[1][0] / vec.val[3][0], vec.val[2][0] / vec.val[3][0]);
-	}
-	return result;
-}
+//TVector3 PndLmdAlignManager::castMatrixToTVector3(const Matrix& vec) {
+//
+//	TVector3 result;
+//	if (vec.val[3][0] < 1e-11) {
+//		cout << "ERROR: castMatrixToTVector3: matrix can not be dehomogenized.\n";
+//
+//	} else {
+//		result.SetXYZ(vec.val[0][0] / vec.val[3][0], vec.val[1][0] / vec.val[3][0], vec.val[2][0] / vec.val[3][0]);
+//	}
+//	return result;
+//}
 
 bool PndLmdAlignManager::checkForBinaryFiles() {
 
@@ -1235,7 +1224,7 @@ bool PndLmdAlignManager::checkForLmdMatrixFiles() {
 	return true;
 }
 
-std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters, bool correctionMatrix) {
+std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incentimeters) {
 	std::stringstream filename;
 	filename << "/pairs-";
 	filename << overlapId;
@@ -1248,14 +1237,12 @@ std::string PndLmdAlignManager::makeBinaryPairFileName(int overlapId, bool incen
 	return filename.str();
 }
 
-std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters, bool correctionMatrix) {
-	int overlapId;
-	//PndLmdDim *dimension = PndLmdDim::Instance();
-	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
-	return makeBinaryPairFileName(overlapId, incentimeters);
-}
+//std::string PndLmdAlignManager::makeBinaryPairFileName(int sensorOne, int sensorTwo, bool incentimeters) {
+//	int overlapId = helper->getOverlapIdFromSensorIDs(sensorOne, sensorTwo);
+//	return makeBinaryPairFileName(overlapId, incentimeters);
+//}
 
-std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters, bool correctionMatrix) {
+std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentimeters) {
 	stringstream matrixName;
 	matrixName << "/m";
 	if (incentimeters) {
@@ -1266,21 +1253,12 @@ std::string PndLmdAlignManager::makeMatrixFileName(int overlapId, bool incentime
 	return matrixName.str();
 }
 
-std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters, bool correctionMatrix) {
-	int overlapId;
-	//PndLmdDim *dimension = PndLmdDim::Instance();
-	overlapId = dimension->makeOverlapID(sensorOne, sensorTwo);
-	return makeMatrixFileName(overlapId, incentimeters);
-}
+//std::string PndLmdAlignManager::makeMatrixFileName(int sensorOne, int sensorTwo, bool incentimeters) {
+//	int overlapId = helper->getOverlapIdFromSensorIDs(sensorOne, sensorTwo);
+//	return makeMatrixFileName(overlapId, incentimeters);
+//}
 
-//FIXME: this method must go after the other bug is fixed
-void PndLmdAlignManager::realignMatrixInLmd(Matrix &matrix, int startId, bool aligned) {
-
-	transformFromLmdLocalToSensor(matrix, startId, true);
-	transformFromSensorToLmdLocal(matrix, startId, aligned);
-}
-
-Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
+Matrix PndLmdAlignManager::combineCyclicMatrix(int id) {
 
 	Matrix result = Matrix::eye(4);
 
@@ -1288,31 +1266,28 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 	int id1 = (std::floor(id / 10.0)) * 10;
 	int id2 = id % 10;
 
-	//what module are we on?
-	int fhalf, fplane, fmodule, fside, fdie, fsensor;
-	dimension->Get_sensor_by_id(id, fhalf, fplane, fmodule, fside, fdie, fsensor);
-
 	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
-	string m05f = _matrixOutDir + makeMatrixFileName(id1 + 0, id1 + 5, _inCentimeters);
-	string m18f = _matrixOutDir + makeMatrixFileName(id1 + 1, id1 + 8, _inCentimeters);
-	string m28f = _matrixOutDir + makeMatrixFileName(id1 + 2, id1 + 8, _inCentimeters);
-	string m29f = _matrixOutDir + makeMatrixFileName(id1 + 2, id1 + 9, _inCentimeters);
-	string m36f = _matrixOutDir + makeMatrixFileName(id1 + 3, id1 + 6, _inCentimeters);
-	string m37f = _matrixOutDir + makeMatrixFileName(id1 + 3, id1 + 7, _inCentimeters);
-	string m38f = _matrixOutDir + makeMatrixFileName(id1 + 3, id1 + 8, _inCentimeters);
-	string m47f = _matrixOutDir + makeMatrixFileName(id1 + 4, id1 + 7, _inCentimeters);
-	string m49f = _matrixOutDir + makeMatrixFileName(id1 + 4, id1 + 9, _inCentimeters);
+	string m05f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
+	string m18f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
+	string m28f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
+	string m29f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
+	string m36f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
+	string m37f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
+	string m38f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
+	string m47f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
+	string m49f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
 
 	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
-	Matrix m01 = getMatrixOfficialGeometry(id1, id1 + 1, aligned);
-	Matrix m56 = getMatrixOfficialGeometry(id1 + 5, id1 + 6, aligned);
+	Matrix m01 = getMatrixSensorToSensor(id1, id1 + 1);
+	Matrix m56 = getMatrixSensorToSensor(id1 + 5, id1 + 6);
 
 	// remember, CM matrices are in LMD local, px matrices are in sensor local!
 	// and since we know those from external measurements, we have those
-	if (!_inCentimeters) {
-		transformFromLmdLocalToSensor(m01, id1 + 0, aligned);
-		transformFromLmdLocalToSensor(m56, id1 + 5, aligned);
-	}
+	//FIXME: these functions are missing, so the code does not work right now!
+//	if (!_inCentimeters) {
+//		transformFromLmdLocalToSensor(m01, id1 + 0, aligned);
+//		transformFromLmdLocalToSensor(m56, id1 + 5, aligned);
+//	}
 
 	Matrix m05 = readMatrix(m05f);
 	Matrix m18 = readMatrix(m18f);
@@ -1346,26 +1321,26 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 	// but remember, they still live on separate modules.
 	if (_inCentimeters) {
 
-		Matrix m05ideal = getMatrixOfficialGeometry(id1 + 0, id1 + 5, true);
-		Matrix m18ideal = getMatrixOfficialGeometry(id1 + 1, id1 + 8, true);
-		Matrix m28ideal = getMatrixOfficialGeometry(id1 + 2, id1 + 8, true);
-		Matrix m29ideal = getMatrixOfficialGeometry(id1 + 2, id1 + 9, true);
-		Matrix m36ideal = getMatrixOfficialGeometry(id1 + 3, id1 + 6, true);
-		Matrix m37ideal = getMatrixOfficialGeometry(id1 + 3, id1 + 7, true);
-		Matrix m38ideal = getMatrixOfficialGeometry(id1 + 3, id1 + 8, true);
-		Matrix m47ideal = getMatrixOfficialGeometry(id1 + 4, id1 + 7, true);
-		Matrix m49ideal = getMatrixOfficialGeometry(id1 + 4, id1 + 9, true);
+		Matrix m05ideal = getMatrixSensorToSensor(id1 + 0, id1 + 5);
+		Matrix m18ideal = getMatrixSensorToSensor(id1 + 1, id1 + 8);
+		Matrix m28ideal = getMatrixSensorToSensor(id1 + 2, id1 + 8);
+		Matrix m29ideal = getMatrixSensorToSensor(id1 + 2, id1 + 9);
+		Matrix m36ideal = getMatrixSensorToSensor(id1 + 3, id1 + 6);
+		Matrix m37ideal = getMatrixSensorToSensor(id1 + 3, id1 + 7);
+		Matrix m38ideal = getMatrixSensorToSensor(id1 + 3, id1 + 8);
+		Matrix m47ideal = getMatrixSensorToSensor(id1 + 4, id1 + 7);
+		Matrix m49ideal = getMatrixSensorToSensor(id1 + 4, id1 + 9);
 
 		//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
-		realignMatrixInLmd(m05ideal, id1 + 0, aligned);
-		realignMatrixInLmd(m18ideal, id1 + 1, aligned);
-		realignMatrixInLmd(m28ideal, id1 + 2, aligned);
-		realignMatrixInLmd(m29ideal, id1 + 2, aligned);
-		realignMatrixInLmd(m36ideal, id1 + 3, aligned);
-		realignMatrixInLmd(m37ideal, id1 + 3, aligned);
-		realignMatrixInLmd(m38ideal, id1 + 3, aligned);
-		realignMatrixInLmd(m47ideal, id1 + 4, aligned);
-		realignMatrixInLmd(m49ideal, id1 + 4, aligned);
+//		realignMatrixInLmd(m05ideal, id1 + 0);
+//		realignMatrixInLmd(m18ideal, id1 + 1);
+//		realignMatrixInLmd(m28ideal, id1 + 2);
+//		realignMatrixInLmd(m29ideal, id1 + 2);
+//		realignMatrixInLmd(m36ideal, id1 + 3);
+//		realignMatrixInLmd(m37ideal, id1 + 3);
+//		realignMatrixInLmd(m38ideal, id1 + 3);
+//		realignMatrixInLmd(m47ideal, id1 + 4);
+//		realignMatrixInLmd(m49ideal, id1 + 4);
 
 		m05 = m05 * m05ideal;
 		m18 = m18 * m18ideal;
@@ -1428,7 +1403,7 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 	return result;
 }
 
-Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
+Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 
 	bool success = false;
 
@@ -1438,11 +1413,23 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 	}
 
 	//what module are we on? are id1 and id2 on same module?
-	int fhalf, fplane, fmodule, fside, fdie, fsensor;
-	int bhalf, bplane, bmodule, bside, bdie, bsensor;
+	int fhalf, fplane, fmodule, fside;
+	int bhalf, bplane, bmodule, bside;
 
-	dimension->Get_sensor_by_id(id1, fhalf, fplane, fmodule, fside, fdie, fsensor);
-	dimension->Get_sensor_by_id(id2, bhalf, bplane, bmodule, bside, bdie, bsensor);
+	//dimension->Get_sensor_by_id(id1, fhalf, fplane, fmodule, fside, fdie, fsensor);
+	//dimension->Get_sensor_by_id(id2, bhalf, bplane, bmodule, bside, bdie, bsensor);
+
+	auto infoOne = helper->getHitLocationInfo(id1);
+	auto infoTwo = helper->getHitLocationInfo(id2);
+
+	fhalf = infoOne.detector_half;
+	bhalf = infoTwo.detector_half;
+
+	fplane = infoOne.plane;
+	bplane = infoTwo.plane;
+
+	fmodule = infoOne.module;
+	bmodule = infoTwo.module;
 
 	if (fhalf != bhalf) {
 		cout << "error! id1 and id2 are not on same half!\n";
@@ -1459,13 +1446,6 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 
 	Matrix result;
 
-	//check if either sensor is 0 on that module
-	if (!(fside == 0 && fdie == 0 && fsensor == 0)) {
-		cout << "can only do matrices from 0 to i for now. sorry!\n";
-		success = false;
-		return result;
-	}
-
 	//at this point, id0 should end in 0, so we can just add numbers
 	//FIXME: obviously, this is shuddy and needs fixing
 
@@ -1477,26 +1457,27 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 	}
 
 	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
-	string m05f = _matrixOutDir + makeMatrixFileName(id1 + 0, id1 + 5, _inCentimeters);
-	string m18f = _matrixOutDir + makeMatrixFileName(id1 + 1, id1 + 8, _inCentimeters);
-	string m28f = _matrixOutDir + makeMatrixFileName(id1 + 2, id1 + 8, _inCentimeters);
-	string m29f = _matrixOutDir + makeMatrixFileName(id1 + 2, id1 + 9, _inCentimeters);
-	string m36f = _matrixOutDir + makeMatrixFileName(id1 + 3, id1 + 6, _inCentimeters);
-	string m37f = _matrixOutDir + makeMatrixFileName(id1 + 3, id1 + 7, _inCentimeters);
-	string m38f = _matrixOutDir + makeMatrixFileName(id1 + 3, id1 + 8, _inCentimeters);
-	string m47f = _matrixOutDir + makeMatrixFileName(id1 + 4, id1 + 7, _inCentimeters);
-	string m49f = _matrixOutDir + makeMatrixFileName(id1 + 4, id1 + 9, _inCentimeters);
+	string m05f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
+	string m18f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
+	string m28f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
+	string m29f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
+	string m36f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
+	string m37f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
+	string m38f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
+	string m47f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
+	string m49f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
 
 	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
-	Matrix m01 = getMatrixOfficialGeometry(id1, id1 + 1, aligned);
-	Matrix m56 = getMatrixOfficialGeometry(id1 + 5, id1 + 6, aligned);
+	Matrix m01 = getMatrixSensorToSensor(id1, id1 + 1);
+	Matrix m56 = getMatrixSensorToSensor(id1 + 5, id1 + 6);
 
 	// remember, CM matrices are in LMD local, px matrices are in sensor local!
 	// and since we know those from external measurements, we have those
-	if (!_inCentimeters) {
-		transformFromLmdLocalToSensor(m01, id1 + 0, aligned);
-		transformFromLmdLocalToSensor(m56, id1 + 5, aligned);
-	}
+	//FIXME: these functions are missing, so the code does not work right now!
+//	if (!_inCentimeters) {
+//		transformFromLmdLocalToSensor(m01, id1 + 0, aligned);
+//		transformFromLmdLocalToSensor(m56, id1 + 5, aligned);
+//	}
 
 	Matrix m05 = readMatrix(m05f);
 	Matrix m18 = readMatrix(m18f);
@@ -1530,26 +1511,26 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2, bool aligned) {
 	// but remember, they still live on separate modules.
 	if (_inCentimeters) {
 
-		Matrix m05ideal = getMatrixOfficialGeometry(id1 + 0, id1 + 5, true);
-		Matrix m18ideal = getMatrixOfficialGeometry(id1 + 1, id1 + 8, true);
-		Matrix m28ideal = getMatrixOfficialGeometry(id1 + 2, id1 + 8, true);
-		Matrix m29ideal = getMatrixOfficialGeometry(id1 + 2, id1 + 9, true);
-		Matrix m36ideal = getMatrixOfficialGeometry(id1 + 3, id1 + 6, true);
-		Matrix m37ideal = getMatrixOfficialGeometry(id1 + 3, id1 + 7, true);
-		Matrix m38ideal = getMatrixOfficialGeometry(id1 + 3, id1 + 8, true);
-		Matrix m47ideal = getMatrixOfficialGeometry(id1 + 4, id1 + 7, true);
-		Matrix m49ideal = getMatrixOfficialGeometry(id1 + 4, id1 + 9, true);
+		Matrix m05ideal = getMatrixSensorToSensor(id1 + 0, id1 + 5);
+		Matrix m18ideal = getMatrixSensorToSensor(id1 + 1, id1 + 8);
+		Matrix m28ideal = getMatrixSensorToSensor(id1 + 2, id1 + 8);
+		Matrix m29ideal = getMatrixSensorToSensor(id1 + 2, id1 + 9);
+		Matrix m36ideal = getMatrixSensorToSensor(id1 + 3, id1 + 6);
+		Matrix m37ideal = getMatrixSensorToSensor(id1 + 3, id1 + 7);
+		Matrix m38ideal = getMatrixSensorToSensor(id1 + 3, id1 + 8);
+		Matrix m47ideal = getMatrixSensorToSensor(id1 + 4, id1 + 7);
+		Matrix m49ideal = getMatrixSensorToSensor(id1 + 4, id1 + 9);
 
 		//FIXME: this is a work around since I can't yet construct the correct misaligned matrices
-		realignMatrixInLmd(m05ideal, id1 + 0, aligned);
-		realignMatrixInLmd(m18ideal, id1 + 1, aligned);
-		realignMatrixInLmd(m28ideal, id1 + 2, aligned);
-		realignMatrixInLmd(m29ideal, id1 + 2, aligned);
-		realignMatrixInLmd(m36ideal, id1 + 3, aligned);
-		realignMatrixInLmd(m37ideal, id1 + 3, aligned);
-		realignMatrixInLmd(m38ideal, id1 + 3, aligned);
-		realignMatrixInLmd(m47ideal, id1 + 4, aligned);
-		realignMatrixInLmd(m49ideal, id1 + 4, aligned);
+//		realignMatrixInLmd(m05ideal, id1 + 0);
+//		realignMatrixInLmd(m18ideal, id1 + 1);
+//		realignMatrixInLmd(m28ideal, id1 + 2);
+//		realignMatrixInLmd(m29ideal, id1 + 2);
+//		realignMatrixInLmd(m36ideal, id1 + 3);
+//		realignMatrixInLmd(m37ideal, id1 + 3);
+//		realignMatrixInLmd(m38ideal, id1 + 3);
+//		realignMatrixInLmd(m47ideal, id1 + 4);
+//		realignMatrixInLmd(m49ideal, id1 + 4);
 
 		m05 = m05 * m05ideal;
 		m18 = m18 * m18ideal;
@@ -1671,7 +1652,7 @@ void PndLmdAlignManager::waitForCompletion() {
 		if (it->second.successful()) {
 
 			Matrix result = it->second.getResultMatrix();
-			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters, _enableHelperMatrix);
+			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 
 			if (!writeMatrix(result, matrixFilename)) {
 				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
@@ -1720,14 +1701,14 @@ Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
 	return result;
 }
 
-Matrix PndLmdAlignManager::makeFourVector(double x, double y, double z) {
-	Matrix result(4, 1);
-	result.val[0][0] = x;
-	result.val[1][0] = y;
-	result.val[2][0] = z;
-	result.val[3][0] = 1.0;
-	return result;
-}
+//Matrix PndLmdAlignManager::makeFourVector(double x, double y, double z) {
+//	Matrix result(4, 1);
+//	result.val[0][0] = x;
+//	result.val[1][0] = y;
+//	result.val[2][0] = z;
+//	result.val[3][0] = 1.0;
+//	return result;
+//}
 
 bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
