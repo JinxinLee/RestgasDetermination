@@ -159,36 +159,36 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sen
 
 	// from active area to sensor
 	fGeoManager->CdUp();
-	TGeoMatrix *senToAct(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *senToAct = (TGeoHMatrix*)fGeoManager->GetCurrentNode()->GetMatrix();
 
 	//from sensor to module
 	fGeoManager->CdUp();
-	TGeoMatrix *modToSen(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *modToSen = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
 
 	//from plane to module
 	fGeoManager->CdUp();
-	TGeoMatrix *plaToMod(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *plaToMod = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
 
 	//from half to plane
 	fGeoManager->CdUp();
-	TGeoMatrix *halToPla(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *halToPla = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
 
 	//from lmd_local to plane
 	fGeoManager->CdUp();
-	TGeoMatrix *lmdToHal(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *lmdToHal = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
 
 	//from global to lmd_local
 	fGeoManager->CdUp();
-	TGeoMatrix *gloToLmd(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *gloToLmd = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
 
-	auto matrix = &((*gloToLmd) * (*lmdToHal) * (*halToPla) * (*plaToMod) * (*modToSen) * (*senToAct));
+	TGeoHMatrix matrix = ((*gloToLmd) * (*lmdToHal) * (*halToPla) * (*plaToMod) * (*modToSen) * (*senToAct));
 
 	//fGeoManager->LocalToMaster(temp, result);
 
 	if (actPath != "" && actPath != " ")
 		fGeoManager->cd(actPath);
 
-	return TGeoHMatrix(matrix);
+	return matrix;
 }
 
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixSensorToPndGlobal(const int sensorId){
