@@ -705,8 +705,11 @@ Matrix PndLmdAlignManager::getMatrixOfficialGeometryGlobal(int fromSensor, int t
 	//dimension->Get_sensor_by_id(fromSensor, fhalf, fplane, fmodule, fside, fdie, fsensor);
 	//dimension->Get_sensor_by_id(toSensor, bhalf, bplane, bmodule, bside, bdie, bsensor);
 
-	const TGeoHMatrix& matrixSen1ToLmd = dimension->Get_transformation_sensor_to_global(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
-	const TGeoHMatrix& matrixLmdToSen2 = dimension->Get_transformation_global_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
+	//const TGeoHMatrix& matrixSen1ToLmd = dimension->Get_transformation_sensor_to_global(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
+	//const TGeoHMatrix& matrixLmdToSen2 = dimension->Get_transformation_global_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
+
+	auto matrixSen1ToLmd = helper->getMatrixSensorToPndGlobal(fromSensor);
+	auto matrixLmdToSen2 = helper->getMatrixPndGlobalToSensor(toSensor);
 
 	Matrix matSen1ToLmd = castTGeoHMatrixToMatrix(matrixSen1ToLmd);
 	Matrix matLmdToSen2 = castTGeoHMatrixToMatrix(matrixLmdToSen2);
