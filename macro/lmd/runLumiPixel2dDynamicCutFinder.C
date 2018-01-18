@@ -5,22 +5,6 @@
  *
  */
 
-//using namespace std;
-
-/*
-#include <TROOT.h>
-#include <TString.h>
-#include <TStopwatch.h>
-#include <FairRunAna.h>
-#include <FairRuntimeDb.h>
-#include <FairParRootFileIo.h>
-#include <FairParAsciiFileIo.h>
-#include <LmdPairFinderTask.h>
-#include <PndSdsGeoPar.h>
- */
-
-#include <stdio.h>
-
 void runLumiPixel2dDynamicCutFinder(const int nEvents=0, const int startEvent=00000, TString storePath="test/fullrun-1.5/digi", const int verboseLevel=0)
 {
 	// -----   Timer   --------------------------------------------------------
@@ -29,7 +13,7 @@ void runLumiPixel2dDynamicCutFinder(const int nEvents=0, const int startEvent=00
 
 	//gSystem->Load("libLmd");
 	//gSystem->Load("libLmdPairFinder");
-	gSystem->Load("libLmdSensorAligner");
+	//gSystem->Load("libLmdSensorAligner");
 
 	cout << "***********************\n";
 	cout << "Running PairFinderTask.\n";

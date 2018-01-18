@@ -28,6 +28,7 @@ Set(INCLUDE_DIRECTORIES
   ${CMAKE_SOURCE_DIR}/trackbase
   ${CMAKE_SOURCE_DIR}/geane
   ${CMAKE_SOURCE_DIR}/PndTrackers/riemannfit
+  ${CMAKE_SOURCE_DIR}/lmd/LmdMC/
 )
 
 Include_Directories(${INCLUDE_DIRECTORIES})

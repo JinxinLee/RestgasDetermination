@@ -8,18 +8,15 @@
 #ifndef LMDPAIRFINDERTASK_H_
 #define LMDPAIRFINDERTASK_H_
 
-#include "TClonesArray.h"
-
-#include "PndSdsTask.h"
 //#include "PndLmdAlignManager.h"
 #include "PndLmdAlignStructs.h"
 #include <PndLmdHitPair.h>
 #include <PndSdsHit.h>
+#include "PndSdsTask.h"
 
-//apparently, CINT has a problem with some boost classes
-//#ifndef __CINT__
+#include "TClonesArray.h"
+
 #include <boost/property_tree/ptree.hpp>
-//#endif
 
 #include <iostream>
 #include <string>
@@ -53,9 +50,24 @@ private:
 
 	pixelHit getPixelHitFromSdsHit(PndSdsHit *sdsHit);
 
-	//#ifndef __CINT__
 	boost::property_tree::ptree config;
-	//#endif
+
+	std::vector<double> distancesAbsolute;
+	std::vector<double> distanceVAll;
+	std::vector<double> distanceVSm250;
+	std::vector<double> distanceVBi250;
+	std::vector<double> distancesVFront;
+	std::vector<double> distancesVBack;
+	std::vector<double> distanceVArea0;
+	std::vector<double> distanceVArea1;
+	std::vector<double> distanceVArea2;
+	std::vector<double> distanceVArea3;
+	std::vector<double> distanceVArea4;
+	std::vector<double> distanceVArea5;
+	std::vector<double> distanceVArea6;
+	std::vector<double> distanceVArea7;
+	std::vector<double> distanceVArea8;
+	std::vector<double> distanceVArea9;
 
 public:
 

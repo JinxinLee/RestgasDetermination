@@ -4,9 +4,6 @@
  *	Author: Roman Klasen, roklasen@uni-mainz.de or klasen@kph.uni-mainz.de
  * 
  */
-using namespace std;
-
-#include <string>
 
 enum runParameter{kNormal, kPlotByOverlapID, kPlotByModule, kPlotCombinedPXResiduals, kPlotCombinedCMResiduals, kPlotCMMatrixResiduals, kPlotPXMatrixResiduals, kPlotCMvsPX, kPlotPXvsCMResiduals, kHistPixelDistances, kCalcOverlap, kCyclicCheckPX, kCyclicCheckCM};
 
