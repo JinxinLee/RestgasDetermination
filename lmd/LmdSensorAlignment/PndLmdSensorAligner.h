@@ -37,16 +37,7 @@ private:
 	std::string _inputFilename;
 	int _moduleID, overlapID;
 	int nonSanePairs, skippedPairs, swappedPairs, _verbose;
-//	int ID1, ID2;	//internal values only, not to be set or read anywhere
 
-//complete Pairs, DEPRECATED
-//std::vector<PndLmdHitPair> pairs;
-
-//simple pairs old UPDATE: this can go, refactoring
-//std::vector<std::pair<double, double> > simplePairsSensorOne;
-//std::vector<std::pair<double, double> > simplePairsSensorTwo;
-
-//simple pairs new
 	std::vector<double> simpleSensorOneX;
 	std::vector<double> simpleSensorOneY;
 	std::vector<double> simpleSensorOneZ;
@@ -126,22 +117,6 @@ public:
 	void setInCentimeters(bool inCentimeters) {
 		_inCentimeters = inCentimeters;
 	}
-
-//	void setId1(int id1) {
-//		ID1 = id1;
-//	}
-//
-//	void setId2(int id2) {
-//		ID2 = id2;
-//	}
-//
-//	int getId1() const {
-//		return ID1;
-//	}
-//
-//	int getId2() const {
-//		return ID2;
-//	}
 
 	bool isValid(double val);
 

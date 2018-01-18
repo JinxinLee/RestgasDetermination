@@ -141,9 +141,16 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global
 	temp[1] = global.Y();
 	temp[2] = global.Z();
 
+	auto matrix = getMatrixPndGlobalToSensor(sensor_id);
+	matrix.MasterToLocal(temp, result);
+
+	return TVector3(result);
+}
+
+const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sensorId) {
+
 	PndGeoHandling* geo_handling = PndGeoHandling::Instance();
-	std::string vol_path(geo_handling->GetPath(sensor_id).Data());
-	//geo_handling->FillLevelNames();
+	std::string vol_path(geo_handling->GetPath(sensorId).Data());
 
 	TString actPath = fGeoManager->GetPath();
 
@@ -174,17 +181,19 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global
 	fGeoManager->CdUp();
 	TGeoMatrix *gloToLmd(fGeoManager->GetCurrentNode()->GetMatrix());
 
-	TGeoMatrix *matrix = &((*gloToLmd) * (*lmdToHal) * (*halToPla) * (*plaToMod) * (*modToSen) * (*senToAct));
-	//TGeoMatrix *matrix = &( (*modToSen) * (*plaToMod) * (*halToPla) * (*lmdToHal) * (*gloToLmd) );
-
-	matrix->MasterToLocal(temp, result);
+	auto matrix = &((*gloToLmd) * (*lmdToHal) * (*halToPla) * (*plaToMod) * (*modToSen) * (*senToAct));
 
 	//fGeoManager->LocalToMaster(temp, result);
 
 	if (actPath != "" && actPath != " ")
 		fGeoManager->cd(actPath);
 
-	return TVector3(result);
+	return TGeoHMatrix(matrix);
+}
+
+const TGeoHMatrix PndLmdGeometryHelper::getMatrixSensorToPndGlobal(const int sensorId){
+	auto result = getMatrixPndGlobalToSensor(sensorId);
+	return TGeoHMatrix(result.Inverse());
 }
 
 int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
@@ -267,3 +276,4 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 	return 1000 * fhalf + 100 * fplane + 10 * fmodule + smalloverlap;
 
 }
+

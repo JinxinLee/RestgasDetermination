@@ -90,6 +90,9 @@ public:
 	TVector3 transformPndGlobalToLmdLocal(const TVector3 &vec);
 	TVector3 transformPndGlobalToSensor(const TVector3 &vec, int sensorId);
 
+	const TGeoHMatrix getMatrixPndGlobalToSensor(const int sensorId);
+	const TGeoHMatrix getMatrixSensorToPndGlobal(const int sensorId);
+
 };
 
 #endif /* LMD_LMDMC_PNDLMDGEOMETRYHELPER_H_ */
