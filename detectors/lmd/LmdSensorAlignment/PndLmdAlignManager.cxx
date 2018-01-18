@@ -127,8 +127,6 @@ void PndLmdAlignManager::init() {
 
 		PndLmdSensorAligner tempAligner;
 		tempAligner.setOverlapId(overlapId);
-		tempAligner.setId1(dimension->getID1fromOverlapID(overlapId));
-		tempAligner.setId2(dimension->getID2fromOverlapID(overlapId));
 		tempAligner.setZasTimetamp(_zIsTimestamp);
 		tempAligner.setNumericCorrection(_enableHelperMatrix);
 		tempAligner.setInCentimeters(_inCentimeters);
@@ -228,7 +226,6 @@ void PndLmdAlignManager::validate() {
 bool PndLmdAlignManager::addFile(std::string filename) {
 
 	if (_pretend) {
-		//cout << "pretending to add file...\n";
 		return true;
 	}
 
@@ -370,10 +367,8 @@ void PndLmdAlignManager::readFilesAndAlign() {
 		//loop over hitPairs per Event
 		for (int i_Pair = 0; i_Pair < nPairs; i_Pair++) {
 			PndLmdHitPair* currentPair = (PndLmdHitPair*) hitPairs->At(i_Pair);
-
 			addPairAndStartAligner(*currentPair);
 			totalPairs++;
-
 			if (allAlignersDone) {
 				return;
 			}
@@ -429,7 +424,6 @@ void PndLmdAlignManager::alignST() {
 			writeMatrix(result, matrixFilename);
 
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
-			_info << "area " << it->second.getId1() << " to " << it->second.getId2() << "\n";
 			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
 			_info << "\n";
 
@@ -496,7 +490,6 @@ void PndLmdAlignManager::alignMT() {
 			}
 
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
-			_info << "area " << it->second.getId1() << " to " << it->second.getId2() << "\n";
 			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
 			_info << "\n";
 		} else {
@@ -678,6 +671,7 @@ Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
  * get transformation matrix of fromSensor -> toSensor (LMD local reference frame)
  * ATTENTION! set aligned flag true for perfect geometry, else use false!
  */
+/*
 Matrix PndLmdAlignManager::getMatrixOfficialGeometry(int fromSensor, int toSensor, bool aligned) {
 
 	int fhalf, fplane, fmodule, fside, fdie, fsensor;
@@ -694,6 +688,7 @@ Matrix PndLmdAlignManager::getMatrixOfficialGeometry(int fromSensor, int toSenso
 	return matLmdToSen2 * matSen1ToLmd;
 
 }
+*/
 
 /*
  * get transformation matrix of fromSensor -> toSensor (PANDA global reference frame)
@@ -705,8 +700,11 @@ Matrix PndLmdAlignManager::getMatrixOfficialGeometryGlobal(int fromSensor, int t
 	int fhalf, fplane, fmodule, fside, fdie, fsensor;
 	int bhalf, bplane, bmodule, bside, bdie, bsensor;
 
-	dimension->Get_sensor_by_id(fromSensor, fhalf, fplane, fmodule, fside, fdie, fsensor);
-	dimension->Get_sensor_by_id(toSensor, bhalf, bplane, bmodule, bside, bdie, bsensor);
+	auto infoOne = helper->getHitLocationInfo(fromSensor);
+	auto infoTwo = helper->getHitLocationInfo(toSensor);
+
+	//dimension->Get_sensor_by_id(fromSensor, fhalf, fplane, fmodule, fside, fdie, fsensor);
+	//dimension->Get_sensor_by_id(toSensor, bhalf, bplane, bmodule, bside, bdie, bsensor);
 
 	const TGeoHMatrix& matrixSen1ToLmd = dimension->Get_transformation_sensor_to_global(fhalf, fplane, fmodule, fside, fdie, fsensor, aligned);
 	const TGeoHMatrix& matrixLmdToSen2 = dimension->Get_transformation_global_to_sensor(bhalf, bplane, bmodule, bside, bdie, bsensor, aligned);
@@ -789,10 +787,6 @@ std::stringstream* PndLmdAlignManager::readFile(std::string filename) {
 	int lines = 0;
 	stringstream *valueStream = new stringstream();
 
-	//get events from text file. later: directly from root file
-	//cout << "reading info from file.." << "\n";
-	//stringstream* valueStream = ss;
-
 	ifstream ifs;
 	ifs.open(filename.c_str());
 	if (!ifs.is_open()) {
@@ -827,7 +821,6 @@ Matrix PndLmdAlignManager::readMatrix(std::string filename) {
 	int rows, columns;
 	rows = temp.size();
 	columns = temp[0].size();
-
 	Matrix result(rows, columns);
 
 	for (int i = 0; i < rows; i++) {
@@ -835,6 +828,7 @@ Matrix PndLmdAlignManager::readMatrix(std::string filename) {
 			result.val[i][j] = temp[i][j];
 		}
 	}
+
 	return result;
 }
 
@@ -859,7 +853,6 @@ bool PndLmdAlignManager::writeMatrix(Matrix &mat, std::string filename) {
 	outFileStream << std::setprecision(16);
 	outFileStream << mat;
 	outFileStream.close();
-
 	return true;
 }
 
@@ -904,7 +897,6 @@ int PndLmdAlignManager::searchFiles(std::string path, std::vector<std::string> &
 	}
 	sort(list.begin(), list.end());
 	return list.size();
-
 }
 
 bool PndLmdAlignManager::mkdir(std::string path) {
@@ -926,7 +918,6 @@ bool PndLmdAlignManager::exists(std::string path) {
 vector<string> PndLmdAlignManager::findRegex(std::string source, std::string regex) {
 
 	boost::regex expression(regex);
-
 	std::string::const_iterator start, end;
 	start = source.begin();
 	end = source.end();
@@ -972,17 +963,6 @@ int PndLmdAlignManager::searchDirectories(std::string curr_directory, std::vecto
 
 }
 
-//TODO: remove!
-//void PndLmdAlignManager::enableHelperMatrix(bool enable) {
-//	_enableHelperMatrix = enable;
-//	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
-//		it->second.setNumericCorrection(_enableHelperMatrix);
-//	}
-//	if (_enableHelperMatrix) {
-//		writeMatrix(helperMatrix, _matrixOutDir + "cmHelperMatrix.mat");
-//	}
-//}
-
 void PndLmdAlignManager::setInCentimeters(bool inCentimeters) {
 	_inCentimeters = inCentimeters;
 	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
@@ -1017,7 +997,7 @@ void PndLmdAlignManager::transformGlobalToLmd(Matrix& matrix) {
 	matrix = lToG * tempmatrix * gToL;
 }
 */
-
+/*
 void PndLmdAlignManager::transformFromSensorToLmdLocal(Matrix& matrix, int sensorId, bool aligned) {
 	//create local copy
 	Matrix tempmatrix = Matrix(matrix);
@@ -1045,6 +1025,7 @@ void PndLmdAlignManager::transformFromLmdLocalToSensor(Matrix& matrix, int senso
 
 	matrix = matSensorToLmd * matrix * matLmdToSensor;
 }
+*/
 
 /*
  * returns the matrix needed to transform the position measured by the MISALIGNED lumi (aka measured position)
@@ -1300,7 +1281,6 @@ void PndLmdAlignManager::realignMatrixInLmd(Matrix &matrix, int startId, bool al
 Matrix PndLmdAlignManager::combineCyclicMatrix(int id, bool aligned) {
 
 	Matrix result = Matrix::eye(4);
-	bool success = false;
 
 	// get id of first sensor on module
 	int id1 = (std::floor(id / 10.0)) * 10;
@@ -1696,7 +1676,6 @@ void PndLmdAlignManager::waitForCompletion() {
 			}
 
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
-			_info << "area " << it->second.getId1() << " to " << it->second.getId2() << "\n";
 			_info << "no of pairs: " << it->second.getNoOfPairs() << "\n";
 			_info << "\n";
 		} else {
@@ -1775,6 +1754,8 @@ bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
 bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 
+	bool success = false;
+
 	if (_binaryPairFileDirectory == "") {
 		cout << "error: binary pair file directory not set. use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
 		return false;
@@ -1783,7 +1764,6 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 	int cur, tot;
 	cur = 0;
 	tot = aligners.size();
-	bool success = true;
 
 	cout << "reading all pairs from binary files\n";
 
@@ -1792,13 +1772,7 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 		if (!it->second.readPairsFromBinary(_binaryPairFileDirectory)) {
 			success = false;
 		} else {
-			//generate ID1 and ID2 from overlapID;
-			it->second.setId1(dimension->getID1fromOverlapID(it->second.getOverlapId()));
-			it->second.setId2(dimension->getID2fromOverlapID(it->second.getOverlapId()));
-
-			if (debug) {
-				return true;
-			}
+			success = true;
 		}
 	}
 	return success;
@@ -1815,7 +1789,7 @@ boost::property_tree::ptree PndLmdAlignManager::readConfigFile(std::string filen
 	boost::property_tree::ptree root;
 	try {
 		boost::property_tree::read_json(is, root);
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 		cerr << "PndLmdAlignManager::readConfig: ERROR! Can't parse json file " << filename << ".\n";
 	}
 	return root;

@@ -116,16 +116,16 @@ GENERATE_LIBRARY()
 #
 ########################### create PndLmdSensorAligner ######################################
 set(SRCS
-#LmdSensorAlignment/PndLmdAlignManager.cxx
-#LmdSensorAlignment/PndLmdSensorAligner.cxx
+LmdSensorAlignment/PndLmdAlignManager.cxx
+LmdSensorAlignment/PndLmdSensorAligner.cxx
 #LmdSensorAlignment/PndLmdAlignQA.cxx
 LmdSensorAlignment/LmdPairFinderTask.cxx
 LmdSensorAlignment/PndLmdHitPair.cxx
 )
 
 set(HEADERS
-#LmdSensorAlignment/PndLmdAlignManager.h
-#LmdSensorAlignment/PndLmdSensorAligner.h
+LmdSensorAlignment/PndLmdAlignManager.h
+LmdSensorAlignment/PndLmdSensorAligner.h
 #LmdSensorAlignment/PndLmdAlignQA.h 
 LmdSensorAlignment/LmdPairFinderTask.h
 LmdSensorAlignment/PndLmdHitPair.h
@@ -145,7 +145,6 @@ LmdSensorAlignment/icp/matrix.cpp
 LmdSensorAlignment/icp/kdtree.cpp
 LmdSensorAlignment/icp/icpPointToPoint.cpp
 LmdSensorAlignment/icp/icp.cpp
-#LmdSensorAlignment/RunningStats.cpp
 )
 
 set(HEADERS
@@ -153,7 +152,6 @@ LmdSensorAlignment/icp/matrix.h
 LmdSensorAlignment/icp/kdtree.h
 LmdSensorAlignment/icp/icpPointToPoint.h
 LmdSensorAlignment/icp/icp.h
-#LmdSensorAlignment/RunningStats.h
 LmdSensorAlignment/PndLmdAlignStructs.h
 )
 

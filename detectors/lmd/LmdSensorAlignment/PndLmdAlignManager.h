@@ -14,8 +14,6 @@
 
 #include "PndLmdHitPair.h"
 
-//apparently, CINT has a problem with some boost classes
-//#ifndef __CINT__
 #include <boost/asio.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/thread/mutex.hpp>
@@ -23,14 +21,9 @@
 #include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-//#endif
 
 #include <PndLmdAlignStructs.h>
 #include <PndLmdGeometryHelper.h>
-
-// no more
-//#include <PndLmdDim.h>
-
 #include <PndLmdSensorAligner.h>
 
 #include <TGeoMatrix.h>
@@ -56,10 +49,6 @@ private:
 
 	std::map<int, PndLmdSensorAligner> aligners;
 	std::map<int, bool> alignersFull;
-
-	//Matrix helperMatrix;
-
-	//PndLmdDim *dimension;
 
 	bool _allFilesAdded, _pretend, allAlignersDone, debug;
 	std::vector<std::string> fileNames;
@@ -147,18 +136,14 @@ public:
 	//considers inactive area, guard rings, pixel size etc
 	static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
 
-	//TODO: remove with PndLmdDim Dependency
-	//legacy function, should be deprecated and no longer used
-	//void transformGlobalToLmd(Matrix &matrix);
-
 	//helper transformation, since all px matrices are local to the system of
 	//the sensor they are from. they need to be transformed to lmd local so we can compare
 	//them to the matrices from pndlmddim. aligned should be true, since we don't
 	//actually have the misaligned matrices on the real geometry. use aligned=false
 	//only when comparing matrices from misaligned geometry
-	void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId, bool aligned = true);
+	//void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId, bool aligned = true);
 
-	void transformFromLmdLocalToSensor(Matrix &matrix, int sensorId, bool aligned = true);
+	//void transformFromLmdLocalToSensor(Matrix &matrix, int sensorId, bool aligned = true);
 
 	//returns a Matrix(4,4) from a TGeoHMatrix
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
@@ -170,7 +155,7 @@ public:
 	static Matrix getPixelToCentimeterTransformation();
 
 	//returns the actual matrices from PndLmdDim in LMD Local coordinate system
-	Matrix getMatrixOfficialGeometry(int fromSensor, int toSensor, bool misaligned);
+	//Matrix getMatrixOfficialGeometry(int fromSensor, int toSensor, bool misaligned);
 
 	//returns the actual matrices from PndLmdDim in panda global coordinate system
 	//you should not need this function anymore
@@ -183,26 +168,12 @@ public:
 	//this matrix is essentially what the ICP finds (when operating in CM mode)
 	Matrix getCorrectionMatrix(int id1, int id2);
 
-//	//helper matrix, should not be needed anymore
-//	Matrix getMatrixGlobalToLmd(){
-//		return castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true))));
-//	}
-//	//helper matrix, should not be needed anymore
-//	Matrix getMatrixLmdToGlobal(){
-//		return Matrix::inv(castTGeoHMatrixToMatrix(TGeoHMatrix(*(dimension->Get_matrix(-1,-1,-1,-1,-1,-1,true)))));
-//	}
-
 	static Matrix makeFourVector(double x, double y, double z);
 	static TVector3 castMatrixToTVector3(const Matrix &vec);
 
 	// read and write matrix files to and from disk
 	static Matrix readMatrix(std::string filename);
 	static bool writeMatrix(Matrix &mat, std::string filename);
-
-	//TODO: remove!
-	//const Matrix& getHelperMatrix() const {
-	//	return helperMatrix;
-	//}
 
 	void setSingleAligner(bool singleAligner) {
 		_singleAligner = singleAligner;
@@ -251,15 +222,7 @@ public:
 	void setInCentimeters(bool inCentimeters);
 	void setZasTimestamp(bool timestamp);
 
-	//TODO: remove!
-	//void enableHelperMatrix(bool enable);
 
-	//void readTrafoMatrix(std::string filename, bool aligned){
-	//	dimension->Read_transformation_matrices(filename, aligned);
-	//}
-
-	// hide all boost related things from ROOT
-	//#ifndef __CINT__
 	//when supplied with a function object, this function executes in a new thread
 	void workerThread(boost::shared_ptr<boost::asio::io_service> io_service);
 

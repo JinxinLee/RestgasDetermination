@@ -476,28 +476,6 @@ bool PndLmdSensorAligner::addSimplePair(PndLmdHitPair &pair) {
 		return false;
 	}
 
-//	//use ID info from first pair
-//	if (simpleSensorOneX.size() == 0) {
-//		ID1 = pair.getId1();
-//		ID2 = pair.getId2();
-//
-//	}
-
-
-//	//check if IDs are sorted the correct way
-//	else {
-//		if (pair.getId1() == ID1 && pair.getId2() == ID2) {
-//			//nothing, all cool
-//		} else if (pair.getId2() == ID1 && pair.getId1() == ID2) {
-//			pair.swapHits();
-//			swappedPairs++;
-//		} else {
-//			cout << "invalid pair! need to skip. \n";
-//			skippedPairs++;
-//			return false;
-//		}
-//	}
-
 	//finally, add pair
 	if (_inCentimeters) {
 		simpleSensorOneX.push_back(pair.getHit1().x());
