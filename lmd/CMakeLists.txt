@@ -116,16 +116,16 @@ GENERATE_LIBRARY()
 #
 ########################### create PndLmdSensorAligner ######################################
 set(SRCS
-LmdSensorAlignment/PndLmdAlignManager.cxx
-LmdSensorAlignment/PndLmdSensorAligner.cxx
+#LmdSensorAlignment/PndLmdAlignManager.cxx
+#LmdSensorAlignment/PndLmdSensorAligner.cxx
 #LmdSensorAlignment/PndLmdAlignQA.cxx
 LmdSensorAlignment/LmdPairFinderTask.cxx
 LmdSensorAlignment/PndLmdHitPair.cxx
 )
 
 set(HEADERS
-LmdSensorAlignment/PndLmdAlignManager.h
-LmdSensorAlignment/PndLmdSensorAligner.h
+#LmdSensorAlignment/PndLmdAlignManager.h
+#LmdSensorAlignment/PndLmdSensorAligner.h
 #LmdSensorAlignment/PndLmdAlignQA.h 
 LmdSensorAlignment/LmdPairFinderTask.h
 LmdSensorAlignment/PndLmdHitPair.h
