@@ -22,11 +22,11 @@
 
 #include <matrix.h>
 
-struct allPairs{
+struct allPairs {
 
 };
 
-class PndLmdSensorAligner{
+class PndLmdSensorAligner {
 
 private:
 
@@ -37,16 +37,16 @@ private:
 	std::string _inputFilename;
 	int _moduleID, overlapID;
 	int nonSanePairs, skippedPairs, swappedPairs, _verbose;
-	int ID1, ID2;
+//	int ID1, ID2;	//internal values only, not to be set or read anywhere
 
-	//complete Pairs, DEPRECATED
-	//std::vector<PndLmdHitPair> pairs;
+//complete Pairs, DEPRECATED
+//std::vector<PndLmdHitPair> pairs;
 
-	//simple pairs old UPDATE: this can go, refactoring
-	//std::vector<std::pair<double, double> > simplePairsSensorOne;
-	//std::vector<std::pair<double, double> > simplePairsSensorTwo;
+//simple pairs old UPDATE: this can go, refactoring
+//std::vector<std::pair<double, double> > simplePairsSensorOne;
+//std::vector<std::pair<double, double> > simplePairsSensorTwo;
 
-	//simple pairs new
+//simple pairs new
 	std::vector<double> simpleSensorOneX;
 	std::vector<double> simpleSensorOneY;
 	std::vector<double> simpleSensorOneZ;
@@ -67,7 +67,6 @@ public:
 	//every constructor should call this, also resets aligner (even though that never happens in normal use)
 	void init();
 
-
 	// add simplified pair, for size and performance reasons, return false if aligner has enough pairs, return true if successful
 	bool addSimplePair(PndLmdHitPair &pair);
 
@@ -75,9 +74,9 @@ public:
 	bool readPairsFromBinary(std::string directory);
 
 	//set how many pairs the aligner should use, if higher than available in file, it will use all available
-	void setMaximumNumberOfHitPairs(Int_t maxPais){
-		if(maxPais > 0){
-			_maxNoOfPairs=maxPais;
+	void setMaximumNumberOfHitPairs(Int_t maxPais) {
+		if (maxPais > 0) {
+			_maxNoOfPairs = maxPais;
 
 			//check vector capacity to avoid constant re-allocation, use max pairs
 			simpleSensorOneX.reserve(maxPais);
@@ -92,18 +91,18 @@ public:
 	void clearPairs();
 
 	//deactivate iterative part, use for debug only
-	void setForceInstant(Bool_t instant){
-		forceInstant=instant;
+	void setForceInstant(Bool_t instant) {
+		forceInstant = instant;
 	}
 
-	void setModuleID(Int_t ID){
-		_moduleID=ID;
+	void setModuleID(Int_t ID) {
+		_moduleID = ID;
 	}
-	int getModuleID(){
+	int getModuleID() {
 		return _moduleID;
 	}
-	int getNoOfPairs(){
-			return std::max(simpleSensorOneX.size(),(size_t)lastNoOfPairs);
+	int getNoOfPairs() {
+		return std::max(simpleSensorOneX.size(), (size_t) lastNoOfPairs);
 	}
 
 	void calculateMatrix();
@@ -115,8 +114,6 @@ public:
 	void setOverlapId(Int_t overlapId) {
 		overlapID = overlapId;
 	}
-
-	void printAllPairs();
 
 	const Matrix& getResultMatrix() const {
 		return resultMatrix;
@@ -130,25 +127,25 @@ public:
 		_inCentimeters = inCentimeters;
 	}
 
-	void setId1(int id1) {
-		ID1 = id1;
-	}
-
-	void setId2(int id2) {
-		ID2 = id2;
-	}
-
-	int getId1() const {
-		return ID1;
-	}
-
-	int getId2() const {
-		return ID2;
-	}
+//	void setId1(int id1) {
+//		ID1 = id1;
+//	}
+//
+//	void setId2(int id2) {
+//		ID2 = id2;
+//	}
+//
+//	int getId1() const {
+//		return ID1;
+//	}
+//
+//	int getId2() const {
+//		return ID2;
+//	}
 
 	bool isValid(double val);
 
-	bool successful(){
+	bool successful() {
 		return _success;
 	}
 
@@ -156,8 +153,8 @@ public:
 		_numericCorrection = numericCorrection;
 	}
 
-	void setZasTimetamp(bool value){
-		_zIsTimestamp=value;
+	void setZasTimetamp(bool value) {
+		_zIsTimestamp = value;
 	}
 
 	void setReshapePointClouds(bool value) {

@@ -185,8 +185,6 @@ void LmdPairFinderTask::SetParContainers() {
 	// Get Base Container
 	ana = FairRun::Instance();
 	rtdb = ana->GetRuntimeDb();
-	//fDigiPar = (PndSdsPixelDigiPar*) (rtdb->getContainer("SDSPixelDigiPar"));
-	//	rtdb->getContainer("SDSPixelTotDigiPar");
 
 	PndLmdContFact* themvdcontfact = (PndLmdContFact*) rtdb->getContFactory("PndLmdContFact");
 	//read params for lumi alignment
@@ -733,7 +731,6 @@ pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 
 		PndSdsDigiPixel* mcPixel = (PndSdsDigiPixel*) digiArray->At(clusterPixelCand->GetDigiIndex(iCluster));
 
-		//TODO; do this properly
 		if (!mcPixel) {
 			exit(1);
 		}
