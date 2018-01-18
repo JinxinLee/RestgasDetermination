@@ -4,8 +4,6 @@
 #include "TClonesArray.h"
 #include "TMath.h"
 
-#include "PndLmdGeometryHelper.h"
-
 PndSdsChargeWeightedPixelMapping::PndSdsChargeWeightedPixelMapping()
 :PndSdsPixelBackMapping(),
       fChargeConverter(NULL),
@@ -103,17 +101,7 @@ fDigiArray = pixelArray;
 
   TVector3 offset = GetSensorDimensions(fDigiArray[0].GetSensorID());
   TVector3 locpos( col*flx - offset.X(), row*fly - offset.Y(), 0);
-  //std::cout << "local point:\n";
-  //locpos.Print();
   TVector3 pos = fGeoH->LocalToMasterShortId(locpos,fDigiArray[0].GetSensorID());
-  //std::cout << "global position:\n";
-  //pos.Print();
-
-  PndLmdGeometryHelper &helper = PndLmdGeometryHelper::getInstance();
-  auto reconstructedToSensor = helper.transformPndGlobalToSensor(pos, fDigiArray[0].GetSensorID());
-  //std::cout << "hit back in sensor:\n";
-  //reconstructedToSensor.Print();
-
 
   Double_t errZ = 2.*fGeoH->GetSensorDimensionsShortId(fDigiArray[0].GetSensorID()).Z();
   TMatrixD locCov(3,3);
