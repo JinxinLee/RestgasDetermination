@@ -88,8 +88,6 @@ InitStatus LmdPairFinderTask::Init() {
 
 	SetBranchNames();
 
-	helper = &PndLmdGeometryHelper::getInstance();
-
 	FairRootManager* ioman = FairRootManager::Instance();
 
 	if (!ioman) {
@@ -115,10 +113,6 @@ InitStatus LmdPairFinderTask::Init() {
 		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInClusterCandidates << " not found!" << "\n";
 		return kERROR;
 	}
-
-	//dimension = PndLmdDim::Instance();
-	//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd.dat",true);
-	//dimension->Read_transformation_matrices("/geometry/trafo_matrices_lmd_misaligned.dat",false);
 
 	if (!_findDynamicCutParameters && _useDynamicCut) {
 
@@ -163,6 +157,8 @@ InitStatus LmdPairFinderTask::Init() {
 
 	hitPairArray = new TClonesArray("PndLmdHitPair");
 	ioman->Register("PndLmdHitPair", "PndLmd", hitPairArray, kTRUE);
+
+	helper = &PndLmdGeometryHelper::getInstance();
 
 	std::cout << "LmdPairFinder::Init(): Initialization successful." << "\n";
 	return kSUCCESS;
