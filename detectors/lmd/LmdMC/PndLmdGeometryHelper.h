@@ -94,6 +94,7 @@ public:
 	const TGeoHMatrix getMatrixSensorToPndGlobal(const int sensorId);
 
 	const TGeoHMatrix getMatrixPndGlobalToLmdLocal();
+	const TgeoHMatrix getMatrixLmdLocalToPndGlobal();
 
 };
 

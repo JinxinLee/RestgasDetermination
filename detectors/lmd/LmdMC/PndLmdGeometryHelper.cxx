@@ -137,9 +137,7 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global
 	Double_t result[3];
 	Double_t temp[3];
 
-	temp[0] = global.X();
-	temp[1] = global.Y();
-	temp[2] = global.Z();
+	global.GetXYZ(temp);
 
 	auto matrix = getMatrixPndGlobalToSensor(sensor_id);
 	matrix.MasterToLocal(temp, result);
