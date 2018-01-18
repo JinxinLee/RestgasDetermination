@@ -71,18 +71,14 @@ private:
 	static void readPairsFromChainMT(std::vector<std::string> files, std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
 
 	//produces matrices 0 -> 1,2,3,4,5,6,7,8,9
-	Matrix combineMatrix(int id1, int id2, bool aligned);
+	Matrix combineMatrix(int id1, int id2);
 
 	//produces matrices i -> ... -> i (should be almost identity matrix)
-	Matrix combineCyclicMatrix(int id, bool aligned);
+	Matrix combineCyclicMatrix(int id);
 
 	//generate the file name of a matrix or pair file, so changes must only be made once
-	static std::string makeBinaryPairFileName(int overlapId = 0, bool incentimeters = true, bool correctionMatrix = false);
-	static std::string makeBinaryPairFileName(int sensorOne = 0, int sensorTwo = 0, bool incentimeters = true, bool correctionMatrix = false);
-	static std::string makeMatrixFileName(int overlapId = 0, bool incentimeters = true, bool correctionMatrix = false);
-	static std::string makeMatrixFileName(int sensorOne = 0, int sensorTwo = 0, bool incentimeters = true, bool correctionMatrix = false);
-
-	void realignMatrixInLmd(Matrix &matrix, int startId, bool aligned);
+	static std::string makeBinaryPairFileName(int overlapId = 0, bool incentimeters = true);
+	static std::string makeMatrixFileName(int overlapId = 0, bool incentimeters = true);
 
 public:
 
@@ -124,7 +120,8 @@ public:
 	//perform last checks and run calculations on all aligners
 	void alignAllSensors();
 
-	void writeDebugInfoOnAllSensors();
+	//TODO: remove
+	//void writeDebugInfoOnAllSensors();
 
 	static void loadBar(int current, int total, int resolution, int width, std::string message = "");
 
@@ -149,7 +146,7 @@ public:
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
 
 	//returns a Matrix(4,1) to use with homogenous matrices
-	static Matrix castTVector3toMatrix(const TVector3 &vec);
+	//static Matrix castTVector3toMatrix(const TVector3 &vec);
 
 	//returns a Matrix(4,4) that transforms PX coordinates to CM in teh system of a sensor
 	static Matrix getPixelToCentimeterTransformation();
@@ -159,17 +156,19 @@ public:
 
 	//returns the actual matrices from PndLmdDim in panda global coordinate system
 	//you should not need this function anymore
-	Matrix getMatrixOfficialGeometryGlobal(int fromSensor, int toSensor, bool misaligned);
+	Matrix getMatrixSensorToSensor(int fromSensor, int toSensor);
 
 	//returns the transformation matrix from sensor(aligned)->sensor(misaligned)
-	Matrix getCorrectionMatrix(int id);
+	//TODO: remove
+	//Matrix getCorrectionMatrix(int id);
 
 	//returns the transformation matrix from sensor1(misaligned)->sensor2(misaligned)
 	//this matrix is essentially what the ICP finds (when operating in CM mode)
-	Matrix getCorrectionMatrix(int id1, int id2);
+	//TODO: remove
+	//Matrix getCorrectionMatrix(int id1, int id2);
 
-	static Matrix makeFourVector(double x, double y, double z);
-	static TVector3 castMatrixToTVector3(const Matrix &vec);
+	//static Matrix makeFourVector(double x, double y, double z);
+	//static TVector3 castMatrixToTVector3(const Matrix &vec);
 
 	// read and write matrix files to and from disk
 	static Matrix readMatrix(std::string filename);

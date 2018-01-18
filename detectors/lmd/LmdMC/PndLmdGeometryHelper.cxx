@@ -117,18 +117,10 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3& glob
 	Double_t result[3];
 	Double_t temp[3];
 
-	temp[0] = global.X();
-	temp[1] = global.Y();
-	temp[2] = global.Z();
+	global.GetXYZ(temp);
 
-	TString actPath = fGeoManager->GetPath();
-
-	fGeoManager->cd(lmd_root_path.c_str());
-	TGeoMatrix *matrix(fGeoManager->GetCurrentNode()->GetMatrix());
-	matrix->MasterToLocal(temp, result);
-
-	if (actPath != "" && actPath != " ")
-		fGeoManager->cd(actPath);
+	auto matrix = getMatrixPndGlobalToLmdLocal();
+	matrix.MasterToLocal(temp, result);
 
 	return TVector3(result);
 }
@@ -157,27 +149,27 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sen
 
 	// from active area to sensor
 	fGeoManager->CdUp();
-	TGeoHMatrix *senToAct = (TGeoHMatrix*)fGeoManager->GetCurrentNode()->GetMatrix();
+	TGeoHMatrix *senToAct = (TGeoHMatrix*) fGeoManager->GetCurrentNode()->GetMatrix();
 
 	//from sensor to module
 	fGeoManager->CdUp();
-	TGeoHMatrix *modToSen = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *modToSen = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
 
 	//from plane to module
 	fGeoManager->CdUp();
-	TGeoHMatrix *plaToMod = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *plaToMod = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
 
 	//from half to plane
 	fGeoManager->CdUp();
-	TGeoHMatrix *halToPla = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *halToPla = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
 
 	//from lmd_local to plane
 	fGeoManager->CdUp();
-	TGeoHMatrix *lmdToHal = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *lmdToHal = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
 
 	//from global to lmd_local
 	fGeoManager->CdUp();
-	TGeoHMatrix *gloToLmd = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *gloToLmd = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
 
 	TGeoHMatrix matrix = ((*gloToLmd) * (*lmdToHal) * (*halToPla) * (*plaToMod) * (*modToSen) * (*senToAct));
 
@@ -189,7 +181,7 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sen
 	return matrix;
 }
 
-const TGeoHMatrix PndLmdGeometryHelper::getMatrixSensorToPndGlobal(const int sensorId){
+const TGeoHMatrix PndLmdGeometryHelper::getMatrixSensorToPndGlobal(const int sensorId) {
 	auto result = getMatrixPndGlobalToSensor(sensorId);
 	return TGeoHMatrix(result.Inverse());
 }
@@ -275,3 +267,19 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 
 }
 
+const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToLmdLocal() {
+
+	TString actPath = fGeoManager->GetPath();
+
+	fGeoManager->cd(lmd_root_path.c_str());
+	TGeoHMatrix *matrix = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
+
+	if (actPath != "" && actPath != " ")
+		fGeoManager->cd(actPath);
+
+	return *matrix;
+}
+
+const TGeoHMatrix PndLmdGeometryHelper::getMatrixLmdLocalToPndGlobal() {
+	return getMatrixPndGlobalToLmdLocal().Inverse();
+}
