@@ -52,7 +52,8 @@ private:
 
 	bool _allFilesAdded, _pretend, allAlignersDone, debug;
 	std::vector<std::string> fileNames;
-	bool useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp, startAlignerWhenFull;
+	bool useSimpleStorage, _singleAligner, _inCentimeters, _enableHelperMatrix, _zIsTimestamp,
+	        startAlignerWhenFull;
 	std::string outFilename, _matrixOutDir, _binaryPairFileDirectory;
 	bool _firstInitDone;
 	bool _multithreaded;
@@ -68,7 +69,8 @@ private:
 	void checkIOpaths();
 
 	//don't use, doesn't work with root like that
-	static void readPairsFromChainMT(std::vector<std::string> files, std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
+	static void readPairsFromChainMT(std::vector<std::string> files,
+	        std::map<int, PndLmdSensorAligner> &aligners, PndLmdAlignManager &manager);
 
 	//produces matrices 0 -> 1,2,3,4,5,6,7,8,9
 	Matrix combineMatrix(int id1, int id2);
@@ -196,13 +198,15 @@ public:
 	 * finds all extensions by default, but you can specify which extension
 	 * (or part of filename) you want
 	 */
-	static int searchFiles(std::string curr_directory, std::vector<std::string> &list, std::string extension = "", bool includeSubDirs = true);
+	static int searchFiles(std::string curr_directory, std::vector<std::string> &list,
+	        std::string extension = "", bool includeSubDirs = true);
 
 	//clear console
 	static void clearScreen();
 
 	//searches directories in curr_directory, adds to list
-	static int searchDirectories(std::string curr_directory, std::vector<std::string> &list, bool includeSubDirs = true);
+	static int searchDirectories(std::string curr_directory, std::vector<std::string> &list,
+	        bool includeSubDirs = true);
 	static bool mkdir(std::string path);
 	static bool exists(std::string file);
 	static std::vector<std::string> findRegex(std::string source, std::string regex);
@@ -221,12 +225,12 @@ public:
 	void setInCentimeters(bool inCentimeters);
 	void setZasTimestamp(bool timestamp);
 
-
 	//when supplied with a function object, this function executes in a new thread
 	void workerThread(boost::shared_ptr<boost::asio::io_service> io_service);
 
 	//write config file
-	static bool writeConfigFile(boost::property_tree::ptree configTree, std::string filename, bool replaceExisting = true);
+	static bool writeConfigFile(boost::property_tree::ptree configTree, std::string filename,
+	        bool replaceExisting = true);
 
 	//read json config file
 	static boost::property_tree::ptree readConfigFile(std::string filename);

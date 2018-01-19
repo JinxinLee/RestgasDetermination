@@ -81,7 +81,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 		if (s1 == s2 && s2 == s3 && s3 == s4 && s4 == s5 && s5 == s6) {
 			nPairs = simpleSensorOneX.size();
 		} else {
-			cout << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
+			cout
+			        << "PndLmdSensorAligner::calculateMatrix::FATAL. Pair sorting error, pairs vectors have different sizes.\n";
 			cout << "s1: " << s1 << "\n";
 			cout << "s2: " << s2 << "\n";
 			cout << "s3: " << s3 << "\n";
@@ -119,7 +120,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 	//check if maxPairs > 0
 	if (nPairs < 5) {
-		cerr << "PndLmdSensrAligner::Error: Trying to use less than 5 pairs! (And that's not going to work.) Aborting.\n";
+		cerr
+		        << "PndLmdSensrAligner::Error: Trying to use less than 5 pairs! (And that's not going to work.) Aborting.\n";
 		_success = false;
 		return;
 	} else {
@@ -159,8 +161,10 @@ void PndLmdSensorAligner::calculateMatrix() {
 
 			if (_verbose == 3) {
 				cout << "Mreshapre before reshape:\n" << Mreshape << "\n";
-				cout << "Mreshapre (Model) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim) << "\n";
-				cout << "Mreshapre (Templ) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim) << "\n";
+				cout << "Mreshapre (Model) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim)
+				        << "\n";
+				cout << "Mreshapre (Templ) after reshape:\n" << computeReshapeMatrix(Model, nPairs, dim)
+				        << "\n";
 			}
 		}
 
@@ -407,7 +411,8 @@ void PndLmdSensorAligner::calculateMatrix() {
 		//and say a few words for the log
 		alignlog << "\n";
 		alignlog << "====================================================\n";
-		alignlog << "icp converged for overlapID " << overlapID << " in " << icp.getInterations() << " iterations.\n";
+		alignlog << "icp converged for overlapID " << overlapID << " in " << icp.getInterations()
+		        << " iterations.\n";
 		alignlog << "pairs available: " << nPairs;
 		if (nPairs < 100000) {
 			alignlog << " (WARNING! This is not enough for accurate alignment!)\n";
@@ -523,8 +528,10 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 			nPairs = 0;
 		}
 
-		if (simpleSensorOneX.size() == simpleSensorOneY.size() && simpleSensorOneX.size() == simpleSensorOneZ.size()
-		        && simpleSensorOneX.size() == simpleSensorTwoX.size() && simpleSensorOneX.size() == simpleSensorTwoY.size()
+		if (simpleSensorOneX.size() == simpleSensorOneY.size()
+		        && simpleSensorOneX.size() == simpleSensorOneZ.size()
+		        && simpleSensorOneX.size() == simpleSensorTwoX.size()
+		        && simpleSensorOneX.size() == simpleSensorTwoY.size()
 		        && simpleSensorOneX.size() == simpleSensorTwoZ.size()) {
 			nPairs = simpleSensorOneX.size();
 		} else {
@@ -542,11 +549,12 @@ bool PndLmdSensorAligner::writePairsToBinary(std::string directory) {
 	}
 
 	if (nPairs == 0) {
-		cout << "warning: attempting to write empty binary pair file! (no pairs in buffer for overlapID " << overlapID << ")\n";
+		cout << "warning: attempting to write empty binary pair file! (no pairs in buffer for overlapID "
+		        << overlapID << ")\n";
 		return false;
 	}
 
-	size_t length = nPairs * doublesPerPair + 6;		//number of raw doubles (including header), remember pairs have 6 doubles
+	size_t length = nPairs * doublesPerPair + 6;//number of raw doubles (including header), remember pairs have 6 doubles
 
 	filename = directory;
 	filename += PndLmdAlignManager::makeBinaryPairFileName(overlapID, _inCentimeters);
@@ -690,7 +698,8 @@ bool PndLmdSensorAligner::readPairsFromBinary(std::string directory) {
 		size_t filesizeMust = sizeof(double) * (noOfDoubles);
 
 		if (doublesize != header[3]) {
-			cout << "warning! sizeof(double) on this system is different than on the system that made this binary!\n";
+			cout
+			        << "warning! sizeof(double) on this system is different than on the system that made this binary!\n";
 			//TODO: decide what to do in this case
 			exit(1);
 			doublesize = header[3];
@@ -888,7 +897,8 @@ Matrix PndLmdSensorAligner::computeReshapeMatrix(double* pointCloud, int nPairs,
 }
 
 //TODO: complete this for z dimension!
-void PndLmdSensorAligner::reshapePointCloud(double* pointcloud, int nPairs, int dim, Matrix reshapeMatrix) {
+void PndLmdSensorAligner::reshapePointCloud(double* pointcloud, int nPairs, int dim,
+        Matrix reshapeMatrix) {
 
 	if (_verbose == 3) {
 		cout << "reshaping point cloud...\n";
