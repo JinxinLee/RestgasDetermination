@@ -20,10 +20,11 @@ PndLmdGeometryHelper::~PndLmdGeometryHelper() {
  * -> sensor: sensor counter for a module. Total number of sensors per module is
  *    2x (modules per side). Counting starts on front (w.r.t. beam direction)
  */
-PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo(const std::string& volume_path) const {
+PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo(
+    const std::string &volume_path) const {
 	PndLmdHitLocationInfo hit_info;
 	std::stringstream reg_exp;
-	for (auto const& nav_path : navigation_paths) {
+	for (auto const &nav_path : navigation_paths) {
 		reg_exp << "/" << nav_path << "_(\\d+)";
 	}
 
@@ -37,25 +38,36 @@ PndLmdHitLocationInfo PndLmdGeometryHelper::translateVolumePathToHitLocationInfo
 		hit_info.module_side = 0;
 		hit_info.module_sensor_id = sensor_id;
 
-		unsigned int sensors_per_module_side = geometry_properties.get<unsigned int>("general.sensors_per_module_side");
+		unsigned int sensors_per_module_side = geometry_properties.get<unsigned int>(
+		    "general.sensors_per_module_side");
 
 		if (sensor_id > sensors_per_module_side - 1) {
 			hit_info.module_side = 1;
 			sensor_id = sensor_id % (sensors_per_module_side - 1);
 		}
-	} else {
+
+		// now we have to make sure the TGeoManager builds the matrix cache
+		// correctly the only way we found (analogous to PndGeoHandling) is to
+		// dive down to this node from the top, then the matrix multiplications
+		// are done correctly
+		TString actPath = fGeoManager->GetPath();
+		fGeoManager->cd(volume_path.c_str());
+		PndGeoHandling::Instance()->cd(fGeoManager->GetCurrentNode());
+		if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
+
+	}
+	else {
 		throw std::runtime_error("PndLmdGeometryHelper::translateVolumePathToHitLocationInfo: geometry "
 				"navigation paths mismatch!"
 				" Seems like you used a different lmd geo config file to create a lmd "
-				"root geometry"
-				" which was use in your simulations...");
+				"root geometry which was use in your simulations...");
 	}
 
 	return hit_info;
 }
 
-const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(int sensor_id) {
-	PndGeoHandling* geo_handling = PndGeoHandling::Instance();
+const PndLmdHitLocationInfo &PndLmdGeometryHelper::createMappingEntry(int sensor_id) {
+	PndGeoHandling *geo_handling = PndGeoHandling::Instance();
 
 	std::string vol_path(geo_handling->GetPath(sensor_id).Data());
 
@@ -66,8 +78,8 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(int sensor
 	return sensor_id_to_hit_info_mapping[sensor_id];
 }
 
-const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(const std::string& volume_path) {
-	PndGeoHandling* geo_handling = PndGeoHandling::Instance();
+const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(const std::string &volume_path) {
+	PndGeoHandling *geo_handling = PndGeoHandling::Instance();
 
 	int sensor_id(geo_handling->GetShortID(volume_path.c_str()));
 
@@ -78,20 +90,22 @@ const PndLmdHitLocationInfo& PndLmdGeometryHelper::createMappingEntry(const std:
 	return volume_path_to_hit_info_mapping[volume_path];
 }
 
-const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(const std::string& volume_path) {
-	auto const& result = volume_path_to_hit_info_mapping.find(volume_path);
+const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(const std::string &volume_path) {
+	auto const &result = volume_path_to_hit_info_mapping.find(volume_path);
 	if (result != volume_path_to_hit_info_mapping.end()) {
 		return result->second;
-	} else {
+	}
+	else {
 		return createMappingEntry(volume_path);
 	}
 }
 
 const PndLmdHitLocationInfo& PndLmdGeometryHelper::getHitLocationInfo(int sensor_id) {
-	auto const& result = sensor_id_to_hit_info_mapping.find(sensor_id);
+	auto const &result = sensor_id_to_hit_info_mapping.find(sensor_id);
 	if (result != sensor_id_to_hit_info_mapping.end()) {
 		return result->second;
-	} else {
+	}
+	else {
 		return createMappingEntry(sensor_id);
 	}
 }
@@ -113,7 +127,7 @@ std::vector<int> PndLmdGeometryHelper::getAvailableOverlapIDs() {
 	return result;
 }
 
-TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3& global) {
+TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3 &global) {
 	Double_t result[3];
 	Double_t temp[3];
 
@@ -125,7 +139,7 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToLmdLocal(const TVector3& glob
 	return TVector3(result);
 }
 
-TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global, int sensor_id) {
+TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3 &global, int sensor_id) {
 	Double_t result[3];
 	Double_t temp[3];
 
@@ -138,45 +152,17 @@ TVector3 PndLmdGeometryHelper::transformPndGlobalToSensor(const TVector3& global
 }
 
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToSensor(const int sensorId) {
-
-	PndGeoHandling* geo_handling = PndGeoHandling::Instance();
-	std::string vol_path(geo_handling->GetPath(sensorId).Data());
+	PndGeoHandling *geo_handling = PndGeoHandling::Instance();
+	std::string vol_path(geo_handling->GetPath(int(sensorId)));
 
 	TString actPath = fGeoManager->GetPath();
-
-	fGeoManager->CdTop();
+	// go to active part of sensor
 	fGeoManager->cd(vol_path.c_str());
-
-	// from active area to sensor
+	// we want the matrix of the whole sensor. so just cd up once
 	fGeoManager->CdUp();
-	TGeoHMatrix *senToAct = (TGeoHMatrix*) fGeoManager->GetCurrentNode()->GetMatrix();
 
-	//from sensor to module
-	fGeoManager->CdUp();
-	TGeoHMatrix *modToSen = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
-
-	//from plane to module
-	fGeoManager->CdUp();
-	TGeoHMatrix *plaToMod = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
-
-	//from half to plane
-	fGeoManager->CdUp();
-	TGeoHMatrix *halToPla = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
-
-	//from lmd_local to plane
-	fGeoManager->CdUp();
-	TGeoHMatrix *lmdToHal = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
-
-	//from global to lmd_local
-	fGeoManager->CdUp();
-	TGeoHMatrix *gloToLmd = (TGeoHMatrix*) (fGeoManager->GetCurrentNode()->GetMatrix());
-
-	TGeoHMatrix matrix = ((*gloToLmd) * (*lmdToHal) * (*halToPla) * (*plaToMod) * (*modToSen) * (*senToAct));
-
-	//fGeoManager->LocalToMaster(temp, result);
-
-	if (actPath != "" && actPath != " ")
-		fGeoManager->cd(actPath);
+	TGeoHMatrix matrix = *fGeoManager->GetCurrentMatrix();
+	if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
 
 	return matrix;
 }
@@ -199,7 +185,8 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 	fhalf = infoOne.detector_half;
 	bhalf = infoTwo.detector_half;
 
-	//the necessities for overlapping, must be on same half, plane, module and other side
+	// the necessities for overlapping, must be on same half, plane, module and
+	// other side
 	if (bhalf != fhalf) {
 		return -1;
 	}
@@ -227,44 +214,43 @@ int PndLmdGeometryHelper::getOverlapIdFromSensorIDs(int id1, int id2) {
 		return -1;
 	}
 
-	//0to5
+	// 0to5
 	if (fsensor == 0 && bsensor == 5) {
 		smalloverlap = 0;
 	}
-	//3to8
+	// 3to8
 	else if (fsensor == 3 && bsensor == 8) {
 		smalloverlap = 1;
 	}
-	//4to9
+	// 4to9
 	else if (fsensor == 4 && bsensor == 9) {
 		smalloverlap = 2;
 	}
-	//3to6
+	// 3to6
 	else if (fsensor == 3 && bsensor == 6) {
 		smalloverlap = 3;
 	}
-	//1to8
+	// 1to8
 	else if (fsensor == 1 && bsensor == 8) {
 		smalloverlap = 4;
 	}
-	//2to8
+	// 2to8
 	else if (fsensor == 2 && bsensor == 8) {
 		smalloverlap = 5;
 	}
-	//2to9
+	// 2to9
 	else if (fsensor == 2 && bsensor == 9) {
 		smalloverlap = 6;
 	}
-	//3to7
+	// 3to7
 	else if (fsensor == 3 && bsensor == 7) {
 		smalloverlap = 7;
 	}
-	//4to7
+	// 4to7
 	else if (fsensor == 4 && bsensor == 7) {
 		smalloverlap = 8;
 	}
 	return 1000 * fhalf + 100 * fplane + 10 * fmodule + smalloverlap;
-
 }
 
 const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToLmdLocal() {
@@ -272,10 +258,9 @@ const TGeoHMatrix PndLmdGeometryHelper::getMatrixPndGlobalToLmdLocal() {
 	TString actPath = fGeoManager->GetPath();
 
 	fGeoManager->cd(lmd_root_path.c_str());
-	TGeoHMatrix *matrix = (TGeoHMatrix*)(fGeoManager->GetCurrentNode()->GetMatrix());
+	TGeoHMatrix *matrix = (TGeoHMatrix *) (fGeoManager->GetCurrentNode()->GetMatrix());
 
-	if (actPath != "" && actPath != " ")
-		fGeoManager->cd(actPath);
+	if (actPath != "" && actPath != " ") fGeoManager->cd(actPath);
 
 	return *matrix;
 }
