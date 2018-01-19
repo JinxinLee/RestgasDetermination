@@ -52,6 +52,7 @@ private:
 
 	boost::property_tree::ptree config;
 
+	/*
 	std::vector<double> distancesAbsolute;
 	std::vector<double> distanceVAll;
 	std::vector<double> distanceVSm250;
@@ -68,6 +69,7 @@ private:
 	std::vector<double> distanceVArea7;
 	std::vector<double> distanceVArea8;
 	std::vector<double> distanceVArea9;
+	*/
 
 public:
 
@@ -149,7 +151,7 @@ protected:
 	//means two clusters can reasonably belong to a single track
 	bool candDistanceIsGood(PndLmdHitPair &candidate);
 
-	ClassDef(LmdPairFinderTask,17);
+	ClassDef(LmdPairFinderTask,18);
 };
 
 #endif /* PAIRFINDERTASK_H_ */
