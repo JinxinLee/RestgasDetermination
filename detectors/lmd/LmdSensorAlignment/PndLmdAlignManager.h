@@ -122,9 +122,6 @@ public:
 	//perform last checks and run calculations on all aligners
 	void alignAllSensors();
 
-	//TODO: remove
-	//void writeDebugInfoOnAllSensors();
-
 	static void loadBar(int current, int total, int resolution, int width, std::string message = "");
 
 	void setSimpleStorage(bool val) {
@@ -135,42 +132,11 @@ public:
 	//considers inactive area, guard rings, pixel size etc
 	static Matrix transformMatrixFromPixelsToCm(const Matrix &input);
 
-	//helper transformation, since all px matrices are local to the system of
-	//the sensor they are from. they need to be transformed to lmd local so we can compare
-	//them to the matrices from pndlmddim. aligned should be true, since we don't
-	//actually have the misaligned matrices on the real geometry. use aligned=false
-	//only when comparing matrices from misaligned geometry
-	//void transformFromSensorToLmdLocal(Matrix &matrix, int sensorId, bool aligned = true);
-
-	//void transformFromLmdLocalToSensor(Matrix &matrix, int sensorId, bool aligned = true);
-
-	//returns a Matrix(4,4) from a TGeoHMatrix
 	static Matrix castTGeoHMatrixToMatrix(const TGeoHMatrix &matrix);
 
-	//returns a Matrix(4,1) to use with homogenous matrices
-	//static Matrix castTVector3toMatrix(const TVector3 &vec);
-
-	//returns a Matrix(4,4) that transforms PX coordinates to CM in teh system of a sensor
 	static Matrix getPixelToCentimeterTransformation();
 
-	//returns the actual matrices from PndLmdDim in LMD Local coordinate system
-	//Matrix getMatrixOfficialGeometry(int fromSensor, int toSensor, bool misaligned);
-
-	//returns the actual matrices from PndLmdDim in panda global coordinate system
-	//you should not need this function anymore
 	Matrix getMatrixSensorToSensor(int fromSensor, int toSensor);
-
-	//returns the transformation matrix from sensor(aligned)->sensor(misaligned)
-	//TODO: remove
-	//Matrix getCorrectionMatrix(int id);
-
-	//returns the transformation matrix from sensor1(misaligned)->sensor2(misaligned)
-	//this matrix is essentially what the ICP finds (when operating in CM mode)
-	//TODO: remove
-	//Matrix getCorrectionMatrix(int id1, int id2);
-
-	//static Matrix makeFourVector(double x, double y, double z);
-	//static TVector3 castMatrixToTVector3(const Matrix &vec);
 
 	// read and write matrix files to and from disk
 	static Matrix readMatrix(std::string filename);

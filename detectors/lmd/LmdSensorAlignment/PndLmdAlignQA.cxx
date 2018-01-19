@@ -26,7 +26,9 @@
 #include <TFile.h>
 #include <TGeoManager.h>
 
+using std::make_pair;
 using std::string;
+using std::stringstream;
 using std::vector;
 
 PndLmdAlignQA::PndLmdAlignQA() {
@@ -43,15 +45,8 @@ void PndLmdAlignQA::init() {
 	infoRelative = false;
 	byPlane = false;
 	_inCentimeters = false;
-	_enableHelperMatrix = false;
 
 	helper = &PndLmdGeometryHelper::getInstance();
-
-	//TODO: remove completely
-	//FIXME: maybe don't do this hard-coded
-	//dimension = PndLmdDim::Instance();
-	//manager.readTrafoMatrix("/geometry/trafo_matrices_lmd.dat", true);
-	//manager.readTrafoMatrix("/geometry/trafo_matrices_lmd_misaligned.dat", false);
 }
 
 void PndLmdAlignQA::calculateOverlapingAreas() {
@@ -71,8 +66,8 @@ void PndLmdAlignQA::calculateOverlapingAreas() {
 
 	//get id1 and id2 from them and calc
 	for (int i = 0; i < overlapIDs.size(); i++) {
-		id1 = dimension->getID1fromOverlapID(overlapIDs[i]);
-		id2 = dimension->getID2fromOverlapID(overlapIDs[i]);
+		id1 = helper->getID1fromOverlapID(overlapIDs[i]);
+		id2 = helper->getID2fromOverlapID(overlapIDs[i]);
 
 		areaPercent = calculateOverlappingArea(id1, id2, false);
 		cout << "\\AtoB{" << id1 << "}{" << id2 << "} & " << areaPercent << "\n";
@@ -84,7 +79,7 @@ void PndLmdAlignQA::calculateOverlapingAreas() {
 void PndLmdAlignQA::plotCMvsPXmatrices() {
 
 	//data holds sets of entries. order is (id1, id2, alpha, dx, dy
-	std::vector < std::vector<double> > data;
+	std::vector<std::vector<double> > data;
 	readMatrixInfo();
 
 	//iterate over all available id pairs and store them to vector of std::pairs
@@ -110,14 +105,14 @@ void PndLmdAlignQA::plotCMvsPXmatrices() {
 		int id2 = idPairs[i].second;
 
 		//only select overlap areas with more than 2e5 pairs
-		int overlapID = dimension->makeOverlapID(id1, id2);
+		int overlapID = helper->getOverlapIdFromSensorIDs(id1, id2);
 		if (matrixInfo[overlapID] < pairsRequired) {
 			continue;
 		}
 
 		//prepare
-		string matrixNameCM = manager.makeMatrixFileName(id1, id2, true, false);
-		string matrixNamePX = manager.makeMatrixFileName(id1, id2, false, false);
+		string matrixNameCM = manager.makeMatrixFileName(overlapID, true);
+		string matrixNamePX = manager.makeMatrixFileName(overlapID, false);
 		string path = LMDMatPath;
 		matrixNameCM = path + matrixNameCM;
 		matrixNamePX = path + matrixNamePX;
@@ -130,14 +125,14 @@ void PndLmdAlignQA::plotCMvsPXmatrices() {
 		if (false) { //transform both to lmd local and compare there
 			//transform matrixPX to lmd local
 			manager.transformFromSensorToLmdLocal(matrixPX, id1);
-			Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, true);
-			Matrix senToSenWithCorr = matrixCM * senToSen;  //this is now the total matrix from sen1 to sen2
+			Matrix senToSen = manager.getMatrixSensorToSensor(id1, id2);
+			Matrix senToSenWithCorr = matrixCM * senToSen; //this is now the total matrix from sen1 to sen2
 			matrixDif = senToSenWithCorr - matrixPX;
 		} else { //transform noth to sensor and compare there
 		         //transform matrixPX to lmd local
 		         //manager.transformFromSensorToLmdLocal(matrixPX, id1);
-			Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, true);
-			Matrix senToSenWithCorr = matrixCM * senToSen;  //this is now the total matrix from sen1 to sen2
+			Matrix senToSen = manager.getMatrixOfficialGeometry(overlapID, true);
+			Matrix senToSenWithCorr = matrixCM * senToSen; //this is now the total matrix from sen1 to sen2
 
 			manager.transformFromLmdLocalToSensor(senToSenWithCorr, id1);
 
@@ -220,7 +215,7 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters) {
 	}
 
 	//data holds sets of entries. order is (id1, id2, alpha, dx, dy
-	std::vector < std::vector<double> > data;
+	std::vector<std::vector<double> > data;
 	readMatrixInfo();
 
 	//prepare
@@ -234,13 +229,13 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters) {
 
 			Matrix matrixDif;
 			if (inCentimeters) {
-				Matrix mCombined = manager.combineMatrix(id1, id2, alignOptionBool);
-				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
+				Matrix mCombined = manager.combineMatrix(id1, id2);
+				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2);
 				matrixDif = mCombined - senToSenOneStep;
 			} else {
-				Matrix mCombined = manager.combineMatrix(id1, id2, alignOptionBool);
-				manager.transformFromSensorToLmdLocal(mCombined, id1, alignOptionBool);
-				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
+				Matrix mCombined = manager.combineMatrix(id1, id2);
+				manager.transformFromSensorToLmdLocal(mCombined, id1);
+				Matrix senToSenOneStep = manager.getMatrixOfficialGeometry(id1, id2);
 				matrixDif = mCombined - senToSenOneStep;
 			}
 
@@ -261,7 +256,8 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters) {
 
 	//for DX
 	parameters.path = pdfdir + "/residualsCombined/";
-	inCentimeters ? parameters.title = "matrix combined 0-9 CM - Target, #DeltaX" : parameters.title = "matrix combined 0-9 PX - Target, #DeltaX";
+	inCentimeters ? parameters.title = "matrix combined 0-9 CM - Target, #DeltaX" : parameters.title =
+	                        "matrix combined 0-9 PX - Target, #DeltaX";
 	parameters.xtitle = "dX [#mum]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e4;
@@ -274,7 +270,8 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters) {
 
 	//for DY
 	//parameters.path = pdfdir;
-	inCentimeters ? parameters.title = "matrix combined 0-9 CM - Target, #DeltaY" : parameters.title = "matrix combined 0-9 PX - Target, #DeltaY";
+	inCentimeters ? parameters.title = "matrix combined 0-9 CM - Target, #DeltaY" : parameters.title =
+	                        "matrix combined 0-9 PX - Target, #DeltaY";
 	parameters.xtitle = "dY [#mum]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e4;
@@ -287,7 +284,9 @@ void PndLmdAlignQA::checkCombinedMatrices(bool inCentimeters) {
 
 	//for DAlpha
 	//parameters.path = pdfdir;
-	inCentimeters ? parameters.title = "matrix combined 0-9 CM - Target, #Delta#alpha" : parameters.title = "matrix combined 0-9 PX - Target, #Delta#alpha";
+	inCentimeters ?
+	        parameters.title = "matrix combined 0-9 CM - Target, #Delta#alpha" : parameters.title =
+	                "matrix combined 0-9 PX - Target, #Delta#alpha";
 	parameters.xtitle = "d#alpha [#murad]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e6;
@@ -310,7 +309,7 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 	}
 
 	//data holds sets of entries. order is (id1, id2, alpha, dx, dy
-	std::vector < std::vector<double> > data;
+	std::vector<std::vector<double> > data;
 	readMatrixInfo();
 
 	//prepare
@@ -340,7 +339,8 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 
 	//for DX
 	parameters.path = pdfdir + "/cyclicChecks/";
-	inCentimeters ? parameters.title = "matrixCM cycle check, #DeltaX" : parameters.title = "matrixPX cycle check, #DeltaX";
+	inCentimeters ? parameters.title = "matrixCM cycle check, #DeltaX" : parameters.title =
+	                        "matrixPX cycle check, #DeltaX";
 	parameters.xtitle = "dX [#mum]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e4;
@@ -353,7 +353,8 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 
 	//for DY
 	//parameters.path = pdfdir;
-	inCentimeters ? parameters.title = "matrixCM cycle check, #DeltaY" : parameters.title = "matrixPX cycle check, #DeltaY";
+	inCentimeters ? parameters.title = "matrixCM cycle check, #DeltaY" : parameters.title =
+	                        "matrixPX cycle check, #DeltaY";
 	parameters.xtitle = "dY [#mum]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e4;
@@ -366,7 +367,8 @@ void PndLmdAlignQA::checkCyclicMatrices(bool inCentimeters) {
 
 	//for DAlpha
 	//parameters.path = pdfdir;
-	inCentimeters ? parameters.title = "matrixCM cycle check, #Delta#alpha" : parameters.title = "matrixPX cycle check, #Delta#alpha";
+	inCentimeters ? parameters.title = "matrixCM cycle check, #Delta#alpha" : parameters.title =
+	                        "matrixPX cycle check, #Delta#alpha";
 	parameters.xtitle = "d#alpha [#murad]";
 	parameters.ytitle = "entries";
 	parameters.scaleFactor = 1e6;
@@ -431,12 +433,14 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 				cout << "=== h2: ===\n" << hit2 << "\n";
 				cout << "c1: " << colTest1 << "\n";
 				cout << "r1: " << rowTest1 << "\n";
-				cout << "c2: " << colTest2 << ", floor: " << colTest2Floor << ", ceil: " << colTest2Ceil << "\n";
-				cout << "r2: " << rowTest2 << ", floor: " << rowTest2Floor << ", ceil: " << rowTest2Ceil << "\n";
+				cout << "c2: " << colTest2 << ", floor: " << colTest2Floor << ", ceil: " << colTest2Ceil
+				        << "\n";
+				cout << "r2: " << rowTest2 << ", floor: " << rowTest2Floor << ", ceil: " << rowTest2Ceil
+				        << "\n";
 			}
 
 			//make all possible hit2's:
-			vector < Matrix > hit2Candidates;
+			vector<Matrix> hit2Candidates;
 			hit2Candidates.push_back(manager.makeFourVector(colTest2Floor, rowTest2Floor, -0.025));
 			hit2Candidates.push_back(manager.makeFourVector(colTest2Ceil, rowTest2Floor, -0.025));
 			hit2Candidates.push_back(manager.makeFourVector(colTest2Floor, rowTest2Ceil, -0.025));
@@ -468,7 +472,8 @@ void PndLmdAlignQA::histPixelDistances(int sensor1, int sensor2, bool aligned) {
 	cout << "overlap: " << coverage << "\n";
 
 	stringstream ss;
-	ss << "Pixel Distances Area " << sensorID1 << " to " << sensorID2 << ", " << coverage << "% coverage.";
+	ss << "Pixel Distances Area " << sensorID1 << " to " << sensorID2 << ", " << coverage
+	        << "% coverage.";
 	hist.SetTitle(ss.str().c_str());
 	ss.str("");
 	ss << "d [#mum]";
@@ -545,7 +550,7 @@ void PndLmdAlignQA::readMatrixInfo() {
 	// save to map: n->x
 
 	string line;
-	std::vector < string > values;
+	std::vector<string> values;
 	int overlapid, noPairs;
 	bool alignerComplete = true;
 
@@ -580,7 +585,7 @@ bool PndLmdAlignQA::checkForMatrixFiles() {
 	//list all IDs that SHOULD be there
 	vector<int> availableIds = helper->getAvailableOverlapIDs();
 
-	vector < string > files;
+	vector<string> files;
 	manager.searchFiles(LMDMatPath, files, "mat", false);
 	int foundFiles = 0;
 
@@ -616,7 +621,8 @@ bool PndLmdAlignQA::checkForMatrixFiles() {
 
 void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParams &parameters) {
 
-	TH1D histogram(parameters.title.c_str(), parameters.title.c_str(), parameters.bins, parameters.xMin, parameters.xMax);
+	TH1D histogram(parameters.title.c_str(), parameters.title.c_str(), parameters.bins, parameters.xMin,
+	        parameters.xMax);
 
 	histogram.GetXaxis()->SetTitle(parameters.xtitle.c_str());
 	histogram.GetYaxis()->SetTitle(parameters.ytitle.c_str());
@@ -654,7 +660,7 @@ void PndLmdAlignQA::createHist(std::vector<std::vector<double> >& vec, histParam
 void PndLmdAlignQA::plotPXvsCMmatricesResiduals() {
 
 	//data holds sets of entries. order is (id1, id2, alpha, dx, dy
-	std::vector < std::vector<double> > data;
+	std::vector<std::vector<double> > data;
 	readMatrixInfo();
 
 	//iterate over all available id pairs and store them to vector of std::pairs
@@ -679,8 +685,8 @@ void PndLmdAlignQA::plotPXvsCMmatricesResiduals() {
 	// (matrixPX-matrixTarget) - (matrixCM-matrixtarget)
 
 	// prepare data sets
-	std::vector < std::vector<double> > dataCM;
-	std::vector < std::vector<double> > dataPX;
+	std::vector<std::vector<double> > dataCM;
+	std::vector<std::vector<double> > dataPX;
 
 	//so, gather all CMresiduals
 	for (size_t i = 0; i < idPairs.size(); i++) {
@@ -831,7 +837,7 @@ void PndLmdAlignQA::plotPXvsCMmatricesResiduals() {
 void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 
 	//data holds sets of entries. order is (id1, id2, alpha, dx, dy
-	std::vector < std::vector<double> > data;
+	std::vector<std::vector<double> > data;
 	readMatrixInfo();
 
 	//iterate over all available id pairs and store them to vector of std::pairs
@@ -895,7 +901,7 @@ void PndLmdAlignQA::plotMatrixresiduals(bool inCentimeters) {
 				Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, alignOptionBool);
 
 				//next try, I think I'm onto it...
-				manager.transformFromLmdLocalToSensor(senToSenIdeal, id1, true);	// THIS IS THE MAGIC BEAN
+				manager.transformFromLmdLocalToSensor(senToSenIdeal, id1, true);// THIS IS THE MAGIC BEAN
 				manager.transformFromSensorToLmdLocal(senToSenIdeal, id1, alignOptionBool);
 
 				Matrix ICPcomplete = matrixCM * senToSenIdeal;
@@ -1015,7 +1021,7 @@ void PndLmdAlignQA::histogramPairDistances() {
 	 */
 
 	//data holds sets of entries. order is (id1, id2, alpha, dx, dy
-	std::vector < std::vector<double> > data;
+	std::vector<std::vector<double> > data;
 	readMatrixInfo();
 	string pdfdir = pdfOutPath;
 
@@ -1077,115 +1083,6 @@ void PndLmdAlignQA::histogramPairDistances() {
 
 		// clean up for next round
 		data.clear();
-	}
-}
-
-void PndLmdAlignQA::compareMatrices(int param) {
-
-	//data holds sets of entries. order is (id1, id2, alpha, dx, dy
-	std::vector < std::vector<double> > data;
-	readMatrixInfo();
-
-	//iterate over all available id pairs and store them to vector of std::pairs
-	vector<std::pair<int, int>> idPairs;
-	for (int i = 0; i < 400; i += 10) {
-		idPairs.push_back(make_pair(0 + i, 5 + i));
-		idPairs.push_back(make_pair(1 + i, 8 + i));
-		idPairs.push_back(make_pair(2 + i, 8 + i));
-		idPairs.push_back(make_pair(2 + i, 9 + i));
-		idPairs.push_back(make_pair(3 + i, 6 + i));
-		idPairs.push_back(make_pair(3 + i, 7 + i));
-		idPairs.push_back(make_pair(3 + i, 8 + i));
-		idPairs.push_back(make_pair(4 + i, 7 + i));
-		idPairs.push_back(make_pair(4 + i, 9 + i));
-	}
-	//should now contain all available id pairs
-
-	/*
-	 * test functions and sandbox
-	 */
-	if (param == 99) {
-
-		//clear console
-		manager.clearScreen();
-
-		cout << "-- debug test --\n";
-		cout << "m0to1:\n" << manager.getMatrixOfficialGeometry(0, 1, true) << "\n";
-		cout << "m0to2:\n" << manager.getMatrixOfficialGeometry(0, 2, true) << "\n";
-		cout << "m0to3:\n" << manager.getMatrixOfficialGeometry(0, 3, true) << "\n";
-		cout << "m0to4:\n" << manager.getMatrixOfficialGeometry(0, 4, true) << "\n";
-		cout << "m5to6:\n" << manager.getMatrixOfficialGeometry(5, 6, true) << "\n";
-		cout << "m5to7:\n" << manager.getMatrixOfficialGeometry(5, 7, true) << "\n";
-		cout << "m5to8:\n" << manager.getMatrixOfficialGeometry(5, 8, true) << "\n";
-		cout << "m5to9:\n" << manager.getMatrixOfficialGeometry(5, 9, true) << "\n";
-		cout << "-- debug end --\n";
-
-		int id1 = 0;
-		int id2 = 5;
-
-		//prepare
-		string matrixNameCM = manager.makeMatrixFileName(id1, id2, true, false);
-		string matrixNamePX = manager.makeMatrixFileName(id1, id2, false, false);
-		string path = "/home/arbeit/simulationData/boxtest-misaligned-10u-1.5/binaryPairs/LMDmatrices/";
-		matrixNameCM = path + matrixNameCM;
-		matrixNamePX = path + matrixNamePX;
-
-		//read matrices from disk
-		Matrix matrixCM = manager.readMatrix(matrixNameCM);
-		Matrix matrixPX = manager.readMatrix(matrixNamePX);
-
-		cout << "before transformation:\n";
-		cout << "matrixCM:\n" << matrixCM << "\n\n";
-		cout << "matrixPX:\n" << matrixPX << "\n\n";
-
-		//transform matrices
-		//matrixPX = manager.transformMatrixFromPixelsToCm(matrixPX);
-		Matrix senToSen = manager.getMatrixOfficialGeometry(id1, id2, true);
-		matrixCM = matrixCM * senToSen;
-
-		cout << "after transformation:\n";
-		cout << "matrixCM:\n" << matrixCM << "\n\n";
-		cout << "matrixPX:\n" << matrixPX << "\n\n";
-		cout << "matrix residual:\n" << matrixCM - matrixPX << "\n\n";
-
-		/*
-		 * Okay the following finally works. Now all work!
-		 */
-		cout << "\n--------------------------------\n\n";
-		cout << "different approach: px - target:\n";
-		Matrix real = manager.getMatrixOfficialGeometry(id1, id2, true);
-		cout << "official matrix:\n" << real << "\n";
-		Matrix icpMatrixNewOne = manager.readMatrix(matrixNamePX);
-		manager.transformFromSensorToLmdLocal(icpMatrixNewOne, id1, false);		//remember, icp matrix is local to sensor!
-		cout << "residual:\n" << icpMatrixNewOne - real << "\n";			//return matrix residuals
-
-		/*
-		 * Okay the following finally works. Back to the previous ones.
-		 */
-		cout << "\n--------------------------------\n\n";
-		cout << "different approach: cm - target:\n";
-		Matrix icpMatrixNewTwo = manager.readMatrix(matrixNameCM);
-		Matrix corrSensorToSensor = manager.getCorrectionMatrix(id1, id2);
-		cout << icpMatrixNewTwo - corrSensorToSensor << "\n";	//return matrix residuals
-
-		/*
-		 * Okay the following finally works. Back to the previous ones.
-		 * EDIT: okay I changed the getMatrixOfficial back to the previous version
-		 * and it doesn't work again. I am stumped.
-		 */
-		cout << "\n--------------------------------\n\n";
-		cout << "last try, px - cm FROM PNDLMDDIM ONLY:\n";
-
-		Matrix senToSenLast = manager.getMatrixOfficialGeometry(id1, id2, true);
-		Matrix corrSenOne = manager.getCorrectionMatrix(id1);
-		Matrix corrSenTwo = manager.getCorrectionMatrix(id2);
-
-		Matrix senToSenWithCorrLast = corrSenTwo * senToSenLast * Matrix::inv(corrSenOne);
-
-		Matrix senToSenWithCorrDirectLast = manager.getMatrixOfficialGeometry(id1, id2, false);
-		cout << senToSenWithCorrDirectLast - senToSenWithCorrLast << "\n";
-
-		return;
 	}
 }
 

@@ -36,7 +36,7 @@ private:
 	std::vector<std::string> _inputFiles;
 	std::string outputPath, pdfOutPath, binaryMatPath, LMDMatPath;
 	double infoMomentum;
-	bool infoAbsolute, infoRelative, byPlane, _inCentimeters, _enableHelperMatrix;
+	bool infoAbsolute, infoRelative, byPlane, _inCentimeters;
 	bool alignOptionBool;
 	int pairsRequired;
 	PndLmdAlignManager manager;
@@ -77,7 +77,6 @@ public:
 	void checkIOpaths();
 	bool checkForMatrixFiles();
 	void calculateOverlapingAreas();
-	void compareMatrices(int param);
 
 	// ========== end of helper functions
 
@@ -86,7 +85,6 @@ public:
 	// ========== settings for this QA task
 
 	void setInCentimeters(bool inCentimeters) {	this->_inCentimeters = inCentimeters; }
-	void setCorrection(bool correction) { _enableHelperMatrix = correction;	}
 	void setLmdMatPath(const std::string& path) { LMDMatPath = path; }
 	void setBinaryMatPath(const std::string& path) { binaryMatPath = path; }
 	void setPdfOutPath(const std::string& path) { pdfOutPath = path; }
