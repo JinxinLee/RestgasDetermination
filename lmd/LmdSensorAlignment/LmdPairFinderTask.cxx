@@ -100,17 +100,20 @@ InitStatus LmdPairFinderTask::Init() {
 	clusterCandidateArray = (TClonesArray*) ioman->GetObject(fInClusterCandidates);
 
 	if (!digiArray) {
-		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInBranchName << " could not found!" << "\n";
+		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInBranchName
+		        << " could not found!" << "\n";
 		return kERROR;
 	}
 
 	if (!recoArray) {
-		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInRecoBranchName << " not found!" << "\n";
+		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInRecoBranchName
+		        << " not found!" << "\n";
 		return kERROR;
 	}
 
 	if (!clusterCandidateArray) {
-		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInClusterCandidates << " not found!" << "\n";
+		std::cout << "-W- LmdPairFinder::Init: " << "ERROR, branch name " << fInClusterCandidates
+		        << " not found!" << "\n";
 		return kERROR;
 	}
 
@@ -185,7 +188,8 @@ void LmdPairFinderTask::SetParContainers() {
 	PndLmdContFact* themvdcontfact = (PndLmdContFact*) rtdb->getContFactory("PndLmdContFact");
 	//read params for lumi alignment
 	TList* theAlignLMDContNames = themvdcontfact->GetAlignParNames();
-	Info("SetParContainers()", "AlignLMD The container names list contains %i entries", theAlignLMDContNames->GetEntries());
+	Info("SetParContainers()", "AlignLMD The container names list contains %i entries",
+	        theAlignLMDContNames->GetEntries());
 	TIter cfAlIter(theAlignLMDContNames);
 	while (TObjString* contname = (TObjString*) cfAlIter()) {
 		TString parsetname = contname->String();
@@ -260,13 +264,15 @@ void LmdPairFinderTask::Exec(Option_t*) {
 				continue;
 			}
 
-			int overlapId = helper->getOverlapIdFromSensorIDs(pairCanditate.getId1(), pairCanditate.getId2());
+			int overlapId = helper->getOverlapIdFromSensorIDs(pairCanditate.getId1(),
+			        pairCanditate.getId2());
 			pairCanditate.setOverlapId(overlapId);
 
 			pixelHit pixelHitOne = getPixelHitFromSdsHit(hitOne);
 			pixelHit pixelHitTwo = getPixelHitFromSdsHit(hitTwo);
 
-			pairCanditate.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
+			pairCanditate.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
+			        pixelHitTwo._row);
 
 			pairCanditate.calculateDistance();
 			pairCanditate.check();
@@ -278,8 +284,10 @@ void LmdPairFinderTask::Exec(Option_t*) {
 				PndLmdHitPair candGlobal = PndLmdHitPair(vecOneGlobal, vecTwoGlobal, id1, id2);
 				PndLmdHitPair candlocal = PndLmdHitPair(vecOneLocal, vecTwoLocal, id1, id2);
 
-				candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
-				candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
+				candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
+				        pixelHitTwo._row);
+				candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
+				        pixelHitTwo._row);
 
 				candGlobal.setOverlapId(overlapId);
 				candlocal.setOverlapId(overlapId);
@@ -311,8 +319,10 @@ void LmdPairFinderTask::Exec(Option_t*) {
 				PndLmdHitPair candGlobal = PndLmdHitPair(vecOneGlobal, vecTwoGlobal, id1, id2);
 				PndLmdHitPair candlocal = PndLmdHitPair(vecOneLocal, vecTwoLocal, id1, id2);
 
-				candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
-				candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col, pixelHitTwo._row);
+				candGlobal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
+				        pixelHitTwo._row);
+				candlocal.setPixelHits(pixelHitOne._col, pixelHitOne._row, pixelHitTwo._col,
+				        pixelHitTwo._row);
 
 				candGlobal.setOverlapId(overlapId);
 				candlocal.setOverlapId(overlapId);
@@ -469,7 +479,8 @@ void LmdPairFinderTask::FinishTask() {
 			dynamicCutHandler &handler = handlerIt.second;
 			if (!handler._ready) {
 				notReady++;
-				cout << "Warning! handler " << handler._overlapID << " only has  " << handler.samples.size() << " pairs!\n";
+				cout << "Warning! handler " << handler._overlapID << " only has  "
+				        << handler.samples.size() << " pairs!\n";
 				continue;
 			}
 			handler.calcMinAndMax();
@@ -483,7 +494,8 @@ void LmdPairFinderTask::FinishTask() {
 
 		}
 		if (notReady > 0) {
-			cout << "PndLmdSensorAligner: Attention! " << notReady << " handlers don't have enough pairs.\n";
+			cout << "PndLmdSensorAligner: Attention! " << notReady
+			        << " handlers don't have enough pairs.\n";
 
 		}
 
@@ -725,7 +737,8 @@ pixelHit LmdPairFinderTask::getPixelHitFromSdsHit(PndSdsHit* sdsHit) {
 
 	for (int iCluster = 0; iCluster < noOfClusters; iCluster++) {
 
-		PndSdsDigiPixel* mcPixel = (PndSdsDigiPixel*) digiArray->At(clusterPixelCand->GetDigiIndex(iCluster));
+		PndSdsDigiPixel* mcPixel = (PndSdsDigiPixel*) digiArray->At(
+		        clusterPixelCand->GetDigiIndex(iCluster));
 
 		if (!mcPixel) {
 			exit(1);

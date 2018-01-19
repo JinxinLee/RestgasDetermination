@@ -158,7 +158,7 @@ bool PndLmdAlignManager::addPair(PndLmdHitPair& pair) {
 	pair.check();
 	if (pair.isSane()) {
 		if (useSimpleStorage) {
-			success = aligners[pair.getOverlapId()].addSimplePair(pair);	//returns true if addPair succeeded
+			success = aligners[pair.getOverlapId()].addSimplePair(pair);//returns true if addPair succeeded
 			alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
 		} else {
 			//_aligners[pair.getOverlapId()].addPair(pair);
@@ -185,7 +185,7 @@ bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
 	pair.check();
 	if (pair.isSane()) {
 		if (useSimpleStorage) {
-			success = aligners[pair.getOverlapId()].addSimplePair(pair);	//returns true if addPair succeeded
+			success = aligners[pair.getOverlapId()].addSimplePair(pair);//returns true if addPair succeeded
 			alignersFull[pair.getOverlapId()] = !success;		//if addPair failed, the aligner is full
 		} else {
 			//_aligners[pair.getOverlapId()].addPair(pair);
@@ -198,7 +198,9 @@ bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
 	//if pair could not be added, aligner is full. start thread directly.
 	if (!success) {
 		//cout << "Aligner " << pair.getOverlapId() << " full. starting!\n";
-		alignerThreadGroup.create_thread(boost::bind(&PndLmdAlignManager::alignOne, this, boost::ref(aligners[pair.getOverlapId()])));
+		alignerThreadGroup.create_thread(
+		        boost::bind(&PndLmdAlignManager::alignOne, this,
+		                boost::ref(aligners[pair.getOverlapId()])));
 	}
 
 	//check if all aligners are done
@@ -219,7 +221,8 @@ bool PndLmdAlignManager::addPairAndStartAligner(PndLmdHitPair &pair) {
 void PndLmdAlignManager::validate() {
 	std::cout << "using " << aligners.size() << " aligners, which have:\n";
 	for (mapIt it = aligners.begin(); it != aligners.end(); it++) {
-		cout << "id: " << it->second.getModuleID() << " has " << it->second.getNoOfPairs() << " pairs." << "\n";
+		cout << "id: " << it->second.getModuleID() << " has " << it->second.getNoOfPairs() << " pairs."
+		        << "\n";
 	}
 }
 
@@ -250,12 +253,13 @@ int PndLmdAlignManager::addFilesFromDirectory(std::string directory, int maxFile
 		searchFiles(directory, list, ".root", false);
 		for (size_t i = 0; i < list.size(); i++) {
 			fileNames.push_back(list[i]);
-			if ((int) i == maxFiles - 1) {			//we use == instead of >= so that maxFiles=0 always chooses all files
+			if ((int) i == maxFiles - 1) {//we use == instead of >= so that maxFiles=0 always chooses all files
 				break;
 			}
 		}
 		_allFilesAdded = true;
-		cout << "looking for files in " << directory << ". choose " << fileNames.size() << " files of maximum of " << maxFiles << ".\n";
+		cout << "looking for files in " << directory << ". choose " << fileNames.size()
+		        << " files of maximum of " << maxFiles << ".\n";
 		return fileNames.size();
 	}
 
@@ -419,7 +423,8 @@ void PndLmdAlignManager::alignST() {
 		it->second.calculateMatrix();
 		if (it->second.successful()) {
 			Matrix result = it->second.getResultMatrix();
-			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
+			string matrixFilename = _matrixOutDir
+			        + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 			writeMatrix(result, matrixFilename);
 
 			_info << "aligner " << it->second.getOverlapId() << ":\n";
@@ -438,7 +443,8 @@ void PndLmdAlignManager::alignMT() {
 
 	//shared pointer, since io_services can't be copied
 	boost::shared_ptr<boost::asio::io_service> io_service(new boost::asio::io_service);
-	boost::shared_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(*io_service));
+	boost::shared_ptr<boost::asio::io_service::work> work(
+	        new boost::asio::io_service::work(*io_service));
 
 	//thread group
 	boost::thread_group worker_threads;
@@ -482,7 +488,8 @@ void PndLmdAlignManager::alignMT() {
 		if (it->second.successful()) {
 
 			Matrix result = it->second.getResultMatrix();
-			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
+			string matrixFilename = _matrixOutDir
+			        + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 
 			if (!writeMatrix(result, matrixFilename)) {
 				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
@@ -658,7 +665,8 @@ Matrix PndLmdAlignManager::transformMatrixFromPixelsToCm(const Matrix &input) {
 	matrixScaleActiveToSensor.val[0][0] = pixelSize;
 	matrixScaleActiveToSensor.val[1][1] = pixelSize;
 
-	newPixelsToSensorInCm = matrixScaleActiveToSensor * matrixActiveEdgeToCenter * matrixPixelEdgeToCenter;
+	newPixelsToSensorInCm = matrixScaleActiveToSensor * matrixActiveEdgeToCenter
+	        * matrixPixelEdgeToCenter;
 	newSensorInCmToPixels = Matrix(newPixelsToSensorInCm);
 	newSensorInCmToPixels.inv();
 
@@ -870,7 +878,8 @@ vector<vector<double> > PndLmdAlignManager::readFromCSVFile(std::string filename
 	return data;
 }
 
-int PndLmdAlignManager::searchFiles(std::string path, std::vector<std::string> &list, std::string detail, bool includeSubDirs) {
+int PndLmdAlignManager::searchFiles(std::string path, std::vector<std::string> &list, std::string detail,
+        bool includeSubDirs) {
 
 	if (!boost::filesystem::exists(path)) {
 		return 0;
@@ -933,7 +942,8 @@ vector<string> PndLmdAlignManager::findRegex(std::string source, std::string reg
 	return resultStrings;
 }
 
-int PndLmdAlignManager::searchDirectories(std::string curr_directory, std::vector<std::string> &list, bool includeSubDirs) {
+int PndLmdAlignManager::searchDirectories(std::string curr_directory, std::vector<std::string> &list,
+        bool includeSubDirs) {
 
 	if (!boost::filesystem::exists(curr_directory)) {
 		return 0;
@@ -1267,15 +1277,24 @@ Matrix PndLmdAlignManager::combineCyclicMatrix(int id) {
 	int id2 = id % 10;
 
 	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
-	string m05f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
-	string m18f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
-	string m28f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
-	string m29f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
-	string m36f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
-	string m37f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
-	string m38f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
-	string m47f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
-	string m49f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
+	string m05f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
+	string m18f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
+	string m28f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
+	string m29f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
+	string m36f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
+	string m37f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
+	string m38f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
+	string m47f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
+	string m49f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
 
 	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
 	Matrix m01 = getMatrixSensorToSensor(id1, id1 + 1);
@@ -1457,15 +1476,24 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 	}
 
 	//FIXME: assign matrices, this is shuddy atm. source this out to pndlmddim.
-	string m05f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
-	string m18f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
-	string m28f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
-	string m29f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
-	string m36f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
-	string m37f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
-	string m38f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
-	string m47f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
-	string m49f = _matrixOutDir + makeMatrixFileName( helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
+	string m05f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 0, id1 + 5), _inCentimeters);
+	string m18f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 1, id1 + 8), _inCentimeters);
+	string m28f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 8), _inCentimeters);
+	string m29f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 2, id1 + 9), _inCentimeters);
+	string m36f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 6), _inCentimeters);
+	string m37f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 7), _inCentimeters);
+	string m38f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 3, id1 + 8), _inCentimeters);
+	string m47f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 7), _inCentimeters);
+	string m49f = _matrixOutDir
+	        + makeMatrixFileName(helper->getOverlapIdFromSensorIDs(id1 + 4, id1 + 9), _inCentimeters);
 
 	// we have to know these matrices from external measurements, so it's okay to use misaligned matrices here
 	Matrix m01 = getMatrixSensorToSensor(id1, id1 + 1);
@@ -1603,7 +1631,8 @@ Matrix PndLmdAlignManager::combineMatrix(int id1, int id2) {
 		return result;
 	}
 	//else return unity matrix
-	cerr << "warning! could not return matrix " << id1 << " to " << id2 << "! returning identity matrix!\n";
+	cerr << "warning! could not return matrix " << id1 << " to " << id2
+	        << "! returning identity matrix!\n";
 	return Matrix::eye(4);
 }
 
@@ -1636,7 +1665,8 @@ void PndLmdAlignManager::waitForCompletion() {
 
 			//cout << "starting aligner " << it->first << "\n";
 			//if pair could not be added, aligner is full. start thread directly.
-			alignerThreadGroup.create_thread(boost::bind(&PndLmdAlignManager::alignOne, this, boost::ref(aligners[it->first])));
+			alignerThreadGroup.create_thread(
+			        boost::bind(&PndLmdAlignManager::alignOne, this, boost::ref(aligners[it->first])));
 			notStarted++;
 		}
 	}
@@ -1652,7 +1682,8 @@ void PndLmdAlignManager::waitForCompletion() {
 		if (it->second.successful()) {
 
 			Matrix result = it->second.getResultMatrix();
-			string matrixFilename = _matrixOutDir + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
+			string matrixFilename = _matrixOutDir
+			        + makeMatrixFileName(it->second.getOverlapId(), _inCentimeters);
 
 			if (!writeMatrix(result, matrixFilename)) {
 				cout << "ERROR: could not write matrix " << matrixFilename << "\n";
@@ -1713,7 +1744,8 @@ Matrix PndLmdAlignManager::getPixelToCentimeterTransformation() {
 bool PndLmdAlignManager::writePairsToBinaryFiles() {
 
 	if (_binaryPairFileDirectory == "") {
-		cout << "error: binary pair file directory not set. use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
+		cout
+		        << "error: binary pair file directory not set. use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
 		return false;
 	}
 
@@ -1740,7 +1772,8 @@ bool PndLmdAlignManager::readPairsFromBinaryFiles() {
 	bool success = false;
 
 	if (_binaryPairFileDirectory == "") {
-		cout << "error: binary pair file directory not set. use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
+		cout
+		        << "error: binary pair file directory not set. use PndLmdAlignManager::setBinaryPairFileDirectory()\n";
 		return false;
 	}
 
@@ -1778,7 +1811,8 @@ boost::property_tree::ptree PndLmdAlignManager::readConfigFile(std::string filen
 	return root;
 }
 
-bool PndLmdAlignManager::writeConfigFile(boost::property_tree::ptree configTree, std::string filename, bool replaceExisting) {
+bool PndLmdAlignManager::writeConfigFile(boost::property_tree::ptree configTree, std::string filename,
+        bool replaceExisting) {
 
 	//replace logic
 
